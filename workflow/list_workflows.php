@@ -55,11 +55,6 @@ $tpl->assign("type", 'update');
 Auth::checkAuthentication(APP_SESSION);
 $user_id = Auth::getUserID();
 
-$isUser = Auth::getUsername();
-$tpl->assign("isUser", $isUser);
-$isAdministrator = User::isUserAdministrator($isUser);
-$tpl->assign("isAdministrator", $isAdministrator);
-
 $xdis_id = Misc::GETorPOST('xdis_id');
 $pid = Misc::GETorPOST('pid');
 $pids = Misc::GETorPOST('pids');
@@ -106,104 +101,6 @@ if ($cat == 'select_workflow') {
 	}
 	
 }
-
-//$message = '';
-//$wfl_list = Misc::keyArray(Workflow::getList(), 'wfl_id');
-//$xdis_list = array(-1 => 'Any') + XSD_Display::getAssocListDocTypes(); 
-//$tpl->assign('wfl_list', $wfl_list);
-//$tpl->assign('xdis_list', $xdis_list);
-//
-//if ($pid == -1) {
-//    // the -1 thing only works when creating a record, you can't update a non-object.
-//
-//} elseif (!empty($pids) || $trigger_type == 'Bulk Change Search') {
-//
-//	
-//    $pid = -2;
-//    $tpl->assign("pid", $pid);
-//
-//    $workflows = WorkflowTrigger::getFilteredList(-1, array(
-//                'trigger'=>$trigger_type, 
-//                'xdis_id' => -2, 
-//                'strict_xdis' => true,
-//                'any_ret' => true));
-//    foreach ($workflows as $trigger) {
-//        if (Workflow::userCanTrigger($trigger['wft_wfl_id'],$user_id)) {
-//            $workflows1[] = $trigger;
-//        }
-//    }
-//    $workflows = $workflows1;            
-//    $tpl->assign('workflows', $workflows);
-//	
-//
-//} elseif (empty($pid) || $pid == -2) {
-//    // Update called from my-fez page - look for workflows that allow selection of an object 
-//    // (assigned with -2 == None)
-//    $pid = -2;
-//    $tpl->assign("pid", $pid);
-//
-//    $workflows = WorkflowTrigger::getFilteredList(-1, array(
-//                'trigger'=>$trigger_type, 
-//                'xdis_id' => -2, 
-//                'strict_xdis' => true,
-//                'any_ret' => true));
-//    foreach ($workflows as $trigger) {
-//        if (Workflow::userCanTrigger($trigger['wft_wfl_id'],$user_id)) {
-//            $workflows1[] = $trigger;
-//        }
-//    }
-//    $workflows = $workflows1;            
-//    $tpl->assign('workflows', $workflows);
-//} elseif (!empty($dsID) && !empty($wft_id) && !empty($pid)) {
-//    $tpl->assign("pid", $pid);
-//	$tpl->assign("dsID", $dsID);
-//} else {
-//    $tpl->assign("pid", $pid);
-//
-//    $record = new RecordObject($pid);
-//    if ($record->canEdit()) {
-//        $tpl->assign("isEditor", 1);
-//        $xdis_id = $record->getXmlDisplayId();
-//        if ($record->isCommunity()) {
-//            $ret_id = Object_Type::getID('Community');
-//        } elseif ($record->isCollection()) {
-//            $ret_id = Object_Type::getID('Collection');
-//        } else {
-//            $ret_id = Object_Type::getID('Record');
-//        }
-//        $workflows = $record->getFilteredWorkflows(array(
-//                    'trigger' => $trigger_type,
-//                    'xdis_id' => $xdis_id, 
-//                    'ret_id' => $ret_id));
-//    } else {
-//    }
-//    $tpl->assign('xdis_id', $xdis_id);
-//    // check which workflows can be triggered
-//	if (count($workflows) > 0) {
-//	    if (!empty($pid) && !$isAdministrator) {
-//	        foreach ($workflows as $trigger) {
-//	            if (Workflow::canTrigger($trigger['wft_wfl_id'], $pid)) {
-//	                $workflows1[] = $trigger;
-//	            }
-//	        }
-//	        $workflows = $workflows1;
-//	    }
-//	    $tpl->assign('workflows', $workflows);
-//	}
-//}
-//
-//
-//if (empty($workflows)) {
-//    $message .= "You don't have permissions to run any '$trigger_type' workflows<br/>";
-//} elseif (count($workflows) == 1) {
-//    // no need for user to select a workflow - just start the only one available
-//	$wft_id = $workflows[0]['wft_id'];
-//	if (is_numeric($wft_id)) {
-//    	if (Workflow::userCanTrigger($wft_id,$user_id)) {
-//    		Workflow::start($wft_id, $pid, $xdis_id, $href, '', $pids);
-//		}
-//	}
-//}
 
 $tpl->assign('message', $message);
 $tpl->displayTemplate();

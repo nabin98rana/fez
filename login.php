@@ -77,9 +77,9 @@ function appendCookieValue($value, $CookieArray){
 function checkIDP($IDP, $IDProviders){
 	if (!$IDProviders[$IDP]){
 		$message = sprintf('Invalid IDP origin', $_REQUEST[$redirectCookieName])."</p><p>\n<tt>";
-					foreach ($IDProviders as $key => $value){
-						$message .= $key."\n";
-					}
+		foreach ($IDProviders as $key => $value){
+            $message .= $key."\n";
+		}
 		$message .= "</tt>\n";
 		Error_Handler::logError($message, __FILE__, __LINE__);
 		return false;
@@ -153,14 +153,15 @@ if (Auth::hasValidSession(APP_SESSION)) {
 }
 $tpl->assign("SHIB_SWITCH", SHIB_SWITCH);
 if (SHIB_SWITCH == "ON") {
-	if (!empty($_GET["url"])) { // set the url session for shib logins so redirects to index.php (front page) then redirecto to the original url		
+	
+	// set the url session for shib logins so redirects 
+	// to index.php (front page) then redirecto to the original url
+	if (!empty($_GET["url"])) { 		
 		$_SESSION["url"] = $_GET["url"];			
 	}
+	
 	// Configuration
-//	$commonDomain = '.au'; // Must start with a .
 	$commonDomain = '.'; // Must start with a .
-//	$RelyingParty = 'urn:mace:federation.org.au:testfed:level-1:'; // Substring of IdP ID
-//	$languageFile = 'languages.php'; // Language file
 	$redirectCookieName = 'redirect';
 	$SAMLDomainCookieName = '_saml_idp';
 	$IDPList = Auth::getIDPList();
@@ -282,19 +283,6 @@ if (SHIB_SWITCH == "ON") {
 				);
 			exit;
 		}
-		// First access without cookie or resoure hint, user has to choose
-		else {
-			
-			// Show Header
-			//printHeader();
-			
-			// Show drop down list
-			//printWAYF();
-			
-			// Show footer
-			//printFooter();
-			//exit;
-		}
 	}
 	
 	elseif((!$_REQUEST['shire'] && $_REQUEST['target']) || ($_REQUEST['shire'] && !$_REQUEST['target'])){
@@ -309,50 +297,7 @@ if (SHIB_SWITCH == "ON") {
 		exit;
 	}
 	
-	// Show note
-	elseif ($redirectIDP != '-'){
-		// Show Header
-		//printHeader();
-		
-		// Show drop down list
-		//printNotice();
-		
-		// Show footer
-		//printFooter();
-		//exit;
-	} 
-	
-	// Show settings
-	else {
-	
-		// Show Header
-		//printHeader();
-		
-		// Show drop down list
-		//printSettings();
-		
-		// Show footer
-		//printFooter();
-		//exit;
-	
-	} 
-	
-//	$IDPList = Auth::getIDPList();
 	$tpl->assign("SHIB_IDP_LIST", $IDPList['List']);
-/*	if ($_REQUEST['getArguments']){ // moved these to class.template.php so it will be on every page for SHIB_DIRECT_LOGIN from any page
-		$getArguments = $_REQUEST['getArguments'];
-	} else {
-//		$getArguments = $_SERVER['argv'][0]; 
-		$target = "cookie"; 
-		$time = "1142380709";
-		$providerId = urlencode(SHIB_HOME_SP);
-		$shire = urlencode("https://".APP_HOSTNAME."/Shibboleth.sso/SAML/POST");
-		$getArguments = "target=$target&shire=$shire&providerId=$providerId"; 
-//		$getArguments = "target=$target&shire=$shire&providerId=$providerId&time=$time";
-	} 
-
-	
-//	$tpl->assign("getArguments", $getArguments); */
 } else {
 	$tpl->assign("SHIB_IDP_LIST", array());
 }

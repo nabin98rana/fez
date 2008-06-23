@@ -1200,26 +1200,7 @@ class Auth
 	                }
 	            }
 	        }
-
-/*			if (in_array('Community_Administrator', $userPIDAuthGroups) && !in_array('Editor', $userPIDAuthGroups)) {
-				array_push($userPIDAuthGroups, "Editor");	
-			}
-			if (in_array('Community_Administrator', $userPIDAuthGroups) && !in_array('Creator', $userPIDAuthGroups)) {
-				array_push($userPIDAuthGroups, "Creator");	
-			}
-			if (in_array('Community_Administrator', $userPIDAuthGroups) && !in_array('Approver', $userPIDAuthGroups)) {
-				array_push($userPIDAuthGroups, "Approver");	
-			}
-			if (in_array('Editor', $userPIDAuthGroups) && !in_array('Archival_Viewer', $userPIDAuthGroups)) {
-				array_push($userPIDAuthGroups, "Archival_Viewer");	
-			}
-			if (in_array('Editor', $userPIDAuthGroups) && !in_array('Viewer', $userPIDAuthGroups)) {
-				array_push($userPIDAuthGroups, "Viewer");	
-			}
-			if (in_array('Viewer', $userPIDAuthGroups) && !in_array('Lister', $userPIDAuthGroups)) {
-				array_push($userPIDAuthGroups, "Lister");	
-			}
-*/
+			
 	        if ($GLOBALS['app_cache']) {
 			  if ($dsID != "") {
 			      $roles_cache[$pid][$dsID] = $auth_groups;
@@ -1425,7 +1406,9 @@ class Auth
         if (empty($username)) {
             return false;
           } else {
-            $stmt = "SELECT usr_administrator FROM " . APP_TABLE_PREFIX . "user WHERE usr_username='".$username."'";
+            $stmt = "SELECT usr_administrator 
+                    FROM " . APP_TABLE_PREFIX . "user 
+                    WHERE usr_username='".$username."'";
             $info = $GLOBALS["db_api"]->dbh->getOne($stmt);
             if (PEAR::isError($info)) {
                 Error_Handler::logError(array($info->getMessage(), $info->getDebugInfo()), __FILE__, __LINE__);
@@ -1766,7 +1749,9 @@ class Auth
 			if ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'] != "") {
 				$username = $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'];
 
-				if ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'] != "") { // if user has a principal name already in fez add their shibboleth username, but otherwise their username is their epTid
+				// if user has a principal name already in fez add their shibboleth username, 
+				// but otherwise their username is their epTid
+				if ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'] != "") {
 					$principal_prefix = substr($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'], 0, strpos($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'], "@"));
 					
 					if ($principal_prefix != '' ) {
@@ -1775,7 +1760,8 @@ class Auth
 					    }
 					    
 					    $username = $principal_prefix;
-                        if (Auth::userExists($principal_prefix)) { //this is mainly to cater for having login available for both shib and ldap/ad
+					    // this is mainly to cater for having login available for both shib and ldap/ad
+                        if (Auth::userExists($principal_prefix)) {
                             User::updateShibUsername($principal_prefix, $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID']);
                         }
 					}
@@ -1788,11 +1774,15 @@ class Auth
 					$username = $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'];				
 				}
 			} else {
-				return 23; // if trying to login via shib and can't find a username in the IDP attribs then return false to make redirect to login page with message
+				// if trying to login via shib and can't find a username in the IDP 
+				// attribs then return false to make redirect to login page with message
+				return 23; 
 			}
 		}
 
-        if (!Auth::userExists($username)) { // If the user isn't a registered fez user, get their details elsewhere (The AD/LDAP) as they must have logged in with LDAP or Shibboleth
+		// If the user isn't a registered fez user, get their details elsewhere (The AD/LDAP) 
+		// as they must have logged in with LDAP or Shibboleth
+        if (!Auth::userExists($username)) {
 			if ($shib_login == true) {
 				$session['isInAD'] = false;
 				$session['isInDB'] = false;
@@ -1850,7 +1840,6 @@ class Auth
 				$session['isInFederation'] = false;
 				if ($userDetails['usr_ldap_authentication'] == 1) {
 					if (!$auth_isBGP) {
-//						$userDetails = User::GetUserLDAPDetails($username, $password);
 						$distinguishedname = @$userDetails['distinguishedname'];
 						Auth::GetUsersLDAPGroups($userDetails['usr_username'], $password);
 					} else {
@@ -2035,7 +2024,7 @@ class Auth
 
     function setAuthRulesUsers()
     {
-        global $auth_isBGP, $auth_bgp_session;
+        global $auth_isBGP;
 
         if (!$auth_isBGP) {
             $ses = &Auth::getSession();
@@ -2043,13 +2032,14 @@ class Auth
             $ldap_groups_sql = Misc::arrayToSQL(@$ses[APP_LDAP_GROUPS_SESSION]);
             $dbtp =  APP_TABLE_PREFIX;
             $usr_id = Auth::getUserID();
-    
+            
             // clear the rule matches for this user
             $stmt = "DELETE FROM ".$dbtp."auth_rule_group_users WHERE argu_usr_id=".$usr_id;
     		$res = $GLOBALS["db_api"]->dbh->query($stmt);
             if (PEAR::isError($res)) {
                 Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             }
+            
             // test and insert matching rules for this user
             $authStmt = "
                 INSERT INTO ".$dbtp."auth_rule_group_users (argu_arg_id, argu_usr_id)
@@ -2122,15 +2112,14 @@ class Auth
     
             if (Auth::isInAD())  {
                 $authStmt .= "
-                    OR (ar_rule = '!rule!role!in_AD' ) ";
+                    OR (ar_rule = '!rule!role!in_AD' AND ar_value = 'on')";
             }
             if (Auth::isInDB()) {
                 $authStmt .= "
-                    OR (ar_rule = '!rule!role!in_Fez') ";
+                    OR (ar_rule = '!rule!role!in_Fez' AND ar_value = 'on')";
             }
             $authStmt .= "
                 ) ";
-            //Error_Handler::logError($authStmt, __FILE__,__LINE__);
     		$res = $GLOBALS["db_api"]->dbh->query($authStmt);
             if (PEAR::isError($res)) {
                 Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
