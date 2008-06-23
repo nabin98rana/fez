@@ -214,31 +214,43 @@ class FulltextIndex_Solr extends FulltextIndex {
 	}
 
 
-	protected function prepareAdvancedQuery($searchKey_join, $filter_join, $approved_roles) {
-//		print_r($searchKey_join);
-	    $filterQuery = "";
-	    $searchQuery = "";
-    
-		if ($searchKey_join[2] == "") {
-			$searchQuery = "*:*";
-		} else {
-			$searchQuery = $searchKey_join[2];
-		}
-	
-		if (!Auth::isAdministrator()) {
-			$rulegroups = $this->prepareRuleGroups($approved_roles);
-			$filterQuery = "(_authlister_t:(" . implode(" OR ", $rulegroups) . "))";
-		}
-	
-		if($filter_join[2] != "") {
-		    if($filterQuery != "") {
-		        $filterQuery .= " AND ";
-		    }
-		    $filterQuery .= $filter_join[2];
-		}
-	
-		return array('query' => $searchQuery, 'filter' => $filterQuery);
-	}
+    protected function prepareAdvancedQuery($searchKey_join, $filter_join, $approved_roles) {
+
+        $filterQuery = "";
+        $searchQuery = "";
+        
+        if ($searchKey_join[2] == "") {
+            $searchQuery = "*:*";
+        } else {
+            $searchQuery = $searchKey_join[2];
+        }
+        
+        if (!Auth::isAdministrator()) {
+            $rulegroups = $this->prepareRuleGroups();
+            $rulegroups = implode(" OR ", $rulegroups);
+            
+            if(in_array('Creator', $approved_roles)) {
+                $filterQueryParts[] = "(_authcreator_t:(" . $rulegroups . "))";
+            } 
+            if(in_array('Editor', $approved_roles)) {
+                $filterQueryParts[] = "(_autheditor_t:(" . $rulegroups . "))";
+            } 
+            if(in_array('Lister', $approved_roles)) {
+                $filterQueryParts[] = "(_authlister_t:(" . $rulegroups . "))";
+            }
+            
+            $filterQuery = implode(" OR ", $filterQueryParts);
+        }
+        
+        if($filter_join[2] != "") {
+            if($filterQuery != "") {
+                $filterQuery .= " AND ";
+            }
+            $filterQuery .= $filter_join[2];
+        }
+        
+        return array('query' => $searchQuery, 'filter' => $filterQuery);
+    }
 
 	public function searchAdvancedQuery($searchKey_join, $filter_join, $approved_roles, $start, $page_rows) {
 
