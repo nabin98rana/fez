@@ -1082,7 +1082,6 @@ class Record
         
 		$authArray = Collection::getAuthIndexStmt($approved_roles, "r1.rek_pid");
 		$authStmt = $authArray['authStmt'];
-		$joinStmt = $authArray['joinStmt'];
 
         $stmt = " FROM {$dbtp}record_search_key AS r1 ".
 			    $searchKey_join[SK_JOIN].$searchKey_join[SK_LEFT_JOIN].$authStmt." ".

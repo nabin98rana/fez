@@ -44,7 +44,7 @@ Auth::checkAuthentication(APP_SESSION);
 $tpl = new Template_API();
 $tpl->setTemplate("my_fez.tpl.html");
 
-$roles = array("Lister");
+$roles = array("Creator");
 $collection_list = Collection::getEditList(null, $roles);
 Record::getParentsByPids($collection_list['list']);
 

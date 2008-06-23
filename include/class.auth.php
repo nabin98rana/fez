@@ -186,8 +186,11 @@ class Auth
     {
 		if (is_array($aro_roles)) {
 			if (count($aro_roles) > 0) {
-		        $stmt = "SELECT aro_id FROM ". APP_TABLE_PREFIX . "auth_roles where aro_title in (".implode(",", $aro_roles).") where aro_id != 0";
-		        $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
+		        $stmt = "SELECT aro_id, aro_role
+		                  FROM ". APP_TABLE_PREFIX . "auth_roles 
+		                  WHERE aro_role in ('".implode("','", $aro_roles)."') 
+		                        AND aro_id != 0";
+		        $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
 		        if (PEAR::isError($res)) {
 		            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 		            return array();
@@ -2012,7 +2015,9 @@ class Auth
 
 	function getUserAuthRuleGroups($usr_id) {
 		$dbtp = APP_TABLE_PREFIX;		
-		$stmt = "SELECT argu_arg_id FROM ".$dbtp."auth_rule_group_users WHERE argu_usr_id = ".$usr_id;
+		$stmt = "SELECT argu_arg_id 
+		         FROM ".$dbtp."auth_rule_group_users 
+		         WHERE argu_usr_id = ".$usr_id;
         $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

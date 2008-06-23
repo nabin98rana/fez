@@ -43,7 +43,9 @@ class FulltextIndex_Solr_CSV extends FulltextIndex {
         $searchKeys = Search_Key::getList();
 		$csvHeader = "";
 		
-		$authLister_t = $this->getFieldName(FulltextIndex::FIELD_NAME_AUTH, FulltextIndex::FIELD_TYPE_TEXT, false);
+		$authLister_t = $this->getFieldName(FulltextIndex::FIELD_NAME_AUTHLISTER, FulltextIndex::FIELD_TYPE_TEXT, false);
+		$authCreator_t = $this->getFieldName(FulltextIndex::FIELD_NAME_AUTHCREATOR, FulltextIndex::FIELD_TYPE_TEXT, false);
+		$authEditor_t = $this->getFieldName(FulltextIndex::FIELD_NAME_AUTHEDITOR, FulltextIndex::FIELD_TYPE_TEXT, false);
 		
 		/*
          * Custom search key (not a registered search key)
@@ -80,6 +82,14 @@ class FulltextIndex_Solr_CSV extends FulltextIndex {
             'sek_simple_used'   =>  1,
         );
         $searchKeys[] = $dLKey;
+        
+        $roles = array(
+            'Lister',
+            'Creator',
+            'Editor',
+        );
+        $roleIDs = Auth::convertTextRolesToIDS($roles);
+        $roleIDs = array_flip($roleIDs);
         
         /*
          * Determine which search keys we are going to be 
@@ -131,7 +141,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex {
     	    $pids      = '';
     	    $spliting  = '';
     	    
-    		$csvHeader = 'id,'.implode(',', $singleColumnsHeader) . ',' . $authLister_t . ','. implode(',', $mtColumnsHeader) . ",content\n";
+    		$csvHeader = 'id,'.implode(',', $singleColumnsHeader) . ',' . $authLister_t . ','. $authCreator_t . ',' . $authEditor_t . ','.implode(',', $mtColumnsHeader) . ",content\n";
 			
 			foreach ( $chunk as $row ) {
 			    
@@ -160,13 +170,29 @@ class FulltextIndex_Solr_CSV extends FulltextIndex {
 			/*
 			 * Add the authlister rules to the csv array
 			 */
-			$rulesGroups = $this->getListerRuleGroupsChunk($pids);
+			$rulesGroups = $this->getRuleGroupsChunk($pids, $roleIDs);
 			foreach ($csv as $rek_pid => $rek_line) {
 			        
-                if( !empty($rulesGroups[$rek_pid]) ) {
-                    $csv[$rek_pid] .= ',"' . $rulesGroups[$rek_pid] .'"';
+				$rules = $rulesGroups[$rek_pid];
+                if( !empty($rules) ) {
+                	
+                	$lister_rules = '""';
+                	$creator_rules = '""';
+                	$editor_rules = '""';
+                	
+                	if (!empty($rules[$roleIDs['Lister']])) {
+                		$lister_rules = $rules[$roleIDs['Lister']];
+                	}
+                    if (!empty($rules[$roleIDs['Creator']])) {
+                        $creator_rules = $rules[$roleIDs['Creator']];
+                    }
+                    if (!empty($rules[$roleIDs['Editor']])) {
+                        $editor_rules = $rules[$roleIDs['Editor']];
+                    }
+                    
+                    $csv[$rek_pid] .= ',' . $lister_rules .','.$creator_rules. ','. $editor_rules;
                 } else {
-                    $csv[$rek_pid] .= ',""';
+                    $csv[$rek_pid] .= ',"","",""';
                 }
                     
 		    }
@@ -348,25 +374,27 @@ class FulltextIndex_Solr_CSV extends FulltextIndex {
 	   
 	   return $fezName;
     }
-
-   
-     private function getListerRuleGroupsChunk($pids) {
-
-		$stmt =  'SELECT authi_pid, GROUP_CONCAT(authi_arg_id) as value
-                  FROM '.APP_TABLE_PREFIX.'auth_index2_lister 
-		          WHERE authi_pid IN ('.$pids.') 
-		          GROUP BY authi_pid';
-		
-		$res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
-
-		if (PEAR::isError($res)) {
-	        Logger::error($res->getMessage());
-	        return "";
-	    }
-
-		return $res;
-    }
     
+    private function getRuleGroupsChunk($pids, $roles) {
+
+        $stmt =  'SELECT authi_pid, authi_role, authi_arg_id
+                  FROM '.APP_TABLE_PREFIX.'auth_index2 
+                  WHERE authi_pid IN ('.$pids.') 
+                        AND authi_role IN ('.implode(',',$roles).')';
+        
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+
+        if (PEAR::isError($res)) {
+            Logger::error($res->getMessage());
+            return "";
+        }
+        
+        foreach ($res as $row) {
+        	$ret[$row['authi_pid']][$row['authi_role']] = $row['authi_arg_id'];
+        }
+
+        return $ret;
+    }
     
     private function preBuildCitations($pids) {
         

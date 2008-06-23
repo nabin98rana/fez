@@ -64,7 +64,9 @@ abstract class FulltextIndex {
 	const FULLTEXT_TABLE_NAME = "fulltext_cache";
 	
 	const FIELD_MOD_MULTI = '_multivalue';
-	const FIELD_NAME_AUTH = '_authlister';
+	const FIELD_NAME_AUTHLISTER = '_authlister';
+	const FIELD_NAME_AUTHCREATOR = '_authcreator';
+	const FIELD_NAME_AUTHEDITOR = '_autheditor';
 	const FIELD_NAME_FULLTEXT = 'content';
 	
     protected $bgp;    
@@ -707,14 +709,13 @@ abstract class FulltextIndex {
     protected abstract function executeQuery($query, $options, $approved_roles, $sort_by, $start, $page_rows);
     
 
-	public function prepareRuleGroups($approved_roles) {
+	public function prepareRuleGroups() {
 		// gets user rule groups for this user		
 		$userID = Auth::getUserID();		
 		if (empty($userID)) {
 			// get public lister rulegroups
 			$userRuleGroups = Collection::getPublicAuthIndexGroups();
 		} else {
-			//$userRuleGroups = Auth::getUserAuthRuleGroups(Auth::getUserID());
 			$ses = Auth::getSession();
 			$userRuleGroups = $ses['auth_index_user_rule_groups'];
 		}

@@ -462,8 +462,11 @@ class Collection
     function getPublicAuthIndexGroups() {
     
     	$dbtp =  APP_TABLE_PREFIX;
-    	$stmt = "SELECT distinct argr_arg_id FROM ".$dbtp."auth_rule_group_rules
-                INNER JOIN ".$dbtp."auth_rules ON ar_rule='public_list' AND ar_value='1' AND argr_ar_id=ar_id ";
+    	$stmt = "SELECT distinct argr_arg_id 
+    	         FROM ".$dbtp."auth_rule_group_rules
+                 INNER JOIN ".$dbtp."auth_rules ON ar_rule='public_list' 
+                            AND ar_value='1' 
+                            AND argr_ar_id=ar_id ";
     	
     	$res = $GLOBALS["db_api"]->dbh->getCol($stmt);
 		if (PEAR::isError($res)) {
@@ -1199,7 +1202,6 @@ $stmt .= "
      */
     function statsByAuthorID($current_row = 0, $max = 50, $searchKey="Author ID", $year = "all", $month = "all", $range = "all")
     {
-
 		$limit = "";
 		if ($year != 'all' && is_numeric($year)) {
 			$year = Misc::escapeString($year);
@@ -1217,66 +1219,29 @@ $stmt .= "
         }
         $start = $current_row * $max;
 		$restrictSQL = "";
-		$middleStmt = "";
-		$extra = " ,a1.aut_display_name as record_author ";
 		$termCounter = 3;
 		$as_field = "";
-//		$statusList =  XSD_HTML_Match::getXSDMF_IDsBySekTitle('Status');
 		$sdet = Search_Key::getDetailsByTitle($searchKey);
-		//$authorID_list = Search
-//		$author_IDList = XSD_HTML_Match::getXSDMF_IDsBySekID($sdet["sek_id"]);
-//		$data_type = $sdet['xsdmf_data_type'];
-		//$data_type = "varchar";
-		$group_field = "r4.rek_author_id, a1.aut_display_name ";
-
 
 		if ($max == "ALL") {
             $max = 9999999;
         }
         $start = $current_row * $max;
 
-        // this query broken into pieces to try and get some speed.
-
         $dbtp =  APP_TABLE_PREFIX;
         $sort_by = 'File Downloads';
         $sekdet = Search_Key::getDetailsByTitle($sort_by);
-//        $data_type = $sekdet['xsdmf_data_type'];
         $restrict_community = '';
 
-		//$authArray = Collection::getAuthIndexStmt(array("Lister", "Viewer", "Editor", "Creator"));
-		//$authStmt = $authArray['authStmt'];
-		//$joinStmt = $authArray['joinStmt'];
-		$sort_order = "DESC";
-
-
-			$memberOfStmt = "
-						INNER JOIN ".$dbtp."record_search_key_author_id AS r4 ON r4.rek_author_id_pid = r2.rek_pid					
-						INNER JOIN ".$dbtp."author a1 on a1.aut_id = r4.rek_author_id";
-
-        $bodyStmtPart1 = " FROM  ".$dbtp."record_search_key AS r2 
-                    ".$memberOfStmt;
-        $bodyStmt = $bodyStmtPart1."
-
-					 ".$limit." WHERE r2.rek_file_downloads > 0 AND r2.rek_status = 2
-                    GROUP BY ".$group_field."
-             ";
-			 if  ( $authStmt <> "" ) { // so the stats will work even when there are auth rules
-//			 	$bodyStmt .= ", authi_id";
-			 }
-        $countStmt = "
-                    SELECT ".APP_SQL_CACHE."  SUM(rek_file_downloads)
-                    ".$bodyStmtPart1."
-            ";
-
-		$innerStmt = "
-                    SELECT ".APP_SQL_CACHE."  r4.rek_author_id ".$as_field." ".$extra.", SUM(rek_file_downloads) as sort_column
-                    ".$bodyStmt."
-					ORDER BY sort_column ".$sort_order."
-                    LIMIT ".$max." OFFSET ".$start."
-					";
-
-			$stmt = $innerStmt;
-		
+		$stmt = " SELECT ".APP_SQL_CACHE." r4.rek_author_id, a1.aut_display_name as record_author, SUM(rek_file_downloads) as sort_column
+                  FROM ".$dbtp."record_search_key AS r2 
+                  INNER JOIN ".$dbtp."record_search_key_author_id AS r4 ON r4.rek_author_id_pid = r2.rek_pid					
+                  INNER JOIN ".$dbtp."author a1 on a1.aut_id = r4.rek_author_id
+                  ".$limit." 
+                  WHERE r2.rek_file_downloads > 0 AND r2.rek_status = 2
+                  GROUP BY r4.rek_author_id, a1.aut_display_name
+                  ORDER BY sort_column DESC
+                  LIMIT ".$max." OFFSET ".$start;
 
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
@@ -1286,19 +1251,10 @@ $stmt .= "
 			foreach ($res as $key => $result) {
 				$res[$key]['file_downloads'] = $res[$key]['sort_column'];
 			}
-			//print_r($res);
-
-//			$total_rows = $GLOBALS["db_api"]->dbh->getOne($countStmt);
-
+			
 			$return = $res;
-
-			//$return = Collection::makeReturnList($res, 1);
-	        //$return = Collection::makeSecurityReturnList($return);
-
 			$hidden_rows = 0;
-	//		$return = Auth::getIndexAuthorisation($return);
-	//		$return = Misc::cleanListResults($return);
-	//		$return = Collection::getWorkflows($return);
+			
 			if (($start + $max) < $total_rows) {
 		        $total_rows_limit = $start + $max;
 			} else {
