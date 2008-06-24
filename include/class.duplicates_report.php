@@ -33,6 +33,7 @@
 // +----------------------------------------------------------------------+
 
 include_once(APP_INC_PATH.'class.record_edit_form.php');
+include_once(APP_INC_PATH.'class.fulltext_queue.php');
 
 class DuplicatesReport {
 

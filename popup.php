@@ -43,6 +43,7 @@ include_once(APP_INC_PATH . "class.fedora_api.php");
 include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.workflow_trigger.php");
 include_once(APP_INC_PATH . "class.background_process_list.php");
+include_once(APP_INC_PATH . "class.fulltext_queue.php");
 
 $tpl = new Template_API();
 $tpl->setTemplate("popup.tpl.html");
@@ -50,8 +51,8 @@ $tpl->setTemplate("popup.tpl.html");
 Auth::checkAuthentication(APP_SESSION, 'index.php?err=5', true);
 $isAdministrator = Auth::isAdministrator(); 
 $usr_id = Auth::getUserID();
-$cat = @$_GET["cat"] ? @$_GET["cat"] : @$_POST["cat"];
-//echo $cat; exit;
+$cat = @$_REQUEST["cat"];
+
 switch ($cat) 
 {	
     case 'file_manager':
@@ -150,6 +151,10 @@ switch ($cat)
 				$rec_obj->markAsDeleted();
 				History::addHistory($pid, null, '', '', true, 'Deleted');
 	            $tpl->assign("delete_object_result", 1);
+	            
+				if ( APP_SOLR_INDEXER == "ON" ) {
+	                FulltextQueue::singleton()->remove($pid);
+	            }
 			}
             break;
         }
@@ -166,6 +171,10 @@ switch ($cat)
 				if ($rec_obj->canDelete()) {	    
 					$rec_obj->markAsDeleted();
 					History::addHistory($pid, null, '', '', true, 'Bulk Deleted');
+					
+					if ( APP_SOLR_INDEXER == "ON" ) {
+	                    FulltextQueue::singleton()->remove($pid);
+	                }
 				}
             }
             $tpl->assign("delete_object_result", 1);

@@ -369,9 +369,7 @@ class Record
 		$header .= "<".$xsd_element_prefix.$xsd_top_element_name." ";
 		$header .= Misc::getSchemaSubAttributes($array_ptr, $xsd_top_element_name, $xdis_id, $pid);
 		$header .= ">\n";
-		//$xmlObj .= Foxml::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "", $indexArray, '', '', '', '', '', '');
 		$xmlObj = Foxml::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "", $indexArray, '', '', '', '', '', '');
-//		   function array_to_xml_instance($a, &$xmlObj="", $element_prefix, $sought_node_type="", $tagIndent="", $parent_sel_id="", $xdis_id, $pid, $top_xdis_id, $attrib_loop_index="", &$indexArray=array(), $file_downloads=0, $created_date, $updated_date, $depositor, $assign_usr_id=null, $assign_grp_id=null)
         $xmlObj .= "</".$xsd_element_prefix.$xsd_top_element_name.">\n";
 		$xmlObj = $header . $xmlObj;
 		$FezACML_dsID = FezACML::getFezACMLDSName($dsID);		
@@ -382,8 +380,6 @@ class Record
 			Fedora_API::getUploadLocation($pid, $FezACML_dsID, $xmlObj, "FezACML security for datastream - ".$dsID,
 					"text/xml", "X");
 		}
-//		Record::insertIndexBatch($pid, $dsID, $indexArray, array(), array(), array("FezACML"));
-//		exit;
     }
 
    /**
@@ -418,37 +414,6 @@ class Record
     }
 
     /**
-     * Method used to add to the Fez Index in a batch.
-     *
-     * @access  public
-     * @param   string $pid The persistent identifier of the record
-     * @param   string $dsID The ID of the datastream (optional)
-     * @param   array $indexArray The array of XSDMF entries to the Fez index
-     * @param   string $datastreamXMLHeaders
-     * @return  void
-     */
-	function insertIndexBatch($pid, $dsID='', $indexArray, $datastreamXMLHeaders, $exclude_list=array(), $specify_list=array()) {
-		// first delete all indexes about this pid
-		Record::removeIndexRecord($pid, $dsID, 'keep', $exclude_list, $specify_list);
-		if (!is_array($indexArray)) {
-			return false;
-		}
-		foreach ($indexArray as $index) {
-			if ($index[1] == 1)  { // if this xsdmf is designated to be indexed then insert it as long as it has a value
-				foreach ($datastreamXMLHeaders as $dsKey => $dsHeader) { // get the real ds names for the file uploads
-					if ($index[6] == $dsKey) {
-						$index[6] = $dsHeader['ID'];
-					}
-				}
-				if ($index[6] != "") {
-                    // pid, dsID, xsdmf_id, data_type, value
-					Record::insertIndexMatchingField($index[0], $dsID, $index[2], $index[6]);
-				}
-			}
-		}
-	}
-
-    /**
      * Method used to remove an entry in the Fez Index.
      *
      * @access  public
@@ -457,7 +422,7 @@ class Record
      * @param   string $dsDelete A flag to check if th e datastream_id should be kept
      * @return  void
      */
-    function removeIndexRecord($pid, $dsID='', $dsDelete='all', $exclude_list=array(), $specify_list=array(), $fteindex = true) {
+    function removeIndexRecord($pid) {
         if (empty($pid)) {
             return -1;
         }
@@ -489,20 +454,8 @@ class Record
         // KJ: remove from fulltext index
         //
         if ( APP_SOLR_INDEXER == "ON" ) {
-            
-        	if ($dsDelete == 'keep') {
-        		// if set to 'keep', this will trigger a re-index
-        		
-        		// it would be possible to re-write the fulltext index to automagically
-        		// delete objects on update when they are not in the Fez index anymore
-        		
-        		Logger::debug("Record::removeIndexRecord() ADDING ".$pid." TO QUEUE using keep=true");
-        		FulltextQueue::singleton()->add($pid);
-        	} else {
-        		Logger::debug("Record::removeIndexRecord() REMOVING ".$pid." FROM QUEUE");
-        		
-        		FulltextQueue::singleton()->remove($pid);
-        	}
+        	Logger::debug("Record::removeIndexRecord() REMOVING ".$pid." FROM QUEUE");
+        	FulltextQueue::singleton()->remove($pid);
         }
         
     }

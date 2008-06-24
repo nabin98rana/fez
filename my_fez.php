@@ -39,14 +39,11 @@ include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
 
 include_once(APP_INC_PATH . "class.misc.php");
-include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.workflow_trigger.php");
 include_once(APP_INC_PATH . "class.status.php");
 include_once(APP_INC_PATH . "class.collection.php");
 
 Auth::checkAuthentication(APP_SESSION);
-$username = Auth::getUsername();
-$isAdministrator = User::isUserAdministrator($username);
 
 $tpl = new Template_API();
 $tpl->setTemplate("my_fez.tpl.html");
@@ -136,10 +133,7 @@ if ($options["searchKey0"] != "" && (Misc::GETorPost("sort_by") == "" || $option
 
 $assigned_items = Record::getListing($options, array("Editor", "Approver"), $pager_row, $rows, $sort_by);
 Record::getParentsByPids($assigned_items['list']);
-$assigned_items['list'] = Citation::renderIndexCitations($assigned_items['list']);
-
-$tpl->assign("isUser",                  $username);
-$tpl->assign("isAdministrator",         $isAdministrator);
+//$assigned_items['list'] = Citation::renderIndexCitations($assigned_items['list']);
 
 $tpl->assign("bulk_workflows",          $bulk_workflows);
 $tpl->assign("bulk_search_workflows",   $bulk_search_workflows);
@@ -150,7 +144,6 @@ $tpl->assign("page_url",                $_SERVER['PHP_SELF'].'?'.$urlnoOrder);
 $tpl->assign('myFezView',               "MAI");
 $tpl->assign('extra_title',             "Assigned Unpublished Items");
 $tpl->assign('search_keys',             $search_keys);
-$tpl->assign("eserv_url",               APP_BASE_URL."eserv/");
 $tpl->assign("options",                 $options);
 $tpl->assign("status_list",             Status::getAssocList());
 $tpl->assign('my_assigned_items_list',  $assigned_items['list']);
