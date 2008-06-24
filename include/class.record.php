@@ -3917,11 +3917,26 @@ class RecordGeneral
         	$xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
         	if ($xsdmf_details['xsdmf_sek_id'] != "") {
         		Record::removeIndexRecordByXSDMF_ID($pid,$xsdmf_id);
-        		
         		$sekDetails = Search_Key::getBasicDetails($xsdmf_details['xsdmf_sek_id']);
+        		
+                if ($sekDetails['sek_data_type'] == 'date') {
+                    if (is_numeric($xsdmf_value) && strlen($xsdmf_value) == 4) {
+                        // It appears we've just been fed a year. We'll pad this, 
+                        // so it can be added to the index.
+                        $xsdmf_value = $xsdmf_value . "-01-01 00:00:00";
+                    } elseif (strlen($xsdmf_value) == 7) {
+                        // YYYY-MM. We could arguably write some better string inspection stuff here, 
+                        // but this will do for now.
+                        $xsdmf_value = $xsdmf_value . "-01 00:00:00";
+                    } else {
+                        // Looks like a regular fully-formed date.
+                        $date = new Date($xsdmf_value);
+                        $xsdmf_value = $date->format('%Y-%m-%d %T');
+                    }
+                }
         		$searchKeyData[$sekDetails['sek_relationship']][$sekDetails['sek_title_db']] = array (
-		        		  "xsdmf_id"    => $xsdmf_id,
-		        		  "xsdmf_value" => $xsdmf_value
+		        		  "xsdmf_id"        => $xsdmf_id,
+		        		  "xsdmf_value"     => $xsdmf_value,
         		);
         	}
         }
