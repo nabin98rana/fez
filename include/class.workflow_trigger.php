@@ -177,7 +177,7 @@ class WorkflowTrigger
               } else {
               	$ids = $params['items'];
               }
-              $items = arrayToSQL($ids);
+              $items = Misc::arrayToSQL($ids);
               $wherestr = " WHERE wft_id IN (".$items.")";
               $actionstr ="DELETE FROM";
               $set_str = '';
