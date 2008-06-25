@@ -73,7 +73,11 @@ class BackgroundProcess_Index_Object extends BackgroundProcess
         if ($index_type == Reindex::INDEX_TYPE_FEDORAINDEX || $index_type == Reindex::INDEX_TYPE_UNDELETE) {
         	$reindex->reindexMissingList($params,$terms);
         } elseif ($index_type == Reindex::INDEX_TYPE_REINDEX)  {
-            $reindex->reindexFullList($params,$terms);
+            if($params['items']) {
+            	$reindex->reindexList($params['items']);
+            } else {
+        	   $reindex->reindexFullList($params,$terms);
+            }
         } elseif( $index_type == Reindex::INDEX_TYPE_ORIGAMI ) {
             
             $cnt    = 0;

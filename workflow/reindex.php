@@ -28,24 +28,21 @@
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
 // | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
-// |          Matthew Smith <m.smith@library.uq.edu.au>                   |
+// |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>,                    |
+// |          Rhys Palmer <r.rpalmer@library.uq.edu.au>                   |
 // +----------------------------------------------------------------------+
-//
-//
-// set sta_id=2 for published
 
-if ($this->wft_details['wft_type_id'] == WorkflowTrigger::getTriggerId('Bulk Change Search')) {
-	$options = Pager::saveSearchParams($request_params);
-	$bgp = new BackgroundProcess_Publish();
-	$bgp->register(serialize(compact('options')), Auth::getUserID());
-} else {
-	$this->getRecordObject();
-	if ($this->rec_obj->canApprove()) {
-		$sta_id = Status::getID("Published");
-		$this->rec_obj->setStatusId($sta_id);	
-		History::addHistory($this->rec_obj->getPid(), null, '', '', true, 'Published');
-	}
+include_once("../config.inc.php");
+include_once(APP_INC_PATH. 'class.bgp_index_object.php');
+include_once(APP_INC_PATH. 'class.reindex.php');
+
+if (!empty($this->pids) && is_array($this->pids)) { 
+    
+	$params['items']    = $this->pids;  /* The Pids to reindex */
+    $index_type         = Reindex::INDEX_TYPE_REINDEX;
+	
+    $bgp = new BackgroundProcess_Index_Object(); 
+    $bgp->register(serialize(compact('params', 'index_type')), Auth::getUserID());
+    
 }
-
-
 ?>

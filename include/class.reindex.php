@@ -351,53 +351,45 @@ class Reindex
 	        $fedoraList = $fedoraDirect->fetchAllFedoraPIDs($terms);
         }
 
-        
-		$record_count = count($fedoraList);
-        $bgp_details = $this->bgp->getDetails();
-        
         // Correct for Oracle-produced array key case issue reported by Kostas
-		if (APP_DB_TYPE == "oracle") {
-			foreach ($fedoraList as &$flist) {
-	            $flist = array_change_key_case($flist, CASE_LOWER);
-	        }
-			$fedoraList = $flist;
-		}
+        foreach ($fedoraList as $fkey => $flist) {
+            $fedoraList[$fkey] = array_change_key_case($flist, CASE_LOWER);
+        }
+        
+        // Extract just the PIDs
+        $fedoraPIDs = array();
+        foreach ($fedoraList as $flist) {
+            array_push($fedoraPIDs, $flist['pid']);
+        }
+        
+        $PIDsInFez = Reindex::getPIDlist();        
+        $newPIDs = array_values(array_diff($fedoraPIDs, $PIDsInFez));
+        
+		$record_count = count($newPIDs);
+        $bgp_details = $this->bgp->getDetails();
 		
-		$date_new = new Date(strtotime($bgp_details['bgp_started']));
 		$tz = Date_API::getPreferredTimezone($bgp_details["bgp_usr_id"]);
 		
-		foreach ($fedoraList as $detail) {
+		foreach ($newPIDs as $pid) {
             $reindex_record_counter++;
             $utc_date = Date_API::getSimpleDateUTC();
-            $time_per_object = Date_API::dateDiff("s", $bgp_details['bgp_started'], $utc_date);
             
-			if ($reindex_add_record_counter > 0) {
-            	$time_per_object = round(($time_per_object / $reindex_add_record_counter), 2);
-			} else {
-            	$time_per_object = round(($time_per_object / $reindex_record_counter), 2);
-			}
+            $time_per_object = Date_API::dateDiff("s", $bgp_details['bgp_started'], $utc_date);
+            $time_per_object = round(($time_per_object / $reindex_record_counter), 2);
 			
 			$records_left = $record_count - $reindex_record_counter;
+			
+			$date_new = new Date(strtotime($bgp_details['bgp_started']));
             $date_new->addSeconds($time_per_object*$records_left);
             
             $expected_finish = Date_API::getFormattedDate($date_new->getTime(), $tz);
-
+			
 	        if (!empty($this->bgp)) {
-                $this->bgp->setProgress(intval(100*$reindex_record_counter/$record_count));
+	        	$this->bgp->setProgress(intval(100*$reindex_record_counter/$record_count));
+                $this->bgp->setStatus("Adding:  '".$pid."' (".$reindex_record_counter."/".$record_count.") (Avg ".$time_per_object."s per Object, Expected Finish ".$expected_finish.")");    	
 	        }
-	        
-	        if (!Reindex::inIndex($detail['pid'])) {
-	            if (!empty($this->bgp)) {
-		            $reindex_add_record_counter++;
-                    $this->bgp->setStatus("Adding:  '".$detail['pid']."' ".$detail['title']. " (".$reindex_record_counter."/".$record_count." - ".$reindex_add_record_counter." Added) (Avg ".$time_per_object."s per Object, Expected Finish ".$expected_finish.")");    	
-	            }
-	            $params['items'] = array($detail['pid']);
-	            Reindex::indexFezFedoraObjects($params);                
-	        } else {
-	            if (!empty($this->bgp)) {
-                    $this->bgp->setStatus("Skipping Because Already in Fez Index:  '".$detail['pid']."' ".$detail['title']. " (".$reindex_record_counter."/".$record_count.") (Avg ".$time_per_object."s per Object, Expected Finish ".$expected_finish.")");
-	            }
-	        }
+	        $params['items'] = array($pid);
+	        Reindex::indexFezFedoraObjects($params);
 		}		
 		
     }
@@ -443,7 +435,6 @@ class Reindex
 		} 
 		
         $record_count = count($fedoraList);
-        $date_started = new Date(strtotime($bgp_details['bgp_started']));
         $tz = Date_API::getPreferredTimezone($bgp_details["bgp_usr_id"]);
         
 		foreach ($fedoraList as $detail) {
@@ -460,8 +451,11 @@ class Reindex
             $reindex_record_counter++;
             $records_left = $record_count - $reindex_record_counter;
             $utc_date = Date_API::getSimpleDateUTC();
+            
             $time_per_object = Date_API::dateDiff("s", $bgp_details['bgp_started'], $utc_date);
             $time_per_object = round(($time_per_object / $reindex_record_counter), 2);
+            
+            $date_started = new Date(strtotime($bgp_details['bgp_started']));
             $date_started->addSeconds($time_per_object*$records_left);
             $expected_finish = Date_API::getFormattedDate($date_started->getTime(), $tz);
             
@@ -480,6 +474,43 @@ class Reindex
                 }
             }
         }
+    }
+    
+    function reindexList($items) {
+    	
+    	$reindex_record_counter = 0;
+    	$record_count = count($items);
+        $bgp_details = $this->bgp->getDetails();
+        
+        $tz = Date_API::getPreferredTimezone($bgp_details["bgp_usr_id"]);
+        
+        foreach ($items as $pid) {
+            $reindex_record_counter++;
+            $utc_date = Date_API::getSimpleDateUTC();
+            
+            $time_per_object = Date_API::dateDiff("s", $bgp_details['bgp_started'], $utc_date);
+            $time_per_object = round(($time_per_object / $reindex_record_counter), 2);
+            
+            $records_left = $record_count - $reindex_record_counter;
+            
+            $date_new = new Date(strtotime($bgp_details['bgp_started']));
+            $date_new->addSeconds($time_per_object*$records_left);
+            
+            $expected_finish = Date_API::getFormattedDate($date_new->getTime(), $tz);
+            
+            if (!empty($this->bgp)) {
+                $this->bgp->setProgress(intval(100*$reindex_record_counter/$record_count));
+                $this->bgp->setStatus("Reindexing:  '".$pid."' (".$reindex_record_counter."/".$record_count.") (Avg ".$time_per_object."s per Object, Expected Finish ".$expected_finish.")");      
+            }
+            $params['items'] = array($pid);
+            Reindex::indexFezFedoraObjects($params);
+        }   
+        
+        if (!empty($this->bgp)) {
+            $this->bgp->setStatus("Finished Reindexing $record_count pids");      
+        }
+        
+    	
     }
 
     function reindexSolrFullList($params,$terms)

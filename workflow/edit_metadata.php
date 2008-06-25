@@ -35,12 +35,9 @@
 include_once("../config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
-include_once(APP_INC_PATH . "class.user.php");
-include_once(APP_INC_PATH . "class.group.php");
 include_once(APP_INC_PATH . "class.author.php");
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.misc.php");
-include_once(APP_INC_PATH . "class.setup.php");
 include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.controlled_vocab.php");
 include_once(APP_INC_PATH . "class.collection.php");
@@ -53,33 +50,19 @@ include_once(APP_INC_PATH . "class.xsd_html_match.php");
 include_once(APP_INC_PATH . "class.workflow_trigger.php");
 include_once(APP_INC_PATH . "class.workflow.php");
 include_once(APP_INC_PATH . "class.org_structure.php");
-include_once(APP_INC_PATH . "najax/najax.php");
-include_once(APP_INC_PATH . "najax_objects/class.select_org_structure.php");
-include_once(APP_INC_PATH . "najax_objects/class.suggestor.php");
 include_once(APP_INC_PATH . "class.record_edit_form.php");
 
-NAJAX_Server::allowClasses(array('SelectOrgStructure', 'Suggestor'));
-if (NAJAX_Server::runServer()) {
-	exit;
-}
-$tpl = new Template_API();
-$tpl->setTemplate("workflow/index.tpl.html");
-$tpl->assign("type", "edit_metadata");
 Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']."?".$_SERVER['QUERY_STRING']);
-$username = Auth::getUsername();
-$tpl->assign("isUser", $username);
-$isAdministrator = User::isUserAdministrator($username);
-if (Auth::userExists($username)) { // if the user is registered as a Fez user
-	$tpl->assign("isFezUser", $username);
-}
-$tpl->assign("isAdministrator", $isAdministrator);
 
 $wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
 if (empty($wfstatus)) {
-	echo "This workflow has finished and cannot be resumed";
-	exit;
+    echo "This workflow has finished and cannot be resumed";
+    exit;
 }
 
+$tpl = new Template_API();
+$tpl->setTemplate("workflow/index.tpl.html");
+$tpl->assign("type", "edit_metadata");
 $link_self = $_SERVER['PHP_SELF'].'?'.http_build_query(array('id' => $wfstatus->id));
 $tpl->assign('link_self', $link_self);
 
@@ -98,8 +81,7 @@ if ($debug == 1) {
 } else {
 	$tpl->assign("debug", "0");	
 }
-/* $internal_user_list = User::getAssocList();
-$internal_group_list = Group::getAssocListAll(); */
+
 $extra_redirect = "";
 if (!empty($collection_pid)) {
 	$extra_redirect.="&collection_pid=".$pid;
@@ -122,7 +104,6 @@ if ($record->getLock(RecordLock::CONTEXT_WORKFLOW, $wfstatus->id) != 1) {
 $record->getDisplay();
 $xdis_id = $record->getXmlDisplayId();
 $xdis_title = XSD_Display::getTitle($xdis_id);
-//$author_list = Author::getAssocListAll();
 $tpl->assign("xdis_title", $xdis_title);
 $tpl->assign("extra_title", "Edit ".$xdis_title);
 
@@ -130,7 +111,7 @@ $access_ok = $record->canEdit();
 if ($access_ok) {
 
     if (!is_numeric($xdis_id)) {
-        $xdis_id = @$_POST["xdis_id"] ? $_POST["xdis_id"] : $_GET["xdis_id"];	
+        $xdis_id = @$_REQUEST["xdis_id"];	
         if (is_numeric($xdis_id)) { // must have come from select xdis so save xdis in the FezMD
             Record::updateAdminDatastream($pid, $xdis_id);
         }
@@ -143,14 +124,6 @@ if ($access_ok) {
     $record_edit_form = new RecordEditForm();
     $record_edit_form->setTemplateVars($tpl, $record);
     $record_edit_form->setDatastreamEditingTemplateVars($tpl, $record);
-    
-    $setup = Setup::load();
-
-    // if user is a fez user then get prefs
-    if (Auth::userExists($username)) {
-        $prefs = Prefs::get(Auth::getUserID());
-    }
-    $tpl->assign("user_prefs", $prefs);
 } else {
     $tpl->assign("show_not_allowed_msg", true);
 }
