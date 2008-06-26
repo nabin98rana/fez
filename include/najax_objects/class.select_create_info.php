@@ -9,14 +9,13 @@ class SelectCreateInfo {
 
     function getCollections($community_pid)
     {
-	
-	
+    	Logger::debug("SelectCreateInfo->getCollections ".$community_pid);
+    	
 		$return = array();
 		if ($community_pid == "") {
 			$return[] = array('value' => "", 'text' => "(no collection)");
 			return $return;					
-		} else {	
-//	        $result = Collection::getEditListAssoc($community_pid);
+		} else {
 	        $result = Collection::getCreatorListAssoc($community_pid);
 			$list = array();
 		}
