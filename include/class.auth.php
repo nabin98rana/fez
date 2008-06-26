@@ -1435,7 +1435,7 @@ class Auth
      */
     function isCorrectPassword($username, $password)
     {
-        if (APP_DISABLE_PASSWORD_CHECKING == "true") {
+        if (APP_DISABLE_PASSWORD_CHECKING == "true" && $_SERVER['REMOTE_ADDR'] == APP_DISABLE_PASSWORD_IP) {
             return true;
         } else {
             if (empty($username)) {
