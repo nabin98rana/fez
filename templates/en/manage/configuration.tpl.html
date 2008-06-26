@@ -254,7 +254,9 @@ function restoreDefaultColours(el)
 			    <option value="true"{if $config_settings.app_disable_password_checking == "true"} selected="selected"{/if}>On</option>
 				<option value="false"{if $config_settings.app_disable_password_checking == "false"} selected="selected"{/if}>Off</option>
 			  </select>
+			  <input type="text" name="app_disable_password_ip" value="{$config_settings.app_disable_password_ip}" /> Allow this IP only
 			  <br />Mainly used for testing. Not recommended to set this to On.
+			  
 			</td>
   		  </tr>
 		  <tr>
