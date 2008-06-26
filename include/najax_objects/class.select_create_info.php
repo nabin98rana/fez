@@ -16,7 +16,9 @@ class SelectCreateInfo {
 			$return[] = array('value' => "", 'text' => "(no collection)");
 			return $return;					
 		} else {
+			Logger::debug("Collection::getCreatorListAssoc ".$community_pid);
 	        $result = Collection::getCreatorListAssoc($community_pid);
+	        Error_Handler::logError($result, __FILE__, __LINE__);
 			$list = array();
 		}
 
