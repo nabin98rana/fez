@@ -276,6 +276,28 @@ class Apache_Solr_Service
 
 		return $response;
 	}
+	
+	private function _sendRawPostSearch($url, $data) {
+		
+		$context_options = array (
+	        'http' => array (
+	            'method' => 'POST',
+	            'header'=> "Content-type: application/x-www-form-urlencoded\r\n"
+	                       . "Content-Length: " . strlen($data) . "\r\n",
+	            'content' => $data
+	        )
+        );
+        $context = stream_context_create($context_options);
+        
+        $response = new Apache_Solr_Response(@file_get_contents($url, false, $context), $http_response_header);
+
+        if ($response->getHttpStatus() != 200)
+        {
+            throw new Exception('"' . $response->getHttpStatus() . '" Status: ' . $response->getHttpStatusMessage());
+        }
+
+        return $response;
+	}
 
 	/**
 	 * Returns the set host
@@ -766,7 +788,8 @@ class Apache_Solr_Service
 				}
 			}
 		} while (!empty($params));
-
-		return $this->_sendRawGet($this->_searchUrl . $this->_queryDelimiter . implode($this->_queryStringDelimiter, $escapedParams));
+		
+		$paramStr = implode('&', $escapedParams);
+		return $this->_sendRawPostSearch($this->_searchUrl, $paramStr);
 	}
 }
