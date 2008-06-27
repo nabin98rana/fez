@@ -3413,7 +3413,6 @@ class RecordGeneral
 		$newNode = $doc->createElement('usr_id');
 	    $newNode->nodeValue = $value;
 		$parentNode->insertBefore($newNode);
-//		Error_Handler::logError($doc->SaveXML(),__FILE__,__LINE__);
 		$newXML = $doc->SaveXML();
         if ($newXML != "") {
             Fedora_API::callModifyDatastreamByValue($this->pid, "FezMD", "A", "Fez Admin Metadata", $newXML, "text/xml", false);
@@ -3919,7 +3918,7 @@ class RecordGeneral
         		Record::removeIndexRecordByXSDMF_ID($pid,$xsdmf_id);
         		$sekDetails = Search_Key::getBasicDetails($xsdmf_details['xsdmf_sek_id']);
         		
-                if ($sekDetails['sek_data_type'] == 'date') {
+                if ($sekDetails['sek_data_type'] == 'date' && !empty($xsdmf_value)) {
                     if (is_numeric($xsdmf_value) && strlen($xsdmf_value) == 4) {
                         // It appears we've just been fed a year. We'll pad this, 
                         // so it can be added to the index.
