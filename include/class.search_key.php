@@ -817,6 +817,28 @@ class Search_Key
         }
     }
 
+    function getSolrTitles()
+    {
+        $stmt = "SELECT
+                    *
+                 FROM
+                    " . APP_TABLE_PREFIX . "search_key as s1 ";
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+			$return = array();
+   			for ($i = 0; $i < count($res); $i++) {
+    			$res[$i]['sek_title_db'] = Search_Key::makeSQLTableName($res[$i]['sek_title']);
+    			$res[$i]['sek_title_solr'] = FulltextIndex_Solr::getFieldName($res[$i]['sek_title_db'], FulltextIndex::mapType($res[$i]['sek_data_type']), $res[$i]['sek_relationship']);
+				$return[$res[$i]['sek_title_db']] = $res[$i]['sek_title_solr'];
+			}
+            return $return;
+        }
+    }
+
+
     /**
      * Method used to get the basic details of a specific search key.
      *

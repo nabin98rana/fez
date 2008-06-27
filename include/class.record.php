@@ -2178,8 +2178,15 @@ class Record
     		$escapedInput = $searchKeys["0"];
     		$searchKey_join[SK_KEY_ID] = 1;
     		$searchKey_join[SK_SEARCH_TXT] .= "All Fields:\"".trim(htmlspecialchars($searchKeys["0"]))."\", ";
-            
-    		$searchKey_join["sk_where_AND"][] = "all:" .$escapedInput;
+
+			$solr_titles = Search_Key::getSolrTitles();
+			foreach ($solr_titles as $skey => $svalue) {
+				$escapedInput = str_replace($skey.":", $svalue.":", $escapedInput);				
+			}
+			$pattern = '/(?<!'.implode("|", $solr_titles).')(\+|-|&&|\|\||!|\(|\)|\{|}|\[|]|\^|"|~|\*|\?|:|\\\)/';
+			$replace = '\\\$1';
+			preg_replace($pattern, $replace, $escapedInput);			
+    		$searchKey_join["sk_where_AND"][] = "" .$escapedInput;
     	}
 
     	/*
