@@ -114,8 +114,7 @@ class Collection
 	    $options["searchKey".Search_Key::getID("Object Type")] = 2; // collections only
 		if (!empty($community_pid)) {
 			$options["searchKey".Search_Key::getID("isMemberOf")] = $community_pid; // 
-		}	
-		Logger::debug("INSIDE Collection::getCreatorListAssoc ".$community_pid);
+		}
         $list = Record::getListing($options, $roles, 0, 1000, "Title", true);		
 		$list = $list['list'];
 		$returnList = array();
