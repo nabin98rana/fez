@@ -630,8 +630,15 @@ class Record
     	$valuesIns[] = "'".$pid."'";
     	foreach ($sekData[0] as $sek_column => $sek_value) {
             $stmt[] = "rek_{$sek_column}, rek_{$sek_column}_xsdmf_id";
-            $valuesIns[] = "'".Misc::escapeString(trim($sek_value['xsdmf_value'])) . "', {$sek_value['xsdmf_id']}";
-            $valuesUpd[] = "rek_{$sek_column} = '".Misc::escapeString(trim($sek_value['xsdmf_value'])) . "', rek_{$sek_column}_xsdmf_id = {$sek_value['xsdmf_id']}";
+            
+            if($sek_value['xsdmf_value'] == 'NULL') {
+            	$xsdmf_value = $sek_value['xsdmf_value'];
+            } else {
+            	$xsdmf_value = "'".Misc::escapeString(trim($sek_value['xsdmf_value'])) . "'";
+            }
+            
+            $valuesIns[] = "$xsdmf_value, {$sek_value['xsdmf_id']}";
+            $valuesUpd[] = "rek_{$sek_column} = $xsdmf_value, rek_{$sek_column}_xsdmf_id = {$sek_value['xsdmf_id']}";
     	}
     	
     	$stmtIns = "INSERT INTO " . APP_TABLE_PREFIX . "record_search_key (" . implode(",", $stmt) . ") ";
@@ -3924,19 +3931,23 @@ class RecordGeneral
         		$sekDetails = Search_Key::getBasicDetails($xsdmf_details['xsdmf_sek_id']);
         		
                 if ($sekDetails['sek_data_type'] == 'date') {
-                    if (is_numeric($xsdmf_value) && strlen($xsdmf_value) == 4) {
-                        // It appears we've just been fed a year. We'll pad this, 
-                        // so it can be added to the index.
-                        $xsdmf_value = $xsdmf_value . "-01-01 00:00:00";
-                    } elseif (strlen($xsdmf_value) == 7) {
-                        // YYYY-MM. We could arguably write some better string inspection stuff here, 
-                        // but this will do for now.
-                        $xsdmf_value = $xsdmf_value . "-01 00:00:00";
-                    } else {
-                        // Looks like a regular fully-formed date.
-                        $date = new Date($xsdmf_value);
-                        $xsdmf_value = $date->format('%Y-%m-%d %T');
-                    }
+                	if(!empty($xsdmf_value)) {
+	                    if (is_numeric($xsdmf_value) && strlen($xsdmf_value) == 4) {
+	                        // It appears we've just been fed a year. We'll pad this, 
+	                        // so it can be added to the index.
+	                        $xsdmf_value = $xsdmf_value . "-01-01 00:00:00";
+	                    } elseif (strlen($xsdmf_value) == 7) {
+	                        // YYYY-MM. We could arguably write some better string inspection stuff here, 
+	                        // but this will do for now.
+	                        $xsdmf_value = $xsdmf_value . "-01 00:00:00";
+	                    } else {
+	                        // Looks like a regular fully-formed date.
+	                        $date = new Date($xsdmf_value);
+	                        $xsdmf_value = $date->format('%Y-%m-%d %T');
+	                    }
+                	} else {
+                		$xsdmf_value = "NULL";
+                	}
                 }
                 
                 if(@empty($searchKeyData[$sekDetails['sek_relationship']][$sekDetails['sek_title_db']]['xsdmf_value'])) {
