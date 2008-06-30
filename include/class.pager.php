@@ -74,6 +74,7 @@ class Pager
     function getParam($name, $params=array())
     {
         $cookie = Pager::getCookieParams();
+		$cookie_key = $_SERVER['SCRIPT_NAME'];
         $result = '';
         if (isset($params[$name])) {
              $result =  $params[$name];
@@ -81,8 +82,8 @@ class Pager
              $result =  $_GET[$name];
         } elseif (isset($_POST[$name])) {
              $result =  $_POST[$name];
-        } elseif (isset($cookie[$name])) {
-             $result =  $cookie[$name];
+        } elseif (isset($cookie[$cookie_key][$name])) {
+             $result =  $cookie[$cookie_key][$name];
         }
         //echo "$name: ". print_r($result,true) ."<br/>\n";
         return $result;
@@ -118,7 +119,6 @@ class Pager
       //  $order_by_dir = Pager::getParam('order_by_dir',$params);                
         $sort_order = Pager::getParam('sort_order',$params);
         $rows = Pager::getParam('rows',$params);
-        
         $cookie = array(
             'front_page'     => $front_page ? $front_page : "front_page",
             'rows'           => $rows ? $rows : APP_DEFAULT_PAGER_SIZE,

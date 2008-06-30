@@ -48,7 +48,6 @@ Auth::checkAuthentication(APP_SESSION);
 $tpl = new Template_API();
 $tpl->setTemplate("my_fez.tpl.html");
 $options = Pager::saveSearchParams();
-
 // for the my fez unpublished items page need to set the default to any non-published items 
 if (!array_key_exists("searchKeycore_9", $options)) {
 	$options["searchKeycore_9"] = "-4"; 
@@ -93,10 +92,12 @@ foreach ($search_keys as $skey => $svalue) {
 
 
 $pager_row  = $_GET['pager_row'];
-$rows       = $_GET['rows'];
+//$rows       = $_GET['rows'];
+$rows       = $options['rows'];
 
-if (empty($pager_row))  $pager_row = 0;
-if (empty($rows))       $rows = APP_DEFAULT_PAGER_SIZE;
+
+//if (empty($pager_row))  $pager_row = 0;
+//if (empty($rows))       $rows = APP_DEFAULT_PAGER_SIZE;
 
 $urlDataOrderBy = array(
     'cat'           =>  $_GET['cat'],
