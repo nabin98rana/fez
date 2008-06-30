@@ -32,7 +32,7 @@
 					<ul class="tabs">
 						{if $isUser}
 						<li><a href="{$rel_url}preferences.php"{if $active_nav == 'preferences'} style="background-color: white;border: 1px solid white;color: #2A2A2A;"{/if}>Prefs</a></li>
-						<li><a href="{$rel_url}my_collections.php"{if $active_nav == 'my_fez'} style="background-color: white;border: 1px solid white;color: #2A2A2A;"{/if}>My&nbsp;eSpace</a></li>
+						<li><a href="{$rel_url}{if $isAdministrator}my_fez.php{else}my_collections.php{/if}"{if $active_nav == 'my_fez'} style="background-color: white;border: 1px solid white;color: #2A2A2A;"{/if}>My&nbsp;eSpace</a></li>
 						<li><a href="{$rel_url}logout.php">Logout</a></li>
 						{else}
 						<li><a title="Browse the Frequently Asked Questions section" href="{$rel_url}help.php?topic=main" class="iconized icon-help"{if $active_nav == 'help'} style="background-color: white;border: 1px solid white;color: #2A2A2A;"{/if}>FAQs</a></li>
