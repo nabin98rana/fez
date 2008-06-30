@@ -3921,11 +3921,11 @@ class RecordGeneral
         
         foreach ($xsdmf_array as $xsdmf_id => $xsdmf_value) {
         	$xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
-        	if ($xsdmf_details['xsdmf_sek_id'] != "") {
+        	if ($xsdmf_details['xsdmf_sek_id'] != "" && !empty($xsdmf_value)) {
         		Record::removeIndexRecordByXSDMF_ID($pid,$xsdmf_id);
         		$sekDetails = Search_Key::getBasicDetails($xsdmf_details['xsdmf_sek_id']);
         		
-                if ($sekDetails['sek_data_type'] == 'date' && !empty($xsdmf_value)) {
+                if ($sekDetails['sek_data_type'] == 'date') {
                     if (is_numeric($xsdmf_value) && strlen($xsdmf_value) == 4) {
                         // It appears we've just been fed a year. We'll pad this, 
                         // so it can be added to the index.
