@@ -629,11 +629,9 @@ class Record
     	$stmt[] = 'rek_pid';
     	$valuesIns[] = "'".$pid."'";
     	foreach ($sekData[0] as $sek_column => $sek_value) {
-    		if(!empty($sek_value['xsdmf_value'])) {
-                $stmt[] = "rek_{$sek_column}, rek_{$sek_column}_xsdmf_id";
-                $valuesIns[] = "'".Misc::escapeString(trim($sek_value['xsdmf_value'])) . "', {$sek_value['xsdmf_id']}";
-                $valuesUpd[] = "rek_{$sek_column} = '".Misc::escapeString(trim($sek_value['xsdmf_value'])) . "', rek_{$sek_column}_xsdmf_id = {$sek_value['xsdmf_id']}";
-    		}
+            $stmt[] = "rek_{$sek_column}, rek_{$sek_column}_xsdmf_id";
+            $valuesIns[] = "'".Misc::escapeString(trim($sek_value['xsdmf_value'])) . "', {$sek_value['xsdmf_id']}";
+            $valuesUpd[] = "rek_{$sek_column} = '".Misc::escapeString(trim($sek_value['xsdmf_value'])) . "', rek_{$sek_column}_xsdmf_id = {$sek_value['xsdmf_id']}";
     	}
     	
     	$stmtIns = "INSERT INTO " . APP_TABLE_PREFIX . "record_search_key (" . implode(",", $stmt) . ") ";
@@ -3921,7 +3919,7 @@ class RecordGeneral
         
         foreach ($xsdmf_array as $xsdmf_id => $xsdmf_value) {
         	$xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
-        	if ($xsdmf_details['xsdmf_sek_id'] != "" && !empty($xsdmf_value)) {
+        	if ($xsdmf_details['xsdmf_sek_id'] != "") {
         		Record::removeIndexRecordByXSDMF_ID($pid,$xsdmf_id);
         		$sekDetails = Search_Key::getBasicDetails($xsdmf_details['xsdmf_sek_id']);
         		
@@ -3940,10 +3938,15 @@ class RecordGeneral
                         $xsdmf_value = $date->format('%Y-%m-%d %T');
                     }
                 }
-        		$searchKeyData[$sekDetails['sek_relationship']][$sekDetails['sek_title_db']] = array (
-		        		  "xsdmf_id"        => $xsdmf_id,
-		        		  "xsdmf_value"     => $xsdmf_value,
-        		);
+                
+                if(@empty($searchKeyData[$sekDetails['sek_relationship']][$sekDetails['sek_title_db']]['xsdmf_value'])) {
+	        		
+                	$searchKeyData[$sekDetails['sek_relationship']][$sekDetails['sek_title_db']] = array(
+			        		  "xsdmf_id"        => $xsdmf_id,
+			        		  "xsdmf_value"     => $xsdmf_value,
+	        		);
+	        		
+                }
         	}
         }
         
