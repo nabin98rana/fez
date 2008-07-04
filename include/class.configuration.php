@@ -38,6 +38,9 @@ include_once(APP_INC_PATH . "class.validation.php");
 include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.custom_view.php");
 include_once(APP_INC_PATH . "class.misc.php");
+include_once(APP_INC_PATH . "class.session_db.php");
+$sess = new SessionManager($db_api);
+
 /**
  * This class exists for interacting with the configuration settings sub-system.
  */
