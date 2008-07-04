@@ -81,7 +81,7 @@
            {/if}
 
 		  <tr>
-			  <td align="left" valign="middle" width="90%" style="border-top:1px dashed #87ABE9;">
+			  <td align="left" valign="middle" width="90%" >
 				{if $list[i].rek_citation != ""}
                     {$list[i].rek_citation}
 				{else}
@@ -89,7 +89,7 @@
     			     {if $list[i].rek_object_type != 3}
     			      {if $list[i].rek_ismemberof_count != ""}({$list[i].rek_ismemberof_count}){else}(0){/if}
     			     {/if}
-			    {/if}
+			    {/if}<br />
 			 </td>
 
         </tr>
