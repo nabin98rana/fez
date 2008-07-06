@@ -51,7 +51,7 @@ Record::getParentsByPids($collection_list['list']);
 $tpl->assign('myFezView', "MCL");
 $tpl->assign('extra_title', "My Assigned Collections");
 $tpl->assign('my_collections_list', $collection_list['list']);
-$tpl->assign("active_nav", "my_fez");
+$tpl->assign('isApprover', $_SESSION['auth_is_approver']);
 
 $tpl->displayTemplate();
 ?>

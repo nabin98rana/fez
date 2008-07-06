@@ -28,41 +28,18 @@
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
 // | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
-// |          Matthew Smith <m.smith@library.uq.edu.au>                   |
+// |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>,                    |
+// |          Rhys Palmer <r.palmer@library.uq.edu.au>                    |
 // +----------------------------------------------------------------------+
-//
-//
-include_once("../config.inc.php");
 
-include_once(APP_INC_PATH . "class.template.php");
-include_once(APP_INC_PATH . "class.auth.php");
-include_once(APP_INC_PATH . "class.user.php");
-include_once(APP_INC_PATH . "class.record.php");
-include_once(APP_INC_PATH . "class.misc.php");
-include_once(APP_INC_PATH . "class.group.php");
+$this->getRecordObject();
+$res = Record::update($this->rec_obj->getPid(), array("FezACML"), array(""));
 
-include_once(APP_INC_PATH . "class.doc_type_xsd.php");
-include_once(APP_INC_PATH . "class.workflow_trigger.php");
-
-Auth::checkAuthentication(APP_SESSION);
-
-$tpl = new Template_API();
-$tpl->setTemplate("workflow/index.tpl.html");
-$tpl->assign("type", "select_user");
-$tpl->assign("type_name", "Select User");
-
-$wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
-
-$wfstatus->setTemplateVars($tpl);
-$cat = $_REQUEST['cat'];
-if ($cat == 'submit') {
-    $wfstatus->assign('assign_usr_ids', array($_REQUEST['usr_id']));
+if($res) {
+	$this->rec_obj->getObjectAdminMD();
+	if($this->rec_obj->status == Status::getID("Submitted for Approval")) {
+	    $inReview = Status::getID("In Review");
+	    $this->rec_obj->setStatusId($inReview);
+	}
 }
-$wfstatus->checkStateChange();
-
-$usr_list = User::getAssocList();
-
-$tpl->assign('usr_list', $usr_list);
-
-$tpl->displayTemplate();
 ?>

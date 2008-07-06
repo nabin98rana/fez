@@ -432,7 +432,7 @@ class Workflow
         $wfl = Workflow::getDetails($wfl_id);
 		$wfl_roles = $wfl['wfl_role_titles'];
         if (is_array($wfl_roles)) {
-			$pid_roles = Auth::getAuthorisationGroups($pid);							
+			$pid_roles = Auth::getAuthorisationGroups($pid);
             foreach ($wfl_roles as $wfl_role) {
                 if (in_array(trim($wfl_role), $pid_roles)) {
                     return true;
@@ -460,18 +460,17 @@ class Workflow
         }
         $wfl = Workflow::getDetails($wfl_id);
         // assume roles must include edit
-            if (empty($wfl['wfl_role_titles'])) {
-            	$wfl_roles = $trigger_role;
-            } else {
-                $wfl_roles = $wfl['wfl_role_titles'];
+        if (empty($wfl['wfl_role_titles'])) {
+            $wfl_roles = $trigger_role;
+        } else {
+            $wfl_roles = $wfl['wfl_role_titles'];
+        }
+        $pid_roles = Auth::getAllIndexAuthorisationGroups($user_id);
+        foreach ($wfl_roles as $wfl_role) {
+            if (in_array(trim($wfl_role), $pid_roles)) {
+                return true;
             }
-            $pid_roles = Auth::getAllIndexAuthorisationGroups($user_id);
-            //Error_Handler::logError(print_r($wfl_roles, true), __FILE__,__LINE__);
-            foreach ($wfl_roles as $wfl_role) {
-                if (in_array(trim($wfl_role), $pid_roles)) {
-                    return true;
-                }
-            }
+        }
         
         return false;
     }

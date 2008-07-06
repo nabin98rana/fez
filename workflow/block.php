@@ -35,6 +35,7 @@
 include_once("../config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
 
+Auth::checkAuthentication(APP_SESSION);
 
 $button = Misc::GETorPOST_prefix('workflow_button_');
 if (!empty($button)) {
@@ -45,13 +46,6 @@ $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign('type',"no_action");
 
-
-Auth::checkAuthentication(APP_SESSION);
-
-$isUser = Auth::getUsername();
-$tpl->assign("isUser", $isUser);
-$isAdministrator = User::isUserAdministrator($isUser);
-$tpl->assign("isAdministrator", $isAdministrator);
 $wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
 $pid = $wfstatus->pid;
 $tpl->assign("pid", $pid);
@@ -62,9 +56,6 @@ $tpl->assign('workflow_buttons', array(array(
                     'wfs_id' => -2, // go to my background processes
                     'wfs_title' => 'Ok'
                     )));
-
-
-
 
 $tpl->assign('no_bottom_buttons', true);
 

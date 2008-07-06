@@ -67,7 +67,6 @@ $tpl->assign("href", $href);
 $cat = $_REQUEST['cat'];
 if ($cat == 'select_workflow') {
     $wft_id = $_REQUEST["wft_id"];
-//    Workflow::start($wft_id, $pid, $xdis_id, $href);
 	if (is_numeric($wft_id)) {
 		$wfl_id = WorkflowTrigger::getWorkflowID($wft_id);
 		if (is_numeric($wfl_id)) {

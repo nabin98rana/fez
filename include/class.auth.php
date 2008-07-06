@@ -714,22 +714,6 @@ class Auth
         
     }
 
-    function getIndexAuthorisation(&$indexArray) 
-    {
-		foreach ($indexArray as $indexKey => $indexRecord) {
-            $userPIDAuthGroups = Auth::getIndexAuthorisationGroups($indexRecord);
-            $editor_matches = array_intersect(explode(',',APP_APPROVER_ROLES), $userPIDAuthGroups); 
-			$indexArray[$indexKey]['isCommunityAdministrator'] = (in_array('Community Administrator', $userPIDAuthGroups) || Auth::isAdministrator()); //editor is only for the children. To edit the actual community record details you need to be a community admin
-			$indexArray[$indexKey]['isApprover'] = (!empty($editor_matches) || $indexArray[$indexKey]['isCommunityAdministrator'] == true);
-			$indexArray[$indexKey]['isEditor'] = (!empty($editor_matches) || $indexArray[$indexKey]['isCommunityAdministrator'] == true);
-			$indexArray[$indexKey]['isCreator'] = (!empty($editor_matches) || $indexArray[$indexKey]['isCommunityAdministrator'] == true);
-			$indexArray[$indexKey]['isArchivalViewer'] = (in_array('Archival_Viewer', $userPIDAuthGroups) || ($indexArray[$indexKey]['isEditor'] == true));
-			$indexArray[$indexKey]['isViewer'] = (in_array('Viewer', $userPIDAuthGroups) || ($indexArray[$indexKey]['isEditor'] == true));
-			$indexArray[$indexKey]['isLister'] = (in_array('Lister', $userPIDAuthGroups) || ($indexArray[$indexKey]['isViewer'] == true));
-		}
-//		print_r($indexArray);
-		return $indexArray;		
-	}
 
 	    function getAuthorisation(&$indexArray) 
 	    {
@@ -774,7 +758,7 @@ class Auth
 			$indexArray[$indexKey]['isViewer'] = (in_array(10, $userPIDAuthGroups) || ($indexArray[$indexKey]['isEditor'] == true));
 			$indexArray[$indexKey]['isLister'] = (in_array(9, $userPIDAuthGroups) || ($indexArray[$indexKey]['isViewer'] == true));
 		}
-//		print_r($indexArray);
+        
 		return $indexArray;
 	}	
 	
@@ -915,25 +899,18 @@ class Auth
             $roleNodes = $xpath->query('/FezACML/rule/role');
             foreach ($roleNodes as $roleNode) {
                 $role = $roleNode->getAttribute('name');
-                //echo $acml->saveXML($roleNode);
                 // Use XPath to get the sub groups that have values
-                $groupNodes = $xpath->query('./*[string-length(normalize-space()) > 0]', $roleNode); /* */
-                //if ($groupNodes->length) {
-//                    echo $role;
-                    // if the role is in the ACML then it is restricted so remove it
-               // }
+                $groupNodes = $xpath->query('./*[string-length(normalize-space()) > 0]', $roleNode);
                 foreach ($groupNodes as $groupNode) {
                     $group_type = $groupNode->nodeName;
-                    //echo $group_type;
                     $group_values = explode(',', $groupNode->nodeValue);
                     foreach ($group_values as $group_value) {
                         $group_value = trim($group_value, ' ');
-                    // if the role is in the ACML with a non 'off' value and not empty value then it is restricted so remove it
-                    if ($group_value != "off" && $group_value != "" && in_array($role, $userPIDAuthGroups) && in_array($role, $NonRestrictedRoles) && (@$cleanedArray[$role] != true)) {
-//						echo "cleaning out ".$role; echo $group_type. " - ". $group_value;
-                        $userPIDAuthGroups = Misc::array_clean($userPIDAuthGroups, $role, false, true);
-						$cleanedArray[$role] = true;
-                    }
+	                    // if the role is in the ACML with a non 'off' value and not empty value then it is restricted so remove it
+	                    if ($group_value != "off" && $group_value != "" && in_array($role, $userPIDAuthGroups) && in_array($role, $NonRestrictedRoles) && (@$cleanedArray[$role] != true)) {
+	                        $userPIDAuthGroups = Misc::array_clean($userPIDAuthGroups, $role, false, true);
+							$cleanedArray[$role] = true;
+	                    }
                         // @@@ CK - if the role has already been
                         // found then don't check for it again
                         if (!in_array($role, $userPIDAuthGroups)) {
@@ -1042,6 +1019,22 @@ class Auth
 			array_push($userPIDAuthGroups, "Lister");	
 		}
                 
+		/*
+		 * Special Auth Case (This isn't set via the interface)
+		 * If a user has creator rights, the pid isn't 'submitted for approval'
+		 * and the user is assigned to this pid, then they can edit it
+		 */
+		if(!in_array("Editor", $userPIDAuthGroups)) {
+			if(in_array("Creator", $userPIDAuthGroups)) {
+				$status = Record::getSearchKeyIndexValue($pid, "Status", false);
+				$assigned_user_ids = Record::getSearchKeyIndexValue($pid, "Assigned User ID", false);
+				
+				if(in_array(Auth::getUserID(), $assigned_user_ids) && $status != Status::getID("Submitted for Approval")) {
+					array_push($userPIDAuthGroups, "Editor");
+				}
+			}
+		}
+		
         if ($GLOBALS['app_cache']) {
 		  if ($dsID != "") {
 		      $roles_cache[$pid][$dsID] = $userPIDAuthGroups;
@@ -1234,7 +1227,8 @@ class Auth
      */
     function getAllIndexAuthorisationGroups($user_id)
     {
-    	$stmt = "SELECT distinct aro_role as authi_role FROM " . APP_TABLE_PREFIX . "auth_rule_group_users " .
+    	$stmt = "SELECT distinct aro_role as authi_role 
+    	         FROM " . APP_TABLE_PREFIX . "auth_rule_group_users " .
                 "INNER JOIN " . APP_TABLE_PREFIX . "auth_rule_group_rules " .
                         "ON argu_usr_id=".$user_id." AND argr_arg_id=argu_arg_id " .
                 "INNER JOIN " . APP_TABLE_PREFIX . "auth_index2 " .
@@ -1249,6 +1243,33 @@ class Auth
         } else {
             return $res;
         }                
+    }
+    
+    function isUserApprover($user_id) {
+    	
+    	$stmt = "SELECT * " .
+                "FROM " . APP_TABLE_PREFIX . "auth_rule_group_users " .
+                "INNER JOIN " . APP_TABLE_PREFIX . "auth_rule_group_rules " .
+                        "ON argu_usr_id = ".$user_id." AND argr_arg_id = argu_arg_id " .
+                "INNER JOIN " . APP_TABLE_PREFIX . "auth_index2 " .
+                        "ON authi_arg_id = argr_arg_id " .
+                "INNER JOIN " . APP_TABLE_PREFIX . "auth_roles " .
+                        "ON (authi_role = " . Auth::getRoleIDByTitle("Approver") .
+    	                " OR authi_role = " . Auth::getRoleIDByTitle("Community_Administrator") . ") ".
+    	        "LIMIT 1";
+        
+        $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return false;
+        } else {
+            if(count($res) > 0) {
+            	return true;
+            } else {
+            	return false;
+            }
+        }                
+    	
     }
     
     /**
@@ -1411,7 +1432,7 @@ class Auth
           } else {
             $stmt = "SELECT usr_administrator 
                     FROM " . APP_TABLE_PREFIX . "user 
-                    WHERE usr_username='".$username."'";
+                    WHERE usr_username='".Misc::escapeString($username)."'";
             $info = $GLOBALS["db_api"]->dbh->getOne($stmt);
             if (PEAR::isError($info)) {
                 Error_Handler::logError(array($info->getMessage(), $info->getDebugInfo()), __FILE__, __LINE__);
@@ -2123,16 +2144,18 @@ class Auth
                 $authStmt .= "
                     OR (ar_rule = '!rule!role!in_Fez' AND ar_value = 'on')";
             }
-            $authStmt .= "
-                ) ";
-    		$res = $GLOBALS["db_api"]->dbh->query($authStmt);
+            
+            $authStmt .= ")";
+    		
+            $res = $GLOBALS["db_api"]->dbh->query($authStmt);
             if (PEAR::isError($res)) {
                 Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
                 return -1;
             }
-			//
+            
 			Auth::setSession('auth_index_user_rule_groups', Auth::getUserAuthRuleGroups($usr_id));
             Auth::setSession('auth_index_highest_rule_group', AuthIndex::highestRuleGroup());
+            Auth::setSession('auth_is_approver', Auth::isUserApprover($usr_id));
         }
         Auth::setSession('can_edit', null);
         Auth::setSession('can_create', null);

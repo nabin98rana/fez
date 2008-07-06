@@ -39,7 +39,7 @@ include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.group.php");
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.misc.php");
-include_once(APP_INC_PATH . "class.setup.php");
+include_once(APP_INC_PATH . "class.status.php");
 include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.controlled_vocab.php");
 include_once(APP_INC_PATH . "class.collection.php");
@@ -51,17 +51,17 @@ include_once(APP_INC_PATH . "class.workflow_status.php");
 include_once(APP_INC_PATH . "najax/najax.php");
 include_once(APP_INC_PATH . "najax_objects/class.select_org_structure.php");
 include_once(APP_INC_PATH . "najax_objects/class.suggestor.php");
+
 NAJAX_Server::allowClasses(array('SelectOrgStructure', 'Suggestor'));
 if (NAJAX_Server::runServer()) {
 	exit;
 }
 
+Auth::checkAuthentication(APP_SESSION);
 
 $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign('type', 'set_template');
-
-Auth::checkAuthentication(APP_SESSION);
 
 $isUser = Auth::getUsername();
 $tpl->assign("isUser", $isUser);
@@ -71,7 +71,7 @@ $tpl->assign("isAdministrator", $isAdministrator);
 $wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
 $pid = $wfstatus->pid;
 $tpl->assign("pid", $pid);
-$tpl->assign("sta_id", 1);
+$tpl->assign("sta_id", Status::getID("In Creation"));
 
 $wfstatus->setTemplateVars($tpl);
 // get the xdis_id of what we're creating
@@ -101,25 +101,14 @@ if ($access_ok) {
     }
     $tpl->assign("xdis_id", $xdis_id);
     $tpl->assign("xdis_title", $xdis_title);
-    $sta_id = 1; // set to unpublished to start with
-    $tpl->assign('sta_id', $sta_id);
     $xdis_collection_list = XSD_Display::getAssocListCollectionDocTypes(); // @@@ CK - 13/1/06 added for communities to be able to select their collection child document types/xdisplays
     $xdis_list = XSD_Display::getAssocListDocTypes();
     $community_list = Community::getAssocList();
     $collection_list = Collection::getEditListAssoc(); 
-/*    $internal_user_list = User::getAssocList();
-    $internal_group_list = Group::getAssocListAll(); */
-/*  $author_list = Author::getAssocListAll();
-    $tpl->assign("author_ids", $author_list); */
-
     $jtaskData = "";
     $maxG = 0;
-//    $xsd_display_fields = (XSD_HTML_Match::getListByDisplay($xdis_id));
     $xsd_display_fields = XSD_HTML_Match::getListByDisplay($xdis_id, array("FezACML"), array(""));  // XSD_DisplayObject
-//  print_r($xsd_display_fields);
 
-//  print_r($parents);
-//  echo $wfstatus->parent_pid;
     if ($wfstatus->parent_pid != "-1") {
       $parent_record = new RecordObject($wfstatus->parent_pid);
       $parent_xdis_id = $parent_record->getXmlDisplayId();
@@ -128,8 +117,6 @@ if ($access_ok) {
     } else {
         $parent_relationships = array();
     }
-//    $xsd_display_fields = (XSD_HTML_Match::getListByDisplay($xdis_id,array("FezACML"), array("")));
-//    $cvo_list = Controlled_Vocab::getAssocListFullDisplay(false, "", 0, 2);
 
     //@@@ CK - 26/4/2005 - fix the combo and multiple input box lookups
     // - should probably move this into a function somewhere later
@@ -219,8 +206,6 @@ if ($access_ok) {
 	$tpl->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));
 	$tpl->registerNajax(NAJAX_Client::register('SelectOrgStructure', 'set_template.php')."\n"
                         .NAJAX_Client::register('Suggestor', 'set_template.php'));
-
-    $setup = Setup::load();
 
 }
 

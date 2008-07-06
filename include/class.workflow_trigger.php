@@ -240,18 +240,17 @@ class WorkflowTrigger
      */
     function getAssocList($pid, $wherestr='')
     {
-        $stmt = "SELECT wft_id, wfl_title FROM " . APP_TABLE_PREFIX . "workflow_trigger
-				INNER JOIN " . APP_TABLE_PREFIX . "workflow on (wfl_id = wft_wfl_id) WHERE wft_pid='".$pid."'
-            ".$wherestr." ORDER BY wft_type_id, wft_xdis_id";
+        $stmt = "SELECT wft_id, wfl_title 
+                 FROM " . APP_TABLE_PREFIX . "workflow_trigger
+				 INNER JOIN " . APP_TABLE_PREFIX . "workflow on (wfl_id = wft_wfl_id) 
+				 WHERE wft_pid='".$pid."' ".$wherestr." 
+                 ORDER BY wft_type_id, wft_xdis_id";
 
         $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             $res = array();
         }
-/*        foreach ($res as $key => $row) {
-            $res[$key]['wft_options_split']['show_in_list'] = WorkflowTrigger::showInList($row['wft_options']);
-        } */
         return $res;
     }    
     

@@ -56,26 +56,22 @@ if (NAJAX_Server::runServer()) {
 	exit;
 }
 
+Auth::checkAuthentication(APP_SESSION);
+
 $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign("type", "select_community");
 $tpl->assign("type_name", "Select Community");
 
-Auth::checkAuthentication(APP_SESSION);
-$isUser = Auth::getUsername();
-$tpl->assign("isUser", $isUser);
-$isAdministrator = User::isUserAdministrator($isUser);
-$tpl->assign("isAdministrator", $isAdministrator);
 $wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
 
 $wfstatus->setTemplateVars($tpl);
-$cat = Misc::GETorPOST('cat');
+$cat = $_REQUEST['cat'];
 if ($cat == 'submit') {
-    $wfstatus->pid = Misc::GETorPOST('community_pid');
-    $wfstatus->parent_pid = Misc::GETorPOST('-1');
+    $wfstatus->pid = $_REQUEST['community_pid'];
+    $wfstatus->parent_pid = $_REQUEST['-1'];
 }
 $wfstatus->checkStateChange();
-
 
 $communities = Community::getList();
 $communities_list = Misc::keyPairs($communities['list'], 'rek_pid', 'rek_title');

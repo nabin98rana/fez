@@ -45,10 +45,11 @@ include_once(APP_INC_PATH . "class.workflow_trigger.php");
 include_once(APP_INC_PATH . "class.background_process_list.php");
 include_once(APP_INC_PATH . "class.fulltext_queue.php");
 
+Auth::checkAuthentication(APP_SESSION, 'index.php?err=5', true);
+
 $tpl = new Template_API();
 $tpl->setTemplate("popup.tpl.html");
 
-Auth::checkAuthentication(APP_SESSION, 'index.php?err=5', true);
 $isAdministrator = Auth::isAdministrator(); 
 $usr_id = Auth::getUserID();
 $cat = @$_REQUEST["cat"];
@@ -67,9 +68,8 @@ switch ($cat)
         }
     case 'purge_datastream':
         {
-			$record = new RecordObject($pid);
             $dsID = $_GET["dsID"];
-            $pid = $_GET["pid"];		
+            $pid = $_GET["pid"];
 			$record = new RecordObject($pid);
 			if ($record->canEdit()) {
 	            $res = Fedora_API::callPurgeDatastream($pid, $dsID);
@@ -106,7 +106,7 @@ switch ($cat)
         }
     case 'update_form':
         {
-            $id = Misc::GETorPOST('id');
+            $id = $_REQUEST['id'];
             $wfstatus = WorkflowStatusStatic::getSession($id); // restores WorkflowStatus object from the session
             $pid = $wfstatus->pid;
             $res = Record::update($pid, array("FezACML"), array(""));
@@ -116,7 +116,7 @@ switch ($cat)
         }
     case 'update_security':
         {
-            $id = Misc::GETorPOST('id');
+            $id = $_REQUEST['id'];
             $wfstatus = WorkflowStatusStatic::getSession($id); // restores WorkflowStatus object from the session
             $pid = $wfstatus->pid;
             $dsID = $wfstatus->dsID;
@@ -133,7 +133,7 @@ switch ($cat)
         {
 			if ($isAdministrator) {
 	            // first delete all indexes about this pid
-	            $id = Misc::GETorPOST('id');
+	            $id = $_REQUEST['id'];
 	            $wfstatus = WorkflowStatusStatic::getSession($id); // restores WorkflowStatus object from the session
 	            $pid = $wfstatus->pid;
 	            Record::removeIndexRecord($pid);
@@ -162,9 +162,9 @@ switch ($cat)
     case 'delete_objects':
         {
             // first delete all indexes about this pid
-            $items = Misc::GETorPOST('items');
+            $items = $_REQUEST['items'];
             if (empty($items)) { // is named pids on the list form
-	            $items = Misc::GETorPOST('pids');
+	            $items = $_REQUEST['pids'];
             }
             foreach ($items as $pid) {
                 $rec_obj = new RecordObject($pid);
@@ -219,9 +219,9 @@ switch ($cat)
     case 'purge_objects':
         {
             // first delete all indexes about this pid
-            $items = Misc::GETorPOST('items');
+            $items = $_REQUEST['items'];
             if (empty($items)) { // is named pids on the list form
-	            $items = Misc::GETorPOST('pids');
+	            $items = $_REQUEST['pids'];
             }
             foreach ($items as $pid) {
                 $rec_obj = new RecordObject($pid);
@@ -235,7 +235,7 @@ switch ($cat)
         }
     case 'publish_objects':
         {
-            $items = Misc::GETorPOST('pids');
+            $items = $_REQUEST['pids'];
             foreach ($items as $pid) {
                 $rec_obj = new RecordObject($pid);
 				if ($rec_obj->canApprove()) {

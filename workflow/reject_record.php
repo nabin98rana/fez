@@ -32,24 +32,9 @@
 // |          Rhys Palmer <r.palmer@library.uq.edu.au>                    |
 // +----------------------------------------------------------------------+
 
-
 include_once("../config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
-include_once(APP_INC_PATH . "class.author.php");
-include_once(APP_INC_PATH . "class.record.php");
-include_once(APP_INC_PATH . "class.misc.php");
-include_once(APP_INC_PATH . "db_access.php");
-include_once(APP_INC_PATH . "class.controlled_vocab.php");
-include_once(APP_INC_PATH . "class.collection.php");
-include_once(APP_INC_PATH . "class.community.php");
-include_once(APP_INC_PATH . "class.doc_type_xsd.php");
-include_once(APP_INC_PATH . "class.xsd_relationship.php");
-include_once(APP_INC_PATH . "class.xsd_html_match.php");
-include_once(APP_INC_PATH . "class.workflow_trigger.php");
-include_once(APP_INC_PATH . "class.workflow.php");
-include_once(APP_INC_PATH . "class.org_structure.php");
-include_once(APP_INC_PATH . "class.record_edit_form.php");
 
 Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']."?".$_SERVER['QUERY_STRING']);
 
@@ -59,74 +44,28 @@ if (empty($wfstatus)) {
     exit;
 }
 
-$tpl = new Template_API();
-$tpl->setTemplate("workflow/index.tpl.html");
-$tpl->assign("type", "edit_metadata");
-$link_self = $_SERVER['PHP_SELF'].'?'.http_build_query(array('id' => $wfstatus->id));
-$tpl->assign('link_self', $link_self);
-
 $pid = $wfstatus->pid;
-$wfstatus->setTemplateVars($tpl);
-//$tpl->assign("submit_to_popup", true);
-$wfstatus->checkStateChange();
- 
-$collection_pid=$pid;
-$community_pid=$pid;
-$tpl->assign("collection_pid", $pid);
-$tpl->assign("community_pid", $pid);
-$debug = @$_REQUEST['debug'];
-if ($debug == 1) {
-	$tpl->assign("debug", "1");
-} else {
-	$tpl->assign("debug", "0");	
-}
-
-$extra_redirect = "";
-if (!empty($collection_pid)) {
-	$extra_redirect.="&collection_pid=".$pid;
-}
-if (!empty($community_pid)) {
-	$extra_redirect.="&community_pid=".$pid;
-}
 $record = new RecordObject($pid);
 
-if ($record->getLock(RecordLock::CONTEXT_WORKFLOW, $wfstatus->id) != 1) {
-    // Someone else is editing this record.
-    $owner_id = $record->getLockOwner();
-    $tpl->assign('conflict', 1);
-    $tpl->assign('conflict_user', User::getFullname($owner_id));
-    $tpl->assign('disable_workflow', 1);
-    $tpl->displayTemplate();
-    exit;
-}
+$record->getObjectAdminMD();
+$usrDetails = User::getDetailsByID($record->depositor);
 
-$record->getDisplay();
-$xdis_id = $record->getXmlDisplayId();
-$xdis_title = XSD_Display::getTitle($xdis_id);
-$tpl->assign("xdis_title", $xdis_title);
-$tpl->assign("extra_title", "Edit ".$xdis_title);
+$tpl = new Template_API();
+$tpl->setTemplate("workflow/index.tpl.html");
+$tpl->assign("type", "reject_record");
 
-$access_ok = $record->canEdit();
-if ($access_ok) {
+$wfstatus->setTemplateVars($tpl);
+$wfstatus->checkStateChange();
 
-    if (!is_numeric($xdis_id)) {
-        $xdis_id = @$_REQUEST["xdis_id"];	
-        if (is_numeric($xdis_id)) { // must have come from select xdis so save xdis in the FezMD
-            Record::updateAdminDatastream($pid, $xdis_id);
-        }
-    }
+$tplEmail = new Template_API();
+$tplEmail->setTemplate('workflow/emails/reject.tpl.txt');
+$tplEmail->assign('application_name', APP_NAME);
+$tplEmail->assign('title', $record->getTitle());
+$tplEmail->assign('name', $usrDetails['usr_full_name']);
 
-    if (!is_numeric($xdis_id)) { // if still can't find the xdisplay id then ask for it
-        Auth::redirect(APP_RELATIVE_URL . "select_xdis.php?return=update_form&pid=".$pid.$extra_redirect, false);
-    }
+$email_txt = $tplEmail->getTemplateContents();
 
-    $record_edit_form = new RecordEditForm();
-    $record_edit_form->setTemplateVars($tpl, $record);
-    $record_edit_form->setDatastreamEditingTemplateVars($tpl, $record);
-} else {
-    $tpl->assign("show_not_allowed_msg", true);
-}
-
+$tpl->assign('email_body', $email_txt);
 $tpl->displayTemplate();
 
 ?>

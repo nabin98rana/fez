@@ -56,16 +56,13 @@ if (NAJAX_Server::runServer()) {
 	exit;
 }
 
+Auth::checkAuthentication(APP_SESSION);
+
 $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign("type", "select_collection");
 $tpl->assign("type_name", "Select Collection");
 
-Auth::checkAuthentication(APP_SESSION);
-$isUser = Auth::getUsername();
-$tpl->assign("isUser", $isUser);
-$isAdministrator = User::isUserAdministrator($isUser);
-$tpl->assign("isAdministrator", $isAdministrator);
 $wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
 
 $wfstatus->setTemplateVars($tpl);
@@ -76,25 +73,6 @@ if ($cat == 'submit') {
 }
 $wfstatus->checkStateChange();
 
-// Find collections that the current user can create records in and then list the parent communities.
-/*$communities = Community::getList(0,1000);
-$communities_list = Misc::keyPairs($communities['list'], 'rek_pid', 'rek_title');
-$communities_list = Misc::stripOneElementArrays($communities_list);
-$communities_pids = array_keys($communities_list);
-$collection_list = Collection::getEditList();
-
-$communities_list2 = array();
-foreach ($collection_list as &$item) {
-   $parents = Misc::keyPairs(Collection::getParents2($item['rek_pid']),'rek_pid','rek_title');
-   foreach ($parents as $parent_pid => $parent_title) {
-       if (in_array($parent_pid, $communities_pids)) {
-           $communities_list2[$parent_pid] = $communities_list[$parent_pid];
-       }
-   }
-}
-$communities_list = $communities_list2;
-$tpl->assign('communities_list', $communities_list);
-$tpl->assign('communities_list_selected', $communities['list'][0]['rek_pid']);*/
 $communities_list = Community::getAssocList();
 $tpl->assign('communities_list', $communities_list);
 $tpl->assign('communities_list_selected', $communities_list[0]['rek_pid']);

@@ -38,8 +38,6 @@ include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.record.php");
-include_once(APP_INC_PATH . "class.misc.php");
-include_once(APP_INC_PATH . "class.setup.php");
 include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "class.community.php");
@@ -57,23 +55,19 @@ if (NAJAX_Server::runServer()) {
 	exit;
 }
 
+Auth::checkAuthentication(APP_SESSION);
 
 $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign("type", "select_record");
 $tpl->assign("type_name", "Select Record");
 
-Auth::checkAuthentication(APP_SESSION);
-$isUser = Auth::getUsername();
-$tpl->assign("isUser", $isUser);
-$isAdministrator = User::isUserAdministrator($isUser);
-$tpl->assign("isAdministrator", $isAdministrator);
 $wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
 
 $wfstatus->setTemplateVars($tpl);
 $cat = Misc::GETorPOST('cat');
 if ($cat == 'submit') {
-    $wfstatus->pid = Misc::GETorPOST('pid');
+    $wfstatus->pid = $_REQUEST['pid'];
 }
 $wfstatus->checkStateChange();
 

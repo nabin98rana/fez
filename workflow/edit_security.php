@@ -39,7 +39,6 @@ include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.group.php");
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.misc.php");
-include_once(APP_INC_PATH . "class.setup.php");
 include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.controlled_vocab.php");
 include_once(APP_INC_PATH . "class.collection.php");
@@ -52,17 +51,11 @@ include_once(APP_INC_PATH . "class.fedora_api.php");
 include_once(APP_INC_PATH . "class.xsd_html_match.php");
 include_once(APP_INC_PATH . "class.workflow_trigger.php");
 
+Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']."?".$_SERVER['QUERY_STRING']);
+
 $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign("type", "edit_security");
-Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']."?".$_SERVER['QUERY_STRING']);
-$username = Auth::getUsername();
-$tpl->assign("isUser", $username);
-$isAdministrator = User::isUserAdministrator($username);
-if (Auth::userExists($username)) { // if the user is registered as a Fez user
-	$tpl->assign("isFezUser", $username);
-}
-$tpl->assign("isAdministrator", $isAdministrator);
 
 $wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
 if (empty($wfstatus)) {
@@ -112,7 +105,7 @@ $acceptable_roles = array("Community_Admin", "Editor", "Creator", "Community_Adm
 if (Auth::checkAuthorisation($pid, $dsID, $acceptable_roles, $_SERVER['PHP_SELF']."?".$_SERVER['QUERY_STRING']) == true) {
 
 if (!is_numeric($xdis_id)) {
-	$xdis_id = @$_POST["xdis_id"] ? $_POST["xdis_id"] : $_GET["xdis_id"];	
+	$xdis_id = @$_REQUEST["xdis_id"];	
 	if (is_numeric($xdis_id)) { // must have come from select xdis so save xdis in the FezMD
 		Record::updateAdminDatastream($pid, $xdis_id);
 	}
@@ -250,13 +243,7 @@ $tpl->assign("ds_get_path", APP_FEDORA_GET_URL."/".$pid."/");
 $tpl->assign("isEditor", 1);
 
 $tpl->assign("details", $details);
-$setup = Setup::load();
 
-// if user is a fez user then get prefs
-if (Auth::userExists($username)) {
-	$prefs = Prefs::get(Auth::getUserID());
-}
-$tpl->assign("user_prefs", $prefs);
 } else {
     $tpl->assign("show_not_allowed_msg", true);
 }

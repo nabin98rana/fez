@@ -37,25 +37,17 @@ include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.batchimport.php");
-include_once(APP_INC_PATH . "class.misc.php");
-include_once(APP_INC_PATH . "class.setup.php");
 include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "class.community.php");
-include_once(APP_INC_PATH . "class.date.php");
 include_once(APP_INC_PATH . "class.xsd_html_match.php");
 
+Auth::checkAuthentication(APP_SESSION);
 
 $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign("type", 'batchimport_record');
 
-Auth::checkAuthentication(APP_SESSION);
-
-$username = Auth::getUsername();
-$tpl->assign("isUser", $username);
-$isAdministrator = User::isUserAdministrator($username);
-$tpl->assign("isAdministrator", $isAdministrator);
 $wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
 $pid = $wfstatus->pid;
 $tpl->assign("pid", $pid);
@@ -63,14 +55,12 @@ $wfstatus->setTemplateVars($tpl);
 
 // get the xdis_id of what we're creating
 $xdis_id = $wfstatus->getXDIS_ID();
-/*if ($pid == -1 || !$pid) {
-    $access_ok = $isAdministrator;
-} else { */
-    $community_pid = $pid;
-    $collection_pid = $pid;
-    $record = new RecordObject($pid);
-    $access_ok = $record->canCreate();
-//}
+
+$community_pid = $pid;
+$collection_pid = $pid;
+$record = new RecordObject($pid);
+$access_ok = $record->canCreate();
+
 if ($access_ok) {
     if (@$_POST["cat"] == "submit") {
         $wftpl = $wfstatus->getvar('template');
@@ -103,8 +93,6 @@ if ($access_ok) {
     $tpl->assign("filenames", $filenames);
     $tpl->assign("form_title", "Add network files to object");
     $tpl->assign("form_submit_button", "Add network files to object");
-
-    $setup = Setup::load();
 }
 
 $tpl->displayTemplate();

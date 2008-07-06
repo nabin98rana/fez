@@ -1,0 +1,121 @@
+{include file="js/my_fez.tpl.js"}
+<br />
+<form name="custom_filter_form" action="my_fez.php" method="get" onsubmit="javascript:return validateSearchForm();">
+{include file="quick_filter_form.tpl.html"}         
+<br />
+
+<div class="contentheader">
+Submitted For Approval <span class="default">(unpublished items you can approve)</span>
+
+</div>
+<span class="default">
+{if $items_info.total_rows != 0}
+Showing items {math equation="x + 1" x=$items_info.current_row} 
+to {$items_info.current_last_row} of {$items_info.total_rows}
+{else}
+No items found
+{/if}
+</span>
+<br />
+<br />
+</form>
+<form name="assigned_records" method="post" action="{$rel_url}popup.php" target="_popup">     
+<input type="hidden" name="cat" value="delete_objects" />
+
+   <table class="my_fez_table" width="100%" cellpadding="0">
+     <tr>
+       <th width="10"><input type="button" value="All" onclick="javascript:toggleSelectAll(this.form, 'pids[]');" /></th>
+       
+       {if $options.searchKeycore_8 == ""}
+       <th class="default tableheader" nowrap valign="middle">
+       {if $options.sort_order == "1"}
+       <a href='{$page_url_order}&sort_by=searchKeycore_8&sort_order=0'>Collection{if $options.sort_by == "searchKeycore_8"}<img border="0" title="click to sort by Collection Ascending" src="{$rel_url}images/sort_asc_off_16.gif" align="middle">{/if}</a>
+       {else}
+       <a href='{$page_url_order}&sort_by=searchKeycore_8&sort_order=1'>Collection{if $options.sort_by == "searchKeycore_8"}<img border="0" title="click to sort by Collection Descending"  src="{$rel_url}images/sort_desc_off_16.gif" align="middle">{/if}</a>
+       {/if}
+       </td>
+       {/if}
+       
+       <th class="default tableheader" valign="middle">
+       {if $options.sort_order == "1"}
+       <a href='{$page_url_order}&sort_by=searchKeycore_2&sort_order=0'>Title{if $options.sort_by == "searchKeycore_2"}<img border="0" title="click to sort by Title Ascending" src="{$rel_url}images/sort_asc_off_16.gif" align="middle">{/if}</a>
+       {else}
+       <a href='{$page_url_order}&sort_by=searchKeycore_2&sort_order=1'>Title{if $options.sort_by == "searchKeycore_2"}<img border="0" title="click to sort by Title Descending"  src="{$rel_url}images/sort_desc_off_16.gif" align="middle">{/if}</a>
+       {/if}
+       </th>
+       <th>
+        &nbsp;
+       </th>           
+     </tr>
+
+
+<input type="hidden" name="href" value="/my_fez.php" />
+{assign var="list" value=$my_assigned_items_list}
+     {section name="i" loop=$list}
+        {if $list[i].thumbnail.0 != ""}
+            {assign var="icon" value=$eserv_url|cat:$list[i].rek_pid|cat:"/"|cat:$list[i].thumbnail.0}
+        {else}
+            {assign var="icon" value="images/record.png"}
+        {/if}
+         {cycle values=$cycle assign="row_color"}
+     <tr>
+       <td width="10" class="default"><input type="checkbox" name="pids[]" value="{$list[i].rek_pid}" /></td>
+        
+       <td class="default">
+        {section name="m" loop=$list[i].rek_ismemberof.rek_pid}
+        <a title="click to open the published list of records in this collection" href="{$rel_url}collection/{$list[i].rek_ismemberof.rek_pid[m]}">{$list[i].rek_ismemberof.rek_title[m]|escape}</a><br />
+        {/section}
+       </td>
+       <td width="99%" class="default">
+        
+        <a href="{$rel_url}view/{$list[i].rek_pid|escape}"><img align="absmiddle" src="{$icon}" border="0"></a>
+        <a href="{$rel_url}view/{$list[i].rek_pid|escape}" class="title_link">
+          {if ($list[i].rek_citation)}{$list[i].rek_citation}{else}{$list[i].rek_title}{/if}
+        </a>
+            
+         (Created: {$list[i].rek_created_date|date_format:"%c"}{if $list[i].rek_updated_date <> $list[i].rek_created_date} Last Updated: {$list[i].rek_updated_date|date_format:"%c"}{/if})
+      
+     </td>
+     <td nowrap valign="middle" class="default">
+   {if $list[i].isEditor==1 || $isAdministrator}                  
+           <a href="workflow/list_workflows2.php?pid={$list[i].rek_pid|escape}"><img src="{$rel_url}images/options_16.png" alt="More options" title="More options" border="0" width="16" height="16" /></a>
+            {/if}
+     {section name="w" loop=$list[i].wft_id}
+        {if $list[i].wft_id[w] != ''}
+        {if $list[i].wft_icon[w] == 'images/security.gif'}
+          {if $list[i].security == 'include'}
+            {assign var="wf_icon" value="images/security_include.gif"}
+          {elseif $list[i].security == 'exclude'}
+            {assign var="wf_icon" value="images/security_exclude.gif"}
+          {elseif $list[i].security == 'inherit'}
+                {assign var="wf_icon" value="images/security_inherit.gif"}
+          {else}
+            {assign var="wf_icon" value=$list[i].wft_icon[w]}
+          {/if}
+        {else}
+          {assign var="wf_icon" value=$list[i].wft_icon[w]}
+        {/if}
+               {if $list[i].wft_type_id[w] == 6}
+                 {assign var='wf_url' value=$rel_url|cat:'workflow/export.php'}
+               {else}
+                 {assign var='wf_url' value=$rel_url|cat:'workflow/update.php'}
+                {/if}
+    <a href="{$wf_url}?pid={$list[i].rek_pid|escape:"html"}&amp;cat=select_workflow&amp;xdis_id={$list[i].rek_display_type}&amp;wft_id={$list[i].wft_id[w]}&amp;href={$smarty.server.REQUEST_URI|escape:'url'}"><img alt="{$list[i].wfl_title[w]}" title="{$list[i].wfl_title[w]}" src="{$rel_url}{$wf_icon}" border="0" /></a> 
+      {/if}
+      {/section}
+     </td>
+       
+     </tr>
+     {sectionelse}
+     <tr>
+       <td colspan="6" bgcolor="{$light_color}" align="center" class="default">
+         No items with that search filter could be found.
+       </td>
+     </tr>
+     {/section}
+
+     {include file="my_fez_table_footer.tpl.html"}
+     
+     </table>
+     
+   </form>

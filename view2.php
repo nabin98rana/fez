@@ -101,7 +101,7 @@ if (!empty($pid) && $record->checkExists()) {
 	$xdis_title = XSD_Display::getTitle($xdis_id);	
     $tpl->assign("xdis_title", $xdis_title);
 	if (!is_numeric($xdis_id)) {
-		$xdis_id = @$_POST["xdis_id"] ? $_POST["xdis_id"] : @$_GET["xdis_id"];	
+		$xdis_id = @$_REQUEST["xdis_id"];	
 		if (is_numeric($xdis_id)) { // must have come from select xdis so save xdis in the Fez MD
 			$record->updateAdminDatastream($xdis_id);
 		}

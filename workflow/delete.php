@@ -56,15 +56,16 @@ $tpl->assign("isUser", $isUser);
 $isAdministrator = User::isUserAdministrator($isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
 
-$xdis_id = Misc::GETorPOST('xdis_id');
-$pid = Misc::GETorPOST('pid');
-$href= Misc::GETorPOST('href');
+$xdis_id = $_REQUEST['xdis_id'];
+$pid = $_REQUEST['pid'];
+$href= $_REQUEST['href'];
+
 $tpl->assign("href", $href);
 
-$cat = Misc::GETorPOST('cat');
+$cat = $_REQUEST['cat'];
 if ($cat == 'select_workflow') {
-    $wft_id = Misc::GETorPOST("wft_id");
-    $pid = Misc::GETorPOST("pid");
+    $wft_id = $_REQUEST["wft_id"];
+    $pid = $_REQUEST["pid"];
 
 	if (is_numeric($wft_id)) {
 		$wfl_id = WorkflowTrigger::getWorkflowID($wft_id);

@@ -1,36 +1,52 @@
 <?php
-/*
- * Fez Devel
- * Univeristy of Queensland Library
- * Created by Matthew Smith on 19/04/2007
- * This code is licensed under the GPL, see
- * http://www.gnu.org/copyleft/gpl.html
- * 
- */
+/* vim: set expandtab tabstop=4 shiftwidth=4: */
+// +----------------------------------------------------------------------+
+// | Fez - Digital Repository System                                      |
+// +----------------------------------------------------------------------+
+// | Copyright (c) 2005, 2006, 2007 The University of Queensland,         |
+// | Australian Partnership for Sustainable Repositories,                 |
+// | eScholarship Project                                                 |
+// |                                                                      |
+// | Some of the Fez code was derived from Eventum (Copyright 2003, 2004  |
+// | MySQL AB - http://dev.mysql.com/downloads/other/eventum/ - GPL)      |
+// |                                                                      |
+// | This program is free software; you can redistribute it and/or modify |
+// | it under the terms of the GNU General Public License as published by |
+// | the Free Software Foundation; either version 2 of the License, or    |
+// | (at your option) any later version.                                  |
+// |                                                                      |
+// | This program is distributed in the hope that it will be useful,      |
+// | but WITHOUT ANY WARRANTY; without even the implied warranty of       |
+// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        |
+// | GNU General Public License for more details.                         |
+// |                                                                      |
+// | You should have received a copy of the GNU General Public License    |
+// | along with this program; if not, write to:                           |
+// |                                                                      |
+// | Free Software Foundation, Inc.                                       |
+// | 59 Temple Place - Suite 330                                          |
+// | Boston, MA 02111-1307, USA.                                          |
+// +----------------------------------------------------------------------+
+// | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
+// |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>,                    |
+// |          Rhys Palmer <r.palmer@library.uq.edu.au>                    |
+// +----------------------------------------------------------------------+
  
 include_once("config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
 
-$tpl = new Template_API();
-$tpl->setTemplate("my_fez.tpl.html");
-$tpl->assign('myFezView', "MWF");
-
 Auth::checkAuthentication(APP_SESSION);
-$username = Auth::getUsername();
-$tpl->assign("isUser", $username);
-$isAdministrator = User::isUserAdministrator($username);
-if (Auth::userExists($username)) { // if the user is registered as a Fez user
-    $tpl->assign("isFezUser", $username);
-    $prefs = Prefs::get(Auth::getUserID());
-} elseif ($username != ""){
-// don't require registration now for logged in users, although they can (to get prefs etc) but don't force them
-//  Auth::redirect(APP_RELATIVE_URL . "register.php?err=5&username=" . $username);  
-}
-$tpl->assign("isAdministrator", $isAdministrator);
 
 $list = WorkflowStatusStatic::getList(Auth::getUserID());
+
+$tpl = new Template_API();
+$tpl->setTemplate("my_fez.tpl.html");
+
+$tpl->assign('myFezView', "MWF");
+$tpl->assign('isApprover', Auth::isUserApprover(Auth::getUserID()));
 $tpl->assign("active_nav", "my_fez");
 $tpl->assign(compact('list'));
+
 $tpl->displayTemplate();
  
 ?>

@@ -34,18 +34,13 @@
 //
 include_once("config.inc.php");
 include_once(APP_INC_PATH . "db_access.php");
-
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
-
 include_once(APP_INC_PATH . "class.misc.php");
-include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.workflow_trigger.php");
 include_once(APP_INC_PATH . "class.collection.php");
 
 Auth::checkAuthentication(APP_SESSION);
-$username = Auth::getUsername();
-$isAdministrator = User::isUserAdministrator($username);
 
 $tpl = new Template_API();
 $tpl->setTemplate("my_fez.tpl.html");
@@ -98,11 +93,11 @@ $bulk_search_workflows = WorkflowTrigger::getAssocListByTrigger("-1", WorkflowTr
 
 // if search button was just pressed and all fields search 
 // has something in it then sort by relevance enforced
-if (Misc::GETorPost("search_button") == "Search" && trim($options["searchKey0"]) != "") { 
+if ($_REQUEST["search_button"] == "Search" && trim($options["searchKey0"]) != "") { 
 	$options["sort_by"] = "searchKey0";
 }
 
-if ($options["searchKey0"] != "" && (Misc::GETorPost("sort_by") == "" || $options["sort_by"] == "searchKey0")) {
+if ($options["searchKey0"] != "" && ($_REQUEST["sort_by"] == "" || $options["sort_by"] == "searchKey0")) {
 	$options["sort_order"] = 1;
 }
 
@@ -144,21 +139,17 @@ $tpl->assign("bulk_search_workflows",   $bulk_search_workflows);
 
 $tpl->assign("page_url_order",          'my_created_items.php?'.$urlOrderBy);
 $tpl->assign("page_url",                'my_created_items.php?'.$url);
-$tpl->assign("isUser",                  $username);
-$tpl->assign("isAdministrator",         $isAdministrator);
 
 $tpl->assign('current_page',            $pager_row);
 $tpl->assign('myFezView',               "MCI");
 $tpl->assign('extra_title',             "My Created Items");
 $tpl->assign('search_keys',             $search_keys);
-$tpl->assign("eserv_url",               APP_BASE_URL."eserv/");
 $tpl->assign("status_list",             Status::getAssocList());
 $tpl->assign("options",                 $options);
 $tpl->assign('my_created_items_list',   $created_items['list']);
 $tpl->assign('items_info',              $created_items['info']);
-$tpl->assign("active_nav",              "my_fez");
+$tpl->assign('isApprover',              $_SESSION['auth_is_approver']);
 
 $tpl->displayTemplate();
 
-//$bench->display(); // to output html formated
 ?>

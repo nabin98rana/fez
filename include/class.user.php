@@ -89,7 +89,6 @@ class User
                     " . APP_TABLE_PREFIX . "user
                  WHERE
                     usr_username='" . Misc::escapeString($username) . "'";
-//		echo $stmt;
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -172,7 +171,7 @@ class User
                  FROM
                     " . APP_TABLE_PREFIX . "user
                  WHERE
-                    usr_username='".$username."'";
+                    usr_username='".Misc::escapeString($username)."'";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
         if (PEAR::isError($res)) {
             return false;
@@ -199,7 +198,7 @@ class User
                  FROM
                     " . APP_TABLE_PREFIX . "user
                  WHERE
-                    usr_username='".$username."'";
+                    usr_username='".Misc::escapeString($username)."'";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
         if (PEAR::isError($res)) {
             return false;
@@ -244,13 +243,12 @@ class User
      */
     function getDetails($username)
     {
-
         $stmt = "SELECT
                     *
                  FROM
                     " . APP_TABLE_PREFIX . "user
                  WHERE
-                    usr_username='".$username."'";
+                    usr_username='".Misc::escapeString($username)."'";
 
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
@@ -916,9 +914,6 @@ class User
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return -1;
         } else {
-            $new_usr_id = $GLOBALS["db_api"]->get_last_insert_id();
-            // send email to user
-//            Notification::notifyNewUser($new_usr_id, "");
             return 1;
         }
     }
@@ -990,7 +985,6 @@ class User
     function insertFromLDAPLogin()
     {
 		$usr_administrator = 0;
-//print_r($_POST);
 		$ldap_authentication = 1;
 		$userDetails = User::GetUserLDAPDetails($_POST["username"], $_POST["passwd"]);
 

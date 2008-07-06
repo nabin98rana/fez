@@ -43,14 +43,11 @@ include_once(APP_INC_PATH . "class.community.php");
 include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "class.object_type.php");
 
+Auth::checkAuthentication(APP_SESSION);
 
 $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");
-//$tpl->assign("trigger", $trigger_type);
 $tpl->assign("type", 'update');
-
-Auth::checkAuthentication(APP_SESSION);
-//$user_id = Auth::getUserID();
 
 $isUser = Auth::getUsername();
 $tpl->assign("isUser", $isUser);
@@ -58,16 +55,15 @@ $isAdministrator = User::isUserAdministrator($isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
 $tpl->assign("showTriggerEdit", true);
 
-$xdis_id = Misc::GETorPOST('xdis_id');
-$pid = Misc::GETorPOST('pid');
-$dsID = Misc::GETorPOST("dsID");
-$href= Misc::GETorPOST('href');
+$xdis_id = $_REQUEST['xdis_id'];
+$pid = $_REQUEST['pid'];
+$dsID = $_REQUEST["dsID"];
+$href= $_REQUEST['href'];
 $tpl->assign("href", $href);
-$cat = Misc::GETorPOST('cat');
+$cat = $_REQUEST['cat'];
+
 if ($cat == 'select_workflow') {
-    $wft_id = Misc::GETorPOST("wft_id");
-//    $pid = Misc::GETorPOST("pid");
-//    Workflow::start($wft_id, $pid, $xdis_id, $href, $dsID);
+    $wft_id = $_REQUEST["wft_id"];
 
 	if (is_numeric($wft_id)) {
 		$wfl_id = WorkflowTrigger::getWorkflowID($wft_id);

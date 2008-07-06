@@ -194,17 +194,6 @@ class BatchImport
 				$use_MODS = 1;
 			}
 			
-	        $config = array(
-	                'indent'      => true,
-	                'input-xml'   => true,
-	                'output-xml'  => true,
-	                'wrap'        => 200);
-	// CK 8/2/06 Commented out the tidy up as it doesn't seem to be necessary and also breaks on some installations
-	/*        $tidy = new tidy;
-	        $tidy->parseString($xmlObj, $config, 'utf8');
-	        $tidy->cleanRepair(); 
-	        $xmlObj = $tidy; */
-	
 	        $xmlDoc= new DomDocument();
 	        $xmlDoc->preserveWhiteSpace = false;
 	        $xmlDoc->loadXML($xmlObj);
@@ -966,7 +955,7 @@ class BatchImport
 					if (@$importArray[$document_type][$key]['ispublished'][0] == "pub") {
 		                $sta_id = 2; // published status type id				
 					} else {
-		                $sta_id = 1; // unpublished status type id
+		                $sta_id = Status::getID("In Creation"); // unpublished status type id
 					}
 	                $xsd_id = XSD_Display::getParentXSDID($xdis_id);
 	                $xsd_details = Doc_Type_XSD::getDetails($xsd_id);
@@ -978,10 +967,11 @@ class BatchImport
 
                     if ($oai_dc_xml) {  // RCA did we get the file?
 						$config = array(
-								'indent' => true,
-								'input-xml' => true,
-								'output-xml' => true,
-								'wrap' => 200);
+							'indent' => true,
+							'input-xml' => true,
+							'output-xml' => true,
+							'wrap' => 0
+						);
 		
 						$tidy = new tidy;
 						$tidy->parseString($oai_dc_xml, $config, 'utf8');
@@ -1088,6 +1078,7 @@ class BatchImport
 	                    <xdis_id>'.$xdis_id.'</xdis_id>
 	                    <sta_id>'.$sta_id.'</sta_id>
 	                    <ret_id>'.$ret_id.'</ret_id>
+	                    <usr_id>'.Auth::getUserID().'</usr_id>
 	                    <created_date>'.htmlspecialchars(@$importArray[$document_type][$key]['datestamp'][0]).'</created_date>                      
 	                    <updated_date>'.$updated_date.'</updated_date>
 	                    <publication>'.htmlspecialchars(@$importArray[$document_type][$key]['publication'][0]).'</publication>  
@@ -1113,10 +1104,11 @@ class BatchImport
 	                    </foxml:digitalObject>
 	                    ';
 	                $config = array(
-	                        'indent'         => true,
-	                        'input-xml'   => true,
-	                        'output-xml'   => true,
-	                        'wrap'           => 200);
+                        'indent'        => true,
+                        'input-xml'     => true,
+                        'output-xml'    => true,
+                        'wrap'          => 0
+	                );
 	
 	                $tidy = new tidy;
 	                $tidy->parseString($xmlObj, $config, 'utf8');
@@ -1197,7 +1189,7 @@ class BatchImport
 	
 	                if ($this->bgp) {
 	                    $this->bgp->setProgress(intval(100*$eprint_record_counter/$num_records)); 
-	                    $this->bgp->setStatus($importArray[$document_type][$key]['title'][0]); 
+	                    $this->bgp->setStatus($pid . " - ".$importArray[$document_type][$key]['title'][0]); 
 	                }
 	                
 	                $pid = Fedora_API::getNextPID(); // get a new pid for the next loop
@@ -1340,12 +1332,9 @@ class BatchImport
         if (Fedora_API::datastreamExists($pid, $ncName)) {
             Fedora_API::callPurgeDatastream($pid, $ncName);
         }
-//        Fedora_API::getUploadLocation($pid, $ncName, $full_name, "", 
-//                $mimetype, $controlgroup);
 
         Fedora_API::getUploadLocationByLocalRef($pid, $ncName, $full_name, "", 
                 $mimetype, $controlgroup);
-//        $presmd_check = Workflow::checkForPresMD(Foxml::makeNCName($dsIDName));
         $presmd_check = Workflow::checkForPresMD($full_name);
         if ($presmd_check != false) {
             if (is_numeric(strpos($presmd_check, chr(92)))) {
@@ -1401,7 +1390,7 @@ class BatchImport
     function insert($directory, $xdis_id, $collection_pid, $dsarray=null) {
         //open the current directory
         $ret_id = 3; // standard record type id
-        $sta_id = 1; // standard status type id
+        $sta_id = Status::getID("In Creation"); // standard status type id
         $xsd_id = XSD_Display::getParentXSDID($xdis_id);
         $xsd_details = Doc_Type_XSD::getDetails($xsd_id);
         $xsd_element_prefix = $xsd_details['xsd_element_prefix'];
@@ -1444,7 +1433,7 @@ class BatchImport
             if (!$handled_as_xml) {
                 if ($this->bgp) {
                     $this->bgp->setProgress(intval($counter*100/count($filenames))); 
-                    $this->bgp->setStatus($short_name); 
+                    $this->bgp->setStatus($pid." - ".$short_name); 
                 }
                 // Create the Record in Fedora 
                 if (empty($dsarray)) {
@@ -1458,7 +1447,6 @@ class BatchImport
                     Record::insertFromTemplate($pid, $xdis_id, $short_name, $dsarray);
                 }
                 // add the binary batch import file.
-		        Record::removeIndexRecord($pid); // remove any existing index entry for that PID			
                 $this->handleStandardFileImport($pid, $full_name, $short_name, $xdis_id);
                 Record::setIndexMatchingFields($pid);
                 if ($this->bgp) {

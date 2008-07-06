@@ -34,29 +34,15 @@
 //
 include_once("config.inc.php");
 include_once(APP_INC_PATH . "db_access.php");
-
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
-
-include_once(APP_INC_PATH . "class.user.php");
-include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "class.background_process_list.php");
-include_once(APP_INC_PATH.'najax/najax.php');
-include_once(APP_INC_PATH.'najax_objects/class.background_process_list.php');
+include_once(APP_INC_PATH . 'najax/najax.php');
+include_once(APP_INC_PATH . 'najax_objects/class.background_process_list.php');
 
 Auth::checkAuthentication(APP_SESSION);
 
 $tpl = new Template_API();
-
-$username = Auth::getUsername();
-$isAdministrator = User::isUserAdministrator($username);
-
-$tpl->assign("isUser", $username);
-$tpl->assign("isAdministrator", $isAdministrator);
-if (Auth::userExists($username)) { // if the user is registered as a Fez user
-	$tpl->assign("isFezUser", $username);
-	$prefs = Prefs::get(Auth::getUserID());
-}
 
 $bgp_list = new BackgroundProcessList;
 $bgp_list->autoDeleteOld(Auth::getUserID());
@@ -66,15 +52,13 @@ $tpl->setTemplate("my_fez.tpl.html");
 
 $tpl->assign('myFezView',   "MBP");
 $tpl->assign('extra_title', "My Recent Processes");
-$tpl->assign("active_nav",  "my_fez");
 
 $tpl->assign('bgp_list',    $bgp_list_auth);
 $tpl->assign('bgp_states',  $bgp_list->getStates());
+$tpl->assign('isApprover',  $_SESSION['auth_is_approver']);
 
 $tpl->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));
 $tpl->registerNajax( NAJAX_Client::register('NajaxBackgroundProcessList', APP_RELATIVE_URL.'najax_services/generic.php'));
 
 $tpl->displayTemplate();
-
-//$bench->display(); // to output html formated
 ?>

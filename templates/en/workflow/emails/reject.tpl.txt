@@ -1,0 +1,17 @@
+Dear {$name},
+
+This is an automated message from the {$application_name} service.
+
+A record you have deposited '{$title}' cannot be accepted into {$application_name} in its current form.
+
+There is insufficient data for us to identify the publication uniquely. We require a complete citation (e.g. author(s), title, journal or conference title, volume, issue, and page numbers, and a DOI, if available.)
+
+Accordingly, the record has been returned to your My Work In Progress tab within My eSpace. 
+
+Please add more data to the record and then submit the record for approval again.
+
+Please contact {$application_name} staff if you require assistance to complete the record.
+
+Regards,
+
+Manager - {$application_name}

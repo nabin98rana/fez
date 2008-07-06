@@ -28,41 +28,25 @@
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
 // | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
-// |          Matthew Smith <m.smith@library.uq.edu.au>                   |
+// |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>,                    |
+// |          Rhys Palmer <r.palmer@library.uq.edu.au>                    |
 // +----------------------------------------------------------------------+
-//
-//
-include_once("../config.inc.php");
 
-include_once(APP_INC_PATH . "class.template.php");
-include_once(APP_INC_PATH . "class.auth.php");
-include_once(APP_INC_PATH . "class.user.php");
-include_once(APP_INC_PATH . "class.record.php");
-include_once(APP_INC_PATH . "class.misc.php");
-include_once(APP_INC_PATH . "class.group.php");
+$this->getRecordObject();
 
-include_once(APP_INC_PATH . "class.doc_type_xsd.php");
-include_once(APP_INC_PATH . "class.workflow_trigger.php");
+$this->rec_obj->getObjectAdminMD();
+$usrDetails = User::getDetailsByID($this->rec_obj->depositor);
 
-Auth::checkAuthentication(APP_SESSION);
+$inReview = Status::getID("In Creation");
+$this->rec_obj->setStatusId($inReview);
+$this->rec_obj->updateFezMD_User("usr_id", $this->rec_obj->depositor);
 
-$tpl = new Template_API();
-$tpl->setTemplate("workflow/index.tpl.html");
-$tpl->assign("type", "select_user");
-$tpl->assign("type_name", "Select User");
+$mail = new Mail_API;
+$mail->setTextBody(stripslashes($_REQUEST['email_body']));
+$subject = '['.APP_NAME.'] - Your Record has been rejected';
+$from = APP_EMAIL_SYSTEM_FROM_ADDRESS;
+$to = $usrDetails['usr_email'];
+$mail->send($from, $to, $subject, false);
 
-$wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
-
-$wfstatus->setTemplateVars($tpl);
-$cat = $_REQUEST['cat'];
-if ($cat == 'submit') {
-    $wfstatus->assign('assign_usr_ids', array($_REQUEST['usr_id']));
-}
-$wfstatus->checkStateChange();
-
-$usr_list = User::getAssocList();
-
-$tpl->assign('usr_list', $usr_list);
-
-$tpl->displayTemplate();
+History::addHistory($this->rec_obj->getPid(), null, '', '', true, 'Record Rejected');
 ?>

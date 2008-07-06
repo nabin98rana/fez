@@ -43,24 +43,16 @@ $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign("type", 'end');
 
-$username = Auth::getUsername();
-$tpl->assign("isUser", $username);
-$isAdministrator = User::isUserAdministrator($username);
-if (Auth::userExists($username)) { // if the user is registered as a Fez user
-	$tpl->assign("isFezUser", $username);
-}
-$tpl->assign("isAdministrator", $isAdministrator);
-
-
 // sometime in the future, this page should display a summary of the process record produced by the 
 // workflow just finished - we would supply the PID and process record ID in the GET params.
 // TODO: implement process records for workflows!
 
-$wfl_title = Misc::GETorPOST('wfl_title');
-$wft_type = Misc::GETorPOST('wft_type');
-$parent_pid = Misc::GETorPOST('parent_pid');
-$action = Misc::GETorPOST('action');
-$href = Misc::GETorPOST('href');
+$wfl_title = $_REQUEST['wfl_title'];
+$wft_type = $_REQUEST['wft_type'];
+$parent_pid = $_REQUEST['parent_pid'];
+$action = $_REQUEST['action'];
+$href = $_REQUEST['href'];
+
 $href_title = substr($href, 0, strpos($href, "?"));
 $href_title = basename($href_title, ".php");
 $href_title = ucwords(str_replace('_', ' ', basename($href_title, ".php")));
@@ -71,7 +63,7 @@ if ($href) {
     $tpl->assign('refresh_page', substr($href,strlen(APP_RELATIVE_URL)));
 }
 
-$parents_list = unserialize(Misc::GETorPOST('parents_list'));
+$parents_list = unserialize($_REQUEST['parents_list']);
 
 if (is_array($parents_list)) {
     foreach ($parents_list as &$item) {
@@ -91,7 +83,7 @@ if (is_array($parents_list)) {
         }
     }
 }
-$pid = Misc::GETorPOST('pid');
+$pid = $_REQUEST['pid'];
 if ($wft_type != 'Delete') {
     $view_record_url = APP_RELATIVE_URL."view/".$pid;
     if (Misc::isValidPid($pid)) {

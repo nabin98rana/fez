@@ -553,7 +553,7 @@ ul.my_views_tab li {
     padding:0px;
 }
 
-ul.my_views_tab a, ul.my_views_tab a:visited, ul.my_views_tab a:active {
+ul.my_views_tab a, ul.my_views_tab a:active {
     float:left;
     color:#444;
     text-decoration:none;
@@ -567,8 +567,7 @@ ul.my_views_tab a, ul.my_views_tab a:visited, ul.my_views_tab a:active {
     border-right:1px solid [[$smarty.const.APP_CELL_COLOR]];
 }
 
-ul.my_views_tab a:hover,
-ul.my_views_tab a.my_views_tab_here
+ul.my_views_tab a:hover,ul.my_views_tab a.my_views_tab_here
 {
     background:[[$smarty.const.APP_CELL_COLOR]];
 }

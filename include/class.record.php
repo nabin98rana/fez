@@ -410,7 +410,8 @@ class Record
     function insert()
     {
         $record = new RecordObject();
-        return $record->fedoraInsertUpdate();
+        $ret = $record->fedoraInsertUpdate();
+        return $ret;
     }
 
     /**
@@ -776,46 +777,6 @@ class Record
         foreach ($children as $child_pid) {
             Record::setIndexMatchingFieldsRecurse($child_pid, $bgp, $fteindex);
         }
-    }
-
-
-
-
-    /**
-     * Method used to get the current sorting options used in the grid layout
-     * of the Record listing page.
-     *
-	 * Developer Note: Not used yet..
-	 *
-     * @access  public
-     * @param   array $options The current search parameters
-     * @return  array The sorting options
-     */
-    function getSortingInfo($options)
-    {
-        $fields = array(
-            "rec_id",
-            "rec_date",
-            "rec_summary"
-        );
-        $items = array(
-            "links"  => array(),
-            "images" => array()
-        );
-        for ($i = 0; $i < count($fields); $i++) {
-            if ($options["sort_by"] == $fields[$i]) {
-                $items["images"][$fields[$i]] = "images/" . strtolower($options["sort_order"]) . ".gif";
-                if (strtolower($options["sort_order"]) == "asc") {
-                    $sort_order = "desc";
-                } else {
-                    $sort_order = "asc";
-                }
-                $items["links"][$fields[$i]] = $_SERVER["PHP_SELF"] . "?sort_by=" . $fields[$i] . "&sort_order=" . $sort_order;
-            } else {
-                $items["links"][$fields[$i]] = $_SERVER["PHP_SELF"] . "?sort_by=" . $fields[$i] . "&sort_order=asc";
-            }
-        }
-        return $items;
     }
 
     /**
@@ -1474,11 +1435,13 @@ class Record
       
 		if (!Auth::isAdministrator() && (is_numeric($usr_id))) {
       
+			// TODO: OR rek_assigned_group_id IN (2,3))
 	      	$stmt = "SELECT rek_pid, authi_pid, authi_role, wfl_id, wfl_title, wft_id, wft_icon
 	                 FROM ".$dbtp."record_search_key 
 	                 INNER JOIN ".$dbtp."auth_index2 ON rek_pid = authi_pid 
 	                 INNER JOIN ".$dbtp."auth_rule_group_users ON authi_arg_id = argu_arg_id and argu_usr_id = ".$usr_id." 
-	                 LEFT JOIN ".$dbtp."workflow_roles ON authi_role = wfr_aro_id 
+	                 LEFT JOIN ".$dbtp."record_search_key_assigned_user_id ON rek_pid = rek_assigned_user_id_pid 
+	                 LEFT JOIN ".$dbtp."workflow_roles ON authi_role = wfr_aro_id OR (authi_role = 7 AND wfr_aro_id = 8 AND rek_status != 2 AND (rek_assigned_user_id IN (".$usr_id.") ) )
 	                 LEFT JOIN ".$dbtp."workflow ON wfr_wfl_id = wfl_id 
 	                 LEFT JOIN ".$dbtp."workflow_trigger ON wfl_id = wft_wfl_id 
 	                      							AND (wft_pid = -1 or wft_pid = authi_pid)
@@ -2493,7 +2456,6 @@ class Record
      */
     function makeInsertTemplate()
     {
-		$existingDatastreams = array();
         $created_date = Date_API::getFedoraFormattedDateUTC();
         $updated_date = $created_date;
         $pid = '__makeInsertTemplate_PID__';
@@ -2519,14 +2481,15 @@ class Record
                 $_POST['xsd_display_fields'][$xsdmf_id] = '__makeInsertTemplate_DCTitle__';
             }
         }
-
+        
 		$indexArray = array();
 		$xmlObj = '<?xml version="1.0"?>'."\n";
 		$xmlObj .= "<".$xsd_element_prefix.$xsd_top_element_name." ";
 		$xmlObj .= Misc::getSchemaSubAttributes($array_ptr, $xsd_top_element_name, $xdis_id, $pid); // for the pid, fedora uri etc
 		$xmlObj .= $xml_schema;
 		$xmlObj .= ">\n";
-		$xmlObj = Foxml::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "", $indexArray, 0, $created_date, $updated_date, Auth::getUserID());
+		
+		$xmlObj = Foxml::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "", $indexArray, 0, $created_date, $updated_date, Auth::getUserID(),array(Auth::getUserID()));
 		$xmlObj .= "</".$xsd_element_prefix.$xsd_top_element_name.">";
         // hose the index array as we'll generate it from the ingested object later
         $indexArray = array();
@@ -2849,13 +2812,6 @@ class Record
         }
         
         return;
-    }
-
-
-
-    function runIngestTriggers($pid, $dsId, $mimetype)
-    {
-
     }
     
     function isDeleted($pid)
@@ -3335,66 +3291,6 @@ class RecordGeneral
         return false;
     }
     
-
-    function fixInheritance() {
-		$dbtp = APP_TABLE_PREFIX;
-		  // first check if any rmf rows exist for the fezacml displays based on the fezacml xsd (29)
-  	      $stmt = "SELECT COUNT(rek_id) AS rek_count
-               FROM
-                  " . $dbtp . "record_matching_field INNER JOIN
-                  " . $dbtp . "xsd_display_matchfields ON rek_xsdmf_id = xsdmf_id INNER JOIN
-                  " . $dbtp . "xsd_display ON xsdmf_xdis_id = xdis_id and xdis_xsd_id = 29
-               WHERE
-                  rek_pid = '".$this->pid."' and rek_varchar <> 'off'
-               ";
-        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-        } else {
-	    	if ($res['rek_count'] > 0) {
-	    		//if there are fezacml rules already set on the object it will check to see if the current value is on otherwise set it to off
-	    		$value = "off";
-	    	} else {
-	    		$value = "on";
-	    	}
-
-	    	$newXML = "";
-	        $xmlString = Fedora_API::callGetDatastreamContents($this->pid, 'FezACML', true);
-	        if (!empty($xmlString)) {
-				$doc = DOMDocument::loadXML($xmlString);
-				$xpath = new DOMXPath($doc);
-				$found_existing = false;
-				$fieldNodeList = $xpath->query("//inherit_security");
-				if ($fieldNodeList->length > 0) {
-					foreach ($fieldNodeList as $fieldNode) { // first delete all the existing inherit_security associations (should really on be one, but just in case)
-						$temp_value = $fieldNode->nodeValue; //if there is already a value ('on') then keep it for saving later
-						$parentNode = $fieldNode->parentNode;
-						//if ($temp_value == 'on' || $temp_value == 'off') {
-						if ($temp_value == 'on') {
-							$found_existing = true;
-							//$value = $temp_value;
-						}  else { // if haven't found an on value then delete the current element to prepare for a new one
-							//Error_Handler::logError($fieldNode->nodeName.$fieldNode->nodeValue,__FILE__,__LINE__);
-							$parentNode->removeChild($fieldNode);
-						}
-					}
-				} else {
-					// no inheritance element found at all so go with rek_count set value
-					$parentNode = $doc->lastChild;
-				}
-				if (!$found_existing) { //if havent found a on or off value then set it and save the record
-					$newNode = $doc->createElement('inherit_security');
-				    $newNode->nodeValue = $value;
-					$parentNode->insertBefore($newNode);
-					$newXML = $doc->SaveXML();
-			        if ($newXML != "") {
-			            Fedora_API::callModifyDatastreamByValue($this->pid, "FezACML", "A", "FezACML", $newXML, "text/xml", false);
-						Record::setIndexMatchingFields($this->pid);
-			        }
-				}
-	        }
-        }
-    }
 
     /**
      * updateFezMD_User
@@ -4177,6 +4073,7 @@ class RecordObject extends RecordGeneral
 	var $assign_usr_id;
     var $file_downloads; //for statistics of file datastream downloads from eserv.php
     var $default_xdis_id = 5;
+    var $status;
 
 
 
@@ -4221,7 +4118,11 @@ class RecordObject extends RecordGeneral
 		} else {
 			$this->assign_usr_id = array();
 		}
-
+        if (isset($xdis_array['sta_id'][0])) {
+            $this->status = $xdis_array['sta_id'][0];
+        } else {
+            $this->status = NULL;
+        }
 
 
     }
@@ -4286,6 +4187,7 @@ class RecordObject extends RecordGeneral
 			$this->created_date = Date_API::getFedoraFormattedDateUTC();
 			$this->updated_date = $this->created_date;
 			$this->depositor = Auth::getUserID();
+			$this->assign_usr_id = Auth::getUserID();
 			$existingDatastreams = array();
         } else {
 			$existingDatastreams = Fedora_API::callGetDatastreams($this->pid);

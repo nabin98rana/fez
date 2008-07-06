@@ -405,6 +405,7 @@ class WorkflowStatus {
                 }
             }
         } else {
+        	
             if ($this->change_on_refresh) {
                 $this->change_on_refresh = false;
                 if ($this->end_on_refresh) {

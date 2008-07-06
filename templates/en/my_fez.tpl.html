@@ -29,8 +29,11 @@ if (!isElementVisible(basic_element)) {
         <li><a {if $smarty.server.PHP_SELF|replace:$rel_url:'' == 'my_collections.php'}class="my_views_tab_here" {/if}href="{$rel_url}my_collections.php" title="See the complete list of collections you have access to.">My Collections</a></li>
         <li><a {if $smarty.server.PHP_SELF|replace:$rel_url:'' == 'my_created_items.php'}class="my_views_tab_here" {/if}href="{$rel_url}my_created_items.php" title="See the list of items you have created.">My Created Items</a></li>
         <li><a {if $smarty.server.PHP_SELF|replace:$rel_url:'' == 'my_fez.php'}class="my_views_tab_here" {/if}href="{$rel_url}my_fez.php" title="See which of your items are not yet published.">Unpublished Items</a></li>
-        {if $isAdministrator }<li><a {if $smarty.server.PHP_SELF|replace:$rel_url:'' == 'my_active_workflows.php'}class="my_views_tab_here" {/if}href="{$rel_url}my_active_workflows.php" title="See the list of active workflows you have running.">Active Workflows</a></li>{/if}
-        {if $isAdministrator }<li><a {if $smarty.server.PHP_SELF|replace:$rel_url:'' == 'my_processes.php'}class="my_views_tab_here" {/if}href="{$rel_url}my_processes.php" title="View background process information.">Background Processes</a></li>{/if}
+        <li><a {if $smarty.server.PHP_SELF|replace:$rel_url:'' == 'my_work_in_progress.php'}class="my_views_tab_here" {/if}href="{$rel_url}my_work_in_progress.php" title="See the list of items you have created.">My Work In Progress</a></li>
+        {if $isApprover}<li><a {if $smarty.server.PHP_SELF|replace:$rel_url:'' == 'submitted_for_approval.php'}class="my_views_tab_here" {/if}href="{$rel_url}submitted_for_approval.php" title="See the list of items you can approve.">Submitted for Approval</a></li>{/if}
+        {if $isApprover}<li><a {if $smarty.server.PHP_SELF|replace:$rel_url:'' == 'in_review.php'}class="my_views_tab_here" {/if}href="{$rel_url}in_review.php" title="See the list of items you are reviewing.">In Review</a></li>{/if}
+        {if $isAdministrator}<li><a {if $smarty.server.PHP_SELF|replace:$rel_url:'' == 'my_active_workflows.php'}class="my_views_tab_here" {/if}href="{$rel_url}my_active_workflows.php" title="See the list of active workflows you have running.">Active Workflows</a></li>{/if}
+        {if $isAdministrator}<li><a {if $smarty.server.PHP_SELF|replace:$rel_url:'' == 'my_processes.php'}class="my_views_tab_here" {/if}href="{$rel_url}my_processes.php" title="View background process information.">Background Processes</a></li>{/if}
     </ul>
     
     {if $myFezView == "MAI"}
@@ -44,6 +47,12 @@ if (!isElementVisible(basic_element)) {
     {include file="my_background_processes.tpl.html"}
     {elseif $myFezView == "MWF"}
     {include file="my_active_workflows.tpl.html"}
+    {elseif $myFezView == "WIP"}
+    {include file="my_work_in_progress.tpl.html"}
+    {elseif $myFezView == "SFA"}
+    {include file="submitted_for_approval.tpl.html"}
+    {elseif $myFezView == "Review"}
+    {include file="in_review.tpl.html"}
     {else}
     {include file="my_assigned_items.tpl.html"}
     {/if}

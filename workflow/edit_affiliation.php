@@ -37,23 +37,17 @@ include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.author_affiliations.php");
 
-$tpl = new Template_API();
-$tpl->setTemplate("workflow/index.tpl.html");
-$tpl->assign("type", "edit_author_affiliations");
 Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']."?".$_SERVER['QUERY_STRING']);
-$username = Auth::getUsername();
-$tpl->assign("isUser", $username);
-$isAdministrator = User::isUserAdministrator($username);
-if (Auth::userExists($username)) { // if the user is registered as a Fez user
-	$tpl->assign("isFezUser", $username);
-}
-$tpl->assign("isAdministrator", $isAdministrator);
 
 $wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
 if (empty($wfstatus)) {
-	echo "This workflow has finished and cannot be resumed";
-	exit;
+    echo "This workflow has finished and cannot be resumed";
+    exit;
 }
+
+$tpl = new Template_API();
+$tpl->setTemplate("workflow/index.tpl.html");
+$tpl->assign("type", "edit_author_affiliations");
 
 $pid = $wfstatus->pid;
 $wfstatus->setTemplateVars($tpl);

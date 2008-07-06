@@ -22,8 +22,10 @@
                  </td>
                  
                  <td align="center" nowrap width="40%">
-                     <nobr>    
-                     <strong>Page: </strong>                
+                     <nobr>
+                     {if $items_info.total_pages > 0}
+                     <strong>Page:</strong>
+                     {/if}
                      {if $items_info.printable_page != 1}
                     	<a href="{$page_url}&rows={$items_info.page_rows}&pager_row=0" title="First page" style="text-decoration: none; margin-left: 0.25em;">&#171; first</a> 
                     	<a href="{$page_url}&rows={$items_info.page_rows}&pager_row={$items_info.prev_page}" title="Previous page" style="text-decoration: none; margin-left: 0.25em;">&#139; previous</a>&nbsp;
@@ -37,7 +39,7 @@
                       {/if}
                 	{/section}
                 	
-                	{if $items_info.printable_page != $items_info.total_pages}
+                	{if ($items_info.printable_page != $items_info.total_pages) && $items_info.total_pages > 0}
                 	&nbsp;<a href="{$page_url}&rows={$items_info.page_rows}&pager_row={$items_info.next_page}" title="Next page" style="text-decoration: none; margin-left: 0.25em;">next &#155;</a> 
                 	<a href="{$page_url}&rows={$items_info.page_rows}&pager_row={$items_info.last_page}" title="Last page" style="text-decoration: none; margin-left: 0.25em;">last &#187;</a>
                 	{/if}
@@ -46,6 +48,7 @@
                 </td>
                       
                 <td nowrap>
+                    {if $items_info.total_pages > 0}
                     <strong>Rows:</strong> <select name="page_size" onChange="javascript:resizePagerMyFez(this.form, '{$page_url}');">
                     <option value="5" {if $options.rows == 5}selected{/if}>5</option>
                     <option value="10" {if $options.rows == 10}selected{/if}>10</option>
@@ -57,6 +60,7 @@
                     <option value="300" {if $options.rows == 300}selected{/if}>300</option>
                     <option value="500" {if $options.rows == 500}selected{/if}>500</option>
                     </select>
+                    {/if}
                 </td>
                       
            </tr>

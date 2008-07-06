@@ -30,39 +30,41 @@
 // | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
 // |          Matthew Smith <m.smith@library.uq.edu.au>                   |
 // +----------------------------------------------------------------------+
-//
-//
-include_once("../config.inc.php");
 
-include_once(APP_INC_PATH . "class.template.php");
+include_once("config.inc.php");
 include_once(APP_INC_PATH . "class.auth.php");
-include_once(APP_INC_PATH . "class.user.php");
-include_once(APP_INC_PATH . "class.record.php");
-include_once(APP_INC_PATH . "class.misc.php");
-include_once(APP_INC_PATH . "class.group.php");
-
-include_once(APP_INC_PATH . "class.doc_type_xsd.php");
-include_once(APP_INC_PATH . "class.workflow_trigger.php");
 
 Auth::checkAuthentication(APP_SESSION);
 
 $tpl = new Template_API();
-$tpl->setTemplate("workflow/index.tpl.html");
-$tpl->assign("type", "select_user");
-$tpl->assign("type_name", "Select User");
+$tpl->setTemplate("my_fez.tpl.html");
+$options = Pager::saveSearchParams();
 
-$wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
+$bulk_workflows = WorkflowTrigger::getAssocListByTrigger("-1", 7); //get the bulk change workflows
+$bulk_search_workflows = WorkflowTrigger::getAssocListByTrigger("-1", WorkflowTrigger::getTriggerId('Bulk Change Search')); 
 
-$wfstatus->setTemplateVars($tpl);
-$cat = $_REQUEST['cat'];
-if ($cat == 'submit') {
-    $wfstatus->assign('assign_usr_ids', array($_REQUEST['usr_id']));
-}
-$wfstatus->checkStateChange();
+$options["searchKey".Search_Key::getID("Status")] = Status::getID("In Creation");
+$options["searchKey".Search_Key::getID("Assigned User ID")] = Auth::getUserID();
 
-$usr_list = User::getAssocList();
+$pager_row  = $_GET['pager_row'];
+$rows       = $_GET['rows'];
 
-$tpl->assign('usr_list', $usr_list);
+if (empty($pager_row))  $pager_row = 0;
+if (empty($rows))       $rows = APP_DEFAULT_PAGER_SIZE;
+
+$items = Record::getListing($options, array("Editor", "Creator"), $pager_row, $rows);
+Record::getParentsByPids($items['list']);
+
+$tpl->assign("page_url",                'my_work_in_progress.php?');
+$tpl->assign('extra_title',             "My Work In Progress");
+$tpl->assign("bulk_workflows",          $bulk_workflows);
+$tpl->assign("bulk_search_workflows",   $bulk_search_workflows);
+$tpl->assign("status_list",             Status::getAssocList());
+$tpl->assign("options",                 $options);
+$tpl->assign('my_assigned_items_list',  $items['list']);
+$tpl->assign('items_info',              $items['info']);
+$tpl->assign('myFezView',               "WIP");
+$tpl->assign('isApprover',              $_SESSION['auth_is_approver']);
 
 $tpl->displayTemplate();
 ?>

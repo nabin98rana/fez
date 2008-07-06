@@ -38,22 +38,16 @@ include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.controlled_vocab.php");
 include_once(APP_INC_PATH . "class.collection.php");
-include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.xsd_html_match.php");
 include_once(APP_INC_PATH . "class.fedora_api.php");
+
+Auth::checkAuthentication(APP_SESSION);
 
 $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign('type',"preview");
 
-
-Auth::checkAuthentication(APP_SESSION);
-
-$isUser = Auth::getUsername();
-$tpl->assign("isUser", $isUser);
-$isAdministrator = User::isUserAdministrator($isUser);
-$tpl->assign("isAdministrator", $isAdministrator);
 $wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
 $pid = $wfstatus->pid;
 $tpl->assign("pid", $pid);

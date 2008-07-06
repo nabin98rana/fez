@@ -37,12 +37,9 @@ include_once("../config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.user.php");
-include_once(APP_INC_PATH . "class.group.php");
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.author.php");
 include_once(APP_INC_PATH . "class.misc.php");
-include_once(APP_INC_PATH . "class.setup.php");
-include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.controlled_vocab.php");
 include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "class.community.php");
@@ -51,20 +48,12 @@ include_once(APP_INC_PATH . "class.doc_type_xsd.php");
 include_once(APP_INC_PATH . "class.xsd_html_match.php");
 include_once(APP_INC_PATH . "class.xsd_relationship.php");
 include_once(APP_INC_PATH . "class.workflow_status.php");
-include_once(APP_INC_PATH . "class.org_structure.php");
-include_once(APP_INC_PATH . "najax/najax.php");
-include_once(APP_INC_PATH . "najax_objects/class.select_org_structure.php");
-include_once(APP_INC_PATH . "najax_objects/class.suggestor.php");
-NAJAX_Server::allowClasses(array('SelectOrgStructure', 'Suggestor'));
-if (NAJAX_Server::runServer()) {
-	exit;
-}
+
+Auth::checkAuthentication(APP_SESSION);
 
 $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign('type', 'enter_metadata');
-
-Auth::checkAuthentication(APP_SESSION);
 
 $isUser = Auth::getUsername();
 $tpl->assign("isUser", $isUser);
@@ -97,7 +86,9 @@ if ($pid == -1 || $pid == -2 || !$pid) {
     $record = new RecordObject($pid);
     $access_ok = $record->canCreate();
 }
+
 if ($access_ok) {
+	
     // check for post action
     if (@$_POST["cat"] == "report") {
         $res = Record::insert();
@@ -109,22 +100,18 @@ if ($access_ok) {
 
     $tpl->assign("isCreator", 1);
     if (!is_numeric($xdis_id)) { // if still can't find the xdisplay id then ask for it
-        print_r($wfstatus);
-        exit;
         Auth::redirect(APP_RELATIVE_URL . "select_xdis.php?return=insert_form".$extra_redirect, false);
     }
     $tpl->assign("xdis_id", $xdis_id);
     $tpl->assign("xdis_title", $xdis_title);
-    $sta_id = 1; // set to unpublished to start with
+    $sta_id = Status::getID("In Creation"); // set to unpublished to start with
     $tpl->assign('sta_id', $sta_id);
 	$xdis_collection_list = XSD_Display::getAssocListCollectionDocTypes(); // @@@ CK - 13/1/06 added for communities to be able to select their collection child document types/xdisplays
     $xdis_list = XSD_Display::getAssocListDocTypes();
     $xdis_collection_and_object_list = $xdis_list + $xdis_collection_list;
 
     // LUR: get the communities and collections where the user is allowed to create collections   
-
     $communities = Community::getCreatorList(0, 1000);
-//print_r($communities);
 	$index=0;
 	foreach ($communities['list'] as $item) {
 		if ($item['isCreator'] != 1)
@@ -137,37 +124,16 @@ if ($access_ok) {
 	}
 	$community_list = array();
     $community_list = Community::getCreatorListAssoc(0, 1000);
-/*	if (sizeof($communities['list']) > 0)
-	{
-		$community_list = Misc::keyPairs($communities['list'], 'rek_pid', 'rek_title');
-		$community_list = Misc::stripOneElementArrays($community_list);
-	}*/
 	
 	$default_depositor_org_id = -1;
-//	$community_list = 
-//	$collections = Collection::getEditList();
 	$collection_list = array();
-/*	if (sizeof($collections) > 0)
-	{ */
 	$collection_list = Collection::getCreatorListAssoc();
 	$community_and_collection_list = $community_list + $collection_list;
-//		$collection_list = Collection::getEditListAssoc();
-//	}
-/*    $internal_user_list = User::getAssocList();
-    $internal_group_list = Group::getAssocListAll(); */
-/*	$author_list = Author::getAssocListAll();
-	$tpl->assign("author_ids", $author_list); */
 
     $jtaskData = "";
     $maxG = 0;
-//    $xsd_display_fields = (XSD_HTML_Match::getListByDisplay($xdis_id));
 	$xsd_display_fields = XSD_HTML_Match::getListByDisplay($xdis_id, array("FezACML"), array(""));  // XSD_DisplayObject
-//	print_r($xsd_display_fields);
 
-//	print_r($parents);
-//	echo $wfstatus->parent_pid;
-//	if ($wfstatus->parent_pid != "-1") {
-//	  $parent_record = new RecordObject($wfstatus->parent_pid);
 	if (!is_numeric($pid) && $pid != "") {
 	  $parent_record = new RecordObject($pid);	  
 	  $parent_xdis_id = $parent_record->getXmlDisplayId();
@@ -176,8 +142,6 @@ if ($access_ok) {
     } else {
     	$parent_relationships = array();
     }
-//    $xsd_display_fields = (XSD_HTML_Match::getListByDisplay($xdis_id,array("FezACML"), array("")));
-//    $cvo_list = Controlled_Vocab::getAssocListFullDisplay(false, "", 0, 2);
 
     //@@@ CK - 26/4/2005 - fix the combo and multiple input box lookups
     // - should probably move this into a function somewhere later
@@ -215,13 +179,6 @@ if ($access_ok) {
 				if (!is_numeric($suggestor_count)) {
 					$suggestor_count = 1;
 				}
-//				for ($x=0;$x<=$suggestor_count;$x++) {
-//				 $tpl->headerscript .= "window.oTextbox_xsd_display_fields_{$dis_field['xsdmf_id']}_".$x."_lookup
-//						= new AutoSuggestControl(document.wfl_form1, 'xsd_display_fields_{$dis_field['xsdmf_id']}_".$x."', document.getElementById('xsd_display_fields_{$dis_field['xsdmf_asuggest_xsdmf_id']}_".$x."'), document.getElementById('xsd_display_fields_{$dis_field['xsdmf_id']}_".$x."_lookup'),
-//								new StateSuggestions('Author','suggest',false,
-//									'class.author.php'), 'authorSuggestorCallback');
-//						";
-//				}
 			}
 			if ($dis_field["xsdmf_html_input"] == 'combo' || $dis_field["xsdmf_html_input"] == 'multiple') {
 				if (!empty($dis_field["xsdmf_smarty_variable"]) && $dis_field["xsdmf_smarty_variable"] != "none") {
@@ -269,14 +226,7 @@ if ($access_ok) {
     $tpl->assign("default_depositor_org_id", $default_depositor_org_id);
     $tpl->assign("form_title", "Create New Record");
     $tpl->assign("form_submit_button", "Create Record");
-
-    $setup = Setup::load();
-
 }
-
-$tpl->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));
-        $tpl->registerNajax(NAJAX_Client::register('SelectOrgStructure', 'enter_metadata.php')."\n"
-            .NAJAX_Client::register('Suggestor', 'enter_metadata.php'));
 
 $tpl->displayTemplate();
 ?>

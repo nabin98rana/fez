@@ -38,24 +38,23 @@ include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.batchimport.php");
 include_once(APP_INC_PATH . "class.misc.php");
-include_once(APP_INC_PATH . "class.setup.php");
 include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "class.community.php");
 include_once(APP_INC_PATH . "class.date.php");
 include_once(APP_INC_PATH . "class.xsd_html_match.php");
 
+Auth::checkAuthentication(APP_SESSION);
 
 $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign("type", 'batchimport');
 
-Auth::checkAuthentication(APP_SESSION);
-
 $isUser = Auth::getUsername();
 $tpl->assign("isUser", $isUser);
 $isAdministrator = User::isUserAdministrator($isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
+
 $wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
 $pid = $wfstatus->pid;
 $tpl->assign("pid", $pid);
@@ -95,8 +94,6 @@ if ($access_ok) {
     $tpl->assign("filenames", $filenames);
     $tpl->assign("form_title", "Batch Import Records");
     $tpl->assign("form_submit_button", "Batch Import Records");
-
-    $setup = Setup::load();
 }
 
 $tpl->displayTemplate();

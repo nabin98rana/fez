@@ -36,7 +36,6 @@ include_once("../config.inc.php");
 
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
-include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.group.php");
@@ -44,22 +43,19 @@ include_once(APP_INC_PATH . "class.group.php");
 include_once(APP_INC_PATH . "class.doc_type_xsd.php");
 include_once(APP_INC_PATH . "class.workflow_trigger.php");
 
+Auth::checkAuthentication(APP_SESSION);
+
 $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign("type", "select_group");
 $tpl->assign("type_name", "Select Group");
 
-Auth::checkAuthentication(APP_SESSION);
-$isUser = Auth::getUsername();
-$tpl->assign("isUser", $isUser);
-$isAdministrator = User::isUserAdministrator($isUser);
-$tpl->assign("isAdministrator", $isAdministrator);
 $wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
 
 $wfstatus->setTemplateVars($tpl);
-$cat = Misc::GETorPOST('cat');
+$cat = $_REQUEST['cat'];
 if ($cat == 'submit') {
-    $wfstatus->assign('assign_grp_id',  Misc::GETorPOST('grp_id'));
+    $wfstatus->assign('assign_grp_id',  $_REQUEST['grp_id']);
 }
 $wfstatus->checkStateChange();
 
