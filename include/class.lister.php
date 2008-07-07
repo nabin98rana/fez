@@ -216,6 +216,8 @@ class Lister
             "searchKey".Search_Key::getID("Description") => 'Description',
             "searchKey".Search_Key::getID("File Downloads") => 'File Downloads',
             "searchKey".Search_Key::getID("Date") => 'Date',
+            "searchKey".Search_Key::getID("Created Date") => 'Created Date',
+            "searchKey".Search_Key::getID("Updated Date") => 'Updated Date',
             "searchKey".Search_Key::getID("Sequence") => 'Sequence'
         );
         

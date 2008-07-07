@@ -22,7 +22,7 @@
 	  	 <description>{$list[i].rek_description|escape:"html"}</description>
 	  {/if}
 	  {if $list[i].rek_created_date}
-	  	<pubDate>{$list[i].rek_created_date|date_format:"%a, %d %b %Y %H:%M:%S"}</pubDate>
+	  	<pubDate>{$list[i].rek_created_date|escape:"html"}</pubDate>
 	  {/if}
 		{if $list[i].rek_author}
 			<author>

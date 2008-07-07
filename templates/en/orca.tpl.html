@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<registryObjects xmlns="http://apsr.edu.au/standards/iso2146/registryObjects" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://apsr.edu.au/standards/iso2146/registryObjects http://pilot.apsr.edu.au/public/rif/schema/registryObjects.xsd">
+	<registryObject dateCreated="2008-01-01T12:00:00Z" dateModified="2008-01-01T12:00:00Z" group="{$smarty.const.APP_ORG_NAME}">
+		<key>{$smarty.const.APP_HOSTNAME}.{$smarty.const.APP_NAME}</key>
+		<collection type="repository">
+			<identifier type="local">{$smarty.const.APP_HOSTNAME}</identifier>
+			<name type="primary">{$smarty.const.APP_NAME}</name>
+			<location>
+				<address>
+					<electronic type="url">
+						<value>http://{$smarty.const.APP_HOSTNAME}</value>
+					</electronic>
+				</address>
+			</location>
+		</collection>
+	</registryObject>
+	<registryObject dateCreated="2008-01-01T12:00:00Z" dateModified="2008-01-01T12:00:00Z" group="{$smarty.const.APP_ORG_NAME}">
+		<key>{$smarty.const.APP_HOSTNAME}.RSS2.0</key>
+		<service type="syndicate-rss">
+			<name type="primary">{$smarty.const.APP_NAME} RSS 2.0 Feed</name>
+			<location>
+				<address>
+					<electronic type="url">
+						<value>http://{$smarty.const.APP_HOSTNAME}/list/latest/?tpl=2</value>					
+					</electronic>
+				</address>
+			</location>
+			<description type="brief">RSS v2.0 feed notifies when items have been added to or deleted from a collection. This service requires the collection identifier to be substituted for 'site'.</description>
+			<relatedInfo>http://www.xul.fr/en-xml-rss.html</relatedInfo>
+			<relatedInfo>http://en.wikipedia.org/wiki/RSS_(file_format)</relatedInfo>
+		</service>
+	</registryObject>
+	<registryObject dateCreated="2008-01-01T12:00:00Z" dateModified="2008-01-01T12:00:00Z" group="{$smarty.const.APP_ORG_NAME}">
+		<key>{$smarty.const.APP_HOSTNAME}.oaipmh2.0</key>
+		<service type="harvest-oaipmh">
+			<name type="primary">{$smarty.const.APP_NAME} OAI-PMH Data Provider</name>
+			<location>
+				<address>
+					<electronic type="url">
+						<value>{$smarty.const.APP_HOSTNAME}/oai.php</value>
+					</electronic>
+				</address>
+			</location>
+			<description type="brief">OAI-PMH Data Provider base url.</description>
+			<relatedInfo>http://www.openarchives.org/pmh/</relatedInfo>
+		</service>
+	</registryObject>
+	<registryObject dateCreated="2008-01-01T12:00:00Z" dateModified="2008-01-01T12:00:00Z" group="{$smarty.const.APP_ORG_NAME}">
+		<key>{$smarty.const.APP_HOSTNAME}.browse</key>
+		<service type="search-http">
+			<name type="primary">Browse Collection</name>
+				<location>
+					<address>
+						<electronic type="url">
+							<value>http://{$smarty.const.APP_HOSTNAME}/list/</value>
+							<arg required="true" type="string" use="inline">handle</arg>
+							<arg required="true" type="string" use="inline">action</arg>
+						</electronic>
+					</address>
+				</location>
+			<description type="brief">Service providing browsing of a collection. Authentication may be required.</description>
+		</service>
+	</registryObject>
+  {section name="i" loop=$list}
+	<registryObject dateCreated="{$list[i].rek_created_date|escape:'html'}" dateModified="{$list[i].rek_updated_date|escape:'html'}" group="{$smarty.const.APP_ORG_NAME}">
+		<key>{$smarty.const.APP_HOSTNAME}.{$list[i].rek_pid|escape:"html"}</key>
+		<collection type="repository">
+			<identifier type="local">{$smarty.const.APP_HOSTNAME}/collection/{$list[i].rek_pid|escape:"html"}</identifier>
+			<name type="primary">{$list[i].rek_title|escape:"html"}</name>
+			<location>
+				<address>
+					<electronic type="url">
+						<value>http://{$smarty.const.APP_HOSTNAME}/collection/{$list[i].rek_pid|escape:"html"}</value>
+					</electronic>
+				</address>
+			</location>
+			<relatedObject>
+				<key>{$smarty.const.APP_HOSTNAME}.RSS2.0</key>
+				<relation type="Supports">
+					<description>Supports</description>
+					<url>http://{$smarty.const.APP_HOSTNAME}/collection/{$list[i].rek_pid|escape:"html"}?sort_by=searchKeycore_17&amp;tpl=2&amp;sort_order=1</url>
+					</relation>
+			</relatedObject>
+			<relatedObject>
+				<key>{$smarty.const.APP_HOSTNAME}.oaipmh2.0</key>
+				<relation type="Supports">
+					<description>Supports</description>
+					<url>http://{$smarty.const.APP_HOSTNAME}/oai.php?verb=ListRecords&amp;metadataPrefix=oai_dc&amp;set=oai:{$smarty.const.APP_HOSTNAME}:{$list[i].rek_pid|escape:"html"}</url>
+				</relation>
+			</relatedObject>
+			<description type="full">{$list[i].rek_description|escape:"html"}</description>
+		</collection>
+	</registryObject>
+  {/section}
+</registryObjects>
+
