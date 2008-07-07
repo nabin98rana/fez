@@ -132,6 +132,9 @@ if ($options["searchKey0"] != "" && ($_REQUEST["sort_by"] == "" || $options["sor
 
 $assigned_items = Record::getListing($options, array("Editor", "Approver"), $pager_row, $rows, $sort_by);
 Record::getParentsByPids($assigned_items['list']);
+Record::getAssignedUsernames($assigned_items['list']);
+Record::getAssignedGroupnames($assigned_items['list']);
+
 
 $tpl->assign("bulk_workflows",          $bulk_workflows);
 $tpl->assign("bulk_search_workflows",   $bulk_search_workflows);

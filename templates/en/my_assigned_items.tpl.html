@@ -35,6 +35,14 @@ No items found
        </th>
        {/if}
        
+       <th class="default tableheader" nowrap valign="middle">
+        Assigned User
+       </th>
+       
+       <th class="default tableheader" nowrap valign="middle">
+        Assigned Group
+       </th>
+       
        {if $options.searchKeycore_8 == ""}
        <th class="default tableheader" nowrap valign="middle">
        {if $options.sort_order == "1"}
@@ -74,7 +82,19 @@ No items found
 	  {assign var="status_id" value=$list[i].rek_status}
       {if $options.searchKeycore_9 == "" || $options.searchKeycore_9 == '-4'}
       <td class="default">{$status_list[$status_id]}</td>
-      {/if}     
+      {/if} 
+      
+      <td>
+      {section name="m" loop=$list[i].rek_assigned_user_name}
+      {$list[i].rek_assigned_user_name[m]|escape}
+      {/section}
+      </td>
+      
+      <td>
+      {section name="m" loop=$list[i].rek_assigned_group_name}
+      {$list[i].rek_assigned_group_name[m]|escape}
+      {/section}
+      </td>
 
        <td class="default">
 		{section name="m" loop=$list[i].rek_ismemberof.rek_pid}
@@ -92,9 +112,9 @@ No items found
       
      </td>
      <td nowrap valign="middle" class="default">
-   {if $list[i].isEditor==1 || $isAdministrator}		          
+        {if $list[i].isEditor==1 || $isAdministrator}		          
            <a href="workflow/list_workflows2.php?pid={$list[i].rek_pid|escape}"><img src="{$rel_url}images/options_16.png" alt="More options" title="More options" border="0" width="16" height="16" /></a>
-			{/if}
+	   {/if}
      {section name="w" loop=$list[i].wft_id}
 	    {if $list[i].wft_id[w] != ''}
 	    {if $list[i].wft_icon[w] == 'images/security.gif'}
@@ -130,13 +150,13 @@ No items found
      </tr>
      {sectionelse}
      <tr>
-       <td colspan="6" bgcolor="{$light_color}" align="center" class="default">
+       <td colspan="8" bgcolor="{$light_color}" align="center" class="default">
          No items with that search filter could be found.
        </td>
      </tr>
      {/section}
 
-     {include file="my_fez_table_footer.tpl.html"}
+     {include file="my_fez_table_footer.tpl.html" rowspan=8}
      
      </table>
      
