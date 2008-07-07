@@ -238,8 +238,11 @@ class FulltextIndex_Solr extends FulltextIndex {
             if(in_array('Lister', $approved_roles)) {
                 $filterQueryParts[] = "(_authlister_t:(" . $rulegroups . "))";
             }
-            
-            $filterQuery = implode(" OR ", $filterQueryParts);
+            if (is_array($filterQueryParts)) {
+            	$filterQuery = implode(" OR ", $filterQueryParts);
+			} else {
+				$filterQuery = "";
+			}
         }
         
         if($filter_join[2] != "") {
