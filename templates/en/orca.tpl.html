@@ -25,7 +25,7 @@
 					</electronic>
 				</address>
 			</location>
-			<description type="brief">RSS v2.0 feed notifies when items have been added to or deleted from a collection. This service requires the collection identifier to be substituted for 'site'.</description>
+			<description type="brief">RSS v2.0 feed of the latest items in {$smarty.const.APP_NAME}.</description>
 			<relatedInfo>http://www.xul.fr/en-xml-rss.html</relatedInfo>
 			<relatedInfo>http://en.wikipedia.org/wiki/RSS_(file_format)</relatedInfo>
 		</service>
@@ -56,7 +56,7 @@
 						</electronic>
 					</address>
 				</location>
-			<description type="brief">Service providing browsing of a collection. Authentication may be required.</description>
+			<description type="brief">Service providing browsing of communities and collections. Authentication may be required.</description>
 		</service>
 	</registryObject>
   {section name="i" loop=$list}
@@ -86,7 +86,9 @@
 					<url>http://{$smarty.const.APP_HOSTNAME}/oai.php?verb=ListRecords&amp;metadataPrefix=oai_dc&amp;set=oai:{$smarty.const.APP_HOSTNAME}:{$list[i].rek_pid|escape:"html"}</url>
 				</relation>
 			</relatedObject>
+			{if $list[i].rek_description != ""}
 			<description type="full">{$list[i].rek_description|escape:"html"}</description>
+			{/if}
 		</collection>
 	</registryObject>
   {/section}
