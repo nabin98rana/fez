@@ -601,7 +601,6 @@ class Record
 			}
 			
 		}
-		
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -655,7 +654,7 @@ class Record
                         WHERE rek_pid = '".$pid."'
                      ELSE ".$stmtIns;
     	}
-    	
+  		
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -1226,7 +1225,9 @@ class Record
 
 		if (count($res) > 0) {
 			if ($getSimple == false || empty($getSimple)) {
-				
+				if ($citationCache == false) {	
+                	Record::getSearchKeysByPIDS($res);
+				}
                 Record::identifyThumbnails($res, $citationCache);
                 Record::getAuthWorkflowsByPIDS($res, $usr_id);
 			}
