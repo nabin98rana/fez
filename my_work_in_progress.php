@@ -57,8 +57,8 @@ Record::getParentsByPids($items['list']);
 
 $tpl->assign('extra_title',             "My Work In Progress");
 
-$tpl->assign("page_url_order",          $_SERVER['PHP_SELF'].'?'.$urlnoSort);
-$tpl->assign("page_url",                $_SERVER['PHP_SELF'].'?'.$urlnoOrder);
+$tpl->assign("page_url_order",          $_SERVER['PHP_SELF'].'?');
+$tpl->assign("page_url",                $_SERVER['PHP_SELF'].'?');
 
 $tpl->assign("bulk_workflows",          $bulk_workflows);
 $tpl->assign("bulk_search_workflows",   $bulk_search_workflows);

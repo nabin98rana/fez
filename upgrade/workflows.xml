@@ -326,12 +326,6 @@
     <WorkflowStateLinks wfsl_id="1213" wfsl_from_id="903" wfsl_to_id="904"/>
     <WorkflowTrigger wft_id="354" wft_pid="-1" wft_type_id="7" wft_xdis_id="-2" wft_order="0" wft_mimetype="" wft_icon="images/bulk_move_16.png" wft_ret_id="0" wft_options="0"/>
   </workflow>
-  <workflow wfl_id="211" wfl_title="Reindex records" wfl_version="1.0" wfl_description="" wfl_roles="Community_Administrator,Editor" wfl_end_button_label="Finish">
-    <WorkflowState wfs_id="895" wfs_title="Reindex record(s)" wfs_description="" wfs_auto="1" wfs_wfb_id="155" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles="Community_Administrator"/>
-    <WorkflowState wfs_id="896" wfs_title="Started" wfs_description="" wfs_auto="0" wfs_wfb_id="105" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowStateLinks wfsl_id="1182" wfsl_from_id="895" wfsl_to_id="896"/>
-    <WorkflowTrigger wft_id="352" wft_pid="-1" wft_type_id="7" wft_xdis_id="-2" wft_order="0" wft_mimetype="" wft_icon="images/bulk_move_16.png" wft_ret_id="0" wft_options="0"/>
-  </workflow>
   <workflow wfl_id="199" wfl_title="Split Collection" wfl_version="1.0" wfl_description="Splits a collection into many collections with less records." wfl_roles="Community_Administrator" wfl_end_button_label="Ok">
     <WorkflowState wfs_id="843" wfs_title="Split" wfs_description="" wfs_auto="1" wfs_wfb_id="139" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
     <WorkflowState wfs_id="844" wfs_title="Running" wfs_description="The collection is currently being split in a running process which can be followed on the background process page." wfs_auto="0" wfs_wfb_id="125" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>

@@ -34,7 +34,6 @@
 
 
 include_once("config.inc.php");
-include_once(APP_INC_PATH . "db_access.php");
 
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
@@ -130,7 +129,6 @@ if ($options["searchKey0"] != "" && ($_REQUEST["sort_by"] == "" || $options["sor
 } elseif (!is_numeric($options["sort_order"])) {
     $options["sort_order"] = 0; 
 }
-
 
 $assigned_items = Record::getListing($options, array("Editor"), $pager_row, $rows, $sort_by);
 Record::getParentsByPids($assigned_items['list']);
