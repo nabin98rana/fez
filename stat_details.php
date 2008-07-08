@@ -52,14 +52,6 @@ include_once(APP_INC_PATH . "class.statistics.php");
 $tpl = new Template_API();
 $tpl->setTemplate("stat_details.tpl.html");
 
-$username = Auth::getUsername();
-$tpl->assign("isUser", $username);
-$isAdministrator = User::isUserAdministrator($username);
-if (Auth::userExists($username)) { // if the user is registered as a Fez user
-	$tpl->assign("isFezUser", $username);
-}
-$tpl->assign("isAdministrator", $isAdministrator);
-
 if (WEBSERVER_LOG_STATISTICS != 'ON') {
 	echo "WEB SERVER STATS CURRENLTY UNAVAILABLE";
 	exit;
@@ -182,10 +174,6 @@ $tpl->assign("listCountry", $countryAll);
 $tpl->assign("listCountryCount", count($countryAll));
 //$tpl->assign("list", $list_history);
 //$tpl->assign("list_info", $list_info);
-
-if (Auth::userExists($username)) {
-	$prefs = Prefs::get(Auth::getUserID());
-}
 
 $tpl->displayTemplate();
 ?>

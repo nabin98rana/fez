@@ -11,7 +11,6 @@
                  <input type="submit" value="Delete"  onClick="javascript:return checkDeleteRecords(this.form);" />
                  <input type="submit" value="Publish" onClick="javascript:return checkPublishRecords(this.form);" />
                  </td>
-                {/if}
                 
                  <td>                   
                    <input type="button" value="Run Workflow &gt;" onClick="javascript:workflowItems(this.form, '{$rel_url}');">
@@ -20,6 +19,9 @@
                     </select>
                    {include file="error_icon.tpl.html" field="users"} 
                  </td>
+                 {else}
+                 <td colspan="2">&nbsp;</td>
+                 {/if}
                  
                  <td align="center" nowrap width="40%">
                      <nobr>

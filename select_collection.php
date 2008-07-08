@@ -49,11 +49,11 @@ if (!Auth::hasCookieSupport(APP_SESSION)) {
     Auth::redirect(APP_RELATIVE_URL . "index.php?err=11");
 }
 
-if ((@$HTTP_GET_VARS["err"] == '') && (Auth::hasValidCookie(APP_SESSION))) {
+if ((@$_GET["err"] == '') && (Auth::hasValidCookie(APP_SESSION))) {
     $cookie = Auth::getCookieInfo(APP_COLLECTION_COOKIE);
     if ($cookie["remember"]) {
-        if (!empty($HTTP_GET_VARS["url"])) {
-            Auth::redirect($HTTP_GET_VARS["url"]);
+        if (!empty($_GET["url"])) {
+            Auth::redirect($_GET["url"]);
         } else {
            // Auth::redirect(APP_RELATIVE_URL . "main.php"); @@@ CK - changed default to listing
             Auth::redirect(APP_RELATIVE_URL . "list.php");
@@ -66,8 +66,8 @@ if ((@$HTTP_GET_VARS["err"] == '') && (Auth::hasValidCookie(APP_SESSION))) {
     if (count($assigned_collections) == 1) {
         list($col_id,) = each($assigned_collections);
         Auth::setCurrentCollection($col_id, 0);
-        if (!empty($HTTP_GET_VARS["url"])) {
-            Auth::redirect($HTTP_GET_VARS["url"]);
+        if (!empty($_GET["url"])) {
+            Auth::redirect($_GET["url"]);
         } else {
             Auth::redirect(APP_RELATIVE_URL . "list.php");
         }
@@ -77,8 +77,8 @@ if ((@$HTTP_GET_VARS["err"] == '') && (Auth::hasValidCookie(APP_SESSION))) {
 	$primary_collection = $user_details['usr_primary_col_id'];
     if ($primary_collection > 0) {
         Auth::setCurrentCollection($primary_collection, 0);
-        if (!empty($HTTP_GET_VARS["url"])) {
-            Auth::redirect($HTTP_GET_VARS["url"]);
+        if (!empty($_GET["url"])) {
+            Auth::redirect($_GET["url"]);
         } else {
 
         }
@@ -86,26 +86,26 @@ if ((@$HTTP_GET_VARS["err"] == '') && (Auth::hasValidCookie(APP_SESSION))) {
 
 }
 
-if (@$HTTP_GET_VARS["err"] != '') {
+if (@$_GET["err"] != '') {
     Auth::removeCookie(APP_COLLECTION_COOKIE);
-    $tpl->assign("err", $HTTP_GET_VARS["err"]);
+    $tpl->assign("err", $_GET["err"]);
 }
 
-if (@$HTTP_POST_VARS["cat"] == "select") {
+if (@$_POST["cat"] == "select") {
     $usr_id = Auth::getUserID();
     $collections = Collection::getAssocList($usr_id);
 	print_r($collections);
-    if (!in_array($HTTP_POST_VARS["collection"], array_keys($collections))) {
+    if (!in_array($_POST["collection"], array_keys($collections))) {
         // show error message
         $tpl->assign("err", 1);
     } else {
         // create cookie and redirect
-        if (empty($HTTP_POST_VARS["remember"])) {
-            $HTTP_POST_VARS["remember"] = 0;
+        if (empty($_POST["remember"])) {
+            $_POST["remember"] = 0;
         }
-        Auth::setCurrentCollection($HTTP_POST_VARS["collection"], $HTTP_POST_VARS["remember"]);
-        if (!empty($HTTP_POST_VARS["url"])) {
-            Auth::redirect($HTTP_POST_VARS["url"]);
+        Auth::setCurrentCollection($_POST["collection"], $_POST["remember"]);
+        if (!empty($_POST["url"])) {
+            Auth::redirect($_POST["url"]);
         } else {
             Auth::redirect(APP_RELATIVE_URL . "list.php");
         }

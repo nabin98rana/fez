@@ -33,8 +33,16 @@ No items found
        {else}
        <a href='{$page_url_order}&sort_by=searchKeycore_8&sort_order=1'>Collection{if $options.sort_by == "searchKeycore_8"}<img border="0" title="click to sort by Collection Descending"  src="{$rel_url}images/sort_desc_off_16.gif" align="middle">{/if}</a>
        {/if}
-       </td>
+       </th>
        {/if}
+       
+       <th class="default tableheader" nowrap valign="middle">
+        Assigned User
+       </th>
+       
+       <th class="default tableheader" nowrap valign="middle">
+        Assigned Group
+       </th>
        
        <th class="default tableheader" valign="middle">
        {if $options.sort_order == "1"}
@@ -66,6 +74,19 @@ No items found
         <a title="click to open the published list of records in this collection" href="{$rel_url}collection/{$list[i].rek_ismemberof.rek_pid[m]}">{$list[i].rek_ismemberof.rek_title[m]|escape}</a><br />
         {/section}
        </td>
+       
+       <td>
+      {section name="m" loop=$list[i].rek_assigned_user_id_lookup}
+      {$list[i].rek_assigned_user_id_lookup[m]|escape}
+      {/section}
+      </td>
+      
+      <td>
+      {section name="m" loop=$list[i].rek_assigned_group_id_lookup}
+      {$list[i].rek_assigned_group_id_lookup[m]|escape}
+      {/section}
+      </td>
+       
        <td width="99%" class="default">
         
         <a href="{$rel_url}view/{$list[i].rek_pid|escape}"><img align="absmiddle" src="{$icon}" border="0"></a>

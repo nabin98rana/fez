@@ -53,13 +53,6 @@ include_once(APP_INC_PATH . "class.user.php");
 $tpl = new Template_API();
 $tpl->setTemplate("stats.tpl.html");
 
-$username = Auth::getUsername();
-$tpl->assign("isUser", $username);
-$isAdministrator = User::isUserAdministrator($username);
-if (Auth::userExists($username)) { // if the user is registered as a Fez user
-	$tpl->assign("isFezUser", $username);
-}
-$tpl->assign("isAdministrator", $isAdministrator);
 if (WEBSERVER_LOG_STATISTICS != 'ON') {
 	echo "WEB SERVER STATS CURRENLTY UNAVAILABLE";
 	exit;
@@ -87,10 +80,11 @@ if ($browse == "top50authors") {
 	$options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
 	$options["searchKey".Search_Key::getID("Object Type")] = 3; // enforce records only
 	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, false, true);
-//	$list = Collection::statsByAttribute(0, $rows, "Title");
+	
 	$list_info = $list["info"];
 	$list = $list["list"];
 	$list = Citation::renderIndexCitations($list);
+	
 	$tpl->assign("browse_heading", "Top 50 Downloaded Papers");
 	$tpl->assign("extra_title", "Top 50 Downloaded Papers");
 	$tpl->assign("browse_type", "browse_top50papers");
@@ -118,10 +112,6 @@ $tpl->assign("lastYear", date("Y")-1);
 $tpl->assign("eserv_url", APP_BASE_URL."eserv/");
 $tpl->assign("list", $list);
 $tpl->assign("list_info", $list_info);
-
-if (Auth::userExists($username)) {
-	$prefs = Prefs::get(Auth::getUserID());
-}
 
 $tpl->displayTemplate();
 ?>

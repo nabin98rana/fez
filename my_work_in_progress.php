@@ -55,8 +55,11 @@ if (empty($rows))       $rows = APP_DEFAULT_PAGER_SIZE;
 $items = Record::getListing($options, array("Editor", "Creator"), $pager_row, $rows);
 Record::getParentsByPids($items['list']);
 
-$tpl->assign("page_url",                'my_work_in_progress.php?');
 $tpl->assign('extra_title',             "My Work In Progress");
+
+$tpl->assign("page_url_order",          $_SERVER['PHP_SELF'].'?'.$urlnoSort);
+$tpl->assign("page_url",                $_SERVER['PHP_SELF'].'?'.$urlnoOrder);
+
 $tpl->assign("bulk_workflows",          $bulk_workflows);
 $tpl->assign("bulk_search_workflows",   $bulk_search_workflows);
 $tpl->assign("status_list",             Status::getAssocList());

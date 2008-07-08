@@ -47,17 +47,8 @@ $tpl->setTemplate("adv_search.tpl.html");
 $list = Search_Key::getAdvSearchList();
 $sta_list = Status::getAssocList();
 $ret_list = Object_Type::getAssocList();
-//$cvo_list = Controlled_Vocab::getAssocListFullDisplay(false, "", 0, false);
-//print_r($cvo_list);
 $xdis_list = XSD_Display::getAssocListDocTypes();
 
-$username = Auth::getUsername();
-$tpl->assign("isUser", $username);
-$isAdministrator = User::isUserAdministrator($username);
-if (Auth::userExists($username)) { // if the user is registered as a Fez user
-	$tpl->assign("isFezUser", $username);
-}
-$tpl->assign("isAdministrator", $isAdministrator);
 $options = Pager::saveSearchParams(array(), 'adv_search');
 
 

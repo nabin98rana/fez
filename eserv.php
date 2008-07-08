@@ -152,13 +152,6 @@ if (!empty($pid) && !empty($dsID)) {
         include_once(APP_INC_PATH . "class.template.php");
 		$tpl = new Template_API();
 		$tpl->setTemplate("flv.tpl.html");
-		$username = Auth::getUsername();
-		$tpl->assign("isUser", $username);
-		if (Auth::userExists($username)) { // if the user is registered as a Fez user
-			$tpl->assign("isFezUser", $username);
-		}
-		$isAdministrator = User::isUserAdministrator($username);
-		$tpl->assign("isAdministrator", $isAdministrator);
 		$tpl->assign("APP_BASE_URL", APP_BASE_URL);
 		$tpl->assign("eserv_url", APP_BASE_URL."eserv.php");
 		$tpl->assign("dsID", $dsID);
