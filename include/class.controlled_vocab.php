@@ -939,9 +939,9 @@ class Controlled_Vocab
 	    
         $dbtp = APP_TABLE_PREFIX;
         $term = Misc::escapeString($term);
-        $stmt = " SELECT cvo_id, cvo_title
+        $stmt = " SELECT cvo_external_id, cvo_title
                   FROM " . APP_TABLE_PREFIX . "controlled_vocab
-                  WHERE cvo_id LIKE '%$id%'"; //, cvo_title
+                  WHERE cvo_external_id LIKE '%$id%'"; //, cvo_title
         
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         
