@@ -109,8 +109,8 @@
 	        case '$collection_list':
 				global $collection_list;
 				if (empty($collection_list)) {
-//		            $collection_list = Collection::getCreatorListAssoc();
-		            $collection_list = Collection::getEditListAssoc();
+		            $collection_list = Collection::getCreatorListAssoc();
+		            //$collection_list = Collection::getEditListAssoc();
 	            }
 	            break;
 	        case '$xdis_collection_list':
@@ -127,7 +127,8 @@
         		}
 				global $collection_list;
 				if (empty($collection_list)) {
-		            $collection_list = Collection::getEditListAssoc();
+					$collection_list = Collection::getCreatorListAssoc();
+		            //$collection_list = Collection::getEditListAssoc();
 	            }
 				$community_and_collection_list = $community_list + $collection_list;
 			break;
