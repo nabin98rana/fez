@@ -205,8 +205,6 @@
 
 
 	function renderIndexCitations($list, $type='APA', $cache = true, $knownFull = false) {
-//	Error_Handler::logError('', __FILE__, __LINE__);
-//		print_r($list);
 		foreach ($list as $row => $value) {
 			if ($list[$row]['rek_citation'] == "" || $cache == false) {
 				$xdis_id = $value['rek_display_type'];
@@ -400,7 +398,7 @@
 			if (is_numeric($yy)) {
 				if ($xsdmf['sek_title'] == "Author") {
 					if (is_array($details['rek_author_id']) && $details['rek_author_id'][$yy] != 0) {
-						$value = '<a class="author_id_link" title="Browse by Author ID for '.htmlentities($details['rek_author_id_lookup'][$yy]).'" href="' . APP_RELATIVE_URL . 'list/author_id/'.$details['rek_author_id'][$yy].'/">'.$value.'</a>';
+						$value = '<a class="author_id_link" title="Browse by Author ID for '.htmlentities($details['rek_author_id_lookup'][$yy], ENT_COMPAT, 'UTF-8').'" href="' . APP_RELATIVE_URL . 'list/author_id/'.$details['rek_author_id'][$yy].'/">'.$value.'</a>';
 					} else {
 						$value = '<a title="Browse by Author Name for '.$details['rek_author'][$yy].'" href="' . APP_RELATIVE_URL . 'list/author/'.urlencode(htmlentities($details['rek_author'][$yy])).'/">'.$value.'</a>';
 					}
@@ -408,15 +406,15 @@
 			} else {
 				if ($xsdmf['sek_title'] == "Title") {
 					if ($details['rek_object_type'] == 3) {
-						$value = '<a title="Click to view '.$details['rek_display_type_lookup'].': '.htmlentities($value).'" href="' . APP_RELATIVE_URL . 'view/'.$details['rek_pid'].'">'.$value.'</a>';
+						$value = '<a title="Click to view '.$details['rek_display_type_lookup'].': '.htmlentities($value, ENT_COMPAT, 'UTF-8').'" href="' . APP_RELATIVE_URL . 'view/'.$details['rek_pid'].'">'.$value.'</a>';
 					} elseif ($details['rek_object_type'] == 2) {
-						$value = '<a title="Click to list records in '.$details['rek_display_type_lookup'].' '.htmlentities($value).'" href="' . APP_RELATIVE_URL . 'collection/'.$details['rek_pid'].'">'.$value.'</a>';						
+						$value = '<a title="Click to list records in '.$details['rek_display_type_lookup'].' '.htmlentities($value, ENT_COMPAT, 'UTF-8').'" href="' . APP_RELATIVE_URL . 'collection/'.$details['rek_pid'].'">'.$value.'</a>';						
 					} elseif ($details['rek_object_type'] == 1) {
-						$value = '<a title="Click to list collections in '.$details['rek_display_type_lookup'].' '.htmlentities($value).'" href="' . APP_RELATIVE_URL . 'community/'.$details['rek_pid'].'">'.$value.'</a>';												
+						$value = '<a title="Click to list collections in '.$details['rek_display_type_lookup'].' '.htmlentities($value, ENT_COMPAT, 'UTF-8').'" href="' . APP_RELATIVE_URL . 'community/'.$details['rek_pid'].'">'.$value.'</a>';												
 					}
 				}			
 				if ($xsdmf['sek_title'] == "Date") {
-					$value = '<a title="Browse by Year '.htmlentities($value).'" href="' . APP_RELATIVE_URL . 'list/year/'.htmlentities($value).'/">'.$value.'</a>';				
+					$value = '<a title="Browse by Year '.htmlentities($value, ENT_COMPAT, 'UTF-8').'" href="' . APP_RELATIVE_URL . 'list/year/'.htmlentities($value, ENT_COMPAT, 'UTF-8').'/">'.$value.'</a>';				
 				}			
 			}
 		}

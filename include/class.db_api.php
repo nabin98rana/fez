@@ -74,6 +74,9 @@ class DB_API
             include_once(APP_PATH . "offline.php");
             exit;
         }
+        
+        // Tell MySQL we will be sending data to them in UTF-8 format
+        $this->dbh->query("SET NAMES 'utf8'");
     }
 
 
