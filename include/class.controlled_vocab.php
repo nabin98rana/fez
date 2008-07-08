@@ -150,7 +150,7 @@ class Controlled_Vocab
                     '" . Misc::escapeString($_POST["cvo_title"]) . "',
                     '" . Misc::escapeString($_POST["cvo_desc"]) . "'";
 		if (is_numeric($_POST["cvo_external_id"])) {
-            $stmt .=        "," . trim($_POST["cvo_external_id"]) . "";
+            $stmt .=        ",'" . trim($_POST["cvo_external_id"]) . "'";
 		}
 			$stmt .="
                  )";
@@ -187,7 +187,7 @@ class Controlled_Vocab
         $stmt .= "     ) VALUES (
                 '" . Misc::escapeString($cvo_title) . "'";
 		if ($cvo_external_id != "") {
-			$stmt .= "," . $cvo_external_id;
+			$stmt .= ",'" . $cvo_external_id . "'";
 		}
         $stmt .= "					                    
              )";
