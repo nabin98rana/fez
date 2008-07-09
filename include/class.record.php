@@ -4207,7 +4207,7 @@ class RecordObject extends RecordGeneral
 			$this->created_date = Date_API::getFedoraFormattedDateUTC();
 			$this->updated_date = $this->created_date;
 			$this->depositor = Auth::getUserID();
-			$this->assign_usr_id = Auth::getUserID();
+			$this->assign_usr_id = array(Auth::getUserID());
 			$existingDatastreams = array();
         } else {
 			$existingDatastreams = Fedora_API::callGetDatastreams($this->pid);
@@ -4238,7 +4238,7 @@ class RecordObject extends RecordGeneral
  		// @@@ CK - 6/5/2005 - Added xdis so xml building could search using the xml display ids
 		$indexArray = array();
 
-		$xmlObj = Foxml::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "", $indexArray, 0, $this->created_date, $this->updated_date, $this->depositor,array($this->assign_usr_id), $this->assign_grp_id);
+		$xmlObj = Foxml::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "", $indexArray, 0, $this->created_date, $this->updated_date, $this->depositor, $this->assign_usr_id, $this->assign_grp_id);
 
 		$xmlObj .= "</".$xsd_element_prefix.$xsd_top_element_name.">";
 		
