@@ -388,7 +388,7 @@ include_once(APP_INC_PATH . "class.fedora_direct_access.php");
         if (SanityChecks::resultsClean($results)) {
         	// run a test bgp
             $bgp = new BackgroundProcess_Test();
-            $id = $bgp->register(serialize(array('test'=>'Hello')),1);
+            $id = $bgp->register(serialize(array('test'=>'Hello')),APP_SYSTEM_USER_ID);
             sleep(10);
             $bgp = new BackgroundProcess($id);
             $det = $bgp->getDetails();
