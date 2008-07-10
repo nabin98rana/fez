@@ -315,7 +315,7 @@ function showDiv(p)
 		{assign var="show_preview_pane" value="0"}
         {section name="d" loop=$datastreams}
             
-		    {if $datastreams[d].archival_size_raw > 1048576 && $origami == 'ON' 
+		    {if $datastreams[d].archival_size_raw > 1048576 && $origami == 'ON' && $datastreams[d].origami_switch == 'ON'
 		         && ($datastreams[d].MIMEType == 'image/jpeg' || 
 		             $datastreams[d].MIMEType == 'image/tiff' || 
 		             $datastreams[d].MIMEType == 'image/tif' || 

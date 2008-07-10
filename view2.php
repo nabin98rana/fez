@@ -43,6 +43,7 @@ include_once(APP_INC_PATH . "class.citation.php");
 include_once(APP_INC_PATH . "class.org_structure.php");
 include_once(APP_INC_PATH . "class.record_view.php");
 include_once(APP_INC_PATH . "class.user_comments.php");
+include_once(APP_INC_PATH . "class.origami.php");
 include_once(APP_PEAR_PATH . "Date.php");
 
 $username = Auth::getUsername();
@@ -324,10 +325,21 @@ if (!empty($pid) && $record->checkExists()) {
 					$tpl->assign("img_height",  $datastreams[$ds_key]['exif']['exif_image_height']);
 					$tpl->assign("img_width", $datastreams[$ds_key]['exif']['exif_image_width']);
 				}
+				$origami_switch = "OFF";
+				if (APP_ORIGAMI_SWITCH == "ON" && ($datastreams[$ds_key]['MIMEType'] == 'image/jpeg' || 
+		             $datastreams[$ds_key]['MIMEType'] == 'image/tiff' || 
+		             $datastreams[$ds_key]['MIMEType'] == 'image/tif' || 
+		             $datastreams[$ds_key]['MIMEType'] == 'image/jpg')) {
+					 $origami_path = Origami::getTitleHome() . Origami::getTitleLocation($pid, $datastreams[$ds_key]['ID']);
+					 if (is_dir($origami_path)) {
+						$origami_switch = "ON";
+					 } 	        
+				}
+				$datastreams[$ds_key]['origami_switch'] = $origami_switch;
+				
 				$datastreams[$ds_key]['FezACML'] = Auth::getAuthorisationGroups($pid, $datastreams[$ds_key]['ID']);
 				$datastreams[$ds_key]['downloads'] = Statistics::getStatsByDatastream($pid, $ds['ID']);			
 				Auth::getAuthorisation($datastreams[$ds_key]);
-				
 			}
 			
             if ($datastreams[$ds_key]['controlGroup'] == 'R' && $datastreams[$ds_key]['ID'] == 'DOI') {
@@ -372,7 +384,7 @@ if (!empty($pid) && $record->checkExists()) {
 		if ($hasVersions == 1) {
 			Record::generateDerivationTree($pid, $derivations, $derivationTree);
 		}
-				
+		
 		$tpl->assign("origami", APP_ORIGAMI_SWITCH);
 		$tpl->assign("linkCount", $linkCount);
 		$tpl->assign("hasVersions", $hasVersions);
