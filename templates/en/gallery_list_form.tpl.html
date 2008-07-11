@@ -97,9 +97,9 @@
           {/if}
           
           {if $icon != ""}
-          <td width={$smarty.const.APP_THUMBNAIL_WIDTH}>
-                {if $href_view}<a href='{$rel_url}{$href_view}' title='{$list[i].rek_title}'>{/if}<img {if ($icon_width != "" && $icon_height != "")}width={$icon_width} height={$icon_height}{/if} valign='bottom' src="{$icon}" alt="{$list[i].rek_title}" border="0" />{if $href_view}
-				{$list[i].rek_title}</a>{/if}
+          <td width={$smarty.const.APP_THUMBNAIL_WIDTH} valign='top'>
+                {if $href_view}<a href='{$rel_url}{$href_view}' title='{$list[i].rek_title}'>{/if}<img {if ($icon_width != "" && $icon_height != "")}width={$icon_width} height={$icon_height}{/if} valign='top' src="{$icon}" alt="{$list[i].rek_title}" border="0" />{if $href_view}
+				<br />{$list[i].rek_title}</a>{/if}
 		  </td>
 		  {/if}
 		 		{* see if we should go to the next row *}
