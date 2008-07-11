@@ -70,6 +70,14 @@
                 </td>
               </tr>
               <tr>
+                <td width="140" bgcolor="{$cell_color}" class="default">
+                  <b>Default List Form Template:</b>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <input type="text" name="default_template" size="40" class="default" value="{$info.cvcom_default_template}"><div class="default">(eg list.tpl.html or gallery_list.tpl.html)</div>
+                </td>
+              </tr>
+              <tr>
                 <td colspan="2" bgcolor="{$cell_color}" align="center">
                   {if $smarty.get.cat == 'edit'}
                   <input class="button" type="submit" value="Update Custom View">
@@ -113,6 +121,7 @@
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Community</b>&nbsp;</td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Custom View</b>&nbsp;</td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Hostname</b>&nbsp;</td> 
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Default list view template</b>&nbsp;</td> 
                     </tr>
                     {section name="i" loop=$list}
                     {cycle values=$cycle assign="row_color"}
@@ -128,6 +137,9 @@
                       </td>
                       <td bgcolor="{$row_color}" class="default">
                         &nbsp;{$list[i].cvcom_hostname}
+                      </td>
+                      <td bgcolor="{$row_color}" class="default">
+                        &nbsp;{$list[i].cvcom_default_template}
                       </td>
                     </tr>
                     {sectionelse}

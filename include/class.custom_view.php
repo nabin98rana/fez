@@ -226,10 +226,12 @@ class Custom_View
                  (
                     cvcom_cview_id,
                     cvcom_hostname_id,
-                    cvcom_com_pid
+                    cvcom_com_pid,
+					cvcom_default_template
                  ) VALUES (
                     '" . Misc::escapeString($_POST["cview_id"]) . "',
                     '" . Misc::escapeString($_POST["hostname"]) . "',
+					'" . Misc::escapeString($_POST["comm_pid"]) . "',
 					'" . Misc::escapeString($_POST["comm_pid"]) . "'
                  )";
         
@@ -308,6 +310,7 @@ class Custom_View
                  SET 
                     cvcom_cview_id = '" . Misc::escapeString($_POST["cview_id"]) . "',
                     cvcom_hostname = '" . Misc::escapeString($_POST["hostname"]) . "',
+                    cvcom_default_template = '" . Misc::escapeString($_POST["default_template"]) . "',
 					cvcom_com_pid = '" . Misc::escapeString($_POST["comm_pid"]) . "'
 				 WHERE cvcom_id = ".$cvcom_id;
         

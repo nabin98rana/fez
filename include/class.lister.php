@@ -102,15 +102,6 @@ class Lister
 
 		$custom_view_pid = $_GET['custom_view_pid'];
 
-		if (!empty($custom_view_pid)) {
-			$child_collections = Record::getCollectionChildrenAll($custom_view_pid);
-			$child_pids = array();
-			$filter["searchKey".Search_Key::getID("isMemberOf")]['override_op'] = 'OR';
-			$filter["searchKey".Search_Key::getID("isMemberOf")][] = $custom_view_pid;
-			foreach ($child_collections as $rek_row) {
-				$filter["searchKey".Search_Key::getID("isMemberOf")][] = $rek_row['rek_pid'];
-			}
-		} 
 //		$filter["searchKey".Search_Key::getID("isMemberOf")];
         $tpl = new Template_API();
 		if (is_numeric($_GET['tpl'])) {
@@ -128,6 +119,26 @@ class Lister
         );
 		// disabled edit authors view until it can be looked again in the future
         // 1 => array('file' => 'views/list/author_bulk_edit.tpl.html', 'title' => 'Edit Authors'),
+
+		if (!empty($custom_view_pid)) {			
+			if (!is_numeric($_GET['tpl'])) {
+				$cvcom_details = Custom_View::getCommCview($custom_view_pid);
+				foreach ($tpls as $tplkey => $tplval) {
+					if ($cvcom_details['cvcom_default_template'] == $tplval['file']) {
+						$tpl_idx = $tplkey;
+					}
+				}
+			}
+			$child_collections = Record::getCollectionChildrenAll($custom_view_pid);
+			$child_pids = array();
+			$filter["searchKey".Search_Key::getID("isMemberOf")]['override_op'] = 'OR';
+			$filter["searchKey".Search_Key::getID("isMemberOf")][] = $custom_view_pid;
+			foreach ($child_collections as $rek_row) {
+				$filter["searchKey".Search_Key::getID("isMemberOf")][] = $rek_row['rek_pid'];
+			}
+		} 
+
+
     
 		if ($tpl_idx != 0 && $tpl_index != 4) {
 			$citationCache = false;
