@@ -81,7 +81,7 @@
 				{if $list[i].thumbnail.0 != "" && $list[i].isViewer==1}
 	                {assign var="icon" value=$eserv_url|cat:$list[i].rek_pid|cat:"/"|cat:$list[i].thumbnail.0}
 				{else}
-	                {assign var="icon" value="images/record.jpg" }
+	                {assign var="icon" value=$rel_url|cat:"images/record.jpg" }
 				{/if}
                 {if $isUser } 
                         {assign var="showEdit" value=true}
