@@ -123,7 +123,8 @@ class Lister
             2 => array('file' => 'rss.tpl.html', 'title' => 'RSS Feed'),
             3 => array('file' => 'xml_feed.tpl.html', 'title' => 'XML Feed'),
             4 => array('file' => 'citation_only_list.tpl.html', 'title' => 'Citations Only'),
-            5 => array('file' => 'simple_list.tpl.html', 'title' => 'Classic Simple View')
+            5 => array('file' => 'simple_list.tpl.html', 'title' => 'Classic Simple View'),
+            6 => array('file' => 'gallery_list.tpl.html', 'title' => 'Image Gallery View')
         );
 		// disabled edit authors view until it can be looked again in the future
         // 1 => array('file' => 'views/list/author_bulk_edit.tpl.html', 'title' => 'Edit Authors'),
