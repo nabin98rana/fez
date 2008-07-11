@@ -532,6 +532,7 @@ class Record
                 $value = $value . "-01 00:00:00";
             } else {
                 // Looks like a regular fully-formed date.
+				$value = strtotime($value);
                 $date = new Date($value);
                 $value = $date->format('%Y-%m-%d %T');
             }
