@@ -41,7 +41,8 @@
 
     {if ($browse_heading == "") ||  ($browse_type != "" && ($author != "" || $author_id != "")) || ($browse_type != "" & $depositor != "") || ($browse_type != "" & $year != "") || ($browse_type != "" && $parent_id != "" && $max_subject_breadcrumb != 0)} 
 	{assign var="cols" value=5}
-    <table width="100%" cellpadding="10" cellspacing="0" class="listrecord">
+    <div{if $isUser} style="margin-top: 40px;"{/if}>
+	<table width="100%" cellpadding="10" cellspacing="0" class="listrecord">
         <tr>
 			<td colspan="{if ($isAdministrator)}{$cols+1}{else}{$cols}{/if}">&nbsp;
 			</td>
@@ -129,6 +130,7 @@
         {/section}
         
     </table>
+	</div>
 	{/if}
         
       
