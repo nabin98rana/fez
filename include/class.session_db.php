@@ -114,7 +114,9 @@ class SessionManager {
 //      $newdata = mysql_real_escape_string($data);
 	  $newid = Misc::escapeString($id);
 	  $newdata = Misc::escapeString($data);
-      $sql = "REPLACE fez_sessions (session_id,session_data,expires) VALUES ('$newid', '$newdata', $time)";
+ 	  $session_ip = Misc::escapeString(@$_SERVER['REMOTE_ADDR']);
+//       $ip = getenv("REMOTE_ADDR");
+      $sql = "REPLACE fez_sessions (session_id,session_data,expires,session_ip) VALUES ('$newid', '$newdata', $time, '$session_ip')";
 //print_r($GLOBALS);
       $res = $this->db_api->dbh->query($sql);
       if (PEAR::isError($res)) {
