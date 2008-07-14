@@ -140,6 +140,28 @@ class Exiftool
         }
     }
 
+    function hasExifData($pid)
+    {
+        $stmt = "SELECT
+                    exif_pid FROM
+                    " . APP_TABLE_PREFIX . "exif
+                 WHERE
+                    exif_pid = '" . Misc::escapeString($pid) . "' LIMIT 1 OFFSET 0";
+        
+        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+			if ($res == $pid) {
+				return true;
+			} else {
+				return false;
+			}
+        }
+    }
+
+
 
 
     function saveExif($pid, $dsID) {

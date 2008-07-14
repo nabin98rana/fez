@@ -311,6 +311,17 @@ function validateFormSelections() {
         			  </td> 
         			  
         	       </tr>
+        			<tr>
+        		     
+        			  <td  bgcolor="{$cell_color}" class="default">
+        				<b>Ignore if Exif data already exists:</b>
+        			  </td>
+        			  <td bgcolor="{$light_color}">
+        			  	<input type="checkbox" name="ignore_exif" value="on" {if $smarty.request.ignore_exif}checked="1"{/if} />
+        			  	<label for="ignore_exif" class="default">Should Fez ignore reindexing this object if exiftool data is already in?</label>
+        			  </td> 
+        			  
+        	       </tr>
 			
 				  </table>
 				</td>

@@ -37,8 +37,9 @@ include_once(APP_INC_PATH . "class.bgp_index_object.php");
 
 $pid = $this->pid;
 $rebuild = true;
+$exif_ignore = false;
 $index_type = Reindex::INDEX_TYPE_REINDEX_OBJECTS;
-$inputs = compact('pid','index_type','rebuild');
+$inputs = compact('pid','index_type','rebuild', 'ignore_exif');
 $inputs_str = serialize($inputs);
 $bgp = new BackgroundProcess_Index_Object;
 $bgp->register($inputs_str, Auth::getUserID());
