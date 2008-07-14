@@ -3840,6 +3840,7 @@ class RecordGeneral
 	                        $xsdmf_value = $xsdmf_value . "-01 00:00:00";
 	                    } else {
 	                        // Looks like a regular fully-formed date.
+							$xsdmf_value = strtotime($xsdmf_value);
 	                        $date = new Date($xsdmf_value);
 	                        $xsdmf_value = $date->format('%Y-%m-%d %T');
 	                    }
