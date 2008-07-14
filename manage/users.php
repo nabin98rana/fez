@@ -47,12 +47,8 @@ Auth::checkAuthentication(APP_SESSION);
 $tpl->assign("type", "users");
 
 $isUser = Auth::getUsername();
-$tpl->assign("isUser", $isUser);
-
 $isAdministrator = User::isUserAdministrator($isUser);
 $isSuperAdministrator = User::isUserSuperAdministrator($isUser);
-$tpl->assign("isAdministrator", $isAdministrator);
-$tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 
 $pagerRow = Pager::getParam('pagerRow',$params);
 if (empty($pagerRow)) {
@@ -64,31 +60,45 @@ if (empty($rows)) {
 	$rows = APP_DEFAULT_PAGER_SIZE;
 }
 $options = Pager::saveSearchParams($params);
-$tpl->assign("options", $options);
 
+$tpl->assign("options", $options);
+$tpl->assign("isUser", $isUser);
+$tpl->assign("isAdministrator", $isAdministrator);
+$tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 
 if ($isAdministrator) {
 
     if (@$_POST["cat"] == "new") {
         $tpl->assign("result", User::insert());
+        header('Location: ' . $_SERVER['PHP_SELF']);
     } elseif (@$_POST["cat"] == "update") {
         $tpl->assign("result", User::update($isSuperAdministrator));
+        header('Location: ' . $_SERVER['PHP_SELF']);
     } elseif (@$_POST["cat"] == "change_status" && empty($_POST["delete"])) {
         User::changeStatus();
+        header('Location: ' . $_SERVER['PHP_SELF']);
     } elseif (!empty($_POST["delete"])) {
         User::remove();
+        header('Location: ' . $_SERVER['PHP_SELF']);
     }
 
     if (@$_GET["cat"] == "edit") {
-        $tpl->assign("info", User::getDetailsByID($_GET["id"]));
+    	$user = User::getDetailsByID($_GET["id"]);
+        if($user['usr_super_administrator'] == 1 && !$isSuperAdministrator) {
+            // User doesn't have permission to edit this record
+            header('Location: ' . $_SERVER['PHP_SELF']);
+            exit();
+        }
+        
+        $tpl->assign("info", $user);
     }
 
 	if (@$_GET["cat"] == "search") {
 		$filter = Pager::getParam('search_filter',$params);
 		$tpl->assign("search_filter", $filter);
-		$user_list = User::getList($pagerRow, $rows, 'usr_full_name', $filter);		
+		$user_list = User::getList($pagerRow, $rows, 'usr_full_name', $filter, $isSuperAdministrator);		
 	} else {
-		$user_list = User::getList($pagerRow, $rows);    
+		$user_list = User::getList($pagerRow, $rows, '','',$isSuperAdministrator);    
 	}
     
     $tpl->assign("list", $user_list['list']);

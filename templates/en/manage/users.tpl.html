@@ -294,7 +294,9 @@
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Username</b></td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Name</b></td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Admin?</b></td>
+                      {if $isSuperAdministrator == true}
 					  <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Super Admin?</b></td>
+					  {/if}
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>LDAP Authentication?</b></td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>E-mail</b></td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Status</b></td>
@@ -316,9 +318,11 @@
                       <td bgcolor="{$row_color}" class="default">
                         &nbsp;{if $list[i].usr_administrator == 1}Yes{else}No{/if}
                       </td>
+                      {if $isSuperAdministrator == true}
                       <td bgcolor="{$row_color}" class="default">
                         &nbsp;{if $list[i].usr_super_administrator == 1}Yes{else}No{/if}
                       </td>
+                      {/if}
                       <td bgcolor="{$row_color}" class="default">
                         &nbsp;{if $list[i].usr_ldap_authentication == 1}Yes{else}No{/if}
                       </td>

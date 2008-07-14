@@ -1084,7 +1084,7 @@ class User
      * @access  public
      * @return  array The list of users
      */
-    function getList($current_row = 0, $max = 25, $order_by = 'usr_full_name', $filter="")
+    function getList($current_row = 0, $max = 25, $order_by = 'usr_full_name', $filter="", $isSuperAdmin = false)
     {
     	$order_by = "usr_id DESC";    	
     	$where_stmt = "";
@@ -1095,6 +1095,14 @@ class User
 	    	$where_stmt .= " WHERE match(usr_full_name, usr_given_names, usr_family_name, usr_username, usr_shib_username) AGAINST ('*".$filter."*' IN BOOLEAN MODE) ";
 	    	$extra_stmt = " , match(usr_full_name, usr_given_names, usr_family_name, usr_username, usr_shib_username) AGAINST ('".$filter."') as Relevance ";
 	    	$extra_order_stmt = " Relevance DESC, ";    	    		    	
+    	}
+    	
+    	if(!$isSuperAdmin){
+    		if($where_stmt) {
+    		    $where_stmt .= " AND usr_super_administrator != 1";
+    		} else {
+    			$where_stmt = " WHERE usr_super_administrator != 1";
+    		}
     	}
     	
 		$start = $current_row * $max;
