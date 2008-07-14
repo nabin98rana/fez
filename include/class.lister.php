@@ -447,7 +447,7 @@ class Lister
         } elseif ($browse == "year") {
             
             // browse by year
-            $year = Lister::getValue('year');
+            $year = Lister::getValue($params,'year');
             if (is_numeric($year)) {
                 
 				$options = Search_Key::stripSearchKeys($options);
@@ -492,15 +492,15 @@ class Lister
             // browse by author
             if( $browse == "author") {
                 
-                if( strlen(Lister::getValue('author')) == 1 ) {
-                    $letter = Lister::getValue('author');
+                if( strlen(Lister::getValue($params,'author')) == 1 ) {
+                    $letter = Lister::getValue($params,'author');
                 } else {
-                    $author = Lister::getValue('author');
+                    $author = Lister::getValue($params,'author');
                 }
             }
                 
             if( $browse == "author_id" )
-                $author_id = Lister::getValue('author_id');
+                $author_id = Lister::getValue($params,'author_id');
             
             if (!empty($author_id)) {            	
             	$options = Search_Key::stripSearchKeys($options);
@@ -564,7 +564,7 @@ class Lister
         } elseif ($browse == "depositor") {
             
             // browse by depositor
-            $depositor = Lister::getValue('depositor');
+            $depositor = Lister::getValue($params,'depositor');
 			$depositor_fullname = User::getFullName($depositor);
 			
 			if (!empty($depositor)) {				
@@ -604,7 +604,7 @@ class Lister
         } elseif ($browse == "subject") {
         	
             // browse by subject
-            $parent_id = Lister::getValue('parent_id');
+            $parent_id = Lister::getValue($params,'parent_id');
             
             if (is_numeric($parent_id)) {	
                 $subject_list = Controlled_Vocab::getList($parent_id);
@@ -797,7 +797,7 @@ class Lister
     }
     
     
-    function getValue($varName) {
+    function getValue($params, $varName) {
         
         if(isset($params[$varName])) {
             
