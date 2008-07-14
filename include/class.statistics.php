@@ -78,6 +78,12 @@ class Statistics
 		$logf = WEBSERVER_LOG_DIR . WEBSERVER_LOG_FILE;
 		$archive_name = APP_HOSTNAME;
 		$handle = fopen($logf, "r");
+		
+		if(!$handle) 
+		{
+		  return false;	
+		}
+		
 		while (!feof($handle)) {
 			$buffer = fgets($handle, 4096);
 			// if there are any view or eserv entries than the abstract was viewed or an datastream/file was viewed
