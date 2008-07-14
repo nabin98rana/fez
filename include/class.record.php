@@ -1691,25 +1691,6 @@ class Record
             }
         }
     }
-    
-    
-    function getAssignedUsernames(&$records)
-    {
-    	foreach ($records as &$record) {
-    		if(isset($record['rek_assigned_user_id'])) {
-    			$record['rek_assigned_user_name'][] = User::getFullName($record['rek_assigned_user_id']);
-    		}
-    	}
-    }
-    
-    function getAssignedGroupnames(&$records)
-    {
-        foreach ($records as &$record) {
-            if(isset($record['rek_assigned_group_id'])) {
-                $record['rek_assigned_group_name'][] = Group::getName($record['rek_assigned_group_id']);
-            }
-        }
-    }
 
 	function getCitationIndex($pid) {
 		$dbtp =  APP_TABLE_PREFIX; // Database and table prefix

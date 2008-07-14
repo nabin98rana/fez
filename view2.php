@@ -410,32 +410,45 @@ if (!empty($pid) && $record->checkExists()) {
         $list_idx = null;
 		if (is_array($list)) {
 			foreach ($list as $key => $item) {
-				if ($item['rek_pid'] == $pid) {
+				if ($item == $pid) {
 					$list_idx = $key;
 					break;
 				}
 			}
 		}
+		
         $prev = null;  // the next item in the list
         $next = null;  // the previous item in the list
         $go_next = null;  // whether we need to page down
         $go_prev = null;  // whether we need to page up
         if (!is_null($list_idx)) {
-            if ($list_idx > 0) {
-                $prev = $list[$list_idx-1];
+            
+        	if ($list_idx > 0) {
+                $prev_pid = $list[$list_idx-1];
+                $prev_pid_data = Record::getDetailsLite($prev_pid);
+                $prev_pid_data = $prev_pid_data[0];
+                $prev = array(
+                    'rek_pid'   =>  $prev_pid,
+                    'rek_title' =>  $prev_pid_data['rek_title'],
+                );
             } else {
-                $res = getPrevPage();
-                if (!empty($res)) {
-                    $prev = $res['list'][count($res['list'])-1];
+                $prev = getPrevPage($pid);
+                if (!empty($prev)) {
                     $go_prev = true;
                 }
             }
+            
             if ($list_idx < count($list)-1) {
-                $next = $list[$list_idx+1];
+                $next_pid = $list[$list_idx+1];
+                $next_pid_data = Record::getDetailsLite($next_pid);
+                $next_pid_data = $next_pid_data[0];
+                $next = array(
+                    'rek_pid'   =>  $next_pid,
+                    'rek_title' =>  $next_pid_data['rek_title'],
+                );
             } else {
-                $res = getNextPage();
-                if (!empty($res)) {
-                    $next = $res['list'][0];
+                $next = getNextPage($pid);
+                if (!empty($next)) {
                     $go_next = true;
                 }
             }
@@ -459,29 +472,54 @@ $tpl->assign('displayusercomments', true);
 $tpl->assign('usercomments', $uc->comments);
 
 
-function getNextPage()
+function getNextPage($currentPid)
 {
     $params = $_SESSION['list_params'];
-    $info = $_SESSION['list_info'];
+    $last_page = $_SESSION['last_page'];
     $view_page = $_SESSION['view_page'];
-    if ($view_page < $info['last_page']) {
-        $params['pagerRow'] = $view_page + 1;
+    if ($view_page < $last_page) {
+        $params['pager_row'] = $view_page + 1;
+        $params['form_name'] = $_SESSION['script_name'];
         $res = Lister::getList($params, false);
         $res['list_params'] = $params;
-        return $res;
+        
+		foreach ($res['list'] as $record) {
+		    $pids[] = $record['rek_pid'];
+		}
+		
+		array_unshift($pids, $currentPid);
+		
+		$_SESSION['list'] = $pids;
+		$_SESSION['list_params'] = $params;
+		$_SESSION['last_page'] = $res['list_info']['last_page'];
+		$_SESSION['view_page'] = $res['list_info']['current_page'];
+        
+        return $res['list'][0];
     }
     return array();
 }
-function getPrevPage()
+function getPrevPage($currentPid)
 {
     $params = $_SESSION['list_params'];
-    $info = $_SESSION['list_info'];
     $view_page = $_SESSION['view_page'];
     if ($view_page > 0) {
-        $params['pagerRow'] = $view_page - 1;
+        $params['pager_row'] = $view_page - 1;
+        $params['form_name'] = $_SESSION['script_name'];
         $res = Lister::getList($params, false);
         $res['list_params'] = $params;
-        return $res;
+        
+        foreach ($res['list'] as $record) {
+            $pids[] = $record['rek_pid'];
+        }
+        
+        $_SESSION['list'] = $pids;
+        $_SESSION['list_params'] = $params;
+        $_SESSION['last_page'] = $res['list_info']['last_page'];
+        $_SESSION['view_page'] = $res['list_info']['current_page'];
+        
+        // The current pid will be the last element on the array
+        // so use -2 to get the previous pid
+        return $res['list'][count($res['list'])-2];
     }
     return array();
 }

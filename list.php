@@ -34,16 +34,18 @@
 //
 
 include_once("config.inc.php");
-
 include_once(APP_INC_PATH . "class.lister.php");
-
-
 
 $res = Lister::getList($_GET, true);
 
-$_SESSION['list'] = $res['list'];
+foreach ($res['list'] as $record) {
+	$pids[] = $record['rek_pid'];
+}
+
+$_SESSION['list'] = $pids;
 $_SESSION['list_params'] = $_GET;
-$_SESSION['list_info'] = $res['list_info'];
+$_SESSION['script_name'] = $_SERVER['SCRIPT_NAME'];
+$_SESSION['last_page'] = $res['list_info']['last_page'];
 $_SESSION['view_page'] = $res['list_info']['current_page'];
 
 //echo ($GLOBALS['bench']->getOutput());
