@@ -49,12 +49,15 @@ class SessionManager {
 
    var $life_time;
    var $db_api;
+   var $valid;
 
    function SessionManager($db) {
 
       // Read the maxlifetime setting from PHP
       $this->life_time = get_cfg_var("session.gc_maxlifetime");
 	  $this->db_api = $db;
+	  $this->valid = true;
+	  
       // Register this object as the session handler
       session_set_save_handler( 
         array( &$this, "open" ), 
@@ -72,21 +75,26 @@ class SessionManager {
       global $sess_save_path;
 
       $sess_save_path = $save_path;
+      
+      if(!isset($_COOKIE[$session_name]) || strlen($_COOKIE[$session_name]) == 0) {
+      	$this->valid = false;
+      }
 
       // Don't need to do anything. Just return TRUE.
-
       return true;
-
    }
 
    function close() {
-
       return true;
-
    }
 
    function read( $id ) {
 
+      if(!$this->valid) {
+      	return '';
+      }
+      
+      $dbtp =  APP_TABLE_PREFIX;
       // Set empty result
       $data = '';
 
@@ -94,8 +102,7 @@ class SessionManager {
 
       $time = time();
       $newid = Misc::escapeString($id);
-//      $newid = mysql_real_escape_string($id);
-      $sql = "SELECT session_data FROM fez_sessions WHERE session_id = '$newid' AND expires > $time";
+      $sql = "SELECT session_data FROM {$dbtp}sessions WHERE session_id = '$newid' AND expires > $time";
 //	Error_Handler::logError(" ".$sql,__FILE__,__LINE__);
       $res = $this->db_api->dbh->getOne($sql);
       if (PEAR::isError($res)) {
@@ -107,16 +114,19 @@ class SessionManager {
 
    function write( $id, $data ) {
 
+      if(!$this->valid) {
+        return '';
+      }
+      
+      $dbtp =  APP_TABLE_PREFIX;
       // Build query                
       $time = time() + $this->life_time;
 
-//      $newid = mysql_real_escape_string($id);
-//      $newdata = mysql_real_escape_string($data);
 	  $newid = Misc::escapeString($id);
 	  $newdata = Misc::escapeString($data);
  	  $session_ip = Misc::escapeString(@$_SERVER['REMOTE_ADDR']);
 //       $ip = getenv("REMOTE_ADDR");
-      $sql = "REPLACE fez_sessions (session_id,session_data,expires,session_ip) VALUES ('$newid', '$newdata', $time, '$session_ip')";
+      $sql = "REPLACE {$dbtp}sessions (session_id,session_data,expires,session_ip) VALUES ('$newid', '$newdata', $time, '$session_ip')";
 //print_r($GLOBALS);
       $res = $this->db_api->dbh->query($sql);
       if (PEAR::isError($res)) {
@@ -128,10 +138,10 @@ class SessionManager {
 
    function destroy( $id ) {
 
+   	  $dbtp =  APP_TABLE_PREFIX;
       // Build query
-//      $newid = mysql_real_escape_string($id);
 	  $newid = Misc::escapeString($id);
-      $sql = "DELETE FROM fez_sessions WHERE session_id = '$newid'";
+      $sql = "DELETE FROM {$dbtp}sessions WHERE session_id = '$newid'";
       $res = $this->db_api->dbh->query($sql);
       //db_query($sql);
       if (PEAR::isError($res)) {
@@ -144,17 +154,13 @@ class SessionManager {
    function gc() {
 
       // Garbage Collection
-
-                       
-
+      $dbtp =  APP_TABLE_PREFIX;
       // Build DELETE query.  Delete all records who have passed the expiration time
-      $sql = 'DELETE FROM fez_sessions WHERE expires < UNIX_TIMESTAMP();';
+      $sql = "DELETE FROM {$dbtp}sessions WHERE expires < UNIX_TIMESTAMP();";
       $res = $this->db_api->dbh->query($sql);
       if (PEAR::isError($res)) {
           Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
       } else {
-//      db_query($sql);
-      // Always return TRUE
           return true;
   	  }
    }
