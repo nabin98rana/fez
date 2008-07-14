@@ -67,7 +67,7 @@ class Lister
     function getList($params, $display=true) {
    
         /*
-         * These are the only $_GET vars that can be passed to this page.
+         * These are the only $params(ie. $_GET) vars that can be passed to this page.
          * Strip out any that aren't in this list
          */
         $args = array(
@@ -88,24 +88,25 @@ class Lister
             'value'         =>  'string',
             'operator'      =>  'string',
             'custom_view_pid' =>  'string',
+            'form_name'     =>  'string',
         );
         foreach ($args as $getName => $getType) {
             
-            if( Misc::sanity_check($_GET[$getName], $getType) ) {
-                $GET_VARS[$getName] = $_GET[$getName];
+            if( Misc::sanity_check($params[$getName], $getType) ) {
+                $allowed[$getName] = $params[$getName];
             }
             
         }
         
-        $_GET = $GET_VARS;
+        $params = $allowed;
 
-
-		$custom_view_pid = $_GET['custom_view_pid'];
+		$custom_view_pid = $params['custom_view_pid'];
 
 //		$filter["searchKey".Search_Key::getID("isMemberOf")];
+
         $tpl = new Template_API();
-		if (is_numeric($_GET['tpl'])) {
-        	$tpl_idx = intval($_GET['tpl']);
+		if (is_numeric($params['tpl'])) {
+        	$tpl_idx = intval($params['tpl']);
 		} else {
 			$tpl_idx = 0;
 		}
@@ -158,13 +159,13 @@ class Lister
             $tpl->assign("isFezUser", $username);
         }
         
-        $pager_row = $_REQUEST['pager_row'];
+        $pager_row = $params['pager_row'];
         if (empty($pager_row)) {
             $pager_row = 0;
         }
         
         
-        $rows = $_REQUEST['rows'];
+        $rows = $params['rows'];
         if (empty($rows)) {
             
             if(!empty($_SESSION['rows'])) {
@@ -198,12 +199,12 @@ class Lister
         $options['tpl_idx'] = $tpl_idx;     
         $tpl->assign("options", $options);
         
-        $terms          = $_REQUEST['terms'];
-        $cat            = $_REQUEST['cat'];
-        $browse         = $_REQUEST['browse'];
-        $letter         = $_REQUEST['letter'];
-        $collection_pid = $_REQUEST['collection_pid'];
-        $community_pid  = $_REQUEST['community_pid'];
+        $terms          = $params['terms'];
+        $cat            = $params['cat'];
+        $browse         = $params['browse'];
+        $letter         = $params['letter'];
+        $collection_pid = $params['collection_pid'];
+        $community_pid  = $params['community_pid'];
         
 		if (!empty($collection_pid)) {
 			$pid = $collection_pid;
@@ -236,13 +237,13 @@ class Lister
         
         if (($cat == 'search' || $cat == 'all_fields' || $cat == 'quick_filter') ) {        	
             $sort_by_list['searchKey0'] = "Search Relevance";           
-            if ((Misc::GETorPOST("sort_by")) == "") {
-            	$sort_by = "searchKey0";            	
+            if (($params["sort_by"]) == "") {
+            	$sort_by = "searchKey0";
             }
             
             // if searching by Title, Abstract, Keywords and sort order not specifically set in the querystring 
             // (from a manual sort order change) than make search revelance sort descending
-            if (!is_numeric(Misc::GETorPOST("sort_order")) && ($sort_by == "searchKey0")) {
+            if (!is_numeric($params["sort_order"]) && ($sort_by == "searchKey0")) {
             	$options["sort_order"] = 1; // DESC relevance
         	}
         }
@@ -289,8 +290,8 @@ class Lister
                 $options = Search_Key::stripSearchKeys($options); 
 
                 $filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
-			    $filter["searchKey".Search_Key::getID("isMemberOf")] = $collection_pid; // 
-
+			    $filter["searchKey".Search_Key::getID("isMemberOf")] = $collection_pid;
+			    
                 $list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter);
                                 
                 //$list = Collection::getListing($collection_pid, $pager_row, $rows, $sort_by);
@@ -313,9 +314,9 @@ class Lister
                     $tpl->assign("childXDisplayOptions", 0);
                 } 
                 
-                unset($_GET['collection_pid']);
+                unset($params['collection_pid']);
                 
-                $tpl->assign('url', Misc::query_string_encode($_GET));
+                $tpl->assign('url', Misc::query_string_encode($params));
                 
             } else {
                 $tpl->assign("show_not_allowed_msg", true);
@@ -688,7 +689,7 @@ class Lister
 			
 			if( $spell )
 			{
-			    $spell_suggest = $spell->query_suggest($_REQUEST['search_keys'][0]);
+			    $spell_suggest = $spell->query_suggest($params['search_keys'][0]);
 			    
 			    // Did pspell return any suggestions?
 			    if( $spell_suggest )
@@ -698,7 +699,7 @@ class Lister
                     $tpl->assign("spell_suggest", $spell_suggest);
                     
                     $exclude[] = 'search_keys';
-                    $tpl->assign('spell_suggest_url', Misc::query_string_encode($_GET,$exclude) . '&search_keys[0]='.$spell_suggest);
+                    $tpl->assign('spell_suggest_url', Misc::query_string_encode($params,$exclude) . '&search_keys[0]='.$spell_suggest);
                     array_pop($exclude);
 			    } 
 			}
@@ -709,7 +710,7 @@ class Lister
 			
         	// KJ@ETH
         	$tpl->assign("major_function", "search");
-			$tpl->assign("q", htmlspecialchars($_REQUEST['search_keys'][0]));
+			$tpl->assign("q", htmlspecialchars($params['search_keys'][0]));
         	
         	$tpl->assign("list_heading", htmlspecialchars("Search Results ($terms)"));        	 
         	$tpl->assign("list_type", "all_records_list");
@@ -767,19 +768,19 @@ class Lister
             'community_pid',
         );
         
-        if(count($_GET) > 0) {
+        if(count($params) > 0) {
             
             $exclude[] = 'rows';
-            $tpl->assign('url_wo_rows', Misc::query_string_encode($_GET,$exclude));
+            $tpl->assign('url_wo_rows', Misc::query_string_encode($params,$exclude));
             array_pop($exclude);
             
             $exclude[] = 'tpl';
-            $tpl->assign('url_wo_tpl',  Misc::query_string_encode($_GET,$exclude));
+            $tpl->assign('url_wo_tpl',  Misc::query_string_encode($params,$exclude));
             array_pop($exclude);
             
             $exclude[] = 'sort';
             $exclude[] = 'sort_by';
-            $tpl->assign('url_wo_sort', Misc::query_string_encode($_GET,$exclude));
+            $tpl->assign('url_wo_sort', Misc::query_string_encode($params,$exclude));
         }
 
         $tpl->assign('PAGE_URL', $PAGE_URL);
@@ -798,13 +799,13 @@ class Lister
     
     function getValue($varName) {
         
-        if(isset($_GET[$varName])) {
+        if(isset($params[$varName])) {
             
-            return $_GET[$varName];
+            return $params[$varName];
             
-        } elseif(isset($_GET['value'])) {
+        } elseif(isset($params['value'])) {
             
-            return $_GET['value'];
+            return $params['value'];
             
         }
         
