@@ -147,20 +147,26 @@ class BackgroundProcess_Index_Object extends BackgroundProcess
 				}
 				$this->setProgress(1);
 				$this->setStatus("Reindexing ".count($source_pids)." items.");
+				
 				$reindex_record_counter = 0;
 				$record_count = count($source_pids);
+				$bgp_details = $this->getDetails();
+				
+				$tz = Date_API::getPreferredTimezone($bgp_details["bgp_usr_id"]);
+				
 				foreach ($source_pids as $source_pid) {
-		            $reindex_record_counter++;
-
-                    $bgp_details = $this->getDetails();
+		            
+					$reindex_record_counter++;
+					$records_left = $record_count - $reindex_record_counter;
                     $utc_date = Date_API::getSimpleDateUTC();
+                    
                     $time_per_object = Date_API::dateDiff("s", $bgp_details['bgp_started'], $utc_date);
-                    $date_new = new Date(strtotime($bgp_details['bgp_started']));
                     $time_per_object = round(($time_per_object / $reindex_record_counter), 2);
-                    $date_new->addSeconds($time_per_object*$record_count);
-                    $tz = Date_API::getPreferredTimezone($bgp_details["bgp_usr_id"]);
-    				$res[$key]["bgp_started"] = Date_API::getFormattedDate($res[$key]["bgp_started"], $tz);
-                    $expected_finish = Date_API::getFormattedDate($date_new->getTime(), $tz);
+                    
+                    $date_started = new Date(strtotime($bgp_details['bgp_started']));
+                    $date_started->addSeconds($time_per_object*$records_left);
+                    $expected_finish = Date_API::getFormattedDate($date_started->getTime(), $tz);
+                    
 					$this->setProgress(intval(100*$reindex_record_counter/$record_count));
                     $this->setStatus("Reindexing:  '".$source_pid."'  (".$reindex_record_counter."/".$record_count.") (Avg ".$time_per_object."s per Object, Expected Finish ".$expected_finish.")");
 
