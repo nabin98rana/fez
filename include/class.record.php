@@ -2249,9 +2249,9 @@ class Record
         	 	    	if ($sekdet['sek_data_type'] == "int") {
         	 	        	if ($searchValue[0] != "any") {
     	    	 	    	    if( $multiple_type == 'all' ) {
-    	    	 	    	        $searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":(" . Record::escapeSolr(implode(" ", $searchValue)).")";
+    	    	 	    	        $searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":(" . Record::escapeSolr(implode(" AND ", $searchValue)).")";
     	    	 	    	    } else {
-    	    	 	    	        $searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":(".Record::escapeSolr(implode(" ", $searchValue)).")";
+    	    	 	    	        $searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":(".Record::escapeSolr(implode(" OR ", $searchValue)).")";
     	    	 	    	    }
     						
     							$searchKey_join[SK_SEARCH_TXT] .= $sekdet['sek_title'].":\"";
