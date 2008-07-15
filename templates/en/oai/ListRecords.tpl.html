@@ -23,8 +23,19 @@
 {/section}            
     </header>
     <metadata>
+	{if $metadataPrefix == "oai_dc"}
       <oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+	{elseif $metadataPrefix == "pa"}
+	  <pa:picture xmlns:pa="http://www.pictureaustralia.org/schemas/pa/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.pictureaustralia.org/schemas/pa/ http://www.pictureaustralia.org/schemas/pa/picture.xsd">
+	{/if}
         <dc:title>{$list[i].rek_title|escape:"html"}</dc:title>
+		{if $metadataPrefix == "pa"}
+        <pa:location>{$app_base_url}view/{$list[i].rek_pid|escape:"html"}</pa:location>
+        {assign var="loop_thumbnail" value=$list[i].thumbnail}
+		{section name="a" loop=$loop_thumbnail}
+        <pa:thumbnail>{$app_base_url}eserv/{$list[i].rek_pid|escape:"html"}/{$loop_thumbnail[a]|escape:"html"}</pa:thumbnail>
+		{/section}
+		{/if}
         <dc:identifier>{$app_base_url}view/{$list[i].rek_pid|escape:"html"}</dc:identifier>
         <dc:description>{$list[i].rek_description|escape:"html"}</dc:description>
         <dc:type>{$list[i].rek_display_type_lookup|escape:"html"}</dc:type>
@@ -49,11 +60,19 @@
 		{section name="s" loop=$loop_publisher}
         <dc:publisher>{$list[i].rek_publisher[s]|escape:"html"}</dc:publisher>
 		{/section}
+        {assign var="loop_relation" value=$list[i].rek_ismemberof_title}
+		{section name="s" loop=$loop_relation}
+        <dc:relation>isMemberOf {$loop_relation[s]|escape:"html"}</dc:relation>
+		{/section}
 		{assign var="loop_format" value=$list[i].rek_file_attachment_name}
 		{section name="f" loop=$loop_format}
         <dc:format>{$app_base_url}eserv/{$list[i].rek_pid|escape:"html"}/{$list[i].rek_file_attachment_name[f]|escape:"html"}</dc:format>
 		{/section}
+	{if $metadataPrefix == "oai_dc"}
       </oai_dc:dc>
+	{elseif $metadataPrefix == "pa"}
+	  </pa:picture>
+	{/if}
     </metadata>
   </record>
 {/section}

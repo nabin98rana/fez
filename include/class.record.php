@@ -1422,6 +1422,44 @@ class Record
         }
   }
 
+  function getParentTitlesByPIDS(&$result) {
+      $pids = array();
+      for ($i = 0; $i < count($result); $i++) {
+      	for ($y = 0; $y < count($result[$i]["rek_ismemberof"]); $y++) {
+		  if (!in_array($result[$i]["rek_ismemberof"][$y], $pids)) {
+          	$pids[] = $result[$i]["rek_ismemberof"][$y];
+		  }
+		}
+      }
+	  if (count($pids) == 0) {
+		return array();
+	  }
+	  $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
+      $pids = implode("', '", $pids);
+      $stmt = "SELECT
+					rek_pid,
+                    rek_title
+                 FROM
+                    " . $dbtp . "record_search_key
+                 WHERE
+                    rek_pid IN ('".$pids."')";
+        $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+        } else {
+            // now populate the $result variable again
+			$sek_sql_title = "ismemberof_title";
+	      for ($i = 0; $i < count($result); $i++) {
+	      	for ($y = 0; $y < count($result[$i]["rek_ismemberof"]); $y++) {
+                if (!is_array($result[$i]["rek_".$sek_sql_title])) {
+                    $result[$i]["rek_".$sek_sql_title] = array();
+                }
+                $result[$i]["rek_".$sek_sql_title][$y] = $res[$result[$i]["rek_ismemberof"][$y]];
+            }
+		  } 
+          return $result;
+        }
+  }
 
 	function getAuthWorkflowsByPIDS(&$result, $usr_id) {
   		

@@ -35,6 +35,7 @@
 include_once('config.inc.php');
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.oai.php");
+include_once(APP_INC_PATH . "class.xsd_display.php");
 include_once(APP_INC_PATH . "class.record.php");
 
 $tpl = new Template_API();
@@ -67,6 +68,18 @@ if (!empty($custom_view_pid)) {
 		$filter["searchKey".Search_Key::getID("isMemberOf")][] = $rek_row['rek_pid'];
 	}
 } 
+
+// For Picture Australia feeds filter to only show Image Objects (Image and Diglib Image) - will move this from hardcoded to admin menu at some stage
+if ($metadataPrefix == "pa") {
+	$digilib_image_xdis_id = XSD_Display::getXDIS_IDByTitle("Digilib Image");
+	$image_xdis_id = XSD_Display::getXDIS_IDByTitle("Image");
+	if (is_numeric($image_xdis_id)) {
+		$filter["searchKey".Search_Key::getID("Display Type")][] = $image_xdis_id;
+	}
+	if (is_numeric($digilib_image_xdis_id)) {
+		$filter["searchKey".Search_Key::getID("Display Type")][] = $digilib_image_xdis_id;
+	}
+}
 
 /*$test = base64_decode("Jm1ldGFkYXRhUHJlZml4PW9haV9kYw=="); 
 $test = ltrim($test, "&");
@@ -208,7 +221,7 @@ if (!empty($verb)) {
 						$errors["message"][] = "identifier does not match regexp: ".$originalIdentifier;							
 					}					
 				}
-				// nothing needs to be done here as all only have standard oai_dc at the moment statically set in the smarty template, MODS later perhaps.
+				// nothing needs to be done here as all only have standard oai_dc  and picture australia (pa) at the moment statically set in the smarty template, MODS later perhaps.
 				break;		
 			case "ListSets":
 				foreach ($querystring as $qname => $qvalue) {
@@ -240,7 +253,7 @@ if (!empty($verb)) {
 					}
 				}				
 				if ($metadataPrefix != "") {
-					if ($metadataPrefix == "oai_dc") {
+					if (($metadataPrefix == "oai_dc") || ($metadataPrefix == "pa")) {
 						if ($identifier != "") {
 //							if (preg_match("/^oai:[a-zA-Z][a-zA-Z0-9\-]*(\.[a-zA-Z][a-zA-Z0-9\-]+)+:[a-zA-Z0-9\-_\.!~\*'\(\);\/\?:\@\&=\+\$,\%]+$/", $originalIdentifier)) {
 							if (preg_match("/^oai\:.+\:.+\:.+$/", $originalIdentifier)) {
@@ -292,7 +305,7 @@ if (!empty($verb)) {
 					break;
 				}
 				if ($metadataPrefix != "") {
-					if ($metadataPrefix == "oai_dc") {
+					if (($metadataPrefix == "oai_dc") || ($metadataPrefix == "pa")) {
 						if (!empty($set)) {					
 							if ((!Controlled_Vocab::exists($set) && $setType == "contvocab")) {	
 								$errors["code"][] = "badArgument";
@@ -353,7 +366,7 @@ if (!empty($verb)) {
 					break;
 				}				
 				if ($metadataPrefix != "") {
-					if ($metadataPrefix == "oai_dc") {
+					if (($metadataPrefix == "oai_dc") || ($metadataPrefix == "pa")) {
 						if (!empty($set)) {					
 							if ((!Controlled_Vocab::exists($set) && $setType == "contvocab")) {	
 								$errors["code"][] = "badArgument";
