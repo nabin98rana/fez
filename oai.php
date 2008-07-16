@@ -73,7 +73,6 @@ if (!empty($custom_view_pid)) {
 if ($metadataPrefix == "pa") {
 	$digilib_image_xdis_id = XSD_Display::getXDIS_IDByTitle("Digilib Image");
 	$image_xdis_id = XSD_Display::getXDIS_IDByTitle("Image");
-	$filter["searchKey".Search_Key::getID("Display Type")]['override_op'] = 'OR';
 	if (is_numeric($image_xdis_id)) {
 		$filter["searchKey".Search_Key::getID("Display Type")][] = $image_xdis_id;
 	}
