@@ -62,6 +62,10 @@ class Author
      */
     function exists($aut_id)
     {
+        if(empty($aut_id) || !is_numeric($aut_id)) {
+           return false;   
+        }
+        
         $stmt = "SELECT
                     COUNT(*) AS total
                  FROM
@@ -147,6 +151,10 @@ class Author
      */
     function getName($aut_id)
     {
+        if(empty($aut_id) || !is_numeric($aut_id)) {
+           return "";   
+        }
+        
         static $returns;
 
         if (!empty($returns[$aut_id])) {
@@ -181,6 +189,10 @@ class Author
      */
     function getDetails($aut_id)
     {
+        if(empty($aut_id) || !is_numeric($aut_id)) {
+           return "";   
+        }
+        
         $stmt = "SELECT
                     *
                  FROM
@@ -541,11 +553,15 @@ class Author
 
     function getFullname($aut_id) 
     {
+    	if(empty($aut_id) || !is_numeric($aut_id)) {
+    	   return "";	
+    	}
+    	
         $stmt = "SELECT
                     aut_display_name as aut_fullname
                  FROM
                     " . APP_TABLE_PREFIX . "author
-                    WHERE
+                 WHERE
                     aut_id=".$aut_id."
                  ORDER BY
                     aut_title";
@@ -561,6 +577,10 @@ class Author
 
     function getDisplayName($aut_id)
     {
+        if(empty($aut_id) || !is_numeric($aut_id)) {
+           return "";   
+        }
+    	
         $stmt = "SELECT
                     aut_display_name
                  FROM
@@ -580,6 +600,10 @@ class Author
 
     function getOrgStaffId($aut_id) 
     {
+        if(empty($aut_id) || !is_numeric($aut_id)) {
+           return "";   
+        }
+    	
         $stmt = "SELECT
                     aut_org_staff_id
                  FROM
