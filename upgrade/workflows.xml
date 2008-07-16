@@ -152,6 +152,7 @@
     <WorkflowState wfs_id="796" wfs_title="Publish" wfs_description="" wfs_auto="1" wfs_wfb_id="108" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles="Approver"/>
     <WorkflowState wfs_id="795" wfs_title="Preview" wfs_description="" wfs_auto="0" wfs_wfb_id="106" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
     <WorkflowState wfs_id="800" wfs_title="Enter Metadata" wfs_description="" wfs_auto="0" wfs_wfb_id="101" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="906" wfs_title="Save" wfs_description="" wfs_auto="1" wfs_wfb_id="156" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
     <WorkflowStateLinks wfsl_id="1113" wfsl_from_id="795" wfsl_to_id="799"/>
     <WorkflowStateLinks wfsl_id="1112" wfsl_from_id="800" wfsl_to_id="797"/>
     <WorkflowStateLinks wfsl_id="1111" wfsl_from_id="799" wfsl_to_id="797"/>
@@ -162,6 +163,7 @@
     <WorkflowStateLinks wfsl_id="1106" wfsl_from_id="799" wfsl_to_id="796"/>
     <WorkflowStateLinks wfsl_id="1105" wfsl_from_id="795" wfsl_to_id="797"/>
     <WorkflowStateLinks wfsl_id="1104" wfsl_from_id="800" wfsl_to_id="795"/>
+    <WorkflowStateLinks wfsl_id="1222" wfsl_from_id="800" wfsl_to_id="906"/>
     <WorkflowTrigger wft_id="295" wft_pid="-1" wft_type_id="4" wft_xdis_id="-2" wft_order="0" wft_mimetype="" wft_icon="images/folder_new.gif" wft_ret_id="3" wft_options="0"/>
   </workflow>
   <workflow wfl_id="171" wfl_title="Delete Collection" wfl_version="1.0" wfl_description="" wfl_roles="Community_Administrator" wfl_end_button_label="Done">
@@ -371,21 +373,27 @@
   </workflow>
   <workflow wfl_id="190" wfl_title="Update Selected Record - Generic" wfl_version="1.0" wfl_description="" wfl_roles="Approver,Community_Administrator,Editor" wfl_end_button_label="Save Changes">
     <WorkflowState wfs_id="862" wfs_title="Review Metadata" wfs_description="" wfs_auto="0" wfs_wfb_id="99" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="908" wfs_title="Save Preview" wfs_description="" wfs_auto="1" wfs_wfb_id="156" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="1" wfs_roles=""/>
     <WorkflowState wfs_id="860" wfs_title="Submit for Approval" wfs_description="" wfs_auto="1" wfs_wfb_id="140" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
     <WorkflowState wfs_id="859" wfs_title="Publish" wfs_description="" wfs_auto="1" wfs_wfb_id="108" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles="Approver,Community_Administrator"/>
     <WorkflowState wfs_id="863" wfs_title="Preview" wfs_description="" wfs_auto="0" wfs_wfb_id="106" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="907" wfs_title="Save SFA" wfs_description="" wfs_auto="1" wfs_wfb_id="156" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="1" wfs_roles=""/>
     <WorkflowState wfs_id="898" wfs_title="Save Changes" wfs_description="" wfs_auto="1" wfs_wfb_id="156" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="1" wfs_roles=""/>
     <WorkflowState wfs_id="899" wfs_title="Reject" wfs_description="Reject Preview Screen" wfs_auto="0" wfs_wfb_id="157" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles="Approver,Community_Administrator"/>
     <WorkflowState wfs_id="900" wfs_title="Reject Finalise" wfs_description="" wfs_auto="1" wfs_wfb_id="158" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowStateLinks wfsl_id="1219" wfsl_from_id="863" wfsl_to_id="859"/>
+    <WorkflowState wfs_id="909" wfs_title="Save Publish" wfs_description="" wfs_auto="1" wfs_wfb_id="156" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="1" wfs_roles=""/>
+    <WorkflowStateLinks wfsl_id="1236" wfsl_from_id="862" wfsl_to_id="908"/>
     <WorkflowStateLinks wfsl_id="1201" wfsl_from_id="862" wfsl_to_id="898"/>
-    <WorkflowStateLinks wfsl_id="1218" wfsl_from_id="863" wfsl_to_id="860"/>
-    <WorkflowStateLinks wfsl_id="1214" wfsl_from_id="862" wfsl_to_id="859"/>
-    <WorkflowStateLinks wfsl_id="1198" wfsl_from_id="862" wfsl_to_id="860"/>
-    <WorkflowStateLinks wfsl_id="1217" wfsl_from_id="863" wfsl_to_id="862"/>
-    <WorkflowStateLinks wfsl_id="1216" wfsl_from_id="862" wfsl_to_id="863"/>
+    <WorkflowStateLinks wfsl_id="1246" wfsl_from_id="909" wfsl_to_id="859"/>
+    <WorkflowStateLinks wfsl_id="1245" wfsl_from_id="862" wfsl_to_id="909"/>
+    <WorkflowStateLinks wfsl_id="1248" wfsl_from_id="907" wfsl_to_id="860"/>
+    <WorkflowStateLinks wfsl_id="1247" wfsl_from_id="862" wfsl_to_id="907"/>
+    <WorkflowStateLinks wfsl_id="1244" wfsl_from_id="863" wfsl_to_id="859"/>
+    <WorkflowStateLinks wfsl_id="1240" wfsl_from_id="863" wfsl_to_id="860"/>
     <WorkflowStateLinks wfsl_id="1211" wfsl_from_id="899" wfsl_to_id="900"/>
     <WorkflowStateLinks wfsl_id="1207" wfsl_from_id="862" wfsl_to_id="899"/>
+    <WorkflowStateLinks wfsl_id="1239" wfsl_from_id="863" wfsl_to_id="862"/>
+    <WorkflowStateLinks wfsl_id="1238" wfsl_from_id="908" wfsl_to_id="863"/>
     <WorkflowTrigger wft_id="335" wft_pid="-1" wft_type_id="1" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/edit.gif" wft_ret_id="3" wft_options="1"/>
     <WorkflowTrigger wft_id="334" wft_pid="-1" wft_type_id="1" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/edit.gif" wft_ret_id="2" wft_options="1"/>
     <WorkflowTrigger wft_id="333" wft_pid="-1" wft_type_id="1" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/edit.gif" wft_ret_id="1" wft_options="1"/>

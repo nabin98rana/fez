@@ -40,7 +40,6 @@ if ($this->wft_details['wft_type_id'] == WorkflowTrigger::getTriggerId('Bulk Cha
 	$bgp->register(serialize(compact('options')), Auth::getUserID());
 } else {
 	$this->getRecordObject();
-	$res = Record::update($this->rec_obj->getPid(), array("FezACML"), array(""));
 	if ($this->rec_obj->canApprove()) {
 		$sta_id = Status::getID("Published");
 		$this->rec_obj->setStatusId($sta_id);	
