@@ -609,6 +609,10 @@ class XSD_Display
      */
     function getTitle($xdis_id)
     {
+    	if(empty($xdis_id) || !is_numeric($xdis_id)) {
+    		return "";
+    	}
+    	
         $stmt = "SELECT
                    xdis_title
                  FROM
