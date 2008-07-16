@@ -965,7 +965,6 @@ class Record
      * @return array $res2 The index details of records associated with the search params
      */
 	function getListing($options, $approved_roles=array(9,10), $current_page=0,$page_rows="ALL", $sort_by="Title", $getSimple=false, $citationCache=false, $filter=array(), $operator='AND') {
-		
         if (APP_SOLR_SWITCH == "ON" ) {			
 			return Record::getSearchListing($options, $approved_roles, $current_page,$page_rows, $sort_by, $getSimple, $citationCache, $filter, $operator);
 		} else {			
@@ -1048,7 +1047,26 @@ class Record
 		if ($citationCache == true) {
 			$res = Citation::renderIndexCitations($res, 'APA', true, false);
 		}
-		$list = Auth::getIndexAuthCascade($res);
+
+		$thumb_counter = 0;
+		if (!empty($res)) {
+			// needed for viewer
+			$res = Auth::getIndexAuthCascade($res);
+			foreach ($res as $key => $rec) {
+				if ($res[$key]['thumbnail'][0] != "") {
+					$thumb_counter++;
+				}
+				$res[$key]['isLister'] = true;
+			}		
+			
+
+		}
+		$list = $res;
+		if ($total_rows != 0) {
+			$thumb_ratio = $thumb_counter / $total_rows;
+		} else {
+			$thumb_ratio = 0;
+		}
 		
         $total_pages = intval($total_rows / $page_rows);
         if ($total_rows % $page_rows) {
@@ -1076,7 +1094,7 @@ class Record
         }
         $printable_page = $current_page + 1;
         $info = compact('total_rows', 'page_rows', 'current_row','current_last_row','current_page','total_pages',
-                'next_page','prev_page','last_page', 'noOrder', 'search_info', 'start_range', 'end_range', 'printable_page');
+                'next_page','prev_page','last_page', 'noOrder', 'search_info', 'start_range', 'end_range', 'printable_page', 'thumb_ratio');
         return compact('info','list');
     }
 
@@ -1234,7 +1252,7 @@ class Record
 			}
             Record::getChildCountByPIDS($res, $usr_id);
         }
-		
+		$thumb_counter = 0; 
 		// KJ/ETH: if the object came up to here, it can be listed (Solr filter!)
 		if (!empty($res)) {		
 			
@@ -1242,10 +1260,17 @@ class Record
 			$res = Auth::getIndexAuthCascade($res);
 									
 			foreach ($res as $key => $rec) {
+				if ($res[$key]['thumbnail'][0] != "") {
+					$thumb_counter++;
+				}
 				$res[$key]['isLister'] = true;
 			}		
 		}
-		
+		if ($total_rows != 0) {
+			$thumb_ratio = $thumb_counter / $total_rows;
+		} else {
+			$thumb_ratio = 0;
+		}
 		// query display...
 		$search_info = rtrim($searchKey_join[SK_SEARCH_TXT], ', ');
 
@@ -1276,7 +1301,7 @@ class Record
         // return result
         $info = compact('total_rows', 'page_rows', 'current_row','current_last_row',
         				'current_page','total_pages','next_page','prev_page','last_page',
-        				'noOrder', 'search_info', 'start_range', 'end_range', 'printable_page');
+        				'noOrder', 'search_info', 'start_range', 'end_range', 'printable_page', 'thumb_ratio');
 
         return compact('info','list','facets');
     }

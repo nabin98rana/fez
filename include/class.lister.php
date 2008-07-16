@@ -152,8 +152,6 @@ class Lister
 			header($header);
 		}
 		
-        $tpl_file = $tpls[$tpl_idx]['file'];    
-        $tpl->setTemplate($tpl_file);
         
         if (Auth::userExists($username)) { // if the user is registered as a Fez user
             $tpl->assign("isFezUser", $username);
@@ -784,11 +782,23 @@ class Lister
         }
 
         $tpl->assign('PAGE_URL', $PAGE_URL);
-		$tpl->assign("template_mode", $tpl_idx);
+
 		$tpl->assign("active_nav", "list");
         
         $tpl->registerNajax(NAJAX_Client::register('NajaxRecord', APP_RELATIVE_URL.'ajax.php')."\n"
             .NAJAX_Client::register('Suggestor', APP_RELATIVE_URL.'ajax.php')."\n");
+
+		// If most results have thumbnails and there is no template set in the querystring than force the image gallery template
+		if (!is_numeric($params['tpl'])) {
+			if (is_numeric($list_info['thumb_ratio'])) {
+				if ($list_info['thumb_ratio'] > 0.5) {
+					$tpl_idx = 6;
+				}
+			}
+		}
+        $tpl_file = $tpls[$tpl_idx]['file'];    
+        $tpl->setTemplate($tpl_file);
+		$tpl->assign("template_mode", $tpl_idx);
             
         if ($display) {
             $tpl->displayTemplate();
