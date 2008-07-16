@@ -90,19 +90,18 @@ class Lister
             'custom_view_pid' =>  'string',
             'form_name'     =>  'string',
         );
-        foreach ($args as $getName => $getType) {
-            
-            if( Misc::sanity_check($params[$getName], $getType) ) {
+
+        foreach ($args as $getName => $getType) {            
+            if( Misc::sanity_check($params[$getName], $getType) !== false ) {
                 $allowed[$getName] = $params[$getName];
             }
-            
         }
-        
         $params = $allowed;
 
 		$custom_view_pid = $params['custom_view_pid'];
 
 //		$filter["searchKey".Search_Key::getID("isMemberOf")];
+
 
         $tpl = new Template_API();
 		if (is_numeric($params['tpl'])) {
@@ -796,7 +795,7 @@ class Lister
 				}
 			}
 		}
-        $tpl_file = $tpls[$tpl_idx]['file'];    
+        $tpl_file = $tpls[$tpl_idx]['file'];
         $tpl->setTemplate($tpl_file);
 		$tpl->assign("template_mode", $tpl_idx);
             
