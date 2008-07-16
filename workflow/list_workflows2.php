@@ -102,43 +102,51 @@ $wfl_list = Misc::keyArray(Workflow::getList(), 'wfl_id');
 $xdis_list = array(-1 => 'Any') + XSD_Display::getAssocListDocTypes(); 
 $tpl->assign('wfl_list', $wfl_list);
 $tpl->assign('xdis_list', $xdis_list);
-if (($pid != -1) 
-&& !(empty($pid) || $pid == -2)) {
-    $tpl->assign("pid", $pid);
 
-    $record = new RecordObject($pid);
-    if ($record->canEdit()) {
-        $tpl->assign("isEditor", 1);
-        $xdis_id = $record->getXmlDisplayId();
-        if ($record->isCommunity()) {
-            $ret_id = Object_Type::getID('Community');
-        } elseif ($record->isCollection()) {
-            $ret_id = Object_Type::getID('Collection');
-        } else {
-            $ret_id = Object_Type::getID('Record');
-        }
-        $workflows = array();
-        foreach (array('Update','Delete','Export') as $trigger) {
-            $workflows = array_merge($workflows,$record->getFilteredWorkflows(array(
-                            'trigger' => $trigger,
-                            'xdis_id' => $xdis_id, 
-                            'ret_id' => $ret_id,
-                            'strict_ret' => false,
-                            'any_ret' => false)));
-        }
-        // check which workflows can be triggered
-        if (!empty($pid) && !$isAdministrator) {
-            foreach ($workflows as $trigger) {
-                if (Workflow::canTrigger($trigger['wft_wfl_id'], $pid)) {
-                    $workflows1[] = $trigger;
-                }
-            }
-            $workflows = $workflows1;
-        }
-        
-        $tpl->assign('workflows', $workflows);
+if (($pid != -1) && (!empty($pid) || $pid == -2)) {
+    
+	$tpl->assign("pid", $pid);
+    
+    /*
+     * If this is a proper pid ie. demo:1232 make sure it exists
+     */
+    if($pid != -1 && $pid != -2 && Fedora_API::objectExists($pid) == 1) {
+	    
+    	$record = new RecordObject($pid);
+	    
+	    if ($record->canEdit()) {
+	        $tpl->assign("isEditor", 1);
+	        $xdis_id = $record->getXmlDisplayId();
+	        if ($record->isCommunity()) {
+	            $ret_id = Object_Type::getID('Community');
+	        } elseif ($record->isCollection()) {
+	            $ret_id = Object_Type::getID('Collection');
+	        } else {
+	            $ret_id = Object_Type::getID('Record');
+	        }
+	        $workflows = array();
+	        foreach (array('Update','Delete','Export') as $trigger) {
+	            $workflows = array_merge($workflows,$record->getFilteredWorkflows(array(
+	                            'trigger' => $trigger,
+	                            'xdis_id' => $xdis_id, 
+	                            'ret_id' => $ret_id,
+	                            'strict_ret' => false,
+	                            'any_ret' => false)));
+	        }
+	        // check which workflows can be triggered
+	        if (!empty($pid) && !$isAdministrator) {
+	            foreach ($workflows as $trigger) {
+	                if (Workflow::canTrigger($trigger['wft_wfl_id'], $pid)) {
+	                    $workflows1[] = $trigger;
+	                }
+	            }
+	            $workflows = $workflows1;
+	        }
+	        
+	        $tpl->assign('workflows', $workflows);
+	    }
+	    $tpl->assign('xdis_id', $xdis_id);
     }
-    $tpl->assign('xdis_id', $xdis_id);
 }
 
 
@@ -146,7 +154,6 @@ if (empty($workflows)) {
     $message .= "Error: No workflows defined for $trigger_type<br/>";
 } elseif (count($workflows) == 1) {
     // no need for user to select a workflow - just start the only one available
-//    Workflow::start($workflows[0]['wft_id'], $pid, $xdis_id, $href);
 	if (is_numeric($wft_id)) {
 		$wfl_id = WorkflowTrigger::getWorkflowID($wft_id);
 		if (is_numeric($wfl_id)) {

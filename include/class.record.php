@@ -3368,7 +3368,6 @@ class RecordGeneral
      */
     function updateFezMD_User($key, $value)
     {
-
 		$newXML = "";
         $xmlString = Fedora_API::callGetDatastreamContents($this->pid, 'FezMD', true);
 		$doc = DOMDocument::loadXML($xmlString);
@@ -3377,7 +3376,6 @@ class RecordGeneral
 		if ($fieldNodeList->length > 0) {
 			foreach ($fieldNodeList as $fieldNode) { // first delete all the existing user associations
 				$parentNode = $fieldNode->parentNode;
-				Error_Handler::logError($fieldNode->nodeName.$fieldNode->nodeValue,__FILE__,__LINE__);
 				$parentNode->removeChild($fieldNode);
 			}
 		} else {
