@@ -68,6 +68,10 @@
 		{section name="f" loop=$loop_format}
         <dc:format>{$app_base_url}eserv/{$list[i].rek_pid|escape:"html"}/{$list[i].rek_file_attachment_name[f]|escape:"html"}</dc:format>
 		{/section}
+        {assign var="loop_rights" value=$list[i].rek_rights}
+		{section name="s" loop=$loop_rights}
+        <dc:rights>{$loop_rights[s]|escape:"html"}</dc:rights>
+		{/section}
 	{if $metadataPrefix == "oai_dc"}
       </oai_dc:dc>
 	{elseif $metadataPrefix == "pa"}
