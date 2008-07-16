@@ -1062,8 +1062,8 @@ class Record
 
 		}
 		$list = $res;
-		if ($total_rows != 0) {
-			$thumb_ratio = $thumb_counter / $total_rows;
+		if (count($res) != 0) {
+			$thumb_ratio = $thumb_counter / count($res);
 		} else {
 			$thumb_ratio = 0;
 		}
@@ -1266,8 +1266,8 @@ class Record
 				$res[$key]['isLister'] = true;
 			}		
 		}
-		if ($total_rows != 0) {
-			$thumb_ratio = $thumb_counter / $total_rows;
+		if (count($res) != 0) {
+			$thumb_ratio = $thumb_counter / count($res);
 		} else {
 			$thumb_ratio = 0;
 		}
