@@ -216,6 +216,21 @@ class Auth
 			return $res;
 		}		
 	}
+
+	function getRoleTitleByID($aro_id) {
+		if (!is_numeric($aro_id)) {
+			return false;
+		}
+		$aro_id = Misc::escapeString($aro_id);
+        $stmt = "SELECT aro_role FROM ". APP_TABLE_PREFIX . "auth_roles where aro_id = ".$aro_id;
+        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return array();
+        } else {
+			return $res;
+		}		
+	}
     
     /**
      * Method used to get the list of FezACML roles using in any XSD Display.

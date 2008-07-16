@@ -214,7 +214,7 @@ class FulltextIndex_Solr extends FulltextIndex {
 	}
 
 
-    protected function prepareAdvancedQuery($searchKey_join, $filter_join, $approved_roles) {
+    protected function prepareAdvancedQuery($searchKey_join, $filter_join, $roles) {
 
         $filterQuery = "";
         $searchQuery = "";
@@ -224,11 +224,20 @@ class FulltextIndex_Solr extends FulltextIndex {
         } else {
             $searchQuery = $searchKey_join[2];
         }
-        
+        $approved_roles = array();
         if (!Auth::isAdministrator()) {
             $rulegroups = $this->prepareRuleGroups();
             $rulegroups = implode(" OR ", $rulegroups);
-            
+			foreach ($roles as $role) {
+				if (!is_numeric($role)) {
+					$approved_roles[] = $role;
+				} else {
+					$roleID = Auth::getRoleTitleByID($role);
+					if ($roleID != false) {
+						$approved_roles[] = $roleID;
+					}
+				}
+			}
             if(in_array('Creator', $approved_roles)) {
                 $filterQueryParts[] = "(_authcreator_t:(" . $rulegroups . "))";
             } 
