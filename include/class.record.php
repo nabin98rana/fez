@@ -530,12 +530,11 @@ class Record
             } elseif (strlen($value) == 7) {
                 // YYYY-MM. We could arguably write some better string inspection stuff here, but this will do for now.
                 $value = $value . "-01 00:00:00";
-            } else {
-                // Looks like a regular fully-formed date.
-				$value = strtotime($value);
-                $date = new Date($value);
-                $value = $date->format('%Y-%m-%d %T');
-            }
+            } 
+            // Looks like a regular fully-formed date.
+			$value = strtotime($value);
+            $date = new Date($value);
+            $value = $date->format('%Y-%m-%d %T');            
         }
 
 		if ($sekDet['sek_id'] == "") { //if couldnt find  a search key, we won't insert this into the index 
@@ -3899,12 +3898,11 @@ class RecordGeneral
 	                        // YYYY-MM. We could arguably write some better string inspection stuff here, 
 	                        // but this will do for now.
 	                        $xsdmf_value = $xsdmf_value . "-01 00:00:00";
-	                    } else {
-	                        // Looks like a regular fully-formed date.
-							$xsdmf_value = strtotime($xsdmf_value);
-	                        $date = new Date($xsdmf_value);
-	                        $xsdmf_value = $date->format('%Y-%m-%d %T');
 	                    }
+	                    // Looks like a regular fully-formed date.
+						$xsdmf_value = strtotime($xsdmf_value);
+                        $date = new Date($xsdmf_value);
+                        $xsdmf_value = $date->format('%Y-%m-%d %T');	                    
                 	} else {
                 		$xsdmf_value = "NULL";
                 	}
