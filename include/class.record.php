@@ -535,6 +535,10 @@ class Record
 			$value = strtotime($value);
             $date = new Date($value);
             $value = $date->format('%Y-%m-%d %T');            
+            if ($value == "0000-01-01 00:00:00" || $value == "0000-00-00 00:00:00") {
+				$value = "NULL";
+			}
+
         }
 
 		if ($sekDet['sek_id'] == "") { //if couldnt find  a search key, we won't insert this into the index 
@@ -3902,7 +3906,10 @@ class RecordGeneral
 	                    // Looks like a regular fully-formed date.
 						$xsdmf_value = strtotime($xsdmf_value);
                         $date = new Date($xsdmf_value);
-                        $xsdmf_value = $date->format('%Y-%m-%d %T');	                    
+                        $xsdmf_value = $date->format('%Y-%m-%d %T');
+	                    if ($xsdmf_value == "0000-01-01 00:00:00" || $xsdmf_value == "0000-00-00 00:00:00") {
+							$xsdmf_value = "NULL";
+						}
                 	} else {
                 		$xsdmf_value = "NULL";
                 	}
