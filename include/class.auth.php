@@ -474,37 +474,31 @@ class Auth
 		if (!is_array($parents)) {
 			return false;
 		}
+		
 		$ACMLArray = &$array;
         foreach ($parents as $parent) {
             $inherit = false;
-//			$xdis_record = new RecordObject($parent);
-//			$xdis_id = $xdis_record->getXmlDisplayId();
-            $parentACML = Record::getACML($parent);		
+            $parentACML = Record::getACML($parent);
+            
             if ($parentACML != false) {
-                array_push($ACMLArray, $parentACML); // add and then check if need to inherit				
-                $found_inherit_off = false;
-                $found_inherit_on = false;
-                $found_inherit_blank = false;
-                $xpath = new DOMXPath($parentACML);
-                $anyRuleSearch = $xpath->query('/FezACML/rule/role/*[string-length(normalize-space()) > 0]'); /**/
-                    if ($anyRuleSearch->length == 0) {
-                        $found_inherit_blank = true;
-                    } else {            
-                        $inheritSearch = $xpath->query('/FezACML/inherit_security');
-                        // There shouldn't be more than one inherit_security node, but if there is, then turning inherit off
-                        // overrides any that turn it on. 
-                        foreach ($inheritSearch as $inheritRow) {
-                            if ($inheritRow->nodeValue == "on") { 
-                                $found_inherit_on = true;
-                            } elseif (trim($inheritRow->nodeValue) == "") {
-                                $found_inherit_blank = true;
-                            } else {
-                                $found_inherit_off = true;
-                            }
-                        }
-                    }
-                $inherit = !$found_inherit_off && ($found_inherit_on || $found_inherit_blank);
-
+            	
+                array_push($ACMLArray, $parentACML);
+                
+	            // Check if it inherits security                
+	            $xpath = new DOMXPath($parentACML);
+	            $anyRuleSearch = $xpath->query('/FezACML/rule/role/*[string-length(normalize-space()) > 0]');
+	            if ($anyRuleSearch->length == 0) {
+	                    
+	                $inherit = true;
+	                  
+	            } else {            
+	                $inheritSearch = $xpath->query('/FezACML[inherit_security="on" or inherit_security=""]');
+	                  
+	                if( $inheritSearch->length > 0 ) {
+	                    $inherit = true;
+	                }
+	            }
+                
                 if ($inherit == true) { // if need to inherit
                     $superParents = Record::getParents($parent);
                     if ($superParents != false) {
@@ -546,6 +540,7 @@ class Auth
         }
         return $answer;
     }
+    
    /**
     * checkAuthorisation
 	* Can the user access the object?
@@ -729,26 +724,23 @@ class Auth
         
     }
 
-
-	    function getAuthorisation(&$indexArray) 
-	    {
-//			foreach ($indexArray as $indexKey => $indexRecord) {
-				$userPIDAuthGroups = $indexArray['FezACML'];
-//	            $userPIDAuthGroups = Auth::getIndexAuthorisationGroups($indexRecord);
-	            $editor_matches = array_intersect(explode(',',APP_EDITOR_ROLES), $userPIDAuthGroups); 
-            	$creator_matches = array_intersect(explode(',',APP_CREATOR_ROLES), $userPIDAuthGroups); 
-            	$approver_matches = array_intersect(explode(',',APP_APPROVER_ROLES), $userPIDAuthGroups); 
-				$indexArray['isCommunityAdministrator'] = (in_array('Community Administrator', $userPIDAuthGroups) || Auth::isAdministrator()); //editor is only for the children. To edit the actual community record details you need to be a community admin
-				$indexArray['isApprover'] = (!empty($approver_matches) || $indexArray['isCommunityAdministrator'] == true);
-				$indexArray['isEditor'] = (!empty($editor_matches) || $indexArray['isCommunityAdministrator'] == true);
-				$indexArray['isCreator'] = (!empty($creator_matches) || $indexArray['isCommunityAdministrator'] == true);
-				$indexArray['isArchivalViewer'] = (in_array('Archival_Viewer', $userPIDAuthGroups) || ($indexArray['isEditor'] == true));
-				$indexArray['isViewer'] = (in_array('Viewer', $userPIDAuthGroups) || ($indexArray['isEditor'] == true));
-				$indexArray['isLister'] = (in_array('Lister', $userPIDAuthGroups) || ($indexArray['isViewer'] == true));
-//			}
-	//		print_r($indexArray);
-			return $indexArray;		
-		}
+    function getAuthorisation(&$indexArray) 
+    {
+        $userPIDAuthGroups = $indexArray['FezACML'];
+        $editor_matches = array_intersect(explode(',',APP_EDITOR_ROLES), $userPIDAuthGroups); 
+        $creator_matches = array_intersect(explode(',',APP_CREATOR_ROLES), $userPIDAuthGroups); 
+        $approver_matches = array_intersect(explode(',',APP_APPROVER_ROLES), $userPIDAuthGroups); 
+        
+		$indexArray['isCommunityAdministrator'] = (in_array('Community Administrator', $userPIDAuthGroups) || Auth::isAdministrator()); //editor is only for the children. To edit the actual community record details you need to be a community admin
+		$indexArray['isApprover'] = (!empty($approver_matches) || $indexArray['isCommunityAdministrator'] == true);
+		$indexArray['isEditor'] = (!empty($editor_matches) || $indexArray['isCommunityAdministrator'] == true);
+		$indexArray['isCreator'] = (!empty($creator_matches) || $indexArray['isCommunityAdministrator'] == true);
+		$indexArray['isArchivalViewer'] = (in_array('Archival_Viewer', $userPIDAuthGroups) || ($indexArray['isEditor'] == true));
+		$indexArray['isViewer'] = (in_array('Viewer', $userPIDAuthGroups) || ($indexArray['isEditor'] == true));
+		$indexArray['isLister'] = (in_array('Lister', $userPIDAuthGroups) || ($indexArray['isViewer'] == true));
+		
+		return $indexArray;		
+	}
 
     function getIndexAuthCascade($indexArray) 
     {    	    	
@@ -825,55 +817,48 @@ class Auth
         $userPIDAuthGroups = $NonRestrictedRoles;
 		$usingDS = false;
         $acmlBase = false;
-		if ($dsID != "") {
+		
+        if ($dsID != "") {
 			$usingDS = true;
 	        $acmlBase = Record::getACML($pid, $dsID);
-//			echo $pid.$dsID.$acmlBase->saveXML();
 		}
+		
 		// if no FezACML exists for a datastream then it must inherit from the pid object
         if ($acmlBase == false) {
 			$usingDS = false;
 	        $acmlBase = Record::getACML($pid);
 		}
         $ACMLArray = array();
-        if ($acmlBase == false) { // no FezACML was found for DS or PID object so go to parents straight away (inherit presumed)
-//			echo "acmlBase not found";
+        
+        // no FezACML was found for DS or PID object 
+        // so go to parents straight away (inherit presumed)
+        if ($acmlBase == false) {
             $parents = Record::getParents($pid);
             Auth::getParentACMLs(&$ACMLArray, $parents);
         } else { // otherwise found something so use that and check if need to inherit
-//			echo "acmlBase found $pid";
+            
             $ACMLArray[0] = $acmlBase;
-			// If found an ACML then check if it inherits security
-            $found_inherit_off = false;
-            $found_inherit_on = false;
-            $found_inherit_blank = false;
-			$xpath = new DOMXPath($acmlBase);
+            
+            // Check if it inherits security                
+            $xpath = new DOMXPath($acmlBase);
             $anyRuleSearch = $xpath->query('/FezACML/rule/role/*[string-length(normalize-space()) > 0]');
             if ($anyRuleSearch->length == 0) {
-              $found_inherit_blank = true;
+                    
+                $inherit = true;
+                  
             } else {            
-              $inheritSearch = $xpath->query('/FezACML/inherit_security');
-              // There shouldn't be more than one inherit_security node, but if there is, then turning inherit off
-              // overrides any that turn it on. 
-
-              foreach ($inheritSearch as $inheritRow) {
-                if ($inheritRow->nodeValue == "on") { 
-                  $found_inherit_on = true;
-				} elseif ($inheritRow->nodeValue == "off") { 
-                  $found_inherit_off = true;
-                } elseif (trim($inheritRow->nodeValue) == "") {
-                  $found_inherit_blank = true;
-                } else {
-                  $found_inherit_off = true;
+                $inheritSearch = $xpath->query('/FezACML[inherit_security="on" or inherit_security=""]');
+                  
+                if( $inheritSearch->length > 0 ) {
+                    $inherit = true;
                 }
-              }
             }
-
-
-            $inherit = !$found_inherit_off && ($found_inherit_on || $found_inherit_blank);
+            
 			if ($inherit == true) { // if need to inherit, check if at dsID level or not first and then 
 				$userPIDAuthGroups["security"] = "inherit";	
-				if (($dsID == "") || ($usingDS == false)) { // if already at PID level just get parent pids and add them
+				
+				// if already at PID level just get parent pids and add them
+				if (($dsID == "") || ($usingDS == false)) {
 					$parents = Record::getParents($pid);
 					Auth::getParentACMLs(&$ACMLArray, $parents);				
 				} else { // otherwise get the pid object first and check whether to inherit
@@ -903,8 +888,10 @@ class Auth
 				$userPIDAuthGroups["security"] = "exclude";	
 			}
         }
+        
         // loop through the ACML docs found for the current pid or in the ancestry
 		$cleanedArray = array();
+		$overrideAuth = array();
         foreach ($ACMLArray as &$acml) {
 	        // Usually everyone can list, view and view comments - these need to be reset for each ACML loop
 			// because they are presumed ok first
@@ -916,16 +903,42 @@ class Auth
                 $role = $roleNode->getAttribute('name');
                 // Use XPath to get the sub groups that have values
                 $groupNodes = $xpath->query('./*[string-length(normalize-space()) > 0]', $roleNode);
+                
+                /*
+                 * Empty rules override non-empty rules. Example:
+                 * If a pid belongs to 2 collections, 1 collection has lister restricted to fez users
+                 * and 1 collection has no restriction for lister, we want no restrictions for lister
+                 * for this pid.
+                 */
+                if($groupNodes->length == 0 && ($role == "Viewer" || $role == "Lister")) {
+                	$overridetmp[$role] = true;
+                }
+                
                 foreach ($groupNodes as $groupNode) {
                     $group_type = $groupNode->nodeName;
                     $group_values = explode(',', $groupNode->nodeValue);
                     foreach ($group_values as $group_value) {
-                        $group_value = trim($group_value, ' ');
-	                    // if the role is in the ACML with a non 'off' value and not empty value then it is restricted so remove it
+                        
+                    	$group_value = trim($group_value, ' ');
+	                    
+                        // if the role is in the ACML with a non 'off' value 
+	                    // and not empty value then it is restricted so remove it
 	                    if ($group_value != "off" && $group_value != "" && in_array($role, $userPIDAuthGroups) && in_array($role, $NonRestrictedRoles) && (@$cleanedArray[$role] != true)) {
 	                        $userPIDAuthGroups = Misc::array_clean($userPIDAuthGroups, $role, false, true);
 							$cleanedArray[$role] = true;
+							$overridetmp[$role] = false;
+						
+	                    } elseif(($group_value == "" || $group_value == "off") 
+	                               && ($role == "Viewer" || $role == "Lister")) {
+	                               	
+	                    	if($overridetmp[$role] !== false) {
+                                $overridetmp[$role] = true;
+	                    	}
+	                    	
+	                    } elseif( $group_value != "off" && $group_value != "" ) {
+	                    	$overridetmp[$role] = false;
 	                    }
+	                    
                         // @@@ CK - if the role has already been
                         // found then don't check for it again
                         if (!in_array($role, $userPIDAuthGroups)) {
@@ -996,13 +1009,12 @@ class Auth
 									
                                 case 'Fez_Group':
                                     if (@in_array($group_value, $session[APP_INTERNAL_GROUPS_SESSION])) {
-                                        array_push($userPIDAuthGroups, $role);
+                                    	array_push($userPIDAuthGroups, $role);
                                     }
                                     break;
 
                                 case 'Fez_User':
-                                    if (Auth::isValidSession($session)
-                                            && $group_value == Auth::getUserID()) {
+                                    if (Auth::isValidSession($session) && $group_value == Auth::getUserID()) {
                                         array_push($userPIDAuthGroups, $role);
                                     }
                                     break;
@@ -1012,6 +1024,14 @@ class Auth
                         }
                     }
                 }
+                
+                // If all groups rules were empty $overridetmp for this role will be true
+                // Therefore we want this rule to be enabled for this user
+                if($overridetmp[$role] == true) {
+                	$overrideAuth[$role] = true;
+                }
+                
+                $overridetmp = array();
             }
         }
 		
@@ -1027,10 +1047,10 @@ class Auth
 		if (in_array('Editor', $userPIDAuthGroups) && !in_array('Archival_Viewer', $userPIDAuthGroups)) {
 			array_push($userPIDAuthGroups, "Archival_Viewer");	
 		}
-		if (in_array('Editor', $userPIDAuthGroups) && !in_array('Viewer', $userPIDAuthGroups)) {
+		if ((in_array('Editor', $userPIDAuthGroups) && !in_array('Viewer', $userPIDAuthGroups)) || $overrideAuth['Viewer'] == true) {
 			array_push($userPIDAuthGroups, "Viewer");	
 		}
-		if (in_array('Viewer', $userPIDAuthGroups) && !in_array('Lister', $userPIDAuthGroups)) {
+		if ((in_array('Viewer', $userPIDAuthGroups) && !in_array('Lister', $userPIDAuthGroups)) || $overrideAuth['Lister'] == true) {
 			array_push($userPIDAuthGroups, "Lister");	
 		}
                 
@@ -1072,16 +1092,8 @@ class Auth
 	     * @returns array $userPIDAuthGroups The authorisation groups (roles) the user belongs to against this object.
 	    */
 		function getAuth($pid, $dsID="") {
-	        global $auth_isBGP, $auth_bgp_session;
-	        if ($auth_isBGP) {
-	            $session =& $auth_bgp_session;
-	        } else {
-	            session_name(APP_SESSION);
-	            @session_start();
-	            $session =& $_SESSION;
-	        }
 	        static $roles_cache;
-			$inherit = false;
+			
 			if ($dsID != "") {
 		        if (isset($roles_cache[$pid][$dsID])) {
 					return $roles_cache[$pid][$dsID];
@@ -1091,144 +1103,167 @@ class Auth
 					return $roles_cache[$pid];
 				}
 			}
-	        $auth_groups = array($pid => array());
-	        $userPIDAuthGroups = array();
+			
+	        $auth_groups = array();
+	        $ACMLArray = array();
+	        
 			$usingDS = false;
 	        $acmlBase = false;
+	        $inherit = false;
+	        
 			if ($dsID != "") {
 				$usingDS = true;
 		        $acmlBase = Record::getACML($pid, $dsID);
 			}
+			
 			// if no FezACML exists for a datastream then it must inherit from the pid object
 	        if ($acmlBase == false) {
 				$usingDS = false;
 		        $acmlBase = Record::getACML($pid);
 			}
-	        $ACMLArray = array();
-	        if ($acmlBase == false) { // no FezACML was found for DS or PID object so go to parents straight away (inherit presumed)
-	//			echo "acmlBase not found";
+	        
+	        // no FezACML was found for DS or PID object 
+	        // so go to parents straight away (inherit presumed)
+	        if ($acmlBase == false) {
 	            $parents = Record::getParents($pid);
 	            Auth::getParentACMLs(&$ACMLArray, $parents);
 	        } else { // otherwise found something so use that and check if need to inherit
-	//			echo "acmlBase found $pid";
-	            $ACMLArray[0] = $acmlBase;
-				// If found an ACML then check if it inherits security
-	            $found_inherit_off = false;
-	            $found_inherit_on = false;
-	            $found_inherit_blank = false;
+	            
+	        	$ACMLArray[0] = $acmlBase;
+				
+	            // Check if it inherits security	            
 				$xpath = new DOMXPath($acmlBase);
 	            $anyRuleSearch = $xpath->query('/FezACML/rule/role/*[string-length(normalize-space()) > 0]');
 	            if ($anyRuleSearch->length == 0) {
-	              $found_inherit_blank = true;
-	            } else {            
-	              $inheritSearch = $xpath->query('/FezACML/inherit_security');
-	              // There shouldn't be more than one inherit_security node, but if there is, then turning inherit off
-	              // overrides any that turn it on. 
-	              foreach ($inheritSearch as $inheritRow) {
-	                if ($inheritRow->nodeValue == "on") { 
-	                  $found_inherit_on = true;
-	                } elseif (trim($inheritRow->nodeValue) == "") {
-	                  $found_inherit_blank = true;
-	                } else {
-	                  $found_inherit_off = true;
-	                }
-	              }
+	            	
+            	   $inherit = true;
+	              
+	            } else {
+	            	
+                    $inheritSearch = $xpath->query('/FezACML[inherit_security="on" or inherit_security=""]');
+                    if( $inheritSearch->length > 0 ) {
+                        $inherit = true;
+                    }
+                    
 	            }
-
-
-	            $inherit = !$found_inherit_off && ($found_inherit_on || $found_inherit_blank);
-				if ($inherit == true) { // if need to inherit, check if at dsID level or not first and then 
-					if (($dsID == "") || ($usingDS == false)) { // if already at PID level just get parent pids and add them
+	            
+	             /*
+	              * If need to inherit, check if at dsID level or not first and then
+	              */
+				if ($inherit == true) { 
+					
+					/*
+					 * If already at PID level just get parent pids and add them
+					 */
+					if (($dsID == "") || ($usingDS == false)) {
 						$parents = Record::getParents($pid);
-						Auth::getParentACMLs(&$ACMLArray, $parents);				
-					} else { // otherwise get the pid object first and check whether to inherit
+						Auth::getParentACMLs(&$ACMLArray, $parents);			
+
+				    /*
+				     * Otherwise get the pid object first and check whether to inherit
+				     */
+					} else { 
 						$acmlBase = Record::getACML($pid);
-						if ($acmlBase == false) { // if pid level doesnt exist go higher
+						
+						// if pid level doesnt exist go higher
+						if ($acmlBase == false) { 
 							$parents = Record::getParents($pid);
 							Auth::getParentACMLs(&$ACMLArray, $parents);
-						} else { // otherwise found pid level so add to ACMLArray and check whether to inherit or not
-					    	array_push($ACMLArray, $acmlBase);
+                        
+                        /*
+                         * Otherwise found pid level so add to ACMLArray and 
+                         * check whether to inherit or not
+                         */
+						} else {
+					    	
+							array_push($ACMLArray, $acmlBase);
+							
 							// If found an ACML then check if it inherits security
-							$inherit = false;
 							$xpath = new DOMXPath($acmlBase);
-							$inheritSearch = $xpath->query('/FezACML/inherit_security');
-							foreach ($inheritSearch as $inheritRow) {
-								if ($inheritRow->nodeValue == "on") {
-									$inherit = true;
-								}
-							}
-							if ($inherit == true) {
-								$parents = Record::getParents($pid);
-								Auth::getParentACMLs(&$ACMLArray, $parents);
-							}
+			                $inheritSearch = $xpath->query('/FezACML[inherit_security="on"]');
+			                
+			                if( $inheritSearch->length > 0 ) {
+			                    $parents = Record::getParents($pid);
+                                Auth::getParentACMLs(&$ACMLArray, $parents);
+			                }
+							
 						}
 					}
+					
 				}
 	        }
-	        // Usually everyone can list, view and view comments
-	        global $NonRestrictedRoles;
-	        $userPIDAuthGroups = $NonRestrictedRoles;
+	        
 	        // loop through the ACML docs found for the current pid or in the ancestry
-			$cleanedArray = array();
-
 	        foreach ($ACMLArray as &$acml) {
-		
-		        // Usually everyone can list, view and view comments - these need to be reset for each ACML loop
-				// because they are presumed ok first
-	//		    $userPIDAuthGroups = Misc::array_merge_values($userPIDAuthGroups, $NonRestrictedRoles);
+		          
 	            // Use XPath to find all the roles that have groups set and loop through them
-//				echo $acml->saveXML();
 	            $xpath = new DOMXPath($acml);
 	            $roleNodes = $xpath->query('/FezACML/rule/role');
+	            
+	            $inherit = false;
+	            $inheritSearch = $xpath->query('/FezACML[inherit_security="on"]');
+                if( $inheritSearch->length > 0 ) {
+                	$inherit = true;
+                }
+	            
 	            foreach ($roleNodes as $roleNode) {
 	                $role = $roleNode->getAttribute('name');
-//					echo $role."<br />";
-	                //echo $acml->saveXML($roleNode);
+	                
 	                // Use XPath to get the sub groups that have values
-	                $groupNodes = $xpath->query('./*[string-length(normalize-space()) > 0]', $roleNode); /* */
-	                if ($groupNodes->length) {
-	//                    echo $role;
-	                    // if the role is in the ACML then it is restricted so remove it
-	                    if (in_array($role, $userPIDAuthGroups) && in_array($role, $NonRestrictedRoles) && (@$cleanedArray[$role] != true)) {
-	                        $userPIDAuthGroups = Misc::array_clean($userPIDAuthGroups, $role, false, true);
-							$cleanedArray[$role] = true;
-	                    }
+	                $groupNodes = $xpath->query('./*[string-length(normalize-space()) > 0]', $roleNode);
+	                if ($groupNodes->length == 0) {
+	                	
+	                	/*
+	                	 * If this is a top level rule and lister and viewer is empty
+	                	 * then we want public listing for this pid no matter what other security
+	                	 * this pid has for lister and viewer
+	                	 */
+	                	if(($role == 'Lister' || $role == 'Viewer') && $inherit == false) {
+                            
+                            $rule_array = array(
+                                "rule"    => "override", 
+                                "value"   => "true"
+                            );
+                            Auth::addRuleArray(&$auth_groups, $role, $rule_array);
+                            
+	                	}
+	                	
+	                    continue;
 	                }
+	                
 	                foreach ($groupNodes as $groupNode) {
 	                    $group_type = $groupNode->nodeName;
-//	                    echo $group_type."<br />";
 	                    $group_values = explode(',', $groupNode->nodeValue);
 	                    foreach ($group_values as $group_value) {
+	                    	
 	                        $group_value = trim($group_value, ' ');
-//							echo $group_value."<br />";
-	                        // @@@ CK - if the role has already been
-	                        // found then don't check for it again
-//	                        if (!in_array($role, $userPIDAuthGroups)) {
-							Auth::addRuleArray(&$auth_groups, $pid, $role, array("pid" => $pid, "role" => $role, "rule" => "!rule!role!".$group_type, "value" => $group_value));
-//	                                        array_push($userPIDAuthGroups, $role);
-//	                        } //if statement 
+	                        $rule_array = array(
+		                        "rule"    => "!rule!role!".$group_type, 
+		                        "value"   => $group_value
+	                        );
+							Auth::addRuleArray(&$auth_groups, $role, $rule_array);
+							
 	                    }
 	                }
 	            }
 	        }
 			
-	        if ($GLOBALS['app_cache']) {
-			  if ($dsID != "") {
-			      $roles_cache[$pid][$dsID] = $auth_groups;
-		  	  } else {			
-		          $roles_cache[$pid] = $auth_groups;
-			  }
-	        }
+			if ($GLOBALS['app_cache']) {
+				if ($dsID != "") {
+				    $roles_cache[$pid][$dsID] = $auth_groups;
+				} else {			
+				    $roles_cache[$pid] = $auth_groups;
+				}
+			}
 
 			return $auth_groups;
-//	       return $userPIDAuthGroups;
 	    }
 
-	function addRuleArray(&$auth_groups, $pid, $role, $ruleArray = array()) {
-		if (!is_array($auth_groups[$pid][$role])) {
-			$auth_groups[$pid][$role] = array();
+	function addRuleArray(&$auth_groups, $role, $ruleArray = array()) {
+		if (!is_array($auth_groups[$role])) {
+			$auth_groups[$role] = array();
 		}
-		array_push($auth_groups[$pid][$role], $ruleArray);
+		array_push($auth_groups[$role], $ruleArray);
 		
 	}
     

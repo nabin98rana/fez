@@ -100,7 +100,7 @@ class Record
     * @param   string $pid The persistant identifier
     * @return  array The list
     */
-    function getParents($pid, $clearcache=false, $searchKey='isMemberOf')
+    function getParents($pid, $searchKey='isMemberOf')
     {
     	$sek_title = Search_Key::makeSQLTableName($searchKey);
 		$stmt = "SELECT ".APP_SQL_CACHE."

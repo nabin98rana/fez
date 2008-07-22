@@ -15,8 +15,11 @@ class AuthRules
             return $gcache[$rmd5];
         }
         $dbtp = APP_TABLE_PREFIX;
+        
         // does rule exist in table
-        $stmt = "SELECT arg_id, arg_md5 FROM ".$dbtp."auth_rule_groups WHERE arg_md5='".$rmd5."' ";
+        $stmt = "SELECT arg_id, arg_md5 
+                 FROM ".$dbtp."auth_rule_groups 
+                 WHERE arg_md5='".$rmd5."'";
         $res = $GLOBALS["db_api"]->dbh->getRow($stmt,DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -59,7 +62,9 @@ class AuthRules
         // does rule exist in table
         $rule = Misc::escapeString($rule);
         $value = Misc::escapeString($value);
-        $stmt = "SELECT ar_id FROM ".$dbtp."auth_rules WHERE ar_rule='".$rule."' and ar_value='".$value."' ";
+        $stmt = "SELECT ar_id " .
+                "FROM {$dbtp}auth_rules " .
+                "WHERE ar_rule='$rule' and ar_value='$value.'";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
