@@ -344,6 +344,90 @@ class Statistics
 			return $latestLog; 
 		}
 	}
+
+
+
+        function cleanupFalseHitsBatch($limit, $offset) {
+            $stmt = "SELECT stl_id, stl_pid, stl_dsid, stl_ip, stl_request_date
+                 FROM fez_statistics_all 
+                 ORDER BY stl_request_date ASC LIMIT $limit OFFSET $offset";
+            $res = $GLOBALS["db_api"]->dbh->getAll($stmt,  DB_FETCHMODE_ASSOC);
+            if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return false;
+            } else {
+               return $res;
+           }
+        }
+
+        function cleanupFalseHitsCount() {
+            $stmt = "SELECT count(*)
+                 FROM fez_statistics_all";
+//            $stmt .= " WHERE stl_pid = 'UQ:107702'";
+
+            $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+            if (PEAR::isError($res)) {
+              Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+              return false;
+            } else {
+               return $res;
+           }
+        }
+
+        function setCounterBad($stl_id) {
+                $stmt = "UPDATE 
+                                " . APP_TABLE_PREFIX . "statistics_all
+                                SET stl_counter_bad = 1
+                                WHERE stl_id = ".$stl_id;
+                $res = $GLOBALS["db_api"]->dbh->query($stmt);
+                if (PEAR::isError($res)) {
+                        Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+                        return -1; //abort
+                }
+        }
+
+	function cleanupFalseHits() {
+		$seconds_limit = 10; // 10 seconds COUNTER draft 3 recommended limit
+		$stats_count = Statistics::cleanupFalseHitsCount();
+		$history = array();
+		$newhistory = array();
+		$max_id = 0;
+		$remove_count = 0;
+		$batch_limit = 1000;
+		$stats_count = $stats_count/$batch_limit;
+		for($x=0;$x<=$stats_count;$x++) {
+			$y = $x*$batch_limit; 
+			$res = Statistics::cleanupFalseHitsBatch($batch_limit, $y);
+			foreach ($res as $key => $val) {
+				// echo "TESTING out: "; echo($val['stl_id']." - ".$val['stl_ip']." - ".$val['stl_pid']." - ".$val['stl_dsid']." - ".$val['stl_request_date']); echo "\n";
+				if (count($history) > 0 || count($newhistory) > 0) {
+					$history = $newhistory;
+					foreach ($history as $hkey => $hval) {
+						$newkey = $val['stl_pid']."|".$val['stl_dsid']."|".$val['stl_ip'];
+						if (strtotime($hval['stl_request_date']) <= strtotime($val['stl_request_date']) && $hval['stl_ip'] == $val['stl_ip'] && $hval['stl_pid'] == $val['stl_pid'] && $hval['stl_dsid'] == $val['stl_dsid']) {
+							$seconds_diff = Date_API::dateDiff("s", $hval['stl_request_date'], $val['stl_request_date']);
+							// echo $hval['stl_id']." vs ".$val['stl_id']." = seconds diff of $seconds_diff "; echo "\n";
+							if ($seconds_diff <= $seconds_limit) {
+								Statistics::setCounterBad($val['stl_id']);
+								$remove_count++;
+								//	echo $remove_count." would mark bad "; echo($val['stl_id']." - ".$val['stl_ip']." - ".$val['stl_pid']." - ".$val['stl_dsid']." - ".$val['stl_request_date']); echo "\n";
+								$newhistory[$newkey] = $val;
+							} else {
+								$newhistory[$newkey] = $val;
+							}
+						} else {
+							$newhistory[$newkey] = $val;
+						}
+					}
+				} else {
+					// echo "HISTORY is nothing so making newhistory ".$val['stl_id']."\n";
+					$newhistory[] = $val;			
+				}
+			}
+		}
+		//echo "FINAL - would mark bad ".$remove_count." of ".$stats_count;	
+	}
+
 	
 	function getStatsByDatastream($pid, $dsid) {	
 		$stmt = "select count(*)  
