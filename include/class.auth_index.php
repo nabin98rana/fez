@@ -73,17 +73,17 @@ class AuthIndex {
         
         // if no lister rules are found, then this pid is publically listable
         if (!$has_list_rules) {
-            $res['Lister'][] = array(
+            $res['Lister'] = array(array(
 	            'rule' => 'public_list', 
 	            'value' => 1
-            );
+            ));
         }
         // if no viewer rules are found, then this pid is publically listable
         if (!$has_view_rules) {
-            $res['Viewer'][] = array(
+            $res['Viewer'] = array(array(
 	            'rule' => 'public_list', 
 	            'value' => 1
-            );
+            ));
         }
         
         // get the group ids

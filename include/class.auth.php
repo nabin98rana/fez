@@ -471,6 +471,7 @@ class Auth
      * @return  void (returns array by reference).
      */	
 	function getParentACMLs(&$array, $parents) {
+		
 		if (!is_array($parents)) {
 			return false;
 		}
@@ -899,6 +900,12 @@ class Auth
             // Use XPath to find all the roles that have groups set and loop through them
             $xpath = new DOMXPath($acml);
             $roleNodes = $xpath->query('/FezACML/rule/role');
+            $inheritSearch = $xpath->query('/FezACML[inherit_security="on"]');
+            $inherit = false;
+            if( $inheritSearch->length > 0 ) {
+                $inherit = true;
+            }
+            
             foreach ($roleNodes as $roleNode) {
                 $role = $roleNode->getAttribute('name');
                 // Use XPath to get the sub groups that have values
@@ -910,7 +917,7 @@ class Auth
                  * and 1 collection has no restriction for lister, we want no restrictions for lister
                  * for this pid.
                  */
-                if($groupNodes->length == 0 && ($role == "Viewer" || $role == "Lister")) {
+                if($groupNodes->length == 0 && ($role == "Viewer" || $role == "Lister") && $inherit == false) {
                 	$overridetmp[$role] = true;
                 }
                 
@@ -1027,13 +1034,15 @@ class Auth
                 
                 // If all groups rules were empty $overridetmp for this role will be true
                 // Therefore we want this rule to be enabled for this user
-                if($overridetmp[$role] == true) {
+                if($overridetmp[$role] == true && $inherit == false) {
                 	$overrideAuth[$role] = true;
                 }
                 
                 $overridetmp = array();
             }
         }
+        
+        
 		
 		if (in_array('Community_Administrator', $userPIDAuthGroups) && !in_array('Editor', $userPIDAuthGroups)) {
 			array_push($userPIDAuthGroups, "Editor");	
@@ -1122,12 +1131,18 @@ class Auth
 		        $acmlBase = Record::getACML($pid);
 			}
 	        
-	        // no FezACML was found for DS or PID object 
-	        // so go to parents straight away (inherit presumed)
+	        /*
+	         * No FezACML was found for DS or PID object 
+	         * so go to parents straight away (inherit presumed)
+	         */
 	        if ($acmlBase == false) {
 	            $parents = Record::getParents($pid);
 	            Auth::getParentACMLs(&$ACMLArray, $parents);
-	        } else { // otherwise found something so use that and check if need to inherit
+	            
+            /*
+             * otherwise found something so use that and check if need to inherit
+             */
+	        } else {
 	            
 	        	$ACMLArray[0] = $acmlBase;
 				
@@ -1147,10 +1162,10 @@ class Auth
                     
 	            }
 	            
-	             /*
-	              * If need to inherit, check if at dsID level or not first and then
-	              */
-				if ($inherit == true) { 
+	            /*
+	             * If need to inherit, check if at dsID level or not first and then
+	             */
+				if ($inherit == true) {
 					
 					/*
 					 * If already at PID level just get parent pids and add them
@@ -1195,7 +1210,7 @@ class Auth
 	        
 	        // loop through the ACML docs found for the current pid or in the ancestry
 	        foreach ($ACMLArray as &$acml) {
-		          
+	        	
 	            // Use XPath to find all the roles that have groups set and loop through them
 	            $xpath = new DOMXPath($acml);
 	            $roleNodes = $xpath->query('/FezACML/rule/role');
@@ -1210,13 +1225,14 @@ class Auth
 	                $role = $roleNode->getAttribute('name');
 	                
 	                // Use XPath to get the sub groups that have values
-	                $groupNodes = $xpath->query('./*[string-length(normalize-space()) > 0]', $roleNode);
+	                // Note: off can be considered as empty
+	                $groupNodes = $xpath->query('./*[string-length(normalize-space()) > 0 and text() != "off"]', $roleNode);
 	                if ($groupNodes->length == 0) {
 	                	
 	                	/*
-	                	 * If this is a top level rule and lister and viewer is empty
-	                	 * then we want public listing for this pid no matter what other security
-	                	 * this pid has for lister and viewer
+	                	 * If this is a top level rule (not inherited) and lister and 
+	                	 * viewer is empty then we want public listing for this pid no 
+	                	 * matter what other security this pid has for lister and viewer
 	                	 */
 	                	if(($role == 'Lister' || $role == 'Viewer') && $inherit == false) {
                             
@@ -1247,7 +1263,7 @@ class Auth
 	                }
 	            }
 	        }
-			
+	        
 			if ($GLOBALS['app_cache']) {
 				if ($dsID != "") {
 				    $roles_cache[$pid][$dsID] = $auth_groups;
@@ -2036,32 +2052,6 @@ class Auth
     }
 
     /**
-     * Checks and appends the security roles (authorisation groups) the user has over the object for the listing/search screens. 
-     *
-     * @access  public
-     * @param   array $details The details returned from and index lookup
-     * @return  array $details The details returned from and index lookup with appended security role checks
-     */
-    function ProcessListResults($details) {
-		foreach ($details as $key => $row) {
-			$xdis_array = Fedora_API::callGetDatastreamContentsField ($row['pid'], 'FezMD', array('xdis_id'));
-            if (!empty($xdis_array)) {
-                $xdis_id = $xdis_array['xdis_id'][0];
-                $rowAuthGroups = Auth::getAuthorisationGroups($row['pid']);
-                // get only the roles which are of relevance/use on the listing screen. This logic may be changed later.
-                $details[$key]['isCommunityAdministrator'] = (in_array('Community Administrator', $rowAuthGroups) || Auth::isAdministrator()); //editor is only for the children. To edit the actual community record details you need to be a community admin
-                $details[$key]['isEditor'] = (in_array('Editor', $rowAuthGroups) || $details[$key]['isCommunityAdministrator'] == true);
-                $details[$key]['isCreator'] = (in_array('Creator', $rowAuthGroups) || $details[$key]['isCommunityAdministrator'] == true);
-                $details[$key]['isApprover'] = (in_array('Approver', $rowAuthGroups) || $details[$key]['isCommunityAdministrator'] == true);
-                $details[$key]['isArchivalViewer'] = (in_array('Archival_Viewer', $rowAuthGroups) || $details[$key]['isEditor'] == true);
-                $details[$key]['isViewer'] = (in_array('Viewer', $rowAuthGroups) || $details[$key]['isEditor'] == true);
-                $details[$key]['isLister'] = (in_array('Lister', $rowAuthGroups) || $details[$key]['isViewer'] == true);
-            } 
-		}
-        return $details;
-    }
-
-    /**
      * Return the global default security roles
      *
      * @access  public
@@ -2119,7 +2109,8 @@ class Auth
             // test and insert matching rules for this user
             $authStmt = "
                 INSERT INTO ".$dbtp."auth_rule_group_users (argu_arg_id, argu_usr_id)
-                SELECT distinct argr_arg_id, ".$usr_id." FROM ".$dbtp."auth_rule_group_rules
+                SELECT distinct argr_arg_id, ".$usr_id." 
+                FROM ".$dbtp."auth_rule_group_rules
                 INNER JOIN ".$dbtp."auth_rules ON argr_ar_id=ar_id
                 AND 
                 (
