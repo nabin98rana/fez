@@ -45,6 +45,7 @@ if ($this->wft_details['wft_type_id'] == WorkflowTrigger::getTriggerId('Bulk Cha
 		$this->rec_obj->setStatusId($sta_id);	
 		History::addHistory($this->rec_obj->getPid(), null, '', '', true, 'Published');
 	}
+	$this->rec_obj->releaseLock();
 }
 
 

@@ -49,4 +49,6 @@ $to = $usrDetails['usr_email'];
 $mail->send($from, $to, $subject, false);
 
 History::addHistory($this->rec_obj->getPid(), null, '', '', true, 'Record Rejected');
+
+$this->rec_obj->releaseLock();
 ?>

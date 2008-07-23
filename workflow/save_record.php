@@ -42,4 +42,6 @@ if($res) {
 	    $this->rec_obj->setStatusId($inReview);
 	}
 }
+
+$this->rec_obj->releaseLock();
 ?>
