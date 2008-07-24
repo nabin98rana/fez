@@ -1,18 +1,17 @@
 <tr><td>
-
 <script type="text/javascript">
 <!--
 var page_url = '{$smarty.server.PHP_SELF}';
 
 {literal}
-
-function validateForm(f)
+function resizePagerNew(f)
 {
-	//if (!hasOneChecked(f, 'pid')) {
-	//	errors[errors.length] = new Option('A record must be selected', 'pid');
-    //}
+    {/literal}
+    var pagesize = f.rows.options[f.rows.selectedIndex].value;
+    var pagingURL = "{$PAGE_URL}?{if $url_wo_rows != ""}{$url_wo_rows}&{/if}rows=" + pagesize + "&pager_row=0";
+    window.location.href = pagingURL;
+    {literal}
 }
-
 {/literal}
 // -->
 </script>
@@ -62,7 +61,7 @@ function validateForm(f)
 	<tr class="table_heading_row">
                 <td align="center" nowrap="nowrap">
 				  <span class="default_white">{include file="page_list.tpl.html"}</span> <span class="default_white">Rows per Page:</span>
-                  <select name="page_size" class="default" onchange="javascript:resizePager(this.form,page_url);">
+                  <select name="rows" class="default" onchange="javascript:resizePagerNew(this.form);">
                     <option value="5" {if $page_size == 5}selected="selected"{/if}>5</option>
                     <option value="10" {if $page_size == 10}selected="selected"{/if}>10</option>
                     <option value="25" {if $page_size == 25}selected="selected"{/if}>25</option>
@@ -70,7 +69,7 @@ function validateForm(f)
                     <option value="100" {if $page_size == 100}selected="selected"{/if}>100</option>
                     <option value="150" {if $page_size == 150}selected="selected"{/if}>150</option>
                   </select>
-                  <input type="button" value="Set" class="shortcut" onclick="javascript:resizePager(this.form,page_url);" />
+                  <input type="button" value="Set" class="shortcut" onclick="javascript:resizePagerNew(this.form);" />
                 </td>
 	</tr>
 </table>

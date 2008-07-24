@@ -100,6 +100,9 @@ $tpl->assign('pages', $listing['list_meta']['pages']);
 $pager_self_link = $_SERVER['PHP_SELF'].'?'.http_build_query(array('id' => $wfstatus->id, 'duplicates_report_page' => '__pp_page__'));
 $tpl->assign('pager_self_link',$pager_self_link);
 
+$exclude[] = 'rows';
+$tpl->assign('url_wo_rows', Misc::query_string_encode($_GET,$exclude));
+
 $duplicates_report_record = new RecordObject($pid);
 $tpl->assign('report_title',$duplicates_report_record->getTitle());
 
