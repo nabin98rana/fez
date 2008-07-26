@@ -192,6 +192,8 @@ class Default_Data
 		$defaultData['app_earliest_input_year']				= "1900";
 		$defaultData['app_origami_switch']				    = "OFF";
 		$defaultData['app_origami_path']				    = "";
+		$defaultData['app_version_uploads_and_links']		= "OFF";
+		$defaultData['app_version_time_interval']	        = "30";
 
         return $defaultData;
 

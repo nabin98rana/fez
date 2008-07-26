@@ -224,7 +224,7 @@ class RelsInt {
 			$updatedXml = $doc->saveXML();
 			
 			if ($updateFedora) {
-				Fedora_API::callModifyDatastreamByValue($pid, "RELS-INT", "A", DATASTREAM_DESCRIPTION, $updatedXml, "text/xml", false);
+				Fedora_API::callModifyDatastreamByValue($pid, "RELS-INT", "A", DATASTREAM_DESCRIPTION, $updatedXml, "text/xml", 'inherit');
 			}
 		}
 
@@ -328,7 +328,7 @@ class RelsInt {
 
 		// Update Fedora
 		if ($updateFedora) {
-			Fedora_API::callModifyDatastreamByValue($pid, "RELS-INT", "A", DATASTREAM_DESCRIPTION, $updatedXml, "text/xml", false);
+			Fedora_API::callModifyDatastreamByValue($pid, "RELS-INT", "A", DATASTREAM_DESCRIPTION, $updatedXml, "text/xml", 'inherit');
 		}
 		return $updatedXml;
 	}
@@ -382,7 +382,7 @@ class RelsInt {
 		$updatedXml = $doc->saveXML();	// TODO: check for error
 
 		if ($updateFedora) {
-			Fedora_API::callModifyDatastreamByValue($pid, "RELS-INT", "A", DATASTREAM_DESCRIPTION, $updatedXml, "text/xml", false);
+			Fedora_API::callModifyDatastreamByValue($pid, "RELS-INT", "A", DATASTREAM_DESCRIPTION, $updatedXml, "text/xml", 'inherit');
 		}
 		return $updatedXml;
 	}
@@ -395,9 +395,9 @@ class RelsInt {
 	function createDatastream($pid) {
 		$relsInt = RelsInt::buildRELSINT();
 		if (Fedora_API::datastreamExists($pid, "RELS-INT")) {
-			Fedora_API::callModifyDatastreamByValue($pid, "RELS-INT", "A", DATASTREAM_DESCRIPTION, $relsInt, "text/xml", true);
+			Fedora_API::callModifyDatastreamByValue($pid, "RELS-INT", "A", DATASTREAM_DESCRIPTION, $relsInt, "text/xml", 'inherit');
 		} else {
-			Fedora_API::getUploadLocation($pid, "RELS-INT", $relsInt, DATASTREAM_DESCRIPTION, "text/xml", "X");
+			Fedora_API::getUploadLocation($pid, "RELS-INT", $relsInt, DATASTREAM_DESCRIPTION, "text/xml", "X", null, 'true');
 		}
 
 		return $relsInt;

@@ -1095,7 +1095,7 @@ class ePrints
 				$link_number = 1;
 				foreach ($altlocs_list as $altloc) {
 					Fedora_API::callAddDatastream($pid, "link_".$link_number, $altloc['altloc'], 
-                                'Alternative Location', "A", "text/xml", "R");
+                                'Alternative Location', "A", "text/xml", "R", APP_VERSION_UPLOADS_AND_LINKS);
 					$link_number+=1;
 				}
 			
@@ -1116,7 +1116,7 @@ class ePrints
 					
                     $mimetype = Misc::mime_content_type(APP_TEMP_DIR.$short_ds);
 
-                    Fedora_API::getUploadLocationByLocalRef($pid, $short_ds, $short_ds, $short_ds, $mimetype, "M");			
+                    Fedora_API::getUploadLocationByLocalRef($pid, $short_ds, $short_ds, $short_ds, $mimetype, "M", null, APP_VERSION_UPLOADS_AND_LINKS);			
 					
 //                  $presmd_check = Workflow::checkForPresMD($ds);  // try APP_TEMP_DIR.$short_ds
                     $presmd_check = Workflow::checkForPresMD(APP_TEMP_DIR.$short_ds);  // try APP_TEMP_DIR.$short_ds
@@ -1206,7 +1206,7 @@ class ePrints
 				$newXML = $re['xml'] . '<rel:isDerivationOf rdf:resource="info:fedora/'.$succeedsPID.'"/>
 			  			 	  </rdf:description>
                               </rdf:RDF>';						  
-				Fedora_API::callModifyDatastreamByValue($pid, "RELS-EXT", "A", "", $newXML, "text/xml", true);
+				Fedora_API::callModifyDatastreamByValue($pid, "RELS-EXT", "A", "", $newXML, "text/xml", "inherit");
 				Record::setIndexMatchingFields($pid);				
 			}
 		}

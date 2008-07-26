@@ -1334,7 +1334,7 @@ class BatchImport
         }
 
         Fedora_API::getUploadLocationByLocalRef($pid, $ncName, $full_name, "", 
-                $mimetype, $controlgroup);
+                $mimetype, $controlgroup,null,APP_VERSION_UPLOADS_AND_LINKS);
         $presmd_check = Workflow::checkForPresMD($full_name);
         if ($presmd_check != false) {
             if (is_numeric(strpos($presmd_check, chr(92)))) {

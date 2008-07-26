@@ -228,9 +228,9 @@ class UserComments
         
         try {
             if (Fedora_API::datastreamExists($this->pid, "FezComments")) {
-                Fedora_API::callModifyDatastreamByValue($this->pid, "FezComments", "A", "Fez Comments Datastream", $uc_xml, "text/xml", false);
+                Fedora_API::callModifyDatastreamByValue($this->pid, "FezComments", "A", "Fez Comments Datastream", $uc_xml, "text/xml", "inherit");
             } else {
-                Fedora_API::getUploadLocation($this->pid, "FezComments", $uc_xml, "Fez Comments Datastream", "text/xml", "M");
+                Fedora_API::getUploadLocation($this->pid, "FezComments", $uc_xml, "Fez Comments Datastream", "text/xml", "M", null, "false");
             }
             return true;
         } catch (Exception $e) {

@@ -149,12 +149,17 @@ class Configuration
         define('APP_APPROVER_ROLES', "Community_Admin,Approver");
         define('APP_DELETER_ROLES', "Community_Admin");
         define('APP_LISTER_ROLES', "Lister,Viewer,Community_Administrator,Editor,Creator,Annotator,Approver"); 
+        define('APP_VIEW_VERSIONS_ROLES', "");  // if none, available to Admins only
+//        define('APP_REVERT_VERSIONS_ROLES', "");  // not implemented yet
+
         define('APP_VIEWER_ROLE_IDS', "10,6,8,7,1,2"); 
         define('APP_EDITOR_ROLE_IDS', "6,8,2");
         define('APP_CREATOR_ROLE_IDS', "7,6,8,2");
         define('APP_APPROVER_ROLE_IDS', "6,2");
         define('APP_DELETER_ROLE_IDS', "6");
         define('APP_LISTER_ROLE_IDS', "9,10,6,8,7,1,2"); 
+        define('APP_VIEW_VERSIONS_ROLE_IDS', "");  // if none, available to Admins only
+//        define('APP_REVERT_VERSIONS_ROLE_IDS', "");  // not implemented yet
 
         // Fedora stuff
         if (APP_FEDORA_SETUP == 'sslall') {

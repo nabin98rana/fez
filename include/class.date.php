@@ -212,9 +212,11 @@ class Date_API
      * @access  public
      * @return  string The current GMT date
      */
-    function getCurrentDateGMT()
+    function getCurrentDateGMT($includeMilliseconds=false)
     {
-        return gmdate('Y-m-d H:i:s');
+    	if( $includeMilliseconds )
+	        return gmdate('Y-m-d H:i:s.u');
+	    return gmdate('Y-m-d H:i:s');
     }
 
 

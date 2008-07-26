@@ -104,6 +104,44 @@ switch ($cat)
 			}
             break;
         }
+    case 'delete_datastream':
+        {
+            $dsID = $_GET["dsID"];
+            $pid = $_GET["pid"];		
+			$record = new RecordObject($pid);
+			if ($record->canEdit()) {
+	            $res = Fedora_API::deleteDatastream($pid, $dsID);
+	            $stream = "stream_".str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))).".flv";
+	            $thumbnail = "thumbnail_".str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))).".jpg";
+	            $web = "web_".str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))).".jpg";
+	            $preview = "preview_".str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))).".jpg";
+	            $FezACML_DS = "FezACML_".str_replace(" ", "_", $dsID).".xml";
+	            $PresMD_DS = "presmd_".str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))).".xml";
+	            if (Fedora_API::datastreamExists($pid, $stream)) {
+	                Fedora_API::deleteDatastream($pid, $stream);
+	            }
+	            if (Fedora_API::datastreamExists($pid, $thumbnail)) {
+	                Fedora_API::deleteDatastream($pid, $thumbnail);
+	            }
+	            if (Fedora_API::datastreamExists($pid, $preview)) {
+	                Fedora_API::deleteDatastream($pid, $preview);
+				}
+	            if (Fedora_API::datastreamExists($pid, $web)) {
+	                Fedora_API::deleteDatastream($pid, $web);
+				}
+	            if (Fedora_API::datastreamExists($pid, $FezACML_DS)) {
+	                Fedora_API::deleteDatastream($pid, $FezACML_DS);
+				}
+	            if (Fedora_API::datastreamExists($pid, $PresMD_DS)) {
+	                Fedora_API::deleteDatastream($pid, $PresMD_DS);
+				}
+	            if (count($res) == 1) { $res = 1; } else { $res = -1; }
+	            $tpl->assign("delete_datastream_result", $res);
+			} else {
+				$tpl->assign("delete_datastream_result", -1);
+			}
+            break;
+        }
     case 'update_form':
         {
             $id = $_REQUEST['id'];

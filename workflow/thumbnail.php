@@ -81,14 +81,15 @@ if (!file_exists($filepath)) {
 	Misc::ProcessURL($getString);
 	
     if (!empty($new_file)) {
-        if (Fedora_API::datastreamExists($pid, $new_file)) {
+        if (Fedora_API::datastreamExists($pid, $new_file) && APP_VERSION_UPLOADS_AND_LINKS!="ON") {
             Fedora_API::callPurgeDatastream($pid, $new_file);
         }
 		$new_file_name = $new_file;
         $delete_file = APP_TEMP_DIR.$new_file;
         $new_file = APP_TEMP_DIR.$new_file;
         if (file_exists($new_file)) {
-            Fedora_API::getUploadLocationByLocalRef($pid, $new_file, $new_file, $new_file, 'image/jpeg', 'M');
+   	        $versionable = APP_VERSION_UPLOADS_AND_LINKS == "ON" ? 'true' : 'false';
+            Fedora_API::getUploadLocationByLocalRef($pid, $new_file, $new_file, $new_file, 'image/jpeg', 'M', null, $versionable);
 			Exiftool::saveExif($pid, $new_file_name);
             if (is_file($new_file)) {
                 $deleteCommand = APP_DELETE_CMD." ".$delete_file;

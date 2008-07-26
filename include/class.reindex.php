@@ -597,16 +597,16 @@ class Reindex
 					if ($collection_pid != "") {
 	                	$relsext = Reindex::buildRELSEXT($collection_pid, $pid);
 						if (Fedora_API::datastreamExists($pid, "RELS-EXT")) {
-							Fedora_API::callModifyDatastreamByValue($pid, "RELS-EXT", "A", "Relationships to other objects", $relsext, "text/xml", true);
+							Fedora_API::callModifyDatastreamByValue($pid, "RELS-EXT", "A", "Relationships to other objects", $relsext, "text/xml", "inherit");
 						} else {
-							Fedora_API::getUploadLocation($pid, "RELS-EXT", $relsext, "Relationships to other objects", "text/xml", "X");
+							Fedora_API::getUploadLocation($pid, "RELS-EXT", $relsext, "Relationships to other objects", "text/xml", "X", null, "true");
 						}
 					}
 					$fezmd = Reindex::buildFezMD($xdis_id, $sta_id);
 					if (Fedora_API::datastreamExists($pid, "FezMD")) {
-						Fedora_API::callModifyDatastreamByValue($pid, "FezMD", "A", "Fez extension metadata", $fezmd, "text/xml", true);
+						Fedora_API::callModifyDatastreamByValue($pid, "FezMD", "A", "Fez extension metadata", $fezmd, "text/xml", "inherit");
 					} else {
-						Fedora_API::getUploadLocation($pid, "FezMD", $fezmd, "Fez extension metadata", "text/xml", "X");
+						Fedora_API::getUploadLocation($pid, "FezMD", $fezmd, "Fez extension metadata", "text/xml", "X", null, "true");
 					}
 	                $rebuild_this = true;  // always rebuild non-fez objects
 				}
@@ -626,7 +626,10 @@ class Reindex
 	                            || Misc::hasPrefix($dsIDName, 'thumbnail_')
 	                            || Misc::hasPrefix($dsIDName, 'stream_')
 	                            || Misc::hasPrefix($dsIDName, 'presmd_'))) {
-	                        Fedora_API::callPurgeDatastream($pid, $dsIDName);
+	         				if( APP_VERSION_UPLOADS_AND_LINKS == "ON" )                            	
+                	        	Fedora_API::deleteDatastream($pid, $dsIDName);
+							else
+				            	Fedora_API::callPurgeDatastream($pid, $dsIDName);
 	                    } 
 	                }
                 
@@ -650,9 +653,12 @@ class Reindex
 	                            Error_Handler::logError($pid.": ".$dsIDName.": need to repair dsID");
 	                            // delete and re-ingest - need to do this because sometimes the object made it
 	                            // into the repository even though its dsID is illegal.
-	                            Fedora_API::callPurgeDatastream($pid, $dsIDName);
+								if( APP_VERSION_UPLOADS_AND_LINKS == "ON" )                            	
+                        			Fedora_API::deleteDatastream($pid, $dsIDName);
+								else
+	                            	Fedora_API::callPurgeDatastream($pid, $dsIDName);
 	                            Fedora_API::getUploadLocationByLocalRef($pid, $new_dsID, APP_TEMP_DIR.$new_dsID, $new_dsID, 
-	                                $dsTitle['MIMEType'], "M");
+	                                $dsTitle['MIMEType'], "M", null, APP_VERSION_UPLOADS_AND_LINKS);
 	                        }
 	                        Record::generatePresmd($pid, $new_dsID);
 	                        Workflow::processIngestTrigger($pid, $new_dsID, $dsTitle['MIMEType']);

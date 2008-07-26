@@ -375,10 +375,10 @@ class Record
 		$FezACML_dsID = FezACML::getFezACMLDSName($dsID);		
 		if (Fedora_API::datastreamExists($pid, $FezACML_dsID)) {
 			Fedora_API::callModifyDatastreamByValue($pid, $FezACML_dsID, "A", "FezACML security for datastream - ".$dsID,
-					$xmlObj, "text/xml", "true");
+					$xmlObj, "text/xml", "inherit");
 		} else {
 			Fedora_API::getUploadLocation($pid, $FezACML_dsID, $xmlObj, "FezACML security for datastream - ".$dsID,
-					"text/xml", "X");
+					"text/xml", "X", null, "true");
 		}
     }
 
@@ -788,9 +788,10 @@ class Record
      * @access  public
      * @param   string $pid The persistent identifier of the object
      * @param   string $dsID (optional) The datastream ID
+     * @param   string $createdDT (optional) Fedora timestamp of version to retrieve
      * @return  domdocument $xmldoc A Dom Document of the XML or false if not found
      */
-	function getACML($pid, $dsID="") {
+	function getACML($pid, $dsID="", $createdDT=null) {
         static $acml_cache;
 		$ds_pattern = false;
 		if ($dsID != "") {
@@ -845,14 +846,15 @@ class Record
      * @access  public
      * @param   string $pid The persistent identifier of the object
      * @param   string $xdis_id  The XSD Display ID of the object
+     * @param   string $createdDT (optional) Fedora timestamp of version to retrieve
      * @return  array $xsdmf_array The details for the XML object against its XSD Matching Field IDs
      */
-    function getDetails($pid, $xdis_id)
+    function getDetails($pid, $xdis_id, $createdDT=null)
     { 
 		// Get the Datastreams.
 		$datastreamTitles = XSD_Loop_Subelement::getDatastreamTitles($xdis_id);
 		foreach ($datastreamTitles as $dsValue) {
-			$DSResultArray = Fedora_API::callGetDatastreamDissemination($pid, $dsValue['xsdsel_title']);
+			$DSResultArray = Fedora_API::callGetDatastreamDissemination($pid, $dsValue['xsdsel_title'], $createdDT);
             if (isset($DSResultArray['stream'])) {
                 $xmlDatastream = $DSResultArray['stream'];
                 $xsd_id = XSD_Display::getParentXSDID($dsValue['xsdmf_xdis_id']);
@@ -2611,6 +2613,10 @@ class Record
 		if (@is_array($datastreamXMLHeaders["Link0"])) { // it must be a multiple link item so remove the generic one
 			$datastreamXMLHeaders = Misc::array_clean_key($datastreamXMLHeaders, "Link", true, true);
 		}
+
+		if( APP_VERSION_UPLOADS_AND_LINKS == "ON" )
+			$datastreamXMLHeaders = Misc::processLinkVersioning($pid,$datastreamXMLHeaders,$datastreamXMLContent,$existingDatastreams);
+
         if ($ingestObject) {
             // Actually Ingest the object Into Fedora
             // We only have to do this when first creating the object, subsequent updates should just work with the
@@ -2621,7 +2627,7 @@ class Record
                     'indent'       => true,
                     'input-xml'    => true,
                     'output-xml'   => true,
-                    'wrap'         => 0,
+                    'wrap'         => 0
             );
             if (!defined('APP_NO_TIDY') || !APP_NO_TIDY) {
                 $tidy = new tidy;
@@ -2646,29 +2652,69 @@ class Record
 				$filename_ext = strtolower(substr($dsIDName, (strrpos($dsIDName, ".") + 1)));
 				$dsIDName = substr($dsIDName, 0, strrpos($dsIDName, ".") + 1).$filename_ext;
 			}
+
 			if (($dsIDName == "DC") && (!$ingestObject)) { // Dublic core is special, it cannot be deleted
 		    	Fedora_API::callModifyDatastreamByValue($pid, $dsIDName, $dsTitle['STATE'], $dsTitle['LABEL'],
-                        $datastreamXMLContent[$dsKey], $dsTitle['MIMETYPE'], false);
+                        $datastreamXMLContent[$dsKey], $dsTitle['MIMETYPE'], 'inherit');
+            } elseif (($dsTitle['CONTROL_GROUP'] == "X") && ($ingestObject)) {
+				// no need to process, ingest took care of all "X" datastreams            	
+            	continue;
 			} else {
-				if ($dsTitle['CONTROL_GROUP'] == "R" ) { // if its a redirect we don't need to upload the file
-                    if (Fedora_API::datastreamExists($pid, $dsIDName)) {
-                        Fedora_API::callPurgeDatastream($pid, $dsIDName);
-                    }
-                    $location = trim($datastreamXMLContent[$dsKey]);
-                    if (!empty($location)) {
-                        $location = str_replace("&amp;", "&", $location); 
-                        Fedora_API::callAddDatastream($pid, $dsTitle['ID'], $datastreamXMLContent[$dsKey],
-                                $dsTitle['LABEL'], $dsTitle['STATE'], $dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
-                    }
-                } elseif (($dsTitle['CONTROL_GROUP'] == "X") && (!$ingestObject)) {
-					if (Fedora_API::datastreamExists($pid, $dsIDName)) {
-				    	Fedora_API::callModifyDatastreamByValue($pid, $dsIDName, $dsTitle['STATE'], $dsTitle['LABEL'],
-    	                    $datastreamXMLContent[$dsKey], $dsTitle['MIMETYPE'], "false");
-					} else {
-						Fedora_API::getUploadLocation($pid, $dsTitle['ID'], $datastreamXMLContent[$dsKey], $dsTitle['LABEL'],
-							$dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);
-					}
+				$datastreamID = $dsIDName;
+				
+				$new_loc = false;
+				$new_locByLocalRef = false;
+				$new_add = false;
+				$mod_ByValue = false;
+				$mod_ByRef = false;
+				$mod_locByLocalRef = false;
+
+				if ($dsTitle['CONTROL_GROUP'] == "X") {
+					$new_loc = true;
+					$mod_ByValue = true;
+				} elseif ($dsTitle['CONTROL_GROUP'] == "R" ) { 
+				    // if its a redirect we don't need to upload the file
+					$new_add = true;
+					$mod_ByRef = true;
  				} elseif (($dsTitle['CONTROL_GROUP'] == "M")) { // control group == 'M'
+					$new_locByLocalRef = true;
+					$mod_locByLocalRef = true;
+				}
+	
+				$purgeANDadd = false;  // used with older Fedora versions
+				$add = false;
+				$mod = false;
+				$versionable = 'false';
+
+				if ($dsTitle['CONTROL_GROUP'] == "X") {
+	                if (!Fedora_API::datastreamExists($pid, $dsIDName)) {
+						// This really shouldn't happen with Fez controlled datastreams
+						// because they are added with ingest.	                	
+	                	$versionable = $dsTitle['VERSIONABLE'];
+	                	$add = true;
+	                } else {
+						$versionable = 'inherit';
+						$mod = true;
+	                }
+				} 
+				else if ($dsTitle['CONTROL_GROUP'] == "R" ) {
+                    $location = trim($datastreamXMLContent[$dsKey]);
+                    if (empty($location))
+                    	continue;
+                    $location = str_replace("&amp;", "&", $location); 
+
+					$versionable = APP_VERSION_UPLOADS_AND_LINKS == "ON" ? 'true' : 'false';
+	                if (!Fedora_API::datastreamExists($pid, $dsIDName))
+	                	$add = true;
+					elseif( APP_FEDORA_VERSION == '2.2' )
+						$mod = true;
+					elseif( APP_VERSION_UPLOADS_AND_LINKS == "ON" )
+						$mod = true;
+					elseif( APP_VERSION_UPLOADS_AND_LINKS != "ON" )
+						$purgeANDadd = true;
+				} 
+				else if ($dsTitle['CONTROL_GROUP'] == "M") {
+					$versionable = APP_VERSION_UPLOADS_AND_LINKS == "ON" ? 'true' : 'false';
 
 					if (is_numeric(strpos($dsIDName, chr(92)))) {
 						$dsIDName = substr($dsIDName, strrpos($dsIDName, chr(92))+1);
@@ -2676,13 +2722,55 @@ class Record
 					if (is_numeric(strpos($dsTitle['LABEL'], chr(92)))) {
 						$dsTitle['LABEL'] = substr($dsTitle['LABEL'], strrpos($dsTitle['LABEL'], chr(92))+1);
 					}
-                    $ncName = Foxml::makeNCName($dsIDName);
-					if (Fedora_API::datastreamExists($pid, $ncName)) {
-						Fedora_API::callPurgeDatastream($pid, $ncName);
+                    $datastreamID = Foxml::makeNCName($dsIDName);
+
+	                if (!Fedora_API::datastreamExists($pid, $datastreamID))
+	                	$add = true;
+					elseif( APP_FEDORA_VERSION == '2.2' )
+						$mod = true;
+					elseif( APP_VERSION_UPLOADS_AND_LINKS == "ON" )
+						$mod = true;
+					else
+						$purgeANDadd = true;
+				}
+
+                if( $purgeANDadd )
+                	// This is required for older versions of Fedora 
+                	// that don't support versionable flag.
+                    Fedora_API::callPurgeDatastream($pid, $datastreamID);
+
+				if( $purgeANDadd || $add ){
+					if( $new_loc ){
+						Fedora_API::getUploadLocation($pid, $dsTitle['ID'], $datastreamXMLContent[$dsKey], $dsTitle['LABEL'],
+							$dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP'],$versionable);
+					} elseif( $new_locByLocalRef ){
+						Fedora_API::getUploadLocationByLocalRef($pid, $datastreamID, $dsTitle['File_Location'], $dsTitle['LABEL'], 
+							$dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP'],null,$versionable);
+					} elseif( $new_add ){
+//                        Fedora_API::callAddDatastream($pid, $dsTitle['ID'], $datastreamXMLContent[$dsKey],
+                        Fedora_API::callAddDatastream($pid, $dsTitle['ID'], $location,
+                            $dsTitle['LABEL'], $dsTitle['STATE'], $dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP'],$versionable);
+					} else {
+		                Error_Handler::logError("Unable to add datastream.  Missing add type.", __FILE__,__LINE__);
 					}
-					
-					Fedora_API::getUploadLocationByLocalRef($pid, $ncName, $dsTitle['File_Location'], $dsTitle['LABEL'], $dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP']);	
-			        Record::generatePresmd($pid, $dsIDName);
+				} elseif ($mod) {                
+					if( $mod_ByValue ) {
+				    	Fedora_API::callModifyDatastreamByValue($pid, $datastreamID, $dsTitle['STATE'], $dsTitle['LABEL'],
+	   	                    $datastreamXMLContent[$dsKey], $dsTitle['MIMETYPE'], $versionable);
+					} elseif( $mod_ByRef ) {
+						Fedora_API::callModifyDatastreamByReference($pid, $datastreamID, $dsTitle['LABEL'],
+	   	                    $location, $dsTitle['MIMETYPE'], $versionable);
+//	   	                    $datastreamXMLContent[$dsKey], $dsTitle['MIMETYPE'], $versionable);
+					} elseif( $mod_locByLocalRef ) {
+						Fedora_API::getUploadLocationByLocalRef($pid, $datastreamID, $dsTitle['File_Location'], $dsTitle['LABEL'], 
+							$dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP'],null,$versionable);
+					} else {
+		                Error_Handler::logError("Unable to modify datastream.  Missing mod type.", __FILE__,__LINE__);
+					}
+				}
+				
+				if (($dsTitle['CONTROL_GROUP'] == "M")) {
+			         Record::generatePresmd($pid, $dsIDName);
 				}
 			}
 		}
@@ -2703,7 +2791,7 @@ class Record
 		Record::setIndexMatchingFields($pid);
     }
     
-    
+     
     function insertRecentRecords($pids)
     {
         $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "recently_added_items" . 
@@ -2956,18 +3044,21 @@ class RecordGeneral
 	 *
      * @access  public
      * @param   string $pid The persistant identifier of the object
+     * @param   string $createdDT (optional) Fedora timestamp of version to retrieve
      * @return  void
      */
-    function RecordGeneral($pid=null)
+    function RecordGeneral($pid=null, $createdDT=null)
     {
         $this->pid = $pid;
+        $this->createdDT = $createdDT;
         $this->lister_roles = explode(',',APP_LISTER_ROLES);
         $this->viewer_roles = explode(',',APP_VIEWER_ROLES);
         $this->editor_roles = explode(',',APP_EDITOR_ROLES);
         $this->creator_roles = explode(',',APP_CREATOR_ROLES);
         $this->deleter_roles = explode(',',APP_DELETER_ROLES);
         $this->approver_roles = explode(',',APP_APPROVER_ROLES);
-
+        $this->versionsViewer_roles = explode(',',APP_VIEW_VERSIONS_ROLES);
+//        $this->versionsReverter_roles = explode(',',APP_REVERT_VERSIONS_ROLES);
     }
 
     function getPid()
@@ -3002,7 +3093,7 @@ class RecordGeneral
                 	Error_Handler::logError("Record ".$this->pid." doesn't exist",__FILE__,__LINE__);
                     return null;
                 }
-                $xdis_array = Fedora_API::callGetDatastreamContentsField($this->pid, 'FezMD', array('xdis_id'));
+                $xdis_array = Fedora_API::callGetDatastreamContentsField($this->pid, 'FezMD', array('xdis_id'), $this->createdDT);
                 if (isset($xdis_array['xdis_id'][0])) {
                     $this->xdis_id = $xdis_array['xdis_id'][0];
                 } else {
@@ -3045,7 +3136,7 @@ class RecordGeneral
      */
     function getImageFezACML($dsID) {
 		if (!empty($dsID)) {
-			$xdis_array = Fedora_API::callGetDatastreamContentsField($this->pid, 'FezACML'.$dsID.'.xml', array('image_copyright', 'image_watermark'));
+			$xdis_array = Fedora_API::callGetDatastreamContentsField($this->pid, 'FezACML'.$dsID.'.xml', array('image_copyright', 'image_watermark'), $this->createdDT);
 			if (isset($xdis_array['image_copyright'][0])) {
 				$this->image_copyright[$dsID] = $xdis_array['image_copyright'][0];
 			}
@@ -3180,6 +3271,32 @@ class RecordGeneral
         return $this->checkAuth($this->creator_roles, $redirect);
     }
 
+    /**
+     * canViewVersions
+     * Find out if the current user can view versions of this record
+	 *
+     * @access  public
+	 * @param  $redirect
+     * @return  void
+     */
+    function canViewVersions($redirect=false) {
+		if(APP_VERSION_UPLOADS_AND_LINKS != "ON") return false;    	
+        return $this->checkAuth($this->versionsViewer_roles, $redirect);
+    }
+
+    /**
+     * canRevertVersions
+     * Find out if the current user can revert this record to an earlier version
+	 *
+     * @access  public
+	 * @param  $redirect
+     * @return  void
+     */
+//    function canRevertVersions($redirect=false) {
+//		  if(APP_VERSION_UPLOADS_AND_LINKS != "ON") return false;    	
+//        return $this->checkAuth($this->versionsReverter_roles, $redirect);
+//    }
+
     function getPublishedStatus($astext = false)
     {
         $this->getDetails();
@@ -3255,7 +3372,7 @@ class RecordGeneral
         $newXML .= "</FezMD>";
         //Error_handler::logError($newXML,__FILE__,__LINE__);
         if ($newXML != "") {
-            Fedora_API::callModifyDatastreamByValue($this->pid, "FezMD", "A", "Fez extension metadata", $newXML, "text/xml", false);
+            Fedora_API::callModifyDatastreamByValue($this->pid, "FezMD", "A", "Fez extension metadata", $newXML, "text/xml", "inherit");
         }
     }
 
@@ -3306,7 +3423,7 @@ class RecordGeneral
 		$parentNode->appendChild($newNode);
 		$newXML = $doc->SaveXML();
         if ($newXML != "") {
-            Fedora_API::callModifyDatastreamByValue($this->pid, "RELS-EXT", "A", "Relationships to other objects", $newXML, "text/xml", false);
+            Fedora_API::callModifyDatastreamByValue($this->pid, "RELS-EXT", "A", "Relationships to other objects", $newXML, "text/xml", "inherit");
 			Record::setIndexMatchingFields($this->pid);
 			return 1;
         }
@@ -3348,7 +3465,7 @@ class RecordGeneral
 		
 		$newXML = $doc->SaveXML();
         if ($newXML != "") {
-            Fedora_API::callModifyDatastreamByValue($this->pid, "RELS-EXT", "A", "Relationships to other objects", $newXML, "text/xml", false);
+            Fedora_API::callModifyDatastreamByValue($this->pid, "RELS-EXT", "A", "Relationships to other objects", $newXML, "text/xml", "inherit");
 			Record::setIndexMatchingFields($this->pid);
 			if( APP_SOLR_INDEXER == "ON" ) {
             	FulltextQueue::singleton()->add($this->pid);
@@ -3389,7 +3506,7 @@ class RecordGeneral
 		$parentNode->insertBefore($newNode);
 		$newXML = $doc->SaveXML();
         if ($newXML != "") {
-            Fedora_API::callModifyDatastreamByValue($this->pid, "FezMD", "A", "Fez Admin Metadata", $newXML, "text/xml", false);
+            Fedora_API::callModifyDatastreamByValue($this->pid, "FezMD", "A", "Fez Admin Metadata", $newXML, "text/xml", "inherit");
 			Record::setIndexMatchingFields($this->pid);
         }
     }
@@ -3426,7 +3543,7 @@ class RecordGeneral
 //		Error_Handler::logError($doc->SaveXML(),__FILE__,__LINE__);
 		$newXML = $doc->SaveXML();
         if ($newXML != "") {
-            Fedora_API::callModifyDatastreamByValue($this->pid, "FezMD", "A", "Fez Admin Metadata", $newXML, "text/xml", false);
+            Fedora_API::callModifyDatastreamByValue($this->pid, "FezMD", "A", "Fez Admin Metadata", $newXML, "text/xml", "inherit");
 			Record::setIndexMatchingFields($this->pid);
         }
     }
@@ -3468,7 +3585,7 @@ class RecordGeneral
             // is missing information like namespaces and attribute '@' thing.
             if ($this->setValueRecurse($value, $doc->documentElement, $steps,
                                             $xsd_array[$xsd_details['xsd_top_element_name']], $idx)) {
-                Fedora_API::callModifyDatastreamByValue($this->pid, $dsID, "A", "setValue", $doc->saveXML(), "text/xml", false);
+                Fedora_API::callModifyDatastreamByValue($this->pid, $dsID, "A", "setValue", $doc->saveXML(), "text/xml", "inherit");
                 Record::setIndexMatchingFields($this->pid);
             	return true;
             }
@@ -3583,9 +3700,9 @@ class RecordGeneral
 			}
             if ($this->display) {
 				if ($dsID != "") {
-					$this->details = $this->display->getXSDMF_Values_Datastream($this->pid, $dsID);
+					$this->details = $this->display->getXSDMF_Values_Datastream($this->pid, $dsID, $this->createdDT);
 				} else {
-                	$this->details = $this->display->getXSDMF_Values($this->pid);
+                	$this->details = $this->display->getXSDMF_Values($this->pid, $this->createdDT);
 				}
             } else {
   				Error_Handler::logError("The PID ".$this->pid." has an error getting it's display details. This object is currently in an erroneous state.",__FILE__,__LINE__);
@@ -3861,9 +3978,9 @@ class RecordGeneral
         return Fedora_API::getObjectXMLByPID($this->pid);
     }
 
-    function getDatastreams()
+    function getDatastreams($dsState='A')
     {
-        return Fedora_API::callGetDatastreams($this->pid);
+        return Fedora_API::callGetDatastreams($this->pid,null,$dsState);
     }
     function checkExists()
     {
@@ -3989,7 +4106,7 @@ class RecordGeneral
                 case 'DC':
                     $value = Fedora_API::callGetDatastreamContents($pid, $ds_value['ID'], true);
                     Fedora_API::callModifyDatastreamByValue($new_pid, $ds_value['ID'], $ds_value['state'],
-                        $ds_value['label'], $value, $ds_value['MIMEType'], "false");
+                        $ds_value['label'], $value, $ds_value['MIMEType'], $ds_value['versionable']);
 //					if (!array_key_exists("MODS", $datastreams)) {
 					if (!Misc::in_multi_array("MODS", $datastreams)) {
 						// transform the DC into a MODS datastream and attach it
@@ -4000,7 +4117,7 @@ class RecordGeneral
 						$proc = new XSLTProcessor();
 						$proc->importStyleSheet($xsl_dom);
 						$transformResult = $proc->transformToXML($dc_dom);
-	                    Fedora_API::getUploadLocation($new_pid, "MODS", $transformResult, "Metadata Object Description Schema", "text/xml", "X", "MODS");
+	                    Fedora_API::getUploadLocation($new_pid, "MODS", $transformResult, "Metadata Object Description Schema", "text/xml", "X", "MODS", 'true');
 					}
                 break;
                 case 'BookMD':
@@ -4018,7 +4135,7 @@ class RecordGeneral
                     XML_Helper::setElementNodeValue($doc, '/FezMD', 'xdis_id', $new_xdis_id);
                     $value = $doc->saveXML();
                     Fedora_API::getUploadLocation($new_pid, $ds_value['ID'], $value, $ds_value['label'],
-                            $ds_value['MIMEType'], $ds_value['controlGroup']);
+                            $ds_value['MIMEType'], $ds_value['controlGroup'],null,$ds_value['versionable']);
                 break;
                 case 'RELS-EXT':
                     // set the successor thing in RELS-EXT
@@ -4042,24 +4159,24 @@ class RecordGeneral
                         $value = $doc->saveXML();
                     }
                     Fedora_API::getUploadLocation($new_pid, $ds_value['ID'], $value, $ds_value['label'],
-                            $ds_value['MIMEType'], $ds_value['controlGroup']);
+                            $ds_value['MIMEType'], $ds_value['controlGroup'],null,$ds_value['versionable']);
                 break;
                 default:
                     if (isset($ds_value['controlGroup']) && $ds_value['controlGroup'] == 'X') {
                         $value = Fedora_API::callGetDatastreamContents($pid, $ds_value['ID'], true);
                         $value = str_replace($pid, $new_pid, $value);
                         Fedora_API::getUploadLocation($new_pid, $ds_value['ID'], $value, $ds_value['label'],
-                            $ds_value['MIMEType'], $ds_value['controlGroup']);
+                            $ds_value['MIMEType'], $ds_value['controlGroup'], null, $ds_value['versionable']);
                     } elseif (isset($ds_value['controlGroup']) && $ds_value['controlGroup'] == 'M'
                                 && $clone_attached_datastreams) {
                         $value = Fedora_API::callGetDatastreamContents($pid, $ds_value['ID'], true);
                         Fedora_API::getUploadLocation($new_pid, $ds_value['ID'], $value, $ds_value['label'],
-                            $ds_value['MIMEType'], $ds_value['controlGroup']);
+                            $ds_value['MIMEType'], $ds_value['controlGroup'], null, $ds_value['versionable']);
                     } elseif (isset($ds_value['controlGroup']) && $ds_value['controlGroup'] == 'R'
                                 && $clone_attached_datastreams) {
                         $value = Fedora_API::callGetDatastreamContents($pid, $ds_value['ID'], true);
                         Fedora_API::callAddDatastream($new_pid, $ds_value['ID'], $value, $ds_value['label'],
-                            $ds_value['state'],$ds_value['MIMEType'], $ds_value['controlGroup']);
+                            $ds_value['state'],$ds_value['MIMEType'], $ds_value['controlGroup'], $ds_value['versionable']);
                     }
                 break;
             }
@@ -4146,9 +4263,9 @@ class RecordObject extends RecordGeneral
 
 
 
-    function RecordObject($pid=null)
+    function RecordObject($pid=null, $createdDT=null)
     {
-        RecordGeneral::RecordGeneral($pid);
+        RecordGeneral::RecordGeneral($pid, $createdDT);
     }
 
     /**
@@ -4224,7 +4341,7 @@ class RecordObject extends RecordGeneral
 		}
 		$newXML .= "</FezMD>";
 		if ($newXML != "") {
-			Fedora_API::callModifyDatastreamByValue($this->pid, "FezMD", "A", "Fez extension metadata", $newXML, "text/xml", true);
+			Fedora_API::callModifyDatastreamByValue($this->pid, "FezMD", "A", "Fez extension metadata", $newXML, "text/xml", "inherit");
 			$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElement("!xdis_id", 15);
 			Record::removeIndexRecordByXSDMF_ID($this->pid, $xsdmf_id);
 			Record::insertIndexMatchingField($this->pid, '', $xsdmf_id, $this->xdis_id);
@@ -4260,7 +4377,8 @@ class RecordObject extends RecordGeneral
 			$existingDatastreams = array();
         } else {
 			$existingDatastreams = Fedora_API::callGetDatastreams($this->pid);
-			Misc::purgeExistingLinks($this->pid, $existingDatastreams);
+			if( APP_VERSION_UPLOADS_AND_LINKS != "ON" )
+				Misc::purgeExistingLinks($this->pid, $existingDatastreams);
 			$this->getObjectAdminMD();
 			if (empty($this->created_date)) {
 				$this->created_date = Date_API::getFedoraFormattedDateUTC();
@@ -4349,12 +4467,15 @@ class RecordObject extends RecordGeneral
 				$handle = fopen(APP_TEMP_DIR.$dsIDName, "w");
 				Misc::processURL($urldata, false, $handle);
 				fclose($handle);
-                // delete and re-ingest - need to do this because sometimes the object made it
-                // into the repository even though it's dsID is illegal.
-                Fedora_API::callPurgeDatastream($pid, $dsIDName);
                 $new_dsID = Foxml::makeNCName($dsIDName);
+                if( $new_dsID != $dsIDName ){
+	                // delete and re-ingest - need to do this because sometimes the object made it
+    	            // into the repository even though it's dsID is illegal.
+	                Fedora_API::callPurgeDatastream($pid, $dsIDName);
+    	        }
+    	        $versionable = APP_VERSION_UPLOADS_AND_LINKS == "ON" ? 'true' : 'false';
                 Fedora_API::getUploadLocationByLocalRef($pid, $new_dsID, APP_TEMP_DIR.$dsIDName, $dsIDName,
-                        $dsTitle['MIMEType'], "M");
+                        $dsTitle['MIMEType'], "M", null, $versionable);
                 // preservation metadata
                 $presmd_check = Workflow::checkForPresMD($new_dsID);
 
@@ -4368,7 +4489,7 @@ class RecordObject extends RecordGeneral
 //						Fedora_API::callModifyDatastreamByReference($pid, $pres_dsID,
 //                                "Preservation Metadata", $presmd_check, "text/xml");
 //                        Fedora_API::callModifyDatastreamByValue($pid, $pres_dsID, "A",
-//                                "Preservation Metadata", $xml, "text/xml", true);
+//                                "Preservation Metadata", $xml, "text/xml", "inherit");
 						Fedora_API::callPurgeDatastream($pid, $pres_dsID);
                         Fedora_API::getUploadLocationByLocalRef($pid, $pres_dsID, $presmd_check, $presmd_check,
                                 "text/xml", "M");

@@ -88,7 +88,7 @@ class BatchAdd
 		         // ID must start with _ or letter
 		         $short_ds = Misc::shortFilename(Foxml::makeNCName($short_ds), 64);
                  $mimetype = Misc::mime_content_type($ds);
- 				 Fedora_API::getUploadLocationByLocalRef($pid, $short_ds, $ds, $short_ds, $mimetype);
+ 				 Fedora_API::getUploadLocationByLocalRef($pid, $short_ds, $ds, $short_ds, $mimetype,"M",null,APP_VERSION_UPLOADS_AND_LINKS);
                  $presmd_check = Workflow::checkForPresMD($ds);  
                  if ($presmd_check != false) {
                     Fedora_API::getUploadLocationByLocalRef($pid, $presmd_check, $presmd_check, 
@@ -105,10 +105,10 @@ class BatchAdd
 								$FezACML_dsID = FezACML::getFezACMLDSName($dsID);
 								if (Fedora_API::datastreamExists($pid, $FezACML_dsID)) {
 									Fedora_API::callModifyDatastreamByValue($pid, $FezACML_dsID, "A", "FezACML security for datastream - ".$dsID,
-											$xmlObj, "text/xml", "true");
+											$xmlObj, "text/xml", "inherit");
 								} else {
 									Fedora_API::getUploadLocation($pid, $FezACML_dsID, $xmlObj, "FezACML security for datastream - ".$dsID,
-											"text/xml", "X");
+											"text/xml", "X",null,"true");
 								}
 							}
 						}

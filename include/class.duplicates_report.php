@@ -1048,7 +1048,7 @@ return;
 					// copy dup binary DS to base
                     $value = Fedora_API::callGetDatastreamContents($dup_record->pid, $ds['ID'], true);
                     Fedora_API::getUploadLocation($base_record->pid, $ds['ID'], $value, $ds['label'],
-                            $ds['MIMEType'], $ds['controlGroup']);
+                            $ds['MIMEType'], $ds['controlGroup'], null, $ds['versionable']);
                     $copied_ds[] = $ds['ID'];
 				}
 			}

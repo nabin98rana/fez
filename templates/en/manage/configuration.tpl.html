@@ -28,6 +28,7 @@ function hideAllSubPages()
 	document.getElementById('solr').style.display = "none";
 	document.getElementById('origami').style.display = "none";
 	document.getElementById('exiftool').style.display = "none";
+	document.getElementById('versioning').style.display = "none";
 }
 
 function updatePreviewColour(el)
@@ -126,6 +127,7 @@ function restoreDefaultColours(el)
 		  <a href="#" onclick="javascript:showSubPage('ldap');">LDAP Settings</a><br />
 		  <a href="#" onclick="javascript:showSubPage('eprints');">ePrints Settings</a><br />
 		  <a href="#" onclick="javascript:showSubPage('origami');">Origami Settings</a><br />
+		  <a href="#" onclick="javascript:showSubPage('versioning');">Versioning Settings</a><br />
 		</td>
 	  </tr>
 	</table>
@@ -1237,6 +1239,50 @@ function restoreDefaultColours(el)
 			<td class="coldetail">
 			  <input type="text" name="app_exiftool_cmd" value="{$config_settings.app_exiftool_cmd|escape:"html"}" size="50" />
 			  {include file="error_icon.tpl.html" field="app_exiftool_cmd"}
+			</td>
+  		  </tr>
+		</table>
+		</div>
+
+
+		<div id="versioning" style="display: none;">
+		<table width="100%" class="config-group">
+		  <tr>
+			<td colspan="2">
+			  <h2>Versioning Settings</h2>
+			  <table>
+			    <tr><td>Fedora 2.2:</td><td>Fully Tested</td></tr>
+			    <tr><td>Fedora 2.1.1:</td><td>Implemented, but not fully tested</td></tr>
+			    <tr><td>Direct Access:&nbsp;&nbsp;&nbsp;</td><td>Not Implemented</td></tr>
+			  </table>
+			  <p><b>NOTE:</b> This controls versioning of attached files and external 
+			     links only.  XML datastreams defined in XSD Displays are controlled by
+			     the value of Versionable set in the XSD matching field.  Certain Fez 
+			     controlled datastreams ignore this field and hardcode turning Versionable 
+			     on or off.</p> 
+			  <p><b>NOTE:</b> <em>Interval Between Fedora Versions<em> is the minimum amount of time 
+			     in seconds between amalgamated versions of datastreams of a record that 
+			     are deemed to correspond to an atomic Fez operation. If this value is 
+			     set too high, the filtered list of version times may not display 
+			     legitimate edits. If the value is set too low, the filtered list may 
+			     include times that correspond to updates of individual datastreams.</p>
+			  <p><b>NOTE:</b> <em>You also need to set APP_VIEW_VERSIONS_ROLES and 
+			     APP_VIEW_VERSIONS_ROLE_IDS in include/class.configuration.php. </p>
+			</td>
+  		  </tr>
+  		  </tr>
+		  <tr>
+	        <td class="colname">Enable Versioning for Attached Files and External Links</td>
+			<td class="coldetail">
+			  <input type="radio" name="app_version_uploads_and_links" value="ON" {if $config_settings.app_version_uploads_and_links == "ON"}checked{/if}/> On &nbsp; 
+			  <input type="radio" name="app_version_uploads_and_links" value="OFF" {if $config_settings.app_version_uploads_and_links == "OFF"}checked{/if}/> Off
+			</td>
+  		  </tr>
+		  <tr>
+		    <td class="colname">Interval Between Fedora Versions</td>
+			<td class="coldetail">
+			  <input type="text" name="app_version_time_interval" value="{$config_settings.app_version_time_interval|escape:"html"}" size="10" /> (seconds)
+			  {include file="error_icon.tpl.html" field="app_version_time_interval"}
 			</td>
   		  </tr>
 		</table>

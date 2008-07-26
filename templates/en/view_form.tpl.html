@@ -29,7 +29,7 @@ function loadPreview(pid,datastreamID, alt, origami)
 
 	if (datastreamID.substring(0, 7) == 'stream_') {
 		document.getElementById('datastream_preview_td').width = 450;
-		document.getElementById('datastream_preview_frame').innerHTML='<iframe frameborder="no" width="100%" height="400" src="'+rel_url+'eserv/'+pid+'/'+datastreamID+'?wrapper=no"></iframe>';
+		document.getElementById('datastream_preview_frame').innerHTML='<iframe frameborder="no" width="100%" height="400" src="'+rel_url+'eserv/'+pid+'/'+datastreamID+'?wrapper=no{/literal}{if $viewingPreviousVersion}&version_date={$versionDate}{/if}{literal}"></iframe>';
 	} else {
 		{/literal}
 		
@@ -44,7 +44,7 @@ function loadPreview(pid,datastreamID, alt, origami)
         {/literal}
         {/if}
         
-		document.getElementById('datastream_preview_frame').innerHTML='<a id="datastream_preview_href" title="Click on the image to see a larger version"  target="_blank" href="{$rel_url}eserv/{$pid}/{$preview_ds_1.ID}"><img width="100%" border=0 id="datastream_preview" alt="Datastream Preview"/></a>';
+		document.getElementById('datastream_preview_frame').innerHTML='<a id="datastream_preview_href" title="Click on the image to see a larger version"  target="_blank" href="{$rel_url}eserv/{$pid}/{$preview_ds_1.ID}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}"><img width="100%" border=0 id="datastream_preview" alt="Datastream Preview"/></a>';
 		{literal}
 	    pv_img = document.getElementById('datastream_preview');
 	    pv_img_href = document.getElementById('datastream_preview_href');
@@ -52,15 +52,19 @@ function loadPreview(pid,datastreamID, alt, origami)
 	    // get the resized image
 		pv_img_href.href = rel_url+'eserv/'+pid;
 		if(origami == "true") {
-		    pv_img_href.href += '/'+datastreamID+'?oi=1';
+		    pv_img_href.href += '/'+datastreamID+'?oi=1{/literal}{if $viewingPreviousVersion}&version_date={$versionDate}{/if}{literal}';
 		    // This replace must be done AFTER creating href
 		    datastreamID = str_replace(datastreamID, '.tif', '.jpg');
 		} else {
 		    datastreamID = str_replace(datastreamID, '.tif', '.jpg');
-		    pv_img_href.href += '/web_'+datastreamID;
+		    datastreamID = str_replace(datastreamID, '.gif', '.jpg');
+		    datastreamID = str_replace(datastreamID, '.eps', '.jpg');
+		    datastreamID = str_replace(datastreamID, '.png', '.jpg');
+		    datastreamID = str_replace(datastreamID, '.bmp', '.jpg');
+		    pv_img_href.href += '/web_'+datastreamID+'{/literal}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}{literal}';
 		}
 		
-		pv_img.src = rel_url+'eserv/'+pid+'/preview_'+datastreamID;
+		pv_img.src = rel_url+'eserv/'+pid+'/preview_'+datastreamID+'{/literal}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}{literal}';
         pv_img.alt = alt;
 	}
     pv_loading.style.display = 'none';
@@ -215,7 +219,7 @@ function showDiv(p)
         </tr>
 	  </table>
 
-	  <div style="border: 1px solid #8e8e8e; margin-left: 50px; margin-right: 50px;">
+	  <div id="{if $viewingPreviousVersion}viewInfoBoxNoEdit{else}viewInfoBox{/if}">
       <table cellspacing="0" cellpadding="5" style="padding: 5px;" class="default">
 
 		<tr>
@@ -227,6 +231,7 @@ function showDiv(p)
 
 {if $isUser && !$hide_edit}
 {if $isEditor || $isAdministrator}
+{if !$viewingPreviousVersion}
 		<tr>
 		  <td width="20" align="right"> 
 			<span style="font-weight: bold;">Workflows:</span>
@@ -260,6 +265,7 @@ function showDiv(p)
           </tr>
 {/if}
 {/if}
+{/if}
 {if $show_tombstone && !$deleted || !$show_tombstone}
 
 {if $parents}		
@@ -284,6 +290,19 @@ function showDiv(p)
 			  {if $prev}<a href="{$rel_url}view/{$prev.rek_pid}">Prev: <i>{$prev.rek_title}</i></a> {if $next}<br />{/if}{/if}
 				{if $next}<a href="{$rel_url}view/{$next.rek_pid}">Next: <i>{$next.rek_title}</i></a> {/if}
 			</td>
+		</tr>
+{/if}
+
+{if $viewingPreviousVersion}
+		<tr>
+			<td width="20" align="right">
+			  <span style="font-weight: bold;">Viewing&nbsp;Version:</span>
+			</td>
+			<td width="">
+			  {$versionDatePretty}
+			  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			  <font color='red'>Cannot Modify</font>
+			  </td>
 		</tr>
 {/if}
 
@@ -343,7 +362,7 @@ function showDiv(p)
 				{/if}
 				{assign var="show_preview_pane" value="1"}
 				{if $datastreams[d].thumbnail != "0"}
-					<img align="absmiddle" title="Click to show the corresponding preview" src="{$eserv_url}{$datastreams[d].thumbnail}" border="1"
+					<img align="absmiddle" title="Click to show the corresponding preview" src="{$eserv_url}{$datastreams[d].thumbnail}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}" border="1"
 		            {if ($datastreams[d].canPreview || $isAdministrator) && $datastreams[d].stream != "0"}
 						{assign var="ds_show" value=$datastreams[d].stream}onclick="javascript:loadPreview('{$pid}','{$datastreams[d].stream}', '{$datastreams[d].ID|escape:'html'}', '{$origami_preview}');">
 					{else}
@@ -376,9 +395,9 @@ function showDiv(p)
 			             $datastreams[d].MIMEType == 'image/tiff' || 
 			             $datastreams[d].MIMEType == 'image/tif' || 
 			             $datastreams[d].MIMEType == 'image/jpg')}
-				<a target="_blank" href="{$rel_url}eserv/{$pid}/{$datastreams[d].ID}?oi=1">
+				<a target="_blank" href="{$rel_url}eserv/{$pid}/{$datastreams[d].ID}?oi=1{if $viewingPreviousVersion}&version_date={$versionDate}{/if}">
 				{else}
-				<a target="_blank" href="{$rel_url}eserv/{$pid}/{$ds_show}">
+				<a target="_blank" href="{$rel_url}eserv/{$pid}/{$ds_show}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}">
 				{/if}
 			{/if}
 			{$datastreams[d].ID}
@@ -386,10 +405,10 @@ function showDiv(p)
 				</a> &nbsp;
 			{/if}
 			{if ($datastreams[d].isArchivalViewer == 1 || $isAdministrator) && $datastreams[d].thumbnail != "0"}
-				<a target="_blank" href="{$rel_url}eserv/{$pid}/{$datastreams[d].ID}"><img title="archival version" align="absmiddle" border="0" src="{$rel_url}images/archival_22.gif"></a>&nbsp;
+				<a target="_blank" href="{$rel_url}eserv/{$pid}/{$datastreams[d].ID}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}"><img title="archival version" align="absmiddle" border="0" src="{$rel_url}images/archival_22.gif"></a>&nbsp;
 			{/if}
 			{if $datastreams[d].presmd != "0" && ($isAdministrator)}
-				<a target="_blank" href="{$rel_url}eserv/{$pid}/{$datastreams[d].presmd}"><img title="preservation metadata" align="absmiddle" border="0" src="{$rel_url}images/presmd_22.gif"></a>&nbsp;
+				<a target="_blank" href="{$rel_url}eserv/{$pid}/{$datastreams[d].presmd}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}"><img title="preservation metadata" align="absmiddle" border="0" src="{$rel_url}images/presmd_22.gif"></a>&nbsp;
 			{/if} 	
 				</td>
 				<td>{$datastreams[d].label}</td>
@@ -488,7 +507,47 @@ function showDiv(p)
 			</td>
 		</tr>
 {/if}
-		  
+
+{if $canViewVersions}
+ <tr>
+ <td>
+     <form name="viewversionform" action="{$rel_url}view.php?pid={$pid|escape:"html"}" method="post">
+ 		<table bgcolor="#FFFFFF" border="0" cellspacing="0" cellpadding="2" width="100%">
+ 			  <tr>
+ 				<td class="default_white" colspan="2" bgcolor="{$heading_color}"><b>Versions</b></td>
+ 			  </tr>
+ 			  <tr class="default" bgcolor="{$cell_color}">
+ 				<td>Version</td>
+ 				<td>Filter Type</td>
+ 			</tr>
+ 			<tr>
+ 				<td bgcolor={$light_color}>
+ 					<select name="version_date" class="default">
+ 					{section name="versions" loop=$created_dates_list}
+ 					{if $version_view_type == 'FULL' || !$created_dates_list[versions].filtered}
+ 
+ 					<option {if $created_dates_list[versions].filtered}class="phantomVersionItem" {/if}value="{$created_dates_list[versions].fedoraDate}"
+ 					{if $created_dates_list[versions].selected} selected{/if}>{$created_dates_list[versions].displayDate}</option>
+ 					{/if}
+ 					{/section}
+ 					</select>
+ 					<input type="submit" value="View Version">
+ 				</td>
+ 				<td bgcolor={$light_color}>
+ 					<select name="version_view_type">
+ 						<option value="FILTERED" {if $version_view_type == 'FILTERED'}selected{/if}>Filtered</option>
+ 						<option value="FULL" {if $version_view_type == 'FULL'}selected{/if}>Full</option>
+ 					</select>
+ 					<input type="submit" name="fullVersionList" value="Change">
+ 				</td>
+ 			</tr>
+ 		</table>
+     </form>	
+ </td>
+ </tr>
+ 
+{/if}
+
 {if $displayusercomments && $show_tombstone && !$deleted}
 
 	   <tr>
@@ -596,7 +655,7 @@ function showDiv(p)
         <td class="default">
           {if $preview_ds_1}
 		  <div id="datastream_preview_frame">
-          <a id="datastream_preview_href" title="Click on the image to see a larger version"  target="_blank" href="{$rel_url}eserv/{$pid}/{$preview_ds_1.ID}"><img width="100%" border=0 id="datastream_preview" alt="Datastream Preview"/></a>
+          <a id="datastream_preview_href" title="Click on the image to see a larger version"  target="_blank" href="{$rel_url}eserv/{$pid}/{$preview_ds_1.ID}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}"><img width="100%" border=0 id="datastream_preview" alt="Datastream Preview"/></a>
           <script language="JavaScript">loadPreview('{$pid}','{if $preview_ds_1.stream != "0"}{$preview_ds_1.stream}{else}{$preview_ds_1.ID}{/if}','{$preview_ds_1.ID|escape:'html'}', '{$preview_ds_origami}');</script>
 		  </div>
           {/if}

@@ -73,7 +73,22 @@ if ($debug == 1) {
 }
 
 if (!empty($pid)) {
-	$record = new RecordObject($pid);
+
+    // Retrieve the selected version date from the request. 
+    // This will be null unless a version date has been
+    // selected by the user.
+    $requestedVersionDate = $_REQUEST['version_date'];
+ 	$record = new RecordObject($pid, $requestedVersionDate);
+}
+
+$canViewVersions = $record->canViewVersions(false);
+//$canRevertVersions = $record->canRevertVersions(false);
+
+if($requestedVersionDate != null && !$canViewVersions){
+	// user not allowed to see other versions,
+	// so revert back to latest version
+	$requestedVersionDate = null;
+ 	$record = new RecordObject($pid);
 }
 
 if (!empty($pid) && $record->checkExists()) {
@@ -138,7 +153,7 @@ if (!empty($pid) && $record->checkExists()) {
 	} else {
 		$canView = $record->canView();
 	}
-	
+
 	$tpl->assign("isViewer", $canView);
 	if ($canView) {
 
@@ -161,6 +176,17 @@ if (!empty($pid) && $record->checkExists()) {
         
         $tpl->assign("workflows", $workflows); 
 		$tpl->assign("isEditor", $canEdit);
+		$tpl->assign("canViewVersions", $canViewVersions);
+//		$tpl->assign("canRevertVersions", $canRevertVersions);
+
+		if( $requestedVersionDate != null ){
+			$tpl->assign("viewingPreviousVersion", true);
+			$tpl->assign("versionDate", $requestedVersionDate);
+			$tpl->assign("versionDatePretty", Date_API::getFormattedDate($requestedVersionDate));
+		} else {
+			$tpl->assign("viewingPreviousVersion", false);
+		}
+
 		$tpl->assign("sta_id", $record->getPublishedStatus()); 
 		
 		$display = new XSD_DisplayObject($xdis_id);
@@ -262,11 +288,23 @@ if (!empty($pid) && $record->checkExists()) {
 		$linkCount = 0;
 		$fileCount = 0;
 		
-		$datastreams = Fedora_API::callGetDatastreams($pid);
+		$datastreams = Fedora_API::callGetDatastreams($pid, $requestedVersionDate, 'A');
+
+        // Extact and generate list of timestamps for the datastreams of the record
+        generateTimestamps($pid, $datastreams, $requestedVersionDate, $tpl);
+
+		if( $requestedVersionDate != null ){
+			$datastreams = Misc::addDeletedDatastreams($datastreams,$pid,$requestedVersionDate);
+		}
+
 		$datastreamsAll = $datastreams;		
 		$datastreams = Misc::cleanDatastreamListLite($datastreams, $pid);
+
+//Error_Handler::logError("view2.php datastreams (after cleanDatastreamListLite)=__SEE_NEXT__", __FILE__,__LINE__);
+//Error_Handler::logError($datastreams, __FILE__,__LINE__);
 		
 		foreach ($datastreams as $ds_key => $ds) {
+
 			
 		    if ($datastreams[$ds_key]['controlGroup'] == 'R') {
 				$linkCount++;				
@@ -523,5 +561,140 @@ function getPrevPage($currentPid)
     }
     return array();
 }
+
+/**
+ * Sets a list on the Smarty template containing unique datastream timestamps. 
+ *
+ * <p>
+ * As atomic Fez operations result in non-atomic Fedora operations (for example, updating all datstreams 
+ * results in different version timestamps for each), a fuzzy search is performed to identify timestamps 
+ * that are likely to belong to the same atomic operation.
+ * </p>
+ *
+ * <p>
+ * The list of dates is keyed under 'created_dates_list' on the Smarty template and each entry is an array
+ * containing the following data:
+ * </p>
+ * 
+ * <ul>
+ * <li><strong>fedoraDate</strong> datestamp retrieved from fedora</li>
+ * <li><strong>displayDate</strong> formatted datestamp for display</li>
+ * <li><strong>filtered</strong> true if the date is determined as being a component of a compound Fez 
+   operation and is therefore deemed redundant, false otherwise</li>
+ * <li><strong>selected</strong> true if the current date corresponds to the version of the record being 
+ * viewed</li>
+ * </ul>
+ *
+ * @param $pid PID of the Fedora record to retrieve timestamps for
+ * @param $datastreams list of datastreams for record
+ * @param $requestedVersionDate date of the version being displayed
+ * @param $tpl Smarty template
+ */
+function generateTimestamps($pid, $datastreams, $requestedVersionDate, $tpl) {
+
+    $createdDates = array();
+
+    // Retrieve all versions of all datastreams
+    foreach ($datastreams as $datastream) {
+        $parms = array('pid' => $pid, 'dsID' => $datastream['ID']);
+        $datastreamVersions = Fedora_API::openSoapCall('getDatastreamHistory', $parms);
+
+        // Extract created dates from datastream versions 
+        foreach ($datastreamVersions as $key => $var) {
+
+            // If a datastream contains multiple versions, Fedora bundles them in an array, however doesn't
+            // do if a datastream only has a single version.
+
+            // If the datastream is an array, retrieve value keyed under createDate
+            if (is_array($var)) {
+                $createdDates[] = $var['createDate'];
+            } 
+
+            // If the datastream isn't an array, retrieve the createDate value 
+            else if ($key === 'createDate') {
+                $createdDates[] = $var;
+            } 
+        }
+    }
+
+    // Remove duplicate datestamps from array
+    $createdDates = array_unique($createdDates);
+
+    // Sort datestamps using the custom fedoraDateSorter function
+    usort($createdDates, "fedoraDateSorter");
+
+    $originalCreatedDates = $createdDates;
+
+    // Iterate through amalgamated list of datestamps, removing those that are deemed to have been created
+    // too closely-together to have been a result of a user edit.
+    //
+    // Once a 'phantom' version has been found, iterate through the list again until all datestamps are 
+    // suitably far apart.
+    do {
+        $phantomVersionFound = false;
+        for ($i = 1; $i < sizeof($createdDates); $i++) {
+
+            // If the time between the current datestamp and the previous datestamp is too low, remove the previous
+            // entry and scan the list from the start
+            if (strtotime($createdDates[$i]) - strtotime($createdDates[$i-1]) < APP_VERSION_TIME_INTERVAL) {
+                array_splice($createdDates, $i - 1, 1);
+                $phantomVersionFound = true;
+                break;
+            }
+
+            if ($phantomVersionFound) break;
+        } 
+    }
+    while($phantomVersionFound);
+
+
+    // Iterate through initial list of datastream version created dates and create a list of dates for display 
+    // purposes, containing human-readable dates, the original Fedora date, whether the date has been filtered
+    // or whether the date corresponds to the currently selected date.
+    $createdDatesForDisplay = array();
+    foreach ($originalCreatedDates as $createdDate) {
+
+        // Determine whether the date has been filtered out from the list or not
+        $filtered = in_array($createdDate, $createdDates) ? false : true;
+        
+        // format as RFC 2822 formatted date for readibility 
+        $displayDate = Date_API::getFormattedDate($createdDate);
+
+        // Create the date display entry
+        $createdDatesForDisplay[] = array("fedoraDate" => $createdDate, "displayDate" => $displayDate, "filtered" => $filtered, "selected" => $createdDate == $requestedVersionDate);
+    }
+
+    // set the last date (ie, current version) to null to force latest revision to be displayed
+    $createdDatesForDisplay[sizeof($createdDatesForDisplay)-1]['fedoraDate'] = null;
+
+    // If a version date hasn't been selected, flag the last (ie, current revision) as selected
+    if ($requestedVersionDate == null) {
+        $createdDatesForDisplay[sizeof($createdDatesForDisplay)-1]['selected'] = true;
+    }
+
+    // Put date lists on the template
+    $tpl->assign('created_dates_list', $createdDatesForDisplay);
+
+    // Retrieve the full/filtered option from the request and repopulate it on the template
+    $versionViewType = $_REQUEST['version_view_type'];
+    $tpl->assign("version_view_type", $versionViewType);
+}
+
+/**
+ * Custom date sorter for Fedora dates, used by PHP's usort()
+ * 
+ * <p>
+ * Note: This function uses strtotime() directly on the dates, which appears to work but which may be flawed - I'm not
+ * familiar with Fedora's date format or whether it's custom or a standard format.
+ * </p>
+ */
+function fedoraDateSorter($a, $b) {
+    $unixTimestamp1 = strtotime($a);
+    $unixTimestamp2 = strtotime($b);
+
+    if ($unixTimestamp1 == $unixTimestamp2) return 0;
+    return ($unixTimestamp1 < $unixTimestamp2) ? -1 : 1;
+}
+
 //echo ($GLOBALS['bench']->getOutput());
 ?>

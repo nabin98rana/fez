@@ -699,7 +699,7 @@ td.search_multi_input {
 }
 
 #result-box h2 {
-	background: #317DCE url([[$smarty.const.APP_RELATIVE_URL]]images/bg-boxes-top.png) top left no-repeat;
+	background: [[$smarty.const.APP_DARK_COLOR]] url([[$smarty.const.APP_RELATIVE_URL]]images/bg-boxes-top.png) top left no-repeat;
 	color: white;
 	font-size: 18px;
 	padding: 20px 0 5px 15px;
@@ -858,4 +858,19 @@ hr {
 
 #my-fez-container {
 	padding: 10px;
+}
+
+ 
+.phantomVersionItem {
+	color:#aaaaaa;
+}
+
+#viewInfoBox, #viewInfoBoxNoEdit {
+	border: 1px solid #8e8e8e; 
+	margin-left: 50px; 
+	margin-right: 50px;
+}
+
+#viewInfoBoxNoEdit {
+	background-color: [[$smarty.const.APP_SELECTED_COLOR]];
 }

@@ -934,14 +934,14 @@ class XSD_DisplayObject
      * @param   string $pid The persistent identifier of the record
      * @return  array The list of match fields with the values from the datastream	 
      */  
-    function getXSDMF_Values($pid)
+    function getXSDMF_Values($pid, $createdDT=null)
     {
-        $this->processXSDMF($pid); 
+        $this->processXSDMF($pid, $createdDT); 
         return $this->xsdmf_array[$pid];
     }
 
 	// To get the values for a specific xml datastream only (eg for when there are many FezACML for datastream values set so they don't get confused)
-    function getXSDMF_Values_Datastream($pid, $dsID)
+    function getXSDMF_Values_Datastream($pid, $dsID, $createdDT=null)
     {
 	
 	    if (!isset($this->xsdmf_array[$pid])) {
@@ -953,7 +953,7 @@ class XSD_DisplayObject
 		$FezACML_DS_name = FezACML::getFezACMLDSName($dsID);
 		if (Fedora_API::datastreamExists($pid, $FezACML_DS_name)) {
 			$FezACML_xdis_id = XSD_Display::getID('FezACML for Datastreams');		
-			$FezACML_DS = Fedora_API::callGetDatastreamDissemination($pid, $FezACML_DS_name);				
+			$FezACML_DS = Fedora_API::callGetDatastreamDissemination($pid, $FezACML_DS_name, $createdDT);				
 			if (isset($FezACML_DS['stream'])) {
 				$this->processXSDMFDatastream($FezACML_DS['stream'], $FezACML_xdis_id);
 			}
@@ -984,7 +984,7 @@ class XSD_DisplayObject
      * @param   string $pid The persistent identifier of the record
      * @return  void	 
      */ 
-    function processXSDMF($pid) 
+    function processXSDMF($pid, $createdDT=null) 
     {
         if (isset($this->xsdmf_array[$pid])) {
         	return;
@@ -1017,7 +1017,7 @@ class XSD_DisplayObject
 				$FezACML_xdis_id = XSD_Display::getID('FezACML for Datastreams');
 				$FezACML_DS_name = FezACML::getFezACMLDSName($ds_value['ID']);
 				if (Fedora_API::datastreamExistsInArray($datastreams, $FezACML_DS_name)) {
-					$FezACML_DS = Fedora_API::callGetDatastreamDissemination($pid, $FezACML_DS_name);				
+					$FezACML_DS = Fedora_API::callGetDatastreamDissemination($pid, $FezACML_DS_name, $createdDT);				
 					if (isset($FezACML_DS['stream'])) {
 						$this->processXSDMFDatastream($FezACML_DS['stream'], $FezACML_xdis_id);
 						$this->xsd_html_match->gotMatchCols = false; // make sure it refreshes for the other xsd displays
@@ -1080,7 +1080,7 @@ class XSD_DisplayObject
             	
 				// find out if this record has the xml based datastream
 				if (Fedora_API::datastreamExistsInArray($datastreams, $dsValue['xsdsel_title'])) {
-					$DSResultArray = Fedora_API::callGetDatastreamDissemination($pid, $dsValue['xsdsel_title']);
+					$DSResultArray = Fedora_API::callGetDatastreamDissemination($pid, $dsValue['xsdsel_title'], $createdDT);
 					if (isset($DSResultArray['stream'])) {
 						$xmlDatastream = $DSResultArray['stream'];
 						// get the matchfields for the datastream (using the sub-display for this stream)						

@@ -731,6 +731,54 @@ class Misc
 		$return = array_values($return);
 		return $return;
 	}	
+
+	function addDeletedDatastreams( $datastreams,$pid,$requestedVersionDate ){
+
+	    $request_TS = strtotime($requestedVersionDate);
+		
+		$deleted_datastreams = Fedora_API::callGetDatastreams($pid, $requestedVersionDate, 'D');
+		if(!$deleted_datastreams)
+			return $datastreams;
+		
+		$auditTrail = Fedora_API::getAuditTrail($pid);
+
+		$deleteTrail = array();
+		foreach( $auditTrail as $auditItem ){
+			// shorten audit trail to only delete actions
+			// NOTE: This only works because Fez puts the word 'Deleted' in the justification.			
+			if( $auditItem['action'] != 'setDatastreamState' ) continue;
+			if( stripos($auditItem['justification'],'delete') === false ) continue;
+			array_push($deleteTrail,$auditItem);
+		}
+
+		$return = $datastreams;
+		
+		foreach( $deleted_datastreams as $datastream ){
+			$dsID = $datastream['ID'];
+			
+			// find all audit items related to this datastream
+			$found = false;
+			$include = false;
+			foreach( $deleteTrail as $auditItem ){
+				if( $dsID != $auditItem['componentID'] ) continue;
+				
+				$found = true;
+				
+				// check date
+			    $audit_TS = strtotime($auditItem['date']);
+			    if ($audit_TS >= $request_TS) $include = true;
+			}
+			
+			if( !found )
+				Error_Handler::logError("Warning: Couldn't find delete audit record for deleted datastream $dsID", __FILE__,__LINE__);
+			
+			if( $include )
+				array_push($return,$datastream);
+		}
+
+		return $return;
+	}
+
 	
     /**
      * Method used to format a filesize in bytes to the appropriate string,
@@ -1188,6 +1236,94 @@ class Misc
 		}
 		return $return;
 	}
+
+
+    /**
+     * Process links for versioning.
+     *
+     * @access  public
+     * @param   string $pid The persistant identifier
+     * @param   array $datastreamXMLHeaders list of headers for new datastreams
+     * @param   array $datastreamXMLContent list of content for new datastreams
+     * @param   array $existingDatastreams list of existing datastreams
+     * @return  array $return - updated $datastreamXMLHeaders
+     */
+	function processLinkVersioning($pid,$datastreamXMLHeaders,$datastreamXMLContent,$existingDatastreams){
+
+		$return = array();
+		
+		// find all the existing links
+		$existingLinks = array();
+		$foundLinks = array();
+		$i = 0;
+		foreach($existingDatastreams as $dseKey => $dse){
+			if( $dse['controlGroup'] != "R" ) continue;
+			
+			$existingLinks[$i]=$dse;
+			$foundLinks[$i]=false;
+			$i++;
+		}
+
+		// loop through headers of new and changed ds
+		foreach ($datastreamXMLHeaders as $dsKey => $dsTitle) {
+			if ($dsTitle['CONTROL_GROUP'] != "R" ){
+				$return[$dsKey] = $dsTitle;	
+				continue;
+			}
+			
+	        // adjust the location the same way it is done 
+	        // when links are created in Record::insertXML()
+	        $new_location = trim($datastreamXMLContent[$dsKey]);
+	        if (empty($new_location)){
+				$return[$dsKey] = $dsTitle;	
+				continue;
+			}
+	        $new_location = str_replace("&amp;", "&", $new_location); 
+	
+			$new_label = $dsTitle['LABEL'];
+
+			// check to see if the link already exists
+			$found = false;
+			foreach($existingLinks as $dseKey => $dse){
+				// Label is the determining factor in identifying an existing link.
+				//
+				// ex. OLD: Label=Google Location=http://www.google.com
+				//     NEW: Label=Google Location=http://www.google.com/ig?hl=en
+				// result -> NEW location replaces OLD location in the same datastream			
+				//
+				// ex. OLD: Label=Google Location=http://www.google.com/ig?hl=en
+				//     NEW: Label=iGoogle Location=http://www.google.com/ig?hl=en
+				// result -> OLD datastream is deleted; NEW creates a new datastream
+				//
+				// This allows tracking of changes to URLs over time.
+							
+				if( $new_label != $dse['label'] ) continue;
+
+				if( $new_location == $dse['location'] ){
+					// no changes -- don't include in new header array
+				} else {
+					// new version -- copy over dsID
+					$dsTitle['ID'] = $dse['ID'];
+					$return[$dsKey] = $dsTitle;	
+				}
+				$foundLinks[$dseKey] = true;
+				$found = true;
+				break;
+			}
+			
+			if( !$found ) $return[$dsKey] = $dsTitle;
+		}
+		
+		// remove any links that no longer exist
+		foreach($foundLinks as $idx => $found){
+			if(!$found){
+				$res = Fedora_API::deleteDatastream($pid, $existingLinks[$idx]['ID']);
+			}
+		}
+		
+		return( $return );
+	}
+
 
     /**
      * Gets the next link number available for this object

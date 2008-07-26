@@ -245,7 +245,7 @@ class History
 		$dsIDName = "PremisEvent";
 		$event_usr_id = Auth::getUserID();
 		$event_usr_full_name = User::getFullName($event_usr_id);
-		$event_date = Date_API::getCurrentDateGMT(); //date("Y-m-d H:i:s");
+		$event_date = Date_API::getCurrentDateGMT(true); //date("Y-m-d H:i:s.u");
 
 		$wfl_title = (is_null($wfl_id)) ? $historyDetail : Workflow::getTitle($wfl_id);		
 		$detail = $wfl_title. " by " . $event_usr_full_name;
@@ -269,11 +269,11 @@ class History
 			}
 			$newXML .= ' </premis:premis>';
 			if ($dsExists !== true) {
-			    Fedora_API::getUploadLocation($pid, $dsIDName, $newXML, "Premis Event Datastream", "text/xml", "X");
+			    Fedora_API::getUploadLocation($pid, $dsIDName, $newXML, "Premis Event Datastream", "text/xml", "X", null, "false");
 			} else {
 //				$xdis_array = Fedora_API::callGetDatastreamContents($this->pid, 'PremisEvent');
 //				print_r($xdis_array); exit;
-				Fedora_API::callModifyDatastreamByValue($pid, $dsIDName, "A", "Premis Event Datastream", $newXML, "text/xml", true);
+				Fedora_API::callModifyDatastreamByValue($pid, $dsIDName, "A", "Premis Event Datastream", $newXML, "text/xml", "inherit");
 			}
 		}
     }

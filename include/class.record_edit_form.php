@@ -92,7 +92,25 @@
         $tpl->assign("details", $details);
         $tpl->registerNajax( NAJAX_Client::register('SelectOrgStructure', 'edit_metadata.php')."\n"
                         .NAJAX_Client::register('Suggestor', 'edit_metadata.php'));
+
+		Auth::checkAuthentication(APP_SESSION);
+		$isAdministrator = User::isUserAdministrator(Auth::getUsername());
              
+		$show_delete = false;
+		$show_purge = false;
+		if( $isAdministrator ) {
+		    $show_purge = true;
+			if( APP_VERSION_UPLOADS_AND_LINKS == "ON")
+		        $show_delete = true;
+		} else {
+			if( APP_VERSION_UPLOADS_AND_LINKS != "ON")
+		    	$show_purge = true;
+		    else
+		        $show_delete = true;
+		}
+        $tpl->assign("showPurge", $show_purge);
+        $tpl->assign("showDelete", $show_delete);
+
      }
 
 	function setDynamicVar($name)
