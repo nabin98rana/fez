@@ -382,7 +382,7 @@ class Statistics
         }
 
         function getMinBadDate() {
-            $stmt = "SELECT MIN(stl_request_date)
+            $stmt = "SELECT MAX(stl_request_date)
                  FROM fez_statistics_all
  				 WHERE stl_counter_bad = 1";
 
