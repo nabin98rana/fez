@@ -347,10 +347,13 @@ class Statistics
 
 
 
-        function cleanupFalseHitsBatch($limit, $offset) {
+        function cleanupFalseHitsBatch($limit, $offset, $min_date = false) {
             $stmt = "SELECT stl_id, stl_pid, stl_dsid, stl_ip, stl_request_date
-                 FROM fez_statistics_all 
-                 ORDER BY stl_request_date ASC LIMIT $limit OFFSET $offset";
+                 FROM fez_statistics_all ";
+			if ($min_date !== false) {
+				$stmt .= " WHERE stl_request_date >= '".$min_date."' ";
+			}
+            $stmt .= " ORDER BY stl_request_date ASC LIMIT $limit OFFSET $offset";
             $res = $GLOBALS["db_api"]->dbh->getAll($stmt,  DB_FETCHMODE_ASSOC);
             if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -360,9 +363,13 @@ class Statistics
            }
         }
 
-        function cleanupFalseHitsCount() {
+        function cleanupFalseHitsCount($date_min = false) {
             $stmt = "SELECT count(*)
                  FROM fez_statistics_all";
+
+			if ($date_min !== false) {
+				$stmt .= " WHERE stl_request_date >= '".$date_min."'";
+			}
 //            $stmt .= " WHERE stl_pid = 'UQ:107702'";
 
             $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
@@ -370,6 +377,23 @@ class Statistics
               Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
               return false;
             } else {
+               return $res;
+           }
+        }
+
+        function getMinBadDate() {
+            $stmt = "SELECT MIN(stl_request_date)
+                 FROM fez_statistics_all
+ 				 WHERE stl_counter_bad = 1";
+
+            $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+            if (PEAR::isError($res)) {
+              Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+              return false;
+            } else {
+				if (is_null($res)) {
+					$res = false;				
+				}
                return $res;
            }
         }
@@ -388,7 +412,8 @@ class Statistics
 
 	function cleanupFalseHits() {
 		$seconds_limit = 10; // 10 seconds COUNTER draft 3 recommended limit
-		$stats_count = Statistics::cleanupFalseHitsCount();
+		$min_date = Statistics::getMinBadDate();
+		$stats_count = Statistics::cleanupFalseHitsCount($min_date);
 		$history = array();
 		$newhistory = array();
 		$max_id = 0;
@@ -397,7 +422,7 @@ class Statistics
 		$stats_count = $stats_count/$batch_limit;
 		for($x=0;$x<=$stats_count;$x++) {
 			$y = $x*$batch_limit; 
-			$res = Statistics::cleanupFalseHitsBatch($batch_limit, $y);
+			$res = Statistics::cleanupFalseHitsBatch($batch_limit, $y, $min_date);
 			foreach ($res as $key => $val) {
 				// echo "TESTING out: "; echo($val['stl_id']." - ".$val['stl_ip']." - ".$val['stl_pid']." - ".$val['stl_dsid']." - ".$val['stl_request_date']); echo "\n";
 				if (count($history) > 0 || count($newhistory) > 0) {
@@ -425,7 +450,7 @@ class Statistics
 				}
 			}
 		}
-		//echo "FINAL - would mark bad ".$remove_count." of ".$stats_count;	
+		//echo "FINAL - would mark bad ".$remove_countnt." of ".$stats_count;	
 	}
 
 	
