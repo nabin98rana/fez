@@ -132,6 +132,7 @@ class Search_Key
                     sek_namespace,
                     sek_incr_id,
                     sek_title,
+                    sek_desc,
 					sek_alt_title,
 					sek_meta_header,
 					sek_simple_used,
@@ -162,6 +163,7 @@ class Search_Key
                     '" . APP_PID_NAMESPACE . "',
                     ".$sekIncrId.",
                     '" . Misc::escapeString($_POST["sek_title"]) . "',
+                    '" . Misc::escapeString($_POST["sek_desc"]) . "',
 					'" . Misc::escapeString($_POST["sek_alt_title"]) . "',
 					'" . Misc::escapeString($_POST["sek_meta_header"]) . "',
 					" . $sek_simple_used .",
@@ -279,6 +281,7 @@ class Search_Key
                     " . APP_TABLE_PREFIX . "search_key
                  SET 
                     sek_title = '" . Misc::escapeString($_POST["sek_title"]) . "',
+                    sek_desc = '" . Misc::escapeString($_POST["sek_desc"]) . "',
 					sek_alt_title = '" . Misc::escapeString($_POST["sek_alt_title"]) . "',
                     sek_meta_header = '" . Misc::escapeString($_POST["sek_meta_header"]) . "',
 					sek_simple_used = ".$sek_simple_used.",

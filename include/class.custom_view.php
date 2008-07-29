@@ -148,6 +148,9 @@ class Custom_View
 				if ($res[$i]["cvsk_sek_name"] != "") {
 					$res[$i]["sek_alt_title"] = $res[$i]["cvsk_sek_name"];
 				}
+				if ($res[$i]["cvsk_sek_desc"] != "") {
+					$res[$i]["sek_desc"] = $res[$i]["cvsk_sek_desc"];
+				}
 				$res[$i]["field_options"] = Search_Key::getOptions($res[$i]["sek_smarty_variable"]);
 	          }	
 	          return $res;            	
@@ -201,11 +204,13 @@ class Custom_View
                  (
                     cvsk_cview_id,
                     cvsk_sek_id,
-                    cvsk_sek_name
+                    cvsk_sek_name,
+                    cvsk_sek_desc
                  ) VALUES (
                     '" . Misc::escapeString($_POST["cview_id"]) . "',
 					'" . Misc::escapeString($_POST["cvsk_sek_id"]) . "',
-					'" . Misc::escapeString($_POST["cvsk_sek_name"]) . "'
+					'" . Misc::escapeString($_POST["cvsk_sek_name"]) . "',
+					'" . Misc::escapeString($_POST["cvsk_sek_desc"]) . "'
                  )";
 		
 		$res = $GLOBALS["db_api"]->dbh->query($stmt);
@@ -270,7 +275,8 @@ class Custom_View
         $stmt = "UPDATE " . APP_TABLE_PREFIX . "custom_views_search_keys
                  SET 
                     cvsk_sek_id = '" . Misc::escapeString($_POST["cvsk_sek_id"]) . "',
-					cvsk_sek_name = '" . Misc::escapeString($_POST["cvsk_sek_name"]) . "'
+					cvsk_sek_name = '" . Misc::escapeString($_POST["cvsk_sek_name"]) . "',
+					cvsk_sek_desc = '" . Misc::escapeString($_POST["cvsk_sek_desc"]) . "'
 				 WHERE cvsk_id = ".$cvsk_id;
         
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
