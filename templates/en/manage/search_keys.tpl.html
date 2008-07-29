@@ -243,6 +243,15 @@
               </tr>
               <tr>
                 <td width="120" bgcolor="{$cell_color}" class="default">
+                  <b>Description (will appear as a hover tooltip):</b>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <input type="text" name="sek_desc" size="40" class="default" value="{$info.sek_desc}">
+                  {include file="error_icon.tpl.html" field="desc"}
+                </td>
+              </tr>
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Use in Simple Search?:</b>
                 </td>
                 <td bgcolor="{$light_color}">
@@ -475,7 +484,7 @@
                         <input type="checkbox" name="items[]" value="{$list[i].sek_id}" {if $smarty.section.i.total == 0}disabled{/if}>
                       </td>
                       <td bgcolor="{$row_color}" class="default">
-                        &nbsp;<a href="search_keys.php?cat=edit&id={$list[i].sek_id}">{$list[i].sek_title}</a>
+                        &nbsp;<a href="search_keys.php?cat=edit&id={$list[i].sek_id}" class="form_note"><span class="form_note">{$list[i].sek_desc}</span>{$list[i].sek_title}</a>
                       </td>
                       <td bgcolor="{$row_color}" class="default">
                         &nbsp;{$list[i].sek_alt_title}

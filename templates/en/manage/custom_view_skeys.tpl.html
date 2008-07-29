@@ -45,19 +45,27 @@
                 </td>
                 <td bgcolor="{$light_color}" class="default">
                   <input type="text" name="cvsk_sek_id" size="40" class="default" value="{$info.cvsk_sek_id}"> [<a href="#" onclick="javascript:small_window('/manage/custom_views.php?cat=list_sek_ids');">Select</a>]
-                  {include file="error_icon.tpl.html" field="name"}
+                  {include file="error_icon.tpl.html" field="cvsk_sek_id"}
                 </td>
               </tr>
               <tr>
                 <td width="140" bgcolor="{$cell_color}" class="default">
-                  <b>Name:</b>
+                  <b>Name override:</b>
                 </td>
                 <td bgcolor="{$light_color}">
                   <input type="text" name="cvsk_sek_name" size="40" class="default" value="{$info.cvsk_sek_name}">
-                  {include file="error_icon.tpl.html" field="header_tpl"}
+                  {include file="error_icon.tpl.html" field="cvsk_sek_name"}
                 </td>
               </tr>
-              
+              <tr>
+                <td width="140" bgcolor="{$cell_color}" class="default">
+                  <b>Description override (will show up as a tooltip hover):</b>
+                </td>
+                <td bgcolor="{$light_color}">
+                  <input type="text" name="cvsk_sek_desc" size="40" class="default" value="{$info.cvsk_sek_desc}">
+                  {include file="error_icon.tpl.html" field="cvsk_sek_desc"}
+                </td>
+              </tr>             
               <tr>
                 <td colspan="2" bgcolor="{$cell_color}" align="center">
                   {if $smarty.get.cat == 'edit_skey'}
@@ -102,6 +110,7 @@
                       <td width="5" bgcolor="{$cell_color}" align="center" nowrap><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Search Key</b>&nbsp;</td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Display Name</b>&nbsp;</td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Desc/Tooltip</b>&nbsp;</td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Order</b>&nbsp;</td>
                     </tr>
                     {section name="i" loop=$sek_list}
@@ -115,6 +124,9 @@
                       </td>
                       <td bgcolor="{$row_color}" class="default">
                         &nbsp;{$sek_list[i].cvsk_sek_name}
+                      </td>
+                      <td bgcolor="{$row_color}" class="default">
+                        &nbsp;{$sek_list[i].cvsk_sek_desc}
                       </td>
                       <td bgcolor="{$row_color}" class="default">
                        &nbsp;{$sek_list[i].cvsk_order}
