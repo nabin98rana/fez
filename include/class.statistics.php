@@ -392,7 +392,7 @@ class Statistics
               return false;
             } else {
 				if (is_null($res)) {
-					$res = false;				
+					$res = false;
 				}
                return $res;
            }
@@ -425,28 +425,24 @@ class Statistics
 			$res = Statistics::cleanupFalseHitsBatch($batch_limit, $y, $min_date);
 			foreach ($res as $key => $val) {
 				// echo "TESTING out: "; echo($val['stl_id']." - ".$val['stl_ip']." - ".$val['stl_pid']." - ".$val['stl_dsid']." - ".$val['stl_request_date']); echo "\n";
+				$newkey = $val['stl_pid']."|".$val['stl_dsid']."|".$val['stl_ip'];
 				if (count($history) > 0 || count($newhistory) > 0) {
 					$history = $newhistory;
-					foreach ($history as $hkey => $hval) {
-						$newkey = $val['stl_pid']."|".$val['stl_dsid']."|".$val['stl_ip'];
-						if (strtotime($hval['stl_request_date']) <= strtotime($val['stl_request_date']) && $hval['stl_ip'] == $val['stl_ip'] && $hval['stl_pid'] == $val['stl_pid'] && $hval['stl_dsid'] == $val['stl_dsid']) {
-							$seconds_diff = Date_API::dateDiff("s", $hval['stl_request_date'], $val['stl_request_date']);
+					if (array_key_exists($newkey, $history)) {
+						if (strtotime($history[$newkey]['stl_request_date']) <= strtotime($val['stl_request_date'])) {
+							$seconds_diff = Date_API::dateDiff("s", $history[$newkey]['stl_request_date'], $val['stl_request_date']);
 							// echo $hval['stl_id']." vs ".$val['stl_id']." = seconds diff of $seconds_diff "; echo "\n";
 							if ($seconds_diff <= $seconds_limit) {
 								Statistics::setCounterBad($val['stl_id']);
 								$remove_count++;
 								//	echo $remove_count." would mark bad "; echo($val['stl_id']." - ".$val['stl_ip']." - ".$val['stl_pid']." - ".$val['stl_dsid']." - ".$val['stl_request_date']); echo "\n";
-								$newhistory[$newkey] = $val;
-							} else {
-								$newhistory[$newkey] = $val;
 							}
-						} else {
-							$newhistory[$newkey] = $val;
-						}
+						}						
 					}
+					$newhistory[$newkey] = $val;
 				} else {
 					// echo "HISTORY is nothing so making newhistory ".$val['stl_id']."\n";
-					$newhistory[] = $val;			
+					$newhistory[$newkey] = $val;			
 				}
 			}
 		}
