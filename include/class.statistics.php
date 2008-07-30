@@ -410,6 +410,25 @@ class Statistics
                 }
         }
 
+	function stripOldHistory($history = false, $latest_request_date, $seconds_limit = 10) {
+		if ($history === false) { return false; }
+		$newhistory = array();
+		$latest_req_time = strtotime($latest_request_date);
+		foreach ($history as $hkey => $hval) {
+			if ($hval['stl_request_date']) {
+				if (strtotime($hval['stl_request_date']) <= $latest_req_time) {
+					$seconds_diff = Date_API::dateDiff("s", $hval['stl_request_date'], $latest_req_time);
+					if ($seconds_diff <= $seconds_limit) {
+						$newhistory[$hkey] = $hval;
+					}
+				}
+			}			
+		}
+		echo "only keeping history of size ".count($newhistory)."\n";
+		return $newhistory;
+	}
+
+
 	function cleanupFalseHits() {
 		$seconds_limit = 10; // 10 seconds COUNTER draft 3 recommended limit
 		$min_date = Statistics::getMinBadDate();
@@ -443,6 +462,9 @@ class Statistics
 				} else {
 					// echo "HISTORY is nothing so making newhistory ".$val['stl_id']."\n";
 					$newhistory[$newkey] = $val;			
+				}
+				if (count($newhistory) > 10000) {
+					$newhistory = Statistics::stripOldHistory($newhistory, $val['stl_request_date'], $seconds_limit);
 				}
 			}
 		}
