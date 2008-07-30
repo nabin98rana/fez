@@ -417,8 +417,9 @@ class Statistics
 		foreach ($history as $hkey => $hval) {
 			if ($hval['stl_request_date']) {
 				if (strtotime($hval['stl_request_date']) <= $latest_req_time) {
-					$seconds_diff = Date_API::dateDiff("s", $hval['stl_request_date'], $latest_req_time);
+					$seconds_diff = Date_API::dateDiff("s", $hval['stl_request_date'], $latest_request_date);
 					if ($seconds_diff <= $seconds_limit) {
+//						echo "keeping ".$hkey." ".$hval['stl_request_date']. " cause its less than ".$latest_request_date."\n";
 						$newhistory[$hkey] = $hval;
 					}
 				}
