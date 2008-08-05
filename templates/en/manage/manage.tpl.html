@@ -30,6 +30,8 @@
                     <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/search_keys.php'}class="focus" {/if}href="{$rel_url}manage/search_keys.php">Manage Search Keys</a></li>
 					<li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/custom_views.php'}class="focus" {/if}href="{$rel_url}manage/custom_views.php">Manage Custom Views</a></li>
 					<li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/community_views.php'}class="focus" {/if}href="{$rel_url}manage/custom_views_comm.php">Manage Community Views</a></li>
+					<li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/ad_hoc_sql.php'}class="focus" {/if}href="{$rel_url}manage/ad_hoc_sql.php">Manage Ad-hoc SQL PID Lists</a></li>
+					<li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/ad_hoc_workflow.php'}class="focus" {/if}href="{$rel_url}manage/ad_hoc_workflow.php">Run Workflow against Ad Hoc Query</a></li>
 					<li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/configuration.php'}class="focus" {/if}href="{$rel_url}manage/configuration.php">Site Configuration</a></li>
                   </ul>
 				  {/if}

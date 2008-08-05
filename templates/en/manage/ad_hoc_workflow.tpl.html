@@ -1,0 +1,334 @@
+<script type="text/javascript">
+<!--
+{$najax_register}
+{literal}
+var coll_load_state = 0;
+var page_url = '{/literal}{$smarty.server.PHP_SELF}{literal}';
+var current_page = {/literal}{if $list_info.current_page != ""}{$list_info.current_page}{else}0{/if}{literal};
+var last_page = {/literal}{if $list_info.last_page != ""}{$list_info.last_page}{else}0{/if}{literal};
+function resizePager(f)
+{
+	//ad_hoc_workflow_form
+	f.rows.value = f.page_size.options[f.page_size.selectedIndex].value;
+	f.submit();
+}
+function changeAdHocQuery(f)
+{
+	//ad_hoc_workflow_form
+	f.action = page_url;
+	f.ahs_id.value = f.ahs_id.options[f.ahs_id.selectedIndex].value;
+	f.submit();
+}
+
+function checkPageField(ev)
+{
+    // check if the user is trying to submit the form by hitting <enter>
+    if (((window.event) && (window.event.keyCode == 13)) ||
+            ((ev) && (ev.which == 13))) {
+        return false;
+    }
+}
+function goPage(f, new_page)
+{
+    if ((new_page > last_page+1) || (new_page <= 0) || (new_page == current_page+1) || (!isNumberOnly(new_page))) {
+        f.page.value = current_page+1;
+        return false;
+    }
+    setPage(new_page-1);
+}
+function setPage(new_page)
+{
+    if ((new_page > last_page) || (new_page < 0) || (new_page == current_page)) {
+        return false;
+    }
+	//window.alert('We want to go to page ' + new_page);
+	document.ad_hoc_workflow_form.pagerRow.value = new_page;
+	document.ad_hoc_workflow_form.submit();
+//    window.location.href = page_url + "?" + replaceParam(window.location.href, 'pagerRow', new_page);
+}
+
+function showLoading()
+{
+    document.body.style.cursor = 'wait';
+    document.getElementById('loading').style.display = 'block';
+};
+
+function hideLoading()
+{
+    document.body.style.cursor = '';
+    document.getElementById('loading').style.display = 'none';
+};
+
+
+function selectCommunity(f, field_name)
+{
+    if (coll_load_state > 0) {
+       return false;
+    } 
+    var field = getFormElement(f, field_name);
+    var selections = getSelectedItems(field);
+
+    if (selections.length > 0) {
+        coll_load_state++;
+        document.getElementById('tr_collection_pid').style.display = '';
+        showLoading();
+        var obj = new SelectReindexInfo();
+        obj.onGetCollectionsError = function() {
+            removeAllOptions(f, 'collection_pid');
+            hideLoading();
+            coll_load_state--;
+        }
+        obj.setTimeout(10000);
+        obj.getCollections(selections[0].value, function(collections_list) {
+                removeAllOptions(f, 'collection_pid');
+                addOptions(f, 'collection_pid', collections_list);
+                hideLoading();
+                coll_load_state--;
+                selectCollection(f, 'collection_pid'); 
+                });
+    }
+}
+
+var dt_load_state = 0;
+function showLoading1()
+{
+    document.body.style.cursor = 'wait';
+    document.getElementById('loading1').style.display = 'block';
+}
+
+function hideLoading1()
+{
+    document.body.style.cursor = '';
+    document.getElementById('loading1').style.display = 'none';
+}
+
+function selectCollection(f, field_name)
+{
+    if (dt_load_state > 0) {
+       return false;
+    } 
+    var field = getFormElement(f, field_name);
+    var selections = getSelectedItems(field);
+
+    if (selections.length > 0) {
+        dt_load_state++;
+        //document.getElementById('tr_xdis_id').style.display = '';
+        showLoading1();
+        var obj = new SelectReindexInfo();
+        obj.onGetDocTypesError = function() {
+            removeAllOptions(f, 'xdis_id');
+            hideLoading1();
+            dt_load_state--;
+        }
+        obj.setTimeout(10000);
+        obj.getDocTypes(selections[0].value, function(dt_list) {
+                removeAllOptions(f, 'xdis_id');
+                addOptions(f, 'xdis_id', dt_list);
+                hideLoading1();
+                dt_load_state--;
+                });
+    }
+}
+function showSettings() {
+	document.getElementById('tr_heading').style.display = '';
+	document.getElementById('tr_community_pid').style.display = '';
+	document.getElementById('tr_collection_pid').style.display = '';
+	document.getElementById('tr_xdis_id').style.display = '';
+	document.getElementById('tr_sta_id').style.display = '';
+}
+function hideSettings() {
+	document.getElementById('tr_heading').style.display = 'none';
+	document.getElementById('tr_community_pid').style.display = 'none';
+	document.getElementById('tr_collection_pid').style.display = 'none';
+	document.getElementById('tr_sta_id').style.display = 'none';
+	document.getElementById('tr_xdis_id').style.display = 'none';
+}
+function toggleOverride()
+{
+  var f = getForm('ad_hoc_workflow_form');
+  if (f.recover.checked) {
+	  hideSettings();
+  } else {
+	  showSettings();
+	  selectCommunity(f, 'community_pid');
+  }
+  return true;
+}
+
+function checkForSelectedItem() {
+	var f = getForm('ad_hoc_workflow_form');
+	if (!hasOneChecked(f, 'items[]')) {
+		alert('Please select at least one object to index.');
+		return false;
+	}
+	return true;
+}
+
+function validateFormSelections() {
+	return true;
+	/*
+	if (document.ad_hoc_workflow_form.community_pid.selectedIndex == -1 || document.ad_hoc_workflow_form.collection_pid.selectedIndex == -1 || document.ad_hoc_workflow_form.xdis_id.selectedIndex == -1 || document.ad_hoc_workflow_form.sta_id.selectedIndex == -1) {
+		alert('Please select default values for the objects you are about to index.');
+		return false;
+	}
+	return true;
+	*/
+}
+
+{/literal}
+// -->
+</script>
+
+<form name="ad_hoc_workflow_form" method="POST" action="{$smarty.const.APP_RELATIVE_URL}workflow/bulk_change.php">
+
+<input type="hidden" name="cat" value="select_workflow" />
+<input type="hidden" name="rows" value="{$options.rows}" />
+<input type="hidden" name="pagerRow" value="" /> 
+
+{if $index_type == 1}
+<input type="hidden" name="discover" value="Discover new Fedora objects" />
+{elseif $index_type == 2}
+<input type="hidden" name="reindex" value="Reindex known Fedora objects" />
+{elseif $index_type == 4}
+<input type="hidden" name="undelete" value="Undelete Fedora objects" />
+{elseif $index_type == 6}
+<input type="hidden" name="origami" value="Reindex Origami Images" />
+{/if}
+
+      <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
+        <tr>
+          <td>
+            <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+
+              <tr>
+                <td colspan="2">
+				  <div class="admin-header">
+					Run Workflow Against Ad Hoc Query PID List
+				  </div>
+                </td>
+              </tr>
+             <tr>
+                <td bgcolor="{$light_color}" class="default">
+                <p>
+                <p>The selected workflow will run against all the pids that get returned from the selected ad hoc query.</p>
+                </td>
+              </tr>
+
+		  <tr>
+			<td>
+			  <table>
+					<tr id="tr_ad_hoc_query">
+		  			  <td bgcolor="{$cell_color}" class="default" nowrap>
+		  				<b>Ad Hoc Query</b>
+		  			  </td>
+		  			  <td bgcolor="{$light_color}">
+		  				<select class="default" name="ahs_id" onChange="javascript:changeAdHocQuery(this.form);">
+		  				  {html_options options=$ad_hoc_queries selected=$ahs_id}
+		  				</select>
+		  			  </td>
+		  			</tr>
+   					<tr id="tr_workflow">
+        			  <td bgcolor="{$cell_color}" class="default" nowrap>
+        				<b>Workflow</b>
+        			  </td>
+        			  <td bgcolor="{$light_color}">
+        				<select class="default" name="wft_id">
+        				  {html_options options=$bulk_workflows selected=$bulk_workflows_selected}
+        				</select>
+        			  </td>
+        			</tr>		
+				  </table>
+				</td>
+ 			  </tr>	
+
+                
+
+			  <tr>
+			  	<td>
+                  <table border="0" width="100%" cellpadding="1" cellspacing="1">
+                    <tr>
+                      <td colspan=4 width="5" bgcolor="{$cell_color}" nowrap>Showing {$list_info.start_offset+1} to {$list_info.end_offset} of {$list_info.total_rows}</td>
+                    </tr>
+
+                    <tr>
+                      <td width="5" bgcolor="{$cell_color}" nowrap>&nbsp;</td>
+                      <td width="100" bgcolor="{$cell_color}" class="default">&nbsp;<b>PID</b>&nbsp;</td>
+                      <td width="" bgcolor="{$cell_color}" class="default">&nbsp;<b>Title</b>&nbsp;</td>
+                      {if $index_type == 2}<td width="50%" bgcolor="{$cell_color}" class="default" nowrap>&nbsp;<b>Description</b>&nbsp;</td>{/if}
+                    </tr>
+                    {section name="i" loop=$list}
+                    {cycle values=$cycle assign="row_color"}
+                    <tr>
+                      <td width="4" nowrap bgcolor="{$row_color}" align="center">
+                        &nbsp;
+                      </td>
+                      <td bgcolor="{$row_color}" class="default">
+                        &nbsp;{$list[i].pid}
+                      </td>
+                      <td bgcolor="{$row_color}" class="default">
+                        &nbsp;{$list[i].title}
+                      </td>
+                      {if $index_type == 2}
+					  <td bgcolor="{$row_color}" class="default">
+                        &nbsp;{$list[i].description}
+                      </td>
+					  {/if}
+                    </tr>
+                    {sectionelse}
+                    <tr>
+                      <td colspan="4" bgcolor="{$light_color}" align="center" class="default">
+                       {if $index_type == 1} No Fedora objects missing from the Fez Index could be found.
+                       {elseif $index_type == 2}No objects were found in the Fez index{elseif $index_type == 4}No deleted objects were found{/if}
+                      </td>
+                    </tr>
+                    {/section}
+                    <tr>
+                      <td width="2" align="center" bgcolor="{$cell_color}">
+                        <input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
+                      </td>
+                      <td colspan="3" align="center" bgcolor="{$cell_color}">
+						<input type="submit" name="do_all" value="Run workflow on all pids in this ad hoc query" class="button" onclick="{literal}this.form.method='post';document.ad_hoc_workflow_form.submit();{/literal}" />
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+              
+              <tr bgcolor="{$cell_color}">
+                  <td colspan="{math equation="x + 12" x=$ColumnAdd}">
+                    <table width="100%" cellspacing="0" cellpadding="0">
+                      <tr>
+                        <td width="30%" nowrap>
+                        </td>
+                        <td width="40%" align="center" nowrap>
+                          <nobr>
+                          <input name="first" type="button" value="|&lt;" class="shortcut" onClick="javascript:setPage(0);" />
+                          <input name="previous" type="button" value="&lt;&lt;" class="shortcut" onClick="javascript:setPage({$list_info.prev_page});" />
+                          <input type="text" name="page" size="3" maxlength="3" value="{math equation="x + 1" x=$list_info.current_page}" style="background: {$cell_color};" class="paging_input" onKeyPress="javascript:return checkPageField(event);" />
+                          <input name="go" type="button" value="Go" class="shortcut" onClick="javascript:goPage(this.form, this.form.page.value);" />
+                          <input name="next" type="button" value="&gt;&gt;" class="shortcut" onClick="javascript:setPage({$list_info.next_page});" />
+                          <input name="last" type="button" value="&gt;|" class="shortcut" onClick="javascript:setPage({$list_info.last_page});" />
+                          </nobr>
+                        </td>
+                        <td width="30%" nowrap>
+                          <span class="default_white">Rows per Page:</span>
+                          <select name="page_size" class="default" onChange="javascript:resizePager(this.form);">
+                            <option value="5" {if $options.rows == 5}selected{/if}>5</option>
+                            <option value="10" {if $options.rows == 10}selected{/if}>10</option>
+                            <option value="25" {if $options.rows == 25}selected{/if}>25</option>
+                            <option value="50" {if $options.rows == 50}selected{/if}>50</option>
+                            <option value="100" {if $options.rows == 100}selected{/if}>100</option>
+                            <option value="150" {if $options.rows == 150}selected{/if}>150</option>
+                          </select>
+                          <input type="button" value="Set" class="shortcut" onClick="javascript:resizePager(this.form);" />
+                        </td>
+                      </tr>
+        			</table>
+        		</td>
+            </tr>
+		
+            </table>
+          </td>
+        </tr>
+      </table>
+	  </form>

@@ -28,85 +28,85 @@
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
 // | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
-// |          Matthew Smith <m.smith@library.uq.edu.au>                   |
+// |          Matthew Smith <m.smith@library.uq.edu.au>,                  |
+// |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>                     |
 // +----------------------------------------------------------------------+
 //
 //
 include_once("../config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
-include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.auth.php");
-include_once(APP_INC_PATH . "class.user.php");
+include_once(APP_INC_PATH . "class.fedora_api.php");
+include_once(APP_INC_PATH . "class.reindex.php");
 include_once(APP_INC_PATH . "class.record.php");
-include_once(APP_INC_PATH . "class.workflow_trigger.php");
 include_once(APP_INC_PATH . "class.community.php");
 include_once(APP_INC_PATH . "class.collection.php");
+include_once(APP_INC_PATH . "class.misc.php");
+include_once(APP_INC_PATH . "class.status.php");
+include_once(APP_INC_PATH . "db_access.php");
+include_once(APP_INC_PATH . "class.pager.php");
+//include_once(APP_INC_PATH . "class.ad_hoc_workflow.php");
 include_once(APP_INC_PATH . "class.ad_hoc_sql.php");
-include_once(APP_INC_PATH . "class.object_type.php");
+include_once(APP_INC_PATH . "class.workflow_trigger.php");
+include_once(APP_INC_PATH . "class.bgp_index_object.php");
+include_once(APP_INC_PATH . "najax_classes.php");
+include_once(APP_INC_PATH . "class.fedora_direct_access.php");
 
-if (empty($trigger_type)) {
-    $trigger_type = 'New';
-}
+set_time_limit(1800);      // 1800 MILLION MICROSECONDS!
 
 $tpl = new Template_API();
-$tpl->setTemplate("workflow/index.tpl.html");
-$tpl->assign("trigger", $trigger_type);
-$tpl->assign("type", 'update');
+$tpl->setTemplate("manage/index.tpl.html");
+$tpl->assign("type", "ad_hoc_workflow");
 
 Auth::checkAuthentication(APP_SESSION);
-$user_id = Auth::getUserID();
+$isUser = Auth::getUsername();
+$isSuperAdministrator = User::isUserSuperAdministrator($isUser);
+$tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 
-$xdis_id = Misc::GETorPOST('xdis_id');
-$pid = Misc::GETorPOST('pid');
-$pids = Misc::GETorPOST('pids');
-$ahs_id = Misc::GETorPOST('ahs_id');
-$dsID = Misc::GETorPOST("dsID");
-$href= Misc::GETorPOST('href');
-$tpl->assign("href", $href);
-$cat = Misc::GETorPOST('cat');
-if ($cat == 'select_workflow') {
-    
-    $wft_id = Misc::GETorPOST("wft_id");
-    
-	if (is_numeric($wft_id)) {
-		
-	    $wfl_id = WorkflowTrigger::getWorkflowID($wft_id);
-		if (is_numeric($wfl_id)) {
-			if (is_numeric($ahs_id)) {
-				$pids = Ad_Hoc_SQL::getPIDs($ahs_id);
-			}
-		    
-			if (!empty($pids) || $trigger_type == 'Bulk Change Search') {
-		        if (Workflow::userCanTrigger($wfl_id,$user_id)) {
-	    			Workflow::start($wft_id, $pid, $xdis_id, $href, $dsID, $pids);				
-				} else {
-					$message = "You do not have the rights to run this workflow";					
-				}
-			} elseif ((empty($pid) && empty($pids)) || $pid == -2) { //workflow where the user selects the pid etc
-		        if (Workflow::userCanTrigger($wfl_id,$user_id)) {
-	    			Workflow::start($wft_id, $pid, $xdis_id, $href, $dsID, $pids);				
-				} else {
-					$message = "You do not have the rights to run this workflow";					
-				}
-			} else {
-	            if (Workflow::canTrigger($wfl_id, $pid)) {
-	    			Workflow::start($wft_id, $pid, $xdis_id, $href, $dsID, $pids);	
-				} else {
-					$message = "You do not have the rights to run this workflow";					
-				}
-			}	
-			
-		} else {
-			$message = "No workflow found for given trigger";
-		}
-		
-	} else {
-		$message = "Workflow trigger must be numeric";
+if (!$isSuperAdministrator) {
+    $tpl->assign("show_not_allowed_msg", true);
+} else {
+
+//get the bulk change workflows
+$bulk_workflows = WorkflowTrigger::getAssocListByTrigger("-1", WorkflowTrigger::getTriggerId('Bulk Change'));
+$ad_hoc_queries = Ad_Hoc_SQL::getAssocList();
+
+$tpl->assign("ad_hoc_queries", $ad_hoc_queries);
+$tpl->assign("bulk_workflows", $bulk_workflows);
+
+
+$rows = Pager::getParam('rows');
+if (empty($rows)) {
+    $rows = APP_DEFAULT_PAGER_SIZE;
+}
+$pagerRow = Pager::getParam('pagerRow');
+if (empty($pagerRow)) {
+    $pagerRow = 0;
+}
+$options = Pager::saveSearchParams();
+$tpl->assign("options", $options);
+
+$ahs_id = Pager::getParam('ahs_id');
+if (is_numeric($ahs_id)) {
+	$ahs_temp = array_keys($ad_hoc_queries);
+	if (!in_array($ahs_id, $ahs_temp)) {
+		$ahs_id = $ahs_temp[0];
 	}
-	
+} else {
+	if (count($ad_hoc_queries) > 0) {
+		$ahs_temp = array_keys($ad_hoc_queries);
+		$ahs_id = $ahs_temp[0];
+	}
 }
 
-$tpl->assign('message', $message);
+$list = Ad_Hoc_SQL::getResultSet($ahs_id, $pagerRow, $rows);
+
+$tpl->assign("ahs_id", $ahs_id);    
+$tpl->assign("list", $list['list']);
+$tpl->assign("list_info", $list['info']);
+}
+
+
 $tpl->displayTemplate();
 
 ?>
