@@ -1,0 +1,13 @@
+Dear {$name},
+
+This is an automated message from the {$application_name} service.
+
+Thank you for submitting your record to {$application_name}.
+
+Your item will be referred to a {$application_name} editor for approval and should appear in {$application_name} shortly. 
+
+Your item can be viewed at: {$view_record_url}
+
+Regards,
+
+Manager - {$application_name}
