@@ -148,9 +148,9 @@ class WorkflowStatus {
         $this->rec_obj = null;
         $title = Misc::escapeString($title);
         $blob = Misc::escapeString(serialize($this));
-        if (strlen($blob) > 64000) {
+/*        if (strlen($blob) > 64000) {
         	Error_Handler::logError("Maximum size of workflow session data exceeded", __FILE__,__LINE__);
-        }
+        } */
         $dbtp =  APP_TABLE_PREFIX;
         $stmt = "UPDATE ".$dbtp."workflow_sessions " .
                 "SET wfses_object='".$blob."', wfses_listing='".$title."', wfses_date='".$date."' " .
