@@ -48,7 +48,15 @@ $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign("trigger", 'Create');
 $tpl->assign("type", 'new');
 
-Auth::checkAuthentication(APP_SESSION);
+$xdis_id = $_REQUEST['xdis_id'];
+$ret_id = $_REQUEST['ret_id'];
+$collection_pid = $_REQUEST['collection_pid'];
+$community_pid = $_REQUEST['community_pid'];
+$pid = $_REQUEST["pid"];
+$href = $_REQUEST['href'];
+
+
+Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']."?"."xdis_id=".$xdis_id."&ret_id=".$ret_id."&collection_pid=".$collection_pid."&href=".$href."&community_pid=".$community_pid."&pid=".$pid);
 $user_id = Auth::getUserID();
 
 $isUser = Auth::getUsername();
@@ -56,12 +64,6 @@ $tpl->assign("isUser", $isUser);
 $isAdministrator = User::isUserAdministrator($isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
 
-$xdis_id = $_REQUEST['xdis_id'];
-$ret_id = $_REQUEST['ret_id'];
-$collection_pid = $_REQUEST['collection_pid'];
-$community_pid = $_REQUEST['community_pid'];
-$pid = $_REQUEST["pid"];
-$href = $_REQUEST['href'];
 $tpl->assign("href", $href);
 
 $cat = $_REQUEST['cat'];
