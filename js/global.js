@@ -37,6 +37,17 @@ function unhideRow(element_name, table_name)
 			break;
 		}
 	}
+
+	if (firstHiddenRow == 0 && emptyRowExists == 0) {
+		var show_tr = document.getElementById('tr_' + element_name + '_' + firstHiddenRow);
+		if (show_tr != null) {
+			show_tr.style.display = '';
+			var show_arrow = document.getElementById(element_name + '_' + (firstHiddenRow-1)+'_arrow');
+			if (show_arrow != null) {
+				show_arrow.style.display = 'inline';
+			}
+		}
+	}
 	
 	// did we find a hidden one?
 	if (firstHiddenRow > 0 && emptyRowExists == 0) {

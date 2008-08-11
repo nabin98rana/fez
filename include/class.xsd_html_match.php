@@ -113,7 +113,9 @@ class XSD_HTML_Match {
 		'xsdmf_asuggest_xsdmf_id',
 		'xsdmf_date_type',
 		'xsdmf_meta_header',
-		'xsdmf_meta_header_name'
+		'xsdmf_meta_header_name',
+		'xsdmf_show_simple_create',
+		'xsdmf_xpath'
 	);
 
 	/**
@@ -429,6 +431,8 @@ class XSD_HTML_Match {
 							xsdmf_date_type,
 							xsdmf_meta_header,
 							xsdmf_meta_header_name,
+							xsdmf_show_simple_create,
+							xsdmf_xpath,
 							sek_title
 		                 FROM
 		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields as m1
@@ -816,6 +820,11 @@ class XSD_HTML_Match {
 		} else {
 			$invisible = 0;
 		}
+		if (@ $_POST["show_simple_create"]) {
+			$show_simple_create = 1;
+		} else {
+			$show_simple_create = 0;
+		}
 		if (@ $_POST["valueintag"]) {
 			$valueintag = 1;
 		} else {
@@ -970,6 +979,7 @@ class XSD_HTML_Match {
 
 		$stmt .= "xsdmf_show_in_view,
 							xsdmf_invisible,
+							xsdmf_show_simple_create,
 							xsdmf_enforced_prefix,
 							xsdmf_value_prefix,
 							xsdmf_image_location,
@@ -1080,7 +1090,7 @@ class XSD_HTML_Match {
 
 		$stmt .= "'" . Misc::escapeString($_POST["checkbox_selected_option"]) . "',";
 
-		$stmt .= $show_in_view . ", ". $invisible .", 
+		$stmt .= $show_in_view . ", ". $invisible .", ".$show_simple_create.", 
 		                    '" . Misc::escapeString($_POST["enforced_prefix"]) . "',
 		                    '" . Misc::escapeString($_POST["value_prefix"]) . "',
 		                    '" . Misc::escapeString($_POST["image_location"]) . "',
@@ -1296,6 +1306,10 @@ class XSD_HTML_Match {
 			$inserts .= " xsdmf_invisible, ";
 			$values  .= $insertArray["xsdmf_invisible"] . ", ";
 		}
+		if (is_numeric($insertArray["xsdmf_show_simple_create"])) {
+			$inserts .= " xsdmf_show_simple_create, ";
+			$values  .= $insertArray["xsdmf_show_simple_create"] . ", ";
+		}
 		if (!empty ($insertArray["xsdmf_use_parent_option_list"])) {
 			$inserts .= " xsdmf_use_parent_option_list, ";
 			$values  .= $insertArray["xsdmf_use_parent_option_list"] . ", ";
@@ -1425,7 +1439,11 @@ class XSD_HTML_Match {
 		} else {
 			$invisible = 0;
 		}
-
+		if (@ $_POST["show_simple_create"]) {
+			$show_simple_create = 1;
+		} else {
+			$show_simple_create = 0;
+		}
 		if (@ $_POST["is_key"]) {
 			$is_key = 1;
 		} else {
@@ -1561,6 +1579,7 @@ class XSD_HTML_Match {
 		                    xsdmf_is_key = " . $is_key . ",
 		                    xsdmf_show_in_view = " . $show_in_view . ",
 		                    xsdmf_invisible = " . $invisible . ",
+		                    xsdmf_show_simple_create = " . $show_simple_create . ",
 		                    xsdmf_key_match = '" . Misc::escapeString($_POST["key_match"]) . "',
 		                    xsdmf_parent_key_match = '" . Misc::escapeString($_POST["parent_key_match"]) . "',
 		                    xsdmf_data_type = '" . Misc::escapeString($_POST["xsdmf_data_type"]) . "',";
@@ -1668,6 +1687,8 @@ class XSD_HTML_Match {
             } elseif (strstr($col_name, 'xsdmf_show_in_view') && empty($value)) {
                 $stmt .= " ".$col_name."=null,\n";
             } elseif (strstr($col_name, 'xsdmf_invisible') && empty($value)) {
+                $stmt .= " ".$col_name."=null,\n";
+            } elseif (strstr($col_name, 'xsdmf_show_simple_create') && empty($value)) {
                 $stmt .= " ".$col_name."=null,\n";
             } elseif (strstr($col_name, 'xsdmf_cvo_min_level') && empty($value)) {
                 $stmt .= " ".$col_name."=null,\n";
@@ -2572,7 +2593,7 @@ class XSD_HTML_Match {
 	 */
 	function getElementMatchListDetails($xdis_id) {
 		$stmt = "SELECT 
-		                    xsdmf_id, xsdmf_element, xsdmf_title, xsdmf_id_ref, xsdmf_html_input, xsdmf_enabled, xsdmf_invisible, xsdmf_order, xsdmf_dynamic_text, xsdmf_static_text, xsdmf_xsdsel_id, xsdsel_title
+		                    xsdmf_id, xsdmf_element, xsdmf_title, xsdmf_id_ref, xsdmf_html_input, xsdmf_enabled, xsdmf_invisible, xsdmf_show_simple_create, xsdmf_order, xsdmf_dynamic_text, xsdmf_static_text, xsdmf_xsdsel_id, xsdsel_title
 		                 FROM
 		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields left join
 		                    " . APP_TABLE_PREFIX . "xsd_loop_subelement on (xsdmf_xsdsel_id = xsdsel_id)
