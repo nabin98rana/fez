@@ -85,6 +85,7 @@ if ($pid == -1 || $pid == -2 || !$pid) {
     $collection_pid = $pid;
     $record = new RecordObject($pid);
     $access_ok = $record->canCreate();
+	$canEdit = $record->canEdit();
 }
 
 if ($access_ok) {
@@ -97,7 +98,11 @@ if ($access_ok) {
         $wfstatus->pid = $res;
     }
     $wfstatus->checkStateChange();
-
+	if ($canEdit === true) {
+    	$tpl->assign("isEditor", 1);
+	} else {
+		$tpl->assign("isEditor", 0);
+	}
     $tpl->assign("isCreator", 1);
     if (!is_numeric($xdis_id)) { // if still can't find the xdisplay id then ask for it
         Auth::redirect(APP_RELATIVE_URL . "select_xdis.php?return=insert_form".$extra_redirect, false);
