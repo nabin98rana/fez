@@ -237,7 +237,7 @@ class Custom_View
                     '" . Misc::escapeString($_POST["cview_id"]) . "',
                     '" . Misc::escapeString($_POST["hostname"]) . "',
 					'" . Misc::escapeString($_POST["comm_pid"]) . "',
-					'" . Misc::escapeString($_POST["comm_pid"]) . "'
+					'" . Misc::escapeString($_POST["default_template"]) . "'
                  )";
         
 		$res = $GLOBALS["db_api"]->dbh->query($stmt);
