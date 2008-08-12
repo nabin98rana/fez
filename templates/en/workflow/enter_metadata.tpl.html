@@ -339,7 +339,8 @@ function selectDateField(field_name, day, month, year)
 							  <td bgcolor="{$value_color}">
 								{assign var="fckpath" value=$rel_url|cat:"js/fckeditor/"}
 								{assign var="InstanceName" value="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"][]"}
-								{fckeditor BasePath=$fckpath InstanceName=$InstanceName Width="450px" Height="100px" ToolbarSet="FezBasic" Value=$xsd_display_fields[i].xsdmf_static_text} 
+								{if $loop_num == 0}{if $xsd_display_fields[i].xsdmf_dynamic_text != ""}{assign var='temp_dynamic_var' value=$xsd_display_fields[i].xsdmf_dynamic_text}{eval var=$temp_dynamic_var assign="fckvalue"}{else}{assign var="fckvalue" value=$xsd_display_fields[i].xsdmf_static_text}{/if}{/if}
+								{fckeditor BasePath=$fckpath InstanceName=$InstanceName Width="450px" Height="100px" ToolbarSet="FezBasic" Value=$fckvalue} 
 								{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"][]"}
 								{if $xsd_display_fields[i].xsdmf_long_description != ""}
 									<span class="default">{$xsd_display_fields[i].xsdmf_long_description}</span>
@@ -355,7 +356,8 @@ function selectDateField(field_name, day, month, year)
 							  <td bgcolor="{$value_color}">
 							{assign var="fckpath" value=$rel_url|cat:"js/fckeditor/"}
 							{assign var="InstanceName" value="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}
-							{fckeditor BasePath=$fckpath InstanceName=$InstanceName Width="450px" Height="100px" ToolbarSet="FezBasic" Value=$xsd_display_fields[i].xsdmf_static_text}
+							{if $xsd_display_fields[i].xsdmf_dynamic_text != ""}{assign var='temp_dynamic_var' value=$xsd_display_fields[i].xsdmf_dynamic_text}{eval var=$temp_dynamic_var assign="fckvalue"}{else}{assign var="fckvalue" value=$xsd_display_fields[i].xsdmf_static_text}{/if}
+							{fckeditor BasePath=$fckpath InstanceName=$InstanceName Width="450px" Height="100px" ToolbarSet="FezBasic" Value=$fckvalue}
 							{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}
 								{if $xsd_display_fields[i].xsdmf_long_description != ""}
 									<span class="default">{$xsd_display_fields[i].xsdmf_long_description}</span>
@@ -447,7 +449,7 @@ function selectDateField(field_name, day, month, year)
 							
 						  </td>
 						  <td bgcolor="{$light_color}">
-						<input class="default" type="text" id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]" onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onFocus="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onChange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" size="50" value="{$xsd_display_fields[i].xsdmf_static_text}">
+						<input class="default" type="text" id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]" onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onFocus="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onChange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" size="50" value="{if $loop_num == 0}{if $xsd_display_fields[i].xsdmf_dynamic_text != ""}{assign var='temp_dynamic_var' value=$xsd_display_fields[i].xsdmf_dynamic_text}{eval var=$temp_dynamic_var}{else}{$xsd_display_fields[i].xsdmf_static_text}{/if}{/if}">
 						{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"][]"}
 						  {if $xsd_display_fields[i].xsdmf_attached_xsdmf_id != ""}
 								{section name="a" loop=$xsd_display_fields}
@@ -566,7 +568,7 @@ function selectDateField(field_name, day, month, year)
 				            <input class="default" type="text" 
                                             id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" 
                                             name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]"  
-                                            size="50" value="{$xsd_display_fields[i].xsdmf_static_text}">
+                                            size="50" value="{if $xsd_display_fields[i].xsdmf_dynamic_text != ""}{assign var='temp_dynamic_var' value=$xsd_display_fields[i].xsdmf_dynamic_text}{eval var=$temp_dynamic_var}{else}{$xsd_display_fields[i].xsdmf_static_text}{/if}">
 				           {include file="error_icon.tpl.html" 
                                                field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}
                                            {if $xsd_display_fields[i].xsdmf_long_description != ""}
@@ -584,7 +586,7 @@ function selectDateField(field_name, day, month, year)
 							<b>{$xsd_display_fields[i].xsdmf_title} {math equation="x + 1" x=$loop_num} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b><br />{if $loop_num == 0}<i>(More {$xsd_display_fields[i].xsdmf_title} input boxes will appears as they are used up)</i>{/if}
 						  </td>
 						  <td bgcolor="{$light_color}">
-				            <textarea id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]" onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onChange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" rows="10" cols="60">{$xsd_display_fields[i].xsdmf_static_text}</textarea>
+				            <textarea id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]" onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onChange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" rows="10" cols="60">{if $loop_num == 0}{if $xsd_display_fields[i].xsdmf_dynamic_text != ""}{assign var='temp_dynamic_var' value=$xsd_display_fields[i].xsdmf_dynamic_text}{eval var=$temp_dynamic_var}{else}{$xsd_display_fields[i].xsdmf_static_text}{/if}{/if}</textarea>
 							{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"][]"}
 						 </td>
 						</tr>
@@ -595,7 +597,7 @@ function selectDateField(field_name, day, month, year)
 							<b>{$xsd_display_fields[i].xsdmf_title} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b>
 						  </td>
 						  <td bgcolor="{$light_color}">
-				            <textarea id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]" rows="10" cols="60">{$xsd_display_fields[i].xsdmf_static_text}</textarea>
+				            <textarea id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]" rows="10" cols="60">{if $xsd_display_fields[i].xsdmf_dynamic_text != ""}{assign var='temp_dynamic_var' value=$xsd_display_fields[i].xsdmf_dynamic_text}{eval var=$temp_dynamic_var}{else}{$xsd_display_fields[i].xsdmf_static_text}{/if}</textarea>
 							{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}
 						 </td>
 						</tr>

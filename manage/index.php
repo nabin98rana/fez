@@ -44,7 +44,7 @@ include_once(APP_INC_PATH . "db_access.php");
 $tpl = new Template_API();
 $tpl->setTemplate("manage/index.tpl.html");
 
-Auth::checkAuthentication(APP_SESSION);
+Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']);
 
 $tpl->assign("type", "main");
 $isUser = Auth::getUsername();
