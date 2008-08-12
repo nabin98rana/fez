@@ -53,6 +53,7 @@ class WorkflowStatus {
     var $dsID;
     var $xdis_id;
     var $wft_id;
+    var $custom_view_pid;
     var $wfl_details;
     var $wfs_details;
     var $wft_details;
@@ -74,7 +75,7 @@ class WorkflowStatus {
      * how the workflow is triggered.  Sometimes nothing is known at the start of the
      * workflow lik ehwen the user clicks 'create' on the My_Fez page.
      */
-    function WorkflowStatus($pid=null, $wft_id, $xdis_id=null, $dsInfo=null, $dsID='', $pids=array())
+    function WorkflowStatus($pid=null, $wft_id, $xdis_id=null, $dsInfo=null, $dsID='', $pids=array(), $custom_view_pid=null)
     {
         $this->pid = $pid;
         $this->pids = $pids;        
@@ -82,6 +83,7 @@ class WorkflowStatus {
         $this->wft_id= $wft_id;
         $this->xdis_id= $xdis_id;
         $this->dsInfo = $dsInfo;
+        $this->custom_view_pid = $custom_view_pid;
         //$this->request_params = $_REQUEST;
         $this->id = $this->newDBSession();
         $this->setSession();
@@ -333,9 +335,10 @@ class WorkflowStatus {
         $dsID = $this->dsID;
         $pid = $this->pid;
         $parent_pid = $this->parent_pid;
+        $custom_view_pid = $this->custom_view_pid;
         $parents_list = serialize($this->parents_list);
         $href= $this->href;
-        $args = compact('wfl_title','wft_type','parent_pid','pid', 'dsID', 'parents_list', 'action', 'href');
+        $args = compact('wfl_title','wft_type','parent_pid','pid', 'dsID', 'parents_list', 'action', 'href', 'custom_view_pid');
         $argstrs = array();
         $outcome = $this->getvar('outcome');
         $outcome_details = $this->getvar('outcome_details');
@@ -503,6 +506,7 @@ class WorkflowStatus {
     {
 
         $tpl->assign("id", $this->id);
+        $tpl->assign("custom_view_pid", $this->custom_view_pid);
         $tpl->assign('workflow_buttons', $this->getButtons());
         $this->getWorkflowDetails();
         $tpl->assign('wfl_title', $this->wfl_details['wfl_title']);
@@ -568,6 +572,12 @@ class WorkflowStatusStatic
         if (!$obj->change_on_refresh && !empty($wfs_id)) {
             $obj->setState($wfs_id);
         }
+		if (is_null($_GET['custom_view_pid'])) {
+			$_GET['custom_view_pid'] = $obj->custom_view_pid;
+		}
+		if (is_null($_REQUEST['custom_view_pid'])) {
+			$_REQUEST['custom_view_pid'] = $obj->custom_view_pid;
+		}
         return $obj;
     }
     

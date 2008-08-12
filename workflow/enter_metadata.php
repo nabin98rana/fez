@@ -50,7 +50,7 @@ include_once(APP_INC_PATH . "class.xsd_relationship.php");
 include_once(APP_INC_PATH . "class.workflow_status.php");
 
 Auth::checkAuthentication(APP_SESSION);
-
+$wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
 $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign('type', 'enter_metadata');
@@ -60,7 +60,7 @@ $tpl->assign("isUser", $isUser);
 $isAdministrator = User::isUserAdministrator($isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
 
-$wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
+
 $pid = $wfstatus->pid;
 $tpl->assign("pid", $pid);
 if (empty($pid)) {

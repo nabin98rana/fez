@@ -378,9 +378,9 @@ class Workflow
      * @param integer xdis_id the display id for the record - used for the create trigger
      * @param string href - the originating web page stored so we can return to it later.
      */
-    function start($wft_id, $pid, $xdis_id, $href='', $dsID='', $pids=array())
+    function start($wft_id, $pid, $xdis_id, $href='', $dsID='', $pids=array(), $custom_view_pid='')
     {
-        $wfstatus = new WorkflowStatus($pid, $wft_id, $xdis_id, '', $dsID, $pids);
+        $wfstatus = new WorkflowStatus($pid, $wft_id, $xdis_id, '', $dsID, $pids, $custom_view_pid);
         $wfstatus->href=$href;
         $wfstatus->run();
     }
