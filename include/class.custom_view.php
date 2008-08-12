@@ -230,7 +230,7 @@ class Custom_View
                     " . APP_TABLE_PREFIX . "custom_views_community
                  (
                     cvcom_cview_id,
-                    cvcom_hostname_id,
+                    cvcom_hostname,
                     cvcom_com_pid,
 					cvcom_default_template
                  ) VALUES (
