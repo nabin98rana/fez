@@ -230,7 +230,7 @@ function selectDateField(field_name, day, month, year)
       <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="0" border="0">
         <tr>
           <td class="default_white" bgcolor="{$heading_color}">
-            &nbsp;<img align="absmiddle" src="{$rel_url}images/edit_32.gif"><b>Create New {$xdis_title} Record</b> {if $isEditor != 1}<input type="button" name="simple_toggle" value="Show All Fields" onClick="javascript:toggleCreateMode();this.disabled=true;" />{/if}
+            &nbsp;<img align="absmiddle" src="{$rel_url}images/edit_32.gif"><b>{$wfs_title|escape}</b> {if $isEditor != 1}<input type="button" name="simple_toggle" value="Show All Fields" onClick="javascript:toggleCreateMode();this.disabled=true;" />{/if}
           </td>
         </tr>
         {section name="i" loop=$xsd_display_fields}
