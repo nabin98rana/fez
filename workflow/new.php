@@ -55,10 +55,11 @@ $community_pid = $_REQUEST['community_pid'];
 $pid = $_REQUEST["pid"];
 $href = $_REQUEST['href'];
 $cat = $_REQUEST['cat'];
+$wft_id = $_REQUEST['wft_id'];
 $custom_view_pid = $_REQUEST['custom_view_pid'];
 
 
-Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']."?"."xdis_id=".$xdis_id."&ret_id=".$ret_id."&collection_pid=".$collection_pid."&href=".$href."&community_pid=".$community_pid."&pid=".$pid."&custom_view_pid=".$custom_view_pid."&cat=".$cat);
+Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']."?"."xdis_id=".$xdis_id."&ret_id=".$ret_id."&collection_pid=".$collection_pid."&href=".$href."&community_pid=".$community_pid."&pid=".$pid."&custom_view_pid=".$custom_view_pid."&cat=".$cat."&wft_id=".$wft_id);
 $user_id = Auth::getUserID();
 
 $isUser = Auth::getUsername();
