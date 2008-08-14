@@ -54,10 +54,11 @@ $collection_pid = $_REQUEST['collection_pid'];
 $community_pid = $_REQUEST['community_pid'];
 $pid = $_REQUEST["pid"];
 $href = $_REQUEST['href'];
+$cat = $_REQUEST['cat'];
 $custom_view_pid = $_REQUEST['custom_view_pid'];
 
 
-Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']."?"."xdis_id=".$xdis_id."&ret_id=".$ret_id."&collection_pid=".$collection_pid."&href=".$href."&community_pid=".$community_pid."&pid=".$pid."&custom_view_pid=".$custom_view_pid);
+Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']."?"."xdis_id=".$xdis_id."&ret_id=".$ret_id."&collection_pid=".$collection_pid."&href=".$href."&community_pid=".$community_pid."&pid=".$pid."&custom_view_pid=".$custom_view_pid."&cat=".$cat);
 $user_id = Auth::getUserID();
 
 $isUser = Auth::getUsername();
@@ -81,7 +82,7 @@ if ($cat == 'select_workflow') {
 				}
 			} elseif ((empty($pid) && empty($pids)) || $pid == -2) { //workflow where the user selects the pid etc
 		        if (Workflow::userCanTrigger($wfl_id,$user_id)) {
-	    			Workflow::start($wft_id, $pid, $xdis_id, $href, $dsID, $pids, $custom_view_pid);				
+	    			Workflow::start($wft_id, $pid, $xdis_id, $href, $dsID, $pids, $custom_view_pid);
 				} else {
 					$message = "You do not have the rights to run this workflow";					
 				}
@@ -192,7 +193,7 @@ if (empty($workflows)) {
 		        if (Workflow::userCanTrigger($wfl_id,$user_id)) {
 	    			Workflow::start($wft_id, $pid, $xdis_id, $href, $dsID, $pids, $custom_view_pid);				
 				} else {
-					$message = "You do not have the rights to run this workflow";					
+					$message = "You do not have the rights to run this workflow";
 				}
 			} elseif ((empty($pid) && empty($pids)) || $pid == -2) { //workflow where the user selects the pid etc
 		        if (Workflow::userCanTrigger($wfl_id,$user_id)) {
