@@ -77,7 +77,9 @@ class Ad_Hoc_SQL
 
     function getResultSet($ahs_id, $page = 0, $max = 50)
     {
-	
+		if (!is_numeric($ahs_id)) {
+			return false;
+		}
 		$details = Ad_Hoc_SQL::getDetails($ahs_id);
 		$stmtCount = $details['ahs_query_count'];
 		
