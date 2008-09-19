@@ -1015,6 +1015,7 @@ hr {
 }
 
 .clearfix {
+	clear:both;
 	display: inline-block;
 }
 
