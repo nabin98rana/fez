@@ -653,9 +653,9 @@ class User
                             usa_shib_value
                             )
                          VALUES (
-                            $usr_id,
-                            '$shib_name',
-        					'$shib_value'
+                            ".$usr_id.",
+                            '".Misc::escapeString($shib_name)."',
+        					'".Misc::escapeString($shib_value)."'
         				)";
                 $res = $GLOBALS["db_api"]->dbh->query($stmt);
                 
