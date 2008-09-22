@@ -303,6 +303,7 @@ class Lister
                 //$list = Collection::getListing($collection_pid, $pager_row, $rows, $sort_by);
                 $list_info = $list["info"];
                 $facets = @$list['facets'];
+                $snips = @$list['snips'];
                 $list = $list["list"];
                 
                 $title = Record::getSearchKeyIndexValue($collection_pid, "Title");
@@ -359,6 +360,7 @@ class Lister
                 
                 $list_info = $list["info"];
                 $facets = @$list['facets'];
+                $snips = @$list['snips'];
                 $list = $list["list"];
                 
                 $title = Record::getSearchKeyIndexValue($community_pid, "Title");
@@ -689,6 +691,7 @@ class Lister
         	$list_info = @$list["info"];
         	$terms = @$list_info['search_info'];
         	$facets = @$list['facets'];
+        	$snips = @$list['snips'];
         	$list = @$list["list"];
 			
         	// KJ@ETH
@@ -741,6 +744,7 @@ class Lister
         }
         
         $tpl->assign('facets', $facets);
+        $tpl->assign('snips', $snips);
         $tpl->assign('rows', $rows);
         $tpl->assign('tpl_list', array_map(create_function('$a','return $a[\'title\'];'), $tpls));
         $tpl->assign('browse', $browse);

@@ -420,9 +420,7 @@ class FulltextIndex_Solr extends FulltextIndex {
 
 				// Solr hit highlighting				
 	            foreach ($response->highlighting as $pid => $snippet) {
-
-	            	if (isset($snippet->content)) {   
-	            		echo 'here';            	       	
+	            	if (isset($snippet->content)) {       	       	
 		            	foreach ($snippet->content as $part) {
 		            		$part = trim(str_ireplace(chr(12), ' | ', $part));		            		
 		            		$snips[$pid] .= $part;
@@ -452,7 +450,6 @@ class FulltextIndex_Solr extends FulltextIndex {
 			$total_rows = 0;	
 
     	}
-
     	return array(
     	   'total_rows' => $total_rows,
     	   'facets'     => $facets,
@@ -475,7 +472,7 @@ class FulltextIndex_Solr extends FulltextIndex {
 			
 			// hit highlighting
 			$params['hl'] = 'true';			
-			$params['hl.fl'] = 'content_mt'; //'content_mt,alternative_title_mt,author_mt,keywords_mt';
+			$params['hl.fl'] = 'content'; //'content_mt,alternative_title_mt,author_mt,keywords_mt';
 			$params['hl.requireFieldMatch'] = 'false';			
 			$params['hl.snippets'] = 3;
 			//$params['hl.formatter'] = 'gap';
@@ -528,19 +525,19 @@ class FulltextIndex_Solr extends FulltextIndex {
 				}
 				
 				// Solr hit highlighting				
-	            foreach ($response->highlighting as $pid => $snippet) {	            	
-	            	if (isset($snippet->content_mt)) {    	            	       	
-		            	foreach ($snippet->content_mt as $part) {
+	            foreach ($response->highlighting as $pid => $snippet) {
+	            	if (isset($snippet->content)) {    	            	       	
+		            	foreach ($snippet->content as $part) {
 		            		$part = trim(str_ireplace(chr(12), ' | ', $part));		            		
 		            		$snips[$pid] .= $part;
 		            	}	
 	            	} 
-	            	if (isset($snippet->keywords_mt)) {
+/*	            	if (isset($snippet->keywords_mt)) {
 	            		foreach ($snippet->content_mt as $part) {
 		            		$part = trim(str_ireplace(chr(12), ' | ', $part));		            		
 		            		$snips[$pid] .= $part;
 		            	}
-	            	}
+	            	} */
 	            } 	
        
 	         }	

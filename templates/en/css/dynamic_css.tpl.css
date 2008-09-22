@@ -1192,6 +1192,16 @@ vertical-align: top;
 margin-bottom: 1em;
 }
 
+.snip {
+	font-family:Verdana,Arial,Helvetica,sans-serif;font-size:60%;font-style:normal;font-weight:normal;
+}
+
+.snip em {
+	color:red;
+}
+
+
+
 .facet {
 	float:left; font-family:Verdana,Arial,Helvetica,sans-serif;font-size:75%;font-style:normal;font-weight:normal;width:200px;padding: 0px;
 }

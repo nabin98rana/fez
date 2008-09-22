@@ -1243,6 +1243,7 @@ class Record
 		$res = $index->searchAdvancedQuery($searchKey_join, $filter_join, $approved_roles, $start, $page_rows);
 		$total_rows = $res['total_rows'];
 		$facets = $res['facets'];
+		$snips = $res['snips'];
 		$res = $res['docs'];
         
 		$usr_id = Auth::getUserID();
@@ -1310,7 +1311,7 @@ class Record
         				'current_page','total_pages','next_page','prev_page','last_page',
         				'noOrder', 'search_info', 'start_range', 'end_range', 'printable_page', 'thumb_ratio');
 
-        return compact('info','list','facets');
+        return compact('info','list','facets', 'snips');
     }
     
     function identifyThumbnails(&$result, $citationCache = false) {
