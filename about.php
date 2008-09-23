@@ -42,5 +42,4 @@ $tpl->setTemplate("about.tpl.html");
 $tpl->assign("active_nav", "about");
 
 $tpl->displayTemplate();
-
 ?>
