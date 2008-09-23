@@ -43,7 +43,7 @@ class fileCache {
             $rep = array("<fez:statsAbs>$views</fez:statsAbs>", "<fez:statsDownloads>$dls</fez:statsDownloads>");
 	        
             $datastreams = Fedora_API::callGetDatastreams($this->pid, $requestedVersionDate, 'A');
-            $datastreams = Misc::cleanDatastreamListLite($datastreams, $pid);
+            $datastreams = Misc::cleanDatastreamListLite($datastreams, $this->pid);
             
 	        foreach ($datastreams as $ds) {
 	        	if($ds['controlGroup'] == 'M') {
