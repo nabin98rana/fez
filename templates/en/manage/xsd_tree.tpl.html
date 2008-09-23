@@ -1,14 +1,14 @@
 <html>
 <head>
-<link rel="StyleSheet" href="{$rel_url}css/other.css" type="text/css" />
+<link rel="stylesheet" href="{$rel_url}css/dynamic_css.php" type="text/css" />
 <link rel="StyleSheet" href="{$rel_url}css/dtree.css" type="text/css" />
 <script type="text/javascript" src="{$rel_url}js/dtree.js"></script>
 </head>
 
 <body topmargin="5" marginheight="5">
-<a href="xsd_displays.php?xsd_id={$xsd_id}" target="_parent"><img src="{$rel_url}images/back_16.png" border="0" title="Back to XSD Display list" " /></a>
+<a href="xsd_displays.php?xsd_id={$xsd_id}" target="_parent"><img src="{$rel_url}images/back_16.png" border="0" title="Back to XSD Display list"/></a>
 <span class="default"><strong>{$xdis_title}</strong></span>
-<a href="xsd_tree.php?xdis_id={$xdis_id}" target="_self"><img src="{$rel_url}images/refresh_16.png" border="0" title="Refresh the XSD Tree" " /></a><br /><br />
+<a href="xsd_tree.php?xdis_id={$xdis_id}" target="_self"><img src="{$rel_url}images/refresh_16.png" border="0" title="Refresh the XSD Tree"/></a><br /><br />
 <a target="basefrm" href="xsd_tree_clean.php?xdis_id={$xdis_id}"><span class="default">Orphaned XSDMF entries</span></a>
  (<font color="{if $ophan_count > 0}red{else}green{/if}">{$orphan_count}</font>)<br /><br />
 <div class="dtree">

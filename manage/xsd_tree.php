@@ -51,11 +51,7 @@ Auth::checkAuthentication(APP_SESSION);
 $tpl->assign("type", "xsd_tree");
 
 $isUser = Auth::getUsername();
-$isAdministrator = User::isUserAdministrator($isUser);
 $isSuperAdministrator = User::isUserSuperAdministrator($isUser);
-$tpl->assign("isUser", $isUser);
-$tpl->assign("isAdministrator", $isAdministrator);
-$tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 
 if ($isSuperAdministrator) {
 	$xdis_id = @$_POST["xdis_id"] ? $_POST["xdis_id"] : @$_GET["xdis_id"];
