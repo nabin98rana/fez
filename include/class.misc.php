@@ -1141,10 +1141,13 @@ class Misc
 	                                    // To help determine the MIME type, the file needs to have the correct extension.
 	                                    // Some versions of PHP call all uploads <hash>.tmp so we make a copy with the right name before 
 	                                    // checking for the MIME type.  Not using file upload 'type' because it is unreliable.
-	                                    $temp_store = APP_TEMP_DIR.$_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']][$key];
-	                                    copy($_FILES['xsd_display_fields']['tmp_name'][$file_res[0]['xsdmf_id']][$key],$temp_store);
+										$dsIDName = Foxml::makeNCName($_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']][$key]);
+	                                    $temp_store = APP_TEMP_DIR.$dsIDName;
+//	                                    copy($_FILES['xsd_display_fields']['tmp_name'][$file_res[0]['xsdmf_id']][$key],$temp_store);
+	                                    move_uploaded_file($_FILES['xsd_display_fields']['tmp_name'][$file_res[0]['xsdmf_id']][$key],$temp_store);
 										$return[$dsTitle['xsdsel_title'].$key]['MIMETYPE'] = Misc::mime_content_type($temp_store);
-										$return[$dsTitle['xsdsel_title'].$key]['File_Location'] = $_FILES['xsd_display_fields']['tmp_name'][$file_res[0]['xsdmf_id']][$key];
+//										$return[$dsTitle['xsdsel_title'].$key]['File_Location'] = $_FILES['xsd_display_fields']['tmp_name'][$file_res[0]['xsdmf_id']][$key];
+										$return[$dsTitle['xsdsel_title'].$key]['File_Location'] = $temp_store;
 										//                                    @unlink($temp_store);
 									}
 								}
@@ -1184,9 +1187,12 @@ class Misc
 	                            // To help determine the MIME type, the file needs to have the correct extension.
 	                            // Some versions of PHP call all uploads <hash>.tmp so we make a copy with the right name before 
 	                            // checking for the MIME type.  Not using file upload 'type' because it is unreliable.
-	                            $temp_store = APP_TEMP_DIR.$_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']];
-	                            copy($_FILES['xsd_display_fields']['tmp_name'][$file_res[0]['xsdmf_id']],$temp_store);
-								$return[$dsTitle['xsdsel_title']]['File_Location'] = $_FILES['xsd_display_fields']['tmp_name'][$file_res[0]['xsdmf_id']];
+								$dsIDName = Foxml::makeNCName($_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']]);
+	                            $temp_store = APP_TEMP_DIR.$dsIDName;
+//	                            copy($_FILES['xsd_display_fields']['tmp_name'][$file_res[0]['xsdmf_id']],$temp_store);
+	                            move_uploaded_file($_FILES['xsd_display_fields']['tmp_name'][$file_res[0]['xsdmf_id']],$temp_store);
+//								$return[$dsTitle['xsdsel_title']]['File_Location'] = $_FILES['xsd_display_fields']['tmp_name'][$file_res[0]['xsdmf_id']];
+								$return[$dsTitle['xsdsel_title']]['File_Location'] = $temp_store;
 								$return[$dsTitle['xsdsel_title']]['MIMETYPE'] = Misc::mime_content_type($temp_store);
 	//                            unlink($temp_store);
 							}
