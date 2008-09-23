@@ -54,7 +54,7 @@
 	</table>
 	{/if}
 		
-	{if $facets}
+	{if $facets && $list_type != 'collection_records_list' && $list_type != 'collection_list' && $list_type != 'community_list'}
     <div class="facet">
     <div class="facetheader">
     <h2>Refine</h2>
@@ -75,7 +75,7 @@
     </div>
     {/if}
 <div style="padding:20px;">
-	<table {if $facets}width="70%"{else}width="100%"{/if} cellpadding="10" cellspacing="0" class="listrecord">
+	<table {if $facets  && $list_type != 'collection_records_list' && $list_type != 'collection_list' && $list_type != 'community_list'}width="70%"{else}width="100%"{/if} cellpadding="10" cellspacing="0" class="listrecord">
         <tr>
             <td colspan="{if ($isAdministrator)}3{else}2{/if}">&nbsp;</td>
             {if $showEdit || $isAdministrator}		
