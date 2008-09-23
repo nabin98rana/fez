@@ -1257,8 +1257,9 @@ class Record
 				}
                 Record::identifyThumbnails($res, $citationCache);
                 Record::getAuthWorkflowsByPIDS($res, $usr_id);
+            	Record::getChildCountByPIDS($res, $usr_id);
 			}
-            Record::getChildCountByPIDS($res, $usr_id);
+
         }
 		$thumb_counter = 0; 
 		// KJ/ETH: if the object came up to here, it can be listed (Solr filter!)
