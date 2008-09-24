@@ -49,7 +49,7 @@
 	{if $spell_suggest != ""}
 	<table width="100%" cellpadding="10" cellspacing="0" class="listrecord">
 	  	<tr>
-	  		<td class="default" colspan="2">&nbsp;<span style="color: red">Did you mean?: </span><a href="?{$spell_suggest_url}">{$spell_suggest}</a><br /><br /></td>
+	  		<td class="default" colspan="2">&nbsp;<span style="color: red">Did you mean?: </span><a href="?{$spell_suggest_url}">{$spell_suggest|escape:"html"}</a><br /><br /></td>
 	  	</tr>
 	</table>
 	{/if}

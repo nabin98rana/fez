@@ -683,7 +683,7 @@ class Lister
                     $tpl->assign("spell_suggest", $spell_suggest);
                     
                     $exclude[] = 'search_keys';
-                    $tpl->assign('spell_suggest_url', Misc::query_string_encode($params,$exclude) . '&search_keys[0]='.$spell_suggest);
+                    $tpl->assign('spell_suggest_url', Misc::query_string_encode($params,$exclude) . '&search_keys[0]='.urlencode($spell_suggest));
                     array_pop($exclude);
 			    } 
 			}
