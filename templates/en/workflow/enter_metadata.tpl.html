@@ -168,40 +168,6 @@ function selectOrgStructure_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}
 {literal}
 
 
-function toggleDateFields(f, field_name)
-{
-    var checkbox = getFormElement(f, 'filter[' + field_name + ']');
-    var filter_type = getFormElement(f, field_name + '[filter_type]');
-    var month_field = getFormElement(f, field_name + '[Month]');
-    var day_field = getFormElement(f, field_name + '[Day]');
-    var year_field = getFormElement(f, field_name + '[Year]');
-    var month_end_field = getFormElement(f, field_name + '_end[Month]');
-    var day_end_field = getFormElement(f, field_name + '_end[Day]');
-    var year_end_field = getFormElement(f, field_name + '_end[Year]');
-    if (checkbox.checked) {
-        var bool = false;
-    } else {
-        var bool = true;
-    }
-    filter_type.disabled = bool;
-    month_field.disabled = bool;
-    day_field.disabled = bool;
-    year_field.disabled = bool;
-    month_end_field.disabled = bool;
-    day_end_field.disabled = bool;
-    year_end_field.disabled = bool;
-}
-function selectDateOptions(field_prefix, date_str)
-{
-    if (date_str.length != 10) {
-        return false;
-    } else {
-        var year = date_str.substring(0, date_str.indexOf('-'));
-        var month = date_str.substring(date_str.indexOf('-')+1, date_str.lastIndexOf('-'));
-        var day = date_str.substring(date_str.lastIndexOf('-')+1);
-        selectDateField(field_prefix, day, month, year);
-    }
-}
 function selectDateField(field_name, day, month, year)
 {
     selectOption(this.document.wfl_form1, field_name + '[Day]', day);

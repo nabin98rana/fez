@@ -1,0 +1,108 @@
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.5.2/build/autocomplete/assets/skins/sam/autocomplete.css" />
+<script type="text/javascript" src="{$rel_url}js/yahoo/utilities.js"></script>
+<script type="text/javascript" src="{$rel_url}js/yahoo/autocomplete.js"></script>
+
+{literal}
+<script type="text/javascript">
+function validateForm() {
+
+    if(document.wfl_form1.author_name.value.length < 3) {
+        errors[errors.length] = new Option('Author name needs to be atleast 3 characters', document.wfl_form1.author_name.name);
+    }
+
+    if(document.wfl_form1.author_name.value == '') {
+        errors[errors.length] = new Option('Author name needs to be entered', document.wfl_form1.author_name.name);
+    }
+       
+    if(document.wfl_form1.author_id.value == '') {
+        errors[errors.length] = new Option('Author ID needs to be entered', document.wfl_form1.author_id.name);
+    } 
+}
+</script>
+
+<style type="text/css">
+    
+	/* custom styles for scrolling container */
+	#statesautocomplete {
+	   position:absolute;
+	    width:25em; /* set width of widget here*/
+	    height:15em; /* define height for container to appear inline */
+	}
+	#statescontainer .yui-ac-content {
+	    max-height:15em;
+	    overflow:auto;
+	    overflow-x:hidden; /* scrolling */
+	    _height:15em; /* ie6 */
+	}
+	
+
+</style>
+{/literal}
+
+<input type="hidden" name="xdis_id" value="{$xdis_id}">
+<input type="hidden" name="cat" value="submit">
+<table>
+    
+    <tr id="files">
+        <td width="150" bgcolor="{$cell_color}" class="default">
+            <strong>* Author Text</strong>
+        </td>
+        <td class="default">
+            <input type="text" id="author_name" name="author_name" /> This will find all authors for each record that match this string and update the author id with the value below
+        </td>
+    </tr>
+    
+    <tr id="files">
+        <td width="150" bgcolor="{$cell_color}" class="default"><strong>* Author ID</strong></td>
+        <td class="default"><input type="text" name="author_id" id="author_id" readonly /> (Use author search to select Author ID)</td>
+    </tr>
+    
+    <tr id="files">
+        <td width="150" bgcolor="{$cell_color}" class="default">
+            <strong>Author Search</strong>
+        </td>
+        <td class="default">
+            <div id="statesautocomplete">
+              <input id="ysearchinput" type="text">
+              <div id="statescontainer"></div>
+            </div>
+        </td>
+    </tr>
+</table> 
+
+<br />
+
+{literal}
+    <script type="text/javascript">
+    
+    // Instantiate first JS Array DataSource
+    var myServer = "{/literal}{$rel_url}{literal}author_suggest_proxy.php";
+    var mySchema = ["Result","name"];
+    var myDataSource = new YAHOO.widget.DS_XHR(myServer, mySchema);
+    
+    // Instantiate first AutoComplete
+    this.oAutoComp = new YAHOO.widget.AutoComplete('ysearchinput','statescontainer', myDataSource);
+    this.oAutoComp.maxResultsDisplayed = 40; 
+    this.oAutoComp.autoHighlight = true;
+    
+    this.oAutoComp.formatResult = function(oResultItem, sQuery) {
+        var usernameTxt = "";
+        
+        if( oResultItem[1].username != "" && oResultItem[1].username != null )
+        {
+            usernameTxt = ' (' +  oResultItem[1].username + ')';
+        }
+        
+        if( oResultItem[1].id != "" && oResultItem[1].id != null )
+        {
+            usernameTxt += ' (' +  oResultItem[1].id + ')';
+        }
+        
+        return oResultItem[1].name + usernameTxt;
+    };
+    
+    this.oAutoComp.registerControls('','',document.getElementById('author_id'));
+    
+    </script>
+    
+    {/literal}  

@@ -103,7 +103,7 @@ class History
                  if ($show_hidden==false) {
                     $stmt .= "pre_is_hidden != 1 AND ";
                  }
-                 $stmt .= "pre_pid='".$pid."'
+                 $stmt .= "pre_pid='".Misc::escapeString($pid)."'
                  ORDER BY
                     pre_id DESC";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);

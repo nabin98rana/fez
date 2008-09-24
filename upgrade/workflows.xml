@@ -48,6 +48,12 @@
     <WorkflowStateLinks wfsl_id="1078" wfsl_from_id="767" wfsl_to_id="764"/>
     <WorkflowTrigger wft_id="285" wft_pid="-1" wft_type_id="4" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/scanner_22.jpg" wft_ret_id="0" wft_options="0"/>
   </workflow>
+  <workflow wfl_id="214" wfl_title="Bulk Assign Author ID" wfl_version="1.0" wfl_description="" wfl_roles="Approver,Community_Administrator" wfl_end_button_label="Save">
+    <WorkflowState wfs_id="914" wfs_title="Enter Author Text" wfs_description="" wfs_auto="0" wfs_wfb_id="161" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="915" wfs_title="Bulk Assign Author ID" wfs_description="" wfs_auto="1" wfs_wfb_id="162" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowStateLinks wfsl_id="1267" wfsl_from_id="914" wfsl_to_id="915"/>
+    <WorkflowTrigger wft_id="355" wft_pid="-1" wft_type_id="7" wft_xdis_id="-2" wft_order="0" wft_mimetype="" wft_icon="images/bulk_move_16.png" wft_ret_id="0" wft_options="0"/>
+  </workflow>
   <workflow wfl_id="191" wfl_title="Bulk Assign to Group" wfl_version="1.0" wfl_description="" wfl_roles="Approver,Community_Administrator,Editor" wfl_end_button_label="Ok">
     <WorkflowState wfs_id="769" wfs_title="Select Group" wfs_description="" wfs_auto="0" wfs_wfb_id="137" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
     <WorkflowState wfs_id="768" wfs_title="Bulk Assign Records to Selected Group" wfs_description="" wfs_auto="1" wfs_wfb_id="126" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
@@ -192,7 +198,7 @@
     <WorkflowTrigger wft_id="298" wft_pid="-1" wft_type_id="3" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/delete.gif" wft_ret_id="1" wft_options="0"/>
   </workflow>
   <workflow wfl_id="195" wfl_title="Duplicates Report" wfl_version="1.0" wfl_description="Workflow for finding duplicates in a collection." wfl_roles="Editor" wfl_end_button_label="Finished">
-    <WorkflowState wfs_id="889" wfs_title="Show Duplicates List" wfs_description="This is a report of duplicates found for the selected records.  Select an item to see its duplicate records." wfs_auto="0" wfs_wfb_id="131" wfs_start="1" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="889" wfs_title="Show Duplicates List" wfs_description="This is a report of duplicates found for the selected records.  Select an item to see it's duplicate records." wfs_auto="0" wfs_wfb_id="131" wfs_start="1" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
     <WorkflowTrigger wft_id="346" wft_pid="-1" wft_type_id="1" wft_xdis_id="285" wft_order="0" wft_mimetype="" wft_icon="images/edit.gif" wft_ret_id="3" wft_options="0"/>
   </workflow>
   <workflow wfl_id="202" wfl_title="Edit Author Affiliations" wfl_version="1.0" wfl_description="HERDIC Author Affiliations" wfl_roles="Approver,Community_Administrator,Editor" wfl_end_button_label="Finished">
@@ -408,6 +414,7 @@
   <WorkflowBehaviour wfb_id="147" wfb_title="Batch add files to record by Group" wfb_description="Needs the select add files to record workflow behaviour to have been run first. Does the actual adding to the object." wfb_version="1.0" wfb_script_name="batchadd_record_group.php" wfb_auto="1"/>
   <WorkflowBehaviour wfb_id="97" wfb_title="Batch Import" wfb_description="Needs the select batchimport to have been run first.  Does the actual importing.  Will use any template that has been set in 'set_template' or else will make mostly blank metadata." wfb_version="" wfb_script_name="batchimport.php" wfb_auto="1"/>
   <WorkflowBehaviour wfb_id="125" wfb_title="Block on Background Process" wfb_description="Special state that displays information in the workflow state but disables the workflow buttons, instead it redirects them to the background processes page in my fez (after they have pressed ok)." wfb_version="1.0" wfb_script_name="block.php" wfb_auto="0"/>
+  <WorkflowBehaviour wfb_id="162" wfb_title="Bulk Assign Author ID to Record" wfb_description="" wfb_version="1.0" wfb_script_name="bulk_assign_authorid.php" wfb_auto="1"/>
   <WorkflowBehaviour wfb_id="126" wfb_title="Bulk Assign Record to Group" wfb_description="Accepts a list of PIDs and changes their grp_id value to a given Fez group ID parameter. Does this in each xml FezMD datastream and reindexes the object including security. Runs in background." wfb_version="1.0" wfb_script_name="bulk_assign_record_group.php" wfb_auto="1"/>
   <WorkflowBehaviour wfb_id="127" wfb_title="Bulk Assign Record to User" wfb_description="Accepts a list of PIDs and changes their FezMD usr_id value to a given Fez usr ID parameter. Does this in each xml FezMD datastream and reindexes the object including security. Runs in background." wfb_version="1.0" wfb_script_name="bulk_assign_record_user.php" wfb_auto="1"/>
   <WorkflowBehaviour wfb_id="149" wfb_title="Bulk Copy Record to Collection" wfb_description="Accepts a list of PIDs and changes their isMemberOf value to a new given collection PID parameter. Does this in each xml RELS-EXT datastream and reindexes the object including security. Runs in background." wfb_version="1.0" wfb_script_name="bulk_copy_record_collection.php" wfb_auto="1"/>
@@ -423,6 +430,7 @@
   <WorkflowBehaviour wfb_id="143" wfb_title="Edit Affiliations" wfb_description="This form allows percentage affiliations to be stored in a table for pids and authors.  Part of HERDIC requirements." wfb_version="1.0" wfb_script_name="edit_affiliation.php" wfb_auto="0"/>
   <WorkflowBehaviour wfb_id="99" wfb_title="Edit Metadata" wfb_description="" wfb_version="1.0" wfb_script_name="edit_metadata.php" wfb_auto="0"/>
   <WorkflowBehaviour wfb_id="100" wfb_title="Edit Security" wfb_description="" wfb_version="1.0" wfb_script_name="edit_security.php" wfb_auto="0"/>
+  <WorkflowBehaviour wfb_id="161" wfb_title="Enter Author Text" wfb_description="" wfb_version="1.0" wfb_script_name="enter_author_text.php" wfb_auto="0"/>
   <WorkflowBehaviour wfb_id="101" wfb_title="Enter Metadata" wfb_description="" wfb_version="1.0" wfb_script_name="enter_metadata.php" wfb_auto="0"/>
   <WorkflowBehaviour wfb_id="102" wfb_title="Export Spreadsheet" wfb_description="" wfb_version="1.0" wfb_script_name="export_spreadsheet.php" wfb_auto="1"/>
   <WorkflowBehaviour wfb_id="103" wfb_title="Export Spreadsheet Background" wfb_description="Exports a spreadsheet as a background process" wfb_version="1.0" wfb_script_name="export_spreadsheet_bgp.php" wfb_auto="1"/>
