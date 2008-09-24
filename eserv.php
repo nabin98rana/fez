@@ -57,6 +57,15 @@ $acceptable_roles = array("Viewer", "Community_Admin", "Editor", "Creator", "Ann
 
 if (!empty($pid) && !empty($dsID)) {
 
+	if( Record::isDeleted($pid) ) {
+		header("HTTP/1.0 404 Not Found");
+		header("Status: 404 Not Found");
+		$tpl = new Template_API();
+        $tpl->setTemplate("404.tpl.html");
+        $tpl->displayTemplate();
+        exit;
+	}
+	
     // Retrieve the selected version date from the request. 
     // This will be null unless a version date has been
     // selected by the user.
@@ -244,6 +253,10 @@ if (!empty($pid) && !empty($dsID)) {
 
 if( $SHOW_STATUS && ($pid == "" || $dsID == "" || $not_exists == true )){
 	header("HTTP/1.0 404 Not Found");
+	header("Status: 404 Not Found");
+	$tpl = new Template_API();
+    $tpl->setTemplate("404.tpl.html");
+    $tpl->displayTemplate();
 	exit;
 } 
 
