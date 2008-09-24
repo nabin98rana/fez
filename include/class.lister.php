@@ -698,7 +698,7 @@ class Lister
         	$tpl->assign("major_function", "search");
 			$tpl->assign("q", htmlspecialchars($params['search_keys'][0]));
         	
-        	$tpl->assign("list_heading", htmlspecialchars("Search Results ($terms)"));        	 
+        	$tpl->assign("list_heading", "Search Results ($terms)");        	 
         	$tpl->assign("list_type", "all_records_list");
         } else {
                        
