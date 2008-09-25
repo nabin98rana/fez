@@ -487,6 +487,19 @@ class Record
         	FulltextQueue::singleton()->remove($pid);
         }
         
+	    $cviews = array();
+		$cviews = Custom_View::getCviewList();
+		            
+		$cache = new fileCache($this->pid, 'pid='.$this->pid);
+		$cache->poisonCache();
+		            
+		if(count($cviews) > 0) {
+		    foreach ($cviews as $cview) {
+		        $cache = new fileCache($this->pid, "custom_view_pid={$cview['cvcom_com_pid']}&pid=$this->pid");
+		        $cache->poisonCache();
+		    }
+		}
+        
     }
 
     /**
@@ -972,9 +985,9 @@ class Record
      * @param string $options The search parameters
      * @return array $res2 The index details of records associated with the search params
      */
-	function getListing($options, $approved_roles=array(9,10), $current_page=0,$page_rows="ALL", $sort_by="Title", $getSimple=false, $citationCache=false, $filter=array(), $operator='AND') {
+	function getListing($options, $approved_roles=array(9,10), $current_page=0,$page_rows="ALL", $sort_by="Title", $getSimple=false, $citationCache=false, $filter=array(), $operator='AND', $use_faceting = false, $use_highlighting = false) {
         if (APP_SOLR_SWITCH == "ON" ) {			
-			return Record::getSearchListing($options, $approved_roles, $current_page,$page_rows, $sort_by, $getSimple, $citationCache, $filter, $operator);
+			return Record::getSearchListing($options, $approved_roles, $current_page,$page_rows, $sort_by, $getSimple, $citationCache, $filter, $operator, $use_faceting, $use_highlighting);
 		} else {			
 			$options = array_merge($options, $filter);
 		}
@@ -1215,7 +1228,7 @@ class Record
      * @param string $options The search parameters
      * @return array $res2 The index details of records associated with the search params
      */
-	function getSearchListing($options, $approved_roles=array(9,10), $current_page=0, $page_rows="ALL", $sort_by="", $getSimple=false, $citationCache=false, $filter=array(), $operator="AND") {
+	function getSearchListing($options, $approved_roles=array(9,10), $current_page=0, $page_rows="ALL", $sort_by="", $getSimple=false, $citationCache=false, $filter=array(), $operator="AND", $use_faceting = false, $use_highlighting = false) {
     	// paging preparation
         if ($page_rows == "ALL") {
             $page_rows = 9999999;
@@ -1240,7 +1253,7 @@ class Record
 		
 		$index = new FulltextIndex_Solr();
 
-		$res = $index->searchAdvancedQuery($searchKey_join, $filter_join, $approved_roles, $start, $page_rows);
+		$res = $index->searchAdvancedQuery($searchKey_join, $filter_join, $approved_roles, $start, $page_rows, $use_faceting, $use_highlighting);
 		$total_rows = $res['total_rows'];
 		$facets = $res['facets'];
 		$snips = $res['snips'];

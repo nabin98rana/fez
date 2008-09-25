@@ -667,7 +667,13 @@ class Lister
 			     'value'         =>  2,
 			);
             
-			$list = Record::$getFunction($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter, $operator);
+			/*
+             * Turn these on for advanced search
+             */
+			$use_faceting = true;
+			$use_highlighting = true;
+			
+			$list = Record::$getFunction($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter, $operator, $use_faceting, $use_highlighting);
 			
 			$spell = new spellcheck(APP_DEFAULT_LANG);
 			

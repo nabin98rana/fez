@@ -267,7 +267,7 @@ class FulltextIndex_Solr extends FulltextIndex {
     }
 
 
-	public function searchAdvancedQuery($searchKey_join, $filter_join, $approved_roles, $start, $page_rows) {
+	public function searchAdvancedQuery($searchKey_join, $filter_join, $approved_roles, $start, $page_rows, $use_faceting = false, $use_highlighting = false) {
 
 
 		try {
@@ -278,30 +278,34 @@ class FulltextIndex_Solr extends FulltextIndex {
 			// Solr search params
 			$params = array();
 
-			// hit highlighting
-			$params['hl'] = 'true';			
-			$params['hl.fl'] = 'content'; //'content_mt,alternative_title_mt,author_mt,keywords_mt';
-			$params['hl.requireFieldMatch'] = 'false';			
-			$params['hl.snippets'] = 3;
-			$params['hl.fragmenter'] = 'gap';
-			$params['hl.fragsize'] = 150;
-			$params['hl.mergeContiguous'] = "true";
+			if( $use_highlighting ) {
+				// hit highlighting
+				$params['hl'] = 'true';			
+				$params['hl.fl'] = 'content'; //'content_mt,alternative_title_mt,author_mt,keywords_mt';
+				$params['hl.requireFieldMatch'] = 'false';			
+				$params['hl.snippets'] = 3;
+				$params['hl.fragmenter'] = 'gap';
+				$params['hl.fragsize'] = 150;
+				$params['hl.mergeContiguous'] = "true";
+			}
 			
-			$sekIDs = Search_Key::getFacetList();
-			
-			if(count($sekIDs) > 0) { 
+			if( $use_faceting ) {
+				$sekIDs = Search_Key::getFacetList();
 				
-				$params['facet'] = 'true';
-				$params['facet.limit'] = '5';
-				$params['facet.mincount'] = '2';
+				if(count($sekIDs) > 0) { 
+					
+					$params['facet'] = 'true';
+					$params['facet.limit'] = '5';
+					$params['facet.mincount'] = '2';
+					
+					foreach ($sekIDs as $sek) {
+					    $sek_title_db = Search_Key::makeSQLTableName($sek['sek_title']);
+					    $solr_suffix = Record::getSolrSuffix($sek,0,1);
+					    $facetsToUse[] = $sek_title_db.$solr_suffix;
+					}
 				
-				foreach ($sekIDs as $sek) {
-				    $sek_title_db = Search_Key::makeSQLTableName($sek['sek_title']);
-				    $solr_suffix = Record::getSolrSuffix($sek,0,1);
-				    $facetsToUse[] = $sek_title_db.$solr_suffix;
+					$params['facet.field'] = $facetsToUse;
 				}
-			
-				$params['facet.field'] = $facetsToUse;
 			}
 
 			// filtering
@@ -418,21 +422,23 @@ class FulltextIndex_Solr extends FulltextIndex {
                 
                 
 
-				// Solr hit highlighting				
-	            foreach ($response->highlighting as $pid => $snippet) {
-	            	if (isset($snippet->content)) {       	       	
-		            	foreach ($snippet->content as $part) {
-		            		$part = trim(str_ireplace(chr(12), ' | ', $part));		            		
-		            		$snips[$pid] .= $part;
-		            	}	
-	            	} 
-//	            	if (isset($snippet->keywords_mt)) {
-//	            		foreach ($snippet->content_mt as $part) {
-//		            		$part = trim(str_ireplace(chr(12), ' | ', $part));		            		
-//		            		$snips[$pid] .= $part;
-//		            	}
-//	            	}
-	            }
+				// Solr hit highlighting		
+                if(is_object($response->facet_counts)) {		
+		            foreach ($response->highlighting as $pid => $snippet) {
+		            	if (isset($snippet->content)) {       	       	
+			            	foreach ($snippet->content as $part) {
+			            		$part = trim(str_ireplace(chr(12), ' | ', $part));		            		
+			            		$snips[$pid] .= $part;
+			            	}	
+		            	} 
+	//	            	if (isset($snippet->keywords_mt)) {
+	//	            		foreach ($snippet->content_mt as $part) {
+	//		            		$part = trim(str_ireplace(chr(12), ' | ', $part));		            		
+	//		            		$snips[$pid] .= $part;
+	//		            	}
+	//	            	}
+		            }
+                }
 
 	         }	
 
