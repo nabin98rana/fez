@@ -43,9 +43,9 @@ class FulltextIndex_Solr_CSV extends FulltextIndex {
         $searchKeys = Search_Key::getList();
 		$csvHeader = "";
 		
-		$authLister_i = $this->getFieldName(FulltextIndex::FIELD_NAME_AUTHLISTER, FulltextIndex::FIELD_TYPE_TEXT, false);
-		$authCreator_i = $this->getFieldName(FulltextIndex::FIELD_NAME_AUTHCREATOR, FulltextIndex::FIELD_TYPE_TEXT, false);
-		$authEditor_i = $this->getFieldName(FulltextIndex::FIELD_NAME_AUTHEDITOR, FulltextIndex::FIELD_TYPE_TEXT, false);
+		$authLister_t = $this->getFieldName(FulltextIndex::FIELD_NAME_AUTHLISTER, FulltextIndex::FIELD_TYPE_TEXT, false);
+		$authCreator_t = $this->getFieldName(FulltextIndex::FIELD_NAME_AUTHCREATOR, FulltextIndex::FIELD_TYPE_TEXT, false);
+		$authEditor_t = $this->getFieldName(FulltextIndex::FIELD_NAME_AUTHEDITOR, FulltextIndex::FIELD_TYPE_TEXT, false);
 		
 		/*
          * Custom search key (not a registered search key)
@@ -141,7 +141,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex {
     	    $pids      = '';
     	    $spliting  = '';
     	    
-    		$csvHeader = 'id,'.implode(',', $singleColumnsHeader) . ',' . $authLister_i . ','. $authCreator_i . ',' . $authEditor_i . ','. $authApprover_i . ','.implode(',', $mtColumnsHeader) . ",content\n";
+    		$csvHeader = 'id,'.implode(',', $singleColumnsHeader) . ',' . $authLister_t . ','. $authCreator_t . ',' . $authEditor_t . ','.implode(',', $mtColumnsHeader) . ",content\n";
 			
 			foreach ( $chunk as $row ) {
 			    
@@ -190,9 +190,9 @@ class FulltextIndex_Solr_CSV extends FulltextIndex {
                         $editor_rules = $rules[$roleIDs['Editor']];
                     }
                     
-                    $csv[$rek_pid] .= ',' . $lister_rules .','.$creator_rules. ','. $editor_rules . ','. $approver_rules;
+                    $csv[$rek_pid] .= ',' . $lister_rules .','.$creator_rules. ','. $editor_rules;
                 } else {
-                    $csv[$rek_pid] .= ',"","","",""';
+                    $csv[$rek_pid] .= ',"","",""';
                 }
                     
 		    }
@@ -301,7 +301,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex {
                 Error_Handler::logError($info,__FILE__,__LINE__);
                 Logger::debug(var_export($info,true));
             } else {
-                //unlink($tmpfname);
+                unlink($tmpfname);
             }
     		    		
     		//$this->postprocessIndex($ftq_pid, $ftq_op);
