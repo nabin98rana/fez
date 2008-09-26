@@ -756,7 +756,7 @@ function selectDateField(field_name, day, month, year)
             	{elseif ($xsd_display_fields[i].xsdmf_html_input == 'dual_multiple') && $xsd_display_fields[i].xsdmf_enabled == 1}
 					{assign var="xsdmf" value=$xsd_display_fields[i]}
 	            		{if $xsdmf.xsdmf_enabled == 1}
-							<tr id="tr_xsd_display_fields_{$xsdmf.xsdmf_id}_0" {if ($isEditor != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && $xsd_display_fields[i].xsdmf_required != 1)}style="display:none"{/if}>
+							<tr id="tr_xsd_display_fields_{$xsdmf.xsdmf_id}_0" {if ($isEditor != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && ($xsd_display_fields[i].xsdmf_required != 1 || $xsd_display_fields[i].selected_option != ''))}style="display:none"{/if}>
 							  <td width="200" bgcolor="{$cell_color}" class="default" valign="top">
 								<b>{$xsdmf.xsdmf_title} {if $xsdmf.xsdmf_required == 1} * {/if}</b>
 							  </td>
