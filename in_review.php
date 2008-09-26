@@ -76,7 +76,7 @@ foreach ($search_keys as $skey => $svalue) {
           ) + $search_keys[$skey]["field_options"];
     }
     
-    if ($svalue["sek_html_input"] != 'multiple' && $svalue["sek_smarty_variable"] != 'Status::getUnpublishedAssocList()') {
+    if ($svalue["sek_html_input"] != 'multiple' && $svalue["sek_html_input"] != 'dual_multiple' && $svalue["sek_smarty_variable"] != 'Status::getUnpublishedAssocList()') {
         $search_keys[$skey]["field_options"] = array("" => "any") + $search_keys[$skey]["field_options"];       
     }   
     

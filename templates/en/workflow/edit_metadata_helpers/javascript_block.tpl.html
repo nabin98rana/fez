@@ -34,8 +34,8 @@ var xsd_display_fields = new Array();
 function validateForm() {
 {/literal}
 {section name="i" loop=$xsd_display_fields}
-{if $xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector' && $xsd_display_fields[i].xsdmf_enabled == 1}
-	// The controlled vocabulary selector should select all the fields in the multiple combo box so that they will
+{if ($xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector' || $xsd_display_fields[i].xsdmf_html_input == 'dual_multiple') && $xsd_display_fields[i].xsdmf_enabled == 1}
+	// The controlled vocabulary selector and dual multiple controls should select all the fields in the multiple combo box so that they will
 	// be included in the form submission.
 	var field = document.wfl_form1.xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0;
 	{literal}

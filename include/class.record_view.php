@@ -183,7 +183,7 @@ class RecordView {
 							$parent_details = $parent_record->getDetails();
 							if (is_array($parent_details[$dis_field["xsdmf_parent_option_child_xsdmf_id"]])) {
 								$xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($dis_field["xsdmf_parent_option_child_xsdmf_id"]);
-								if ($xsdmf_details['xsdmf_smarty_variable'] != "" && $xsdmf_details['xsdmf_html_input'] == "multiple") {
+								if ($xsdmf_details['xsdmf_smarty_variable'] != "" && ($xsdmf_details['xsdmf_html_input'] == "multiple" || $xsdmf_details['xsdmf_html_input'] == "dual_multiple")) {
 									$temp_parent_options = array();
 									$temp_parent_options_final = array();
 									eval("\$temp_parent_options = ". $xsdmf_details['xsdmf_smarty_variable'].";");

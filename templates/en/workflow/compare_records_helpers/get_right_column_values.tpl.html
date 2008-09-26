@@ -15,6 +15,13 @@
 			onclick="javascript:copy_field_{$xsdmf.xsdmf_html_input}('{$input_field_name}', '{$cvo_key}');"
 			>[copy]</a>{if !$smarty.foreach.grc.last},<br/>{/if}{/if}
 	{/foreach}
+{elseif $xsdmf.xsdmf_html_input == 'dual_multiple'}
+	{assign var='current_right_details' value=$right_details[$temp_fld_id] }
+	{foreach name='grc' from=$current_right_details item='cvo_item' key='cvo_key'}
+		{if $cvo_item}<span class="right_value" style="background-color: {if is_array($distances_colours[$xsdmf.xsdmf_id])}{$distances_colours[$xsdmf.xsdmf_id][$cvo_key]}{else}{$distances_colours[$xsdmf.xsdmf_id]}{/if};">{$cvo_item}</span><a href="javascript:void(null);"
+			onclick="copy_field_{$xsdmf.xsdmf_html_input}('{$input_field_name}', '{$cvo_key}', '{$cvo_item}');"
+			>[copy]</a>{if !$smarty.foreach.grc.last},<br/>{/if}{/if}
+	{/foreach}
 {else}
 	{assign var='dc_idx' value=$loop_num|default:0}
 	{if $right_details[$temp_fld_id]}<span class="right_value" style="background-color: {if is_array($distances_colours[$xsdmf.xsdmf_id])}{$distances_colours[$xsdmf.xsdmf_id][$dc_idx]}{else}{$distances_colours[$xsdmf.xsdmf_id]}{/if};">{$right_details[$temp_fld_id]}</span><a href="javascript:void(null);"

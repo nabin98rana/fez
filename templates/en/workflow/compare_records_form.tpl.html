@@ -4,6 +4,11 @@
 <div class="admin-content">The record you have selected is currently being edited by {$conflict_user}.  <a href="{$link_self}">Check again</a></div>
 {else}
 <script type="text/javascript" src="{$rel_url}js/compare_records_helpers.js" ></script>
+<link rel="stylesheet" href="{$rel_url}css/autocomplete.css" type="text/css" />
+<script type="text/javascript" src="{$rel_url}js/yahoo/utilities.js"></script>
+<script type="text/javascript" src="{$rel_url}js/yahoo/autocomplete.js"></script>
+
+
 {include file="workflow/edit_metadata_helpers/javascript_block.tpl.html"}
 
 <input type="hidden" name="sta_id" value="{$sta_id}">

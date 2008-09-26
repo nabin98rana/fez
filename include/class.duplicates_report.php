@@ -635,7 +635,7 @@ return;
         		    && !empty($base_det[$xsdmf_id]) && !is_array($base_det[$xsdmf_id])) {
         	// check if this is supposed to be a multiple element
         	$xsdmf = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
-        	if ($xsdmf['xsdmf_multiple'] == 1 || $xsdmf['xsdmf_html_input'] == 'multiple') {
+        	if ($xsdmf['xsdmf_multiple'] == 1 || $xsdmf['xsdmf_html_input'] == 'multiple' || $xsdmf['xsdmf_html_input'] == 'dual_multiple') {
 	            if ($make_unique) {
     	        	$base_det[$xsdmf_id] = array_values(array_unique(
     	        			    	        	array($base_det[$xsdmf_id], $dup_value)));

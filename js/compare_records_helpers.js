@@ -63,6 +63,18 @@ function copy_field_contvocab_selector(dest,value)
 	}
 }
 
+function copy_field_dual_multiple(dest,res,value)
+{
+	f = document.forms.wfl_form1;
+	destinationList = getFormElement(f, dest);
+	if (!optionValueExists(destinationList, res)) {
+		var len = destinationList.length;
+		destinationList.options[len] = new Option(value, res); 
+		destinationList.options[len].selected = true;
+	}
+}
+
+
 function copy_field_date(dest,value)
 {
 	f = document.forms.wfl_form1;

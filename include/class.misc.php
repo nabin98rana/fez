@@ -2378,6 +2378,9 @@ class Misc
 											case "multiple":
 											   $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.$ematch["xsdmf_xsdsel_id"].'" class="form_note"> <span class="form_note">'.$disabled_msg.'<b>Multiple Combo Box:</b> '.$ematch['xsdmf_title'].'<br/>Loop: '.$ematch['xsdsel_title'].'<br/>Order: '.$ematch['xsdmf_order'].'<br/>XSDMF ID: '.$ematch['xsdmf_id'].'</span><img src="'.APP_RELATIVE_URL.'images/multi_combobox_16.png" />';										   
 											   break;
+											case "dual_multiple":
+											   $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.$ematch["xsdmf_xsdsel_id"].'" class="form_note"> <span class="form_note">'.$disabled_msg.'<b>Dual Multiple Combo Box:</b> '.$ematch['xsdmf_title'].'<br/>Loop: '.$ematch['xsdsel_title'].'<br/>Order: '.$ematch['xsdmf_order'].'<br/>XSDMF ID: '.$ematch['xsdmf_id'].'</span><img src="'.APP_RELATIVE_URL.'images/dual_multi_16.png" />';										   
+											   break;
 											case "checkbox":
 											   $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.$ematch["xsdmf_xsdsel_id"].'" class="form_note"> <span class="form_note">'.$disabled_msg.'<b>Check Box:</b> '.$ematch['xsdmf_title'].'<br/>Loop: '.$ematch['xsdsel_title'].'<br/>Order: '.$ematch['xsdmf_order'].'<br/>XSDMF ID: '.$ematch['xsdmf_id'].'</span><img src="'.APP_RELATIVE_URL.'images/checkbox_16.png" />';										   
 											   break;

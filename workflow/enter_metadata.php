@@ -183,7 +183,7 @@ if ($access_ok) {
 					$suggestor_count = 1;
 				}
 			}
-			if ($dis_field["xsdmf_html_input"] == 'combo' || $dis_field["xsdmf_html_input"] == 'multiple') {
+			if ($dis_field["xsdmf_html_input"] == 'combo' || $dis_field["xsdmf_html_input"] == 'multiple' || $dis_field["xsdmf_html_input"] == 'dual_multiple') {
 				if (!empty($dis_field["xsdmf_smarty_variable"]) && $dis_field["xsdmf_smarty_variable"] != "none") {
 					eval("\$xsd_display_fields[\$dis_key]['field_options'] = " . $dis_field["xsdmf_smarty_variable"] . ";");
 				}
@@ -198,7 +198,7 @@ if ($access_ok) {
 						$parent_details = $parent_record->getDetails();
 						if (is_array($parent_details[$dis_field["xsdmf_parent_option_child_xsdmf_id"]])) {
 							$xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($dis_field["xsdmf_parent_option_child_xsdmf_id"]);
-							if ($xsdmf_details['xsdmf_smarty_variable'] != "" && $xsdmf_details['xsdmf_html_input'] == "multiple") {
+							if ($xsdmf_details['xsdmf_smarty_variable'] != "" && ($xsdmf_details['xsdmf_html_input'] == "multiple" || $xsdmf_details['xsdmf_html_input'] == "dual_multiple")) {
 								$temp_parent_options = array();
 								$temp_parent_options_final = array();
 								eval("\$temp_parent_options = ". $xsdmf_details['xsdmf_smarty_variable'].";");
@@ -218,6 +218,20 @@ if ($access_ok) {
 					}
 				}
 			}
+			if ($dis_field["xsdmf_html_input"] == 'dual_multiple') {
+                $tempArray = $xsd_display_fields[$dis_key]["selected_option"];
+                if (is_array($tempArray)) {
+                    $xsd_display_fields[$dis_key]["selected_option"] = array();
+                    foreach ($tempArray as $cv_key => $cv_value) {
+                        $xsd_display_fields[$dis_key]["selected_option"][$cv_value] = Record::getTitleFromIndex($cv_value);
+                    }
+                } elseif  (trim($xsd_display_fields[$dis_key]["selected_option"]) != "") {
+                    $tempValue = $xsd_display_fields[$dis_key]["selected_option"];
+                    $xsd_display_fields[$dis_key]["selected_option"] = array();
+                    $xsd_display_fields[$dis_key]["selected_option"][$tempValue] = Record::getTitleFromIndex($tempValue);
+            	}    
+			}
+
 			if (($dis_field["xsdmf_html_input"] == 'contvocab')
 					|| ($dis_field["xsdmf_html_input"] == 'contvocab_selector')) {
 				$xsd_display_fields[$dis_key]['field_options'] = @$cvo_list['data'][$dis_field['xsdmf_cvo_id']];

@@ -1200,14 +1200,12 @@ margin-bottom: 1em;
 	color:red;
 }
 
-
-
 .facet {
 	float:left; font-family:Verdana,Arial,Helvetica,sans-serif;font-size:75%;font-style:normal;font-weight:normal;width:200px;padding: 0px;
 }
 
 .facetheader {
-	background: #317DCE; color:white;align:left;padding: 0px;
+	background: #317DCE; color:white;padding: 0px;
 }
 
 .facet ul {

@@ -213,7 +213,7 @@
                         }
                     }
                 }
-                if ($dis_field["xsdmf_html_input"] == 'combo' || $dis_field["xsdmf_html_input"] == 'multiple') {
+                if ($dis_field["xsdmf_html_input"] == 'combo' || $dis_field["xsdmf_html_input"] == 'multiple' || $dis_field["xsdmf_html_input"] == 'dual_multiple') {
                     if (!empty($dis_field["xsdmf_smarty_variable"]) && $dis_field["xsdmf_smarty_variable"] != "none") {
                         $this->setDynamicVar($dis_field["xsdmf_smarty_variable"]);
                         eval("global ".$dis_field['xsdmf_smarty_variable']
@@ -233,7 +233,7 @@
                             $parent_details = $parent_record->getDetails(); // this only works for one parent for now.. need to loop over them again
                             if (is_array($parent_details[$dis_field["xsdmf_parent_option_child_xsdmf_id"]])) {
                                 $xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($dis_field["xsdmf_parent_option_child_xsdmf_id"]);
-                                if ($xsdmf_details['xsdmf_smarty_variable'] != "" && $xsdmf_details['xsdmf_html_input'] == "multiple") {
+                                if ($xsdmf_details['xsdmf_smarty_variable'] != "" && ($xsdmf_details['xsdmf_html_input'] == "multiple" || $xsdmf_details['xsdmf_html_input'] == "dual_multiple")) {
                                     $temp_parent_options = array();
                                     $temp_parent_options_final = array();
 			                        $this->setDynamicVar($xsdmf_details['xsdmf_smarty_variable']);
@@ -287,7 +287,7 @@
 						$this->default_depositor_org_id = 1; // will show a message on the form warning this was set from default lookup and needs saving to take affect
 					}
 				} 
-                if ($dis_field["xsdmf_html_input"] == 'combo' || $dis_field["xsdmf_html_input"] == 'multiple' || $dis_field["xsdmf_html_input"] == 'contvocab' || $dis_field["xsdmf_html_input"] == 'contvocab_selector') {
+                if ($dis_field["xsdmf_html_input"] == 'combo' || $dis_field["xsdmf_html_input"] == 'dual_multiple' || $dis_field["xsdmf_html_input"] == 'multiple' || $dis_field["xsdmf_html_input"] == 'contvocab' || $dis_field["xsdmf_html_input"] == 'contvocab_selector') {
                     if (@$details[$dis_field["xsdmf_id"]]) { // if a record detail matches a display field xsdmf entry
                         if (($dis_field["xsdmf_html_input"] == 'contvocab_selector') && ($dis_field['xsdmf_cvo_save_type'] != 1)) {         
                             $tempArray = $details[$dis_field["xsdmf_id"]];
@@ -301,8 +301,21 @@
                                 $details[$dis_field["xsdmf_id"]] = array();
                                 $details[$dis_field["xsdmf_id"]][$tempValue] = Controlled_Vocab::getTitle($tempValue);
                             }
-                            
-    
+ 						
+						} elseif ($dis_field["xsdmf_html_input"] == 'dual_multiple') {
+                            $tempArray = $details[$dis_field["xsdmf_id"]];
+                            if (is_array($tempArray)) {
+                                $details[$dis_field["xsdmf_id"]] = array();
+                                foreach ($tempArray as $cv_key => $cv_value) {
+                                    $details[$dis_field["xsdmf_id"]][$cv_value] = Record::getTitleFromIndex($cv_value);
+                                }
+                            } elseif  (trim($details[$dis_field["xsdmf_id"]]) != "") {
+                                $tempValue = $details[$dis_field["xsdmf_id"]];
+                                $details[$dis_field["xsdmf_id"]] = array();
+                                $details[$dis_field["xsdmf_id"]][$tempValue] = Record::getTitleFromIndex($tempValue);
+                            }    
+
+
                         } elseif (is_array($dis_field["field_options"])) { // if the display field has a list of matching options
                             foreach ($dis_field["field_options"] as $field_key => $field_option) { // for all the matching options match the set the details array the template uses
                                 if (is_array($details[$dis_field["xsdmf_id"]])) { // if there are multiple selected options (it will be an array)
