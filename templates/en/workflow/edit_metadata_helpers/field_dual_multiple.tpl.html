@@ -1,0 +1,49 @@
+            {if $xsdmf.xsdmf_enabled == 1}
+						<tr id="tr_xsd_display_fields_{$xsdmf.xsdmf_id}_0" {if $xsdmf.xsdmf_invisible == 1}style="display:none;"{/if}>
+						  <td width="200" bgcolor="{$cell_color}" class="default" valign="top">
+							<b>{$xsdmf.xsdmf_title} {if $xsdmf.xsdmf_required == 1} * {/if}</b>
+						  </td>
+						  <td bgcolor="{$value_color}">
+						<table>
+						<tr>
+						  <td align="left" width="5%" class="default">Set {$xsdmf.xsdmf_title}</td>
+							<td width="5%" align="left">&nbsp;</td>
+							<td align="left" class="default">Selectable Options</td>
+						</tr>
+						<tr>
+						  <td align="left" width="5%">
+							{assign var="field_name_helper" value="xsd_display_fields_helper["|cat:$xsdmf.xsdmf_id|cat:"][]"}
+							{assign var="field_id_helper" value="xsd_display_fields_helper_"|cat:$xsdmf.xsdmf_id|cat:"_0"}
+	  					    {assign var="field_name" value="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"][]"}
+	  					    {assign var="field_id" value="xsd_display_fields_"|cat:$xsdmf.xsdmf_id|cat:"_0"}
+
+							<select id="{$field_id}" multiple size="8" width="40" class="default" name="{$field_name}">
+							  {html_options options=$details[$temp_fld_id]}
+							</select>
+							{include file="error_icon.tpl.html" field=$field_name}
+							{if $xsdmf.xsdmf_required == 1}
+		        		    <script type="text/javascript">
+					        <!--
+		        		    xsd_display_fields[xsd_display_fields.length] = new Option('xsd_display_fields[{$xsdmf.xsdmf_id}][]', '{$xsdmf.xsdmf_title}');
+				            required_xsd_display_fields[required_xsd_display_fields.length] = new Option('xsd_display_fields[{$xsdmf.xsdmf_id}][]', 'multiple');
+		        		    //-->
+				            </script>
+		        		    {/if}
+						  </td>
+							<td width="5%" align="left">
+								<input type="button" name="copy_left" value="Copy selected to left" onClick="javascript:addToParentList(this.form.{$field_id_helper}, this.form.{$field_id});" />
+								<br />
+								<br />
+								<input type="button" name="remove_left" value="Remove selected from left" onClick="javascript:deleteSelectedItemsFromList(this.form.{$field_id});" />
+							</td>
+							<td align="left">
+							<select id="{$field_id_helper}" multiple size="8" width="40" class="default" name="{$field_name_helper}">
+							  {html_options options=$xsdmf.field_options}
+							</select>
+							</td>
+						</tr>
+						</table>
+						  </td>
+				  {include file='workflow/compare_records_helpers/get_right_column.tpl.html' input_field_name=$field_name}
+						 </tr>
+{/if}
