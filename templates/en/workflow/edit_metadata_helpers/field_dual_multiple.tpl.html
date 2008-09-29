@@ -7,7 +7,6 @@
 						<table>
 						<tr>
 						  <td align="left" width="5%" class="default">Set {$xsdmf.xsdmf_title}</td>
-							<td width="5%" align="left">&nbsp;</td>
 							<td align="left" class="default">Selectable Options</td>
 						</tr>
 						<tr>
@@ -30,17 +29,20 @@
 				            </script>
 		        		    {/if}
 						  </td>
-							<td width="5%" align="left">
-								<input type="button" name="copy_left" value="Copy selected to left" onClick="javascript:addToParentList(this.form.{$field_id_helper}, this.form.{$field_id});" />
-								<br />
-								<br />
-								<input type="button" name="remove_left" value="Remove selected from left" onClick="javascript:deleteSelectedItemsFromList(this.form.{$field_id});" />
-							</td>
 							<td align="left">
 							<select id="{$field_id_helper}" multiple size="8" style="width: 50mm;" class="default" name="{$field_name_helper}">
 							  {html_options options=$xsdmf.field_options}
 							</select>
 							</td>
+						</tr>
+						<tr>
+							<td>
+								<input type="button" name="remove_left" value="Remove selected from left" onClick="javascript:deleteSelectedItemsFromList(this.form.{$field_id});" />
+							</td>
+							<td>
+								<input type="button" name="copy_left" value="Copy selected to left" onClick="javascript:addToParentList(this.form.{$field_id_helper}, this.form.{$field_id});" />							
+							</td>
+
 						</tr>
 						</table>
 						  </td>
