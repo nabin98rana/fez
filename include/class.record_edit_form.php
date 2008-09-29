@@ -434,14 +434,14 @@
             	continue; // skip non-enabled items
     		}
     		// make sure multiple items are arrays even if they only have one item
-            if ( ($dis_field["xsdmf_html_input"] == 'multiple' 
+            if ( ($dis_field["xsdmf_html_input"] == 'multiple' || $dis_field["xsdmf_html_input"] == 'dual_multiple'
         	    		|| $dis_field["xsdmf_html_input"] == 'contvocab_selector') 
     	        	&& (!@is_array($params['xsd_display_fields'][$dis_field["xsdmf_id"]])) ){ 
 	            $params['xsd_display_fields'][$dis_field["xsdmf_id"]] 
 	            	= array($params['xsd_display_fields'][$dis_field["xsdmf_id"]]);
             }
             // the contvocab selector uses key value pairs but we only want the keys
-            if ($dis_field["xsdmf_html_input"] == 'contvocab_selector') {
+            if ($dis_field["xsdmf_html_input"] == 'contvocab_selector' || $dis_field["xsdmf_html_input"] == 'dual_multiple') {
             	$params['xsd_display_fields'][$dis_field["xsdmf_id"]] 
 	            	= array_keys($params['xsd_display_fields'][$dis_field["xsdmf_id"]]);
 			}
