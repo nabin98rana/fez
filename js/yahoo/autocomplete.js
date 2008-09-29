@@ -1652,6 +1652,10 @@ YAHOO.widget.AutoComplete.prototype._updateValue = function(oItem) {
         }
     }
     
+    if( this.textBoxIDCopy ) {
+        this.textBoxIDCopy.value = oItem._dbID;
+    }
+    
     if( this.selectBox ) {
         this.addMulti(oTextbox.value, this.selectBox, oItem._dbID);
     }
@@ -2130,7 +2134,7 @@ YAHOO.widget.AutoComplete.prototype._onWindowUnload = function(v,oSelf) {
 };
 
 
-YAHOO.widget.AutoComplete.prototype.registerControls = function(oTextboxCopy, oIDbox) {
+YAHOO.widget.AutoComplete.prototype.registerControls = function(oTextboxCopy, oIDbox, oIDTextbox) {
     
     /**
      * The textbox to fill with a copy of the selected data.
@@ -2144,6 +2148,13 @@ YAHOO.widget.AutoComplete.prototype.registerControls = function(oTextboxCopy, oI
      * @scope private
      */
     this.selectBox /*:HTMLSelectBoxInputElement*/ = oIDbox;
+    
+    
+    /**
+     * The textbox to fill with a copy of the selected ID.
+     * @scope private
+     */
+    this.textBoxIDCopy /*:HTMLInputElement*/ = oIDTextbox;
 };
 
 

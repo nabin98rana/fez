@@ -1,4 +1,5 @@
-<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.5.2/build/autocomplete/assets/skins/sam/autocomplete.css" />
+<link rel="stylesheet" type="text/css" href="{$rel_url}css/autocomplete.css" />
+<script type="text/javascript" src="{$rel_url}js/global.js"></script>
 <script type="text/javascript" src="{$rel_url}js/yahoo/utilities.js"></script>
 <script type="text/javascript" src="{$rel_url}js/yahoo/autocomplete.js"></script>
 
@@ -23,12 +24,12 @@ function validateForm() {
 <style type="text/css">
     
 	/* custom styles for scrolling container */
-	#statesautocomplete {
+	statesautocomplete {
 	   position:absolute;
 	    width:25em; /* set width of widget here*/
 	    height:15em; /* define height for container to appear inline */
 	}
-	#statescontainer .yui-ac-content {
+	statescontainer .yui-ac-content {
 	    max-height:15em;
 	    overflow:auto;
 	    overflow-x:hidden; /* scrolling */
@@ -43,7 +44,7 @@ function validateForm() {
 <input type="hidden" name="cat" value="submit">
 <table>
     
-    <tr id="files">
+    <tr>
         <td width="150" bgcolor="{$cell_color}" class="default">
             <strong>* Author Text</strong>
         </td>
@@ -52,16 +53,16 @@ function validateForm() {
         </td>
     </tr>
     
-    <tr id="files">
+    <tr>
         <td width="150" bgcolor="{$cell_color}" class="default"><strong>* Author ID</strong></td>
         <td class="default"><input type="text" name="author_id" id="author_id" readonly /> (Use author search to select Author ID)</td>
     </tr>
     
-    <tr id="files">
+    <tr>
         <td width="150" bgcolor="{$cell_color}" class="default">
             <strong>Author Search</strong>
         </td>
-        <td class="default">
+        <td>
             <div id="statesautocomplete">
               <input id="ysearchinput" type="text">
               <div id="statescontainer"></div>
@@ -101,8 +102,8 @@ function validateForm() {
         return oResultItem[1].name + usernameTxt;
     };
     
-    this.oAutoComp.registerControls('','',document.getElementById('author_id'));
-    
+    this.oAutoComp.registerControls('','',document.wfl_form1.author_id);
+//	this.oAutoComp.registerControls('','',document.getElementById('author_id');
     </script>
     
     {/literal}  

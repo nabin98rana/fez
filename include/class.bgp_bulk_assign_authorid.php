@@ -80,7 +80,8 @@ class BackgroundProcess_Bulk_Assign_Authorid extends BackgroundProcess
 				        $item->setAttribute('ID', $author_id);
 				        $this->setStatus(" -- Updated Author '" . $item->firstChild->nodeValue . "'");
 				    }
-				    
+				    $newXML = $doc->saveXML();
+				    Fedora_API::callModifyDatastreamByValue($pid, "MODS", "A", "Metadata Object Description Schema", $newXML, "text/xml", "inherit");			    
 				    $historyDetail = "Updated " . $nodeList->length ." Author ID(s) via bulk AuthorID workflow";
 				    History::addHistory($pid, null, date('Y-m-d H:i:s'), "", true, $historyDetail, "");
 				    Record::setIndexMatchingFields($pid);
@@ -88,13 +89,12 @@ class BackgroundProcess_Bulk_Assign_Authorid extends BackgroundProcess
 			    	$this->setStatus("Did NOT update " . $pid . " didn't have any authors with '" . $author_name . "'");  
 			    }
 			    
-			    $newXML = $doc->saveXML();
-			    Fedora_API::callModifyDatastreamByValue($pid, "MODS", "A", "Metadata Object Description Schema", $newXML, "text/xml", "inherit");
             }
             $this->setStatus("Finished. Updated " . $numAuthorsUpdated . " authors for " . count($updatedPids) . " pids");
             
 	        if( APP_SOLR_INDEXER == "ON" ) {
 	            foreach ($updatedPids as $pid) {
+					$this->setStatus("Adding ".$pid." to Solr reindex queue");
 	                FulltextQueue::singleton()->add($pid);
 	            }
 	        }
