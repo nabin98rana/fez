@@ -40,10 +40,12 @@
         <dc:description>{$list[i].rek_description|escape:"html"}</dc:description>
         <dc:type>{$list[i].rek_display_type_lookup|escape:"html"}</dc:type>
         <dc:date>{$list[i].rek_date|escape:"html"}</dc:date>
+		{if $metadataPrefix != "pa"}
 		{assign var="loop_authors" value=$list[i].rek_author}
 		{section name="a" loop=$loop_authors}
         <dc:creator>{$list[i].rek_author[a]|escape:"html"}</dc:creator>
 		{/section}
+		{/if}
 		{assign var="loop_contributors" value=$list[i].rek_contributor}
 		{section name="a" loop=$loop_contributors}
         <dc:contributor>{$list[i].rek_contributor[a]|escape:"html"}</dc:contributor>
