@@ -4,6 +4,8 @@
     <td bgcolor="#CCCCCC"><b>Title</b></td>
     <td bgcolor="#CCCCCC"><b>Type</b></td>
     <td bgcolor="#CCCCCC"><b>Details</b></td>
+    <td bgcolor="#CCCCCC"><b>Abstract views</b></td>
+    <td bgcolor="#CCCCCC"><b>Downloads</b></td>
   </tr>
 {section name="i" loop=$list}
   <tr>
@@ -11,6 +13,8 @@
     <td>{$list[i].rek_title|escape:"html"}</td>
     <td>{$list[i].rek_display_type_lookup|escape:"html"}</td>
     <td>{$list[i].rek_citation_stripped|escape:"html"}</td>
+	<td>{$list[i].rek_views|escape:"html"}</td>
+	<td>{$list[i].rek_file_downloads|escape:"html"}</td>
   </tr>
 {/section}
 </table>
