@@ -529,8 +529,8 @@ function selectDateField(field_name, day, month, year)
                                             {
                                                 usernameTxt = ' (' +  oResultItem[1].username + ')'
                                             }
-                                            
-                                            return oResultItem[1].name + usernameTxt;
+									        idTxt = ' (' +  oResultItem[1].id + ')'
+									        return oResultItem[1].name + idTxt + usernameTxt;
                                         };
                                         
                                         this.oAutoComp{/literal}{$loop_num}{literal}.registerControls(document.getElementById('xsd_display_fields_{/literal}{$xsd_display_fields[i].xsdmf_id}_{$loop_num}'), document.getElementById('{$attached_field_id}'){literal});

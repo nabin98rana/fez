@@ -7,16 +7,12 @@
             {assign var="attached_field_id" value="xsd_display_fields_"|cat:$attached_xsdmf_id|cat:"_"|cat:$loop_num}
             <select class="default" id="{$attached_field_id}" name="{$attached_field_id}">	
                <option value="0">(none)</option>
+
                {if ($details[$temp_fld_id][$loop_num] != "" && $details[$attached_xsdmf_id][$loop_num] != 0)}
             	   {if is_array($details[$attached_xsdmf_id])}
-            		 {if $details[$attached_xsdmf_id][$loop_num] != ""}
+            		 {if $details[$attached_xsdmf_id][$loop_num][0] != ""}
             		   {assign var="author_id" value=$details[$attached_xsdmf_id][$loop_num]}
-            		   <option value="{$details[$attached_xsdmf_id][$loop_num]}" selected>{$author_ids[$author_id]} ({$details[$attached_xsdmf_id][$loop_num]})</option>
-            		  {/if}
-            	   {else}
-            		  {if $details[$attached_xsdmf_id] != ""}
-            			{assign var="author_id" value=$details[$attached_xsdmf_id]}
-            		 	<option value="{$details[$attached_xsdmf_id]}" selected>{$author_ids[$author_id]} ({$details[$attached_xsdmf_id]})</option>										   
+            		   <option value="{$author_id[0]}" selected>{$author_id[1]} ({$author_id[0]}) ({$author_id[2]})</option>
             		  {/if}
             	   {/if}
             	{/if}
@@ -52,8 +48,8 @@
         {
             usernameTxt = ' (' +  oResultItem[1].username + ')'
         }
-        
-        return oResultItem[1].name + usernameTxt;
+        idTxt = ' (' +  oResultItem[1].id + ')'
+        return oResultItem[1].name + idTxt + usernameTxt;
     };
     
     this.oAutoComp{/literal}{$loop_num}{literal}.registerControls(document.getElementById('xsd_display_fields_{/literal}{$xsd_display_fields[i].xsdmf_id}_{$loop_num}'), document.getElementById('{$attached_field_id}'){literal});

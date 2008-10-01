@@ -689,6 +689,28 @@ class Author
         }
     }
 
+    function getDisplayNameUserName($aut_id)
+    {
+        if(empty($aut_id) || !is_numeric($aut_id)) {
+           return "";   
+        }
+    	
+        $stmt = "SELECT
+                    aut_id, aut_display_name, aut_org_username
+                 FROM
+                    " . APP_TABLE_PREFIX . "author
+                    WHERE
+                    aut_id='".$aut_id."'";
+        $res = $GLOBALS["db_api"]->dbh->getRow($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            return $res;
+        }
+    }
+
+
     function getOrgStaffId($aut_id) 
     {
         if(empty($aut_id) || !is_numeric($aut_id)) {

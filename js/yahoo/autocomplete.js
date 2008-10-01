@@ -1263,6 +1263,13 @@ YAHOO.widget.AutoComplete.prototype._populateList = function(sQuery, aResults, o
             // Save database row ID
             if( oResultItemi[1].id != '' )
                 oItemi._dbID = oResultItemi[1].id;
+            // Save database row username
+            if( oResultItemi[1].username != '' ) {
+                oItemi._username = oResultItemi[1].username;
+			} else {
+				oItemi._username = '';
+			}
+
         }
 
         // Empty out remaining items if any
@@ -1657,7 +1664,7 @@ YAHOO.widget.AutoComplete.prototype._updateValue = function(oItem) {
     }
     
     if( this.selectBox ) {
-        this.addMulti(oTextbox.value, this.selectBox, oItem._dbID);
+        this.addMulti(oTextbox.value, this.selectBox, oItem._dbID, oItem._username);
     }
 
     this._oCurItem = oItem;
@@ -2158,7 +2165,7 @@ YAHOO.widget.AutoComplete.prototype.registerControls = function(oTextboxCopy, oI
 };
 
 
-YAHOO.widget.AutoComplete.prototype.addMulti = function (stextBoxValue, multi, dbID) {
+YAHOO.widget.AutoComplete.prototype.addMulti = function (stextBoxValue, multi, dbID, username) {
     
     if (stextBoxValue.length > 0) {
         options_exists = false;
@@ -2171,7 +2178,7 @@ YAHOO.widget.AutoComplete.prototype.addMulti = function (stextBoxValue, multi, d
         
         // add the option to the multi select and select it
         multi.options.length = multi.options.length + 1;
-        multi.options[multi.options.length-1].text = stextBoxValue + ' (' + dbID + ')';
+        multi.options[multi.options.length-1].text = stextBoxValue + ' (' + dbID + ')' + ' (' + username + ')';
         multi.options[multi.options.length-1].value = dbID;
         multi.options[multi.options.length-1].selected = true;
     }

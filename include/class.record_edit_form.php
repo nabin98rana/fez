@@ -332,8 +332,25 @@
                             }
                         }
                     }
-    //          } elseif ($dis_field["xsdmf_html_input"] == 'author_selector') { // fix author id drop down combo if attached
-    
+				} elseif ($dis_field["xsdmf_html_input"] == 'author_suggestor') { // fix author id drop down combo if attached
+
+					if (is_array($details[$dis_field['xsdmf_id']])) {
+						$temp_author_id = $details[$dis_field['xsdmf_id']];
+						$details[$dis_field['xsdmf_id']] = array();
+					    foreach ($temp_author_id as $ckey => $cdata) {
+					        if (!empty($cdata)) {
+					            $details[$dis_field['xsdmf_id']][] = Author::getDisplayNameUsername($cdata);
+					        } else {
+								$details[$dis_field['xsdmf_id']][] = array();
+							}
+					    }
+					} elseif (!empty($details[$dis_field['xsdmf_id']])) {
+						$temp_author_id = $details[$dis_field['xsdmf_id']];
+						$details[$dis_field['xsdmf_id']] = array();
+					    $details[$dis_field['xsdmf_id']][] = Author::getDisplayNameUsername($temp_author_id);
+//					print_r($details);
+					} 
+
                 } elseif ($dis_field['xsdmf_html_input'] == "xsdmf_id_ref") {
                     $xsdmf_details_ref = XSD_HTML_Match::getDetailsByXSDMF_ID($dis_field['xsdmf_id_ref']);
                     $xsdmf_id_ref = $xsdmf_details_ref['xsdmf_id'];
