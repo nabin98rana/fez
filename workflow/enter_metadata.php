@@ -157,7 +157,8 @@ if ($access_ok) {
 			}
 			if ($dis_field["xsdmf_html_input"] == 'depositor_org') {
 				$xsd_display_fields[$dis_key]['field_options'] = Org_Structure::getAssocListHR();
-				$default_depositor_org_id = Org_Structure::getDefaultOrgIDByUsername($isUser);
+				$username = Auth::getUsername();
+				$default_depositor_org_id = Org_Structure::getDefaultOrgIDByUsername($username);
 			}
 			if ($dis_field["xsdmf_html_input"] == 'author_selector') {
 				if ($dis_field["xsdmf_use_parent_option_list"] == 1) {
