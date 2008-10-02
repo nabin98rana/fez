@@ -54,7 +54,7 @@
 					<!-- At least one department -->
 					<departmentName>{$list[i].positions[y].org_title|escape:"html"}</departmentName>
 					<sponsorID>{$list[i].aut_id}</sponsorID>
-					<role>{$list[i].positions[y].POS_TITLE|escape:"html"}</role>
+					<role>Other</role>
 					<start-date>{$list[i].positions[y].DT_FROM}</start-date>
 					<end-date>{if $list[i].positions[y].DT_TO != '0' && ($list[i].positions[y].DT_TO) <= ($smarty.now|date_format:'%Y')}{$list[i].positions[y].DT_TO}{/if}</end-date>
 				{if $list[i].positions[y].DT_TO != '0' && ($list[i].positions[y].DT_TO) < ($smarty.now|date_format:'%Y')}
