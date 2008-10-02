@@ -2615,7 +2615,7 @@ class Record
      *                                exisitng object).
      * @return  void
      */
-    function insertXML($pid, $dsarray, $ingestObject)
+    	function insertXML($pid, $dsarray, $ingestObject)
     {
         $existingDatastreams = array();  // may be overwritten by extract
 
@@ -2713,7 +2713,8 @@ class Record
 	                	$versionable = $dsTitle['VERSIONABLE'];
 	                	$add = true;
 	                } else {
-						$versionable = 'inherit';
+	                	$versionable = $dsTitle['VERSIONABLE'];
+//						$versionable = 'inherit';
 						$mod = true;
 	                }
 				} 
