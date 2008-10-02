@@ -2845,6 +2845,7 @@ function backtrace()
     
     function isPid($str)
     {
+		if (is_array($str)) { return false; }
     	if (preg_match('/\w+:\d+/', $str) === 1) {
     		return true;
     	}

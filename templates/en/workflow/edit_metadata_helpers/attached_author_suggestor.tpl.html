@@ -7,11 +7,11 @@
             {assign var="attached_field_id" value="xsd_display_fields_"|cat:$attached_xsdmf_id|cat:"_"|cat:$loop_num}
             <select class="default" id="{$attached_field_id}" name="{$attached_field_id}">	
                <option value="0">(none)</option>
-
-               {if ($details[$temp_fld_id][$loop_num] != "" && $details[$attached_xsdmf_id][$loop_num] != 0)}
-            	   {if is_array($details[$attached_xsdmf_id])}
-            		 {if $details[$attached_xsdmf_id][$loop_num][0] != ""}
-            		   {assign var="author_id" value=$details[$attached_xsdmf_id][$loop_num]}
+				{assign var="author_details" value=$attached_xsdmf_id|cat:"_author_details"}
+               {if ($details[$author_details][$loop_num] != "" && $details[$author_details][$loop_num] != 0)}
+            	   {if is_array($details[$author_details])}
+            		 {if $details[$author_details][$loop_num][0] != ""}
+            		   {assign var="author_id" value=$details[$author_details][$loop_num]}
             		   <option value="{$author_id[0]}" selected>{$author_id[1]} ({$author_id[0]}) ({$author_id[2]})</option>
             		  {/if}
             	   {/if}
