@@ -77,10 +77,10 @@ class Fedora_Direct_Access {
 		if ($object_state != "") {			
 			$state_sql = " AND objectState = '".$object_state."'";
 		}
-        $result = $GLOBALS['db_api']->dbh_fda->getAll("SELECT dopid AS pid, label AS title, objectstate FROM doregistry WHERE (dopid LIKE '%" . $terms . "%' OR label LIKE '%" . $terms . "%') ".$state_sql, DB_FETCHMODE_ASSOC);
+        $result = $GLOBALS['db_api']->dbh_fda->getAll("SELECT doregistry.dopid AS pid, label AS title, doState FROM doregistry, dobj WHERE doregistry.doPID = dobj.doPID AND (doregistry.dopid LIKE '%" . $terms . "%' OR label LIKE '%" . $terms . "%') ".$state_sql, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($result)) {
             // Attempt the same thing with the other known table spelling.
-            $result = $GLOBALS['db_api']->dbh_fda->getAll("SELECT dopid AS pid, label AS title, objectstate FROM doRegistry WHERE (dopid LIKE '%" . $terms . "%' OR label LIKE '%" . $terms . "%') ".$state_sql, DB_FETCHMODE_ASSOC);
+            $result = $GLOBALS['db_api']->dbh_fda->getAll("SELECT doRegistry.dopid AS pid, label AS title, doState FROM doRegistry, dobj WHERE doRegistry.doPID = dobj.doPID AND (doRegistry.dopid LIKE '%" . $terms . "%' OR label LIKE '%" . $terms . "%') ".$state_sql, DB_FETCHMODE_ASSOC);
             if (PEAR::isError($result)) {
                 Error_Handler::logError(array($result->getMessage(), $result->getDebugInfo()), __FILE__, __LINE__);			
                 return array();
