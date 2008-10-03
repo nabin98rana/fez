@@ -1,23 +1,21 @@
-            {if $xsd_display_fields[i].xsdmf_enabled == 1}
-						<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" {if $xsdmf.xsdmf_invisible == 1}style="display:none;"{/if}>
-						  <td width="200" bgcolor="{$cell_color}" class="default" valign="top">
-							<b>{$xsd_display_fields[i].xsdmf_title} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b>
-							{if $xsdmf.xsdmf_description != ""}
-								<br /><i>{$xsdmf.xsdmf_description}</i>
-							{/if}							
-						  </td>
-						  <td bgcolor="{$value_color}">
-				            <textarea class="default" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]" rows="10" cols="60">{$details[$temp_fld_id]}</textarea>
-							{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}
-					{if $xsd_display_fields[i].xsdmf_required == 1}
-        		    <script language="JavaScript">
-			        <!--
-        		    xsd_display_fields[xsd_display_fields.length] = new Option('xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]{if $xsd_display_fields[i].xsdmf_multiple == 1}[]{/if}', '{$xsd_display_fields[i].xsdmf_title}');
-		            required_xsd_display_fields[required_xsd_display_fields.length] = new Option('xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]{if $xsd_display_fields[i].xsdmf_multiple == 1}[]{/if}', 'whitespace');
-        		    //-->
-		            </script>
-        		    {/if}
-						  </td>
-				  {include file='workflow/compare_records_helpers/get_right_column.tpl.html input_field_name="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}
-						 </tr>
-{/if}
+<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" {if $xsdmf.xsdmf_invisible == 1}style="display:none;"{/if}>
+    <td width="200" bgcolor="{$cell_color}" class="default" valign="top">
+	   <b>{$xsd_display_fields[i].xsdmf_title} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b>
+		{if $xsdmf.xsdmf_description != ""}
+		  <br /><i>{$xsdmf.xsdmf_description}</i>
+		{/if}
+	</td>
+	<td bgcolor="{$value_color}">
+	   <textarea class="default" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]" rows="10" cols="60">{$details[$temp_fld_id]}</textarea>
+	   {include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}
+	   {if $xsd_display_fields[i].xsdmf_required == 1}
+        <script language="JavaScript">
+        <!--
+        xsd_display_fields[xsd_display_fields.length] = new Option('xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]{if $xsd_display_fields[i].xsdmf_multiple == 1}[]{/if}', '{$xsd_display_fields[i].xsdmf_title}');
+        required_xsd_display_fields[required_xsd_display_fields.length] = new Option('xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]{if $xsd_display_fields[i].xsdmf_multiple == 1}[]{/if}', 'whitespace');
+        //-->
+        </script>
+        {/if}
+    </td>
+	{include file='workflow/compare_records_helpers/get_right_column.tpl.html input_field_name="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}
+</tr>

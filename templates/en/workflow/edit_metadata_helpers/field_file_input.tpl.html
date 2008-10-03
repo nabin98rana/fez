@@ -1,8 +1,7 @@
-{if $xsdmf.xsdmf_enabled == 1}
-	<!-- File Input -->
-	{if $xsdmf.xsdmf_multiple == 1}
-		{section name="z" loop=$xsdmf.multiple_array}
-			{assign var="loop_num" value=$smarty.section.z.index}
+<!-- File Input -->
+{if $xsdmf.xsdmf_multiple == 1}
+{section name="z" loop=$xsdmf.multiple_array}
+{assign var="loop_num" value=$smarty.section.z.index}
 			<tr id="tr_xsd_display_fields_{$xsdmf.xsdmf_id}_{$loop_num}" {if $loop_num != 0 || $xsdmf.xsdmf_invisible == 1}style="display:none"{/if}>
 				<td width="200" bgcolor="{$cell_color}" class="default">
 					<b>{$xsdmf.xsdmf_title} {math equation='x + 1' x=$loop_num}</b>{if $xsdmf.xsdmf_required == 1} * {/if}<br />{if $loop_num == 0}<i>(More {$xsdmf.xsdmf_title} input boxes will appear as you type)</i>{/if}
@@ -48,8 +47,8 @@
 				</td>
 				{include file='workflow/compare_records_helpers/get_right_column.tpl.html input_field_name="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"][]"}
 			</tr>
-		{/section}
-	{else}
+{/section}
+{else}
 		<tr id="tr_xsd_display_fields_{$xsdmf.xsdmf_id}_0" {if $xsdmf.xsdmf_invisible == 1}style="display:none;"{/if}>
 			<td width="200" bgcolor="{$cell_color}" class="default">
 				<b>{$xsdmf.xsdmf_title}{if $xsdmf.xsdmf_required == 1} * {/if}</b>
@@ -77,7 +76,6 @@
 		            </script>
         		    {/if}
 			 </td>
-				  {include file='workflow/compare_records_helpers/get_right_column.tpl.html input_field_name="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"}
+			{include file='workflow/compare_records_helpers/get_right_column.tpl.html input_field_name="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"}
 		</tr>
-	{/if}
 {/if}

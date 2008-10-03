@@ -1,7 +1,6 @@
-{if  $xsdmf.xsdmf_enabled == 1}
 <!-- text field -->
-	{if $xsdmf.xsdmf_multiple == 1}
-     <!-- multiple -->
+{if $xsdmf.xsdmf_multiple == 1}
+<!-- multiple -->
 		{assign var="show_num" value=0}
 		{assign var="check_num" value=0}						
 		{foreach name="z" from=$xsdmf.multiple_array key='loop_num' item='mtext_item'}
@@ -12,12 +11,11 @@
 			{include file='workflow/edit_metadata_helpers/field_hidden_2.tpl.html'}
 			{assign var="show_num" value=$show_num+1}
 		{/foreach}
-	{else}
-		<!-- single -->
+{else}
+<!-- single -->
 		{assign var="loop_num" value=1}
 		{assign var="show_num" value=0}
 		{assign var="check_num" value=0}						
 		{assign var='squares' value=''}
 		{include file='workflow/edit_metadata_helpers/field_hidden_2.tpl.html'}
-	{/if}
 {/if}

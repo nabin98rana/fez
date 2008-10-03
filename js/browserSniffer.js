@@ -125,7 +125,7 @@ else if (is_nav6 || is_gecko) is_js = 1.5;
 // with > or >=.
 else if (is_nav6up) is_js = 1.5;
 // NOTE: ie5up on mac is 1.4
-else if (is_ie5up) is_js = 1.3
+else if (is_ie5up) is_js = 1.3;
 
 // HACK: no idea for other browsers; always check for JS version with > or >=
 else is_js = 0.0;

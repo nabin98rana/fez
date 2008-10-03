@@ -1,5 +1,4 @@
-            {if $xsdmf.xsdmf_enabled == 1}
-						<tr id="tr_xsd_display_fields_{$xsdmf.xsdmf_id}_0" {if $xsdmf.xsdmf_invisible == 1}style="display:none;"{/if}>
+<tr id="tr_xsd_display_fields_{$xsdmf.xsdmf_id}_0" {if $xsdmf.xsdmf_invisible == 1}style="display:none;"{/if}>
 						  <td width="200" bgcolor="{$cell_color}" class="default" valign="top">
 							<b>{$xsdmf.xsdmf_title} {if $xsdmf.xsdmf_required == 1} * {/if}</b>
 						  </td>
@@ -46,5 +45,5 @@
 						</table>
 						  </td>
 				  {include file='workflow/compare_records_helpers/get_right_column.tpl.html' input_field_name=$field_name}
-						 </tr>
-{/if}
+</tr>
+

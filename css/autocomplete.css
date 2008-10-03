@@ -22,13 +22,15 @@ version: 2.4.1
 }
 
 .yui-ac-content{
-    position:absolute;
-    width:100%;
     border:1px solid #808080;
     background:#fff;
-    overflow:hidden;
-    z-index:9050;
-
+    position:relative;
+    max-height:11em;
+    width: 250px;
+    overflow:auto;
+    overflow-x:hidden; /* scrolling */
+    _height:11em; /* ie6 */
+    z-index:9071;
     /* Custom size for auto-suggest control */
     font:13px/1.231 arial,helvetica,clean,sans-serif;
     *font-size:small;

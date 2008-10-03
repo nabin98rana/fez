@@ -9,9 +9,7 @@
 {if $cv_css != ""}
 <link rel="stylesheet" href="{$cv_css}" type="text/css" />
 {/if}
-<script language="JavaScript" type="text/javascript" src="{$rel_url}js/browserSniffer.js"></script>
-<script language="JavaScript" type="text/javascript" src="{$rel_url}js/global.js"></script>
-<script language="JavaScript" type="text/javascript" src="{$rel_url}js/validation.js"></script>
+<script type="text/javascript" src="{$rel_url}min.php/common.js"></script>
 {if $autosuggest == 1}
 <script language="JavaScript" type="text/javascript" src="{$rel_url}js/suggestions.js"></script>
 <script language="JavaScript" type="text/javascript" src="{$rel_url}js/autosuggest.js"></script>
@@ -41,6 +39,9 @@ window.onload = function () {
 	}
 }
 {/literal}
+rel_url = '{$rel_url}';
+cell_color = '{$cell_color}';
+value_color = '{$value_color}';
 -->
 </script>
 

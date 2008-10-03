@@ -125,7 +125,6 @@ $jtaskData = "";
 $maxG = 0;
 if ($dsID != "") {
 	$FezACML_xdis_id = XSD_Display::getID('FezACML for Datastreams');
-//	$xsd_display_fields = XSD_HTML_Match::getListByDisplay($FezACML_xdis_id);
 	$xsd_display_fields = $record->display->getMatchFieldsList(array(), array("FezACML for Datastreams"));  // Specify FezACML as the only display needed for security
 	$details = $record->getDetails($dsID, $FezACML_xdis_id);
 	$record->clearDetails();
@@ -134,7 +133,8 @@ if ($dsID != "") {
 	$details = $record->getDetails();
 }
 
-//@@@ CK - 26/4/2005 - fix the combo and multiple input box lookups - should probably move this into a function somewhere later
+//@@@ CK - 26/4/2005 - fix the combo and multiple input box lookups 
+// - should probably move this into a function somewhere later
 foreach ($xsd_display_fields  as $dis_key => $dis_field) {
 	if ($dis_field["xsdmf_html_input"] == 'combo' || $dis_field["xsdmf_html_input"] == 'multiple' || $dis_field["xsdmf_html_input"] == 'dual_multiple') {
 		if (!empty($dis_field["xsdmf_smarty_variable"]) && $dis_field["xsdmf_smarty_variable"] != "none") {
@@ -150,12 +150,10 @@ foreach ($xsd_display_fields  as $dis_key => $dis_field) {
 }
 
 $tpl->assign("xsd_display_fields", $xsd_display_fields);
-
 $tpl->assign("xdis_id", $xdis_id);
-//$details = $record->getDetails();
 
-//$controlled_vocabs = Controlled_Vocab::getAssocListAll();
-//@@@ CK - 26/4/2005 - fix the combo and multiple input box lookups - should probably move this into a function somewhere later
+//@@@ CK - 26/4/2005 - fix the combo and multiple input box lookups 
+// - should probably move this into a function somewhere later
 foreach ($xsd_display_fields  as $dis_field) {
 	if ($dis_field["xsdmf_html_input"] == 'combo' || $dis_field["xsdmf_html_input"] == 'dual_multiple' || $dis_field["xsdmf_html_input"] == 'multiple' || $dis_field["xsdmf_html_input"] == 'contvocab' || $dis_field["xsdmf_html_input"] == 'contvocab_selector') {
 		if (@$details[$dis_field["xsdmf_id"]]) { // if a record detail matches a display field xsdmf entry

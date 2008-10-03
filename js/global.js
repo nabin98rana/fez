@@ -1,3 +1,4 @@
+<!--
 var today = new Date();
 var expires = new Date(today.getTime() + (56 * 86400000));
 
@@ -21,7 +22,7 @@ function unhideRow(element_name, table_name)
 	// for each row in the set of elements (with _x suffix)
 	for(row = document.getElementById('tr_' + element_name + '_' + x);
 		row != null && row != false; 
-		row = document.getElementById('tr_' + element_name + '_' + ++x)) 
+		row = document.getElementById('tr_' + element_name + '_' +x )) 
 	{
 		var rowInput = document.getElementById(element_name + '_' + x);
 
@@ -35,6 +36,7 @@ function unhideRow(element_name, table_name)
 			firstHiddenRow = x;
 			break;
 		}
+		x++;
 	}
 
 	if (firstHiddenRow == 0 && emptyRowExists == 0) {
@@ -756,6 +758,10 @@ function swapTextBox(textbox, xsdmf_id, loopnum, direction)
     
     var curTextbox = document.getElementById(textbox + '_' + loopnum);
     var swapTextbox = document.getElementById(textbox + '_' + swapLoopNumId);
+    
+    if(curTextbox == null || swapTextbox == null)
+        return;
+    
     var tmpValue = curTextbox.value;
     
     curTextbox.value = swapTextbox.value;
@@ -782,3 +788,4 @@ function swapDropDownValues(dropDownOne, DropDownTwo)
     DropDownTwo.options[DropDownTwo.selectedIndex].text = tmpDropDownText;
     DropDownTwo.options[DropDownTwo.selectedIndex].value = tmpDropDownVal;
 }
+//-->

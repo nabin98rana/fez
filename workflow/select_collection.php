@@ -39,14 +39,11 @@ include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.misc.php");
-include_once(APP_INC_PATH . "class.setup.php");
 include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "class.community.php");
-include_once(APP_INC_PATH . "class.date.php");
 include_once(APP_INC_PATH . "class.doc_type_xsd.php");
 include_once(APP_INC_PATH . "class.workflow_trigger.php");
-include_once(APP_INC_PATH . "class.fedora_api.php");
 include_once(APP_INC_PATH . "class.xsd_html_match.php");
 include_once(APP_INC_PATH . "najax/najax.php");
 include_once(APP_INC_PATH . "najax_objects/class.select_collection.php");
@@ -66,10 +63,10 @@ $tpl->assign("type_name", "Select Collection");
 $wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
 
 $wfstatus->setTemplateVars($tpl);
-$cat = Misc::GETorPOST('cat');
+$cat = $_REQUEST['cat'];
 if ($cat == 'submit') {
-    $wfstatus->pid = Misc::GETorPOST('collection_pid');
-    $wfstatus->parent_pid = Misc::GETorPOST('community_pid');
+    $wfstatus->pid = $_REQUEST['collection_pid'];
+    $wfstatus->parent_pid = $_REQUEST['community_pid'];
 }
 $wfstatus->checkStateChange();
 

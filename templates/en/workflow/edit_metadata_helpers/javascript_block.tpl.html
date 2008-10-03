@@ -1,40 +1,13 @@
 <script language="JavaScript">
 <!--
 {literal}
-function deleteDatastream(ds_id)
-{
-    if (!confirm('This action will delete the selected datastream.')) {
-        return false;
-    } else {
-        var features = 'width=420,height=200,top=30,left=30,resizable=yes,scrollbars=yes,toolbar=no,location=no,menubar=no,status=no';
-        {/literal}
-        var popupWin = window.open('{$rel_url}popup.php?cat=delete_datastream&pid={$pid}&dsID=' + ds_id, '_popup', features);
-        {literal}
-        popupWin.focus();
-    }
-}
-function purgeDatastream(ds_id)
-{
-    if (!confirm('This action will permanently delete the selected datastream.')) {
-        return false;
-    } else {
-        var features = 'width=420,height=200,top=30,left=30,resizable=yes,scrollbars=yes,toolbar=no,location=no,menubar=no,status=no';
-        {/literal}
-        var popupWin = window.open('{$rel_url}popup.php?cat=purge_datastream&pid={$pid}&dsID=' + ds_id, '_popup', features);
-        {literal}
-        popupWin.focus();
-    }
-}
-var required_xsd_display_fields = new Array();
-var xsd_display_fields = new Array();
-
 // ------------------------------------------------------------------------------------------------------------
 // Validation - check each XSDMF for the validation setting and generate javascript to check it
 
 function validateForm() {
 {/literal}
 {section name="i" loop=$xsd_display_fields}
-{if ($xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector' || $xsd_display_fields[i].xsdmf_html_input == 'dual_multiple') && $xsd_display_fields[i].xsdmf_enabled == 1}
+{if ($xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector' || $xsd_display_fields[i].xsdmf_html_input == 'dual_multiple')}
 	// The controlled vocabulary selector and dual multiple controls should select all the fields in the multiple combo box so that they will
 	// be included in the form submission.
 	var field = document.wfl_form1.xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0;
@@ -43,8 +16,7 @@ function validateForm() {
         field.options[y].selected = true;
     }
 	{/literal}
-{elseif $xsd_display_fields[i].xsdmf_enabled == 1 
-		&& $xsd_display_fields[i].xsdmf_html_input == 'text'
+{elseif $xsd_display_fields[i].xsdmf_html_input == 'text'
 		&& $xsd_display_fields[i].xsdmf_validation_type != '' 
 		&& $xsd_display_fields[i].xsdmf_validation_type != 'none'}
 	{if $xsd_display_fields[i].xsdmf_multiple == 1}
@@ -82,18 +54,13 @@ checkRequiredFields(document.wfl_form1, required_xsd_display_fields);
 
 // ---------------------------------------------------------------------------------------------
 // Generate helper functions for some dynamic controls
-
 {/literal}
 {section name="i" loop=$xsd_display_fields}
-
-	{if $xsd_display_fields[i].xsdmf_html_input == 'date' && $xsd_display_fields[i].xsdmf_enabled == 1}
-
+{if $xsd_display_fields[i].xsdmf_html_input == 'date' && $xsd_display_fields[i].xsdmf_enabled == 1}
 // Calendar control
 function calendarCallback_xsd_display_fields{$xsd_display_fields[i].xsdmf_id}(day, month, year) {ldelim} selectDateField('xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]', day, month, year); {rdelim}
 function calendarCallback_xsd_display_fields_end{$xsd_display_fields[i].xsdmf_id}(day, month, year) {ldelim} selectDateField('xsd_display_fields_end[{$xsd_display_fields[i].xsdmf_id}]', day, month, year); {rdelim}
-
 	{elseif $xsd_display_fields[i].xsdmf_html_input == 'org_selector' && $xsd_display_fields[i].xsdmf_use_org_to_fill == 1}
-
 // Organisation selector
 var dt_load_state_{$xsd_display_fields[i].xsdmf_id} = 0;
 function showLoading_{$xsd_display_fields[i].xsdmf_id}()
@@ -122,7 +89,6 @@ function selectOrgStructure_{$xsd_display_fields[i].xsdmf_id}(f, field_name)
 	if (selections.length > 0) {
 		{/literal}
 		dt_load_state_{$xsd_display_fields[i].xsdmf_id}++;
-//		document.getElementById('tr_org_id').style.display = '';
 		showLoading_{$xsd_display_fields[i].xsdmf_id}();
 		var obj = new SelectOrgStructure();
 		{literal}
@@ -152,55 +118,10 @@ function selectOrgStructure_{$xsd_display_fields[i].xsdmf_id}(f, field_name)
 			dt_load_state_{$xsd_display_fields[i].xsdmf_id}--;
 			{literal}	
 		}
-
 	}
 }		
 {/literal}
 {/if}
 {/section}
-{literal}
-
-function toggleDateFields(f, field_name)
-{
-    var checkbox = getFormElement(f, 'filter[' + field_name + ']');
-    var filter_type = getFormElement(f, field_name + '[filter_type]');
-    var month_field = getFormElement(f, field_name + '[Month]');
-    var day_field = getFormElement(f, field_name + '[Day]');
-    var year_field = getFormElement(f, field_name + '[Year]');
-    var month_end_field = getFormElement(f, field_name + '_end[Month]');
-    var day_end_field = getFormElement(f, field_name + '_end[Day]');
-    var year_end_field = getFormElement(f, field_name + '_end[Year]');
-    if (checkbox.checked) {
-        var bool = false;
-    } else {
-        var bool = true;
-    }
-    filter_type.disabled = bool;
-    month_field.disabled = bool;
-    day_field.disabled = bool;
-    year_field.disabled = bool;
-    month_end_field.disabled = bool;
-    day_end_field.disabled = bool;
-    year_end_field.disabled = bool;
-}
-
-function selectDateOptions(field_prefix, date_str)
-{
-    if (date_str.length != 10) {
-        return false;
-    } else {
-        var year = date_str.substring(0, date_str.indexOf('-'));
-        var month = date_str.substring(date_str.indexOf('-')+1, date_str.lastIndexOf('-'));
-        var day = date_str.substring(date_str.lastIndexOf('-')+1);
-        selectDateField(field_prefix, day, month, year);
-    }
-}
-function selectDateField(field_name, day, month, year)
-{
-    selectOption(this.document.wfl_form1, field_name + '[Day]', day);
-    selectOption(this.document.wfl_form1, field_name + '[Month]', month);
-    selectOption(this.document.wfl_form1, field_name + '[Year]', year);
-}
-{/literal}
 //-->
 </script>

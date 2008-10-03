@@ -42,6 +42,7 @@
     
      function setTemplateVars($tpl, $record)
      {
+     	
         $pid = $record->pid;
         $sta_id = $record->getPublishedStatus();
         if (!$sta_id) {
@@ -50,25 +51,62 @@
         $tpl->assign('sta_id', $sta_id); 
         
         $parents = $record->getParents();
+        
 		$tpl->assign("parents", $parents);
         $tpl->assign("pid", $pid);
 		$this->default_depositor_org_id = 0;
+		
         $xsd_display_fields = $record->display->getMatchFieldsList(array("FezACML"), array(""));  // XSD_DisplayObject
-        $this->fixDisplayFields($xsd_display_fields, $record);
-        $this->xsd_display_fields = $xsd_display_fields;
-    
-        $tpl->assign("xsd_display_fields", $xsd_display_fields);
+        
+        $xsdmf_to_use = array();
+        $xsdmf_state = array();
+        
+        foreach ($xsd_display_fields as $xsdmf) {
+            
+        	/*
+        	 * Get the xsdmf fields we're going to display
+        	 */
+        	if(($xsdmf['xsdmf_html_input'] != '' && $xsdmf['xsdmf_enabled'] == 1)) {
+            	
+            	if($xsdmf['xsdmf_html_input'] != 'static' ) {
+            		
+	                $xsdmf_to_use[] = $xsdmf;
+            		
+            	} elseif($xsdmf['xsdmf_html_input'] == 'static' 
+		            	   && $xsdmf['xsdmf_show_in_view'] == 1
+		            	   && $xsdmf['xsdmf_static_text'] != '') {
+		            	   	
+                    $xsdmf_to_use[] = $xsdmf;
+            	}
+            	
+            } elseif($xsdmf['xsdmf_title'] == 'state') {
+                $xsdmf_state[] = $xsdmf;
+            }
+            
+        }
+        
+        $this->fixDisplayFields($xsdmf_to_use, $record);
+        $this->xsd_display_fields = $xsdmf_to_use;
     
         $tpl->assign("xdis_id", $record->getXmlDisplayId());
-    
+        
         $details = $record->getDetails();
         $this->fixDetails($details);
         $this->details = $details;
         
+        foreach ($xsdmf_to_use as &$xsdmf) {
+        	
+            if( $xsdmf['xsdmf_multiple'] == 1 ) {
+                $xsdmf['fields_num_display'] = count(array_filter($details[$xsdmf['xsdmf_id']])) + 1;
+            }
+        }
         
-        $tpl->assign("parents", $parents);
+        $tpl->assign("xsd_display_fields",  $xsdmf_to_use);
+        $tpl->assign("xsdmf_states",        $xsdmf_state);
+        $tpl->assign("parents",             $parents);
         $title = $record->getTitle(); // RecordObject
         $tpl->assign("title", $title);
+        
         if ($record->isCollection()) {
             $tpl->assign('record_type', 'Collection');
             $tpl->assign('parent_type', 'Community');
@@ -81,19 +119,16 @@
             $tpl->assign('parent_type', 'Collection');
             $tpl->assign('view_href', APP_RELATIVE_URL."view/$pid");
         }
-    //  print_r($details);
-    //    print_r($datastreams);
+        
         $tpl->assign("eserv_url", APP_BASE_URL."eserv/".$pid."/");
         $tpl->assign("local_eserv_url", APP_RELATIVE_URL."eserv/".$pid."/");
-        $tpl->assign('triggers', count(WorkflowTrigger::getList($pid)));
         $tpl->assign("ds_get_path", APP_FEDORA_GET_URL."/".$pid."/");
         $tpl->assign("isEditor", 1);
         $tpl->assign("default_depositor_org_id", $this->default_depositor_org_id); // a flag to set to 1 later if the edit forms default depositor org id combo box was set due to it being empty - so need to show a "not saved message next to the control"
         $tpl->assign("details", $details);
         $tpl->registerNajax( NAJAX_Client::register('SelectOrgStructure', 'edit_metadata.php')."\n"
                         .NAJAX_Client::register('Suggestor', 'edit_metadata.php'));
-
-		Auth::checkAuthentication(APP_SESSION);
+        
 		$isAdministrator = User::isUserAdministrator(Auth::getUsername());
              
 		$show_delete = false;
@@ -185,11 +220,10 @@
             array_push($parent_relationship, $parent_xdis_id);
             $parent_relationships = Misc::array_merge_values($parent_relationships, $parent_relationship);
         }
-
         
-        //@@@ CK - 26/4/2005 - fix the combo and multiple input box lookups - should probably move this into a function somewhere later
+        //@@@ CK - 26/4/2005 - fix the combo and multiple input box lookups 
+        // - should probably move this into a function somewhere later
         foreach ($xsd_display_fields  as $dis_key => $dis_field) {
-//            if ($dis_field["xsdmf_enabled"] == 1) {
                if ($dis_field["xsdmf_html_input"] == 'depositor_org') {
 					$xsd_display_fields[$dis_key]['field_options'] = Org_Structure::getAssocListHR();
 			   }
@@ -227,10 +261,15 @@
                         	. $dis_field["xsdmf_dynamic_selected_option"] . ";");
                     }
         
-                    if ($dis_field["xsdmf_use_parent_option_list"] == 1) { // if the display field inherits this list from a parent then get those options
+                    // if the display field inherits this list from a 
+                    // parent then get those options
+                    if ($dis_field["xsdmf_use_parent_option_list"] == 1) { 
                         // Loop through the parents
                         if (in_array($dis_field["xsdmf_parent_option_xdis_id"], $parent_relationships)) {
-                            $parent_details = $parent_record->getDetails(); // this only works for one parent for now.. need to loop over them again
+                        	
+                        	// this only works for one parent for now.. 
+                        	// need to loop over them again
+                            $parent_details = $parent_record->getDetails();
                             if (is_array($parent_details[$dis_field["xsdmf_parent_option_child_xsdmf_id"]])) {
                                 $xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($dis_field["xsdmf_parent_option_child_xsdmf_id"]);
                                 if ($xsdmf_details['xsdmf_smarty_variable'] != "" && ($xsdmf_details['xsdmf_html_input'] == "multiple" || $xsdmf_details['xsdmf_html_input'] == "dual_multiple")) {
@@ -254,12 +293,7 @@
                                 }
                             }
                         }
-                    }   
-//                }   
-    /*          if (($dis_field["xsdmf_html_input"] == 'contvocab')) {
-                    $xsd_display_fields[$dis_key]['field_options'] = $cvo_list['data'][$dis_field['xsdmf_cvo_id']];
-                } */
-                
+                    }
             }
         }
     }
@@ -269,7 +303,8 @@
         $xsd_display_fields = $this->xsd_display_fields;
         foreach ($xsd_display_fields  as $dis_field) {
             if ($dis_field["xsdmf_enabled"] == 1) {
-                if ($dis_field["xsdmf_html_input"] == 'text' || $dis_field["xsdmf_html_input"] == 'textarea' || $dis_field["xsdmf_html_input"] == 'hidden') {
+                
+            	if ($dis_field["xsdmf_html_input"] == 'text' || $dis_field["xsdmf_html_input"] == 'textarea' || $dis_field["xsdmf_html_input"] == 'hidden') {
                     if (is_array($details[$dis_field['xsdmf_id']])) {
                         foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
                             $details[$dis_field['xsdmf_id']][$ckey] = preg_replace('/\s\s+/', ' ', trim($cdata));
@@ -278,6 +313,7 @@
                         $details[$dis_field['xsdmf_id']] = preg_replace('/\s\s+/', ' ', trim($details[$dis_field['xsdmf_id']]));
                     }               
                 }
+                
 				// for the depositor org affilation control, check if it is empty then suggest a default if possible
                 if ($dis_field["xsdmf_html_input"] == 'depositor_org') {
 					$tempValue = $details[$dis_field["xsdmf_id"]];
@@ -287,6 +323,7 @@
 						$this->default_depositor_org_id = 1; // will show a message on the form warning this was set from default lookup and needs saving to take affect
 					}
 				} 
+				
                 if ($dis_field["xsdmf_html_input"] == 'combo' || $dis_field["xsdmf_html_input"] == 'dual_multiple' || $dis_field["xsdmf_html_input"] == 'multiple' || $dis_field["xsdmf_html_input"] == 'contvocab' || $dis_field["xsdmf_html_input"] == 'contvocab_selector') {
                     if (@$details[$dis_field["xsdmf_id"]]) { // if a record detail matches a display field xsdmf entry
                         if (($dis_field["xsdmf_html_input"] == 'contvocab_selector') && ($dis_field['xsdmf_cvo_save_type'] != 1)) {         
@@ -332,6 +369,7 @@
                             }
                         }
                     }
+
 				} elseif ($dis_field["xsdmf_html_input"] == 'author_suggestor') { // fix author id drop down combo if attached
 					if (is_array($details[$dis_field['xsdmf_id']])) {
 						$temp_author_id = $details[$dis_field['xsdmf_id']];
@@ -347,6 +385,7 @@
 					    }
 					} else {
 						$temp_author_id = $details[$dis_field['xsdmf_id']];
+
 						if (!is_array($details[$dis_field['xsdmf_id']."_author_details"])) {
 							$details[$dis_field['xsdmf_id']."_author_details"] = array();
 						}
@@ -355,6 +394,7 @@
 						} else {
 							$details[$dis_field['xsdmf_id']."_author_details"][] = array();							
 						}
+
 					} 
                 } elseif ($dis_field['xsdmf_html_input'] == "xsdmf_id_ref") {
                     $xsdmf_details_ref = XSD_HTML_Match::getDetailsByXSDMF_ID($dis_field['xsdmf_id_ref']);
@@ -367,7 +407,6 @@
                                     if (!empty($cdata)) {
                                         $details[$xsdmf_id_ref][$cdata] = Controlled_Vocab::getTitle($cdata);
                                     }
-        //                                      $details[$xsdmf_id_ref][$ckey] = "<a class='silent_link' href='".APP_BASE_URL."list.php?browse=subject&parent_id=".$cdata."'>".$controlled_vocabs[$cdata]."</a>";
                                 }
                             } elseif (!empty($details[$dis_field['xsdmf_id']])) {
                                 $details[$xsdmf_id_ref][$details[$dis_field['xsdmf_id']]] = Controlled_Vocab::getTitle($details[$dis_field['xsdmf_id']]);
@@ -380,6 +419,7 @@
                     $details[$dis_field["xsdmf_id"]] = array($details[$dis_field["xsdmf_id"]]);
                 }
             }
+            
 			// handle attached fields on multiple things
         	if (is_numeric($dis_field["xsdmf_attached_xsdmf_id"]) && $dis_field["xsdmf_multiple"] == 1) {
         		if (!empty($details[$dis_field["xsdmf_attached_xsdmf_id"]]) 

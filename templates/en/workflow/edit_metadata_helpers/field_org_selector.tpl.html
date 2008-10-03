@@ -17,22 +17,15 @@
 					{html_options options=$xsdmf.field_options selected=$details[$temp_fld_id]}
 			</select>
 			{include file="error_icon.tpl.html" field=$field_name}
-			{if $xsdmf.xsdmf_use_org_to_fill == 1}
-				<script language="JavaScript">
-				<!--
-				// selectOrgStructure_{$xsdmf.xsdmf_id}(document.wfl_form1, 'xsdmf_display_fields_{$xsdmf.xsdmf_id}_0'); 	
-				//-->
-				</script>
-			{/if}
-					{if $xsdmf.xsdmf_required == 1}
-        		    <script language="JavaScript">
-			        <!--
-        		    xsd_display_fields[xsd_display_fields.length] = new Option('xsd_display_fields[{$xsdmf.xsdmf_id}]{if $xsdmf.xsdmf_multiple == 1}[]{/if}', '{$xsdmf.xsdmf_title}');
-		            required_xsd_display_fields[required_xsd_display_fields.length] = new Option('xsd_display_fields[{$xsdmf.xsdmf_id}]{if $xsdmf.xsdmf_multiple == 1}[]{/if}', {if $xsdmf.xsdmf_multiple == 1}'multiple'{else}'combo'{/if});
-        		    //-->
-		            </script>
-        		    {/if}
+			{if $xsdmf.xsdmf_required == 1}
+      		<script language="JavaScript">
+	        <!--
+      		xsd_display_fields[xsd_display_fields.length] = new Option('xsd_display_fields[{$xsdmf.xsdmf_id}]{if $xsdmf.xsdmf_multiple == 1}[]{/if}', '{$xsdmf.xsdmf_title}');
+            required_xsd_display_fields[required_xsd_display_fields.length] = new Option('xsd_display_fields[{$xsdmf.xsdmf_id}]{if $xsdmf.xsdmf_multiple == 1}[]{/if}', {if $xsdmf.xsdmf_multiple == 1}'multiple'{else}'combo'{/if});
+      		//-->
+            </script>
+        	{/if}
 		</td>
-				  {include file='workflow/compare_records_helpers/get_right_column.tpl.html input_field_name=$field_name}
+		{include file='workflow/compare_records_helpers/get_right_column.tpl.html input_field_name=$field_name}
 	</tr>
 {/if}

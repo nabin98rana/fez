@@ -1666,6 +1666,10 @@ YAHOO.widget.AutoComplete.prototype._updateValue = function(oItem) {
     if( this.selectBox ) {
         this.addMulti(oTextbox.value, this.selectBox, oItem._dbID, oItem._username);
     }
+    
+    if( this.textBoxCopy && this.textBoxCopy.onchange ) {
+        this.textBoxCopy.onchange();
+    }
 
     this._oCurItem = oItem;
 };
