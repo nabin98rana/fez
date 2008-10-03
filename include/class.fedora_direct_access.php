@@ -75,7 +75,7 @@ class Fedora_Direct_Access {
         $terms = Misc::escapeString(str_replace("*", "", $terms));  // Get the search terms ready for SQLage.
 		$state_sql = "";
 		if ($object_state != "") {			
-			$state_sql = " AND objectState = '".$object_state."'";
+			$state_sql = " AND doState = '".$object_state."'";
 		}
         $result = $GLOBALS['db_api']->dbh_fda->getAll("SELECT doregistry.dopid AS pid, label AS title, doState FROM doregistry, dobj WHERE doregistry.doPID = dobj.doPID AND (doregistry.dopid LIKE '%" . $terms . "%' OR label LIKE '%" . $terms . "%') ".$state_sql, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($result)) {
