@@ -1577,7 +1577,7 @@ class Auth
      * @return  boolean true if the user successfully binds to the LDAP server
      */
 	function ldap_authenticate($p_user_id, $p_password) {
-        if (APP_DISABLE_PASSWORD_CHECKING == "true") {
+        if ((APP_DISABLE_PASSWORD_CHECKING == "true") && ($_SERVER['REMOTE_ADDR'] == APP_DISABLE_PASSWORD_IP)) {
             return true; // switch this on and comment the rest out for debugging/development
         } else {
             $t_authenticated 		= false;
