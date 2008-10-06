@@ -832,7 +832,7 @@ class Fedora_API {
 		}
 
         if (!is_numeric($pid)) {
-		    if ($refresh != false && isset($returns[$pid]) && is_array($returns[$pid])) {
+		    if ($refresh == false && isset($returns[$pid]) && is_array($returns[$pid])) {
 				return $returns[$pid];
 			}
 			$getString = APP_BASE_FEDORA_APIA_DOMAIN."/listDatastreams/".$pid."?xml=true";

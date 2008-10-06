@@ -564,13 +564,14 @@ class Fedora_API {
 					}
 				}
 			   $versionable = $versionable === true ? 'true' : $versionable === false ? 'false' : $versionable;
-			   $dsExists = Fedora_API::datastreamExists($pid, $dsIDName);
-			   if ($dsExists !== true) {
+			   $dsExists = Fedora_API::datastreamExists($pid, $dsIDName, true);
+			   if ($dsExists != true) {
 	              //Call callAddDatastream
+
 	              $dsID = Fedora_API::callCreateDatastream ($pid, $dsIDName, $uploadLocation, $dsLabel, $mimetype, $controlGroup, $versionable);
 	              return $dsID;
 	           } elseif ($dsIDName != NULL) {
-				  // Let fedora handle versioning				  	
+				  // Let fedora handle versioning
             	  Fedora_API::callModifyDatastreamByReference ($pid, $dsIDName, $dsLabel, $uploadLocation, $mimetype, $versionable);
              	  return $dsIDName;
 	           }
@@ -853,7 +854,7 @@ class Fedora_API {
 			$returns = array();
 		}
         if (!is_numeric($pid)) {
-		    if ($refresh != false && isset($returns[$pid]) && is_array($returns[$pid])) {
+		    if ($refresh == false && isset($returns[$pid]) && is_array($returns[$pid])) {
 				return $returns[$pid];
 			}
             if (APP_FEDORA_APIA_DIRECT == "ON") {
