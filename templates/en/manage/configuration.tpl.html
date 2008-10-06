@@ -28,6 +28,7 @@ function hideAllSubPages()
 	document.getElementById('solr').style.display = "none";
 	document.getElementById('origami').style.display = "none";
 	document.getElementById('exiftool').style.display = "none";
+	document.getElementById('handle').style.display = "none";
 	document.getElementById('versioning').style.display = "none";
 }
 
@@ -120,6 +121,7 @@ function restoreDefaultColours(el)
 		  <a href="#" onclick="javascript:showSubPage('themes');">Themes &amp; Appearance</a><br />
 		  <a href="#" onclick="javascript:showSubPage('solr');">Solr Settings</a><br />
 		  <a href="#" onclick="javascript:showSubPage('exiftool');">Exiftool Settings</a><br />
+		  <a href="#" onclick="javascript:showSubPage('handle');">Handle Settings</a><br />
 		</td>
 	    <td>
 		  <a href="#" onclick="javascript:showSubPage('webstats');">Web Statistics</a><br />
@@ -1255,6 +1257,68 @@ function restoreDefaultColours(el)
 			<td class="coldetail">
 			  <input type="text" name="app_exiftool_cmd" value="{$config_settings.app_exiftool_cmd|escape:"html"}" size="50" />
 			  {include file="error_icon.tpl.html" field="app_exiftool_cmd"}
+			</td>
+  		  </tr>
+		</table>
+		</div>
+
+
+		<div id="handle" style="display: none;">
+		<table width="100%" class="config-group">
+		  <tr>
+			<td colspan="2">
+			  <h2>Handle Settings</h2>
+		      <p>To turn this feature off, select &quot;disabled&quot;. All other settings will be preserved.</p>
+			</td>
+  		  </tr>
+		  <tr>
+			<td colspan="2">
+			  <input type="radio" name="app_handle" value="ON" {if $config_settings.app_handle == "ON"}checked{/if}/> Enabled &nbsp; 
+			  <input type="radio" name="app_handle" value="OFF" {if $config_settings.app_handle == "OFF"}checked{/if}/> Disabled
+			</td>
+  		  </tr>
+		  <tr>
+		    <td class="colname">JAHDL Path</td>
+			<td class="coldetail">
+			  <input type="text" name="app_jahdl_dir" value="{$config_settings.app_jahdl_dir|escape:"html"}" size="50" />
+			  <br />You must include a trailing slash.
+			  {include file="error_icon.tpl.html" field="app_jahdl_dir"}
+			</td>
+  		  </tr>
+		  <tr>
+		    <td class="colname">Hande admin private key file</td>
+			<td class="coldetail">
+			  <input type="text" name="handle_admpriv_key_file" value="{$config_settings.handle_admpriv_key_file|escape:"html"}" size="50" />
+			  {include file="error_icon.tpl.html" field="handle_admpriv_key_file"}
+			</td>
+  		  </tr>
+		  <tr>
+		    <td class="colname">Handle admin private key passphrase</td>
+			<td class="coldetail">
+			  <input type="text" name="handle_admpriv_key_passphrase" value="{$config_settings.handle_admpriv_key_passphrase|escape:"html"}" size="50" />
+			  {include file="error_icon.tpl.html" field="handle_admpriv_key_passphrase"}
+			</td>
+  		  </tr>
+		  <tr>
+		    <td class="colname">Handle naming authority prefix</td>
+			<td class="coldetail">
+			  <input type="text" name="handle_naming_authority_prefix" value="{$config_settings.handle_naming_authority_prefix|escape:"html"}" size="50" />
+			  {include file="error_icon.tpl.html" field="handle_naming_authority_prefix"}
+			</td>
+  		  </tr>
+		  <tr>
+		    <td class="colname">Handle naming authority prefix derivative</td>
+			<td class="coldetail">
+			  <input type="text" name="handle_na_prefix_derivative" value="{$config_settings.handle_na_prefix_derivative|escape:"html"}" size="50" />
+			  <br />Can be a real handle derivative (i.e. &quot;.01&quot;) or a pseudo-derivative (i.e. &quot;/01&quot;).
+			  {include file="error_icon.tpl.html" field="handle_na_prefix_derivative"}
+			</td>
+  		  </tr>
+		  <tr>
+		    <td class="colname">Handle resolver URL</td>
+			<td class="coldetail">
+			  <input type="text" name="handle_resolver_url" value="{$config_settings.handle_resolver_url|escape:"html"}" size="50" />
+			  {include file="error_icon.tpl.html" field="handle_resolver_url"}
 			</td>
   		  </tr>
 		</table>

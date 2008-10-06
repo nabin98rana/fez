@@ -70,9 +70,10 @@ class Default_Data
 			$defaultData['app_ffmpeg_cmd']					= "C:/ffmpeg/ffmpeg.exe";
 			$defaultData['app_duplicates_reports_location']	= "C:/temp/fez_duplicates_reports/";
 	        $defaultData['app_exiftool_cmd']                = "C:/exiftool/exiftool.exe";
+			$defaultData['app_jahdl_dir']                   = "C:/PROGRA~1/jahdl/";
+			$defaultData['handle_admpriv_key_file']         = "C:/path_to_file/admpriv.bin";
         } else {
             // Unix
-        	$defaultData['app_exiftool_cmd']                    = "/usr/bin/exiftool";
             $defaultData['webserver_log_dir']               = "/usr/local/apache/logs/";
             $defaultData['webserver_log_file']              = "access_log";
             $defaultData['app_geoip_path']                  = "/usr/local/share/geoip/";
@@ -88,6 +89,9 @@ class Default_Data
             $defaultData['app_san_import_dir']              = "/fez/incoming/";
 			$defaultData['app_ffmpeg_cmd']					= "/usr/bin/ffmpeg";
 			$defaultData['app_duplicates_reports_location']	= "/usr/local/fez_duplicates_reports/";
+			$defaultData['app_exiftool_cmd']                = "/usr/bin/exiftool";
+			$defaultData['app_jahdl_dir']                   = "/usr/local/jahdl/";
+			$defaultData['handle_admpriv_key_file']         = "/usr/local/handle/data/admpriv.bin";
         }   // Can add some other defaults here for other common OS setups
 
         $defaultData['datamodel_version']                   = "2007111201";                 // Change this to last upgrade + 1
@@ -196,6 +200,12 @@ class Default_Data
 		$defaultData['app_version_time_interval']	        = "30";
 		$defaultData['app_filecache_dir']                   = "";
         $defaultData['app_filecache']                       = "OFF";
+		$defaultData['app_handle']                          = "OFF";
+		$defaultData['handle_admpriv_key_passphrase']       = "none";
+		$defaultData['handle_naming_authority_prefix']      = "";
+		$defaultData['handle_na_prefix_derivative']         = "";
+		$defaultData['handle_resolver_url']                 = "http://resolver.net.au/hdl/";
+		$defaultData['show_record_link_as_handle']          = "";
 
         return $defaultData;
 
