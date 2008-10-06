@@ -97,6 +97,7 @@ switch ($cat)
 	            if (Fedora_API::datastreamExists($pid, $PresMD_DS)) {
 	                Fedora_API::callPurgeDatastream($pid, $PresMD_DS);
 				}
+				Record::setIndexMatchingFields($pid);
 	            if (count($res) == 1) { $res = 1; } else { $res = -1; }
 	            $tpl->assign("purge_datastream_result", $res);
 			} else {
@@ -135,6 +136,7 @@ switch ($cat)
 	            if (Fedora_API::datastreamExists($pid, $PresMD_DS)) {
 	                Fedora_API::deleteDatastream($pid, $PresMD_DS);
 				}
+				Record::setIndexMatchingFields($pid);
 	            if (count($res) == 1) { $res = 1; } else { $res = -1; }
 	            $tpl->assign("delete_datastream_result", $res);
 			} else {
