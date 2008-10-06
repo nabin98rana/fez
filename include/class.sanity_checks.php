@@ -34,8 +34,9 @@
 
 include_once(APP_INC_PATH.'class.bgp_test.php');
 include_once(APP_INC_PATH.'class.search_key.php');
-include_once(APP_INC_PATH. 'class.graphviz.php');
-include_once(APP_INC_PATH . "class.fedora_direct_access.php");
+include_once(APP_INC_PATH.'class.graphviz.php');
+include_once(APP_INC_PATH.'class.fedora_direct_access.php');
+include_once(APP_INC_PATH.'class.handle_requestor.php');
 
  class ConfigResult
  {
@@ -111,6 +112,7 @@ include_once(APP_INC_PATH . "class.fedora_direct_access.php");
         $results = array_merge($results, SanityChecks::pdftotext());
         $results = array_merge($results, SanityChecks::stats()); 
         $results = array_merge($results, SanityChecks::checkSearchKeys());
+		$results = array_merge($results, SanityChecks::handle());
         if (SanityChecks::resultsClean($results)) {
             $results[] = ConfigResult::messageOk('All tests Passed');
         }
@@ -785,6 +787,47 @@ include_once(APP_INC_PATH . "class.fedora_direct_access.php");
         return $results;
     }
 
+
+
+    function handle()
+    {
+        $results = array(ConfigResult::message('Testing Handle/JAHDL'));
+        if ( APP_HANDLE == "ON" ) {
+            if ( HANDLE_NAMING_AUTHORITY_PREFIX > 0 ) {
+                $handleNamespace = HANDLE_NAMING_AUTHORITY_PREFIX . HANDLE_NA_PREFIX_DERIVATIVE ;
+                $createHandleRequestor = new HandleRequestor( $handleNamespace );
+                if ( ! $createHandleRequestor->isJAHDLPresent() ) {
+                    $results[] = new ConfigResult('JAHDL: ', 'app_jahdl_dir', APP_JAHDL_DIR, '.  (Problem with JAHDL setup.)');
+                    return $results;
+                }
+                $createHandleRequestor->addCreateHandleRequest("feztestpid", "http://" . APP_HOSTNAME . APP_RELATIVE_URL . "view/" . APP_PID_NAMESPACE . ":feztestpid");
+                if (! $createHandleRequestor->processHandleRequests() ) {
+                    $results[] = new ConfigResult('Handle: ', 'processHandleRequests', "false", '.  (Problem processing Create Handle request.)');
+                }
+
+                //If this test was really rigorous it would test to see if the handle now resolves to the URL however if it didn't
+                //work error messages would be reported anyway.
+
+                //Need to use a new handle because the same handle is now being deleted.
+                $deleteHandleRequestor = new HandleRequestor( $handleNamespace );
+                $deleteHandleRequestor->addDeleteHandleRequest("feztestpid");
+                if (! $deleteHandleRequestor->processHandleRequests() ) {
+                    $results[] = new ConfigResult('Handle: ', 'processHandleRequests', "false", '.  (Problem processing Delete Handle request.)');
+                }
+
+            } else {
+                $results[] = new ConfigResult('Handle: ', 'handle_naming_authority_prefix', 'null', '.  (Fez config handle_naming_authority_prefix is probably not set.)');
+                return $results;
+            }
+
+            if (SanityChecks::resultsClean($results)) {
+              $results[] = ConfigResult::messageOk('All Handle/JAHDL tests passed');
+            }
+            return $results;
+        } else {
+            return array();
+        }
+    }
 
 
 

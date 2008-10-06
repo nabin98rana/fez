@@ -68,6 +68,7 @@ include_once(APP_INC_PATH . "class.record_lock.php");
 include_once(APP_INC_PATH . "class.fulltext_queue.php");
 include_once(APP_INC_PATH . "class.exiftool.php");
 include_once(APP_INC_PATH . "class.filecache.php");
+include_once(APP_INC_PATH . "class.handle_requestor.php");
 
 define('SK_JOIN',           0);
 define('SK_LEFT_JOIN',      1);
@@ -3833,15 +3834,16 @@ class RecordGeneral
      *
      * @param string $xsdmf_element - The path to the XML element in a datastream.
      *      Use XSD_HTML_Match::escapeXPath to convert an xpath - /oai_dc:dc/dc:title to an xsdmf_element string !dc:title
+     * @param string $xsdmf_title - option field to use when xsdmf_element is ambiguous
      * @returns mixed - Array of values or single value for each element match in XML tree
      */
-    function getDetailsByXSDMF_element($xsdmf_element)
+    function getDetailsByXSDMF_element($xsdmf_element, $xsdmf_title="")
     {
         $this->getDetails();
 
         $this->getXmlDisplayId();
         if (!empty($this->xdis_id)) {
-          $xsdmf_id = $this->display->xsd_html_match->getXSDMF_IDByXDIS_ID($xsdmf_element);
+          $xsdmf_id = $this->display->xsd_html_match->getXSDMF_IDByXDIS_ID($xsdmf_element, $xsdmf_title);
         return @$this->details[$xsdmf_id];
         } else {
             // if it has no xdis id (display id) log an error and return a null

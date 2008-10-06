@@ -2962,13 +2962,19 @@ class XSD_HTML_MatchObject {
 
 	/**
 	 * getXSDMF_IDByXDIS_ID
-	 * Find a match for the given element
+	 * Find a match for the given element and option title
 	 */
-	function getXSDMF_IDByXDIS_ID($xsdmf_element) {
+	function getXSDMF_IDByXDIS_ID($xsdmf_element, $xsdmf_title="") {
 		$mc = $this->getMatchCols();
 		foreach ($mc as $xsdmf) {
 			if (($xsdmf['xsdmf_element'] == $xsdmf_element) && !$xsdmf['xsdmf_is_key'] && !empty ($xsdmf['xsdmf_id'])) {
-				return $xsdmf['xsdmf_id']; // just returns the first one if there are many
+                if ($xsdmf_title != "") {
+                    if ($xsdmf['xsdmf_title'] == $xsdmf_title) {
+                        return $xsdmf['xsdmf_id'];
+                    }
+                } else {
+                    return $xsdmf['xsdmf_id']; // just returns the first one if there are many and xsdmf_title is not used
+                }
 			}
 		}
 		return null;
