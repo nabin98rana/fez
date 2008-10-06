@@ -49,12 +49,18 @@ $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign('type',"preview");
 
 $wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
+if (empty($wfstatus)) {
+    echo "This workflow has finished and cannot be resumed";
+    exit;
+}
+
+$wfstatus->checkStateChange();
 $pid = $wfstatus->pid;
 $tpl->assign("pid", $pid);
 $wfstatus->setTemplateVars($tpl);
 
 
-$wfstatus->checkStateChange();
+
 include_once('../view2.php');
 $tpl->assign("hide_edit", true);
 $tpl->displayTemplateRecord($pid);

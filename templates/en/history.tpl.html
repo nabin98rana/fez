@@ -24,6 +24,7 @@
                   {$changes[i].pre_date}
                 </td>
                 <td bgcolor="{$row_color}" width="85%" class="default">
+                  {if $changes[i].pre_outcome}{$changes[i].pre_outcome|escape:"html"}, {/if}
                   {$changes[i].pre_detail|escape:"html"|replace:"no value set":"<i>no value set</i>"}
                   {if $changes[i].pre_outcomeDetail}<br/>{$changes[i].pre_outcomeDetail|escape:"html"}{/if}
                 </td>

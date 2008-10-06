@@ -39,6 +39,7 @@ include_once(APP_INC_PATH . "class.auth.php");
 Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']."?".$_SERVER['QUERY_STRING']);
 
 $wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
+$wfstatus->checkStateChange();
 if (empty($wfstatus)) {
     echo "This workflow has finished and cannot be resumed";
     exit;
@@ -78,6 +79,7 @@ if(is_numeric($record->depositor)) {
 	$subject = '['.APP_NAME.'] - Your submission has been completed';
 	$from = APP_EMAIL_SYSTEM_FROM_ADDRESS;
 	$to = $usrDetails['usr_email'];
+	$mail->setTextBody(stripslashes($email_txt)."\n\n <br/></br /> <a href='".$view_record_url."'>Click here to view the Thesis</a>");
 	$mail->send($from, $to, $subject, false);
 }
 
@@ -91,4 +93,7 @@ $tpl->assign('title', $record->getTitle());
 $tpl->assign('name', $usrDetails['usr_full_name']);
 
 $tpl->displayTemplate();
+
+// This is a special ending workflow state -> so end the workflow manually rather than goto the redirect screen (to prevent users clicking back the browser and causing all sorts of trouble)
+$wfstatus->theend(false);
 ?>

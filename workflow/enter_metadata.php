@@ -52,6 +52,12 @@ include_once(APP_INC_PATH . "class.org_structure.php");
 
 Auth::checkAuthentication(APP_SESSION);
 $wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
+if (empty($wfstatus)) {
+    echo "This workflow has finished and cannot be resumed";
+    exit;
+}
+
+
 $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign('type', 'enter_metadata');

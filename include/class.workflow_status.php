@@ -51,6 +51,8 @@ class WorkflowStatus {
     var $pid;
     var $pids = array();    
     var $dsID;
+    var $outcome = "";
+    var $outcomeDetail = "";
     var $xdis_id;
     var $wft_id;
     var $custom_view_pid;
@@ -181,6 +183,7 @@ class WorkflowStatus {
         $dbtp =  APP_TABLE_PREFIX;
         $stmt = "DELETE FROM ".$dbtp."workflow_sessions " .
                 "WHERE wfses_id='".$id."' AND wfses_usr_id='".$usr_id."' ";
+//echo $stmt;
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -283,7 +286,7 @@ class WorkflowStatus {
             $this->run();
         } else {
             $this->getStateDetails();
-            if (!$this->wfs_details['wfs_end']) {
+            if (!$this->wfs_details['wfs_end'] == 1) {
                 // goto next state
                 $this->setState($this->wfs_details['next_ids'][0]);
                 $this->run();
@@ -327,7 +330,7 @@ class WorkflowStatus {
     /**
      * The end of the workflow has been reached.  Tidy up some variables and display a summary page.
      */
-    function theend()
+    function theend($redirect=true)
     {
         $this->getWorkflowDetails();
         $wfl_title = $this->wfl_details['wfl_title'];
@@ -341,9 +344,12 @@ class WorkflowStatus {
         $args = compact('wfl_title','wft_type','parent_pid','pid', 'dsID', 'parents_list', 'action', 'href', 'custom_view_pid');
         $argstrs = array();
         $outcome = $this->getvar('outcome');
+		if ($outcome == "") {
+			$outcome = "Finished";
+		}
         $outcome_details = $this->getvar('outcome_details');
         foreach ($args as $key => $arg) {
-            $argstrs[] = "$key=".urlencode($arg);
+            $argstrs[] = $key."=".urlencode($arg);
         }
         $querystr=implode('&', $argstrs);
         if (($wft_type != 'Delete') && !empty($this->pid))  {
@@ -354,7 +360,7 @@ class WorkflowStatus {
 			}
         }
         $this->clearSession();
-        if ($wft_type != 'Ingest') {
+        if (($wft_type != 'Ingest') && ($redirect == true)) {
             header("Location: ".APP_RELATIVE_URL."workflow/end.php?".$querystr);
             exit;
         }
@@ -410,7 +416,7 @@ class WorkflowStatus {
                 }
             }
         } else {
-        	
+			$this->getStateDetails();
             if ($this->change_on_refresh) {
                 $this->change_on_refresh = false;
                 if ($this->end_on_refresh) {
@@ -439,12 +445,12 @@ class WorkflowStatus {
                 // the next non-transparent state.  Only auto states can be transparent.
                 if ($next['wfs_auto'] && $next['wfs_transparent']) {
                     $next2 = $next;
-                    while (!$next2['wfs_end'] && $next2['wfs_auto'] && $next2['wfs_transparent']) {
+                    while (!$next2['wfs_end'] == 1 && $next2['wfs_auto'] == 1 && $next2['wfs_transparent'] == 1) {
                         $next2_list = Workflow_State::getDetailsNext($next2['wfs_id']);
                         // this list should only have one item since an auto state can only have one next state
                         $next2 = $next2_list[0];
                     }
-                    if ($next2['wfs_end'] && $next2['wfs_auto'] && $next2['wfs_transparent']) {
+                    if ($next2['wfs_end'] == 1 && $next2['wfs_auto'] == 1 && $next2['wfs_transparent'] == 1) {
                         $title = $this->wfl_details['wfl_end_button_label'];
                     } else {
                         $title = $next2['wfs_title'];
@@ -462,7 +468,7 @@ class WorkflowStatus {
                 }
             }
         }
-        if ($this->wfs_details['wfs_end']) {
+        if ($this->wfs_details['wfs_end'] == 1) {
             $button_list[] = array(
                     'wfs_id' => -1,
                     'wfs_title' => $this->wfl_details['wfl_end_button_label']
