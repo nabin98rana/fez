@@ -84,7 +84,7 @@ function insertAfter(newElement,targetElement) {
     }
 }
 
-function createTextBox(xsdmf_id, loop_num, name, limit, axsdmf_id, aname) {
+function createTextBox(xsdmf_id, loop_num, name, limit, axsdmf_id, aname, attachSuggest) {
 
     var trID = "tr_xsd_display_fields_" +xsdmf_id+ "_" + loop_num;
     var textboxID = "xsd_display_fields_" +xsdmf_id+ "_" + loop_num;
@@ -101,9 +101,9 @@ function createTextBox(xsdmf_id, loop_num, name, limit, axsdmf_id, aname) {
     var bold = document.createElement("b");
     
     if(loop_num == limit) {
-        currElem.removeAttribute("onKeyUp");
-        currElem.removeAttribute("onFocus");
-        currElem.removeAttribute("onChange");
+        currElem.onkeyup = null;
+        currElem.onfocus = null;
+        currElem.onchange = null;
         return;
     }
     
@@ -136,9 +136,9 @@ function createTextBox(xsdmf_id, loop_num, name, limit, axsdmf_id, aname) {
     textbox.size = "50";
     textbox.className = "default";
     
-    textbox.onkeyup = function () {createTextBox(xsdmf_id,loop_num,name,limit,axsdmf_id,aname)};
-    textbox.onchange = function () {createTextBox(xsdmf_id,loop_num,name,limit,axsdmf_id,aname)};
-    textbox.onfocus = function () {createTextBox(xsdmf_id,loop_num,name,limit,axsdmf_id,aname)};
+    textbox.onkeyup = function () {createTextBox(xsdmf_id,loop_num,name,limit,axsdmf_id,aname, attachSuggest)};
+    textbox.onchange = function () {createTextBox(xsdmf_id,loop_num,name,limit,axsdmf_id,aname, attachSuggest)};
+    textbox.onfocus = function () {createTextBox(xsdmf_id,loop_num,name,limit,axsdmf_id,aname, attachSuggest)};
     
     bold.appendChild(document.createTextNode(name +" "+ (loop_num+1)));
     td1.appendChild(bold);
@@ -152,6 +152,10 @@ function createTextBox(xsdmf_id, loop_num, name, limit, axsdmf_id, aname) {
     
     if(axsdmf_id != '') {
        createAuthorSuggest(td2, xsdmf_id, axsdmf_id, aname, loop_num);
+    }
+    
+    if(attachSuggest == 1) {
+        createGeneralSuggest(td2, xsdmf_id, loop_num);
     }
     
     /*
@@ -173,7 +177,7 @@ function createTextBox(xsdmf_id, loop_num, name, limit, axsdmf_id, aname) {
  */
 function createAuthorSuggest(td, xsdmf_id, axsdmf_id, name, loop_num) {
     var table = document.createElement("table");
-    var tbody = document.createElement('tbody');
+    var tbody = document.createElement("tbody");
     var row = document.createElement("tr");
     var td1 = document.createElement("td");
     var td2 = document.createElement("td");
@@ -226,6 +230,22 @@ function createAuthorSuggest(td, xsdmf_id, axsdmf_id, name, loop_num) {
     attachYuiAuthorSuggest(axsdmf_id, xsdmf_id, loop_num);
 }
 
+function createGeneralSuggest(td, xsdmf_id, loop_num) {
+    var div1 = document.createElement("div");
+    div1.id = "generalsuggest";
+    div1.style.width = "15em";
+    div1.style.height = "2em";
+    div1.style.position = "relative";
+    
+    var div2 = document.createElement("div");
+    div2.id = xsdmf_id+"_"+loop_num+"_container";
+    
+    div1.appendChild(div2);
+    td.appendChild(div1);
+   
+    attachYuiGeneralSuggest(xsdmf_id, loop_num);
+}
+
 function formatAuthorRes(oResultItem, sQuery) {
     var usernameTxt = "";
     if( oResultItem[1].username != "" && oResultItem[1].username != null ) {
@@ -234,8 +254,8 @@ function formatAuthorRes(oResultItem, sQuery) {
     return oResultItem[1].name + usernameTxt;
 }
 
-function attachYuiAuthorSuggest(axsdmf_id, xsdmf_id, loop_num) {
-    
+function attachYuiAuthorSuggest(axsdmf_id, xsdmf_id, loop_num) 
+{
     autocomp = new YAHOO.widget.AutoComplete("xsd_display_fields_"+axsdmf_id+"_"+loop_num+"_lookup","xsd_display_fields_"+axsdmf_id+"_"+loop_num+"_container", myDataSourceAuthor);
     autocomp.maxResultsDisplayed = 60; 
     autocomp.formatResult = formatAuthorRes;
@@ -247,24 +267,20 @@ function attachYuiAuthorSuggest(axsdmf_id, xsdmf_id, loop_num) {
             setTimeout(function(){oSelf.sendQuery(sInputValue);},0);
         }
     });
-    
 }
 
-function attachYuiGeneralSuggest(xsdmf_id, loop_num) {
-
+function attachYuiGeneralSuggest(xsdmf_id, loop_num) 
+{
     var myDataSource = new YAHOO.widget.DS_XHR(myServer, mySchema);
     myDataSource.scriptQueryAppend = "xsdmf_id=" +xsdmf_id;
 
     // Instantiate first AutoComplete
-    this.oAutoComp = new YAHOO.widget.AutoComplete("xsd_display_fields_"+xsdmf_id+"_"+loop_num, xsdmf_id+"_"+loop_num+"_container", myDataSource);
-    this.oAutoComp.maxResultsDisplayed = 10;
-    this.oAutoComp.formatResult = function(oResultItem, sQuery) {
+    oAutoComp = new YAHOO.widget.AutoComplete("xsd_display_fields_"+xsdmf_id+"_"+loop_num, xsdmf_id+"_"+loop_num+"_container", myDataSource);
+    oAutoComp.maxResultsDisplayed = 10;
+    oAutoComp.formatResult = function(oResultItem, sQuery) {
         return oResultItem[1].name;
     };
-
-    this.oAutoComp.registerControls(document.getElementById("xsd_display_fields_"+xsdmf_id+"_"+loop_num));
-
-    this.oAutoComp.textboxFocusEvent.subscribe(function(){
+    oAutoComp.textboxFocusEvent.subscribe(function(){
         var sInputValue = YAHOO.util.Dom.get("xsd_display_fields_"+xsdmf_id+"_"+loop_num).value;
         if(sInputValue.length === 0) {
             var oSelf = this;
