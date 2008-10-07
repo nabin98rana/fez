@@ -63,12 +63,6 @@ if ($isAdministrator) {
 $tpl->assign("fez_root_dir", APP_PATH);
 $tpl->assign("eserv_url", APP_BASE_URL."eserv/".$pid."/");
 $tpl->assign("local_eserv_url", APP_BASE_URL."eserv/".$pid."/");
-$title = Record::getSearchKeyIndexValue($pid, "title", false);
-if ($title !== false) {
-	$tpl->assign("extra_title", $title);	
-} else {
-	$tpl->assign("extra_title", "Record #".$pid." Details");	
-}
 
 
 $debug = @$_REQUEST['debug'];
@@ -77,6 +71,7 @@ if ($debug == 1) {
 } else {
 	$tpl->assign("debug", "0");	
 }
+
 
 if (!empty($pid)) {
 
@@ -87,17 +82,25 @@ if (!empty($pid)) {
  	$record = new RecordObject($pid, $requestedVersionDate);
 }
 
-$canViewVersions = $record->canViewVersions(false);
-//$canRevertVersions = $record->canRevertVersions(false);
-
-if($requestedVersionDate != null && !$canViewVersions){
-	// user not allowed to see other versions,
-	// so revert back to latest version
-	$requestedVersionDate = null;
- 	$record = new RecordObject($pid);
-}
 
 if (!empty($pid) && $record->checkExists()) {
+
+
+	$canViewVersions = $record->canViewVersions(false);
+	//$canRevertVersions = $record->canRevertVersions(false);
+
+	if($requestedVersionDate != null && !$canViewVersions){
+		// user not allowed to see other versions,
+		// so revert back to latest version
+		$requestedVersionDate = null;
+	 	$record = new RecordObject($pid);
+	}
+	$title = Record::getSearchKeyIndexValue($pid, "title", false);
+	if ($title !== false) {
+		$tpl->assign("extra_title", $title);	
+	} else {
+		$tpl->assign("extra_title", "Record #".$pid." Details");
+	}
     
 	$tpl->assign("pid", $pid);
 	$deleted = false;
@@ -506,7 +509,7 @@ if (!empty($pid) && $record->checkExists()) {
 	}
 } else {
     $tpl->assign('not_exists', true);
-	$tpl->assign("show_not_allowed_msg", true);
+//	$tpl->assign("show_not_allowed_msg", true);
 	$savePage = false;
 }
 
