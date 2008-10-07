@@ -170,6 +170,18 @@ foreach ($xsd_display_fields  as $dis_field) {
 					$details[$dis_field["xsdmf_id"]][$tempValue] = Controlled_Vocab::getTitle($tempValue);
 
 				}
+			} elseif ($dis_field["xsdmf_html_input"] == 'dual_multiple') {
+                 $tempArray = $details[$dis_field["xsdmf_id"]];
+                 if (is_array($tempArray)) {
+                     $details[$dis_field["xsdmf_id"]] = array();
+                     foreach ($tempArray as $cv_key => $cv_value) {
+                         $details[$dis_field["xsdmf_id"]][$cv_value] = $dis_field['field_options'][$cv_value];
+                     }
+                 } elseif  (trim($details[$dis_field["xsdmf_id"]]) != "") {
+                     $tempValue = $details[$dis_field["xsdmf_id"]];
+                     $details[$dis_field["xsdmf_id"]] = array();
+                     $details[$dis_field["xsdmf_id"]][$tempValue] = $dis_field['field_options'][$tempValue];
+                 }
 			} else {
 				if (is_array($dis_field["field_options"])) { // if the display field has a list of matching options
 	

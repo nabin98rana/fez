@@ -16,7 +16,7 @@
 	  					    {assign var="field_id" value="xsd_display_fields_"|cat:$xsdmf.xsdmf_id|cat:"_0"}
 
 							<select id="{$field_id}" multiple size="8" width="40" class="default" name="{$field_name}">
-							  {html_options options=$details[$temp_fld_id]}
+								{if is_array($details[$temp_fld_id])}{html_options options=$details[$temp_fld_id]}{/if}
 							</select>
 							{include file="error_icon.tpl.html" field=$field_name}
 							{if $xsdmf.xsdmf_required == 1}
