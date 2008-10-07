@@ -1093,9 +1093,15 @@ class ePrints
 				
 				$altlocs_list = $this->getListEprintID($eprintid, $table, "_altloc");
 				$link_number = 1;
+				 if (APP_VERSION_UPLOADS_AND_LINKS == "ON") {
+				 	$versionable = "true";
+				 } else {
+					$versionable = "false";
+				 }
+				
 				foreach ($altlocs_list as $altloc) {
 					Fedora_API::callAddDatastream($pid, "link_".$link_number, $altloc['altloc'], 
-                                'Alternative Location', "A", "text/xml", "R", APP_VERSION_UPLOADS_AND_LINKS);
+                                'Alternative Location', "A", "text/xml", "R", $versionable);
 					$link_number+=1;
 				}
 			
@@ -1116,7 +1122,7 @@ class ePrints
 					
                     $mimetype = Misc::mime_content_type(APP_TEMP_DIR.$short_ds);
 
-                    Fedora_API::getUploadLocationByLocalRef($pid, $short_ds, $short_ds, $short_ds, $mimetype, "M", null, APP_VERSION_UPLOADS_AND_LINKS);			
+                    Fedora_API::getUploadLocationByLocalRef($pid, $short_ds, $short_ds, $short_ds, $mimetype, "M", null, $versionable);			
 					
 //                  $presmd_check = Workflow::checkForPresMD($ds);  // try APP_TEMP_DIR.$short_ds
                     $presmd_check = Workflow::checkForPresMD(APP_TEMP_DIR.$short_ds);  // try APP_TEMP_DIR.$short_ds

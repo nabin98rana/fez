@@ -649,16 +649,23 @@ class Reindex
 	                        Misc::ProcessURL($urldata, false, $handle);
                         
 	                        fclose($handle);                        
+							 if (APP_VERSION_UPLOADS_AND_LINKS == "ON") {
+							 	$versionable = "true";
+							 } else {
+								$versionable = "false";
+							 }
+	
 	                        if ($new_dsID != $dsIDName) {
 	                            Error_Handler::logError($pid.": ".$dsIDName.": need to repair dsID");
 	                            // delete and re-ingest - need to do this because sometimes the object made it
 	                            // into the repository even though its dsID is illegal.
-								if( APP_VERSION_UPLOADS_AND_LINKS == "ON" )                            	
+								if ( APP_VERSION_UPLOADS_AND_LINKS == "ON" ) {
                         			Fedora_API::deleteDatastream($pid, $dsIDName);
-								else
+								} else {
 	                            	Fedora_API::callPurgeDatastream($pid, $dsIDName);
-	                            Fedora_API::getUploadLocationByLocalRef($pid, $new_dsID, APP_TEMP_DIR.$new_dsID, $new_dsID, 
-	                                $dsTitle['MIMEType'], "M", null, APP_VERSION_UPLOADS_AND_LINKS);
+		                            Fedora_API::getUploadLocationByLocalRef($pid, $new_dsID, APP_TEMP_DIR.$new_dsID, $new_dsID, 
+	                                $dsTitle['MIMEType'], "M", null, $versionable);
+								}
 	                        }
 	                        Record::generatePresmd($pid, $new_dsID);
 	                        Workflow::processIngestTrigger($pid, $new_dsID, $dsTitle['MIMEType']);

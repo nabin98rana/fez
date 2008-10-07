@@ -1329,32 +1329,29 @@ class BatchImport
             $controlgroup = 'M';
         }
         $ncName = Foxml::makeNCName($dsIDName);
+
+        $temp_store = APP_TEMP_DIR.$ncName;
+		copy($full_name,$temp_store);
+
         if (Fedora_API::datastreamExists($pid, $ncName)) {
             Fedora_API::callPurgeDatastream($pid, $ncName);
         }
 
-        Fedora_API::getUploadLocationByLocalRef($pid, $ncName, $full_name, "", 
-                $mimetype, $controlgroup,null,APP_VERSION_UPLOADS_AND_LINKS);
-        $presmd_check = Workflow::checkForPresMD($full_name);
-        if ($presmd_check != false) {
-            if (is_numeric(strpos($presmd_check, chr(92)))) {
-                $presmd_check = substr($presmd_check, strrpos($presmd_check, chr(92))+1);
-            }
-            if (Fedora_API::datastreamExists($pid, $presmd_check)) {
-                Fedora_API::callPurgeDatastream($pid, $presmd_check);
-            }
-            Fedora_API::getUploadLocationByLocalRef($pid, $presmd_check, $presmd_check, $presmd_check, 
-                    "text/xml", "M");
-            if (is_file(APP_TEMP_DIR.$presmd_check)) {
-                $deleteCommand = APP_DELETE_CMD." ".APP_DELETE_DIR.$presmd_check;
-				exec($deleteCommand, $return_array, $return_status);
-				if ($return_status <> 0) {
-					Error_Handler::logError("Batch Import Delete Error: $deleteCommand: ".implode(",", $return_array).", return status = $return_status \n", __FILE__,__LINE__);
-				}
-	        }
-        }
+		if (APP_VERSION_UPLOADS_AND_LINKS == "ON") {
+			$versionable = "true";
+		} else {
+			$versionable = "false";
+		}
+
+        Fedora_API::getUploadLocationByLocalRef($pid, $ncName, $temp_store, "", 
+                $mimetype, $controlgroup,null,$versionable);
+        Record::generatePresmd($pid, $ncName);
         // Now check for post upload workflow events like thumbnail resizing of images and add them as datastreams if required
-        Workflow::processIngestTrigger($pid, $full_name, $mimetype);
+        Workflow::processIngestTrigger($pid, $ncName, $mimetype);
+        if (is_file($temp_store)) {
+            unlink($temp_store);
+        }
+
     }
 	
 	function saveEprintPID($eprint_id, $pid) {
