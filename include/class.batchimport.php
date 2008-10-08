@@ -1322,16 +1322,17 @@ class BatchImport
     function handleStandardFileImport($pid, $full_name, $short_name, $xdis_id) {
         $dsIDName = $short_name;
 		$return_array = array();
-        $mimetype = Misc::mime_content_type($full_name);
+        $ncName = Foxml::makeNCName($dsIDName);
+
+        $temp_store = APP_TEMP_DIR.$ncName;
+		copy($full_name,$temp_store);
+
+        $mimetype = Misc::mime_content_type($temp_store);
         if ($mimetype == 'text/xml') {
             $controlgroup = 'X';
         } else {
             $controlgroup = 'M';
         }
-        $ncName = Foxml::makeNCName($dsIDName);
-
-        $temp_store = APP_TEMP_DIR.$ncName;
-		copy($full_name,$temp_store);
 
         if (Fedora_API::datastreamExists($pid, $ncName)) {
             Fedora_API::callPurgeDatastream($pid, $ncName);

@@ -82,22 +82,32 @@ class Origami {
         }
         
         $fileUrl = APP_FEDORA_GET_URL . "/" . $pid . "/". $filename;
-        $tmpFile = "/tmp/" . Foxml::makeNCName($filename);
-        
-        $fileHandle = fopen($tmpFile, 'w+');
-        $ret = fwrite($fileHandle, file_get_contents($fileUrl));
-        fclose($fileHandle);
-        
-        if(!$ret) {
-            Error_Handler::logError("Process Origami Images Failed - Could not write to tmp file " . $tmpFile, __FILE__ , __LINE__ );
-            return;
-        }
-        
+        $tmpFile = APP_TEMP_DIR.Foxml::makeNCName($filename);
+
+		$return_status = 0;
+		$return_array = array();
+
+        if (!is_file($tmpFile)) {
+	        $fileHandle = fopen($tmpFile, 'w+');
+	        $ret = fwrite($fileHandle, file_get_contents($fileUrl));
+	        fclose($fileHandle);
+
+	        if(!$ret) {
+	            Error_Handler::logError("Process Origami Images Failed - Could not write to tmp file " . $tmpFile, __FILE__ , __LINE__ );
+	            return;
+	        }
+	        exec(Origami::getTitleAppPath() . " $tmpFile $path", $return_array, $return_status);
+			if ($return_status <> 0) {
+				Error_Handler::logError("Origami Error: ".implode(",", $return_array).", return status = $return_status, for command $command \n", __FILE__,__LINE__);
+			}
+	        unlink($tmpFile);
+        } else {
+	        exec(Origami::getTitleAppPath() . " $tmpFile $path", $return_array, $return_status);
+			if ($return_status <> 0) {
+				Error_Handler::logError("Origami Error: ".implode(",", $return_array).", return status = $return_status, for command $command \n", __FILE__,__LINE__);
+			}
+		}
         //echo Origami::getTitleAppPath() . " $tmpFile $path\n";
-        
-        exec(Origami::getTitleAppPath() . " $tmpFile $path");
-        unlink($tmpFile);
-        
     }
     
     function getTitleAppPath() {

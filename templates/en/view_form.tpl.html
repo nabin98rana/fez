@@ -272,7 +272,7 @@ function loadPreview(pid,datastreamID, alt, origami)
 				<img border="0" align="absmiddle" src="{$rel_url}images/default.png"{if $ds_show_extra != ""}onclick="javascript:loadPreview('{$pid}','{$ds_show_extra}', '{$datastreams[d].ID|escape:'html'}', '{$origami_preview}');"{/if}>
 			{/if}
 			{if $datastreams[d].isViewer == 1 || $isAdministrator}
-			    {if $datastreams[d].archival_size_raw > 1048576 && $origami == 'ON' 
+			    {if $datastreams[d].archival_size_raw > 1048576 && $origami == 'ON' && $datastreams[d].origami_switch == 'ON'
 			         && ($datastreams[d].MIMEType == 'image/jpeg' || 
 			             $datastreams[d].MIMEType == 'image/tiff' || 
 			             $datastreams[d].MIMEType == 'image/tif' || 

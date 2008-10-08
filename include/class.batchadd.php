@@ -85,23 +85,25 @@ class BatchAdd
 		         if (is_numeric(strpos($ds, "/"))) {
 		             $short_ds = substr($ds, strrpos($ds, "/")+1); // take out any nasty slashes from the ds name itself
 		         }
+
 		         // ID must start with _ or letter
-		         $short_ds = Misc::shortFilename(Foxml::makeNCName($short_ds), 64);
-                 $mimetype = Misc::mime_content_type($ds);
+	         	$short_ds = Misc::shortFilename(Foxml::makeNCName($short_ds), 64);
+
+		
+		        $temp_store = APP_TEMP_DIR.$short_ds;
+				copy($ds,$temp_store);
+		
+		
+                 $mimetype = Misc::mime_content_type($temp_store);
 				 if (APP_VERSION_UPLOADS_AND_LINKS == "ON") {
 				 	$versionable = "true";
 				 } else {
 					$versionable = "false";
 				 }
 
- 				 Fedora_API::getUploadLocationByLocalRef($pid, $short_ds, $ds, $short_ds, $mimetype,"M",null,$versionable);
+ 				 Fedora_API::getUploadLocationByLocalRef($pid, $short_ds, $temp_store, $short_ds, $mimetype,"M",null,$versionable);
 				// Seeing if record::generatePresmd will work as well (will also do exiftool at the same time)
-		         Record::generatePresmd($pid, $ds);
-/*                 $presmd_check = Workflow::checkForPresMD($ds);  
-                 if ($presmd_check != false) {
-                    Fedora_API::getUploadLocationByLocalRef($pid, $presmd_check, $presmd_check, 
-                             $presmd_check, "text/xml", "M");
-                 } */
+				Record::generatePresmd($pid, $short_ds);
 				if (array_key_exists($key, $files_FezACML)) {
 					if (!empty($files_FezACML[$key])) {
 						$xmlObjNum = $files_FezACML[$key];
@@ -122,12 +124,11 @@ class BatchAdd
 						}
 					}
 				}
-				
-                 if (is_file(APP_TEMP_DIR.basename($presmd_check))) {
-                     $deleteCommand = APP_DELETE_CMD." ".APP_TEMP_DIR.basename($presmd_check);
-                     exec($deleteCommand);
-                 }
-                 Workflow::processIngestTrigger($pid, $ds, $mimetype);
+				Workflow::processIngestTrigger($pid, $short_ds, $mimetype);
+ 		        if (is_file($temp_store)) {
+		            unlink($temp_store);
+		        }
+
 			}			
 		} else {
 			return false;
