@@ -351,8 +351,8 @@ class HandleRequestor {
 	}
 
 	if (file_exists($updateTmpFile)) { copy($updateTmpFile, "/tmp/saved-update.xml"); }
-	if (file_exists($deleteTmpFile)) { copy($updateTmpFile, "/tmp/saved-delete.xml"); }
-	if (file_exists($createTmpFile)) { copy($updateTmpFile, "/tmp/saved-create.xml"); }
+	if (file_exists($deleteTmpFile)) { copy($deleteTmpFile, "/tmp/saved-delete.xml"); }
+	if (file_exists($createTmpFile)) { copy($createTmpFile, "/tmp/saved-create.xml"); }
 	@unlink($updateTmpFile);
 	@unlink($createTmpFile);
 	@unlink($deleteTmpFile);
