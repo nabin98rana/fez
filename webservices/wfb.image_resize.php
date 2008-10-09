@@ -73,7 +73,9 @@ $is_url = false;
 if (preg_match('/^https?:\/\//',$image_dir.$image)) {
   // make a temporary local copy
   $is_url = true;
-  file_put_contents(APP_TEMP_DIR.$image, file_get_contents($image_dir.$image));
+  if(!is_file(APP_TEMP_DIR.$image)) {
+		file_put_contents(APP_TEMP_DIR.$image, file_get_contents($image_dir.$image));
+  }
   $image_dir = APP_TEMP_DIR;
 }
 

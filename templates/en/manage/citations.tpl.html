@@ -20,7 +20,7 @@
 			  {cycle values=$cycle assign="row_color"}
                     <tr>
                       <td width="35%" bgcolor="{$row_color}" class="default">
-                        <a href="{$smarty.const.PHP_SELF}?action=edit&xdis_id={$xdis.xdis_id}">{$xdis.xdis_title}</a>
+                        <a href="{$smarty.server.PHP_SELF}?action=edit&xdis_id={$xdis.xdis_id}">{$xdis.xdis_title}</a>
                       </td>
 
                       <td width="15%" bgcolor="{$row_color}" class="default">
@@ -43,11 +43,11 @@
 {/section}
 </table>
 <br/>
-<div class="default"><a href="{$smarty.const.PHP_SELF}?action=convert">Convert from old style citations</a> if you are using this 
+<div class="default"><a href="{$smarty.server.PHP_SELF}?action=convert">Convert from old style citations</a> if you are using this 
 for the first time.  This will attempt to find citations defined in the xsdmf mappings and make new citations
 in the citations table.</div>
 <br />
-<div class="default"><a href="{$smarty.const.PHP_SELF}?action=clear_cache" onclick="return confirm('Are you sure you want to clear the citation cache?')">Clear citation cache</a> if you want to flush out any cached citations displaying
+<div class="default"><a href="{$smarty.server.PHP_SELF}?action=clear_cache" onclick="return confirm('Are you sure you want to clear the citation cache?')">Clear citation cache</a> if you want to flush out any cached citations displaying
 in the list/browse/search results. Alternatively any time you update a citation style it will flush out the cache of that style.</div>
 
 

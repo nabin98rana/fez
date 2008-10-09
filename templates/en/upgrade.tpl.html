@@ -51,13 +51,13 @@ function validateForm(f)
 the new version.  Be sure to backup your current DB before clicking.  If you have already done this step, then click 
 'Skip this Step'</div>
 <br />
-<form action="{$smarty.const.PHP_SELF}" method="post">
+<form action="{$smarty.server.PHP_SELF}" method="post">
 <input type="hidden" name="step" value="2" />
 <input type="submit" name="upgrade" value="Upgrade" />
 <input type="submit" name="skip" value="Skip this Step / Next" />
 </form>
 {elseif $step == 2}
-<form action="{$smarty.const.PHP_SELF}" method="post">
+<form action="{$smarty.server.PHP_SELF}" method="post">
 <input type="hidden" name="step" value="3" />
 <div>You need to update config.inc.php before proceeding to the 'Sanity Check'.</div>
 <div>Once you're done editing config.inc.php, click the 'Sanity Check' button at the bottom of the screen.</div>
@@ -76,7 +76,7 @@ the new version.  Be sure to backup your current DB before clicking.  If you hav
 
 <ol>
 <li>Make all the required changes to config.inc.php described below this box.</li>
-<li>Click <a href="{$smarty.const.PHP_SELF}?step=4" target="_blank">this link</a> to run the Fez Configuration Updater.</li>
+<li>Click <a href="{$smarty.server.PHP_SELF}?step=4" target="_blank">this link</a> to run the Fez Configuration Updater.</li>
 <li>Back-up your existing config.inc.php file, and copy <b>/your_fez/upgrade/config.inc.php.NEW</b> into its place (ensuring you remove the .NEW extension)</li>
 <li>Open this file, and edit the variables below to contain appropriate values for your installation:</li>
 
@@ -256,7 +256,7 @@ section on the <a href="http://dev-repo.library.uq.edu.au/wiki/index.php/Main_Pa
 <br/>
 {include file="sanity_check_results.tpl.html"}
 <br/>
-<p>Correct any problems and <a href="{$smarty.const.PHP_SELF}?step=3">click here to run checks again</a>.</p>
+<p>Correct any problems and <a href="{$smarty.server.PHP_SELF}?step=3">click here to run checks again</a>.</p>
 <p>If all the checks passed, then the upgrade is done, however, you can upgrade your XSDs and Workflows
 to newer bundled versions if you wish. See the <a href="http://dev-repo.library.uq.edu.au/wiki/index.php/Upgrading" target="_blank">Fez Wiki for more details</a>.</p>
 <p><a href="{$rel_url}">Fez main page</a></p>
