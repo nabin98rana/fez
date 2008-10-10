@@ -49,8 +49,13 @@ $SHOW_STATUS = @($SHOW_STATUS_PARM == "true") ? true : false;
 $ALLOW_SECURITY_REDIRECT = @$SHOW_STATUS ? false : true; 
 
 $not_exists = false;
-if ( (is_numeric(strpos($pid, ".."))) && (is_numeric(strpos($dsID, "..")))) {
-	die;
+if ( (is_numeric(strpos($pid, ".."))) || (Misc::isPid($pid) != true) || (is_numeric(strpos($pid, "/"))) || (is_numeric(strpos($pid, "/"))) || (is_numeric(strpos($dsID, "..")))) {
+	header("HTTP/1.0 404 Not Found");
+	header("Status: 404 Not Found");
+	$tpl = new Template_API();
+    $tpl->setTemplate("404.tpl.html");
+    $tpl->displayTemplate();
+	exit;
 } // to stop haxors snooping our confs
 
 $acceptable_roles = array("Viewer", "Community_Admin", "Editor", "Creator", "Annotator");

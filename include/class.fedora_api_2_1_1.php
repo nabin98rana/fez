@@ -873,6 +873,11 @@ class Fedora_API {
 	
 
     function objectExists($pid) {
+
+		if (Misc::isPid($pid) != true) {
+			return false;
+		}
+
 		$parms = array('pid' => $pid);
 		$result = Fedora_API::openSoapCall('getObjectXML', $parms, false);
         if (is_array($result) && isset($result['faultcode'])) {
@@ -906,6 +911,11 @@ class Fedora_API {
     * @return boolean
     */
 	function datastreamExists ($pid, $dsID, $refresh=false, $pattern=false) {
+		
+		if (Misc::isPID($pid) != true) {
+			return false;
+		}
+		
 		$dsExists = false; 
 		$rs = Fedora_API::callListDatastreamsLite($pid, $refresh);
         if (is_array($rs)) {

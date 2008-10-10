@@ -277,59 +277,64 @@ class Lister
             // list a collection
             // first check the user has view rights over the collection object
             $record = new RecordObject($collection_pid);
-            $canList = $record->canList(true);
+			if ($record->checkExists()) {
+	            $canList = $record->canList(true);
 
-            $tpl->assign("isLister", $canList);
+	            $tpl->assign("isLister", $canList);
 
-            if ($canList) {
+	            if ($canList) {
                 
-                $tpl->assign("xdis_id", Record::getSearchKeyIndexValue($collection_pid, "Display Type"));
-                $parents = Record::getParentsDetails($collection_pid);
+	                $tpl->assign("xdis_id", Record::getSearchKeyIndexValue($collection_pid, "Display Type"));
+	                $parents = Record::getParentsDetails($collection_pid);
 
-                $tpl->assign("parents", $parents);
-                $collection_xdis_id = Collection::getCollectionXDIS_ID();
-                $userPIDAuthGroups = AuthIndex::getIndexAuthRoles($collection_pid);
-                $isCreator = @$userPIDAuthGroups['isCreator'] == 1;
-                $tpl->assign("isCreator", $isCreator);
-                $isEditor = @$userPIDAuthGroups['isEditor'] == 1;
-                $tpl->assign("isEditor", $isEditor);
-                $options = Search_Key::stripSearchKeys($options); 
+	                $tpl->assign("parents", $parents);
+	                $collection_xdis_id = Collection::getCollectionXDIS_ID();
+	                $userPIDAuthGroups = AuthIndex::getIndexAuthRoles($collection_pid);
+	                $isCreator = @$userPIDAuthGroups['isCreator'] == 1;
+	                $tpl->assign("isCreator", $isCreator);
+	                $isEditor = @$userPIDAuthGroups['isEditor'] == 1;
+	                $tpl->assign("isEditor", $isEditor);
+	                $options = Search_Key::stripSearchKeys($options); 
 
-                $filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
-			    $filter["searchKey".Search_Key::getID("isMemberOf")] = $collection_pid;
+	                $filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
+				    $filter["searchKey".Search_Key::getID("isMemberOf")] = $collection_pid;
 			    
-                $list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter);
+	                $list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter);
                                 
-                //$list = Collection::getListing($collection_pid, $pager_row, $rows, $sort_by);
-                $list_info = $list["info"];
-                $facets = @$list['facets'];
-                $snips = @$list['snips'];
-                $list = $list["list"];
+	                //$list = Collection::getListing($collection_pid, $pager_row, $rows, $sort_by);
+	                $list_info = $list["info"];
+	                $facets = @$list['facets'];
+	                $snips = @$list['snips'];
+	                $list = $list["list"];
                 
-                $title = Record::getSearchKeyIndexValue($collection_pid, "Title");
-                $display_type = Record::getSearchKeyIndexValue($collection_pid, "Display Type");
-				$display_type = array_values($display_type);
-				$citation = Record::getCitationIndex($collection_pid);
-                $tpl->assign("list_heading", "List of Records in ".$title." ".$display_type[0]);
-                $tpl->assign("list_heading_citation", "List of Records in ".$citation." ".$display_type[0]);
-                $tpl->assign("list_type", "collection_records_list");
+	                $title = Record::getSearchKeyIndexValue($collection_pid, "Title");
+	                $display_type = Record::getSearchKeyIndexValue($collection_pid, "Display Type");
+					$display_type = array_values($display_type);
+					$citation = Record::getCitationIndex($collection_pid);
+	                $tpl->assign("list_heading", "List of Records in ".$title." ".$display_type[0]);
+	                $tpl->assign("list_heading_citation", "List of Records in ".$citation." ".$display_type[0]);
+	                $tpl->assign("list_type", "collection_records_list");
 
-                $tpl->assign("collection_pid", $collection_pid);
-                $childXDisplayOptions = Record::getSearchKeyIndexValue($collection_pid, "XSD Display Option");
+	                $tpl->assign("collection_pid", $collection_pid);
+	                $childXDisplayOptions = Record::getSearchKeyIndexValue($collection_pid, "XSD Display Option");
                 
-                if (count($childXDisplayOptions) > 0) {
-                    $tpl->assign("childXDisplayOptions", $childXDisplayOptions);
-                } else {
-                    $tpl->assign("childXDisplayOptions", 0);
-                } 
+	                if (count($childXDisplayOptions) > 0) {
+	                    $tpl->assign("childXDisplayOptions", $childXDisplayOptions);
+	                } else {
+	                    $tpl->assign("childXDisplayOptions", 0);
+	                } 
                 
-                unset($params['collection_pid']);
+	                unset($params['collection_pid']);
                 
-                $tpl->assign('url', Misc::query_string_encode($params));
+	                $tpl->assign('url', Misc::query_string_encode($params));
                 
-            } else {
-                $tpl->assign("show_not_allowed_msg", true);
-            }
+	            } else {
+	                $tpl->assign("show_not_allowed_msg", true);
+	            }
+	        } else {
+				$tpl->assign('not_exists', true);
+	        }
+
             
         } elseif (!empty($community_pid)) {
             
@@ -338,48 +343,52 @@ class Lister
             // list collections in a community
             // first check the user has view rights over the collection object
             $record = new RecordObject($community_pid);
-            $canView = $record->canView(true);
-            $tpl->assign("isViewer", $canView);
-            if ($canView) {	
+			if ($record->checkExists()) {
+	            $canView = $record->canView(true);
+	            $tpl->assign("isViewer", $canView);
+	            if ($canView) {	
                 
-                $tpl->assign("community_pid", $community_pid);
-                $userPIDAuthGroups = AuthIndex::getIndexAuthRoles($community_pid);
-                $isCreator = @$userPIDAuthGroups['isCreator'] == 1;
-                $tpl->assign("isCreator", $isCreator);
-                $isEditor = @$userPIDAuthGroups['isEditor'] == 1;
-                $tpl->assign("isEditor", $isEditor);
-                $tpl->assign("xdis_id", $xdis_id);	
-                //$community_details = Community::getDetails($community_pid);
-                $community_title = Record::getSearchKeyIndexValue($community_pid, "Title");
+	                $tpl->assign("community_pid", $community_pid);
+	                $userPIDAuthGroups = AuthIndex::getIndexAuthRoles($community_pid);
+	                $isCreator = @$userPIDAuthGroups['isCreator'] == 1;
+	                $tpl->assign("isCreator", $isCreator);
+	                $isEditor = @$userPIDAuthGroups['isEditor'] == 1;
+	                $tpl->assign("isEditor", $isEditor);
+	                $tpl->assign("xdis_id", $xdis_id);	
+	                //$community_details = Community::getDetails($community_pid);
+	                $community_title = Record::getSearchKeyIndexValue($community_pid, "Title");
                 
-                $options = Search_Key::stripSearchKeys($options);
+	                $options = Search_Key::stripSearchKeys($options);
 
-            	$filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
-				$filter["searchKey".Search_Key::getID("isMemberOf")] = $community_pid; // 
-            	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter);
+	            	$filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
+					$filter["searchKey".Search_Key::getID("isMemberOf")] = $community_pid; // 
+	            	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter);
                 
-                $list_info = $list["info"];
-                $facets = @$list['facets'];
-                $snips = @$list['snips'];
-                $list = $list["list"];
+	                $list_info = $list["info"];
+	                $facets = @$list['facets'];
+	                $snips = @$list['snips'];
+	                $list = $list["list"];
                 
-                $title = Record::getSearchKeyIndexValue($community_pid, "Title");
-                $display_type = Record::getSearchKeyIndexValue($community_pid, "Display Type");
-				$display_type = array_values($display_type);
-				$citation = Record::getCitationIndex($community_pid);
+	                $title = Record::getSearchKeyIndexValue($community_pid, "Title");
+	                $display_type = Record::getSearchKeyIndexValue($community_pid, "Display Type");
+					$display_type = array_values($display_type);
+					$citation = Record::getCitationIndex($community_pid);
 				
-                $tpl->assign("list_heading", "List of Collections in ".$title." ".$display_type[0]);		
-                $tpl->assign("list_heading_citation", "List of Collections in ".$citation." ".$display_type[0]);
-                $tpl->assign("list_type", "collection_list");
+	                $tpl->assign("list_heading", "List of Collections in ".$title." ".$display_type[0]);		
+	                $tpl->assign("list_heading_citation", "List of Collections in ".$citation." ".$display_type[0]);
+	                $tpl->assign("list_type", "collection_list");
                 
-                $childXDisplayOptions = Record::getSearchKeyIndexValue($community_pid, "XSD Display Option");
-                if (count($childXDisplayOptions) > 0) {
-                    $tpl->assign("childXDisplayOptions", $childXDisplayOptions);
-                } else {
-                    $tpl->assign("childXDisplayOptions", 0);
-                }
+	                $childXDisplayOptions = Record::getSearchKeyIndexValue($community_pid, "XSD Display Option");
+	                if (count($childXDisplayOptions) > 0) {
+	                    $tpl->assign("childXDisplayOptions", $childXDisplayOptions);
+	                } else {
+	                    $tpl->assign("childXDisplayOptions", 0);
+	                }
+	            } else {
+	                $tpl->assign("show_not_allowed_msg", true);
+	            }
             } else {
-                $tpl->assign("show_not_allowed_msg", true);
+    			$tpl->assign('not_exists', true);
             }
             
             /*

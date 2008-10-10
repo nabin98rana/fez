@@ -902,6 +902,10 @@ class Fedora_API {
 
     function objectExists($pid) {
 
+		if (Misc::isPid($pid) != true) {
+			return false;
+		}
+
         if (APP_FEDORA_APIA_DIRECT == "ON") {
             $fda = new Fedora_Direct_Access();
             $exists = $fda->objectExists($pid);
@@ -941,6 +945,11 @@ class Fedora_API {
     * @return boolean
     */
 	function datastreamExists ($pid, $dsID, $refresh=false, $pattern=false) {
+
+		if (Misc::isPid($pid) != true) {
+			return false;
+		}
+
 		$dsExists = false; 
 		$rs = Fedora_API::callListDatastreamsLite($pid, $refresh);
         if (is_array($rs)) {
