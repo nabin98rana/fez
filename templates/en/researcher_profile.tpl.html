@@ -41,7 +41,11 @@
 				{if $list[i].positions[y].DT_TO != '0' && ($list[i].positions[y].DT_TO) < ($smarty.now|date_format:'%Y')}
 			      <past-institution>
 				{else}
+					{if $smarty.section.y.index > 0}
+			      <affiliate-institution>
+					{else}
 			      <institution>
+					{/if}
 				{/if}
 					<name>{$org_name|escape:"html"}</name>
 					<address>
@@ -53,14 +57,18 @@
 					</address>
 					<!-- At least one department -->
 					<departmentName>{$list[i].positions[y].org_title|escape:"html"}</departmentName>
-					<sponsorID>{$list[i].aut_id}</sponsorID>
+					<employeeID>{$list[i].aut_id}</employeeID>
 					<role>Other</role>
 					<start-date>{$list[i].positions[y].DT_FROM}</start-date>
-					<end-date>{if $list[i].positions[y].DT_TO != '0' && ($list[i].positions[y].DT_TO) <= ($smarty.now|date_format:'%Y')}{$list[i].positions[y].DT_TO}{/if}</end-date>
+					{if $list[i].positions[y].DT_TO != '0' && ($list[i].positions[y].DT_TO) <= ($smarty.now|date_format:'%Y')}<end-date>{$list[i].positions[y].DT_TO}</end-date>{/if}
 				{if $list[i].positions[y].DT_TO != '0' && ($list[i].positions[y].DT_TO) < ($smarty.now|date_format:'%Y')}
 			      </past-institution>
 					{else}
-			      </institution>
+						{if $smarty.section.y.index > 0}
+				      </affiliate-institution>
+						{else}
+				      </institution>
+						{/if}
 				{/if}
 				{/section}
 		</researcher-profile>

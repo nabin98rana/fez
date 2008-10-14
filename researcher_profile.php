@@ -43,11 +43,12 @@ $tpl = new Template_API();
 $tpl_file = "researcher_profile.tpl.html";
 $tpl->setTemplate($tpl_file);
 //Static test for now.
-$staff_ids = array('0042414', '0019904', '0030530', '0038034', '0008872', '0032765', '0009029', '0072870', '0052278', '0020332');
+//$staff_ids = array('0042414', '0019904', '0030530', '0038034', '0008872', '0032765', '0009029', '0072870', '0052278', '0020332');
+$staff_ids = array('0042414', '0019904', '0030530', '0038034', '0008872', '0032765', '0009029', '0052278', '0020332'); // without pw
 $list = Author::getListByStaffIDList(0, 25, 'aut_lname', $staff_ids);
 
 $tpl->assign("list", $list['list']);
-
+$tpl->assign("app_admin_email", APP_ADMIN_EMAIL);
 header("Content-type: text/xml");
 //print_r($list); exit;
 $tpl->displayTemplate();
