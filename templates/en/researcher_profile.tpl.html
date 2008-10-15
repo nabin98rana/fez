@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- ResearcherID profile creation sample XML -->
-<profileUpload>
+<profileUpload xsi:schemaLocation="http://www.thomsonreuters.com/ns/researcher-profile/Researcher-Bulk-Profiles-schema.xsd" xmlns="http://www.thomsonreuters.com/ns/researcher-profile/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<sponsor>
 	      <name>{$org_name}</name>
 	      <admin>
@@ -57,10 +57,10 @@
 					</address>
 					<!-- At least one department -->
 					<departmentName>{$list[i].positions[y].org_title|escape:"html"}</departmentName>
-					<employeeID>{$list[i].aut_id}</employeeID>
+					{if $smarty.section.y.index == 0}<employeeID>{$list[i].aut_id}</employeeID>{/if}
 					<role>Other</role>
 					<start-date>{$list[i].positions[y].DT_FROM}</start-date>
-					{if $list[i].positions[y].DT_TO != '0' && ($list[i].positions[y].DT_TO) <= ($smarty.now|date_format:'%Y')}<end-date>{$list[i].positions[y].DT_TO}</end-date>{/if}
+					{if $list[i].positions[y].DT_TO != '0' && ($list[i].positions[y].DT_TO) < ($smarty.now|date_format:'%Y')}<end-date>{$list[i].positions[y].DT_TO}</end-date>{/if}
 				{if $list[i].positions[y].DT_TO != '0' && ($list[i].positions[y].DT_TO) < ($smarty.now|date_format:'%Y')}
 			      </past-institution>
 					{else}
