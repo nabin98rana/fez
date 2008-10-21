@@ -12,9 +12,10 @@ require 'Minify.php';
 Minify::setCache();
 Minify::serve('Groups', array(
     'groups' => array(
-        'editmeta.js'   =>  array('//js/editmetadata.js'),
-        'common.js'     =>  array('//js/browserSniffer.js', '//js/global.js', '//js/validation.js'),
-        'tabs.js'       =>  array('//js/tabcontent.js', '//js/ajaxtabs.js'),
+        'editmeta.js'   =>  array(APP_PATH . '/js/editmetadata.js'),
+        'editmeta.js'   =>  array(APP_PATH . '/js/editmetadata.js'),
+        'common.js'     =>  array(APP_PATH . '/js/browserSniffer.js', APP_PATH .'/js/global.js', APP_PATH .'/js/validation.js'),
+        'tabs.js'       =>  array(APP_PATH . '/js/tabcontent.js', APP_PATH .'/js/ajaxtabs.js'),
     )
 ));
 ?>

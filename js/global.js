@@ -55,7 +55,8 @@ function unhideRow(element_name, table_name)
 		var show_tr = document.getElementById('tr_' + element_name + '_' + firstHiddenRow);
 		show_tr.style.display = '';
 		
-		document.getElementById(element_name + '_' + (firstHiddenRow-1)+'_arrow').style.display = 'inline';
+		var arrow = document.getElementById(element_name + '_' + (firstHiddenRow-1)+'_arrow');
+		if( arrow ) arrow.style.display = 'inline';
 	}
 }
 
