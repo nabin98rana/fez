@@ -1191,7 +1191,7 @@
 									{else}
 									  {assign var="idref_xdis_id" value=$info.xsdmf_xdis_id_ref}
 									{/if}
-									<select class="default" name="xsdmf_xdis_id_ref" onChange="javascript: selectXSDDisplay(this.form, 'xsdmf_xdis_id_ref', 'xsdmf_id_ref', {if $info.xsdmf_id_ref}{$info.xsdmf_id_ref}{else}0{/if}); ">
+									<select class="default" name="xsdmf_xdis_id_ref" onChange="javascript:selectXSDDisplay(this.form, 'xsdmf_xdis_id_ref', 'xsdmf_id_ref', {if $info.xsdmf_id_ref}{$info.xsdmf_id_ref}{else}0{/if}); ">
 									 {html_options options=$xsd_displays selected=$idref_xdis_id}
 									</select> <br />
 									<div id="loading6" style="display:none;">Loading...</div>
@@ -1425,163 +1425,7 @@
 				  {/if}
 				  </td>
 				</tr>
-<!--
-		<tr id="xsd_display_att_tr" {if $xsdmf_id == ''}style="display:none"{/if}>
-			<td>
-		    {if $form_cat == 'edit'}		
-			  <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
-				<tr>
-				  <td>
-					<table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
-					  <form name="xsd_display_att_form" method="post" action="{$smarty.server.PHP_SELF}">
-					  <a id="att_main"/>
-		              <input type="hidden" name="xdis_id" value="{$xdis_id}">
- 		              <input type="hidden" name="xml_element" value="{$xml_element}">
-		              <input type="hidden" name="xsdsel_id" value="{$xsdsel_id}">
- 					  <input type="hidden" name="form_name" value="att_main">
- 					  <input type="hidden" name="att_parent_xsdmf_id" value="{$xsdmf_id}">
- 					  <input type="hidden" name="att_child_xdis_id" value="{$att_child_xsdmf_id}">
-					  {if $smarty.get.xsdref_cat == 'edit'}
-					  <input type="hidden" name="form_cat" value="update">
-					  {else}
-					  <input type="hidden" name="form_cat" value="new">
-					  {/if}
-					  <tr>
-						<td colspan="2" class="default">
-						  <b>Manage XSD Display Attachments</b>
-						</td>
-					  </tr>
-					  {if $result != ""  && $smarty.post.form_name == "att_main"}
-					  <tr>
-						<td colspan="2" bgcolor="{$cell_color}" align="center" class="error">
-						  {if $smarty.post.form_cat == "new"}
-							{if $result == -1}
-							  An error occurred while trying to add the new xsd display attachment.
-							{elseif $result == 1}
-							  Thank you, the xsd display attachment was added successfully.
-							{/if}
-						  {elseif $smarty.post.form_cat == "update"}
-							{if $result == -1}
-							  An error occurred while trying to update the xsd display attachment information.
-							{elseif $result == 1}
-							  Thank you, the xsd display attachment was updated successfully.
-							{/if}
-						  {/if}
-						</td>
-					  </tr>
-					  {/if}
-					<tr id="tr_att_xdis_id">
-					  <td bgcolor="{$cell_color}" class="default">
-						<b>XSD Display</b>
-					  </td>
-					  <td bgcolor="{$light_color}">
-						<select class="default" name="att_xdis_id" onChange="javascript: selectXSDDisplay(this.form, 'att_xdis_id', 'att_child_xsdmf_id', 0)">
-						 {html_options options=$xsd_displays selected=$xdis_id}
-						</select>
-					  </td>
-					</tr>
-					<tr id="tr_att_child_xsdmf_id">
-					  <td bgcolor="{$cell_color}" class="default">
-						<b>XSD Matching Field</b>
-					  </td>
-					  <td bgcolor="{$light_color}">
-						<div id="loading1" style="display:none;">Loading...</div>
-						<select class="default" name="att_child_xsdmf_id" >
-						</select>
-					  </td>
-					</tr>
-					  <tr>
-						<td width="120" bgcolor="{$cell_color}" class="default">
-						  <b>Order:</b>
-						</td>
-						<td bgcolor="{$light_color}">
-						  <input type="text" name="att_order" size="20" class="default">
-						  {include file="error_icon.tpl.html" field="att_order"}
-						</td>
-					  </tr>
-					  <tr>
-						<td colspan="2" bgcolor="{$cell_color}" align="center">
-						  {if $smarty.get.att_cat == 'edit'}
-						  <input class="button" type="submit" value="Update XSD Display Attachment">
-						  {else}
-						  <input class="button" type="submit" value="Add XSD Display Attachment">
-						  {/if}
-						  <input class="button" type="reset" value="Reset">
-						</td>
-					  </tr>
-					  </form>
-					  <tr>
-						<td colspan="2" class="default">
-						  <b>Existing XSD Display Attachments:</b>
-						</td>
-					  </tr>
-					  <tr>
-						<td colspan="2">
-						  <table border="0" width="100%" cellpadding="1" cellspacing="1">
-							<form name="att_form_delete" onSubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}">							
-				            <input type="hidden" name="xdis_id" value="{$xdis_id}">
-				            <input type="hidden" name="xml_element" value="{$xml_element}">
-				            <input type="hidden" name="xsdsel_id" value="{$xsdsel_id}">
-						    <input type="hidden" name="form_name" value="att_delete">
-							<input type="hidden" name="form_cat" value="delete">
-							<input type="hidden" name="att_parent_xsdmf_id" value="{$att_parent_xsdmf_id}">
-							<tr>
-							  <td width="5" bgcolor="{$cell_color}" nowrap align="center"><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
-							  <td width="15%" bgcolor="{$cell_color}" class="default">&nbsp;<b>XSD Display</b></td>
-							  <td width="15%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Version</b></td>
-							  <td width="55%" bgcolor="{$cell_color}" class="default">&nbsp;<b>XSDMF ID/Element</b></td>
-							  <td width="15%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Order</b></td>
-							</tr>
-							{section name="i" loop=$xsd_display_att_list}
-							{cycle values=$cycle assign="row_color"}
-							<tr>
-							  <td width="4" nowrap bgcolor="{$row_color}" align="center">
-								<input type="checkbox" name="items[]" value="{$xsd_display_att_list[i].att_id}" {if $smarty.section.i.total == 0}disabled{/if}>
-							  </td>
-							  <td width="15%" bgcolor="{$row_color}" class="default">
-								&nbsp;{$xsd_display_att_list[i].xdis_title}
-							  </td>
-							  <td width="15%" bgcolor="{$row_color}" class="default">
-								&nbsp;{$xsd_display_att_list[i].xdis_version}
-							  </td>
-							  <td width="55%" bgcolor="{$row_color}" class="default">
-								&nbsp;<a href="xsd_tree_match_form.php?xdis_id={$xdis_id}&xml_element={$xml_element}&xsdsel_id={$xsdsel_id}&att_cat=edit&att_id_edit={$xsd_display_att_list[i].att_id}">({$xsd_display_att_list[i].xsdmf_id}){if $xsd_display_att_list[i].xsdsel_title != ""}({$xsd_display_att_list[i].xsdsel_title}){/if}{$xsd_display_att_list[i].xsdmf_element}</a>
-							  </td>
-							  <td width="15%" bgcolor="{$row_color}" class="default">
-								&nbsp;{$xsd_display_att_list[i].att_order}
-							  </td>
-							</tr>
-							{sectionelse}
-							<tr>
-							  <td colspan="5" bgcolor="{$light_color}" align="center" class="default">
-								No xsd display attachments could be found.
-								<input type="hidden" id="no_xsd_atts" name="no_xsd_atts" value="true">
-							  </td>
-							</tr>
-							{/section}
-							<tr>
-							  <td width="4" align="center" bgcolor="{$cell_color}">
-								<input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
-							  </td>
-							  <td colspan="5" bgcolor="{$cell_color}">
-								<input type="submit" value="Delete" class="button">
-							  </td>
-							</tr>
-							</form>
-						  </table>
-						</td>
-					  </tr>
-					</table>
-				  </td>
-				</tr>
-					</table>
-				  {else}
-					  <input type="hidden" id="no_xsd_atts" name="no_xsd_atts" value="true">
-					  <font color="green" class="default"><strong>When you create this matching field entry a XSD Attachments management panel will appear here for you to chose the XSD Attachments.</strong></font>
-				  {/if}
-				  </td>
-				</tr>
--->
+
 				<tr id="xsd_loop_subelement_tr" {if $info.xsdmf_html_input != 'xsd_loop_subelement'}style="display:none"{/if}>
 					<td>
 					 {if $form_cat == 'edit'}
@@ -1812,7 +1656,6 @@ dt_load_array['att_child_xsdmf_id'] = 0;
 dt_load_array['xsdsel_attribute_loop_xsdmf_id'] = 0;
 dt_load_array['xsdmf_id_ref'] = 0;
 {/literal}{if $form_cat == 'edit'}{literal}
-	  selectXSDDisplay(getForm('xsd_display_att_form'), 'att_xdis_id', 'att_child_xsdmf_id', {/literal}{if $xsd_attach_details.att_child_xsdmf_id}{$xsd_attach_details.att_child_xsdmf_id}{else}0{/if}{literal}); 
 	  selectXSDDisplay(getForm('xsd_loop_subelement_form'), 'xsdsel_attribute_loop_xdis_id', 'xsdsel_attribute_loop_xsdmf_id', {/literal}{if $xsd_loop_subelement_details.xsdsel_attribute_loop_xsdmf_id}{$xsd_loop_subelement_details.xsdsel_attribute_loop_xsdmf_id}{else}0{/if}{literal}); 
 	  selectXSDDisplay(getForm('xsd_loop_subelement_form'), 'xsdsel_indicator_xdis_id', 'xsdsel_indicator_xsdmf_id', {/literal}{if $xsd_loop_subelement_details.xsdsel_indicator_xsdmf_id}{$xsd_loop_subelement_details.xsdsel_indicator_xsdmf_id}{else}0{/if}{literal}); 
 {/literal}{/if}{literal}
