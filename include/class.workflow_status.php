@@ -183,7 +183,6 @@ class WorkflowStatus {
         $dbtp =  APP_TABLE_PREFIX;
         $stmt = "DELETE FROM ".$dbtp."workflow_sessions " .
                 "WHERE wfses_id='".$id."' AND wfses_usr_id='".$usr_id."' ";
-//echo $stmt;
         $res = $GLOBALS["db_api"]->dbh->query($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -371,8 +370,10 @@ class WorkflowStatus {
      */
     function setCreatedPid($pid)
     {
-        $this->parent_pid = $this->pid;
-        $this->pid = $pid;
+		if (empty($this->parent_pid)) {
+			$this->parent_pid = $pid;
+		}
+		$this->pid = $pid;
     }
 
     /**

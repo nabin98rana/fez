@@ -63,9 +63,12 @@ $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign('type', 'enter_metadata');
 
 $isAdministrator = User::isUserAdministrator(Auth::getUsername());
+if (!empty($wfstatus->parent_pid)) {
+	$pid = $wfstatus->parent_pid;
+} else {
+	$pid = $wfstatus->pid;	
+}
 
-
-$pid = $wfstatus->pid;
 $tpl->assign("pid", $pid);
 if (empty($pid)) {
 	echo "The system is currently setup to only allow administrators to create objects without any communities/collections. Please go back and choose a community and collection.";
@@ -98,7 +101,6 @@ if ($access_ok) {
     if (@$_POST["cat"] == "report") {
         $res = Record::insert();
         $wfstatus->setCreatedPid($res);
-        $wfstatus->parent_pid = $wfstatus->pid;
         $wfstatus->pid = $res;
     }
     $wfstatus->checkStateChange();
