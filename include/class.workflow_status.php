@@ -224,6 +224,8 @@ class WorkflowStatus {
             $this->parents_list = null;
             if ($wft_type == 'Create') {
                 $this->parent_pid = $this->pid;
+				// CK added null'ing the pid var if its a create workflow 23/10/2008
+				$this->pid = null;
             } elseif (($wft_type != 'Ingest') && ($this->dsID == "")) {
                 $this->getRecordObject();
                 $this->parents_list = $this->rec_obj->getParents();
@@ -370,9 +372,11 @@ class WorkflowStatus {
      */
     function setCreatedPid($pid)
     {
-		if (empty($this->parent_pid)) {
+	
+// commented out assigned the parent pid to the pid of object in question cause why would you ever want to do this? - CK 23/10/2008
+/*		if (empty($this->parent_pid)) {
 			$this->parent_pid = $pid;
-		}
+		} */
 		$this->pid = $pid;
     }
 

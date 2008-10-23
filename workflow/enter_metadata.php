@@ -63,14 +63,9 @@ $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign('type', 'enter_metadata');
 
 $isAdministrator = User::isUserAdministrator(Auth::getUsername());
-if (!empty($wfstatus->parent_pid)) {
-	$pid = $wfstatus->parent_pid;
-} else {
-	$pid = $wfstatus->pid;	
-}
-
-$tpl->assign("pid", $pid);
-if (empty($pid)) {
+//CK commented this out as it is not needed in a entermetadata form anymore
+//$tpl->assign("pid", $pid);
+if (empty($wfstatus->parent_pid)) {
 	echo "The system is currently setup to only allow administrators to create objects without any communities/collections. Please go back and choose a community and collection.";
 	exit;
 }
@@ -85,12 +80,12 @@ if ($debug == 1) {
 	$tpl->assign("debug", "0");	
 }
 $tpl->assign("extra_title", "Create New ".$xdis_title);
-if ($pid == -1 || $pid == -2 || !$pid) {
+if ($wfstatus->parent_pid == -1 || $wfstatus->parent_pid == -2 || !$wfstatus->parent_pid) {
     $access_ok = $isAdministrator;
 } else {
-    $community_pid = $pid;
-    $collection_pid = $pid;
-    $record = new RecordObject($pid);
+    $community_pid = $wfstatus->parent_pid;
+    $collection_pid = $wfstatus->parent_pid;
+    $record = new RecordObject($wfstatus->parent_pid);
     $access_ok = $record->canCreate();
 	$canEdit = $record->canEdit();
 }
@@ -145,8 +140,8 @@ if ($access_ok) {
     $maxG = 0;
 	$xsd_display_fields = XSD_HTML_Match::getListByDisplay($xdis_id, array("FezACML"), array(""));  // XSD_DisplayObject
 
-	if (!is_numeric($pid) && $pid != "") {
-	  $parent_record = new RecordObject($pid);	  
+	if (!is_numeric($wfstatus->parent_pid) && $wfstatus->parent_pid != "") {
+	  $parent_record = new RecordObject($wfstatus->parent_pid);	  
 	  $parent_xdis_id = $parent_record->getXmlDisplayId();
 	  $parent_relationships = XSD_Relationship::getColListByXDIS($parent_xdis_id);
       array_push($parent_relationships, $parent_xdis_id);
