@@ -1208,6 +1208,13 @@ function restoreDefaultColours(el)
 			  {include file="error_icon.tpl.html" field="app_solr_path"}
 			</td>
   		  </tr>
+		  <tr>
+		    <td class="colname">Solr Commit Limit (the maximum number of objects to queue in a solr batch before sending to solr. Lower if you have having PHP out of memory issues - default is 100)</td>
+			<td class="coldetail">
+			  <input type="text" name="app_solr_commit_limit" value="{$config_settings.app_solr_commit_limit|escape:"html"}" size="50" />
+			  {include file="error_icon.tpl.html" field="app_solr_commit_limit"}
+			</td>
+  		  </tr>
 		</table>
 		</div>
 		

@@ -410,7 +410,7 @@ class Auth
 			}
 			foreach ($return as $key => $record) {	
 				if (is_array(@$record['FezACML'])) {
-					if (!is_array(@$returns[$pid])) {
+					if (!is_array(@$returns[$pid]) || count(@$returns[$pid]) > 10) {
 						$returns[$pid] = array();
 					}
 					foreach ($record['FezACML'] as $fezACML_row) {
@@ -429,7 +429,7 @@ class Auth
 						array_push($returns[$pid], $pACML);
 					}
 				} else {
-					if (!is_array(@$returns[$pid])) {
+					if (!is_array(@$returns[$pid]) || count(@$returns[$pid]) > 10) {
 						$returns[$pid] = array();
 					}
 					$parentACMLs = array();
@@ -929,14 +929,17 @@ class Auth
 		}
 		
         if ($GLOBALS['app_cache']) {
-		  if ($dsID != "") {
-		      $roles_cache[$pid][$dsID] = $userPIDAuthGroups;
-	  	  } else {			
-	          $roles_cache[$pid] = $userPIDAuthGroups;
-		  }
-        }
-       return $userPIDAuthGroups;
-    } 
+			if (!is_array($roles_cache) || count($roles_cache) > 10) { //make sure the static memory var doesnt grow too large and cause a fatal out of memory error
+				$roles_cache = array();
+			}
+			if ($dsID != "") {
+				$roles_cache[$pid][$dsID] = $userPIDAuthGroups;
+			} else {			
+				$roles_cache[$pid] = $userPIDAuthGroups;
+			}
+		}
+		return $userPIDAuthGroups;
+	} 
 
 	    /**
 	     * getAuth
@@ -1116,6 +1119,9 @@ class Auth
 	        }
 	        
 			if ($GLOBALS['app_cache']) {
+				if (!is_array($roles_cache) || count($roles_cache) > 10) { //make sure the static memory var doesnt grow too large and cause a fatal out of memory error
+					$roles_cache = array();
+				}
 				if ($dsID != "") {
 				    $roles_cache[$pid][$dsID] = $auth_groups;
 				} else {			

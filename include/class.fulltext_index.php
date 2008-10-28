@@ -79,8 +79,8 @@ abstract class FulltextIndex {
 	//public $memory_man;
 	
 	// how often the index optimizer is called
-	const COMMIT_COUNT = 500;
-
+//	const COMMIT_COUNT = 500;
+	const COMMIT_COUNT = APP_SOLR_COMMIT_LIMIT; // Now gets this variablee from a config var set in the admin gui
 	
 	/**
 	 * Links this instance to a corresponding background process.

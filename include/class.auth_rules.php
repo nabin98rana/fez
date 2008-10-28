@@ -52,6 +52,10 @@ class AuthRules
         } else {
             $arg_id = $res['arg_id'];
         }
+		if (!is_array(@$gcache) || count(@$gcache) > 10) {
+			$gcache = array();
+		}
+
         $gcache[$rmd5] = $arg_id;
         return $arg_id;
     }

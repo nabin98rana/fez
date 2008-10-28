@@ -132,7 +132,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex {
         }
         
         /*
-         * Loop through queue and index 500 records at a time into solr
+         * Loop through queue and index a number of records set in APP_SOLR_COMMIT_LIMIT config var at a time into solr
          */
     	while( ($chunk = $queue->popChunk($singleColumns)) != false ) {
     	    
@@ -307,7 +307,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex {
     		//$this->postprocessIndex($ftq_pid, $ftq_op);
             //Logger::debug("processQueue: finished indexing mem_used=".memory_get_usage());
             
-            $countDocs += 500;
+            $countDocs += APP_SOLR_COMMIT_LIMIT;
             
             if( $this->bgp ) {
                 $this->bgp->setStatus("Finished Solr fulltext indexing for (".$countDocs."/".$this->totalDocs." Added)");

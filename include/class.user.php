@@ -95,6 +95,9 @@ class User
             return "";
         } else {
         	if ($GLOBALS['app_cache']) {
+				if (!is_array($returns) || count($returns) > 10) { //make sure the static memory var doesnt grow too large and cause a fatal out of memory error
+					$returns = array();
+				}
                 $returns[$username] = $res;
             }
 			if (!is_numeric($res)) {
@@ -357,6 +360,9 @@ class User
             return "";
         } else {
         	if ($GLOBALS['app_cache']) {
+				if (!is_array($returns) || count($returns) > 10) { //make sure the static memory var doesnt grow too large and cause a fatal out of memory error
+					$returns = array();
+				}
                 $returns[$key] = $res;
             }
             return $res;
@@ -393,6 +399,9 @@ class User
             return '';
         } else {
         	if ($GLOBALS['app_cache']) {
+				if (!is_array($returns) || count($returns) > 10) { //make sure the static memory var doesnt grow too large and cause a fatal out of memory error
+					$returns = array();
+				}
                 $returns[$username] = $res;
             }
             return $res;
@@ -1290,6 +1299,9 @@ class User
             return "";
         } else {
         	if ($GLOBALS['app_cache']) {
+				if (!is_array($returns) || count($returns) > 10) { //make sure the static memory var doesnt grow too large and cause a fatal out of memory error
+					$returns = array();
+				}
                 $returns[$usr_id] = $res;
             }
             return $res;
@@ -1324,6 +1336,9 @@ class User
             return "";
         } else {
         	if ($GLOBALS['app_cache']) {
+				if (!is_array($returns) || count($returns) > 10) { //make sure the static memory var doesnt grow too large and cause a fatal out of memory error
+					$returns = array();
+				}
                 $returns[$ext_id] = $res;
             }
             return $res;

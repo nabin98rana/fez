@@ -862,7 +862,10 @@ class Fedora_API {
 				$counter++;
 			}
 			if ($GLOBALS['app_cache']) {
-			  $returns[$pid] = $resultlist;
+				if (!is_array($returns) || count($returns) > 10) { //make sure the static memory var doesnt grow too large and cause a fatal out of memory error
+					$returns = array();
+				}
+				$returns[$pid] = $resultlist;
             }
 			return $resultlist;
         } else {

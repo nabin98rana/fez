@@ -134,7 +134,10 @@ class Group
             return "";
         } else {
         	if ($GLOBALS['app_cache']) {
-                $returns[$grp_id] = $res;
+				if (!is_array($returns) || count($returns) > 10) { //make sure the static memory var doesnt grow too large and cause a fatal out of memory error
+					$returns = array();
+				}
+				$returns[$grp_id] = $res;
             }
             return $res;
         }
@@ -372,7 +375,10 @@ class Group
             return "";
         } else {
         	if ($GLOBALS['app_cache']) {
-                $returns[$usr_id] = $res;
+				if (!is_array($returns) || count($returns) > 10) { //make sure the static memory var doesnt grow too large and cause a fatal out of memory error
+					$returns = array();
+				}
+				$returns[$usr_id] = $res;
             }
             return $res;
         }

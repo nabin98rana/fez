@@ -174,6 +174,9 @@ class Author
             return "";
         } else {
         	if ($GLOBALS['app_cache']) {
+				if (!is_array($returns) || count($returns) > 10) { //make sure the static memory var doesnt grow too large and cause a fatal out of memory error
+					$returns = array();
+				}
                 $returns[$aut_id] = $res;
             }
             return $res;
@@ -521,7 +524,10 @@ class Author
             return "";
         } else {
         	if ($GLOBALS['app_cache']) {
-                $returns[$aut_id] = $res;
+				if (!is_array($returns) || count($returns) > 10) { //make sure the static memory var doesnt grow too large and cause a fatal out of memory error
+					$returns = array();
+				}
+				$returns[$aut_id] = $res;
             }
             return $res;
         }

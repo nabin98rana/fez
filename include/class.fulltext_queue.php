@@ -352,7 +352,7 @@
 			$sql .= ") as row FROM ".APP_TABLE_PREFIX."fulltext_queue 
 			             LEFT JOIN ".APP_TABLE_PREFIX."record_search_key as sk ON rek_pid = ftq_pid 
 		             WHERE ftq_op = '".FulltextQueue::ACTION_INSERT."'
-		             LIMIT 500";
+		             LIMIT ".APP_SOLR_COMMIT_LIMIT;
 			
 			$result = $GLOBALS['db_api']->dbh->getAll($sql, DB_FETCHMODE_ASSOC);
 			if (PEAR::isError($result)) {

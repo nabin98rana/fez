@@ -261,7 +261,10 @@ class Record
 		}
 		$details = array_reverse($details);
 		if ($GLOBALS['app_cache']) {
-		  $returns[$pid][$searchKey] = $details;
+			if (!is_array($returns) || count($returns) > 10) { //make sure the static memory var doesnt grow too large and cause a fatal out of memory error
+				$returns = array();
+			}
+			$returns[$pid][$searchKey] = $details;
         }
 		return $details;
     }
@@ -303,7 +306,10 @@ class Record
 		}
 		$details = array_reverse($details);
 		if ($GLOBALS['app_cache']) {
-		  $returns[$pid][$searchKey] = $details;
+			if (!is_array($returns) || count($returns) > 10) { //make sure the static memory var doesnt grow too large and cause a fatal out of memory error
+				$returns = array();
+			}
+			$returns[$pid][$searchKey] = $details;
         }
 		return $details;
     }
@@ -337,7 +343,10 @@ class Record
 		}
 		$details = array_reverse($details);
 		if ($GLOBALS['app_cache']) {
-		  $returns[$pid][$searchKey] = $details;
+			if (!is_array($returns) || count($returns) > 10) { //make sure the static memory var doesnt grow too large and cause a fatal out of memory error
+				$returns = array();
+			}
+			$returns[$pid][$searchKey] = $details;
         }
 		return $details;
     }
@@ -838,15 +847,21 @@ class Record
 			$xmldoc->preserveWhiteSpace = false;
 			$xmldoc->loadXML($xmlACML);
 			if ($GLOBALS['app_cache']) {
-			  if ($dsID != "") {
-			  	$acml_cache['ds'][$dsID][$pid] = $xmldoc;
-			  } else {
-				$acml_cache['pid'][$pid] = $xmldoc;
-			  }
+				if (!is_array($acml_cache) || count($acml_cache) > 10) { //make sure the static memory var doesnt grow too large and cause a fatal out of memory error
+					$acml_cache = array();
+				}
+				if ($dsID != "") {
+					$acml_cache['ds'][$dsID][$pid] = $xmldoc;
+				} else {
+					$acml_cache['pid'][$pid] = $xmldoc;
+				}
             }
 			return $xmldoc;
 		} else {
 		  if ($GLOBALS['app_cache']) {
+			if (!is_array($acml_cache) || count($acml_cache) > 10) { //make sure the static memory var doesnt grow too large and cause a fatal out of memory error
+				$acml_cache = array();
+			}
 			if ($dsID != "") {
 				$acml_cache['ds'][$dsID][$pid] = false;
 			} else {

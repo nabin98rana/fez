@@ -2150,6 +2150,9 @@ class XSD_HTML_Match {
 				return "";
 			} else {
 				if ($GLOBALS['app_cache']) {
+					if (!is_array($returns) || count($returns) > 10) { //make sure the static memory var doesnt grow too large and cause a fatal out of memory error
+						$returns = array();
+					}					
 				    $returns[$sek_title] = $res;
                 }
 				return $res;
@@ -2186,6 +2189,9 @@ class XSD_HTML_Match {
 				return "";
 			} else {
 				if ($GLOBALS['app_cache']) {
+					if (!is_array($returns) || count($returns) > 10) { //make sure the static memory var doesnt grow too large and cause a fatal out of memory error
+						$returns = array();
+					}					
 				    $returns[$sek_id] = $res;
                 }
 				return $res;
@@ -2482,6 +2488,9 @@ class XSD_HTML_Match {
 				$res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
 				if (!PEAR::isError($res)) {
 					if ($GLOBALS['app_cache']) {
+						if (!is_array($mfo_returns) || count($mfo_returns) > 10) { //make sure the static memory var doesnt grow too large and cause a fatal out of memory error
+							$mfo_returns = array();
+						}						
 					    $mfo_returns[$fld_id] = $res;
                     }
 				}
@@ -2489,7 +2498,7 @@ class XSD_HTML_Match {
 			if (PEAR::isError($res)) {
 				Error_Handler::logError(array (
 				$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-				return array ();
+				return array();
 			}
 			return $res;
 		}

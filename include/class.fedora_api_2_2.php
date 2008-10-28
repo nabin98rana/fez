@@ -565,7 +565,7 @@ class Fedora_API {
 				}
 			   $versionable = $versionable === true ? 'true' : $versionable === false ? 'false' : $versionable;
 			   $dsExists = Fedora_API::datastreamExists($pid, $dsIDName, true);
-			   if ($dsExists != true) {
+			   if ($dsExists !== true) {
 	              //Call callAddDatastream
 
 	              $dsID = Fedora_API::callCreateDatastream ($pid, $dsIDName, $uploadLocation, $dsLabel, $mimetype, $controlGroup, $versionable);
@@ -770,6 +770,7 @@ class Fedora_API {
     * @return array $dsIDListArray The list of datastreams in an array.
     */
     function callGetDatastreams($pid, $createdDT=NULL, $dsState='A') {
+	
         if (!is_numeric($pid)) {
 
             if (APP_FEDORA_APIA_DIRECT == "ON") {
@@ -809,7 +810,6 @@ class Fedora_API {
             }
             sort($dsIDListArray);
             reset($dsIDListArray);
-            $returns[$pid] = $dsIDListArray;
             return $dsIDListArray;
         } else {
             return array();
@@ -834,7 +834,6 @@ class Fedora_API {
             $dsIDListArray = Fedora_API::openSoapCallAccess('listDatastreams', $parms);
             sort($dsIDListArray);
             reset($dsIDListArray);
-            $returns[$pid] = $dsIDListArray;
             return $dsIDListArray;
         } else {
             return array();
@@ -890,7 +889,10 @@ class Fedora_API {
 			}
             //print_r($resultlist);
 			if ($GLOBALS['app_cache']) {
-			  $returns[$pid] = $resultlist;
+				if (!is_array($returns) || count($returns) > 10) { //make sure the static memory var doesnt grow too large and cause a fatal out of memory error
+					$returns = array();
+				}
+				$returns[$pid] = $resultlist;
             }
 			return $resultlist;
         } else {
