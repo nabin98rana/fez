@@ -76,7 +76,7 @@ class DB_API
         }
         
         // Tell MySQL we will be sending data to them in UTF-8 format
-        $this->dbh->query("SET NAMES 'utf8'");
+        //$this->dbh->query("SET NAMES 'utf8'");
     }
 
 
