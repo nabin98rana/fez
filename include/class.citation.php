@@ -164,7 +164,7 @@
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return false;
         }
-        if ( APP_SOLR_INDEXER == "ON" ) {
+        if (( APP_SOLR_INDEXER == "ON" ) || (APP_FILECACHE == "ON")) {
 	        $stmt = "SELECT rek_pid FROM ".$dbtp."record_search_key WHERE rek_display_type=".$xdis_id;
         	$res = $GLOBALS["db_api"]->dbh->getCol($stmt);
 	        if (PEAR::isError($res)) {
@@ -172,8 +172,15 @@
 	            return false;
 	        } else {
 				foreach ($res as $pid) {
-					Logger::debug("Citation::clearCitationCacheByType ADDING ".$pid." TO QUEUE");
-					FulltextQueue::singleton()->add($pid);
+					if (APP_FILECACHE == "ON") {
+						Logger::debug("Citation::clearCitationCacheByType Poisoning fileCache for ".$pid."");
+						$cache = new fileCache($pid, 'pid='.$pid);
+	        			$cache->poisonCache();
+					}
+					if ( APP_SOLR_INDEXER == "ON" ) {
+						Logger::debug("Citation::clearCitationCacheByType ADDING ".$pid." TO QUEUE");
+						FulltextQueue::singleton()->add($pid);
+					}
 				}
 			}
 

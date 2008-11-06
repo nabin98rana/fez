@@ -48,7 +48,7 @@ for the first time.  This will attempt to find citations defined in the xsdmf ma
 in the citations table.</div>
 <br />
 <div class="default"><a href="{$smarty.server.PHP_SELF}?action=clear_cache" onclick="return confirm('Are you sure you want to clear the citation cache?')">Clear citation cache</a> if you want to flush out any cached citations displaying
-in the list/browse/search results. Alternatively any time you update a citation style it will flush out the cache of that style.</div>
+in the list/browse/search results. Alternatively any time you update a citation style it will flush out the cache of that style. WARNING: If you have file caching on (which caches view pages for non-logged in view) you must manually clear out anything under your fez/cache directory otherwise it will still show the old citation style on those pages. This is not necessary when you change a citation style, only when you clear them all at once using this command.</div>
 
 
 {elseif $action=='edit' || $action=='preview'}
