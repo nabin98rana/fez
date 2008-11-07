@@ -1144,9 +1144,7 @@ return;
         $author_tokens1 = $this->tokenise($record1->getFieldValueBySearchKey('Author'));
         $author_tokens2 = $this->tokenise($record2->getFieldValueBySearchKey('Author'));
         $author_score = $this->calcOverlap($author_tokens1, $author_tokens2);
-		//if ($author_score != 0) {
-			$author_score = (($author_score+1)/2);
-		//}
+		$author_score = (($author_score+1)/2);
 
         // if this is a journal
         if (is_numeric(strpos($record1->getDocumentType(), 'Journal Article'))
@@ -1216,11 +1214,22 @@ print_r($journal_tokens2); */
         $isi_loc_match_count = 0;
         $found_count = 0;
         $merge_ok_count = 0;
+        $left_pids = array();
         for ($ii = 0; $ii < $items->length; $ii++) {
             $itemNode = $items->item($ii);
             if (!empty($itemNode)) {
-                list($max_score,$resolved,$isi_match, $dups_count, $merge_result)
-                	                = $this->getDupsStats($itemNode, $xpath);
+
+
+            	$left_pid = '';
+            	$left_pid = $itemNode->getAttribute('pid');	
+        	if ($left_pid != '') {
+        		if (!in_array($left_pids, $left_pids)) {
+        			array_push($left_pids, $left_pid);
+        		}
+        	}
+
+
+                list($max_score,$resolved,$isi_match, $dups_count, $merge_result) = $this->getDupsStats($left_pid, $xpath, $itemNode);
                 if ($resolved) {
                 	$resolved_count++;
 	            } else {
@@ -1256,16 +1265,34 @@ print_r($journal_tokens2); */
         return compact('listing','list_meta');
     }
 
-    function getDupsStats($itemNode, $xpath)
+    function getDupsStats($left_pid, $xpath, $itemNode)
     {
         $max_score = 0;
-        $dups_list = $xpath->query('duplicateItem', $itemNode);
+//        $dups_list = $xpath->query('duplicateItem', $itemNode);
+        $dups_list = $xpath->query("/DuplicatesReport/duplicatesReportItem[@pid='".$left_pid."']/duplicateItem");
         $resolved = true;
         $base_isi_loc = $itemNode->getAttribute('isi_loc');
+        //$base_isi_loc = '';
         $isi_match = false;
         $merge_result = true;
         $dups_count = $dups_list->length;
+
+        $right_pids = array();
+        $right_pid = '';
+
         foreach ($dups_list as $dupNode) {
+
+  	    	$right_pid = '';
+           	$right_pid = $dupNode->getAttribute('pid');	
+        	if ($right_pid != '') {
+        		if (!in_array($right_pid, $right_pids)) {
+        			array_push($right_pids, $right_pid);
+        		} else {
+        			continue;
+        		}
+        	}   
+
+
             $score = $dupNode->getAttribute('probability');
             if ($score > $max_score) {
                 $max_score = $score;
@@ -1318,7 +1345,7 @@ print_r($journal_tokens2); */
  				if ($node->nodeType == XML_ELEMENT_NODE) {
 	 				$pid = $node->getAttribute('pid');
  					if (!$show_resolved) {
- 						list($max_score,$resolved,$isi_match,$merge_result) = $this->getDupsStats($node, $xpath);
+ 						list($max_score,$resolved,$isi_match,$merge_result) = $this->getDupsStats($pid, $xpath, $node);
  					}
  					if ($show_resolved || !$resolved) {
  						$done = true;
@@ -1342,11 +1369,21 @@ print_r($journal_tokens2); */
         $listing = array();
         foreach ($items as $item) {
             $listing_item = array();
+            $right_pid = '';
             foreach (array('pid','probability','duplicate','mergeResult') as $att) {
                 $listing_item[$att] = $item->getAttribute($att);
+            	if ($att == 'pid') {
+            		$right_pid = $listing_item[$att];
+            	}                
             }
-            $listing[] = $listing_item;
+            if ($right_pid != '' && !array_key_exists($right_pid, $listing)) { //if base pid appears more than once than try and merge them
+            	$listing[$right_pid] = $listing_item;
+            }	
+
+//            $listing[] = $listing_item;
+            
         }
+        $listing = array_values($listing);
         $res = array(
         	'listing' => $listing,
         	'list_meta' => $list_meta
