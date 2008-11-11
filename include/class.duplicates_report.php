@@ -400,11 +400,17 @@ return;
         $dbtp = APP_SQL_DBNAME . "." . APP_TABLE_PREFIX;
         // Do a fuzzy title match on records that don't have the same pid as the candidate record
         // and are type '3' (records not collections or communities)
+        // and are not preprints..
+        $pre_print_display_type = XSD_Display::getID("Preprint");
+        $pp_where = "";
+        if (is_numeric($pre_print_display_type)) {
+        	$pp_where = " AND rek_display_type != ".$pre_print_display_type;
+        }
         $stmt = "SELECT distinct r2.rek_pid as pid, " .
                 "  match (r2.rek_title) against ('".Misc::escapeString($title)."') as relevance " .
                 "FROM  ".$dbtp."record_search_key AS r2 " .
                 "  WHERE match (r2.rek_title) against ('".Misc::escapeString($title)."') " .
-                "  AND NOT(rek_pid = '".$pid."') AND rek_object_type = 3" .
+                "  AND NOT(rek_pid = '".$pid."') AND rek_object_type = 3 " . $pp_where .
                 " ORDER BY relevance DESC " .
                 " LIMIT 0,5";
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
