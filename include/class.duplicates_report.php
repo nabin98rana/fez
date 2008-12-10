@@ -82,13 +82,28 @@ class DuplicatesReport {
         $progress = 0;
         $dupes_count = 0;
         $report_array = array();
+		$bgp_details = $this->bgp->getDetails();
+        $tz = Date_API::getPreferredTimezone($bgp_details["bgp_usr_id"]);
         for ($ii = 0; $ii < count($pids); $ii++) {
             $pid = $pids[$ii];
+			$progress++;
+            $utc_date = Date_API::getSimpleDateUTC();
+            
+            $time_per_object = Date_API::dateDiff("s", $bgp_details['bgp_started'], $utc_date);
+            $time_per_object = round(($time_per_object / $progress), 2);
+
+            $records_left = $total_pids - $progress;
+            
+            $date_new = new Date(strtotime($bgp_details['bgp_started']));
+            $date_new->addSeconds($time_per_object*$records_left);
+            
+            $expected_finish = Date_API::getFormattedDate($date_new->getTime(), $tz);
+
             if (!empty($this->bgp)) {
-                $this->bgp->setProgress(++$progress / $total_pids * 100);
+                $this->bgp->setProgress($progress / $total_pids * 100);
                 $this->bgp->setStatus("Processing " . $progress . " of " . $total_pids . ", "
                 	. $pid . ". "
-                	. $dupes_count . " dupes found so far.");
+                	. $dupes_count . " dupes found so far. (Avg ".$time_per_object."s per Object, Expected Finish ".$expected_finish.")");
             }
             $record = new RecordGeneral($pid);
             if ($record->checkExists()) {
