@@ -78,11 +78,8 @@ function startSetup() {
             $tpl->assign('problems', $problems);
             break;
         case 1:
-            if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) {
-                $tpl->assign('default_path', "C:/apache/htdocs/your-fez-directory/");
-            } else {
-                $tpl->assign('default_path', "/usr/local/apache/htdocs/your-fez-directory/");            
-            }
+			$app_path = dirname(dirname(__FILE__)) . '/';\r
+			$tpl->assign('default_path', $app_path);\r
             break;
        case 2:
             // Test the values we've been given.
