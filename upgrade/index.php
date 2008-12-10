@@ -302,6 +302,7 @@ function upgrade()
             $success = $success && set_data_model_version($sql_upgrade);
         } else {
             $success = false;
+			$failure_point = $sql_upgrade;
             break;
         }
     }
@@ -309,7 +310,7 @@ function upgrade()
     if ($success) {
         return array($success, "Upgrade to database version $sql_upgrade succeeded.");
     } else {
-        return array($success, 'The upgrade failed - check error_handler.log');
+        return array($success, "The upgrade failed (At upgrade '$failure_point') - check error_handler.log.");
     }
 }
 
