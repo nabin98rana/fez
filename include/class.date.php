@@ -214,8 +214,13 @@ class Date_API
      */
     function getCurrentDateGMT($includeMilliseconds=false)
     {
-    	if( $includeMilliseconds )
-	        return gmdate('Y-m-d H:i:s.u');
+    	if( $includeMilliseconds ) {
+	      	if (version_compare(phpversion(), "5.2.0", "<")) {
+				return gmdate('Y-m-d H:i:s').".000000";
+	        } else {
+				return gmdate('Y-m-d H:i:s.u');
+			}
+		}
 	    return gmdate('Y-m-d H:i:s');
     }
 
