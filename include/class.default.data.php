@@ -152,7 +152,7 @@ class Default_Data
         $defaultData['app_pid_namespace']                   = "";   // Empty default
         $defaultData['app_url']                             = "http://yourdomain.com/fez-location/";
         //$defaultData['app_relative_url']                    = "";                         // From setup form.
-        $defaultData['app_exiftool_switch      ']           = "ON";
+        $defaultData['app_exiftool_switch']                 = "ON";
         $defaultData['app_image_preview_quality']           = "80";
         $defaultData['app_image_preview_max_width']         = "500";
         $defaultData['app_image_preview_max_height']        = "1000";
@@ -206,6 +206,11 @@ class Default_Data
 		$defaultData['handle_na_prefix_derivative']         = "";
 		$defaultData['handle_resolver_url']                 = "http://resolver.net.au/hdl/";
 		$defaultData['show_record_link_as_handle']          = "";
+		$defaultData['app_solr_commit_limit']               = "100";
+		$defaultData['app_disable_password_ip']             = "";
+		$defaultData['app_ffmpeg_default_width']            = "320";
+		$defaultData['app_ffmpeg_default_height']           = "240";
+		$defaultData['app_ffmpeg_default_thumb_pos']        = "00:00:05";
 
         return $defaultData;
 
