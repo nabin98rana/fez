@@ -34,6 +34,8 @@
 //
 //
 
+set_time_limit(3600);
+
 startSetup();       // Let's get this moveable feast underway!
 exit;
 

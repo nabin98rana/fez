@@ -132,7 +132,8 @@ class DB_API
         );
         $this->dbh_fda = DB::connect($dsn, false);
         if (PEAR::isError($this->dbh_fda)) {
-            Error_Handler::logError(array($this->dbh_fda->getMessage(), $this->dbh_fda->getDebugInfo()), __FILE__, __LINE__);
+            // If enabled, this will cause debug messages on the login screen after a new installation. Bad.
+			//Error_Handler::logError(array($this->dbh_fda->getMessage(), $this->dbh_fda->getDebugInfo()), __FILE__, __LINE__);
         }
         
     }
