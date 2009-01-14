@@ -94,7 +94,7 @@ class Default_Data
 			$defaultData['handle_admpriv_key_file']         = "/usr/local/handle/data/admpriv.bin";
         }   // Can add some other defaults here for other common OS setups
 
-        $defaultData['datamodel_version']                   = "2007111201";                 // Change this to last upgrade + 1
+        $defaultData['datamodel_version']                   = "2008102701";                 // Change this to last upgrade + 1
         $defaultData['shib_switch']                         = "OFF";
         $defaultData['shib_direct_login']                   = "OFF";
         $defaultData['shib_federation_name']                = "MAMS Testbed Federation";
@@ -177,7 +177,7 @@ class Default_Data
         $defaultData['app_default_refresh_rate']            = "5";
         $defaultData['app_sql_cache']                       = "";   // Empty default
         $defaultData['app_default_pager_size']              = "50";
-        $defaultData['app_version']                         = "2.0 RC1";
+        $defaultData['app_version']                         = "2.1 RC1";
         $defaultData['app_cookie']                          = "fez";
         $defaultData['app_https_curl_check_cert']           = "OFF";
         $defaultData['batch_import_type']                   = "MODS 1.0";

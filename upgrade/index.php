@@ -34,6 +34,8 @@
 //
 //
 
+set_time_limit(3600);
+
 @DEFINE("APP_BENCHMARK", false);
 @DEFINE("APP_CURRENT_LANG", "en");
 
@@ -224,7 +226,7 @@ function saveExistingConfigToDB()
     $defaultData['app_link_prefix']                     = APP_LINK_PREFIX;
 
     // Hard-wired / modified variables
-    $defaultData['app_version']                         = "2.0 RC1";
+    $defaultData['app_version']                         = "2.1 RC1";
 
     $cycleColors = explode(",", APP_CYCLE_COLORS);
     $defaultData['app_cycle_color_one']                 = $cycleColors[0];
