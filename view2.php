@@ -195,15 +195,18 @@ if (!empty($pid) && $record->checkExists()) {
 		} else {
 			$tpl->assign("viewingPreviousVersion", false);
 		}
+		
+		$record->getDisplay();
+		//$display = new XSD_DisplayObject($xdis_id);
+		$xsd_display_fields = $record->display->getMatchFieldsList(array("FezACML"), array());  // XSD_DisplayObject
+		
 
 		$tpl->assign("sta_id", $record->getPublishedStatus()); 
 		
-		$display = new XSD_DisplayObject($xdis_id);
-		$xsd_display_fields = $record->display->getMatchFieldsList(array("FezACML"), array(""));  // XSD_DisplayObject
 
 		$tpl->assign("xsd_display_fields", $xsd_display_fields);
 		$details = $record->getDetails();
-        	
+
 		$parents = Record::getParentsDetails($pid);
 
         // do citation before mucking about with the details array
@@ -286,7 +289,6 @@ if (!empty($pid) && $record->checkExists()) {
         $tpl->assign('meta_head', $meta_head);		
 		$record_view = new RecordView($record);	// record viewer object
 		$details = $record_view->getDetails();
-		
 	} else {
 		$tpl->assign("show_not_allowed_msg", true);
 		$savePage = false;
@@ -301,7 +303,7 @@ if (!empty($pid) && $record->checkExists()) {
 		$datastreams = Fedora_API::callGetDatastreams($pid, $requestedVersionDate, 'A');
 
         // Extact and generate list of timestamps for the datastreams of the record
-        generateTimestamps($pid, $datastreams, $requestedVersionDate, $tpl);
+        //generateTimestamps($pid, $datastreams, $requestedVersionDate, $tpl);
 
 		if( $requestedVersionDate != null ){
 			$datastreams = Misc::addDeletedDatastreams($datastreams,$pid,$requestedVersionDate);
@@ -414,7 +416,7 @@ if (!empty($pid) && $record->checkExists()) {
 		$derivations = Record::getParentsAll($pid, 'isDerivationOf', true);
 		//print_r($derivations); exit;
 		if (count($derivations) == 0) {
-			$derivations[0]['rek_title'][0] = Record::getSearchKeyIndexValue($pid, "Title");
+			$derivations[0]['rek_title'] = Record::getSearchKeyIndexValue($pid, "Title");
 			$derivations[0]['rek_pid'] = $pid;			
 		} else {
 			$hasVersions = 1;
@@ -422,7 +424,7 @@ if (!empty($pid) && $record->checkExists()) {
 //		print_r($derivations);
 		//are there any other records that also succeed this parent
 		foreach ($derivations as $devkey => $dev) { // gone all the way up, now go back down getting ALL the children as we ride the spiral
-			$child_devs = Record::getChildrenAll($derivations[$devkey]['pid'], "isDerivationOf", false);
+			$child_devs = Record::getChildrenAll($derivations[$devkey]['rek_pid'], "isDerivationOf", false);
 			if (count($child_devs) != 0) {
 				$hasVersions = 1;
 			}
