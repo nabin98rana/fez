@@ -8834,13 +8834,6 @@ insert  into `fez_search_key`(`sek_id`,`sek_namespace`,`sek_incr_id`,`sek_title`
 insert  into `fez_search_key`(`sek_id`,`sek_namespace`,`sek_incr_id`,`sek_title`,`sek_alt_title`,`sek_adv_visible`,`sek_simple_used`,`sek_myfez_visible`,`sek_order`,`sek_html_input`,`sek_fez_variable`,`sek_smarty_variable`,`sek_cvo_id`,`sek_lookup_function`,`sek_data_type`,`sek_relationship`,`sek_meta_header`,`sek_cardinality`,`sek_desc`,`sek_suggest_function`,`sek_faceting`) values ('core_83','core',83,'Views','',0,0,0,999,'text','none','',450005,NULL,'int',0,'',0,'','',0);
 insert  into `fez_search_key`(`sek_id`,`sek_namespace`,`sek_incr_id`,`sek_title`,`sek_alt_title`,`sek_adv_visible`,`sek_simple_used`,`sek_myfez_visible`,`sek_order`,`sek_html_input`,`sek_fez_variable`,`sek_smarty_variable`,`sek_cvo_id`,`sek_lookup_function`,`sek_data_type`,`sek_relationship`,`sek_meta_header`,`sek_cardinality`,`sek_desc`,`sek_suggest_function`,`sek_faceting`) values ('core_84','core',84,'Scopus ID','',0,0,0,0,'text','none','450005',451780,'','varchar',1,'0',0,'0','',0);
 
-/*Data for the table `fez_sessions` */
-
-insert  into `fez_sessions`(`session_id`,`session_data`,`expires`,`session_ip`) values ('fuf327tj6j6k98t4e0j7ehi333','',1231989338,'127.0.0.1');
-insert  into `fez_sessions`(`session_id`,`session_data`,`expires`,`session_ip`) values ('msl0qvgrefj89bbttv4dtqjou2','',1231907140,'127.0.0.1');
-insert  into `fez_sessions`(`session_id`,`session_data`,`expires`,`session_ip`) values ('qedlq8pqe9kj8go3aslh13v790','isInDB|b:1;isInFederation|b:0;isInAD|b:0;fez_internal_groups|a:0:{}username|s:5:\"admin\";fullname|s:13:\"Administrator\";distinguishedname|s:0:\"\";email|s:0:\"\";ipaddress|s:9:\"127.0.0.1\";login_time|i:1231990255;hash|s:32:\"45caf4bd152200aada88719a9e71fb1a\";autologin|N;auth_index_user_rule_groups|a:0:{}auth_index_highest_rule_group|N;auth_is_approver|b:0;can_edit|N;can_create|N;isAdministrator|b:1;',1231991698,'127.0.0.1');
-insert  into `fez_sessions`(`session_id`,`session_data`,`expires`,`session_ip`) values ('r0u0gc1vg10gnnu65uodpj05l5','',1231989265,'127.0.0.1');
-
 /*Data for the table `fez_statistics_all` */
 
 /*Data for the table `fez_statistics_buffer` */
@@ -8865,7 +8858,7 @@ insert  into `fez_status`(`sta_id`,`sta_title`,`sta_order`,`sta_color`) values (
 
 /*Data for the table `fez_user` */
 
-insert  into `fez_user`(`usr_id`,`usr_created_date`,`usr_status`,`usr_password`,`usr_full_name`,`usr_given_names`,`usr_family_name`,`usr_email`,`usr_preferences`,`usr_sms_email`,`usr_username`,`usr_shib_username`,`usr_administrator`,`usr_ldap_authentication`,`usr_login_count`,`usr_last_login_date`,`usr_shib_login_count`,`usr_external_usr_id`,`usr_super_administrator`) values (1,'0000-00-00 00:00:00','active','21232f297a57a5a743894a0e4a801fc3','Administrator',NULL,NULL,'','','','admin',NULL,1,0,1,'2009-01-15 02:59:15',0,NULL,1);
+insert  into `fez_user`(`usr_id`,`usr_created_date`,`usr_status`,`usr_password`,`usr_full_name`,`usr_given_names`,`usr_family_name`,`usr_email`,`usr_preferences`,`usr_sms_email`,`usr_username`,`usr_shib_username`,`usr_administrator`,`usr_ldap_authentication`,`usr_login_count`,`usr_last_login_date`,`usr_shib_login_count`,`usr_external_usr_id`,`usr_super_administrator`) values (1,'0000-00-00 00:00:00','active','21232f297a57a5a743894a0e4a801fc3','Administrator',NULL,NULL,'','','','admin',NULL,1,0,2,'2009-01-15 04:36:33',0,NULL,1);
 
 /*Data for the table `fez_user_comments` */
 
