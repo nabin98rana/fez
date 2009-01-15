@@ -142,10 +142,6 @@
     <WorkflowState wfs_id="653" wfs_title="Show Duplicates List" wfs_description="This is a report of duplicates found for the selected records.  Select an item to see its duplicate records." wfs_auto="0" wfs_wfb_id="56" wfs_start="1" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
     <WorkflowTrigger wft_id="228" wft_pid="-1" wft_type_id="1" wft_xdis_id="285" wft_order="10" wft_mimetype="" wft_icon="images/edit.gif" wft_ret_id="3" wft_options="0"/>
   </workflow>
-  <workflow wfl_id="93" wfl_title="Edit Author Affiliations" wfl_version="1.0" wfl_description="HERDC Author Affiliations" wfl_roles="Approver,Community_Administrator,Editor" wfl_end_button_label="Finished">
-    <WorkflowState wfs_id="654" wfs_title="Edit Affiliations" wfs_description="" wfs_auto="0" wfs_wfb_id="62" wfs_start="1" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowTrigger wft_id="229" wft_pid="-1" wft_type_id="1" wft_xdis_id="-1" wft_order="10" wft_mimetype="" wft_icon="images/edit.gif" wft_ret_id="3" wft_options="0"/>
-  </workflow>
   <workflow wfl_id="23" wfl_title="Edit Security for Select Record" wfl_version="1.0" wfl_description="" wfl_roles="Community_Administrator" wfl_end_button_label="Save Changes">
     <WorkflowState wfs_id="655" wfs_title="Edit Security" wfs_description="" wfs_auto="0" wfs_wfb_id="32" wfs_start="1" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
     <WorkflowTrigger wft_id="230" wft_pid="-1" wft_type_id="1" wft_xdis_id="-1" wft_order="15" wft_mimetype="" wft_icon="images/security.gif" wft_ret_id="3" wft_options="1"/>
@@ -321,7 +317,6 @@
   <WorkflowBehaviour wfb_id="53" wfb_title="Clone Record Options" wfb_description="Form to request options for clone record." wfb_version="1.0" wfb_script_name="clone_record_form.php" wfb_auto="0"/>
   <WorkflowBehaviour wfb_id="56" wfb_title="Duplicates Report" wfb_description="Reports duplicates" wfb_version="1.0" wfb_script_name="duplicates_report.php" wfb_auto="0"/>
   <WorkflowBehaviour wfb_id="57" wfb_title="Duplicates Report Merge ISI_LOC" wfb_description="Processes a duplciates report and merges records based on matching isi_loc in the mods:identifier element." wfb_version="1.0" wfb_script_name="duplicates_report_auto_merge_isi_loc.php" wfb_auto="1"/>
-  <WorkflowBehaviour wfb_id="62" wfb_title="Edit Affiliations" wfb_description="This form allows percentage affiliations to be stored in a table for pids and authors.  Part of HERDC requirements." wfb_version="1.0" wfb_script_name="edit_affiliation.php" wfb_auto="0"/>
   <WorkflowBehaviour wfb_id="16" wfb_title="Edit Metadata" wfb_description="" wfb_version="1.0" wfb_script_name="edit_metadata.php" wfb_auto="0"/>
   <WorkflowBehaviour wfb_id="32" wfb_title="Edit Security" wfb_description="" wfb_version="1.0" wfb_script_name="edit_security.php" wfb_auto="0"/>
   <WorkflowBehaviour wfb_id="13" wfb_title="Enter Metadata" wfb_description="" wfb_version="1.0" wfb_script_name="enter_metadata.php" wfb_auto="0"/>
