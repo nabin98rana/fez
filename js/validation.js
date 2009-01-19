@@ -376,7 +376,7 @@ function xsdmfValidate(field, value, vtype, title, name) {
 		}
 	} else if (vtype == 'url') {
 		if (!isWhitespace(value) && !isURL(value)) {
-            errors[errors.length] = new Option(title+' (needs to be in URL format)', name);
+            errors[errors.length] = new Option(title+' (needs to be in URL format eg http://www.example.com, are you missing the http:// ?)', name);
 		}
 	}
 }
