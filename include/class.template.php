@@ -243,6 +243,7 @@ class Template_API
 			$this->assign("application_title", APP_NAME);
 			
 		}
+		$this->assign("app_name", APP_NAME);
         $this->assign("org_name", APP_ORG_NAME);
         $this->assign("org_short_name", APP_SHORT_ORG_NAME);
         $this->assign("app_base_url", APP_BASE_URL);
