@@ -283,7 +283,6 @@ class Lister
 	            $tpl->assign("isLister", $canList);
 
 	            if ($canList) {
-                
 	                $tpl->assign("xdis_id", Record::getSearchKeyIndexValue($collection_pid, "Display Type"));
 	                $parents = Record::getParentsDetails($collection_pid);
 
@@ -308,11 +307,9 @@ class Lister
 	                $list = $list["list"];
                 
 	                $title = Record::getSearchKeyIndexValue($collection_pid, "Title");
-	                $display_type = Record::getSearchKeyIndexValue($collection_pid, "Display Type");
-					$display_type = array_values($display_type);
 					$citation = Record::getCitationIndex($collection_pid);
-	                $tpl->assign("list_heading", "List of Records in ".$title." ".$display_type[0]);
-	                $tpl->assign("list_heading_citation", "List of Records in ".$citation." ".$display_type[0]);
+	                $tpl->assign("list_heading", "List of Records in ".$title);
+	                $tpl->assign("list_heading_citation", "List of Records in ".$citation);
 	                $tpl->assign("list_type", "collection_records_list");
 
 	                $tpl->assign("collection_pid", $collection_pid);
@@ -370,12 +367,10 @@ class Lister
 	                $list = $list["list"];
                 
 	                $title = Record::getSearchKeyIndexValue($community_pid, "Title");
-	                $display_type = Record::getSearchKeyIndexValue($community_pid, "Display Type");
-					$display_type = array_values($display_type);
 					$citation = Record::getCitationIndex($community_pid);
 				
-	                $tpl->assign("list_heading", "List of Collections in ".$title." ".$display_type[0]);		
-	                $tpl->assign("list_heading_citation", "List of Collections in ".$citation." ".$display_type[0]);
+	                $tpl->assign("list_heading", "List of Collections in ".$title);		
+	                $tpl->assign("list_heading_citation", "List of Collections in ".$citation);
 	                $tpl->assign("list_type", "collection_list");
                 
 	                $childXDisplayOptions = Record::getSearchKeyIndexValue($community_pid, "XSD Display Option");
