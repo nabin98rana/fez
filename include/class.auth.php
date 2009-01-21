@@ -857,6 +857,11 @@ class Auth
 										array_push($userPIDAuthGroups, $role);
 									}
 									break;		
+								case 'eduPersonOrgDN':
+									if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgDN'], $group_value))) {
+										array_push($userPIDAuthGroups, $role);
+									}
+									break;		
 								case 'eduPersonPrimaryOrgUnitDN':
 									if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryOrgUnitDN'], $group_value))) {
 										array_push($userPIDAuthGroups, $role);
@@ -2023,8 +2028,14 @@ class Auth
             }
             if (!empty($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgDN'])) {
                 $authStmt .= "
-                    OR (ar_rule = '!rule!role!eduPersonOrgUnitDN' 
+                    OR (ar_rule = '!rule!role!eduPersonOrgDN' 
                             AND INSTR('".$ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgDN']."', ar_value)
+                       ) ";
+            }
+            if (!empty($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgUnitDN'])) {
+                $authStmt .= "
+                    OR (ar_rule = '!rule!role!eduPersonOrgUnitDN' 
+                            AND INSTR('".$ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgUnitDN']."', ar_value)
                        ) ";
             }
             if (!empty($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryOrgUnitDN'])) {
