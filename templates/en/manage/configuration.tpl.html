@@ -571,6 +571,17 @@ function restoreDefaultColours(el)
 			  {include file="error_icon.tpl.html" field="app_fedora_apia_direct"}
 			</td>
   		  </tr>
+		  <tr>
+		    <td class="colname">Display Fedora Checksums</td>
+			<td class="coldetail">
+			  <select name="app_fedora_display_checksums">
+			    <option value="ON"{if $config_settings.app_fedora_display_checksums == "ON"} selected="selected"{/if}>On</option>
+				<option value="OFF"{if $config_settings.app_fedora_display_checksums == "OFF"} selected="selected"{/if}>Off</option>
+			  </select>
+			  <br />Displays checksums for attached files (needs to be enabled in Fedora Commons)
+			  {include file="error_icon.tpl.html" field="app_fedora_display_checksums"}
+			</td>
+		  </tr>
 		</table>
 		</div>
 

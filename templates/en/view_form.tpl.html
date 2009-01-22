@@ -201,15 +201,26 @@ function loadPreview(pid,datastreamID, alt, origami)
 		  <td align="left"> 
 			<table bgcolor="#FFFFFF" border="0" cellspacing="0" cellpadding="2" width="100%">
 
+		  {if $display_checksums == 'ON'}
+		  <tr>
+			<td class="default" colspan="6">&nbsp;</td>
+		  </tr>
+		  <tr>
+			<td class="default_white" colspan="6" bgcolor="{$heading_color}"><b>Attached Files</b></td>
+		  </tr>
+		  {else}
 		  <tr>
 			<td class="default" colspan="5">&nbsp;</td>
 		  </tr>
 		  <tr>
 			<td class="default_white" colspan="5" bgcolor="{$heading_color}"><b>Attached Files</b></td>
 		  </tr>
+		  {/if}
+
 
 		  <tr class="default" bgcolor="{$cell_color}">
 			<td>Name</td>
+			{if $display_checksums == 'ON'}<td>Checksum</td>{/if}
 			<td>Description</td>			
 			<td>MIMEType</td>
 			<td>Size</td>			
@@ -293,6 +304,7 @@ function loadPreview(pid,datastreamID, alt, origami)
 				<a target="_blank" href="{$rel_url}eserv/{$pid}/{$datastreams[d].presmd}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}"><img title="preservation metadata" align="absmiddle" border="0" src="{$rel_url}images/presmd_22.gif"></a>&nbsp;
 			{/if} 	
 				</td>
+				{if $display_checksums == 'ON'}<td>({$datastreams[d].checksumType}) {$datastreams[d].checksum}</td>{/if}
 				<td>{$datastreams[d].label}</td>
 				<td>{$datastreams[d].MIMEType}</td>
 				<td>{$datastreams[d].archival_size}</td>				

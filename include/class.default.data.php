@@ -211,6 +211,7 @@ class Default_Data
 		$defaultData['app_ffmpeg_default_width']            = "320";
 		$defaultData['app_ffmpeg_default_height']           = "240";
 		$defaultData['app_ffmpeg_default_thumb_pos']        = "00:00:05";
+		$defaultData['app_fedora_display_checksums']        = "OFF";
 
         return $defaultData;
 
