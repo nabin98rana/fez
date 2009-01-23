@@ -85,7 +85,7 @@ function validateForm() {
 	{if $xsd_display_fields[i].xsdmf_multiple == 1}
 		{section name="z" loop=$xsd_display_fields[i].multiple_array}
 			{assign var='loop_num' value=$smarty.section.z.index}
-			var field = document.wfl_form1.xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num};
+			var field = document.wfl_form1.xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{math equation="x - 1" x=$loop_num};
 			{literal}
 			if (field != null) {
 				{/literal}
@@ -503,7 +503,7 @@ function selectDateField(field_name, day, month, year)
         						                <!-- Google suggest style selection -->
         						                {* IE HACK: We want the suggest dropdown to be on top of any other auto-suggest controls which appear below it *}
                                                 {* smarty.section.i.index is used incase this suggest control is used by more than 1 element ie. Author and Editor *} 
-        										<div id="authorsuggest" style="width:15em;height:2em;position:relative;z-index:{math equation="2000 - x - y" y=$loop_num x=$smarty.section.i.index};">
+        										<div id="authorsuggest" style="width:25em;height:2em;position:relative;z-index:{math equation="2000 - x - y" y=$loop_num x=$smarty.section.i.index};">
         										  <div id="{$attached_field_id}_container" style="position:absolute;top:1.6em;"></div>
                                                 	<input id="{$attached_field_id}_lookup" type="text">
                                                 </div>
@@ -560,7 +560,7 @@ function selectDateField(field_name, day, month, year)
 										    position:relative;
 									        max-height:11em;
 									        /* height: 150px; */
-									        width: 250px;
+									        width: 350px;
 									        overflow:auto;
 									        overflow-x:hidden; /* scrolling */
 									        _height:11em; /* ie6 */
@@ -685,7 +685,7 @@ function selectDateField(field_name, day, month, year)
 							<b>{$xsd_display_fields[i].xsdmf_title} {math equation="x + 1" x=$loop_num} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b>
 							{if $loop_num == 0}
 							{if $xsd_display_fields[i].xsdmf_description != ""}
-                              <br/><i>{$xsd_display_fields[i].xsdmf_description|escape:"html"}</i>
+                              <br/><i>{$xsd_display_fields[i].xsdmf_description}</i>
                             {/if}
 							<br />                            
 							<i>(More {$xsd_display_fields[i].xsdmf_title} input boxes will appear as you type)</i>
@@ -702,7 +702,7 @@ function selectDateField(field_name, day, month, year)
 						  <td width="200" bgcolor="{$cell_color}" class="default">
 							<b>{$xsd_display_fields[i].xsdmf_title} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b>
 							{if $xsd_display_fields[i].xsdmf_description != ""}
-                              <br/><i>{$xsd_display_fields[i].xsdmf_description|escape:"html"}</i>
+                              <br/><i>{$xsd_display_fields[i].xsdmf_description}</i>
                             {/if}
 						  </td>
 						  <td bgcolor="{$light_color}">
