@@ -177,7 +177,7 @@ class Default_Data
         $defaultData['app_default_refresh_rate']            = "5";
         $defaultData['app_sql_cache']                       = "";   // Empty default
         $defaultData['app_default_pager_size']              = "50";
-        $defaultData['app_version']                         = "2.1 RC1";
+        $defaultData['app_version']                         = "2.1 RC3";
         $defaultData['app_cookie']                          = "fez";
         $defaultData['app_https_curl_check_cert']           = "OFF";
         $defaultData['batch_import_type']                   = "MODS 1.0";

@@ -226,7 +226,7 @@ function saveExistingConfigToDB()
     $defaultData['app_link_prefix']                     = APP_LINK_PREFIX;
 
     // Hard-wired / modified variables
-    $defaultData['app_version']                         = "2.1 RC1";
+    $defaultData['app_version']                         = "2.1 RC3";
 
     $cycleColors = explode(",", APP_CYCLE_COLORS);
     $defaultData['app_cycle_color_one']                 = $cycleColors[0];
