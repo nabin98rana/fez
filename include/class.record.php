@@ -4058,7 +4058,15 @@ class RecordGeneral
         	if ($xsdmf_details['xsdmf_sek_id'] != "") {
         		Record::removeIndexRecordByXSDMF_ID($pid,$xsdmf_id);
         		$sekDetails = Search_Key::getBasicDetails($xsdmf_details['xsdmf_sek_id']);
-        		
+
+				if ($sekDetails['sek_data_type'] == 'int' && $sekDetails['sek_html_input'] == 'checkbox') {
+					if ($xsdmf_value == 'on') {
+						$xsdmf_value = 1;
+					} else {
+						$xsdmf_value = 0;
+					}
+				}
+
                 if ($sekDetails['sek_data_type'] == 'date') {
                 	if(!empty($xsdmf_value)) {
 	                    if (is_numeric($xsdmf_value) && strlen($xsdmf_value) == 4) {
