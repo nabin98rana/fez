@@ -38,6 +38,7 @@ function openDetailPage()
 <script type="text/javascript" src="{$rel_url}js/dynCalendar.js"></script>
 <script type="text/javascript" src="{$rel_url}js/suggestions.js"></script>
 <script type="text/javascript" src="{$rel_url}js/autosuggest.js"></script>
+<script type="text/javascript" src="{$rel_url}js/textarea.js"></script>
 <script language="JavaScript">
 {$najax_register}{literal}
 <!--
@@ -102,6 +103,36 @@ function validateForm() {
 			{/literal}
 			xsdmfValidate(field, field.value, '{$xsd_display_fields[i].xsdmf_validation_type}',
 								'{$xsd_display_fields[i].xsdmf_title}', field.name);
+			{literal}
+		}
+        {/literal}
+	{/if}
+{elseif $xsd_display_fields[i].xsdmf_enabled == 1 
+		&& $xsd_display_fields[i].xsdmf_html_input == 'textarea'
+		&& $xsd_display_fields[i].xsdmf_validation_maxlength != null
+		&& $xsd_display_fields[i].xsdmf_validation_maxlength != '' }
+	{if $xsd_display_fields[i].xsdmf_multiple == 1}
+		// Validate multiple textarea fields
+		{section name="z" loop=$xsd_display_fields[i].multiple_array}
+			{assign var='loop_num' value=$xsd_display_fields[i].multiple_array[z]}
+			var field = document.wfl_form1.xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{math equation="x - 1" x=$loop_num};
+			{literal}
+			if (field != null) {
+				{/literal}
+				xsdmfValidateLength(field, field.value, '{$xsd_display_fields[i].xsdmf_validation_maxlength}',
+					'{$xsd_display_fields[i].xsdmf_title}', field.name);
+				{literal}
+			}
+	        {/literal}
+		{/section}
+	{else}
+		// validate a single textarea field
+		var field = document.wfl_form1.xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0;
+		{literal}
+		if (field != null) {
+			{/literal}
+			xsdmfValidateLength(field, field.value, '{$xsd_display_fields[i].xsdmf_validation_maxlength}',
+				'{$xsd_display_fields[i].xsdmf_title}', field.name);
 			{literal}
 		}
         {/literal}
@@ -435,7 +466,7 @@ function selectDateField(field_name, day, month, year)
 							{/if}
 						  </td>
 						  <td bgcolor="{$light_color}">
-						<input class="default" type="text" id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]" onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onFocus="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onChange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" size="50" value="{if $loop_num == 0}{if $xsd_display_fields[i].xsdmf_dynamic_text != ""}{assign var='temp_dynamic_var' value=$xsd_display_fields[i].xsdmf_dynamic_text}{eval var=$temp_dynamic_var}{else}{$xsd_display_fields[i].xsdmf_static_text}{/if}{/if}">
+						<input class="default" type="text" id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]" onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onFocus="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onChange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" size="50" value="{if $loop_num == 0}{if $xsd_display_fields[i].xsdmf_dynamic_text != ""}{assign var='temp_dynamic_var' value=$xsd_display_fields[i].xsdmf_dynamic_text}{eval var=$temp_dynamic_var}{else}{$xsd_display_fields[i].xsdmf_static_text}{/if}{/if}" {if $xsd_display_fields[i].xsdmf_validation_maxlength != null && $xsd_display_fields[i].xsdmf_validation_maxlength > 0}maxlength="{$xsd_display_fields[i].xsdmf_validation_maxlength}"{/if}>
 						{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"][]"}
 						{if $xsd_display_fields[i].sek_suggest_function != ""}
         				<div id="generalsuggest" style="width:25em;position:relative;z-index:{math equation="2000 - x - y" y=0 x=$smarty.section.i.index};">
@@ -608,7 +639,8 @@ function selectDateField(field_name, day, month, year)
 				            <input type="text" 
                                             id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" 
                                             class="default" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]"  
-                                            size="50" value="{if $xsd_display_fields[i].xsdmf_dynamic_text != ""}{assign var='temp_dynamic_var' value=$xsd_display_fields[i].xsdmf_dynamic_text}{eval var=$temp_dynamic_var}{else}{$xsd_display_fields[i].xsdmf_static_text}{/if}">
+                                            size="50" value="{if $xsd_display_fields[i].xsdmf_dynamic_text != ""}{assign var='temp_dynamic_var' value=$xsd_display_fields[i].xsdmf_dynamic_text}{eval var=$temp_dynamic_var}{else}{$xsd_display_fields[i].xsdmf_static_text}{/if}"
+                                            {if $xsd_display_fields[i].xsdmf_validation_maxlength != null && $xsd_display_fields[i].xsdmf_validation_maxlength > 0}maxlength="{$xsd_display_fields[i].xsdmf_validation_maxlength}"{/if}>
 				           {include file="error_icon.tpl.html" 
                                                field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}
 
@@ -692,8 +724,11 @@ function selectDateField(field_name, day, month, year)
 							{/if}
 						  </td>
 						  <td bgcolor="{$light_color}">
-				            <textarea id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]" onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onChange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" rows="10" cols="60">{if $loop_num == 0}{if $xsd_display_fields[i].xsdmf_dynamic_text != ""}{assign var='temp_dynamic_var' value=$xsd_display_fields[i].xsdmf_dynamic_text}{eval var=$temp_dynamic_var}{else}{$xsd_display_fields[i].xsdmf_static_text}{/if}{/if}</textarea>
+				            <textarea id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]" onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onChange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" rows="10" cols="60" {if $xsd_display_fields[i].xsdmf_validation_maxlength != null && $xsd_display_fields[i].xsdmf_validation_maxlength > 0}maxlength="{$xsd_display_fields[i].xsdmf_validation_maxlength}" validation="required"{/if}>{if $loop_num == 0}{if $xsd_display_fields[i].xsdmf_dynamic_text != ""}{assign var='temp_dynamic_var' value=$xsd_display_fields[i].xsdmf_dynamic_text}{eval var=$temp_dynamic_var}{else}{$xsd_display_fields[i].xsdmf_static_text}{/if}{/if}</textarea>
 							{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"][]"}
+                                  {if $xsd_display_fields[i].xsdmf_long_description != ""}
+  	                                    <div class="default">{$xsd_display_fields[i].xsdmf_long_description}</div>
+                                  {/if}
 						 </td>
 						</tr>
 					{/section}
@@ -706,8 +741,11 @@ function selectDateField(field_name, day, month, year)
                             {/if}
 						  </td>
 						  <td bgcolor="{$light_color}">
-				            <textarea id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]" rows="10" cols="60">{if $xsd_display_fields[i].xsdmf_dynamic_text != ""}{assign var='temp_dynamic_var' value=$xsd_display_fields[i].xsdmf_dynamic_text}{eval var=$temp_dynamic_var}{else}{$xsd_display_fields[i].xsdmf_static_text}{/if}</textarea>
+				            <textarea id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]" rows="10" cols="60"  {if $xsd_display_fields[i].xsdmf_validation_maxlength != null && $xsd_display_fields[i].xsdmf_validation_maxlength > 0}maxlength="{$xsd_display_fields[i].xsdmf_validation_maxlength}" validation="required"{/if}>{if $xsd_display_fields[i].xsdmf_dynamic_text != ""}{assign var='temp_dynamic_var' value=$xsd_display_fields[i].xsdmf_dynamic_text}{eval var=$temp_dynamic_var}{else}{$xsd_display_fields[i].xsdmf_static_text}{/if}</textarea>
 							{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}
+                                  {if $xsd_display_fields[i].xsdmf_long_description != ""}
+  	                                    <div class="default">{$xsd_display_fields[i].xsdmf_long_description}</div>
+                                  {/if}
 						 </td>
 						</tr>
 				{/if}
@@ -916,3 +954,4 @@ function selectDateField(field_name, day, month, year)
 		  </script>
 	{/if}
 {/section}
+<script>init_textarea_validation();</script>

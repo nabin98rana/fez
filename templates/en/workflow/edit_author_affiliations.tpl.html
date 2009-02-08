@@ -11,7 +11,7 @@ function validateForm(f) {
 		return;
 	}
 
-	if (!IsNumeric(f.af_percent_affiliation.value) || f.af_percent_affiliation.value <= 0 || f.af_percent_affiliation.value > 100) {
+	if (!isNumeric(f.af_percent_affiliation.value) || f.af_percent_affiliation.value <= 0 || f.af_percent_affiliation.value > 100) {
 		errors[errors.length] = new Option('Percent Affiliation', 'af_percent_affiliation');
 	}
 	if (f.af_percent_affiliation.value.length > 6) {

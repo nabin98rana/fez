@@ -13,7 +13,8 @@
 		  {assign var="attached_xsdmf_id" value=$xsdmf.xsdmf_attached_xsdmf_id}
 		  {section name='aa' loop=$xsd_display_fields}{if $xsd_display_fields[aa].xsdmf_id == $attached_xsdmf_id}{assign var="attached_xsdmf" value=$xsd_display_fields[aa]}{/if}{/section}
 		{/if}
-		<input class="default" type="text" id="xsd_display_fields_{$xsdmf.xsdmf_id}_{$loop_num}" size="50"{if $xsdmf.xsdmf_multiple == 1}
+		<input class="default" type="text" id="xsd_display_fields_{$xsdmf.xsdmf_id}_{$loop_num}" size="50" {if $xsd_display_fields[i].xsdmf_validation_maxlength != null && $xsd_display_fields[i].xsdmf_validation_maxlength > 0}maxlength="{$xsd_display_fields[i].xsdmf_validation_maxlength}"{/if}
+		{if $xsdmf.xsdmf_multiple == 1}
 			name="xsd_display_fields[{$xsdmf.xsdmf_id}]{$squares}" value="{$details[$temp_fld_id][$loop_num]|escape:"html"}"/>
 	        {if $smarty.section.textfield.last}
 	        <script>

@@ -9,6 +9,7 @@
 <script type="text/javascript" src="{$rel_url}js/yahoo/utilities.js"></script>
 <script type="text/javascript" src="{$rel_url}js/yahoo/autocomplete.js"></script>
 <script type="text/javascript" src="{$rel_url}min.php/editmeta.js"></script>
+<script type="text/javascript" src="{$rel_url}js/textarea.js"></script>
 {include file='workflow/edit_metadata_helpers/javascript_block.tpl.html'}
 
 <input type="hidden" name="cat" value="update_form">
@@ -89,3 +90,5 @@
 {/if}				  
 </div>
 </td></tr>
+
+<script>init_textarea_validation();</script>

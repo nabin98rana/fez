@@ -45,6 +45,37 @@ function validateForm() {
 		}
         {/literal}
 	{/if}
+{elseif $xsd_display_fields[i].xsdmf_html_input == 'textarea'
+		&& $xsd_display_fields[i].xsdmf_validation_maxlength != null
+		&& $xsd_display_fields[i].xsdmf_validation_maxlength != '' }
+	{if $xsd_display_fields[i].xsdmf_multiple == 1}
+		// Validate multiple textarea fields
+		{section name="z" loop=$xsd_display_fields[i].multiple_array}
+			{assign var='loop_num' value=$xsd_display_fields[i].multiple_array[z]}
+			var field = document.wfl_form1.xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{math equation="x - 1" x=$loop_num};
+			{literal}
+			if (field != null) {
+				{/literal}
+				xsdmfValidateLength(field, field.value, '{$xsd_display_fields[i].xsdmf_validation_maxlength}',
+					'{$xsd_display_fields[i].xsdmf_title}', field.name);
+				{literal}
+			}
+	        {/literal}
+		{/section}
+	{else}
+		// validate a single textarea field
+		var field = document.wfl_form1.xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0;
+
+		{literal}
+		if (field != null) {
+
+			{/literal}
+			xsdmfValidateLength(field, field.value, '{$xsd_display_fields[i].xsdmf_validation_maxlength}',
+				'{$xsd_display_fields[i].xsdmf_title}', field.name);
+			{literal}
+		}
+        {/literal}
+	{/if}
 {/if}
 {/section}
 {literal}
@@ -101,7 +132,7 @@ function selectOrgStructure_{$xsd_display_fields[i].xsdmf_id}(f, field_name)
 		}
 		obj.setTimeout(10000);
 		
-		if ((IsNumeric(selections[0].value) == true) && (selections[0].value != '-1')) {
+		if ((isNumeric(selections[0].value) == true) && (selections[0].value != '-1')) {
 			obj.getSubList(selections[0].value, function(dt_list) {
 					{/literal}
 					removeAllOptions(f, 'xsd_display_fields[{$xsd_display_fields[i].xsdmf_org_fill_xsdmf_id}]');

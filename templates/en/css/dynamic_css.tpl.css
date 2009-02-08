@@ -1244,3 +1244,13 @@ a.form_note:hover span.form_note {
         border: solid 1px black;
         text-align: left;
 }
+
+div.maxlength {
+    font-size: 70%;
+    color: black;
+ }
+ 
+span.maxlength_exceeded {
+    color: red;
+    font-weight: bold;
+ }

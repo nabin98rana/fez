@@ -84,24 +84,6 @@ function isValidEmail(strEmail){
     return true; 
 }
 
-function IsNumeric(sText)
-{
-   var ValidChars = "0123456789.";
-   var IsNumber=true;
-   var Char;
- 
-   for (i = 0; i < sText.length && IsNumber == true; i++) 
-   { 
-      Char = sText.charAt(i); 
-      if (ValidChars.indexOf(Char) == -1) 
-      {
-         IsNumber = false;
-      }
-   }
-   return IsNumber;
- }
-
-
 function isEmail(s)
 {
     // email text field.
@@ -209,8 +191,7 @@ function hasOnlyOneChecked(f, field_name)
     }
 }
 
-function IsNumeric(sText)
-
+function isNumeric(sText)
 {
    var ValidChars = "0123456789.";
    var IsNumber=true;
@@ -379,6 +360,12 @@ function xsdmfValidate(field, value, vtype, title, name) {
             errors[errors.length] = new Option(title+' (needs to be in URL format eg http://www.example.com, are you missing the http:// ?)', name);
 		}
 	}
+}
+
+function xsdmfValidateLength(field, value, maxLength, title, name) {
+	var currentLength = field.value.length;
+	if (maxLength != null && maxLength > 0 && currentLength > maxLength)
+        errors[errors.length] = new Option(title+' (cannot exceed '+maxLength+' characters [current length='+currentLength+'])', name);
 }
 
 function checkRequiredFields(f, required_fields)
