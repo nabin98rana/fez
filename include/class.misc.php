@@ -942,7 +942,22 @@ class Misc
 			if ($filename_ext == "mp4") {
 				$ret = "video/x-mp4";
 			}	
-
+		}
+		if($ret == "application/msword"){
+			// determine if this is really a powerpoint presentation or an excel doc
+			$filename_ext = str_replace("'", "", strtolower(substr($f, (strrpos($f, ".") + 1))));
+			if ($filename_ext == "ppt") {
+				$ret = "application/mspowerpoint";
+			} elseif ($filename_ext == "xls") {
+				$ret = "application/msexcel";
+			}
+		}
+		if($ret == "application/x-zip"){
+			// determine if excel workbook doc was misclassified
+			$filename_ext = str_replace("'", "", strtolower(substr($f, (strrpos($f, ".") + 1))));
+			if ($filename_ext == "xlsx") {
+				$ret = "application/msexcel";
+			}
 		}
         //Error_Handler::logError(array($f,$ret));
         return $ret;
