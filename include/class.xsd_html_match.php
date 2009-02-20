@@ -1690,6 +1690,8 @@ class XSD_HTML_Match {
                 $stmt .= " ".$col_name."=null,\n";
             } elseif (strstr($col_name, 'xsdmf_order') && empty($value)) {
                 $stmt .= " ".$col_name."=null,\n";
+            } elseif (strstr($col_name, 'xsdmf_validation_maxlength') && empty($value)) {
+                $stmt .= " ".$col_name."=null,\n";
             } elseif (strstr($col_name, 'xsdmf_is_key') && empty($value)) {
                 $stmt .= " ".$col_name."=null,\n";
             } elseif (strstr($col_name, 'xsdmf_show_in_view') && empty($value)) {
