@@ -398,19 +398,16 @@ function loadPreview(pid,datastreamID, alt, origami)
 {/if}
 
 {if $canViewVersions}
- <tr>
- <td>
      <form name="viewversionform" action="{$rel_url}view.php?pid={$pid|escape:"html"}" method="post">
- 		<table bgcolor="#FFFFFF" border="0" cellspacing="0" cellpadding="2" width="100%">
  			  <tr>
- 				<td class="default_white" colspan="2" bgcolor="{$heading_color}"><b>Versions</b></td>
+ 				<td class="default_white" colspan="5" bgcolor="{$heading_color}"><b>Versions</b></td>
  			  </tr>
  			  <tr class="default" bgcolor="{$cell_color}">
- 				<td>Version</td>
- 				<td>Filter Type</td>
+ 				<td colspan="2">Version</td>
+ 				<td colspan="3">Filter Type</td>
  			</tr>
  			<tr>
- 				<td bgcolor={$light_color}>
+ 				<td colspan="2" bgcolor={$light_color}>
  					<select name="version_date" class="default">
  					{section name="versions" loop=$created_dates_list}
  					{if $version_view_type == 'FULL' || !$created_dates_list[versions].filtered}
@@ -422,7 +419,7 @@ function loadPreview(pid,datastreamID, alt, origami)
  					</select>
  					<input type="submit" value="View Version">
  				</td>
- 				<td bgcolor={$light_color}>
+ 				<td colspan="3" bgcolor={$light_color}>
  					<select name="version_view_type">
  						<option value="FILTERED" {if $version_view_type == 'FILTERED'}selected{/if}>Filtered</option>
  						<option value="FULL" {if $version_view_type == 'FULL'}selected{/if}>Full</option>
@@ -430,10 +427,7 @@ function loadPreview(pid,datastreamID, alt, origami)
  					<input type="submit" name="fullVersionList" value="Change">
  				</td>
  			</tr>
- 		</table>
      </form>	
- </td>
- </tr>
  
 {/if}
 
