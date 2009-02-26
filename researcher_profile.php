@@ -49,6 +49,7 @@ $list = Author::getListByStaffIDList(0, 25, 'aut_lname', $staff_ids);
 
 $tpl->assign("list", $list['list']);
 $tpl->assign("app_admin_email", APP_ADMIN_EMAIL);
+$tpl->assign("org_name", APP_ORG_NAME);
 header("Content-type: text/xml");
 //print_r($list); exit;
 $tpl->displayTemplate();

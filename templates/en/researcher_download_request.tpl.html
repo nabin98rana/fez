@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<request xmlns="http://www.isinet.com/xrpc41" src="app.id=API Demo">
+    <fn name="Session.createSession">
+        <list>
+            <map>
+                <val name="Type">{$type}</val>
+                <val name="Product">{$product}</val>
+                <val name="Username">{$username}</val>
+                <val name="Password">{$password}</val>
+            </map>
+        </list>
+    </fn>
+    <fn name="Session.getProductSession">
+        <list>
+            <val name="Product">{$get_product}</val>
+        </list>
+    </fn>
+    <fn name="AuthorResearch.downloadRIDData">
+        <list>
+            <val name="Request"><![CDATA[{$request_data}]]></val>
+        </list>
+    </fn>
+</request>

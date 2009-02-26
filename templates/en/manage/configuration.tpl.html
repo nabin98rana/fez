@@ -30,6 +30,7 @@ function hideAllSubPages()
 	document.getElementById('exiftool').style.display = "none";
 	document.getElementById('handle').style.display = "none";
 	document.getElementById('versioning').style.display = "none";
+    document.getElementById('researcherid').style.display = "none";
 }
 
 function updatePreviewColour(el)
@@ -130,6 +131,7 @@ function restoreDefaultColours(el)
 		  <a href="#" onclick="javascript:showSubPage('eprints');">ePrints Settings</a><br />
 		  <a href="#" onclick="javascript:showSubPage('origami');">Origami Settings</a><br />
 		  <a href="#" onclick="javascript:showSubPage('versioning');">Versioning Settings</a><br />
+		  <a href="#" onclick="javascript:showSubPage('researcherid');">ResearcherID Web Service Settings</a><br />
 		</td>
 	  </tr>
 	</table>
@@ -1385,6 +1387,119 @@ function restoreDefaultColours(el)
   		  </tr>
 		</table>
 		</div>
+		
+		
+		
+		<div id="researcherid" style="display: none;">
+		<table width="100%" class="config-group">
+		  <tr>
+			<td colspan="2">
+			  <h2>ResearcherID Web Service Settings</h2>
+			</td>
+  		  </tr>
+  		  <tr>
+			<td colspan="2">
+			  <h3>Batch Download Settings</h3>
+			  <p>Settings for the ResearcherID Batch download service.</p>
+			</td>
+  		  </tr>
+		  <tr>
+		    <td class="colname" nowrap="nowrap">Username</td>
+			<td class="coldetail">
+			  <input type="text" name="rid_dl_service_username" value="{$config_settings.rid_dl_service_username|escape:"html"}" size="20" />
+			  <br />The username you use to authenticate to the ResearcherID web service.
+			  {include file="error_icon.tpl.html" field="rid_dl_service_username"}
+			</td>
+  		  </tr>
+  		  <tr>
+		    <td class="colname" nowrap="nowrap">Password</td>
+			<td class="coldetail">
+			  <input type="password" name="rid_dl_service_password" value="{$config_settings.rid_dl_service_password|escape:"html"}" size="20" />
+			  <br />The password you use to authenticate to the ResearcherID web service.
+			  {include file="error_icon.tpl.html" field="rid_dl_service_password"}
+			</td>
+  		  </tr>
+  		  <tr>
+		    <td class="colname" nowrap="nowrap">Web Service URL</td>
+			<td class="coldetail">
+			  <input type="text" name="rid_dl_service_url" value="{$config_settings.rid_dl_service_url|escape:"html"}" size="50" />
+			  <br />The URL of the ResearcherID batch download web service.
+			  {include file="error_icon.tpl.html" field="rid_dl_service_url"}
+			</td>
+  		  </tr>  		  
+  		  <tr>
+		    <td class="colname" nowrap="nowrap">Download Request XSD</td>
+			<td class="coldetail">
+			  <input type="text" name="rid_dl_service_request_xsd" value="{$config_settings.rid_dl_service_request_xsd|escape:"html"}" size="50" />
+			  <br />Local file name and path of the supplied XML schema document for validating the request for data.
+			  {include file="error_icon.tpl.html" field="rid_dl_service_request_xsd"}
+			</td>
+  		  </tr>
+  		  <tr>
+		    <td class="colname" nowrap="nowrap">Download Response XSD</td>
+			<td class="coldetail">
+			  <input type="text" name="rid_dl_service_response_xsd" value="{$config_settings.rid_dl_service_response_xsd|escape:"html"}" size="50" />
+			  <br />Local file name and path of the supplied XML schema document for validating the response to the request for data.
+			  {include file="error_icon.tpl.html" field="rid_dl_service_response_xsd"}
+			</td>
+  		  </tr>
+  		  <tr>
+			<td colspan="2">
+			 <p><br /></p>
+			</td>
+  		  </tr>
+  		  <tr>
+			<td colspan="2">
+			  <h3>Batch Upload Settings</h3>
+			  <p>Settings for the ResearcherID Batch upload service.</p>
+			</td>
+  		  </tr>
+		  <tr>
+		    <td class="colname" nowrap="nowrap">Username</td>
+			<td class="coldetail">
+			  <input type="text" name="rid_ul_service_username" value="{$config_settings.rid_ul_service_username|escape:"html"}" size="20" />
+			  <br />The username you use to authenticate to the ResearcherID web service.
+			  {include file="error_icon.tpl.html" field="rid_ul_service_username"}
+			</td>
+  		  </tr>
+  		  <tr>
+		    <td class="colname" nowrap="nowrap">Password</td>
+			<td class="coldetail">
+			  <input type="password" name="rid_ul_service_password" value="{$config_settings.rid_ul_service_password|escape:"html"}" size="20" />
+			  <br />The password you use to authenticate to the ResearcherID web service.
+			  {include file="error_icon.tpl.html" field="rid_ul_service_password"}
+			</td>
+  		  </tr>
+  		  <tr>
+		    <td class="colname" nowrap="nowrap">Web Service URL</td>
+			<td class="coldetail">
+			  <input type="text" name="rid_ul_service_url" value="{$config_settings.rid_ul_service_url|escape:"html"}" size="50" />
+			  <br />The URL of the ResearcherID batch upload web service.
+			  {include file="error_icon.tpl.html" field="rid_ul_service_url"}
+			</td>
+  		  </tr>  		  
+  		  <tr>
+		    <td class="colname" nowrap="nowrap">Upload Profiles XSD</td>
+			<td class="coldetail">
+			  <input type="text" name="rid_ul_service_profiles_xsd" value="{$config_settings.rid_ul_service_profiles_xsd|escape:"html"}" size="50" />
+			  <br />Local file name and path of the supplied XML schema document for validating the profiles list.
+			  {include file="error_icon.tpl.html" field="rid_ul_service_profiles_xsd"}
+			</td>
+  		  </tr>
+  		  <tr>
+		    <td class="colname" nowrap="nowrap">Upload Publications XSD</td>
+			<td class="coldetail">
+			  <input type="text" name="rid_ul_service_publications_xsd" value="{$config_settings.rid_ul_service_publications_xsd|escape:"html"}" size="50" />
+			  <br />Local file name and path of the supplied XML schema document for validating the publications list.
+			  {include file="error_icon.tpl.html" field="rid_ul_service_publications_xsd"}
+			</td>
+  		  </tr>
+		</table>
+		</div>
+
+		
+		
+		
 
 		<div id="submit" style="display: none;">
 		<br />&nbsp;&nbsp;&nbsp;<input type="submit" name="button" value="Save changes" class="submit" /> &nbsp; <input type="reset" value="Discard changes" /><br /><br />

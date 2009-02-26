@@ -1,0 +1,10 @@
+<download-request>
+    <download-type>{$download_type}</download-type>
+    <researchers>
+        <{$researchers_id_type}>
+        {section name="i" loop=$list}
+            <{$researcher_id_type}>{$list[i]|escape:"html"}</{$researcher_id_type}>
+        {/section}
+        </{$researchers_id_type}>
+    </researchers>
+</download-request>

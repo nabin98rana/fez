@@ -528,7 +528,7 @@ include_once(APP_INC_PATH.'class.handle_requestor.php');
                         "Check that the specified database user has permissions on the Fedora database. " .
                         "Check that the database password is correct. " .
                         "Check that database name is set correctly. DB Error: " .
-                        "".$GLOBALS['db_api']->dbh_fda->dbh->getMessage().' '.print_r($GLOBALS['db_api']->dbh_fda->getDebugInfo(),true));
+                        "".$GLOBALS['db_api']->dbh_fda->getMessage().' '.print_r($GLOBALS['db_api']->dbh_fda->getDebugInfo(),true));
 			} else {
             	$stmt = "SELECT * FROM policy ";
             	$GLOBALS['db_api']->dbh_fda->modifyLimitQuery($stmt,0,1);
