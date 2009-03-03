@@ -48,6 +48,7 @@ include_once(APP_INC_PATH . 'common.inc.php');
 include_once(APP_INC_PATH . 'class.fezacml.php');
 include_once(APP_INC_PATH . "class.error_handler.php");
 include_once(APP_INC_PATH . "class.setup.php");
+include_once('HTML/AJAX/JSON.php');
 
 class Misc
 {
@@ -1064,6 +1065,24 @@ class Misc
 		$return_str = substr($return_str, 1);
 		return $return_str;
 	}
+
+    function array_to_object($arr, &$obj)
+    {
+        foreach ($arr as $key => $value)
+        {
+            if (is_array($value))
+            {
+                $obj->$key = new stdClass();
+                Misc::array_to_object($value, $obj->$key);
+            }
+            else
+            {
+                $obj->$key = $value;
+            }
+        }
+        return $obj;
+    }
+
 
     /**
      * Gets an array with the datastream header details for each datastream from a FOXML xml string.
@@ -3128,6 +3147,19 @@ if (!function_exists('json_encode'))
         }
     }
 }
+
+if (!function_exists('json_decode'))
+{
+    function json_decode($a=false)
+    {
+        $json = new HTML_AJAX_Serializer_JSON();
+        $array = $json->unserialize($a);
+        $object = new stdClass();
+        Misc::array_to_object($array, $object);
+        return $object;
+    }
+}
+
 
 
 // benchmarking the included file (aka setup time)
