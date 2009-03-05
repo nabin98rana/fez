@@ -824,7 +824,7 @@ $stmt .= "
                     ";
         $bodyStmt = $bodyStmtPart1."
 
-					 ".$limit." WHERE r2.rek_file_downloads > 0 AND r2.rek_status=2
+					 ".$limit." WHERE r2.rek_status=2
                     GROUP BY rek_".$group_field."
              ";
 			 if  ( $authStmt <> "" ) { // so the stats will work even when there are auth rules
@@ -844,6 +844,8 @@ $stmt .= "
 					";
 
 		$stmt = $innerStmt;
+		
+//		echo $stmt;
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
