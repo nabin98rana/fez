@@ -36,12 +36,12 @@ include_once(APP_INC_PATH.'db_access.php');
 include_once(APP_INC_PATH.'class.wfbehaviours.php');
 include_once(APP_INC_PATH.'class.workflow_state.php');
 include_once(APP_INC_PATH.'class.workflow_trigger.php');
-include_once(APP_INC_PATH.'class.foxml.php');
-include_once(APP_INC_PATH . 'class.bgp_generate_duplicates_report.php');
-include_once(APP_INC_PATH . 'class.bgp_duplicates_report_merge_isi_loc.php');
-include_once(APP_INC_PATH. 'class.bgp_publish.php');
+//include_once(APP_INC_PATH.'class.foxml.php');
+//include_once(APP_INC_PATH . 'class.bgp_generate_duplicates_report.php');
+//include_once(APP_INC_PATH . 'class.bgp_duplicates_report_merge_isi_loc.php');
+//include_once(APP_INC_PATH. 'class.bgp_publish.php');
 include_once(APP_INC_PATH . 'class.template.php');
-include_once(APP_INC_PATH . 'class.mail.php');
+//include_once(APP_INC_PATH . 'class.mail.php');
 
 /**
  * for tracking status of objects in workflows.  This is like the runtime part of the workflows.
@@ -444,8 +444,17 @@ class WorkflowStatus {
         $this->getWorkflowDetails();
         $next_states = Workflow_State::getDetailsNext($this->wfs_id);
         $button_list = array();
+
+		// If this is a create form, there is no pid yet, so use the parent pids security runs for testing what states can be entered, 
+		// and therefore which buttons can be shown (eg publish button, approver only).
+		if (empty($this->pid)) {
+			$auth_pid = $this->parent_pid;
+		} else {
+			$auth_pid = $this->pid;
+		}
+
         foreach ($next_states as $next) {
-            if (Workflow_State::canEnter($next['wfs_id'], $this->pid)) {
+            if (Workflow_State::canEnter($next['wfs_id'], $auth_pid)) {
                 // transparent states are hidden from the user so we make the button have the text of
                 // the next non-transparent state.  Only auto states can be transparent.
                 if ($next['wfs_auto'] && $next['wfs_transparent']) {
