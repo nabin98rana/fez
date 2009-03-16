@@ -56,6 +56,8 @@ function loadPreview(pid,datastreamID, alt, origami)
             datastreamID = str_replace(datastreamID, '.eps', '.jpg');
             datastreamID = str_replace(datastreamID, '.png', '.jpg');
             datastreamID = str_replace(datastreamID, '.bmp', '.jpg');
+            datastreamID = str_replace(datastreamID, '.BMP', '.jpg');
+            datastreamID = str_replace(datastreamID, '.JPG', '.jpg');
             pv_img_href.href += '/web_'+datastreamID+'{/literal}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}{literal}';
         }
         
