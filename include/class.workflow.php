@@ -400,8 +400,16 @@ class Workflow
 
         $record = new RecordObject($pid);
 		$record->getImageFezACML($dsID); 
+		//Exiftool will have a better indication of mimetype
+		if (APP_EXIFTOOL_SWITCH == "ON") {
+			$exif = Exiftool::getDetails($pid, $dsID);
+			if (count($exif) > 0) {
+				if (!empty($exif['exif_mime_type'])) {
+					$mimetype = $exif['exif_mime_type'];
+				}
+			}
+		}
         $wft_details = $record->getIngestTrigger($mimetype);
-
 	    if (!empty($wft_details)) {
             // run it
             $dsInfo = array(
