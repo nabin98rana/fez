@@ -480,11 +480,12 @@ class Reindex
     function reindexList($params) {
     	
     	$reindex_record_counter = 0;
-    	$record_count = count($items);
+
         $bgp_details = $this->bgp->getDetails();
         
         $tz = Date_API::getPreferredTimezone($bgp_details["bgp_usr_id"]);
         $items = $params['items'];
+    	$record_count = count($items);
         foreach ($items as $pid) {
             $reindex_record_counter++;
             $utc_date = Date_API::getSimpleDateUTC();
