@@ -74,7 +74,7 @@ class BackgroundProcess_Index_Object extends BackgroundProcess
         	$reindex->reindexMissingList($params,$terms);
         } elseif ($index_type == Reindex::INDEX_TYPE_REINDEX)  {
             if($params['items']) {
-            	$reindex->reindexList($params['items']);
+            	$reindex->reindexList($params);
             } else {
         	   $reindex->reindexFullList($params,$terms);
             }
