@@ -9,7 +9,7 @@
     <record>
       <header>
 	    <identifier>oai:{$app_hostname}:{$list[0].rek_pid}</identifier>
-	    <datestamp>{$list[0].rek_created_date}</datestamp>
+	    <datestamp>{$list[0].rek_updated_date}</datestamp>
 	{assign var="loop_subjects" value=$list[0].rek_subject}
 	{section name="s" loop=$loop_subjects}
 	{if $loop_subjects[s] != ""}
@@ -32,12 +32,12 @@
 	        <dc:identifier>{$app_base_url}view/{$list[0].rek_pid|escape:"html"}</dc:identifier>
 	        <dc:description>{$list[0].rek_description|escape:"html"}</dc:description>
 	        <dc:type>{$list[0].rek_display_type_lookup|escape:"html"}</dc:type>
-			{if $metadataPrefix != "pa"}
+
 			{assign var="loop_authors" value=$list[0].rek_author}
 			{section name="a" loop=$loop_authors}
 	        <dc:creator>{$list[0].rek_author[a]|escape:"html"}</dc:creator>
 			{/section}
-			{/if}
+
 			{assign var="loop_contributors" value=$list[0].rek_contributor}
 			{section name="a" loop=$loop_contributors}
 	        <dc:contributor>{$list[0].rek_contributor[a]|escape:"html"}</dc:contributor>
@@ -58,10 +58,7 @@
 			{section name="s" loop=$loop_relation}
 	        <dc:relation>isMemberOf {$loop_relation[s]|escape:"html"}</dc:relation>
 			{/section}
-			{assign var="loop_format" value=$list[0].rek_file_attachment_name}
-			{section name="f" loop=$loop_format}
-	        <dc:format>{$app_base_url}eserv/{$list[0].rek_pid|escape:"html"}/{$list[0].rek_file_attachment_name[f]|escape:"html"}</dc:format>
-			{/section}
+
 			{assign var="loop_rights" value=$list[0].rek_rights}
 			{section name="s" loop=$loop_rights}
 	        <dc:rights>{$loop_rights[s]|escape:"html"}</dc:rights>

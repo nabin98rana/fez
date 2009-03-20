@@ -9,7 +9,7 @@
 {section name="i" loop=$list}
   <header>
       <identifier>oai:{$app_hostname}:{$list[i].rek_pid}</identifier>
-      <datestamp>{$list[i].rek_created_date}</datestamp>
+      <datestamp>{$list[i].rek_updated_date}</datestamp>
 {assign var="loop_parents" value=$list[i].rek_ismemberof}
 {section name="p" loop=$loop_parents}
       <setSpec>oai:{$app_hostname}:{$loop_parents[p]}</setSpec>
@@ -23,7 +23,6 @@
   </header>
 {/section}
 {if $list_count < 100}
-  <resumptionToken></resumptionToken>
 {else}
   <resumptionToken>{$start+100}/{$resumptionHash}</resumptionToken>
 {/if}

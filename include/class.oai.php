@@ -34,6 +34,9 @@
 //
 
 
+
+
+
 /**
  * Class to handle the business logic related to the Fez OAI provider service.
  *
@@ -83,6 +86,7 @@ class OAI
         }
         $current_row = ($current_row/100);
  		$filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
+		$filter["searchKey".Search_key::getID("Object Type")]=3; //exclude communities and collections bh 24/11/2008
         if (!empty($identifier)) {
 			$filter["searchKey".Search_Key::getID("Pid")] = $identifier;
         } elseif (!empty($set)) {
@@ -92,22 +96,23 @@ class OAI
 				$filter["searchKey".Search_Key::getID("Subject")] = $set;
 			}
 		}
+		//bh 24/11/2008 changed "Date" to "Updated Date" in below block to ensure harvesting operates on this rather than publication date
         if ($from != "" && $until != "") {
-			$filter["searchKey".Search_Key::getID("Date")] = array();
-			$filter["searchKey".Search_Key::getID("Date")]["filter_type"] = "between";
-			$filter["searchKey".Search_Key::getID("Date")]["filter_enabled"] = 1;
-			$filter["searchKey".Search_Key::getID("Date")]["start_date"] = $from;
-			$filter["searchKey".Search_Key::getID("Date")]["end_date"] = $until;
+			$filter["searchKey".Search_Key::getID("Updated Date")] = array();
+			$filter["searchKey".Search_Key::getID("Updated Date")]["filter_type"] = "between";
+			$filter["searchKey".Search_Key::getID("Updated Date")]["filter_enabled"] = 1;
+			$filter["searchKey".Search_Key::getID("Updated Date")]["start_date"] = $from;
+			$filter["searchKey".Search_Key::getID("Updated Date")]["end_date"] = $until;
         } elseif (!empty($from) && empty($until)) {
-			$filter["searchKey".Search_Key::getID("Date")] = array();
-			$filter["searchKey".Search_Key::getID("Date")]["filter_type"] = "greater";
-			$filter["searchKey".Search_Key::getID("Date")]["filter_enabled"] = 1;
-			$filter["searchKey".Search_Key::getID("Date")]["start_date"] = $from;        	
+			$filter["searchKey".Search_Key::getID("Updated Date")] = array();
+			$filter["searchKey".Search_Key::getID("Updated Date")]["filter_type"] = "greater";
+			$filter["searchKey".Search_Key::getID("Updated Date")]["filter_enabled"] = 1;
+			$filter["searchKey".Search_Key::getID("Updated Date")]["start_date"] = $from;        	
         } elseif (!empty($until) && empty($from)) {
-			$filter["searchKey".Search_Key::getID("Date")] = array();
-			$filter["searchKey".Search_Key::getID("Date")]["filter_type"] = "less";
-			$filter["searchKey".Search_Key::getID("Date")]["filter_enabled"] = 1;
-			$filter["searchKey".Search_Key::getID("Date")]["start_date"] = $until;
+			$filter["searchKey".Search_Key::getID("Updated Date")] = array();
+			$filter["searchKey".Search_Key::getID("Updated Date")]["filter_type"] = "less";
+			$filter["searchKey".Search_Key::getID("Updated Date")]["filter_enabled"] = 1;
+			$filter["searchKey".Search_Key::getID("Updated Date")]["start_date"] = $until;
         }
 
  		$return = Record::getListing($options, array(9,10), $current_row, $max, $order_by, false, false, $filter);

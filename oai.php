@@ -73,6 +73,14 @@ if (!empty($custom_view_pid)) {
 if ($metadataPrefix == "pa") {
 	$digilib_image_xdis_id = XSD_Display::getXDIS_IDByTitle("Digilib Image");
 	$image_xdis_id = XSD_Display::getXDIS_IDByTitle("Image");
+	
+	// 26/11/2008 bh added support for photograph doc type
+	$photograph_xdis_id = XSD_Display::getXDIS_IDByTitle("Photograph");
+		if (is_numeric($photograph_xdis_id)) {
+		$filter["searchKey".Search_Key::getID("Display Type")][] = $photograph_xdis_id;
+	}
+	
+	
 	if (is_numeric($image_xdis_id)) {
 		$filter["searchKey".Search_Key::getID("Display Type")][] = $image_xdis_id;
 	}
@@ -324,17 +332,34 @@ if (!empty($verb)) {
 							}
 						}
 						if (!empty($from)) {
-							if (!preg_match("/^(\d\d\d\d)-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d(\.\d+)?)Z?$/", $from)) {
+							//24/11/2008  bh made TIME part of string optional
+							//if (!preg_match("/^(\d\d\d\d)-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d(\.\d+)?)Z?$/", $from)) {
+							if (!preg_match("/^(\d\d\d\d)-(\d\d)-(\d\d)(T(\d\d):(\d\d):(\d\d(\.\d+)?)Z?)?$/", $from)) {
 								$errors["code"][] = "badArgument";
 								$errors["message"][] = "not valid datetime: ".$from;
 							}
+							$from_in_time_format = true;
+							if (!preg_match("/^(\d\d\d\d)-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d(\.\d+)?)Z?$/", $from)) { //check if its in time format to make sure both are in the same format
+								$from_in_time_format = false;								
+							} 
 						}
 						if (!empty($until)) {
-							if (!preg_match("/^(\d\d\d\d)-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d(\.\d+)?)Z?$/", $until)) {
+							//24/11/2008  bh made TIME part of string optional
+							//if (!preg_match("/^(\d\d\d\d)-(\d\d)-(\d\d)((\d\d):(\d\d):(\d\d(\.\d+)?)Z?$/", $until)) {
+							if (!preg_match("/^(\d\d\d\d)-(\d\d)-(\d\d)(T(\d\d):(\d\d):(\d\d(\.\d+)?)Z?)?$/", $until)) {
 								$errors["code"][] = "badArgument";
 								$errors["message"][] = "not valid datetime: ".$until;
 							}
-						}					
+							$until_in_time_format = true;
+							if (!preg_match("/^(\d\d\d\d)-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d(\.\d+)?)Z?$/", $until)) { //check if its in time format to make sure both are in the same format
+								$until_in_time_format = false;								
+							}
+							
+							if (($from_in_time_format == true && $until_in_time_format == false) || ($from_in_time_format == false && $until_in_time_format == true)) {
+								$errors["code"][] = "badArgument";
+								$errors["message"][] = "The request has different granularities for the from and until parameters.";
+							}
+						}
 						// probably first need to check that the set exists if not empty					
 						$list = OAI::ListRecords($set, $identifier, $start, $rows, $order_by, $from, $until, $setType, $filter);
 						$list_info = $list["info"];
@@ -385,15 +410,31 @@ if (!empty($verb)) {
 							}
 						}
 						if (!empty($from)) {
-							if (!preg_match("/^(\d\d\d\d)-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d(\.\d+)?)Z?$/", $from)) {
+							//24/11/2008  bh made TIME part of string optional
+							//if (!preg_match("/^(\d\d\d\d)-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d(\.\d+)?)Z?$/", $from)) {
+							if (!preg_match("/^(\d\d\d\d)-(\d\d)-(\d\d)(T(\d\d):(\d\d):(\d\d(\.\d+)?)Z?)?$/", $from)) {
 								$errors["code"][] = "badArgument";
 								$errors["message"][] = "not valid datetime: ".$from;
+								$from_in_time_format = true;
+								if (!preg_match("/^(\d\d\d\d)-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d(\.\d+)?)Z?$/", $from)) { //check if its in time format to make sure both are in the same format
+									$from_in_time_format = false;								
+								} 
 							}
 						}
 						if (!empty($until)) {
-							if (!preg_match("/^(\d\d\d\d)-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d(\.\d+)?)Z?$/", $until)) {
+							//24/11/2008  bh made TIME part of string optional
+							//if (!preg_match("/^(\d\d\d\d)-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d(\.\d+)?)Z?$/", $until)) {	
+							if (!preg_match("/^(\d\d\d\d)-(\d\d)-(\d\d)(T(\d\d):(\d\d):(\d\d(\.\d+)?)Z?)?$/", $until)) {
 								$errors["code"][] = "badArgument";
 								$errors["message"][] = "not valid datetime: ".$until;
+							}
+							$until_in_time_format = true;
+							if (!preg_match("/^(\d\d\d\d)-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d(\.\d+)?)Z?$/", $until)) { //check if its in time format to make sure both are in the same format
+								$until_in_time_format = false;								
+							}
+							if (($from_in_time_format == true && $until_in_time_format == false) || ($from_in_time_format == false && $until_in_time_format == true)) {
+								$errors["code"][] = "badArgument";
+								$errors["message"][] = "The request has different granularities for the from and until parameters.";
 							}
 						}					
 						// probably first need to check that the set exists if not empty
