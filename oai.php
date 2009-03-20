@@ -355,7 +355,7 @@ if (!empty($verb)) {
 								$until_in_time_format = false;								
 							}
 							
-							if (($from_in_time_format == true && $until_in_time_format == false) || ($from_in_time_format == false && $until_in_time_format == true)) {
+							if ((($from_in_time_format == true && $until_in_time_format == false) || ($from_in_time_format == false && $until_in_time_format == true)) && (!empty($from)) ) {
 								$errors["code"][] = "badArgument";
 								$errors["message"][] = "The request has different granularities for the from and until parameters.";
 							}
@@ -411,16 +411,16 @@ if (!empty($verb)) {
 						}
 						if (!empty($from)) {
 							//24/11/2008  bh made TIME part of string optional
-							//if (!preg_match("/^(\d\d\d\d)-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d(\.\d+)?)Z?$/", $from)) {
+							//if (!preg_match("/^(\d\d\d\d)-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d(\.\d+)?)Z?$/", $from)) { 
 							if (!preg_match("/^(\d\d\d\d)-(\d\d)-(\d\d)(T(\d\d):(\d\d):(\d\d(\.\d+)?)Z?)?$/", $from)) {
 								$errors["code"][] = "badArgument";
 								$errors["message"][] = "not valid datetime: ".$from;
-								$from_in_time_format = true;
-								if (!preg_match("/^(\d\d\d\d)-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d(\.\d+)?)Z?$/", $from)) { //check if its in time format to make sure both are in the same format
-									$from_in_time_format = false;								
-								} 
 							}
-						}
+							$from_in_time_format = true;
+							if (!preg_match("/^(\d\d\d\d)-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d(\.\d+)?)Z?$/", $from)) { //check if its in time format to make sure both are in the same format
+								$from_in_time_format = false;
+							} 
+						} 
 						if (!empty($until)) {
 							//24/11/2008  bh made TIME part of string optional
 							//if (!preg_match("/^(\d\d\d\d)-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d(\.\d+)?)Z?$/", $until)) {	
@@ -432,7 +432,7 @@ if (!empty($verb)) {
 							if (!preg_match("/^(\d\d\d\d)-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d(\.\d+)?)Z?$/", $until)) { //check if its in time format to make sure both are in the same format
 								$until_in_time_format = false;								
 							}
-							if (($from_in_time_format == true && $until_in_time_format == false) || ($from_in_time_format == false && $until_in_time_format == true)) {
+							if ((($from_in_time_format == true && $until_in_time_format == false) || ($from_in_time_format == false && $until_in_time_format == true)) && (!empty($from)) ) {
 								$errors["code"][] = "badArgument";
 								$errors["message"][] = "The request has different granularities for the from and until parameters.";
 							}

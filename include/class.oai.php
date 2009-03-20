@@ -74,11 +74,11 @@ class OAI
      */
     function ListRecords($set, $identifier="", $current_row = 0, $max = 100, $order_by = 'Created Date', $from="", $until="", $setType, $filter=array())
     {
-		$from = str_replace("T", " ", $from);
+/*		$from = str_replace("T", " ", $from);
 		$from = str_replace("Z", " ", $from);
 		$until = str_replace("Z", " ", $until);		
 		$until = str_replace("Z", " ", $until);	
-
+*/
         $order_dir = 'ASC';
 		$options = array();
 		if ($max == "ALL") {
@@ -128,9 +128,11 @@ class OAI
 					}
 				}
 				
-				if( !empty($res['rek_created_date']) )
-				{
+				if( !empty($res['rek_created_date']) )	{
 				    $return['list'][$rkey]['rek_created_date'] = Date_API::getFedoraFormattedDateUTC(strtotime($res['rek_created_date']));
+				}
+				if( !empty($res['rek_updated_date']) )	{
+				    $return['list'][$rkey]['rek_updated_date'] = Date_API::getFedoraFormattedDateUTC(strtotime($res['rek_updated_date']));
 				}
 				
 				$return['list'][$rkey]['rek_file_attachment_name'] = $fans;
