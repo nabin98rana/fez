@@ -162,6 +162,45 @@ class XSD_Relationship
             return $res;
         }
     }
+    
+    
+    function getColListByXDISMinimal($xdis_id, $exclude_xdis_str = '', $specify_xdis_str = '')
+    {
+		if (!is_numeric($xdis_id)) {
+			return array();
+		}		
+		
+        $stmt = "SELECT
+					xsdrel_xdis_id
+                 FROM
+                    " . APP_TABLE_PREFIX . "xsd_relationship,
+                    " . APP_TABLE_PREFIX . "xsd_display,
+                    " . APP_TABLE_PREFIX . "xsd_display_matchfields,
+                    " . APP_TABLE_PREFIX . "xsd
+                 WHERE
+                   xsd_id = xdis_xsd_id AND xsdmf_xdis_id = ".$xdis_id." and xsdrel_xsdmf_id = xsdmf_id and xsdrel_xdis_id = xdis_id and xsdmf_html_input != 'xsdmf_id_ref'";
+        
+        if ($exclude_xdis_str != '') {
+        	$stmt .= " AND xsd_title not in ('".$exclude_xdis_str."')";        	
+        }
+        if ($specify_xdis_str != '') {
+        	$stmt .= " AND xsd_title in ('".$specify_xdis_str."')";        	
+        }
+        
+        
+		$stmt .= " ORDER BY xsdrel_order ASC";
+		
+        $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            return $res;
+        }
+    }
+    
+    
+    
     /**
      * Method used to remove a given list of XSD relationships.
      *

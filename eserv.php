@@ -144,6 +144,12 @@ if (!empty($pid) && !empty($dsID)) {
 			$acceptable_roles = array("Viewer", "Community_Admin", "Editor", "Creator", "Annotator");
 		}
 		
+		//Restrict datastreams/files to the Creator role+ via eserv if the object they are in is not published
+		$status = Record::getSearchKeyIndexValue($pid, "Status", false);
+		if ($status != Status::getID("Published")) {
+			$acceptable_roles = array("Community_Admin", "Editor", "Creator");
+		}
+
 		if (Auth::checkAuthorisation($pid, $dsID, $acceptable_roles, $_SERVER['REQUEST_URI'], null, $ALLOW_SECURITY_REDIRECT) != true) {
 	  		if( $SHOW_STATUS ){
 				header("HTTP/1.0 403 Forbidden");

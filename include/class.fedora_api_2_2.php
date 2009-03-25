@@ -1273,7 +1273,7 @@ class Fedora_API {
 
 	// This function is not used, as disseminators are not used in Fez, but it will be left in in for now
 	function callAddDisseminator ($pid, $dsID, $bDefPID, $bMechPID, $dissLabel, $key) {
-	   global $_REQUEST;
+
 	   //Builds a four level namespaced typed array.
 	   //$dsBindings[] is used by $bindingMap,
 	   //which is used by the soap call $parms.

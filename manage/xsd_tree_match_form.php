@@ -70,7 +70,7 @@ $tpl->assign("isAdministrator", $isAdministrator);
 $tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 
 if ($isSuperAdministrator) {
-
+$xsdmf_id = @$_POST["xsdmf_id"] ? $_POST["xsdmf_id"] : @$_GET["xsdmf_id"];
 $xdis_id = @$_POST["xdis_id"] ? $_POST["xdis_id"] : @$_GET["xdis_id"];
 $xsdsel_id = @$_POST["xsdsel_id"] ? $_POST["xsdsel_id"] : @$_GET["xsdsel_id"];
 $xsdsel_id_edit = @$_POST["xsdsel_id_edit"] ? $_POST["xsdsel_id_edit"] : @$_GET["xsdsel_id_edit"];
@@ -92,9 +92,11 @@ $tpl->assign("controlled_vocab_list", Controlled_Vocab::getAssocList());
 		if ($form_cat == "new") {
 			$tpl->assign("result", XSD_HTML_Match::insert($xdis_id, $xml_element));
 		} elseif ($form_cat == "update") {
-			$tpl->assign("result", XSD_HTML_Match::update($xdis_id, $xml_element));
+//			$tpl->assign("result", XSD_HTML_Match::update($xdis_id, $xml_element));
+			$tpl->assign("result", XSD_HTML_Match::update($xsdmf_id));
 		} elseif ($form_cat == "delete") { // is this actually used? no I don't think so - CK - yes it is 3/8/06 CK
-			$tpl->assign("result", XSD_HTML_Match::remove($xdis_id, $xml_element));
+//			$tpl->assign("result", XSD_HTML_Match::remove($xdis_id, $xml_element));
+			$tpl->assign("result", XSD_HTML_Match::remove($xsdmf_id));
 		}
 
 	} elseif (is_numeric(strpos(@$_POST["form_name"], "att_main"))) {

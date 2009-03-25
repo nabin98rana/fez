@@ -391,8 +391,8 @@ return;
 		$record = new RecordGeneral($pid);
 		$isi_loc = $this->getISI_LOC($record);
 
-        $stmt = "SELECT distinct r2.rek_isi_loc_pid as pid, "
-        	        .self::RELEVANCE_ISI_LOC_MATCH." as relevance " .
+        $stmt = "SELECT DISTINCT r2.rek_isi_loc_pid AS pid, "
+        	        .self::RELEVANCE_ISI_LOC_MATCH." AS relevance " .
                 "FROM  ".$dbtp."record_search_key_isi_loc AS r2 " .
                 "    WHERE r2.rek_isi_loc='$isi_loc' " .
                 "    AND NOT(r2.rek_isi_loc_pid = '".$pid."') ";
@@ -411,6 +411,7 @@ return;
      */
     function similarTitlesQuery($pid, $title)
     {
+
         $pidnum = substr($pid, strpos($pid, ':') + 1);
         $dbtp = APP_SQL_DBNAME . "." . APP_TABLE_PREFIX;
         // Do a fuzzy title match on records that don't have the same pid as the candidate record
@@ -418,16 +419,53 @@ return;
         // and are not preprints..
         $pre_print_display_type = XSD_Display::getID("Preprint");
         $pp_where = "";
+        $pp_solr_filter = "";
         if (is_numeric($pre_print_display_type)) {
         	$pp_where = " AND rek_display_type != ".$pre_print_display_type;
+			$pp_solr_filter = " AND !display_type_i:".$pre_print_display_type;
         }
-        $stmt = "SELECT distinct r2.rek_pid as pid, " .
-                "  match (r2.rek_title) against ('".Misc::escapeString($title)."') as relevance " .
-                "FROM  ".$dbtp."record_search_key AS r2 " .
-                "  WHERE match (r2.rek_title) against ('".Misc::escapeString($title)."') " .
-                "  AND NOT(rek_pid = '".$pid."') AND rek_object_type = 3 " . $pp_where .
-                " ORDER BY relevance DESC " .
-                " LIMIT 0,5";
+        if (APP_SOLR_SWITCH == "ON" ) { //Solr - the preferable option if available
+			//Query solr with an OR query on title for a similar fix
+			// Solr search params
+			$index = new FulltextIndex_Solr();
+			$params = array();
+			$start = 0;
+			$page_rows = 0;
+			$params['fl'] = 'title_t,score';
+			$params['fq'] = 'object_type_i:3 AND !pid_t:'.$pid.$pp_solr_filter;
+			//Fez Solr schema.xml has the default search to be an AND based search, while dedupe similar titles query needs to be an OR based search
+			// so it doesn't exclude similar titles 
+			$titleOr = implode(" OR ", explode(" ", $title));
+			$queryString = "title_t:(".$titleOr.")";
+			$response = $index->solr->search($queryString, $start, $page_rows, $params);
+			$total_rows = $response->response->numFound;
+			$res = array();
+			if ($total_rows > 0) {		
+				$i = 0;
+				foreach ($response->response->docs as $doc) {
+					// resolve result
+					$res[$i]['pid'] = $doc->pid_t;
+					$res[$i]['relevance'] = $doc->score;
+					$i++;
+				}
+			}
+			return $res;
+		} elseif (APP_MYSQL_INNODB_FLAG == "ON" || APP_SQL_DBTYPE != "mysql") {
+	        $stmt = "SELECT distinct r2.rek_pid as pid, " 
+	                .self::RELEVANCE_ISI_LOC_MATCH." as relevance " .
+	                "FROM  ".$dbtp."record_search_key AS r2 " .
+	                "  WHERE r2.rek_title LIKE '%".Misc::escapeString($title)."%' " .
+	                "  AND NOT(rek_pid = '".$pid."') AND rek_object_type = 3 " . $pp_where .
+	                " LIMIT 5 OFFSET 0";
+		} else {
+	        $stmt = "SELECT distinct r2.rek_pid as pid, " .
+	                "  MATCH (r2.rek_title) AGAINST ('".Misc::escapeString($title)."') AS relevance " .
+	                "FROM  ".$dbtp."record_search_key AS r2 " .
+	                "  WHERE MATCH (r2.rek_title) AGAINST ('".Misc::escapeString($title)."') " .
+	                "  AND NOT(rek_pid = '".$pid."') AND rek_object_type = 3 " . $pp_where .
+	                " ORDER BY relevance DESC " .
+	                " LIMIT 5 OFFSET 0";
+		}
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

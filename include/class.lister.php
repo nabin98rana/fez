@@ -116,7 +116,10 @@ class Lister
 			1 => array('file' => 'excel.tpl.html', 'title' => 'Excel File'),
             4 => array('file' => 'citation_only_list.tpl.html', 'title' => 'Citations Only'),
             5 => array('file' => 'simple_list.tpl.html', 'title' => 'Classic Simple View'),
-            6 => array('file' => 'gallery_list.tpl.html', 'title' => 'Image Gallery View')
+            6 => array('file' => 'gallery_list.tpl.html', 'title' => 'Image Gallery View'),
+			7 => array('file' => 'endnote.tpl.html', 'title' => 'Export for Endnote'), //added for endnote - heaphey
+			8 => array('file' => 'js.tpl.html', 'title' => 'HTML Code'), //added for js - heaphey
+			9 => array('file' => 'msword.tpl.html', 'title' => 'Word File') //added for word out - heaphey
         );
 		// disabled edit authors view until it can be looked again in the future
         // 1 => array('file' => 'views/list/author_bulk_edit.tpl.html', 'title' => 'Edit Authors'),
@@ -154,7 +157,15 @@ class Lister
 			header("Content-type: application/vnd.ms-excel");
 			header("Content-Disposition: attachment; filename=export.xls");
 			header("Content-Description: PHP Generated XLS Data");
-		}
+		}  elseif ($tpl_idx == 7) {  //heaphey - added for endnote
+			header("Content-type: application/vnd.endnote");
+			header("Content-Disposition: attachment; filename=endnote.txt");
+			header("Content-Description: PHP Generated Endnote Data");
+		}   elseif ($tpl_idx == 9) {  //heaphey - added for word
+			header("Content-type: application/vnd.ms-word");
+			header("Content-Disposition: attachment; filename=word.doc");
+			header("Content-Description: PHP Generated Word Data");
+		}	
 		
         
         if (Auth::userExists($username)) { // if the user is registered as a Fez user
@@ -277,7 +288,8 @@ class Lister
             // list a collection
             // first check the user has view rights over the collection object
             $record = new RecordObject($collection_pid);
-			if ($record->checkExists()) {
+			if ($record->checkExists() && !($record->isDeleted())) {
+			
 	            $canList = $record->canList(true);
 
 	            $tpl->assign("isLister", $canList);
@@ -340,7 +352,8 @@ class Lister
             // list collections in a community
             // first check the user has view rights over the collection object
             $record = new RecordObject($community_pid);
-			if ($record->checkExists()) {
+			if ($record->checkExists() && !($record->isDeleted())) {
+			
 	            $canView = $record->canView(true);
 	            $tpl->assign("isViewer", $canView);
 	            if ($canView) {	

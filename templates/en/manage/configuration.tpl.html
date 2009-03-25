@@ -564,7 +564,37 @@ function restoreDefaultColours(el)
 			<td class="coldetail">&nbsp;</td>
   		  </tr>
 		  <tr>
-		    <td class="colname">Direct APIA Access</td>
+		    <td class="colname">Use XPATH (xsdmf_xpath) for querying xml datatreams? (experimental)</td>
+			<td class="coldetail">
+			  <select name="app_xpath_switch">
+			    <option value="ON"{if $config_settings.app_xpath_switch == "ON"} selected="selected"{/if}>On</option>
+				<option value="OFF"{if $config_settings.app_xpath_switch == "OFF"} selected="selected"{/if}>Off</option>
+			  </select>
+			  {include file="error_icon.tpl.html" field="app_xpath_switch"}
+			</td>
+  		  </tr>
+		  <tr>
+		    <td class="colname">Use MySQL InnoDB turns off fulltext indexing, insert delayed and other MyISAM only tricks, but you get row level locking(experimental)</td>
+			<td class="coldetail">
+			  <select name="app_mysql_innodb_flag">
+			    <option value="ON"{if $config_settings.app_mysql_innodb_flag == "ON"} selected="selected"{/if}>On</option>
+				<option value="OFF"{if $config_settings.app_mysql_innodb_flag == "OFF"} selected="selected"{/if}>Off</option>
+			  </select>
+			  {include file="error_icon.tpl.html" field="app_mysql_innodb_flag"}
+			</td>
+  		  </tr>
+		  <tr>
+		    <td class="colname">Use Index for getting data rather than querying xml datastreams (Solr, or Mysql if Solr search is off)- (experimental)</td>
+			<td class="coldetail">
+			  <select name="app_xsdmf_index_switch">
+			    <option value="ON"{if $config_settings.app_xsdmf_index_switch == "ON"} selected="selected"{/if}>On</option>
+				<option value="OFF"{if $config_settings.app_xsdmf_index_switch == "OFF"} selected="selected"{/if}>Off</option>
+			  </select>
+			  {include file="error_icon.tpl.html" field="app_xsdmf_index_switch"}
+			</td>
+  		  </tr>
+		  <tr>
+		    <td class="colname">Direct APIA Access (experimental)</td>
 			<td class="coldetail">
 			  <select name="app_fedora_apia_direct">
 			    <option value="ON"{if $config_settings.app_fedora_apia_direct == "ON"} selected="selected"{/if}>On</option>

@@ -192,6 +192,24 @@
                 </td>
               </tr>					
               <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default">
+                  <b>Researcher ID (Thompson): </b>
+                </td>
+                <td bgcolor="{$light_color}" width="80%">
+                  <input type="text" name="researcher_id" size="40" class="default" value="{$info.aut_researcher_id}">
+                  {include file="error_icon.tpl.html" field="researcher_id"}
+                </td>
+              </tr>					
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default">
+                  <b>Scopus ID: </b>
+                </td>
+                <td bgcolor="{$light_color}" width="80%">
+                  <input type="text" name="scopus_id" size="40" class="default" value="{$info.aut_scopus_id}">
+                  {include file="error_icon.tpl.html" field="scopus_id"}
+                </td>
+              </tr>					
+              <tr>
                 <td colspan="2" bgcolor="{$cell_color}" align="center">
                   {if $smarty.get.cat == 'edit'}
                   <input class="button" type="submit" value="Update Author">

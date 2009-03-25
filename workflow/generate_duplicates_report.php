@@ -32,6 +32,8 @@
 // |          Rhys Palmer <r.rpalmer@library.uq.edu.au>                   |
 // +----------------------------------------------------------------------+
 
+include_once(APP_INC_PATH.'class.bgp_generate_duplicates_report.php');
+
 // get the latest version of the XSD Display for the duplicates report object 
 $xdises = XSD_Display::getList(Doc_Type_XSD::getFoxmlXsdId(), "AND xdis_title='Duplicates Report'");
 $xdises = Misc::keyArray($xdises, 'xdis_version');

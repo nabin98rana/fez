@@ -564,11 +564,19 @@ class Statistics
 			}	
 		}
 		$usr_id = Auth::getUserID();
-		//print_r($_SERVER);
 		$pid = Misc::escapeString($pid);	
 		$remote_address = Misc::escapeString($_SERVER['REMOTE_ADDR']);
 		$request_date = Misc::escapeString(date('Y-m-d H:i:s', $_SERVER['REQUEST_TIME']));
-		$stmt = "INSERT DELAYED INTO " . APP_TABLE_PREFIX . "statistics_buffer 
+		
+		if (APP_MYSQL_INNODB_FLAG == "ON" || APP_SQL_DBTYPE != "mysql") {
+			$stmt = "INSERT INTO ";
+		} else {
+			//If using MyISAM mysql db engine type, take advantage of the 'delayed' non-ansi extension
+			$stmt = "INSERT DELAYED INTO ";
+		} 
+		
+		
+		$stmt .= APP_TABLE_PREFIX . "statistics_buffer 
 		(str_ip, str_request_date, str_pid";
 		if (!is_null($ds_id)) {
 			$stmt .= ", str_dsid";
@@ -587,7 +595,6 @@ class Statistics
 			$stmt .= ", ".$usr_id;
 		}
 		$stmt .= ")";
-//		echo $stmt;
 		$res = $GLOBALS["db_api"]->dbh->query($stmt);
 		if (PEAR::isError($res)) {
 			Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

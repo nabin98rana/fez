@@ -394,11 +394,17 @@ class Org_Structure
 		$stmt = " SELECT org_id as id, org_title as name FROM (";		
 		$stmt .= " 
 			  SELECT org_id, 
-				org_title,
-				MATCH(org_title) AGAINST ('".$term."') as Relevance FROM ".$dbtp."org_structure
-			 WHERE MATCH (org_title) AGAINST ('*".$term."*' IN BOOLEAN MODE) AND org_title not like 'Faculty of%' AND (org_extdb_name = 'hr' OR org_extdb_name = 'rrtd') ";
-		$stmt .= " ORDER BY Relevance DESC, org_title LIMIT 0,10) as tempsuggest";
-
+				org_title ";
+				
+		if (APP_MYSQL_INNODB_FLAG == "ON" || APP_SQL_DBTYPE != "mysql") {
+			$stmt .= " FROM ".$dbtp."org_structure
+				 WHERE org_title LIKE '".$term."%' AND org_title NOT LIKE 'Faculty of%' AND (org_extdb_name = 'hr' OR org_extdb_name = 'rrtd') ";
+			$stmt .= " LIMIT 10 OFFSET 0) AS tempsuggest";
+		} else {
+			$stmt .= ",MATCH(org_title) AGAINST ('".$term."') as Relevance FROM ".$dbtp."org_structure
+		 WHERE MATCH (org_title) AGAINST ('*".$term."*' IN BOOLEAN MODE) AND org_title NOT LIKE 'Faculty of%' AND (org_extdb_name = 'hr' OR org_extdb_name = 'rrtd') ";
+			$stmt .= " ORDER BY Relevance DESC, org_title LIMIT 10 OFFSET 0) AS tempsuggest";
+		}
 		if ($assoc) {
 		    $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		} else {
@@ -703,6 +709,29 @@ class Org_Structure
 
 
 	}
+
+
+
+    function getAuthorOrgListByOrgStaffID($org_staff_id)
+    {	
+	
+        $stmt = "SELECT
+                    org_title
+					FROM fez_author
+					LEFT JOIN hr_position_vw on WAMIKEY = aut_org_staff_id
+					LEFT JOIN fez_org_structure on AOU = org_extdb_id AND org_extdb_name = 'hr'
+					WHERE aut_org_staff_id = ".$org_staff_id;
+		$res = $GLOBALS["db_api"]->dbh->getCol($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            return $res;
+        }
+    }
+
+
+
 
     /**
      * Method used to get the list of organsational structures available in the 

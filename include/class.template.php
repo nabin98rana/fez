@@ -48,7 +48,9 @@ require_once(APP_INC_PATH . "class.collection.php");
 require_once(APP_INC_PATH . "class.auth.php");
 require_once(APP_INC_PATH . "class.user.php");
 require_once(APP_INC_PATH . "class.setup.php");
-require_once(APP_INC_PATH . "najax_classes.php");
+//require_once(APP_INC_PATH . "najax_classes.php");
+require_once(APP_INC_PATH . "najax/najax.php");
+include_once(APP_INC_PATH . "najax_objects/class.session.php");
 
 class Template_API
 {

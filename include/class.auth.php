@@ -896,7 +896,7 @@ class Auth
             }
         }
         
-        
+
 		
 		if (in_array('Community_Administrator', $userPIDAuthGroups) && !in_array('Editor', $userPIDAuthGroups)) {
 			array_push($userPIDAuthGroups, "Editor");	
@@ -927,12 +927,26 @@ class Auth
 				$status = Record::getSearchKeyIndexValue($pid, "Status", false);
 				$assigned_user_ids = Record::getSearchKeyIndexValue($pid, "Assigned User ID", false);
 				
-				if(in_array(Auth::getUserID(), $assigned_user_ids) && $status != Status::getID("Submitted for Approval")) {
+				if(in_array(Auth::getUserID(), $assigned_user_ids) && $status != Status::getID("Submitted for Approval") && $status != Status::getID("Published")) {
 					array_push($userPIDAuthGroups, "Editor");
 				}
 			}
 		}
-		
+
+		/*
+		 * Special Auth Case (This isn't set via the interface)
+		 * If a user has approver rights, the pid isn't 'published'
+		 * then they can delete it (get community admin rights)
+		 */
+		if(!in_array("Community_Administrator", $userPIDAuthGroups)) {
+			if(in_array("Approver", $userPIDAuthGroups)) {
+				$status = Record::getSearchKeyIndexValue($pid, "Status", false);
+				if($status != Status::getID("Published")) {
+					array_push($userPIDAuthGroups, "Community_Administrator");
+				}
+			}
+		}
+
         if ($GLOBALS['app_cache']) {
 			if (!is_array($roles_cache) || count($roles_cache) > 10) { //make sure the static memory var doesnt grow too large and cause a fatal out of memory error
 				$roles_cache = array();
@@ -943,6 +957,7 @@ class Auth
 				$roles_cache[$pid] = $userPIDAuthGroups;
 			}
 		}
+
 		return $userPIDAuthGroups;
 	} 
 

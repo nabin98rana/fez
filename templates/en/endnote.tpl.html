@@ -1,0 +1,139 @@
+{* $list|print_r *}
+
+{section name="i" loop=$list}
+Record {counter} of {$list|@count}
+{if $list[i].rek_display_type_lookup eq 'Journal Article'}
+{foreach from=$list[i].rek_author item=author}
+%A {$author}
+{/foreach} 
+{foreach from=$list[i].rek_journal_name item=journal}
+%B {$journal}
+{/foreach} 
+%D {$list[i].rek_date}
+%G {$list[i].rek_language[0]}
+{foreach from=$list[i].rek_journal_name item=journal}
+%J {$journal}
+{/foreach} 
+{foreach from=$list[i].rek_keywords item=keyword}
+%K {$keyword}
+{/foreach}
+%M {$list[i].rek_pid}
+{foreach from=$list[i].rek_issue_number item=issue}
+%N {$issue}
+{/foreach}
+%0 {$list[i].rek_display_type_lookup}
+%P {$list[i].rek_start_page[0]}-{$list[i].rek_end_page[0]}
+%T {$list[i].rek_title}
+%V {$list[i].rek_volume_number[0]} 
+%X {$list[i].rek_description}
+%Y {$list[i].rek_notes[0]}
+%Z {$list[i].rek_publisher[0]}
+{foreach from=$list[i].rek_identifier item=identifier}
+%@ {$identifier}
+{/foreach}
+%1 {$list[i].rek_place_of_publication[0]}
+
+{elseif $list[i].rek_display_type_lookup eq 'Book'}
+{foreach from=$list[i].rek_author item=author}
+%A {$author}
+{/foreach} 
+%B {$list[i].rek_series[0]}
+%C {$list[i].rek_place_of_publication[0]}
+%D {$list[i].rek_date}
+%G {$list[i].rek_language[0]}
+%I {$list[i].rek_publisher[0]}
+%J {$list[i].rek_notes[0]}
+{foreach from=$list[i].rek_keywords item=keyword}
+%K {$keyword}
+{/foreach}
+%M {$list[i].rek_pid}
+{foreach from=$list[i].rek_alternative_title item=alt_title}
+%O {$alt_title}
+{/foreach}
+%P {$list[i].rek_end_page[0]}
+%T {$list[i].rek_title}
+%X {$list[i].rek_description}
+%7 {$list[i].rek_edition[0]}
+{foreach from=$list[i].rek_identifier item=identifier}
+%@ {$identifier}
+{/foreach}
+
+{elseif $list[i].rek_display_type_lookup eq 'Book Chapter'}
+{foreach from=$list[i].rek_author item=author}
+%A {$author}
+{/foreach} 
+%B {$list[i].rek_book_title[0]}
+%C {$list[i].rek_place_of_publication[0]}
+%D {$list[i].rek_date}
+%G {$list[i].rek_language[0]}
+%I {$list[i].rek_publisher[0]}
+%J {$list[i].rek_notes[0]}
+{foreach from=$list[i].rek_keywords item=keyword}
+%K {$keyword}
+{/foreach}
+%M {$list[i].rek_pid}
+%0 {$list[i].rek_display_type_lookup}
+%P {$list[i].rek_start_page[0]}-{$list[i].rek_end_page[0]}
+%S {$list[i].rek_series[0]}
+%T {$list[i].rek_title}
+%X {$list[i].rek_description}
+%7 {$list[i].rek_edition[0]}
+{foreach from=$list[i].rek_identifier item=identifier}
+%@ {$identifier}
+{/foreach}
+
+{elseif $list[i].rek_display_type_lookup eq 'Thesis'}
+{foreach from=$list[i].rek_author item=author}
+%A {$author}
+{/foreach} 
+%C {$list[i].rek_place_of_publication[0]}
+%D {$list[i].rek_date}
+%G {$list[i].rek_language[0]}
+%I {$list[i].rek_org_name[0]}
+%B {$list[i].rek_org_unit_name[0]}
+%E {$list[i].rek_notes[0]}
+{foreach from=$list[i].rek_keywords item=keyword}
+%K {$keyword}
+{/foreach}
+%M {$list[i].rek_pid}
+%0 {$list[i].rek_display_type_lookup}
+%T {$list[i].rek_title}
+%X {$list[i].rek_description}
+
+{elseif $list[i].rek_display_type_lookup eq 'Conference Paper'}
+{foreach from=$list[i].rek_author item=author}
+%A {$author}
+{/foreach} 
+%B {$list[i].rek_conference_name[0]}
+%C {$list[i].rek_conference_location[0]}
+%D {$list[i].rek_date}
+%E {$list[i].rek_notes[0]}
+%G {$list[i].rek_language[0]}
+%I {$list[i].rek_org_name[0]}
+{foreach from=$list[i].rek_keywords item=keyword}
+%K {$keyword}
+{/foreach}
+%M {$list[i].rek_pid}
+%0 {$list[i].rek_display_type_lookup}
+%T {$list[i].rek_title}
+%X {$list[i].rek_description}
+
+{elseif $list[i].rek_display_type_lookup eq 'Conference Proceedings'}
+%B {$list[i].rek_title}
+%C {$list[i].rek_conference_location[0]}
+%D {$list[i].rek_date}
+{foreach from=$list[i].rek_author item=author}
+%E {$author}
+{/foreach} 
+%G {$list[i].rek_language[0]}
+%I {$list[i].rek_publisher[0]}
+%J {$list[i].rek_notes[0]}
+{foreach from=$list[i].rek_keywords item=keyword}
+%K {$keyword}
+{/foreach}
+%M {$list[i].rek_pid}
+%0 {$list[i].rek_display_type_lookup}
+%T {$list[i].rek_title}
+%X {$list[i].rek_description}  
+{/if}
+{/section}  

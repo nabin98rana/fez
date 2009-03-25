@@ -88,6 +88,7 @@ class Configuration
         $settings = Configuration::getConfAll();
 
         foreach ($settings as $name => $value) {
+//			echo $name." ".$value."<br /> \n";
             define(strtoupper($name), $value);
         }
 
@@ -106,6 +107,8 @@ class Configuration
         define("APP_SETUP_FILE", APP_SETUP_PATH . "setup.conf.php");
         define("APP_DELETE_DIR", APP_TEMP_DIR);
         define("APP_JHOVE_TEMP_DIR", APP_TEMP_DIR);
+        define("APP_LOCKS_PATH", APP_TEMP_DIR);
+
         if ($customView) {
 	        define("APP_BASE_URL", "http://" . $customView['cvcom_hostname'] . APP_RELATIVE_URL);
 	        define("APP_CUSTOM_VIEW_ID", $customView['cview_id']);

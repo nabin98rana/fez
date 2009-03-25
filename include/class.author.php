@@ -263,6 +263,8 @@ class Author
                     aut_cv_link='" . Misc::escapeString($_POST["cv_link"]) . "',																				
                     aut_homepage_link='" . Misc::escapeString($_POST["homepage_link"]) . "',
                     aut_ref_num='" . Misc::escapeString($_POST["aut_ref_num"]) . "',
+                    aut_researcher_id='" . Misc::escapeString($_POST["researcher_id"]) . "',
+                    aut_scopus_id='" . Misc::escapeString($_POST["scopus_id"]) . "',
                     aut_update_date='" . Date_API::getCurrentDateGMT() . "'";
         if ($_POST["org_staff_id"] !== "") {
             $stmt .= ",aut_org_staff_id='" . Misc::escapeString($_POST["org_staff_id"]) . "' ";
@@ -308,6 +310,8 @@ class Author
         if ($_POST["cv_link"] !== "")          { $insert .= ", aut_cv_link "; }
         if ($_POST["homepage_link"] !== "")    { $insert .= ", aut_homepage_link "; }
         if ($_POST["aut_ref_num"] !== "")      { $insert .= ", aut_ref_num "; }
+        if ($_POST["researcher_id"] !== "")      { $insert .= ", aut_researcher_id "; }
+        if ($_POST["scopus_id"] !== "")      { $insert .= ", aut_scopus_id "; }
 
         $values = ") VALUES (
                     '" . Misc::escapeString($_POST["title"]) . "',
@@ -329,6 +333,9 @@ class Author
         if ($_POST["cv_link"] !== "")        { $values .= ", '" . Misc::escapeString($_POST["cv_link"]) . "'"; }
         if ($_POST["homepage_link"] !== "")        { $values .= ", '" . Misc::escapeString($_POST["homepage_link"]) . "'"; }
         if ($_POST["aut_ref_num"] !== "")        { $values .= ", '" . Misc::escapeString($_POST["aut_ref_num"]) . "'"; }
+        if ($_POST["researcher_id"] !== "")        { $values .= ", '" . Misc::escapeString($_POST["researcher_id"]) . "'"; }
+        if ($_POST["scopus_id"] !== "")        { $values .= ", '" . Misc::escapeString($_POST["scopus_id"]) . "'"; }
+
         
         $values .= ")";
 
@@ -358,49 +365,81 @@ class Author
     	$extra_order_stmt = "";    	    	
     	$filter = Misc::escapeString($filter);
     	if (!empty($filter)) {
-	    	$where_stmt .= " WHERE match(aut_fname, aut_lname) AGAINST ('*".$filter."*' IN BOOLEAN MODE) ";
-	    	$extra_stmt = " , match(aut_fname, aut_lname) AGAINST ('".$filter."') as Relevance ";
-	    	$extra_order_stmt = " Relevance DESC, ";
+			// For the Author table we are going to keep it in MyISAM if you are using MySQL because there is no table locking issue with this table like with others.
+			if (APP_SQL_DBTYPE != "mysql") {
+				$where_stmt .= " WHERE ";
+				$names = explode(" ", $filter);
+				$nameCounter = 0;
+				foreach ($names as $name) {
+					$nameCounter++;
+					if ($nameCounter > 1) {
+						$where_stmt .= " AND ";
+					}
+					$where_stmt .= " (aut_fname LIKE '".$name."%' OR aut_lname LIKE '".$name."%') ";
+				}
+			} else {
+		    	$where_stmt .= " WHERE MATCH(aut_fname, aut_lname) AGAINST ('*".$filter."*' IN BOOLEAN MODE) ";
+		    	$extra_stmt = " , MATCH(aut_fname, aut_lname) AGAINST ('".$filter."') as Relevance ";
+		    	$extra_order_stmt = " Relevance DESC, ";
+			}	
     	} elseif(!empty($staff_id)) {
     	    $where_stmt .= " WHERE aut_org_staff_id = '".$staff_id."'";
     	}
     	
 		$start = $current_row * $max;
-        $stmt = "SELECT SQL_CALC_FOUND_ROWS 
+		if (APP_SQL_DBTYPE != "mysql") {		
+        	$stmt = "SELECT ";
+		} else {
+        	$stmt = "SELECT SQL_CALC_FOUND_ROWS ";
+		}
+		$stmt .= "
 					* ".$extra_stmt."
                  FROM
                     " . APP_TABLE_PREFIX . "author
 				".$where_stmt."
                  ORDER BY ".$extra_order_stmt."
                     ".$order_by."
-				 LIMIT ".$start.", ".$max;
-        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);        
-		$total_rows = $GLOBALS["db_api"]->dbh->getOne('SELECT FOUND_ROWS()');
+				 LIMIT ".$max." OFFSET ".$start;
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
+
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
             return "";
-        } else {
-			if (($start + $max) < $total_rows) {
-				$total_rows_limit = $start + $max;
+        } else {	
+			if (APP_SQL_DBTYPE != "mysql") {
+				$stmt = "SELECT COUNT(*) 
+		                 FROM
+		                    " . APP_TABLE_PREFIX . "author
+						".$where_stmt;	        
+				$total_rows = $GLOBALS["db_api"]->dbh->getOne($stmt);
 			} else {
-			   $total_rows_limit = $total_rows;
+				$total_rows = $GLOBALS["db_api"]->dbh->getOne('SELECT FOUND_ROWS()');
 			}
-			$total_pages = ceil($total_rows / $max);
-			$last_page = $total_pages - 1;			
-            return array(
-                "list" => $res,
-                "list_info" => array(
-                    "current_page"  => $current_row,
-                    "start_offset"  => $start,
-                    "end_offset"    => $total_rows_limit,
-                    "total_rows"    => $total_rows,
-                    "total_pages"   => $total_pages,
-                    "prev_page" => ($current_row == 0) ? "-1" : ($current_row - 1),
-                    "next_page"     => ($current_row == $last_page) ? "-1" : ($current_row + 1),
-                    "last_page"     => $last_page
-                )
-            );
-
+			if (PEAR::isError($total_rows)) {
+	            Error_Handler::logError(array($total_rows->getMessage(), $total_rows->getDebugInfo()), __FILE__, __LINE__);
+	        	return "";
+			} else {			
+				if (($start + $max) < $total_rows) {
+					$total_rows_limit = $start + $max;
+				} else {
+				   $total_rows_limit = $total_rows;
+				}
+				$total_pages = ceil($total_rows / $max);
+				$last_page = $total_pages - 1;			
+	            return array(
+	                "list" => $res,
+	                "list_info" => array(
+	                    "current_page"  => $current_row,
+	                    "start_offset"  => $start,
+	                    "end_offset"    => $total_rows_limit,
+	                    "total_rows"    => $total_rows,
+	                    "total_pages"   => $total_pages,
+	                    "prev_page" => ($current_row == 0) ? "-1" : ($current_row - 1),
+	                    "next_page"     => ($current_row == $last_page) ? "-1" : ($current_row + 1),
+	                    "last_page"     => $last_page
+	                )
+	            );
+			}
         }
     }
 
@@ -445,7 +484,7 @@ class Author
     	$extra_stmt = "";
     	$extra_order_stmt = "";    	    	
     	if (!empty($staff_ids)) {
-    	    $where_stmt .= " WHERE aut_org_staff_id in  ('".implode($staff_ids, "','")."')";
+    	    $where_stmt .= " WHERE aut_org_staff_id IN  ('".implode($staff_ids, "','")."')";
     	}
     	
 		$start = $current_row * $max;
@@ -456,7 +495,7 @@ class Author
 				".$where_stmt."
                  ORDER BY ".$extra_order_stmt."
                     ".$order_by."
-				 LIMIT ".$start.", ".$max;
+				 LIMIT ".$max." OFFSET ".$start;
 //		echo $stmt;
         $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);        
 		$total_rows = $GLOBALS["db_api"]->dbh->getOne('SELECT FOUND_ROWS()');
@@ -574,7 +613,7 @@ class Author
 
         $stmt = "SELECT
                     aut_id,
-                    concat_ws(' ',   aut_fname, aut_lname) as aut_fullname
+                    concat_ws(' ',   aut_fname, aut_lname) AS aut_fullname
                  FROM
                     " . APP_TABLE_PREFIX . "author
                  ORDER BY
@@ -596,16 +635,47 @@ class Author
 	function suggest($term, $assoc = false) {
 		$dbtp = APP_TABLE_PREFIX;
 		$term = Misc::escapeString($term);
-		$stmt = " SELECT aut_id as id, aut_org_username as username, aut_fullname as name  FROM (
+		
+		//some function like concat_ws might not be supportd in all databases, however postgresql does have a mysql_compat plugin library that adds these.. 
+		//Could be done in the code later if it is a problem
+		$stmt = " SELECT aut_id as id, concat_ws(' - ', aut_org_username, aut_org_staff_id)  as username, aut_fullname as name  FROM (
 			  SELECT aut_id, 
 			    aut_org_username,
-			    aut_display_name as aut_fullname,
-				MATCH(aut_display_name) AGAINST ('".$term."') as Relevance FROM ".$dbtp."author
+				aut_org_staff_id,
+			    aut_display_name as aut_fullname";
+
+		// For the Author table we are going to keep it in MyISAM if you are using MySQL because there is no table locking issue with this table like with others.
+		// TODO: For postgres it might be worth adding a condition here to use TSEARCH2 which is close to fulltext indexing in MySQL MyISAM
+		if (APP_SQL_DBTYPE == "mysql") {
+			$stmt .= "
+				,MATCH(aut_display_name) AGAINST ('".$term."') as Relevance ";
+		}
+		$stmt .= "				
+				FROM ".$dbtp."author";
+
+		if (APP_SQL_DBTYPE == "mysql") {
+			$stmt .= "
 			 WHERE MATCH (aut_display_name) AGAINST ('*".$term."*' IN BOOLEAN MODE)";
+		} else {
+			$stmt .= " WHERE ";
+			$names = explode(" ", $term);
+			$nameCounter = 0;
+			foreach ($names as $name) {
+				$nameCounter++;
+				if ($nameCounter > 1) {
+					$stmt .= " AND ";
+				}
+				$stmt .= " (aut_fname LIKE '".$name."%' OR aut_lname LIKE '".$name."%') ";
+			}
+		}
 		if (APP_AUTHOR_SUGGEST_MODE == 2) {
 			$stmt .= "AND (aut_org_username IS NOT NULL OR aut_org_staff_id IS NOT NULL)";
 		}
-		$stmt .= "ORDER BY Relevance DESC, aut_fullname LIMIT 0,60) as tempsuggest";
+		if (APP_SQL_DBTYPE == "mysql") {
+			$stmt .= " ORDER BY Relevance DESC, aut_fullname LIMIT 0,60) as tempsuggest";
+		} else {
+			$stmt .= " LIMIT 60 OFFSET 0) as tempsuggest";
+		}
 		
 		if( $assoc ) {
 		    $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
@@ -702,7 +772,7 @@ class Author
         }
     	
         $stmt = "SELECT
-                    aut_id, aut_display_name, aut_org_username
+                    aut_id, aut_display_name, concat_ws(' - ', aut_org_username, aut_org_staff_id)  as aut_org_username
                  FROM
                     " . APP_TABLE_PREFIX . "author
                     WHERE
@@ -748,7 +818,7 @@ class Author
                  FROM
                     " . APP_TABLE_PREFIX . "author
                     WHERE
-                    aut_org_staff_id in ('".Misc::escapeString(implode("', '", $org_staff_ids))."')";
+                    aut_org_staff_id IN ('".Misc::escapeString(implode("', '", $org_staff_ids))."')";
         $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

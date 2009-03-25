@@ -721,6 +721,25 @@ class XSD_Display
             return $res;
         }
     }
+
+    function getAllDetails($xdis_id)
+    {
+        $stmt = "SELECT
+                    *
+                 FROM
+                    " . APP_TABLE_PREFIX . "xsd_display left join
+                    " . APP_TABLE_PREFIX . "xsd on xdis_xsd_id = xsd_id 
+                 WHERE
+                    xdis_id=".$xdis_id;
+        $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+            return $res;
+        }
+    }
+    
     
     function exportDisplays(&$xnode, $xsd_id, $xdis_ids)
     {
@@ -832,6 +851,8 @@ class XSD_DisplayObject
 {
     var $xdis_id;
     var $xsd_html_match;
+    var $exclude_list;
+    var $specify_list;
 
     /**
      * XSD_DisplayObject
@@ -870,6 +891,8 @@ class XSD_DisplayObject
      */ 
     function getMatchFieldsList($exclude_list=array(), $specify_list=array())
     {
+    	$this->exclude_list = $exclude_list;
+    	$this->specify_list = $specify_list;
         $res = XSD_HTML_Match::getListByDisplay($this->xdis_id, $exclude_list, $specify_list);
         return $res;
     }
@@ -934,9 +957,75 @@ class XSD_DisplayObject
      * @param   string $pid The persistent identifier of the record
      * @return  array The list of match fields with the values from the datastream	 
      */  
-    function getXSDMF_Values($pid, $createdDT=null)
+    function getXSDMF_Values($pid, $createdDT=null, $skipIndex = false)
     {
-        $this->processXSDMF($pid, $createdDT); 
+
+    	
+//print_r($this->specify_list); echo count($this->specify_list); if ($skipIndex != true) { echo "hai"; }
+    	if (APP_XSDMF_INDEX_SWITCH == "ON" && $skipIndex != true && count($this->specify_list) == 0) { //echo "MAAA";
+// AN Attempt at seeing what performance would be like by getting all details from the index rather than from fedora, now commented out for future experimentation    	
+	    	$return = array();
+	    	$options = array();
+	    	$filter = array();
+	    	$filter["searchKey".Search_Key::getID("Pid")] = str_replace(":", "\:", $pid);
+	    	//$filter["searchKey0"] = "UQ\:81784";
+	    	$current_row = 0;
+	    	$max = 1;
+	    	$order_by = "Title"; 
+	    	$return = Record::getListing($options, array(9,10), $current_row, $max, $order_by, false, false, $filter);
+    	}
+    	if (APP_XSDMF_INDEX_SWITCH == "ON" && count($return['list']) > 0 && $skipIndex != true && count($this->specify_list) == 0) {
+	    	$return = $return['list'][0];
+	    	foreach ($return as $sek_id => $value) {
+				// test sek id to xsdmf id later
+		        ///echo ucwords(str_replace("_", "", str_replace("rek_", "", $sek_id)))."\n";
+		        //echo Search_Key::getID(ucwords(str_replace("_", " ", str_replace("rek_", "", $sek_id))))."\n";
+		        $xdis_list = XSD_Relationship::getColListByXDIS($return['rek_display_type']);
+		        array_push($xdis_list, $return['rek_display_type']);
+		        $xdis_str = implode(", ", $xdis_list);
+		        $xsdmf_array = array();
+		        $xsdmf_array =  XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID(ucwords(str_replace("_", " ", str_replace("rek_", "", $sek_id)))), $xdis_str);
+		        foreach ($xsdmf_array as $xsdmf_id) {
+		        	$return_pid[$xsdmf_id] = $value;
+		        }
+	    	}    	
+	    	$this->xsdmf_array[$pid] = $return_pid;
+	    	return ($return_pid);
+    	} else {
+
+   	    	if (APP_XPATH_SWITCH == "ON") {
+		    	if (isset($this->xsdmf_array[$pid])) {
+		        	return;
+		        }	        
+		        $this->xsdmf_array[$pid] = array();
+		        $this->xsdmf_current = &$this->xsdmf_array[$pid];
+		        //print_r($this->exclude_list); echo "HERE";
+		    	$this->xsdmf_array[$pid] = XSD_HTML_Match::getDetailsByXPATH($pid, $this->xdis_id, $this->exclude_list, $this->specify_list);
+	    	} else { 
+				$this->processXSDMF($pid, $createdDT);
+	    	} 
+	        return $this->xsdmf_array[$pid];
+    		
+    		
+    		
+//			$this->processXSDMF($pid, $createdDT);
+    	//} 
+        	//return $this->xsdmf_array[$pid];
+    		
+    	}
+	    exit;
+    	
+    	
+    	if (APP_XPATH_SWITCH != "ON") {
+	    	if (isset($this->xsdmf_array[$pid])) {
+	        	return;
+	        }	        
+	        $this->xsdmf_array[$pid] = array();
+	        $this->xsdmf_current = &$this->xsdmf_array[$pid];    	
+	    	$this->xsdmf_array[$pid] = XSD_HTML_Match::getDetailsByXPATH($pid, $this->xdis_id);
+    	} else { 
+			$this->processXSDMF($pid, $createdDT);
+    	} 
         return $this->xsdmf_array[$pid];
     }
 
@@ -1172,12 +1261,17 @@ class XSD_DisplayObject
 								if (count($xsdmf_id) > 1) {
 									foreach ($xsdmf_id as $row) {
 										if ($row['xsdmf_html_input'] == 'xsd_loop_subelement' && is_numeric($row['xsdsel_indicator_xsdmf_id']) && $row['xsdsel_indicator_xsdmf_id'] != 0 && $row['xsdsel_indicator_value'] != '') {
-											$indicator_xpath = $row['xsd_element_prefix'].":".ltrim(str_replace("!", "/".$row['xsd_element_prefix'].":", $row['indicator_element']), "/");
+											if ($row['xsd_element_prefix'] != "") {
+												$indicator_xpath = $row['xsd_element_prefix'].":".ltrim(str_replace("!", "/".$row['xsd_element_prefix'].":", $row['indicator_element']), "/");	
+											} else {
+												$indicator_xpath = $row['xsd_element_prefix'].":".ltrim(str_replace("!", "/", $row['indicator_element']), "/");
+											}
 											$currentNodeLength = strlen($domNode->nodeName);
 											$currentNodePos = strpos($indicator_xpath, $domNode->nodeName);
 											$indicator_xpath = ".".substr($indicator_xpath, $currentNodePos + $currentNodeLength);
 											$xpath = new DOMXPath($rootNode);
 											$xpath->registerNamespace("mods", "http://www.loc.gov/mods/v3");
+											
 											$indicatorNodes = $xpath->query($indicator_xpath, $domNode);
 											if ($indicatorNodes->length > 0) {
 												$indicatorValue = $indicatorNodes->item(0)->nodeValue; //should only ever be one search result in the array

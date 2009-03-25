@@ -53,6 +53,37 @@ include_once('HTML/AJAX/JSON.php');
 class Misc
 {
 
+	function strlcs($str1, $str2){
+        $m = strlen($str1);
+        $n = strlen($str2);
+        $L = array();
+        $z = 0;
+        $ret = "";
+ 
+        for($i=0; $i<$m; $i++){
+                $L[$i] = array();
+                for($j=0; $j<$n; $j++){
+                        $L[$i][$j] = 0;
+                }
+        }
+ 
+        for($i=0; $i<$m; $i++){
+                for($j=0; $j<$n; $j++){
+                        if( $str1[$i] == $str2[$j] ){
+                                $L[$i][$j] = $L[$i-1][$j-1] + 1;
+                                if( $L[$i][$j] > $z ){
+                                        $z = $L[$i][$j];
+                                        $ret = "";
+                                }
+                                if( $L[$i][$j] == $z )
+                                        $ret .= substr($str1, $i-$z+1, $z);
+                        }
+                }
+        }
+        return $ret;
+	}
+	
+	
 	function addToWhere($sql, $newString, $operator = 'and') {
 		if ((trim($newString) != "") && (!empty($newString))) {
 			if (is_numeric(stripos($sql, "WHERE"))) { 
@@ -943,6 +974,9 @@ class Misc
 			if ($filename_ext == "mp4") {
 				$ret = "video/x-mp4";
 			}	
+			if ($filename_ext == "mkv") {
+				$ret = "video/x-matroska";
+			}			
 		}
 		if($ret == "application/msword"){
 			// determine if this is really a powerpoint presentation or an excel doc
@@ -2184,6 +2218,268 @@ class Misc
 		}
 	}
 
+	
+
+	
+	function dom_xsd_to_flat_array($domnode, $topelement, &$array, $parentnodename="", $searchtype="", 
+                                         $superdomnode, $supertopelement="", $parentContent="", $refCount = array()) {
+        //echo "Node:(".$domnode->nodeName."), topelement:($topelement), parentnodename:($parentnodename), searchtype:($searchtype), superdomnode:(".$superdomnode->nodeName."), superdomnode:($supertopelement), parentContent:($parentContent)<br/>\n";
+		$array_ptr = &$array;	
+		$standard_types = array("int", "string", "dateTime", "float", "anyURI", "base64Binary", "NMTOKEN", "lang");
+		$current_refs = array();
+		$current_types = array();
+		$current_name = $parentnodename;
+		if ($searchtype == "") {
+			$searchtype = "element";
+		}
+		if ($supertopelement == "") {
+			$supertopelement = $topelement;
+		}
+		switch ($domnode->nodeType) {
+			case (XML_DOCUMENT_NODE): 
+				$currentnode = new DomDocument;
+				$currentnode = Misc::getElementByNameValue($domnode, $topelement);
+				if ($currentnode !== false) {
+					if ($currentnode->hasAttributes() ) {
+						$attributes = $currentnode->attributes; 
+						foreach ($attributes as $index => $attrib) {		
+							if (($attrib->nodeName == "ref") || ($attrib->nodeName == "base")) {
+								array_push($current_refs, $attrib->nodeValue);
+							}
+							if ($attrib->nodeName == "type") {
+								array_push($current_types, $attrib->nodeValue);
+							}
+							if ($attrib->nodeName == "name") {
+								$current_name = $attrib->nodeValue;
+							}
+						}
+					}
+					if ($current_name != "") {
+						//$array_ptr = &$array[$current_name];
+					}
+					foreach ($current_types as $type) {
+						Misc::dom_xsd_to_flat_array($currentnode, $type, $array_ptr, $current_name, "complexType", $superdomnode, $supertopelement, $parentContent, $refCount);
+					}	
+					if ($currentnode->hasChildNodes() ) {
+						foreach ($currentnode->childNodes as $childnode) {
+							Misc::dom_xsd_to_flat_array($childnode, '', $array_ptr, $current_name, "", $superdomnode, $supertopelement, $parentContent, $refCount);
+						}
+					}
+				} else {
+					echo "Can't find element ".$topelement;
+				}
+				break;
+			case XML_COMMENT_NODE:
+				break;
+			case XML_TEXT_NODE:
+				break;
+			case XML_ELEMENT_NODE:
+				$currentnode = new DomDocument;
+				if ($topelement <> '') {
+					$currentnode = Misc::getXMLObjectByTypeNameValue($superdomnode, $searchtype, $topelement);
+				} else {
+					$currentnode = $domnode;
+				}
+				if (is_numeric(strpos($currentnode->nodeName, ":"))) { // Check if there is a ":" in the string if there is then snn is after the :
+					$shortnodename = substr($currentnode->nodeName, (strpos($currentnode->nodeName, ":") + 1));
+				} else {
+					$shortnodename = $currentnode->nodeName;
+				}	
+
+				if (($shortnodename == $searchtype) && ($shortnodename <> "element") 
+                        && ($shortnodename <> "attribute")) {
+					if ($currentnode->hasAttributes() ) {
+						$attributes = $currentnode->attributes;
+						foreach ($attributes as $index => $attrib) {
+							if ($attrib->nodeName == "name") {
+								$current_name = $attrib->nodeValue;
+							}
+						}
+					}	
+					if ($currentnode->hasChildNodes() ) {
+						foreach ($currentnode->childNodes as $childnode) {
+							Misc::dom_xsd_to_flat_array($childnode, "", $array_ptr, $parentnodename, "", $superdomnode, $supertopelement, $parentContent, $refCount);
+						}
+					}
+				} elseif (($shortnodename == "extension") || ($shortnodename == "any") || ($shortnodename == "anyAttribute") || ($shortnodename == "restriction") || ($shortnodename == "group") || ($shortnodename == "complexContent") || ($shortnodename == "simpleContent") || ($shortnodename == "attributeGroup") || ($shortnodename == "attribute") || ($shortnodename == "enumeration"))  {
+//					echo $parentnodename." - ".$shortnodename."<br />";
+					if (($shortnodename == "attribute") || ($shortnodename == "extension")) {
+						if ($currentnode->hasAttributes() ) {
+							$attributes = $currentnode->attributes;	
+                            $nextSearch = "complexType";
+							foreach ($attributes as $index => $attrib) {
+								if ($attrib->nodeName == "base") {
+                                    if (is_numeric(strpos($attrib->nodeValue, ":"))) {
+                                        $shorttypevalue = substr($attrib->nodeValue, (strpos($attrib->nodeValue, ":") + 1));
+                                    } else {
+                                        $shorttypevalue = $attrib->nodeValue;
+                                    }
+									if (!in_array($shorttypevalue, $standard_types)) {
+										array_push($current_refs, $shorttypevalue);
+									}
+                                    $nextSearch = "complexType";
+								}
+								if ($attrib->nodeName == "name") {
+									$current_name = $attrib->nodeValue;
+									$parentContent .= "!".$current_name;
+								}
+								if ($attrib->nodeName == "value") {
+									$current_name = $attrib->nodeValue;
+									$parentContent .= "!".$current_name;
+								}
+                                if ($attrib->nodeName == "ref") {
+                                    if (is_numeric(strpos($attrib->nodeValue, ":"))) {
+                                        $shortrefvalue = 
+                                            substr($attrib->nodeValue, (strpos($attrib->nodeValue, ":") + 1));
+                                    } else {
+                                        $shortrefvalue = $attrib->nodeValue;
+                                    }
+									if (!in_array($shortrefvalue, $standard_types)) {
+                                        array_push($current_refs, $shortrefvalue);
+									}
+                                    $nextSearch = "attribute";
+                                }
+                            }
+							foreach ($current_refs as $ref) {
+								Misc::dom_xsd_to_flat_array($currentnode, $ref, $array_ptr, $current_name, $nextSearch, $superdomnode, $supertopelement, $parentContent, $refCount);
+							}
+							if ($current_name <> $parentnodename) {
+								//$array_ptr = &$array[$current_name];
+								//$array_ptr['fez_hyperlink'] = $parentContent;
+								if ($shortnodename == 'attribute') {
+									$array_ptr[$parentContent] = "attribute";
+									//$array_ptr['fez_nodetype'] = 'attribute';
+								} elseif ($shortnodename == 'enumeration') {
+									$array_ptr[$parentContent] = "enumeration";
+									//$array_ptr['fez_nodetype'] = 'enumeration';
+								}
+							}	
+						}
+					}	
+					if (($shortnodename == "attributeGroup") || ($shortnodename == "group")) { // added group and choice (also to above) to this if to test mods - ck 
+						$attributes = $currentnode->attributes;	
+						foreach ($attributes as $index => $attrib) {
+                            if ($attrib->nodeName == "ref") {
+                                if (is_numeric(strpos($attrib->nodeValue, ":"))) {
+                                    $shortrefvalue = substr($attrib->nodeValue, (strpos($attrib->nodeValue, ":") + 1));
+                                } else {
+                                    $shortrefvalue = $attrib->nodeValue;
+                                }
+                                array_push($current_refs, $shortrefvalue);
+                            }
+						}					
+
+						foreach ($current_refs as $ref) {
+							// Flag the ref for child parses so that it only recursives the same ref group once (or it could go in an endless recursive loop) - CK added 13/9/2006
+							if (array_key_exists($ref, $refCount)) {
+								if ($refCount[$ref] == 1) { // 
+									$refCount[$ref] = 2;
+									Misc::dom_xsd_to_flat_array($currentnode, $ref, $array_ptr, $current_name, $shortnodename, $superdomnode, $supertopelement, $parentContent, $refCount);						
+								} 
+							} else {
+								$refCount[$ref] = 1;
+								Misc::dom_xsd_to_flat_array($currentnode, $ref, $array_ptr, $current_name, $shortnodename, $superdomnode, $supertopelement, $parentContent, $refCount);
+							}
+						}
+					}
+					
+					if ($currentnode->hasChildNodes() ) {
+						foreach ($currentnode->childNodes as $childnode) {
+							Misc::dom_xsd_to_flat_array($childnode, '', $array_ptr, $current_name, "", $superdomnode, $supertopelement, $parentContent, $refCount);
+						}
+					}
+				} elseif ($shortnodename == "element") {
+					if ($currentnode->hasAttributes() ) {
+						$attributes = $currentnode->attributes;	
+						foreach ($attributes as $index => $attrib) {
+							if (($attrib->nodeName == "ref") || ($attrib->nodeName == "base")) {
+								$shorttypevalue = substr($attrib->nodeValue, (strpos($attrib->nodeValue, ":") + 1));
+								if (!in_array($shorttypevalue, $standard_types)) {
+									array_push($current_refs, $attrib->nodeValue);
+								}
+							}
+							if ($attrib->nodeName == "name") {
+								$current_name = $attrib->nodeValue;							
+							}
+							if ($attrib->nodeName == "type") {
+                                if (is_numeric(strpos($attrib->nodeValue, ":"))) {
+                                    $shorttypevalue = substr($attrib->nodeValue, (strpos($attrib->nodeValue, ":") + 1));
+                                } else {
+                                    $shorttypevalue = $attrib->nodeValue;
+                                }
+								if (!in_array($shorttypevalue, $standard_types)) {
+									array_push($current_types, $shorttypevalue);
+								}
+							}
+						}
+						if (($current_name != $supertopelement) && ($current_name != "") && ($current_name != $parentnodename)) {
+							//$array_ptr = &$array[$current_name];
+							$parentContent .= "!".$current_name;
+							//$array_ptr['fez_hyperlink'] = $parentContent;
+							$array_ptr[$parentContent] = "element";
+						}
+					}		
+					foreach ($current_refs as $ref) {
+						Misc::dom_xsd_to_flat_array($currentnode, $ref, $array_ptr, $current_name, "", $superdomnode, $supertopelement, $parentContent, $refCount);
+					}
+					foreach ($current_types as $type) {
+						Misc::dom_xsd_to_flat_array($currentnode, $type, $array_ptr, $current_name, "complexType", $superdomnode, $supertopelement, $parentContent, $refCount);
+					}	
+					if ($currentnode->hasChildNodes() ) {
+						foreach ($currentnode->childNodes as $childnode) {
+							Misc::dom_xsd_to_flat_array($childnode, '', $array_ptr, $current_name, "", $superdomnode, $supertopelement, $parentContent, $refCount);
+						}
+					}	
+				} elseif ($currentnode->nodeName != "") {
+					if ($currentnode->hasAttributes() ) {
+						$attributes = $currentnode->attributes;	
+						foreach ($attributes as $index => $attrib) {
+							if (($attrib->nodeName == "ref") || ($attrib->nodeName == "base")) {
+								$shorttypevalue = substr($attrib->nodeValue, (strpos($attrib->nodeValue, ":") + 1));
+								if (!in_array($shorttypevalue, $standard_types)) {
+									array_push($current_refs, $attrib->nodeValue);
+								}
+							}
+							if ($attrib->nodeName == "name") {
+								$current_name = $attrib->nodeValue;
+							}
+							if ($attrib->nodeName == "type") {
+								$shorttypevalue = substr($attrib->nodeValue, (strpos($attrib->nodeValue, ":") + 1));
+								if (!in_array($shorttypevalue, $standard_types)) {
+									array_push($current_types, $attrib->nodeValue);
+								}
+							}
+						}
+					}
+					foreach ($current_refs as $ref) {
+						Misc::dom_xsd_to_flat_array($currentnode, $ref, $array_ptr, $current_name, "", $superdomnode, $supertopelement, $parentContent, $refCount);
+					}
+					foreach ($current_types as $type) {
+						Misc::dom_xsd_to_flat_array($currentnode, $type, $array_ptr, $current_name, "complexType", $superdomnode, $supertopelement, $parentContent, $refCount);
+					}	
+					if ($currentnode->hasChildNodes() ) {
+						foreach ($currentnode->childNodes as $childnode) {
+							Misc::dom_xsd_to_flat_array($childnode, '', $array_ptr, $current_name, "", $superdomnode, $supertopelement, $parentContent, $refCount);
+						}
+					} elseif ((count($current_refs) == 0) && (count($current_types) == 0) && ($current_name != $parentnodename)) {
+						if (($current_name != $supertopelement) && ($current_name != "")) {					
+							//$array_ptr = &$array[$current_name];
+							$parentContent .= "!".$current_name;
+							//$array_ptr['fez_hyperlink'] = $parentContent;
+							$array_ptr[$parentContent] = "element";
+						}
+					}
+				}					
+				break;
+			default:
+				echo "in default case of node type (".$domnode->nodeType.", ".$domnode->nodeName.", ".$domnode->nodeValue.")<br />";
+				break;
+		}
+	}
+	
+	
+	
+	
     /**
      * Checks if a string is in a multi-dimensional array
 	 * 
@@ -2475,6 +2771,162 @@ class Misc
 		return $ret;
 	}
 
+	
+	function findNodeTypes($a, $xdis_id=0, $element_match_list=array(), $counter=0, $parent_counter=-1, &$open_array = array()) {
+		$match_form_url = APP_BASE_URL."manage/xsd_tree_match_form.php?xdis_id=".$xdis_id."&xml_element=";
+		$ret = array();
+		$dtree_image = "";
+		$ret[0] = 0;
+		$ret[1] = "";
+		foreach ($a as $i => $j) {
+			$dtree_image = "";
+			if (is_array($j)) {
+				if (!(is_numeric($i))) { // if not number like [0]
+					$ret[0] = $counter;
+					if (($i != '#text') && ($i != '#comment')) {
+						if (!empty($j['fez_nodetype'])) {
+							if ($j['fez_nodetype'] == 'attribute') {
+								$dtree_image = ", '../images/dtree/attribute.gif'";
+							} elseif ($j['fez_nodetype'] == 'enumeration') {
+								$dtree_image = ", '../images/dtree/enumeration.gif'";
+							}
+						}	
+						if 	(isset($j['fez_hyperlink']) && !is_array($j['fez_hyperlink']))  {
+							$ehref = $j['fez_hyperlink'];
+							$node_label = $i;
+							// make the tree node bold if there is a matchfields entry (i.e. we are using it)
+
+							if (array_key_exists($ehref, $element_match_list)) {
+								$node_label = "<b>$node_label</b>";
+//								if (array_key_exists(0, $element_match_list[$ehref])) {
+								if (!is_array($element_match_list[$ehref])) {
+
+								} else {
+                                    // only make the title red if there is only one xsdmf for this element.
+                                    // Otherwise it is misleading because it suggests that all of the sublooping elements
+                                    // are disabled when it's probably only one. The hover note shows the disabled thing per sublooping element.
+                                    if (count($element_match_list[$ehref]) == 1 
+                                            && $element_match_list[$ehref][0]['xsdmf_enabled'] == 0 
+                                            && is_numeric($element_match_list[$ehref][0]['xsdmf_enabled'])) {
+                                       $node_label = "<font color=\'red\'>$node_label</font>";
+                                    }
+									foreach ($element_match_list[$ehref] as $ematch) {
+										$disabled_msg = "";
+										if ($ematch['xsdmf_enabled'] == 0 && is_numeric($ematch['xsdmf_enabled'])) {
+											$disabled_msg = "<font color=\'red\'><b>DISABLED</b></font><br />";
+										}
+										switch ($ematch['xsdmf_html_input']) {
+											case "xsd_loop_subelement":
+											   $node_label .= ' <img title="Sublooping Element" src="'.APP_RELATIVE_URL.'images/sel_16.png" />';										   
+											   break;
+											case "date":
+											   $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.$ematch["xsdmf_xsdsel_id"].'" class="form_note"> <span class="form_note">'.$disabled_msg.'<b>Date Selector:</b> '.$ematch['xsdmf_title'].'<br/>Loop: '.$ematch['xsdsel_title'].'<br/>Order: '.$ematch['xsdmf_order'].'<br/>XSDMF ID: '.$ematch['xsdmf_id'].'</span><img src="'.APP_RELATIVE_URL.'images/date_16.png" />';										   
+											   break;
+											case "text":
+											   $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.$ematch["xsdmf_xsdsel_id"].'" class="form_note"> <span class="form_note">'.$disabled_msg.'<b>Text Input:</b> '.$ematch['xsdmf_title'].'<br/>Loop: '.$ematch['xsdsel_title'].'<br/>Order: '.$ematch['xsdmf_order'].'<br/>XSDMF ID: '.$ematch['xsdmf_id'].'</span><img src="'.APP_RELATIVE_URL.'images/text_16.png" />';										   
+											   break;
+                                            case "hidden":
+                                               $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.$ematch["xsdmf_xsdsel_id"].'" class="form_note"> <span class="form_note">'.$disabled_msg.'<b>Text Input:</b> '.$ematch['xsdmf_title'].'<br/>Loop: '.$ematch['xsdsel_title'].'<br/>Order: '.$ematch['xsdmf_order'].'<br/>XSDMF ID: '.$ematch['xsdmf_id'].'</span><img src="'.APP_RELATIVE_URL.'images/hidden_16.png" />';                                        
+                                               break;
+											case "contvocab_selector":
+											   $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.$ematch["xsdmf_xsdsel_id"].'" class="form_note"> <span class="form_note">'.$disabled_msg.'<b>Controlled Vocabulary Selector:</b> '.$ematch['xsdmf_title'].'<br/>Loop: '.$ematch['xsdsel_title'].'<br/>Order: '.$ematch['xsdmf_order'].'<br/>XSDMF ID: '.$ematch['xsdmf_id'].'</span><img src="'.APP_RELATIVE_URL.'images/contvocab_16.png" />';										   
+											   break;
+											case "author_selector":
+											   $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.$ematch["xsdmf_xsdsel_id"].'" class="form_note"> <span class="form_note">'.$disabled_msg.'<b>Author Selector:</b> '.$ematch['xsdmf_title'].'<br/>Loop: '.$ematch['xsdsel_title'].'<br/>Order: '.$ematch['xsdmf_order'].'<br/>XSDMF ID: '.$ematch['xsdmf_id'].'</span><img src="'.APP_RELATIVE_URL.'images/author_selector_16.png" />';										   
+											   break;
+											case "author_suggestor":
+											   $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.$ematch["xsdmf_xsdsel_id"].'" class="form_note"> <span class="form_note">'.$disabled_msg.'<b>Author Suggestor:</b> '.$ematch['xsdmf_title'].'<br/>Loop: '.$ematch['xsdsel_title'].'<br/>Order: '.$ematch['xsdmf_order'].'<br/>XSDMF ID: '.$ematch['xsdmf_id'].'</span><img src="'.APP_RELATIVE_URL.'images/author_suggestor_16.png" />';										   
+											   break;
+											case "static":
+//										   $node_label .= '<img src="'.APP_RELATIVE_URL.'images/static_16.png" />';										   
+											  $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.$ematch["xsdmf_xsdsel_id"].'" class="form_note"> <span class="form_note">'.$disabled_msg.'<b>Static Text:</b> '.$ematch['xsdmf_static_text'].'<br/>Loop: '.$ematch['xsdsel_title'].'<br/>XSDMF ID: '.$ematch['xsdmf_id'].'</span><img src="'.APP_RELATIVE_URL.'images/static_16.png" />';										   
+											   break;
+											case "org_selector":
+											   $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.$ematch["xsdmf_xsdsel_id"].'" class="form_note"> <span class="form_note">'.$disabled_msg.'<b>Organisational Structure Selector:</b> '.$ematch['xsdmf_title'].'<br/>Loop: '.$ematch['xsdsel_title'].'<br/>Order: '.$ematch['xsdmf_order'].'<br/>XSDMF ID: '.$ematch['xsdmf_id'].'</span><img src="'.APP_RELATIVE_URL.'images/org_selector_16.png" />';										   
+											   break;
+											case "file_input":
+											   $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.$ematch["xsdmf_xsdsel_id"].'" class="form_note"> <span class="form_note">'.$disabled_msg.'<b>File Input:</b> '.$ematch['xsdmf_title'].'<br/>Loop: '.$ematch['xsdsel_title'].'<br/>Order: '.$ematch['xsdmf_order'].'<br/>XSDMF ID: '.$ematch['xsdmf_id'].'</span><img src="'.APP_RELATIVE_URL.'images/file_input_16.png" />';										   
+											   break;
+											case "xsdmf_id_ref":
+											   $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.$ematch["xsdmf_xsdsel_id"].'" class="form_note"> <span class="form_note">'.$disabled_msg.'<b>XSDMF ID Reference:</b> '.$ematch['xsdmf_id_ref'].'<br/>Loop: '.$ematch['xsdsel_title'].'<br/>Order: '.$ematch['xsdmf_order'].'<br/>XSDMF ID: '.$ematch['xsdmf_id'].'</span> <img src="'.APP_RELATIVE_URL.'images/xsdmf_id_ref_16.png" />';										   
+											   break;
+											case "xsd_ref":
+											   $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.$ematch["xsdmf_xsdsel_id"].'" class="form_note"> <span class="form_note">'.$disabled_msg.'<b>XSD Display Reference:</b> <br/>Loop: '.$ematch['xsdsel_title'].'<br/>Order: '.$ematch['xsdmf_order'].'<br/>XSDMF ID: '.$ematch['xsdmf_id'].'</span> <img src="'.APP_RELATIVE_URL.'images/xsd_ref_16.png" />';										   
+											   break;
+											case "textarea":
+											   $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.$ematch["xsdmf_xsdsel_id"].'" class="form_note"> <span class="form_note">'.$disabled_msg.'<b>Text Area:</b> '.$ematch['xsdmf_title'].'<br/>Loop: '.$ematch['xsdsel_title'].'<br/>Order: '.$ematch['xsdmf_order'].'<br/>XSDMF ID: '.$ematch['xsdmf_id'].'</span> <img src="'.APP_RELATIVE_URL.'images/form_16.png" />';										   
+											   break;
+											case "combo":
+											   $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.$ematch["xsdmf_xsdsel_id"].'" class="form_note"> <span class="form_note">'.$disabled_msg.'<b>Combo Box:</b> '.$ematch['xsdmf_title'].'<br/>Loop: '.$ematch['xsdsel_title'].'<br/>Order: '.$ematch['xsdmf_order'].'<br/>XSDMF ID: '.$ematch['xsdmf_id'].'</span> <img src="'.APP_RELATIVE_URL.'images/combobox_16.png" />';										   
+											   break;
+											case "multiple":
+											   $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.$ematch["xsdmf_xsdsel_id"].'" class="form_note"> <span class="form_note">'.$disabled_msg.'<b>Multiple Combo Box:</b> '.$ematch['xsdmf_title'].'<br/>Loop: '.$ematch['xsdsel_title'].'<br/>Order: '.$ematch['xsdmf_order'].'<br/>XSDMF ID: '.$ematch['xsdmf_id'].'</span><img src="'.APP_RELATIVE_URL.'images/multi_combobox_16.png" />';										   
+											   break;
+											case "dual_multiple":
+											   $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.$ematch["xsdmf_xsdsel_id"].'" class="form_note"> <span class="form_note">'.$disabled_msg.'<b>Dual Multiple Combo Box:</b> '.$ematch['xsdmf_title'].'<br/>Loop: '.$ematch['xsdsel_title'].'<br/>Order: '.$ematch['xsdmf_order'].'<br/>XSDMF ID: '.$ematch['xsdmf_id'].'</span><img src="'.APP_RELATIVE_URL.'images/dual_multiple_16.png" />';										   
+											   break;
+											case "checkbox":
+											   $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.$ematch["xsdmf_xsdsel_id"].'" class="form_note"> <span class="form_note">'.$disabled_msg.'<b>Check Box:</b> '.$ematch['xsdmf_title'].'<br/>Loop: '.$ematch['xsdsel_title'].'<br/>Order: '.$ematch['xsdmf_order'].'<br/>XSDMF ID: '.$ematch['xsdmf_id'].'</span><img src="'.APP_RELATIVE_URL.'images/checkbox_16.png" />';										   
+											   break;
+											case "dynamic":
+											   $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.$ematch["xsdmf_xsdsel_id"].'" class="form_note"> <span class="form_note">'.$disabled_msg.'<b>Dynamic variable value:</b> '.$ematch['xsdmf_dynamic_text'].'<br/>Loop: '.$ematch['xsdsel_title'].'<br/>Order: '.$ematch['xsdmf_order'].'<br/>XSDMF ID: '.$ematch['xsdmf_id'].'</span><img src="'.APP_RELATIVE_URL.'images/dynamic_16.png" />';										   
+											   break;
+											case "rich_text":
+											   $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.$ematch["xsdmf_xsdsel_id"].'" class="form_note"> <span class="form_note">'.$disabled_msg.'<b>Rich Text Editor:</b> '.$ematch['xsdmf_title'].'<br/>Loop: '.$ematch['xsdsel_title'].'<br/>Order: '.$ematch['xsdmf_order'].'<br/>XSDMF ID: '.$ematch['xsdmf_id'].'</span><img src="'.APP_RELATIVE_URL.'images/rich_text_16.png" />';										   
+											   break;
+											case "depositor_org":
+											   $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.$ematch["xsdmf_xsdsel_id"].'" class="form_note"> <span class="form_note">'.$disabled_msg.'<b>Depositor Affiliation:</b> '.$ematch['xsdmf_title'].'<br/>Loop: '.$ematch['xsdsel_title'].'<br/>Order: '.$ematch['xsdmf_order'].'<br/>XSDMF ID: '.$ematch['xsdmf_id'].'</span><img src="'.APP_RELATIVE_URL.'images/depositor_org_16.png" />';										   
+											   break;
+											default:
+												break;
+										}
+									}
+								}
+								if (!array_key_exists($parent_counter, $open_array)) {
+								    $open_array[$parent_counter] = "tree.openTo(".$parent_counter.", false, false);\n";
+								}
+							}
+							$ehref = urlencode($ehref);
+						  $ret[1] .= "tree.add(".$counter.", ".$parent_counter.", '".$node_label."', "
+							  ."'".$match_form_url.$ehref."', '', 'basefrm'".$dtree_image.");\n";
+						} else {
+						  $ret[1] .= "tree.add(".$counter.", ".$parent_counter.", '$i');\n";
+						} 
+					}
+					$tmp = array();
+					$tmp = Misc::array_to_dtree($j, $xdis_id, $element_match_list, $counter + 1, $counter, $open_array);			
+					$counter = $tmp[0];
+					$ret[1] .= $tmp[1];
+					$counter = $counter + 1;
+				} else {
+					$tmp = array();
+					$tmp = Misc::array_to_dtree($j, $xdis_id, $element_match_list, $counter, $parent_counter, $open_array);
+					$counter = $tmp[0];
+					$ret[1] .= $tmp[1];
+				}
+			} else {		
+				if (($i != '#text') && ($i != '#comment') && ($i != 'fez_nodetype') && ($i != 'fez_hyperlink') && (!(is_array($i['fez_hyperlink'])))) {
+					if (!empty($j['fez_nodetype'])) {
+						if ($j['fez_nodetype'] == 'attribute') {
+							$dtree_image = ", '../images/dtree/attribute.gif'";
+						} elseif ($j['fez_nodetype'] == 'enumeration') {
+							$dtree_image = ", '../images/dtree/enumeration.gif'";
+						}
+					}
+					$ehref = $j['fez_hyperlink'];
+					$ehref = urlencode($ehref);
+					$ret[1] .= "tree.add(".$counter.", ".$parent_counter.", '$i', '".$match_form_url.$ehref."', '', 'basefrm'".$dtree_image.");\n";
+				} 
+				$counter = $counter + 1;
+			}
+			$ret[0] = $counter;
+		}
+		$ret[2] = array_values($open_array);
+		return $ret;
+	}
+	
+	
+	
     /**
      * isInt
      * Robust test of string to make sure it is an integer

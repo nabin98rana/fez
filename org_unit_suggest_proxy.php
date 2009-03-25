@@ -38,7 +38,7 @@ include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.setup.php");
 include_once(APP_INC_PATH . "class.author_affiliations.php");
 
-Error_Handler::logError('ysearch_proxy', __FILE__, __LINE__);
+//Error_Handler::logError('ysearch_proxy', __FILE__, __LINE__);
 
 $suggestions = AuthorAffiliations::suggestOrgUnits($_GET['query'], true);
 

@@ -306,6 +306,12 @@ function getFormElement(f, field_name, num)
     return false;
 }
 
+function getFormElementByID(f, field_id, num)
+{
+	return document.getElementById(field_id);
+}
+
+
 function getSelectedItems(field)
 {
     var selected = new Array();

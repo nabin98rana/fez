@@ -212,7 +212,7 @@ class RecordView {
 	function getDisplayFields()
 	{
 		$this->record->getDisplay();
-		$this->xsd_display_fields = $this->record->display->getMatchFieldsList(array("FezACML"), array(""));
+		$this->xsd_display_fields = $this->record->display->getMatchFieldsList(array("FezACML"), array());
 		return $this->xsd_display_fields;
 	}
 

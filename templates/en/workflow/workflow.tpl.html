@@ -9,6 +9,26 @@ function updateForm()
   updateWin.focus();
   return true;
 }
+
+function disableWorkflowButtons(f){
+
+//document.getElementById('wfl_buttons_1').style.visibility = "hidden";
+//document.getElementById('wfl_buttons_2').style.visibility = "hidden";
+document.getElementById('wfl_buttons_2').style = "display:none;"
+/*
+{/literal}{section name="i" loop=$workflow_buttons}{literal}
+	var field_{/literal}{$workflow_buttons[i].wfs_id}{literal}_1 = getFormElementByID(f, 'workflow_button_{/literal}{$workflow_buttons[i].wfs_id}{literal}_1');
+	field_{/literal}{$workflow_buttons[i].wfs_id}{literal}_1.disabled = true;
+	var field_{/literal}{$workflow_buttons[i].wfs_id}{literal}_2 = getFormElementByID(f, 'workflow_button_{/literal}{$workflow_buttons[i].wfs_id}{literal}_2');
+	field_{/literal}{$workflow_buttons[i].wfs_id}{literal}_2.disabled = true;
+{/literal}{/section}{literal}
+	var field_abandon_1 = getFormElementByID(f, 'workflow_abandon_1');
+	field_abandon_1.disabled = true;
+	var field_abandon_2 = getFormElementByID(f, 'workflow_abandon_2');
+	field_abandon_2.disabled = true;
+	return true;
+*/
+}
 -->
 </script>
 {/literal}
@@ -18,9 +38,9 @@ You don't have permission to access this function
 </div>
 {else}
 {if $submit_to_popup}
-<form name="wfl_form1"  onsubmit="javascript:return (checkFormSubmission(this, 'validateForm') && updateForm());" target="_popup_window" action="{$rel_url}popup.php" method="POST" enctype="multipart/form-data">
+<form name="wfl_form1"  onsubmit="javascript:return (checkFormSubmission(this, 'validateForm') && updateForm() && disableWorkflowButtons(this));" target="_popup_window" action="{$rel_url}popup.php" method="POST" enctype="multipart/form-data">
 {else}
-<form name="wfl_form1" onsubmit="javascript:return (checkFormSubmission(this, 'validateForm'));"  action="{$smarty.server.PHP_SELF}" method="post" enctype="multipart/form-data">
+<form name="wfl_form1" onsubmit="javascript:return (checkFormSubmission(this, 'validateForm') && disableWorkflowButtons(this));"  action="{$smarty.server.PHP_SELF}" method="post" enctype="multipart/form-data">
 {/if}
 <input type="hidden" name="id" value="{$id}" />
 <table bgcolor="{$light_color}" border="0" cellspacing="0" cellpadding="1" align="center"  width="100%">
@@ -46,6 +66,7 @@ Workflow Progress:
 </div>
 {/if}
 </td></tr>
+<div id="wfl_buttons_1">
 {if $workflow_buttons}
 <tr>
  <td colspan="2" bgcolor="{$cell_color}">
@@ -53,11 +74,11 @@ Workflow Progress:
    <tr>
     <td   width="100%" align="center">
    {section name="i" loop=$workflow_buttons}
-     <input class="button" type="submit" name="workflow_button_{$workflow_buttons[i].wfs_id}" 
+     <input class="button" type="submit" id="workflow_button_{$workflow_buttons[i].wfs_id}_1" name="workflow_button_{$workflow_buttons[i].wfs_id}" 
      		value="{$workflow_buttons[i].wfs_title|default:'Done'}" 
 	     	{if $disable_workflow}disabled="disabled"{/if} />&nbsp;
      {/section}
-     | <input class="button" type="button"  onclick="javascript:document.location.href='{$rel_url}workflow/abandon.php?id={$id}&href={$href|escape:'url'}';" value="Abandon Workflow" />
+     | <input class="button" type="button" id="workflow_abandon_1" name="workflow_abandon"  onclick="javascript:document.location.href='{$rel_url}workflow/abandon.php?id={$id}&href={$href|escape:'url'}';" value="Abandon Workflow" />
      
     </td>
    </tr>
@@ -65,9 +86,9 @@ Workflow Progress:
  </td>
 </tr>
 {/if}
-
+</div>
 {include file="workflow/$type.tpl.html"}
-
+<div id="wfl_buttons_2">
 {if $workflow_buttons && !$no_bottom_buttons}
 <tr>
  <td colspan="2" bgcolor="{$cell_color}">
@@ -76,11 +97,11 @@ Workflow Progress:
     <td   width="100%" align="center">
    {section name="i" loop=$workflow_buttons}
      <input class="button" type="submit" 
-     		name="workflow_button_{$workflow_buttons[i].wfs_id}" 
+     		name="workflow_button_{$workflow_buttons[i].wfs_id}" id="workflow_button_{$workflow_buttons[i].wfs_id}_2"
      		value="{$workflow_buttons[i].wfs_title|default:'Done'}" 
      		{if $disable_workflow}disabled="disabled"{/if} />&nbsp;
      {/section}
-     | <input class="button" type="button"  onclick="javascript:document.location.href='{$rel_url}workflow/abandon.php?id={$id}&href={$href|escape:'url'}';" value="Abandon Workflow" />
+     | <input class="button" type="button" id="workflow_abandon_2" name="workflow_abandon" onclick="javascript:document.location.href='{$rel_url}workflow/abandon.php?id={$id}&href={$href|escape:'url'}';" value="Abandon Workflow" />
     </td>
    </tr>
   </table>
@@ -92,7 +113,7 @@ Workflow Progress:
           </td>
         </tr>
 {/if}
- 
+</div> 
       </table>
     </td>
   </tr>

@@ -115,11 +115,6 @@ if (!is_numeric($xdis_id)) { // if still can't find the xdisplay id then ask for
 	Auth::redirect(APP_RELATIVE_URL . "select_xdis.php?return=update_form&pid=".$pid.$extra_redirect, false);
 }
 
-$sta_id = $record->getPublishedStatus();
-if (!$sta_id) {
-    $sta_id = 1;
-}
-$tpl->assign('sta_id', $sta_id); 
 
 $jtaskData = "";
 $maxG = 0;
@@ -130,8 +125,16 @@ if ($dsID != "") {
 	$record->clearDetails();
 } else {
 	$xsd_display_fields = $record->display->getMatchFieldsList(array(), array("FezACML"));  // Specify FezACML as the only display needed for security
-	$details = $record->getDetails();
+	$FezACML_xdis_id = XSD_Display::getID('FezACML');
+	$details = $record->getDetails("", $FezACML_xdis_id);
 }
+
+$sta_id = $record->getPublishedStatus();
+if (!$sta_id) {
+    $sta_id = 1;
+}
+$tpl->assign('sta_id', $sta_id); 
+
 
 //@@@ CK - 26/4/2005 - fix the combo and multiple input box lookups 
 // - should probably move this into a function somewhere later

@@ -370,6 +370,7 @@ if (!empty($pid) && $record->checkExists()) {
 						}
 					} 
 				}	else {
+					$datastreams[$ds_key]['MIMEType'] =  $datastreams[$ds_key]['exif']['exif_mime_type'];
 					$datastreams[$ds_key]['archival_size'] =  $datastreams[$ds_key]['exif']['exif_file_size_human'];
 					$datastreams[$ds_key]['archival_size_raw'] = $datastreams[$ds_key]['exif']['exif_file_size'];
 					$tpl->assign("img_height",  $datastreams[$ds_key]['exif']['exif_image_height']);

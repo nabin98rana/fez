@@ -33,6 +33,7 @@
 // +----------------------------------------------------------------------+
  
  include_once(APP_INC_PATH . "class.community.php");
+ require_once(APP_INC_PATH . "najax_classes.php");
  
  class RecordEditForm 
  {
@@ -56,7 +57,7 @@
         $tpl->assign("pid", $pid);
 		$this->default_depositor_org_id = 0;
 		
-        $xsd_display_fields = $record->display->getMatchFieldsList(array("FezACML"), array(""));  // XSD_DisplayObject
+        $xsd_display_fields = $record->display->getMatchFieldsList(array("FezACML"), array());  // XSD_DisplayObject
         
         $xsdmf_to_use = array();
         $xsdmf_state = array();
@@ -300,6 +301,7 @@
      
      function fixDetails(&$details)
      {
+     	
         $xsd_display_fields = $this->xsd_display_fields;
         foreach ($xsd_display_fields  as $dis_field) {
             if ($dis_field["xsdmf_enabled"] == 1) {
@@ -487,7 +489,7 @@
     function fixParams(&$params, $record)
     {
     	$record->getDisplay();
-    	$xsd_display_fields = $record->display->getMatchFieldsList(array("FezACML"), array(""));  
+    	$xsd_display_fields = $record->display->getMatchFieldsList(array("FezACML"), array());  
         $this->fixDisplayFields($xsd_display_fields, $record);
         $this->xsd_display_fields = $xsd_display_fields;
         $this->fixDetails($params['xsd_display_fields']);

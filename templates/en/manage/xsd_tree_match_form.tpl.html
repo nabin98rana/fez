@@ -767,6 +767,15 @@
                   {$xml_element_clean} {if $info.xsdmf_id} <b>(XSDMF_ID -> {$info.xsdmf_id})</b>{/if}
                 </td>
               </tr>
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default">
+                  <b>XML XPATH</b> (read only - automatically generated when mapping is created):</b>
+                </td>
+                <td bgcolor="{$light_color}" class="default">
+                   {if $info.xsdmf_xpath} {$info.xsdmf_xpath}{/if}
+                </td>
+              </tr>
+
 		              <tr>
 		                <td width="120" bgcolor="{$cell_color}" class="default">
 		                  <b>Field Type:</b>

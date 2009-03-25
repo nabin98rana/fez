@@ -159,6 +159,7 @@ class Record
     */
     function getChildrensDetails($pid, $clearcache=false, $searchKey='isMemberOf')
     {
+
     	$sek_title = Search_Key::makeSQLTableName($searchKey);
 		$stmt = "SELECT ".APP_SQL_CACHE."
 					r1.*
@@ -288,10 +289,10 @@ class Record
         }
         $dbtp =  APP_TABLE_PREFIX;
 
-        $details = Record::getChildrensDetails($pid);
+        $details = Record::getChildrensDetails($pid, false, $searchKey);
 		$recursive_details = array();
 		foreach ($details as $key => $row) {
-			$temp = Record::getChildrensDetails($row['rek_pid'], $searchKey, false);
+			$temp = Record::getChildrensDetails($row['rek_pid'], false, $searchKey);
 			foreach ($temp as $trow) {
 				if ($flatTree == true) {
 					array_push($details, $trow);
@@ -452,6 +453,70 @@ class Record
         return $ret;
     }
 
+
+
+	function findPIDsToCleanBySearchKeyTable($sekTable = "") {
+
+		if ($sekTable == "") { return false; }
+		
+		$stmt = "select distinct r1.rek_".$sekTable."_pid from " . APP_TABLE_PREFIX . "record_search_key_".$sekTable." r1
+		where 
+		r1.rek_".$sekTable."_xsdmf_id not in 
+		(
+		select mf2.xsdmf_id
+		from " . APP_TABLE_PREFIX . "record_search_key 
+		inner join " . APP_TABLE_PREFIX . "xsd_display_matchfields as mf1 on rek_display_type = mf1.xsdmf_xdis_id 
+		inner join " . APP_TABLE_PREFIX . "xsd_relationship on xsdrel_xsdmf_id = mf1.xsdmf_id and mf1.xsdmf_html_input = 'xsd_ref'
+		inner join " . APP_TABLE_PREFIX . "record_search_key_".$sekTable." r2 on rek_pid = r2.rek_".$sekTable."_pid  
+		inner join " . APP_TABLE_PREFIX . "xsd_display_matchfields mf2 on xsdrel_xdis_id = mf2.xsdmf_xdis_id and r2.rek_".$sekTable."_xsdmf_id = mf2.xsdmf_id
+		where rek_pid = r1.rek_".$sekTable."_pid
+		)";
+
+		$res = $GLOBALS["db_api"]->dbh->getCol($stmt);
+		if (PEAR::isError($res)) {
+	    	Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+			return false;
+		} else {
+			return $res;
+		}
+		
+	}
+
+
+    /**
+     * Method used to clean search key index (and solr if enabled) of any index rows where an object's display type was changed while a bug was in the reindex code that didnt handle display
+     * types changing properly. An alternative is to just run a fez full reindex, but this method (called from misc/fix_converted_index.php) is quicker.
+	 *
+     * @access  public
+     * @param   string $sekTable The search key table name
+     * @return  boolean true on success, false on failure suffix
+     */
+
+
+	function cleanIndexSearchKey ($sekTable="") {
+		if ($sekTable == "") { return false; }
+
+
+
+		if (PEAR::isError($res)) {
+	    	Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+			return false;
+		} else {
+			$res = $reindex_pids;
+
+			$stmt = "DELETE FROM
+	                    " . APP_TABLE_PREFIX . "record_search_key_".$sekTable."
+					 WHERE rek_".$sekTable."_pid = '" . $pid . "'";
+			$res = $GLOBALS["db_api"]->dbh->query($stmt);
+	        if (PEAR::isError($res)) {
+	            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+	        }
+        }
+		
+		return true;
+	}
+
+
     /**
      * Method used to remove an entry in the Fez Index.
      *
@@ -461,7 +526,7 @@ class Record
      * @param   string $dsDelete A flag to check if th e datastream_id should be kept
      * @return  void
      */
-    function removeIndexRecord($pid) {
+    function removeIndexRecord($pid, $remove_solr=true) {
         if (empty($pid)) {
             return -1;
         }
@@ -492,7 +557,7 @@ class Record
         //
         // KJ: remove from fulltext index
         //
-        if ( APP_SOLR_INDEXER == "ON" ) {
+        if ( APP_SOLR_INDEXER == "ON" && $remove_solr == true) {
         	Logger::debug("Record::removeIndexRecord() REMOVING ".$pid." FROM QUEUE");
         	FulltextQueue::singleton()->remove($pid);
         }
@@ -685,13 +750,13 @@ class Record
     	$valuesIns[] = "'".$pid."'";
     	foreach ($sekData[0] as $sek_column => $sek_value) {
             $stmt[] = "rek_{$sek_column}, rek_{$sek_column}_xsdmf_id";
-            
-            if($sek_value['xsdmf_value'] == 'NULL') {
+
+            if ($sek_value['xsdmf_value'] == 'NULL') {
             	$xsdmf_value = $sek_value['xsdmf_value'];
             } else {
-            	$xsdmf_value = "'".Misc::escapeString(trim($sek_value['xsdmf_value'])) . "'";
-            }
-            
+           		$xsdmf_value = "'".Misc::escapeString(trim($sek_value['xsdmf_value'])) . "'";
+			}
+           
             $valuesIns[] = "$xsdmf_value, {$sek_value['xsdmf_id']}";
             $valuesUpd[] = "rek_{$sek_column} = $xsdmf_value, rek_{$sek_column}_xsdmf_id = {$sek_value['xsdmf_id']}";
     	}
@@ -842,6 +907,7 @@ class Record
 			} else {
 				$DSResultArray = Fedora_API::callGetDatastreamDissemination($pid, $ds_search);
 			}
+
 			$xmlACML = @$DSResultArray['stream'];
 			$xmldoc= new DomDocument();
 			$xmldoc->preserveWhiteSpace = false;
@@ -1004,7 +1070,7 @@ class Record
 	function getListing($options, $approved_roles=array(9,10), $current_page=0,$page_rows="ALL", $sort_by="Title", $getSimple=false, $citationCache=false, $filter=array(), $operator='AND', $use_faceting = false, $use_highlighting = false) {
         if (APP_SOLR_SWITCH == "ON" ) {			
 			return Record::getSearchListing($options, $approved_roles, $current_page,$page_rows, $sort_by, $getSimple, $citationCache, $filter, $operator, $use_faceting, $use_highlighting);
-		} else {			
+		} else {
 			$options = array_merge($options, $filter);
 		}
 	
@@ -1058,7 +1124,7 @@ class Record
 		if ($total_rows > 0) {
 			$stmt = $GLOBALS["db_api"]->dbh->modifyLimitQuery($stmt, $start, $page_rows);
 //			Error_Handler::logError(array($stmt, $res->getDebugInfo()), __FILE__, __LINE__);
-			//echo "<pre>".$stmt."</pre>"; //exit;
+//			echo "<pre>".$stmt."</pre>"; //exit;
 			$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 			if (PEAR::isError($res)) {
 				Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -1435,21 +1501,29 @@ class Record
                 $t = array();
                 $p = array();
                 for ($i = 0; $i < count($res); $i++) {
-                    if (!is_array($t[$res[$i]["rek_".$sek_sql_title."_pid"]])) {
+                    if (!is_array($t[$res[$i]["rek_".$sek_sql_title."_pid"]]) && ($sekData['sek_cardinality'] == 1)) {
                         $t[$res[$i]["rek_".$sek_sql_title."_pid"]] = array();
                     }
                 	if ($sekData['sek_lookup_function'] != "") {
-	                    if (!is_array($p[$res[$i]["rek_".$sek_sql_title."_pid"]])) {
+	                    if (!is_array($p[$res[$i]["rek_".$sek_sql_title."_pid"]]) && ($sekData['sek_cardinality'] == 1)) {
 	                        $p[$res[$i]["rek_".$sek_sql_title."_pid"]] = array();
 	                    }
 						eval('$res[$i]["rek_'.$sek_sql_title.'_lookup"] = '.$sekData['sek_lookup_function']."('".$res[$i]['rek_'.$sek_sql_title]."');");
-                    	$p[$res[$i]["rek_".$sek_sql_title."_pid"]][] =  $res[$i]["rek_".$sek_sql_title."_lookup"];
+						if ($sekData['sek_cardinality'] == 1) {
+                    		$p[$res[$i]["rek_".$sek_sql_title."_pid"]][] =  $res[$i]["rek_".$sek_sql_title."_lookup"];
+						} else {
+							$p[$res[$i]["rek_".$sek_sql_title."_pid"]] =  $res[$i]["rek_".$sek_sql_title."_lookup"];
+						}
 					}
-                    $t[$res[$i]["rek_".$sek_sql_title."_pid"]][] =  $res[$i]["rek_".$sek_sql_title];
+					if ($sekData['sek_cardinality'] == 1) {
+                    	$t[$res[$i]["rek_".$sek_sql_title."_pid"]][] =  $res[$i]["rek_".$sek_sql_title];
+					} else {
+						$t[$res[$i]["rek_".$sek_sql_title."_pid"]] =  $res[$i]["rek_".$sek_sql_title];
+					}
                 }
                 // now populate the $result variable again
                 for ($i = 0; $i < count($result); $i++) {
-                    if (!is_array($result[$i]["rek_".$sek_sql_title])) {
+                    if (!is_array($result[$i]["rek_".$sek_sql_title]) && ($sekData['sek_cardinality'] == 1)) {
                         $result[$i]["rek_".$sek_sql_title] = array();
                     }
                     $result[$i]["rek_".$sek_sql_title] = $t[$result[$i]["rek_pid"]];
@@ -1935,18 +2009,63 @@ class Record
     		
     		$searchKey_join[SK_KEY_ID] = 1;
     		$searchKey_join[SK_SEARCH_TXT] .= "Title, Abstract, Keywords:\"".trim(htmlspecialchars($searchKeys["0"]))."\", ";
-			$searchKey_join[SK_JOIN] .= $joinType." (SELECT rek_pid, MATCH(rek_pid, rek_title, rek_description) AGAINST ('$escapedInput') AS Relevance ".
-													" FROM {$dbtp}record_search_key ".
-													" WHERE MATCH (rek_pid, rek_title, rek_description) AGAINST ('*$escapedInput*' IN BOOLEAN MODE)".
-													" UNION ".
-													" SELECT rek_keywords_pid AS rek_pid, MATCH(rek_keywords) AGAINST ('$escapedInput') AS Relevance ".
-													" FROM {$dbtp}record_search_key_keywords ".
-													" WHERE MATCH (rek_keywords) AGAINST ('*$escapedInput*' IN BOOLEAN MODE))".
-													" AS search ON search.rek_pid = r1.rek_pid ";
-            
-    		$searchKey_join[SK_GROUP_BY] = " GROUP BY r1.rek_pid ";
-    		$termRelevance = ", SUM(search.Relevance) as Relevance";
-    		$searchKey_join[SK_FULLTEXT_REL] = $termRelevance;
+
+			if (APP_MYSQL_INNODB_FLAG == "ON" || APP_SQL_DBTYPE != "mysql") {
+				
+				$where_stmt .= " WHERE ";
+				$names = explode(" ", $escapedInput);
+				$nameCounter = 0;
+				$searchFields = array("rek_pid", "rek_title", "rek_description");
+				foreach ($searchFields as $sf) {
+					foreach ($names as $name) {
+						$nameCounter++;
+						if ($nameCounter > 1) {
+							$where_stmt .= " OR ";
+						}
+						// Only using % at the end of the like because %term% won't use an index so will be very slow
+						$where_stmt .= " ".$sf." LIKE '".$name."%' ";
+					}
+				}
+				$kw_where_stmt .= " WHERE ";
+				$nameCounter = 0;
+				$sf = "rek_keywords";
+				foreach ($names as $name) {
+					$nameCounter++;
+					if ($nameCounter > 1) {
+						$kw_where_stmt .= " OR ";
+					}
+					// Only using % at the end of the like because %term% won't use an index so will be very slow
+					$kw_where_stmt .= " ".$sf." LIKE '".$name."%' ";
+				}
+
+				
+				$searchKey_join[SK_JOIN] .= $joinType." (SELECT rek_pid, 1 AS Relevance ".
+														" FROM {$dbtp}record_search_key ".
+														$where_stmt.
+														" UNION ".
+														" SELECT rek_keywords_pid AS rek_pid, 1 AS Relevance ".
+														" FROM {$dbtp}record_search_key_keywords ".
+														$kw_where_stmt.")".
+														" AS search ON search.rek_pid = r1.rek_pid ";
+
+	    		$searchKey_join[SK_GROUP_BY] = " GROUP BY r1.rek_pid ";
+	    		$termRelevance = ", 1 as Relevance";
+	    		$searchKey_join[SK_FULLTEXT_REL] = $termRelevance;
+
+			} else {
+				$searchKey_join[SK_JOIN] .= $joinType." (SELECT rek_pid, MATCH(rek_pid, rek_title, rek_description) AGAINST ('$escapedInput') AS Relevance ".
+														" FROM {$dbtp}record_search_key ".
+														" WHERE MATCH (rek_pid, rek_title, rek_description) AGAINST ('*$escapedInput*' IN BOOLEAN MODE)".
+														" UNION ".
+														" SELECT rek_keywords_pid AS rek_pid, MATCH(rek_keywords) AGAINST ('$escapedInput') AS Relevance ".
+														" FROM {$dbtp}record_search_key_keywords ".
+														" WHERE MATCH (rek_keywords) AGAINST ('*$escapedInput*' IN BOOLEAN MODE))".
+														" AS search ON search.rek_pid = r1.rek_pid ";
+
+	    		$searchKey_join[SK_GROUP_BY] = " GROUP BY r1.rek_pid ";
+	    		$termRelevance = ", SUM(search.Relevance) as Relevance";
+	    		$searchKey_join[SK_FULLTEXT_REL] = $termRelevance;
+			} 
     	}
 
     	/*
@@ -2335,7 +2454,7 @@ class Record
     							$searchKey_join[SK_SEARCH_TXT] .= "\", ";
     						}
         	 	    	} elseif ($sekdet['sek_data_type'] == "date") {
-        	 	    	    
+							//Logger::debug("HERE DATE DEBUG: ".$searchValue['start_date']);
     						if (!empty($searchValue) && $searchValue['filter_enabled'] == 1) {
     						    $sqlDate = '';
     						    switch ($searchValue['filter_type']) {
@@ -3129,13 +3248,22 @@ class RecordGeneral
                 	Error_Handler::logError("Record ".$this->pid." doesn't exist",__FILE__,__LINE__);
                     return null;
                 }
-                $xdis_array = Fedora_API::callGetDatastreamContentsField($this->pid, 'FezMD', array('xdis_id'), $this->createdDT);
-                if (isset($xdis_array['xdis_id'][0])) {
+                $xdis_id = XSD_HTML_Match::getDisplayType($this->pid);
+                //$xdis_array = Fedora_API::callGetDatastreamContentsField($this->pid, 'FezMD', array('xdis_id'), $this->createdDT);
+/*                if (isset($xdis_array['xdis_id'][0])) {
                     $this->xdis_id = $xdis_array['xdis_id'][0];
                 } else {
                     $this->no_xdis_id = true;
                     return null;
+                } */
+                if (isset($xdis_id)) {
+                    $this->xdis_id = $xdis_id;
+                } else {
+                    $this->no_xdis_id = true;
+                    return null;
                 }
+                
+                
             }
             return $this->xdis_id;
         }
@@ -3335,9 +3463,14 @@ class RecordGeneral
 
     function getPublishedStatus($astext = false)
     {
+
+		$this->getDisplay();
+		$this->display->getXSD_HTML_Match();
         $this->getDetails();
+        //$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElement("!sta_id", $this->xdis_id);
         $xsdmf_id = $this->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!sta_id');
         $status = $this->details[$xsdmf_id];
+
         if (!$astext) {
             return $status;
         } else {
@@ -3347,11 +3480,16 @@ class RecordGeneral
 
     function getRecordType()
     {
+    	$this->getDisplay();
         $this->getDetails();
-        $this->getXmlDisplayId();
+        $this->display->getXSD_HTML_Match();
+        
+        //$this->getXmlDisplayId();
         if (!empty($this->xdis_id)) {
+        	//$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElement("!ret_id", $this->xdis_id);
+        	//echo $xsdmf_id;
 	        $xsdmf_id = $this->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!ret_id');
-        	$ret_id = $this->details[$xsdmf_id];
+        	$ret_id = $this->details[$xsdmf_id];        	
         	return $ret_id;
         } else {
         	return null;
@@ -3371,10 +3509,11 @@ class RecordGeneral
     {
         $this->setFezMD_Datastream('sta_id', $sta_id);
         $this->getDisplay();
-        $this->display->getXSD_HTML_Match();
-        $xsdmf_id = $this->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!sta_id');
+//        $this->display->getXSD_HTML_Match();
+/*        $xsdmf_id = $this->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!sta_id');
         Record::removeIndexRecordByXSDMF_ID($this->pid, $xsdmf_id);
-        Record::insertIndexMatchingField($this->pid, '', $xsdmf_id, $sta_id);
+        Record::insertIndexMatchingField($this->pid, '', $xsdmf_id, $sta_id); */
+		$this->setIndexMatchingFields();
         return 1;
     }
 
@@ -3697,10 +3836,11 @@ class RecordGeneral
      */
     function getDisplay()
     {
-        $this->getXmlDisplayId();
+        $this->getXmlDisplayId();        
         if (!empty($this->xdis_id)) {
-            if (is_null($this->display)) {
+            if (is_null($this->display)) {            	
                 $this->display = new XSD_DisplayObject($this->xdis_id);
+				$this->display->getXSD_HTML_Match();
             }
             return $this->display;
         } else {
@@ -3737,10 +3877,11 @@ class RecordGeneral
             if ($this->display) {
 				if ($dsID != "") {
 					$this->details = $this->display->getXSDMF_Values_Datastream($this->pid, $dsID, $this->createdDT);
-				} else {
+				} else {					
                 	$this->details = $this->display->getXSDMF_Values($this->pid, $this->createdDT);
 				}
             } else {
+            	
   				Error_Handler::logError("The PID ".$this->pid." has an error getting it's display details. This object is currently in an erroneous state.",__FILE__,__LINE__);
             }
         }
@@ -3769,13 +3910,16 @@ class RecordGeneral
     function getFieldValueBySearchKey($sek_title)
     {
         $this->getDetails();
-        $this->getXmlDisplayId();
+//        $this->getDisplay();
+//		$this->display->getMatchCol
+//        $this->getXmlDisplayId();
         if (!empty($this->xdis_id)) {
              $sek_id = Search_Key::getID($sek_title);
              if (!$sek_id) {
                  return null;
              }
              $res = array();
+
              foreach ($this->display->xsd_html_match->getMatchCols() as $xsdmf ) {
                  if ($xsdmf['xsdmf_sek_id'] == $sek_id) {
                      $res[] = $this->details[$xsdmf['xsdmf_id']];
@@ -3798,11 +3942,14 @@ class RecordGeneral
      */
     function getTitle()
     {
+		$this->title = Record::getTitleFromIndex($this->pid);
+	
         if (empty($this->title)) {
 		    $this->getDetails();
 		    $this->getXmlDisplayId();
 			if (!empty($this->xdis_id)) {
-			     $xsdmf_id = $this->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!dc:title');
+				 $xsdmf_id = $this->display->xsd_html_match->getXSDMF_IDByXDIS_ID("!dc:title");
+			     //$xsdmf_id = $this->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!dc:title');
 			     $this->title = $this->details[$xsdmf_id];
 			} else {
 		        // if it has no xdis id (display id) log an error and return a null
@@ -4049,14 +4196,15 @@ class RecordGeneral
             $xdis_id = XSD_Display::getXDIS_IDByTitle('Generic Document');
         }
         $display = new XSD_DisplayObject($xdis_id);
-        $xsdmf_array = $display->getXSDMF_Values($pid);
+        $xsdmf_array = $display->getXSDMF_Values($pid, null, true);
         
         $searchKeyData = array();
         
         foreach ($xsdmf_array as $xsdmf_id => $xsdmf_value) {
         	$xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
         	if ($xsdmf_details['xsdmf_sek_id'] != "") {
-        		Record::removeIndexRecordByXSDMF_ID($pid,$xsdmf_id);
+				//CK 2008/12/19 - commed this out and just ran removeIndexRecord($pid) below, just before we call updateSearchKeys as this was missing index rows where the xsdmf id had changed
+//        		Record::removeIndexRecordByXSDMF_ID($pid,$xsdmf_id);
         		$sekDetails = Search_Key::getBasicDetails($xsdmf_details['xsdmf_sek_id']);
 
 				if ($sekDetails['sek_data_type'] == 'int' && $sekDetails['sek_html_input'] == 'checkbox') {
@@ -4100,7 +4248,7 @@ class RecordGeneral
                 }
         	}
         }
-        
+        Record::removeIndexRecord($pid, false); //clean out the SQL index, but do not remove from Solr, the solr entry will get updated in updateSearchKeys
         Record::updateSearchKeys($pid, $searchKeyData);
 		Citation::updateCitationCache($pid, "");
     }
@@ -4400,9 +4548,11 @@ class RecordObject extends RecordGeneral
 		$newXML .= "</FezMD>";
 		if ($newXML != "") {
 			Fedora_API::callModifyDatastreamByValue($this->pid, "FezMD", "A", "Fez extension metadata", $newXML, "text/xml", "inherit");
-			$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElement("!xdis_id", 15);
+/*			$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElement("!xdis_id", 15);
 			Record::removeIndexRecordByXSDMF_ID($this->pid, $xsdmf_id);
 			Record::insertIndexMatchingField($this->pid, '', $xsdmf_id, $this->xdis_id);
+			*/
+			$this->setIndexMatchingFields();
 		}
     }
 

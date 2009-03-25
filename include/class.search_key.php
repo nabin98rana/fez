@@ -895,29 +895,46 @@ class Search_Key
 		if (!is_array($sek_details)) {
 			return false;
 		}
-		$sek_title = Search_Key::makeSQLTableName($sek_details['sek_title']);		
+		$sek_title = Search_Key::makeSQLTableName($sek_details['sek_title']);
 		if ($sek_details['sek_relationship'] == 1) { //1-M 
-
-			$stmt = " SELECT rek_".$sek_title."_id as id, rek_".$sek_title." as name FROM (";		
-			$stmt .= " 
-				  SELECT rek_".$sek_title."_id, rek_".$sek_title.",
-					MATCH(rek_".$sek_title.") AGAINST ('".$term."') as Relevance FROM ".$dbtp."record_search_key_".$sek_title."
-				 WHERE MATCH (rek_".$sek_title.") AGAINST ('*".$term."*' IN BOOLEAN MODE) ";
-			$stmt .= " ORDER BY Relevance DESC, rek_".$sek_title." LIMIT 0,10) as tempsuggest group by name";
+			if (APP_MYSQL_INNODB_FLAG == "ON" || APP_SQL_DBTYPE != "mysql") {
+				$stmt = " SELECT rek_".$sek_title."_id as id, rek_".$sek_title." as name FROM (";		
+				$stmt .= " 
+					  SELECT rek_".$sek_title."_id, rek_".$sek_title."
+						FROM ".$dbtp."record_search_key_".$sek_title."
+					 WHERE rek_".$sek_title." LIKE '".$term."%' GROUP BY rek_".$sek_title."";
+				$stmt .= " LIMIT 10 OFFSET 0) as tempsuggest ";
+			} else { //if you are mysql using myisam db type then you can take advantage of fulltext indexing (make sure you have a ft index on the value column)
+				$stmt = " SELECT rek_".$sek_title."_id as id, rek_".$sek_title." as name FROM (";
+				$stmt .= " 
+					  SELECT rek_".$sek_title."_id, rek_".$sek_title.",
+						MATCH(rek_".$sek_title.") AGAINST ('".$term."') as Relevance FROM ".$dbtp."record_search_key_".$sek_title."
+					 WHERE MATCH (rek_".$sek_title.") AGAINST ('*".$term."*' IN BOOLEAN MODE) ";
+				$stmt .= " GROUP BY rek_".$sek_title." ORDER BY Relevance DESC, rek_".$sek_title." LIMIT 0,10) as tempsuggest ";
+			}
 		} else { //1-1 index table
-			$stmt = " SELECT rek_".$sek_title."_id as id, rek_".$sek_title." as name FROM (";		
-			$stmt .= " 
-				  SELECT rek_".$sek_title."_id, rek_".$sek_title.",
-					MATCH(rek_".$sek_title.") AGAINST ('".$term."') as Relevance FROM ".$dbtp."record_search_key
-				 WHERE MATCH (rek_".$sek_title.") AGAINST ('*".$term."*' IN BOOLEAN MODE) ";
-			$stmt .= " ORDER BY Relevance DESC, rek_".$sek_title." LIMIT 0,10) as tempsuggest group by name";
+			if (APP_MYSQL_INNODB_FLAG == "ON" || APP_SQL_DBTYPE != "mysql") {
+				$stmt = " SELECT 1 as id, rek_".$sek_title." as name FROM (";
+				$stmt .= " 
+					  SELECT 1, rek_".$sek_title."
+					  FROM ".$dbtp."record_search_key
+					  WHERE rek_".$sek_title." LIKE '".$term."%' GROUP BY rek_".$sek_title.""; //like value% will only grab values starting with the search term, but %term% won't use an index so will be too slow
+				$stmt .= " LIMIT 10 OFFSET 0) as tempsuggest ";
+			} else { //if you are mysql using myisam db type then you can take advantage of fulltext indexing (make sure you have a ft index on the value column)
+				$stmt = " SELECT 1 as id, rek_".$sek_title." as name FROM (";		
+				$stmt .= " 
+					  SELECT 1, rek_".$sek_title.",
+						MATCH(rek_".$sek_title.") AGAINST ('".$term."') as Relevance FROM ".$dbtp."record_search_key
+					 WHERE MATCH (rek_".$sek_title.") AGAINST ('*".$term."*' IN BOOLEAN MODE) ";
+				$stmt .= " GROUP BY rek_".$sek_title." ORDER BY Relevance DESC, rek_".$sek_title." LIMIT 0,10) as tempsuggest";
+			}
 		}
 		if ($assoc) {
 		    $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 		} else {
 		    $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
 		}
-       	if (PEAR::isError($res)) {
+       	if (PEAR::isError(APP_MYSQL_INNODB_FLAG.$res)) {
            	Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
        	} else {
        		if ($getLookup == true && $sek_details['sek_lookup_function'] != "") {
