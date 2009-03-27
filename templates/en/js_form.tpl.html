@@ -1,0 +1,113 @@
+{include file="js/list.tpl.js"}
+
+<script language="JavaScript" type="text/javascript" src="{$rel_url}js/listpage.js"></script>
+<center>
+
+<div style="margin: -30px 0px 0px 0px; width: 980px;">
+
+<form name="list_form" method="get" action="{$smarty.server.PHP_SELF}">
+
+{include file="paging_control_header.tpl.html"}
+
+<input type="hidden" name="cat" value="assign" />
+<input type="hidden" name="href" value="{$smarty.server.REQUEST_URI|escape:'html'}" />
+<input type="hidden" name="xdis_id" value="" />
+
+<div class="default" > 
+
+<p class="news-heading">Copy this html to your web page for a dynamically created list of this search</p>
+
+{if $browse == '' AND $browse_mode == 'list'}
+<textarea rows="5" cols="100" onFocus="this.select();">&lt;script type="text/javascript" src="{$app_base_url}display-dynamic-list.php?{$app_base_url}list/?{$url_wo_tpl}&sort_order={$sort_order}&tpl=3" &gt;&lt;/script&gt;&lt;noscript&gt;JavaScript must be enabled in your browser for this feature to work&lt;/noscript&gt;</textarea>
+{else}
+<textarea rows="5" cols="100" onFocus="this.select();">&lt;script type="text/javascript" src="{$app_base_url}display-dynamic-list.php?http://{$APP_HOSTNAME}{$PAGE_URL}?{$url_wo_tpl}&sort_order={$sort_order}&tpl=3" &gt;&lt;/script&gt;&lt;noscript&gt;JavaScript must be enabled in your browser for this feature to work&lt;/noscript&gt;</textarea>
+
+{/if}
+</div>
+
+
+{if $isUser}
+
+	{if $list_type == 'community_list' && $isAdministrator}
+	<a target="_top" title="Create a new community" href="{$rel_url}workflow/new.php?pid=-1&amp;xdis_id={$xdis_id}&amp;href={$smarty.server.REQUEST_URI|escape:'url'}"><img src="{$rel_url}images/folder_new.gif" align="top" border="0" alt="" /> <b>Create New Community</b></a> 
+	{elseif $list_type == 'collection_list' && ($isAdministrator || $isCreator)}
+		{if $childXDisplayOptions != 0}
+		<img src="{$rel_url}images/folder_new.gif" align="top" border="0" alt="" />
+
+		<input type="hidden" name="community_pid" value="{$community_pid}" />
+		<select name="xdis_id_top">
+		  {html_options options=$childXDisplayOptions}
+		</select>
+		<input type="button" value="Create" onClick="javascript:createRecord(this.form, this.form.xdis_id_top)" />
+		{/if}
+	{elseif ($list_type == 'collection_records_list' && ($isAdministrator || $isCreator)) && $browse_type == ""}			
+		{if $childXDisplayOptions != 0}
+		<img src="{$rel_url}images/folder_new.gif" align="top" border="0" alt="" />
+		<input type="hidden" name="collection_pid" value="{$collection_pid}" />
+
+		<select name="xdis_id_top">
+		  {html_options options=$childXDisplayOptions}
+		</select>
+		<input type="button" value="Create" onClick="javascript:createRecord(this.form, this.form.xdis_id_top)" />
+		{/if}
+	{/if}
+  </div>
+  <br /><br />&nbsp;
+{/if}
+
+{include file="list_browse_type.tpl.html"}
+
+{if ($browse_heading == "") ||  ($browse_type != "" && ($author != "" || $author_id != "")) || ($browse_type != "" & $depositor != "") || ($browse_type != "" && $year != "") || ($browse_type != "" && $parent_id != "" && $max_subject_breadcrumb != 0)} 
+        
+	{if $spell_suggest != ""}
+	<table width="100%" cellpadding="10" cellspacing="0" class="listrecord">
+
+	  	<tr>
+	  		<td class="default" colspan="2">&nbsp;<span style="color: red">Did you mean?: </span><a href="?{$spell_suggest_url}">{$spell_suggest|escape:"html"}</a><br /><br /></td>
+	  	</tr>
+	</table>
+	{/if}
+		
+	{if $facets && $list_type != 'collection_records_list' && $list_type != 'collection_list' && $list_type != 'community_list'}
+    <div class="facet">
+
+    <div class="facetheader">
+    <h2>Refine</h2>
+    </div>
+    
+    <ul>
+    {foreach from=$facets key=sek_id item=items}
+        <li><strong>{$items.sek_title}</strong></li>
+        {foreach from=$items.values key=id item=valueData}
+        {if $valueData.num > 0}
+        {if $id != '0'}<li class='facetarrow'><a href="?{$url_wo_rows}&search_keys[{$sek_id}]={$id}">{$valueData.value}</a> ({$valueData.num})</li>{/if}
+        {/if}
+        {/foreach}
+        <li>&nbsp;</li>
+
+    {/foreach}
+    </ul>
+    
+    </div>
+    {/if}
+		
+<div style="padding:20px;">
+	<table {if $facets  && $list_type != 'collection_records_list' && $list_type != 'collection_list' && $list_type != 'community_list'}width="70%"{else}width="100%"{/if} cellpadding="10" cellspacing="0" class="listrecord">
+	{if $browse == '' AND $browse_mode == 'list'}  {* arrived at page by search  *}
+	
+		<script type="text/javascript" src="{$app_base_url}display-dynamic-list.php?{$app_base_url}list/?{$url_wo_tpl}&sort_order={$sort_order}&tpl=3&form=tablecells"></script> <noscript>JavaScript must be enabled in your browser for this feature to work</noscript>
+
+  {else}		{* arrived at page by browse  *}
+    	<script type="text/javascript" src="{$app_base_url}display-dynamic-list.php?http://{$APP_HOSTNAME}{$PAGE_URL}?{$url_wo_tpl}&sort_order={$sort_order}&tpl=3&form=tablecells"></script> <noscript>JavaScript must be enabled in your browser for this feature to work</noscript>
+
+{/if}
+   </table>
+</div>
+{/if}
+
+    {include file="paging_control.tpl.html" field="paginat0r"}
+    </div>
+
+</form>
+</div>
+</center>

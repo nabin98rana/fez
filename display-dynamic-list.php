@@ -31,8 +31,9 @@ $proc->importStyleSheet($xsl); // attach the xsl rules
 
 $proc->setParameter('', 'form', $form);
 
-$proc->setParameter('', 'baseURL',APP_BASE_URL);
+$proc->setParameter('', 'host',APP_HOSTNAME);
 	
 echo $proc->transformToXML($xml);
+
 
 ?>
