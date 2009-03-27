@@ -212,6 +212,9 @@ class Default_Data
 		$defaultData['app_ffmpeg_default_height']           = "240";
 		$defaultData['app_ffmpeg_default_thumb_pos']        = "00:00:05";
 		$defaultData['app_fedora_display_checksums']        = "OFF";
+		$defaultData['app_mysql_innodb_flag']        		= "OFF";
+		$defaultData['app_xpath_switch']    	    		= "OFF";
+		$defaultData['app_xsdmf_index_switch']	    		= "OFF";
 
         return $defaultData;
 

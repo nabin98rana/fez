@@ -971,11 +971,15 @@ function restoreDefaultColours(el)
 			  {include file="error_icon.tpl.html" field="app_geoip_path"}
 			</td>
   		  </tr>
+		  <tr>
+		    <td class="colname">Max number of stats to process per gather stats from buffer run (if too many php may run out of memory, leave empty for no limit, default 50000)</td>
+			<td class="coldetail">
+			  <input type="text" name="webserver_log_stat_cron_limit" value="{$config_settings.webserver_log_stat_cron_limit|escape:"html"}" size="50" />
+			  {include file="error_icon.tpl.html" field="webserver_log_stat_cron_limit"}
+			</td>
+  		  </tr>
 		</table>
 		</div>
-
-
-
 		<div id="shib" style="display: none;">
 		<table width="100%" class="config-group">
 		  <tr>

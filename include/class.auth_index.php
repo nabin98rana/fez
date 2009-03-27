@@ -171,14 +171,14 @@ class AuthIndex {
         
         if ($rules_changed) {
             AuthIndex::clearIndexAuth($pid);
-            $stmt = "INSERT INTO ".$dbtp."auth_index2 (authi_pid,authi_role,authi_arg_id) VALUES ".$values." ";
+            $stmt = "INSERT IGNORE INTO ".$dbtp."auth_index2 (authi_pid,authi_role,authi_arg_id) VALUES ".$values." ";
             $res = $GLOBALS["db_api"]->dbh->query($stmt);
             if (PEAR::isError($res)) {
                 Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
                 return -1;
             }
 			// now update the cut down speedier lister only auth index
-            $stmt = "INSERT INTO ".$dbtp."auth_index2_lister (authi_pid,authi_arg_id) VALUES ".$lister_values." ";
+            $stmt = "INSERT IGNORE INTO ".$dbtp."auth_index2_lister (authi_pid,authi_arg_id) VALUES ".$lister_values." ";
             $res = $GLOBALS["db_api"]->dbh->query($stmt);
             if (PEAR::isError($res)) {
                 Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);

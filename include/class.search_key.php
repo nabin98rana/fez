@@ -934,7 +934,7 @@ class Search_Key
 		} else {
 		    $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
 		}
-       	if (PEAR::isError(APP_MYSQL_INNODB_FLAG.$res)) {
+       	if (PEAR::isError($res)) {
            	Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
        	} else {
        		if ($getLookup == true && $sek_details['sek_lookup_function'] != "") {

@@ -250,6 +250,21 @@ class Statistics
     }
 
 
+    function clearBufferByID($str_id) {
+        $stmt = "DELETE FROM
+                    " . APP_TABLE_PREFIX . "statistics_buffer
+                 WHERE
+                    str_id <= ".$str_id;
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return false;
+        } else {
+            return true; 
+        }
+    }
+
+
 
 	    /**
 	     * Method used to scan a web server log for Fez statistics.
@@ -301,7 +316,7 @@ class Statistics
 					$date = $brow['str_request_date'];
 					$pid = $brow['str_pid'];
 					$dsid = $brow['str_dsid'];
-
+					$str_id = $brow['str_id'];
 					$uniquebits = $buffer;
 
 //					preg_match("/^.*:([0-9]+:[0-9]+:[0-9]+) .*/i", $date, $timematch);
@@ -317,7 +332,7 @@ class Statistics
 					if (($datetestB > $requestDateLatest) || ($requestDateLatest == 0)) {
 						$requestDateLatest = $datetestB;
 					}
-					if ($datetestB <= $datetestA) { // make sure the log entry is newer than the last log run date
+					if ($datetestB < $datetestA) { // make sure the log entry is newer than the last log run date (but equal too is ok if it is the same second CK 26/3/2009)
 						continue;
 					}
 					// Try and find any thumbnails and preview copies of images as these should not be counted towards the file downloads for an image datastream
@@ -422,7 +437,8 @@ class Statistics
 
 			$timeFinished = date('Y-m-d H:i:s');
 			Statistics::setLogRun($requestDateLatest, $counter, $counter_inserted, $timeStarted, $timeFinished);
-			Statistics::clearBufferByDate($requestDateLatest);
+			Statistics::clearBufferByID($str_id);
+//			Statistics::clearBufferByDate($requestDateLatest);
 	    }
 
 
@@ -434,6 +450,10 @@ class Statistics
 	                    " . APP_TABLE_PREFIX . "statistics_buffer
 	                 ORDER BY
 	                    str_id ASC";
+	
+			if (is_numeric(WEBSERVER_LOG_STAT_CRON_LIMIT)) {
+				$stmt = $GLOBALS['db_api']->dbh->modifyLimitQuery($stmt, 0, WEBSERVER_LOG_STAT_CRON_LIMIT);
+			}
 	        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
 	        if (PEAR::isError($res)) {
 	            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
