@@ -284,11 +284,11 @@
 		 */
 		public function pop() {
 			// start transaction
-			$GLOBALS['db_api']->dbh->autoCommit(false);			
+			$GLOBALS['db_api']->dbh->autoCommit(false);
 			
 			// fetch first row
 			$sql  = "SELECT * FROM ".APP_TABLE_PREFIX."fulltext_queue ";
-			//$sql .= "ORDER BY ftq_key ASC ";			
+			$sql .= "ORDER BY ftq_key ASC "; //maybe this needs to be commented out like RP did because of hte below? doubt it surely.. CK
 			$sql = $GLOBALS['db_api']->dbh->modifyLimitQuery($sql, 0, 1);  
 			$sql .= " FOR UPDATE "; 	
 			  
@@ -309,7 +309,7 @@
 			$GLOBALS['db_api']->dbh->query($sql);
 			
 			$status = $GLOBALS['db_api']->dbh->commit();
-			
+			$GLOBALS['db_api']->dbh->autoCommit(true);			
 			if ($status != DB_OK) {
 				Logger::error("FulltextQueue::pop ".Logger::str_r($result));
 				return null;

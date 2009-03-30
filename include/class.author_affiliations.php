@@ -39,14 +39,13 @@ class AuthorAffiliations
 {
 	function getList($pid, $status = 1)
 	{
-		$stmt = "SELECT * FROM ". APP_TABLE_PREFIX ."author_affiliation " .
+		
+		
+		$stmt = "SELECT af.* FROM ". APP_TABLE_PREFIX ."author_affiliation af " .
+			"INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id ON rek_author_id_pid = af_pid " .
+			"AND af_author_id = rek_author_id " .
 			"WHERE af_pid = '".$pid."' " .
 			"AND af_status = " . $status . " " .
-			"AND af_author_id IN " .
-				"(SELECT rek_author_id " .
-				"FROM " . APP_TABLE_PREFIX . "record_search_key_author_id " .
-				"WHERE rek_author_id_pid = '".$pid."' " .
-				") " .
 			"ORDER BY af_author_id";
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
@@ -67,13 +66,10 @@ class AuthorAffiliations
 
 	function getListAll($pid)
 	{
-		$stmt = "SELECT * FROM ". APP_TABLE_PREFIX ."author_affiliation " .
+		$stmt = "SELECT af.* FROM ". APP_TABLE_PREFIX ."author_affiliation af " .
+			"INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id ON rek_author_id_pid = af_pid " .
+			"AND af_author_id = rek_author_id " .
 			"WHERE af_pid = '".$pid."' " .
-			"AND af_author_id IN " .
-				"(SELECT rek_author_id " .
-				"FROM " . APP_TABLE_PREFIX . "record_search_key_author_id " .
-				"WHERE rek_author_id_pid = '".$pid."' " .
-				") " .
 			"ORDER BY af_author_id";
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
@@ -341,15 +337,12 @@ class AuthorAffiliations
      */
 	function getOrphanedAffiliations($pid) {
 
-		$stmt = "SELECT * " .
-				"FROM " . APP_TABLE_PREFIX . "author_affiliation " .
-				"WHERE af_author_id NOT IN " .
-				"(SELECT rek_author_id " .
-				"FROM " . APP_TABLE_PREFIX . "record_search_key_author_id " .
-				"WHERE rek_author_id_pid = '".$pid."' " .
-				") " .
-				"AND af_pid = '".$pid."' ";
-		
+		$stmt = "SELECT af.* FROM ". APP_TABLE_PREFIX ."author_affiliation af " .
+			"LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id ON rek_author_id_pid = af_pid " .
+			"AND af_author_id = rek_author_id " .
+			"WHERE af_pid = '".$pid."' AND rek_author_id_pid IS NULL " .
+			"ORDER BY af_author_id";
+
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -407,14 +400,12 @@ class AuthorAffiliations
      */
 	function getOrphanedAffiliationsAll() {
 
-		$stmt = "SELECT DISTINCT(af_pid), rek_title " .
-				"FROM " . APP_TABLE_PREFIX . "author_affiliation AS t1, " . APP_TABLE_PREFIX . "record_search_key " .
-				"WHERE af_author_id NOT IN " .
-				"(SELECT rek_author_id " .
-				"FROM fez_record_search_key_author_id " .
-				"WHERE rek_author_id_pid = t1.af_pid " .
-				") " .
-				"AND af_pid = rek_pid";
+
+		$stmt = "SELECT af_pid, rek_title FROM ". APP_TABLE_PREFIX ."author_affiliation af " .
+			"LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id ON rek_author_id_pid = af_pid " .
+			"AND af_author_id = rek_author_id " .
+			"INNER JOIN " . APP_TABLE_PREFIX . "record_search_key ON rek_pid = af_pid " .
+			"WHERE rek_author_id_pid IS NULL ";
 		
 		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
         if (PEAR::isError($res)) {
