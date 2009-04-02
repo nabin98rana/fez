@@ -98,9 +98,9 @@ if ($action == "show_detail") {
 			$allUsers[$i]['abstractViewsWidth'] = (int) ($allUsers[$i]['stl_country_abstracts']/$max_count * $max_width); 
 			$allUsers[$i]['downloadsWidth'] = (int) ($allUsers[$i]['stl_country_downloads']/$max_count * $max_width); 
 		}
-		$tpl->assign("showUsers", 1);
+		$showUsers = 1;
 	} else {
-		$tpl->assign("showUsers", 0);
+		$showUsers = 0;
 		$allUsers = array();
 	}
 
@@ -198,7 +198,13 @@ $tpl->assign("dateString", $dateString);
 //$tpl->assign("list", $list);
 $tpl->assign("listHistory", $allHistory);
 $tpl->assign("listUsers", $allUsers);
-$tpl->assign("firstLogged", Statistics::getEarliestUserView());
+$tpl->assign("showUsers", $showUsers);
+if ($showUsers == 1) {
+	$firstViewedUser = Statistics::getEarliestUserView();
+} else {
+	$firstViewedUser = 0;
+}
+$tpl->assign("firstLogged", $firstViewedUser);
 $tpl->assign("listCountry", $countryAll);
 $tpl->assign("listCountryCount", count($countryAll));
 //$tpl->assign("list", $list_history);
