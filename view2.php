@@ -303,7 +303,7 @@ if (!empty($pid) && $record->checkExists()) {
 		$datastreams = Fedora_API::callGetDatastreams($pid, $requestedVersionDate, 'A');
 
         // Extact and generate list of timestamps for the datastreams of the record
-        //generateTimestamps($pid, $datastreams, $requestedVersionDate, $tpl);
+        generateTimestamps($pid, $datastreams, $requestedVersionDate, $tpl);
 
 		if( $requestedVersionDate != null ){
 			$datastreams = Misc::addDeletedDatastreams($datastreams,$pid,$requestedVersionDate);
