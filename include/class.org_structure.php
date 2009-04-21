@@ -264,7 +264,7 @@ class Org_Structure
                  FROM
                     " . APP_TABLE_PREFIX . "org_structure
                  INNER JOIN hr_position_vw ON AOU = org_extdb_id
-                 INNER JOIN " . APP_TABLE_PREFIX . "author ON WAMIKEY = aut_org_staff_id and aut_org_username = '".$username."'
+                 AND USER_NAME = '".$username."'
                  WHERE (org_extdb_name = 'hr' OR org_extdb_name = 'rrtd')";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
 
