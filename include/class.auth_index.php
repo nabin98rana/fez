@@ -196,7 +196,9 @@ class AuthIndex {
             }
             
             foreach ($children as $child_pid) {
-                AuthIndex::setIndexAuthBGP($child_pid, $recurse, false);
+                $auth_index = new AuthIndex;
+        		$auth_index->setBGP($this->bgp);
+        		$auth_index->setIndexAuthBGP($child_pid, $recurse);
             }
             
             if( APP_FILECACHE == "ON" && $topcall) {
