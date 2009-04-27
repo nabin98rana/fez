@@ -137,6 +137,31 @@ class XSD_HTML_Match {
 		}
 
 	}
+
+	function getXPATHBySearchKeyTitleXDIS_ID($sek_title, $xdis_id) {
+		
+		$stmt = "SELECT m2.xsdmf_xpath 
+				 FROM fez_xsd_display_matchfields m1
+				 INNER JOIN  fez_xsd_relationship ON xsdrel_xsdmf_id = m1.xsdmf_id
+				 INNER JOIN fez_xsd_display ON xdis_id = m1.xsdmf_xdis_id
+				 INNER JOIN fez_xsd_display_matchfields m2 ON m2.xsdmf_xdis_id = xsdrel_xdis_id 
+				 INNER JOIN fez_search_key ON sek_id = m2.xsdmf_sek_id
+ 				 WHERE sek_title = '".$sek_title."' AND m1.xsdmf_xdis_id = ".$xdis_id."
+				 GROUP BY m2.xsdmf_xpath ";
+				
+		$res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array (
+			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+			return "";
+		} else {
+			if ($res == NULL) {
+				return "";
+			} else {
+				return $res;
+			}
+		}
+	}
 	
 	function getDetailsByXPATH($pid, $xdis_id, $exclude_list=array(), $specify_list=array()) {		
 		

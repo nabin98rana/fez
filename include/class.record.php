@@ -3605,6 +3605,80 @@ class RecordGeneral
         
         return -1;
     }
+
+
+	function addSearchKeyValueList($datastreamName, $datastreamDesc, $search_keys=array(), $values=array(), $removeCurrent=true) {
+		
+		$xmlString = Fedora_API::callGetDatastreamContents($this->pid, $datastreamName, true);
+		foreach($search_keys as $s => $sk) {
+			$doc = $this->addSearchKeyValue($doc, $sk, $values[$s], $removeCurrent);
+		}
+		$newXML = $doc->SaveXML();
+		echo $newXML;
+        if ($newXML != "") {
+
+/*	        $this->getDisplay();		
+	 		$display->getXSD_HTML_Match();
+			$datastreamTitles = $display->getDatastreamTitles(); */	
+			//Need to make this not just for MODS at some stage
+            Fedora_API::callModifyDatastreamByValue($this->pid, $datastreamName, "A", $datastreamDesc, $newXML, "text/xml", "inherit");
+			$this->setIndexMatchingFields();
+			return 1;
+        }
+        return -1;
+
+	}
+
+
+    // Experimental function - like a swiss army knife for adding abitrary values to datastreams
+    function addSearchKeyValue($doc, $sek_title, $value, $removeCurrent = true) {
+		$newXML = "";
+		$xdis_id = $this->getXmlDisplayId();
+		$xpath_query = XSD_HTML_Match::getXPATHBySearchKeyTitleXDIS_ID($sek_title, $xdis_id);
+
+		if (!$xpath_query) {
+			return false;
+		}
+		
+		$xpath = new DOMXPath($doc);
+		$fieldNodeList = $xpath->query($xpath_query);
+        $element = substr($xpath_query, (strrpos($xpath_query, "/") + 1));
+		$pre_element = substr($xpath_query, 0, (strrpos($xpath_query, "/")));
+		$attributeStartPos = strpos($element, "[");
+		$attributeEndPos = strpos($element, "]") + 1;
+		$attribute = "";
+		if (is_numeric($attributeStartPos) && is_numeric($attributeEndPos)) {
+			$attribute = substr($element, $attributeStartPos, ($attributeEndPos - $attributeStartPos));
+			$element = substr($element, 0, $attributeStartPos);
+		}
+		$attributeNameStartPos = strpos($attribute, "[@") + 2;
+		$attributeNameEndPos = strpos($attribute, " =");
+		$attributeValueStartPos = strpos($attribute, "= ") + 2;
+		$attributeValueEndPos = strpos($attribute, "]");
+		$attributeName = substr($attribute, $attributeNameStartPos, ($attributeNameEndPos - $attributeNameStartPos));
+		$attributeValue = substr($attribute, $attributeValueStartPos, ($attributeValueEndPos - $attributeValueStartPos));
+		$attributeValue = str_replace("'", "", $attributeValue);
+
+		if ( $removeCurrent ) {		
+			foreach ($fieldNodeList as $fieldNode) { // first delete all the isMemberOfs
+				$parentNode = $fieldNode->parentNode;
+                $parentNode->removeChild($fieldNode);
+			}
+		}
+		// If no existing one is found, add to the parent (will error currently if the xpath parent doesn't exist either, but thats unusual)
+		if (is_null($parentNode)) {
+			$parentNodeList = $xpath->query($pre_element);
+			foreach ($parentNodeList as $fieldNode) {
+				$parentNode = $fieldNode;
+			}
+		}
+
+		$newNode = $doc->createElement($element, $value);
+		$newNode->setAttribute($attributeName, $attributeValue);
+	
+		$parentNode->appendChild($newNode); 
+		return $doc;
+    }
     
     /**
      * Remove record from collection
@@ -4617,7 +4691,6 @@ class RecordObject extends RecordGeneral
 		$xmlObj = Foxml::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "", $indexArray, 0, $this->created_date, $this->updated_date, $this->depositor, $this->assign_usr_id, $this->assign_grp_id);
 
 		$xmlObj .= "</".$xsd_element_prefix.$xsd_top_element_name.">";
-		
 		$datastreamTitles = $display->getDatastreamTitles($exclude_list, $specify_list);
         Record::insertXML($pid, compact('datastreamTitles', 'exclude_list', 'specify_list', 'xmlObj', 'indexArray', 'existingDatastreams', 'xdis_id'), $ingestObject);
         $this->clearDetails();  // force the details to be refreshed from fedora.
