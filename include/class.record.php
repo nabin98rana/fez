@@ -3610,9 +3610,20 @@ class RecordGeneral
 	function addSearchKeyValueList($datastreamName, $datastreamDesc, $search_keys=array(), $values=array(), $removeCurrent=true) {
 		
 		$xmlString = Fedora_API::callGetDatastreamContents($this->pid, $datastreamName, true);
+                if (is_array($xmlString) || $xmlString == "") {
+                  echo "\n**** PID ".$this->pid." without a ".$datastreamName." datastream was found, this will need content model changing first **** \n";
+                  return -1;
+                }
+                $doc = DOMDocument::loadXML($xmlString); 
 		foreach($search_keys as $s => $sk) {
-			$doc = $this->addSearchKeyValue($doc, $sk, $values[$s], $removeCurrent);
+			$tempdoc = $this->addSearchKeyValue($doc, $sk, $values[$s], $removeCurrent);
+                        if ($tempdoc !== false) {
+                           $doc = $tempdoc;
+                        }
 		}
+		echo "\nnewXML = \n";
+
+                
 		$newXML = $doc->SaveXML();
 		echo $newXML;
         if ($newXML != "") {
@@ -3636,7 +3647,12 @@ class RecordGeneral
 		$xdis_id = $this->getXmlDisplayId();
 		$xpath_query = XSD_HTML_Match::getXPATHBySearchKeyTitleXDIS_ID($sek_title, $xdis_id);
 
+                if (empty($value)) {
+                  return false;
+                } 
+
 		if (!$xpath_query) {
+                  echo "\n**** PID ".$this->pid." has no search key ".$sek_title." so it will need content model changing first **** \n";
 			return false;
 		}
 		
