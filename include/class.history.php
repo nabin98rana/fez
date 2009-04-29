@@ -244,6 +244,9 @@ class History
 	function addHistory($pid, $wfl_id=null, $outcome="", $outcomeDetail="", $refreshDatastream=false, $historyDetail="", $historyDetailExtra=null) {
 		$dsIDName = "PremisEvent";
 		$event_usr_id = Auth::getUserID();
+		if (!is_numeric($event_usr_id)) {
+			$event_usr_id = APP_SYSTEM_USER_ID;
+		}
 		$event_usr_full_name = User::getFullName($event_usr_id);
 		$event_date = Date_API::getCurrentDateGMT(true); //date("Y-m-d H:i:s.u");
 
