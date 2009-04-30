@@ -533,6 +533,9 @@ $tagIndent = "";
                                         Foxml::handleMultipleInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_details_ref['xsdmf_id'], $xsdmf_details_ref,  $xsdmf_details, $attrib_loop_index, $xsdmf_details_ref['xsdmf_element_prefix'], $i, $xmlObj, $tagIndent);
                                     } elseif ($xsdmf_details_ref['xsdmf_html_input'] == 'text' || $xsdmf_details_ref['xsdmf_html_input'] == 'rich_text' || $xsdmf_details_ref['xsdmf_html_input'] == 'textarea'  || $xsdmf_details_ref['xsdmf_html_input'] == 'hidden') {
                                         Foxml::handleTextInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details, $xsdmf_details_ref, $attrib_loop_index, $element_prefix, $i, $xmlObj, $tagIndent);
+										if ($xsdmf_details_ref['xsdmf_element'] = '!objectProperties!property!VALUE') { //Due to a limitation in Fedora, Object labels cannot be greater than 255 chars or they will cause an ingest exception
+											$attrib_value = substr($attrib_value, 0, 255);
+										}
                                     }
                                 } elseif ($xsdmf_details['xsdmf_html_input'] == 'static') {
                                     Foxml::handleStaticInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details, $attrib_loop_index, $element_prefix, $i, $created_date, $updated_date, $depositor, $file_downloads, $top_xdis_id, $assign_usr_id, $assign_grp_id);
@@ -828,6 +831,9 @@ $tagIndent = "";
                                 } elseif ($xsdmf_details_ref['xsdmf_html_input'] == 'text' || $xsdmf_details_ref['xsdmf_html_input'] == 'rich_text' || $xsdmf_details_ref['xsdmf_html_input'] == 'textarea' || $xsdmf_details_ref['xsdmf_html_input'] == 'hidden') {
 //                                    $xsdmf_details_ref = array();
                                     Foxml::handleTextInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details, $xsdmf_details_ref, $attrib_loop_index, $element_prefix, $i, $xmlObj, $tagIndent);
+									if ($xsdmf_details_ref['xsdmf_element'] = '!objectProperties!property!VALUE') { //Due to a limitation in Fedora, Object labels cannot be greater than 255 chars or they will cause an ingest exception
+										$attrib_value = substr($attrib_value, 0, 255);
+									}
                                 }
                             } elseif ($xsdmf_details['xsdmf_html_input'] == 'static') {
                                 Foxml::handleStaticInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details, $attrib_loop_index, $element_prefix, $i, $created_date, $updated_date, $depositor, $file_downloads, $top_xdis_id, $assign_usr_id, $assign_grp_id);
