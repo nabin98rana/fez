@@ -15,17 +15,22 @@
 {/if}
 <item>
 	<title>{$list[i].rek_title|escape:"html"}</title>
+
 	<pid>{$list[i].rek_pid|escape:"html"}</pid>
         <citation><![CDATA[{$list[i].rek_citation}]]></citation>
 	<identifier>{$app_base_url}{$href_view}</identifier>
 	<description>{$list[i].rek_description|escape:"html"}</description>
 	<genre>{$list[i].rek_display_type_lookup|escape:"html"}</genre>
 	<created_date>{$list[i].rek_created_date|escape:"html"}</created_date>
+
 	<updated_date>{$list[i].rek_updated_date|escape:"html"}</updated_date>
 	<publication_date>{$list[i].rek_date|escape:"html"}</publication_date>
+	<formatted_title>{$list[i].rek_formatted_title|escape:"html"}</formatted_title>
+	<formatted_abstract>{$list[i].rek_formatted_abstract|escape:"html"}</formatted_abstract>
 	<report_numbers>
 	{section name="report_number_loop" loop=$list[i].rek_report_number}
 	<report_number>{$list[i].rek_report_number[report_number_loop]|escape:"html"}</report_number>
+
 	{sectionelse}
 	<report_number />
 	{/section}
@@ -37,6 +42,7 @@
 	<org_name />
 	{/section}
 	</org_names>
+
 	<org_unit_names>
 	{section name="org_unit_name_loop" loop=$list[i].rek_org_unit_name}
 	<org_unit_name>{$list[i].rek_org_unit_name[org_unit_name_loop]|escape:"html"}</org_unit_name>
@@ -47,6 +53,7 @@
 	<sensitivity_explanations>
 	{section name="sensitivity_explanation_loop" loop=$list[i].rek_sensitivity_explanation}
 	<sensitivity_explanation>{$list[i].rek_sensitivity_explanation[sensitivity_explanation_loop]|escape:"html"}</sensitivity_explanation>
+
 	{sectionelse}
 	<sensitivity_explanation />
 	{/section}
@@ -58,6 +65,7 @@
 	<na_explanation />
 	{/section}
 	</na_explanations>
+
 	<output_availabilitys>
 	{section name="output_availability_loop" loop=$list[i].rek_output_availability}
 	<output_availability>{$list[i].rek_output_availability[output_availability_loop]|escape:"html"}</output_availability>
@@ -68,6 +76,7 @@
 	<prns>
 	{section name="prn_loop" loop=$list[i].rek_prn}
 	<prn>{$list[i].rek_prn[prn_loop]|escape:"html"}</prn>
+
 	{sectionelse}
 	<prn />
 	{/section}
@@ -79,6 +88,7 @@
 	<isi_loc />
 	{/section}
 	</isi_locs>
+
 	<isbns>
 	{section name="isbn_loop" loop=$list[i].rek_isbn}
 	<isbn>{$list[i].rek_isbn[isbn_loop]|escape:"html"}</isbn>
@@ -89,6 +99,7 @@
 	<issns>
 	{section name="issn_loop" loop=$list[i].rek_issn}
 	<issn>{$list[i].rek_issn[issn_loop]|escape:"html"}</issn>
+
 	{sectionelse}
 	<issn />
 	{/section}
@@ -100,6 +111,7 @@
 	<translated_conference_name />
 	{/section}
 	</translated_conference_names>
+
 	<phonetic_conference_names>
 	{section name="phonetic_conference_name_loop" loop=$list[i].rek_phonetic_conference_name}
 	<phonetic_conference_name>{$list[i].rek_phonetic_conference_name[phonetic_conference_name_loop]|escape:"html"}</phonetic_conference_name>
@@ -110,6 +122,7 @@
 	<translated_newspapers>
 	{section name="translated_newspaper_loop" loop=$list[i].rek_translated_newspaper}
 	<translated_newspaper>{$list[i].rek_translated_newspaper[translated_newspaper_loop]|escape:"html"}</translated_newspaper>
+
 	{sectionelse}
 	<translated_newspaper />
 	{/section}
@@ -121,6 +134,7 @@
 	<phonetic_newspaper />
 	{/section}
 	</phonetic_newspapers>
+
 	<book_titles>
 	{section name="book_title_loop" loop=$list[i].rek_book_title}
 	<book_title>{$list[i].rek_book_title[book_title_loop]|escape:"html"}</book_title>
@@ -131,6 +145,7 @@
 	<chapter_titles>
 	{section name="chapter_title_loop" loop=$list[i].rek_chapter_title}
 	<chapter_title>{$list[i].rek_chapter_title[chapter_title_loop]|escape:"html"}</chapter_title>
+
 	{sectionelse}
 	<chapter_title />
 	{/section}
@@ -142,6 +157,7 @@
 	<translated_book_title />
 	{/section}
 	</translated_book_titles>
+
 	<phonetic_book_titles>
 	{section name="phonetic_book_title_loop" loop=$list[i].rek_phonetic_book_title}
 	<phonetic_book_title>{$list[i].rek_phonetic_book_title[phonetic_book_title_loop]|escape:"html"}</phonetic_book_title>
@@ -152,6 +168,7 @@
 	<journal_names>
 	{section name="journal_name_loop" loop=$list[i].rek_journal_name}
 	<journal_name>{$list[i].rek_journal_name[journal_name_loop]|escape:"html"}</journal_name>
+
 	{sectionelse}
 	<journal_name />
 	{/section}
@@ -163,6 +180,7 @@
 	<conference_name />
 	{/section}
 	</conference_names>
+
 	<translated_journal_names>
 	{section name="translated_journal_name_loop" loop=$list[i].rek_translated_journal_name}
 	<translated_journal_name>{$list[i].rek_translated_journal_name[translated_journal_name_loop]|escape:"html"}</translated_journal_name>
@@ -173,6 +191,7 @@
 	<phonetic_journal_names>
 	{section name="phonetic_journal_name_loop" loop=$list[i].rek_phonetic_journal_name}
 	<phonetic_journal_name>{$list[i].rek_phonetic_journal_name[phonetic_journal_name_loop]|escape:"html"}</phonetic_journal_name>
+
 	{sectionelse}
 	<phonetic_journal_name />
 	{/section}
@@ -184,6 +203,7 @@
 	<translated_title />
 	{/section}
 	</translated_titles>
+
 	<language_of_titles>
 	{section name="language_of_title_loop" loop=$list[i].rek_language_of_title}
 	<language_of_title>{$list[i].rek_language_of_title[language_of_title_loop]|escape:"html"}</language_of_title>
@@ -194,6 +214,7 @@
 	<phonetic_titles>
 	{section name="phonetic_title_loop" loop=$list[i].rek_phonetic_title}
 	<phonetic_title>{$list[i].rek_phonetic_title[phonetic_title_loop]|escape:"html"}</phonetic_title>
+
 	{sectionelse}
 	<phonetic_title />
 	{/section}
@@ -205,6 +226,7 @@
 	<language />
 	{/section}
 	</languages>
+
 	<date_availables>
 	{section name="date_available_loop" loop=$list[i].rek_date_available}
 	<date_available>{$list[i].rek_date_available[date_available_loop]|escape:"html"}</date_available>
@@ -215,6 +237,7 @@
 	<country_of_issues>
 	{section name="country_of_issue_loop" loop=$list[i].rek_country_of_issue}
 	<country_of_issue>{$list[i].rek_country_of_issue[country_of_issue_loop]|escape:"html"}</country_of_issue>
+
 	{sectionelse}
 	<country_of_issue />
 	{/section}
@@ -226,6 +249,7 @@
 	<patent_number />
 	{/section}
 	</patent_numbers>
+
 	<conference_locations>
 	{section name="conference_location_loop" loop=$list[i].rek_conference_location}
 	<conference_location>{$list[i].rek_conference_location[conference_location_loop]|escape:"html"}</conference_location>
@@ -236,6 +260,7 @@
 	<conference_datess>
 	{section name="conference_dates_loop" loop=$list[i].rek_conference_dates}
 	<conference_dates>{$list[i].rek_conference_dates[conference_dates_loop]|escape:"html"}</conference_dates>
+
 	{sectionelse}
 	<conference_dates />
 	{/section}
@@ -247,6 +272,7 @@
 	<volume_number />
 	{/section}
 	</volume_numbers>
+
 	<issue_numbers>
 	{section name="issue_number_loop" loop=$list[i].rek_issue_number}
 	<issue_number>{$list[i].rek_issue_number[issue_number_loop]|escape:"html"}</issue_number>
@@ -257,6 +283,7 @@
 	<chapter_numbers>
 	{section name="chapter_number_loop" loop=$list[i].rek_chapter_number}
 	<chapter_number>{$list[i].rek_chapter_number[chapter_number_loop]|escape:"html"}</chapter_number>
+
 	{sectionelse}
 	<chapter_number />
 	{/section}
@@ -268,6 +295,7 @@
 	<end_page />
 	{/section}
 	</end_pages>
+
 	<start_pages>
 	{section name="start_page_loop" loop=$list[i].rek_start_page}
 	<start_page>{$list[i].rek_start_page[start_page_loop]|escape:"html"}</start_page>
@@ -278,6 +306,7 @@
 	<place_of_publications>
 	{section name="place_of_publication_loop" loop=$list[i].rek_place_of_publication}
 	<place_of_publication>{$list[i].rek_place_of_publication[place_of_publication_loop]|escape:"html"}</place_of_publication>
+
 	{sectionelse}
 	<place_of_publication />
 	{/section}
@@ -289,6 +318,7 @@
 	<edition />
 	{/section}
 	</editions>
+
 	<authors>
 	{section name="author_loop" loop=$list[i].rek_author}
 	<author>{$list[i].rek_author[author_loop]|escape:"html"}</author>
@@ -299,6 +329,7 @@
 	<author_ids>
 	{section name="author_loop" loop=$list[i].rek_author_id}
 	<author_id>{$list[i].rek_author_id[author_loop]|escape:"html"}</author_id>
+
 	{sectionelse}
 	<author_id />
 	{/section}
@@ -310,6 +341,7 @@
 	<author_id_lookup />
 	{/section}
 	</author_id_lookups>
+
 	<author_id_externals>
 	{section name="author_loop" loop=$list[i].rek_author_id_external}
 	<author_id_external>{$list[i].rek_author_id_external[author_loop]|escape:"html"}</author_id_external>
@@ -320,6 +352,7 @@
 	<contributors>
 	{section name="contributor_loop" loop=$list[i].rek_contributor}
 	<contributor>{$list[i].rek_contributor[contributor_loop]|escape:"html"}</contributor>
+
 	{sectionelse}
 	<contributor />
 	{/section}
@@ -331,6 +364,7 @@
 	<contributor_id />
 	{/section}
 	</contributor_ids>
+
 	<contributor_id_lookups>
 	{section name="contributor_loop" loop=$list[i].rek_contributor_id_lookup}
 	<contributor_id_lookup>{$list[i].rek_contributor_id_lookup[contributor_loop]|escape:"html"}</contributor_id_lookup>
@@ -341,6 +375,7 @@
 	<contributor_id_externals>
 	{section name="contributor_loop" loop=$list[i].rek_contributor_id_external}
 	<contributor_id_external>{$list[i].rek_contributor_id_external[contributor_loop]|escape:"html"}</contributor_id_external>
+
 	{sectionelse}
 	<contributor_id_external />
 	{/section}
@@ -352,6 +387,7 @@
 	<isMemberOf />
 	{/section}
 	</isMemberOfs>
+
 	<keywords>
 	{section name="keywords_loop" loop=$list[i].rek_keywords}
 	<keyword>{$list[i].rek_keywords[keywords_loop]|escape:"html"}</keyword>
@@ -359,12 +395,113 @@
 	<keyword />
 	{/section}
 	</keywords>
+	<alternative_titles>
+	{section name="alternative_title_loop" loop=$list[i].rek_alternative_title}
+	<alternative_title>{$list[i].rek_alternative_title[alternative_title_loop]|escape:"html"}</alternative_title>
+
+	{sectionelse}
+	<alternative_title />
+	{/section}
+	</alternative_titles>
+	<newspapers>
+	{section name="newspaper_loop" loop=$list[i].rek_newspaper}
+	<newspaper>{$list[i].rek_newspaper[newspaper_loop]|escape:"html"}</newspaper>
+	{sectionelse}
+	<newspaper />
+	{/section}
+	</newspapers>
+
+	<publishers>
+	{section name="publisher_loop" loop=$list[i].rek_publisher}
+	<publisher>{$list[i].rek_publisher[publisher_loop]|escape:"html"}</publisher>
+	{sectionelse}
+	<publisher />
+	{/section}
+	</publishers>
+	<conveners>
+	{section name="convener_loop" loop=$list[i].rek_convener}
+	<convener>{$list[i].rek_convener[convener_loop]|escape:"html"}</convener>
+
+	{sectionelse}
+	<convener />
+	{/section}
+	</conveners>
+	<identifier_numbers>
+	{section name="identifier_number_loop" loop=$list[i].rek_identifier}
+	<identifier_number>{$list[i].rek_identifier[identifier_number_loop]|escape:"html"}</identifier_number>
+	{sectionelse}
+	<identifier_number />
+	{/section}
+	</identifier_numbers>
+
+	<scopus_ids>
+	{section name="scopus_id_loop" loop=$list[i].rek_scopus_id}
+	<scopus_id>{$list[i].rek_scopus_id[scopus_id_loop]|escape:"html"}</scopus_id>
+	{sectionelse}
+	<scopus_id />
+	{/section}
+	</scopus_ids>
+	<seriess>
+	{section name="series_loop" loop=$list[i].rek_series}
+	<series>{$list[i].rek_series[series_loop]|escape:"html"}</series>
+
+	{sectionelse}
+	<series />
+	{/section}
+	</seriess>
+	<parent_publications>
+	{section name="parent_publication_loop" loop=$list[i].rek_parent_publication}
+	<parent_publication>{$list[i].rek_parent_publication[parent_publication_loop]|escape:"html"}</parent_publication>
+	{sectionelse}
+	<parent_publication />
+	{/section}
+	</parent_publications>
+
+	<subjects>
+	{section name="subject_loop" loop=$list[i].rek_subject}
+	<subject>{$list[i].rek_subject[subject_loop]|escape:"html"}</subject>
+	{sectionelse}
+	<subject />
+	{/section}
+	</subjects>
+	<refereeds>
+	{section name="refereed_loop" loop=$list[i].rek_refereed}
+	<refereed>{$list[i].rek_refereed[refereed_loop]|escape:"html"}</refereed>
+
+	{sectionelse}
+	<refereed />
+	{/section}
+	</refereeds>
+	<research_programs>
+	{section name="research_program_loop" loop=$list[i].rek_research_program}
+	<research_program>{$list[i].rek_research_program[research_program_loop]|escape:"html"}</research_program>
+	{sectionelse}
+	<research_program />
+	{/section}
+	</research_programs>
+
+	<rightss>
+	{section name="rights_loop" loop=$list[i].rek_rights}
+	<rights>{$list[i].rek_rights[rights_loop]|escape:"html"}</rights>
+	{sectionelse}
+	<rights />
+	{/section}
+	</rightss>
+	<notess>
+	{section name="notes_loop" loop=$list[i].rek_notes}
+	<notes>{$list[i].rek_notes[notes_loop]|escape:"html"}</notes>
+
+	{sectionelse}
+	<notes />
+	{/section}
+	</notess>
 	{assign var="loop_format" value=$list[i].rek_file_attachment_name}
 	<datastream_links>
 	{section name="f" loop=$loop_format}
 	<datastream_link>{$app_base_url}basiceserv.php?pid={$list[i].rek_pid|escape:"html"}&amp;dsID={$list[i].rek_file_attachment_name[f]|escape:"html"}</datastream_link>
 	{sectionelse}
 	<datastream_link />
+
 	{/section}
 	</datastream_links>
 	<datastreams>
@@ -376,4 +513,5 @@
 	</datastreams>
 </item>
 {/section}
+
 </xmlfeed>
