@@ -1962,7 +1962,172 @@ class Record
 		}
 		
 	}
+	
+	/**
+	 * Method returns the PID given the ISI Loc
+	 * 
+	 * @param $isi_loc The ISI Loc to search on
+	 * @return string The found PID
+	 */
+	public static function getPIDByIsiLoc($isi_loc) {
+		$dbtp =  APP_TABLE_PREFIX; // Database and table prefix
+		
+        $stmt = "SELECT
+                    rek_isi_loc_pid
+                 FROM
+                    " . $dbtp . "record_search_key_isi_loc
+                 WHERE
+                    rek_isi_loc = '".Misc::escapeString($isi_loc)."'";
+        
+        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+			return false;
+        } else {
+        	return $res;
+        }
+	}
 
+	/**
+	 * Method updates the Thomson citation count
+	 *  
+	 * @param $pid The PID to update the citation count for
+	 * @param $count The count to update with 
+	 * @return bool True if the update was successful else false
+	 */
+	public static function updateThomsonCitationCount($pid, $count) {
+		$dbtp =  APP_TABLE_PREFIX; // Database and table prefix
+		$prev_count;
+		
+		// Get the previous count
+		$stmt = "SELECT
+                    rek_thomson_citation_count
+                 FROM
+                    " . $dbtp . "record_search_key
+                 WHERE
+                    rek_pid = '".Misc::escapeString($pid)."'";
+
+        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+        } else {
+        	$prev_count = $res;
+        }
+        
+        // If the count has changed, or there is no previous count, update the count
+        if( empty($prev_count) || $prev_count != $count) {
+	        $stmt = "UPDATE
+	                    " . $dbtp . "record_search_key
+	                 SET
+	                 	rek_thomson_citation_count = '".Misc::escapeString($count)."'
+	                 WHERE
+	                    rek_pid = '".Misc::escapeString($pid)."'";
+	        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+	        if (PEAR::isError($res)) {
+	            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+	            return false;
+	        }	    
+	        Record::insertThomsonCitationCount($pid, $count);    
+        }
+        // Else update the last time we checked
+        else {        	
+        	$stmt = "SELECT 
+        				tc_id
+        			 FROM
+	                    " . $dbtp . "thomson_citations	                 
+	                 WHERE
+	                    tc_pid = '".Misc::escapeString($pid)."'";
+	        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+	        if (PEAR::isError($res)) {
+	            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);	            
+	        }
+	        if($res) {
+				Record::updateThomsonCitationLastChecked($res);			
+	        }
+	        else {
+		        // No previous count so insert a new entry
+				Record::insertThomsonCitationCount($pid, $count);
+	        }
+	        
+        }     
+        return true;
+	}
+	
+	/**
+	 * Method inserts a new Thomson citation count entry
+	 * 
+	 * @param $pid The PID to insert the citation count for
+	 * @param $count The count to insert 
+	 * @return bool True if the insert was successful else false
+	 */
+	private static function insertThomsonCitationCount($pid, $count) {
+		$dbtp =  APP_TABLE_PREFIX; // Database and table prefix
+		
+		$stmt = "INSERT INTO
+                    " . $dbtp . "thomson_citations
+                 (tc_id, tc_pid, tc_count, tc_last_checked, tc_created)
+                 VALUES
+                 (NULL, '".Misc::escapeString($pid)."', '".Misc::escapeString($count)."', '".time()."', '".time()."')";
+		
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return false;				
+        }
+        return true;
+	}
+	
+	/**
+	 * Method updates the last time a Thomson citation count was checked
+	 * 
+	 * @param $pid The PID to update the last checked date for
+	 * @param $count The count to update with
+	 * @return bool True if the update was successful else false
+	 */
+	private static function updateThomsonCitationLastChecked($tc_id) {
+		$dbtp =  APP_TABLE_PREFIX; // Database and table prefix
+		
+		$stmt = "UPDATE
+		           " . $dbtp . "thomson_citations
+		         SET
+		         	tc_last_checked = '".time()."'
+                 WHERE
+                    tc_id = '".Misc::escapeString($tc_id)."'";
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return false;				
+        }
+        return true;
+	}
+	
+/**
+	 * Returns Thomson citation count history for a pid
+	 * 
+	 * @param $pid The PID to get the citation count history for 
+	 * @return array The citation count history 
+	 */
+	public static function getThomsonCitationCountHistory($pid, $limit = false) {
+		$dbtp =  APP_TABLE_PREFIX; // Database and table prefix
+		
+		$limit = ($limit) ? 'LIMIT '.$limit:null;
+		$stmt = "SELECT
+					tc_last_checked,tc_created,tc_count
+				 FROM
+		           " . $dbtp . "thomson_citations		         
+                 WHERE
+                    tc_pid = '".Misc::escapeString($pid)."'
+                 ORDER BY tc_created ASC
+                 $limit";        
+        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC); //DB_FETCHMODE_ASSOC
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return false;				
+        }
+        return $res;
+	}
+	
+	
 
     function buildSearchKeyJoins($options, $sort_by, $operator, $filter) 
     {
