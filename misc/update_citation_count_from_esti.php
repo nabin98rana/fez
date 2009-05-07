@@ -35,7 +35,7 @@ include_once(APP_INC_PATH . 'class.esti_search_service.php');
 include_once(APP_INC_PATH . "class.record.php");
 
 $max = 100; 		// Max number of primary key IDs to send with each ESTI Search Service request call
-$sleep = 60*60*5; 	// Number of seconds to wait for between successive ESTI Search Service calls 
+$sleep = 1; 	// Number of seconds to wait for between successive ESTI Search Service calls 
 
 $filter = array();
 $filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
