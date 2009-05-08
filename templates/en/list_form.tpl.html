@@ -96,6 +96,11 @@
                 <img src="{$rel_url}images/downloads_16.png" title="File Downloads" alt="File Downloads" />
             {/if}
             </td>
+            <td align="center">
+            {if $list_info.total_rows > 0 && ($list_type !== 'collection_list' && $list_type !== 'community_list')}
+            	<img src="{$rel_url}images/rid_16.png" title="ResearcherID Citation Count" alt="ResearcherID Citation Count" />            
+            {/if}
+            </td>
         </tr>
 
         {section name="i" loop=$list}
@@ -208,6 +213,13 @@
 	       {else}
             <td colspan="2" style="border-top:1px dashed #87ABE9;">&nbsp;</td>
 	       {/if}
+	       <td align="left"{if $icon}{else} colspan="2"{/if} valign="middle" style="border-top:1px dashed #87ABE9; width: 100%;">
+            {if $list[i].rek_thomson_citation_count != ""}
+            	{$list[i].rek_thomson_citation_count}
+            {else}
+            	&nbsp;
+            {/if}			
+		  </td>		
 	       </tr>
 	       
         {/if}

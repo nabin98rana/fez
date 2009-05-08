@@ -248,7 +248,8 @@ class Lister
             "searchKey".Search_Key::getID("Date") => 'Date',
             "searchKey".Search_Key::getID("Created Date") => 'Created Date',
             "searchKey".Search_Key::getID("Updated Date") => 'Updated Date',
-            "searchKey".Search_Key::getID("Sequence") => 'Sequence'
+            "searchKey".Search_Key::getID("Sequence") => 'Sequence',
+            "searchKey".Search_Key::getID("Thomson Citation Count") => 'Thomson Citation Count'
         );
         
         
