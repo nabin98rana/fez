@@ -1468,14 +1468,14 @@ class XSD_HTML_Match {
 		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields
 		                 ( ";
         foreach (XSD_HTML_Match::$xsdmf_columns as $col_name) {
-        	if (!empty($insertArray[$col_name])) {
+        	if ($insertArray[$col_name] != '') { 
                 $stmt .= "  $col_name,\n";
             }
         }                         
         $stmt = rtrim($stmt,", \n"); // get rid of trailing comma
         $stmt .= " ) VALUES ( ";
         foreach (XSD_HTML_Match::$xsdmf_columns as $col_name) {
-            if (!empty($insertArray[$col_name])) {
+            if ($insertArray[$col_name] != '') { 
                 $value = Misc::escapeString($insertArray[$col_name]);
                 $stmt .= "  '$value',\n";
             }
@@ -2015,31 +2015,31 @@ class XSD_HTML_Match {
                 continue;
             }
             $value = Misc::escapeString(@$params[$col_name]);
-            if (strstr($col_name, '_id') && empty($value)) {
+			if (strstr($col_name, '_id') && $value == '') { 
                 $stmt .= " ".$col_name."=null,\n";
-            } elseif (strstr($col_name, 'xsdmf_multiple') && empty($value)) {
+            } elseif (strstr($col_name, 'xsdmf_multiple') && $value == '') { 
                 $stmt .= " ".$col_name."=null,\n";
-            } elseif (strstr($col_name, 'xsdmf_required') && empty($value)) {
+            } elseif (strstr($col_name, 'xsdmf_required') && $value == '') { 
                 $stmt .= " ".$col_name."=null,\n";
-            } elseif (strstr($col_name, 'xsdmf_order') && empty($value)) {
+            } elseif (strstr($col_name, 'xsdmf_order') && $value == '') { 
                 $stmt .= " ".$col_name."=null,\n";
-            } elseif (strstr($col_name, 'xsdmf_validation_maxlength') && empty($value)) {
+            } elseif (strstr($col_name, 'xsdmf_validation_maxlength') && $value == '') {
                 $stmt .= " ".$col_name."=null,\n";
-            } elseif (strstr($col_name, 'xsdmf_is_key') && empty($value)) {
+            } elseif (strstr($col_name, 'xsdmf_is_key') && $value == '') { 
                 $stmt .= " ".$col_name."=null,\n";
-            } elseif (strstr($col_name, 'xsdmf_show_in_view') && empty($value)) {
+            } elseif (strstr($col_name, 'xsdmf_show_in_view') && $value == '') { 
                 $stmt .= " ".$col_name."=null,\n";
-            } elseif (strstr($col_name, 'xsdmf_invisible') && empty($value)) {
+            } elseif (strstr($col_name, 'xsdmf_invisible') && $value == '') { 
                 $stmt .= " ".$col_name."=null,\n";
-            } elseif (strstr($col_name, 'xsdmf_show_simple_create') && empty($value)) {
+            } elseif (strstr($col_name, 'xsdmf_show_simple_create') && $value == '') { 
                 $stmt .= " ".$col_name."=null,\n";
-            } elseif (strstr($col_name, 'xsdmf_cvo_min_level') && empty($value)) {
+            } elseif (strstr($col_name, 'xsdmf_cvo_min_level') && $value == '') { 
                 $stmt .= " ".$col_name."=null,\n";
-            } elseif (strstr($col_name, 'xsdmf_enabled') && empty($value)) {
+            } elseif (strstr($col_name, 'xsdmf_enabled') && $value == '') { 
                 $stmt .= " ".$col_name."=null,\n";
-            } elseif (strstr($col_name, 'xsdmf_citation_order') && empty($value)) {
+            } elseif (strstr($col_name, 'xsdmf_citation_order') && $value == '') { 
                 $stmt .= " ".$col_name."=null,\n";
-            } elseif (strstr($col_name, 'xsdmf_valueintag') && empty($value)) {
+            } elseif (strstr($col_name, 'xsdmf_valueintag') && $value == '') { 
                 $stmt .= " ".$col_name."=null,\n";
             } else {
                 $stmt .= " ".$col_name."='".$value."',\n";
