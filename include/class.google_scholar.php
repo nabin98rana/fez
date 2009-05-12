@@ -53,7 +53,7 @@ class Google_Scholar
      * @access  public
      * @return  
      */
-	function citationcounts_scholar_citedby($title, $authors) {
+	function citationcounts_scholar_citedby($title, $authors, $journal, $year) {
 	        $scholarsch = array(); // TODO: variable_get(...)
 
 	        $querytitle = $title;
@@ -62,24 +62,36 @@ class Google_Scholar
 	        $authquery = "";
 	        $titlequery = "\"$querytitle\"";
 	        $intitlequery = "intitle:\"$querytitle\"";
+			$journalquery = "";
+			$yearquery = "";
+	
+			if (isset($journal)) {
+				$journalquery = "&as_publication=".urlencode($journal);
+			}
+			if (is_numeric($year)) {
+				$yearquery = "&as_ylo=".urlencode($year)."&as_yhi=".urlencode($year);
+			}
+	
 	        if (isset($authors)) {
 	                # lastname only:
-	               preg_match_all("/([^A-Za-zÃ¼Ã¤Ã¶Ã]+), /", $authors, $matches);
-	#               preg_match_all("/([^A-Za-z]+), /", $authors, $matches);
+	#               preg_match_all("/([^A-Za-zÃ¼Ã¤Ã¶Ã]+), /", $authors, $matches);
+	               preg_match_all("/([A-Za-z]+), /", $authors, $matches);
 	#                preg_match_all("/([^,; ]+), /", $authors, $matches);
+
 	                foreach($matches[1] AS $key => $value) {
+
 	                        $authquery.=" author:$value";
 	                        # too complicated/better results w/out "author:..."
-	                        if (!preg_match("/[^A-Za-z]/", $value)) {
+//	                        if (!preg_match("/[^A-Za-z]/", $value)) {
 	                        # only use name if no diacritics (as these are often wrong in scholar)
-	                                $authquery.=" $value";
-	                        }
+//	                                $authquery.=" $value";
+//	                        }
 	                }
 	        }
-	        $query = $authquery.' '.$intitlequery;
-	        $_SESSION['citations']['time'] = time();
-	        $_SESSION['citations']['query'] = $query;
-	        unset($_SESSION['citations']['normtitle']);
+	        $query = urlencode($authquery.' '.$intitlequery).$journalquery.$yearquery;
+//	        $_SESSION['citations']['time'] = time();
+//	        $_SESSION['citations']['query'] = $query;
+//	        unset($_SESSION['citations']['normtitle']);
 //			echo "query is: $query <br />\n";
 	        $articles = Google_Scholar::citationcounts_retrieve_scholar_results($query);
 //	        var_dump($articles);
@@ -109,7 +121,7 @@ class Google_Scholar
 	        #$norm = trim($norm); //done here:
 	        $norm = preg_replace("/[^a-z]/", "", $norm);
 	        #$norm = substr($norm, 0, 64);
-	        $_SESSION['citations']['normtitle'][] = $norm;
+//	        $_SESSION['citations']['normtitle'][] = $norm;
 	        return $norm;
 	}
 
@@ -117,9 +129,9 @@ class Google_Scholar
 
 	function citationcounts_retrieve_scholar_results($query) {
 //	        $account = user_load(array('uid'=>1));
-	        $url = "http://scholar.google.com/scholar?q=".urlencode($query);
+	        $url = "http://scholar.google.com/scholar?q=".$query;
 //			echo "querying $url <br />\n";
-	        $_SESSION['citations']['url'] = $url;
+//	        $_SESSION['citations']['url'] = $url;
 
 	/*
 	        $url_alt = variable_get("citationcounts_url_alt", '');
@@ -128,8 +140,24 @@ class Google_Scholar
 	        $articles = json_decode(utf8_encode($gsjson),true); // as array
 	*/
 
-	        $gs = (file_get_contents($url));
+//	        $gs = (file_get_contents($url));
+	
+// set user agent
+//	$useragent="Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.1) Gecko/20061204 Firefox/2.0.0.1";
+			$useragent="Linux Mozilla"; // "Engage cloaking device!" = Thanks to ePrints 3 for the inspiration for this line of code!
 
+	
+	        $ch = curl_init();
+			curl_setopt($ch, CURLOPT_USERAGENT, $useragent);
+	        curl_setopt($ch, CURLOPT_URL, $url);
+			curl_setopt ($ch, CURLOPT_RETURNTRANSFER, 1);
+	        $gs = curl_exec ($ch);
+	        if ($gs) {
+	            curl_close ($ch);
+	        } else {
+	            Error_Handler::logError(curl_error($ch)." ".$url,__FILE__,__LINE__);
+	            curl_close ($ch);
+	        }	   
 	        $articles = Google_Scholar::citationcounts_parseScholar($gs);
 //			print_r($articles);
 	        $_SESSION['citations']['arts'] = $articles;
@@ -177,6 +205,16 @@ class Google_Scholar
 	                $p = '|>Cited by ([0-9]+)<|';
 	                preg_match($p, $a, $matches3);
 	                $article['citations'] = $matches3[1];
+
+//	                $p = '|cites=([0-9]+)">Cited by |';
+	 				$p = '|&cites=([0-9]+)">Cited by |';
+	                preg_match($p, $a, $matches4);
+					if (is_numeric($matches4[1])) {
+						$article['citations_link'] = "http://scholar.google.com/scholar?hl=en&lr=&cites=".$matches4[1];
+					} else {
+						$article['citations_link'] = "";
+					} 
+
 
 	                $articles[] = $article;
 	        }
