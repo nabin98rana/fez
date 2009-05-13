@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<request xmlns="http://www.isinet.com/xrpc41">
+    <fn name="LinksAMR.retrieve">
+        <list>
+            <map>
+            </map>            
+            <map>
+            	<list name="{$collection|escape:"html"}">
+            		<val>timesCited</val>
+					<val>ut</val>
+					<val>citingArticlesURL</val>
+					<val>relatedRecordsURL</val>            		
+            	</list>
+            </map>            
+            <map>
+            	{section name="i" loop=$list}
+            	<map name="{$list[i].rek_pid}">
+            		{if $list[i].rek_title != ''}<val name="atitle"><![CDATA[{$list[i].rek_title}]]></val>{/if}            		
+            		{if $list[i].rek_journal_name != ''}
+            			<val name="stitle"><![CDATA[{$list[i].rek_journal_name}]]></val>
+            		{else if $list[i].rek_book_title != ''}	
+            			<val name="stitle"><![CDATA[{$list[i].rek_book_title}]]></val>
+            		{/if}            		
+            		{if $list[i].rek_issn != ''}<val name="issn">{$list[i].rek_issn|escape:"html"}</val>{/if}
+            		{if $list[i].rek_volume_number != ''}<val name="vol">{$list[i].rek_volume_number|escape:"html"}</val>{/if}
+            		{if $list[i].rek_issue_number != ''}<val name="issue">{$list[i].rek_issue_number|escape:"html"}</val>{/if}
+            		{if $list[i].year != ''}<val name="year">{$list[i].year|escape:"html"}</val>{/if}
+            		{if $list[i].doi != ''}<val name="doi">{$list[i].doi|escape:"html"}</val>{/if}
+            		{if $list[i].rek_isi_loc != ''}<val name="ut">{$list[i].rek_isi_loc|escape:"html"}</val>{/if}
+            		{if $list[i].rek_start_page != ''}<val name="spage">{$list[i].rek_start_page|escape:"html"}</val>{/if}
+            		{if $list[i].an != ''}<val name="an">{$list[i].an|escape:"html"}</val>{/if}
+            		{if $list[i].rek_author != ''}
+            			<list name="authors">
+            			{section name="j" loop=$list[i].rek_author}
+							<val>{$list[i].rek_author[j]|escape:"html"}</val>							
+						{/section}
+						</list>
+					{/if}						
+            	</map>
+            	{/section}
+            </map>
+        </list>
+	</fn>
+</request>
