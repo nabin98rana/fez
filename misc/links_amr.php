@@ -52,10 +52,10 @@ for($i=0; $i<((int)$listing['info']['total_pages']+1); $i++) {
 	
 	$list = array();
 	if (is_array($listing['list'])) {
-	 	for($j=0; $j<count($listing['list']); $j++) {
-	 		$ut = $listing['list'][$j]['rek_isi_loc'];
-	 		if(empty($ut)) {
-	 			$list[] = $listing['list'][$j];					
+	 	for($j=0; $j<count($listing['list']); $j++) {	 		
+	 		if(empty($listing['list'][$j]['rek_isi_loc'])) {
+	 			$listing['list'][$j]['year'] = date('Y', strtotime($listing['list'][$j]['rek_date'])); 
+	 			$list[] = $listing['list'][$j];		
 	 		}
 	 	}
 	}
