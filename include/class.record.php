@@ -2518,6 +2518,8 @@ class Record
 		foreach ($options as $sek_id => $value) {
 			if (strpos($sek_id, "searchKey") !== false) {
 				$searchKeys[str_replace("searchKey", "", $sek_id)] = $value;
+			} elseif (strpos($sek_id, "manualFilter") !== false) {
+				$searchKey_join[SK_WHERE] .= " ".$value." AND ";
 			}
 		}
 		
@@ -2705,7 +2707,7 @@ class Record
             if( is_array($searchKey_join['sk_where_AND']) || is_array($searchKey_join['sk_where_OR']) ) {
                 
                 $sk_where_and = false;
-                $searchKey_join[SK_WHERE] = "  ";
+                $searchKey_join[SK_WHERE] .= "  ";
                 
                 if( is_array($searchKey_join['sk_where_AND']) ) {
                     $searchKey_join[SK_WHERE] .= " (" . implode(' AND ', $searchKey_join['sk_where_AND']) . ") ";
@@ -3406,21 +3408,24 @@ class RecordGeneral
      * @access  public
      * @return  void
      */
-    function getXmlDisplayId() {
+    function getXmlDisplayId($getFromXML = false) {
         if (!$this->no_xdis_id) {
-            if (empty($this->xdis_id)) {
+            if (empty($this->xdis_id) || ($getFromXML === true)) {
                 if (!$this->checkExists()) {
                 	Error_Handler::logError("Record ".$this->pid." doesn't exist",__FILE__,__LINE__);
                     return null;
                 }
-                $xdis_id = XSD_HTML_Match::getDisplayType($this->pid);
-                //$xdis_array = Fedora_API::callGetDatastreamContentsField($this->pid, 'FezMD', array('xdis_id'), $this->createdDT);
-/*                if (isset($xdis_array['xdis_id'][0])) {
-                    $this->xdis_id = $xdis_array['xdis_id'][0];
-                } else {
-                    $this->no_xdis_id = true;
-                    return null;
-                } */
+				if ($getFromXML === true) {
+	                $xdis_array = Fedora_API::callGetDatastreamContentsField($this->pid, 'FezMD', array('xdis_id'), $this->createdDT);
+	                if (isset($xdis_array['xdis_id'][0])) {
+	                    $xdis_id = $xdis_array['xdis_id'][0];
+	                } else {
+	                    $this->no_xdis_id = true;
+	                    return null;
+	                }
+				} else {
+                	$xdis_id = XSD_HTML_Match::getDisplayType($this->pid);					
+				}
                 if (isset($xdis_id)) {
                     $this->xdis_id = $xdis_id;
                 } else {
@@ -3780,9 +3785,14 @@ class RecordGeneral
                   return -1;
                 }
                 $doc = DOMDocument::loadXML($xmlString); 
+
+		$search_keys_added = array();
 		foreach($search_keys as $s => $sk) {
 			$tempdoc = $this->addSearchKeyValue($doc, $sk, $values[$s], $removeCurrent);
                         if ($tempdoc !== false) {
+							if (!empty($values[$s])) {
+								$search_keys_added[$sk] = $values[$s];
+							}
                            $doc = $tempdoc;
                         }
 		}
@@ -3791,16 +3801,24 @@ class RecordGeneral
                 
 		$newXML = $doc->SaveXML();
 		echo $newXML;
-        if ($newXML != "") {
-
+		if ((count($search_keys_added) > 0) && ($newXML != "")) {
 /*	        $this->getDisplay();		
 	 		$display->getXSD_HTML_Match();
 			$datastreamTitles = $display->getDatastreamTitles(); */	
 			//Need to make this not just for MODS at some stage
             Fedora_API::callModifyDatastreamByValue($this->pid, $datastreamName, "A", $datastreamDesc, $newXML, "text/xml", "inherit");
+			$historyDetail = "";
+			foreach ($search_keys_added as $hkey => $hval) {
+				if ($historyDetail != "") {
+					$historyDetail .= ", ";
+				}
+				$historyDetail .= $hkey.": ".$hval;
+			}
+			$historyDetail .= " were added based on ARC data";
+			History::addHistory($this->pid, null, "", "", true, $historyDetail);
 			$this->setIndexMatchingFields();
 			return 1;
-        }
+		}
         return -1;
 
 	}
@@ -3817,7 +3835,7 @@ class RecordGeneral
                 } 
 
 		if (!$xpath_query) {
-                  echo "\n**** PID ".$this->pid." has no search key ".$sek_title." so it will need content model changing first **** \n";
+			echo "\n**** PID ".$this->pid." has no search key ".$sek_title." so it will need content model changing first **** \n";
 			return false;
 		}
 		
