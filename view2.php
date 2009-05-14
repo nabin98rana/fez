@@ -88,12 +88,14 @@ if (!empty($pid) && $record->checkExists()) {
 
 	$canViewVersions = $record->canViewVersions(false);
 	//$canRevertVersions = $record->canRevertVersions(false);
-
+	$useVersions = false;
 	if($requestedVersionDate != null && !$canViewVersions){
 		// user not allowed to see other versions,
 		// so revert back to latest version
 		$requestedVersionDate = null;
 	 	$record = new RecordObject($pid);
+	} else {
+		$useVersions = true;
 	}
 	$title = Record::getSearchKeyIndexValue($pid, "title", false);
 	if ($title !== false) {
@@ -121,7 +123,7 @@ if (!empty($pid) && $record->checkExists()) {
 		}
 	}
 	
-	$xdis_id = $record->getXmlDisplayId();
+	$xdis_id = $record->getXmlDisplayId($useVersions);
 	$tpl->assign("xdis_id", $xdis_id);
 	$xdis_title = XSD_Display::getTitle($xdis_id);	
     $tpl->assign("xdis_title", $xdis_title);
@@ -605,7 +607,7 @@ function getPrevPage($currentPid)
  * <li><strong>fedoraDate</strong> datestamp retrieved from fedora</li>
  * <li><strong>displayDate</strong> formatted datestamp for display</li>
  * <li><strong>filtered</strong> true if the date is determined as being a component of a compound Fez 
-   operation and is therefore deemed redundant, false otherwise</li>
+ *  operation and is therefore deemed redundant, false otherwise</li>
  * <li><strong>selected</strong> true if the current date corresponds to the version of the record being 
  * viewed</li>
  * </ul>

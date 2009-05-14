@@ -1071,8 +1071,7 @@ class Fedora_API {
 	* @param array $returnfields
     * @return array $dsIDListArray The requested of datastream in an array.
     */
-	function callGetDatastreamContentsField($pid, $dsID, $returnfields) {
-
+	function callGetDatastreamContentsField($pid, $dsID, $returnfields, $asOfDateTime="") {
 //   Error_Handler::logError("here", __FILE__,__LINE__);    
 		static $counter;
 		if (!isset($counter)) {
@@ -1085,7 +1084,7 @@ class Fedora_API {
 		if ($dsExists == true) {
 //			$filename = APP_FEDORA_GET_URL."/".$pid."/".$dsID;
 //			list($xml, $info) = Misc::processURL($filename);
-            $xml = Fedora_API::callGetDatastreamDissemination($pid, $dsID);
+            $xml = Fedora_API::callGetDatastreamDissemination($pid, $dsID, $asOfDateTime);
 //echo $pid."-".$dsID;
             $xml = $xml['stream'];
 			if (!empty($xml) && $xml != false) {
