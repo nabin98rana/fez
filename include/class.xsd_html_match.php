@@ -1964,6 +1964,7 @@ class XSD_HTML_Match {
 			$res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return -1;
 		} else {
+			XSD_HTML_Match::refreshXPATH($_POST['xsdmf_id']);
 			// update the custom field options, if any
 			if (($_POST["field_type"] == "combo") || ($_POST["field_type"] == "multiple")) {
 				$stmt = "SELECT
