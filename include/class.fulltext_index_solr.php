@@ -20,7 +20,7 @@ class FulltextIndex_Solr extends FulltextIndex {
 	private $solrPath;
 	private $docsAdded = 0;
 	private $docs;
-	private $solr;
+	public $solr;
 	
 	function __construct() {
 	    $this->solrHost = APP_SOLR_HOST;
@@ -337,7 +337,7 @@ class FulltextIndex_Solr extends FulltextIndex {
 				    
 				    foreach ( $doc as $solrID => $field ) {
 				        if(($sek_id = Search_Key::getDBnamefromSolrID($solrID))) {
-				            $docs[$i][$sek_id] = $field;
+				            $docs[$i][$sek_id] = $field;				            
 				        }
 				    }
 				    
@@ -423,7 +423,8 @@ class FulltextIndex_Solr extends FulltextIndex {
                 
 
 				// Solr hit highlighting		
-                if(is_object($response->facet_counts)) {		
+//                if(is_object($response->facet_counts)) {		
+                if(is_object($response->highlighting)) {		
 		            foreach ($response->highlighting as $pid => $snippet) {
 		            	if (isset($snippet->content)) {       	       	
 			            	foreach ($snippet->content as $part) {
