@@ -1991,6 +1991,32 @@ class Record
         	return $res;
         }
 	}
+	
+	/**
+	 * Method updates the Google Scholar citation count
+	 * 
+	 * @param $pid The PID to update the citation count for
+	 * @param $count The count to update with
+	 * @param $link The link to update with
+	 * @return bool True if the update was successful else false
+	 */
+	public static function updateGoogleScholarCitationCount($pid, $count, $link) {
+		$dbtp =  APP_TABLE_PREFIX; // Database and table prefix
+		
+		$stmt = "UPDATE
+                    " . $dbtp . "record_search_key
+                 SET
+                 	rek_gs_citation_count = '".Misc::escapeString($count)."',
+                 	rek_gs_cited_by_link = '".Misc::escapeString($link)."'
+                 WHERE
+                    rek_pid = '".Misc::escapeString($pid)."'";
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return false;
+        }
+        return true;
+	}
 
 	/**
 	 * Method updates the Thomson citation count
@@ -3818,7 +3844,8 @@ class RecordGeneral
 				}
 				$historyDetail .= $hkey.": ".$hval;
 			}
-			$historyDetail .= " were added based on ARC data";
+			$historyDetail .= " was added based on Links AMR Service data";
+            echo 'PID: ' . $this->pid . ' - ' . $historyDetail."\n";
 			History::addHistory($this->pid, null, "", "", true, $historyDetail);
 			$this->setIndexMatchingFields();
 			return 1;
