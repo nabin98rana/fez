@@ -822,7 +822,7 @@ class Record
                 }
         	}
         }
-        
+		Citation::updateCitationCache($pid, "");
         //
         // KJ: update fulltext index
         //
@@ -4522,9 +4522,9 @@ class RecordGeneral
         	}
         }
         Record::removeIndexRecord($pid, false); //clean out the SQL index, but do not remove from Solr, the solr entry will get updated in updateSearchKeys
-        Record::updateSearchKeys($pid, $searchKeyData);
 		Statistics::updateSummaryStatsOnPid($pid);
-		Citation::updateCitationCache($pid, "");
+        Record::updateSearchKeys($pid, $searchKeyData);
+
     }
 
     /**
