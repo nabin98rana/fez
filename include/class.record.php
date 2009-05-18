@@ -67,6 +67,7 @@ include_once(APP_INC_PATH . "class.xml_helper.php");
 include_once(APP_INC_PATH . "class.record_lock.php");
 include_once(APP_INC_PATH . "class.fulltext_queue.php");
 include_once(APP_INC_PATH . "class.exiftool.php");
+include_once(APP_INC_PATH . "class.statistics.php");
 include_once(APP_INC_PATH . "class.filecache.php");
 include_once(APP_INC_PATH . "class.handle_requestor.php");
 
@@ -630,7 +631,7 @@ class Record
      * @param   string $value The value of the index to be saved
      * @return  string The $pid if successful, otherwise -1
      */
-    function insertIndexMatchingField($pid, $dsID='', $xsdmf_id, $value)
+/*    function insertIndexMatchingField($pid, $dsID='', $xsdmf_id, $value)
     {
 		$sekDet = Search_Key::getDetailsByXSDMF_ID($xsdmf_id);
 		$data_type = $sekDet['sek_data_type'];
@@ -661,8 +662,8 @@ class Record
 			return -1;
 		}
 		
-        /* rek_varchar updates featuring extra-long strings cause the query below to die. We'll truncate
-           the field for now, but this obviously needs to be done a little better in the future. */
+        // rek_varchar updates featuring extra-long strings cause the query below to die. We'll truncate
+        //   the field for now, but this obviously needs to be done a little better in the future. 
         if ($sekDet['sek_data_type'] == 'varchar') {
             $value = substr($value, 0, 254);        // Only use the left-most 255 chars
         }
@@ -738,7 +739,8 @@ class Record
             return $pid;
         }
     }
-    
+*/
+
     function updateSearchKeys($pid, $sekData) {
     	
     	$ret = true;
@@ -748,6 +750,7 @@ class Record
     	 */
     	$stmt[] = 'rek_pid';
     	$valuesIns[] = "'".$pid."'";
+
     	foreach ($sekData[0] as $sek_column => $sek_value) {
             $stmt[] = "rek_{$sek_column}, rek_{$sek_column}_xsdmf_id";
 
@@ -823,11 +826,12 @@ class Record
         	}
         }
 		Citation::updateCitationCache($pid, "");
+		Statistics::updateSummaryStatsOnPid($pid);
         //
         // KJ: update fulltext index
         //
         if (APP_SOLR_INDEXER == "ON") {
-            Logger::debug("Record::insertMatchingField() ADDING ".$pid." TO QUEUE");
+            Logger::debug("Record::updateSearchKeys() ADDING ".$pid." TO QUEUE");
             FulltextQueue::singleton()->add($pid);
         }
         
@@ -4522,7 +4526,6 @@ class RecordGeneral
         	}
         }
         Record::removeIndexRecord($pid, false); //clean out the SQL index, but do not remove from Solr, the solr entry will get updated in updateSearchKeys
-		Statistics::updateSummaryStatsOnPid($pid);
         Record::updateSearchKeys($pid, $searchKeyData);
 
     }
