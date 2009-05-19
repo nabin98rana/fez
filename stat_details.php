@@ -142,30 +142,33 @@ if ($action == "show_detail") {
 	}
 
 } elseif ($action == "cumulative_usage_country") {
-	$countryAll = Statistics::getStatsByCountryAbstractsDownloads($pid, $year, $month, $range);	
-		// select a flag
-	for ($i=0;$i<count($countryAll);$i++) {
-		$ccode = strtolower($countryAll[$i]['stl_country_code']);
-		$c_flag = 'images/flags18x14/' . $ccode . '.png';
-		if (file_exists(APP_PATH . $c_flag)) {
-			$countryAll[$i]['flag'] = $c_flag;
-		} else {
-			$countryAll[$i]['flag'] = "images/flags18x14/" ."unknown.png";
-		}
-		$max_count = max($max_count, $countryAll[$i]['stl_country_downloads'], $countryAll[$i]['stl_country_abstracts']);
+	
+	$countryAll = Statistics::getCountrySummary();
+
+	foreach($countryAll as $index => $country)
+	{
+		$countryCode = strtolower($country['scr_country_code']);
+		$flagFile = "images/flags18x14/{$countryCode}.png";
+		if (file_exists($flagFile))
+			$countryAll[$index]['flag'] = $flagFile;
+		else
+			$countryAll[$index]['flag'] = "images/flags18x14/unknown.png";
+		
+		$max_count = max($max_count, $country['abstracts'], $country['downloads']);
 	}
 } elseif (($action == "cumulative_usage_country_specific") && ($country != "")) {
 	
 	$tpl->assign("country_name", $country);
-	$countryAll = Statistics::getStatsByCountrySpecificAbstractsDownloads($pid, $year, $month, $range, $country);	
-	for ($i=0;$i<count($countryAll);$i++) {
-		$max_count = max($max_count, $countryAll[$i]['stl_country_downloads'], $countryAll[$i]['stl_country_abstracts']);
-	}
+	
+	$countryAll = Statistics::getCountryRegionSummary($country);
+	
+	foreach($countryAll as $region)
+		$max_count = max($max_count, $region['downloads'], $region['abstracts']);	
 }
 
 for ($i=0;$i<count($countryAll);$i++) {	
-	$countryAll[$i]['abstractViewsWidth'] = (int) ($countryAll[$i]['stl_country_abstracts']/$max_count * $max_width); 
-	$countryAll[$i]['downloadsWidth'] = (int) ($countryAll[$i]['stl_country_downloads']/$max_count * $max_width); 
+	$countryAll[$i]['abstractViewsWidth'] = (int) ($countryAll[$i]['abstracts']/$max_count * $max_width); 
+	$countryAll[$i]['downloadsWidth'] = (int) ($countryAll[$i]['downloads']/$max_count * $max_width); 
 }
 
 for ($i=0;$i<count($allUsers);$i++) {
@@ -200,7 +203,8 @@ $tpl->assign("listHistory", $allHistory);
 $tpl->assign("listUsers", $allUsers);
 $tpl->assign("showUsers", $showUsers);
 if ($showUsers == 1) {
-	$firstViewedUser = Statistics::getEarliestUserView();
+	$firstViewedUser = "2008-08-28 16:29:00"; //cheap eSpace branch only hardcoded hack for now - CK
+	//$firstViewedUser = Statistics::getEarliestUserView();
 } else {
 	$firstViewedUser = 0;
 }

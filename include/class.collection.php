@@ -763,11 +763,11 @@ $stmt .= "
 				$month = Misc::escapeString($month);
 				$limit .= " and month(date(stl_request_date)) = $month";
 			}
-			$extra_join = "INNER JOIN ".$dbtp."statistics_all ON stl_pid = r2.rek_pid AND stl_dsid <> ''";
+			$extra_join = "INNER JOIN ".$dbtp."statistics_all ON stl_pid = r2.rek_pid AND stl_dsid <> '' AND stl_counter_bad = 0";
 			$count_sql = "COUNT(stl_pid)";
 		} elseif ($range != 'all' && $range == '4w') {
 			$limit .= " and date(stl_request_date) >= CURDATE()-INTERVAL 1 MONTH";
-			$extra_join = "INNER JOIN ".$dbtp."statistics_all ON stl_pid = r2.rek_pid AND stl_dsid <> ''";
+			$extra_join = "INNER JOIN ".$dbtp."statistics_all ON stl_pid = r2.rek_pid AND stl_dsid <> '' AND stl_counter_bad = 0";
 			$count_sql = "COUNT(stl_pid)";
 		}
 

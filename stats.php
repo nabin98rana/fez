@@ -63,45 +63,38 @@ $month = (@$_REQUEST['month'] >= 1 && @$_REQUEST['month'] <= 12) ? $_REQUEST['mo
 
 $browse = @$_REQUEST['browse'];
 if ($browse == "top50authors") {
-	$rows = 50;
-	$pager_row = 0;
-	$list = Collection::statsByAuthorID(0, $rows, "Author ID");
-	$list_info = $list["info"];
-	$list = $list["list"];
+	
+	$list = Statistics::getTop50AuthorsSummary(); 
+	
 	$tpl->assign("browse_heading", "Top 50 ".APP_NAME." Authors");
 	$tpl->assign("extra_title", "Top 50 ".APP_NAME." Authors");
 	$tpl->assign("browse_type", "browse_top50authors");
 }  elseif ($browse == "top50papers") {
-	$rows = 50;
-	$pager_row = 0;	
-	$sort_by = "File Downloads";
-	$options = array();                                                          
-	$options["sort_order"] = 1; // sort desc
-	$options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
-	$options["searchKey".Search_Key::getID("Object Type")] = 3; // enforce records only
-	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, false, true);
-	
-	$list_info = $list["info"];
-	$list = $list["list"];
-	$list = Citation::renderIndexCitations($list);
+
+	$list = Statistics::getTop50PapersSummary();
 	
 	$tpl->assign("browse_heading", "Top 50 Downloaded Papers");
 	$tpl->assign("extra_title", "Top 50 Downloaded Papers");
 	$tpl->assign("browse_type", "browse_top50papers");
 }  elseif ($browse == "show_detail_date") {
 	if ($range == "4w") {
+
+		$list = Statistics::get4WeekStatistics();
+
 		$dateString = "for past 4 weeks";
 	} elseif (is_numeric($month) && is_numeric($year)) {
-		$dateString = "for ".Statistics::getMonthName($month)." ".$year;		
+
+		$list = Statistics::getYearMonthSummary($year, $month);
+		$dateString = "for ".Statistics::getMonthName($month)." ".$year;
 	} elseif (is_numeric($year)) {
+
+		$list = Statistics::getYearSummary($year);
 		$dateString = "for ".$year;
 	} else { //all time
+
+		$list = Statistics::getYearSummary();
 		$dateString = "for all years";
 	}
-	$list = Collection::statsByAttribute(0, 100, "Title", $year, $month, $range);
-	$list_info = $list["info"];
-	$list = $list["list"];
-	$list = Citation::renderIndexCitations($list);
 	$tpl->assign("browse_heading", "Document downloads ".$dateString);
 	$tpl->assign("browse_type", "browse_show_detail_date");
 	$tpl->assign("extra_title", "Document downloads ".$dateString);

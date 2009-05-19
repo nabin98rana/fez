@@ -225,6 +225,7 @@ class Statistics
 		
 		fclose($handle);
 		Statistics::updateSummaryStats();
+		Statistics::updateSummaryTables();
 		if( APP_SOLR_INDEXER == "ON" ) {
 		    foreach ($changedPids as $pid => $null) {
                 FulltextQueue::singleton()->add($pid);
@@ -439,6 +440,7 @@ class Statistics
 			Statistics::setLogRun($requestDateLatest, $counter, $counter_inserted, $timeStarted, $timeFinished);
 			Statistics::clearBufferByID($str_id);
 //			Statistics::clearBufferByDate($requestDateLatest);
+			self::updateSummaryTables(); // update the various summary tables
 	    }
 
 
@@ -494,6 +496,322 @@ class Statistics
 		}
 	}
 
+	/**
+	 * Updates the various statistics summary tables
+	 */
+	function updateSummaryTables()
+	{
+//		echo "Overall: " . date("H:i:s") . "\n";
+		Statistics::update4WeekSummaryTable();
+		Statistics::updateAuthorsSummaryTable();
+		Statistics::updateCountryRegionSummaryTable();
+		Statistics::updatePapersSummaryTable();
+		Statistics::updateYearMonthSummaryTable();
+		Statistics::updateYearSummaryTable();
+//		echo "Overall Finish: " . date('H:i:s') . "\n";
+	}
+
+	function update4WeekSummaryTable()
+	{
+//		echo "Starting 4 week summary: " . date('H:i:s') . "\n";
+		$list = Collection::statsByAttribute(0, 100, "Title", 'all', 'all', '4w');
+		$list = $list["list"];
+		$list = Citation::renderIndexCitations($list);
+
+		$insertStmt = $GLOBALS['db_api']->dbh->prepare('insert into fez_statistics_sum_4weeks values (?, ?, ?, ?)');
+		
+		$delete = 'DELETE FROM fez_statistics_sum_4weeks';
+		$deleteResult = $GLOBALS['db_api']->dbh->query($delete);
+		if (PEAR::isError($deleteResult))
+		{
+			Error_Handler::logError($deleteResult->getMessage(), $deleteResult->getDebugInfo(), __FILE__, __LINE__);
+			return -1;
+		}
+		
+		foreach ($list as $listItem)
+		{
+			$rec = array();
+			$rec['s4w_pid'] = $listItem['rek_pid'];
+			$rec['s4w_title'] = $listItem['rek_title'];
+			$rec['s4w_citation'] = $listItem['rek_citation'];
+			$rec['s4w_downloads'] = $listItem['sort_column'];
+			
+			// Save rec
+			$GLOBALS['db_api']->dbh->execute($insertStmt, $rec);
+		}
+		
+//		echo "Finishing 4 week summary: " . date('H:i:s') . "\n";
+		
+	}
+	
+	function updateAuthorsSummaryTable()
+	{
+//		echo "Starting Authors summary: " . date('H:i:s') . "\n";
+		$list = Collection::statsByAuthorID(0, 50, "Author ID");
+		$list = $list["list"];
+
+		$deleteResult = $GLOBALS['db_api']->dbh->query('DELETE FROM fez_statistics_sum_authors');
+		if (PEAR::isError($deleteResult))
+		{
+			Error_Handler::logError($deleteResult->getMessage(), $deleteResult->getDebugInfo(), __FILE__, __LINE__);
+			return -1;
+		}
+		
+		$insertStmt = $GLOBALS['db_api']->dbh->prepare('INSERT INTO fez_statistics_sum_authors values (?, ?, ?)');
+		
+		foreach ($list as $listItem)
+		{
+			$rec = array();
+			$rec['sau_author_id'] = $listItem['rek_author_id'];
+			$rec['sau_author_name'] = $listItem['record_author'];
+			$rec['sau_downloads'] = $listItem['file_downloads'];
+			$GLOBALS['db_api']->dbh->execute($insertStmt, $rec);
+		}
+//		echo "Finishing Authors summary: " . date('H:i:s') . "\n";
+	}
+	
+	function updateCountryRegionSummaryTable()
+	{
+//		echo "Starting Country Region summary: " . date('H:i:s') . "\n";
+		
+		$query = "SELECT stl_country_name, stl_country_code, stl_region, stl_city, sum(abstract) as abstract, sum(downloads) as downloads from ( ";
+		$query .= "SELECT stl_country_name, stl_country_code, stl_region, stl_city, sum(1) as abstract, 0 as downloads FROM fez_statistics_all WHERE stl_dsid = '' AND stl_counter_bad = 0 GROUP BY 4,3,2,1 ";
+		$query .= "UNION ";
+		$query .= "SELECT stl_country_name, stl_country_code, stl_region, stl_city, 0 as abstract, sum(1) as downloads FROM fez_statistics_all WHERE stl_dsid <> '' AND stl_counter_bad = 0 GROUP BY 4,3,2,1) AS tblA ";
+		$query .= "GROUP BY 1,2,3,4 ";
+		
+		$results = $GLOBALS['db_api']->dbh->getAll($query, array(), DB_FETCHMODE_ASSOC);
+		if (PEAR::isError($results))
+		{
+			Error_Handler::logError($results->getMessage(), $results->getDebugInfo(), __FILE__, __LINE__);
+			return -1;
+		}
+		
+		$deleteResult = $GLOBALS['db_api']->dbh->query('DELETE FROM fez_statistics_sum_countryregion');
+		if (PEAR::isError($deleteResults))
+		{
+			Error_Handler::logError($deleteResults->getMessage(), $deleteResults->getDebugInfo(), __FILE__, __LINE__);
+			return -1;
+		}
+
+		foreach ($results as $index => $row)
+		{
+			$region = '';
+			if ($row['stl_country_name'] == 'Australia')
+			{
+				switch ($row['stl_region'])
+				{
+					case '01':
+						$region = 'Australian Capital Territory';
+						break;
+					case '02':
+						$region = 'New South Wales';
+						break;
+					case '04':
+						$region = 'Queensland';
+						break;
+					case '05':
+						$region = 'South Australia';
+						break;
+					case '06':
+						$region = 'Tasmania';
+						break;
+					case '07':
+						$region = 'Victoria';
+						break;
+					case '08':
+						$region = 'Western Australia';
+						break;
+					case '09':
+						$region = 'Northern Territory';
+						break;
+					default:
+						APP_SHORT_ORG_NAME.' Intranet';
+						break;
+				}
+				
+				$results[$index]['stl_region'] = $region;
+			}
+			if ($row['stl_country_name'] == '' && $row['stl_region'] == '')
+			{
+				$results[$index]['stl_country_name'] = 'Australia';
+				$results[$index]['stl_country_code'] = 'AU';
+				$results[$index]['stl_region'] = 'UQ Intranet';
+			}
+		}
+		
+		$insertQuery = 'INSERT INTO fez_statistics_sum_countryregion (scr_country_name, scr_country_code, scr_country_region, scr_city, scr_count_abstract, scr_count_downloads) values (?, ?, ?, ?, ?, ?)';
+		$insertStmt = $GLOBALS['db_api']->dbh->prepare($insertQuery);
+		foreach ($results as $row)
+		{
+			$rec = array();
+			$rec['scr_country_name'] = $row['stl_country_name'];
+			$rec['scr_country_code'] = $row['stl_country_code'];
+			$rec['scr_country_region'] = $row['stl_region'];
+			$rec['scr_city'] = $row['stl_city'];
+			$rec['scr_count_abstract'] = $row['abstract'];
+			$rec['scr_count_downloads'] = $row['downloads'];	
+			$GLOBALS['db_api']->dbh->execute($insertStmt, $rec);
+		}
+		
+//		echo "Finishing Country Region summary: " . date('H:i:s') . "\n";
+		
+	}
+	
+	function updatePapersSummaryTable()
+	{
+//		echo "Starting Papers Summary: " . date("H:i:s") . "\n";
+		$rows = 50;
+		$pager_row = 0;
+		$sort_by = "File Downloads";
+		$options["sort_order"] = 1; // sort desc
+		$options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
+		$options["searchKey".Search_Key::getID("Object Type")] = 3; // enforce records only
+		$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, false, true);
+	
+	
+		$list = $list["list"];
+		$list = Citation::renderIndexCitations($list);
+
+		$deleteResult = $GLOBALS['db_api']->dbh->query('DELETE FROM fez_statistics_sum_papers');
+		if (PEAR::isError($deleteResult))
+		{
+			Error_Handler::logError($deleteResult->getMessage(), $deleteResult->getDebugInfo(), __FILE__, __LINE__);
+			return -1;
+		}
+		
+		$insertStmt = $GLOBALS['db_api']->dbh->prepare('INSERT INTO fez_statistics_sum_papers values (?, ?, ?, ?)');
+		
+		foreach ($list as $listItem)
+		{
+			$rec = array();
+			
+			// save
+			$rec['spa_pid'] = $listItem['rek_pid'];
+			$rec['spa_title'] = $listItem['rek_title'];
+			$rec['spa_citation'] = $listItem['rek_citation'];
+			$rec['spa_downloads'] = $listItem['rek_file_downloads'];
+			$GLOBALS['db_api']->dbh->execute($insertStmt, $rec);
+		}
+//		echo "Finishing Papers Summary: " . date("H:i:s") . "\n";
+	}
+	
+	function updateYearMonthSummaryTable()
+	{
+
+//		echo "Starting Year/Month Summary: " . date('H:i:s') . "\n";
+
+
+		// Get the boundaries of our summarising table
+		$q = 'SELECT year(stl_request_date) as yr, month(stl_request_date) as mth, count(1) FROM ' . APP_TABLE_PREFIX . 'statistics_all group by 1,2';
+		$result = $GLOBALS['db_api']->dbh->getAll($q, array(), DB_FETCHMODE_ASSOC);
+		if (PEAR::isError($result))
+		{
+			Error_Handler::logError(array($result->getMessage(), $result->getDebugInfo()), __FILE__, __LINE__);
+			return -1;
+		}
+
+		$range = 'all';
+
+		foreach ($result as $yearmonth)
+		{
+			$year = $yearmonth['yr'];
+			$month = $yearmonth['mth'];
+
+			// check if there is already data in the table for this year/month combo (we don't need to recalculate these each time)
+			$checkSql = 'SELECT count(1) as data_exists FROM ' . APP_TABLE_PREFIX . 'statistics_sum_yearmonth WHERE sym_year = ? AND sym_month = ? ';
+			$checkResult = $GLOBALS['db_api']->dbh->getOne($checkSql, array($year, $month));
+			if ($checkResult != 0)
+			{
+				$currentyear = date('Y');
+				$currentMonth = date('n');
+				$previousYear = date('Y', strtotime("-1 month"));
+				$previousMonth = date('n', strtotime("-1 month"));
+				if (($year == $currentYear && $month == $currentMonth) || ($year == $previousYear && $month == $previousMonth))
+				{
+					// ignore this setting as we want to recalculate these each time
+				}
+				else
+				{
+//					echo "Skipping {$year}/{$month}\n";
+					continue;
+				}
+			}
+				
+
+//			echo "Processing {$year}/{$month}: " . date('H:i:s') . "\n";
+			$list = Collection::statsByAttribute(0, 50, "Title", $year, $month, $range);
+			$list = Citation::renderIndexCitations($list);
+
+			// now delete everything in the table (as we're replacing all values)
+			$delete = "delete from fez_statistics_sum_yearmonth where sym_year = '{$year}' and sym_month = '{$month}'";
+			$deleteResult = $GLOBALS['db_api']->dbh->query($delete);
+			if (PEAR::isError($deleteResult))
+			{
+				Error_Handler::logError(array($result->getMessage(), $result->getDebugInfo()), __FILE__, __LINE__);
+				return -1;
+			}
+
+			// and insert the new values
+			$preparedStmt = $GLOBALS['db_api']->dbh->prepare('INSERT INTO fez_statistics_sum_yearmonth (sym_year, sym_month, sym_pid, sym_title, sym_downloads, sym_citation) values (?, ?, ?, ?, ?, ?)');
+			foreach ($list['list'] as $listItem)
+			{
+				$record = array();
+				$record['sym_year'] = $year;
+				$record['sym_month'] = $month;
+				$record['sym_pid'] = $listItem['rek_pid'];
+				$record['sym_title'] = $listItem['rek_title'];
+				$record['sym_downloads'] = $listItem['rek_file_downloads'];
+				$record['sym_citation'] = $listItem['rek_citation'];
+				$res = $GLOBALS['db_api']->dbh->execute($preparedStmt, $record);
+			}
+		}
+
+//		echo "Finishing Year/Month Download Summary: " . date('H:i:s') . "\n";
+	}
+
+	function updateYearSummaryTable()
+	{
+//		echo "Starting Year Summary: " . date('H:i:s') . "\n";
+
+		$range = 'all';
+		$month = 'all';
+		$currentYear = date('Y');
+		$previousYear = date('Y', strtotime("-1 year"));
+
+		$processingYears = array($currentYear, $previousYear, 'all');
+		foreach ($processingYears as $year)
+		{
+//			echo "Processing {$year}: " . date('H:i:s') . "\n";
+			$list = Collection::statsByAttribute(0, 50, "Title", $year, $month, $range);
+			$list = Citation::renderIndexCitations($list);
+
+			// now delete everything in the table (as we're replacing all values)
+			$delete = "delete from fez_statistics_sum_year where syr_year = '{$year}'";
+			$deleteResult = $GLOBALS['db_api']->dbh->query($delete);
+			if (PEAR::isError($deleteResult))
+			{
+				Error_Handler::logError(array($result->getMessage(), $result->getDebugInfo()), __FILE__, __LINE__);
+				return -1;
+			}
+
+			// and insert the new values
+			$preparedStmt = $GLOBALS['db_api']->dbh->prepare('INSERT INTO fez_statistics_sum_year (syr_year, syr_pid, syr_title, syr_downloads, syr_citation) values (?, ?, ?, ?, ?)');
+			foreach ($list['list'] as $listItem)
+			{
+				$record = array();
+				$record['syr_year'] = $year;
+				$record['syr_pid'] = $listItem['rek_pid'];
+				$record['syr_title'] = $listItem['rek_title'];
+				$record['syr_downloads'] = $listItem['rek_file_downloads'];
+				$record['syr_citation'] = $listItem['rek_citation'];
+				$res = $GLOBALS['db_api']->dbh->execute($preparedStmt, $record);
+			}
+		}
+
+//		echo "Finishing Year Download Summary: " . date('H:i:s') . "\n";
+		
+	}
 
 	function updateSummaryStatsByIncrement($stats = array()) {
 		if (count($stats) == 0) { return false; }
@@ -543,6 +861,116 @@ class Statistics
 			Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
 			return -1; //abort
 		}
+	}
+
+	/**
+	 * Get the summary of the top 50 papers
+	 * 
+	 * @return array
+	 */
+	function getTop50PapersSummary()
+	{
+		$query = 'SELECT * FROM ' . APP_TABLE_PREFIX . 'statistics_sum_papers ORDER BY spa_downloads DESC';
+		$results = $GLOBALS['db_api']->dbh->getAll($query, array(), DB_FETCHMODE_ASSOC);
+		if (PEAR::isError($results))
+			return array();
+		return $results;
+	}
+	
+	/**
+	 * Gets the summary of the top 50 authors
+	 * 
+	 * @return array
+	 */
+	function getTop50AuthorsSummary()
+	{
+		$query = 'SELECT * FROM ' . APP_TABLE_PREFIX . 'statistics_sum_authors ORDER BY sau_downloads DESC';
+		$results = $GLOBALS['db_api']->dbh->getAll($query, array(), DB_FETCHMODE_ASSOC);
+		if (PEAR::isError($results))
+			return array();
+		return $results;
+	}
+
+	/**
+	 * Get the summary of abstracts and downloads per country
+	 *
+	 * @return array
+	 */
+	function getCountrySummary()
+	{
+		$query = 'SELECT scr_country_code, scr_country_name, sum(scr_count_abstract) as abstracts, sum(scr_count_downloads) as downloads ';
+		$query .= 'FROM ' . APP_TABLE_PREFIX . 'statistics_sum_countryregion ';
+		$query .= 'GROUP BY scr_country_code, scr_country_name ';
+		$query .= 'ORDER BY abstracts DESC';
+		
+		$results = $GLOBALS['db_api']->dbh->getAll($query, array(), DB_FETCHMODE_ASSOC);
+		return $results;
+	}
+
+	/**
+	 * Get the summary of abstracts and downloads broken down by country and region
+	 *
+	 * @return array
+	 */
+	function getCountryRegionSummary($country)
+	{
+		$query = 'SELECT scr_country_code, scr_country_name, scr_country_region, scr_city, sum(scr_count_abstract) as abstracts, sum(scr_count_downloads) as downloads ';
+		$query .= 'FROM ' . APP_TABLE_PREFIX . 'statistics_sum_countryregion ';
+		$query .= 'WHERE scr_country_name = ? ';
+		$query .= 'GROUP BY scr_city, scr_country_region, scr_country_name, scr_country_code ';
+		$query .= 'ORDER BY scr_country_name, scr_country_region, scr_city';
+		
+		$results = $GLOBALS['db_api']->dbh->getAll($query, array($country), DB_FETCHMODE_ASSOC);
+		return $results;
+	}
+
+	/**
+	 * Gets top downloads for the last four weeks
+	 *
+	 * @return array
+	 */
+	function get4WeekStatistics()
+	{
+		$query = 'SELECT s4w_pid as pid, s4w_title as title, s4w_citation as citation, s4w_downloads as downloads ';
+		$query .= 'FROM ' . APP_TABLE_PREFIX . 'statistics_sum_4weeks ORDER BY s4w_downloads DESC';
+		$results = $GLOBALS['db_api']->dbh->getAll($query, array(), DB_FETCHMODE_ASSOC);
+		return $results;
+	}
+
+	/**
+	 * Gets top downloads for a specific year/month
+	 *
+	 * @return array
+	 */
+	function getYearMonthSummary($year, $month)
+	{
+		$query = 'SELECT sym_pid as pid, sym_title as title, sym_citation as citation, sym_downloads as downloads ';
+		$query .= 'FROM ' . APP_TABLE_PREFIX . 'statistics_sum_yearmonth WHERE sym_year = ? AND sym_month = ? ';
+		$query .= 'ORDER BY sym_downloads DESC';
+		$results = $GLOBALS['db_api']->dbh->getAll($query, array($year, $month), DB_FETCHMODE_ASSOC);
+		return $results;
+	}
+
+
+	/**
+	 * Gets the top downloads for either a specific year, or all years
+	 *
+	 * @return arary
+	 */
+	function getYearSummary($year = '')
+	{
+		$params = array();
+		$query = 'SELECT syr_pid as pid, syr_title as title, syr_citation as citation, syr_downloads as downloads ';
+		$query .= 'FROM ' . APP_TABLE_PREFIX . 'statistics_sum_year ';
+		$query .= 'WHERE syr_year = ?';
+		if ($year != '' && is_numeric($year))
+			$params[] = $year;
+		else
+			$params[] = 'all';
+
+		$query .= 'ORDER by syr_downloads DESC';
+		$results = $GLOBALS['db_api']->dbh->getAll($query, $params, DB_FETCHMODE_ASSOC);
+		return $results;
 	}
 
 	function isRobot($ip) {	

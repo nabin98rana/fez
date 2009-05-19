@@ -148,9 +148,9 @@ function disableFields()
 				  <tr class="listrecord">
 					<td align="right" width="10" style="border-top:1px dashed #87ABE9;">{$smarty.section.i.index+1}</td>
 					<td align="left" style="border-top:1px dashed #87ABE9;">
-					  <a class="author_id_link" href="{$rel_url}list/author_id/{$list[i].rek_author_id|escape:'url'}/?sort_by=searchKeycore_16&amp;sort_order=1" title="Browse by Author ID for {$list[i].record_author} ({$list[i].rek_author_id}) by File Downloads Desc">{$list[i].record_author|escape:"html"}</a> 
+					  <a class="author_id_link" href="{$rel_url}list/author_id/{$list[i].sau_author_id|escape:'url'}/?sort_by=searchKeycore_16&amp;sort_order=1" title="Browse by Author ID for {$list[i].sau_author_name} ({$list[i].sau_author_id}) by File Downloads Desc">{$list[i].sau_author_name|escape:"html"}</a> 
 					</td>
-					<td align="right" style="border-top:1px dashed #87ABE9;" nowrap>(<strong>{$list[i].file_downloads|escape:"html"}</strong> File Download{if $list[i].file_downloads > 1}s{/if})</td>
+					<td align="right" style="border-top:1px dashed #87ABE9;" nowrap>(<strong>{$list[i].sau_downloads|escape:"html"}</strong> File Download{if $list[i].sau_downloads > 1}s{/if})</td>
 				  </tr>
 
 			{sectionelse}
@@ -183,15 +183,15 @@ function disableFields()
 				</tr>
 
 			{section name="i" loop=$list}
-			{if $list[i].rek_file_downloads > 0}
+			{if $list[i].downloads > 0}
 				
 				  <tr>
 						<td align="right" width="10" valign="top" style="border-top:1px dashed #87ABE9;"><strong>{$smarty.section.i.index+1}</strong></td>
 					  <td align="left" style="border-top:1px dashed #87ABE9;">
-							<a href='{$rel_url}view/{$list[i].rek_pid}'>{$list[i].rek_citation}</a> 
+							<a href='{$rel_url}view/{$list[i].pid}'>{$list[i].citation}</a> 
 
 						</td>
-						<td align="right" valign="top" width="" style="border-top:1px dashed #87ABE9;" nowrap>&nbsp;{if $list[i].rek_file_downloads}<a class="author_link" title="View detailed statistics for this object" href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].rek_pid}">{$list[i].rek_file_downloads|escape:"html"}</a>{/if} </td>
+						<td align="right" valign="top" width="" style="border-top:1px dashed #87ABE9;" nowrap>&nbsp;{if $list[i].downloads}<a class="author_link" title="View detailed statistics for this object" href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].pid}">{$list[i].downloads|escape:"html"}</a>{/if} </td>
 			{/if}
 			{sectionelse}
 			<tr>
@@ -228,14 +228,14 @@ function disableFields()
 				</tr>
 
 			{section name="i" loop=$list}
-			{if $list[i].rek_file_downloads > 0}
+			{if $list[i].spa_downloads > 0}
 				
 				  <tr>
 					<td align="right" width="10" valign='top' style="border-top:1px dashed #87ABE9;"><strong>{$smarty.section.i.index+1}</strong></td>
 					<td align="left" style="border-top:1px dashed #87ABE9;">
-					  <a href='{$rel_url}view/{$list[i].rek_pid}'>{$list[i].rek_citation}</a>
+					  <a href='{$rel_url}view/{$list[i].rek_pid}'>{$list[i].spa_citation}</a>
 					</td>
-					<td align="right" valign="top" width="" style="border-top:1px dashed #87ABE9;" nowrap>{if $list[i].rek_file_downloads}<a class="author_link" title="View detailed statistics for this object" href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].rek_pid}">{$list[i].rek_file_downloads|escape:"html"}</a>{/if}
+					<td align="right" valign="top" width="" style="border-top:1px dashed #87ABE9;" nowrap>{if $list[i].spa_downloads}<a class="author_link" title="View detailed statistics for this object" href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].spa_pid}">{$list[i].spa_downloads|escape:"html"}</a>{/if}
 					</td>
 			{/if}
 			{sectionelse}

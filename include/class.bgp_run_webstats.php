@@ -53,6 +53,7 @@ class BackgroundProcess_Run_Webstats extends BackgroundProcess
         $stats->setBGP($this);
 		if ($this->summary_only == true) {
         	$stats->updateSummaryStats();
+        	$stats->updateSummaryTables();
 		} else {
         	$stats->gatherStats(); //updateSummaryStats is called in the end of gatherStats
 		}

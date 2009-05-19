@@ -155,6 +155,9 @@ function purgeObject(pid)
 			<a href="{$smarty.server.PHP_SELF}?action=show_detail&pid={$pid}">All years</a></p>
 			</p>
 			{/if}
+			<p><strong>Top 50:</strong>
+			<a href="{$rel_url}stats.php?browse=top50authors">{$application_title} Authors</a> |
+			<a href="{$rel_url}stats.php?browse=top50papers">Papers</a>
 			<p><strong>Most viewed records:</strong>
 			<a href="{$rel_url}stats.php?browse=show_detail_date&range=4w">Past four weeks</a> | 
 			<a href="{$rel_url}stats.php?browse=show_detail_date&year={$thisYear}">This year</a> | 
@@ -329,9 +332,9 @@ function purgeObject(pid)
 					</tr>
 					{section name="i" loop=$listCountry}
 					<tr class="default">
-						<td bgcolor="{$light_color}" nowrap><img src="{$rel_url}{$listCountry[i].flag}" alt="" height="14" width="18" align="absmiddle"> <a href="{$rel_url}stat_details.php?action=cumulative_usage_country_specific&country={$listCountry[i].stl_country_name}">{$listCountry[i].stl_country_name}</a></td>
-						<td align="right">{$listCountry[i].stl_country_abstracts}</td>
-						<td align="right">{$listCountry[i].stl_country_downloads}</td>
+						<td bgcolor="{$light_color}" nowrap><img src="{$rel_url}{$listCountry[i].flag}" alt="" height="14" width="18" align="absmiddle"> <a href="{$rel_url}stat_details.php?action=cumulative_usage_country_specific&country={$listCountry[i].scr_country_name}">{$listCountry[i].scr_country_name}</a></td>
+						<td align="right">{$listCountry[i].abstracts}</td>
+						<td align="right">{$listCountry[i].downloads}</td>
 						<td width="500"><img src="{$rel_url}images/hh.png" alt="abstracts" height="9" width="{$listCountry[i].abstractViewsWidth}"><br />
 							<img src="{$rel_url}images/hp.png" alt="downloads" height="9" width="{$listCountry[i].downloadsWidth}">
 						</td>																							
@@ -362,10 +365,10 @@ function purgeObject(pid)
 					</tr>
 						{assign var="row_color" value=$light_color}
 					{section name="i" loop=$listCountry}
-						{if ($listCountry[i].stl_region != "" )}
+						{if ($listCountry[i].scr_country_region != "" )}
 					<tr class="default">
 
-						{if $listCountry[i].stl_region <> $previous_region}
+						{if $listCountry[i].scr_country_region <> $previous_region}
 							{if $row_color == $light_color}
 								{assign var="row_color" value=$cell_color}
 							{else}
@@ -373,15 +376,15 @@ function purgeObject(pid)
 
 							{/if}
 						{/if}
-						<td align="left" bgcolor="{$row_color}" nowrap>{if $listCountry[i].stl_region <> $previous_region}{$listCountry[i].stl_region}{/if}{if $listCountry[i].stl_region == ""}Unknown{/if}</td>
-						<td align="right" bgcolor="{$row_color}" nowrap>{$listCountry[i].stl_city}{if $listCountry[i].stl_city == ""}{/if}</td>
-						<td align="right">{$listCountry[i].stl_country_abstracts}</td>
-						<td align="right">{$listCountry[i].stl_country_downloads}</td>
+						<td align="left" bgcolor="{$row_color}" nowrap>{if $listCountry[i].scr_country_region <> $previous_region}{$listCountry[i].scr_country_region}{/if}{if $listCountry[i].scr_country_region == ""}Unknown{/if}</td>
+						<td align="right" bgcolor="{$row_color}" nowrap>{$listCountry[i].scr_city}{if $listCountry[i].scr_city == ""}{/if}</td>
+						<td align="right">{$listCountry[i].abstracts}</td>
+						<td align="right">{$listCountry[i].downloads}</td>
 						<td width="500"><img src="{$rel_url}images/hh.png" alt="abstracts" height="9" width="{$listCountry[i].abstractViewsWidth}"><br />
 							<img src="{$rel_url}images/hp.png" alt="downloads" height="9" width="{$listCountry[i].downloadsWidth}">
 						</td>																							
 					</tr>
-					{assign var="previous_region" value=$listCountry[i].stl_region}
+					{assign var="previous_region" value=$listCountry[i].scr_country_region}
 					{/if}
 					{/section}
 					{/if}
