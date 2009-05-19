@@ -609,14 +609,16 @@ class Lister
 			$max = 9999999;
 			$author_id = $params['author_id'];
 			$authorDetails = Author::getDetails($author_id);
+			$operator = "AND";
 //	        $current_row = ($current_row/100);
 	 		$filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
 			$filter["searchKey".Search_key::getID("Object Type")]=3; //exclude communities and collections 
-			$filter["searchKey".Search_key::getID("Author ID")]=$authorDetails["aut_id"]; //author id
+//			$filter["searchKey".Search_key::getID("Author ID")]=$authorDetails["aut_id"]; //author id
+	 		$filter["manualFilter"] = " (author_id_mi:".$authorDetails["aut_id"]." OR contributor_id_mi:".$authorDetails["aut_id"].") "; // enforce display type X only
 
 			$use_faceting = true;
 			$use_highlighting = false;
-			$operator = "AND";
+
 
 	 		$list = Record::getListing($options, array(9,10), $current_row, $max, $sort_by, false, false, $filter, $operator, $use_faceting, $use_highlighting);
 	        $list_info = $list["info"];
@@ -696,7 +698,7 @@ class Lister
 		            $ciList = array();
 				}
 				//Other displays
-		 		$filter["manualFilter"] = " !display_type_i:(".implode(" OR ", $otherDisplayTypes).")"; // enforce display type X only
+		 		$filter["manualFilter"] .= $operator." !display_type_i:(".implode(" OR ", $otherDisplayTypes).")"; // enforce display type X only
 	//			echo $filter["manualFilter"];
 				unset($filter["searchKey".Search_Key::getID("Display Type")]);
 		 		$otherList = Record::getListing($options, array(9,10), $current_row, $max, $sort_by, false, false, $filter, $operator, $use_faceting, $use_highlighting);
