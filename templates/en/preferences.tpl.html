@@ -22,6 +22,17 @@ function validateEmail(f)
     }
     return true;
 }
+
+function validateMyPubURL(f)
+{
+	if (!isWhitespace(f.mypub_url.value) && !isMyPubURL(f.mypub_url.value)) {
+		alert('My Pub URL must be lowercase, only a-z and underscores, and less than 100 characters. Also it cannot be one of reserved path words we use on the site like \'view\'');
+        selectField(f, 'mypub_url');
+        return false;
+    }
+    return true;
+}
+
 function validateAccount(f)
 {
     return true;
@@ -71,7 +82,7 @@ function validateAccount(f)
         </tr>
         {/if}
         <tr>
-          <td width="190" bgcolor="{$cell_color}" class="default">
+          <td width="250" bgcolor="{$cell_color}" class="default">
             <b>Full Name:</b>
 
           </td>
@@ -107,7 +118,7 @@ function validateAccount(f)
 
         {/if}
         <tr>
-          <td width="190" bgcolor="{$cell_color}" class="default">
+          <td width="250" bgcolor="{$cell_color}" class="default">
             <b>Email Address:</b>
           </td>
           <td bgcolor="{$light_color}">
@@ -124,7 +135,40 @@ function validateAccount(f)
         </tr>
       </table>
 	</form>
-
+{if $isAuthor == 1}
+	<form name="update_mypub_url_form" onsubmit="javascript:return validateMyPubURL(this);" action="{$smarty.server.PHP_SELF}" method="post">
+	<input type="hidden" name="cat" value="update_mypub_url" />
+	  <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+	    <tr>
+	      <td width="250" bgcolor="{$cell_color}" class="default">
+	        <b>Author My Publications URL:</b><br />(lowercase, a-z and underscore characters only, and less than 100 characters)
+	      </td>
+	      <td bgcolor="{$light_color}">
+	        <input type="text" name="mypub_url" size="40" class="default" value="{$myPubURL}" />
+	        {include file="error_icon.tpl.html" field="mypub_url"}
+	      </td>
+	    </tr>
+        {if $update_mypub_url_result == '-2'}
+        <tr>
+          <td colspan="2" class="error" bgcolor="{$cell_color}" align="center">
+            {if $update_mypub_url_result == '-1'}
+            <b>An error occurred while trying to run your query. Your My Publications URL must be lowercase, a-z and underscores only, and less than 100 characters</b>
+            {elseif $update_mypub_url_result == '-2'}
+            <b>An error occurred while trying to run your query. Your My Publications URL must be lowercase, a-z and underscores only, and less than 100 characters and cannot use one of the reserved words in the system.</b>
+            {elseif $update_mypub_url_result == '1'}
+            <b>Thank you, your my publications url was updated successfully.</b>
+            {/if}
+          </td>
+        </tr>
+        {/if}
+          <td colspan="2" bgcolor="{$cell_color}" align="center">
+            <input class="button" type="submit" value="Update My Pubs URL" />
+            <input class="button" type="reset" value="Reset" />
+          </td>
+        </tr>
+	  </table>
+    </form>
+{/if}
 	{if $local_db_user == 1}
 	<form name="update_name_form" onsubmit="javascript:return validateName(this);" action="{$smarty.server.PHP_SELF}" method="post">
 	<input type="hidden" name="cat" value="update_password" />
@@ -149,7 +193,6 @@ function validateAccount(f)
             <b>New Password:</b>
           </td>
           <td bgcolor="{$light_color}">
-
             <input type="password" name="new_password" size="40" class="default" value="" />
             {include file="error_icon.tpl.html" field="new_password"}
           </td>
@@ -169,7 +212,6 @@ function validateAccount(f)
             <input class="button" type="submit" value="Update Password" />
             <input class="button" type="reset" value="Reset" />
           </td>
-
         </tr>
 	  </table>
     </form>

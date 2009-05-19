@@ -50,6 +50,7 @@ include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.citation.php");
 include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "class.news.php");
+include_once(APP_INC_PATH . "class.lister.php");
 include_once(APP_INC_PATH . "class.survey.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.validation.php");
@@ -116,6 +117,8 @@ if (@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "") {
 		$extra = '';
 	}
 }
+
+Lister::checkAliasController();
 
 $tpl = new Template_API();
 //$tpl->setTemplate("maintenance.tpl.html");

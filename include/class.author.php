@@ -213,6 +213,32 @@ class Author
         }
     }
 
+    function getDetailsByUsername($aut_org_username)
+    {
+        if(empty($aut_org_username)) {
+           return "";   
+        }
+        
+        $stmt = "SELECT
+                    *
+                 FROM
+                    " . APP_TABLE_PREFIX . "author
+                 WHERE
+                    aut_org_username='".$aut_org_username."'
+                 OR aut_mypub_url='".$aut_org_username."'";
+        $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return "";
+        } else {
+			if (is_numeric($res["aut_id"])) {
+				$res["grp_users"] = Group::getUserColList($res["aut_id"]);
+			}
+            return $res;
+        }
+    }
+
+
 
     /**
      * Method used to remove a given set of authors from the system.
@@ -265,6 +291,7 @@ class Author
                     aut_ref_num='" . Misc::escapeString($_POST["aut_ref_num"]) . "',
                     aut_researcher_id='" . Misc::escapeString($_POST["researcher_id"]) . "',
                     aut_scopus_id='" . Misc::escapeString($_POST["scopus_id"]) . "',
+                    aut_mypub_url='" . Misc::escapeString($_POST["mypub_url"]) . "',
                     aut_update_date='" . Date_API::getCurrentDateGMT() . "'";
         if ($_POST["org_staff_id"] !== "") {
             $stmt .= ",aut_org_staff_id='" . Misc::escapeString($_POST["org_staff_id"]) . "' ";
@@ -282,6 +309,29 @@ class Author
         }
     }
 
+
+    function updateMyPubURL($username, $mypub_url)
+    { 
+	    if (Validation::isWhitespace($mypub_url)) {
+            return -1;
+        }
+        if (Validation::isUserFileName($mypub_url) == true) {
+            return -2;
+        }
+        $stmt = "UPDATE
+                    " . APP_TABLE_PREFIX . "author
+                 SET
+                    aut_mypub_url='" . Misc::escapeString($mypub_url) . "' ";
+        $stmt .= "WHERE
+                    aut_org_username='" . $username."'";
+        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return -1;
+        } else {
+            return 1;
+        }
+    }
 
     /**
      * Method used to add a new author to the system.
@@ -312,6 +362,7 @@ class Author
         if ($_POST["aut_ref_num"] !== "")      { $insert .= ", aut_ref_num "; }
         if ($_POST["researcher_id"] !== "")      { $insert .= ", aut_researcher_id "; }
         if ($_POST["scopus_id"] !== "")      { $insert .= ", aut_scopus_id "; }
+        if ($_POST["mypub_url"] !== "")      { $insert .= ", aut_mypub_url "; }
 
         $values = ") VALUES (
                     '" . Misc::escapeString($_POST["title"]) . "',
@@ -335,6 +386,7 @@ class Author
         if ($_POST["aut_ref_num"] !== "")        { $values .= ", '" . Misc::escapeString($_POST["aut_ref_num"]) . "'"; }
         if ($_POST["researcher_id"] !== "")        { $values .= ", '" . Misc::escapeString($_POST["researcher_id"]) . "'"; }
         if ($_POST["scopus_id"] !== "")        { $values .= ", '" . Misc::escapeString($_POST["scopus_id"]) . "'"; }
+        if ($_POST["mypub_url"] !== "")        { $values .= ", '" . Misc::escapeString($_POST["mypub_url"]) . "'"; }
 
         
         $values .= ")";
@@ -739,7 +791,6 @@ class Author
         } else {
             return $res;
         }
-
     }
 
     function getDisplayName($aut_id)

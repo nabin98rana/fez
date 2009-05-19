@@ -603,6 +603,148 @@ class Lister
             }
             $tpl->assign("browse_type", "browse_depositor");
             
+		} elseif ($browse == "mypubs") {
+			$current_row = 0;
+			$tpl->assign("active_nav", "list");
+			$max = 9999999;
+			$author_id = $params['author_id'];
+			$authorDetails = Author::getDetails($author_id);
+//	        $current_row = ($current_row/100);
+	 		$filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
+			$filter["searchKey".Search_key::getID("Object Type")]=3; //exclude communities and collections 
+			$filter["searchKey".Search_key::getID("Author ID")]=$authorDetails["aut_id"]; //author id
+
+			$use_faceting = true;
+			$use_highlighting = false;
+			$operator = "AND";
+
+	 		$list = Record::getListing($options, array(9,10), $current_row, $max, $sort_by, false, false, $filter, $operator, $use_faceting, $use_highlighting);
+	        $list_info = $list["info"];
+	        $facets = @$list['facets'];
+            $list = $list["list"];
+//print_r($list);
+			$otherDisplayTypes = array();
+
+
+			if ($tpl_idx == 0) {
+				$order_dir = 'ASC';
+				$options = array();				
+				$sort_by = "searchKey".Search_Key::getID("Date");
+	//			$sort_by = Search_Key::getID("Date");
+				$options["sort_order"] = 1; // DESC date
+				$options["sort_by"] = $sort_by; // DESC date
+				$use_faceting = false;
+				
+				$book_xdis_id = XSD_Display::getXDIS_IDByTitle("Book");
+				if (is_numeric($book_xdis_id)) {
+					array_push($otherDisplayTypes, $book_xdis_id);
+			 		$filter["searchKey".Search_Key::getID("Display Type")] = $book_xdis_id; // enforce display type X only
+			 		$bookList = Record::getListing($options, array(9,10), $current_row, $max, $sort_by, false, false, $filter, $operator, $use_faceting, $use_highlighting);
+			        $bookListInfo = $bookList["info"];
+		            $bookList = $bookList["list"];
+				} else {
+			        $bookListInfo = array();
+		            $bookList = array();
+				}
+
+				$bc_xdis_id = XSD_Display::getXDIS_IDByTitle("Book Chapter");
+				if (is_numeric($bc_xdis_id)) {
+					array_push($otherDisplayTypes, $bc_xdis_id);
+			 		$filter["searchKey".Search_Key::getID("Display Type")] = $bc_xdis_id; // enforce display type X only
+			 		$bcList = Record::getListing($options, array(9,10), $current_row, $max, $sort_by, false, false, $filter, $operator, $use_faceting, $use_highlighting);
+			        $bcListInfo = $bcList["info"];
+		            $bcList = $bcList["list"];
+				} else {
+			        $bcListInfo = array();
+		            $bcList = array();
+				}
+
+
+				$ja_xdis_id = XSD_Display::getXDIS_IDByTitle("Journal Article");
+				if (is_numeric($ja_xdis_id)) {
+					array_push($otherDisplayTypes, $ja_xdis_id);
+			 		$filter["searchKey".Search_Key::getID("Display Type")] = $ja_xdis_id; // enforce display type X only
+			 		$jaList = Record::getListing($options, array(9,10), $current_row, $max, $sort_by, false, false, $filter, $operator, $use_faceting, $use_highlighting);
+			        $jaListInfo = $jaList["info"];
+		            $jaList = $jaList["list"];
+				} else {
+			        $jaListInfo = array();
+		            $jaList = array();
+				}
+
+				$cp_xdis_id = XSD_Display::getXDIS_IDByTitle("Conference Paper");
+				if (is_numeric($cp_xdis_id)) {
+					array_push($otherDisplayTypes, $cp_xdis_id);
+			 		$filter["searchKey".Search_Key::getID("Display Type")] = $cp_xdis_id; // enforce display type X only
+			 		$cpList = Record::getListing($options, array(9,10), $current_row, $max, $sort_by, false, false, $filter, $operator, $use_faceting, $use_highlighting);
+			        $cpListInfo = $cpList["info"];
+		            $cpList = $cpList["list"];
+				} else {
+			        $cpListInfo = array();
+		            $cpList = array();
+				}
+
+				$ci_xdis_id = XSD_Display::getXDIS_IDByTitle("Conference Item");
+				if (is_numeric($ci_xdis_id)) {
+					array_push($otherDisplayTypes, $ci_xdis_id);
+			 		$filter["searchKey".Search_Key::getID("Display Type")] = $ci_xdis_id; // enforce display type X only
+			 		$ciList = Record::getListing($options, array(9,10), $current_row, $max, $sort_by, false, false, $filter, $operator, $use_faceting, $use_highlighting);
+			        $ciListInfo = $ciList["info"];
+		            $ciList = $ciList["list"];
+				} else {
+			        $ciListInfo = array();
+		            $ciList = array();
+				}
+				//Other displays
+		 		$filter["manualFilter"] = " !display_type_i:(".implode(" OR ", $otherDisplayTypes).")"; // enforce display type X only
+	//			echo $filter["manualFilter"];
+				unset($filter["searchKey".Search_Key::getID("Display Type")]);
+		 		$otherList = Record::getListing($options, array(9,10), $current_row, $max, $sort_by, false, false, $filter, $operator, $use_faceting, $use_highlighting);
+		        $otherListInfo = $otherList["info"];
+	            $otherList = $otherList["list"];
+
+				$masterList = array(array($bookList, $bookListInfo, "Books"),
+				 					array($bcList, $bcListInfo, "Book Chapters"), 
+									array($jaList, $jaListInfo, "Journal Articles"), 
+									array($cpList, $cpListInfo, "Conference Papers"), 
+									array($ciList, $ciListInfo, "Conference Items"), 
+									array($otherList, $otherListInfo, "All Others")
+								);
+			} else {
+				$masterList = array();
+			}
+//	        $tpl = new Template_API();
+			if ($tpl_idx == 0) {
+				$tpl_file = "list.tpl.html";
+				$tpl->assign("cv_content", "list_mypubs.tpl.html");
+				$tpl->setTemplate($tpl_file);
+			} else {
+				$tpl_file = $tpls[$tpl_idx]['file'];
+		        $tpl->setTemplate($tpl_file);
+				$tpl->assign("template_mode", $tpl_idx);		        
+			}
+
+	        $tpl->assign("masterList", $masterList);
+
+			if (!empty($authorDetails["aut_researcher_id"])) {
+				$tpl->assign("researcherID", $authorDetails["aut_researcher_id"]);
+			} else {
+				$tpl->assign("researcherID", "");
+			}
+
+//            $tpl->assign("browse_heading", $authorDetails["aut_display_name"]);
+			$tpl->assign("list_heading", "Publications by ".$authorDetails["aut_display_name"]);
+//            $tpl->assign("list_heading", "List of Subject Classifications Records");
+			$tpl->assign("list_type", "mypubs_list");
+
+			//all
+	        $tpl->assign("list", $list);
+	        $tpl->assign("list_info", $list_info);
+	        $tpl->assign('facets', $facets);
+
+			$tpl->assign("authorDetails", $authorDetails);
+//			$tpl->displayTemplate();
+			
         } elseif ($browse == "subject") {
         	
             // browse by subject
@@ -849,6 +991,34 @@ class Lister
         
         return false;
     }
+
+
+	function checkAliasController() {
+//		print_r($_SERVER);
+		$uri = strtolower($_SERVER['REDIRECT_URL']);
+		$uri = str_replace(" ", "_", $uri);
+		$uri = preg_replace("/[^a-z0-9_]/", "", $uri);
+//		echo "uri = ".$uri;
+		if (empty($uri)) {
+			return false;
+		}
+		//check if it is an author username
+		$authorDetails = Author::getDetailsByUsername($uri);
+//		print_r($authorDetails);
+		$params = $_GET;
+		if (count($authorDetails) != 0) {
+			$params['browse'] = 'mypubs';
+            $params['author_id'] = $authorDetails['aut_id'];
+			
+			Lister::getList($params, true);
+			
+            
+		}
+		exit;
+		return true;
+	}
+
+
 }
 
 

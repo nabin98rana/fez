@@ -32,6 +32,7 @@
 					<ul class="tabs">
 						{if $isUser}
 						<li><a href="{$rel_url}preferences.php"{if $active_nav == 'preferences'} style="background-color: white;border: 1px solid white;color: #2A2A2A;"{/if}>Prefs</a></li>
+						<li><a href="{$rel_url}{$isUser}"{if $active_nav == 'mypubs'} style="background-color: white;border: 1px solid white;color: #2A2A2A;"{/if}>My Pubs</a></li>
 						<li><a href="{$rel_url}{if $isAdministrator}my_fez.php{else}my_collections.php{/if}"{if $active_nav == 'my_fez'} style="background-color: white;border: 1px solid white;color: #2A2A2A;"{/if}>My {$app_name}</a></li>
 						<li><a href="{$rel_url}logout.php">Logout</a></li>
 						{else}

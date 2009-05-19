@@ -34,8 +34,9 @@
   {if $list_type != 'community_list'}
   <p class="rss"><a title="Subscribe to the RSS feed for this result set" href="{$PAGE_URL}?{if $url_wo_tpl != ''}{$url_wo_tpl}&{/if}tpl=2"><img src="{$rel_url}images/icons/rss-icon.png" alt="Subscribe to the RSS feed for this result set" /></a>Subscribe to the RSS feed for this result set</p>					
   {/if}
-    
+
     <div id="order-box" class="clearfix">
+  	{if $list_type != 'mypubs_list' || $template_mode != 0}
     	<div class="order-element">
     		<label for="">Sort results by</label>
     	    <select class="default" name="sort_by" onchange="javascript:orderAndSort(this.form, 'sort_by', 'sort_order');">
@@ -46,14 +47,14 @@
     		   <option value="1" {if $sort_order == 1}selected="selected"{/if}>Desc</option>
     	    </select>
     	</div>
-    
+    {/if}
     	<div class="order-element">
     		<label for="order-view">Display results</label>
     		<select class="default" name="tpl" onchange="javascript:setTemplateNew(this.form, 'tpl');">
     			{html_options options=$tpl_list selected=$template_mode}
     		</select>
     	</div>
-    	
+  	{if $list_type != 'mypubs_list' || $template_mode != 0}
     	<div class="order-element">
     		<label for="order-number">Set objects per page</label>
     		
@@ -70,6 +71,7 @@
     		  </select>
     
     	</div>
+	{/if}
 	</div>
 	{if $list_info.total_pages > 1}{include file="paging_control.tpl.html" field="paginat0r"}{/if}
 </div>

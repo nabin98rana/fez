@@ -64,6 +64,31 @@ class Validation
     }
 
 
+	function isUserFileName($str) {
+		
+		$string="";
+		$fileCount=0;
+		$filePath=APP_PATH; # Specify the path you want to look in. 
+		$dir = opendir($filePath); # Open the path
+		while ($file = readdir($dir)) { 
+			$filePrefix = substr($file, 0, strrpos($file, "."));
+//		  if (eregi("\.php",$file)) { # Look at only files with a .php extension
+//		    $string .= "$file<br />";
+//			echo "$filePrefix<br />";
+			if ($str == strtolower($filePrefix)) {
+				return true;
+			}
+		    $fileCount++;
+//		  }
+		}
+		//Also check its not already a username
+		$authorDetails = Author::getDetailsByUsername($str);
+		if (count($authorDetails) != 0) {
+			return true;
+		}
+		return false;
+	}
+
     /**
      * Method used to check whether an email address is a valid one.
      *

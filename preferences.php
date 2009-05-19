@@ -38,6 +38,7 @@ include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.prefs.php");
 include_once(APP_INC_PATH . "class.setup.php");
 include_once(APP_INC_PATH . "class.date.php");
+include_once(APP_INC_PATH . "class.author.php");
 include_once(APP_INC_PATH . "db_access.php");
 
 $tpl = new Template_API();
@@ -54,14 +55,18 @@ if (Auth::userExists($username)) { // if the user is registered as a Fez user
 	$tpl->assign("isFezUser", $username);
 } else {
 	// Not really possible to get here
-	Auth::redirect(APP_RELATIVE_URL);	
+	Auth::redirect(APP_RELATIVE_URL);
 }
 $tpl->assign("isAdministrator", $isAdministrator);
 
+$mypub_url = @$_POST["mypub_url"];
 
 if (@$_POST["cat"] == "update_account") {
     $res = Prefs::set($usr_id);
     $tpl->assign('update_account_result', $res);
+} elseif (@$_POST["cat"] == "update_mypub_url") {
+	    $res = Author::updateMyPubURL($username, $mypub_url);
+	    $tpl->assign('update_mypub_url_result', $res);
 } elseif (@$_POST["cat"] == "update_name") {
     $res = User::updateFullName($usr_id);
     $tpl->assign('update_name_result', $res);
@@ -74,6 +79,16 @@ if (@$_POST["cat"] == "update_account") {
 }
 
 $prefs = Prefs::get($usr_id);
+
+$authorDetails = Author::getDetailsByUsername($username);
+if (is_numeric($authorDetails['aut_id'])) {
+	$isAuthor = 1;
+	$myPubURL = $authorDetails['aut_mypub_url'];
+} else {
+	$isAuthor = 0;
+	$myPubURL = "";
+}
+//$myPubURL = Author::getMyPubURL($username);
 // if the user has no preferences set yet, get it from the system-wide options
 if (empty($prefs)) {
     $prefs = Setup::load();
@@ -99,6 +114,8 @@ $front_pages = array("front_page" => "Standard Full Front Page",
 $tpl->assign("SHIB_SWITCH", SHIB_SWITCH);
 $tpl->assign("shibAttribs", $shibAttribs);
 $tpl->assign("user_prefs", $prefs);
+$tpl->assign("myPubURL", $myPubURL);
+$tpl->assign("isAuthor", $isAuthor);
 $tpl->assign("front_pages", $front_pages);
 $tpl->assign("zones", Date_API::getTimezoneList());
 

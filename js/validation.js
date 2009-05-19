@@ -124,6 +124,12 @@ function isURL(s) {
 	return regexp.test(s);
 }
 
+function isMyPubURL(u) {
+	var regexp = /^[a-z_]+$/;
+	return regexp.test(u) && u.length < 101;
+}
+
+
 function hasDeniedChars(s)
 {
     var denied_chars = new Array(" ", "\n", "\t", "\r", "%", "$", "#", "!", "~", "`", "^", "&", "*", "(", ")", "=", "+", "{", "}", "[", "]", ",", ";", ":", "'", "\"", "?", "<", ">", "/", "\\", "|");

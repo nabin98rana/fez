@@ -21,6 +21,11 @@
                       selectField(f, 'lname');
                       return false;
                   }
+                  if (!isWhitespace(f.mypub_url.value) && !isMyPubURL(f.mypub_url.value)) {
+                      alert('My Pub URL must be lowercase, only a-z characters and underscores, and less than 100 characters.');
+                      selectField(f, 'mypubs_url');
+                      return false;
+                  }
                   return true;
               }
 			    function resizePager(f)
@@ -208,7 +213,16 @@
                   <input type="text" name="scopus_id" size="40" class="default" value="{$info.aut_scopus_id}">
                   {include file="error_icon.tpl.html" field="scopus_id"}
                 </td>
-              </tr>					
+              </tr>
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default">
+                  <b>My Pubs URL extension: </b><br />lowercase, a-z and underscores only
+                </td>
+                <td bgcolor="{$light_color}" width="80%">
+                  <input type="text" name="mypub_url" size="40" class="default" value="{$info.aut_mypub_url}">
+                  {include file="error_icon.tpl.html" field="mypub_url"}
+                </td>
+              </tr>
               <tr>
                 <td colspan="2" bgcolor="{$cell_color}" align="center">
                   {if $smarty.get.cat == 'edit'}
@@ -292,14 +306,15 @@
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>First Name</b></td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Middle Name</b></td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Last Name</b></td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Position</b></td>					  					  
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Org Staff ID</b></td>					  					  
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Position</b></td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Org Staff ID</b></td>
                       <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Org Username</b></td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Ref Num</b></td>					  					                                              
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>CV Link</b></td>					  
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Homepage Link</b></td>					  
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Created Date</b></td>					  
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Org Membership</b></td>					                        
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>MyPubs URL</b></td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Ref Num</b></td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>CV Link</b></td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Homepage Link</b></td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Created Date</b></td>
+                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Org Membership</b></td>
                     </tr>
                     {section name="i" loop=$list}
                     {cycle values=$cycle assign="row_color"}
@@ -309,27 +324,28 @@
                         &nbsp;<a class="link" href="{$smarty.server.PHP_SELF}?cat=edit&id={$list[i].aut_id}" title="Update this entry">{$list[i].aut_id}</a>
                       </td>
                       <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_title}</td>
-                      <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_fname}</td>					  
-                      <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_mname}</td>					  
+                      <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_fname}</td>
+                      <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_mname}</td>
                       <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_lname}</td>
                       <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_position}</td>
                       <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_org_staff_id}</td>
                       <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_org_username}</td>
+                      <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_mypub_url}</td>
                       <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_ref_num}</td>                                           
                       <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_cv_link}</td>
-                      <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_homepage_link}</td>					  
-                      <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_created_date}</td>					  
+                      <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_homepage_link}</td>
+                      <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_created_date}</td>
                       <td bgcolor="{$row_color}" class="default">&nbsp;<a class="link" href="orgstructure_author.php?cat=view&auth={$list[i].aut_id}" title="Update this entry">Edit</a></td>					                        
                     </tr>
                     {sectionelse}
                     <tr>
-                      <td colspan="13" bgcolor="{$light_color}" align="center" class="default">
+                      <td colspan="14" bgcolor="{$light_color}" align="center" class="default">
                         No authors could be found.
                       </td>
                     </tr>
                     {/section}
         <tr bgcolor="{$cell_color}">
-          <td colspan="14">
+          <td colspan="15">
             <table width="100%" cellspacing="0" cellpadding="0">
               <tr>
                 <td width="40%" align="center" nowrap>
@@ -363,7 +379,7 @@
                       <td width="4" bgcolor="{$cell_color}" align="center">
                         <input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
                       </td>
-                      <td colspan="13" bgcolor="{$cell_color}" align="center">
+                      <td colspan="14" bgcolor="{$cell_color}" align="center">
                         <input type="submit" value="Delete" class="button">
                       </td>
                     </tr>
