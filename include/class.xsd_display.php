@@ -642,7 +642,7 @@ class XSD_Display
                  FROM
                     " . APP_TABLE_PREFIX . "xsd_display
                  WHERE
-                    xdis_title = '".$xdis_title."'";
+                    xdis_title = '".$xdis_title."' ORDER BY xdis_enabled DESC";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
@@ -1106,7 +1106,7 @@ class XSD_DisplayObject
 				$FezACML_xdis_id = XSD_Display::getID('FezACML for Datastreams');
 				$FezACML_DS_name = FezACML::getFezACMLDSName($ds_value['ID']);
 				if (Fedora_API::datastreamExistsInArray($datastreams, $FezACML_DS_name)) {
-					$FezACML_DS = Fedora_API::callGetDatastreamDissemination($pid, $FezACML_DS_name, $createdDT);				
+					$FezACML_DS = Fedora_API::callGetDatastreamDissemination($pid, $FezACML_DS_name, $createdDT);
 					if (isset($FezACML_DS['stream'])) {
 						$this->processXSDMFDatastream($FezACML_DS['stream'], $FezACML_xdis_id);
 						$this->xsd_html_match->gotMatchCols = false; // make sure it refreshes for the other xsd displays
