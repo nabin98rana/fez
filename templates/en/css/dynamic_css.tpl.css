@@ -681,7 +681,7 @@ td.toplinks {background-color: #367FCC;}
 
 #n-info {
 	position: absolute;
-	width: 400px;
+	width: 500px;
 	bottom: 0;
 	right: 0;
 	font-weight: bold;
@@ -1035,7 +1035,7 @@ hr {
 	text-align: left;
 }
 
-#criteria-box p {margin-bottom: 1em;}
+#criteria-box p {}
 
 #parent-list {font-size: 10pt;}
 
