@@ -38,6 +38,20 @@ if (!isElementVisible(basic_element)) {
     
     {if $myFezView == "MAI"}
     {include file="my_assigned_items.tpl.html"}
+
+
+		{literal}
+		<script language="JavaScript" type="text/javascript">
+		<!--
+		var custom_filter = getPageElement('custom_filter_form' + '1');
+		if (!isElementVisible(custom_filter)) {
+			toggleVisibility('custom_filter_form');
+		}
+		//-->
+		</script>
+		{/literal}
+
+
     {elseif $myFezView == "MCL"}
     {include file="my_collections.tpl.html"}
     {* records where the current user has role = creator  *}
