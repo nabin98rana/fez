@@ -502,12 +502,12 @@ class Statistics
 	function updateSummaryTables()
 	{
 //		echo "Overall: " . date("H:i:s") . "\n";
-//		Statistics::update4WeekSummaryTable();
-//		Statistics::updateAuthorsSummaryTable();
-//		Statistics::updateCountryRegionSummaryTable();
-//		Statistics::updatePapersSummaryTable();
-//		Statistics::updateYearMonthSummaryTable();
-//		Statistics::updateYearSummaryTable();
+		Statistics::update4WeekSummaryTable();
+		Statistics::updateAuthorsSummaryTable();
+		Statistics::updateCountryRegionSummaryTable();
+		Statistics::updatePapersSummaryTable();
+		Statistics::updateYearMonthSummaryTable();
+		Statistics::updateYearSummaryTable();
 		Statistics::updateYearMonthFiguresSummaryTable();
 //		echo "Overall Finish: " . date('H:i:s') . "\n";
 	}
