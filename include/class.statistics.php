@@ -839,7 +839,7 @@ class Statistics
 			$record['syf_month'] = $listItem['month'];
 			$record['syf_abstracts'] = $listItem['abstracts'];
 			$record['syf_downloads'] = $listItem['downloads'];
-			$res = $GLOBALS['db_api']->dbh->execute($preparedStmt, $record);
+			$res = $GLOBALS['db_api']->dbh->execute($insertStmt, $record);
 		}
 	}
 
