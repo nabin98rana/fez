@@ -134,12 +134,9 @@ if ($action == "show_detail") {
 	}
 
 } elseif ($action == "cumulative_usage") {
-	$abstractViewsHistory = Statistics::getStatsByAbstractViewHistory($pid);
-	$downloadsHistory = Statistics::getStatsByDownloadHistory($pid);
-	$allHistory = Statistics::mergeDates($abstractViewsHistory, $downloadsHistory);
-	for ($i=0;$i<count($allHistory);$i++) {
-		$max_count = max($max_count, $allHistory[$i]['abstracts'], $allHistory[$i]['downloads']);
-	}
+	$allHistory = Statistics::getYearMonthFiguresSummary();
+	foreach($allHistory as $historyItem)
+		$max_count = max($max_count, $historyItem['abstracts'], $historyItem['downloads']);
 
 } elseif ($action == "cumulative_usage_country") {
 	

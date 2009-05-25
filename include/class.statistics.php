@@ -502,12 +502,13 @@ class Statistics
 	function updateSummaryTables()
 	{
 //		echo "Overall: " . date("H:i:s") . "\n";
-		Statistics::update4WeekSummaryTable();
-		Statistics::updateAuthorsSummaryTable();
-		Statistics::updateCountryRegionSummaryTable();
-		Statistics::updatePapersSummaryTable();
-		Statistics::updateYearMonthSummaryTable();
-		Statistics::updateYearSummaryTable();
+//		Statistics::update4WeekSummaryTable();
+//		Statistics::updateAuthorsSummaryTable();
+//		Statistics::updateCountryRegionSummaryTable();
+//		Statistics::updatePapersSummaryTable();
+//		Statistics::updateYearMonthSummaryTable();
+//		Statistics::updateYearSummaryTable();
+		Statistics::updateYearMonthFiguresSummaryTable();
 //		echo "Overall Finish: " . date('H:i:s') . "\n";
 	}
 
@@ -518,9 +519,9 @@ class Statistics
 		$list = $list["list"];
 		$list = Citation::renderIndexCitations($list);
 
-		$insertStmt = $GLOBALS['db_api']->dbh->prepare('insert into fez_statistics_sum_4weeks values (?, ?, ?, ?)');
+		$insertStmt = $GLOBALS['db_api']->dbh->prepare('insert into ' . APP_TABLE_PREFIX . 'statistics_sum_4weeks values (?, ?, ?, ?)');
 		
-		$delete = 'DELETE FROM fez_statistics_sum_4weeks';
+		$delete = 'DELETE FROM ' . APP_TABLE_PREFIX . 'statistics_sum_4weeks';
 		$deleteResult = $GLOBALS['db_api']->dbh->query($delete);
 		if (PEAR::isError($deleteResult))
 		{
@@ -550,14 +551,14 @@ class Statistics
 		$list = Collection::statsByAuthorID(0, 50, "Author ID");
 		$list = $list["list"];
 
-		$deleteResult = $GLOBALS['db_api']->dbh->query('DELETE FROM fez_statistics_sum_authors');
+		$deleteResult = $GLOBALS['db_api']->dbh->query('DELETE FROM ' . APP_TABLE_PREFIX . 'statistics_sum_authors');
 		if (PEAR::isError($deleteResult))
 		{
 			Error_Handler::logError($deleteResult->getMessage(), $deleteResult->getDebugInfo(), __FILE__, __LINE__);
 			return -1;
 		}
 		
-		$insertStmt = $GLOBALS['db_api']->dbh->prepare('INSERT INTO fez_statistics_sum_authors values (?, ?, ?)');
+		$insertStmt = $GLOBALS['db_api']->dbh->prepare('INSERT INTO ' . APP_TABLE_PREFIX . 'statistics_sum_authors values (?, ?, ?)');
 		
 		foreach ($list as $listItem)
 		{
@@ -575,9 +576,9 @@ class Statistics
 //		echo "Starting Country Region summary: " . date('H:i:s') . "\n";
 		
 		$query = "SELECT stl_country_name, stl_country_code, stl_region, stl_city, sum(abstract) as abstract, sum(downloads) as downloads from ( ";
-		$query .= "SELECT stl_country_name, stl_country_code, stl_region, stl_city, sum(1) as abstract, 0 as downloads FROM fez_statistics_all WHERE stl_dsid = '' AND stl_counter_bad = 0 GROUP BY 4,3,2,1 ";
+		$query .= "SELECT stl_country_name, stl_country_code, stl_region, stl_city, sum(1) as abstract, 0 as downloads FROM " . APP_TABLE_PREFIX . "statistics_all WHERE stl_dsid = '' AND stl_counter_bad = 0 GROUP BY 4,3,2,1 ";
 		$query .= "UNION ";
-		$query .= "SELECT stl_country_name, stl_country_code, stl_region, stl_city, 0 as abstract, sum(1) as downloads FROM fez_statistics_all WHERE stl_dsid <> '' AND stl_counter_bad = 0 GROUP BY 4,3,2,1) AS tblA ";
+		$query .= "SELECT stl_country_name, stl_country_code, stl_region, stl_city, 0 as abstract, sum(1) as downloads FROM " . APP_TABLE_PREFIX . "statistics_all WHERE stl_dsid <> '' AND stl_counter_bad = 0 GROUP BY 4,3,2,1) AS tblA ";
 		$query .= "GROUP BY 1,2,3,4 ";
 		
 		$results = $GLOBALS['db_api']->dbh->getAll($query, array(), DB_FETCHMODE_ASSOC);
@@ -587,7 +588,7 @@ class Statistics
 			return -1;
 		}
 		
-		$deleteResult = $GLOBALS['db_api']->dbh->query('DELETE FROM fez_statistics_sum_countryregion');
+		$deleteResult = $GLOBALS['db_api']->dbh->query('DELETE FROM ' . APP_TABLE_PREFIX . 'statistics_sum_countryregion');
 		if (PEAR::isError($deleteResults))
 		{
 			Error_Handler::logError($deleteResults->getMessage(), $deleteResults->getDebugInfo(), __FILE__, __LINE__);
@@ -640,7 +641,7 @@ class Statistics
 			}
 		}
 		
-		$insertQuery = 'INSERT INTO fez_statistics_sum_countryregion (scr_country_name, scr_country_code, scr_country_region, scr_city, scr_count_abstract, scr_count_downloads) values (?, ?, ?, ?, ?, ?)';
+		$insertQuery = 'INSERT INTO ' . APP_TABLE_PREFIX . 'statistics_sum_countryregion (scr_country_name, scr_country_code, scr_country_region, scr_city, scr_count_abstract, scr_count_downloads) values (?, ?, ?, ?, ?, ?)';
 		$insertStmt = $GLOBALS['db_api']->dbh->prepare($insertQuery);
 		foreach ($results as $row)
 		{
@@ -673,14 +674,14 @@ class Statistics
 		$list = $list["list"];
 		$list = Citation::renderIndexCitations($list);
 
-		$deleteResult = $GLOBALS['db_api']->dbh->query('DELETE FROM fez_statistics_sum_papers');
+		$deleteResult = $GLOBALS['db_api']->dbh->query('DELETE FROM ' . APP_TABLE_PREFIX . 'statistics_sum_papers');
 		if (PEAR::isError($deleteResult))
 		{
 			Error_Handler::logError($deleteResult->getMessage(), $deleteResult->getDebugInfo(), __FILE__, __LINE__);
 			return -1;
 		}
 		
-		$insertStmt = $GLOBALS['db_api']->dbh->prepare('INSERT INTO fez_statistics_sum_papers values (?, ?, ?, ?)');
+		$insertStmt = $GLOBALS['db_api']->dbh->prepare('INSERT INTO ' . APP_TABLE_PREFIX . 'statistics_sum_papers values (?, ?, ?, ?)');
 		
 		foreach ($list as $listItem)
 		{
@@ -744,7 +745,7 @@ class Statistics
 			$list = Citation::renderIndexCitations($list);
 
 			// now delete everything in the table (as we're replacing all values)
-			$delete = "delete from fez_statistics_sum_yearmonth where sym_year = '{$year}' and sym_month = '{$month}'";
+			$delete = "delete from " . APP_TABLE_PREFIX . "statistics_sum_yearmonth where sym_year = '{$year}' and sym_month = '{$month}'";
 			$deleteResult = $GLOBALS['db_api']->dbh->query($delete);
 			if (PEAR::isError($deleteResult))
 			{
@@ -753,7 +754,7 @@ class Statistics
 			}
 
 			// and insert the new values
-			$preparedStmt = $GLOBALS['db_api']->dbh->prepare('INSERT INTO fez_statistics_sum_yearmonth (sym_year, sym_month, sym_pid, sym_title, sym_downloads, sym_citation) values (?, ?, ?, ?, ?, ?)');
+			$preparedStmt = $GLOBALS['db_api']->dbh->prepare('INSERT INTO ' . APP_TABLE_PREFIX . 'statistics_sum_yearmonth (sym_year, sym_month, sym_pid, sym_title, sym_downloads, sym_citation) values (?, ?, ?, ?, ?, ?)');
 			foreach ($list['list'] as $listItem)
 			{
 				$record = array();
@@ -787,7 +788,7 @@ class Statistics
 			$list = Citation::renderIndexCitations($list);
 
 			// now delete everything in the table (as we're replacing all values)
-			$delete = "delete from fez_statistics_sum_year where syr_year = '{$year}'";
+			$delete = "delete from " . APP_TABLE_PREFIX . "statistics_sum_year where syr_year = '{$year}'";
 			$deleteResult = $GLOBALS['db_api']->dbh->query($delete);
 			if (PEAR::isError($deleteResult))
 			{
@@ -796,7 +797,7 @@ class Statistics
 			}
 
 			// and insert the new values
-			$preparedStmt = $GLOBALS['db_api']->dbh->prepare('INSERT INTO fez_statistics_sum_year (syr_year, syr_pid, syr_title, syr_downloads, syr_citation) values (?, ?, ?, ?, ?)');
+			$preparedStmt = $GLOBALS['db_api']->dbh->prepare('INSERT INTO ' . APP_TABLE_PREFIX . 'statistics_sum_year (syr_year, syr_pid, syr_title, syr_downloads, syr_citation) values (?, ?, ?, ?, ?)');
 			foreach ($list['list'] as $listItem)
 			{
 				$record = array();
@@ -811,6 +812,35 @@ class Statistics
 
 //		echo "Finishing Year Download Summary: " . date('H:i:s') . "\n";
 		
+	}
+
+	function updateYearMonthFiguresSummaryTable()
+	{
+		$pid = 'all';
+		$abstractViewsHistory = Statistics::getStatsByAbstractViewHistory($pid);
+		$downloadsHistory = Statistics::getStatsByDownloadHistory($pid);
+		$list = Statistics::mergeDates($abstractViewsHistory, $downloadsHistory);
+
+		// delete everything in the table, we're replacing all the values
+		$delete = 'DELETE from ' . APP_TABLE_PREFIX . 'statistics_sum_yearmonth_figures ';
+		$deleteResult = $GLOBALS['db_api']->dbh->query($delete);
+		if (PEAR::isError($deleteResult))
+		{
+			Error_Handler::logError(array($result->getMessage(), $result->getDebugInfo()), __FILE__, __LINE__);
+			return -1;
+		}
+
+		$insertStmt = $GLOBALS['db_api']->dbh->prepare('INSERT INTO ' . APP_TABLE_PREFIX . 'statistics_sum_yearmonth_figures (syf_year, syf_monthnum, syf_month, syf_abstracts, syf_downloads) values (?, ?, ?, ?, ?)');
+		foreach ($list as $listItem)
+		{
+			$record = array();
+			$record['syf_year'] = $listItem['year'];
+			$record['syf_monthnum'] = $listItem['monthnum'];
+			$record['syf_month'] = $listItem['month'];
+			$record['syf_abstracts'] = $listItem['abstracts'];
+			$record['syf_downloads'] = $listItem['downloads'];
+			$res = $GLOBALS['db_api']->dbh->execute($preparedStmt, $record);
+		}
 	}
 
 	function updateSummaryStatsByIncrement($stats = array()) {
@@ -969,6 +999,33 @@ class Statistics
 			$params[] = 'all';
 
 		$query .= 'ORDER by syr_downloads DESC';
+		$results = $GLOBALS['db_api']->dbh->getAll($query, $params, DB_FETCHMODE_ASSOC);
+		return $results;
+	}
+
+	/**
+	 * Gets the year/month figures summary table
+	 *
+	 * @param string $year
+	 * @param string $month
+	 * @return array
+	 */
+	function getYearMonthFiguresSummary($year = '', $month = '')
+	{
+		$params = array();
+		$query = 'SELECT syf_year as year, syf_monthnum as monthnum, syf_month as month, syf_abstracts as abstracts, syf_downloads as downloads ';
+		$query .= 'FROM ' . APP_TABLE_PREFIX . 'statistics_sum_yearmonth_figures ';
+		if ($year)
+		{
+			$query .= "WHERE syf_year = ? ";
+			$params[] = $year;
+			if ($month)
+			{
+				$query .= "AND syf_month = ?";
+				$params[] = $month;
+			}
+		}
+		$query .= "ORDER BY 1 DESC, 2 DESC";
 		$results = $GLOBALS['db_api']->dbh->getAll($query, $params, DB_FETCHMODE_ASSOC);
 		return $results;
 	}
