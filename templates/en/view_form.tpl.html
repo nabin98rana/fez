@@ -353,7 +353,7 @@ function loadPreview(pid,datastreamID, alt, origami)
         {section name="d" loop=$datastreams}        
 			{if $datastreams[d].controlGroup == "R" && $datastreams[d].ID != "DOI"}
 			  <tr class="default"> 
-				<td colspan="2" bgcolor="{$light_color}"><img align="absmiddle" src="{$rel_url}images/text_html.png"> <a target="_blank" href="{$datastreams[d].location}">{$datastreams[d].location|truncate:80:"..."}</a> &nbsp;</td>
+				<td colspan="2" bgcolor="{$light_color}"><img align="absmiddle" src="{$rel_url}images/text_html.png"> <a target="_blank" href="{$datastreams[d].location}">{$datastreams[d].location|truncate:80:"..."}</a> &nbsp;{if $datastreams[d].prefix_location != ""}<br /> <img align="absmiddle" src="{$rel_url}images/org_link_16.gif"> <a target="_blank" href="{$datastreams[d].prefix_location}">Go to link with your {$APP_SHORT_ORG_NAME} access privileges</a> &nbsp;{/if}</td>
 				<td colspan="3" bgcolor="{$light_color}">{$datastreams[d].label} &nbsp;</td>
 			  </tr>
 			 {/if}

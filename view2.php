@@ -128,7 +128,7 @@ if (!empty($pid) && $record->checkExists()) {
 	$xdis_title = XSD_Display::getTitle($xdis_id);	
     $tpl->assign("xdis_title", $xdis_title);
 	if (!is_numeric($xdis_id)) {
-		$xdis_id = @$_REQUEST["xdis_id"];	
+		$xdis_id = @$_REQUEST["xdis_id"];
 		if (is_numeric($xdis_id)) { // must have come from select xdis so save xdis in the Fez MD
 			$record->updateAdminDatastream($xdis_id);
 		}
@@ -327,12 +327,18 @@ if (!empty($pid) && $record->checkExists()) {
 			if ($datastreams[$ds_key]['controlGroup'] == 'R' && $datastreams[$ds_key]['ID'] != 'DOI') {
 				$datastreams[$ds_key]['location'] = trim($datastreams[$ds_key]['location']);
 				
-				// Check for APP_LINK_PREFIX and add if not already there
+				// Check for APP_LINK_PREFIX and add if not already there add it to a special ezyproxy link for it
 				if (APP_LINK_PREFIX != "") {
 					if (!is_numeric(strpos($datastreams[$ds_key]['location'], APP_LINK_PREFIX))) {
-						$datastreams[$ds_key]['location'] = APP_LINK_PREFIX.$datastreams[$ds_key]['location'];
+						$datastreams[$ds_key]['prefix_location'] = APP_LINK_PREFIX.$datastreams[$ds_key]['location'];
+						$datastreams[$ds_key]['location'] = str_replace(APP_LINK_PREFIX, "", $datastreams[$ds_key]['location']);
+					} else {
+						$datastreams[$ds_key]['prefix_location'] = "";
 					}
+				} else {
+					$datastreams[$ds_key]['prefix_location'] = "";
 				}
+				
 			} elseif ($datastreams[$ds_key]['controlGroup'] == 'M') {
 				
 			    $fileCount++;
@@ -457,6 +463,7 @@ if (!empty($pid) && $record->checkExists()) {
 		$tpl->assign("depositor_org", $depositor_org);
 		$tpl->assign("depositor_org_id", $depositor_org_id);
 		$tpl->assign("details", $details);
+		$tpl->assign("APP_SHORT_ORG_NAME", APP_SHORT_ORG_NAME);
         $tpl->assign('title', $record->getTitle());
 
 		$tpl->assign("statsAbstract", Statistics::getStatsByAbstractView($pid));				
