@@ -3,6 +3,15 @@
               <!--
               function validateForm(f)
               {
+
+				  // The dual multiple controls should select all the fields in the multiple combo box so that they will
+				  // be included in the form submission.
+				  var field = document.group_form.groupslist;
+
+				  for (var y = 0; y < field.options.length; y++) {
+					field.options[y].selected = true;
+				  }
+
                   if (isWhitespace(f.username.value)) {
                       errors[errors.length] = new Option('Username', 'username');
                   }
@@ -193,9 +202,32 @@
                   <b>Internal System Groups:</b>
                 </td>
                 <td bgcolor="{$light_color}" width="80%">
-                  <select name="groups[]" multiple size="10" class="default">
-                    {html_options options=$group_options selected=$info.usr_groups}
-                  </select>
+					<table>
+						<tr>
+							<td>
+                              <select id="groupslist" name="groups[]" multiple size="10" class="default">
+                               {if is_array($info.usr_groups)}{html_options options=$info.usr_groups}{/if}
+                              </select>
+
+							</td>
+							<td>
+                              <select id="groups_helper" name="groups_helper" multiple size="10" class="default">
+                               {html_options options=$group_options}
+                              </select>
+
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<input type="button" name="remove_left" value="Remove selected from left" onClick="javascript:deleteSelectedItemsFromList(this.form.groupslist);" />
+							</td>
+							<td>
+								<input type="button" name="copy_left" value="Copy selected to left" onClick="javascript:addToParentList(this.form.groups_helper, this.form.groupslist);" />
+							</td>
+						</tr>
+					</table>
+
+
                   {include file="error_icon.tpl.html" field="users[]"}
                 </td>
               </tr>

@@ -83,7 +83,15 @@ if ($isAdministrator) {
     }
 
     if (@$_GET["cat"] == "edit") {
-    	$user = User::getDetailsByID($_GET["id"]);
+		$user = User::getDetailsByID($_GET["id"]);
+		$groupsList = array();
+		foreach ($user['usr_groups'] as $groupId)
+		{
+			$groupDetails = Group::getDetails($groupId);
+			$groupsList[$groupId] = $groupDetails['grp_title'];
+		}
+		$user['usr_groups'] = $groupsList;
+		
         if($user['usr_super_administrator'] == 1 && !$isSuperAdministrator) {
             // User doesn't have permission to edit this record
             header('Location: ' . $_SERVER['PHP_SELF']);

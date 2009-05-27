@@ -66,7 +66,15 @@ if ($isAdministrator) {
     }
 
     if (@$_GET["cat"] == "edit") {
-        $tpl->assign("info", Group::getDetails($_GET["id"]));
+		$groupDetails = Group::getDetails($_GET["id"]);
+		$groupUsers = array();
+		foreach($groupDetails['grp_users'] as $index => $userId)
+		{
+			$user = User::getDetailsByID($userId);
+			$groupUsers[$userId] = $user['usr_full_name'];
+		}
+		$groupDetails['grp_users'] = $groupUsers;
+        $tpl->assign("info", $groupDetails);
     }
 
     $tpl->assign("list", Group::getList());

@@ -8,6 +8,15 @@
               <!--
               function validateForm(f)
               {
+
+				// The dual multiple controls should select all the fields in the multiple combo box so that they will
+				// be included in the form submission.
+				var field = document.group_form.userslist;
+
+				for (var y = 0; y < field.options.length; y++) {
+					field.options[y].selected = true;
+				}
+
                   checkLeadSelection(f);
                   if (isWhitespace(f.title.value)) {
                       alert('Please enter the title of this team.');
@@ -113,9 +122,30 @@
                   <b>Users: *</b>
                 </td>
                 <td bgcolor="{$light_color}" width="80%">
-                  <select name="users[]" multiple size="10" class="default">
-                    {html_options options=$user_options selected=$info.grp_users}
-                  </select>
+
+					<table>
+						<tr>
+							<td>
+			                  <select id="userslist" multiple size="10" width="40" class="default" name="users[]">
+								  {if is_array($info.grp_users)}{html_options options=$info.grp_users}{/if}
+							  </select>
+							</td>
+							<td>
+			                  <select id="users_helper" multiple size="10" width="40" class="default" name="users_helper">
+						        {html_options options=$user_options}
+							  </select>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<input type="button" name="remove_left" value="Remove selected from left" onClick="javascript:deleteSelectedItemsFromList(this.form.userslist);" />
+							</td>
+							<td>
+								<input type="button" name="copy_left" value="Copy selected to left" onClick="javascript:addToParentList(this.form.users_helper, this.form.userslist);" />
+							</td>
+						</tr>
+					</table>
+
                   {include file="error_icon.tpl.html" field="users[]"}
                 </td>
               </tr>
