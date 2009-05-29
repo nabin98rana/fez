@@ -46,6 +46,7 @@ require_once(APP_PEAR_PATH . "Net/UserAgent/Detect.php");
 require_once(APP_SMARTY_PATH . "Smarty.class.php");
 require_once(APP_INC_PATH . "class.collection.php");
 require_once(APP_INC_PATH . "class.auth.php");
+require_once(APP_INC_PATH . "class.author.php");
 require_once(APP_INC_PATH . "class.user.php");
 require_once(APP_INC_PATH . "class.setup.php");
 //require_once(APP_INC_PATH . "najax_classes.php");
@@ -205,7 +206,17 @@ class Template_API
         // create the list of collections
         $username = Auth::getUsername();
         if ($username != '') {
+			$authorDetails = Author::getDetailsByUsername($username);
+			if (is_numeric($authorDetails['aut_id'])) {
+				$isAuthor = 1;
+				$myPubURL = $authorDetails['aut_mypub_url'];
+			} else {
+				$isAuthor = 0;
+				$myPubURL = "";
+			}
             $this->assign("isUser", $username);
+			$this->assign("myPubURL", $myPubURL);
+			$this->assign("isAuthor", $isAuthor);
             $this->assign("current_full_name", Auth::getUserFullName());
             $this->assign("current_email", Auth::getUserEmail());
             $this->assign("current_user_id", Auth::getUserID());
