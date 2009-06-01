@@ -126,7 +126,7 @@ function validateAccount(f)
             {include file="error_icon.tpl.html" field="email"}
           </td>
 
-        </tr>
+        </tr>	
         <tr>
           <td colspan="2" bgcolor="{$cell_color}" align="center">
             <input class="button" type="submit" value="Update Email Address" />
@@ -144,7 +144,7 @@ function validateAccount(f)
 	        <b>Author My Publications URL:</b><br />(lowercase, a-z and underscore characters only, and less than 100 characters)
 	      </td>
 	      <td bgcolor="{$light_color}">
-	        <input type="text" name="mypub_url" size="40" class="default" value="{$myPubURL}" />
+	        <input type="text" name="mypub_url" size="40" class="default" value="{$myPubURLPref}" />
 	        {include file="error_icon.tpl.html" field="mypub_url"}
 	      </td>
 	    </tr>

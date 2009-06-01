@@ -83,10 +83,10 @@ $prefs = Prefs::get($usr_id);
 $authorDetails = Author::getDetailsByUsername($username);
 if (is_numeric($authorDetails['aut_id'])) {
 	$isAuthor = 1;
-	$myPubURL = $authorDetails['aut_mypub_url'];
+	$myPubURLPref = $authorDetails['aut_mypub_url'];
 } else {
 	$isAuthor = 0;
-	$myPubURL = "";
+	$myPubURLPref = "";
 }
 //$myPubURL = Author::getMyPubURL($username);
 // if the user has no preferences set yet, get it from the system-wide options
@@ -114,7 +114,7 @@ $front_pages = array("front_page" => "Standard Full Front Page",
 $tpl->assign("SHIB_SWITCH", SHIB_SWITCH);
 $tpl->assign("shibAttribs", $shibAttribs);
 $tpl->assign("user_prefs", $prefs);
-$tpl->assign("myPubURL", $myPubURL);
+$tpl->assign("myPubURLPref", $myPubURLPref);
 $tpl->assign("isAuthor", $isAuthor);
 $tpl->assign("front_pages", $front_pages);
 $tpl->assign("zones", Date_API::getTimezoneList());
