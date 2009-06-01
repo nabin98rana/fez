@@ -98,7 +98,7 @@
         foreach ($xsdmf_to_use as &$xsdmf) {
         	
             if( $xsdmf['xsdmf_multiple'] == 1 ) {
-				$xsdmf['fields_num_display'] = count(array_filter(array($details[$xsdmf['xsdmf_id']]))) + 1;
+				$xsdmf['fields_num_display'] = count(array_filter($details[$xsdmf['xsdmf_id']])) + 1;
             }
         }
         
