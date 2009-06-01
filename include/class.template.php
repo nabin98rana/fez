@@ -209,7 +209,11 @@ class Template_API
 			$authorDetails = Author::getDetailsByUsername($username);
 			if (is_numeric($authorDetails['aut_id'])) {
 				$isAuthor = 1;
-				$myPubURL = $authorDetails['aut_mypub_url'];
+				if ($authorDetails['aut_mypub_url'] == '') {
+					$myPubURL = $authorDetails['aut_org_username'];
+				} else {
+					$myPubURL = $authorDetails['aut_mypub_url'];
+				}
 			} else {
 				$isAuthor = 0;
 				$myPubURL = "";
