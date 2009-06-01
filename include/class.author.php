@@ -905,6 +905,30 @@ class Author
         }
     }
 
+	/**
+	 * Gets a list of alternative names this author used
+	 *
+	 * @param integer $authorId
+	 * @return array if results found, or an empty string if no results found
+	 */
+	function getAlternativeNamesList($authorId)
+	{
+		$query = "SELECT rek_author, count(*) as paper_count FROM " . APP_TABLE_PREFIX . "record_search_key_author aut ";
+		$query .= "JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id autid ";
+		$query .= "ON (rek_author_pid = rek_author_id_pid AND aut.rek_author_order = autid.rek_author_id_order) ";
+		$query .= "WHERE autid.rek_author_id = {$authorId} ";
+		$query .= "GROUP BY rek_author ";
+		$query .= "ORDER BY 2 desc ";
+
+		$result = $GLOBALS['db_api']->dbh->getAssoc($query);
+		if (PEAR::isError($result))
+		{
+			Error_Handler::LogError(array($result->getMessage(), $result->getDebugInfo()), __FILE__, __LINE__);
+			return '';
+		}
+		return $result;
+	}
+
     function najaxGetMeta()
     {
         NAJAX_Client::mapMethods($this, array('getFullname','getDisplayName' ));

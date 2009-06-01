@@ -54,7 +54,7 @@
 	</table>
 	{/if}
 		
-	{if $facets && $list_type != 'collection_records_list' && $list_type != 'collection_list' && $list_type != 'community_list'}
+	{if ($facets && $list_type != 'collection_records_list' && $list_type != 'collection_list' && $list_type != 'community_list') || (is_array($alternativeAuthorNamesList) && count($alternativeAuthorNamesList) > 1)}
     <div class="facet">
     <div class="facetheader">
     <h2>Refine</h2>
@@ -70,8 +70,15 @@
         {/foreach}
         <li>&nbsp;</li>
     {/foreach}
+	{if is_array($alternativeAuthorNamesList) && count($alternativeAuthorNamesList) > 1}
+		<li><strong>Names this author has published as</strong></li>
+		{foreach from=$alternativeAuthorNamesList item=authorLink}
+		<li class="facetarrow">{$authorLink}</li>
+		{/foreach}
+		<li>&nbsp;</li>
+	{/if}
     </ul>
-    
+
     </div>
     {/if}
 <div style="padding:20px;">

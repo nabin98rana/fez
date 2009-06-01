@@ -511,6 +511,19 @@ class Lister
 				$filter["searchKey".Search_Key::getID("Author ID")] = $author_id; //
 				$author = Author::getFullname($author_id); 
             	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter);
+
+				$alternativeAuthorNamesList = Author::getAlternativeNamesList($author_id);
+
+				$namesList = array();
+				if (count($alternativeAuthorNamesList) > 1)
+				{
+					foreach ($alternativeAuthorNamesList as $name => $paperCount)
+					{
+						$namesList[] = '<a href="' . APP_RELATIVE_URL . 'list/author/'.urlencode($name).'">'.$name.'</a> ('.$paperCount.')';
+					}
+				}
+
+				$tpl->assign('alternativeAuthorNamesList', $namesList);
             	
                 $list_info = $list["info"];
                 $list = $list["list"];
@@ -861,7 +874,7 @@ class Lister
         	$facets = @$list['facets'];
         	$snips = @$list['snips'];
         	$list = @$list["list"];
-			
+
         	// KJ@ETH
         	$tpl->assign("major_function", "search");
 			$tpl->assign("q", htmlspecialchars($params['search_keys'][0]));
