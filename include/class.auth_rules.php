@@ -67,8 +67,8 @@ class AuthRules
         $rule = Misc::escapeString($rule);
         $value = Misc::escapeString($value);
         $stmt = "SELECT ar_id " .
-                "FROM {$dbtp}auth_rules " .
-                "WHERE ar_rule='$rule' and ar_value='$value.'";
+                "FROM ".$dbtp."auth_rules " .
+                "WHERE ar_rule='".$rule."' AND ar_value='".$value."' ORDER BY ar_id ASC ";
         $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
         if (PEAR::isError($res)) {
             Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
