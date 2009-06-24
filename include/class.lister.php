@@ -411,8 +411,8 @@ class Lister
         	/*
         	 * Remove 'citation' and 'classic' display option when viewing a list of subjects
         	 */
-        	unset($tpls[4]);
-        	unset($tpls[5]);
+//        	unset($tpls[4]);
+  //      	unset($tpls[5]);
             
         } elseif ($browse == "latest") {
             
@@ -631,9 +631,10 @@ class Lister
 
 			$use_faceting = true;
 			$use_highlighting = false;
+			$simple = true;
+			$citationCache = true;
 
-
-	 		$list = Record::getListing($options, array(9,10), $current_row, $max, $sort_by, false, false, $filter, $operator, $use_faceting, $use_highlighting);
+	 		$list = Record::getListing($options, array(9,10), $current_row, $max, $sort_by, $simple, $citationCache, $filter, $operator, $use_faceting, $use_highlighting);
 	        $list_info = $list["info"];
 	        $facets = @$list['facets'];
             $list = $list["list"];
@@ -654,7 +655,7 @@ class Lister
 				if (is_numeric($book_xdis_id)) {
 					array_push($otherDisplayTypes, $book_xdis_id);
 			 		$filter["searchKey".Search_Key::getID("Display Type")] = $book_xdis_id; // enforce display type X only
-			 		$bookList = Record::getListing($options, array(9,10), $current_row, $max, $sort_by, false, false, $filter, $operator, $use_faceting, $use_highlighting);
+			 		$bookList = Record::getListing($options, array(9,10), $current_row, $max, $sort_by, $simple, $citationCache, $filter, $operator, $use_faceting, $use_highlighting);
 			        $bookListInfo = $bookList["info"];
 		            $bookList = $bookList["list"];
 				} else {
@@ -666,7 +667,7 @@ class Lister
 				if (is_numeric($bc_xdis_id)) {
 					array_push($otherDisplayTypes, $bc_xdis_id);
 			 		$filter["searchKey".Search_Key::getID("Display Type")] = $bc_xdis_id; // enforce display type X only
-			 		$bcList = Record::getListing($options, array(9,10), $current_row, $max, $sort_by, false, false, $filter, $operator, $use_faceting, $use_highlighting);
+			 		$bcList = Record::getListing($options, array(9,10), $current_row, $max, $sort_by, $simple, $citationCache, $filter, $operator, $use_faceting, $use_highlighting);
 			        $bcListInfo = $bcList["info"];
 		            $bcList = $bcList["list"];
 				} else {
@@ -679,7 +680,7 @@ class Lister
 				if (is_numeric($ja_xdis_id)) {
 					array_push($otherDisplayTypes, $ja_xdis_id);
 			 		$filter["searchKey".Search_Key::getID("Display Type")] = $ja_xdis_id; // enforce display type X only
-			 		$jaList = Record::getListing($options, array(9,10), $current_row, $max, $sort_by, false, false, $filter, $operator, $use_faceting, $use_highlighting);
+			 		$jaList = Record::getListing($options, array(9,10), $current_row, $max, $sort_by, $simple, $citationCache, $filter, $operator, $use_faceting, $use_highlighting);
 			        $jaListInfo = $jaList["info"];
 		            $jaList = $jaList["list"];
 				} else {
@@ -691,7 +692,7 @@ class Lister
 				if (is_numeric($cp_xdis_id)) {
 					array_push($otherDisplayTypes, $cp_xdis_id);
 			 		$filter["searchKey".Search_Key::getID("Display Type")] = $cp_xdis_id; // enforce display type X only
-			 		$cpList = Record::getListing($options, array(9,10), $current_row, $max, $sort_by, false, false, $filter, $operator, $use_faceting, $use_highlighting);
+			 		$cpList = Record::getListing($options, array(9,10), $current_row, $max, $sort_by, $simple, $citationCache, $filter, $operator, $use_faceting, $use_highlighting);
 			        $cpListInfo = $cpList["info"];
 		            $cpList = $cpList["list"];
 				} else {
@@ -703,7 +704,7 @@ class Lister
 				if (is_numeric($ci_xdis_id)) {
 					array_push($otherDisplayTypes, $ci_xdis_id);
 			 		$filter["searchKey".Search_Key::getID("Display Type")] = $ci_xdis_id; // enforce display type X only
-			 		$ciList = Record::getListing($options, array(9,10), $current_row, $max, $sort_by, false, false, $filter, $operator, $use_faceting, $use_highlighting);
+			 		$ciList = Record::getListing($options, array(9,10), $current_row, $max, $sort_by, $simple, $citationCache, $filter, $operator, $use_faceting, $use_highlighting);
 			        $ciListInfo = $ciList["info"];
 		            $ciList = $ciList["list"];
 				} else {
@@ -714,7 +715,7 @@ class Lister
 		 		$filter["manualFilter"] .= $operator." !display_type_i:(".implode(" OR ", $otherDisplayTypes).")"; // enforce display type X only
 	//			echo $filter["manualFilter"];
 				unset($filter["searchKey".Search_Key::getID("Display Type")]);
-		 		$otherList = Record::getListing($options, array(9,10), $current_row, $max, $sort_by, false, false, $filter, $operator, $use_faceting, $use_highlighting);
+		 		$otherList = Record::getListing($options, array(9,10), $current_row, $max, $sort_by, $simple, $citationCache, $filter, $operator, $use_faceting, $use_highlighting);
 		        $otherListInfo = $otherList["info"];
 	            $otherList = $otherList["list"];
 
@@ -874,7 +875,7 @@ class Lister
         	$facets = @$list['facets'];
         	$snips = @$list['snips'];
         	$list = @$list["list"];
-
+			
         	// KJ@ETH
         	$tpl->assign("major_function", "search");
 			$tpl->assign("q", htmlspecialchars($params['search_keys'][0]));
