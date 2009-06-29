@@ -76,6 +76,8 @@ $community_pid = @$_POST["community_pid"] ? $_POST["community_pid"] : @$_GET["co
 $tpl->assign("collection_pid", $collection_pid);
 $tpl->assign("community_pid", $community_pid);
 
+$quick_auth_templates = FezACML::getQuickTemplateAssocList();
+
 $community_list = Community::getAssocList();
 $collection_list = Collection::getAssocList();
 

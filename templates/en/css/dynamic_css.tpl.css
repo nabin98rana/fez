@@ -150,6 +150,11 @@ h4 {
     text-decoration: underline;
 }
 
+.white_link_underline {
+    color: #FFFFFF;
+    text-decoration: underline;
+}
+
 .white_link {
     color: #FFFFFF;
     text-decoration: none;

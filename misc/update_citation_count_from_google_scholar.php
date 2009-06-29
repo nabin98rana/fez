@@ -41,7 +41,8 @@ $options["sort_order"] = 1;
 $filter = array();
 $filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
 $filter["searchKey".Search_Key::getID("Object Type")] = 3; // records only
-
+// don't search for ones already found.. given the slowness of this service it would take a year to do 100k anyway
+$filter["manualFilter"] = " !gs_citation_count_i:[* TO *] ";
 $listing = Record::getListing($options, array(9,10), 0, $max, 'Created Date', false, false, $filter);
 
 for($i=0; $i<((int)$listing['info']['total_pages']+1); $i++) {
@@ -66,6 +67,7 @@ for($i=0; $i<((int)$listing['info']['total_pages']+1); $i++) {
 			if($cites) {
 				print "Updating $pid with ".$cites['citedby'] .', '.$cites['link']."\n";
 				Record::updateGoogleScholarCitationCount($pid, $cites['citedby'], $cites['link']);
+				Google_Scholar::insertGoogleScholarCitationCount($pid, $cites['citedby'], $cites['link']);
 			}	 			 		
 	 	}
 		sleep($sleep); // Wait before using the ESTI Search Service again

@@ -38,6 +38,21 @@ class AuthIndex {
         $has_list_rules = false;
         $has_view_rules = false;
         
+		// Check for datastream policy quick auth, if exists replace existing datastream policies with it
+		$ds = Fedora_API::callGetDatastreams($pid);
+//		Logger::debug(print_r($ds, true));
+        foreach ($ds as $dsTitle) {
+            $dsIDName = $dsTitle['ID'];
+			if ($dsTitle['controlGroup'] == "M" 
+				&& (!Misc::hasPrefix($dsIDName, 'preview_')
+				    && !Misc::hasPrefix($dsIDName, 'web_')
+				    && !Misc::hasPrefix($dsIDName, 'thumbnail_')
+				    && !Misc::hasPrefix($dsIDName, 'stream_')
+				    && !Misc::hasPrefix($dsIDName, 'presmd_'))) {				
+				Record::checkQuickAuthFezACML($pid, $dsIDName);
+			}
+        }
+		
         // should not need this when going straight to fezacml xml rather than old rmf index
         if (!empty($res)) {
             // add some pre-processed special rules
@@ -219,7 +234,8 @@ class AuthIndex {
             
             if( APP_SOLR_INDEXER == "ON" ) {
                 // KJ/ETH: fulltext indexing of $pid should automatically
-                // recurse to children                
+                // recurse to children             
+				//Logger::debug("Auth_Index::setIndexAuthBGP ADDING ".$pid." TO QUEUE");   
                 FulltextQueue::singleton()->add($pid);
             }
         }

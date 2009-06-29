@@ -62,6 +62,7 @@ include_once(APP_INC_PATH . "class.xsd_display.php");
 include_once(APP_INC_PATH . "class.doc_type_xsd.php");
 include_once(APP_INC_PATH . "class.foxml.php");
 include_once(APP_INC_PATH . "class.auth_rules.php");
+include_once(APP_INC_PATH . "class.google_scholar.php");
 include_once(APP_INC_PATH . "class.auth_index.php");
 include_once(APP_INC_PATH . "class.xml_helper.php");
 include_once(APP_INC_PATH . "class.record_lock.php");
@@ -827,6 +828,8 @@ class Record
         }
 		Citation::updateCitationCache($pid, "");
 		Statistics::updateSummaryStatsOnPid($pid);
+		Google_Scholar::updateCitationCache($pid);
+		Record::updateThomsonCitationCountIndex($pid);
         //
         // KJ: update fulltext index
         //
@@ -893,7 +896,7 @@ class Record
 	        if (isset($acml_cache['ds'][$dsID][$pid])) {
 				return $acml_cache['ds'][$dsID][$pid];
 			} else {
-				$dsIDCore = preg_replace("/(web_|preview_|thumb_|stream_)/", "", $dsID);
+				$dsIDCore = preg_replace("/(web_|preview_|thumbnail_|stream_)/", "", $dsID);
 				$dsIDCore = substr($dsIDCore, 0, strrpos($dsIDCore, "."));
 				$ds_pattern = '/^FezACML_'.$dsIDCore.'(.*)\.xml$/';
 //				$ds_search = 'FezACML_'.$dsID.'.xml';
@@ -2019,6 +2022,66 @@ class Record
 	}
 
 	/**
+	 * Method updates the Index with the Thomson citation count from the existing data
+	 *  
+	 * @param $pid The PID to update the citation count for
+	 * @return bool True if the update was successful else false
+	 */
+
+	public static function updateThomsonCitationCountIndex($pid) {
+		$dbtp =  APP_TABLE_PREFIX; // Database and table prefix
+
+		// Get the current index count
+		$stmt = "SELECT
+                    rek_thomson_citation_count
+                 FROM
+                    " . $dbtp . "record_search_key
+                 WHERE
+                    rek_pid = '".Misc::escapeString($pid)."'";
+
+        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+        } else {
+        	$index_count = $res;
+        }
+
+		// Get the count from the existing datastore
+    	$stmt = "SELECT 
+    				tc_count
+    			 FROM
+                    " . $dbtp . "thomson_citations
+                 WHERE
+                    tc_pid = '".Misc::escapeString($pid)."'";
+        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+        if (PEAR::isError($res)) {
+            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+            return false;
+        } else {
+			$count = $res;
+		}
+
+        if (is_numeric($count) && ($count != $index_count)) {
+	        // If the count has changed, or there is no previous count, update the count
+	        $stmt = "UPDATE
+	                    " . $dbtp . "record_search_key
+	                 SET
+	                 	rek_thomson_citation_count = '".Misc::escapeString($count)."'
+	                 WHERE
+	                    rek_pid = '".Misc::escapeString($pid)."'";
+	        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+	        if (PEAR::isError($res)) {
+	            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+	            return false;
+			} else {
+				return true;
+			}
+		} else {
+			return true;
+		}
+	}
+
+	/**
 	 * Method updates the Thomson citation count
 	 *  
 	 * @param $pid The PID to update the citation count for
@@ -2144,7 +2207,7 @@ class Record
 		$stmt = "SELECT
 					tc_last_checked,tc_created,tc_count
 				 FROM
-		           " . $dbtp . "thomson_citations		         
+		           " . $dbtp . "thomson_citations
                  WHERE
                     tc_pid = '".Misc::escapeString($pid)."'
                  ORDER BY tc_created ASC
@@ -3106,10 +3169,45 @@ class Record
 					} else {
 		                Error_Handler::logError("Unable to add datastream.  Missing add type.", __FILE__,__LINE__);
 					}
-				} elseif ($mod) {                
+				} elseif ($mod) {
+					
+					//First check 
+					
 					if( $mod_ByValue ) {
+						$currentXML = Fedora_API::callGetDatastreamContents($pid, $datastreamID, true);
+						if (!defined('APP_NO_TIDY') || !APP_NO_TIDY) {
+							$config = array(
+							            'indent'         => true,
+							            'output-xml'     => true,
+							            'input-xml'     => true,
+							            'wrap'         => '1000');
+
+							// Tidy
+							$tidy = new tidy();
+							$tidy->parseString($currentXML, $config, 'utf8');
+							$tidy->cleanRepair();
+							$currentXML = tidy_get_output($tidy);
+
+
+							$tidy = new tidy();
+							$tidy->parseString($datastreamXMLContent[$dsKey], $config, 'utf8');
+							$tidy->cleanRepair();
+							$cleanXML = tidy_get_output($tidy);
+						} else {
+							$cleanXML = $datastreamXMLContent[$dsKey];
+						}
+
+						if ($currentXML == $cleanXML) {
+//							Logger::debug($pid." ".$datastreamID." xml is the SAME! so not UPDATING! \n");
+						} else {
+//							Logger::debug($pid." ".$datastreamID." xml is DIFFERENT! so UPDATING! \n");
+//							Logger::debug("CURRENT:\n".$currentXML);
+//							Logger::debug("NEW:\n".$datastreamXMLContent[$dsKey]);							
+//							Logger::debug("NEW CLEANED:\n".$cleanXML);
+//							Logger::debug($datastreamXMLContent[$dsKey]);
 				    	Fedora_API::callModifyDatastreamByValue($pid, $datastreamID, $dsTitle['STATE'], $dsTitle['LABEL'],
-	   	                    $datastreamXMLContent[$dsKey], $dsTitle['MIMETYPE'], $versionable);
+	   	                    $cleanXML, $dsTitle['MIMETYPE'], $versionable);
+						}
 					} elseif( $mod_ByRef ) {
 						Fedora_API::callModifyDatastreamByReference($pid, $datastreamID, $dsTitle['LABEL'],
 	   	                    $location, $dsTitle['MIMETYPE'], $versionable);
@@ -3143,7 +3241,40 @@ class Record
 
 		Record::setIndexMatchingFields($pid);
     }
-    
+
+	function checkQuickAuthFezACML($pid, $dsID) {
+		$xmlObjNum = Record::getDatastreamQuickAuthTemplate($pid);
+		if (is_numeric($xmlObjNum) && $xmlObjNum != "-1" && $xmlObjNum != -1) {
+			$xmlObj = FezACML::getQuickTemplateValue($xmlObjNum);
+			if ($xmlObj != false) {
+				//$dsID = $short_ds;
+//				Logger::debug("Record::checkQuickAuthFezACML IN ".$pid." ");
+				$FezACML_dsID = FezACML::getFezACMLDSName($dsID);
+				if (Fedora_API::datastreamExists($pid, $FezACML_dsID)) {
+					Fedora_API::callModifyDatastreamByValue($pid, $FezACML_dsID, "A", "FezACML security for datastream - ".$dsID,
+							$xmlObj, "text/xml", "true");
+				} else {
+					Fedora_API::getUploadLocation($pid, $FezACML_dsID, $xmlObj, "FezACML security for datastream - ".$dsID,
+							"text/xml", "X",null,"true");
+				}
+			}
+		}
+	}
+
+    /**
+     * getDatastreamQuickAuthTemplate
+     * Find out if the current user can view this record
+	 *
+     * @access  public
+     * @return  integer : the quick auth template ID primary key for the fez_auth_quick_template table from the FezACML 
+     */
+    function getDatastreamQuickAuthTemplate($pid) {
+//		Logger::debug("Record::getDatastreamQuickAuthTemplate IN ".$pid." ");
+		$userPIDAuthGroups = Auth::getAuthorisationGroups($pid);
+//		Logger::debug(print_r($userPIDAuthGroups, true));
+//		Logger::debug("Record::getDatastreamQuickAuthTemplate WITH VALUE ".$userPIDAuthGroups['datastreamQuickAuth']." ");
+		return $userPIDAuthGroups['datastreamQuickAuth'];
+    }
      
     function insertRecentRecords($pids)
     {
@@ -3546,6 +3677,7 @@ class RecordGeneral
 	        } */
 		return Auth::checkAuthorisation($this->pid, "", $roles, $ret_url, $this->auth_groups, $redirect);
     }
+
 
     /**
      * canView

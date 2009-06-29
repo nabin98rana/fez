@@ -742,6 +742,7 @@ class Auth
         // loop through the ACML docs found for the current pid or in the ancestry
 		$cleanedArray = array();
 		$overrideAuth = array();
+		$datastreamQuickAuth = false;
         foreach ($ACMLArray as &$acml) {
 	        // Usually everyone can list, view and view comments - these need to be reset for each ACML loop
 			// because they are presumed ok first
@@ -753,6 +754,15 @@ class Auth
             $inherit = false;
             if( $inheritSearch->length > 0 ) {
                 $inherit = true;
+            }
+            $datastreamSearch = $xpath->query('/FezACML/datastream_quickauth_template[.>0]');
+              
+            if( $datastreamSearch->length > 0 ) {
+				foreach ($datastreamSearch as $dsSearchNode) {
+					if ($datastreamQuickAuth == false) {
+						$datastreamQuickAuth = $dsSearchNode->nodeValue;
+					}
+				}				
             }
             
             foreach ($roleNodes as $roleNode) {
@@ -916,7 +926,11 @@ class Auth
 		if ((in_array('Viewer', $userPIDAuthGroups) && !in_array('Lister', $userPIDAuthGroups)) || $overrideAuth['Lister'] == true) {
 			array_push($userPIDAuthGroups, "Lister");	
 		}
-                
+		if ($datastreamQuickAuth != false) {
+			$userPIDAuthGroups["datastreamQuickAuth"] = $datastreamQuickAuth;
+		} else {
+			$userPIDAuthGroups["datastreamQuickAuth"] = false;
+		}
 		/*
 		 * Special Auth Case (This isn't set via the interface)
 		 * If a user has creator rights, the pid isn't 'submitted for approval'
