@@ -225,7 +225,7 @@ class Google_Scholar
 
 		$stmt = "INSERT INTO
                     " . $dbtp . "google_scholar_citations
-                 (gs_id, gs_pid, gs_count, gs_link gs_last_checked, gs_created)
+                 (gs_id, gs_pid, gs_count, gs_link, gs_last_checked, gs_created)
                  VALUES
                  (NULL, '".Misc::escapeString($pid)."', '".Misc::escapeString($count)."', '".Misc::escapeString($link)."', '".time()."', '".time()."')";
 
