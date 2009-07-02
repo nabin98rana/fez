@@ -436,7 +436,7 @@ return;
 			//Fez Solr schema.xml has the default search to be an AND based search, while dedupe similar titles query needs to be an OR based search
 			// so it doesn't exclude similar titles 
 			$titleOr = implode(" OR ", explode(" ", $title));
-			$queryString = "title_t:(".$titleOr.")";
+			$queryString = "title_t:(".$index->solr->escape($titleOr).")";
 			$response = $index->solr->search($queryString, $start, $page_rows, $params);
 			$total_rows = $response->response->numFound;
 			$res = array();
