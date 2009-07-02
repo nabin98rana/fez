@@ -159,7 +159,7 @@ abstract class FulltextIndex {
     		$this->releaseLock();
     	}
     	
-    	$this->bgp->setStatus("Fulltext indexer finished. Processed $countDocs item(s).");
+    	$this->bgp->setStatus("Fulltext indexer finished. Processed ".$this->countDocs." item(s).");
     }
 
     

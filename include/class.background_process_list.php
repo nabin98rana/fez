@@ -38,7 +38,7 @@ include_once(APP_INC_PATH . "class.date.php");
 class BackgroundProcessList 
 {
 
-    var $auto_delete_names = "'Index Auth','Fulltext Index'";
+    var $auto_delete_names = "'Index Auth','Fulltext Index','Fulltext Index Update'";
     
     function getList($usr_id)
     {
