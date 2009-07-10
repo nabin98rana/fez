@@ -435,6 +435,7 @@ return;
 			$params['fq'] = 'object_type_i:3 AND !pid_t:'.$index->solr->escape($pid).$pp_solr_filter;
 			//Fez Solr schema.xml has the default search to be an AND based search, while dedupe similar titles query needs to be an OR based search
 			// so it doesn't exclude similar titles 
+			$title = $index->solr->escapeBooleans($title);
 			$titleOr = implode(" OR ", explode(" ", $title));
 			$queryString = "title_t:(".$index->solr->escape($titleOr).")";
 			$response = $index->solr->search($queryString, $start, $page_rows, $params);
