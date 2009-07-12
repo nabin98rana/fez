@@ -139,7 +139,7 @@ class Apache_Solr_Service
 		
 		$value = strtolower($value);
 		//list taken from http://lucene.apache.org/java/docs/queryparsersyntax.html#Escaping%20Special%20Characters
-		$pattern = '/(and|or)/';
+		$pattern = '/( and | or )/';
 		$replace = '\\\$1';
 
 		return preg_replace($pattern, $replace, $value);
