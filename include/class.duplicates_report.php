@@ -437,6 +437,8 @@ return;
 			// so it doesn't exclude similar titles 
 			$title = $index->solr->escapeBooleans($title);
 			$titleOr = implode(" OR ", explode(" ", $title));
+			$titleOr = preg_replace("/ OR OR /i", " OR ", $titleOr);
+			$titleOr = preg_replace("/ AND AND /i", " AND ", $titleOr);
 			$queryString = "title_t:(".$index->solr->escape($titleOr).")";
 			$response = $index->solr->search($queryString, $start, $page_rows, $params);
 			$total_rows = $response->response->numFound;
