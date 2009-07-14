@@ -24,5 +24,3 @@ class SelectCollection {
         NAJAX_Client::publicMethods($this, array('getCollections'));
     }
 }
-
-?>

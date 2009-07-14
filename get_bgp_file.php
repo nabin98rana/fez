@@ -9,3 +9,4 @@ $bgp_id = Misc::GETorPOST('bgp_id');
 $bgp = new BackgroundProcess($bgp_id);
 $bgp->getExportFile();
 
+FezLog::get()->close();

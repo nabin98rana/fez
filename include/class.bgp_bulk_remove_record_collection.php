@@ -36,47 +36,45 @@ include_once(APP_INC_PATH.'class.background_process.php');
 
 class BackgroundProcess_Bulk_Remove_Record_Collection extends BackgroundProcess
 {
-    function __construct() 
-    {
-        parent::__construct();
-        $this->include = 'class.bgp_bulk_remove_record_collection.php';
-        $this->name = 'Bulk Remove Records from Collection';
-    }
+	function __construct()
+	{
+		parent::__construct();
+		$this->include = 'class.bgp_bulk_remove_record_collection.php';
+		$this->name = 'Bulk Remove Records from Collection';
+	}
 
-    function run()
-    {
-        $this->setState(BGP_RUNNING);
-        extract(unserialize($this->inputs));
-		
+	function run()
+	{
+		$this->setState(BGP_RUNNING);
+		extract(unserialize($this->inputs));
+
 		/*
 		 * Remove pid(s) to collection
 		 */
 		if (!empty($pids) && is_array($pids)) {
-            
-    		foreach ($pids as $pid) {
-    	        $this->setHeartbeat();
-        	    $this->setProgress(++$this->pid_count);
-        	    
-    			$record = new RecordObject($pid);
-    			if ($record->canEdit()) {
-    				
-    			    $res = $record->removeFromCollection($collection_pid);
-    				if( $res ) {
-    				    $this->setStatus("Removed record '".$pid."' from collection '".$collection_pid."'");	
-    				} else {
-    				    $this->setStatus("ERROR Removing '".$pid."' from collection '".$collection_pid."'");
-    				}
-    	        	
-    			} else {
-    				$this->setStatus("Skipped '".$pid."'. User can't edit this record");
-    			}
-    		}
-    		
-            $this->setStatus("Finished Bulk Remove from Collection");
-            
-		}
-        $this->setState(BGP_FINISHED);
-    }
-}
 
-?>
+			foreach ($pids as $pid) {
+				$this->setHeartbeat();
+				$this->setProgress(++$this->pid_count);
+				 
+				$record = new RecordObject($pid);
+				if ($record->canEdit()) {
+
+					$res = $record->removeFromCollection($collection_pid);
+					if( $res ) {
+						$this->setStatus("Removed record '".$pid."' from collection '".$collection_pid."'");
+					} else {
+						$this->setStatus("ERROR Removing '".$pid."' from collection '".$collection_pid."'");
+					}
+
+				} else {
+					$this->setStatus("Skipped '".$pid."'. User can't edit this record");
+				}
+			}
+
+			$this->setStatus("Finished Bulk Remove from Collection");
+
+		}
+		$this->setState(BGP_FINISHED);
+	}
+}

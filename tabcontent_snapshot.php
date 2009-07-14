@@ -20,8 +20,6 @@ if ($browseMode == "topdownloads") {
 
 
 
-
-
 function displayTopDownloads() {
 
 	$tpl = new Template_API();
@@ -29,10 +27,10 @@ function displayTopDownloads() {
 
 	$recentDownloads = Record::getRecentDLRecords();
     if (is_array($recentDownloads) && sizeof($recentDownloads) > 0) {	
-	foreach ($recentDownloads[0] as $rowID => $pid) {
+	foreach ($recentDownloads as $pid => $data) {
 	    $dlStats[$pid] = array(
 	       'citation'   =>  Record::getCitationIndex($pid),
-	       'downloads'  =>  $recentDownloads[1][$rowID],
+	       'downloads'  =>  $data['rdi_downloads'],
 	    );
 	}
 	} else {
@@ -51,7 +49,7 @@ function displayRecentItems() {
 	
 	$tpl->setTemplate("tab_recent_items.html");
 	$recentRecordsPIDs = Record::getRecentRecords();
-	$list = Record::getDetailsLite($recentRecordsPIDs[0]);
+	$list = Record::getDetailsLite($recentRecordsPIDs);
 	$tpl->assign("list", $list);
 	$tpl->assign("eserv_url", APP_RELATIVE_URL."eserv/");
 	$tpl->displayTemplate();
@@ -69,5 +67,3 @@ function displayCloudTag() {
 	}
 
 }
-
-?>

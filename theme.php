@@ -34,4 +34,4 @@ $transformResult = $proc->transformToXML($dri_dom);
 //header('Content-Type: application/xml');
 print($transformResult); // html document
 
-?>
+FezLog::get()->close();

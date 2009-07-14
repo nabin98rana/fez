@@ -24,6 +24,3 @@ class SelectXSDDisplay {
         NAJAX_Client::publicMethods($this, array('getMatchingFields'));
     }
 }
-
-
-?>

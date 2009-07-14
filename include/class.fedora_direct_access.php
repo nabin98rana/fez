@@ -42,159 +42,222 @@ include_once(APP_INC_PATH . "class.misc.php");
  * Fedora_Direct_Access
  *
  * This class is to address some short-comings of the Fedora API, most notably, the extremely
- * high fetch times for simple operations like retrieving a comprehensive list of objects in the 
+ * high fetch times for simple operations like retrieving a comprehensive list of objects in the
  * repository. Until such time as performance of these functions can be improved, we are going
  * to connect directly to Fedora to pluck out what we want.
  */
 
 class Fedora_Direct_Access {
 
-    /**
-     * Fedora_Direct_Access
-     *
-     * This method sets up the database connection.
-     */
-    function Fedora_Direct_Access() {
-        
+	/**
+	 * Fedora_Direct_Access
+	 *
+	 * This method sets up the database connection.
+	 */
+	function Fedora_Direct_Access() 
+	{
 		$this->pid = "";
 		$this->xml = "";
+
+		return;
+	}
+
+
+
+	/**
+	 * fetchAllFedoraPIDs
+	 *
+	 * This method returns a list of all PIDs in Fedora (provided they are not deleted), along
+	 * with each object's title.
+	 */
+	function fetchAllFedoraPIDs($terms = "", $object_state = 'A') 
+	{
+		$log = FezLog::get();
+		$db = DB_API::get('fedora_db');
 		
-        return;
-    }
-
-
-
-    /**
-     * fetchAllFedoraPIDs
-     *
-     * This method returns a list of all PIDs in Fedora (provided they are not deleted), along 
-     * with each object's title.
-     */
-	function fetchAllFedoraPIDs($terms = "", $object_state = 'A') {
-
-        $terms = Misc::escapeString(str_replace("*", "", $terms));  // Get the search terms ready for SQLage.
+		$terms = str_replace("*", "", $terms);  // Get the search terms ready for SQLage.
 		$state_sql = "";
 		if ($object_state != "") {
-			$state_sql = " AND doState = '".$object_state."'";
+			$state_sql = " AND doState = ".$db->quote($object_state);
 		}
-        $result = $GLOBALS['db_api']->dbh_fda->getAll("SELECT doregistry.dopid AS pid, label AS title, doState as dostate FROM doregistry, dobj WHERE doregistry.doPID = dobj.doPID AND (doregistry.dopid LIKE '%" . $terms . "%' OR label LIKE '%" . $terms . "%') ".$state_sql, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($result)) {
-            // Attempt the same thing with the other known table spelling.
-            $result = $GLOBALS['db_api']->dbh_fda->getAll("SELECT doRegistry.dopid AS pid, label AS title, doState AS dostate FROM doRegistry, dobj WHERE doRegistry.doPID = dobj.doPID AND (doRegistry.dopid LIKE '%" . $terms . "%' OR label LIKE '%" . $terms . "%') ".$state_sql, DB_FETCHMODE_ASSOC);
-            if (PEAR::isError($result)) {
-                Error_Handler::logError(array($result->getMessage(), $result->getDebugInfo()), __FILE__, __LINE__);			
-                return array();
-            }
-        }
-        return $result;
-    }
+		
+		$no_result = false;
+		try {
+			$stmt = "SELECT doregistry.dopid AS pid, label AS title, doState as dostate FROM doregistry, dobj WHERE doregistry.doPID = dobj.doPID AND (doregistry.dopid LIKE ".$db->quote("%" . $terms . "%")." OR label LIKE ".$db->quote("%" . $terms . "%").") ".$state_sql;
+			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$no_result = true;
+		}
+		
+		if($no_result) {
+			try {
+				"SELECT doRegistry.dopid AS pid, label AS title, doState AS dostate FROM doRegistry, dobj WHERE doRegistry.doPID = dobj.doPID AND (doRegistry.dopid LIKE ".$db->quote("%" . $terms . "%")." OR label LIKE ".$db->quote("%" . $terms . "%").") ".$state_sql;
+				$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+			}
+			catch(Exception $ex) {
+				
+				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				return array();
+			}
+		}
+		
+		return $res;
+	}
 
-    /**
-     * getObjectXML
-     *
-     */
-	function getObjectXML($pid, $refresh = false) {
-        static $returns;
-        if (!is_array($returns)) {
-            $returns = array();
-        }
-        if (count($returns) > 10) {
-            $returns = array();
-        }
-        if ($refresh != true && isset($returns[$pid]) && ($returns[$pid] != "")) {
-            $this->xml = $returns[$pid];
-            return $returns[$pid];
-        }
+	/**
+	 * getObjectXML
+	 *
+	 */
+	function getObjectXML($pid, $refresh = false) 
+	{
+		$log = FezLog::get();
+		$db = DB_API::get('fedora_db');
+		
+		static $returns;
+		if (!is_array($returns)) {
+			$returns = array();
+		}
+		if (count($returns) > 10) {
+			$returns = array();
+		}
+		if ($refresh != true && isset($returns[$pid]) && ($returns[$pid] != "")) {
+			$this->xml = $returns[$pid];
+			return $returns[$pid];
+		}
+		
+		try {
+			$stmt = "SELECT path FROM objectPaths WHERE token = ".$db->quote($pid);
+			$res = $db->fetchOne($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
 
-        $result = $GLOBALS['db_api']->dbh_fda->getOne("SELECT path FROM objectPaths WHERE token = '".$pid."'");
-        if (PEAR::isError($result)) {
-                return "";
-        }
 		$xml = "";
-		$xml = file_get_contents($result);
+		$xml = file_get_contents($res);
 		$this->xml = $xml;
-//		echo $xml;
-        $returns[$pid] = $xml;
-        return $xml;
-    }
+		$returns[$pid] = $xml;
+		return $xml;
+	}
 
-    function objectExists($pid) {
-        $result = $GLOBALS['db_api']->dbh_fda->getOne("SELECT path FROM objectPaths WHERE token = '".$pid."'");
-        if (PEAR::isError($result)) {
-                return "";
-        }
-        if ($result == "") {
-           $xml = false;
-        } else {
-           $xml = true;
-        }
-        return $xml;
-    }
+	function objectExists($pid) 
+	{
+		$log = FezLog::get();
+		$db = DB_API::get('fedora_db');
+		
+		try {
+			$stmt = "SELECT path FROM objectPaths WHERE token = ".$db->quote($pid);
+			$res = $db->fetchOne($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+		
+		if ($res == "") {
+			$xml = false;
+		} else {
+			$xml = true;
+		}
+		return $xml;
+	}
 
-    function isDeleted($pid) {
-        $result = $GLOBALS['db_api']->dbh_fda->getOne("SELECT dostate FROM dObj WHERE dopid = '".$pid."'");
-        if (PEAR::isError($result)) {
-                return "";
-        }
-        if ($result == "D") {
-           $xml = true;
-        } else {
-           $xml = false;
-        }
-        return $xml;
-    }
+	function isDeleted($pid) 
+	{
+		$log = FezLog::get();
+		$db = DB_API::get('fedora_db');
+		
+		try {
+			$stmt = "SELECT dostate FROM dObj WHERE dopid = ".$db->quote($pid);
+			$res = $db->fetchOne($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+		
+		if ($res == "D") {
+			$xml = true;
+		} else {
+			$xml = false;
+		}
+		return $xml;
+	}
 
 
-    function getDatastreamManagedContent($pid, $dsID, $dsVersionID) {
+	function getDatastreamManagedContent($pid, $dsID, $dsVersionID) 
+	{
+		$log = FezLog::get();
+		$db = DB_API::get('fedora_db');
+		
+		try {
+			$stmt = "SELECT path FROM datastreampaths WHERE token = ".$db->quote($pid."+".$dsID."+".$dsID.".".$dsVersionID);
+			$res = $db->fetchOne($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+		if ($res == "") {
+			return "";
+		}
+		$xml = "";
+		$xml = file_get_contents($res);
+		return $xml;
+	}
 
-        $result = $GLOBALS['db_api']->dbh_fda->getOne("SELECT path FROM datastreampaths WHERE token = '".$pid."+".$dsID."+".$dsID.".".$dsVersionID."'");
-        if (PEAR::isError($result)) {
-                return "";
-        }
-        if ($result == "") {
-          return "";
-        }
-        $xml = "";
-        $xml = file_get_contents($result);
-//        $this->xml = $xml;
-//      echo $xml;
-        return $xml;
-    }
 
+	function getDatastreamManagedContentPath($pid, $dsID, $dsVersionID) 
+	{
+		$log = FezLog::get();
+		$db = DB_API::get('fedora_db');
+		
+		try {
+			$stmt = "SELECT path FROM datastreampaths WHERE token = ".$db->quote($pid."+".$dsID."+".$dsID.".".$dsVersionID);
+			$res = $db->fetchOne($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+		
+		if ($res == '') {
+			return '';
+		}
+		return $res;
+	}
 
-	    function getDatastreamManagedContentPath($pid, $dsID, $dsVersionID) {
+	// like many of these functions requires the fedora path to be available to the apache/php webserver
+	function getDatastreamManagedContentStream($pid, $dsID, $dsVersionID, $seekPos) 
+	{
+		$log = FezLog::get();
+		$db = DB_API::get('fedora_db');
 
-	        $result = $GLOBALS['db_api']->dbh_fda->getOne("SELECT path FROM datastreampaths WHERE token = '".$pid."+".$dsID."+".$dsID.".".$dsVersionID."'");
-	        if (PEAR::isError($result)) {
-	                return "";
-	        }
-	        if ($result == "") {
-	          return "";
-	        }
-	        return $result;
-	    }
-
-		// like many of these functions requires the fedora path to be available to the apache/php webserver
-	    function getDatastreamManagedContentStream($pid, $dsID, $dsVersionID, $seekPos) {
-
-	        $result = $GLOBALS['db_api']->dbh_fda->getOne("SELECT path FROM datastreampaths WHERE token = '".$pid."+".$dsID."+".$dsID.".".$dsVersionID."'");
-	        if (PEAR::isError($result)) {
-	                return "";
-	        }
-	        if ($result == "") {
-	          return "";
-	        }
-			$fh = fopen($result, 'rb');
-			# seek to requested file position
-//			fseek($fh, $seekPos);
-			$size = filesize($result);
-			# output file
-			echo stream_get_contents($fh, $size, $seekPos); 
+		try {
+			$stmt = "SELECT path FROM datastreampaths WHERE token = ".$db->quote($pid."+".$dsID."+".$dsID.".".$dsVersionID);
+			$res = $db->fetchOne($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+		
+		if ($res == '') {
+			return '';
+		}
+		$fh = fopen($res, 'rb');
+		$size = filesize($res);
+		# output file
+		echo stream_get_contents($fh, $size, $seekPos);
 			
-	    }
+	}
 
 
-	function getMaxDatastreamVersion($pid, $dsID) {
+	function getMaxDatastreamVersion($pid, $dsID) 
+	{
 		if ($this->pid != $pid || $this->xml == "") {
 			$this->getObjectXML($pid);
 		}
@@ -204,15 +267,15 @@ class Fedora_Direct_Access {
 		$xmldoc= new DomDocument();
 		$xmldoc->preserveWhiteSpace = false;
 		$xmldoc->loadXML($this->xml);
-		
-        $xpath = new DOMXPath($xmldoc);
+
+		$xpath = new DOMXPath($xmldoc);
 		$dvStmt = "/foxml:digitalObject/foxml:datastream[@ID='".$dsID."']/foxml:datastreamVersion/@ID";
-        $dvs = $xpath->query($dvStmt);
+		$dvs = $xpath->query($dvStmt);
 		$maxVersion = 0;
-        foreach ($dvs as $dv) {
-	
+		foreach ($dvs as $dv) {
+
 			$tempNum = substr($dv->nodeValue, (strpos($dv->nodeValue, $dsID.".") + strlen($dsID.".")));
-//			echo "MAX HERE-".$dsID."-".$dv->nodeValue."-".$tempNum."-\n";
+			//			echo "MAX HERE-".$dsID."-".$dv->nodeValue."-".$tempNum."-\n";
 			if (is_numeric($tempNum)) {
 				if ($tempNum > $maxVersion) {
 					$maxVersion = $tempNum;
@@ -222,78 +285,81 @@ class Fedora_Direct_Access {
 		return $maxVersion;
 	}
 
-	function getDatastreamDissemination($pid, $dsID, $pmaxDV="") {
-		
+	function getDatastreamDissemination($pid, $dsID, $pmaxDV="") 
+	{
+
 		if ($this->pid != $pid || $this->xml == "") {
 			$this->getObjectXML($pid);
 		}
-		
+
 		if ($this->xml == "") {
 			return false;
 		}
-		
-	    if ($pmaxDV == "") {	
-		  $maxDV = $this->getMaxDatastreamVersion($pid, $dsID);
-        } else {
-          $maxDV = $pmaxDV;
-        } 
-        
+
+		if ($pmaxDV == "") {
+			$maxDV = $this->getMaxDatastreamVersion($pid, $dsID);
+		} else {
+			$maxDV = $pmaxDV;
+		}
+
 		$xmldoc= new DomDocument();
 		$xmldoc->preserveWhiteSpace = false;
 		$xmldoc->loadXML($this->xml);
-		
-        $xpath = new DOMXPath($xmldoc);
 
-        $mContent = $this->getDatastreamManagedContent($pid, $dsID, $maxDV);
-        if ($mContent != "") {
-            return array(
+		$xpath = new DOMXPath($xmldoc);
+
+		$mContent = $this->getDatastreamManagedContent($pid, $dsID, $maxDV);
+		if ($mContent != "") {
+			return array(
                 'MIMEType'  =>  'raw',
                 'stream'    =>  $mContent,
-            );
-        }
-        if ($maxDV !== "1.0") {
-            $dvStmt = "/foxml:digitalObject/foxml:datastream[@ID='".$dsID."']/foxml:datastreamVersion[@ID='".$dsID.".".$maxDV."']/foxml:xmlContent/*";
-        } elseif ($maxDV === "1.0" && $dsID == 'FezACML') { 
-            $dvStmt = "/foxml:digitalObject/foxml:datastream[@ID='".$dsID."']/foxml:datastreamVersion[@ID='FezACML".$maxDV."']/foxml:xmlContent/*";
-        } else {
-		    //$dvStmt = "/foxml:digitalObject/foxml:datastream[@ID='".$dsID."']/foxml:datastreamVersion[@ID='".$dsID.$maxDV."']/foxml:xmlContent/*";
-            $dvStmt = "/foxml:digitalObject/foxml:datastream[@ID='".$dsID."']/foxml:datastreamVersion[@ID='Fez".$maxDV."']/foxml:xmlContent/*";
-        }		
-        $dvs = $xpath->query($dvStmt); // returns nodeList
+			);
+		}
+		if ($maxDV !== "1.0") {
+			$dvStmt = "/foxml:digitalObject/foxml:datastream[@ID='".$dsID."']/foxml:datastreamVersion[@ID='".$dsID.".".$maxDV."']/foxml:xmlContent/*";
+		} elseif ($maxDV === "1.0" && $dsID == 'FezACML') {
+			$dvStmt = "/foxml:digitalObject/foxml:datastream[@ID='".$dsID."']/foxml:datastreamVersion[@ID='FezACML".$maxDV."']/foxml:xmlContent/*";
+		} else {
+			//$dvStmt = "/foxml:digitalObject/foxml:datastream[@ID='".$dsID."']/foxml:datastreamVersion[@ID='".$dsID.$maxDV."']/foxml:xmlContent/*";
+			$dvStmt = "/foxml:digitalObject/foxml:datastream[@ID='".$dsID."']/foxml:datastreamVersion[@ID='Fez".$maxDV."']/foxml:xmlContent/*";
+		}
+		$dvs = $xpath->query($dvStmt); // returns nodeList
 		$xmlContent = new DomDocument();
-        $found = false;
-        foreach ($dvs as $dv) {
-            $found = true;
+		$found = false;
+		foreach ($dvs as $dv) {
+			$found = true;
 			$xmlContent->appendChild($xmlContent->importNode($dv,true));
 		}
-		
-        $xml = "";
-        if ($found == true) {
-            
-            $xml =  $xmlContent->saveXML();
-            return array(
+
+		$xml = "";
+		if ($found == true) {
+
+			$xml =  $xmlContent->saveXML();
+			return array(
                 'MIMEType'  =>  'text/xml',
                 'stream'    =>  $xml,
-            );
-          
-        } elseif ($pmaxDV == "") {
-            
-            return $this->getDatastreamDissemination($pid, $dsID, "1.0");
-          
-        }	
+			);
+
+		} elseif ($pmaxDV == "") {
+
+			return $this->getDatastreamDissemination($pid, $dsID, "1.0");
+
+		}
 	}
 
-    function listDatastreams($pid) {
-        $dsList = array();
-        $datastreams = $this->getDatastreams($pid);
-        foreach ($datastreams as $ds) {
-            array_push($dsList, array("dsid" => $ds["ID"], "label" => $ds["LABEL"], "mimeType" => $ds["MIMEType"]));
-        }
-        return $dsList;
-    }
+	function listDatastreams($pid) 
+	{
+		$dsList = array();
+		$datastreams = $this->getDatastreams($pid);
+		foreach ($datastreams as $ds) {
+			array_push($dsList, array("dsid" => $ds["ID"], "label" => $ds["LABEL"], "mimeType" => $ds["MIMEType"]));
+		}
+		return $dsList;
+	}
 
-    
-	function getDatastreams($pid, $maxDV="") {
+
+	function getDatastreams($pid, $maxDV="") 
+	{
 		if ($this->pid != $pid || $this->xml == "") {
 			$this->getObjectXML($pid);
 		}
@@ -301,52 +367,52 @@ class Fedora_Direct_Access {
 			return false;
 		}
 
-				$xmldoc= new DomDocument();
-				$xmldoc->preserveWhiteSpace = false;
-				$xmldoc->loadXML($this->xml);
+		$xmldoc= new DomDocument();
+		$xmldoc->preserveWhiteSpace = false;
+		$xmldoc->loadXML($this->xml);
 
-		        $xpath = new DOMXPath($xmldoc);
+		$xpath = new DOMXPath($xmldoc);
 		//		$dvStmt = "/foxml:digitalObject/foxml:datastream[@ID='".$dsID."']/foxml:datastreamVersion[@ID='".$dsID.".".$maxDV."']/foxml:xmlContent/".$dsID;
-				//$dvStmt = "/foxml:digitalObject/foxml:datastream[@ID='".$dsID."']/foxml:datastreamVersion[@ID='".$dsID.".".$maxDV."']/foxml:xmlContent/*";		
-				//$dvStmt = "/foxml:digitalObject/foxml:datastream[@ID='".$dsID."']/foxml:datastreamVersion[@ID='".$dsID.".0']/*";		
-				$dvStmt = "/foxml:digitalObject/foxml:datastream";		
+		//$dvStmt = "/foxml:digitalObject/foxml:datastream[@ID='".$dsID."']/foxml:datastreamVersion[@ID='".$dsID.".".$maxDV."']/foxml:xmlContent/*";
+		//$dvStmt = "/foxml:digitalObject/foxml:datastream[@ID='".$dsID."']/foxml:datastreamVersion[@ID='".$dsID.".0']/*";
+		$dvStmt = "/foxml:digitalObject/foxml:datastream";
 		//		echo $dvStmt;
-		        $ds = $xpath->query($dvStmt); // returns nodeList
-//				$xmlContent = new DomDocument();
-                $datastreams = array();
-		        foreach ($ds as $dsNode) {
-                    $controlGroup = $dsNode->getAttribute('CONTROL_GROUP');
-                    $ID = $dsNode->getAttribute('ID');
-                    $state = $dsNode->getAttribute('STATE');
-                    $versionable = $dsNode->getAttribute('VERSIONABLE');
-//echo $ID."\n";
-                    $maxDV = $this->getMaxDatastreamVersion($pid, $ID);
-				    $dvStmt = "./foxml:datastreamVersion[@ID='".$ID.".".$maxDV."']";		
-		            $dv = $xpath->query($dvStmt, $dsNode); // returns nodeList
-		            foreach ($dv as $dvNode) {
-                      //$versionID = $dvNode->getAttribute('versionID');
-                      $versionID = $dvNode->getAttribute('ID');
-   //                   echo $versionID;
-                      $altIDs = $dvNode->getAttribute('ALT_IDS');
-                      $label = $dvNode->getAttribute('LABEL');
-                      $MIMEType = $dvNode->getAttribute('MIMETYPE');
-                      $formatURI = $dvNode->getAttribute('FORMAT_URI');
-                      $createDate = $dvNode->getAttribute('CREATED');
-                      $size = $dvNode->getAttribute('SIZE');
-                      $checksumType = $dvNode->getAttribute('CHECKSUM_TYPE');
-                      $checksum = $dvNode->getAttribute('CHECKSUM');
-                      if ($controlGroup == 'R') {
-				        $lcStmt = "./foxml:contentLocation";		
-		                $lc = $xpath->query($lcStmt, $dvNode); // returns nodeList
-		                foreach ($lc as $lcNode) {
-                          $location = $lcNode->getAttribute('REF'); 
-                        }
-                      } else {
-                        $location = "";
-                      }
-                    }   
+		$ds = $xpath->query($dvStmt); // returns nodeList
+		//				$xmlContent = new DomDocument();
+		$datastreams = array();
+		foreach ($ds as $dsNode) {
+			$controlGroup = $dsNode->getAttribute('CONTROL_GROUP');
+			$ID = $dsNode->getAttribute('ID');
+			$state = $dsNode->getAttribute('STATE');
+			$versionable = $dsNode->getAttribute('VERSIONABLE');
+			//echo $ID."\n";
+			$maxDV = $this->getMaxDatastreamVersion($pid, $ID);
+			$dvStmt = "./foxml:datastreamVersion[@ID='".$ID.".".$maxDV."']";
+			$dv = $xpath->query($dvStmt, $dsNode); // returns nodeList
+			foreach ($dv as $dvNode) {
+				//$versionID = $dvNode->getAttribute('versionID');
+				$versionID = $dvNode->getAttribute('ID');
+				//                   echo $versionID;
+				$altIDs = $dvNode->getAttribute('ALT_IDS');
+				$label = $dvNode->getAttribute('LABEL');
+				$MIMEType = $dvNode->getAttribute('MIMETYPE');
+				$formatURI = $dvNode->getAttribute('FORMAT_URI');
+				$createDate = $dvNode->getAttribute('CREATED');
+				$size = $dvNode->getAttribute('SIZE');
+				$checksumType = $dvNode->getAttribute('CHECKSUM_TYPE');
+				$checksum = $dvNode->getAttribute('CHECKSUM');
+				if ($controlGroup == 'R') {
+					$lcStmt = "./foxml:contentLocation";
+					$lc = $xpath->query($lcStmt, $dvNode); // returns nodeList
+					foreach ($lc as $lcNode) {
+						$location = $lcNode->getAttribute('REF');
+					}
+				} else {
+					$location = "";
+				}
+			}
 
-                    array_push($datastreams, array("controlGroup" => $controlGroup,
+			array_push($datastreams, array("controlGroup" => $controlGroup,
                                                    "ID" => $ID,
                                                    "versionID" => $versionID,
                                                    "altIDs" => $altIDs,
@@ -362,14 +428,10 @@ class Fedora_Direct_Access {
                                                    "checksum" => $checksum));
 
 
-//					$xmlContent->appendChild($xmlContent->importNode($dv,true));
-				}
+			//					$xmlContent->appendChild($xmlContent->importNode($dv,true));
+		}
 		//		print "<pre>" . htmlspecialchars($xmlContent->saveXML()) . "</pre>";
-//				return $xmlContent->saveXML();		
-                return $datastreams;
+		//				return $xmlContent->saveXML();
+		return $datastreams;
 	}
-
-
 }
-
-?>

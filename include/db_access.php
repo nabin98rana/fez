@@ -33,9 +33,3 @@
 //
 //
 include_once(APP_INC_PATH . "class.db_api.php");
-$GLOBALS['db_api'] = new DB_API;
-// benchmarking the included file (aka setup time)
-if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
-    $GLOBALS['bench']->setMarker('Included db_access file');
-}
-?>

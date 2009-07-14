@@ -59,11 +59,12 @@ include_once(APP_INC_PATH . "class.doc_type_xsd.php");
 
 
 /**
-  * Image_Resample
-  */
-class Image_Resample 
+ * Image_Resample
+ */
+class Image_Resample
 {
-    function resample($pid, $dsID, $width, $height, $regen, $copyright_message="", $watermark=false) {
+	function resample($pid, $dsID, $width, $height, $regen, $copyright_message="", $watermark=false)
+	{
 		$real_dsID = $dsID;
 		$urldata = APP_FEDORA_GET_URL."/".$pid."/".$real_dsID;
 		$tempDumpFileName = APP_TEMP_DIR.$real_dsID;
@@ -73,8 +74,8 @@ class Image_Resample
 			$sourceOAIRead .= $tmp;
 		}
 		$tempDump = fopen($tempDumpFileName, 'w');
-		fwrite($tempDump, $sourceOAIRead);		
-		fclose($tempDump); 
+		fwrite($tempDump, $sourceOAIRead);
+		fclose($tempDump);
 		$mimetype = Misc::mime_content_type($tempDumpFileName);
 		Workflow::processIngestTrigger($pid, $real_dsID, $mimetype);
 		if (is_file($tempDumpFileName)) { // now remove the file from temp
@@ -84,9 +85,3 @@ class Image_Resample
 	}
 
 }
-// benchmarking the included file (aka setup time)
-if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
-    $GLOBALS['bench']->setMarker('Included Image_Resample Class');
-}
-
-?>

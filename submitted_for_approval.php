@@ -151,4 +151,3 @@ $tpl->assign('items_info',              $assigned_items['info']);
 $tpl->assign('isApprover',              Auth::isUserApprover(Auth::getUserID()));
 
 $tpl->displayTemplate();
-?>

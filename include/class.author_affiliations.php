@@ -37,102 +37,127 @@ include_once(APP_INC_PATH . "class.org_structure.php");
 
 class AuthorAffiliations
 {
-	function getList($pid, $status = 1)
+	function getList($pid, $status = 1) 
 	{
-		
-		
+		$log = FezLog::get();
+		$db = DB_API::get();
+
 		$stmt = "SELECT af.* FROM ". APP_TABLE_PREFIX ."author_affiliation af " .
 			"INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id ON rek_author_id_pid = af_pid " .
 			"AND af_author_id = rek_author_id " .
-			"WHERE af_pid = '".$pid."' " .
-			"AND af_status = " . $status . " " .
+			"WHERE af_pid = ".$db->quote($pid)." " .
+			"AND af_status = " . $db->quote($status, 'INTEGER') . " " .
 			"ORDER BY af_author_id";
-		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return array();
-        }
-        // Add text versions of the author and school
-        foreach ($res as $key => $item) {
-        	$res[$key]['author_name'] = Author::getFullname($item['af_author_id']);
-        	$res[$key]['org_title'] = Org_Structure::getTitle($item['af_org_id']);
-            $res[$key]['af_percent_affiliation'] = $item['af_percent_affiliation'] / 1000;
+
+		try {
+			$res = $db->fetchAll($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return array();
+		}
+
+		// Add text versions of the author and school
+		foreach ($res as $key => $item) {
+			$res[$key]['author_name'] = Author::getFullname($item['af_author_id']);
+			$res[$key]['org_title'] = Org_Structure::getTitle($item['af_org_id']);
+			$res[$key]['af_percent_affiliation'] = $item['af_percent_affiliation'] / 1000;
 			$res[$key]['error_desc'] = "Percentages for each author must add to 100%";
 			$res[$key]['error'] = "percentage";
-        }
-        return $res;
+		}
+		return $res;
 	}
 
 
-	function getListAll($pid)
+	function getListAll($pid) 
 	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
 		$stmt = "SELECT af.* FROM ". APP_TABLE_PREFIX ."author_affiliation af " .
 			"INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id ON rek_author_id_pid = af_pid " .
 			"AND af_author_id = rek_author_id " .
-			"WHERE af_pid = '".$pid."' " .
+			"WHERE af_pid = ".$db->quote($pid)." " .
 			"ORDER BY af_author_id";
-		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return array();
-        }
-        // Add text versions of the author and school
-        foreach ($res as $key => $item) {
-        	$res[$key]['author_name'] = Author::getFullname($item['af_author_id']);
-        	$res[$key]['org_title'] = Org_Structure::getTitle($item['af_org_id']);
-            $res[$key]['af_percent_affiliation'] = $item['af_percent_affiliation'] / 1000;
-        }
-        return $res;
+		try {
+			$res = $db->fetchAll($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return array();
+		}
+
+		// Add text versions of the author and school
+		foreach ($res as $key => $item) {
+			$res[$key]['author_name'] = Author::getFullname($item['af_author_id']);
+			$res[$key]['org_title'] = Org_Structure::getTitle($item['af_org_id']);
+			$res[$key]['af_percent_affiliation'] = $item['af_percent_affiliation'] / 1000;
+		}
+		return $res;
 	}
 
 
-    /**
-     * Method used to find all affiliations recorded for a particular author in a particular school.
-     *
-     * @access  public
-     * @return  array The list of affiliations.
-     */
-	function getListAuthorSchool($af_author_id, $pid, $af_org_id) {
+	/**
+	 * Method used to find all affiliations recorded for a particular author in a particular school.
+	 *
+	 * @access  public
+	 * @return  array The list of affiliations.
+	 */
+	function getListAuthorSchool($af_author_id, $pid, $af_org_id) 
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
 		$stmt = "SELECT af_id FROM ". APP_TABLE_PREFIX ."author_affiliation " .
-			"WHERE af_pid = '" . $pid . "' " .
-			"AND af_author_id = " . $af_author_id . " " .
-			"AND af_org_id = " . $af_org_id . "";
-		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return array();
-        }
-        return $res;
+			"WHERE af_pid = " . $db->quote($pid) . " " .
+			"AND af_author_id = " . $db->quote($af_author_id, 'INTEGER') . " " .
+			"AND af_org_id = " . $db->quote($af_org_id, 'INTEGER');
+		try {
+			$res = $db->fetchAll($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return array();
+		}
+
+		return $res;
 	}
 
 
-    /**
-     * Method used to remove an author affiliation from the system.
-     *
-     * @access  public
-     * @return  boolean
-     */
-    function remove($af_id)
-    {
+	/**
+	 * Method used to remove an author affiliation from the system.
+	 *
+	 * @access  public
+	 * @return  boolean
+	 */
+	function remove($af_id) 
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
 		if (!is_numeric($af_id)) {
 			return false;
 		}
-        $stmt = "DELETE FROM
+		$stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "author_affiliation
                  WHERE
-                    af_id = ".$af_id;
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return false;
-        } else {
-            return true;
-        }
-    }
+                    af_id = ".$db->quote($af_id, 'INTEGER');
+		try {
+			$db->query($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return false;
+		}
+		return true;
+	}
 
-	
-	function save($af_id, $pid, $af_author_id, $af_percent_affiliation, $af_org_id)
+
+	function save($af_id, $pid, $af_author_id, $af_percent_affiliation, $af_org_id) 
 	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
 		if (!is_numeric($af_author_id) || !is_numeric($af_percent_affiliation)) {
 			return -1;
 		}
@@ -140,8 +165,8 @@ class AuthorAffiliations
 			return -1;
 		}
 
-        $af_percent_affiliation = $af_percent_affiliation * 1000;
-		
+		$af_percent_affiliation = $af_percent_affiliation * 1000;
+
 		if (empty($af_id)) {
 			$stmt = "INSERT ";
 			// See if there is anything existing for this author / pid / school
@@ -158,90 +183,102 @@ class AuthorAffiliations
 		}
 
 		// Write the new record
-		$stmt .= APP_TABLE_PREFIX . "author_affiliation SET 
-			af_pid='".$pid."',
-			af_author_id=".$af_author_id.",
-			af_percent_affiliation=".$af_percent_affiliation.",
-			af_org_id=".$af_org_id.",
+		$stmt .= APP_TABLE_PREFIX . "author_affiliation SET
+			af_pid=".$db->quote($pid).",
+			af_author_id=".$db->quote($af_author_id, 'INTEGER').",
+			af_percent_affiliation=".$db->quote($af_percent_affiliation, 'INTEGER').",
+			af_org_id=".$db->quote($af_org_id, 'INTEGER').",
 			af_status=0
 		";
 		if (!empty($af_id)) {
-			$stmt .= "WHERE af_id=".$af_id."";
+			$stmt .= "WHERE af_id=".$db->quote($af_id, 'INTEGER')."";
 		}
-		$res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return -1;
-        }
-		
-        return $GLOBALS["db_api"]->dbh->getLastInsertId(APP_TABLE_PREFIX . "author_affiliation", 'af_id');
+
+		try {
+			$db->query($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return -1;
+		}
+		return $db->lastInsertId(APP_TABLE_PREFIX.'author_affiliation', 'af_id');
 	}
 
 
-    /**
-     * Method used to examine all affiliations recorded for a particular PID, and
-	 * set the "OK" flag, depending on whether or not affilatiosn for a particular 
+	/**
+	 * Method used to examine all affiliations recorded for a particular PID, and
+	 * set the "OK" flag, depending on whether or not affilatiosn for a particular
 	 * author add to exactly 100%.
-     *
-     * @access  public
-     * @return  int Success or otherwise of the operation
-     */
+	 *
+	 * @access  public
+	 * @return  int Success or otherwise of the operation
+	 */
 
-	function validateAffiliations($pid) {
+	function validateAffiliations($pid) 
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
 
-		$stmt .= "SELECT af_author_id, SUM(af_percent_affiliation) AS total_percentage " .
+		$stmt = "SELECT af_author_id, SUM(af_percent_affiliation) AS total_percentage " .
 				 "FROM " . APP_TABLE_PREFIX . "author_affiliation " .
-				 "WHERE af_pid = '" . $pid . "' " .
+				 "WHERE af_pid = " . $db->quote($pid) . " " .
 				 "GROUP BY af_author_id";
 
-		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return array();
-        }
+		try {
+			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return array();
+		}
 
-        foreach ($res as $key => $item) {
+		foreach ($res as $key => $item) {
 			$stmt = "UPDATE " . APP_TABLE_PREFIX . "author_affiliation ";
 			if ($item['total_percentage'] == 100000) {
 				$stmt .= "SET af_status = 1 ";
 			} else {
 				$stmt .= "SET af_status = 0 ";
 			}
-			$stmt .= "WHERE af_author_id = " . $item['af_author_id'] . " " .
-					 "AND af_pid = '" . $pid . "'";
-			$res = $GLOBALS["db_api"]->dbh->query($stmt);
-			if (PEAR::isError($res)) {
-				Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+			$stmt .= "WHERE af_author_id = " . $db->quote($item['af_author_id'], 'INTEGER') . " " .
+					 "AND af_pid = " . $db->quote($pid);
+			try {
+				$db->query($stmt);
+			}
+			catch(Exception $ex) {
+				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
 				return -1;
 			}
-        }
+		}
 		return 1;
 	}
 
 
-    /**
-     * Method used to retrieve an array of HR data for a given author.
-     *
-     * @access  public
-     * @return  array The associative array of fields from the HR view
-     */
-	function getPresetAffiliations($authorID) {
+	/**
+	 * Method used to retrieve an array of HR data for a given author.
+	 *
+	 * @access  public
+	 * @return  array The associative array of fields from the HR view
+	 */
+	function getPresetAffiliations($authorID) 
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
 
 		/* -- Original way of doing it
-		$stmt = "SELECT " . 
-					"aut_display_name AS name, " .
-					"WAMIKEY AS wamikey, " .
-					"FTE AS fte, " .
-					"AOU AS aou, " .
-					"PAYPOINTLONG AS paypointlong, " .
-					"STATUS AS status, " .
-					"PAYROLL_FLAG AS payroll_flag, " .
-					"AWARD AS award " .
-				"FROM " . APP_TABLE_PREFIX . "author, hr_position_vw " .
-				"WHERE " . APP_TABLE_PREFIX . "author.aut_org_staff_id = hr_position_vw.WAMIKEY " .
-				"AND aut_id = " . $authorID . "";
+		 $stmt = "SELECT " .
+		 "aut_display_name AS name, " .
+		 "WAMIKEY AS wamikey, " .
+		 "FTE AS fte, " .
+		 "AOU AS aou, " .
+		 "PAYPOINTLONG AS paypointlong, " .
+		 "STATUS AS status, " .
+		 "PAYROLL_FLAG AS payroll_flag, " .
+		 "AWARD AS award " .
+		 "FROM " . APP_TABLE_PREFIX . "author, hr_position_vw " .
+		 "WHERE " . APP_TABLE_PREFIX . "author.aut_org_staff_id = hr_position_vw.WAMIKEY " .
+		 "AND aut_id = " . $authorID . "";
 
-		*/
+		 */
 
 		$stmt = "SELECT aut_display_name AS name, t1.aut_id AS aut_id, WAMIKEY AS wamikey, FTE AS fte, AOU AS aou, STATUS AS status, PAYROLL_FLAG AS payroll_flag, AWARD AS award, org_title AS org_title, org_id AS org_id " .
 				"FROM " . APP_TABLE_PREFIX . "author AS t1 " .
@@ -249,25 +286,27 @@ class AuthorAffiliations
 				"ON aut_org_staff_id = WAMIKEY " .
 				"LEFT JOIN " . APP_TABLE_PREFIX . "org_structure " .
 				"ON AOU = org_extdb_id " .
-				"WHERE aut_id = " . $authorID . " " .
+				"WHERE aut_id = " . $db->quote($authorID, 'INTEGER') . " " .
 				"AND (org_extdb_name = 'hr' " .
 				"OR org_extdb_name = 'rrtd')";
 
-		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return array();
-        }
+		try {
+			$res = $db->fetchAll($stmt, array($ahs_id));
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return array();
+		}
 
-		/* This is the bit where we calculate what the percentages should be. This code follows 
-		   Adam Nielsen's algorithm as closely as I could manage to figure it out. It may require
-		   some fine-tuning. */
+		/* This is the bit where we calculate what the percentages should be. This code follows
+		 Adam Nielsen's algorithm as closely as I could manage to figure it out. It may require
+		 some fine-tuning. */
 
 		$worthyFTEs = array();			// This is the array of paid appointments
 		$unpaidAppointments =  array();	// This is the array of unpaid appointments
 
 		// First parse. Examine everything.
-        foreach ($res as $key => $item) {
+		foreach ($res as $key => $item) {
 			// Is this a paid appointment?
 			if ($res[$key]['payroll_flag'] !== "T") {
 				$res[$key]['percentage'] = 0;
@@ -275,7 +314,7 @@ class AuthorAffiliations
 			} else {
 				array_push($worthyFTEs, $res[$key]['fte']);
 			}
-        }
+		}
 
 		$numPaidAppointments = sizeof($worthyFTEs);
 		$numUnpaidAppointments = sizeof($unpaidAppointments);
@@ -299,149 +338,168 @@ class AuthorAffiliations
 				}
 			}
 		}
-        return $res;
+		return $res;
 	}
 
 
-    /**
-     * Method used to retrieve total percentage of existing affiliations for
+	/**
+	 * Method used to retrieve total percentage of existing affiliations for
 	 * a given author + school.
-     *
-     * @access  public
-     * @return  int The total percentage (if any) assigned to this author in this school.
-     */
-	function getExistingAuthorSchoolPercentages($authorID, $pid, $unitID) {
+	 *
+	 * @access  public
+	 * @return  int The total percentage (if any) assigned to this author in this school.
+	 */
+	function getExistingAuthorSchoolPercentages($authorID, $pid, $unitID) 
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
 
 		$stmt .= "SELECT SUM(af_percent_affiliation) AS total_percentage " .
 					"FROM " . APP_TABLE_PREFIX . "author_affiliation " .
-					"WHERE af_pid = '" . $pid . "' " .
-					"AND af_author_id = " . $authorID . " " .
-					"AND af_org_id = " . $unitID . "";
+					"WHERE af_pid = " . $db->quote($pid) . " " .
+					"AND af_author_id = " . $db->quote($authorID, 'INTEGER') . " " .
+					"AND af_org_id = " . $db->quote($unitID, 'INTEGER');
 
-		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return 0;
-        }
+		try {
+			$res = $db->fetchAll($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return 0;
+		}
 		return $res[0]['total_percentage'];
-
 	}
 
 
-    /**
-     * Method used to retrieve an array of orphaned affiliations. These are affiliations
+	/**
+	 * Method used to retrieve an array of orphaned affiliations. These are affiliations
 	 * for which the author has subsequently been removed form the record.
-     *
-     * @access  public
-     * @return  array The associative array of orphaned affiliations.
-     */
-	function getOrphanedAffiliations($pid) {
+	 *
+	 * @access  public
+	 * @return  array The associative array of orphaned affiliations.
+	 */
+	function getOrphanedAffiliations($pid) 
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
 
 		$stmt = "SELECT af.* FROM ". APP_TABLE_PREFIX ."author_affiliation af " .
 			"LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id ON rek_author_id_pid = af_pid " .
 			"AND af_author_id = rek_author_id " .
-			"WHERE af_pid = '".$pid."' AND rek_author_id_pid IS NULL " .
+			"WHERE af_pid = ".$db->quote($pid)." AND rek_author_id_pid IS NULL " .
 			"ORDER BY af_author_id";
 
-		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return array();
-        }
+		try {
+			$res = $db->fetchAll($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return array();
+		}
+
 		foreach ($res as $key => $item) {
-        	$res[$key]['author_name'] = Author::getFullname($item['af_author_id']);
-        	$res[$key]['org_title'] = Org_Structure::getTitle($item['af_org_id']);
-            $res[$key]['af_percent_affiliation'] = $item['af_percent_affiliation'] / 1000;
+			$res[$key]['author_name'] = Author::getFullname($item['af_author_id']);
+			$res[$key]['org_title'] = Org_Structure::getTitle($item['af_org_id']);
+			$res[$key]['af_percent_affiliation'] = $item['af_percent_affiliation'] / 1000;
 			$res[$key]['error_desc'] = "Author for this affiliation has been deleted";
 			$res[$key]['error'] = "orphan";
-        }
-        return $res;
+		}
+		return $res;
 
 	}
 
 
-    /**
-     * Method used to search and suggest all the org unit names for a given string.
-     *
-     * @access  public
-     * @return  array List of organisational units
-     */
-	function suggestOrgUnits($term, $assoc = false) {
+	/**
+	 * Method used to search and suggest all the org unit names for a given string.
+	 *
+	 * @access  public
+	 * @return  array List of organisational units
+	 */
+	function suggestOrgUnits($term, $assoc = false) 
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
 
-		$term = Misc::escapeString($term);
 		$stmt = "SELECT org_id AS id, org_extdb_id AS aou, org_title AS name " .
 				"FROM " . APP_TABLE_PREFIX . "org_structure " .
-				"WHERE org_title LIKE '%" . $term . "%' " .
+				"WHERE org_title LIKE ". $db->quote('%'.$term.'%')." " .
 				"AND (org_extdb_name = 'hr' " .
 				"OR org_extdb_name = 'rrtd') " .
 				"ORDER BY org_title LIMIT 0, 20";
 
-		if($assoc) {
-			$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-		} else {
-			$res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
+		try {
+			if($assoc) {
+				$res = $db->fetchAll($stmt);
+			} else {
+				$res = $db->fetchAssoc($stmt);
+			}
 		}
-		if (PEAR::isError($res)) {
-			Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-			return "";
-		} else {
-			return $res;
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
 		}
 
-	} 
+		return $res;
+
+	}
 
 
-    /**
-     * Method used to retrieve the list of PIDs with orphaned affiliations. Scans the 
+	/**
+	 * Method used to retrieve the list of PIDs with orphaned affiliations. Scans the
 	 * entire repository and reports everything it can find.
-     *
-     * @access  public
-     * @return  array The associative array of PIDs and their titles.
-     */
-	function getOrphanedAffiliationsAll() {
-
+	 *
+	 * @access  public
+	 * @return  array The associative array of PIDs and their titles.
+	 */
+	function getOrphanedAffiliationsAll() 
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
 
 		$stmt = "SELECT af_pid, rek_title FROM ". APP_TABLE_PREFIX ."author_affiliation af " .
 			"LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id ON rek_author_id_pid = af_pid " .
 			"AND af_author_id = rek_author_id " .
 			"INNER JOIN " . APP_TABLE_PREFIX . "record_search_key ON rek_pid = af_pid " .
 			"WHERE rek_author_id_pid IS NULL ";
-		
-		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return array();
-        }
-        return $res;
 
+		try {
+			$res = $db->fetchAll($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return array();
+		}
+		return $res;
 	}
 
 
-    /**
-     * Method used to retrieve the list of PIDs with incorrect percentages (percentages that
+	/**
+	 * Method used to retrieve the list of PIDs with incorrect percentages (percentages that
 	 * do not total either 0% or 100% for a given author). We don't actually do the calculation
 	 * on the fly, but rather, examine a flag that should have been zeroed if the percentages
 	 * did not add up properly at data entry time.
-     *
-     * @access  public
-     * @return  array The associative array of PIDs and their titles.
-     */
-	function getBadSums() {
+	 *
+	 * @access  public
+	 * @return  array The associative array of PIDs and their titles.
+	 */
+	function getBadSums() 
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
 
 		$stmt = "SELECT DISTINCT(af_pid), rek_title " .
 				"FROM " . APP_TABLE_PREFIX . "author_affiliation, " . APP_TABLE_PREFIX . "record_search_key " .
 				"WHERE af_pid = rek_pid " .
 				"AND af_status = 0";
-		
-		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return array();
-        }
-        return $res;
 
+		try {
+			$res = $db->fetchAll($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return array();
+		}
+		return $res;
 	}
 
 }
-
-?>

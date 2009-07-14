@@ -48,5 +48,3 @@ $tpl->assign("active_nav", "my_fez");
 $tpl->assign(compact('list'));
 
 $tpl->displayTemplate();
- 
-?>

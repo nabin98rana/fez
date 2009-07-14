@@ -729,6 +729,3 @@ function fedoraDateSorter($a, $b) {
     if ($unixTimestamp1 == $unixTimestamp2) return 0;
     return ($unixTimestamp1 < $unixTimestamp2) ? -1 : 1;
 }
-
-//echo ($GLOBALS['bench']->getOutput());
-?>

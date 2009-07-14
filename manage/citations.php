@@ -44,7 +44,7 @@ $tpl = new Template_API();
 $tpl->setTemplate("manage/index.tpl.html");
 $tpl->assign("type", "citations");
 
-// Only Admins here pelase 
+// Only Admins here please 
 Auth::checkAuthentication(APP_SESSION);
 
 $isUser = Auth::getUsername();

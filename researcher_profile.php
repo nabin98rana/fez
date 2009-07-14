@@ -53,7 +53,3 @@ $tpl->assign("org_name", APP_ORG_NAME);
 header("Content-type: text/xml");
 //print_r($list); exit;
 $tpl->displayTemplate();
-
-
-
-?>

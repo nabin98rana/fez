@@ -50,6 +50,3 @@ class SelectReindexInfo {
         NAJAX_Client::publicMethods($this, array('getCollections', 'getDocTypes'));
     }
 }
-
-
-?>

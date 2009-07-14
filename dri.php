@@ -142,6 +142,3 @@ $tpl->assign("isAdministrator", $isAdministrator);
 $tpl->assign("isUser", $username);
 $tpl->assign(compact('pid','theme_id','parent_pid','action','head'));
 $tpl->displayTemplate();
-//Error_Handler::logError($tpl->getTemplateContents());
-
-?>

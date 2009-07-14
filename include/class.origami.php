@@ -34,94 +34,94 @@
 
 
 class Origami {
-    
-    function getTitleLocation($pid, $dsID) {
-        
-        $pidData    = explode(':', $pid);
 
-        /*
-         * Create folders based on the PID
-         * demo:1940549 becomes folder structure /194/054/9/
-         */
-        $folders    = str_split($pidData[1], 3);
-        
-        /*
-         * Create the folder location
-         */
-        return implode("/", $folders) . "/".str_replace(':','_', $pid). "/".md5($dsID);        
-    }
-    
-    
-    function createTitles($pid, $filename, $mimetype) {
-        
-        /*
-         * Origami can only process jpg or tif images
-         */
-        if(!($mimetype == 'image/jpeg' || 
-             $mimetype == 'image/jpg' || 
-             $mimetype == 'image/tif' || 
-             $mimetype == 'image/tiff')) {
-                 
-            //Logger::debug($pid . " " . $filename ." didnt have correct mimetype - ". $mimetype);
-            return;
-        }
-        
-        /*
-         * Create the folder location
-         */
-        $path = Origami::getTitleHome() . Origami::getTitleLocation($pid, $filename);
-        
-        if(!is_dir($path)) {
-            
-            $ret = mkdir($path, 0775, true);
-            
-            if(!$ret) {
-                Error_Handler::logError("Process Origami Images Failed - Could not create folder " . $path, __FILE__ , __LINE__ );
-                return;
-            }
-        }
-        
-        $fileUrl = APP_FEDORA_GET_URL . "/" . $pid . "/". $filename;
-        $tmpFile = APP_TEMP_DIR.Foxml::makeNCName($filename);
+	function getTitleLocation($pid, $dsID) 
+	{
+
+		$pidData    = explode(':', $pid);
+
+		/*
+		 * Create folders based on the PID
+		 * demo:1940549 becomes folder structure /194/054/9/
+		 */
+		$folders    = str_split($pidData[1], 3);
+
+		/*
+		 * Create the folder location
+		 */
+		return implode("/", $folders) . "/".str_replace(':','_', $pid). "/".md5($dsID);
+	}
+
+
+	function createTitles($pid, $filename, $mimetype) 
+	{
+		$log = FezLog::get();
+		/*
+		 * Origami can only process jpg or tif images
+		 */
+		if(!($mimetype == 'image/jpeg' ||
+		$mimetype == 'image/jpg' ||
+		$mimetype == 'image/tif' ||
+		$mimetype == 'image/tiff')) {
+			 
+			//Logger::debug($pid . " " . $filename ." didnt have correct mimetype - ". $mimetype);
+			return;
+		}
+
+		/*
+		 * Create the folder location
+		 */
+		$path = Origami::getTitleHome() . Origami::getTitleLocation($pid, $filename);
+
+		if(!is_dir($path)) {
+
+			$ret = mkdir($path, 0775, true);
+
+			if(!$ret) {
+				$log->err(array("Process Origami Images Failed - Could not create folder " . $path, __FILE__ , __LINE__ ));
+				return;
+			}
+		}
+
+		$fileUrl = APP_FEDORA_GET_URL . "/" . $pid . "/". $filename;
+		$tmpFile = APP_TEMP_DIR.Foxml::makeNCName($filename);
 
 		$return_status = 0;
 		$return_array = array();
 
-        if (!is_file($tmpFile)) {
-	        $fileHandle = fopen($tmpFile, 'w+');
-	        $ret = fwrite($fileHandle, file_get_contents($fileUrl));
-	        fclose($fileHandle);
+		if (!is_file($tmpFile)) {
+			$fileHandle = fopen($tmpFile, 'w+');
+			$ret = fwrite($fileHandle, file_get_contents($fileUrl));
+			fclose($fileHandle);
 
-	        if(!$ret) {
-	            Error_Handler::logError("Process Origami Images Failed - Could not write to tmp file " . $tmpFile, __FILE__ , __LINE__ );
-	            return;
-	        }
-	        exec(Origami::getTitleAppPath() . " $tmpFile $path", $return_array, $return_status);
-			if ($return_status <> 0) {
-				Error_Handler::logError("Origami Error: ".implode(",", $return_array).", return status = $return_status, for command $command \n", __FILE__,__LINE__);
+			if(!$ret) {
+				$log->err(array("Process Origami Images Failed - Could not write to tmp file " . $tmpFile, __FILE__ , __LINE__ ));
+				return;
 			}
-	        unlink($tmpFile);
-        } else {
-	        exec(Origami::getTitleAppPath() . " $tmpFile $path", $return_array, $return_status);
+			exec(Origami::getTitleAppPath() . " $tmpFile $path", $return_array, $return_status);
 			if ($return_status <> 0) {
-				Error_Handler::logError("Origami Error: ".implode(",", $return_array).", return status = $return_status, for command $command \n", __FILE__,__LINE__);
+				$log->err(array("Origami Error: ".implode(",", $return_array).", return status = $return_status, for command $command \n", __FILE__,__LINE__));
+			}
+			unlink($tmpFile);
+		} else {
+			exec(Origami::getTitleAppPath() . " $tmpFile $path", $return_array, $return_status);
+			if ($return_status <> 0) {
+				$log->err(array("Origami Error: ".implode(",", $return_array).", return status = $return_status, for command $command \n", __FILE__,__LINE__));
 			}
 		}
-        //echo Origami::getTitleAppPath() . " $tmpFile $path\n";
-    }
-    
-    function getTitleAppPath() {
-        
-        // We must cd in the origami directory because the tile_image script uses a relative path for
-        // processing images. Basically its crashes without doing this..
-        return "cd " . APP_ORIGAMI_PATH . "; " .APP_PY_EXEC . " ". APP_ORIGAMI_PATH . "/tile_image.py";
-    }
-    
-    function getTitleHome() {
-        return  APP_PATH . "flviewer/";
-    }
-    
+		//echo Origami::getTitleAppPath() . " $tmpFile $path\n";
+	}
+
+	function getTitleAppPath() 
+	{
+
+		// We must cd in the origami directory because the tile_image script uses a relative path for
+		// processing images. Basically its crashes without doing this..
+		return "cd " . APP_ORIGAMI_PATH . "; " .APP_PY_EXEC . " ". APP_ORIGAMI_PATH . "/tile_image.py";
+	}
+
+	function getTitleHome() {
+		return  APP_PATH . "flviewer/";
+	}
+
 }
-
-
-?>

@@ -9,7 +9,3 @@ NAJAX_Server::allowClasses(array('NajaxImagePreview','NajaxBackgroundProcessList
 if (NAJAX_Server::runServer()) {
 	exit;
 }
-
-
-
-?>

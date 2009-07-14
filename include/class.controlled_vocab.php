@@ -52,17 +52,20 @@ include_once(APP_INC_PATH . "class.auth.php");
 class Controlled_Vocab
 {
 
-    /**
-     * Method used to remove a given list of controlled vocabularies.
-     *
-     * @access  public
-     * @return  boolean
-     */
-    function remove()
-    {
+	/**
+	 * Method used to remove a given list of controlled vocabularies.
+	 *
+	 * @access  public
+	 * @return  boolean
+	 */
+	function remove()
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
 		// first delete all children
 		// get all immediate children
-        $items = $_POST["items"];
+		$items = $_POST["items"];
 		if (!is_array($items)) { return false; }
 		$all_items = $items;
 		foreach ($items as $item) {
@@ -71,73 +74,59 @@ class Controlled_Vocab
 				$all_items = array_merge($all_items, $child_items);
 			}
 		}
-        $all_items = ltrim(Controlled_Vocab::implode_r(", ", $all_items), ", ");
-        $stmt = "DELETE FROM
+		$stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "controlled_vocab
                  WHERE
-                    cvo_id IN (".$all_items.")";
+                    cvo_id IN (".Misc::arrayToSQLBindStr($all_items).")";
 		Controlled_Vocab::deleteRelationship($all_items);
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return false;
-        } else {
-		  return true;
-        }
-    }
-
-    /**
-     * Utility function to implode a multi-dimensional array recursively.
-     *
-     * @access  public
-	 * @param string $glue The joining string for the result to glue the pieces together.
-	 * @param array $pieces The array to implode.
-     * @return string $out The resulting imploded string from the given multi-dimensional array.
-     */	
-	function implode_r ($glue, $pieces){
-		$out = "";
-		foreach ($pieces as $piece) {
-			if (is_array ($piece)) {
-				$out .= Controlled_Vocab::implode_r($glue, $piece); // recurse
-			} else {
-				$out .= $glue.$piece;
-			}
-		}	 
-		return $out;
+		try {
+			$db->query($stmt, $all_items);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return false;
+		}
+		return true;
 	}
 
-    /**
-     * Method using to delete a controlled vocabulary parent-child relationship in Fez.
-     *
-     * @access  public
+	/**
+	 * Method using to delete a controlled vocabulary parent-child relationship in Fez.
+	 *
+	 * @access  public
 	 * @param string $items The string comma separated list of CV ids to remove from parent or child relationships
-     * @return boolean
-     */		
-	function deleteRelationship($items) {
-        $stmt = "DELETE FROM 
+	 * @return boolean
+	 */
+	function deleteRelationship($items)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		$stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "controlled_vocab_relationship
                  WHERE
-                    cvr_parent_cvo_id IN (".$items.") OR cvr_child_cvo_id IN (".$items.")";
-
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return false;
-        } else {
-		  return true;
-        }
-	
+                    cvr_parent_cvo_id IN (".Misc::arrayToSQLBindStr($items).") OR cvr_child_cvo_id IN (".Misc::arrayToSQLBindStr($items).")";
+		try {
+			$db->query($stmt, array_merge($items, $items));
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return false;
+		}
+		return true;
 	}
 
-    /**
-     * Method used to add a new controlled vocabulary to the system.
-     *
-     * @access  public
-     * @return  integer 1 if the insert worked, -1 otherwise
-     */
-    function insert()
-    {
-        $stmt = "INSERT INTO
+	/**
+	 * Method used to add a new controlled vocabulary to the system.
+	 *
+	 * @access  public
+	 * @return  integer 1 if the insert worked, -1 otherwise
+	 */
+	function insert()
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		$stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "controlled_vocab
                  (
                     cvo_title,
@@ -147,142 +136,147 @@ class Controlled_Vocab
 		}
 		$stmt .= "
                  ) VALUES (
-                    '" . Misc::escapeString($_POST["cvo_title"]) . "',
-                    '" . Misc::escapeString($_POST["cvo_desc"]) . "'";
+                    " . $db->quote($_POST["cvo_title"]) . ",
+                    " . $db->quote($_POST["cvo_desc"]);
 		if (is_numeric($_POST["cvo_external_id"])) {
-            $stmt .=        ",'" . trim($_POST["cvo_external_id"]) . "'";
+			$stmt .= "," . $db->quote(trim($_POST["cvo_external_id"]));
 		}
-			$stmt .="
-                 )";
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return -1;
-        } else {
-			// get last db entered id
-			$new_id = $GLOBALS["db_api"]->get_last_insert_id();
-			if (is_numeric($_POST["parent_id"])) {
-				Controlled_Vocab::associateParent($_POST["parent_id"], $new_id);
-			}
-			return 1;
-        }
-    }
+		$stmt .=")";
 
-    /**
-     * Method used to add a new controlled vocabulary to the system.
-     *
-     * @access  public
-     * @return  integer 1 if the insert worked, -1 otherwise
-     */
-    function insertDirect($cvo_title, $cvo_external_id="", $parent_id="")
-    {
-		
-        $stmt = "INSERT INTO
+		try {
+			$db->query($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return -1;
+		}
+
+		// get last db entered id
+		$new_id = $db->lastInsertId();
+		if (is_numeric($_POST["parent_id"])) {
+			Controlled_Vocab::associateParent($_POST["parent_id"], $new_id);
+		}
+		return 1;
+	}
+
+	/**
+	 * Method used to add a new controlled vocabulary to the system.
+	 *
+	 * @access  public
+	 * @return  integer 1 if the insert worked, -1 otherwise
+	 */
+	function insertDirect($cvo_title, $cvo_external_id="", $parent_id="")
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		$stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "controlled_vocab
                  (
                     cvo_title";
 		if ($cvo_external_id != "") {
 			$stmt .= ", cvo_external_id";
 		}
-        $stmt .= "     ) VALUES (
-                '" . Misc::escapeString($cvo_title) . "'";
+		$stmt .= "     ) VALUES (
+                " . $db->quote($cvo_title);
 		if ($cvo_external_id != "") {
-			$stmt .= ",'" . $cvo_external_id . "'";
+			$stmt .= "," . $db->quote($cvo_external_id);
 		}
-        $stmt .= "					                    
-             )";
-		echo $stmt."\n";
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return -1;
-        } else {
-			// get last db entered id
-			$new_id = $GLOBALS["db_api"]->get_last_insert_id();
-			if (is_numeric($parent_id)) {
-				Controlled_Vocab::associateParent($parent_id, $new_id);
-			}
-			return 1;
-        }
-    }	
+		$stmt .= ")";
+
+		try {
+			$db->query($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return -1;
+		}
+
+		// get last db entered id
+		$new_id = $db->lastInsertId();
+		if (is_numeric($parent_id)) {
+			Controlled_Vocab::associateParent($parent_id, $new_id);
+		}
+		return 1;
+	}
 
 	/**
-     * Method used to import a new controlled vocabulary to the system under a parent.
-     *
-     * @access  public
-     * @return  integer 1 if the insert worked, -1 otherwise
-     */
-    function import($parent_id, $xmlObj)
-    {
+	 * Method used to import a new controlled vocabulary to the system under a parent.
+	 *
+	 * @access  public
+	 * @return  integer 1 if the insert worked, -1 otherwise
+	 */
+	function import($parent_id, $xmlObj)
+	{
 		$xpath_record = $_POST["cvi_xpath_record"];
 		$xpath_id = $_POST["cvi_xpath_id"];
 		$xpath_title = $_POST["cvi_xpath_title"];
 		$xpath_parent_id = $_POST["cvi_xpath_parent_id"];
-        $xpath_extparent_id = $_POST["cvi_xpath_extparent_id"];
-/*		echo "xpath_record = ".$xpath_record."\n";
-		echo "xpath_id = ".$xpath_id."\n";				
-		echo "xpath_title = ".$xpath_title."\n";
-		echo "xpath_parent_id = ".$xpath_parent_id."\n";		
-*/				
-        $xmlDoc= new DomDocument();
-        $xmlDoc->preserveWhiteSpace = false;
-        $xmlDoc->loadXML($xmlObj);
+		$xpath_extparent_id = $_POST["cvi_xpath_extparent_id"];
+		/*		echo "xpath_record = ".$xpath_record."\n";
+		 echo "xpath_id = ".$xpath_id."\n";
+		 echo "xpath_title = ".$xpath_title."\n";
+		 echo "xpath_parent_id = ".$xpath_parent_id."\n";
+		 */
+		$xmlDoc= new DomDocument();
+		$xmlDoc->preserveWhiteSpace = false;
+		$xmlDoc->loadXML($xmlObj);
 
-        $xpath = new DOMXPath($xmlDoc);
+		$xpath = new DOMXPath($xmlDoc);
 
-        $recordNodes = $xpath->query($xpath_record);
+		$recordNodes = $xpath->query($xpath_record);
 
-        foreach ($recordNodes as $recordNode) {
+		foreach ($recordNodes as $recordNode) {
 			$record_id = "";
 			if ($xpath_id != "") {
-	            $id_fields = $xpath->query($xpath_id, $recordNode);
-			
-	            foreach ($id_fields as $id_field) {
-	                if  ($record_id == "") {
-	                    $record_id = $id_field->nodeValue;
-	                }
-	            }
+				$id_fields = $xpath->query($xpath_id, $recordNode);
+					
+				foreach ($id_fields as $id_field) {
+					if  ($record_id == "") {
+						$record_id = $id_field->nodeValue;
+					}
+				}
 			}
-            $title_fields = $xpath->query($xpath_title, $recordNode);
+			$title_fields = $xpath->query($xpath_title, $recordNode);
 			$record_title = "";
-            foreach ($title_fields as $title_field) {
-                if  ($record_title == "") {
-                    $record_title = $title_field->nodeValue;
-                }
-            }
+			foreach ($title_fields as $title_field) {
+				if  ($record_title == "") {
+					$record_title = $title_field->nodeValue;
+				}
+			}
 			$record_parent_id = "";
 			if ($xpath_parent_id != "") {
-				$parent_id_fields = $xpath->query($xpath_parent_id, $recordNode);			
-	            foreach ($parent_id_fields as $parent_id_field) {
-	                if  ($parent_id_field == "") {
-	                    $record_parent_id = $parent_id_field->nodeValue;
-	                }
-	            }
+				$parent_id_fields = $xpath->query($xpath_parent_id, $recordNode);
+				foreach ($parent_id_fields as $parent_id_field) {
+					if  ($parent_id_field == "") {
+						$record_parent_id = $parent_id_field->nodeValue;
+					}
+				}
 			}
-			
-			// Checks for reference to parent(s) by external id			
-			// kj 2007/08/27 kai.jauslin@library.ethz.ch	
-					
+
+			// Checks for reference to parent(s) by external id
+			// kj 2007/08/27 kai.jauslin@library.ethz.ch
+
 			// $xpath_extparent_id = "parent[@mode='internal']";
-			
+
 			if ($xpath_extparent_id != "") {
 				$extparent_id_fields = $xpath->query($xpath_extparent_id, $recordNode);
-											
-	            foreach ($extparent_id_fields as $extparent_id_field) {
-	            	print $extparent_id_field->nodeValue;
-	            	
-	                if  ($extparent_id_field->nodeValue > '') {
-	                    $extparent_id = $extparent_id_field->nodeValue;
-	                    
-	                    // set first external reference as parent (overrides internal parent_id)
-	                    $intparent_id = Controlled_Vocab::getInternalIDByExternalID($extparent_id);
-	                   	                    
-	                   	if ($intparent_id != '') {
-		                	$record_parent_id =	$intparent_id; 
-		                	//print "<br><b>$intparent_id</b>";              
-	                   	}
-	                }
-	            }				
+					
+				foreach ($extparent_id_fields as $extparent_id_field) {
+					print $extparent_id_field->nodeValue;
+
+					if  ($extparent_id_field->nodeValue > '') {
+						$extparent_id = $extparent_id_field->nodeValue;
+							
+						// set first external reference as parent (overrides internal parent_id)
+						$intparent_id = Controlled_Vocab::getInternalIDByExternalID($extparent_id);
+							
+						if ($intparent_id != '') {
+							$record_parent_id =	$intparent_id;
+							//print "<br><b>$intparent_id</b>";
+						}
+					}
+				}
 			}
 			if ($record_id != "" && $record_title != "") {
 				if ($record_parent_id == "") {
@@ -290,210 +284,236 @@ class Controlled_Vocab
 				}
 				Controlled_Vocab::insertDirect($record_title, $record_id, $record_parent_id);
 			}
-			
-        }
-    }
-	
-    /**
-     * Method used to add a new controlled vocabulary parent-child relationship to the system.
-     *
-     * @access  public
+
+		}
+	}
+
+	/**
+	 * Method used to add a new controlled vocabulary parent-child relationship to the system.
+	 *
+	 * @access  public
 	 * @param string $parent_id The parent ID to add to the relationship
 	 * @param array $child_id The child ID to add to the relationship
-     * @return  integer 1 if the insert worked, -1 otherwise
-     */
-    function associateParent($parent_id, $child_id)
-    {
-        $stmt = "INSERT INTO
+	 * @return  integer 1 if the insert worked, -1 otherwise
+	 */
+	function associateParent($parent_id, $child_id)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		$stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "controlled_vocab_relationship
                  (
                     cvr_parent_cvo_id,
                     cvr_child_cvo_id					
                  ) VALUES (
-                    " .$parent_id. ",
-                    " .$child_id. "					
+                    " .$db->quote($parent_id, 'INTEGER'). ",
+                    " .$db->quote($child_id, 'INTEGER'). "					
                  )";
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return -1;
-        } else {
-			return 1;
-        }
-    }
-    /**
-     * Method used to update details of a controlled vocabulary.
-     *
-     * @access  public
-     * @param   integer $cvo_id The controlled vocabulary ID
-     * @return  integer 1 if the insert worked, -1 otherwise
-     */
-    function update($cvo_id)
-    {
-        $stmt = "UPDATE
+		try {
+			$db->query($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return -1;
+		}
+		return 1;
+	}
+	/**
+	 * Method used to update details of a controlled vocabulary.
+	 *
+	 * @access  public
+	 * @param   integer $cvo_id The controlled vocabulary ID
+	 * @return  integer 1 if the insert worked, -1 otherwise
+	 */
+	function update($cvo_id)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		$stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "controlled_vocab
                  SET 
-                    cvo_title = '" . Misc::escapeString($_POST["cvo_title"]) . "',
-                    cvo_external_id = '" . trim($_POST["cvo_external_id"]). "',
-                    cvo_desc = '" . Misc::escapeString($_POST["cvo_desc"]) . "'
-                 WHERE cvo_id = '".$cvo_id."' ";
+                    cvo_title = " . $db->quote($_POST["cvo_title"]) . ",
+                    cvo_external_id = " . $db->quote(trim($_POST["cvo_external_id"])). ",
+                    cvo_desc = " . $db->quote($_POST["cvo_desc"]) . "
+                 WHERE cvo_id = ".$db->quote($cvo_id, 'INTEGER');		
+		try {
+			$db->query($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return -1;
+		}
+		return 1;
+	}
 
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return -1;
-        } else {
-			return 1;
-        }
-    }
 
+	/**
+	 * Method used to get the title of a specific controlled vocabulary.
+	 *
+	 * @access  public
+	 * @param   integer $cvo_id The controlled vocabulary ID
+	 * @return  string The title of the controlled vocabulary
+	 */
+	function getTitle($cvo_id)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
 
-    /**
-     * Method used to get the title of a specific controlled vocabulary.
-     *
-     * @access  public
-     * @param   integer $cvo_id The controlled vocabulary ID
-     * @return  string The title of the controlled vocabulary
-     */
-    function getTitle($cvo_id)
-    {
 		if (!is_numeric($cvo_id)) {
 			return "";
 		}
-        $stmt = "SELECT
+		$stmt = "SELECT
                     cvo_title
                  FROM
                     " . APP_TABLE_PREFIX . "controlled_vocab
                  WHERE
-                    cvo_id=".$cvo_id;
-        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+                    cvo_id=".$db->quote($cvo_id, 'INTEGER');
+		try {
+			$res = $db->fetchOne($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+		return $res;
+	}
 
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return '';
-        } else {
-            return $res;
-        }
-    }
+	/**
+	 * Method used to check a cvo_id is in the db.
+	 *
+	 * @access  public
+	 * @param   integer $cvo_id The controlled vocabulary ID
+	 * @return  boolean true/false
+	 */
+	function exists($cvo_id)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
 
-    /**
-     * Method used to check a cvo_id is in the db.
-     *
-     * @access  public
-     * @param   integer $cvo_id The controlled vocabulary ID
-     * @return  boolean true/false
-     */
-    function exists($cvo_id)
-    {
 		if (!is_numeric($cvo_id)) {
 			return false;
 		}
-        $stmt = "SELECT
+		$stmt = "SELECT
                     cvo_title
                  FROM
                     " . APP_TABLE_PREFIX . "controlled_vocab
                  WHERE
-                    cvo_id=".Misc::escapeString($cvo_id);
-        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+                    cvo_id=".$db->quote($cvo_id, 'INTEGER');
+		try {
+			$res = $db->fetchOne($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
 
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return '';
-        } else {
-        	if (count($res) == 1) {
-        		return true;
-        	} else {
-        		return false;
-        	}
-        }
-    }    
-    
-    /**
-     * Method used to get the title of a specific controlled vocabulary.
-     *
-     * @access  public
-     * @param   integer $cvo_external_id The controlled vocabulary external ID
-     * @return  string The title of the controlled vocabulary
-     */
-    function getTitleByExternalID($cvo_external_id)
-    {
-        $stmt = "SELECT
+		if (count($res) == 1) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * Method used to get the title of a specific controlled vocabulary.
+	 *
+	 * @access  public
+	 * @param   integer $cvo_external_id The controlled vocabulary external ID
+	 * @return  string The title of the controlled vocabulary
+	 */
+	function getTitleByExternalID($cvo_external_id)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		$stmt = "SELECT
                     cvo_title
                  FROM
                     " . APP_TABLE_PREFIX . "controlled_vocab
                  WHERE
-                    cvo_external_id=".$cvo_external_id;
-        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+                    cvo_external_id=".$db->quote($cvo_external_id);
+		try {
+			$res = $db->fetchOne($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+		return $res;
+	}
 
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return '';
-        } else {
-            return $res;
-        }
-    }
-		
-    /**
-     * Method used to map external (content specific) to internal (database) id.
-     * kj 2007/08/27 kai.jauslin@library.ethz.ch	
-     * 
-     * @access public
-     * @param integer $cvo_external_id  The controlled vocabulary external ID
-     * @return string  The ID of the controlled vocabulary
-     */
+	/**
+	 * Method used to map external (content specific) to internal (database) id.
+	 * kj 2007/08/27 kai.jauslin@library.ethz.ch
+	 *
+	 * @access public
+	 * @param integer $cvo_external_id  The controlled vocabulary external ID
+	 * @return string  The ID of the controlled vocabulary
+	 */
 	function getInternalIDByExternalID($cvo_external_id)
-    {
-        $stmt = "SELECT
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		$stmt = "SELECT
                     cvo_id
                  FROM
                     " . APP_TABLE_PREFIX . "controlled_vocab
                  WHERE
-                    cvo_external_id=".$cvo_external_id;
-        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+                    cvo_external_id=".$db->quote($cvo_external_id);
+		try {
+			$res = $db->fetchOne($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+		return $res;
+	}
 
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return '';
-        } else {
-            return $res;
-        }
-    }
-		
-    /**
-     * Method used to get the title of a specific controlled vocabulary.
-     *
-     * @access  public
-     * @param   string $cvo_title The controlled vocabulary title
-     * @return  string The ID of the controlled vocabulary
-     */
-    function getID($cvo_title)
-    {
-        $stmt = "SELECT
+	/**
+	 * Method used to get the title of a specific controlled vocabulary.
+	 *
+	 * @access  public
+	 * @param   string $cvo_title The controlled vocabulary title
+	 * @return  string The ID of the controlled vocabulary
+	 */
+	function getID($cvo_title)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		$stmt = "SELECT
                     cvo_id
                  FROM
                     " . APP_TABLE_PREFIX . "controlled_vocab
                  WHERE
-                    cvo_title='".$cvo_title."'";
-        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+                    cvo_title=".$db->quote($cvo_title);
+		try {
+			$res = $db->fetchOne($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+		return $res;
+	}
 
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return '';
-        } else {
-            return $res;
-        }
-    }
-	
-    /**
-     * Method used to get the list of controlled vocabularies available in the 
-     * system returned in an associative array for drop down lists.
-     *
-     * @access  public
-     * @return  array The list of controlled vocabularies in an associative array (for drop down lists).
-     */
-    function getAssocList()
-    {
-        $stmt = "SELECT
+	/**
+	 * Method used to get the list of controlled vocabularies available in the
+	 * system returned in an associative array for drop down lists.
+	 *
+	 * @access  public
+	 * @return  array The list of controlled vocabularies in an associative array (for drop down lists).
+	 */
+	function getAssocList()
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		$stmt = "SELECT
                     cvo_id,
 					cvo_title
                  FROM
@@ -501,411 +521,443 @@ class Controlled_Vocab
 			     WHERE cvo_id not in (SELECT cvr_child_cvo_id from  " . APP_TABLE_PREFIX . "controlled_vocab_relationship)
                  ORDER BY
                     cvo_title ASC";
-        $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            return $res;
-        }
-    }
-	
-    /**
-     * Method used to get the list of controlled vocabularies available in the 
-     * system returned in an associative array for drop down lists.
-     *
-     * @access  public
-     * @return  array The list of controlled vocabularies in an associative array (for drop down lists).
-     */
-    function getAssocListAll($start="", $max="")
-    {
-        $stmt = "SELECT
+		try {
+			$res = $db->fetchPairs($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+		return $res;
+	}
+
+	/**
+	 * Method used to get the list of controlled vocabularies available in the
+	 * system returned in an associative array for drop down lists.
+	 *
+	 * @access  public
+	 * @return  array The list of controlled vocabularies in an associative array (for drop down lists).
+	 */
+	function getAssocListAll($start="", $max="")
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		$stmt = "SELECT
                     cvo_id,
 					cvo_title
                  FROM
-                    " . APP_TABLE_PREFIX . "controlled_vocab
-";
-        if (is_numeric($start) && is_numeric($max)) {
-        	$stmt .= " LIMIT ".$start.", ".$max;
-        }
-        $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            return $res;
-        }
-    }	
+                    " . APP_TABLE_PREFIX . "controlled_vocab";
+		if (is_numeric($start) && is_numeric($max)) {
+			$stmt .= " LIMIT ".$db->quote($start, 'INTEGER').", ".$db->quote($max, 'INTEGER');
+		}
+		try {
+			$res = $db->fetchPairs($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+		return $res;
+	}
 
-    /**
-     * Method used to get the list of controlled vocabularies available in the 
-     * system returned in an associative array for drop down lists.
-     *
-     * @access  public
-     * @return  array The list of controlled vocabularies in an associative array (for drop down lists).
-     */
-    function getChildListAll($start="", $max="")
-    {
-        $stmt = "SELECT
+	/**
+	 * Method used to get the list of controlled vocabularies available in the
+	 * system returned in an associative array for drop down lists.
+	 *
+	 * @access  public
+	 * @return  array The list of controlled vocabularies in an associative array (for drop down lists).
+	 */
+	function getChildListAll($start="", $max="")
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		$stmt = "SELECT
                     cvo_id,
 					cvo_title
                  FROM
                     " . APP_TABLE_PREFIX . "controlled_vocab
 				 WHERE cvo_id not in (SELECT cvr_parent_cvo_id from  " . APP_TABLE_PREFIX . "controlled_vocab_relationship)
 				 ORDER BY cvo_id ASC";
-        if (is_numeric($start) && is_numeric($max)) {
-        	$stmt .= " LIMIT ".$start.", ".$max;
-        }
-        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            return $res;
-        }
-    }	    
-    
-   /**
-     * Method used to get the list of controlled vocabularies available in the 
-     * system returned in an associative array for drop down lists.
-     *
-     * @access  public
-     * @return  array The list of controlled vocabularies in an associative array (for drop down lists).
-     */
-    function getAssocListByID($id)	
-    {
-	// used by the xsd match forms
+		if (is_numeric($start) && is_numeric($max)) {
+			$stmt .= " LIMIT ".$db->quote($start, 'INTEGER').", ".$db->quote($max, 'INTEGER');
+		}
+		try {
+			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+		return $res;
+	}
+
+	/**
+	 * Method used to get the list of controlled vocabularies available in the
+	 * system returned in an associative array for drop down lists.
+	 *
+	 * @access  public
+	 * @return  array The list of controlled vocabularies in an associative array (for drop down lists).
+	 */
+	function getAssocListByID($id)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		// used by the xsd match forms
 		if (!is_numeric($id)) {
 			return array();
 		}
 
-        $stmt = "SELECT
+		$stmt = "SELECT
                     cvo_id,
 					cvo_title
                  FROM
                     " . APP_TABLE_PREFIX . "controlled_vocab
-				 WHERE cvo_id = ".$id;
-        $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            return $res;
-        }
-    }	
+				 WHERE cvo_id = ".$db->quote($id, 'INTEGER');
+		try {
+			$res = $db->fetchPairs($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+		return $res;
+	}
 
-   /**
-     * Method used to get the list of controlled vocabularies available in the 
-     * system returned in an associative array for drop down lists.
-     *
-     * @access  public
-     * @return  array The list of controlled vocabularies in an associative array (for drop down lists).
-     */
-    function getListByID($id)
-    {
-        $stmt = "SELECT
+	/**
+	 * Method used to get the list of controlled vocabularies available in the
+	 * system returned in an associative array for drop down lists.
+	 *
+	 * @access  public
+	 * @return  array The list of controlled vocabularies in an associative array (for drop down lists).
+	 */
+	function getListByID($id)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		$stmt = "SELECT
                     cvo_id,
 					cvo_title
                  FROM
                     " . APP_TABLE_PREFIX . "controlled_vocab
-				 WHERE cvo_id = ".$id;
-        $res = $GLOBALS["db_api"]->dbh->getAll($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            return $res;
-        }
-    }	
+				 WHERE cvo_id = ".$db->quote($id, 'INTEGER');
+		try {
+			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+		return $res;
+	}
 
-    /**
-     * Method used to get the list of controlled vocabularies available in the 
-     * system.
-     *
-     * @access  public
-     * @return  array The list of controlled vocabularies 
-     */
-    function getList($parent_id=false)
-    {
-        $stmt = "SELECT
+	/**
+	 * Method used to get the list of controlled vocabularies available in the
+	 * system.
+	 *
+	 * @access  public
+	 * @return  array The list of controlled vocabularies
+	 */
+	function getList($parent_id=false)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		$stmt = "SELECT
                     *
                  FROM
                     " . APP_TABLE_PREFIX . "controlled_vocab ";
 
 		if (is_numeric($parent_id)) {
-			$stmt .=   "," . APP_TABLE_PREFIX . "controlled_vocab_relationship 
-					     WHERE cvr_parent_cvo_id = ".$parent_id." AND cvr_child_cvo_id = cvo_id ";			
+			$stmt .=   "," . APP_TABLE_PREFIX . "controlled_vocab_relationship
+					     WHERE cvr_parent_cvo_id = ".$db->quote($parent_id, 'INTEGER')." AND cvr_child_cvo_id = cvo_id ";			
 		} else {
 			$stmt .= " WHERE cvo_id not in (SELECT cvr_child_cvo_id from  " . APP_TABLE_PREFIX . "controlled_vocab_relationship)";
 		}
 		$stmt .= "
                  ORDER BY
                     cvo_title ASC";
-        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            if (empty($res)) {
-                return array();
-            } else {
-                return $res;
-            }
-        }
-    }
+		try {
+			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+		if (empty($res)) {
+			return array();
+		} else {
+			return $res;
+		}
+	}
 
-    /**
-     * Method used to get the list of controlled vocabularies available in the 
-     * system.
-     *
-     * @access  public
-     * @return  array The list of controlled vocabularies 
-     */
-    function getAssocListFullDisplay($parent_id=false, $indent="", $level=0, $level_limit=false)
-    {
-	
+	/**
+	 * Method used to get the list of controlled vocabularies available in the
+	 * system.
+	 *
+	 * @access  public
+	 * @return  array The list of controlled vocabularies
+	 */
+	function getAssocListFullDisplay($parent_id=false, $indent="", $level=0, $level_limit=false)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
 		if (is_numeric($level_limit)) {
 			if ($level == $level_limit) {
 				return array();
 			}
 		}
 		$level++;
-        $stmt = "SELECT
+		$stmt = "SELECT
                     cvo_id,
 					CONCAT(cvo_title, ' ', cvo_desc) as cvo_title
                  FROM
                     " . APP_TABLE_PREFIX . "controlled_vocab ";
 
 		if (is_numeric($parent_id)) {
-			$stmt .=   "," . APP_TABLE_PREFIX . "controlled_vocab_relationship 
-					     WHERE cvr_parent_cvo_id = ".$parent_id." AND cvr_child_cvo_id = cvo_id ";			
+			$stmt .=   "," . APP_TABLE_PREFIX . "controlled_vocab_relationship
+					     WHERE cvr_parent_cvo_id = ".$db->quote($parent_id, 'INTEGER')." AND cvr_child_cvo_id = cvo_id ";			
 		} else {
 			$stmt .= " WHERE cvo_id not in (SELECT cvr_child_cvo_id from  " . APP_TABLE_PREFIX . "controlled_vocab_relationship)";
 		}
 		$stmt .= "
                  ORDER BY
                     cvo_title ASC";
-
-        $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            if (empty($res)) {
-                return array();
-            } else {
-				$newArray = array();
-				$tempArray = array();
-				if ($parent_id != false) {
-					$indent .= "---------";
-				}
-				foreach ($res as $key => $data) {
-//					if ($parent_id != false) {
-						$newArray[$key] = $data;
-//					}
-					$tempArray = Controlled_Vocab::getAssocListFullDisplay($key, $indent, $level, $level_limit);					
-					if (count($tempArray) > 0) {
-//						if ($parent_id == false) {
-							$newArray['data'][$key] = Misc::array_merge_preserve(@$newArray[$key], $tempArray);
-							$newArray['title'][$key] = $data;
-//						} else {
-//							$newArray = Misc::array_merge_preserve($newArray, $tempArray);
-//						}
-					}
-				}
-				$res = $newArray;
-                return $res;
-            }
-        }
-    }
-
-
-
-    /**
-     * Method used to get the associative list of controlled vocabularies available in the 
-     * system.
-     *
-     * @access  public
-     * @return  array The list of controlled vocabularies 
-     */
-    function getParentAssocListFullDisplay($child_id, $indent="")
-    {
-	 if (empty($child_id)) {
-            return array();
-	 }
-        $stmt = "SELECT
-                    cvo_id,
-					concat('".$indent."',cvo_title) as cvo_title
-                 FROM
-                    " . APP_TABLE_PREFIX . "controlled_vocab ";
-			$stmt .=   "," . APP_TABLE_PREFIX . "controlled_vocab_relationship 
-					     WHERE cvr_parent_cvo_id = cvo_id AND cvr_child_cvo_id = ".$child_id;			
-		$stmt .= "
-                 ORDER BY
-                    cvo_title ASC";
-
-        $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            if (empty($res)) {
-                return array();
-            } else {
-				$newArray = array();
-				$tempArray = array();
-				foreach ($res as $key => $data) {
-					if ($child_id != false) {
-						$newArray[$key] = $data;
-					}
-					$tempArray = Controlled_Vocab::getParentAssocListFullDisplay($key, $indent);					
-					if (count($tempArray) > 0) {
-						if ($child_id == false) {
-							$newArray['data'][$key] = Misc::array_merge_preserve($tempArray, $newArray[$key]);
-							$newArray['title'][$key] = $data;
-						} else {
-							$newArray = Misc::array_merge_preserve($tempArray, $newArray);
-						}
-					}
-				}
-				$res = $newArray;
-                return $res;
-            }
-        }
-    }
-
-
-
-    /**
-     * Method used to get the list of controlled vocabularies available in the 
-     * system.
-     *
-     * @access  public
-     * @return  array The list of controlled vocabularies 
-     */
-    function getParentListFullDisplay($child_id, $indent="")
-    {
-        $stmt = "SELECT
-                    cvo_id,
-					concat('".$indent."',cvo_title) as cvo_title
-                 FROM
-                    " . APP_TABLE_PREFIX . "controlled_vocab ";
-			$stmt .=   "," . APP_TABLE_PREFIX . "controlled_vocab_relationship 
-					     WHERE cvr_parent_cvo_id = cvo_id AND cvr_child_cvo_id = ".$child_id;			
-		$stmt .= "
-                 ORDER BY
-                    cvo_title ASC";
-
-        $res = $GLOBALS["db_api"]->dbh->getAll($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            if (empty($res)) {
-                return array();
-            } else {
-				$newArray = array();
-				$tempArray = array();
-				foreach ($res as $key => $data) {
-					if ($child_id != false) {
-						$newArray[$key] = $data;
-					}
-					$tempArray = Controlled_Vocab::getParentListFullDisplay($key, $indent);					
-					if (count($tempArray) > 0) {
-						if ($child_id == false) {
-							$newArray['data'][$key] = array_merge($tempArray, $newArray[$key]);
-							$newArray['title'][$key] = $data;
-						} else {
-							$newArray = array_merge($tempArray, $newArray);
-						}
-					}
-				}
-				$res = $newArray;
-                return $res;
-            }
-        }
-    }
-
-    /**
-     * Recursive function to get all the IDs in a CV tree (to be used in counts for entire CV parents including children).
-     *
-     * @access  public
-	 * @param string $parent_id 
-     * @return  array The list of controlled vocabularies 
-     */
-	function getAllTreeIDs($parent_id=false) {
-        $stmt = "SELECT
-                    cvo_id
-                 FROM
-                    " . APP_TABLE_PREFIX . "controlled_vocab ";
-		if (is_numeric($parent_id)) {
-			$stmt .=   "," . APP_TABLE_PREFIX . "controlled_vocab_relationship 
-						 WHERE cvr_parent_cvo_id = ".$parent_id." AND cvr_child_cvo_id = cvo_id ";			
-		} else {
-			$stmt .= " WHERE cvo_id not in (SELECT cvr_child_cvo_id from  " . APP_TABLE_PREFIX . "controlled_vocab_relationship)";
+		try {
+			$res = $db->fetchPairs($stmt);
 		}
-        $res = $GLOBALS["db_api"]->dbh->getAll($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return array();
-        } else {
-            $newArray = array();
-			foreach ($res as $row) {
-				$tempArray = array();			
-				$tempArray = Controlled_Vocab::getAllTreeIDs($row[0]);
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+
+		if (empty($res)) {
+			return array();
+		} else {
+			$newArray = array();
+			$tempArray = array();
+			if ($parent_id != false) {
+				$indent .= "---------";
+			}
+			foreach ($res as $key => $data) {
+				$newArray[$key] = $data;
+				$tempArray = Controlled_Vocab::getAssocListFullDisplay($key, $indent, $level, $level_limit);
 				if (count($tempArray) > 0) {
-					$newArray[$row[0]] = $tempArray;
-				} else {
-					$newArray[$row[0]] = $row[0];
+					$newArray['data'][$key] = Misc::array_merge_preserve(@$newArray[$key], $tempArray);
+					$newArray['title'][$key] = $data;
 				}
 			}
-			return $newArray;
+			$res = $newArray;
+			return $res;
 		}
 	}
 
 
-    /**
-     * Method used to get the details of a specific controlled vocabulary.
-     *
-     * @access  public
-     * @param   integer $cvo_id The controlled vocabulary ID
-     * @return  array The controlled vocabulary details
-     */
-    function getDetails($cvo_id)
-    {
 
-        $stmt = "SELECT
+	/**
+	 * Method used to get the associative list of controlled vocabularies available in the
+	 * system.
+	 *
+	 * @access  public
+	 * @return  array The list of controlled vocabularies
+	 */
+	function getParentAssocListFullDisplay($child_id, $indent="")
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		if (empty($child_id)) {
+	 		return array();
+	 	}
+		$stmt = "SELECT cvo_id, concat(".$db->quote($indent).",cvo_title) as cvo_title
+	               FROM
+	                    " . APP_TABLE_PREFIX . "controlled_vocab ";
+		$stmt .=   "," . APP_TABLE_PREFIX . "controlled_vocab_relationship
+						     WHERE cvr_parent_cvo_id = cvo_id AND cvr_child_cvo_id = ".$db->quote($child_id, 'INTEGER');			
+		$stmt .= " ORDER BY cvo_title ASC";
+		
+		try {
+			$res = $db->fetchPairs($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+			
+		if (empty($res)) {
+			return array();
+		} else {
+			$newArray = array();
+			$tempArray = array();
+			foreach ($res as $key => $data) {
+				if ($child_id != false) {
+					$newArray[$key] = $data;
+				}
+				$tempArray = Controlled_Vocab::getParentAssocListFullDisplay($key, $indent);
+				if (count($tempArray) > 0) {
+					if ($child_id == false) {
+						$newArray['data'][$key] = Misc::array_merge_preserve($tempArray, $newArray[$key]);
+						$newArray['title'][$key] = $data;
+					} else {
+						$newArray = Misc::array_merge_preserve($tempArray, $newArray);
+					}
+				}
+			}
+			$res = $newArray;
+			return $res;
+		}
+	}
+
+
+
+	/**
+	 * Method used to get the list of controlled vocabularies available in the
+	 * system.
+	 *
+	 * @access  public
+	 * @return  array The list of controlled vocabularies
+	 */
+	function getParentListFullDisplay($child_id, $indent="")
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "SELECT
+                    cvo_id,
+					concat(".$db->quote($indent).",cvo_title) as cvo_title
+                 FROM
+                    " . APP_TABLE_PREFIX . "controlled_vocab ";
+		$stmt .=   "," . APP_TABLE_PREFIX . "controlled_vocab_relationship
+					     WHERE cvr_parent_cvo_id = cvo_id AND cvr_child_cvo_id = ".$db->quote($child_id, 'INTEGER');			
+		$stmt .= " ORDER BY cvo_title ASC";
+		
+		try {
+			$res = $db->fetchAll($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+
+		if (empty($res)) {
+			return array();
+		} else {
+			$newArray = array();
+			$tempArray = array();
+			foreach ($res as $key => $data) {
+				if ($child_id != false) {
+					$newArray[$key] = $data;
+				}
+				$tempArray = Controlled_Vocab::getParentListFullDisplay($key, $indent);
+				if (count($tempArray) > 0) {
+					if ($child_id == false) {
+						$newArray['data'][$key] = array_merge($tempArray, $newArray[$key]);
+						$newArray['title'][$key] = $data;
+					} else {
+						$newArray = array_merge($tempArray, $newArray);
+					}
+				}
+			}
+			$res = $newArray;
+			return $res;
+		}
+	}
+
+	/**
+	 * Recursive function to get all the IDs in a CV tree (to be used in counts for entire CV parents including children).
+	 *
+	 * @access  public
+	 * @param string $parent_id
+	 * @return  array The list of controlled vocabularies
+	 */
+	function getAllTreeIDs($parent_id=false) 
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "SELECT cvo_id
+                 FROM
+                    " . APP_TABLE_PREFIX . "controlled_vocab ";
+		if (is_numeric($parent_id)) {
+			$stmt .=   "," . APP_TABLE_PREFIX . "controlled_vocab_relationship
+						 WHERE cvr_parent_cvo_id = ".$db->quote($parent_id, 'INTEGER')." AND cvr_child_cvo_id = cvo_id ";			
+		} else {
+			$stmt .= " WHERE cvo_id not in (SELECT cvr_child_cvo_id from  " . APP_TABLE_PREFIX . "controlled_vocab_relationship)";
+		}
+		try {
+			$res = $db->fetchAll($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return array();
+		}
+		
+		$newArray = array();
+		foreach ($res as $row) {
+			$tempArray = array();
+			$tempArray = Controlled_Vocab::getAllTreeIDs($row[0]);
+			if (count($tempArray) > 0) {
+				$newArray[$row[0]] = $tempArray;
+			} else {
+				$newArray[$row[0]] = $row[0];
+			}
+		}
+		return $newArray;
+	}
+
+
+	/**
+	 * Method used to get the details of a specific controlled vocabulary.
+	 *
+	 * @access  public
+	 * @param   integer $cvo_id The controlled vocabulary ID
+	 * @return  array The controlled vocabulary details
+	 */
+	function getDetails($cvo_id)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "SELECT
                     *
                  FROM
                     " . APP_TABLE_PREFIX . "controlled_vocab ";
-		if ($cvo_id !== "") {
-			$stmt .= "WHERE cvo_id=" . $cvo_id;
+		if ($cvo_id != "") {
+			$stmt .= "WHERE cvo_id=" . $db->quote($cvo_id, 'INTEGER');
 		}
+		
+		try {
+			$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+		return $res;
+	}
 
-        $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            return $res;
-        }
-    }
-
-    function najaxGetMeta()
-    {
-        NAJAX_Client::mapMethods($this, array('getTitle' ));
-        NAJAX_Client::publicMethods($this, array('getTitle'));
-    }
+	function najaxGetMeta()
+	{
+		NAJAX_Client::mapMethods($this, array('getTitle' ));
+		NAJAX_Client::publicMethods($this, array('getTitle'));
+	}
 
 
-    /**
-     * Method used to assemble the CV tree in YUI treeview form, as an array.
-     *
-     * @access  public
-     * @param   none
-     * @return  array The JavaScript tree creation statements
-     */
-	function buildCVtree() {
+	/**
+	 * Method used to assemble the CV tree in YUI treeview form, as an array.
+	 *
+	 * @access  public
+	 * @param   none
+	 * @return  array The JavaScript tree creation statements
+	 */
+	function buildCVtree() 
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
 
 		$stmt = "SELECT cvo_id, cvo_title, CONCAT(cvo_title, ' ', cvo_desc) as cvo_title_extended, cvr_parent_cvo_id as cvo_parent_id " .
 				"FROM " . APP_TABLE_PREFIX . "controlled_vocab AS t1 " .
@@ -914,14 +966,15 @@ class Controlled_Vocab
 				"FROM " . APP_TABLE_PREFIX . "controlled_vocab_relationship) AS t2 " .
 				"ON t1.cvo_id = t2.cvr_child_cvo_id " .
 				"ORDER BY cvo_id ASC";
-
-        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        }
-
+		
+		try {
+			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+		
 		$cvTree = array();
 		foreach ($res as $row) {
 			if (is_null($row['cvo_parent_id'])) {
@@ -933,37 +986,38 @@ class Controlled_Vocab
 
 		return $cvTree;
 	}
-	
-	
-	function suggest($id) {
-	    
-        $dbtp = APP_TABLE_PREFIX;
-        $term = Misc::escapeString($term);
-        $stmt = " SELECT cvo_external_id, cvo_title
+
+
+	function suggest($id) 
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+			 
+		$dbtp = APP_TABLE_PREFIX;
+		$stmt = " SELECT cvo_external_id, cvo_title
                   FROM " . APP_TABLE_PREFIX . "controlled_vocab
-                  WHERE cvo_external_id LIKE '%$id%'"; //, cvo_title
-        
-        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            return $res;
-        }
-        
+                  WHERE cvo_external_id LIKE ".$db->quote("%$id%"); //, cvo_title
+		try {
+			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+
+		return $res;
 	}
 
 
-    /**
-     * Method used to produce the YUI treeview-ready JavaScript as a printable string.
-     *
-     * @access  public
-     * @param   array The JavaScript tree creation statements
-     * @return  string The JavaScript tree creation statements
-     */
-	function renderCVtree($cvTreeArray) {
-
+	/**
+	 * Method used to produce the YUI treeview-ready JavaScript as a printable string.
+	 *
+	 * @access  public
+	 * @param   array The JavaScript tree creation statements
+	 * @return  string The JavaScript tree creation statements
+	 */
+	function renderCVtree($cvTreeArray) 
+	{
 		$output = "";
 		foreach ($cvTreeArray as $cvThing) {
 			$output .= $cvThing . "\n";
@@ -973,9 +1027,3 @@ class Controlled_Vocab
 	}
 
 }
-
-// benchmarking the included file (aka setup time)
-if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
-    $GLOBALS['bench']->setMarker('Included Controlled Vocabulary Class');
-}
-?>

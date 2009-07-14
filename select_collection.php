@@ -113,4 +113,3 @@ if (@$_POST["cat"] == "select") {
 }
 
 $tpl->displayTemplate();
-?>

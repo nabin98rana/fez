@@ -38,31 +38,31 @@ include_once(APP_PEAR_PATH . 'Mail.php');
 
 class Mail_Queue
 {
-    /**
-     * Returns the full path to the file that keeps the process ID of the
-     * running script.
-     *
-     * @access  private
-     * @return  string The full path of the process file
-     */
-    function _getProcessFilename()
-    {
-        return APP_PATH . 'misc/process_mail_queue.pid';
-    }
+	/**
+	 * Returns the full path to the file that keeps the process ID of the
+	 * running script.
+	 *
+	 * @access  private
+	 * @return  string The full path of the process file
+	 */
+	function _getProcessFilename()
+	{
+		return APP_PATH . 'misc/process_mail_queue.pid';
+	}
 
 
-    /**
-     * Checks whether it is safe or not to run the mail queue script.
-     *
-     * @access  public
-     * @return  boolean
-     */
-    function isSafeToRun()
-    {
-        $pid = Mail_Queue::getProcessID();
-        if (!empty($pid)) {
-		   // the pid file exists, but may have been left orphaned by a previous failed run
-		   // so we want to check that the process $pid is actually running
+	/**
+	 * Checks whether it is safe or not to run the mail queue script.
+	 *
+	 * @access  public
+	 * @return  boolean
+	 */
+	function isSafeToRun()
+	{
+		$pid = Mail_Queue::getProcessID();
+		if (!empty($pid)) {
+			// the pid file exists, but may have been left orphaned by a previous failed run
+			// so we want to check that the process $pid is actually running
 			$running_pid = trim( `ps auwwx | grep $pid | grep -v grep | awk '{print $2}'` );
 			if ( $running_pid == "" ) {
 				// the process $pid is not actually running, so create the pid file and say it's safe to run
@@ -70,71 +70,74 @@ class Mail_Queue
 				fwrite($fp, getmypid());
 				fclose($fp);
 				return true;
-			} else { 
-				// the process $pid IS actually running, so it's not safe to run 
+			} else {
+				// the process $pid IS actually running, so it's not safe to run
 				return false;
 			}
-        } else {
-            // create the pid file
-            $fp = fopen(Mail_Queue::_getProcessFilename(), 'w');
-            fwrite($fp, getmypid());
-            fclose($fp);
-            return true;
-        }
-    }
+		} else {
+			// create the pid file
+			$fp = fopen(Mail_Queue::_getProcessFilename(), 'w');
+			fwrite($fp, getmypid());
+			fclose($fp);
+			return true;
+		}
+	}
 
 
-    /**
-     * Returns the process ID of the script, if any.
-     *
-     * @access  public
-     * @return  integer The process ID of the script
-     */
-    function getProcessID()
-    {
-        static $pid;
+	/**
+	 * Returns the process ID of the script, if any.
+	 *
+	 * @access  public
+	 * @return  integer The process ID of the script
+	 */
+	function getProcessID()
+	{
+		static $pid;
 
-        if (!empty($pid)) {
-            return $pid;
-        }
+		if (!empty($pid)) {
+			return $pid;
+		}
 
-        $pid_file = Mail_Queue::_getProcessFilename();
-        if (!file_exists($pid_file)) {
-            return 0;
-        } else {
-            $pid = trim(implode('', file($pid_file)));
-            return $pid;
-        }
-    }
-
-
-    /**
-     * Removes the process file to allow other instances of this script to run.
-     *
-     * @access  public
-     * @return  void
-     */
-    function removeProcessFile()
-    {
-        @unlink(Mail_Queue::_getProcessFilename());
-    }
+		$pid_file = Mail_Queue::_getProcessFilename();
+		if (!file_exists($pid_file)) {
+			return 0;
+		} else {
+			$pid = trim(implode('', file($pid_file)));
+			return $pid;
+		}
+	}
 
 
-    /**
-     * Adds an email to the outgoing mail queue.
-     *
-     * @access  public
-     * @param   string $recipient The recipient of this email
-     * @param   array $headers The list of headers that should be sent with this email
-     * @param   string $body The body of the message
-     * @param   integer $save_email_copy Whether to send a copy of this email to a configurable address or not (eventum_sent@)
-     * @return  true, or a PEAR_Error object
-     */
-    function add($recipient, $headers, $body, $save_email_copy = 0)
-    {
-        list(,$text_headers) = Mail_API::prepareHeaders($headers);
-        $save_email_copy = $save_email_copy ? '1':'0';
-        $stmt = "INSERT INTO
+	/**
+	 * Removes the process file to allow other instances of this script to run.
+	 *
+	 * @access  public
+	 * @return  void
+	 */
+	function removeProcessFile()
+	{
+		@unlink(Mail_Queue::_getProcessFilename());
+	}
+
+
+	/**
+	 * Adds an email to the outgoing mail queue.
+	 *
+	 * @access  public
+	 * @param   string $recipient The recipient of this email
+	 * @param   array $headers The list of headers that should be sent with this email
+	 * @param   string $body The body of the message
+	 * @param   integer $save_email_copy Whether to send a copy of this email to a configurable address or not (eventum_sent@)
+	 * @return  true, or a PEAR_Error object
+	 */
+	function add($recipient, $headers, $body, $save_email_copy = 0)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		list(,$text_headers) = Mail_API::prepareHeaders($headers);
+		$save_email_copy = $save_email_copy ? '1':'0';
+		$stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "mail_queue
                  (
                     maq_save_copy,
@@ -144,133 +147,143 @@ class Mail_Queue
                     maq_headers,
                     maq_body
                  ) VALUES (
-                    $save_email_copy,
-                    '" . Date_API::getCurrentDateGMT() . "',
-                    '" . getenv("REMOTE_ADDR") . "',
-                    '" . Misc::escapeString($recipient) . "',
-                    '" . Misc::escapeString($text_headers) . "',
-                    '" . Misc::escapeString($body) . "'
+                 	" . $db->quote($save_email_copy, 'INTEGER') . ",
+                    " . $db->quote(Date_API::getCurrentDateGMT()) . ",
+                    " . $db->quote(etenv("REMOTE_ADDR")) . ",
+                    " . $db->quote($recipient) . ",
+                    " . $db->quote($text_headers) . ",
+                    " . $db->quote($body) . "
                  )";
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return $res;
-        } else {
-            return true;
-        }
-    }
+		try {
+			$db->query($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return false;
+		}
+		return true;
+	}
 
 
-    /**
-     * Sends the queued up messages to their destinations. This can either try 
-     * to send emails that couldn't be sent before (status = 'error'), or just 
-     * emails just recently queued (status = 'pending').
-     *
-     * @access  public
-     * @param   string $status The status of the messages that need to be sent
-     * @param   integer $limit The limit of emails that we should send at one time
-     */
-    function send($status, $limit)
-    {
-        // get list of emails to send
-        $emails = Mail_Queue::_getList($status, $limit);
-        // foreach email
-        for ($i = 0; $i < count($emails); $i++) {
-            $result = Mail_Queue::_sendEmail($emails[$i]['recipient'], $emails[$i]['headers'], $emails[$i]['body']);
-            if (PEAR::isError($result)) {
-                Mail_Queue::_saveLog($emails[$i]['id'], 'error', Mail_Queue::_getErrorMessage($result));
-            } else {
-                Mail_Queue::_saveLog($emails[$i]['id'], 'sent', '');
-                if ($emails[$i]['save_copy']) {
-                    // send a copy of this email to eventum_sent@
-                    Mail_API::saveEmailInformation($emails[$i]['headers'], $emails[$i]['body']);
-                }
-            }
-        }
-    }
+	/**
+	 * Sends the queued up messages to their destinations. This can either try
+	 * to send emails that couldn't be sent before (status = 'error'), or just
+	 * emails just recently queued (status = 'pending').
+	 *
+	 * @access  public
+	 * @param   string $status The status of the messages that need to be sent
+	 * @param   integer $limit The limit of emails that we should send at one time
+	 */
+	function send($status, $limit)
+	{
+		// get list of emails to send
+		$emails = Mail_Queue::_getList($status, $limit);
+		// foreach email
+		for ($i = 0; $i < count($emails); $i++) {
+			$result = Mail_Queue::_sendEmail($emails[$i]['recipient'], $emails[$i]['headers'], $emails[$i]['body']);
+			if (PEAR::isError($result)) {
+				Mail_Queue::_saveLog($emails[$i]['id'], 'error', Mail_Queue::_getErrorMessage($result));
+			} else {
+				Mail_Queue::_saveLog($emails[$i]['id'], 'sent', '');
+				if ($emails[$i]['save_copy']) {
+					// send a copy of this email to eventum_sent@
+					Mail_API::saveEmailInformation($emails[$i]['headers'], $emails[$i]['body']);
+				}
+			}
+		}
+	}
 
-    function clearOld()
-    {
-        $stmt = " delete from " . APP_TABLE_PREFIX . "mail_queue_log where
+	function clearOld()
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = " delete from " . APP_TABLE_PREFIX . "mail_queue_log where
             mql_maq_id in (select maq_id from " . APP_TABLE_PREFIX . "mail_queue where
                     maq_status='sent' and maq_queued_date < date_sub(NOW(), interval 1 month))";
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-        }
+		try {
+			$db->query($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+		}
 
-        $stmt = "delete from " . APP_TABLE_PREFIX . "mail_queue where
-            maq_status='sent' and maq_queued_date < date_sub(NOW(), interval 1 month);
-        ";
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-        }
-    }
+		$stmt = "delete from " . APP_TABLE_PREFIX . "mail_queue where
+            maq_status='sent' and maq_queued_date < date_sub(NOW(), interval 1 month);";
+		try {
+			$db->query($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+		}
+	}
 
-    /**
-     * Connects to the SMTP server and sends the queued message.
-     *
-     * @access  private
-     * @param   string $recipient The recipient of this message
-     * @param   string $text_headers The full headers of this message
-     * @param   string $body The full body of this message
-     * @return  true, or a PEAR_Error object
-     */
-    function _sendEmail($recipient, $text_headers, $body)
-    {
-        $header_names = Mime_Helper::getHeaderNames($text_headers);
-       
-        $_headers = Mail_Queue::_getHeaders($text_headers, $body);
-        $headers = array();
-        foreach ($_headers as $lowercase_name => $value) {
-            $headers[$header_names[$lowercase_name]] = $value;
-        }
-        //print_r( Mail_Queue::_getSMTPSettings());
-        $smtpSettings = Mail_Queue::_getSMTPSettings();
-        //$mail = new Mail();
-        //$mail =& Mail::factory('smtp', Mail_Queue::_getSMTPSettings());
-        //$mail =& Mail::factory('smtp', $smtpSettings);
-        $mail = Mail::factory('smtp', $smtpSettings);
-        //$mail = new Mail::factory('smtp', Mail_Queue::_getSMTPSettings());
-//		echo "here1";
-        $res = $mail->send($recipient, $headers, $body);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return $res;
-        } else {
-            return true;
-        }
-    }
-
-
-    /**
-     * Parses the full email message and returns an array of the headers 
-     * contained in it.
-     *
-     * @access  private
-     * @param   string $text_headers The full headers of this message
-     * @param   string $body The full body of this message
-     * @return  array The list of headers
-     */
-    function _getHeaders($text_headers, $body)
-    {
-        $structure = Mime_Helper::decode($text_headers . "\n\n" . $body, FALSE, FALSE);
-        return $structure->headers;
-    }
+	/**
+	 * Connects to the SMTP server and sends the queued message.
+	 *
+	 * @access  private
+	 * @param   string $recipient The recipient of this message
+	 * @param   string $text_headers The full headers of this message
+	 * @param   string $body The full body of this message
+	 * @return  true, or a PEAR_Error object
+	 */
+	function _sendEmail($recipient, $text_headers, $body)
+	{
+		$header_names = Mime_Helper::getHeaderNames($text_headers);
+		 
+		$_headers = Mail_Queue::_getHeaders($text_headers, $body);
+		$headers = array();
+		foreach ($_headers as $lowercase_name => $value) {
+			$headers[$header_names[$lowercase_name]] = $value;
+		}
+		//print_r( Mail_Queue::_getSMTPSettings());
+		$smtpSettings = Mail_Queue::_getSMTPSettings();
+		//$mail = new Mail();
+		//$mail =& Mail::factory('smtp', Mail_Queue::_getSMTPSettings());
+		//$mail =& Mail::factory('smtp', $smtpSettings);
+		$mail = Mail::factory('smtp', $smtpSettings);
+		//$mail = new Mail::factory('smtp', Mail_Queue::_getSMTPSettings());
+		//		echo "here1";
+		$res = $mail->send($recipient, $headers, $body);
+		if (PEAR::isError($res)) {
+			Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+			return $res;
+		} else {
+			return true;
+		}
+	}
 
 
-    /**
-     * Retrieves the list of queued email messages, given a status.
-     *
-     * @access  private
-     * @param   string $status The status of the messages
-     * @param   integer $limit The limit on the number of messages that need to be returned
-     * @return  array The list of queued email messages
-     */
-    function _getList($status, $limit = 50)
-    {
-        $stmt = "SELECT
+	/**
+	 * Parses the full email message and returns an array of the headers
+	 * contained in it.
+	 *
+	 * @access  private
+	 * @param   string $text_headers The full headers of this message
+	 * @param   string $body The full body of this message
+	 * @return  array The list of headers
+	 */
+	function _getHeaders($text_headers, $body)
+	{
+		$structure = Mime_Helper::decode($text_headers . "\n\n" . $body, FALSE, FALSE);
+		return $structure->headers;
+	}
+
+
+	/**
+	 * Retrieves the list of queued email messages, given a status.
+	 *
+	 * @access  private
+	 * @param   string $status The status of the messages
+	 * @param   integer $limit The limit on the number of messages that need to be returned
+	 * @return  array The list of queued email messages
+	 */
+	function _getList($status, $limit = 50)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "SELECT
                     maq_id id,
                     maq_save_copy save_copy,
                     maq_recipient recipient,
@@ -279,34 +292,39 @@ class Mail_Queue
                  FROM
                     " . APP_TABLE_PREFIX . "mail_queue
                  WHERE
-                    maq_status='$status'
+                    maq_status=".$db->quote($status)."
                  ORDER BY
                     maq_id ASC
                  LIMIT
-                    0, $limit";
-        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return array();
-        } else {
-            return $res;
-        }
-    }
+                    0, ".$db->quote($limit, 'INTEGER');
+		
+		try {
+			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return array();
+		}
+		return $res;
+	}
 
 
-    /**
-     * Saves a log entry about the attempt, successful or otherwise, to send the
-     * queued email message.
-     *
-     * @access  private
-     * @param   integer $maq_id The queued email message ID
-     * @param   string $status The status of the attempt ('sent' or 'error')
-     * @param   string $server_message The full message from the SMTP server, in case of an error
-     * @return  boolean
-     */
-    function _saveLog($maq_id, $status, $server_message)
-    {
-        $stmt = "INSERT INTO
+	/**
+	 * Saves a log entry about the attempt, successful or otherwise, to send the
+	 * queued email message.
+	 *
+	 * @access  private
+	 * @param   integer $maq_id The queued email message ID
+	 * @param   string $status The status of the attempt ('sent' or 'error')
+	 * @param   string $server_message The full message from the SMTP server, in case of an error
+	 * @return  boolean
+	 */
+	function _saveLog($maq_id, $status, $server_message)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "mail_queue_log
                  (
                     mql_maq_id,
@@ -314,57 +332,57 @@ class Mail_Queue
                     mql_status,
                     mql_server_message
                  ) VALUES (
-                    $maq_id,
-                    '" . Date_API::getCurrentDateGMT() . "',
-                    '$status',
-                    '$server_message'
+                 $maq_id,
+                    " . $db->quote(Date_API::getCurrentDateGMT()) . ",
+                    " . $db->quote($status) . ",
+                    " . $db->quote($server_message) . "
                  )";
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return false;
-        } else {
-            $stmt = "UPDATE
-                        " . APP_TABLE_PREFIX . "mail_queue
-                     SET
-                        maq_status='$status'
-                     WHERE
-                        maq_id=$maq_id";
-            $GLOBALS["db_api"]->dbh->query($stmt);
-            return true;
-        }
-    }
+		try {
+			$db->query($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return false;
+		}
+		$stmt = "UPDATE
+                " . APP_TABLE_PREFIX . "mail_queue
+                 SET
+                 maq_status=" . $db->quote($status) . "
+                 WHERE
+                 maq_id=".$db->quote($maq_id, 'INTEGER');
+		try {
+			$db->query($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+		}
+		return true;
+	}
 
 
-    /**
-     * Handles the PEAR_Error object returned from the SMTP server, and returns
-     * an appropriate error message string.
-     *
-     * @access  private
-     * @param   object $error The PEAR_Error object
-     * @return  string The error message
-     */
-    function _getErrorMessage($error)
-    {
-        return $error->getMessage() . "/" . $error->getDebugInfo();
-    }
+	/**
+	 * Handles the PEAR_Error object returned from the SMTP server, and returns
+	 * an appropriate error message string.
+	 *
+	 * @access  private
+	 * @param   object $error The PEAR_Error object
+	 * @return  string The error message
+	 */
+	function _getErrorMessage($error)
+	{
+		return $error->getMessage() . "/" . $error->getDebugInfo();
+	}
 
 
-    /**
-     * Returns the configuration parameters for the SMTP server that should
-     * be used for outgoing email messages.
-     *
-     * @access  private
-     * @return  array The SMTP related configuration parameters
-     */
-    function _getSMTPSettings()
-    {
-        return Mail_API::getSMTPSettings();
-    }
+	/**
+	 * Returns the configuration parameters for the SMTP server that should
+	 * be used for outgoing email messages.
+	 *
+	 * @access  private
+	 * @return  array The SMTP related configuration parameters
+	 */
+	function _getSMTPSettings()
+	{
+		return Mail_API::getSMTPSettings();
+	}
 }
-
-// benchmarking the included file (aka setup time)
-if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
-    $GLOBALS['bench']->setMarker('Included Mail_Queue Class');
-}
-?>

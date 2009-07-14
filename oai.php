@@ -492,7 +492,3 @@ $tpl->assign("errors", $errors);
 $tpl->assign("responseDate", $responseDate);
 header("Content-type: text/xml");
 $tpl->displayTemplate();
-
-
-
-?>

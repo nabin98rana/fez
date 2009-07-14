@@ -127,4 +127,3 @@ if (Auth::isInDB() && !Auth::isInAD() && !Auth::isInFederation()) {
 
 $tpl->assign("active_nav", "preferences");
 $tpl->displayTemplate();
-?>

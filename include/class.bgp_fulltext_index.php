@@ -35,23 +35,21 @@ include_once(APP_INC_PATH.'class.fulltext_index.php');
 
 class BackgroundProcess_Fulltext_Index extends BackgroundProcess
 {
-    function __construct() 
-    {
-        parent::__construct();
-        $this->include = 'class.bgp_fulltext_index.php';
-        $this->name = 'Fulltext Index Update';       
-    }
+	function __construct()
+	{
+		parent::__construct();
+		$this->include = 'class.bgp_fulltext_index.php';
+		$this->name = 'Fulltext Index Update';
+	}
 
-    function run()
-    {    
-        $this->setState(1);
-        extract(unserialize($this->inputs));
+	function run()
+	{
+		$this->setState(1);
+		extract(unserialize($this->inputs));
 
-        $ft_index = new FulltextIndex_Solr_CSV();
-        $ft_index->setBGP($this);       
-        $ft_index->startBGP();
-        $this->setState(2);
-    }
+		$ft_index = new FulltextIndex_Solr_CSV();
+		$ft_index->setBGP($this);
+		$ft_index->startBGP();
+		$this->setState(2);
+	}
 }
-
-?>

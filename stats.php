@@ -107,4 +107,3 @@ $tpl->assign("list", $list);
 $tpl->assign("list_info", $list_info);
 
 $tpl->displayTemplate();
-?>

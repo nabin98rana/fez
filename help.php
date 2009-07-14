@@ -35,4 +35,3 @@ $tpl = new Template_API();
 $tpl->setTemplate("help/index.tpl.html");
 $tpl->assign("active_nav", "help");
 $tpl->displayTemplate();
-?>

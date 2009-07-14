@@ -157,9 +157,3 @@ class Validation
         return true;
     }
 }
-
-// benchmarking the included file (aka setup time)
-if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
-    $GLOBALS['bench']->setMarker('Included Validation Class');
-}
-?>

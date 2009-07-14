@@ -67,5 +67,3 @@ $tpl->displayTemplateRecord($pid);
 if(!$logged_in && APP_FILECACHE == "ON") {
 	$cache->saveCacheFile($savePage);
 }
-
-?>

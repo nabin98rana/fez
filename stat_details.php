@@ -212,4 +212,3 @@ $tpl->assign("listCountryCount", count($countryAll));
 //$tpl->assign("list_info", $list_info);
 
 $tpl->displayTemplate();
-?>

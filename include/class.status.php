@@ -47,173 +47,198 @@ include_once(APP_INC_PATH . "class.misc.php");
 class Status
 {
 
-    /**
-     * Method used to remove a given list of statuss.
-     *
-     * @access  public
-     * @return  boolean
-     */
-    function remove()
-    {
-        $items = @implode(", ", $_POST["items"]);
-        $stmt = "DELETE FROM
+	/**
+	 * Method used to remove a given list of statuss.
+	 *
+	 * @access  public
+	 * @return  boolean
+	 */
+	function remove()
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "status
                  WHERE
-                    sta_id IN (".$items.")";
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return false;
-        } else {
-		  return true;
-        }
-    }
+                    sta_id IN (".Misc::arrayToSQLBindStr($_POST["items"]).")";
+		try {
+			$db->query($stmt, $_POST["items"]);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return false;
+		}
+		return true;
+	}
 
 
-    /**
-     * Method used to add a new status to the system.
-     *
-     * @access  public
-     * @return  integer 1 if the insert worked, -1 otherwise
-     */
-    function insert($params = array())
-    {
-        if (empty($params)) {
-            $params = $_POST;
-        }
+	/**
+	 * Method used to add a new status to the system.
+	 *
+	 * @access  public
+	 * @return  integer 1 if the insert worked, -1 otherwise
+	 */
+	function insert($params = array())
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
 		
-        $stmt = "INSERT INTO
+		if (empty($params)) {
+			$params = $_POST;
+		}
+
+		$stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "status
                  (
                     sta_title,
 					sta_order,
 					sta_color
                  ) VALUES (
-                    '" . Misc::escapeString($params["sta_title"]) . "',
-					" . Misc::escapeString($params["sta_order"]) . ",
-					'" . Misc::escapeString($params["sta_color"]) . "'					
+                    " . $db->quote($params["sta_title"]) . ",
+					" . $db->quote($params["sta_order"], 'INTEGER') . ",
+					" . $db->quote($params["sta_color"]) . "					
                  )"; 
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return -1;
-        } else {
-			return 1;
-        }
-    }
+		try {
+			$db->query($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return -1;
+		}
+		return 1;
+	}
 
-    /**
-     * Method used to update details of a status.
-     *
-     * @access  public
-     * @param   integer $sta_id The status ID
-     * @return  integer 1 if the insert worked, -1 otherwise
-     */
-    function update($sta_id)
-    {
-        $stmt = "UPDATE
+	/**
+	 * Method used to update details of a status.
+	 *
+	 * @access  public
+	 * @param   integer $sta_id The status ID
+	 * @return  integer 1 if the insert worked, -1 otherwise
+	 */
+	function update($sta_id)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "status
                  SET 
-                    sta_title = '" . Misc::escapeString($_POST["sta_title"]) . "',
-					sta_order = '" . Misc::escapeString($_POST["sta_order"]) . "',
-					sta_color = '" . Misc::escapeString($_POST["sta_color"]) . "'
-                 WHERE sta_id = ".$sta_id;
+                    sta_title = " . $db->quote($_POST["sta_title"]) . ",
+					sta_order = " . $db->quote($_POST["sta_order"]) . ",
+					sta_color = " . $db->quote($_POST["sta_color"]) . "
+                 WHERE sta_id = " . $db->quote($sta_id, 'INTEGER');
+		
+		try {
+			$db->query($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return -1;
+		}
 
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return -1;
-        } else {
-			return 1;
-        }
-    }
+		return 1;
+	}
 
 
-    /**
-     * Method used to get the title of a specific status.
-     *
-     * @access  public
-     * @param   integer $sta_id The status ID
-     * @return  string The title of the status
-     */
-    function getTitle($sta_id)
-    {
-        $stmt = "SELECT
+	/**
+	 * Method used to get the title of a specific status.
+	 *
+	 * @access  public
+	 * @param   integer $sta_id The status ID
+	 * @return  string The title of the status
+	 */
+	function getTitle($sta_id)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "SELECT
                     sta_title
                  FROM
                     " . APP_TABLE_PREFIX . "status
                  WHERE
-                    sta_id=".$sta_id;
-        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+                    sta_id=".$db->quote($sta_id, 'INTEGER');
+		try {
+			$res = $db->fetchOne($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}		
+		return $res;
+	}
 
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return '';
-        } else {
-            return $res;
-        }
-    }
-
-    /**
-     * Method used to get the ID of a specific status.
-     *
-     * @access  public
-     * @param   integer $sta_title The status title
-     * @return  string The ID of the status
-     */
-    function getID($sta_title)
-    {
-        $stmt = "SELECT
+	/**
+	 * Method used to get the ID of a specific status.
+	 *
+	 * @access  public
+	 * @param   integer $sta_title The status title
+	 * @return  string The ID of the status
+	 */
+	function getID($sta_title)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "SELECT
                     sta_id
                  FROM
                     " . APP_TABLE_PREFIX . "status
                  WHERE
-                    sta_title='".$sta_title."'";
-        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+                    sta_title=".$db->quote($sta_title);
+		try {
+			$res = $db->fetchOne($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+		return $res;
+	}
 
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return '';
-        } else {
-            return $res;
-        }
-    }
-
-    /**
-     * Method used to get the list of statuss available in the 
-     * system returned in an associative array for drop down lists.
-     *
-     * @access  public
-     * @return  array The list of statuss in an associative array (for drop down lists).
-     */
-    function getAssocList()
-    {
-        $stmt = "SELECT
+	/**
+	 * Method used to get the list of statuss available in the
+	 * system returned in an associative array for drop down lists.
+	 *
+	 * @access  public
+	 * @return  array The list of statuss in an associative array (for drop down lists).
+	 */
+	function getAssocList()
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "SELECT
                     sta_id,
 					sta_title
                  FROM
                     " . APP_TABLE_PREFIX . "status
                  ORDER BY
                     sta_title ASC";
-        $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            return $res;
-        }
-    }
+		try {
+			$res = $db->fetchPairs($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+		return $res;
+	}
 
-    /**
-     * Method used to get the list of statuss available in the 
-     * system returned in an associative array for drop down lists.
-     *
-     * @access  public
-     * @return  array The list of statuss in an associative array (for drop down lists).
-     */
-    function getUnpublishedAssocList()
-    {
-        $stmt = "SELECT
+	/**
+	 * Method used to get the list of statuss available in the
+	 * system returned in an associative array for drop down lists.
+	 *
+	 * @access  public
+	 * @return  array The list of statuss in an associative array (for drop down lists).
+	 */
+	function getUnpublishedAssocList()
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "SELECT
                     sta_id,
 					sta_title
                  FROM
@@ -221,71 +246,74 @@ class Status
 				 WHERE sta_title != 'Published' 
                  ORDER BY
                     sta_title ASC";
-        $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            return $res;
-        }
-    }    
-    
-    /**
-     * Method used to get the list of statuss available in the 
-     * system.
-     *
-     * @access  public
-     * @return  array The list of statuss 
-     */
-    function getList()
-    {
-        $stmt = "SELECT
+		try {
+			$res = $db->fetchPairs($stmt);			
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+		return $res;
+	}
+
+	/**
+	 * Method used to get the list of statuss available in the
+	 * system.
+	 *
+	 * @access  public
+	 * @return  array The list of statuss
+	 */
+	function getList()
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "SELECT
                     *
                  FROM
                     " . APP_TABLE_PREFIX . "status
                  ORDER BY
                     sta_order ASC";
-        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            if (empty($res)) {
-                return array();
-            } else {
-                return $res;
-            }
-        }
-    }
+		try {
+			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+		if (empty($res)) {
+			return array();
+		} else {
+			return $res;
+		}
+	}
 
-    /**
-     * Method used to get the details of a specific status.
-     *
-     * @access  public
-     * @param   integer $sta_id The status ID
-     * @return  array The status details
-     */
-    function getDetails($sta_id)
-    {
-        $stmt = "SELECT
+	/**
+	 * Method used to get the details of a specific status.
+	 *
+	 * @access  public
+	 * @param   integer $sta_id The status ID
+	 * @return  array The status details
+	 */
+	function getDetails($sta_id)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "SELECT
                     *
                  FROM
                     " . APP_TABLE_PREFIX . "status
                  WHERE
-                    sta_id=".$sta_id;
-        $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            return $res;
-        }
-    }
+                    sta_id=".$db->quote($sta_id, 'INTEGER');
+		try {
+			$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+		return $res;		
+	}
 
 }
-
-// benchmarking the included file (aka setup time)
-if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
-    $GLOBALS['bench']->setMarker('Included Status Class');
-}
-?>

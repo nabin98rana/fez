@@ -64,8 +64,11 @@ include_once(APP_INC_PATH . "najax_classes.php");
 
 class Lister
 {
-    function getList($params, $display=true) {
-   
+    function getList($params, $display=true) 
+    {
+    	$log = FezLog::get();
+		$db = DB_API::get();
+		   
         /*
          * These are the only $params(ie. $_GET) vars that can be passed to this page.
          * Strip out any that aren't in this list
@@ -285,6 +288,7 @@ class Lister
 		}
         
         if (!empty($collection_pid)) {
+        	$log->debug('List a collection');
             
             // list a collection
             // first check the user has view rights over the collection object
@@ -347,6 +351,7 @@ class Lister
 
             
         } elseif (!empty($community_pid)) {
+            $log->debug('List collections in a community');
             
 			$sort_by = "searchKey".Search_Key::getID("Title");
 			
@@ -411,10 +416,11 @@ class Lister
         	/*
         	 * Remove 'citation' and 'classic' display option when viewing a list of subjects
         	 */
-//        	unset($tpls[4]);
-  //      	unset($tpls[5]);
+        	//unset($tpls[4]);
+        	//unset($tpls[5]);
             
         } elseif ($browse == "latest") {
+            $log->debug('Latest');
             
             $sort_by_list["searchKey".Search_Key::getID("Created Date")] = 'Created Date';
             
@@ -447,7 +453,7 @@ class Lister
             $tpl->assign("list_type", "all_records_list");
             
         } elseif ($browse == "year") {
-            
+            $log->debug('Browse by year');
             // browse by year
             $year = Lister::getValue($params,'year');
             if (is_numeric($year)) {
@@ -490,7 +496,7 @@ class Lister
             $tpl->assign("browse_type", "browse_year");
             
         } elseif (($browse == "author") || ($browse == "author_id")) {
-            
+            $log->debug('Browse by author');
             // browse by author
             if( $browse == "author") {
                 
@@ -577,7 +583,7 @@ class Lister
             $tpl->assign("alphabet_list", Misc::generateAlphabetArray());
         
         } elseif ($browse == "depositor") {
-            
+            $log->debug('Browse by depositor');
             // browse by depositor
             $depositor = Lister::getValue($params,'depositor');
 			$depositor_fullname = User::getFullName($depositor);
@@ -617,6 +623,8 @@ class Lister
             $tpl->assign("browse_type", "browse_depositor");
             
 		} elseif ($browse == "mypubs") {
+			$log->debug('Browse MyPubs');
+			
 			$current_row = 0;
 			$tpl->assign("active_nav", "list");
 			$max = 9999999;
@@ -762,7 +770,7 @@ class Lister
 //			$tpl->displayTemplate();
 			
         } elseif ($browse == "subject") {
-        	
+        	$log->debug('Browse by subject');
             // browse by subject
             $parent_id = Lister::getValue($params,'parent_id');
             
@@ -817,7 +825,7 @@ class Lister
             $tpl->assign("browse_type", "browse_subject");
             
         } elseif ($cat == "quick_filter") { // Advanced Search
-
+			$log->debug('Advanced search');
         	include_once(APP_INC_PATH . "class.spell.php");
         	include_once(APP_INC_PATH . "class.language.php");
         	
@@ -875,7 +883,7 @@ class Lister
         	$facets = @$list['facets'];
         	$snips = @$list['snips'];
         	$list = @$list["list"];
-			
+
         	// KJ@ETH
         	$tpl->assign("major_function", "search");
 			$tpl->assign("q", htmlspecialchars($params['search_keys'][0]));
@@ -883,7 +891,7 @@ class Lister
         	$tpl->assign("list_heading", "Search Results ($terms)");        	 
         	$tpl->assign("list_type", "all_records_list");
         } else {
-                       
+            $log->debug('Communities');
             $xdis_id = Community::getCommunityXDIS_ID();
             $tpl->assign("xdis_id", $xdis_id);
             $options = Search_Key::stripSearchKeys($options);

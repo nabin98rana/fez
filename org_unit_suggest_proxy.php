@@ -48,4 +48,4 @@ $suggestions = array(
 
 echo json_encode($suggestions);
 
-?>
+FezLog::get()->close();

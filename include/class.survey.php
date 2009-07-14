@@ -49,22 +49,23 @@ include_once(APP_INC_PATH . "class.auth.php");
 
 class Survey
 {
-
-
-    /**
-     * Method used to add a new survey result to the system.
-     *
-     * @access  public
-     * @return  integer 1 if the insert worked, -1 otherwise
-     */
-    function insert()
-    {
+	/**
+	 * Method used to add a new survey result to the system.
+	 *
+	 * @access  public
+	 * @return  integer 1 if the insert worked, -1 otherwise
+	 */
+	function insert()
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
 		$sur_3_cat = @$_POST["sur_3_cat"] ? 1 : 0;
 		$sur_3_elearn = @$_POST["sur_3_elearn"] ? 1 : 0;
 		$sur_3_journals = @$_POST["sur_3_journals"] ? 1 : 0;
 		$sur_3_blackboard = @$_POST["sur_3_blackboard"] ? 1 : 0;
-		$sur_3_lecture = @$_POST["sur_3_lecture"] ? 1 : 0;				
-		$sur_3_instrumentation = @$_POST["sur_3_instrumentation"] ? 1 : 0;		
+		$sur_3_lecture = @$_POST["sur_3_lecture"] ? 1 : 0;
+		$sur_3_instrumentation = @$_POST["sur_3_instrumentation"] ? 1 : 0;
 		$sur_3_datasets = @$_POST["sur_3_datasets"] ? 1 : 0;
 		$sur_3_remotedb = @$_POST["sur_3_remotedb"] ? 1 : 0;
 		$sur_3_extcom = @$_POST["sur_3_extcom"] ? 1 : 0;
@@ -74,17 +75,17 @@ class Survey
 		$sur_4_elearn = @$_POST["sur_4_elearn"] ? 1 : 0;
 		$sur_4_journals = @$_POST["sur_4_journals"] ? 1 : 0;
 		$sur_4_blackboard = @$_POST["sur_4_blackboard"] ? 1 : 0;
-		$sur_4_lecture = @$_POST["sur_4_lecture"] ? 1 : 0;				
-		$sur_4_instrumentation = @$_POST["sur_4_instrumentation"] ? 1 : 0;		
+		$sur_4_lecture = @$_POST["sur_4_lecture"] ? 1 : 0;
+		$sur_4_instrumentation = @$_POST["sur_4_instrumentation"] ? 1 : 0;
 		$sur_4_datasets = @$_POST["sur_4_datasets"] ? 1 : 0;
 		$sur_4_remotedb = @$_POST["sur_4_remotedb"] ? 1 : 0;
 		$sur_4_extcom = @$_POST["sur_4_extcom"] ? 1 : 0;
 		$sur_4_collab = @$_POST["sur_4_collab"] ? 1 : 0;
-		
+
 		$sur_experience = is_numeric(@$_POST["sur_experience"]) ? $_POST["sur_experience"] : 5;
 		$sur_external_freq = is_numeric(@$_POST["sur_external_freq"]) ? $_POST["sur_external_freq"] : 5;
-				
-        $stmt = "INSERT INTO
+
+		$stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "survey
                  (
 				 	sur_usr_id,
@@ -115,59 +116,64 @@ class Survey
 					sur_comments,
 					sur_datetime
                  ) VALUES (
-					" . Auth::getUserID() . ",
-                    " . $sur_experience . ",
-                    " . $sur_external_freq . ",
-                    " . $sur_3_cat . ",
-                    " . $sur_3_elearn . ",
-                    " . $sur_3_journals . ",
-                    " . $sur_3_blackboard . ",
-                    " . $sur_3_lecture . ",
-                    " . $sur_3_instrumentation . ",
-                    " . $sur_3_datasets . ",																									
-                    " . $sur_3_remotedb . ",
-                    " . $sur_3_extcom . ",																									
-                    " . $sur_3_collab . ",																									
-					'" . Misc::escapeString($_POST["sur_3_other"]) . "',
-                    " . $sur_4_cat . ",
-                    " . $sur_4_elearn . ",
-                    " . $sur_4_journals . ",
-                    " . $sur_4_blackboard . ",
-                    " . $sur_4_lecture . ",
-                    " . $sur_4_instrumentation . ",
-                    " . $sur_4_datasets . ",																									
-                    " . $sur_4_remotedb . ",
-                    " . $sur_4_extcom . ",																									
-                    " . $sur_4_collab . ",																													
-					'" . Misc::escapeString($_POST["sur_4_other"]) . "',
-					'" . Misc::escapeString($_POST["sur_comments"]) . "',
+					" . $db->quote(Auth::getUserID(), 'INTEGER') . ",
+                    " . $db->quote($sur_experience, 'INTEGER') . ",
+                    " . $db->quote($sur_external_freq, 'INTEGER') . ",
+                    " . $db->quote($sur_3_cat, 'INTEGER') . ",
+                    " . $db->quote($sur_3_elearn, 'INTEGER') . ",
+                    " . $db->quote($sur_3_journals, 'INTEGER') . ",
+                    " . $db->quote($sur_3_blackboard, 'INTEGER') . ",
+                    " . $db->quote($sur_3_lecture, 'INTEGER') . ",
+                    " . $db->quote($sur_3_instrumentation, 'INTEGER') . ",
+                    " . $db->quote($sur_3_datasets, 'INTEGER') . ",																									
+                    " . $db->quote($sur_3_remotedb, 'INTEGER') . ",
+                    " . $db->quote($sur_3_extcom, 'INTEGER') . ",																									
+                    " . $db->quote($sur_3_collab, 'INTEGER') . ",																									
+					" . $db->quote($_POST["sur_3_other"]) . ",
+                    " . $db->quote($sur_4_cat, 'INTEGER') . ",
+                    " . $db->quote($sur_4_elearn, 'INTEGER') . ",
+                    " . $db->quote($sur_4_journals, 'INTEGER') . ",
+                    " . $db->quote($sur_4_blackboard, 'INTEGER') . ",
+                    " . $db->quote($sur_4_lecture, 'INTEGER') . ",
+                    " . $db->quote($sur_4_instrumentation, 'INTEGER') . ",
+                    " . $db->quote($sur_4_datasets, 'INTEGER') . ",																									
+                    " . $db->quote($sur_4_remotedb, 'INTEGER') . ",
+                    " . $db->quote($sur_4_extcom, 'INTEGER') . ",																									
+                    " . $db->quote($sur_4_collab, 'INTEGER') . ",																													
+					" . $db->quote($_POST["sur_4_other"]) . ",
+					" . $db->quote($_POST["sur_comments"]) . ",
 					NOW()
                  )"; 
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return -1;
-        } else {
-			return 1;
-        }
-    }
+		try {
+			$db->query($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return -1;
+		}
+		return 1;
+	}
 
-	function hasFilledSurvey($usr_id) {
-		$stmt = "select count(*) from " . APP_TABLE_PREFIX . "survey where sur_usr_id = $usr_id";
-		$res = $GLOBALS["db_api"]->dbh->getOne($stmt);
+	function hasFilledSurvey($usr_id) 
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "select count(*) from " . APP_TABLE_PREFIX . "survey where sur_usr_id = ".$db->quote($usr_id, 'INTEGER');
+		try {
+			$res = $db->fetchOne($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return 0;
+		}
 		if (($res > 0) && (!empty($res))) {
 			$filled = 1;
 		} else {
 			$filled = 0;
 		}
-		return $filled; 	
+		return $filled;
 	}
 
 
 }
-
-// benchmarking the included file (aka setup time)
-if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
-    $GLOBALS['bench']->setMarker('Included Survey Class');
-}
-?>

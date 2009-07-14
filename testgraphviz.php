@@ -53,5 +53,3 @@ if ($dot) {
 }
 
 $tpl->displayTemplate();
-?>
-

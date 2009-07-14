@@ -29,6 +29,3 @@ class SelectObjectXSDDisplay {
         NAJAX_Client::publicMethods($this, array('getXSDDisplaysByObjectType'));
     }
 }
-
-
-?>

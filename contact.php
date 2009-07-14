@@ -41,5 +41,3 @@ $tpl = new Template_API();
 
 $tpl->setTemplate("contact.tpl.html");
 $tpl->displayTemplate();
-
-?>

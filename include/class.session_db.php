@@ -47,124 +47,129 @@
 
 class SessionManager {
 
-   var $life_time;
-   var $db_api;
-   var $valid;
+	var $life_time;
+	var $db;
+	var $log;
+	var $valid;
 
-   function SessionManager($db) {
+	function SessionManager() 
+	{
+		$this->log = FezLog::get();
+		$this->db = DB_API::get();
+		
+		// Read the maxlifetime setting from PHP
+		$this->life_time = get_cfg_var("session.gc_maxlifetime");
+		$this->valid = true;
+			
+		// Register this object as the session handler
+		session_set_save_handler(
+		array( &$this, "open" ),
+		array( &$this, "close" ),
+		array( &$this, "read" ),
+		array( &$this, "write"),
+		array( &$this, "destroy"),
+		array( &$this, "gc" )
+		);
 
-      // Read the maxlifetime setting from PHP
-      $this->life_time = get_cfg_var("session.gc_maxlifetime");
-	  $this->db_api = $db;
-	  $this->valid = true;
-	  
-      // Register this object as the session handler
-      session_set_save_handler( 
-        array( &$this, "open" ), 
-        array( &$this, "close" ),
-        array( &$this, "read" ),
-        array( &$this, "write"),
-        array( &$this, "destroy"),
-        array( &$this, "gc" )
-      );
+	}
 
-   }
+	function open( $save_path, $session_name ) {
 
-   function open( $save_path, $session_name ) {
+		global $sess_save_path;
 
-      global $sess_save_path;
+		$sess_save_path = $save_path;
 
-      $sess_save_path = $save_path;
-      
-      if(!isset($_COOKIE[$session_name]) || strlen($_COOKIE[$session_name]) == 0) {
-      	$this->valid = false;
-      }
+		if(!isset($_COOKIE[$session_name]) || strlen($_COOKIE[$session_name]) == 0) {
+			$this->valid = false;
+		}
 
-      // Don't need to do anything. Just return TRUE.
-      return true;
-   }
+		// Don't need to do anything. Just return TRUE.
+		return true;
+	}
 
-   function close() {
-      return true;
-   }
+	function close() {
+		return true;
+	}
 
-   function read( $id ) {
+	function read( $id ) {
 
-      if(!$this->valid) {
-      	return '';
-      }
-      
-      $dbtp =  APP_TABLE_PREFIX;
-      // Set empty result
-      $data = '';
+		if(!$this->valid) {
+			return '';
+		}
 
-      // Fetch session data from the selected database
+		$dbtp =  APP_TABLE_PREFIX;
+		// Set empty result
+		$data = '';
 
-      $time = time();
-      $newid = Misc::escapeString($id);
-      $sql = "SELECT session_data FROM {$dbtp}sessions WHERE session_id = '$newid' AND expires > $time";
-//	Error_Handler::logError(" ".$sql,__FILE__,__LINE__);
-      $res = $this->db_api->dbh->getOne($sql);
-      if (PEAR::isError($res)) {
-          Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-      } else {
-       return $res;
-	  }
-   }
+		// Fetch session data from the selected database
 
-   function write( $id, $data ) {
+		$time = time();
+		$stmt = "SELECT session_data FROM {$dbtp}sessions WHERE session_id = ? AND expires > ?";
 
-      if(!$this->valid) {
-        return '';
-      }
-      
-      $dbtp =  APP_TABLE_PREFIX;
-      // Build query                
-      $time = time() + $this->life_time;
+		$res = null;
+		try {
+			$res = $this->db->fetchOne($stmt, array($id, $time));
+		}
+		catch(Exception $ex) {
+			$this->log->err(array($ex->getMessage(), __FILE__, __LINE__));
+			return false;
+		}
 
-	  $newid = Misc::escapeString($id);
-	  $newdata = Misc::escapeString($data);
- 	  $session_ip = Misc::escapeString(@$_SERVER['REMOTE_ADDR']);
-//       $ip = getenv("REMOTE_ADDR");
-      $sql = "REPLACE {$dbtp}sessions (session_id,session_data,expires,session_ip) VALUES ('$newid', '$newdata', $time, '$session_ip')";
-//print_r($GLOBALS);
-      $res = $this->db_api->dbh->query($sql);
-      if (PEAR::isError($res)) {
-          Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-      } else {
-      	return TRUE;
-	  }
-   }
+		return $res;
+	}
 
-   function destroy( $id ) {
+	function write( $id, $data ) {
 
-   	  $dbtp =  APP_TABLE_PREFIX;
-      // Build query
-	  $newid = Misc::escapeString($id);
-      $sql = "DELETE FROM {$dbtp}sessions WHERE session_id = '$newid'";
-      $res = $this->db_api->dbh->query($sql);
-      //db_query($sql);
-      if (PEAR::isError($res)) {
-          Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-      } else {
-      	  return TRUE;
-	  }
-   }
+		if(!$this->valid) {
+			return '';
+		}
+		$dbtp =  APP_TABLE_PREFIX;
+		// Build query
+		$time = time() + $this->life_time;
+		$session_ip = $_SERVER['REMOTE_ADDR'];
+		$stmt = "REPLACE {$dbtp}sessions (session_id,session_data,expires,session_ip) VALUES (?,?,?,?)";
 
-   function gc() {
+		try {
+			$res = $this->db->query($stmt, array($id, $data, $time, $session_ip));
+		}
+		catch(Exception $ex) {
+			$this->log->err(array($ex->getMessage(), __FILE__, __LINE__));
+			return false;
+		}
 
-      // Garbage Collection
-      $dbtp =  APP_TABLE_PREFIX;
-      // Build DELETE query.  Delete all records who have passed the expiration time
-      $sql = "DELETE FROM {$dbtp}sessions WHERE expires < UNIX_TIMESTAMP();";
-      $res = $this->db_api->dbh->query($sql);
-      if (PEAR::isError($res)) {
-          Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-      } else {
-          return true;
-  	  }
-   }
+		return true;
+	}
+
+	function destroy( $id ) {
+
+		$dbtp =  APP_TABLE_PREFIX;
+		$stmt = "DELETE FROM {$dbtp}sessions WHERE session_id = ?";
+
+		try {
+			$res = $this->db->query($stmt, array($id));
+		}
+		catch(Exception $ex) {
+			$this->log->err(array($ex->getMessage(), __FILE__, __LINE__));
+			return false;
+		}
+		return true;
+	}
+
+	function gc() {
+
+		// Garbage Collection
+		$dbtp =  APP_TABLE_PREFIX;
+		// Build DELETE query.  Delete all records who have passed the expiration time
+		$stmt = "DELETE FROM {$dbtp}sessions WHERE expires < UNIX_TIMESTAMP();";
+
+		try {
+			$res = $this->db->query($stmt, array());
+		}
+		catch(Exception $ex) {
+			$this->log->err(array($ex->getMessage(), __FILE__, __LINE__));
+			return false;
+		}
+		return true;
+	}
 
 }
-
-?>

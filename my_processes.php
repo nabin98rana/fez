@@ -61,4 +61,4 @@ $tpl->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/n
 $tpl->registerNajax( NAJAX_Client::register('NajaxBackgroundProcessList', APP_RELATIVE_URL.'najax_services/generic.php'));
 
 $tpl->displayTemplate();
-?>
+

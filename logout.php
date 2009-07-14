@@ -48,5 +48,3 @@ $sess = new SessionManager($db_api);
 Auth::removeSession(APP_SHIB_ATTRIBUTES_SESSION);
 $sess = new SessionManager($db_api);
 Auth::redirect(APP_RELATIVE_URL . "index.php?err=6");
-
-?>

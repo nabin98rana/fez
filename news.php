@@ -57,4 +57,3 @@ $tpl->assign("news", $news);
 $tpl->assign("news_count", $news_count);
 
 $tpl->displayTemplate();
-?>

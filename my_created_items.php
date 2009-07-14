@@ -151,5 +151,3 @@ $tpl->assign('items_info',              $created_items['info']);
 $tpl->assign('isApprover',              $_SESSION['auth_is_approver']);
 
 $tpl->displayTemplate();
-
-?>

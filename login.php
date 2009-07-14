@@ -313,4 +313,3 @@ $tpl->assign("active_nav", "login");
 $tpl->assign("app_short_org_name", APP_SHORT_ORG_NAME);
 
 $tpl->displayTemplate();
-?>

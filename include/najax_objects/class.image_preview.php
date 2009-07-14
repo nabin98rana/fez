@@ -25,8 +25,3 @@ class NajaxImagePreview {
         NAJAX_Client::publicMethods($this, array('getPreview'));
     }
 }
-
-
-
-
-?>

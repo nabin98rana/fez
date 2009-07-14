@@ -39,50 +39,58 @@ include_once(APP_INC_PATH . "class.error_handler.php");
 
 class FezACML
 {
-	
 
 
-    /**
-     * Method used to get the list of all active users available in the system 
-     * as an associative array of user IDs => user full names.
-     *
-     * @access  public
-     * @param   integer $role The role ID of the user
-     * @return  array The associative array of users
-     */
-    function getQuickTemplateAssocList()
-    {
-        $stmt = "SELECT
+
+	/**
+	 * Method used to get the list of all active users available in the system
+	 * as an associative array of user IDs => user full names.
+	 *
+	 * @access  public
+	 * @param   integer $role The role ID of the user
+	 * @return  array The associative array of users
+	 */
+	function getQuickTemplateAssocList()
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "SELECT
                     qat_id,
                     qat_title
                  FROM
                     " . APP_TABLE_PREFIX . "auth_quick_template";
-        $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            return $res;
-        }
-    }
+		try {
+			$res = $db->fetchPairs($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
 
-	function getList() {
+		return $res;
+	}
+
+	function getList() 
+	{
 		return array();
 	}
 
-	function getPopularList() {
+	function getPopularList() 
+	{
 		return array();
 	}
 
-	function getUsersByRolePidAssoc($pid, $role) {
+	function getUsersByRolePidAssoc($pid, $role) 
+	{
 		$return = array();
 		$acmlBase = Record::getACML($pid);
-		if ($acmlBase == "") { 
-			return array(); 
+		if ($acmlBase == "") {
+			return array();
 		}
-        $xpath = new DOMXPath($acmlBase);
-        $userSearch = $xpath->query('/FezACML/rule/role[@name="'.$role.'"]/Fez_User');
-        if ($userSearch->length != 0) {
+		$xpath = new DOMXPath($acmlBase);
+		$userSearch = $xpath->query('/FezACML/rule/role[@name="'.$role.'"]/Fez_User');
+		if ($userSearch->length != 0) {
 			foreach ($userSearch as $userRow) {
 				if (is_numeric($userRow->nodeValue)) {
 					$userDisplayName = User::getDisplayNameByID($userRow->nodeValue);
@@ -94,12 +102,13 @@ class FezACML
 	}
 
 
-    function updateUsersByRolePid($pid, $fezacml_user_list, $role, $remove_only_list = array()) {
+	function updateUsersByRolePid($pid, $fezacml_user_list, $role, $remove_only_list = array()) 
+	{
 		$newXML = "";
-        $xmlString = Fedora_API::callGetDatastreamContents($pid, 'FezACML', true);
-        
-        if(empty($xmlString) || !is_string($xmlString)) {
-//	            return -3;
+		$xmlString = Fedora_API::callGetDatastreamContents($pid, 'FezACML', true);
+
+		if(empty($xmlString) || !is_string($xmlString)) {
+			//	            return -3;
 			//create new fezacml template with inherit on
 			$xmlString = '<FezACML xmlns:xsi="http://www.w3.org/2001/XMLSchema">
 			  <rule>
@@ -107,26 +116,26 @@ class FezACML
 			  </rule>
 			  <inherit_security>on</inherit_security>
 			</FezACML>';
-        }
-        
+		}
+
 		$doc = DOMDocument::loadXML($xmlString);
 		$xpath = new DOMXPath($doc);
 
 
-        $fieldNodeList = $xpath->query('/FezACML/rule/role[@name="'.$role.'"]/Fez_User');
+		$fieldNodeList = $xpath->query('/FezACML/rule/role[@name="'.$role.'"]/Fez_User');
 
 
-        if ($fieldNodeList->length == 0) {
+		if ($fieldNodeList->length == 0) {
 			$parentNodeList = $xpath->query('/FezACML/rule/role[@name="'.$role.'"]');
-	        if ($parentNodeList->length == 0) {
+			if ($parentNodeList->length == 0) {
 				return -1;
-			} 
+			}
 			$parentNode = $parentNodeList->item(0);
-        } else {
+		} else {
 			foreach ($fieldNodeList as $fieldNode) { // first delete all the Fez_Users
 				$parentNode = $fieldNode->parentNode;
-				if (count($remove_only_list) == 0) { 
-	                $parentNode->removeChild($fieldNode);
+				if (count($remove_only_list) == 0) {
+					$parentNode->removeChild($fieldNode);
 				} elseif (in_array($fieldNode->nodeValue, $remove_only_list) || $fieldNode->nodeValue == "") { // if a list of remove only ids is set, only remove ones in this list (eg to send a list of ids in a fez group)
 					$parentNode->removeChild($fieldNode);
 				}
@@ -142,47 +151,48 @@ class FezACML
 		$FezACML = "FezACML";
 		if (Fedora_API::datastreamExists($pid, $FezACML)) {
 			Fedora_API::callModifyDatastreamByValue($pid, $FezACML, "A", "FezACML",
-					$newXML, "text/xml", "inherit");
+			$newXML, "text/xml", "inherit");
 		} else {
 			Fedora_API::getUploadLocation($pid, $FezACML, $newXML, "FezACML",
 					"text/xml", "X", null, "true");
 		}
 		Record::setIndexMatchingFields($pid);
 		return 1;
-    }
+	}
 
 
 
-	
-    function getQuickTemplateValue($qat_id)
-    {
+
+	function getQuickTemplateValue($qat_id)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
 		if (!is_numeric($qat_id)) {
 			return false;
 		}
-	
-        $stmt = "SELECT
+
+		$stmt = "SELECT
                     qat_value
                  FROM
                     " . APP_TABLE_PREFIX . "auth_quick_template
-				 WHERE qat_id = ".$qat_id;
-        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            return $res;
-        }
-    }
+				 WHERE qat_id = ".$db->quote($qat_id, 'INTEGER');
+		
+		try {
+			$res = $db->fetchOne($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
 
-	function getFezACMLDSName($dsID) {
+		return $res;
+	}
+
+	function getFezACMLDSName($dsID) 
+	{
 		$FezACML_dsID = "FezACML_".str_replace(" ", "_", $dsID).".xml";
 		return $FezACML_dsID;
 	}
 
 }
-
-// benchmarking the included file (aka setup time)
-if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
-    $GLOBALS['bench']->setMarker('Included User Class');
-}
-?>

@@ -28,4 +28,3 @@ class Suggestor
         NAJAX_Client::publicMethods($this, array('getSuggestion'));
     }
 }
-?>

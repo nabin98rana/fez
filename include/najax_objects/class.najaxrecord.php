@@ -1,6 +1,6 @@
 <?php
 
-include_once(APP_INC_PATH.'class.record.php');
+include_once(APP_INC_PATH.'class.record_general.php');
 
 class NajaxRecord extends RecordGeneral
 {
@@ -22,5 +22,3 @@ class NajaxRecord extends RecordGeneral
     }
 }
  
- 
-?>

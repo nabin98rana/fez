@@ -26,6 +26,3 @@ class SelectOrgStructure {
         NAJAX_Client::publicMethods($this, array('getSubList'));
     }
 }
-
-
-?>

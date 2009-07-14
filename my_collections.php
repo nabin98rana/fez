@@ -54,4 +54,3 @@ $tpl->assign('my_collections_list', $collection_list['list']);
 $tpl->assign('isApprover', $_SESSION['auth_is_approver']);
 
 $tpl->displayTemplate();
-?>

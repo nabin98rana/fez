@@ -8,7 +8,3 @@ NAJAX_Server::allowClasses('NajaxImagePreview');
 if (NAJAX_Server::runServer()) {
 	exit;
 }
-
-
-
-?>

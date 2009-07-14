@@ -70,4 +70,3 @@ $tpl->assign('myFezView',               "WIP");
 $tpl->assign('isApprover',              $_SESSION['auth_is_approver']);
 
 $tpl->displayTemplate();
-?>

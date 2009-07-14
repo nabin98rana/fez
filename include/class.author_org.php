@@ -49,92 +49,102 @@ include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.auth.php");
 
-
 class Author_Org
 {
+	/**
+	 * Method used to get the list of organisations associated with a given author ID.
+	 *
+	 * @access  public
+	 * @param   integer $aut_id The author ID
+	 * @return  array The organisational membership details
+	 */
+	function getList($aut_id)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
 
-    /**
-     * Method used to get the list of organisations associated with a given author ID.
-     *
-     * @access  public
-     * @param   integer $aut_id The author ID
-     * @return  array The organisational membership details
-     */
-    function getList($aut_id)
-    {
-        static $returns;
+		static $returns;
 
-        if (!empty($returns[$aut_id])) {
-            return $returns[$aut_id];
-        }
+		if (!empty($returns[$aut_id])) {
+			return $returns[$aut_id];
+		}
 
-        $stmt = "SELECT
+		$stmt = "SELECT
                     auo_id, auo_assessed, auo_assessed_year, org_ext_table, org_title 
                  FROM
                     " . APP_TABLE_PREFIX . "author_org_structure, 
                     " . APP_TABLE_PREFIX . "org_structure
                  WHERE auo_org_id = org_id 
-                 AND auo_aut_id = " . $aut_id . " 
+                 AND auo_aut_id = " . $db->quote($aut_id, 'INTEGER') . " 
                  ORDER BY
                     org_title";
 
-        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            if (empty($res)) {
-                return array();
-            } else {
-                return $res;
-            }
-        }
-    }
+		try {
+			$res = $db->fetchAll($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+
+		if (empty($res)) {
+			return array();
+		} else {
+			return $res;
+		}
+	}
 
 
-    /**
-     * Method used to get the details of a organisational membership for a given organisational membership relation ID.
-     *
-     * @access  public
-     * @param   integer $rel_id The organisational membership ID
-     * @return  array The details for the organisational membership
-     */
-    function getDetails($rel_id)
-    {
-        $stmt = "SELECT
+	/**
+	 * Method used to get the details of a organisational membership for a given organisational membership relation ID.
+	 *
+	 * @access  public
+	 * @param   integer $rel_id The organisational membership ID
+	 * @return  array The details for the organisational membership
+	 */
+	function getDetails($rel_id)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		$stmt = "SELECT
                     *
                  FROM
                     " . APP_TABLE_PREFIX . "author_org_structure
                  WHERE
-                    auo_id = ".$rel_id;
-        $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            return $res;
-        }
-    }
+                    auo_id = ".$db->quote($rel_id, 'INTEGER');
 
+		try {
+			$res = $db->fetchRow($stmt, array($ahs_id));
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+		return $res;
+	}
 
-    /**
-     * Method used to add a new organisational membership to the system.
-     *
-     * @access  public
-     * @return  integer 1 if the update worked, -1 or -2 otherwise
-     */
-    function insert()
-    {
-        // Run the 'isWhitespace' check on all required fields, in case JavaScript has been turned off.
-        if (Validation::isWhitespace($_POST["organisation_id"]) || Validation::isWhitespace($_POST["classification_id"]) || Validation::isWhitespace($_POST["function_id"])) {
-            return -1;
-        }
+	/**
+	 * Method used to add a new organisational membership to the system.
+	 *
+	 * @access  public
+	 * @return  integer 1 if the update worked, -1 or -2 otherwise
+	 */
+	function insert()
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
 
-        // Perform some basic null-setting clean-up.
-        empty($_POST["assessed"]) ? $assessed_val = null : $assessed_val = $_POST["assessed"];
-        empty($_POST["assessed_year"]) ? $assessed_year_val = null : $assessed_year_val = $_POST["assessed_year"];
+		// Run the 'isWhitespace' check on all required fields, in case JavaScript has been turned off.
+		if (Validation::isWhitespace($_POST["organisation_id"]) || Validation::isWhitespace($_POST["classification_id"]) || Validation::isWhitespace($_POST["function_id"])) {
+			return -1;
+		}
 
-        $stmt = "INSERT INTO
+		// Perform some basic null-setting clean-up.
+		empty($_POST["assessed"]) ? $assessed_val = null : $assessed_val = $_POST["assessed"];
+		empty($_POST["assessed_year"]) ? $assessed_year_val = null : $assessed_year_val = $_POST["assessed_year"];
+
+		$stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "author_org_structure
                  (
                     auo_org_id,
@@ -144,84 +154,82 @@ class Author_Org
                     auo_assessed,
                     auo_assessed_year
                 ) VALUES (
-                    '" . Misc::escapeString($_POST["organisation_id"]) . "',
-                    '" . Misc::escapeString($_POST["author_id"]) . "',
-                    '" . Misc::escapeString($_POST["classification_id"]) . "',
-                    '" . Misc::escapeString($_POST["function_id"]) . "',
-                    '" . Misc::escapeString($assessed_val) . "',
-                    '" . Misc::escapeString($assessed_year_val) . "'
+                    " . $db->quote($_POST["organisation_id"], 'INTEGER') . ",
+                    " . $db->quote($_POST["author_id"], 'INTEGER') . ",
+                    " . $db->quote($_POST["classification_id"], 'INTEGER') . ",
+                    " . $db->quote($_POST["function_id"], 'INTEGER') . ",
+                    " . $db->quote($assessed_val) . ",
+                    " . $db->quote($assessed_year_val) . "
                  )";
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return -1;
-        } else {
-            return 1;
-        }
-    }
+		try {
+			$db->query($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return -1;
+		}
+		return 1;
+	}
 
+	/**
+	 * Method used to update the details of the organisational membership.
+	 *
+	 * @access  public
+	 * @return  integer 1 if the update worked, -1 otherwise
+	 */
+	function update()
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
 
-    /**
-     * Method used to update the details of the organisational membership.
-     *
-     * @access  public
-     * @return  integer 1 if the update worked, -1 otherwise
-     */
-    function update()
-    {
-        if (Validation::isWhitespace($_POST["organisation_id"]) || Validation::isWhitespace($_POST["classification_id"]) || Validation::isWhitespace($_POST["function_id"])) {
-            return -1;
-        }
+		if (Validation::isWhitespace($_POST["organisation_id"]) || Validation::isWhitespace($_POST["classification_id"]) || Validation::isWhitespace($_POST["function_id"])) {
+			return -1;
+		}
 
-        $stmt = "UPDATE
+		$stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "author_org_structure
                  SET
-                    auo_org_id='" . Misc::escapeString($_POST["organisation_id"]) . "',
-                    auo_aut_id='" . Misc::escapeString($_POST["author_id"]) . "',
-                    auo_cla_id='" . Misc::escapeString($_POST["classification_id"]) . "',
-                    auo_fun_id='" . Misc::escapeString($_POST["function_id"]) . "',
-                    auo_assessed='" . Misc::escapeString($_POST["assessed"]) . "',
-                    auo_assessed_year='" . Misc::escapeString($_POST["assessed_year"]) . "' 
+                    auo_org_id=" . $db->quote($_POST["organisation_id"], 'INTEGER') . ",
+                    auo_aut_id=" . $db->quote($_POST["author_id"], 'INTEGER') . ",
+                    auo_cla_id=" . $db->quote($_POST["classification_id"], 'INTEGER') . ",
+                    auo_fun_id=" . $db->quote($_POST["function_id"], 'INTEGER') . ",
+                    auo_assessed=" . $db->quote($_POST["assessed"]) . ",
+                    auo_assessed_year=" . $db->quote($_POST["assessed_year"]) . " 
                  WHERE
-                    auo_id=" . $_POST["id"];
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return -1;
-        } else {
-            return 1;
-        }
-    }
+                    auo_id=" . $db->quote($_POST["id"], 'INTEGER');
+		try {
+			$db->query($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return -1;
+		}		
+		return 1;
+	}
 
-
-    /**
-     * Method used to remove a given set of author-organisation relationships from the system.
-     *
-     * @access  public
-     * @return  boolean
-     */
-    function remove()
-    {
-        $items = @implode(", ", $_POST["items"]);
-        $stmt = "DELETE FROM
+	/**
+	 * Method used to remove a given set of author-organisation relationships from the system.
+	 *
+	 * @access  public
+	 * @return  boolean
+	 */
+	function remove() 
+	{	
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "author_org_structure
                  WHERE
-                    auo_id IN (".$items.")";
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return false;
-        } else {
-            return true; 
-        }
-    }
-
+                    auo_id IN (".Misc::arrayToSQLBindStr($_POST["items"]).")";
+		
+		try {
+			$db->query($stmt, $_POST["items"]);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return false;
+		}
+		return true;
+	}
 }
-
-
-
-// benchmarking the included file (aka setup time)
-if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
-    $GLOBALS['bench']->setMarker('Included Author Organisational Structure Class');
-}
-?>

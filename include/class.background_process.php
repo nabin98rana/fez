@@ -38,235 +38,276 @@ define('BGP_FINISHED',  2);
 
 include_once(APP_INC_PATH . "class.date.php");
 /**
-  * This is a virtual class.
-  * Subclass this to make a background process with a customised 'run' method.
-  */
+ * This is a virtual class.
+ * Subclass this to make a background process with a customised 'run' method.
+ */
 class BackgroundProcess {
-    var $bgp_id;
-    var $details;
-    var $inputs;
-    var $include; // set this to the include file where the subclass is declared
-    var $name; // set this to the name of the process where the subclass is declared
-    var $states = array(
-            0 => 'Undefined',
-            1 => 'Running',
-            2 => 'Done'
-            );
-    var $local_session = array();
-    var $progress = 0;
-    var $wfses_id = null; // id of workflow session to resume when this background process finishes
+	var $bgp_id;
+	var $details;
+	var $inputs;
+	var $include; // set this to the include file where the subclass is declared
+	var $name; // set this to the name of the process where the subclass is declared
+	var $states = array(
+	0 => 'Undefined',
+	1 => 'Running',
+	2 => 'Done'
+	);
+	var $local_session = array();
+	var $progress = 0;
+	var $wfses_id = null; // id of workflow session to resume when this background process finishes
 
 
-    /***** Mixed *****/
+	/***** Mixed *****/
 
-    function __construct($bgp_id=null)
-    {
-        $this->bgp_id = $bgp_id;
-    }
+	function __construct($bgp_id=null)
+	{
+		$this->bgp_id = $bgp_id;
+	}
 
-    function getDetails()
-    {
-        if (!$this->details || $this->details['bgp_id'] != $this->bgp_id) {
-            $dbtp =  APP_TABLE_PREFIX;
-            $stmt = "SELECT * FROM ".$dbtp."background_process WHERE bgp_id='".$this->bgp_id."'";
-            $res = $GLOBALS['db_api']->dbh->getAll($stmt,DB_FETCHMODE_ASSOC);
-            if (PEAR::isError($res)) {
-                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-                return array();
-            } else {
+	function getDetails()
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		if (!$this->details || $this->details['bgp_id'] != $this->bgp_id) {
+			$dbtp =  APP_TABLE_PREFIX;
+			$stmt = "SELECT * FROM ".$dbtp."background_process WHERE bgp_id=".$db->quote($this->bgp_id,'INTEGER');
+			try {
+				$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 			}
-            	
-            
+			catch(Exception $ex) {
+				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				return array();
+			}
+			$this->details = $res[0];
+		}
+		return $this->details;
+	}
 
-            $this->details = $res[0];
-        }
-        return $this->details;
-    }
+	function serialize()
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
 
-    function serialize()
-    {
-        $serialized = Misc::escapeString(serialize($this));
-        $dbtp =  APP_TABLE_PREFIX;
-        $stmt = "UPDATE ".$dbtp."background_process SET bgp_serialized='".$serialized."' WHERE bgp_id='".$this->bgp_id."'";
-        $res = $GLOBALS['db_api']->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-        }
-    }
+		$serialized = serialize($this);
+		$dbtp =  APP_TABLE_PREFIX;
+		$stmt = "UPDATE ".$dbtp."background_process SET bgp_serialized=".$db->quote($serialized)." WHERE bgp_id=".$db->quote($this->bgp_id, 'INTEGER');
+		try {
+			$db->query($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+		}
+	}
 
-    function setProgress($percent)
-    {
-        $percent = Misc::escapeString($percent);
-        $dbtp =  APP_TABLE_PREFIX;
-        $stmt = "UPDATE ".$dbtp."background_process SET bgp_progress='".$percent."' WHERE bgp_id='".$this->bgp_id."'";
-        $res = $GLOBALS['db_api']->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-        }
-        $this->setHeartbeat();
-    }
+	function setProgress($percent)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
 
-    function incrementProgress()
-    {
-    	$this->setProgress(++$this->progress);
-    }
+		$dbtp =  APP_TABLE_PREFIX;
+		$stmt = "UPDATE ".$dbtp."background_process SET bgp_progress=".$db->quote($percent, 'INTEGER')." WHERE bgp_id=".$db->quote($this->bgp_id, 'INTEGER');
+		try {
+			$db->query($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+		}
+		$this->setHeartbeat();
+	}
 
-    function setStatus($msg)
-    {
-        echo $msg."\n";
-        $msg = Misc::escapeString($msg);
-        $dbtp =  APP_TABLE_PREFIX;
-        $stmt = "UPDATE ".$dbtp."background_process SET bgp_status_message='".$msg."' WHERE bgp_id='".$this->bgp_id."'";
-        $res = $GLOBALS['db_api']->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-        }
-        $this->setHeartbeat();
-    }
+	function incrementProgress()
+	{
+		$this->setProgress(++$this->progress);
+	}
 
-    function setState($state)
-    {
-        $state = Misc::escapeString($state);
-        $dbtp =  APP_TABLE_PREFIX;
-        $stmt = "UPDATE ".$dbtp."background_process SET bgp_state='".$state."' WHERE bgp_id='".$this->bgp_id."'";
-        $res = $GLOBALS['db_api']->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-        }
-        $this->setHeartbeat();
-    }
+	function setStatus($msg)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
 
-    function setHeartbeat()
-    {
-        $dbtp =  APP_TABLE_PREFIX;
-//		$utc_date = Date_API::getDateGMT(date("Y-m-d H:i:s"));
-		$utc_date = Date_API::getSimpleDateUTC();		
-        $stmt = "UPDATE ".$dbtp."background_process SET bgp_heartbeat='".$utc_date."' WHERE bgp_id='".$this->bgp_id."'";
-        $res = $GLOBALS['db_api']->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-        }
-    }
+		echo $msg."\n";
+		$dbtp =  APP_TABLE_PREFIX;
+		$stmt = "UPDATE ".$dbtp."background_process SET bgp_status_message=".$db->quote($msg)." WHERE bgp_id=".$db->quote($this->bgp_id, 'INTEGER');
+		try {
+			$db->query($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+		}
+		$this->setHeartbeat();
+	}
 
-    function setExportFilename($filename, $headers)
-    {
-        $dbtp =  APP_TABLE_PREFIX;
-        $filename = Misc::escapeString($filename);
-        $headers = Misc::escapeString($headers);
-        $stmt = "UPDATE ".$dbtp."background_process SET 
-            bgp_filename='".$filename."',
-            bgp_headers='".$headers."'
-            WHERE bgp_id='".$this->bgp_id."'";
-        $res = $GLOBALS['db_api']->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-        }
-    }
+	function setState($state)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
 
-    function getExportFile()
-    {
-        $dbtp =  APP_TABLE_PREFIX;
-        $stmt = "SELECT bgp_filename, bgp_headers, bgp_usr_id 
-            FROM ".$dbtp."background_process WHERE bgp_id='".$this->bgp_id."'";
-        $res = $GLOBALS['db_api']->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-        }
-        if (Auth::getUserID() == $res['bgp_usr_id']) {
-            $headers = explode("\n", $res['bgp_headers']);
-            foreach ($headers as $head) {
-                header($head);
-            }
-            readfile($res['bgp_filename']);
-        } else {
-            echo "Not authorised: Username doesn't match";
-        }
-        exit;
-    }
- 
-    /***** APACHE SIDE *****/
-    
-    /**
-     * Start a background process
-     * @param string $inputs A serialized array or object that is the inputs to the process to be run.  
-     *                       e.g. serialize(compact('pid','dsID'))
-     * @param int $usr_id The user who will own the process.
-     */
-    function register($inputs, $usr_id, $wfses_id = null) 
-    {
-        $this->inputs = $inputs;
-        $this->wfses_id = $wfses_id; // optional workflow session
-        $usr_id = Misc::escapeString($usr_id);
-        $dbtp =  APP_TABLE_PREFIX;
-        // keep background log files in a subdir so that they don't clutter up the /tmp dir so much
-        if (!is_dir(APP_TEMP_DIR."fezbgp")) {
-            mkdir(APP_TEMP_DIR."fezbgp");
-        }
+		$dbtp =  APP_TABLE_PREFIX;
+		$stmt = "UPDATE ".$dbtp."background_process SET bgp_state=".$db->quote($state)." WHERE bgp_id=".$db->quote($this->bgp_id, 'INTEGER');
+		try {
+			$db->query($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+		}
+		$this->setHeartbeat();
+	}
+
+	function setHeartbeat()
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		$dbtp =  APP_TABLE_PREFIX;
+		$utc_date = Date_API::getSimpleDateUTC();
+		$stmt = "UPDATE ".$dbtp."background_process SET bgp_heartbeat=".$db->quote($utc_date)." WHERE bgp_id=".$db->quote($this->bgp_id, 'INTEGER');
+		try {
+			$db->query($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+		}
+	}
+
+	function setExportFilename($filename, $headers)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		$dbtp =  APP_TABLE_PREFIX;
+		$stmt = "UPDATE ".$dbtp."background_process SET
+            bgp_filename=".$db->quote($filename).",
+            bgp_headers=".$db->quote($headers)."
+            WHERE bgp_id=".$db->quote($this->bgp_id, 'INTEGER');
+		try {
+			$db->query($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+		}
+	}
+
+	function getExportFile()
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		$dbtp =  APP_TABLE_PREFIX;
+		$stmt = "SELECT bgp_filename, bgp_headers, bgp_usr_id
+            FROM ".$dbtp."background_process WHERE bgp_id=".$db->quote($this->bgp_id, 'INTEGER');
+		try {
+			$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+		}
+
+		if (Auth::getUserID() == $res['bgp_usr_id']) {
+			$headers = explode("\n", $res['bgp_headers']);
+			foreach ($headers as $head) {
+				header($head);
+			}
+			readfile($res['bgp_filename']);
+		} else {
+			echo "Not authorised: Username doesn't match";
+		}
+		exit;
+	}
+
+	/***** APACHE SIDE *****/
+
+	/**
+	 * Start a background process
+	 * @param string $inputs A serialized array or object that is the inputs to the process to be run.
+	 *                       e.g. serialize(compact('pid','dsID'))
+	 * @param int $usr_id The user who will own the process.
+	 */
+	function register($inputs, $usr_id, $wfses_id = null)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		$this->inputs = $inputs;
+		$this->wfses_id = $wfses_id; // optional workflow session		
+		$dbtp =  APP_TABLE_PREFIX;
+		// keep background log files in a subdir so that they don't clutter up the /tmp dir so much
+		if (!is_dir(APP_TEMP_DIR."fezbgp")) {
+			mkdir(APP_TEMP_DIR."fezbgp");
+		}
 
 		$utc_date = Date_API::getSimpleDateUTC();
-        $stmt = "INSERT INTO ".$dbtp."background_process (bgp_usr_id,bgp_started,bgp_name,bgp_include) 
-            VALUES ('".$usr_id."', '".$utc_date."', '".$this->name."','".$this->include."')";
-        $res = $GLOBALS['db_api']->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return -1;
-        }
-        $this->bgp_id = $GLOBALS['db_api']->get_last_insert_id();
-        $this->serialize();
-        $command = APP_PHP_EXEC." \"".APP_PATH."misc/run_background_process.php\" ".$this->bgp_id." \""
-            .APP_PATH."\" > ".APP_TEMP_DIR."fezbgp/fezbgp_".$this->bgp_id.".log";
-        if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Server
-            pclose(popen("start /min /b ".$command,'r'));
-        } else {
-            exec($command." 2>&1 &");
-        }
-        return $this->bgp_id;
-    } 
+		$stmt = "INSERT INTO ".$dbtp."background_process (bgp_usr_id,bgp_started,bgp_name,bgp_include)
+            VALUES (".$db->quote($usr_id).", ".$db->quote($utc_date).", ".$db->quote($this->name).",".$db->quote($this->include).")";
+		try {
+			$db->query($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return -1;
+		}
+		$this->bgp_id = $db->lastInsertId();
+		$this->serialize();
+		$command = APP_PHP_EXEC." \"".APP_PATH."misc/run_background_process.php\" ".$this->bgp_id." \""
+		.APP_PATH."\" > ".APP_TEMP_DIR."fezbgp/fezbgp_".$this->bgp_id.".log";
+		if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Server
+			pclose(popen("start /min /b ".$command,'r'));
+		} else {
+			exec($command." 2>&1 &");
+		}
+		return $this->bgp_id;
+	}
 
-    
-    /***** CLI SIDE *****/
 
-    /**
-     * subclass this function for your background process
-     */
-    function run()
-    {
-    }
+	/***** CLI SIDE *****/
 
-    /**
-      * Authenticate the background process 
-      */
-    function setAuth()
-    {
-        global $auth_isBGP, $auth_bgp_obj;
-        $auth_isBGP = true;
-        $GLOBALS['auth_bgp_obj'] = &$this;
+	/**
+	 * subclass this function for your background process
+	 */
+	function run()
+	{
+	}
 
-        $session =& $this->local_session;
+	/**
+	 * Authenticate the background process
+	 */
+	function setAuth()
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
 
-        $dbtp =  APP_TABLE_PREFIX;
-        $stmt = "SELECT * FROM ".$dbtp."background_process WHERE bgp_id='".$this->bgp_id."'";
-        $res = $GLOBALS['db_api']->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-        }
-        $usr_id = $res['bgp_usr_id'];
-        $usr_obj = new User;
-        $user_det = $usr_obj->getDetailsByID($usr_id);
-        $username = $user_det['usr_username'];
+		global $auth_isBGP, $auth_bgp_obj;
+		$auth_isBGP = true;
+		$GLOBALS['auth_bgp_obj'] = &$this;
+
+		$session =& $this->local_session;
+
+		$dbtp =  APP_TABLE_PREFIX;
+		$stmt = "SELECT * FROM ".$dbtp."background_process WHERE bgp_id=".$db->quote($this->bgp_id, 'INTEGER');
+		try {
+			$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+		}
+
+		$usr_id = $res['bgp_usr_id'];
+		$usr_obj = new User;
+		$user_det = $usr_obj->getDetailsByID($usr_id);
+		$username = $user_det['usr_username'];
 
 		if( strcmp($username,"") == 0 )
 		{
-			Error_Handler::logError(array("WARNING: username is blank.  Cannot authenticate for running background process test.  Most likely the user (id: '".$usr_id."') doesn't exist or has been deleted."), __FILE__, __LINE__);
+			$log->err(array("WARNING: username is blank.  Cannot authenticate for running background process test.  Most likely the user (id: '".$usr_id."') doesn't exist or has been deleted."), __FILE__, __LINE__);
 		}
-        // the password is not used.  The auth system won't be able to access any AD info
-        Auth::LoginAuthenticatedUser($username, 'blah'); 	
-    }
+		// the password is not used.  The auth system won't be able to access any AD info
+		Auth::LoginAuthenticatedUser($username, 'blah');
+	}
 
-    function getSession()
-    {
-        return $this->local_session;
-    }
-   
+	function getSession()
+	{
+		return $this->local_session;
+	}
+
 }
 

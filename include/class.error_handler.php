@@ -254,8 +254,3 @@ class Error_Handler
         self::$debug_on = false;
     }
 }
-// benchmarking the included file (aka setup time)
-if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
-    $GLOBALS['bench']->setMarker('Included Error_Handler Class');
-}
-?>

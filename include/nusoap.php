@@ -7285,4 +7285,3 @@ class soapclient_internal extends nusoap_base  {
 		return true;
 	}
 }
-?>

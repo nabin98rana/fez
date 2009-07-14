@@ -68,12 +68,8 @@ switch ($_REQUEST['cat'])
         header('Location: ' . $_SERVER['PHP_SELF'] . '?result=' . $result );
         break;
         
-    case 'edit':
-        $list = Ad_Hoc_SQL::getList();
-        
-        $tpl->assign("info", Ad_Hoc_SQL::getDetails($_GET["id"]));
-        $tpl->assign("list", $list);
-        $tpl->assign("list_count", count($list));
+    case 'edit':        
+        $tpl->assign("info", Ad_Hoc_SQL::getDetails($_GET["id"]));        
         break;
         
     case 'delete':
@@ -88,12 +84,7 @@ switch ($_REQUEST['cat'])
     /*
      * List All Ad Hoc SQL Queries
      */
-    default:
-        $list = Ad_Hoc_SQL::getList();
-
-        $tpl->assign("list", $list);
-        $tpl->assign("list_count", count($list));
-        
+    default:        
         if($_GET['result']) {
             $tpl->assign("result", $_GET['result']);
         }
@@ -101,7 +92,6 @@ switch ($_REQUEST['cat'])
 }
 
 $list = Ad_Hoc_SQL::getList();
-
 $tpl->assign("list", $list);
 $tpl->assign("list_count", count($list));
 

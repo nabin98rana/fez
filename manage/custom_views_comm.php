@@ -59,7 +59,7 @@ switch ($_REQUEST['cat'])
      */
     case 'new':
         $result = Custom_View::insertCview();
-        header('Location: ' . $_SERVER['PHP_SELF'] . '?result=' . $result );
+        Misc::redirect($_SERVER['PHP_SELF'] . '?result=' . $result );
         break;
         
     case 'delete':
@@ -67,12 +67,12 @@ switch ($_REQUEST['cat'])
         if( !Custom_View::removeCview() ) {
             $result = 4;
         }
-        header('Location: ' . $_SERVER['PHP_SELF'] . '?result=' . $result );
+        Misc::redirect($_SERVER['PHP_SELF'] . '?result=' . $result );
         break;
     
     case 'update':
         $result = Custom_View::updateCommCview($_POST["id"]);
-        header('Location: ' . $_SERVER['PHP_SELF'] . '?result=' . $result );
+        Misc::redirect($_SERVER['PHP_SELF'] . '?result=' . $result );
         break;
         
     case 'edit':

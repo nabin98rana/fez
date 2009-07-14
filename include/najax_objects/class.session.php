@@ -70,4 +70,4 @@
         NAJAX_Client::publicMethods($this, array('setSession','getSession','setMessage','getMessage','clearMessage'));
     }
  }
-?>
+ 

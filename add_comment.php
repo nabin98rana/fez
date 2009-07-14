@@ -71,5 +71,3 @@ if( !$uc->uploadCommentsToFedora() )
 // redirect back to the PID
 $url = APP_BASE_URL . "view.php?pid=$pid";
 header("Location: $url");
-
-?>

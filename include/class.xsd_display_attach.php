@@ -53,136 +53,149 @@ include_once(APP_INC_PATH . "class.auth.php");
 class XSD_Display_Attach
 {
 
-    /**
-     * Method used to get the list of XSD Attachments from a given XSD matching field ID.
-     *
-     * @access  public
-     * @param   integer $xsdmf_id
-     * @return  array The list 
-     */
-    function getListByXSDMF($xsdmf_id)
-    {
-        $stmt = "SELECT
+	/**
+	 * Method used to get the list of XSD Attachments from a given XSD matching field ID.
+	 *
+	 * @access  public
+	 * @param   integer $xsdmf_id
+	 * @return  array The list
+	 */
+	function getListByXSDMF($xsdmf_id)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "SELECT
 					*
                  FROM
                     " . APP_TABLE_PREFIX . "xsd_display_attach left join
-                    " . APP_TABLE_PREFIX . "xsd_display_matchfields on (att_parent_xsdmf_id=".$xsdmf_id." and att_child_xsdmf_id = xsdmf_id)
+                    " . APP_TABLE_PREFIX . "xsd_display_matchfields on (att_parent_xsdmf_id=".$db->quote($xsdmf_id, 'INTEGER')." and att_child_xsdmf_id = xsdmf_id)
                     inner join " . APP_TABLE_PREFIX . "xsd_display on (xdis_id = xsdmf_xdis_id)
 					";
 		$stmt .= " ORDER BY att_order ASC";
-        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            return $res;
-        }
-    }
+		try {
+			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+		return $res;
+	}
 
-    /**
-     * Method used to get the details of a specific attached display.
-     *
-     * @access  public
-     * @param   integer $att_id The xsd display attachment ID
-     * @return  array The xsd display attachment details
-     */
-    function getDetails($att_id)
-    {
-        $stmt = "SELECT
+	/**
+	 * Method used to get the details of a specific attached display.
+	 *
+	 * @access  public
+	 * @param   integer $att_id The xsd display attachment ID
+	 * @return  array The xsd display attachment details
+	 */
+	function getDetails($att_id)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "SELECT
                     *
                  FROM
                     " . APP_TABLE_PREFIX . "xsd_display_attach
                  WHERE
-                    att_id=".$att_id;
-        $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            return $res;
-        }
-    }
+                    att_id=".$db->quote($att_id, 'INTEGER');
+		try {
+			$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+		return $res;
+	}
 
-    /**
-     * Method used to remove a given list of XSD Display Attachments.
-     *
-     * @access  public
-     * @return  boolean
-     */
-    function remove()
-    {
-        $items = @implode(", ", $_POST["items"]);
+	/**
+	 * Method used to remove a given list of XSD Display Attachments.
+	 *
+	 * @access  public
+	 * @return  boolean
+	 */
+	function remove()
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$items = @implode(", ", $_POST["items"]);
 
-        $stmt = "DELETE FROM
+		$stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "xsd_display_attach
                  WHERE
-                    att_id  IN (" . $items . ")";
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return false;
-        } else {
+                    att_id  IN (" . Misc::arrayToSQLBindStr($_POST["items"]) . ")";
+		try {
+			$db->query($stmt, $_POST["items"]);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return false;
+		}
+		return true;
+	}
 
-		  return true;
-        }
-    }
 
-
-    /**
-     * Method used to add a new XSD Display Attachment to the system.
-     *
-     * @access  public
-     * @return  integer 1 if the insert worked, -1 otherwise
-     */
-    function insert()
-    {
-        $stmt = "INSERT INTO
+	/**
+	 * Method used to add a new XSD Display Attachment to the system.
+	 *
+	 * @access  public
+	 * @return  integer 1 if the insert worked, -1 otherwise
+	 */
+	function insert()
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "xsd_display_attach
                  (
                     att_parent_xsdmf_id,
                     att_child_xsdmf_id,
 					att_order
                  ) VALUES (
-                    " . Misc::escapeString($_POST["att_parent_xsdmf_id"]) . ",
-                    " . Misc::escapeString($_POST["att_child_xsdmf_id"]) . ",
-                    " . Misc::escapeString($_POST["att_order"]) . "
+                    " . $db->quote($_POST["att_parent_xsdmf_id"], 'INTEGER') . ",
+                    " . $db->quote($_POST["att_child_xsdmf_id"], 'INTEGER') . ",
+                    " . $db->quote($_POST["att_order"], 'INTEGER') . "
                  )";
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return -1;
-        } else {
-			//
-        }
-    }
+		try {
+			$db->query($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return -1;
+		}
+	}
 
 
-    /**
-     * Method used to update a XSD Display Attachment in the system.
-     *
-     * @access  public
-     * @return  integer 1 if the insert worked, -1 otherwise
-     */
-    function update()
-    {
-        $stmt = "UPDATE
+	/**
+	 * Method used to update a XSD Display Attachment in the system.
+	 *
+	 * @access  public
+	 * @return  integer 1 if the insert worked, -1 otherwise
+	 */
+	function update()
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "xsd_display_attach
                  SET 
-                    att_parent_xsdmf_id = " . Misc::escapeString($_POST["att_parent_xsdmf_id"]) . ",
-                    att_child_xsdmf_id = " . Misc::escapeString($_POST["att_child_xsdmf_id"]) . ",
-                    att_order = " . Misc::escapeString($_POST["att_order"]) . "
-                 WHERE att_id = " . Misc::escapeString($_POST["att_id"]) . "";
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return -1;
-        } else {
-			return 1;
-        }
-    }
+                    att_parent_xsdmf_id = " . $db->quote($_POST["att_parent_xsdmf_id"], 'INTEGER') . ",
+                    att_child_xsdmf_id = " . $db->quote($_POST["att_child_xsdmf_id"], 'INTEGER') . ",
+                    att_order = " . $db->quote($_POST["att_order"], 'INTEGER') . "
+                 WHERE att_id = " . $db->quote($_POST["att_id"], 'INTEGER');
+		try {
+			$db->query($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return -1;
+		}
+		return 1;
+	}
 }
-// benchmarking the included file (aka setup time)
-if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
-    $GLOBALS['bench']->setMarker('Included XSD_Display_Attach Class');
-}
-?>

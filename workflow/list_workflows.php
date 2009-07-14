@@ -47,6 +47,7 @@ include_once(APP_INC_PATH . "class.object_type.php");
 if (empty($trigger_type)) {
     $trigger_type = 'New';
 }
+$log = FezLog::get();
 
 $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");
@@ -77,19 +78,25 @@ if ($cat == 'select_workflow') {
 			}
 		    
 			if (!empty($pids) || $trigger_type == 'Bulk Change Search') {
+				$log->debug('Bulk change search');
 		        if (Workflow::userCanTrigger($wfl_id,$user_id)) {
+		        	$log->debug('User can trigger');
 	    			Workflow::start($wft_id, $pid, $xdis_id, $href, $dsID, $pids);				
 				} else {
 					$message = "You do not have the rights to run this workflow";					
 				}
 			} elseif ((empty($pid) && empty($pids)) || $pid == -2) { //workflow where the user selects the pid etc
+				$log->debug('PID selected');
 		        if (Workflow::userCanTrigger($wfl_id,$user_id)) {
+		        	$log->debug('User can trigger');
 	    			Workflow::start($wft_id, $pid, $xdis_id, $href, $dsID, $pids);				
 				} else {
 					$message = "You do not have the rights to run this workflow";					
 				}
 			} else {
+				$log->debug('Other workflow');
 	            if (Workflow::canTrigger($wfl_id, $pid)) {
+	            	$log->debug('User can trigger');
 	    			Workflow::start($wft_id, $pid, $xdis_id, $href, $dsID, $pids);	
 				} else {
 					$message = "You do not have the rights to run this workflow";					

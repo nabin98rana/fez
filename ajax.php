@@ -16,7 +16,6 @@ NAJAX_Server::allowClasses(array('SelectOrgStructure', 'Suggestor', 'NajaxRecord
     'SelectOrgStructure','SelectReindexInfo','SelectCreateInfo','Session','RecordSearchAndList',
     'Controlled_Vocab','Author'));
 if (NAJAX_Server::runServer()) {
+	FezLog::get()->close();
     exit;
 }
-
-?>

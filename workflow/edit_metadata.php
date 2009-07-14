@@ -56,6 +56,7 @@ Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']."?".$_SERVER['QUERY_
 $wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
 if (empty($wfstatus)) {
     echo "This workflow has finished and cannot be resumed";
+    FezLog::get()->close();
     exit;
 }
 

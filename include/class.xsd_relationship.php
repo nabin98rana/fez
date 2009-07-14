@@ -61,6 +61,9 @@ class XSD_Relationship
      */
     function getListByXSDMF($xsdmf_id)
     {
+    	$log = FezLog::get();
+		$db = DB_API::get();
+		
         $stmt = "SELECT
 					*
                  FROM
@@ -68,15 +71,16 @@ class XSD_Relationship
                     " . APP_TABLE_PREFIX . "xsd_display,
                     " . APP_TABLE_PREFIX . "xsd_display_matchfields
                  WHERE
-                    xsdrel_xsdmf_id=".$xsdmf_id." and xsdrel_xsdmf_id = xsdmf_id and xsdrel_xdis_id = xdis_id ";
-		$stmt .= " ORDER BY xsdrel_order ASC";
-        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            return $res;
-        }
+                    xsdrel_xsdmf_id=".$db->quote($xsdmf_id, 'INTEGER')." and xsdrel_xsdmf_id = xsdmf_id and xsdrel_xdis_id = xdis_id ";
+        $stmt .= " ORDER BY xsdrel_order ASC";
+		try {
+			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+		return $res;
     }
 
     /**
@@ -88,20 +92,24 @@ class XSD_Relationship
      */
     function getSimpleListByXSDMF($xsdmf_id)
     {
+    	$log = FezLog::get();
+		$db = DB_API::get();
+		
         $stmt = "SELECT
 					*
                  FROM
                     " . APP_TABLE_PREFIX . "xsd_relationship
                  WHERE
-                    xsdrel_xsdmf_id=".$xsdmf_id." ";
+                    xsdrel_xsdmf_id=".$db->quote($xsdmf_id, 'INTEGER')." ";
 		$stmt .= " ORDER BY xsdrel_order ASC";
-        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            return $res;
-        }
+        try {
+			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+		return $res;
     }
 
     /**
@@ -114,6 +122,9 @@ class XSD_Relationship
      */
     function getListByXDIS($xdis_id)
     {
+    	$log = FezLog::get();
+		$db = DB_API::get();
+		
         $stmt = "SELECT
 					xsdrel_xdis_id
                  FROM
@@ -121,15 +132,16 @@ class XSD_Relationship
                     " . APP_TABLE_PREFIX . "xsd_display,
                     " . APP_TABLE_PREFIX . "xsd_display_matchfields
                  WHERE
-                   xsdmf_xdis_id = ".$xdis_id." and xsdrel_xsdmf_id = xsdmf_id and xsdrel_xdis_id = xdis_id ";
+                   xsdmf_xdis_id = ".$db->quote($xdis_id, 'INTEGER')." and xsdrel_xsdmf_id = xsdmf_id and xsdrel_xdis_id = xdis_id ";
 		$stmt .= " ORDER BY xsdrel_order ASC";
-        $res = $GLOBALS["db_api"]->dbh->getAll($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            return $res;
-        }
+        try {
+			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+		return $res;
     }
 
     /**
@@ -142,6 +154,9 @@ class XSD_Relationship
      */
     function getColListByXDIS($xdis_id)
     {
+    	$log = FezLog::get();
+		$db = DB_API::get();
+		
 		if (!is_numeric($xdis_id)) {
 			return array();
 		}
@@ -152,20 +167,24 @@ class XSD_Relationship
                     " . APP_TABLE_PREFIX . "xsd_display,
                     " . APP_TABLE_PREFIX . "xsd_display_matchfields
                  WHERE
-                   xsdmf_xdis_id = ".$xdis_id." and xsdrel_xsdmf_id = xsdmf_id and xsdrel_xdis_id = xdis_id ";
+                   xsdmf_xdis_id = ".$db->quote($xdis_id, 'INTEGER')." and xsdrel_xsdmf_id = xsdmf_id and xsdrel_xdis_id = xdis_id ";
 		$stmt .= " ORDER BY xsdrel_order ASC";
-        $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            return $res;
-        }
+		try {
+			$res = $db->fetchCol($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+		return $res;
     }
     
     
     function getColListByXDISMinimal($xdis_id, $exclude_xdis_str = '', $specify_xdis_str = '')
     {
+    	$log = FezLog::get();
+		$db = DB_API::get();
+		
 		if (!is_numeric($xdis_id)) {
 			return array();
 		}		
@@ -178,25 +197,25 @@ class XSD_Relationship
                     " . APP_TABLE_PREFIX . "xsd_display_matchfields,
                     " . APP_TABLE_PREFIX . "xsd
                  WHERE
-                   xsd_id = xdis_xsd_id AND xsdmf_xdis_id = ".$xdis_id." and xsdrel_xsdmf_id = xsdmf_id and xsdrel_xdis_id = xdis_id and xsdmf_html_input != 'xsdmf_id_ref'";
+                   xsd_id = xdis_xsd_id AND xsdmf_xdis_id = ".$db->quote($xdis_id, 'INTEGER')." and xsdrel_xsdmf_id = xsdmf_id and xsdrel_xdis_id = xdis_id and xsdmf_html_input != 'xsdmf_id_ref'";
         
         if ($exclude_xdis_str != '') {
-        	$stmt .= " AND xsd_title not in ('".$exclude_xdis_str."')";        	
+        	$stmt .= " AND xsd_title not in (".$db->quote($exclude_xdis_str).")";        	
         }
         if ($specify_xdis_str != '') {
-        	$stmt .= " AND xsd_title in ('".$specify_xdis_str."')";        	
+        	$stmt .= " AND xsd_title in (".$db->quote($specify_xdis_str).")";        	
         }
-        
-        
+                
 		$stmt .= " ORDER BY xsdrel_order ASC";
 		
-        $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            return $res;
-        }
+		try {
+			$res = $db->fetchCol($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+		return $res;
     }
     
     
@@ -209,20 +228,23 @@ class XSD_Relationship
      */
     function remove()
     {
+    	$log = FezLog::get();
+		$db = DB_API::get();
+		
         $items = @implode(", ", $_POST["items"]);
 
         $stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "xsd_relationship
                  WHERE
-                    xsdrel_id  IN (" . $items . ")";
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return false;
-        } else {
-
-		  return true;
-        }
+                    xsdrel_id  IN (" . Misc::arrayToSQLBindStr($_POST["items"]) . ")";
+		try {
+			$db->query($stmt, $_POST["items"]);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return false;
+		}
+		return true;
     }
 
 
@@ -234,6 +256,9 @@ class XSD_Relationship
      */
     function insert()
     {
+    	$log = FezLog::get();
+		$db = DB_API::get();
+		
         $stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "xsd_relationship
                  (
@@ -241,17 +266,17 @@ class XSD_Relationship
                     xsdrel_xdis_id,
 					xsdrel_order
                  ) VALUES (
-                    " . Misc::escapeString($_POST["xsdrel_xsdmf_id"]) . ",
-                    " . Misc::escapeString($_POST["xsd_display_id"]) . ",
-                    " . Misc::escapeString($_POST["xsdrel_order"]) . "
+                    " . $db->quote($_POST["xsdrel_xsdmf_id"]) . ",
+                    " . $db->quote($_POST["xsd_display_id"]) . ",
+                    " . $db->quote($_POST["xsdrel_order"]) . "
                  )";
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return -1;
-        } else {
-			//
-        }
+    	try {
+			$db->query($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return -1;
+		}
     }
 
     /**
@@ -264,6 +289,9 @@ class XSD_Relationship
      */
     function insertFromArray($xsdmf_id, $insertArray)
     {
+    	$log = FezLog::get();
+		$db = DB_API::get();
+		
         $stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "xsd_relationship
                  (
@@ -271,17 +299,17 @@ class XSD_Relationship
                     xsdrel_xdis_id,
 					xsdrel_order
                  ) VALUES (
-                    " . $xsdmf_id . ",
-                    " . $insertArray["xsdrel_xdis_id"] . ",
-                    " . $insertArray["xsdrel_order"] . "
-                 )";
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return -1;
-        } else {
-			return $GLOBALS['db_api']->get_last_insert_id();
-        }
+                    " . $db->quote($xsdmf_id, 'INTEGER') . ",
+                    " . $db->quote($insertArray["xsdrel_xdis_id"], 'INTEGER') . ",
+                    " . $db->quote($insertArray["xsdrel_order"], 'INTEGER');
+        try {
+			$db->query($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return -1;
+		}
+		return $db->lastInsertId();
     }
 
 
@@ -293,27 +321,30 @@ class XSD_Relationship
      */
     function update($xsdrel_id='',$params=array())
     {
+    	$log = FezLog::get();
+		$db = DB_API::get();
 
         if (empty($params)) {
         	$params = &$_POST;
         }
         if (empty($xsdrel_id)) {
-        	$xsdrel_id = Misc::escapeString($params["xsdrel_id"]);
+        	$xsdrel_id = $params["xsdrel_id"];
         }
         $stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "xsd_relationship
                  SET 
-                    xsdrel_xsdmf_id = '" . Misc::escapeString($params["xsdrel_xsdmf_id"]) . "',
-                    xsdrel_xdis_id = '" . Misc::escapeString($params["xsdrel_xdis_id"]) . "',
-                    xsdrel_order = '" . Misc::escapeString($params["xsdrel_order"]) . "'
-                 WHERE xsdrel_id = '".$xsdrel_id."' ";
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return -1;
-        } else {
-			return 1;
-        }
+                    xsdrel_xsdmf_id = " . $db->quote($params["xsdrel_xsdmf_id"], 'INTEGER') . ",
+                    xsdrel_xdis_id = " . $db->quote($params["xsdrel_xdis_id"], 'INTEGER') . ",
+                    xsdrel_order = " . $db->quote($params["xsdrel_order"], 'INTEGER') . "
+                 WHERE xsdrel_id = " . $db->quote($xsdrel_id, 'INTEGER');
+    	try {
+			$db->query($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return -1;
+		}
+		return 1;
     }
     
     function importRels($xmatch, $xsdmf_id, &$maps)
@@ -333,26 +364,27 @@ class XSD_Relationship
     
     function remapImport(&$maps)
     {
+    	$log = FezLog::get();
+		$db = DB_API::get();
+		
         if (empty($maps['xsdrel_map'])) {
             return;
         }    
         foreach ($maps['xsdrel_map'] as $xsdrel_id) {
             $stmt = "SELECT * FROM ". APP_SQL_DBNAME . "." . APP_TABLE_PREFIX ."xsd_relationship " .
-                    "WHERE xsdrel_id='".$xsdrel_id."' ";
-            $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
-            if (PEAR::isError($res)) {
-                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            } else {
-                Misc::arraySearchReplace($res, 
+                    "WHERE xsdrel_id=".$db->quote($xsdrel_id, 'INTEGER');
+            
+			try {
+				$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
+			}
+			catch(Exception $ex) {
+				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				return false;
+			}			
+            Misc::arraySearchReplace($res, 
                     array('xsdrel_xdis_id'),
                     $maps['xdis_map']);
-                XSD_Relationship::update($xsdrel_id, $res);
-            }
+            		XSD_Relationship::update($xsdrel_id, $res);
         }    
     }
 }
-// benchmarking the included file (aka setup time)
-if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
-    $GLOBALS['bench']->setMarker('Included XSD_Relationship Class');
-}
-?>

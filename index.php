@@ -167,4 +167,3 @@ if( $front_page == "simple_front_page.tpl.html" || $front_page == "very_simple_f
 $tpl->assign("active_nav", "home");
 $tpl->displayTemplate();
 //echo ($GLOBALS['bench']->getOutput());
-?>

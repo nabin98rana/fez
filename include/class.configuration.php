@@ -38,8 +38,6 @@ include_once(APP_INC_PATH . "class.validation.php");
 include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.custom_view.php");
 include_once(APP_INC_PATH . "class.misc.php");
-include_once(APP_INC_PATH . "class.session_db.php");
-$sess = new SessionManager($db_api);
 
 /**
  * This class exists for interacting with the configuration settings sub-system.
@@ -53,18 +51,28 @@ class Configuration
      *
      * Returns an associative array of all core configuration names/values in the config table.
      */
-    function getConfAll() {
+    function getConfAll() 
+    {
+		$db = DB_API::get();
+    	    	
         $stmt = "SELECT
                     config_name, config_value
                  FROM
                     " . APP_TABLE_PREFIX . "config 
                  WHERE
                     config_module = 'core'";
-        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
+                
+    	try {
+        	$res = $db->fetchAssoc($stmt);
+        }
+        catch(Exception $ex) {   
+            return false;
+        }
+                
+    	if (empty($res)) {
+            return array();
+        }
+        else {
             // Create a simple associative array of name/value pairs.
             $returnArray = array();
             foreach ($res as $item) {
@@ -83,8 +91,8 @@ class Configuration
      * set-up all values located in the config table, we manually assemble a number of compound
      * variables. This function is roughly analogous to #including the old config.inc.php.
      */
-    function registerConf() {
-
+    function registerConf() 
+    {
         $settings = Configuration::getConfAll();
 
         foreach ($settings as $name => $value) {
@@ -96,7 +104,6 @@ class Configuration
 		if (!empty($custom_view_pid)) {
 			$customView = Custom_View::getCommCview($custom_view_pid);			
 		}
-
 
         // Assemble compound variables
         define("APP_CYCLE_COLORS", APP_CYCLE_COLOR_ONE . "," . APP_CYCLE_COLOR_TWO);
@@ -193,8 +200,6 @@ class Configuration
         define("APP_FEDORA_OAI_URL", APP_BASE_FEDORA_APIA_DOMAIN . "/oai");                           // OAI URL
         define("APP_FEDORA_ACCESS_API", APP_BASE_FEDORA_APIA_DOMAIN . "/services/access");
         define("APP_FEDORA_MANAGEMENT_API", APP_BASE_FEDORA_APIM_DOMAIN . "/services/management");
-
-        $GLOBALS['db_api']->setupFDAConn();
         
         // OS-specific tweaks (Formerly Bill vs Linus).
         if (stristr(PHP_OS, 'darwin')) {
@@ -221,15 +226,11 @@ class Configuration
      * checks into this function at some point, but that will need to be a project for further 
      * down the line.
      */
-    function checkConf() {
-
+    function checkConf() 
+    {
         //echo "Checking conguriation ... <br />";      // LKDB
-
         return;
-
     }
-
-
 
     /**
      * saveConf
@@ -243,26 +244,22 @@ class Configuration
      */
     function saveConf() 
     {
+		$db = DB_API::get();
+		
         $originalSettings = Configuration::getConfAll();
         $problemUpdates = array();
 
         // For each config variable we know about, update it with the value from the form.
         foreach ($originalSettings as $key => $value) {
-            $res = $GLOBALS["db_api"]->dbh->query("UPDATE " . APP_TABLE_PREFIX . "config SET config_value = '" . Misc::escapeString($_POST[$key]) . "' WHERE config_name = '" . Misc::escapeString($key) . "' AND config_module = 'core'");
-            if (PEAR::isError($res)) {
-                array_push($problemUpdates, $key);
-            }
+			try {
+				$stmt = "UPDATE " . APP_TABLE_PREFIX . "config SET config_value = " . $db->quote($_POST[$key]) . " WHERE config_name = " . $db->quote($key) . " AND config_module = 'core'";
+				$db->query($stmt);
+			}
+			catch(Exception $ex) {				
+				array_push($problemUpdates, $key);
+			}            
         }
-
         return $problemUpdates;
-
     }
 
 }
-
-// benchmarking the included file (aka setup time)
-if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
-    $GLOBALS['bench']->setMarker('Included Configuration class');
-}
-
-?>

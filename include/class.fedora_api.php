@@ -38,5 +38,3 @@ if (APP_FEDORA_VERSION == "2.2") {
 } else {
     include_once(APP_INC_PATH . "class.fedora_api_2_1_1.php");
 }
-
-?>

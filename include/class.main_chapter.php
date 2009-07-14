@@ -47,33 +47,38 @@ class MainChapter
 	 */
 	function getListAll($pid)
 	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
 		$stmt = "SELECT t1.aut_id, t1.aut_display_name, mc_status
 				FROM " . APP_TABLE_PREFIX . "author AS t1
 				LEFT JOIN 
 				(SELECT mc_author_id, mc_status
 				FROM " . APP_TABLE_PREFIX . "main_chapter AS t2
-				WHERE mc_pid = '" . $pid . "') as t3
+				WHERE mc_pid = " . $db->quote($pid) . ") as t3
 				ON t1.aut_id = t3.mc_author_id
 				WHERE t1.aut_id IN 
 					(SELECT rek_author_id 
 					FROM " . APP_TABLE_PREFIX . "record_search_key_author_id
-					WHERE rek_author_id_pid = '" . $pid . "' 
+					WHERE rek_author_id_pid = " . $db->quote($pid) . " 
 					AND rek_author_id != 0
 					)
 				ORDER BY t1.aut_display_name";
 
-		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return array();
-        }
-        return $res;
+		try {
+			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return array();
+		}
+		return $res;
 	}
 
 
 
 	/**
-	 * Destroys all existing main chapter registrations for a given PID. Typically invoked immediately 
+	 * Destroys all existing main chapter registrations for a given PID. Typically invoked immediately
 	 * before writing out new values.
 	 *
 	 * @access  public
@@ -82,19 +87,23 @@ class MainChapter
 	 */
 	function nukeExisting($pid)
 	{
-        $stmt = "DELETE FROM
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "main_chapter
                  WHERE
-                    mc_pid = '" . $pid . "'";
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return false;
-        } else {
-            return true;
-        }
+                    mc_pid = " . $db->quote($pid);
+		try {
+			$db->query($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return false;
+		}
+		return true;
 	}
-	
+
 
 
 	/**
@@ -107,17 +116,22 @@ class MainChapter
 	 */
 	function saveMainChapters($pid, $mc_author_id)
 	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
 		if (sizeof($mc_author_id) == 0) {
 			return -1;
 		}
 		// Iterate through the checked authors, adding them to the main_chapter table
 		foreach($mc_author_id as $authorID) {
-			$stmt = "INSERT INTO " . APP_TABLE_PREFIX . "main_chapter 
+			$stmt = "INSERT INTO " . APP_TABLE_PREFIX . "main_chapter
 					(mc_pid, mc_author_id, mc_status) VALUES 
-					('" . $pid . "', " . $authorID . ", 1)";
-			$res = $GLOBALS["db_api"]->dbh->query($stmt);
-			if (PEAR::isError($res)) {
-				Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+					(" . $db->quote($pid) . ", " . $db->quote($authorID, 'INTEGER') . ", 1)";
+			try {
+				$db->query($stmt);
+			}
+			catch(Exception $ex) {
+				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
 				return -1;
 			}
 		}
@@ -130,11 +144,14 @@ class MainChapter
 	 * Retrieves a list of all records that have main chapters registered for authors that are
 	 * no longer attached to the record.
 	 *
-     * @access  public
-     * @return  array The associative array of PIDs and their titles.
+	 * @access  public
+	 * @return  array The associative array of PIDs and their titles.
 	 */
 	function getOrphanedMainChaptersAll()
 	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
 		$stmt = "SELECT DISTINCT(mc_pid), rek_title " .
 				"FROM " . APP_TABLE_PREFIX . "main_chapter AS t1, " . APP_TABLE_PREFIX . "record_search_key " .
 				"WHERE mc_author_id NOT IN " .
@@ -144,14 +161,13 @@ class MainChapter
 				") " .
 				"AND mc_pid = rek_pid";
 
-		$res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return array();
-        }
-        return $res;
+		try {
+			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return array();
+		}
+		return $res;
 	}
-
 }
-
-?>

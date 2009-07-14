@@ -56,7 +56,7 @@ $tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 
 if ($isSuperAdministrator) {
     if (@$_POST["cat"] == "update") {
-        $tpl->assign("result", Doc_Type_XSD::update($xsd_id));
+    	$tpl->assign("result", Doc_Type_XSD::update($xsd_id));
     }
 	$list = Doc_Type_XSD::getXSDSource($xsd_id);
     $tpl->assign("list", $list[0]);

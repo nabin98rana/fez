@@ -54,6 +54,3 @@ $_SESSION['script_name'] = $_SERVER['SCRIPT_NAME'];
 $_SESSION['last_page'] = $res['list_info']['last_page'];
 $_SESSION['view_page'] = $res['list_info']['current_page'];
 
-//echo ($GLOBALS['bench']->getOutput());
-
-?>

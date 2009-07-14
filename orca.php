@@ -63,7 +63,3 @@ $tpl->assign("list", $list);
 header("Content-type: text/xml");
 //print_r($list); exit;
 $tpl->displayTemplate();
-
-
-
-?>

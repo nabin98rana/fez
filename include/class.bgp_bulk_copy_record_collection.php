@@ -36,64 +36,62 @@ include_once(APP_INC_PATH.'class.background_process.php');
 
 class BackgroundProcess_Bulk_Copy_Record_Collection extends BackgroundProcess
 {
-    function __construct() 
-    {
-        parent::__construct();
-        $this->include = 'class.bgp_bulk_copy_record_collection.php';
-        $this->name = 'Bulk Copy Records to Collection';
-    }
+	function __construct()
+	{
+		parent::__construct();
+		$this->include = 'class.bgp_bulk_copy_record_collection.php';
+		$this->name = 'Bulk Copy Records to Collection';
+	}
 
-    function run()
-    {
-        $this->setState(BGP_RUNNING);
-        extract(unserialize($this->inputs));
+	function run()
+	{
+		$this->setState(BGP_RUNNING);
+		extract(unserialize($this->inputs));
 
 		if (!empty($options)) {
 			$this->setStatus("Running search");
 			$pids = $this->getPidsFromSearchBGP($options);
 			$this->setStatus("Found ".count($pids). " records");
 		}
-		
+
 		/*
 		 * Copy pid(s) to collection
 		 */
 		if (!empty($pids) && is_array($pids)) {
-            
-		    $this->setStatus("Copying ".count($pids)." Records to ".$collection_pid);
-		    
-    		foreach ($pids as $pid) {
-    	        $this->setHeartbeat();
-    	        
-    			$record = new RecordObject($pid);
-    			if ($record->canEdit()) {
-    				
-    			    $res = $record->updateRELSEXT("rel:isMemberOf", $collection_pid, false);
-    			    
-    			    if($res >= 1) {
-                        $this->setStatus("Copied '".$pid."'");	
-                        $this->pid_count++;
-    			    } else {
-    			        $this->setStatus("Copied '".$pid."' Failed");	
-    			    }
-    			} else {
-    				$this->setStatus("Skipped '".$pid."'. User can't edit this record");
-    			}
-    			
-    			$this->setProgress($this->pid_count);
-    		}
-    		
-            $this->setStatus("Finished Bulk Copy to Collection");
-            
+
+			$this->setStatus("Copying ".count($pids)." Records to ".$collection_pid);
+
+			foreach ($pids as $pid) {
+				$this->setHeartbeat();
+				 
+				$record = new RecordObject($pid);
+				if ($record->canEdit()) {
+
+					$res = $record->updateRELSEXT("rel:isMemberOf", $collection_pid, false);
+						
+					if($res >= 1) {
+						$this->setStatus("Copied '".$pid."'");
+						$this->pid_count++;
+					} else {
+						$this->setStatus("Copied '".$pid."' Failed");
+					}
+				} else {
+					$this->setStatus("Skipped '".$pid."'. User can't edit this record");
+				}
+				 
+				$this->setProgress($this->pid_count);
+			}
+
+			$this->setStatus("Finished Bulk Copy to Collection");
+
 		}
-        $this->setState(BGP_FINISHED);
-    }
-    
-    function getPidsFromSearchBGP($options)
+		$this->setState(BGP_FINISHED);
+	}
+
+	function getPidsFromSearchBGP($options)
 	{
 		$list = Record::getListing($options, array(9,10), 0, 'ALL', 'searchKey0');
 		$pids = array_keys(Misc::keyArray($list['list'],'rek_pid'));
 		return $pids;
 	}
 }
-
-?>

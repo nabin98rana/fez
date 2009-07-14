@@ -47,69 +47,80 @@ include_once(APP_INC_PATH . "class.auth.php");
 class WF_Behaviour
 {
 
-    /**
-     * Method used to get an associative array of action types.
-     *
-     * @access  public
-     * @return  array The list of action types
-     */
-    function getTitles()
-    {
-        $stmt = "SELECT
+	/**
+	 * Method used to get an associative array of action types.
+	 *
+	 * @access  public
+	 * @return  array The list of action types
+	 */
+	function getTitles()
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "SELECT
                     wfb_id,
                     wfb_title
                  FROM
                     " . APP_TABLE_PREFIX . "wfbehaviour
                  ORDER BY
                     wfb_title ASC";
-        $res = $GLOBALS["db_api"]->dbh->getAssoc($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return array();
-        } else {
-            return $res;
-        }
-    }
+		try {
+			$res = $db->fetchPairs($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return array();
+		}
+		return $res;
+	}
 
 
 
 
 
 
-    /**
-     * Method used to remove a given list of custom fields.
-     *
-     * @access  public
-     * @return  boolean
-     */
-    function remove()
-    {
-        $items = @implode(", ", $_POST["items"]);
-        $stmt = "DELETE FROM
+	/**
+	 * Method used to remove a given list of custom fields.
+	 *
+	 * @access  public
+	 * @return  boolean
+	 */
+	function remove()
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "wfbehaviour
                  WHERE
-                    wfb_id IN (".$items.")";
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return false;
-        } 
-    }
+                    wfb_id IN (".Misc::arrayToSQLBindStr($_POST["items"]).")";
+		try {
+			$db->query($stmt, $_POST["items"]);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return false;
+		}
+	}
 
 
-    /**
-     * Insert a workflow behaviour
-     *
-     * @access  public
-     * @return  integer 1 if the insert worked, -1 otherwise
-     */
-    function insert($params = array())
-    {
-        if (empty($params)) {
-        	$params = &$_POST;
-        }
+	/**
+	 * Insert a workflow behaviour
+	 *
+	 * @access  public
+	 * @return  integer 1 if the insert worked, -1 otherwise
+	 */
+	function insert($params = array())
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
 		
-        $stmt = "INSERT INTO
+		if (empty($params)) {
+			$params = &$_POST;
+		}
+
+		$stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "wfbehaviour
                  (
                     wfb_title,
@@ -118,213 +129,223 @@ class WF_Behaviour
                     wfb_script_name,
                     wfb_auto
                  ) VALUES (
-                    '" . Misc::escapeString($params["wfb_title"]) . "',
-                    '" . Misc::escapeString($params["wfb_version"]) . "',
-                    '" . Misc::escapeString($params["wfb_description"]) . "',
-                    '" . Misc::escapeString($params["wfb_script_name"]) . "',
-                    '" . Misc::checkBox(@$params["wfb_auto"]) . "'
+                    " . $db->quote($params["wfb_title"]) . ",
+                    " . $db->quote($params["wfb_version"]) . ",
+                    " . $db->quote($params["wfb_description"]) . ",
+                    " . $db->quote($params["wfb_script_name"]) . ",
+                    " . $db->quote(Misc::checkBox(@$params["wfb_auto"])) . "
                  )";
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return -1;
-        } else {
-			return $GLOBALS["db_api"]->get_last_insert_id();
-        }
-    }
+		try {
+			$db->query($stmt, $_POST["items"]);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return -1;
+		}
+		return $db->lastInsertId();
+	}
 
-    /**
-     * Update a workflow behaviour
-     *
-     * @access  public
-     * @return  integer 1 if the insert worked, -1 otherwise
-     */
-    function update($wfb_id, $params = array())
-    {
-        if (empty($params)) {
-            $params = &$_POST;
-        }
+	/**
+	 * Update a workflow behaviour
+	 *
+	 * @access  public
+	 * @return  integer 1 if the insert worked, -1 otherwise
+	 */
+	function update($wfb_id, $params = array())
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
 		
-        $stmt = "UPDATE
+		if (empty($params)) {
+			$params = &$_POST;
+		}
+
+		$stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "wfbehaviour
                  SET 
-                    wfb_title = '" . Misc::escapeString($params["wfb_title"]) . "',
-                    wfb_version = '" . Misc::escapeString($params["wfb_version"]) . "',
-                    wfb_description = '" . Misc::escapeString($params["wfb_description"]) . "',
-                    wfb_script_name = '" . Misc::escapeString($params["wfb_script_name"]) . "',
-                    wfb_auto = '" . Misc::checkBox(@$params["wfb_auto"]) . "'
-                 WHERE wfb_id = ".$wfb_id;
-//		echo $stmt;
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return -1;
-        } else {
-			//
-        }
-    }
+                    wfb_title = " . $db->quote($params["wfb_title"]) . ",
+                    wfb_version = " . $db->quote($params["wfb_version"]) . ",
+                    wfb_description = " . $db->quote($params["wfb_description"]) . ",
+                    wfb_script_name = " . $db->quote($params["wfb_script_name"]) . ",
+                    wfb_auto = " . $db->quote(Misc::checkBox(@$params["wfb_auto"])) . "
+                 WHERE wfb_id = ".$db->quote($wfb_id, 'INTEGER');
+		try {
+			$db->query($stmt, $_POST["items"]);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return -1;
+		}
+	}
 
 
 
-    /**
-     * get a list of workflow behaviours
-     *
-     * @access  public
-     * @return  array The list of custom fields
-     */
-    function getList($wherestr='')
-    {
-        $stmt = "SELECT
+	/**
+	 * get a list of workflow behaviours
+	 *
+	 * @access  public
+	 * @return  array The list of custom fields
+	 */
+	function getList($wherestr='')
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "SELECT
                     *
                  FROM
                     " . APP_TABLE_PREFIX . "wfbehaviour wfb
                     ".$wherestr."
                  ORDER BY
                     wfb.wfb_title ASC";
-        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return array();
-        } 
-        return $res;
-    }
+		try {
+			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return array();
+		}
+		return $res;
+	}
 
 
 
 
-    /**
-     * get details of a workflow behaviour
-     *
-     * @access  public
-     * @param   integer $wfb_id The workflow behaviour id
-     * @return  array The workflow behaviour details
-     */
-    function getDetails($wfb_id)
-    {
-        $stmt = "SELECT
+	/**
+	 * get details of a workflow behaviour
+	 *
+	 * @access  public
+	 * @param   integer $wfb_id The workflow behaviour id
+	 * @return  array The workflow behaviour details
+	 */
+	function getDetails($wfb_id)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "SELECT
                     *
                  FROM
                     " . APP_TABLE_PREFIX . "wfbehaviour
                  WHERE
-                    wfb_id=".$wfb_id;
-        $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return array();
-        } 
-        return $res;
-    }
+                    wfb_id=".$db->quote($wfb_id, 'INTEGER');
+		try {
+			$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return array();
+		}
+		return $res;
+	}
 
 
-    /**
-     * get the list of automatic behaviours
-     */
-    function getListAuto()
-    {
-        return WF_Behaviour::getList(" WHERE wfb.wfb_auto='1' ");
-    }
+	/**
+	 * get the list of automatic behaviours
+	 */
+	function getListAuto()
+	{
+		return WF_Behaviour::getList(" WHERE wfb.wfb_auto='1' ");
+	}
 
-    /**
-     * get the list of manual behaviours
-     */
-    function getListManual()
-    {
-        return WF_Behaviour::getList(" WHERE wfb.wfb_auto='0' ");
-    }
+	/**
+	 * get the list of manual behaviours
+	 */
+	function getListManual()
+	{
+		return WF_Behaviour::getList(" WHERE wfb.wfb_auto='0' ");
+	}
 
 
-    function exportBehaviours(&$bhs_elem, $wfb_ids)
-    {
-        $wfb_ids_str = Misc::arrayToSQL($wfb_ids);
-        if (empty($wfb_ids_str)) {
-        	return;
-        }
-        $behaviours = WF_Behaviour::getList(" where wfb_id IN ($wfb_ids_str) ");
-        foreach ($behaviours as $behaviour) {
-            $bh_elem = $bhs_elem->ownerDocument->createElement('WorkflowBehaviour');
-            $bh_elem->setAttribute('wfb_id', $behaviour['wfb_id']);
-            $bh_elem->setAttribute('wfb_title', $behaviour['wfb_title']);
-            $bh_elem->setAttribute('wfb_description', $behaviour['wfb_description']);
-            $bh_elem->setAttribute('wfb_version', $behaviour['wfb_version']);
-            $bh_elem->setAttribute('wfb_script_name', $behaviour['wfb_script_name']);
-            $bh_elem->setAttribute('wfb_auto', $behaviour['wfb_auto']);
-            $bhs_elem->appendChild($bh_elem);
-        }
-    }
+	function exportBehaviours(&$bhs_elem, $wfb_ids)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$wfb_ids_str = Misc::arrayToSQL($wfb_ids);
+		if (empty($wfb_ids_str)) {
+			return;
+		}
+		$behaviours = WF_Behaviour::getList(" where wfb_id IN ($wfb_ids_str) ");
+		foreach ($behaviours as $behaviour) {
+			$bh_elem = $bhs_elem->ownerDocument->createElement('WorkflowBehaviour');
+			$bh_elem->setAttribute('wfb_id', $behaviour['wfb_id']);
+			$bh_elem->setAttribute('wfb_title', $behaviour['wfb_title']);
+			$bh_elem->setAttribute('wfb_description', $behaviour['wfb_description']);
+			$bh_elem->setAttribute('wfb_version', $behaviour['wfb_version']);
+			$bh_elem->setAttribute('wfb_script_name', $behaviour['wfb_script_name']);
+			$bh_elem->setAttribute('wfb_auto', $behaviour['wfb_auto']);
+			$bhs_elem->appendChild($bh_elem);
+		}
+	}
 
-    function listXML($filename)
-    {
-        $doc = DOMDocument::load($filename);
-        $xpath = new DOMXPath($doc);
-        $xworkflows = $xpath->query('/workflows/WorkflowBehaviour');
-        $list = array();
-        foreach ($xworkflows as $xworkflow) {
-            $xscript = $xworkflow->getAttribute('wfb_script_name');
-            $item = array(
+	function listXML($filename)
+	{
+		$doc = DOMDocument::load($filename);
+		$xpath = new DOMXPath($doc);
+		$xworkflows = $xpath->query('/workflows/WorkflowBehaviour');
+		$list = array();
+		foreach ($xworkflows as $xworkflow) {
+			$xscript = $xworkflow->getAttribute('wfb_script_name');
+			$item = array(
                 'wfb_id' => $xworkflow->getAttribute('wfb_id'),
                 'wfb_title' => $xworkflow->getAttribute('wfb_title'),
                 'wfb_version' => $xworkflow->getAttribute('wfb_version'),
-                );
-            $elist = WF_Behaviour::getList($where="WHERE wfb_script_name='".$xscript."'");
-            if (!empty($elist)) {
-                $overwrite = true;
-            } else {
-                $overwrite = false;
-            }
-            $item['overwrite'] = $overwrite;   
-            $item['overwrite_details'] = $elist[0]['wfb_title'].' '.$elist[0]['wfb_version'];   
-            $list[] = $item;
-        }
-        return $list;
-    }
+			);
+			$elist = WF_Behaviour::getList($where="WHERE wfb_script_name='".$xscript."'");
+			if (!empty($elist)) {
+				$overwrite = true;
+			} else {
+				$overwrite = false;
+			}
+			$item['overwrite'] = $overwrite;
+			$item['overwrite_details'] = $elist[0]['wfb_title'].' '.$elist[0]['wfb_version'];
+			$list[] = $item;
+		}
+		return $list;
+	}
 
-	
-    /**
-	* Get the behaviours and map the exisiting DB id to the ids in the xml doc
-    * If the behaviour script exists, then we map the XML id to the existing DB entry,
-    * otherwise a new behaviour is created from the XML file and the new DB id is mapped 
-    * @returns array $behaviour_ids_map
-	*/
+
+	/**
+	 * Get the behaviours and map the exisiting DB id to the ids in the xml doc
+	 * If the behaviour script exists, then we map the XML id to the existing DB entry,
+	 * otherwise a new behaviour is created from the XML file and the new DB id is mapped
+	 * @returns array $behaviour_ids_map
+	 */
 	function importBehaviours($doc, $wfb_ids, &$feedback)
 	{
 		$xpath = new DOMXPath($doc);
 		$xbehaviours = $xpath->query('/workflows/WorkflowBehaviour');
-        $behaviour_id_map = array();
+		$behaviour_id_map = array();
 		foreach ($xbehaviours as $xbehaviour) {
 			$xid = $xbehaviour->getAttribute('wfb_id');
-            if (!in_array($xid, $wfb_ids)) {
-            	continue;
-            }
-            $xscript = $xbehaviour->getAttribute('wfb_script_name');
-            $xtitle = $xbehaviour->getAttribute('wfb_title');
-                $params = array(
+			if (!in_array($xid, $wfb_ids)) {
+				continue;
+			}
+			$xscript = $xbehaviour->getAttribute('wfb_script_name');
+			$xtitle = $xbehaviour->getAttribute('wfb_title');
+			$params = array(
                     'wfb_title' => $xbehaviour->getAttribute('wfb_title'),
                     'wfb_description' => $xbehaviour->getAttribute('wfb_description'),
                     'wfb_version' => $xbehaviour->getAttribute('wfb_version'),
                     'wfb_script_name' => $xbehaviour->getAttribute('wfb_script_name'),
                     'wfb_auto' => $xbehaviour->getAttribute('wfb_auto'),
-                );
-            	$elist = WF_Behaviour::getList($where="WHERE wfb_script_name='".$xscript."'");
-                if (!empty($elist)) {
-                    $feedback[] = "Overwriting behaviour ".$xtitle;
-                    $dbid = $elist[0]['wfb_id'];
-                    WF_Behaviour::update($dbid, $params);
-                } else {
-                    $feedback[] = "Importing new behaviour ".$xtitle;
-                    $dbid = WF_Behaviour::insert($params);
-                }
-            
-            $behaviour_id_map[$xid] = $dbid;
+			);
+			$elist = WF_Behaviour::getList($where="WHERE wfb_script_name='".$xscript."'");
+			if (!empty($elist)) {
+				$feedback[] = "Overwriting behaviour ".$xtitle;
+				$dbid = $elist[0]['wfb_id'];
+				WF_Behaviour::update($dbid, $params);
+			} else {
+				$feedback[] = "Importing new behaviour ".$xtitle;
+				$dbid = WF_Behaviour::insert($params);
+			}
+
+			$behaviour_id_map[$xid] = $dbid;
 		}
-        return $behaviour_id_map;
+		return $behaviour_id_map;
 	}
-	
-	
+
+
 
 }
-
-// benchmarking the included file (aka setup time)
-if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
-    $GLOBALS['bench']->setMarker('Included Doc_Type_XSD Class');
-}
-?>

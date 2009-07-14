@@ -35,27 +35,25 @@ include_once(APP_INC_PATH.'class.background_process.php');
 
 class BackgroundProcess_Create_SearchKey extends BackgroundProcess
 {
-    function __construct() 
-    {
-        parent::__construct();
-        $this->include = 'class.bgp_create_searchkey.php';
-        $this->name = 'Create search key table/column';
-    }
+	function __construct()
+	{
+		parent::__construct();
+		$this->include = 'class.bgp_create_searchkey.php';
+		$this->name = 'Create search key table/column';
+	}
 
-    function run()
-    {
-        $this->setState(1);
-        extract(unserialize($this->inputs));
-        $success = Search_Key::createSearchKeyDB($sek_id);
+	function run()
+	{
+		$this->setState(1);
+		extract(unserialize($this->inputs));
+		$success = Search_Key::createSearchKeyDB($sek_id);
 
-        if( $success ) {
-            $this->setStatus("SQL ran successfully");
-        } else {
-            $this->setStatus("SQL failed. Please run manually");
-        }
-        
-        $this->setState(2);
-    }
+		if( $success ) {
+			$this->setStatus("SQL ran successfully");
+		} else {
+			$this->setStatus("SQL failed. Please run manually");
+		}
+
+		$this->setState(2);
+	}
 }
-
-?>

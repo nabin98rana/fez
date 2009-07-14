@@ -40,5 +40,3 @@ $tpl->setTemplate("history.tpl.html");
 $tpl->assign("changes", History::getListing($_GET["pid"]));
 
 $tpl->displayTemplate();
-?>
-

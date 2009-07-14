@@ -39,7 +39,7 @@
  * without having to rewrite all PHP based scripts.
  *
  * @version 1.0
- * @author Jo�o Prado Maia <jpm@mysql.com>
+ * @author Joo Prado Maia <jpm@mysql.com>
  */
 
 require_once(APP_PEAR_PATH . "Net/UserAgent/Detect.php");
@@ -55,157 +55,160 @@ include_once(APP_INC_PATH . "najax_objects/class.session.php");
 
 class Template_API
 {
-    var $smarty;
-    var $tpl_name = "";
-    var $headerscript;
-    var $najax_register;
+	var $smarty;
+	var $tpl_name = "";
+	var $headerscript;
+	var $najax_register;
 
-    /**
-     * Constructor of the class
-     *
-     * @access public
-     */
-    function Template_API()
-    {
-        if (!defined('APP_CURRENT_LANG')) {
-            DEFINE("APP_CURRENT_LANG", "en");
-        }
-        $this->smarty = new Smarty;
-        $this->smarty->template_dir = APP_PATH . "templates/" . APP_CURRENT_LANG;
-        $this->smarty->compile_dir = APP_PATH . "templates_c";
-        $this->smarty->config_dir = '';
+	/**
+	 * Constructor of the class
+	 *
+	 * @access public
+	 */
+	function Template_API()
+	{
+		if (!defined('APP_CURRENT_LANG')) {
+			DEFINE("APP_CURRENT_LANG", "en");
+		}
+		$this->smarty = new Smarty;
+		$this->smarty->template_dir = APP_PATH . "templates/" . APP_CURRENT_LANG;
+		$this->smarty->compile_dir = APP_PATH . "templates_c";
+		$this->smarty->config_dir = '';
 
 		$custom_view_pid = $_GET['custom_view_pid'];
 		if (!empty($custom_view_pid)) {
 			$customView = Custom_View::getCommCview($custom_view_pid);
-            if($customView) {
+			if($customView) {
 				$this->smarty->custom_view_dir = $customView['cview_id'];
 			}
 		}
 
-    }
+	}
 
 
-    /**
-     * Sets the internal template filename for the current PHP script
-     *
-     * @access public
-     * @param  string $tpl_name The filename of the template
-     */
-    function setTemplate($tpl_name)
-    {
+	/**
+	 * Sets the internal template filename for the current PHP script
+	 *
+	 * @access public
+	 * @param  string $tpl_name The filename of the template
+	 */
+	function setTemplate($tpl_name)
+	{
 		$_curr_path = $this->smarty->template_dir;
-	    $_fullpath = $_curr_path . "/". $this->smarty->custom_view_dir. "/" .  $tpl_name;
-	    if (file_exists($_fullpath) && is_file($_fullpath)) {
+		$_fullpath = $_curr_path . "/". $this->smarty->custom_view_dir. "/" .  $tpl_name;
+		if (file_exists($_fullpath) && is_file($_fullpath)) {
 			$tpl_name = $_fullpath;
 		}
 		$this->tpl_name = $tpl_name;
-    }
+	}
 
 
-    /**
-     * Assigns variables to specific placeholders on the target template
-     *
-     * @access public
-     * @param  string $var_name Placeholder on the template
-     * @param  string $value Value to be assigned to this placeholder
-     */
-    function assign($var_name, $value = "")
-    {
-        if (!is_array($var_name)) {
-            $this->smarty->assign($var_name, $value);
-        } else {
-            $this->smarty->assign($var_name);
-        }
-    }
+	/**
+	 * Assigns variables to specific placeholders on the target template
+	 *
+	 * @access public
+	 * @param  string $var_name Placeholder on the template
+	 * @param  string $value Value to be assigned to this placeholder
+	 */
+	function assign($var_name, $value = "")
+	{
+		if (!is_array($var_name)) {
+			$this->smarty->assign($var_name, $value);
+		} else {
+			$this->smarty->assign($var_name);
+		}
+	}
 
 
-    /**
-     * Assigns variables to specific placeholders on the target template
-     *
-     * @access public
-     * @param  array $array Array with the PLACEHOLDER=>VALUE pairs to be assigned
-     */
-    function bulkAssign($array)
-    {
-        while (list($key, $value) = each($array)) {
-            $this->smarty->assign($key, $value);
-        }
-    }
+	/**
+	 * Assigns variables to specific placeholders on the target template
+	 *
+	 * @access public
+	 * @param  array $array Array with the PLACEHOLDER=>VALUE pairs to be assigned
+	 */
+	function bulkAssign($array)
+	{
+		while (list($key, $value) = each($array)) {
+			$this->smarty->assign($key, $value);
+		}
+	}
 
 
-    /**
-     * Prints the actual parsed template.
-     *
-     * @access public
-     */
-    function displayTemplate()
-    {
-        if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
-            // stop the benchmarking
-            $GLOBALS["bench"]->stop();
-            $profiling = $GLOBALS["bench"]->getProfiling();
-            // last minute check on the benchmarking results
-            $this->assign(array("benchmark_total" => sprintf("%.4f", $profiling[count($profiling)-1]["total"]),
+	/**
+	 * Prints the actual parsed template.
+	 *
+	 * @access public
+	 */
+	function displayTemplate()
+	{
+		if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
+			// stop the benchmarking
+			$GLOBALS["bench"]->stop();
+			$profiling = $GLOBALS["bench"]->getProfiling();
+			// last minute check on the benchmarking results
+			$this->assign(array("benchmark_total" => sprintf("%.4f", $profiling[count($profiling)-1]["total"]),
                                 "benchmark_results" => base64_encode(serialize($profiling))));
-        }
+		}
 
-        $this->processTemplate();
-        // finally display the parsed template
-        $this->smarty->display($this->tpl_name);
-    }
+		$this->processTemplate();
+		// finally display the parsed template
+		$this->smarty->display($this->tpl_name);
+		
+		FezLog::get()->close();
+	}
 
-    /**
-     * Prints the actual parsed template.
-     *
-     * @access public
-     */
-    function displayTemplateRecord($record_id)
-    {
-        if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
-            // stop the benchmarking
-            $GLOBALS["bench"]->stop();
-            $profiling = $GLOBALS["bench"]->getProfiling();
-            // last minute check on the benchmarking results
-            $this->assign(array("benchmark_total" => sprintf("%.4f", $profiling[count($profiling)-1]["total"]),
+	/**
+	 * Prints the actual parsed template.
+	 *
+	 * @access public
+	 */
+	function displayTemplateRecord($record_id)
+	{
+		if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
+			// stop the benchmarking
+			$GLOBALS["bench"]->stop();
+			$profiling = $GLOBALS["bench"]->getProfiling();
+			// last minute check on the benchmarking results
+			$this->assign(array("benchmark_total" => sprintf("%.4f", $profiling[count($profiling)-1]["total"]),
                                 "benchmark_results" => base64_encode(serialize($profiling))));
-        }
-        $this->processTemplateRecord($record_id);
-        // finally display the parsed template
-        $this->smarty->display($this->tpl_name);
-    }
+		}
+		$this->processTemplateRecord($record_id);
+		// finally display the parsed template
+		$this->smarty->display($this->tpl_name);
+		FezLog::get()->close();
+	}
 
 
-    /**
-     * Returns the contents of the parsed template
-     *
-     * @access public
-     * @return string The contents of the parsed template
-     */
-    function getTemplateContents()
-    {
-        $this->processTemplate();
-        return $this->smarty->fetch($this->tpl_name);
-    }
+	/**
+	 * Returns the contents of the parsed template
+	 *
+	 * @access public
+	 * @return string The contents of the parsed template
+	 */
+	function getTemplateContents()
+	{
+		$this->processTemplate();
+		return $this->smarty->fetch($this->tpl_name);
+	}
 
 
-    /**
-     * Processes the template and assigns common variables automatically.
-     * 
-     * @access	private
-     */
-    function processTemplate()
-    {
-        // determine the correct CSS file to use
-        if (ereg('MSIE ([0-9].[0-9]{1,2})', $_SERVER["HTTP_USER_AGENT"], $log_version)) {
-            $user_agent = 'ie';
-        } else {
-            $user_agent = 'other';
-        }
-        $this->assign("user_agent", $user_agent);
-        // create the list of collections
-        $username = Auth::getUsername();
-        if ($username != '') {
+	/**
+	 * Processes the template and assigns common variables automatically.
+	 *
+	 * @access	private
+	 */
+	function processTemplate()
+	{
+		// determine the correct CSS file to use
+		if (ereg('MSIE ([0-9].[0-9]{1,2})', $_SERVER["HTTP_USER_AGENT"], $log_version)) {
+			$user_agent = 'ie';
+		} else {
+			$user_agent = 'other';
+		}
+		$this->assign("user_agent", $user_agent);
+		// create the list of collections
+		$username = Auth::getUsername();
+	        if ($username != '') {
 			$authorDetails = Author::getDetailsByUsername($username);
 			if (is_numeric($authorDetails['aut_id'])) {
 				$isAuthor = 1;
@@ -225,53 +228,53 @@ class Template_API
             $this->assign("current_email", Auth::getUserEmail());
             $this->assign("current_user_id", Auth::getUserID());
         }
-        
-        $isAdministrator = Auth::isAdministrator();
-        $this->assign("isAdministrator", $isAdministrator);
+
+		$isAdministrator = Auth::isAdministrator();
+		$this->assign("isAdministrator", $isAdministrator);
 		$custom_view_pid = $_GET['custom_view_pid'];
 		if (!empty($custom_view_pid)) {
 			$customView = Custom_View::getCommCview($custom_view_pid);
-            if ($customView) {
+			if ($customView) {
 				$cv_title = Record::getSearchKeyIndexValue($custom_view_pid, "Title", false);
-                $this->assign('cv_id',   $customView['cview_id']);
-                $this->assign('cv_pid',   $custom_view_pid);
-            }
+				$this->assign('cv_id',   $customView['cview_id']);
+				$this->assign('cv_pid',   $custom_view_pid);
+			}
 		}
 
 
-		
-        $this->assign("start_date", date('Y-m-d', mktime(0,0,0,1,1,date('Y'))));
-        $this->assign("end_date", date('Y-m-d', mktime(0,0,0,12,31,date('Y'))));
-        
-        $this->assign("app_path", APP_PATH);
-        $this->assign("app_setup", Setup::load());
-        $this->assign("app_setup_path", APP_SETUP_PATH);
-        $this->assign("app_setup_file", APP_SETUP_FILE);
-        $this->assign('app_analytics_switch', APP_ANALYTICS_SWITCH);
-        $this->assign('app_analytics_id', APP_ANALYTICS_ID);
-        
-        $this->assign("ldap_switch", LDAP_SWITCH);
-        $this->assign("application_version", APP_VERSION);
-		
+
+		$this->assign("start_date", date('Y-m-d', mktime(0,0,0,1,1,date('Y'))));
+		$this->assign("end_date", date('Y-m-d', mktime(0,0,0,12,31,date('Y'))));
+
+		$this->assign("app_path", APP_PATH);
+		$this->assign("app_setup", Setup::load());
+		$this->assign("app_setup_path", APP_SETUP_PATH);
+		$this->assign("app_setup_file", APP_SETUP_FILE);
+		$this->assign('app_analytics_switch', APP_ANALYTICS_SWITCH);
+		$this->assign('app_analytics_id', APP_ANALYTICS_ID);
+
+		$this->assign("ldap_switch", LDAP_SWITCH);
+		$this->assign("application_version", APP_VERSION);
+
 
 		if (is_array($customView)) {
-			$this->assign("application_title", $cv_title);			
+			$this->assign("application_title", $cv_title);
 		} else {
 			$this->assign("application_title", APP_NAME);
-			
+				
 		}
 		$this->assign("app_name", APP_NAME);
-        $this->assign("org_name", APP_ORG_NAME);
-        $this->assign("org_short_name", APP_SHORT_ORG_NAME);
-        $this->assign("app_base_url", APP_BASE_URL);
-        $this->assign("rel_url", APP_RELATIVE_URL);
-        $this->assign("uri_encoded", base64_encode($_SERVER['REQUEST_URI']));
-        $this->assign("lang", APP_CURRENT_LANG);
+		$this->assign("org_name", APP_ORG_NAME);
+		$this->assign("org_short_name", APP_SHORT_ORG_NAME);
+		$this->assign("app_base_url", APP_BASE_URL);
+		$this->assign("rel_url", APP_RELATIVE_URL);
+		$this->assign("uri_encoded", base64_encode($_SERVER['REQUEST_URI']));
+		$this->assign("lang", APP_CURRENT_LANG);
 		$this->assign("app_earliest_input_year", APP_EARLIEST_INPUT_YEAR);
-		$this->assign("SELF_REGISTRATION", SELF_REGISTRATION);					
-		$this->assign("WEBSERVER_LOG_STATISTICS", WEBSERVER_LOG_STATISTICS);		
-		$this->assign("APP_HERDC_INTEGRITY_REPORTS", APP_HERDC_INTEGRITY_REPORTS);		
-        $this->assign("SID", SID);
+		$this->assign("SELF_REGISTRATION", SELF_REGISTRATION);
+		$this->assign("WEBSERVER_LOG_STATISTICS", WEBSERVER_LOG_STATISTICS);
+		$this->assign("APP_HERDC_INTEGRITY_REPORTS", APP_HERDC_INTEGRITY_REPORTS);
+		$this->assign("SID", SID);
 		$this->assign("SHIB_SWITCH", SHIB_SWITCH);
 		$this->assign("SHIB_DIRECT_LOGIN", SHIB_DIRECT_LOGIN);
 		if (is_array($customView)) {
@@ -279,21 +282,21 @@ class Template_API
 		} else {
 			$this->assign("APP_HOSTNAME", APP_HOSTNAME);
 		}
-        $this->assign("APP_CLOUD_TAG", APP_CLOUD_TAG);
+		$this->assign("APP_CLOUD_TAG", APP_CLOUD_TAG);
 		$this->assign("SHIB_HOME_SP", SHIB_HOME_SP);
 		$this->assign("SHIB_HOME_IDP", SHIB_HOME_IDP);
 		$this->assign("SHIB_FEDERATION_NAME", SHIB_FEDERATION_NAME);
-        
-        if (count(Error_Handler::$app_errors) > 0) {
-        	if ((APP_DISPLAY_ERRORS_USER == 1) && ($isAdministrator)) {
-	            $this->assign('app_errors', Error_Handler::$app_errors);
-	            $this->assign('has_app_errors', true);
-        	} elseif (APP_DISPLAY_ERRORS_USER == 2)  {
-	            $this->assign('app_errors', Error_Handler::$app_errors);
-	            $this->assign('has_app_errors', true);        		
-        	}
-        }
-				
+
+		if (count(Error_Handler::$app_errors) > 0) {
+			if ((APP_DISPLAY_ERRORS_USER == 1) && ($isAdministrator)) {
+				$this->assign('app_errors', Error_Handler::$app_errors);
+				$this->assign('has_app_errors', true);
+			} elseif (APP_DISPLAY_ERRORS_USER == 2)  {
+				$this->assign('app_errors', Error_Handler::$app_errors);
+				$this->assign('has_app_errors', true);
+			}
+		}
+
 		if (@$_REQUEST['getArguments']){
 			$getArguments = $_REQUEST['getArguments'];
 		} else {
@@ -305,19 +308,19 @@ class Template_API
 		}
 		$this->assign("getArguments", $getArguments);
 
-        // now for the browser detection stuff
-        Net_UserAgent_Detect::detect();
-        $this->assign("browser", Net_UserAgent_Detect::_getStaticProperty('browser'));
-        $this->assign("os", Net_UserAgent_Detect::_getStaticProperty('os'));
+		// now for the browser detection stuff
+		Net_UserAgent_Detect::detect();
+		$this->assign("browser", Net_UserAgent_Detect::_getStaticProperty('browser'));
+		$this->assign("os", Net_UserAgent_Detect::_getStaticProperty('os'));
 
-        // this is only used by the textarea resize script
-        $js_script_name = str_replace('/', '_', str_replace('.php', '', $_SERVER['PHP_SELF']));
-        $this->assign("js_script_name", $js_script_name);
+		// this is only used by the textarea resize script
+		$js_script_name = str_replace('/', '_', str_replace('.php', '', $_SERVER['PHP_SELF']));
+		$this->assign("js_script_name", $js_script_name);
 
-        $this->assign("total_queries", $GLOBALS['TOTAL_QUERIES']);
+		$this->assign("total_queries", $GLOBALS['TOTAL_QUERIES']);
 
-        $this->assign(array(
-            //"shaded_bar"     => "background='".APP_RELATIVE_URL."images/".APP_SHADED_BAR."'",
+		$this->assign(array(
+		//"shaded_bar"     => "background='".APP_RELATIVE_URL."images/".APP_SHADED_BAR."'",
             "heading_color"  => APP_HEADING_COLOR,
             "value_color"    => APP_VALUE_COLOR,
             "cell_color"     => APP_CELL_COLOR,
@@ -327,63 +330,56 @@ class Template_API
             "dark_color"     => APP_DARK_COLOR,
             "cycle"          => APP_CYCLE_COLORS,
             "internal_color" => APP_INTERNAL_COLOR
-        ));
-        $this->assign('phpini_upload_max_filesize', Misc::convertSize(ini_get('upload_max_filesize')));
+		));
+		$this->assign('phpini_upload_max_filesize', Misc::convertSize(ini_get('upload_max_filesize')));
 
-        $this->registerNajax(NAJAX_Client::register('Session', APP_RELATIVE_URL.'ajax.php'));
-        $this->onload("getFlashMessage();");
-        
-        $this->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));
-        $this->assign('najax_register', $this->najax_register);
-        $this->assign('headerscript', $this->headerscript);
-        $this->assign('generated_time', date('Y-m-d H:i:s'));
-        
-    }
-    
-    function registerNajax($najax)
-    {
-    	$this->najax_register .= "\n$najax\n";
-    }
-    
-    function onload($onload)
-    {
-    	$this->headerscript .= "\n$onload\n";
-    }
+		$this->registerNajax(NAJAX_Client::register('Session', APP_RELATIVE_URL.'ajax.php'));
+		$this->onload("getFlashMessage();");
+
+		$this->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));
+		$this->assign('najax_register', $this->najax_register);
+		$this->assign('headerscript', $this->headerscript);
+		$this->assign('generated_time', date('Y-m-d H:i:s'));
+
+	}
+
+	function registerNajax($najax)
+	{
+		$this->najax_register .= "\n$najax\n";
+	}
+
+	function onload($onload)
+	{
+		$this->headerscript .= "\n$onload\n";
+	}
 
 
 
-    /**
-     * Processes the template and assigns common variables automatically.
-     * 
-     * @access	private
-     */
-    function processTemplateRecord($record_id)
-    {
-    	$this->processTemplate();
-    }
+	/**
+	 * Processes the template and assigns common variables automatically.
+	 *
+	 * @access	private
+	 */
+	function processTemplateRecord($record_id)
+	{
+		$this->processTemplate();
+	}
 
-    /**
-     * setAuthVars
-     * Set template variables for the headers of the fez pages to display the right menus for an adminsitrator etc...
-     */
-    function setAuthVars()
-    {
-        $username = Auth::getUsername();
-        $this->assign("isUser", $username);
-        $isAdministrator = User::isUserAdministrator($username);
-        $isSuperAdministrator = User::isUserSuperAdministrator($username);
-        if (Auth::userExists($username)) { // if the user is registered as a Fez user
-            $this->assign("isFezUser", $username);
-        }
-        $this->assign("isAdministrator", $isAdministrator);
-        $this->assign("isSuperAdministrator", $isSuperAdministrator);
-    }
+	/**
+	 * setAuthVars
+	 * Set template variables for the headers of the fez pages to display the right menus for an adminsitrator etc...
+	 */
+	function setAuthVars()
+	{
+		$username = Auth::getUsername();
+		$this->assign("isUser", $username);
+		$isAdministrator = User::isUserAdministrator($username);
+		$isSuperAdministrator = User::isUserSuperAdministrator($username);
+		if (Auth::userExists($username)) { // if the user is registered as a Fez user
+			$this->assign("isFezUser", $username);
+		}
+		$this->assign("isAdministrator", $isAdministrator);
+		$this->assign("isSuperAdministrator", $isSuperAdministrator);
+	}
 
 }
-
-
-// benchmarking the included file (aka setup time)
-if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
-    $GLOBALS['bench']->setMarker('Included Template Class');
-}
-?>

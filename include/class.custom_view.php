@@ -46,14 +46,19 @@ class Custom_View
     
     function getList()
     {
-        $stmt = "SELECT *
+        $log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "SELECT *
                  FROM " . APP_TABLE_PREFIX . "custom_views";
         
-        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } 
+		try {
+			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
         
         if (empty($res)) {
             return array();
@@ -64,16 +69,20 @@ class Custom_View
     
     function getCviewList()
     {
-        $stmt = "SELECT *
+        $log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "SELECT *
                  FROM " . APP_TABLE_PREFIX . "custom_views_community
                  LEFT JOIN " . APP_TABLE_PREFIX . "custom_views as sk ON cview_id = cvcom_cview_id
                  LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key ON rek_pid = cvcom_com_pid";
-        
-        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } 
+    	try {
+			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
         
         if (empty($res)) {
             return array();
@@ -84,67 +93,81 @@ class Custom_View
     
     function getDetails($cview_id)
     {
+    	$log = FezLog::get();
+		$db = DB_API::get();
+		
         $stmt = "SELECT *
                  FROM " . APP_TABLE_PREFIX . "custom_views
-                 WHERE cview_id = ". $cview_id;
-        
-        $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            return $res;
-        }
+                 WHERE cview_id = ?";
+    	try {
+			$res = $db->fetchRow($stmt, array($cview_id), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+		return $res;
     }
     
     function getCviewSekDetails($cvsk_id)
     {
-        $stmt = "SELECT *
+        $log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "SELECT *
                  FROM " . APP_TABLE_PREFIX . "custom_views_search_keys
-                 WHERE cvsk_id = ". $cvsk_id;
-        
-        $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            return $res;
-        }
+                 WHERE cvsk_id = ?";
+    	try {
+			$res = $db->fetchRow($stmt, array($cvsk_id), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+		
+		return $res;
     }
     
     function getCommCviewDetails($cvcom_id)
     {
+    	$log = FezLog::get();
+		$db = DB_API::get();
+		
         $stmt = "SELECT *
                  FROM " . APP_TABLE_PREFIX . "custom_views_community
-                 WHERE cvcom_id = ". $cvcom_id;
-        
-        $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            return $res;
-        }
+                 WHERE cvcom_id = ?";
+    	try {
+			$res = $db->fetchRow($stmt, array($cvcom_id), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+        return $res;
     }
     
     function getSekList($cvsk_cview_id)
     {
+    	$log = FezLog::get();
+		$db = DB_API::get();
+		
         $stmt = "SELECT cvsk.*, sk.*
                  FROM " . APP_TABLE_PREFIX . "custom_views_search_keys as cvsk
                  LEFT JOIN " . APP_TABLE_PREFIX . "search_key as sk ON cvsk.cvsk_sek_id = sk.sek_id
-                 WHERE cvsk.cvsk_cview_id = ". $cvsk_cview_id .
+                 WHERE cvsk.cvsk_cview_id = ?".
                  " ORDER BY cvsk.cvsk_order";
-        
-        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
+		try {
+			$res = $db->fetchAll($stmt, array($cvsk_cview_id), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
 	
-	        if (empty($res)) {
-                return array();
-            } else {
-	          for ($i = 0; $i < count($res); $i++) {
+        if (empty($res)) {
+            return array();
+        } else {
+	        for ($i = 0; $i < count($res); $i++) {
 				if ($res[$i]["cvsk_sek_name"] != "") {
 					$res[$i]["sek_alt_title"] = $res[$i]["cvsk_sek_name"];
 				}
@@ -152,53 +175,57 @@ class Custom_View
 					$res[$i]["sek_desc"] = $res[$i]["cvsk_sek_desc"];
 				}
 				$res[$i]["field_options"] = Search_Key::getOptions($res[$i]["sek_smarty_variable"]);
-	          }	
-	          return $res;            	
-            }
-        
+          	}	
+          return $res;            	
         }
     }
     
     
     function getCommCview($community_pid)
     {
+    	$log = FezLog::get();
+		$db = DB_API::get();
+		
         $stmt = "SELECT *
                  FROM " . APP_TABLE_PREFIX . "custom_views
                  LEFT JOIN " . APP_TABLE_PREFIX . "custom_views_community ON cvcom_cview_id = cview_id
-                 WHERE cvcom_com_pid = '". $community_pid . "'";
+                 WHERE cvcom_com_pid = ?";
         
-        $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            return $res;
-        }
+    	try {
+			$res = $db->fetchRow($stmt, array($community_pid), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+        return $res;
     }
     
     function insert()
     {
+    	$log = FezLog::get();
+		$db = DB_API::get();
+		
         $stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "custom_views
                  (
                     cview_name
-                 ) VALUES (
-                    '" . Misc::escapeString($_POST["cview_name"]) . "'
-                 )";
-		
-		$res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return -1;
-        } else {
-            
-           return 1;
-                       
-        }
+                 ) VALUES (?)";
+		try {
+			$db->query($stmt, array($_POST["cview_name"]));
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return -1;
+		}		
+		return 1;
     }
     
     function insertCviewSek()
     {
+    	$log = FezLog::get();
+		$db = DB_API::get();
+		
         $stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "custom_views_search_keys
                  (
@@ -206,26 +233,22 @@ class Custom_View
                     cvsk_sek_id,
                     cvsk_sek_name,
                     cvsk_sek_desc
-                 ) VALUES (
-                    '" . Misc::escapeString($_POST["cview_id"]) . "',
-					'" . Misc::escapeString($_POST["cvsk_sek_id"]) . "',
-					'" . Misc::escapeString($_POST["cvsk_sek_name"]) . "',
-					'" . Misc::escapeString($_POST["cvsk_sek_desc"]) . "'
-                 )";
-		
-		$res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return -1;
-        } else {
-            
-           return 1;
-                       
-        }
+                 ) VALUES (?,?,?,?)";
+    	try {
+			$db->query($stmt, array($_POST["cview_id"], $_POST["cvsk_sek_id"], $_POST["cvsk_sek_name"], $_POST["cvsk_sek_desc"]));
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return -1;
+		}
+		return 1;
     }
     
     function insertCview() 
     {
+    	$log = FezLog::get();
+		$db = DB_API::get();
+		
         $stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "custom_views_community
                  (
@@ -233,150 +256,160 @@ class Custom_View
                     cvcom_hostname,
                     cvcom_com_pid,
 					cvcom_default_template
-                 ) VALUES (
-                    '" . Misc::escapeString($_POST["cview_id"]) . "',
-                    '" . Misc::escapeString($_POST["hostname"]) . "',
-					'" . Misc::escapeString($_POST["comm_pid"]) . "',
-					'" . Misc::escapeString($_POST["default_template"]) . "'
-                 )";
-        
-		$res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return -1;
-        } else {
-            
-           return 1;
-                       
-        }
+                 ) VALUES (?,?,?,?)";
+    	try {
+			$db->query($stmt, array($_POST["cview_id"], $_POST["hostname"], $_POST["comm_pid"], $_POST["default_template"]));
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return -1;
+		}
+		return 1;
     }
     
     function update($cview_id)
     {
-        $stmt = "UPDATE " . APP_TABLE_PREFIX . "custom_views
+        $log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "UPDATE " . APP_TABLE_PREFIX . "custom_views
                  SET 
-                    cview_name = '" . Misc::escapeString($_POST["cview_name"]) . "'
-				 WHERE cview_id = ".$cview_id;
-
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return -1;
-        } else {
-            
-            return 1;
-            
-        }
+                    cview_name = ? WHERE cview_id = ?";
+    	try {
+			$db->query($stmt, array($_POST["cview_name"], $cview_id));
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return -1;
+		}
+		return 1;
     }
     
     
     function updateCviewSekDetails($cvsk_id)
     {
+    	$log = FezLog::get();
+		$db = DB_API::get();
+		
         $stmt = "UPDATE " . APP_TABLE_PREFIX . "custom_views_search_keys
                  SET 
-                    cvsk_sek_id = '" . Misc::escapeString($_POST["cvsk_sek_id"]) . "',
-					cvsk_sek_name = '" . Misc::escapeString($_POST["cvsk_sek_name"]) . "',
-					cvsk_sek_desc = '" . Misc::escapeString($_POST["cvsk_sek_desc"]) . "'
-				 WHERE cvsk_id = ".$cvsk_id;
-        
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return -1;
-        } else {
-            
-            return 1;
-            
-        }
+                    cvsk_sek_id = ?,
+					cvsk_sek_name = ?,
+					cvsk_sek_desc = ?
+				 WHERE cvsk_id = ?";
+    	try {
+			$db->query($stmt, array($_POST["cvsk_sek_id"], $_POST["cvsk_sek_name"], $_POST["cvsk_sek_desc"], $cvsk_id));
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return -1;
+		}
+		return 1;
     }
 
 
     function searchKeyUsedCview($sek_id)
     {
+    	$log = FezLog::get();
+		$db = DB_API::get();
+		
         $stmt = "SELECT cvsk_sek_id FROM " . APP_TABLE_PREFIX . "custom_views_search_keys
-				 WHERE cvsk_sek_id = '".$sek_id."'";
+				 WHERE cvsk_sek_id = ?";
         
-        $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return -1;
-        } else {
-            if (count($res) != 0) {
-            	return 1;
-			} else {
-				return 0;
-			}
-        }
+		try {
+			$res = $db->fetchCol($stmt, array($sek_id));
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return -1;
+		}
+
+		if (count($res) != 0) {
+            return 1;
+		} else {
+			return 0;
+		}
     }
     
     
     function updateCommCview($cvcom_id)
     {
+    	$log = FezLog::get();
+		$db = DB_API::get();
+		
         $stmt = "UPDATE " . APP_TABLE_PREFIX . "custom_views_community
                  SET 
-                    cvcom_cview_id = '" . Misc::escapeString($_POST["cview_id"]) . "',
-                    cvcom_hostname = '" . Misc::escapeString($_POST["hostname"]) . "',
-                    cvcom_default_template = '" . Misc::escapeString($_POST["default_template"]) . "',
-					cvcom_com_pid = '" . Misc::escapeString($_POST["comm_pid"]) . "'
-				 WHERE cvcom_id = ".$cvcom_id;
-        
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return -1;
-        } else {
-            
-            return 1;
-            
-        }
+                    cvcom_cview_id = ?,
+                    cvcom_hostname = ?,
+                    cvcom_default_template = ?,
+					cvcom_com_pid = ?
+				 WHERE cvcom_id = ?";
+    	try {
+			$db->query($stmt, array($_POST["cview_id"], $_POST["hostname"], $_POST["default_template"],
+									$_POST["comm_pid"], $cvcom_id));
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return -1;
+		}
+        return 1;
     }
     
     function remove()
     {
-        $items = @implode("', '", $_POST["items"]);
-        $stmt = "DELETE FROM
+    	$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "custom_views
                  WHERE
-                    cview_id IN ('".$items."')";
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return false;
-        } else {
-		  return true;
-        }
+                    cview_id IN (".Misc::arrayToSQLBindStr($_POST["items"]).")";
+    	try {
+			$db->query($stmt, $_POST["items"]);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return false;
+		}        
+		return true;
     }
     
     function removeCview()
     {
-        $items = @implode("', '", $_POST["items"]);
+    	$log = FezLog::get();
+		$db = DB_API::get();
+		
         $stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "custom_views_community
                  WHERE
-                    cvcom_id IN ('".$items."')";
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return false;
-        } else {
-		  return true;
-        }
+                    cvcom_id IN (".Misc::arrayToSQLBindStr($_POST["items"]).")";
+        try {
+			$db->query($stmt, $_POST["items"]);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return false;
+		}        
+		return true;
     }
     
     function removeCviewSekKey()
     {
-        $items = @implode("', '", $_POST["items"]);
+        $log = FezLog::get();
+		$db = DB_API::get();
+		
         $stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "custom_views_search_keys
                  WHERE
-                    cvsk_id IN ('".$items."')";
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return false;
-        } else {
-		  return true;
-        }
+                    cvsk_id IN (".Misc::arrayToSQLBindStr($_POST["items"]).")";
+        try {
+			$db->query($stmt, $_POST["items"]);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return false;
+		}        
+		return true;
     }
 }
 

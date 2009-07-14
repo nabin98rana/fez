@@ -8,14 +8,14 @@ define("DATASTREAM_DESCRIPTION", "Relationships between datastreams");
  *
  * This datatastream is used to capture relationships between master datstreams and derived
  * datastreams.
- * 
+ *
  * @author Matt Painter <matthew.painter@archives.govt.nz>
  */
 class RelsInt {
 
 	/**
-	 * Returns the next available datastream identifier 
-	 * 
+	 * Returns the next available datastream identifier
+	 *
 	 * Datastream identifiers for file attachments are assumed to be in the format
 	 * Prefix1, Prefix2, ... PrefixN
 	 *
@@ -23,7 +23,8 @@ class RelsInt {
 	 * @param $existingIDs array of existing datastreams in the record
 	 * @return next available attachment datastream ID
 	 */
-	function getNextAvailableID($prefix, $existingIDs) {
+	function getNextAvailableID($prefix, $existingIDs) 
+	{
 		$index = 1;
 
 		while (in_array($prefix.$index, $existingIDs)) {
@@ -39,7 +40,8 @@ class RelsInt {
 	 * @param $pid PID of record to retrieve datastream for
 	 * @return RELS-INT datastream XML
 	 */
-	function getRelsIntDatastream($pid) {
+	function getRelsIntDatastream($pid) 
+	{
 
 		// Silently return null if the RELS-INT datastream doesn't exist
 		if (!Fedora_API::datastreamExists($pid, 'RELS-INT')) {
@@ -58,7 +60,8 @@ class RelsInt {
 	 * @param $datastreamXml RELS-INT XML of the record
 	 * @return array of master datastream IDs
 	 */
-	function getDatastreamIDs($datastreamXml) {
+	function getDatastreamIDs($datastreamXml) 
+	{
 
 		if ($datastreamXml == null) {
 			return array();
@@ -79,14 +82,15 @@ class RelsInt {
 		return array_keys($ids);
 
 	}
-	
+
 	/**
 	 * Returns a flat array of the identifiers of derived datastreams of a record
-	 * 
+	 *
 	 * @param $datastreamXml RELS-INT datastream containing relationships
 	 * @return array of derived datastream IDs
 	 */
-	function getRelatedIDs($datastreamXml) {
+	function getRelatedIDs($datastreamXml) 
+	{
 		if ($datastreamXml == null) return array();
 
 		$doc = DOMDocument::loadXML($datastreamXml);
@@ -109,13 +113,14 @@ class RelsInt {
 	}
 
 	/**
-	 * Return the master datastream ID for a given related ID 
-	 * 
+	 * Return the master datastream ID for a given related ID
+	 *
 	 * @param $dsID related ID to retrieve master ID for
 	 * @param $datastreamXml RELS-INT datastream
 	 * @return master datastream identifier
 	 */
-	function getParentDatastreamID($dsID, $datastreamXml) {
+	function getParentDatastreamID($dsID, $datastreamXml) 
+	{
 		$doc = DOMDocument::loadXML($datastreamXml);
 		$xpath = new DOMXPath($doc);
 
@@ -129,16 +134,17 @@ class RelsInt {
 		return $nodes->item(0)->parentNode->getAttribute("id");
 	}
 
-	
+
 	/**
-	 * Returns an array of IDs of derived datastreams for a given master 
+	 * Returns an array of IDs of derived datastreams for a given master
 	 * datastream identifier.
 	 *
-	 * @param $dsID master datastream identifier 
+	 * @param $dsID master datastream identifier
 	 * @param $datastreamXml RElS-INT datastream
 	 * @return array of related datastream identifiers
 	 */
-	function getRelatedDatastreamIDs($dsID, $datastreamXml) {
+	function getRelatedDatastreamIDs($dsID, $datastreamXml) 
+	{
 		$doc = DOMDocument::loadXML($datastreamXml);
 		$xpath = new DOMXPath($doc);
 
@@ -157,14 +163,15 @@ class RelsInt {
 	 * Returns a single derived datastream ID for a given master datastream
 	 * identifier and a key
 	 *
-	 * @param $dsID master datastream identifier 
+	 * @param $dsID master datastream identifier
 	 * @param key of identifier to retrieve
 	 * @param $datastreamXml RElS-INT datastream
 	 * @return related datastream identifier
 	 */
 
-	function getRelatedDatastreamID($dsID, $key, $datastreamXml) {
-		
+	function getRelatedDatastreamID($dsID, $key, $datastreamXml) 
+	{
+
 		if ($datastreamXml == null) {
 			return null;
 		}
@@ -191,25 +198,27 @@ class RelsInt {
 	 *
 	 * @return empty RELS-INT datastream XML
 	 */
-	function buildRELSINT() {
+	function buildRELSINT() 
+	{
 		return '<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/>';
 	}
 
-	
+
 	/**
 	 * Removes a relationship node from a RELS-INT datstream and updates
 	 * Fedora.
-	 * 
+	 *
 	 * This should be called when a datastream is purged from a record.
 	 *
 	 * @param $pid pid of record containing datastream
 	 * @param $dsID identifier of relationship to remove
 	 * @param $datastreamXml RELS-INT XML
-	 * @param updateFedora (optional) true if the datastream in Fedora should be updated, false otherwise. 
- 	 *        Defaults to true.
+	 * @param updateFedora (optional) true if the datastream in Fedora should be updated, false otherwise.
+	 *        Defaults to true.
 	 * @return updated RELS-INT XML
 	 */
-	function removeRelationshipDatastream($pid, $dsID, $datastreamXml, $updateFedora = true) {
+	function removeRelationshipDatastream($pid, $dsID, $datastreamXml, $updateFedora = true) 
+	{
 		$doc = DOMDocument::loadXML($datastreamXml);
 		$xpath = new DOMXPath($doc);
 
@@ -222,7 +231,7 @@ class RelsInt {
 			$docNode = $docNodes->item(0);
 			$docNode->removeChild($node);
 			$updatedXml = $doc->saveXML();
-			
+				
 			if ($updateFedora) {
 				Fedora_API::callModifyDatastreamByValue($pid, "RELS-INT", "A", DATASTREAM_DESCRIPTION, $updatedXml, "text/xml", 'inherit');
 			}
@@ -234,12 +243,13 @@ class RelsInt {
 
 	/**
 	 * Returns the filename of a datastream.
-	 * 
+	 *
 	 * @param $dsID identifier of datastream to retrieve filename for
 	 * @param $datastreamXml RELS-INT XML
 	 * @return filename of $dsID
 	 */
-	function getDatastreamFilename($dsID, $datastreamXml) {
+	function getDatastreamFilename($dsID, $datastreamXml) 
+	{
 		if ($datastreamXml == null) {
 			return;
 		}
@@ -263,13 +273,14 @@ class RelsInt {
 	 *
 	 * Note that if there are multiple datastreams with the same filename, only the
 	 * first will be returned.
-	 * 
+	 *
 	 * @param $filename filename of datatream
 	 * @param $datastreamXml RELS-INT XML
 	 * @return identifier of datastream with filename $filename
 	 */
 
-	function getDatastreamIDFromFilename($filename, $datastreamXml) {
+	function getDatastreamIDFromFilename($filename, $datastreamXml) 
+	{
 		$doc = DOMDocument::loadXML($datastreamXml);
 		$xpath = new DOMXPath($doc);
 
@@ -291,16 +302,17 @@ class RelsInt {
 	 * @param $dsFilename filename of file contained within datastream
 	 * @param $datastreamXml (optional) RELS-INT datastream, if exists. If this is not present, a new
 	 *        RELS-INT datastream is created if required.
-	 * @param updateFedora (optional) true if the datastream in Fedora should be updated, false otherwise. 
- 	 *        Defaults to true.
+	 * @param updateFedora (optional) true if the datastream in Fedora should be updated, false otherwise.
+	 *        Defaults to true.
 	 * @return updated RELS-INT XML
 	 */
-	function addDatastream($pid, $dsID, $dsFilename, $datastreamXml = null, $updateFedora = true) {
+	function addDatastream($pid, $dsID, $dsFilename, $datastreamXml = null, $updateFedora = true) 
+	{
 		if ($datastreamXml == null) {
 
 			// Create or retrieve RELS-INT datastream if not provided
 			if (!Fedora_API::datastreamExists($pid, 'RELS-INT')) {
-				$datastreamXml = RelsInt::createDatastream($pid);	
+				$datastreamXml = RelsInt::createDatastream($pid);
 			}
 			else {
 				$datastreamXml = RelsInt::getRelsIntDatastream($pid);
@@ -311,7 +323,7 @@ class RelsInt {
 		$xpath = new DOMXPath($doc);
 
 
-		// Run XPath query to retrieve datastream with id $dsID. If none is found, 
+		// Run XPath query to retrieve datastream with id $dsID. If none is found,
 		// create one.
 		$nodes = $xpath->query("/rdf:RDF/datastream[@id='$dsID']");
 		if ($nodes->length == 0) {
@@ -336,21 +348,21 @@ class RelsInt {
 	/**
 	 * Adds derived relationships for a given master ID  and updates
 	 * Fedora.
-	 * 
+	 *
 	 * This should be called when a datastream is created for a record.
 	 *
 	 * @param $pid pid of record containing datastream
 	 * @param $dsID identifier of master datastream
-	 * @param $dsID filename of file in master datastream 
+	 * @param $dsID filename of file in master datastream
 	 * @param $relatedKey key for related datastream ('web', 'preview', ecetera)
 	 * @param $relatedFilename filename for file managed by related datastream
 	 * @param $datastreamXml RELS-INT XML, if present
-	 * @param updateFedora (optional) true if the datastream in Fedora should be updated, false otherwise. 
- 	 *        Defaults to true.
+	 * @param updateFedora (optional) true if the datastream in Fedora should be updated, false otherwise.
+	 *        Defaults to true.
 	 * @return updated RELS-INT XML
 	 */
-	function addRelationshipForDatastream($pid, $dsID, $dsFilename, $relatedKey, $relatedID, $relatedFilename, $datastreamXml, $updateFedora = true) {
-
+	function addRelationshipForDatastream($pid, $dsID, $dsFilename, $relatedKey, $relatedID, $relatedFilename, $datastreamXml, $updateFedora = true) 
+	{
 		$doc = DOMDocument::loadXML($datastreamXml);
 		$xpath = new DOMXPath($doc);
 
@@ -389,10 +401,11 @@ class RelsInt {
 
 	/**
 	 * Creates a new RELS-INT datastream for a record and updates Fedora.
-	 * 
+	 *
 	 * @param $pid pid of record to add RELS-INT datastream for
 	 */
-	function createDatastream($pid) {
+	function createDatastream($pid) 
+	{
 		$relsInt = RelsInt::buildRELSINT();
 		if (Fedora_API::datastreamExists($pid, "RELS-INT")) {
 			Fedora_API::callModifyDatastreamByValue($pid, "RELS-INT", "A", DATASTREAM_DESCRIPTION, $relsInt, "text/xml", 'inherit');
@@ -403,4 +416,3 @@ class RelsInt {
 		return $relsInt;
 	}
 }
-?>

@@ -34,47 +34,49 @@
 //
 class Graphviz
 {
-    function getCMAPX($dot)
-    {
-        $tmpfname = tempnam(APP_TEMP_DIR, "espace_gv_");
+	function getCMAPX($dot)
+	{
+		$log = FezLog::get();
+		
+		$tmpfname = tempnam(APP_TEMP_DIR, "espace_gv_");
 
-        $handle = fopen($tmpfname, "w");
-        fwrite($handle, $dot);
-        fclose($handle);
+		$handle = fopen($tmpfname, "w");
+		fwrite($handle, $dot);
+		fclose($handle);
 		$return_status = 0;
 		$return_array = array();
 		$command = APP_DOT_EXEC." -Tcmapx ".$tmpfname;
-        $result = '';
+		$result = '';
 		exec($command, $result, $return_status);
 		if ($return_status <> 0) {
-			Error_Handler::logError("GraphViz CMAPX Error: return status = ".$return_status.", for command ".$command." \n", __FILE__,__LINE__);
+			$log->err(array("GraphViz CMAPX Error: return status = ".$return_status.", for command ".$command." \n", __FILE__,__LINE__));
 			$result = "";
-		} 
-        unlink($tmpfname);
-        return implode("\n",$result);
-    }
+		}
+		unlink($tmpfname);
+		return implode("\n",$result);
+	}
 
-    function getPNG($dot)
-    {
-        $tmpfname = tempnam(APP_TEMP_DIR, "espace_gv_");
+	function getPNG($dot)
+	{
+		$log = FezLog::get();
+		
+		$tmpfname = tempnam(APP_TEMP_DIR, "espace_gv_");
 
-        $handle = fopen($tmpfname, "w");
-        fwrite($handle, $dot);
-        fclose($handle);
+		$handle = fopen($tmpfname, "w");
+		fwrite($handle, $dot);
+		fclose($handle);
 		$return_status = 0;
 		$command = APP_DOT_EXEC." -Tpng ".$tmpfname;
-        passthru($command, $return_status);
+		passthru($command, $return_status);
 		if ($return_status <> 0) {
-			Error_Handler::logError("GraphViz PNG Error: return status = ".$return_status.", for command ".$command." \n", __FILE__,__LINE__);
+			$log->err(array("GraphViz PNG Error: return status = ".$return_status.", for command ".$command." \n", __FILE__,__LINE__));
 		}
-        unlink($tmpfname);
-    }
+		unlink($tmpfname);
+	}
 
-    function getGraphName($dot)
-    {
-        preg_match('/(di)?graph\s+(\S+)\s*{/', $dot, $matches); // }
-        return $matches[2];
-    }
+	function getGraphName($dot)
+	{
+		preg_match('/(di)?graph\s+(\S+)\s*{/', $dot, $matches); // }
+		return $matches[2];
+	}
 }
-
-?>

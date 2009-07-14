@@ -34,8 +34,8 @@
 
 
 /**
- * Class to handle ResearcherID batch downloads from Thomson Reuters' 
- * download service.
+ * Class to handle ResearcherID batch uploads and downloads from the 
+ * Thomson Reuters batch upload/download service.
  *
  * @version 1.0
  * @author Andrew Martlew <a.martlew@library.uq.edu.au>
@@ -60,19 +60,22 @@ class ResearcherID
      */
     function downloadRequest($ids, $researchers_id_type, $researcher_id_type)
     {
+    	$log = FezLog::get();
+		$db = DB_API::get();
+		
         $ticket_number = null;
         
         // Validate params
         if(! is_array($ids)) {
-            Error_Handler::logError('First parameter for downloadRequest() requires an array containing researcher ids or employee ids', __FILE__, __LINE__);
+            $log->err(array('First parameter for downloadRequest() requires an array containing researcher ids or employee ids', __FILE__, __LINE__));
             return false;
         }
         else if(! ($researchers_id_type == 'researcherIDs' || $researchers_id_type == 'employeeIDs')) {
-            Error_Handler::logError('Second parameter for downloadRequest() requires either "researcherIDs" or "employeeIDs", given "'.$researchers_type.'"', __FILE__, __LINE__);
+            $log->err(array('Second parameter for downloadRequest() requires either "researcherIDs" or "employeeIDs", given "'.$researchers_type.'"', __FILE__, __LINE__));
             return false;
         } 
         else if(! ($researcher_id_type == 'researcherID' || $researcher_id_type == 'employeeID')) {
-            Error_Handler::logError('Third parameter for downloadRequest() requires either "researcherID" or "employeeID", given "'.$researchers_type.'"', __FILE__, __LINE__);
+            $log->err(array('Third parameter for downloadRequest() requires either "researcherID" or "employeeID", given "'.$researchers_type.'"', __FILE__, __LINE__));
             return false;
         }        
         
@@ -91,7 +94,7 @@ class ResearcherID
         // Validate against schema
         if (! $xml_request_data->schemaValidate(RID_DL_SERVICE_REQUEST_XSD)) {
             // Not valid
-           Error_Handler::logError('XML request data does not validate against schema.', __FILE__, __LINE__);
+           $log->err(array('XML request data does not validate against schema.', __FILE__, __LINE__));
            return false;
         }
         else {            
@@ -138,7 +141,7 @@ class ResearcherID
         }
         
         if(is_null($ticket_number) || empty($ticket_number)) {
-            Error_Handler::logError('Failed to get a ticket number.', __FILE__, __LINE__);
+            $log->err(array('Failed to get a ticket number.', __FILE__, __LINE__));
             return false;
         }
         else {
@@ -156,20 +159,24 @@ class ResearcherID
      */
     function checkAllJobsStatus() 
     {
+    	$log = FezLog::get();
+		$db = DB_API::get();
+		
         $stmt = "SELECT
                     rij_ticketno
                  FROM
                     " . APP_TABLE_PREFIX . "rid_jobs
                  WHERE
                     rij_status <> 'DONE'";
-        $res = $GLOBALS["db_api"]->dbh->getAll($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return false;
-        } else {
-            foreach($res as $r) {
-                ResearcherID::checkJobStatus($r[0]);
-            }
+		try {
+			$res = $db->fetchAll($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return false;
+		}
+		foreach($res as $r) {
+        	ResearcherID::checkJobStatus($r[0]);
         }
     }
     
@@ -183,6 +190,9 @@ class ResearcherID
      */
     function checkJobStatus($ticket_number) 
     {
+    	$log = FezLog::get();
+		$db = DB_API::get();
+		
         $tpl = new Template_API();
         $tpl_file = "researcher_get_download_status.tpl.html";
         $tpl->setTemplate($tpl_file);
@@ -218,11 +228,11 @@ class ResearcherID
                 ResearcherID::updateJobStatus($ticket_number, $job_status, $response_document->saveXML());
             }
             else
-                Error_Handler::logError('No job status returned for ticket number: '.$ticket_number, __FILE__, __LINE__);    
+                $log->err(array('No job status returned for ticket number: '.$ticket_number, __FILE__, __LINE__));    
         }
         else {
             // Service request failed
-            Error_Handler::logError('Failed to check job status for ticket number: '.$ticket_number, __FILE__, __LINE__);
+            $log->err(array('Failed to check job status for ticket number: '.$ticket_number, __FILE__, __LINE__));
         }
     }
 
@@ -236,6 +246,9 @@ class ResearcherID
      */
     function addJob($ticket_number, $request, $response)
     {
+    	$log = FezLog::get();
+		$db = DB_API::get();
+		
         $stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "rid_jobs
                  (
@@ -250,22 +263,23 @@ class ResearcherID
                     rij_timefinished
                  ) VALUES (
                     null,
-                    '" . Misc::escapeString($ticket_number) . "',
-                    '" . Date_API::getCurrentDateGMT() . "',
+                    " . $db->quote($ticket_number) . ",
+                    " . $db->quote(Date_API::getCurrentDateGMT()) . ",
                     'NEW',
                     1,
-                    '" . Misc::escapeString($request) . "',
-                    '" . Misc::escapeString($response) . "',
-                    '" . Date_API::getCurrentDateGMT() . "',
+                    " . $db->quote($request) . ",
+                    " . $db->quote($response) . ",
+                    " . $db->quote(Date_API::getCurrentDateGMT()) . ",
                     null                    
                  )";
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return false;
-        } else {
-            return true;
-        }
+		try {
+			$db->query($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return false;
+		}
+		return true;
     }
     
     
@@ -278,28 +292,32 @@ class ResearcherID
      */
     function updateJobStatus($ticket_number, $job_status, $response)
     {
+    	$log = FezLog::get();
+		$db = DB_API::get();
+		
         $finished = '';
         if($job_status == 'DONE')
-            $finished = ", rij_timefinished = '" . Date_API::getCurrentDateGMT() . "'";
+            $finished = ", rij_timefinished = " . $db->quote(Date_API::getCurrentDateGMT());
             
         $stmt = "UPDATE 
                     " . APP_TABLE_PREFIX . "rid_jobs
                     SET 
-                     rij_lastcheck = '" . Date_API::getCurrentDateGMT() . "',
-                     rij_status = '" . Misc::escapeString($job_status) . "',
-                     rij_count = (SELECT rij_count FROM (SELECT * FROM " . APP_TABLE_PREFIX . "rid_jobs) AS x WHERE rij_ticketno = '" . Misc::escapeString($ticket_number) . "')+1 ".",
-                     rij_lastresponse =  '". Misc::escapeString($response) . "'" .
+                     rij_lastcheck = " . $db->quote(Date_API::getCurrentDateGMT()) . ",
+                     rij_status = " . $db->quote($job_status) . ",
+                     rij_count = (SELECT rij_count FROM (SELECT * FROM " . APP_TABLE_PREFIX . "rid_jobs) AS x WHERE rij_ticketno = " . $db->quote($ticket_number) . ")+1 ".",
+                     rij_lastresponse =  ". $db->quote($response) . 
                      $finished . "
                     WHERE 
-                     rij_ticketno = '" . Misc::escapeString($ticket_number) . "'";
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            print $res->getMessage();
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return false;
-        } else {
-            return true;
-        }
+                     rij_ticketno = " . $db->quote($ticket_number);
+		try {
+			$db->query($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return false;
+		}
+        
+		return true;
     }
     
     
@@ -312,6 +330,9 @@ class ResearcherID
      */
     function doServiceRequest($post_fields)
     {
+    	$log = FezLog::get();
+		$db = DB_API::get();
+		
         // Do the service request
         $header[] = "Content-type: text/xml";			
         $ch = curl_init(RID_DL_SERVICE_URL);
@@ -329,7 +350,7 @@ class ResearcherID
         $response = curl_exec($ch);         
 
         if (curl_errno($ch)) {
-            Error_Handler::logError(curl_error($ch)." ".RID_DL_SERVICE_URL, __FILE__, __LINE__);
+            $log->err(array(curl_error($ch)." ".RID_DL_SERVICE_URL, __FILE__, __LINE__));
             return false;
         } else {
             curl_close($ch);
@@ -339,9 +360,3 @@ class ResearcherID
         }
     }
 }
-
-// benchmarking the included file (aka setup time)
-if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
-    $GLOBALS['bench']->setMarker('Included ResearcherID Class');
-}
-?>

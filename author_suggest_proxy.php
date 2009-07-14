@@ -44,5 +44,3 @@ $suggestions = array(
 );
 
 echo json_encode($suggestions);
-
-?>

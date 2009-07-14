@@ -201,5 +201,3 @@ function GeoIP_record_by_addr ($gi,$addr){
   $ipnum = ip2long($addr);
   return _get_record($gi, $ipnum);
 }
-
-?>

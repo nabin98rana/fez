@@ -293,4 +293,3 @@ switch ($cat)
 $tpl->assign("current_user_prefs", Prefs::get($usr_id));
 
 $tpl->displayTemplate();
-?>

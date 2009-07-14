@@ -45,5 +45,3 @@ $tpl = new Template_API;
 $tpl->setTemplate('themes/manifest.tpl.xml');
 $tpl->assign(compact('sections','issue_pid','attachment'));
 $tpl->displayTemplate();
-
-?>

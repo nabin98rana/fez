@@ -31,11 +31,11 @@
  * @since 26. September 2006
  * @author Stian Berger (stian at twodeadducks dot net)
  */
- class spellcheck {
- 	/**
- 	 * Stores the misspelled word globaly, to use it in the sorting algorithm.
- 	 * @var string;
- 	 */
+class spellcheck {
+	/**
+	 * Stores the misspelled word globaly, to use it in the sorting algorithm.
+	 * @var string;
+	 */
 	var $word;
 	/**
 	 * The link to aspell, trough the pspell extension.
@@ -49,20 +49,21 @@
 	 */
 	var $conf;
 
-/**
- * Constructor function.
- *
- * Creates a link to aspell through the pspell extension.
- * @param string $lang Aspell dictionary.
- */
-	function spellcheck($lang="no") {
+	/**
+	 * Constructor function.
+	 *
+	 * Creates a link to aspell through the pspell extension.
+	 * @param string $lang Aspell dictionary.
+	 */
+	function spellcheck($lang="no") 
+	{
 		if(!function_exists("pspell_new")) {
 			//trigger_error("Could not find pspell.",E_USER_NOTICE);
-			
+				
 			return false;
 		}
 		//pspell_new_config() creates lots of bad suggestions ???
-/*		$this->conf = pspell_config_create($this->lang);
+		/*		$this->conf = pspell_config_create($this->lang);
 		pspell_config_ignore($this->conf,3);
 		pspell_config_mode($this->conf, PSPELL_FAST);
 		$this->pspell_link = pspell_new_config($this->conf);*/
@@ -94,7 +95,8 @@
 	 * @param bool		$all	If you want to return all checked words regardless if typo or not. Default is false.
 	 * @return array Suggestions
 	 */
-	function check_spelling($string,$all=false) {
+	function check_spelling($string,$all=false) 
+	{
 		if(!preg_match_all("/[a-zæøå]{3,}/i",$string,$words,PREG_OFFSET_CAPTURE)) {
 			return array();
 		}
@@ -129,7 +131,8 @@
 	 * @param string $string Search string
 	 * @return string Same string as input but with bad words replaced.
 	 */
-	function query_suggest($string) {
+	function query_suggest($string) 
+	{
 		$result = $this->check_spelling($string);
 		if(!empty($result)) {
 			foreach($result as $suggest) {
@@ -152,7 +155,8 @@
 	 * @param string $string Text to check
 	 * @return string Same as input but with highlighted bad words.
 	 */
-	function check_text($string) {
+	function check_text($string) 
+	{
 		$result = $this->check_spelling($string);
 		$offset_shift = 0;
 		if(!empty($result)) {
@@ -177,7 +181,8 @@
 	 * @param string $b Second compare value
 	 * @return int Sort weight value
 	 */
-	function alt_sort($a,$b) {
+	function alt_sort($a,$b) 
+	{
 		$meta = metaphone($this->word);
 		//splits characters into an array, so that we can check for introduction of new characters
 		//with array_diff.
@@ -208,4 +213,3 @@
 		return $return;
 	}
 }
-?>

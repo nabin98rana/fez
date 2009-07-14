@@ -37,27 +37,27 @@ include_once(APP_INC_PATH . "class.bgp_bulk_move_record_collection.php");
 
 class Bulk_Move_Record_Collection {
 
-    var $bgp;
+	var $bgp;
 
 
-    function setBGP(&$bgp) {
-        $this->bgp = &$bgp;
-    }
+	function setBGP(&$bgp) {
+		$this->bgp = &$bgp;
+	}
 
-    function movePids($pids, $parent_pid, $regen=false) {
-       $bgp = new BackgroundProcess_Bulk_Move_Record_Collection; 
-       $bgp->register(serialize(compact('pids', 'parent_pid', 'regen')), Auth::getUserID());
-    }
-    
-    /**
-     * @param $request_params - a copy of $_REQUEST from which the search was run
-     */
-    function moveFromSearch($parent_pid, $request_params=array(), $regen=false)
-    {
+	function movePids($pids, $parent_pid, $regen=false) {
+		$bgp = new BackgroundProcess_Bulk_Move_Record_Collection;
+		$bgp->register(serialize(compact('pids', 'parent_pid', 'regen')), Auth::getUserID());
+	}
+
+	/**
+	 * @param $request_params - a copy of $_REQUEST from which the search was run
+	 */
+	function moveFromSearch($parent_pid, $request_params=array(), $regen=false)
+	{
 		$options = Pager::saveSearchParams($request_params);
 		$options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
-	    $bgp = new BackgroundProcess_Bulk_Move_Record_Collection; 
-        $bgp->register(serialize(compact('options', 'parent_pid', 'regen')), Auth::getUserID());
+		$bgp = new BackgroundProcess_Bulk_Move_Record_Collection;
+		$bgp->register(serialize(compact('options', 'parent_pid', 'regen')), Auth::getUserID());
 	}
 
 	function getPidsFromSearchBGP($options)
@@ -66,47 +66,47 @@ class Bulk_Move_Record_Collection {
 		$pids = array_keys(Misc::keyArray($list['list'],'rek_pid'));
 		return $pids;
 	}
-	
 
-    function moveBGP($pids, $parent_pid, $regen=false,$topcall=true)
-    {
-        $this->regen = $regen;
-        $this->bgp->setStatus("Moving ".count($pids)." Records to ".$parent_pid);
-        
+
+	function moveBGP($pids, $parent_pid, $regen=false,$topcall=true)
+	{
+		$this->regen = $regen;
+		$this->bgp->setStatus("Moving ".count($pids)." Records to ".$parent_pid);
+
 		foreach ($pids as $pid) {
-	        $this->bgp->setHeartbeat();
-    	    $this->bgp->setStatus("Trying to move '".$pid."'");
+			$this->bgp->setHeartbeat();
+			$this->bgp->setStatus("Trying to move '".$pid."'");
 			$record = new RecordObject($pid);
-			
+
 			if ($record->canEdit()) {
-			    
-			    $res = $record->updateRELSEXT("rel:isMemberOf", $parent_pid);
-			    
-			    if($res == -3) {
-                    $this->bgp->setStatus("Skipped '".$pid."' because PID does not exist");
+					
+				$res = $record->updateRELSEXT("rel:isMemberOf", $parent_pid);
+					
+				if($res == -3) {
+					$this->bgp->setStatus("Skipped '".$pid."' because PID does not exist");
 				} elseif($res == -2) {
-				    $this->bgp->setStatus("Skipped '".$pid."' because xquery did not return any results");
+					$this->bgp->setStatus("Skipped '".$pid."' because xquery did not return any results");
 				} elseif($res == 1) {
-                    $this->bgp->setStatus("Moved '".$pid."'");
-                    $this->pid_count++;
+					$this->bgp->setStatus("Moved '".$pid."'");
+					$this->pid_count++;
 				} else {
-				    $this->bgp->setStatus("Moving '".$pid."' failed");
+					$this->bgp->setStatus("Moving '".$pid."' failed");
 				}
-				
+
 			} else {
 				$this->bgp->setStatus("Skipped '".$pid."'. User can't edit this record");
 			}
-			
+
 			$this->bgp->setProgress($this->pid_count);
 		}
-		
+
 		$extra_msg = '';
 		if($this->pid_count != count($pids)) {
-		    $skipped =  count($pids) - $this->pid_count;
-		    $extra_msg = ' Skipped ' . $skipped;
+			$skipped =  count($pids) - $this->pid_count;
+			$extra_msg = ' Skipped ' . $skipped;
 		}
-    	$this->bgp->setStatus("Finished Bulk Move to Collection.".$extra_msg);	
-    }
+		$this->bgp->setStatus("Finished Bulk Move to Collection.".$extra_msg);
+	}
 
 	function splitCollection($collection_pid, $chunk_size)
 	{
@@ -130,11 +130,6 @@ class Bulk_Move_Record_Collection {
 			$remaining_pids = array_diff($remaining_pids, $chunk);
 			$this->moveBGP($chunk, $dest_pid);
 		}
-		
+
 	}
-
-
 }
-
-
-?>

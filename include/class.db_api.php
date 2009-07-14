@@ -42,15 +42,8 @@
  * @author João Prado Maia <jpm@mysql.com>
  */
 
-$TOTAL_QUERIES = 0;
-
-include_once(APP_PEAR_PATH . "DB.php");
-include_once(APP_INC_PATH . "class.error_handler.php");
-
 class DB_API
 {
-    var $dbh;
-    var $dbh_fda;
 
     /**
      * Connects to the database and creates a data dictionary array to be used
@@ -60,87 +53,16 @@ class DB_API
      */
     function DB_API()
     {
-        $dsn = array(
-            'phptype'  => APP_SQL_DBTYPE,
-            'hostspec' => APP_SQL_DBHOST,
-            'database' => APP_SQL_DBNAME,
-            'username' => APP_SQL_DBUSER,
-            'password' => APP_SQL_DBPASS
-        );
-        $this->dbh = DB::connect($dsn);
-        if (PEAR::isError($this->dbh)) {
-            Error_Handler::logError(array($this->dbh->getMessage(), $this->dbh->getDebugInfo()), __FILE__, __LINE__);
-            $error_type = "db";
-            include_once(APP_PATH . "offline.php");
-            exit;
-        }
-        
-        // Tell MySQL we will be sending data to them in UTF-8 format
-        //$this->dbh->query("SET NAMES 'utf8'");
-    }
-
-
-    /**
-     * Method used to get the last inserted ID. This is a simple
-     * wrapper to the mysql_insert_id function, as a work around to 
-     * the somewhat annoying implementation of PEAR::DB to create
-     * separate tables to host the ID sequences.
-     *
-     * @access  public
-     * @return  integer The last inserted ID
-     */
-    function get_last_insert_id()
-    {
-        return @mysql_insert_id($this->dbh->connection);
-    }
-
-
-    /**
-     * Returns the escaped version of the given string.
-     *
-     * @access  public
-     * @param   string $str The string that needs to be escaped
-     * @return  string The escaped string
-     */
-    function escapeString($str)
-    {
-		return $GLOBALS["db_api"]->dbh->escapeSimple($str);	
-		/*
-        static $real_escape_string;
-
-        if (!isset($real_escape_string)) {
-            $real_escape_string = function_exists('mysql_real_escape_string');
-        }
-
-        if ($real_escape_string) {
-            return mysql_real_escape_string($str, $this->dbh->connection);
-        } else {
-            return mysql_escape_string($str);
-        }
-		*/
+    	
     }
     
-    function setupFDAConn() {
-        
-        $dsn = array(
-            'phptype'  => FEDORA_DB_TYPE,
-            'hostspec' => FEDORA_DB_HOST,
-            'database' => FEDORA_DB_DATABASE_NAME,
-            'username' => FEDORA_DB_USERNAME,            
-            'password' => FEDORA_DB_PASSWD,
-            'port'     => FEDORA_DB_PORT
-        );
-        $this->dbh_fda = DB::connect($dsn, false);
-        if (PEAR::isError($this->dbh_fda)) {
-            // If enabled, this will cause debug messages on the login screen after a new installation. Bad.
-			//Error_Handler::logError(array($this->dbh_fda->getMessage(), $this->dbh_fda->getDebugInfo()), __FILE__, __LINE__);
-        }
-        
+	/**
+     * 
+     * @return Zend_Db_Adapter_Abstract
+     */
+    public static function get($index = 'db') 
+    {
+    	return Zend_Registry::get($index);
     }
-}
-
-// benchmarking the included file (aka setup time)
-if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
-    $GLOBALS['bench']->setMarker('Included DB_API Class');
 }
 ?>

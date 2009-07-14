@@ -34,58 +34,56 @@
 //
 class Jhove_Helper
 {
-    var $xmlDoc;
-    var $xpath;
-    
-    function __construct($xmlObj) {
-        
-        $this->xmlDoc = new DomDocument();
-        $this->xmlDoc->preserveWhiteSpace = false;
-        $this->xmlDoc->loadXML($xmlObj);
-        
-        $this->xpath = new DOMXPath($this->xmlDoc);
-    }
-    
-    
-   function extractFileSize() {
-       
-        $this->xpath->registerNamespace('a', 'http://hul.harvard.edu/ois/xml/ns/jhove');
-        $recordNodes = $this->xpath->query('//a:jhove/a:repInfo/a:size');
+	var $xmlDoc;
+	var $xpath;
+
+	function __construct($xmlObj) 
+	{
+		$this->xmlDoc = new DomDocument();
+		$this->xmlDoc->preserveWhiteSpace = false;
+		$this->xmlDoc->loadXML($xmlObj);
+
+		$this->xpath = new DOMXPath($this->xmlDoc);
+	}
+
+
+	function extractFileSize() 
+	{ 
+		$this->xpath->registerNamespace('a', 'http://hul.harvard.edu/ois/xml/ns/jhove');
+		$recordNodes = $this->xpath->query('//a:jhove/a:repInfo/a:size');
 		foreach ($recordNodes as $file_field) {
 			if ($fileSize == "") {
 				$fileSize = $file_field->nodeValue;
-	        }
-	    }
-	    
+			}
+		}
+	  
 		return $fileSize;
-   }
-   
-   
-   function extractSpatialMetrics() {
-        
-        $width = 0;
-        $height = 0;
-        
-        $this->xpath->registerNamespace('mix', 'http://www.loc.gov/mix/');
-        $recordNodes = $this->xpath->query('//mix:ImageWidth');
+	}
+	 
+	 
+	function extractSpatialMetrics() 
+	{
+		$width = 0;
+		$height = 0;
+
+		$this->xpath->registerNamespace('mix', 'http://www.loc.gov/mix/');
+		$recordNodes = $this->xpath->query('//mix:ImageWidth');
 		foreach ($recordNodes as $file_field) {
 			if ($width == "") {
 				$width = $file_field->nodeValue;
 				break;
-	        }
-	    }
-	    
-	    $recordNodes = $this->xpath->query('//mix:ImageLength');
-	    foreach ($recordNodes as $file_field) {
+			}
+		}
+	  
+		$recordNodes = $this->xpath->query('//mix:ImageLength');
+		foreach ($recordNodes as $file_field) {
 			if ($height == "") {
 				$height = $file_field->nodeValue;
 				break;
-	        }
-	    }
-		
-		return array($width, $height);
-   }
-    
-}
+			}
+		}
 
-?>
+		return array($width, $height);
+	}
+
+}

@@ -60,6 +60,3 @@ if ($cat == "survey") {
 
 
 $tpl->displayTemplate();
-
-//$bench->display(); // to output html formated
-?>

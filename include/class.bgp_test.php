@@ -31,26 +31,25 @@
 // |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>,                    |
 // |          Rhys Palmer <r.rpalmer@library.uq.edu.au>                   |
 // +----------------------------------------------------------------------+
- 
+
 include_once(APP_INC_PATH.'class.background_process.php');
 include_once(APP_INC_PATH.'class.community.php');
 include_once(APP_INC_PATH.'class.record.php');
 
 class BackgroundProcess_Test extends BackgroundProcess
 {
-    function __construct() 
-    {
-        parent::__construct();
-        $this->include = 'class.bgp_test.php';
-        $this->name = 'Background Process Test';
-    }
+	function __construct()
+	{
+		parent::__construct();
+		$this->include = 'class.bgp_test.php';
+		$this->name = 'Background Process Test';
+	}
 
-    function run()
-    {
-        $this->setState(1);
-        extract(unserialize($this->inputs));
-        $this->setStatus('I got '.$test);
-        $this->setState(2);
-    }
+	function run()
+	{
+		$this->setState(1);
+		extract(unserialize($this->inputs));
+		$this->setStatus('I got '.$test);
+		$this->setState(2);
+	}
 }
-?>

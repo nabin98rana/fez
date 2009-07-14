@@ -37,23 +37,21 @@ include_once(APP_INC_PATH.'class.auth_index.php');
 
 class BackgroundProcess_Index_Auth extends BackgroundProcess
 {
-    function __construct() 
-    {
-        parent::__construct();
-        $this->include = 'class.bgp_index_auth.php';
-        $this->name = 'Index Auth';
-    }
+	function __construct()
+	{
+		parent::__construct();
+		$this->include = 'class.bgp_index_auth.php';
+		$this->name = 'Index Auth';
+	}
 
-    function run()
-    {
-        $this->setState(1);
-        extract(unserialize($this->inputs));
+	function run()
+	{
+		$this->setState(1);
+		extract(unserialize($this->inputs));
 
-        $auth_index = new AuthIndex;
-        $auth_index->setBGP($this);
-        $auth_index->setIndexAuthBGP($pid, $recurse);
-        $this->setState(2);
-    }
+		$auth_index = new AuthIndex;
+		$auth_index->setBGP($this);
+		$auth_index->setIndexAuthBGP($pid, $recurse);
+		$this->setState(2);
+	}
 }
-
-?>

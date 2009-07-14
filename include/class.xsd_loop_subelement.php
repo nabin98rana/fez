@@ -51,23 +51,26 @@ include_once(APP_INC_PATH . "class.auth.php");
 
 class XSD_Loop_Subelement
 {
-    /**
-     * Method used to get the list of sublooping elements associated with
-     * a given display id.
-     *
-     * @access  public
-     * @param   integer $xsdmf_id The XSD matching field ID
-     * @return  array The list of matching fields fields
-     */
-    function getListByXSDMF($xsdmf_id)
-    {
-        $stmt = "SELECT
+	/**
+	 * Method used to get the list of sublooping elements associated with
+	 * a given display id.
+	 *
+	 * @access  public
+	 * @param   integer $xsdmf_id The XSD matching field ID
+	 * @return  array The list of matching fields fields
+	 */
+	function getListByXSDMF($xsdmf_id)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		$stmt = "SELECT
 					s1.*, m1.*, d1.*,
 					IFNULL(CONCAT('(', s1.xsdsel_attribute_loop_xsdmf_id, ') (', s2.xsdsel_title, ') ', m2.xsdmf_element), CONCAT('(', m2.xsdmf_id, ') ', m2.xsdmf_element)) as xsdmf_attribute_loop_presentation,
 					IFNULL(CONCAT('(', s1.xsdsel_indicator_xsdmf_id, ') (', s3.xsdsel_title, ') ', m3.xsdmf_element), CONCAT('(', m3.xsdmf_id, ') ', m3.xsdmf_element)) as xsdmf_indicator_presentation
                  FROM
                     " . APP_TABLE_PREFIX . "xsd_loop_subelement s1 inner join
-                    " . APP_TABLE_PREFIX . "xsd_display_matchfields m1 on (s1.xsdsel_xsdmf_id = m1.xsdmf_id) and (s1.xsdsel_xsdmf_id=".$xsdmf_id.") inner join
+                    " . APP_TABLE_PREFIX . "xsd_display_matchfields m1 on (s1.xsdsel_xsdmf_id = m1.xsdmf_id) and (s1.xsdsel_xsdmf_id=".$db->quote($xsdmf_id, 'INTEGER').") inner join
                     " . APP_TABLE_PREFIX . "xsd_display d1 on (m1.xsdmf_xdis_id = d1.xdis_id) left join
 					" . APP_TABLE_PREFIX . "xsd_display_matchfields m2 on (m2.xsdmf_id = s1.xsdsel_attribute_loop_xsdmf_id) left join 
                     " . APP_TABLE_PREFIX . "xsd_loop_subelement s2 on (m2.xsdmf_xsdsel_id = s2.xsdsel_id) left join
@@ -77,86 +80,97 @@ class XSD_Loop_Subelement
 					";
 		// @@@ CK - Added order statement to sublooping elements displayed in a desired order
 		$stmt .= " ORDER BY s1.xsdsel_order ASC";
-        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            return $res;
-        }
-    }
+		try {
+			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+		return $res;
+	}
 
-    /**
-     * Method used to get the list of sublooping elements associated with
-     * a given display id.
-     *
-     * @access  public
-     * @param   integer $xdis_id The XSD Display ID
-     * @return  array The list of matching fields fields
-     */
-    function getSimpleListByXSDMF($xsdmf_id)
-    {
-        $stmt = "SELECT
+	/**
+	 * Method used to get the list of sublooping elements associated with
+	 * a given display id.
+	 *
+	 * @access  public
+	 * @param   integer $xdis_id The XSD Display ID
+	 * @return  array The list of matching fields fields
+	 */
+	function getSimpleListByXSDMF($xsdmf_id)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		$stmt = "SELECT
 					*
                  FROM
                     " . APP_TABLE_PREFIX . "xsd_loop_subelement
                  WHERE
-                    xsdsel_xsdmf_id=".$xsdmf_id;
+                    xsdsel_xsdmf_id=".$db->quote($xsdmf_id, 'INTEGER');
 		$stmt .= " ORDER BY xsdsel_order ASC";
 
-        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            return $res;
-        }
-    }
+		try {
+			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+		return $res;
+	}
 
-    /**
-     * Method used to get the list of sublooping elements associated with
-     * a given display id.
-     *
-     * @access  public
-     * @param   integer $xdis_id The XSD Display ID
-     * @return  array The list of matching fields fields
-     */
-    function getSELIDsByXSDMF($xsdmf_id)
-    {
-        $stmt = "SELECT
+	/**
+	 * Method used to get the list of sublooping elements associated with
+	 * a given display id.
+	 *
+	 * @access  public
+	 * @param   integer $xdis_id The XSD Display ID
+	 * @return  array The list of matching fields fields
+	 */
+	function getSELIDsByXSDMF($xsdmf_id)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		$stmt = "SELECT
 					xsdsel_id
                  FROM
                     " . APP_TABLE_PREFIX . "xsd_loop_subelement
                  WHERE
-                    xsdsel_xsdmf_id=".$xsdmf_id;
+                    xsdsel_xsdmf_id=".$db->quote($xsdmf_id, 'INTEGER');
 		// @@@ CK - Added order statement to sublooping elements displayed in a desired order
 		$stmt .= " ORDER BY xsdsel_order ASC";
-        $res = $GLOBALS["db_api"]->dbh->getCol($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            return $res;
-        }
-    }
+		try {
+			$res = $db->fetchCol($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+		return $res;
+	}
 
 
-    /**
-     * Method used to get the list of sublooping elements associated with
-     * a given display id.
-     *
-     * @access  public
-     * @param   integer $xdis_id The XSD Display ID
-     * @return  array The list of matching fields 
-     */
-    function getDatastreamTitles($xdis_id, $exclude_list=array(), $specify_list=array())
-    {
-		
+	/**
+	 * Method used to get the list of sublooping elements associated with
+	 * a given display id.
+	 *
+	 * @access  public
+	 * @param   integer $xdis_id The XSD Display ID
+	 * @return  array The list of matching fields
+	 */
+	function getDatastreamTitles($xdis_id, $exclude_list=array(), $specify_list=array())
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
 		$exclude_str = implode("', '", $exclude_list);
 		$specify_str = implode("', '", $specify_list);
 
 		// Get the datastream titles and xdisplay ids that are references to other display ids, and also get any binary content (file upload/select) datastreams
-		$stmt = "SELECT	m1.xsdmf_id, 
+		$stmt = "SELECT	m1.xsdmf_id,
 						m1.xsdmf_xdis_id,
 						s1.xsdsel_title,
 						s1.xsdsel_id,
@@ -164,36 +178,39 @@ class XSD_Loop_Subelement
 				FROM ". APP_TABLE_PREFIX . "xsd_loop_subelement s1
 				INNER JOIN " . APP_TABLE_PREFIX . "xsd_display_matchfields m1 
                             ON m1.xsdmf_element in ('!datastream!datastreamVersion!xmlContent', '!datastream!datastreamVersion!contentLocation', '!datastream!datastreamVersion!binaryContent')    
-                            AND m1.xsdmf_xdis_id=".$xdis_id." AND s1.xsdsel_id = m1.xsdmf_xsdsel_id 
+                            AND m1.xsdmf_xdis_id=".$db->quote($xdis_id, 'INTEGER')." AND s1.xsdsel_id = m1.xsdmf_xsdsel_id 
                 LEFT JOIN " . APP_TABLE_PREFIX . "xsd_relationship ON xsdrel_xsdmf_id = m1.xsdmf_id
 				LEFT JOIN " . APP_TABLE_PREFIX . "xsd_display ON xsdrel_xdis_id = xdis_id ";
 
-		if ($specify_str != "") {				
-			$stmt .= " WHERE s1.xsdsel_title in ('".$specify_str."')";			
+		if ($specify_str != "") {
+			$stmt .= " WHERE s1.xsdsel_title in ('".$specify_str."')";
 		} elseif ($exclude_str != "") {
-			$stmt .= " WHERE s1.xsdsel_title not in ('".$exclude_str."')";					
+			$stmt .= " WHERE s1.xsdsel_title not in ('".$exclude_str."')";
 		}
 		// @@@ CK - Added order statement to sublooping elements displayed in a desired order
 		$stmt .= " ORDER BY xsdsel_order ASC";
-        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            return $res;
-        }
-    }
+		try {
+			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+		return $res;
+	}
 
-    /**
-     * Method used to get the list of sublooping elements associated with
-     * a given display id.
-     *
-     * @access  public
-     * @param   integer $xdis_id The XSD Display ID
-     * @return  array The list of matching fields 
-     */
-    function getDatastreamTitle($xdis_id, $dsTitle)
-    {
+	/**
+	 * Method used to get the list of sublooping elements associated with
+	 * a given display id.
+	 *
+	 * @access  public
+	 * @param   integer $xdis_id The XSD Display ID
+	 * @return  array The list of matching fields
+	 */
+	function getDatastreamTitle($xdis_id, $dsTitle)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
 
 		// Get the datastream titles and xdisplay ids that are references to other display ids, and also get any binary content (file upload/select) datastreams
 		$stmt = "SELECT	m1.xsdmf_id, m1.xsdmf_xdis_id,
@@ -204,354 +221,384 @@ class XSD_Loop_Subelement
 							" . APP_TABLE_PREFIX . "xsd_display_matchfields m1
 		WHERE 
 		m1.xsdmf_element in ('!datastream!datastreamVersion!xmlContent', '!datastream!datastreamVersion!contentLocation', '!datastream!datastreamVersion!binaryContent') 	
-		AND m1.xsdmf_xdis_id=".$xdis_id."	and s1.xsdsel_id = m1.xsdmf_xsdsel_id and s1.xsdsel_title = '".$dsTitle."'";
+		AND m1.xsdmf_xdis_id=".$db->quote($xdis_id, 'INTEGER')."	and s1.xsdsel_id = m1.xsdmf_xsdsel_id and s1.xsdsel_title = ".$db->quote($dsTitle);
 
 		// @@@ CK - Added order statement to sublooping elements displayed in a desired order
 		$stmt .= " ORDER BY xsdsel_order ASC";
-        $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            return $res;
-        }
-    }
+		try {
+			$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+		return $res;
+	}
 
-    /**
-     * Method used to get the list of sublooping elements associated with
-     * a given display id.
-     *
-     * @access  public
-     * @param   integer $xdis_id The XSD Display ID
-     * @return  array The list of matching fields fields
-     */
-    function getTopParentLoopList($xml_element, $xdis_id)
-    {
-        $stmt = "SELECT
+	/**
+	 * Method used to get the list of sublooping elements associated with
+	 * a given display id.
+	 *
+	 * @access  public
+	 * @param   integer $xdis_id The XSD Display ID
+	 * @return  array The list of matching fields fields
+	 */
+	function getTopParentLoopList($xml_element, $xdis_id)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		$stmt = "SELECT
 					s1.*, m1.*, m2.xsdmf_id as child_xsdmf_id
                 FROM " . APP_TABLE_PREFIX . "xsd_loop_subelement s1 
                 inner join " . APP_TABLE_PREFIX . "xsd_display_matchfields m1 
-                    on s1.xsdsel_xsdmf_id = m1.xsdmf_id and m1.xsdmf_xdis_id = ".$xdis_id." 
-					and (INSTR('".$xml_element."', m1.xsdmf_element) = 1) 
+                    on s1.xsdsel_xsdmf_id = m1.xsdmf_id and m1.xsdmf_xdis_id = ".$db->quote($xdis_id, 'INTEGER')." 
+					and (INSTR(".$db->quote($xml_element).", m1.xsdmf_element) = 1) 
 					and m1.xsdmf_html_input = 'xsd_loop_subelement' 
 				left join " . APP_TABLE_PREFIX . "xsd_display_matchfields m2 
-					on (m2.xsdmf_xsdsel_id = s1.xsdsel_id) and (m2.xsdmf_element = '".$xml_element."')
+					on (m2.xsdmf_xsdsel_id = s1.xsdsel_id) and (m2.xsdmf_element = ".$db->quote($xml_element).")
     	        ORDER BY xsdsel_order ASC";
-//		echo $stmt;
-        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            return $res;
-        }
-    }
+		try {
+			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+		return $res;
+	}
 
-    /**
-     * Method used to remove a given list of sublooping elements, and any child matching fields under that element.
-     *
-     * @access  public
-     * @return  boolean
-     */
-    function remove()
-    {
-        $items = @implode(", ", $_POST["items"]);
+	/**
+	 * Method used to remove a given list of sublooping elements, and any child matching fields under that element.
+	 *
+	 * @access  public
+	 * @return  boolean
+	 */
+	function remove()
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
 
-        $stmt = "DELETE FROM
+		$return = true;
+
+		$stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "xsd_loop_subelement
                  WHERE
-                    xsdsel_id  IN (" . $items . ")";
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        $stmt = "DELETE FROM
+                    xsdsel_id  IN (" . Misc::arrayToSQLBindStr($_POST["items"]) . ")";
+		try {
+			$db->query($stmt,$_POST["items"]);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$return = false;
+		}
+
+		$stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "xsd_display_matchfields
                  WHERE
-                    xsdmf_xsdsel_id  IN (" . $items . ")";
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
+                    xsdmf_xsdsel_id  IN (" . Misc::arrayToSQLBindStr($_POST["items"]) . ")";
 
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return false;
-        } else {
-		  return true;
-        }
-    }
+		try {
+			$db->query($stmt,$_POST["items"]);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$return = false;
+		}
+		return $return;
+	}
 
 
-    /**
-     * Method used to add a new sublooping element to the system.
-     *
-     * @access  public
-     * @return  integer 1 if the insert worked, -1 otherwise
-     */
-    function insert()
-    {
-        $stmt = "INSERT INTO
+	/**
+	 * Method used to add a new sublooping element to the system.
+	 *
+	 * @access  public
+	 * @return  integer 1 if the insert worked, -1 otherwise
+	 */
+	function insert()
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		$stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "xsd_loop_subelement
                  (
                     xsdsel_xsdmf_id,
                     xsdsel_title,
                     xsdsel_type,";
-			if (is_numeric($_POST["xsdsel_attribute_loop_xdis_id"])) {
-                $stmt .= "xsdsel_attribute_loop_xdis_id,";
-			}
-			if (is_numeric($_POST["xsdsel_attribute_loop_xsdmf_id"])) {
-                $stmt .= "xsdsel_attribute_loop_xsdmf_id,";
-			}
-			if (is_numeric($_POST["xsdsel_indicator_xdis_id"])) {
-                $stmt .= "xsdsel_indicator_xdis_id,";
-			}
-			if (is_numeric($_POST["xsdsel_indicator_xsdmf_id"])) {
-                $stmt .= "xsdsel_indicator_xsdmf_id,";
-			}
-	        $stmt .= "xsdsel_indicator_value,";
-
-
-				$stmt .="
-					xsdsel_order
+		if (is_numeric($_POST["xsdsel_attribute_loop_xdis_id"])) {
+			$stmt .= "xsdsel_attribute_loop_xdis_id,";
+		}
+		if (is_numeric($_POST["xsdsel_attribute_loop_xsdmf_id"])) {
+			$stmt .= "xsdsel_attribute_loop_xsdmf_id,";
+		}
+		if (is_numeric($_POST["xsdsel_indicator_xdis_id"])) {
+			$stmt .= "xsdsel_indicator_xdis_id,";
+		}
+		if (is_numeric($_POST["xsdsel_indicator_xsdmf_id"])) {
+			$stmt .= "xsdsel_indicator_xsdmf_id,";
+		}
+		$stmt .= "xsdsel_indicator_value,";
+		$stmt .=" xsdsel_order
                  ) VALUES (
-                    " . Misc::escapeString($_POST["xsdsel_xsdmf_id"]) . ",
-                    '" . Misc::escapeString($_POST["xsdsel_title"]) . "',
-                    '" . Misc::escapeString($_POST["xsdsel_type"]) . "',";
-			if (is_numeric($_POST["xsdsel_attribute_loop_xdis_id"])) {
-               $stmt .=  Misc::escapeString($_POST["xsdsel_attribute_loop_xdis_id"]) . ",";
-			}
-			if (is_numeric($_POST["xsdsel_attribute_loop_xsdmf_id"])) {
-               $stmt .=  Misc::escapeString($_POST["xsdsel_attribute_loop_xsdmf_id"]) . ",";
-			}
-			if (is_numeric($_POST["xsdsel_indicator_xdis_id"])) {
-               $stmt .=  Misc::escapeString($_POST["xsdsel_indicator_xdis_id"]) . ",";
-			}
-			if (is_numeric($_POST["xsdsel_indicator_xsdmf_id"])) {
-               $stmt .=  Misc::escapeString($_POST["xsdsel_indicator_xsdmf_id"]) . ",";
-			}
-               $stmt .=
-                    "'".Misc::escapeString($_POST["xsdsel_indicator_value"]) . "',";
+                    " . $db->quote($_POST["xsdsel_xsdmf_id"], 'INTEGER') . ",
+                    " . $db->quote($_POST["xsdsel_title"]) . ",
+                    " . $db->quote($_POST["xsdsel_type"]) . ",";
+		if (is_numeric($_POST["xsdsel_attribute_loop_xdis_id"])) {
+			$stmt .=  $db->quote($_POST["xsdsel_attribute_loop_xdis_id"], 'INTEGER') . ",";
+		}
+		if (is_numeric($_POST["xsdsel_attribute_loop_xsdmf_id"])) {
+			$stmt .=  $db->quote($_POST["xsdsel_attribute_loop_xsdmf_id"], 'INTEGER') . ",";
+		}
+		if (is_numeric($_POST["xsdsel_indicator_xdis_id"])) {
+			$stmt .=  $db->quote($_POST["xsdsel_indicator_xdis_id"], 'INTEGER') . ",";
+		}
+		if (is_numeric($_POST["xsdsel_indicator_xsdmf_id"])) {
+			$stmt .=  $db->quote($_POST["xsdsel_indicator_xsdmf_id"], 'INTEGER') . ",";
+		}
+		$stmt .= $db->quote($_POST["xsdsel_indicator_value"]) . ",";
+		$stmt .= $db->quote($_POST["xsdsel_order"]) . ")";
 
-               $stmt .=
-                    Misc::escapeString($_POST["xsdsel_order"]) . "
-                 )";
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return -1;
-        } else {
-			//
-        }
-    }
+		try {
+			$db->query($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return -1;
+		}
+	}
 
-    /**
-     * Method used to add a new sublooping element to the system.
-     *
-     * @access  public
-     * @return  integer 1 if the insert worked, -1 otherwise
-     */
-    function insertFromArray($xsdmf_id, $insertArray)
-    {
-        $stmt = "INSERT INTO
-                    " . APP_TABLE_PREFIX . "xsd_loop_subelement
-                 (
+	/**
+	 * Method used to add a new sublooping element to the system.
+	 *
+	 * @access  public
+	 * @return  integer 1 if the insert worked, -1 otherwise
+	 */
+	function insertFromArray($xsdmf_id, $insertArray)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		$stmt = "INSERT INTO
+                    " . APP_TABLE_PREFIX . "xsd_loop_subelement(
                     xsdsel_xsdmf_id,
                     xsdsel_title,
                     xsdsel_type,";
-			if (is_numeric($insertArray["xsdsel_attribute_loop_xdis_id"])) {
-                $stmt .= "xsdsel_attribute_loop_xdis_id,";
-			}
-			if (is_numeric($insertArray["xsdsel_attribute_loop_xsdmf_id"])) {
-                $stmt .= "xsdsel_attribute_loop_xsdmf_id,";
-			}
-			if (is_numeric($insertArray["xsdsel_indicator_xdis_id"])) {
-                $stmt .= "xsdsel_indicator_xdis_id,";
-			}
-			if (is_numeric($insertArray["xsdsel_indicator_xsdmf_id"])) {
-                $stmt .= "xsdsel_indicator_xsdmf_id,";
-			}
-				$stmt .= "xsdsel_indicator_value,";
-				$stmt .="
-					xsdsel_order
+		if (is_numeric($insertArray["xsdsel_attribute_loop_xdis_id"])) {
+			$stmt .= "xsdsel_attribute_loop_xdis_id,";
+		}
+		if (is_numeric($insertArray["xsdsel_attribute_loop_xsdmf_id"])) {
+			$stmt .= "xsdsel_attribute_loop_xsdmf_id,";
+		}
+		if (is_numeric($insertArray["xsdsel_indicator_xdis_id"])) {
+			$stmt .= "xsdsel_indicator_xdis_id,";
+		}
+		if (is_numeric($insertArray["xsdsel_indicator_xsdmf_id"])) {
+			$stmt .= "xsdsel_indicator_xsdmf_id,";
+		}
+		$stmt .= "xsdsel_indicator_value,";
+		$stmt .="xsdsel_order
                  ) VALUES (
-                    " . $xsdmf_id . ",
-                    '" . Misc::escapeString($insertArray["xsdsel_title"]) . "',
-                    '" . Misc::escapeString($insertArray["xsdsel_type"]) . "',";
-			if (is_numeric($insertArray["xsdsel_attribute_loop_xdis_id"])) {
-               $stmt .= Misc::escapeString($insertArray["xsdsel_attribute_loop_xdis_id"]).",";
-			}
-			if (is_numeric($insertArray["xsdsel_attribute_loop_xsdmf_id"])) {
-               $stmt .= Misc::escapeString($insertArray["xsdsel_attribute_loop_xsdmf_id"]).",";
-			}
-			if (is_numeric($insertArray["xsdsel_indicator_xdis_id"])) {
-               $stmt .= Misc::escapeString($insertArray["xsdsel_indicator_xdis_id"]).",";
-			}
-			if (is_numeric($insertArray["xsdsel_indicator_xsdmf_id"])) {
-               $stmt .= Misc::escapeString($insertArray["xsdsel_indicator_xsdmf_id"]).",";
-			}
-               $stmt .=
-                    "'".Misc::escapeString($insertArray["xsdsel_indicator_value"]) . "', ".
-                    Misc::escapeString($insertArray["xsdsel_order"]) . "
-                 )";
-				 
+                    " . $db->quote($xsdmf_id, 'INTEGER') . ",
+                    " . $db->quote($insertArray["xsdsel_title"]) . ",
+                    " . $db->quote($insertArray["xsdsel_type"]) . ",";
+		if (is_numeric($insertArray["xsdsel_attribute_loop_xdis_id"])) {
+			$stmt .= $db->quote($insertArray["xsdsel_attribute_loop_xdis_id"], 'INTEGER').",";
+		}
+		if (is_numeric($insertArray["xsdsel_attribute_loop_xsdmf_id"])) {
+			$stmt .= $db->quote($insertArray["xsdsel_attribute_loop_xsdmf_id"], 'INTEGER').",";
+		}
+		if (is_numeric($insertArray["xsdsel_indicator_xdis_id"])) {
+			$stmt .= $db->quote($insertArray["xsdsel_indicator_xdis_id"], 'INTEGER').",";
+		}
+		if (is_numeric($insertArray["xsdsel_indicator_xsdmf_id"])) {
+			$stmt .= $db->quote($insertArray["xsdsel_indicator_xsdmf_id"], 'INTEGER').",";
+		}
+		$stmt .= $db->quote($insertArray["xsdsel_indicator_value"]) . ", ".
+		$db->quote($insertArray["xsdsel_order"], 'INTEGER') . ")";
 
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return -1;
-        } else {
-			return $GLOBALS["db_api"]->get_last_insert_id();
-        }
-    }
+		try {
+			$db->query($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return -1;
+		}
+		return $db->lastInsertId();
+	}
 
-    /**
-     * Method used to update a sublooping element in the system.
-     *
-     * @access  public
-     * @return  integer 1 if the insert worked, -1 otherwise
-     */
-    function update($xsdsel_id='', $params=array())
-    {
-        if (empty($params)) {
-        	$params = &$_POST;
-        }
-        if (empty($xsdsel_id)) {
-            $xsdsel_id = Misc::escapeString($params["xsdsel_id_edit"]);
-        }
+	/**
+	 * Method used to update a sublooping element in the system.
+	 *
+	 * @access  public
+	 * @return  integer 1 if the insert worked, -1 otherwise
+	 */
+	function update($xsdsel_id='', $params=array())
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
 
-        $stmt = "UPDATE
+		if (empty($params)) {
+			$params = &$_POST;
+		}
+		if (empty($xsdsel_id)) {
+			$xsdsel_id = $db->quote($params["xsdsel_id_edit"], 'INTEGER');
+		}
+
+		$stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "xsd_loop_subelement
                  SET 
-                    xsdsel_xsdmf_id = '" . Misc::escapeString($params["xsdsel_xsdmf_id"]) . "',
-                    xsdsel_title = '" . Misc::escapeString($params["xsdsel_title"]) . "',
-                    xsdsel_order = '" . Misc::escapeString($params["xsdsel_order"]) . "',";
-				if (is_numeric($params["xsdsel_attribute_loop_xdis_id"])) {
-                 	$stmt .= "   xsdsel_attribute_loop_xdis_id = '" . Misc::escapeString($params["xsdsel_attribute_loop_xdis_id"]) . "',";
-				}
-				if (is_numeric($params["xsdsel_attribute_loop_xsdmf_id"])) {
-                 	$stmt .= "   xsdsel_attribute_loop_xsdmf_id = '" . Misc::escapeString($params["xsdsel_attribute_loop_xsdmf_id"]) . "',";
-				}
-				if (is_numeric($params["xsdsel_indicator_xdis_id"])) {
-                 	$stmt .= "   xsdsel_indicator_xdis_id = '" . Misc::escapeString($params["xsdsel_indicator_xdis_id"]) . "',";
-				}
-				if (is_numeric($params["xsdsel_indicator_xsdmf_id"])) {
-                 	$stmt .= "   xsdsel_indicator_xsdmf_id = '" . Misc::escapeString($params["xsdsel_indicator_xsdmf_id"]) . "',";
-				}
-					$stmt .= "
-                    xsdsel_indicator_value = '" . Misc::escapeString($params["xsdsel_indicator_value"]) . "',
-                    xsdsel_type = '" . Misc::escapeString($params["xsdsel_type"]) . "'
-                 WHERE xsdsel_id = '".$xsdsel_id."' ";
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return -1;
-        } else {
-			return 1;
-        }
-    }
-	
-    /**
-     * Method used to update a sublooping element attribute loop candidate.
-     *
-     * @access  public
-     * @return  integer 1 if the insert worked, -1 otherwise
-     */
-    function updateAttributeLoopCandidate($xsdsel_id, $attribute_loop_candidate, $attribute_loop_candidate_xdis_id)
-    {
-        $stmt = "UPDATE
+                    xsdsel_xsdmf_id = " . $db->quote($params["xsdsel_xsdmf_id"]) . ",
+                    xsdsel_title = " . $db->quote($params["xsdsel_title"]) . ",
+                    xsdsel_order = " . $db->quote($params["xsdsel_order"]) . ",";
+		if (is_numeric($params["xsdsel_attribute_loop_xdis_id"])) {
+			$stmt .= "   xsdsel_attribute_loop_xdis_id = " . $db->quote($params["xsdsel_attribute_loop_xdis_id"]) . ",";
+		}
+		if (is_numeric($params["xsdsel_attribute_loop_xsdmf_id"])) {
+			$stmt .= "   xsdsel_attribute_loop_xsdmf_id = " . $db->quote($params["xsdsel_attribute_loop_xsdmf_id"]) . ",";
+		}
+		if (is_numeric($params["xsdsel_indicator_xdis_id"])) {
+			$stmt .= "   xsdsel_indicator_xdis_id = " . $db->quote($params["xsdsel_indicator_xdis_id"]) . ",";
+		}
+		if (is_numeric($params["xsdsel_indicator_xsdmf_id"])) {
+			$stmt .= "   xsdsel_indicator_xsdmf_id = " . $db->quote($params["xsdsel_indicator_xsdmf_id"]) . ",";
+		}
+		$stmt .= "
+                    xsdsel_indicator_value = " . $db->quote($params["xsdsel_indicator_value"]) . ",
+                    xsdsel_type = " . $db->quote($params["xsdsel_type"]) . "
+                 WHERE xsdsel_id = ".$db->quote($xsdsel_id, 'INTEGER');
+		try {
+			$db->query($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return -1;
+		}
+		return 1;
+	}
+
+	/**
+	 * Method used to update a sublooping element attribute loop candidate.
+	 *
+	 * @access  public
+	 * @return  integer 1 if the insert worked, -1 otherwise
+	 */
+	function updateAttributeLoopCandidate($xsdsel_id, $attribute_loop_candidate, $attribute_loop_candidate_xdis_id)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		$stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "xsd_loop_subelement
                  SET 
-                    xsdsel_attribute_loop_xsdmf_id = ".$attribute_loop_candidate.",
-                    xsdsel_attribute_loop_xdis_id = ".$attribute_loop_candidate_xdis_id."                    
-                 WHERE xsdsel_id = " . $xsdsel_id;
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return -1;
-        } else {
-			return 1;
-        }
-    }	
-	
-    /**
-     * Method used to update a sublooping element indicator.
-     *
-     * @access  public
-     * @return  integer 1 if the insert worked, -1 otherwise
-     */
-    function updateIndicator($xsdsel_id, $indicator_xsdmf_id, $indicator_xdis_id)
-    {
-        $stmt = "UPDATE
+                    xsdsel_attribute_loop_xsdmf_id = ".$db->quote($attribute_loop_candidate, 'INTEGER').",
+                    xsdsel_attribute_loop_xdis_id = ".$db->quote($attribute_loop_candidate_xdis_id, 'INTEGER')."                    
+                 WHERE xsdsel_id = " . $db->quote($xsdsel_id, 'INTEGER');
+		try {
+			$db->query($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return -1;
+		}
+		return 1;
+	}
+
+	/**
+	 * Method used to update a sublooping element indicator.
+	 *
+	 * @access  public
+	 * @return  integer 1 if the insert worked, -1 otherwise
+	 */
+	function updateIndicator($xsdsel_id, $indicator_xsdmf_id, $indicator_xdis_id)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		$stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "xsd_loop_subelement
                  SET 
-                    xsdsel_indicator_xsdmf_id = ".$indicator_xsdmf_id.",
-                    xsdsel_indicator_xdis_id = ".$indicator_xdis_id."                    
-                 WHERE xsdsel_id = " . $xsdsel_id;
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return -1;
-        } else {
-			return 1;
-        }
-    }	
-    /**
-     * Method used to get the details of a specific sublooping element.
-     *
-     * @access  public
-     * @param   integer $fld_id The sublooping element ID
-     * @return  array The sublooping element details
-     */
-    function getDetails($xsdsel_id)
-    {
-        $stmt = "SELECT
+                    xsdsel_indicator_xsdmf_id = ".$db->quote($indicator_xsdmf_id, 'INTEGER').",
+                    xsdsel_indicator_xdis_id = ".$db->quote($indicator_xdis_id, 'INTEGER')."                    
+                 WHERE xsdsel_id = " . $db->quote($xsdsel_id, 'INTEGER');
+		try {
+			$db->query($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return -1;
+		}
+		return 1;
+	}
+	/**
+	 * Method used to get the details of a specific sublooping element.
+	 *
+	 * @access  public
+	 * @param   integer $fld_id The sublooping element ID
+	 * @return  array The sublooping element details
+	 */
+	function getDetails($xsdsel_id)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		$stmt = "SELECT
                     *
                  FROM
                     " . APP_TABLE_PREFIX . "xsd_loop_subelement
                  WHERE
-                    xsdsel_id=".$xsdsel_id;
-        $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            return $res;
-        }
-    }
+                    xsdsel_id=".$db->quote($xsdsel_id, 'INTEGER');
+		try {
+			$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+		return $res;
+	}
 
-    /**
-     * Method used to check if a sublooping element has any related xsd matching fields of a given html input type
-     * This is mainly used to check if a datastream is a file upload or a link so the label and ID and possibly mimetype can be read from the uploaded file
-     *
-     * @access  public
-     * @param   integer $xsdsel_id
-     * @param   string $input_type
-     * @return  boolean Whether any xsdmf's in the xsdsel were of the given type
-     */
-    function getXSDMFInputType($xsdsel_id, $input_type, $exclude_attrib_loops = false)
-    {
-        $stmt = "SELECT
+	/**
+	 * Method used to check if a sublooping element has any related xsd matching fields of a given html input type
+	 * This is mainly used to check if a datastream is a file upload or a link so the label and ID and possibly mimetype can be read from the uploaded file
+	 *
+	 * @access  public
+	 * @param   integer $xsdsel_id
+	 * @param   string $input_type
+	 * @return  boolean Whether any xsdmf's in the xsdsel were of the given type
+	 */
+	function getXSDMFInputType($xsdsel_id, $input_type, $exclude_attrib_loops = false)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		$stmt = "SELECT
                     *
                  FROM
                     " . APP_TABLE_PREFIX . "xsd_loop_subelement,
                     " . APP_TABLE_PREFIX . "xsd_display_matchfields
                  WHERE
-                    xsdmf_html_input = '".$input_type."'  AND xsdmf_xsdsel_id = xsdsel_id AND xsdsel_id=".$xsdsel_id;
+                    xsdmf_html_input = ".$db->quote($input_type)."  AND xsdmf_xsdsel_id = xsdsel_id AND xsdsel_id=".$db->quote($xsdsel_id, 'INTEGER');
 		if ($exclude_attrib_loops == true) {
 			$stmt .= " AND xsdmf_id <> xsdsel_attribute_loop_xsdmf_id";
-		} 
+		}
 
-        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-			
-            return $res;
-        }
-    }
-    
-    function importSubelements($xmatch, $xsdmf_id, &$maps)
-    {
-    	$xpath = new DOMXPath($xmatch->ownerDocument);
-        $xsubs = $xpath->query('loop_subelement', $xmatch);
-        foreach ($xsubs as $xsub) {
-        	$params = array(
+		try {
+			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+		return $res;
+	}
+
+	function importSubelements($xmatch, $xsdmf_id, &$maps)
+	{
+		$xpath = new DOMXPath($xmatch->ownerDocument);
+		$xsubs = $xpath->query('loop_subelement', $xmatch);
+		foreach ($xsubs as $xsub) {
+			$params = array(
                 'xsdsel_xsdmf_id' => $xsdmf_id,
                 'xsdsel_title' => $xsub->getAttribute('xsdsel_title'),
                 'xsdsel_type' => $xsub->getAttribute('xsdsel_type'),
@@ -561,38 +608,39 @@ class XSD_Loop_Subelement
                 'xsdsel_indicator_xdis_id' => $xsub->getAttribute('xsdsel_indicator_xdis_id'),
                 'xsdsel_indicator_xsdmf_id' => $xsub->getAttribute('xsdsel_indicator_xsdmf_id'),
                 'xsdsel_indicator_value' => $xsub->getAttribute('xsdsel_indicator_value'),
-            );
-            $xsdsel_id = XSD_Loop_Subelement::insertFromArray($xsdmf_id, $params);
-            $maps['xsdsel_map'][$xsub->getAttribute('xsdsel_id')] = $xsdsel_id;
-        }
-    }	
-    
-    function remapImport(&$maps)
-    {
-        if (empty($maps['xsdsel_map'])) {
-        	return;
-        }    
-        foreach ($maps['xsdsel_map'] as $xsdsel_id) {
-            $stmt = "SELECT * FROM ". APP_SQL_DBNAME . "." . APP_TABLE_PREFIX ."xsd_loop_subelement " .
-                    "WHERE xsdsel_id='$xsdsel_id' ";
-            $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
-            if (PEAR::isError($res)) {
-                Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            } else {
-                Misc::arraySearchReplace($res, 
-                    array('xsdsel_attribute_loop_xdis_id','xsdsel_indicator_xdis_id'),
-                    $maps['xdis_map']);
-                Misc::arraySearchReplace($res, 
-                    array('xsdsel_attribute_loop_xsdmf_id','xsdsel_indicator_xsdmf_id'),
-                    $maps['xsdmf_map']);
-                XSD_Loop_Subelement::update($xsdsel_id, $res);
-            }
-        }
-    }
-}
+			);
+			$xsdsel_id = XSD_Loop_Subelement::insertFromArray($xsdmf_id, $params);
+			$maps['xsdsel_map'][$xsub->getAttribute('xsdsel_id')] = $xsdsel_id;
+		}
+	}
 
-// benchmarking the included file (aka setup time)
-if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
-    $GLOBALS['bench']->setMarker('Included XSD_Loop_Subelement Class');
+	function remapImport(&$maps)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		if (empty($maps['xsdsel_map'])) {
+			return;
+		}
+		foreach ($maps['xsdsel_map'] as $xsdsel_id) {
+			$stmt = "SELECT * FROM ". APP_SQL_DBNAME . "." . APP_TABLE_PREFIX ."xsd_loop_subelement " .
+                    "WHERE xsdsel_id=".$db->quote($xsdsel_id);
+			try {
+				$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
+			}
+			catch(Exception $ex) {
+				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				return;
+			}
+
+			Misc::arraySearchReplace($res,
+									array('xsdsel_attribute_loop_xdis_id','xsdsel_indicator_xdis_id'),
+									$maps['xdis_map']);
+			Misc::arraySearchReplace($res,
+									array('xsdsel_attribute_loop_xsdmf_id','xsdsel_indicator_xsdmf_id'),
+									$maps['xsdmf_map']);
+			XSD_Loop_Subelement::update($xsdsel_id, $res);
+
+		}
+	}
 }
-?>

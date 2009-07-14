@@ -36,4 +36,4 @@ $proc->setParameter('', 'host',APP_HOSTNAME);
 echo $proc->transformToXML($xml);
 
 
-?>
+FezLog::get()->close();

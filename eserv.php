@@ -278,5 +278,3 @@ $tpl->assign("pid", $pid);
 $tpl->assign("not_exists", $not_exists);
 //$tpl->assign("show_not_allowed_msg", true);  // prefer non_exists message
 $tpl->displayTemplate();
-
-?>

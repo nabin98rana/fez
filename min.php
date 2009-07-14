@@ -18,4 +18,3 @@ Minify::serve('Groups', array(
         'tabs.js'       =>  array(APP_PATH . '/js/tabcontent.js', APP_PATH .'/js/ajaxtabs.js'),
     )
 ));
-?>

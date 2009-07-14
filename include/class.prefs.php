@@ -48,15 +48,15 @@ include_once(APP_INC_PATH . "class.date.php");
 
 class Prefs
 {
-    /**
-     * Method used to get the system-wide default preferences.
-     *
-     * @access  public
-     * @return  string The serialized array of the default preferences
-     */
-    function getDefaults()
-    {
-        return serialize(array(
+	/**
+	 * Method used to get the system-wide default preferences.
+	 *
+	 * @access  public
+	 * @return  string The serialized array of the default preferences
+	 */
+	function getDefaults()
+	{
+		return serialize(array(
             'updated'                 => 0,
             'closed'                  => 0,
             'emails'                  => 1, // @@@ CK - changed so default notifications is 'emails are associated'
@@ -65,88 +65,95 @@ class Prefs
             'receive_assigned_emails' => 1,
             'receive_new_emails'      => 0,
             'timezone'                => APP_DEFAULT_USER_TIMEZONE,
-//            'timezone'                => Date_API::getDefaultTimezone(),
+		//            'timezone'                => Date_API::getDefaultTimezone(),
             'list_refresh_rate'       => APP_DEFAULT_REFRESH_RATE,
             'emails_refresh_rate'     => APP_DEFAULT_REFRESH_RATE,
             'front_page'     => "front_page",
             'email_signature'         => '',
             'auto_append_sig'         => 'no'
-        ));
-    }
+            ));
+	}
 
 
-    /**
-     * Method used to get the preferences set by a specific user.
-     *
-     * @access  public
-     * @param   integer $usr_id The user ID
-     * @return  array The preferences
-     */
-    function get($usr_id)
-    {
-        static $returns;
+	/**
+	 * Method used to get the preferences set by a specific user.
+	 *
+	 * @access  public
+	 * @param   integer $usr_id The user ID
+	 * @return  array The preferences
+	 */
+	function get($usr_id)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		static $returns;
 
-        if (!empty($returns[$usr_id])) {
-            return $returns[$usr_id];
-        }
+		if (!empty($returns[$usr_id])) {
+			return $returns[$usr_id];
+		}
 
-        $stmt = "SELECT
+		$stmt = "SELECT
                     usr_preferences
                  FROM
                     " . APP_TABLE_PREFIX . "user
                  WHERE
-                    usr_id=".$usr_id;
-        $res = $GLOBALS["db_api"]->dbh->getOne($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            $res = @unserialize($res);
-            // check for the refresh rate variables, and use the default values if appropriate
-            if (empty($res['list_refresh_rate'])) {
-                $res['list_refresh_rate'] = APP_DEFAULT_REFRESH_RATE;
-            }
-            if (empty($res['emails_refresh_rate'])) {
-                $res['emails_refresh_rate'] = APP_DEFAULT_REFRESH_RATE;
-            }
-            $returns[$usr_id] = $res;
-            return $returns[$usr_id];
-        }
-    }
+                    usr_id=".$db->quote($usr_id, 'INTEGER');
+		try {
+			$res = $db->fetchOne($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+		$res = @unserialize($res);
+		// check for the refresh rate variables, and use the default values if appropriate
+		if (empty($res['list_refresh_rate'])) {
+			$res['list_refresh_rate'] = APP_DEFAULT_REFRESH_RATE;
+		}
+		if (empty($res['emails_refresh_rate'])) {
+			$res['emails_refresh_rate'] = APP_DEFAULT_REFRESH_RATE;
+		}
+		$returns[$usr_id] = $res;
+		return $returns[$usr_id];
+	}
 
 
-    /**
-     * Method used to get the email notification related preferences
-     * for a specific user.
-     *
-     * @access  public
-     * @param   integer $usr_id The user ID
-     * @return  array The preferences
-     */
-    function getNotification($usr_id)
-    {
-        $prefs = Prefs::get($usr_id);
-        $info = User::getNameEmail($usr_id);
-        $prefs["sub_email"] = $info["usr_email"];
-        return $prefs;
-    }
+	/**
+	 * Method used to get the email notification related preferences
+	 * for a specific user.
+	 *
+	 * @access  public
+	 * @param   integer $usr_id The user ID
+	 * @return  array The preferences
+	 */
+	function getNotification($usr_id)
+	{
+		$prefs = Prefs::get($usr_id);
+		$info = User::getNameEmail($usr_id);
+		$prefs["sub_email"] = $info["usr_email"];
+		return $prefs;
+	}
 
 
-    /**
-     * Method used to set the preferences for a specific user.
-     *
-     * @access  public
-     * @param   integer $usr_id The user ID
-     * @return  integer 1 if the update worked, -1 otherwise
-     */
-    function set($usr_id)
-    {
-        // if the user is trying to upload a new signature, override any changes to the textarea
-        if (!empty($_FILES["file_signature"]["name"])) {
-            $_POST['signature'] = Misc::getFileContents($_FILES["file_signature"]["tmp_name"]);
-        }
+	/**
+	 * Method used to set the preferences for a specific user.
+	 *
+	 * @access  public
+	 * @param   integer $usr_id The user ID
+	 * @return  integer 1 if the update worked, -1 otherwise
+	 */
+	function set($usr_id)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		// if the user is trying to upload a new signature, override any changes to the textarea
+		if (!empty($_FILES["file_signature"]["name"])) {
+			$_POST['signature'] = Misc::getFileContents($_FILES["file_signature"]["tmp_name"]);
+		}
 
-        $data = serialize(array(
+		$data = serialize(array(
             'updated'                 => @$_POST['updated'],
             'closed'                  => @$_POST['closed'],
             'emails'                  => @$_POST['emails'],
@@ -160,25 +167,20 @@ class Prefs
             'email_signature'         => @$_POST['signature'],
             'front_page'              => @$_POST['front_page'],
             'auto_append_sig'         => @$_POST['auto_append_sig']
-        ));
-        $stmt = "UPDATE
+		));
+		$stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "user
                  SET
-                    usr_preferences='" . Misc::escapeString($data) . "'
+                    usr_preferences=" . $db->quote($data) . "
                  WHERE
-                    usr_id=".$usr_id;
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return -1;
-        } else {
-            return 1;
-        }
-    }
+                    usr_id=".$db->quote($usr_id, 'INTEGER');
+		try {
+			$db->query($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return -1;
+		}
+		return 1;
+	}
 }
-
-// benchmarking the included file (aka setup time)
-if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
-    $GLOBALS['bench']->setMarker('Included Prefs Class');
-}
-?>

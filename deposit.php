@@ -42,5 +42,3 @@ $tpl = new Template_API();
 $tpl->setTemplate("deposit.tpl.html");
 $tpl->assign("active_nav", "deposit");
 $tpl->displayTemplate();
-
-?>

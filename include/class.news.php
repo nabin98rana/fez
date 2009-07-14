@@ -39,179 +39,195 @@ include_once(APP_INC_PATH . "class.date.php");
 class News
 {
 
-    /**
-     * Method used to inspect the supplied data fields, and report any problems back
-     * to the user prior to insert / update operation being performed.
-     *
-     * @access  public
-     * @return  integer 1 if data OK, -N otherwise
-     */
-    function checkFieldData()
-    {
-        // Check for non-supplied field data
-        if (Validation::isWhitespace($_POST["title"])) {
-            return -2;
-        }
-        if (Validation::isWhitespace($_POST["message"])) {
-            return -3;
-        }
-        // Check for field data that exceeds the length of underlying DB field limits
-        if (strlen($_POST["title"]) > 255) {
-            return -4;
-        }
-        if (strlen($_POST["message"]) > 65535) {
-            return -5;
-        }
-        return 1;
-    }
+	/**
+	 * Method used to inspect the supplied data fields, and report any problems back
+	 * to the user prior to insert / update operation being performed.
+	 *
+	 * @access  public
+	 * @return  integer 1 if data OK, -N otherwise
+	 */
+	function checkFieldData()
+	{
+		// Check for non-supplied field data
+		if (Validation::isWhitespace($_POST["title"])) {
+			return -2;
+		}
+		if (Validation::isWhitespace($_POST["message"])) {
+			return -3;
+		}
+		// Check for field data that exceeds the length of underlying DB field limits
+		if (strlen($_POST["title"]) > 255) {
+			return -4;
+		}
+		if (strlen($_POST["message"]) > 65535) {
+			return -5;
+		}
+		return 1;
+	}
 
 
-    /**
-     * Method used to add a news entry to the system.
-     *
-     * @access  public
-     * @return  integer 1 if the insert worked, -1 otherwise
-     */
-    function insert()
-    {
-        $checkResult = News::checkFieldData();
-        if ($checkResult !== 1) {
-            return $checkResult;
-        }
+	/**
+	 * Method used to add a news entry to the system.
+	 *
+	 * @access  public
+	 * @return  integer 1 if the insert worked, -1 otherwise
+	 */
+	function insert()
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$checkResult = News::checkFieldData();
+		if ($checkResult !== 1) {
+			return $checkResult;
+		}
 
-        $stmt = "INSERT INTO
+		$stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "news
                  (
                     nws_usr_id,
                     nws_created_date,
                     nws_title,
                     nws_message,";
-			if ($_POST["status"] == "active") {
-				$stmt .= "nws_published_date,";
-			}
-			$stmt .= "
+		if ($_POST["status"] == "active") {
+			$stmt .= "nws_published_date,";
+		}
+		$stmt .= "
                     nws_status
                  ) VALUES (
-                    " . Auth::getUserID() . ",
-                    '" . Date_API::getCurrentDateGMT() . "',
-                    '" . Misc::escapeString($_POST["title"]) . "',
-                    '" . Misc::escapeString($_POST["message"]) . "',";
-				if ($_POST["status"] == "active") {
-					$stmt .= "
-					'" . Date_API::getCurrentDateGMT() . "',";
-				}
+                    " . $db->quote(Auth::getUserID(), 'INTEGER') . ",
+                    " . $db->quote(Date_API::getCurrentDateGMT()) . ",
+                    " . $db->quote($_POST["title"]) . ",
+                    " . $db->quote($_POST["message"]) . ",";
+		if ($_POST["status"] == "active") {
+			$stmt .= "
+					" . $db->quote(Date_API::getCurrentDateGMT()) . ",";
+		}
 
-					$stmt .= "
-                    '" . Misc::escapeString($_POST["status"]) . "'
-                 )";
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return -1;
-        } else {
-            return 1;
-        }
-    }
+		$stmt .=  $db->quote($_POST["status"]) . ")";
+		try {
+			$db->query($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return -1;
+		}
+		return 1;
+	}
 
 
-    /**
-     * Method used to remove a news entry from the system.
-     *
-     * @access  public
-     * @return  boolean
-     */
-    function remove()
-    {
-        $items = @implode(", ", $_POST["items"]);
-        $stmt = "DELETE FROM
+	/**
+	 * Method used to remove a news entry from the system.
+	 *
+	 * @access  public
+	 * @return  boolean
+	 */
+	function remove()
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "news
                  WHERE
-                    nws_id IN (".$items.")";
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return false;
-        } else {
-            return true;
-        }
-    }
+                    nws_id IN (".Misc::arrayToSQLBindStr($_POST["items"]).")";
+		try {
+			$db->query($stmt, $_POST["items"]);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return false;
+		}
+		return true;
+	}
 
 
-    /**
-     * Method used to update a news entry in the system.
-     *
-     * @access  public
-     * @return  integer 1 if the update worked, -1 otherwise
-     */
-    function update()
-    {
-        $checkResult = News::checkFieldData();
-        if ($checkResult !== 1) {
-            return $checkResult;
-        }
+	/**
+	 * Method used to update a news entry in the system.
+	 *
+	 * @access  public
+	 * @return  integer 1 if the update worked, -1 otherwise
+	 */
+	function update()
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$checkResult = News::checkFieldData();
+		if ($checkResult !== 1) {
+			return $checkResult;
+		}
 
-        // get existing details for the publish date condition
-        $existing_res = News::getDetails($_POST["id"]);
+		// get existing details for the publish date condition
+		$existing_res = News::getDetails($_POST["id"]);
 
-        $stmt = "UPDATE
+		$stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "news
                  SET
-                    nws_title='" . Misc::escapeString($_POST["title"]) . "',
-                    nws_message='" . Misc::escapeString($_POST["message"]) . "',
-                    nws_status='" . Misc::escapeString($_POST["status"]) . "',
+                    nws_title=" . $db->quote($_POST["title"]) . ",
+                    nws_message=" . $db->quote($_POST["message"]) . ",
+                    nws_status=" . $db->quote($_POST["status"]) . ",
 					";
-				if (($_POST["status"] == "active") && ($existing_res['published_date'] != '0000-00-00 00:00:00')) {
-					$stmt .= "
-					nws_published_date = '" . Date_API::getCurrentDateGMT() . "',";
-				}
-					$stmt .= "
-                    nws_updated_date='" . Date_API::getCurrentDateGMT() . "'					
+		if (($_POST["status"] == "active") && ($existing_res['published_date'] != '0000-00-00 00:00:00')) {
+			$stmt .= "
+					nws_published_date = " . $db->quote(Date_API::getCurrentDateGMT()) . ",";
+		}
+		$stmt .= "
+                    nws_updated_date=" . $db->quote(Date_API::getCurrentDateGMT()) . "					
                  WHERE
-                    nws_id=" . $_POST["id"];
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return -1;
-        } else {
-            return 1;
-        }
-    }
+                    nws_id=" . $db->quote($_POST["id"], 'INTEGER');
+		try {
+			$db->query($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return -1;
+		}
+		return 1;
+	}
 
 
-    /**
-     * Method used to get the details of a news entry for a given news ID.
-     *
-     * @access  public
-     * @param   integer $nws_id The news entry ID
-     * @return  array The news entry details
-     */
-    function getDetails($nws_id)
-    {
-        $stmt = "SELECT
+	/**
+	 * Method used to get the details of a news entry for a given news ID.
+	 *
+	 * @access  public
+	 * @param   integer $nws_id The news entry ID
+	 * @return  array The news entry details
+	 */
+	function getDetails($nws_id)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "SELECT
                     *
                  FROM
                     " . APP_TABLE_PREFIX . "news
                  WHERE
-                    nws_id=".$nws_id;
-        $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            return $res;
-        }
-    }
+                    nws_id=".$db->quote($nws_id, 'INTEGER');
+		try {
+			$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+		return $res;
+	}
 
 
-    /**
-     * Method used to get the list of news entries available in the system.
-     *
-     * @access  public
-     * @return  array The list of news entries
-     */
-    function getList($maxPosts = 999999)
-    {
-        $stmt = "SELECT
+	/**
+	 * Method used to get the list of news entries available in the system.
+	 *
+	 * @access  public
+	 * @return  array The list of news entries
+	 */
+	function getList($maxPosts = 999999)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+				
+		$stmt = "SELECT
 					*
                  FROM
                     " . APP_TABLE_PREFIX . "news,
@@ -219,33 +235,37 @@ class News
                  WHERE nws_status = 'active' and usr_id = nws_usr_id
                  ORDER BY
                     nws_created_date DESC
-                 LIMIT " . $maxPosts . "";
-        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-			foreach ($res as $key => $row) {			
-			  $res[$key]["nws_created_date"] = Date_API::getFormattedDate($res[$key]["nws_created_date"]);
-			  $res[$key]["nws_updated_date"] = Date_API::getFormattedDate($res[$key]["nws_updated_date"]);
-			  $res[$key]["nws_published_date"] = Date_API::getFormattedDate($res[$key]["nws_published_date"]);
-			  //$res[$key]["nws_created_date"] = Date_API::getFormattedDate($res[$key]["nws_created_date"], APP_DEFAULT_USER_TIMEZONE);
-			  //$res[$key]["nws_updated_date"] = Date_API::getFormattedDate($res[$key]["nws_updated_date"], APP_DEFAULT_USER_TIMEZONE);
-			  //$res[$key]["nws_published_date"] = Date_API::getFormattedDate($res[$key]["nws_published_date"], APP_DEFAULT_USER_TIMEZONE);
-			}
-            return $res;
-        }
-    }
+                 LIMIT " . $db->quote($maxPosts, 'INTEGER');
+		try {
+			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+		foreach ($res as $key => $row) {
+			$res[$key]["nws_created_date"] = Date_API::getFormattedDate($res[$key]["nws_created_date"]);
+			$res[$key]["nws_updated_date"] = Date_API::getFormattedDate($res[$key]["nws_updated_date"]);
+			$res[$key]["nws_published_date"] = Date_API::getFormattedDate($res[$key]["nws_published_date"]);
+			//$res[$key]["nws_created_date"] = Date_API::getFormattedDate($res[$key]["nws_created_date"], APP_DEFAULT_USER_TIMEZONE);
+			//$res[$key]["nws_updated_date"] = Date_API::getFormattedDate($res[$key]["nws_updated_date"], APP_DEFAULT_USER_TIMEZONE);
+			//$res[$key]["nws_published_date"] = Date_API::getFormattedDate($res[$key]["nws_published_date"], APP_DEFAULT_USER_TIMEZONE);
+		}
+		return $res;
+	}
 
-    /**
-     * Method used to get the list of news entries available in the system.
-     *
-     * @access  public
-     * @return  array The list of news entries
-     */
-    function getListAll()
-    {
-        $stmt = "SELECT
+	/**
+	 * Method used to get the list of news entries available in the system.
+	 *
+	 * @access  public
+	 * @return  array The list of news entries
+	 */
+	function getListAll()
+	{	
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "SELECT
 					*
                  FROM
                     " . APP_TABLE_PREFIX . "news,
@@ -253,24 +273,19 @@ class News
 				 WHERE usr_id = nws_usr_id
                  ORDER BY
                     nws_created_date DESC";
-        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-			foreach ($res as $key => $row) {			
-			  $res[$key]["nws_created_date"] = Date_API::getFormattedDate($res[$key]["nws_created_date"]);
-			  $res[$key]["nws_updated_date"] = Date_API::getFormattedDate($res[$key]["nws_updated_date"]);
-			  $res[$key]["nws_published_date"] = Date_API::getFormattedDate($res[$key]["nws_published_date"]);
-			}
-            return $res;
-        }
-    }
-
+		try {	
+			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+		
+		foreach ($res as $key => $row) {
+			$res[$key]["nws_created_date"] = Date_API::getFormattedDate($res[$key]["nws_created_date"]);
+			$res[$key]["nws_updated_date"] = Date_API::getFormattedDate($res[$key]["nws_updated_date"]);
+			$res[$key]["nws_published_date"] = Date_API::getFormattedDate($res[$key]["nws_published_date"]);
+		}
+		return $res;
+	}
 }
-
-// benchmarking the included file (aka setup time)
-if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
-    $GLOBALS['bench']->setMarker('Included News Class');
-}
-?>

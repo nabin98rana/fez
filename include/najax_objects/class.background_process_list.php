@@ -29,8 +29,3 @@ class NajaxBackgroundProcessList {
         NAJAX_Client::publicMethods($this, array('getDetails','getLog'));
     }
 }
-
-
-
-
-?>

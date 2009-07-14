@@ -100,4 +100,4 @@ $tpl->assign("element", $element);
 $tpl->assign("cv_tree", Controlled_Vocab::renderCVtree(Controlled_Vocab::buildCVtree()));
 
 $tpl->displayTemplate();
-?>
+

@@ -31,32 +31,29 @@
 // |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>,                    |
 // |          Rhys Palmer <r.rpalmer@library.uq.edu.au>                   |
 // +----------------------------------------------------------------------+
- 
+
 include_once(APP_INC_PATH.'class.background_process.php');
 include_once(APP_INC_PATH.'class.duplicates_report.php');
 
 class BackgroundProcess_DuplicatesReportMergeIsiLoc extends BackgroundProcess
 {
-    function __construct() 
-    {
-        parent::__construct();
-        $this->include = 'class.bgp_duplicates_report_merge_isi_loc.php';
-        $this->name = 'Duplicates Report Merge on ISI LOC';
-    }
+	function __construct()
+	{
+		parent::__construct();
+		$this->include = 'class.bgp_duplicates_report_merge_isi_loc.php';
+		$this->name = 'Duplicates Report Merge on ISI LOC';
+	}
 
-    function run()
-    {
-        $this->setState(1);
-        extract(unserialize($this->inputs));
+	function run()
+	{
+		$this->setState(1);
+		extract(unserialize($this->inputs));
 
-        if (!empty($report_pid)) { 
-            $dr = new DuplicatesReport($report_pid);
-            $dr->setBGP($this);
-            $dr->autoMergeOnISI_LOC();
-        }
-        $this->setState(2);
-    }
+		if (!empty($report_pid)) {
+			$dr = new DuplicatesReport($report_pid);
+			$dr->setBGP($this);
+			$dr->autoMergeOnISI_LOC();
+		}
+		$this->setState(2);
+	}
 }
-
- 
-?>

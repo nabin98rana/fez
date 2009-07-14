@@ -210,99 +210,101 @@ class Google_Scholar
 		}
 		return $articles;
 	}
-
-
+		
+	
 	/**
-	 * Method inserts a new Google Scholar citation count entry
-	 * 
-	 * @param $pid The PID to insert the citation count for
-	 * @param $count The count to insert 
-	 * @param $link The link to insert 
-	 * @return bool True if the insert was successful else false
-	 */
-	public static function insertGoogleScholarCitationCount($pid, $count, $link) {
-		$dbtp =  APP_TABLE_PREFIX; // Database and table prefix
+     * Method inserts a new Google Scholar citation count entry
+     * 
+     * @param $pid The PID to insert the citation count for
+     * @param $count The count to insert 
+     * @param $link The link to insert 
+     * @return bool True if the insert was successful else false
+     */
+    public static function insertGoogleScholarCitationCount($pid, $count, $link) {
+        $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
 
-		$stmt = "INSERT INTO
+        $stmt = "INSERT INTO
                     " . $dbtp . "google_scholar_citations
                  (gs_id, gs_pid, gs_count, gs_link, gs_last_checked, gs_created)
                  VALUES
-                 (NULL, '".Misc::escapeString($pid)."', '".Misc::escapeString($count)."', '".Misc::escapeString($link)."', '".time()."', '".time()."')";
+                 (NULL, ?, ?, ?, ?, ?)";
 
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return false;
-        }
-        return true;
-	}
-	
-	
-	public static function updateCitationCache($pid) {
-
-		$cites = Google_Scholar::getGoogleScholarCitationCountHistory($pid, 1);
-		if (count($cites) == 1) {
-			Record::updateGoogleScholarCitationCount($pid, $cites['gs_count'], $cites['gs_link']);
+    	try {
+			$db->query($stmt, array($pid, $count, $link, time(), time()));
 		}
-	}
-
-
-	/**
-	 * Method updates the last time a Google Scholar citation count was checked
-	 * 
-	 * @param $pid The PID to update the last checked date for
-	 * @param $count The count to update with
-	 * @return bool True if the update was successful else false
-	 */
-	public static function updateGoogleScholarCitationLastChecked($gs_id) {
-		$dbtp =  APP_TABLE_PREFIX; // Database and table prefix
-
-		$stmt = "UPDATE
-		           " . $dbtp . "google_scholar_citations
-		         SET
-		         	gs_last_checked = '".time()."'
-                 WHERE
-                    gs_id = '".Misc::escapeString($gs_id)."'";
-        $res = $GLOBALS["db_api"]->dbh->query($stmt);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return false;				
-        }
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return false;
+		}
+		
         return true;
-	}
+    }
+    
+    
+    public static function updateCitationCache($pid) {
 
-	/**
-	 * Returns Google Scholar citation count history for a pid
-	 * 
-	 * @param $pid The PID to get the citation count history for 
-	 * @return array The citation count history 
-	 */
-	public static function getGoogleScholarCitationCountHistory($pid, $limit = false) {
-		$dbtp =  APP_TABLE_PREFIX; // Database and table prefix
-
-		$limit = ($limit) ? 'LIMIT '.$limit:null;
-		$stmt = "SELECT
-					gs_last_checked,gs_created,gs_count,gs_link
-				 FROM
-		           " . $dbtp . "google_scholar_citations
-                 WHERE
-                    gs_pid = '".Misc::escapeString($pid)."'
-                 ORDER BY gs_created ASC
-                 $limit";        
-        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC); //DB_FETCHMODE_ASSOC
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return false;				
+        $cites = Google_Scholar::getGoogleScholarCitationCountHistory($pid, 1);
+        if (count($cites) == 1) {
+            Record::updateGoogleScholarCitationCount($pid, $cites['gs_count'], $cites['gs_link']);
         }
-        return $res;
-	}
+    }
 
 
+    /**
+     * Method updates the last time a Google Scholar citation count was checked
+     * 
+     * @param $pid The PID to update the last checked date for
+     * @param $count The count to update with
+     * @return bool True if the update was successful else false
+     */
+    public static function updateGoogleScholarCitationLastChecked($gs_id) {
+        $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
+
+        $stmt = "UPDATE
+                   " . $dbtp . "google_scholar_citations
+                 SET
+                     gs_last_checked = ?
+                 WHERE
+                    gs_id = ?";
+        
+		try {
+			$db->query($stmt, array(time(), $gs_id));
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return false;
+		}
+        
+        return true;
+    }
+
+    /**
+     * Returns Google Scholar citation count history for a pid
+     * 
+     * @param $pid The PID to get the citation count history for 
+     * @return array The citation count history 
+     */
+    public static function getGoogleScholarCitationCountHistory($pid, $limit = false) {
+        $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
+
+        $limit = ($limit) ? 'LIMIT '.$limit:null;
+        $stmt = "SELECT
+                    gs_last_checked,gs_created,gs_count,gs_link
+                 FROM
+                   " . $dbtp . "google_scholar_citations
+                 WHERE
+                    gs_pid = ?
+                 ORDER BY gs_created ASC
+                 $limit";    
+		try {
+			$res = $db->fetchAll($stmt, array($pid), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return false;
+		}
+		return $res;
+    }
 
 }
 
-// benchmarking the included file (aka setup time)
-if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
-	$GLOBALS['bench']->setMarker('Included Google Scholar Class');
-}
-?>

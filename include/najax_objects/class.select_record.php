@@ -38,5 +38,3 @@ class SelectRecord {
         NAJAX_Client::publicMethods($this, array('getCollections', 'getRecords'));
     }
 }
-
-?>

@@ -49,36 +49,30 @@ $avail_langs = array(
 
 class Language
 {
-    /**
-     * Method used to set the appropriate preference of the language
-     * for the application.
-     *
-     * @access  public
-     * @return  void
-     */
-    function setPreference()
-    {
-        global $app_lang, $avail_langs;
+	/**
+	 * Method used to set the appropriate preference of the language
+	 * for the application.
+	 *
+	 * @access  public
+	 * @return  void
+	 */
+	function setPreference()
+	{
+		global $app_lang, $avail_langs;
 
-            session_name(APP_SESSION);
-        @session_start();
-        if (!empty($_GET["lang"])) {
-            session_register("app_lang");
-            if (!in_array($_GET["lang"], $avail_langs)) {
-                $app_lang = APP_DEFAULT_LANG;
-            } else {
-                $app_lang = $_GET["lang"];
-            }
-        }
-        if (empty($app_lang)) {
-            $app_lang = APP_DEFAULT_LANG;
-        }
-        @define("APP_CURRENT_LANG", $app_lang);
-    }
+		session_name(APP_SESSION);
+		session_start();
+		if (!empty($_GET["lang"])) {
+			session_register("app_lang");
+			if (!in_array($_GET["lang"], $avail_langs)) {
+				$app_lang = APP_DEFAULT_LANG;
+			} else {
+				$app_lang = $_GET["lang"];
+			}
+		}
+		if (empty($app_lang)) {
+			$app_lang = APP_DEFAULT_LANG;
+		}
+		@define("APP_CURRENT_LANG", $app_lang);
+	}
 }
-
-// benchmarking the included file (aka setup time)
-if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
-    $GLOBALS['bench']->setMarker('Included Language Class');
-}
-?>

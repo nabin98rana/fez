@@ -44,4 +44,4 @@ if (Statistics::isRobot($ip) != 1) {
 header("Content-type: text/plain");
 echo file_get_contents("robots.txt");
 
-?>
+FezLog::get()->close();

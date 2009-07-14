@@ -48,57 +48,51 @@ include_once(APP_INC_PATH . "class.error_handler.php");
 
 class Setup
 {
-    /**
-     * Method used to load the setup options for the application.
-     *
-     * @access  public
-     * @return  array The system-wide preferences
-     */
-    function load()
-    {
-        $contents = @implode("", file(APP_SETUP_FILE));
-        //@@@ christiaan - to see why from was empty 
-//        print_r(unserialize(base64_decode($contents)));
-        return unserialize(base64_decode($contents));
-    }
+	/**
+	 * Method used to load the setup options for the application.
+	 *
+	 * @access  public
+	 * @return  array The system-wide preferences
+	 */
+	function load()
+	{
+		$contents = @implode("", file(APP_SETUP_FILE));
+		//@@@ christiaan - to see why from was empty
+		//        print_r(unserialize(base64_decode($contents)));
+		return unserialize(base64_decode($contents));
+	}
 
 
-    /**
-     * Method used to save the setup options for the application.
-     *
-     * @access  public
-     * @param   array $options The system-wide preferences
-     * @return  integer 1 if the update worked, -1 or -2 otherwise
-     */
-    function save($options)
-    {
-        // this is needed to check if the file can be created or not
-        if (!file_exists(APP_SETUP_FILE)) {
-            if (!@is_writable(APP_SETUP_PATH)) {
-                clearstatcache();
-                return -1;
-            }
-        } else {
-            if (!@is_writable(APP_SETUP_FILE)) {
-                clearstatcache();
-                return -2;
-            }
-        }
-        $fp = @fopen(APP_SETUP_FILE, "w");
-        if (!$fp) {
-            return -2;
-        }
-        @flock($fp, LOCK_EX);
-        @fwrite($fp, base64_encode(serialize($options)));
-        @fclose($fp);
-        @flock($fp, LOCK_UN);
-        return 1;
-    }
+	/**
+	 * Method used to save the setup options for the application.
+	 *
+	 * @access  public
+	 * @param   array $options The system-wide preferences
+	 * @return  integer 1 if the update worked, -1 or -2 otherwise
+	 */
+	function save($options)
+	{
+		// this is needed to check if the file can be created or not
+		if (!file_exists(APP_SETUP_FILE)) {
+			if (!@is_writable(APP_SETUP_PATH)) {
+				clearstatcache();
+				return -1;
+			}
+		} else {
+			if (!@is_writable(APP_SETUP_FILE)) {
+				clearstatcache();
+				return -2;
+			}
+		}
+		$fp = @fopen(APP_SETUP_FILE, "w");
+		if (!$fp) {
+			return -2;
+		}
+		@flock($fp, LOCK_EX);
+		@fwrite($fp, base64_encode(serialize($options)));
+		@fclose($fp);
+		@flock($fp, LOCK_UN);
+		return 1;
+	}
 
 }
-
-// benchmarking the included file (aka setup time)
-if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
-    $GLOBALS['bench']->setMarker('Included Setup Class');
-}
-?>

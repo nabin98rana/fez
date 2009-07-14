@@ -52,40 +52,36 @@ include_once(APP_INC_PATH . "class.auth.php");
 
 class Author_Funct
 {
+	/**
+	 * Method used to get the complete list of author functions.
+	 *
+	 * @access  public
+	 * @return  array The author function records
+	 */
+	function getList() 
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
 
-    /**
-     * Method used to get the complete list of author functions.
-     *
-     * @access  public
-     * @return  array The author function records
-     */
-    function getList()
-    {
-        $stmt = "SELECT
+		$stmt = "SELECT
                     fun_id, fun_title
                  FROM
                     " . APP_TABLE_PREFIX . "author_function
                  ORDER BY
                     fun_title";
 
-        $res = $GLOBALS["db_api"]->dbh->getAll($stmt, DB_FETCHMODE_ASSOC);
-        if (PEAR::isError($res)) {
-            Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-            return "";
-        } else {
-            if (empty($res)) {
-                return array();
-            } else {
-                return $res;
-            }
-        }
-    }
+		try {
+			$res = $db->fetchAll($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return '';
+		}
+		if (empty($res)) {
+			return array();
+		} else {
+			return $res;
+		}
+	}
 
 }
-
-
-// benchmarking the included file (aka setup time)
-if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
-    $GLOBALS['bench']->setMarker('Included Author Function Class');
-}
-?>
