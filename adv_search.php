@@ -35,6 +35,7 @@
 
 include_once('config.inc.php');
 include_once(APP_INC_PATH . "db_access.php");
+include_once(APP_INC_PATH . 'class.background_process.php');
 include_once(APP_INC_PATH . "class.search_key.php");
 include_once(APP_INC_PATH . "class.xsd_display.php");
 include_once(APP_INC_PATH . "class.status.php");
