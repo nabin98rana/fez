@@ -333,6 +333,33 @@ class Author
 		}
 		return 1;
 	}
+	
+	
+    function updateMyPubURL($username, $mypub_url)
+    { 
+        if (Validation::isWhitespace($mypub_url)) {
+            return -1;
+        }
+        if (Validation::isUserFileName($mypub_url) == true) {
+            return -2;
+        }
+        $stmt = "UPDATE
+                    " . APP_TABLE_PREFIX . "author
+                 SET
+                    aut_mypub_url=? ";
+        $stmt .= "WHERE
+                    aut_org_username=?";
+        
+	    try {
+			$db->query($stmt, array($mypub_url, $username));
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return -1;
+		}
+        return 1;
+    }
+	
 
 
 	/**
