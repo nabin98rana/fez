@@ -33,6 +33,8 @@
 //
 //
 include_once('../config.inc.php');
+include_once(APP_INC_PATH . 'class.background_process.php');
+include_once(APP_INC_PATH . 'class.record_general.php');
 include_once(APP_INC_PATH.'class.workflow_status.php');
 include_once(APP_INC_PATH.'najax_classes.php');
 
