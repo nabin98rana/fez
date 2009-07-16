@@ -438,16 +438,18 @@ class DuplicatesReport {
 			$index = new FulltextIndex_Solr();
 			$params = array();
 			$start = 0;
-			$page_rows = 0;
-			$params['fl'] = 'title_t,score';
+			$page_rows = 15;
+			$params['fl'] = 'pid_t,score';
 			$params['fq'] = 'object_type_i:3 AND !pid_t:'.$index->solr->escape($pid).$pp_solr_filter;
 			//Fez Solr schema.xml has the default search to be an AND based search, while dedupe similar titles query needs to be an OR based search
 			// so it doesn't exclude similar titles
+			$title =  ereg_replace(" +", " ", $title);
+			$title = $index->solr->escape($title);
 			$title = $index->solr->escapeBooleans($title);
 			$titleOr = implode(" OR ", explode(" ", $title));
-			$titleOr = preg_replace("/ OR OR /i", " OR ", $titleOr);
-			$titleOr = preg_replace("/ AND AND /i", " AND ", $titleOr);
-			$queryString = "title_t:(".$index->solr->escape($titleOr).")";
+			$titleOr = preg_replace("/( OR OR )/i", " OR ", $titleOr);
+			$titleOr = preg_replace("/( AND AND )/i", " AND ", $titleOr);
+			$queryString = "title_t:(".$titleOr.")";
 			$response = $index->solr->search($queryString, $start, $page_rows, $params);
 			$total_rows = $response->response->numFound;
 			$res = array();
@@ -1207,11 +1209,78 @@ class DuplicatesReport {
 	}
 
 
-	function compareRecords(&$record1, &$record2)
-	{
-		$title_tokens1 = $this->tokenise(array(strtolower($record1->getTitle())));
-		$title_tokens2 = $this->tokenise(array(strtolower($record2->getTitle())));
-		$title_score = $this->calcOverlap($title_tokens1, $title_tokens2);
+    function compareRecords(&$record1, &$record2)
+    {
+	
+		$page_score = 1; //initialise with 1 for no change to the final score
+		$start_page1 = Record::getSearchKeyIndexValue($record1->pid, "Start Page", false);
+		$start_page2 = Record::getSearchKeyIndexValue($record2->pid, "Start Page", false);
+
+		$end_page1 = Record::getSearchKeyIndexValue($record1->pid, "End Page", false);
+		$end_page2 = Record::getSearchKeyIndexValue($record2->pid, "End Page", false);
+		
+		if (is_array($start_page1) && count($start_page1) > 0) {
+			$start_page1 = $start_page1[0];
+		} else {
+			$start_page1 = false;
+		}
+
+		if (is_array($start_page2) && count($start_page2) > 0) {
+			$start_page2 = $start_page2[0];
+		} else {
+			$start_page2 = false;
+		}
+
+		if (is_array($end_page1) && count($end_page1) > 0) {
+			$end_page1 = $end_page1[0];
+		} else {
+			$end_page1 = false;
+		}
+
+		if (is_array($end_page2) && count($end_page2) > 0) {
+			$end_page2 = $end_page2[0];
+		} else {
+			$end_page2 = false;
+		}
+		
+		//If the stand and end pages match exactly put this in the dedupe report
+		if ($start_page1 == $start_page2 && $end_page1 == $end_page2 && is_numeric($start_page1) && is_numeric($end_page1)) {
+                        echo "\n Matched on Page numbers\n";
+			return 1;
+		}
+	
+		//If either the start or end pages match exactly, double the final score, otherwise dont change final score
+		if (($start_page1 == $start_page2 || $end_page1 == $end_page2) && is_numeric($start_page1) && is_numeric($end_page1)) {
+                        echo "\n Partially matched on Page numbers\n";
+			$page_score = 1.5;
+		}
+
+		// If both are not book chapters then compare on isbn - if match then put in the dedupe report. Even if one is a wrong doc type is should be in the report because the doc type will need changing
+        if (!is_numeric(strpos($record1->getDocumentType(), 'Book Chapter'))
+        		&& !is_numeric(strpos($record2->getDocumentType(), 'Book Chapter'))) {
+	
+			$isbn1 = Record::getSearchKeyIndexValue($record1->pid, "ISBN", false);
+			$isbn2 = Record::getSearchKeyIndexValue($record2->pid, "ISBN", false);
+
+			if (is_array($isbn1) && count($isbn1) > 0) {
+				$isbn1 = $isbn1[0];
+			} else {
+				$isbn1 = false;
+			}
+			if (is_array($isbn2) && count($isbn2) > 0) {
+				$isbn2 = $isbn2[0];
+			} else {
+				$isbn2 = false;
+			}
+
+			if (trim($isbn1) == trim($isbn2) && strlen(trim($isbn1)) > 0) {
+				return 1;
+			}
+		}
+
+        $title_tokens1 = $this->tokenise(array(strtolower($record1->getTitle())));
+        $title_tokens2 = $this->tokenise(array(strtolower($record2->getTitle())));
+        $title_score = $this->calcOverlap($title_tokens1, $title_tokens2);
 
 		$author_tokens1 = $this->tokenise($record1->getFieldValueBySearchKey('Author'));
 		$author_tokens2 = $this->tokenise($record2->getFieldValueBySearchKey('Author'));
@@ -1235,13 +1304,14 @@ class DuplicatesReport {
 		} else {
 			$journal_title_score = 1;
 		}
-		if ($title_score == 1) {
-			//			echo "\n (t)".$title_score."\n";
+		//			echo "\n (t)".$title_score."\n";
+		// If the title is an exact match on the title words and the total number of words is at least 3 (greater than 2x2 = 4 total) in each
+		if ($title_score == 1 && ( (count($title_tokens2) + count($title_tokens1)) > 4 )   ) {
 			return 1;
 		}
-		//echo "\n (t)".$title_score." - (a)".$author_score." - (j)".$journal_title_score."\n";
-		return $title_score * $author_score * $journal_title_score;
-	}
+//echo "\n (t)".$title_score." - (a)".$author_score." - (j)".$journal_title_score."\n"; 
+        return ($title_score * $author_score * $journal_title_score) * $page_score;
+    }
 
 	function calcOverlap($array1,$array2)
 	{
@@ -1251,17 +1321,18 @@ class DuplicatesReport {
 		return count(array_intersect($array1, $array2)) * 2  / (count($array1) + count($array2));
 	}
 
-	function tokenise($array_of_strings)
-	{
-		$array_of_strings = Misc::array_flatten($array_of_strings, '', true);
-		if (!is_array($array_of_strings)) {
-			$tokens = explode(' ',$array_of_strings);
-		} else {
-			$tokens = explode(' ',implode(' ', $array_of_strings));
-		}
-		// get rid of anything three chars or less - initials and stuff
-		$tokens = array_filter($tokens, array($this,'shortWordsFilter'));
-		return array_values($tokens);
+    function tokenise($array_of_strings)
+    {
+        $array_of_strings = Misc::array_flatten($array_of_strings, '', true);
+    
+    	if (!is_array($array_of_strings)) {
+        	$tokens = explode(' ',(preg_replace("/[^a-zA-Z0-9 ]/", "", $array_of_strings)));
+        } else {
+	        $tokens = explode(' ',(preg_replace("/[^a-zA-Z0-9 ]/", "", implode(' ', $array_of_strings))));
+        }
+        // get rid of anything three chars or less - initials and stuff
+        $tokens = array_filter($tokens, array($this,'shortWordsFilter'));
+        return array_values($tokens);
 
 	}
 
