@@ -221,6 +221,9 @@ class Google_Scholar
      * @return bool True if the insert was successful else false
      */
     public static function insertGoogleScholarCitationCount($pid, $count, $link) {
+    	$log = FezLog::get();
+		$db = DB_API::get();
+		
         $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
 
         $stmt = "INSERT INTO
@@ -258,6 +261,9 @@ class Google_Scholar
      * @return bool True if the update was successful else false
      */
     public static function updateGoogleScholarCitationLastChecked($gs_id) {
+    	$log = FezLog::get();
+		$db = DB_API::get();
+		
         $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
 
         $stmt = "UPDATE
@@ -285,6 +291,9 @@ class Google_Scholar
      * @return array The citation count history 
      */
     public static function getGoogleScholarCitationCountHistory($pid, $limit = false) {
+    	$log = FezLog::get();
+		$db = DB_API::get();
+		
         $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
 
         $limit = ($limit) ? 'LIMIT '.$limit:null;
