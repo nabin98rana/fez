@@ -1004,7 +1004,7 @@ class Author
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+	
 		$query = "SELECT rek_author, count(*) as paper_count FROM " . APP_TABLE_PREFIX . "record_search_key_author aut ";
 		$query .= "JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id autid ";
 		$query .= "ON (rek_author_pid = rek_author_id_pid AND aut.rek_author_order = autid.rek_author_id_order) ";
@@ -1013,7 +1013,7 @@ class Author
 		$query .= "ORDER BY 2 desc ";
 
 		try {
-			$res = $db->fetchAssoc($stmt);
+			$res = $db->fetchPairs($query);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));

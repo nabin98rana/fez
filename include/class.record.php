@@ -1036,19 +1036,21 @@ class Record
 		$log = FezLog::get();
 		$db = DB_API::get();
 
-		if( $pid == '' )
-		return array();
-
+		if ($pid == '') {
+			return array();
+		}
 		$dbtp =  APP_TABLE_PREFIX; // Database and table prefix
 		$order = '';
 		$bind_param = array();
 
-		if( is_array($pid)) {
+		if( is_array($pid) && count($pid) > 0) {
 			$where = "rek_pid IN (".Misc::arrayToSQLBindStr($pid).")";
 			$bind_param = $pid;
 			$order = "rek_created_date";
-		} else {
+		} elseif (!is_array($pid)) {
 			$where = "rek_pid = ".$db->quote($pid);
+		} else {
+			return array();
 		}
 
 		$stmt =  "SELECT * " .
@@ -2875,9 +2877,11 @@ class Record
 		foreach ($options as $sek_id => $value) {
 			if (strpos($sek_id, "searchKey") !== false) {
 				$searchKeys[str_replace("searchKey", "", $sek_id)] = $value;
+			} elseif (strpos($sek_id, "manualFilter") !== false) {
+				$searchKey_join[SK_WHERE] .= " ".$value." AND ";
 			}
 		}
-
+		echo $searchKey_join[SK_WHERE];
 		$joinType = "";
 		$x = 0;
 		$sortRestriction = "";
@@ -3062,7 +3066,7 @@ class Record
 			if( is_array($searchKey_join['sk_where_AND']) || is_array($searchKey_join['sk_where_OR']) ) {
 
 				$sk_where_and = false;
-				$searchKey_join[SK_WHERE] = "  ";
+				$searchKey_join[SK_WHERE] .= "  ";
 
 				if( is_array($searchKey_join['sk_where_AND']) ) {
 					$searchKey_join[SK_WHERE] .= " (" . implode(' AND ', $searchKey_join['sk_where_AND']) . ") ";

@@ -624,7 +624,7 @@ class Lister
             
 		} elseif ($browse == "mypubs") {
 			$log->debug('Browse MyPubs');
-			
+
 			$current_row = 0;
 			$tpl->assign("active_nav", "list");
 			$max = 9999999;
@@ -643,10 +643,11 @@ class Lister
 			$citationCache = true;
 
 	 		$list = Record::getListing($options, array(9,10), $current_row, $max, $sort_by, $simple, $citationCache, $filter, $operator, $use_faceting, $use_highlighting);
+
 	        $list_info = $list["info"];
 	        $facets = @$list['facets'];
             $list = $list["list"];
-//print_r($list);
+
 			$otherDisplayTypes = array();
 
 
@@ -1022,21 +1023,18 @@ class Lister
 		$uri = strtolower($_SERVER['REDIRECT_URL']);
 		$uri = str_replace(" ", "_", $uri);
 		$uri = preg_replace("/[^a-z0-9_]/", "", $uri);
-//		echo "uri = ".$uri;
+		
 		if (empty($uri)) {
 			return false;
 		}
 		//check if it is an author username
 		$authorDetails = Author::getDetailsByUsername($uri);
-//		print_r($authorDetails);
 		$params = $_GET;
-		if (count($authorDetails) != 0) {
+		if (count($authorDetails) != 0 && is_numeric($authorDetails['aut_id'])) {
 			$params['browse'] = 'mypubs';
             $params['author_id'] = $authorDetails['aut_id'];
-			
 			Lister::getList($params, true);
-			
-            
+
 		}
 		exit;
 		return true;
