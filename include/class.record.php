@@ -2881,7 +2881,6 @@ class Record
 				$searchKey_join[SK_WHERE] .= " ".$value." AND ";
 			}
 		}
-		echo $searchKey_join[SK_WHERE];
 		$joinType = "";
 		$x = 0;
 		$sortRestriction = "";
