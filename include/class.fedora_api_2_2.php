@@ -930,25 +930,61 @@ class Fedora_API {
 
 
 
-	function objectExists($pid) 
+	function objectExists($pid, $refresh = false) 
 	{
+		
+		static $exists;
+		if (!empty($exists)) {
+			return $exists;
+		}
+		
+		if (!is_array($exists)) {
+			$exists = array();
+		}
+		if (!is_numeric($pid)) {
+			if ($refresh == false && isset($exists[$pid]) && is_array($exists[$pid])) {
+				return $exists[$pid];
+			}
+		}
+		
 		if (Misc::isPid($pid) != true) {
-			return false;
+			$exists[$pid] = false;
+			return $exists[$pid];
 		}
 
 		if (APP_FEDORA_APIA_DIRECT == "ON") {
 			$fda = new Fedora_Direct_Access();
-			$exists = $fda->objectExists($pid);
-			return $exists;
+			$exists[$pid] = $fda->objectExists($pid);
+			return $exists[$pid];
 		}
-
+		//Just send a curl request to REST - faster than soap, just as good response
+		$getString = APP_FEDORA_GET_URL."/".$pid."?xml=true";
+		$ch = curl_init($getString);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		if (APP_HTTPS_CURL_CHECK_CERT == "OFF")  {
+			curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, 0);
+			curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, 0);
+		}
+		$results = curl_exec($ch);
+		$info = curl_getinfo($ch);
+		curl_close ($ch);
+		$xml = $results;
+		if (is_numeric(strpos($xml, "objCreateDate"))) {
+			$exists[$pid] = true;
+		} else {
+			$exists[$pid] = false;
+		}
+		return $exists[$pid];
+		
+		// Old slow soap way - commented out for later removal - CK 17/7/2009 
+		/*
 		$parms = array('pid' => $pid);
 		$result = Fedora_API::openSoapCall('getObjectXML', $parms, false);
 		if (is_array($result) && isset($result['faultcode'])) {
 			return false;
 		} else {
 			return true;
-		}
+		} */
 	}
 
 	/**
@@ -1031,6 +1067,12 @@ class Fedora_API {
 	 */
 	function callGetDatastreamDissemination($pid, $dsID, $asofDateTime="") 
 	{
+		$log = FezLog::get();
+		// Redirect all calls to the REST Version for now - CK added 17/7/2009
+		return Fedora_API::callGetDatastreamDisseminationLite($pid, $dsID, $asofDateTime);
+		/*
+		
+
 		if (APP_FEDORA_APIA_DIRECT == "ON") {
 			$fda = new Fedora_Direct_Access();
 			return $fda->getDatastreamDissemination($pid, $dsID);
@@ -1044,8 +1086,40 @@ class Fedora_API {
 		$dsIDListArray = Fedora_API::openSoapCallAccess('getDatastreamDissemination', $parms);
 		$dsIDListArray['stream'] = base64_decode($dsIDListArray['stream']);
 
+		return $dsIDListArray; */
+	}
+
+	/**
+	 * This function creates an array of a specific datastream of a specific object
+	 *
+	 * @access  public
+	 * @param string $pid The persistant identifier of the object
+	 * @param string $dsID The ID of the datastream to be checked
+	 * @param string $asofDateTime Optional Gets a specified version at a datetime stamp
+	 * @return array $dsIDListArray The datastream returned in an array
+	 */
+	function callGetDatastreamDisseminationLite($pid, $dsID, $asofDateTime="") 
+	{
+		
+		$log = FezLog::get();
+		$dsIDListArray = array();
+		if (APP_FEDORA_APIA_DIRECT == "ON" && $asofDateTime == "") {
+			$fda = new Fedora_Direct_Access();
+			return $fda->getDatastreamDissemination($pid, $dsID);
+		}
+
+		if ($asofDateTime == "") {
+			$urldata = APP_FEDORA_GET_URL."/".$pid."/".$dsID;
+		} else {
+			$urldata = APP_FEDORA_GET_URL."/".$pid."/".$dsID."/".$asofDateTime;
+		}
+//		echo $urldata;
+		list($dsIDListArray['stream'],$info) = Misc::processURL($urldata);
 		return $dsIDListArray;
 	}
+
+
+
 
 	/**
 	 * This function creates an array of a specific datastream of a specific object

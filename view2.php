@@ -630,25 +630,29 @@ function generateTimestamps($pid, $datastreams, $requestedVersionDate, $tpl) {
 
     // Retrieve all versions of all datastreams
     foreach ($datastreams as $datastream) {
-        $parms = array('pid' => $pid, 'dsID' => $datastream['ID']);
-        $datastreamVersions = Fedora_API::openSoapCall('getDatastreamHistory', $parms);
+		//probably only need to check the dates of the FezMD datastream. This should reduce calls to Fedora and improve performance - CK added 17/7/2009. 
+		if ($datastream['ID'] == 'FezMD') {
+	        $parms = array('pid' => $pid, 'dsID' => $datastream['ID']); 
 
-        // Extract created dates from datastream versions 
-        foreach ($datastreamVersions as $key => $var) {
+	        $datastreamVersions = Fedora_API::openSoapCall('getDatastreamHistory', $parms);
 
-            // If a datastream contains multiple versions, Fedora bundles them in an array, however doesn't
-            // do if a datastream only has a single version.
+	        // Extract created dates from datastream versions 
+	        foreach ($datastreamVersions as $key => $var) {
 
-            // If the datastream is an array, retrieve value keyed under createDate
-            if (is_array($var)) {
-                $createdDates[] = $var['createDate'];
-            } 
+	            // If a datastream contains multiple versions, Fedora bundles them in an array, however doesn't
+	            // do if a datastream only has a single version.
 
-            // If the datastream isn't an array, retrieve the createDate value 
-            else if ($key === 'createDate') {
-                $createdDates[] = $var;
-            } 
-        }
+	            // If the datastream is an array, retrieve value keyed under createDate
+	            if (is_array($var)) {
+	                $createdDates[] = $var['createDate'];
+	            } 
+
+	            // If the datastream isn't an array, retrieve the createDate value 
+	            else if ($key === 'createDate') {
+	                $createdDates[] = $var;
+	            } 
+	        }
+		}
     }
 
     // Remove duplicate datestamps from array

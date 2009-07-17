@@ -117,7 +117,7 @@ class UserComments
                 "       usr_username, usr_full_name, usr_email " .
                 "FROM " . APP_TABLE_PREFIX . "user_comments " .
                 "JOIN " . APP_TABLE_PREFIX . "user on usc_userid = usr_id " .
-                "WHERE usc_pid = " . $db->quote($thepid, 'INTEGER').
+                "WHERE usc_pid = " . $db->quote($thepid).
                 " ORDER BY usc_date_created ASC";
 		
 		try {
@@ -170,7 +170,7 @@ class UserComments
 
 		$stmt = "INSERT INTO ". APP_TABLE_PREFIX ."user_comments (usc_pid, usc_userid, usc_comment, usc_rating, usc_date_created) " .
                 "VALUES (
-                ".$db->quote($this->pid, 'INTEGER').", 
+                ".$db->quote($this->pid).", 
                 ".$db->quote($usr_id, 'INTEGER').", 
                 ".$db->quote(nl2br(htmlentities($comment))).", 
                 ".$db->quote($rating, 'INTEGER').", 

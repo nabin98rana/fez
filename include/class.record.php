@@ -2401,7 +2401,7 @@ class Record
 				 FROM
 		           " . $dbtp . "thomson_citations		         
                  WHERE
-                    tc_pid = ".$db->quote($pid, 'INTEGER')."
+                    tc_pid = ".$db->quote($pid)."
                  ORDER BY tc_created ASC
                  $limit";        
 		try {

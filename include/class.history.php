@@ -235,7 +235,7 @@ class History
                     ".$db->quote($outcome).",
                     ".$db->quote($outcomeDetail).",                                        
                     ".$db->quote($usr_id, 'INTEGER').",
-                    ".$db->quote($pid, 'INTEGER');
+                    ".$db->quote($pid);
 		if ($hide == true) {
 			$stmt .= ", 1";
 		}

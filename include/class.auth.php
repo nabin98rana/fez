@@ -1551,18 +1551,24 @@ class Auth
 	function getUserID() 
 	{
 		global $auth_bgp_session, $auth_isBGP;
+		static $usr_id;
 		$log = FezLog::get();
-		
+
 		if ($auth_isBGP) {
 			$session =& $auth_bgp_session;
 		} else {
 			$session =& $_SESSION;
 		}
 
-		if (empty($session['username'])) {			
+		if (is_numeric($usr_id)) {
+			return $usr_id;
+		}
+
+		if (empty($session['username'])) {
 			return '';
-		} else {			
-			return @User::getUserIDByUsername($session["username"]);
+		} else {
+			$usr_id =  @User::getUserIDByUsername($session["username"]);
+			return $usr_id;
 		}
 	}
 
