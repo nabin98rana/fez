@@ -454,7 +454,7 @@ class Group
                  ORDER BY
                     grp_title";
 		try {
-			$res = $db->fetchAssoc($stmt);
+			$res = $db->fetchPairs($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
