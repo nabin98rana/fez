@@ -303,6 +303,7 @@ class Statistics
 		$requestDateLatest = $datetestA;
 		//			$logf = WEBSERVER_LOG_DIR . WEBSERVER_LOG_FILE;
 		$archive_name = APP_HOSTNAME;
+		$archive_name = $db->quote($archive_name);
 		//			$handle = fopen($logf, "r");
 
 		$buffer = Statistics::getAllFromBuffer();
@@ -369,7 +370,7 @@ class Statistics
 			$region = $record->region;
 
 			// Make this stuff SQL-safe.
-			$archive_name = $db->quote($archive_name);
+
 			$ip = $db->quote($ip);
 			$hostname = $db->quote($hostname);
 			$request_date = $db->quote($request_date);
@@ -408,24 +409,25 @@ class Statistics
 	                                stl_pid_num,
 									stl_usr_id
 								 ) VALUES (
-									" . $archive_name . ",
-									" . $ip . ",
-									" . $hostname . ",
-									" . $request_date . ",
-									" . $country_code . ",
-									" . $country_name . ",
-									" . $region . ",
-									" . $city . ",
-									" . $pid . ",			
-									" . $dsid . ",
-									" . $pidNum . ",
-									" . $usr_id . "
+									?,
+									?,
+									?,
+									?,
+									?,
+									?,
+									?,
+									?,
+									?,
+									?,
+									?,
+									?
 								 )"; 
+				$insert_array = array($archive_name, $ip, $hostname, $request_date, $country_code, $country_name, $region, $city, $pid, $dsid, $pidNum, $usr_id);
 				try {
-					$db->query($stmt);
+					$db->query($stmt, $insert_array);
 				}
 				catch(Exception $ex) {
-					$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+					$log->err(array('Message' => $stmt."\n".print_r($insert_array, true)."\n".$ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
 					return -1; //abort
 				}
 			
@@ -582,7 +584,7 @@ class Statistics
 			);
 						
 			try {
-				$db->insert('statistics_sum_4weeks', $data);
+				$db->insert(APP_TABLE_PREFIX . 'statistics_sum_4weeks', $data);
 			}
 			catch(Exception $ex) {
 				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -620,7 +622,7 @@ class Statistics
 			);
 						
 			try {
-				$db->insert('statistics_sum_authors', $data);
+				$db->insert(APP_TABLE_PREFIX . 'statistics_sum_authors', $data);
 			}
 			catch(Exception $ex) {
 				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -717,7 +719,7 @@ class Statistics
 			);
 						
 			try {
-				$db->insert('statistics_sum_countryregion', $data);
+				$db->insert(APP_TABLE_PREFIX . 'statistics_sum_countryregion', $data);
 			}
 			catch(Exception $ex) {
 				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -768,7 +770,7 @@ class Statistics
 			);
 						
 			try {
-				$db->insert('statistics_sum_papers', $data);
+				$db->insert(APP_TABLE_PREFIX . 'statistics_sum_papers', $data);
 			}
 			catch(Exception $ex) {
 				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -856,7 +858,7 @@ class Statistics
 				);
 							
 				try {
-					$db->insert('statistics_sum_yearmonth', $data);
+					$db->insert(APP_TABLE_PREFIX . 'statistics_sum_yearmonth', $data);
 				}
 				catch(Exception $ex) {
 					$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -908,7 +910,7 @@ class Statistics
 				);
 							
 				try {
-					$db->insert('statistics_sum_year', $data);
+					$db->insert(APP_TABLE_PREFIX . 'statistics_sum_year', $data);
 				}
 				catch(Exception $ex) {
 					$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -931,7 +933,7 @@ class Statistics
 		$list = Statistics::mergeDates($abstractViewsHistory, $downloadsHistory);
 
 		// delete everything in the table, we're replacing all the values
-		$delete = 'DELETE from ' . APP_TABLE_PREFIX . 'statistics_sum_yearmonth_figures ';
+		$delete = 'DELETE FROM ' . APP_TABLE_PREFIX . 'statistics_sum_yearmonth_figures ';
 		try {
 			$db->query($delete);
 		}
@@ -951,7 +953,7 @@ class Statistics
 			);
 						
 			try {
-				$db->insert('statistics_sum_yearmonth_figures', $data);
+				$db->insert(APP_TABLE_PREFIX . 'statistics_sum_yearmonth_figures', $data);
 			}
 			catch(Exception $ex) {
 				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
