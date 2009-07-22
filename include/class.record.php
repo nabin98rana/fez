@@ -742,7 +742,7 @@ class Record
 
 		// on duplicate key only works with mysql,
 		// but will save time over the else statement below.. maybe
-		if (APP_SQL_DBTYPE == "mysql") {
+		if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
 			$stmt .= " ON DUPLICATE KEY UPDATE rek_".$sekDet['sek_title_db']."_xsdmf_id = ".$db->quote($xsdmf_id, 'INTEGER').", rek_".$sekDet['sek_title_db']." = ".$value;
 		} else { // this will work with postgresql, might be better to do seperate queries for general dbs if the pgsql way is not ansi
 			if ($sekDet['sek_relationship'] == 0) { //only check for dupes on core 1-1 table inserts as the others could have the same value legitimatly (eg two j smith author strings)
@@ -810,7 +810,7 @@ class Record
 		$stmtIns = "INSERT INTO " . APP_TABLE_PREFIX . "record_search_key (" . implode(",", $stmt) . ") ";
 		$stmtIns .= " VALUES (" . implode(",", $valuesIns) . ")";
 			
-		if (APP_SQL_DBTYPE == "mysql") {
+		if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
 			$stmt = $stmtIns ." ON DUPLICATE KEY UPDATE " . implode(",", $valuesUpd);
 		} else {
 
@@ -836,6 +836,17 @@ class Record
 
 			$stmt = "";
 			if(!empty($sek_value['xsdmf_value']) && !is_null($sek_value['xsdmf_value']) && (strtoupper($sek_value['xsdmf_value']) != "NULL")) {
+
+			// Added this notEmpty check to look for empty arrays.  Stops fez from writing empty keyword values to fez_record_search_key_keywords table.  -  heaphey
+		$notEmpty = 1;  // start assuming that value is not empty
+		if (is_array($sek_value['xsdmf_value'])) {
+			$stringvalue = implode("",$sek_value['xsdmf_value']);
+			if (strlen($stringvalue) == 0) {  
+				$notEmpty = 0;  // this value is an array and it is empty
+				//Error_Handler::logError($sek_value['xsdmf_value']);
+			}
+		}
+		if ($notEmpty) { // only write values to tables if the value is not empty
 
 				$cardinalityCol = "";
 				if(is_array($sek_value['xsdmf_value'])) {
@@ -868,6 +879,8 @@ class Record
 					$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
 					$ret = false;
 				}
+			}  //end if notEmpty
+			
 			}
 		}
 		Citation::updateCitationCache($pid, "");
@@ -1183,7 +1196,7 @@ class Record
 		$searchKey_join[SK_JOIN].$searchKey_join[SK_LEFT_JOIN].$authStmt." ".
 		$searchKey_join[SK_WHERE];
 
-		if (APP_SQL_DBTYPE == "mysql") { // If the DB is mysql then you can use SQL_NUM_ROWS, even with a limit and get better performance, otherwise you need to do a seperate query to get the total count
+		if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) { // If the DB is mysql then you can use SQL_NUM_ROWS, even with a limit and get better performance, otherwise you need to do a seperate query to get the total count
 			$total_rows = 1;
 			$stmt =  "SELECT ".APP_SQL_CACHE." SQL_CALC_FOUND_ROWS DISTINCT r1.* ".$searchKey_join[SK_FULLTEXT_REL]." ".$stmt.$searchKey_join[SK_GROUP_BY];
 			$stmt .= " ORDER BY ".$searchKey_join[SK_SORT_ORDER]." r".$searchKey_join[SK_KEY_ID].".rek_pid DESC ";
@@ -1213,7 +1226,7 @@ class Record
 			}
 
 			//now add on the other search keys, security roles, workflows, if necessary
-			if (APP_SQL_DBTYPE == "mysql") {
+			if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
 				try {
 					$total_rows = $db->fetchOne('SELECT FOUND_ROWS()');
 				}
@@ -2109,6 +2122,10 @@ class Record
 	 */
 
 	public static function updateThomsonCitationCountIndex($pid) {
+		
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
 		$dbtp =  APP_TABLE_PREFIX; // Database and table prefix
 
 		// Get the current index count
@@ -2455,14 +2472,14 @@ class Record
 			return $res;
 			 
 		} else { //1-1 so will return single value
-			$log->debug('1-1 will return single value');
+//			$log->debug('1-1 will return single value');
 			$stmt = "SELECT
                     rek_".$sek_title."
                  FROM
                     " . $dbtp . "record_search_key
                  WHERE
                     rek_pid = ".$db->quote($pid);
-			$log->debug($stmt);
+//			$log->debug($stmt);
 			try {
 				$res = $db->fetchOne($stmt);
 			}
