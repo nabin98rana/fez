@@ -516,10 +516,10 @@ function restoreDefaultColours(el)
 			  <select name="fedora_db_type">
 			    <!-- Have commented out all PEAR db systems that the Fedora site doens't claim they support -->
 			    <!--option value="sybase"{if $config_settings.fedora_db_type == "sybase"} selected="selected"{/if}>Sybase</option-->
-				<option value="pgsql"{if $config_settings.fedora_db_type == "pgsql"} selected="selected"{/if}>PostgreSQL</option>
+				<option value="pdo_pgsql"{if $config_settings.fedora_db_type == "pdo_pgsql"} selected="selected"{/if}>PostgreSQL</option>
 				<!--option value="odbc"{if $config_settings.fedora_db_type == "odbc"} selected="selected"{/if}>ODBC</option>
 				<option value="oci8"{if $config_settings.fedora_db_type == "oci8"} selected="selected"{/if}>Oracle 8</option-->
-				<option value="mysql"{if $config_settings.fedora_db_type == "mysql"} selected="selected"{/if}>MySQL</option>
+				<option value="pdo_mysql"{if $config_settings.fedora_db_type == "pdo_mysql"} selected="selected"{/if}>MySQL</option>
 				<!--option value="mssql"{if $config_settings.fedora_db_type == "mssql"} selected="selected"{/if}>Microsoft SQL Server</option>
 				<option value="msql"{if $config_settings.fedora_db_type == "msql"} selected="selected"{/if}>Mini-SQL</option>
 				<option value="ifx"{if $config_settings.fedora_db_type == "ifx"} selected="selected"{/if}>Informix</option>
@@ -1163,7 +1163,7 @@ function restoreDefaultColours(el)
 		    <td class="colname">Database type</td>
 			<td class="coldetail">
 			  <input type="text" name="eprints_db_type" value="{$config_settings.eprints_db_type|escape:"html"}" size="20" />
-			  <br />Generally 'mysql' although other will probably work as long as they are support by PEAR DB.
+			  <br />Generally 'pdo_mysql' although other will probably work as long as they are support by Zend DB.
 			  {include file="error_icon.tpl.html" field="eprints_db_type"}
 			</td>
   		  </tr>
