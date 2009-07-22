@@ -2180,11 +2180,14 @@ class XSD_HTML_Match
 				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
 				return '';
 			}
-				
+
+//			$log->debug("omg whats the story for $xsdmf_element $xdis_id ?! ".$res[0]['xsdmf_id']." - ".print_r($res, true).$stmt);
 			if (count($res) != 1) {
+//				$log->debug("omg count not one! - ".print_r($res, true));
 				return false;
 			} else {
-				return $res[0][0];
+				
+				return $res[0]['xsdmf_id'];
 			}
 		}
 
@@ -2378,7 +2381,7 @@ class XSD_HTML_Match
 			if (count($res) != 1) {
 				return false;
 			} else {
-				return $res[0][0];
+				return $res[0]['xsdmf_id'];
 			}
 		}
 
@@ -2411,7 +2414,7 @@ class XSD_HTML_Match
 			if (count($res) != 1) {
 				return false;
 			} else {
-				return $res[0][0];
+				return $res[0]['xsdmf_id'];
 			}
 		}
 
@@ -2448,7 +2451,7 @@ class XSD_HTML_Match
 			if (count($res) != 1) {
 				return false;
 			} else {
-				return $res[0][0];
+				return $res[0]['xsdmf_id'];
 			}
 		}
 
@@ -2488,7 +2491,7 @@ class XSD_HTML_Match
 			if (count($res) != 1) {
 				return false;
 			} else {
-				return $res[0][0];
+				return $res[0]['xsdmf_id'];
 			}
 		}
 
@@ -2524,7 +2527,7 @@ class XSD_HTML_Match
 			if (count($res) != 1) {
 				return false;
 			} else {
-				return $res[0][0];
+				return $res[0]['xsdmf_id'];
 			}
 		}
 
@@ -2549,7 +2552,7 @@ class XSD_HTML_Match
 			if (count($res) != 1) {
 				return false;
 			} else {
-				return $res[0][0];
+				return $res[0]['xsdmf_id'];
 			}
 		}
 
@@ -2588,7 +2591,7 @@ class XSD_HTML_Match
 			if (count($res) != 1) {
 				return false;
 			} else {
-				return $res[0][0];
+				return $res[0]['xsdmf_id'];
 			}
 		}
 
@@ -2625,7 +2628,7 @@ class XSD_HTML_Match
 			if (count($res) != 1) {
 				return false;
 			} else {
-				return $res[0][0];
+				return $res[0]['xsdmf_id'];
 			}
 		}
 
@@ -3616,7 +3619,6 @@ class XSD_HTML_MatchObject {
 		if (count($GLOBALS['match_cols']) > 10) {
 			$GLOBALS['match_cols'] = array();
 		}
-
 		// do query to get all the match cols for this display set
 		$stmt = "SELECT
 			                   m1.*,
