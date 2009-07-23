@@ -395,8 +395,7 @@ class AuthIndex
 		$bind = Misc::arrayToSQLBindStr($pids);
 		$stmt = "DELETE FROM ".$dbtp."auth_index2 WHERE authi_pid IN (".$bind.") ";		
 		try {
-//			$db->query($stmt, $pids);
-			$db->query($stmt);
+			$db->query($stmt, $pids);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -406,8 +405,7 @@ class AuthIndex
 		
 		$stmt = "DELETE FROM ".$dbtp."auth_index2_lister WHERE authi_pid IN (".$bind.") ";		
 		try {
-			$db->query($stmt);
-//			$db->query($stmt, $pids);
+			$db->query($stmt, $pids);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));

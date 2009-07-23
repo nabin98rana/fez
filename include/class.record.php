@@ -3587,7 +3587,7 @@ class Record
 		$stmt = "INSERT INTO " . APP_TABLE_PREFIX . "recently_added_items" .
                 " VALUES (" . Misc::arrayToSQLBindStr($pids) . ")";
 		try {
-			$db->query($stmt);
+			$db->query($stmt, $pids);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
