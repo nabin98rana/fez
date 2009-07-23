@@ -135,24 +135,26 @@ if ($action == "show_detail") {
 
 } elseif ($action == "cumulative_usage") {
 	$allHistory = Statistics::getYearMonthFiguresSummary();
-	foreach($allHistory as $historyItem)
-		$max_count = max($max_count, $historyItem['abstracts'], $historyItem['downloads']);
-
+	if (is_array($allHistory) && count($allHistory) > 0) {
+		foreach($allHistory as $historyItem)
+			$max_count = max($max_count, $historyItem['abstracts'], $historyItem['downloads']);
+	}
 } elseif ($action == "cumulative_usage_country") {
 	
 	$countryAll = Statistics::getCountrySummary();
-
-	foreach($countryAll as $index => $country)
-	{
-		$countryCode = strtolower($country['scr_country_code']);
-		$flagFile = "images/flags18x14/{$countryCode}.png";
-		if (file_exists($flagFile))
-			$countryAll[$index]['flag'] = $flagFile;
-		else
-			$countryAll[$index]['flag'] = "images/flags18x14/unknown.png";
+	if (is_array($countryAll) && count($countryAll) > 0) {
+		foreach($countryAll as $index => $country)
+		{
+			$countryCode = strtolower($country['scr_country_code']);
+			$flagFile = "images/flags18x14/{$countryCode}.png";
+			if (file_exists($flagFile))
+				$countryAll[$index]['flag'] = $flagFile;
+			else
+				$countryAll[$index]['flag'] = "images/flags18x14/unknown.png";
 		
-		$max_count = max($max_count, $country['abstracts'], $country['downloads']);
-	}
+			$max_count = max($max_count, $country['abstracts'], $country['downloads']);
+		}
+	} 
 } elseif (($action == "cumulative_usage_country_specific") && ($country != "")) {
 	
 	$tpl->assign("country_name", $country);

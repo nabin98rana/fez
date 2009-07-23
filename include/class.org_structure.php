@@ -439,7 +439,7 @@ class Org_Structure
 			if ($assoc) 
 				$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 			else
-				$res = $db->fetchAssoc($stmt);
+				$res = $db->fetchPairs($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));

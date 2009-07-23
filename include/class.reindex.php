@@ -546,7 +546,7 @@ class Reindex
 		$bgp_details = $this->bgp->getDetails();
 		$reindex_record_counter = 0;
 
-		if (APP_SQL_DBTYPE == "mysql") {
+		if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
 			$this->bgp->setStatus("Adding All Fez Index PIDs Solr Queue (with a insert/select)");
 			$stmt .= "INSERT INTO " . APP_TABLE_PREFIX . "fulltext_queue (ftq_pid, ftq_op)
 			SELECT rek_pid, 'I'

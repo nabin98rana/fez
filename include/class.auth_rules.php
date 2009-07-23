@@ -47,8 +47,6 @@ class AuthRules
     function getOrCreateRuleGroup($group,$clearcache=false) 
     {
     	$log = FezLog::get();
-		
-		
 		$db = DB_API::get();
     	
         static $gcache;
@@ -103,14 +101,14 @@ class AuthRules
             }
 
             // make an insert statement            
-			if (APP_SQL_DBTYPE == "mysql") { 
+			if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) { 
 				$stmt = "INSERT INTO ".$dbtp."auth_rule_group_rules (argr_arg_id,argr_ar_id) VALUES ".implode(', ', $values_sql);
 			}
 			else {
 				$stmt = "INSERT INTO ".$dbtp."auth_rule_group_rules (argr_arg_id,argr_ar_id) VALUES ".implode(', ', $values_sql[0]);				
 			}
 			try {				
-				if(APP_SQL_DBTYPE == "mysql") {
+				if(is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
 					$values = Misc::array_flatten($values, '', TRUE);
 					$db->query($stmt, $values);
 				}
@@ -140,6 +138,7 @@ class AuthRules
     function getOrCreateRule($rule, $value) 
     {
         $log = FezLog::get();
+		$db = DB_API::get();
 		
 		$dbtp = APP_TABLE_PREFIX;
         // does rule exist in table

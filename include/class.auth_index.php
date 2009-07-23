@@ -249,14 +249,14 @@ class AuthIndex
 		if ($rules_changed) {
 			AuthIndex::clearIndexAuth($pid);		
 			
-			if (APP_SQL_DBTYPE == "mysql") { 
+			if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) { 
 				$stmt = "INSERT IGNORE INTO ".$dbtp."auth_index2 (authi_pid,authi_role,authi_arg_id) VALUES ".implode(', ', $values_sql);
 			}
 			else {
-				$stmt = "INSERT INTO ".$dbtp."auth_index2 (authi_pid,authi_role,authi_arg_id) VALUES ".implode(', ', $values_sql[0]);				
+				$stmt = "INSERT INTO ".$dbtp."auth_index2 (authi_pid,authi_role,authi_arg_id) VALUES ".implode(', ', $values_sql);				
 			}
 			try {				
-				if(APP_SQL_DBTYPE == "mysql") {
+				if(is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
 					$values = Misc::array_flatten($values, '', TRUE);
 					$db->query($stmt, $values);
 				}
@@ -275,14 +275,14 @@ class AuthIndex
 			}
 			
 			
-			if (APP_SQL_DBTYPE == "mysql") { 
+			if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) { 
 				$stmt = "INSERT IGNORE INTO ".$dbtp."auth_index2_lister (authi_pid,authi_arg_id) VALUES ".implode(', ', $lister_values_sql);
 			}
 			else {
 				$stmt = "INSERT INTO ".$dbtp."auth_index2_lister (authi_pid,authi_arg_id) VALUES ".implode(', ', $lister_values_sql[0]);				
 			}
 			try {				
-				if(APP_SQL_DBTYPE == "mysql") {
+				if(is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
 					$lister_values = Misc::array_flatten($lister_values, '', TRUE);
 					$db->query($stmt, $lister_values);
 				}
@@ -392,10 +392,11 @@ class AuthIndex
 		
 		$pids = Misc::array_flatten($pids, '', true);	
 		$dbtp = APP_TABLE_PREFIX;
-		
-		$stmt = "DELETE FROM ".$dbtp."auth_index2 WHERE authi_pid IN (".Misc::arrayToSQLBindStr($_POST['items']).") ";		
+		$bind = Misc::arrayToSQLBindStr($pids);
+		$stmt = "DELETE FROM ".$dbtp."auth_index2 WHERE authi_pid IN (".$bind.") ";		
 		try {
-			$db->query($stmt, $pids);
+//			$db->query($stmt, $pids);
+			$db->query($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -405,7 +406,8 @@ class AuthIndex
 		
 		$stmt = "DELETE FROM ".$dbtp."auth_index2_lister WHERE authi_pid IN (".$bind.") ";		
 		try {
-			$db->query($stmt, $pids);
+			$db->query($stmt);
+//			$db->query($stmt, $pids);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));

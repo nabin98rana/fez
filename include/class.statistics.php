@@ -69,6 +69,9 @@ class Statistics
 	 */
 	function gatherStats() 
 	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
 		Statistics::checkSetup();
 		$timeStarted = date('Y-m-d H:i:s');
 		$counter = 0;
@@ -79,6 +82,7 @@ class Statistics
 		$requestDateLatest = $datetestA;
 		$logf = WEBSERVER_LOG_DIR . WEBSERVER_LOG_FILE;
 		$archive_name = APP_HOSTNAME;
+		$archive_name = $db->quote($archive_name);
 		$handle = fopen($logf, "r");
 
 		if(!$handle)
@@ -160,7 +164,6 @@ class Statistics
 				$region = $record->region;
 
 				// Make this stuff SQL-safe.
-				$archive_name = $db->quote($archive_name);
 				$ip = $db->quote($ip);
 				$hostname = $db->quote($hostname);
 				$request_date = $db->quote($request_date);
@@ -645,7 +648,7 @@ class Statistics
 		$query .= "GROUP BY 1,2,3,4 ";
 		
 		try {
-			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+			$res = $db->fetchAll($query, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));

@@ -143,13 +143,12 @@ class Ad_Hoc_SQL {
 
 		$res = array();
 		try {
-			$res = $db->fetchAssoc($stmtShow);
+			$res = $db->fetchAll($stmtShow);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
 			return false;
 		}
-
 		if (empty($res)) {
 			return array();
 		}

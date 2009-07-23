@@ -247,7 +247,6 @@ class Author
                  WHERE
                     aut_org_username=".$db->quote($aut_org_username)."
                  OR aut_mypub_url=".$db->quote($aut_org_username);
-        
 	    try {
 			$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
@@ -255,7 +254,6 @@ class Author
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
 			return '';
 		}
-
         if (is_numeric($res["aut_id"])) {
         	$res["grp_users"] = Group::getUserColList($res["aut_id"]);
         }
@@ -337,6 +335,9 @@ class Author
 	
     function updateMyPubURL($username, $mypub_url)
     { 
+		$log = FezLog::get();
+		$db = DB_API::get();
+	
         if (Validation::isWhitespace($mypub_url)) {
             return -1;
         }
@@ -757,14 +758,14 @@ class Author
 
 		// For the Author table we are going to keep it in MyISAM if you are using MySQL because there is no table locking issue with this table like with others.
 		// TODO: For postgres it might be worth adding a condition here to use TSEARCH2 which is close to fulltext indexing in MySQL MyISAM
-		if (APP_SQL_DBTYPE == "mysql") {
+		if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
 			$stmt .= "
 				,MATCH(aut_display_name) AGAINST (".$db->quote($term).") as Relevance ";
 		}
 		$stmt .= "
 				FROM ".$dbtp."author";
 
-		if (APP_SQL_DBTYPE == "mysql") {
+		if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
 			$stmt .= "
 			 WHERE MATCH (aut_display_name) AGAINST (".$db->quote('*'.$term.'*')." IN BOOLEAN MODE)";
 		} else {
@@ -782,7 +783,7 @@ class Author
 		if (APP_AUTHOR_SUGGEST_MODE == 2) {
 			$stmt .= "AND (aut_org_username IS NOT NULL OR aut_org_staff_id IS NOT NULL)";
 		}
-		if (APP_SQL_DBTYPE == "mysql") {
+		if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
 			$stmt .= " ORDER BY Relevance DESC, aut_fullname LIMIT 0,60) as tempsuggest";
 		} else {
 			$stmt .= " LIMIT 60 OFFSET 0) as tempsuggest";

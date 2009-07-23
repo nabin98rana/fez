@@ -2165,7 +2165,7 @@ class Record
 	        $stmt = "UPDATE
 	                    " . $dbtp . "record_search_key
 	                 SET
-	                 	rek_thomson_citation_count = ?'
+	                 	rek_thomson_citation_count = ?
 	                 WHERE
 	                    rek_pid = ?";
 			try {
@@ -3581,7 +3581,9 @@ class Record
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-
+		if (!is_array($pids) || count($pids) == 0) {
+			return false;
+		}
 		$stmt = "INSERT INTO " . APP_TABLE_PREFIX . "recently_added_items" .
                 " VALUES (" . Misc::arrayToSQLBindStr($pids) . ")";
 		try {
