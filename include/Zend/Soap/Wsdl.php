@@ -16,10 +16,8 @@
  * @package    Zend_Soap
  * @copyright  Copyright (c) 2005-2008 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
- * @version    $Id: Wsdl.php 12622 2008-11-13 15:43:54Z alexander $
+ * @version    $Id: Wsdl.php 15829 2009-05-30 19:04:57Z beberlei $
  */
-
-require_once 'Zend/Server/Exception.php';
 
 require_once "Zend/Soap/Wsdl/Strategy/Interface.php";
 require_once "Zend/Soap/Wsdl/Strategy/Abstract.php";
@@ -93,6 +91,7 @@ class Zend_Soap_Wsdl
                     xmlns:wsdl='http://schemas.xmlsoap.org/wsdl/'></definitions>";
         $this->_dom = new DOMDocument();
         if (!$this->_dom->loadXML($wsdl)) {
+            require_once 'Zend/Server/Exception.php';
             throw new Zend_Server_Exception('Unable to create DomDocument');
         } else {
             $this->_wsdl = $this->_dom->documentElement;
@@ -391,11 +390,15 @@ class Zend_Soap_Wsdl
     }
 
     /**
-     * Add a {@link http://www.w3.org/TR/wsdl#_documentation document} element to any element in the WSDL
+     * Add a documentation element to any element in the WSDL.
      *
-     * @param object $input_node An XML_Tree_Node returned by another method to add the document to
-     * @param string $document Human readable documentation for the node
-     * @return boolean
+     * Note that the WSDL {@link http://www.w3.org/TR/wsdl#_documentation specification} uses 'document',
+     * but the WSDL {@link http://schemas.xmlsoap.org/wsdl/ schema} uses 'documentation' instead.
+     * The {@link http://www.ws-i.org/Profiles/BasicProfile-1.1-2004-08-24.html#WSDL_documentation_Element WS-I Basic Profile 1.1} recommends using 'documentation'.
+     *
+     * @param object $input_node An XML_Tree_Node returned by another method to add the documentation to
+     * @param string $documentation Human readable documentation for the node
+     * @return DOMElement The documentation element
      */
     public function addDocumentation($input_node, $documentation)
     {
@@ -405,11 +408,15 @@ class Zend_Soap_Wsdl
             $node = $input_node;
         }
 
-        /** @todo Check if 'documentation' is a correct name for the element (WSDL spec uses 'document') */
         $doc = $this->_dom->createElement('documentation');
         $doc_cdata = $this->_dom->createTextNode($documentation);
         $doc->appendChild($doc_cdata);
-        $node->appendChild($doc);
+
+        if($node->hasChildNodes()) {
+            $node->insertBefore($doc, $node->firstChild);
+        } else {
+            $node->appendChild($doc);
+        }
 
         return $doc;
     }
@@ -461,6 +468,10 @@ class Zend_Soap_Wsdl
      */
     public function getSchema()
     {
+        if($this->_schema == null) {
+            $this->addSchemaTypeSection();
+        }
+
         return $this->_schema;
     }
 

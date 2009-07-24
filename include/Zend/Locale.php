@@ -16,7 +16,7 @@
  * @package   Zend_Locale
  * @copyright Copyright (c) 2005-2008 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd     New BSD License
- * @version   $Id: Locale.php 12869 2008-11-26 11:07:02Z thomas $
+ * @version   $Id: Locale.php 15765 2009-05-25 19:59:45Z thomas $
  */
 
 /**
@@ -127,7 +127,7 @@ class Zend_Locale
      *
      * @var boolean
      */
-    public static $compatibilityMode = true;
+    public static $compatibilityMode = false;
 
     /**
      * Internal variable
@@ -440,7 +440,7 @@ class Zend_Locale
     /**
      * Returns the language part of the locale
      *
-     * @return language
+     * @return string Language
      */
     public function getLanguage()
     {
@@ -759,6 +759,46 @@ class Zend_Locale
     }
 
     /**
+     * Finds the proper locale based on the input
+     * Checks if it exists, degrades it when necessary
+     * Detects registry locale and when all fails tries to detect a automatic locale
+     * Returns the found locale as string
+     *
+     * @param string $locale
+     * @throws Zend_Locale_Exception When the given locale is no locale or the autodetection fails
+     * @return string
+     */
+    public static function findLocale($locale = null)
+    {
+        if ($locale === null) {
+            require_once 'Zend/Registry.php';
+            if (Zend_Registry::isRegistered('Zend_Locale')) {
+                $locale = Zend_Registry::get('Zend_Locale');
+            }
+        }
+
+        require_once 'Zend/Locale.php';
+        if ($locale === null) {
+            $locale = new Zend_Locale();
+        }
+
+        if (!Zend_Locale::isLocale($locale, true, false)) {
+            if (!Zend_Locale::isLocale($locale, false, false)) {
+                require_once 'Zend/Locale/Exception.php';
+                throw new Zend_Locale_Exception("The locale '$locale' is no known locale");
+            }
+
+            $locale = new Zend_Locale($locale);
+        }
+
+        if ($locale instanceof Zend_Locale) {
+            $locale = $locale->toString();
+        }
+
+        return $locale;
+    }
+
+    /**
      * Returns a list of all known locales where the locale is the key
      * Only real locales are returned, the internal locales 'root', 'auto', 'browser'
      * and 'environment' are suppressed
@@ -831,6 +871,18 @@ class Zend_Locale
     {
         require_once 'Zend/Locale/Data.php';
         Zend_Locale_Data::clearCache();
+    }
+
+    /**
+     * Disables the set cache
+     *
+     * @param  boolean $flag True disables any set cache, default is false
+     * @return void
+     */
+    public static function disableCache($flag)
+    {
+        require_once 'Zend/Locale/Data.php';
+        Zend_Locale_Data::disableCache($flag);
     }
 
     /**

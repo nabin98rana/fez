@@ -39,11 +39,11 @@ class Zend_Captcha_Dumb extends Zend_Captcha_Word
     /**
      * Render the captcha
      *
-     * @param  Zend_View $view
+     * @param  Zend_View_Interface $view
      * @param  mixed $element
      * @return string
      */
-    public function render(Zend_View_Interface $view, $element = null)
+    public function render(Zend_View_Interface $view = null, $element = null)
     {
         return 'Please type this word backwards: <b>'
              . strrev($this->getWord())

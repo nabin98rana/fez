@@ -17,14 +17,11 @@
  * @subpackage Writer
  * @copyright  Copyright (c) 2005-2008 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
- * @version    $Id: Abstract.php 8064 2008-02-16 10:58:39Z thomas $
+ * @version    $Id: Abstract.php 13621 2009-01-14 01:53:04Z cadorn $
  */
 
 /** Zend_Log_Filter_Priority */
 require_once 'Zend/Log/Filter/Priority.php';
-
-/** Zend_Log_Exception */
-require_once 'Zend/Log/Exception.php';
 
 /**
  * @category   Zend
@@ -32,7 +29,7 @@ require_once 'Zend/Log/Exception.php';
  * @subpackage Writer
  * @copyright  Copyright (c) 2005-2008 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
- * @version    $Id: Abstract.php 8064 2008-02-16 10:58:39Z thomas $
+ * @version    $Id: Abstract.php 13621 2009-01-14 01:53:04Z cadorn $
  */
 abstract class Zend_Log_Writer_Abstract
 {
@@ -86,7 +83,8 @@ abstract class Zend_Log_Writer_Abstract
      * @param  Zend_Log_Formatter_Interface $formatter
      * @return void
      */
-    public function setFormatter($formatter) {
+    public function setFormatter($formatter)
+    {
         $this->_formatter = $formatter;
     }
 
