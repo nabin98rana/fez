@@ -532,7 +532,7 @@ class Record
 				 WHERE rek_".$sekTable."_pid = " . $db->quote($pid);
 
 		try {
-			$db->query($stmt);
+			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -822,10 +822,10 @@ class Record
 		}
 
 		try {
-			$db->query($stmt);
+			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err(array('Message' => $ex->getMessage().": ".$stmt, 'File' => __FILE__, 'Line' => __LINE__));
 			$ret = false;
 		}
 
@@ -873,7 +873,7 @@ class Record
 				}
 
 				try {
-					$db->query($stmt);
+					$db->exec($stmt);
 				}
 				catch(Exception $ex) {
 					$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -1081,7 +1081,6 @@ class Record
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
 			return false;
 		}
-
 		$usr_id = Auth::getUserID();
 		Record::getAuthWorkflowsByPIDS($res, $usr_id);
 		return $res;
@@ -2104,7 +2103,7 @@ class Record
                  WHERE
                     rek_pid = ".$db->quote($pid);
 		try {
-			$db->query($stmt);
+			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -2920,7 +2919,7 @@ class Record
 			}
 			$pattern = '/(?<!'.implode("|", $solr_titles).')(\+|-|&&|\|\||!|\(|\)|\{|}|\[|]|\^|"|~|\*|\?|:|\\\)/';
 			$replace = '\\\$1';
-			preg_replace($pattern, $replace, $escapedInput);
+			$escapedInput = preg_replace($pattern, $replace, $escapedInput);
 			$searchKey_join["sk_where_AND"][] = "" .$escapedInput;
 		}
 
@@ -3584,14 +3583,26 @@ class Record
 		if (!is_array($pids) || count($pids) == 0) {
 			return false;
 		}
+		foreach ($pids as $pid) {
+			Record::insertRecentRecord($pid);
+		}
+	}
+
+	function insertRecentRecord($pid) {
+
+		$log = FezLog::get();
+		$db = DB_API::get();
+
 		$stmt = "INSERT INTO " . APP_TABLE_PREFIX . "recently_added_items" .
-                " VALUES (" . Misc::arrayToSQLBindStr($pids) . ")";
+                " VALUES ( ? )";
 		try {
-			$db->query($stmt, $pids);
+			$db->query($stmt, $pid);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err(array('Message' => $ex->getMessage().": ".$stmt, 'File' => __FILE__, 'Line' => __LINE__));
 		}
+
+		
 	}
 
 	function deleteRecentRecords()
@@ -3610,27 +3621,27 @@ class Record
 	}
 
 
-	function insertRecentDLRecords($pids)
+	function insertRecentDLRecord($pid)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
 
-		$first = true;
 		$stmt = "INSERT INTO " . APP_TABLE_PREFIX . "recently_downloaded_items" .
                 " VALUES ";
-		foreach ($pids as $pid) {
-			if(!$first) {
-				$stmt .= ",";
-			} else {
-				$first = false;
-			}
-			$stmt .= "(".$db->quote($pid['stl_pid']). "," . $db->quote($pid['downloads']).")";
-		}
+		$stmt .= "(".$db->quote($pid['stl_pid']). "," . $db->quote($pid['downloads']).")";
 		try {
 			$db->query($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+		}
+	}
+
+
+	function insertRecentDLRecords($pids)
+	{
+		foreach ($pids as $pid) {
+			Record::insertRecentDLRecord($pid);
 		}
 	}
 
