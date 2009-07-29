@@ -493,7 +493,7 @@ class XSD_HTML_Match
 		                        icf_fld_id IN (" . Misc::arrayToSQLBindStr($fld_id) . ") AND
 		                        icf_value IN (" . Misc::arrayToSQLBindStr($mfo_id) . ")";
 			try {
-				$db->query($stmt);
+				$db->exec($stmt);
 			}
 			catch(Exception $ex) {
 				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -530,7 +530,7 @@ class XSD_HTML_Match
 			                        " . $db->quote($option) . "
 			                     )";
 				try {
-					$db->query($stmt);
+					$db->exec($stmt);
 				}
 				catch(Exception $ex) {
 					$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -560,7 +560,7 @@ class XSD_HTML_Match
 		                 WHERE
 		                    mfo_id=" . $db->quote($mfo_id, 'INTEGER');
 			try {
-				$db->query($stmt);
+				$db->exec($stmt);
 			}
 			catch(Exception $ex) {
 				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -1515,7 +1515,7 @@ class XSD_HTML_Match
 			$stmt .= ")";
 				
 			try {
-				$db->query($stmt);
+				$db->exec($stmt);
 			}
 			catch(Exception $ex) {
 				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -1565,7 +1565,7 @@ class XSD_HTML_Match
 			$stmt = rtrim($stmt,", \n"); // get rid of trailing comma
 			$stmt .= " )";
 			try {
-				$db->query($stmt);
+				$db->exec($stmt);
 			}
 			catch(Exception $ex) {
 				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -1802,7 +1802,7 @@ class XSD_HTML_Match
 		                 (" . $inserts . ") VALUES (" . $values . ")";
 				
 			try {
-				$db->query($stmt);
+				$db->exec($stmt);
 			}
 			catch(Exception $ex) {
 				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -2046,7 +2046,7 @@ class XSD_HTML_Match
 			//		$stmt .= " WHERE xsdmf_xdis_id = $xdis_id AND xsdmf_element = '" . $xml_element . "'" . $extra_where;
 			$stmt .= " WHERE xsdmf_id = ".$db->quote($xsdmf_id, 'INTEGER');
 			try {
-				$db->query($stmt);
+				$db->exec($stmt);
 			}
 			catch(Exception $ex) {
 				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -2309,6 +2309,9 @@ class XSD_HTML_Match
 		 */
 		function updateParentOptionTarget($xsdmf_id, $new_xsdmf_id, $new_xdis_id)
 		{
+			$log = FezLog::get();
+			$db = DB_API::get();
+			
 			$stmt = "UPDATE
 		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields
 		                 SET xsdmf_parent_option_child_xsdmf_id = ".$db->quote($new_xsdmf_id, 'INTEGER').",
@@ -2335,6 +2338,10 @@ class XSD_HTML_Match
 		 */
 		function updateAttachedTarget($xsdmf_id, $new_xsdmf_id)
 		{
+			$log = FezLog::get();
+			$db = DB_API::get();
+			
+			
 			$stmt = "UPDATE
 		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields
 		                 SET xsdmf_attached_xsdmf_id = ".$db->quote($new_xsdmf_id, 'INTEGER')."
@@ -2398,6 +2405,9 @@ class XSD_HTML_Match
 	  */
 		function getXSDMF_IDByKeyXDIS_ID($xsdmf_element, $element_value, $xdis_str)
 		{
+			$log = FezLog::get();
+			$db = DB_API::get();
+			
 			$stmt = "SELECT
 		                    xsdmf_id
 		                 FROM
@@ -2643,6 +2653,9 @@ class XSD_HTML_Match
 	  */
 		function getXSDMF_IDsBySekTitle($sek_title, $nocache = false)
 		{
+			$log = FezLog::get();
+			$db = DB_API::get();
+			
 			static $returns;
 			if (!$sek_title) {
 				return array();
@@ -2834,6 +2847,9 @@ class XSD_HTML_Match
 		 * @return  array The field details
 		 */
 		function getDetails($xdis_id, $xml_element) {
+			$log = FezLog::get();
+			$db = DB_API::get();
+
 			$stmt = "SELECT
 		                    *
 		                 FROM
@@ -3544,7 +3560,7 @@ class XSD_HTML_Match
 						$stmt .= " WHERE att_parent_xsdmf_id=".$db->quote($xsdmf_id, 'INTEGER');
 						
 						try {
-							$res = $db->query($stmt);
+							$res = $db->exec($stmt);
 						}
 						catch(Exception $ex) {
 							$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -3675,7 +3691,9 @@ class XSD_HTML_MatchObject {
 		$db = DB_API::get();
 		
 		$mc = $this->getMatchCols();
+//		print_r($mc);
 		foreach ($mc as $xsdmf) {
+//			echo $xsdmf['xsdmf_element'];
 			if (($xsdmf['xsdmf_element'] == $xsdmf_element) && $xsdmf['xsdmf_is_key'] != 1 && is_numeric($xsdmf['xsdmf_id'])) {
 				if ($xsdmf_title != "") {
 					if ($xsdmf['xsdmf_title'] == $xsdmf_title) {
