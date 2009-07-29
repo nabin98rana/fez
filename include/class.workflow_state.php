@@ -119,7 +119,7 @@ class Workflow_State
                     " . $db->quote(Misc::checkBox(@$params['wfs_transparent']), 'INTEGER') . "
                  )";	
 		try {
-			$db->query($stmt);
+			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -204,7 +204,7 @@ class Workflow_State
                  WHERE
                     wfs_id=" . $db->quote($params['id'],'INTEGER');
 		try {
-			$db->query($stmt);
+			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));

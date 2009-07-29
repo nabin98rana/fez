@@ -253,7 +253,7 @@ class Configuration
         foreach ($originalSettings as $key => $value) {
 			try {
 				$stmt = "UPDATE " . APP_TABLE_PREFIX . "config SET config_value = " . $db->quote($_POST[$key]) . " WHERE config_name = " . $db->quote($key) . " AND config_module = 'core'";
-				$db->query($stmt);
+				$db->exec($stmt);
 			}
 			catch(Exception $ex) {				
 				array_push($problemUpdates, $key);

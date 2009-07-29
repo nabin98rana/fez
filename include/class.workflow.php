@@ -180,7 +180,7 @@ class Workflow
                  WHERE wfl_id = ".$db->quote($wfl_id, 'INTEGER');
 		
 		try {
-			$db->query($stmt);
+			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));

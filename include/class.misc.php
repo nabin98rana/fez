@@ -3306,7 +3306,7 @@ class Misc
                             "SET $field=".$db->quote($dbvalue)." " .
                             "WHERE $field=".$db->quote($xvalue)." AND $restrict";
 					try {
-						$db->query($stmt);
+						$db->exec($stmt);
 					}
 					catch(Exception $ex) {
 						$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));

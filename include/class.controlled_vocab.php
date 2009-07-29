@@ -144,7 +144,7 @@ class Controlled_Vocab
 		$stmt .=")";
 
 		try {
-			$db->query($stmt);
+			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -185,7 +185,7 @@ class Controlled_Vocab
 		$stmt .= ")";
 
 		try {
-			$db->query($stmt);
+			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -339,7 +339,7 @@ class Controlled_Vocab
                     cvo_desc = " . $db->quote($_POST["cvo_desc"]) . "
                  WHERE cvo_id = ".$db->quote($cvo_id, 'INTEGER');		
 		try {
-			$db->query($stmt);
+			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));

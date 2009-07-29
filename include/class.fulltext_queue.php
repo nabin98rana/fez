@@ -63,13 +63,13 @@ class FulltextQueue
 	 */
 	public static function singleton() 
 	{
-
+		$db = DB_API::get();
 		if (!is_object(self::$instance)) {
 			self::$instance = new FulltextQueue($indexPath);
 
 			// keep reference to database handler - this is needed
 			// for destruction time!
-			self::$instance->db_api = $GLOBALS["db_api"];
+			self::$instance->db_api = $db;
 		}
 			
 		return self::$instance;
@@ -92,7 +92,7 @@ class FulltextQueue
 		
 		if (!$this->pids[$pid]) {
 			$this->pids[$pid] = FulltextQueue::ACTION_INSERT;
-			$log->debug(array("FulltextQueue::add($pid)"));
+			$log->debug("FulltextQueue::add($pid)");
 		}
 	}
 

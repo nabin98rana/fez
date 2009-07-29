@@ -155,7 +155,7 @@ class Mail_Queue
                     " . $db->quote($body) . "
                  )";
 		try {
-			$db->query($stmt);
+			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -338,7 +338,7 @@ class Mail_Queue
                     " . $db->quote($server_message) . "
                  )";
 		try {
-			$db->query($stmt);
+			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -351,7 +351,7 @@ class Mail_Queue
                  WHERE
                  maq_id=".$db->quote($maq_id, 'INTEGER');
 		try {
-			$db->query($stmt);
+			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));

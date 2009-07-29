@@ -165,7 +165,7 @@ class Cloud_Tag
 			$stmt = "INSERT INTO " . APP_TABLE_PREFIX . "cloud_tag " .
                     "(keyword, quantity) VALUES (".$db->quote($keyword).", ".$db->quote($quantity) . ")";
 			try {
-				$db->query($stmt);
+				$db->exec($stmt);
 			}
 			catch(Exception $ex) {
 				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));

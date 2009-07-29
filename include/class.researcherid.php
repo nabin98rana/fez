@@ -273,7 +273,7 @@ class ResearcherID
                     null                    
                  )";
 		try {
-			$db->query($stmt);
+			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -310,7 +310,7 @@ class ResearcherID
                     WHERE 
                      rij_ticketno = " . $db->quote($ticket_number);
 		try {
-			$db->query($stmt);
+			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));

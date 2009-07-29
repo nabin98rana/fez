@@ -151,7 +151,7 @@ class XSD_Display
 			        " .$db->quote($master_res["xdis_object_type"], 'INTEGER') . "
                  )";
 		try {
-			$db->query($stmt);
+			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -357,7 +357,7 @@ class XSD_Display
                  WHERE xdis_id = ".$db->quote($xdis_id, 'INTEGER');
 
 		try {
-			$db->query($stmt);
+			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));

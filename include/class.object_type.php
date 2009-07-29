@@ -101,7 +101,7 @@ class Object_Type
 					" . $db->quote($_POST["ret_color"]) . "					
                  )";
 		try {
-			$db->query($stmt);
+			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -130,7 +130,7 @@ class Object_Type
 					ret_color = " . $db->quote($_POST["ret_color"]) . "
                  WHERE ret_id = ".$db->quote($ret_id, 'INTEGER');
 		try {
-			$db->query($stmt);
+			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));

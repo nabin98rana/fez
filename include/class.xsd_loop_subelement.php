@@ -360,7 +360,7 @@ class XSD_Loop_Subelement
 		$stmt .= $db->quote($_POST["xsdsel_order"]) . ")";
 
 		try {
-			$db->query($stmt);
+			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -418,7 +418,7 @@ class XSD_Loop_Subelement
 		$db->quote($insertArray["xsdsel_order"], 'INTEGER') . ")";
 
 		try {
-			$db->query($stmt);
+			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -468,7 +468,7 @@ class XSD_Loop_Subelement
                     xsdsel_type = " . $db->quote($params["xsdsel_type"]) . "
                  WHERE xsdsel_id = ".$db->quote($xsdsel_id, 'INTEGER');
 		try {
-			$db->query($stmt);
+			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));

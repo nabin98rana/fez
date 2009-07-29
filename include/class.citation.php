@@ -126,7 +126,7 @@ class Citation
 		}
 		Citation::clearCitationCacheByType($xdis_id);
 		try {
-			$db->query($stmt);
+			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -204,16 +204,16 @@ class Citation
 			}
 			foreach ($res as $pid) {
 				if (APP_FILECACHE == "ON") {
-					Logger::debug("Citation::clearCitationCacheByType Poisoning fileCache for ".$pid."");
+					$log->debug("Citation::clearCitationCacheByType Poisoning fileCache for ".$pid."");
 					$cache = new fileCache($pid, 'pid='.$pid);
 					$cache->poisonCache();
 				}
 				if ( APP_SOLR_INDEXER == "ON" ) {
-					Logger::debug("Citation::clearCitationCacheByType ADDING ".$pid." TO QUEUE");
+					$log->debug("Citation::clearCitationCacheByType ADDING ".$pid." TO QUEUE");
 					FulltextQueue::singleton()->add($pid);
 				}
-			}
-		}
+			} 
+		} 
 		return true;
 	}
 
@@ -289,7 +289,7 @@ class Citation
 				SET rek_citation = ".$db->quote($citation)."
 				WHERE rek_pid = ".$db->quote($pid, 'INTEGER');
 		try {
-			$db->query($stmt);
+			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));

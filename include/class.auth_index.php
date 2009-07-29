@@ -171,7 +171,7 @@ class AuthIndex
 				if ($role == "Lister") {
 					$lister_values[$loop][] = $db->quote($pid);
 					$lister_values[$loop][] = $db->quote($arg_id, 'INTEGER');		
-					$lister_values_sql[] = '(?,?,?)';			
+					$lister_values_sql[] = '(?,?)';			
 				}
 
 				$values[$loop][] = $db->quote($pid);
@@ -274,14 +274,14 @@ class AuthIndex
 				return -1;
 			}
 			
-			
 			if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) { 
 				$stmt = "INSERT IGNORE INTO ".$dbtp."auth_index2_lister (authi_pid,authi_arg_id) VALUES ".implode(', ', $lister_values_sql);
 			}
 			else {
-				$stmt = "INSERT INTO ".$dbtp."auth_index2_lister (authi_pid,authi_arg_id) VALUES ".implode(', ', $lister_values_sql[0]);				
+				$stmt = "INSERT INTO ".$dbtp."auth_index2_lister (authi_pid,authi_arg_id) VALUES ".implode(', ', $lister_values_sql);
 			}
-			try {				
+			try {
+				$lister_values = array_values($lister_values);
 				if(is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
 					$lister_values = Misc::array_flatten($lister_values, '', TRUE);
 					$db->query($stmt, $lister_values);
@@ -292,10 +292,10 @@ class AuthIndex
 						$db->query($stmt_delete, $lister_value[0]);
 						$db->query($stmt, $lister_value);
 					}
-				}				
+				}
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err(array('Message' => $ex->getMessage()." - ".$ex->getTraceAsString(), 'File' => __FILE__, 'Line' => __LINE__));
 				
 				return -1;
 			}

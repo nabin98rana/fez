@@ -106,7 +106,7 @@ class News
 
 		$stmt .=  $db->quote($_POST["status"]) . ")";
 		try {
-			$db->query($stmt);
+			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -177,7 +177,7 @@ class News
                  WHERE
                     nws_id=" . $db->quote($_POST["id"], 'INTEGER');
 		try {
-			$db->query($stmt);
+			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));

@@ -95,7 +95,7 @@ class Exiftool
 
 		$stmt = $insert . $values;
 		try {
-			$db->query($stmt);
+			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -120,7 +120,7 @@ class Exiftool
                     exif_pid = " . $db->quote($pid) . "
 					AND exif_dsid = " . $db->quote($dsID);
 		try {
-			$db->query($stmt);
+			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));

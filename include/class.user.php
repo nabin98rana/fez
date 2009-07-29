@@ -548,7 +548,7 @@ class User
                  WHERE
                     usr_id=".$db->quote($usr_id, 'INTEGER');
 		try {
-			$db->query($stmt);
+			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -581,7 +581,7 @@ class User
                  WHERE
                     usr_username=" . $db->quote($old_username);
 		try {
-			$db->query($stmt);
+			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -610,7 +610,7 @@ class User
                  WHERE
                     usr_username=" . $db->quote($username);
 		try {
-			$db->query($stmt);
+			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -638,7 +638,7 @@ class User
                  WHERE
                     usr_id=".$db->quote($usr_id, 'INTEGER');
 		try {
-			$db->query($stmt);
+			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -667,7 +667,7 @@ class User
                  WHERE
                     usr_id=".$db->quote($usr_id, 'INTEGER');
 		try {
-			$db->query($stmt);
+			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -760,7 +760,7 @@ class User
         					".$db->quote($shib_value)."
         				)";
 				try {
-					$db->query($stmt);
+					$db->exec($stmt);
 				}
 				catch(Exception $ex) {
 					$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -850,7 +850,7 @@ class User
                  WHERE
                     usr_id=" . $db->quote($_POST["id"], 'INTEGER');
 		try {
-			$db->query($stmt);
+			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -952,7 +952,7 @@ class User
 		}
 		$stmt .= " )";
 		try {
-			$db->query($stmt);
+			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -1009,7 +1009,7 @@ class User
                     " . $db->quote(Date_API::getCurrentDateGMT()) . "
                  )";
 		try {
-			$db->query($stmt);
+			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -1064,7 +1064,7 @@ class User
                     '" . $db->quote(Date_API::getCurrentDateGMT()) . "
                  )";
 		try {
-			$db->query($stmt);
+			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -1122,7 +1122,7 @@ class User
                     " . $db->quote(Date_API::getCurrentDateGMT()) . "
                  ) on duplicate key update usr_external_usr_id = ".$db->quote($eprints_usr_id, 'INTEGER');
 		try {
-			$db->query($stmt);
+			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -1174,7 +1174,7 @@ class User
                     " . $db->quote(Date_API::getCurrentDateGMT()) . "
                  )";
 		try {
-			$db->query($stmt);
+			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));

@@ -143,7 +143,7 @@ class Org_Structure
                     " . $db->quote($_POST["org_image_filename"]) . "										
                  )";
 		try {
-			$db->query($stmt);
+			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -216,7 +216,7 @@ class Org_Structure
                  WHERE org_id = ".$db->quote($org_id, 'INTEGER');
 		
 		try {
-			$db->query($stmt);
+			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));

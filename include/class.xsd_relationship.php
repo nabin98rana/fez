@@ -135,8 +135,8 @@ class XSD_Relationship
                    xsdmf_xdis_id = ".$db->quote($xdis_id, 'INTEGER')." and xsdrel_xsdmf_id = xsdmf_id and xsdrel_xdis_id = xdis_id ";
 		$stmt .= " ORDER BY xsdrel_order ASC";
         try {
-			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
-		}
+			$res = $db->fetchAll($stmt);
+		}	
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
 			return '';

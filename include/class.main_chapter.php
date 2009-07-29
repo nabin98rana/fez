@@ -95,7 +95,7 @@ class MainChapter
                  WHERE
                     mc_pid = " . $db->quote($pid);
 		try {
-			$db->query($stmt);
+			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -128,7 +128,7 @@ class MainChapter
 					(mc_pid, mc_author_id, mc_status) VALUES 
 					(" . $db->quote($pid) . ", " . $db->quote($authorID, 'INTEGER') . ", 1)";
 			try {
-				$db->query($stmt);
+				$db->exec($stmt);
 			}
 			catch(Exception $ex) {
 				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
