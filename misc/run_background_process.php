@@ -38,21 +38,22 @@ if (!(stristr(PHP_OS, 'win') && !stristr(PHP_OS, 'darwin'))) {
 
 $ARGV = $_SERVER['argv'];
 $base = $ARGV[2];
-include_once($base.'config.inc.php');
+include_once('../config.inc.php');
 include_once(APP_INC_PATH.'class.background_process.php');
 
 $bgp_id = $ARGV[1];
 //print_r($ARGV);
-
-$dbtp =  APP_TABLE_PREFIX;
-$stmt = "SELECT * FROM ".$dbtp."background_process WHERE bgp_id='".$bgp_id."'";
-$res = $GLOBALS['db_api']->dbh->getAll($stmt,DB_FETCHMODE_ASSOC);
-if (PEAR::isError($res)) {
-    Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+if (!is_numeric($bgp_id)) {
+	echo "bgp_id is not numeric so exiting $bgp_id";
+	exit;
 }
-
-include_once(APP_INC_PATH.$res[0]['bgp_include']);
-$bgp = unserialize($res[0]['bgp_serialized']);
+$bgp = new BackgroundProcess($bgp_id);
+$res = $bgp->getDetails();
+/*if (count($res) != 1) {
+	exit;
+}*/
+include_once(APP_INC_PATH.$res['bgp_include']);
+$bgp = unserialize($res['bgp_serialized']);
 
 $bgp->setAuth();
 
@@ -62,5 +63,3 @@ if (!empty($bgp->wfses_id)) {
     $wfstatus = WorkflowStatusStatic::getSession($bgp->wfses_id);
     $wfstatus->auto_next();
 }
-
-?>
