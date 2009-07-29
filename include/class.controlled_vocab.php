@@ -899,11 +899,11 @@ class Controlled_Vocab
 		$newArray = array();
 		foreach ($res as $row) {
 			$tempArray = array();
-			$tempArray = Controlled_Vocab::getAllTreeIDs($row[0]);
+			$tempArray = Controlled_Vocab::getAllTreeIDs($row['cvo_id']);
 			if (count($tempArray) > 0) {
-				$newArray[$row[0]] = $tempArray;
+				$newArray[$row['cvo_id']] = $tempArray;
 			} else {
-				$newArray[$row[0]] = $row[0];
+				$newArray[$row['cvo_id']] = $row['cvo_id'];
 			}
 		}
 		return $newArray;

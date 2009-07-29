@@ -242,7 +242,7 @@ class Collection
                 GROUP BY r".$termCounter.".rek_subject ";
 
 		try {
-			$res = $db->fetchPairs($stmt, $stringIDs);
+			$res = $db->fetchPairs($stmt, array_values($stringIDs));
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
