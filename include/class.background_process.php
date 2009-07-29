@@ -93,7 +93,7 @@ class BackgroundProcess {
 		$dbtp =  APP_TABLE_PREFIX;
 		$stmt = "UPDATE ".$dbtp."background_process SET bgp_serialized=".$db->quote($serialized)." WHERE bgp_id=".$db->quote($this->bgp_id, 'INTEGER');
 		try {
-			$db->query($stmt);
+			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -108,7 +108,7 @@ class BackgroundProcess {
 		$dbtp =  APP_TABLE_PREFIX;
 		$stmt = "UPDATE ".$dbtp."background_process SET bgp_progress=".$db->quote($percent, 'INTEGER')." WHERE bgp_id=".$db->quote($this->bgp_id, 'INTEGER');
 		try {
-			$db->query($stmt);
+			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -130,7 +130,7 @@ class BackgroundProcess {
 		$dbtp =  APP_TABLE_PREFIX;
 		$stmt = "UPDATE ".$dbtp."background_process SET bgp_status_message=".$db->quote($msg)." WHERE bgp_id=".$db->quote($this->bgp_id, 'INTEGER');
 		try {
-			$db->query($stmt);
+			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -146,7 +146,7 @@ class BackgroundProcess {
 		$dbtp =  APP_TABLE_PREFIX;
 		$stmt = "UPDATE ".$dbtp."background_process SET bgp_state=".$db->quote($state)." WHERE bgp_id=".$db->quote($this->bgp_id, 'INTEGER');
 		try {
-			$db->query($stmt);
+			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -163,7 +163,7 @@ class BackgroundProcess {
 		$utc_date = Date_API::getSimpleDateUTC();
 		$stmt = "UPDATE ".$dbtp."background_process SET bgp_heartbeat=".$db->quote($utc_date)." WHERE bgp_id=".$db->quote($this->bgp_id, 'INTEGER');
 		try {
-			$db->query($stmt);
+			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -181,7 +181,7 @@ class BackgroundProcess {
             bgp_headers=".$db->quote($headers)."
             WHERE bgp_id=".$db->quote($this->bgp_id, 'INTEGER');
 		try {
-			$db->query($stmt);
+			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -240,7 +240,7 @@ class BackgroundProcess {
 		$stmt = "INSERT INTO ".$dbtp."background_process (bgp_usr_id,bgp_started,bgp_name,bgp_include)
             VALUES (".$db->quote($usr_id).", ".$db->quote($utc_date).", ".$db->quote($this->name).",".$db->quote($this->include).")";
 		try {
-			$db->query($stmt);
+			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
