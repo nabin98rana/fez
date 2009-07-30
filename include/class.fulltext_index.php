@@ -108,11 +108,8 @@ abstract class FulltextIndex {
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
-		}
-		
-		if ($res != DB_OK) {
 			$log->err(array("FulltextIndex::releaseLock failed",$res));
-		}
+		}		
 	}
 
 
