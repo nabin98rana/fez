@@ -130,8 +130,8 @@ abstract class FulltextIndex {
 			$my_pid = 'null';
 		}
 
-		$sql =  "UPDATE ".APP_TABLE_PREFIX."fulltext_locks SET ftl_pid=".$db->quote($my_pid, 'INTEGER');
-		$sql .= " WHERE ftl_name='".FulltextQueue::LOCK_NAME_FULLTEXT_INDEX."'";
+		$stmt =  "UPDATE ".APP_TABLE_PREFIX."fulltext_locks SET ftl_pid=".$db->quote($my_pid);
+		$stmt .= " WHERE ftl_name='".FulltextQueue::LOCK_NAME_FULLTEXT_INDEX."'";
 		
 		try {
 			$db->query($stmt);
