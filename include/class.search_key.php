@@ -982,7 +982,7 @@ class Search_Key
 				$stmt .= "
 					  SELECT rek_".$sek_title."_id, rek_".$sek_title."
 						FROM ".$dbtp."record_search_key_".$sek_title."
-					 WHERE rek_".$sek_title." LIKE'".$db->quote($term.'%')." GROUP BY rek_".$sek_title."";
+					 WHERE rek_".$sek_title." LIKE ".$db->quote($term.'%')." GROUP BY rek_".$sek_title."";
 				$stmt .= " LIMIT 10 OFFSET 0) as tempsuggest ";
 			} else { //if you are mysql using myisam db type then you can take advantage of fulltext indexing (make sure you have a ft index on the value column)
 				$stmt = " SELECT rek_".$sek_title."_id as id, rek_".$sek_title." as name FROM (";
