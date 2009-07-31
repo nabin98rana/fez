@@ -287,7 +287,7 @@ class Citation
 		$stmt = "UPDATE
 				" . APP_TABLE_PREFIX . "record_search_key r1
 				SET rek_citation = ".$db->quote($citation)."
-				WHERE rek_pid = ".$db->quote($pid, 'INTEGER');
+				WHERE rek_pid = ".$db->quote($pid);
 		try {
 			$db->exec($stmt);
 		}
