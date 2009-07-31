@@ -39,6 +39,8 @@
 include_once("../config.inc.php");
 include_once(APP_INC_PATH. 'class.error_handler.php');
 
+$log = FezLog::get();
+
 // Get image and size
 $image = urldecode($_GET["image"]);
 $quality = $_GET["quality"]; //maximum width
@@ -130,7 +132,8 @@ if ($watermark == "" && $copyright == "") {
 }
 //Error_Handler::logError("Image Magick Error: ".$error_message.", for command $command \n", __FILE__,__LINE__);
 if ($return_status <> 0) {	
-	Error_Handler::logError("Image Magick Error: ".implode(",", $return_array).", return status = $return_status, for command $command$unix_extra \n", __FILE__,__LINE__);
+	//Error_Handler::logError("Image Magick Error: ".implode(",", $return_array).", return status = $return_status, for command $command$unix_extra \n", __FILE__,__LINE__);
+	$log->err(array('Message' => "Image Magick Error: ".implode(",", $return_array).", return status = $return_status, for command $command$unix_extra \n", 'File' => __FILE__, 'Line' => __LINE__));
 }
 
 echo ' ';
