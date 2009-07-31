@@ -1316,13 +1316,16 @@ class Statistics
 			$stmt .= ", str_usr_id";
 		}
 		$params = array($remote_address, $request_date, $pid);
-		$stmt .= ")	VALUES (?, ?, ?, ?)";
+		$stmt .= ")	VALUES (?, ?, ?";	
 		if (!is_null($ds_id)) {			
+			$stmt .= ", ?";
 			$params[] = $ds_id;
 		}
 		if (is_numeric($usr_id)) {
+			$stmt .= ", ?";
 			$params[] = $usr_id;
 		}
+		$stmt .= ")";
 		
 		try {
 			$db->query($stmt, $params);
