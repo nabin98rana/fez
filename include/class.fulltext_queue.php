@@ -477,9 +477,9 @@ class FulltextQueue
 
 	function __destruct() 
 	{			
-		if (count($this->pids) > 0) {
+		/*if (count($this->pids) > 0) {
 			$this->commit();
-		}
+		}*/
 	}
 
 }
