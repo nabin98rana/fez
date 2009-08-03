@@ -235,6 +235,7 @@ class Statistics
 			foreach ($changedPids as $pid => $null) {
 				FulltextQueue::singleton()->add($pid);
 			}
+			FulltextQueue::singleton()->commit();
 		}
 		$timeFinished = date('Y-m-d H:i:s');
 		Statistics::setLogRun($requestDateLatest, $counter, $counter_inserted, $timeStarted, $timeFinished);
@@ -457,6 +458,7 @@ class Statistics
 				foreach ($changedPids as $pid => $null) {
 					FulltextQueue::singleton()->add($pid);
 				}
+				FulltextQueue::singleton()->commit();
 			}
 		}
 
@@ -664,7 +666,7 @@ class Statistics
 			return -1;
 		}
 		
-		foreach ($results as $index => $row)
+		foreach ($res as $index => $row)
 		{
 			$region = '';
 			if ($row['stl_country_name'] == 'Australia')
@@ -700,17 +702,17 @@ class Statistics
 						break;
 				}
 
-				$results[$index]['stl_region'] = $region;
+				$res[$index]['stl_region'] = $region;
 			}
 			if ($row['stl_country_name'] == '' && $row['stl_region'] == '')
 			{
-				$results[$index]['stl_country_name'] = 'Australia';
-				$results[$index]['stl_country_code'] = 'AU';
-				$results[$index]['stl_region'] = 'UQ Intranet';
+				$res[$index]['stl_country_name'] = 'Australia';
+				$res[$index]['stl_country_code'] = 'AU';
+				$res[$index]['stl_region'] = 'UQ Intranet';
 			}
 		}
 
-		foreach ($results as $row)
+		foreach ($res as $row)
 		{
 			$data = array(
 			    'scr_country_name'		=> $row['stl_country_name'],
@@ -1049,7 +1051,7 @@ class Statistics
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
 			return array();
 		}
-		return $results;
+		return $res;
 	}
 
 	/**
@@ -1071,7 +1073,7 @@ class Statistics
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
 			return array();
 		}
-		return $results;
+		return $res;
 	}
 
 	/**
@@ -1096,7 +1098,7 @@ class Statistics
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
 			return array();
 		}
-		return $results;
+		return $res;
 	}
 
 	/**
@@ -1122,7 +1124,7 @@ class Statistics
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
 			return array();
 		}
-		return $results;
+		return $res;
 	}
 
 	/**
@@ -1145,7 +1147,7 @@ class Statistics
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
 			return array();
 		}
-		return $results;
+		return $res;
 	}
 
 	/**
@@ -1169,7 +1171,7 @@ class Statistics
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
 			return array();
 		}
-		return $results;
+		return $res;
 	}
 
 
@@ -1201,7 +1203,7 @@ class Statistics
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
 			return array();
 		}
-		return $results;		
+		return $res;		
 	}
 
 	/**
@@ -1238,7 +1240,7 @@ class Statistics
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
 			return array();
 		}
-		return $results;
+		return $res;
 	}
 
 	function isRobot($ip) 

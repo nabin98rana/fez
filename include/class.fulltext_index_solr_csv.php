@@ -215,7 +215,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 					$resultSeks = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 				}
 				catch(Exception $ex) {
-					$log->notice(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+					$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
 				}			
 				foreach ($resultSeks as $resultSek) {
 					$tmpArr[$resultSek['pid']] = $resultSek['value'];
@@ -455,7 +455,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->notice(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));		
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));		
 		}
 
 		foreach ($res as $pidData) {

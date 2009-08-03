@@ -334,6 +334,7 @@ class AuthIndex
 				// KJ/ETH: fulltext indexing of $pid should automatically
 				// recurse to children
 				FulltextQueue::singleton()->add($pid);
+				FulltextQueue::singleton()->commit();
 			}
 		}
 

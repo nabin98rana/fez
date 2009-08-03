@@ -193,7 +193,8 @@ switch ($cat)
 	            $tpl->assign("delete_object_result", 1);
 	            
 				if ( APP_SOLR_INDEXER == "ON" ) {
-	                FulltextQueue::singleton()->remove($pid);
+					FulltextQueue::singleton()->remove($pid);
+					FulltextQueue::singleton()->commit();
 	            }
 			}
             break;
@@ -217,6 +218,9 @@ switch ($cat)
 	                }
 				}
             }
+			if ( APP_SOLR_INDEXER == "ON" ) {
+				FulltextQueue::singleton()->commit();
+			}
             $tpl->assign("delete_object_result", 1);
             break;
         }

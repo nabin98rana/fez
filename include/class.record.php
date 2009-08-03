@@ -593,6 +593,7 @@ class Record
 		if ( APP_SOLR_INDEXER == "ON" && $remove_solr == true) {
 			$log->debug("Record::removeIndexRecord() REMOVING ".$pid." FROM QUEUE");
 			FulltextQueue::singleton()->remove($pid);
+			FulltextQueue::singleton()->commit();
 		}
 
 		$cviews = array();
@@ -894,6 +895,7 @@ class Record
 		if (APP_SOLR_INDEXER == "ON") {
 			$log->debug("Record::updateSearchKeys() ADDING ".$pid." TO QUEUE");
 			FulltextQueue::singleton()->add($pid);
+			FulltextQueue::singleton()->commit();
 		}
 
 		return $ret;

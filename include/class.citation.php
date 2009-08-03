@@ -212,7 +212,10 @@ class Citation
 					$log->debug("Citation::clearCitationCacheByType ADDING ".$pid." TO QUEUE");
 					FulltextQueue::singleton()->add($pid);
 				}
-			} 
+			}
+			if ( APP_SOLR_INDEXER == "ON" ) {
+				FulltextQueue::singleton()->commit();
+			}
 		} 
 		return true;
 	}

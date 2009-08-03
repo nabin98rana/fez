@@ -330,7 +330,7 @@ class FulltextQueue
 		$stmt  = "SELECT * FROM ".APP_TABLE_PREFIX."fulltext_queue ";
 		$stmt .= "ORDER BY ftq_key ASC "; //maybe this needs to be commented out like RP did because of hte below? doubt it surely.. CK
 		$stmt = $db->limit($stmt, 1, 0);
-		$stmt .= " FOR UPDATE ";
+//		$stmt .= " FOR UPDATE ";
 		
 		try {
 			$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
@@ -341,7 +341,7 @@ class FulltextQueue
 		}
 
 		if (count($res) == 0) {
-			//Logger::debug("FulltextQueue::pop() Queue is empty.");
+			$log->debug("FulltextQueue::pop() Queue is empty.");
 			return null;
 		}
 			
@@ -358,7 +358,7 @@ class FulltextQueue
 			return null;
 		}
 			
-		//Logger::debug("FulltextQueue::pop() success! ".Logger::str_r($result));
+		//Logger::debug("FulltextQueue::pop() success! ".Logger::str_r($res));
 		return $res;
 	}
 
@@ -417,7 +417,7 @@ class FulltextQueue
 			return false;
 		}
 
-		foreach ( $result as $row ) {
+		foreach ( $res as $row ) {
 			$keys[] = $row['ftq_key'];
 		}
 						
@@ -432,7 +432,7 @@ class FulltextQueue
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
 		}
 
-		return $result;
+		return $res;
 	}
 
 	function popDeleteChunk() 
@@ -453,11 +453,11 @@ class FulltextQueue
 		}
 
 		if (count($res) == 0) {
-			$log->debug("FulltextQueue::popDeleteChunk() Delete Queue is empty.");
+			$log->debug("FulltextQueue::popDeleteChunk() Delete Queue is empty.".print_r($res));
 			return false;
 		}
 			
-		foreach ( $result as $row ) {
+		foreach ( $res as $row ) {
 			$keys[] = $row['ftq_key'];
 		}
 			
@@ -471,15 +471,6 @@ class FulltextQueue
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
 		}
 			
-		return $result;
+		return $res;
 	}
-
-
-	function __destruct() 
-	{			
-		/*if (count($this->pids) > 0) {
-			$this->commit();
-		}*/
-	}
-
 }

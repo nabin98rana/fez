@@ -576,14 +576,15 @@ class Reindex
 				$this->bgp->setStatus("Adding to Solr Queue:  '".$detail['rek_pid']."' ".$detail['rek_title']. " (".$reindex_record_counter."/".$record_count.")");
 
 				if( $reindex_record_counter % 100 == 0 ) {
-					FulltextQueue::commit();
+//					FulltextQueue::commit();
 				}
 
 				$reindex_record_counter++;
 			}
 		}
-		FulltextQueue::commit();
-		FulltextQueue::singleton()->triggerUpdate();
+		FulltextQueue::singleton()->commit();
+/*		FulltextQueue::commit();
+		FulltextQueue::singleton()->triggerUpdate(); */
 	}
 
 

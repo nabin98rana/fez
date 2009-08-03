@@ -97,6 +97,7 @@ class BackgroundProcess_Bulk_Assign_Authorid extends BackgroundProcess
 					$this->setStatus("Adding ".$pid." to Solr reindex queue");
 					FulltextQueue::singleton()->add($pid);
 				}
+				FulltextQueue::singleton()->commit();
 			}
 		}
 		$this->setState(2);

@@ -601,6 +601,7 @@ class RecordGeneral
 			Record::setIndexMatchingFields($this->pid);
 			if( APP_SOLR_INDEXER == "ON" ) {
 				FulltextQueue::singleton()->add($this->pid);
+				FulltextQueue::singleton()->commit();
 			}
 			return true;
 		}
