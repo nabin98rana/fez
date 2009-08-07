@@ -149,7 +149,7 @@ class Mail_Queue
                  ) VALUES (
                  	" . $db->quote($save_email_copy, 'INTEGER') . ",
                     " . $db->quote(Date_API::getCurrentDateGMT()) . ",
-                    " . $db->quote(etenv("REMOTE_ADDR")) . ",
+                    " . $db->quote(getenv("REMOTE_ADDR")) . ",
                     " . $db->quote($recipient) . ",
                     " . $db->quote($text_headers) . ",
                     " . $db->quote($body) . "
