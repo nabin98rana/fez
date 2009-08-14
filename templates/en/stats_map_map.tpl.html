@@ -1,0 +1,47 @@
+
+	<div id="statistics_links">
+		<h1 class="public"><img src="images/statistics_22.gif" alt="Access Statistics" />Statistics Map</h1>
+		<p><strong>Top 50:</strong>
+			<a href="{$rel_url}stats.php?browse=top50authors">{$application_title} Authors</a> |
+			<a href="{$rel_url}stats.php?browse=top50papers">Papers</a>
+		</p>
+		<p><strong>Most viewed records:</strong>
+			<a href="{$rel_url}stats.php?browse=show_detail_date&range=4w">Past four weeks</a> |
+			<a href="{$rel_url}stats.php?browse=show_detail_date&year={$thisYear}">This year</a> |
+			<a href="{$rel_url}stats.php?browse=show_detail_date&year={$lastYear}">Last year</a> |
+			<a href="{$rel_url}stats.php?browse=show_detail_date">All years</a>
+		<br /><br /><strong>Repository-wide statistics:</strong>
+		<a href="{$rel_url}stat_details.php?action=cumulative_usage&range=all">by Year/month</a> |
+		<a href="{$rel_url}stat_details.php?action=cumulative_usage_country">by Country</a>
+		</p>
+		<p>
+			<strong>Map:</strong>
+			<a href="{$rel_url}stats_map.php">Statistics Map</a>
+		</p>
+	</div>
+
+	<div id="sidebar">
+		<h3>Legend</h3>
+		<div id="sidebar-info">&nbsp;</div>
+	</div>
+
+	<div style="clear:both;">&nbsp;</div>
+
+	<label for="map_selection_options">Type of data shown</label>
+	<select id="map_selection_options" onchange="javascript: updateMapMarkers()">
+		<option value="BOTH" selected="selected">Both</option>
+		<option value="ABSTRACTS_ONLY">Abstracts only</option>
+		<option value="DOWNLOADS_ONLY">Downloads only</option>
+	</select>
+	<button id="mapbutton" onclick="javascript:maxMapToggle();" >Toggle Map Size</button>
+
+	<div id="map-wrapper">
+		<div id="map_canvas"></div>
+		<div id="map_alert">
+			<p><img src="/images/spinner.gif" alt="" /> Updating markers ... </p>
+		</div>
+	</div>
+
+	<div style="clear:both;">&nbsp;</div>
+
+	

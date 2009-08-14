@@ -1101,6 +1101,360 @@ class Statistics
 		return $res;
 	}
 
+	function getContinentMapSummary()
+	{
+		$continentCoordinates = array(
+			'Oceania' => array('latitude' => -12.21118, 'longitude' => 172.96875),
+			'Asia' => array('latitude' => 34.047863, 'longitude' => 100.619655),
+			'North America' => array('latitude' => 54.525961, 'longitude' => -105.255119),
+			'South America' => array('latitude' => -8.754795, 'longitude' => -55.546875),
+			'Africa' => array('latitude' => -8.783195, 'longitude' => 34.508523),
+			'Europe' => array('latitude' => 54.525961, 'longitude' => 15.255119),
+			'Antarctica' => array('latitude' => -75.250973, 'longitude' => -0.071389)
+		);
+
+		$country2Continent = array(
+			'AP' => 'Asia',
+			'EU' => 'Europe',
+			'AD' => 'Europe',
+			'AE' => 'Asia',
+			'AF' => 'Asia',
+			'AG' => 'South America',
+			'AI' => 'South America',
+			'AL' => 'Europe',
+			'AM' => 'Asia',
+			'AN' => 'South America',
+			'AO' => 'Africa',
+			'AQ' => 'Antarctica',
+			'AR' => 'South America',
+			'AS' => 'Oceania',
+			'AT' => 'Europe',
+			'AU' => 'Oceania',
+			'AW' => 'South America',
+			'AX' => 'Europe',
+			'AZ' => 'Asia',
+			'BA' => 'Europe',
+			'BB' => 'South America',
+			'BD' => 'Asia',
+			'BE' => 'Europe',
+			'BF' => 'Africa',
+			'BG' => 'Europe',
+			'BH' => 'Asia',
+			'BI' => 'Africa',
+			'BJ' => 'Africa',
+			'BM' => 'South America',
+			'BN' => 'Asia',
+			'BO' => 'South America',
+			'BR' => 'South America',
+			'BS' => 'South America',
+			'BT' => 'Asia',
+			'BV' => 'Africa',
+			'BW' => 'Africa',
+			'BY' => 'Europe',
+			'BZ' => 'South America',
+			'CA' => 'North America',
+			'CC' => 'Asia',
+			'CD' => 'Africa',
+			'CF' => 'Africa',
+			'CG' => 'Africa',
+			'CH' => 'Europe',
+			'CI' => 'Africa',
+			'CK' => 'Oceania',
+			'CL' => 'South America',
+			'CM' => 'Africa',
+			'CN' => 'Asia',
+			'CO' => 'South America',
+			'CR' => 'South America',
+			'CU' => 'South America',
+			'CV' => 'Africa',
+			'CX' => 'Asia',
+			'CY' => 'Asia',
+			'CZ' => 'Europe',
+			'DE' => 'Europe',
+			'DJ' => 'Africa',
+			'DK' => 'Europe',
+			'DM' => 'South America',
+			'DO' => 'South America',
+			'DZ' => 'Africa',
+			'EC' => 'South America',
+			'EE' => 'Europe',
+			'EG' => 'Africa',
+			'EH' => 'Africa',
+			'ER' => 'Africa',
+			'ES' => 'Europe',
+			'ET' => 'Africa',
+			'FI' => 'Europe',
+			'FJ' => 'Oceania',
+			'FK' => 'South America',
+			'FM' => 'Oceania',
+			'FO' => 'Europe',
+			'FR' => 'Europe',
+			'FX' => 'Europe',
+			'GA' => 'Africa',
+			'GB' => 'Europe',
+			'GD' => 'South America',
+			'GE' => 'Asia',
+			'GF' => 'South America',
+			'GG' => 'Europe',
+			'GH' => 'Africa',
+			'GI' => 'Europe',
+			'GL' => 'South America',
+			'GM' => 'Africa',
+			'GN' => 'Africa',
+			'GP' => 'South America',
+			'GQ' => 'Africa',
+			'GR' => 'Europe',
+			'GS' => 'South America',
+			'GT' => 'South America',
+			'GU' => 'Oceania',
+			'GW' => 'Africa',
+			'GY' => 'South America',
+			'HK' => 'Asia',
+			'HM' => 'Africa',
+			'HN' => 'South America',
+			'HR' => 'Europe',
+			'HT' => 'South America',
+			'HU' => 'Europe',
+			'ID' => 'Asia',
+			'IE' => 'Europe',
+			'IL' => 'Asia',
+			'IM' => 'Europe',
+			'IN' => 'Asia',
+			'IO' => 'Asia',
+			'IQ' => 'Asia',
+			'IR' => 'Asia',
+			'IS' => 'Europe',
+			'IT' => 'Europe',
+			'JE' => 'Europe',
+			'JM' => 'South America',
+			'JO' => 'Asia',
+			'JP' => 'Asia',
+			'KE' => 'Africa',
+			'KG' => 'Asia',
+			'KH' => 'Asia',
+			'KI' => 'Oceania',
+			'KM' => 'Africa',
+			'KN' => 'South America',
+			'KP' => 'Asia',
+			'KR' => 'Asia',
+			'KW' => 'Asia',
+			'KY' => 'South America',
+			'KZ' => 'Asia',
+			'LA' => 'Asia',
+			'LB' => 'Asia',
+			'LC' => 'South America',
+			'LI' => 'Europe',
+			'LK' => 'Asia',
+			'LR' => 'Africa',
+			'LS' => 'Africa',
+			'LT' => 'Europe',
+			'LU' => 'Europe',
+			'LV' => 'Europe',
+			'LY' => 'Africa',
+			'MA' => 'Africa',
+			'MC' => 'Europe',
+			'MD' => 'Europe',
+			'MG' => 'Africa',
+			'MH' => 'Oceania',
+			'MK' => 'Europe',
+			'ML' => 'Africa',
+			'MM' => 'Asia',
+			'MN' => 'Asia',
+			'MO' => 'Asia',
+			'MP' => 'Oceania',
+			'MQ' => 'South America',
+			'MR' => 'Africa',
+			'MS' => 'South America',
+			'MT' => 'Europe',
+			'MU' => 'Africa',
+			'MV' => 'Asia',
+			'MW' => 'Africa',
+			'MX' => 'North America',
+			'MY' => 'Asia',
+			'MZ' => 'Africa',
+			'NA' => 'Africa',
+			'NC' => 'Oceania',
+			'NE' => 'Africa',
+			'NF' => 'Oceania',
+			'NG' => 'Africa',
+			'NI' => 'South America',
+			'NL' => 'Europe',
+			'NO' => 'Europe',
+			'NP' => 'Asia',
+			'NR' => 'Oceania',
+			'NU' => 'Oceania',
+			'NZ' => 'Oceania',
+			'OM' => 'Asia',
+			'PA' => 'South America',
+			'PE' => 'South America',
+			'PF' => 'Oceania',
+			'PG' => 'Oceania',
+			'PH' => 'Asia',
+			'PK' => 'Asia',
+			'PL' => 'Europe',
+			'PM' => 'South America',
+			'PN' => 'Oceania',
+			'PR' => 'South America',
+			'PS' => 'Asia',
+			'PT' => 'Europe',
+			'PW' => 'Oceania',
+			'PY' => 'South America',
+			'QA' => 'Asia',
+			'RE' => 'Africa',
+			'RO' => 'Europe',
+			'RU' => 'Asia',
+			'RW' => 'Africa',
+			'SA' => 'Asia',
+			'SB' => 'Oceania',
+			'SC' => 'Africa',
+			'SD' => 'Africa',
+			'SE' => 'Europe',
+			'SG' => 'Asia',
+			'SH' => 'Africa',
+			'SI' => 'Europe',
+			'SJ' => 'Europe',
+			'SK' => 'Europe',
+			'SL' => 'Africa',
+			'SM' => 'Europe',
+			'SN' => 'Africa',
+			'SO' => 'Africa',
+			'SR' => 'South America',
+			'ST' => 'Africa',
+			'SV' => 'South America',
+			'SY' => 'Asia',
+			'SZ' => 'Africa',
+			'TC' => 'South America',
+			'TD' => 'Africa',
+			'TF' => 'Africa',
+			'TG' => 'Africa',
+			'TH' => 'Asia',
+			'TJ' => 'Asia',
+			'TK' => 'Oceania',
+			'TM' => 'Asia',
+			'TN' => 'Africa',
+			'TO' => 'Oceania',
+			'TP' => 'Asia',
+			'TR' => 'Asia',
+			'TT' => 'South America',
+			'TV' => 'Oceania',
+			'TW' => 'Asia',
+			'TZ' => 'Africa',
+			'UA' => 'Europe',
+			'UG' => 'Africa',
+			'UM' => 'Oceania',
+			'US' => 'North America',
+			'UY' => 'South America',
+			'UZ' => 'Asia',
+			'VA' => 'Europe',
+			'VC' => 'South America',
+			'VE' => 'South America',
+			'VG' => 'South America',
+			'VI' => 'South America',
+			'VN' => 'Asia',
+			'VU' => 'Oceania',
+			'WF' => 'Oceania',
+			'WS' => 'Oceania',
+			'YE' => 'Asia',
+			'YT' => 'Africa',
+			'YU' => 'Europe',
+			'ZA' => 'Africa',
+			'ZM' => 'Africa',
+			'ZR' => 'Africa',
+			'ZW' => 'Africa'
+		);
+
+		$results = Statistics::getCountryMapSummary();
+
+		foreach ($results as $index => $row)
+		{
+			$continentName = $country2Continent[$row['country_code']];
+			$continents[$continentName]['abstracts'] += $row['abstracts'];
+			$continents[$continentName]['downloads'] += $row['downloads'];
+		}
+
+		foreach ($continents as $name => $values)
+		{
+			$continents[$name]['latitude'] = $continentCoordinates[$name]['latitude'];
+			$continents[$name]['longitude'] = $continentCoordinates[$name]['longitude'];
+		}
+
+		return $continents;
+	}
+
+	function getCountryMapSummary($neLatitude = '', $neLongitude = '', $swLatitude = '', $swLongitude = '')
+	{
+
+
+		$query = 'SELECT scr_country_code as country_code, scr_country_name as country_name, gctry_latitude AS latitude, gctry_longitude AS longitude, sum(scr_count_abstract) as abstracts, sum(scr_count_downloads) as downloads ';
+		$query .= 'FROM ' . APP_TABLE_PREFIX . 'statistics_sum_countryregion ';
+		$query .= 'JOIN ' . APP_TABLE_PREFIX . 'geocode_country ON (scr_country_code = gctry_country_code) ';
+
+		if ($neLatitude)
+		{
+			if ($neLongitude > $swLongitude)
+			{
+				$query .= "WHERE (gctry_longitude > {$swLongitude} AND gctry_longitude < {$neLongitude}) ";
+				$query .= "AND (gctry_latitude <= {$neLatitude} AND gctry_latitude >= {$swLatitude}) ";
+			}
+			else
+			{
+				$query .= "WHERE (gctry_longitude >= {$swLongitude} OR gctry_longitude <= {$neLongitude}) ";
+				$query .= "AND (gctry_latitude <= {$neLatitude} AND gctry_latitude >= {$swLatitude}) ";
+			}
+		}
+		
+		$query .= 'GROUP BY scr_country_code, scr_country_name, gctry_latitude, gctry_longitude ';
+		$query .= 'ORDER BY abstracts DESC';
+
+		$db = DB_API::get();
+		try {
+			$results = $db->fetchAll($query, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log = FezLog::get();
+			$log->err('Message: '.$ex->getMessage().', File: '.__FILE__.', Line: '.__LINE__);
+			return array();
+		}
+
+		return $results;
+	}
+
+	function getMaxCountryAbstractDownload()
+	{
+
+		$query = 'SELECT max(total) AS total FROM (';
+		$query .= 'SELECT scr_country_code, sum(scr_count_abstract + scr_count_downloads) AS total ';
+		$query .= 'FROM ' . APP_TABLE_PREFIX . 'statistics_sum_countryregion ';
+		$query .= 'GROUP BY scr_country_code) AS x';
+
+		$db = DB_API::get();
+		try {
+			$results = $db->fetchOne($query);
+		}
+		catch(Exception $ex) {
+			$log = FezLog::get();
+			$log->err('Message: '.$ex->getMessage().', File: '.__FILE__.', Line: '.__LINE__);
+			return array();
+		}
+
+		return $results;
+	}
+
+	function getMaxRegionAbstractDownload()
+	{
+		$query = 'SELECT MAX(scr_count_abstract + scr_count_downloads) AS total FROM ' . APP_TABLE_PREFIX . 'statistics_sum_countryregion ';
+		$db = DB_API::get();
+		try {
+			$results = $db->fetchOne($query);
+		}
+		catch(Exception $ex) {
+			$log = FezLog::get();
+			$log->err('Message: '.$ex->getMessage().', File: '.__FILE__.', Line: '.__LINE__);
+			return array();
+		}
+		return $results;
+	}
+
 	/**
 	 * Get the summary of abstracts and downloads broken down by country and region
 	 *
@@ -1108,8 +1462,8 @@ class Statistics
 	 */
 	function getCountryRegionSummary($country)
 	{
-		$log = FezLog::get();
 		$db = DB_API::get();
+		$log = FezLog::get();
 		
 		$stmt = 'SELECT scr_country_code, scr_country_name, scr_country_region, scr_city, sum(scr_count_abstract) as abstracts, sum(scr_count_downloads) as downloads ';
 		$stmt .= 'FROM ' . APP_TABLE_PREFIX . 'statistics_sum_countryregion ';
@@ -1126,6 +1480,124 @@ class Statistics
 		}
 		return $res;
 	}
+
+	/**
+	 * Gets a country region map summary based on a coodindate bounding box coordinates
+	 *
+	 * @param number $neLatitude
+	 * @param number $neLongitude
+	 * @param number $swLatitude
+	 * @param number $swLongitude
+	 * @return array
+	 */
+	function getCountryRegionMapSummary($neLatitude, $neLongitude, $swLatitude, $swLongitude)
+	{
+		if ($neLongitude > $swLongitude)
+		{
+
+			$query = 'SELECT scr_country_code AS country_code, scr_country_name AS country_name, scr_country_region as region, gcr_latitude AS latitude, gcr_longitude AS longitude, sum(scr_count_abstract) as abstracts, sum(scr_count_downloads) as downloads ';
+			$query .= 'FROM ' . APP_TABLE_PREFIX . 'statistics_sum_countryregion ';
+			$query .= 'LEFT JOIN ' . APP_TABLE_PREFIX . 'geocode_regions ON (scr_country_code = gcr_country_code AND scr_country_region = gcr_location_name) ';
+			$query .= "WHERE (gcr_longitude > {$swLongitude} AND gcr_longitude < {$neLongitude}) ";
+			$query .= "AND (gcr_latitude <= {$neLatitude} AND gcr_latitude >= {$swLatitude}) ";
+			$query .= 'GROUP BY scr_country_code, scr_country_name, scr_country_region, gcr_latitude, gcr_longitude ';
+			$query .= 'UNION ';
+			$query .= 'SELECT scr_country_code AS country_code, scr_country_name AS country_name, gcr_location_name as region, gcr_latitude AS latitude, gcr_longitude AS longitude, sum(scr_count_abstract) as abstracts, sum(scr_count_downloads) as downloads ';
+			$query .= 'FROM ' . APP_TABLE_PREFIX . 'statistics_sum_countryregion ';
+			$query .= 'LEFT JOIN ' . APP_TABLE_PREFIX . 'geocode_regions ON (scr_country_code = gcr_country_code AND scr_country_region = gcr_region_code) ';
+			$query .= "WHERE (gcr_longitude > {$swLongitude} AND gcr_longitude < {$neLongitude}) ";
+			$query .= "AND (gcr_latitude <= {$neLatitude} AND gcr_latitude >= {$swLatitude}) ";
+			$query .= 'GROUP BY scr_country_code, scr_country_name, gcr_location_name, gcr_latitude, gcr_longitude ';
+			$query .= 'ORDER BY abstracts DESC';
+		}
+		else
+		{
+			$query = 'SELECT scr_country_code AS country_code, scr_country_name AS country_name, scr_country_region as region, gcr_latitude AS latitude, gcr_longitude AS longitude, sum(scr_count_abstract) as abstracts, sum(scr_count_downloads) as downloads ';
+			$query .= 'FROM ' . APP_TABLE_PREFIX . 'statistics_sum_countryregion ';
+			$query .= 'LEFT JOIN ' . APP_TABLE_PREFIX . 'geocode_regions ON (scr_country_code = gcr_country_code AND scr_country_region = gcr_location_name) ';
+			$query .= "WHERE (gcr_longitude >= {$swLongitude} OR gcr_longitude <= {$neLongitude}) ";
+			$query .= "AND (gcr_latitude <= {$neLatitude} AND gcr_latitude >= {$swLatitude}) ";
+			$query .= 'GROUP BY scr_country_code, scr_country_name, scr_country_region, gcr_latitude, gcr_longitude ';
+			$query .= 'UNION ';
+			$query .= 'SELECT scr_country_code AS country_code, scr_country_name AS country_name, gcr_location_name as region, gcr_latitude AS latitude, gcr_longitude AS longitude, sum(scr_count_abstract) as abstracts, sum(scr_count_downloads) as downloads ';
+			$query .= 'FROM ' . APP_TABLE_PREFIX . 'statistics_sum_countryregion ';
+			$query .= 'LEFT JOIN ' . APP_TABLE_PREFIX . 'geocode_regions ON (scr_country_code = gcr_country_code AND scr_country_region = gcr_region_code) ';
+			$query .= "WHERE (gcr_longitude >= {$swLongitude} OR gcr_longitude <= {$neLongitude}) ";
+			$query .= "AND (gcr_latitude <= {$neLatitude} AND gcr_latitude >= {$swLatitude}) ";
+			$query .= 'GROUP BY scr_country_code, scr_country_name, gcr_location_name, gcr_latitude, gcr_longitude ';
+			$query .= 'ORDER BY abstracts DESC';
+		}
+
+		$db = DB_API::get();
+
+		try {
+			$results = $db->fetchAll($query, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log = FezLog::get();
+			$log->err('Message: '.$ex->getMessage().', File: '.__FILE__.', Line: '.__LINE__);
+			return array();
+		}
+
+		return $results;
+	}
+
+	// ================================
+	// Gets the summary grouped by city
+	// ================================
+	function getCityMapSummary($neLatitude, $neLongitude, $swLatitude, $swLongitude)
+	{
+
+		$query = 'SELECT scr_country_code AS country_code, scr_country_name AS country_name, scr_country_region AS region, gcity_city AS city, gcity_latitude as latitude, gcity_longitude AS longitude, scr_count_abstract AS abstracts, scr_count_downloads AS downloads ';
+		$query .= 'FROM ' . APP_TABLE_PREFIX . 'statistics_sum_countryregion ';
+		$query .= 'JOIN ' . APP_TABLE_PREFIX . 'geocode_regions ON (scr_country_code = gcr_country_code AND scr_country_region = gcr_location_name) ';
+		$query .= 'JOIN ' . APP_TABLE_PREFIX . 'geocode_cities ON (gcr_country_code = gcity_country_code AND gcr_region_code = gcity_region_code AND gcity_city = scr_city) ';
+
+		if ($neLongitude > $swLongitude)
+		{
+			$query .= "WHERE (gcity_longitude > {$swLongitude} AND gcity_longitude < {$neLongitude}) ";
+			$query .= "AND (gcity_latitude <= {$neLatitude} AND gcity_latitude >= {$swLatitude}) ";
+		}
+		else
+		{
+			$query .= "WHERE (gcity_longitude >= {$swLongitude} OR gcity_longitude <= {$neLongitude}) ";
+			$query .= "AND (gcity_latitude <= {$neLatitude} AND gcity_latitude >= {$swLatitude}) ";
+		}
+
+		$query .= 'UNION ';
+
+		$query .= "SELECT scr_country_code AS country_code, scr_country_name AS country_name, gcr_location_name AS region, gcity_city AS city, gcity_latitude as latitude, gcity_longitude AS longitude, scr_count_abstract AS abstracts, scr_count_downloads AS downloads ";
+		$query .= "FROM fez_statistics_sum_countryregion ";
+		$query .= "JOIN fez_geocode_regions ON (scr_country_code = gcr_country_code AND scr_country_region = gcr_region_code) ";
+		$query .= "JOIN fez_geocode_cities ON (gcr_country_code = gcity_country_code AND gcr_region_code = gcity_region_code AND gcity_city = scr_city) ";
+
+		if ($neLongitude > $swLongitude)
+		{
+			$query .= "WHERE (gcity_longitude > {$swLongitude} AND gcity_longitude < {$neLongitude}) ";
+			$query .= "AND (gcity_latitude <= {$neLatitude} AND gcity_latitude >= {$swLatitude}) ";
+		}
+		else
+		{
+			$query .= "WHERE (gcity_longitude >= {$swLongitude} OR gcity_longitude <= {$neLongitude}) ";
+			$query .= "AND (gcity_latitude <= {$neLatitude} AND gcity_latitude >= {$swLatitude}) ";
+		}
+
+		$query .= 'ORDER BY abstracts DESC';
+
+		$db = DB_API::get();
+
+		try {
+			$results = $db->fetchAll($query, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log = FezLog::get();
+			$log->err('Message: '.$ex->getMessage().', File: '.__FILE__.', Line: '.__LINE__);
+			return array();
+		}
+
+		return $results;
+	}
+
 
 	/**
 	 * Gets top downloads for the last four weeks

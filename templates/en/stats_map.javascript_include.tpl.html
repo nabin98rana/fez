@@ -1,0 +1,17 @@
+{literal}
+// =========================================
+// Add onload function to initialise the map
+// =========================================
+Event.observe(window, 'load', function() {
+	$('bodyElement').addClassName('standby');
+	$('bodyElement').addClassName('sidebar-right');
+	if (GBrowserIsCompatible()) {
+		initialiseMap();
+	}
+});
+
+// ======================
+// Unload the google maps
+// ======================
+Event.observe(window, 'unload', GUnload());
+{/literal}
