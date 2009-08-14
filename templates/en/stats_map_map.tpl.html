@@ -20,6 +20,7 @@
 		</p>
 	</div>
 
+	{if APP_USE_GOOGLE_MAP_SWITCH == 'ON'}
 	<div id="sidebar">
 		<h3>Legend</h3>
 		<div id="sidebar-info">&nbsp;</div>
@@ -43,5 +44,7 @@
 	</div>
 
 	<div style="clear:both;">&nbsp;</div>
-
+	{else}
+	<div style="float:left; margin-left:10px;clear:both;">Google Maps integration has been disabled.</div>
+	{/if}
 	

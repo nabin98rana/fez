@@ -412,6 +412,16 @@ function restoreDefaultColours(el)
 			</td>
   		  </tr>
   		  <tr>
+		    <td class="colname">Google Maps API Key</td>
+			<td class="coldetail">
+			  <input type="radio" name="app_use_google_map_switch" value="ON" {if $config_settings.app_use_google_map_switch == "ON"}checked{/if}/> Enabled &nbsp;
+			  <input type="radio" name="app_use_google_map_switch" value="OFF" {if $config_settings.app_use_google_map_switch == "OFF"}checked{/if}/> Disabled  &nbsp; &nbsp;
+
+			  <input type="text" name="app_google_map_key" value="{$config_settings.app_google_map_key|escape:"html"}" size="60" />
+			  {include file="error_icon.tpl.html" field="app_google_maps_key"}
+			</td>
+  		  </tr>
+  		  <tr>
 		    <td class="colname">Author auto-suggest mode</td>
 			<td class="coldetail">
 			  <select name="app_author_suggest_mode">
