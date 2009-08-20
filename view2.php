@@ -107,9 +107,10 @@ if (!empty($pid) && $record->checkExists()) {
 	$tpl->assign("pid", $pid);
 	$deleted = false;
 	if (@$show_tombstone) {
-		$tpl->assign('show_tombstone',true);
+
 		// check if this record has been deleted
-		if ($record->isDeleted()) {
+		if ($record->isDeleted() && ($requestedVersionDate == null || !$canViewVersions)) {
+			$tpl->assign('show_tombstone',true);
 			$tpl->assign('deleted',true);
 			$deleted = true;
 			$history_res = History::searchOnPid($pid, 
@@ -414,7 +415,6 @@ if (!empty($pid) && $record->checkExists()) {
                 $tpl->assign('doi', $datastreams[$ds_key]);
             }
 		} 
-		
 		
 		
 		$tpl->assign("datastreams", $datastreams);
