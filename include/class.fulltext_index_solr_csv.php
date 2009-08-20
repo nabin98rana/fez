@@ -334,17 +334,19 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 
 			$log->debug(array("processQueue: about to send"));
 			$postFields["commit"] = "true";
+			$url = "http://".APP_SOLR_HOST.":".APP_SOLR_PORT.APP_SOLR_PATH."update/csv";
+			
 			if (APP_SOLR_HOST == APP_HOSTNAME) {
 				$postFields["stream.file"] = $tmpfname;
-				$url = "http://".APP_SOLR_HOST.":".APP_SOLR_PORT.APP_SOLR_PATH."update/csv";
+				//$url = "http://".APP_SOLR_HOST.":".APP_SOLR_PORT.APP_SOLR_PATH."update/csv";
 				//old get method
 				//$url = "http://".APP_SOLR_HOST.":".APP_SOLR_PORT.APP_SOLR_PATH."update/csv?commit=true&stream.file=".$tmpfname.$spliting;
 			} else {
 				$url_loc = "http://".APP_HOSTNAME.APP_RELATIVE_URL."solr_upload/".substr($tmpfname, (strrpos($tmpfname, "/")+1));
 //				echo $url_loc."\n";
 				//old get method
+				//$url_of_stream = "http://".APP_SOLR_HOST.":".APP_SOLR_PORT.APP_SOLR_PATH."update/csv?commit=true&stream.url=".$url_loc.$spliting;
 				$postFields["stream.url"] = $url_loc;
-//				$url = "http://".APP_SOLR_HOST.":".APP_SOLR_PORT.APP_SOLR_PATH."update/csv?commit=true&stream.url=".$url_loc.$spliting;
 			}
 			//$url = "http://localhost:8080/solr/update/csv?commit=true&stream.file=".$tmpfname.$spliting;
 
