@@ -260,6 +260,9 @@ class Citation
 				$citation = Citation::renderIndexCitationTemplate($result, $list[$row], $type);
 				if ($citation != "") {
 					Citation::updateCitationCache($list[$row]['rek_pid'], $citation);
+				} else { // if no citation template has been applied to this display type then just put in the title so it at least doesnt keep trying to make it
+					$citation = Record::getTitleFromIndex($pid);
+					Citation::updateCitationCache($list[$row]['rek_pid'], $citation);
 				}
 				$list[$row]['rek_citation'] = $citation;
 			}
@@ -271,7 +274,6 @@ class Citation
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-
 		if ($citation == "") {
 			$options = array();
 			$options["searchKey".Search_Key::getID("Pid")] = $pid; // enforce records only
