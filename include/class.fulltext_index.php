@@ -1014,7 +1014,7 @@ abstract class FulltextIndex {
 		// or use transactional integrity - if using multiple indexing processes
 		$stmt = "REPLACE INTO ".APP_TABLE_PREFIX.FulltextIndex::FULLTEXT_TABLE_NAME." ".
         	"(ftc_pid, ftc_dsid, ftc_content, ftc_is_text_usable) VALUES (".
-        	$db->quote($pid).",".$db->quote($dsId).",".(empty($fulltext)) ? "null" : $db->quote($fulltext).", ".$db->quote($is_text_usable, 'INTEGER').")";
+        	$db->quote($pid).",".$db->quote($dsId).",".(empty($fulltext)) ? "'null'" : $db->quote($fulltext).", ".$db->quote($is_text_usable, 'INTEGER').")";
 		 
 		try {
 			$db->query($stmt);

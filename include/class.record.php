@@ -1495,9 +1495,9 @@ class Record
 
 		$noOrder = 0;  // KJ: don't know what this is...
 
-		$next_page = ($current_page >= $total_pages) ? -1 : $current_page + 1;
-		$prev_page = ($current_page <= 0) ? -1 : $current_page - 1;
 		$last_page = $total_pages - 1;
+		$next_page = ($current_page >= $last_page) ? -1 : $current_page + 1;
+		$prev_page = ($current_page <= 0) ? -1 : $current_page - 1;		
 		$current_last_row = $current_row + count($list);
 		if (($current_page - 10) > 0) {
 			$start_range = $current_page - 10;
@@ -1516,6 +1516,7 @@ class Record
         				'current_page','total_pages','next_page','prev_page','last_page',
         				'noOrder', 'search_info', 'start_range', 'end_range', 'printable_page', 'thumb_ratio');
 
+		$log->debug($info);
 		return compact('info','list','facets', 'snips');
 	}
 

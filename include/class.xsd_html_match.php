@@ -254,6 +254,9 @@ class XSD_HTML_Match
 		function getDisplayType($pid)
 		{
 			$xmlString = Fedora_API::callGetDatastreamContents($pid, "FezMD", true);
+			if(!$xmlString)
+				return null;
+				 
 			$doc = DOMDocument::loadXML($xmlString);
 			$xpath = new DOMXPath($doc);
 			$fieldNodeList = $xpath->query("/FezMD/xdis_id");

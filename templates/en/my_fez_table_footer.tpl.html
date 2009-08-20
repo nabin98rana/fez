@@ -37,7 +37,9 @@
                 	  {if $smarty.section.pages.index == $items_info.current_page}
                 		<span class="page">{math equation="y + 1" y=$smarty.section.pages.index}</span>
                 	  {else}
-                		<a href="{$page_url}&rows={$items_info.page_rows}&pager_row={$smarty.section.pages.index}" style="text-decoration: none;" title="Page {math equation="y + 1" y=$smarty.section.pages.index}">{math equation="y + 1" y=$smarty.section.pages.index}</a> 
+                	  	{if $smarty.section.pages.index < $items_info.end_range}
+                			<a href="{$page_url}&rows={$items_info.page_rows}&pager_row={$smarty.section.pages.index}" style="text-decoration: none;" title="Page {math equation="y + 1" y=$smarty.section.pages.index}">{math equation="y + 1" y=$smarty.section.pages.index}</a>
+                		{/if} 
                       {/if}
                 	{/section}
                 	
