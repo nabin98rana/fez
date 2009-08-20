@@ -639,11 +639,17 @@ class Lister
 
 			$use_faceting = true;
 			$use_highlighting = false;
-			$simple = true;
-			$citationCache = true;
+			if (in_array($tpl_idx, array(1,3,7,8,9))) {
+				$simple = false;
+				$citationCache = false;
+			} else {
+				$simple = true;
+				$citationCache = true;
+			}
+
+
 
 	 		$list = Record::getListing($options, array(9,10), $current_row, $max, $sort_by, $simple, $citationCache, $filter, $operator, $use_faceting, $use_highlighting);
-
 	        $list_info = $list["info"];
 	        $facets = @$list['facets'];
             $list = $list["list"];
@@ -739,14 +745,15 @@ class Lister
 				$masterList = array();
 			}
 //	        $tpl = new Template_API();
+
 			if ($tpl_idx == 0) {
 				$tpl_file = "list.tpl.html";
 				$tpl->assign("cv_content", "list_mypubs.tpl.html");
 				$tpl->setTemplate($tpl_file);
 			} else {
 				$tpl_file = $tpls[$tpl_idx]['file'];
+				$tpl->assign("template_mode", $tpl_idx);
 		        $tpl->setTemplate($tpl_file);
-				$tpl->assign("template_mode", $tpl_idx);		        
 			}
 
 	        $tpl->assign("masterList", $masterList);
@@ -878,7 +885,7 @@ class Lister
                     array_pop($exclude);
 			    } 
 			}
-			
+//			print_r($list);
         	$list_info = @$list["info"];
         	$terms = @$list_info['search_info'];
         	$facets = @$list['facets'];
