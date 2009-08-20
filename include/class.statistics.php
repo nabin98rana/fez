@@ -792,7 +792,7 @@ class Statistics
 		//		echo "Starting Year/Month Summary: " . date('H:i:s') . "\n";
 
 		// Get the boundaries of our summarising table
-		$q = 'SELECT year(stl_request_date) as yr, month(stl_request_date) as mth, count(1) FROM ' . APP_TABLE_PREFIX . 'statistics_all group by 1,2';
+		$stmt = 'SELECT year(stl_request_date) as yr, month(stl_request_date) as mth, count(1) FROM ' . APP_TABLE_PREFIX . 'statistics_all group by 1,2';
 		
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
