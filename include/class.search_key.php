@@ -338,13 +338,13 @@ class Search_Key
 			$stmt .= ",sek_cvo_id = ".$db->quote($_POST["sek_cvo_id"], 'INTEGER');
 		}
 		$stmt .= "
-                 WHERE sek_id = '".$db->quote($sek_id);
+                 WHERE sek_id = ".$db->quote($sek_id);
 
 		try {
 			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err(array('Message' => $ex->getMessage().$stmt, 'File' => __FILE__, 'Line' => __LINE__));
 			return -1;
 		}
 
