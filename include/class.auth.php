@@ -2092,6 +2092,82 @@ class Auth
 		return $res;
 	}
 
+
+	//Same as above but only returns groups that are set against pids
+	function getUserAuthRuleGroupsInUse($usr_id) 
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		$dbtp = APP_TABLE_PREFIX;
+		$stmt = "SELECT argu_arg_id
+		         FROM ".$dbtp."auth_rule_group_users
+		         INNER JOIN ".$dbtp."auth_index2 ON authi_arg_id = argu_arg_id
+		         WHERE argu_usr_id = ".$db->quote($usr_id, 'INTEGER')."
+				GROUP BY argu_arg_id";
+		try {
+			$res = $db->fetchCol($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return -1;
+		}
+		return $res;
+	}
+
+	//Same as above but only returns groups that are set against pids for a specific role
+	function getUserRoleAuthRuleGroupsInUse($usr_id, $role) 
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		$dbtp = APP_TABLE_PREFIX;
+		$stmt = "SELECT argu_arg_id
+		         FROM ".$dbtp."auth_rule_group_users
+		         INNER JOIN ".$dbtp."auth_index2 ON authi_arg_id = argu_arg_id
+				INNER JOIN  ".$dbtp."auth_roles ON authi_role = aro_id and aro_role = ".$db->quote($role)."
+		         WHERE argu_usr_id = ".$db->quote($usr_id, 'INTEGER')."
+				GROUP BY argu_arg_id";
+
+		try {
+			$res = $db->fetchCol($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return -1;
+		}
+
+		return $res;
+	}
+
+
+
+
+	//Same as above but only returns groups that are set against pids for the lister role only using the lister only table
+	function getUserListerAuthRuleGroupsInUse($usr_id) 
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		$dbtp = APP_TABLE_PREFIX;
+		$stmt = "SELECT argu_arg_id
+		         FROM ".$dbtp."auth_rule_group_users
+		         INNER JOIN ".$dbtp."auth_index2_lister ON authi_arg_id = argu_arg_id
+		         WHERE argu_usr_id = ".$db->quote($usr_id, 'INTEGER')."
+				GROUP BY argu_arg_id";
+		try {
+			$res = $db->fetchCol($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			return -1;
+		}
+
+		return $res;
+	}
+
+
+
 	function setAuthRulesUsers() 
 	{
 		$log = FezLog::get();
@@ -2127,6 +2203,7 @@ class Auth
                 SELECT distinct argr_arg_id, ".$db->quote($usr_id, 'INTEGER')." 
                 FROM ".$dbtp."auth_rule_group_rules
                 INNER JOIN ".$dbtp."auth_rules ON argr_ar_id=ar_id
+                INNER JOIN ".$dbtp."auth_index2 ON argr_arg_id=authi_arg_id
                 AND 
                 (
                     (ar_rule='public_list' AND ar_value='1') 

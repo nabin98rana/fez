@@ -170,7 +170,7 @@ abstract class FulltextIndex {
 			$this->releaseLock();
 		}
 		 
-		$this->bgp->setStatus("Fulltext indexer finished. Processed ".$this->countDocs." item(s).");
+//		$this->bgp->setStatus("Fulltext indexer finished. Processed ".$this->countDocs." item(s).");
 	}
 
 
@@ -213,7 +213,7 @@ abstract class FulltextIndex {
 	public function processQueue() 
 	{
 
-		$countDocs = 0;
+//		$countDocs = 0;
 		$queue = FulltextQueue::singleton();
 		$this->totalDocs = $queue->size();
 		//$this->memory_man = new memory_man();
@@ -741,8 +741,9 @@ abstract class FulltextIndex {
 			// get public lister rulegroups
 			$userRuleGroups = Collection::getPublicAuthIndexGroups();
 		} else {
-			$ses = Auth::getSession();
-			$userRuleGroups = $ses['auth_index_user_rule_groups'];
+/*			$ses = Auth::getSession();
+			$userRuleGroups = $ses['auth_index_user_rule_groups']; */
+			$userRuleGroups = Auth::getUserAuthRuleGroupsInUse($userID);
 		}
 		return $userRuleGroups;
 	}

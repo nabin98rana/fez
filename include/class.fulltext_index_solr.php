@@ -224,6 +224,18 @@ class FulltextIndex_Solr extends FulltextIndex {
 		);
 	}
 
+	public function prepareRuleGroups() 
+	{
+		// gets user rule groups for this user
+		$userID = Auth::getUserID();
+		if (empty($userID)) {
+			// get public lister rulegroups
+			$userRuleGroups = Collection::getPublicAuthIndexGroups();
+		} else {
+			$userRuleGroups = Collection::getPublicAuthIndexGroups();
+		}
+		return $userRuleGroups;
+	}
 
 
 	protected function prepareAdvancedQuery($searchKey_join, $filter_join, $roles) 
@@ -237,10 +249,17 @@ class FulltextIndex_Solr extends FulltextIndex {
 		} else {
 			$searchQuery = $searchKey_join[2];
 		}
+
 		$approved_roles = array();
 		if (!Auth::isAdministrator()) {
 			$rulegroups = $this->prepareRuleGroups();
-			$rulegroups = implode(" OR ", $rulegroups);
+			$usr_id = Auth::getUserID();
+			if (is_array($rulegroups)) {
+				$rulegroups = implode(" OR ", $rulegroups);	
+			} else {
+				$rulegroups = false;
+			}
+			
 			foreach ($roles as $role) {
 				if (!is_numeric($role)) {
 					$approved_roles[] = $role;
@@ -251,16 +270,35 @@ class FulltextIndex_Solr extends FulltextIndex {
 					}
 				}
 			}
-			if(in_array('Creator', $approved_roles)) {
-				$filterQueryParts[] = "(_authcreator_t:(" . $rulegroups . "))";
-			}
-			if(in_array('Editor', $approved_roles)) {
-				$filterQueryParts[] = "(_autheditor_t:(" . $rulegroups . "))";
-			}
-			if(in_array('Lister', $approved_roles)) {
+			if (is_numeric($usr_id)) {
+				if(in_array('Creator', $approved_roles)) {
+					$creatorGroups = Auth::getUserRoleAuthRuleGroupsInUse($usr_id, "Creator");
+					if (is_array($creatorGroups)) {
+						$creatorGroups = implode(" OR ", $creatorGroups);
+						$filterQueryParts[] = "(_authcreator_t:(" .$creatorGroups . "))";
+					} else {
+						$filterQueryParts[] = "(_authcreator_t:(" .$rulegroups . "))";
+					}
+				}
+				if(in_array('Editor', $approved_roles)) {
+					$editorGroups = Auth::getUserRoleAuthRuleGroupsInUse($usr_id, "Editor");
+					echo "hai".$usr_id."hmm";
+					print_r($editorGroups);
+					if (is_array($editorGroups)) {
+						$editorGroups = implode(" OR ", $editorGroups);
+						$filterQueryParts[] = "(_autheditor_t:(" .$editorGroups . "))";
+					} else {
+						$filterQueryParts[] = "(_autheditor_t:(" .$rulegroups . "))";
+					}
+				}
+				if (in_array('Lister', $approved_roles)) {
+					$listerGroups = Auth::getUserListerAuthRuleGroupsInUse($usr_id);
+					$listerGroups = implode(" OR ", $listerGroups);
+					$filterQueryParts[] = "(_authlister_t:(" . $listerGroups . "))";
+				}
+			} else {
 				$filterQueryParts[] = "(_authlister_t:(" . $rulegroups . "))";
 			}
-
 			if (is_array($filterQueryParts)) {
 				$filterQuery = implode(" OR ", $filterQueryParts);
 			} else {
@@ -301,7 +339,6 @@ class FulltextIndex_Solr extends FulltextIndex {
 				
 			if( $use_faceting ) {
 				$sekIDs = Search_Key::getFacetList();
-
 				if(count($sekIDs) > 0) {
 						
 					$params['facet'] = 'true';
@@ -310,8 +347,12 @@ class FulltextIndex_Solr extends FulltextIndex {
 						
 					foreach ($sekIDs as $sek) {
 						$sek_title_db = Search_Key::makeSQLTableName($sek['sek_title']);
-						$solr_suffix = Record::getSolrSuffix($sek,0,1);
-						$facetsToUse[] = $sek_title_db.$solr_suffix;
+						if ($sek['sek_data_type'] == "date") {
+							$facetsToUse[] = $sek_title_db."_year_t";
+						} else {
+							$solr_suffix = Record::getSolrSuffix($sek,0,1);
+							$facetsToUse[] = $sek_title_db.$solr_suffix;
+						}
 					}
 
 					$params['facet.field'] = $facetsToUse;
@@ -388,8 +429,15 @@ class FulltextIndex_Solr extends FulltextIndex {
 							 */
 							foreach ($sekdet as $sval) {
 
-								$solr_suffix = Record::getSolrSuffix($sval,0,1);
-								$solr_name = $sval['sek_title_db'].$solr_suffix;
+
+								if ($sval['sek_data_type'] == "date") {
+									$solr_name = $sval['sek_title_db']."_year_t";
+								} else {
+									$solr_suffix = Record::getSolrSuffix($sval,0,1);
+									$solr_name = $sval['sek_title_db'].$solr_suffix;
+								}
+
+
 
 								if(isset($facetData->$solr_name)) {
 

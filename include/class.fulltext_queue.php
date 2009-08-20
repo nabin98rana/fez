@@ -284,7 +284,7 @@ class FulltextQueue
 				$db->query($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err(array('Message' => $ex->getMessage().$stmt, 'File' => __FILE__, 'Line' => __LINE__));
 				return false;
 			}
 			unset($this->pids[$pid]);
@@ -395,6 +395,8 @@ class FulltextQueue
 			 
 			if($column['type'] == FulltextIndex::FIELD_TYPE_DATE ) {
 				$stmt .= ",IFNULL(DATE_FORMAT(sk.".$column['name'] .",'%Y-%m-%dT%H:%i:%sZ'),'') ";
+				// If a date, also send the year to solr right next to its full value for faceting etc
+				$stmt .= ",IFNULL(DATE_FORMAT(sk.".$column['name'] .",'%Y'),'') ";
 			} else {
 				$stmt .= ",IFNULL(REPLACE(sk.".$column['name'] .",'\"','\"\"'),'') ";
 			}

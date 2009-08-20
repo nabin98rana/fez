@@ -43,6 +43,8 @@ class fileCache {
 			 
 			$pat = array('/<fez:statsAbs>\d+<\/fez:statsAbs>/', '/<fez:statsDownloads>\d+<\/fez:statsDownloads>/');
 			$rep = array("<fez:statsAbs>$views</fez:statsAbs>", "<fez:statsDownloads>$dls</fez:statsDownloads>");
+
+			$htmlContent = preg_replace($pat, $rep, $htmlContent);
 			 
 			$datastreams = Fedora_API::callGetDatastreams($this->pid, $requestedVersionDate, 'A');
 			$datastreams = Misc::cleanDatastreamListLite($datastreams, $this->pid);
@@ -52,19 +54,14 @@ class fileCache {
 					$dls = Statistics::getStatsByDatastream($this->pid, $ds['ID']);
 					$base64 = base64_encode($ds['ID']);
 	     
-					$pat[] = "/<fez:ds_$base64>\d+<\/fez:ds_$base64>/";
-					$rep[] = "<fez:ds_$base64>$dls</fez:ds_$base64>";
+					$pat = "/<fez:ds_$base64>\d+<\/fez:ds_$base64>/";
+					$rep = "<fez:ds_$base64>$dls</fez:ds_$base64>";
 				}
+				$htmlContent = preg_replace($pat, $rep, $htmlContent);
 			}
 			 
-			$GLOBALS["bench"]->stop();
-			$profiling = $GLOBALS["bench"]->getProfiling();
-			$totaltime = sprintf("%.4f", $profiling[count($profiling)-1]["total"]);
-
-			$pat[] = '/<fez:totaltime>.*<\/fez:totaltime>/';
-			$rep[] = "<fez:totaltime>$totaltime</fez:totaltime>";
 			 
-			$htmlContent = preg_replace($pat, $rep, $htmlContent);
+//			$htmlContent = preg_replace($pat, $rep, $htmlContent);
 			 
 			echo $htmlContent;
 			exit();
