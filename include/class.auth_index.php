@@ -169,14 +169,20 @@ class AuthIndex
 			if (!in_array($ukey, $dupe_stopper)) {
 				$dupe_stopper[] = $ukey;
 				if ($role == "Lister") {
-					$lister_values[$loop][] = $db->quote($pid);
-					$lister_values[$loop][] = $db->quote($arg_id, 'INTEGER');		
+					//$lister_values[$loop][] = $db->quote($pid);
+					//$lister_values[$loop][] = $db->quote($arg_id, 'INTEGER');
+					$lister_values[$loop][] = $pid;
+					$lister_values[$loop][] = $arg_id;		
 					$lister_values_sql[] = '(?,?)';			
 				}
 
-				$values[$loop][] = $db->quote($pid);
+/*				$values[$loop][] = $db->quote($pid);
 				$values[$loop][] = $db->quote($roles[$role], 'INTEGER');
-				$values[$loop][] = $db->quote($arg_id, 'INTEGER');
+				$values[$loop][] = $db->quote($arg_id, 'INTEGER'); */
+				$values[$loop][] = $pid;
+				$values[$loop][] = $roles[$role];
+				$values[$loop][] = $arg_id;
+				
 				$values_sql[] = '(?,?,?)';
 
 				$rows[] = array(
