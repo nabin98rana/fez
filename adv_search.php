@@ -45,12 +45,22 @@ include_once(APP_INC_PATH . "class.template.php");
 
 $tpl = new Template_API();
 $tpl->setTemplate("adv_search.tpl.html");
+
 $list = Search_Key::getAdvSearchList();
 $sta_list = Status::getAssocList();
 $ret_list = Object_Type::getAssocList();
 $xdis_list = XSD_Display::getAssocListDocTypes();
 
-$options = Pager::saveSearchParams(array(), 'adv_search');
+$prefs = Prefs::get(Auth::getUserID());
+$rememberSearchParams = $prefs['remember_search_params'];
+
+if ($rememberSearchParams == 'yes') {
+	$options = Pager::saveSearchParams(array(), 'adv_search');
+}
+else {
+	$options = array();
+}
+
 
 foreach ($list as $list_key => $list_field) {
 	if ($list_field["sek_html_input"] == 'combo' || $list_field["sek_html_input"] == 'multiple' || $list_field["sek_html_input"] == 'dual_multiple') {
@@ -60,9 +70,9 @@ foreach ($list as $list_key => $list_field) {
 				$list[$list_key]['field_options'] = array("" => "any") + $list[$list_key]['field_options'];
 			}
 			$list[$list_key]['field_options_count'] = count($list[$list_key]['field_options']);
-	    }
-    }
-    if ($list_field["sek_html_input"] == 'contvocab') {
+		}
+	}
+	if ($list_field["sek_html_input"] == 'contvocab') {
 		$temp_value = "";
 		if (is_array($options["searchKey".$list_field['sek_id']])) {		
 			foreach ($options["searchKey".$list_field['sek_id']] as $option) {

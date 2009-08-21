@@ -39,7 +39,7 @@
  * available in the application.
  *
  * @version 1.0
- * @author João Prado Maia <jpm@mysql.com>
+ * @author Joï¿½o Prado Maia <jpm@mysql.com>
  */
 
 include_once(APP_INC_PATH . "class.error_handler.php");
@@ -70,7 +70,8 @@ class Prefs
             'emails_refresh_rate'     => APP_DEFAULT_REFRESH_RATE,
             'front_page'     => "front_page",
             'email_signature'         => '',
-            'auto_append_sig'         => 'no'
+            'auto_append_sig'         => 'no',
+			'remember_search_params'  => 'no'
             ));
 	}
 
@@ -166,7 +167,8 @@ class Prefs
             'emails_refresh_rate'     => $_POST['emails_refresh_rate'],
             'email_signature'         => @$_POST['signature'],
             'front_page'              => @$_POST['front_page'],
-            'auto_append_sig'         => @$_POST['auto_append_sig']
+            'auto_append_sig'         => @$_POST['auto_append_sig'],
+			'remember_search_params'  => @$_POST['remember_search_params']
 		));
 		$stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "user

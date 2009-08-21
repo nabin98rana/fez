@@ -270,6 +270,19 @@ function validateAccount(f)
           </td>
         </tr>
         <tr>
+          <td width="190" bgcolor="{$cell_color}" class="default">
+            <b>Remember search parameters:</b>
+          </td>
+          <td bgcolor="{$light_color}">
+            <select class="default" name="remember_search_params">
+				<option label="No" value="no" {if $user_prefs.remember_search_params == 'no'}selected{/if}>No</option>
+				<option label="Yes" value="yes" {if $user_prefs.remember_search_params == 'yes'}selected{/if}>Yes</option>
+            </select>
+			  <br />
+			  <span style="font-size: 10px;">Remember your search parameters each time you go to the search form.</span>
+          </td>
+        </tr>
+        <tr>
           <td colspan="2" bgcolor="{$cell_color}" align="center">
             <input class="button" type="submit" value="Update Preferences" />
             <input class="button" type="reset" value="Reset" />
