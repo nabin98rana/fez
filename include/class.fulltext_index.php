@@ -923,7 +923,7 @@ abstract class FulltextIndex {
 		$stmt = "SELECT ftc_pid as pid, ftc_dsid as dsid, ftc_content as content ".
         		"FROM ".APP_TABLE_PREFIX.FulltextIndex::FULLTEXT_TABLE_NAME." ".
         		"WHERE ftc_pid=".$db->quote($pid)." ".
-        		"AND ftc_dsid=".$db->quote($dsId)." " .
+        		"AND ftc_dsid=".$db->quote($dsID)." " .
         		"AND ftc_is_text_usable = 1";
 		
 		try {
@@ -944,7 +944,7 @@ abstract class FulltextIndex {
 		$stmt = "SELECT count(ftc_pid) as cnt ".
         		"FROM ".APP_TABLE_PREFIX.FulltextIndex::FULLTEXT_TABLE_NAME." ".
         		"WHERE ftc_pid=".$db->quote($pid)." ".
-        		"AND ftc_dsid=".$db->quote($dsId);
+        		"AND ftc_dsid=".$db->quote($dsID);
 
 		try {
 			$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
@@ -976,7 +976,7 @@ abstract class FulltextIndex {
 
 		if ($dsID > '') {
 			$stmt .= " AND".
-	        		 " ftc_dsid=".$db->quote($dsId);
+	        		 " ftc_dsid=".$db->quote($dsID);
 		}
 		try {
 			$db->query($stmt);
@@ -1014,7 +1014,7 @@ abstract class FulltextIndex {
 		// or use transactional integrity - if using multiple indexing processes
 		$stmt = "REPLACE INTO ".APP_TABLE_PREFIX.FulltextIndex::FULLTEXT_TABLE_NAME." ".
         	"(ftc_pid, ftc_dsid, ftc_content, ftc_is_text_usable) VALUES (".
-        	$db->quote($pid).",".$db->quote($dsId).",".(empty($fulltext)) ? "'null'" : $db->quote($fulltext).", ".$db->quote($is_text_usable, 'INTEGER').")";
+        	$db->quote($pid).",".$db->quote($dsID).",".(empty($fulltext)) ? "null" : $db->quote($fulltext).", ".$db->quote($is_text_usable, 'INTEGER').")";
 		 
 		try {
 			$db->query($stmt);
