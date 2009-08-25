@@ -40,7 +40,7 @@ include_once(APP_INC_PATH . "class.auth.php");
 // see the unresolved php bug for details http://bugs.php.net/bug.php?id=32330
 //$sess = new Fez_Session_Manager($db_api);
 Auth::removeSession(APP_SESSION);
-Auth::removeSession(APP_LDAP_GROUPS_SESSION);
-Auth::removeSession(APP_INTERNAL_GROUPS_SESSION);
-Auth::removeSession(APP_SHIB_ATTRIBUTES_SESSION);
+//Auth::removeSession(APP_LDAP_GROUPS_SESSION);
+//Auth::removeSession(APP_INTERNAL_GROUPS_SESSION);
+//Auth::removeSession(APP_SHIB_ATTRIBUTES_SESSION);
 Auth::redirect(APP_RELATIVE_URL . "index.php?err=6");
