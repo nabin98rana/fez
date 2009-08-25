@@ -608,6 +608,53 @@ class RecordGeneral
 
 		return false;
 	}
+	
+	
+	
+	
+	/**
+	 * Strips isi_loc from a record
+	 *
+	 * @return bool  TRUE if stripped OK. FALSE if not stripped.
+	 *
+	 * @access public
+	 */
+	function stripIsiLoc()
+	{
+		$newXML = "";
+		$xmlString = Fedora_API::callGetDatastreamContents($this->pid, 'MODS', true);
+
+		$doc = DOMDocument::loadXML($xmlString);
+		$xpath = new DOMXPath($doc);
+
+		//$fieldNodeList = $xpath->query("//rel:isMemberOf[@rdf:resource='info:fedora/$collection']");
+		$fieldNodeList = $xpath->query("/mods:mods/mods:identifier[@type = 'isi_loc']");
+
+		if( $fieldNodeList->length == 0 ) {
+			return false;
+		}
+
+		$collectionNode   = $fieldNodeList->item(0);
+		$parentNode       = $collectionNode->parentNode;
+		$parentNode->removeChild($collectionNode);
+
+		$newXML = $doc->SaveXML();
+		if ($newXML != "") {
+			Fedora_API::callModifyDatastreamByValue($this->pid, "MODS", "A", "Metadata Object Description Schema", $newXML, "text/xml", "inherit");
+			
+			$historyDetail = "Isi_loc was stripped in preparation of Links AMR Service data import";
+			History::addHistory($this->pid, null, "", "", true, $historyDetail);
+			
+			Record::setIndexMatchingFields($this->pid);
+			if( APP_SOLR_INDEXER == "ON" ) {
+				FulltextQueue::singleton()->add($this->pid);
+				FulltextQueue::singleton()->commit();
+			}
+			return true;
+		}
+
+		return false;
+	}
 
 
 	/**
