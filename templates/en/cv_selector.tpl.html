@@ -78,7 +78,7 @@ var tree;
 <br />
 <div style="padding: 10px;"><strong>OR</strong></div>
 <div style="padding: 10px;">
-Search by ID here:
+Search by ID or Subject title here:
 <div id="authorsuggest" style="width:15em;height:2em;position:relative;">
 	<input id="cv_lookup" type="text" />
 	<div id="cv_container"></div>
@@ -112,7 +112,6 @@ Search by ID here:
         var elOptNew = document.createElement('option');
         elOptNew.text = aData[1].cvo_title;
         elOptNew.value = aData[1].cvo_id;
-        
         if (selectBox.length == 0) {
             selectBox.options[0] = elOptNew;
             selectBox.selectedIndex = 0;

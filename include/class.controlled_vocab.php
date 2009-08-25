@@ -988,15 +988,15 @@ class Controlled_Vocab
 	}
 
 
-	function suggest($id) 
+	function suggest($value) 
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
 			 
 		$dbtp = APP_TABLE_PREFIX;
-		$stmt = " SELECT cvo_external_id, cvo_title
+		$stmt = " SELECT cvo_id, cvo_title
                   FROM " . APP_TABLE_PREFIX . "controlled_vocab
-                  WHERE cvo_external_id LIKE ".$db->quote("%$id%"); //, cvo_title
+                  WHERE cvo_external_id LIKE ".$db->quote("%$value%")." OR cvo_title LIKE ".$db->quote("%$value%"); //, cvo_title
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
