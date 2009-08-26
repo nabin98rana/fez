@@ -954,19 +954,26 @@ class XSD_HTML_Match
 				$stmt = "SELECT mfo_fld_id, mfo_id, mfo_value ".
 					"FROM ".APP_TABLE_PREFIX."xsd_display_mf_option ".
 					"WHERE mfo_fld_id IN (".Misc::arrayToSQLBindStr($ids).") ORDER BY	mfo_fld_id, mfo_value ASC";				
-					
+	
 				// last parameter of getAssoc $group=true: pushes values for the same key (mfo_fld_id)
 				// into an array
 				try {
-					$mfoResult = $db->fetchAssoc($stmt, $ids, Zend_Db::FETCH_ASSOC);
+					$mfoResult = $db->fetchAll($stmt, $ids);
 				}
 				catch(Exception $ex) {
 					$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
 					return array();
 				}
-					
-				// iterate over match field list: only get value(s) if there are any options at all
-					
+				
+				// Hacky bug fix
+				$_mfoResult = array();
+				for($i = 0; $i < count($mfoResult); $i++) {
+					$_mfoResult[$mfoResult[$i]['mfo_fld_id']][] = array($mfoResult[$i]['mfo_id'],$mfoResult[$i]['mfo_value']);
+				}
+				unset($mfoResult);
+				$mfoResult = $_mfoResult;
+				
+				// iterate over match field list: only get value(s) if there are any options at all					
 				for ($i = 0; $i < count($res); $i++) {
 					$res[$i]["field_options"] = array();
 					$res[$i]["field_options_value_only"] = array();
