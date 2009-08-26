@@ -1700,7 +1700,7 @@ class Record
                  WHERE
                     rek_pid IN (".Misc::arrayToSQLBindStr($pids).")";
 		try {
-			$res = $db->fetchPairs($stmt);
+			$res = $db->fetchPairs($stmt, $pids);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
