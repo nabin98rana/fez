@@ -1011,19 +1011,24 @@ abstract class FulltextIndex {
 
 		// REPLACE: MySQL specific syntax
 		// can be replaced with IF EXISTS INSERT or DELETE/INSERT for other databases
-		// or use transactional integrity - if using multiple indexing processes
-		$stmt = "REPLACE INTO ".APP_TABLE_PREFIX.FulltextIndex::FULLTEXT_TABLE_NAME." ".
-        	"(ftc_pid, ftc_dsid, ftc_content, ftc_is_text_usable) VALUES (".
-        	$db->quote($pid).",".$db->quote($dsID).",".(empty($fulltext)) ? "null" : $db->quote($fulltext).", ".$db->quote($is_text_usable, 'INTEGER').")";
-		 
+		// or use transactional integrity - if using multiple indexing processes		
+		$stmt = "REPLACE INTO ".APP_TABLE_PREFIX.FulltextIndex::FULLTEXT_TABLE_NAME." ";
+        	
+        $values = array($pid,$dsID,$is_text_usable);        
+        if(! empty($fulltext)) {
+        	$stmt .= "(ftc_pid, ftc_dsid, ftc_is_text_usable, ftc_content) VALUES (?,?,?,?)";
+        	$values[] = $fulltext;
+        }
+        else
+			$stmt .= "(ftc_pid, ftc_dsid, ftc_is_text_usable) VALUES (?,?,?)";
+        
 		try {
-			$db->query($stmt);
+			$db->query($stmt, $values);
 		}
 		catch(Exception $ex) {
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
 			return false;
 		}
-		unset($stmt);
 
 		/* if using transactions
 		 // commit transaction
