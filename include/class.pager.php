@@ -75,6 +75,7 @@ class Pager
 	{
 		$cookie = Pager::getCookieParams();
 		$cookie_key = $_SERVER['SCRIPT_NAME'];
+		
 		$result = '';
 		if (isset($params[$name])) {
 			$result =  $params[$name];
@@ -85,7 +86,7 @@ class Pager
 		} elseif (isset($cookie[$cookie_key][$name])) {
 			$result =  $cookie[$cookie_key][$name];
 		}
-		//echo "$name: ". print_r($result,true) ."<br/>\n";
+		//echo "<pre>$name: ". print_r($result,true) ."</pre>\n";
 		return $result;
 	}
 
@@ -133,9 +134,26 @@ class Pager
 		{
 			$cookie_key     = $_SERVER['SCRIPT_NAME'];
 		}
-		$cookieToSave       = Pager::getCookieParams(); //Why do we need to get this for? commented out CK 6/12/06 // uncommented for search_key expansion by CK 27/2/07
-		$existing_cookie    = $cookieToSave[$cookie_key];
 
+		$cookieToSave       = Pager::getCookieParams(); //Why do we need to get this for? commented out CK 6/12/06 // uncommented for search_key expansion by CK 27/2/07
+
+		// get the remember search param for this user
+		$prefs = Prefs::get(Auth::getUserID());
+		if (isset($prefs['remember_search_params'])) {
+			$rememberSearchParams = $prefs['remember_search_params'];
+		}
+		else {
+			$rememberSearchParams = 'no'; // default to don't remember
+		}
+
+		// don't grab cookie values if we don't want to remember search params for this user
+		if ($rememberSearchParams == 'no') {
+			$existing_cookie = array();
+		}
+		else {
+			$existing_cookie    = $cookieToSave[$cookie_key];
+		}
+		
 		$sek_count = Search_Key::getMaxID();
 
 		/*

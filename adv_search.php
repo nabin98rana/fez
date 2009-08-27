@@ -51,16 +51,7 @@ $sta_list = Status::getAssocList();
 $ret_list = Object_Type::getAssocList();
 $xdis_list = XSD_Display::getAssocListDocTypes();
 
-$prefs = Prefs::get(Auth::getUserID());
-$rememberSearchParams = $prefs['remember_search_params'];
-
-if ($rememberSearchParams == 'yes') {
-	$options = Pager::saveSearchParams(array(), 'adv_search');
-}
-else {
-	$options = array();
-}
-
+$options = Pager::saveSearchParams(array(), 'adv_search');
 
 foreach ($list as $list_key => $list_field) {
 	if ($list_field["sek_html_input"] == 'combo' || $list_field["sek_html_input"] == 'multiple' || $list_field["sek_html_input"] == 'dual_multiple') {
