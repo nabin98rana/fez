@@ -1682,6 +1682,11 @@ class Record
 
 		$pids = array();
 		for ($i = 0; $i < count($result); $i++) {
+			if (!is_array($result[$i]["rek_ismemberof"]) && !empty($result[$i]["rek_ismemberof"])) {
+				if (!in_array($result[$i]["rek_ismemberof"], $pids)) {
+					$pids[] = $result[$i]["rek_ismemberof"];
+				}
+			}
 			for ($y = 0; $y < count($result[$i]["rek_ismemberof"]); $y++) {
 		  if (!in_array($result[$i]["rek_ismemberof"][$y], $pids)) {
 		  	$pids[] = $result[$i]["rek_ismemberof"][$y];
@@ -1691,6 +1696,8 @@ class Record
 		if (count($pids) == 0) {
 			return array();
 		}
+
+		
 		$dbtp =  APP_TABLE_PREFIX;
 		$stmt = "SELECT
 					rek_pid,
@@ -1699,6 +1706,7 @@ class Record
                     " . $dbtp . "record_search_key
                  WHERE
                     rek_pid IN (".Misc::arrayToSQLBindStr($pids).")";
+
 		try {
 			$res = $db->fetchPairs($stmt, $pids);
 		}
@@ -1706,15 +1714,22 @@ class Record
 			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
 			return false;
 		}
-
 		// now populate the $result variable again
 		$sek_sql_title = "ismemberof_title";
 		for ($i = 0; $i < count($result); $i++) {
-			for ($y = 0; $y < count($result[$i]["rek_ismemberof"]); $y++) {
+			
 				if (!is_array($result[$i]["rek_".$sek_sql_title])) {
 					$result[$i]["rek_".$sek_sql_title] = array();
 				}
-				$result[$i]["rek_".$sek_sql_title][$y] = $res[$result[$i]["rek_ismemberof"][$y]];
+			
+			if (!is_array($result[$i]["rek_ismemberof"]) && !empty($result[$i]["rek_ismemberof"])) {
+				if (!in_array($res[$result[$i]["rek_ismemberof"]], $result[$i]["rek_".$sek_sql_title])) {
+					$result[$i]["rek_".$sek_sql_title][] = $res[$result[$i]["rek_ismemberof"]];
+				}
+			} elseif (is_array($result[$i]["rek_ismemberof"])) {
+				for ($y = 0; $y < count($result[$i]["rek_ismemberof"]); $y++) {
+					$result[$i]["rek_".$sek_sql_title][] = $res[$result[$i]["rek_ismemberof"][$y]];
+				}
 			}
 		}
 		return $result;
