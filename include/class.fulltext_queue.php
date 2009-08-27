@@ -186,7 +186,7 @@ class FulltextQueue
 			$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->notice(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
 		}
 		
 		$process_id = $res['ftl_pid'];
@@ -229,7 +229,7 @@ class FulltextQueue
 				$db->query($stmt);
 			}
 			catch(Exception $ex) {
-				$log->notice(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
 				$ok = false;
 			}
 				
