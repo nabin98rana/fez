@@ -209,7 +209,7 @@ class FulltextIndex_Solr extends FulltextIndex {
 			//
 
 			// TODO add fine grained control, user message error handling
-			$log->err(array("Error on searching: ".$e->getMessage()));
+			$log->err($e);
 
 			// report nothing found on error
 			$docs = array();
@@ -507,7 +507,7 @@ class FulltextIndex_Solr extends FulltextIndex {
 			//
 
 			// TODO add fine grained control, user message error handling
-			$log->err(array("Error on searching: ".$e->getMessage()));
+			$log->err($e);
 
 			// report nothing found on error
 			$docs = array();
@@ -615,7 +615,7 @@ class FulltextIndex_Solr extends FulltextIndex {
 			//
 
 			// TODO add fine grained control, user message error handling
-			$log->err(array("Error on searching: ".$e->getMessage()));
+			$log->err($e);
 
 			// report nothing found on error
 			$docs = array();
@@ -705,7 +705,7 @@ class FulltextIndex_Solr extends FulltextIndex {
 
 			} catch (Exception $e) {
 
-				$log->err(array("Error on searching: ".$e->getMessage()));
+				$log->err($e);
 
 			}
 		}
