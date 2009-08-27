@@ -1383,7 +1383,7 @@ class BatchImport
 			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return -1;
 		}
 		return 1;

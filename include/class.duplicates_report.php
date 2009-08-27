@@ -405,7 +405,7 @@ class DuplicatesReport {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return array();
 		}
 		return $res;
@@ -483,7 +483,7 @@ class DuplicatesReport {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return array();
 		}
 		return $res;

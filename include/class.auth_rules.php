@@ -71,7 +71,7 @@ class AuthRules
 			$res = $db->fetchRow($stmt, array($rmd5));
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			$res = null;
 		}
 
@@ -83,7 +83,7 @@ class AuthRules
 				$db->query($stmt, array($rmd5));
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				
 				return -1;
 			}
@@ -119,7 +119,7 @@ class AuthRules
 				}				
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				
 				return -1;
 			}            
@@ -150,7 +150,7 @@ class AuthRules
 			$res = $db->fetchOne($stmt, array($rule,$value));
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			$res = null;
 		}
 
@@ -161,7 +161,7 @@ class AuthRules
 				$db->query($stmt, array($rule,$value));				
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				
 				return -1;				
 			}

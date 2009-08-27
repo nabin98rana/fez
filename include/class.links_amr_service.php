@@ -66,7 +66,7 @@ class LinksAmrService
 	 */
 	public static function retrieve($list, $collection = self::COLLECTION)
 	{
-		//header('content-type: application/xml; charset=utf-8');
+		header('content-type: application/xml; charset=utf-8');
 
 		$tpl = new Template_API();
 		$tpl_file = "links_amr_retrieve.tpl.html";
@@ -83,8 +83,9 @@ class LinksAmrService
 		// Do the service request
 		$response_document = new DOMDocument();
 		$response_document = LinksAmrService::doServiceRequest($xml_api_data_request->saveXML());
-		//$response_document->loadXML(file_get_contents('http://dev-repo.library.uq.edu.au/uqamartl/rid/lamr/01_response.xml'));
-
+		
+		echo $response_document->saveXML();
+		
 		return $response_document;		
 	}
 

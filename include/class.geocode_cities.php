@@ -25,7 +25,7 @@ class GeocodeCities
 			$db->insert(APP_TABLE_PREFIX . 'geocode_cities', $insertRecord);
 		}
 		catch (Exception $ex) {
-			$log->err('Message: '.$ex->getMessage().', File: '.__FILE__.', Line: '.__LINE__);
+			$log->err($ex);
 			return -1;
 		}
 
@@ -54,7 +54,7 @@ class GeocodeCities
 				' AND gcity_city = ' . $db->quote($cityName));
 		}
 		catch (Exception $ex) {
-			$log->err('Message: '.$ex->getMessage().', File: '.__FILE__.', Line: '.__LINE__);
+			$log->err($ex);
 			return -1;
 		}
 
@@ -80,7 +80,7 @@ class GeocodeCities
 				' AND gcity_city = ' . $db->quote($cityName));
 		}
 		catch (Exception $ex) {
-			$log->err('Message: '.$ex->getMessage().', File: '.__FILE__.', Line: '.__LINE__);
+			$log->err($ex);
 			return -1;
 		}
 
@@ -104,7 +104,7 @@ class GeocodeCities
 			$db->fetchRow($query, $location);
 		}
 		catch (Exception $ex) {
-			$log->err('Message: '.$ex->getMessage().', File: '.__FILE__.', Line: '.__LINE__);
+			$log->err($ex);
 			return -1;
 		}
 

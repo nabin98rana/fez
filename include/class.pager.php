@@ -263,7 +263,7 @@ class Pager
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return 0;
 		}
 		if (empty($res)) {
@@ -297,7 +297,7 @@ class Pager
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return 0;
 		}
 		if (empty($res)) {

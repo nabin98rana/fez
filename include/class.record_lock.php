@@ -82,7 +82,7 @@ class RecordLock
 			$db->query($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 		}
 		
 		$last_id = $db->lastInsertId($dbtp."record_locks", 'rl_id');
@@ -92,7 +92,7 @@ class RecordLock
 			$lock_res = $db->fetchAll($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			$lock_res = array();
 		}
 		if (count($lock_res) > 1) {
@@ -102,7 +102,7 @@ class RecordLock
 				$db->query($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 			}
 			$res = -1;
 		} else {
@@ -125,7 +125,7 @@ class RecordLock
 			$db->query($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return -1;
 		}
 		return 1;
@@ -150,7 +150,7 @@ class RecordLock
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			$res = array();
 		}
 		if (empty($res)) {
@@ -179,7 +179,7 @@ class RecordLock
 			$lock_res = $db->fetchRow($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			$res = -1;
 		}
 		
@@ -198,7 +198,7 @@ class RecordLock
 						$ctxt_res = $db->fetchAll($stmt);
 					}
 					catch(Exception $ex) {
-						$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+						$log->err($ex);
 						$ctxt_res = null;
 					}
 					if (count($ctxt_res) > 0) {

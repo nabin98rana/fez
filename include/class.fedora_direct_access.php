@@ -87,7 +87,7 @@ class Fedora_Direct_Access {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			$no_result = true;
 		}
 		
@@ -98,7 +98,7 @@ class Fedora_Direct_Access {
 			}
 			catch(Exception $ex) {
 				
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return array();
 			}
 		}
@@ -132,7 +132,7 @@ class Fedora_Direct_Access {
 			$res = $db->fetchOne($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}
 
@@ -153,7 +153,7 @@ class Fedora_Direct_Access {
 			$res = $db->fetchOne($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}
 		
@@ -175,7 +175,7 @@ class Fedora_Direct_Access {
 			$res = $db->fetchOne($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}
 		
@@ -198,7 +198,7 @@ class Fedora_Direct_Access {
 			$res = $db->fetchOne($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}
 		if ($res == "") {
@@ -220,7 +220,7 @@ class Fedora_Direct_Access {
 			$res = $db->fetchOne($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}
 		
@@ -241,7 +241,7 @@ class Fedora_Direct_Access {
 			$res = $db->fetchOne($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}
 		

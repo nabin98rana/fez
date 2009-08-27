@@ -71,7 +71,7 @@ class Object_Type
 			$db->query($stmt, $_POST["items"]);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return false;
 		}
 		return true;
@@ -104,7 +104,7 @@ class Object_Type
 			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return -1;
 		}
 		return 1;
@@ -133,7 +133,7 @@ class Object_Type
 			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return -1;
 		}
 		return 1;
@@ -162,7 +162,7 @@ class Object_Type
 			$res = $db->fetchOne($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}
 		return $res;
@@ -190,7 +190,7 @@ class Object_Type
 			$res = $db->fetchOne($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}
 		return $res;
@@ -220,7 +220,7 @@ class Object_Type
 			$res = $db->fetchPairs($stmt);			
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}
 		return $res;
@@ -249,7 +249,7 @@ class Object_Type
 			$res = $db->fetchPairs($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}
 		return $res;
@@ -276,7 +276,7 @@ class Object_Type
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}
 
@@ -309,7 +309,7 @@ class Object_Type
 			$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}
 		return $res;

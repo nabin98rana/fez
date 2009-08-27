@@ -66,7 +66,7 @@ class Status
 			$db->query($stmt, $_POST["items"]);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return false;
 		}
 		return true;
@@ -103,7 +103,7 @@ class Status
 			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return -1;
 		}
 		return 1;
@@ -133,7 +133,7 @@ class Status
 			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return -1;
 		}
 
@@ -163,7 +163,7 @@ class Status
 			$res = $db->fetchOne($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}		
 		return $res;
@@ -191,7 +191,7 @@ class Status
 			$res = $db->fetchOne($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}
 		return $res;
@@ -220,7 +220,7 @@ class Status
 			$res = $db->fetchPairs($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}
 		return $res;
@@ -250,7 +250,7 @@ class Status
 			$res = $db->fetchPairs($stmt);			
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}
 		return $res;
@@ -278,7 +278,7 @@ class Status
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}
 		if (empty($res)) {
@@ -310,7 +310,7 @@ class Status
 			$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}
 		return $res;		

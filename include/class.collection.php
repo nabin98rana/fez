@@ -162,7 +162,7 @@ class Collection
 			$res = $db->fetchPairs($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return array();
 		}
 		return $res;
@@ -245,7 +245,7 @@ class Collection
 			$res = $db->fetchPairs($stmt, array_values($stringIDs));
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}
 
@@ -389,7 +389,7 @@ class Collection
 			$res = $db->fetchCol($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return array();
 		}
 		return $res;
@@ -501,7 +501,7 @@ class Collection
 	        $printable_page = $current_row + 1;
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}		                        
        	return array(
@@ -634,7 +634,7 @@ class Collection
 			}
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 		}
 
 		$stmt = "SELECT ".APP_SQL_CACHE."
@@ -656,7 +656,7 @@ class Collection
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}
 
@@ -791,7 +791,7 @@ class Collection
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}
 
@@ -862,7 +862,7 @@ class Collection
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}
 
@@ -933,7 +933,7 @@ class Collection
 			$res = $db->fetchPairs($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return 0;
 		}
 
@@ -953,7 +953,7 @@ class Collection
 				$total_rows = $db->fetchOne($countStmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return 0;
 			}
 			$sorter[$total_rows] = $word;

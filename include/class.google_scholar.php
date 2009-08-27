@@ -236,7 +236,7 @@ class Google_Scholar
 			$db->query($stmt, array($pid, $count, $link, time(), time()));
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return false;
 		}
 		
@@ -277,7 +277,7 @@ class Google_Scholar
 			$db->query($stmt, array(time(), $gs_id));
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return false;
 		}
         
@@ -309,7 +309,7 @@ class Google_Scholar
 			$res = $db->fetchAll($stmt, array($pid), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return false;
 		}
 		return $res;

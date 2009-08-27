@@ -215,7 +215,7 @@ class Statistics
 						$db->exec($stmt);
 					}
 					catch(Exception $ex) {
-						$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+						$log->err($ex);
 						return -1; //abort
 					}
 					$counter_inserted++;
@@ -255,7 +255,7 @@ class Statistics
 			$db->query($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return false;
 		}
 
@@ -277,7 +277,7 @@ class Statistics
 			$db->query($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return false;
 		}
 		return true;
@@ -431,7 +431,7 @@ class Statistics
 					$db->query($stmt, $insert_array);
 				}
 				catch(Exception $ex) {
-					$log->err(array('Message' => $stmt."\n".print_r($insert_array, true)."\n".$ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+					$log->err($ex);
 					return -1; //abort
 				}
 			
@@ -489,7 +489,7 @@ class Statistics
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}
 		return $res;
@@ -517,7 +517,7 @@ class Statistics
 			$db->query($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return -1; //abort
 		}
 	}
@@ -539,7 +539,7 @@ class Statistics
 			$db->query($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return -1; //abort
 		}
 	}
@@ -575,7 +575,7 @@ class Statistics
 			$db->query($delete);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return -1;
 		}
 
@@ -592,7 +592,7 @@ class Statistics
 				$db->insert(APP_TABLE_PREFIX . 'statistics_sum_4weeks', $data);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 			}
 		}
 
@@ -614,7 +614,7 @@ class Statistics
 			$db->query($delete);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return -1;
 		}
 
@@ -630,7 +630,7 @@ class Statistics
 				$db->insert(APP_TABLE_PREFIX . 'statistics_sum_authors', $data);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 			}
 		}
 		//		echo "Finishing Authors summary: " . date('H:i:s') . "\n";
@@ -653,7 +653,7 @@ class Statistics
 			$res = $db->fetchAll($query, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return -1;
 		}
 		
@@ -662,7 +662,7 @@ class Statistics
 			$db->query($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return -1;
 		}
 		
@@ -727,7 +727,7 @@ class Statistics
 				$db->insert(APP_TABLE_PREFIX . 'statistics_sum_countryregion', $data);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 			}			
 		}
 
@@ -758,7 +758,7 @@ class Statistics
 			$db->query($delete);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return -1;
 		}
 
@@ -778,7 +778,7 @@ class Statistics
 				$db->insert(APP_TABLE_PREFIX . 'statistics_sum_papers', $data);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 			}
 		}
 		//		echo "Finishing Papers Summary: " . date("H:i:s") . "\n";
@@ -798,7 +798,7 @@ class Statistics
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return -1;
 		}
 
@@ -815,7 +815,7 @@ class Statistics
 				$checkResult = $db->fetchOne($checkSql, array($year, $month));
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 			}
 			
 			if ($checkResult != 0)
@@ -846,7 +846,7 @@ class Statistics
 				$db->query($delete);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return -1;
 			}
 			
@@ -866,7 +866,7 @@ class Statistics
 					$db->insert(APP_TABLE_PREFIX . 'statistics_sum_yearmonth', $data);
 				}
 				catch(Exception $ex) {
-					$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+					$log->err($ex);
 				}
 			}
 		}
@@ -899,7 +899,7 @@ class Statistics
 				$db->query($delete, array($year));
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return -1;
 			}
 			
@@ -918,7 +918,7 @@ class Statistics
 					$db->insert(APP_TABLE_PREFIX . 'statistics_sum_year', $data);
 				}
 				catch(Exception $ex) {
-					$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+					$log->err($ex);
 				}
 			}
 		}
@@ -943,7 +943,7 @@ class Statistics
 			$db->query($delete);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return -1;
 		}
 		
@@ -961,7 +961,7 @@ class Statistics
 				$db->insert(APP_TABLE_PREFIX . 'statistics_sum_yearmonth_figures', $data);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 			}
 		}
 	}
@@ -984,7 +984,7 @@ class Statistics
 						$db->query($stmt);
 					}
 					catch(Exception $ex) {
-						$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+						$log->err($ex);
 						return -1; //abort
 					}
 				}
@@ -1000,7 +1000,7 @@ class Statistics
 						$db->query($stmt);
 					}
 					catch(Exception $ex) {
-						$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+						$log->err($ex);
 						return -1; //abort
 					}
 				}
@@ -1027,7 +1027,7 @@ class Statistics
 			$db->query($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return -1; //abort
 		}
 	}
@@ -1048,7 +1048,7 @@ class Statistics
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return array();
 		}
 		return $res;
@@ -1070,7 +1070,7 @@ class Statistics
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return array();
 		}
 		return $res;
@@ -1095,7 +1095,7 @@ class Statistics
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return array();
 		}
 		return $res;
@@ -1412,7 +1412,7 @@ class Statistics
 		}
 		catch(Exception $ex) {
 			$log = FezLog::get();
-			$log->err('Message: '.$ex->getMessage().', File: '.__FILE__.', Line: '.__LINE__);
+			$log->err($ex);
 			return array();
 		}
 
@@ -1433,7 +1433,7 @@ class Statistics
 		}
 		catch(Exception $ex) {
 			$log = FezLog::get();
-			$log->err('Message: '.$ex->getMessage().', File: '.__FILE__.', Line: '.__LINE__);
+			$log->err($ex);
 			return array();
 		}
 
@@ -1449,7 +1449,7 @@ class Statistics
 		}
 		catch(Exception $ex) {
 			$log = FezLog::get();
-			$log->err('Message: '.$ex->getMessage().', File: '.__FILE__.', Line: '.__LINE__);
+			$log->err($ex);
 			return array();
 		}
 		return $results;
@@ -1475,7 +1475,7 @@ class Statistics
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return array();
 		}
 		return $res;
@@ -1535,7 +1535,7 @@ class Statistics
 		}
 		catch(Exception $ex) {
 			$log = FezLog::get();
-			$log->err('Message: '.$ex->getMessage().', File: '.__FILE__.', Line: '.__LINE__);
+			$log->err($ex);
 			return array();
 		}
 
@@ -1591,7 +1591,7 @@ class Statistics
 		}
 		catch(Exception $ex) {
 			$log = FezLog::get();
-			$log->err('Message: '.$ex->getMessage().', File: '.__FILE__.', Line: '.__LINE__);
+			$log->err($ex);
 			return array();
 		}
 
@@ -1616,7 +1616,7 @@ class Statistics
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return array();
 		}
 		return $res;
@@ -1640,7 +1640,7 @@ class Statistics
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return array();
 		}
 		return $res;
@@ -1672,7 +1672,7 @@ class Statistics
 			$res = $db->fetchAll($stmt, $params, Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return array();
 		}
 		return $res;		
@@ -1709,7 +1709,7 @@ class Statistics
 			$res = $db->fetchAll($stmt, $params, Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return array();
 		}
 		return $res;
@@ -1727,7 +1727,7 @@ class Statistics
 			$res = $db->fetchOne($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return -1; //abort
 		}
 		
@@ -1751,7 +1751,7 @@ class Statistics
 			$db->query($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return -1; //abort
 		}
 	}
@@ -1805,7 +1805,7 @@ class Statistics
 			$db->query($stmt, $params);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return -1; //abort
 		}
 	}
@@ -1828,7 +1828,7 @@ class Statistics
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return false;
 		}	  
 		return $res;
@@ -1845,7 +1845,7 @@ class Statistics
 			$res = $db->fetchOne($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}
 	
@@ -1873,7 +1873,7 @@ class Statistics
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return false;
 		}
 		return $res;
@@ -1895,7 +1895,7 @@ class Statistics
 			$res = $db->fetchOne($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return false;
 		}
 
@@ -1915,7 +1915,7 @@ class Statistics
 			$res = $db->fetchOne($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return false;
 		}
 		
@@ -1938,7 +1938,7 @@ class Statistics
 			$db->query($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return -1; //abort
 		}
 	}
@@ -2031,7 +2031,7 @@ class Statistics
 			$res = $db->fetchOne($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}
 
@@ -2068,7 +2068,7 @@ class Statistics
 			$res = $db->fetchOne($stmt,$params);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}
 		if ((count($res) == 1) && (!empty($res))) {
@@ -2104,7 +2104,7 @@ class Statistics
 			$res = $db->fetchOne($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			$res = array();
 		}
 		
@@ -2141,7 +2141,7 @@ class Statistics
 			$res = $db->fetchOne($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			$res = array();
 		}
 		if (!empty($res)) {
@@ -2184,7 +2184,7 @@ class Statistics
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			$res = array();
 		}
 		if (!empty($res)) {
@@ -2228,7 +2228,7 @@ class Statistics
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			$res = array();
 		}
 		if (!empty($res)) {
@@ -2270,7 +2270,7 @@ class Statistics
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			$res = array();
 		}
 		
@@ -2363,7 +2363,7 @@ class Statistics
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}
 		if (!empty($res)) {
@@ -2405,7 +2405,7 @@ class Statistics
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}
 	
@@ -2449,7 +2449,7 @@ class Statistics
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}
 	
@@ -2473,7 +2473,7 @@ class Statistics
 			$res = $db->fetchOne($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}
 	
@@ -2506,7 +2506,7 @@ class Statistics
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}
 		if (!empty($res)) {
@@ -2538,7 +2538,7 @@ class Statistics
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}		
 		return $res;
@@ -2557,7 +2557,7 @@ class Statistics
 			$res = $db->fetchOne($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}
 		if (count($res) == 1) {

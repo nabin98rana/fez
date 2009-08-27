@@ -77,7 +77,7 @@ class XSD_Relationship
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}
 		return $res;
@@ -106,7 +106,7 @@ class XSD_Relationship
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}
 		return $res;
@@ -138,7 +138,7 @@ class XSD_Relationship
 			$res = $db->fetchAll($stmt);
 		}	
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}
 		return $res;
@@ -173,7 +173,7 @@ class XSD_Relationship
 			$res = $db->fetchCol($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}
 		return $res;
@@ -212,7 +212,7 @@ class XSD_Relationship
 			$res = $db->fetchCol($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}
 		return $res;
@@ -241,7 +241,7 @@ class XSD_Relationship
 			$db->query($stmt, $_POST["items"]);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return false;
 		}
 		return true;
@@ -274,7 +274,7 @@ class XSD_Relationship
 			$db->query($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return -1;
 		}
     }
@@ -306,7 +306,7 @@ class XSD_Relationship
 			$db->query($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return -1;
 		}
 		return $db->lastInsertId();
@@ -341,7 +341,7 @@ class XSD_Relationship
 			$db->query($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return -1;
 		}
 		return 1;
@@ -378,7 +378,7 @@ class XSD_Relationship
 				$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return false;
 			}			
             Misc::arraySearchReplace($res, 

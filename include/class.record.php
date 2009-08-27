@@ -122,7 +122,7 @@ class Record
 			$res = $db->fetchCol($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return false;
 		}
 		return $res;
@@ -159,7 +159,7 @@ class Record
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return false;
 		}
 		return $res;
@@ -189,7 +189,7 @@ class Record
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return false;
 		}
 		return $res;
@@ -213,7 +213,7 @@ class Record
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return false;
 		}
 		return $res;
@@ -503,7 +503,7 @@ class Record
 			$res = $db->fetchCol($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return false;
 		}
 
@@ -535,7 +535,7 @@ class Record
 			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return false;
 		}
 		return true;
@@ -572,7 +572,7 @@ class Record
 					$db->query($stmt);
 				}
 				catch(Exception $ex) {
-					$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+					$log->err($ex);
 				}
 			}
 		}
@@ -584,7 +584,7 @@ class Record
 			$db->query($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 		}
 
 		//
@@ -651,7 +651,7 @@ class Record
 				$db->query($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return -1;
 			}
 		}
@@ -769,7 +769,7 @@ class Record
 			$db->query($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return -1;
 		}
 		//
@@ -826,7 +826,7 @@ class Record
 			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage().": ".$stmt, 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			$ret = false;
 		}
 
@@ -877,7 +877,7 @@ class Record
 					$db->exec($stmt);
 				}
 				catch(Exception $ex) {
-					$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+					$log->err($ex);
 					$ret = false;
 				}
 			}  //end if notEmpty
@@ -1080,7 +1080,7 @@ class Record
 			$res = $db->fetchAll($stmt, array_values($bind_param), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return false;
 		}
 		$usr_id = Auth::getUserID();
@@ -1118,7 +1118,7 @@ class Record
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_COLUMN); //DB_FETCHMODE_FLIPPED
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return false;
 		}
 		return $res;
@@ -1138,7 +1138,7 @@ class Record
 			$log->info($res);	
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return false;
 		}
 		return $res;
@@ -1208,7 +1208,7 @@ class Record
 				$total_rows = $db->fetchOne($countStmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 			}
 			$stmt =  "SELECT ".APP_SQL_CACHE." r1.* ".$searchKey_join[SK_FULLTEXT_REL]." ".$stmt.$searchKey_join[SK_GROUP_BY];
 			$stmt .= " ORDER BY ".$searchKey_join[SK_SORT_ORDER]." r".$searchKey_join[SK_KEY_ID].".rek_pid DESC ";
@@ -1222,7 +1222,7 @@ class Record
 				$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				$res = array();
 			}
 
@@ -1232,7 +1232,7 @@ class Record
 					$total_rows = $db->fetchOne('SELECT FOUND_ROWS()');
 				}
 				catch(Exception $ex) {
-					$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+					$log->err($ex);
 				}
 			}
 			if (count($res) > 0) {
@@ -1323,7 +1323,7 @@ class Record
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			$res = array();
 		}
 
@@ -1669,7 +1669,7 @@ class Record
 			$res = $db->fetchAll($stmt, $pids, Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return false;
 		}
 		return $res;
@@ -1711,7 +1711,7 @@ class Record
 			$res = $db->fetchPairs($stmt, $pids);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return false;
 		}
 		// now populate the $result variable again
@@ -1793,7 +1793,7 @@ class Record
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);			
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return false;
 		}
 		if(count($res) == 0) {
@@ -1866,7 +1866,7 @@ class Record
                     	$res = $db->fetchAll($stmt, $pids, Zend_Db::FETCH_ASSOC);
                     }
                     catch(Exception $ex) {
-                    	$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+                    	$log->err($ex);
                     	return false;
                     }
 
@@ -1912,7 +1912,7 @@ class Record
 			$res = $db->fetchAll($stmt, $aut_ids, Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return false;
 		}
 
@@ -1988,7 +1988,7 @@ class Record
                     	$res = $db->fetchAll($stmt, array_values($pids), Zend_Db::FETCH_ASSOC);
                     }
                     catch(Exception $ex) {
-                    	$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+                    	$log->err($ex);
                     	return false;
                     }
 
@@ -2029,7 +2029,7 @@ class Record
 			$res = $db->fetchOne($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return false;
 		}
 
@@ -2056,7 +2056,7 @@ class Record
 			$res = $db->fetchOne($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return false;
 		}
 
@@ -2092,7 +2092,7 @@ class Record
 			$res = $db->fetchOne($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return false;
 		}
 		return $res;
@@ -2124,7 +2124,7 @@ class Record
 			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return false;
 		}
         return true;
@@ -2158,7 +2158,7 @@ class Record
 			$index_count = $res;
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));		
+			$log->err($ex);		
 		}
 		
 		// Get the count from the existing datastore
@@ -2174,7 +2174,7 @@ class Record
 			$count = $res;
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));		
+			$log->err($ex);		
 		}
 		
         if (is_numeric($count) && ($count != $index_count)) {
@@ -2189,7 +2189,7 @@ class Record
 				$db->query($stmt, array($count, $pid));
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return false;
 			}
 			
@@ -2224,7 +2224,7 @@ class Record
 			$res = $db->fetchOne($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));		
+			$log->err($ex);		
 		}
 		$prev_count = $res;		
 	}
@@ -2257,7 +2257,7 @@ class Record
 			$res = $db->fetchOne($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));		
+			$log->err($ex);		
 		}
 		
 		$prev_count = $res;
@@ -2274,7 +2274,7 @@ class Record
 				$db->query($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return false;
 			}    
 	        Record::insertThomsonCitationCount($pid, $count);    
@@ -2291,7 +2291,7 @@ class Record
 				$res = $db->fetchOne($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));		
+				$log->err($ex);		
 			}			
 	        if($res) {
 				Record::updateThomsonCitationLastChecked($res);			
@@ -2332,7 +2332,7 @@ class Record
 			$res = $db->fetchOne($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));		
+			$log->err($ex);		
 		}
 		$prev_count = $res;
                 
@@ -2348,7 +2348,7 @@ class Record
 				$db->query($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return false;
 			}
         }
@@ -2379,7 +2379,7 @@ class Record
 			$db->query($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return false;
 		}
 		
@@ -2410,7 +2410,7 @@ class Record
 			$db->query($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return false;
 		}
         return true;
@@ -2442,7 +2442,7 @@ class Record
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return false;
 		}
         return $res;
@@ -2474,7 +2474,7 @@ class Record
 				$res = $db->fetchCol($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return false;
 			}
 
@@ -2501,7 +2501,7 @@ class Record
 				$res = $db->fetchOne($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return false;
 			}
 			 
@@ -3232,7 +3232,7 @@ class Record
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return false;
 		}
 		foreach ($res as $row) {
@@ -3617,7 +3617,7 @@ class Record
 			$db->query($stmt, $pid);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage().": ".$stmt, 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 		}
 
 		
@@ -3634,7 +3634,7 @@ class Record
 			$db->query($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 		}
 	}
 
@@ -3651,7 +3651,7 @@ class Record
 			$db->query($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 		}
 	}
 
@@ -3673,7 +3673,7 @@ class Record
 			$db->query($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 		}
 	}
 

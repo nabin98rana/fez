@@ -148,7 +148,7 @@ class Auth
 			$res = $db->fetchAll($stmt, array());
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return array();
 		}
 
@@ -176,7 +176,7 @@ class Auth
 			$res = $db->fetchPairs($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return array();
 		}
 		return $res;
@@ -198,7 +198,7 @@ class Auth
 					$res = $db->fetchPairs($stmt, $aro_roles);
 				}
 				catch(Exception $ex) {
-					$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+					$log->err($ex);
 					return array();
 				}
 				return $res;
@@ -221,7 +221,7 @@ class Auth
 			$res = $db->fetchOne($stmt, $title);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return array();
 		}
 		return $res;
@@ -241,7 +241,7 @@ class Auth
 			$res = $db->fetchOne($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return array();
 		}
 		return $res;
@@ -267,7 +267,7 @@ class Auth
 			$res = $db->fetchCol($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}
 		return $res;
@@ -306,7 +306,7 @@ class Auth
 				$res = $db->fetchCol($pre_stmt, array($pid));
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 			}
 
 			$stmt = "SELECT
@@ -328,7 +328,7 @@ class Auth
 				$res = $db->fetchAll($stmt, $res);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 			}
 			$return = array();
 			foreach ($res as $result) {
@@ -431,7 +431,7 @@ class Auth
 				$res = $db->fetchAll($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 			}
 
 			$return = array();
@@ -1269,7 +1269,7 @@ class Auth
 			$res = $db->fetchCol($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return array();
 		}
 		return $res;
@@ -1295,7 +1295,7 @@ class Auth
 			$res = $db->fetchCol($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return false;
 		}
 		if(count($res) > 0) {
@@ -1473,7 +1473,7 @@ class Auth
 				$res = $db->fetchOne($stmt, array($username));
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return false;
 			}
 			if (count($res) != 1) {
@@ -2086,7 +2086,7 @@ class Auth
 			$res = $db->fetchCol($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return -1;
 		}
 		return $res;
@@ -2109,7 +2109,7 @@ class Auth
 			$res = $db->fetchCol($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return -1;
 		}
 		return $res;
@@ -2133,7 +2133,7 @@ class Auth
 			$res = $db->fetchCol($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return -1;
 		}
 
@@ -2159,7 +2159,7 @@ class Auth
 			$res = $db->fetchCol($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return -1;
 		}
 
@@ -2194,7 +2194,7 @@ class Auth
 				$db->query($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 			}
 				
 			// test and insert matching rules for this user
@@ -2294,7 +2294,7 @@ class Auth
 				$db->query($authStmt, $bindParams);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return -1;
 			}
 				

@@ -160,7 +160,10 @@ class FezLog
     {
     	switch($type) {
     		case 'file':
-    			return print_r($message, true);
+    			if(is_object($message) && is_subclass_of($message, 'Exception'))
+    				return print_r($message->getTrace(), true);
+    			else
+    				return print_r($message, true);
     		case 'firebug':    			
     			return $this->_stopwatch->elapsed().' '.print_r($message, true);
     		default:

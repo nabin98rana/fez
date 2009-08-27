@@ -76,7 +76,7 @@ class BackgroundProcess {
 				$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return array();
 			}
 			$this->details = $res[0];
@@ -96,7 +96,7 @@ class BackgroundProcess {
 			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 		}
 	}
 
@@ -111,7 +111,7 @@ class BackgroundProcess {
 			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 		}
 		$this->setHeartbeat();
 	}
@@ -133,7 +133,7 @@ class BackgroundProcess {
 			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 		}
 		$this->setHeartbeat();
 	}
@@ -149,7 +149,7 @@ class BackgroundProcess {
 			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 		}
 		$this->setHeartbeat();
 	}
@@ -166,7 +166,7 @@ class BackgroundProcess {
 			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 		}
 	}
 
@@ -184,7 +184,7 @@ class BackgroundProcess {
 			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 		}
 	}
 
@@ -200,7 +200,7 @@ class BackgroundProcess {
 			$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 		}
 
 		if (Auth::getUserID() == $res['bgp_usr_id']) {
@@ -243,7 +243,7 @@ class BackgroundProcess {
 			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return -1;
 		}
 		$this->bgp_id = $db->lastInsertId();
@@ -288,7 +288,7 @@ class BackgroundProcess {
 			$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 		}
 
 		$usr_id = $res['bgp_usr_id'];

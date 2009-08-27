@@ -207,7 +207,7 @@ class AuthIndex
 				$res = $db->fetchAll($stmt, array($pid));
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				
 				return -1;
 			}
@@ -275,7 +275,7 @@ class AuthIndex
 				}				
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				
 				return -1;
 			}
@@ -301,7 +301,7 @@ class AuthIndex
 				}
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage()." - ".$ex->getTraceAsString(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				
 				return -1;
 			}
@@ -370,7 +370,7 @@ class AuthIndex
 				$res = $db->fetchCol($stmt, array($usr_id, $pid));
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				
 				return array();
 			}
@@ -405,7 +405,7 @@ class AuthIndex
 			$db->query($stmt, $pids);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			
 			return -1;
 		}
@@ -415,7 +415,7 @@ class AuthIndex
 			$db->query($stmt, $pids);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			
 			return -1;
 		}
@@ -437,7 +437,7 @@ class AuthIndex
 			$res = $db->fetchOne($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			
 			return -1;
 		}
@@ -463,7 +463,7 @@ class AuthIndex
 			$res = $db->fetchOne($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			
 			return;
 		}
@@ -477,7 +477,7 @@ class AuthIndex
 				$db->query($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 			}
 			$stmt = "delete from ".$dbtp."auth_rule_group_rules where not exists (
                 select * FROM ".$dbtp."auth_rule_groups where argr_arg_id=arg_id)";
@@ -485,7 +485,7 @@ class AuthIndex
 				$db->query($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 			}
 			$stmt = "delete from ".$dbtp."auth_rules where not exists (
                 select * FROM ".$dbtp."auth_rule_group_rules where argr_ar_id=ar_id)";
@@ -493,7 +493,7 @@ class AuthIndex
 				$db->query($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 			}
 		}
 		

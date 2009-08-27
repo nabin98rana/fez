@@ -243,7 +243,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 					$resultSeks = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 				}
 				catch(Exception $ex) {
-					$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+					$log->err($ex);
 				}			
 				foreach ($resultSeks as $resultSek) {
 					$tmpArr[$resultSek['pid']] = $resultSek['value'];
@@ -272,7 +272,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 						$resultSeks = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 					}
 					catch(Exception $ex) {
-						$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+						$log->err($ex);
 					}			
 					foreach ($resultSeks as $resultSek) {
 						$tmpArr[$resultSek['pid']] = $resultSek['value'];
@@ -477,7 +477,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}
 			
@@ -502,7 +502,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}
 	  
@@ -534,7 +534,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));		
+			$log->err($ex);		
 		}
 
 		foreach ($res as $pidData) {
@@ -580,7 +580,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));	
+			$log->err($ex);	
 			$res = null;	
 		}
 		$ret = array();

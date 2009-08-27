@@ -186,7 +186,7 @@ class FulltextQueue
 			$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 		}
 		
 		$process_id = $res['ftl_pid'];
@@ -229,7 +229,7 @@ class FulltextQueue
 				$db->query($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				$ok = false;
 			}
 				
@@ -284,7 +284,7 @@ class FulltextQueue
 				$db->query($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage().$stmt, 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return false;
 			}
 			unset($this->pids[$pid]);
@@ -336,7 +336,7 @@ class FulltextQueue
 			$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return null;
 		}
 
@@ -354,7 +354,7 @@ class FulltextQueue
 			$db->query($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return null;
 		}
 			
@@ -373,7 +373,7 @@ class FulltextQueue
 			$res = $db->fetchOne($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return 0;
 		}
 		return $res;
@@ -410,7 +410,7 @@ class FulltextQueue
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return false;
 		}
 			
@@ -431,7 +431,7 @@ class FulltextQueue
 			$db->query($stmt, $keys);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 		}
 
 		return $res;
@@ -450,7 +450,7 @@ class FulltextQueue
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return false;
 		}
 
@@ -470,7 +470,7 @@ class FulltextQueue
 			$db->query($stmt, $keys);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 		}
 			
 		return $res;

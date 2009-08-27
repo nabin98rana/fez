@@ -107,7 +107,7 @@ abstract class FulltextIndex {
 			$db->query($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			$log->err(array("FulltextIndex::releaseLock failed",$res));
 		}		
 	}
@@ -126,6 +126,7 @@ abstract class FulltextIndex {
 		
 		$my_process = FulltextQueue::getProcessInfo();
 		$my_pid = $my_process['pid'];
+
 		if (!is_numeric($my_pid)) {
 			$my_pid = 'null';
 		}
@@ -137,7 +138,7 @@ abstract class FulltextIndex {
 			$db->query($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return false;
 		}
 		return true;
@@ -297,7 +298,7 @@ abstract class FulltextIndex {
 			$res = $db->fetchAssoc($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}
 		
@@ -930,7 +931,7 @@ abstract class FulltextIndex {
 			$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			$res = null;
 		}
 		return $res;
@@ -950,7 +951,7 @@ abstract class FulltextIndex {
 			$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			$res = null;
 		}	  
 		return $res;
@@ -982,7 +983,7 @@ abstract class FulltextIndex {
 			$db->query($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 		}
 		//Logger::debug("deleted existing content for ($pid, $dsID)");
 	}
@@ -1026,7 +1027,7 @@ abstract class FulltextIndex {
 			$db->query($stmt, $values);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return false;
 		}
 

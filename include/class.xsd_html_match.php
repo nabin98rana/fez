@@ -136,7 +136,7 @@ class XSD_HTML_Match
 				$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return array();
 			}
 
@@ -161,7 +161,7 @@ class XSD_HTML_Match
 				$res = $db->fetchOne($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return '';
 			}
 			if ($res == NULL) {
@@ -484,7 +484,7 @@ class XSD_HTML_Match
 				$db->query($stmt, $mfo_id);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return false;
 			}
 
@@ -499,7 +499,7 @@ class XSD_HTML_Match
 				$db->exec($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 			}
 			return true;
 		}
@@ -536,7 +536,7 @@ class XSD_HTML_Match
 					$db->exec($stmt);
 				}
 				catch(Exception $ex) {
-					$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+					$log->err($ex);
 					return -1;
 				}
 			}
@@ -566,7 +566,7 @@ class XSD_HTML_Match
 				$db->exec($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return false;
 			}
 			return true;
@@ -631,7 +631,7 @@ class XSD_HTML_Match
 				$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return '';
 			}
 
@@ -696,7 +696,7 @@ class XSD_HTML_Match
 				$res = $db->fetchPairs($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return '';
 			}
 			return $res;
@@ -733,7 +733,7 @@ class XSD_HTML_Match
 					$xsdrelall = $db->fetchCol($stmt);
 				}
 				catch(Exception $ex) {
-					$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+					$log->err($ex);
 					$xsdrelall = array();
 				}
 				array_push($xsdrelall, $xdis_id);
@@ -832,7 +832,7 @@ class XSD_HTML_Match
 				$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return array();
 			}
 
@@ -873,7 +873,7 @@ class XSD_HTML_Match
 				$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return array();
 			}
 			return $res;
@@ -903,7 +903,7 @@ class XSD_HTML_Match
 				$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return array();
 			}
 			return $res;
@@ -961,7 +961,7 @@ class XSD_HTML_Match
 					$mfoResult = $db->fetchAll($stmt, $ids);
 				}
 				catch(Exception $ex) {
-					$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+					$log->err($ex);
 					return array();
 				}
 				
@@ -1026,7 +1026,7 @@ class XSD_HTML_Match
 				$res = $db->fetchOne($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return "";
 			}
 
@@ -1062,7 +1062,7 @@ class XSD_HTML_Match
 				$res = $db->fetchOne($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return '';
 			}
 			if ($res == NULL) {
@@ -1097,7 +1097,7 @@ class XSD_HTML_Match
 				$db->query($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return -1;
 			}
 			return 1;
@@ -1131,7 +1131,7 @@ class XSD_HTML_Match
 						$db->query($stmt,$att_ids);
 					}
 					catch(Exception $ex) {
-						$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+						$log->err($ex);
 					}
 				}
 				$mfo_list = XSD_HTML_Match::getOptions($xsdmf_id);
@@ -1143,7 +1143,7 @@ class XSD_HTML_Match
 						$db->query($stmt,$mfo_ids);
 					}
 					catch(Exception $ex) {
-						$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+						$log->err($ex);
 					}
 				}
 				$subs = XSD_Loop_Subelement::getSimpleListByXSDMF($xsdmf_id);
@@ -1155,7 +1155,7 @@ class XSD_HTML_Match
 						$db->query($stmt,$xsdsel_ids);
 					}
 					catch(Exception $ex) {
-						$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+						$log->err($ex);
 					}
 				}
 				$rels = XSD_Relationship::getSimpleListByXSDMF($xsdmf_id);
@@ -1167,7 +1167,7 @@ class XSD_HTML_Match
 						$db->query($stmt,$xsdrel_ids);
 					}
 					catch(Exception $ex) {
-						$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+						$log->err($ex);
 					}
 				}
 			}
@@ -1180,7 +1180,7 @@ class XSD_HTML_Match
 				$db->query($stmt, $xsdmf_ids);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return -1;
 			}
 			return 1;
@@ -1528,7 +1528,7 @@ class XSD_HTML_Match
 				$db->exec($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return -1;
 			}
 				
@@ -1578,7 +1578,7 @@ class XSD_HTML_Match
 				$db->exec($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return -1;
 			}
 
@@ -1815,7 +1815,7 @@ class XSD_HTML_Match
 				$db->exec($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return -1;
 			}
 				
@@ -2059,7 +2059,7 @@ class XSD_HTML_Match
 				$db->exec($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return -1;
 			}
 			XSD_HTML_Match::refreshXPATH($_POST['xsdmf_id']);
@@ -2074,7 +2074,7 @@ class XSD_HTML_Match
 					$current_options = $db->fetchCol($stmt);
 				}
 				catch(Exception $ex) {
-					$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+					$log->err($ex);
 				}
 				$updated_options = array ();
 
@@ -2155,7 +2155,7 @@ class XSD_HTML_Match
 				$res = $db->fetchCol($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return -1;
 			}
 			XSD_HTML_Match::refreshXPATH($xsdmf_id);
@@ -2187,7 +2187,7 @@ class XSD_HTML_Match
 				$res = $db->fetchAll($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return '';
 			}
 
@@ -2224,7 +2224,7 @@ class XSD_HTML_Match
 				$db->query($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return '';
 			}
 			return 1;
@@ -2244,7 +2244,7 @@ class XSD_HTML_Match
 				$db->query($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return '';
 			}
 			return 1;
@@ -2274,7 +2274,7 @@ class XSD_HTML_Match
 				$db->query($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return '';
 			}
 			return 1;
@@ -2303,7 +2303,7 @@ class XSD_HTML_Match
 				$db->query($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return '';
 			}
 			return 1;
@@ -2332,7 +2332,7 @@ class XSD_HTML_Match
 				$db->query($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return '';
 			}
 			return 1;
@@ -2361,7 +2361,7 @@ class XSD_HTML_Match
 				$db->query($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return '';
 			}
 			return 1;
@@ -2391,7 +2391,7 @@ class XSD_HTML_Match
 				$res = $db->fetchAll($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return '';
 			}
 
@@ -2428,7 +2428,7 @@ class XSD_HTML_Match
 				$res = $db->fetchAll($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return '';
 			}
 			if (count($res) != 1) {
@@ -2465,7 +2465,7 @@ class XSD_HTML_Match
 				$res = $db->fetchAll($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return '';
 			}
 			if (count($res) != 1) {
@@ -2505,7 +2505,7 @@ class XSD_HTML_Match
 				$res = $db->fetchAll($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return '';
 			}
 			if (count($res) != 1) {
@@ -2541,7 +2541,7 @@ class XSD_HTML_Match
 				$res = $db->fetchAll($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return '';
 			}
 			if (count($res) != 1) {
@@ -2566,7 +2566,7 @@ class XSD_HTML_Match
 				$res = $db->fetchAll($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return '';
 			}
 			if (count($res) != 1) {
@@ -2605,7 +2605,7 @@ class XSD_HTML_Match
 				$res = $db->fetchAll($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return '';
 			}
 			if (count($res) != 1) {
@@ -2642,7 +2642,7 @@ class XSD_HTML_Match
 				$res = $db->fetchAll($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return '';
 			}
 			if (count($res) != 1) {
@@ -2684,7 +2684,7 @@ class XSD_HTML_Match
 					$res = $db->fetchCol($stmt);
 				}
 				catch(Exception $ex) {
-					$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+					$log->err($ex);
 					return '';
 				}
 				if ($GLOBALS['app_cache']) {
@@ -2727,7 +2727,7 @@ class XSD_HTML_Match
 					$res = $db->fetchCol($stmt);
 				}
 				catch(Exception $ex) {
-					$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+					$log->err($ex);
 					return '';
 				}
 
@@ -2760,7 +2760,7 @@ class XSD_HTML_Match
 				$res = $db->fetchCol($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return '';
 			}
 			if ($GLOBALS['app_cache']) {
@@ -2795,7 +2795,7 @@ class XSD_HTML_Match
 				$res = $db->fetchPairs($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return '';
 			}
 			return $res;
@@ -2817,7 +2817,7 @@ class XSD_HTML_Match
 				$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return array();
 			}
 
@@ -2840,7 +2840,7 @@ class XSD_HTML_Match
 				$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return array();
 			}
 
@@ -2871,7 +2871,7 @@ class XSD_HTML_Match
 				$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return '';
 			}
 			if (is_array($res)) {
@@ -2906,7 +2906,7 @@ class XSD_HTML_Match
 				$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return '';
 			}
 			if (is_array($res)) {
@@ -2937,7 +2937,7 @@ class XSD_HTML_Match
 				$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return '';
 			}
 			if (is_array($res)) {
@@ -2972,7 +2972,7 @@ class XSD_HTML_Match
 				$res = $db->fetchOne($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return '';
 			}
 			return $res;
@@ -3004,7 +3004,7 @@ class XSD_HTML_Match
 				$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return '';
 			}
 				
@@ -3039,7 +3039,7 @@ class XSD_HTML_Match
 				$res = $db->fetchOne($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return '';
 			}
 			return $res;
@@ -3069,7 +3069,7 @@ class XSD_HTML_Match
 				$res = $db->fetchOne($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return '';
 			}
 			if (is_numeric($res) && ($res > 0)) {
@@ -3092,7 +3092,7 @@ class XSD_HTML_Match
 				$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return array();
 			}
 			return $res;
@@ -3111,7 +3111,7 @@ class XSD_HTML_Match
 				$db->query($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return -1;
 			}
 			return $db->lastInsertId();
@@ -3152,7 +3152,7 @@ class XSD_HTML_Match
 						$res = $db->fetchPairs($stmt, $fld_id);
 					}
 					catch(Exception $ex) {
-						$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+						$log->err($ex);
 						return array();
 					}
 				} else {
@@ -3170,7 +3170,7 @@ class XSD_HTML_Match
 						$res = $db->fetchPairs($stmt, $fld_id);
 					}
 					catch(Exception $ex) {
-						$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+						$log->err($ex);
 						if ($GLOBALS['app_cache']) {
 							if (!is_array($mfo_returns) || count($mfo_returns) > 10) { //make sure the static memory var doesnt grow too large and cause a fatal out of memory error
 								$mfo_returns = array();
@@ -3209,7 +3209,7 @@ class XSD_HTML_Match
 				$res = $db->fetchPairs($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return '';
 			}
 				
@@ -3272,7 +3272,7 @@ class XSD_HTML_Match
 				$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return array();
 			}
 			$ret = array ();
@@ -3305,7 +3305,7 @@ class XSD_HTML_Match
 				$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return array();
 			}
 
@@ -3346,7 +3346,7 @@ class XSD_HTML_Match
 				$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return array();
 			}
 			return $res;
@@ -3370,7 +3370,7 @@ class XSD_HTML_Match
 				$res = $db->fetchCol($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return array(0);
 			}
 			return $res;
@@ -3416,7 +3416,7 @@ class XSD_HTML_Match
 				$res = $db->fetchOne($stmt);
 			}
 			catch(Exception $ex) {
-				$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+				$log->err($ex);
 				return array();
 			}
 			return $res;
@@ -3549,7 +3549,7 @@ class XSD_HTML_Match
 					XSD_HTML_Match::updateFromArray($xsdmf_id,$res);
 				}
 				catch(Exception $ex) {
-					$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+					$log->err($ex);
 				}
 				// remap attachments
 				$stmt = "SELECT * FROM ". APP_SQL_DBNAME . "." . APP_TABLE_PREFIX ."xsd_display_attach " .
@@ -3573,12 +3573,12 @@ class XSD_HTML_Match
 							$res = $db->exec($stmt);
 						}
 						catch(Exception $ex) {
-							$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+							$log->err($ex);
 						}
 					}
 				}
 				catch(Exception $ex) {
-					$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+					$log->err($ex);
 					$res = array();
 				}
 			}
@@ -3668,7 +3668,7 @@ class XSD_HTML_MatchObject {
 			$GLOBALS['match_cols'][$this->xdis_str] = $res;
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			$GLOBALS['match_cols'][$this->xdis_str] = array ();
 		}
 		return $GLOBALS['match_cols'][$this->xdis_str];
@@ -3763,7 +3763,7 @@ class XSD_HTML_MatchObject {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return array();
 		}
 		return $res;
@@ -3901,7 +3901,7 @@ class XSD_HTML_MatchObject {
 			$res = $db->fetchOne($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return false;
 		}
 		return $res;

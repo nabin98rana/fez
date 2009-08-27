@@ -103,6 +103,57 @@ class EstiSearchService
 	}
 	
 	/**
+	 * Performs a search and retrieves records from an ISI Web of Knowledge.
+	 *
+	 * @param string $database_id Identifies the ISI Web of Knowledge resource that this request will search (default is WOS).
+	 * @param string $query The search expression in Advanced Search format. 
+	 * @param string $depth The time span that this search will cover such as 1week, or 2000-2002.
+	 * @param string $editions The editions that this search will cover.
+	 * @param string $sort The sort order for record retrieval.
+	 * @param string $first_rec The index of the first record's primary key this request will retrieve.  
+	 * 							The index of the initial record in the search result is 1.
+	 * @param string $num_recs The number of records this request will retrieve.  
+	 * 							If the number of records in the search result is less than this value, 
+	 * 							then this request will return a smaller number of records. 
+	 * 							This value must not be greater than 100.	 
+	 * @param string $fields The fields that will be retrieved for each record.
+	 * @return SimpleXMLElement The object containing records found in WoS matching the primaryKey(s) specified. 
+	 */
+	public static function searchRetrieve($database_id, $query, $depth, $editions, $sort = '', $first_rec = 1, $num_recs = 100, $fields = self::FIELDS) 
+	{					
+		$client = new soapclient_internal(self::WSDL, true);
+		$err = $client->getError();
+		if ($err) {
+			Error_Handler::logError('Error occurred while creating new soap client: '.$err, __FILE__, __LINE__);
+			return false;
+		}
+		$retrieve = array(
+						'databaseID' => $database_id,
+						'query' => $query,
+						'depth' => $depth,
+						'editions' => $editions,						
+						'sort' => $sort,
+						'firstRec' => $first_rec,
+						'numRecs' => $num_recs,		
+						'fields' => $fields
+					);
+		$result = $client->call('searchRetrieve', $retrieve, '', '', false, true);
+		
+		if ($client->fault) {
+			Error_Handler::logError('Fault occurred while retrieving records from WoK: '.$client->fault, __FILE__, __LINE__);
+			return false;
+		} else {
+			$err = $client->getError();
+			if ($err) {
+				Error_Handler::logError('Error occurred while retrieving records from WoK: '.$err, __FILE__, __LINE__);
+				return false;
+			} else {
+				return $result;				
+			}
+		}
+	}
+	
+	/**
 	 * Retrieves meta-data for an ISI Web of Knowledge resource as an XML document.
 	 *
 	 * @param string $database_id Identifies the ISI Web of Knowledge resource that this request will search (default is WOS)	 

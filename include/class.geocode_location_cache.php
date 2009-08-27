@@ -35,7 +35,7 @@ class GeocodeLocationCache
 		}
 		catch (Exception $ex) {
 			$log = FezLog::get();
-			$log->err('Message: '.$ex->getMessage().', File: '.__FILE__.', Line: '.__LINE__);
+			$log->err($ex);
 			return -1;
 		}
         return 1;
@@ -62,7 +62,7 @@ class GeocodeLocationCache
 		}
 		catch (Exception $ex) {
 			$log = FezLog::get();
-			$log->err('Message: '.$ex->getMessage().', File: '.__FILE__.', Line: '.__LINE__);
+			$log->err($ex);
 			return -1;
 		}
 
@@ -84,7 +84,7 @@ class GeocodeLocationCache
 		}
 		catch (Exception $ex) {
 			$log = FezLog::get();
-			$log->err('Message: '.$ex->getMessage().', File: '.__FILE__.', Line: '.__LINE__);
+			$log->err($ex);
 			return -1;
 		}
 
@@ -108,7 +108,7 @@ class GeocodeLocationCache
 			$result = $db->fetchRow($query, array($location), Zend_Db::FETCH_ASSOC);
 		}
 		catch (Exception $ex) {
-			$log->err('Message: '.$ex->getMessage().', File: '.__FILE__.', Line: '.__LINE__);
+			$log->err($ex);
 			return -1;
 		}
 

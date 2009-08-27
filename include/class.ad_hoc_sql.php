@@ -61,7 +61,7 @@ class Ad_Hoc_SQL {
 			$res = $db->fetchAll($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));	
+			$log->err($ex);	
 			return false;
 		}
 		return $res;
@@ -91,7 +91,7 @@ class Ad_Hoc_SQL {
 			$res = $db->fetchCol($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);	
 		}
 		return $res;
 	}
@@ -121,7 +121,7 @@ class Ad_Hoc_SQL {
 			$res = $db->fetchOne($stmtCount);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);	
 			return false;
 		}
 
@@ -146,7 +146,7 @@ class Ad_Hoc_SQL {
 			$res = $db->fetchAll($stmtShow);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);	
 			return false;
 		}
 		if (empty($res)) {
@@ -203,7 +203,7 @@ class Ad_Hoc_SQL {
 			$res = $db->fetchRow($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);	
 			return '';
 		}
 		return $res;
@@ -240,7 +240,7 @@ class Ad_Hoc_SQL {
 			$db->insert(APP_TABLE_PREFIX . 'ad_hoc_sql', $data);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);	
 			return -1;
 		}
 		return 1;
@@ -266,7 +266,7 @@ class Ad_Hoc_SQL {
 			$res = $db->fetchPairs($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);	
 			
 			return '';
 		}
@@ -314,7 +314,7 @@ class Ad_Hoc_SQL {
 			$db->update(APP_TABLE_PREFIX . 'ad_hoc_sql', $data, 'ahs_id='.$db->quote($ahs_id, 'INTEGER'));
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);	
 			
 			return -1;
 		}
@@ -338,7 +338,7 @@ class Ad_Hoc_SQL {
 			$db->query($stmt, $_POST['items']);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);	
 			
 			return false;
 		}

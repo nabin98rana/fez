@@ -56,7 +56,7 @@ class Custom_View
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}
         
@@ -80,7 +80,7 @@ class Custom_View
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}
         
@@ -103,7 +103,7 @@ class Custom_View
 			$res = $db->fetchRow($stmt, array($cview_id), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}
 		return $res;
@@ -121,7 +121,7 @@ class Custom_View
 			$res = $db->fetchRow($stmt, array($cvsk_id), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}
 		
@@ -140,7 +140,7 @@ class Custom_View
 			$res = $db->fetchRow($stmt, array($cvcom_id), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}
         return $res;
@@ -160,7 +160,7 @@ class Custom_View
 			$res = $db->fetchAll($stmt, array($cvsk_cview_id), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}
 	
@@ -195,7 +195,7 @@ class Custom_View
 			$res = $db->fetchRow($stmt, array($community_pid), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return '';
 		}
         return $res;
@@ -215,7 +215,7 @@ class Custom_View
 			$db->query($stmt, array($_POST["cview_name"]));
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return -1;
 		}		
 		return 1;
@@ -238,7 +238,7 @@ class Custom_View
 			$db->query($stmt, array($_POST["cview_id"], $_POST["cvsk_sek_id"], $_POST["cvsk_sek_name"], $_POST["cvsk_sek_desc"]));
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return -1;
 		}
 		return 1;
@@ -261,7 +261,7 @@ class Custom_View
 			$db->query($stmt, array($_POST["cview_id"], $_POST["hostname"], $_POST["comm_pid"], $_POST["default_template"]));
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return -1;
 		}
 		return 1;
@@ -279,7 +279,7 @@ class Custom_View
 			$db->query($stmt, array($_POST["cview_name"], $cview_id));
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return -1;
 		}
 		return 1;
@@ -301,7 +301,7 @@ class Custom_View
 			$db->query($stmt, array($_POST["cvsk_sek_id"], $_POST["cvsk_sek_name"], $_POST["cvsk_sek_desc"], $cvsk_id));
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return -1;
 		}
 		return 1;
@@ -320,7 +320,7 @@ class Custom_View
 			$res = $db->fetchCol($stmt, array($sek_id));
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return -1;
 		}
 
@@ -349,7 +349,7 @@ class Custom_View
 									$_POST["comm_pid"], $cvcom_id));
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return -1;
 		}
         return 1;
@@ -368,7 +368,7 @@ class Custom_View
 			$db->query($stmt, $_POST["items"]);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return false;
 		}        
 		return true;
@@ -387,7 +387,7 @@ class Custom_View
 			$db->query($stmt, $_POST["items"]);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return false;
 		}        
 		return true;
@@ -406,7 +406,7 @@ class Custom_View
 			$db->query($stmt, $_POST["items"]);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return false;
 		}        
 		return true;

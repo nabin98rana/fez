@@ -24,7 +24,7 @@ class GeocodeRegions
 		}
 		catch (Exception $ex) {
 			$log = FezLog::get();
-			$log->err('Message: '.$ex->getMessage().', File: '.__FILE__.', Line: '.__LINE__);
+			$log->err($ex);
 			return -1;
 		}
 
@@ -49,7 +49,7 @@ class GeocodeRegions
 		}
 		catch (Exception $ex) {
 			$log = FezLog::get();
-			$log->err('Message: '.$ex->getMessage().', File: '.__FILE__.', Line: '.__LINE__);
+			$log->err($ex);
 			return -1;
 		}
 
@@ -70,7 +70,7 @@ class GeocodeRegions
 		}
 		catch (Exception $ex) {
 			$log = FezLog::get();
-			$log->err('Message: '.$ex->getMessage().', File: '.__FILE__.', Line: '.__LINE__);
+			$log->err($ex);
 			return -1;
 		}
 
@@ -93,7 +93,7 @@ class GeocodeRegions
 		}
 		catch (Exception $ex) {
 			$log = FezLog::get();
-			$log->err('Message: '.$ex->getMessage().', File: '.__FILE__.', Line: '.__LINE__);
+			$log->err($ex);
 			return -1;
 		}
 

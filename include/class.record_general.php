@@ -123,7 +123,7 @@ class RecordGeneral
 					$this->xdis_id = $res;
 				}
 				catch(Exception $ex) {
-					$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+					$log->err($ex);
 					$this->xdis_id = null;
 					$this->no_xdis_id = true;
 				}
@@ -1184,7 +1184,7 @@ class RecordGeneral
 			$res = $db->fetchCol($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return false;
 		}
 

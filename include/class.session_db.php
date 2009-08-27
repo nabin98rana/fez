@@ -111,7 +111,7 @@ class SessionManager {
 			$res = $this->db->fetchOne($stmt, array($id, $time));
 		}
 		catch(Exception $ex) {
-			$this->log->err(array($ex->getMessage(), __FILE__, __LINE__));
+			$this->log->err($ex);
 			return false;
 		}
 
@@ -133,7 +133,7 @@ class SessionManager {
 			$res = $this->db->query($stmt, array($id, $data, $time, $session_ip));
 		}
 		catch(Exception $ex) {
-			$this->log->err(array($ex->getMessage(), __FILE__, __LINE__));
+			$this->log->err($ex);
 			return false;
 		}
 
@@ -149,7 +149,7 @@ class SessionManager {
 			$res = $this->db->query($stmt, array($id));
 		}
 		catch(Exception $ex) {
-			$this->log->err(array($ex->getMessage(), __FILE__, __LINE__));
+			$this->log->err($ex);
 			return false;
 		}
 		return true;
@@ -166,7 +166,7 @@ class SessionManager {
 			$res = $this->db->query($stmt, array());
 		}
 		catch(Exception $ex) {
-			$this->log->err(array($ex->getMessage(), __FILE__, __LINE__));
+			$this->log->err($ex);
 			return false;
 		}
 		return true;

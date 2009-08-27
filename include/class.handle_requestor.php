@@ -99,7 +99,7 @@ class HandleRequestor {
 		}
 		catch(Exception $ex) {
 			$log->notice(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
-			$log->err(array("Handle search key not setup properly: ", $ex->getMessage(), __FILE__, __LINE__));
+			$log->err($ex);
 		}
 
 		if ($handleNamespace == 0) {
@@ -248,7 +248,7 @@ class HandleRequestor {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return null;
 		}
 		if (sizeof($res) == 0) {
@@ -273,7 +273,7 @@ class HandleRequestor {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+			$log->err($ex);
 			return null;
 		}
 		
