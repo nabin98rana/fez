@@ -356,37 +356,38 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 				
 //			$log->debug(array($url));
 
+			
 			/*
 			 * Use cURL to tell solr it has a CSV file to process
 			 */
-			$ch = curl_init();
-			curl_setopt($ch, CURLOPT_URL, $url);
-			// CK 18/8/2009 - change this to a post so mt split values wouldnt overload the querystring get length limit!
-			curl_setopt($ch,CURLOPT_POST,true);
-			curl_setopt($ch,CURLOPT_POSTFIELDS,$postFields);
-			$data = curl_exec ($ch);
-			if ($data) {
-				$info = curl_getinfo($ch);
-				curl_close ($ch);
-			} else {
-				$info = array();
-				$log->err(array('Message' => curl_error($ch)." with file ".$tmpfname, 'File' => __FILE__, 'Line' => __LINE__));
-				$log->debug(array($url));
-				//Error_Handler::logError(curl_error($ch)." ".$url,__FILE__,__LINE__);
-				curl_close ($ch);
+			$raw_response = Misc::processURL($url, null, null, $postFields, null, 30);
+			$uploaded = false;
+			
+			if(! $raw_response[0]) {
+				// Caught solr napping.. try again 1 more time	
+				$log->err('No response from solr.. trying again.');			
+				unset($raw_response);
+				sleep(1);
+				$raw_response = Misc::processURL($url, null, null, $postFields, null, 30);
+				if(! $raw_response[0]) {
+					$info = array();
+					$log->err(array('Message' => curl_error($ch)." with file ".$tmpfname, 'File' => __FILE__, 'Line' => __LINE__));
+					$log->debug(array($url));
+					curl_close ($ch);
+				}
+				else {
+					$uploaded = true;
+				}
+			}	
+			else {
+				$uploaded = true;
 			}
-
-
-			/*
-			 * Debugging
-			 * Dont delete csv if there is an error
-			 */
-			if( $info['http_code'] != 200 ) {
-				$log->err(array($info,__FILE__,__LINE__));
-				$log->debug(array(var_export($info,true)));
-			} else {
+			
+			// Dont delete csv if there is an error
+			if($uploaded) {
 				unlink($tmpfname);
 			}
+		
 
 			//$this->postprocessIndex($ftq_pid, $ftq_op);
 			//Logger::debug("processQueue: finished indexing mem_used=".memory_get_usage());
