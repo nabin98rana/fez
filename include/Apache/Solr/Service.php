@@ -284,9 +284,19 @@ class Apache_Solr_Service
 	 */
 	protected function _sendRawGet($url, $timeout = FALSE)
 	{
+		$log = FezLog::get();
+		
 		$raw_response = Misc::processURL($url, null, null, null, null, 30);
+		
 		if(! $raw_response[0]) {
-			throw new Exception(print_r($raw_response[1], true));
+			// Caught solr napping.. try again 1 more time
+			$log->err('No response from solr.. trying again.');			
+			unset($raw_response);
+			sleep(1);
+			$raw_response = Misc::processURL($url, null, null, null, null, 30);
+			if(! $raw_response[0]) {
+				throw new Exception(print_r($raw_response[1], true));
+			}			
 		}
 		$response = new Apache_Solr_Response($raw_response[0], null, $this->_createDocuments, $this->_collapseSingleValueArrays);
 
@@ -306,9 +316,18 @@ class Apache_Solr_Service
 	 */
 	protected function _sendRawPost($url, $rawPost, $timeout = FALSE, $contentType = 'text/xml; charset=UTF-8')
 	{		
+		$log = FezLog::get();
+		
 		$raw_response = Misc::processURL($url, null, null, $rawPost, $contentType, 30);
 		if(! $raw_response[0]) {
-			throw new Exception(print_r($raw_response[1], true));
+			// Caught solr napping.. try again 1 more time	
+			$log->err('No response from solr.. trying again.');			
+			unset($raw_response);
+			sleep(1);
+			$raw_response = Misc::processURL($url, null, null, $rawPost, $contentType, 30);
+			if(! $raw_response[0]) {
+				throw new Exception(print_r($raw_response[1], true));
+			}
 		}		
 		$response = new Apache_Solr_Response($raw_response[0], null, $this->_createDocuments, $this->_collapseSingleValueArrays);
 
