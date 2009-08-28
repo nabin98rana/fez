@@ -123,7 +123,7 @@ class Misc
 	 * @param string $url
 	 * @param bool $passthru - if true, don't return the retreived content, just echo it
 	 */
-	function processURL($url, $passthru=false, $filehandle=null, $post = null, $contenttype = null) 
+	function processURL($url, $passthru=false, $filehandle=null, $post = null, $contenttype = null, $timeout = null) 
 	{
 		$log = FezLog::get();
 		
@@ -148,6 +148,10 @@ class Misc
 			curl_setopt ($ch, CURLOPT_POST, 1);
  			curl_setopt ($ch, CURLOPT_POSTFIELDS, $post);
 		}
+		
+		if($timeout != null) {
+			curl_setopt ($ch, CURLOPT_TIMEOUT, $timeout);
+		} 
 		
 		if($contenttype != null) {
 			curl_setopt($curl, CURLOPT_HTTPHEADER, Array("Content-Type: ".$contenttype));			
