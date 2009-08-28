@@ -1,19 +1,35 @@
 <?php
 /**
- * @copyright Copyright 2007 Conduit Internet Technologies, Inc. (http://conduit-it.com)
- * @license Apache Licence, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
+ * Copyright (c) 2007-2009, Conduit Internet Technologies, Inc.
+ * All rights reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *  - Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *  - Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *  - Neither the name of Conduit Internet Technologies, Inc. nor the names of
+ *    its contributors may be used to endorse or promote products derived from
+ *    this software without specific prior written permission.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ * @copyright Copyright 2007-2009 Conduit Internet Technologies, Inc. (http://conduit-it.com)
+ * @license New BSD (http://solr-php-client.googlecode.com/svn/trunk/COPYING)
+ * @version $Id: Response.php 16 2009-08-04 18:23:50Z donovan.jimenez $
  *
  * @package Apache
  * @subpackage Solr
@@ -26,40 +42,67 @@
  *
  * Currently requires json_decode which is bundled with PHP >= 5.2.0, Alternatively can be
  * installed with PECL.  Zend Framework also includes a purely PHP solution.
- *
- * @todo When Solr 1.3 is released, possibly convert to use PHP or Serialized PHP output writer
  */
 class Apache_Solr_Response
 {
+	/**
+	 * SVN Revision meta data for this class
+	 */
+	const SVN_REVISION = '$Revision: 16 $';
+
+	/**
+	 * SVN ID meta data for this class
+	 */
+	const SVN_ID = '$Id: Response.php 16 2009-08-04 18:23:50Z donovan.jimenez $';
+
 	/**
 	 * Holds the raw response used in construction
 	 *
 	 * @var string
 	 */
-	private $_rawResponse;
+	protected $_rawResponse;
 
 	/**
-	 * Parsed values from the passed in http headers. Assumes UTF-8 XML (default Solr response format)
+	 * Parsed values from the passed in http headers
 	 *
 	 * @var string
 	 */
-	private $_httpStatus = 200;
-	private $_httpStatusMessage = '';
-	private $_type = 'text/xml';
-	private $_encoding = 'UTF-8';
+	protected $_httpStatus, $_httpStatusMessage, $_type, $_encoding;
 
-	private $_isParsed = false;
-	private $_parsedData;
+	/**
+	 * Whether the raw response has been parsed
+	 *
+	 * @var boolean
+	 */
+	protected $_isParsed = false;
+
+	/**
+	 * Parsed representation of the data
+	 *
+	 * @var mixed
+	 */
+	protected $_parsedData;
+
+	/**
+	 * Data parsing flags.  Determines what extra processing should be done
+	 * after the data is initially converted to a data structure.
+	 *
+	 * @var boolean
+	 */
+	protected $_createDocuments = true,
+			$_collapseSingleValueArrays = true;
 
 	/**
 	 * Constructor. Takes the raw HTTP response body and the exploded HTTP headers
 	 *
 	 * @param string $rawResponse
 	 * @param array $httpHeaders
+	 * @param boolean $createDocuments Whether to convert the documents json_decoded as stdClass instances to Apache_Solr_Document instances
+	 * @param boolean $collapseSingleValueArrays Whether to make multivalued fields appear as single values
 	 */
-	public function __construct($rawResponse, $httpHeaders = array())
+	public function __construct($rawResponse, $httpHeaders = array(), $createDocuments = true, $collapseSingleValueArrays = true)
 	{
-		//Assume 0, 'Communication Error', utf-8, and  text/xml
+		//Assume 0, 'Communication Error', utf-8, and  text/plain
 		$status = 0;
 		$statusMessage = 'Communication Error';
 		$type = 'text/plain';
@@ -68,9 +111,17 @@ class Apache_Solr_Response
 		//iterate through headers for real status, type, and encoding
 		if (is_array($httpHeaders) && count($httpHeaders) > 0)
 		{
-			//look at the first header for the HTTP status code
+			//look at the first headers for the HTTP status code
 			//and message (errors are usually returned this way)
-			if (substr($httpHeaders[0], 0, 4) == 'HTTP')
+			//
+			//HTTP 100 Continue response can also be returned before
+			//the REAL status header, so we need look until we find
+			//the last header starting with HTTP
+			//
+			//the spec: http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.1
+			//
+			//Thanks to Daniel Andersson for pointing out this oversight
+			while (isset($httpHeaders[0]) && substr($httpHeaders[0], 0, 4) == 'HTTP')
 			{
 				$parts = split(' ', substr($httpHeaders[0], 9), 2);
 
@@ -81,12 +132,12 @@ class Apache_Solr_Response
 			}
 
 			//Look for the Content-Type response header and determine type
-			//and encoding from it (if possible)
+			//and encoding from it (if possible - such as 'Content-Type: text/plain; charset=UTF-8')
 			foreach ($httpHeaders as $header)
 			{
-				if (substr($header, 0, 13) == 'Content-Type:')
+				if (strncasecmp($header, 'Content-Type:', 13) == 0)
 				{
-					//split content type into two parts if possible
+					//split content type value into two parts if possible
 					$parts = split(';', substr($header, 13), 2);
 
 					$type = trim($parts[0]);
@@ -112,6 +163,8 @@ class Apache_Solr_Response
 		$this->_encoding = $encoding;
 		$this->_httpStatus = $status;
 		$this->_httpStatusMessage = $statusMessage;
+		$this->_createDocuments = (bool) $createDocuments;
+		$this->_collapseSingleValueArrays = (bool) $collapseSingleValueArrays;
 	}
 
 	/**
@@ -189,26 +242,34 @@ class Apache_Solr_Response
 	/**
 	 * Parse the raw response into the parsed_data array for access
 	 */
-	private function _parseData()
+	protected function _parseData()
 	{
 		//An alternative would be to use Zend_Json::decode(...)
 		$data = json_decode($this->_rawResponse);
 
-		//convert $data->response->docs[*] to be Solr_Document objects
-		if (isset($data->response) && is_array($data->response->docs))
+		//if we're configured to collapse single valued arrays or to convert them to Apache_Solr_Document objects
+		//and we have response documents, then try to collapse the values and / or convert them now
+		if (($this->_createDocuments || $this->_collapseSingleValueArrays) && isset($data->response) && is_array($data->response->docs))
 		{
 			$documents = array();
 
-			foreach ($data->response->docs as $doc)
+			foreach ($data->response->docs as $originalDocument)
 			{
-				$document = new Apache_Solr_Document();
+				if ($this->_createDocuments)
+				{
+					$document = new Apache_Solr_Document();
+				}
+				else
+				{
+					$document = $originalDocument;
+				}
 
-				foreach ($doc as $key => $value)
+				foreach ($originalDocument as $key => $value)
 				{
 					//If a result is an array with only a single
 					//value then its nice to be able to access
 					//it as if it were always a single value
-					if (is_array($value) && count($value) <= 1)
+					if ($this->_collapseSingleValueArrays && is_array($value) && count($value) <= 1)
 					{
 						$value = array_shift($value);
 					}
@@ -220,24 +281,6 @@ class Apache_Solr_Response
 			}
 
 			$data->response->docs = $documents;
-		}
-
-		//correct facet counts to make sense
-		//converts array([field value], [facet count], [field value], [facet count] ...) format
-		//to array([field value] => [facet count], ... ) format
-		if (isset($data->facet_counts) && isset($data->facet_counts->facet_fields))
-		{
-			foreach ($data->facet_counts->facet_fields as $key => $facet_array)
-			{
-				$new_facet_array = array();
-
-				while (count($facet_array) > 0)
-				{
-					$new_facet_array[array_shift($facet_array)] = array_shift($facet_array);
-				}
-
-				$data->facet_counts->facet_fields->$key = $new_facet_array;
-			}
 		}
 
 		$this->_parsedData = $data;

@@ -1,26 +1,44 @@
 <?php
 /**
- * @copyright Copyright 2007 Conduit Internet Technologies, Inc. (http://conduit-it.com)
- * @license Apache Licence, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
+ * Copyright (c) 2007-2009, Conduit Internet Technologies, Inc.
+ * All rights reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *  - Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *  - Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *  - Neither the name of Conduit Internet Technologies, Inc. nor the names of
+ *    its contributors may be used to endorse or promote products derived from
+ *    this software without specific prior written permission.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ * @copyright Copyright 2007-2009 Conduit Internet Technologies, Inc. (http://conduit-it.com)
+ * @license New BSD (http://solr-php-client.googlecode.com/svn/trunk/COPYING)
+ * @version $Id: Balancer.php 15 2009-08-04 17:53:08Z donovan.jimenez $
  *
  * @package Apache
  * @subpackage Solr
- * @author Donovan Jimenez <djimenez@conduit-it.com>
+ * @author Donovan Jimenez <djimenez@conduit-it.com>, Dan Wolfe
  */
 
-require_once('Apache/Solr/Service.php');
+// See Issue #1 (http://code.google.com/p/solr-php-client/issues/detail?id=1)
+// Doesn't follow typical include path conventions, but is more convenient for users
+require_once(dirname(dirname(__FILE__)) . '/Service.php');
 
 /**
  * Reference Implementation for using multiple Solr services in a distribution. Functionality
@@ -30,14 +48,67 @@ require_once('Apache/Solr/Service.php');
  */
 class Apache_Solr_Service_Balancer
 {
+	/**
+	 * SVN Revision meta data for this class
+	 */
+	const SVN_REVISION = '$Revision: 15 $';
+
+	/**
+	 * SVN ID meta data for this class
+	 */
+	const SVN_ID = '$Id: Balancer.php 15 2009-08-04 17:53:08Z donovan.jimenez $';
+
+	protected $_createDocuments = true;
+
 	protected $_readableServices = array();
 	protected $_writeableServices = array();
 
 	protected $_currentReadService = null;
 	protected $_currentWriteService = null;
 
-	protected $_readPingTimeout = 0.01;
-	protected $_writePingTimeout = 1;
+	protected $_readPingTimeout = 2;
+	protected $_writePingTimeout = 4;
+
+	// Configuration for server selection backoff intervals
+	protected $_useBackoff = false;		// Set to true to use more resillient write server selection
+	protected $_backoffLimit = 600;		// 10 minute default maximum
+	protected $_backoffEscalation = 2.0; 	// Rate at which to increase backoff period
+	protected $_defaultBackoff = 2.0;		// Default backoff interval
+
+	/**
+	 * Escape a value for special query characters such as ':', '(', ')', '*', '?', etc.
+	 *
+	 * NOTE: inside a phrase fewer characters need escaped, use {@link Apache_Solr_Service::escapePhrase()} instead
+	 *
+	 * @param string $value
+	 * @return string
+	 */
+	static public function escape($value)
+	{
+		return Apache_Solr_Service::escape($value);
+	}
+
+	/**
+	 * Escape a value meant to be contained in a phrase for special query characters
+	 *
+	 * @param string $value
+	 * @return string
+	 */
+	static public function escapePhrase($value)
+	{
+		return Apache_Solr_Service::escapePhrase($value);
+	}
+
+	/**
+	 * Convenience function for creating phrase syntax from a value
+	 *
+	 * @param string $value
+	 * @return string
+	 */
+	static public function phrase($value)
+	{
+		return Apache_Solr_Service::phrase($value);
+	}
 
 	/**
 	 * Constructor. Takes arrays of read and write service instances or descriptions
@@ -65,9 +136,14 @@ class Apache_Solr_Service_Balancer
 		$this->_readPingTimeout = $timeout;
 	}
 
-	public function setWritePingTimetou($timeout)
+	public function setWritePingTimeout($timeout)
 	{
 		$this->_writePingTimeout = $timeout;
+	}
+
+	public function setUseBackoff($enable)
+	{
+		$this->_useBackoff = $enable;
 	}
 
 	/**
@@ -78,7 +154,7 @@ class Apache_Solr_Service_Balancer
 	 * @param string $path
 	 * @return string
 	 */
-	private function _getServiceId($host, $port, $path)
+	protected function _getServiceId($host, $port, $path)
 	{
 		return $host . ':' . $port . $path;
 	}
@@ -140,8 +216,12 @@ class Apache_Solr_Service_Balancer
 				throw new Exception('A Readable Service description array does not have all required elements of host, port, and path');
 			}
 		}
+		else if (is_string($service))
+		{
+			$id = $service;
+		}
 
-		if ($id)
+		if ($id && isset($this->_readableServices[$id]))
 		{
 			unset($this->_readableServices[$id]);
 		}
@@ -204,8 +284,12 @@ class Apache_Solr_Service_Balancer
 				throw new Exception('A Readable Service description array does not have all required elements of host, port, and path');
 			}
 		}
+		else if (is_string($service))
+		{
+			$id = $service;
+		}
 
-		if ($id)
+		if ($id && isset($this->_writeableServices[$id]))
 		{
 			unset($this->_writeableServices[$id]);
 		}
@@ -219,12 +303,27 @@ class Apache_Solr_Service_Balancer
 	 *
 	 * @throws Exception If there are no read services that meet requirements
 	 */
-	private function _selectReadService()
+	protected function _selectReadService($forceSelect = false)
 	{
-		if (!$this->_currentReadService || !isset($this->_readableServices[$this->_currentReadService]))
+		if (!$this->_currentReadService || !isset($this->_readableServices[$this->_currentReadService]) || $forceSelect)
 		{
-			foreach ($this->_readableServices as $id => $service)
+			if ($this->_currentReadService && isset($this->_readableServices[$this->_currentReadService]) && $forceSelect)
 			{
+				// we probably had a communication error, ping the current read service, remove it if it times out
+				if ($this->_readableServices[$this->_currentReadService]->ping($this->_readPingTimeout) === false)
+				{
+					$this->removeReadService($this->_currentReadService);
+				}
+			}
+
+			if (count($this->_readableServices))
+			{
+				// select one of the read services at random
+				$ids = array_keys($this->_readableServices);
+
+				$id = $ids[rand(0, count($ids) - 1)];
+				$service = $this->_readableServices[$id];
+
 				if (is_array($service))
 				{
 					//convert the array definition to a client object
@@ -232,15 +331,13 @@ class Apache_Solr_Service_Balancer
 					$this->_readableServices[$id] = $service;
 				}
 
-				//check the service (make sure it pings quickly)
-				if ($service->ping($this->_readPingTimeout) !== false)
-				{
-					$this->_currentReadService = $id;
-					return $this->_readableServices[$this->_currentReadService];
-				}
+				$service->setCreateDocuments($this->_createDocuments);
+				$this->_currentReadService = $id;
 			}
-
-			throw new Exception('No read services were available');
+			else
+			{
+				throw new Exception('No read services were available');
+			}
 		}
 
 		return $this->_readableServices[$this->_currentReadService];
@@ -254,12 +351,32 @@ class Apache_Solr_Service_Balancer
 	 *
 	 * @throws Exception If there are no write services that meet requirements
 	 */
-	private function _selectWriteService()
+	protected function _selectWriteService($forceSelect = false)
 	{
-		if (!$this->_currentWriteService || !isset($this->_writeableServices[$this->_currentWriteService]))
+		if($this->_useBackoff)
 		{
-			foreach ($this->_writeableServices as $id => $service)
+			return $this->_selectWriteServiceSafe($forceSelect);
+		}
+
+		if (!$this->_currentWriteService || !isset($this->_writeableServices[$this->_currentWriteService]) || $forceSelect)
+		{
+			if ($this->_currentWriteService && isset($this->_writeableServices[$this->_currentWriteService]) && $forceSelect)
 			{
+				// we probably had a communication error, ping the current read service, remove it if it times out
+				if ($this->_writeableServices[$this->_currentWriteService]->ping($this->_writePingTimeout) === false)
+				{
+					$this->removeWriteService($this->_currentWriteService);
+				}
+			}
+
+			if (count($this->_writeableServices))
+			{
+				// select one of the read services at random
+				$ids = array_keys($this->_writeableServices);
+
+				$id = $ids[rand(0, count($ids) - 1)];
+				$service = $this->_writeableServices[$id];
+
 				if (is_array($service))
 				{
 					//convert the array definition to a client object
@@ -267,18 +384,85 @@ class Apache_Solr_Service_Balancer
 					$this->_writeableServices[$id] = $service;
 				}
 
-				//check the service
-				if ($service->ping($this->_writePingTimeout) !== false)
-				{
-					$this->_currentWriteService = $id;
-					return $this->_writeableServices[$this->_currentWriteService];
-				}
+				$this->_currentWriteService = $id;
 			}
-
-			throw new Exception('No write services were available');
+			else
+			{
+				throw new Exception('No write services were available');
+			}
 		}
 
 		return $this->_writeableServices[$this->_currentWriteService];
+	}
+
+	/**
+	 * Iterate through available write services and select the first with a ping
+	 * that satisfies configured timeout restrictions (or the default).  The
+	 * timeout period will increase until a connection is made or the limit is
+	 * reached.   This will allow for increased reliability with heavily loaded
+	 * server(s).
+	 *
+	 * @return Apache_Solr_Service
+	 *
+	 * @throws Exception If there are no write services that meet requirements
+	 */
+
+	protected function _selectWriteServiceSafe($forceSelect = false)
+	{
+		if (!$this->_currentWriteService || !isset($this->_writeableServices[$this->_currentWriteService]) || $forceSelect)
+		{
+			if (count($this->_writeableServices))
+			{
+				$backoff = $this->_defaultBackoff;
+
+				do {
+					// select one of the read services at random
+					$ids = array_keys($this->_writeableServices);
+
+					$id = $ids[rand(0, count($ids) - 1)];
+					$service = $this->_writeableServices[$id];
+
+					if (is_array($service))
+					{
+						//convert the array definition to a client object
+						$service = new Apache_Solr_Service($service['host'], $service['port'], $service['path']);
+						$this->_writeableServices[$id] = $service;
+					}
+
+					$this->_currentWriteService = $id;
+
+					$backoff *= $this->_backoffEscalation;
+
+					if($backoff > $this->_backoffLimit)
+					{
+						throw new Exception('No write services were available.  All timeouts exceeded.');
+					}
+
+				} while($this->_writeableServices[$this->_currentWriteService]->ping($backoff) === false);
+			}
+			else
+			{
+				throw new Exception('No write services were available');
+			}
+		}
+
+		return $this->_writeableServices[$this->_currentWriteService];
+	}
+
+	public function setCreateDocuments($createDocuments)
+	{
+		$this->_createDocuments = (bool) $createDocuments;
+
+		if ($this->_currentReadService)
+		{
+			$service = $this->_selectReadService();
+			$service->setCreateDocuments($createDocuments);
+		}
+	}
+
+	public function getCreateDocuments()
+	{
+		return $this->_createDocuments;
 	}
 
 	/**
@@ -294,7 +478,24 @@ class Apache_Solr_Service_Balancer
 	{
 		$service = $this->_selectWriteService();
 
-		return $service->add($rawPost);
+		do
+		{
+			try
+			{
+				return $service->add($rawPost);
+			}
+			catch (Exception $e)
+			{
+				if ($e->getCode() != 0) //IF NOT COMMUNICATION ERROR
+				{
+					throw $e;
+				}
+			}
+
+			$service = $this->_selectWriteService(true);
+		} while ($service);
+
+		return false;
 	}
 
 	/**
@@ -312,7 +513,24 @@ class Apache_Solr_Service_Balancer
 	{
 		$service = $this->_selectWriteService();
 
-		return $service->addDocument($document, $allowDups, $overwritePending, $overwriteCommitted);
+		do
+		{
+			try
+			{
+				return $service->addDocument($document, $allowDups, $overwritePending, $overwriteCommitted);
+			}
+			catch (Exception $e)
+			{
+				if ($e->getCode() != 0) //IF NOT COMMUNICATION ERROR
+				{
+					throw $e;
+				}
+			}
+
+			$service = $this->_selectWriteService(true);
+		} while ($service);
+
+		return false;
 	}
 
 	/**
@@ -330,7 +548,24 @@ class Apache_Solr_Service_Balancer
 	{
 		$service = $this->_selectWriteService();
 
-		return $service->addDocuments($documents, $allowDups, $overwritePending, $overwriteCommitted);
+		do
+		{
+			try
+			{
+				return $service->addDocuments($documents, $allowDups, $overwritePending, $overwriteCommitted);
+			}
+			catch (Exception $e)
+			{
+				if ($e->getCode() != 0) //IF NOT COMMUNICATION ERROR
+				{
+					throw $e;
+				}
+			}
+
+			$service = $this->_selectWriteService(true);
+		} while ($service);
+
+		return false;
 	}
 
 	/**
@@ -343,11 +578,28 @@ class Apache_Solr_Service_Balancer
 	 *
 	 * @throws Exception If an error occurs during the service call
 	 */
-	public function commit($waitFlush = true, $waitSearcher = true)
+	public function commit($optimize = true, $waitFlush = true, $waitSearcher = true, $timeout = 3600)
 	{
 		$service = $this->_selectWriteService();
 
-		return $service->commit($waitFlush, $waitSearcher);
+		do
+		{
+			try
+			{
+				return $service->commit($optimize, $waitFlush, $waitSearcher, $timeout);
+			}
+			catch (Exception $e)
+			{
+				if ($e->getCode() != 0) //IF NOT COMMUNICATION ERROR
+				{
+					throw $e;
+				}
+			}
+
+			$service = $this->_selectWriteService(true);
+		} while ($service);
+
+		return false;
 	}
 
 	/**
@@ -363,7 +615,24 @@ class Apache_Solr_Service_Balancer
 	{
 		$service = $this->_selectWriteService();
 
-		return $service->delete($rawPost);
+		do
+		{
+			try
+			{
+				return $service->delete($rawPost);
+			}
+			catch (Exception $e)
+			{
+				if ($e->getCode() != 0) //IF NOT COMMUNICATION ERROR
+				{
+					throw $e;
+				}
+			}
+
+			$service = $this->_selectWriteService(true);
+		} while ($service);
+
+		return false;
 	}
 
 	/**
@@ -380,7 +649,24 @@ class Apache_Solr_Service_Balancer
 	{
 		$service = $this->_selectWriteService();
 
-		return $service->deleteById($id, $fromPending, $fromCommitted);
+		do
+		{
+			try
+			{
+				return $service->deleteById($id, $fromPending, $fromCommitted);
+			}
+			catch (Exception $e)
+			{
+				if ($e->getCode() != 0) //IF NOT COMMUNICATION ERROR
+				{
+					throw $e;
+				}
+			}
+
+			$service = $this->_selectWriteService(true);
+		} while ($service);
+
+		return false;
 	}
 
 	/**
@@ -397,7 +683,24 @@ class Apache_Solr_Service_Balancer
 	{
 		$service = $this->_selectWriteService();
 
-		return $service->deleteByQuery($rawQuery, $fromPending, $fromCommitted);
+		do
+		{
+			try
+			{
+				return $service->deleteByQuery($rawQuery, $fromPending, $fromCommitted);
+			}
+			catch (Exception $e)
+			{
+				if ($e->getCode() != 0) //IF NOT COMMUNICATION ERROR
+				{
+					throw $e;
+				}
+			}
+
+			$service = $this->_selectWriteService(true);
+		} while ($service);
+
+		return false;
 	}
 
 	/**
@@ -414,7 +717,24 @@ class Apache_Solr_Service_Balancer
 	{
 		$service = $this->_selectWriteService();
 
-		return $service->optimize($waitFlush, $waitSearcher);
+		do
+		{
+			try
+			{
+				return $service->optimize($waitFlush, $waitSearcher);
+			}
+			catch (Exception $e)
+			{
+				if ($e->getCode() != 0) //IF NOT COMMUNICATION ERROR
+				{
+					throw $e;
+				}
+			}
+
+			$service = $this->_selectWriteService(true);
+		} while ($service);
+
+		return false;
 	}
 
 	/**
@@ -432,6 +752,23 @@ class Apache_Solr_Service_Balancer
 	{
 		$service = $this->_selectReadService();
 
-		return $service->search($query, $offset, $limit, $params);
+		do
+		{
+			try
+			{
+				return $service->search($query, $offset, $limit, $params);
+			}
+			catch (Exception $e)
+			{
+				if ($e->getCode() != 0) //IF NOT COMMUNICATION ERROR
+				{
+					throw $e;
+				}
+			}
+
+			$service = $this->_selectReadService(true);
+		} while ($service);
+
+		return false;
 	}
 }
