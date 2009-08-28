@@ -33,7 +33,6 @@
 //
 //
 
-
 /**
  * Class to handle application logging
  *
@@ -158,12 +157,26 @@ class FezLog
     
     private function format_message($type, $message) 
     {
+    	$user_message = array();
+    	
+    	if(! empty($_SESSION['username'])) {
+    		$user_message = array(
+    							'usr_username' => $_SESSION['username'],
+    							'usr_full_name' => $_SESSION['fullname'],
+    							'usr_email' => $_SESSION['email'],
+    							'login_time' => $_SESSION['login_time']
+    						);
+    	}
+    	else {
+    		$user_message = array('Public user');
+    	}
+    	
     	switch($type) {
     		case 'file':
     			if(is_object($message) && is_subclass_of($message, 'Exception'))
-    				return print_r($message->getTrace(), true);
+    				return print_r($user_message, true) . print_r($message->getTrace(), true);
     			else
-    				return print_r($message, true);
+    				return print_r($user_message, true) . print_r($message, true);
     		case 'firebug':    			
     			return $this->_stopwatch->elapsed().' '.print_r($message, true);
     		default:
