@@ -572,7 +572,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 		$db = DB_API::get();
 		
 		// Remove newlines, page breaks and replace " with "" (which is how to escape for CSV files)
-		$stmt = 'SELECT ftc_pid as pid, REPLACE(REPLACE(REPLACE(ftc_content, \'"\',\'""\'), "\n", " "), "\f", " ") as content '.
+		$stmt = 'SELECT ftc_pid as pid, REPLACE(REPLACE(REPLACE(ftc_content, \'"\',\'""\'), "\n", " "), "\t", " ") as content '.
         		'FROM '.APP_TABLE_PREFIX.FulltextIndex::FULLTEXT_TABLE_NAME.
         		' WHERE ftc_pid IN ('.$pids.') AND ftc_is_text_usable = 1';
 		
