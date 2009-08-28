@@ -382,12 +382,24 @@ class FulltextIndex_Solr extends FulltextIndex {
 				
 			if ($total_rows > 0) {
 				$i = 0;
-
+				$sekdet = Search_Key::getList(false);
+				
 				foreach ($response->response->docs as $doc) {
 
 					foreach ( $doc as $solrID => $field ) {
 						if(($sek_id = Search_Key::getDBnamefromSolrID($solrID))) {
-							$docs[$i][$sek_id] = $field;
+							
+							$sek_rel = Search_Key::getRelationshipByDBName($sek_id);							
+											
+							if ($sek_rel == 1 && !is_array($field)) {
+								if (!is_array($docs[$i][$sek_id])) {
+									$docs[$i][$sek_id] = array();
+								}
+								$docs[$i][$sek_id][] = $field;
+							} else {
+								$docs[$i][$sek_id] = $field;
+							}							
+							//$docs[$i][$sek_id] = $field;
 						}
 					}
 
@@ -413,10 +425,10 @@ class FulltextIndex_Solr extends FulltextIndex {
 					//					}
 					$i++;
 				}
-
+								
 				if(is_object($response->facet_counts)) {
 
-					$sekdet = Search_Key::getList(false);
+					
 
 					foreach ($response->facet_counts as $facetType => $facetData) {
 							
@@ -577,19 +589,26 @@ class FulltextIndex_Solr extends FulltextIndex {
 			$snips = array();
 			if ($total_rows > 0) {
 				$i = 0;
+				
 				foreach ($response->response->docs as $doc) {
 					// resolve result
 					$docs[$i]['Relevance'] = $doc->score;
 					$docs[$i]['rek_citation'] = $doc->citation_t;
 					foreach ($sekdet as $skey => $sval) {
 						$solr_suffix = Record::getSolrSuffix($sval);
-						$solr_name = $sval['sek_title_db'].$solr_suffix;
-						$docs[$i]["rek_".$sval['sek_title_db']] = $doc->$solr_name;
-
+						$solr_name = $sval['sek_title_db'].$solr_suffix;					
+						if ($sval["sek_relationship"] == 1 && !is_array($doc->$solr_name)) {
+							if (!is_array($docs[$i]["rek_".$sval['sek_title_db']])) {
+								$docs[$i]["rek_".$sval['sek_title_db']]	 = array();
+							}
+							$docs[$i]["rek_".$sval['sek_title_db']][] = $doc->$solr_name;
+						} else {
+							$docs[$i]["rek_".$sval['sek_title_db']] = $doc->$solr_name;
+						}
 					}
 					$i++;
 				}
-
+				
 				// Solr hit highlighting
 				foreach ($response->highlighting as $pid => $snippet) {
 					if (isset($snippet->content)) {

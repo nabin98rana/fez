@@ -413,6 +413,35 @@ class Search_Key
 		
 		return $res;
 	}
+	
+	function getRelationshipByDBName($db_name) 
+	{		
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		if(strpos($db_name, 'rek_')) {
+			$db_name = str_replace('rek_', '', $db_name);
+		}
+		
+		$db_name = str_replace("_", " ", trim(strtolower($db_name)));
+		
+		$stmt = "SELECT
+                     sek_relationship
+                 FROM
+                    " . APP_TABLE_PREFIX . "search_key
+                 WHERE
+                    LOWER(sek_title)=".$db->quote($db_name);
+		try {
+			$res = $db->fetchOne($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return false;
+		}
+		
+		return $res;
+		
+	}
 
 	function getDBnamefromSolrID($solrID) 
 	{
