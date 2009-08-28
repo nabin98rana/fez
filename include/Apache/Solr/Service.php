@@ -306,7 +306,7 @@ class Apache_Solr_Service
 	 */
 	protected function _sendRawPost($url, $rawPost, $timeout = FALSE, $contentType = 'text/xml; charset=UTF-8')
 	{		
-		$raw_response = Misc::processURL($url, null. null, $rawPost, $contentType);
+		$raw_response = Misc::processURL($url, null, null, $rawPost, $contentType);
 		if(! $raw_response[0]) {
 			throw new Exception(print_r($raw_response[1], true));
 		}		
