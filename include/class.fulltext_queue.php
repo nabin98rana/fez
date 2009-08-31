@@ -66,11 +66,9 @@ class FulltextQueue
 		$db = DB_API::get();
 		$log = FezLog::get();
 		
-		$log->info('FulltextQueue::singleton');
-		
 		if (!is_object(self::$instance)) {
 			self::$instance = new FulltextQueue($indexPath);
-			$log->info('self::instance not an object, storing reference to database handler');
+			$log->debug('self::instance not an object, storing reference to database handler');
 			// keep reference to database handler - this is needed
 			// for destruction time!
 			self::$instance->db_api = $db;
@@ -94,11 +92,9 @@ class FulltextQueue
 	{
 		$log = FezLog::get();
 		
-		$log->info('FulltextQueue::add');
-		
 		if (!$this->pids[$pid]) {
 			$this->pids[$pid] = FulltextQueue::ACTION_INSERT;
-			$log->info("FulltextQueue::add($pid)");
+			$log->debug("FulltextQueue::add($pid)");
 		}
 	}
 
@@ -108,8 +104,6 @@ class FulltextQueue
 	public function remove($pid) 
 	{
 		$log = FezLog::get();
-		
-		$log->info('FulltextQueue::remove');
 		
 		if (!$this->pids[$pid]) {
 			$this->pids[$pid] = FulltextQueue::ACTION_DELETE;
@@ -123,8 +117,6 @@ class FulltextQueue
 	private static function createUpdateProcess() 
 	{
 		$log = FezLog::get();
-		
-		$log->info('FulltextQueue::createUpdateProcess');
 		
 		$bgp = new BackgroundProcess_Fulltext_Index();
 		//$bgp->register(serialize(compact('pid','regen')), Auth::getUserID());
@@ -150,8 +142,6 @@ class FulltextQueue
 	{
 		$log = FezLog::get();
 		
-		$log->info('FulltextQueue::getProcessInfo');
-		
 		if (empty($pid)) {
 			return array(
 			     'pid'   =>  getmypid(),
@@ -172,10 +162,8 @@ class FulltextQueue
 		$log = FezLog::get();
 		$db = DB_API::get();
 		
-		$log->info('FulltextQueue::add');
-		
 		if (!self::USE_LOCKING) {
-			$log->info("not using locking - starting background process directly");
+			$log->debug("not using locking - starting background process directly");
 			$this->createUpdateProcess();
 			return;
 		}
@@ -209,7 +197,7 @@ class FulltextQueue
 		$process_id = $res['ftl_pid'];
 		$lockValue = $res['ftl_value'];
 		$acquireLock = true;
-		$log->info("FulltextIndex::triggerUpdate got lockValue=".$lockValue.", pid=".$process_id);
+		$log->debug("FulltextIndex::triggerUpdate got lockValue=".$lockValue.", pid=".$process_id);
 		
 		if ($lockValue > 0 && !empty($process_id) && is_numeric($process_id)) {
 			 
@@ -217,20 +205,25 @@ class FulltextQueue
 			$psinfo = self::getProcessInfo($process_id);
 
 			// TODO: unix, windows, ...
-			$log->info(array("psinfo",$psinfo));
+			$log->debug(array("psinfo",$psinfo));
 
 			if (!empty($psinfo)) {
 				// override existing lock
 				$acquireLock = false;
-				$log->info("overriding existing lock ".$psinfo);
+				$log->debug("overriding existing lock ".$psinfo);
 			}
+		}
+		
+		if($lockValue > 0 && $process_id == 0) {			
+			// background process triggered but has not updated lock with pid
+			$acquireLock = false;
 		}
 			
 		// worst case: a background process is started, but the queue already
 		// empty at this point (very fast indexer)
 		if ($acquireLock) {
 			// acquire lock
-			$log->info("FulltextIndex::triggerUpdate acquire lock");
+			$log->debug("FulltextIndex::triggerUpdate acquire lock");
 
 			// delete (postgresql) / use INSERT instead of REPLACE below
 			/*
@@ -255,18 +248,18 @@ class FulltextQueue
 			if (! $ok) {
 				// setting lock failed because another process was faster
 				//Logger::debug("FulltextQueue::triggerUpdate - lock value has been taken");
-				$log->info("FulltextQueue::triggerUpdate - lock value has been taken");
+				$log->debug("FulltextQueue::triggerUpdate - lock value has been taken");
 				
 			} else {
 					
 				// create new background update process
 				//Logger::debug("FulltextQueue::triggerUpdate create new background process!");
-				$log->info("FulltextQueue::triggerUpdate create new background process!");
+				$log->debug("FulltextQueue::triggerUpdate create new background process!");
 				// $update_bgp = new FulltextIndex_Update()
 				self::createUpdateProcess();
 			}
 		} else {
-			$log->info("FulltextIndex::triggerUpdate lock already taken by another process");
+			$log->debug("FulltextIndex::triggerUpdate lock already taken by another process");
 		}
 	}
 
@@ -282,10 +275,10 @@ class FulltextQueue
 		$db = DB_API::get();
 		
 		//Logger::debug("FulltextQueue::commit() commit results to database");
-		$log->info("FulltextQueue::commit() commit results to database");
+		$log->debug("FulltextQueue::commit() commit results to database");
 		
 		if (!$this->pids || count($this->pids) == 0) {
-			$log->info("FulltextQueue::commit() Nothing found to commit (pidcount=0)");
+			$log->debug("FulltextQueue::commit() Nothing found to commit (pidcount=0)");
 			return;
 		}
 		//Logger::debug(Logger::str_r($this->pids));
@@ -363,7 +356,7 @@ class FulltextQueue
 		}
 
 		if (count($res) == 0) {
-			$log->info("FulltextQueue::pop() Queue is empty.");
+			$log->debug("FulltextQueue::pop() Queue is empty.");
 			return null;
 		}
 			
@@ -380,7 +373,7 @@ class FulltextQueue
 			return null;
 		}
 			
-		$log->info("FulltextQueue::pop() success! ".Logger::str_r($res));
+		$log->debug("FulltextQueue::pop() success! ".Logger::str_r($res));
 		return $res;
 	}
 
@@ -437,7 +430,7 @@ class FulltextQueue
 		}
 			
 		if (count($res) == 0) {
-			$log->info("FulltextQueue::pop() Queue is empty.");
+			$log->debug("FulltextQueue::pop() Queue is empty.");
 			return false;
 		}
 
@@ -477,7 +470,7 @@ class FulltextQueue
 		}
 
 		if (count($res) == 0) {
-			$log->info("FulltextQueue::popDeleteChunk() Delete Queue is empty.".print_r($res));
+			$log->debug("FulltextQueue::popDeleteChunk() Delete Queue is empty.".print_r($res));
 			return false;
 		}
 			
