@@ -9,6 +9,7 @@
  */
 
 include_once(APP_INC_PATH . "db_access.php");
+include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.fulltext_index.php");
 include_once(APP_INC_PATH . "class.fulltext_queue.php");
 include_once(APP_INC_PATH . "Apache/Solr/Service.php");
@@ -22,9 +23,14 @@ class FulltextIndex_Solr extends FulltextIndex {
 	private $docs;
 	public $solr;
 
-	function __construct() 
+	function __construct($readOnly = false) 
 	{
-		$this->solrHost = APP_SOLR_HOST;
+		$usr_id = Auth::getUserID();
+		if (defined(APP_SOLR_SLAVE_HOST) && defined(APP_SOLR_SLAVE_READ) && (APP_SOLR_SLAVE_READ == "ON") && ($readOnly == true) && !is_numeric($usr_id)) {
+			$this->solrHost = APP_SOLR_SLAVE_HOST;
+		} else {
+			$this->solrHost = APP_SOLR_HOST;
+		}
 		$this->solrPort = APP_SOLR_PORT;
 		$this->solrPath = APP_SOLR_PATH;
 	  

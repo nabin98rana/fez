@@ -903,7 +903,7 @@ class Collection
 		$db = DB_API::get();
 		
 		if (APP_SOLR_SWITCH == "ON" ) {
-			$index = new FulltextIndex_Solr();
+			$index = new FulltextIndex_Solr(true);
 			$sort_by = "";
 			$approved_roles=array(9,10);
 			$params = array();

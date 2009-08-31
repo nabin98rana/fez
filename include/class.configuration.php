@@ -126,7 +126,7 @@ class Configuration
 	        define("APP_BASE_URL", "http://" . APP_HOSTNAME . APP_RELATIVE_URL);
 		}
 
-        define("APP_RQF_REALLY_AUTO_MERGE", true);
+        define("APP_RQF_REALLY_AUTO_MERGE", false);
         define("APP_DEFAULT_TIMEZONE", "UTC");
         define("APP_SHORT_NAME", APP_NAME);
         define("APP_SITE_NAME", APP_NAME);

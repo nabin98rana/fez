@@ -141,15 +141,6 @@ class Template_API
 	 */
 	function displayTemplate()
 	{
-		if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
-			// stop the benchmarking
-			$GLOBALS["bench"]->stop();
-			$profiling = $GLOBALS["bench"]->getProfiling();
-			// last minute check on the benchmarking results
-			$this->assign(array("benchmark_total" => sprintf("%.4f", $profiling[count($profiling)-1]["total"]),
-                                "benchmark_results" => base64_encode(serialize($profiling))));
-		}
-
 		$this->processTemplate();
 		// finally display the parsed template
 		$this->smarty->display($this->tpl_name);
@@ -164,20 +155,22 @@ class Template_API
 	 */
 	function displayTemplateRecord($record_id)
 	{
-		if (defined('APP_BENCHMARK') && APP_BENCHMARK) {
-			// stop the benchmarking
-			$GLOBALS["bench"]->stop();
-			$profiling = $GLOBALS["bench"]->getProfiling();
-			// last minute check on the benchmarking results
-			$this->assign(array("benchmark_total" => sprintf("%.4f", $profiling[count($profiling)-1]["total"]),
-                                "benchmark_results" => base64_encode(serialize($profiling))));
-		}
 		$this->processTemplateRecord($record_id);
 		// finally display the parsed template
 		$this->smarty->display($this->tpl_name);
 		FezLog::get()->close();
 	}
 
+
+    /**
+     * load a filter of specified type and name
+     *
+     * @param string $type filter type
+     * @param string $name filter name
+     */
+    function load_filter($type, $name) {
+		$this->smarty->load_filter($type, $name);
+	}
 
 	/**
 	 * Returns the contents of the parsed template

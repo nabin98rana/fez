@@ -548,7 +548,7 @@ class Reindex
 
 		if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
 			$this->bgp->setStatus("Adding All Fez Index PIDs Solr Queue (with a insert/select)");
-			$stmt .= "INSERT INTO " . APP_TABLE_PREFIX . "fulltext_queue (ftq_pid, ftq_op)
+			$stmt .= "INSERT IGNORE INTO " . APP_TABLE_PREFIX . "fulltext_queue (ftq_pid, ftq_op)
 			SELECT rek_pid, 'I'
 			FROM " . APP_TABLE_PREFIX . "record_search_key";			
 			try {
@@ -557,6 +557,7 @@ class Reindex
 			catch(Exception $ex) {
 				$log->err($ex);
 			}
+			FulltextQueue::singleton()->triggerUpdate();
 		} else {
 			//	        $fedoraDirect = new Fedora_Direct_Access();
 			//	        $fedoraList = $fedoraDirect->fetchAllFedoraPIDs($terms);
@@ -576,15 +577,13 @@ class Reindex
 				$this->bgp->setStatus("Adding to Solr Queue:  '".$detail['rek_pid']."' ".$detail['rek_title']. " (".$reindex_record_counter."/".$record_count.")");
 
 				if( $reindex_record_counter % 100 == 0 ) {
-//					FulltextQueue::commit();
+	//				FulltextQueue::commit();
+					FulltextQueue::singleton()->commit();
 				}
-
 				$reindex_record_counter++;
 			}
+			FulltextQueue::singleton()->commit();
 		}
-		FulltextQueue::singleton()->commit();
-/*		FulltextQueue::commit();
-		FulltextQueue::singleton()->triggerUpdate(); */
 	}
 
 

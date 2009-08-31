@@ -1441,7 +1441,7 @@ class Record
 		$searchKey_join   = self::buildSearchKeyFilterSolr($options, $sort_by, $operator);
 		$filter_join      = self::buildSearchKeyFilterSolr($filter, "", $operator);
 
-		$index = new FulltextIndex_Solr();
+		$index = new FulltextIndex_Solr(true);
 
 		$res = $index->searchAdvancedQuery($searchKey_join, $filter_join, $approved_roles, $start, $page_rows, $use_faceting, $use_highlighting);
 		$total_rows = $res['total_rows'];
@@ -1688,9 +1688,9 @@ class Record
 				}
 			}
 			for ($y = 0; $y < count($result[$i]["rek_ismemberof"]); $y++) {
-		  if (!in_array($result[$i]["rek_ismemberof"][$y], $pids)) {
-		  	$pids[] = $result[$i]["rek_ismemberof"][$y];
-		  }
+				if (!in_array($result[$i]["rek_ismemberof"][$y], $pids)) {
+					$pids[] = $result[$i]["rek_ismemberof"][$y];
+				}
 			}
 		}
 		if (count($pids) == 0) {
