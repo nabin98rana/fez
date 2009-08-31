@@ -154,7 +154,7 @@ class Misc
 		} 
 		
 		if($contenttype != null) {
-			curl_setopt($curl, CURLOPT_HTTPHEADER, Array("Content-Type: ".$contenttype));			
+			curl_setopt($ch, CURLOPT_HTTPHEADER, Array("Content-Type: ".$contenttype));			
 		}
 
 		if (APP_HTTPS_CURL_CHECK_CERT == "OFF")  {
