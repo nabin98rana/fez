@@ -174,6 +174,7 @@ class XSD_HTML_Match
 
 		function getDetailsByXPATH($pid, $xdis_id, $exclude_list=array(), $specify_list=array())
 		{
+			$log = FezLog::get();
 
 			if (count($exclude_list) > 0) {
 				$xdis_list = XSD_Relationship::getColListByXDISMinimal($xdis_id, implode("','", $exclude_list));
@@ -221,6 +222,7 @@ class XSD_HTML_Match
 									/*if ($fieldNodeList->length > 1) {
 									 $xsdmf_array[$xsdmf['xsdmf_id']][] = $fieldNode->nodeValue;
 									 } else {*/
+//									$log->debug("XPATH fieldnode value: ".$fieldNode)
 									if ($xsdmf['xsdmf_value_prefix'] != "") { //strip off stuff like info:fedora/ in rels-ext ismemberof @resource values
 										$fieldNode->nodeValue = str_replace($xsdmf['xsdmf_value_prefix'], "", $fieldNode->nodeValue);
 									}
@@ -496,7 +498,7 @@ class XSD_HTML_Match
 		                        icf_fld_id IN (" . Misc::arrayToSQLBindStr($fld_id) . ") AND
 		                        icf_value IN (" . Misc::arrayToSQLBindStr($mfo_id) . ")";
 			try {
-				$db->exec($stmt);
+				$db->exec($stmt, array_merge($fld_id, $mfo_id));
 			}
 			catch(Exception $ex) {
 				$log->err($ex);
@@ -957,6 +959,7 @@ class XSD_HTML_Match
 	
 				// last parameter of getAssoc $group=true: pushes values for the same key (mfo_fld_id)
 				// into an array
+
 				try {
 					$mfoResult = $db->fetchAll($stmt, $ids);
 				}
@@ -982,9 +985,8 @@ class XSD_HTML_Match
 
 					// check if this field has any options
 					if (count($mfoEntries) > 0) {
-							
 						for ($n=0; $n<count($mfoEntries); $n++) {
-							$res[$i]["field_options"][$mfoEntries[$n][0]] = $mfoEntries[$n][1];
+							$res[$i]["field_options"][$mfoEntries[$n]["mfo_fld_id"]] = $mfoEntries[$n]["mfo_id"];
 						}
 							
 						// this could be further optimized, but is just called in very few cases
@@ -3149,8 +3151,8 @@ class XSD_HTML_Match
 									ORDER BY
 										mfo_value ASC";				
 					try {
-						$res = $db->fetchPairs($stmt, $fld_id);
-					}
+						$res = $db->fetchPairs($stmt, $fld_id, Zend_DB::FETCH_BOTH);
+					} 
 					catch(Exception $ex) {
 						$log->err($ex);
 						return array();
@@ -3163,11 +3165,11 @@ class XSD_HTML_Match
 									FROM
 										" . APP_TABLE_PREFIX . "xsd_display_mf_option
 										WHERE
-										mfo_fld_id=".$db->quote($fld_id, 'INTEGER')."
+										mfo_fld_id=?
 										ORDER BY
 										mfo_value ASC";
 					try {
-						$res = $db->fetchPairs($stmt, $fld_id);
+						$res = $db->fetchPairs($stmt, $fld_id, Zend_DB::FETCH_BOTH);
 					}
 					catch(Exception $ex) {
 						$log->err($ex);

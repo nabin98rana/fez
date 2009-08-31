@@ -107,7 +107,7 @@ class User
 			$returns[$username] = $res;
 		}
 		if (!is_numeric($res)) {
-			$log->debug($res);
+			//$log->err("Cant find user id with username of ".$res);
 			return 0; // added so auth index would continue with other auth parts without a number, this may change with eduPersonTargetedID
 		} else {
 			return $res;
@@ -1061,7 +1061,7 @@ class User
                     " . $db->quote($shib_username) . ",
 					1,
 					1,
-                    '" . $db->quote(Date_API::getCurrentDateGMT()) . "
+                    " . $db->quote(Date_API::getCurrentDateGMT()) . "
                  )";
 		try {
 			$db->exec($stmt);

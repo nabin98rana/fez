@@ -282,8 +282,6 @@ class FulltextIndex_Solr extends FulltextIndex {
 				}
 				if(in_array('Editor', $approved_roles)) {
 					$editorGroups = Auth::getUserRoleAuthRuleGroupsInUse($usr_id, "Editor");
-					echo "hai".$usr_id."hmm";
-					print_r($editorGroups);
 					if (is_array($editorGroups)) {
 						$editorGroups = implode(" OR ", $editorGroups);
 						$filterQueryParts[] = "(_autheditor_t:(" .$editorGroups . "))";

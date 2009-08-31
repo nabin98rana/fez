@@ -1466,7 +1466,7 @@ class Auth
 		if (empty($username)) {
 			return false;
 		} else {
-			$stmt = "SELECT usr_administrator
+			$stmt = "SELECT usr_id
                     FROM " . APP_TABLE_PREFIX . "user 
                     WHERE usr_username=?";
 			try {
@@ -1476,7 +1476,7 @@ class Auth
 				$log->err($ex);
 				return false;
 			}
-			if (count($res) != 1) {
+			if (!is_numeric($res)) {
 				return false;
 			} else {
 				return true;
@@ -1561,6 +1561,7 @@ class Auth
 		}
 
 		if (is_numeric($usr_id)) {
+                   //     $log->err("returning static user id of ".$usr_id);
 			return $usr_id;
 		}
 
@@ -1568,6 +1569,7 @@ class Auth
 			return '';
 		} else {
 			$usr_id =  @User::getUserIDByUsername($session["username"]);
+                 //       $log->err("returning gotten user id of ".$usr_id." from session username of ".$session['username']);
 			return $usr_id;
 		}
 	}
@@ -1819,6 +1821,7 @@ class Auth
 		$alreadyLoggedIn = false;
 		if (!empty($session["login_time"])) {
 			$alreadyLoggedIn = true;
+                        return 0;
 		} else {
 			$alreadyLoggedIn = false;
 		}
@@ -1865,7 +1868,8 @@ class Auth
 		}
 
 		// If the user isn't a registered fez user, get their details elsewhere (The AD/LDAP)
-		// as they must have logged in with LDAP or Shibboleth
+		// as they must have logged in with LDAP or Shibboleth:w
+
 		if (!Auth::userExists($username)) {
 			if ($shib_login == true) {
 				$session['isInAD'] = false;
@@ -2187,6 +2191,7 @@ class Auth
 
 			$dbtp =  APP_TABLE_PREFIX;
 			$usr_id = Auth::getUserID();
+//                        $log->err("user id for set auth rules is ".$usr_id);
 
 			// clear the rule matches for this user
 			$stmt = "DELETE FROM ".$dbtp."auth_rule_group_users WHERE argu_usr_id=".$db->quote($usr_id, 'INTEGER');
