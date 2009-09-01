@@ -646,10 +646,10 @@ class RecordGeneral
 			History::addHistory($this->pid, null, "", "", true, $historyDetail);
 			
 			Record::setIndexMatchingFields($this->pid);
-			if( APP_SOLR_INDEXER == "ON" ) {
+			/*if( APP_SOLR_INDEXER == "ON" ) {
 				FulltextQueue::singleton()->add($this->pid);
 				FulltextQueue::singleton()->commit();
-			}
+			}*/
 			return true;
 		}
 
