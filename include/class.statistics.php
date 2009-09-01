@@ -375,7 +375,7 @@ class Statistics
 
 			// Make this stuff SQL-safe.
 
-			$ip = $db->quote($ip);
+/*			$ip = $db->quote($ip);
 			$hostname = $db->quote($hostname);
 			$request_date = $db->quote($request_date);
 			$country_code = $db->quote($country_code);
@@ -385,7 +385,7 @@ class Statistics
 			$pid = $db->quote($pid);
 			$dsid = $db->quote($dsid);
 			$pidNum = $db->quote(Misc::numPID($pid));
-			$usr_id = $db->quote($brow['str_usr_id'], 'INTEGER');
+			$usr_id = $db->quote($brow['str_usr_id'], 'INTEGER'); */
 			if (!is_numeric($usr_id)) {
 				$usr_id = "NULL";
 			}

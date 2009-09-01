@@ -646,7 +646,7 @@ class Lister
 				$simple = true;
 				$citationCache = true;
 			}
-
+			$xdis_version = "MODS 1.0";
 
 
 	 		$list = Record::getListing($options, array(9,10), $current_row, $max, $sort_by, $simple, $citationCache, $filter, $operator, $use_faceting, $use_highlighting);
@@ -666,7 +666,7 @@ class Lister
 				$options["sort_by"] = $sort_by; // DESC date
 				$use_faceting = false;
 				
-				$book_xdis_id = XSD_Display::getXDIS_IDByTitle("Book");
+				$book_xdis_id = XSD_Display::getXDIS_IDByTitleVersion("Book", $xdis_version);
 				if (is_numeric($book_xdis_id)) {
 					array_push($otherDisplayTypes, $book_xdis_id);
 			 		$filter["searchKey".Search_Key::getID("Display Type")] = $book_xdis_id; // enforce display type X only
@@ -678,7 +678,7 @@ class Lister
 		            $bookList = array();
 				}
 
-				$bc_xdis_id = XSD_Display::getXDIS_IDByTitle("Book Chapter");
+				$bc_xdis_id = XSD_Display::getXDIS_IDByTitleVersion("Book Chapter", $xdis_version);
 				if (is_numeric($bc_xdis_id)) {
 					array_push($otherDisplayTypes, $bc_xdis_id);
 			 		$filter["searchKey".Search_Key::getID("Display Type")] = $bc_xdis_id; // enforce display type X only
@@ -691,7 +691,7 @@ class Lister
 				}
 
 
-				$ja_xdis_id = XSD_Display::getXDIS_IDByTitle("Journal Article");
+				$ja_xdis_id = XSD_Display::getXDIS_IDByTitleVersion("Journal Article", $xdis_version);
 				if (is_numeric($ja_xdis_id)) {
 					array_push($otherDisplayTypes, $ja_xdis_id);
 			 		$filter["searchKey".Search_Key::getID("Display Type")] = $ja_xdis_id; // enforce display type X only
@@ -703,7 +703,7 @@ class Lister
 		            $jaList = array();
 				}
 
-				$cp_xdis_id = XSD_Display::getXDIS_IDByTitle("Conference Paper");
+				$cp_xdis_id = XSD_Display::getXDIS_IDByTitleVersion("Conference Paper", $xdis_version);
 				if (is_numeric($cp_xdis_id)) {
 					array_push($otherDisplayTypes, $cp_xdis_id);
 			 		$filter["searchKey".Search_Key::getID("Display Type")] = $cp_xdis_id; // enforce display type X only
@@ -715,7 +715,7 @@ class Lister
 		            $cpList = array();
 				}
 
-				$ci_xdis_id = XSD_Display::getXDIS_IDByTitle("Conference Item");
+				$ci_xdis_id = XSD_Display::getXDIS_IDByTitleVersion("Conference Item", $xdis_version);
 				if (is_numeric($ci_xdis_id)) {
 					array_push($otherDisplayTypes, $ci_xdis_id);
 			 		$filter["searchKey".Search_Key::getID("Display Type")] = $ci_xdis_id; // enforce display type X only
