@@ -1,4 +1,4 @@
-<pre><?php
+<?php
 /* vim: set expandtab tabstop=4 shiftwidth=4: */
 // +----------------------------------------------------------------------+
 // | Fez - Digital Repository System                                      |
@@ -40,6 +40,7 @@ $sleep = 1; 	// Number of seconds to wait for between successive service calls
 $filter = array();
 $filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
 $filter["searchKey".Search_Key::getID("Object Type")] = 3; // records only
+$filter["searchKey".Search_Key::getID("Display Type")] = XSD_Display::getXDIS_IDByTitleVersion('Journal Article', 'MODS 1.0'); // Journal Articles only
 
 $listing = Record::getListing(array(), array(9,10), 0, $max, 'Created Date', false, false, $filter);
 
@@ -59,10 +60,10 @@ for($i=0; $i<((int)$listing['info']['total_pages']+1); $i++) {
 	 		}
 	 	}
 	}
-
+	
 	if(count($list) > 0) {
 		$records = LinksAmrService::retrieve($list);
-		
+				
 		$xpath = new DOMXPath($records);
 		$xpath->registerNamespace('lamr', 'http://www.isinet.com/xrpc41');
 		$query = "/lamr:response/lamr:fn[@name='LinksAMR.retrieve'][@rc='OK']/lamr:map/lamr:map";			
