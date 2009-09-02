@@ -1252,6 +1252,20 @@ function restoreDefaultColours(el)
 			</td>
   		  </tr>
 		  <tr>
+		    <td class="colname">Solr Slave Replicant Host (not required)</td>
+			<td class="coldetail">
+			  <input type="text" name="app_solr_slave_host" value="{$config_settings.app_solr_slave_host|escape:"html"}" size="50" />
+			  {include file="error_icon.tpl.html" field="app_solr_slave_host"}
+			</td>
+  		  </tr>
+  		  <tr>
+	        <td class="colname">Solr Send Public/Non-logged in Reads to Slave replicant (requires above slave host value set)</td>
+			<td class="coldetail">
+			  <input type="radio" name="app_solr_slave_read" value="ON" {if $config_settings.app_solr_slave_read == "ON"}checked{/if}/> On &nbsp; 
+			  <input type="radio" name="app_solr_slave_read" value="OFF" {if $config_settings.app_solr_slave_read == "OFF"}checked{/if}/> Off
+			</td>
+  		  </tr>
+		  <tr>
 		    <td class="colname">Solr Port</td>
 			<td class="coldetail">
 			  <input type="text" name="app_solr_port" value="{$config_settings.app_solr_port|escape:"html"}" size="50" />
