@@ -80,6 +80,8 @@ for($i=0; $i<$pages; $i++) {
  */
 function addRecord($record) {
     
+	$log = FezLog::get();
+	
 	if($record->item->doctype != 'Article')
 		return false;
 		
@@ -196,18 +198,18 @@ function addRecord($record) {
     $xml_request_data = new DOMDocument();
    
     if(! @$xml_request_data->loadXML($foxml)) {
-    	print $foxml;
-    	exit;
+    	$log->err($foxml);
     }
-    
-    $result = Fedora_API::callIngestObject($foxml);
-    
-    if($result) {
-    	Record::setIndexMatchingFields($pid);
-    	if(@$record->attributes()->timescited) {
-    		Record::updateThomsonCitationCount($pid, $record->attributes()->timescited);
-    	}
-    	$historyDetail = 'Imported from ESTI Search Service download';
-    	History::addHistory($pid, null, "", "", true, $historyDetail);
+    else {    
+	    $result = Fedora_API::callIngestObject($foxml);
+	    
+	    if($result) {
+	    	Record::setIndexMatchingFields($pid);
+	    	if(@$record->attributes()->timescited) {
+	    		Record::updateThomsonCitationCount($pid, $record->attributes()->timescited);
+	    	}
+	    	$historyDetail = 'Imported from ESTI Search Service download';
+	    	History::addHistory($pid, null, "", "", true, $historyDetail);
+	    }
     }
 }
