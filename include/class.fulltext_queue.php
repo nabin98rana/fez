@@ -223,12 +223,7 @@ class FulltextQueue
 				$log->debug("overriding existing lock ".$psinfo);
 			}
 		}
-		
-		if($lockValue > 0 && $process_id == 0) {			
-			// background process triggered but has not updated lock with pid
-			$acquireLock = false;
-		}
-			
+					
 		// worst case: a background process is started, but the queue already
 		// empty at this point (very fast indexer)
 		if ($acquireLock) {
