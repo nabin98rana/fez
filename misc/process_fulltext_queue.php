@@ -19,5 +19,3 @@ include_once(APP_INC_PATH . "class.fulltext_queue.php");
 
 
 FulltextQueue::triggerUpdate();
-
-?>

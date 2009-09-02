@@ -55,6 +55,16 @@ class FulltextQueue
 	{
 		$this->pids = array();
 	}
+	
+	public function __destruct() 
+	{
+		$command = APP_PHP_EXEC." \"".APP_PATH."misc/process_fulltext_queue.php\"";
+		if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Server
+			pclose(popen("start /min /b ".$command,'r'));
+		} else {
+			exec($command." 2>&1 &");
+		}
+	}
 
 	/**
 	 * Returns the singleton queue instance.
@@ -276,7 +286,7 @@ class FulltextQueue
 		
 		//Logger::debug("FulltextQueue::commit() commit results to database");
 		$log->debug("FulltextQueue::commit() commit results to database");
-		
+				
 		if (!$this->pids || count($this->pids) == 0) {
 			$log->debug("FulltextQueue::commit() Nothing found to commit (pidcount=0)");
 			return;
@@ -308,12 +318,10 @@ class FulltextQueue
 		// reset cached pids
 		$this->pids = array();
 			
-		// run update process
-		$this->triggerUpdate();
-			
 		return true;
 	}
-
+	
+	
 	/**
 	 * Cleans up the queue and removes redundant objects (I,I / D,D / D,I / I,D).
 	 * Not implemented yet.
@@ -420,6 +428,7 @@ class FulltextQueue
 		$stmt .= ") as row FROM ".APP_TABLE_PREFIX."fulltext_queue
 			             LEFT JOIN ".APP_TABLE_PREFIX."record_search_key as sk ON rek_pid = ftq_pid 
 		             WHERE ftq_op = '".FulltextQueue::ACTION_INSERT."'
+		             ORDER BY ftq_pid ASC
 		             LIMIT ".APP_SOLR_COMMIT_LIMIT;
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
