@@ -307,7 +307,7 @@ class Statistics
 		$requestDateLatest = $datetestA;
 		//			$logf = WEBSERVER_LOG_DIR . WEBSERVER_LOG_FILE;
 		$archive_name = APP_HOSTNAME;
-		$archive_name = $db->quote($archive_name);
+//		$archive_name = $db->quote($archive_name);
 		//			$handle = fopen($logf, "r");
 
 		$buffer = Statistics::getAllFromBuffer();
