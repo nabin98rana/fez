@@ -93,7 +93,7 @@ class Fedora_Direct_Access {
 		
 		if($no_result) {
 			try {
-				"SELECT doRegistry.dopid AS pid, label AS title, doState AS dostate FROM doRegistry, dobj WHERE doRegistry.doPID = dobj.doPID AND (doRegistry.dopid LIKE ".$db->quote("%" . $terms . "%")." OR label LIKE ".$db->quote("%" . $terms . "%").") ".$state_sql;
+			$stmt =	"SELECT doRegistry.dopid AS pid, label AS title, doState AS dostate FROM doRegistry, dobj WHERE doRegistry.doPID = dobj.doPID AND (doRegistry.dopid LIKE ".$db->quote("%" . $terms . "%")." OR label LIKE ".$db->quote("%" . $terms . "%").") ".$state_sql;
 				$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 			}
 			catch(Exception $ex) {
