@@ -90,7 +90,7 @@ function toggleHideSecondaryLogin()
 
 <form name="login_form" onsubmit="javascript:return checkFormSubmission(this, 'validateForm');" method="post" action="index.php">
 <input type="hidden" name="cat" value="login" />
-<input type="hidden" name="url" value="{$smarty.get.url}" />
+<input type="hidden" name="url" value="{$smarty.get.url|escape:"html"}" />
 
 <table align="center" width="500" border="0" cellspacing="0" cellpadding="0" bgcolor="#FFFFFF">
   <tr>
