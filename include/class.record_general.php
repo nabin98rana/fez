@@ -655,6 +655,101 @@ class RecordGeneral
 
 		return false;
 	}
+	
+	
+	/**
+	 * Replaces authors in a record using the authors in ESTI
+	 *
+	 * @return bool  TRUE if replaced OK. FALSE if not replaced.
+	 *
+	 * @access public
+	 */
+	function replaceAuthorsFromEsti()
+	{
+		$log = FezLog::get();
+				
+		$newXML = "";
+		
+		$ut = Record::getIsiLocFromIndex($this->pid);
+		if(is_array($ut)) {
+			$ut = $ut[0];
+		}
+		
+		if(empty($ut)) {
+			return false;
+		}
+		
+		$records_xml = EstiSearchService::retrieve($ut);
+		
+		$record = null;
+		if($records_xml) {
+			foreach($records_xml->REC as $_record) {
+				$record = $_record;
+			}
+		}
+		
+		if(! $record) {
+			return false;
+		}
+		
+    	$xmlString = Fedora_API::callGetDatastreamContents($this->pid, 'MODS', true);
+		$doc = DOMDocument::loadXML($xmlString);
+		$xpath = new DOMXPath($doc);
+
+		$field_node_list = $xpath->query("/mods:mods/mods:name");
+		$count = $field_node_list->length; 
+		if( $count > 0 ) 
+		{
+			for ($i = 0; $i < $count; $i++) {
+				$collection_node   = $field_node_list->item($i);
+				$parent_node       = $collection_node->parentNode;
+				$parent_node->removeChild($collection_node);
+			}
+		}
+		
+		$mods = '
+				<mods:name ID="%s" authority="%s">
+		        	<mods:namePart type="personal">%s</mods:namePart>
+		            <mods:role>
+		            	<mods:roleTerm type="text">%s</mods:roleTerm>
+		            </mods:role>
+		        </mods:name>
+		';
+		
+		$authors = '<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">';
+		$authors .= sprintf($mods, '0', APP_ORG_NAME, $record->item->authors->primaryauthor, 'author');		
+    	foreach($record->item->authors->author as $author) {    		
+    		$authors .= sprintf($mods, '0', APP_ORG_NAME, $author, 'author');
+    	}
+    	$authors .= '</mods:mods>';
+		
+		$authors_doc = new DOMDocument;
+		$authors_doc->loadXML($authors);
+		$author_nodes = $authors_doc->getElementsByTagName("name");
+		
+		$count = $author_nodes->length;
+		if( $count > 0 ) { 
+			for ($i = 0; $i < $count; $i++) {
+				$node = $doc->importNode($author_nodes->item($i), true);
+				$doc->documentElement->appendChild($node);
+			}
+		}
+
+		$newXML = $doc->SaveXML();
+		
+		if ($newXML != "") {
+			Fedora_API::callModifyDatastreamByValue($this->pid, "MODS", "A", "Metadata Object Description Schema", $newXML, "text/xml", "inherit");
+			
+			$historyDetail = "Authors were replaced using ESTI";
+			History::addHistory($this->pid, null, "", "", true, $historyDetail);
+			
+			Record::setIndexMatchingFields($this->pid);
+			
+			return true;
+		}
+
+		return false;
+	}
 
 
 	/**

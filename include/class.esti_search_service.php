@@ -73,11 +73,13 @@ class EstiSearchService
 	 * @return SimpleXMLElement The object containing records found in WoS matching the primaryKey(s) specified 
 	 */
 	public static function retrieve($primary_keys, $database_id = self::DATABASE_ID, $sort = '', $fields = self::FIELDS) 
-	{					
+	{		
+		$log = FezLog::get();
+		
 		$client = new soapclient_internal(self::WSDL, true);
 		$err = $client->getError();
 		if ($err) {
-			Error_Handler::logError('Error occurred while creating new soap client: '.$err, __FILE__, __LINE__);
+			$log->err('Error occurred while creating new soap client: '.$err, __FILE__, __LINE__);
 			return false;
 		}
 		$retrieve = array(
@@ -86,15 +88,16 @@ class EstiSearchService
 						'sort' => $sort,				
 						'fields' => $fields
 					);
+		
 		$result = $client->call('retrieve', $retrieve, '', '', false, true);
 		
 		if ($client->fault) {
-			Error_Handler::logError('Fault occurred while retrieving records from WoK: '.$client->fault, __FILE__, __LINE__);
+			$log->err('Fault occurred while retrieving records from WoK: '.$client->fault, __FILE__, __LINE__);
 			return false;
 		} else {
 			$err = $client->getError();
 			if ($err) {
-				Error_Handler::logError('Error occurred while retrieving records from WoK: '.$err, __FILE__, __LINE__);
+				$log->err('Error occurred while retrieving records from WoK: '.$err, __FILE__, __LINE__);
 				return false;
 			} else {
 				return @simplexml_load_string($result);				
@@ -120,11 +123,13 @@ class EstiSearchService
 	 * @return SimpleXMLElement The object containing records found in WoS matching the primaryKey(s) specified. 
 	 */
 	public static function searchRetrieve($database_id, $query, $depth, $editions, $sort = '', $first_rec = 1, $num_recs = 100, $fields = self::FIELDS) 
-	{					
+	{		
+		$log = FezLog::get();
+					
 		$client = new soapclient_internal(self::WSDL, true);
 		$err = $client->getError();
 		if ($err) {
-			Error_Handler::logError('Error occurred while creating new soap client: '.$err, __FILE__, __LINE__);
+			$log->err('Error occurred while creating new soap client: '.$err, __FILE__, __LINE__);
 			return false;
 		}
 		$retrieve = array(
@@ -140,12 +145,12 @@ class EstiSearchService
 		$result = $client->call('searchRetrieve', $retrieve, '', '', false, true);
 		
 		if ($client->fault) {
-			Error_Handler::logError('Fault occurred while retrieving records from WoK: '.$client->fault, __FILE__, __LINE__);
+			$log->err('Fault occurred while retrieving records from WoK: '.$client->fault, __FILE__, __LINE__);
 			return false;
 		} else {
 			$err = $client->getError();
 			if ($err) {
-				Error_Handler::logError('Error occurred while retrieving records from WoK: '.$err, __FILE__, __LINE__);
+				$log->err('Error occurred while retrieving records from WoK: '.$err, __FILE__, __LINE__);
 				return false;
 			} else {
 				return $result;				
@@ -161,11 +166,14 @@ class EstiSearchService
 	 * @return SimpleXMLElement The meta-data XML
 	 */
 	public static function describe_database($database_id = self::DATABASE_ID, $format = 'instnames') 
-	{					
+	{		
+		$log = FezLog::get();
+					
 		$client = new soapclient_internal(self::WSDL, true);
 		
 		$err = $client->getError();
 		if ($err) {
+			$log->err('Error occurred while creating new soap client: '.$err, __FILE__, __LINE__);
 			return false;
 		}	
 		$describe = array(
@@ -175,12 +183,12 @@ class EstiSearchService
 		$result = $client->call('describeDatabase', $describe, '', '', false, true);
 		
 		if ($client->fault) {
-			Error_Handler::logError('Fault occurred while retrieving meta-data from WoK: '.$client->fault, __FILE__, __LINE__);
+			$log->err('Fault occurred while retrieving meta-data from WoK: '.$client->fault, __FILE__, __LINE__);
 			return false;
 		} else {
 			$err = $client->getError();
 			if ($err) {
-				Error_Handler::logError('Error occurred while retrieving meta-data from WoK: '.$err, __FILE__, __LINE__);
+				$log->err('Error occurred while retrieving meta-data from WoK: '.$err, __FILE__, __LINE__);
 				return false;
 			} else {
 				return @simplexml_load_string($result);				

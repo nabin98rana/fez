@@ -133,6 +133,11 @@ class Record
 		$title = Record::getSearchKeyIndexValue($pid, "title", false);
 		return $title;
 	}
+	
+	function getIsiLocFromIndex($pid)
+	{
+		return Record::getSearchKeyIndexValue($pid, "ISI LOC", false);
+	}
 
 
 	/**

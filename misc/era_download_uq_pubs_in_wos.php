@@ -120,7 +120,7 @@ function addRecord($record) {
    	$mods['name'][0]['role']['roleTerm_text'] = 'author';
 
    	$i = 1;
-    foreach((array)$record->authors->author as $author) {
+    foreach($record->authors->author as $author) {
     	$mods['name'][$i]['id'] = '0';
     	$mods['name'][$i]['authority'] = APP_ORG_NAME;
     	$mods['name'][$i]['namePart_personal'] = $author;
@@ -129,12 +129,12 @@ function addRecord($record) {
     }
     
     $i = 0;
-    foreach((array)$record->keywords->keyword as $keyword) {
+    foreach($record->keywords->keyword as $keyword) {
     	$mods['subject'][$i]['authority'] = 'keyword';
     	$mods['subject'][$i]['topic'] = $keyword;
     	$i++;
     }    
-    foreach((array)$record->keywords_plus->keyword as $keyword) {
+    foreach($record->keywords_plus->keyword as $keyword) {
     	$mods['subject'][$i]['authority'] = 'keyword';
     	$mods['subject'][$i]['topic'] = $keyword;
     	$i++;
@@ -182,6 +182,7 @@ function addRecord($record) {
 
     // RELS-EXT
     $rels['parent_pid'] = 'UQ:180159'; // TODO: grab from admin config'd value
+    //$rels['parent_pid'] = 'UQ:86494'; // TODO: grab from admin config'd value
     
     $pid = Fedora_API::getNextPID();
     $tpl = new Template_API();
