@@ -30,13 +30,19 @@
 include_once("config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
+include_once(APP_INC_PATH . "class.record_general.php");
 include_once(APP_INC_PATH . "class.history.php");
 include_once(APP_INC_PATH . "db_access.php");
 
 $tpl = new Template_API();
 $tpl->setTemplate("history.tpl.html");
-
-
-$tpl->assign("changes", History::getListing($_GET["pid"]));
-
+$pid = $_GET["pid"];
+$record = new RecordGeneral($pid);
+if (!$record->checkExists()) {
+	$tpl->assign("exists", 0);
+} else {
+	$tpl->assign("exists", 1);
+	$tpl->assign("pid", $pid);
+	$tpl->assign("changes", History::getListing($_GET["pid"]));	
+}
 $tpl->displayTemplate();

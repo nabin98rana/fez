@@ -149,8 +149,8 @@ class Fedora_Direct_Access {
 		$db = DB_API::get('fedora_db');
 		
 		try {
-			$stmt = "SELECT path FROM objectPaths WHERE token = ".$db->quote($pid);
-			$res = $db->fetchOne($stmt);
+			$stmt = "SELECT path FROM objectPaths WHERE token = ?";
+			$res = $db->fetchOne($stmt, $pid);
 		}
 		catch(Exception $ex) {
 			$log->err($ex);
@@ -171,8 +171,8 @@ class Fedora_Direct_Access {
 		$db = DB_API::get('fedora_db');
 		
 		try {
-			$stmt = "SELECT dostate FROM dObj WHERE dopid = ".$db->quote($pid);
-			$res = $db->fetchOne($stmt);
+			$stmt = "SELECT dostate FROM dObj WHERE dopid = ?";
+			$res = $db->fetchOne($stmt, $pid);
 		}
 		catch(Exception $ex) {
 			$log->err($ex);

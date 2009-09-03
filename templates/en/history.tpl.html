@@ -4,10 +4,11 @@
 <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
   <tr>
     <td>
+	{if $exists == 1}
       <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2">
         <tr>
           <td class="default">
-            <b>History of Changes to Object #{$smarty.get.pid}</b>
+            <b>History of Changes to Object #{$pid}</b>
           </td>
         </tr>
         <tr>
@@ -45,6 +46,9 @@
           </td>
         </tr>
       </table>
+	{else}
+		That object does not exist
+	{/if}
     </td>
   </tr>
 </table>
