@@ -202,6 +202,21 @@ class Apache_Solr_Service
 
 		return preg_replace($pattern, $replace, $value);
 	}
+	
+	/**
+	 * Escape a boolean value
+	 *
+	 * @param string $value
+	 * @return string
+	 */
+	static public function escapeBooleans($value)
+	{
+		$value = strtolower($value);
+		//list taken from http://lucene.apache.org/java/docs/queryparsersyntax.html#Escaping%20Special%20Characters
+		$pattern = '/ (and|or) /';
+		$replace = ' \\\$1 ';
+		return preg_replace($pattern, $replace, $value);
+	}
 
 	/**
 	 * Convenience function for creating phrase syntax from a value
