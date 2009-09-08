@@ -3662,39 +3662,39 @@ class Misc
 	OpenURL() takes two arguments.
 	 
 	$Document - a document object, having an array (fields) with the following properties:
-		$Document->fields["DocType"]
+		$row["DocType"]
 			1 = Article
 			2 = Book Item (e.g. a chapter, section, etc)
 			3 = Book
 			4 = Unpublished MA thesis
 			5 = Unpublished PhD thesis
 	 
-		$Document->fields["DocTitle"] - Title of the document.
-		$Document->fields["JournalTitle"] - Title of the journal/magazine the article was published in, or false if this is not an article.
+		$row["DocTitle"] - Title of the document.
+		$row["JournalTitle"] - Title of the journal/magazine the article was published in, or false if this is not an article.
 	 
-		$Document->fields["BookTitle"] - Title of the book in which this item was published, or false if this is not a book item.
+		$row["BookTitle"] - Title of the book in which this item was published, or false if this is not a book item.
 	 
-		$Document->fields["Volume"] - The volume of the journal this article was published in as an integer, or false if this is not an article.  Optional.
-		$Document->fields["JournalIssue"] - The issue of the journal this article was published in as an integer, or false if this is not an article.  Optional.
-		$Document->fields["JournalSeason"] Optional.
+		$row["Volume"] - The volume of the journal this article was published in as an integer, or false if this is not an article.  Optional.
+		$row["JournalIssue"] - The issue of the journal this article was published in as an integer, or false if this is not an article.  Optional.
+		$row["JournalSeason"] Optional.
 			The season of the journal this article was published in, as a string, where:
 				Spring
 				Summer
 				Fall
 				Winter
 				false = not applicable
-		$Document->fields["JournalQuarter"] - The quarter of the journal this article was published in as an integer between 1 and 4, or false. Optional.
-		$Document->fields["ISSN"] - The volume of the journal this article was published in, or false.  Optional.
+		$row["JournalQuarter"] - The quarter of the journal this article was published in as an integer between 1 and 4, or false. Optional.
+		$row["ISSN"] - The volume of the journal this article was published in, or false.  Optional.
 	 
 	 
-		$Document->fields["BookPublisher"] - The publisher of the book, or false. Optional.
-		$Document->fields["PubPlace"] - The publication place, or false.  Optional.
-		$Document->fields["ISBN"] - The ISBN of the book.  Optional but highly recommended.
+		$row["BookPublisher"] - The publisher of the book, or false. Optional.
+		$row["PubPlace"] - The publication place, or false.  Optional.
+		$row["ISBN"] - The ISBN of the book.  Optional but highly recommended.
 	 
-		$Document->fields["StartPage"] - Start page for the article or item, or false if this is a complete book.
-		$Document->fields["EndPage"] - End page for the article or item, or false if this is a complete book.
+		$row["StartPage"] - Start page for the article or item, or false if this is a complete book.
+		$row["EndPage"] - End page for the article or item, or false if this is a complete book.
 	 
-	$Document->fields["DocYear"] - The year in which this document was published.
+	$row["DocYear"] - The year in which this document was published.
 	 
 	$People - An array of person objects, each having an array, fields, with these properties:
 		$People->fields["DocRelationship"]
@@ -3705,65 +3705,63 @@ class Misc
 		$People->fields["FirstName"] - The person's first name.
 		$People->fields["LastName"] - The person's last name.
 	*/
-	function OpenURL($Document, $People)
+	function OpenURL($row)
 	{
-		$DocType = $Document->fields["DocType"];
-		if($DocType > 2){ return false; }
+	//	if($row[] > 2){ return false; }
 	 
 		// Base of the OpenURL specifying which version of the standard we're using.
 		$URL = "ctx_ver=Z39.88-2004";
-	 
+	 	$DocType = $row["rek_display_type_lookup"];
 		// Metadata format - e.g. article or book.
-		if($DocType == 0){ $URL .= "&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal"; }
-		if($DocType > 0){ $URL .= "&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook"; }
+		if($DocType == "Journal Article"){ $URL .= "&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal"; }
+		if($DocType  == "Book"){ $URL .= "&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook"; }
 	 
 		// An ID for your application.  Replace yoursite.com and specify a name for your application.
-		$URL .= "&amp;rfr_id=info%3Asid%2Fyoursite.com%3AYour+Name+Here+Using+Plus+Signs+For+Spaces";
+		$URL .= "&amp;rfr_id=info%3Asid%2F".APP_HOSTNAME."%3A".APP_NAME;
 	 
 		// Document Genre
-		if($DocType == 0){ $URL .= "&amp;rft.genre=article"; }
-		if($DocType == 1){ $URL .= "&amp;rft.genre=bookitem"; }
-		if($DocType == 2){ $URL .= "&amp;rft.genre=book"; }
-	 
+
+		$URL .= "&amp;rft.genre=".str_replace(" ", "", strtolower($DocType));
+
 		// Document Title
-		if($DocType < 2){ $URL .= "&amp;rft.atitle=".urlencode($Document->fields["DocTitle"]); }
-		if($DocType == 2){ $URL .= "&amp;rft.btitle=".urlencode($Document->fields["DocTitle"]); }
+		$URL .= "&amp;rft.atitle=".urlencode($row["rek_title"]);
+//		if($DocType != "Book Chapter"){ $URL .= "&amp;rft.atitle=".urlencode($row["rek_title"]); }
+//		if($DocType == "Book Chapter"){ $URL .= "&amp;rft.btitle=".urlencode($row["rek_title"]); }
 	 
 		// Publication Title
-		if($DocType == 0){ $URL .= "&amp;rft.jtitle=".urlencode($Document->fields["JournalTitle"]); }
-		if($DocType == 1){ $URL .= "&amp;rft.btitle=".urlencode($Document->fields["BookTitle"]); }
+		if($DocType == "Journal Article"){ $URL .= "&amp;rft.jtitle=".urlencode($row["rek_journal_name"]); }
+		if($DocType == "Book Chapter"){ $URL .= "&amp;rft.btitle=".urlencode($row["rek_book_title"]); }
 	 
 		// Volume, Issue, Season, Quarter, and ISSN (for journals)
-		if($DocType == 0){
-			if($Document->fields["Volume"]){ $URL .= "&amp;rft.volume=".urlencode($Document->fields["Volume"]); }
-			if($Document->fields["JournalIssue"]){ $URL .= "&amp;rft.issue=".urlencode($Document->fields["JournalIssue"]); }
-			if($Document->fields["JournalSeason"]){ $URL .= "&amp;rft.ssn=".urlencode($Document->fields["JournalSeason"]); }
-			if($Document->fields["JournalQuarter"]){ $URL .= "&amp;rft.quarter=".urlencode($Document->fields["JournalQuarter"]); }
-			if($Document->fields["JournalQuarter"]){ $URL .= "&amp;rft.quarter=".urlencode($Document->fields["ISSN"]); }
+		if($DocType == "Journal Article"){
+			if($row["rek_volume"]){ $URL .= "&amp;rft.volume=".urlencode($row["rek_volume"]); }
+			if($row["rek_issue_number"]){ $URL .= "&amp;rft.issue=".urlencode($row["rek_issue_number"]); }
+//			if($row["JournalSeason"]){ $URL .= "&amp;rft.ssn=".urlencode($row["JournalSeason"]); }
+//			if($row["JournalQuarter"]){ $URL .= "&amp;rft.quarter=".urlencode($row["JournalQuarter"]); }
+			if($row["rek_issn"]){ $URL .= "&amp;rft.quarter=".urlencode($row["rek_issn"]); }
 		}
 	 
 		// Publisher, Publication Place, and ISBN (for books)
-		if($DocType > 0){
-			$URL .= "&amp;rft.pub=".urlencode($Document->fields["BookPublisher"]);
-			$URL .= "&amp;rft.place=".urlencode($Document->fields["PubPlace"]);
-			$URL .= "&amp;rft.isbn=".urlencode($Document->fields["ISBN"]);
+		if($DocType == "Book"){
+			$URL .= "&amp;rft.pub=".urlencode($row["rek_publisher"]);
+			$URL .= "&amp;rft.place=".urlencode($row["rek_place_of_publication"]);
+			$URL .= "&amp;rft.isbn=".urlencode($row["rek_isbn"]);
 		}
 	 
 		// Start page and end page (for journals and book articles)
-		if($DocType < 2){
-			$URL .= "&amp;rft.spage=".urlencode($Document->fields["StartPage"]);
-			$URL .= "&amp;rft.epage=".urlencode($Document->fields["EndPage"]);
-		}
+//		if($DocType < 2){
+			if($row["rek_start_page"]) { $URL .= "&amp;rft.spage=".urlencode($row["rek_start_page"]); }
+			if($row["rek_end_page"]) { $URL .= "&amp;rft.epage=".urlencode($row["rek_end_page"]); }
+//		}
 	 
 		// Publication year.
-		$URL .= "&amp;rft.date=".$Document->fields["DocYear"];
+		$URL .= "&amp;rft.date=".date("Y", strtotime($row["rek_date"]));
 	 
 		// Authors
 		$i = 0;
-		while($People[$i]){
-			if($People[$i]->fields["DocRelationship"] == 0){
-				$URL .= "&amp;rft.au=".urlencode($People[$i]->fields["LastName"]).",+".urlencode($People[$i]->fields["FirstName"]);
-			}
+		while($row["rek_author"][$i]){
+			$URL .= "&amp;rft.au=".urlencode($row["rek_author"][$i]);
+			//$URL .= "&amp;rft.au=".urlencode($People[$i]->fields["LastName"]).",+".urlencode($People[$i]->fields["FirstName"]);
 			$i++;
 		}
 	 

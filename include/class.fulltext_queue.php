@@ -193,62 +193,67 @@ class FulltextQueue
 		//$GLOBALS["db_api"]->dbh->autoCommit(false);
 
 		//Logger::debug("FulltextIndex::triggerUpdate");
-			
+		// Start a transaction explicitly.
+		$db->beginTransaction();
+
 		$stmt = "SELECT ftl_value, ftl_pid FROM ".APP_TABLE_PREFIX."fulltext_locks ".
 					"WHERE ftl_name=".$db->quote(self::LOCK_NAME_FULLTEXT_INDEX);
 		
 		try {
 			$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
-		}
-		catch(Exception $ex) {
-			$log->err($ex);
-		}
 		
-		$process_id = $res['ftl_pid'];
-		$lockValue = $res['ftl_value'];
-		$acquireLock = true;
-		$log->debug("FulltextIndex::triggerUpdate got lockValue=".$lockValue.", pid=".$process_id);
+			$process_id = $res['ftl_pid'];
+			$lockValue = $res['ftl_value'];
+			$acquireLock = true;
+			$log->debug("FulltextIndex::triggerUpdate got lockValue=".$lockValue.", pid=".$process_id);
 		
-		if ($lockValue > 0 && !empty($process_id) && is_numeric($process_id)) {
+			if ($lockValue > 0 && !empty($process_id) && is_numeric($process_id)) {
 			 
-			// check if process is still running or if this is an invalid lock
-			$psinfo = self::getProcessInfo($process_id);
+				// check if process is still running or if this is an invalid lock
+				$psinfo = self::getProcessInfo($process_id);
 
-			// TODO: unix, windows, ...
-			$log->debug(array("psinfo",$psinfo));
+				// TODO: unix, windows, ...
+				$log->debug(array("psinfo",$psinfo));
 
-			if (!empty($psinfo)) {
-				// override existing lock
-				$acquireLock = false;
-				$log->debug("overriding existing lock ".$psinfo);
+				if (!empty($psinfo)) {
+					// override existing lock
+					$acquireLock = false;
+					$log->debug("overriding existing lock ".$psinfo);
+				}
 			}
-		}
 					
-		// worst case: a background process is started, but the queue already
-		// empty at this point (very fast indexer)
-		if ($acquireLock) {
-			// acquire lock
-			$log->debug("FulltextIndex::triggerUpdate acquire lock");
+			// worst case: a background process is started, but the queue already
+			// empty at this point (very fast indexer)
+			if ($acquireLock) {
+				// acquire lock
+				$log->debug("FulltextIndex::triggerUpdate acquire lock");
 
-			// delete (postgresql) / use INSERT instead of REPLACE below
-			/*
-				$sql = "DELETE FROM ".APP_TABLE_PREFIX."fulltext_locks WHERE ftl_name='";
-				$sql .= self::LOCK_NAME_FULLTEXT_INDEX."'";
-				Logger::debug($sql);
-				$GLOBALS["db_api"]->dbh->query($sql);
-				*/
-			$invalidProcessId = -1;
-			$stmt  = "REPLACE INTO ".APP_TABLE_PREFIX."fulltext_locks (ftl_name,ftl_value,ftl_pid) ";
-			$stmt .= " VALUES ('".self::LOCK_NAME_FULLTEXT_INDEX."', 1, $invalidProcessId) ";
+				// delete (postgresql) / use INSERT instead of REPLACE below
+				/*
+					$sql = "DELETE FROM ".APP_TABLE_PREFIX."fulltext_locks WHERE ftl_name='";
+					$sql .= self::LOCK_NAME_FULLTEXT_INDEX."'";
+					Logger::debug($sql);
+					$GLOBALS["db_api"]->dbh->query($sql);
+					*/
+				$invalidProcessId = -1;
+				$stmt  = "REPLACE INTO ".APP_TABLE_PREFIX."fulltext_locks (ftl_name,ftl_value,ftl_pid) ";
+				$stmt .= " VALUES ('".self::LOCK_NAME_FULLTEXT_INDEX."', 1, $invalidProcessId) ";
 			
-			$ok = true;
-			try {
+				$ok = true;
 				$db->query($stmt);
-			}
-			catch(Exception $ex) {
-				$log->err($ex);
+				// If all succeed, commit the transaction and all changes
+			    // are committed at once.
+			    $db->commit();
+			
+			} else {
 				$ok = false;
+				$log->debug("FulltextIndex::triggerUpdate lock already taken by another process");
 			}
+		} catch(Exception $ex) {
+			$db->rollBack();
+			$log->err($ex);
+			$ok = false;
+		}
 				
 			if (! $ok) {
 				// setting lock failed because another process was faster
@@ -263,9 +268,6 @@ class FulltextQueue
 				// $update_bgp = new FulltextIndex_Update()
 				self::createUpdateProcess();
 			}
-		} else {
-			$log->debug("FulltextIndex::triggerUpdate lock already taken by another process");
-		}
 	}
 
 	/**

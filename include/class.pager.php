@@ -41,6 +41,7 @@
  */
 
 include_once(APP_INC_PATH . "class.error_handler.php");
+include_once(APP_INC_PATH . "class.date.php");
 
 class Pager
 {
@@ -199,14 +200,25 @@ class Pager
 				foreach ($searchKeyArray as $sek_id => $value) {
 					$sekdet = Search_Key::getDetails(str_replace("searchKey", "", $sek_id));
 					if ($sekdet['sek_html_input'] == 'date') {
+						if (is_array($searchKeyArray[$sek_id])) {
+							if ($searchKeyArray[$sek_id]['start']['Month']) { $searchKeyArray[$sek_id]['start']['Month'] = str_pad($searchKeyArray[$sek_id]['start']['Month'], 2, '0', STR_PAD_LEFT); }
+							if ($searchKeyArray[$sek_id]['start']['Day'] != "") { $searchKeyArray[$sek_id]['start']['Day'] = str_pad($searchKeyArray[$sek_id]['start']['Day'], 2, '0', STR_PAD_LEFT); }
+							if ($searchKeyArray[$sek_id]['end']['Month'] != "") { $searchKeyArray[$sek_id]['end']['Month'] = str_pad($searchKeyArray[$sek_id]['end']['Month'], 2, '0', STR_PAD_LEFT); }
+							if ($searchKeyArray[$sek_id]['end']['Day'] != "") { $searchKeyArray[$sek_id]['end']['Day'] = str_pad($searchKeyArray[$sek_id]['end']['Day'], 2, '0', STR_PAD_LEFT); }
 							
-						if ($searchKeyArray[$sek_id]['start']['Month']) { $searchKeyArray[$sek_id]['start']['Month'] = str_pad($searchKeyArray[$sek_id]['start']['Month'], 2, '0', STR_PAD_LEFT); }
-						if ($searchKeyArray[$sek_id]['start']['Day'] != "") { $searchKeyArray[$sek_id]['start']['Day'] = str_pad($searchKeyArray[$sek_id]['start']['Day'], 2, '0', STR_PAD_LEFT); }
-						if ($searchKeyArray[$sek_id]['end']['Month'] != "") { $searchKeyArray[$sek_id]['end']['Month'] = str_pad($searchKeyArray[$sek_id]['end']['Month'], 2, '0', STR_PAD_LEFT); }
-						if ($searchKeyArray[$sek_id]['end']['Day'] != "") { $searchKeyArray[$sek_id]['end']['Day'] = str_pad($searchKeyArray[$sek_id]['end']['Day'], 2, '0', STR_PAD_LEFT); }
-							
-						$searchKeyArray[$sek_id]['start_date'] =  $searchKeyArray[$sek_id]['start']['Year'] . '-' . $searchKeyArray[$sek_id]['start']['Month'] . '-' . $searchKeyArray[$sek_id]['start']['Day'];
-						$searchKeyArray[$sek_id]['end_date'] =  $searchKeyArray[$sek_id]['end']['Year'] . '-' . $searchKeyArray[$sek_id]['end']['Month'] . '-' . $searchKeyArray[$sek_id]['end']['Day'];
+							$searchKeyArray[$sek_id]['start_date'] =  $searchKeyArray[$sek_id]['start']['Year'] . '-' . $searchKeyArray[$sek_id]['start']['Month'] . '-' . $searchKeyArray[$sek_id]['start']['Day'];
+							$searchKeyArray[$sek_id]['end_date'] =  $searchKeyArray[$sek_id]['end']['Year'] . '-' . $searchKeyArray[$sek_id]['end']['Month'] . '-' . $searchKeyArray[$sek_id]['end']['Day'];
+						} else {
+//							echo $searchKeyArray[$sek_id];
+							$string_year = $searchKeyArray[$sek_id];
+							if (is_numeric($searchKeyArray[$sek_id]) && strlen($searchKeyArray[$sek_id]) > 3) {  // year only from facet, Y10K compliant!
+								$searchKeyArray[$sek_id] = array();
+								$searchKeyArray[$sek_id]['start_date'] = $string_year."-01-01";
+								$searchKeyArray[$sek_id]['end_date'] = $string_year."-12-31";
+								$searchKeyArray[$sek_id]['filter_type'] = "between";
+								$searchKeyArray[$sek_id]["filter_enabled"] = 1;
+							}
+						}
 					}
 				}
 				 
