@@ -242,12 +242,17 @@ class Citation
 
 	function renderIndexCitations($list, $type='APA', $cache = true, $knownFull = false)
 	{
+		
+		$log = FezLog::get();
 		foreach ($list as $row => $value) {
 			if ($list[$row]['rek_citation'] == "" || $cache == false) {
 				$xdis_id = $value['rek_display_type'];
 				$det = Citation::getDetails($xdis_id, $type);
 				$result = $det['cit_template'];
 				if (empty($result)) {
+					$citation = Record::getTitleFromIndex($list[$row]['rek_pid']);
+					$log->debug("No Style, so setting Citation to just title of ".$citation." for PID ".$pid);
+					Citation::updateCitationCache($list[$row]['rek_pid'], $citation);				
 					continue;
 				}
 				if ($knownFull == false) {
@@ -259,9 +264,11 @@ class Citation
 				}
 				$citation = Citation::renderIndexCitationTemplate($result, $list[$row], $type);
 				if ($citation != "") {
+					$log->debug("Setting Citation to full citation of ".$citation." for PID ".$pid);
 					Citation::updateCitationCache($list[$row]['rek_pid'], $citation);
 				} else { // if no citation template has been applied to this display type then just put in the title so it at least doesnt keep trying to make it
-					$citation = Record::getTitleFromIndex($pid);
+					$citation = Record::getTitleFromIndex($list[$row]['rek_pid']);
+					$log->debug("Setting Citation to just title of ".$citation." for PID ".$pid);
 					Citation::updateCitationCache($list[$row]['rek_pid'], $citation);
 				}
 				$list[$row]['rek_citation'] = $citation;

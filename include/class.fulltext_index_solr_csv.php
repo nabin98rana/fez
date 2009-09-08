@@ -399,6 +399,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 
 			if( $this->bgp ) {
 				$this->bgp->setStatus("Finished Solr fulltext indexing for (".$countDocs."/".$this->totalDocs." Added)");
+				$this->bgp->setProgress($countDocs);
 			}
 
 		}
@@ -528,7 +529,8 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 
 		$stmt = "SELECT rek_file_attachment_name_pid as rek_pid
                 FROM ".APP_TABLE_PREFIX."record_search_key_file_attachment_name 
-                WHERE rek_file_attachment_name_pid IN (" . $pids . ") AND
+                LEFT JOIN ".APP_TABLE_PREFIX."fulltext_cache ON rek_file_attachment_name_pid = ftc_pid AND rek_file_attachment_name = ftc_dsid
+                WHERE ftc_dsid IS NULL AND rek_file_attachment_name_pid IN (" . $pids . ") AND
                       rek_file_attachment_name LIKE '%.pdf'";
 		
 		try {

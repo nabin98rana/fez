@@ -44,6 +44,7 @@
  * @version 1.1, February 2008
  *
  */
+include_once(APP_PATH . "config.inc.php");
 include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.bgp_fulltext_index.php");
 include_once(APP_INC_PATH . "class.fulltext_queue.php");
@@ -68,6 +69,12 @@ abstract class FulltextIndex {
 	const FIELD_NAME_AUTHCREATOR = '_authcreator';
 	const FIELD_NAME_AUTHEDITOR = '_autheditor';
 	const FIELD_NAME_FULLTEXT = 'content';
+
+	const USE_LOCKING = true;
+	const LOCK_NAME_FULLTEXT_INDEX = 'indexer';
+
+	const ACTION_INSERT = 'I';
+	const ACTION_DELETE = 'D';
 
 	protected $bgp;
 	protected $pid_count = 0;
@@ -131,13 +138,51 @@ abstract class FulltextIndex {
 			$my_pid = 'null';
 		}
 
-		$stmt =  "UPDATE ".APP_TABLE_PREFIX."fulltext_locks SET ftl_pid=".$db->quote($my_pid);
-		$stmt .= " WHERE ftl_name='".FulltextQueue::LOCK_NAME_FULLTEXT_INDEX."'";
+		$db->beginTransaction();
+
+		$stmt = "SELECT ftl_value, ftl_pid FROM ".APP_TABLE_PREFIX."fulltext_locks ".
+					"WHERE ftl_name=".$db->quote(self::LOCK_NAME_FULLTEXT_INDEX);
 		
 		try {
-			$db->query($stmt);
+			$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
+		
+			$process_id = $res['ftl_pid'];
+			$lockValue = $res['ftl_value'];
+			$acquireLock = true;
+			$log->debug("FulltextIndex REALLY::triggerUpdate got lockValue=".$lockValue.", pid=".$process_id." with ".$stmt." and ".print_r($res, true));
+		
+			if ($lockValue != -1 && !empty($process_id) && is_numeric($process_id)) {
+			 
+				// check if process is still running or if this is an invalid lock
+				$psinfo = FulltextQueue::getProcessInfo($process_id);
+				$log->debug("checking for lock on  lock ".$process_id);
+				// TODO: unix, windows, ...
+				$log->debug(array("psinfo",$psinfo));
+
+				if (!empty($psinfo)) {
+					// override existing lock
+					$acquireLock = false;
+					$log->debug("overriding existing lock ".$psinfo);
+				}
+			}
+					
+			// worst case: a background process is started, but the queue already
+			// empty at this point (very fast indexer)
+			if ($acquireLock) {
+
+
+				$stmt =  "UPDATE ".APP_TABLE_PREFIX."fulltext_locks SET ftl_pid=".$db->quote($my_pid);
+				$stmt .= " WHERE ftl_name='".FulltextQueue::LOCK_NAME_FULLTEXT_INDEX."'";
+		
+				$db->query($stmt);
+				$db->commit();
+			} else {
+				return false;
+			}
 		}
 		catch(Exception $ex) {
+			$db->rollBack();
+			
 			$log->err($ex);
 			return false;
 		}
@@ -157,7 +202,9 @@ abstract class FulltextIndex {
 		 
 		// mark lock with pid
 		if (FulltextQueue::USE_LOCKING) {
-			$this->updateLock();
+			if (!$this->updateLock()) {
+				return false;
+			}
 		}
 
 		$this->bgp->setStatus("Fulltext index update started");
