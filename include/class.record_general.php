@@ -750,7 +750,47 @@ class RecordGeneral
 
 		return false;
 	}
+	
+	
+	/**
+	 * Strips abstracts from a record
+	 *
+	 * @return bool  TRUE if stripped OK. FALSE if not stripped.
+	 *
+	 * @access public
+	 */
+	function stripAbstract()
+	{
+		$newXML = "";
+		$xmlString = Fedora_API::callGetDatastreamContents($this->pid, 'MODS', true);
 
+		$doc = DOMDocument::loadXML($xmlString);
+		$xpath = new DOMXPath($doc);
+
+		$fieldNodeList = $xpath->query("/mods:mods/mods:abstract");
+
+		if( $fieldNodeList->length == 0 ) {
+			return false;
+		}
+
+		$collectionNode   = $fieldNodeList->item(0);
+		$parentNode       = $collectionNode->parentNode;
+		$parentNode->removeChild($collectionNode);
+
+		$newXML = $doc->SaveXML();
+		if ($newXML != "") {
+			Fedora_API::callModifyDatastreamByValue($this->pid, "MODS", "A", "Metadata Object Description Schema", $newXML, "text/xml", "inherit");
+			
+			$historyDetail = "Abstract was stripped from ESTI imported record";
+			History::addHistory($this->pid, null, "", "", true, $historyDetail);
+			
+			Record::setIndexMatchingFields($this->pid);
+			
+			return true;
+		}
+
+		return false;
+	}
 
 	/**
 	 * updateFezMD_User
