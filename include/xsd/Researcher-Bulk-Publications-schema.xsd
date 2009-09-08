@@ -1,0 +1,378 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Version 0.5 -->
+
+<!-- Copyright 2008 Thomson Reuters Global Resources. All Rights Reserved. -->
+<!-- Proprietary and confidential information of TRGR.  -->
+<!-- Disclosure, use, or reproduction without the written authorization of TRGR is prohibited. -->
+
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://www.thomsonreuters.com/ns/researcher-publication/" xmlns:stl="http://www.codesynthesis.com/xmlns/xsstl" targetNamespace="http://www.thomsonreuters.com/ns/researcher-publication/" elementFormDefault="qualified" attributeFormDefault="unqualified">
+    <!-- Import for email address validator schema -->
+    <!-- This external, public xsd is used to make sure that email-addresses are in the right format. -->
+    <xs:import namespace="http://www.codesynthesis.com/xmlns/xsstl" schemaLocation="http://www.codesynthesis.com/projects/xsstl/xsstl/email-address.xsd"/>
+
+    <!-- First name with maximum of twenty unicode characters -->
+    <xs:simpleType name="firstNameType">
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="20"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- Middle name with maximum of twenty unicode characters -->
+    <xs:simpleType name="middleNameType">
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="20"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- Last name with maximum of thirty-five unicode characters -->
+    <xs:simpleType name="lastNameType">
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="35"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- Email address with a maximum of two hundred unicode characters. -->
+    <!-- Format must adhere to the rules set in the external xsd imported above. -->
+    <xs:simpleType name="email">
+        <xs:restriction base="stl:EmailAddress">
+            <xs:maxLength value="200"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- The email-ids provided herein will be copied on the mails -->
+    <!-- sent by the bulk-upload utility.  -->    
+    <xs:complexType name="emailCCListType">
+        <xs:sequence>
+            <xs:element name="email" type="email" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- admin details for sponsor  -->
+    <xs:complexType name="admin">
+        <xs:sequence>
+            <!-- First name for admin is optional  -->
+            <xs:element name="firstName" type="firstNameType" minOccurs="0" maxOccurs="1"/>
+            <!-- Middle name for admin is optional  -->
+            <xs:element name="middleName" type="middleNameType" minOccurs="0" maxOccurs="1"/>
+            <!-- Last name for admin is optional  -->
+            <xs:element name="lastName" type="lastNameType" minOccurs="0" maxOccurs="1"/>
+            <!-- Email address for admin is mandatory  -->
+            <xs:element name="email" type="email" minOccurs="1" maxOccurs="1"/>
+            <!-- Email CC List for admin is optional  -->
+            <xs:element name="email-cc-list" type="emailCCListType" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- Only one sponsor per file. -->
+    <!-- This might be an agency uploading data on behalf of one or more institutions. -->
+    <!-- The sponsor name mentioned here must be that of a sponsor approved by Thomson. -->
+    <!-- The sponsor must indicate if researchers are to be intimated individually by email about publication upload. -->
+    <!-- The intimate-researcher-individually element will only apply to hitherto unconfirmed users. -->
+    <!-- For confirmed researchers their own choice in this regard, as made through manage profile options in RID, will take precedence.-->
+    <xs:complexType name="sponsor">
+        <xs:sequence>
+            <xs:element name="name" type="xs:string" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="admin" type="admin" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="intimate-researcher-individually" type="xs:boolean" default="true" minOccurs="1" maxOccurs="1"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- UT with maximum of hundered characters. -->
+    <!-- Value expected in the form e.g. WOS:12345678 where WOS is the destApp code and 12345678 is the UT. -->
+    <xs:simpleType name="UTaccessionNumType">
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="100"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <!-- Institution name with maximum of one hundred and fifty unicode characters -->
+    <xs:simpleType name="institutionNameType">
+        <xs:restriction base="xs:string">
+            <xs:whiteSpace value="collapse"/>
+            <xs:minLength value="1"/>
+            <xs:maxLength value="150"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <!-- EmployeeID with maximum of fifty alphanumeric characters -->
+    <!-- This will be the institution-internal ID of the researcher -->
+    <xs:simpleType name="employeeIDType">
+        <xs:restriction base="xs:string">
+            <xs:whiteSpace value="collapse"/>
+            <xs:minLength value="1"/>
+            <xs:maxLength value="50"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- Structure of the titles element -->
+    <!-- Titles for the publication being uploaded. -->
+    <!-- The titles element must have a title element. This is the primary title of the publication. -->
+    <!-- The titles element may have an optional secondary-title element. -->
+    <!-- For all publication ref-types other than Chapter and Conference Proceedings-->
+    <!-- the secondary-title is the source of the publication. -->
+    <!-- For the CHAP ref-type the secondary-title is the title of the book of which it's a part. -->
+    <!-- For the CONF ref-type the secondary-title is the name of the conference. -->
+    <!-- The tertiary-title is reserved for future use. Ignored currently. -->
+    <xs:complexType name="titlesType">
+        <xs:sequence>
+            <!-- title (primary title) element is mandatory-->
+            <xs:element name="title" type="xs:string" minOccurs="1" maxOccurs="1"/>
+            <!-- secondary-title element is optional-->
+            <xs:element name="secondary-title" type="xs:string" minOccurs="0" maxOccurs="1"/>
+            <!-- tertiary-title element is optional-->
+            <xs:element name="tertiary-title" type="xs:string" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    
+    <!-- Structure of the volume element -->
+    <!-- Maximum of 100 characters -->
+    <xs:simpleType name="volumeType">
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="100"/>
+        </xs:restriction>
+    </xs:simpleType>
+        
+    <!-- Structure of the number element -->
+    <!-- Maximum of 20 characters -->
+    <!-- Applies only if the ref-type is Journal Article, or generic publication -->
+    <!-- This field will be treated as the journal issue. -->
+    <xs:simpleType name="numberType">
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="20"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- Structure of the isbn element -->
+    <!-- Maximum of 256 characters -->
+    <!-- This element is applicable only for the Patent ref-type. -->
+    <!-- The value will be treated as the patent number. -->
+    <xs:simpleType name="isbnType">
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="256"/>
+        </xs:restriction>
+    </xs:simpleType>    
+
+    <!-- Structure of the electronic-resource-num element -->
+    <!-- Maximum of 50 characters -->
+    <!-- This element is used for specifying the Digital Object Identifier (DOI) for the publication. -->
+    <xs:simpleType name="doiType">
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="50"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <!-- Structure of the publisher element -->
+    <!-- Maximum of 256 characters. -->
+    <!-- This is applicable only for the Patent type of publication.  -->
+    <!-- This field will be treated as the patent assignee.  -->
+    <!-- Usually the patent assignee is the institution where the inventor works.  -->
+    <!-- The inventors must be specified using the authors element.  -->
+    <xs:simpleType name="publisherType">
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="256"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- Structure of the ref-type element -->
+    <!-- The ref-type specifies what type of publication it is. -->
+    <!-- The value must be one of the enumerated ones. -->
+    <!-- Supported reference types -->
+    <!--        17 - Journal Article (JOUR) -->
+    <!--         25 - Patent (PAT) -->
+    <!--         6  - Books (BOOK) -->
+    <!--        32 - Thesis (THES) -->
+    <!--         10 - Conference Proceedings (CONF) -->
+    <!--         5  - Book Chapter (CHAP) -->
+    <!--        13 - Generic (GEN)  -->
+    <xs:simpleType name="recordRefType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="17"/>
+            <xs:enumeration value="25"/>
+            <xs:enumeration value="6"/>
+            <xs:enumeration value="32"/>
+            <xs:enumeration value="10"/>
+            <xs:enumeration value="5"/>
+            <xs:enumeration value="13"/>               
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- Structure of the contributors element -->
+    <!-- The contributors element must have an authors subelement.-->    
+    <!-- The contributors element may have an optional asecondary-authors subelement.-->
+    <!-- Both authors and secondary-authors have a list of author subelements..-->
+    <!-- All primary authors and inventors must be listed under the authors subelement.-->
+    <!-- A maximum of 256 characters is allowed for all authors, primary or secondary, put together.-->
+    <xs:complexType name="contributorsType">
+        <xs:sequence>
+            <!--authors (primary authors) is mandatory -->
+            <xs:element name="authors" type="authorsType" minOccurs="1" maxOccurs="1"/>
+            <!--secondary-authors is optional -->
+            <xs:element name="secondary-authors" type="secondaryAuthorsType" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- Structure of the authors element -->
+    <!-- The authors element must have at least one author sublement.-->
+    <xs:complexType name="authorsType">
+        <xs:sequence>
+            <!-- One or more authorType child elements. -->
+            <xs:element name="author" type="authorType" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- Structure of the secondary-authors element -->
+    <!-- The secondary-authors element, if used, must have at least one author sublement.-->
+    <xs:complexType name="secondaryAuthorsType">
+        <xs:sequence>
+            <!-- One or more authorType child elements. -->
+            <xs:element name="author" type="authorType" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- Structure of the pages element -->
+    <!-- If a selection of pages is to be conveyed, specify both the start and the end attributes. -->
+    <!-- If the total number of pages is to be conveyed, specify it as the end attribute alone.-->
+    <!-- The pages element must be empty - no payload should be present. -->
+    <!-- The payload will be ignored. Only the attributes will be read. -->
+    <xs:complexType name="pagesType">
+        <xs:attribute name="start" type="xs:string" use="optional"/>
+        <xs:attribute name="end" type="xs:string" use="required"/>
+    </xs:complexType>
+
+    <!-- Structure of the year element -->
+    <!-- The year element must specify a year attribute.-->
+    <!-- The year element can optionally have day and month attributes. -->
+    <!-- The element should be empty and not have a payload. -->
+    <!-- The element payload value will be ignored, only the attributes will be read. -->
+    <xs:complexType name="yearType">
+        <xs:attribute name="day" type="xs:string" use="optional"/>
+        <xs:attribute name="month" type="xs:string" use="optional"/>
+        <xs:attribute name="year" type="xs:string" use="required"/>
+    </xs:complexType>
+
+    <!-- Structure of the dates element -->
+    <!-- The dates element must have just one year element. -->
+    <xs:complexType name="datesType">
+        <xs:sequence>
+            <xs:element name="year" type="yearType" minOccurs="1" maxOccurs="1"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- Structure of the author element -->
+    <!-- Authors and inventors should be specified using this element.  -->
+    <!-- If the element contains a pcdata value it'll be taken as is.  -->
+    <!-- If name is given as pcdata value, it should not exceed 256 characters. -->
+    <!-- If the first-name, last-name, initials and suffix are sought to be dintinguished. -->
+    <!-- they must be specified as attributes.  -->
+    <!-- If attributes are used, first name and last name are mandatory. -->
+    <!-- If attributes are used, the pcdata value of the element will be ignored.-->
+    <!-- Middle initials and suffix  attributes are optional. -->
+    <xs:complexType name="authorType" mixed="true" >
+        <xs:attribute name="first-name" use="optional">
+            <xs:simpleType id="first-name">
+                <xs:restriction base="xs:string">
+                    <xs:minLength value="1"/>
+                    <xs:maxLength value="20"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="last-name" use="optional">
+            <xs:simpleType id="last-name">
+                <xs:restriction base="xs:string">
+                    <xs:minLength value="1"/>
+                    <xs:maxLength value="35"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="initials" use="optional">
+            <xs:simpleType id="initials">
+                <xs:restriction base="xs:string">
+                    <xs:minLength value="0"/>
+                    <xs:maxLength value="20"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="suffix" use="optional">
+            <xs:simpleType id="suffix">
+                <xs:restriction base="xs:string">
+                    <xs:minLength value="0"/>
+                    <xs:maxLength value="10"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>    
+    </xs:complexType>
+
+    <!-- Structure of the record element -->
+    <!-- Each individual publication is specified with a separate record element. -->
+    <!-- The subelements must occur in the same sequence as specified here. -->
+    <!-- The ref-type, contributors, and titles subelements must be present for every record. -->
+    <!-- Other subelements in the record are optional. -->
+    <xs:complexType name="recordType">
+        <xs:sequence>
+            <xs:element name="ref-type" type="recordRefType" minOccurs="1" maxOccurs="1"/>            
+            <xs:element name="contributors" type="contributorsType" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="titles" type="titlesType" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="pages" type="pagesType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="volume" type="volumeType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="number" type="numberType" minOccurs="0" maxOccurs="1"/>            
+            <xs:element name="dates" type="datesType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="publisher" type="publisherType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="isbn" type="isbnType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="accession-num" type="UTaccessionNumType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="electronic-resource-num" type="doiType" minOccurs="0" maxOccurs="1"/>            
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- Structure of the records element -->
+    <!-- One records element contains all the publications for one researcher. -->
+    <!-- Each individual publication is specified with a separate record element. -->
+    <xs:complexType name="recordsType">
+        <xs:sequence>
+            <xs:element name="record" type="recordType" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- Structure of the researcher-publications element -->
+    <!-- One researcher-publications element identifies one researcher. -->
+    <!-- One researcher-publications element must mention one employeeID for the researcher. -->
+    <!-- The researcher is identified uniquely in the database -->
+    <!-- by the combination of the uploading-institution-name and the employeeID. -->
+    <!-- A researcher-publications element can have only one records element. -->
+    <!-- Within a records element there can be one or more record elements.  -->
+    <xs:complexType name="researcherPublicationType">
+        <xs:sequence>
+            <xs:element name="employeeID" type="employeeIDType" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="records" type="recordsType" minOccurs="1" maxOccurs="1"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- Structure of the publicationList element -->
+    <!-- A publicationList must mention only one uploading-institution-name. -->
+    <!-- A publicationList can have one or more researcher-publications. -->
+    <!-- There should be one publicationList per institution.  -->
+    <!-- All the researchers of an institution and their publications must be within one publicationList.  -->
+    <!-- The uploading institution name will apply to all the researchers in the publicationList.  -->
+    <xs:complexType name="researcherPublicationListType">
+        <xs:sequence>
+            <xs:element name="uploading-institution-name" type="institutionNameType" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="researcher-publications" type="researcherPublicationType" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- Structure of the publicationUpload element -->
+    <!-- A file must mention only one sponsor. -->
+    <!-- A file can have one or more publicationLists. -->
+    <!-- There should be one publicationList per institution.  -->
+    <xs:complexType name="publicationUploadType">
+        <xs:sequence>
+            <xs:element name="sponsor" type="sponsor" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="publicationList" type="researcherPublicationListType" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- Root tag for the publications upload xml input file -->
+    <xs:element name="publicationUpload" type="publicationUploadType"/>
+</xs:schema>

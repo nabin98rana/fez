@@ -1,0 +1,623 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Version 0.5 -->
+
+<!-- Copyright 2008 Thomson Reuters Global Resources. All Rights Reserved. -->
+<!-- Proprietary and confidential information of TRGR.  -->
+<!-- Disclosure, use, or reproduction without the written authorization of TRGR is prohibited. -->
+
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://www.thomsonreuters.com/ns/researcher-profile/" xmlns:stl="http://www.codesynthesis.com/xmlns/xsstl" targetNamespace="http://www.thomsonreuters.com/ns/researcher-profile/" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	
+	<!-- Import for email address validator schema -->
+	<!-- This external, public xsd is used to make sure that email-addresses are in the right format. -->	
+	<xs:import namespace="http://www.codesynthesis.com/xmlns/xsstl" schemaLocation="http://www.codesynthesis.com/projects/xsstl/xsstl/email-address.xsd"/>
+	
+	<!-- First name with maximum of twenty unicode characters -->
+	<xs:simpleType name="firstNameType">
+		<xs:restriction base="xs:string">
+		    <xs:minLength value="1"/>
+			<xs:maxLength value="20"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<!-- Middle name with maximum of twenty unicode characters -->
+	<xs:simpleType name="middleNameType">
+		<xs:restriction base="xs:string">
+		    <xs:minLength value="1"/>
+			<xs:maxLength value="20"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<!-- Last name with maximum of thirty-five unicode characters -->
+	<xs:simpleType name="lastNameType">
+		<xs:restriction base="xs:string">
+		    <xs:minLength value="1"/>
+			<xs:maxLength value="35"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<!-- Institution name with maximum of 150 unicode characters. -->
+	<xs:simpleType name="institutionNameType">
+		<xs:restriction base="xs:string">
+		    <xs:minLength value="1"/>
+			<xs:maxLength value="150"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<!-- Email with maximum of 255 characters. -->
+	<!-- Format must adhere to the rules set in the external xsd imported above. -->
+	<xs:simpleType name="email">
+		<xs:restriction base="stl:EmailAddress">
+			<xs:maxLength value="255"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<!-- City with maximum of fifty ascii characters -->
+	<xs:simpleType name="city">
+		<xs:restriction base="xs:string">
+		    <xs:minLength value="1"/>
+			<xs:maxLength value="50"/>
+			<xs:pattern value="\p{IsBasicLatin}*"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<!-- state-or-province with maximum of fifty ascii characters -->
+	<xs:simpleType name="state">
+		<xs:restriction base="xs:string">
+		    <xs:minLength value="1"/>
+			<xs:maxLength value="50"/>
+			<xs:pattern value="\p{IsBasicLatin}*"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+
+	<!-- Postal code with maximum of twenty ascii characters -->
+	<xs:simpleType name="postalCode">
+		<xs:restriction base="xs:string">
+		    <xs:minLength value="1"/>
+			<xs:maxLength value="20"/>
+			<xs:pattern value="\p{IsBasicLatin}*"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<!-- EmployeeID with maximum of fifty alphanumeric characters -->
+	<!-- This will be the institution-internal ID of the researcher -->
+	<xs:simpleType name="employeeIDType">
+		<xs:restriction base="xs:string">
+		    <xs:minLength value="1"/>
+			<xs:maxLength value="50"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<!-- The name of the sponsor with 150 characters max -->
+	<xs:simpleType name="sponsorNameType">
+		<xs:restriction base="xs:string">
+		    <xs:minLength value="1"/>
+			<xs:maxLength value="150"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<!-- Address line with a maximum of hundred ascii characters -->
+	<xs:simpleType name="addressLineType">
+		<xs:restriction base="xs:string">
+		    <xs:minLength value="1"/>
+			<xs:maxLength value="100"/>
+			<xs:pattern value="\p{IsBasicLatin}*"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+
+	<!-- Department name with maximum of hundred characters -->
+	<xs:simpleType name="departmentNameType">
+		<xs:restriction base="xs:string">
+		    <xs:minLength value="1"/>
+			<xs:maxLength value="100"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<!-- Static note to be appended to email, with a maximum of thousand unicode characters -->
+	<!-- This will apply only if the intimate-researcher-individually element is true -->
+	<xs:simpleType name="email-append-note-content">
+		<xs:restriction base="xs:string">
+		    <xs:minLength value="1"/>
+			<xs:maxLength value="1000"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	
+	<!-- List of countries for addresses -->
+	<xs:simpleType name="countryType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="United States"/>
+			<xs:enumeration value="Afghanistan"/>
+			<xs:enumeration value="Albania"/>
+			<xs:enumeration value="Algeria"/>
+			<xs:enumeration value="American Samoa"/>
+			<xs:enumeration value="Andorra"/>
+			<xs:enumeration value="Angola"/>
+			<xs:enumeration value="Anguilla"/>
+			<xs:enumeration value="Antarctica"/>
+			<xs:enumeration value="Antigua and Barbuda"/>
+			<xs:enumeration value="Argentina"/>
+			<xs:enumeration value="Armenia"/>
+			<xs:enumeration value="Aruba"/>
+			<xs:enumeration value="Ascension Island"/>
+			<xs:enumeration value="Australia"/>
+			<xs:enumeration value="Austria"/>
+			<xs:enumeration value="Azerbaijan"/>
+			<xs:enumeration value="Bahamas"/>
+			<xs:enumeration value="Bahrain"/>
+			<xs:enumeration value="Bangladesh"/>
+			<xs:enumeration value="Barbados"/>
+			<xs:enumeration value="Belarus"/>
+			<xs:enumeration value="Belgium"/>
+			<xs:enumeration value="Belize"/>
+			<xs:enumeration value="Benin"/>
+			<xs:enumeration value="Bermuda"/>
+			<xs:enumeration value="Bhutan"/>
+			<xs:enumeration value="Bolivia"/>
+			<xs:enumeration value="Bosnia and Herzegovina"/>
+			<xs:enumeration value="Botswana"/>
+			<xs:enumeration value="Bouvet Island"/>
+			<xs:enumeration value="Brazil"/>
+			<xs:enumeration value="British Indian Ocean Territory"/>
+			<xs:enumeration value="Brunei"/>
+			<xs:enumeration value="Bulgaria"/>
+			<xs:enumeration value="Burkina Faso"/>
+			<xs:enumeration value="Burundi"/>
+			<xs:enumeration value="Cambodia"/>
+			<xs:enumeration value="Cameroon"/>
+			<xs:enumeration value="Canada"/>
+			<xs:enumeration value="Cape Verde"/>
+			<xs:enumeration value="Cayman Islands"/>
+			<xs:enumeration value="Central African Republic"/>
+			<xs:enumeration value="Chad"/>
+			<xs:enumeration value="Chile"/>
+			<xs:enumeration value="China"/>
+			<xs:enumeration value="Christmas Island"/>
+			<xs:enumeration value="Cocos (Keeling) Islands"/>
+			<xs:enumeration value="Colombia"/>
+			<xs:enumeration value="Comoros"/>
+			<xs:enumeration value="Congo"/>
+			<xs:enumeration value="Congo (DRC)"/>
+			<xs:enumeration value="Cook Islands"/>
+			<xs:enumeration value="Costa Rica"/>
+			<xs:enumeration value="Cote d'Ivoire"/>
+			<xs:enumeration value="Croatia"/>
+			<xs:enumeration value="Cyprus"/>
+			<xs:enumeration value="Czech Republic"/>
+			<xs:enumeration value="Denmark"/>
+			<xs:enumeration value="Djibouti"/>
+			<xs:enumeration value="Dominica"/>
+			<xs:enumeration value="Dominican Republic"/>
+			<xs:enumeration value="Ecuador"/>
+			<xs:enumeration value="Egypt"/>
+			<xs:enumeration value="El Salvador"/>
+			<xs:enumeration value="Equatorial Guinea"/>
+			<xs:enumeration value="Eritrea"/>
+			<xs:enumeration value="Estonia"/>
+			<xs:enumeration value="Ethiopia"/>
+			<xs:enumeration value="Falkland Islands (Islas Malvinas)"/>
+			<xs:enumeration value="Faroe Islands"/>
+			<xs:enumeration value="Fiji Islands"/>
+			<xs:enumeration value="Finland"/>
+			<xs:enumeration value="France"/>
+			<xs:enumeration value="French Guiana"/>
+			<xs:enumeration value="French Polynesia"/>
+			<xs:enumeration value="French Southern and Antarctic Lands"/>
+			<xs:enumeration value="Gabon"/>
+			<xs:enumeration value="Gambia, The"/>
+			<xs:enumeration value="Georgia"/>
+			<xs:enumeration value="Germany"/>
+			<xs:enumeration value="Ghana"/>
+			<xs:enumeration value="Gibraltar"/>
+			<xs:enumeration value="Greece"/>
+			<xs:enumeration value="Greenland"/>
+			<xs:enumeration value="Grenada"/>
+			<xs:enumeration value="Guadeloupe"/>
+			<xs:enumeration value="Guam"/>
+			<xs:enumeration value="Guatemala"/>
+			<xs:enumeration value="Guernsey"/>
+			<xs:enumeration value="Guinea"/>
+			<xs:enumeration value="Guinea-Bissau"/>
+			<xs:enumeration value="Guyana"/>
+			<xs:enumeration value="Haiti"/>
+			<xs:enumeration value="Heard Island and McDonald Islands"/>
+			<xs:enumeration value="Honduras"/>
+			<xs:enumeration value="Hong Kong SAR"/>
+			<xs:enumeration value="Hungary"/>
+			<xs:enumeration value="Iceland"/>
+			<xs:enumeration value="India"/>
+			<xs:enumeration value="Indonesia"/>
+			<xs:enumeration value="Iran"/>
+			<xs:enumeration value="Iraq"/>
+			<xs:enumeration value="Ireland"/>
+			<xs:enumeration value="Isle of Man"/>
+			<xs:enumeration value="Israel"/>
+			<xs:enumeration value="Italy"/>
+			<xs:enumeration value="Jamaica"/>
+			<xs:enumeration value="Japan"/>
+			<xs:enumeration value="Jersey"/>
+			<xs:enumeration value="Jordan"/>
+			<xs:enumeration value="Kazakhstan"/>
+			<xs:enumeration value="Kenya"/>
+			<xs:enumeration value="Kiribati"/>
+			<xs:enumeration value="Korea"/>
+			<xs:enumeration value="Kuwait"/>
+			<xs:enumeration value="Kyrgyzstan"/>
+			<xs:enumeration value="Laos"/>
+			<xs:enumeration value="Latvia"/>
+			<xs:enumeration value="Lebanon"/>
+			<xs:enumeration value="Lesotho"/>
+			<xs:enumeration value="Liberia"/>
+			<xs:enumeration value="Libya"/>
+			<xs:enumeration value="Liechtenstein"/>
+			<xs:enumeration value="Lithuania"/>
+			<xs:enumeration value="Luxembourg"/>
+			<xs:enumeration value="Macao SAR"/>
+			<xs:enumeration value="Macedonia, Former Yugoslav Republic of"/>
+			<xs:enumeration value="Madagascar"/>
+			<xs:enumeration value="Malawi"/>
+			<xs:enumeration value="Malaysia"/>
+			<xs:enumeration value="Maldives"/>
+			<xs:enumeration value="Mali"/>
+			<xs:enumeration value="Malta"/>
+			<xs:enumeration value="Marshall Islands"/>
+			<xs:enumeration value="Martinique"/>
+			<xs:enumeration value="Mauritania"/>
+			<xs:enumeration value="Mauritius"/>
+			<xs:enumeration value="Mayotte"/>
+			<xs:enumeration value="Mexico"/>
+			<xs:enumeration value="Micronesia"/>
+			<xs:enumeration value="Moldova"/>
+			<xs:enumeration value="Monaco"/>
+			<xs:enumeration value="Mongolia"/>
+			<xs:enumeration value="Montenegro"/>
+			<xs:enumeration value="Montserrat"/>
+			<xs:enumeration value="Morocco"/>
+			<xs:enumeration value="Mozambique"/>
+			<xs:enumeration value="Myanmar"/>
+			<xs:enumeration value="Namibia"/>
+			<xs:enumeration value="Nauru"/>
+			<xs:enumeration value="Nepal"/>
+			<xs:enumeration value="Netherlands"/>
+			<xs:enumeration value="Netherlands Antilles"/>
+			<xs:enumeration value="New Caledonia"/>
+			<xs:enumeration value="New Zealand"/>
+			<xs:enumeration value="Nicaragua"/>
+			<xs:enumeration value="Niger"/>
+			<xs:enumeration value="Nigeria"/>
+			<xs:enumeration value="Niue"/>
+			<xs:enumeration value="Norfolk Island"/>
+			<xs:enumeration value="Northern Mariana Islands"/>
+			<xs:enumeration value="Norway"/>
+			<xs:enumeration value="Oman"/>
+			<xs:enumeration value="Pakistan"/>
+			<xs:enumeration value="Palau"/>
+			<xs:enumeration value="Palestinian Authority"/>
+			<xs:enumeration value="Panama"/>
+			<xs:enumeration value="Papua New Guinea"/>
+			<xs:enumeration value="Paraguay"/>
+			<xs:enumeration value="Peru"/>
+			<xs:enumeration value="Philippines"/>
+			<xs:enumeration value="Pitcairn Islands"/>
+			<xs:enumeration value="Poland"/>
+			<xs:enumeration value="Portugal"/>
+			<xs:enumeration value="Puerto Rico"/>
+			<xs:enumeration value="Qatar"/>
+			<xs:enumeration value="Republic of Rwanda"/>
+			<xs:enumeration value="Reunion"/>
+			<xs:enumeration value="Romania"/>
+			<xs:enumeration value="Russia"/>
+			<xs:enumeration value="Samoa"/>
+			<xs:enumeration value="San Marino"/>
+			<xs:enumeration value="Sao Tome and Principe"/>
+			<xs:enumeration value="Saudi Arabia"/>
+			<xs:enumeration value="Senegal"/>
+			<xs:enumeration value="Serbia"/>
+			<xs:enumeration value="Serbia, Montenegro"/>
+			<xs:enumeration value="Seychelles"/>
+			<xs:enumeration value="Sierra Leone"/>
+			<xs:enumeration value="Singapore"/>
+			<xs:enumeration value="Slovakia"/>
+			<xs:enumeration value="Slovenia"/>
+			<xs:enumeration value="Solomon Islands"/>
+			<xs:enumeration value="Somalia"/>
+			<xs:enumeration value="South Africa"/>
+			<xs:enumeration value="South Georgia and the South Sandwich Islands"/>
+			<xs:enumeration value="Spain"/>
+			<xs:enumeration value="Sri Lanka"/>
+			<xs:enumeration value="St. Helena"/>
+			<xs:enumeration value="St. Kitts and Nevis"/>
+			<xs:enumeration value="St. Lucia"/>
+			<xs:enumeration value="St. Pierre and Miquelon"/>
+			<xs:enumeration value="St. Vincent and the Grenadines"/>
+			<xs:enumeration value="Suriname"/>
+			<xs:enumeration value="Svalbard and Jan Mayen"/>
+			<xs:enumeration value="Swaziland"/>
+			<xs:enumeration value="Sweden"/>
+			<xs:enumeration value="Switzerland"/>
+			<xs:enumeration value="Taiwan"/>
+			<xs:enumeration value="Tajikistan"/>
+			<xs:enumeration value="Tanzania"/>
+			<xs:enumeration value="Thailand"/>
+			<xs:enumeration value="Timor-Leste (East Timor)"/>
+			<xs:enumeration value="Togo"/>
+			<xs:enumeration value="Tokelau"/>
+			<xs:enumeration value="Tonga"/>
+			<xs:enumeration value="Trinidad and Tobago"/>
+			<xs:enumeration value="Tristan da Cunha"/>
+			<xs:enumeration value="Tunisia"/>
+			<xs:enumeration value="Turkey"/>
+			<xs:enumeration value="Turkmenistan"/>
+			<xs:enumeration value="Turks and Caicos Islands"/>
+			<xs:enumeration value="Tuvalu"/>
+			<xs:enumeration value="Uganda"/>
+			<xs:enumeration value="Ukraine"/>
+			<xs:enumeration value="United Arab Emirates"/>
+			<xs:enumeration value="United Kingdom"/>
+			<xs:enumeration value="United States Minor Outlying Islands"/>
+			<xs:enumeration value="Uruguay"/>
+			<xs:enumeration value="Uzbekistan"/>
+			<xs:enumeration value="Vanuatu"/>
+			<xs:enumeration value="Vatican City"/>
+			<xs:enumeration value="Venezuela"/>
+			<xs:enumeration value="Vietnam"/>
+			<xs:enumeration value="Virgin Islands"/>
+			<xs:enumeration value="Virgin Islands, British"/>
+			<xs:enumeration value="Wallis and Futuna"/>
+			<xs:enumeration value="Yemen"/>
+			<xs:enumeration value="Zambia"/>
+			<xs:enumeration value="Zimbabwe"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<!-- List of roles -->
+	<xs:simpleType name="roleType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Student"/>
+			<xs:enumeration value="Faculty"/>
+			<xs:enumeration value="Administrator"/>
+			<xs:enumeration value="Librarian"/>
+			<xs:enumeration value="Researcher (Academic)"/>
+			<xs:enumeration value="Researcher (Non-Academic)"/>
+			<xs:enumeration value="Postdoctoral Fellow"/>
+			<xs:enumeration value="Graduate Student"/>
+			<xs:enumeration value="Undergraduate Student"/>
+			<xs:enumeration value="Other"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+
+	<!-- Structure of the address element when used for institution or affiliate-institution only -->
+	<!-- addressLine1, city and country are mandatory. -->
+	<!-- addressLine2, state and postalcode are optional. -->
+	<!-- Country must be one of the ones listed above. -->
+	<!-- Address lines can have a maximum of hundred ascii characters -->
+	<xs:complexType name="address">
+		<xs:sequence>
+			<xs:element name="addressLine1" type="addressLineType" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="addressLine2" type="addressLineType" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="city" type="city" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="state-or-province" type="state" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="country" type="countryType" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="postalcode" type="postalCode" minOccurs="0" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+
+
+	<!-- Structure of the address element when used for past-institution only -->
+	<!-- Only the city and the country are mandatory. -->
+	<!-- Addresslines, state and postalcode are optional. -->
+	<!-- Country must be one of the ones listed above. -->
+	<!-- Address lines can have a maximum of hundred ascii characters -->
+	<xs:complexType name="shortAddress">
+		<xs:sequence>
+			<xs:element name="addressLine1" type="addressLineType" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="addressLine2" type="addressLineType" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="city" type="city" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="state-or-province" type="state" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="country" type="countryType" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="postalcode" type="postalCode" minOccurs="0" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<!-- Structure of the email-cc-list element -->
+	<!-- If present, it must have at least one email subelement in it. -->
+	<xs:complexType name="emailCCListType">
+		<xs:sequence>
+			<xs:element name="email" type="email" minOccurs="1"  maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<!-- Structure of the admin element -->
+	<!-- This is the person who'll be the one to be primarily notified of the upload outcome. -->
+	<!-- First, middle and last names are all optional. Valid email is mandatory. -->
+	<!-- An email-cc-list is optional. If present it must have at least one email subelement in it. -->
+	<!-- All emails on the email-cc-list will be copied on mails sent to the primary admin email. -->
+	<xs:complexType name="admin">
+		<xs:sequence>
+			<xs:element name="firstName" type="firstNameType" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="middleName" type="middleNameType" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="lastName" type="lastNameType" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="email" type="email" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="email-cc-list" type="emailCCListType" minOccurs="0" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<!-- Structure of the other-name element -->
+	<!-- Maximum of hundred characters. -->
+	<xs:simpleType name="otherNameType">
+		<xs:restriction base="xs:string">
+		    <xs:minLength value="1"/>
+			<xs:maxLength value="100"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<!-- Structure of the other-names element -->
+	<!-- This is optional. However, if used, it must have at least one other-name subelement. -->
+	<xs:complexType name="otherNamesType">
+		<xs:sequence>
+			<xs:element name="other-name" type="otherNameType" minOccurs="1" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<!-- Structure of the start-date element -->
+	<!-- Must be a four-digit year as 19xx or 20xx -->
+	<!-- Currently the system does not support researchers who are over 108 years old. -->
+	<xs:simpleType name="startDateType">
+		<xs:restriction base="xs:integer">
+			<xs:minInclusive value="1900"/>
+			<xs:maxInclusive value="2008"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<!-- Structure of the end-date element -->
+	<!-- Must be a four-digit year as 19xx or 20xx -->	
+	<xs:simpleType name="endDateType">
+		<xs:restriction base="xs:integer">
+			<xs:minInclusive value="1900"/>
+			<xs:maxInclusive value="2008"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	
+	<!-- Structure of the institution element -->
+	<!-- This is the primary institution the researcher is currently associated with -->
+	<!-- The name of the institution is optional. -->
+	<!-- If the institution name is not supplied the default-institution-name for the profileList will apply.   -->
+	<!-- If both are mentioned, the institution name mentioned against the researcher will override the default institution name.  -->
+	<!-- It's recommended that the default be used, and the institution name per researcher be left out.   -->
+	<!-- The researcher must specify his full address at the institution.  -->
+	<!-- The researcher must name at least one department that he/she is part of at the institution.-->
+	<!-- The researcher must provide his unique employeeID at the institution.-->
+	<!-- The researcher must mention his/her role at the institution. The role must be one of the above-listed roles. -->
+	<!-- The researcher may optionally give his start-date at the institution as a 19xx or 20xx year. -->	
+	<xs:complexType name="researcherInstitutionType">
+		<xs:sequence>
+			<xs:element name="name" type="institutionNameType" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="address" type="address" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="departmentName" type="departmentNameType" minOccurs="1" maxOccurs="unbounded"/>
+			<xs:element name="employeeID" type="employeeIDType" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="role" type="roleType" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="start-date" type="startDateType" minOccurs="0" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<!-- Structure of the affiliate-institution element -->
+	<!-- The researcher can optionally mention just one affiliate-institution. -->
+	<!-- An affiliate-institution must have a name.  -->
+	<!-- The researcher must specify his full address at the affiliate-institution.  -->
+	<!-- The researcher must name at least one department that he/she is part of at the affiliate-institution.-->
+	<!-- The researcher must mention his/her role at the affiliate-institution. The role must be one of the above-listed roles. -->
+	<!-- The researcher may optionally give his start-date at the affiliate-institution as a 19xx or 20xx year. -->
+	<xs:complexType name="affiliateInstitutionType">
+		<xs:sequence>
+			<xs:element name="name" type="institutionNameType" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="address" type="address" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="departmentName" type="departmentNameType" minOccurs="1" maxOccurs="unbounded"/>
+			<xs:element name="role" type="roleType" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="start-date" type="startDateType" minOccurs="0" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<!-- Structure of the past-institution element -->
+	<!-- A past-institution must have a name and address. City and country are mandatory in the address. -->
+	<!-- The researcher can optionally name one or more departments that he/she was part of at the past-institution.-->
+	<!-- The researcher can optionally mention his/her role at the past-institution. -->
+	<!-- The researcher must give his start-date and end-date at the past-institution as 19xx or 20xx year. -->
+	<xs:complexType name="pastInstitutionType">
+		<xs:sequence>
+			<xs:element name="name" type="institutionNameType" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="address" type="shortAddress" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="departmentName" type="departmentNameType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="role" type="roleType" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="start-date" type="startDateType" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="end-date" type="endDateType" minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<!-- Structure of the researcher-profile element -->
+	<!-- One researcher-profile element identifies one researcher. -->
+	<!-- A researcher-profile element must have one lastName and firstName. middleName is optional.-->
+	<!-- A researcher-profile element must mention a unique email for the researcher. -->
+	<!-- A researcher-profile element must mention a institution element, with a unique employeeID for the researcher. -->
+	<!-- A researcher-profile element can have only one affiliate-institution element. -->
+	<!-- A researcher-profile element can have upto ten past-institution elements. -->
+	<!-- Other-names is optional, but if used, must have at least one other-name subelement.  -->
+	<!-- All child elements of researcher-profile must be in the same sequence as mentioned here. -->
+	<xs:complexType name="researcher-profile">
+		<xs:sequence>
+			<xs:element name="firstName" type="firstNameType" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="lastName" type="lastNameType" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="middleName" type="middleNameType" minOccurs="0" maxOccurs="1" />
+			<xs:element name="email" type="email" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="other-names" type="otherNamesType" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="institution" type="researcherInstitutionType" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="affiliate-institution" type="affiliateInstitutionType" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="past-institution" type="pastInstitutionType" minOccurs="0" maxOccurs="10"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<!-- Structure of the sponsor element -->
+	<!-- Only one sponsor per file. -->
+	<!-- This might be an agency uploading data on behalf of one or more institutions. -->
+	<!-- The sponsor name mentioned here must be that of a sponsor approved by Thomson. -->
+	<!-- There must be just one admin element per file. -->
+	<!-- The intimate-researcher-individually element decides whether successfully uploaded researchers will -->
+	<!-- be notified by email of their newly created account and their temporary password. -->
+	<!-- The email-append-note-content can contain text that'll be appended to the sent mail. -->
+	<xs:complexType name="sponsor">
+		<xs:sequence>
+			<xs:element name="name" type="sponsorNameType" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="admin" type="admin" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="intimate-researcher-individually" type="xs:boolean" default="true" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="email-append-note-content" type="email-append-note-content" minOccurs="0" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<!-- Structure of the default-institution-name element -->
+	<!-- Maximum of 150 unicode characters. -->
+	<!-- Although this element is optional, it's recommended that it be used -->
+	<!-- to avoid having to mention the institution name for every researcher. -->
+	<xs:simpleType name="defaultInstitutionNameType">
+		<xs:restriction base="xs:string">
+			<xs:minLength value="1"/>
+			<xs:maxLength value="150"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<!-- Structure of the profileList element -->
+	<!-- A profileList must mention only one default-institution-name. -->
+	<!-- A profileList can have one or more researcher-profile elements. -->
+	<!-- There should be one profileList per institution.  -->
+	<!-- All the researchers of an institution must be within one profileList.  -->
+	<!-- The default institution name will apply to all the researchers in the profileList.  -->
+	<!-- The default institution name will be superseded by the -->
+	<!-- institution name mentioned at the researcher level, if that is used.  -->
+	<!-- It is recommended that the institution name not be used per researcher. -->
+	<!-- Instead, just mention one default institution name per profileList.  -->
+	<!-- If the default is not mentioned, then the institution name must be provided per researcher.  -->
+	<xs:complexType name="profileList">
+		<xs:sequence>
+			<xs:element name="default-institution-name" type="defaultInstitutionNameType" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="researcher-profile" type="researcher-profile" minOccurs="1" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	
+	<!-- Structure of the profileUpload element -->
+	<!-- A file must mention only one sponsor. -->
+	<!-- A file must have one or more profileLists. -->
+	<!-- There should be one profileList per institution.  -->
+	<xs:complexType name="profileUpload">
+		<xs:sequence>
+			<xs:element name="sponsor" type="sponsor" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="profileList" type="profileList" minOccurs="1" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<!-- Root tag for the profiles upload xml input file -->
+	<xs:element name="profileUpload" type="profileUpload"/>
+</xs:schema>

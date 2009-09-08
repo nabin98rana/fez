@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Version 0.1 -->
+<!-- Copyright 2008 Thomson Reuters Global Resources. All Rights Reserved. -->
+<!-- Proprietary and confidential information of TRGR.  -->
+<!-- Disclosure, use, or reproduction without the written authorization of TRGR is prohibited. -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+        <!-- status can be either success or error -->
+        <xs:simpleType name="statusType">
+                <xs:restriction base="xs:string">
+                        <xs:enumeration value="success"/>
+                        <xs:enumeration value="error"/>
+                </xs:restriction>
+        </xs:simpleType>
+        <!-- Error message with maxmium legth of 250 characters -->
+        <xs:simpleType name="errorMessageType">
+                <xs:restriction base="xs:string">
+                        <xs:maxLength value="250"/>
+                </xs:restriction>
+        </xs:simpleType>
+        <!-- requestType can be either profile or publication -->
+        <xs:simpleType name="requestType">
+                <xs:restriction base="xs:string">
+                        <xs:enumeration value="profile"/>
+                        <xs:enumeration value="publication"/>
+                </xs:restriction>
+        </xs:simpleType>
+        <xs:complexType name="outputFileType">
+                <xs:sequence>
+                        <xs:element name="status" type="statusType"/>
+                        <xs:element name="error-message" type="errorMessageType"/>
+                        <xs:element name="url" type="xs:string"/>
+                </xs:sequence>
+                <xs:attribute name="type" type="requestType" use="optional"/>
+        </xs:complexType>
+        <!-- There can be one outputfile element for each processed type -->
+        <!-- If download-type in the request is profile or publication alone  -->
+        <!-- or both can be present. -->
+        <xs:element name="download-response">
+                <xs:complexType>
+                        <xs:sequence>
+                                <xs:element name="outputfile" type="outputFileType" maxOccurs="2"/>
+                        </xs:sequence>
+                </xs:complexType>
+        </xs:element>
+</xs:schema>

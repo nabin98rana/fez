@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Version 0.1 -->
+<!-- Copyright 2008 Thomson Reuters Global Resources. All Rights Reserved. -->
+<!-- Proprietary and confidential information of TRGR.  -->
+<!-- Disclosure, use, or reproduction without the written authorization of TRGR is prohibited. -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:stl="http://www.codesynthesis.com/xmlns/xsstl" elementFormDefault="qualified" attributeFormDefault="unqualified">
+        <!-- Institutions having RIDDownloadPlus entitlement can request profiles data
+      in addition to publications data. -->
+        <!-- Institutions having RIDDownloadBasic entitlement will only be allowed
+      to download publications and not profiles information. -->
+        <!-- In case of publications download, data will be returned from both lists: R(MyPub) and I(institution) -->
+        <!-- Types: supported
+      i)publication
+      ii)profile
+      iii) both-->
+        <xs:simpleType name="downloadType">
+                <xs:restriction base="xs:string">
+                        <xs:enumeration value="publication"/>
+                        <xs:enumeration value="profile"/>
+                        <xs:enumeration value="both"/>
+                        <xs:enumeration value=""/>
+                </xs:restriction>
+        </xs:simpleType>
+        <!-- ResearcherID with maximum of 20 characters. -->
+        <xs:simpleType name="researcherIDType">
+                <xs:restriction base="xs:string">
+                        <xs:minLength value="1"/>
+                        <xs:maxLength value="20"/>
+                </xs:restriction>
+        </xs:simpleType>
+        <!-- EmployeeID with maximum of 50 characters. -->
+        <xs:simpleType name="employeeIDType">
+                <xs:restriction base="xs:string">
+                        <xs:minLength value="1"/>
+                        <xs:maxLength value="50"/>
+                </xs:restriction>
+        </xs:simpleType>
+        <!-- researcherIDs tag contains researcherID -->
+        <xs:complexType name="researcherIDsType">
+                <xs:sequence>
+                        <xs:element name="researcherID" type="researcherIDType" maxOccurs="unbounded"/>
+                </xs:sequence>
+        </xs:complexType>
+        <!-- employeeIDs tag contains researcherID -->
+        <xs:complexType name="employeeIDsType">
+                <xs:sequence>
+                        <xs:element name="employeeID" type="employeeIDType" maxOccurs="unbounded"/>
+                </xs:sequence>
+        </xs:complexType>
+        <!-- researchers type accepts either researcherID or EmployeeID but not both-->
+        <xs:complexType name="researchersType">
+                <xs:choice>
+                        <xs:element name="researcherIDs" type="researcherIDsType"/>
+                        <xs:element name="employeeIDs" type="employeeIDsType"/>
+                </xs:choice>
+        </xs:complexType>
+        <!-- download request type -->
+        <!-- Root tag for the download request xml input file -->
+        <xs:element name="download-request">
+                <xs:complexType>
+                        <xs:sequence>
+                                <xs:element name="download-type" type="downloadType" minOccurs="0"/>
+                                <xs:element name="researchers" type="researchersType" minOccurs="0"/>
+                        </xs:sequence>
+                </xs:complexType>
+        </xs:element>
+</xs:schema>
