@@ -50,10 +50,10 @@ class BackgroundProcessList
 		if ($isAdministrator) {
 			$extra_sql = " OR bgp_state = 1";
 		}
-
+		$utc_date = Date_API::getSimpleDateUTC();
 		$dbtp =  APP_TABLE_PREFIX;
 		$stmt = "SELECT bgp_id, bgp_usr_id, bgp_status_message, bgp_progress, bgp_state, bgp_heartbeat,bgp_name,bgp_started," .
-                "if (bgp_heartbeat < DATE_SUB(CURDATE(),INTERVAL 1 DAY), 1, 0) as is_old
+                "if (bgp_heartbeat < DATE_SUB('".$utc_date."',INTERVAL 1 DAY), 1, 0) as is_old
             FROM ".$dbtp."background_process
             WHERE bgp_usr_id=".$db->quote($usr_id)." ".$extra_sql."
             ORDER BY bgp_started";
@@ -78,8 +78,10 @@ class BackgroundProcessList
 		$log = FezLog::get();
 		$db = DB_API::get();
 
+		$utc_date = Date_API::getSimpleDateUTC();
+
 		$dbtp =  APP_TABLE_PREFIX;
-		$stmt = "SELECT *,if (bgp_heartbeat < DATE_SUB(CURDATE(),INTERVAL 1 DAY), 1, 0) as is_old
+		$stmt = "SELECT *,if (bgp_heartbeat < DATE_SUB(".$utc_date.",INTERVAL 1 DAY), 1, 0) as is_old
             FROM ".$dbtp."background_process
             WHERE bgp_id=".$db->quote($id, 'INTEGER');
 		try {
@@ -142,20 +144,20 @@ class BackgroundProcessList
 
 		$auto_delete_names = $this->auto_delete_names;
 		$dbtp =  APP_TABLE_PREFIX;
-		$stmt = "SELECT bgp_id FROM ".$dbtp."background_process
+		$utc_date = Date_API::getSimpleDateUTC();
+		$stmt = "DELETE FROM ".$dbtp."background_process
                 WHERE 
-                    bgp_usr_id=".$db->quote($usr_id, 'INTEGER')."  " .
-                    "AND bgp_name IN (".$auto_delete_names.") " .
-                    "AND ((bgp_state = '0' AND bgp_started < DATE_SUB(CURDATE(),INTERVAL 1 DAY) )  " .
-                    "OR ((bgp_state = '2') AND (bgp_heartbeat < DATE_SUB(CURDATE(),INTERVAL 1 DAY) ) ) )";
+                    bgp_name IN (".$auto_delete_names.") " .
+                    "AND (((bgp_state = 0 OR bgp_state IS NULL) AND bgp_started < DATE_SUB('".$utc_date."',INTERVAL 1 HOUR) )  " .
+                    "OR ((bgp_state = 2) AND (bgp_heartbeat IS NULL OR bgp_heartbeat < DATE_SUB('".$utc_date."',INTERVAL 1 HOUR) ) ) )";
 		try {
-			$res = $db->fetchCol($stmt);
+			$res = $db->query($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err($ex);
 			return -1;
 		}
-
+/*
 		if (!empty($res)) {
 			$this->delete($res);
 		}
@@ -177,7 +179,7 @@ class BackgroundProcessList
 			array_pop($res);
 			array_pop($res);
 			$this->delete($res);
-		}
+		} */
 	}
 
 	function getLog($bgp_id)
