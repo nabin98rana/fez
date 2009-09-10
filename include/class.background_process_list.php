@@ -81,7 +81,7 @@ class BackgroundProcessList
 		$utc_date = Date_API::getSimpleDateUTC();
 
 		$dbtp =  APP_TABLE_PREFIX;
-		$stmt = "SELECT *,if (bgp_heartbeat < DATE_SUB(".$utc_date.",INTERVAL 1 DAY), 1, 0) as is_old
+		$stmt = "SELECT *,if (bgp_heartbeat < DATE_SUB('".$utc_date."',INTERVAL 1 DAY), 1, 0) as is_old
             FROM ".$dbtp."background_process
             WHERE bgp_id=".$db->quote($id, 'INTEGER');
 		try {
