@@ -9,6 +9,9 @@
 {if $cv_css != ""}
 <link rel="stylesheet" href="{$cv_css}" type="text/css" />
 {/if}
+{if $list}
+<link rel="alternate" href="{$PAGE_URL}?{if $url_wo_tpl != ''}{$url_wo_tpl}&{/if}tpl=2" type="application/rss+xml" title="{$title}" id="gallery" />
+{/if}
 <script type="text/javascript" src="{$rel_url}min.php/common.js"></script>
 {if $autosuggest == 1}
 <script language="JavaScript" type="text/javascript" src="{$rel_url}js/suggestions.js"></script>

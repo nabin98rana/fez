@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0">
+<rss version="2.0" xmlns:media="http://search.yahoo.com/mrss/">
 <channel>
   <title>{if $list_heading != ""}{$list_heading|escape:'html'} - {/if}{$application_title|escape:'html'}</title>
   <link>{$app_base_url}</link>
@@ -33,6 +33,17 @@
 			{/section}
 			</author>
 		{/if}
+{if $list[i].thumbnail.0 != "" && $list[i].isViewer==1}
+                        {assign var="icon" value=$eserv_url|cat:$list[i].rek_pid|cat:"/"|cat:$list[i].thumbnail.0}
+               {if $list[i].stream.0 != ""} 
+                        {assign var="image" value=$eserv_url|cat:$list[i].rek_pid|cat:"/"|cat:$list[i].stream.0}
+                        {assign var="type" value="video/x-flv"}
+               {else}
+                        {assign var="image" value=$eserv_url|cat:$list[i].rek_pid|cat:"/"|cat:$list[i].web_image.0}
+                        {assign var="type" value="image/jpeg"}
+               {/if}
+                <media:thumbnail url="{$icon}" />
+                <media:content url="{$image}" type="{$type}" />{/if}
   </item>
   {/section}
 </channel>

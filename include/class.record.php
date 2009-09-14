@@ -1477,6 +1477,9 @@ class Record
 			$res = Auth::getIndexAuthCascade($res);
 
 			foreach ($res as $key => $rec) {
+				if ($res[$key]['rek_display_type_lookup'] != "") {
+					$res[$key]['rek_coin'] = Misc::OpenURL($rec);
+				}
 				if ($res[$key]['thumbnail'][0] != "") {
 					$thumb_counter++;
 				}
@@ -1584,6 +1587,13 @@ class Record
 					}
 					array_push($result[$i]['stream'], $result[$i]['rek_file_attachment_name'][$x]);
 				}
+
+                                if (is_numeric(strpos($result[$i]['rek_file_attachment_name'][$x], "web_"))) {
+                                        if (!is_array(@$result[$i]['web_image'])) {
+                                                $result[$i]['web_image'] = array();
+                                        }
+                                        array_push($result[$i]['web_image'], $result[$i]['rek_file_attachment_name'][$x]);
+                                }
 			}
 		}
 	}
