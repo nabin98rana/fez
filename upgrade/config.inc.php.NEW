@@ -33,133 +33,90 @@
 // +----------------------------------------------------------------------+
 //
 
-ini_set('allow_url_fopen', 0);
-ini_set("display_errors", 1);
-error_reporting(1);
-error_reporting(E_ALL ^ E_NOTICE);
-set_time_limit(0);
+/**
+ * Type of database connection. With Zend, a PDO connector is recommended, and
+ * "pdo_mysql" is the default. Other options are "mysqli" or "pdo_pgsql"
+ */
+define("APP_SQL_DBTYPE", "DATABASE_TYPE_HERE");
 
-/////////////////////////////////////////
-// BEGIN USER-CONFIGURABLE DEFINITIONS //
-/////////////////////////////////////////
-//define("APP_SQL_DBTYPE",    "mysqli");
-define("APP_SQL_DBTYPE",    "DATABASE_TYPE_HERE");       // "pdo_mysql" or "mysqli" or "pdo_pgsql"
-define("APP_SQL_DBHOST",    "HOST_NAME_HERE");
-define("APP_SQL_DBNAME",    "DB_NAME_HERE");
-define("APP_SQL_DBUSER",    "USER_HERE");
-define("APP_SQL_DBPASS",    "PASS_HERE");
-define("APP_TABLE_PREFIX",  "fez_");
-define("APP_DB_USE_PROFILER", false);
-//define("APP_DB_USE_PROFILER", true);
-define("APP_PATH", '/var/www/fez/');
-define("APP_INC_PATH", APP_PATH . "include/");
-define("APP_PEAR_PATH", APP_INC_PATH . "pear/");
-define("APP_SMARTY_PATH", APP_INC_PATH . "Smarty/");
-/////////////////////////////////////////
-// END USER-CONFIGURABLE DEFINITIONS   //
-/////////////////////////////////////////
+/**
+ * Database host. Defaults to localhost.
+ */
+define("APP_SQL_DBHOST", "HOST_NAME_HERE");
 
-set_include_path(APP_PEAR_PATH . PATH_SEPARATOR . APP_INC_PATH);		
-require_once('Zend/Loader.php');
-Zend_Loader::registerAutoload();
+/**
+ * Database name for the Fez database.
+ */
+define("APP_SQL_DBNAME", "DB_NAME_HERE");
 
-include_once(APP_INC_PATH . 'class.log.php');
-include_once(APP_INC_PATH . "class.configuration.php");
-include_once(APP_INC_PATH . "class.session_db.php");
-include_once(APP_INC_PATH . "class.language.php");
+/**
+ * Database user.
+ */
+define("APP_SQL_DBUSER", "USER_HERE");
 
-$params = array(
-            'host' => APP_SQL_DBHOST,            
-            'username' => APP_SQL_DBUSER,
-            'password' => APP_SQL_DBPASS,
-        	'dbname' => APP_SQL_DBNAME,
-			'profiler' => array(
-				'enabled' 	=> APP_DB_USE_PROFILER,
-				'class' 	=> 'Zend_Db_Profiler_Firebug'
-			)
-);
-        
-try {
-	$db = Zend_Db::factory(APP_SQL_DBTYPE, $params);
-	$db->getConnection();
-	Zend_Registry::set('db', $db);   
-}
-catch (Exception $ex) {
-	$error_type = "db";
-	include_once(APP_PATH . "offline.php");				        
-	exit;
-}
-Configuration::registerConf();
+/**
+ * Database password.
+ */
+define("APP_SQL_DBPASS", "PASS_HERE");
 
-@define('APP_LOGGING_DESTINATION', APP_PATH . "logs/fez-" . date("Ymd") . ".log");
-//@define('APP_LOGGING_LEVEL', PEAR_LOG_DEBUG);
+/**
+ * Table prefix - defaults to fez_
+ */
+define("APP_TABLE_PREFIX", "fez_");
 
-$file_log = new Zend_Log();
-$file_log->setEventItem('timestamp', date('m-d-Y H:i:s', time()));
-$file_log->setEventItem('visitorIp', $_SERVER['REMOTE_ADDR']);
-$file_log->setEventItem('visitorHost', @gethostbyaddr($_SERVER['REMOTE_ADDR']));
-$file_writer = new Zend_Log_Writer_Stream(APP_LOGGING_DESTINATION);
-$file_writer->addFilter(Zend_Log::DEBUG);
-$file_formatter = new Zend_Log_Formatter_Simple('[ %timestamp% ] [ %priorityName% ] [ %visitorIp% ] [ %visitorHost% ]: %message%' . PHP_EOL);
-$file_writer->setFormatter($file_formatter);
-$file_log->addWriter($file_writer);
+/**
+ * Path on the filesystem to the Fez code, which is the directory containing
+ * this config file.
+ */
+define("APP_PATH", 'APP_PATH_HERE');
 
 
-// Firebug logging
-$firebug_log = new Zend_Log();
-$firebug_writer = new Zend_Log_Writer_Firebug();
-$firebug_log->addWriter($firebug_writer);
 
-$log = new FezLog(array(
-					array('log'=>$firebug_log, 'type' => 'firebug'), 
-					array('log'=>$file_log, 'type' => 'file')
-					), true);				
-$sess = new SessionManager();
+////////////////////////////////////////////////////////////////////////////////
+//
+// The following settings are optional and will be set to defaults.
+//
+////////////////////////////////////////////////////////////////////////////////
 
-$fparams = array(
-            'host' => FEDORA_DB_HOST,            
-            'username' => FEDORA_DB_USERNAME,
-            'password' => FEDORA_DB_PASSWD,
-        	'dbname' => FEDORA_DB_DATABASE_NAME,
-			'port' => FEDORA_DB_PORT,
-			'profiler' => array(
-				'enabled' 	=> APP_DB_USE_PROFILER,
-				'class' 	=> 'Zend_Db_Profiler_Firebug'
-			)
-);
+/**
+ * To turn on the database profiler for debugging information, set this to true.
+ */
+# define("APP_DB_USE_PROFILER", false); // default: false
 
-try {
-	$fdb = Zend_Db::factory(FEDORA_DB_TYPE, $fparams);
-	$fdb->getConnection();
-	Zend_Registry::set('fedora_db', $fdb);   
-}
-catch (Exception $ex) {
-	$error_type = "db";
-	print $ex->getMessage();
-	include_once(APP_PATH . "offline.php");				        
-	exit;
-}
+/**
+ * Fez include path. If for some reason you have installed these files somewhere
+ * other than the default, you can set the include path here.
+ */
+# define("APP_INC_PATH", APP_PATH . "include/");
+
+/**
+ * Fez PEAR include path. If you have PEAR components installed elsewhere, you
+ * can set the path here.
+ */
+# define("APP_PEAR_PATH", APP_INC_PATH . "pear/");
+
+/**
+ * Fez Smarty path. If you have Smarty installed elsewhere, you can set the path
+ * here.
+ */
+# define("APP_SMARTY_PATH", APP_INC_PATH . "Smarty/");
+
+/**
+ * Filesystem location for the Fez log files.
+ */
+# @define('APP_LOGGING_DESTINATION', APP_PATH . "logs/fez-" . date("Ymd") . ".log");
+
+/**
+ * Debug level for the Fez log files.
+ */
+# @define('APP_LOGGING_LEVEL', PEAR_LOG_DEBUG);
 
 
-if (isset($_GET)) {
-    $HTTP_POST_VARS = $_POST;
-    $HTTP_GET_VARS = $_GET;
-    $HTTP_SERVER_VARS = $_SERVER;
-    $HTTP_ENV_VARS = $_ENV;
-    $HTTP_POST_FILES = $_FILES;
-    // Seems like PHP 4.1.0 didn't implement the $_SESSION auto-global ...
-    if (isset($_SESSION)) {
-        $HTTP_SESSION_VARS = $_SESSION;
-    }
-    //$HTTP_SESSION_VARS = $_SESSION;
-    $HTTP_COOKIE_VARS = $_COOKIE;
-}
 
-$GLOBALS['app_cache'] = true; // Set this string to true if you have given php.ini at least 256M to use. It will improve performance by storing some Fedora and SQL queries in PHP memory rather than fetch them twice or more during a single page load. This gets hardset to false globally for indexing and reindexing in background processes as this won't scale over 500M with over 10,000 objects otherwise (you will get PHP fatal memory error for example).
+////////////////////////////////////////////////////////////////////////////////
+//
+// DO NOT REMOVE THE FOLLOWING LINES!
+//
+////////////////////////////////////////////////////////////////////////////////
 
-// Fix magic_quote_gpc'ed values
-$_GET =& Misc::dispelMagicQuotes($_GET);
-$_POST =& Misc::dispelMagicQuotes($_POST);
-
-// Handle the language preferences
-Language::setPreference();
+include dirname(__FILE__) . "/init.php";

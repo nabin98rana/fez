@@ -107,7 +107,7 @@ class Default_Data
 		$defaultData['app_fedora_username']                 = "fedoraAdmin";
 		$defaultData['app_fedora_pwd']                      = "fedoraAdmin";
 		$defaultData['fedora_db_host']                      = "localhost";
-		$defaultData['fedora_db_type']                      = "mysql";
+		$defaultData['fedora_db_type']                      = "pdo_mysql";
 		$defaultData['fedora_db_database_name']             = "";   // Empty default
 		$defaultData['fedora_db_username']                  = "";   // Empty default
 		$defaultData['fedora_db_passwd']                    = "";   // Empty default

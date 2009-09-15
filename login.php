@@ -90,7 +90,7 @@ function checkIDP($IDP, $IDProviders){
 
 /******************************************************************************/
 
-function getHostName($string){
+function getLoginHostName($string){
 	
 	if (preg_match('/([a-zA-Z0-9\-\.]+\.[a-zA-Z0-9\-\.]{2,6})/', $string, $matches))
 		return $matches[0];

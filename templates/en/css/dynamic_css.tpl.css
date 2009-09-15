@@ -1259,3 +1259,13 @@ span.maxlength_exceeded {
     color: red;
     font-weight: bold;
  }
+
+#fedora_fail {
+	border: 1px solid red;
+	background: #ffd2d2;
+	padding: 10px;
+	width: 500px;
+	text-align: center;
+	align: center;
+	margin: 0 auto;	
+}

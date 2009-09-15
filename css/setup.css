@@ -1,0 +1,29 @@
+body {
+    border: none;
+    margin: 0;
+    background-color: #ECF6FF;
+}
+
+#setup {
+    padding: 30px;
+
+    font-family: Verdana;
+    font-size: 10pt;
+}
+
+.admin-header {
+	font-weight: bold;
+	padding-bottom: 15px;
+}
+
+.left-col {
+	width: 200px;
+	text-align: right;
+	padding-right: 15px;
+}
+
+.right-col {
+	width: 500px;
+	text-align: left;
+	font-size: 80%;
+}

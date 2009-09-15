@@ -56,6 +56,9 @@ function startSetup() {
     $tpl->compile_dir = "../templates_c";
     $tpl->config_dir = '';
 
+
+    $tpl->assign('setup', true);
+
     $step = @$_GET["step"] ? @$_GET["step"] : @$_POST["step"];
     if ($step == "") { $step = 0; }
     $tpl->assign('step', $step);
@@ -189,6 +192,7 @@ function writeBaseConfigFile() {
 
     // Extract the form values
     $path       = $_POST['app_path'];
+	$rel_url    = $_POST['app_relative_url'];
     $dbtype     = $_POST['app_sql_dbtype'];
     $host       = $_POST['app_sql_dbhost'];
     $database   = $_POST['app_sql_dbname'];
@@ -208,7 +212,8 @@ function writeBaseConfigFile() {
     $contents = str_replace("DB_NAME_HERE", $database, $contents);
     $contents = str_replace("USER_HERE", $user, $contents);
     $contents = str_replace("PASS_HERE", $pass, $contents);
-    $contents = str_replace("/usr/local/apache/htdocs/YOUR_PATH_HERE/", $path, $contents);
+	$contents = str_replace("APP_PATH_HERE", $path, $contents);
+	$contents = str_replace("REL_URL_HERE", $rel_url, $contents);
 
     // Write the file to where it needs to go
     clearstatcache();

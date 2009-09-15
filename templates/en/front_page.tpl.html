@@ -119,6 +119,10 @@ var dt1_load_state = 0;
 </script>
 
 	<div id="container">
+		
+		{if $fedora_connectivity != '1'}
+			<div id="fedora_fail">Fez has not yet been configured to connect to Fedora.</div>
+		{/if}
 
 	<div id="inner-container">
 

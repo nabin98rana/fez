@@ -1,33 +1,9 @@
 {include file="header.tpl.html" application_title="Fez Setup"}
 
+<body>
+
 {literal}
-<style type="text/css">
-
-body {
-	font-family: Verdana;
-	font-size: 10pt;
-}
-
-.admin-header {
-	font-weight: bold;
-	padding-bottom: 15px;
-}
-
-.left-col {
-	width: 200px;
-	text-align: right;
-	padding-right: 15px;
-}
-
-.right-col {
-	width: 500px;
-	text-align: left;
-	font-size: 80%;
-}
-
-</style>
-
-<script language="JavaScript">
+<script type="text/javascript">
 <!--
 function validateForm(f)
 {
@@ -41,8 +17,7 @@ function validateForm(f)
 </script>
 {/literal}
 
-<body style="background-color: #ECF6FF;">
-<div style="padding: 30px;">
+<div id="setup">
 <div class="outline" style="padding: 10px; width: 650px; border: 1px #80C0FF solid; background-color: white;">
 
 {if $step == 0}
@@ -52,8 +27,10 @@ function validateForm(f)
 		{$problems}
 	{else}
 		Welcome to the Fez installation script. Everything looks ready to go.<br /><br />
-		<form action="index.php?step=1" method="POST">
-			<input type="submit" name="button" value="Proceed to the first step">
+		<form action="index.php?step=1" method="post">
+                    <div>
+                        <input type="submit" name="button" value="Proceed to the first step" />
+                    </div>
 		</form>
 	{/if}
 	</div>
@@ -63,9 +40,7 @@ function validateForm(f)
 <div class="admin-header">Core Settings</div>
 <div class="default admin-content">Please supply the following values.
 
-<br /><br />
-
-<form action="index.php?step=2" method="POST">
+<form action="index.php?step=2" method="post">
 
 <table>
 
@@ -95,7 +70,7 @@ function validateForm(f)
 <td class="left-col">Database type</td>
 <td class="right-col">
   <select name="app_sql_dbtype">
-	<option value="mysql">MySQL</option>
+	<option value="pdo_mysql">MySQL</option>
 	<!--option value="pgsql">PostgreSQL</option-->
 	<!-- Have commented out all PEAR db systems that the Fedora site doens't claim they support -->
 	<!--option value="sybase">Sybase</option>
@@ -140,10 +115,10 @@ function validateForm(f)
 </tr>
 </table>
 
-<br /><br />
-
-<input type="submit" name="button" value="Proceed to the next step" onclick="javascript:window.alert('Please allow a couple of minutes for the next step to be performed.\nDo not refresh the next page during this time.');">
-<input type="reset" name="reset" value="Reset to initial values">
+    <div>
+        <input type="submit" name="button" value="Proceed to the next step" onclick="javascript:window.alert('Please allow a couple of minutes for the next step to be performed.\nDo not refresh the next page during this time.');" />
+        <input type="reset" name="reset" value="Reset to initial values" />
+    </div>
 
 </form>
 
@@ -164,7 +139,7 @@ function validateForm(f)
 		<div style="border: 2px red solid; padding: 10px;">
 		<b>IMPORTANT SECURITY INFORMATION:</b> Once you have verified that your installation is working, delete the /setup/ directory.
 		</div>
-		<br /><br />You should now be able to log into <a href="../login.php" target="_blank">Fez Administration</a> and complete the rest of the setup process. In particular, you will need to configure your Fedora settings.<br /><br />
+		<br /><br />You should now be able to log into <a href="../login.php" onclick="javascript:window.open('../login.php'); return false;">Fez Administration</a> and complete the rest of the setup process. In particular, you will need to configure your Fedora settings.<br /><br />
 		The default login is: admin/admin - you should change the password for security reasons.
 		</div>
 	{/if}

@@ -62,6 +62,9 @@ class DB_API
      */
     public static function get($index = 'db') 
     {
+		if (!class_exists("Zend_Registry")) {
+			die("Zend could not be found. Either Zend is incorrectly installed, or you need to refactor your Fez config file.");
+		}
     	return Zend_Registry::get($index);
     }
 }

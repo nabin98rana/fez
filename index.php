@@ -138,6 +138,8 @@ if ($front_page == "" || $front_page == "front_page") {
 } elseif ($front_page == "very_simple_front_page") {
 	$front_page = "very_simple_front_page.tpl.html";
 }
+
+$tpl->assign('fedora_connectivity', $fedoraConnectivity);
 $tpl->setTemplate($front_page);
 
 //check for custom view search keys
