@@ -34,12 +34,24 @@ include_once("../config.inc.php");
 include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.researcherid.php");
 
-$employee_ids = array('0042414', '0019904', '0030530', '0038034', '0008872', '0032765', '0009029', '0052278', '0020332');
+// A-4834-2009 - Annette Dobson
+// A-4835-2009 - Wayne Hall
+// A-4836-2009 - Alan Lopez
+// A-4837-2009 - Jackob Najman
+// A-4838-2009 - Neville Owen
+// A-4841-2009 - Gail Williams
+// A-4839-2009 - Richard Taylor
+// A-4840-2009 - Harvey Whiteford
+// A-3541-2009 - Amberyn Thomas 
+
+$researcher_ids = array('A-3541-2009');
+//$researcher_ids = array('A-4834-2009', 'A-4835-2009', 'A-4836-2009', 'A-4837-2009', 'A-4838-2009', 'A-4841-2009', 'A-4839-2009', 'A-4840-2009');
+//$employee_ids = array('0042414', '0019904', '0030530', '0038034', '0008872', '0032765', '0009029', '0052278', '0020332');
 //$researchers_id_type = 'employeeIDs';
 //$researcher_id_type = 'employeeID';
 $researchers_id_type = 'researcherIDs';
 $researcher_id_type = 'researcherID';
 
-ResearcherID::downloadRequest($employee_ids, $researchers_id_type, $researcher_id_type);
+ResearcherID::downloadRequest($researcher_ids, $researchers_id_type, $researcher_id_type);
 
 ?>

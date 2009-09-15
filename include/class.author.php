@@ -117,6 +117,34 @@ class Author
 		}
 		return $res;
 	}
+	
+	/**
+	 * Method used to get the author ID of the given ResearcherID.
+	 *
+	 * @access  public
+	 * @param   string $rid The ResearcherID
+	 * @return  integer The author ID
+	 */
+	public static function getIDByResearcherID($rid)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		$stmt = "SELECT
+                    aut_id
+                 FROM
+                    " . APP_TABLE_PREFIX . "author
+                 WHERE
+                    aut_researcher_id=".$db->quote($rid);
+		try {
+			$res = $db->fetchOne($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return false;
+		}
+		return $res;
+	}
 
 	/**
 	 * Method used to get the author ID of the given author name. Use carefully as if there are more than one match it will only return the first.
@@ -630,7 +658,87 @@ class Author
 		)
 		);
 	}
+	
+	
+	    /**
+     * Method used to get the list of authors matching the specified
+     * ResearcherID.
+     *
+     * @access  public
+     * @param integer $current_row The row to start from
+     * @param integer $max The max number of rows to return
+     * @param string $order_by The column to sort results on
+     * @param array $researcher_ids The ResearcherIDs to search for
+     * @return  array The list of matching authors
+     */
+    function getListByResearcherIDs($current_row = 0, $max = 25, $order_by = 'aut_lname', $researcher_ids = array())
+    {
+    	$log = FezLog::get();
+		$db = DB_API::get();
+		
+		if (!is_array($researcher_ids)) {
+			return false;
+		}
+		
+		if (count($researcher_ids) == 0) {
+			return false;
+		}
 
+    	$where_stmt = "";
+    	$extra_stmt = "";
+    	$extra_order_stmt = "";
+    	$bind_params = array();    	    	
+    	if (!empty($researcher_ids)) {
+    	    $where_stmt .= " WHERE aut_researcher_id in  (".Misc::arrayToSQLBindStr($researcher_ids).")";
+			$bind_params = $researcher_ids;
+    	}
+    	
+		$start = $current_row * $max;
+        $stmt = "SELECT SQL_CALC_FOUND_ROWS 
+					* ".$extra_stmt."
+                 FROM
+                    " . APP_TABLE_PREFIX . "author
+				".$where_stmt."
+                 ORDER BY ".$extra_order_stmt."
+                    ".$order_by."
+				 LIMIT ".$start.", ".$max;
+        
+    	try {
+			$res = $db->fetchAll($stmt, $bind_params);
+			$total_rows = $db->fetchOne('SELECT FOUND_ROWS()');
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return '';
+		}
+		
+		foreach ($res as $key => $row) {
+			$res[$key]['positions'] = array();
+			$res[$key]['positions'] = Author::getPositionsByOrgStaffID($res[$key]['aut_org_staff_id']);
+		}
+		
+		if (($start + $max) < $total_rows) {
+			$total_rows_limit = $start + $max;
+		} else {
+		   $total_rows_limit = $total_rows;
+		}
+		$total_pages = ceil($total_rows / $max);
+		$last_page = $total_pages - 1;			
+            return array(
+                "list" => $res,
+                "list_info" => array(
+                    "current_page"  => $current_row,
+                    "start_offset"  => $start,
+                    "end_offset"    => $total_rows_limit,
+                    "total_rows"    => $total_rows,
+                    "total_pages"   => $total_pages,
+                    "prev_page" => ($current_row == 0) ? "-1" : ($current_row - 1),
+                    "next_page"     => ($current_row == $last_page) ? "-1" : ($current_row + 1),
+                    "last_page"     => $last_page
+                )
+            );
+    }
+	
 	/**
 	 * Method used to get an associative array of author ID and concatenated title, first name, lastname
 	 * of all authors available in the system.
@@ -889,6 +997,33 @@ class Author
 
 		return $res;
 	}
+	
+	function getLastname($aut_id)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		if(empty($aut_id) || !is_numeric($aut_id)) {
+			return "";
+		}
+			
+		$stmt = "SELECT
+                    aut_lname
+                 FROM
+                    " . APP_TABLE_PREFIX . "author
+                 WHERE
+                    aut_id=".$db->quote($aut_id, 'INTEGER')."
+                 ORDER BY
+                    aut_title";
+		try {
+			$res = $db->fetchOne($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return '';
+		}
+		return $res;
+	}
 
 	function getDisplayNameUserName($aut_id)
 	{
@@ -1022,6 +1157,102 @@ class Author
 		}
 		return $res;
 	}
+	
+	
+	/**
+     * Method used to set the ResearcherID for an author.
+     *
+     * @access  public
+     * @param array $profile The researcher profile returned by the upload service
+     * @return  bool True if ResearcherID is set else false
+     */
+    public static function setResearcherIdByRidProfile($profile) 
+    {
+    	$log = FezLog::get();
+		$db = DB_API::get();
+		
+    	$email = $profile->email;
+    	$researcher_id = $profile->researcherID;
+    	$password = $profile->{'temp-password'};
+    	
+    	$email_pieces = explode('@', $email);
+    	$aut_org_username = count($email_pieces) > 0 ? $email_pieces[0] : false;
+    	
+    	if($aut_org_username) {
+	    	$stmt = "UPDATE
+	                    " . APP_TABLE_PREFIX . "author
+	                 SET
+	                    aut_researcher_id=" . $db->quote($researcher_id) . "	                    
+	                 WHERE
+	                    aut_org_username=" . $db->quote($aut_org_username);
+	    	
+	    	try {
+				$db->query($stmt, array($mypub_url, $username));
+			}
+			catch(Exception $ex) {
+				$log->err($ex);
+				return false;
+			}
+			
+			return Author::setRIDPassword($researcher_id, $password);
+    	}
+    	else {
+    		$log->err('Unable to retrieve author org username from RID profile', __FILE__, __LINE__);
+	        return false;
+    	}
+    }
+    
+	/**
+     * Method used to set generate a ResearcherID password used when logging into the site.
+     *
+     * @param string $aut_researcher_id The researcher id we are generating the password for
+     * @param string $password The plain text password to set
+     * @return bool True if set else false
+     */
+	public static function setRIDPassword($researcher_id, $password) {
+		
+		$stmt = "UPDATE
+                    " . APP_TABLE_PREFIX . "author
+                 SET
+                    aut_rid_password=" . $db->quote($password) . "
+                 WHERE
+                    aut_researcher_id=" . $db->quote($researcher_id);
+    		    	
+		try {
+			$db->query($stmt, array($mypub_url, $username));
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return false;
+		}
+    	return true;    
+    }
+    
+	/**
+     * Method used to set get the ResearcherID password.
+     *
+     * @param array $aut_researcher_id The researcher id we are generating the password for
+     * @return  mixed The plain text password if generated else false
+     */
+    public static function getRIDPassword($aut_researcher_id) {    	
+    	
+    	$stmt = "SELECT
+                    aut_rid_password
+                 FROM
+                    " . APP_TABLE_PREFIX . "author
+                 WHERE
+                    aut_researcher_id=".$db->quote($aut_researcher_id);
+    	
+    	try {
+			$res = $db->fetchOne($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return false;
+		}
+		
+        return $res;    
+    }
 	
 
 	function najaxGetMeta()

@@ -3306,6 +3306,98 @@ class Record
 		$datastreamTitles = $display->getDatastreamTitles();
 		return compact('datastreamTitles', 'xmlObj', 'indexArray', 'xdis_id');
 	}
+	
+	/**
+	 * Inserts an object into Fedora using values in an array to build the Fedora XML
+	 *
+	 * @access  public
+	 * @param   array $array The mods datastream array
+	 * @param 	string $rels_parent_pid The parent pid of the object
+	 * @param 	string $history (OPTIONAL) The history to add to the the object's Premis Event log
+	 * @param 	string $times_cited (OPTIONAL) The times cited 
+	 * @param	array $links (OPTIONAL) The links datastream array
+	 * @param	array $premis (OPTIONAL) The premis datastream array
+	 * @return  void
+	 * @see foxml.tpl.html
+	 */
+	public static function insertFromArray($mods, $rels_parent_pid, $version, $history = '', $times_cited = '', $links = array(), $premis= array())
+	{
+		$log = FezLog::get();
+		
+		if(! @$mods['genre']) {
+			$log->err('A genre is required');
+	    	return false;
+		}
+		if(! @$mods['titleInfo']['title']) {
+			$log->err('A title is required');
+	    	return false;
+		}
+			    
+	    $pid = Fedora_API::getNextPID();
+	    
+	    // Dublin Core
+	    $dc = array();
+	    $dc['title'] = $mods['titleInfo']['title'];
+	    
+	    $title = substr(htmlspecialchars($dc['title']), 0, 255);
+	    
+	    // FezMD
+	    $xdis_id = XSD_Display::getXDIS_IDByTitleVersion($mods['genre'], $version);
+	    if($xdis_id == '') {
+	    	$log->err('Failed to get xdis_id by title and version');
+	    	return false;
+	    }
+	    $fezmd['xdis_id'] = $xdis_id;
+	    $fezmd['sta_id'] = Status::getID("Published");
+	    $fezmd['ret_id'] = Object_Type::getID('Record');
+	    $fezmd['created_date'] = Date_API::getFedoraFormattedDateUTC();;
+	    $fezmd['updated_date'] = $fezmd['created_date'];
+	    $fezmd['depositor'] = Auth::getUserID();
+	    	    
+	    // RELS-EXT
+	    $rels = array();
+    	$rels['parent_pid'] = $rels_parent_pid;
+    
+	    $tpl = new Template_API();
+	    $tpl_file = 'foxml.tpl.html';
+	    $tpl->setTemplate($tpl_file);
+	    
+	    $tpl->assign("pid",		$pid);
+	    $tpl->assign("title",	$title);
+	    $tpl->assign("mods",	$mods);
+	    $tpl->assign("dc", 		$dc);
+	    $tpl->assign("fezmd",	$fezmd);
+	    $tpl->assign("rels",	$rels);
+	    
+	    if(count($links) > 0) {
+	    	$tpl->assign("links",	$links);
+	    }
+	    if(count($premis) > 0) {
+	    	$tpl->assign("premis",	$premis);
+	    }
+	    
+	    $foxml = $tpl->getTemplateContents();	    
+	    $xml_request_data = new DOMDocument();
+	   
+	    if(! @$xml_request_data->loadXML($foxml)) {
+	    	$log->err($foxml);
+	    }
+	    else {  
+		    $result = Fedora_API::callIngestObject($foxml);
+		    
+		    if($result) {
+		    	Record::setIndexMatchingFields($pid);
+		    	if(!empty($times_cited)) {
+		    		Record::updateThomsonCitationCount($pid, $times_cited);
+		    	}
+		    	if(!empty($history)) {
+		    		History::addHistory($pid, null, "", "", true, $history);
+		    	}
+		    }
+	    }	
+	    
+	    return $pid;
+	}
 
 	/**
 	 * Inserts an object template into Fedora. Used in workflows.

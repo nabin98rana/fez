@@ -47,7 +47,8 @@ include_once(APP_INC_PATH . "class.misc.php");
 
 class LinksAmrService
 {
-	const SERVICE_ENDPOINT = 'https://ws.isiknowledge.com/esti/xrpc';
+	//const SERVICE_ENDPOINT = 'https://ws.isiknowledge.com/esti/xrpc';
+	const SERVICE_ENDPOINT = 'https://ws.isiknowledge.com/cps/xrpc';
 	
 	const COLLECTION = 'WOS';
 	
@@ -84,7 +85,7 @@ class LinksAmrService
 		$response_document = new DOMDocument();
 		$response_document = LinksAmrService::doServiceRequest($xml_api_data_request->saveXML());
 		
-		echo $response_document->saveXML();
+		//echo $response_document->saveXML();
 		
 		return $response_document;		
 	}
@@ -98,6 +99,9 @@ class LinksAmrService
 	 */
 	private static function doServiceRequest($post_fields)
 	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
 		// Do the service request
 		$header[] = "Content-type: text/xml";
 		$ch = curl_init(self::SERVICE_ENDPOINT);
@@ -115,7 +119,7 @@ class LinksAmrService
 		$response = curl_exec($ch);
 
 		if (curl_errno($ch)) {
-			Error_Handler::logError(curl_error($ch)." ".self::SERVICE_ENDPOINT, __FILE__, __LINE__);
+			$log->err(array(curl_error($ch)." ".self::SERVICE_ENDPOINT, __FILE__, __LINE__));
 			return false;
 		} else {
 			curl_close($ch);

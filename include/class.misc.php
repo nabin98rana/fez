@@ -3768,8 +3768,147 @@ class Misc
 		return $URL;
 	}
 	
+	/**
+     * Generates a password
+     * 
+     * @param $num_alpha The number of alpha characters to include in the password
+     * @param $num_numeric The number of numerals to include
+     * @param $num_symbols The number of symbols to include
+     * @return string The generated password
+     */
+    public static function generatePassword($num_alpha = 8, $num_numeric = 0, $num_symbols=0)
+	{
+		$list_alpha = 'bcdfghjkmnpqrstvwxyzBCFGHJKMNPQRSTVWXYZ';
+		$list_numeric = '0123456789';	  	
+	  	$list_symbols = '!@#$%^*()~`{}[]|\&_';
+	  	
+	  	return str_shuffle(
+      		substr(str_shuffle($list_alpha),0,$num_alpha) .
+      		substr(str_shuffle($list_numeric),0,$num_numeric) .
+      		substr(str_shuffle($list_symbols),0,$num_symbols)
+    	);
+	}
 	
+	/**
+	 * Adds the record to Fedora
+	 * 
+	 * @param $record The WoS record to add to Fedora
+	 * @param $author_id (OPTIONAL) The author id of one of the authors on the records
+	 * 
+	 * @return bool True if succeeded otherwise false
+	 */
+	public static function convertEstiRecordToMods($record, $author_id = false) 
+	{
+		$log = FezLog::get();
+				
+		if($record->item->doctype != 'Article') {
+			$log->err('Only Journal Article types are supported when converting ESTI record to MODS');
+			return false;
+		}
+		
+		$date_issued = '';
+		if(@$record->item->attributes()->coverdate) {
+			preg_match('/(\d{4})(\d{2})/', $record->item->attributes()->coverdate, $matches);
+			if(count($matches) == 3) {
+				if($matches[2] == '00')
+					$date_issued = $matches[1];
+				else
+					$date_issued = $matches[1] . '-' . $matches[2];
+			}
+			else {
+				if(@$record->item->bib_issue->attributes()->year) {
+					$date_issued = $record->item->bib_issue->attributes()->year;
+				}
+			}
+		}
+		
+		$_record = $record->item;
+		unset($record);
+		$record = $_record;
+		unset($_record);
+		
+		$item_title = htmlspecialchars($record->item_title, ENT_QUOTES);
+		$source_title = htmlspecialchars($record->source_title, ENT_QUOTES);
+		
+		$author_lname = '';
+		$authors_matching_count = 0;
+		$authors_matching_index = 0;
+		
+		if($author_id) {
+			$author_lname = strtolower(Author::getLastname($author_id));	
+		}
+		
+	    // MODS
+	    $mods = array();
+	    $mods['titleInfo']['title'] = $item_title;
+	    
+	    $mods['name'][0]['id'] = '0';
+	    $mods['name'][0]['authority'] = APP_ORG_NAME;
+	    $mods['name'][0]['namePart_personal'] = $record->authors->primaryauthor;
+	   	$mods['name'][0]['role']['roleTerm_text'] = 'author';
 	
+	   	// Attempt to match on last name
+	   	if((!empty($author_lname)) && preg_match('/^'.$author_lname.'/', strtolower($mods['name'][0]['namePart_personal']))) {
+	   		$authors_matching_count++;
+	   		$authors_matching_index = 0;
+	   	}
+	   	
+	   	$i = 1;
+	    foreach($record->authors->author as $author) {
+	    	$mods['name'][$i]['id'] = '0';
+	    	$mods['name'][$i]['authority'] = APP_ORG_NAME;
+	    	$mods['name'][$i]['namePart_personal'] = $author;
+	    	$mods['name'][$i]['role']['roleTerm_text'] = 'author';
+		    // Attempt to match on last name
+	    	if((!empty($author_lname)) && preg_match('/^'.$author_lname.'/', strtolower($mods['name'][$i]['namePart_personal']))) {
+	   			$authors_matching_count++;
+	   			$authors_matching_index = $i;
+	   		}
+	    	$i++;
+	    }
+	    if($authors_matching_count == 1) {
+	    	$mods['name'][$authors_matching_index]['id'] = $author_id;
+	    }
+	    
+	    $i = 0;
+	    if(count($record->keywords->keyword) > 0) {		    
+		    foreach($record->keywords->keyword as $keyword) {
+		    	$mods['subject'][$i]['authority'] = 'keyword';
+		    	$mods['subject'][$i]['topic'] = $keyword;
+		    	$i++;
+		    }
+	    }   
+	    if(count($record->keywords_plus->keyword) > 0) {		 
+		    foreach($record->keywords_plus->keyword as $keyword) {
+		    	$mods['subject'][$i]['authority'] = 'keyword';
+		    	$mods['subject'][$i]['topic'] = $keyword;
+		    	$i++;
+		    }
+	    }
+	    
+	    $mods['genre'] = 'Journal Article';
+	    $mods['identifier_isi_loc'] = $record->ut;
+	    $mods['identifier_isbn'] = $record->isbn;
+	
+	    $mods['relatedItem']['name'][0]['namePart_type'] = 'journal';
+	    $mods['relatedItem']['name'][0]['namePart'] = $source_title;  	    	
+	    $mods['relatedItem']['part']['detail_volume']['number'] = @$record->bib_issue->attributes()->vol;
+	    
+	    $mods['relatedItem']['originInfo']['dateIssued'] = $date_issued;
+	    
+	    preg_match('/\(([^\)]+)\):/', $record->bib_id, $matches);    	
+	    if(count($matches) == 2)
+	    	$mods['relatedItem']['part']['detail_issue']['number'] = $matches[1];
+	    	
+	    if($record->bib_pages) {
+	    	$pages = @split('-', $record->bib_pages);    	
+	    	if(count($pages) == 2) {
+	    		$mods['relatedItem']['part']['extent_page']['start'] = $pages[0];
+	    		$mods['relatedItem']['part']['extent_page']['end'] = $pages[1];
+	    	}
+	    }
+	    return $mods;
+	}
 
 } // end of Misc class
 
