@@ -59,7 +59,7 @@ function parse_mysql_dump($url, $ignoreerrors = false) {
             $query .= $sql_line;
             if(preg_match("/;\s*$/", $sql_line)) {
                 try {
-                    $res = $db->fetchAll($query, array(), Zend_Db::FETCH_ASSOC);
+                    $res = $db->query($query, array(), Zend_Db::FETCH_ASSOC);
                 }
                 catch(Exception $ex) {
                     $log->notice(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
@@ -293,7 +293,7 @@ function saveExistingConfigToDB()
     return 1;
 }
  
-function upgrade()
+function upgrade($skip)
 {
     clearstatcache();
     // check if config.inc.php in the root directory is writable
@@ -319,8 +319,9 @@ function upgrade()
     // go through the upgrades and execute any that are greater than the current version
  //   $sql_upgrade = $dbversion;
     foreach ($sql_upgrades as $sql_upgrade) {
-        if (parse_mysql_dump($path."/upgrade".$sql_upgrade.".sql")) {
+        if (parse_mysql_dump($path."/upgrade".$sql_upgrade.".sql") || $skip) {
             $success = $success && set_data_model_version($sql_upgrade);
+            if ($skip) { $skip = 0; }
         } else {
             $success = false;
 			$failure_point = $sql_upgrade;
@@ -328,7 +329,7 @@ function upgrade()
         }
     }
 
-    if ($success) {
+    if ($success != false) {
         return array($success, "Upgrade to database version $sql_upgrade succeeded.");
     } else {
         return array($success, "The upgrade failed (At upgrade '$failure_point') - check error_handler.log.");
@@ -354,13 +355,18 @@ if (empty($step)) {
 $tpl = new Template_API();
 $tpl->setTemplate('upgrade.tpl.html');
 
+$skip = 0;
+
 switch ($step) {
     case 1:
         // do nothing
     break;
     case 2:
-    if (!empty($_POST["upgrade"])) {
-        list($res, $message) = upgrade();
+    if (!empty($_POST["upgrade"]) || !empty($_POST["skip"])) {
+        if (!empty($_POST["skip"])) {
+            $skip = 1;
+        }
+        list($res, $message) = upgrade($skip);
         $tpl->assign("result", $message);
         $tpl->assign("result_good", $res);
         $tpl->assign('display_config_changes', runningDBconfig());
