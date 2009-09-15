@@ -136,7 +136,7 @@ class WF_Behaviour
                     " . $db->quote(Misc::checkBox(@$params["wfb_auto"])) . "
                  )";
 		try {
-			$db->query($stmt, $_POST["items"]);
+			$db->query($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err($ex);
@@ -170,7 +170,7 @@ class WF_Behaviour
                     wfb_auto = " . $db->quote(Misc::checkBox(@$params["wfb_auto"])) . "
                  WHERE wfb_id = ".$db->quote($wfb_id, 'INTEGER');
 		try {
-			$db->query($stmt, $_POST["items"]);
+			$db->query($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err($ex);

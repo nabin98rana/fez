@@ -46,6 +46,9 @@ include_once(APP_INC_PATH . "class.sanity_checks.php");
 
 
 function parse_mysql_dump($url, $ignoreerrors = false) {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
     $file_content = file($url);
     //print_r($file_content);
     $query = "";
@@ -55,9 +58,12 @@ function parse_mysql_dump($url, $ignoreerrors = false) {
         if (($sql_line != "") && (substr($tsl, 0, 2) != "--") && (substr($tsl, 0, 1) != "#")) {
             $query .= $sql_line;
             if(preg_match("/;\s*$/", $sql_line)) {
-                $res = $GLOBALS["db_api"]->dbh->query($query);
-                if (PEAR::isError($res)) {
-                    Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
+                try {
+                    $res = $db->fetchAll($query, array(), Zend_Db::FETCH_ASSOC);
+                }
+                catch(Exception $ex) {
+                    $log->notice(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+                    $log->err($ex);
                     return false;
                 }
                 $query = "";
@@ -110,32 +116,45 @@ function replace_table_prefix($str)
 
 function get_data_model_version()
 {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
     $stmt = "select config_value from " . APP_TABLE_PREFIX . "config " .
             "where config_name = 'datamodel_version' " .
             "and config_module = 'core' ";
-    $res = $GLOBALS["db_api"]->dbh->getRow($stmt, DB_FETCHMODE_ASSOC);
-    if (PEAR::isError($res)) {
-        return 0;
+    try {
+        $res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
     }
+        catch(Exception $ex) {
+        $log->notice(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+        $log->err($ex);
+    }
+
     if (is_array($res)) {
     	return $res['config_value'];
-    } else {
-    	return 0;
     }
+    return 0;
 }
 
 function set_data_model_version($dbversion)
 {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
     $stmt = "update " . APP_TABLE_PREFIX . "config " .
             "set config_value = ". $dbversion. " " .
             "where config_name = 'datamodel_version' " .
             "and config_module = 'core' ";
-    $res = $GLOBALS["db_api"]->dbh->query($stmt);
-    if (PEAR::isError($res)) {
-        return 0;
-    } else {
-        return 1;
+    try {
+        $res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
     }
+    catch(Exception $ex) {
+        $log->notice(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
+        $log->err($ex);
+        return 0;
+    }
+
+    return 1;
 }
 
 function saveExistingConfigToDB()
