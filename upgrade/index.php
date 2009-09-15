@@ -123,7 +123,7 @@ function get_data_model_version()
             "where config_name = 'datamodel_version' " .
             "and config_module = 'core' ";
     try {
-        $res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+        $res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
     }
         catch(Exception $ex) {
         $log->notice(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
