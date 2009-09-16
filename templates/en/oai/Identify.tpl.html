@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
+<?xml-stylesheet type='text/xsl' href='/oai2.xsl' ?>
 <OAI-PMH  xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
   <responseDate>{$responseDate}</responseDate>
   <request {if $verb == "Identify"}verb="{$verb}" {/if}resumptionToken="">{$app_base_url}oai.php</request>
@@ -19,19 +20,6 @@
         <sampleIdentifier>oai:{$APP_HOSTNAME}:{$app_pid_namespace}:23</sampleIdentifier>
       </oai-identifier>
     </description>
-<description>
-  <toolkit xsi:schemaLocation="http://oai.dlib.vt.edu/OAI/metadata/toolkit http://oai.dlib.vt.edu/OAI/metadata/toolkit.xsd">
-    <title>OCLC's OAICat Repository Framework</title>
-  	  <author>
-        <name>Jeffrey A. Young</name>
-        <email>jyoung@oclc.org</email>
-        <institution>OCLC</institution>
-      </author>
-      <version>1.5.41</version>
-      <toolkitIcon>http://alcme.oclc.org/oaicat/oaicat_icon.gif</toolkitIcon>
-      <URL>http://www.oclc.org/research/software/oai/cat.shtm</URL>
-  </toolkit>
-</description>        
     <description>
       <eprints xmlns="http://www.openarchives.org/OAI/1.1/eprints" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/1.1/eprints http://www.openarchives.org/OAI/1.1/eprints.xsd">
         <content>

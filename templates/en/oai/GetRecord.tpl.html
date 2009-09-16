@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type='text/xsl' href='/oai2.xsl' ?>
 <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
 <responseDate>{$responseDate}</responseDate>
 {if $verb == "GetRecord"} 
@@ -56,9 +57,12 @@
     		{/section}
 	        {assign var="loop_relation" value=$list[0].rek_ismemberof_title}
 			{section name="s" loop=$loop_relation}
-	        <dc:relation>isMemberOf {$loop_relation[s]|escape:"html"}</dc:relation>
+	        <dc:relation>isMemberOf {$loop_relation[s]|escape:"html"} {$app_base_url}list/{$list[0].rek_ismemberof[s]|escape:"html"}</dc:relation>
 			{/section}
-
+			{assign var="loop_format" value=$list[0].rek_file_attachment_name}
+			{section name="f" loop=$loop_format}
+	        <dc:relation>{$app_base_url}eserv/{$list[0].rek_pid|escape:"html"}/{$list[0].rek_file_attachment_name[f]|escape:"html"}</dc:relation>
+			{/section}
 			{assign var="loop_rights" value=$list[0].rek_rights}
 			{section name="s" loop=$loop_rights}
 	        <dc:rights>{$loop_rights[s]|escape:"html"}</dc:rights>
