@@ -1,5 +1,9 @@
 RewriteEngine   on
 
+# Disallow request of this file
+RewriteRule ^\.htaccess$ - [F]
+RewriteRule ^logs/.*\.log$ - [F]
+
 # Robots.txt
 RewriteRule ^robots.txt$         robots.php [L]
 
