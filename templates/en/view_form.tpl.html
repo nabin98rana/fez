@@ -206,14 +206,14 @@ function loadPreview(pid,datastreamID, alt, origami)
 			<td class="default" colspan="6">&nbsp;</td>
 		  </tr>
 		  <tr>
-			<td class="default_white" colspan="6" bgcolor="{$heading_color}"><b>Attached Files</b></td>
+			<td class="default_white" colspan="6" bgcolor="{$heading_color}"><b>Attached Files</b>{if !$isUser} (Some files may be inaccessible until you <a class="white_link_underline" href="{$rel_url}login.php?url={$uri_encoded}">login</a> with your {$app_name} credentials){/if}</td>
 		  </tr>
 		  {else}
 		  <tr>
 			<td class="default" colspan="5">&nbsp;</td>
 		  </tr>
 		  <tr>
-			<td class="default_white" colspan="5" bgcolor="{$heading_color}"><b>Attached Files</b></td>
+			<td class="default_white" colspan="6" bgcolor="{$heading_color}"><b>Attached Files</b>{if !$isUser} (Some files may be inaccessible until you <a class="white_link_underline" href="{$rel_url}login.php?url={$uri_encoded}">login</a> with your {$app_name} credentials){/if}</td>
 		  </tr>
 		  {/if}
 
