@@ -65,8 +65,8 @@ Zend_Loader_Autoloader::getInstance()->setFallbackAutoloader(true);
 
 include_once(APP_INC_PATH . 'class.log.php');
 include_once(APP_INC_PATH . "class.configuration.php");
-include_once(APP_INC_PATH . "class.session_db.php");
 include_once(APP_INC_PATH . "class.language.php");
+include_once(APP_INC_PATH . "class.session_db.php");
 
 $params = array(
             'host' => APP_SQL_DBHOST,
@@ -82,6 +82,7 @@ $params = array(
 try {
     $db = Zend_Db::factory(APP_SQL_DBTYPE, $params);
     $db->getConnection();
+    Zend_Db_Table_Abstract::setDefaultAdapter($db);
     Zend_Registry::set('db', $db);
 }
 catch (Exception $ex) {
@@ -94,13 +95,11 @@ Configuration::registerConf();
 $file_log = new Zend_Log();
 $file_log->setEventItem('timestamp', date('m-d-Y H:i:s', time()));
 $file_log->setEventItem('visitorIp', $_SERVER['REMOTE_ADDR']);
-$file_log->setEventItem('visitorHost', @gethostbyaddr($_SERVER['REMOTE_ADDR']));
 $file_writer = new Zend_Log_Writer_Stream(APP_LOGGING_DESTINATION);
 $file_writer->addFilter(Zend_Log::DEBUG);
-$file_formatter = new Zend_Log_Formatter_Simple('[ %timestamp% ] [ %priorityName% ] [ %visitorIp% ] [ %visitorHost% ]: %message%' . PHP_EOL);
+$file_formatter = new Zend_Log_Formatter_Simple('[ %timestamp% ] [ %priorityName% ] [ %visitorIp% ] : %message%' . PHP_EOL);
 $file_writer->setFormatter($file_formatter);
 $file_log->addWriter($file_writer);
-
 
 // Firebug logging
 $firebug_log = new Zend_Log();
@@ -111,7 +110,13 @@ $log = new FezLog(array(
                     array('log'=>$firebug_log, 'type' => 'firebug'),
                     array('log'=>$file_log, 'type' => 'file')
                     ), true);
-$sess = new SessionManager();
+                    
+$sess = new Fez_Session_Manager();
+Zend_Session::setOptions(array(
+    'gc_probability' => 1,
+    'gc_divisor' => 5000
+    ));
+Zend_Session::setSaveHandler($sess);
 
 $fedoraConnectivity = 1;
 $fparams = array(
@@ -135,12 +140,6 @@ catch (Exception $ex) {
     // We don't want to bail out if Fedora details haven't been entered yet. This is perfectly legitimate
     // for a brand new installation! However, we need to at least make the user aware of the situation.
     $fedoraConnectivity = 0;
-    /*
-    $error_type = "db";
-    print $ex->getMessage();
-    include_once(APP_PATH . "offline.php");
-    exit;
-    */
 }
 
 
