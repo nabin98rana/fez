@@ -1,24 +1,10 @@
 {include file="header.tpl.html" application_title="Fez Upgrade"}
 {include file="app_errors.tpl.html"}
 
+<body>
+	
 {literal}
-<style type="text/css">
-
-.left-col {
-	width: 200px;
-	text-align: right;
-	padding-right: 15px;
-}
-
-.right-col {
-	width: 500px;
-	text-align: left;
-	font-size: 80%;
-}
-
-</style>
-
-<script language="JavaScript">
+<script type="text/javascript">
 <!--
 function validateForm(f)
 {
@@ -31,8 +17,7 @@ function validateForm(f)
 //-->
 </script>
 {/literal}
-
-<body style="background-color: #ECF6FF;">
+	
 <div style="padding: 30px;">
 <div class="outline" style="padding: 10px; width: 750px; border: 1px #80C0FF solid; background-color: white;">
 
@@ -52,9 +37,11 @@ the new version.  Be sure to backup your current DB before clicking.  If you hav
 'Skip this Step'</div>
 <br />
 <form action="{$smarty.server.PHP_SELF}" method="post">
-<input type="hidden" name="step" value="2" />
-<input type="submit" name="upgrade" value="Upgrade" />
-<input type="submit" name="skip" value="Skip this Step / Next" />
+	<div>
+		<input type="hidden" name="step" value="2" />
+		<input type="submit" name="upgrade" value="Upgrade" />
+		<input type="submit" name="skip" value="Skip this Step / Next" />
+	</div>
 </form>
 {elseif $step == 2}
 <form action="{$smarty.server.PHP_SELF}" method="post">

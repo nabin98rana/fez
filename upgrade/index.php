@@ -354,6 +354,7 @@ if (empty($step)) {
 
 $tpl = new Template_API();
 $tpl->setTemplate('upgrade.tpl.html');
+$tpl->assign('setup', true);
 
 $skip = 0;
 
