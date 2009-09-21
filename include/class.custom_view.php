@@ -183,7 +183,7 @@ class Custom_View
     
     function getCommCview($community_pid)
     {
-    	$log = FezLog::get();
+    	//$log = FezLog::get();
 		$db = DB_API::get();
 		
         $stmt = "SELECT *
@@ -195,7 +195,7 @@ class Custom_View
 			$res = $db->fetchRow($stmt, array($community_pid), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err($ex);
+			//$log->err($ex);
 			return '';
 		}
         return $res;

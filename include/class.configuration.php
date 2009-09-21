@@ -103,6 +103,11 @@ class Configuration
 		$custom_view_pid = $_GET['custom_view_pid'];
 		if (!empty($custom_view_pid)) {
 			$customView = Custom_View::getCommCview($custom_view_pid);			
+			if(! $customView) {
+				$error_type = 'Unable to get custom view from DB';
+				include_once(APP_PATH . "offline.php");
+    			exit;
+			}
 		}
 
         // Assemble compound variables
