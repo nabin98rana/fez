@@ -91,6 +91,7 @@ Configuration::registerConf();
 
 if(APP_LOGGING_ENABLED == "true") {
 	
+	$log_file = APP_LOG_LOCATION;
 	if(preg_match('/%([^%]*)%/i', APP_LOG_LOCATION, $matches)) {
 		if(count($matches) == 2) {
 			$to_replace = $matches[0];
