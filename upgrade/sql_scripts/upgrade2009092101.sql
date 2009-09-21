@@ -1,0 +1,1 @@
+insert into fez_config (config_name, config_module, config_value) values ('app_enable_flash_uploader_switch', 'core', 'ON');
