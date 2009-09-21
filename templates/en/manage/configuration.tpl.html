@@ -324,20 +324,44 @@ function restoreDefaultColours(el)
 			</td>
   		  </tr>
 		  <tr>
-		    <td class="colname">Error logging</td>
+		    <td class="colname">Logging</td>
 			<td class="coldetail">
-			  <select name="app_report_error_file">
-			    <option value="true"{if $config_settings.app_report_error_file == "true"} selected="selected"{/if}>Enabled</option>
-				<option value="false"{if $config_settings.app_report_error_file == "false"} selected="selected"{/if}>Disabled</option>
+			  <select name="app_logging_enabled">
+			    <option value="true"{if $config_settings.app_logging_enabled == "true"} selected="selected"{/if}>Enabled</option>
+				<option value="false"{if $config_settings.app_logging_enabled == "false"} selected="selected"{/if}>Disabled</option>
 			  </select>
 			</td>
   		  </tr>
 		  <tr>
-		    <td class="colname">Error log location</td>
+		    <td class="colname">Log location</td>
 			<td class="coldetail">
-			  <input type="text" name="app_error_log" value="{$config_settings.app_error_log|escape:"html"}" size="40" />
-			  <br />You may want to change this to be below the document root, or at least make it non-readable by Apache.
-			  {include file="error_icon.tpl.html" field="app_error_log"}
+			  <input type="text" name="app_log_location" value="{$config_settings.app_log_location|escape:"html"}" size="40" />
+			  <br />You may want to change this to be below the document root, or at least make it non-readable by Apache. You may also optionally include 
+			  the placeholder text <b>%&lt;format&gt;%</b> which will be replaced with the generated date in the format specified.
+			  <br />For example: <b>/var/log/fez/fez-%Ymd%.log</b> will output log files to the directory /var/log/fez/ 
+			  with a file name fez-20090921.log (i.e. rotated daily). For more information about date formats, please see 
+			  the PHP Manual date reference page <a href="http://www.php.net/manual/en/function.date.php" target="_blank">here</a>.
+			  {include file="error_icon.tpl.html" field="app_log_location"}
+			</td>
+  		  </tr>
+  		  <tr>
+		    <td class="colname">Log level</td>
+			<td class="coldetail">
+				<select name="app_log_level">
+				    <option value="0"{if $config_settings.app_log_level|escape == "0"} selected="selected"{/if}>Emergency - system is unusable</option>
+					<option value="1"{if $config_settings.app_log_level|escape == "1"} selected="selected"{/if}>Alert: action must be taken immediately</option>
+					<option value="2"{if $config_settings.app_log_level|escape == "2"} selected="selected"{/if}>Critical: critical conditions</option>
+					<option value="3"{if $config_settings.app_log_level|escape == "3"} selected="selected"{/if}>Error: error conditions</option>
+					<option value="4"{if $config_settings.app_log_level|escape == "4"} selected="selected"{/if}>Warning: warning conditions</option>
+					<option value="5"{if $config_settings.app_log_level|escape == "5"} selected="selected"{/if}>Notice: normal but significant condition</option>
+					<option value="6"{if $config_settings.app_log_level|escape == "6"} selected="selected"{/if}>Informational: informational messages</option>
+					<option value="7"{if $config_settings.app_log_level|escape == "7"} selected="selected"{/if}>Debug: debug messages</option>
+					
+			  	</select>
+			  <br />The log levels are show in descending order of importance. Setting a log level further down the list will include log messages 
+			  at higher levels, for example, setting the log level to 'Error' will include 'Critical', 'Alert' and 'Emergency' log messages, 
+			  but will not include 'Warning', 'Notice', 'Informational' or 'Debug' log messages. The default is 'Error'.
+			  {include file="error_icon.tpl.html" field="app_log_level"}
 			</td>
   		  </tr>
 		  <tr>

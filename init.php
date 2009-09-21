@@ -53,9 +53,6 @@ if (!defined("APP_SMARTY_PATH")) {
 if (!defined("APP_DB_USE_PROFILER")) {
     define("APP_DB_USE_PROFILER", false);
 }
-if (!defined('APP_LOGGING_DESTINATION')) {
-    @define('APP_LOGGING_DESTINATION', APP_PATH . "logs/fez-" . date("Ymd") . ".log");
-}
 
 set_include_path(APP_PEAR_PATH . PATH_SEPARATOR . APP_INC_PATH);
 
@@ -92,25 +89,47 @@ catch (Exception $ex) {
 }
 Configuration::registerConf();
 
-$file_log = new Zend_Log();
-$file_log->setEventItem('timestamp', date('m-d-Y H:i:s', time()));
-$file_log->setEventItem('visitorIp', $_SERVER['REMOTE_ADDR']);
-$file_writer = new Zend_Log_Writer_Stream(APP_LOGGING_DESTINATION);
-$file_writer->addFilter(Zend_Log::DEBUG);
-$file_formatter = new Zend_Log_Formatter_Simple('[ %timestamp% ] [ %priorityName% ] [ %visitorIp% ] : %message%' . PHP_EOL);
-$file_writer->setFormatter($file_formatter);
-$file_log->addWriter($file_writer);
-
-// Firebug logging
-$firebug_log = new Zend_Log();
-$firebug_writer = new Zend_Log_Writer_Firebug();
-$firebug_log->addWriter($firebug_writer);
-
-$log = new FezLog(array(
-                    array('log'=>$firebug_log, 'type' => 'firebug'),
-                    array('log'=>$file_log, 'type' => 'file')
-                    ), true);
-                    
+if(APP_LOGGING_ENABLED == "true") {
+	
+	if(preg_match('/%([^%]*)%/i', APP_LOG_LOCATION, $matches)) {
+		if(count($matches) == 2) {
+			$to_replace = $matches[0];
+			$format = $matches[1];
+			$date = @date($format);
+			if($date) {
+				$log_file = str_replace($to_replace, $date, APP_LOG_LOCATION);
+			}
+		}
+	}
+	
+	$file_log = new Zend_Log();
+	$file_log->setEventItem('timestamp', date('m-d-Y H:i:s', time()));
+	$file_log->setEventItem('visitorIp', $_SERVER['REMOTE_ADDR']);
+	$file_writer = new Zend_Log_Writer_Stream($log_file);
+	$file_writer->addFilter(Zend_Log::DEBUG);
+	$file_formatter = new Zend_Log_Formatter_Simple('[ %timestamp% ] [ %priorityName% ] [ %visitorIp% ] : %message%' . PHP_EOL);
+	$file_writer->setFormatter($file_formatter);
+	$file_log->addWriter($file_writer);
+	
+	// Firebug logging
+	/*$firebug_log = new Zend_Log();
+	$firebug_writer = new Zend_Log_Writer_Firebug();
+	$firebug_log->addWriter($firebug_writer);*/
+	
+	$log = new FezLog(array(
+	                    //array('log'=>$firebug_log, 'type' => 'firebug'),
+	                    array('log'=>$file_log, 'type' => 'file')
+	                    ), false);
+}
+else {
+	
+	$null_writer = new Zend_Log_Writer_Null;
+	$null_log = new Zend_Log($null_writer);
+	$log = new FezLog(array(
+                    array('log'=>$null_log, 'type' => 'file')
+                    ), false);
+}
+         
 $sess = new Fez_Session_Manager();
 Zend_Session::setOptions(array(
     'gc_probability' => 1,
