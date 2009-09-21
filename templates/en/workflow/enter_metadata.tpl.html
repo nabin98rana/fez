@@ -272,6 +272,45 @@ function selectDateField(field_name, day, month, year)
 				{$xsd_display_fields[i].xsdmf_order}
 			{/if}
             {if $xsd_display_fields[i].xsdmf_html_input == 'file_input' && $xsd_display_fields[i].xsdmf_enabled == 1}
+
+			{if $smarty.const.APP_ENABLE_FLASH_UPLOADER_SWITCH == 'ON'}
+			<tbody id="flash_file_uploader_rows" style="display:none">
+			<tr>
+				<td width="200" bgcolor="{$cell_color}" class="default" valign="top"><strong>File upload</strong></td>
+				<td bgcolor="{$value_color}" class="default">
+					<div id="uploader_file_table_container" style="display:none;">
+						<table id="uploader_file_table">
+							<thead>
+								<tr>
+									<th>Name</th>
+									<th>Size</th>
+									<th>Progress</th>
+									<th>&nbsp;</th>
+								</tr>
+							</thead>
+							<tbody id="uploader_file_details">
+							</tbody>
+						</table>
+					</div>
+				
+					<div id="uploaderElements" style="display:inline;">
+						<div id="uploaderContainer">
+							<span id="uploaderSelectLink" style="position: absolute; z-index: 2;"></span>
+							<input id="uploaderUploadButton" type="button" value="Select Files" style="z-index:1;" />
+						</div>
+					</div>
+
+					<script type="text/javascript">
+						dojo.addOnLoad( function() {ldelim}
+							swfuploaderLoad({$xsd_display_fields[i].xsdmf_multiple_limit}, '{$rel_url}', {ldelim} workflowId : {$id}, xsdmf_id : '{$xsd_display_fields[i].xsdmf_id}'{rdelim});
+						{rdelim});
+					</script>
+
+				</td>
+			</tr>
+			</tbody>
+			{/if}
+			<tbody id="original_file_uploader_rows">
 				{if $xsd_display_fields[i].xsdmf_multiple == 1}
 					{section name="z" loop=$xsd_display_fields[i].multiple_array}
 						{assign var="loop_num" value=$smarty.section.z.index}
@@ -297,6 +336,7 @@ function selectDateField(field_name, day, month, year)
 						 </td>
 						</tr>
 				{/if}
+			</tbody>
             {elseif $xsd_display_fields[i].xsdmf_html_input == 'checkbox' && $xsd_display_fields[i].xsdmf_enabled == 1}
 				{if $xsd_display_fields[i].xsdmf_multiple == 1}
 					{section name="z" loop=$xsd_display_fields[i].multiple_array}

@@ -446,6 +446,16 @@ function restoreDefaultColours(el)
 			</td>
   		  </tr>
   		  <tr>
+		    <td class="colname">Flash File Uploader</td>
+			<td class="coldetail">
+			  <select name="app_enable_flash_uploader_switch">
+			    <option value="ON"{if $config_settings.app_enable_flash_uploader_switch == "ON"} selected="selected"{/if}>On</option>
+				<option value="OFF"{if $config_settings.app_enable_flash_uploader_switch == "OFF"} selected="selected"{/if}>Off</option>
+			  </select>
+			<br />Whether you want users to be able to use the flash file uploader (gives more feedback including progress bars)
+			</td>
+  		  </tr>
+  		  <tr>
 		    <td class="colname">Author auto-suggest mode</td>
 			<td class="coldetail">
 			  <select name="app_author_suggest_mode">

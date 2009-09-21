@@ -1,0 +1,28 @@
+
+
+/* style the flash movie so that it's above the element it's replacing */
+.swfupload {
+	position: absolute;
+	z-index: 1;
+}
+
+/* Style the upload table */
+#uploader_file_table tbody {
+	outline: 1px solid #aaa;
+}
+
+#uploader_file_table td, #uploader_file_table th {
+	padding: 4px;
+}
+
+#uploader_file_table tr.odd {
+	background-color: #ddd;
+}
+
+#uploader_file_table tr.even {
+	background-color: #eee;
+}
+
+td.uploader_file_size { 
+	text-align: right; 
+}

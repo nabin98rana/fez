@@ -49,6 +49,7 @@ include_once(APP_INC_PATH . "class.xsd_html_match.php");
 include_once(APP_INC_PATH . "class.xsd_relationship.php");
 include_once(APP_INC_PATH . "class.workflow_status.php");
 include_once(APP_INC_PATH . "class.org_structure.php");
+include_once(APP_INC_PATH . "class.uploader.php");
 
 Auth::checkAuthentication(APP_SESSION);
 $wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
@@ -57,10 +58,27 @@ if (empty($wfstatus)) {
     exit;
 }
 
+// if we have uploaded files using the flash uploader, then generate $_FILES array entries for them
+if (isset($_POST['uploader_files_uploaded']))
+{
+	$tmpFilesArray = Uploader::generateFilesArray($wfstatus->id, $_POST['uploader_files_uploaded']);
+	if (count($tmpFilesArray)) {
+		$_FILES = $tmpFilesArray;
+	}
+}
+
+
 
 $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign('type', 'enter_metadata');
+
+if (strtolower($_SERVER['HTTPS']) == 'on' || $_SERVER['SERVER_PORT'] == 443 || strtolower(substr($_SERVER['SCRIPT_URI'], 0, 5)) == 'https') {
+	$tpl->assign('http_protocol', 'https');
+} else {
+	$tpl->assign('http_protocol', 'http');
+}
+
 
 $isAdministrator = User::isUserAdministrator(Auth::getUsername());
 //CK commented this out as it is not needed in a entermetadata form anymore
@@ -70,6 +88,9 @@ if (empty($wfstatus->parent_pid)) {
 	exit;
 }
 $wfstatus->setTemplateVars($tpl);
+
+$tpl->assign('header_include_flash_uploader_files', 1); // we want to set the header to include the files if possible
+
 // get the xdis_id of what we're creating
 $xdis_id = $wfstatus->getXDIS_ID();
 $xdis_title = XSD_Display::getTitle($xdis_id);

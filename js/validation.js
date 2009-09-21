@@ -509,4 +509,18 @@ function checkFormSubmission(f, callback_func)
     }
 }
 
+function isValidSolrFilename(s) 
+{
+	// check string length
+	if (s.length > 45) {
+		return false;
+	}
+
+	// check if it starts with a digit
+	// check for upper/lower alphanumeric characters with underscores
+	// check for only one file extension (only one period character)
+	var regexp = /^[a-zA-Z][a-zA-Z0-9_]*[\.][a-zA-Z0-9_]+$/;
+	
+	return regexp.test(s);
+}
 //-->

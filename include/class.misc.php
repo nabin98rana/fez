@@ -1178,6 +1178,7 @@ class Misc
 		$return = array();
 		$next_link = Misc::getNextLink($existingDatastreams);
 		$searchvars = array("ID", "CONTROL_GROUP", "STATE", "VERSIONABLE", "versionID", "LABEL", "MIMETYPE"); // For items which repeat, (like ID (ID and versionID)) make the searchable part uppercase and the name difference lowercase
+		
 		foreach ($datastreamTitles as $dsTitle) {
 			//		$IDPos = stripos($xmlString, 'id="'.$dsTitle['xsdsel_title'].'"'); // stripos is a php5 function
 			$IDPos = stripos($xmlString, 'id="'.$dsTitle['xsdsel_title'].''); // stripos is a php5 function
@@ -1232,7 +1233,7 @@ class Misc
 									} else {
 										$return[$dsTitle['xsdsel_title'].$key]['LABEL'] = $_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']][$key];
 									}
-										
+									
 									$error = $_FILES['xsd_display_fields']['error'][$file_res[0]['xsdmf_id']][$key];
 									$errorText = "";
 									switch ($error) {
@@ -1258,7 +1259,15 @@ class Misc
 										$dsIDName = Foxml::makeNCName($_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']][$key]);
 										$temp_store = APP_TEMP_DIR.$dsIDName;
 										//	                                    copy($_FILES['xsd_display_fields']['tmp_name'][$file_res[0]['xsdmf_id']][$key],$temp_store);
-										move_uploaded_file($_FILES['xsd_display_fields']['tmp_name'][$file_res[0]['xsdmf_id']][$key],$temp_store);
+										
+										// check if this file was uploaded by the flash uploader
+										if ($_FILES['xsd_display_fields']['tmp_name'][$file_res[0]['xsdmf_id']][$key] == 'ALREADYMOVED') {
+											// if so, rename (move) the file into the new location
+											rename($_FILES['xsd_display_fields']['new_file_location'][$file_res[0]['xsdmf_id']][$key], $temp_store);
+										} else {
+											// otherwise, move the uploaded file into the new location
+											move_uploaded_file($_FILES['xsd_display_fields']['tmp_name'][$file_res[0]['xsdmf_id']][$key],$temp_store);
+										}
 										$return[$dsTitle['xsdsel_title'].$key]['MIMETYPE'] = Misc::mime_content_type($temp_store);
 										//										$return[$dsTitle['xsdsel_title'].$key]['File_Location'] = $_FILES['xsd_display_fields']['tmp_name'][$file_res[0]['xsdmf_id']][$key];
 										$return[$dsTitle['xsdsel_title'].$key]['File_Location'] = $temp_store;
@@ -1304,7 +1313,16 @@ class Misc
 								$dsIDName = Foxml::makeNCName($_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']]);
 								$temp_store = APP_TEMP_DIR.$dsIDName;
 								//	                            copy($_FILES['xsd_display_fields']['tmp_name'][$file_res[0]['xsdmf_id']],$temp_store);
-								move_uploaded_file($_FILES['xsd_display_fields']['tmp_name'][$file_res[0]['xsdmf_id']],$temp_store);
+
+								// check if this file was uploaded by the flash uploader
+								if ($_FILES['xsd_display_fields']['tmp_name'][$file_res[0]['xsdmf_id']] == 'ALREADYMOVED') {
+									// if so, rename (move) the file into the new location
+									rename($_FILES['xsd_display_fields']['new_file_location'][$file_res[0]['xsdmf_id']], $temp_store);
+								} else {
+									// otherwise, move the uploaded file into the new location
+									move_uploaded_file($_FILES['xsd_display_fields']['tmp_name'][$file_res[0]['xsdmf_id']],$temp_store);
+								}
+
 								//								$return[$dsTitle['xsdsel_title']]['File_Location'] = $_FILES['xsd_display_fields']['tmp_name'][$file_res[0]['xsdmf_id']];
 								$return[$dsTitle['xsdsel_title']]['File_Location'] = $temp_store;
 								$return[$dsTitle['xsdsel_title']]['MIMETYPE'] = Misc::mime_content_type($temp_store);
@@ -1354,6 +1372,7 @@ class Misc
 				}
 			}
 		}
+		
 		return $return;
 	}
 
@@ -3559,7 +3578,7 @@ class Misc
 			$directory_path = "";
 			$directories = explode("/",$path);
 			array_pop($directories);
-
+			
 			foreach($directories as $directory)
 			{
 				$directory_path .= $directory."/";

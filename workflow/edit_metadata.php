@@ -50,6 +50,7 @@ include_once(APP_INC_PATH . "class.workflow_trigger.php");
 include_once(APP_INC_PATH . "class.workflow.php");
 include_once(APP_INC_PATH . "class.org_structure.php");
 include_once(APP_INC_PATH . "class.record_edit_form.php");
+include_once(APP_INC_PATH . "class.uploader.php");
 
 Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']."?".$_SERVER['QUERY_STRING']);
 
@@ -60,11 +61,27 @@ if (empty($wfstatus)) {
     exit;
 }
 
+// if we have uploaded files using the flash uploader, then generate $_FILES array entries for them
+if (isset($_POST['uploader_files_uploaded']))
+{
+	$tmpFilesArray = Uploader::generateFilesArray($wfstatus->id, $_POST['uploader_files_uploaded']);
+	if (count($tmpFilesArray)) {
+		$_FILES = $tmpFilesArray;
+	}
+}
+
 $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign("type", "edit_metadata");
 $link_self = $_SERVER['PHP_SELF'].'?'.http_build_query(array('id' => $wfstatus->id));
 $tpl->assign('link_self', $link_self);
+
+if (strtolower($_SERVER['HTTPS']) == 'on' || $_SERVER['SERVER_PORT'] == 443 || strtolower(substr($_SERVER['SCRIPT_URI'], 0, 5)) == 'https') {
+	$tpl->assign('http_protocol', 'https');
+} else {
+	$tpl->assign('http_protocol', 'http');
+}
+
 
 $pid = $wfstatus->pid;
 $wfstatus->setTemplateVars($tpl);
@@ -79,7 +96,7 @@ $debug = @$_REQUEST['debug'];
 if ($debug == 1) {
 	$tpl->assign("debug", "1");
 } else {
-	$tpl->assign("debug", "0");	
+	$tpl->assign("debug", "0");
 }
 
 $extra_redirect = "";
@@ -100,6 +117,8 @@ if ($record->getLock(RecordLock::CONTEXT_WORKFLOW, $wfstatus->id) != 1) {
     $tpl->displayTemplate();
     exit;
 }
+
+$tpl->assign('header_include_flash_uploader_files', 1); // we want to set the header to include the files if possible
 
 $record->getDisplay();
 $xdis_id = $record->getXmlDisplayId();

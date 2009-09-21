@@ -14,7 +14,8 @@ function disableWorkflowButtons(f){
 
 //document.getElementById('wfl_buttons_1').style.visibility = "hidden";
 //document.getElementById('wfl_buttons_2').style.visibility = "hidden";
-document.getElementById('wfl_buttons_2').style = "display:none;"
+document.getElementById('wfl_buttons_2').style.display = "none";
+
 /*
 {/literal}{section name="i" loop=$workflow_buttons}{literal}
 	var field_{/literal}{$workflow_buttons[i].wfs_id}{literal}_1 = getFormElementByID(f, 'workflow_button_{/literal}{$workflow_buttons[i].wfs_id}{literal}_1');
@@ -26,21 +27,42 @@ document.getElementById('wfl_buttons_2').style = "display:none;"
 	field_abandon_1.disabled = true;
 	var field_abandon_2 = getFormElementByID(f, 'workflow_abandon_2');
 	field_abandon_2.disabled = true;
-	return true;
+
 */
+
+return true;
 }
 -->
 </script>
 {/literal}
+
+{* we need to tell the swfupload script about the button ids so it can disable them *}
+{if $header_include_flash_uploader_files == 1 && $smarty.const.APP_ENABLE_FLASH_UPLOADER_SWITCH == 'ON'}
+<script>
+	dojo.addOnLoad( function() {ldelim}
+	{* Event.observe(window, 'load', function() {ldelim} *}
+
+		var workflowButtonIds = [
+		{section name="i" loop=$workflow_buttons}
+		'workflow_button_{$workflow_buttons[i].wfs_id}_1', 'workflow_button_{$workflow_buttons[i].wfs_id}_2',
+		{/section}
+		'workflow_abandon_1', 'workflow_abandon_2'
+		];
+		uploaderSetButtonIds(workflowButtonIds);
+	{rdelim});
+</script>
+{/if}
+
+
 {if $show_not_allowed_msg}
 <div class="msg">
 You don't have permission to access this function
 </div>
 {else}
 {if $submit_to_popup}
-<form name="wfl_form1"  onsubmit="javascript:return (checkFormSubmission(this, 'validateForm') && updateForm() && disableWorkflowButtons(this));" target="_popup_window" action="{$rel_url}popup.php" method="POST" enctype="multipart/form-data">
+<form name="wfl_form1" id="wfl_form1"  onsubmit="javascript:return (checkFormSubmission(this, 'validateForm') && updateForm() && disableWorkflowButtons(this){if ($header_include_flash_uploader_files == 1 && $smarty.const.APP_ENABLE_FLASH_UPLOADER_SWITCH == 'ON')} && swfuploaderUploadFiles(this) {/if});" target="_popup_window" action="{$rel_url}popup.php" method="POST" enctype="multipart/form-data">
 {else}
-<form name="wfl_form1" onsubmit="javascript:return (checkFormSubmission(this, 'validateForm') && disableWorkflowButtons(this));"  action="{$smarty.server.PHP_SELF}" method="post" enctype="multipart/form-data">
+<form name="wfl_form1" id="wfl_form1" onsubmit="javascript:return (checkFormSubmission(this, 'validateForm') && disableWorkflowButtons(this){if ($header_include_flash_uploader_files == 1 && $smarty.const.APP_ENABLE_FLASH_UPLOADER_SWITCH == 'ON')} && swfuploaderUploadFiles(this) {/if});"  action="{$smarty.server.PHP_SELF}" method="post" enctype="multipart/form-data">
 {/if}
 <input type="hidden" name="id" value="{$id}" />
 <table bgcolor="{$light_color}" border="0" cellspacing="0" cellpadding="1" align="center"  width="100%">
