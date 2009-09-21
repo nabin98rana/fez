@@ -1358,7 +1358,7 @@ class RecordGeneral
 		}
 		$display = new XSD_DisplayObject($xdis_id);
 		$xsdmf_array = $display->getXSDMF_Values($pid, null, true);
-
+		
 		$searchKeyData = array();
 
 		foreach ($xsdmf_array as $xsdmf_id => $xsdmf_value) {
@@ -1398,15 +1398,27 @@ class RecordGeneral
 						$xsdmf_value = "NULL";
 					}
 				}
-
+				
 				if(@empty($searchKeyData[$sekDetails['sek_relationship']][$sekDetails['sek_title_db']]['xsdmf_value'])) {
-
 					$searchKeyData[$sekDetails['sek_relationship']][$sekDetails['sek_title_db']] = array(
 			        		  "xsdmf_id"        => $xsdmf_id,
 			        		  "xsdmf_value"     => $xsdmf_value,
 					);
+				} else {
+					/* KJ/ETH 20090918: allow multi-field search keys (controlled vocabularies)
+					   changes: the problem is that the xsdmf_value is not always an array (example: one subject is assigned
+					   first, then no institute is added...) */
 
+					if (is_array($searchKeyData[$sekDetails['sek_relationship']][$sekDetails['sek_title_db']]['xsdmf_value'])) {
+						array_push(&$searchKeyData[$sekDetails['sek_relationship']][$sekDetails['sek_title_db']]['xsdmf_value'],
+							$xsdmf_value );
+                	} else {
+						$searchKeyData[$sekDetails['sek_relationship']][$sekDetails['sek_title_db']]['xsdmf_value'] =
+						   array( $searchKeyData[$sekDetails['sek_relationship']][$sekDetails['sek_title_db']]['xsdmf_value'],
+								  $xsdmf_value );
+					}
 				}
+
 			}
 		}
 		Record::removeIndexRecord($pid, false); //clean out the SQL index, but do not remove from Solr, the solr entry will get updated in updateSearchKeys
