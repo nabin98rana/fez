@@ -102,11 +102,15 @@ if(APP_LOGGING_ENABLED == "true") {
 		}
 	}
 	
+	$level = intval(APP_LOG_LEVEL);
+	if( (!$level) || $level > 7) {
+		$level = 0; // Zend_log::EMERG
+	}
 	$file_log = new Zend_Log();
 	$file_log->setEventItem('timestamp', date('m-d-Y H:i:s', time()));
 	$file_log->setEventItem('visitorIp', $_SERVER['REMOTE_ADDR']);
-	$file_writer = new Zend_Log_Writer_Stream($log_file);
-	$file_writer->addFilter(Zend_Log::DEBUG);
+	$file_writer = new Zend_Log_Writer_Stream($log_file);	
+	$file_writer->addFilter($level);
 	$file_formatter = new Zend_Log_Formatter_Simple('[ %timestamp% ] [ %priorityName% ] [ %visitorIp% ] : %message%' . PHP_EOL);
 	$file_writer->setFormatter($file_formatter);
 	$file_log->addWriter($file_writer);
