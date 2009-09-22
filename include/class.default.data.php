@@ -216,6 +216,8 @@ class Default_Data
 		$defaultData['app_xpath_switch']    	    		= "OFF";
 		$defaultData['app_xsdmf_index_switch']	    		= "OFF";
 		$defaultData['app_enable_flash_uploader_switch']	= "ON";
+		$defaultData['app_google_map_key']					= "";
+		$defaultData['app_use_google_map_switch']			= "OFF";
 
 		return $defaultData;
 
