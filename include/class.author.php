@@ -340,7 +340,6 @@ class Author
                     aut_cv_link=" . $db->quote($_POST["cv_link"]) . ",																				
                     aut_homepage_link=" . $db->quote($_POST["homepage_link"]) . ",
                     aut_ref_num=" . $db->quote($_POST["aut_ref_num"]) . ",
-                    aut_researcher_id=" . $db->quote($_POST["researcher_id"]).",
                     aut_scopus_id=" . $db->quote($_POST["scopus_id"]).",
                     aut_update_date=" . $db->quote(Date_API::getCurrentDateGMT());
 		if ($_POST["org_staff_id"] !== "") {
@@ -843,6 +842,79 @@ class Author
 
 		return $res;
 	}
+	
+	
+	/**
+     * Method used to get the list of authors available in the 
+     * system.
+     *
+     * @access  public
+     * @return  array The list of authors
+     */
+    function getListByAutIDList($current_row = 0, $max = 25, $order_by = 'aut_lname', $aut_ids = array())
+    {
+    	$log = FezLog::get();
+		$db = DB_API::get();
+		
+		if ((!is_array($aut_ids)) || count($aut_ids) == 0) {
+			return false;
+		}
+			    	
+		$start = $current_row * $max;
+        $stmt = "SELECT SQL_CALC_FOUND_ROWS 
+					* 
+                 FROM
+                    " . APP_TABLE_PREFIX . "author
+				 WHERE aut_id in  (".Misc::arrayToSQLBindStr($aut_ids).")
+                 ORDER BY ".$order_by."
+				 LIMIT ".$start.", ".$max;
+        
+    	try {
+			$res = $db->fetchAll($stmt, $aut_ids);
+		}
+		catch(Exception $ex) {
+			
+			$log->err($ex);
+			return '';
+		}
+		
+    	try {
+			$total_rows = $db->fetchOne('SELECT FOUND_ROWS()');
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return '';
+		}
+
+		foreach ($res as $key => $row) {
+			$res[$key]['positions'] = array();
+			$res[$key]['positions'] = Author::getPositionsByOrgStaffID($res[$key]['aut_org_staff_id']);
+		}
+		
+		if (($start + $max) < $total_rows) {
+			$total_rows_limit = $start + $max;
+		} else {
+		   $total_rows_limit = $total_rows;
+		}
+		$total_pages = ceil($total_rows / $max);
+		$last_page = $total_pages - 1;			
+            return array(
+                "list" => $res,
+                "list_info" => array(
+                    "current_page"  => $current_row,
+                    "start_offset"  => $start,
+                    "end_offset"    => $total_rows_limit,
+                    "total_rows"    => $total_rows,
+                    "total_pages"   => $total_pages,
+                    "prev_page" => ($current_row == 0) ? "-1" : ($current_row - 1),
+                    "next_page"     => ($current_row == $last_page) ? "-1" : ($current_row + 1),
+                    "last_page"     => $last_page
+                )
+            );        
+    }
+    
+    
+    
 	/**
 	 * Method used to search and suggest all the authors names for a given string.
 	 *
@@ -1078,6 +1150,34 @@ class Author
 		}
 		return $res;
 	}
+	
+	
+	function getOrgUsername($aut_id)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		if(empty($aut_id) || !is_numeric($aut_id)) {
+			return "";
+		}
+			
+		$stmt = "SELECT
+                    aut_org_username
+                 FROM
+                    " . APP_TABLE_PREFIX . "author
+                    WHERE
+                    aut_id=".$db->quote($aut_id, 'INTEGER')."
+                 ORDER BY
+                    aut_title";
+		try {
+			$res = $db->fetchOne($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return '';
+		}
+		return $res;
+	}
 
 	function getIDsByOrgStaffIds($org_staff_ids=array())
 	{
@@ -1187,7 +1287,7 @@ class Author
 	                    aut_org_username=" . $db->quote($aut_org_username);
 	    	
 	    	try {
-				$db->query($stmt, array($mypub_url, $username));
+				$db->query($stmt, array());
 			}
 			catch(Exception $ex) {
 				$log->err($ex);
@@ -1202,6 +1302,66 @@ class Author
     	}
     }
     
+    
+	/**
+     * Method used to set the ResearcherID for an author.
+     *
+     * @access  public
+     * @param array $profile The researcher profile returned by the upload service
+     * @return  bool True if ResearcherID is set else false
+     */
+    public static function setResearcherIdByAutId($aut_id, $researcher_id) 
+    {
+    	$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "UPDATE
+                    " . APP_TABLE_PREFIX . "author
+                 SET
+                    aut_researcher_id=?	                    
+                 WHERE
+                    aut_id=?";
+		
+    	try {
+			$db->query($stmt, array($researcher_id, $aut_id));
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return false;
+		}
+		return true;
+    }
+    
+	/**
+     * Method used to set the ResearcherID for an author.
+     *
+     * @access  public
+     * @param array $profile The researcher profile returned by the upload service
+     * @return  bool True if ResearcherID is set else false
+     */
+    public static function setResearcherIdByOrgUsername($aut_org_username, $researcher_id) 
+    {
+    	$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "UPDATE
+                    " . APP_TABLE_PREFIX . "author
+                 SET
+                    aut_researcher_id=?	                    
+                 WHERE
+                    aut_org_username=?";
+		
+		$log->err(array($stmt,$researcher_id, $aut_org_username));
+    	try {
+			$db->query($stmt, array($researcher_id, $aut_org_username));
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return false;
+		}
+		return true;
+    }
+    
 	/**
      * Method used to set generate a ResearcherID password used when logging into the site.
      *
@@ -1209,7 +1369,10 @@ class Author
      * @param string $password The plain text password to set
      * @return bool True if set else false
      */
-	public static function setRIDPassword($researcher_id, $password) {
+	public static function setRIDPassword($researcher_id, $password) 
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
 		
 		$stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "author
@@ -1234,7 +1397,10 @@ class Author
      * @param array $aut_researcher_id The researcher id we are generating the password for
      * @return  mixed The plain text password if generated else false
      */
-    public static function getRIDPassword($aut_researcher_id) {    	
+    public static function getRIDPassword($aut_researcher_id) 
+    {
+    	$log = FezLog::get();
+		$db = DB_API::get();    	
     	
     	$stmt = "SELECT
                     aut_rid_password

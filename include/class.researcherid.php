@@ -116,7 +116,7 @@ class ResearcherID
             $response_document = new DOMDocument();
             $response_document = ResearcherID::doServiceRequest($xml_api_data_request->saveXML());
             
-            header('content-type: application/xml; charset='.RID_DL_SERVICE_CHARSET);
+            header('content-type: application/xml; charset=utf-8');
             echo $response_document->saveXML();
             
             if($response_document) {
@@ -150,7 +150,7 @@ class ResearcherID
     }   
     
     
-        /**
+    /**
      * Method used to perform a ResearcherID profile upload.
      *
      * @access  public
@@ -170,9 +170,10 @@ class ResearcherID
             return false;
         }
         
-        header('content-type: application/xml; charset='.RID_UL_SERVICE_CHARSET);
+        header('content-type: application/xml; charset=utf-8');
         
         $list = Author::getListByAutIDList(0, 25, 'aut_lname', $ids);
+        
         $tpl = new Template_API();
         $tpl_file = "researcher_profile_upload.tpl.html";
         $tpl->setTemplate($tpl_file);
@@ -185,12 +186,12 @@ class ResearcherID
         $xml_request_data = new DOMDocument();
         $xml_request_data->loadXML($request_data);
 
-        echo $xml_request_data->saveXML(); return; // DEBUG
+        //echo $xml_request_data->saveXML(); return; // DEBUG
         
         // Validate against schema
         if (! @$xml_request_data->schemaValidate(RID_UL_SERVICE_PROFILES_XSD)) {
             // Not valid
-           $log->err('XML request data does not validate against schema.', __FILE__, __LINE__);
+           $log->err(array('XML request data does not validate against schema.', __FILE__, __LINE__, $request_data));           
            return false;
         }
         else {            
@@ -210,35 +211,13 @@ class ResearcherID
             $response_document = new DOMDocument();
             $response_document = ResearcherID::doServiceRequest($xml_api_data_request->saveXML());
             
-            echo $response_document->saveXML();
-            
-            if($response_document) {
-                // Get job ticket number from response
-                $xpath = new DOMXPath($response_document);
-                $xpath->registerNamespace('rid', 'http://www.isinet.com/xrpc41');
-                $query = "/rid:response/rid:fn[@name='AuthorResearch.uploadRIDData']/rid:val";
-                $elements = $xpath->query($query);               
-                if (!is_null($elements)) {
-                    foreach ($elements as $element) {
-                        $nodes = $element->childNodes;
-                        foreach ($nodes as $node) {
-                            $ticket_number = $node->nodeValue;
-                        }
-                    }
-                }
-            }
-            else {
-                // Service request failed           
-                return false;
-            } 
+            //echo $response_document->saveXML();
+            return true;
         }
          
         if(is_null($ticket_number) || empty($ticket_number)) {
             $log->err('Failed to get a ticket number.', __FILE__, __LINE__);
             return false;
-        }
-        else {
-            return ResearcherID::addJob($ticket_number, $xml_api_data_request->saveXML(), $response_document->saveXML());
         }
     }
     
@@ -260,10 +239,10 @@ class ResearcherID
             return false;
         }
         
-        header('content-type: application/xml; charset='.RID_UL_SERVICE_CHARSET);
+        header('content-type: application/xml; charset=utf-8');
     
     	foreach($ids as $id) {
-        $list = ResearcherID::listAllRecordsByAuthorID($id);
+        	$list = ResearcherID::listAllRecordsByAuthorID($id);
         	
         	if(count($list['list']) > 0) {
 
@@ -274,13 +253,13 @@ class ResearcherID
 		        $tpl->assign("list", $list['list']);
 		        $tpl->assign("app_admin_email", APP_ADMIN_EMAIL);
 		        $tpl->assign("org_name", APP_ORG_NAME);
-		        $tpl->assign("aut_id", $id);
+		        $tpl->assign("aut_org_username", Author::getOrgUsername($id));
 		        $request_data = $tpl->getTemplateContents();
 		        
 		        $xml_request_data = new DOMDocument();
 		        $xml_request_data->loadXML($request_data);
 		        
-		        echo $xml_request_data->saveXML(); return; // DEBUG
+		        //echo $xml_request_data->saveXML(); return; // DEBUG
 		        
 		        // Validate against schema
 		        if (! @$xml_request_data->schemaValidate(RID_UL_SERVICE_PUBLICATIONS_XSD)) {
@@ -332,7 +311,7 @@ class ResearcherID
         if(! is_dir($processed_dir)) {
 			// create it..
 			if(! mkdir($processed_dir, 0770))
-				$log->err('Unable to create processed email directory '.$processed_dir, __FILE__, __LINE__);
+				$log->err(array('Unable to create processed email directory '.$processed_dir, __FILE__, __LINE__));
 				return false;  
 		}
     	
@@ -367,9 +346,7 @@ class ResearcherID
 		        $body = $structure->body;
 
 		        if($subject == 'ResearcherID Batch Processing Status') {
-		        	// Processing
-		        	// We don't need to do anything with these,
-		        	// just move them into the processed directory..
+		        	// Processing - don't need to do anything with these
 		        }
 		        else if($subject == 'ResearcherID Batch Processing Status (completed)') {
 		        	// Completed
@@ -385,14 +362,25 @@ class ResearcherID
 			        		
         					// Process profile list
         					if($xml_report->profileList) {
-        						$profiles = $xml_report->profileList->{'successfully-uploaded'}->{'researcher-profile'};
         						
+        						$profiles = $xml_report->profileList->{'successfully-uploaded'}->{'researcher-profile'};        						
 	        					foreach($profiles as $profile) { 
-	        						if($profile->{'upload-status'} == 'success') {      						
-	        							if(Author::setResearcherIdByRidProfile($profile)) {        								
-	        								ResearcherID::completeResearcherIDRegistration($profile);
-	        							}
+	        						Author::setResearcherIdByRidProfile($profile);
+	        					}
+	        					
+	        					$profiles = $xml_report->profileList->{'existing-researchers'}->{'researcher-profile'};
+        						foreach($profiles as $profile) { 
+        							Author::setResearcherIdByOrgUsername($profile->employeeID, $profile->researcherID);
+	        					}
+	        						        				 
+        						$profiles = $xml_report->profileList->{'failed-to-upload'}->{'researcher-profile'};
+	        					foreach($profiles as $profile) {
+	        						if(! (empty($profile->employeeID) || empty($profile->researcherID)) ) {	        							
+	        							Author::setResearcherIdByOrgUsername($profile->employeeID, $profile->researcherID);
 	        						}
+	        						else {
+	        							Author::setResearcherIdByOrgUsername($profile->employeeID, 'ERR: '.$profile->{'error-desc'});
+	        						}    							        						
 	        					}
         					}
         					// Process publication list
@@ -412,7 +400,6 @@ class ResearcherID
 	    	return true;
     	}
     }
-    
     
     /**
      * Method used to check on the status of all ResearcherID download request jobs currently not 'DONE'
@@ -443,157 +430,6 @@ class ResearcherID
 			ResearcherID::checkJobStatus($r['rij_ticketno']);
         }
     }
-    
-    /**
-     * Bodacious hack time!!
-     * Method used to automate the final steps in creating an account in Researcher ID.
-     *
-     * @access  public
-     * @param array $profile The researcher profile returned by the upload service
-     * @return  bool True if ResearcherID is set else false
-     */
-    private static function completeResearcherIDRegistration($profile) 
-    {
-    	$log = FezLog::get();
-		$db = DB_API::get();
-		
-    	$rid_url = RID_URL;
-    	
-    	$researcher_id = (string)$profile->researcherID;
-		$temp_password = (string)$profile->{'temp-password'};
-		$cookie_jar = md5($researcher_id) . '.txt';
-		
-		$new_password = Misc::generatePassword(6,1,1);
-    	$security_answer = Misc::generatePassword(8,0,0);
-    	Author::setRIDPassword($researcher_id, $new_password);
-		$verification_code = rand(1000, 9999);				
-    	
-		$login_data = array( 	
-    		'credentials.loginOption' => 'rid',
-			'credentials.userId' => $researcher_id,
-			'credentials.password' => $temp_password
-		);
-		
-		$override_validation_data = array( 	
-			'userPassword' => $new_password,
-			'reenterPassword' => $new_password,
-			'researcher.securityQuestion.question' => 'What is the name of your favorite teacher?',
-			'securityAnswer' => $security_answer,
-			'researcher.verificationCode' => $verification_code,
-			'researcher.role.description' => 'Researcher (Academic)',
-			'otherNames' => '',
-			'researcher.notifyForFeatures' => 'false',
-			'researcher.notifyForServices' => 'false'
-		);
-		
-		$ch = curl_init();
-		
-		// Execute Login Validation Action
-		curl_setopt($ch, CURLOPT_URL, $rid_url.'/LoginValidation.action');
-		curl_setopt($ch, CURLOPT_POST, 1);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($login_data));
-		curl_setopt($ch, CURLOPT_COOKIEJAR, $cookie_jar);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		
-		$response = curl_exec($ch);
-		$info = curl_getinfo($ch);
-		
-		if($info['http_code'] != 200) {			
-			$log->err('Login to ResearcherID failed or redirecting to workspace - http_code:'.$info['http_code'], __FILE__, __LINE__);
-			return false;
-		}
-		else if(preg_match("/Invalid Researcher ID or Password/i", $response)) {			
-			$log->err('Failed to login to ResearcherID', __FILE__, __LINE__);			
-			return false;
-		}
-		else if(! (preg_match("/Thank you for your interest in ResearcherID/i", $response) || 
-				   preg_match("/You have previously registered, but you had not accepted the End User License Agreement/i", $response))) {			
-			$log->err('Unexpected response from Login Validation Action', __FILE__, __LINE__);						
-			return false;
-		}
-				
-		// Not a license agreement step
-		if(! preg_match("/You have previously registered, but you had not accepted the End User License Agreement/i", $response)) {
-			
-			// Execute Registration Create Action				
-			$post_fields = array();
-			
-			$parser =& new HtmlFormParser($response);
-			$result = $parser->parseForms(); 
-		
-			// Override some fields with our own values
-			foreach($result[0]['form_elements'] as $name => $value) {
-				$post_fields[$name] = $value['value'];
-				if(isset($override_validation_data[$name]))
-					$post_fields[$name] = $override_validation_data[$name];	
-			}
-			// Insert missing fields
-			foreach($override_validation_data as $name => $value) {
-				if(! isset($post_fields[$name]))
-					$post_fields[$name] = $override_validation_data[$name];
-			}
-			
-			curl_setopt($ch, CURLOPT_URL, $rid_url.'/RegistrationCreate.action');
-			curl_setopt($ch, CURLOPT_POST, 1);
-			curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($post_fields));
-			curl_setopt($ch, CURLOPT_COOKIEJAR, $cookie_jar);
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-				
-			$response = curl_exec($ch);
-			$info = curl_getinfo($ch);
-		
-			if($info['http_code'] != 200) {
-				$log->err('Registration Create failed - http_code:'.$info['http_code'], __FILE__, __LINE__);			
-				return false;
-			}				
-			else if(! preg_match("/To continue with registration, you must accept the terms/i", $response)) {				
-				$log->err('Unexpected response from Registration Create Action', __FILE__, __LINE__);
-				return false;
-			}
-		}
-			
-		// DISABLED: We require researchers to manually accept the EULA.
-		
-		// Execute Confirmation Action
-		/*$parser =& new HtmlFormParser($response);
-		$result = $parser->parseForms(); 
-		
-		$post_fields = array();
-		
-		// Override some fields with our own values
-		foreach($result[0]['form_elements'] as $name => $value) {
-			$post_fields[$name] = $value['value'];
-			if(isset($override_validation_data[$name]))
-				$post_fields[$name] = $override_validation_data[$name];	
-		}
-		// Insert missing fields
-		foreach($override_validation_data as $name => $value) {
-			if(! isset($post_fields[$name]))
-				$post_fields[$name] = $override_validation_data[$name];
-		}
-		
-		curl_setopt($ch, CURLOPT_URL, $rid_url.'/Confirmation.action');
-		curl_setopt($ch, CURLOPT_POST, 1);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($post_fields));
-		curl_setopt($ch, CURLOPT_COOKIEJAR, $cookie_jar);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-			
-		$response = curl_exec($ch);
-    	$info = curl_getinfo($ch);
-	
-		if($info['http_code'] != 200) {
-			$log->err('Confirmation failed - http_code:'.$info['http_code'], __FILE__, __LINE__);			
-			return false;
-		}	
-		else if(! preg_match("/Your ResearcherID registration is now complete/i", $response)) {			
-			$log->err('Unexpected response from Confirmation Action', __FILE__, __LINE__);
-			return false;
-		}	
-		
-		curl_close($ch);*/
-		
-		return true;    	
-    }    
     
     /**
      * Method used to get a list of routed email file names
@@ -649,7 +485,7 @@ class ResearcherID
         $response_document = new DOMDocument();
         $response_document = ResearcherID::doServiceRequest($xml_api_status_request->saveXML());
         
-        header('content-type: application/xml; charset='.RID_DL_SERVICE_CHARSET);
+        header('content-type: application/xml; charset=utf-8');
         echo $response_document->saveXML();
         
         // Get the download status from the response
@@ -752,15 +588,6 @@ class ResearcherID
 		$db = DB_API::get();
     	
     	return true; // DEBUG
-    	
-    	$profiles = file_get_contents($url);
-    	if(! $profiles)
-    		return false; 
-    	
-    	$xml_profiles = new SimpleXMLElement($profiles);
-    	
-    	//TODO: add new profiles
-    	return true;
     }
     
     /**
@@ -776,8 +603,9 @@ class ResearcherID
 		$db = DB_API::get();
     	    	
     	$publications = @file_get_contents($url);
-    	if(! $publications)
+    	if(! $publications) {
     		return false; 
+    	}
     	    	
     	$xml_publications = new SimpleXMLElement($publications);    	
     	$records = $xml_publications->publicationList->{'researcher-publications'}->records->record;
@@ -794,6 +622,7 @@ class ResearcherID
 	    		
 	    		// If the publication exists
 	    		if( $pid ) {
+	    			$log->crit('Publication exists pid:'.$pid);
 	    			ResearcherID::insertAuthorId($pid, $author_id);
 	    			$times_cited = (string)$record->{'times-cited'};
 	    			if(! empty($times_cited)) {
@@ -804,7 +633,8 @@ class ResearcherID
 					}
 	    		}
 	    		// Else ingest the new publication into Fedora
-	    		else {    			
+	    		else {
+	    			$log->crit('New publication');    			
     				ResearcherID::addPublication($record, $author_id);
     			}		
     		}
@@ -823,19 +653,23 @@ class ResearcherID
     	$log = FezLog::get();
 		$db = DB_API::get();
 		
-		$parent_pid = 'UQ:183940'; // TODO: Add config value to change this 
+		$parent_pid = 'UQ:86605'; // TODO: Add config value to change this 
     	
     	$aut = @split(':', $record->{'accession-num'});
     	if(count($aut) > 1) {
-    		$ut = $aut[1];    		
+    		$ut = $aut[1];    	
+    		$log->crit('Retrieving pub from WoS with UT='.$ut);	
 	    	$records = EstiSearchService::retrieve($ut);
 			
 			if($records) {
 				foreach($records->REC as $_record) {
-					
+					$log->crit('Adding record');
+					$log->crit($_record);
 					$mods = Misc::convertEstiRecordToMods($_record, $author_id);
-					$times_cited = $_record->attributes()->timescited;
-	    			Record::insertFromArray($mods, $parent_pid, 'MODS 1.0', 'Imported from ResearcherID', $times_cited);
+					if($mods) {
+						$times_cited = $_record->attributes()->timescited;
+	    				Record::insertFromArray($mods, $parent_pid, 'MODS 1.0', 'Imported from ResearcherID', $times_cited);
+					}
 				}
 			}	
     	}	

@@ -360,7 +360,7 @@ function restoreDefaultColours(el)
 			  	</select>
 			  <br />The log levels are show in descending order of importance. Setting a log level further down the list will include log messages 
 			  at higher levels, for example, setting the log level to 'Error' will include 'Critical', 'Alert' and 'Emergency' log messages, 
-			  but will not include 'Warning', 'Notice', 'Informational' or 'Debug' log messages. The default is 'Error'.
+			  but will not include 'Warning', 'Notice', 'Informational' or 'Debug' log messages.
 			  {include file="error_icon.tpl.html" field="app_log_level"}
 			</td>
   		  </tr>
@@ -1487,6 +1487,29 @@ function restoreDefaultColours(el)
 		  <tr>
 			<td colspan="2">
 			  <h2>ResearcherID Web Service Settings</h2>
+			</td>
+  		  </tr>
+  		  <tr>
+			<td colspan="2">
+			  <h3>General Settings</h3>
+			  <p>General settings for the ResearcherID web service.</p>
+			</td>
+  		  </tr>
+		  <tr>
+		    <td class="colname" nowrap="nowrap">Enabled</td>
+			<td class="coldetail">
+			  <select name="rid_enabled">
+			    <option value="false"{if $config_settings.rid_enabled == "false"} selected="selected"{/if}>No</option>
+				<option value="true"{if $config_settings.rid_enabled == "true"} selected="selected"{/if}>Yes</option>
+			  </select>
+			  <br />Enable ResearcherID web service features. Currently this means you can create ResearcherID profiles 
+			  when managing authors.
+			  {include file="error_icon.tpl.html" field="rid_enabled"}
+			</td>
+  		  </tr>
+  		  <tr>
+			<td colspan="2">
+			 <p><br /></p>
 			</td>
   		  </tr>
   		  <tr>

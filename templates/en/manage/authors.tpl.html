@@ -65,7 +65,7 @@
               <form name="author_form" onSubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}">
               {if $smarty.get.cat == 'edit'}
               <input type="hidden" name="cat" value="update">
-              <input type="hidden" name="id" value="{$smarty.get.id}">
+              <input type="hidden" name="id" id="id" value="{$smarty.get.id|escape:"html"}">
               {else}
               <input type="hidden" name="cat" value="new">
               {/if}
@@ -195,16 +195,76 @@
                   <input type="text" name="homepage_link" size="40" class="default" value="{$info.aut_homepage_link}">
                   {include file="error_icon.tpl.html" field="homepage_link"}
                 </td>
-              </tr>					
+              </tr>	
+              
+              {if $smarty.get.cat == 'edit' && $smarty.const.RID_ENABLED == "true"}				
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
-                  <b>Researcher ID (Thompson): </b>
+                <td width="120" bgcolor="{$cell_color}" class="default" valign="top">
+                  <b>Researcher ID (Thomson): </b>
                 </td>
-                <td bgcolor="{$light_color}" width="80%">
-                  <input type="text" name="researcher_id" size="40" class="default" value="{$info.aut_researcher_id}">
-                  {include file="error_icon.tpl.html" field="researcher_id"}
+                <td bgcolor="{$light_color}" width="80%" valign="top">
+                  	{literal}
+		            	<script type="text/javascript">
+		            	<!--
+	            		var rid_server = new dojo.rpc.JsonService("{/literal}{$rel_url}{literal}researcherid_proxy.php");
+	                    var rid_container_id = 'register_rid_container';
+	                    var rid_register = 'register_researcherid_profile';
+						
+	                    dojo.addOnLoad(function(){
+		                    var id = dojo.byId(rid_register);
+		                    if(id) {
+	                    		dojo.connect(id, 'onclick', 'register_in_rid');
+		                    }
+	                    });
+	                    
+	                    function register_in_rid(e) {
+	                    	dojo.stopEvent(e);
+		                    
+	                    	var confirm_register = confirm("You are about to register this author in ResearcherID.\n\n"+
+	    	                    							"For authors with an existing ResearcherID profile, please ensure that:\n\n"+
+	    	                    							"  -  The ResearcherID profile has their primary affiliation as this institution.\n"+
+	    	                    							"  -  The employeeID in ResearcherID is '{/literal}{$info.aut_org_username}{literal}'.\n\n"+
+	    	                    							"For authors who do not have an existing ResearcherID profile, a new profile will be created."+
+	    	                    							"\n\n");
+		                    
+		                    if(! confirm_register) {
+			                    return false;
+		                    }
+		                    var aut_id = dojo.byId('id').value;
+	                    	dojo.byId(rid_container_id).innerHTML = 'Registering, please wait..';
+	                    	var rid_t = rid_server.register(aut_id);
+	                   		
+                    		rid_t.addCallback( function(msg) {
+								if(msg == '' || msg == 'false') {
+									dojo.byId(rid_container_id).innerHTML = 'Oops! Something unexpected happened. Please try again later..';									
+								}
+								else {
+									dojo.byId(rid_container_id).innerHTML = 'Profile is under Registration Process in Researcher ID.';
+								}
+	                    	});
+	                   	}
+	                    //-->
+	                    </script>
+	                {/literal}
+	                <div id="register_rid_container" style="font-size: 0.8em;">
+                  	{if $info.aut_researcher_id == ''}
+                  		<a href="javascript:void(null)" id="register_researcherid_profile"><img src="{$rel_url}images/create.gif" width="45" height="16" alt="Register ResearcherID Profile" title="Register ResearcherID Profile" style="border:0;" />
+                  		
+                  	{elseif $info.aut_researcher_id == '-1' || strstr($info.aut_researcher_id, 'ERR:')}
+                  		{if strstr($info.aut_researcher_id, 'ERR:')}
+	                  		{$info.aut_researcher_id}
+	                  	{else}
+	                  		Profile is under Registration Process in Researcher ID.
+	                  	{/if}
+                  		
+	                {else}
+	                	{$info.aut_researcher_id}
+    	          	{/if}
+    	          	</div>
                 </td>
-              </tr>					
+              </tr>
+              {/if}
+              					
               <tr>
                 <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Scopus ID: </b>
@@ -239,7 +299,7 @@
 
               <form name="author_search_form" method="get" action="{$smarty.server.PHP_SELF}">              
               <input type="hidden" name="cat" value="search">
-              <input type="hidden" name="id" value="{$smarty.get.id}">
+              <input type="hidden" name="id" value="{$smarty.get.id|escape:"html"}">
 
               <tr>
                 <td class="default">

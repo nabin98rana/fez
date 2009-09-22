@@ -803,6 +803,7 @@ class XSD_HTML_Match
 							xsdmf_meta_header,
 							xsdmf_meta_header_name,
 							xsdmf_show_simple_create,
+							xsdmf_xdis_id,
 							xsdmf_xpath,
 							sek_title,
 							sek_suggest_function
