@@ -230,7 +230,9 @@ class Default_Data
 		$defaultData['rid_ul_service_url']                  = "https://wok-ws.isiknowledge.com/esti/xrpc";
 		$defaultData['rid_ul_service_profiles_xsd']         = "/path/to/Researcher-Bulk-Profiles-schema.xsd";
 		$defaultData['rid_ul_service_publications_xsd']     = "/path/to/Researcher-Bulk-Publications-schema.xsd";
-		
+		$defaultData['rid_ul_service_routed_email_path']    = "/path/to/upload/emails";
+		$defaultData['rid_ul_service_email_append_note']    = "";
+				
 		$defaultData['app_google_map_key']					= "";
 		$defaultData['app_use_google_map_switch']			= "OFF";
 

@@ -1609,6 +1609,14 @@ function restoreDefaultColours(el)
 			  {include file="error_icon.tpl.html" field="rid_ul_service_publications_xsd"}
 			</td>
   		  </tr>
+  		  <tr>
+		    <td class="colname" nowrap="nowrap">Upload Emails Path</td>
+			<td class="coldetail">
+			  <input type="text" name="rid_ul_service_routed_email_path" value="{$config_settings.rid_ul_service_routed_email_path|escape:"html"}" size="50" />
+			  <br />The upload service sends its report via email. This is the path the email server stores emails sent by the ResearcherID service.
+			  {include file="error_icon.tpl.html" field="rid_ul_service_publications_xsd"}
+			</td>
+  		  </tr>
 		</table>
 		</div>
 
