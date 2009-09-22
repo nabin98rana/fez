@@ -3821,7 +3821,7 @@ class Misc
 		$log = FezLog::get();
 				
 		if($record->item->doctype != 'Article') {
-			$log->err('Only Journal Article types are supported when converting ESTI record to MODS');
+			$log->err('Only Journal Article types are supported when converting ESTI record to MODS:'.$record->item->doctype);
 			return false;
 		}
 		
