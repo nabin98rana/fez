@@ -215,7 +215,22 @@ class Default_Data
 		$defaultData['app_mysql_innodb_flag']        		= "OFF";
 		$defaultData['app_xpath_switch']    	    		= "OFF";
 		$defaultData['app_xsdmf_index_switch']	    		= "OFF";
-		$defaultData['app_enable_flash_uploader_switch']	= "ON";
+		$defaultData['app_enable_flash_uploader_switch']	= "ON";		
+		$defaultData['app_logging_enabled']                 = "false";
+		$defaultData['app_log_location']                    = "/var/log/fez/fez-error.log";
+		$defaultData['app_log_level']                       = "3";
+		$defaultData['rid_enabled']                         = "false";		
+		$defaultData['rid_dl_service_username']             = "your_username_here";
+		$defaultData['rid_dl_service_password']             = "your_password_here";
+		$defaultData['rid_dl_service_url']                  = "http://rid-dl-request.isiknowledge.com/esti/xrpc";
+		$defaultData['rid_dl_service_request_xsd']          = "/path/to/download-request.xsd";
+		$defaultData['rid_dl_service_response_xsd']         = "/path/to/download-response.xsd";
+		$defaultData['rid_ul_service_username']             = "your_username_here";
+		$defaultData['rid_ul_service_password']             = "your_password_here";
+		$defaultData['rid_ul_service_url']                  = "https://wok-ws.isiknowledge.com/esti/xrpc";
+		$defaultData['rid_ul_service_profiles_xsd']         = "/path/to/Researcher-Bulk-Profiles-schema.xsd";
+		$defaultData['rid_ul_service_publications_xsd']     = "/path/to/Researcher-Bulk-Publications-schema.xsd";
+		
 		$defaultData['app_google_map_key']					= "";
 		$defaultData['app_use_google_map_switch']			= "OFF";
 

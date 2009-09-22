@@ -1,7 +1,6 @@
 INSERT ignore INTO %TABLE_PREFIX%config (`config_name`, `config_module`, `config_value`) VALUES ('rid_dl_service_username','core','your_username_here');
 INSERT ignore INTO %TABLE_PREFIX%config (`config_name`, `config_module`, `config_value`) VALUES ('rid_dl_service_password','core','your_password_here');
 INSERT ignore INTO %TABLE_PREFIX%config (`config_name`, `config_module`, `config_value`) VALUES ('rid_dl_service_url','core','http://rid-dl-request.isiknowledge.com/esti/xrpc');
-INSERT ignore INTO %TABLE_PREFIX%config (`config_name`, `config_module`, `config_value`) VALUES ('rid_dl_service_charset','core','UTF-8');
 INSERT ignore INTO %TABLE_PREFIX%config (`config_name`, `config_module`, `config_value`) VALUES ('rid_dl_service_request_xsd','core','/path/to/download-request.xsd');
 INSERT ignore INTO %TABLE_PREFIX%config (`config_name`, `config_module`, `config_value`) VALUES ('rid_dl_service_response_xsd','core','/path/to/download-response.xsd');
 INSERT ignore INTO %TABLE_PREFIX%config (`config_name`, `config_module`, `config_value`) VALUES ('rid_ul_service_username','core','your_username_here');

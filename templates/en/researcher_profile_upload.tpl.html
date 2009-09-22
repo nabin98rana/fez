@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<profileUpload xsi:schemaLocation="http://www.thomsonreuters.com/ns/researcher-profile/Researcher-Bulk-Profiles-schema.xsd" xmlns="http://www.thomsonreuters.com/ns/researcher-profile/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <sponsor>
+        <name>{$org_name}</name>
+        <admin>
+            <email>{$app_admin_email}</email>
+        </admin>
+        <intimate-researcher-individually>false</intimate-researcher-individually>
+        {if $email_append_note == ''}
+        	<email-append-note-content>N/A</email-append-note-content>
+        {else}
+        	<email-append-note-content>{$email_append_note}</email-append-note-content>
+        {/if}
+    </sponsor>
+	<profileList>
+        <default-institution-name>{$org_name}</default-institution-name>
+        {section name="i" loop=$list}
+        <researcher-profile>
+            <firstName>{$list[i].aut_fname|escape:"html"}</firstName>
+            <lastName>{$list[i].aut_lname|escape:"html"}</lastName>
+            <email>{$list[i].aut_org_username|escape:"html"}@uq.edu.au</email>
+            {section name="y" loop=$list[i].positions}
+            {if $list[i].positions[y].DT_TO != '0' && ($list[i].positions[y].DT_TO) < ($smarty.now|date_format:'%Y')}
+                <past-institution>
+            {else}
+                {if $smarty.section.y.index > 0}
+                    <affiliate-institution>
+                {else}
+                    <institution>
+                {/if}
+            {/if}
+            <name>{$org_name|escape:"html"}</name>
+            <address>
+                <addressLine1>St Lucia</addressLine1> 
+                <city>Brisbane</city>
+                <state-or-province>Queensland</state-or-province>
+                <country>Australia</country>
+                <postalcode>4072</postalcode>
+            </address>
+            <departmentName>{$list[i].positions[y].org_title|escape:"html"}</departmentName>
+            {if $smarty.section.y.index == 0}<employeeID>{$list[i].aut_org_username|escape:"html"}</employeeID>{/if}
+            <role>Other</role>
+            {if $list[i].positions[y].DT_FROM > 2008 || $list[i].positions[y].DT_FROM == ''}
+            	<start-date>2008</start-date>
+            {else}
+            	<start-date>{$list[i].positions[y].DT_FROM}</start-date>
+            {/if}
+            {if $list[i].positions[y].DT_TO != '0' && ($list[i].positions[y].DT_TO) < ($smarty.now|date_format:'%Y')}<end-date>{$list[i].positions[y].DT_TO}</end-date>{/if}
+            {if $list[i].positions[y].DT_TO != '0' && ($list[i].positions[y].DT_TO) < ($smarty.now|date_format:'%Y')}
+                </past-institution>
+            {else}
+                {if $smarty.section.y.index > 0}
+                    </affiliate-institution>
+                {else}
+                    </institution>
+                {/if}
+            {/if}
+            {/section}
+        </researcher-profile>
+        {/section}
+    </profileList>
+</profileUpload>

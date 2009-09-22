@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<publicationUpload xsi:schemaLocation="http://www.thomsonreuters.com/ns/researcher-publication Researcher-Bulk-Publications-schema.xsd" xmlns="http://www.thomsonreuters.com/ns/researcher-publication/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<sponsor>
+		<name>{$org_name}</name>
+		<admin>
+            <firstName>I</firstName>
+			<middleName>M</middleName>
+			<lastName>Admin</lastName>
+			<email>{$app_admin_email}</email>
+        </admin>
+        <intimate-researcher-individually>false</intimate-researcher-individually>
+	</sponsor>
+	<publicationList>
+		<uploading-institution-name>{$org_name}</uploading-institution-name>
+		<researcher-publications>
+			<employeeID>{$aut_org_username}</employeeID>			
+			<records>
+			{section name="i" loop=$list}
+				<record>
+			        <ref-type>{$list[i].rek_ref_type|escape:"html"}</ref-type>
+					<contributors>						
+						<authors>
+							{section name="j" loop=$list[i].rek_author}
+							<author>{$list[i].rek_author[j]|escape:"html"}</author>	
+							{/section}
+							{section name="j" loop=$list[i].rek_author_id_details}
+							{if $list[i].rek_author_id_details[j].aut_title != '' && $list[i].rek_author_id_details[j].aut_lname != '' && $list[i].rek_author_id_details[j].aut_fname != ''}
+								<author initials="" suffix="{$list[i].rek_author_id_details[j].aut_title|escape:"html"}" last-name="{$list[i].rek_author_id_details[j].aut_lname|escape:"html"}" first-name="{$list[i].rek_author_id_details[j].aut_fname|escape:"html"}" />							
+							{/if}	
+							{/section}
+						</authors>
+					</contributors>			
+					<titles>
+						<title>{$list[i].rek_title|escape:"html"}</title>
+						{if $list[i].rek_secondary_title != ''}
+						<secondary-title>{$list[i].rek_secondary_title|escape:"html"}</secondary-title>
+						{/if}
+					</titles>					
+					{if $list[i].rek_end_page[0] != ''}
+					<pages start="{$list[i].rek_start_page[0]|escape:"html"}" end="{$list[i].rek_end_page[0]|escape:"html"}"/>
+					{/if}
+					{if $list[i].rek_volume_number != ''}
+						<volume>{$list[i].rek_volume_number[0]|escape:"html"}</volume>
+					{/if}
+					
+					{if ($list[i].rek_ref_type == '17' || $list[i].rek_ref_type == '13') && $list[i].rek_issue_number != ''}
+						<number>{$list[i].rek_issue_number[0]|escape:"html"}</number>
+					{/if}
+					{if $list[i].rek_date != ''}
+						<dates>
+							<year year="{$list[i].rek_date|date_format:"%Y"}" />
+						</dates>					
+					{elseif $list[i].rek_date_year != ''}
+						<dates>
+							<year year="{$list[i].rek_date_year}" />
+						</dates>
+					{/if}					
+					{if $list[i].rek_ref_type == '25' && $list[i].rek_publisher != ''}
+						<publisher>{$list[i].rek_publisher}</publisher>
+					{/if}						
+					{if $list[i].rek_ref_type == '25' && $list[i].rek_ref_type == '25' && $list[i].rek_isbn != ''}
+						<isbn>{$list[i].rek_isbn|escape:"html"}</isbn>
+					{/if}	
+					{if $list[i].rek_isi_loc != ''}
+						<accession-num>WOS:{$list[i].rek_isi_loc|escape:"html"}</accession-num>
+					{/if}					
+					{if $list[i].rek_electronic_resource_num != ''}
+						<electronic-resource-num>{$list[i].rek_electronic_resource_num|escape:"html"}</electronic-resource-num>
+					{/if}
+					
+					{if $list[i].rek_related_urls != ''}					
+					<urls>
+					    <related-urls>
+					    	  {section name="j" loop=$list[i].rek_related_url}
+						      <url>$list[i].rek_related_url[j]</url>
+							  {/section}
+					    </related-urls>
+					</urls>
+					{/if}
+				</record>
+			{/section}
+			</records>
+		</researcher-publications>
+	</publicationList>
+</publicationUpload>
