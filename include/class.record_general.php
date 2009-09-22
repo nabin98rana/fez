@@ -1417,6 +1417,7 @@ class RecordGeneral
 						   array( $searchKeyData[$sekDetails['sek_relationship']][$sekDetails['sek_title_db']]['xsdmf_value'],
 								  $xsdmf_value );
 					}
+					
 				}
 
 			}
