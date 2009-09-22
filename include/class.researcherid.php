@@ -178,7 +178,7 @@ class ResearcherID
         $tpl_file = "researcher_profile_upload.tpl.html";
         $tpl->setTemplate($tpl_file);
         $tpl->assign("list", $list['list']);
-        $tpl->assign("app_admin_email", APP_ADMIN_EMAIL);
+        $tpl->assign("app_admin_email", RID_UL_SERVICE_USERNAME);
         $tpl->assign("org_name", APP_ORG_NAME);
         $tpl->assign("email_append_note", RID_UL_SERVICE_EMAIL_APPEND_NOTE);
         $request_data = $tpl->getTemplateContents();
