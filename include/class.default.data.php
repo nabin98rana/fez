@@ -215,6 +215,7 @@ class Default_Data
 		$defaultData['app_mysql_innodb_flag']        		= "OFF";
 		$defaultData['app_xpath_switch']    	    		= "OFF";
 		$defaultData['app_xsdmf_index_switch']	    		= "OFF";
+		$defaultData['app_enable_flash_uploader_switch']	= "ON";
 
 		return $defaultData;
 
