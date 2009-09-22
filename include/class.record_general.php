@@ -1404,10 +1404,14 @@ class RecordGeneral
 			        		  "xsdmf_id"        => $xsdmf_id,
 			        		  "xsdmf_value"     => $xsdmf_value,
 					);
-				} else {
-					/* KJ/ETH 20090918: allow multi-field search keys (controlled vocabularies)
-					   changes: the problem is that the xsdmf_value is not always an array (example: one subject is assigned
-					   first, then no institute is added...) */
+				} 
+				/*
+				// AM 20090922: disabled due to issue when creating a record. A record title will be inserted as 'Array' rather than the title string expected.
+								
+				else {
+					// KJ/ETH 20090918: allow multi-field search keys (controlled vocabularies)
+					//   changes: the problem is that the xsdmf_value is not always an array (example: one subject is assigned
+					//   first, then no institute is added...)
 
 					if (is_array($searchKeyData[$sekDetails['sek_relationship']][$sekDetails['sek_title_db']]['xsdmf_value'])) {
 						array_push(&$searchKeyData[$sekDetails['sek_relationship']][$sekDetails['sek_title_db']]['xsdmf_value'],
@@ -1418,7 +1422,7 @@ class RecordGeneral
 								  $xsdmf_value );
 					}
 					
-				}
+				}*/
 
 			}
 		}
