@@ -212,7 +212,13 @@ class ResearcherID
             $response_document = ResearcherID::doServiceRequest($xml_api_data_request->saveXML());
             
             //echo $response_document->saveXML();
-            return true;
+            
+            if(! $response_document) {
+            	return false;
+            }
+            else {
+            	return true;
+            }
         }
          
         if(is_null($ticket_number) || empty($ticket_number)) {
