@@ -621,6 +621,8 @@ class Workflow
 
 	function importWorkflow($xworkflow, $behaviour_ids_map, &$feedback)
 	{
+		$db = DB_API::get();
+		
 		$title = trim($xworkflow->getAttribute('wfl_title'));
 		$version = trim($xworkflow->getAttribute('wfl_version'));
 
