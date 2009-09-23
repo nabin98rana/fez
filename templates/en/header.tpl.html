@@ -8,6 +8,7 @@
 <link rel="Bookmark" href="{$rel_url}favicon.ico" />
 <link rel="SHORTCUT ICON" href="{$rel_url}favicon.ico" />
 <link rel="stylesheet" href="{$rel_url}css/dynamic_css.php" type="text/css" />
+<script type="text/javascript" djConfig="isDebug: false" src="{$rel_url}js/dojo/dojo.js"></script>
 {if $cv_css != ""}
 <link rel="stylesheet" href="{$cv_css}" type="text/css" />
 {/if}
@@ -17,11 +18,7 @@
 {if $list}
 <link rel="alternate" href="{$PAGE_URL}?{if $url_wo_tpl != ''}{$url_wo_tpl}&{/if}tpl=2" type="application/rss+xml" title="{$title}" id="gallery" />
 {/if}
-{if $authors_form}
-<script type="text/javascript" src="http://www.library.uq.edu.au/js/yui_2.6.0/yahoo-dom-event/yahoo-dom-event.js"></script> 
-<script type="text/javascript" src="http://www.library.uq.edu.au/js/yui_2.6.0/container/container-min.js"></script>				
-<script type="text/javascript" src="http://www.library.uq.edu.au/js/yui_2.6.0/json/json-min.js"></script>
-<script type="text/javascript" djConfig="isDebug: false" src="{$rel_url}js/dojo/dojo.js"></script>
+{if $authors_form || $enter_metadata}
 <script language="JavaScript" type="text/javascript">
 <!--
 dojo.require("dojo.rpc.JsonService");
@@ -45,8 +42,6 @@ dojo.require("dojo.rpc.JsonService");
 {/if}
 {* Check if we're including the flash uploader and that the admins want to use this uploader *}
 {if $header_include_flash_uploader_files == 1 && $smarty.const.APP_ENABLE_FLASH_UPLOADER_SWITCH == 'ON'}
-<script type="text/javascript" src="{$http_protocol}://ajax.googleapis.com/ajax/libs/dojo/1.3/dojo/dojo.xd.js"></script>
-<!--<script type="text/javascript" src="{$http_protocol}://ajax.googleapis.com/ajax/libs/prototype/1.6.0.3/prototype.js"></script> -->
 <script type="text/javascript" src="{$rel_url}js/flash_detection.js"></script>
 <script type="text/javascript" src="{$rel_url}js/swfupload/swfupload.js"></script>
 <script type="text/javascript" src="{$rel_url}js/swfupload/swfupload.queue.js"></script>

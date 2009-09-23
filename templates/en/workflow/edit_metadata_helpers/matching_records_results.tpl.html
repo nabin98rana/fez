@@ -1,0 +1,63 @@
+{section name="i" loop=$matches}	
+	{if $smarty.section.i.first}
+	<table cellpadding="5" cellspacing="0">
+		<tr><td colspan="2" valign="top"><h3 style="text-decoration:underline; color: #333333">Matching records found in ISI Web of Science<sup>&#174;</sup></h3>
+		
+		{if $found > $max_results}<p style="color: #333333">Found {$found} matching record{if $found > 1}s{/if}
+			- displaying first {$max_results}.</p>{/if}
+		</td></tr>
+	{/if}
+	
+	<tr><td valign="top" style="color: #333333; font-weight:bold;">{math equation="index + 1" index=$smarty.section.i.index}.</td>
+	<td valign="top" style="color: #333333">
+	<a href="javascript:void(null)" style="text-decoration:none;">{$matches[i].titleInfo.title}</a><br />
+	
+	Author(s): 
+	{section name="j" loop=$matches[i].name}
+		{$matches[i].name[j].namePart_personal}{if ! $smarty.section.j.last}, {/if}
+	{/section}<br />
+
+	{if $matches[i].relatedItem.name.0.namePart != ''}
+		Source:<b>{$matches[i].relatedItem.name.0.namePart}</b>   
+	{/if}	
+	{if $matches[i].relatedItem.part.detail_volume.number != ''}
+		Volume:<b>{$matches[i].relatedItem.part.detail_volume.number}</b>
+	{/if}
+	{if $matches[i].relatedItem.part.detail_issue.number != ''}
+		Issue:<b>{$matches[i].relatedItem.part.detail_issue.number}</b>
+	{/if}
+	{if $matches[i].relatedItem.part.extent_page.start != '' && $matches[i].relatedItem.part.extent_page.end != ''}
+		Pages:<b>{$matches[i].relatedItem.part.extent_page.start}-{$matches[i].relatedItem.part.extent_page.end}</b>
+	{/if}
+	{if $matches[i].relatedItem.originInfo.dateIssued != ''}
+		Published:<b>{$matches[i].relatedItem.originInfo.dateIssued}</b><br />
+	{/if}
+	{if $matches[i].record_exists}
+		Record already in repository (<a href="{$rel_url}view/{$matches[i].pid}">View</a>)
+	{else}	
+		<a href="javascript:add_pub('{$matches[i].identifier_isi_loc}')" style="border:0">
+			<img src="{$rel_url}images/add.gif" id="pub_add" height="16" width="33" alt="Add record" alt="Add record" style="border:0" /></a>
+	{/if}
+	</td></tr>
+	
+	{if $smarty.section.i.last}
+	</table>
+	{/if}
+{/section}
+
+{section name="i" loop=$dupe_records}	
+	{if $smarty.section.i.first}	
+	<table cellpadding="5" cellspacing="0">
+		<tr><td colspan="2" valign="top"><h3 style="text-decoration:underline; color: #333333">Matching records found in repository</h3>
+		</td></tr>
+	{/if}
+	
+	<tr><td valign="top" style="color: #333333; font-weight:bold;">{math equation="index + 1" index=$smarty.section.i.index}.</td>
+	<td valign="top" style="color: #333333">	
+	{$dupe_records[i][0].rek_citation} (Relevance: {$dupe_records[i][0].relevance})<br />
+	
+	</td></tr>
+	{if $smarty.section.i.last}
+	</table>
+	{/if}
+{/section}

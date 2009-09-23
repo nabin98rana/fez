@@ -231,11 +231,14 @@ class Default_Data
 		$defaultData['rid_ul_service_profiles_xsd']         = "/path/to/Researcher-Bulk-Profiles-schema.xsd";
 		$defaultData['rid_ul_service_publications_xsd']     = "/path/to/Researcher-Bulk-Publications-schema.xsd";
 		$defaultData['rid_ul_service_routed_email_path']    = "/path/to/upload/emails";
-		$defaultData['rid_ul_service_email_append_note']    = "";
-				
+		$defaultData['rid_ul_service_email_append_note']    = "";				
 		$defaultData['app_google_map_key']					= "";
 		$defaultData['app_use_google_map_switch']			= "OFF";
-
+		$defaultData['app_use_article_title_search']		= "OFF";		
+		$defaultData['app_article_add_to_collection']		= "";
+		$defaultData['app_article_search_wos_address']		= "";
+		
+		
 		return $defaultData;
 
 	}

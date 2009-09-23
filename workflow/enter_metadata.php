@@ -72,6 +72,7 @@ if (isset($_POST['uploader_files_uploaded']))
 $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign('type', 'enter_metadata');
+$tpl->assign('enter_metadata', '1');
 
 if (strtolower($_SERVER['HTTPS']) == 'on' || $_SERVER['SERVER_PORT'] == 443 || strtolower(substr($_SERVER['SCRIPT_URI'], 0, 5)) == 'https') {
 	$tpl->assign('http_protocol', 'https');
@@ -88,7 +89,6 @@ if (empty($wfstatus->parent_pid)) {
 	exit;
 }
 $wfstatus->setTemplateVars($tpl);
-
 $tpl->assign('header_include_flash_uploader_files', 1); // we want to set the header to include the files if possible
 
 // get the xdis_id of what we're creating
@@ -269,6 +269,6 @@ if ($access_ok) {
     $tpl->assign("form_title", "Create New Record");
     $tpl->assign("form_submit_button", "Create Record");
 }
-
+$tpl->assign("isAdmin", Auth::isAdministrator());
 $tpl->displayTemplate();
 ?>
