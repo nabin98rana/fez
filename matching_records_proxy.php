@@ -39,7 +39,7 @@ include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.user.php");
 
 Auth::checkAuthentication(APP_SESSION);
-if(! Auth::isAdministrator()) {
+if(! (Auth::isAdministrator() || User::isUserSuperAdministrator(Auth::getUsername()))) {
 	exit;
 }
 

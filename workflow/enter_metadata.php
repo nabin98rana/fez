@@ -269,6 +269,12 @@ if ($access_ok) {
     $tpl->assign("form_title", "Create New Record");
     $tpl->assign("form_submit_button", "Create Record");
 }
-$tpl->assign("isAdmin", Auth::isAdministrator());
+
+$isAdmin = Auth::isAdministrator();
+if(!$isAdmin) {
+	$isAdmin = User::isUserSuperAdministrator(Auth::getUsername());	
+}
+
+$tpl->assign("isAdmin", $isAdmin);
 $tpl->displayTemplate();
 ?>
