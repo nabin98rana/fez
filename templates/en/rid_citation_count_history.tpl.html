@@ -1,0 +1,21 @@
+{include file="header.tpl.html" extra_title="$list_heading"}
+{include file="navigation.tpl.html"}
+
+<div style="padding: 10px; margin-right:auto; margin-left:auto; width:800px;">
+	<h1 class="public"><img src="images/rid_22.png" alt="ResearcherID Citation Count History" />		
+	ResearcherID Citation Count History for <a href="/view/{$pid|escape:"html"}">{$title|escape:"html"}</a></h1> 
+	
+	<p><br /></p>
+	
+	<object data="rid_citation_count_history_graph.php?pid={$pid|escape:"html"}&range={$smarty.get.range|escape:"html"}" 
+			type="image/svg+xml" 
+			id="svg" 
+			width="780" 
+			height=300"><img src="rid_citation_count_history_graph.php?pid={$pid|escape:"html"}&output=IMG_PNG&range={$smarty.get.range|escape:"html"}" 
+							 alt="ResearcherID Citation Count History Graph" /></object>
+	
+	
+</div>
+
+{include file="app_info.tpl.html"}
+{include file="footer.tpl.html"}

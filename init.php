@@ -58,7 +58,8 @@ set_include_path(APP_PEAR_PATH . PATH_SEPARATOR . APP_INC_PATH);
 
 // set up the Zend loader
 require_once('Zend/Loader/Autoloader.php');
-Zend_Loader_Autoloader::getInstance()->setFallbackAutoloader(true);
+$autoloader = Zend_Loader_Autoloader::getInstance()->setFallbackAutoloader(true);
+$autoloader->pushAutoloader(array('ezcBase', 'autoload'), 'ezc');
 
 include_once(APP_INC_PATH . 'class.log.php');
 include_once(APP_INC_PATH . "class.configuration.php");

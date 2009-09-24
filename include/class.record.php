@@ -2431,13 +2431,13 @@ class Record
         return true;
 	}
 	
-/**
+    /**
 	 * Returns Thomson citation count history for a pid
 	 * 
 	 * @param $pid The PID to get the citation count history for 
 	 * @return array The citation count history 
 	 */
-	public static function getThomsonCitationCountHistory($pid, $limit = false) 
+	public static function getThomsonCitationCountHistory($pid, $limit = false, $order = 'ASC') 
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
