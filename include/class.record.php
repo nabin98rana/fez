@@ -2403,13 +2403,15 @@ class Record
 		$dbtp =  APP_TABLE_PREFIX; // Database and table prefix
 		
 		$limit = ($limit) ? 'LIMIT '.$limit:null;
+		$order = ($order == 'ASC') ? 'ASC' : 'DESC';
+		
 		$stmt = "SELECT
 					tc_last_checked,tc_created,tc_count
 				 FROM
 		           " . $dbtp . "thomson_citations		         
                  WHERE
                     tc_pid = ".$db->quote($pid)."
-                 ORDER BY tc_created ASC
+                 ORDER BY tc_created ".$order."
                  $limit";        
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
