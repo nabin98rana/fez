@@ -8,7 +8,9 @@
 	<p><br /></p>
 	
 	{if $ming_loaded}	
-	<p id="citation_history_graph"><a href="http://www.macromedia.com/go/getflashplayer">Get the Flash Player</a> to see this player.</p>
+	<p id="citation_history_graph">
+		<img src="rid_citation_count_history_graph.php?pid={$pid|escape:"html"}&output=IMG_PNG" 
+		     alt="ResearcherID Citation Count History Graph" /></p>
 	<script type="text/javascript">
 	<!--
 		var s1 = new SWFObject("{$rel_url}rid_citation_count_history_graph.php?pid={$pid|escape:"html"}","single","780","300","7");		

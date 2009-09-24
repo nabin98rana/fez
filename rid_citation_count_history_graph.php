@@ -72,24 +72,29 @@ if($count > 0) {
 	}
 }
 
+$graph = new ezcGraphBarChart();
+
 if($count < 1 || count($citation_data) < 2) {
+	
 	if(isset($_GET['output'])) {
 		header ('Content-Type: image/gif');
-		echo file_get_contents('images/no_historical_data.gif');	
+		echo file_get_contents('images/no_historical_data.gif');
+		exit;	
+	}
+	
+	if($count > 0) {	
+		$citation_data = array('Earlier dates not recorded' => 0, date('M Y', $list[0]['tc_created']) => $list[0]['tc_count']);
 	}
 	else {
-		print '<i>No historical data available at this time.</i>';
+		$citation_data = array('Earlier dates not recorded' => 0, date('M Y') => 0);
 	}
-	exit;
+	$graph->title = 'No historical data available at this time.';
 }
 
-$object_title = $record_obj->getTitle();
 
 $graph_data = array('Citation Count' => $citation_data);
 
-$graph = new ezcGraphBarChart();
 $graph->palette = new ezcGraphPaletteEz();
-
 $graph->yAxis = new ezcGraphChartElementNumericAxis(); 
 $graph->yAxis->min = 0;
 $graph->xAxis->labelCount = count($citation_data);
@@ -108,7 +113,6 @@ else if(extension_loaded('ming')) {
 
 $graph->xAxis->label = 'Time';
 $graph->yAxis->label = 'Citation Count';
-//$graph->title = 'ResearcherID Citation Count History';
 $graph->legend = false; 
 
 // Add data
@@ -117,12 +121,10 @@ foreach ( $graph_data as $language => $data )
     $graph->data[$language] = new ezcGraphArrayDataSet( $data );
 }
 $graph->data['Citation Count']->symbol = ezcGraph::NO_SYMBOL;
-
-$graph->renderer = new ezcGraphRenderer3d();
-
 $graph->data['Citation Count']->highlight = true;
 $graph->options->highlightSize = 12;
 
+$graph->renderer = new ezcGraphRenderer3d();
 $graph->renderer->options->legendSymbolGleam = .5;
 $graph->renderer->options->barChartGleam = .5;
 
