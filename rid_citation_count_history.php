@@ -53,7 +53,9 @@ $record = new Record();
 $object_title = $record_obj->getTitle();
 $tpl->assign("title", $object_title);
 $tpl->assign("pid", $pid);
-
+$tpl->assign('rel_url', APP_RELATIVE_URL);
+$tpl->assign('ming_loaded', extension_loaded('ming'));
+$tpl->assign('swfobject', true);
 $tpl->displayTemplate();
 
 

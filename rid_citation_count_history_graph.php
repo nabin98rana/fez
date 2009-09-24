@@ -100,6 +100,11 @@ if(isset($_GET['output'])) {
 	$graph->driver->options->supersampling = 1; 
 	$graph->driver->options->imageFormat = ($_GET['output'] == 'IMG_PNG') ? IMG_PNG : IMG_JPEG;
 }
+else if(extension_loaded('ming')) {
+	// Flash version
+	$graph->driver = new ezcGraphFlashDriver();
+	$graph->options->font = APP_INC_PATH . 'ezc/tutorial_font.fdb';
+}
 
 $graph->xAxis->label = 'Time';
 $graph->yAxis->label = 'Citation Count';

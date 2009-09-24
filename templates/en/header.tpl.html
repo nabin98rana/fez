@@ -18,6 +18,9 @@
 {if $list}
 <link rel="alternate" href="{$PAGE_URL}?{if $url_wo_tpl != ''}{$url_wo_tpl}&{/if}tpl=2" type="application/rss+xml" title="{$title}" id="gallery" />
 {/if}
+{if $swfobject}
+<script type="text/javascript" src="{$rel_url}js/swfobject.js"></script>
+{/if}
 {if $authors_form || $enter_metadata}
 <script language="JavaScript" type="text/javascript">
 <!--

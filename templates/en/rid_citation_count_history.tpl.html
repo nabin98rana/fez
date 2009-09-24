@@ -3,17 +3,26 @@
 
 <div style="padding: 10px; margin-right:auto; margin-left:auto; width:800px;">
 	<h1 class="public"><img src="images/rid_22.png" alt="ResearcherID Citation Count History" />		
-	ResearcherID Citation Count History for <a href="/view/{$pid|escape:"html"}">{$title|escape:"html"}</a></h1> 
+	ResearcherID Citation Count History for <a href="{$rel_url}view/{$pid|escape:"html"}">{$title|escape:"html"}</a></h1> 
 	
 	<p><br /></p>
 	
-	<object data="rid_citation_count_history_graph.php?pid={$pid|escape:"html"}" 
+	{if $ming_loaded}	
+	<p id="citation_history_graph"><a href="http://www.macromedia.com/go/getflashplayer">Get the Flash Player</a> to see this player.</p>
+	<script type="text/javascript">
+	<!--
+		var s1 = new SWFObject("{$rel_url}rid_citation_count_history_graph.php?pid={$pid|escape:"html"}","single","780","300","7");		
+		s1.write("citation_history_graph");
+	//-->
+	</script>
+	{else}
+	<object data="{$rel_url}rid_citation_count_history_graph.php?pid={$pid|escape:"html"}" 
 			type="image/svg+xml" 
 			id="svg" 
 			width="780" 
 			height=300"><img src="rid_citation_count_history_graph.php?pid={$pid|escape:"html"}&output=IMG_PNG" 
 							 alt="ResearcherID Citation Count History Graph" /></object>
-	
+	{/if}
 	
 </div>
 
