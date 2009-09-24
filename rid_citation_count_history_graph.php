@@ -112,6 +112,9 @@ $graph->data['Citation Count']->symbol = ezcGraph::NO_SYMBOL;
 
 $graph->renderer = new ezcGraphRenderer3d();
 
+$graph->data['Citation Count']->highlight = true;
+$graph->options->highlightSize = 12;
+
 $graph->renderer->options->legendSymbolGleam = .5;
 $graph->renderer->options->barChartGleam = .5;
 
