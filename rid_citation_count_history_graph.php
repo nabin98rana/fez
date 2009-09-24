@@ -50,11 +50,6 @@ $record = new Record();
 $list = $record->getThomsonCitationCountHistory($pid, false, 'ASC');
 
 $count = count($list);
-if($count < 1) {
-	print '<i>Not enough historical data available at this time.</i>';
-	exit;
-}
-
 $citation_data = array();
 
 $format = 'd M Y';
@@ -68,15 +63,21 @@ if($range > 31536000) {
 else if($range > 2592000) {
 	$format = 'M Y';	
 }
-	
+
 for($i=0; $i<count($list); $i++) {
 	
 	$date = date($format, $list[$i]['tc_created']);	
 	$citation_data[$date] = $list[$i]['tc_count'];
 }
 
-if(count($citation_data) < 1) {
-	print '<i>Not enough historical data available at this time.</i>';
+if($count < 1 || count($citation_data) < 2) {
+	if(isset($_GET['output'])) {
+		header ('Content-Type: image/gif');
+		echo file_get_contents('images/no_historical_data.gif');	
+	}
+	else {
+		print '<i>No historical data available at this time.</i>';
+	}
 	exit;
 }
 
@@ -119,6 +120,4 @@ $graph->renderer->options->legendSymbolGleam = .5;
 $graph->renderer->options->barChartGleam = .5;
 
 $graph->renderToOutput( 780, 300 ); 
-
-
 
