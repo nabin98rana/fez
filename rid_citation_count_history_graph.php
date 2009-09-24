@@ -49,20 +49,23 @@ $object_title = $record_obj->getTitle();
 $record = new Record();
 $list = $record->getThomsonCitationCountHistory($pid, false, 'ASC');
 
-if(count($list) < 1) {
+$count = count($list);
+if($count < 1) {
 	print '<i>Not enough historical data available at this time.</i>';
 	exit;
 }
 
 $citation_data = array();
-$month_start = mktime(0,0,0,date('m'),1,date('Y'));
-$year_start = mktime(0,0,0,1,1,date('Y'));
-$format = 'd M Y';
 
-if($list[0]['tc_created'] < $year_start) {
+$format = 'd M Y';
+$range = $list[$count-1]['tc_created'] - $list[0]['tc_created'];
+
+// More than 1 year's worth of history
+if($range > 31536000) {
 	$format = 'Y';	
 }
-else if($list[0]['tc_created'] < $month_start) {
+// More than 1 month's history (based on 30 days in a month)
+else if($range > 2592000) {
 	$format = 'M Y';	
 }
 	
@@ -72,7 +75,7 @@ for($i=0; $i<count($list); $i++) {
 	$citation_data[$date] = $list[$i]['tc_count'];
 }
 
-if(count($citation_data) < 2) {
+if(count($citation_data) < 1) {
 	print '<i>Not enough historical data available at this time.</i>';
 	exit;
 }
