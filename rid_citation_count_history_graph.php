@@ -87,6 +87,8 @@ $graph_data = array('Citation Count' => $citation_data);
 $graph = new ezcGraphBarChart();
 $graph->palette = new ezcGraphPaletteEz();
 
+$graph->yAxis = new ezcGraphChartElementNumericAxis(); 
+$graph->yAxis->min = 0;
 $graph->xAxis->labelCount = count($citation_data);
 
 if(isset($_GET['output'])) {
