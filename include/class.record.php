@@ -2257,66 +2257,24 @@ class Record
 		$db = DB_API::get();
 		
 		$dbtp =  APP_TABLE_PREFIX; // Database and table prefix
-		$prev_count;
 		
-		// Get the previous count
-		$stmt = "SELECT
-                    rek_thomson_citation_count
-                 FROM
-                    " . $dbtp . "record_search_key
-                 WHERE
-                    rek_pid = ".$db->quote($pid)."
-                 ORDER BY tc_id DESC";
-
-		try {
-			$res = $db->fetchOne($stmt);
-		}
-		catch(Exception $ex) {
-			$log->err($ex);		
-		}
-		
-		$prev_count = $res;
-        
-        // If the count has changed, or there is no previous count, update the count
-        if( empty($prev_count) || $prev_count != $count) {
-	        $stmt = "UPDATE
+		$stmt = "UPDATE
 	                    " . $dbtp . "record_search_key
 	                 SET
 	                 	rek_thomson_citation_count = ".$db->quote($count)."
 	                 WHERE
 	                    rek_pid = ".$db->quote($pid);
-	        try {
-				$db->query($stmt);
-			}
-			catch(Exception $ex) {
-				$log->err($ex);
-				return false;
-			}    
-	        Record::insertThomsonCitationCount($pid, $count);    
-        }
-        // Else update the last time we checked
-        else {        	
-        	$stmt = "SELECT 
-        				tc_id
-        			 FROM
-	                    " . $dbtp . "thomson_citations	                 
-	                 WHERE
-	                    tc_pid = ".$db->quote($pid);
-	        try {
-				$res = $db->fetchOne($stmt);
-			}
-			catch(Exception $ex) {
-				$log->err($ex);		
-			}			
-	        if($res) {
-				Record::updateThomsonCitationLastChecked($res);			
-	        }
-	        else {
-		        // No previous count so insert a new entry
-				Record::insertThomsonCitationCount($pid, $count);
-	        }
-	        
-        }     
+        try {
+			$db->query($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return false;
+		}
+        
+        // Record in history
+        Record::insertThomsonCitationCount($pid, $count);
+                
         return true;
 	}
 	
