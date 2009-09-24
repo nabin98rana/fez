@@ -46,28 +46,30 @@ $pid = @$_POST["pid"] ? $_POST["pid"] : $_GET["pid"];
 $record_obj = new RecordObject($pid);
 $object_title = $record_obj->getTitle();
 
-$record = new Record();
+$record = new Record(); 
 $list = $record->getThomsonCitationCountHistory($pid, false, 'ASC');
 
 $count = count($list);
 $citation_data = array();
 
-$format = 'd M Y';
-$range = $list[$count-1]['tc_created'] - $list[0]['tc_created'];
-
-// More than 1 year's worth of history
-if($range > 31536000) {
-	$format = 'Y';	
-}
-// More than 1 month's history (based on 30 days in a month)
-else if($range > 2592000) {
-	$format = 'M Y';	
-}
-
-for($i=0; $i<count($list); $i++) {
+if($count > 0) {
+	$format = 'd M Y';
+	$range = $list[$count-1]['tc_created'] - $list[0]['tc_created'];
 	
-	$date = date($format, $list[$i]['tc_created']);	
-	$citation_data[$date] = $list[$i]['tc_count'];
+	// More than 1 year's worth of history
+	if($range > 31536000) {
+		$format = 'Y';	
+	}
+	// More than 1 month's history (based on 30 days in a month)
+	else if($range > 2592000) {
+		$format = 'M Y';	
+	}
+	
+	for($i=0; $i<count($list); $i++) {
+		
+		$date = date($format, $list[$i]['tc_created']);	
+		$citation_data[$date] = $list[$i]['tc_count'];
+	}
 }
 
 if($count < 1 || count($citation_data) < 2) {
