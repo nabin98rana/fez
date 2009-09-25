@@ -83,4 +83,22 @@ class ResearcherIDProxy
 			return 'false';
 		}
     }
+    
+    /**
+     * Downloads publications for a researcher using the ResearcherID Batch Download Service
+     * @param string $researcher_id The ResearcherID to downlaod publications for 
+     * @return string
+     */
+    public function download($researcher_id) 
+    {
+    	$log = FezLog::get();
+		$db = DB_API::get();
+		
+		if(ResearcherID::downloadRequest(array($researcher_id), 'researcherIDs', 'researcherID')) {
+			return 'true'; 
+		}
+		else {
+			return 'false';
+		}
+    }
 }

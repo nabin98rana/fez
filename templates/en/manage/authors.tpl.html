@@ -209,11 +209,16 @@
 	            		var rid_server = new dojo.rpc.JsonService("{/literal}{$rel_url}{literal}researcherid_proxy.php");
 	                    var rid_container_id = 'register_rid_container';
 	                    var rid_register = 'register_researcherid_profile';
+	                    var rid_download = 'download_from_researcherid';
 						
 	                    dojo.addOnLoad(function(){
 		                    var id = dojo.byId(rid_register);
 		                    if(id) {
 	                    		dojo.connect(id, 'onclick', 'register_in_rid');
+		                    }
+		                    var did = dojo.byId(rid_download);
+		                    if(did) {
+	                    		dojo.connect(did, 'onclick', 'download_from_rid');
 		                    }
 	                    });
 	                    
@@ -230,7 +235,7 @@
 		                    if(! confirm_register) {
 			                    return false;
 		                    }
-		                    var aut_id = dojo.byId('id').value;
+		                    var aut_id = '{/literal}{$smarty.get.id|escape:"html"}{literal}';
 	                    	dojo.byId(rid_container_id).innerHTML = 'Registering, please wait..';
 	                    	var rid_t = rid_server.register(aut_id);
 	                   		
@@ -243,12 +248,36 @@
 								}
 	                    	});
 	                   	}
+
+	                    function download_from_rid(e) {
+	                    	dojo.stopEvent(e);
+		                    
+	                    	var confirm_download = confirm("You are about to download publication for this author from ResearcherID.\n\n"+
+	    	                    							"Any new publications found, which have a ISI UT number, will be added to the repository.\n\n"+
+	    	                    							"");
+		                    
+		                    if(! confirm_download) {
+			                    return false;
+		                    }
+		                    var aut_rid_id = '{/literal}{$info.aut_researcher_id}{literal}';
+	                    	dojo.byId(rid_container_id).innerHTML = aut_rid_id + ' - Starting download, please wait..';
+	                    	var rid_d = rid_server.download(aut_rid_id);
+	                   		
+                    		rid_d.addCallback( function(msg) {
+								if(msg == '' || msg == 'false') {
+									dojo.byId(rid_container_id).innerHTML = aut_rid_id + ' - Oops! Something unexpected happened. Please try again later..';									
+								}
+								else {
+									dojo.byId(rid_container_id).innerHTML = aut_rid_id + ' - Publications are being downloaded from Researcher ID. Any new publications will be added to <a href="{/literal}{$rel_url}collection/{$smarty.const.RID_DL_COLLECTION}"{literal}>this collection</a>.';
+								}
+	                    	});
+	                   	}
 	                    //-->
 	                    </script>
 	                {/literal}
 	                <div id="register_rid_container" style="font-size: 0.8em;">
                   	{if $info.aut_researcher_id == ''}
-                  		<a href="javascript:void(null)" id="register_researcherid_profile"><img src="{$rel_url}images/create.gif" width="45" height="16" alt="Register ResearcherID Profile" title="Register ResearcherID Profile" style="border:0;" />
+                  		<a href="javascript:void(null)" id="register_researcherid_profile"><img src="{$rel_url}images/create.gif" width="45" height="16" alt="Register ResearcherID Profile" title="Register ResearcherID Profile" style="border:0;" /></a>
                   		
                   	{elseif $info.aut_researcher_id == '-1' || strstr($info.aut_researcher_id, 'ERR:')}
                   		{if strstr($info.aut_researcher_id, 'ERR:')}
@@ -258,7 +287,8 @@
 	                  	{/if}
                   		
 	                {else}
-	                	{$info.aut_researcher_id}
+	                	{$info.aut_researcher_id} &nbsp;
+	                	<a href="javascript:void(null)" id="download_from_researcherid">Download</a>
     	          	{/if}
     	          	</div>
                 </td>

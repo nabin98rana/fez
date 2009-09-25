@@ -1573,6 +1573,14 @@ function restoreDefaultColours(el)
 			</td>
   		  </tr>
   		  <tr>
+		    <td class="colname" nowrap="nowrap">Collection</td>
+			<td class="coldetail">
+			  <input type="text" name="rid_dl_collection" value="{$config_settings.rid_dl_collection|escape:"html"}" size="10" />
+			  <br />Set this to the PID of the collection the downloaded publications will be added to.
+			  {include file="error_icon.tpl.html" field="rid_dl_collection"}
+			</td>
+  		  </tr>
+  		  <tr>
 			<td colspan="2">
 			 <p><br /></p>
 			</td>

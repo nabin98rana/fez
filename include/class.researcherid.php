@@ -116,8 +116,8 @@ class ResearcherID
             $response_document = new DOMDocument();
             $response_document = ResearcherID::doServiceRequest($xml_api_data_request->saveXML());
             
-            header('content-type: application/xml; charset=utf-8');
-            echo $response_document->saveXML();
+            //header('content-type: application/xml; charset=utf-8');
+            //echo $response_document->saveXML();
             
             if($response_document) {
                 // Get job ticket number from response
@@ -592,8 +592,10 @@ class ResearcherID
     {
     	$log = FezLog::get();
 		$db = DB_API::get();
+		
+    	// Not implemented
     	
-    	return true; // DEBUG
+    	return true;
     }
     
     /**
@@ -628,7 +630,6 @@ class ResearcherID
 	    		
 	    		// If the publication exists
 	    		if( $pid ) {
-	    			$log->crit('Publication exists pid:'.$pid);
 	    			ResearcherID::insertAuthorId($pid, $author_id);
 	    			$times_cited = (string)$record->{'times-cited'};
 	    			if(! empty($times_cited)) {
@@ -639,8 +640,7 @@ class ResearcherID
 					}
 	    		}
 	    		// Else ingest the new publication into Fedora
-	    		else {
-	    			$log->crit('New publication');    			
+	    		else {			
     				ResearcherID::addPublication($record, $author_id);
     			}		
     		}
@@ -659,26 +659,31 @@ class ResearcherID
     	$log = FezLog::get();
 		$db = DB_API::get();
 		
-		$parent_pid = 'UQ:86605'; // TODO: Add config value to change this 
-    	
-    	$aut = @split(':', $record->{'accession-num'});
-    	if(count($aut) > 1) {
-    		$ut = $aut[1];    	
-    		$log->crit('Retrieving pub from WoS with UT='.$ut);	
-	    	$records = EstiSearchService::retrieve($ut);
+		$collection = RID_DL_COLLECTION;
+		
+		if(Fedora_API::objectExists($collection)) {
 			
-			if($records) {
-				foreach($records->REC as $_record) {
-					$log->crit('Adding record');
-					$log->crit($_record);
-					$mods = Misc::convertEstiRecordToMods($_record, $author_id);
-					if($mods) {
-						$times_cited = $_record->attributes()->timescited;
-	    				Record::insertFromArray($mods, $parent_pid, 'MODS 1.0', 'Imported from ResearcherID', $times_cited);
+	    	$aut = @split(':', $record->{'accession-num'});
+	    	if(count($aut) > 1) {
+	    		$ut = $aut[1];    		
+		    	$records = EstiSearchService::retrieve($ut);
+				
+				if($records) {
+					foreach($records->REC as $_record) {
+						$mods = Misc::convertEstiRecordToMods($_record, $author_id);
+						if($mods) {
+							$times_cited = $_record->attributes()->timescited;
+		    				Record::insertFromArray($mods, $collection, 'MODS 1.0', 'Imported from ResearcherID', $times_cited);
+						}
 					}
-				}
-			}	
-    	}	
+				}	
+	    	}
+	    	
+	    	return true;
+		}
+		else {
+			return false;
+		}
     }
 
     /**
