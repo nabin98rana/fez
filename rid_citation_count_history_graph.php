@@ -41,6 +41,22 @@ include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "ezc/Base/src/base.php");
 
+class citationCustomPalette extends ezcGraphPalette
+{
+	protected $axisColor = '#000000';
+	protected $majorGridColor = '#000000BB';
+	protected $dataSetColor = array(
+									'#4E9A0688',
+									'#3465A4',
+									'#F57900'
+								);								
+	protected $dataSetSymbol = array(
+									ezcGraph::BULLET,
+								);
+	protected $fontName = 'sans-serif';
+	protected $fontColor = '#555753';
+}
+
 $pid = @$_POST["pid"] ? $_POST["pid"] : $_GET["pid"];
 
 $record_obj = new RecordObject($pid);
@@ -94,7 +110,8 @@ if($count < 1 || count($citation_data) < 2) {
 
 $graph_data = array('Citation Count' => $citation_data);
 
-$graph->palette = new ezcGraphPaletteEz();
+//$graph->palette = new ezcGraphPaletteEz();
+$graph->palette = new citationCustomPalette(); 
 $graph->yAxis = new ezcGraphChartElementNumericAxis(); 
 $graph->yAxis->min = 0;
 $graph->xAxis->labelCount = count($citation_data);
@@ -125,8 +142,13 @@ $graph->data['Citation Count']->highlight = true;
 $graph->options->highlightSize = 12;
 
 $graph->renderer = new ezcGraphRenderer3d();
-$graph->renderer->options->legendSymbolGleam = .5;
-$graph->renderer->options->barChartGleam = .5;
+//$graph->renderer->options->legendSymbolGleam = .5;
+//$graph->renderer->options->barChartGleam = .5;
 
 $graph->renderToOutput( 780, 300 ); 
+
+
+
+
+
 
