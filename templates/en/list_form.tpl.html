@@ -221,7 +221,7 @@
 	       {/if}
 	       <td align="left"{if $icon}{else} colspan="2"{/if} valign="middle" style="border-top:1px dashed #87ABE9; width: 100%;">
             {if $list[i].rek_thomson_citation_count != ""}
-            	<a href="{$rel_url}rid_citation_count_history.php?pid={$list[i].rek_pid|escape:"html"}">{$list[i].rek_thomson_citation_count}</a>
+            	<a href="{$rel_url}rid_citation_count_history_{$list[i].rek_pid|escape:"html"}">{$list[i].rek_thomson_citation_count}</a>
             {else}
             	&nbsp;
             {/if}			

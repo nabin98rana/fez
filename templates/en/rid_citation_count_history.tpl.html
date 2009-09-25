@@ -9,20 +9,20 @@
 	
 	{if $ming_loaded}	
 	<p id="citation_history_graph">
-		<img src="rid_citation_count_history_graph.php?pid={$pid|escape:"html"}&output=IMG_PNG" 
+		<img src="{$rel_url}rid_citation_count_history_{$pid|escape:"html"}_graph.png" 
 		     alt="ResearcherID Citation Count History Graph" /></p>
 	<script type="text/javascript">
 	<!--
-		var s1 = new SWFObject("{$rel_url}rid_citation_count_history_graph.php?pid={$pid|escape:"html"}","single","780","300","7");		
+		var s1 = new SWFObject("{$rel_url}rid_citation_count_history_{$pid|escape:"html"}_graph.swf","single","780","300","7");		
 		s1.write("citation_history_graph");
 	//-->
 	</script>
 	{else}
-	<object data="{$rel_url}rid_citation_count_history_graph.php?pid={$pid|escape:"html"}" 
+	<object data="{$rel_url}rid_citation_count_history_{$pid|escape:"html"}_graph.svg" 
 			type="image/svg+xml" 
 			id="svg" 
 			width="780" 
-			height=300"><img src="rid_citation_count_history_graph.php?pid={$pid|escape:"html"}&output=IMG_PNG" 
+			height=300"><img src="{$rel_url}rid_citation_count_history_{$pid|escape:"html"}_graph.png" 
 							 alt="ResearcherID Citation Count History Graph" /></object>
 	{/if}
 	

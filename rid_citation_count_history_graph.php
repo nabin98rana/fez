@@ -116,13 +116,13 @@ $graph->yAxis = new ezcGraphChartElementNumericAxis();
 $graph->yAxis->min = 0;
 $graph->xAxis->labelCount = count($citation_data);
 
-if(isset($_GET['output'])) {
+if( (!isset($_GET['ext'])) || $_GET['ext'] == 'png' || $_GET['ext'] == 'jpg') {
 	$graph->driver = new ezcGraphGdDriver(); 
 	$graph->options->font = APP_INC_PATH . 'ezc/tutorial_font.ttf';
 	$graph->driver->options->supersampling = 1; 
-	$graph->driver->options->imageFormat = ($_GET['output'] == 'IMG_PNG') ? IMG_PNG : IMG_JPEG;
+	$graph->driver->options->imageFormat = ($_GET['ext'] == 'png') ? IMG_PNG : IMG_JPEG;
 }
-else if(extension_loaded('ming')) {
+else if(extension_loaded('ming') && $_GET['ext'] == 'swf') {
 	// Flash version
 	$graph->driver = new ezcGraphFlashDriver();
 	$graph->options->font = APP_INC_PATH . 'ezc/tutorial_font.fdb';
