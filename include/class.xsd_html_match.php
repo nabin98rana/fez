@@ -977,24 +977,22 @@ class XSD_HTML_Match
 				unset($mfoResult);
 				$mfoResult = $_mfoResult;
 				
+				
 				// iterate over match field list: only get value(s) if there are any options at all					
 				for ($i = 0; $i < count($res); $i++) {
 					$res[$i]["field_options"] = array();
 					$res[$i]["field_options_value_only"] = array();
 
 					$mfoEntries = $mfoResult[$res[$i]['xsdmf_id']];
-
+					
 					// check if this field has any options
 					if (count($mfoEntries) > 0) {
 						for ($n=0; $n<count($mfoEntries); $n++) {
-							$res[$i]["field_options"][$mfoEntries[$n]["mfo_fld_id"]] = $mfoEntries[$n]["mfo_id"];
+							$res[$i]["field_options"][$mfoEntries[$n][0]] = $mfoEntries[$n][1];
 						}
-							
 						// this could be further optimized, but is just called in very few cases
 						$res[$i]["field_options_value_only"] = XSD_HTML_Match::getOptionsValueOnly($res[$i]["xsdmf_id"]);
-							
-						//print_r($res[$i]["field_options"]);
-						//print_r($res[$i]["field_options_value_only"]);
+								
 					}
 				}
 
@@ -3216,11 +3214,12 @@ class XSD_HTML_Match
 				return '';
 			}
 				
-			$res2 = array ();
+			$res2 = array ();			
 			foreach ($res as $key => $value) {
-				$res2[utf8_encode($key)] = $value;
+				$res2[utf8_encode($key)] = $value;				
 			}
-			return $res;
+			
+			return $res2;
 		}
 
 		/**
