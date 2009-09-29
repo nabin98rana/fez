@@ -80,7 +80,7 @@ class Template_API
 		
 		$this->smarty = new Smarty;
 		$this->smarty->template_dir = APP_PATH . "templates/" . APP_CURRENT_LANG;
-		$this->smarty->compile_dir = $compile_path;;
+		$this->smarty->compile_dir = $compile_path;
 		$this->smarty->config_dir = '';
 
 		$custom_view_pid = $_GET['custom_view_pid'];
