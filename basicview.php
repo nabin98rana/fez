@@ -49,22 +49,21 @@ if (!isset($_SERVER['PHP_AUTH_USER'])) {
     echo 'You must login to access this service';
     exit;
 } else {
-
-		// Check for basic authentication (over ssl) to bypass authorisation and login the user coming directly to eserv.php (and bypass usual login)
-		if (!Auth::isValidSession($session)) { // if user not already logged in
-			//print_r($_SERVER); exit;
-        	if (isset($_SERVER['PHP_AUTH_USER'])) { // check to see if there is some basic auth login..
-				$username = $_SERVER['PHP_AUTH_USER'];
-				$pw = $_SERVER['PHP_AUTH_PW'];
-        		if (Auth::isCorrectPassword($username, $pw)) {
-        			Auth::LoginAuthenticatedUser($username, $pw, false);
-					header ("Location: https://".APP_HOSTNAME.APP_RELATIVE_URL."view/".$_GET['pid']);
-    				exit;        		        			
-        		} else {
-        			header('WWW-Authenticate: Basic realm="'.APP_HOSTNAME.'"');
-    				header('HTTP/1.0 401 Unauthorized');
-    				exit;
-        		}
-        	}
+	// Check for basic authentication (over ssl) to bypass authorisation and login the user coming directly to eserv.php (and bypass usual login)
+	if (!Auth::isValidSession($session)) { // if user not already logged in
+		//print_r($_SERVER); exit;
+		if (isset($_SERVER['PHP_AUTH_USER'])) { // check to see if there is some basic auth login..
+			$username = $_SERVER['PHP_AUTH_USER'];
+			$pw = $_SERVER['PHP_AUTH_PW'];
+			if (Auth::isCorrectPassword($username, $pw)) {
+				Auth::LoginAuthenticatedUser($username, $pw, false);
+				header ("Location: https://".APP_HOSTNAME.APP_RELATIVE_URL."view/".$_GET['pid']);
+				exit;        		        			
+			} else {
+				header('WWW-Authenticate: Basic realm="'.APP_HOSTNAME.'"');
+				header('HTTP/1.0 401 Unauthorized');
+				exit;
+			}
 		}
+	}
 }

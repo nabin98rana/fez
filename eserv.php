@@ -38,6 +38,10 @@ include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.exiftool.php");
 include_once(APP_INC_PATH . "class.fedora_direct_access.php");
 
+if ((defined('APP_BASIC_AUTH_IP') && ($_SERVER['REMOTE_ADDR'] == APP_BASIC_AUTH_IP)) && !isset($_SERVER['PHP_AUTH_USER'])) {
+	header ("Location: https://".APP_HOSTNAME.APP_RELATIVE_URL."basiceserv.php?pid=".$_GET['pid']."&dsid=".$_GET['dsID']);
+}
+
 $stream     = @$_REQUEST["stream"];
 $wrapper    = @$_REQUEST["wrapper"];
 $pid        = @$_REQUEST["pid"];

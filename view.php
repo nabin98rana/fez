@@ -47,6 +47,10 @@ include_once(APP_INC_PATH . "class.xsd_relationship.php");
 include_once(APP_INC_PATH . "class.fedora_api.php");
 include_once(APP_INC_PATH . "class.filecache.php");
 
+if ((defined('APP_BASIC_AUTH_IP') && ($_SERVER['REMOTE_ADDR'] == APP_BASIC_AUTH_IP)) && !isset($_SERVER['PHP_AUTH_USER'])) {
+	header ("Location: https://".APP_HOSTNAME.APP_RELATIVE_URL."basicview.php?pid=".$_GET['pid']);
+}
+
 $tpl = new Template_API();
 $tpl->setTemplate("view.tpl.html");
 $pid = @$_REQUEST["pid"];
