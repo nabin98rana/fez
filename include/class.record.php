@@ -1620,14 +1620,12 @@ class Record
 							$func = $sekData['sek_lookup_function'].'('.$result[$i]['rek_'.$sek_sql_title].');';
 							
 							if(array_key_exists($func, $cache_eval)) {
-								$sek_rel = $cache_db_names[$sek_id];
 								$result[$i]["rek_'.$sek_sql_title.'_lookup"] = $cache_eval[$func];
 							}
 							else {
 								eval('$result[$i]["rek_'.$sek_sql_title.'_lookup"] = '.$func);
 								$cache_eval[$func] = $result[$i]["rek_'.$sek_sql_title.'_lookup"];	
 							}
-							
 							
 						} else {
 							$result[$i]['rek_'.$sek_sql_title.'_lookup'] = "";
@@ -1647,7 +1645,17 @@ class Record
 						if (!is_array($p[$res[$i]["rek_".$sek_sql_title."_pid"]]) && ($sekData['sek_cardinality'] == 1)) {
 							$p[$res[$i]["rek_".$sek_sql_title."_pid"]] = array();
 						}
-						eval('$res[$i]["rek_'.$sek_sql_title.'_lookup"] = '.$sekData['sek_lookup_function']."('".$res[$i]['rek_'.$sek_sql_title]."');");
+						
+						$func = $sekData['sek_lookup_function']."('".$res[$i]['rek_'.$sek_sql_title]."');";
+						
+						if(array_key_exists($func, $cache_eval)) {
+							$res[$i]["rek_'.$sek_sql_title.'_lookup"] = $cache_eval[$func];
+						}
+						else {
+							eval('$res[$i]["rek_'.$sek_sql_title.'_lookup"] = '.$func);
+							$cache_eval[$func] = $res[$i]["rek_'.$sek_sql_title.'_lookup"];	
+						}
+						
 						if ($sekData['sek_cardinality'] == 1) {
 							$p[$res[$i]["rek_".$sek_sql_title."_pid"]][] =  $res[$i]["rek_".$sek_sql_title."_lookup"];
 						} else {
