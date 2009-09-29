@@ -44,13 +44,15 @@ class FezLog
     private $_logs = null;
 	private $_stopwatch = null;
 	private $_use_firebug = false;
+	public $log_trace = false;
 	private $_channel = null;
 	private $_response= null;
 
-	public function __construct($logs, $use_firebug = false) 
+	public function __construct($logs, $use_firebug = false, $log_trace = false) 
 	{
 		$this->_logs = $logs;
 		$this->_firebug = false;
+		$this->log_trace = $log_trace;
 				
 		if($use_firebug) {			
 			$this->_use_firebug = true;		
@@ -73,8 +75,10 @@ class FezLog
 	public static function get() 
 	{
 		$log = Zend_Registry::get('fezlog');
-		//$trace = debug_backtrace();
-		//$log->debug_method($trace[1]['class'].$trace[1]['type'].$trace[1]['function'], $end = false);
+		if($log->log_trace) {
+			$trace = debug_backtrace();
+			$log->debug_method($trace[1]['class'].$trace[1]['type'].$trace[1]['function'], $end = false);
+		}
 		return $log;
 	}
 	
