@@ -181,10 +181,13 @@ class SanityChecks
 
 	function dirs()
 	{
+		if (!defined('APP_TEMPLATE_COMPILE_PATH')) {
+			DEFINE("APP_TEMPLATE_COMPILE_PATH", APP_PATH . "templates_c");
+		}
 		$results = array(ConfigResult::message('Testing general directories'));
 		$results = array_merge($results, SanityChecks::checkDir('APP_TEMP_DIR', APP_TEMP_DIR, true));
 		$results = array_merge($results, SanityChecks::checkDir('APP_SAN_IMPORT_DIR', APP_SAN_IMPORT_DIR));
-		$results = array_merge($results, SanityChecks::checkDir('APP_PATH/templates_c', APP_PATH."templates_c/", true));
+		$results = array_merge($results, SanityChecks::checkDir('APP_TEMPLATE_COMPILE_PATH', APP_TEMPLATE_COMPILE_PATH, true));
 		if (APP_REPORT_ERROR_FILE == "true") {
 			$results = array_merge($results, SanityChecks::checkFile('APP_ERROR_LOG', APP_ERROR_LOG, true));
 		}

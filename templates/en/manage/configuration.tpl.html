@@ -283,6 +283,14 @@ function restoreDefaultColours(el)
               </select>
             </td>
           </tr>
+          <tr>
+		    <td class="colname">Smarty Template Cache Path</td>
+			<td class="coldetail">
+			  <input type="text" name="app_template_compile_path" value="{$config_settings.app_template_compile_path|escape:"html"}" size="50" />
+			  <br />The path of the directory to store smarty compiled files. The default is in templates_c under the app root. Please ensure the web server has write access to this directory.
+			  {include file="error_icon.tpl.html" field="app_template_compile_path"}
+			</td>
+  		  </tr>
 		  <tr>
 		    <td class="colname">Link prefix</td>
 			<td class="coldetail">

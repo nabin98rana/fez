@@ -237,8 +237,8 @@ class Default_Data
 		$defaultData['app_use_article_title_search']		= "OFF";		
 		$defaultData['app_article_add_to_collection']		= "";
 		$defaultData['app_article_search_wos_address']		= "";
-		
-		
+		$defaultData['app_template_compile_path']		= "";
+				
 		return $defaultData;
 
 	}
