@@ -70,8 +70,8 @@ class Template_API
 		if (!defined('APP_CURRENT_LANG')) {
 			DEFINE("APP_CURRENT_LANG", "en");
 		}
-		if (!defined('APP_TEMPLATE_COMPILE_PATH')) {
-			DEFINE("APP_TEMPLATE_COMPILE_PATH", APP_PATH . "templates_c");
+		if ((!defined('APP_TEMPLATE_COMPILE_PATH')) || APP_TEMPLATE_COMPILE_PATH == '') {
+			DEFINE("APP_TEMPLATE_COMPILE_PATH", APP_PATH . "templates_c");			
 		}
 		
 		$this->smarty = new Smarty;
