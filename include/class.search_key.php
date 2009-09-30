@@ -772,11 +772,13 @@ class Search_Key
 		$log = FezLog::get();
 		$db = DB_API::get();
 		
+		// AM: disable depsitor search key. with ~80000 authors it slows considerably
+		// need to look at a better way to search for depositor
 		$stmt = "SELECT
                     *
                  FROM
                     " . APP_TABLE_PREFIX . "search_key
-				 WHERE sek_myfez_visible = 1
+				 WHERE sek_myfez_visible = 1 AND sek_title != 'Depositor'
                  ORDER BY
                     sek_order ASC";
 		try {
@@ -790,7 +792,7 @@ class Search_Key
 		if (empty($res)) {
 			return array();
 		} else {
-			for ($i = 0; $i < count($res); $i++) {
+			for ($i = 0; $i < count($res); $i++) {				
 				$res[$i]["field_options"] = Search_Key::getOptions($res[$i]["sek_smarty_variable"]);
 			}
 			return $res;
