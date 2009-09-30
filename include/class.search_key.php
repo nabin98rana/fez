@@ -668,8 +668,11 @@ class Search_Key
 	 */
 	function getOptions($sek_smarty_variable)
 	{
+		$log = FezLog::get();
+		
 		$return = array();
 		if (!empty($sek_smarty_variable)) {
+			$log->debug("\$return = ". $sek_smarty_variable.";");
 			eval("\$return = ". $sek_smarty_variable.";");
 
 		}
