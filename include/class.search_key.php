@@ -674,7 +674,7 @@ class Search_Key
 		if (!empty($sek_smarty_variable)) {
 			$log->debug("\$return = ". $sek_smarty_variable.";");
 			eval("\$return = ". $sek_smarty_variable.";");
-
+			$log->debug("returned from eval'd \$return = ". $sek_smarty_variable.";");
 		}
 		return $return;
 

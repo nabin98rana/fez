@@ -810,6 +810,8 @@ class Author
 			$log->err($ex);
 			return '';
 		}
+		
+		$log->debug('Exiting getAssocListAll');
 		return $res;
 	}
 
