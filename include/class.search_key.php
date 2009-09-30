@@ -739,7 +739,7 @@ class Search_Key
                     *
                  FROM
                     " . APP_TABLE_PREFIX . "search_key
-				 WHERE sek_adv_visible = 1
+				 WHERE sek_adv_visible = 1 AND sek_title != 'Depositor' AND sek_title != 'Author ID'
                  ORDER BY
                     sek_order ASC";
 		try {
@@ -749,7 +749,7 @@ class Search_Key
 			$log->err($ex);
 			return '';
 		}
-	
+			
 		if (empty($res)) {
 			return array();
 		} else {
@@ -778,7 +778,7 @@ class Search_Key
                     *
                  FROM
                     " . APP_TABLE_PREFIX . "search_key
-				 WHERE sek_myfez_visible = 1 AND sek_title != 'Depositor'
+				 WHERE sek_myfez_visible = 1 AND sek_title != 'Depositor' AND sek_title != 'Author ID'
                  ORDER BY
                     sek_order ASC";
 		try {
@@ -815,7 +815,7 @@ class Search_Key
                     *
                  FROM
                     " . APP_TABLE_PREFIX . "search_key
-				 WHERE sek_simple_used = 1
+				 WHERE sek_simple_used = 1 AND sek_title != 'Depositor' AND sek_title != 'Author ID'
                  ORDER BY
                     sek_order ASC";
 		try {
