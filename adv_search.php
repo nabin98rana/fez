@@ -44,6 +44,7 @@ include_once(APP_INC_PATH . "class.controlled_vocab.php");
 include_once(APP_INC_PATH . "class.template.php");
 
 $tpl = new Template_API();
+$tpl->assign("yui_autosuggest", '1');
 $tpl->setTemplate("adv_search.tpl.html");
 
 $list = Search_Key::getAdvSearchList();

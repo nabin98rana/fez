@@ -43,6 +43,7 @@ include_once(APP_INC_PATH . 'najax_objects/class.background_process_list.php');
 Auth::checkAuthentication(APP_SESSION);
 
 $tpl = new Template_API();
+$tpl->assign("yui_autosuggest", '1');
 
 $bgp_list = new BackgroundProcessList;
 $bgp_list->autoDeleteOld(Auth::getUserID());

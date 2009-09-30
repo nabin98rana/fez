@@ -37,16 +37,34 @@ include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.setup.php");
 include_once(APP_INC_PATH . "class.author.php");
 
+$sek_suggest_function = false;
+
 $xsdmf_id = $_GET['xsdmf_id'];
-if (!is_numeric($xsdmf_id)) {
-	return false;
-} else {
+$sek_id = $_GET['sek_id'];
+$use_xsdmf_id = false;
+
+if ((!empty($xsdmf_id)) && is_numeric($xsdmf_id)) {	
+	$use_xsdmf_id = true;
 	$sek_suggest_function = Search_Key::getSuggestFunctionByXSDMF_ID($xsdmf_id);
 }
+else if (! empty($sek_id)) {
+	$sek_suggest_function = Search_Key::getSuggestFunctionBySek_ID($sek_id);
+}
+if(! $sek_suggest_function) {
+	return false;
+}
+
 $suggestions = array();
 $query = Misc::escapeString($_GET['query']);
 if ($sek_suggest_function == "Search_Key::suggestSearchKeyIndexValue") {
-	$sek_details = Search_Key::getDetailsByXSDMF_ID($xsdmf_id);
+	
+	if($use_xsdmf_id) {
+		$sek_details = Search_Key::getDetailsByXSDMF_ID($xsdmf_id);
+	}
+	else {
+		$sek_details = Search_Key::getDetails($sek_id);
+	}
+	
 	eval('$suggestions = '.$sek_suggest_function.'($sek_details, "'.$query.'", true);');
 } else {
 	eval('$suggestions = '.$sek_suggest_function.'("'.$query.'", true);');

@@ -75,7 +75,59 @@ if (element{/literal}{$search_keys[i].sek_id}{literal} != null) {
     </script>
   {/if}
   {if $search_keys[i].sek_html_input == 'text'}
-  <input id="search_keys[{$search_keys[i].sek_id}]" type="text" name="search_keys[{$search_keys[i].sek_id}]" maxlength="255" size="30" value="{$last_key|escape:'html'}" />
+  	<input id="search_keys[{$search_keys[i].sek_id}]" type="text" name="search_keys[{$search_keys[i].sek_id}]" maxlength="255" size="30" value="{$last_key|escape:'html'}" />
+  	
+  				{if $search_keys[i].sek_suggest_function != ""}
+	      				<div id="generalsuggest" style="width:25em;position:relative;z-index:{math equation="2000 - x - y" y=0 x=$smarty.section.i.index};">
+					  <div id="{$search_keys[i].sek_id}_container"></div>
+					</div>
+					{literal}
+	                   <script type="text/javascript">
+	
+	                   // Instantiate first JS Array DataSource
+	                   var myServer = "{/literal}{$rel_url}{literal}suggest_proxy.php";
+	                   var mySchema = ["Result","name"];
+	                   var myDataSource = new YAHOO.widget.DS_XHR(myServer, mySchema);
+					myDataSource.scriptQueryAppend = "sek_id={/literal}{$search_keys[i].sek_id}{literal}";
+	
+	                   // Instantiate first AutoComplete
+	                   this.oAutoComp{/literal}{$search_keys[i].sek_id}{literal} = new YAHOO.widget.AutoComplete('{/literal}search_keys[{$search_keys[i].sek_id}]','{$search_keys[i].sek_id}_container{literal}', myDataSource);
+	                   this.oAutoComp{/literal}{$search_keys[i].sek_id}{literal}.maxResultsDisplayed = 10;
+	                   this.oAutoComp{/literal}{$search_keys[i].sek_id}{literal}.formatResult = function(oResultItem, sQuery) {
+	
+	                       return oResultItem[1].name;
+	                   };
+	
+	                   this.oAutoComp{/literal}{$search_keys[i].sek_id}{literal}.registerControls(document.getElementById('{/literal}search_keys[{$search_keys[i].sek_id}]'){literal});
+	
+	                   this.oAutoComp{/literal}{$search_keys[i].sek_id}{literal}.textboxFocusEvent.subscribe(function(){
+	                       var sInputValue = YAHOO.util.Dom.get('{/literal}search_keys[{$search_keys[i].sek_id}]{literal}').value;
+	                       if(sInputValue.length === 0) {
+	                           var oSelf = this;
+	                           setTimeout(function(){oSelf.sendQuery(sInputValue);},0);
+	                       }
+	                   });
+	                   </script>
+	                   <style type="text/css">
+	                   #{/literal}{$search_keys[i].xsdmf_id}{literal}_container .yui-ac-content {
+	                       max-height:11em;
+	                       /* height: 150px; */
+	                       height: 1px; 
+	                       width: 450px;
+	                       overflow:auto;
+	                       overflow-x:hidden; /* scrolling */
+	                       _height:11em; /* ie6 */
+	                       z-index:9071;
+					}
+	                   </style>					
+	                   {/literal}
+			{/if}
+	 	
+  	
+  	
+  	
+  	
+  	
   {elseif $search_keys[i].sek_html_input == 'textarea'}
   <textarea id="search_keys[{$search_keys[i].sek_id}]" name="search_keys[{$search_keys[i].sek_id}]" rows="10" cols="60" value="{$last_key|escape:'html'}"></textarea>
   {elseif $search_keys[i].sek_html_input == 'date'}

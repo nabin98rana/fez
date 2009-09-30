@@ -998,6 +998,35 @@ class Search_Key
 
 		return $res;
 	}
+	
+/**
+	 * Method used to get the details of a specific search key suggest function from a passed Sek match
+	 *
+	 * @access  public
+	 * @param   integer $sek_id The sek matching field ID
+	 * @return  array The search key suggest function string
+	 */
+	function getSuggestFunctionBySek_ID($sek_id)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "SELECT
+                    sek_suggest_function
+                 FROM
+                    " . APP_TABLE_PREFIX . "search_key                     
+                 WHERE
+                    sek_id=".$db->quote($sek_id);
+		try {
+			$res = $db->fetchOne($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return '';
+		}
+
+		return $res;
+	}
 
 
 	function suggestSearchKeyIndexValue($sek_details, $term, $assoc = false) 

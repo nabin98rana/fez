@@ -40,6 +40,7 @@ Auth::checkAuthentication(APP_SESSION);
 $list = WorkflowStatusStatic::getList(Auth::getUserID());
 
 $tpl = new Template_API();
+$tpl->assign("yui_autosuggest", '1');
 $tpl->setTemplate("my_fez.tpl.html");
 
 $tpl->assign('myFezView', "MWF");

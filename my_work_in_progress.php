@@ -37,6 +37,7 @@ include_once(APP_INC_PATH . "class.auth.php");
 Auth::checkAuthentication(APP_SESSION);
 
 $tpl = new Template_API();
+$tpl->assign("yui_autosuggest", '1');
 $tpl->setTemplate("my_fez.tpl.html");
 $options = Pager::saveSearchParams();
 
