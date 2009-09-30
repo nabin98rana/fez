@@ -117,8 +117,11 @@ class History
 			$log->err($ex);
 			return '';
 		}
+		
+		$timezone = Date_API::getPreferredTimezone();
+		
 		for ($i = 0; $i < count($res); $i++) {
-			$res[$i]["pre_date"] = Date_API::getFormattedDate($res[$i]["pre_date"]);
+			$res[$i]["pre_date"] = Date_API::getFormattedDate($res[$i]["pre_date"], $timezone);
 		}
 		return $res;
 	}

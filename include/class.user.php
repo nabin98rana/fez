@@ -1288,9 +1288,9 @@ class User
 			return '';
 		}
 		
-		
+		$timezone = Date_API::getPreferredTimezone();
 		foreach ($res as $key => $row) {
-			$res[$key]["usr_last_login_date"] = Date_API::getFormattedDate($res[$key]["usr_last_login_date"]);
+			$res[$key]["usr_last_login_date"] = Date_API::getFormattedDate($res[$key]["usr_last_login_date"], $timezone);
 		}
 		if (($start + $max) < $total_rows) {
 			$total_rows_limit = $start + $max;
