@@ -243,10 +243,14 @@ class News
 			$log->err($ex);
 			return '';
 		}
+		
+		// Avoid multiple calls when getting timezone from the DB
+		$timezone = Date_API::getPreferredTimezone();
+		
 		foreach ($res as $key => $row) {
-			$res[$key]["nws_created_date"] = Date_API::getFormattedDate($res[$key]["nws_created_date"]);
-			$res[$key]["nws_updated_date"] = Date_API::getFormattedDate($res[$key]["nws_updated_date"]);
-			$res[$key]["nws_published_date"] = Date_API::getFormattedDate($res[$key]["nws_published_date"]);
+			$res[$key]["nws_created_date"] = Date_API::getFormattedDate($res[$key]["nws_created_date"], $timezone);
+			$res[$key]["nws_updated_date"] = Date_API::getFormattedDate($res[$key]["nws_updated_date"], $timezone);
+			$res[$key]["nws_published_date"] = Date_API::getFormattedDate($res[$key]["nws_published_date"], $timezone);
 			//$res[$key]["nws_created_date"] = Date_API::getFormattedDate($res[$key]["nws_created_date"], APP_DEFAULT_USER_TIMEZONE);
 			//$res[$key]["nws_updated_date"] = Date_API::getFormattedDate($res[$key]["nws_updated_date"], APP_DEFAULT_USER_TIMEZONE);
 			//$res[$key]["nws_published_date"] = Date_API::getFormattedDate($res[$key]["nws_published_date"], APP_DEFAULT_USER_TIMEZONE);
