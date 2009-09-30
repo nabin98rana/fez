@@ -690,13 +690,15 @@ function generateTimestamps($pid, $datastreams, $requestedVersionDate, $tpl) {
     // purposes, containing human-readable dates, the original Fedora date, whether the date has been filtered
     // or whether the date corresponds to the currently selected date.
     $createdDatesForDisplay = array();
+    $timezone = Date_API::getPreferredTimezone();
+    
     foreach ($originalCreatedDates as $createdDate) {
 
         // Determine whether the date has been filtered out from the list or not
         $filtered = in_array($createdDate, $createdDates) ? false : true;
         
         // format as RFC 2822 formatted date for readibility 
-        $displayDate = Date_API::getFormattedDate($createdDate);
+        $displayDate = Date_API::getFormattedDate($createdDate, $timezone);
 
         // Create the date display entry
         $createdDatesForDisplay[] = array("fedoraDate" => $createdDate, "displayDate" => $displayDate, "filtered" => $filtered, "selected" => $createdDate == $requestedVersionDate);
