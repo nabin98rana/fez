@@ -64,8 +64,11 @@ $collection_assoc_list = array();
 $collection_assoc_list = Collection::getEditListAssoc();
 
 $search_keys = Search_Key::getMyFezSearchList();
+$sk_is_memberof = Search_Key::getID("isMemberOf");
+$sk_status = Search_Key::getID("Status");
+
 foreach ($search_keys as $skey => $svalue) {
-    if ($svalue["sek_id"] == Search_Key::getID("isMemberOf")) {
+    if ($svalue["sek_id"] == $sk_is_memberof) {
         $search_keys[$skey]["field_options"] = $collection_assoc_list;
     }
     
@@ -81,7 +84,7 @@ foreach ($search_keys as $skey => $svalue) {
         $search_keys[$skey]["field_options"] = array("" => "any") + $search_keys[$skey]["field_options"];       
     }   
     
-    if ($svalue["sek_id"]  == Search_Key::getID("Status")) {
+    if ($svalue["sek_id"]  == $sk_status) {
         $search_keys[$skey]["field_options"] = array(
               "-4" => "any Unpublished"
           ) + $search_keys[$skey]["field_options"]; //get all status's
