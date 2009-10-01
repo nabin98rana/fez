@@ -1512,4 +1512,73 @@ class User
 		$info = User::getNameEmail($usr_id);
 		return $info["usr_full_name"] . " <" . $info["usr_email"] . ">";
 	}
+	
+	/**
+	 * Method used to search and suggest all the users names for a given string.
+	 *
+	 * @access  public
+	 * @return  array List of users
+	 */
+	function suggest($term, $assoc = false)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		$dbtp = APP_TABLE_PREFIX;
+
+		//some function like concat_ws might not be supportd in all databases, however postgresql does have a mysql_compat plugin library that adds these..
+		//Could be done in the code later if it is a problem
+		$stmt = " SELECT usr_id as id, usr_username as username, usr_full_name as name  FROM (
+			  SELECT usr_id, 
+			    usr_username,
+				usr_full_name";
+
+		// For the User table we are going to keep it in MyISAM if you are using MySQL because there is no table locking issue with this table like with others.
+		// TODO: For postgres it might be worth adding a condition here to use TSEARCH2 which is close to fulltext indexing in MySQL MyISAM
+		if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
+			$stmt .= "
+				,MATCH(usr_full_name) AGAINST (".$db->quote($term).") as Relevance ";
+		}
+		$stmt .= "
+				FROM ".$dbtp."user";
+
+		if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
+			$stmt .= "
+			 WHERE MATCH (usr_full_name) AGAINST (".$db->quote('*'.$term.'*')." IN BOOLEAN MODE)";
+		} else {
+			$stmt .= " WHERE ";
+			$names = explode(" ", $term);
+			$nameCounter = 0;
+			foreach ($names as $name) {
+				$nameCounter++;
+				if ($nameCounter > 1) {
+					$stmt .= " AND ";
+				}
+				$stmt .= " (usr_family_name LIKE ".$db->quote($name.'%')." OR usr_given_names LIKE ".$db->quote($name.'%').") ";
+			}
+		}
+		if (APP_AUTHOR_SUGGEST_MODE == 2) {
+			$stmt .= "AND usr_username IS NOT NULL";
+		}
+		if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
+			$stmt .= " ORDER BY Relevance DESC, usr_full_name LIMIT 0,60) as tempsuggest";
+		} else {
+			$stmt .= " LIMIT 60 OFFSET 0) as tempsuggest";
+		}
+
+		try {
+			if( $assoc ) {
+				$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+			}
+			else {
+				$res = $db->fetchAssoc($stmt);
+			}
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return '';
+		}
+
+		return $res;
+	}
 }
