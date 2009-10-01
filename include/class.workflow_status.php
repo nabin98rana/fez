@@ -647,8 +647,9 @@ class WorkflowStatusStatic
 			return array();
 		}
 		
+		$timezone = Date_API::getPreferredTimezone();
 		foreach ($res as $key => $item) {
-			$res[$key]['wfses_date'] = Date_API::getFormattedDate($item['wfses_date']);
+			$res[$key]['wfses_date'] = Date_API::getFormattedDate($item['wfses_date'], $timezone);
 		}
 		return $res;
 	}
