@@ -142,8 +142,11 @@ if (element{/literal}{$search_keys[i].sek_id}{literal} != null) {
                     this.oAutoComp{/literal}{$search_keys[i].sek_id}{literal} = new YAHOO.widget.AutoComplete(myTextField{/literal}{$search_keys[i].sek_id}{literal},'{/literal}{$search_keys[i].sek_id}_container{literal}', myDataSource{/literal}{$search_keys[i].sek_id}{literal});
                     this.oAutoComp{/literal}{$search_keys[i].sek_id}{literal}.maxResultsDisplayed = 10;
                     this.oAutoComp{/literal}{$search_keys[i].sek_id}{literal}.formatResult = function(oResultItem, sQuery) {
-
-                        return oResultItem[1].name;
+                    	{/literal}{if $search_keys[i].sek_data_type == 'int'}{literal}
+                        	return oResultItem[1].name + ' (' + oResultItem[1].id + ')';
+                        {/literal}{else}{literal}
+                        	return oResultItem[1].name;
+                        {/literal}{/if}{literal}
                     };
 
                     this.oAutoComp{/literal}{$search_keys[i].sek_id}{literal}.registerControls(document.getElementById(myTextField{/literal}{$search_keys[i].sek_id}{literal}));
