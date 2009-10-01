@@ -55,9 +55,12 @@ if (empty($sort_by) || ($sort_by == "searchKey0" && empty($options['searchKey0']
 
 $search_keys = Search_Key::getMyFezSearchList();
 $collection_assoc_list = Collection::getCreatorListAssoc();
+$sk_is_memberof = Search_Key::getID("isMemberOf");
+$sk_status = Search_Key::getID("Status");
+$sk_depositor = Search_Key::getID("Depositor");
 
 foreach ($search_keys as $skey => $svalue) {
-	if ($svalue["sek_id"] == Search_Key::getID("isMemberOf")) {
+	if ($svalue["sek_id"] == $sk_is_memberof) {
 		$search_keys[$skey]["field_options"] = $collection_assoc_list;
 	}
 	
@@ -73,11 +76,11 @@ foreach ($search_keys as $skey => $svalue) {
 		$search_keys[$skey]["field_options"] = array("" => "any") + $search_keys[$skey]["field_options"];		
 	}
 	
-	if ($svalue["sek_id"]  == Search_Key::getID("Depositor")) {
+	if ($svalue["sek_id"]  == $sk_depositor) {
 		$search_keys[$skey]["field_options"] = array(Auth::getUserID() => Auth::getUserFullName());
 	}
 	
-	if ($svalue["sek_id"]  == Search_Key::getID("Status")) {
+	if ($svalue["sek_id"]  == $sk_status) {
 		$search_keys[$skey]["field_options"] = array(
 		      ""      => "any",
 		      "-4"    => "any Unpublished",
