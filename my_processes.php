@@ -60,6 +60,7 @@ $tpl->assign('isApprover',  $_SESSION['auth_is_approver']);
 
 $tpl->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));
 $tpl->registerNajax( NAJAX_Client::register('NajaxBackgroundProcessList', APP_RELATIVE_URL.'najax_services/generic.php'));
+$tpl->assign("active_nav", 	"my_fez");
 
 $tpl->displayTemplate();
 

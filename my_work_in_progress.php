@@ -69,5 +69,6 @@ $tpl->assign('my_assigned_items_list',  $items['list']);
 $tpl->assign('items_info',              $items['info']);
 $tpl->assign('myFezView',               "WIP");
 $tpl->assign('isApprover',              $_SESSION['auth_is_approver']);
+$tpl->assign("active_nav", 				"my_fez");
 
 $tpl->displayTemplate();

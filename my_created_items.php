@@ -153,5 +153,6 @@ $tpl->assign("options",                 $options);
 $tpl->assign('my_created_items_list',   $created_items['list']);
 $tpl->assign('items_info',              $created_items['info']);
 $tpl->assign('isApprover',              $_SESSION['auth_is_approver']);
+$tpl->assign("active_nav", 				"my_fez");
 
 $tpl->displayTemplate();
