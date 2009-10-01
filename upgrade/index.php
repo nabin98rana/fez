@@ -332,7 +332,7 @@ function upgrade($skip)
     if ($success != false) {
         return array($success, "Upgrade to database version $sql_upgrade succeeded.");
     } else {
-        return array($success, "The upgrade failed (At upgrade '$failure_point') - check error_handler.log.");
+        return array($success, "The upgrade failed (At upgrade '$failure_point') - check error log.");
     }
 }
 

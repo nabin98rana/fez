@@ -1,4 +1,4 @@
-create table %TABLE_PREFIX%statistics_sum_year
+create table if not exists %TABLE_PREFIX%statistics_sum_year
 (
 	syr_year char(4) not null,
 	syr_pid varchar(64) not null,

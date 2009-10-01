@@ -1,4 +1,4 @@
-create table %TABLE_PREFIX%statistics_sum_yearmonth
+create table if not exists %TABLE_PREFIX%statistics_sum_yearmonth
 (
 	sym_year char(4) not null,
 	sym_month char(2) not null,
@@ -9,7 +9,7 @@ create table %TABLE_PREFIX%statistics_sum_yearmonth
 	primary key(sym_year, sym_month, sym_pid)
 );
 
-create table %TABLE_PREFIX%statistics_sum_countryregion
+create table if not exists %TABLE_PREFIX%statistics_sum_countryregion
 (
 	scr_id int not null primary key auto_increment,
 	scr_country_name varchar(50),
@@ -20,7 +20,7 @@ create table %TABLE_PREFIX%statistics_sum_countryregion
 	scr_count_downloads int
 );
 
-create table %TABLE_PREFIX%statistics_sum_authors
+create table if not exists %TABLE_PREFIX%statistics_sum_authors
 (
 	sau_author_id int not null primary key,
 	sau_author_name varchar(255),
@@ -28,7 +28,7 @@ create table %TABLE_PREFIX%statistics_sum_authors
 );
 
 
-create table %TABLE_PREFIX%statistics_sum_papers
+create table if not exists %TABLE_PREFIX%statistics_sum_papers
 (
 	spa_pid varchar(64) not null primary key,
 	spa_title varchar(255) not null,
@@ -36,7 +36,7 @@ create table %TABLE_PREFIX%statistics_sum_papers
 	spa_downloads int not null
 );
 
-create table %TABLE_PREFIX%statistics_sum_4weeks
+create table if not exists %TABLE_PREFIX%statistics_sum_4weeks
 (
 	s4w_pid varchar(64) not null primary key,
 	s4w_title varchar(255) not null,

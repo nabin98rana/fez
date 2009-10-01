@@ -1,4 +1,4 @@
-create table %TABLE_PREFIX%statistics_sum_yearmonth_figures
+create table if not exists %TABLE_PREFIX%statistics_sum_yearmonth_figures
 (
 	syf_year int(4) not null,
 	syf_monthnum int(2) not null,

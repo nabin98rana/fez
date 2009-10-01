@@ -1,4 +1,4 @@
-CREATE TABLE  %TABLE_PREFIX%fez_google_scholar_citations (
+CREATE TABLE if not exists %TABLE_PREFIX%fez_google_scholar_citations (
   gs_pid varchar(64) NOT NULL,
   gs_last_checked int(10) unsigned NOT NULL,
   gs_count int(10) unsigned NOT NULL,

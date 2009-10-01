@@ -1,12 +1,12 @@
 
-CREATE TABLE %TABLE_PREFIX%geocode_country (
+CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%geocode_country (
   gctry_country_code char(2) NOT NULL,
   gctry_latitude double default NULL,
   gctry_longitude double default NULL,
   PRIMARY KEY  (gctry_country_code)
 );
 
-CREATE TABLE %TABLE_PREFIX%geocode_regions (
+CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%geocode_regions (
   gcr_country_code char(2) NOT NULL,
   gcr_region_code char(2) NOT NULL,
   gcr_location_name varchar(100) NOT NULL,
@@ -16,7 +16,7 @@ CREATE TABLE %TABLE_PREFIX%geocode_regions (
   KEY region_lat_lng_idx (gcr_latitude,gcr_longitude)
 );
 
-CREATE TABLE %TABLE_PREFIX%geocode_cities (
+CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%geocode_cities (
   gcity_country_code char(2) NOT NULL,
   gcity_region_code char(2) NOT NULL,
   gcity_location_name varchar(100) NOT NULL,
@@ -27,7 +27,7 @@ CREATE TABLE %TABLE_PREFIX%geocode_cities (
   KEY cities_lat_lng_idx (gcity_latitude,gcity_longitude)
 );
 
-CREATE TABLE %TABLE_PREFIX%geocode_location_cache (
+CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%geocode_location_cache (
   loc_location varchar(255) NOT NULL,
   loc_latitude double default NULL,
   loc_longitude double default NULL,
