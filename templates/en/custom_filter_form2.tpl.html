@@ -109,7 +109,13 @@ if (element{/literal}{$search_keys[i].sek_id}{literal} != null) {
         </td>
         <td class="search_multi_input">
         {if $search_keys[i].sek_html_input == 'text'}
-            <input id="search_keys[{$search_keys[i].sek_id}]" type="text" name="search_keys[{$search_keys[i].sek_id}]" maxlength="255" size="30" value="{$last_key|escape:'html'}" />
+            
+            {if $search_keys[i].sek_data_type == 'int'}
+            	<input id="search_keys[{$search_keys[i].sek_id}]_name" type="text" name="search_keys[{$search_keys[i].sek_id}]_name" maxlength="255" size="30" />
+            	<input id="search_keys[{$search_keys[i].sek_id}]" type="hidden" name="search_keys[{$search_keys[i].sek_id}]" />
+            {else}
+            	<input id="search_keys[{$search_keys[i].sek_id}]" type="text" name="search_keys[{$search_keys[i].sek_id}]" maxlength="255" size="30" value="{$last_key|escape:'html'}" />
+            {/if}
             
             {if $search_keys[i].sek_suggest_function != ""}
        				<div id="generalsuggest" style="width:25em;position:relative;z-index:{math equation="2000 - x - y" y=0 x=$smarty.section.i.index};">
@@ -119,28 +125,45 @@ if (element{/literal}{$search_keys[i].sek_id}{literal} != null) {
                     <script type="text/javascript">
 
                     // Instantiate first JS Array DataSource
-                    var myServer = "{/literal}{$rel_url}{literal}suggest_proxy.php";
-                    var mySchema = ["Result","name"];
-                    var myDataSource = new YAHOO.widget.DS_XHR(myServer, mySchema);
-					myDataSource.scriptQueryAppend = "sek_id={/literal}{$search_keys[i].sek_id}{literal}";
+                    var myServer{/literal}{$search_keys[i].sek_id}{literal} = "{/literal}{$rel_url}{literal}suggest_proxy.php";
+                    var mySchema{/literal}{$search_keys[i].sek_id}{literal} = ["Result","name"];
+                    var myDataSource{/literal}{$search_keys[i].sek_id}{literal} = new YAHOO.widget.DS_XHR(myServer{/literal}{$search_keys[i].sek_id}{literal}, mySchema{/literal}{$search_keys[i].sek_id}{literal});
+
+                    {/literal}{if $search_keys[i].sek_data_type == 'int'}{literal}               
+                    	var myHiddenField{/literal}{$search_keys[i].sek_id}{literal} = YAHOO.util.Dom.get('{/literal}search_keys[{$search_keys[i].sek_id}]{literal}');
+                    	var myTextField{/literal}{$search_keys[i].sek_id}{literal} = YAHOO.util.Dom.get('{/literal}search_keys[{$search_keys[i].sek_id}]{literal}_name');                    	
+                    {/literal}{else}{literal}
+                    	var myTextField{/literal}{$search_keys[i].sek_id}{literal} = YAHOO.util.Dom.get('{/literal}search_keys[{$search_keys[i].sek_id}]{literal}');
+                    {/literal}{/if}{literal}
+                        
+					myDataSource{/literal}{$search_keys[i].sek_id}{literal}.scriptQueryAppend = "sek_id={/literal}{$search_keys[i].sek_id}{literal}";
 
                     // Instantiate first AutoComplete
-                    this.oAutoComp{/literal}{$search_keys[i].sek_id}{literal} = new YAHOO.widget.AutoComplete('{/literal}search_keys[{$search_keys[i].sek_id}]','{$search_keys[i].sek_id}_container{literal}', myDataSource);
+                    this.oAutoComp{/literal}{$search_keys[i].sek_id}{literal} = new YAHOO.widget.AutoComplete(myTextField{/literal}{$search_keys[i].sek_id}{literal},'{/literal}{$search_keys[i].sek_id}_container{literal}', myDataSource{/literal}{$search_keys[i].sek_id}{literal});
                     this.oAutoComp{/literal}{$search_keys[i].sek_id}{literal}.maxResultsDisplayed = 10;
                     this.oAutoComp{/literal}{$search_keys[i].sek_id}{literal}.formatResult = function(oResultItem, sQuery) {
 
                         return oResultItem[1].name;
                     };
 
-                    this.oAutoComp{/literal}{$search_keys[i].sek_id}{literal}.registerControls(document.getElementById('{/literal}search_keys[{$search_keys[i].sek_id}]'){literal});
+                    this.oAutoComp{/literal}{$search_keys[i].sek_id}{literal}.registerControls(document.getElementById(myTextField{/literal}{$search_keys[i].sek_id}{literal}));
 
                     this.oAutoComp{/literal}{$search_keys[i].sek_id}{literal}.textboxFocusEvent.subscribe(function(){
-                        var sInputValue = YAHOO.util.Dom.get('{/literal}search_keys[{$search_keys[i].sek_id}]{literal}').value;
+                        var sInputValue = YAHOO.util.Dom.get('myTextField{/literal}{$search_keys[i].sek_id}{literal}').value;
                         if(sInputValue.length === 0) {
                             var oSelf = this;
                             setTimeout(function(){oSelf.sendQuery(sInputValue);},0);
                         }
                     });
+
+                    {/literal}{if $search_keys[i].sek_data_type == 'int'}{literal}
+                    	this.oAutoComp{/literal}{$search_keys[i].sek_id}{literal}.itemSelectEvent.subscribe(function(sType, aArgs) {
+                            var myAC = aArgs[0]; // reference back to the AC instance
+                            var elLI = aArgs[1]; // reference to the selected LI element
+                            var oData = aArgs[2][1]; // object literal of selected item's result data
+                            myHiddenField{/literal}{$search_keys[i].sek_id}{literal}.value = oData.id;
+                        });
+                    {/literal}{/if}{literal}
                     </script>
                     <style type="text/css">
                     #{/literal}{$search_keys[i].xsdmf_id}{literal}_container .yui-ac-content {
