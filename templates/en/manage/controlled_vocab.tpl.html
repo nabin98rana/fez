@@ -151,7 +151,7 @@
                         <input type="checkbox" name="items[]" value="{$list[i].cvo_id}" {if $smarty.section.i.total == 0}disabled{/if}>
                       </td>
                       <td bgcolor="{$row_color}" class="default">
-                        &nbsp;<a href="controlled_vocab.php?cat=edit&id={$list[i].cvo_id}">{$list[i].cvo_title}</a>
+                        &nbsp;<a href="controlled_vocab.php?parent_id={$parent_id}&cat=edit&id={$list[i].cvo_id}">{$list[i].cvo_title}</a>
                       </td>
                       <td bgcolor="{$row_color}" class="default">
                         &nbsp;{$list[i].cvo_desc}
