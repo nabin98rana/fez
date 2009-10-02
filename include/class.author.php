@@ -971,7 +971,7 @@ class Author
 			}
 		}
 		if (APP_AUTHOR_SUGGEST_MODE == 2) {
-			$stmt .= "AND (aut_org_username IS NOT NULL OR aut_org_staff_id IS NOT NULL)";
+			$stmt .= " AND (aut_org_username IS NOT NULL OR aut_org_staff_id IS NOT NULL)";
 		}
 		
 		if(is_numeric($term)) {
