@@ -142,6 +142,7 @@ if (element{/literal}{$search_keys[i].sek_id}{literal} != null) {
                             var elLI = aArgs[1]; // reference to the selected LI element
                             var oData = aArgs[2][1]; // object literal of selected item's result data
                             myHiddenField{/literal}{$search_keys[i].sek_id}{literal}.value = oData.id;
+                            myTextField{/literal}{$search_keys[i].sek_id}{literal}.value = oData.id;
                         });
                     {/literal}{/if}{literal}
                     </script>
