@@ -97,7 +97,18 @@ if (element{/literal}{$search_keys[i].sek_id}{literal} != null) {
 
                     {/literal}{if $search_keys[i].sek_data_type == 'int'}{literal}               
                     	var myHiddenField{/literal}{$search_keys[i].sek_id}{literal} = YAHOO.util.Dom.get('{/literal}search_keys[{$search_keys[i].sek_id}]{literal}');
-                    	var myTextField{/literal}{$search_keys[i].sek_id}{literal} = YAHOO.util.Dom.get('{/literal}search_keys[{$search_keys[i].sek_id}]{literal}_name');                    	
+                    	var myTextField{/literal}{$search_keys[i].sek_id}{literal} = YAHOO.util.Dom.get('{/literal}search_keys[{$search_keys[i].sek_id}]{literal}_name');
+                    	YAHOO.util.Event.addListener(myTextField{/literal}{$search_keys[i].sek_id}{literal}, "blur", myTextField{/literal}{$search_keys[i].sek_id}{literal}ClickEvent, this, true);
+                    	function isInt(x) {
+                    		var y=parseInt(x);
+                    		if (isNaN(y)) return false;
+                    		return x==y && x.toString()==y.toString();
+                    	} 
+                    	function myTextField{/literal}{$search_keys[i].sek_id}{literal}ClickEvent() {
+							if(isInt(myTextField{/literal}{$search_keys[i].sek_id}{literal}.value)) {
+                    			myHiddenField{/literal}{$search_keys[i].sek_id}{literal}.value = myTextField{/literal}{$search_keys[i].sek_id}{literal}.value;
+							}
+                    	}                    	
                     {/literal}{else}{literal}
                     	var myTextField{/literal}{$search_keys[i].sek_id}{literal} = YAHOO.util.Dom.get('{/literal}search_keys[{$search_keys[i].sek_id}]{literal}');
                     {/literal}{/if}{literal}
