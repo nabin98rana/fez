@@ -940,14 +940,11 @@ class Author
 
 		// For the Author table we are going to keep it in MyISAM if you are using MySQL because there is no table locking issue with this table like with others.
 		// TODO: For postgres it might be worth adding a condition here to use TSEARCH2 which is close to fulltext indexing in MySQL MyISAM
-		if(is_numeric($term)) {
-			$stmt .= " FROM ".$dbtp."author";
-		}
-		else if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
+		
+		if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
 			$stmt .= " , MATCH(aut_display_name) AGAINST (".$db->quote($term).") as Relevance ";
 		}
 		$stmt .= " FROM ".$dbtp."author";
-		
 		
 		if(is_numeric($term)) {
 			$stmt .= " WHERE aut_id=".$db->quote($term, 'INTEGER');
