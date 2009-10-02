@@ -141,6 +141,9 @@ class Controlled_Vocab
 		if (is_numeric($_POST["cvo_external_id"])) {
 			$stmt .= "," . $db->quote(trim($_POST["cvo_external_id"]));
 		}
+		if (is_numeric($_POST["cvo_hide"])) {
+			$stmt .= "," . $db->quote(trim($_POST["cvo_hide"]));
+		}
 		$stmt .=")";
 
 		try {
@@ -165,7 +168,7 @@ class Controlled_Vocab
 	 * @access  public
 	 * @return  integer 1 if the insert worked, -1 otherwise
 	 */
-	function insertDirect($cvo_title, $cvo_external_id="", $parent_id="")
+	function insertDirect($cvo_title, $cvo_external_id="", $parent_id="", $cvo_hide = "")
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -181,6 +184,9 @@ class Controlled_Vocab
                 " . $db->quote($cvo_title);
 		if ($cvo_external_id != "") {
 			$stmt .= "," . $db->quote($cvo_external_id);
+		}
+		if ($cvo_hide != "") {
+			$stmt .= "," . $db->quote($cvo_hide);
 		}
 		$stmt .= ")";
 
@@ -336,7 +342,8 @@ class Controlled_Vocab
                  SET 
                     cvo_title = " . $db->quote($_POST["cvo_title"]) . ",
                     cvo_external_id = " . $db->quote(trim($_POST["cvo_external_id"])). ",
-                    cvo_desc = " . $db->quote($_POST["cvo_desc"]) . "
+                    cvo_desc = " . $db->quote($_POST["cvo_desc"]) . ",
+                    cvo_hide = " . $db->quote($_POST["cvo_hide"]) . "
                  WHERE cvo_id = ".$db->quote($cvo_id, 'INTEGER');		
 		try {
 			$db->exec($stmt);
@@ -925,9 +932,12 @@ class Controlled_Vocab
 		$stmt = "SELECT
                     *
                  FROM
-                    " . APP_TABLE_PREFIX . "controlled_vocab ";
+                    " . APP_TABLE_PREFIX . "controlled_vocab 
+                 		LEFT JOIN " . APP_TABLE_PREFIX . "controlled_vocab_relationship ON 
+						cvr_child_cvo_id = cvo_id";		
+		
 		if ($cvo_id != "") {
-			$stmt .= "WHERE cvo_id=" . $db->quote($cvo_id, 'INTEGER');
+			$stmt .= " WHERE cvo_id=" . $db->quote($cvo_id, 'INTEGER');
 		}
 		
 		try {
@@ -937,6 +947,7 @@ class Controlled_Vocab
 			$log->err($ex);
 			return '';
 		}
+		$log->debug($res);
 		return $res;
 	}
 
@@ -944,6 +955,24 @@ class Controlled_Vocab
 	{
 		NAJAX_Client::mapMethods($this, array('getTitle' ));
 		NAJAX_Client::publicMethods($this, array('getTitle'));
+	}
+	
+	public static function getHiddenCvs() 
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+	
+		$hidden_cv_ids = array();
+		$stmt = " SELECT cvo_id
+                  FROM " . APP_TABLE_PREFIX . "controlled_vocab
+                  WHERE cvo_hide = 1";
+		try {
+			$hidden_cv_ids = $db->fetchCol($stmt, array());
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+		}
+		return $hidden_cv_ids;
 	}
 
 
@@ -958,8 +987,10 @@ class Controlled_Vocab
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
+		
+		$hidden_cv_ids = Controlled_Vocab::getHiddenCvs();
 
-		$stmt = "SELECT cvo_id, cvo_title, CONCAT(cvo_title, ' ', cvo_desc) as cvo_title_extended, cvr_parent_cvo_id as cvo_parent_id " .
+		$stmt = "SELECT cvo_id, cvo_title, cvo_hide, CONCAT(cvo_title, ' ', cvo_desc) as cvo_title_extended, cvr_parent_cvo_id as cvo_parent_id " .
 				"FROM " . APP_TABLE_PREFIX . "controlled_vocab AS t1 " .
 				"LEFT JOIN " .
 				"(SELECT cvr_parent_cvo_id, cvr_child_cvo_id " .
@@ -978,9 +1009,13 @@ class Controlled_Vocab
 		$cvTree = array();
 		foreach ($res as $row) {
 			if (is_null($row['cvo_parent_id'])) {
-				array_push($cvTree, "var tmpNode".$row['cvo_id']." = new YAHOO.widget.TextNode('" . addslashes($row['cvo_title']) . "', tree.getRoot(), false);");
+				if($row['cvo_hide'] != '1') {
+					array_push($cvTree, "var tmpNode".$row['cvo_id']." = new YAHOO.widget.TextNode('" . addslashes($row['cvo_title']) . "', tree.getRoot(), false);");
+				}
 			} else {
-				array_push($cvTree, "var tmpNode".$row['cvo_id']." = new YAHOO.widget.TextNode('<a href=\"javascript:addItemToParent(" . $row['cvo_id'] . ", \'" . addslashes(addslashes($row['cvo_title_extended'])) . "\');\">" . addslashes($row['cvo_title_extended']) . "</a>', tmpNode" . $row['cvo_parent_id'] . ", false);");
+				if($row['cvo_hide'] != '1' &&  (!in_array($row['cvo_parent_id'], $hidden_cv_ids))) {
+					array_push($cvTree, "var tmpNode".$row['cvo_id']." = new YAHOO.widget.TextNode('<a href=\"javascript:addItemToParent(" . $row['cvo_id'] . ", \'" . addslashes(addslashes($row['cvo_title_extended'])) . "\');\">" . addslashes($row['cvo_title_extended']) . "</a>', tmpNode" . $row['cvo_parent_id'] . ", false);");
+				}
 			}
 		}
 
@@ -996,7 +1031,7 @@ class Controlled_Vocab
 		$dbtp = APP_TABLE_PREFIX;
 		$stmt = " SELECT cvo_id, cvo_title
                   FROM " . APP_TABLE_PREFIX . "controlled_vocab
-                  WHERE cvo_external_id LIKE ".$db->quote("%$value%")." OR cvo_title LIKE ".$db->quote("%$value%"); //, cvo_title
+                  WHERE cvo_hide != 1 AND cvo_external_id LIKE ".$db->quote("%$value%")." OR cvo_title LIKE ".$db->quote("%$value%"); //, cvo_title
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}

@@ -113,7 +113,22 @@
                   <input type="text" name="cvo_image_filename" size="40" class="default" value="{$info.cvo_image_filename}">
                   {include file="error_icon.tpl.html" field="cvo_image_filename"}
                 </td>
-              </tr>			  
+              </tr>
+              {if $info.cvr_parent_cvo_id == '' && $smarty.get.cat == 'edit'}
+              <tr>
+                <td width="120" bgcolor="{$cell_color}" class="default">
+                  <b>Hide:</b>
+                </td>
+                <td bgcolor="{$light_color}" class="coldetail">
+                	<select name="cvo_hide">
+                		<option value="0" {if $info.cvo_hide != 1}selected{/if}>No</option>
+                		<option value="1" {if $info.cvo_hide == 1}selected{/if}>Yes</option>
+                	</select>{$info.cvo_parent_id}
+                  	{include file="error_icon.tpl.html" field="cvo_hide"}
+                  	<br />Hides the top level controlled vocabulary in the CV picker when editing a record. Hiding the parent CV hides all its children.  
+                </td>
+              </tr>	
+              {/if}
               <tr>
                 <td colspan="2" bgcolor="{$cell_color}" align="center">
                   {if $smarty.get.cat == 'edit'}

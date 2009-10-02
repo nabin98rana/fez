@@ -46,22 +46,22 @@ Auth::checkAuthentication(APP_SESSION);
 
 $tpl->assign("type", "controlled_vocab");
 $parent_id = @$_POST["parent_id"] ? $_POST["parent_id"] : @$_GET["parent_id"];	
-//$parents = Controlled_Vocab::getParentAssocListFullDisplay($parent_id);
-	$cvo_id = $parent_id;
-	$max_breadcrumb = "";
-	$newcrum = "";
-	if (!empty($cvo_id)) {
-		$breadcrumb = Controlled_Vocab::getParentAssocListFullDisplay($cvo_id);
-		$breadcrumb = Misc::array_merge_preserve($breadcrumb, Controlled_Vocab::getAssocListByID($cvo_id));
-	
-		$newcrumb = array();
-		foreach ($breadcrumb as $key => $data) {
-			array_push($newcrumb, array("cvo_id" => $key, "cvo_title" => $data));
-		}
-		$max_breadcrumb = (count($newcrumb) -1);
+
+$cvo_id = $parent_id;
+$max_breadcrumb = "";
+$newcrum = "";
+if (!empty($cvo_id)) {
+	$breadcrumb = Controlled_Vocab::getParentAssocListFullDisplay($cvo_id);
+	$breadcrumb = Misc::array_merge_preserve($breadcrumb, Controlled_Vocab::getAssocListByID($cvo_id));
+
+	$newcrumb = array();
+	foreach ($breadcrumb as $key => $data) {
+		array_push($newcrumb, array("cvo_id" => $key, "cvo_title" => $data));
 	}
-	$tpl->assign("max_subject_breadcrumb", $max_breadcrumb);
-	$tpl->assign("subject_breadcrumb", $newcrumb);
+	$max_breadcrumb = (count($newcrumb) -1);
+}
+$tpl->assign("max_subject_breadcrumb", $max_breadcrumb);
+$tpl->assign("subject_breadcrumb", $newcrumb);
 
 $tpl->assign("parent_id", $parent_id);
 
