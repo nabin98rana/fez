@@ -114,7 +114,7 @@
                   {include file="error_icon.tpl.html" field="cvo_image_filename"}
                 </td>
               </tr>
-              {if $info.cvr_parent_cvo_id == '' && $smarty.get.cat == 'edit'}
+              
               <tr>
                 <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Hide:</b>
@@ -128,7 +128,7 @@
                   	<br />Hides the top level controlled vocabulary in the CV picker when editing a record. Hiding the parent CV hides all its children.  
                 </td>
               </tr>	
-              {/if}
+              
               <tr>
                 <td colspan="2" bgcolor="{$cell_color}" align="center">
                   {if $smarty.get.cat == 'edit'}

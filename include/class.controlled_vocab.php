@@ -956,25 +956,81 @@ class Controlled_Vocab
 		NAJAX_Client::mapMethods($this, array('getTitle' ));
 		NAJAX_Client::publicMethods($this, array('getTitle'));
 	}
-	
-	public static function getHiddenCvs() 
+
+	// TODO: Refactor
+	// AM: Really need to look at the way we store controlled vocabs. Converting from the current adjacency list model
+	// to a nested set model is one possible solution. What we want to achieve is easy reads at the cost of more 
+	// expensive writes.
+	public static function getVisibleCvs($parent_id = '') 
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-	
-		$hidden_cv_ids = array();
-		$stmt = " SELECT cvo_id
-                  FROM " . APP_TABLE_PREFIX . "controlled_vocab
-                  WHERE cvo_hide = 1";
-		try {
-			$hidden_cv_ids = $db->fetchCol($stmt, array());
+		
+		$cv = array();
+		$parent_cvo_ids = array();
+		
+		if (is_numeric($parent_id)) {
+			// Get all of the controlled_vocabularies with this parent
+			$stmt = "SELECT cvo_id
+	                 FROM
+	                    " . APP_TABLE_PREFIX . "controlled_vocab,			
+						" . APP_TABLE_PREFIX . "controlled_vocab_relationship
+							 WHERE cvo_hide != 1 AND cvr_parent_cvo_id = ".$db->quote($parent_id, 'INTEGER')." AND cvr_child_cvo_id = cvo_id ";			
+			try {
+				$res = $db->fetchAll($stmt);
+			}
+			catch(Exception $ex) {
+				$log->err($ex);
+				return array();
+			}
+			
+			foreach ($res as $row) {
+				$cv[$row['cvo_id']] = $row['cvo_id'];
+			}
+			
+			// Get all of the controlled_vocabularies with children
+			$stmt = "SELECT cvo_id
+	                 FROM
+	                    " . APP_TABLE_PREFIX . "controlled_vocab, 
+						"  . APP_TABLE_PREFIX . "controlled_vocab_relationship
+							 WHERE cvo_hide != 1 AND cvr_parent_cvo_id = ".$db->quote($parent_id, 'INTEGER')." AND cvr_child_cvo_id = cvo_id  AND cvo_id in (SELECT cvr_parent_cvo_id from fez_controlled_vocab_relationship)";			
+			
+			try {
+				$res = $db->fetchAll($stmt);
+			}
+			catch(Exception $ex) {
+				$log->err($ex);
+			}
+			
+			foreach ($res as $row) {
+				$parent_cvo_ids[] = $row['cvo_id'];
+			}
+			
 		}
-		catch(Exception $ex) {
-			$log->err($ex);
+		else {
+			$stmt = "SELECT cvo_id
+	                 FROM
+	                    " . APP_TABLE_PREFIX . "controlled_vocab ";
+			$stmt .= " WHERE cvo_hide != 1 AND cvo_id not in (SELECT cvr_child_cvo_id from  " . APP_TABLE_PREFIX . "controlled_vocab_relationship)";
+			try {
+				$res = $db->fetchAll($stmt);
+			}
+			catch(Exception $ex) {
+				$log->err($ex);
+				return array();
+			}
+			foreach ($res as $row) {
+				$cv[$row['cvo_id']] = $row['cvo_id'];
+				$parent_cvo_ids[] = $row['cvo_id'];
+			}
+		}		
+		
+		// Get the visible children for each parent controlled_vocab
+		foreach ($parent_cvo_ids as $cvo_id) {
+			$cv[$cvo_id] = Controlled_Vocab::getVisibleCvs($cvo_id);
 		}
-		return $hidden_cv_ids;
+		return array_values(Misc::array_flatten($cv, '', false));
 	}
-
 
 	/**
 	 * Method used to assemble the CV tree in YUI treeview form, as an array.
@@ -988,7 +1044,7 @@ class Controlled_Vocab
 		$log = FezLog::get();
 		$db = DB_API::get();
 		
-		$hidden_cv_ids = Controlled_Vocab::getHiddenCvs();
+		$visible_cv_ids = Controlled_Vocab::getVisibleCvs();
 
 		$stmt = "SELECT cvo_id, cvo_title, cvo_hide, CONCAT(cvo_title, ' ', cvo_desc) as cvo_title_extended, cvr_parent_cvo_id as cvo_parent_id " .
 				"FROM " . APP_TABLE_PREFIX . "controlled_vocab AS t1 " .
@@ -1009,11 +1065,11 @@ class Controlled_Vocab
 		$cvTree = array();
 		foreach ($res as $row) {
 			if (is_null($row['cvo_parent_id'])) {
-				if($row['cvo_hide'] != '1') {
+				if($row['cvo_hide'] != '1' && (in_array($row['cvo_id'], $visible_cv_ids))) {
 					array_push($cvTree, "var tmpNode".$row['cvo_id']." = new YAHOO.widget.TextNode('" . addslashes($row['cvo_title']) . "', tree.getRoot(), false);");
 				}
 			} else {
-				if($row['cvo_hide'] != '1' &&  (!in_array($row['cvo_parent_id'], $hidden_cv_ids))) {
+				if($row['cvo_hide'] != '1' &&  (in_array($row['cvo_id'], $visible_cv_ids))) {
 					array_push($cvTree, "var tmpNode".$row['cvo_id']." = new YAHOO.widget.TextNode('<a href=\"javascript:addItemToParent(" . $row['cvo_id'] . ", \'" . addslashes(addslashes($row['cvo_title_extended'])) . "\');\">" . addslashes($row['cvo_title_extended']) . "</a>', tmpNode" . $row['cvo_parent_id'] . ", false);");
 				}
 			}
