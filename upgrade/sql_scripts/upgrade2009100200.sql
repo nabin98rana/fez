@@ -1,1 +1,1 @@
-ALTER TABLE `%TABLE_PREFIX%controlled_vocab` ADD COLUMN `cvo_hide` INT(11);
+ALTER TABLE `%TABLE_PREFIX%controlled_vocab` ADD COLUMN `cvo_hide` INT(11) NOT NULL DEFAULT 0;
