@@ -200,6 +200,9 @@ class Template_API
 	 */
 	function processTemplate()
 	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
 		// determine the correct CSS file to use
 		if (ereg('MSIE ([0-9].[0-9]{1,2})', $_SERVER["HTTP_USER_AGENT"], $log_version)) {
 			$user_agent = 'ie';
@@ -318,8 +321,6 @@ class Template_API
 		$js_script_name = str_replace('/', '_', str_replace('.php', '', $_SERVER['PHP_SELF']));
 		$this->assign("js_script_name", $js_script_name);
 
-		$this->assign("total_queries", $GLOBALS['TOTAL_QUERIES']);
-
 		$this->assign(array(
 		//"shaded_bar"     => "background='".APP_RELATIVE_URL."images/".APP_SHADED_BAR."'",
             "heading_color"  => APP_HEADING_COLOR,
@@ -339,7 +340,15 @@ class Template_API
 
 		$this->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));
 		$this->assign('najax_register', $this->najax_register);
-		$this->assign('headerscript', $this->headerscript);
+		$this->assign('headerscript', $this->headerscript);	
+		$this->assign('benchmark_total', $log->getLogElapsedTime());
+		
+		$profiler = $db->getProfiler();
+		if($profiler) {
+			$this->assign("total_queries", $profiler->getTotalNumQueries());
+			$this->assign("total_elapsed_secs", sprintf('%0.5f', (string)round($profiler->getTotalElapsedSecs(),5)));
+		}
+		
 		$this->assign('generated_time', date('Y-m-d H:i:s'));
 
 	}

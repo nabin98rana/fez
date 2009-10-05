@@ -159,6 +159,11 @@ class FezLog
     	}
     }
     
+    public function getLogElapsedTime() 
+    {
+    	return $this->_stopwatch->elapsed();
+    }
+        
     private function format_message($type, $message) 
     {
     	$user_message = array();
