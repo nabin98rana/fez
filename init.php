@@ -62,6 +62,7 @@ $autoloader = Zend_Loader_Autoloader::getInstance()->setFallbackAutoloader(true)
 $autoloader->pushAutoloader(array('ezcBase', 'autoload'), 'ezc');
 
 include_once(APP_INC_PATH . 'class.log.php');
+include_once(APP_INC_PATH . "class.cache.php");
 include_once(APP_INC_PATH . "class.configuration.php");
 include_once(APP_INC_PATH . "class.language.php");
 include_once(APP_INC_PATH . "class.session_db.php");
@@ -183,6 +184,25 @@ if (isset($_GET)) {
 }
 
 $GLOBALS['app_cache'] = true; // Set this string to true if you have given php.ini at least 256M to use. It will improve performance by storing some Fedora and SQL queries in PHP memory rather than fetch them twice or more during a single page load. This gets hardset to false globally for indexing and reindexing in background processes as this won't scale over 500M with over 10,000 objects otherwise (you will get PHP fatal memory error for example).
+
+try {
+	$frontendOptions = array(
+	   'lifetime' => NULL, // cache lifetime is forever
+	   'automatic_serialization' => true
+	);
+	$backendOptions = array(
+		'cache_dir' => APP_FILECACHE_DIR // Directory where to put the cache files
+	);
+	// getting a Zend_Cache_Core object
+	$cache = Zend_Cache::factory('Core',
+								 'File',
+								 $frontendOptions,
+								 $backendOptions);
+	Zend_Registry::set('cache', $cache);
+}
+catch (Exception $ex) {
+    // No app caching
+}
 
 // Fix magic_quote_gpc'ed values
 $_GET =& Misc::dispelMagicQuotes($_GET);
