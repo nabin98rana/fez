@@ -226,7 +226,7 @@ if (!empty($pid) && $record->checkExists()) {
 			array_push($parent_relationships[$parent['rek_pid']], $parent['rek_display_type']);
 		} 
 		// Now generate the META Tag headers
-		$meta_head = '<meta name="DC.Identifier" schema="URI" content="'.substr(APP_BASE_URL,0,-1).$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'"/>'."\n";
+		$meta_head = '<meta name="DC.Identifier" scheme="URI" content="'.substr(APP_BASE_URL,0,-1).$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'"/>'."\n";
 		// Get some extra bits out of the record
 		foreach ($xsd_display_fields as $dis_key => $dis_field) {
 		    
