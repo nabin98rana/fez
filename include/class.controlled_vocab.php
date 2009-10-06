@@ -51,6 +51,8 @@ include_once(APP_INC_PATH . "class.auth.php");
 
 class Controlled_Vocab
 {
+	
+	const CACHE_KEY = 'Controlled_Vocab_';
 
 	/**
 	 * Method used to remove a given list of controlled vocabularies.
@@ -81,11 +83,13 @@ class Controlled_Vocab
 		Controlled_Vocab::deleteRelationship($all_items);
 		try {
 			$db->query($stmt, $all_items);
+			FezCache::remove(Controlled_Vocab::CACHE_KEY);
 		}
 		catch(Exception $ex) {
 			$log->err($ex);
 			return false;
 		}
+		
 		return true;
 	}
 
@@ -100,18 +104,20 @@ class Controlled_Vocab
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-
+		
 		$stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "controlled_vocab_relationship
                  WHERE
                     cvr_parent_cvo_id IN (".Misc::arrayToSQLBindStr($items).") OR cvr_child_cvo_id IN (".Misc::arrayToSQLBindStr($items).")";
 		try {
 			$db->query($stmt, array_merge($items, $items));
+			FezCache::remove(Controlled_Vocab::CACHE_KEY);
 		}
 		catch(Exception $ex) {
 			$log->err($ex);
 			return false;
 		}
+		
 		return true;
 	}
 
@@ -125,7 +131,7 @@ class Controlled_Vocab
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-
+		
 		$stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "controlled_vocab
                  (
@@ -148,12 +154,13 @@ class Controlled_Vocab
 
 		try {
 			$db->exec($stmt);
+			FezCache::remove(Controlled_Vocab::CACHE_KEY);
 		}
 		catch(Exception $ex) {
 			$log->err($ex);
 			return -1;
 		}
-
+		
 		// get last db entered id
 		$new_id = $db->lastInsertId();
 		if (is_numeric($_POST["parent_id"])) {
@@ -192,6 +199,7 @@ class Controlled_Vocab
 
 		try {
 			$db->exec($stmt);
+			FezCache::remove(Controlled_Vocab::CACHE_KEY);
 		}
 		catch(Exception $ex) {
 			$log->err($ex);
@@ -318,6 +326,7 @@ class Controlled_Vocab
                  )";
 		try {
 			$db->query($stmt);
+			FezCache::remove(Controlled_Vocab::CACHE_KEY);
 		}
 		catch(Exception $ex) {
 			$log->err($ex);
@@ -347,6 +356,7 @@ class Controlled_Vocab
                  WHERE cvo_id = ".$db->quote($cvo_id, 'INTEGER');		
 		try {
 			$db->exec($stmt);
+			FezCache::remove(Controlled_Vocab::CACHE_KEY);
 		}
 		catch(Exception $ex) {
 			$log->err($ex);
@@ -1044,6 +1054,18 @@ class Controlled_Vocab
 		$log = FezLog::get();
 		$db = DB_API::get();
 		
+		$cache_key = 'buildCVtree';		
+		$cvTree = array();
+		
+		$cache = FezCache::load(Controlled_Vocab::CACHE_KEY);
+
+		if($cache && array_key_exists($cache_key, $cache)) {
+			return $cache[$cache_key];
+		}
+		else if(! $cache) {
+			$cache = array();
+		}
+		
 		$visible_cv_ids = Controlled_Vocab::getVisibleCvs();
 
 		$stmt = "SELECT cvo_id, cvo_title, cvo_hide, CONCAT(cvo_title, ' ', cvo_desc) as cvo_title_extended, cvr_parent_cvo_id as cvo_parent_id " .
@@ -1062,7 +1084,6 @@ class Controlled_Vocab
 			return '';
 		}
 		
-		$cvTree = array();
 		foreach ($res as $row) {
 			if (is_null($row['cvo_parent_id'])) {
 				if($row['cvo_hide'] != '1' && (in_array($row['cvo_id'], $visible_cv_ids))) {
@@ -1074,7 +1095,10 @@ class Controlled_Vocab
 				}
 			}
 		}
-
+		
+		$cache[$cache_key] = $cvTree;
+		FezCache::save($cache, Controlled_Vocab::CACHE_KEY);
+		
 		return $cvTree;
 	}
 
