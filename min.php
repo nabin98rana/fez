@@ -8,10 +8,10 @@ set_include_path(
     . PATH_SEPARATOR . get_include_path()
 );
 
-$file = substr($_SERVER['PATH_INFO'], 1);
 
+$file = substr($_SERVER['PATH_INFO'], 1);
 // Check it's of the format js/path/filename.js
-if(!preg_match('/^js\/([a-zA-Z0-9_\-\/])+.js$/', $file)) {
+if(! (preg_match('/^js\/([a-zA-Z0-9_\-\/])+.js$/', $file) || preg_match('/^([a-zA-Z0-9_\-])+.js$/', $file)) ) {
 	exit;
 }
 
