@@ -2395,5 +2395,34 @@ class Auth
 			$_SESSION[$key] = $value;
 		}
 	}
+	
+	/**
+	 * Splits APP_BASIC_AUTH_IP value into an array of individual IPs.
+	 */
+	function getBasicAuthIPs()
+	{
+		$ips = explode(';', APP_BASIC_AUTH_IP);
+		foreach ($ips as &$ip) {
+			$ip = trim($ip);
+		}
+		return $ips;
+	}
+	
+	
+	/**
+	 * Determine if we need to redirect the user to the Baic Authentication URL,
+	 * and pass them on to their requested document.
+	 */
+	function checkForBasicAuthRequest($mode = 'view')
+	{
+		$ipPool = Auth::getBasicAuthIPs();
+		if ((defined('APP_BASIC_AUTH_IP') && (in_array($_SERVER['REMOTE_ADDR'], $ipPool))) && !isset($_SERVER['PHP_AUTH_USER'])) {
+			if ($mode == 'view') {
+				header ("Location: https://" . APP_HOSTNAME.APP_RELATIVE_URL . "basicview.php?pid=" . $_GET['pid']);
+			} elseif ($mode == 'eserv') {
+				header ("Location: https://" . APP_HOSTNAME.APP_RELATIVE_URL . "basiceserv.php?pid=" . $_GET['pid'] . "&dsid=" . $_GET['dsID']);
+			}
+		}
+	}
 
 }
