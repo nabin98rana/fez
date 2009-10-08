@@ -8,12 +8,19 @@ set_include_path(
     . PATH_SEPARATOR . get_include_path()
 );
 
+$file = substr($_SERVER['PATH_INFO'], 1);
+
+// Check it's of the format js/path/filename.js
+if(!preg_match('/^js\/([a-zA-Z0-9_\-\/])+.js$/', $file)) {
+	exit;
+}
+
 require 'Minify.php';
 Minify::setCache();
 Minify::serve('Groups', array(
     'groups' => array(
+		$file =>  array(APP_PATH . $file),
         'editmeta.js'   =>  array(APP_PATH . '/js/editmetadata.js'),
-        'dojo.js'   	=>  array(APP_PATH . '/js/dojo/dojo.js'),
         'common.js'     =>  array(APP_PATH . '/js/browserSniffer.js', APP_PATH .'/js/global.js', APP_PATH .'/js/validation.js'),
         'tabs.js'       =>  array(APP_PATH . '/js/tabcontent.js', APP_PATH .'/js/ajaxtabs.js'),
     )
