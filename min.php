@@ -10,8 +10,10 @@ set_include_path(
 
 
 $file = substr($_SERVER['PATH_INFO'], 1);
-// Check it's of the format js/path/filename.js
-if(! (preg_match('/^js\/([a-zA-Z0-9_\-\/])+.js$/', $file) || preg_match('/^([a-zA-Z0-9_\-])+.js$/', $file)) ) {
+$file = str_replace('..', '', $file);
+
+if(! preg_match('/^(js\/)?([a-zA-Z0-9_\-\/\.])+.js(\?*.?)$/', $file) ) {
+	header("HTTP/1.0 404 Not Found");
 	exit;
 }
 
@@ -23,5 +25,8 @@ Minify::serve('Groups', array(
         'editmeta.js'   =>  array(APP_PATH . '/js/editmetadata.js'),
         'common.js'     =>  array(APP_PATH . '/js/browserSniffer.js', APP_PATH .'/js/global.js', APP_PATH .'/js/validation.js'),
         'tabs.js'       =>  array(APP_PATH . '/js/tabcontent.js', APP_PATH .'/js/ajaxtabs.js'),
+		'js/editmeta.js'   =>  array(APP_PATH . '/js/editmetadata.js'),
+        'js/common.js'     =>  array(APP_PATH . '/js/browserSniffer.js', APP_PATH .'/js/global.js', APP_PATH .'/js/validation.js'),
+        'js/tabs.js'       =>  array(APP_PATH . '/js/tabcontent.js', APP_PATH .'/js/ajaxtabs.js')
     )
 ));
