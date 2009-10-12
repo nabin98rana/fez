@@ -626,7 +626,6 @@ class Lister
 			$log->debug('Browse MyPubs');
 
 			$current_row = 0;
-			$tpl->assign("active_nav", "list");
 			$max = 9999999;
 			$author_id = $params['author_id'];
 			$authorDetails = Author::getDetails($author_id);
@@ -774,7 +773,8 @@ class Lister
 	        $tpl->assign("list_info", $list_info);
 	        $tpl->assign('facets', $facets);
 
-			$tpl->assign("authorDetails", $authorDetails);
+			$tpl->assign("authorDetails", $authorDetails);			
+			$tpl->assign("active_nav", "mypubs");
 //			$tpl->displayTemplate();
 			
         } elseif ($browse == "subject") {
@@ -985,7 +985,9 @@ class Lister
 
         $tpl->assign('PAGE_URL', $PAGE_URL);
 
-		$tpl->assign("active_nav", "list");
+        if($tpl->smarty->get_template_vars('active_nav') == '') {
+			$tpl->assign("active_nav", "list");
+        }
         
         $tpl->registerNajax(NAJAX_Client::register('NajaxRecord', APP_RELATIVE_URL.'ajax.php')."\n"
             .NAJAX_Client::register('Suggestor', APP_RELATIVE_URL.'ajax.php')."\n");
