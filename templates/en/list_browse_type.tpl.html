@@ -1,5 +1,5 @@
-<table class="listrecord" width="100%" cellpadding="10">
-{if ($browse_type == "browse_author") && (!$author && !$author_id)} 
+{if ($browse_type == "browse_author") && (!$author && !$author_id)}
+  <table class="listrecord" width="100%" cellpadding="10">
 		<tr>
 		  <td align="left">
 			<div class="letter-list">
@@ -23,7 +23,7 @@
 		{section name="i" loop=$list}
 
         <tr>
-            <td style="border-top: 1px dashed #87ABE9;" align="left">
+            <td style="border-top: 1px dashed #be87e9;" align="left">
             {if $list[i].record_author_id != 0}
             <a class="author_id_link" href='{$rel_url}list/author_id/{$list[i].record_author_id|escape:"url"}/'>{$list[i].record_author|escape:"html"}</a> ({$list[i].record_count|escape:"html"})
             {else}
@@ -52,7 +52,7 @@
 		{section name="i" loop=$list}
 
         <tr>
-            <td style="border-top: 1px dashed #87ABE9;" align="left">
+            <td style="border-top: 1px dashed #be87e9;" align="left">
                 <a href='{$rel_url}list/depositor/{$list[i].record_depositor|escape:"url"}/'>{$list[i].record_desc|escape:"html"}</a> ({$list[i].record_count|escape:"html"})
             </td>
         </tr>
@@ -75,7 +75,7 @@
 		{section name="i" loop=$list}
 
 		  <tr>
-				  <td style="border-top: 1px dashed #87ABE9;" align="left">
+				  <td style="border-top: 1px dashed #be87e9;" align="left">
 				{if $list[i].record_year == 0}
 						(not set) ({$list[i].record_count|escape:"html"})
 				{else}
@@ -112,7 +112,7 @@
 
     {section name="i" loop=$subject_list}
 	  <tr>
-		  <td colspan="2" style="border-top: 1px dashed #87ABE9;" align="left">
+		  <td colspan="2" style="border-top: 1px dashed #be87e9;" align="left">
 		  <table width="100%" cellpadding="2" cellspacing="1">
           <tr>
               <td>{if $subject_list[i].cvo_image_filename != ""}<img src="{$rel_url}images/{$subject_list[i].cvo_image_filename}" alt="" />{/if}
@@ -144,6 +144,5 @@
       </td>
     </tr>
 
+  </table>
 {/if}
-
-</table>

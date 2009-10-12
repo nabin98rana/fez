@@ -1,12 +1,14 @@
 {include file="header.tpl.html" extra_title="Advanced Search"}
     {include file="navigation.tpl.html"}
-<form name="custom_filter_form" action="{$rel_url}list/" method="get" target="_top">
-<input type="hidden" name="cat" value="quick_filter" />
-<input type="hidden" name="form_name" value="adv_search" />
+<form id="custom_filter_form" action="{$rel_url}list/" method="get">
+	<div>
+		<input type="hidden" name="cat" value="quick_filter" />
+		<input type="hidden" name="form_name" value="adv_search" />
+	</div>
 {include file="custom_filter_form2.tpl.html"}
 </form>
 {literal}
-<script language="JavaScript">
+<script type="text/javascript">
 <!--
 var basic_element = getPageElement('basic_filter_form' + '1');
 if (isElementVisible(basic_element)) {

@@ -1,5 +1,5 @@
 {include file="js/list.tpl.js"}
-<script language="JavaScript" type="text/javascript" src="{$rel_url}js/listpage.js"></script>
+<script type="text/javascript" src="{$rel_url}js/listpage.js"></script>
 <center>
 
 
@@ -15,9 +15,11 @@
 
 {include file="paging_control_header.tpl.html"}
 
-<input type="hidden" name="cat" value="assign" />
-<input type="hidden" name="href" value="{$smarty.server.REQUEST_URI|escape:'html'}" />
-<input type="hidden" name="xdis_id" value="" />
+<div>
+  <input type="hidden" name="cat" value="assign" />
+  <input type="hidden" name="href" value="{$smarty.server.REQUEST_URI|escape:'html'}" />
+  <input type="hidden" name="xdis_id" value="" />
+</div>
 
 
 {if $isUser}
@@ -162,18 +164,18 @@
 
 		  <tr>
 		  {if ($isAdministrator)}  		  
-              <td valign="middle" style="border-top: 1px dashed #87ABE9; width: 10px;">
+              <td valign="middle" style="border-top: 1px dashed #be87e9; width: 10px;">
 	              <input type="checkbox" name="pids[]" value="{$list[i].rek_pid}" />
               </td>
           {/if}
 
 		  {if $icon != ""}
-          <td align='right' style="border-top:1px dashed #87ABE9; width: 1%;">
+          <td align='right' style="border-top:1px dashed #be87e9; width: 1%;">
                 {if $href_view}<a href='{$rel_url}{$href_view}' >{/if}<img {if ($icon_width != "" && $icon_height != "")}width={$icon_width} height={$icon_height}{/if} valign='top' align='right' src="{$icon}" alt="" border="0" />{if $href_view}</a>{/if}
 		  </td>
 		  {/if}
 				  
-		  <td align="left"{if $icon}{else} colspan="2"{/if} valign="middle" style="border-top:1px dashed #87ABE9; width: 100%;">
+		  <td align="left"{if $icon}{else} colspan="2"{/if} valign="middle" style="border-top:1px dashed #be87e9; width: 100%;">
             {if $list[i].rek_citation != ""}
             {$list[i].rek_citation}
             {else}
@@ -188,7 +190,7 @@
 		  </td>		
 
 			{if $list[i].isEditor==1 || $isAdministrator}
-			  <td align="left" valign="middle" nowrap style="border-top:1px dashed #87ABE9;">
+			  <td align="left" valign="middle" nowrap style="border-top:1px dashed #be87e9;">
 			  {section name="w" loop=$list[i].wft_id}
 			    {if $list[i].wft_id[w] != ''}
 			    {if $list[i].wft_icon[w] == 'images/security.gif'}
@@ -219,16 +221,16 @@
            {/if}
            
 			{if $smarty.get.cat =='Search' || $smarty.get.cat == 'all_fields' || $smarty.get.cat == 'quick_filter'}
-			<td align="center" valign="middle" width="" nowrap style="border-top:1px dashed #87ABE9; width: 10px;">&nbsp;{if $list[i].Relevance}{$list[i].Relevance|@number_format:2}{/if}</td>
+			<td align="center" valign="middle" width="" nowrap style="border-top:1px dashed #be87e9; width: 10px;">&nbsp;{if $list[i].Relevance}{$list[i].Relevance|@number_format:2}{/if}</td>
 			{/if}
 			
 			{if $list[i].rek_object_type == 3}
-			<td align="center" valign="middle" style="border-top:1px dashed #87ABE9; width: 10px;" nowrap>{if $list[i].rek_views}{$list[i].rek_views|escape:"html"}{else}&nbsp;{/if}</td>
-			<td align="center" valign="middle" style="border-top:1px dashed #87ABE9; width: 10px;" nowrap>{if $list[i].rek_file_downloads}<a class="author_link" title="View detailed statistics for this object" href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].rek_pid}">{$list[i].rek_file_downloads|escape:"html"}</a>{else}&nbsp;{/if}</td>
+			<td align="center" valign="middle" style="border-top:1px dashed #be87e9; width: 10px;" nowrap>{if $list[i].rek_views}{$list[i].rek_views|escape:"html"}{else}&nbsp;{/if}</td>
+			<td align="center" valign="middle" style="border-top:1px dashed #be87e9; width: 10px;" nowrap>{if $list[i].rek_file_downloads}<a class="author_link" title="View detailed statistics for this object" href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].rek_pid}">{$list[i].rek_file_downloads|escape:"html"}</a>{else}&nbsp;{/if}</td>
 	       {else}
-            <td colspan="2" style="border-top:1px dashed #87ABE9;">&nbsp;</td>
+            <td colspan="2" style="border-top:1px dashed #be87e9;">&nbsp;</td>
 	       {/if}
-	       <td align="left"{if $icon}{else} colspan="2"{/if} valign="middle" style="border-top:1px dashed #87ABE9; width: 100%;">
+	       <td align="left"{if $icon}{else} colspan="2"{/if} valign="middle" style="border-top:1px dashed #be87e9; width: 100%;">
             {if $list[i].rek_thomson_citation_count != ""}
             	{$list[i].rek_thomson_citation_count}
             {else}
@@ -247,7 +249,7 @@
 {/if}
 
 {if $isAdministrator && $list_info.total_rows > 0}
-	<div id="result-box" class="clearfix" style="width: 980px; margin-top: 20px;">
+	<div class="result-box clearfix" style="width: 980px; margin-top: 20px;">
 		<div class="clearfix sub-box">
 		  <div class="order-element" style="padding: 10px 0px 10px 10px;">
 			  <input type="button" value="Select All" class="shortcut" onclick="javascript:toggleSelectAll(this.form, 'pids[]');" />

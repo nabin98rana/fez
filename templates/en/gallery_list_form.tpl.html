@@ -1,38 +1,38 @@
 {include file="js/list.tpl.js"}
-<script language="JavaScript" type="text/javascript" src="{$rel_url}js/listpage.js"></script>
-<center>
+<script type="text/javascript" src="{$rel_url}js/listpage.js"></script>
 
 <div style="margin: -30px 0px 0px 0px; width: 980px;">
 
-
-<form name="list_form" method="get" action="{$smarty.server.PHP_SELF}">
-  <input type="hidden" name="cat" value="assign" />
-  <input type="hidden" name="href" value="{$smarty.server.REQUEST_URI|escape:'html'}" />
-  <input type="hidden" name="xdis_id" value="" />
+<form method="get" action="{$smarty.server.PHP_SELF}">
+  <div>
+	<input type="hidden" name="cat" value="assign" />
+	<input type="hidden" name="href" value="{$smarty.server.REQUEST_URI|escape:'html'}" />
+	<input type="hidden" name="xdis_id" value="" />
+  </div>
 
 {include file="paging_control_header.tpl.html"}
 
 {if $isUser}
   <div class="create-box">
 	{if $list_type == 'community_list' && $isAdministrator}
-	<a target="_top" title="Create a new community" href="{$rel_url}workflow/new.php?pid=-1&amp;xdis_id={$xdis_id}&amp;href={$smarty.server.REQUEST_URI|escape:'url'}"><img src="{$rel_url}images/folder_new.gif" align="top" border="0" alt="" /> <b>Create New Community</b></a> 
+	<a target="_top" title="Create a new community" href="{$rel_url}workflow/new.php?pid=-1&amp;xdis_id={$xdis_id}&amp;href={$smarty.server.REQUEST_URI|escape:'url'}"><img src="{$rel_url}images/folder_new.gif" style="align: top;" alt="" /> <b>Create New Community</b></a> 
 	{elseif $list_type == 'collection_list' && ($isAdministrator || $isCreator)}
 		{if $childXDisplayOptions != 0}
-		<img src="{$rel_url}images/folder_new.gif" align="top" border="0" alt="" />
+		<img src="{$rel_url}images/folder_new.gif" style="align: top;" alt="" />
 		<input type="hidden" name="community_pid" value="{$community_pid}" />
 		<select name="xdis_id_top">
 		  {html_options options=$childXDisplayOptions}
 		</select>
-		<input type="button" value="Create" onClick="javascript:createRecord(this.form, this.form.xdis_id_top)" />
+		<input type="button" value="Create" onclick="javascript:createRecord(this.form, this.form.xdis_id_top)" class="button" />
 		{/if}
 	{elseif ($list_type == 'collection_records_list' && ($isAdministrator || $isCreator)) && $browse_type == ""}			
 		{if $childXDisplayOptions != 0}
-		<img src="{$rel_url}images/folder_new.gif" align="top" border="0" alt="" />
+		<img src="{$rel_url}images/folder_new.gif" style="align: top;" alt="" />
 		<input type="hidden" name="collection_pid" value="{$collection_pid}" />
 		<select name="xdis_id_top">
 		  {html_options options=$childXDisplayOptions}
 		</select>
-		<input type="button" value="Create" onClick="javascript:createRecord(this.form, this.form.xdis_id_top)" />
+		<input type="button" value="Create" onclick="javascript:createRecord(this.form, this.form.xdis_id_top)" class="button" />
 		{/if}
 	{/if}
   </div>
@@ -42,19 +42,9 @@
 
     {if ($browse_heading == "") ||  ($browse_type != "" && ($author != "" || $author_id != "")) || ($browse_type != "" & $depositor != "") || ($browse_type != "" & $year != "") || ($browse_type != "" && $parent_id != "" && $max_subject_breadcrumb != 0)} 
 	{assign var="cols" value=5}
-    <div{if $isUser} style="margin-top: 40px;"{/if}>
-	<table width="100%" cellpadding="10" cellspacing="0" class="listrecord">
-        <tr>
-			<td colspan="{if ($isAdministrator)}{$cols+1}{else}{$cols}{/if}">&nbsp;
-			</td>
-			{if $showEdit || $isAdministrator}		
-			  <td align="right" >
-				&nbsp;
-			  </td>
-			{/if}
-		</tr>
-
-	  	<tr  align="left">
+    <div{if $isUser} style="margin-top: 30px; clear: both;"{/if}>
+	<table style="width: 100%;" cellpadding="10" cellspacing="0">
+	  	<tr align="left">
         {section name="i" loop=$list}
 		
         {if (($list[i].isLister==1 || $isAdministrator) && $list_type != 'browse_subjects_list')}
@@ -93,21 +83,21 @@
            {/if}
 
 		  {if ($isAdministrator)}  		  
-              <td width="10">
+              <td style="width: 10px;">
 	              <input type="checkbox" name="pids[]" value="{$list[i].rek_pid}" />
               </td>
           {/if}
           
           {if $icon != ""}
-          <td width={$smarty.const.APP_THUMBNAIL_WIDTH} valign='top'>
-                {if $href_view}<a href='{$rel_url}{$href_view}' title='{$list[i].rek_title|escape:"html"}'>{/if}<img {if ($icon_width != "" && $icon_height != "")}width={$icon_width} height={$icon_height}{/if} valign='top' src="{$icon}" alt="{$list[i].rek_title|escape:"html"}" border="0" />{if $href_view}
+          <td style="width: {$smarty.const.APP_THUMBNAIL_WIDTH}; vertical-align: top;">
+                {if $href_view}<a href='{$rel_url}{$href_view}' title='{$list[i].rek_title|escape:"html"}'>{/if}<img {if ($icon_width != "" && $icon_height != "")}width="{$icon_width}" height="{$icon_height}"{/if} style="vertical-align: top;" src="{$icon}" alt="{$list[i].rek_title|escape:"html"}" />{if $href_view}
 				<br />{$list[i].rek_title|escape:"html"}</a>{/if}
 		  </td>
 		  {/if}
 		 		{* see if we should go to the next row *}
 		        {if not ($smarty.section.i.iteration mod $cols)}
 		                {if not $smarty.section.i.last}
-		                        </tr><tr>
+		                        </tr><tr class="gallery-row">
 		                {/if}
 		        {/if}
 		        {if $smarty.section.i.last}
@@ -134,25 +124,24 @@
 	</div>
 	{/if}
         
-{if $isAdministrator && $list_info.total_rows > 0}
-	<div id="result-box" class="clearfix" style="width: 980px; margin-top: 20px;">
-		<div class="clearfix sub-box">
-		  <div class="order-element" style="padding: 10px 0px 10px 10px;">
-			  <input type="button" value="Select All" class="shortcut" onclick="javascript:toggleSelectAll(this.form, 'pids[]');" />
-			  <select name="wft_id" class="default">
-				{html_options options=$bulk_workflows}
-			  </select>
-			  <input type="button" value="Run Workflow" class="shortcut" onclick="javascript:workflowItems(this.form, '{$rel_url}');" />
-			  <input type="button" value="Delete" onclick="javascript:return checkDeleteRecords(this.form);" class="button" />
-			  {include file="error_icon.tpl.html" field="users"}
+  {if $isAdministrator && $list_info.total_rows > 0}
+	  <div class="result-box clearfix" style="width: 980px; margin-top: 20px;">
+		  <div class="clearfix sub-box">
+			<div class="order-element" style="padding: 10px 0px 10px 10px;">
+				<input type="button" value="Select All" onclick="javascript:toggleSelectAll(this.form, 'pids[]');" class="button" />
+				<select name="wft_id" class="default">
+				  {html_options options=$bulk_workflows}
+				</select>
+				<input type="button" value="Run Workflow" onclick="javascript:workflowItems(this.form, '{$rel_url}');" class="button" />
+				<input type="button" value="Delete" onclick="javascript:return checkDeleteRecords(this.form);" class="button" />
+				{include file="error_icon.tpl.html" field="users"}
+			</div>
 		  </div>
-		</div>
-{/if}
+	  </div>
+  {/if}
 
-    {include file="paging_control.tpl.html" field="paginat0r"}
-    </div>
+  {include file="paging_control.tpl.html" field="paginat0r"}
 
 </form>
-</div>
-</center>
 
+</div>

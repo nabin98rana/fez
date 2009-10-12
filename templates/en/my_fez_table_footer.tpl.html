@@ -1,19 +1,19 @@
 <tr>
     <td colspan="{if $rowspan > 0}{$rowspan}{else}6{/if}" style="padding: 0px;">
 
-        <table width="100%" cellspacing="0" cellpadding="0" class="my_fez_table_footer">
+        <table style="width: 100%;" cellspacing="0" cellpadding="0" class="my_fez_table_footer">
           
            <tr>    
-                <td width="10px"><input type="button" value="All" onclick="javascript:toggleSelectAll(this.form, 'pids[]');" /></td>
+                <td style="width: 10px;"><input type="button" value="All" onclick="javascript:toggleSelectAll(this.form, 'pids[]');" class="button" /></td>
                  
                 {if $isAdministrator} 
                  <td>
-                 <input type="submit" value="Delete"  onClick="javascript:return checkDeleteRecords(this.form);" />
-                 <input type="submit" value="Publish" onClick="javascript:return checkPublishRecords(this.form);" />
+                 <input type="submit" value="Delete"  onclick="javascript:return checkDeleteRecords(this.form);" class="button" />
+                 <input type="submit" value="Publish" onclick="javascript:return checkPublishRecords(this.form);" class="button" />
                  </td>
                 
                  <td>                   
-                   <input type="button" value="Run Workflow &gt;" onClick="javascript:workflowItems(this.form, '{$rel_url}');">
+                   <input type="button" value="Run Workflow &gt;" onclick="javascript:workflowItems(this.form, '{$rel_url}');" class="button" />
                    <select name="wft_id">
                      {html_options options=$bulk_workflows}
                     </select>
@@ -23,8 +23,7 @@
                  <td colspan="2">&nbsp;</td>
                  {/if}
                  
-                 <td align="center" nowrap width="40%">
-                     <nobr>
+                 <td align="center" style="width: 40%; white-space: nowrap;">
                      {if $items_info.total_pages > 0}
                      <strong>Page:</strong>
                      {/if}
@@ -47,11 +46,9 @@
                 	&nbsp;<a href="{$page_url}&rows={$items_info.page_rows}&pager_row={$items_info.next_page}" title="Next page" style="text-decoration: none; margin-left: 0.25em;">next &#155;</a> 
                 	<a href="{$page_url}&rows={$items_info.page_rows}&pager_row={$items_info.last_page}" title="Last page" style="text-decoration: none; margin-left: 0.25em;">last &#187;</a>
                 	{/if}
-                     
-                    </nobr>
                 </td>
                       
-                <td nowrap>
+                <td style="white-space: nowrap;">
                     {if $items_info.total_pages > 0}
                     <strong>Rows:</strong> <select name="page_size" onChange="javascript:resizePagerMyFez(this.form, '{$page_url}');">
                     <option value="5" {if $options.rows == 5}selected{/if}>5</option>

@@ -1,7 +1,5 @@
-<body>
-
 {literal}
-<script language="JavaScript" type="text/javascript">
+<script type="text/javascript">
 <!--
 function validateForm(f)
 {
@@ -32,9 +30,11 @@ function toggleHideSecondaryLogin()
 //-->
 </script>
 {/literal}
-<center>
+
+<div style="margin-left: auto; margin-right: auto; width: 600px;">
+	
 {if $SHIB_SWITCH == "ON"}
-<form name="idplist" method="get">
+<form id="idplist" method="get">
 	<input type="hidden" name="shire" value="https://{$APP_HOSTNAME}/Shibboleth.sso/SAML/POST" />
 	<input type="hidden" name="target" value="cookie" />
 	<input type="hidden" name="providerId" value="{$SHIB_HOME_SP}" />
@@ -42,14 +42,14 @@ function toggleHideSecondaryLogin()
 	<input type="hidden" name="time" value="1142380709" />
 	<input type="hidden" name="action" value="selection" />
 	<input type="hidden" name="cache" value="false" />
-<table align="center" width="500" border="0" cellspacing="0" cellpadding="0" bgcolor="#FFFFFF">
+<table width="500" cellspacing="0" cellpadding="0" style="background: #FFFFFF;">
   <tr>
     <td>
             <br /><br />
-      <table bgcolor="{$heading_color}" width="100%" border="0" cellspacing="0" cellpadding="4">
+      <table style="background: {$heading_color}" width="100%" cellspacing="0" cellpadding="4">
 		<tr>
-          <td align="center" nowrap="nowrap" class="default_white">
-            <img src="{$rel_url}images/shibboleth_logo_32.gif" border="0" alt="" /> <b> Select your home institution:</b>
+          <td nowrap="nowrap" class="default_white" style="text-align: center;">
+            <img src="{$rel_url}images/shibboleth_logo_32.gif" alt="" /> <b> Select your home institution:</b>
           </td>
         </tr>
 
@@ -57,24 +57,24 @@ function toggleHideSecondaryLogin()
     </td>
   </tr>
 </table>
-<table align="center" width="500" border="0" cellspacing="0" cellpadding="1" bgcolor="#000000">
+<table width="500" cellspacing="0" cellpadding="1" style="background: #000000;">
   <tr>
     <td>
-      <table bgcolor="#FFFFFF" width="100%" border="0" cellspacing="0" cellpadding="4">
+      <table style="background: #FFFFFF" width="100%" cellspacing="0" cellpadding="4">
         <tr>
-          <td colspan="2" bgcolor="{$cell_color}"><img src="images/blank.gif" width="1" height="5" alt="" /></td>
+          <td colspan="2" style="background: {$cell_color}"><img src="images/blank.gif" width="1" height="5" alt="" /></td>
         </tr>
 	
         <tr>
-          <td align="right" width="40%" class="default" bgcolor="{$cell_color}"><b>Home Institution:</b></td>
-          <td width="60%" bgcolor="{$cell_color}" nowrap="nowrap">
+          <td align="right" width="40%" class="default" style="background: {$cell_color}"><b>Home Institution:</b></td>
+          <td style="width: 60%; background: {$cell_color}" nowrap="nowrap">
 							<select class="default" name="origin">
 							  {html_options options=$SHIB_IDP_LIST selected=$SHIB_HOME_IDP}
 							</select>          
           </td>
         </tr>
         <tr>
-          <td colspan="2" bgcolor="{$cell_color}" align="center"><input type="submit" name="federation_login" value="Login" class="button" /></td>
+          <td colspan="2" style="background: {$cell_color}" align="center"><input type="submit" name="federation_login" value="Login" class="button" /></td>
         </tr>		
 
       </table>
@@ -88,18 +88,20 @@ function toggleHideSecondaryLogin()
 
 <div id="secondary-login"{if $SHIB_SWITCH == "ON"} style="display: none;"{/if}>
 
-<form name="login_form" onsubmit="javascript:return checkFormSubmission(this, 'validateForm');" method="post" action="index.php">
-<input type="hidden" name="cat" value="login" />
-<input type="hidden" name="url" value="{$smarty.get.url|escape:"html"}" />
+<form id="login_form" onsubmit="javascript:return checkFormSubmission(this, 'validateForm');" method="post" action="index.php">
+	<div>
+		<input type="hidden" name="cat" value="login" />
+		<input type="hidden" name="url" value="{$smarty.get.url|escape:"html"}" />
+	</div>
 
-<table align="center" width="500" border="0" cellspacing="0" cellpadding="0" bgcolor="#FFFFFF">
+<table width="500" cellspacing="0" cellpadding="0" style="background: #FFFFFF">
   <tr>
     <td>
 <br />
-      <table bgcolor="{$heading_color}" width="100%" border="0" cellspacing="0" cellpadding="4">
+      <table style="background: {$heading_color}" width="100%" cellspacing="0" cellpadding="4">
         <tr>
-          <td colspan="2" align="center" class="default_white">
-            <img src="{$rel_url}images/lock_22.png" border="0" alt="" hspace="5" /><b>Login to {$application_title}{if $SHIB_SWITCH == "ON"} with a {$org_short_name} username or internal {$application_title} username ONLY if you do not belong to one of the institutions in the above drop down list or if the federated login is down{/if}</b>
+          <td colspan="2" align="center" class="default_white" style="padding: 5px;">
+            <img src="{$rel_url}images/lock_22.png" alt="" /><b>Login to {$application_title}{if $SHIB_SWITCH == "ON"} with a {$org_short_name} username or internal {$application_title} username ONLY if you do not belong to one of the institutions in the above drop down list or if the federated login is down{/if}</b>
           </td>
         </tr>
       </table>
@@ -107,13 +109,13 @@ function toggleHideSecondaryLogin()
   </tr>
 </table>
 
-<table align="center" width="500" border="0" cellspacing="0" cellpadding="1" bgcolor="#000000">
+<table width="500" cellspacing="0" cellpadding="1" style="background: #000000">
   <tr>
     <td>
-      <table bgcolor="#FFFFFF" width="100%" border="0" cellspacing="0" cellpadding="4">
+      <table style="background: #FFFFFF" width="100%" cellspacing="0" cellpadding="4">
         {if $smarty.get.err != 0}
         <tr>
-          <td colspan="2" align="center" class="error" bgcolor="{$cell_color}">
+          <td colspan="2" align="center" class="error" style="background: {$cell_color}">
             <b>
             {if $smarty.get.err == 1}
               Error: Please provide your UQ or Fez username.
@@ -158,22 +160,22 @@ function toggleHideSecondaryLogin()
         </tr>
         {/if}
         <tr>
-          <td align="right"  class="default" bgcolor="{$cell_color}" valign="middle" nowrap="nowrap"><b>{if $SHIB_SWITCH != "ON"}{if $ldap_switch == "ON"}{$org_short_name} or {/if}{$application_title}{/if} <u>U</u>sername:</b></td>
-          <td width="60%" bgcolor="{$cell_color}" valign="bottom" nowrap="nowrap">
+          <td align="right"  class="default" style="background: {$cell_color}; white-space: nowrap;" valign="middle"><b>{if $SHIB_SWITCH != "ON"}{if $ldap_switch == "ON"}{$org_short_name} or {/if}{$application_title}{/if} <span style="text-decoration: underline;">U</span>sername:</b></td>
+          <td style="width: 60%; background: {$cell_color}; white-space: nowrap;" valign="bottom">
             <input accesskey="U" class="default" type="text" name="username" value="{$username|default:$smarty.get.username|escape:'html'}" size="30" />
             {include file="error_icon.tpl.html" field="username"}
           </td>
         </tr>
         <tr>
-          <td align="right"  class="default" bgcolor="{$cell_color}" valign="middle"><b><u>P</u>assword:</b></td>
-          <td width="60%" bgcolor="{$cell_color}" valign="middle">
+          <td align="right"  class="default" style="background: {$cell_color}" valign="middle"><b><span style="text-decoration: underline;">P</span>assword:</b></td>
+          <td style="width: 60%; background: {$cell_color}" valign="middle">
             <input accesskey="p" class="default" type="password" name="passwd" size="30" maxlength="32" />
             {include file="error_icon.tpl.html" field="passwd"}
           </td>
         </tr>
         <tr align="left">
-          <td bgcolor="{$cell_color}">&nbsp;</td>
-          <td bgcolor="{$cell_color}">
+          <td style="background: {$cell_color}">&nbsp;</td>
+          <td style="background: {$cell_color}">
             <input type="submit" name="Submit" value="Login" class="button" />
           </td>
         </tr>			
@@ -184,13 +186,14 @@ function toggleHideSecondaryLogin()
 
 	<div style="padding: 30px;"><a href="mailto:{$smarty.const.APP_ADMIN_EMAIL}?subject={$application_title}: Non-{$app_short_org_name} access request">Request access to the system - for former {$org_short_name} staff and students only</a></div>
 
+</form>
+
 </div>
 
-</form>
-<br />
-</center>
+</div>
+
 {literal}
-<script language="JavaScript" type="text/javascript">
+<script type="text/javascript">
 <!--
 window.onload = setFocus;
 function setFocus()

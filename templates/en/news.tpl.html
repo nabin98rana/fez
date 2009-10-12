@@ -1,23 +1,15 @@
 {include file="header.tpl.html" extra_title="News"}
 {include file="navigation.tpl.html"}
 
-<h1 class="public"><img src="{$rel_url}images/news_22.png" alt="News" title="News" /> News <a href="{$smarty.server.PHP_SELF}?show=rss"><img alt="Subscribe to the RSS news feed" title="Subscribe to the RSS news feed" border="0" src="{$rel_url}images/feed-icon16x16.png" /></a></h1>
-
-<table bgcolor="#FFFFFF" width="100%" cellpadding="2" cellspacing="1">
- <tr>
-  <td class="default">
+<h1>News <a href="{$smarty.server.PHP_SELF}?show=rss"><img alt="Subscribe to the RSS news feed" title="Subscribe to the RSS news feed" src="{$rel_url}images/feed-icon16x16.png" /></a></h1>
 
 {section name="i" loop=$news}
 <div class="news-item">
-  <a name="{$news[i].nws_id}"></a><div class="news-heading">{$news[i].nws_title}</div>
+  <a id="x{$news[i].nws_id}" name="x{$news[i].nws_id}"></a><div class="news-heading">{$news[i].nws_title}</div>
   <div class="news-supp-info">Posted {$news[i].nws_published_date} by {if $news[i].usr_email !== ''}<a href="mailto:{$news[i].usr_email}">{/if}{$news[i].usr_full_name}{if $news[i].usr_email !== ''}</a>{/if}</div>
   <div class="news-body">{$news[i].nws_message}</div>
 </div>
 {/section}
-
-  </td>
- </tr>
-</table>
 
 {include file="app_info.tpl.html"}
 {include file="footer.tpl.html"}

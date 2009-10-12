@@ -1,5 +1,5 @@
 {literal}
-<script language="JavaScript">
+<script type="text/javascript">
 <!--
 function clearFilters(f) {
 {/literal}
@@ -86,7 +86,7 @@ Use as many or as few criteria as you like <br />
   <div class="{if $last_key != 'ALL' && $last_key != '' && $search_keys[i].sek_html_input != 'date' || ($search_keys[i].sek_html_input == 'date' && $last_key.filter_enabled ==1) }default-search-used{else}default{/if} custom_search_item">
   {if $search_keys[i].sek_alt_title}{$search_keys[i].sek_alt_title}{else}{$search_keys[i].sek_title}{/if}:<br/>
   {if $search_keys[i].sek_html_input != 'text' &&  $search_keys[i].sek_html_input != 'textarea'}
-    <script language="JavaScript" type="text/javascript">
+    <script type="text/javascript">
     <!--
     //            search_keys[search_keys.length] = new Option('search_keys[{$search_keys[i].sek_id}]{if $search_keys[i].sek_html_input == 'multiple'}[]{/if}', '{$search_keys[i].sek_title}');
     //            required_search_keys[required_search_keys.length] = new Option('search_keys[{$search_keys[i].sek_id}]{if $search_keys[i].sek_html_input == 'multiple'}[]{/if}', {if $search_keys[i].sek_html_input == 'multiple'}'multiple'{elseif $search_keys[i].sek_html_input == 'combo'}'combo'{else}'whitespace'{/if});
@@ -132,7 +132,7 @@ Use as many or as few criteria as you like <br />
   <div class="{if $last_key != 'ALL' && $last_key != '' && $search_keys[i].sek_html_input != 'date' || ($search_keys[i].sek_html_input == 'date' && $last_key.filter_enabled ==1) }default-search-used{else}default{/if} custom_search_item">
   {if $search_keys[i].sek_alt_title}{$search_keys[i].sek_alt_title}{else}{$search_keys[i].sek_title}{/if}:<br/>
   {if $search_keys[i].sek_html_input != 'text' &&  $search_keys[i].sek_html_input != 'textarea'}
-    <script language="JavaScript" type="text/javascript">
+    <script type="text/javascript">
     <!--
     //            search_keys[search_keys.length] = new Option('search_keys[{$search_keys[i].sek_id}]{if $search_keys[i].sek_html_input == 'multiple'}[]{/if}', '{$search_keys[i].sek_title}');
     //            required_search_keys[required_search_keys.length] = new Option('search_keys[{$search_keys[i].sek_id}]{if $search_keys[i].sek_html_input == 'multiple'}[]{/if}', {if $search_keys[i].sek_html_input == 'multiple'}'multiple'{elseif $search_keys[i].sek_html_input == 'combo'}'combo'{else}'whitespace'{/if});
@@ -165,9 +165,9 @@ Use as many or as few criteria as you like <br />
                     <option {if $last_key.filter_type == "between"}selected{/if} value="between">Between</option>
                   </select>&nbsp;
                   {html_select_date field_array="search_keys[$temp_sek_id][start]" prefix="" start_year="-10" end_year="+10" all_extra='class="default"'}
-				 <script language="JavaScript" type="text/javascript" src="{$rel_url}js/dynCalendar.js"></script>
+				 <script type="text/javascript" src="{$rel_url}js/dynCalendar.js"></script>
                                   {literal}
-                  <script language="JavaScript" type="text/javascript">
+                  <script type="text/javascript">
                   <!--
                   tCalendar_search_keys{/literal}{$search_keys[i].sek_id}{literal} = new dynCalendar('tCalendar_search_keys{/literal}{$search_keys[i].sek_id}{literal}', 'calendarCallback_search_keys{/literal}{$search_keys[i].sek_id}{literal}', '{/literal}{$rel_url}{literal}images/');
                   tCalendar_search_keys{/literal}{$search_keys[i].sek_id}{literal}.setMonthCombo(false);
@@ -179,7 +179,7 @@ Use as many or as few criteria as you like <br />
                   <span class="default">{$search_keys[i].sek_title}: <i>(End date)</i></span><br />
                   {html_select_date field_array="search_keys[$temp_sek_id][end]" prefix="" start_year="-10" end_year="+10" all_extra='class="default"'}
                                   {literal}
-                  <script language="JavaScript" type="text/javascript">
+                  <script type="text/javascript">
                   <!--
                   tCalendar_search_keys_end{/literal}{$search_keys[i].sek_id}{literal} = new dynCalendar('tCalendar_search_keys_end{/literal}{$search_keys[i].sek_id}{literal}', 'calendarCallback_search_keys_end{/literal}{$search_keys[i].sek_id}{literal}', '{/literal}{$rel_url}{literal}images/');
                   tCalendar_search_keys_end{/literal}{$search_keys[i].sek_id}{literal}.setMonthCombo(false);
@@ -227,7 +227,7 @@ Use as many or as few criteria as you like <br />
 </div>
 
 {literal}
-<script language="JavaScript">
+<script type="text/javascript">
 <!--
 
 var f = getForm('custom_filter_form');

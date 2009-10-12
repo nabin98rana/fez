@@ -1,26 +1,21 @@
 {include file="banner.tpl.html"}
 
 {literal}
-<script language="JavaScript" type="text/javascript">
-<!--
-function setCurrentCollection()
-{
-  var features = 'width=420,height=200,top=30,left=30,resizable=no,scrollbars=yes,toolbar=no,location=no,menubar=no,status=no';
-  var projWin = window.open('', '_active_collection', features);
-  projWin.focus();
-  return true;
-}
-
-var basic_element = getPageElement('basic_filter_form' + '1');
-if (basic_element != null && !isElementVisible(basic_element)) {
+<script type="text/javascript">
+  <!--
+  function setCurrentCollection() {
+	var features = 'width=420,height=200,top=30,left=30,resizable=no,scrollbars=yes,toolbar=no,location=no,menubar=no,status=no';
+	var projWin = window.open('', '_active_collection', features);
+	projWin.focus();
+	return true;
+  }
+  
+  var basic_element = getPageElement('basic_filter_form' + '1');
+  if (basic_element != null && !isElementVisible(basic_element)) {
 	toggleVisibility('basic_filter_form');
-}
-//-->
+  }
+  -->
 </script>
 {/literal}
-
-<!-- End prefs bar -->
-
-{if $show_line != "no"}{/if}
 
 {include file="app_errors.tpl.html"}

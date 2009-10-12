@@ -1,16 +1,87 @@
+	</div>
+
+</div>
+
 <div id="footer">
-	<p>&copy 2008 <a title="{$smarty.const.APP_NAME}" href="{$rel_url}">{$smarty.const.APP_NAME}</a> &middot; <!--a href="privpolicy.php?subnav=privpolicy_1">Privacy Policy</a> &middot; <a href="{$rel_url}terms.php">Terms of use</a> &middot; -->Powered by <a title="Fez Wiki website"href="http://dev-repo.library.uq.edu.au/wiki/" target="_blank">Fez {$application_version} Software</a> &middot; <a href="{$rel_url}contact.php">Contact us</a>{if $isUser} &middot; <a href="{$rel_url}help.php?topic=main">Help</a>{/if}</p>
+
+	<div class="wrapper">
+		
+		<!--div id="siteinfo" class="vcard">
+			<div class="org fn"><a href="http://www.uq.edu.au/">The University of Queensland</a></div>
+			<address id="uq-address" class="adr"><span class="street-address">Brisbane</span>
+			<span class="locality">St Lucia</span>, <span class="region">QLD</span> <span class="postal-code">4072</span></address>
+			<div class="tel">+61 7 3365 1111</div>
+			<div class="campus">Other Campuses: <a href="http://www.uq.edu.au/ipswich/">UQ Ipswich</a>, <br /><a href="http://www.uq.edu.au/gatton/">UQ Gatton</a>, <a href="http://www.uq.edu.au/about/herston-campus">UQ Herston</a></div>
+			<div class="directions"><a href="http://www.uq.edu.au/maps/">Maps and Directions</a></div>
+			<div id="copyright" class="copyright">&copy; 2009 <a title="{$smarty.const.APP_NAME}" href="{$rel_url}">{$smarty.const.APP_NAME}</a></div>
+
+		</div>
+
+		<div id="footer-resources">
+			<h2>Supplemental Resources</h2>
+
+			<div id="navResources">
+			<h3>A Member of</h3>
+
+			<div class="member-logo">
+
+		    <a href="http://www.universitas21.com/"><img src="/images/2009/logo-universitas.gif" width="25" height="25" alt="Universitas 21" /></a> &nbsp;&nbsp;
+				<a href="http://www.go8.edu.au/"><img src="/images/2009/logo-go8.gif" width="123" height="18" alt="Group of 8" /></a>
+		</div>
+
+			<p><a href="http://www.uq.edu.au/terms-of-use/">Terms of use</a> | <a href="http://www.uq.edu.au/feedback/">Feedback</a></p><br />
+			<p>Authorised by: University Librarian</p>
+			<p>Maintained by: <a href="{$rel_url}contact.php">UQ Library</a></p>
+	    <p>ABN 63 942 912 684</p>
+	    <p>CRICOS Provider No:<a class="footerlinks"  href="http://www.uq.edu.au/about/cricos-link">00025B</a></p>
+			</div>
+
+			<div id="navQuick">
+			<h3>Quick Links</h3>
+
+			<ul>
+			<li><a href="http://www.uq.edu.au/news/">For Media</a></li>
+			<li><a href="http://www.uq.edu.au/contacts/">Emergency Contact</a></li>
+			</ul>
+			</div>
+
+			<div id="navSocial">
+			<h3>Social Media</h3>
+
+			<ul>
+			<li><a href="http://www.flickr.com/photos/uqnews/sets/">Flickr</a></li>
+			<li><a href="http://twitter.com/uqnewsonline">Twitter</a></li>
+			<li><a href="http://www.youtube.com/universityqueensland">YouTube Channel</a></li>
+			</ul>
+			</div>
+		</div>
+
+		<div id="footer-right">
+			<div id="navExplore">
+			<h3>Explore</h3>
+			<ul>
+			<li><a href="http://www.alumni.uq.edu.au/supporting-uq">Giving to UQ</a></li>
+			<li><a href="http://www.uq.edu.au/departments/">Faculties &amp; Divisions</a></li>
+			<li><a href="http://www.uq.edu.au/staff/">Jobs at UQ</a></li>
+			<li><a href="http://www.uq.edu.au/contacts/">Contact UQ</a></li>
+			<li><a href="http://www.uq.edu.au/services/">Services &amp; Facilities</a></li>
+			</ul>
+			</div>
+
+			<div id="navLogos">
+
+			<h3>Need Help?</h3>
+			<p><a href="http://www.uq.edu.au/uqanswers/" class="opacity-toggle"><img src="/images/2009/button-uqanswers.png" width="102" height="28" alt="UQ Answers" /></a></p>
+			<p class="centenary"><a href="http://www.uq.edu.au/centenary/" class="opacity-toggle"><img src="/images/2009/logo-centenary.png" width="102" height="69" alt="UQ Centenary" /></a></p>
+			</div>
+		</div-->
+
+		<div id="powered-by">Powered by <a title="Fez website" href="http://fez.library.uq.edu.au/" onclick="javascript:window.open('http://fez.library.uq.edu.au/'); return false;">Fez {$application_version} Software</a> &bull; <a href="{$rel_url}contact.php">Contact us</a>{if $isUser} &bull; <a href="{$rel_url}help.php?topic=main">Help</a>{/if}
 	
-	<div class="query_footer"><p>Page generated in <fez:totaltime>{$benchmark_total}</fez:totaltime> seconds 
-	{if $total_queries}({$total_queries} queries{if $total_elapsed_secs} taking {$total_elapsed_secs} seconds{/if}){/if} on {$generated_time}</p></div>
-	
-	<div id="omc">
-		<a href="http://www.uq.edu.au/terms-of-use/" target="_blank">Copyright</a> | <a href="http://www.uq.edu.au/terms-of-use/" target="_blank">Privacy</a> | <a href="http://www.uq.edu.au/terms-of-use/" target="_blank">Disclaimer</a><br />
-		&copy; 2008 The University of Queensland, Brisbane, Australia<br />
-		ABN 63 942 912 684, CRICOS Provider No: <a href="http://cricos.dest.gov.au/" target="_blank">00025B</a><br />
-		Authorised by: University Librarian<br />
-		Maintained by: UQ Library<br />
-		Updated daily
+			<div>Page generated in <!--fez:totaltime-->{$benchmark_total}<!--/fez:totaltime--> seconds {if $total_queries}({$total_queries} queries{if $total_elapsed_secs} taking {$total_elapsed_secs} seconds{/if}){/if} on {$generated_time}</div>
+		
+		</div>
+
 	</div>
 
 </div>

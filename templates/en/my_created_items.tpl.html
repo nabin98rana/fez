@@ -1,29 +1,27 @@
 {include file="js/my_fez.tpl.js"}
 
 
-<form name="custom_filter_form" action="my_created_items.php" method="get" onsubmit="javascript:return validateSearchForm();">
+<form action="my_created_items.php" method="get" onsubmit="javascript:return validateSearchForm();">
 {include file="quick_filter_form.tpl.html"}
 
-<div class="contentheader">Created Items <span class="default">(your deposited items you can list)</span></div>
+<div class="contentheader">Created Items (your deposited items you can list)</div>
 
-<span class="default">
+<div>
 {if $items_info.total_rows != 0}
 Showing items {math equation="x + 1" x=$items_info.current_row|default:0} 
 to {$items_info.current_last_row} of {$items_info.total_rows}
 {else}
 No items found
 {/if}
-</span>
-<br /><br />
+</div>
 
-       
 </form>
 <form name="assigned_records" method="post" action="{$rel_url}popup.php" target="_popup">     
 <input type="hidden" name="cat" value="delete_objects" />
 
    <table class="my_fez_table" width="100%" cellpadding="0">
      <tr>
-       <th width="10"><input type="button" value="All" onclick="javascript:toggleSelectAll(this.form, 'pids[]');" /></th>
+       <th width="10"><input type="button" value="All" onclick="javascript:toggleSelectAll(this.form, 'pids[]');" class="button" /></th>
        {if $options.searchKeycore_9 == "" || $options.searchKeycore_9 == "ALL" || $options.searchKeycore_9 == '-4'}     
        <th class="default tableheader" nowrap>
        {if $options.sort_order == "1"}
@@ -132,7 +130,7 @@ No items found
    {/section}
    
     {include file="my_fez_table_footer.tpl.html"}
-    
+
  </table>
 
  </form>

@@ -1,6 +1,6 @@
 {include file="js/list.tpl.js"}
 
-<script language="JavaScript" type="text/javascript" src="{$rel_url}js/listpage.js"></script>
+<script type="text/javascript" src="{$rel_url}js/listpage.js"></script>
 <center>
 
 <div style="margin: -30px 0px 0px 0px; width: 980px;">
@@ -9,9 +9,11 @@
 
 {include file="paging_control_header.tpl.html"}
 
-<input type="hidden" name="cat" value="assign" />
-<input type="hidden" name="href" value="{$smarty.server.REQUEST_URI|escape:'html'}" />
-<input type="hidden" name="xdis_id" value="" />
+<div>
+  <input type="hidden" name="cat" value="assign" />
+  <input type="hidden" name="href" value="{$smarty.server.REQUEST_URI|escape:'html'}" />
+  <input type="hidden" name="xdis_id" value="" />
+</div>
 
 <div class="default" > 
 

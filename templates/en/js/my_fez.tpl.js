@@ -1,4 +1,4 @@
-<script type="text/javascript" language="javascript">
+<script type="text/javascript">
 <!--
 var page_url = '{$page_url}';
 var last_page = {if $items_info.last_page != ""}{$items_info.last_page}{else}0{/if};
@@ -15,7 +15,7 @@ function checkDeleteRecords(f)
         var features = 'width=420,height=200,top=30,left=30,resizable=no,scrollbars=yes,toolbar=no,location=no,menubar=no,status=no';
         var popupWin = window.open('', '_popup', features);
         popupWin.focus();
-         return true;
+        return true;
     }
 }
 function checkPublishRecords(f)
@@ -33,7 +33,7 @@ function checkPublishRecords(f)
         var features = 'width=420,height=200,top=30,left=30,resizable=no,scrollbars=yes,toolbar=no,location=no,menubar=no,status=no';
         var popupWin = window.open('', '_popup', features);
         popupWin.focus();
-         return true;
+        return true;
     }
 }
 

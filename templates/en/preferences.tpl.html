@@ -2,7 +2,7 @@
 {include file="navigation.tpl.html"}
 
 {literal}
-<script language="JavaScript" type="text/javascript">
+<script type="text/javascript">
 <!--
 function validateName(f)
 {
@@ -40,29 +40,31 @@ function validateAccount(f)
 //-->
 </script>
 {/literal}
-<table width="99%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
-        {if $smarty.get.from != ""}
-        <tr>
-          <td align="center" class="error" bgcolor="{$cell_color}">
-            <b>
-            {if $smarty.get.from == "ldap_registration"}
-              Please check these details provided by the UQ central authentication systems <br />are correct and proceed to your <a href="{$rel_url}my_fez.php">My {$application_title}</a> area to
-			  indicate communities and collections you wish to join to deposit material.
-            {elseif $smarty.get.from == "new_registration"}
-              Please check these details you provided are correct and proceed to your <a href="{$rel_url}my_fez.php">My {$application_title}</a> area to
-			  indicate communities and collections you wish to join to deposit material.
-            {/if}
-            </b>
 
-          </td>
-        </tr>
-        {/if}
+<table style="width: 100%; background: {$cell_color};">
+	{if $smarty.get.from != ""}
+		<tr>
+		  <td align="center" class="error" bgcolor="{$cell_color}">
+			<b>
+			{if $smarty.get.from == "ldap_registration"}
+			  Please check these details provided by the UQ central authentication systems <br />are correct and proceed to your <a href="{$rel_url}my_fez.php">My {$application_title}</a> area to
+			  indicate communities and collections you wish to join to deposit material.
+			{elseif $smarty.get.from == "new_registration"}
+			  Please check these details you provided are correct and proceed to your <a href="{$rel_url}my_fez.php">My {$application_title}</a> area to
+			  indicate communities and collections you wish to join to deposit material.
+			{/if}
+			</b>
+		  </td>
+		</tr>
+	{/if}
   <tr>
     <td>
-	<form name="update_name_form" onsubmit="javascript:return validateName(this);" action="{$smarty.server.PHP_SELF}" method="post">
-	<input type="hidden" name="cat" value="update_name" />
-	  <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
-		<tr bgcolor="{$heading_color}">
+	<form onsubmit="javascript:return validateName(this);" action="{$smarty.server.PHP_SELF}" method="post">
+	<div>
+		<input type="hidden" name="cat" value="update_name" />
+	</div>
+	  <table style="width: 100%; background: white;">
+		<tr style="background: {$heading_color};">
 
           <td class="default_white" colspan="2">
             <b>User Details</b>
@@ -71,7 +73,7 @@ function validateAccount(f)
         </tr>
         {if $update_name_result}
         <tr>
-          <td colspan="2" class="error" bgcolor="{$cell_color}" align="center">
+          <td colspan="2" class="error" style="background: {$cell_color};">
             {if $update_name_result == -1}
             <b>An error occurred while trying to run your query.</b>
 
@@ -82,17 +84,17 @@ function validateAccount(f)
         </tr>
         {/if}
         <tr>
-          <td width="250" bgcolor="{$cell_color}" class="default">
+          <td style="width: 250px; background: {$cell_color};">
             <b>Full Name:</b>
 
           </td>
-          <td bgcolor="{$light_color}">
+          <td style="background: {$light_color}">
             <input type="text" name="full_name" size="40" class="default" value="{$current_full_name}" />
             {include file="error_icon.tpl.html" field="full_name"}
           </td>
         </tr>
         <tr>
-          <td colspan="2" bgcolor="{$cell_color}" align="center">
+          <td colspan="2" style="background: {$cell_color}; text-align: center;">
             <input class="button" type="submit" value="Update Full Name" />
 
             <input class="button" type="reset" value="Reset" />
@@ -101,34 +103,34 @@ function validateAccount(f)
 	  </table>
     </form>
 
-	<form name="update_email_form" onsubmit="javascript:return validateEmail(this);" action="{$smarty.server.PHP_SELF}" method="post">
-	<input type="hidden" name="cat" value="update_email" />
-	  <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
-
+	<form onsubmit="javascript:return validateEmail(this);" action="{$smarty.server.PHP_SELF}" method="post">
+	<div>
+		<input type="hidden" name="cat" value="update_email" />
+	</div>
+	  <table style="width: 100%; background: white;">
         {if $update_email_result}
-        <tr>
-          <td colspan="2" class="error" bgcolor="{$cell_color}" align="center">
-            {if $update_email_result == -1}
-            <b>An error occurred while trying to run your query.</b>
-            {elseif $update_email_result == 1}
-            <b>Thank you, your email address was updated successfully.</b>
-            {/if}
-          </td>
-        </tr>
-
+			<tr>
+			  <td colspan="2" class="error" style="background: {$cell_color};" align="center">
+				{if $update_email_result == -1}
+				<b>An error occurred while trying to run your query.</b>
+				{elseif $update_email_result == 1}
+				<b>Thank you, your email address was updated successfully.</b>
+				{/if}
+			  </td>
+			</tr>
         {/if}
         <tr>
-          <td width="250" bgcolor="{$cell_color}" class="default">
+          <td style="width: 250px; background: {$cell_color};">
             <b>Email Address:</b>
           </td>
-          <td bgcolor="{$light_color}">
+          <td style="background: {$light_color};">
             <input type="text" name="email" size="40" class="default" value="{$current_email}" />
             {include file="error_icon.tpl.html" field="email"}
           </td>
 
         </tr>	
         <tr>
-          <td colspan="2" bgcolor="{$cell_color}" align="center">
+          <td colspan="2" style="background: {$cell_color}; text-align: center;">
             <input class="button" type="submit" value="Update Email Address" />
             <input class="button" type="reset" value="Reset" />
           </td>
@@ -138,7 +140,7 @@ function validateAccount(f)
 {if $isAuthor == 1}
 	<form name="update_mypub_url_form" onsubmit="javascript:return validateMyPubURL(this);" action="{$smarty.server.PHP_SELF}" method="post">
 	<input type="hidden" name="cat" value="update_mypub_url" />
-	  <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+	  <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2">
 	    <tr>
 	      <td width="250" bgcolor="{$cell_color}" class="default">
 	        <b>Author My Publications URL:</b><br />(lowercase, a-z and underscore characters only, and less than 100 characters)
@@ -150,7 +152,7 @@ function validateAccount(f)
 	    </tr>
         {if $update_mypub_url_result == '-2'}
         <tr>
-          <td colspan="2" class="error" bgcolor="{$cell_color}" align="center">
+          <td colspan="2" class="error" style="background: {$cell_color};" align="center">
             {if $update_mypub_url_result == '-1'}
             <b>An error occurred while trying to run your query. Your My Publications URL must be lowercase, a-z and underscores only, and less than 100 characters</b>
             {elseif $update_mypub_url_result == '-2'}
@@ -170,12 +172,14 @@ function validateAccount(f)
     </form>
 {/if}
 	{if $local_db_user == 1}
-	<form name="update_name_form" onsubmit="javascript:return validateName(this);" action="{$smarty.server.PHP_SELF}" method="post">
-	<input type="hidden" name="cat" value="update_password" />
-	  <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+	<form onsubmit="javascript:return validateName(this);" action="{$smarty.server.PHP_SELF}" method="post">
+		<div>
+			<input type="hidden" name="cat" value="update_password" />
+		</div>
+	  <table style="width: 100%; background: white;">
         {if $update_password_result}
         <tr>
-          <td colspan="2" class="error" bgcolor="{$cell_color}" align="center">
+          <td colspan="2" class="error" style="background: {$cell_color};" align="center">
             {if $update_password_result == -1}
             <b>An error occurred while trying to run your query.</b>
 			{elseif $update_password_result == -2}
@@ -189,26 +193,25 @@ function validateAccount(f)
         </tr>
         {/if}
         <tr>
-          <td width="190" bgcolor="{$cell_color}" class="default">
+          <td style="width: 190px; background: {$cell_color}">
             <b>New Password:</b>
           </td>
-          <td bgcolor="{$light_color}">
+          <td style="background: {$light_color};">
             <input type="password" name="new_password" size="40" class="default" value="" />
             {include file="error_icon.tpl.html" field="new_password"}
           </td>
         </tr>
         <tr>
-          <td width="190" bgcolor="{$cell_color}" class="default">
+          <td style="width: 190px; background: {$cell_color}">
             <b>Confirm Password:</b>
           </td>
-          <td bgcolor="{$light_color}">
-
+          <td style="background: {$light_color};">
             <input type="password" name="confirm_password" size="40" class="default" value="" />
             {include file="error_icon.tpl.html" field="confirm_password"}
           </td>
         </tr>
         <tr>
-          <td colspan="2" bgcolor="{$cell_color}" align="center">
+          <td colspan="2" style="background: {$cell_color}; text-align: center;">
             <input class="button" type="submit" value="Update Password" />
             <input class="button" type="reset" value="Reset" />
           </td>
@@ -221,14 +224,16 @@ function validateAccount(f)
   </tr>
 </table>
 <br />
-<table width="99%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
+<table style="width: 100%; background: {$cell_color};">
   <tr>
     <td>
 
-	  <form name="account_prefs_form" onsubmit="javascript:return validateAccount(this);" action="{$smarty.server.PHP_SELF}" method="post" enctype="multipart/form-data">
+	  <form onsubmit="javascript:return validateAccount(this);" action="{$smarty.server.PHP_SELF}" method="post" enctype="multipart/form-data">
+		<div>
       <input type="hidden" name="cat" value="update_account" />
-      <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
-        <tr bgcolor="{$heading_color}">
+		</div>
+      <table style="width: 100%; background: white;">
+        <tr style="background: {$heading_color};">
           <td class="default_white" colspan="2">
             <b>Account Preferences</b>
             {include file="help_link.tpl.html" topic="preferences"}
@@ -237,7 +242,7 @@ function validateAccount(f)
 
         {if $update_account_result}
         <tr>
-          <td colspan="2" class="error" bgcolor="{$cell_color}" align="center">
+          <td colspan="2" class="error" style="background: {$cell_color};" align="center">
             {if $update_account_result == -1}
             <b>An error occurred while trying to run your query.</b>
             {elseif $update_account_result == 1}
@@ -248,10 +253,10 @@ function validateAccount(f)
 
         {/if}
         <tr>
-          <td width="190" bgcolor="{$cell_color}" class="default">
+          <td style="width: 190px; background: {$cell_color};">
             <b>Timezone:</b>
           </td>
-          <td bgcolor="{$light_color}">
+          <td style="background: {$light_color};">
             <select class="default" name="timezone">
               {html_options values=$zones output=$zones selected=$user_prefs.timezone}
             </select>
@@ -260,30 +265,30 @@ function validateAccount(f)
           </td>
         </tr>
         <tr>
-          <td width="190" bgcolor="{$cell_color}" class="default">
+          <td style="width: 190px; background: {$cell_color};">
             <b>Front Page Style:</b>
           </td>
-          <td bgcolor="{$light_color}">
+          <td style="background: {$light_color};">
             <select class="default" name="front_page">
               {html_options options=$front_pages selected=$user_prefs.front_page}
             </select>
           </td>
         </tr>
         <tr>
-          <td width="190" bgcolor="{$cell_color}" class="default">
+          <td style="width: 190px; background: {$cell_color};">
             <b>Remember search parameters:</b>
           </td>
-          <td bgcolor="{$light_color}">
+          <td style="background: $light_color};">
             <select class="default" name="remember_search_params">
-				<option label="No" value="no" {if $user_prefs.remember_search_params == 'no'}selected{/if}>No</option>
-				<option label="Yes" value="yes" {if $user_prefs.remember_search_params == 'yes'}selected{/if}>Yes</option>
+				<option label="No" value="no" {if $user_prefs.remember_search_params == 'no'}selected="selected"{/if}>No</option>
+				<option label="Yes" value="yes" {if $user_prefs.remember_search_params == 'yes'}selected="selected"{/if}>Yes</option>
             </select>
 			  <br />
 			  <span style="font-size: 10px;">Remember your search parameters each time you go to the search form.</span>
           </td>
         </tr>
         <tr>
-          <td colspan="2" bgcolor="{$cell_color}" align="center">
+          <td colspan="2" style="background: {$cell_color}; text-align: center;">
             <input class="button" type="submit" value="Update Preferences" />
             <input class="button" type="reset" value="Reset" />
           </td>
@@ -295,10 +300,10 @@ function validateAccount(f)
 </table>
 {if $SHIB_SWITCH == "ON"}
 <br />
-<table width="99%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
+<table style="width: 100%; background: {$cell_color};">
   <tr>
     <td>
-      <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+      <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2">
 
         <tr bgcolor="{$heading_color}">
           <td class="default_white" colspan="2">

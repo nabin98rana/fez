@@ -2,7 +2,7 @@
 {include file="navigation.tpl.html"}
 
 {literal}
-<script language="JavaScript" type="text/javascript">
+<script type="text/javascript">
 <!--
 function purgeObject(pid)
 {
@@ -23,7 +23,7 @@ if (!isElementVisible(basic_element)) {
 
 <div id="my-fez-container">
     
-    <p class="default"><a href="{$rel_url}workflow/new.php?href={$smarty.server.REQUEST_URI}"><img src="{$rel_url}images/new_22.png" width="22" height="22" border="0" alt="Create" /> Create</a></p>
+    <p class="default"><a href="{$rel_url}workflow/new.php?href={$smarty.server.REQUEST_URI}"><img src="{$rel_url}images/new_22.png" width="22" height="22" alt="Create" /> Create</a></p>
     
     <ul class="my_views_tab">
         <li><a {if $smarty.server.PHP_SELF|replace:$rel_url:'' == 'my_collections.php'}class="my_views_tab_here" {/if}href="{$rel_url}my_collections.php" title="See the complete list of collections you have access to.">My Collections</a></li>
@@ -41,7 +41,7 @@ if (!isElementVisible(basic_element)) {
 
 
 		{literal}
-		<script language="JavaScript" type="text/javascript">
+		<script type="text/javascript">
 		<!--
 		var custom_filter = getPageElement('custom_filter_form' + '1');
 		if (!isElementVisible(custom_filter)) {

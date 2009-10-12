@@ -1,0 +1,41 @@
+/* IE 6 Bug Fixes
+-----------------------------------------------------------------------------*/
+
+
+/* Top menu fix
+-----------------------------------------------------------------------------*/
+#mininav { margin: 0pt; padding: 10px 5px 8px 0; }
+
+#topnav ul li { margin: 0 28px 5px 0; padding: 0 0 0 0; float: left; display: inline; }
+#topnav li a:hover { color: rgb(245, 225, 255); text-decoration: underline;  background: rgb(0, 0, 0); }
+
+/* Slide fix - remove arrows
+-----------------------------------------------------------------------------*/
+.stripNavL, .stripNavR, .stripNav {display: none;} 
+
+#events, #news, #ads, #fav { margin: 5px 0 0 0; }
+
+
+/* Accodian menu fix
+-----------------------------------------------------------------------------*/
+#accordian {overflow: auto;}
+
+ul.favsection span.rank { margin: 10px 2px 0pt 0pt; font-family: georgia; font-style: normal; font-variant: normal; font-weight: normal; font-size: 20px; line-height: normal; font-size-adjust: none; font-stretch: normal; -x-system-font: none; color: rgb(150, 216, 1); float: left; width: 30px; text-align: center; }
+ul.favsection div.link { padding: 0 0 8px 0; margin: 0; line-height: normal; font-size-adjust: none; font-stretch: normal; -x-system-font: none;  }
+
+/* Footer fix
+-----------------------------------------------------------------------------*/
+#footer { clear: both; min-height: 140px; height: 220px ! important; margin-top: 10px; }
+
+#navResources, #navSocial { float: left; }
+#navResources { padding: 0 20px 0 20px; width: 44%; }
+#navSocial { padding: 0 0 10px 0; width: 40%; }
+#navQuick { padding: 0 0 10px 0; width: 40%; }
+
+#siteinfo .campus { clear:both; }
+#siteinfo .directions { clear:both; }
+
+#faq { padding: 0 0 0 15px; margin: 0; float: left; width: 310px; background: transparent url('../images/2009/footer-device.gif') no-repeat scroll 10px -1px ! important; }
+
+#footer-resources li { margin: 0px; padding: 0 0 0 12px; background: transparent url('../images/2009/arrow.png') no-repeat scroll  0px 2px; }
+

@@ -1,5 +1,5 @@
 {literal}
-<script language="JavaScript">
+<script type="text/javascript">
 <!--
 var page_url = '{/literal}{$smarty.server.PHP_SELF}{literal}';
 var current_page = {/literal}{if $list_info.current_page != ""}{$list_info.current_page}{else}0{/if}{literal};
@@ -149,11 +149,11 @@ function disableFields()
 
 			{section name="i" loop=$list}
 				  <tr class="listrecord">
-					<td align="right" width="10" style="border-top:1px dashed #87ABE9;">{$smarty.section.i.index+1}</td>
-					<td align="left" style="border-top:1px dashed #87ABE9;">
+					<td align="right" width="10" style="border-top:1px dashed #be87e9;">{$smarty.section.i.index+1}</td>
+					<td align="left" style="border-top:1px dashed #be87e9;">
 					  <a class="author_id_link" href="{$rel_url}list/author_id/{$list[i].sau_author_id|escape:'url'}/?sort_by=searchKeycore_16&amp;sort_order=1" title="Browse by Author ID for {$list[i].sau_author_name} ({$list[i].sau_author_id}) by File Downloads Desc">{$list[i].sau_author_name|escape:"html"}</a> 
 					</td>
-					<td align="right" style="border-top:1px dashed #87ABE9;" nowrap>(<strong>{$list[i].sau_downloads|escape:"html"}</strong> File Download{if $list[i].sau_downloads > 1}s{/if})</td>
+					<td align="right" style="border-top:1px dashed #be87e9;" nowrap>(<strong>{$list[i].sau_downloads|escape:"html"}</strong> File Download{if $list[i].sau_downloads > 1}s{/if})</td>
 				  </tr>
 
 			{sectionelse}
@@ -189,12 +189,12 @@ function disableFields()
 			{if $list[i].downloads > 0}
 				
 				  <tr>
-						<td align="right" width="10" valign="top" style="border-top:1px dashed #87ABE9;"><strong>{$smarty.section.i.index+1}</strong></td>
-					  <td align="left" style="border-top:1px dashed #87ABE9;">
+						<td align="right" width="10" valign="top" style="border-top:1px dashed #be87e9;"><strong>{$smarty.section.i.index+1}</strong></td>
+					  <td align="left" style="border-top:1px dashed #be87e9;">
 							<a href='{$rel_url}view/{$list[i].pid}'>{$list[i].citation}</a> 
 
 						</td>
-						<td align="right" valign="top" width="" style="border-top:1px dashed #87ABE9;" nowrap>&nbsp;{if $list[i].downloads}<a class="author_link" title="View detailed statistics for this object" href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].pid}">{$list[i].downloads|escape:"html"}</a>{/if} </td>
+						<td align="right" valign="top" width="" style="border-top:1px dashed #be87e9;" nowrap>&nbsp;{if $list[i].downloads}<a class="author_link" title="View detailed statistics for this object" href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].pid}">{$list[i].downloads|escape:"html"}</a>{/if} </td>
 			{/if}
 			{sectionelse}
 			<tr>
@@ -234,11 +234,11 @@ function disableFields()
 			{if $list[i].spa_downloads > 0}
 				
 				  <tr>
-					<td align="right" width="10" valign='top' style="border-top:1px dashed #87ABE9;"><strong>{$smarty.section.i.index+1}</strong></td>
-					<td align="left" style="border-top:1px dashed #87ABE9;">
+					<td align="right" width="10" valign='top' style="border-top:1px dashed #be87e9;"><strong>{$smarty.section.i.index+1}</strong></td>
+					<td align="left" style="border-top:1px dashed #be87e9;">
 					  <a href='{$rel_url}view/{$list[i].rek_pid}'>{$list[i].spa_citation}</a>
 					</td>
-					<td align="right" valign="top" width="" style="border-top:1px dashed #87ABE9;" nowrap>{if $list[i].spa_downloads}<a class="author_link" title="View detailed statistics for this object" href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].spa_pid}">{$list[i].spa_downloads|escape:"html"}</a>{/if}
+					<td align="right" valign="top" width="" style="border-top:1px dashed #be87e9;" nowrap>{if $list[i].spa_downloads}<a class="author_link" title="View detailed statistics for this object" href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].spa_pid}">{$list[i].spa_downloads|escape:"html"}</a>{/if}
 					</td>
 			{/if}
 			{sectionelse}
@@ -272,7 +272,7 @@ function disableFields()
 				  <td>
 				  <table width="100%" cellpadding="5" cellspacing="5" class="listrecord">
 				  <tr>
-					  <td style="border-top:1px dashed #87ABE9;">
+					  <td style="border-top:1px dashed #be87e9;">
 							<a href='{$rel_url}list/author/{$list[i].record_author|escape:'url'}/'>{$list[i].record_author|escape:"html"}</a> ({$list[i].record_count|escape:"html"})
 						</td>
 					</tr>
@@ -307,7 +307,7 @@ function disableFields()
 				  <td>
 				  <table width="100%" cellpadding="5" cellspacing="5" class="listrecord">
 				  <tr>
-					  <td style="border-top:1px dashed #87ABE9;">
+					  <td style="border-top:1px dashed #be87e9;">
 							<a href='{$rel_url}list/year/{$list[i].record_year}/'>{$list[i].record_year|escape:"html"}</a> ({$list[i].record_count|escape:"html"})
 
 						</td>

@@ -1,71 +1,8 @@
 {include file="header.tpl.html" extra_title="Home"}
 {include file="navigation.tpl.html"}
-<link rel="stylesheet" href="{$rel_url}css/front_css.php" type="text/css" />
+<!--link rel="stylesheet" href="{$rel_url}css/front_css.php" type="text/css" /-->
 
 {literal}
-<script language="JavaScript" type="text/javascript">
-<!--
-{/literal}{$najax_register}
-var page_url = '{$rel_url}';
-{literal}
-function purgeObject(pid)
-{
-    if (!confirm('This action will permanently delete the selected object.')) {
-        return false;
-    } else {
-        window.location.replace('{/literal}{$rel_url}workflow/delete.php?pid=' + pid + '&href={$smarty.server.REQUEST_URI}{literal}');
-        return true;
-    }
-}
-var dt1_load_state = 0;
-function showLoading1()
-{
-	document.body.style.cursor = 'wait';
-	document.getElementById('loading1').style.display = 'block';
-}
-
-function hideLoading1()
-{
-	document.body.style.cursor = '';
-	document.getElementById('loading1').style.display = 'none';
-}
-
-function selectSearchSuggestor(f, field_name)
-{
-
-	if (dt1_load_state > 0) {
-	   return false;
-	}
-	var field = getFormElement(f, field_name);
-	/*var selections = getSelectedItems(field);*/
-	if (field.value != '') {
-		dt1_load_state++;
-
-		showLoading1();
-		var obj = new Suggestor();
-		obj.ongetSuggestionError = function() {
-			removeAllOptions(f, 'front_search');
-			hideLoading1();
-			dt1_load_state = dt1_load_state - 1;
-		}
-		obj.setTimeout(10000);
-
-		obj.getSuggestion(field, function(dt_list) {
-				removeAllOptions(f, 'front_search');
-				addOptions(f, 'front_search', dt_list);
-				hideLoading1();
-				/*autoComplete(field, dt_list);*/
-				dt1_load_state = dt1_load_state - 1;
-				});
-	}
-}
-var basic_element = getPageElement('basic_filter_form' + '1');
-if (isElementVisible(basic_element)) {
-	toggleVisibility('basic_filter_form');
-}
-
--->
-</script>
 
 <script type="text/javascript" src="{/literal}{$rel_url}{literal}min.php/tabs.js">
 /***********************************************
@@ -75,48 +12,10 @@ if (isElementVisible(basic_element)) {
 ***********************************************/
 </script>
 
-<body onLoad="self.focus();document.search_frm.front_search.focus()">
+<!--body onLoad="self.focus();document.search_frm.front_search.focus()"-->
 <!--a name="top"></a-->
 
-
-<script language="JavaScript" type="text/javascript">
-<!--
-function setCurrentCollection()
-{
-  var features = 'width=420,height=200,top=30,left=30,resizable=no,scrollbars=yes,toolbar=no,location=no,menubar=no,status=no';
-  var projWin = window.open('', '_active_collection', features);
-  projWin.focus();
-  return true;
-}
-//-->
-</script>
-
-
 {/literal}
-
-<script language="JavaScript" type="text/javascript">
-<!--
-
-{literal}
-Suggestor=function(){return {"class_name":"","include_name":"","show_all":true,"method":"suggest","__meta":{"class_name":"string","include_name":"string","show_all":"bool","method":"string"},"__size":4,"__class":"Suggestor","__url":"index.php","__uid":"c687d7f30f7be5fb1e0300ab6ad70eac","__output":null,"__timeout":null,"__clone":function(obj){najax.clone(this, obj)},"__serialize":function(){return najax.serialize(this)},"catchEvent":function(){return najax.catchEvent(this, arguments)},"ignoreEvent":function(){return najax.ignoreEvent(this, arguments)},"postEvent":function(){return najax.postEvent(this, arguments)},"fetchOutput":function(){return this.__output},"setTimeout":function(miliseconds){this.__timeout = miliseconds},"getTimeout":function(){return this.__timeout},"clearTimeout":function(){this.__timeout = null},"getSuggestion":function(){return najax.call(this,"getSuggestion",arguments)}}}
-
-Session=function(){return {"__meta":null,"__size":0,"__class":"Session","__url":"\/ajax.php","__uid":"885d92c15d6b35176c39a0fd00f680bc","__output":null,"__timeout":null,"__clone":function(obj){najax.clone(this, obj)},"__serialize":function(){return najax.serialize(this)},"catchEvent":function(){return najax.catchEvent(this, arguments)},"ignoreEvent":function(){return najax.ignoreEvent(this, arguments)},"postEvent":function(){return najax.postEvent(this, arguments)},"fetchOutput":function(){return this.__output},"setTimeout":function(miliseconds){this.__timeout = miliseconds},"getTimeout":function(){return this.__timeout},"clearTimeout":function(){this.__timeout = null},"setSession":function(){return najax.call(this,"setSession",arguments)},"getSession":function(){return najax.call(this,"getSession",arguments)},"setMessage":function(){return najax.call(this,"setMessage",arguments)},"clearMessage":function(){return najax.call(this,"clearMessage",arguments)},"getMessage":function(){return najax.call(this,"getMessage",arguments)}}}
-
-var page_url = '/';
-
-function purgeObject(pid)
-{
-    if (!confirm('This action will permanently delete the selected object.')) {
-        return false;
-    } else {
-        window.location.replace('/workflow/delete.php?pid=' + pid + '&href=/');
-        return true;
-    }
-}
-var dt1_load_state = 0;
-{/literal}
--->
-</script>
 
 	<div id="container">
 		
@@ -132,27 +31,29 @@ var dt1_load_state = 0;
 
 			<div id="search-box">
 				<div id="searchbox-content">
-					<form name="search_frm" target="_top" method="get" action="{$rel_url}list/">
-						<input type="hidden" name="cat" value="quick_filter" />
-						<label for="search" accesskey="3"><strong>Quick Search {$smarty.const.APP_NAME}</strong> <a href="#" class="icon-help"><img src="{$rel_url}images/icons/help.png" style="vertical-align:bottom;" alt="Help on Searching" title="Help on searching" onclick="javascript:alert( 'Search Title, Abstract, Keywords:\n\n Enter a phrase.  Objects where any field contains the phrase will be returned.\n This is a case-insensitive search, and you may use the * or ? wildcards.\n\n Examples:\n\n li*y\n finds objects that start with li and end with y\n\n b?ts\n finds words that start with b followed by any letter and then ts.  e.g. bits, bats, byts')" /></a></label>
-						<input type="hidden" name="sort_by" value="searchKey0" />
-						<input type="text" id="front_search" name="search_keys[0]" size="40" autocomplete="off" />
-						<div id="loading1" style="display:none;">Loading...</div>
-						<input type="submit" value="Search" id="submit-button" />
+					<form method="get" action="{$rel_url}list/">
+						<div>
+							<input type="hidden" name="cat" value="quick_filter" />
+							<label for="search" accesskey="3"><strong>Quick Search {$smarty.const.APP_NAME}</strong> <a href="#" class="icon-help"><img src="{$rel_url}images/icons/help.png" style="vertical-align:bottom;" alt="Help on Searching" title="Help on searching" onclick="javascript:alert( 'Search Title, Abstract, Keywords:\n\n Enter a phrase.  Objects where any field contains the phrase will be returned.\n This is a case-insensitive search, and you may use the * or ? wildcards.\n\n Examples:\n\n li*y\n finds objects that start with li and end with y\n\n b?ts\n finds words that start with b followed by any letter and then ts.  e.g. bits, bats, byts')" /></a></label>
+							<input type="hidden" name="sort_by" value="searchKey0" />
+							<input type="text" id="front_search" name="search_keys[0]" size="40" />
+							<div id="loading1" style="display:none;">Loading...</div>
+							<input type="submit" value="Search" id="submit-button" />
+						</div>
 				</form>
 				<p class="advanced-search-link">Use <a title="Advanced Search" href="{$rel_url}adv_search.php">Advanced Search</a> to search by multiple criteria.</p>
 				</div>
 			</div>
 
-			<div id="news-box">
-			<p><strong>Did you know that</strong> you can customize your {$smarty.const.APP_NAME} RSS feeds by multiple search criteria?</p><p><!--a href="javascript:window.alert('BW to write some content');">Show me how</a> | --><a href="http://www.google.com.au/search?hl=en&amp;q=What+is+RSS%3F&amp;btnG=Google+Search&amp;meta=" target="_blank">What is RSS?</a></p>
+			<div id="news-box1">
+			<p><strong>Did you know that</strong> you can customize your {$smarty.const.APP_NAME} RSS feeds by multiple search criteria?</p><p><a href="http://www.google.com.au/search?hl=en&amp;q=What+is+RSS%3F&amp;btnG=Google+Search&amp;meta=" onclick="javascript: window.open('http://www.google.com.au/search?hl=en&amp;q=What+is+RSS%3F&amp;btnG=Google+Search&amp;meta='); return false;">What is RSS?</a></p>
 			</div>
 
-			<div id="news-box">
+			<div id="news-box2">
 			<p><br /><strong>Our open repository</strong> content is indexed by:</p>
-			<p><a href="http://oaister.umdl.umich.edu/o/oaister" target="_blank"><img src="{$rel_url}images/logo_oaister.gif" alt="OAIster - University of Michigan Digital Library Production Services" title="OAIster - University of Michigan Digital Library Production Services" border="0" /></a> &nbsp; 
-			<a href="http://search.arrow.edu.au/" target="_blank"><img src="{$rel_url}images/logo_arrow.gif" alt="ARROW - National Library of Australia's resource discovery service" title="ARROW - National Library of Australia's resource discovery service" border="0" /></a> &nbsp; 
-			<a href="http://scholar.google.com/" target="_blank"><img src="{$rel_url}images/logo_google_scholar.jpg" alt="Google Scholar - broadly search for scholarly literature" title="Google Scholar - broadly search for scholarly literature" border="0" /></a></p>
+			<p><a href="http://oaister.umdl.umich.edu/o/oaister" onclick="javascript: window.open('http://oaister.umdl.umich.edu/o/oaister'); return false;"><img src="{$rel_url}images/logo_oaister.gif" alt="OAIster - University of Michigan Digital Library Production Services" title="OAIster - University of Michigan Digital Library Production Services" /></a> &nbsp; 
+			<a href="http://search.arrow.edu.au/" onclick="javascript: window.open('http://search.arrow.edu.au/'); return false;"><img src="{$rel_url}images/logo_arrow.gif" alt="ARROW - National Library of Australia's resource discovery service" title="ARROW - National Library of Australia's resource discovery service" /></a> &nbsp; 
+			<a href="http://scholar.google.com/" onclick="javascript: window.open('http://scholar.google.com/'); return false;"><img src="{$rel_url}images/logo_google_scholar.jpg" alt="Google Scholar - broadly search for scholarly literature" title="Google Scholar - broadly search for scholarly literature" /></a></p>
 			</div>
 
 		</div>
@@ -169,7 +70,7 @@ var dt1_load_state = 0;
 			<div id="snapshotcontainer">
 				<ul style="list-style-type: square">
 				{section name="i" loop=$news}
-				<li><a href="news.php#{$news[i].nws_id}">{$news[i].nws_title}</a></li><br />
+				<li><a href="news.php#x{$news[i].nws_id}">{$news[i].nws_title}</a></li>
 				{/section}
 				<li  style="list-style-type: none"><!--img src="{$rel_url}images/feed-icon16x16.png" alt="RSS" width="14" height="14" /--><a href="news.php?show=rss">RSS</a> | <a href="news.php">More...</a></li>
 				</ul>
@@ -178,23 +79,11 @@ var dt1_load_state = 0;
 
 		</div>
 
-
-		
-
 		<div id="browse-box" class="boxes"></div>
 		
 	</div>
 	
 	</div>
-
-	</div>
-
-	</div>
-
-	  </script>
-	</td>
-
-</tr>
 
 <script type="text/javascript">
 var countries=new ddajaxtabs("snapshottabs", "snapshotcontainer")
@@ -202,7 +91,5 @@ countries.setpersist(true)
 countries.setselectedClassTarget("linkparent") //"link" or "linkparent"
 countries.init()
 </script>
-
-<!-- ****************************** page content ends here ****************************** -->
 
 {include file="app_info.tpl.html"}{include file="footer.tpl.html"}

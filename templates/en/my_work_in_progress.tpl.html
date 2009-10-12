@@ -5,7 +5,7 @@
 Work In Progress <span class="default">(unpublished items you can edit)</span>
 
 </div>
-<span class="default">
+<span>
 {if $items_info.total_rows != 0}
 Showing items {math equation="x + 1" x=$items_info.current_row} 
 to {$items_info.current_last_row} of {$items_info.total_rows}
@@ -13,31 +13,32 @@ to {$items_info.current_last_row} of {$items_info.total_rows}
 No items found
 {/if}
 </span>
-<br />
-<br />
-</form>
-<form name="assigned_records" method="post" action="{$rel_url}popup.php" target="_popup">     
-<input type="hidden" name="cat" value="delete_objects" />
+
+<form id="assigned_records" method="post" action="{$rel_url}popup.php">
+  <div>
+    <input type="hidden" name="cat" value="delete_objects" />
+    <input type="hidden" name="href" value="/my_fez.php" />
+  </div>
 
    <table class="my_fez_table" width="100%" cellpadding="0">
      <tr>
-       <th width="10"><input type="button" value="All" onclick="javascript:toggleSelectAll(this.form, 'pids[]');" /></th>
+       <th style="width: 10px;"><input type="button" value="All" onclick="javascript:toggleSelectAll(this.form, 'pids[]');" /></th>
        
        {if $options.searchKeycore_8 == ""}
-       <th class="default tableheader" nowrap valign="middle">
+       <th class="default tableheader" style="white-space: nowrap;" valign="middle">
        {if $options.sort_order == "1"}
-       <a href='{$page_url_order}&sort_by=searchKeycore_8&sort_order=0'>Collection{if $options.sort_by == "searchKeycore_8"}<img border="0" title="click to sort by Collection Ascending" src="{$rel_url}images/sort_asc_off_16.gif" align="middle">{/if}</a>
+       <a href='{$page_url_order}&amp;sort_by=searchKeycore_8&amp;sort_order=0'>Collection{if $options.sort_by == "searchKeycore_8"}<img border="0" title="click to sort by Collection Ascending" src="{$rel_url}images/sort_asc_off_16.gif" align="middle">{/if}</a>
        {else}
-       <a href='{$page_url_order}&sort_by=searchKeycore_8&sort_order=1'>Collection{if $options.sort_by == "searchKeycore_8"}<img border="0" title="click to sort by Collection Descending"  src="{$rel_url}images/sort_desc_off_16.gif" align="middle">{/if}</a>
+       <a href='{$page_url_order}&amp;sort_by=searchKeycore_8&amp;sort_order=1'>Collection{if $options.sort_by == "searchKeycore_8"}<img border="0" title="click to sort by Collection Descending"  src="{$rel_url}images/sort_desc_off_16.gif" align="middle">{/if}</a>
        {/if}
-       </td>
+       </th>
        {/if}
        
        <th class="default tableheader" valign="middle">
        {if $options.sort_order == "1"}
-       <a href='{$page_url_order}&sort_by=searchKeycore_2&sort_order=0'>Title{if $options.sort_by == "searchKeycore_2"}<img border="0" title="click to sort by Title Ascending" src="{$rel_url}images/sort_asc_off_16.gif" align="middle">{/if}</a>
+       <a href='{$page_url_order}&amp;sort_by=searchKeycore_2&amp;sort_order=0'>Title{if $options.sort_by == "searchKeycore_2"}<img border="0" title="click to sort by Title Ascending" src="{$rel_url}images/sort_asc_off_16.gif" align="middle">{/if}</a>
        {else}
-       <a href='{$page_url_order}&sort_by=searchKeycore_2&sort_order=1'>Title{if $options.sort_by == "searchKeycore_2"}<img border="0" title="click to sort by Title Descending"  src="{$rel_url}images/sort_desc_off_16.gif" align="middle">{/if}</a>
+       <a href='{$page_url_order}&amp;sort_by=searchKeycore_2&amp;sort_order=1'>Title{if $options.sort_by == "searchKeycore_2"}<img border="0" title="click to sort by Title Descending"  src="{$rel_url}images/sort_desc_off_16.gif" align="middle">{/if}</a>
        {/if}
        </th>
        <th>
@@ -45,8 +46,6 @@ No items found
        </th>           
      </tr>
 
-
-<input type="hidden" name="href" value="/my_fez.php" />
 {assign var="list" value=$my_assigned_items_list}
      {section name="i" loop=$list}
         {if $list[i].thumbnail.0 != ""}
@@ -56,14 +55,14 @@ No items found
         {/if}
          {cycle values=$cycle assign="row_color"}
      <tr>
-       <td width="10" class="default"><input type="checkbox" name="pids[]" value="{$list[i].rek_pid}" /></td>
+       <td style="width: 10px;" class="default"><input type="checkbox" name="pids[]" value="{$list[i].rek_pid}" /></td>
         
        <td class="default">
         {section name="m" loop=$list[i].rek_ismemberof.rek_pid}
         <a title="click to open the published list of records in this collection" href="{$rel_url}collection/{$list[i].rek_ismemberof.rek_pid[m]}">{$list[i].rek_ismemberof.rek_title[m]|escape}</a><br />
         {/section}
        </td>
-       <td width="99%" class="default">
+       <td style="width: 100%;" class="default">
         
         <a href="{$rel_url}view/{$list[i].rek_pid|escape}"><img align="absmiddle" src="{$icon}" border="0"></a>
         <a href="{$rel_url}view/{$list[i].rek_pid|escape}" class="title_link">
@@ -107,7 +106,7 @@ No items found
      </tr>
      {sectionelse}
      <tr>
-       <td colspan="6" bgcolor="{$light_color}" align="center" class="default">
+       <td colspan="6" style="background: {$light_color};" align="center" class="default">
          No items with that search filter could be found.
        </td>
      </tr>

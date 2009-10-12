@@ -1,4 +1,4 @@
-<script  type="text/javascript" language="JavaScript">
+<script type="text/javascript">
 <!--
 {$najax_register}
 
@@ -71,7 +71,7 @@ next_idx = 0;
 function updateProcesses()
 {
     if (updateProcess_mutex++ > 0) {
-        updateProcess_mutex--;
+        updateProcess_mutex = updateProcess_mutex - 1;
         return;
     } 
     good_id = false;
@@ -79,8 +79,8 @@ function updateProcesses()
         if (next_idx >= bgp_items.length) {
             // reached end of list
             next_idx = 0;
-            updateProcess_mutex--;
-            updateProcess_list_mutex--;
+            updateProcess_mutex = updateProcess_mutex - 1;
+            updateProcess_list_mutex = updateProcess_list_mutex - 1;
             return;
         }
         id = bgp_items[next_idx++];
@@ -92,7 +92,7 @@ function updateProcesses()
     bgp = new NajaxBackgroundProcessList;
     bgp.onGetDetailsError = function () {
         showBgpError(id);
-        updateProcess_mutex--;
+        updateProcess_mutex = updateProcess_mutex - 1;
         setDone(id);
         updateProcesses();
         return;
@@ -103,7 +103,7 @@ function updateProcesses()
             if (values.bgp_state == 2 || values.bgp_state == 0) {
               setDone(id);
             }
-            updateProcess_mutex--;
+            updateProcess_mutex = updateProcess_mutex - 1;
             setTimeout("updateProcesses()", 10);
             });
 }
@@ -118,7 +118,7 @@ function updateBgpTimer()
     if (updateProcess_list_mutex++ == 0) {
     	updateProcesses();
 	} else {
-		updateProcess_list_mutex--;
+		updateProcess_list_mutex = updateProcess_list_mutex - 1;
 	}
     bgp_timer = setTimeout("updateBgpTimer()", 5000);
 }
@@ -141,14 +141,14 @@ function hideBgpLog(id)
 function showBgpLog(id)
 {
     if (showBgpLog_mutexes[id]++ > 0) {
-        showBgpLog_mutexes[id]--;
+        showBgpLog_mutexes[id] = showBgpLog_mutexes[id] - 1;
         return;
     } 
     showBgpLogUpdating(id);
     bgp = new NajaxBackgroundProcessList;
     bgp.onGetLogError = function () {
         showBgpLogError(id);
-        showBgpLog_mutexes[id]--;
+        showBgpLog_mutexes[id] = showBgpLog_mutexes[id] - 1;
         return;
     };
     bgp.setTimeout(10000);
@@ -157,7 +157,7 @@ function showBgpLog(id)
             log = '(empty)';
             }
             document.getElementById('div_log_'+id).innerHTML = log;
-            showBgpLog_mutexes[id]--;
+            showBgpLog_mutexes[id] = showBgpLog_mutexes[id] - 1;
             });
 
 }
@@ -189,12 +189,14 @@ function checkDelete(f)
 
 <div class="contentheader">Running Processes</div>
 
-<form name="background_processes" method="post">
-<input type="hidden" name="cat" value="delete_background_processes" />
+<form method="post" action="my_processes.php">
+<div>
+    <input type="hidden" name="cat" value="delete_background_processes" />
+</div>
 <table cellpadding="5" cellspacing="0" class="my_fez_table" width="100%">
 
-    <tr bgcolor="{$cell_color}" class="tableheader">
-        <th><input type="button" value="All" onclick="javascript:toggleSelectAll(this.form,'items[]');" /></th>
+    <tr style="background: {$cell_color};" class="tableheader">
+        <th><input type="button" value="All" onclick="javascript:toggleSelectAll(this.form,'items[]');" class="button" /></th>
         <th class="default">Started</th>
         <th class="default">Name</th>
         <th class="default">Progress</th>

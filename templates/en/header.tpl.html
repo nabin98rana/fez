@@ -1,12 +1,10 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <title>{if $extra_title != ""}{$extra_title} - {/if}{$application_title}</title>
 <link rel="Bookmark" href="{$rel_url}favicon.ico" />
-<link rel="SHORTCUT ICON" href="{$rel_url}favicon.ico" />
 <link rel="stylesheet" href="{$rel_url}css/dynamic_css.php" type="text/css" />
 <script type="text/javascript" src="{$rel_url}js/dojo/dojo.js"></script>
 {if $cv_css != ""}
@@ -24,12 +22,11 @@
 {if $authors_form || $enter_metadata}
 <script language="JavaScript" type="text/javascript">
 <!--
-
 dojo.require("dojo.rpc.JsonService");
 //-->
 </script>
 {/if}
-<script type="text/javascript" src="{$rel_url}js/common.js"></script>
+<script type="text/javascript" src="{$rel_url}min.php/common.js"></script>
 {if $autosuggest == 1}
 <script language="JavaScript" type="text/javascript" src="{$rel_url}js/suggestions.js"></script>
 <script language="JavaScript" type="text/javascript" src="{$rel_url}js/autosuggest.js"></script>
@@ -62,30 +59,31 @@ dojo.require("dojo.rpc.JsonService");
 {/if}
 {$najax_header}
 {$meta_head}
-<script type="text/javascript">
-<!--
-{$najax_register}
-{* Change the window.onload if we're using dojo so that this doesn't overwrite our flash uploader callback *}
-{if $header_include_flash_uploader_files == 1 && $smarty.const.APP_ENABLE_FLASH_UPLOADER_SWITCH == 'ON'}
-dojo.addOnLoad( function() {ldelim}
-{*Event.observe(window, 'load', function() {ldelim} *}
-{else}
-{literal}
-window.onload = function () {
-{/literal}
-{/if}
-    // do any other hacks requried by IE mostly
-    {$headerscript}
-{literal}
-	// find any divs of class register_suggest and eval the code in them to setup their suggest widgets
-	divs = document.getElementsByName('register_suggest');
-	for (ii = 0; ii < divs.length; ii++) { // >
-	  div = divs[ii];
-	  if (div.className == 'register_suggest') {
-	  	eval(div.innerHTML);
-	  }
+	<script type="text/javascript">
+	<!--
+	{$najax_register}
+	{* Change the window.onload if we're using dojo so that this doesn't overwrite our flash uploader callback *}
+	{if $header_include_flash_uploader_files == 1 && $smarty.const.APP_ENABLE_FLASH_UPLOADER_SWITCH == 'ON'}
+	dojo.addOnLoad( function() {ldelim}
+	{*Event.observe(window, 'load', function() {ldelim} *}
+	{else}
+	{literal}
+	window.onload = function () {
+	{/literal}
+	{/if}
+		// do any other hacks requried by IE mostly
+		{$headerscript}
+	{literal}
+		// find any divs of class register_suggest and eval the code in them to setup their suggest widgets
+		divs = document.getElementsByName('register_suggest');
+		for (ii = 0; ii < divs.length; ii++) { // >
+		  div = divs[ii];
+		  if (div.className == 'register_suggest') {
+			eval(div.innerHTML);
+		  }
+		}
 	}
-}
+	
 {/literal}
 {if $header_include_flash_uploader_files == 1 && $smarty.const.APP_ENABLE_FLASH_UPLOADER_SWITCH == 'ON'}
 );
@@ -93,12 +91,16 @@ window.onload = function () {
 rel_url = '{$rel_url}';
 cell_color = '{$cell_color}';
 value_color = '{$value_color}';
-
+	
 {if $include_stats_map == 1 && APP_USE_GOOGLE_MAP_SWITCH == 'ON'}
 {include file="stats_map.javascript_include.tpl.html"}
 {/if}
 -->
 
 </script>
+
+	<!--[if IE 6]><link rel="stylesheet" href="{$rel_url}css/ie6bugs.css" media="screen" type="text/css" /><![endif]-->
+	<!--[if IE 7]><link rel="stylesheet" href="{$rel_url}css/ie7bugs.css" media="screen" type="text/css" /><![endif]-->
+	<!--[if IE 8]><link rel="stylesheet" href="{$rel_url}css/ie8bugs.css" media="screen" type="text/css" /><![endif]-->
 
 </head>

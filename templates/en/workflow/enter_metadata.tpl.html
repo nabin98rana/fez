@@ -17,7 +17,7 @@
         </tr>
 {literal}
 
-<script language="JavaScript">
+<script type="text/javascript">
 <!--
 setTimeout('openDetailPage()', 5000);
 function openDetailPage()
@@ -40,7 +40,7 @@ function openDetailPage()
 <script type="text/javascript" src="{$rel_url}js/autosuggest.js"></script>
 <script type="text/javascript" src="{$rel_url}js/textarea.js"></script>		
 
-<script language="JavaScript">
+<script type="text/javascript">
 {$najax_register}{literal}
 <!--
 var required_xsd_display_fields = new Array();
@@ -238,7 +238,7 @@ function selectDateField(field_name, day, month, year)
         <tr {if $xsd_display_fields[i].xsdmf_invisible == 1}style="display:none;"{/if}><td colspan="2">
 	<table id="choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}" border="0" cellpadding="2" cellspacing="0" width="100%">
             {if $xsd_display_fields[i].xsdmf_required == 1 && $xsd_display_fields[i].xsdmf_enabled == 1}
-            <script language="JavaScript">
+            <script type="text/javascript">
             <!--
 			{if $xsd_display_fields[i].xsdmf_html_input == 'date'}
 			xsd_display_fields[xsd_display_fields.length] = new Option('xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][Year]', '{$xsd_display_fields[i].xsdmf_title}');
@@ -1038,7 +1038,7 @@ function selectDateField(field_name, day, month, year)
 				  {if $xsd_display_fields[i].xsdmf_date_type == 0}
 					  {html_select_date time="0000-00-00" reverse_years=true month_empty='' year_empty='' day_empty='' field_array="xsd_display_fields[$temp_xsdmf_id]" prefix="" start_year="$app_earliest_input_year" end_year="+1" all_extra='class="default"'}
 									  {literal}
-					  <script language="JavaScript" type="text/javascript">
+					  <script type="text/javascript">
 					  <!--
 					  tCalendar_xsd_display_fields{/literal}{$xsd_display_fields[i].xsdmf_id}{literal} = new dynCalendar('tCalendar_xsd_display_fields{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}', 'calendarCallback_xsd_display_fields{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}', '{/literal}{$rel_url}{literal}images/');
 					  tCalendar_xsd_display_fields{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}.setMonthCombo(false);
@@ -1083,15 +1083,16 @@ function selectDateField(field_name, day, month, year)
 					 </td>
 					</tr>				
             {/if}
-	</table>
+	
 		</td></tr>
 				{/if}	
 			{/if}
 		{/if}
+		</table>
         {/section}
 {section name="i" loop=$xsd_display_fields}
 	{if $xsd_display_fields[i].xsdmf_html_input == 'org_selector' && $xsd_display_fields[i].xsdmf_use_org_to_fill == 1}
-		<script language="JavaScript">
+		<script type="text/javascript">
 		  <!--
 		  selectOrgStructure_{$xsd_display_fields[i].xsdmf_id}(document.wfl_form1, 'xsdmf_display_fields[{$xsd_display_fields[i].xsdmf_id}]'); 	
 		  //-->

@@ -1,93 +1,26 @@
-
 {include file="header.tpl.html" extra_title="Home"}
 {include file="navigation.tpl.html"}
 
-{literal}
-<script language="JavaScript" type="text/javascript">
-<!--
-{/literal}{$najax_register}{literal}
-function purgeObject(pid)
-{
-    if (!confirm('This action will permanently delete the selected object.')) {
-        return false;
-    } else {
-        window.location.replace('{/literal}{$rel_url}workflow/delete.php?pid=' + pid + '&href={$smarty.server.REQUEST_URI}{literal}');
-        return true;
-    }
-}
-var dt1_load_state = 0;
-function showLoading1()
-{
-	document.body.style.cursor = 'wait';
-	document.getElementById('loading1').style.display = 'block';
-}
-
-function hideLoading1()
-{
-	document.body.style.cursor = '';
-	document.getElementById('loading1').style.display = 'none';
-}
-
-function selectSearchSuggestor(f, field_name)
-{
-
-	if (dt1_load_state > 0) {
-	   return false;
-	}
-	var field = getFormElement(f, field_name);
-	/*var selections = getSelectedItems(field);*/
-	if (field.value != '') {
-		dt1_load_state++;
-
-		showLoading1();
-		var obj = new Suggestor();
-		obj.ongetSuggestionError = function() {
-			removeAllOptions(f, 'front_search');
-			hideLoading1();
-			dt1_load_state = dt1_load_state - 1;
-		}
-		obj.setTimeout(10000);
-
-		obj.getSuggestion(field, function(dt_list) {
-				removeAllOptions(f, 'front_search');
-				addOptions(f, 'front_search', dt_list);
-				hideLoading1();
-				/*autoComplete(field, dt_list);*/
-				dt1_load_state = dt1_load_state - 1;
-				});
-	}
-}
-var basic_element = getPageElement('basic_filter_form' + '1');
-if (isElementVisible(basic_element)) {
-	toggleVisibility('basic_filter_form');
-}
--->
-</script>
-{/literal}
-
-<table id="front-page-container-simple" align="center">
+<table id="front-page-container-simple">
   <tr>
     <td valign="top">
 	  <div class="front-page-content-header"><img src="{$rel_url}images/search_22.jpg" alt="Search" title="Search" /> Search </div> 
 	  <div class="front-page-content-detail">
-		<form name="search_frm" target="_top" method="get" action="{$rel_url}list.php">
-		  <input type="hidden" name="cat" value="quick_filter" />		
-		  <label for="search" accesskey="3"></label>
- (title, keywords, abstract)<br />
-			<input type="hidden" name="sort_by" value="searchKey0" />
-			<input type="text" id="front_search" name="search_keys[0]" size="40" autocomplete="off" onkeyup="javascript: selectSearchSuggestor(this.form, 'front_search')" />
-			<div id="loading1" style="display:none;">Loading...</div>
-			<input type="submit" value="Search" />
-			<a href="#" onclick="javascript:alert( 'Search Title, Abstract, Keywords\n\n Enter a phrase.  Objects where any field contains the phrase will be returned.\n This is a case-insensitive search, and you may use the * or ? wildcards.\n\n Examples:\n\n li*y\n finds objects that start with li and end with y\n\n b?ts\n finds words that start with b followed by any letter and then ts.  e.g. bits, bats, byts')">Help</a><br />Use <a href="{$rel_url}adv_search.php"><b>Advanced Search</b></a> to search by multiple criteria<br />&nbsp;
+		<form method="get" action="{$rel_url}list.php">
+			<div>
+			<input type="hidden" name="cat" value="quick_filter" />		
+   (title, keywords, abstract)<br />
+			  <input type="hidden" name="sort_by" value="searchKey0" />
+			  <input type="text" id="front_search" name="search_keys[0]" size="40" onkeyup="javascript: selectSearchSuggestor(this.form, 'front_search')" />
+			  <div id="loading1" style="display:none;">Loading...</div>
+			  <input type="submit" value="Search" />
+			  <a href="#" onclick="javascript:alert( 'Search Title, Abstract, Keywords\n\n Enter a phrase.  Objects where any field contains the phrase will be returned.\n This is a case-insensitive search, and you may use the * or ? wildcards.\n\n Examples:\n\n li*y\n finds objects that start with li and end with y\n\n b?ts\n finds words that start with b followed by any letter and then ts.  e.g. bits, bats, byts')">Help</a><br />Use <a href="{$rel_url}adv_search.php"><b>Advanced Search</b></a> to search by multiple criteria<br />&nbsp;
+			</div>
 		</form>	  
 
-{if $APP_CLOUD_TAG == 'ON'}
-      <br />
-	  <!--div class="front-page-content-header"><img src="{$rel_url}images/favourites_22.png" alt="Popular Tags" title="Popular Tags" /> Popular Tags</div-->
-	  <div style="width: 500px; text-align: center;">{$cloud_tag}</div>
-{/if}
-
-	  </div>
+		{if $APP_CLOUD_TAG == 'ON'}
+			<div style="width: 500px; text-align: center;">{$cloud_tag}</div>
+		{/if}
 
 	  </div>
     </td>

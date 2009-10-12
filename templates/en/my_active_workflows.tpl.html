@@ -1,39 +1,38 @@
 <div class="contentheader">Active Workflows</div>
 
-<div class="default">This is a list of your active workflows.  Click on a workflow to resume it.</div>
+<div>This is a list of your active workflows.  Click on a workflow to resume it.</div>
 
 <br />
 
-<form name="form1" method="post">
+<form method="post" action="my_active_workflows.php">
 
 <table class="my_fez_table">
-<tr bgcolor="{$cell_color}">
-{* <th class="checkbox_column"><input type="button" value="All" onclick="javascript:toggleSelectAll(this.form,'items[]');" class="button"/></td> *}
-<th class="default tableheader" >Date</td>
-<th class="default tableheader" >Workflow</td>
-<th class="default tableheader" ></td>
+<tr>
+	{* <th class="checkbox_column"><input type="button" value="All" onclick="javascript:toggleSelectAll(this.form,'items[]');" class="button"/></th> *}
+	<th class="tableheader">Date</th>
+	<th class="tableheader">Workflow</th>
+	<th class="tableheader"></th>
 </tr>
-
 
 {section name="iii" loop=$list}
 {cycle values=$cycle assign="row_color"}
 <tr>
-{* <td class="default"><input type="checkbox" name="items[]" value="{$list[iii].wfses_id}"/></td> *}
-<td class="default">{$list[iii].wfses_date}</td>
-<td class="default"><a href="{$rel_url}workflow/resume.php?id={$list[iii].wfses_id}">{$list[iii].wfses_listing}</a></td>
-<td class="default"><a href="{$rel_url}workflow/abandon.php?id={$list[iii].wfses_id}&href={$smarty.server.PHP_SELF|escape:'url'}">Abandon</a></td>
+{* <td><input type="checkbox" name="items[]" value="{$list[iii].wfses_id}"/></td> *}
+<td>{$list[iii].wfses_date}</td>
+<td><a href="{$rel_url}workflow/resume.php?id={$list[iii].wfses_id}">{$list[iii].wfses_listing}</a></td>
+<td><a href="{$rel_url}workflow/abandon.php?id={$list[iii].wfses_id}&amp;href={$smarty.server.PHP_SELF|escape:'url'}">Abandon</a></td>
 </tr>
 {sectionelse}
 <tr>
-<td colspan="20" class="default" bgcolor={$light_color} align="center" >No Items</td>
+<td colspan="20" bgcolor={$light_color} align="center" >No Items</td>
 </tr>
 {/section}
 
 {*
 <tr bgcolor="{$cell_color}" >
-<td class="default"><input type="button" value="All" onclick="javascript:toggleSelectAll(this.form,'items[]');" class="button"/></td>
-<td colspan="10" class="default">
-<input type="button" value="Delete" onclick="javascript:return checkDelete(this.form);"  class="button"/>
+<td><input type="button" value="All" onclick="javascript:toggleSelectAll(this.form,'items[]');" class="button" /></td>
+<td colspan="10">
+<input type="button" value="Delete" onclick="javascript:return checkDelete(this.form);" class="button" />
 </td>
 </tr>
 *}
