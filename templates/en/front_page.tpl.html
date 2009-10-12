@@ -1,19 +1,15 @@
 {include file="header.tpl.html" extra_title="Home"}
 {include file="navigation.tpl.html"}
-<!--link rel="stylesheet" href="{$rel_url}css/front_css.php" type="text/css" /-->
 
 {literal}
 
-<script type="text/javascript" src="{/literal}{$rel_url}{literal}min.php/tabs.js">
+<script type="text/javascript" src="{/literal}{$rel_url}{literal}js/tabs.js">
 /***********************************************
 * Tab Content script v2.0- (C) Dynamic Drive DHTML code library (www.dynamicdrive.com)
 * This notice MUST stay intact for legal use
 * Visit Dynamic Drive at http://www.dynamicdrive.com/ for full source code
 ***********************************************/
 </script>
-
-<!--body onLoad="self.focus();document.search_frm.front_search.focus()"-->
-<!--a name="top"></a-->
 
 {/literal}
 
@@ -70,7 +66,7 @@
 			<div id="snapshotcontainer">
 				<ul style="list-style-type: square">
 				{section name="i" loop=$news}
-				<li><a href="news.php#x{$news[i].nws_id}">{$news[i].nws_title}</a></li>
+				<li><a href="{$rel_url}news.php#x{$news[i].nws_id}">{$news[i].nws_title}</a></li>
 				{/section}
 				<li  style="list-style-type: none"><!--img src="{$rel_url}images/feed-icon16x16.png" alt="RSS" width="14" height="14" /--><a href="news.php?show=rss">RSS</a> | <a href="news.php">More...</a></li>
 				</ul>
@@ -86,10 +82,12 @@
 	</div>
 
 <script type="text/javascript">
+<!--
 var countries=new ddajaxtabs("snapshottabs", "snapshotcontainer")
 countries.setpersist(true)
 countries.setselectedClassTarget("linkparent") //"link" or "linkparent"
 countries.init()
+//-->
 </script>
 
 {include file="app_info.tpl.html"}{include file="footer.tpl.html"}
