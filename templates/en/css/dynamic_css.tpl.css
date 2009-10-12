@@ -47,6 +47,7 @@ table { border-collapse: collapse; border-spacing: 0pt; }
 .noindent      { margin-left:0;padding-left:0; }
 .nobullet      { list-style:none;list-style-image:none; }
 .header-print  { display: none; }
+.no-wrap	   { white-space:nowrap; }
 .clearfix:after {	content: ".";	clear: both;	height: 0;	visibility: hidden;	display: block; }
 .clearfix {	display: inline-block;}
 * html .clearfix {	height: 1%;}

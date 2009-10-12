@@ -7,12 +7,12 @@
                 <td style="width: 10px;"><input type="button" value="All" onclick="javascript:toggleSelectAll(this.form, 'pids[]');" class="button" /></td>
                  
                 {if $isAdministrator} 
-                 <td>
+                 <td class="no-wrap">
                  <input type="submit" value="Delete"  onclick="javascript:return checkDeleteRecords(this.form);" class="button" />
                  <input type="submit" value="Publish" onclick="javascript:return checkPublishRecords(this.form);" class="button" />
                  </td>
                 
-                 <td>                   
+                 <td class="no-wrap">                   
                    <input type="button" value="Run Workflow &gt;" onclick="javascript:workflowItems(this.form, '{$rel_url}');" class="button" />
                    <select name="wft_id">
                      {html_options options=$bulk_workflows}
@@ -48,7 +48,7 @@
                 	{/if}
                 </td>
                       
-                <td style="white-space: nowrap;">
+                <td class="no-wrap">
                     {if $items_info.total_pages > 0}
                     <strong>Rows:</strong> <select name="page_size" onChange="javascript:resizePagerMyFez(this.form, '{$page_url}');">
                     <option value="5" {if $options.rows == 5}selected{/if}>5</option>
