@@ -116,8 +116,8 @@
 		{assign var="listInfo" value=$masterList[m].1}
 		{if $listInfo.total_rows > 0}
 		<tr>
-		  <td>
-		    <strong>{$masterList[m].2} ({$listInfo.total_rows})</strong>
+		  <td class="no-wrap bold" colspan="10">
+		    {$masterList[m].2} ({$listInfo.total_rows})
           </td>
         </tr>
 		{/if}
@@ -165,7 +165,7 @@
 
 		  <tr>
 		  {if ($isAdministrator)}  		  
-              <td valign="middle" style="border-top: 1px dashed #be87e9; width: 10px;">
+              <td valign="middle" style="border-top: 1px dashed #be87e9; width: 10px; padding: 10px">
 	              <input type="checkbox" name="pids[]" value="{$list[i].rek_pid}" />
               </td>
           {/if}
