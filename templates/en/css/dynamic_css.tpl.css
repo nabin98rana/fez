@@ -1101,6 +1101,11 @@ div.cv_selection, .light_background
 /*
  * Advanced Search
  */
+.search_fields {
+	border: 0;
+	width: 100%;
+	text-align: center;
+}
 .search_fields th {padding: 4px;}
 .search_fields td {padding: 4px;}
 .search_fields th {padding:4px;}
@@ -1111,6 +1116,7 @@ th.search_heading {
     padding-right:0.5em;
     padding-top:0.5em;
     text-align:right;
+    white-space:nowrap;
 }
 
 td.search_multi_input {

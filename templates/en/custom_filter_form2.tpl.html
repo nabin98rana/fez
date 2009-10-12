@@ -58,17 +58,17 @@ if (element{/literal}{$search_keys[i].sek_id}{literal} != null) {
 
 <h1>Advanced Search</h1> 
 
-<div style="text-align: center;">
+<div class="text-center">
 <input name="search_button"  type="submit" value="Search" class="button" />
 <input type="button" value="Clear Form" onclick="javascript:clearFilters(this.form);" class="button" />
 </div>
 <br />
-<table class="search_fields" cellspacing="1" border="0" width="70%" style="text-align: center;">
+<table class="search_fields">
 
     <tr>
         <th class="search_heading">{if $smarty.const.APP_SOLR_SWITCH == 'ON'}All Fields{else}Title, Abstract, Keywords{/if}</th>
-        <td class="search_multi_input" style="text-align: center;">contains</td>
-        <td class="search_multi_input"><input id="search_keys[0]" type="text" name="search_keys[0]" size="30" maxlength="255" value="{$options.searchKey0|escape:'html'}" /></td>
+        <td class="search_multi_input text-center">contains</td>
+        <td class="search_multi_input text-left"><input id="search_keys[0]" type="text" name="search_keys[0]" size="30" maxlength="255" value="{$options.searchKey0|escape:'html'}" /></td>
     </tr>
 	
   {* Do little items first, then buly items *}
@@ -84,7 +84,7 @@ if (element{/literal}{$search_keys[i].sek_id}{literal} != null) {
         <input {if $last_key.filter_enabled == 1}checked{/if} type="checkbox" name="filter[search_keys[{$search_keys[i].sek_id}]]"  id="filter[search_keys[{$search_keys[i].sek_id}]]" value="yes" onClick="javascript:toggleDateFields(this.form, 'search_keys[{$search_keys[i].sek_id}]');">
         {/if}
         </th>
-        <td class="search_multi_input" class="search_multi_input" style="text-align: center;">
+        <td class="search_multi_input text-center">
         {if $search_keys[i].sek_html_input == 'combo'}
         equals
         {elseif $search_keys[i].sek_html_input == 'date'}
@@ -107,7 +107,7 @@ if (element{/literal}{$search_keys[i].sek_id}{literal} != null) {
         contains
         {/if}
         </td>
-        <td class="search_multi_input">
+        <td class="search_multi_input text-left">
         {if $search_keys[i].sek_html_input == 'text'}
             
             {if $search_keys[i].sek_data_type == 'int'}
@@ -123,7 +123,7 @@ if (element{/literal}{$search_keys[i].sek_id}{literal} != null) {
 					</div>
 					{literal}
                     <script type="text/javascript">
-
+					<!--
                     // Instantiate first JS Array DataSource
                     var myServer{/literal}{$search_keys[i].sek_id}{literal} = "{/literal}{$rel_url}{literal}suggest_proxy.php";
                     var mySchema{/literal}{$search_keys[i].sek_id}{literal} = ["Result","name"];
@@ -179,6 +179,7 @@ if (element{/literal}{$search_keys[i].sek_id}{literal} != null) {
                             myTextField{/literal}{$search_keys[i].sek_id}{literal}.value = oData.id;
                         });
                     {/literal}{/if}{literal}
+                  	//->
                     </script>
                     <style type="text/css">
                     #{/literal}{$search_keys[i].xsdmf_id}{literal}_container .yui-ac-content {
@@ -190,7 +191,7 @@ if (element{/literal}{$search_keys[i].sek_id}{literal} != null) {
                         overflow-x:hidden; /* scrolling */
                         _height:11em; /* ie6 */
                         z-index:9071;
-					}
+					}					
                     </style>					
                     {/literal}
 			{/if}
@@ -272,7 +273,7 @@ if (element{/literal}{$search_keys[i].sek_id}{literal} != null) {
     {/section}
     
     <tr>
-        <th class="search_heading" colspan="3" style="text-align:center;">
+        <th class="search_heading text-center" colspan="3">
         Choose operator to combine search criteria fields:
         <select name="operator">
             <option value=" AND " {if $options.operator == ' AND '}selected{/if}> AND </option>
@@ -287,7 +288,7 @@ if (element{/literal}{$search_keys[i].sek_id}{literal} != null) {
 
 
 <div class="quick_search_hide"> </div>
-<div style="text-align: center;">
+<div class="text-center">
 <input name="search_button"  type="submit" value="Search" class="button" />
 <input type="button" value="Clear Form" onclick="javascript:clearFilters(this.form);" class="button" />
 </div>
