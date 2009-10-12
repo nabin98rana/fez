@@ -45,6 +45,7 @@ $isUser = Auth::getUsername();
 $tpl->assign("isUser", $isUser);
 $isAdministrator = User::isUserAdministrator($isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
+$tpl->assign("active_nav", "admin");
 
 $tpl->displayTemplate();
 ?>

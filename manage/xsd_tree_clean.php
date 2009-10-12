@@ -54,6 +54,7 @@ $isSuperAdministrator = User::isUserSuperAdministrator($isUser);
 $tpl->assign("isUser", $isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
 $tpl->assign("isSuperAdministrator", $isSuperAdministrator);
+$tpl->assign("active_nav", "admin");
 
 if ($isSuperAdministrator) {
 	$xdis_id = @$_POST["xdis_id"] ? $_POST["xdis_id"] : @$_GET["xdis_id"];

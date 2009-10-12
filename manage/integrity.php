@@ -50,6 +50,7 @@ if (APP_HERDC_INTEGRITY_REPORTS !== 'ON') {
 }
 
 $tpl->assign("type", "integrity");
+$tpl->assign("active_nav", "admin");
 $isUser = Auth::getUsername();
 $isAdministrator = User::isUserAdministrator($isUser);
 $isSuperAdministrator = User::isUserSuperAdministrator($isUser);

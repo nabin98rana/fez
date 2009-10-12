@@ -54,6 +54,7 @@ set_time_limit(1800);      // 1800 MILLION MICROSECONDS!
 $tpl = new Template_API();
 $tpl->setTemplate("manage/index.tpl.html");
 $tpl->assign("type", "reindex");
+$tpl->assign("active_nav", "admin");
 
 Auth::checkAuthentication(APP_SESSION);
 $isUser = Auth::getUsername();

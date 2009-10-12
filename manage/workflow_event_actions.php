@@ -48,6 +48,7 @@ $tpl->setTemplate("manage/index.tpl.html");
 Auth::checkAuthentication(APP_SESSION);
 
 $tpl->assign("type", "workflow_event_actions");
+$tpl->assign("active_nav", "admin");
 
 $isUser = Auth::getUsername();
 $isAdministrator = User::isUserAdministrator($isUser);

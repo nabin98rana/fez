@@ -61,6 +61,7 @@ $tpl->setTemplate("manage/xsd_tree_match_form.tpl.html");
 Auth::checkAuthentication(APP_SESSION);
 $anchor = "";
 $tpl->assign("type", "custom_fields");
+$tpl->assign("active_nav", "admin");
 
 $isUser = Auth::getUsername();
 $isAdministrator = User::isUserAdministrator($isUser);

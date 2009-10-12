@@ -46,6 +46,7 @@ $tpl->setTemplate("manage/index.tpl.html");
 
 Auth::checkAuthentication(APP_SESSION);
 $tpl->assign("type", "xsd_displays");
+$tpl->assign("active_nav", "admin");
 
 $xsd_id = @$_POST["xsd_id"] ? $_POST["xsd_id"] : $_GET["xsd_id"];
 $xdis_id = @$_POST["id"] ? $_POST["id"] : $_GET["id"];

@@ -45,6 +45,7 @@ $tpl->setTemplate("manage/index.tpl.html");
 Auth::checkAuthentication(APP_SESSION);
 
 $tpl->assign("type", "xsd_source_edit");
+$tpl->assign("active_nav", "admin");
 
 $xsd_id = @$_POST["xsd_id"] ? $_POST["xsd_id"] : $_GET["xsd_id"];
 $isUser = Auth::getUsername();

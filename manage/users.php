@@ -45,6 +45,7 @@ $tpl->setTemplate("manage/index.tpl.html");
 Auth::checkAuthentication(APP_SESSION);
 
 $tpl->assign("type", "users");
+$tpl->assign("active_nav", "admin");
 
 $isUser = Auth::getUsername();
 $isAdministrator = User::isUserAdministrator($isUser);

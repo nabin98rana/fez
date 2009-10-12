@@ -73,7 +73,7 @@ $ad_hoc_queries = Ad_Hoc_SQL::getAssocList();
 
 $tpl->assign("ad_hoc_queries", $ad_hoc_queries);
 $tpl->assign("bulk_workflows", $bulk_workflows);
-
+$tpl->assign("active_nav", "admin");
 
 $rows = Pager::getParam('rows');
 if (empty($rows)) {

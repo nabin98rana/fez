@@ -43,6 +43,7 @@ include_once(APP_INC_PATH.'class.citation.php');
 $tpl = new Template_API();
 $tpl->setTemplate("manage/index.tpl.html");
 $tpl->assign("type", "citations");
+$tpl->assign("active_nav", "admin");
 
 // Only Admins here please 
 Auth::checkAuthentication(APP_SESSION);

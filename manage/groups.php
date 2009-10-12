@@ -48,6 +48,7 @@ Auth::checkAuthentication(APP_SESSION);
 
 $tpl->assign("type", "groups");
 $tpl->assign("extra_title", "Manage Groups");
+$tpl->assign("active_nav", "admin");
 
 $isUser = Auth::getUsername();
 $isAdministrator = User::isUserAdministrator($isUser);

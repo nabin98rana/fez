@@ -49,6 +49,7 @@ $tpl->setTemplate("manage/xsd_tree.tpl.html");
 Auth::checkAuthentication(APP_SESSION);
 
 $tpl->assign("type", "xsd_tree");
+$tpl->assign("active_nav", "admin");
 
 $isUser = Auth::getUsername();
 $isSuperAdministrator = User::isUserSuperAdministrator($isUser);

@@ -56,6 +56,7 @@ $isSuperAdministrator = User::isUserSuperAdministrator($isUser);
 $tpl->assign("isUser", $isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
 $tpl->assign("isSuperAdministrator", $isSuperAdministrator);
+$tpl->assign("active_nav", "admin");
 
 $pagerRow = Pager::getParam('pagerRow',$params);
 if (empty($pagerRow)) {

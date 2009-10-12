@@ -49,6 +49,7 @@ $tpl->setTemplate("manage/index.tpl.html");
 Auth::checkAuthentication(APP_SESSION);
 
 $tpl->assign("type", "orgstructure_author");
+$tpl->assign("active_nav", "admin");
 
 $author_id = @$_POST["auth"] ? $_POST["auth"] : @$_GET["auth"];
 $aouid = @$_POST["id"] ? $_POST["id"] : @$_GET["id"];
