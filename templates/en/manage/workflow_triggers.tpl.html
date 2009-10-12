@@ -205,7 +205,7 @@
               <tr>
                 <td colspan="2" class="default">
                   <b>Workflow Triggers</b> &nbsp;(
-                          <a href="{$rel_url}workflow_triggers.php?pid={$pid}">New</a> )
+                          <a href="{$rel_url}manage/workflow_triggers.php?pid={$pid}">New</a> )
                 </td>
               </tr>
               {if $result != ""}
@@ -383,7 +383,7 @@
                         &nbsp;{$list[i].wft_mimetype}
                       </td>
                       <td bgcolor="{$row_color}" class="default">
-                        &nbsp;<a href="{$rel_url}workflow_triggers.php?cat=edit&wft_id={$list[i].wft_id}&pid={$pid}">[edit]</a>
+                        &nbsp;<a href="{$rel_url}manage/workflow_triggers.php?cat=edit&wft_id={$list[i].wft_id}&pid={$pid}">[edit]</a>
                       </td>
                     </tr>
                     {sectionelse}

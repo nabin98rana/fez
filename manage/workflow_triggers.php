@@ -34,7 +34,7 @@
 //
 //
 
-include_once("config.inc.php");
+include_once("../config.inc.php");
 
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
@@ -55,9 +55,10 @@ include_once(APP_INC_PATH . "najax/najax.php");
 include_once(APP_INC_PATH . "najax_objects/class.select_object_xsd_display.php");
 
 $tpl = new Template_API();
-$tpl->setTemplate("update.tpl.html");
+$tpl->setTemplate("manage/index.tpl.html");
 $tpl->assign("type", "workflow_triggers");
 $tpl->assign("type_name", "workflow trigger");
+$tpl->assign("active_nav", "admin");
 
 NAJAX_Server::allowClasses('SelectObjectXSDDisplay');
 if (NAJAX_Server::runServer()) {
