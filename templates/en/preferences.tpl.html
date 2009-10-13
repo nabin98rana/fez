@@ -138,11 +138,10 @@ function validateAccount(f)
       </table>
 	</form>
 {if $isAuthor == 1}
-	<form name="update_mypub_url_form" onsubmit="javascript:return validateMyPubURL(this);" action="{$smarty.server.PHP_SELF}" method="post">
-	<input type="hidden" name="cat" value="update_mypub_url" />
+	<form id="update_mypub_url_form" onsubmit="javascript:return validateMyPubURL(this);" action="{$smarty.server.PHP_SELF}" method="post">
 	  <table style="background: FFFFFF; width: 100%;" cellspacing="1" cellpadding="2">
 	    <tr>
-	      <td width="250" style="background: {$cell_color};" class="default">
+	      <td style="width: 250px; background: {$cell_color};" class="default">
 	        <b>Author My Publications URL:</b><br />(lowercase, a-z and underscore characters only, and less than 100 characters)
 	      </td>
 	      <td style="background: {$light_color};">
@@ -163,7 +162,9 @@ function validateAccount(f)
           </td>
         </tr>
         {/if}
+        <tr>
           <td colspan="2" style="background: {$cell_color};" align="center">
+          	<input type="hidden" name="cat" value="update_mypub_url" />
             <input class="button" type="submit" value="Update My Pubs URL" />
             <input class="button" type="reset" value="Reset" />
           </td>
@@ -172,10 +173,7 @@ function validateAccount(f)
     </form>
 {/if}
 	{if $local_db_user == 1}
-	<form onsubmit="javascript:return validateName(this);" action="{$smarty.server.PHP_SELF}" method="post">
-		<div>
-			<input type="hidden" name="cat" value="update_password" />
-		</div>
+	<form onsubmit="javascript:return validateName(this);" action="{$smarty.server.PHP_SELF}" method="post">		
 	  <table style="width: 100%; background: white;">
         {if $update_password_result}
         <tr>
@@ -212,6 +210,7 @@ function validateAccount(f)
         </tr>
         <tr>
           <td colspan="2" style="background: {$cell_color}; text-align: center;">
+          	<input type="hidden" name="cat" value="update_password" />
             <input class="button" type="submit" value="Update Password" />
             <input class="button" type="reset" value="Reset" />
           </td>
