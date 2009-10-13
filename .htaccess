@@ -1,5 +1,8 @@
 RewriteEngine   on
 
+# Custom 404 error page
+ErrorDocument 404 errors/404
+
 # Disallow request of this file
 RewriteRule ^\.htaccess$ - [F]
 RewriteRule ^logs/.*\.log$ - [F]
@@ -8,6 +11,7 @@ RewriteRule ^logs/.*\.log$ - [F]
 RewriteRule ^robots.txt$         robots.php [L]
 
 #REWRITE RULES APPLYING TO BASE FEZ CODE 
+RewriteRule     ^errors/([0-9]+)$                                   errors/index.php?code=$1 [L]
 RewriteRule     ^view/([A-Za-z]+):([0-9]+)(\?.*)*$                  view.php?pid=$1:$2$3 [L]
 RewriteRule     ^eserv/([A-Za-z]+):([0-9]+)/(.+)(/.+)*$             eserv.php?pid=$1:$2&dsID=$3$4 [L,QSA]
 RewriteRule     ^community/([A-Za-z]+):([0-9]+)$	                list.php?community_pid=$1:$2 [L,QSA]

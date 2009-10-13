@@ -1045,6 +1045,9 @@ class Lister
 			Lister::getList($params, true);
 
 		}
+		else {
+			Misc::redirect(APP_BASE_URL.'errors/404', true);
+		}
 		exit;
 		return true;
 	}
