@@ -1434,15 +1434,21 @@ margin-bottom: 1em;
 }
 
 .facet {
-	float:left; font-family:Verdana,Arial,Helvetica,sans-serif;font-size:75%;font-style:normal;font-weight:normal;width:200px;padding: 0px;
+	float: left;
+	width: 200px;
+	padding: 0px;
 }
 
 .facetheader {
-	background: #317DCE; color:white;padding: 0px;
+	background: [[$smarty.const.APP_DARK_COLOR]];
+	color: white;
+	padding: 0px;
 }
 
 .facet ul {
-	text-align:left; margin-left:0px; padding:2px;
+	text-align: left;
+	margin-left: 0px;
+	padding: 2px;
 }
 
 .facetarrow {

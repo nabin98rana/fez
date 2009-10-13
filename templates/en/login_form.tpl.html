@@ -34,21 +34,23 @@ function toggleHideSecondaryLogin()
 <div style="margin-left: auto; margin-right: auto; width: 600px;">
 	
 {if $SHIB_SWITCH == "ON"}
-<form id="idplist" method="get">
-	<input type="hidden" name="shire" value="https://{$APP_HOSTNAME}/Shibboleth.sso/SAML/POST" />
-	<input type="hidden" name="target" value="cookie" />
-	<input type="hidden" name="providerId" value="{$SHIB_HOME_SP}" />
-	<input type="hidden" name="getArguments" value="{$getArguments|escape:"html"}" />
-	<input type="hidden" name="time" value="1142380709" />
-	<input type="hidden" name="action" value="selection" />
-	<input type="hidden" name="cache" value="false" />
+<form id="idplist" method="get" action="">
+	<div>
+		<input type="hidden" name="shire" value="https://{$APP_HOSTNAME}/Shibboleth.sso/SAML/POST" />
+		<input type="hidden" name="target" value="cookie" />
+		<input type="hidden" name="providerId" value="{$SHIB_HOME_SP}" />
+		<input type="hidden" name="getArguments" value="{$getArguments|escape:"html"}" />
+		<input type="hidden" name="time" value="1142380709" />
+		<input type="hidden" name="action" value="selection" />
+		<input type="hidden" name="cache" value="false" />
+	</div>
 <table width="500" cellspacing="0" cellpadding="0" style="background: #FFFFFF;">
   <tr>
     <td>
             <br /><br />
       <table style="background: {$heading_color}" width="100%" cellspacing="0" cellpadding="4">
 		<tr>
-          <td nowrap="nowrap" class="default_white" style="text-align: center;">
+          <td class="default_white" style="text-align: center; white-space: nowrap;">
             <img src="{$rel_url}images/shibboleth_logo_32.gif" alt="" /> <b> Select your home institution:</b>
           </td>
         </tr>
@@ -66,16 +68,22 @@ function toggleHideSecondaryLogin()
         </tr>
 	
         <tr>
-          <td align="right" width="40%" class="default" style="background: {$cell_color}"><b>Home Institution:</b></td>
-          <td style="width: 60%; background: {$cell_color}" nowrap="nowrap">
+          <td align="right" class="default" style="background: {$cell_color}; width: 40%;"><b>Home Institution:</b></td>
+          <td style="width: 60%; background: {$cell_color}; white-space: nowrap;">
+							{if $SHIB_IDP_LIST != ''}
 							<select class="default" name="origin">
 							  {html_options options=$SHIB_IDP_LIST selected=$SHIB_HOME_IDP}
-							</select>          
+							</select>
+							{else}
+								There are currently no institutions to choose from.<br />Please choose another login method.
+							{/if}
           </td>
         </tr>
-        <tr>
-          <td colspan="2" style="background: {$cell_color}" align="center"><input type="submit" name="federation_login" value="Login" class="button" /></td>
-        </tr>		
+		{if $SHIB_IDP_LIST != ''}
+			<tr>
+			  <td colspan="2" style="background: {$cell_color}" align="center"><input type="submit" name="federation_login" value="Login" class="button" /></td>
+			</tr>
+		{/if}
 
       </table>
     </td>

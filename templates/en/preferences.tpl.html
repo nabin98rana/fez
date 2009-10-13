@@ -44,7 +44,7 @@ function validateAccount(f)
 <table style="width: 100%; background: {$cell_color};">
 	{if $smarty.get.from != ""}
 		<tr>
-		  <td align="center" class="error" bgcolor="{$cell_color}">
+		  <td align="center" class="error" style="background: {$cell_color};">
 			<b>
 			{if $smarty.get.from == "ldap_registration"}
 			  Please check these details provided by the UQ central authentication systems <br />are correct and proceed to your <a href="{$rel_url}my_fez.php">My {$application_title}</a> area to
@@ -140,12 +140,12 @@ function validateAccount(f)
 {if $isAuthor == 1}
 	<form name="update_mypub_url_form" onsubmit="javascript:return validateMyPubURL(this);" action="{$smarty.server.PHP_SELF}" method="post">
 	<input type="hidden" name="cat" value="update_mypub_url" />
-	  <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2">
+	  <table style="background: FFFFFF; width: 100%;" cellspacing="1" cellpadding="2">
 	    <tr>
-	      <td width="250" bgcolor="{$cell_color}" class="default">
+	      <td width="250" style="background: {$cell_color};" class="default">
 	        <b>Author My Publications URL:</b><br />(lowercase, a-z and underscore characters only, and less than 100 characters)
 	      </td>
-	      <td bgcolor="{$light_color}">
+	      <td style="background: {$light_color};">
 	        <input type="text" name="mypub_url" size="40" class="default" value="{$myPubURLPref}" />
 	        {include file="error_icon.tpl.html" field="mypub_url"}
 	      </td>
@@ -163,7 +163,7 @@ function validateAccount(f)
           </td>
         </tr>
         {/if}
-          <td colspan="2" bgcolor="{$cell_color}" align="center">
+          <td colspan="2" style="background: {$cell_color};" align="center">
             <input class="button" type="submit" value="Update My Pubs URL" />
             <input class="button" type="reset" value="Reset" />
           </td>
@@ -303,9 +303,8 @@ function validateAccount(f)
 <table style="width: 100%; background: {$cell_color};">
   <tr>
     <td>
-      <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2">
-
-        <tr bgcolor="{$heading_color}">
+      <table style="background: #FFFFFF; width: 100%;" cellspacing="1" cellpadding="2">
+        <tr style="background: {$heading_color};">
           <td class="default_white" colspan="2">
             <b>Shibboleth Attributes</b>
             {include file="help_link.tpl.html" topic="preferences"}
@@ -313,23 +312,20 @@ function validateAccount(f)
         </tr>
 		{section name="i" loop=$shibAttribs}
         <tr>
-          <td width="190" bgcolor="{$cell_color}" class="default">
+          <td style="background: {$cell_color}; width: 190px;" class="default">
 
             <b>{$shibAttribs[i].name}:</b>
           </td>
-          <td bgcolor="{$light_color}" class="default">
+          <td style="background: {$light_color};" class="default">
 			{$shibAttribs[i].value}
           </td>
         </tr>
 		{/section}
       </table>
     </td>
-
   </tr>
 </table>
 {/if}
-
-<br />
 
 {include file="app_info.tpl.html"}
 {include file="footer.tpl.html"}

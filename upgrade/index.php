@@ -142,7 +142,7 @@ function set_data_model_version($dbversion)
     $db = DB_API::get();
 
     $stmt = "update " . APP_TABLE_PREFIX . "config " .
-            "set config_value = ". $dbversion. " " .
+            "set config_value = '". $dbversion. "' " .
             "where config_name = 'datamodel_version' " .
             "and config_module = 'core' ";
     try {

@@ -44,7 +44,7 @@
 	{elseif ($browse_type == "browse_depositor")} 
     <tr>
 		<td align="left" class="default" colspan="2"><br />
-		<a href="{$rel_url}list/depositor/"><img border="0" src="{$rel_url}images/browse_32.jpg" alt="" /></a>
+		<a href="{$rel_url}list/depositor/"><img src="{$rel_url}images/browse_32.jpg" alt="" /></a>
        &nbsp;<b>{$browse_heading}:</b>		  
 		</td>
     </tr>
@@ -68,7 +68,7 @@
 	{elseif ($browse_type == "browse_year")} 
     <tr>
 		<td align="left" class="default" colspan="2" >
-		  <h2><a href="{$rel_url}list/year/"><img border="0" src="{$rel_url}images/browse_32.jpg" alt="" /></a> &nbsp; {$browse_heading}</h2>
+		  <h2><a href="{$rel_url}list/year/"><img src="{$rel_url}images/browse_32.jpg" alt="" /></a> &nbsp; {$browse_heading}</h2>
 		</td>
     </tr>
 	   {if $year == "" }
@@ -95,7 +95,7 @@
 	{elseif $browse_type == "browse_subject"}
     <tr>
 		<td width="100%" colspan="2" align="left" class="default">
-		<h2><a href="{$rel_url}list/browse=subject"><img border="0" src="{$rel_url}images/browse_32.jpg" alt="" /></a> &nbsp;Browse by 
+		<h2><a href="{$rel_url}list/browse=subject"><img src="{$rel_url}images/browse_32.jpg" alt="" /></a> &nbsp;Browse by 
 	          {if $max_subject_breadcrumb != -1}
 				  {section name="b" loop=$subject_breadcrumb}
 					  {assign var="counter" value=b}
