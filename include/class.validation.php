@@ -83,7 +83,7 @@ class Validation
 		}
 		//Also check its not already a username
 		$authorDetails = Author::getDetailsByUsername($str);
-		if (count($authorDetails) != 0) {
+		if ($authorDetails != '' && count($authorDetails) != 0) {
 			return true;
 		}
 		return false;
