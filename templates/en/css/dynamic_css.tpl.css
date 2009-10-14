@@ -697,9 +697,9 @@ width: 2em;
 }
 
 .admin-box {
-    border: 1px solid #99BEFF;
+    border: 1px solid #5e217a;
     background-color: white;
-    padding: 4px;
+    padding: 10px;
 }
 
 .admin-side-nav-title {
@@ -1126,25 +1126,24 @@ td.search_multi_input {
     padding:0.5em;
 }
 
-#paging-box {
+.paging-box {
 	clear:both;
 	position: relative;
 	border-top: 2px solid #d6d6d6;
 	border-right: 2px solid #d6d6d6;
 	border-left: 2px solid #d6d6d6;
 	border-bottom: 2px solid #d6d6d6;
-	font-size: 80%;
-	padding: 5px;
+	padding: 5px 5px 0 5px;
 	background: #e5e5e5;
 	margin: 0px 0px 0px 0px;
 }
 
-#paging-box a {
+.paging-box a {
 	color: #555;
 	padding: 0 0.1em 0;
 }
 
-#paging-box .page {
+.paging-box .page {
 	font-weight: bold;
 	background: #b2b2b2;
 	padding: 0.25em;
