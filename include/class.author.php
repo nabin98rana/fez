@@ -341,6 +341,7 @@ class Author
                     aut_homepage_link=" . $db->quote($_POST["homepage_link"]) . ",
                     aut_ref_num=" . $db->quote($_POST["aut_ref_num"]) . ",
                     aut_scopus_id=" . $db->quote($_POST["scopus_id"]).",
+					aut_mypub_url=" . $db->quote($_POST["mypub_url"]).",
                     aut_update_date=" . $db->quote(Date_API::getCurrentDateGMT());
 		if ($_POST["org_staff_id"] !== "") {
 			$stmt .= ",aut_org_staff_id=" . $db->quote($_POST["org_staff_id"]) . " ";
@@ -420,8 +421,9 @@ class Author
 		if ($_POST["cv_link"] !== "")          { $insert .= ", aut_cv_link "; }
 		if ($_POST["homepage_link"] !== "")    { $insert .= ", aut_homepage_link "; }
 		if ($_POST["aut_ref_num"] !== "")      { $insert .= ", aut_ref_num "; }
-		if ($_POST["researcher_id"] !== "")      { $insert .= ", aut_researcher_id "; }
-		if ($_POST["scopus_id"] !== "")      { $insert .= ", aut_scopus_id "; }
+		if ($_POST["researcher_id"] !== "")    { $insert .= ", aut_researcher_id "; }
+		if ($_POST["scopus_id"] !== "")        { $insert .= ", aut_scopus_id "; }
+		if ($_POST["mypub_url"] !== "")        { $insert .= ", aut_mypub_url "; }
 
 		$values = ") VALUES (
                     " . $db->quote($_POST["title"]) . ",
@@ -436,16 +438,16 @@ class Author
 			$values .= ", " . $db->quote($_POST["fname"] . '' . $_POST["lname"]);
 		}
 
-		if ($_POST["org_staff_id"] !== "") { $values .= ", " . $db->quote($_POST["org_staff_id"]); }
-		if ($_POST["org_username"] !== "") { $values .= ", " . $db->quote($_POST["org_username"]); }
-		if ($_POST["mname"] !== "")        { $values .= ", " . $db->quote($_POST["mname"]); }
-		if ($_POST["position"] !== "")        { $values .= ", " . $db->quote($_POST["position"]); }
-		if ($_POST["cv_link"] !== "")        { $values .= ", " . $db->quote($_POST["cv_link"]); }
-		if ($_POST["homepage_link"] !== "")        { $values .= ", " . $db->quote($_POST["homepage_link"]);}
-		if ($_POST["aut_ref_num"] !== "")        { $values .= ", " . $db->quote($_POST["aut_ref_num"]);}
-		if ($_POST["researcher_id"] !== "")        { $values .= ", " . $db->quote($_POST["researcher_id"]); }
+		if ($_POST["org_staff_id"] !== "")     { $values .= ", " . $db->quote($_POST["org_staff_id"]); }
+		if ($_POST["org_username"] !== "")     { $values .= ", " . $db->quote($_POST["org_username"]); }
+		if ($_POST["mname"] !== "")            { $values .= ", " . $db->quote($_POST["mname"]); }
+		if ($_POST["position"] !== "")         { $values .= ", " . $db->quote($_POST["position"]); }
+		if ($_POST["cv_link"] !== "")          { $values .= ", " . $db->quote($_POST["cv_link"]); }
+		if ($_POST["homepage_link"] !== "")    { $values .= ", " . $db->quote($_POST["homepage_link"]); }
+		if ($_POST["aut_ref_num"] !== "")      { $values .= ", " . $db->quote($_POST["aut_ref_num"]); }
+		if ($_POST["researcher_id"] !== "")    { $values .= ", " . $db->quote($_POST["researcher_id"]); }
 		if ($_POST["scopus_id"] !== "")        { $values .= ", " . $db->quote($_POST["scopus_id"]); }
-
+		if ($_POST["mypub_url"] !== "")        { $values .= ", " . $db->quote($_POST["mypub_url"]); }
 
 		$values .= ")";
 
