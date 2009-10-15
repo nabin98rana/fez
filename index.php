@@ -51,7 +51,6 @@ include_once(APP_INC_PATH . "class.citation.php");
 include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "class.news.php");
 include_once(APP_INC_PATH . "class.lister.php");
-include_once(APP_INC_PATH . "class.survey.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.validation.php");
 include_once(APP_INC_PATH . "class.pager.php");
@@ -81,12 +80,6 @@ if (@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "") {
 	if (Auth::LoginAuthenticatedUser("", "", true) > 0) {
     	Auth::redirect(APP_RELATIVE_URL . "login.php?err=22");
 	}
-	if ((@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "") && (SHIB_SURVEY == "ON")) {
-//	  if ((!Survey::hasFilledSurvey(Auth::getUserID()) == 1) && (User::getShibLoginCount(Auth::getUserID()) > 1)) { //if they are shib user and they have logged in at least once before send them to the survey
-	  if (!Survey::hasFilledSurvey(Auth::getUserID()) == 1) { //send them to the survey the first time they login
-		  Auth::redirect(APP_RELATIVE_URL . "survey.php");
-	  }
-	}	
 	if (!empty($_SESSION["url"])) { 
 		$url = $_SESSION["url"];
 		$_SESSION["url"] = "";

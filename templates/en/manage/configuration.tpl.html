@@ -1,11 +1,6 @@
 {literal}
-<script language="JavaScript">
+<script type="text/javascript">
 <!--
-
-/*window.onload = function() {
-	hideAllSubPages();
-}
-*/
 
 function showSubPage(p)
 {
@@ -94,7 +89,7 @@ function restoreDefaultColours(el)
 	<div class="admin-header">Site Configuration</div>
 
     <div class="default admin-content">
-	<img align="absmiddle" src="{$rel_url}images/config_22.png" border="0" /> Modify Fez configuration settings.
+	<img src="{$rel_url}images/config_22.png" style="position: relative; top: 5px;" alt="Configuration" /> Modify Fez configuration settings.
 
 	<br /><br />
 
@@ -106,16 +101,16 @@ function restoreDefaultColours(el)
 	    Configuration settings were successfully saved.
 	  {/section}
 	  </p>
-	  <p><img src="{$rel_url}images/warning_16.png" alt="Warning" title="Warning" width="16" height="16" /> It is highly recommended that you run the <a href="../upgrade/check_sanity.php" target="_blank">Sanity Checks</a> now, to ensure there are no serious problems with your changes.</p>
+	  <p><img src="{$rel_url}images/warning_16.png" alt="Warning" title="Warning" width="16" height="16" /> It is highly recommended that you run the <a href="../upgrade/check_sanity.php" onclick="javascript: window.open('../upgrade/check_sanity.php'); return false;">Sanity Checks</a> now, to ensure there are no serious problems with your changes.</p>
 	  <br />
     {else}
-      <p>&raquo; <a href="../upgrade/check_sanity.php" target="_blank">Run Sanity Check</a></p>
+      <p>&raquo; <a href="../upgrade/check_sanity.php" onclick="javascript: window.open('../upgrade/check_sanity.php'); return false;">Run Sanity Check</a></p>
 	  <br />
 	{/if}
 
 	<table>
 	  <tr>
-	    <td width="160">
+	    <td style="width: 160px;">
 		  <a href="#" onclick="javascript:showSubPage('general');">General Settings</a><br />
 		  <a href="#" onclick="javascript:showSubPage('fedora');">Fedora Settings</a><br />
 		  <a href="#" onclick="javascript:showSubPage('paths');">Programs and Paths</a><br />
@@ -138,9 +133,11 @@ function restoreDefaultColours(el)
 
 	<br /><br />
 
-    <form name="run_stats" onsubmit="javascript:return checkFormSubmission(this, 'validateForm');" method="post" action="{$smarty.server.PHP_SELF}" onload="javascript:window.alert('!');">
-		<input type="hidden" name="action" value="save" />
-		<input type="hidden" name="datamodel_version" value="{$config_settings.datamodel_version|escape:"html"}" />
+    <form id="run_stats" onsubmit="javascript:return checkFormSubmission(this, 'validateForm');" method="post" action="{$smarty.server.PHP_SELF}">
+		<div>
+			<input type="hidden" name="action" value="save" />
+			<input type="hidden" name="datamodel_version" value="{$config_settings.datamodel_version|escape:"html"}" />
+		</div>
 
 		<div id="general" style="display: none;">
 		<table width="100%" class="config-group">
@@ -348,7 +345,7 @@ function restoreDefaultColours(el)
 			  the placeholder text <b>%&lt;format&gt;%</b> which will be replaced with the generated date in the format specified.
 			  <br />For example: <b>/var/log/fez/fez-%Ymd%.log</b> will output log files to the directory /var/log/fez/ 
 			  with a file name fez-20090921.log (i.e. rotated daily). For more information about date formats, please see 
-			  the PHP Manual date reference page <a href="http://www.php.net/manual/en/function.date.php" target="_blank">here</a>.
+			  the PHP Manual date reference page <a href="http://www.php.net/manual/en/function.date.php" onclick="javascript: window.open('http://www.php.net/manual/en/function.date.php'); return false;">here</a>.
 			  {include file="error_icon.tpl.html" field="app_log_location"}
 			</td>
   		  </tr>
@@ -435,8 +432,8 @@ function restoreDefaultColours(el)
   		  <tr>
 		    <td class="colname">Google Analytics ID</td>
 			<td class="coldetail">
-			  <input type="radio" name="app_analytics_switch" value="ON" {if $config_settings.app_analytics_switch == "ON"}checked{/if}/> Enabled &nbsp; 
-			  <input type="radio" name="app_analytics_switch" value="OFF" {if $config_settings.app_analytics_switch == "OFF"}checked{/if}/> Disabled  &nbsp; &nbsp; 
+			  <input type="radio" name="app_analytics_switch" value="ON" {if $config_settings.app_analytics_switch == "ON"}checked="checked"{/if}/> Enabled &nbsp; 
+			  <input type="radio" name="app_analytics_switch" value="OFF" {if $config_settings.app_analytics_switch == "OFF"}checked="checked"{/if}/> Disabled  &nbsp; &nbsp; 
 		    
 			  <input type="text" name="app_analytics_id" value="{$config_settings.app_analytics_id|escape:"html"}" size="20" />
 			  Format: <strong><i>xxxxxx-x</i></strong><br />
@@ -446,8 +443,8 @@ function restoreDefaultColours(el)
   		  <tr>
 		    <td class="colname">Google Maps API Key</td>
 			<td class="coldetail">
-			  <input type="radio" name="app_use_google_map_switch" value="ON" {if $config_settings.app_use_google_map_switch == "ON"}checked{/if}/> Enabled &nbsp;
-			  <input type="radio" name="app_use_google_map_switch" value="OFF" {if $config_settings.app_use_google_map_switch == "OFF"}checked{/if}/> Disabled  &nbsp; &nbsp;
+			  <input type="radio" name="app_use_google_map_switch" value="ON" {if $config_settings.app_use_google_map_switch == "ON"}checked="checked"{/if}/> Enabled &nbsp;
+			  <input type="radio" name="app_use_google_map_switch" value="OFF" {if $config_settings.app_use_google_map_switch == "OFF"}checked="checked"{/if}/> Disabled  &nbsp; &nbsp;
 
 			  <input type="text" name="app_google_map_key" value="{$config_settings.app_google_map_key|escape:"html"}" size="60" />
 			  {include file="error_icon.tpl.html" field="app_google_maps_key"}
@@ -508,7 +505,6 @@ function restoreDefaultColours(el)
 			<td colspan="2">
 			  <h2>Fedora Settings</h2>
 			</td>
-  		  </tr>
   		  </tr>
 		  <tr>
 		    <td class="colname">Version</td>
@@ -883,13 +879,14 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <td class="colname">Cycle colour #1</td>
 			<td class="coldetail">
-			  <input type="text" name="app_cycle_color_one" value="{$config_settings.app_cycle_color_one|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_cycle_color_one')"/><div id="app_cycle_color_one" style="background-color: {$config_settings.app_cycle_color_one}; height: 10px; width: 85px;"/></div>
+			  <input type="text" name="app_cycle_color_one" value="{$config_settings.app_cycle_color_one|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_cycle_color_one')"/><div id="app_cycle_color_one" style="background-color: {$config_settings.app_cycle_color_one}; height: 10px; width: 85px;"></div>
 			  {include file="error_icon.tpl.html" field="app_cycle_color_one"}
 			</td>
   		  </tr>
+		  <tr>
 		    <td class="colname">Cycle colour #2</td>
 			<td class="coldetail">
-			  <input type="text" name="app_cycle_color_two" value="{$config_settings.app_cycle_color_two|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_cycle_color_two')"/><div id="app_cycle_color_two" style="background-color: {$config_settings.app_cycle_color_two}; height: 10px; width: 85px;"/></div>
+			  <input type="text" name="app_cycle_color_two" value="{$config_settings.app_cycle_color_two|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_cycle_color_two')"/><div id="app_cycle_color_two" style="background-color: {$config_settings.app_cycle_color_two}; height: 10px; width: 85px;"></div>
 			  {include file="error_icon.tpl.html" field="app_cycle_color_two"}
 			</td>
   		  </tr>
@@ -1010,8 +1007,8 @@ function restoreDefaultColours(el)
   		  </tr>
 		  <tr>
 			<td colspan="2">
-			  <input type="radio" name="webserver_log_statistics" value="ON" {if $config_settings.webserver_log_statistics == "ON"}checked{/if}/> Enabled &nbsp; 
-			  <input type="radio" name="webserver_log_statistics" value="OFF" {if $config_settings.webserver_log_statistics == "OFF"}checked{/if}/> Disabled
+			  <input type="radio" name="webserver_log_statistics" value="ON" {if $config_settings.webserver_log_statistics == "ON"}checked="checked"{/if}/> Enabled &nbsp; 
+			  <input type="radio" name="webserver_log_statistics" value="OFF" {if $config_settings.webserver_log_statistics == "OFF"}checked="checked"{/if}/> Disabled
 			</td>
   		  </tr>
 		  <tr>
@@ -1056,8 +1053,8 @@ function restoreDefaultColours(el)
   		  </tr>
 		  <tr>
 			<td colspan="2">
-			  <input type="radio" name="shib_switch" value="ON" {if $config_settings.shib_switch == "ON"}checked{/if}/> Enabled &nbsp; 
-			  <input type="radio" name="shib_switch" value="OFF" {if $config_settings.shib_switch == "OFF"}checked{/if}/> Disabled
+			  <input type="radio" name="shib_switch" value="ON" {if $config_settings.shib_switch == "ON"}checked="checked"{/if}/> Enabled &nbsp; 
+			  <input type="radio" name="shib_switch" value="OFF" {if $config_settings.shib_switch == "OFF"}checked="checked"{/if}/> Disabled
 			</td>
   		  </tr>
 		  <tr>
@@ -1130,8 +1127,8 @@ function restoreDefaultColours(el)
   		  </tr>
 		  <tr>
 			<td colspan="2">
-			  <input type="radio" name="ldap_switch" value="ON" {if $config_settings.ldap_switch == "ON"}checked{/if}/> Enabled &nbsp; 
-			  <input type="radio" name="ldap_switch" value="OFF" {if $config_settings.ldap_switch == "OFF"}checked{/if}/> Disabled
+			  <input type="radio" name="ldap_switch" value="ON" {if $config_settings.ldap_switch == "ON"}checked="checked"{/if}/> Enabled &nbsp; 
+			  <input type="radio" name="ldap_switch" value="OFF" {if $config_settings.ldap_switch == "OFF"}checked="checked"{/if}/> Disabled
 			</td>
   		  </tr>
 		  <tr>
@@ -1285,19 +1282,18 @@ function restoreDefaultColours(el)
 			  <h2>Solr Settings</h2>
 			</td>
   		  </tr>
-  		  </tr>
 		  <tr>
 	        <td class="colname">Use Solr for Search</td>
 			<td class="coldetail">
-			  <input type="radio" name="app_solr_switch" value="ON" {if $config_settings.app_solr_switch == "ON"}checked{/if}/> Enabled &nbsp; 
-			  <input type="radio" name="app_solr_switch" value="OFF" {if $config_settings.app_solr_switch == "OFF"}checked{/if}/> Disabled
+			  <input type="radio" name="app_solr_switch" value="ON" {if $config_settings.app_solr_switch == "ON"}checked="checked"{/if}/> Enabled &nbsp; 
+			  <input type="radio" name="app_solr_switch" value="OFF" {if $config_settings.app_solr_switch == "OFF"}checked="checked"{/if}/> Disabled
 			</td>
   		  </tr>
   		  <tr>
 	        <td class="colname">Solr Indexer</td>
 			<td class="coldetail">
-			  <input type="radio" name="app_solr_indexer" value="ON" {if $config_settings.app_solr_indexer == "ON"}checked{/if}/> On &nbsp; 
-			  <input type="radio" name="app_solr_indexer" value="OFF" {if $config_settings.app_solr_indexer == "OFF"}checked{/if}/> Off
+			  <input type="radio" name="app_solr_indexer" value="ON" {if $config_settings.app_solr_indexer == "ON"}checked="checked"{/if}/> On &nbsp; 
+			  <input type="radio" name="app_solr_indexer" value="OFF" {if $config_settings.app_solr_indexer == "OFF"}checked="checked"{/if}/> Off
 			</td>
   		  </tr>
 		  <tr>
@@ -1317,8 +1313,8 @@ function restoreDefaultColours(el)
   		  <tr>
 	        <td class="colname">Solr Send Public/Non-logged in Reads to Slave replicant (requires above slave host value set)</td>
 			<td class="coldetail">
-			  <input type="radio" name="app_solr_slave_read" value="ON" {if $config_settings.app_solr_slave_read == "ON"}checked{/if}/> On &nbsp; 
-			  <input type="radio" name="app_solr_slave_read" value="OFF" {if $config_settings.app_solr_slave_read == "OFF"}checked{/if}/> Off
+			  <input type="radio" name="app_solr_slave_read" value="ON" {if $config_settings.app_solr_slave_read == "ON"}checked="checked"{/if}/> On &nbsp; 
+			  <input type="radio" name="app_solr_slave_read" value="OFF" {if $config_settings.app_solr_slave_read == "OFF"}checked="checked"{/if}/> Off
 			</td>
   		  </tr>
 		  <tr>
@@ -1352,12 +1348,11 @@ function restoreDefaultColours(el)
 			  <h2>Origami Settings</h2>
 			</td>
   		  </tr>
-  		  </tr>
 		  <tr>
 	        <td class="colname">Use Origami</td>
 			<td class="coldetail">
-			  <input type="radio" name="app_origami_switch" value="ON" {if $config_settings.app_origami_switch == "ON"}checked{/if}/> On &nbsp; 
-			  <input type="radio" name="app_origami_switch" value="OFF" {if $config_settings.app_origami_switch == "OFF"}checked{/if}/> Off
+			  <input type="radio" name="app_origami_switch" value="ON" {if $config_settings.app_origami_switch == "ON"}checked="checked"{/if}/> On &nbsp; 
+			  <input type="radio" name="app_origami_switch" value="OFF" {if $config_settings.app_origami_switch == "OFF"}checked="checked"{/if}/> Off
 			</td>
   		  </tr>
 		  <tr>
@@ -1378,12 +1373,11 @@ function restoreDefaultColours(el)
 			  <h2>Exiftool Settings</h2>
 			</td>
   		  </tr>
-  		  </tr>
 		  <tr>
 	        <td class="colname">Use Exiftool</td>
 			<td class="coldetail">
-			  <input type="radio" name="app_exiftool_switch" value="ON" {if $config_settings.app_exiftool_switch == "ON"}checked{/if}/> On &nbsp; 
-			  <input type="radio" name="app_exiftool_switch" value="OFF" {if $config_settings.app_exiftool_switch == "OFF"}checked{/if}/> Off
+			  <input type="radio" name="app_exiftool_switch" value="ON" {if $config_settings.app_exiftool_switch == "ON"}checked="checked"{/if}/> On &nbsp; 
+			  <input type="radio" name="app_exiftool_switch" value="OFF" {if $config_settings.app_exiftool_switch == "OFF"}checked="checked"{/if}/> Off
 			</td>
   		  </tr>
 		  <tr>
@@ -1407,8 +1401,8 @@ function restoreDefaultColours(el)
   		  </tr>
 		  <tr>
 			<td colspan="2">
-			  <input type="radio" name="app_handle" value="ON" {if $config_settings.app_handle == "ON"}checked{/if}/> Enabled &nbsp; 
-			  <input type="radio" name="app_handle" value="OFF" {if $config_settings.app_handle == "OFF"}checked{/if}/> Disabled
+			  <input type="radio" name="app_handle" value="ON" {if $config_settings.app_handle == "ON"}checked="checked"{/if}/> Enabled &nbsp; 
+			  <input type="radio" name="app_handle" value="OFF" {if $config_settings.app_handle == "OFF"}checked="checked"{/if}/> Disabled
 			</td>
   		  </tr>
 		  <tr>
@@ -1474,22 +1468,21 @@ function restoreDefaultColours(el)
 			     the value of Versionable set in the XSD matching field.  Certain Fez 
 			     controlled datastreams ignore this field and hardcode turning Versionable 
 			     on or off.</p> 
-			  <p><b>NOTE:</b> <em>Interval Between Fedora Versions<em> is the minimum amount of time 
+			  <p><b>NOTE:</b> <em>Interval Between Fedora Versions</em> is the minimum amount of time 
 			     in seconds between amalgamated versions of datastreams of a record that 
 			     are deemed to correspond to an atomic Fez operation. If this value is 
 			     set too high, the filtered list of version times may not display 
 			     legitimate edits. If the value is set too low, the filtered list may 
 			     include times that correspond to updates of individual datastreams.</p>
-			  <p><b>NOTE:</b> <em>You also need to set APP_VIEW_VERSIONS_ROLES and 
-			     APP_VIEW_VERSIONS_ROLE_IDS in include/class.configuration.php. </p>
+			  <p><b>NOTE:</b> You also need to set APP_VIEW_VERSIONS_ROLES and 
+			     APP_VIEW_VERSIONS_ROLE_IDS in include/class.configuration.php.</p>
 			</td>
-  		  </tr>
   		  </tr>
 		  <tr>
 	        <td class="colname">Enable Versioning for Attached Files and External Links</td>
 			<td class="coldetail">
-			  <input type="radio" name="app_version_uploads_and_links" value="ON" {if $config_settings.app_version_uploads_and_links == "ON"}checked{/if}/> On &nbsp; 
-			  <input type="radio" name="app_version_uploads_and_links" value="OFF" {if $config_settings.app_version_uploads_and_links == "OFF"}checked{/if}/> Off
+			  <input type="radio" name="app_version_uploads_and_links" value="ON" {if $config_settings.app_version_uploads_and_links == "ON"}checked="checked"{/if}/> On &nbsp; 
+			  <input type="radio" name="app_version_uploads_and_links" value="OFF" {if $config_settings.app_version_uploads_and_links == "OFF"}checked="checked"{/if}/> Off
 			</td>
   		  </tr>
 		  <tr>
@@ -1518,7 +1511,7 @@ function restoreDefaultColours(el)
 			</td>
   		  </tr>
 		  <tr>
-		    <td class="colname" nowrap="nowrap">Enabled</td>
+		    <td class="colname">Enabled</td>
 			<td class="coldetail">
 			  <select name="rid_enabled">
 			    <option value="false"{if $config_settings.rid_enabled == "false"} selected="selected"{/if}>No</option>
@@ -1541,7 +1534,7 @@ function restoreDefaultColours(el)
 			</td>
   		  </tr>
 		  <tr>
-		    <td class="colname" nowrap="nowrap">Username</td>
+		    <td class="colname">Username</td>
 			<td class="coldetail">
 			  <input type="text" name="rid_dl_service_username" value="{$config_settings.rid_dl_service_username|escape:"html"}" size="20" />
 			  <br />The username you use to authenticate to the ResearcherID web service.
@@ -1549,7 +1542,7 @@ function restoreDefaultColours(el)
 			</td>
   		  </tr>
   		  <tr>
-		    <td class="colname" nowrap="nowrap">Password</td>
+		    <td class="colname">Password</td>
 			<td class="coldetail">
 			  <input type="password" name="rid_dl_service_password" value="{$config_settings.rid_dl_service_password|escape:"html"}" size="20" />
 			  <br />The password you use to authenticate to the ResearcherID web service.
@@ -1557,7 +1550,7 @@ function restoreDefaultColours(el)
 			</td>
   		  </tr>
   		  <tr>
-		    <td class="colname" nowrap="nowrap">Web Service URL</td>
+		    <td class="colname">Web Service URL</td>
 			<td class="coldetail">
 			  <input type="text" name="rid_dl_service_url" value="{$config_settings.rid_dl_service_url|escape:"html"}" size="50" />
 			  <br />The URL of the ResearcherID batch download web service.
@@ -1565,7 +1558,7 @@ function restoreDefaultColours(el)
 			</td>
   		  </tr>  		  
   		  <tr>
-		    <td class="colname" nowrap="nowrap">Download Request XSD</td>
+		    <td class="colname">Download Request XSD</td>
 			<td class="coldetail">
 			  <input type="text" name="rid_dl_service_request_xsd" value="{$config_settings.rid_dl_service_request_xsd|escape:"html"}" size="50" />
 			  <br />Local file name and path of the supplied XML schema document for validating the request for data.
@@ -1573,7 +1566,7 @@ function restoreDefaultColours(el)
 			</td>
   		  </tr>
   		  <tr>
-		    <td class="colname" nowrap="nowrap">Download Response XSD</td>
+		    <td class="colname">Download Response XSD</td>
 			<td class="coldetail">
 			  <input type="text" name="rid_dl_service_response_xsd" value="{$config_settings.rid_dl_service_response_xsd|escape:"html"}" size="50" />
 			  <br />Local file name and path of the supplied XML schema document for validating the response to the request for data.
@@ -1581,7 +1574,7 @@ function restoreDefaultColours(el)
 			</td>
   		  </tr>
   		  <tr>
-		    <td class="colname" nowrap="nowrap">Collection</td>
+		    <td class="colname">Collection</td>
 			<td class="coldetail">
 			  <input type="text" name="rid_dl_collection" value="{$config_settings.rid_dl_collection|escape:"html"}" size="10" />
 			  <br />Set this to the PID of the collection the downloaded publications will be added to.
@@ -1600,7 +1593,7 @@ function restoreDefaultColours(el)
 			</td>
   		  </tr>
 		  <tr>
-		    <td class="colname" nowrap="nowrap">Username</td>
+		    <td class="colname">Username</td>
 			<td class="coldetail">
 			  <input type="text" name="rid_ul_service_username" value="{$config_settings.rid_ul_service_username|escape:"html"}" size="20" />
 			  <br />The username you use to authenticate to the ResearcherID web service.
@@ -1608,7 +1601,7 @@ function restoreDefaultColours(el)
 			</td>
   		  </tr>
   		  <tr>
-		    <td class="colname" nowrap="nowrap">Password</td>
+		    <td class="colname">Password</td>
 			<td class="coldetail">
 			  <input type="password" name="rid_ul_service_password" value="{$config_settings.rid_ul_service_password|escape:"html"}" size="20" />
 			  <br />The password you use to authenticate to the ResearcherID web service.
@@ -1616,7 +1609,7 @@ function restoreDefaultColours(el)
 			</td>
   		  </tr>
   		  <tr>
-		    <td class="colname" nowrap="nowrap">Web Service URL</td>
+		    <td class="colname">Web Service URL</td>
 			<td class="coldetail">
 			  <input type="text" name="rid_ul_service_url" value="{$config_settings.rid_ul_service_url|escape:"html"}" size="50" />
 			  <br />The URL of the ResearcherID batch upload web service.
@@ -1624,7 +1617,7 @@ function restoreDefaultColours(el)
 			</td>
   		  </tr>  		  
   		  <tr>
-		    <td class="colname" nowrap="nowrap">Upload Profiles XSD</td>
+		    <td class="colname">Upload Profiles XSD</td>
 			<td class="coldetail">
 			  <input type="text" name="rid_ul_service_profiles_xsd" value="{$config_settings.rid_ul_service_profiles_xsd|escape:"html"}" size="50" />
 			  <br />Local file name and path of the supplied XML schema document for validating the profiles list.
@@ -1632,7 +1625,7 @@ function restoreDefaultColours(el)
 			</td>
   		  </tr>
   		  <tr>
-		    <td class="colname" nowrap="nowrap">Upload Publications XSD</td>
+		    <td class="colname">Upload Publications XSD</td>
 			<td class="coldetail">
 			  <input type="text" name="rid_ul_service_publications_xsd" value="{$config_settings.rid_ul_service_publications_xsd|escape:"html"}" size="50" />
 			  <br />Local file name and path of the supplied XML schema document for validating the publications list.
@@ -1640,19 +1633,15 @@ function restoreDefaultColours(el)
 			</td>
   		  </tr>
   		  <tr>
-		    <td class="colname" nowrap="nowrap">Upload Emails Path</td>
+		    <td class="colname">Upload Emails Path</td>
 			<td class="coldetail">
 			  <input type="text" name="rid_ul_service_routed_email_path" value="{$config_settings.rid_ul_service_routed_email_path|escape:"html"}" size="50" />
 			  <br />The upload service sends its report via email. This is the path the email server stores emails sent by the ResearcherID service.
-			  {include file="error_icon.tpl.html" field="rid_ul_service_publications_xsd"}
+			  {include file="error_icon.tpl.html" field="rid_ul_service_routed_email_path"}
 			</td>
   		  </tr>
 		</table>
 		</div>
-
-		
-		
-		
 
 		<div id="submit" style="display: none;">
 		<br />&nbsp;&nbsp;&nbsp;<input type="submit" name="button" value="Save changes" class="submit" /> &nbsp; <input type="reset" value="Discard changes" /><br /><br />

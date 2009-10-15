@@ -702,7 +702,22 @@ width: 2em;
     padding: 10px;
 }
 
+.admin-box h1 {
+    font-weight: bold;
+    font-size: 14px;
+	color: #1f1f1f;
+    padding: 5px 5px 0px 5px;
+}
+
+.admin-box h2 {
+    font-weight: bold;
+    font-size: 12px;
+	color: #5e217a;
+    padding: 5px 5px 10px 5px;
+}
+
 .admin-side-nav-title {
+	/* Deprecate this in favour of the above */
     font-weight: bold;
     font-size: 14px;
     padding-top: 10px;
@@ -747,8 +762,8 @@ width: 2em;
 }
 
 .colname {
-    width: 120px;
-    padding: 5px;
+    width: 130px;
+    padding: 5px 10px 5px 5px;
     text-align: right;
     font-weight: bold;
 }
@@ -756,6 +771,10 @@ width: 2em;
 .coldetail {
     padding: 5px;
     font-size: 80%;
+}
+
+.colname, .coldetail {
+	border-top: 1px solid #dddddd;
 }
 
 

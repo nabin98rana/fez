@@ -20,12 +20,12 @@
 {if $isUser}  
 	{if $list_type == 'community_list' && $isAdministrator}
 	<div class="create-box">
-		<a target="_top" title="Create a new community" href="{$rel_url}workflow/new.php?pid=-1&amp;xdis_id={$xdis_id}&amp;href={$smarty.server.REQUEST_URI|escape:'url'}"><img src="{$rel_url}images/folder_new.gif" align="top" border="0" alt="" /> <b>Create New Community</b></a>
+		<a target="_top" title="Create a new community" href="{$rel_url}workflow/new.php?pid=-1&amp;xdis_id={$xdis_id}&amp;href={$smarty.server.REQUEST_URI|escape:'url'}"><img src="{$rel_url}images/folder_new.gif" align="top" alt="" /> <b>Create New Community</b></a>
 	</div> <br /><br />&nbsp;
 	{elseif $list_type == 'collection_list' && ($isAdministrator || $isCreator)}
 	<div class="create-box">
 		{if $childXDisplayOptions != 0}
-		<img src="{$rel_url}images/folder_new.gif" align="top" border="0" alt="" />
+		<img src="{$rel_url}images/folder_new.gif" align="top" alt="" />
 		<input type="hidden" name="community_pid" value="{$community_pid}" />
 		<select name="xdis_id_top">
 		  {html_options options=$childXDisplayOptions}
@@ -36,7 +36,7 @@
 	{elseif ($list_type == 'collection_records_list' && ($isAdministrator || $isCreator)) && $browse_type == ""}
 	<div class="create-box">			
 		{if $childXDisplayOptions != 0}
-		<img src="{$rel_url}images/folder_new.gif" align="top" border="0" alt="" />
+		<img src="{$rel_url}images/folder_new.gif" align="top" alt="" />
 		<input type="hidden" name="collection_pid" value="{$collection_pid}" />
 		<select name="xdis_id_top">
 		  {html_options options=$childXDisplayOptions}
@@ -169,7 +169,7 @@
 
 		  {if $icon != ""}
           <td align='right' style="border-top:1px dashed #be87e9; width: 1%;">
-                {if $href_view}<a href='{$rel_url}{$href_view}' >{/if}<img {if ($icon_width != "" && $icon_height != "")}width={$icon_width} height={$icon_height}{/if} valign='top' align='right' src="{$icon}" alt="" border="0" />{if $href_view}</a>{/if}
+                {if $href_view}<a href='{$rel_url}{$href_view}' >{/if}<img {if ($icon_width != "" && $icon_height != "")}width={$icon_width} height={$icon_height}{/if} valign='top' align='right' src="{$icon}" alt="" />{if $href_view}</a>{/if}
 		  </td>
 		  {/if}
 				  
@@ -188,7 +188,7 @@
 		  </td>		
 
 			{if $list[i].isEditor==1 || $isAdministrator}
-			  <td align="left" valign="middle" nowrap style="border-top:1px dashed #be87e9;">
+			  <td align="left" valign="middle" style="border-top:1px dashed #be87e9; white-space: nowrap;">
 			  {section name="w" loop=$list[i].wft_id}
 			    {if $list[i].wft_id[w] != ''}
 			    {if $list[i].wft_icon[w] == 'images/security.gif'}
@@ -210,21 +210,21 @@
                 {else}
                   {assign var='wf_url' value=$rel_url|cat:'workflow/update.php'}
    			    {/if}
-			     <a href="{$wf_url}?pid={$list[i].rek_pid|escape:"html"}&amp;cat=select_workflow&amp;xdis_id={$list[i].rek_display_type}&amp;wft_id={$list[i].wft_id[w]}&amp;href={$smarty.server.REQUEST_URI|escape:'url'}"{if $list[i].wft_icon[w] == 'images/delete.gif'} onclick="return confirmDelete();"{/if}><img alt="{$list[i].wfl_title[w]}" title="{$list[i].wfl_title[w]}" src="{$rel_url}{$wf_icon}" border="0" /></a> 
+			     <a href="{$wf_url}?pid={$list[i].rek_pid|escape:"html"}&amp;cat=select_workflow&amp;xdis_id={$list[i].rek_display_type}&amp;wft_id={$list[i].wft_id[w]}&amp;href={$smarty.server.REQUEST_URI|escape:'url'}"{if $list[i].wft_icon[w] == 'images/delete.gif'} onclick="return confirmDelete();"{/if}><img alt="{$list[i].wfl_title[w]}" title="{$list[i].wfl_title[w]}" src="{$rel_url}{$wf_icon}" /></a> 
 				{/if}
 			  {/section}
 		          
-                <a href="{$rel_url}workflow/list_workflows2.php?pid={$list[i].rek_pid|escape}"><img src="{$rel_url}images/options_16.png" alt="More options" title="More options" border="0" width="16" height="16" /></a> 
+                <a href="{$rel_url}workflow/list_workflows2.php?pid={$list[i].rek_pid|escape}"><img src="{$rel_url}images/options_16.png" alt="More options" title="More options" width="16" height="16" /></a> 
 			</td>
            {/if}
            
 			{if $smarty.get.cat =='Search' || $smarty.get.cat == 'all_fields' || $smarty.get.cat == 'quick_filter'}
-			<td align="center" valign="middle" width="" nowrap style="border-top:1px dashed #be87e9; width: 10px;">&nbsp;{if $list[i].Relevance}{$list[i].Relevance|@number_format:2}{/if}</td>
+			<td align="center" valign="middle" style="border-top:1px dashed #be87e9; width: 10px; white-space: nowrap;">&nbsp;{if $list[i].Relevance}{$list[i].Relevance|@number_format:2}{/if}</td>
 			{/if}
 			
 			{if $list[i].rek_object_type == 3}
-			<td align="center" valign="middle" style="border-top:1px dashed #be87e9; width: 10px;" nowrap>{if $list[i].rek_views}{$list[i].rek_views|escape:"html"}{else}&nbsp;{/if}</td>
-			<td align="center" valign="middle" style="border-top:1px dashed #be87e9; width: 10px;" nowrap>{if $list[i].rek_file_downloads}<a class="author_link" title="View detailed statistics for this object" href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].rek_pid}">{$list[i].rek_file_downloads|escape:"html"}</a>{else}&nbsp;{/if}</td>
+			<td align="center" valign="middle" style="border-top:1px dashed #be87e9; width: 10px; white-space: nowrap;">{if $list[i].rek_views}{$list[i].rek_views|escape:"html"}{else}&nbsp;{/if}</td>
+			<td align="center" valign="middle" style="border-top:1px dashed #be87e9; width: 10px; white-space: nowrap;">{if $list[i].rek_file_downloads}<a class="author_link" title="View detailed statistics for this object" href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].rek_pid}">{$list[i].rek_file_downloads|escape:"html"}</a>{else}&nbsp;{/if}</td>
 	       {else}
             <td colspan="2" style="border-top:1px dashed #be87e9;">&nbsp;</td>
 	       {/if}
@@ -248,17 +248,18 @@
 
 {if $isAdministrator && $list_info.total_rows > 0}
 	<div class="result-box clearfix" style="width: 980px; margin-top: 20px;">
-		<div class="clearfix sub-box">
-		  <div class="order-element" style="padding: 10px 0px 10px 10px;">
-			  <input type="button" value="Select All" class="shortcut" onclick="javascript:toggleSelectAll(this.form, 'pids[]');" />
-			  <select name="wft_id" class="default">
-				{html_options options=$bulk_workflows}
-			  </select>
-			  <input type="button" value="Run Workflow" class="shortcut" onclick="javascript:workflowItems(this.form, '{$rel_url}');" />
-			  <input type="button" value="Delete" onclick="javascript:return checkDeleteRecords(this.form);" class="button" />
-			  {include file="error_icon.tpl.html" field="users"}
-		  </div>
+	  <div class="clearfix sub-box">
+		<div class="order-element" style="padding: 10px 0px 10px 10px;">
+			<input type="button" value="Select All" class="shortcut" onclick="javascript:toggleSelectAll(this.form, 'pids[]');" />
+			<select name="wft_id" class="default">
+			  {html_options options=$bulk_workflows}
+			</select>
+			<input type="button" value="Run Workflow" class="shortcut" onclick="javascript:workflowItems(this.form, '{$rel_url}');" />
+			<input type="button" value="Delete" onclick="javascript:return checkDeleteRecords(this.form);" class="button" />
+			{include file="error_icon.tpl.html" field="users"}
 		</div>
+	  </div>
+	</div>
 {/if}
 
     {include file="paging_control.tpl.html" field="paginat0r"}

@@ -1,40 +1,40 @@
 <div class="admin-box">
 
-	<div class="admin-header">Administration Main</div>
+	<h1>Administration Main</h1>
 
 	<div class="default admin-content">
 	Choose a common task, or select from the navigation menu on the left.
 	<br /><br />
 
-		{if $isSuperAdministrator}
+	{if $isSuperAdministrator}
 		<table cellpadding="5" cellspacing="10">
 		  <tr>
-			<td valign="top">
-				<a href="users.php"><img align="absmiddle" src="{$rel_url}images/editor_22.png" border="0" alt="Manage Users" /> Manage Users</a><br /><br />
-				<a href="groups.php"><img align="absmiddle" src="{$rel_url}images/granter.png" border="0" alt="Manage Groups" /> Manage Groups</a><br /><br />
-				<a href="authors.php"><img align="absmiddle" src="{$rel_url}images/approver.png" border="0" alt="Manage Authors" /> Manage Authors</a><br /><br />
+			<td valign="top" style="width: 150px;">
+				<a href="users.php"><img src="{$rel_url}images/editor_22.png" alt="Manage Users" style="position: relative; top: 5px;" /> Manage Users</a><br /><br />
+				<a href="groups.php"><img src="{$rel_url}images/granter.png" alt="Manage Groups" style="position: relative; top: 5px;" /> Manage Groups</a><br /><br />
+				<a href="authors.php"><img src="{$rel_url}images/approver.png" alt="Manage Authors" style="position: relative; top: 5px;" /> Manage Authors</a><br /><br />
 			</td>
-		    <td valign="top">
-				<a href="news.php"><img align="absmiddle" src="{$rel_url}images/globe_22.png" border="0" alt="Manage News" /> Manage News</a><br /><br />
-				<a href="citations.php"><img align="absmiddle" src="{$rel_url}images/star_22.png" border="0" alt="Manage Citations" /> Manage Citations</a><br /><br />
-				{if $WEBSERVER_LOG_STATISTICS == 'ON'}<a href="run_webstats.php"><img align="absmiddle" src="{$rel_url}images/pie_22.png" border="0" alt="Run Webstats" /> Run Webstats</a><br /><br />{/if}
+			<td valign="top" style="width: 150px;">
+				<a href="news.php"><img src="{$rel_url}images/globe_22.png" alt="Manage News" style="position: relative; top: 5px;" /> Manage News</a><br /><br />
+				<a href="citations.php"><img src="{$rel_url}images/star_22.png" alt="Manage Citations" style="position: relative; top: 5px;" /> Manage Citations</a><br /><br />
+				{if $WEBSERVER_LOG_STATISTICS == 'ON'}<a href="run_webstats.php"><img src="{$rel_url}images/pie_22.png" alt="Run Webstats" style="position: relative; top: 5px;" /> Run Webstats</a><br /><br />{/if}
 			</td>
 		  </tr>
 		</table>
-		{else}
+	{else}
 		<table cellpadding="5" cellspacing="10">
 		  <tr>
-			<td valign="top">
-				<a href="news.php"><img align="absmiddle" src="{$rel_url}images/globe_22.png" border="0" alt="Manage News" /> Manage News</a><br /><br />
-				<a href="users.php"><img align="absmiddle" src="{$rel_url}images/editor_22.png" border="0" alt="Manage Users" /> Manage Users</a><br /><br />
+			<td valign="top" style="width: 150px;">
+				<a href="news.php"><img src="{$rel_url}images/globe_22.png" alt="Manage News" style="position: relative; top: 5px;" /> Manage News</a><br /><br />
+				<a href="users.php"><img src="{$rel_url}images/editor_22.png" alt="Manage Users" style="position: relative; top: 5px;" /> Manage Users</a><br /><br />
 			</td>
-		    <td valign="top">
-				<a href="authors.php"><img align="absmiddle" src="{$rel_url}images/approver.png" border="0" alt="Manage Authors" /> Manage Authors</a><br /><br />
-				<a href="groups.php"><img align="absmiddle" src="{$rel_url}images/granter.png" border="0" alt="Manage Groups" /> Manage Groups</a><br /><br />
+			<td valign="top" style="width: 150px;">
+				<a href="authors.php"><img src="{$rel_url}images/approver.png" alt="Manage Authors" style="position: relative; top: 5px;" /> Manage Authors</a><br /><br />
+				<a href="groups.php"><img src="{$rel_url}images/granter.png" alt="Manage Groups" style="position: relative; top: 5px;" /> Manage Groups</a><br /><br />
 			</td>
 		  </tr>
 		</table>
-		{/if}
+	{/if}
 
 	</div>
 

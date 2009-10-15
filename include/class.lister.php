@@ -1043,7 +1043,6 @@ class Lister
 			$params['browse'] = 'mypubs';
             $params['author_id'] = $authorDetails['aut_id'];
 			Lister::getList($params, true);
-
 		}
 		else {
 			Misc::redirect(APP_BASE_URL.'errors/404', true);
