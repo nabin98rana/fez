@@ -83,6 +83,7 @@ if (@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "") {
 	if (!empty($_SESSION["url"])) { 
 		$url = $_SESSION["url"];
 		$_SESSION["url"] = "";
+		Zend_Session::writeClose(); // write the session data out before doing a redirect
 		Auth::redirect($url);
 		exit;
 	}
@@ -102,6 +103,7 @@ if (@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "") {
     if ($loginres > 0) {
         Auth::redirect(APP_RELATIVE_URL . "login.php?err={$loginres}&username=" . $_POST["username"]);	
     }
+	Zend_Session::writeClose(); // write the session data out before doing a redirect
 	if (!empty($_POST["url"])) {
 		Auth::redirect(urldecode($_POST["url"])); 
 	} else {
