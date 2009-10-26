@@ -116,6 +116,9 @@ FCKConfig.ToolbarSets["Basic"] = [
 FCKConfig.ToolbarSets["FezBasic"] = [
 	['Bold','Italic','Underline','Subscript','Superscript','SpecialChar','-','SelectAll','RemoveFormat']
 ] ;
+FCKConfig.ToolbarSets['FezNewsEditor'] = [
+	['Bold','Italic','Underline','-','Image','Link','Unlink','Anchor','-','OrderedList','UnorderedList','-','Outdent','Indent']
+];
 
 FCKConfig.EnterMode = 'br' ;			// p | div | br
 FCKConfig.ShiftEnterMode = 'br' ;	// p | div | br

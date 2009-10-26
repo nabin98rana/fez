@@ -70,5 +70,7 @@ if ($isAdministrator) {
     $tpl->assign("show_not_allowed_msg", true);
 }
 
+$tpl->assign('include_fckeditor', true);
+
 $tpl->displayTemplate();
 ?>

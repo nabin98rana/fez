@@ -54,6 +54,9 @@ dojo.require("dojo.rpc.JsonService");
 <script type="text/javascript" src="{$rel_url}js/swfuploader.js"></script>
 <link type="text/css" href="{$rel_url}css/flash_uploader.css" rel="stylesheet" media="all" />
 {/if}
+{if $include_fckeditor}
+<script type="text/javascript" src="{$rel_url}js/fckeditor/fckeditor.js"></script>
+{/if}
 {if $refresh_rate}
 <meta http-equiv="Refresh" content="{$refresh_rate};URL={$app_base_url}{$refresh_page}" />
 {/if}
