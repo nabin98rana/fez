@@ -113,20 +113,22 @@ function purgeObject(pid)
 //-->
 </script>
 {/literal}
-<table width="100%" bgcolor="{$cell_color}" cellspacing="0" cellpadding="1" align="center">
-  <form name="list_form" method="get" action="{$smarty.server.PHP_SELF}">
-  <input type="hidden" name="cat" value="assign">
-  <tr>
-    <td>
-      <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" >
 
+<form id="list_form" method="get" action="{$smarty.server.PHP_SELF}">
+
+	<div>
+		<input type="hidden" name="cat" value="assign" />
+	</div>
+
+	<table cellspacing="0" cellpadding="1" style="width: 100%; text-align: center;">
+  
 		{if $list_type == 'collection_records_list'}
 		<tr>
 		  <td align="left"> <br />
-			<table bgcolor="#FFFFFF" border="0" cellspacing="0" cellpadding="1">
+			<table style="background: #FFFFFF;" cellspacing="0" cellpadding="1">
 				<tr>
-				  <td align="left" class="default"> <b>Parent Communities: </b></td>
-				  <td align="left" class="default"> &nbsp;
+				  <td align="left"> <b>Parent Communities: </b></td>
+				  <td align="left"> &nbsp;
 					{section name="i" loop=$parents}
 						<a href="community/{$parents[i].pid}">{$parents[i].title}</a> &nbsp;
 					{/section}
@@ -137,36 +139,37 @@ function purgeObject(pid)
 		</tr>
 		{/if}
 
-        <tr  align="center"><td>
-      <table bgcolor="#FFFFFF" width="800" cellpadding="2" cellspacing="1" class="default">
+        <tr align="center"><td>
+      <table width="800" cellpadding="2" cellspacing="1" class="default">
 		 <tr>
 		  <td>
-		   <h1 class="public"><img src="images/statistics_22.gif" alt="Access Statistics" />	Access Statistics <a href="{$rel_url}view/{$pid}">{$title}</a></h1> 
+		   <h1>Access Statistics: <a href="{$rel_url}view/{$pid}">{$title}</a></h1>
 		  </td>
 		 </tr>
 		 <tr>
 			<td align="left">
-			<p>
 			{if $pid != 'all'}
 			<p><strong>For this record:</strong>
-			<a href="{$smarty.server.PHP_SELF}?action=show_detail&pid={$pid}&range=4w">Past four weeks</a> | 
-			<a href="{$smarty.server.PHP_SELF}?action=show_detail&pid={$pid}&year={$thisYear}">This year</a> | 
-			<a href="{$smarty.server.PHP_SELF}?action=show_detail&pid={$pid}&year={$lastYear}">Last year</a> | 
-			<a href="{$smarty.server.PHP_SELF}?action=show_detail&pid={$pid}">All years</a></p>
+			<a href="{$smarty.server.PHP_SELF}?action=show_detail&amp;pid={$pid}&amp;range=4w">Past four weeks</a> | 
+			<a href="{$smarty.server.PHP_SELF}?action=show_detail&amp;pid={$pid}&amp;year={$thisYear}">This year</a> | 
+			<a href="{$smarty.server.PHP_SELF}?action=show_detail&amp;pid={$pid}&amp;year={$lastYear}">Last year</a> | 
+			<a href="{$smarty.server.PHP_SELF}?action=show_detail&amp;pid={$pid}">All years</a>
 			</p>
 			{/if}
 			<p><strong>Top 50:</strong>
 			<a href="{$rel_url}stats.php?browse=top50authors">{$application_title} Authors</a> |
 			<a href="{$rel_url}stats.php?browse=top50papers">Papers</a>
+			</p>
 			<p><strong>Most viewed records:</strong>
-			<a href="{$rel_url}stats.php?browse=show_detail_date&range=4w">Past four weeks</a> | 
-			<a href="{$rel_url}stats.php?browse=show_detail_date&year={$thisYear}">This year</a> | 
-			<a href="{$rel_url}stats.php?browse=show_detail_date&year={$lastYear}">Last year</a> | 
+			<a href="{$rel_url}stats.php?browse=show_detail_date&amp;range=4w">Past four weeks</a> | 
+			<a href="{$rel_url}stats.php?browse=show_detail_date&amp;year={$thisYear}">This year</a> | 
+			<a href="{$rel_url}stats.php?browse=show_detail_date&amp;year={$lastYear}">Last year</a> | 
 			<a href="{$rel_url}stats.php?browse=show_detail_date">All years</a>
-			<br /><br /><strong>Repository-wide statistics:</strong>
-			<a href="{$smarty.server.PHP_SELF}?action=cumulative_usage&range=all">by Year/month</a> | 
+			</p>
+			<p><strong>Repository-wide statistics:</strong>
+			<a href="{$smarty.server.PHP_SELF}?action=cumulative_usage&amp;range=all">by Year/month</a> | 
 			<a href="{$smarty.server.PHP_SELF}?action=cumulative_usage_country">by Country</a>
-			<p>
+			</p>
 			{if APP_USE_GOOGLE_MAP_SWITCH == 'ON'}
 			<p><strong>Map:</strong> <a href="{$rel_url}stats_map.php">Statistics Map</a></p>
 			{/if}
@@ -176,27 +179,27 @@ function purgeObject(pid)
 	    <tr>
 			<td align="left">
 				<table cellspacing="0" cellpadding="3" width="800">
-					<tr bgcolor="{$heading_color}">
+					<tr style="background: {$heading_color};">
 						<td colspan="4" class="default_white"><strong>Abstract views and document downloads {$dateString}</strong></td>
 					</tr>
 					{if $abstractViewsWidth == 0 && $downloadsWidth == 0}
-					<tr class="default">
+					<tr>
 						<td colspan="4"><strong>This record has not been viewed during this period</strong></td>
 					</tr>
 					{else}
 					<tr>
-						<td bgcolor="{$light_color}" width="150"></td>
-						<td align="right" bgcolor="{$cell_color}" class="default" width="75">Abstracts</td>
-						<td align="right" bgcolor="{$dark_color}" class="default_white" width="75">Downloads</td>
-						<td bgcolor="{$light_color}" width="500">&nbsp;</td>																							
+						<td style="background: {$light_color}" width="150"></td>
+						<td align="right" style="background: {$cell_color}; width: 75px;">Abstracts</td>
+						<td align="right" style="background: {$dark_color}; width: 75px;" class="default_white">Downloads</td>
+						<td style="background: {$light_color}; width: 500px;">&nbsp;</td>																							
 					</tr>
 					<tr class="default">
-						<td bgcolor="{$light_color}" width="150" align="left"><strong>Views</strong></td>
-						<td align="right" width="75">{$abstractViews}</td>
-						<td align="right" width="75">{$downloads}</td>
+						<td style="background: {$light_color}; width: 150px;" align="left"><strong>Views</strong></td>
+						<td align="right" style="width: 75px;">{$abstractViews}</td>
+						<td align="right" style="width: 75px;">{$downloads}</td>
 						<td width="500">
-						{if $abstractViewsWidth > 0}<img src="{$rel_url}images/hh.png" alt="abstracts" height="9" width="{$abstractViewsWidth}">{else}<img src="{$rel_url}images/hh.png" alt="abstracts" height="9" width="1">{/if}<br />
-							{if $downloadsWidth > 0}<img src="{$rel_url}images/hp.png" alt="downloads" height="9" width="{$downloadsWidth}">{else}<img src="{$rel_url}images/hp.png" alt="downloads" height="9" width="1">{/if}
+						{if $abstractViewsWidth > 0}<img src="{$rel_url}images/hh.png" alt="Abstract views" height="9" width="{$abstractViewsWidth}">{else}<img src="{$rel_url}images/hh.png" alt="abstracts" height="9" width="1" />{/if}<br />
+							{if $downloadsWidth > 0}<img src="{$rel_url}images/hp.png" alt="Downloads" height="9" width="{$downloadsWidth}">{else}<img src="{$rel_url}images/hp.png" alt="downloads" height="9" width="1" />{/if}
 						</td>																							
 					</tr>
 					{/if}							
@@ -207,7 +210,7 @@ function purgeObject(pid)
 	    <tr>
 			<td align="left">
 				<table cellspacing="0" cellpadding="3" width="800">
-					<tr bgcolor="{$heading_color}">
+					<tr style="background: {$heading_color}">
 						<td colspan="4" class="default_white"><strong>Views by country (derived from IP address of query) {$dateString}</strong></td>
 					</tr>
 					{if $listCountryCount == 0}
@@ -216,18 +219,18 @@ function purgeObject(pid)
 					</tr>
 					{else}
 					<tr>
-						<td bgcolor="{$light_color}" class="default" width="150"><strong>Country</strong></td>
-						<td align="right" bgcolor="{$cell_color}" class="default" width="75">Abstracts</td>
-						<td align="right" bgcolor="{$dark_color}" class="default_white" width="75">Downloads</td>
-						<td bgcolor="{$light_color}" width="500">&nbsp;</td>																							
+						<td style="background: {$light_color}; width: 150px"><strong>Country</strong></td>
+						<td align="right" style="background: {$cell_color}; width: 75px">Abstracts</td>
+						<td align="right" style="background: {$dark_color}; width: 75px" class="default_white">Downloads</td>
+						<td style="background: {$light_color}; width: 500px;">&nbsp;</td>																							
 					</tr>
 					{section name="i" loop=$listCountry}
 					<tr class="default">
-						<td bgcolor="{$light_color}" nowrap><img src="{$rel_url}{$listCountry[i].flag}" alt="" height="14" width="18" align="absmiddle"> {$listCountry[i].stl_country_name}</td>
+						<td style="background: {$light_color}; white-space: nowrap"><img src="{$rel_url}{$listCountry[i].flag}" alt="" height="14" width="18" /> {$listCountry[i].stl_country_name}</td>
 						<td align="right">{$listCountry[i].stl_country_abstracts}</td>
 						<td align="right">{$listCountry[i].stl_country_downloads}</td>
-						<td width="500"><img src="{$rel_url}images/hh.png" alt="abstracts" height="9" width="{$listCountry[i].abstractViewsWidth}"><br />
-							<img src="{$rel_url}images/hp.png" alt="downloads" height="9" width="{$listCountry[i].downloadsWidth}">
+						<td style="width: 500px"><img src="{$rel_url}images/hh.png" alt="Abstract views" height="9" width="{$listCountry[i].abstractViewsWidth}" /><br />
+							<img src="{$rel_url}images/hp.png" alt="Downloads" height="9" width="{$listCountry[i].downloadsWidth}" />
 						</td>																							
 					</tr>								
 					{/section}
@@ -239,22 +242,23 @@ function purgeObject(pid)
 	    <tr>
 			<td align="left">
 				<table cellspacing="0" cellpadding="3" width="800">
-					<tr bgcolor="{$heading_color}">
+					<tr style="background: {$heading_color}">
 						<td colspan="4" class="default_white"><strong>History of views for this record</strong></td>
 					</tr>
 					<tr>
-						<td bgcolor="{$light_color}" class="default" width="150"><strong>Period</strong></td>
-						<td align="right" bgcolor="{$cell_color}" class="default" width="75">Abstracts</td>
-						<td align="right" bgcolor="{$dark_color}" class="default_white" width="75">Downloads</td>
-						<td bgcolor="{$light_color}">&nbsp;</td>																							
+						<td style="background: {$light_color}; width: 150px;"><strong>Period</strong></td>
+						<td align="right" style="background: {$cell_color}; width: 75px;">Abstracts</td>
+						<td align="right" style="background: {$dark_color}; width: 75px;" class="default_white">Downloads</td>
+						<td style="background: {$light_color}">&nbsp;</td>																							
 					</tr>
 					{section name="i" loop=$listHistory}
 					<tr class="default">
-						<td bgcolor="{$light_color}" nowrap><a href="{$smarty.server.PHP_SELF}?action=show_detail&pid={$pid}&year={$listHistory[i].year}&month={$listHistory[i].monthnum}">{$listHistory[i].month} {$listHistory[i].year}</a></td>
+						<td style="background: {$light_color}; white-space: nowrap"><a href="{$smarty.server.PHP_SELF}?action=show_detail&amp;pid={$pid}&amp;year={$listHistory[i].year}&amp;month={$listHistory[i].monthnum}">{$listHistory[i].month} {$listHistory[i].year}</a></td>
 						<td align="right">{$listHistory[i].abstracts}</td>
 						<td align="right">{$listHistory[i].downloads}</td>
-						<td><img src="{$rel_url}images/hh.png" alt="abstracts" height="9" width="{$listHistory[i].abstractViewsWidth}"><br />
-							<img src="{$rel_url}images/hp.png" alt="downloads" height="9" width="{$listHistory[i].downloadsWidth}">
+						<td>
+							<img src="{$rel_url}images/hh.png" alt="Abstract views" height="9" width="{$listHistory[i].abstractViewsWidth}" /><br />
+							<img src="{$rel_url}images/hp.png" alt="Downloads" height="9" width="{$listHistory[i].downloadsWidth}" />
 						</td>																							
 					</tr>								
 					{/section}
@@ -266,22 +270,23 @@ function purgeObject(pid)
 	    <tr>
 			<td align="left">
 				<table cellspacing="0" cellpadding="3" width="800">
-					<tr bgcolor="{$heading_color}">
+					<tr style="background: {$heading_color};">
 						<td colspan="4" class="default_white"><strong>Logged in user views</strong> {if $firstLogged != 0}(started logging user views on {$firstLogged|date_format:'%a, %d %b %Y'}){else}(None logged yet){/if}</td>
 					</tr>
 					<tr>
-						<td bgcolor="{$light_color}" class="default" width="150"><strong>User</strong></td>
-						<td align="right" bgcolor="{$cell_color}" class="default" width="75">Abstracts</td>
-						<td align="right" bgcolor="{$dark_color}" class="default_white" width="75">Downloads</td>
-						<td bgcolor="{$light_color}">&nbsp;</td>																							
+						<td style="background: {$light_color}; width: 150px;"><strong>User</strong></td>
+						<td align="right" style="background: {$cell_color}; width: 75px;">Abstracts</td>
+						<td align="right" style="background: {$dark_color}; width: 75px;" class="default_white">Downloads</td>
+						<td style="background: {$light_color}">&nbsp;</td>																							
 					</tr>
 					{section name="i" loop=$listUsers}
 					<tr class="default">
-						<td bgcolor="{$light_color}" nowrap>{$listUsers[i].usr_full_name}</td>
+						<td style="background: {$light_color}; white-space: nowrap">{$listUsers[i].usr_full_name}</td>
 						<td align="right">{$listUsers[i].abstracts}</td>
 						<td align="right">{$listUsers[i].downloads}</td>
-						<td><img src="{$rel_url}images/hh.png" alt="abstracts" height="9" width="{$listUsers[i].abstractViewsWidth}"><br />
-							<img src="{$rel_url}images/hp.png" alt="downloads" height="9" width="{$listUsers[i].downloadsWidth}">
+						<td>
+							<img src="{$rel_url}images/hh.png" alt="Abstract views" height="9" width="{$listUsers[i].abstractViewsWidth}" /><br />
+							<img src="{$rel_url}images/hp.png" alt="Downloads" height="9" width="{$listUsers[i].downloadsWidth}" />
 						</td>																							
 					</tr>								
 					{/section}
@@ -293,22 +298,23 @@ function purgeObject(pid)
 			    <tr>
 			<td align="left">
 				<table cellspacing="0" cellpadding="3" width="800">
-					<tr bgcolor="{$heading_color}">
+					<tr style="background: {$heading_color}">
 						<td colspan="4" class="default_white"><strong>Abstract views and document downloads by month/year</strong></td>
 					</tr>
 					<tr>
-						<td bgcolor="{$light_color}" class="default" width="150"><strong>Period</strong></td>
-						<td align="right" bgcolor="{$cell_color}" class="default" width="75">Abstracts</td>
-						<td align="right" bgcolor="{$dark_color}" class="default_white" width="75">Downloads</td>
-						<td bgcolor="{$light_color}">&nbsp;</td>																							
+						<td style="background: {$light_color}; width: 150px;"><strong>Period</strong></td>
+						<td align="right" style="background: {$cell_color}; width: 75px">Abstracts</td>
+						<td align="right" style="background: {$dark_color}; width: 75px" class="default_white">Downloads</td>
+						<td style="background: {$light_color}">&nbsp;</td>																							
 					</tr>
 					{section name="i" loop=$listHistory}
 					<tr class="default">
-						<td bgcolor="{$light_color}" nowrap><a href="{$rel_url}stats.php?browse=show_detail_date&pid={$pid}&year={$listHistory[i].year}&month={$listHistory[i].monthnum}">{$listHistory[i].month} {$listHistory[i].year}</a></td>
+						<td style="background: {$light_color}; white-space: nowrap"><a href="{$rel_url}stats.php?browse=show_detail_date&amp;pid={$pid}&amp;year={$listHistory[i].year}&amp;month={$listHistory[i].monthnum}">{$listHistory[i].month} {$listHistory[i].year}</a></td>
 						<td align="right">{$listHistory[i].abstracts}</td>
 						<td align="right">{$listHistory[i].downloads}</td>
-						<td><img src="{$rel_url}images/hh.png" alt="abstracts" height="9" width="{$listHistory[i].abstractViewsWidth}"><br />
-							<img src="{$rel_url}images/hp.png" alt="downloads" height="9" width="{$listHistory[i].downloadsWidth}">
+						<td>
+							<img src="{$rel_url}images/hh.png" alt="Abstract views" height="9" width="{$listHistory[i].abstractViewsWidth}" /><br />
+							<img src="{$rel_url}images/hp.png" alt="Downloads" height="9" width="{$listHistory[i].downloadsWidth}" />
 						</td>																							
 					</tr>								
 					{/section}
@@ -319,7 +325,7 @@ function purgeObject(pid)
 	    <tr>
 			<td align="left">
 				<table cellspacing="0" cellpadding="3" width="800">
-					<tr bgcolor="{$heading_color}">
+					<tr style="background: {$heading_color}">
 						<td colspan="4" class="default_white"><strong>Views by country (derived from IP address of query) {$dateString}</strong></td>
 					</tr>
 					{if $listCountryCount == 0}
@@ -328,20 +334,21 @@ function purgeObject(pid)
 					</tr>
 					{else}
 					<tr>
-						<td bgcolor="{$light_color}" class="default" width="150"><strong>Country</strong></td>
-						<td align="right" bgcolor="{$cell_color}" class="default" width="75">Abstracts</td>
-						<td align="right" bgcolor="{$dark_color}" class="default_white" width="75">Downloads</td>
-						<td bgcolor="{$light_color}" width="500">&nbsp;</td>																							
+						<td style="background: {$light_color}; width: 150px;"><strong>Country</strong></td>
+						<td align="right" style="background: {$cell_color}; width: 75px">Abstracts</td>
+						<td align="right" style="background: {$dark_color}; width: 75px" class="default_white">Downloads</td>
+						<td style="background: {$light_color}; width: 500px">&nbsp;</td>																							
 					</tr>
 					{section name="i" loop=$listCountry}
 					<tr class="default">
-						<td bgcolor="{$light_color}" nowrap><img src="{$rel_url}{$listCountry[i].flag}" alt="" height="14" width="18" align="absmiddle"> <a href="{$rel_url}stat_details.php?action=cumulative_usage_country_specific&country={$listCountry[i].scr_country_name}">{$listCountry[i].scr_country_name}</a></td>
+						<td style="background: {$light_color}; white-space: nowrap"><img src="{$rel_url}{$listCountry[i].flag}" alt="" height="14" width="18" /> <a href="{$rel_url}stat_details.php?action=cumulative_usage_country_specific&amp;country={$listCountry[i].scr_country_name}">{$listCountry[i].scr_country_name}</a></td>
 						<td align="right">{$listCountry[i].abstracts}</td>
 						<td align="right">{$listCountry[i].downloads}</td>
-						<td width="500"><img src="{$rel_url}images/hh.png" alt="abstracts" height="9" width="{$listCountry[i].abstractViewsWidth}"><br />
-							<img src="{$rel_url}images/hp.png" alt="downloads" height="9" width="{$listCountry[i].downloadsWidth}">
+						<td width="500">
+							<img src="{$rel_url}images/hh.png" alt="Abstract views" height="9" width="{$listCountry[i].abstractViewsWidth}" /><br />
+							<img src="{$rel_url}images/hp.png" alt="downloads" height="9" width="{$listCountry[i].downloadsWidth}" />
 						</td>																							
-					</tr>								
+					</tr>
 					{/section}
 					{/if}
 				</table>		
@@ -351,7 +358,7 @@ function purgeObject(pid)
 	    <tr>
 			<td align="left">
 				<table cellspacing="0" cellpadding="3" width="800">
-					<tr bgcolor="{$heading_color}">
+					<tr style="background: {$heading_color}">
 						<td colspan="5" class="default_white"><strong>Views for {$country_name} by state city/suburb (derived from IP address of query) {$dateString}</strong></td>
 					</tr>
 					{if $listCountryCount == 0}
@@ -360,17 +367,16 @@ function purgeObject(pid)
 					</tr>
 					{else}
 					<tr>
-						<td bgcolor="{$light_color}" class="default" width="150"><strong>State</strong></td>
-						<td bgcolor="{$light_color}" class="default" width="150"><strong>City/Suburb</strong></td>
-						<td align="right" bgcolor="{$cell_color}" class="default" width="75">Abstracts</td>
-						<td align="right" bgcolor="{$dark_color}" class="default_white" width="75">Downloads</td>
-						<td bgcolor="{$light_color}" width="500">&nbsp;</td>																							
+						<td style="background: {$light_color}; width: 150px"><strong>State</strong></td>
+						<td style="background: {$light_color}; width: 150px"><strong>City/Suburb</strong></td>
+						<td align="right" style="background: {$cell_color}; width: 75px">Abstracts</td>
+						<td align="right" style="background: {$dark_color}; width: 75px" class="default_white">Downloads</td>
+						<td style="background: {$light_color}; width: 500px">&nbsp;</td>																							
 					</tr>
 						{assign var="row_color" value=$light_color}
 					{section name="i" loop=$listCountry}
 						{if ($listCountry[i].scr_country_region != "" )}
 					<tr class="default">
-
 						{if $listCountry[i].scr_country_region <> $previous_region}
 							{if $row_color == $light_color}
 								{assign var="row_color" value=$cell_color}
@@ -379,12 +385,13 @@ function purgeObject(pid)
 
 							{/if}
 						{/if}
-						<td align="left" bgcolor="{$row_color}" nowrap>{if $listCountry[i].scr_country_region <> $previous_region}{$listCountry[i].scr_country_region}{/if}{if $listCountry[i].scr_country_region == ""}Unknown{/if}</td>
-						<td align="right" bgcolor="{$row_color}" nowrap>{$listCountry[i].scr_city}{if $listCountry[i].scr_city == ""}{/if}</td>
+						<td align="left" style="background: {$row_color}; white-space: nowrap">{if $listCountry[i].scr_country_region <> $previous_region}{$listCountry[i].scr_country_region}{/if}{if $listCountry[i].scr_country_region == ""}Unknown{/if}</td>
+						<td align="right" style="background: {$row_color}; white-space: nowrap">{$listCountry[i].scr_city}{if $listCountry[i].scr_city == ""}{/if}</td>
 						<td align="right">{$listCountry[i].abstracts}</td>
 						<td align="right">{$listCountry[i].downloads}</td>
-						<td width="500"><img src="{$rel_url}images/hh.png" alt="abstracts" height="9" width="{$listCountry[i].abstractViewsWidth}"><br />
-							<img src="{$rel_url}images/hp.png" alt="downloads" height="9" width="{$listCountry[i].downloadsWidth}">
+						<td width="500">
+							<img src="{$rel_url}images/hh.png" alt="Abstract views" height="9" width="{$listCountry[i].abstractViewsWidth}" /><br />
+							<img src="{$rel_url}images/hp.png" alt="Downloads" height="9" width="{$listCountry[i].downloadsWidth}" />
 						</td>																							
 					</tr>
 					{assign var="previous_region" value=$listCountry[i].scr_country_region}
@@ -400,20 +407,16 @@ function purgeObject(pid)
 			<td align="left">
 				<table cellspacing="0" cellpadding="3" width="800">
 					<tr>
-						<td colspan="4" class="default_white"><a href="{$smarty.const.APP_RELATIVE_URL}help.php?topic=statistics#statistics"/>Click here to find out how {$smarty.const.APP_NAME} counts download statistics</a></td>
+						<td colspan="4" class="default_white"><a href="{$smarty.const.APP_RELATIVE_URL}help.php?topic=statistics#statistics">Click here to find out how {$smarty.const.APP_NAME} counts download statistics</a></td>
 					</tr>
 				</table>		
 			</td>
 		</tr>
-	    
-      </table>
-    </td>
-  </tr>
-  </form>
-</table>
-  </td>
-  </tr>
 
-</table>
+			</table>
+		  </td>
+		</tr>
 
+	</table>
 
+</form>
