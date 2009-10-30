@@ -1587,13 +1587,12 @@ class Record
 					}
 					array_push($result[$i]['stream'], $result[$i]['rek_file_attachment_name'][$x]);
 				}
-
-                                if (is_numeric(strpos($result[$i]['rek_file_attachment_name'][$x], "web_"))) {
-                                        if (!is_array(@$result[$i]['web_image'])) {
-                                                $result[$i]['web_image'] = array();
-                                        }
-                                        array_push($result[$i]['web_image'], $result[$i]['rek_file_attachment_name'][$x]);
-                                }
+				if (is_numeric(strpos($result[$i]['rek_file_attachment_name'][$x], "web_"))) {
+						if (!is_array(@$result[$i]['web_image'])) {
+								$result[$i]['web_image'] = array();
+						}
+						array_push($result[$i]['web_image'], $result[$i]['rek_file_attachment_name'][$x]);
+				}
 			}
 		}
 	}
@@ -1680,8 +1679,6 @@ class Record
 				}
 			}
 		}
-
-		//print_r($result);
 	}
 
 	function getSearchKeyByPIDS($sek_sql_title, $pids = array())

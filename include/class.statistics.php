@@ -801,9 +801,13 @@ class Statistics
 			$log->err($ex);
 			return -1;
 		}
-
+		
+		if (sizeof($result) == 0) {
+			return -1;
+		}
+		
 		$range = 'all';
-
+		
 		foreach ($result as $yearmonth)
 		{
 			$year = $yearmonth['yr'];

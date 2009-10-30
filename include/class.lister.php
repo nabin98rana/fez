@@ -1045,6 +1045,7 @@ class Lister
 			Lister::getList($params, true);
 		}
 		else {
+			//header("HTTP/1.0 404 Not Found");
 			Misc::redirect(APP_BASE_URL.'errors/404', true);
 		}
 		exit;

@@ -39,6 +39,12 @@ if(! in_array($err_code, $valid_codes)) {
 	$err_code = '404';
 }
 
+/*
+if ($err_code == '404') {
+	header("HTTP/1.1 404 Not Found");
+}
+*/
+
 $tpl = new Template_API();
 $tpl->setTemplate("$err_code.tpl.html");
 $tpl->displayTemplate();
