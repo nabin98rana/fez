@@ -146,7 +146,7 @@ function set_data_model_version($dbversion)
             "where config_name = 'datamodel_version' " .
             "and config_module = 'core' ";
     try {
-        $res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+		$db->update(APP_TABLE_PREFIX."config", array('config_value' => $dbversion), "config_name = 'datamodel_version' AND config_module = 'core'");
     }
     catch(Exception $ex) {
         $log->notice(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
