@@ -843,52 +843,52 @@ class Record
 			$stmt = "";
 			if(!empty($sek_value['xsdmf_value']) && !is_null($sek_value['xsdmf_value']) && (strtoupper($sek_value['xsdmf_value']) != "NULL")) {
 
-			// Added this notEmpty check to look for empty arrays.  Stops fez from writing empty keyword values to fez_record_search_key_keywords table.  -  heaphey
-		$notEmpty = 1;  // start assuming that value is not empty
-		if (is_array($sek_value['xsdmf_value'])) {
-			$stringvalue = implode("",$sek_value['xsdmf_value']);
-			if (strlen($stringvalue) == 0) {  
-				$notEmpty = 0;  // this value is an array and it is empty
-				//Error_Handler::logError($sek_value['xsdmf_value']);
-			}
-		}
-		if ($notEmpty) { // only write values to tables if the value is not empty
-
-				$cardinalityCol = "";
-				if(is_array($sek_value['xsdmf_value'])) {
-					$cardinalityCol = ",rek_".$sek_table."_order";
-				}
-
-				$stmt = "INSERT INTO " . APP_TABLE_PREFIX . "record_search_key_".$sek_table."
-	                        (rek_".$sek_table."_pid, rek_".$sek_table."_xsdmf_id, rek_".$sek_table . $cardinalityCol.")
-	                    VALUES ";
-					
-				if(is_array($sek_value['xsdmf_value'])) {
-
-					$cardinalityVal = 1;
-					foreach ($sek_value['xsdmf_value'] as $value ) {
-						$stmtVars[] = "(".$db->quote($pid).",".$db->quote($sek_value['xsdmf_id'], 'INTEGER').",".$db->quote($value).",$cardinalityVal)";
-
-						$cardinalityVal++;
+				// Added this notEmpty check to look for empty arrays.  Stops fez from writing empty keyword values to fez_record_search_key_keywords table.  -  heaphey
+				$notEmpty = 1;  // start assuming that value is not empty
+				if (is_array($sek_value['xsdmf_value'])) {
+					$stringvalue = implode("",$sek_value['xsdmf_value']);
+					if (strlen($stringvalue) == 0) {  
+						$notEmpty = 0;  // this value is an array and it is empty
+						//Error_Handler::logError($sek_value['xsdmf_value']);
 					}
-					$stmt .= implode(",", $stmtVars);
-					unset($stmtVars);
-
-				} else {
-					$stmt .= "(".$db->quote($pid).",".$db->quote($sek_value['xsdmf_id'], 'INTEGER').",".$db->quote($sek_value['xsdmf_value']). ")";
 				}
-
-				try {
-					$db->exec($stmt);
+				
+				if ($notEmpty) { // only write values to tables if the value is not empty
+					
+					$cardinalityCol = "";
+					if(is_array($sek_value['xsdmf_value'])) {
+						$cardinalityCol = ",rek_".$sek_table."_order";
+					}
+					
+					$stmt = "INSERT INTO " . APP_TABLE_PREFIX . "record_search_key_".$sek_table."
+								(rek_".$sek_table."_pid, rek_".$sek_table."_xsdmf_id, rek_".$sek_table . $cardinalityCol.")
+							VALUES ";
+						
+					if(is_array($sek_value['xsdmf_value'])) {
+						
+						$cardinalityVal = 1;
+						foreach ($sek_value['xsdmf_value'] as $value ) {
+							$stmtVars[] = "(".$db->quote($pid).",".$db->quote($sek_value['xsdmf_id'], 'INTEGER').",".$db->quote($value).",$cardinalityVal)";
+							$cardinalityVal++;
+						}
+						$stmt .= implode(",", $stmtVars);
+						unset($stmtVars);
+					
+					} else {
+						$stmt .= "(".$db->quote($pid).",".$db->quote($sek_value['xsdmf_id'], 'INTEGER').",".$db->quote($sek_value['xsdmf_value']). ")";
+					}
+					
+					try {
+						$db->exec($stmt);
+					}
+					catch(Exception $ex) {
+						$log->err($ex);
+						$ret = false;
+					}
 				}
-				catch(Exception $ex) {
-					$log->err($ex);
-					$ret = false;
-				}
-			}  //end if notEmpty
-			
 			}
 		}
+		
 		Citation::updateCitationCache($pid, "");
 		Statistics::updateSummaryStatsOnPid($pid);
 		Google_Scholar::updateCitationCache($pid);

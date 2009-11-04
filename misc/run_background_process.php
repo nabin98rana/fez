@@ -38,25 +38,22 @@ if (!(stristr(PHP_OS, 'win') && !stristr(PHP_OS, 'darwin'))) {
 
 $ARGV = $_SERVER['argv'];
 $base = $ARGV[2];
-include_once('../config.inc.php');
+
+include_once(realpath('../') . '/config.inc.php');
 include_once(APP_INC_PATH.'class.background_process.php');
 
 $bgp_id = $ARGV[1];
-//print_r($ARGV);
+
 if (!is_numeric($bgp_id)) {
 	echo "bgp_id is not numeric so exiting $bgp_id";
 	exit;
 }
 $bgp = new BackgroundProcess($bgp_id);
 $res = $bgp->getDetails();
-/*if (count($res) != 1) {
-	exit;
-}*/
+
 include_once(APP_INC_PATH.$res['bgp_include']);
 $bgp = unserialize($res['bgp_serialized']);
-
 $bgp->setAuth();
-
 $bgp->run();
 
 if (!empty($bgp->wfses_id)) {
