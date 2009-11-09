@@ -286,6 +286,9 @@
    <!-- long texts -->
    <dynamicField name="*_mtl"  type="text"    indexed="true"  stored="false" multiValued="true"/>
    
+   <!-- Field type to enable exact searches on author names for refine by author name functionality -->
+   <dynamicField name="*_mt_exact" type="string" indexed="true" stored="true" multiValued="true"/>
+
    <dynamicField name="*_b"  type="boolean" indexed="true"  stored="true"/>
    <dynamicField name="*_f"  type="sfloat"  indexed="true"  stored="true"/>
    <dynamicField name="*_d"  type="sdouble" indexed="true"  stored="true"/>

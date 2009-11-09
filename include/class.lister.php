@@ -495,7 +495,7 @@ class Lister
             }
             $tpl->assign("browse_type", "browse_year");
             
-        } elseif (($browse == "author") || ($browse == "author_id")) {
+        } elseif (($browse == "author") || ($browse == "author_id") || ($browse == 'author_refine')) {
             $log->debug('Browse by author');
             // browse by author
             if( $browse == "author") {
@@ -506,6 +506,10 @@ class Lister
                     $author = Lister::getValue($params,'author');
                 }
             }
+
+			if ($browse == 'author_refine') {
+				$author_refine = Lister::getValue($params, 'author_refine');
+			}
                 
             if( $browse == "author_id" )
                 $author_id = Lister::getValue($params,'author_id');
@@ -525,7 +529,7 @@ class Lister
 				{
 					foreach ($alternativeAuthorNamesList as $name => $paperCount)
 					{
-						$namesList[] = '<a href="' . APP_RELATIVE_URL . 'list/author/'.urlencode($name).'">'.$name.'</a> ('.$paperCount.')';
+						$namesList[] = '<a href="' . APP_RELATIVE_URL . 'list/author_refine/'.urlencode($name).'">'.$name.'</a> ('.$paperCount.')';
 					}
 				}
 
@@ -548,6 +552,17 @@ class Lister
                 $tpl->assign("author", $author);
                 $tpl->assign("browse_heading", "Browse By Author Name - ".$author);
 			    $tpl->assign("list_heading", "Browse By Author Name - ".$author);
+			} elseif (!empty($author_refine)) {
+	        	$options = Search_Key::stripSearchKeys($options);
+            	$filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
+				$filter["searchKey".Search_Key::getID("Author")] = $author_refine; 
+            	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter, 'AND', false, false, true); // do an exact match
+                $list_info = $list["info"];
+                $list = $list["list"];
+				
+				$tpl->assign("author_refine", $author_refine);
+                $tpl->assign("browse_heading", "Refine By Author Name - \"{$author_refine}\"");
+			    $tpl->assign("list_heading", "Refine By Author Name - \"{$author_refine}\"");
             } else {
                 
             	if ($browse == "author_id") {

@@ -114,7 +114,8 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 
 					$mtColumns[] = array(
                         'name'  => $sekDetails["sek_title_db"],
-                        'type'  =>  $fieldType
+                        'type'  =>  $fieldType,
+						'cardinality' => $sekDetails['sek_cardinality']
 						);
 						//$sekDetails["sek_title_db"];
 					$mtColumnsHeader[] = $this->getFieldName($sekDetails["sek_title_db"],$fieldType, true);
@@ -126,6 +127,10 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 						// $mtYearColumnsHeader[] = $sekDetails["sek_title_db"]."_year_t";
 					}
 					
+					// append an exact string for author/contributor
+					if ($sekDetails['sek_title_db'] == 'author' || $sekDetails['sek_title_db'] == 'contributor') {
+						$mtColumnsHeader[] = "{$sekDetails['sek_title_db']}_mt_exact";
+					}
 
 				} else {
 
@@ -145,8 +150,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 //			}
 
 		}
-
-
+		
 		$queue = FulltextQueue::singleton();
 		$this->totalDocs = $queue->size();
 
@@ -163,7 +167,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 			$pids_arr  = array();
 			$pids      = '';
 			$spliting  = '';
-				
+
 			$csvHeader = 'id,'.implode(',', $singleColumnsHeader) . ',' . $authLister_t . ','. $authCreator_t . ',' . $authEditor_t . ','.implode(',', $mtColumnsHeader) . ",content\n";
 				
 			foreach ( $chunk as $row ) {
@@ -233,8 +237,13 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 				} else {
 					$col_name = "rek_".$mtColumn["name"];
 				}
-				 
-				$stmt = "    SELECT rek_".$mtColumn["name"]."_pid as pid, GROUP_CONCAT(".$col_name." SEPARATOR \"\t\") as value
+
+				$orderByClause = '';
+				if ($mtColumn['cardinality'] == 1) {
+					$orderByClause = "ORDER BY rek_{$mtColumn['name']}_order ASC";
+				}
+				
+				$stmt = "    SELECT rek_".$mtColumn["name"]."_pid as pid, GROUP_CONCAT(".$col_name." {$orderByClause} SEPARATOR \"\t\") as value
                             FROM ".APP_TABLE_PREFIX."record_search_key_".$mtColumn["name"]." 
                             WHERE rek_".$mtColumn["name"]."_pid IN (". $pids . ")
                             GROUP BY rek_".$mtColumn["name"]."_pid";
@@ -260,10 +269,32 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 					$val = '';
 				}
 
+				// add an additional field for both author and contributor
+				if ($mtColumn['name'] == 'author' || $mtColumn['name'] == 'contributor') {
+					foreach ($csv as $rek_pid => $rek_line) {
+
+						if( !empty($tmpArr[$rek_pid]) ) {
+							$val = str_replace('"', '""', $tmpArr[$rek_pid]);
+							$csv[$rek_pid] .= ',"' . $val .'"';
+						} else {
+							$csv[$rek_pid] .= ',""';
+						}
+						$val = '';
+					}
+				}
+
+				$tmpArr = array();
+
 				if ($mtColumn['type'] == FulltextIndex::FIELD_TYPE_DATE ) {
 					$tmpArr = array();
 					$col_name = "(DATE_FORMAT(rek_".$mtColumn["name"] .",'%Y'))";
-					$stmt = "    SELECT rek_".$mtColumn["name"]."_pid as pid, GROUP_CONCAT(".$col_name." SEPARATOR \"\t\") as value
+					
+					$orderByClause = '';
+					if ($mtColumn['cardinality'] == 1) {
+						$orderByClause = "ORDER BY rek_{$mtColumn['name']}_order ASC";
+					}
+					
+					$stmt = "    SELECT rek_".$mtColumn["name"]."_pid as pid, GROUP_CONCAT(".$col_name." {$orderByClause} SEPARATOR \"\t\") as value
 	                            FROM ".APP_TABLE_PREFIX."record_search_key_".$mtColumn["name"]." 
 	                            WHERE rek_".$mtColumn["name"]."_pid IN (". $pids . ")
 	                            GROUP BY rek_".$mtColumn["name"]."_pid";
@@ -291,10 +322,10 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 					}
 				}
 
-				 
 				$tmpArr = array();
-			}
 				
+			}
+			
 			/*
 			 * Add datasteam text to CSV array
 			 */
@@ -317,7 +348,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 			fwrite($handle, $csvHeader);
 			fwrite($handle, $csv);
 			fclose($handle);
-
+			
 			// This is so solr has permissions to read the file
 			chmod($tmpfname, 0755);
 			$postFields = array();
@@ -385,7 +416,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 			
 			// Dont delete csv if there is an error
 			if($uploaded) {
-				unlink($tmpfname);
+				unlink($tmpfnworame);
 			}
 		
 

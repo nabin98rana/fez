@@ -41,7 +41,7 @@
 
 {include file="list_browse_type.tpl.html"}
 
-{if ($browse_heading == "") ||  ($browse_type != "" && ($author != "" || $author_id != "")) || ($browse_type != "" & $depositor != "") || ($browse_type != "" && $year != "") || ($browse_type != "" && $parent_id != "" && $max_subject_breadcrumb != 0)} 
+{if ($browse_heading == "") ||  ($browse_type != "" && ($author != "" || $author_id != "" || $author_refine != "")) || ($browse_type != "" & $depositor != "") || ($browse_type != "" && $year != "") || ($browse_type != "" && $parent_id != "" && $max_subject_breadcrumb != 0)} 
         
 	{if $spell_suggest != ""}
 	<table width="100%" cellpadding="10" cellspacing="0" class="listrecord">

@@ -390,6 +390,8 @@ class Record
 	 */
 	function update($pid, $exclude_list=array(), $specify_list=array())
 	{
+		$log = FezLog::get();
+		
 		$record = new RecordObject($pid);
 		$ret = $record->fedoraInsertUpdate($exclude_list, $specify_list);
 
@@ -1022,6 +1024,8 @@ class Record
 	 */
 	function getDetails($pid, $xdis_id, $createdDT=null)
 	{
+		$log = FezLog::get();
+		
 		// Get the Datastreams.
 		$datastreamTitles = XSD_Loop_Subelement::getDatastreamTitles($xdis_id);
 		foreach ($datastreamTitles as $dsValue) {
@@ -1157,13 +1161,13 @@ class Record
 	 * @param string $options The search parameters
 	 * @return array $res2 The index details of records associated with the search params
 	 */
-	function getListing($options, $approved_roles=array(9,10), $current_page=0,$page_rows="ALL", $sort_by="Title", $getSimple=false, $citationCache=false, $filter=array(), $operator='AND', $use_faceting = false, $use_highlighting = false)
+	function getListing($options, $approved_roles=array(9,10), $current_page=0,$page_rows="ALL", $sort_by="Title", $getSimple=false, $citationCache=false, $filter=array(), $operator='AND', $use_faceting = false, $use_highlighting = false, $doExactMatch = false)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
 
 		if (APP_SOLR_SWITCH == "ON" ) {
-			return Record::getSearchListing($options, $approved_roles, $current_page,$page_rows, $sort_by, $getSimple, $citationCache, $filter, $operator, $use_faceting, $use_highlighting);
+			return Record::getSearchListing($options, $approved_roles, $current_page,$page_rows, $sort_by, $getSimple, $citationCache, $filter, $operator, $use_faceting, $use_highlighting, $doExactMatch);
 		} else {
 			$options = array_merge($options, $filter);
 		}
@@ -1420,7 +1424,7 @@ class Record
 	 * @param string $options The search parameters
 	 * @return array $res2 The index details of records associated with the search params
 	 */
-	function getSearchListing($options, $approved_roles=array(9,10), $current_page=0, $page_rows="ALL", $sort_by="", $getSimple=false, $citationCache=false, $filter=array(), $operator="AND", $use_faceting = false, $use_highlighting = false)
+	function getSearchListing($options, $approved_roles=array(9,10), $current_page=0, $page_rows="ALL", $sort_by="", $getSimple=false, $citationCache=false, $filter=array(), $operator="AND", $use_faceting = false, $use_highlighting = false, $doExactMatch = false)
 	{
 		$log = FezLog::get();
 		
@@ -1443,8 +1447,8 @@ class Record
 		$start = $current_page * $page_rows;
 		$current_row = $current_page * $page_rows;
 
-		$searchKey_join   = self::buildSearchKeyFilterSolr($options, $sort_by, $operator);
-		$filter_join      = self::buildSearchKeyFilterSolr($filter, "", $operator);
+		$searchKey_join   = self::buildSearchKeyFilterSolr($options, $sort_by, $operator, $doExactMatch);
+		$filter_join      = self::buildSearchKeyFilterSolr($filter, "", $operator, $doExactMatch);
 
 		$index = new FulltextIndex_Solr(true);
 
@@ -1469,6 +1473,7 @@ class Record
 			}
 
 		}
+		
 		$thumb_counter = 0;
 		// KJ/ETH: if the object came up to here, it can be listed (Solr filter!)
 		if (!empty($res)) {
@@ -2885,7 +2890,7 @@ class Record
 
 
 
-	function buildSearchKeyFilterSolr($options, $sort_by, $operator = "AND")
+	function buildSearchKeyFilterSolr($options, $sort_by, $operator = "AND", $doExactMatch = false)
 	{
 		$searchKey_join = array();
 		$searchKey_join[SK_JOIN] = ""; // initialise the return sql searchKey fields join string
@@ -2909,6 +2914,7 @@ class Record
 				$searchKey_join[SK_WHERE] .= " ".$value." AND ";
 			}
 		}
+		
 		$joinType = "";
 		$x = 0;
 		$sortRestriction = "";
@@ -2947,6 +2953,11 @@ class Record
 					$suffix = Record::getSolrSuffix($sekdet);
 					if(empty($sekdet['sek_id']))
 					continue;
+
+					// if we're looking for an exact match specifically, then substitute the mt_exact suffix instead
+					if ($doExactMatch && strtolower($sekdet['sek_title']) == 'author') {
+						$suffix = '_mt_exact';
+					}
 
 					$options["sql"] = array();
 					$temp_value = "";
@@ -3074,7 +3085,12 @@ class Record
 								// Check if user has done a google like search by adding *
 								$searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":(".Record::escapeSolr($searchValue).") ";
 							} else {
-								$searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":(".Record::escapeSolr($searchValue).") ";
+								// surround the exact match with quotes specifically (quotes need to go outside escapeSolr call as we don't want them escaped)
+								if ($doExactMatch && strtolower($sekdet['sek_title']) == 'author') {
+									$searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":(\"".Record::escapeSolr($searchValue)."\") ";
+								} else {
+									$searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":(".Record::escapeSolr($searchValue).") ";
+								}
 							}
 
 							$searchKey_join[SK_SEARCH_TXT] .= $sekdet['sek_title'].":\"".htmlspecialchars(trim($searchValue))."\", ";
@@ -3131,7 +3147,9 @@ class Record
 					$sekdet = Search_Key::getDetails($sek_id);
 
 					if( !empty($sekdet['sek_id']) ) {
+						
 						$sort_suffix = Record::getSolrSuffix($sekdet, 1);
+
 						if ($options["sort_order"] == "1") {
 							$searchKey_join[SK_SORT_ORDER] .= $sekdet['sek_title_db'].$sort_suffix." desc ";
 						} else {
@@ -3141,6 +3159,7 @@ class Record
 				}
 			}
 		}
+
 
 		return $searchKey_join;
 	}
