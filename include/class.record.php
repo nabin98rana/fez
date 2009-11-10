@@ -3385,6 +3385,7 @@ class Record
 		    
 		    if($result) {
 		    	Record::setIndexMatchingFields($pid);
+		    	Citation::updateCitationCache($pid, "");
 		    	if(!empty($times_cited)) {
 		    		Record::updateThomsonCitationCount($pid, $times_cited);
 		    	}
