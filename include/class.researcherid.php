@@ -621,30 +621,7 @@ class ResearcherID
 		$author_id = Author::getIDByResearcherID($researcherid);
 		
     	foreach($records as $record) {
-    		$aut = @split(':', $record->{'accession-num'});
-    		if(count($aut) > 1) {
-    			$ut = $aut[1];   
-	    		
-	    		$pid = Record::getPIDByIsiLoc($ut);
-	    		$ref_type = $record->{'ref-type'};
-	    		
-	    		// If the publication exists
-	    		if( $pid ) {
-	    			ResearcherID::insertAuthorId($pid, $author_id);
-	    			$times_cited = (string)$record->{'times-cited'};
-	    			if(! empty($times_cited)) {
-		    			Record::updateThomsonCitationCount($pid, $times_cited);
-	    			}
-	    			if( APP_SOLR_INDEXER == "ON" ) {
-						FulltextQueue::singleton()->add($pid);							
-					}
-	    		}
-	    		// Else ingest the new publication into Fedora
-	    		else {			
-    				ResearcherID::addPublication($record, $author_id);
-    			}		
-    		}
-    		
+    		ResearcherID::addPublication($record, $author_id);
     	}
     	return true;
     }
@@ -665,21 +642,34 @@ class ResearcherID
 			
 	    	$aut = @split(':', $record->{'accession-num'});
 	    	if(count($aut) > 1) {
-	    		$ut = $aut[1]; 
-	    		$database = $aut[0];  		
-		    	$records = EstiSearchService::retrieve($ut, $database);
+		    	$records = EstiSearchService::retrieve($aut[1], $aut[0]);
 				
 				if($records) {
-					foreach($records->REC as $_record) {
-						$mods = Misc::convertEstiRecordToMods($_record, $author_id);
-						if($mods) {
-							$times_cited = $_record->attributes()->timescited;
-		    				Record::insertFromArray($mods, $collection, 'MODS 1.0', 'Imported from ResearcherID', $times_cited);
-						}
+					foreach($records->REC as $_record) {						
+						$ut = $_record->item->ut;
+						$pid = Record::getPIDByIsiLoc($ut);
+			    		
+			    		// If the publication exists
+			    		if( $pid ) {
+			    			ResearcherID::insertAuthorId($pid, $author_id);
+			    			$times_cited = (string)$record->{'times-cited'};
+			    			if(! empty($times_cited)) {
+				    			Record::updateThomsonCitationCount($pid, $times_cited);
+			    			}
+			    			if( APP_SOLR_INDEXER == "ON" ) {
+								FulltextQueue::singleton()->add($pid);							
+							}
+			    		}
+			    		else {	    		
+							$mods = Misc::convertEstiRecordToMods($_record, $author_id);
+							if($mods) {
+								$times_cited = $_record->attributes()->timescited;
+			    				Record::insertFromArray($mods, $collection, 'MODS 1.0', 'Imported from ResearcherID', $times_cited);
+							}
+			    		}
 					}
 				}	
-	    	}
-	    	
+	    	}	    	
 	    	return true;
 		}
 		else {
