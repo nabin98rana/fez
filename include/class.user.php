@@ -948,7 +948,7 @@ class User
                     " . $db->quote($prefs) . ",
                     " . $db->quote($_POST["username"]);
 		if (!empty($_POST["password"]))  {
-			$stmt .= ",'" . $db->quote(md5($_POST["password"]));
+			$stmt .= "," . $db->quote(md5($_POST["password"]));
 		}
 		$stmt .= " )";
 		try {
