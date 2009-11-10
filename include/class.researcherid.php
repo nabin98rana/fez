@@ -665,8 +665,9 @@ class ResearcherID
 			
 	    	$aut = @split(':', $record->{'accession-num'});
 	    	if(count($aut) > 1) {
-	    		$ut = $aut[1];    		
-		    	$records = EstiSearchService::retrieve($ut);
+	    		$ut = $aut[1]; 
+	    		$database = $aut[0];  		
+		    	$records = EstiSearchService::retrieve($ut, $database);
 				
 				if($records) {
 					foreach($records->REC as $_record) {
