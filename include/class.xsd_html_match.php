@@ -2049,11 +2049,11 @@ class XSD_HTML_Match
 			}
 
 			$stmt .= "
-		                    xsdmf_enforced_prefix = " . $db->quote($_POST["enforced_prefix"], 'INTEGER') . ",
-		                    xsdmf_value_prefix = " . $db->quote($_POST["value_prefix"], 'INTEGER') . ",
-		                    xsdmf_image_location = " . $db->quote($_POST["image_location"], 'INTEGER') . ",
-		                    xsdmf_dynamic_text = " . $db->quote($_POST["dynamic_text"], 'INTEGER') . ",
-		                    xsdmf_static_text = " . $db->quote($_POST["static_text"], 'INTEGER');
+		                    xsdmf_enforced_prefix = " . $db->quote($_POST["enforced_prefix"]) . ",
+		                    xsdmf_value_prefix = " . $db->quote($_POST["value_prefix"]) . ",
+		                    xsdmf_image_location = " . $db->quote($_POST["image_location"]) . ",
+		                    xsdmf_dynamic_text = " . $db->quote($_POST["dynamic_text"]) . ",
+		                    xsdmf_static_text = " . $db->quote($_POST["static_text"]);
 			//		$stmt .= " WHERE xsdmf_xdis_id = $xdis_id AND xsdmf_element = '" . $xml_element . "'" . $extra_where;
 			$stmt .= " WHERE xsdmf_id = ".$db->quote($xsdmf_id, 'INTEGER');
 			try {
