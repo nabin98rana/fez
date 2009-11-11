@@ -1292,7 +1292,7 @@ hr {
 	font-weight: normal;
 	text-align: left;
 	width: 350px;
-	float: left;
+	float: top;
 	margin-bottom: 20px;
 	margin-top: -15px;
 }
