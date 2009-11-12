@@ -35,7 +35,7 @@ include_once(APP_INC_PATH . 'class.esti_search_service.php');
 include_once(APP_INC_PATH . "class.record.php");
 
 $query = 'OG=(Univ Queensland) and DT=(@)';
-$depth = '2008-2009';
+$depth = '1week';
 $editions = '';
 $sort = '';
 $first_rec = 1;
