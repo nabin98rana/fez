@@ -3620,7 +3620,7 @@ class Misc
 			}
 			else
 			{
-				if(!empty($value)) {
+				if(!empty($value) || trim($value) != '') {
 					$params[] = $key .'='. urlencode($value);
 				}
 			}

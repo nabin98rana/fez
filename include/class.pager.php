@@ -86,6 +86,8 @@ class Pager
 			$result =  $_POST[$name];
 		} elseif (isset($cookie[$cookie_key][$name])) {
 			$result =  $cookie[$cookie_key][$name];
+		} elseif (isset($cookie[$name])) {
+			$result = $cookie[$name];
 		}
 		//echo "<pre>$name: ". print_r($result,true) ."</pre>\n";
 		return $result;
@@ -121,15 +123,17 @@ class Pager
 		//  $order_by_dir = Pager::getParam('order_by_dir',$params);
 		$sort_order = Pager::getParam('sort_order',$params);
 		$rows = Pager::getParam('rows',$params);
-		$cookie = array(
-            'front_page'     => $front_page ? $front_page : "front_page",
-            'rows'           => $rows ? $rows : APP_DEFAULT_PAGER_SIZE,
-            "sort_by"        => $sort_by ? $sort_by : "title",                        
-            "isMemberOf"     => $isMemberOf != "" ? $isMemberOf : "ALL",            
-            "sort_order"     => is_numeric($sort_order) ? $sort_order : 0,
-		// quick filter form
-            'keywords'       => Pager::getParam('keywords',$params),
-		);
+		$keywords = Pager::getParam('keywords', $params);
+		
+		$cookie = array();
+		if ($rows)
+			$cookie['rows'] = $rows;
+		if ($sort_by)
+			$cookie['sort_by'] = $sort_by;
+		if (is_numeric($sort_order))
+			$cookie['sort_order'] = $sort_order;
+		if ($keywords)
+			$cookie['keywords'] = $keywords;
 
 		if( $cookie_key == '' )
 		{
@@ -137,6 +141,29 @@ class Pager
 		}
 
 		$cookieToSave       = Pager::getCookieParams(); //Why do we need to get this for? commented out CK 6/12/06 // uncommented for search_key expansion by CK 27/2/07
+
+		// set up some defaults
+		if ($isMemberOf)
+			$cookieToSave['isMemberOf'] = $isMemberOf;
+		$cookieToReturn['isMemberOf'] = $isMemberOf != '' ? $isMemberOf : 'ALL';
+
+		if (isset($cookieToSave[$cookie_key]['rows']))
+			$cookie['rows'] = $cookieToSave[$cookie_key]['rows'];
+		if (isset($cookieToSave[$cookie_key]['sort_by']))
+			$cookie['sort_by'] = $cookieToSave[$cookie_key]['sort_by'];
+		if (isset($cookieToSave[$cookie_key]['sort_order']))
+			$cookie['sort_order'] = $cookieToSave[$cookie_key]['sort_order'];
+
+		// check if we need to overwrite the defaults with new values
+		if ($rows)
+			$cookie['rows'] = $rows;
+		if ($sort_by)
+			$cookie['sort_by'] = $sort_by;
+		if (is_numeric($sort_order))
+			$cookie['sort_order'] = $sort_order;
+		if ($keywords)
+			$cookie['keywords'] = $keywords;
+
 
 		// get the remember search param for this user
 		$prefs = Prefs::get(Auth::getUserID());
@@ -208,6 +235,7 @@ class Pager
 							
 							$searchKeyArray[$sek_id]['start_date'] =  $searchKeyArray[$sek_id]['start']['Year'] . '-' . $searchKeyArray[$sek_id]['start']['Month'] . '-' . $searchKeyArray[$sek_id]['start']['Day'];
 							$searchKeyArray[$sek_id]['end_date'] =  $searchKeyArray[$sek_id]['end']['Year'] . '-' . $searchKeyArray[$sek_id]['end']['Month'] . '-' . $searchKeyArray[$sek_id]['end']['Day'];
+							
 						} else {
 //							echo $searchKeyArray[$sek_id];
 							$string_year = $searchKeyArray[$sek_id];
@@ -223,6 +251,16 @@ class Pager
 				}
 				 
 				foreach ($searchKeyArray as $sek_id => $value) {
+					// only save values that are useful to save (no empty vars, or filters that are not enabled or multiple types = any)
+					if (trim($value) == '') 
+						continue;
+					if (is_array($value)) {
+						if (isset($value['filter_enabled']) && $value['filter_enabled'] == 0)
+							continue;
+						if (isset($value['multiple_type']) && $value['multiple_type'] == 'any')
+							continue;
+					}
+						
 					if ($from_cookie == true) {
 						$tempArray = array($sek_id => $value);
 					} else {
@@ -248,7 +286,8 @@ class Pager
 			$cookie['operator'] = $operator;
 		}
 
-		$cookieToSave[$cookie_key] = $cookie;
+		if (!empty($cookie))
+			$cookieToSave[$cookie_key] = $cookie;
 		$encoded = base64_encode(serialize($cookieToSave));
 		setcookie(APP_LIST_COOKIE, $encoded, APP_LIST_COOKIE_EXPIRE, "/");
 		return $cookie;
