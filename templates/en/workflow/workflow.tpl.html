@@ -63,7 +63,8 @@ You don't have permission to access this function
 
 {* if the flash uploader is turned on and the user doesn't have flash installed or *}
 {* it's not current enough, then show them a message saying so *}
-{if $smarty.const.APP_ENABLE_FLASH_UPLOADER_SWITCH == 'ON'}
+{* also, only show this message on the enter or edit metadata pages rather than every workflow page *}
+{if $smarty.const.APP_ENABLE_FLASH_UPLOADER_SWITCH == 'ON' && ($type == 'enter_metadata' || $type == 'edit_metadata')}
 <script>
 	var flashInstalled = GetSwfVer();
 	if (flashInstalled == -1) {ldelim}
