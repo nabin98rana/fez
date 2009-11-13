@@ -621,7 +621,6 @@ class Foxml
 													} else {
 														$xmlObj .= "/>\n";
 													}
-
 												}
 
 												//get the elements and recurse further

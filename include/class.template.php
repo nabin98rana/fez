@@ -290,6 +290,7 @@ class Template_API
 		$this->assign("SHIB_HOME_SP", SHIB_HOME_SP);
 		$this->assign("SHIB_HOME_IDP", SHIB_HOME_IDP);
 		$this->assign("SHIB_FEDERATION_NAME", SHIB_FEDERATION_NAME);
+		$this->assign("APP_INTERNAL_NOTES", APP_INTERNAL_NOTES);
 
 		if (count(Error_Handler::$app_errors) > 0) {
 			if ((APP_DISPLAY_ERRORS_USER == 1) && ($isAdministrator)) {

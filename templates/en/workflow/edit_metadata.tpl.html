@@ -87,6 +87,32 @@
 </table>
 {/if}
 
+{* Internal Notes *}
+{if $isAdministrator && $APP_INTERNAL_NOTES == 'ON'}
+	<table border="0" cellpadding="2" cellspacing="0" width="100%"  bgcolor="#FFFFFF" >
+		<tr>
+			<td class="default_white" bgcolor="{$heading_color}" height="22"><b>Internal Notes</b> &nbsp; (Administrators only - will not be publically displayed)</td>
+		</tr>
+		<tr class="default">
+			<td bgcolor="{$cell_color}">
+				<textarea style="width: 95%; height: 100px;" name="internal_notes">{$internal_notes}</textarea>
+			</td>
+		</tr>
+	</table>
+{/if}
+	
+{* Reason for Edit *}
+<table border="0" cellpadding="2" cellspacing="0" width="100%"  bgcolor="#FFFFFF" >
+	<tr>
+		<td class="default_white" bgcolor="{$heading_color}" height="22"><b>Reason for Edit</b> &nbsp; (optional - will be added to object history)</td>
+	</tr>
+	<tr class="default">
+		<td bgcolor="{$cell_color}">
+			<input type="text" name="edit_reason" style="width: 95%;" />
+		</td>
+	</tr>
+</table>
+
 {/if}				  
 </div>
 </td></tr>

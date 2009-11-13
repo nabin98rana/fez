@@ -32,7 +32,6 @@
 // |          Rhys Palmer <r.palmer@library.uq.edu.au>                    |
 // +----------------------------------------------------------------------+
 
-
 include_once("../config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
@@ -51,6 +50,7 @@ include_once(APP_INC_PATH . "class.workflow.php");
 include_once(APP_INC_PATH . "class.org_structure.php");
 include_once(APP_INC_PATH . "class.record_edit_form.php");
 include_once(APP_INC_PATH . "class.uploader.php");
+include_once(APP_INC_PATH . "class.internal_notes.php");
 
 Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']."?".$_SERVER['QUERY_STRING']);
 
@@ -82,12 +82,17 @@ if (strtolower($_SERVER['HTTPS']) == 'on' || $_SERVER['SERVER_PORT'] == 443 || s
 	$tpl->assign('http_protocol', 'http');
 }
 
-
 $pid = $wfstatus->pid;
+
+// Record the Internal Note, if we've been handed one.
+$username = Auth::getUsername();
+if (isset($_POST['internal_notes']) && User::isUserAdministrator($username)) {
+    $note = trim($_POST['internal_notes']);
+    InternalNotes::recordNote($pid, $note);
+}
+
 $wfstatus->setTemplateVars($tpl);
-//$tpl->assign("submit_to_popup", true);
 $wfstatus->checkStateChange();
- 
 $collection_pid=$pid;
 $community_pid=$pid;
 $tpl->assign("collection_pid", $pid);
@@ -125,6 +130,7 @@ $xdis_id = $record->getXmlDisplayId();
 $xdis_title = XSD_Display::getTitle($xdis_id);
 $tpl->assign("xdis_title", $xdis_title);
 $tpl->assign("extra_title", "Edit ".$xdis_title);
+$tpl->assign("internal_notes", InternalNotes::readNote($pid));
 
 $access_ok = $record->canEdit();
 if ($access_ok) {

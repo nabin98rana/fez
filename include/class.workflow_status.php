@@ -37,11 +37,11 @@ include_once(APP_INC_PATH.'class.wfbehaviours.php');
 include_once(APP_INC_PATH.'class.workflow_state.php');
 include_once(APP_INC_PATH.'class.workflow_trigger.php');
 include_once(APP_INC_PATH.'class.foxml.php');
-include_once(APP_INC_PATH . 'class.bgp_generate_duplicates_report.php');
-include_once(APP_INC_PATH . 'class.bgp_duplicates_report_merge_isi_loc.php');
-include_once(APP_INC_PATH. 'class.bgp_publish.php');
-include_once(APP_INC_PATH . 'class.template.php');
-include_once(APP_INC_PATH . 'class.mail.php');
+include_once(APP_INC_PATH.'class.bgp_generate_duplicates_report.php');
+include_once(APP_INC_PATH.'class.bgp_duplicates_report_merge_isi_loc.php');
+include_once(APP_INC_PATH.'class.bgp_publish.php');
+include_once(APP_INC_PATH.'class.template.php');
+include_once(APP_INC_PATH.'class.mail.php');
 
 /**
  * for tracking status of objects in workflows.  This is like the runtime part of the workflows.
@@ -70,6 +70,7 @@ class WorkflowStatus {
 	var $href;
 	var $states_done = array();
 	var $record_title;
+	var $extra_history_detail = "";
 	//var $request_params; // copy of $_REQUEST when workflow was started
 
 	/**
@@ -82,8 +83,8 @@ class WorkflowStatus {
 		$this->pid = $pid;
 		$this->pids = $pids;
 		$this->dsID = $dsID;
-		$this->wft_id= $wft_id;
-		$this->xdis_id= $xdis_id;
+		$this->wft_id = $wft_id;
+		$this->xdis_id = $xdis_id;
 		$this->dsInfo = $dsInfo;
 		$this->custom_view_pid = $custom_view_pid;
 		//$this->request_params = $_REQUEST;
@@ -370,10 +371,10 @@ class WorkflowStatus {
 		}
 		$querystr=implode('&', $argstrs);
 		if (($wft_type != 'Delete') && !empty($this->pid))  {
-			History::addHistory($pid, $this->wfl_details['wfl_id'], $outcome, $outcome_details, true);
+			History::addHistory($pid, $this->wfl_details['wfl_id'], $outcome, $outcome_details, true, "", $this->extra_history_detail);
 		} elseif (!empty($this->parents_list)) {
 			foreach ($this->parents_list as $parent_pid) {
-				History::addHistory($parent_pid, $this->wfl_details['wfl_id'], "", "Deleted child ".$pid, true);
+				History::addHistory($parent_pid, $this->wfl_details['wfl_id'], "", "Deleted child ".$pid, true, "", $this->extra_history_detail);
 			}
 		}
 		$this->clearSession();
@@ -395,7 +396,19 @@ class WorkflowStatus {
 			} */
 		$this->pid = $pid;
 	}
-
+	
+	/**
+	 * Set the extended PREMIS logging detail. This will be used when writing to the event log.
+	 */
+	function setHistoryDetail($detail = null)
+	{
+		if (is_null($detail) || $detail == '') {
+			$this->extra_history_detail = null;
+		} else {
+			$this->extra_history_detail = $detail;	
+		}
+	}
+	
 	/**
 	 * When the current page refreshes, the workflow state should go to a new state.
 	 * This is used when the workflow form has done soemthing in a popup and needs to
@@ -622,6 +635,9 @@ class WorkflowStatusStatic
 		if (is_null($_REQUEST['custom_view_pid'])) {
 			$_REQUEST['custom_view_pid'] = $obj->custom_view_pid;
 		}
+		
+		$obj->setHistoryDetail(trim(@$_POST['edit_reason']));
+		
 		return $obj;
 	}
 
