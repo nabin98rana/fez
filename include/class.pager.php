@@ -257,7 +257,7 @@ class Pager
 					if (is_array($value)) {
 						if (isset($value['filter_enabled']) && $value['filter_enabled'] == 0)
 							continue;
-						if (isset($value['multiple_type']) && $value['multiple_type'] == 'any')
+						if (isset($value['multiple_type']) && $value['multiple_type'] == 'any' && count($value) == 1)
 							continue;
 					}
 						
