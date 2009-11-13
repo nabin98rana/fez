@@ -391,7 +391,7 @@ function selectDateField(field_name, day, month, year)
 								{assign var="fckpath" value=$rel_url|cat:"js/fckeditor/"}
 								{assign var="InstanceName" value="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"][]"}
 								{if $loop_num == 0}{if $xsd_display_fields[i].xsdmf_dynamic_text != ""}{assign var='temp_dynamic_var' value=$xsd_display_fields[i].xsdmf_dynamic_text}{eval var=$temp_dynamic_var assign="fckvalue"}{else}{assign var="fckvalue" value=$xsd_display_fields[i].xsdmf_static_text}{/if}{/if}
-								{fckeditor BasePath=$fckpath InstanceName=$InstanceName Width="450px" Height="100px" ToolbarSet="FezBasic" Value=$fckvalue} 
+								{fckeditor BasePath=$fckpath InstanceName=$InstanceName Width="500px" Height="200px" ToolbarSet="FezBasic" Value=$fckvalue} 
 								{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"][]"}
 								{if $xsd_display_fields[i].xsdmf_long_description != ""}
 									<span class="default">{$xsd_display_fields[i].xsdmf_long_description}</span>
@@ -411,7 +411,7 @@ function selectDateField(field_name, day, month, year)
 							{assign var="fckpath" value=$rel_url|cat:"js/fckeditor/"}
 							{assign var="InstanceName" value="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}
 							{if $xsd_display_fields[i].xsdmf_dynamic_text != ""}{assign var='temp_dynamic_var' value=$xsd_display_fields[i].xsdmf_dynamic_text}{eval var=$temp_dynamic_var assign="fckvalue"}{else}{assign var="fckvalue" value=$xsd_display_fields[i].xsdmf_static_text}{/if}
-							{fckeditor BasePath=$fckpath InstanceName=$InstanceName Width="450px" Height="100px" ToolbarSet="FezBasic" Value=$fckvalue}
+							{fckeditor BasePath=$fckpath InstanceName=$InstanceName Width="500px" Height="200px" ToolbarSet="FezBasic" Value=$fckvalue}
 							{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}
 								{if $xsd_display_fields[i].xsdmf_long_description != ""}
 									<span class="default">{$xsd_display_fields[i].xsdmf_long_description}</span>
