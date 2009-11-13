@@ -33,6 +33,8 @@
 	        <dc:identifier>{$app_base_url}view/{$list[0].rek_pid|escape:"html"}</dc:identifier>
 	        <dc:description>{$list[0].rek_description|escape:"html"}</dc:description>
 	        <dc:type>{$list[0].rek_display_type_lookup|escape:"html"}</dc:type>
+	        <dc:date>{$list[0].rek_date|escape:"html"}</dc:date>
+			<dc:coverage>{$list[0].rek_date|escape:"html"}</dc:coverage>
 
 			{assign var="loop_authors" value=$list[0].rek_author}
 			{section name="a" loop=$loop_authors}
