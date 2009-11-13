@@ -291,6 +291,15 @@ class WorkflowStatus {
 		}
 		return $this->wfb_details;
 	}
+	
+	/**
+	 * Get the extra PREMIS detail for the current workflow.
+	 */
+	function getHistoryDetail()
+	{
+		return $this->extra_history_detail;
+	}
+	
 
 	/**
 	 * Move to the next state from an automatic state.  Automatic states can only go to one
