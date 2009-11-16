@@ -36,6 +36,7 @@
 $this->getRecordObject();
 $sta_id = Status::getID("In Creation");
 $this->rec_obj->setStatusId($sta_id);
-History::addHistory($this->rec_obj->getPid(), null, '', '', true, 'In Creation');
+$historyExtra = $this->getHistoryDetail();
+History::addHistory($this->rec_obj->getPid(), null, '', '', true, 'In Creation', $historyExtra);
 
 ?>

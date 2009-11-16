@@ -37,5 +37,6 @@ $pid = $this->pid;
 $this->getRecordObject();
 $sta_id = Status::getID('Unpublished');
 $this->rec_obj->setStatusId($sta_id);
-History::addHistory($pid, null, '', '', true, 'Unpublished');
+$historyExtra = $this->getHistoryDetail();
+History::addHistory($pid, null, '', '', true, 'Unpublished', $historyExtra);
 ?>

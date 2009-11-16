@@ -48,7 +48,8 @@ $from = APP_EMAIL_SYSTEM_FROM_ADDRESS;
 $to = $usrDetails['usr_email'];
 $mail->send($from, $to, $subject, false);
 
-History::addHistory($this->rec_obj->getPid(), null, '', '', true, 'Record Rejected');
+$historyExtra = $this->getHistoryDetail();
+History::addHistory($this->rec_obj->getPid(), null, '', '', true, 'Record Rejected', $historyExtra);
 
 $this->rec_obj->releaseLock();
 ?>
