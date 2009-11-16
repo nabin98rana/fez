@@ -77,6 +77,9 @@ class EstiSearchService
 	const DOC_TYPE_NEWS_ITEM = '5';
 	const DOC_TYPE_NOTE = 'N';
 	const DOC_TYPE_POETRY = 'Y';
+	const DOC_TYPE_PROCEEDINGS_PAPER_1 = '$';
+	const DOC_TYPE_PROCEEDINGS_PAPER_2 = 'P';
+	const DOC_TYPE_PROCEEDINGS_PAPER_3 = 'U';
 	const DOC_TYPE_RECORD_REVIEW = 'H';
 	const DOC_TYPE_REPRINT = '6';
 	const DOC_TYPE_REVIEW = 'R';
