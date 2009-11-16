@@ -50,6 +50,41 @@ class EstiSearchService
 {
 	const WSDL = 'http://wok-ws.isiknowledge.com/esti/soap/SearchRetrieve?wsdl';
 	
+	// Document types
+	const DOC_TYPE_ABSTRACT_OF_PUBLISHED_ITEM = '2';
+	const DOC_TYPE_ART_EXHIBIT_REVIEW = 'A';
+	const DOC_TYPE_ARTICLE = '@';
+	const DOC_TYPE_BIBLIOGRAPHY = '7';
+	const DOC_TYPE_BIOGRAPHICAL_ITEM = 'I';
+	const DOC_TYPE_BOOK_REVIEW = 'B';
+	const DOC_TYPE_CHRONOLOGY = 'K';
+	const DOC_TYPE_CORRECTION_ADDITION = 'C';
+	const DOC_TYPE_DANCE_PERFORMANCE_REVIEW = 'Z';
+	const DOC_TYPE_DATABASE_REVIEW = '0';
+	const DOC_TYPE_DISCUSSION = 'D';
+	const DOC_TYPE_EDITORIAL_MATERIAL = 'E';
+	const DOC_TYPE_EXCERPT = 'X';
+	const DOC_TYPE_FICTION_CREATIVE_PROSE = 'O';
+	const DOC_TYPE_FILM_REVIEW = 'F';
+	const DOC_TYPE_HARDWARE_REVIEW = '8';
+	const DOC_TYPE_ITEM_ABOUT_AN_INDIVIDUAL = 'I';
+	const DOC_TYPE_LETTER = 'L';
+	const DOC_TYPE_MEETING_ABSTRACT = 'M';
+	const DOC_TYPE_MEETING_ABSTRACT_ALT = 'MC';
+	const DOC_TYPE_MUSIC_PERFORMANCE_REVIEW = 'J';
+	const DOC_TYPE_MUSIC_SCORE = 'S';
+	const DOC_TYPE_MUSIC_SCORE_REVIEW = 'G';
+	const DOC_TYPE_NEWS_ITEM = '5';
+	const DOC_TYPE_NOTE = 'N';
+	const DOC_TYPE_POETRY = 'Y';
+	const DOC_TYPE_RECORD_REVIEW = 'H';
+	const DOC_TYPE_REPRINT = '6';
+	const DOC_TYPE_REVIEW = 'R';
+	const DOC_TYPE_SCRIPT = 'Q';
+	const DOC_TYPE_SOFTWARE_REVIEW = '9';
+	const DOC_TYPE_TV_REVIEW_RADIO_REVIEW_VIDEO = 'V';
+	const DOC_TYPE_THEATER_REVIEW = 'T';
+	
 	// Fields not covered by our agreement: abstract, research_addrs(1), show_cited_refs
 	// (1) research_addrs may be ok, but we do not require it anyway
 	const FIELDS = 'times_cited abbrev_11 abbrev_22 abbrev_29 abbrev_iso author author authors bib_date bib_id bib_issue bib_misc bib_pagecount bib_pages bib_pages bib_vol bk_binding bk_ordering bk_prepay bk_price bk_publisher book_authors book_chapters book_corpauthor book_desc book_editor book_editors book_note book_notes book_series book_series_title book_subtitle bs_subtitle bs_title conf_city conf_date conf_end conf_host conf_id conf_location conf_sponsor conf_sponsors conf_start conf_state conf_title conference conferences copyright corp_authors doctype editions editor i_cid i_ckey ids io isbn issn issue_ed issue_title item item_enhancedtitle item_title items keyword keyword keywords keywords_plus languages load loc meeting_abstract p primaryauthor primarylang pub_address pub_city pub_url publisher pubtype ref refs reprint research reviewed_work rp_address rp_author rp_city rp_country rp_organization rp_state rp_street rp_suborganization rp_suborganizations rp_zip rp_zips rs_address rs_city rs_country rs_organization rs_state rs_street rs_suborganization rs_suborganizations rs_zip rs_zips rw_author rw_authors rw_lang rw_langs rw_year source_abbrev source_editors source_series source_title sq subject subjects ui unit units ut';
