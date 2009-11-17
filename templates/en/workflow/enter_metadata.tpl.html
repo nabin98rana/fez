@@ -1047,6 +1047,7 @@ function selectDateField(field_name, day, month, year)
               <tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" {if ($isEditor != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && $xsd_display_fields[i].xsdmf_required != 1)}style="display:none"{/if}>
 				  <td width="200" bgcolor="{$cell_color}" class="default">
 					<b>{$xsd_display_fields[i].xsdmf_title} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b><br />
+					<i>{$xsd_display_fields[i].xsdmf_description}</i>
 				  </td>
                 <td nowrap bgcolor="{$light_color}">
                   {assign var="temp_xsdmf_id" value=$xsd_display_fields[i].xsdmf_id}
