@@ -1503,6 +1503,7 @@ class RecordGeneral
 						$proc = new XSLTProcessor();
 						$proc->importStyleSheet($xsl_dom);
 						$transformResult = $proc->transformToXML($dc_dom);
+						$transformResult = self::clearMODSIdentifiers($transformResult);
 						Fedora_API::getUploadLocation($new_pid, "MODS", $transformResult, "Metadata Object Description Schema", "text/xml", "X", "MODS", 'true');
 					}
 					break;
@@ -1551,6 +1552,8 @@ class RecordGeneral
 					if (isset($ds_value['controlGroup']) && $ds_value['controlGroup'] == 'X') {
 						$value = Fedora_API::callGetDatastreamContents($pid, $ds_value['ID'], true);
 						$value = str_replace($pid, $new_pid, $value);
+						if ($ds_value['ID'] == 'MODS')
+							$value = self::clearMODSIdentifiers($value);
 						Fedora_API::getUploadLocation($new_pid, $ds_value['ID'], $value, $ds_value['label'],
 						$ds_value['MIMEType'], $ds_value['controlGroup'], null, $ds_value['versionable']);
 					} elseif (isset($ds_value['controlGroup']) && $ds_value['controlGroup'] == 'M'
@@ -1564,12 +1567,40 @@ class RecordGeneral
 						Fedora_API::callAddDatastream($new_pid, $ds_value['ID'], $value, $ds_value['label'],
 						$ds_value['state'],$ds_value['MIMEType'], $ds_value['controlGroup'], $ds_value['versionable']);
 					}
+					
 					break;
 			}
 		}
 		Record::setIndexMatchingFields($new_pid);
 
 		return $new_pid;
+	}
+
+	/** 
+	 * Clears any mods:identifiers from the xml string or object
+	 * 
+	 * @param string $xmlString the xml to modify
+	 * @return string
+	 */
+	public function clearMODSIdentifiers($xmlString)
+	{
+		// load xml document
+		$xml = DOMDocument::loadXML($xmlString);
+		$xpath = new DOMXPath($xml);
+		$xpath->registerNamespace('mods', 'http://www.loc.gov/mods/v3');
+		
+		// clear the mods:identifier fields but leave them in the xml
+		$nodes = $xpath->query('/mods:mods/mods:identifier');
+		foreach ($nodes as $node) {
+			$node->nodeValue = '';
+		}
+		$newXml = $xml->saveXML();
+
+		// remove <?xml version="1.0" line coming from saveXML function
+		$firstNewLine = strpos($newXml, "\n");
+		$newXml = substr($newXml, $firstNewLine + 1, strlen($newXml));
+
+		return $newXml;
 	}
 
 	/**
