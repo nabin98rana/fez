@@ -130,6 +130,17 @@ Workflow Progress:
 {/if}
 </div>
 {include file="workflow/$type.tpl.html"}
+
+{if $APP_HERDC_SUPPORT == 'ON'}
+	<tr>
+		<td colspan="2">
+			<div id="herdc_advice">
+				If this record is for the HERDC submission, you must ensure that you record author affiliation details before you publish the record.
+			</div>
+		</td>
+	</tr>
+{/if}
+
 <div id="wfl_buttons_2">
 {if $workflow_buttons && !$no_bottom_buttons}
 <tr>

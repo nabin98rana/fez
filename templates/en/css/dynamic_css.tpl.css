@@ -1875,3 +1875,10 @@ div.hr hr {
 #object-history .date-col{
 	width: 230px;
 }
+
+#herdc_advice {
+    margin-top: 10px;
+    margin-bottom: 5px;
+    padding: 10px;
+    border: 1px solid red;
+}

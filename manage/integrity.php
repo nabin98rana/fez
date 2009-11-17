@@ -45,8 +45,8 @@ $tpl->setTemplate("manage/index.tpl.html");
 
 Auth::checkAuthentication(APP_SESSION);
 
-if (APP_HERDC_INTEGRITY_REPORTS !== 'ON') {
-    die("<b>Error:</b> HERDC Integrity Reports are not currently enabled. You can turn this feature on in Site Configuration.");
+if (APP_HERDC_SUPPORT !== 'ON') {
+    die("<b>Error:</b> HERDC Support is not currently enabled. You can turn this feature on in Site Configuration.");
 }
 
 $tpl->assign("type", "integrity");

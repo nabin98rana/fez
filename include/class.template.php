@@ -277,7 +277,7 @@ class Template_API
 		$this->assign("app_earliest_input_year", APP_EARLIEST_INPUT_YEAR);
 		$this->assign("SELF_REGISTRATION", SELF_REGISTRATION);
 		$this->assign("WEBSERVER_LOG_STATISTICS", WEBSERVER_LOG_STATISTICS);
-		$this->assign("APP_HERDC_INTEGRITY_REPORTS", APP_HERDC_INTEGRITY_REPORTS);
+		$this->assign("APP_HERDC_SUPPORT", APP_HERDC_SUPPORT);
 		$this->assign("SID", SID);
 		$this->assign("SHIB_SWITCH", SHIB_SWITCH);
 		$this->assign("SHIB_DIRECT_LOGIN", SHIB_DIRECT_LOGIN);

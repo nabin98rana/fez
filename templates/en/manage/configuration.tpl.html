@@ -494,14 +494,14 @@ function restoreDefaultColours(el)
 			</td>
   		  </tr>
 		  <tr>
-		    <td class="colname">HERDC Integrity Reports</td>
+		    <td class="colname">HERDC Support Features</td>
 			<td class="coldetail">
-			  <select name="app_herdc_integrity_reports">
-			    <option value="ON"{if $config_settings.app_herdc_integrity_reports == "ON"} selected="selected"{/if}>On</option>
-				<option value="OFF"{if $config_settings.app_herdc_integrity_reports == "OFF"} selected="selected"{/if}>Off</option>
+			  <select name="app_herdc_support">
+			    <option value="ON"{if $config_settings.app_herdc_support == "ON"} selected="selected"{/if}>On</option>
+				<option value="OFF"{if $config_settings.app_herdc_support == "OFF"} selected="selected"{/if}>Off</option>
 			  </select>
-			  <br />If you don't know what this is, you don't really want to enable it.
-			  {include file="error_icon.tpl.html" field="app_herdc_integrity_reports"}
+			  <br />Enable HERDC integrity reports and special HERDC-related messages in edit templates.
+			  {include file="error_icon.tpl.html" field="app_herdc_support"}
 			</td>
   		  </tr>
 		</table>
