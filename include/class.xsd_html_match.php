@@ -1944,7 +1944,7 @@ class XSD_HTML_Match
 		                    xsdmf_long_description = " . $db->quote($_POST["long_description"]) . ",
 		                    xsdmf_html_input = " . $db->quote($_POST["field_type"]) . ",
 		                    xsdmf_validation_type = " . $db->quote($_POST["validation_types"]) . ",
-		                    xsdmf_validation_maxlength = " . $db->quote($_POST["validation_maxlength"]) . ",
+		                    xsdmf_validation_maxlength = " . $db->quote($_POST["validation_maxlength"], 'INTEGER') . ",
 		                    xsdmf_order = " . $db->quote($_POST["order"], 'INTEGER') . ",
 		                    xsdmf_date_type = " . $db->quote($_POST["xsdmf_date_type"], 'INTEGER') . ",					
 		                    xsdmf_cvo_id = " . $db->quote($_POST["xsdmf_cvo_id"], 'INTEGER') . ",					
