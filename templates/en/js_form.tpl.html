@@ -19,12 +19,8 @@
 
 <p class="news-heading">Copy this html to your web page for a dynamically created list of this search</p>
 
-{if $browse == '' AND $browse_mode == 'list'}
-<textarea rows="5" cols="100" onFocus="this.select();">&lt;script type="text/javascript" src="{$app_base_url}display-dynamic-list.php?{$app_base_url}list/?{$url_wo_tpl}&sort_order={$sort_order}&tpl=3" &gt;&lt;/script&gt;&lt;noscript&gt;JavaScript must be enabled in your browser for this feature to work&lt;/noscript&gt;</textarea>
-{else}
-<textarea rows="5" cols="100" onFocus="this.select();">&lt;script type="text/javascript" src="{$app_base_url}display-dynamic-list.php?http://{$APP_HOSTNAME}{$PAGE_URL}?{$url_wo_tpl}&sort_order={$sort_order}&tpl=3" &gt;&lt;/script&gt;&lt;noscript&gt;JavaScript must be enabled in your browser for this feature to work&lt;/noscript&gt;</textarea>
+<textarea rows="5" cols="100" onFocus="this.select();">&lt;script type="text/javascript" src="{$app_base_url}display-dynamic-list.php?{$dynamicParams}" &gt;&lt;/script&gt;&lt;noscript&gt;JavaScript must be enabled in your browser for this feature to work&lt;/noscript&gt;</textarea>
 
-{/if}
 </div>
 
 
@@ -95,14 +91,7 @@
 		
 <div style="padding:20px;">
 	<table {if $facets  && $list_type != 'collection_records_list' && $list_type != 'collection_list' && $list_type != 'community_list'}width="70%"{else}width="100%"{/if} cellpadding="10" cellspacing="0" class="listrecord">
-	{if $browse == '' AND $browse_mode == 'list'}  {* arrived at page by search  *}
-	
-		<script type="text/javascript" src="{$app_base_url}display-dynamic-list.php?{$app_base_url}list/?{$url_wo_tpl}&sort_order={$sort_order}&tpl=3&form=tablecells"></script> <noscript>JavaScript must be enabled in your browser for this feature to work</noscript>
-
-  {else}		{* arrived at page by browse  *}
-    	<script type="text/javascript" src="{$app_base_url}display-dynamic-list.php?http://{$APP_HOSTNAME}{$PAGE_URL}?{$url_wo_tpl}&sort_order={$sort_order}&tpl=3&form=tablecells"></script> <noscript>JavaScript must be enabled in your browser for this feature to work</noscript>
-
-{/if}
+		<script type="text/javascript" src="{$app_base_url}display-dynamic-list.php?{$dynamicParams}&form=tablecells"></script> <noscript>JavaScript must be enabled in your browser for this feature to work</noscript>
    </table>
 </div>
 {/if}

@@ -1,0 +1,18 @@
+{* display depending on the form type *}
+{if ($form == 'tablecells')}
+	{foreach from=$list key=itemNumber item=items}
+		document.write('<tr class="fez-citations">');
+		document.write('<td class="fez-citations-item">');
+		document.write('{$items.rek_citation}');
+		document.write('</td>');
+		document.write('</tr>');
+	{/foreach}
+{else}
+	document.write('<ul class="fez-citations">');
+	{foreach from=$list key=itemNumber item=items}
+		document.write('<li class="fez-citations-item">');
+		document.write('{$items.rek_citation}');
+		document.write('</li>');
+	{/foreach}
+	document.write('</ul>');
+{/if}

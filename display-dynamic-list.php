@@ -1,6 +1,8 @@
 <?php
 
 include_once("config.inc.php");
+include_once(APP_INC_PATH . "class.template.php");
+include_once(APP_INC_PATH . "class.lister.php");
 
 $url = $_SERVER['QUERY_STRING'];
 
@@ -8,32 +10,24 @@ $url = $_SERVER['QUERY_STRING'];
 strrpos($url,"&form=");
 $form = substr($url,strrpos($url,"&form=")+6);
 
-// fetch the xmlfeed for this author
-$xmlfeed = file_get_contents($url);
+// get the list of items to display
+$list = Lister::getList($_GET, false);
 
-//xsl transform file
-$xslfile='citation.xsl';
+// format nicely, adding base url and escaping any single quotes (for document.write output)
+foreach($list['list'] as $index => $listItem) {
+	$citation = str_replace('href="', 'href="'.APP_BASE_URL, $listItem['rek_citation']);
+	$citation = str_replace("'", "\'", $citation);
+	$list['list'][$index]['rek_citation'] = $citation;
+}
 
-// Load the XML source
-$xml = new DOMDocument;
-$xmlfeed = utf8_encode($xmlfeed);  // convert everything to utf8 to eliminate problems
+// we're outputting javascript, let the browser know
+header("Content-type: text/javascript");
 
-// load XML from a string
-$xml->loadXML($xmlfeed);
-//$xml->load($xmlfile);
-
-$xsl = new DOMDocument;  // stylesheet to create citations 
-$xsl->load($xslfile);
-		
-// Configure the transformer
-$proc = new XSLTProcessor;
-$proc->importStyleSheet($xsl); // attach the xsl rules
-
-$proc->setParameter('', 'form', $form);
-
-$proc->setParameter('', 'host',APP_HOSTNAME);
-	
-echo $proc->transformToXML($xml);
-
+// and output the details
+$tpl = new Template_API();
+$tpl->setTemplate("display_dynamic_list.tpl.html");
+$tpl->assign('list', $list['list']);
+$tpl->assign('form', $form);
+$tpl->displayTemplate();
 
 FezLog::get()->close();

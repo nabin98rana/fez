@@ -170,7 +170,20 @@ class Lister
 			header("Content-Description: PHP Generated Word Data");
 		}	
 		
-        
+		// for the html code output, we want to output the search params, so clean them up first
+		if ($tpl_idx == 8) {
+			$dynamicParams = '';
+			$excludeForHtmlOutput = array(
+	            'pager_row',
+	            'browse',
+	            'value',
+				'rows'
+	        );
+			$dynamicParams = Misc::query_string_encode($params, $excludeForHtmlOutput);
+			$tpl->assign('dynamicParams', $dynamicParams);
+		}
+		
+
         if (Auth::userExists($username)) { // if the user is registered as a Fez user
             $tpl->assign("isFezUser", $username);
         }
@@ -557,6 +570,7 @@ class Lister
             	$filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
 				$filter["searchKey".Search_Key::getID("Author")] = $author_refine; 
             	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter, 'AND', false, false, true); // do an exact match
+
                 $list_info = $list["info"];
                 $list = $list["list"];
 				
@@ -1022,6 +1036,7 @@ class Lister
         if ($display) {
             $tpl->displayTemplate();
         } 
+
         return compact('list','list_info');
     }
     
