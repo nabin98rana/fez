@@ -1882,3 +1882,11 @@ div.hr hr {
     padding: 10px;
     border: 1px solid red;
 }
+
+.text-input-even {
+    background: [[$smarty.const.APP_VALUE_COLOR]];
+}
+
+.text-input-odd {
+    background: [[$smarty.const.APP_MIDDLE_COLOR]];
+}

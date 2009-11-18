@@ -8,7 +8,7 @@
 		{/if}				
 		{if $xsdmf.xsdmf_multiple == 1 && $loop_num == 0}<br /><i>(More {$xsdmf.xsdmf_title} input boxes will appear as they are used up)</i>{/if}
 	</td>
-	<td bgcolor="{$value_color}">
+	<td bgcolor="{$value_color}" class="{if $loop_num % 2 == 0}text-input-even{else}text-input-odd{/if}">
 		{if $xsdmf.xsdmf_attached_xsdmf_id != ""}
 		  {assign var="attached_xsdmf_id" value=$xsdmf.xsdmf_attached_xsdmf_id}
 		  {section name='aa' loop=$xsd_display_fields}{if $xsd_display_fields[aa].xsdmf_id == $attached_xsdmf_id}{assign var="attached_xsdmf" value=$xsd_display_fields[aa]}{/if}{/section}

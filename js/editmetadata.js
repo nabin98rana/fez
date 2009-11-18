@@ -134,7 +134,11 @@ function createTextBox(xsdmf_id, loop_num, name, limit, axsdmf_id, aname, attach
     textbox.type = "text";
     textbox.name = "xsd_display_fields["+xsdmf_id+"]["+loop_num+"]";
     textbox.size = "50";
-    textbox.className = "default";
+    if (loop_num % 2 == 0) {
+        td2.className = "default text-input-even";
+    } else {
+        td2.className = "default text-input-odd";
+    }
     
     textbox.onkeyup = function () {createTextBox(xsdmf_id,loop_num,name,limit,axsdmf_id,aname, attachSuggest)};
     textbox.onchange = function () {createTextBox(xsdmf_id,loop_num,name,limit,axsdmf_id,aname, attachSuggest)};
