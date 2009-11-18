@@ -3392,6 +3392,9 @@ class Record
 		    	if(!empty($history)) {
 		    		History::addHistory($pid, null, "", "", true, $history);
 		    	}
+	    	    if( APP_SOLR_INDEXER == "ON" ) {
+					FulltextQueue::singleton()->add($pid);							
+				}
 		    }
 	    }	
 	    
