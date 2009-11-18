@@ -1476,12 +1476,13 @@ class Statistics
 		$stmt .= 'ORDER BY scr_country_name, scr_country_region, scr_city';
 		
 		try {
-			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+			$res = $db->fetchAll($stmt, $country, Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
 			$log->err($ex);
 			return array();
 		}
+		
 		return $res;
 	}
 
@@ -1641,7 +1642,7 @@ class Statistics
 		$stmt .= 'ORDER BY sym_downloads DESC';
 		
 		try {
-			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+			$res = $db->fetchAll($stmt, array($year, $month), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
 			$log->err($ex);
