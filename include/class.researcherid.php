@@ -953,6 +953,7 @@ class ResearcherID
 		$count = $field_node_list->length; 
 		
 		$new_authors = array();
+		$aut_id_inserted = false;
 		
 		if( $count > 0 ) 
 		{
@@ -993,6 +994,7 @@ class ResearcherID
 			if($authors_matching_count == 1) {
 				if($new_authors[$authors_matching_index]['id'] == '0') {
 	    			$new_authors[$authors_matching_index]['id'] = $author_id;
+	    			$aut_id_inserted = true;
 				}
 	    	}
 		}
@@ -1026,7 +1028,7 @@ class ResearcherID
 
 		$newXML = $doc->SaveXML();
 		
-		if ($newXML != "") {
+		if ($newXML != "" && $aut_id_inserted) {
 			Fedora_API::callModifyDatastreamByValue($pid, "MODS", "A", "Metadata Object Description Schema", $newXML, "text/xml", "inherit");
 			
 			$historyDetail = "Author ID inserted using last name match";
