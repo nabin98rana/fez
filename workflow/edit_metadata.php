@@ -84,8 +84,17 @@ if (strtolower($_SERVER['HTTPS']) == 'on' || $_SERVER['SERVER_PORT'] == 443 || s
 
 $pid = $wfstatus->pid;
 
-// Record the Internal Note, if we've been handed one.
+// Determine if we are in a HERDC group.
 $username = Auth::getUsername();
+Auth::GetUsersInternalGroups(Auth::getUserID());
+foreach ($_SESSION[APP_INTERNAL_GROUPS_SESSION] as $groupID) {
+    $groupID = Group::getName($groupID);
+    if ($groupID == 'HERDC2008' || $groupID == 'HERDC_CE') {
+        $tpl->assign("in_herdc_group", "1");
+    }
+}
+
+// Record the Internal Note, if we've been handed one.
 if (isset($_POST['internal_notes']) && User::isUserAdministrator($username)) {
     $note = trim($_POST['internal_notes']);
     InternalNotes::recordNote($pid, $note);

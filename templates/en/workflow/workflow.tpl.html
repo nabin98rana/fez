@@ -131,7 +131,7 @@ Workflow Progress:
 </div>
 {include file="workflow/$type.tpl.html"}
 
-{if $APP_HERDC_SUPPORT == 'ON'}
+{if $APP_HERDC_SUPPORT == 'ON' && $in_herdc_group == '1' && $record_type == 'Record'}
 	<tr>
 		<td colspan="2">
 			<div id="herdc_advice">
