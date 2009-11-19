@@ -601,6 +601,7 @@ class Record
 			$log->debug("Record::removeIndexRecord() REMOVING ".$pid." FROM QUEUE");
 			FulltextQueue::singleton()->remove($pid);
 			FulltextQueue::singleton()->commit();
+			FulltextQueue::singleton()->triggerUpdate();
 		}
 
 		$cviews = array();
@@ -2932,10 +2933,12 @@ class Record
 			$searchKey_join[SK_SEARCH_TXT] .= "All Fields:\"".trim(htmlspecialchars($searchKeys["0"]))."\", ";
 
 			$solr_titles = Search_Key::getSolrTitles();
+			$solr_titles["citation"] = "citation_t";
 			foreach ($solr_titles as $skey => $svalue) {
 				$escapedInput = str_replace($skey.":", $svalue.":", $escapedInput);
 			}
 			$pattern = '/(?<!'.implode("|", $solr_titles).')(\+|-|&&|\|\||!|\(|\)|\{|}|\[|]|\^|"|~|\*|\?|:|\\\)/';
+//			echo $pattern;
 			$replace = '\\\$1';
 			$escapedInput = preg_replace($pattern, $replace, $escapedInput);
 			$searchKey_join["sk_where_AND"][] = "" .$escapedInput;

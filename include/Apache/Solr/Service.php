@@ -805,6 +805,35 @@ class Apache_Solr_Service
 	}
 
 	/**
+	 * Create a delete document based on an array of Document IDs
+	 *
+	 * @param array of strings $ids Each expected to be utf-8 encoded
+	 * @param boolean $fromPending
+	 * @param boolean $fromCommitted
+	 * @param float $timeout Maximum expected duration of the delete operation on the server (otherwise, will throw a communication exception)
+	 * @return Apache_Solr_Response
+	 *
+	 * @throws Exception If an error occurs during the service call
+	 */
+	public function deleteByMultipleIds($ids = array(), $fromPending = true, $fromCommitted = true, $timeout = 3600)
+	{
+		$pendingValue = $fromPending ? 'true' : 'false';
+		$committedValue = $fromCommitted ? 'true' : 'false';
+
+		$rawPost = '<delete fromPending="' . $pendingValue . '" fromCommitted="' . $committedValue . '">';
+
+		//escape special xml characters
+		foreach ($ids as $id_raw) {
+			$id = htmlspecialchars($id_raw, ENT_NOQUOTES, 'UTF-8');
+			$rawPost .= '<id>' . $id . '</id>';
+		}
+		
+		$rawPost .= '</delete>';
+		return $this->delete($rawPost, $timeout);
+	}
+
+
+	/**
 	 * Create a delete document based on a query and submit it
 	 *
 	 * @param string $rawQuery Expected to be utf-8 encoded

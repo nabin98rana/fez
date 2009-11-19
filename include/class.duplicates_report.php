@@ -672,6 +672,7 @@ class DuplicatesReport {
 			if ( APP_SOLR_INDEXER == "ON" ) {
 				FulltextQueue::singleton()->add($base_record->pid);
 				FulltextQueue::singleton()->commit();
+				FulltextQueue::singleton()->triggerUpdate();
 			}
 		}
 		return 1;
@@ -1562,6 +1563,7 @@ class DuplicatesReport {
 			if ( APP_SOLR_INDEXER == "ON" ) {
 				FulltextQueue::singleton()->remove($dup_pid);
 				FulltextQueue::singleton()->commit();
+				FulltextQueue::singleton()->triggerUpdate();
 			}
 		} else {
 			$log->err(array("Failed to set ".$dup_pid." as duplicate of ".$base_pid

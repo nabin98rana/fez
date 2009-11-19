@@ -98,6 +98,7 @@ class BackgroundProcess_Bulk_Assign_Authorid extends BackgroundProcess
 					FulltextQueue::singleton()->add($pid);
 				}
 				FulltextQueue::singleton()->commit();
+				FulltextQueue::singleton()->triggerUpdate();
 			}
 		}
 		$this->setState(2);

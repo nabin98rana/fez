@@ -397,6 +397,10 @@ class Search_Key
 		$log = FezLog::get();
 		$db = DB_API::get();
 		
+		static $returns;
+		if (!empty($returns[$sek_title])) {
+			return $returns[$sek_title];
+		}
 		$stmt = "SELECT
                      sek_id
                  FROM
@@ -410,7 +414,7 @@ class Search_Key
 			$log->err($ex);
 			return '';
 		}
-		
+		$returns[$sek_title] = $res;
 		return $res;
 	}
 	

@@ -236,6 +236,7 @@ class Statistics
 				FulltextQueue::singleton()->add($pid);
 			}
 			FulltextQueue::singleton()->commit();
+			FulltextQueue::singleton()->triggerUpdate();
 		}
 		$timeFinished = date('Y-m-d H:i:s');
 		Statistics::setLogRun($requestDateLatest, $counter, $counter_inserted, $timeStarted, $timeFinished);
@@ -374,7 +375,7 @@ class Statistics
 			$region = $record->region;
 
 			// Make this stuff SQL-safe.
-
+			$pidNum = Misc::numPID($pid);
 /*			$ip = $db->quote($ip);
 			$hostname = $db->quote($hostname);
 			$request_date = $db->quote($request_date);
@@ -459,6 +460,7 @@ class Statistics
 					FulltextQueue::singleton()->add($pid);
 				}
 				FulltextQueue::singleton()->commit();
+				FulltextQueue::singleton()->triggerUpdate();
 			}
 		}
 

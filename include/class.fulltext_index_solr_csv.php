@@ -448,11 +448,14 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 			if( $this->bgp ) {
 				$this->bgp->setStatus("Deleting " . count($deletePids) . " from Solr Index");
 			}
-				
-			foreach ( $deletePids as $row) {
-				$this->removeByPid($row['ftq_pid']);
-			}
-		}
+			$this->solr->deleteByMultipleIds($deletePids);
+			$this->solr->commit();
+			$this->solr->triggerUpdate();
+/*			foreach ( $deletePids as $row) {
+				$this->removeByPid($pid);
+				//$this->removeByPid($row['ftq_pid']);
+			} */
+		} 
 		 
 		return $countDocs;
 	}

@@ -48,7 +48,7 @@ $solr = new Apache_Solr_Service(APP_SOLR_HOST, APP_SOLR_PORT, APP_SOLR_PATH);
 
 $return = $solr->deleteById($pid);
 $solr->commit();
-
+$solr->triggerUpdate();
 // Display result
 print_r($return);
 

@@ -215,6 +215,7 @@ class Citation
 			}
 			if ( APP_SOLR_INDEXER == "ON" ) {
 				FulltextQueue::singleton()->commit();
+				FulltextQueue::singleton()->triggerUpdate();
 			}
 		} 
 		return true;
