@@ -128,7 +128,6 @@ function createTextBox(xsdmf_id, loop_num, name, limit, axsdmf_id, aname, attach
     row.setAttribute("id", "tr_xsd_display_fields_" + xsdmf_id + "_" +loop_num);
     row.className = "default";
     td1.setAttribute("bgColor",cell_color);
-    td2.setAttribute("bgColor",value_color);
     
     textbox.id = "xsd_display_fields_"+xsdmf_id+"_"+loop_num;
     textbox.type = "text";
