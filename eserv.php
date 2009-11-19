@@ -248,6 +248,13 @@ if (!empty($pid) && !empty($dsID)) {
 	    } else {
 	        header("Content-type: text/html");
 	    }
+	    
+	    // PDF? > 7MB? Firefox? Force download.
+	    if (is_numeric(strpos($ctype, "pdf")) && $info['download_content_length'] > 7000000 && Misc::is_firefox()) {
+	    	//header('Content-Type: application/download');
+	    	header("Content-Type: application/force-download");
+	    }
+	    
 	    header('Content-Disposition: filename="'.substr($urldata, (strrpos($urldata, '/')+1) ).'"');
 		if (!empty($info['download_content_length'])) {
 			header("Content-length: ".$info['download_content_length']);

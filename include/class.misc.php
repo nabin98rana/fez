@@ -3570,6 +3570,25 @@ class Misc
 			echo "You need to install/enable the php_zip.dll extension $infoVersion";
 		}
 	}
+	
+	/**
+	* checks for user agent whether this is firefox or not
+	* @param void
+	* @return bool
+	* @author svetoslavm##gmail.com
+	* @link http://devquickref.com/
+	*/
+	function is_firefox() {
+		$agent = '';
+		// newer versions of php do have useragent here.
+		if (empty($agent) && !empty($_SERVER["HTTP_USER_AGENT"])) {
+			$agent = $_SERVER["HTTP_USER_AGENT"];
+		}
+		if (!empty($agent) && preg_match("/firefox/si", $agent)) {
+			return true;
+		}
+		return false;
+	}	
 
 	function create_dirs($path)
 	{
