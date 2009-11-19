@@ -1888,5 +1888,5 @@ div.hr hr {
 }
 
 .text-input-odd {
-    background: [[$smarty.const.APP_MIDDLE_COLOR]];
+    background: [[$smarty.const.APP_CELL_COLOR]];
 }
