@@ -173,7 +173,7 @@ function swfuploaderUploadProgress(fileObject, bytesComplete, bytesTotal) {
 function swfuploaderUploadComplete(fileObject) {
 	swfuploaderUpdateProgressBar(fileObject.id,100);
 	var cell = dojo.byId('uploaderCancelCell-'+fileObject.id);
-	cell.innerHTML = 'Done';
+	cell.innerHTML = 'Finished uploading, now processing submission';
 
 	// add a hidden field to the post data (to notify processing file)
 	if (!dojo.byId('uploader_files_uploaded')) {
