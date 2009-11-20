@@ -91,6 +91,19 @@ class Custom_View
         return $res;
     }
     
+    function getCviewListUniqueHosts() {
+    	
+    	$customViews = Custom_View::getCviewList();
+    	$hosts = array();
+    	foreach ($customViews as $view) {
+    		if ($view['cvcom_hostname'] != '') {
+				$hosts[] = $view['cvcom_hostname'];
+			}
+    	}
+    	
+    	return $hosts;
+    }
+	
     function getDetails($cview_id)
     {
     	$log = FezLog::get();

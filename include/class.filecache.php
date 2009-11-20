@@ -1,5 +1,6 @@
 <?php
 
+include_once(APP_INC_PATH . "class.custom_view.php");
 
 class fileCache {
 
@@ -124,12 +125,18 @@ class fileCache {
 
 	function getPathFileOnDisk() 
 	{
+		$md5arr = str_split($this->cacheFileName, 2);
 
 		// If the incoming request is for a custom view, we need to specify a dedicated cache path.
-		$customViewComponent = $_SERVER['HTTP_HOST'] . "/";
-		$md5arr = str_split($this->cacheFileName, 2);
+		$hosts = Custom_View::getCviewListUniqueHosts();
+		$customViewComponent = APP_HOSTNAME;
+		foreach ($hosts as $host) {
+			if ($_SERVER['HTTP_HOST'] == $host) {
+				$customViewComponent = $host;
+			}
+		}
 		
-		return APP_FILECACHE_DIR . $customViewComponent . $md5arr[0]. '/'. $md5arr[1] .'/';
+		return APP_FILECACHE_DIR . $customViewComponent . "/" . $md5arr[0]. '/'. $md5arr[1] .'/';
 
 	}
 }
