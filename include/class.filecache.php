@@ -126,7 +126,14 @@ class fileCache {
 	{
 
 		$md5arr = str_split($this->cacheFileName, 2);
-		return APP_FILECACHE_DIR . $md5arr[0]. '/'. $md5arr[1] .'/';
+
+		// If the incoming request is for a custom view, we need to specify a dedicated cache path
+		$customViewComponent = "";
+		if (@$_SERVER['HTTP_HOST'] != APP_HOSTNAME) {
+			$customViewComponent = $_SERVER['HTTP_HOST'] . "/";
+		}
+		
+		return APP_FILECACHE_DIR . $customViewComponent . $md5arr[0]. '/'. $md5arr[1] .'/';
 
 	}
 }
