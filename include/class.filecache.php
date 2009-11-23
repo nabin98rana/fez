@@ -118,9 +118,17 @@ class fileCache {
 
 	function poisonCache() 
 	{
-
-		@unlink($this->cachePath.$this->cacheFileName);
-
+		$this->poisonAllCaches();
+	}
+	
+	function poisonAllCaches() 
+	{
+		$locations = $this->getAllCacheLocations();
+		foreach ($locations as $dir) {
+			@unlink($dir . $this->cacheFileName);
+		}
+		
+		return;
 	}
 
 	function getPathFileOnDisk() 
@@ -137,6 +145,16 @@ class fileCache {
 		}
 		
 		return APP_FILECACHE_DIR . $customViewComponent . "/" . $md5arr[0]. '/'. $md5arr[1] .'/';
-
+	}
+	
+	function getAllCacheLocations()
+	{
+		$md5arr = str_split($this->cacheFileName, 2);
+		$cacheDirectories = Custom_View::getCviewListUniqueHosts();
+		foreach ($cacheDirectories as &$dir) {
+			$dir = APP_FILECACHE_DIR . $dir . "/" . $md5arr[0]. '/'. $md5arr[1] .'/';
+		}
+		
+		return $cacheDirectories;
 	}
 }
