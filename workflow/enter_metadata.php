@@ -263,6 +263,7 @@ if ($access_ok) {
 			}
 		}
     }
+    
     $tpl->assign("xsd_display_fields", $xsd_display_fields);
     $tpl->assign("xdis_id", $xdis_id);
     $tpl->assign("default_depositor_org_id", $default_depositor_org_id);
