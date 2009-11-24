@@ -1104,6 +1104,95 @@ class XSD_DisplayObject
 				$this->xsdmf_current = &$this->xsdmf_array[$pid];
 				//print_r($this->exclude_list); echo "HERE";
 				$this->xsdmf_array[$pid] = XSD_HTML_Match::getDetailsByXPATH($pid, $this->xdis_id, $this->exclude_list, $this->specify_list);
+				
+				// Now get the Non-XML stuff.. this could be cleaned up 
+				
+				$this->xsdmf_current = &$this->xsdmf_array[$pid];
+				// Find datastreams that may be used by this display
+				$datastreamTitles = $this->getDatastreamTitles();
+
+				// need the full get datastreams to get the controlGroup etc
+				$datastreams = Fedora_API::callGetDatastreams($pid);
+				if (empty($datastreams)) {
+					$log->err(array("The PID ".$pid." doesn't appear to be in the fedora repository - perhaps it was not ingested correctly.  " .
+		                        "Please let the Fez admin know so that the Fez index can be repaired.",__FILE__,__LINE__));
+					return;
+				}
+
+				foreach ($datastreams as $ds_value) {
+					// get the matchfields for the FezACML of the datastream if any exists
+					if (isset($ds_value['controlGroup']) && $ds_value['controlGroup'] == 'M') {
+						$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElementSEL_Title("!datastream!ID", "File_Attachment", $this->xdis_id);
+						if (!is_array(@$this->xsdmf_current[$xsdmf_id])) {
+							$this->xsdmf_current[$xsdmf_id] = array();
+						}
+						array_push($this->xsdmf_current[$xsdmf_id], $ds_value['ID']);
+
+						$FezACML_xdis_id = XSD_Display::getID('FezACML for Datastreams');
+						$FezACML_DS_name = FezACML::getFezACMLDSName($ds_value['ID']);
+						if (Fedora_API::datastreamExistsInArray($datastreams, $FezACML_DS_name)) {
+							$FezACML_DS = Fedora_API::callGetDatastreamDissemination($pid, $FezACML_DS_name, $createdDT);
+							if (isset($FezACML_DS['stream'])) {
+								$this->processXSDMFDatastream($FezACML_DS['stream'], $FezACML_xdis_id);
+								$this->xsd_html_match->gotMatchCols = false; // make sure it refreshes for the other xsd displays
+							}
+						}
+					}
+				}
+
+				foreach ($datastreamTitles as $dsValue) {
+					// first check if the XSD Display datastream is a template
+					// for a link as these are handled differently
+					if ($dsValue['xsdsel_title'] == "DOI") {
+						// find the datastream for DOI and set it's value
+						$xsdmf_id = $dsValue['xsdmf_id'];
+
+						$xsdmf_details = $this->xsd_html_match->getDetailsByXSDMF_ID($xsdmf_id);
+
+						foreach ($datastreams as $ds) {
+							if (isset($ds['controlGroup']) && $ds['controlGroup'] == 'R' && $ds['ID'] == 'DOI') {
+								$value = trim($ds['location']);
+								if (!empty($value) && strlen($xsdmf_details['xsdmf_value_prefix']) > 0) {
+									$value = str_replace($xsdmf_details['xsdmf_value_prefix'], "", $value);
+								}
+								$this->xsdmf_current[$xsdmf_id] = $value;
+							}
+						}
+
+					} elseif ($dsValue['xsdsel_title'] == "Link") {
+
+						$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElementSEL_Title("!datastream!datastreamVersion!contentLocation", "Link", $this->xdis_id);
+						foreach ($datastreams as $ds) {
+							if (isset($ds['controlGroup']) && $ds['controlGroup'] == 'R' && is_numeric(strpos($ds['ID'], 'link_'))) {
+								$value = trim($ds['location']);
+								$value = str_replace("&amp;", "&", $value);
+								if (!empty($value) && strlen($xsdmf_details['xsdmf_value_prefix']) > 0) {
+									$value = str_replace($xsdmf_details['xsdmf_value_prefix'], "", $value);
+								}
+								if (!is_array(@$this->xsdmf_current[$xsdmf_id])) {
+									$this->xsdmf_current[$xsdmf_id] = array();
+								}
+								array_push($this->xsdmf_current[$xsdmf_id], $value);
+							}
+						}
+
+						$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElementSEL_Title("!datastream!datastreamVersion!LABEL", "Link", $this->xdis_id);
+						foreach ($datastreams as $ds) {
+							if (isset($ds['controlGroup']) && $ds['controlGroup'] == 'R' && is_numeric(strpos($ds['ID'], 'link_'))) {
+								$value = trim($ds['label']);
+								if (!empty($value) && strlen($xsdmf_details['xsdmf_value_prefix']) > 0) {
+									$value = str_replace($xsdmf_details['xsdmf_value_prefix'], "", $value);
+								}
+								if (!is_array(@$this->xsdmf_current[$xsdmf_id])) {
+									$this->xsdmf_current[$xsdmf_id] = array();
+								}
+								array_push($this->xsdmf_current[$xsdmf_id], $value);
+							}
+						}
+
+					}
+				
+				}
 			} else {
 				$this->processXSDMF($pid, $createdDT);
 			}
@@ -1118,7 +1207,7 @@ class XSD_DisplayObject
 		}
 		exit;
 		 
-		 
+		 /*
 		if (APP_XPATH_SWITCH != "ON") {
 			if (isset($this->xsdmf_array[$pid])) {
 				return;
@@ -1129,7 +1218,7 @@ class XSD_DisplayObject
 		} else {
 			$this->processXSDMF($pid, $createdDT);
 		}
-		return $this->xsdmf_array[$pid];
+		return $this->xsdmf_array[$pid]; */
 	}
 
 	// To get the values for a specific xml datastream only (eg for when there are many FezACML for datastream values set so they don't get confused)
