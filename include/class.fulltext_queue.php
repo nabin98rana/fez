@@ -205,7 +205,7 @@ class FulltextQueue
 			$process_id = $res['ftl_pid'];
 			$lockValue = $res['ftl_value'];
 			$acquireLock = true;
-			$log->debug("FulltextIndex::triggerUpdate got lockValue=".$lockValue.", pid=".$process_id);
+			$log->debug("FulltextIndex::triggerUpdate got lockValue=".$lockValue.", pid=".$process_id." with ".$stmt." and ".print_r($res, true));
 		
 			if ($lockValue > 0 && !empty($process_id) && is_numeric($process_id)) {
 			 
@@ -479,9 +479,11 @@ class FulltextQueue
 			$log->debug("FulltextQueue::popDeleteChunk() Delete Queue is empty.".print_r($res));
 			return false;
 		}
-			
+		$keys = array();
+		$pids = array();
 		foreach ( $res as $row ) {
 			$keys[] = $row['ftq_key'];
+			$pids[] = $row['ftq_pid'];
 		}
 			
 		// delete chunk from queue
@@ -494,6 +496,6 @@ class FulltextQueue
 			$log->err($ex);
 		}
 			
-		return $res;
+		return $pids;
 	}
 }
