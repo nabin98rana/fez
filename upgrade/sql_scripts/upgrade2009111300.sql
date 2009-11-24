@@ -5,4 +5,4 @@ CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%internal_notes (
 	PRIMARY KEY (ain_id)
 );
 
-INSERT INTO `%TABLE_PREFIX%config` (`config_name`,`config_module`,`config_value`) VALUES ('app_internal_notes', 'core', 'ON');
+REPLACE INTO `%TABLE_PREFIX%config` (`config_name`,`config_module`,`config_value`) VALUES ('app_internal_notes', 'core', 'ON');

@@ -1,4 +1,13 @@
-{include file="header.tpl.html" application_title="Fez Setup"}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>Fez Setup</title>
+	<link rel="stylesheet" href="../css/setup.css" type="text/css" />
+	<!--[if IE 6]><link rel="stylesheet" href="../css/ie6bugs.css" media="screen" type="text/css" /><![endif]-->
+	<!--[if IE 7]><link rel="stylesheet" href="../css/ie7bugs.css" media="screen" type="text/css" /><![endif]-->
+	<!--[if IE 8]><link rel="stylesheet" href="../css/ie8bugs.css" media="screen" type="text/css" /><![endif]-->
+</head>
 
 <body>
 
@@ -136,6 +145,8 @@ function validateForm(f)
     {elseif $test_result == '' && $sql_result == ''}
 		<div class="admin-header">Success!</div>
 		<div class="default admin-content">The Fez installation process completed successfully.<br /><br />
+		If you have installed Fez from SVN, please now run <a href="../upgrade/" onclick="javascript:window.open('../upgrade/'); return false;">upgrade</a>.<br /><br />
+		
 		<div style="border: 2px red solid; padding: 10px;">
 		<b>IMPORTANT SECURITY INFORMATION:</b> Once you have verified that your installation is working, delete the /setup/ directory.
 		</div>
@@ -148,4 +159,5 @@ function validateForm(f)
 </div>
 </div>
 
-{include file="footer.tpl.html"}
+</body>
+</html>

@@ -1,1 +1,1 @@
-insert into %TABLE_PREFIX%config (config_name, config_module, config_value) values ('app_enable_flash_uploader_switch', 'core', 'ON');
+replace into %TABLE_PREFIX%config (config_name, config_module, config_value) values ('app_enable_flash_uploader_switch', 'core', 'ON');

@@ -72,6 +72,7 @@ class Default_Data
 			$defaultData['app_exiftool_cmd']                = "C:/exiftool/exiftool.exe";
 			$defaultData['app_jahdl_dir']                   = "C:/PROGRA~1/jahdl/";
 			$defaultData['handle_admpriv_key_file']         = "C:/path_to_file/admpriv.bin";
+			$defaultData['app_log_location']                = "C:/temp/fez-error.log";
 		} else {
 			// Unix
 			$defaultData['webserver_log_dir']               = "/usr/local/apache/logs/";
@@ -92,6 +93,7 @@ class Default_Data
 			$defaultData['app_exiftool_cmd']                = "/usr/bin/exiftool";
 			$defaultData['app_jahdl_dir']                   = "/usr/local/jahdl/";
 			$defaultData['handle_admpriv_key_file']         = "/usr/local/handle/data/admpriv.bin";
+			$defaultData['app_log_location']                = "/var/log/fez/fez-error.log";
 		}   // Can add some other defaults here for other common OS setups
 
 		$defaultData['datamodel_version']                   = "2008102701";                 // Change this to last upgrade + 1
@@ -113,18 +115,18 @@ class Default_Data
 		$defaultData['fedora_db_passwd']                    = "";   // Empty default
 		$defaultData['fedora_db_port']                      = "3306";
 		$defaultData['app_shaded_bar']                      = "gradient.gif";           // DISCONTINUED
-		$defaultData['app_cell_color']                      = "#E7EDF9";
-		$defaultData['app_value_color']                     = "#F5F8FF";
-		$defaultData['app_light_color']                     = "#F5F8FF";
+		$defaultData['app_cell_color']                      = "#e5e5e5";
+		$defaultData['app_value_color']                     = "#f6f6f6";
+		$defaultData['app_adv_color_light']                 = "#fff0f0";
+		$defaultData['app_adv_color_dark']                  = "#ffc1bf";		
+		$defaultData['app_light_color']                     = "#f6f6f6";
 		$defaultData['app_selected_color']                  = "#fdffd9";
-		$defaultData['app_middle_color']                    = "#cecece";
-		$defaultData['app_dark_color']                      = "#317DCE";
-		$defaultData['app_heading_color']                   = "#6C94DA";
+		$defaultData['app_middle_color']                    = "#e5e5e5";
+		$defaultData['app_dark_color']                      = "#5e217a";
+		$defaultData['app_heading_color']                   = "#732a95";
 		$defaultData['app_cycle_color_one']                 = "#ebebeb";
 		$defaultData['app_cycle_color_two']                 = "#f7f7f7";
-		$defaultData['app_internal_color']                  = "#a7c1df";
-		$defaultData['app_adv_color_light']                 = "#fff0f0";
-		$defaultData['app_adv_color_dark']                  = "#ffc1bf";
+		$defaultData['app_internal_color']                  = "#d9d9d9";
 		$defaultData['app_fedora_setup']                    = "";   // Empty default
 		$defaultData['app_fedora_location']                 = "";   // Empty default
 		$defaultData['app_fedora_ssl_location']             = "";   // Empty default
@@ -217,7 +219,6 @@ class Default_Data
 		$defaultData['app_xsdmf_index_switch']	    		= "OFF";
 		$defaultData['app_enable_flash_uploader_switch']	= "ON";		
 		$defaultData['app_logging_enabled']                 = "false";
-		$defaultData['app_log_location']                    = "/var/log/fez/fez-error.log";
 		$defaultData['app_log_level']                       = "3";
 		$defaultData['rid_enabled']                         = "false";		
 		$defaultData['rid_dl_service_username']             = "your_username_here";
