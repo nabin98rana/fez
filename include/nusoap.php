@@ -6862,7 +6862,15 @@ class soapclient_internal extends nusoap_base  {
 	* @access   private
 	*/
     function parseResponse($headers, $data) {
-		$this->debug('Entering parseResponse() for data of length ' . strlen($data) . ' and type ' . $headers['content-type']);
+		
+    	if(strstr($headers['content-type'], 'multipart/related')) {
+    		// MIME encoded XML?    		
+    		$xml_start = strpos($data, '<?xml');
+    		$xml_end   = strrpos($data, '>');    		
+    		$data = substr($data, $xml_start, $xml_end - $xml_start + 1);
+    	}
+    	
+    	$this->debug('Entering parseResponse() for data of length ' . strlen($data) . ' and type ' . $headers['content-type']);
 		if (!strstr($headers['content-type'], 'text/xml')) {
 			$this->setError('Response not of type text/xml');
 			return false;
