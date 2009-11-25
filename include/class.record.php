@@ -2319,9 +2319,9 @@ class Record
 		
 		// Get the previous count
 		$stmt = "SELECT
-                    rek_thomson_citation_count
+                    tc_count
                  FROM
-                    " . $dbtp . "record_search_key
+                    " . $dbtp . "thomson_citations
                  WHERE
                     rek_pid = ".$db->quote($pid)."
                  ORDER BY tc_id DESC";
@@ -2448,7 +2448,120 @@ class Record
         return $res;
 	}
 	
+	/**
+	 * Method updates the Scopus citation count
+	 *  
+	 * @param $pid The PID to update the citation count for
+	 * @param $count The count to update with 
+	 * @return bool True if the update was successful else false
+	 */
+	public static function updateScopusCitationCount($pid, $count) 
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$dbtp =  APP_TABLE_PREFIX; // Database and table prefix
+		
+		$stmt = "UPDATE
+	                    " . $dbtp . "record_search_key
+	                 SET
+	                 	rek_scopus_citation_count = ".$db->quote($count)."
+	                 WHERE
+	                    rek_pid = ".$db->quote($pid);
+        try {
+			$db->query($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return false;
+		}
+        
+        // Record in history
+        Record::insertScopusCitationCount($pid, $count);
+                
+        return true;
+	}
 	
+	/**
+	 * Method inserts a new Scopus citation count entry
+	 * 
+	 * @param $pid The PID to insert the citation count for
+	 * @param $count The count to insert 
+	 * @return bool True if the insert was successful else false
+	 */
+	private static function insertScopusCitationCount($pid, $count) 
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$dbtp =  APP_TABLE_PREFIX; // Database and table prefix
+		
+		$stmt = "INSERT INTO
+                    " . $dbtp . "scopus_citations
+                 (sc_id, sc_pid, sc_count, sc_last_checked, sc_created)
+                 VALUES
+                 (NULL, ".$db->quote($pid).", ".$db->quote($count).", '".time()."', '".time()."')";
+		
+		try {
+			$db->query($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return false;
+		}
+		
+        return true;
+	}
+	
+	/**
+	 * Updates the Scopus citation count for a record using the last
+	 * known count from the history table
+	 * @param $pid The PID to update the citation count for
+	 * @return bool True if the update was successful else false
+	 */
+	public static function updateScopusCitationCountFromHistory($pid) 
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$dbtp =  APP_TABLE_PREFIX; // Database and table prefix
+		$prev_count;
+		
+		// Get the previous count
+		$stmt = "SELECT
+                    sc_count
+                 FROM
+                    " . $dbtp . "scopus_citations
+                 WHERE
+                    sc_pid = ".$db->quote($pid)."
+                 ORDER BY sc_id DESC";
+		
+		try {
+			$res = $db->fetchOne($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);		
+		}
+		$prev_count = $res;
+                
+        // If there is a previous count in the history
+        if(! empty($prev_count)) {
+	        $stmt = "UPDATE
+	                    " . $dbtp . "record_search_key
+	                 SET
+	                 	rek_scopus_citation_count = ".$db->quote($prev_count)."
+	                 WHERE
+	                    rek_pid = ".$db->quote($pid);
+			try {
+				$db->query($stmt);
+			}
+			catch(Exception $ex) {
+				$log->err($ex);
+				return false;
+			}
+        }
+        return true;
+	}
 
 	function getSearchKeyIndexValue($pid, $searchKeyTitle, $getLookup=true, $sek_details="")
 	{
