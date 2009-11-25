@@ -49,6 +49,7 @@ include_once(APP_INC_PATH . "class.misc.php");
 class EstiSearchService
 {
 	const WSDL = 'http://wok-ws.isiknowledge.com/esti/soap/SearchRetrieve?wsdl';
+	const ENDPOINT = 'http://wok-ws.isiknowledge.com/esti/soap/SearchRetrieve';
 	
 	// Document types
 	const DOC_TYPE_ABSTRACT_OF_PUBLISHED_ITEM = '2';
@@ -114,7 +115,7 @@ class EstiSearchService
 	{		
 		$log = FezLog::get();
 		
-		$client = new soapclient_internal(self::WSDL, true);
+		$client = new soapclient_internal(self::ENDPOINT, false);
 		$err = $client->getError();
 		if ($err) {
 			$log->err('Error occurred while creating new soap client: '.$err, __FILE__, __LINE__);
@@ -164,7 +165,7 @@ class EstiSearchService
 	{		
 		$log = FezLog::get();
 					
-		$client = new soapclient_internal(self::WSDL, true);
+		$client = new soapclient_internal(self::ENDPOINT, false);
 		$err = $client->getError();
 		if ($err) {
 			$log->err('Error occurred while creating new soap client: '.$err, __FILE__, __LINE__);
@@ -207,7 +208,7 @@ class EstiSearchService
 	{		
 		$log = FezLog::get();
 					
-		$client = new soapclient_internal(self::WSDL, true);
+		$client = new soapclient_internal(self::ENDPOINT, false);
 		
 		$err = $client->getError();
 		if ($err) {
