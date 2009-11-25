@@ -65,7 +65,7 @@ class Scopus
 	{		
 		$log = FezLog::get();
 		
-		$client = new soapclient_internal(self::ENDPOINT, false, '130.102.44.15', 8888);
+		$client = new soapclient_internal(self::ENDPOINT, false);
 		$client->soap_defencoding = 'US-ASCII';
 		
 		$err = $client->getError();
