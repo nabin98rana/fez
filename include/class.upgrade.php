@@ -342,6 +342,24 @@ class upgrade {
 	        return 0;
 	    }
 	}
+	
+	/**
+	 * This function will return true if there are unplayed upgrades waiting in the upgrades directory.
+	 **/
+	function checkForPendingUpgrades()
+	{
+		$upgrades = upgrade::getUpdateSqlList();
+		$version = upgrade::get_data_model_version();
+		
+		$pendingUpgrades = false;
+		foreach ($upgrades as $upgrade) {
+		    if ($upgrade > $version) {
+		        $pendingUpgrades = true;
+		    }
+		}
+		
+		return $pendingUpgrades;		
+	}
 }
 
 ?>

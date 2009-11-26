@@ -1,0 +1,16 @@
+<div class="admin-box">
+
+	<div class="admin-header">Run Upgrades</div>
+
+    <div class="default admin-content">
+	<img src="{$rel_url}images/upgrade_22.png" style="position: relative; top: 5px;" alt="Upgrade" /> 
+	
+	{if $upgrades_available}
+		You have outstanding upgrade scripts. <a href="{$rel_url}upgrade/" onclick="javascript:window.open('{$rel_url}upgrade/'); return false;">Run them now</a>.
+	{else}
+		All available upgrade scripts have been run.
+	{/if}
+	 
+    </div>
+
+</div>
