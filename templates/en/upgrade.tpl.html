@@ -40,7 +40,7 @@ the new version.  Be sure to backup your current DB before clicking.  If you hav
 <form action="{$smarty.server.PHP_SELF}" method="post">
 	<div>
 		<input type="hidden" name="step" value="2" />
-		<input type="submit" name="upgrade" value="Upgrade" />
+		<input type="submit" name="upgrade" value="Upgrade" onclick="javascript:window.alert('Please be patient! This process may take a while, depending on the size of your database, and the number of pending upgrades.');" />
 	</div>
 </form>
 
