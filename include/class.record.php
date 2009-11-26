@@ -1225,9 +1225,14 @@ class Record
 		}
 		$usr_id = Auth::getUserID();
 
-		if ($total_rows > 0) {
-			$stmt = $db->limit($stmt, $page_rows, $start);
-
+		if ($total_rows > 0) {			
+			try {
+				$stmt = $db->limit($stmt, $page_rows, $start);
+			}
+			catch(Exception $ex) {
+				$log->err($ex);
+			}
+			
 			try {
 				$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 			}
