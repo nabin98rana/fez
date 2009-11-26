@@ -1285,11 +1285,16 @@ class Record
 		} else {
 			$thumb_ratio = 0;
 		}
-
-		$total_pages = intval($total_rows / $page_rows);
-		if ($total_rows % $page_rows) {
-			$total_pages++;
+		if($page_rows == 0) {
+			$total_pages = 1;
 		}
+		else {
+			$total_pages = intval($total_rows / $page_rows);
+			if ($total_rows % $page_rows) {
+				$total_pages++;
+			}
+		}
+		
 		$search_info = rtrim($searchKey_join[SK_SEARCH_TXT], ', ');
 		if ($searchKey_join[SK_WHERE] == "") {
 			$noOrder = 1;
