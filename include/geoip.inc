@@ -318,6 +318,9 @@ function geoip_open($filename, $flags) {
     $gi->shmid = @shmop_open (GEOIP_SHM_KEY, "a", 0, 0);
     } else {
     $gi->filehandle = fopen($filename,"rb");
+    if (!$gi->filehandle) {
+      exit(" Error: Could not open " . $filename . " ... please ensure that you have downloaded the GeoIP .dat files as detailed in the installation instructions.");
+    }
     if ($gi->flags & GEOIP_MEMORY_CACHE) {
         $s_array = fstat($gi->filehandle);
         $gi->memory_buffer = fread($gi->filehandle, $s_array[size]);

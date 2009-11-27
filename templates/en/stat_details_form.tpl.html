@@ -140,7 +140,7 @@ function purgeObject(pid)
 		{/if}
 
         <tr align="center"><td>
-      <table width="800" cellpadding="2" cellspacing="1" class="default">
+      <table cellpadding="2" cellspacing="1" class="default" style="width: 800px;">
 		 <tr>
 		  <td>
 		   <h1>Access Statistics: <a href="{$rel_url}view/{$pid}">{$title}</a></h1>
@@ -178,7 +178,7 @@ function purgeObject(pid)
 		{if $action == 'show_detail'}
 	    <tr>
 			<td align="left">
-				<table cellspacing="0" cellpadding="3" width="800">
+				<table cellspacing="0" cellpadding="3" style="width: 800px;">
 					<tr style="background: {$heading_color};">
 						<td colspan="4" class="default_white"><strong>Abstract views and document downloads {$dateString}</strong></td>
 					</tr>
@@ -188,7 +188,7 @@ function purgeObject(pid)
 					</tr>
 					{else}
 					<tr>
-						<td style="background: {$light_color}" width="150"></td>
+						<td style="background: {$light_color}; width: 150px;"></td>
 						<td align="right" style="background: {$cell_color}; width: 75px;">Abstracts</td>
 						<td align="right" style="background: {$dark_color}; width: 75px;" class="default_white">Downloads</td>
 						<td style="background: {$light_color}; width: 500px;">&nbsp;</td>																							
@@ -197,9 +197,9 @@ function purgeObject(pid)
 						<td style="background: {$light_color}; width: 150px;" align="left"><strong>Views</strong></td>
 						<td align="right" style="width: 75px;">{$abstractViews}</td>
 						<td align="right" style="width: 75px;">{$downloads}</td>
-						<td width="500">
-						{if $abstractViewsWidth > 0}<img src="{$rel_url}images/hh.png" alt="Abstract views" height="9" width="{$abstractViewsWidth}">{else}<img src="{$rel_url}images/hh.png" alt="abstracts" height="9" width="1" />{/if}<br />
-							{if $downloadsWidth > 0}<img src="{$rel_url}images/hp.png" alt="Downloads" height="9" width="{$downloadsWidth}">{else}<img src="{$rel_url}images/hp.png" alt="downloads" height="9" width="1" />{/if}
+						<td style="width: 500px;">
+						{if $abstractViewsWidth > 0}<img src="{$rel_url}images/hh.png" alt="Abstract views" height="9" width="{$abstractViewsWidth}" />{else}<img src="{$rel_url}images/hh.png" alt="abstracts" height="9" width="1" />{/if}<br />
+							{if $downloadsWidth > 0}<img src="{$rel_url}images/hp.png" alt="Downloads" height="9" width="{$downloadsWidth}" />{else}<img src="{$rel_url}images/hp.png" alt="downloads" height="9" width="1" />{/if}
 						</td>																							
 					</tr>
 					{/if}							
@@ -209,7 +209,7 @@ function purgeObject(pid)
 
 	    <tr>
 			<td align="left">
-				<table cellspacing="0" cellpadding="3" width="800">
+				<table cellspacing="0" cellpadding="3" style="width: 800px;">
 					<tr style="background: {$heading_color}">
 						<td colspan="4" class="default_white"><strong>Views by country (derived from IP address of query) {$dateString}</strong></td>
 					</tr>
@@ -241,7 +241,7 @@ function purgeObject(pid)
 
 	    <tr>
 			<td align="left">
-				<table cellspacing="0" cellpadding="3" width="800">
+				<table cellspacing="0" cellpadding="3" style="width: 800px;">
 					<tr style="background: {$heading_color}">
 						<td colspan="4" class="default_white"><strong>History of views for this record</strong></td>
 					</tr>
@@ -269,7 +269,7 @@ function purgeObject(pid)
 			{if $showUsers == 1}
 	    <tr>
 			<td align="left">
-				<table cellspacing="0" cellpadding="3" width="800">
+				<table cellspacing="0" cellpadding="3" style="width: 800px;">
 					<tr style="background: {$heading_color};">
 						<td colspan="4" class="default_white"><strong>Logged in user views</strong> {if $firstLogged != 0}(started logging user views on {$firstLogged|date_format:'%a, %d %b %Y'}){else}(None logged yet){/if}</td>
 					</tr>
@@ -297,7 +297,7 @@ function purgeObject(pid)
 		{elseif $action == 'cumulative_usage'}
 			    <tr>
 			<td align="left">
-				<table cellspacing="0" cellpadding="3" width="800">
+				<table cellspacing="0" cellpadding="3" style="width: 800px;">
 					<tr style="background: {$heading_color}">
 						<td colspan="4" class="default_white"><strong>Abstract views and document downloads by month/year</strong></td>
 					</tr>
@@ -324,7 +324,7 @@ function purgeObject(pid)
 		{elseif $action == 'cumulative_usage_country'}
 	    <tr>
 			<td align="left">
-				<table cellspacing="0" cellpadding="3" width="800">
+				<table cellspacing="0" cellpadding="3" style="width: 800px;">
 					<tr style="background: {$heading_color}">
 						<td colspan="4" class="default_white"><strong>Views by country (derived from IP address of query) {$dateString}</strong></td>
 					</tr>
@@ -344,7 +344,7 @@ function purgeObject(pid)
 						<td style="background: {$light_color}; white-space: nowrap"><img src="{$rel_url}{$listCountry[i].flag}" alt="" height="14" width="18" /> <a href="{$rel_url}stat_details.php?action=cumulative_usage_country_specific&amp;country={$listCountry[i].scr_country_name}">{$listCountry[i].scr_country_name}</a></td>
 						<td align="right">{$listCountry[i].abstracts}</td>
 						<td align="right">{$listCountry[i].downloads}</td>
-						<td width="500">
+						<td style="width: 500px;">
 							<img src="{$rel_url}images/hh.png" alt="Abstract views" height="9" width="{$listCountry[i].abstractViewsWidth}" /><br />
 							<img src="{$rel_url}images/hp.png" alt="downloads" height="9" width="{$listCountry[i].downloadsWidth}" />
 						</td>																							
@@ -357,7 +357,7 @@ function purgeObject(pid)
 		{elseif $action == 'cumulative_usage_country_specific'}
 	    <tr>
 			<td align="left">
-				<table cellspacing="0" cellpadding="3" width="800">
+				<table cellspacing="0" cellpadding="3" style="width: 800px;">
 					<tr style="background: {$heading_color}">
 						<td colspan="5" class="default_white"><strong>Views for {$country_name} by state city/suburb (derived from IP address of query) {$dateString}</strong></td>
 					</tr>
@@ -389,7 +389,7 @@ function purgeObject(pid)
 						<td align="right" style="background: {$row_color}; white-space: nowrap">{$listCountry[i].scr_city}{if $listCountry[i].scr_city == ""}{/if}</td>
 						<td align="right">{$listCountry[i].abstracts}</td>
 						<td align="right">{$listCountry[i].downloads}</td>
-						<td width="500">
+						<td style="width: 500px;">
 							<img src="{$rel_url}images/hh.png" alt="Abstract views" height="9" width="{$listCountry[i].abstractViewsWidth}" /><br />
 							<img src="{$rel_url}images/hp.png" alt="Downloads" height="9" width="{$listCountry[i].downloadsWidth}" />
 						</td>																							
@@ -405,7 +405,7 @@ function purgeObject(pid)
 		{/if}
 		<tr>
 			<td align="left">
-				<table cellspacing="0" cellpadding="3" width="800">
+				<table cellspacing="0" cellpadding="3" style="width: 800px;">
 					<tr>
 						<td colspan="4" class="default_white"><a href="{$smarty.const.APP_RELATIVE_URL}help.php?topic=statistics#statistics">Click here to find out how {$smarty.const.APP_NAME} counts download statistics</a></td>
 					</tr>
