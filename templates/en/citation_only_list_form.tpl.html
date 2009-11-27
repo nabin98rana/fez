@@ -1,10 +1,7 @@
 {include file="js/list.tpl.js"}
 <script type="text/javascript" src="{$rel_url}js/listpage.js"></script>
-<center>
 
-<div style="margin: -30px 0px 0px 0px; width: 980px;">
-
-<form name="list_form" method="get" action="{$smarty.server.PHP_SELF}">
+<form id="list_form" method="get" action="{$smarty.server.PHP_SELF}">
   <div>
 	<input type="hidden" name="cat" value="assign" />
 	<input type="hidden" name="href" value="{$smarty.server.REQUEST_URI|escape:'html'}" />
@@ -15,24 +12,24 @@
 {if $isUser}
   <div class="create-box">
 	{if $list_type == 'community_list' && $isAdministrator}
-	<a target="_top" title="Create a new community" href="{$rel_url}workflow/new.php?pid=-1&amp;xdis_id={$xdis_id}&amp;href={$smarty.server.REQUEST_URI|escape:'url'}"><img src="{$rel_url}images/folder_new.gif" align="top" border="0" alt="" /> <b>Create New Community</b></a> 
+	<a target="_top" title="Create a new community" href="{$rel_url}workflow/new.php?pid=-1&amp;xdis_id={$xdis_id}&amp;href={$smarty.server.REQUEST_URI|escape:'url'}"><img src="{$rel_url}images/folder_new.gif" alt="" /> <b>Create New Community</b></a> 
 	{elseif $list_type == 'collection_list' && ($isAdministrator || $isCreator)}
 		{if $childXDisplayOptions != 0}
-		<img src="{$rel_url}images/folder_new.gif" align="top" border="0" alt="" />
+		<img src="{$rel_url}images/folder_new.gif" alt="" />
 		<input type="hidden" name="community_pid" value="{$community_pid}" />
 		<select name="xdis_id_top">
 		  {html_options options=$childXDisplayOptions}
 		</select>
-		<input type="button" value="Create" onClick="javascript:createRecord(this.form, this.form.xdis_id_top)" />
+		<input type="button" value="Create" onclick="javascript:createRecord(this.form, this.form.xdis_id_top)" />
 		{/if}
 	{elseif ($list_type == 'collection_records_list' && ($isAdministrator || $isCreator)) && $browse_type == ""}			
 		{if $childXDisplayOptions != 0}
-		<img src="{$rel_url}images/folder_new.gif" align="top" border="0" alt="" />
+		<img src="{$rel_url}images/folder_new.gif" alt="" />
 		<input type="hidden" name="collection_pid" value="{$collection_pid}" />
 		<select name="xdis_id_top">
 		  {html_options options=$childXDisplayOptions}
 		</select>
-		<input type="button" value="Create" onClick="javascript:createRecord(this.form, this.form.xdis_id_top)" />
+		<input type="button" value="Create" onclick="javascript:createRecord(this.form, this.form.xdis_id_top)" />
 		{/if}
 	{/if}
   </div>
@@ -43,7 +40,7 @@
 
         {if ($browse_heading == "") ||  ($browse_type != "" && ($author != "" || $author_id != "")) || ($browse_type != "" & $depositor != "") || ($browse_type != "" & $year != "") || ($browse_type != "" && $parent_id != "" && $max_subject_breadcrumb != 0)} 
 
-      <table bgcolor="#FFFFFF" width="100%" cellpadding="10" class="listrecord">
+      <table cellpadding="10" class="listrecord">
 		
         {section name="i" loop=$list}
 
@@ -83,7 +80,7 @@
            {/if}
 
 		  <tr>
-			  <td align="left" valign="middle" width="90%" >
+			  <td style="vertical-align: middle; width: 90%;">
 				{if $list[i].rek_citation != ""}
                     {$list[i].rek_citation}
 				{else}
@@ -109,11 +106,3 @@
 	  </form>
 
 {include file="paging_control.tpl.html" field="paginat0r"}
-</div>
-
-</form>
-</center>
-
-</div>
-
-

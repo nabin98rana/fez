@@ -158,7 +158,7 @@
 
 		  {if $icon != ""}
           <td align='right' style="border-top:1px dashed #be87e9; width: 1%;">
-                {if $href_view}<a href='{$rel_url}{$href_view}' >{/if}<img {if ($icon_width != "" && $icon_height != "")}width="{$icon_width}" height="{$icon_height}"{/if} style="vertical-align: top; align: right;" src="{$icon}" alt="" />{if $href_view}</a>{/if}
+                {if $href_view}<a href='{$rel_url}{$href_view}' >{/if}<img {if ($icon_width != "" && $icon_height != "")}width="{$icon_width}" height="{$icon_height}"{/if} style="vertical-align: top; align: right; padding-top: 5px; padding-bottom: 5px;" src="{$icon}" alt="" />{if $href_view}</a>{/if}
 		  </td>
 		  {/if}
 				  
@@ -213,7 +213,7 @@
 			
 			{if $list[i].rek_object_type == 3}
 			<td align="center" valign="middle" style="border-top:1px dashed #be87e9; width: 10px; white-space: nowrap;">{if $list[i].rek_views}{$list[i].rek_views|escape:"html"}{else}&nbsp;{/if}</td>
-			<td align="center" valign="middle" style="border-top:1px dashed #be87e9; width: 10px; white-space: nowrap;">{if $list[i].rek_file_downloads}<a class="author_link" title="View detailed statistics for this object" href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].rek_pid}">{$list[i].rek_file_downloads|escape:"html"}</a>{else}&nbsp;{/if}</td>
+			<td align="center" valign="middle" style="border-top:1px dashed #be87e9; width: 10px; white-space: nowrap;">{if $list[i].rek_file_downloads}<a class="author_link" title="View detailed statistics for this object" href="{$rel_url}stat_details.php?action=show_detail&amp;pid={$list[i].rek_pid}">{$list[i].rek_file_downloads|escape:"html"}</a>{else}&nbsp;{/if}</td>
 	       {else}
             <td colspan="2" style="border-top:1px dashed #be87e9;">&nbsp;</td>
 	       {/if}
