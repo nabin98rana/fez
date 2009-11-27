@@ -307,6 +307,10 @@ if ($shib_home_idp == "") {
 }
 $tpl->assign("APP_HOSTNAME", APP_HOSTNAME);
 $tpl->assign("SHIB_HOME_SP", SHIB_HOME_SP);
+$tpl->assign("SHIB_VERSION", SHIB_VERSION);
+$tpl->assign("SHIB_NONJS_URL", SHIB_NONJS_URL);
+$tpl->assign("SHIB_WAYF_JS", SHIB_WAYF_JS);
+$tpl->assign("SHIB_WAYF_URL", SHIB_WAYF_URL);
 $tpl->assign("SHIB_HOME_IDP", $shib_home_idp);
 $tpl->assign("SHIB_FEDERATION_NAME", SHIB_FEDERATION_NAME);
 $tpl->assign("active_nav", "login");

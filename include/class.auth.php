@@ -1979,7 +1979,10 @@ class Auth
 					User::updateShibLoginDetails($usr_id); //incremement login count for shib logins for this user
 
 					// Save attribs incase we need them when shib server goes down
-					User::updateShibAttribs($usr_id);
+					// Added config var check for this
+					if (SHIB_CACHE_ATTRIBS != 'OFF') {
+						User::updateShibAttribs($usr_id);
+					}
 				}
 				else {
 					User::loadShibAttribs($usr_id);

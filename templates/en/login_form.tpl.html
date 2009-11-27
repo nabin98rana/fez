@@ -32,8 +32,182 @@ function toggleHideSecondaryLogin()
 {/literal}
 
 <div style="margin-left: auto; margin-right: auto; width: 600px;">
-	
 {if $SHIB_SWITCH == "ON"}
+{if $SHIB_VERSION == "2"}
+<table width="500" cellspacing="0" cellpadding="0" style="background: #FFFFFF;">	
+  <tr>
+    <td>
+{literal}
+	<!-- EMBEDDED-WAYF-START -->
+	    <script type="text/javascript">
+            <!--
+
+			// To use this JavaScript, please access:
+			// https://ds.aaf.edu.au/discovery/DS/embedded-wayf.js/snippet.html
+			// and copy/paste the resulting HTML snippet to an unprotected web page that 
+			// you want the embedded WAYF to be displayed
+
+
+			// Parameters to influence look & feel of WAYF
+			// ===========================================
+
+			// Whether or not the new SAML2/Shibboleth 2 flow shall be used that
+			// sends the user from the discovery service back to the the Service Provider
+			// Set this to true if you are using a Shibboleth Service Provider 2.x
+			// [Optional, default: true]
+			wayf_use_discovery_service = false;
+
+			// EntityID of the Service Provider that protects this Resource
+			// Examples: "https://vho.aaf.edu.au/shibboleth", "https://aarnet.edu.au/shibboleth"
+			// [Mandatory]
+			// wayf_sp_entityID = "https://my-app.aaf.edu.au/shibboleth";
+			wayf_sp_entityID = "{/literal}{$SHIB_HOME_SP}{literal}";
+
+			// Assertion consumer URL of the Service Provider
+			// Examples: "https://econf.switch.ch/Shibboleth.sso/SAML/POST", "https://dokeos.unige.ch/Shibboleth.sso/SAML/POST"
+			// [Mandatory, when wayf_use_discovery_service = false]
+			// wayf_sp_handlerURL = "https://my-app.aaf.edu.au/Shibboleth.sso";
+			wayf_sp_handlerURL = "https://{/literal}{$APP_HOSTNAME}{literal}/Shibboleth.sso/SAML/POST";
+
+			// Assertion consumer URL of the Service Provider
+			// Examples: "https://econf.switch.ch/Shibboleth.sso/DS", "https://dokeos.unige.ch/Shibboleth.sso/DS"
+			// [Mandatory, when wayf_use_discovery_service = true]
+			// wayf_sp_samlDSURL = "https://my-app.aaf.edu.au/Shibboleth.sso/DS";
+			wayf_sp_samlDSURL = "https://{/literal}{$APP_HOSTNAME}{literal}/Shibboleth.sso/WAYF";
+
+			// URL of the WAYF to use
+			// Examples: "https://ds.aaf.edu.au/discovery/WAYF"
+			// [Mandatory]
+			// wayf_URL = "https://ds.aaf.edu.au/discovery/DS";
+			wayf_URL = "{/literal}{$SHIB_WAYF_URL}{literal}";
+
+			// URL on this resource that the user shall be returned to after authentication
+			// Examples: "https://econf.switch.ch/aai/home", "https://olat.uzh.ch/my/courses"
+			// [Mandatory]
+			wayf_return_url = "https://{/literal}{$APP_HOSTNAME}{literal}";
+
+			// Default IdP to preselect when central WAYF couldn't guess IdP either
+			// This is usually the case the first time ever a user accesses a resource
+			// [Optional, default: commented out]
+			//wayf_default_idp = "https://aai.switch.ch/idp/shibboleth";
+			wayf_default_idp = "{/literal}{$SHIB_HOME_IDP}{literal}";
+
+			// Font size
+			// [Optional, default: 12]
+			wayf_font_size = 12;
+
+			// Font color
+			// [Optional, default: #000000]
+			wayf_font_color = '#000000';
+
+			// Border color
+			// [Optional, default: #00247D]
+			wayf_border_color = '#00247D';
+
+			// Background color
+			// [Optional, default: #F4F7F7]
+			wayf_background_color = '#FEFCEE';
+
+			// Logo size
+			// [Optional, default: false]
+			wayf_use_small_logo = false;
+
+			// Width of the embedded WAYF in pixels or "auto"
+			// [Optional, default: 200]
+			wayf_width = 478;
+
+			// Height of the embedded WAYF in pixels or "auto"
+			// [Optional, default: "auto"]
+			wayf_height = "auto";
+
+			// Whether to show the checkbox to remember settings for this session
+			// [optional, default: true]
+			wayf_show_remember_checkbox = true;
+
+			// Whether to automatically log in user if he has a session/permanent redirect
+			// cookie set at central wayf
+			// [optional, default: true]
+			wayf_auto_login = true;
+
+			// Whether to hide the WAYF after the user was logged in
+			// This requires that the _shib_session_* cookie is set when a user 
+			// could be authenticated
+			// [optional, default: true]
+			wayf_hide_after_login = true;
+
+			// Whether to hide the WAYF after the user was logged in
+			// This requires that the _shib_session_* cookie is set when a user 
+			// could be authenticated
+			// If you want to hide the embedded WAYF completely, uncomment
+			// the property and set it to "". This then won't draw anything
+			// [optional, default commented out: You are already logged in]
+			//wayf_logged_in_messsage = "";
+
+			// Whether or not to show the categories in the drop-down list
+			// Possible values are: true or false
+			// [Optional, default: true]
+			wayf_show_categories =  true;
+
+			// Categories of Identity Provider that shall not be shown
+			// Possible values are: "category","university","nzuniversity","marcs","vho","others","Upcoming", "all"
+			// [Optional, default: none]
+			wayf_hide_categories =  new Array();
+
+			// Example of how to hide categories
+			// wayf_hide_categories =  new Array("other", "library");
+
+			// EntityIDs of Identity Provider whose category is hidden but that shall be shown anyway
+			// If this array is not empty, wayf_show_categories will be disabled because
+			// otherwise, unhidden IdPs may be displayed in the wrong category
+			// [Optional, default: none]
+			wayf_unhide_idps = new Array();
+
+			// Example of how to unhide certain Identity Providers
+			// wayf_unhide_idps = new Array("urn:mace:switch.ch:aaitest:dukono.switch.ch");
+
+			// EntityIDs of Identity Provider that shall not be shown at all
+			// [Optional, default: none]
+			wayf_hide_idps = new Array();
+
+			// Example of how to hide certain Identity Provider
+			// wayf_hide_idps = new Array("urn:mace:switch.ch:aaitest:blupblup.switch.ch", "https://lewotolo.switch.ch/idp/shibboleth");
+
+			// EntityIDs, Names and SSO URLs of Identity Providers from other federations 
+			// that shall be added to the drop-down list
+			// The IdPs will be displayed in the sequence they are defined
+			// [Optional, default: none]
+			wayf_additional_idps = [ ];
+
+			// Example of how to add Identity Provider from other federations
+			// wayf_additional_idps = [ 
+			//        
+			//        {name:"International University X",
+			//        entityID:"urn:mace:switch.ch:SWITCHaai:internation.university.org",
+			//        SAML1SSOurl:"https://int.univ.org/shibboleth-idp/SSO"},
+			//
+			//        {name:"Some Other University",
+			//        entityID:"https://other.univ.edu/idp/shibboleth",
+			//        SAML1SSOurl:"https://other.univ.edu/shibboleth-idp/SSO"},
+			// ];
+		    -->
+	    </script>
+
+	    <script type="text/javascript" src="{/literal}{$SHIB_WAYF_JS}{literal}"></script>
+
+	<noscript>
+		<!-- Fallback to Shibboleth DS session initiator for non-JavaScript users -->
+		<p>
+		<strong>Login:</strong> Since Javascript is not activated or not available in your web browser, you have to <a href="{/literal}{$SHIB_NONJS_URL}{literal}">proceed manually</a>.
+		</p>
+	</noscript>
+
+	<!-- EMBEDDED-WAYF-END -->
+{/literal}
+    </td>
+  </tr>	
+</table>
+{/if}
+{if $SHIB_VERSION == "1"}
 <form id="idplist" method="get" action="">
 	<div>
 		<input type="hidden" name="shire" value="https://{$APP_HOSTNAME}/Shibboleth.sso/SAML/POST" />
@@ -91,7 +265,7 @@ function toggleHideSecondaryLogin()
 </table>
 </form>
 {/if}	
-
+{/if}
 {if $SHIB_SWITCH == "ON"}<div id="secondary-login-unhider" style="margin: 20px;"><a href="#" onclick="javascript:toggleHideSecondaryLogin(); document.getElementById('username').focus(); return false;">Non-{$app_short_org_name} login</a></div>{/if}
 
 <div id="secondary-login"{if $SHIB_SWITCH == "ON"} style="display: none;"{/if}>
@@ -115,6 +289,9 @@ function toggleHideSecondaryLogin()
       </table>
     </td>
   </tr>
+
+
+
 </table>
 
 <table width="500" cellspacing="0" cellpadding="1" style="background: #000000">

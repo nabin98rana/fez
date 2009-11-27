@@ -1068,6 +1068,15 @@ function restoreDefaultColours(el)
 			</td>
   		  </tr>
 		  <tr>
+		    <td class="colname">Shib SP Version (1.x or 2.x)</td>
+			<td class="coldetail">
+			  <select name="shib_version">
+			    <option value="1"{if $config_settings.shib_version == "2"} selected="selected"{/if}>1.x (eg 1.3)</option>
+				<option value="2"{if $config_settings.shib_version == "2"} selected="selected"{/if}>2.x</option>
+			  </select>
+			</td>
+  		  </tr>
+		  <tr>
 		    <td class="colname">Direct Login</td>
 			<td class="coldetail">
 			  <select name="shib_direct_login">
@@ -1120,6 +1129,41 @@ function restoreDefaultColours(el)
 			<td class="coldetail">
 			  <input type="text" name="shib_wayf_metadata_location" value="{$config_settings.shib_wayf_metadata_location|escape:"html"}" size="70" />
 			  <br />Change this to path location of the WAYF metadata XML file. You can update this with a cronjob / schedulated task. Your WAYF drop-down list will fill from this XML file.
+			</td>
+  		  </tr>
+		  <tr>
+		    <td class="colname">WAYF/DS URL</td>
+			<td class="coldetail">
+			  <input type="text" name="shib_wayf_url" value="{$config_settings.shib_wayf_url|escape:"html"}" size="50" />
+			  <br />Location of the federation WAYF (where are you from) or DS (discovery service) eg https://ds.test.aaf.edu.au/discovery/DS
+			</td>
+  		  </tr>
+		  <tr>
+		    <td class="colname">WAYF/DS Javascript location</td>
+			<td class="coldetail">
+			  <input type="text" name="shib_wayf_js" value="{$config_settings.shib_wayf_js|escape:"html"}" size="50" />
+			  <br />Location of the federation WAYF (where are you from) or DS (discovery service) javascript file to include.
+			  <br />It can (preferably) be a locally crontab/wget copy eg /js/embedded_wayf.js 
+			</td>
+  		  </tr>
+		  <tr>
+		    <td class="colname">Non Javascript url location</td>
+			<td class="coldetail">
+			  <input type="text" name="shib_nonjs_url" value="{$config_settings.shib_nonjs_url|escape:"html"}" size="50" />
+			  <br />Link to show if the user has javascript turn off
+			  <br />eg /Shibboleth.sso/DS?target=https://manager.aaf.edu.au/rr/
+			</td>
+  		  </tr>
+		  <tr>
+		    <td class="colname">Cache Shibboleth Attributes?</td>
+			<td class="coldetail">
+			  <select name="shib_cache_attribs">
+			    <option value="ON"{if $config_settings.shib_cache_attribs == "ON"} selected="selected"{/if}>ON</option>
+				<option value="OFF"{if $config_settings.shib_cache_attribs == "OFF"} selected="selected"{/if}>OFF</option>
+			  </select>
+			  <br />If shib attribute caching is on it will save the last attributes gotten for each use in the fez_user_shibboleth_attribs table. Useful for when/if shib goes down and LDAP is the only
+			  option as it will load the same username up with their last known attributes. Also useful for figuring out appropriate FezACML policies to apply based on attributes, and for
+			  diagnosing shibboleth authorisation problems. 
 			</td>
   		  </tr>
 		</table>

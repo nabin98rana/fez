@@ -99,12 +99,17 @@ class Default_Data
 		$defaultData['datamodel_version']                   = "2008102701";                 // Change this to last upgrade + 1
 		$defaultData['shib_switch']                         = "OFF";
 		$defaultData['shib_direct_login']                   = "OFF";
-		$defaultData['shib_federation_name']                = "MAMS Testbed Federation";
+		$defaultData['shib_federation_name']                = "Australian Access Federation";
 		$defaultData['shib_survey']                         = "false";
 		$defaultData['shib_federation']                     = "urn:mace:federation.org.au:testfed:level-1:";
 		$defaultData['shib_home_sp']                        = $defaultData['shib_federation'] . $defaultData['app_hostname'];
 		$defaultData['shib_home_idp']                       = $defaultData['shib_federation'] . "idp.yourinst.edu";
-		$defaultData['shib_wayf_metadata_location']         = "/usr/local/shibboleth-sp/etc/shibboleth/level-1-metadata.xml";
+		$defaultData['shib_wayf_metadata_location']         = "/etc/shibboleth/level-1-metadata.xml";
+		$defaultData['shib_wayf_url']                       = "https://ds.test.aaf.edu.au/discovery/DS";
+		$defaultData['shib_version']                        = "2";
+		$defaultData['shib_wayf_js']                        = "https://ds.test.aaf.edu.au/discovery/DS/embedded-wayf.js";
+		$defaultData['shib_nonjs_url']                      = "/Shibboleth.sso/DS?target=https://manager.aaf.edu.au/rr/";
+		$defaultData['shib_cache_attribs']                  = "OFF";
 		$defaultData['app_fedora_version']                  = "2.2";
 		$defaultData['app_fedora_username']                 = "fedoraAdmin";
 		$defaultData['app_fedora_pwd']                      = "fedoraAdmin";
