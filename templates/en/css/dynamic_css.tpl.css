@@ -1890,3 +1890,11 @@ div.hr hr {
 .text-input-odd {
     background: [[$smarty.const.APP_CELL_COLOR]];
 }
+
+a.author_id_link {
+    color: #4F7F37 !important;
+}
+
+a.author_id_link:hover {
+    color: #60c82c !important;
+}
