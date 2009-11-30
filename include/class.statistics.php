@@ -376,6 +376,7 @@ class Statistics
 
 			// Make this stuff SQL-safe.
 			$pidNum = Misc::numPID($pid);
+			$usr_id = $brow['str_usr_id'];
 /*			$ip = $db->quote($ip);
 			$hostname = $db->quote($hostname);
 			$request_date = $db->quote($request_date);
