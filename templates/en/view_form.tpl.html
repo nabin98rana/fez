@@ -37,7 +37,7 @@ function loadPreview(pid,datastreamID, alt, origami)
         {/literal}
         {/if}
         
-        document.getElementById('datastream_preview_frame').innerHTML='<a id="datastream_preview_href" title="Click on the image to see a larger version"  target="_blank" href="{$rel_url}eserv/{$pid}/{$preview_ds_1.ID}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}"><img width="100%" border=0 id="datastream_preview" alt="Datastream Preview"/></a>';
+        document.getElementById('datastream_preview_frame').innerHTML='<a id="datastream_preview_href" title="Click on the image to see a larger version"  target="_blank" href="{$rel_url}eserv/{$pid}/{$preview_ds_1.ID}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}"><img width="100%" id="datastream_preview" alt="Datastream Preview" src="#" /></a>';
         {literal}
         pv_img = document.getElementById('datastream_preview');
         pv_img_href = document.getElementById('datastream_preview_href');
@@ -310,7 +310,7 @@ function loadPreview(pid,datastreamID, alt, origami)
 				<td>{$datastreams[d].label}</td>
 				<td>{$datastreams[d].MIMEType}</td>
 				<td>{$datastreams[d].archival_size}</td>				
-				<td align="right">{* No idea what this is all about ... *}<!--fez:ds_{$datastreams[d].base64ID}-->{$datastreams[d].downloads}<!--/fez:ds_{$datastreams[d].base64ID}--></td>				
+				<td align="right"><!--fez:ds_{$datastreams[d].base64ID}-->{$datastreams[d].downloads}<!--/fez:ds_{$datastreams[d].base64ID}--></td>				
 			  </tr>
 			 {/if}
         {/section}
