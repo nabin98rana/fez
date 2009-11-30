@@ -26,17 +26,20 @@ function displayTopDownloads() {
 	$tpl->setTemplate("tab_top_downloads.html");
 
 	$recentDownloads = Record::getRecentDLRecords();
+	$dlStats = array();
     if (is_array($recentDownloads) && sizeof($recentDownloads) > 0) {	
-	foreach ($recentDownloads as $pid => $data) {
-	    $dlStats[$pid] = array(
-	       'citation'   =>  Record::getCitationIndex($pid),
-	       'downloads'  =>  $data['rdi_downloads'],
-	    );
-	}
+		foreach ($recentDownloads as $pid => $data) {
+		    $dlStats[] = array(
+		       'citation'   =>  Record::getCitationIndex($pid),
+		       'downloads'  =>  $data['rdi_downloads'],
+		       'pid'  		=>  $pid
+		    );
+		}
 	} else {
-          $dlStats = array();
-        }
-	$tpl->assign("list",   $dlStats);
+		$dlStats = array();
+	}
+	
+	$tpl->assign("list", $dlStats);
 	$tpl->displayTemplate();
 
 }
