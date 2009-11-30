@@ -435,7 +435,7 @@ class Author
 		if ($_POST["dname"] !== "") {
 			$values .= ", " . $db->quote($_POST["dname"]);
 		} else {
-			$values .= ", " . $db->quote($_POST["fname"] . '' . $_POST["lname"]);
+			$values .= ", " . $db->quote($_POST["fname"] . ' ' . $_POST["lname"]);
 		}
 
 		if ($_POST["org_staff_id"] !== "")     { $values .= ", " . $db->quote($_POST["org_staff_id"]); }
