@@ -895,7 +895,7 @@ class Record
 		Citation::updateCitationCache($pid, "");
 		Statistics::updateSummaryStatsOnPid($pid);
 		Google_Scholar::updateCitationCache($pid);
-		Record::updateThomsonCitationCountIndex($pid);
+		Record::updateThomsonCitationCountFromHistory($pid);
 		
 		//
 		// KJ: update fulltext index
@@ -2292,7 +2292,6 @@ class Record
 		$db = DB_API::get();
 		
 		$dbtp =  APP_TABLE_PREFIX; // Database and table prefix
-		
 		$stmt = "UPDATE
 	                    " . $dbtp . "record_search_key
 	                 SET
