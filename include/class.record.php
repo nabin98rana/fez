@@ -2332,7 +2332,7 @@ class Record
                  FROM
                     " . $dbtp . "thomson_citations
                  WHERE
-                    rek_pid = ".$db->quote($pid)."
+                    tc_pid = ".$db->quote($pid)."
                  ORDER BY tc_id DESC";
 		
 		try {
