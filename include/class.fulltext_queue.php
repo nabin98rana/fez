@@ -248,6 +248,7 @@ class FulltextQueue
 			} else {
 				$ok = false;
 				$log->debug("FulltextIndex::triggerUpdate lock already taken by another process");
+				$db->rollBack();
 			}
 		} catch(Exception $ex) {
 			$db->rollBack();
