@@ -173,7 +173,7 @@
                 {if $list[i].rek_ismemberof_count != ""}({$list[i].rek_ismemberof_count}){/if}
             {/if}
 			{assign var="pid" value =$list[i].rek_pid}
-            {if $snips[$pid] != ''}<br /><br /><div class='snip'>...{$snips[$pid]}...</div>{/if}
+            {if $snips[$pid] != '' && $isAdministrator}<br /><br /><div class='snip'>...{$snips[$pid]}...</div>{/if}
 		  </td>		
 
 			{if $list[i].isEditor==1 || $isAdministrator}
