@@ -216,19 +216,19 @@ class Ad_Hoc_SQL {
 		$res = array();
 		$db = DB_API::get();
 
-		if ((is_numeric(stripos($_POST["ahs_query"], "DROP"))) || (is_numeric(stripos($_POST["ahs_query"], "DELETE"))) || (is_numeric(stripos($_POST["ahs_query"], "TRUNCATE"))) || (is_numeric(stripos($_POST["ahs_query"], "INSERT"))) || (is_numeric(stripos($_POST["ahs_query"], "UPDATE")))) {
+		if ((is_numeric(stripos($_POST["ahs_query"], "DROP "))) || (is_numeric(stripos($_POST["ahs_query"], "DELETE "))) || (is_numeric(stripos($_POST["ahs_query"], "TRUNCATE "))) || (is_numeric(stripos($_POST["ahs_query"], "INSERT "))) || (is_numeric(stripos($_POST["ahs_query"], "UPDATE ")))) {
 			$log->notice('Restricted statement detected in ahs_query: '.$_POST['ahs_query']);
 			return false;
 		}
-		if ((is_numeric(stripos($_POST["ahs_query_count"], "DROP"))) || (is_numeric(stripos($_POST["ahs_query_count"], "DELETE"))) || (is_numeric(stripos($_POST["ahs_query_count"], "TRUNCATE"))) || (is_numeric(stripos($_POST["ahs_query_count"], "INSERT"))) || (is_numeric(stripos($_POST["ahs_query_count"], "UPDATE")))) {
+		if ((is_numeric(stripos($_POST["ahs_query_count"], "DROP "))) || (is_numeric(stripos($_POST["ahs_query_count"], "DELETE "))) || (is_numeric(stripos($_POST["ahs_query_count"], "TRUNCATE "))) || (is_numeric(stripos($_POST["ahs_query_count"], "INSERT "))) || (is_numeric(stripos($_POST["ahs_query_count"], "UPDATE ")))) {
 			$log->notice('Restricted statement detected in ahs_query_count: '.$_POST['ahs_query_count']);
 			return false;
 		}
-		if ((is_numeric(stripos($_POST["ahs_query_show"], "DROP"))) || (is_numeric(stripos($_POST["ahs_query_show"], "DELETE"))) || (is_numeric(stripos($_POST["ahs_query_show"], "TRUNCATE"))) || (is_numeric(stripos($_POST["ahs_query_show"], "INSERT"))) || (is_numeric(stripos($_POST["ahs_query_show"], "UPDATE")))) {
+		if ((is_numeric(stripos($_POST["ahs_query_show"], "DROP "))) || (is_numeric(stripos($_POST["ahs_query_show"], "DELETE "))) || (is_numeric(stripos($_POST["ahs_query_show"], "TRUNCATE "))) || (is_numeric(stripos($_POST["ahs_query_show"], "INSERT "))) || (is_numeric(stripos($_POST["ahs_query_show"], "UPDATE ")))) {
 			$log->notice('Restricted statement detected in ahs_query_show: '.$_POST['ahs_query_show']);
 			return false;
 		}
-
+		
 		$data = array(
 				'ahs_name' => $_POST['ahs_name'],
 				'ahs_query' => $_POST['ahs_query'],
@@ -283,17 +283,17 @@ class Ad_Hoc_SQL {
 
 		$res = array();
 
-		if ((is_numeric(stripos($_POST["ahs_query"], "DROP"))) || (is_numeric(stripos($_POST["ahs_query"], "DELETE"))) || (is_numeric(stripos($_POST["ahs_query"], "TRUNCATE"))) || (is_numeric(stripos($_POST["ahs_query"], "INSERT"))) || (is_numeric(stripos($_POST["ahs_query"], "UPDATE")))) {
+		if ((is_numeric(stripos($_POST["ahs_query"], "DROP "))) || (is_numeric(stripos($_POST["ahs_query"], "DELETE "))) || (is_numeric(stripos($_POST["ahs_query"], "TRUNCATE "))) || (is_numeric(stripos($_POST["ahs_query"], "INSERT "))) || (is_numeric(stripos($_POST["ahs_query"], "UPDATE ")))) {
 			$log->notice('Restricted statement detected in ahs_query: '.$_POST['ahs_query']);
 			
 			return false;
 		}
-		if ((is_numeric(stripos($_POST["ahs_query_count"], "DROP"))) || (is_numeric(stripos($_POST["ahs_query_count"], "DELETE"))) || (is_numeric(stripos($_POST["ahs_query_count"], "TRUNCATE"))) || (is_numeric(stripos($_POST["ahs_query_count"], "INSERT"))) || (is_numeric(stripos($_POST["ahs_query_count"], "UPDATE")))) {
+		if ((is_numeric(stripos($_POST["ahs_query_count"], "DROP "))) || (is_numeric(stripos($_POST["ahs_query_count"], "DELETE "))) || (is_numeric(stripos($_POST["ahs_query_count"], "TRUNCATE "))) || (is_numeric(stripos($_POST["ahs_query_count"], "INSERT "))) || (is_numeric(stripos($_POST["ahs_query_count"], "UPDATE ")))) {
 			$log->notice('Restricted statement detected in ahs_query: '.$_POST['ahs_query_count']);
 			
 			return false;
 		}
-		if ((is_numeric(stripos($_POST["ahs_query_show"], "DROP"))) || (is_numeric(stripos($_POST["ahs_query_show"], "DELETE"))) || (is_numeric(stripos($_POST["ahs_query_show"], "TRUNCATE"))) || (is_numeric(stripos($_POST["ahs_query_show"], "INSERT"))) || (is_numeric(stripos($_POST["ahs_query_show"], "UPDATE")))) {
+		if ((is_numeric(stripos($_POST["ahs_query_show"], "DROP "))) || (is_numeric(stripos($_POST["ahs_query_show"], "DELETE "))) || (is_numeric(stripos($_POST["ahs_query_show"], "TRUNCATE "))) || (is_numeric(stripos($_POST["ahs_query_show"], "INSERT "))) || (is_numeric(stripos($_POST["ahs_query_show"], "UPDATE ")))) {
 			$log->notice('Restricted statement detected in ahs_query: '.$_POST['ahs_query_show']);
 			
 			return false;
