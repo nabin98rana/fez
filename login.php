@@ -152,7 +152,7 @@ if (Auth::hasValidSession(APP_SESSION)) {
 
 }
 $tpl->assign("SHIB_SWITCH", SHIB_SWITCH);
-if (SHIB_SWITCH == "ON") {
+if (SHIB_SWITCH == "ON" && SHIB_VERSION == "1") {
 	
 	// set the url session for shib logins so redirects 
 	// to index.php (front page) then redirecto to the original url
@@ -299,6 +299,9 @@ if (SHIB_SWITCH == "ON") {
 	
 	$tpl->assign("SHIB_IDP_LIST", $IDPList['List']);
 } else {
+	if (SHIB_VERSION == "2" && SHIB_SWITCH == "ON") { // so easy with shib 2.. all the above taken care of by the embedded wayf
+		$_SESSION['IDP_LOGIN_FLAG'] = 1; // set the login flag to that fez will know the next time (only) it goes to index.php it has to get the shib attribs
+	}
 	$tpl->assign("SHIB_IDP_LIST", array());
 }
 $shib_home_idp = Auth::getHomeIDPCookie();
