@@ -4,6 +4,7 @@
 .swfupload {
 	position: absolute;
 	z-index: 1;
+	margin-top: 5px;
 }
 
 /* Style the upload table */

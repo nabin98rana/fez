@@ -34,6 +34,7 @@ function swfuploaderLoad(maxNumberFiles, baseUrl, postParams) {
 		// firefox doesn't give us the entire width of the button, so add some padding
 		if (dojo.isFF) {
 			buttonWidth = buttonWidth + 14;
+			buttonHeight = buttonHeight + 10;
 		}
 		
 		// and set up the flash uploader
