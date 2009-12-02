@@ -465,11 +465,11 @@ class Statistics
 			}
 		}
 
+		self::updateSummaryTables(); // update the various summary tables
 		$timeFinished = date('Y-m-d H:i:s');
 		Statistics::setLogRun($requestDateLatest, $counter, $counter_inserted, $timeStarted, $timeFinished);
 		Statistics::clearBufferByID($str_id);
 		//			Statistics::clearBufferByDate($requestDateLatest);
-		self::updateSummaryTables(); // update the various summary tables
 	}
 
 
