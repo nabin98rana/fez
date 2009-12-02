@@ -1,0 +1,79 @@
+<tr>
+<td>
+{if $conflict}
+<div class="admin-content">The record you have selected is currently being edited by {$conflict_user}.  <a href="{$link_self}">Check again</a></div>
+{else}
+<script type="text/javascript" src="{$rel_url}js/compare_records_helpers.js" ></script>
+<link rel="stylesheet" href="{$rel_url}css/autocomplete.css" type="text/css" />
+<script type="text/javascript" src="{$rel_url}js/yahoo/utilities.js"></script>
+<script type="text/javascript" src="{$rel_url}js/yahoo/autocomplete.js"></script>
+<script type="text/javascript" src="{$rel_url}js/editmeta.js"></script>
+
+{include file="workflow/edit_metadata_helpers/javascript_block.tpl.html"}
+
+<input type="hidden" name="sta_id" value="{$sta_id}">
+
+<div class="outline">
+
+<table class="listing default" id="edit_metadata_form_table">
+<tr class="default">
+ <td colspan="2" class="compare_records_left_side">
+ 	<h2>Base Record: <a href="{$rel_url}view/{$left_pid}" target="_blank">{$left_pid}</a></h2>
+	{if $sta_id != 2}
+	<div class="default">
+	NOTE: This record is not published.
+	</div>
+	{/if}
+ </td>
+ <td colspan="2" class="compare_records_right_side">
+ <h2>Duplicate: <a href="{$rel_url}view/{$current_dup_pid}" target="_blank">{$current_dup_pid}</a></h2>
+
+	{if $current_dup_pid_details.duplicate == 'true'}
+		<div class="default">This record has been marked as a <span class="no">duplicate</span></div>
+	{/if}
+	
+	{if $current_dup_pid_details.mergeResult}<div class="default">Merge status:
+		{$current_dup_pid_details.mergeResult}</div>{/if}
+
+	<div>
+ <input type="submit" name="save_file_merge" value="Save File Merge" 
+ 	onclick="return setAction(this.form,'save_file_merge');" class="button"/>
+ 	</div>
+ </td>
+</tr>
+
+<tr>
+	<td colspan="2">
+		<table>
+		<tr>
+			<td colspan="3">
+				Please choose where the statistics from the duplicate files go
+			</td>
+		</tr>
+		<tr>
+			<th>Destination</th>
+			<th>&nbsp;</th>
+			<th>File in duplicate pid</th>
+  		{foreach from=$duplicateFileList item=details}
+		<tr>
+			<td>
+				{html_options options=$details.options name=$details.selectFormName selected=$details.default}
+			</td>
+			<td>&lt;==</td>
+			<td>
+				{$details.filename} ({$details.stats} downloads)
+			</td>
+		</tr>
+		{/foreach}
+		
+		</table>
+	</td>
+</tr>
+
+</table>
+
+</div>
+{/if}
+
+</td>
+</tr>

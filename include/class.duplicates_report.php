@@ -34,6 +34,7 @@
 
 include_once(APP_INC_PATH.'class.record_edit_form.php');
 include_once(APP_INC_PATH.'class.fulltext_queue.php');
+include_once(APP_INC_PATH.'class.fedora_api.php');
 
 class DuplicatesReport {
 
@@ -579,6 +580,7 @@ class DuplicatesReport {
 		//if ($merge_res > 0) {
 		//    $merge_res = $this->mergeRecords($base_record, $dup_record, self::MERGE_TYPE_HIDDEN);
 		//}
+		
 		if (!PEAR::isError($merge_res)) {
 			$wfl_id = $this->getWorkflowId();
 			// set some history on the object so we know why it was merged.
@@ -1247,13 +1249,15 @@ class DuplicatesReport {
 		
 		//If the stand and end pages match exactly put this in the dedupe report
 		if ($start_page1 == $start_page2 && $end_page1 == $end_page2 && is_numeric($start_page1) && is_numeric($end_page1)) {
-                        echo "\n Matched on Page numbers\n";
+                        // MT: 2009-11-30 Commented out what looks like debug to me.
+                        // echo "\n Matched on Page numbers\n";
 			return 1;
 		}
 	
 		//If either the start or end pages match exactly, double the final score, otherwise dont change final score
 		if (($start_page1 == $start_page2 || $end_page1 == $end_page2) && is_numeric($start_page1) && is_numeric($end_page1)) {
-                        echo "\n Partially matched on Page numbers\n";
+                        // MT: 2009-11-30 Commented out what looks like debug to me.
+                        // echo "\n Partially matched on Page numbers\n";
 			$page_score = 1.5;
 		}
 
@@ -1553,13 +1557,15 @@ class DuplicatesReport {
 				$base_rec = new RecordObject($base_pid);
 				$this->mergeRecordsHiddenFields($base_rec, $rec);
 			}
+			
+			
 			// put object in limbo
 			$rec->markAsDeleted();
 			// set some history on the object
 			$wfl_id = $this->getWorkflowId();
 			History::addHistory($dup_pid, $wfl_id, "", "", false, '', "Marked Duplicate of ".$base_pid);
 			History::addHistory($base_pid, $wfl_id, "", "", true, '', "Resolved duplicate ".$dup_pid);
-
+		
 			if ( APP_SOLR_INDEXER == "ON" ) {
 				FulltextQueue::singleton()->remove($dup_pid);
 				FulltextQueue::singleton()->commit();
@@ -1594,6 +1600,65 @@ class DuplicatesReport {
 		}
 	}
 
+	/**
+	 * checks if there are files that require merging
+	 *
+	 * @return void
+	 **/
+	public function filesExistInDuplicatePid($dup_pid) 
+	{
+		$log = FezLog::get();
+		$files = self::getFilesForPid($dup_pid);
+		return count($files) > 0;
+	}
+
+	/**
+	 * gets the file for a specified pid
+	 *
+	 * @param string $pid
+	 * @return array
+	 **/
+	public function getFilesForPid($pid) 
+	{
+		$log = FezLog::get();
+
+		$datastreams = Fedora_API::callGetDatastreams($pid);
+		$datastreams = Misc::cleanDatastreamList($datastreams);
+
+		$files = array();
+		foreach($datastreams as $ds) {
+			if ($ds['controlGroup'] == 'M')
+				$files[] = $ds['ID'];
+		}
+
+		return $files;
+		
+	}
+
+	/**
+	 * Copies a file datastream from one pid into another (with optional new name)
+	 * 
+	 * @param string $originalPid
+	 * @param string $originalFilename
+	 * @param string $newPid
+	 * @param string $newFilename (optional)
+	 * @return void
+	 **/
+	public function copyFileDatastream($originalPid, $originalFilename, $newPid, $newFilename = null)
+	{
+		$log = FezLog::get();
+		
+		if ($newFilename == null)
+			$newFilename = $originalFilename;
+		
+		// get the original details
+		$datastream = Fedora_API::callGetDatastream($originalPid, $originalFilename);
+		$value = Fedora_API::callGetDatastreamContents($originalPid, $originalFilename, true);
+
+		// and upload into fedora
+		Fedora_API::getUploadLocation($newPid, $newFilename, $value, $datastream['label'],$datastream['MIMEType'], $datastream['controlGroup'], null, $datastream['versionable']);
+		
+	}
 
 	/**
 	 * setDuplicateXML - sets the duplicate attribute on the dup_pid for the base_pid in the XML report.

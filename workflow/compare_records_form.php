@@ -96,7 +96,39 @@ if (@$_REQUEST['action'] == 'change_dup_pid') {
     Session::setMessage($res);
     Auth::redirect($_SERVER['PHP_SELF'].'?'.http_build_query(array('id' => $wfstatus->id)));
 } elseif (@$_POST['action'] == 'mark_duplicate') {
-    $duplicates_report->markDuplicate($left_pid,$current_dup_pid);
+	$filesExistInPids = $duplicates_report->filesExistInDuplicatePid($current_dup_pid);
+	if ($filesExistInPids)
+		$wfstatus->assign('filesExist', true);
+	else
+	{
+    	$duplicates_report->markDuplicate($left_pid,$current_dup_pid);
+		Statistics::moveAbstractStats($current_dup_pid, $left_pid);
+	}
+	$wfstatus->setSession();  // save the change to the workflow session
+    Auth::redirect($_SERVER['PHP_SELF'].'?'.http_build_query(array('id' => $wfstatus->id)));
+} elseif (@$_POST['action'] == 'save_file_merge') {
+	// save the fixed file duplicates
+	$files = $_POST['dupFilenames'];
+	foreach($files as $dupFilename => $action) {
+		switch ($action) {
+			case 'NO-STATS':
+				// do nothing if user requests this
+				break;
+			case 'COPY-FILE':
+				// copy the file datastream from the current dup pid to the base pid
+				$duplicates_report->copyFileDatastream($current_dup_pid, $dupFilename, $left_pid);
+				// update statistics to match
+				Statistics::moveFileStats($current_dup_pid, $dupFilename, $left_pid, $dupFilename);
+				break;
+			default:
+				// default means the user has picked a file to assign the stats to so move the stats into the chosen file
+				Statistics::moveFileStats($current_dup_pid, $dupFilename, $left_pid, $action);
+		}
+	}
+	
+	$wfstatus->assign('filesExist', ''); // clear out the filesExist var, otherwise we'll never move on
+	$duplicates_report->markDuplicate($left_pid,$current_dup_pid);
+	$wfstatus->setSession();  // save the change to the workflow session
     Auth::redirect($_SERVER['PHP_SELF'].'?'.http_build_query(array('id' => $wfstatus->id)));
 } elseif (@$_POST['action'] == 'not_duplicate') {
     $duplicates_report->markNotDuplicate($left_pid,$current_dup_pid);
@@ -139,6 +171,46 @@ if (@$_REQUEST['action'] == 'change_dup_pid') {
     Auth::redirect($_SERVER['PHP_SELF'].'?'.http_build_query(array('id' => $wfstatus->id)));
 }
 
+// check if we need to deal with any file duplicates
+$filesExist = $wfstatus->getVar('filesExist');
+if ($filesExist) {
+	// if so, then we will display a different template
+	$tpl->assign('type',"compare_duplicate_files");
+	$baseFiles = $duplicates_report->getFilesForPid($left_pid);
+	$duplicateFiles = $duplicates_report->getFilesForPid($current_dup_pid);
+
+	$log->debug("base files: " . print_r($baseFiles, true));
+	$log->debug("duplicate files: " . print_r($duplicateFiles, true));
+
+	$stats = array();
+	foreach($duplicateFiles as $filename) {
+		$stats[$filename] = Statistics::getStatsByDatastream($current_dup_pid, $filename);
+	}
+
+	$fileList = array();
+	foreach($stats as $dupFilename => $fileStatistics) {
+		$optionsArray = array();
+		$default = '';
+		
+		$optionsArray['General']['NO-STATS'] = "Don't copy statistics";
+		foreach ($baseFiles as $baseFilename) {
+			if ($fileStatistics != 0) 
+			{
+				$optionsArray['Files'][$baseFilename] = "Copy statistics to {$baseFilename}";
+				if ($baseFilename == $dupFilename)
+					$default = $baseFilename;
+			}
+		}
+		// check if we can copy this file across
+		if (!in_array($dupFilename, $baseFiles))
+			$optionsArray['General']['COPY-FILE'] = 'Copy file to base pid';
+		
+		$selectFormName = "dupFilenames[{$dupFilename}]";
+		$fileList[] = array('filename'=>$dupFilename, 'stats'=>$fileStatistics, 'options'=>$optionsArray, 'selectFormName'=>$selectFormName, 'default'=>$default);
+	}
+
+	$tpl->assign('duplicateFileList', $fileList);
+}
 
 $dup_list = $duplicates_report->getItemDetails($left_pid);
 // make sure the current dup pid is actually in the list (it might not be if we've just viewed

@@ -973,6 +973,132 @@ class Statistics
 		}
 	}
 
+	/**
+	 * Move the abstract stats from one pid to another pid
+	 *
+	 * @param string $originalPid
+	 * @param string $newPid
+	 * @return void
+	 **/
+	public function moveAbstractStats($originalPid, $newPid)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		list($tempVar, $newPidNumber) = explode(':', $newPid); // get the pid number
+		
+		$q = "UPDATE " . APP_TABLE_PREFIX . "statistics_all ";
+		$q .= "SET stl_pid = ?, stl_pid_num = ? "; 
+		$q .= "WHERE stl_pid = ? AND stl_dsid IS NULL ";
+		
+		$log->debug("Statistics::moveAbstractStats: sql - {$q}");
+		$log->debug(print_r(array($newPid, $newPidNumber, $originalPid), true));
+		
+		$db->query($q, array($newPid, $newPidNumber, $originalPid));
+	}
+
+	/**
+	 * Move stats from $originalPid/$originalFilename to $newPid/$newFilename
+	 *
+	 * @param string $originalPid
+	 * @param string $originalFilename
+	 * @param string $newPid
+	 * @param string $newFilename
+	 * @return void
+	 **/
+	public function moveFileStats($originalPid, $originalFilename, $newPid, $newFilename)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		list($tempVar, $newPidNumber) = explode(':', $newPid); // get the pid number
+		
+		// get the stats number first (used to update summary statistics)
+		$select = "SELECT COUNT(*) FROM " . APP_TABLE_PREFIX . "statistics_all ";
+		$select .= "WHERE stl_pid = ? AND stl_dsid = ? ";
+		$numDownloads = $db->fetchOne($select, array($originalPid, $originalFilename));
+		
+		$log->debug("Statistics::moveFileStats: number of downloads for {$originalPid}-{$originalFilename}: {$numDownloads}");
+
+		// move the base statistics over to the new pid/filename
+		$q = "UPDATE " . APP_TABLE_PREFIX . "statistics_all ";
+		$q .= "SET stl_pid = ?, stl_pid_num = ?, stl_dsid = ? ";
+		$q .= "WHERE stl_pid = ? AND stl_dsid = ? ";
+		
+		$log->debug("Statistics::moveFileStats: sql - {$q}");
+		$log->debug(print_r(array($newPid, $newPidNumber, $newFilename, $originalPid, $originalFilename), true));
+		
+		$db->query($q, array($newPid, $newPidNumber, $newFilename, $originalPid, $originalFilename));
+		
+		// self::moveSummaryStatistics($newPid, $originalPid, $numDownloads);
+		
+	}
+
+	// MT: 2009-12-02 Commented out for time being, note code doesn't work as currently stands
+	// /**
+	//  * merge summary statistics from the duplicate pid to the base pid
+	//  *
+	//  * @param string $basePid
+	//  * @param string $duplicatePid 
+	//  * @param int $numDownloads
+	//  * @return void
+	//  **/
+	// public function mergeDuplicateSummaryStatistics($basePid, $duplicatePid, $numDownloads) 
+	// {
+	// 	$db = DB_API::get();
+	// 	$log = FezLog::get();
+	// 
+	// 	$log->debug("merging summary statistics, moving {$numDownloads} of {$duplicatePid} stats to {$basePid}");
+	// 	
+	// 	// update any records in summary tables
+	// 	// start with 4 weeks
+	// 	$q = "SELECT COUNT(*) FROM " . APP_TABLE_PREFIX . "statistics_sum_4weeks WHERE s4w_pid = ? ";
+	// 	$count = $db->fetchOne($q, array($basePid));
+	// 	if ($count > 0) {
+	// 		$q = "UPDATE " . APP_TABLE_PREFIX . "statistics_sum_4weeks SET s4w_downloads = s4w_downloads + ? WHERE s4w_pid = ? ";
+	// 		$db->query($q, array($numDownloads, $basePid));
+	// 		// delete the duplicate rows if necessary
+	// 		$q = "DELETE FROM " . APP_TABLE_PREFIX . "statistics_sum_4weeks WHERE s4w_pid = ? ";
+	// 		$db->query($q, array($duplicatePid));
+	// 	} else {
+	// 		$q = "UPDATE " . APP_TABLE_PREFIX . "statistics_sum_4weeks SET s4w_pid = ? WHERE s4w_pid = ? ";
+	// 		$db->query($q, array($basePid, $duplicatePid));
+	// 	}
+	// 
+	// 	// papers
+	// 	$q = "SELECT COUNT(*) AS downloads FROM " . APP_TABLE_PREFIX . "statistics_sum_papers WHERE spa_pid = ? ";
+	// 	$count = $db->fetchOne($q, array($basePid));
+	// 	if ($count > 0) {
+	// 		$q = "UPDATE " . APP_TABLE_PREFIX . "statistics_sum_papers SET spa_downloads = spa_downloads + ? WHERE spa_pid = ? ";
+	// 		$db->query($q, array($total, $basePid));
+	// 		$q = "DELETE FROM " . APP_TABLE_PREFIX . "statistics_sum_papers WHERE spa_pid = ? ";
+	// 		$db->query($q, array($duplicatePid));
+	// 	} else {
+	// 		$q = "UPDATE " . APP_TABLE_PREFIX . "statistics_sum_papers SET spa_pid = ? WHERE spa_pid = ? ";
+	// 		$db->query($q, array($basePid, $duplicatePid));
+	// 	}
+	// 	
+	// 	// year/month
+	// 	$q = "SELECT sym_year, sym_month, SUM(sym_downloads) AS downloads FROM " . APP_TABLE_PREFIX . "statistics_sum_yearmonth WHERE sym_pid IN (?, ?) GROUP BY sym_year, sym_month ";
+	// 	$totals = $db->fetchAll($q, array($basePid, $duplicatePid));
+	// 	foreach ($totals as $row) {
+	// 		$q = "UPDATE " . APP_TABLE_PREFIX . "statistics_sum_yearmonth SET sym_downloads = ? WHERE sym_pid = ? AND sym_year = ? AND sym_month = ? ";
+	// 		$db->query($q, array($row['downloads'], $basePid, $row['sym_year'], $row['sym_month']));
+	// 	}
+	// 	$q = "DELETE FROM " . APP_TABLE_PREFIX . "statistics_sum_yearmonth WHERE sym_pid = ? ";
+	// 	$db->query($q, array($duplicatePid));
+	// 
+	// 	// year
+	// 	$q = "SELECT syr_year, SUM(syr_downloads) AS downloads FROM " . APP_TABLE_PREFIX . "statistics_sum_year WHERE syr_pid IN (?, ?) GROUP BY syr_year ";
+	// 	$totals = $db->fetchAll($q, array($basePid, $duplicatePid));
+	// 	foreach ($totals as $row) {
+	// 		$q = "UPDATE " . APP_TABLE_PREFIX . "statistics_sum_year SET syr_downloads = ? WHERE syr_pid = ? AND syr_year = ? ";
+	// 		$db->query($q, array($row['downloads'], $basePid, $row['syr_year']));
+	// 	}
+	// 	$q = "DELETE FROM " . APP_TABLE_PREFIX . "statistics_sum_year WHERE syr_pid = ? ";
+	// 	$db->query($q, array($duplicatePid));
+	// }
+
 	function updateSummaryStatsByIncrement($stats = array())
 	{
 		$log = FezLog::get();
