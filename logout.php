@@ -38,9 +38,21 @@ include_once(APP_INC_PATH . "class.auth.php");
 
 // IMPORTANT! everytime you destroy a cookie and you are using save_session_handler (database storage for sessions for instance) then you need to reset the save_session_hanlder
 // see the unresolved php bug for details http://bugs.php.net/bug.php?id=32330
-//$sess = new Fez_Session_Manager($db_api);
-Auth::removeSession(APP_SESSION);
-//Auth::removeSession(APP_LDAP_GROUPS_SESSION);
-//Auth::removeSession(APP_INTERNAL_GROUPS_SESSION);
-//Auth::removeSession(APP_SHIB_ATTRIBUTES_SESSION);
+foreach($_SESSION as $k => $v) {
+	unset($_SESSION[$k]);
+}
+if (isset($_COOKIE['_saml_idp'])) {
+	setcookie(session_name(), '', time()-42000, '/');
+}
+foreach($_COOKIE as $k => $v) {
+	if (is_numeric(strpos($k, "_shibsession_"))) {
+		setcookie($k, '', time()-42000, '/');
+	}
+}
+
+$sess = new Fez_Session_Manager();
+$session_id = session_id();
+session_regenerate_id();
+$sess->destroy($session_id);
+
 Auth::redirect(APP_RELATIVE_URL . "index.php?err=6");
