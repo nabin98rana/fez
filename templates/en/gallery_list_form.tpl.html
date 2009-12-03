@@ -123,6 +123,8 @@
     </table>
 	</div>
 	{/if}
+	
+  <br />
         
   {if $isAdministrator && $list_info.total_rows > 0}
 	  <div class="result-box clearfix" style="width: 980px; margin-top: 20px;">
@@ -139,7 +141,7 @@
 		  </div>
 	  </div>
   {/if}
-
+  
   {include file="paging_control.tpl.html" field="paginat0r"}
 
 </form>

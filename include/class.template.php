@@ -244,8 +244,10 @@ class Template_API
 				$this->assign('cv_pid',   $custom_view_pid);
 			}
 		}
-
-
+		
+		if (preg_match('/\/manage\/.*/', $_SERVER['REQUEST_URI'])) {
+			$this->assign('admin_area', true);
+		}
 
 		$this->assign("start_date", date('Y-m-d', mktime(0,0,0,1,1,date('Y'))));
 		$this->assign("end_date", date('Y-m-d', mktime(0,0,0,12,31,date('Y'))));
