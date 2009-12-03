@@ -1152,9 +1152,10 @@ td.search_multi_input {
 	border-right: 2px solid #d6d6d6;
 	border-left: 2px solid #d6d6d6;
 	border-bottom: 2px solid #d6d6d6;
-	padding: 5px 5px 0 5px;
+	padding: 8px 5px 0px 5px;
 	background: #e5e5e5;
-	margin: 0px 0px 0px 0px;
+	margin: 0px;
+    height: 25px;
 }
 
 .paging-box a {
@@ -1184,7 +1185,6 @@ td.search_multi_input {
 .result-box {
 	position: relative;
 	margin-bottom: 1.5em;
-	padding-bottom: 15px;
 	background: #f2f2f2 url([[$smarty.const.APP_RELATIVE_URL]]images/bg-boxes-bottom.png) bottom left no-repeat;
 }
 
@@ -1396,13 +1396,11 @@ top: 5px;
 .sanity_result_failed {color: red;}
 
 .flash_message {
-font-family: Verdana, Arial, Helvetica, sans-serif;
-font-size: 11px;
-color: black;
-border: 2px solid yellow;
-background-color: #ffffee;
-width: 100%;
-text-align: center;
+    border: 2px solid #fffc00;
+    background-color: #fffec6;
+    width: 100%;
+    padding: 10px;
+    text-align: center;
 }
 
 .loading {
@@ -1460,13 +1458,15 @@ margin-bottom: 1em;
 .facetheader {
 	background: [[$smarty.const.APP_DARK_COLOR]];
 	color: white;
-	padding: 0px;
+	padding: 3px 2px 2px 5px;
+    width: 90%;
 }
 
 .facet ul {
 	text-align: left;
 	margin-left: 0px;
 	padding: 2px;
+    padding-top: 10px;
 }
 
 .facetarrow {
