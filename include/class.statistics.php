@@ -465,7 +465,8 @@ class Statistics
 			}
 		}
 
-		self::updateSummaryTables(); // update the various summary tables
+		// MT 2009-12-07 COMMENTED OUT update summary tables as part of the gather statistics process 
+		// self::updateSummaryTables(); // update the various summary tables
 		$timeFinished = date('Y-m-d H:i:s');
 		Statistics::setLogRun($requestDateLatest, $counter, $counter_inserted, $timeStarted, $timeFinished);
 		Statistics::clearBufferByID($str_id);
@@ -552,7 +553,6 @@ class Statistics
 	 */
 	function updateSummaryTables()
 	{
-		//		echo "Overall: " . date("H:i:s") . "\n";
 		Statistics::update4WeekSummaryTable();
 		Statistics::updateAuthorsSummaryTable();
 		Statistics::updateCountryRegionSummaryTable();
@@ -560,7 +560,6 @@ class Statistics
 		Statistics::updateYearMonthSummaryTable();
 		Statistics::updateYearSummaryTable();
 		Statistics::updateYearMonthFiguresSummaryTable();
-		//		echo "Overall Finish: " . date('H:i:s') . "\n";
 	}
 
 	function update4WeekSummaryTable()
