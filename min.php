@@ -24,7 +24,7 @@ if(SHIB_SWITCH == 'ON' && SHIB_VERSION == '2') {
 	    'id' 				=> 'js/shib.js',
 	    'getContentFunc' 	=> 'shib_wayf_js_fetch',
 	    'contentType' => Minify::TYPE_JS,
-		'lastModified' => ($_SERVER['REQUEST_TIME'] - $_SERVER['REQUEST_TIME'] % 3600), // cache for 1 hour
+		'lastModified' => ($_SERVER['REQUEST_TIME'] - $_SERVER['REQUEST_TIME'] % 1), // cache for 1 hour
 	));
 }
 
