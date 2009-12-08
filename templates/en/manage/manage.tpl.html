@@ -13,47 +13,50 @@
             <table style="background: #FFFFFF; width: 100%; border: 0;" cellspacing="0" cellpadding="4">
               <tr>
                 <td class="default">
-				  {if $isSuperAdministrator}
-                  <div class="admin-side-nav-title">Configuration</div>
-                  <ul class="admin-side-nav">
-                    <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/doctypexsds.php'}class="focus" {/if}href="{$rel_url}manage/doctypexsds.php">Manage Document Type XSDs</a></li>
-                    <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/citations.php'}class="focus" {/if}href="{$rel_url}manage/citations.php">Manage Citations Views</a></li>
-                    <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/workflows.php'}class="focus" {/if}href="{$rel_url}manage/workflows.php">Manage Workflow Templates</a></li>
-                    <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/wfbehaviours.php'}class="focus" {/if}href="{$rel_url}manage/wfbehaviours.php">Manage Workflow Behaviours</a></li>
-                    <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/workflow_triggers.php'}class="focus" {/if}href="{$rel_url}manage/workflow_triggers.php?pid=-1">Default Workflows Triggers</a></li>
-                    <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/controlled_vocab.php'}class="focus" {/if}href="{$rel_url}manage/controlled_vocab.php">Manage Controlled Vocabularies</a></li>
-                    <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/search_keys.php'}class="focus" {/if}href="{$rel_url}manage/search_keys.php">Manage Search Keys</a></li>
-					<li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/custom_views.php'}class="focus" {/if}href="{$rel_url}manage/custom_views.php">Manage Custom Views</a></li>
-					<li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/custom_views_comm.php'}class="focus" {/if}href="{$rel_url}manage/custom_views_comm.php">Manage Community Views</a></li>
-					<li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/configuration.php'}class="focus" {/if}href="{$rel_url}manage/configuration.php">Site Configuration</a></li>
-                  </ul>
-				  {/if}
 
-				  <div class="admin-side-nav-title">Areas</div>
-                  <ul class="admin-side-nav">
-                    <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/news.php'}class="focus" {/if}href="{$rel_url}manage/news.php">Manage News</a></li>
-                    <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/statuses.php'}class="focus" {/if}href="{$rel_url}manage/statuses.php">Manage Statuses</a></li>
-                    <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/users.php'}class="focus" {/if}href="{$rel_url}manage/users.php">Manage Users</a></li>
-                    <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/groups.php'}class="focus" {/if}href="{$rel_url}manage/groups.php">Manage Groups</a></li>
-                    <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/orgstructure.php'}class="focus" {/if}href="{$rel_url}manage/orgstructure.php">Manage Organisational Structure</a></li>
-                    <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/authors.php'}class="focus" {/if} href="{$rel_url}manage/authors.php">Manage Authors</a></li>
-					{if $APP_HERDC_SUPPORT == 'ON'}<li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/integrity.php'}class="focus" {/if} href="{$rel_url}manage/integrity.php">HERDC Integrity Report</a></li>{/if}
-                  </ul>
+          <div class="admin-side-nav-title">Manage</div>
+          <ul class="admin-side-nav">
+            <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/news.php'}class="focus" {/if}href="{$rel_url}manage/news.php">News</a></li>
+            <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/users.php'}class="focus" {/if}href="{$rel_url}manage/users.php">Users</a></li>
+            <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/groups.php'}class="focus" {/if}href="{$rel_url}manage/groups.php">Groups</a></li>
+            <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/authors.php'}class="focus" {/if} href="{$rel_url}manage/authors.php">Authors</a></li>
+            <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/statuses.php'}class="focus" {/if}href="{$rel_url}manage/statuses.php">Statuses</a></li>
+            <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/orgstructure.php'}class="focus" {/if}href="{$rel_url}manage/orgstructure.php">Organisational Structure</a></li>
+            {if $APP_HERDC_SUPPORT == 'ON'}
+              <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/integrity.php'}class="focus" {/if} href="{$rel_url}manage/integrity.php">HERDC Integrity Report</a></li>
+            {/if}
+          </ul>
 
-				  {if $isSuperAdministrator}
-				  <div class="admin-side-nav-title">Maintenance</div>
-                  <ul class="admin-side-nav">
-					<li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/ad_hoc_sql.php'}class="focus" {/if}href="{$rel_url}manage/ad_hoc_sql.php">Manage Ad Hoc SQL PID Lists</a></li>
-					<li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/ad_hoc_workflow.php'}class="focus" {/if}href="{$rel_url}manage/ad_hoc_workflow.php">Run Workflow against Ad Hoc Query</a></li>
-				    <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/index_new.php'}class="focus" {/if}href="{$rel_url}manage/index_new.php">Index Objects</a></li>
-                    <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/export_workflows.php'}class="focus" {/if}href="{$rel_url}manage/export_workflows.php">Export Workflows</a></li>
-                    <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/import_workflows.php'}class="focus" {/if}href="{$rel_url}manage/import_workflows.php">Import Workflows</a></li>
-                    <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/export_xsds.php'}class="focus" {/if}href="{$rel_url}manage/export_xsds.php">Export XSDs</a></li>
-                    <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/import_xsds.php'}class="focus" {/if}href="{$rel_url}manage/import_xsds.php">Import XSDs</a></li>
-					{if $WEBSERVER_LOG_STATISTICS == 'ON'}<li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/run_webstats.php'}class="focus" {/if}href="{$rel_url}manage/run_webstats.php">Run Webstats</a></li>{/if}
-                    <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/upgrade.php'}class="focus" {/if}href="{$rel_url}manage/upgrade.php">Run Upgrades</a></li>
-                  </ul>
-				  {/if}
+          {if $isSuperAdministrator}
+            <div class="admin-side-nav-title">Configuration</div>
+            <ul class="admin-side-nav">
+              <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/doctypexsds.php'}class="focus" {/if}href="{$rel_url}manage/doctypexsds.php">Document Type XSDs</a></li>
+              <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/citations.php'}class="focus" {/if}href="{$rel_url}manage/citations.php">Citations Views</a></li>
+              <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/workflows.php'}class="focus" {/if}href="{$rel_url}manage/workflows.php">Workflow Templates</a></li>
+              <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/wfbehaviours.php'}class="focus" {/if}href="{$rel_url}manage/wfbehaviours.php">Workflow Behaviours</a></li>
+              <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/workflow_triggers.php'}class="focus" {/if}href="{$rel_url}manage/workflow_triggers.php?pid=-1">Workflows Triggers</a></li>
+              <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/controlled_vocab.php'}class="focus" {/if}href="{$rel_url}manage/controlled_vocab.php">Controlled Vocabularies</a></li>
+              <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/search_keys.php'}class="focus" {/if}href="{$rel_url}manage/search_keys.php">Search Keys</a></li>
+              <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/custom_views.php'}class="focus" {/if}href="{$rel_url}manage/custom_views.php">Custom Views</a></li>
+              <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/custom_views_comm.php'}class="focus" {/if}href="{$rel_url}manage/custom_views_comm.php">Community Views</a></li>
+              <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/configuration.php'}class="focus" {/if}href="{$rel_url}manage/configuration.php">Site Configuration</a></li>
+            </ul>
+          {/if}
+
+          {if $isSuperAdministrator}
+            <div class="admin-side-nav-title">Maintenance</div>
+            <ul class="admin-side-nav">
+              <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/index_new.php'}class="focus" {/if}href="{$rel_url}manage/index_new.php">Index Objects</a></li>
+              <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/ad_hoc_sql.php' || $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/ad_hoc_workflow.php' || $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/ad_hoc.php'}class="focus" {/if}href="{$rel_url}manage/ad_hoc.php">Ad Hoc Queries</a></li>
+              <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/io_workflows.php' || $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/import_workflows.php' || $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/export_workflows.php'}class="focus" {/if}href="{$rel_url}manage/io_workflows.php">Import / Export Workflows</a></li>
+              <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/io_xsds.php' || $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/import_xsds.php' || $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/export_xsds.php'}class="focus" {/if}href="{$rel_url}manage/io_xsds.php">Import / Export XSDs</a></li>
+              {if $WEBSERVER_LOG_STATISTICS == 'ON'}
+                <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/run_webstats.php'}class="focus" {/if}href="{$rel_url}manage/run_webstats.php">Run Webstats</a></li>
+              {/if}
+              <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/upgrade.php'}class="focus" {/if}href="{$rel_url}manage/upgrade.php">Run Upgrades</a></li>
+            </ul>
+          {/if}
+          
 				  <br />
                 </td>
               </tr>
