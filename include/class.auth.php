@@ -1385,13 +1385,19 @@ class Auth
 	 * @return  boolean
 	 */
 	function isValidSession(&$session) 
-	{			
+	{
+
 		if ((empty($session["username"])) || (empty($session["hash"]))
 		|| ($session["hash"] != md5($GLOBALS["private_key"] . md5($session["login_time"])
 		. $session["username"]))
-		|| ($session['ipaddress'] != @$_SERVER['REMOTE_ADDR'])) {
+		) {
+//		|| ($session['ipaddress'] != @$_SERVER['REMOTE_ADDR'])) {
 			return false;
 		} else {
+			if ($session['ipaddress'] != @$_SERVER['REMOTE_ADDR']) {
+				$log = FezLog::get();
+				$log->crit("IP Session hijacking possibly detected. Session IP is ".$session['ipaddress']." and remote addr is ".@$_SERVER['REMOTE_ADDR'].". Session details are ".print_r($session, true));
+			}
 			return true;
 		}
 	}
@@ -1480,7 +1486,6 @@ class Auth
 		// Finally, destroy the session.
 		@session_destroy();
 	}
-
 
 	/**
 	 * Checks whether an user exists or not in the database.
