@@ -300,6 +300,14 @@ if (SHIB_SWITCH == "ON" && SHIB_VERSION == "1") {
 	$tpl->assign("SHIB_IDP_LIST", $IDPList['List']);
 } else {
 	if (SHIB_VERSION == "2" && SHIB_SWITCH == "ON") { // so easy with shib 2.. all the above taken care of by the embedded wayf
+		// set the url session for shib logins so redirects 
+		// to index.php (front page) then redirecto to the original url
+		if (!empty($_GET["url"])) { 		
+			$_SESSION["url"] = $_GET["url"];			
+		}
+		// Set  refresh rate of the login page to 3 mins/ 180 secs so that the shib 2.x time doesnt go beyond the 5 min limit of the IDPs
+    	$tpl->assign('refresh_rate', 180);
+    	$tpl->assign('refresh_page', str_replace("/", "", $_SERVER['REQUEST_URI']));
 		$_SESSION['IDP_LOGIN_FLAG'] = 1; // set the login flag to that fez will know the next time (only) it goes to index.php it has to get the shib attribs
 	}
 	$tpl->assign("SHIB_IDP_LIST", array());
