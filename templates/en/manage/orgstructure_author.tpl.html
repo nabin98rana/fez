@@ -1,169 +1,190 @@
-{if $author_id == ''}<meta http-equiv="refresh" content="0; URL=authors.php">{/if}
+<div class="admin-box">
 
-      <table width="100%" class="admin-box" border="0" cellspacing="0" cellpadding="0" align="center">
-        <tr>
-          <td>
-            <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
-              {literal}
-              <script language="JavaScript">
-              <!--
-              var editing_option_id = -1;
-              function validateForm(f)
-              {
-                  if (isWhitespace(f.organisation_id.value)) {
-                      alert('Please select the relevant Organisational Unit.');
-                      selectField(f, 'organisation_id');
-                      return false;
-                  }
-                  if (isWhitespace(f.classification_id.value)) {
-                      alert('Please supply a Classification.');
-                      selectField(f, 'classification_id');
-                      return false;
-                  }
-                  if (isWhitespace(f.function_id.value)) {
-                      alert('Please supply a Function.');
-                      selectField(f, 'function_id');
-                      return false;
-                  }
-                  return true;
-              }
-              function addFieldOption(f)
-              {
-                  var value = f.new_value.value;
-                  if (isWhitespace(value)) {
-                      alert('Please enter the new value for the combo box.');
-                      f.new_value.value = '';
-                      f.new_value.focus();
-                      return false;
-                  }
-                  var field = getFormElement(f, 'field_options[]');
-                  var current_length = field.options.length;
-                  if (current_length == 1) {
-                      if (field.options[0].value == -1) {
-                          removeFieldOption(f, true);
-                      }
-                  }
-                  // check for an existing option with the same value
-                  for (var i = 0; i < field.options.length; i++) {
-                      if (field.options[i].text == value) {
-                          alert('The specified value already exists in the list of options.');
-                          f.new_value.focus();
-                          return false;
-                      }
-                  }
-                  current_length = field.options.length;
-                  field.options[current_length] = new Option(value, 'new:' + value);
-                  f.new_value.value = '';
-                  f.new_value.focus();
-              }
-              function parseParameters(value)
-              {
-                  value = value.substring(value.indexOf(':')+1);
-                  var id = value.substring(0, value.indexOf(':'));
-                  var text = value.substring(value.indexOf(':')+1);
-                  return new Option(text, id);
-              }
-              function updateFieldOption(f)
-              {
-                  if (isWhitespace(f.new_value.value)) {
-                      alert('Please enter the updated value.');
-                      f.new_value.value = '';
-                      f.new_value.focus();
-                      return false;
-                  }
-                  var field = getFormElement(f, 'field_options[]');
-                  for (var i = 0; i < field.options.length; i++) {
-                      if (field.options[i].value == editing_option_id) {
-                          var params = parseParameters(field.options[i].value);
-                          field.options[i].value = 'existing:' + params.value + ':' + f.new_value.value;
-                          field.options[i].text = f.new_value.value;
-                          f.new_value.value = '';
-                          f.update_button.disabled = true;
-                      }
-                  }
-              }
-              function editFieldOption(f)
-              {
-                  var options = getSelectedItems(getFormElement(f, 'field_options[]'));
-                  if (options.length == 0) {
-                      alert('Please select an option from the list.');
-                      return false;
-                  }
-                  editing_option_id = options[0].value;
-                  f.new_value.value = options[0].text;
-                  f.new_value.focus();
-                  f.update_button.disabled = false;
-              }
-              function removeFieldOption(f, delete_first)
-              {
-                  if (delete_first != null) {
-                      var remove = new Array('-1');
-                  } else {
-                      var options = getSelectedItems(getFormElement(f, 'field_options[]'));
-                      if (options.length == 0) {
-                          alert('Please select an option from the list.');
-                          return false;
-                      }
-                      var remove = new Array();
-                      for (var i = 0; i < options.length; i++) {
-                          remove[remove.length] = options[i].value;
-                      }
-                  }
-                  for (var i = 0; i < remove.length; i++) {
-                      removeOptionByValue(f, 'field_options[]', remove[i]);
-                  }
-                  var field = getFormElement(f, 'field_options[]');
-                  if ((delete_first == null) && (field.options.length == 0)) {
-                      field.options[0] = new Option('enter a new option above', '-1');
-                  }
-              }
-              function toggleCustomOptionsField(show_field)
-              {
-                  var f = getForm('custom_field_form');
-                  f.new_value.disabled = show_field;
-                  var field = getFormElement(f, 'field_options[]');
-                  field.disabled = show_field;
-                  f.add_button.disabled = show_field;
-                  f.remove_button.disabled = show_field;
-                  if (f.edit_button) {
-                      f.edit_button.disabled = show_field;
-                  }
-                  return true;
-              }
-              function checkRequiredFields()
-              {
-                  var f = getForm('custom_field_form');
-                  f.report_form_required.disabled = !(f.report_form.checked);
-                  if (f.report_form_required.disabled) {
-                      f.report_form_required.checked = false;
-                  }
-                  f.anon_form_required.disabled = !(f.anon_form.checked);
-                  if (f.anon_form_required.disabled) {
-                      f.anon_form_required.checked = false;
-                  }
-              }
-              //-->
-              </script>
-              {/literal}
-              <form name="custom_field_form" onSubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}?cat=view&auth={$author_id}" enctype="multipart/form-data">
-              {if $smarty.get.cat == 'edit'}
-              <input type="hidden" name="cat" value="update">
-              <input type="hidden" name="id" value="{$smarty.get.id}">
-              {else}
-              <input type="hidden" name="cat" value="new">
-              {/if}
+        {literal}
+        <script type="text/javascript">
+        <!--
+        var editing_option_id = -1;
+        function validateForm(f)
+        {
+            if (isWhitespace(f.organisation_id.value)) {
+                alert('Please select the relevant Organisational Unit.');
+                selectField(f, 'organisation_id');
+                return false;
+            }
+            if (isWhitespace(f.classification_id.value)) {
+                alert('Please supply a Classification.');
+                selectField(f, 'classification_id');
+                return false;
+            }
+            if (isWhitespace(f.function_id.value)) {
+                alert('Please supply a Function.');
+                selectField(f, 'function_id');
+                return false;
+            }
+            return true;
+        }
+        function addFieldOption(f)
+        {
+            var value = f.new_value.value;
+            if (isWhitespace(value)) {
+                alert('Please enter the new value for the combo box.');
+                f.new_value.value = '';
+                f.new_value.focus();
+                return false;
+            }
+            var field = getFormElement(f, 'field_options[]');
+            var current_length = field.options.length;
+            if (current_length == 1) {
+                if (field.options[0].value == -1) {
+                    removeFieldOption(f, true);
+                }
+            }
+            // check for an existing option with the same value
+            for (var i = 0; i < field.options.length; i++) {
+                if (field.options[i].text == value) {
+                    alert('The specified value already exists in the list of options.');
+                    f.new_value.focus();
+                    return false;
+                }
+            }
+            current_length = field.options.length;
+            field.options[current_length] = new Option(value, 'new:' + value);
+            f.new_value.value = '';
+            f.new_value.focus();
+        }
+        function parseParameters(value)
+        {
+            value = value.substring(value.indexOf(':')+1);
+            var id = value.substring(0, value.indexOf(':'));
+            var text = value.substring(value.indexOf(':')+1);
+            return new Option(text, id);
+        }
+        function updateFieldOption(f)
+        {
+            if (isWhitespace(f.new_value.value)) {
+                alert('Please enter the updated value.');
+                f.new_value.value = '';
+                f.new_value.focus();
+                return false;
+            }
+            var field = getFormElement(f, 'field_options[]');
+            for (var i = 0; i < field.options.length; i++) {
+                if (field.options[i].value == editing_option_id) {
+                    var params = parseParameters(field.options[i].value);
+                    field.options[i].value = 'existing:' + params.value + ':' + f.new_value.value;
+                    field.options[i].text = f.new_value.value;
+                    f.new_value.value = '';
+                    f.update_button.disabled = true;
+                }
+            }
+        }
+        function editFieldOption(f)
+        {
+            var options = getSelectedItems(getFormElement(f, 'field_options[]'));
+            if (options.length == 0) {
+                alert('Please select an option from the list.');
+                return false;
+            }
+            editing_option_id = options[0].value;
+            f.new_value.value = options[0].text;
+            f.new_value.focus();
+            f.update_button.disabled = false;
+        }
+        function removeFieldOption(f, delete_first)
+        {
+            if (delete_first != null) {
+                var remove = new Array('-1');
+            } else {
+                var options = getSelectedItems(getFormElement(f, 'field_options[]'));
+                if (options.length == 0) {
+                    alert('Please select an option from the list.');
+                    return false;
+                }
+                var remove = new Array();
+                for (var i = 0; i < options.length; i++) {
+                    remove[remove.length] = options[i].value;
+                }
+            }
+            for (var i = 0; i < remove.length; i++) {
+                removeOptionByValue(f, 'field_options[]', remove[i]);
+            }
+            var field = getFormElement(f, 'field_options[]');
+            if ((delete_first == null) && (field.options.length == 0)) {
+                field.options[0] = new Option('enter a new option above', '-1');
+            }
+        }
+        function toggleCustomOptionsField(show_field)
+        {
+            var f = getForm('custom_field_form');
+            f.new_value.disabled = show_field;
+            var field = getFormElement(f, 'field_options[]');
+            field.disabled = show_field;
+            f.add_button.disabled = show_field;
+            f.remove_button.disabled = show_field;
+            if (f.edit_button) {
+                f.edit_button.disabled = show_field;
+            }
+            return true;
+        }
+        function checkRequiredFields()
+        {
+            var f = getForm('custom_field_form');
+            f.report_form_required.disabled = !(f.report_form.checked);
+            if (f.report_form_required.disabled) {
+                f.report_form_required.checked = false;
+            }
+            f.anon_form_required.disabled = !(f.anon_form.checked);
+            if (f.anon_form_required.disabled) {
+                f.anon_form_required.checked = false;
+            }
+        }
+        //-->
+        </script>
+        {/literal}
+
+        <script type="text/javascript">
+        <!--
+        {literal}
+        function checkDelete(f)
+        {
+            if (!hasOneChecked(f, 'items[]')) {
+                alert('Please select at least one of the Registered Organisational Units.');
+                return false;
+            }
+            if (!confirm('This action will permanently disassociate this author from the selected Organisational Unit.\nProceed?')) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+        //-->
+        </script>
+        {/literal}
+
+        <form id="custom_field_form" onsubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}?cat=view&amp;auth={$author_id}" enctype="multipart/form-data">
+          <div>
+            {if $smarty.get.cat == 'edit'}
+              <input type="hidden" name="cat" value="update" />
+              <input type="hidden" name="id" value="{$smarty.get.id}" />
+            {else}
+              <input type="hidden" name="cat" value="new" />
+            {/if}
+            <input type="hidden" name="author_id" value="{$author_id}" />
+          </div>
+              
+            <table style="width: 100%" cellspacing="1" cellpadding="2">
               <tr>
                 <td colspan="2" class="default">
-                  <b><a href="orgstructure_author.php">Manage Author Organisation Memberships</a>
-		          {if $breadcrumb_detail != ''}
-				  -> {$breadcrumb_detail}
-				  {/if}
-				   </b>		  
+                  <h1>Manage Author Organisation Memberships
+      		          {if $breadcrumb_detail != ''}
+      				        &raquo; {$breadcrumb_detail}
+      				      {/if}
+		   		        </h1>
                 </td>
               </tr>
               {if $result != ""}
               <tr>
-                <td colspan="2" bgcolor="{$cell_color}" align="center" class="error">
+                <td colspan="2" style="background: {$cell_color}; text-align: center" class="error">
                   {if $smarty.post.cat == "new"}
                     {if $result == -1}
                       An error occurred while trying to register the new organisational membership.
@@ -187,83 +208,90 @@
               </tr>
               {/if}
 
-			  <input type="hidden" name="author_id" value="{$author_id}" />
-
 			  <tr>
-			    <td width="120" bgcolor="{$cell_color}" class="default">
+			    <td style="width: 120px; background: {$cell_color}" class="default">
 				  <b>Organisation:</b>
 				</td>
-				<td bgcolor="{$light_color}">
+				<td style="background: {$light_color}">
 				  <select name="organisation_id" class="default">
-				    <option value="">[Select from the following list]</option>
+				    <option value="">Select from the following list</option>
 					{section name="i" loop=$org_list}
-					<option value="{$org_list[i].org_id}"{if $org_list[i].org_id == $info.auo_org_id} selected{/if}>{$org_list[i].org_title} ({$org_list[i].org_ext_table})</option>
+					<option value="{$org_list[i].org_id}"{if $org_list[i].org_id == $info.auo_org_id} selected="selected"{/if}>{$org_list[i].org_title} ({$org_list[i].org_ext_table})</option>
 					{/section}
 				  </select>
 				</td>
 			  </tr>
 
 			  <tr>
-			    <td width="120" bgcolor="{$cell_color}" class="default">
+			    <td style="width: 120px; background: {$cell_color}" class="default">
 				  <b>Classification:</b>
 				</td>
-				<td bgcolor="{$light_color}">
+				<td style="background: {$light_color}">
 				  <select name="classification_id" class="default">
-				    <option value="">[Select from the following list]</option>
+				    <option value="">Select from the following list</option>
 					{section name="i" loop=$cla_list}
-					<option value="{$cla_list[i].cla_id}"{if $cla_list[i].cla_id == $info.auo_cla_id} selected{/if}>{$cla_list[i].cla_title}</option>
+					<option value="{$cla_list[i].cla_id}"{if $cla_list[i].cla_id == $info.auo_cla_id} selected="selected"{/if}>{$cla_list[i].cla_title}</option>
 					{/section}
 				  </select>
 				</td>
 			  </tr>
 
 			  <tr>
-			    <td width="120" bgcolor="{$cell_color}" class="default">
+			    <td style="width: 120px; background: {$cell_color}" class="default">
 				  <b>Function:</b>
 				</td>
-				<td bgcolor="{$light_color}">
+				<td style="background: {$light_color}">
 				  <select name="function_id" class="default">
-				    <option value="">[Select from the following list]</option>
+				    <option value="">Select from the following list</option>
 					{section name="i" loop=$fun_list}
-					<option value="{$fun_list[i].fun_id}"{if $fun_list[i].fun_id == $info.auo_fun_id} selected{/if}>{$fun_list[i].fun_title}</option>
+					<option value="{$fun_list[i].fun_id}"{if $fun_list[i].fun_id == $info.auo_fun_id} selected="selected"{/if}>{$fun_list[i].fun_title}</option>
 					{/section}
 				  </select>
 				</td>
 			  </tr>
 
 			  <tr>
-			    <td width="120" bgcolor="{$cell_color}" class="default">
+			    <td style="width: 120px; background: {$cell_color}" class="default">
 				  <b>Assessed?</b>
 				</td>
-				<td bgcolor="{$light_color}">
+				<td style="background: {$light_color}">
 				  <select name="assessed" class="default">
 				    <option value="">No</option>
-					<option value="Y"{if $info.auo_assessed == 'Y'} selected{/if}>Yes</option>
+					  <option value="Y"{if $info.auo_assessed == 'Y'} selected="selected"{/if}>Yes</option>
 				  </select>
 				</td>
 			  </tr>
 
 			  <tr>
-			    <td width="120" bgcolor="{$cell_color}" class="default">
+			    <td style="width: 120px; background: {$cell_color}" class="default">
 				  <b>Assessment Year:</b>
 				</td>
-				<td bgcolor="{$light_color}">
+				<td style="background: {$light_color}">
 				  <input type="text" name="assessed_year" value="{$info.auo_assessed_year}" class="default" size="4" />
 				</td>
 			  </tr>
 
-              <tr>
-                <td colspan="2" bgcolor="{$cell_color}" align="center">
-                  {if $smarty.get.cat == 'edit'}
-                  <input class="button" type="submit" value="Update Organisational Membership">
-                  {else}
-                  <input class="button" type="submit" value="Register New Organisational Membership">
-                  {/if}
-                  <input class="button" type="reset" value="Reset">
-                </td>
-              </tr>
+        <tr>
+          <td colspan="2" style="background: {$cell_color}; text-align: center">
+            {if $smarty.get.cat == 'edit'}
+              <input class="button" type="submit" value="Update Organisational Membership" />
+            {else}
+              <input class="button" type="submit" value="Register New Organisational Membership" />
+            {/if}
+            <input class="button" type="reset" value="Reset" />
+          </td>
+        </tr>
+      </table>  
+	  </form>
+    
+    
+    
+    <form onsubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}?auth={$author_id}">
+      <div>
+        <input type="hidden" name="cat" value="delete" />
+      </div>
 
-			  </form>
+          <table style="width: 100%" cellspacing="1" cellpadding="2">    
               <tr>
                 <td colspan="2" class="default">
                   <b>Registered Organisational Units:</b>
@@ -271,74 +299,55 @@
               </tr>
               <tr>
                 <td colspan="2">
-                  <script language="JavaScript">
-                  <!--
-                  {literal}
-                  function checkDelete(f)
-                  {
-                      if (!hasOneChecked(f, 'items[]')) {
-                          alert('Please select at least one of the Registered Organisational Units.');
-                          return false;
-                      }
-                      if (!confirm('This action will permanently disassociate this author from the selected Organisational Unit.\nProceed?')) {
-                          return false;
-                      } else {
-                          return true;
-                      }
-                  }
-                  //-->
-                  </script>
-                  {/literal}
                   <table border="0" width="100%" cellpadding="1" cellspacing="1">
-                    <form onSubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}?auth={$author_id}">
-                    <input type="hidden" name="cat" value="delete">
                     <tr>
-                      <td width="5" bgcolor="{$cell_color}" align="center" nowrap><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Title</b>&nbsp;</td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Type</b>&nbsp;</td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Assessed?</b>&nbsp;</td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Year Assessed</b>&nbsp;</td>					  
+                      <td style="width: 5px; background: {$cell_color}; text-align: center; white-space: nowrap">
+                        <input type="button" value="All" class="shortcut button" onclick="javascript:toggleSelectAll(this.form, 'items[]');" />
+                      </td>
+                      <td class="default cell-colour">&nbsp;<b>Title</b>&nbsp;</td>
+                      <td class="default cell-colour">&nbsp;<b>Type</b>&nbsp;</td>
+                      <td class="default cell-colour">&nbsp;<b>Assessed?</b>&nbsp;</td>
+                      <td class="default cell-colour">&nbsp;<b>Year Assessed</b>&nbsp;</td>					  
                     </tr>
                     {section name="i" loop=$list}
                     {cycle values=$cycle assign="row_color"}
                     <tr>
-                      <td width="4" nowrap bgcolor="{$row_color}" align="center">
-                        <input type="checkbox" name="items[]" value="{$list[i].auo_id}" {if $smarty.section.i.total == 0}disabled{/if}>
+                      <td style="width: 4px; white-space: nowrap; background: {$row_color}; text-align: center">
+                        <input type="checkbox" name="items[]" value="{$list[i].auo_id}" {if $smarty.section.i.total == 0}disabled="disabled"{/if} />
                       </td>
-                      <td bgcolor="{$row_color}" class="default">
-                        &nbsp;<a href="{$smarty.server.PHP_SELF}?cat=edit&id={$list[i].auo_id}">{$list[i].org_title}</a>
+                      <td style="background: {$row_color}" class="default">
+                        &nbsp;<a href="{$smarty.server.PHP_SELF}?cat=edit&amp;id={$list[i].auo_id}">{$list[i].org_title}</a>
                       </td>
-                      <td bgcolor="{$row_color}" class="default">
+                      <td style="background: {$row_color}" class="default">
                         &nbsp;{$list[i].org_ext_table}
                       </td>
-                      <td bgcolor="{$row_color}" class="default">
+                      <td style="background: {$row_color}" class="default">
                         &nbsp;{if $list[i].auo_assessed == 'Y'}Yes{/if}
                       </td>
-                      <td bgcolor="{$row_color}" class="default">
+                      <td style="background: {$row_color}" class="default">
                         &nbsp;{$list[i].auo_assessed_year}
                       </td>
                     </tr>
                     {sectionelse}
                     <tr>
-                      <td colspan="6" bgcolor="{$light_color}" align="center" class="default">
+                      <td colspan="6" style="background: {$light_color}; text-align: center" class="default">
                         No organisational memberships are currently registered.
                       </td>
                     </tr>
                     {/section}
 
                     <tr>
-                      <td width="4" align="center" bgcolor="{$cell_color}">
-                        <input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
+                      <td style="width: 4px; text-align: center; background: {$cell_color}">
+                        <input type="button" value="All" class="shortcut button" onclick="javascript:toggleSelectAll(this.form, 'items[]');" />
                       </td>
-                      <td colspan="6" bgcolor="{$cell_color}">
-                        <input type="submit" value="Delete" class="button">
+                      <td colspan="6" style="background: {$cell_color}">
+                        <input type="submit" value="Delete" class="button" />
                       </td>
                     </tr>
-                    </form>
                   </table>
                 </td>
               </tr>
             </table>
-          </td>
-        </tr>
-      </table>
+          </form>
+
+</div>

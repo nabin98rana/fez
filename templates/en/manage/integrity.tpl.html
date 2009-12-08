@@ -2,15 +2,15 @@
 
 <div class="admin-box">
 
-	<div class="admin-header">HERDC Record Integrity Report</div>
+	<h1>HERDC Record Integrity Report</h1>
 
-    <div class="default admin-content">
+    <div>
 
 		{section name="jj" loop=$orphaned_affiliations}
-		  {if $smarty.section.jj.first}<h3><img src="{$rel_url}images/redled.png" alt="Problem" /> Orphaned author affiliations</h3><table width="100%">{/if}
-		  <tr bgcolor="{cycle values="$cycle_colours"}">
-			<td width="100">{$orphaned_affiliations[jj].af_pid}</td>
-			<td><a href="../view/{$orphaned_affiliations[jj].af_pid}" target="_blank">{$orphaned_affiliations[jj].rek_title}</a></td>
+		  {if $smarty.section.jj.first}<h3><img src="{$rel_url}images/redled.png" alt="Problem" /> Orphaned author affiliations</h3><table style="width: 100%">{/if}
+		  <tr style="background: {cycle values="$cycle_colours"}">
+			<td style="width: 100px">{$orphaned_affiliations[jj].af_pid}</td>
+			<td><a href="../view/{$orphaned_affiliations[jj].af_pid}" onclick="javascript:window.open('../view/{$orphaned_affiliations[jj].af_pid}'); return false;">{$orphaned_affiliations[jj].rek_title}</a></td>
 		  </tr>
 		  {if $smarty.section.jj.last}</table>{/if}
 		  {sectionelse}
@@ -20,10 +20,10 @@
 		<br />
 
 		{section name="ii" loop=$bad_sums}
-		  {if $smarty.section.ii.first}<h3><img src="{$rel_url}images/redled.png" alt="Problem" /> Non-summing author affiliations</h3><table width="100%">{/if}
-		  <tr bgcolor="{cycle values="$cycle_colours"}">
-			<td width="100">{$bad_sums[ii].af_pid}</td>
-			<td><a href="../view/{$bad_sums[ii].af_pid}" target="_blank">{$bad_sums[ii].rek_title}</a></td>
+		  {if $smarty.section.ii.first}<h3><img src="{$rel_url}images/redled.png" alt="Problem" /> Non-summing author affiliations</h3><table style="width: 100%">{/if}
+		  <tr style="background: {cycle values="$cycle_colours"}">
+			<td style="width: 100px">{$bad_sums[ii].af_pid}</td>
+			<td><a href="../view/{$bad_sums[ii].af_pid}" onclick="javascript:window.open('../view/{$bad_sums[ii].af_pid}'); return false;">{$bad_sums[ii].rek_title}</a></td>
 		  </tr>
 		  {if $smarty.section.ii.last}</table>{/if}
 		  {sectionelse}
@@ -33,10 +33,10 @@
 		<br />
 
 		{section name="ii" loop=$orphaned_main_chapters}
-		  {if $smarty.section.ii.first}<h3><img src="{$rel_url}images/redled.png" alt="Problem" /> Orphaned main chapter registrations</h3><table width="100%">{/if}
-		  <tr bgcolor="{cycle values="$cycle_colours"}">
-			<td width="100">{$orphaned_main_chapters[ii].mc_pid}</td>
-			<td><a href="../view/{$orphaned_main_chapters[ii].mc_pid}" target="_blank">{$orphaned_main_chapters[ii].rek_title}</a></td>
+		  {if $smarty.section.ii.first}<h3><img src="{$rel_url}images/redled.png" alt="Problem" /> Orphaned main chapter registrations</h3><table style="width: 100%">{/if}
+		  <tr style="background: {cycle values="$cycle_colours"}">
+			<td style="width: 100px">{$orphaned_main_chapters[ii].mc_pid}</td>
+			<td><a href="../view/{$orphaned_main_chapters[ii].mc_pid}" onclick="javascript:window.open('../view/{$orphaned_main_chapters[ii].mc_pid}'); return false;">{$orphaned_main_chapters[ii].rek_title}</a></td>
 		  </tr>
 		  {if $smarty.section.ii.last}</table>{/if}
 		  {sectionelse}
@@ -45,10 +45,11 @@
 		
 		<br />
 
-
-		<form name="reindex" method="post" action="{$smarty.server.PHP_SELF}">
-			<input type="hidden" name="action" value="report"/>
-			<input type="submit" name="discover" value="Regenerate report" class="submit" />
+		<form id="integrity" method="post" action="{$smarty.server.PHP_SELF}">
+			<div>
+				<input type="hidden" name="action" value="report" />
+				<input type="submit" name="discover" value="Regenerate report" class="submit button" />
+			</div>
 		</form>
 
     </div>
@@ -59,13 +60,15 @@
 
 <div class="admin-box">
 
-	<div class="admin-header">HERDC Record Integrity Report</div>
+	<h1>HERDC Record Integrity Report</h1>
 
-    <div class="default admin-content">
-		<img align="absmiddle" src="{$rel_url}images/important_32.png" border="0" /> Generate a report of all records with broken author affiliations.<br /><br />
-		<form name="reindex" method="post" action="{$smarty.server.PHP_SELF}">
-			<input type="hidden" name="action" value="report"/>
-			<input type="submit" name="discover" value="Build report" class="submit" />
+    <div>
+		<img style="vertical-align: middle" src="{$rel_url}images/important_32.png" alt="Generate" /> Generate a report of all records with broken author affiliations.<br /><br />
+		<form id="integrity" method="post" action="{$smarty.server.PHP_SELF}">
+			<div>
+				<input type="hidden" name="action" value="report" />
+				<input type="submit" name="discover" value="Build report" class="submit button" />
+			</div>
 		</form>
 
     </div>

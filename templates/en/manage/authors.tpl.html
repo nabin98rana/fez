@@ -1,11 +1,8 @@
+<div class="admin-box">
 
-      <table width="100%" class="admin-box" border="0" cellspacing="0" cellpadding="0" align="center">
-        <tr>
-          <td>
-            <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
-              {literal}
-              <script language="JavaScript">
-              <!--
+        {literal}
+        <script type="text/javascript">
+        <!--
 				var page_url = '{/literal}{$smarty.server.PHP_SELF}{literal}';
 				var current_page = {/literal}{if $list_info.current_page != ""}{$list_info.current_page}{else}0{/if}{literal};
 				var last_page = {/literal}{if $list_info.last_page != ""}{$list_info.last_page}{else}0{/if}{literal};			  
@@ -62,21 +59,124 @@
               </script>
               {/literal}
               
-              <form name="author_form" onSubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}">
+              
+                    {literal}
+                  <script type="text/javascript">
+                  <!--
+                  var rid_server = new dojo.rpc.JsonService("{/literal}{$rel_url}{literal}researcherid_proxy.php");
+                      var rid_container_id = 'register_rid_container';
+                      var rid_register = 'register_researcherid_profile';
+                      var rid_download = 'download_from_researcherid';
+            
+                      dojo.addOnLoad(function(){
+                        var id = dojo.byId(rid_register);
+                        if(id) {
+                          dojo.connect(id, 'onclick', 'register_in_rid');
+                        }
+                        var did = dojo.byId(rid_download);
+                        if(did) {
+                          dojo.connect(did, 'onclick', 'download_from_rid');
+                        }
+                      });
+                      
+                      function register_in_rid(e) {
+                        dojo.stopEvent(e);
+                        
+                        var confirm_register = confirm("You are about to register this author in ResearcherID.\n\n"+
+                                          "For authors with an existing ResearcherID profile, please ensure that:\n\n"+
+                                          "  -  The ResearcherID profile has their primary affiliation as this institution.\n"+
+                                          "  -  The employeeID in ResearcherID is '{/literal}{$info.aut_org_username}{literal}'.\n\n"+
+                                          "For authors who do not have an existing ResearcherID profile, a new profile will be created."+
+                                          "\n\n");
+                        
+                        if(! confirm_register) {
+                          return false;
+                        }
+                        var aut_id = '{/literal}{$smarty.get.id|escape:"html"}{literal}';
+                        dojo.byId(rid_container_id).innerHTML = 'Registering, please wait..';
+                        var rid_t = rid_server.register(aut_id);
+                         
+                        rid_t.addCallback( function(msg) {
+                if(msg == '' || msg == 'false') {
+                  dojo.byId(rid_container_id).innerHTML = 'Oops! Something unexpected happened. Please try again later..';                  
+                }
+                else {
+                  dojo.byId(rid_container_id).innerHTML = 'Profile is under Registration Process in Researcher ID.';
+                }
+                        });
+                       }
+
+                      function download_from_rid(e) {
+                        dojo.stopEvent(e);
+                        
+                        var confirm_download = confirm("You are about to download publication for this author from ResearcherID.\n\n"+
+                                          "Any new publications found, which have a ISI UT number, will be added to the repository.\n\n"+
+                                          "");
+                        
+                        if(! confirm_download) {
+                          return false;
+                        }
+                        var aut_rid_id = '{/literal}{$info.aut_researcher_id}{literal}';
+                        dojo.byId(rid_container_id).innerHTML = aut_rid_id + ' - Starting download, please wait..';
+                        var rid_d = rid_server.download(aut_rid_id);
+                         
+                        rid_d.addCallback( function(msg) {
+                if(msg == '' || msg == 'false') {
+                  dojo.byId(rid_container_id).innerHTML = aut_rid_id + ' - Oops! Something unexpected happened. Please try again later..';                  
+                }
+                else {
+                  dojo.byId(rid_container_id).innerHTML = aut_rid_id + ' - Publications are being downloaded from Researcher ID. Any new publications will be added to <a href="{/literal}{$rel_url}collection/{$smarty.const.RID_DL_COLLECTION}"{literal}>this collection</a>.';
+                }
+                        });
+                       }
+                      //-->
+                      </script>
+                  {/literal}              
+              
+            {literal}
+            <script type="text/javascript">
+            <!--
+            function checkDelete(f)
+            {
+                var total_selected = getTotalCheckboxesChecked(f, 'items[]');
+                var total = getTotalCheckboxes(f, 'items[]');
+                if (total == total_selected) {
+                    alert('You cannot remove all of the authors in the system.');
+                    return false;
+                }
+                if (!hasOneChecked(f, 'items[]')) {
+                    alert('Please select at least one of the authors.');
+                    return false;
+                }
+                if (!confirm('WARNING: This action will remove the selected authors permanently.\nPlease click OK to confirm.')) {
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+            //-->
+            </script>
+            {/literal}              
+              
+            <form id="author_form" onsubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}">
+            <div>
               {if $smarty.get.cat == 'edit'}
-              <input type="hidden" name="cat" value="update">
-              <input type="hidden" name="id" id="id" value="{$smarty.get.id|escape:"html"}">
+                <input type="hidden" name="cat" value="update" />
+                <input type="hidden" name="id" id="id" value="{$smarty.get.id|escape:"html"}" />
               {else}
-              <input type="hidden" name="cat" value="new">
+                <input type="hidden" name="cat" value="new" />
               {/if}
+            </div>
+              
+            <table style="width: 100%" cellspacing="0" cellpadding="0">
               <tr>
                 <td colspan="2">
-                  <div class="admin-header">Manage Authors</div>
+                  <h1>Manage Authors</h1>
                 </td>
               </tr>
               {if $result != ""}
               <tr>
-                <td colspan="2" bgcolor="{$cell_color}" align="center" class="error">
+                <td colspan="2" style="text-align: center" class="error cell-colour">
                   {if $smarty.post.cat == "new"}
                     {if $result == -1}
                       An error occurred while trying to add the new author.
@@ -98,194 +198,120 @@
               </tr>
               {/if}
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td style="width: 120px" class="default cell-colour">
                   <b>Title: </b>
                 </td>
-                <td bgcolor="{$light_color}" width="80%">
-                  <input type="text" name="title" size="40" class="default" value="{$info.aut_title}">
+                <td style="background: {$light_color}; width: 80%">
+                  <input type="text" name="title" size="40" class="default" value="{$info.aut_title}" />
                   {include file="error_icon.tpl.html" field="title"}
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td style="width: 120px" class="default cell-colour">
                   <b>First Name: *</b>
                 </td>
-                <td bgcolor="{$light_color}" width="80%">
-                  <input type="text" name="fname" size="40" class="default" value="{$info.aut_fname}">
+                <td style="background: {$light_color}; width: 80%">
+                  <input type="text" name="fname" size="40" class="default" value="{$info.aut_fname}" />
                   {include file="error_icon.tpl.html" field="fname"}
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td style="width: 120px" class="default cell-colour">
                   <b>Middle Name: </b>
                 </td>
-                <td bgcolor="{$light_color}" width="80%">
-                  <input type="text" name="mname" size="40" class="default" value="{$info.aut_mname}">
+                <td style="background: {$light_color}; width: 80%">
+                  <input type="text" name="mname" size="40" class="default" value="{$info.aut_mname}" />
                   {include file="error_icon.tpl.html" field="mname"}
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td style="width: 120px" class="default cell-colour">
                   <b>Last Name: *</b>
                 </td>
-                <td bgcolor="{$light_color}" width="80%">
-                  <input type="text" name="lname" size="40" class="default" value="{$info.aut_lname}">
+                <td style="background: {$light_color}; width: 80%">
+                  <input type="text" name="lname" size="40" class="default" value="{$info.aut_lname}" />
                   {include file="error_icon.tpl.html" field="lname"}
                 </td>
               </tr>			  
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td style="width: 120px" class="default cell-colour">
                   <b>Display Name:</b>
                 </td>
-                <td bgcolor="{$light_color}" width="80%">
-                  <input type="text" name="dname" size="40" class="default" value="{$info.aut_display_name}">
+                <td style="background: {$light_color}; width: 80%">
+                  <input type="text" name="dname" size="40" class="default" value="{$info.aut_display_name}" />
                   {include file="error_icon.tpl.html" field="dname"}
                 </td>
               </tr>			  
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td style="width: 120px" class="default cell-colour">
                   <b>Organisation Staff ID: </b>
                 </td>
-                <td bgcolor="{$light_color}" width="80%">
-                  <input type="text" name="org_staff_id" size="40" class="default" value="{$info.aut_org_staff_id}">
+                <td style="background: {$light_color}; width: 80%">
+                  <input type="text" name="org_staff_id" size="40" class="default" value="{$info.aut_org_staff_id}" />
                   {include file="error_icon.tpl.html" field="org_staff_id"}
                 </td>
               </tr>	
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td style="width: 120px" class="default cell-colour">
                   <b>Author Reference Number: </b>
                 </td>
-                <td bgcolor="{$light_color}" width="80%">
-                  <input type="text" name="aut_ref_num" size="40" class="default" value="{$info.aut_ref_num}">
+                <td style="background: {$light_color}; width: 80%">
+                  <input type="text" name="aut_ref_num" size="40" class="default" value="{$info.aut_ref_num}" />
                   {include file="error_icon.tpl.html" field="aut_ref_num"}
                 </td>
               </tr>	
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td style="width: 120px" class="default cell-colour">
                   <b>Organisation Staff Username: </b>
                 </td>
-                <td bgcolor="{$light_color}" width="80%">
-                  <input type="text" name="org_username" size="40" class="default" value="{$info.aut_org_username}">
+                <td style="background: {$light_color}; width: 80%">
+                  <input type="text" name="org_username" size="40" class="default" value="{$info.aut_org_username}" />
                   {include file="error_icon.tpl.html" field="org_username"}
                 </td>
               </tr>	
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td style="width: 120px" class="default cell-colour">
                   <b>Position: </b>
                 </td>
-                <td bgcolor="{$light_color}" width="80%">
-                  <input type="text" name="position" size="40" class="default" value="{$info.aut_position}">
+                <td style="background: {$light_color}; width: 80%">
+                  <input type="text" name="position" size="40" class="default" value="{$info.aut_position}" />
                   {include file="error_icon.tpl.html" field="position"}
                 </td>
               </tr>	
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td style="width: 120px" class="default cell-colour">
                   <b>CV Link: </b>
                 </td>
-                <td bgcolor="{$light_color}" width="80%">
-                  <input type="text" name="cv_link" size="40" class="default" value="{$info.aut_cv_link}">
+                <td style="background: {$light_color}; width: 80%">
+                  <input type="text" name="cv_link" size="40" class="default" value="{$info.aut_cv_link}" />
                   {include file="error_icon.tpl.html" field="cv_link"}
                 </td>
               </tr>						  		
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td style="width: 120px" class="default cell-colour">
                   <b>Homepage Link: </b>
                 </td>
-                <td bgcolor="{$light_color}" width="80%">
-                  <input type="text" name="homepage_link" size="40" class="default" value="{$info.aut_homepage_link}">
+                <td style="background: {$light_color}; width: 80%">
+                  <input type="text" name="homepage_link" size="40" class="default" value="{$info.aut_homepage_link}" />
                   {include file="error_icon.tpl.html" field="homepage_link"}
                 </td>
               </tr>	
               
               {if $smarty.get.cat == 'edit' && $smarty.const.RID_ENABLED == "true"}				
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default" valign="top">
+                <td style="width: 120px" class="default cell-colour">
                   <b>Researcher ID (Thomson): </b>
                 </td>
-                <td bgcolor="{$light_color}" width="80%" valign="top">
-                  	{literal}
-		            	<script type="text/javascript">
-		            	<!--
-	            		var rid_server = new dojo.rpc.JsonService("{/literal}{$rel_url}{literal}researcherid_proxy.php");
-	                    var rid_container_id = 'register_rid_container';
-	                    var rid_register = 'register_researcherid_profile';
-	                    var rid_download = 'download_from_researcherid';
-						
-	                    dojo.addOnLoad(function(){
-		                    var id = dojo.byId(rid_register);
-		                    if(id) {
-	                    		dojo.connect(id, 'onclick', 'register_in_rid');
-		                    }
-		                    var did = dojo.byId(rid_download);
-		                    if(did) {
-	                    		dojo.connect(did, 'onclick', 'download_from_rid');
-		                    }
-	                    });
-	                    
-	                    function register_in_rid(e) {
-	                    	dojo.stopEvent(e);
-		                    
-	                    	var confirm_register = confirm("You are about to register this author in ResearcherID.\n\n"+
-	    	                    							"For authors with an existing ResearcherID profile, please ensure that:\n\n"+
-	    	                    							"  -  The ResearcherID profile has their primary affiliation as this institution.\n"+
-	    	                    							"  -  The employeeID in ResearcherID is '{/literal}{$info.aut_org_username}{literal}'.\n\n"+
-	    	                    							"For authors who do not have an existing ResearcherID profile, a new profile will be created."+
-	    	                    							"\n\n");
-		                    
-		                    if(! confirm_register) {
-			                    return false;
-		                    }
-		                    var aut_id = '{/literal}{$smarty.get.id|escape:"html"}{literal}';
-	                    	dojo.byId(rid_container_id).innerHTML = 'Registering, please wait..';
-	                    	var rid_t = rid_server.register(aut_id);
-	                   		
-                    		rid_t.addCallback( function(msg) {
-								if(msg == '' || msg == 'false') {
-									dojo.byId(rid_container_id).innerHTML = 'Oops! Something unexpected happened. Please try again later..';									
-								}
-								else {
-									dojo.byId(rid_container_id).innerHTML = 'Profile is under Registration Process in Researcher ID.';
-								}
-	                    	});
-	                   	}
-
-	                    function download_from_rid(e) {
-	                    	dojo.stopEvent(e);
-		                    
-	                    	var confirm_download = confirm("You are about to download publication for this author from ResearcherID.\n\n"+
-	    	                    							"Any new publications found, which have a ISI UT number, will be added to the repository.\n\n"+
-	    	                    							"");
-		                    
-		                    if(! confirm_download) {
-			                    return false;
-		                    }
-		                    var aut_rid_id = '{/literal}{$info.aut_researcher_id}{literal}';
-	                    	dojo.byId(rid_container_id).innerHTML = aut_rid_id + ' - Starting download, please wait..';
-	                    	var rid_d = rid_server.download(aut_rid_id);
-	                   		
-                    		rid_d.addCallback( function(msg) {
-								if(msg == '' || msg == 'false') {
-									dojo.byId(rid_container_id).innerHTML = aut_rid_id + ' - Oops! Something unexpected happened. Please try again later..';									
-								}
-								else {
-									dojo.byId(rid_container_id).innerHTML = aut_rid_id + ' - Publications are being downloaded from Researcher ID. Any new publications will be added to <a href="{/literal}{$rel_url}collection/{$smarty.const.RID_DL_COLLECTION}"{literal}>this collection</a>.';
-								}
-	                    	});
-	                   	}
-	                    //-->
-	                    </script>
-	                {/literal}
+                <td style="background: {$light_color}; width: 80%">
 	                <div id="register_rid_container" style="font-size: 0.8em;">
                   	{if $info.aut_researcher_id == ''}
                   		<a href="javascript:void(null)" id="register_researcherid_profile"><img src="{$rel_url}images/create.gif" width="45" height="16" alt="Register ResearcherID Profile" title="Register ResearcherID Profile" style="border:0;" /></a>
-                  		
                   	{elseif $info.aut_researcher_id == '-1' || strstr($info.aut_researcher_id, 'ERR:')}
                   		{if strstr($info.aut_researcher_id, 'ERR:')}
 	                  		{$info.aut_researcher_id}
 	                  	{else}
 	                  		Profile is under Registration Process in Researcher ID.
 	                  	{/if}
-                  		
 	                {else}
 	                	{$info.aut_researcher_id} &nbsp;
 	                	<a href="javascript:void(null)" id="download_from_researcherid">Download</a>
@@ -297,189 +323,171 @@
               {/if}
               					
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td style="width: 120px" class="default cell-colour">
                   <b>Scopus ID: </b>
                 </td>
-                <td bgcolor="{$light_color}" width="80%">
-                  <input type="text" name="scopus_id" size="40" class="default" value="{$info.aut_scopus_id}">
+                <td style="background: {$light_color}; width: 80%">
+                  <input type="text" name="scopus_id" size="40" class="default" value="{$info.aut_scopus_id}" />
                   {include file="error_icon.tpl.html" field="scopus_id"}
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td style="width: 120px" class="default cell-colour">
                   <b>My Pubs URL extension: </b><br />lowercase, a-z and underscores only
                 </td>
-                <td bgcolor="{$light_color}" width="80%">
-                  <input type="text" name="mypub_url" size="40" class="default" value="{$info.aut_mypub_url}">
+                <td style="background: {$light_color}; width: 80%">
+                  <input type="text" name="mypub_url" size="40" class="default" value="{$info.aut_mypub_url}" />
                   {include file="error_icon.tpl.html" field="mypub_url"}
                 </td>
               </tr>
               <tr>
-                <td colspan="2" bgcolor="{$cell_color}" align="center">
+                <td colspan="2" style="background: {$cell_color}; text-align: center">
                   {if $smarty.get.cat == 'edit'}
-                  <input class="button" type="submit" value="Update Author">
+                    <input class="button" type="submit" value="Update Author" />
                   {else}
-                  <input class="button" type="submit" value="Create Author">
+                    <input class="button" type="submit" value="Create Author" />
                   {/if}
-                  <input class="button" type="reset" value="Reset">
+                  <input class="button" type="reset" value="Reset" />
                 </td>
               </tr>
-              </form>
+            </table>
+          </form>
               
 
+          <form id="author_search_form" method="get" action="{$smarty.server.PHP_SELF}">              
+          <div>
+            <input type="hidden" name="cat" value="search" />
+            <input type="hidden" name="id" value="{$smarty.get.id|escape:"html"}" />
+          </div>
 
-              <form name="author_search_form" method="get" action="{$smarty.server.PHP_SELF}">              
-              <input type="hidden" name="cat" value="search">
-              <input type="hidden" name="id" value="{$smarty.get.id|escape:"html"}">
-
+            <table style="width: 100%" cellspacing="0" cellpadding="0">
               <tr>
                 <td class="default">
-                  <b>{if $search_filter != ""}<font color="red">{/if}Search Authors (by name, ordered by relevance){if $search_filter != ""}</font>{/if}</b>
+                  <b>{if $search_filter != ""}<span class="disabled">{/if}Search Authors (by name, ordered by relevance){if $search_filter != ""}</span>{/if}</b>
                 </td>
-                 <td nowrap bgcolor="{$light_color}" width="80%">
-                  <input type="text" name="search_filter" size="40" class="default" value="{$search_filter}">
+                 <td style="white-space: nowrap; background: {$light_color}; width: 80%;">
+                  <input type="text" name="search_filter" size="40" class="default" value="{$search_filter}" />
                   {include file="error_icon.tpl.html" field="search_filter"}
-				 <input class="button" type="submit" value="Search">                  
+				          <input class="button" type="submit" value="Search" />
                 </td>
               </tr>
-              
               <tr>
                 <td class="default">
-                  <b>{if $search_filter != ""}<font color="red">{/if}Search Authors (by Org Staff ID){if $search_filter != ""}</font>{/if}</b>
+                  <b>{if $search_filter != ""}<span class="disabled">{/if}Search Authors (by Org Staff ID){if $search_filter != ""}</span>{/if}</b>
                 </td>
-                 <td nowrap bgcolor="{$light_color}" width="80%">
-                  <input type="text" name="staff_id" size="40" class="default" value="{$staff_id}">
-                  {include file="error_icon.tpl.html" field="search_filter"}
-				 <input class="button" type="submit" value="Search">                  
+                 <td style="white-space: nowrap; background: {$light_color}; width: 80%">
+                  <input type="text" name="staff_id" size="40" class="default" value="{$staff_id}" />
+                  {include file="error_icon.tpl.html" field="staff_id"}
+				          <input class="button" type="submit" value="Search" />
                 </td>
-              </tr>		
+              </tr>
+            </table>
 			  </form>              
 
-              
+        <form onsubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}">
+          <div>
+            <input type="hidden" name="cat" value="delete" />
+          </div>
+
+            <table style="width: 100%" cellspacing="0" cellpadding="0">  
               <tr>
                 <td colspan="2" class="default">
-                  <b>Existing Authors:</b>
+                  <h2>Existing Authors:</h2>
                 </td>
               </tr>
               <tr>
                 <td colspan="2">
-                  {literal}
-                  <script language="JavaScript">
-                  <!--
-                  function checkDelete(f)
-                  {
-                      var total_selected = getTotalCheckboxesChecked(f, 'items[]');
-                      var total = getTotalCheckboxes(f, 'items[]');
-                      if (total == total_selected) {
-                          alert('You cannot remove all of the authors in the system.');
-                          return false;
-                      }
-                      if (!hasOneChecked(f, 'items[]')) {
-                          alert('Please select at least one of the authors.');
-                          return false;
-                      }
-                      if (!confirm('WARNING: This action will remove the selected authors permanently.\nPlease click OK to confirm.')) {
-                          return false;
-                      } else {
-                          return true;
-                      }
-                  }
-                  //-->
-                  </script>
-                  {/literal}
-                  <table border="0" width="100%" cellpadding="1" cellspacing="1">
-                    <form onSubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}">
-                    <input type="hidden" name="cat" value="delete">
+                  <table style="width: 100%" cellpadding="1" cellspacing="1">
                     <tr>
-                      <td width="4" bgcolor="{$cell_color}" nowrap><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>ID</b></td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Title</b></td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>First Name</b></td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Middle Name</b></td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Last Name</b></td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Position</b></td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Org Staff ID</b></td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Org Username</b></td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>MyPubs URL</b></td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Ref Num</b></td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>CV Link</b></td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Homepage Link</b></td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Created Date</b></td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Org Membership</b></td>
+                      <td style="width: 4px; background: {$cell_color}; white-space: nowrap">
+                        <input type="button" value="All" class="shortcut button" onclick="javascript:toggleSelectAll(this.form, 'items[]');" />
+                      </td>
+                      <td class="default cell-colour">&nbsp;<b>ID</b></td>
+                      <td class="default cell-colour">&nbsp;<b>Title</b></td>
+                      <td class="default cell-colour">&nbsp;<b>First Name</b></td>
+                      <td class="default cell-colour">&nbsp;<b>Middle Name</b></td>
+                      <td class="default cell-colour">&nbsp;<b>Last Name</b></td>
+                      <td class="default cell-colour">&nbsp;<b>Position</b></td>
+                      <td class="default cell-colour">&nbsp;<b>Org Staff ID</b></td>
+                      <td class="default cell-colour">&nbsp;<b>Org Username</b></td>
+                      <td class="default cell-colour">&nbsp;<b>MyPubs URL</b></td>
+                      <td class="default cell-colour">&nbsp;<b>Ref Num</b></td>
+                      <td class="default cell-colour">&nbsp;<b>CV Link</b></td>
+                      <td class="default cell-colour">&nbsp;<b>Homepage Link</b></td>
+                      <td class="default cell-colour">&nbsp;<b>Created Date</b></td>
+                      <td class="default cell-colour">&nbsp;<b>Org Membership</b></td>
                     </tr>
                     {section name="i" loop=$list}
                     {cycle values=$cycle assign="row_color"}
                     <tr>
-                      <td width="4" align="center" nowrap bgcolor="{$row_color}"><input type="checkbox" name="items[]" value="{$list[i].aut_id}"></td>
-                      <td bgcolor="{$row_color}" class="default">
-                        &nbsp;<a class="link" href="{$smarty.server.PHP_SELF}?cat=edit&id={$list[i].aut_id}" title="Update this entry">{$list[i].aut_id}</a>
+                      <td style="width: 4px; text-align: center; white-space: nowrap; background: {$row_color}">
+                        <input type="checkbox" name="items[]" value="{$list[i].aut_id}" />
                       </td>
-                      <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_title}</td>
-                      <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_fname}</td>
-                      <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_mname}</td>
-                      <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_lname}</td>
-                      <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_position}</td>
-                      <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_org_staff_id}</td>
-                      <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_org_username}</td>
-                      <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_mypub_url}</td>
-                      <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_ref_num}</td>                                           
-                      <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_cv_link}</td>
-                      <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_homepage_link}</td>
-                      <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].aut_created_date}</td>
-                      <td bgcolor="{$row_color}" class="default">&nbsp;<a class="link" href="orgstructure_author.php?cat=view&auth={$list[i].aut_id}" title="Update this entry">Edit</a></td>					                        
+                      <td style="background: {$row_color}" class="default">
+                        &nbsp;<a href="{$smarty.server.PHP_SELF}?cat=edit&amp;id={$list[i].aut_id}" title="Update this entry">{$list[i].aut_id}</a>
+                      </td>
+                      <td style="background: {$row_color}" class="default">&nbsp;{$list[i].aut_title}</td>
+                      <td style="background: {$row_color}" class="default">&nbsp;{$list[i].aut_fname}</td>
+                      <td style="background: {$row_color}" class="default">&nbsp;{$list[i].aut_mname}</td>
+                      <td style="background: {$row_color}" class="default">&nbsp;{$list[i].aut_lname}</td>
+                      <td style="background: {$row_color}" class="default">&nbsp;{$list[i].aut_position}</td>
+                      <td style="background: {$row_color}" class="default">&nbsp;{$list[i].aut_org_staff_id}</td>
+                      <td style="background: {$row_color}" class="default">&nbsp;{$list[i].aut_org_username}</td>
+                      <td style="background: {$row_color}" class="default">&nbsp;{$list[i].aut_mypub_url}</td>
+                      <td style="background: {$row_color}" class="default">&nbsp;{$list[i].aut_ref_num}</td>                                           
+                      <td style="background: {$row_color}" class="default">&nbsp;{$list[i].aut_cv_link}</td>
+                      <td style="background: {$row_color}" class="default">&nbsp;{$list[i].aut_homepage_link}</td>
+                      <td style="background: {$row_color}" class="default">&nbsp;{$list[i].aut_created_date}</td>
+                      <td style="background: {$row_color}" class="default">&nbsp;<a href="orgstructure_author.php?cat=view&amp;auth={$list[i].aut_id}" title="Update this entry">Edit</a></td>
                     </tr>
                     {sectionelse}
                     <tr>
-                      <td colspan="14" bgcolor="{$light_color}" align="center" class="default">
+                      <td colspan="14" style="background: {$light_color}; text-align: center" class="default">
                         No authors could be found.
                       </td>
                     </tr>
                     {/section}
-        <tr bgcolor="{$cell_color}">
+        <tr style="background: {$cell_color}">
           <td colspan="15">
-            <table width="100%" cellspacing="0" cellpadding="0">
+            <table style="width: 100%" cellspacing="0" cellpadding="0">
               <tr>
-                <td width="40%" align="center" nowrap>
-                  <nobr>
-                  <input name="first" type="button" value="|&lt;" class="shortcut" onClick="javascript:setPage(0);">
-                  <input name="previous" type="button" value="&lt;&lt;" class="shortcut" onClick="javascript:setPage({$list_info.prev_page});">
-                  <input type="text" name="page" size="3" maxlength="3" value="{math equation="x + 1" x=$list_info.current_page}" style="background: {$cell_color};" class="paging_input" onKeyPress="javascript:return checkPageField(event);">
-                  <input name="go" type="button" value="Go" class="shortcut" onClick="javascript:goPage(this.form, this.form.page.value);">
-                  <input name="next" type="button" value="&gt;&gt;" class="shortcut" onClick="javascript:setPage({$list_info.next_page});">
-                  <input name="last" type="button" value="&gt;|" class="shortcut" onClick="javascript:setPage({$list_info.last_page});">
-                  </nobr>
+                <td style="width: 40%; text-align: center; white-space: nowrap">
+                  <input name="first" type="button" value="|&lt;" class="shortcut button" onclick="javascript:setPage(0);" />
+                  <input name="previous" type="button" value="&lt;&lt;" class="shortcut button" onclick="javascript:setPage({$list_info.prev_page});" />
+                  <input type="text" name="page" size="3" maxlength="3" value="{math equation="x + 1" x=$list_info.current_page}" style="background: {$cell_color};" class="paging_input" onkeypress="javascript:return checkPageField(event);" />
+                  <input name="go" type="button" value="Go" class="shortcut button" onclick="javascript:goPage(this.form, this.form.page.value);" />
+                  <input name="next" type="button" value="&gt;&gt;" class="shortcut button" onclick="javascript:setPage({$list_info.next_page});" />
+                  <input name="last" type="button" value="&gt;|" class="shortcut button" onclick="javascript:setPage({$list_info.last_page});" />
                 </td>
-                <td nowrap>
+                <td style="white-space: nowrap">
                   <span class="default_white">Rows per Page:</span>
-                  <select name="page_size" class="default" onChange="javascript:resizePager(this.form);">
-                    <option value="5" {if $options.rows == 5}selected{/if}>5</option>
-                    <option value="10" {if $options.rows == 10}selected{/if}>10</option>
-                    <option value="25" {if $options.rows == 25}selected{/if}>25</option>
-                    <option value="50" {if $options.rows == 50}selected{/if}>50</option>
-                    <option value="100" {if $options.rows == 100}selected{/if}>100</option>
-                    <option value="150" {if $options.rows == 150}selected{/if}>150</option>
+                  <select name="page_size" class="default" onchange="javascript:resizePager(this.form);">
+                    <option value="5" {if $options.rows == 5}selected="selected"{/if}>5</option>
+                    <option value="10" {if $options.rows == 10}selected="selected"{/if}>10</option>
+                    <option value="25" {if $options.rows == 25}selected="selected"{/if}>25</option>
+                    <option value="50" {if $options.rows == 50}selected="selected"{/if}>50</option>
+                    <option value="100" {if $options.rows == 100}selected="selected"{/if}>100</option>
+                    <option value="150" {if $options.rows == 150}selected="selected"{/if}>150</option>
                   </select>
-                  <input type="button" value="Set" class="shortcut" onClick="javascript:resizePager(this.form);">
+                  <input type="button" value="Set" class="shortcut button" onclick="javascript:resizePager(this.form);" />
                 </td>
               </tr>
-			</table>
-		</td>
-		</tr>
+    			</table>
+		    </td>
+		  </tr>
 
                     <tr>
-                      <td width="4" bgcolor="{$cell_color}" align="center">
-                        <input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
+                      <td style="width: 4px; background: {$cell_color}; text-align: center">
+                        <input type="button" value="All" class="shortcut button" onclick="javascript:toggleSelectAll(this.form, 'items[]');" />
                       </td>
-                      <td colspan="14" bgcolor="{$cell_color}" align="center">
-                        <input type="submit" value="Delete" class="button">
+                      <td colspan="14" style="background: {$cell_color}; text-align: center">
+                        <input type="submit" value="Delete" class="button" />
                       </td>
                     </tr>
-                    </form>
                   </table>
                 </td>
               </tr>
             </table>
-          </td>
-        </tr>
-      </table>
+          </form>
 
+</div>

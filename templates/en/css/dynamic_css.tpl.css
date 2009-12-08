@@ -711,8 +711,8 @@ width: 2em;
 .admin-box h2 {
     font-weight: bold;
     font-size: 12px;
-	color: #5e217a;
-    padding: 5px 5px 10px 5px;
+	color: #3e3e3e;
+    padding: 10px 5px 10px 5px;
 }
 
 .admin-side-nav-title {
@@ -1897,4 +1897,32 @@ a.author_id_link {
 
 a.author_id_link:hover {
     color: #60c82c !important;
+}
+
+.cell-colour {
+    background: [[$smarty.const.APP_CELL_COLOR]];
+}
+
+.enabled {
+    color: green;
+}
+
+.disabled {
+    color: red;
+}
+
+.admin-edit thead th {
+    text-align: left;
+}
+
+.admin-edit th {
+    background: [[$smarty.const.APP_CELL_COLOR]];
+    text-align: right;
+    padding-right: 10px;
+}
+
+.admin-edit td {
+    background: [[$smarty.const.APP_VALUE_COLOR]];
+    width: 80%;
+    padding-left: 15px;
 }

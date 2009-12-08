@@ -1,26 +1,27 @@
 <div class="admin-box">
 
-	<div class="admin-header">Run Webstats</div>
+	<h1>Run Webstats</h1>
 
-    <div class="default admin-content">
+    <div>
 	{if $is_running == true}
 		Stats generation has been triggered.
 	{else}
-	<img align="absmiddle" src="{$rel_url}images/pie_22.png" border="0" /> Manually trigger an update of the web statistics.
-	<br /><br />
-    <form name="run_stats"  method="post" action="{$smarty.server.PHP_SELF}">
-		<input type="hidden" name="action" value="go"/>
-		&nbsp;&nbsp;&nbsp;<input type="submit" name="button" value="Update Statistics and Summaries" class="submit" />
-	</form>
-	<br />
-	<br />
-    <form name="run_stats_summary"  method="post" action="{$smarty.server.PHP_SELF}">
-		<input type="hidden" name="action" value="go_summary_only"/>
-		&nbsp;&nbsp;&nbsp;<input type="submit" name="button" value="Update Summaries only" class="submit" />
-	</form>
-
+		<img style="vertical-align: middle" src="{$rel_url}images/pie_22.png" alt="Webstats" /> Manually trigger an update of the web statistics.
+		<br /><br />
+	    <form id="run_stats"  method="post" action="{$smarty.server.PHP_SELF}">
+	    	<div>
+				<input type="hidden" name="action" value="go" />
+				&nbsp;&nbsp;&nbsp;<input type="submit" name="button" value="Update Statistics and Summaries" class="button" />
+			</div>
+		</form>
+	    <form id="run_stats_summary" method="post" action="{$smarty.server.PHP_SELF}">
+	    	<div>
+				<input type="hidden" name="action" value="go_summary_only" />
+				&nbsp;&nbsp;&nbsp;<input type="submit" name="button" value="Update Summaries only" class="button" />
+			</div>
+		</form>
 	{/if}
-	<br />
+
     </div>
 
 </div>

@@ -1,6 +1,15 @@
+<div class="admin-box">
+
+<script type="text/javascript">
+<!-- 
+      // We hide or show the script selection box depending on whether the wfs_auto checkbox is checked.
+      showOrHideElement('tr_wfs_wfb_id','wfs_auto',false); 
+      showOrHideElement('tr_wfs_wfb_id2','wfs_auto',true);
+      //-->
+</script>
 
               {literal}
-              <script language="JavaScript">
+              <script type="text/javascript">
               <!--
               var editing_option_id = -1;
               function validateForm(f)
@@ -143,28 +152,33 @@
               //-->
               </script>
               {/literal}
-              <form name="custom_field_form" onSubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}" enctype="multipart/form-data">
-              {if $smarty.get.cat == 'edit'}
-              <input type="hidden" name="cat" value="update">
-              <input type="hidden" name="id" value="{$info.wfs_id}">
-              {else}
-              <input type="hidden" name="cat" value="new">
-              {/if}
-              <input type="hidden" name="wfs_wfl_id" value="{$wfl_id}">
-              <input type="hidden" name="wfl_id" value="{$wfl_id}">
-      <table width="100%" class="admin-box" border="0" cellspacing="0" cellpadding="0" align="center">
+      <form id="custom_field_form" onsubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}" enctype="multipart/form-data">
+      <div>
+        {if $smarty.get.cat == 'edit'}
+          <input type="hidden" name="cat" value="update" />
+          <input type="hidden" name="id" value="{$info.wfs_id}" />
+        {else}
+          <input type="hidden" name="cat" value="new" />
+        {/if}
+          <input type="hidden" name="wfs_wfl_id" value="{$wfl_id}" />
+          <input type="hidden" name="wfl_id" value="{$wfl_id}" />
+      </div>              
+              
+      <table style="width: 100%;" cellspacing="0" cellpadding="0">
         <tr>
           <td>
-            <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+            <table style="background: #FFFFFF; width: 100%" cellspacing="1" cellpadding="2">
               <tr>
                 <td colspan="2" class="default">
-                  <b>Manage Workflow States for Workflow Template '{$wfl_title}' </b> &nbsp;(
-                          <a href="{$rel_url}manage/workflow_states.php?wfl_id={$wfl_id}">New</a> | <a href="{$rel_url}manage/workflows.php">back to Workflow Templates list</a>)
+                  <h1>Manage Workflow States for Workflow Template '{$wfl_title}'</h1>
+                  <div>
+                    <a href="{$rel_url}manage/workflow_states.php?wfl_id={$wfl_id}">New</a> | <a href="{$rel_url}manage/workflows.php">back to Workflow Templates list</a>
+                  </div>
                 </td>
               </tr>
               {if $result != ""}
               <tr>
-                <td colspan="2" bgcolor="{$cell_color}" align="center" class="error">
+                <td colspan="2" style="background: {$cell_color}; text-align: center;" class="error">
                   {if $smarty.post.cat == "new"}
                     {if $result == -1}
                       An error occurred while trying to add the new workflow state.
@@ -182,96 +196,86 @@
               </tr>
               {/if}
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td style="width: 120px;" class="default cell-colour">
                   <b>Name: </b>
                 </td>
-                <td bgcolor="{$light_color}" width="80%">
+                <td style="width: 80%; background: {$light_color}">
                   <input type="text" name="wfs_title" class="default"
                   value="{$info.wfs_title|escape}" />
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td style="width: 120px;" class="default cell-colour">
                   <b>Description: </b>
                 </td>
-                <td bgcolor="{$light_color}" width="80%">
+                <td style="width: 80%; background: {$light_color}">
                   <textarea name="wfs_description" class="default" cols="40" rows="10" >{$info.wfs_description|escape}</textarea>
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td style="width: 120px;" class="default cell-colour">
                   <b>Roles:</b>
                 </td>
-                <td bgcolor="{$light_color}" width="80%">
-                  <select name="wfs_roles[]" multiple size="12" class="default">
+                <td style="width: 80%; background: {$light_color}">
+                  <select name="wfs_roles[]" multiple="multiple" size="12" class="default">
                     {html_options options=$auth_role_options selected=$info.wfs_roles}
                   </select>
                   {include file="error_icon.tpl.html" field="wfs_roles[]"}
                 </td>
               </tr>
                <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default" nowrap>
+                <td style="width: 120px; white-space: nowrap;" class="default cell-colour">
                   <b>Options:</b>
                 </td>
-                <td bgcolor="{$light_color}">
-
+                <td style="background: {$light_color}">
                   <label class="default"><input type="checkbox" name="wfs_auto" id="wfs_auto" size="30" class="default" {if $info.wfs_auto}checked="checked"{/if} onclick="javascript:showOrHideElement('tr_wfs_wfb_id','wfs_auto',false); showOrHideElement('tr_wfs_wfb_id2','wfs_auto',true)"/>Scripted</label>
                   <label class="default"><input type="checkbox" name="wfs_start" id="wfs_start" size="30" class="default" {if $info.wfs_start}checked="checked"{/if} />Start State</label>
                   <label class="default"><input type="checkbox" name="wfs_end" id="wfs_end" size="30" class="default" {if $info.wfs_end}checked="checked"{/if} />End State</label>
                   <label class="default"><input type="checkbox" name="wfs_transparent" id="wfs_transparent" size="30" class="default" {if $info.wfs_transparent}checked="checked"{/if} />Transparent</label>
                 </td>
-                </td>
-                </td>
               </tr>  
               <tr id="tr_wfs_wfb_id">
-                <td width="120" bgcolor="{$cell_color}" class="default" nowrap>
+                <td style="width: 120px; white-space: nowrap;" class="default cell-colour">
                   <b>Select Scripted Behaviour:</b>
                 </td>
-                <td bgcolor="{$light_color}">
+                <td style="background: {$light_color}">
                   <select name="wfs_wfb_id" class="default" >
                         {html_options options=$behaviours_list_auto selected=$info.wfs_wfb_id }
                   </select>
                 </td>
               </tr>
               <tr id="tr_wfs_wfb_id2">
-                <td width="120" bgcolor="{$cell_color}" class="default" nowrap>
+                <td style="width: 120px; white-space: nowrap;" class="default cell-colour">
                   <b>Select Workflow Form:</b>
                 </td>
-                <td bgcolor="{$light_color}">
+                <td style="background: {$light_color}">
                   <select name="wfs_wfb_id2" class="default" >
                         {html_options options=$behaviours_list selected=$info.wfs_wfb_id }
                   </select>
                 </td>
               </tr>
-               <script language="JavaScript"><!-- 
-              // We hide or show the script selection box depending on whether the wfs_auto checkbox is checked.
-              showOrHideElement('tr_wfs_wfb_id','wfs_auto',false); 
-              showOrHideElement('tr_wfs_wfb_id2','wfs_auto',true);
-              //--></script>
-
                <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default" nowrap>
+                <td style="width: 120px; white-space: nowrap;" class="default cell-colour">
                   <b>Linked States:</b>
                 </td>
-                <td bgcolor="{$light_color}">
-                  <label class="default">Previous:<br/><select name="wfsl_prev_id[]"  multiple="multiple" >
+                <td style="background: {$light_color}">
+                  <label class="default">Previous:<br /><select name="wfsl_prev_id[]"  multiple="multiple" >
                         {html_options options=$states_list selected=$info.prev_ids }
-                  </select></label><br/><br/>
+                  </select></label><br/><br />
                   <label class="default">Next:<br/><select name="wfsl_next_id[]"  multiple="multiple" >
                         {html_options options=$states_list selected=$info.next_ids }
-                  </select></label></br>
+                  </select></label><br />
                   <p class="default"><i>Note: Scripted states can only have one 'next' state.</i></p>
                 </td>
               </tr>
- 
              <tr>
-                <td colspan="2" bgcolor="{$cell_color}" align="center">
+                <td colspan="2" class="cell-colour" align="center">
                   {if $smarty.get.cat == 'edit'}
-                  <input class="button" type="submit" value="Update Workflow State">
+                    <input class="button" type="submit" value="Update Workflow State" />
                   {else}
-                  <input class="button" type="submit" value="Add Workflow State">
+                    <input class="button" type="submit" value="Add Workflow State" />
                   {/if}
-                  <input class="button" type="reset" value="Reset">
+                  <input class="button" type="reset" value="Reset" />
                 </td>
               </tr>
               </table>
@@ -280,18 +284,21 @@
               </table>
               </form>
 
-      <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
-        <tr>
-          <td>
-            <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+          <form onsubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}">
+              <div>
+                <input type="hidden" name="cat" value="delete" />
+                <input type="hidden" name="wfl_id" value="{$wfl_id}" />
+              </div>
+
+            <table style="width: 100%; background: #FFFFFF" cellspacing="1" cellpadding="2">
               <tr>
                 <td colspan="2" class="default">
-                  <b>Existing Workflow States:</b>
+                  <h2>Existing Workflow States:</h2>
                 </td>
               </tr>
               <tr>
                 <td colspan="2">
-                  <script language="JavaScript">
+                  <script type="text/javascript">
                   <!--
                   {literal}
                   function checkDelete(f)
@@ -309,61 +316,58 @@
                   //-->
                   </script>
                   {/literal}
-                  <table border="0" width="100%" cellpadding="1" cellspacing="1">
-                    <form onSubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}">
-                    <input type="hidden" name="cat" value="delete">
-                    <input type="hidden" name="wfl_id" value="{$wfl_id}">
+                  <table style="width: 100%;" cellpadding="1" cellspacing="1">
                     <tr>
-                      <td width="4" bgcolor="{$cell_color}" nowrap align="center"><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Name</b>&nbsp;</td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Roles</b>&nbsp;</td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Start</b>&nbsp;</td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>End</b>&nbsp;</td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Behaviour</b>&nbsp;</td>
+                      <td style="width: 4px; background: {$cell_color}; white-space: nowrap; text-align: center;"><input type="button" value="All" class="shortcut" onclick="javascript:toggleSelectAll(this.form, 'items[]');" /></td>
+                      <td class="default cell-colour">&nbsp;<b>Name</b>&nbsp;</td>
+                      <td class="default cell-colour">&nbsp;<b>Roles</b>&nbsp;</td>
+                      <td class="default cell-colour">&nbsp;<b>Start</b>&nbsp;</td>
+                      <td class="default cell-colour">&nbsp;<b>End</b>&nbsp;</td>
+                      <td class="default cell-colour">&nbsp;<b>Behaviour</b>&nbsp;</td>
                     </tr>
                     {section name="i" loop=$list}
                     {cycle values=$cycle assign="row_color"}
                     <tr>
-                      <td nowrap bgcolor="{$row_color}" align="center">
-                        <input type="checkbox" name="items[]" value="{$list[i].wfs_id}" {if $smarty.section.i.total == 0}disabled{/if}>
+                      <td style="white-space: nowrap; background: {$row_color}; text-align: center;">
+                        <input type="checkbox" name="items[]" value="{$list[i].wfs_id}" {if $smarty.section.i.total == 0}disabled="disabled"{/if} />
                       </td>
-                      <td bgcolor="{$row_color}" class="default">
-                        &nbsp;<a href="workflow_states.php?cat=edit&wfl_id={$wfl_id}&wfs_id={$list[i].wfs_id}">{$list[i].wfs_title}</a>
+                      <td style="background: {$row_color}" class="default">
+                        &nbsp;<a href="workflow_states.php?cat=edit&amp;wfl_id={$wfl_id}&amp;wfs_id={$list[i].wfs_id}">{$list[i].wfs_title}</a>
                         {if $list[i].wfs_transparent == 1}<span style="color:#555555;">(transparent)</span>{/if}
                       </td>
-                      <td bgcolor="{$row_color}" class="default">
+                      <td style="background: {$row_color}" class="default">
                         	  {section name="r" loop=$list[i].wfs_roles}
-								  {assign var="aro_id" value=$list[i].wfs_roles[r]}
-								  {$auth_role_options[$aro_id]}
-							  {/section}
+            								  {assign var="aro_id" value=$list[i].wfs_roles[r]}
+            								  {$auth_role_options[$aro_id]}
+            							  {/section}
                       </td>
-                      <td bgcolor="{$row_color}" class="default">
-                        &nbsp;{if $list[i].wfs_start == 1}<span style="color:green;">yes</span>{/if}
+                      <td style="background: {$row_color}" class="default">
+                        &nbsp;{if $list[i].wfs_start == 1}<span class="enabled">yes</span>{/if}
                       </td>
-                      <td bgcolor="{$row_color}" class="default">
-                        &nbsp;{if $list[i].wfs_end == 1}<span style="color:green;">yes</span>{/if}
+                      <td style="background: {$row_color}" class="default">
+                        &nbsp;{if $list[i].wfs_end == 1}<span class="enabled">yes</span>{/if}
                       </td>
-                      <td bgcolor="{$row_color}" class="default">
-                        &nbsp;<a href="{$rel_url}manage/wfbehaviours.php?cat=edit&id={$list[i].wfs_wfb_id}&wfl_id={$wfl_id}">{$list[i].wfb_title}</a>
-                        {if $list[i].wfs_auto == 1}<span style="color:green;">(auto)</span>{/if}
+                      <td style="background: {$row_color}" class="default">
+                        &nbsp;<a href="{$rel_url}manage/wfbehaviours.php?cat=edit&amp;id={$list[i].wfs_wfb_id}&amp;wfl_id={$wfl_id}">{$list[i].wfb_title}</a>
+                        {if $list[i].wfs_auto == 1}<span class="enabled">(auto)</span>{/if}
                       </td>
                     </tr>
                     {sectionelse}
                     <tr>
-                      <td colspan="7" bgcolor="{$light_color}" align="center" class="default">
+                      <td colspan="7" style="background: {$light_color}; text-align: center;" class="default">
                         No workflow states could be found.
                       </td>
                     </tr>
                     {/section}
                     <tr>
-                      <td align="center" bgcolor="{$cell_color}">
-                        <input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
+                      <td align="center" style="background: {$cell_color};">
+                        <input type="button" value="All" class="shortcut" onclick="javascript:toggleSelectAll(this.form, 'items[]');" />
                       </td>
-                      <td colspan="6" bgcolor="{$cell_color}">
-                        <input type="submit" value="Delete" class="button">
+                      <td colspan="6" style="background: {$cell_color};">
+                        <input type="submit" value="Delete" class="button" />
                       </td>
                     </tr>
-                    </form>
+                    
 
                   </table>
                 </td>
@@ -389,11 +393,11 @@
                 </td>
               </tr>  
              </table>
-          </td>
-        </tr>
-      </table>
+             
+         </form>
+
       {literal}
-      <script language="JavaScript">
+      <script type="text/javascript">
       <!--
       //window.onload = setCustomOptionsField;
       function setCustomOptionsField()
@@ -411,3 +415,4 @@
       </script>
       {/literal}
 
+</div>

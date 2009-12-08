@@ -1,10 +1,7 @@
+<div class="admin-box">
 
-      <table width="100%" class="admin-box" border="0" cellspacing="0" cellpadding="0" align="center">
-        <tr>
-          <td>
-            <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
-              {literal}
-              <script language="JavaScript">
+            {literal}
+              <script type="text/javascript">
               <!--
               var editing_option_id = -1;
               function validateForm(f)
@@ -138,21 +135,26 @@
               //-->
               </script>
               {/literal}
-              <form name="custom_field_form" onSubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}" enctype="multipart/form-data">
+
+          <form id="custom_field_form" onsubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}" enctype="multipart/form-data">
+            <div>
               {if $smarty.get.cat == 'edit'}
-              <input type="hidden" name="cat" value="update">
-              <input type="hidden" name="id" value="{$smarty.get.id}">
+                <input type="hidden" name="cat" value="update" />
+                <input type="hidden" name="id" value="{$smarty.get.id}" />
               {else}
-              <input type="hidden" name="cat" value="new">
+                <input type="hidden" name="cat" value="new" />
               {/if}
+            </div>
+
+            <table style="width: 100%" cellspacing="1" cellpadding="2">
               <tr>
                 <td colspan="2">
-                  <div class="admin-header">Manage Statuses</div>
+                  <h1>Manage Statuses</h1>
                 </td>
               </tr>
               {if $result != ""}
               <tr>
-                <td colspan="2" bgcolor="{$cell_color}" align="center" class="error">
+                <td colspan="2" style="background: {$cell_color}; text-align: center" class="error">
                   {if $smarty.post.cat == "new"}
                     {if $result == -1}
                       An error occurred while trying to add the new status.
@@ -170,41 +172,68 @@
               </tr>
               {/if}
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td style="120px; background: {$cell_color}" class="default">
                   <b>Title:</b>
                 </td>
-                <td bgcolor="{$light_color}">
-                  <input type="text" name="sta_title" size="40" class="default" value="{$info.sta_title}">
+                <td style="background: {$light_color}">
+                  <input type="text" name="sta_title" size="40" class="default" value="{$info.sta_title}" />
                   {include file="error_icon.tpl.html" field="title"}
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td style="width: 120px" class="default cell-colour">
                   <b>Order:</b>
                 </td>
-                <td bgcolor="{$light_color}">
-                  <input type="text" name="sta_order" size="40" class="default" value="{$info.sta_order}">
+                <td style="background: {$light_color}">
+                  <input type="text" name="sta_order" size="40" class="default" value="{$info.sta_order}" />
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td style="width: 120px" class="default cell-colour">
                   <b>Status Colour:</b>
                 </td>
-                <td bgcolor="{$light_color}">
-                  <input type="text" name="sta_color" size="40" class="default" value="{$info.sta_color}">
+                <td style="background: {$light_color}">
+                  <input type="text" name="sta_color" size="40" class="default" value="{$info.sta_color}" />
                 </td>
               </tr>
               <tr>
-                <td colspan="2" bgcolor="{$cell_color}" align="center">
+                <td colspan="2" style="background: {$cell_color}" align="center">
                   {if $smarty.get.cat == 'edit'}
-                  <input class="button" type="submit" value="Update Status">
+                  <input class="button" type="submit" value="Update Status" />
                   {else}
-                  <input class="button" type="submit" value="Add Status">
+                  <input class="button" type="submit" value="Add Status" />
                   {/if}
-                  <input class="button" type="reset" value="Reset">
+                  <input class="button" type="reset" value="Reset" />
                 </td>
               </tr>
-              </form>
+            </table>
+          </form>
+
+          <script type="text/javascript">
+          <!--
+          {literal}
+          function checkDelete(f)
+          {
+              if (!hasOneChecked(f, 'items[]')) {
+                  alert('Please select at least one of the statuses.');
+                  return false;
+              }
+              if (!confirm('This action will permanently remove the selected statuses.')) {
+                  return false;
+              } else {
+                  return true;
+              }
+          }
+          //-->
+          </script>
+          {/literal}
+
+          <form onsubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}">
+            <div>
+              <input type="hidden" name="cat" value="delete" />
+            </div>
+          
+            <table style="width: 100%" cellspacing="1" cellpadding="2">
               <tr>
                 <td colspan="2" class="default">
                   <b>Existing Statuses:</b>
@@ -212,72 +241,48 @@
               </tr>
               <tr>
                 <td colspan="2">
-                  <script language="JavaScript">
-                  <!--
-                  {literal}
-                  function checkDelete(f)
-                  {
-                      if (!hasOneChecked(f, 'items[]')) {
-                          alert('Please select at least one of the statuses.');
-                          return false;
-                      }
-                      if (!confirm('This action will permanently remove the selected statuses.')) {
-                          return false;
-                      } else {
-                          return true;
-                      }
-                  }
-                  //-->
-                  </script>
-                  {/literal}
-                  <table border="0" width="100%" cellpadding="1" cellspacing="1">
-                    <form onSubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}">
-                    <input type="hidden" name="cat" value="delete">
+                  <table style="width: 100%" cellpadding="1" cellspacing="1">
                     <tr>
-                      <td width="5" bgcolor="{$cell_color}" align="center" nowrap><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
-                      <td width="50%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Title</b>&nbsp;</td>
-                      <td width="20%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Order</b>&nbsp;</td>
-                      <td width="20%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Color</b>&nbsp;</td>					  					  
+                      <td style="width: 5px; background: {$cell_color}; text-align: center; white-space: nowrap"><input type="button" value="All" class="shortcut button" onclick="javascript:toggleSelectAll(this.form, 'items[]');" /></td>
+                      <td style="width: 50%" class="default cell-colour">&nbsp;<b>Title</b>&nbsp;</td>
+                      <td style="width: 50%" class="default cell-colour">&nbsp;<b>Order</b>&nbsp;</td>
+                      <td style="width: 50%" class="default cell-colour">&nbsp;<b>Color</b>&nbsp;</td>					  					  
                     </tr>
                     {section name="i" loop=$list}
                     {cycle values=$cycle assign="row_color"}
                     <tr>
-                      <td width="4" nowrap bgcolor="{$row_color}" align="center">
-                        <input type="checkbox" name="items[]" value="{$list[i].sta_id}" {if $smarty.section.i.total == 0}disabled{/if}>
+                      <td style="width: 4px; white-space: nowrap; background: {$row_color}; text-align: center">
+                        <input type="checkbox" name="items[]" value="{$list[i].sta_id}" {if $smarty.section.i.total == 0}disabled="disabled"{/if} />
                       </td>
-                      <td width="50%" bgcolor="{$row_color}" class="default">
-                        &nbsp;<a href="statuses.php?cat=edit&id={$list[i].sta_id}">{$list[i].sta_title}</a>
+                      <td style="width: 50%; background: {$row_color}" class="default">
+                        &nbsp;<a href="statuses.php?cat=edit&amp;id={$list[i].sta_id}">{$list[i].sta_title}</a>
                       </td>
-                      <td width="20%" bgcolor="{$row_color}" class="default">
+                      <td style="width: 20%; background: {$row_color}" class="default">
                         &nbsp;{$list[i].sta_order}
                       </td>
-                      <td width="20%" bgcolor="{if $list[i].sta_color}{$list[i].sta_color}{else}{$row_color}{/if}" class="default">
+                      <td style="width: 20%; background: {if $list[i].sta_color}{$list[i].sta_color}{else}{$row_color}{/if}" class="default">
                         &nbsp;{$list[i].sta_color}
                       </td>
-
                     </tr>
                     {sectionelse}
                     <tr>
-                      <td colspan="4" bgcolor="{$light_color}" align="center" class="default">
+                      <td colspan="4" style="background: {$light_color}" align="center" class="default">
                         No statuses could be found.
                       </td>
                     </tr>
                     {/section}
                     <tr>
-                      <td width="4" align="center" bgcolor="{$cell_color}">
-                        <input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
+                      <td style="width: 4px; text-align: center; background: {$cell_color}">
+                        <input type="button" value="All" class="shortcut button" onclick="javascript:toggleSelectAll(this.form, 'items[]');" />
                       </td>
-                      <td colspan="6" bgcolor="{$cell_color}">
-                        <input type="submit" value="Delete" class="button">
+                      <td colspan="6" style="background: {$cell_color}">
+                        <input type="submit" value="Delete" class="button" />
                       </td>
                     </tr>
-                    </form>
                   </table>
                 </td>
               </tr>
             </table>
-          </td>
-        </tr>
-      </table>
+        </form>
 
-
+</div>

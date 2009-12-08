@@ -1,3 +1,5 @@
+<div class="admin-box">
+
 <script type="text/javascript">
 <!--
 {$najax_register}
@@ -179,156 +181,134 @@ function validateFormSelections() {
 // -->
 </script>
 
-<form name="ad_hoc_workflow_form" method="POST" action="{$smarty.const.APP_RELATIVE_URL}workflow/bulk_change.php">
+<form id="ad_hoc_workflow_form" method="post" action="{$smarty.const.APP_RELATIVE_URL}workflow/bulk_change.php">
 
-<input type="hidden" name="cat" value="select_workflow" />
-<input type="hidden" name="rows" value="{$options.rows}" />
-<input type="hidden" name="pagerRow" value="" /> 
+<div>
+  <input type="hidden" name="cat" value="select_workflow" />
+  <input type="hidden" name="rows" value="{$options.rows}" />
+  <input type="hidden" name="pagerRow" value="" />
+</div>
 
-{if $index_type == 1}
-<input type="hidden" name="discover" value="Discover new Fedora objects" />
-{elseif $index_type == 2}
-<input type="hidden" name="reindex" value="Reindex known Fedora objects" />
-{elseif $index_type == 4}
-<input type="hidden" name="undelete" value="Undelete Fedora objects" />
-{elseif $index_type == 6}
-<input type="hidden" name="origami" value="Reindex Origami Images" />
-{/if}
-
-      <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
-        <tr>
-          <td>
-            <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
-
+      
+            <table style="width: 100%" cellspacing="0" cellpadding="1">
               <tr>
                 <td colspan="2">
-				  <div class="admin-header">
-					Run Workflow Against Ad Hoc Query PID List
-				  </div>
+                  <h1>Run Workflow Against Ad Hoc Query PID List</h1>
                 </td>
               </tr>
              <tr>
-                <td bgcolor="{$light_color}" class="default">
-                <p>
-                <p>The selected workflow will run against all the pids that get returned from the selected ad hoc query.</p>
+                <td class="default">
+                  <p>The selected workflow will run against all the pids that get returned from the selected ad hoc query.</p>
                 </td>
               </tr>
-
 		  <tr>
 			<td>
-			  <table>
+			  <table style="width: 100%" cellspacing="0" cellpadding="1">
 					<tr id="tr_ad_hoc_query">
-		  			  <td bgcolor="{$cell_color}" class="default" nowrap>
-		  				<b>Ad Hoc Query</b>
+		  			  <td style="background: {$cell_color}; white-space: nowrap" class="default">
+		  				  <b>Ad Hoc Query</b>
 		  			  </td>
-		  			  <td bgcolor="{$light_color}">
-		  				<select class="default" name="ahs_id" onChange="javascript:changeAdHocQuery(this.form);">
-		  				  {html_options options=$ad_hoc_queries selected=$ahs_id}
-		  				</select>
+		  			  <td style="background: {$light_color}">
+  		  				<select class="default" name="ahs_id" onchange="javascript:changeAdHocQuery(this.form);">
+  		  				  {html_options options=$ad_hoc_queries selected=$ahs_id}
+  		  				</select>
 		  			  </td>
 		  			</tr>
    					<tr id="tr_workflow">
-        			  <td bgcolor="{$cell_color}" class="default" nowrap>
-        				<b>Workflow</b>
+        			  <td style="background: {$cell_color}; white-space: nowrap" class="default">
+        				  <b>Workflow</b>
         			  </td>
-        			  <td bgcolor="{$light_color}">
-        				<select class="default" name="wft_id">
-        				  {html_options options=$bulk_workflows selected=$bulk_workflows_selected}
-        				</select>
+        			  <td style="background: {$light_color}">
+          				<select class="default" name="wft_id">
+          				  {html_options options=$bulk_workflows selected=$bulk_workflows_selected}
+          				</select>
         			  </td>
         			</tr>		
 				  </table>
 				</td>
  			  </tr>	
 
-                
-
 			  <tr>
 			  	<td>
                   <table border="0" width="100%" cellpadding="1" cellspacing="1">
                     <tr>
-                      <td colspan=4 width="5" bgcolor="{$cell_color}" nowrap>Showing {$list_info.start_offset+1} to {$list_info.end_offset} of {$list_info.total_rows}</td>
+                      <td colspan="4" style="width: 5px; background: {$cell_color}; white-space: nowrap">Showing {$list_info.start_offset+1} to {$list_info.end_offset} of {$list_info.total_rows}</td>
                     </tr>
 
                     <tr>
-                      <td width="5" bgcolor="{$cell_color}" nowrap>&nbsp;</td>
-                      <td width="100" bgcolor="{$cell_color}" class="default">&nbsp;<b>PID</b>&nbsp;</td>
-                      <td width="" bgcolor="{$cell_color}" class="default">&nbsp;<b>Title</b>&nbsp;</td>
-                      {if $index_type == 2}<td width="50%" bgcolor="{$cell_color}" class="default" nowrap>&nbsp;<b>Description</b>&nbsp;</td>{/if}
+                      <td style=" width: 5px; white-space: nowrap" class="cell-colour">&nbsp;</td>
+                      <td style="width: 100px" class="default cell-colour">&nbsp;<b>PID</b>&nbsp;</td>
+                      <td class="default cell-colour">&nbsp;<b>Title</b>&nbsp;</td>
+                      {if $index_type == 2}<td style="width: 50%; background: {$cell_color}; white-space: nowrap" class="default">&nbsp;<b>Description</b>&nbsp;</td>{/if}
                     </tr>
                     {section name="i" loop=$list}
                     {cycle values=$cycle assign="row_color"}
                     <tr>
-                      <td width="4" nowrap bgcolor="{$row_color}" align="center">
+                      <td style="width: 4px; white-space: nowrap; background: {$row_color}; text-align: center">
                         &nbsp;
                       </td>
-                      <td bgcolor="{$row_color}" class="default">
+                      <td style="background: {$row_color}" class="default">
                         &nbsp;{$list[i].pid}
                       </td>
-                      <td bgcolor="{$row_color}" class="default">
+                      <td style="background: {$row_color}" class="default">
                         &nbsp;{$list[i].title}
                       </td>
                       {if $index_type == 2}
-					  <td bgcolor="{$row_color}" class="default">
-                        &nbsp;{$list[i].description}
-                      </td>
-					  {/if}
+					              <td style="background: {$row_color}" class="default">
+                          &nbsp;{$list[i].description}
+                        </td>
+					            {/if}
                     </tr>
                     {sectionelse}
                     <tr>
-                      <td colspan="4" bgcolor="{$light_color}" align="center" class="default">
+                      <td colspan="4" style="background: {$light_color}; text-align: center" class="default">
                        {if $index_type == 1} No Fedora objects missing from the Fez Index could be found.
                        {elseif $index_type == 2}No objects were found in the Fez index{elseif $index_type == 4}No deleted objects were found{/if}
                       </td>
                     </tr>
                     {/section}
                     <tr>
-                      <td width="2" align="center" bgcolor="{$cell_color}">
-                        <input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
+                      <td style="width: 2px; text-align: center; background: {$cell_color}">
+                        <input type="button" value="All" class="shortcut button" onclick="javascript:toggleSelectAll(this.form, 'items[]');" />
                       </td>
-                      <td colspan="3" align="center" bgcolor="{$cell_color}">
-						<input type="submit" name="do_all" value="Run workflow on all pids in this ad hoc query" class="button" onclick="{literal}this.form.method='post';document.ad_hoc_workflow_form.submit();{/literal}" />
+                      <td colspan="3" style="text-align: center; background: {$cell_color}">
+						            <input type="submit" name="do_all" value="Run workflow on all pids in this ad hoc query" class="button" onclick="{literal}this.form.method='post';document.ad_hoc_workflow_form.submit();{/literal}" />
                       </td>
                     </tr>
                   </table>
                 </td>
               </tr>
               
-              <tr bgcolor="{$cell_color}">
+              <tr style="background: {$cell_color}">
                   <td colspan="{math equation="x + 12" x=$ColumnAdd}">
-                    <table width="100%" cellspacing="0" cellpadding="0">
+                    <table style="width: 100%" cellspacing="0" cellpadding="0">
                       <tr>
-                        <td width="30%" nowrap>
+                        <td style="width: 30%; white-space: nowrap"></td>
+                        <td style="width: 40%; text-align: center; white-space: nowrap">
+                          <input name="first" type="button" value="|&lt;" class="shortcut button" onclick="javascript:setPage(0);" />
+                          <input name="previous" type="button" value="&lt;&lt;" class="shortcut button" onclick="javascript:setPage({$list_info.prev_page});" />
+                          <input type="text" name="page" size="3" maxlength="3" value="{math equation="x + 1" x=$list_info.current_page}" style="background: {$cell_color};" class="paging_input" onkeypress="javascript:return checkPageField(event);" />
+                          <input name="go" type="button" value="Go" class="shortcut button" onclick="javascript:goPage(this.form, this.form.page.value);" />
+                          <input name="next" type="button" value="&gt;&gt;" class="shortcut button" onclick="javascript:setPage({$list_info.next_page});" />
+                          <input name="last" type="button" value="&gt;|" class="shortcut button" onclick="javascript:setPage({$list_info.last_page});" />
                         </td>
-                        <td width="40%" align="center" nowrap>
-                          <nobr>
-                          <input name="first" type="button" value="|&lt;" class="shortcut" onClick="javascript:setPage(0);" />
-                          <input name="previous" type="button" value="&lt;&lt;" class="shortcut" onClick="javascript:setPage({$list_info.prev_page});" />
-                          <input type="text" name="page" size="3" maxlength="3" value="{math equation="x + 1" x=$list_info.current_page}" style="background: {$cell_color};" class="paging_input" onKeyPress="javascript:return checkPageField(event);" />
-                          <input name="go" type="button" value="Go" class="shortcut" onClick="javascript:goPage(this.form, this.form.page.value);" />
-                          <input name="next" type="button" value="&gt;&gt;" class="shortcut" onClick="javascript:setPage({$list_info.next_page});" />
-                          <input name="last" type="button" value="&gt;|" class="shortcut" onClick="javascript:setPage({$list_info.last_page});" />
-                          </nobr>
-                        </td>
-                        <td width="30%" nowrap>
+                        <td style="width: 30%; white-space: nowrap">
                           <span class="default_white">Rows per Page:</span>
-                          <select name="page_size" class="default" onChange="javascript:resizePager(this.form);">
-                            <option value="5" {if $options.rows == 5}selected{/if}>5</option>
-                            <option value="10" {if $options.rows == 10}selected{/if}>10</option>
-                            <option value="25" {if $options.rows == 25}selected{/if}>25</option>
-                            <option value="50" {if $options.rows == 50}selected{/if}>50</option>
-                            <option value="100" {if $options.rows == 100}selected{/if}>100</option>
-                            <option value="150" {if $options.rows == 150}selected{/if}>150</option>
+                          <select name="page_size" class="default" onchange="javascript:resizePager(this.form);">
+                            <option value="5" {if $options.rows == 5}selected="selected"{/if}>5</option>
+                            <option value="10" {if $options.rows == 10}selected="selected"{/if}>10</option>
+                            <option value="25" {if $options.rows == 25}selected="selected"{/if}>25</option>
+                            <option value="50" {if $options.rows == 50}selected="selected"{/if}>50</option>
+                            <option value="100" {if $options.rows == 100}selected="selected"{/if}>100</option>
+                            <option value="150" {if $options.rows == 150}selected="selected"{/if}>150</option>
                           </select>
-                          <input type="button" value="Set" class="shortcut" onClick="javascript:resizePager(this.form);" />
+                          <input type="button" value="Set" class="shortcut" onclick="javascript:resizePager(this.form);" />
                         </td>
                       </tr>
-        			</table>
-        		</td>
-            </tr>
-		
+        			    </table>
+        		    </td>
+              </tr>
             </table>
-          </td>
-        </tr>
-      </table>
 	  </form>
+
+</div>

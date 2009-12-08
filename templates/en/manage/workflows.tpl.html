@@ -1,5 +1,5 @@
               {literal}
-              <script language="JavaScript">
+              <script type="text/javascript">
               <!--
               var editing_option_id = -1;
               function validateForm(f)
@@ -22,22 +22,25 @@
               {/literal}
 
      <div class="admin-box">
-              <form name="custom_field_form" onSubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}" enctype="multipart/form-data">
-              {if $smarty.get.cat == 'edit'}
-              <input type="hidden" name="cat" value="update">
-              <input type="hidden" name="id" value="{$smarty.get.id}">
-              {else}
-              <input type="hidden" name="cat" value="new">
-              {/if}
-            <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+     
+              <form id="custom_field_form" onsubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}" enctype="multipart/form-data">
+                <div>
+                  {if $smarty.get.cat == 'edit'}
+                    <input type="hidden" name="cat" value="update" />
+                    <input type="hidden" name="id" value="{$smarty.get.id}" />
+                  {else}
+                    <input type="hidden" name="cat" value="new" />
+                  {/if}
+                </div>
+            <table style="background: #FFFFFF; width: 100%" cellspacing="1" cellpadding="2">
               <tr>
                 <td colspan="2">
-                  <div class="admin-header">Manage Workflow Templates (<a href="{$rel_url}manage/workflows.php">new</a>)</div>
+                  <h1>Manage Workflow Templates (<a href="{$rel_url}manage/workflows.php">new</a>)</h1>
                 </td>
               </tr>
               {if $result != ""}
               <tr>
-                <td colspan="2" bgcolor="{$cell_color}" align="center" class="error">
+                <td colspan="2" style="background: {$cell_color}; text-align: center;" class="error">
                   {if $smarty.post.cat == "new"}
                     {if $result == -1}
                       An error occurred while trying to add the new workflow template.
@@ -55,147 +58,153 @@
               </tr>
               {/if}
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td style="width: 120px; background: {$cell_color}" class="default">
                   <b>Title:</b>
                 </td>
-                <td bgcolor="{$light_color}">
-                  <input type="text" name="wfl_title" size="40" class="default" value="{$info.wfl_title}">
+                <td style="background: {$light_color}">
+                  <input type="text" name="wfl_title" size="40" class="default" value="{$info.wfl_title}" />
                   {include file="error_icon.tpl.html" field="title"}
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td style="width: 120px; background: {$cell_color}" class="default">
                   <b>Version:</b>
                 </td>
-                <td bgcolor="{$light_color}">
-                  <input type="text" name="wfl_version" size="30" class="default" value="{$info.wfl_version}">
+                <td style="background: {$light_color}">
+                  <input type="text" name="wfl_version" size="30" class="default" value="{$info.wfl_version}" />
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default" nowrap>
+                <td style="width: 120px; background: {$cell_color}; white-space: nowrap;" class="default">
                   <b>Description:</b>
                 </td>
-                <td bgcolor="{$light_color}">
-                  <textarea name="wfl_description" size="30" class="default">{$info.wfl_description}</textarea>
+                <td style="background: {$light_color}">
+                  <textarea name="wfl_description" rows="3" cols="60" class="default">{$info.wfl_description}</textarea>
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default" nowrap>
+                <td style="width: 120px; background: {$cell_color}; white-space: nowrap;" class="default">
                   <b>End Button Label:</b>
                 </td>
-                <td bgcolor="{$light_color}">
-                  <input type="textfield" name="wfl_end_button_label" size="30" class="default" value="{$info.wfl_end_button_label|default:'Save'}" />
+                <td style="background: {$light_color}">
+                  <input type="text" name="wfl_end_button_label" size="30" class="default" value="{$info.wfl_end_button_label|default:'Save'}" />
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td style="width: 120px; background: {$cell_color}" class="default">
                   <b>Roles:</b>
                 </td>
-                <td bgcolor="{$light_color}" width="80%">
-                  <select name="wfl_roles[]" multiple size="12" class="default">
+                <td style="background: {$light_color}; width: 80%;">
+                  <select name="wfl_roles[]" multiple="multiple" size="12" class="default">
                     {html_options options=$auth_role_options selected=$info.wfl_roles}
                   </select>
                   {include file="error_icon.tpl.html" field="wfl_roles[]"}
                 </td>
               </tr>
                <tr>
-                <td colspan="2" bgcolor="{$cell_color}" align="center">
+                <td colspan="2" style="background: {$cell_color}; text-align: center;">
                   {if $smarty.get.cat == 'edit'}
-                  <input class="button" type="submit" value="Update Workflow Template">
+                  <input class="button" type="submit" value="Update Workflow Template" />
                   {else}
-                  <input class="button" type="submit" value="Add Workflow Template">
+                  <input class="button" type="submit" value="Add Workflow Template" />
                   {/if}
-                  <input class="button" type="reset" value="Reset">
+                  <input class="button" type="reset" value="Reset" />
                 </td>
               </tr>
               </table>
-              </form>
-              <table  bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+            </form>
+            
+            <script type="text/javascript">
+            <!--
+            {literal}
+            function checkDelete(f)
+            {
+                if (!hasOneChecked(f, 'items[]')) {
+                    alert('Please select at least one of the workflow templates.');
+                    return false;
+                }
+                if (!confirm('This action will permanently remove the selected workflow templates.')) {
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+            //-->
+            </script>
+            {/literal}
+
+            <form onsubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}">
+            <div>
+              <input type="hidden" name="cat" value="delete" />            
+            </div>
+              
+              <table style="background: #FFFFFF; width: 100%;" cellspacing="1" cellpadding="2">
               <tr>
                 <td colspan="2" class="default">
-                  <b>Existing Workflow Templates:</b>
+                  <h2>Existing Workflow Templates:</h2>
                 </td>
               </tr>
               <tr>
                 <td colspan="2">
-                  <script language="JavaScript">
-                  <!--
-                  {literal}
-                  function checkDelete(f)
-                  {
-                      if (!hasOneChecked(f, 'items[]')) {
-                          alert('Please select at least one of the workflow templates.');
-                          return false;
-                      }
-                      if (!confirm('This action will permanently remove the selected workflow templates.')) {
-                          return false;
-                      } else {
-                          return true;
-                      }
-                  }
-                  //-->
-                  </script>
-                  {/literal}
-                  <table border="0" width="100%" cellpadding="1" cellspacing="1">
-                    <form onSubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}">
-                    <input type="hidden" name="cat" value="delete">
+                  <table style="width: 100%;" cellpadding="1" cellspacing="1">
                     <tr>
-                      <td bgcolor="{$cell_color}" nowrap><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Title</b>&nbsp;</td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Version</b>&nbsp;</td>
-                      <td bgcolor="{$cell_color}" class="default" nowrap>&nbsp;<b>Description</b>&nbsp;</td>
-                      <td bgcolor="{$cell_color}" class="default" nowrap>&nbsp;<b>Roles</b>&nbsp;</td>
-                      <td bgcolor="{$cell_color}" class="default" nowrap>&nbsp;<b>End Label</b>&nbsp;</td>
-                      <td bgcolor="{$cell_color}" class="default" nowrap>&nbsp;<b>Workflow States</b>&nbsp;</td>
+                      <td style="background: {$cell_color}; white-space: nowrap;"><input type="button" value="All" class="shortcut" onclick="javascript:toggleSelectAll(this.form, 'items[]');" /></td>
+                      <td style="background: {$cell_color}" class="default">&nbsp;<b>Title</b>&nbsp;</td>
+                      <td style="background: {$cell_color}" class="default">&nbsp;<b>Version</b>&nbsp;</td>
+                      <td style="background: {$cell_color}; white-space: nowrap;" class="default">&nbsp;<b>Description</b>&nbsp;</td>
+                      <td style="background: {$cell_color}; white-space: nowrap;" class="default">&nbsp;<b>Roles</b>&nbsp;</td>
+                      <td style="background: {$cell_color}; white-space: nowrap;" class="default">&nbsp;<b>End Label</b>&nbsp;</td>
+                      <td style="background: {$cell_color}; white-space: nowrap;" class="default">&nbsp;<b>Workflow States</b>&nbsp;</td>
                     </tr>
                     {section name="i" loop=$list}
                     {cycle values=$cycle assign="row_color"}
                     <tr>
-                      <td nowrap bgcolor="{$row_color}" align="center">
-                        <input type="checkbox" name="items[]" value="{$list[i].wfl_id}" {if $smarty.section.i.total == 0}disabled{/if}>
+                      <td style="background: {$row_color}; white-space: nowrap;" align="center">
+                        <input type="checkbox" name="items[]" value="{$list[i].wfl_id}" {if $smarty.section.i.total == 0}disabled="disabled"{/if} />
                       </td>
-                      <td bgcolor="{$row_color}" class="default">
-                        &nbsp;<a href="workflows.php?cat=edit&id={$list[i].wfl_id}">{$list[i].wfl_title}</a>
+                      <td style="background: {$row_color};" class="default">
+                        &nbsp;<a href="workflows.php?cat=edit&amp;id={$list[i].wfl_id}">{$list[i].wfl_title}</a>
                       </td>
-                      <td bgcolor="{$row_color}" class="default">
+                      <td style="background: {$row_color};" class="default">
                         &nbsp;{$list[i].wfl_version}
                       </td>
-                      <td bgcolor="{$row_color}" class="default">
+                      <td style="background: {$row_color};" class="default">
                         &nbsp;{$list[i].wfl_description}
                       </td>
-                      <td bgcolor="{$row_color}" class="default">
+                      <td style="background: {$row_color};" class="default">
                         	  {section name="r" loop=$list[i].wfl_roles}
-								  {assign var="aro_id" value=$list[i].wfl_roles[r]}
-								  {$auth_role_options[$aro_id]}
-							  {/section}
+            								  {assign var="aro_id" value=$list[i].wfl_roles[r]}
+            								  {$auth_role_options[$aro_id]}
+            							  {/section}
                       </td>
-                      <td bgcolor="{$row_color}" class="default">
+                      <td style="background: {$row_color};" class="default">
                         &nbsp;{$list[i].wfl_end_button_label}
                       </td>
-                      <td bgcolor="{$row_color}" class="default">
+                      <td style="background: {$row_color};" class="default">
                         &nbsp;<a href="workflow_states.php?wfl_id={$list[i].wfl_id}" class="link">{$list[i].total_states} State{if $list[i].total_states != 1}s{/if}</a>
                       </td>
                     </tr>
                     {sectionelse}
                     <tr>
-                      <td colspan="7" bgcolor="{$light_color}" align="center" class="default">
+                      <td colspan="7" style="background: {$light_color}; text-align: center;" class="default">
                         No workflow templates could be found.
                       </td>
                     </tr>
                     {/section}
                     <tr>
-                      <td width="4" align="center" bgcolor="{$cell_color}">
-                        <input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
+                      <td style="width: 4px; text-align: center; background: {$cell_color}">
+                        <input type="button" value="All" class="shortcut" onclick="javascript:toggleSelectAll(this.form, 'items[]');" />
                       </td>
-                      <td colspan="6" bgcolor="{$cell_color}">
-                        <input type="submit" value="Delete" class="button">
+                      <td colspan="6" style="background: {$cell_color}">
+                        <input type="submit" value="Delete" class="button" />
                       </td>
                     </tr>
-                    </form>
                   </table>
+                  
                 </td>
               </tr>
             </table>
-         </div>
-      
-
+            
+          </form>
+            
+</div>

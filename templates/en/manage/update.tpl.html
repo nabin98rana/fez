@@ -2,26 +2,24 @@
 {include file="navigation.tpl.html"}
 
 {if $pid == ""}
-  <table width="300" align="center">
+  <table style="width: 300px; text-align: center">
     <tr>
       <td>
-        &nbsp;<span class="default"><b>Error: The object could not be found.</b>
-        <br /><br />
-        &nbsp;<a class="link" href="javascript:history.go(-1);">Go Back</a></span>
+        <span class="default"><b>Error: The object could not be found.</b><br /><br />
+        <a href="javascript:history.go(-1);">Go Back</a></span>
       </td>
     </tr>
   </table>
 {else}
   {if $isAdministrator || $isEditor}
-  {include file="update_form.tpl.html"}
+    {include file="update_form.tpl.html"}
   {else}
-  <center>
-<span class="default">
-<b>Sorry, but you do not have the required permission level to access this screen.</b>
-<br /><br />
-<a class="link" href="javascript:history.go(-1);">Go Back</a>
-</span>
-</center>
+      <div style="text-align: center">
+        <span class="default">
+          <b>Sorry, but you do not have the required permission level to access this screen.</b><br /><br />
+          <a href="javascript:history.go(-1);">Go Back</a>
+        </span>
+    </div>
   {/if}
 {/if}
 

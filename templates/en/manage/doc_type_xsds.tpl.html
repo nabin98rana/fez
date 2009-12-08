@@ -1,6 +1,8 @@
+<div class="admin-box">
+
 
               {literal}
-              <script language="JavaScript">
+              <script type="text/javascript">
               <!--
               var editing_option_id = -1;
               function validateForm(f)
@@ -28,25 +30,27 @@
               //-->
               </script>
               {/literal}
-              <form name="custom_field_form" onSubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}" enctype="multipart/form-data">
+              <form id="custom_field_form" onsubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}" enctype="multipart/form-data">
+              <div>
               {if $smarty.get.cat == 'edit'}
-              <input type="hidden" name="cat" value="update">
-              <input type="hidden" name="id" value="{$smarty.get.id}">
+              <input type="hidden" name="cat" value="update" />
+              <input type="hidden" name="id" value="{$smarty.get.id}" />
               {else}
-              <input type="hidden" name="cat" value="new">
+              <input type="hidden" name="cat" value="new" />
               {/if}
-      <table width="100%" class="admin-box" border="0" cellspacing="0" cellpadding="0" align="center">
+              </div>
+      <table cellspacing="0" cellpadding="0" style="width: 100%; align: center;">
         <tr>
           <td>
-            <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+            <table style="background: #FFFFFF; width: 100%;" cellspacing="1" cellpadding="2">
               <tr>
                 <td colspan="2">
-				  <div class="admin-header">Manage Document Type XSDs</div>
+				  <h1>Manage Document Type XSDs</h1>
                 </td>
               </tr>
               {if $result != ""}
               <tr>
-                <td colspan="2" bgcolor="{$cell_color}" align="center" class="error">
+                <td colspan="2" class="cell-colour error" style="text-align: center;">
                   {if $smarty.post.cat == "new"}
                     {if $result == -1}
                       An error occurred while trying to add the new doc type xsd.
@@ -64,62 +68,62 @@
               </tr>
               {/if}
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td style="width: 120px; white-space: nowrap;" class="default cell-colour">
                   <b>Title:</b>
                 </td>
-                <td bgcolor="{$light_color}">
-                  <input type="text" name="xsd_title" size="40" class="default" value="{$info.xsd_title}">
+                <td class="cell-colour">
+                  <input type="text" name="xsd_title" size="40" class="default" value="{$info.xsd_title}" />
                   {include file="error_icon.tpl.html" field="title"}
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td style="width: 120px; white-space: nowrap;" class="default cell-colour">
                   <b>Version:</b>
                 </td>
-                <td bgcolor="{$light_color}">
-                  <input type="text" name="xsd_version" size="30" class="default" value="{$info.xsd_version}">
+                <td class="cell-colour">
+                  <input type="text" name="xsd_version" size="30" class="default" value="{$info.xsd_version}" />
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default" nowrap>
+                <td style="width: 120px; white-space: nowrap;" class="default cell-colour">
                   <b>Top Element Name:</b>
                 </td>
-                <td bgcolor="{$light_color}">
-                  <input type="text" name="xsd_top_element_name" size="30" class="default" value="{$info.xsd_top_element_name}">
+                <td class="cell-colour">
+                  <input type="text" name="xsd_top_element_name" size="30" class="default" value="{$info.xsd_top_element_name}" />
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default" nowrap>
+                <td style="width: 120px; white-space: nowrap;" class="default cell-colour">
                   <b>Element Prefix <i>(not required)</i>:</b>
                 </td>
-                <td bgcolor="{$light_color}">
-                  <input type="text" name="xsd_element_prefix" size="30" class="default" value="{$info.xsd_element_prefix}">
+                <td class="cell-colour">
+                  <input type="text" name="xsd_element_prefix" size="30" class="default" value="{$info.xsd_element_prefix}" />
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default" nowrap>
+                <td style="width: 120px; white-space: nowrap;" class="default cell-colour">
                   <b>Extra Namespace Prefixes <i>(comma seperated, not required)</i>:</b>
                 </td>
-                <td bgcolor="{$light_color}">
-                  <input type="text" name="xsd_extra_ns_prefixes" size="30" class="default" value="{$info.xsd_extra_ns_prefixes}">
+                <td class="cell-colour">
+                  <input type="text" name="xsd_extra_ns_prefixes" size="30" class="default" value="{$info.xsd_extra_ns_prefixes}" />
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td style="width: 120px; white-space: nowrap;" class="default cell-colour">
                   <b>XSD Source File:</b>
                 </td>
-                <td bgcolor="{$light_color}">
+                <td class="cell-colour">
                   <input size="50" name="xsd_file" type="file" class="shortcut" />
                 </td>
               </tr>
               <tr>
-                <td colspan="2" bgcolor="{$cell_color}" align="center">
+                <td colspan="2" class="cell-colour" align="center">
                   {if $smarty.get.cat == 'edit'}
-                  <input class="button" type="submit" value="Update Document Type XSD">
+                  <input class="button" type="submit" value="Update Document Type XSD" />
                   {else}
-                  <input class="button" type="submit" value="Add Document Type XSD">
+                  <input class="button" type="submit" value="Add Document Type XSD" />
                   {/if}
-                  <input class="button" type="reset" value="Reset">
+                  <input class="button" type="reset" value="Reset" />
                 </td>
               </tr>
               </table>
@@ -127,10 +131,10 @@
               </tr>
               </table>
               </form>
-      <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
+      <table width="100%" class="cell-colour" border="0" cellspacing="0" cellpadding="1">
         <tr>
           <td>
-            <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+            <table style="background: #FFFFFF; width: 100%;" cellspacing="1" cellpadding="2">
               <tr>
                 <td colspan="2" class="default">
                   <b>Existing Document Type XSDs:</b>
@@ -138,40 +142,42 @@
               </tr>
               <tr>
                 <td colspan="2">
-                    <form onSubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}">
-                    <input type="hidden" name="cat" value="delete">
-                  <table border="0" width="100%" cellpadding="1" cellspacing="1">
+                    <form onsubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}">
+                    <div>
+                      <input type="hidden" name="cat" value="delete" />
+                    </div>
+                  <table style="width: 100%;" cellpadding="1" cellspacing="1">
                     <tr>
-                      <td width="5" bgcolor="{$cell_color}" nowrap><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
-                      <td width="50%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Title</b>&nbsp;</td>
-                      <td width="10%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Version</b>&nbsp;</td>
-                      <td width="10%" bgcolor="{$cell_color}" class="default" nowrap>&nbsp;<b>Top Element Name</b>&nbsp;</td>
-                      <td width="10%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Element Prefix</b>&nbsp;</td>
-                      <td width="10%" bgcolor="{$cell_color}" class="default" nowrap>&nbsp;<b>XSD Source</b>&nbsp;</td>
-                      <td width="10%" bgcolor="{$cell_color}" class="default" nowrap>&nbsp;<b>XSD Displays&nbsp;</b></td>
+                      <td style="width: 5px; background: {$cell_color}; white-space: nowrap"><input type="button" value="All" class="shortcut" onclick="javascript:toggleSelectAll(this.form, 'items[]');" /></td>
+                      <td style="width: 50%;" class="default cell-colour">&nbsp;<b>Title</b>&nbsp;</td>
+                      <td style="width: 10%;" class="default cell-colour">&nbsp;<b>Version</b>&nbsp;</td>
+                      <td style="width: 10%; white-space: nowrap;" class="default cell-colour">&nbsp;<b>Top Element Name</b>&nbsp;</td>
+                      <td style="width: 10%;" class="default cell-colour">&nbsp;<b>Element Prefix</b>&nbsp;</td>
+                      <td style="width: 10%; white-space: nowrap;" class="default cell-colour">&nbsp;<b>XSD Source</b>&nbsp;</td>
+                      <td style="width: 10%; white-space: nowrap;" class="default cell-colour">&nbsp;<b>XSD Displays&nbsp;</b></td>
                     </tr>
                     {section name="i" loop=$list}
                     {cycle values=$cycle assign="row_color"}
                     <tr>
-                      <td width="4" nowrap bgcolor="{$row_color}" align="center">
-                        <input type="checkbox" name="items[]" value="{$list[i].xsd_id}" {if $smarty.section.i.total == 0}disabled{/if}>
+                      <td style="width: 4px; white-space: nowrap; background: {$row_color}; text-align: center;">
+                        <input type="checkbox" name="items[]" value="{$list[i].xsd_id}" {if $smarty.section.i.total == 0}disabled{/if} />
                       </td>
-                      <td width="50%" bgcolor="{$row_color}" class="default">
+                      <td style="width: 50%; background: {$row_color};" class="default">
                         &nbsp;{$list[i].xsd_title}
                       </td>
-                      <td width="15%" bgcolor="{$row_color}" class="default">
+                      <td style="width: 15%; background: {$row_color};" class="default">
                         &nbsp;{$list[i].xsd_version}
                       </td>
-                      <td width="15%" bgcolor="{$row_color}" class="default">
+                      <td style="width: 15%; background: {$row_color};" class="default">
                         &nbsp;{$list[i].xsd_top_element_name}
                       </td>
-                      <td width="15%" bgcolor="{$row_color}" class="default">
+                      <td style="width: 15%; background: {$row_color};" class="default">
                         &nbsp;{$list[i].xsd_element_prefix}
                       </td>
-                      <td width="15%" bgcolor="{$row_color}" class="default">
-                        &nbsp;<a class="link" href="xsd_source_edit.php?cat=edit&xsd_id={$list[i].xsd_id}" title="edit this XSDs source XML">Edit Schema</a>
+                      <td style="width: 15%; background: {$row_color};" class="default">
+                        &nbsp;<a class="link" href="xsd_source_edit.php?cat=edit&amp;xsd_id={$list[i].xsd_id}" title="edit this XSDs source XML">Edit Schema</a>
                       </td>
-                      <td width="15%" bgcolor="{$row_color}" class="default">
+                      <td style="width: 15%; background: {$row_color};" class="default">
                         &nbsp;<a class="link" href="xsd_displays.php?xsd_id={$list[i].xsd_id}" title="edit this XSDs Displays">Edit Displays</a>
                       </td>
                     </tr>
@@ -183,11 +189,11 @@
                     </tr>
                     {/section}
                     <tr>
-                      <td width="4" align="center" bgcolor="{$cell_color}">
-                        <input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
+                      <td style="width: 4px; text-align: center;" class="cell-colour">
+                        <input type="button" value="All" class="shortcut" onclick="javascript:toggleSelectAll(this.form, 'items[]');" />
                       </td>
-                      <td colspan="6" bgcolor="{$cell_color}">
-                        <input type="submit" value="Delete" class="button">
+                      <td colspan="6" style="background: {$cell_color}">
+                        <input type="submit" value="Delete" class="button" />
                       </td>
                     </tr>
                   </table>
@@ -199,4 +205,4 @@
         </tr>
       </table>
 
-
+</div>

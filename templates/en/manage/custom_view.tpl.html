@@ -1,24 +1,24 @@
+<div class="admin-box">
 
-      <table width="100%" class="admin-box" border="0" cellspacing="0" cellpadding="0" align="center">
-        <tr>
-          <td>
-            <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
-              <form name="custom_field_form" onSubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}" enctype="multipart/form-data">
-              {if $smarty.get.cat == 'edit'}
-              <input type="hidden" name="cat" value="update">
-              <input type="hidden" name="id" value="{$smarty.get.id}">
-              {else}
-              <input type="hidden" name="cat" value="new">
-              {/if}
+      <form id="custom_field_form" onsubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}" enctype="multipart/form-data">
+        <div>
+          {if $smarty.get.cat == 'edit'}
+            <input type="hidden" name="cat" value="update" />
+            <input type="hidden" name="id" value="{$smarty.get.id}" />
+          {else}
+            <input type="hidden" name="cat" value="new" />
+          {/if}
+        </div>
+
+            <table style="width: 100%" cellspacing="1" cellpadding="2">
               <tr>
                 <td colspan="2">
-                  <div class="admin-header">Manage Custom Views</div>
+                  <h1>Manage Custom Views</h1>
                 </td>
               </tr>
               {if $result != ""}
               <tr>
-                <td colspan="2" bgcolor="{$cell_color}" align="center" class="{if $result == 1 || $result == 3}success{else}error{/if}">
-                  
+                <td colspan="2" style="background: {$cell_color}; text-align: center;" class="{if $result == 1 || $result == 3}success{else}error{/if}">
                     {if $result == -1}
                       An error occurred while trying to add the row.
                     {elseif $result == 1}
@@ -28,96 +28,102 @@
                     {elseif $result == 4}
                        An error occurred while trying to delete row(s)
                     {/if}
-                    
                 </td>
               </tr>
               {/if}
               <tr>
-                <td width="160" bgcolor="{$cell_color}" class="default">
+                <td style="width: 160px;" class="default cell-colour">
                   <b>Name:</b>
                 </td>
-                <td bgcolor="{$light_color}">
-                  <input type="text" name="cview_name" size="40" class="default" value="{$info.cview_name}">
+                <td style="background: {$light_color}">
+                  <input type="text" name="cview_name" size="40" class="default" value="{$info.cview_name}" />
                   {include file="error_icon.tpl.html" field="name"}
                 </td>
               </tr>
               <tr>
-                <td colspan="2" bgcolor="{$cell_color}" align="center">
+                <td colspan="2" style="text-align: center; background: {$cell_color}" class="cell-colour">
                   {if $smarty.get.cat == 'edit'}
-                  <input class="button" type="submit" value="Update Custom View">
+                    <input class="button" type="submit" value="Update Custom View" />
                   {else}
-                  <input class="button" type="submit" value="Add Custom View">
+                    <input class="button" type="submit" value="Add Custom View" />
                   {/if}
-                  <input class="button" type="reset" value="Reset">
+                  <input class="button" type="reset" value="Reset" />
                 </td>
               </tr>
-              </form>
+            </table>
+          </form>
+              
+
+          <script type="text/javascript">
+              <!--
+              {literal}
+              function checkDelete(f)
+              {
+                  if (!hasOneChecked(f, 'items[]')) {
+                      alert('Please select at least one of the custom views.');
+                      return false;
+                  }
+                  if (!confirm('This action will permanently remove the selected custom views.')) {
+                      return false;
+                  } else {
+                      return true;
+                  }
+              }
+              //-->
+              </script>
+              {/literal}
+
+            <form onsubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}">
+              <div>
+                <input type="hidden" name="cat" value="delete" />
+              </div>
+              
+            <table style="width: 100%" cellspacing="1" cellpadding="2">
               <tr>
                 <td colspan="2" class="default">
-                  <b>Existing Custom Views ({$list_count}):</b>
+                  <h2>Existing Custom Views ({$list_count}):</h2>
                 </td>
               </tr>
               <tr>
                 <td colspan="2">
-                  <script language="JavaScript">
-                  <!--
-                  {literal}
-                  function checkDelete(f)
-                  {
-                      if (!hasOneChecked(f, 'items[]')) {
-                          alert('Please select at least one of the custom views.');
-                          return false;
-                      }
-                      if (!confirm('This action will permanently remove the selected custom views.')) {
-                          return false;
-                      } else {
-                          return true;
-                      }
-                  }
-                  //-->
-                  </script>
-                  {/literal}
-                  <table border="0" width="100%" cellpadding="1" cellspacing="1">
-                    <form onSubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}">
-                    <input type="hidden" name="cat" value="delete">
+                  <table style="width: 100%;" cellpadding="1" cellspacing="1">
                     <tr>
-                      <td width="5" bgcolor="{$cell_color}" align="center" nowrap><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Name</b>&nbsp;</td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Edit Search Keys</b>&nbsp;</td>
+                      <td style="width: 5px; background: {$cell_color}; text-align: center; white-space: nowrap"><input type="button" value="All" class="shortcut" onclick="javascript:toggleSelectAll(this.form, 'items[]');" /></td>
+                      <td class="default cell-colour">&nbsp;<b>Name</b>&nbsp;</td>
+                      <td class="default cell-colour">&nbsp;<b>Edit Search Keys</b>&nbsp;</td>
                     </tr>
                     {section name="i" loop=$list}
                     {cycle values=$cycle assign="row_color"}
                     <tr>
-                      <td width="4" nowrap bgcolor="{$row_color}" align="center">
-                        <input type="checkbox" name="items[]" value="{$list[i].cview_id}" {if $smarty.section.i.total == 0}disabled{/if}>
+                      <td style="width: 4px; white-space: nowrap; background: {$row_color}; text-align: center;">
+                        <input type="checkbox" name="items[]" value="{$list[i].cview_id}" {if $smarty.section.i.total == 0}disabled="disabled"{/if} />
                       </td>
-                      <td bgcolor="{$row_color}" class="default">
-                        &nbsp;<a href="custom_views.php?cat=edit&id={$list[i].cview_id}">{$list[i].cview_name}</a>
+                      <td style="background: {$row_color}" class="default">
+                        &nbsp;<a href="custom_views.php?cat=edit&amp;id={$list[i].cview_id}">{$list[i].cview_name}</a>
                       </td>
-                      <td bgcolor="{$row_color}" class="default">
-                        &nbsp;<a href="custom_views.php?cat=skeys&id={$list[i].cview_id}">Add/Edit</a>
+                      <td style="background: {$row_color}" class="default">
+                        &nbsp;<a href="custom_views.php?cat=skeys&amp;id={$list[i].cview_id}">Add/Edit</a>
                       </td>
                     </tr>
                     {sectionelse}
                     <tr>
-                      <td colspan="8" bgcolor="{$light_color}" align="center" class="default">
+                      <td colspan="8" style="backgrund: {$light_color}; text-align: center;" class="default">
                         No custom views could be found.
                       </td>
                     </tr>
                     {/section}
                     <tr>
-                      <td width="4" align="center" bgcolor="{$cell_color}">
-                        <input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
+                      <td style="width: 4px; text-align: center; background: {$cell_color}">
+                        <input type="button" value="All" class="shortcut" onclick="javascript:toggleSelectAll(this.form, 'items[]');" />
                       </td>
-                      <td colspan="8" bgcolor="{$cell_color}">
-                        <input type="submit" value="Delete" class="button">
+                      <td colspan="8" style="background: {$cell_color}">
+                        <input type="submit" value="Delete" class="button" />
                       </td>
                     </tr>
-                    </form>
                   </table>
                 </td>
               </tr>
             </table>
-          </td>
-        </tr>
-      </table>
+        </form>
+
+</div>

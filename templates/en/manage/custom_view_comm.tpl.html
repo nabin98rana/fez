@@ -1,30 +1,24 @@
+<div class="admin-box">
 
-      <table width="100%" class="admin-box" border="0" cellspacing="0" cellpadding="0" align="center">
-        <tr>
-          <td>
-            <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
-              {literal}
-              <script language="JavaScript">
-              <!--
-             
-              //-->
-              </script>
-              {/literal}
-              <form name="custom_field_form" onSubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}" enctype="multipart/form-data">
-              {if $smarty.get.cat == 'edit'}
-              <input type="hidden" name="cat" value="update">
-              <input type="hidden" name="id" value="{$smarty.get.id}">
-              {else}
-              <input type="hidden" name="cat" value="new">
-              {/if}
+      <form id="custom_field_form" onsubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}" enctype="multipart/form-data">
+        <div>
+            {if $smarty.get.cat == 'edit'}
+              <input type="hidden" name="cat" value="update" />
+              <input type="hidden" name="id" value="{$smarty.get.id}" />
+            {else}
+              <input type="hidden" name="cat" value="new" />
+            {/if}
+        </div>
+      
+            <table style="width: 100%;" cellspacing="0" cellpadding="0">
               <tr>
                 <td colspan="2">
-                  <div class="admin-header">Manage Custom Views for Communities</div>
+                  <h1>Manage Custom Views for Communities</h1>
                 </td>
               </tr>
               {if $result != ""}
               <tr>
-                <td colspan="2" bgcolor="{$cell_color}" align="center" class="{if $result == 1 || $result == 3}success{else}error{/if}">
+                <td colspan="2" style="background: {$cell_color}; text-align: center" class="{if $result == 1 || $result == 3}success{else}error{/if}">
                     {if $result == 1}
                       Thank you, the row was added successfully.
                     {elseif $result == -1}
@@ -38,130 +32,137 @@
               </tr>
               {/if}
               <tr>
-                <td width="140" bgcolor="{$cell_color}" class="default">
+                <td style="width: 140px" class="default cell-colour">
                   <b>Community:</b>
                 </td>
-                <td bgcolor="{$light_color}" class="default">
+                <td style="background: {$light_color}" class="default">
                   <select name="comm_pid">
                   {foreach from=$comm_list item=comm}
-                   <option value="{$comm.rek_pid}" {if $info.cvcom_com_pid == $comm.rek_pid}selected{/if}>{$comm.rek_title}</option>
+                   <option value="{$comm.rek_pid}" {if $info.cvcom_com_pid == $comm.rek_pid}selected="selected"{/if}>{$comm.rek_title}</option>
                    {/foreach}
                   </select>
                 </td>
               </tr>
               <tr>
-                <td width="140" bgcolor="{$cell_color}" class="default">
+                <td style="width: 140px" class="default cell-colour">
                   <b>Custom View:</b>
                 </td>
-                <td bgcolor="{$light_color}">
+                <td style="background: {$light_color}">
                   <select name="cview_id">
                   {foreach from=$cview_list item=cview}
-                   <option value="{$cview.cview_id}" {if $info.cvcom_cview_id == $cview.cview_id}selected{/if}>{$cview.cview_name}</option>
+                   <option value="{$cview.cview_id}" {if $info.cvcom_cview_id == $cview.cview_id}selected="selected"{/if}>{$cview.cview_name}</option>
                    {/foreach}
                   </select>
                 </td>
               </tr>
               <tr>
-                <td width="140" bgcolor="{$cell_color}" class="default">
+                <td style="width: 140px" class="default cell-colour">
                   <b>Hostname:</b>
                 </td>
-                <td bgcolor="{$light_color}">
-                  <input type="text" name="hostname" size="40" class="default" value="{$info.cvcom_hostname}"><div class="default">(without 'http://', eg customview.library.edu)</div>
+                <td style="background: {$light_color}">
+                  <input type="text" name="hostname" size="40" class="default" value="{$info.cvcom_hostname}" /><div class="default">(without 'http://', eg customview.library.edu)</div>
                 </td>
               </tr>
               <tr>
-                <td width="140" bgcolor="{$cell_color}" class="default">
+                <td style="width: 140px" class="default cell-colour">
                   <b>Default List Form Template:</b>
                 </td>
-                <td bgcolor="{$light_color}">
-                  <input type="text" name="default_template" size="40" class="default" value="{$info.cvcom_default_template}"><div class="default">(eg list.tpl.html or gallery_list.tpl.html)</div>
+                <td style="background: {$light_color}">
+                  <input type="text" name="default_template" size="40" class="default" value="{$info.cvcom_default_template}" /><div class="default">(eg list.tpl.html or gallery_list.tpl.html)</div>
                 </td>
               </tr>
               <tr>
-                <td colspan="2" bgcolor="{$cell_color}" align="center">
+                <td colspan="2" style="background: {$cell_color}; text-align: center;">
                   {if $smarty.get.cat == 'edit'}
-                  <input class="button" type="submit" value="Update Custom View">
+                    <input class="button" type="submit" value="Update Custom View" />
                   {else}
-                  <input class="button" type="submit" value="Attach Custom View">
+                    <input class="button" type="submit" value="Attach Custom View" />
                   {/if}
-                  <input class="button" type="reset" value="Reset">
+                  <input class="button" type="reset" value="Reset" />
                 </td>
               </tr>
-              </form>
+            </table>
+          </form>    
+
+
+          <script type="text/javascript">
+          <!--
+          {literal}
+          function checkDelete(f)
+          {
+              if (!hasOneChecked(f, 'items[]')) {
+                  alert('Please select at least one of the custom views.');
+                  return false;
+              }
+              if (!confirm('This action will permanently remove the selected custom views.')) {
+                  return false;
+              } else {
+                  return true;
+              }
+          }
+          //-->
+          </script>
+          {/literal}
+          
+          <form onsubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}">
+            <div>
+              <input type="hidden" name="cat" value="delete" />
+            </div>
+          
+           <table style="width: 100%;" cellspacing="0" cellpadding="0">   
               <tr>
                 <td colspan="2" class="default">
-                  <b>Existing Communities with Custom Views ({$list_count}):</b>
+                  <h2>Existing Communities with Custom Views ({$list_count}):</h2>
                 </td>
               </tr>
               <tr>
                 <td colspan="2">
-                  <script language="JavaScript">
-                  <!--
-                  {literal}
-                  function checkDelete(f)
-                  {
-                      if (!hasOneChecked(f, 'items[]')) {
-                          alert('Please select at least one of the custom views.');
-                          return false;
-                      }
-                      if (!confirm('This action will permanently remove the selected custom views.')) {
-                          return false;
-                      } else {
-                          return true;
-                      }
-                  }
-                  //-->
-                  </script>
-                  {/literal}
                   <table border="0" width="100%" cellpadding="1" cellspacing="1">
-                    <form onSubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}">
-                    <input type="hidden" name="cat" value="delete">
                     <tr>
-                      <td width="5" bgcolor="{$cell_color}" align="center" nowrap><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Community</b>&nbsp;</td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Custom View</b>&nbsp;</td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Hostname</b>&nbsp;</td> 
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Default list view template</b>&nbsp;</td> 
+                      <td style="width: 5px; background: {$cell_color}; text-align: center; white-space: nowrap"><input type="button" value="All" class="shortcut button" onclick="javascript:toggleSelectAll(this.form, 'items[]');" /></td>
+                      <td class="default cell-colour">&nbsp;<b>Community</b>&nbsp;</td>
+                      <td class="default cell-colour">&nbsp;<b>Custom View</b>&nbsp;</td>
+                      <td class="default cell-colour">&nbsp;<b>Hostname</b>&nbsp;</td> 
+                      <td class="default cell-colour">&nbsp;<b>Default list view template</b>&nbsp;</td> 
                     </tr>
                     {section name="i" loop=$list}
                     {cycle values=$cycle assign="row_color"}
                     <tr>
-                      <td width="4" nowrap bgcolor="{$row_color}" align="center">
-                        <input type="checkbox" name="items[]" value="{$list[i].cvcom_id}" {if $smarty.section.i.total == 0}disabled{/if}>
+                      <td style="width: 4px; white-space: nowrap; background: {$row_color}; text-align: center;">
+                        <input type="checkbox" name="items[]" value="{$list[i].cvcom_id}" {if $smarty.section.i.total == 0}disabled="disabled"{/if} />
                       </td>
-                      <td bgcolor="{$row_color}" class="default">
-                         &nbsp;<a href="custom_views_comm.php?cat=edit&id={$list[i].cvcom_id}">{$list[i].rek_title}</a>
+                      <td style="background: {$row_color}" class="default">
+                         &nbsp;<a href="custom_views_comm.php?cat=edit&amp;id={$list[i].cvcom_id}">{$list[i].rek_title}</a>
                       </td>
-                      <td bgcolor="{$row_color}" class="default">
+                      <td style="background: {$row_color}" class="default">
                         &nbsp;{$list[i].cview_name}
                       </td>
-                      <td bgcolor="{$row_color}" class="default">
+                      <td style="background: {$row_color}" class="default">
                         &nbsp;{$list[i].cvcom_hostname}
                       </td>
-                      <td bgcolor="{$row_color}" class="default">
+                      <td style="background: {$row_color}" class="default">
                         &nbsp;{$list[i].cvcom_default_template}
                       </td>
                     </tr>
                     {sectionelse}
                     <tr>
-                      <td colspan="13" bgcolor="{$light_color}" align="center" class="default">
+                      <td colspan="13" style="background: {$light_color}; text-align: center;" class="default">
                         No communities with custom views could be found.
                       </td>
                     </tr>
                     {/section}
                     <tr>
-                      <td width="4" align="center" bgcolor="{$cell_color}">
-                        <input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
+                      <td style="width: 4px; text-align: center; background: {$cell_color}">
+                        <input type="button" value="All" class="shortcut button" onclick="javascript:toggleSelectAll(this.form, 'items[]');" />
                       </td>
-                      <td colspan="13" bgcolor="{$cell_color}">
-                        <input type="submit" value="Delete" class="button">
+                      <td colspan="13" style="background: {$cell_color}">
+                        <input type="submit" value="Delete" class="button" />
                       </td>
                     </tr>
-                    </form>
                   </table>
                 </td>
               </tr>
             </table>
-          </td>
-        </tr>
-      </table>
+        </form>
+        
+</div>

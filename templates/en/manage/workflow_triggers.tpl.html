@@ -1,5 +1,4 @@
-
-
+<div class="admin-box">
 
               <script type="text/javascript">
               <!--
@@ -191,26 +190,29 @@
               //-->
               </script>
               {/literal}
-              <form name="entry_form" onSubmit="javascript:return validateForm(this) && updateForm();" target="_update_record_details" method="post" action="{$rel_url}popup.php" enctype="multipart/form-data">
-              {if $smarty.get.cat == 'edit'}
-              <input type="hidden" name="cat" value="edit_{$type}">
-              <input type="hidden" name="id" value="{$info.wft_id}">
-              <input type="hidden" name="wft_id" value="{$info.wft_id}">
-              {else}
-              <input type="hidden" name="cat" value="new_{$type}">
-              {/if}
-              <input type="hidden" name="pid" value="{$pid}">
-              <input type="hidden" name="wft_pid" value="{$pid}">
-            <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+              
+              <form id="entry_form" onsubmit="javascript:return validateForm(this) && updateForm();" method="post" action="{$rel_url}popup.php" enctype="multipart/form-data">
+              <div>
+                {if $smarty.get.cat == 'edit'}
+                  <input type="hidden" name="cat" value="edit_{$type}" />
+                  <input type="hidden" name="id" value="{$info.wft_id}" />
+                  <input type="hidden" name="wft_id" value="{$info.wft_id}" />
+                {else}
+                  <input type="hidden" name="cat" value="new_{$type}" />
+                {/if}
+                  <input type="hidden" name="pid" value="{$pid}" />
+                  <input type="hidden" name="wft_pid" value="{$pid}" />
+              </div>
+            <table style="background: #FFFFFF; width: 100%;" cellspacing="1" cellpadding="2">
               <tr>
                 <td colspan="2" class="default">
-                  <b>Workflow Triggers</b> &nbsp;(
-                          <a href="{$rel_url}manage/workflow_triggers.php?pid={$pid}">New</a> )
+                  <h1>Workflow Triggers</h1>
+                  <div><a href="{$rel_url}manage/workflow_triggers.php?pid={$pid}">New</a></div>
                 </td>
               </tr>
               {if $result != ""}
               <tr>
-                <td colspan="2" bgcolor="{$cell_color}" align="center" class="error">
+                <td colspan="2" style="background: {$cell_color}; text-align: center;" class="error">
                   {if $smarty.post.cat == "new"}
                     {if $result == -1}
                       An error occurred while trying to add the new {$type_name}.
@@ -228,19 +230,19 @@
               </tr>
               {/if}
               <tr>
-                <td  width="120" bgcolor="{$cell_color}" class="default" nowrap>
+                <td style="width: 120px; white-space: nowrap" class="default cell-colour">
                   <b>Icon:</b> (path relative to fez root)
                 </td>
-                <td bgcolor="{$light_color}">
-                  <input class="default" type="textfield" name="wft_icon" value="{$info.wft_icon}" size="64"/>
+                <td style="background: {$light_color}">
+                  <input class="default" type="text" name="wft_icon" value="{$info.wft_icon}" size="64" />
                 </td>
               </tr>
 
              <tr>
-                <td bgcolor="{$cell_color}" class="default" nowrap>
+                <td style="white-space: nowrap" class="default cell-colour">
                   <b>Trigger:</b>
                 </td>
-                <td bgcolor="{$light_color}">
+                <td style="background: {$light_color}">
                   <select name="wft_type_id" class="default">
                         {html_options options=$triggers_list selected=$info.wft_type_id}
                   </select>
@@ -248,157 +250,157 @@
               </tr>
  
 				<tr>
-				<td bgcolor="{$cell_color}" class="default" nowrap>
+				<td style="white-space: nowrap" class="default cell-colour">
 				  <b>Object Type:</b>
 				</td>
-				<td bgcolor="{$light_color}">
-				  <select name="wft_ret_id" class="default" 
-                                  onChange="javascript: selectObjectXSDDisplay(this.form, 'wft_ret_id')">
-					{html_options options=$object_options selected=$info.wft_ret_id}
+				<td style="background: {$light_color}">
+				  <select name="wft_ret_id" class="default" onchange="javascript: selectObjectXSDDisplay(this.form, 'wft_ret_id')">
+					  {html_options options=$object_options selected=$info.wft_ret_id}
 				  </select>
 				  {include file="error_icon.tpl.html" field="wft_ret_id"}			  
 				</td>
 			  </tr>
 
 			  <tr style="display:none;" id="tr_wft_xdis_id">
-                <td  bgcolor="{$cell_color}" class="default" nowrap>
+                <td style="white-space: nowrap" class="default cell-colour">
                   <b>XSD Display Document Type:</b>                 </td>
-                <td bgcolor="{$light_color}">
+                <td style="background: {$light_color}">
 	 			  <div id="loading1" style="display:none;">Loading...</div>
                   <select name="wft_xdis_id" class="default">
                   </select>
-                  <div class="default">'None' means that the trigger selects the document type as part of
-                  the workflow - 'None' triggers are accessed through the My_Fez page.  'Any' will match 
-                  against any document type.</div>
-
+                  <div class="default">'None' means that the trigger selects the document type as part of the workflow - 'None' triggers are accessed through the My_Fez page. 'Any' will match against any document type.</div>
                 </td>
               </tr>
 
               <tr>
-                <td  width="120" bgcolor="{$cell_color}" class="default" >
-                  <b>Mimetype:</b> (Ingest triggers only, leave blank to match all, seperate multiple 
-                          mimetypes by spaces)
+                <td style="width: 120px;" class="default cell-colour">
+                  <b>Mimetype:</b> (Ingest triggers only, leave blank to match all, seperate multiple mimetypes by spaces)
                 </td>
-                <td bgcolor="{$light_color}">
-                  <input class="default" type="textfield" name="wft_mimetype" value="{$info.wft_mimetype}" size="64"/>
+                <td style="background: {$light_color}">
+                  <input class="default" type="text" name="wft_mimetype" value="{$info.wft_mimetype}" size="64"/>
                 </td>
               </tr>
 
               <tr>
-                <td bgcolor="{$cell_color}" class="default" nowrap>
+                <td style="white-space: nowrap" class="default cell-colour">
                   <b>Workflow:</b>
                 </td>
-                <td bgcolor="{$light_color}">
+                <td style="background: {$light_color}">
                   <select name="wft_wfl_id" class="default">
                         {html_options options=$wfl_list selected=$info.wft_wfl_id}
                   </select>
                 </td>
               </tr>
               <tr>
-                <td bgcolor="{$cell_color}" class="default" nowrap>
+                <td style="white-space: nowrap" class="default cell-colour">
                   <b>Options:</b>
                 </td>
-                <td bgcolor="{$light_color}">
-                <input type="checkbox" {if $info.wft_options_split.show_in_list}checked{/if} 
-                name="wft_option_show_in_list"/>
+                <td style="background: {$light_color}">
+                  <input type="checkbox" {if $info.wft_options_split.show_in_list}checked="checked"{/if} 
+                name="wft_option_show_in_list" id="wft_option_show_in_list" />
                 <label for="wft_option_show_in_list" class="default">Show In Lists</label>
                 </td>
               </tr>
-
  
              <tr>
-                <td colspan="2" bgcolor="{$cell_color}" align="center">
+                <td colspan="2" class="cell-colour" align="center">
                   {if $smarty.get.cat == 'edit'}
-                  <input class="button" type="submit" value="Update">
+                    <input class="button" type="submit" value="Update" />
                   {else}
-                  <input class="button" type="submit" value="Submit">
+                    <input class="button" type="submit" value="Submit" />
                   {/if}
-                  <input class="button" type="reset" value="Reset">
+                  <input class="button" type="reset" value="Reset" />
                 </td>
               </tr>
-              </form>
-                  <script type="text/javascript">
-                  <!--
-                  {literal}
-                  function checkDelete(f)
-                  {
-                      if (!hasOneChecked(f, 'items[]')) {
-                          alert('Please select at least one of the {$type_name}.');
-                          return false;
-                      }
-                      if (!confirm('This action will permanently remove the selected {/literal}{$type_name}{literal}.')) {
-                          return false;
-                      } else {
-                          return true;
-                      }
-                  }
-                  //-->
-                  </script>
-                  {/literal}
-                    <form onSubmit="javascript:return updateForm();" 
-                    target="_update_record_details" method="post" action="{$rel_url}popup.php" enctype="multipart/form-data">
-                    <input type="hidden" name="cat" value="list_action_{$type}">
-                    <input type="hidden" name="pid" value="{$pid}">
+              </table>
+            </form> 
+            
+            <script type="text/javascript">
+            <!--
+            {literal}
+            function checkDelete(f)
+            {
+                if (!hasOneChecked(f, 'items[]')) {
+                    alert('Please select at least one of the {$type_name}.');
+                    return false;
+                }
+                if (!confirm('This action will permanently remove the selected {/literal}{$type_name}{literal}.')) {
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+            //-->
+            </script>
+            {/literal}
+            
+            <form onsubmit="javascript:return updateForm();" method="post" action="{$rel_url}popup.php" enctype="multipart/form-data">
+              <div>
+                <input type="hidden" name="cat" value="list_action_{$type}" />
+                <input type="hidden" name="pid" value="{$pid}" />
+              </div>
+            
+            <table style="background: #FFFFFF; width: 100%;" cellspacing="1" cellpadding="2">
               <tr>
                 <td colspan="2" class="default">
-                  <b>Existing Workflow Triggers:</b>
+                  <h2>Existing Workflow Triggers:</h2>
                 </td>
               </tr>
               <tr>
                 <td colspan="2">
-                  <table border="0" width="100%" cellpadding="1" cellspacing="1">
+                  <table style="width: 100%" cellpadding="1" cellspacing="1">
                     <tr>
-                      <td width="4" bgcolor="{$cell_color}" nowrap align="center"><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Trigger</b>&nbsp;</td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Object Type</b></td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>XSD Display</b>&nbsp;</td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Workflow</b>&nbsp;</td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Mimetype</b>&nbsp;</td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Action</b>&nbsp;</td>
+                      <td style="width: 4px; background: {$cell_color}; white-space: nowrap; text-align: center;"><input type="button" value="All" class="shortcut" onclick="javascript:toggleSelectAll(this.form, 'items[]');" /></td>
+                      <td class="default cell-colour">&nbsp;<b>Trigger</b>&nbsp;</td>
+                      <td class="default cell-colour">&nbsp;<b>Object Type</b></td>
+                      <td class="default cell-colour">&nbsp;<b>XSD Display</b>&nbsp;</td>
+                      <td class="default cell-colour">&nbsp;<b>Workflow</b>&nbsp;</td>
+                      <td class="default cell-colour">&nbsp;<b>Mimetype</b>&nbsp;</td>
+                      <td class="default cell-colour">&nbsp;<b>Action</b>&nbsp;</td>
                     </tr>
                     {section name="i" loop=$list}
                     {cycle values=$cycle assign="row_color"}
                     <tr>
-                      <td nowrap bgcolor="{$row_color}" align="center">
-                        <input type="checkbox" name="items[]" value="{$list[i].wft_id}" {if $smarty.section.i.total == 0}disabled{/if}>
+                      <td style="white-space: nowrap; background: {$row_color}; text-align: center;">
+                        <input type="checkbox" name="items[]" value="{$list[i].wft_id}" {if $smarty.section.i.total == 0}disabled="disabled"{/if} />
                       </td>
-                      <td bgcolor="{$row_color}" class="default">
+                      <td style="background: {$row_color}" class="default">
                         <img src="{$rel_url}{$list[i].wft_icon}" alt="icon" />
                         {assign var="type_id" value=$list[i].wft_type_id}
                         &nbsp;{$triggers_list.$type_id}
                       </td>
-                      <td bgcolor="{$row_color}" class="default">
+                      <td style="background: {$row_color}" class="default">
                         {assign var="object_type" value=$list[i].wft_ret_id}
                         &nbsp;{$object_options.$object_type}
                       </td>
-                      <td bgcolor="{$row_color}" class="default">
+                      <td style="background: {$row_color}" class="default">
                         {assign var="xdis_id" value=$list[i].wft_xdis_id}
                         &nbsp;{$xdis_list.$xdis_id}
                       </td>
-                      <td bgcolor="{$row_color}" class="default">
+                      <td style="background: {$row_color}" class="default">
                         {assign var="wfl_id" value=$list[i].wft_wfl_id}
                         &nbsp;{$wfl_list.$wfl_id}
                       </td>
-                      <td width="200" bgcolor="{$row_color}" class="default">
+                      <td style="background: {$row_color}; width: 200px;" class="default">
                         &nbsp;{$list[i].wft_mimetype}
                       </td>
-                      <td bgcolor="{$row_color}" class="default">
-                        &nbsp;<a href="{$rel_url}manage/workflow_triggers.php?cat=edit&wft_id={$list[i].wft_id}&pid={$pid}">[edit]</a>
+                      <td style="background: {$row_color}" class="default">
+                        &nbsp;<a href="{$rel_url}manage/workflow_triggers.php?cat=edit&amp;wft_id={$list[i].wft_id}&amp;pid={$pid}">Edit</a>
                       </td>
                     </tr>
                     {sectionelse}
                     <tr>
-                      <td colspan="7" bgcolor="{$light_color}" align="center" class="default">
+                      <td colspan="7" style="background: {$light_color}; text-align: center;" class="default">
                         No items could be found.
                       </td>
                     </tr>
                     {/section}
                     <tr>
-                      <td align="center" bgcolor="{$cell_color}">
-                        <input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
+                      <td style="text-align: center;" class="cell-colour">
+                        <input type="button" value="All" class="shortcut" onclick="javascript:toggleSelectAll(this.form, 'items[]');" />
                       </td>
-                      <td colspan="6" bgcolor="{$cell_color}">
-                        <input type="submit" name="delete" value="Delete" class="button" onclick="javascript:return checkDelete(this.form);">
+                      <td colspan="6" class="cell-colour">
+                        <input type="submit" name="delete" value="Delete" class="button" onclick="javascript:return checkDelete(this.form);" />
                       </td>
                     </tr>
 
@@ -413,3 +415,4 @@ selectObjectXSDDisplay(getForm('entry_form'), 'wft_ret_id');
 // --></script>	  
       {/literal}
 
+</div>

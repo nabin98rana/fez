@@ -1,62 +1,64 @@
 <div class="admin-box">
 
-<div class="admin-header">Export XSDs</div>
+  <h1>Export XSDs</h1>
 
-<form method="post">
-<table>
-<tr class="table_heading_row">
-<td><input type="button" value="All"  onClick="javascript:toggleSelectAll(this.form, 'xdis_ids[]');"></td>
-<td>Title</td>
-<td>Version</td>
-<td>Object Type</td>
-<td>Enabled?</td>
-</tr>
-{section name="i" loop=$list}
-<tr><td colspan="20">                    
-                        <span class="contentheader">{$list[i].xsd_title}</span>
-                      <span class="default">
-                        Version: {$list[i].xsd_version}
-                     </span>
-                     </td>
-                     </tr>
-                    
-    {if $list[i].xdis_list_count > 0}
-			{section name="jj" loop=$list[i].xdis_list}
-			  {assign var="xdis" value=$list[i].xdis_list[jj]}
-			  {cycle values=$cycle assign="row_color"}
-                    <tr>
-                      <td width="4" nowrap bgcolor="{$row_color}" align="center">
-                        <input type="checkbox" name="xdis_ids[]" value="{$xdis.xdis_id}">
-                      </td>
-                      <td width="35%" bgcolor="{$row_color}" class="default">
-                        {$xdis.xdis_title}</a>
-                      </td>
+  <form method="post" action="{$smarty.server.PHP_SELF}">
+    <table style="width: 100%">
+      <tr class="table_heading_row">
+        <td><input type="button" value="All" class="button" onclick="javascript:toggleSelectAll(this.form, 'xdis_ids[]');" /></td>
+        <td>Title</td>
+        <td>Version</td>
+        <td>Object Type</td>
+        <td>Enabled?</td>
+      </tr>
+      {section name="i" loop=$list}
+      <tr>
+        <td colspan="20">
+          <span class="contentheader">{$list[i].xsd_title}</span>
+          <span class="default">Version: {$list[i].xsd_version}</span>
+        </td>
+      </tr>
 
-                      <td width="15%" bgcolor="{$row_color}" class="default">
-                        &nbsp;{$xdis.xdis_version}
-                      </td>
-                      <td bgcolor="{$row_color}" class="default">
-						{assign var="temp_fld_id" value=$xdis.xdis_object_type}
-                        &nbsp;{$object_options[$temp_fld_id]}
-                      </td>
-                      <td bgcolor="{$row_color}" class="default">
-                        &nbsp;{if $xdis.xdis_enabled == 1}<font color="green">yes</font>{else}<font color="red">no</font>{/if}
-                      </td>
+          {if $list[i].xdis_list_count > 0}
+      			{section name="jj" loop=$list[i].xdis_list}
+      			  {assign var="xdis" value=$list[i].xdis_list[jj]}
+      			  {cycle values=$cycle assign="row_color"}
+                          <tr>
+                            <td style="width: 4px; white-space: nowrap; background: {$row_color}; text-align: center">
+                              <input type="checkbox" name="xdis_ids[]" value="{$xdis.xdis_id}" />
+                            </td>
+                            <td style="width: 35%; background: {$row_color}" class="default">
+                              {$xdis.xdis_title}
+                            </td>
+                            <td style="width: 15%; background: {$row_color}" class="default">
+                              &nbsp;{$xdis.xdis_version}
+                            </td>
+                            <td style="background: {$row_color}" class="default">
+      						            {assign var="temp_fld_id" value=$xdis.xdis_object_type}
+                              &nbsp;{$object_options[$temp_fld_id]}
+                            </td>
+                            <td style="background: {$row_color}" class="default">
+                              &nbsp;{if $xdis.xdis_enabled == 1}<span class="enabled">yes</span>{else}<span class="disabled">no</span>{/if}
+                            </td>
+                          </tr>
+      			{/section}
+          {/if}
+      {sectionelse}
+                          <tr>
+                            <td colspan="7" style="background: {$light_color}; text-align: center" class="default">
+                              No doc type xsds could be found.
+                            </td>
+                          </tr>
+      {/section}
+          <tr class="table_heading_row">
+            <td>
+              <input type="button" value="All" class="button" onclick="javascript:toggleSelectAll(this.form, 'xdis_ids[]');" />
+            </td>
+            <td colspan="20">
+              <input type="submit" value="Export" name="go" class="button" />
+            </td>
+          </tr>
+      </table>
+  </form>
 
-                    </tr>
-			{/section}
-    {/if}
-{sectionelse}
-                    <tr>
-                      <td colspan="7" bgcolor="{$light_color}" align="center" class="default">
-                        No doc type xsds could be found.
-                      </td>
-                    </tr>
-{/section}
-    <tr class="table_heading_row">
-<td><input type="button" value="All"  onClick="javascript:toggleSelectAll(this.form, 'xdis_ids[]');"></td>
-<td colspan="20"><input type="submit" value="Export" name="go" /></td>
-</tr>
-</table>
-</form>
 </div>

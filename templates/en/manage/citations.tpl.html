@@ -1,55 +1,48 @@
 <div class="admin-box">
 
-<div class="admin-header">Manage Citations Views</div>
+<h1>Manage Citations Views</h1>
 
-<form method="post">
+<form method="post" action="">
 {if $action=='select_display'}
 
 {* Select the Display the edit the citation for *}
 
-<table>
-<tr class="table_heading_row">
-
-<td>Title</td>
-<td>Version</td>
-<td>Enabled?</td>
-<td>Citation Set?</td>
+<table style="width: 100%;">
+  <tr class="table_heading_row">
+    <td>Title</td>
+    <td>Version</td>
+    <td>Enabled?</td>
+    <td>Citation Set?</td>
 </tr>
 {section name="i" loop=$list}
 			  {assign var="xdis" value=$list[i]}
 			  {cycle values=$cycle assign="row_color"}
                     <tr>
-                      <td width="35%" bgcolor="{$row_color}" class="default">
-                        <a href="{$smarty.server.PHP_SELF}?action=edit&xdis_id={$xdis.xdis_id}">{$xdis.xdis_title}</a>
+                      <td style="width: 35%; background: {$row_color}" class="default">
+                        <a href="{$smarty.server.PHP_SELF}?action=edit&amp;xdis_id={$xdis.xdis_id}">{$xdis.xdis_title}</a>
                       </td>
-
-                      <td width="15%" bgcolor="{$row_color}" class="default">
+                      <td style="width: 15%; background: {$row_color}" class="default">
                         &nbsp;{$xdis.xdis_version}
                       </td>
-                      <td bgcolor="{$row_color}" class="default">
-                        &nbsp;{if $xdis.xdis_enabled == 1}<font color="green">yes</font>{else}<font color="red">no</font>{/if}
+                      <td style="background: {$row_color}" class="default">
+                        &nbsp;{if $xdis.xdis_enabled == 1}<span class="enabled">yes</span>{else}<span class="disabled">no</span>{/if}
                       </td>
-                      <td bgcolor="{$row_color}" class="default">
-                        &nbsp;{if $xdis.cit == 1}<font color="green">yes</font>{else}<font color="red">no</font>{/if}
+                      <td style="background: {$row_color}" class="default">
+                        &nbsp;{if $xdis.cit == 1}<span class="enabled">yes</span>{else}<span class="disabled">no</span>{/if}
                       </td>
-
                     </tr>
 {sectionelse}
                     <tr>
-                      <td colspan="7" bgcolor="{$light_color}" align="center" class="default">
+                      <td colspan="7" style="background: {$light_color}; text-align: center" class="default">
                         No displays could be found.
                       </td>
                     </tr>
 {/section}
 </table>
-<br/>
-<div class="default"><a href="{$smarty.server.PHP_SELF}?action=convert">Convert from old style citations</a> if you are using this 
-for the first time.  This will attempt to find citations defined in the xsdmf mappings and make new citations
-in the citations table.</div>
-<br />
-<div class="default"><a href="{$smarty.server.PHP_SELF}?action=clear_cache" onclick="return confirm('Are you sure you want to clear the citation cache?')">Clear citation cache</a> if you want to flush out any cached citations displaying
-in the list/browse/search results. Alternatively any time you update a citation style it will flush out the cache of that style. WARNING: If you have file caching on (which caches view pages for non-logged in view) you must manually clear out anything under your fez/cache directory otherwise it will still show the old citation style on those pages. This is not necessary when you change a citation style, only when you clear them all at once using this command.</div>
 
+<div class="default" style="padding-top: 25px;"><a href="{$smarty.server.PHP_SELF}?action=convert">Convert from old style citations</a> if you are using this for the first time.  This will attempt to find citations defined in the xsdmf mappings and make new citations in the citations table.</div>
+
+<div class="default" style="padding-top: 15px;"><a href="{$smarty.server.PHP_SELF}?action=clear_cache" onclick="return confirm('Are you sure you want to clear the citation cache?')">Clear citation cache</a> if you want to flush out any cached citations displaying in the list/browse/search results. Alternatively any time you update a citation style it will flush out the cache of that style. WARNING: If you have file caching on (which caches view pages for non-logged in view) you must manually clear out anything under your fez/cache directory otherwise it will still show the old citation style on those pages. This is not necessary when you change a citation style, only when you clear them all at once using this command.</div>
 
 {elseif $action=='edit' || $action=='preview'}
 
@@ -91,17 +84,20 @@ function tag(tag)
 // -->
 {/literal}
 </script>
-<input type="hidden" name="action" value="edit" />
-<input type="hidden" name="xdis_id" value="{$xdis_id}" />
-<select id="xsdmf_select" onchange="insertCode(this.value)">
-{html_options options=$xsdmf_select_list}
-</select>
-<input type="button" value="Bold" onclick="tag('b');" />
-<input type="button" value="italics" onclick="tag('i');" />
-<input type="button" value="underline" onclick="tag('u');" />
-<textarea name="template" id="template_text" rows="10" cols="80">{$template|default:$cit_template}</textarea><br/>
-<input type="submit" name="preview" value="Preview" onclick="form.action.value='edit';" />
-<input type="submit" name="save" value="Save" onclick="form.action.value='save';"/>
+<div>
+
+  <input type="hidden" name="action" value="edit" />
+  <input type="hidden" name="xdis_id" value="{$xdis_id}" />
+  <select id="xsdmf_select" onchange="insertCode(this.value)">
+  {html_options options=$xsdmf_select_list}
+  </select>
+  <input type="button" value="Bold" onclick="tag('b');" />
+  <input type="button" value="italics" onclick="tag('i');" />
+  <input type="button" value="underline" onclick="tag('u');" />
+  <textarea name="template" id="template_text" rows="10" cols="80">{$template|default:$cit_template}</textarea><br/>
+  <input type="submit" name="preview" value="Preview" onclick="form.action.value='edit';" />
+  <input type="submit" name="save" value="Save" onclick="form.action.value='save';"/>
+</div>
 {if $preview}
 <h2>Preview:</h2>
 <div class="citation_preview">{$preview}</div>

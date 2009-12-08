@@ -1,24 +1,44 @@
+<div class="admin-box">
 
-      <table width="100%" class="admin-box" border="0" cellspacing="0" cellpadding="0" align="center">
-        <tr>
-          <td>
-            <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
-              <form name="custom_field_form" onSubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}" enctype="multipart/form-data">
-              {if $smarty.get.cat == 'edit'}
-              <input type="hidden" name="cat" value="update">
-              <input type="hidden" name="id" value="{$smarty.get.id}">
-              {else}
-              <input type="hidden" name="cat" value="new">
-              {/if}
+    <script type="text/javascript">
+    <!--
+    {literal}
+    function checkDelete(f)
+    {
+        if (!hasOneChecked(f, 'items[]')) {
+            alert('Please select at least one of the Ad Hoc SQL Queries.');
+            return false;
+        }
+        if (!confirm('This action will permanently remove the selected Ad Hoc SQL Queries.')) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+    //-->
+    </script>
+    {/literal}
+
+    <form id="custom_field_form" onsubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}" enctype="multipart/form-data">
+      <div>
+        {if $smarty.get.cat == 'edit'}
+          <input type="hidden" name="cat" value="update" />
+          <input type="hidden" name="id" value="{$smarty.get.id}" />
+        {else}
+          <input type="hidden" name="cat" value="new" />
+        {/if}
+      </div>
+
+            <table style="width: 100%" cellspacing="1" cellpadding="2">
               <tr>
                 <td colspan="2">
-                  <div class="admin-header">Manage Ad Hoc SQL Queries (for use running against workflows as custom pid array lists)</div>
+                  <h1>Manage Ad Hoc SQL Queries</h1>
+                  <div>For use running against workflows as custom pid array lists</div>
                 </td>
               </tr>
               {if $result != ""}
               <tr>
-                <td colspan="2" bgcolor="{$cell_color}" align="center" class="{if $result == 1 || $result == 3}success{else}error{/if}">
-                  
+                <td colspan="2" style="background: {$cell_color}; text-align: center" class="{if $result == 1 || $result == 3}success{else}error{/if}">
                     {if $result == -1}
                       An error occurred while trying to add the row.
                     {elseif $result == 1}
@@ -28,124 +48,108 @@
                     {elseif $result == 4}
                        An error occurred while trying to delete row(s)
                     {/if}
-                    
                 </td>
               </tr>
               {/if}
               <tr>
-                <td width="160" bgcolor="{$cell_color}" class="default">
+                <td style="width: 160px; background: {$cell_color}" class="default">
                   <b>Name:</b>
                 </td>
-                <td bgcolor="{$light_color}">
-                  <input type="text" name="ahs_name" size="40" class="default" value="{$info.ahs_name}">
+                <td style="background: {$light_color}">
+                  <input type="text" name="ahs_name" size="40" class="default" value="{$info.ahs_name}" />
                   {include file="error_icon.tpl.html" field="name"}
                 </td>
               </tr>
               <tr>
-              <td width="160" bgcolor="{$cell_color}" class="default">
+              <td style="width: 160px; background: {$cell_color}" class="default">
                 <b>Query (what the workflow will use for an array of pids):</b><br />Only one column (pid), no ending ;
               </td>
-                <td bgcolor="{$light_color}">
+                <td style="background: {$light_color}">
                 	<textarea name="ahs_query" cols="70" rows="15" class="default">{$info.ahs_query|escape:"html"}</textarea>
                 	{include file="error_icon.tpl.html" field="ahs_query"}
                 </td>
               </tr>
               <tr>
-              <td width="160" bgcolor="{$cell_color}" class="default">
+              <td style="width: 160px; background: {$cell_color}" class="default">
                 <b>Count Query (to be used to get the max rows affected/page count):</b><br />Only one column (count of pid), no ending ;
               </td>
-                <td bgcolor="{$light_color}">
+                <td style="background: {$light_color}">
                 	<textarea name="ahs_query_count" cols="70" rows="15" class="default">{$info.ahs_query_count|escape:"html"}</textarea>
                 	{include file="error_icon.tpl.html" field="ahs_query_count"}
                 </td>
               </tr>
               <tr>
-              <td width="160" bgcolor="{$cell_color}" class="default">
+              <td style="width: 160px; background: {$cell_color}" class="default">
                 <b>Show Query (what will be shown in a preview of results affected):</b><br />two columns first 'as pid', second 'as title', no ending ;
               </td>
-                <td bgcolor="{$light_color}">
+                <td style="background: {$light_color}">
                 	<textarea name="ahs_query_show" cols="70" rows="15" class="default">{$info.ahs_query_show|escape:"html"}</textarea>
                 	{include file="error_icon.tpl.html" field="ahs_query_show"}
                 </td>
               </tr>
-
               <tr>
-                <td colspan="2" bgcolor="{$cell_color}" align="center">
+                <td colspan="2" style="background: {$cell_color}; text-align: center">
                   {if $smarty.get.cat == 'edit'}
-                  <input class="button" type="submit" value="Update Ad Hoc Query">
+                    <input class="button" type="submit" value="Update Ad Hoc Query" />
                   {else}
-                  <input class="button" type="submit" value="Add Ad Hoc Query">
+                    <input class="button" type="submit" value="Add Ad Hoc Query" />
                   {/if} 
-                  <input class="button" type="reset" value="Reset">
+                  <input class="button" type="reset" value="Reset" />
                 </td>
               </tr>
-              </form>
+              </table>
+          </form>              
+
+
+          <form onsubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}">
+            <div>
+              <input type="hidden" name="cat" value="delete" />
+            </div>
+              
+            <table style="width: 100%" cellspacing="1" cellpadding="2">
               <tr>
                 <td colspan="2" class="default">
-                  <b>Existing Ad Hoc SQL Queries ({$list_count}):</b>
+                  <h2>Existing Ad Hoc SQL Queries ({$list_count}):</h2>
                 </td>
               </tr>
               <tr>
                 <td colspan="2">
-                  <script language="JavaScript">
-                  <!--
-                  {literal}
-                  function checkDelete(f)
-                  {
-                      if (!hasOneChecked(f, 'items[]')) {
-                          alert('Please select at least one of the Ad Hoc SQL Queries.');
-                          return false;
-                      }
-                      if (!confirm('This action will permanently remove the selected Ad Hoc SQL Queries.')) {
-                          return false;
-                      } else {
-                          return true;
-                      }
-                  }
-                  //-->
-                  </script>
-                  {/literal}
-                  <table border="0" width="100%" cellpadding="1" cellspacing="1">
-                    <form onSubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}">
-                    <input type="hidden" name="cat" value="delete">
+                  <table style="width: 100%" cellpadding="1" cellspacing="1">
                     <tr>
-                      <td width="5" bgcolor="{$cell_color}" align="center" nowrap><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Name</b>&nbsp;</td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Query</b>&nbsp;</td>
+                      <td style="width: 5px; background: {$cell_color}; text-align: center; white-space: nowrap">
+                        <input type="button" value="All" class="shortcut button" onclick="javascript:toggleSelectAll(this.form, 'items[]');" />
+                      </td>
+                      <td class="default cell-colour">&nbsp;<b>Name</b>&nbsp;</td>
+                      <td class="default cell-colour">&nbsp;<b>Query</b>&nbsp;</td>
                     </tr>
                     {section name="i" loop=$list}
                     {cycle values=$cycle assign="row_color"}
                     <tr>
-                      <td width="4" nowrap bgcolor="{$row_color}" align="center">
-                        <input type="checkbox" name="items[]" value="{$list[i].ahs_id}" {if $smarty.section.i.total == 0}disabled{/if}>
+                      <td style="width: 4px; white-space: nowrap; background: {$row_color}; text-align: center">
+                        <input type="checkbox" name="items[]" value="{$list[i].ahs_id}" {if $smarty.section.i.total == 0}disabled="disabled"{/if} />
                       </td>
-                      <td bgcolor="{$row_color}" class="default">
-                        &nbsp;<a href="ad_hoc_sql.php?cat=edit&id={$list[i].ahs_id}">{$list[i].ahs_name}</a>
-                      </td>
-                      <td bgcolor="{$row_color}" class="default">
-                        &nbsp;{$list[i].ahs_query|nl2br}
-                      </td>
+                      <td style="background: {$row_color}" class="default"><a href="ad_hoc_sql.php?cat=edit&amp;id={$list[i].ahs_id}">{$list[i].ahs_name}</a></td>
+                      <td style="background: {$row_color}" class="default">{$list[i].ahs_query|nl2br}</td>
                     </tr>
                     {sectionelse}
                     <tr>
-                      <td colspan="8" bgcolor="{$light_color}" align="center" class="default">
+                      <td colspan="8" style="background: {$light_color}; text-align: center" class="default">
                         No Ad Hoc SQL Queries could be found.
                       </td>
                     </tr>
                     {/section}
                     <tr>
-                      <td width="4" align="center" bgcolor="{$cell_color}">
-                        <input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
+                      <td style="width: 4px; text-align: center; background: {$cell_color}">
+                        <input type="button" value="All" class="shortcut button" onclick="javascript:toggleSelectAll(this.form, 'items[]');" />
                       </td>
-                      <td colspan="8" bgcolor="{$cell_color}">
-                        <input type="submit" value="Delete" class="button">
+                      <td colspan="8" style="background: {$cell_color}">
+                        <input type="submit" value="Delete" class="button" />
                       </td>
                     </tr>
-                    </form>
                   </table>
                 </td>
               </tr>
             </table>
-          </td>
-        </tr>
-      </table>
+          </form>  
+
+</div>

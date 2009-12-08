@@ -1,21 +1,18 @@
+<div class="admin-box">
 
-      <table width="100%" class="admin-box" border="0" cellspacing="0" cellpadding="0" align="center">
-        <tr>
-          <td>
-            <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
-              {literal}
-              <script language="JavaScript">
-              <!--
-              function validateForm(f)
-              {
+        {literal}
+        <script type="text/javascript">
+        <!--
+        function validateForm(f)
+        {
 
-				// The dual multiple controls should select all the fields in the multiple combo box so that they will
-				// be included in the form submission.
-				var field = document.group_form.userslist;
+        // The dual multiple controls should select all the fields in the multiple combo box so that they will
+        // be included in the form submission.
+        var field = document.group_form.userslist;
 
-				for (var y = 0; y < field.options.length; y++) {
-					field.options[y].selected = true;
-				}
+        for (var y = 0; y < field.options.length; y++) {
+          field.options[y].selected = true;
+        }
 
                   checkLeadSelection(f);
                   if (isWhitespace(f.title.value)) {
@@ -62,21 +59,27 @@
               //-->
               </script>
               {/literal}
-              <form name="group_form" onSubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}">
+              
+
+        <form id="group_form" onsubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}">
+          <div>
               {if $smarty.get.cat == 'edit'}
-              <input type="hidden" name="cat" value="update">
-              <input type="hidden" name="id" value="{$smarty.get.id}">
+                <input type="hidden" name="cat" value="update" />
+                <input type="hidden" name="id" value="{$smarty.get.id}" />
               {else}
-              <input type="hidden" name="cat" value="new">
+                <input type="hidden" name="cat" value="new" />
               {/if}
+          </div>
+      
+          <table style="width: 100%" cellspacing="0" cellpadding="0">
               <tr>
                 <td colspan="2">
-                  <div class="admin-header">Manage Groups</div>
+                  <h1>Manage Groups</h1>
                 </td>
               </tr>
               {if $result != ""}
               <tr>
-                <td colspan="2" bgcolor="{$cell_color}" align="center" class="error">
+                <td colspan="2" style="background: {$cell_color}; text-align: center" class="error">
                   {if $smarty.post.cat == "new"}
                     {if $result == -1}
                       An error occurred while trying to add the new team.
@@ -98,138 +101,147 @@
               </tr>
               {/if}
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td style="width: 120px; background: {$cell_color}" class="default">
                   <b>Title: *</b>
                 </td>
-                <td bgcolor="{$light_color}" width="80%">
-                  <input type="text" name="title" size="40" class="default" value="{$info.grp_title}">
+                <td style="backround: {$light_color}; width: 80%">
+                  <input type="text" name="title" size="40" class="default" value="{$info.grp_title}" />
                   {include file="error_icon.tpl.html" field="title"}
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td style="width: 120px; background: {$cell_color}" class="default">
                   <b>Status: *</b>
                 </td>
-                <td bgcolor="{$light_color}" width="80%">
+                <td style="backround: {$light_color}; width: 80%" class="default">
                   <select name="status" class="default">
-                    <option value="active" {if $info.grp_status == 'active'}selected{/if}>Active</option>
-                    <option value="archived" {if $info.grp_status == 'archived'}selected{/if}>Archived</option>
+                    <option value="active" {if $info.grp_status == 'active'}selected="selected"{/if}>Active</option>
+                    <option value="archived" {if $info.grp_status == 'archived'}selected="selected"{/if}>Archived</option>
                   </select>
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td style="width: 120px; background: {$cell_color}" class="default">
                   <b>Users: *</b>
                 </td>
-                <td bgcolor="{$light_color}" width="80%">
+                <td style="backround: {$light_color}; width: 80%" class="default">
 
-					<table>
-						<tr>
-							<td>
-			                  <select id="userslist" multiple size="10" width="40" class="default" name="users[]">
-								  {if is_array($info.grp_users)}{html_options options=$info.grp_users}{/if}
-							  </select>
-							</td>
-							<td>
-			                  <select id="users_helper" multiple size="10" width="40" class="default" name="users_helper">
-						        {html_options options=$user_options}
-							  </select>
-							</td>
-						</tr>
-						<tr>
-							<td>
-								<input type="button" name="remove_left" value="Remove selected from left" onClick="javascript:deleteSelectedItemsFromList(this.form.userslist);" />
-							</td>
-							<td>
-								<input type="button" name="copy_left" value="Copy selected to left" onClick="javascript:addToParentList(this.form.users_helper, this.form.userslist);" />
-							</td>
-						</tr>
-					</table>
-
+        					<table>
+        						<tr>
+        							<td>
+        			          <select id="userslist" multiple="multiple" size="10" class="default" name="users[]">
+        								  {if is_array($info.grp_users)}{html_options options=$info.grp_users}{/if}
+        							  </select>
+        							</td>
+        							<td>
+                        <select id="users_helper" multiple="multiple" size="10" class="default" name="users_helper">
+        						        {html_options options=$user_options}
+        							  </select>
+        							</td>
+        						</tr>
+        						<tr>
+        							<td>
+        								<input type="button" name="remove_left" value="Remove selected from left" class="button" onclick="javascript:deleteSelectedItemsFromList(this.form.userslist);" />
+        							</td>
+        							<td>
+        								<input type="button" name="copy_left" value="Copy selected to left" class="button" onclick="javascript:addToParentList(this.form.users_helper, this.form.userslist);" />
+        							</td>
+        						</tr>
+        					</table>
                   {include file="error_icon.tpl.html" field="users[]"}
                 </td>
               </tr>
 
               <tr>
-                <td colspan="2" bgcolor="{$cell_color}" align="center">
+                <td colspan="2" style="background: {$cell_color}; text-align: center">
                   {if $smarty.get.cat == 'edit'}
-                  <input class="button" type="submit" value="Update Group">
+                    <input class="button" type="submit" value="Update Group" />
                   {else}
-                  <input class="button" type="submit" value="Create Group">
+                    <input class="button" type="submit" value="Create Group" />
                   {/if}
-                  <input class="button" type="reset" value="Reset">
+                  <input class="button" type="reset" value="Reset" />
                 </td>
               </tr>
-              </form>
+            </table>
+          </form>
+
+
+          {literal}
+          <script type="text/javascript">
+          <!--
+          function checkDelete(f)
+          {
+              var total_selected = getTotalCheckboxesChecked(f, 'items[]');
+              var total = getTotalCheckboxes(f, 'items[]');
+              if (total == total_selected) {
+                  alert('You cannot remove all of the teams in the system.');
+                  return false;
+              }
+              if (!hasOneChecked(f, 'items[]')) {
+                  alert('Please select at least one of the teams.');
+                  return false;
+              }
+              if (!confirm('WARNING: This action will remove the selected teams permanently.\nIt will remove all of its associated entries as well (issues, notes, attachments,\netc), so please click OK to confirm.')) {
+                  return false;
+              } else {
+                  return true;
+              }
+          }
+          //-->
+          </script>
+          {/literal}
+
+          <form onsubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}">
+            <div>
+              <input type="hidden" name="cat" value="delete" />
+            </div>
+          
+          <table style="width: 100%" cellspacing="0" cellpadding="0">
               <tr>
                 <td colspan="2" class="default">
-                  <b>Existing Groups:</b>
+                  <h2>Existing Groups:</h2>
                 </td>
               </tr>
               <tr>
                 <td colspan="2">
-                  {literal}
-                  <script language="JavaScript">
-                  <!--
-                  function checkDelete(f)
-                  {
-                      var total_selected = getTotalCheckboxesChecked(f, 'items[]');
-                      var total = getTotalCheckboxes(f, 'items[]');
-                      if (total == total_selected) {
-                          alert('You cannot remove all of the teams in the system.');
-                          return false;
-                      }
-                      if (!hasOneChecked(f, 'items[]')) {
-                          alert('Please select at least one of the teams.');
-                          return false;
-                      }
-                      if (!confirm('WARNING: This action will remove the selected teams permanently.\nIt will remove all of its associated entries as well (issues, notes, attachments,\netc), so please click OK to confirm.')) {
-                          return false;
-                      } else {
-                          return true;
-                      }
-                  }
-                  //-->
-                  </script>
-                  {/literal}
-                  <table border="0" width="100%" cellpadding="1" cellspacing="1">
-                    <form onSubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}">
-                    <input type="hidden" name="cat" value="delete">
+                  <table style="width: 100%" cellpadding="1" cellspacing="1">
                     <tr>
-                      <td width="4" bgcolor="{$cell_color}" nowrap><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Title</b></td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Status</b></td>
+                      <td style="width: 4px; background: {$cell_color}; white-space: nowrap">
+                        <input type="button" value="All" class="shortcut button" onclick="javascript:toggleSelectAll(this.form, 'items[]');" />
+                      </td>
+                      <td class="default cell-colour">&nbsp;<b>Title</b></td>
+                      <td class="default cell-colour">&nbsp;<b>Status</b></td>
                     </tr>
                     {section name="i" loop=$list}
                     {cycle values=$cycle assign="row_color"}
                     <tr>
-                      <td width="4" align="center" nowrap bgcolor="{$row_color}"><input type="checkbox" name="items[]" value="{$list[i].grp_id}"></td>
-                      <td width="30%" bgcolor="{$row_color}" class="default">
-                        &nbsp;<a class="link" href="{$smarty.server.PHP_SELF}?cat=edit&id={$list[i].grp_id}" title="update this entry">{$list[i].grp_title}</a>
+                      <td style="width: 4px; text-align: center; white-space: nowrap; background: {$row_color}">
+                        <input type="checkbox" name="items[]" value="{$list[i].grp_id}" />
                       </td>
-                      <td bgcolor="{$row_color}" class="default">&nbsp;{$list[i].grp_status|capitalize}</td>
+                      <td style="width: 30%; background: {$row_color}" class="default">
+                        &nbsp;<a class="link" href="{$smarty.server.PHP_SELF}?cat=edit&amp;id={$list[i].grp_id}" title="update this entry">{$list[i].grp_title}</a>
+                      </td>
+                      <td style="background: {$row_color}" class="default">&nbsp;{$list[i].grp_status|capitalize}</td>
                     </tr>
                     {sectionelse}
                     <tr>
-                      <td colspan="5" bgcolor="{$light_color}" align="center" class="default">
+                      <td colspan="5" style="background: {$light_color}; text-align: center" class="default">
                         No groups could be found.
                       </td>
                     </tr>
                     {/section}
                     <tr>
-                      <td width="4" bgcolor="{$cell_color}" align="center">
-                        <input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
+                      <td style="width: 4px; background: {$cell_color}; text-align: center">
+                        <input type="button" value="All" class="shortcut button" onclick="javascript:toggleSelectAll(this.form, 'items[]');" />
                       </td>
-                      <td colspan="4" bgcolor="{$cell_color}" align="center">
-                        <input type="submit" value="Delete" class="button">
+                      <td colspan="4" style="background: {$cell_color}; text-align: center">
+                        <input type="submit" value="Delete" class="button" />
                       </td>
                     </tr>
-                    </form>
                   </table>
                 </td>
               </tr>
             </table>
-          </td>
-        </tr>
-      </table>
+          </form>
 
+</div>

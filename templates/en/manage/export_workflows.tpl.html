@@ -1,50 +1,50 @@
 <div class="admin-box">
 
-<div class="admin-header">Export Workflows</div>
+  <h1>Export Workflows</h1>
+  
+  <form method="post" action="{$smarty.server.PHP_SELF}">
+    <table style="width: 100%">
+      <tr class="table_heading_row">
+        <td>
+          <input type="button" value="All" class="button" onclick="javascript:toggleSelectAll(this.form, 'wfl_ids[]');" />
+        </td>
+        <td>Title</td>
+        <td>Version</td>
+      </tr>
+      {section name="i" loop=$wfl_list}
+      			  {assign var="item" value=$wfl_list[i]}
+      			  {cycle values=$cycle assign="row_color"}
+                          <tr>
+                            <td style="width: 4px; white-space: nowrap; background: {$row_color}; text-align: center">
+                              <input type="checkbox" name="wfl_ids[]" value="{$item.wfl_id}" />
+                            </td>
+                            <td style="background: {$row_color}" class="default">
+                              {$item.wfl_title}
+                            </td>
+                            <td style="background: {$row_color}" class="default">
+                              {$item.wfl_version}
+                            </td>
+                          </tr>
+      {sectionelse}
+                          <tr>
+                            <td colspan="7" style="background: {$light_color}; text-align: center" class="default">
+                              No workflows could be found.
+                            </td>
+                          </tr>
+      {/section}
+          <tr class="table_heading_row">
+            <td>
+              <input type="button" value="All" class="button" onclick="javascript:toggleSelectAll(this.form, 'wfl_ids[]');" />
+            </td>
+            <td colspan="20"></td>
+          </tr>
 
-<form method="post">
-<table>
-<tr class="table_heading_row">
-<td><input type="button" value="All"  onClick="javascript:toggleSelectAll(this.form, 'wfl_ids[]');"></td>
-<td>Title</td>
-<td>Version</td>
-</tr>
-{section name="i" loop=$wfl_list}
-			  {assign var="item" value=$wfl_list[i]}
-			  {cycle values=$cycle assign="row_color"}
-                    <tr>
-                      <td width="4" nowrap bgcolor="{$row_color}" align="center">
-                        <input type="checkbox" name="wfl_ids[]" value="{$item.wfl_id}">
-                      </td>
-                      <td  bgcolor="{$row_color}" class="default">
-                        {$item.wfl_title}</a>
-                      </td>
+      <tr>
+        <td colspan="20" style="text-align: center">
+          <input type="submit" value="Export" name="go" class="button" />
+        </td>
+      </tr>
+    </table>
+  </form>
 
-                      <td  bgcolor="{$row_color}" class="default">
-                        {$item.wfl_version}
-                      </td>
-
-                    </tr>
-{sectionelse}
-                    <tr>
-                      <td colspan="7" bgcolor="{$light_color}" align="center" class="default">
-                        No workflows could be found.
-                      </td>
-                    </tr>
-{/section}
-    <tr class="table_heading_row">
-<td><input type="button" value="All"  onClick="javascript:toggleSelectAll(this.form, 'wfl_ids[]');"></td>
-<td colspan="20"></td></tr>
-<!-- 
-<tr class="table_heading_row">
-<td><input type="button" value="All"  onClick="javascript:toggleSelectAll(this.form, 'wfb_ids[]');"></td>
-<td>Title</td>
-<td>Version</td>
-</tr>
--->
-<tr>
-<td colspan="20" align="center"><input type="submit" value="Export" name="go" /></td>
-</tr>
-</table>
-</form>
 </div>

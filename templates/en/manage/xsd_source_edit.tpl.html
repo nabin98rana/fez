@@ -1,20 +1,24 @@
+<div class="admin-box">
 
-      <table width="100%" class="admin-box" border="0" cellspacing="0" cellpadding="0" align="center">
+      <table cellspacing="0" cellpadding="0" style="width: 100%;">
         <tr>
           <td>
-            <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
-
-              <form name="xsd_source_form" method="post" action="{$smarty.server.PHP_SELF}" enctype="multipart/form-data">
-              <input type="hidden" name="cat" value="update">
-              <input type="hidden" name="xsd_id" value="{$xsd_id}">
+          
+            <form id="xsd_source_form" method="post" action="{$smarty.server.PHP_SELF}" enctype="multipart/form-data">
+            <div>
+              <input type="hidden" name="cat" value="update" />
+              <input type="hidden" name="xsd_id" value="{$xsd_id}" />
+            </div>
+                        
+            <table style="background: #FFFFFF; width: 100%;" cellspacing="1" cellpadding="2">
               <tr>
                 <td colspan="2" class="default">
-                  <b>Edit XSD Source</b>
+                  <h1>Edit XSD Source</h1>
                 </td>
               </tr>
               {if $result != ""}
               <tr>
-                <td colspan="2" bgcolor="{$cell_color}" align="center" class="error">
+                <td colspan="2" style="background: {$cell_color}" align="center" class="error">
                   {if $smarty.post.cat == "new"}
                     {if $result == -1}
                       An error occurred while trying to add the new doc type xsd.
@@ -32,71 +36,72 @@
               </tr>
               {/if}
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td style="width: 120px;" class="default cell-colour">
                   <b>Title:</b>
                 </td>
-                <td bgcolor="{$light_color}">
-                  <input type="text" name="xsd_title" size="40" class="default" value="{$list.xsd_title}">
+                <td style="background: {$light_color}">
+                  <input type="text" name="xsd_title" size="40" class="default" value="{$list.xsd_title}" />
                   {include file="error_icon.tpl.html" field="title"}
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td style="width: 120px;" class="default cell-colour">
                   <b>Version:</b>
                 </td>
-                <td bgcolor="{$light_color}">
-                  <input type="text" name="xsd_version" size="30" class="default" value="{$list.xsd_version}">
+                <td style="background: {$light_color}">
+                  <input type="text" name="xsd_version" size="30" class="default" value="{$list.xsd_version}" />
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td style="width: 120px;" class="default cell-colour">
                   <b>Top Element Name:</b>
                 </td>
-                <td bgcolor="{$light_color}">
-                  <input type="text" name="xsd_top_element_name" size="30" class="default" value="{$list.xsd_top_element_name}">
+                <td style="background: {$light_color}">
+                  <input type="text" name="xsd_top_element_name" size="30" class="default" value="{$list.xsd_top_element_name}" />
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td style="width: 120px;" class="default cell-colour">
                   <b>Element Prefix <i>(not required)</i>:</b>
                 </td>
-                <td bgcolor="{$light_color}">
-                  <input type="text" name="xsd_element_prefix" size="30" class="default" value="{$list.xsd_element_prefix}">
+                <td style="background: {$light_color}">
+                  <input type="text" name="xsd_element_prefix" size="30" class="default" value="{$list.xsd_element_prefix}" />
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td style="width: 120px;" class="default cell-colour">
                   <b>Extra Namespace Prefixes <i>(comma seperated, not required)</i>:</b>
                 </td>
-                <td bgcolor="{$light_color}">
-                  <input type="text" name="xsd_extra_ns_prefixes" size="30" class="default" value="{$list.xsd_extra_ns_prefixes}">
+                <td style="background: {$light_color}">
+                  <input type="text" name="xsd_extra_ns_prefixes" size="30" class="default" value="{$list.xsd_extra_ns_prefixes}" />
                 </td>
               </tr>
               <tr valign="top">
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td style="width: 120px;" class="default cell-colour">
                   <b>Edit XSD Source:</b>
                 </td>
-                <td bgcolor="{$light_color}">
-                  <textarea name="xsd_source" rows="40" cols="100" class="default">{$list.xsd_file}</textarea>
+                <td style="background: {$light_color}">
+                  <textarea name="xsd_source" rows="40" cols="100" class="default">{$list.xsd_file|escape:html}</textarea>
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td style="width: 120px;" class="default cell-colour">
                   <b>or Reupload XSD Source File:</b> <br /><i>If anything is in this field it will override any changes made to the above XSD Source.</i>
                 </td>
-                <td bgcolor="{$light_color}">
+                <td style="background: {$light_color}">
                   <input size="50" name="xsd_file[]" type="file" class="shortcut" />
                 </td>
               </tr>
               <tr>
-                <td colspan="2" bgcolor="{$cell_color}" align="center">
-                  <input class="button" type="submit" value="Update XSD Source">
-                  <input class="button" type="reset" value="Reset">
+                <td colspan="2" style="background: {$cell_color}" align="center">
+                  <input class="button" type="submit" value="Update XSD Source" />
+                  <input class="button" type="reset" value="Reset" />
                 </td>
               </tr>
-              </form>
             </table>
+          </form>            
           </td>
         </tr>
       </table>
 
+</div>

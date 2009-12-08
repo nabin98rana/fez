@@ -1,5 +1,7 @@
+<div class="admin-box">
+
               {literal}
-              <script language="JavaScript">
+              <script type="text/javascript">
               <!--
               function validateForm(f)
               {
@@ -56,7 +58,7 @@
               </script>
               {/literal}
               {literal}
-              <script language="JavaScript">
+              <script type="text/javascript">
               <!--
 				var page_url = '{/literal}{$smarty.server.PHP_SELF}{literal}';
 				var current_page = {/literal}{if $list_info.current_page != ""}{$list_info.current_page}{else}0{/if}{literal};
@@ -95,25 +97,26 @@
               </script>
               {/literal}              
 
-      <table width="100%" class="admin-box" border="0" cellspacing="0" cellpadding="0" align="center">
-        <tr>
-          <td>
-            <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
-              <form name="user_form" onSubmit="javascript:return checkFormSubmission(this, 'validateForm');" method="post" action="{$smarty.server.PHP_SELF}">
-              {if $smarty.get.cat == 'edit'}
-              <input type="hidden" name="cat" value="update">
-              <input type="hidden" name="id" value="{$smarty.get.id}">
-              {else}
-              <input type="hidden" name="cat" value="new">
-              {/if}
+
+        <form id="user_form" onsubmit="javascript:return checkFormSubmission(this, 'validateForm');" method="post" action="{$smarty.server.PHP_SELF}">
+         <div>
+          {if $smarty.get.cat == 'edit'}
+            <input type="hidden" name="cat" value="update" />
+            <input type="hidden" name="id" value="{$smarty.get.id}" />
+          {else}
+            <input type="hidden" name="cat" value="new" />
+          {/if}
+         </div>
+
+            <table style="width: 100%" cellspacing="1" cellpadding="2">
               <tr>
                 <td colspan="2">
-                  <div class="admin-header">Manage Users</div>
+                  <h1>Manage Users</h1>
                 </td>
               </tr>
               {if $result != ""}
               <tr>
-                <td colspan="2" bgcolor="{$cell_color}" align="center" class="error">
+                <td colspan="2" style="background: {$cell_color}; text-align: center;" class="error">
                   {if $smarty.post.cat == "new"}
                     {if $result == -1}
                       An error occurred while trying to add the new user.
@@ -131,144 +134,144 @@
               </tr>
               {/if}
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td style="width: 120px; background: {$cell_color}" class="default">
                   <b>Username: *</b>
                 </td>
-                <td bgcolor="{$light_color}">
-                  <input type="text" name="username" size="40" class="default" value="{$info.usr_username}">
+                <td style="background: {$light_color}">
+                  <input type="text" name="username" size="40" class="default" value="{$info.usr_username}" />
                   {include file="error_icon.tpl.html" field="username"}
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td style="width: 120px; background: {$cell_color}" class="default">
                   <b>E-mail: *</b>
                 </td>
-                <td bgcolor="{$light_color}">
-                  <input type="text" name="email" size="40" class="default" value="{$info.usr_email}">
+                <td style="background: {$light_color}">
+                  <input type="text" name="email" size="40" class="default" value="{$info.usr_email}" />
                   {include file="error_icon.tpl.html" field="email"}
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td style="width: 120px; background: {$cell_color}" class="default">
                   <b>Full Name: *</b>
                 </td>
-                <td bgcolor="{$light_color}">
-                  <input type="text" name="full_name" size="40" class="default" value="{$info.usr_full_name}">
+                <td style="background: {$light_color}">
+                  <input type="text" name="full_name" size="40" class="default" value="{$info.usr_full_name}" />
                   {include file="error_icon.tpl.html" field="full_name"}
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td style="width: 120px; background: {$cell_color}" class="default">
                   <b>Administrator?:</b>
                 </td>
-                <td bgcolor="{$light_color}">
-				  <input type="checkbox" name="administrator" {if $info.usr_administrator == 1}checked{/if}>
+                <td style="background: {$light_color}">
+				          <input type="checkbox" name="administrator" {if $info.usr_administrator == 1}checked="checked"{/if} />
                 </td>
               </tr>
 			  {if $isSuperAdministrator == '1'}
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td style="width: 120px; background: {$cell_color}" class="default">
                   <b>Super Administrator?:</b>
                 </td>
-                <td bgcolor="{$light_color}">
-				  <input type="checkbox" name="super_administrator" {if $info.usr_super_administrator == 1}checked{/if}>
+                <td style="background: {$light_color}">
+				          <input type="checkbox" name="super_administrator" {if $info.usr_super_administrator == 1}checked="checked"{/if} />
                 </td>
               </tr>
 			  {/if}
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td style="width: 120px; background: {$cell_color}" class="default">
                   <b>Use LDAP Authentication?:</b>
                 </td>
-                <td bgcolor="{$light_color}">
-				  <input type="checkbox" name="ldap_authentication" {if $info.usr_ldap_authentication == 1}checked{/if} onClick="javascript:togglePasswordText();">
+                <td style="background: {$light_color}">
+				          <input type="checkbox" name="ldap_authentication" {if $info.usr_ldap_authentication == 1}checked="checked"{/if} onclick="javascript:togglePasswordText();" />
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td style="width: 120px; background: {$cell_color}" class="default">
                   <b>Password:</b>
                 </td>
-                <td bgcolor="{$light_color}">
-				{if ($smarty.get.cat == "edit")}
-					{if ($info.usr_ldap_authentication == 0)}
-				  <input type="checkbox" name="change_password">  <span class="default"><i>(Tick this if you want to change the user password)</i></span>
-					{/if}
-				{/if}
-                  <input type="password" name="password" size="40" class="default" value="{$info.usr_password}"> <span class="default"><i>(Only for Non-LDAP authentication)</i></span>
+                <td style="background: {$light_color}">
+          				{if ($smarty.get.cat == "edit")}
+          					{if ($info.usr_ldap_authentication == 0)}
+          				  <input type="checkbox" name="change_password" />  <span class="default"><i>(Tick this if you want to change the user password)</i></span>
+          					{/if}
+          				{/if}
+                  <input type="password" name="password" size="40" class="default" value="{$info.usr_password}" /> <span class="default"><i>(Only for Non-LDAP authentication)</i></span>
                   {include file="error_icon.tpl.html" field="password"}
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td style="width: 120px; background: {$cell_color}" class="default">
                   <b>Internal System Groups:</b>
                 </td>
-                <td bgcolor="{$light_color}" width="80%">
-					<table>
-						<tr>
-							<td>
-                              <select id="groupslist" name="groups[]" multiple size="10" class="default">
-                               {if is_array($info.usr_groups)}{html_options options=$info.usr_groups}{/if}
-                              </select>
-
-							</td>
-							<td>
-                              <select id="groups_helper" name="groups_helper" multiple size="10" class="default">
-                               {html_options options=$group_options}
-                              </select>
-
-							</td>
-						</tr>
-						<tr>
-							<td>
-								<input type="button" name="remove_left" value="Remove selected from left" onClick="javascript:deleteSelectedItemsFromList(this.form.groupslist);" />
-							</td>
-							<td>
-								<input type="button" name="copy_left" value="Copy selected to left" onClick="javascript:addToParentList(this.form.groups_helper, this.form.groupslist);" />
-							</td>
-						</tr>
-					</table>
-
-
+                <td style="background: {$light_color}; width: 80%">
+        					<table>
+        						<tr>
+        							<td>
+                        <select id="groupslist" name="groups[]" multiple="multiple" size="10" class="default">
+                         {if is_array($info.usr_groups)}{html_options options=$info.usr_groups}{/if}
+                        </select>
+        							</td>
+        							<td>
+                        <select id="groups_helper" name="groups_helper" multiple="multiple" size="10" class="default">
+                         {html_options options=$group_options}
+                        </select>
+        							</td>
+        						</tr>
+        						<tr>
+        							<td>
+        								<input type="button" class="button" name="remove_left" value="Remove selected from left" onclick="javascript:deleteSelectedItemsFromList(this.form.groupslist);" />
+        							</td>
+        							<td>
+        								<input type="button" class="button" name="copy_left" value="Copy selected to left" onclick="javascript:addToParentList(this.form.groups_helper, this.form.groupslist);" />
+        							</td>
+        						</tr>
+        					</table>
                   {include file="error_icon.tpl.html" field="users[]"}
                 </td>
               </tr>
 			  
               <tr>
-                <td colspan="2" bgcolor="{$cell_color}" align="center">
+                <td colspan="2" style="background: {$cell_color}; text-align: center;">
                   {if $smarty.get.cat == 'edit'}
-                  <input class="button" type="submit" value="Update User">
+                    <input class="button" type="submit" value="Update User" />
                   {else}
-                  <input class="button" type="submit" value="Create User">
+                    <input class="button" type="submit" value="Create User" />
                   {/if}
-                  <input class="button" type="reset" value="Reset">
+                    <input class="button" type="reset" value="Reset" />
                 </td>
               </tr>
-              </form>
+            </table>
+          </form>
+
+
+          <form id="user_search_form" method="get" action="{$smarty.server.PHP_SELF}">              
+            <div>
+              <input type="hidden" name="cat" value="search" />
+              <input type="hidden" name="id" value="{$smarty.get.id}" />
+            </div>
+
+            <table style="width: 100%" cellspacing="1" cellpadding="2"> 
               <tr>
                 <td colspan="2" class="default">
-                  <b>Existing Users:</b>
+                  <h2>Existing Users:</h2>
                 </td>
               </tr>
-              
-              <form name="user_search_form" method="get" action="{$smarty.server.PHP_SELF}">              
-              <input type="hidden" name="cat" value="search">
-              <input type="hidden" name="id" value="{$smarty.get.id}">
-
               <tr>
                 <td class="default">
-                  <b>{if $search_filter != ""}<font color="red">{/if}Search Users (by name/username, ordered by relevance){if $search_filter != ""}</font>{/if}</b>
+                  <b>{if $search_filter != ""}<span class="disabled">{/if}Search Users (by name/username, ordered by relevance){if $search_filter != ""}</span>{/if}</b>
                 </td>
-                 <td nowrap bgcolor="{$light_color}" width="80%">
-                  <input type="text" name="search_filter" size="40" class="default" value="{$search_filter}">
+                 <td style="white-space: nowrap; background: {$light_color}; width: 80%">
+                  <input type="text" name="search_filter" size="40" class="default" value="{$search_filter}" />
                   {include file="error_icon.tpl.html" field="search_filter"}
-				 <input class="button" type="submit" value="Search">                  
+				           <input class="button" type="submit" value="Search" />
                 </td>
-              </tr>		
-			  </form>    
+              </tr>
+            </table>
+			    </form>
+          
 
-              
-              <tr>
-                <td colspan="2">
-                  <script language="JavaScript">
+                  <script type="text/javascript">
                   <!--
                   var active_users = new Array();
                   {section name="i" loop=$list}
@@ -318,104 +321,112 @@
                   //-->
                   </script>
                   {/literal}
-                  <table border="0" width="100%" cellpadding="1" cellspacing="1">
-                    <form name="change_status_form" method="post" action="{$smarty.server.PHP_SELF}">
-                    <input type="hidden" name="cat" value="change_status">
+          
+          
+        <form id="change_status_form" method="post" action="{$smarty.server.PHP_SELF}">
+          <div>
+            <input type="hidden" name="cat" value="change_status" />
+          </div>
+          
+          <table style="width: 100%" cellspacing="1" cellpadding="2"> 
+              <tr>
+                <td colspan="2">
+                  <table style="width: 100%" cellpadding="1" cellspacing="1">
                     <tr>
-                      <td bgcolor="{$cell_color}" nowrap><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Username</b></td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Name</b></td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Admin?</b></td>
+                      <td style="background: {$cell_color}; white-space: nowrap">
+                        <input type="button" value="All" class="shortcut button" onclick="javascript:toggleSelectAll(this.form, 'items[]');" />
+                      </td>
+                      <td class="default cell-colour">&nbsp;<b>Username</b></td>
+                      <td class="default cell-colour">&nbsp;<b>Name</b></td>
+                      <td class="default cell-colour">&nbsp;<b>Admin?</b></td>
                       {if $isSuperAdministrator == true}
-					  <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Super Admin?</b></td>
-					  {/if}
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>LDAP Authentication?</b></td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>E-mail</b></td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Status</b></td>
-                      <td bgcolor="{$cell_color}" class="default" nowrap>&nbsp;<b>Login Count</b></td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Last Login Date</b></td>
+					              <td class="default cell-colour">&nbsp;<b>Super Admin?</b></td>
+					            {/if}
+                      <td class="default cell-colour">&nbsp;<b>LDAP Authentication?</b></td>
+                      <td class="default cell-colour">&nbsp;<b>E-mail</b></td>
+                      <td class="default cell-colour">&nbsp;<b>Status</b></td>
+                      <td class="default cell-colour" style="white-space: nowrap">&nbsp;<b>Login Count</b></td>
+                      <td class="default cell-colour">&nbsp;<b>Last Login Date</b></td>
                     </tr>
                     {section name="i" loop=$list}
                     {cycle values=$cycle assign="row_color"}
                     <tr>
-                      <td width="4" nowrap bgcolor="{$row_color}" align="center">
-                        <input type="checkbox" name="items[]" value="{$list[i].usr_id}" {if $smarty.section.i.total == 0}disabled{/if}>
+                      <td style="width: 4px; white-space: nowrap; background: {$row_color}; text-align: center">
+                        <input type="checkbox" name="items[]" value="{$list[i].usr_id}" {if $smarty.section.i.total == 0}disabled="disabled"{/if} />
                       </td>
-                      <td nowrap bgcolor="{$row_color}" class="default">
-                        &nbsp;<a class="link" href="{$smarty.server.PHP_SELF}?cat=edit&id={$list[i].usr_id}" title="update this entry">{$list[i].usr_username}</a>
+                      <td style="white-space: nowrap; background: {$row_color}" class="default">
+                        &nbsp;<a class="link" href="{$smarty.server.PHP_SELF}?cat=edit&amp;id={$list[i].usr_id}" title="update this entry">{$list[i].usr_username}</a>
                       </td>
-                      <td nowrap bgcolor="{$row_color}" class="default">
+                      <td style="white-space: nowrap; background: {$row_color}" class="default">
                         &nbsp;{$list[i].usr_full_name}
                       </td>
-                      <td bgcolor="{$row_color}" class="default">
+                      <td style="background: {$row_color}" class="default">
                         &nbsp;{if $list[i].usr_administrator == 1}Yes{else}No{/if}
                       </td>
                       {if $isSuperAdministrator == true}
-                      <td bgcolor="{$row_color}" class="default">
+                      <td style="background: {$row_color}" class="default">
                         &nbsp;{if $list[i].usr_super_administrator == 1}Yes{else}No{/if}
                       </td>
                       {/if}
-                      <td bgcolor="{$row_color}" class="default">
+                      <td style="background: {$row_color}" class="default">
                         &nbsp;{if $list[i].usr_ldap_authentication == 1}Yes{else}No{/if}
                       </td>
-                      <td nowrap bgcolor="{$row_color}" class="default">
+                      <td style="white-space: nowrap; background: {$row_color}" class="default">
                         &nbsp;<a href="mailto:{$list[i].usr_email}" class="link" title="send email to {$list[i].usr_email}">{$list[i].usr_email}</a>
                       </td>
-                      <td bgcolor="{$row_color}" class="default">
+                      <td style="background: {$row_color}" class="default">
                         &nbsp;{$list[i].usr_status|capitalize}
                       </td>
-                      <td  bgcolor="{$row_color}" class="default">
+                      <td style="background: {$row_color}" class="default">
                         &nbsp;{$list[i].usr_login_count}
                       </td>
-                      <td nowrap bgcolor="{$row_color}" class="default">
+                      <td style="white-space: nowrap; background: {$row_color}" class="default">
                         &nbsp;{if $list[i].usr_login_count > 0}{$list[i].usr_last_login_date}{else}Never{/if}
                       </td>
                     </tr>
                     {sectionelse}
                     <tr>
-                      <td colspan="10" bgcolor="{$light_color}" align="center" class="default">
+                      <td colspan="10" style="background: {$light_color}; text-align: center" class="default">
                         No users could be found.
                       </td>
                     </tr>
                     {/section}
-        <tr bgcolor="{$cell_color}">
+        <tr style="background: {$cell_color}">
           <td colspan="11">
-            <table width="100%" cellspacing="0" cellpadding="0">
+            <table style="width: 100%" cellspacing="0" cellpadding="0">
               <tr>
-                <td width="40%" align="center" nowrap>
-                  <nobr>
-                  <input name="first" type="button" value="|&lt;" class="shortcut" onClick="javascript:setPage(0);">
-                  <input name="previous" type="button" value="&lt;&lt;" class="shortcut" onClick="javascript:setPage({$list_info.prev_page});">
-                  <input type="text" name="page" size="3" maxlength="3" value="{math equation="x + 1" x=$list_info.current_page}" style="background: {$cell_color};" class="paging_input" onKeyPress="javascript:return checkPageField(event);">
-                  <input name="go" type="button" value="Go" class="shortcut" onClick="javascript:goPage(this.form, this.form.page.value);">
-                  <input name="next" type="button" value="&gt;&gt;" class="shortcut" onClick="javascript:setPage({$list_info.next_page});">
-                  <input name="last" type="button" value="&gt;|" class="shortcut" onClick="javascript:setPage({$list_info.last_page});">
-                  </nobr>
+                <td style="width: 40%; text-align: center; white-space: nowrap">
+                  <input name="first" type="button" value="|&lt;" class="shortcut button" onclick="javascript:setPage(0);" />
+                  <input name="previous" type="button" value="&lt;&lt;" class="shortcut button" onclick="javascript:setPage({$list_info.prev_page});" />
+                  <input type="text" name="page" size="3" maxlength="3" value="{math equation="x + 1" x=$list_info.current_page}" style="background: {$cell_color};" class="paging_input" onkeypress="javascript:return checkPageField(event);" />
+                  <input name="go" type="button" value="Go" class="shortcut button" onclick="javascript:goPage(this.form, this.form.page.value);" />
+                  <input name="next" type="button" value="&gt;&gt;" class="shortcut button" onclick="javascript:setPage({$list_info.next_page});" />
+                  <input name="last" type="button" value="&gt;|" class="shortcut button" onclick="javascript:setPage({$list_info.last_page});" />
                 </td>
-                <td nowrap>
+                <td style="white-space: nowrap">
                   <span class="default_white">Rows per Page:</span>
-                  <select name="page_size" class="default" onChange="javascript:resizePager(this.form);">
-                    <option value="5" {if $options.rows == 5}selected{/if}>5</option>
-                    <option value="10" {if $options.rows == 10}selected{/if}>10</option>
-                    <option value="25" {if $options.rows == 25}selected{/if}>25</option>
-                    <option value="50" {if $options.rows == 50}selected{/if}>50</option>
-                    <option value="100" {if $options.rows == 100}selected{/if}>100</option>
-                    <option value="150" {if $options.rows == 150}selected{/if}>150</option>
+                  <select name="page_size" class="default" onchange="javascript:resizePager(this.form);">
+                    <option value="5" {if $options.rows == 5}selected="selected"{/if}>5</option>
+                    <option value="10" {if $options.rows == 10}selected="selected"{/if}>10</option>
+                    <option value="25" {if $options.rows == 25}selected="selected"{/if}>25</option>
+                    <option value="50" {if $options.rows == 50}selected="selected"{/if}>50</option>
+                    <option value="100" {if $options.rows == 100}selected="selected"{/if}>100</option>
+                    <option value="150" {if $options.rows == 150}selected="selected"{/if}>150</option>
                   </select>
-                  <input type="button" value="Set" class="shortcut" onClick="javascript:resizePager(this.form);">
+                  <input type="button" value="Set" class="shortcut button" onclick="javascript:resizePager(this.form);" />
                 </td>
               </tr>
 			</table>
 		</td>
 		</tr>                    
                     <tr>
-                      <td colspan="10" bgcolor="{$cell_color}">
-                        <table width="100%" border="0" cellpadding="0" cellspacing="0">
+                      <td colspan="10" style="background: {$cell_color}">
+                        <table style="width: 100%" cellpadding="0" cellspacing="0">
                           <tr>
                             <td>
-                              <input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
-                              <input type="submit" name = "delete" value="Delete" class="button" onclick="return checkDelete(this.form)">
-                              <input type="submit" value="Update Status &gt;&gt;" class="button" onclick="return checkChange(this.form)">
+                              <input type="button" value="All" class="shortcut button" onclick="javascript:toggleSelectAll(this.form, 'items[]');" />
+                              <input type="submit" name = "delete" value="Delete" class="button" onclick="return checkDelete(this.form)" />
+                              <input type="submit" value="Update Status &gt;&gt;" class="button" onclick="return checkChange(this.form)" />
                               <select name="status" class="default">
                                 <option value="active">Active</option>
                                 <option value="inactive">Inactive</option>
@@ -425,19 +436,19 @@
                         </table>
                       </td>
                     </tr>
-                    </form>
                   </table>
                 </td>
               </tr>
             </table>
-          </td>
-        </tr>
-      </table>
-              {literal}
-              <script language="JavaScript">
-              <!--
-				togglePasswordText();
-			  -->
-			  </script>
-			  {/literal}
+        </form>
 
+      
+    {literal}
+      <script type="text/javascript">
+        <!--
+          togglePasswordText();
+        -->
+      </script>
+    {/literal}
+
+</div>

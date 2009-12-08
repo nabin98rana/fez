@@ -3,7 +3,7 @@
 <script language="javascript">
 function populateForm(sek_id) 
 {
-    window.opener.document.custom_field_form.cvsk_sek_id.value = sek_id;
+    window.opener.document.getElementById('custom_field_form').cvsk_sek_id.value = sek_id;
     window.close();
 }
 </script>

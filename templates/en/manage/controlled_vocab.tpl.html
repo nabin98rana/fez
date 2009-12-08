@@ -1,67 +1,68 @@
-              {literal}
-              <script language="JavaScript">
-              <!--
-              var editing_option_id = -1;
-              function validateForm(f)
-              {
-                  if (isWhitespace(f.cvo_title.value)) {
-                      alert('Please enter the title of this Controlled Vocabulary.');
-                      selectField(f, 'cvo_title');
-                      return false;
-                  }
+<div class="admin-box">
+
+{literal}
+      <script type="text/javascript">
+      <!--
+      var editing_option_id = -1;
+      function validateForm(f)
+      {
+          if (isWhitespace(f.cvo_title.value)) {
+              alert('Please enter the title of this Controlled Vocabulary.');
+              selectField(f, 'cvo_title');
+              return false;
+          }
+          return true;
+      }
+          function checkDelete(f)
+          {
+              if (!hasOneChecked(f, 'items[]')) {
+                  alert('Please select at least one of the Controlled Vocabularies.');
+                  return false;
+              }
+              if (!confirm('This action will permanently remove the selected Controlled Vocabularies.')) {
+                  return false;
+              } else {
                   return true;
               }
-                  function checkDelete(f)
-                  {
-                      if (!hasOneChecked(f, 'items[]')) {
-                          alert('Please select at least one of the Controlled Vocabularies.');
-                          return false;
-                      }
-                      if (!confirm('This action will permanently remove the selected Controlled Vocabularies.')) {
-                          return false;
-                      } else {
-                          return true;
-                      }
-                  }
-              //-->
-              </script>
-              {/literal}
+          }
+      //-->
+      </script>
+      {/literal}
 
-      <table width="100%" class="admin-box" border="0" cellspacing="0" cellpadding="0" align="center">
-        <tr>
-          <td>
-            <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
-              <form name="custom_field_form" onSubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}" enctype="multipart/form-data">
+          <form id="custom_field_form" onsubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}" enctype="multipart/form-data">
+            <div>
               {if $smarty.get.cat == 'edit'}
-              <input type="hidden" name="cat" value="update">
-              <input type="hidden" name="id" value="{$smarty.get.id}">
+                <input type="hidden" name="cat" value="update" />
+                <input type="hidden" name="id" value="{$smarty.get.id}" />
               {else}
-              <input type="hidden" name="cat" value="new">
+                <input type="hidden" name="cat" value="new" />
               {/if}
-              <input type="hidden" name="parent_id" value="{$parent_id}">			  
+              <input type="hidden" name="parent_id" value="{$parent_id}" />
+            </div>
+
+            <table style="width: 100%" cellspacing="1" cellpadding="2">
               <tr>
                 <td colspan="2">
-				  <div class="admin-header">Manage Controlled Vocabularies</div>
-                  <!--b><a href="controlled_vocab.php"> </a>-->
+        				  <h1>Manage Controlled Vocabularies</h1>
 
 		          {if $max_subject_breadcrumb != -1}
-					  {if $parent_id != ""}<a href='controlled_vocab.php'>All Subject Classifications</a> -> {/if}
+					  {if $parent_id != ""}<a href='controlled_vocab.php'>All Subject Classifications</a> &raquo; {/if}
 					  {section name="b" loop=$subject_breadcrumb}
 						  {assign var="counter" value=b}
 		                  {if $subject_breadcrumb[b].cvo_image_filename != ""}
-						    <img align="absmiddle" src="{$rel_url}images/{$subject_breadcrumb[b].cvo_image_filename}"/>
+						    <img align="absmiddle" src="{$rel_url}images/{$subject_breadcrumb[b].cvo_image_filename}" alt="" />
 						  {/if}						  
                           {if $max_subject_breadcrumb != $smarty.section.b.index}<a href='controlled_vocab.php?parent_id={$subject_breadcrumb[b].cvo_id}'>{else}<b>{/if}{$subject_breadcrumb[b].cvo_title|escape:"html"}{if $max_subject_breadcrumb != $smarty.section.b.index}</a>{else}</b>{/if}
  						  {assign var="cvo_id" value=$subject_breadcrumb[b].cvo_id}
-						  {if $subject_count[$cvo_id]}({$subject_count[$cvo_id]}){else}{/if}{if $max_subject_breadcrumb != $smarty.section.b.index}->{else}:{/if}					
+						  {if $subject_count[$cvo_id]}({$subject_count[$cvo_id]}){else}{/if}{if $max_subject_breadcrumb != $smarty.section.b.index}&raquo;{else}:{/if}					
 					  {/section}
-				   {else}All Subject Classifications:{/if}</b>
+				   {else}All Subject Classifications:{/if}
 
                 </td>
               </tr>
               {if $result != ""}
               <tr>
-                <td colspan="2" bgcolor="{$cell_color}" align="center" class="error">
+                <td colspan="2" style="text-align: center" class="error cell-colour">
                   {if $smarty.post.cat == "new"}
                     {if $result == -1}
                       An error occurred while trying to add the new Controlled Vocabulary.
@@ -79,50 +80,50 @@
               </tr>
               {/if}
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td style="width: 120px;" class="default cell-colour">
                   <b>Title:</b>
                 </td>
-                <td bgcolor="{$light_color}">
-                  <input type="text" name="cvo_title" size="40" class="default" value="{$info.cvo_title}">
+                <td style="background: {$light_color}">
+                  <input type="text" name="cvo_title" size="40" class="default" value="{$info.cvo_title}" />
                   {include file="error_icon.tpl.html" field="title"}
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td style="width: 120px;" class="default cell-colour">
                   <b>External ID (if applicable):</b>
                 </td>
-                <td bgcolor="{$light_color}">
-                  <input type="text" name="cvo_external_id" size="40" class="default" value="{$info.cvo_external_id}">
-                  {include file="error_icon.tpl.html" field="title"}
+                <td style="background: {$light_color}">
+                  <input type="text" name="cvo_external_id" size="40" class="default" value="{$info.cvo_external_id}" />
+                  {include file="error_icon.tpl.html" field="external_id"}
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td style="width: 120px;" class="default cell-colour">
                   <b>Description:</b>
                 </td>
-                <td bgcolor="{$light_color}">
-                  <textarea name="cvo_desc" cols="50" rows="3" class="default">{$info.cvo_desc}</textarea>
+                <td style="background: {$light_color}">
+                  <textarea name="cvo_desc" cols="50" rows="3" class="default">{$info.cvo_desc|escape:html}</textarea>
                   {include file="error_icon.tpl.html" field="cvo_desc"}
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td style="width: 120px;" class="default cell-colour">
                   <b>Image Filename:</b>
                 </td>
-                <td bgcolor="{$light_color}">
-                  <input type="text" name="cvo_image_filename" size="40" class="default" value="{$info.cvo_image_filename}">
+                <td style="background: {$light_color}">
+                  <input type="text" name="cvo_image_filename" size="40" class="default" value="{$info.cvo_image_filename}" />
                   {include file="error_icon.tpl.html" field="cvo_image_filename"}
                 </td>
               </tr>
               
               <tr>
-                <td width="120" bgcolor="{$cell_color}" class="default">
+                <td style="width: 120px;" class="default cell-colour">
                   <b>Hide:</b>
                 </td>
-                <td bgcolor="{$light_color}" class="coldetail">
+                <td style="background: {$light_color}" class="coldetail">
                 	<select name="cvo_hide">
-                		<option value="0" {if $info.cvo_hide != 1}selected{/if}>No</option>
-                		<option value="1" {if $info.cvo_hide == 1}selected{/if}>Yes</option>
+                		<option value="0" {if $info.cvo_hide != 1}selected="selected"{/if}>No</option>
+                		<option value="1" {if $info.cvo_hide == 1}selected="selected"{/if}>Yes</option>
                 	</select>{$info.cvo_parent_id}
                   	{include file="error_icon.tpl.html" field="cvo_hide"}
                   	<br />Hides the top level controlled vocabulary in the CV picker when editing a record. Hiding the parent CV hides all its children.  
@@ -130,83 +131,85 @@
               </tr>	
               
               <tr>
-                <td colspan="2" bgcolor="{$cell_color}" align="center">
+                <td colspan="2" class="cell-colour" style="text-align: center;">
                   {if $smarty.get.cat == 'edit'}
-                  <input class="button" type="submit" value="Update Controlled Vocabulary">
+                    <input class="button" type="submit" value="Update Controlled Vocabulary" />
                   {else}
-                  <input class="button" type="submit" value="Add Controlled Vocabulary">
+                    <input class="button" type="submit" value="Add Controlled Vocabulary" />
                   {/if}
-                  <input class="button" type="reset" value="Reset">
+                  <input class="button" type="reset" value="Reset" />
                 </td>
               </tr>
-              </form>
+            </table>
+          </form>
+          
+          <form onsubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}">
+            <div>
+              <input type="hidden" name="cat" value="delete" />
+            </div>
+              
+            <table style="width: 100%" cellspacing="1" cellpadding="2">
               <tr>
                 <td colspan="2" class="default">
-                  <b>Existing Controlled Vocabularies:</b>
+                  <h2>Existing Controlled Vocabularies:</h2>
                 </td>
               </tr>
               <tr>
                 <td colspan="2">
-                  <table border="0" width="100%" cellpadding="1" cellspacing="1">
-                    <form onSubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}">
-                    <input type="hidden" name="cat" value="delete">
+                  <table style="width: 100%;" cellpadding="1" cellspacing="1">
                     <tr>
-                      <td width="5" bgcolor="{$cell_color}" align="center" nowrap><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Title</b>&nbsp;</td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Desc</b>&nbsp;</td>
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Image Filename</b>&nbsp;</td>					  
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>External ID</b>&nbsp;</td>					  
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Edit Children</b>&nbsp;</td>  
-                      <td bgcolor="{$cell_color}" class="default">&nbsp;<b>Import Children</b>&nbsp;</td>  
+                      <td style="width: 5px; background: {$cell_color}; text-align: center; white-space: nowrap"><input type="button" value="All" class="shortcut" onclick="javascript:toggleSelectAll(this.form, 'items[]');" /></td>
+                      <td class="default cell-colour">&nbsp;<b>Title</b>&nbsp;</td>
+                      <td class="default cell-colour">&nbsp;<b>Desc</b>&nbsp;</td>
+                      <td class="default cell-colour">&nbsp;<b>Image Filename</b>&nbsp;</td>					  
+                      <td class="default cell-colour">&nbsp;<b>External ID</b>&nbsp;</td>					  
+                      <td class="default cell-colour">&nbsp;<b>Edit Children</b>&nbsp;</td>  
+                      <td class="default cell-colour">&nbsp;<b>Import Children</b>&nbsp;</td>  
                     </tr>
                     {section name="i" loop=$list}
                     {cycle values=$cycle assign="row_color"}
                     <tr>
-                      <td width="4" nowrap bgcolor="{$row_color}" align="center">
-                        <input type="checkbox" name="items[]" value="{$list[i].cvo_id}" {if $smarty.section.i.total == 0}disabled{/if}>
+                      <td style="width: 4px; white-space: nowrap; background: {$row_color}; text-align: center;">
+                        <input type="checkbox" name="items[]" value="{$list[i].cvo_id}" {if $smarty.section.i.total == 0}disabled="disabled"{/if} />
                       </td>
-                      <td bgcolor="{$row_color}" class="default">
-                        &nbsp;<a href="controlled_vocab.php?parent_id={$parent_id}&cat=edit&id={$list[i].cvo_id}">{$list[i].cvo_title}</a>
+                      <td style="background: {$row_color}" class="default">
+                        &nbsp;<a href="controlled_vocab.php?parent_id={$parent_id}&amp;cat=edit&amp;id={$list[i].cvo_id}">{$list[i].cvo_title}</a>
                       </td>
-                      <td bgcolor="{$row_color}" class="default">
-                        &nbsp;{$list[i].cvo_desc}
+                      <td style="background: {$row_color}" class="default">
+                        &nbsp;{$list[i].cvo_desc|escape:html}
                       </td>
-                      <td bgcolor="{$row_color}" class="default">
+                      <td style="background: {$row_color}" class="default">
                         &nbsp;{$list[i].cvo_image_filename}
                       </td>
-                      <td bgcolor="{$row_color}" class="default">
+                      <td style="background: {$row_color}" class="default">
                         &nbsp;{$list[i].cvo_external_id}
                       </td>
-                      <td bgcolor="{$row_color}" class="default">
+                      <td style="background: {$row_color}" class="default">
                         &nbsp;<a href="controlled_vocab.php?parent_id={$list[i].cvo_id}">Edit {$list[i].cvo_title} Child Items</a>
                       </td>
-                      <td bgcolor="{$row_color}" class="default">
+                      <td style="background: {$row_color}" class="default">
                         &nbsp;<a href="import_controlled_vocab.php?parent_id={$list[i].cvo_id}">Import Child Items</a>
                       </td>
-
                     </tr>
                     {sectionelse}
                     <tr>
-                      <td colspan="7" bgcolor="{$light_color}" align="center" class="default">
+                      <td colspan="7" style="background: {$light_color}; text-align: center;" class="default">
                         No Controlled Vocabularies could be found.
                       </td>
                     </tr>
                     {/section}
                     <tr>
-                      <td width="4" align="center" bgcolor="{$cell_color}">
-                        <input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
+                      <td style="width: 4px; text-align: center; background: {$cell_color}">
+                        <input type="button" value="All" class="shortcut" onclick="javascript:toggleSelectAll(this.form, 'items[]');" />
                       </td>
-                      <td colspan="8" bgcolor="{$cell_color}">
-                        <input type="submit" value="Delete" class="button">
+                      <td colspan="8" class="cell-colour">
+                        <input type="submit" value="Delete" class="button" />
                       </td>
                     </tr>
-                    </form>
                   </table>
                 </td>
               </tr>
             </table>
-          </td>
-        </tr>
-      </table>
+        </form>
 
-
+</div>
