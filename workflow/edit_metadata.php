@@ -100,6 +100,14 @@ if (isset($_POST['internal_notes']) && User::isUserAdministrator($username)) {
     InternalNotes::recordNote($pid, $note);
 }
 
+// if the file descriptions have been changed, record this
+if (isset($_POST['editedFileDescriptions']) && is_array($_POST['editedFileDescriptions'])) {
+	$fileDetails = $_POST['editedFileDescriptions'];
+	foreach($fileDetails as $counter => $descriptionDetails) {
+		Record::updateDatastreamLabel($descriptionDetails['pid'], $descriptionDetails['filename'], $descriptionDetails['newLabel']);
+	}
+}
+
 $wfstatus->setTemplateVars($tpl);
 $wfstatus->checkStateChange();
 $collection_pid=$pid;

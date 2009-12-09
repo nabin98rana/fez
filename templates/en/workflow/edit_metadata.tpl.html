@@ -47,16 +47,17 @@
 
 			  <tr class="default">
 				<td bgcolor="{$cell_color}">Name</td>
-				<td bgcolor="{$cell_color}">Description</td>
+				<td bgcolor="{$cell_color}">Description (click to edit)</td>
 				<td bgcolor="{$cell_color}">MIMEType</td>
 			  </tr>
-
+		{assign var="filecounter" value=0}
         {section name="d" loop=$datastreams}
 			{if $datastreams[d].controlGroup == "M" && ($datastreams[d].isLister == 1 || $isAdministrator)}
 			  <tr class="default"> 
 				{assign var="image_file_name" value=$datastreams[d].MIMEType|replace:"/":"_"|cat:".png"}
 				{assign var="image_name" value=$fez_root_dir|cat:"images/"|cat:$image_file_name} 			
 				{assign var="image_file_string" value=""}
+				{assign var="filecounter" value=$filecounter+1}
 				{fetch file=$image_name assign="image_file_string"}
 				<td bgcolor="{$value_color}">
 				{if $datastreams[d].thumbnail != "0"}<img align="absmiddle" src="{$eserv_url}{$datastreams[d].thumbnail}">{/if}
@@ -79,7 +80,7 @@
 				{/section}
 				</td>
 
-				<td bgcolor="{$value_color}">{$datastreams[d].label}</td>
+				<td bgcolor="{$value_color}"><div id="{$pid}_{$filecounter}_div"><span id="{$pid}_{$filecounter}_span" onclick="editFileLabel('{$pid}', '{$datastreams[d].ID}', {$filecounter});">{$datastreams[d].label}</span></div></td>
 				<td bgcolor="{$value_color}">{$datastreams[d].MIMEType}</td>
 			  </tr>
 			 {/if}

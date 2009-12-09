@@ -291,3 +291,19 @@ function attachYuiGeneralSuggest(xsdmf_id, loop_num)
         }
     });
 }
+
+// we want to replace the file description with a text box that will be submitted with the form
+function editFileLabel(pid, filename, counter) {
+
+	// set up the html to replace
+	var spanName = pid+'_'+counter+'_span';
+	var divName = pid+'_'+counter+'_div';
+	var originalText = dojo.byId(spanName).innerHTML;
+	var html = '<input type="text" class="default" id="'+pid+'_'+counter+'_input" name="editedFileDescriptions['+counter+'][newLabel]" value="'+originalText+'" maxlength="250">';
+	html = html+'<input type="hidden" name="editedFileDescriptions['+counter+'][pid]" value="'+pid+'" >';
+	html = html+'<input type="hidden" name="editedFileDescriptions['+counter+'][filename]" value="'+filename+'" >';
+
+	// and do the replace
+	dojo.byId(divName).innerHTML = html;
+	
+}

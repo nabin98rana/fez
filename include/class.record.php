@@ -4061,4 +4061,18 @@ class Record
 		}
 
 	}
+	
+	/**
+	 * Update the label associated with a datastream
+	 *
+	 * @param string $pid
+	 * @param string $dsID
+	 * @param string $newLabel
+	 * @return void
+	 **/
+	public function updateDatastreamLabel($pid, $dsID, $newLabel)
+	{
+		$currentDetails = Fedora_API::callGetDatastream($pid, $oldName);
+		Fedora_API::callModifyDatastreamByReference($pid, $dsID, $newLabel, $currentDetails['location'], $currentDetails['MIMEtype'], $currentDetails['versionable']);
+	}
 }
