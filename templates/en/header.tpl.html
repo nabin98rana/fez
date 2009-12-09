@@ -28,12 +28,12 @@ dojo.require("dojo.rpc.JsonService");
 {/if}
 <script type="text/javascript" src="{$rel_url}js/common.js"></script>
 {if $autosuggest == 1}
-<script language="JavaScript" type="text/javascript" src="{$rel_url}js/suggestions.js"></script>
-<script language="JavaScript" type="text/javascript" src="{$rel_url}js/autosuggest.js"></script>
-<script language="JavaScript" type="text/javascript" src="{$rel_url}js/autocomplete.js"></script>
+<script type="text/javascript" src="{$rel_url}js/suggestions.js"></script>
+<script type="text/javascript" src="{$rel_url}js/autosuggest.js"></script>
+<script type="text/javascript" src="{$rel_url}js/autocomplete.js"></script>
 {/if}
-{if $yui_autosuggest == 1}
 <link rel="stylesheet" href="{$rel_url}css/autocomplete.css" type="text/css" />
+{if $yui_autosuggest == 1}
 <script type="text/javascript" src="{$rel_url}js/yahoo/utilities.js"></script>
 <script type="text/javascript" src="{$rel_url}js/yahoo/autocomplete.js"></script>
 {/if}

@@ -739,7 +739,12 @@ width: 2em;
     display: block;
 }
 
-.admin-side-nav li a:hover, .focus {
+.admin-side-nav li a:hover {
+    background: #9745bd;
+    color: white !important;
+}
+
+.admin-side-nav li a:active, .focus {
     background-color: #60227d;
     color: white !important;
 }
@@ -1825,6 +1830,8 @@ div.hr hr {
   display: none;
 }
 
+/* VIEW PAGES */
+
 #datastream_preview {
 	width: 100%;
 }
@@ -1835,18 +1842,34 @@ div.hr hr {
 	width: 30%;
 }
 
-
-
 #view-attachments {
 	background: white;
+    width: 100%;
 }
 
 #view-attachments td {
 	padding: 3px 5px 3px 5px;
 }
 
+#view-metadata {
+    width: 100%;
+}
+
+#view-metadata th {
+    background: [[$smarty.const.APP_CELL_COLOR]];
+    width: 20%;
+    vertical-align: top;
+    white-space: nowrap;
+    text-align: right;
+}
+
 #view-metadata td {
-	padding: 3px 5px 3px 5px;
+    background: [[$smarty.const.APP_LIGHT_COLOR]];
+    width: 80%;
+}
+
+#view-metadata th, #view-metadata td {
+    padding: 3px 5px 3px 5px;
 }
 
 /* OBJECT HISTORY */
@@ -1901,6 +1924,10 @@ a.author_id_link:hover {
 
 .cell-colour {
     background: [[$smarty.const.APP_CELL_COLOR]];
+}
+
+.light-colour {
+    background: [[$smarty.const.APP_LIGHT_COLOR]];
 }
 
 .enabled {

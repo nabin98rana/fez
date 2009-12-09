@@ -79,15 +79,15 @@ function loadPreview(pid,datastreamID, alt, origami)
 </script>
 <input type="hidden" name="cat" value="assign" />
 
-<table width="100%" style="background: {$cell_color};">
+<table style="background: {$cell_color}; width: 100%;">
   <tr>
     <td>
     <table style="background: #FFFFFF; width: 100%;">
     <tr>
-    <td valign="top">
-      <table width="100%">
+    <td style="vertical-align: top">
+      <table style="width: 100%">
         <tr>
-          <td align="left" colspan="2">
+          <td colspan="2">
 			  <table style="margin-left: 15px;">
 			  <tr>
 			  <td style="vertical-align: top; width: 10px;">{if $fedora_get_view != "0"}<a title="Click to open this PID in Fedora (admin access only)" href="{$fedora_get_view}" onclick="javascript:window.open('{$fedora_get_view}'); return false;" >{/if}<img src="{$rel_url}images/record_view_32.jpg" alt="" />{if $fedora_get_view != "0"}</a>{/if}
@@ -109,226 +109,240 @@ function loadPreview(pid,datastreamID, alt, origami)
       <table id="viewInfoBoxTable">
 
 		<tr>
-		<th>
-		  Document type:
-		</th>
-		<td>{$xdis_title}</td>
+			<th>
+				Document type:
+			</th>
+			<td>
+				{$xdis_title}
+			</td>
 		</tr>
 
 {if $isUser && !$hide_edit}
-{if $isEditor || $isAdministrator}
-{if !$viewingPreviousVersion}
-		<tr>
-		  <th>
-			Workflows:
-		  </th>
-          <td>
-			  {section name="w" loop=$workflows}
-			    {if $workflows[w].wft_id != ''}
-			    {if $workflows[w].wft_icon == 'images/security.gif'}
-			      {if $list[i].security == 'include'}
-			        {assign var="wf_icon" value="images/security_include.gif"}
-			      {elseif $list[i].security == 'exclude'}
-			        {assign var="wf_icon" value="images/security_exclude.gif"}
-			      {elseif $list[i].security == 'inherit'}
-		                {assign var="wf_icon" value="images/security_inherit.gif"}
-			      {else}
-			        {assign var="wf_icon" value=$workflows[w].wft_icon}
-			      {/if}
-		            {else}
-			      {assign var="wf_icon" value=$workflows[w].wft_icon}
-			    {/if}
-                {if $workflows[w].wft_type_id == 6}
-                  {assign var='wf_url' value=$rel_url|cat:'workflow/export.php'}
-                {else}
-                  {assign var='wf_url' value=$rel_url|cat:'workflow/update.php'}
-			    {/if}
-			<a href='{$wf_url}?pid={$pid|escape:"html"}&amp;cat=select_workflow&amp;xdis_id={$xdis_id}&amp;wft_id={$workflows[w].wft_id}&amp;href={$smarty.server.REQUEST_URI}'><img title="{$workflows[w].wfl_title}" src="{$rel_url}{$wf_icon}" alt="" /></a> 
-				{/if}
-			  {/section}
-			<a href="{$rel_url}workflow/list_workflows2.php?pid={$pid|escape}"><img src="{$rel_url}images/options_16.png" alt="More options" title="More options" width="16" height="16" /></a>             
-			</td>
-          </tr>
-{/if}
-{/if}
+	{if $isEditor || $isAdministrator}
+		{if !$viewingPreviousVersion}
+				<tr>
+				  <th>Workflows</th>
+		          <td>
+					  {section name="w" loop=$workflows}
+					    {if $workflows[w].wft_id != ''}
+						    {if $workflows[w].wft_icon == 'images/security.gif'}
+						      {if $list[i].security == 'include'}
+						        {assign var="wf_icon" value="images/security_include.gif"}
+						      {elseif $list[i].security == 'exclude'}
+						        {assign var="wf_icon" value="images/security_exclude.gif"}
+						      {elseif $list[i].security == 'inherit'}
+					                {assign var="wf_icon" value="images/security_inherit.gif"}
+						      {else}
+						        {assign var="wf_icon" value=$workflows[w].wft_icon}
+						      {/if}
+					            {else}
+						      {assign var="wf_icon" value=$workflows[w].wft_icon}
+						    {/if}
+			                {if $workflows[w].wft_type_id == 6}
+			                  {assign var='wf_url' value=$rel_url|cat:'workflow/export.php'}
+			                {else}
+			                  {assign var='wf_url' value=$rel_url|cat:'workflow/update.php'}
+						    {/if}
+							<a href='{$wf_url}?pid={$pid|escape:"html"}&amp;cat=select_workflow&amp;xdis_id={$xdis_id}&amp;wft_id={$workflows[w].wft_id}&amp;href={$smarty.server.REQUEST_URI}'><img title="{$workflows[w].wfl_title}" src="{$rel_url}{$wf_icon}" alt="" /></a> 
+						{/if}
+					  {/section}
+					  <a href="{$rel_url}workflow/list_workflows2.php?pid={$pid|escape}"><img src="{$rel_url}images/options_16.png" alt="More options" title="More options" width="16" height="16" /></a>             
+				  </td>
+		        </tr>
+		{/if}
+	{/if}
 {/if}
 
 {if $show_tombstone && !$deleted || !$show_tombstone}
 
 {if $parents}		
-		<tr>
-		  <th>
+	<tr>
+		<th>
 			{$parent_heading}
-		  </th>
-		  <td>
+		</th>
+		<td>
 			{section name="i" loop=$parents}
-				<a href="{$rel_url}collection/{$parents[i].rek_pid}">{$parents[i].rek_title}</a> &nbsp;
+				<a href="{$rel_url}collection/{$parents[i].rek_pid}">{$parents[i].rek_title}</a><br />
 			{/section}
-		  </td>
-		</tr>
+		</td>
+	</tr>
 {/if}
 
 {if $prev || $next}
-		<tr>
-			<th>
-			  Browse Collection:
-			</th>
-			<td>
-			  {if $prev}<a href="{$rel_url}view/{$prev.rek_pid}">Prev: <i>{$prev.rek_title}</i></a> {if $next}<br />{/if}{/if}
-				{if $next}<a href="{$rel_url}view/{$next.rek_pid}">Next: <i>{$next.rek_title}</i></a> {/if}
-			</td>
-		</tr>
+	<tr>
+		<th>
+			Browse Collection:
+		</th>
+		<td>
+			{if $prev}<a href="{$rel_url}view/{$prev.rek_pid}">Prev: <i>{$prev.rek_title}</i></a> {if $next}<br />{/if}{/if}
+			{if $next}<a href="{$rel_url}view/{$next.rek_pid}">Next: <i>{$next.rek_title}</i></a> {/if}
+		</td>
+	</tr>
 {/if}
 
 {if $viewingPreviousVersion}
-		<tr>
-			<th>
-			  Viewing Version:
-			</th>
-			<td>
-			  {$versionDatePretty}
-			  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-			  <font color='red'>Cannot Modify</font>
-			</td>
-		</tr>
+	<tr>
+		<th>
+			Viewing Version:
+		</th>
+		<td>
+			{$versionDatePretty}
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<span class='disabled'>Cannot Modify</span>
+		</td>
+	</tr>
 {/if}
 
 </table>
 </div>
 
-<table>
-	
+<table style="width: 100%;">
 	<tr>
 		<td>
+			{if $fileCount > 0}
+				<table id="view-attachments">
 
-{if $fileCount > 0}
-			<table id="view-attachments">
-
-		  {if $display_checksums == 'ON'}
-		  <tr>
-			<th colspan="6">&nbsp;</th>
-		  </tr>
-		  <tr>
-			<td class="default_white" colspan="6" style="background: {$heading_color}"><b>Attached Files</b>{if !$isUser} (Some files may be inaccessible until you <a class="white_link_underline" href="{$rel_url}login.php?url={$uri_encoded}">login</a> with your {$app_name} credentials){/if}</td>
-		  </tr>
-		  {else}
-		  <tr>
-			<td colspan="5">&nbsp;</td>
-		  </tr>
-		  <tr>
-			<td class="default_white" colspan="6" style="background: {$heading_color}"><b>Attached Files</b>{if !$isUser} (Some files may be inaccessible until you <a class="white_link_underline" href="{$rel_url}login.php?url={$uri_encoded}">login</a> with your {$app_name} credentials){/if}</td>
-		  </tr>
-		  {/if}
-
-
-		  <tr style="background: {$cell_color};">
-			<td>Name</td>
-			{if $display_checksums == 'ON'}<td>Checksum</td>{/if}
-			<td>Description</td>			
-			<td>MIMEType</td>
-			<td>Size</td>			
-			<td align="right">Downloads</td>			
-		  </tr>
-		{assign var="ds_show_onclick" value=""}
-		{assign var="show_preview_pane" value="0"}
-        {section name="d" loop=$datastreams}
-		    {if $datastreams[d].archival_size_raw > 1048576 && $origami == 'ON' && $datastreams[d].origami_switch == 'ON'
-		         && ($datastreams[d].MIMEType == 'image/jpeg' || 
-		             $datastreams[d].MIMEType == 'image/tiff' || 
-		             $datastreams[d].MIMEType == 'image/tif' || 
-		             $datastreams[d].MIMEType == 'image/jpg')}
-                {assign var="origami_preview" value="true"}
-			{else}
-                {assign var="origami_preview" value="false"}
-			{/if}
-        
-			{if $datastreams[d].controlGroup == "M" && $datastreams[d].isLister == 1}
-			{assign var="ds_show" value=$datastreams[d].ID}
-  			  <tr id="datastream_list_{$datastreams[d].ID}" style="background: {$light_color};">
-				{assign var="image_file_name" value=$datastreams[d].MIMEType|replace:"/":"_"|cat:".png"}
-				{assign var="image_name" value=$fez_root_dir|cat:"images/"|cat:$image_file_name} 			
-				{if ($datastreams[d].canPreview || $isAdministrator) && !$preview_ds_1 && ($datastreams[d].preview != "0" || $datastreams[d].stream != "0")}
-				  {assign var="preview_ds_1" value=$datastreams[d]}
-				  {assign var="preview_ds_origami" value=$origami_preview}
-				{/if}
-				{assign var="image_file_string" value=""}
-				{fetch file=$image_name assign="image_file_string"}
-				<td style="white-space: nowrap;">
-            {if $datastreams[d].thumbnail != "0" || $datastreams[d].stream != "0"}
-				{if $datastreams[d].canPreview || $isAdministrator}
-					<a href="#">
-				{/if}
-				{assign var="show_preview_pane" value="1"}
-				{if $datastreams[d].thumbnail != "0"}
-					<img alt="Click to show the corresponding preview" title="Click to show the corresponding preview" src="{$eserv_url}{$datastreams[d].thumbnail}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}" 
-		            {if ($datastreams[d].canPreview || $isAdministrator) && $datastreams[d].stream != "0"}
-						{assign var="ds_show" value=$datastreams[d].stream}onclick="javascript:loadPreview('{$pid}','{$datastreams[d].stream}', '{$datastreams[d].ID|escape:'html'}', '{$origami_preview}');" />
+					{if $display_checksums == 'ON'}
+						<tr>
+							<th colspan="6">&nbsp;</th>
+						</tr>
+						<tr>
+							<td class="default_white" colspan="6" style="background: {$heading_color}">
+								<b>Attached Files</b>
+								{if !$isUser}
+									(Some files may be inaccessible until you <a class="white_link_underline" href="{$rel_url}login.php?url={$uri_encoded}">login</a> with your {$app_name} credentials)
+								{/if}
+							</td>
+						</tr>
 					{else}
-		            	{if ($datastreams[d].canPreview || $isAdministrator) && $datastreams[d].web != "0"}
-							{assign var="ds_show" value=$datastreams[d].web}onclick="javascript:loadPreview('{$pid}','{$datastreams[d].ID}', '{$datastreams[d].ID|escape:'html'}', '{$origami_preview}');" />
-						{/if}
+						<tr>
+							<td colspan="5">&nbsp;</td>
+						</tr>
+						<tr>
+							<td class="default_white" colspan="6" style="background: {$heading_color}">
+								<b>Attached Files</b>
+								{if !$isUser}
+									(Some files may be inaccessible until you <a class="white_link_underline" href="{$rel_url}login.php?url={$uri_encoded}">login</a> with your {$app_name} credentials)
+								{/if}
+							</td>
+						</tr>
 					{/if}
-				{elseif ($datastreams[d].canPreview || $isAdministrator) && $datastreams[d].stream != "0"}
-					{assign var="ds_show" value=$datastreams[d].ID}
-					{assign var="ds_show_extra" value=$datastreams[d].stream}
-				{/if}
-				{if $datastreams[d].canPreview || $isAdministrator}
-					</a>
-				{/if}
+
+					<tr style="background: {$cell_color};">
+						<td>Name</td>
+						{if $display_checksums == 'ON'}
+							<td>Checksum</td>
+						{/if}
+						<td>Description</td>
+						<td>MIMEType</td>
+						<td>Size</td>
+						<td style="text-align: right">Downloads</td>
+					</tr>
+					
+					{assign var="ds_show_onclick" value=""}
+					{assign var="show_preview_pane" value="0"}
+					{section name="d" loop=$datastreams}
+						{if $datastreams[d].archival_size_raw > 1048576 && $origami == 'ON' && $datastreams[d].origami_switch == 'ON' && 
+							($datastreams[d].MIMEType == 'image/jpeg' || 
+							$datastreams[d].MIMEType == 'image/tiff' || 
+							$datastreams[d].MIMEType == 'image/tif' || 
+							$datastreams[d].MIMEType == 'image/jpg')}
+							{assign var="origami_preview" value="true"}
+						{else}
+							{assign var="origami_preview" value="false"}
+						{/if}
+						
+						{if $datastreams[d].controlGroup == "M" && $datastreams[d].isLister == 1}
+							{assign var="ds_show" value=$datastreams[d].ID}
+							<tr id="datastream_list_{$datastreams[d].ID}" style="background: {$light_color};">
+								{assign var="image_file_name" value=$datastreams[d].MIMEType|replace:"/":"_"|cat:".png"}
+								{assign var="image_name" value=$fez_root_dir|cat:"images/"|cat:$image_file_name} 			
+								{if ($datastreams[d].canPreview || $isAdministrator) && !$preview_ds_1 && ($datastreams[d].preview != "0" || $datastreams[d].stream != "0")}
+								{assign var="preview_ds_1" value=$datastreams[d]}
+								{assign var="preview_ds_origami" value=$origami_preview}
+							{/if}
+							{assign var="image_file_string" value=""}
+							{fetch file=$image_name assign="image_file_string"}
+							<td style="white-space: nowrap;">
+							{if $datastreams[d].thumbnail != "0" || $datastreams[d].stream != "0"}
+							{if $datastreams[d].canPreview || $isAdministrator}
+								<a href="#">
+							{/if}
+							{assign var="show_preview_pane" value="1"}
+							{if $datastreams[d].thumbnail != "0"}
+								<img alt="Click to show the corresponding preview" title="Click to show the corresponding preview" src="{$eserv_url}{$datastreams[d].thumbnail}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}" 
+								{if ($datastreams[d].canPreview || $isAdministrator) && $datastreams[d].stream != "0"}
+									{assign var="ds_show" value=$datastreams[d].stream}onclick="javascript:loadPreview('{$pid}','{$datastreams[d].stream}', '{$datastreams[d].ID|escape:'html'}', '{$origami_preview}');" />
+								{else}
+									{if ($datastreams[d].canPreview || $isAdministrator) && $datastreams[d].web != "0"}
+										{assign var="ds_show" value=$datastreams[d].web}onclick="javascript:loadPreview('{$pid}','{$datastreams[d].ID}', '{$datastreams[d].ID|escape:'html'}', '{$origami_preview}');" />
+									{/if}
+								{/if}
+							{elseif ($datastreams[d].canPreview || $isAdministrator) && $datastreams[d].stream != "0"}
+								{assign var="ds_show" value=$datastreams[d].ID}
+								{assign var="ds_show_extra" value=$datastreams[d].stream}
+							{/if}
+							{if $datastreams[d].canPreview || $isAdministrator}
+								</a>
+							{/if}
+						{/if}
+						{if $image_file_string != ""}
+							<img alt="" src="{$rel_url}images/{$image_file_name}"{if $ds_show_extra != ""}onclick="javascript:loadPreview('{$pid}','{$ds_show_extra}', '{$datastreams[d].ID|escape:'html'}', '{$origami_preview}');"{/if} />
+						{else}
+							<img alt="Click to show the corresponding preview/stream" title="Click to show the corresponding preview/stream" src="{$rel_url}images/default.png"{if $ds_show_extra != ""}onclick="javascript:loadPreview('{$pid}','{$ds_show_extra}', '{$datastreams[d].ID|escape:'html'}', '{$origami_preview}');"{/if} />
+						{/if}
+						{if $datastreams[d].isViewer == 1 || $isAdministrator}
+							{if $datastreams[d].archival_size_raw > 1048576 && $origami == 'ON' && $datastreams[d].origami_switch == 'ON'
+								&& ($datastreams[d].MIMEType == 'image/jpeg' || 
+									$datastreams[d].MIMEType == 'image/tiff' || 
+									$datastreams[d].MIMEType == 'image/tif' || 
+									$datastreams[d].MIMEType == 'image/jpg')}
+							<a onclick="javascript:window.open('{$rel_url}eserv/{$pid}/{$datastreams[d].ID}?oi=1{if $viewingPreviousVersion}&version_date={$versionDate}{/if}'); return false;" href="{$rel_url}eserv/{$pid}/{$datastreams[d].ID}?oi=1{if $viewingPreviousVersion}&version_date={$versionDate}{/if}">
+							{else}
+							<a onclick="javascript:window.open('{$rel_url}eserv/{$pid}/{$ds_show}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}'); return false;" href="{$rel_url}eserv/{$pid}/{$ds_show}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}">
+							{/if}
+						{/if}
+						{$datastreams[d].ID}
+							{if ($datastreams[d].canPreview || $isAdministrator) && $datastreams[d].stream != "0"}
+										<a onclick="javascript:window.open('{$rel_url}eserv/{$pid}/{$ds_show_extra}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}'); return false;" href="{$rel_url}eserv/{$pid}/{$ds_show_extra}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}">(stream)</a> 
+							{/if}
+						{if $datastreams[d].isViewer == 1 || $isAdministrator}
+							</a> &nbsp;
+						{/if}
+						{if ($datastreams[d].isArchivalViewer == 1 || $isAdministrator) && $datastreams[d].thumbnail != "0"}
+							<a onclick="javascript:window.open('{$rel_url}eserv/{$pid}/{$datastreams[d].ID}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}'); return false;" href="{$rel_url}eserv/{$pid}/{$datastreams[d].ID}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}"><img alt="Archival version" title="Archival version" src="{$rel_url}images/archival_22.gif" /></a>&nbsp;
+						{/if}
+						{if $datastreams[d].presmd != "0" && ($isAdministrator)}
+							<a onclick="javascript:window.open('{$rel_url}eserv/{$pid}/{$datastreams[d].presmd}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}'); return false;" href="{$rel_url}eserv/{$pid}/{$datastreams[d].presmd}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}"><img alt="Preservation metadata" title="Preservation metadata" src="{$rel_url}images/presmd_22.gif" /></a>&nbsp;
+						{/if} 	
+							</td>
+							{if $display_checksums == 'ON'}<td>({$datastreams[d].checksumType}) {$datastreams[d].checksum}</td>{/if}
+							<td>{$datastreams[d].label}</td>
+							<td>{$datastreams[d].MIMEType}</td>
+							<td>{$datastreams[d].archival_size}</td>				
+							<td style="text-align: right"><!--fez:ds_{$datastreams[d].base64ID}-->{$datastreams[d].downloads}<!--/fez:ds_{$datastreams[d].base64ID}--></td>		
+						</tr>
+						{/if}
+					{/section}
+				</table>
+				<br />
 			{/if}
-			{if $image_file_string != ""}
-				<img alt="" src="{$rel_url}images/{$image_file_name}"{if $ds_show_extra != ""}onclick="javascript:loadPreview('{$pid}','{$ds_show_extra}', '{$datastreams[d].ID|escape:'html'}', '{$origami_preview}');"{/if} />
-			{else}
-				<img alt="Click to show the corresponding preview/stream" title="Click to show the corresponding preview/stream" src="{$rel_url}images/default.png"{if $ds_show_extra != ""}onclick="javascript:loadPreview('{$pid}','{$ds_show_extra}', '{$datastreams[d].ID|escape:'html'}', '{$origami_preview}');"{/if} />
-			{/if}
-			{if $datastreams[d].isViewer == 1 || $isAdministrator}
-			    {if $datastreams[d].archival_size_raw > 1048576 && $origami == 'ON' && $datastreams[d].origami_switch == 'ON'
-			         && ($datastreams[d].MIMEType == 'image/jpeg' || 
-			             $datastreams[d].MIMEType == 'image/tiff' || 
-			             $datastreams[d].MIMEType == 'image/tif' || 
-			             $datastreams[d].MIMEType == 'image/jpg')}
-				<a onclick="javascript:window.open('{$rel_url}eserv/{$pid}/{$datastreams[d].ID}?oi=1{if $viewingPreviousVersion}&version_date={$versionDate}{/if}'); return false;" href="{$rel_url}eserv/{$pid}/{$datastreams[d].ID}?oi=1{if $viewingPreviousVersion}&version_date={$versionDate}{/if}">
-				{else}
-				<a onclick="javascript:window.open('{$rel_url}eserv/{$pid}/{$ds_show}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}'); return false;" href="{$rel_url}eserv/{$pid}/{$ds_show}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}">
-				{/if}
-			{/if}
-			{$datastreams[d].ID}
-                        {if ($datastreams[d].canPreview || $isAdministrator) && $datastreams[d].stream != "0"}
-                                <a onclick="javascript:window.open('{$rel_url}eserv/{$pid}/{$ds_show_extra}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}'); return false;" href="{$rel_url}eserv/{$pid}/{$ds_show_extra}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}">(stream)</a> 
-                        {/if}
-			{if $datastreams[d].isViewer == 1 || $isAdministrator}
-				</a> &nbsp;
-			{/if}
-			{if ($datastreams[d].isArchivalViewer == 1 || $isAdministrator) && $datastreams[d].thumbnail != "0"}
-				<a onclick="javascript:window.open('{$rel_url}eserv/{$pid}/{$datastreams[d].ID}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}'); return false;" href="{$rel_url}eserv/{$pid}/{$datastreams[d].ID}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}"><img alt="Archival version" title="Archival version" src="{$rel_url}images/archival_22.gif" /></a>&nbsp;
-			{/if}
-			{if $datastreams[d].presmd != "0" && ($isAdministrator)}
-				<a onclick="javascript:window.open('{$rel_url}eserv/{$pid}/{$datastreams[d].presmd}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}'); return false;" href="{$rel_url}eserv/{$pid}/{$datastreams[d].presmd}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}"><img alt="Preservation metadata" title="Preservation metadata" src="{$rel_url}images/presmd_22.gif" /></a>&nbsp;
-			{/if} 	
-				</td>
-				{if $display_checksums == 'ON'}<td>({$datastreams[d].checksumType}) {$datastreams[d].checksum}</td>{/if}
-				<td>{$datastreams[d].label}</td>
-				<td>{$datastreams[d].MIMEType}</td>
-				<td>{$datastreams[d].archival_size}</td>				
-				<td align="right"><!--fez:ds_{$datastreams[d].base64ID}-->{$datastreams[d].downloads}<!--/fez:ds_{$datastreams[d].base64ID}--></td>				
-			  </tr>
-			 {/if}
-        {/section}
-    {/if}
-			</table><br />
 			
 		{if $sta_id != 2}
-		<tr><td class="error" style="background: {$heading_color};" align="center">
+		<tr><td class="error" style="background: {$heading_color}; text-align: center">
 		<b>NOTE: This record is not published.</b>
 		</td></tr>
+		
 		{/if}
 		
+		<br />		
+
 		{include file='view_metadata.tpl.html'}
 		
 		</td>
 	</tr>
 		
-      </table>
+</table>
 
 		<table style="background: #FFFFFF; width: 100%;">
 
@@ -409,7 +423,7 @@ function loadPreview(pid,datastreamID, alt, origami)
  				<td colspan="3">Filter Type</td>
  			</tr>
  			<tr>
- 				<td colspan="2" style="background: {$light_color}>
+ 				<td colspan="2" style="background: {$light_color}">
  					<select name="version_date">
  					{section name="versions" loop=$created_dates_list}
  					{if $version_view_type == 'FULL' || !$created_dates_list[versions].filtered}
@@ -435,7 +449,7 @@ function loadPreview(pid,datastreamID, alt, origami)
 
 {if $displayusercomments && $show_tombstone && !$deleted}
 	   <tr>
-          <table style="background: #FFFFFF; width: 100%;" align="center">
+          <table style="background: #FFFFFF; width: 100%; text-align: right">
     
     	  <tr>
     		<td colspan="5">&nbsp;</td>
@@ -445,8 +459,8 @@ function loadPreview(pid,datastreamID, alt, origami)
     	  </tr>
     
         {section name="uc" loop=$usercomments}
-           <tr valign="top">
-           <td align="left" style="background: {$light_color}; border-bottom: 2px solid #FFFFFF;">
+           <tr style="vertical-align: top">
+           <td style="background: {$light_color}; border-bottom: 2px solid #FFFFFF; text-align: right">
             <p>
              <blockquote>{$usercomments[uc].comment}</blockquote>
              {if $usercomments[uc].usc_rating}<br /><i><b>Rating:</b></i> {section name="rating" loop=$usercomments[uc].usc_rating}<img src="{$rel_url}images/rating_16.png" alt="{$usercomments[uc].usc_rating}">{/section}{/if}
@@ -496,19 +510,19 @@ function loadPreview(pid,datastreamID, alt, origami)
 {/if}
 
 		  <tr>
-			<td align="left" colspan="5">
+			<td colspan="5">
 		      <table style="background: #FFFFFF; width: 100%;">
 {if $WEBSERVER_LOG_STATISTICS == 'ON'}   		
 				<tr>
-				  <td align="left" style="white-space: nowrap;"> <b>Access Statistics:</b></td>
-				  <td align="left" style="white-space: nowrap; width: 100%;"> <!--fez:statsAbs-->{$statsAbstract}<!--/fez:statsAbs--> Abstract Views{if $fileCount > 0}, <!--fez:statsDownloads-->{$statsFiles}<!--/fez:statsDownloads--> File Downloads{/if}
+				  <td style="white-space: nowrap;"> <b>Access Statistics:</b></td>
+				  <td style="white-space: nowrap; width: 100%;"> <!--fez:statsAbs-->{$statsAbstract}<!--/fez:statsAbs--> Abstract Views{if $fileCount > 0}, <!--fez:statsDownloads-->{$statsFiles}<!--/fez:statsDownloads--> File Downloads{/if}
 				  <a href="{$rel_url}stat_details.php?action=show_detail&amp;pid={$pid}">Detailed Statistics</a>
 				  </td>
 				</tr>
 {/if}				
 				<tr>
-				  <td align="left" style="white-space: nowrap; padding-right: 5px;"> <b>Created:</b></td>
-				  <td align="left" style="white-space: nowrap; width: 100%;">  {$created_date} 
+				  <td style="white-space: nowrap; padding-right: 5px;"> <b>Created:</b></td>
+				  <td style="white-space: nowrap; width: 100%;">  {$created_date} 
 				  {if $depositor != ""} by <a href="{$rel_url}list/depositor/{$depositor_id}/">{$depositor}</a> 
 				  {if $depositor_org != ""} on behalf of {$depositor_org}{/if}&nbsp;&nbsp;&nbsp;{/if}
 				  <a title="view the full history of changes on this object" href="javascript:void(null);" onclick="javascript:openHistory('{$pid}');">Detailed History</a>
@@ -524,7 +538,7 @@ function loadPreview(pid,datastreamID, alt, origami)
     </td>
 {if $show_tombstone && !$deleted || !$show_tombstone}
 	{if $show_preview_pane == "1"} 
-    <td align="center" id="datastream_preview_td">
+    <td style="text-align: center" id="datastream_preview_td">
       <table width="100%" border="0" cellpadding="2" cellspacing="0" style="background: #FFFFFF">
         <tr>
           <td class="default_white" colspan="4" style="background: {$heading_color}"><b>Preview/Stream (click the image for a higher quality version)</b>

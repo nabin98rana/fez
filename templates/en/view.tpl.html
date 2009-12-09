@@ -1,39 +1,32 @@
 {include file="header.tpl.html" extra_title=$extra_title}
-    {include file="navigation.tpl.html"}
+{include file="navigation.tpl.html"}
 
 {if $show_not_allowed_msg}
-  <center>
-    <span class="default">
-      <b>Sorry, but you do not have the required permission level to access this screen.</b>
-      <br /><br />
-      <a class="link" href="javascript:history.go(-1);">Go Back</a>
-    </span>
-  </center>
+  <div style="text-align: center">
+    <h1>Permission Denied</h1>
+    <b>Sorry, but you do not have the required permission level to access this page.</b>
+    <br /><br />
+    <a href="javascript:history.go(-1);">Go Back</a>
+  </div>
 {elseif $pid == "" || $not_exists}
-  <table width="300" align="center">
-    <tr>
-      <td>
-        &nbsp;<span class="default"><b>Error: The object could not be found.</b>
-        <br /><br />
-        &nbsp;<a class="link" href="javascript:history.go(-1);">Go Back</a></span>
-      </td>
-    </tr>
-  </table>
+  <div style="text-align: center">
+    <h1>Not Found</h1>
+    <b>The requested object could not be found in the repository.</b>
+    <br /><br />
+    <a href="javascript:history.go(-1);">Go Back</a>
+  </div>
 {else}
   {if $isViewer}
-	{include file="view_form.tpl.html"}
+	  {include file="view_form.tpl.html"}
   {else}
-	 <center>
-		<span class="default">
-		<b>Sorry, but you do not have the required permission level to access this screen.</b>
-		<br /><br />
-		<a class="link" href="javascript:history.go(-1);">Go Back</a>
-		</span>
-	 </center>
+	 <div style="text-align: center">
+      <h1>Permission Denied</h1>
+      <b>Sorry, but you do not have the required permission level to view this page.</b>
+      <br /><br />
+      <a href="javascript:history.go(-1);">Go Back</a>
+	 </div>
   {/if}
 {/if}
 
-<br />
-
-    {include file="app_info.tpl.html"}
+{include file="app_info.tpl.html"}
 {include file="footer.tpl.html"}

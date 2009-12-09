@@ -1,4 +1,3 @@
-
 {if $new_record_id != "" and $smarty.post.report_stays != "yes"}
        <tr>
           <td class="default">
@@ -32,7 +31,7 @@ function openDetailPage()
 {/literal}
 {/if}
 
-<link rel="stylesheet" href="{$rel_url}css/autocomplete.css" type="text/css" />
+<tr><td>
 <script type="text/javascript" src="{$rel_url}js/yahoo/utilities.js"></script>
 <script type="text/javascript" src="{$rel_url}js/yahoo/autocomplete.js"></script>
 <script type="text/javascript" src="{$rel_url}js/editmeta.js"></script>
@@ -203,9 +202,9 @@ function selectOrgStructure_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}
 
 function selectDateField(field_name, day, month, year)
 {
-    selectOption(this.document.wfl_form1, field_name + '[Day]', day);
-    selectOption(this.document.wfl_form1, field_name + '[Month]', month);
-    selectOption(this.document.wfl_form1, field_name + '[Year]', year);
+    selectOption(this.document.getElementById('wfl_form1'), field_name + '[Day]', day);
+    selectOption(this.document.getElementById('wfl_form1'), field_name + '[Month]', month);
+    selectOption(this.document.getElementById('wfl_form1'), field_name + '[Year]', year);
 }
 
 
@@ -214,30 +213,36 @@ function selectDateField(field_name, day, month, year)
 </script>
 {/literal}
 
-<input type="hidden" name="cat" value="report">
-
-<input type="hidden" name="custom_view_pid" value="{$custom_view_pid}">
-<input type="hidden" name="xdis_id" value="{$xdis_id}">
-<input type="hidden" name="sta_id" value="{$sta_id}">
-<input type="hidden" name="collection_pid" value="{$collection_pid}">
-<input type="hidden" name="community_pid" value="{$community_pid}">
-<input type="hidden" name="user_id" value="{$current_user_id}">
-<input type="hidden" name="userfullname" value="{$current_full_name}">
+<input type="hidden" name="cat" value="report" />
+<input type="hidden" name="custom_view_pid" value="{$custom_view_pid}" />
+<input type="hidden" name="xdis_id" value="{$xdis_id}" />
+<input type="hidden" name="sta_id" value="{$sta_id}" />
+<input type="hidden" name="collection_pid" value="{$collection_pid}" />
+<input type="hidden" name="community_pid" value="{$community_pid}" />
+<input type="hidden" name="user_id" value="{$current_user_id}" />
+<input type="hidden" name="userfullname" value="{$current_full_name}" />
+</td></tr>
 
    <tr>
     <td>
-      <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="0" border="0">
+      <table style="background: #FFFFFF; width: 100%" cellspacing="1" cellpadding="0">
         <tr>
-          <td class="default_white" bgcolor="{$heading_color}">
-            &nbsp;<img align="absmiddle" src="{$rel_url}images/edit_32.gif"><b>{$wfs_title|escape}</b> {if $isEditor == 1}<input type="button" name="simple_toggle" value="Show All Fields" onClick="javascript:toggleCreateMode();this.disabled=true;" />{/if}
+          <td class="default_white" style="background: {$heading_color}">
+            &nbsp;<img style="vertical-align: middle" src="{$rel_url}images/edit_32.gif" alt="" /><b>{$wfs_title|escape}</b>
+            {if $isEditor == 1}
+            	<input type="button" name="simple_toggle" value="Show All Fields" onclick="javascript:toggleCreateMode(); this.disabled = true;" class="button" />
+            {/if}
           </td>
         </tr>
+        
         {section name="i" loop=$xsd_display_fields}
+        
 		{if ($xsd_display_fields[i].xsdmf_html_input != 'xsdmf_id_ref' and $xsd_display_fields[i].xsdmf_html_input != 'xsd_ref' and $xsd_display_fields[i].xsdmf_html_input != 'author_suggestor' and $xsd_display_fields[i].xsdmf_html_input != 'dynamic' and $xsd_display_fields[i].xsdmf_html_input != '')}
 		  {if ((($xsd_display_fields[i].xsdmf_html_input == 'static' && $xsd_display_fields[i].xsdmf_show_in_view == 1 && $xsd_display_fields[i].xsdmf_static_text != '') && ($xsd_display_fields[i].xsdmf_show_in_view == 1)) || ($xsd_display_fields[i].xsdmf_html_input != 'static'))}
 			  {if ((($xsd_display_fields[i].xsdmf_html_input == 'xsd_loop_subelement') && ($xsd_display_fields[i].xsdmf_show_in_view == 1)) || ($xsd_display_fields[i].xsdmf_html_input != 'xsd_loop_subelement') && $xsd_display_fields[i].xsdmf_enabled == 1)}
-        <tr {if $xsd_display_fields[i].xsdmf_invisible == 1}style="display:none;"{/if}><td colspan="2">
-	<table id="choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}" border="0" cellpadding="2" cellspacing="0" width="100%">
+        <tr {if $xsd_display_fields[i].xsdmf_invisible == 1}style="display: none;"{/if}>
+        	<td colspan="2">
+				<table id="choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}" cellpadding="2" cellspacing="0" style="width: 100%">
             {if $xsd_display_fields[i].xsdmf_required == 1 && $xsd_display_fields[i].xsdmf_enabled == 1}
             <script type="text/javascript">
             <!--

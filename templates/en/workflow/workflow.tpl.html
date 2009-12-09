@@ -1,5 +1,5 @@
 {literal}
-<script language="JavaScript" type="text/javascript">
+<script type="text/javascript">
 <!--
 
 function updateForm()
@@ -38,7 +38,8 @@ return true;
 
 {* we need to tell the swfupload script about the button ids so it can disable them *}
 {if $header_include_flash_uploader_files == 1 && $smarty.const.APP_ENABLE_FLASH_UPLOADER_SWITCH == 'ON'}
-<script>
+<script type="text/javascript">
+	<!--
 	dojo.addOnLoad( function() {ldelim}
 	{* Event.observe(window, 'load', function() {ldelim} *}
 
@@ -50,22 +51,24 @@ return true;
 		];
 		uploaderSetButtonIds(workflowButtonIds);
 	{rdelim});
+	-->
 </script>
 {/if}
 
 
 
 {if $show_not_allowed_msg}
-<div class="msg">
-You don't have permission to access this function
-</div>
+	<div class="msg">
+		You don't have permission to access this function
+	</div>
 {else}
 
 {* if the flash uploader is turned on and the user doesn't have flash installed or *}
 {* it's not current enough, then show them a message saying so *}
 {* also, only show this message on the enter or edit metadata pages rather than every workflow page *}
 {if $smarty.const.APP_ENABLE_FLASH_UPLOADER_SWITCH == 'ON' && ($type == 'enter_metadata' || $type == 'edit_metadata')}
-<script>
+<script type="text/javascript">
+	<!--
 	var flashInstalled = GetSwfVer();
 	if (flashInstalled == -1) {ldelim}
 		document.write('<div class="msg">If you install Adobe Flash version 9.0.45 or higher, <a href="http://www.adobe.com/go/getflashplayer">available here</a>,<br/> {$smarty.const.APP_NAME} offers a flash file uploader which will give you a progress bar and allow you to upload larger files</div><br/>');
@@ -75,101 +78,109 @@ You don't have permission to access this function
 			document.write('<div class="msg">If you upgrade to Adobe Flash version 9.0.45 or higher, <a href="http://www.adobe.com/go/getflashplayer">available here</a>,<br/> {$smarty.const.APP_NAME} offers a flash file uploader which will give you a progress bar and allow you to upload larger files</div><br/>');
 		{rdelim}
 	{rdelim}
+	-->
 </script>
 {/if}
 
-
 {if $submit_to_popup}
-<form name="wfl_form1" id="wfl_form1"  onsubmit="javascript:return (checkFormSubmission(this, 'validateForm') && updateForm() && disableWorkflowButtons(this){if ($header_include_flash_uploader_files == 1 && $smarty.const.APP_ENABLE_FLASH_UPLOADER_SWITCH == 'ON')} && swfuploaderUploadFiles(this) {/if});" target="_popup_window" action="{$rel_url}popup.php" method="POST" enctype="multipart/form-data">
+	<form id="wfl_form1" onsubmit="javascript:return (checkFormSubmission(this, 'validateForm') && updateForm() && disableWorkflowButtons(this){if ($header_include_flash_uploader_files == 1 && $smarty.const.APP_ENABLE_FLASH_UPLOADER_SWITCH == 'ON')} && swfuploaderUploadFiles(this) {/if});" target="_popup_window" action="{$rel_url}popup.php" method="POST" enctype="multipart/form-data">
 {else}
-<form name="wfl_form1" id="wfl_form1" onsubmit="javascript:return (checkFormSubmission(this, 'validateForm') && disableWorkflowButtons(this){if ($header_include_flash_uploader_files == 1 && $smarty.const.APP_ENABLE_FLASH_UPLOADER_SWITCH == 'ON')} && swfuploaderUploadFiles(this) {/if});"  action="{$smarty.server.PHP_SELF}" method="post" enctype="multipart/form-data">
+	<form id="wfl_form1" onsubmit="javascript:return (checkFormSubmission(this, 'validateForm') && disableWorkflowButtons(this){if ($header_include_flash_uploader_files == 1 && $smarty.const.APP_ENABLE_FLASH_UPLOADER_SWITCH == 'ON')} && swfuploaderUploadFiles(this) {/if});"  action="{$smarty.server.PHP_SELF}" method="post" enctype="multipart/form-data">
 {/if}
-<input type="hidden" name="id" value="{$id}" />
-<table bgcolor="{$light_color}" border="0" cellspacing="0" cellpadding="1" align="center"  width="100%">
-  <tr>
-    <td>
-      <table bgcolor="#FFFFFF" width="100%" cellspacing="0" cellpadding="0" border="0">
-<tr><td class="default">
-<div>
-<b>{$wfl_title|escape} - {$wfs_title|escape}</b><br/>
-</div>
-{if $wfs_description}
-<div class="wfl_description">
-{$wfs_description}
-</div>
-{/if}
-{if $states_done}
-<div class="wfl_progress">
-Workflow Progress:
-{section name="i" loop=$states_done}
-<span class="wfl_progress">{if !$states_done[i].wfs_auto}<a class="link" href="{$rel_url}workflow/{$states_done[i].wfb_script_name}?id={$id}&amp;wfs_id={$states_done[i].wfs_id}">{/if}{$states_done[i].wfs_title}{if !$states_done[i].wfs_auto}</a>{/if}</span>
-<img src="{$rel_url}images/1leftarrow.png" alt=" -> "  class="wfl_progress"/>
-{/section}
-</div>
-{/if}
-</td></tr>
-<div id="wfl_buttons_1">
-{if $workflow_buttons}
-<tr>
- <td colspan="2" bgcolor="{$cell_color}">
-  <table border="0" cellpadding="0" cellspacing="0" width="100%">
-   <tr>
-    <td   width="100%" align="center">
-   {section name="i" loop=$workflow_buttons}
-     <input class="button" type="submit" id="workflow_button_{$workflow_buttons[i].wfs_id}_1" name="workflow_button_{$workflow_buttons[i].wfs_id}" 
-     		value="{$workflow_buttons[i].wfs_title|default:'Done'}" 
-	     	{if $disable_workflow}disabled="disabled"{/if} />&nbsp;
-     {/section}
-     <input class="button" type="button" id="workflow_abandon_1" name="workflow_abandon"  onclick="javascript:document.location.href='{$rel_url}workflow/abandon.php?id={$id}&href={$href|escape:'url'}';" value="Abandon Workflow" />
-     
-    </td>
-   </tr>
-  </table>
- </td>
-</tr>
-{/if}
-</div>
-{include file="workflow/$type.tpl.html"}
 
-{if $APP_HERDC_SUPPORT == 'ON' && $in_herdc_group == '1' && $record_type == 'Record'}
+<div>
+	<input type="hidden" name="id" value="{$id}" />
+</div>
+
+<table style="background: {$light_color}; width: 100%;" cellspacing="0" cellpadding="1">
 	<tr>
-		<td colspan="2">
-			<div id="herdc_advice">
-				If this record is for the HERDC submission, you must ensure that you record author affiliation details before you publish the record.
-			</div>
+		<td>
+			<table style="background: #FFFFFF; width: 100%" cellspacing="0" cellpadding="0">
+
+				<tr>
+					<td class="default">
+						<div>
+							<b>{$wfl_title|escape} - {$wfs_title|escape}</b><br />
+						</div>
+						{if $wfs_description}
+							<div class="wfl_description">
+								{$wfs_description}
+							</div>
+						{/if}
+						{if $states_done}
+							<div class="wfl_progress">
+								Workflow Progress: 
+								{section name="i" loop=$states_done}
+									<span class="wfl_progress">{if !$states_done[i].wfs_auto}<a class="link" href="{$rel_url}workflow/{$states_done[i].wfb_script_name}?id={$id}&amp;wfs_id={$states_done[i].wfs_id}">{/if}{$states_done[i].wfs_title}{if !$states_done[i].wfs_auto}</a>{/if}</span>
+									<img src="{$rel_url}images/1leftarrow.png" alt=" -> "  class="wfl_progress" />
+								{/section}
+							</div>
+						{/if}
+					</td>
+				</tr>
+
+				{if $workflow_buttons}
+					<tr>
+						<td colspan="2" style="background: {$cell_color}">
+							<div id="wfl_buttons_1">
+								<table style="width: 100%" cellpadding="0" cellspacing="0">
+									<tr>
+										<td style="width: 100%; text-align: center">
+											{section name="i" loop=$workflow_buttons}
+												<input class="button" type="submit" id="workflow_button_{$workflow_buttons[i].wfs_id}_1" name="workflow_button_{$workflow_buttons[i].wfs_id}" 
+												value="{$workflow_buttons[i].wfs_title|default:'Done'}" 
+												{if $disable_workflow}disabled="disabled"{/if} />&nbsp;
+											{/section}
+											<input class="button" type="button" id="workflow_abandon_1" name="workflow_abandon" onclick="javascript:document.location.href='{$rel_url}workflow/abandon.php?id={$id}&amp;href={$href|escape:'url'}';" value="Abandon Workflow" />
+										</td>
+									</tr>
+		  						</table>
+		  					</div>	
+	 					</td>
+					</tr>
+				{/if}
+				
+				{include file="workflow/$type.tpl.html"}
+
+				{if $APP_HERDC_SUPPORT == 'ON' && $in_herdc_group == '1' && $record_type == 'Record'}
+					<tr>
+						<td colspan="2">
+							<div id="herdc_advice">
+								If this record is for the HERDC submission, you must ensure that you record author affiliation details before you publish the record.
+							</div>
+						</td>
+					</tr>
+				{/if}
+				
+				<div id="wfl_buttons_2">
+					{if $workflow_buttons && !$no_bottom_buttons}
+						<tr>
+							<td colspan="2" style="background: {$cell_color}">
+								<table style="width: 100%" cellpadding="0" cellspacing="0">
+									<tr>
+										<td style="width: 100%; text-align: center">
+											{section name="i" loop=$workflow_buttons}
+												<input class="button" type="submit" name="workflow_button_{$workflow_buttons[i].wfs_id}" id="workflow_button_{$workflow_buttons[i].wfs_id}_2" value="{$workflow_buttons[i].wfs_title|default:'Done'}" 
+												{if $disable_workflow}disabled="disabled"{/if} />&nbsp;
+											{/section}
+											<input class="button" type="button" id="workflow_abandon_2" name="workflow_abandon" onclick="javascript:document.location.href='{$rel_url}workflow/abandon.php?id={$id}&amp;href={$href|escape:'url'}';" value="Abandon Workflow" />
+										</td>
+									</tr>
+								</table>
+							</td>
+						</tr>
+						<tr>
+							<td colspan="2" class="default">
+								<b>* Required fields</b>
+							</td>
+						</tr>
+					{/if}
+				</div>
+			</table>
 		</td>
 	</tr>
-{/if}
-
-<div id="wfl_buttons_2">
-{if $workflow_buttons && !$no_bottom_buttons}
-<tr>
- <td colspan="2" bgcolor="{$cell_color}">
-  <table border="0" cellpadding="0" cellspacing="0" width="100%">
-   <tr>
-    <td   width="100%" align="center">
-   {section name="i" loop=$workflow_buttons}
-     <input class="button" type="submit" 
-     		name="workflow_button_{$workflow_buttons[i].wfs_id}" id="workflow_button_{$workflow_buttons[i].wfs_id}_2"
-     		value="{$workflow_buttons[i].wfs_title|default:'Done'}" 
-     		{if $disable_workflow}disabled="disabled"{/if} />&nbsp;
-     {/section}
-     <input class="button" type="button" id="workflow_abandon_2" name="workflow_abandon" onclick="javascript:document.location.href='{$rel_url}workflow/abandon.php?id={$id}&href={$href|escape:'url'}';" value="Abandon Workflow" />
-    </td>
-   </tr>
-  </table>
- </td>
-</tr>
-        <tr>
-          <td colspan="2" class="default">
-            <b>* Required fields</b>
-          </td>
-        </tr>
-{/if}
-</div> 
-      </table>
-    </td>
-  </tr>
 </table>
+
 </form>
+
 {/if}
