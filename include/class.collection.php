@@ -297,6 +297,8 @@ class Collection
 	function getAuthIndexStmt($roles = array(), $joinPrefix="r2.rek_pid")
 	{
 		$db = DB_API::get();
+		$log = FezLog::get();
+		
 		// If the user is a Fez Administrator then don't check for security, give them everything
 		$isAdministrator = Auth::isAdministrator();
 		if ($isAdministrator === true) {
@@ -390,7 +392,7 @@ class Collection
 			$res = $db->fetchCol($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err($ex);
+			$log->err($ex->getMessage());
 			return array();
 		}
 		return $res;

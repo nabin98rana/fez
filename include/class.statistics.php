@@ -553,13 +553,29 @@ class Statistics
 	 */
 	function updateSummaryTables()
 	{
+		$log = FezLog::get();
+		
+		$log->debug('StatisticsSummary: starting 4weeks summary');
 		Statistics::update4WeekSummaryTable();
+		$log->debug('StatisticsSummary: finishing 4weeks summary');
+		$log->debug('StatisticsSummary: starting authors summary');
 		Statistics::updateAuthorsSummaryTable();
+		$log->debug('StatisticsSummary: finishing authors summary');
+		$log->debug('StatisticsSummary: starting country/region summary');
 		Statistics::updateCountryRegionSummaryTable();
+		$log->debug('StatisticsSummary: finishing country/region summary');
+		$log->debug('StatisticsSummary: starting papers summary');
 		Statistics::updatePapersSummaryTable();
+		$log->debug('StatisticsSummary: finishing papers summary');
+		$log->debug('StatisticsSummary: starting year/month summary');
 		Statistics::updateYearMonthSummaryTable();
+		$log->debug('StatisticsSummary: finishing year/month summary');
+		$log->debug('StatisticsSummary: starting year summary');
 		Statistics::updateYearSummaryTable();
+		$log->debug('StatisticsSummary: finishing year summary');
+		$log->debug('StatisticsSummary: starting year/month figures summary');
 		Statistics::updateYearMonthFiguresSummaryTable();
+		$log->debug('StatisticsSummary: finishing year/month figures summary');
 	}
 
 	function update4WeekSummaryTable()
@@ -844,7 +860,7 @@ class Statistics
 
 			//			echo "Processing {$year}/{$month}: " . date('H:i:s') . "\n";
 			$list = Collection::statsByAttribute(0, 50, "Title", $year, $month, $range);
-			$list = Citation::renderIndexCitations($list);
+			$list = Citation::renderIndexCitations($list['list']);
 
 			// now delete everything in the table (as we're replacing all values)
 			$delete = "delete from " . APP_TABLE_PREFIX . "statistics_sum_yearmonth where sym_year = '{$year}' and sym_month = '{$month}'";
@@ -857,7 +873,7 @@ class Statistics
 			}
 			
 			// and insert the new values
-			foreach ($list['list'] as $listItem)
+			foreach ($list as $listItem)
 			{
 				$data = array(
 				    'sym_year'		=> $year,
@@ -897,7 +913,7 @@ class Statistics
 		{
 			//			echo "Processing {$year}: " . date('H:i:s') . "\n";
 			$list = Collection::statsByAttribute(0, 50, "Title", $year, $month, $range);
-			$list = Citation::renderIndexCitations($list);
+			$list = Citation::renderIndexCitations($list['list']);
 
 			// now delete everything in the table (as we're replacing all values)
 			$delete = "delete from " . APP_TABLE_PREFIX . "statistics_sum_year where syr_year = ?";
@@ -910,7 +926,7 @@ class Statistics
 			}
 			
 			// and insert the new values
-			foreach ($list['list'] as $listItem)
+			foreach ($list as $listItem)
 			{	
 				$data = array(
 				    'syr_year'		=> $year,
@@ -2624,9 +2640,9 @@ class Statistics
 		$db = DB_API::get();
 		
 		if ($pid != 'all') {
-			$limit = "where stl_pid = ".$db->quote($pid)." and stl_dsid = ''";
+			$limit = "where stl_pid = ".$db->quote($pid)." and (stl_dsid = '' OR stl_dsid IS NULL) ";
 		} else {
-			$limit = "where stl_dsid = ''";
+			$limit = "where (stl_dsid = '' OR stl_dsid IS NULL) ";
 		}
 
 		$stmt = "select count(*) as count,month(date(stl_request_date)) as monthnum,date_format(date(stl_request_date),'%b') as month,year(date(stl_request_date)) as year
@@ -2656,9 +2672,9 @@ class Statistics
 		$db = DB_API::get();
 		
 		if ($pid != 'all') {
-			$limit = "where stl_pid = ".$db->quote($pid)." and stl_dsid <> ''";
+			$limit = "where stl_pid = ".$db->quote($pid)." and (stl_dsid <> '' OR stl_dsid IS NOT NULL) ";
 		} else {
-			$limit = "where stl_dsid <> ''";
+			$limit = "where (stl_dsid <> '' OR stl_dsid IS NOT NULL) ";
 		}
 
 		$stmt = "select count(*) as count,month(date(stl_request_date)) as monthnum,date_format(date(stl_request_date),'%b') as month,year(date(stl_request_date)) as year
