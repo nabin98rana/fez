@@ -764,13 +764,13 @@ class SanityChecks
 		$info = curl_getinfo($ch);
 		if (curl_errno($ch) != 0) {
 			$errstr = curl_error($ch);
-			return array(new ConfigResult('ConnectHTTP', $configDefine, $value, "Error: ".$errstr.". " .
+			return array(new ConfigResult('ConnectHTTP', $configDefine, self::obscure_pw($value), "Error: ".$errstr.". " .
                     "The webserver couldn't connect to this address.  Check that the address is correct. " .
                     "Perhaps it is blocked at a firewall.  Also check that CURL is correctly installed."));
 		}
 		curl_close ($ch);
 		if ($info['http_code'] != 200) {
-			return array(new ConfigResult('ConnectHTTP', $configDefine, $value,
+			return array(new ConfigResult('ConnectHTTP', $configDefine, self::obscure_pw($value),
                     "HTTP Result ".$info['http_code']." code. ".
                     "The webserver couldn't connect to this address.  Check that the address is correct. " .
                     "Check that any authorisation needed is correct. " .
@@ -857,4 +857,21 @@ class SanityChecks
 		return "EVERYTHING LOOKS GOOOOOD!";     // LKDB
 	}
 
+	function obscure_pw($url)
+	{		
+		$parts = parse_url($url);
+//Error_Handler::logError(array('obscure_ps('.$url.')','parts=__SEE NEXT__'),__FILE__,__LINE__);
+//Error_Handler::logError($parts,__FILE__,__LINE__);
+
+		if(strlen($parts['pass'])<= 0) return($url);
+
+		$obscured_url = $parts['scheme'].'://*:*@'.$parts['host'];
+		if(strlen($parts['port'])>0) $obscured_url .= ':'.$parts['port'];
+		if(strlen($parts['path'])>0) $obscured_url .= $parts['path'];
+		if(strlen($parts['query'])>0) $obscured_url .= '?'.$parts['query'];
+		if(strlen($parts['fragment'])>0) $obscured_url .= '#'.$parts['fragment'];
+		
+//Error_Handler::logError('obscured_url='.$obscured_url,__FILE__,__LINE__);
+		return( $obscured_url );
+	}
 }
