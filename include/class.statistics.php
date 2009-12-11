@@ -868,7 +868,7 @@ class Statistics
 				$db->query($delete);
 			}
 			catch(Exception $ex) {
-				$log->err($ex);
+				$log->err($ex->getMessage());
 				return -1;
 			}
 			
