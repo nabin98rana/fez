@@ -813,10 +813,10 @@ class Statistics
 		$stmt = 'SELECT year(stl_request_date) as yr, month(stl_request_date) as mth, count(1) FROM ' . APP_TABLE_PREFIX . 'statistics_all group by 1,2';
 		
 		try {
-			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+			$result = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err($ex);
+			$log->err($ex->getMessage());
 			return -1;
 		}
 		
@@ -852,13 +852,13 @@ class Statistics
 				}
 				else
 				{
-					//					echo "Skipping {$year}/{$month}\n";
+					$log->debug("Skipping {$year}/{$month}");
 					continue;
 				}
 			}
 
 
-			//			echo "Processing {$year}/{$month}: " . date('H:i:s') . "\n";
+			$log->debug("Processing {$year}/{$month}: " . date('H:i:s'));
 			$list = Collection::statsByAttribute(0, 50, "Title", $year, $month, $range);
 			$list = Citation::renderIndexCitations($list['list']);
 
