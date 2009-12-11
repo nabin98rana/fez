@@ -1406,6 +1406,7 @@ top: 5px;
     width: 100%;
     padding: 10px;
     text-align: center;
+    margin-bottom: 15px;
 }
 
 .loading {
@@ -1952,4 +1953,27 @@ a.author_id_link:hover {
     background: [[$smarty.const.APP_VALUE_COLOR]];
     width: 80%;
     padding-left: 15px;
+}
+
+.edit-metadata thead th {
+    background: white;
+    text-align: left;
+}
+
+.edit-metadata thead td {
+    background: [[$smarty.const.APP_CELL_COLOR]];
+}
+
+.edit-metadata th {
+    background: [[$smarty.const.APP_CELL_COLOR]];
+    width: 200px;
+    vertical-align: top;
+    text-align: left;
+    padding: 8px 15px 3px 5px;
+    font-weight: normal;
+}
+
+.edit-metadata td {
+    background: [[$smarty.const.APP_LIGHT_COLOR]];
+    padding-left: 5px;
 }
