@@ -1176,6 +1176,10 @@ class Record
 		if ($page_rows == "ALL") {
 			$page_rows = 9999999;
 		}
+		if ($page_rows == "") {
+			$page_rows = APP_DEFAULT_PAGER_SIZE;
+		}
+
 		$start = $current_page * $page_rows;
 		$dbtp =  APP_TABLE_PREFIX; // Database and table prefix
 		$current_row = $current_page * $page_rows;
@@ -1224,13 +1228,12 @@ class Record
 			$stmt .= " ORDER BY ".$searchKey_join[SK_SORT_ORDER]." r".$searchKey_join[SK_KEY_ID].".rek_pid DESC ";
 		}
 		$usr_id = Auth::getUserID();
-
-		if ($total_rows > 0) {			
+		if ($total_rows > 0) {
 			try {
 				$stmt = $db->limit($stmt, $page_rows, $start);
 			}
 			catch(Exception $ex) {
-				$log->err($ex);
+				$log->err($ex." stmt = $stmt, page_rows = $page_rows, start = $start");
 			}
 			
 			try {
