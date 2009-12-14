@@ -430,12 +430,21 @@ function restoreDefaultColours(el)
 			  {include file="error_icon.tpl.html" field="app_cookie"}
 			</td>
   		  </tr>
+  		  
+		  <tr>
+			<th>Session timeout</th>
+			<td>
+			  <input type="text" name="app_session_timeout" value="{$config_settings.app_session_timeout|escape:"html"}" size="5" />
+			  <br />Length of time an unattended session can exist before automatic timeout, in seconds.
+			  {include file="error_icon.tpl.html" field="app_session_timeout"}
+			</td>
+  		  </tr>
+  		  
   		  <tr>
 		    <th>Google Analytics ID</th>
 			<td>
 			  <input type="radio" name="app_analytics_switch" value="ON" {if $config_settings.app_analytics_switch == "ON"}checked="checked"{/if}/> Enabled &nbsp; 
-			  <input type="radio" name="app_analytics_switch" value="OFF" {if $config_settings.app_analytics_switch == "OFF"}checked="checked"{/if}/> Disabled  &nbsp; &nbsp; 
-		    
+			  <input type="radio" name="app_analytics_switch" value="OFF" {if $config_settings.app_analytics_switch == "OFF"}checked="checked"{/if}/> Disabled  &nbsp; &nbsp; 		    
 			  <input type="text" name="app_analytics_id" value="{$config_settings.app_analytics_id|escape:"html"}" size="20" />
 			  Format: <strong><i>xxxxxx-x</i></strong><br />
 			  {include file="error_icon.tpl.html" field="app_analytics_id"}
@@ -446,7 +455,6 @@ function restoreDefaultColours(el)
 			<td>
 			  <input type="radio" name="app_use_google_map_switch" value="ON" {if $config_settings.app_use_google_map_switch == "ON"}checked="checked"{/if}/> Enabled &nbsp;
 			  <input type="radio" name="app_use_google_map_switch" value="OFF" {if $config_settings.app_use_google_map_switch == "OFF"}checked="checked"{/if}/> Disabled  &nbsp; &nbsp;
-
 			  <input type="text" name="app_google_map_key" value="{$config_settings.app_google_map_key|escape:"html"}" size="60" />
 			  {include file="error_icon.tpl.html" field="app_google_maps_key"}
 			</td>

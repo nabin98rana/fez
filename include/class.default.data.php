@@ -245,6 +245,7 @@ class Default_Data
 		$defaultData['app_article_search_wos_address']		= "";
 		$defaultData['app_template_compile_path']			= "";
 		$defaultData['app_internal_notes']					= "ON";
+		$defaultData['app_session_timeout']					= "10800";
 				
 		return $defaultData;
 

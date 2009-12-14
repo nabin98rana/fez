@@ -47,7 +47,7 @@ class Session2
     			die('Permission denied: ' . CONFIG_SYS_DIR_SESSION_PATH . " is not writable.");
     		}
     		$this->dir = CONFIG_SYS_DIR_SESSION_PATH;
-        $this->lifeTime = get_cfg_var("session.gc_maxlifetime");  
+        $this->lifeTime = APP_SESSION_TIMEOUT;
         $this->gcCounterFile = $this->dir . $this->gcCounterFileName; 
         $this->gcLogFile = $this->dir  . $this->gcLogFileName;
         $this->sessionDir = backslashToSlash(addTrailingSlash(backslashToSlash($this->dir)) . session_id() . DIRECTORY_SEPARATOR);

@@ -58,7 +58,7 @@ class SessionManager {
 		$this->db = DB_API::get();
 		
 		// Read the maxlifetime setting from PHP
-		$this->life_time = get_cfg_var("session.gc_maxlifetime");
+		$this->life_time = APP_SESSION_TIMEOUT;
 		$this->valid = true;
 			
 		// Register this object as the session handler

@@ -233,7 +233,7 @@ class Zend_Session_SaveHandler_DbTable extends Zend_Db_Table_Abstract implements
             require_once 'Zend/Session/SaveHandler/Exception.php';
             throw new Zend_Session_SaveHandler_Exception();
         } else if (empty($lifetime)) {
-            $this->_lifetime = (int) ini_get('session.gc_maxlifetime');
+            $this->_lifetime = (int) APP_SESSION_TIMEOUT;
         } else {
             $this->_lifetime = (int) $lifetime;
         }

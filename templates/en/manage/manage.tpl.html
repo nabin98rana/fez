@@ -21,6 +21,7 @@
             <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/groups.php'}class="focus" {/if}href="{$rel_url}manage/groups.php">Groups</a></li>
             <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/authors.php'}class="focus" {/if} href="{$rel_url}manage/authors.php">Authors</a></li>
             <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/statuses.php'}class="focus" {/if}href="{$rel_url}manage/statuses.php">Statuses</a></li>
+            <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/sessions.php'}class="focus" {/if}href="{$rel_url}manage/sessions.php">Sessions</a></li>
             <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/orgstructure.php'}class="focus" {/if}href="{$rel_url}manage/orgstructure.php">Organisational Structure</a></li>
             {if $APP_HERDC_SUPPORT == 'ON'}
               <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/integrity.php'}class="focus" {/if} href="{$rel_url}manage/integrity.php">HERDC Integrity Report</a></li>
