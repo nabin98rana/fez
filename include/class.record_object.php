@@ -103,6 +103,10 @@ class RecordObject extends RecordGeneral
 			 */
 			$this->setIndexMatchingFields();
 		}
+		if (APP_FILECACHE == "ON") {
+			$cache = new fileCache($this->pid, 'pid='.$this->pid);
+			$cache->poisonCache();
+		}
 	}
 
 	/**
