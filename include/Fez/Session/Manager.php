@@ -76,7 +76,13 @@ class Fez_Session_Manager implements Zend_Session_SaveHandler_Interface
  
 		return true;
 	}
- 
+
+	public function __destruct() 
+	{
+		// set the profiler to disabled, otherwise we get an issue when trying to write to a profiled database connection after the object has been destructed
+		$this->sessionData->getAdapter()->getProfiler()->setEnabled(false);
+	}
+
 	public function destroy($id)
 	{
 		$this->sessionData->delete($this->sessionData->getAdapter()->quoteInto('session_id = ?', $id));
