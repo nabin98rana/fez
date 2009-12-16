@@ -50,9 +50,7 @@ foreach($_COOKIE as $k => $v) {
 	}
 }
 
-$sess = new Fez_Session_Manager();
-$session_id = session_id();
-session_regenerate_id();
-$sess->destroy($session_id);
+
+Zend_Session::destroy();
 
 Auth::redirect(APP_RELATIVE_URL . "index.php?err=6");

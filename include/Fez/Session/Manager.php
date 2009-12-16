@@ -1,6 +1,6 @@
 <?php 
 require_once 'Zend/Session/SaveHandler/Interface.php';
- 
+
 class Fez_Session_Manager implements Zend_Session_SaveHandler_Interface
 {
 	/**
@@ -8,14 +8,16 @@ class Fez_Session_Manager implements Zend_Session_SaveHandler_Interface
 	 *
 	 * @var Session_Manager
 	 */
-	private static $sessionData;
+	protected $sessionData;
  
-	private static $thisIsOldSession = false;
-	private static $originalSessionId = '';
+	protected $thisIsOldSession = false;
+	protected $originalSessionId = '';
+	protected $updatedExpr = null;
  
 	public function open($save_path, $name)
 	{
-		self::$sessionData = new Fez_Session_Data();
+		$this->sessionData = new Fez_Session_Data();
+		$this->updatedExpr = new Zend_Db_Expr('NOW()'); // because the write is called after the destructor, so this needs to be created before the destructor fires
 		return true;
 	}
  
@@ -26,12 +28,12 @@ class Fez_Session_Manager implements Zend_Session_SaveHandler_Interface
  
 	public function read($id)
 	{
-		$rows = self::$sessionData->find($id);
+		$rows = $this->sessionData->find($id);
 		$row = $rows->current();
 		if ($row)
 		{
-			self::$thisIsOldSession = true;
-			self::$originalSessionId = $id;
+			$this->thisIsOldSession = true;
+			$this->originalSessionId = $id;
 			return $row->session_data;
 		}
 		else
@@ -46,29 +48,30 @@ class Fez_Session_Manager implements Zend_Session_SaveHandler_Interface
 		(
 			'session_data' => $sessionData,
 			'session_ip' => $_SERVER['REMOTE_ADDR'],
-			'updated' => new Zend_Db_Expr('NOW()'),
+			'updated' => $this->updatedExpr
 		);
  
-		if (self::$thisIsOldSession && self::$originalSessionId != $id)
+		if ($this->thisIsOldSession && $this->originalSessionId != $id)
 		{
 			// session ID is regenerated, so set $thisIsOldSession to false, so we insert new row
-			self::$thisIsOldSession = false;
+			$this->thisIsOldSession = false;
 		}
  
-		if (self::$thisIsOldSession)
+		if ($this->thisIsOldSession)
 		{
-			self::$sessionData->update
+			$this->sessionData->update
 			(
 				$data,
-				self::$sessionData->getAdapter()->quoteInto('session_id = ?', $id)
+				$this->sessionData->getAdapter()->quoteInto('session_id = ?', $id)
 			);
 		}
 		else
 		{
 			//no such session, create new one
 			$data['session_id'] = $id;
-			$data['created'] = new Zend_Db_Expr('NOW()');
-			self::$sessionData->insert($data);
+			$data['created'] = $this->updatedExpr;
+			
+			$this->sessionData->insert($data);
 		}
  
 		return true;
@@ -76,14 +79,14 @@ class Fez_Session_Manager implements Zend_Session_SaveHandler_Interface
  
 	public function destroy($id)
 	{
-		self::$sessionData->delete(self::$sessionData->getAdapter()->quoteInto('session_id = ?', $id));
+		$this->sessionData->delete($this->sessionData->getAdapter()->quoteInto('session_id = ?', $id));
 		return true;
 	}
  
 	public function gc($maxLifetime)
 	{
 		$maxLifetime = intval($maxLifetime);
-		self::$sessionData->delete("DATE_ADD(updated, INTERVAL $maxLifetime SECOND) < NOW()");
+		$this->sessionData->delete("DATE_ADD(updated, INTERVAL $maxLifetime SECOND) < NOW()");
 		return true;
 	}
 }
