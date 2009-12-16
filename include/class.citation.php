@@ -253,6 +253,7 @@ class Citation
 				if (empty($result)) {
 					$citation = Record::getTitleFromIndex($list[$row]['rek_pid']);
 					$log->debug("No Style, so setting Citation to just title of ".$citation." for PID ".$pid);
+					$citation = Citation::formatTitle($citation, $list[$row]);
 					Citation::updateCitationCache($list[$row]['rek_pid'], $citation);				
 					continue;
 				}
@@ -457,13 +458,7 @@ class Citation
 				}
 			} else {
 				if ($xsdmf['sek_title'] == "Title") {
-					if ($details['rek_object_type'] == 3) {
-						$value = '<a title="Click to view '.$details['rek_display_type_lookup'].': '.htmlentities($value, ENT_COMPAT, 'UTF-8').'" href="' . APP_RELATIVE_URL . 'view/'.$details['rek_pid'].'">'.$value.'</a>';
-					} elseif ($details['rek_object_type'] == 2) {
-						$value = '<a title="Click to list records in '.$details['rek_display_type_lookup'].' '.htmlentities($value, ENT_COMPAT, 'UTF-8').'" href="' . APP_RELATIVE_URL . 'collection/'.$details['rek_pid'].'">'.$value.'</a>';
-					} elseif ($details['rek_object_type'] == 1) {
-						$value = '<a title="Click to list collections in '.$details['rek_display_type_lookup'].' '.htmlentities($value, ENT_COMPAT, 'UTF-8').'" href="' . APP_RELATIVE_URL . 'community/'.$details['rek_pid'].'">'.$value.'</a>';
-					}
+					$value = Citation::formatTitle($value, $details);
 				}
 				if ($xsdmf['sek_title'] == "Date") {
 					$value = '<a title="Browse by Year '.htmlentities($value, ENT_COMPAT, 'UTF-8').'" href="' . APP_RELATIVE_URL . 'list/year/'.htmlentities($value, ENT_COMPAT, 'UTF-8').'/">'.$value.'</a>';
@@ -487,6 +482,22 @@ class Citation
 		}
 		return $value;
 	}
+
+	function formatTitle($value, $details)
+	{
+		if (empty($value)) {
+			return '';
+		}
+		if ($details['rek_object_type'] == 3) {
+			$value = '<a title="Click to view '.$details['rek_display_type_lookup'].': '.htmlentities($value, ENT_COMPAT, 'UTF-8').'" href="' . APP_RELATIVE_URL . 'view/'.$details['rek_pid'].'">'.$value.'</a>';
+		} elseif ($details['rek_object_type'] == 2) {
+			$value = '<a title="Click to list records in '.$details['rek_display_type_lookup'].' '.htmlentities($value, ENT_COMPAT, 'UTF-8').'" href="' . APP_RELATIVE_URL . 'collection/'.$details['rek_pid'].'">'.$value.'</a>';
+		} elseif ($details['rek_object_type'] == 1) {
+			$value = '<a title="Click to list collections in '.$details['rek_display_type_lookup'].' '.htmlentities($value, ENT_COMPAT, 'UTF-8').'" href="' . APP_RELATIVE_URL . 'community/'.$details['rek_pid'].'">'.$value.'</a>';
+		}
+		return $value;
+	}
+
 
 	/**
 	 * convert - retrieve old style of doing citations and write a citation template equivalent.

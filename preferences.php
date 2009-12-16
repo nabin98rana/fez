@@ -98,7 +98,7 @@ $shibAttribs = array();
 if (isset($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]) && is_array($_SESSION[APP_SHIB_ATTRIBUTES_SESSION])) {
 	$counter = 0;
 	foreach ($_SESSION[APP_SHIB_ATTRIBUTES_SESSION] as $name => $value) {
-		if (is_numeric(strpos($name, "Shib-EP"))) {
+		if (is_numeric(strpos($name, "Shib-EP")) || is_numeric(strpos($name, "Shib-Person"))) {
 			$shibAttribs[$counter]['name'] = $name;
 			$shibAttribs[$counter]['value'] = $value;
 			$counter++;
