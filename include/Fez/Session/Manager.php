@@ -12,12 +12,10 @@ class Fez_Session_Manager implements Zend_Session_SaveHandler_Interface
  
 	protected $thisIsOldSession = false;
 	protected $originalSessionId = '';
-	protected $updatedExpr = null;
  
 	public function open($save_path, $name)
 	{
 		$this->sessionData = new Fez_Session_Data();
-		$this->updatedExpr = new Zend_Db_Expr('NOW()'); // because the write is called after the destructor, so this needs to be created before the destructor fires
 		return true;
 	}
  
@@ -48,7 +46,7 @@ class Fez_Session_Manager implements Zend_Session_SaveHandler_Interface
 		(
 			'session_data' => $sessionData,
 			'session_ip' => $_SERVER['REMOTE_ADDR'],
-			'updated' => $this->updatedExpr
+			'updated' => date('Y-m-d H:i:s')
 		);
  
 		if ($this->thisIsOldSession && $this->originalSessionId != $id)
@@ -69,7 +67,7 @@ class Fez_Session_Manager implements Zend_Session_SaveHandler_Interface
 		{
 			//no such session, create new one
 			$data['session_id'] = $id;
-			$data['created'] = $this->updatedExpr;
+			$data['created'] = date('Y-m-d H:i:s');
 			
 			$this->sessionData->insert($data);
 		}
