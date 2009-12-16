@@ -746,7 +746,7 @@ class User
 
 		foreach ($_SESSION[APP_SHIB_ATTRIBUTES_SESSION] as $shib_name => $shib_value)
 		{
-			if ( is_numeric(strpos($shib_name, "Shib-EP")) && $shib_value != '' ) {
+			if ( (is_numeric(strpos($shib_name, "Shib-EP")) || is_numeric(strpos($shib_name, "Shib-Person"))) && $shib_value != '' ) {
 				$stmt = "REPLACE INTO
                             " . APP_TABLE_PREFIX . "user_shibboleth_attribs
                             (

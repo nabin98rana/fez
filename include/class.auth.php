@@ -1863,11 +1863,11 @@ class Auth
 		}
 
 
-		if ($shib_login == true && @$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] == "") {
+		if ($shib_login == true && (@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'] == "" && $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'] == "")) {
 			return 24;
 		}
 
-		if ($shib_login == true) {
+		if ($shib_login == true) { 
 			// Get the username from eduPerson Targeted ID. If empty then they are (really) anonymous
 			if ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'] != "") {
 				$username = $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'];
@@ -2033,11 +2033,33 @@ class Auth
 	 */
 	function GetShibAttributes() 
 	{
+		$headers = array(); 
 		session_name(APP_SESSION);
 		@session_start();
-		$headers = apache_request_headers();
-		//$shib_attributes = $headers['Shib-Attributes'];
-
+		if (SHIB_VERSION == "1") {
+			$headers = apache_request_headers();
+		} elseif (SHIB_VERSION == "2") { //Shib 2 puts things in $_SERVER, not in the apache request headers..
+			//Shib 2.x also calls things different ids, so here is a mapping.
+			$shibboleth2_ids = array(
+				"eppn" => "Shib-EP-PrincipalName", 
+				"targeted-id" => "Shib-EP-TargetedID", 
+				"affiliation" => "Shib-EP-ScopedAffiliation", 
+				"unscoped-affiliation" => "Shib-EP-UnscopedAffiliation", 
+				"entitlement" => "Shib-EP-Entitlement", 
+				"assurance" => "Shib-EP-Assurance", 
+				"library-number" => "Shib-EP-LibraryNumber", 
+				"student-number" => "Shib-EP-StudentNumber", 
+				"primary-orgunit-dn" => "Shib-EP-PrimaryOrgUnitDN", 
+				"org-dn" => "Shib-EP-OrgUnitDN", 
+				"cn" => "Shib-Person-commonName", 
+				"mail" => "Shib-Person-mail", 
+				"primary-affilation"  => "Shib-EP-PrimaryAffiliation");
+			foreach($shibboleth2_ids as $key => $value) {
+				if ($_SERVER[$key] != "") {
+					$headers[$value] = $_SERVER[$key];
+				}
+			}
+		}
 		$_SESSION[APP_SHIB_ATTRIBUTES_SESSION] = $headers;
 	}
 

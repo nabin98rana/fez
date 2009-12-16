@@ -71,12 +71,12 @@ if (@$_SESSION['IDP_LOGIN_FLAG'] == 1) {
 	Auth::GetShibAttributes();
 	$_SESSION['IDP_LOGIN_FLAG'] = 0;
 }
-if (@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "") {
+if (@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "" || @$_SERVER['Shib-Session-ID'] != "") {
 // Uncomment this to see a debug output of all the shibboleth attributes in the session
-/*	echo "<pre>";
+/*	echo "<pre>"; 
 	print_r($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]);
-	echo "</pre>";  */
-
+	echo "</pre>";  
+*/
 	if (Auth::LoginAuthenticatedUser("", "", true) > 0) {
     	Auth::redirect(APP_RELATIVE_URL . "login.php?err=22");
 	}
