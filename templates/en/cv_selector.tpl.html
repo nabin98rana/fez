@@ -13,7 +13,8 @@
 
 <!-- Begin
 function addSelectedItemsToParent() {
-	self.opener.addToParentList(window.document.frmMain.cv_fields, self.opener.document.{/literal}{$form}.{$element}{literal});
+	var destList = self.opener.document.getElementById('{/literal}{$element}{literal}')
+	window.opener.addToParentList(window.document.frmMain.cv_fields, destList);
 }
 
 function dblClickSubmit() {
@@ -28,7 +29,9 @@ function addItemToParent(selectedItem, selectedItemDescription) {
 	var selectedItem = parseInt(selectedItem);
 	//window.alert('Selected: ' + selectedItem);
 	document.frmMain.newOptions.options[0] = new Option(selectedItemDescription, selectedItem, true, true);
-	self.opener.addToParentList(window.document.frmMain.newOptions, self.opener.document.{/literal}{$form}.{$element}{literal});
+	var destList = self.opener.document.getElementById('{/literal}{$element}{literal}')
+	self.opener.addToParentList(window.document.frmMain.newOptions, destList);
+	
 }
 
 // End -->

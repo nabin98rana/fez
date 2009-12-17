@@ -127,7 +127,6 @@ function swfuploaderFileQueued(entry) {
 // Sets up and starts the file uploads
 // ===================================
 function swfuploaderUploadFiles() {
-
 	// the swfuploader didn't get initialised, so return true because we're using the old file upload method instead
 	if (undefined === window.swfuploader || null === swfuploader) {
 		return true;
@@ -248,11 +247,11 @@ function swfuploaderQueueComplete() {
 		newElement.name = element.name;
 		newElement.id = element.name;
 		newElement.value = element.value;
-		document.wfl_form1.appendChild(newElement);
+		dojo.byId('wfl_form1').appendChild(newElement);
 	}
 	
 	// and submit the form
-	document.wfl_form1.submit();
+	dojo.byId('wfl_form1').submit();
 }
 
 // ================================

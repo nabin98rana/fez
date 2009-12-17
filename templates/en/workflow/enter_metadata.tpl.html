@@ -72,7 +72,7 @@
 		{section name="i" loop=$xsd_display_fields}
 		{if ($xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector' || $xsd_display_fields[i].xsdmf_html_input == 'dual_multiple') && $xsd_display_fields[i].xsdmf_enabled == 1}
 		{literal}
-			var field = document.wfl_form1.xsd_display_fields_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}_0;
+			var field = document.getElementById('xsd_display_fields_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}_0');
 		    for (var y = 0; y < field.options.length; y++) {
 		        field.options[y].selected = true;
 		    }
@@ -84,7 +84,7 @@
 			{if $xsd_display_fields[i].xsdmf_multiple == 1}
 				{section name="z" loop=$xsd_display_fields[i].multiple_array}
 					{assign var='loop_num' value=$smarty.section.z.index}
-					var field = document.wfl_form1.xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{math equation="x - 1" x=$loop_num};
+					var field = document.getElementById('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{math equation="x - 1" x=$loop_num}');
 					{literal}
 					if (field != null) {
 						{/literal}
@@ -95,7 +95,7 @@
 			        {/literal}
 				{/section}
 			{else}
-				var field = document.wfl_form1.xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0;
+				var field = document.getElementById('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0');
 				{literal}
 				if (field != null) {
 					{/literal}
@@ -113,7 +113,7 @@
 				// Validate multiple textarea fields
 				{section name="z" loop=$xsd_display_fields[i].multiple_array}
 					{assign var='loop_num' value=$xsd_display_fields[i].multiple_array[z]}
-					var field = document.wfl_form1.xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{math equation="x - 1" x=$loop_num};
+					var field = document.getElementById('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{math equation="x - 1" x=$loop_num}');
 					{literal}
 					if (field != null) {
 						{/literal}
@@ -125,7 +125,7 @@
 				{/section}
 			{else}
 				// validate a single textarea field
-				var field = document.wfl_form1.xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0;
+				var field = document.getElementById('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0');
 				{literal}
 				if (field != null) {
 					{/literal}
@@ -138,7 +138,7 @@
 		{/if}
 		{/section}
 		{literal}
-		checkRequiredFields(document.wfl_form1, required_xsd_display_fields);
+		checkRequiredFields(document.getElementById('wfl_form1'), required_xsd_display_fields);
 		}
 		{/literal}
 		{section name="i" loop=$xsd_display_fields}
@@ -167,7 +167,7 @@
 			if (dt_load_state_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal} > 0) {
 			   return false;
 			} 
-			var field = document.wfl_form1.xsd_display_fields_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}_0;
+			var field = document.getElementById('xsd_display_fields_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}_0');
 		
 			var selections = getSelectedItems(field);
 		
