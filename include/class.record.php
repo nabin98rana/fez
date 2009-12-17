@@ -400,18 +400,10 @@ class Record
 		 * cached files as well as cached files for custom views
 		 */
 		if(APP_FILECACHE == "ON") {
-			$cviews = array();
-			$cviews = Custom_View::getCviewList();
 
 			$cache = new fileCache($pid, 'pid='.$pid);
 			$cache->poisonCache();
 
-			if(count($cviews) > 0) {
-				foreach ($cviews as $cview) {
-					$cache = new fileCache($pid, "custom_view_pid={$cview['cvcom_com_pid']}&pid=$pid");
-					$cache->poisonCache();
-				}
-			}
 		}
 
 		if ($ret) {
@@ -604,18 +596,8 @@ class Record
 			FulltextQueue::singleton()->triggerUpdate();
 		}
 
-		$cviews = array();
-		$cviews = Custom_View::getCviewList();
-
 		$cache = new fileCache($this->pid, 'pid='.$this->pid);
 		$cache->poisonCache();
-
-		if(count($cviews) > 0) {
-			foreach ($cviews as $cview) {
-				$cache = new fileCache($this->pid, "custom_view_pid={$cview['cvcom_com_pid']}&pid=$this->pid");
-				$cache->poisonCache();
-			}
-		}
 
 	}
 
@@ -904,6 +886,11 @@ class Record
 			$log->debug("Record::updateSearchKeys() ADDING ".$pid." TO QUEUE");
 			FulltextQueue::singleton()->add($pid);
 			FulltextQueue::singleton()->commit();
+		}
+
+		if (APP_FILECACHE == "ON" ) {
+			$cache = new fileCache($pid, 'pid='.$pid);
+			$cache->poisonCache();
 		}
 
 		return $ret;

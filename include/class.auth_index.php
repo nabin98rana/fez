@@ -320,18 +320,11 @@ class AuthIndex
         		$auth_index->setBGP($this->bgp);
         		$auth_index->setIndexAuthBGP($child_pid, $recurse);
 			}
-			if( APP_FILECACHE == "ON" && $topcall) {
-				$this->cviews = Custom_View::getCviewList();
-			}
 
 			if( APP_FILECACHE == "ON" ) {
 				$cache = new fileCache($pid, 'pid='.$pid);
 				$cache->poisonCache();
 				 
-				foreach ($this->cviews as $cview) {
-					$cache = new fileCache($pid, "custom_view_pid={$cview['cvcom_com_pid']}&pid=$pid");
-					$cache->poisonCache();
-				}
 			}
 
 			$this->bgp->setStatus("Finished Index Auth for ".$title);

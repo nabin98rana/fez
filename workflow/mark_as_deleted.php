@@ -36,16 +36,8 @@ Record::markAsDeleted($this->pid);
 // need to add history here because the status object doesn't like to add history to a deleted object
 History::addHistory($this->pid, $this->wfl_details['wfl_id'], '', '', true);
 
-$cviews = array();
-$cviews = Custom_View::getCviewList();
             
 $cache = new fileCache($this->pid, 'pid='.$this->pid);
 $cache->poisonCache();
             
-if(count($cviews) > 0) {
-	foreach ($cviews as $cview) {
-	    $cache = new fileCache($this->pid, "custom_view_pid={$cview['cvcom_com_pid']}&pid=$this->pid");
-	    $cache->poisonCache();
-	}
-}
 ?>
