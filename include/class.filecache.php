@@ -21,13 +21,12 @@ class fileCache {
 		$this->pid = $pid;
 		$this->cacheFileName = md5($cacheid);
 		$this->cachePath = $this->getPathFileOnDisk();
-
 	}
 
 	/**
 	 * Check if a cache file exists and then display it
 	 *
-	 * @param bool $dontUseCache  dont show cache file if its exists
+	 * @param bool $dontUseCache  don't show cache file if its exists
 	 *
 	 * @access public
 	 */
@@ -150,7 +149,8 @@ class fileCache {
 	function getAllCacheLocations()
 	{
 		$md5arr = str_split($this->cacheFileName, 2);
-		$cacheDirectories = Custom_View::getCviewListUniqueHosts();
+		$cacheDirectories = Custom_View::getCviewListUniqueHosts();	// Custom Views
+		$cacheDirectories[] = APP_HOSTNAME;							// Default
 		foreach ($cacheDirectories as &$dir) {
 			$dir = APP_FILECACHE_DIR . $dir . "/" . $md5arr[0]. '/'. $md5arr[1] .'/';
 		}
