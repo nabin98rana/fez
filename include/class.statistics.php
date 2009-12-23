@@ -1923,7 +1923,7 @@ class Statistics
 		$remote_address = $_SERVER['REMOTE_ADDR'];
 		$request_date = date('Y-m-d H:i:s', $_SERVER['REQUEST_TIME']);
 
-		if (APP_MYSQL_INNODB_FLAG == "ON" || APP_SQL_DBTYPE != "mysql") {
+		if (APP_MYSQL_INNODB_FLAG == "ON" || (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql")))) {
 			$stmt = "INSERT INTO ";
 		} else {
 			//If using MyISAM mysql db engine type, take advantage of the 'delayed' non-ansi extension

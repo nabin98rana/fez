@@ -425,7 +425,7 @@ class Org_Structure
 			  SELECT org_id, 
 				org_title ";
 
-		if (APP_MYSQL_INNODB_FLAG == "ON" || APP_SQL_DBTYPE != "mysql") {
+		if (APP_MYSQL_INNODB_FLAG == "ON" || (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql")))) {
 			$stmt .= " FROM ".$dbtp."org_structure
 				 WHERE org_title LIKE ".$db->quote($term.'%')." AND org_title NOT LIKE 'Faculty of%' AND (org_extdb_name = 'hr' OR org_extdb_name = 'rrtd') ";
 			$stmt .= " LIMIT 10 OFFSET 0) AS tempsuggest";

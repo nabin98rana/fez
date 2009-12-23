@@ -480,7 +480,7 @@ class Author
 		$extra_order_stmt = "";
 		if (!empty($filter)) {
 			// For the Author table we are going to keep it in MyISAM if you are using MySQL because there is no table locking issue with this table like with others.
-			if (APP_SQL_DBTYPE != "mysql") {
+			if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
 				$where_stmt .= " WHERE ";
 				$names = explode(" ", $filter);
 				$nameCounter = 0;
@@ -501,7 +501,7 @@ class Author
 		}
 			
 		$start = $current_row * $max;
-		if (APP_SQL_DBTYPE != "mysql") {
+		if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
 			$stmt = "SELECT ";
 		} else {
 			$stmt = "SELECT SQL_CALC_FOUND_ROWS ";
@@ -523,7 +523,7 @@ class Author
 			return '';
 		}
 
-		if (APP_SQL_DBTYPE != "mysql") {
+		if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
 			$stmt = "SELECT COUNT(*)
 	                 FROM
 	                    " . APP_TABLE_PREFIX . "author

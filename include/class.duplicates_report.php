@@ -464,7 +464,7 @@ class DuplicatesReport {
 				}
 			}
 			return $res;
-		} elseif (APP_MYSQL_INNODB_FLAG == "ON" || APP_SQL_DBTYPE != "mysql") {
+		} elseif (APP_MYSQL_INNODB_FLAG == "ON" || (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql")))) {
 			$stmt = "SELECT distinct r2.rek_pid as pid, "
 			.self::RELEVANCE_ISI_LOC_MATCH." as relevance " .
 	                "FROM  ".$dbtp."record_search_key AS r2 " .

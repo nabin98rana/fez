@@ -53,6 +53,26 @@ include_once('HTML/AJAX/JSON.php');
 class Misc
 {
 
+	//Method to escape apostrophes etc in a xpath query value.. horrible but this is how it's done
+	public function xpathescape($string)
+	{
+		$result = 'concat(';
+
+		for($i=0, $j=strlen($string); $i<$j; ++$i) {
+			if($i > 0)
+				$result .= ",";
+
+			if ($string[$i] == '\'')
+				$result .= "\"".$string[$i]."\"";
+			else
+				$result .= '\''.$string[$i].'\'';
+		}
+
+		$result .= ')';
+
+		return $result;
+	}
+
 	function strlcs($str1, $str2)
 	{
 		$m = strlen($str1);
