@@ -1,7 +1,99 @@
+{literal}
+<script type="text/javascript">
+	<!--
+
+	function toggleHistory(divID) {
+		var historyDiv = document.getElementById('history_' + divID);
+		if (historyDiv.style.display == "block") {
+			historyDiv.style.display = "none";
+		} else {
+			historyDiv.style.display = "block";	
+		}
+		return;
+	}
+
+	-->
+</script>
+{/literal}
+
 <div class="admin-box">
 
 	<h1>Manage Sessions</h1>
-	
-	<p><i>Coming soon to an SVN revision near you!</i></p>
+
+	<form method="post" action="{$smarty.server.PHP_SELF}?action=delete">
+		<div>
+			<input type="hidden" name="cat" value="delete" />
+		</div>
+		
+		<h2>Currently Active Sessions:</h2>
+
+		<table style="width: 100%" cellpadding="1" cellspacing="1">
+			<tr>
+				<td style="width: 20px; white-space: nowrap" class="cell-colour">&nbsp;</td>
+				<td style="" class="default cell-colour"><b>Session ID</b></td>
+				<td style="" class="default cell-colour"><b>Type</b></td>
+				<td style="" class="default cell-colour"><b>IP address</b></td>
+				<td style="" class="default cell-colour"><b>Created</b></td>
+				<td style="" class="default cell-colour"><b>Updated</b></td>
+			</tr>
+			{section name="i" loop=$active_sessions}
+				{if $active_sessions[i].session_data != ''}
+					{cycle values=$cycle assign="row_color"}
+					<tr>
+						<td style="text-align: center; width: 30px; white-space: nowrap; background: {$row_color}">
+							<input type="checkbox" name="items[]" value="{$active_sessions[i].session_id}" />
+						</td>
+						<td style="background: {$row_color}" class="default">
+							{$active_sessions[i].session_id}
+						</td>
+						<td style="background: {$row_color}" class="default">
+							<a href="#" onclick="javascript:toggleHistory({$smarty.section.i.iteration});">{$active_sessions[i].fullname}</a>
+						</td>
+						<td style="background: {$row_color}" class="default">
+							{$active_sessions[i].session_ip}
+						</td>
+						<td style="background: {$row_color}" class="default">
+							{$active_sessions[i].created}
+						</td>
+						<td style="background: {$row_color}" class="default">
+							{$active_sessions[i].updated}
+						</td>
+					</tr>
+					<tr>
+						<td colspan="6">
+							<div id="history_{$smarty.section.i.iteration}" style="display: none;">
+								{section name="j" loop=$active_sessions[i].history}
+									{if $smarty.section.j.first}
+										<h2>Recent Activity</h2>
+										<table class="admin-list" style="margin-left: 20px;">
+											<tr>
+												<th>Date</th>
+												<th>PID</th>
+												<th>Description</th>
+											</tr>
+									{/if}
+									<tr>
+										<td>{$active_sessions[i].history[j].pre_date}</td>
+										<td>{$active_sessions[i].history[j].pre_pid}</td>
+										<td>{$active_sessions[i].history[j].pre_detail}</td>													
+									</tr>
+									{if $smarty.section.j.last}
+										</table>
+										<br />
+									{/if}
+								{/section}
+							</div>
+						</td>
+					</tr>
+				{/if}
+			{/section}
+			<tr>
+				<td colspan="6" style="background: {$cell_color}; text-align: center">
+					<input type="submit" name="action" value="Delete" class="button" />
+				</td>
+			</tr>
+		</table>
+		
+	</form>
 
 </div>

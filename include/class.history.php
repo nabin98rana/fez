@@ -161,7 +161,48 @@ class History
 		}
 		return $res;		
 	}
-
+	
+	/**
+	 * Method used to get a list of recent changes made against a specific user
+	 *
+	 * @access  public
+	 * @param   integer $userID The ID of the user
+	 * @return  array The list of changes
+	 */
+	function getRecentListingByUser($userID, $show_hidden=false)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "SELECT
+                    *
+                 FROM
+                    " . APP_TABLE_PREFIX . "premis_event
+                 WHERE ";
+		if ($show_hidden==false) {
+			$stmt .= "pre_is_hidden != 1 AND ";
+		}
+		$stmt .= "
+					pre_usr_id = " . $db->quote($userID) . "
+				ORDER BY
+					pre_date DESC
+				LIMIT 10;";
+		try {
+			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return '';
+		}
+		
+		$timezone = Date_API::getPreferredTimezone();
+		
+		for ($i = 0; $i < count($res); $i++) {
+			$res[$i]["pre_date"] = Date_API::getFormattedDate($res[$i]["pre_date"], $timezone);
+		}
+		return $res;
+	}
+	
 	/**
 	 * @param array $term_array - key pairs where the key is the column and the value is the search term
 	 * 								in the column.

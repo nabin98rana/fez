@@ -56,6 +56,11 @@ if (!$isSuperAdministrator) {
     $tpl->assign("show_not_allowed_msg", true);
 }
 
+$action = $_GET['action'];
+if ($action == 'delete') {
+	Sessions::deleteSession($_POST['items']);
+}
+
 $tpl->assign("active_sessions", Sessions::listActiveSessions());
 $tpl->displayTemplate();
 
