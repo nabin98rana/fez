@@ -29,7 +29,7 @@
 // +----------------------------------------------------------------------+
 // | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>        |
 // +----------------------------------------------------------------------+
-
+ini_set("display_errors", 1); // LKDB - tmp (was 1)
 include_once('../config.inc.php');
 include_once(APP_INC_PATH . 'class.esti_search_service.php');
 include_once(APP_INC_PATH . "class.record.php");
@@ -83,7 +83,7 @@ $filter["searchKey".Search_Key::getID("Object Type")] = 3; // records only
 */
 //$listing = Record::getListing(array(), array(9,10), 0, $max, 'Created Date', false, false, $filter);
 
-$query1 = 'SELECT count(*) as total_isi_locs FROM ' . APP_TABLE_PREFIX . 'record_search_key_isi_loc ';
+$query1 = 'SELECT count(*) as total_isi_locs FROM ' . APP_TABLE_PREFIX . 'record_search_key_isi_loc INNER JOIN ' . APP_TABLE_PREFIX . 'record_search_key on rek_pid = rek_isi_loc_pid ';
 echo $query1."\n";
 ob_flush();
 $db = DB_API::get();
@@ -102,7 +102,8 @@ $inc = 100;
 	ob_flush();
 for($i=0; $i<($total+$inc); $i=$i+$inc) {
 	
-	$query2 = "SELECT * FROM " . APP_TABLE_PREFIX . "record_search_key_isi_loc ORDER BY rek_isi_loc_id ASC  LIMIT ".$inc." OFFSET ".$i;
+	$query2 = "SELECT * FROM " . APP_TABLE_PREFIX . "record_search_key_isi_loc INNER JOIN " . APP_TABLE_PREFIX . "record_search_key on rek_pid
+ = rek_isi_loc_pid ORDER BY rek_isi_loc_id ASC  LIMIT ".$inc." OFFSET ".$i;
 
 	echo $query2 ."\n";
 	ob_flush();
@@ -134,6 +135,7 @@ for($i=0; $i<($total+$inc); $i=$i+$inc) {
 				$doc_type = "$doc_type";
 				if(! array_key_exists($doc_type, $doc_type_mapping)) {
 				        echo('Unsupported doc type when adding journal article subtype (Genre Subtype search key) ESTI record to MODS:'.$doc_type);
+                                        ob_flush();
 				        $log->err('Unsupported doc type when adding journal article subtype (Genre Subtype search key) ESTI record to MODS:'.$doc_type);
 				        return false;
 				} else {
@@ -142,7 +144,7 @@ for($i=0; $i<($total+$inc); $i=$i+$inc) {
 						$pid = Record::getPIDByIsiLoc($record->item->ut);
 						$record = new RecordGeneral($pid);
 						$search_keys = array("Subtype");
-						$values = array($doc_type_mapping[$doc_type]);
+						$values = array($doc_type_mapping[$doc_type][1]);
 						echo "about to modify $pid with subtype ".$doc_type_mapping[$doc_type][1]."\n";
 						$record->addSearchKeyValueList("MODS", "Metadata Object Description Schema", $search_keys, $values, true);
 					}

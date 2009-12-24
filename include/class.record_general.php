@@ -547,16 +547,19 @@ class RecordGeneral
 		}
 		// If no existing one is found, add to the parent (will error currently if the xpath parent doesn't exist either, but thats unusual)
 		if (is_null($parentNode)) {
+ echo "\n parent pre element query is $pre_element \n";
 			$parentNodeList = $xpath->query($pre_element);
 			foreach ($parentNodeList as $fieldNode) {
 				$parentNode = $fieldNode;
 			}
 		}
-
+                if (substr($element, 0, 1) == "@") {
+                  $parentNode->setAttribute(substr($element, 1), $value);
+                } else {
 		$newNode = $doc->createElement($element, $value);
 		$newNode->setAttribute($attributeName, $attributeValue);
-	
 		$parentNode->appendChild($newNode); 
+	        }
 		return $doc;
     }
 
@@ -1471,7 +1474,12 @@ class RecordGeneral
 			$node->parentNode->removeChild($node);
 		}
 		$new_xml = $doc->saveXML();
-		Fedora_API::callIngestObject($new_xml);
+		if (APP_FEDORA_VERSION == "3.2.1") {
+			Fedora_API::callIngestObject($new_xml, $pid);
+		} else {
+			Fedora_API::callIngestObject($new_xml);			
+		}
+
 
 		$datastreams = Fedora_API::callGetDatastreams($pid); // need the full get datastreams to get the controlGroup etc
 		if (empty($datastreams)) {
