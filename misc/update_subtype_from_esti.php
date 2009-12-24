@@ -85,6 +85,7 @@ $filter["searchKey".Search_Key::getID("Object Type")] = 3; // records only
 
 $query1 = 'SELECT count(*) as total_isi_locs FROM ' . APP_TABLE_PREFIX . 'record_search_key_isi_loc ';
 echo $query1."\n";
+ob_flush();
 $db = DB_API::get();
 $log = FezLog::get();
 
@@ -98,7 +99,8 @@ try {
 echo "count $total isi locs \n";
 $inc = 100;
 
-for($i=0; $i<($total+inc); $i=$i+$inc) {
+	ob_flush();
+for($i=0; $i<($total+$inc); $i=$i+$inc) {
 	
 	$query2 = "SELECT * FROM " . APP_TABLE_PREFIX . "record_search_key_isi_loc ORDER BY rek_isi_loc_id ASC  LIMIT ".$inc." OFFSET ".$i;
 
@@ -139,7 +141,7 @@ for($i=0; $i<($total+inc); $i=$i+$inc) {
 						// Update record with new UT
 						$pid = Record::getPIDByIsiLoc($record->item->ut);
 						$record = new RecordGeneral($pid);
-						$search_keys = array("Genre Subtype");
+						$search_keys = array("Subtype");
 						$values = array($doc_type_mapping[$doc_type]);
 						echo "about to modify $pid with subtype ".$doc_type_mapping[$doc_type][1]."\n";
 						$record->addSearchKeyValueList("MODS", "Metadata Object Description Schema", $search_keys, $values, true);
