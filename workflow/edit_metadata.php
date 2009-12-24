@@ -108,6 +108,15 @@ if (isset($_POST['editedFileDescriptions']) && is_array($_POST['editedFileDescri
 	}
 }
 
+// if the file names have changed, record this
+// this has to be done after the descriptions, otherwise, the datastream names will have changed and the description won't know which one to apply to
+if (isset($_POST['editedFilenames']) && is_array($_POST['editedFilenames'])) {
+	foreach($_POST['editedFilenames'] as $counter => $fileDetails) {
+		Record::renameDatastream($fileDetails['pid'], $fileDetails['originalFilename'], $fileDetails['newFilename']);
+	}
+}
+
+
 $wfstatus->setTemplateVars($tpl);
 $wfstatus->checkStateChange();
 $collection_pid=$pid;
