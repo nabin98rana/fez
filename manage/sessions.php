@@ -61,7 +61,12 @@ if ($action == 'delete') {
 	Sessions::deleteSession($_POST['items']);
 }
 
-$tpl->assign("active_sessions", Sessions::listActiveSessions());
+$sessionInfo = Sessions::listActiveSessions();
+$active_sessions = $sessionInfo['res'];
+$userCount = $sessionInfo['distinctUserCount'];
+
+$tpl->assign("active_sessions", $active_sessions);
+$tpl->assign("user_count", $userCount);
 $tpl->displayTemplate();
 
 ?>

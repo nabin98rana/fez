@@ -62,18 +62,21 @@ class Sessions {
 			return '';
 		}
 		
+		$userIDs = array();
 		foreach ($res as &$row) {
-			
 			$unserialised = Sessions::session_real_decode($row['session_data']);
 			$row['fullname'] = $unserialised['fullname'];
 			$row['username'] = $unserialised['username'];
 			$userID = User::getUserIDByUsername($unserialised['username']);
 			if ($userID != 0) {
+				$userIDs[] = $userID;
 				$row['history'] = History::getRecentListingByUser($userID);
 			}
 		}
-		
-		return $res;
+
+		// Get distinct users
+		$distinctUserCount = sizeof(array_unique($userIDs));
+		return compact('res', 'distinctUserCount');
 	}
 	
 	
