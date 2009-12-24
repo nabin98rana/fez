@@ -1350,6 +1350,8 @@ class RecordGeneral
 
 	function setIndexMatchingFields()
 	{
+		$log = FezLog::get();
+		
 		// careful what you do with the record object - don't want to use the index while reindexing
 		$pid = $this->pid;
 		$xdis_id = $this->getXmlDisplayId();

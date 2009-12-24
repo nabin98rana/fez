@@ -797,20 +797,20 @@ class Fedora_API {
 				// array of datastreams so rewrite as array of datastreams to match
 				// multiple datastreams format
 				$ds = array();
-				$ds[controlGroup] = $dsIDListArray[controlGroup];
-				$ds[ID]           = $dsIDListArray[ID];
-				$ds[versionID]    = $dsIDListArray[versionID];
-				$ds[altIDs]       = $dsIDListArray[altIDs];
-				$ds[label]        = $dsIDListArray[label];
-				$ds[versionable]  = $dsIDListArray[versionable];
-				$ds[MIMEType]     = $dsIDListArray[MIMEType];
-				$ds[formatURI]    = $dsIDListArray[formatURI];
-				$ds[createDate]   = $dsIDListArray[createDate];
-				$ds[size]         = $dsIDListArray[size];
-				$ds[state]        = $dsIDListArray[state];
-				$ds[location]     = $dsIDListArray[location];
-				$ds[checksumType] = $dsIDListArray[checksumType];
-				$ds[checksum]     = $dsIDListArray[checksum];
+				$ds['controlGroup'] = $dsIDListArray['controlGroup'];
+				$ds['ID']           = $dsIDListArray['ID'];
+				$ds['versionID']    = $dsIDListArray['versionID'];
+				$ds['altIDs']       = $dsIDListArray['altIDs'];
+				$ds['label']        = $dsIDListArray['label'];
+				$ds['versionable']  = $dsIDListArray['versionable'];
+				$ds['MIMEType']     = $dsIDListArray['MIMEType'];
+				$ds['formatURI']    = $dsIDListArray['formatURI'];
+				$ds['createDate']   = $dsIDListArray['createDate'];
+				$ds['size']         = $dsIDListArray['size'];
+				$ds['state']        = $dsIDListArray['state'];
+				$ds['location']     = $dsIDListArray['location'];
+				$ds['checksumType'] = $dsIDListArray['checksumType'];
+				$ds['checksum']     = $dsIDListArray['checksum'];
 
 				$dsIDListArray = array();
 				$dsIDListArray[0] = $ds;

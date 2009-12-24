@@ -114,6 +114,8 @@ class RecordObject extends RecordGeneral
 	 */
 	function fedoraInsertUpdate($exclude_list=array(), $specify_list=array(), $params = array())
 	{
+		$log = FezLog::get();
+		
 		if (!empty($params)) {
 			// dirty double hack as this function and all the ones it calls assumes this is
 			// to do with a form submission

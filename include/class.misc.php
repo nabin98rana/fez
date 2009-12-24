@@ -1195,6 +1195,8 @@ class Misc
 	 */
 	function getDatastreamXMLHeaders($datastreamTitles, $xmlString, $existingDatastreams = array())
 	{
+		$log = FezLog::get();
+		
 		$return = array();
 		$next_link = Misc::getNextLink($existingDatastreams);
 		$searchvars = array("ID", "CONTROL_GROUP", "STATE", "VERSIONABLE", "versionID", "LABEL", "MIMETYPE"); // For items which repeat, (like ID (ID and versionID)) make the searchable part uppercase and the name difference lowercase
@@ -1410,6 +1412,8 @@ class Misc
 	function processLinkVersioning($pid,$datastreamXMLHeaders,$datastreamXMLContent,$existingDatastreams)
 	{
 
+		$log = FezLog::get();
+		
 		$return = array();
 
 		// find all the existing links
@@ -1553,6 +1557,8 @@ class Misc
 	 */
 	function getDatastreamXMLContent($datastreamTitles, $xmlString) 
 	{
+		$log = FezLog::get();
+		
 		$return = array();
 		//		echo $xmlString;
 		//		print_r($datastreamTitles);
@@ -1591,7 +1597,8 @@ class Misc
 	 */
 	function removeNonXMLDatastreams($datastreamTitles, $xmlString) 
 	{
-
+		$log = FezLog::get();
+		
 		$return = $xmlString;
 		//		print_r($datastreamTitles);
 		foreach ($datastreamTitles as $title => $data) {
@@ -1802,6 +1809,8 @@ class Misc
 	 */
 	function XML_Walk($domnode, $callbackobject, $callbackmethod, $callbackdata, $rootnode) 
 	{
+		$log = FezLog::get();
+		
 		if (is_null($domnode)) {
 			return;
 		}

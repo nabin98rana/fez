@@ -814,20 +814,20 @@ class Fedora_API {
 				// array of datastreams so rewrite as array of datastreams to match
 				// multiple datastreams format
 				$ds = array();
-				$ds[controlGroup] = $dsIDListArray[controlGroup];
-				$ds[ID]           = $dsIDListArray[ID];
-				$ds[versionID]    = $dsIDListArray[versionID];
-				$ds[altIDs]       = $dsIDListArray[altIDs];
-				$ds[label]        = $dsIDListArray[label];
-				$ds[versionable]  = $dsIDListArray[versionable];
-				$ds[MIMEType]     = $dsIDListArray[MIMEType];
-				$ds[formatURI]    = $dsIDListArray[formatURI];
-				$ds[createDate]   = $dsIDListArray[createDate];
-				$ds[size]         = $dsIDListArray[size];
-				$ds[state]        = $dsIDListArray[state];
-				$ds[location]     = $dsIDListArray[location];
-				$ds[checksumType] = $dsIDListArray[checksumType];
-				$ds[checksum]     = $dsIDListArray[checksum];
+				$ds['controlGroup'] = $dsIDListArray['controlGroup'];
+				$ds['ID']           = $dsIDListArray['ID'];
+				$ds['versionID']    = $dsIDListArray['versionID'];
+				$ds['altIDs']       = $dsIDListArray['altIDs'];
+				$ds['label']        = $dsIDListArray['label'];
+				$ds['versionable']  = $dsIDListArray['versionable'];
+				$ds['MIMEType']     = $dsIDListArray['MIMEType'];
+				$ds['formatURI']    = $dsIDListArray['formatURI'];
+				$ds['createDate']   = $dsIDListArray['createDate'];
+				$ds['size']         = $dsIDListArray['size'];
+				$ds['state']        = $dsIDListArray['state'];
+				$ds['location']     = $dsIDListArray['location'];
+				$ds['checksumType'] = $dsIDListArray['checksumType'];
+				$ds['checksum']     = $dsIDListArray['checksum'];
 
 				$dsIDListArray = array();
 				$dsIDListArray[0] = $ds;
@@ -1013,6 +1013,7 @@ class Fedora_API {
 	 */
 	function datastreamExists ($pid, $dsID, $refresh=false, $pattern=false) 
 	{
+		$log = FezLog::get();
 		if (Misc::isPid($pid) != true) {
 			return false;
 		}
@@ -1132,6 +1133,8 @@ class Fedora_API {
 	 */
 	function callGetDatastreamContents($pid, $dsID, $getraw = false, $filehandle = null) 
 	{
+		$log = FezLog::get();
+		
 		$resultlist = array();
 		$dsExists = Fedora_API::datastreamExists($pid, $dsID);
 		if ($dsExists === true) {
@@ -1220,6 +1223,8 @@ class Fedora_API {
 	 */
 	function callModifyDatastreamByValue ($pid, $dsID, $state, $label, $dsContent, $mimetype='text/xml', $versionable='inherit') 
 	{
+		$log = FezLog::get();
+		
 		$versionable = $versionable === true ? 'true' : $versionable === false ? 'false' : $versionable;
 		if( strcasecmp($versionable,'inherit') != 0 ){
 			// if 'inherit' then versionable is not being changed

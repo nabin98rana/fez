@@ -967,6 +967,8 @@ class XSD_DisplayObject
 	 */
 	function XSD_DisplayObject($xdis_id)
 	{
+		$log = FezLog::get();
+		
 		$this->xdis_id = $xdis_id;
 	}
 
@@ -979,6 +981,8 @@ class XSD_DisplayObject
 	 */
 	function refresh()
 	{
+		$log = FezLog::get();
+		
 		$this->retrieved_mf = false;
 		$this->xsdmf_array = array();
 	}
@@ -994,6 +998,8 @@ class XSD_DisplayObject
 	 */
 	function getMatchFieldsList($exclude_list=array(), $specify_list=array())
 	{
+		$log = FezLog::get();
+		
 		$this->exclude_list = $exclude_list;
 		$this->specify_list = $specify_list;
 		$res = XSD_HTML_Match::getListByDisplay($this->xdis_id, $exclude_list, $specify_list);
@@ -1009,6 +1015,8 @@ class XSD_DisplayObject
 	 */
 	function getXsdAsReferencedArray()
 	{
+		$log = FezLog::get();
+		
 		$xdis_id = $this->xdis_id;
 		$xsd_id = XSD_Display::getParentXSDID($xdis_id);
 		$xsd_details = Doc_Type_XSD::getDetails($xsd_id);
@@ -1032,6 +1040,8 @@ class XSD_DisplayObject
 
 	function getXSD()
 	{
+		$log = FezLog::get();
+		
 		if (!$this->xsd_id) {
 			$this->xsd_id = XSD_Display::getParentXSDID($this->xdis_id);
 			$this->xsd_details = Doc_Type_XSD::getDetails($this->xsd_id);
@@ -1048,6 +1058,8 @@ class XSD_DisplayObject
 	 */
 	function getDatastreamTitles($exclude_list=array(), $specify_list=array())
 	{
+		$log = FezLog::get();
+		
 		return XSD_Loop_Subelement::getDatastreamTitles($this->xdis_id,$exclude_list, $specify_list);
 	}
 
@@ -1063,7 +1075,9 @@ class XSD_DisplayObject
 	function getXSDMF_Values($pid, $createdDT=null, $skipIndex = false)
 	{
 
-		 
+		$log = FezLog::get();
+		$this->getXSD_HTML_Match();
+		
 		//print_r($this->specify_list); echo count($this->specify_list); if ($skipIndex != true) { echo "hai"; }
 		if (APP_XSDMF_INDEX_SWITCH == "ON" && $skipIndex != true && count($this->specify_list) == 0) { //echo "MAAA";
 			// AN Attempt at seeing what performance would be like by getting all details from the index rather than from fedora, now commented out for future experimentation
@@ -1224,6 +1238,8 @@ class XSD_DisplayObject
 	// To get the values for a specific xml datastream only (eg for when there are many FezACML for datastream values set so they don't get confused)
 	function getXSDMF_Values_Datastream($pid, $dsID, $createdDT=null)
 	{
+		$log = FezLog::get();
+		
 
 		if (!isset($this->xsdmf_array[$pid])) {
 			$this->xsdmf_array[$pid] = array();
@@ -1247,6 +1263,8 @@ class XSD_DisplayObject
 
 	function getXSD_HTML_Match()
 	{
+		$log = FezLog::get();
+
 		if (!$this->xsd_html_match) {
 			$xdis_list = XSD_Relationship::getListByXDIS($this->xdis_id);
 			array_push($xdis_list, array("0" => $this->xdis_id));
@@ -1386,9 +1404,10 @@ class XSD_DisplayObject
 	 */
 	function processXSDMFDatastream($xmlDatastream, $xsdmf_xdis_id)
 	{
+		$log = FezLog::get();
+		
 		$xsd_id = XSD_Display::getParentXSDID($xsdmf_xdis_id);
 		$xsd_details = Doc_Type_XSD::getDetails($xsd_id);
-
 		$temp_xdis_str = $this->xsd_html_match->xdis_str;
 		$temp_xdis_id = $this->xdis_id;
 
@@ -1430,6 +1449,8 @@ class XSD_DisplayObject
 	 */
 	function matchFieldsCallback($domNode, $cbdata, $context=NULL, $rootNode)
 	{
+		$log = FezLog::get();
+		
 		$clean_nodeName = Misc::strip_element_name($domNode->nodeName);
 		$xsdmf_ptr = &$this->xsdmf_current; // stores results
 		$xsdmf_id = NULL;
@@ -1664,16 +1685,22 @@ class XSD_DisplayObject
 
 	function getTitle()
 	{
+		$log = FezLog::get();
+		
 		return XSD_Display::getTitle($this->xdis_id);
 	}
 
 	function getXSDMFDetailsByElement($xsdmf_element)
 	{
+		$log = FezLog::get();
+		
 		$this->getXSD_HTML_Match();
 		return $this->xsd_html_match->getDetailsByElement($xsdmf_element);
 	}
 	function getXSDMFDetailsByXSDMF_ID($xsdmf_id)
 	{
+		$log = FezLog::get();
+		
 		$this->getXSD_HTML_Match();
 		return $this->xsd_html_match->getDetailsByXSDMF_ID($xsdmf_id);
 	}

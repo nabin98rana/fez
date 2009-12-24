@@ -212,5 +212,25 @@ class Exiftool
 		}
 		return $info;
 	}
+	
+	/**
+	 * renames a datastream id in the exif data if it exists
+	 *
+	 * @param string $pid
+	 * @param string $oldDsID
+	 * @param string $newDsID
+	 * @return void
+	 **/
+	public function renameFile($pid, $oldDsID, $newDsID) 
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$details = self::getDetails($pid, $oldDsID);
+		if ($details != '') {
+			$sql = "UPDATE " . APP_TABLE_PREFIX . "exif SET exif_dsid = ? WHERE exif_pid = ? AND exif_dsid = ? ";
+			$db->query($sql, array($newDsID, $pid, $oldDsID));
+		}		
+	}
 
 }

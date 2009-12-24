@@ -305,5 +305,36 @@ function editFileLabel(pid, filename, counter) {
 
 	// and do the replace
 	dojo.byId(divName).innerHTML = html;
+}
+
+function editFilename(pid, filename, counter) {
+	var newFilename = prompt("Please enter the new filename", filename);
+	newFilename = trim(newFilename);
+	// if there was no filename specified, or it wasn't changed, then ignore
+	if (trim(filename) == newFilename || newFilename == '' || newFilename == null)
+		return;
+
+	// do checks on the new filename (to make sure it conforms to standards)
+	if (!isValidSolrFilename(newFilename)) {
+
+		var alertMsg = 'We could not rename the file. Please check that the new name conforms to the following:\n';
+		alertMsg = alertMsg+' - only upper or lowercase alphanumeric characters or underscores (a-z, A-Z, _ and 0-9 only)\n';
+		alertMsg = alertMsg+' - under 45 characters,\n';
+		alertMsg = alertMsg+' - with only one file extension (one period (.) character) and \n';
+		alertMsg = alertMsg+' - starting with a letter. Eg "s12345678_phd_thesis.pdf"';
+		
+		alert(alertMsg);
+		return;
+	}
 	
+	// and if all checks work out, then update the filename
+	// and set an hidden form element so that the filename can be updated in the database
+	var filenameSpan = pid+'_'+counter+'_filename';
+	var newFilenameSpan = pid+'_'+counter+'_newFilename';
+	var html = '<input type="hidden" name="editedFilenames['+counter+'][pid]" value="'+pid+'" >';
+	html = html+'<input type="hidden" name="editedFilenames['+counter+'][originalFilename]" value="'+filename+'" >';
+	html = html+'<input type="hidden" name="editedFilenames['+counter+'][newFilename]" value="'+newFilename+'" >';
+
+	dojo.byId(filenameSpan).innerHTML = newFilename;
+	dojo.byId(newFilenameSpan).innerHTML = html;
 }
