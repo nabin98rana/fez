@@ -319,6 +319,7 @@ function editFilename(pid, filename, counter) {
 
 		var alertMsg = 'We could not rename the file. Please check that the new name conforms to the following:\n';
 		alertMsg = alertMsg+' - only upper or lowercase alphanumeric characters or underscores (a-z, A-Z, _ and 0-9 only)\n';
+		alertMsg = alertMsg+' - with only numbers and lowercase characters in the file extension,\n';
 		alertMsg = alertMsg+' - under 45 characters,\n';
 		alertMsg = alertMsg+' - with only one file extension (one period (.) character) and \n';
 		alertMsg = alertMsg+' - starting with a letter. Eg "s12345678_phd_thesis.pdf"';

@@ -519,7 +519,8 @@ function isValidSolrFilename(s)
 	// check if it starts with a digit
 	// check for upper/lower alphanumeric characters with underscores
 	// check for only one file extension (only one period character)
-	var regexp = /^[a-zA-Z][a-zA-Z0-9_]*[\.][a-zA-Z0-9_]+$/;
+	// check that the file extension is only numbers and lowercase letters
+	var regexp = /^[a-zA-Z][a-zA-Z0-9_]*[\.][a-z0-9]+$/;
 	
 	return regexp.test(s);
 }

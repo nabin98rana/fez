@@ -1278,7 +1278,10 @@ class Misc
 										// To help determine the MIME type, the file needs to have the correct extension.
 										// Some versions of PHP call all uploads <hash>.tmp so we make a copy with the right name before
 										// checking for the MIME type.  Not using file upload 'type' because it is unreliable.
-										$dsIDName = Foxml::makeNCName($_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']][$key]);
+
+										// MT: 2010-01-04 - changed to use the name generated above (to lowercase the file extension)
+										// $dsIDName = Foxml::makeNCName($_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']][$key]);
+										$dsIDName = Foxml::makeNCName($return[$dsTitle['xsdsel_title'].$key]['ID']);
 										$temp_store = APP_TEMP_DIR.$dsIDName;
 										//	                                    copy($_FILES['xsd_display_fields']['tmp_name'][$file_res[0]['xsdmf_id']][$key],$temp_store);
 										
@@ -1332,7 +1335,10 @@ class Misc
 								// To help determine the MIME type, the file needs to have the correct extension.
 								// Some versions of PHP call all uploads <hash>.tmp so we make a copy with the right name before
 								// checking for the MIME type.  Not using file upload 'type' because it is unreliable.
-								$dsIDName = Foxml::makeNCName($_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']]);
+								
+								// MT: 2010-01-04 - changed to use the name generated above (to lowercase the file extension)
+								// $dsIDName = Foxml::makeNCName($_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']]);
+								$dsIDName = Foxml::nameNCName($return[$dsTitle['xsdsel_title']]['ID']);
 								$temp_store = APP_TEMP_DIR.$dsIDName;
 								//	                            copy($_FILES['xsd_display_fields']['tmp_name'][$file_res[0]['xsdmf_id']],$temp_store);
 

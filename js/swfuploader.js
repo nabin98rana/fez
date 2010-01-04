@@ -102,6 +102,7 @@ function swfuploaderFileQueued(entry) {
 		var alertMsg = 'We could not queue the following file:\n'+entry.name+'\n\n';
 		alertMsg = alertMsg+'Please rename your files to be:\n';
 		alertMsg = alertMsg+' - with only upper or lowercase alphanumeric characters or underscores (a-z, A-Z, _ and 0-9 only)\n';
+		alertMsg = alertMsg+' - with only numbers and lowercase characters in the file extension,\n';
 		alertMsg = alertMsg+' - under 45 characters,\n';
 		alertMsg = alertMsg+' - with only one file extension (one period (.) character) and \n';
 		alertMsg = alertMsg+' - starting with a letter. Eg "s12345678_phd_thesis.pdf"';
