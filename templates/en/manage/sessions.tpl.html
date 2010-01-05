@@ -78,7 +78,7 @@
 									{/if}
 									<tr>
 										<td>{$active_sessions[i].history[j].pre_date}</td>
-										<td>{$active_sessions[i].history[j].pre_pid}</td>
+										<td><a href="" onclick="javascript:window.open('../view/{$active_sessions[i].history[j].pre_pid}'); return false;" title="Click to view record {$active_sessions[i].history[j].pre_pid}">{$active_sessions[i].history[j].pre_pid}</a></td>
 										<td>{$active_sessions[i].history[j].pre_detail}</td>													
 									</tr>
 									{if $smarty.section.j.last}
