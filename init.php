@@ -143,7 +143,7 @@ Zend_Session::setOptions(array(
     'gc_divisor' => 5000
     ));
 Zend_Session::setSaveHandler($sess);
-
+register_shutdown_function('session_write_close');
 $fedoraConnectivity = 1;
 $fparams = array(
             'host' => FEDORA_DB_HOST,
