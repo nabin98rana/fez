@@ -17,4 +17,55 @@ function showDiv(p)
         document.getElementById(p).style.display = "block";
     }
 }
+
+function checkOutstandingWorkflows(pid) {
+	//Look up the node we'll stick the text under.
+	var targetNode = dojo.byId("outstandingWorkflowsText");
+	
+	// hide the check me link
+	var fadeArgs = { node: "outstandingWorkflowsLink", duration: 200 };
+	dojo.fadeOut(fadeArgs).play();
+
+	//The parameters to pass to xhrGet, the url, how to handle it, and the callbacks.
+	var xhrArgs = {
+		url: "{/literal}{$smarty.const.APP_RELATIVE_URL}{literal}ajax_outstanding_workflows.php?pid="+pid,
+		handleAs: "text",
+		load: function(data) {
+
+			var str = '';
+			if (data == 0){
+				str = 'There are currently no workflows ';
+			} else if (data == 1) {
+				str = 'There is currently 1 workflow ';
+			} else {
+				str = 'There are currently '+data+' workflows ';
+			}
+			str = str+'outstanding on this item.';
+
+			targetNode.innerHTML = str;
+
+			// if no data required then fade this out, then fade this out
+			if (data == 0) {
+				if (targetNode.style.display != 'none') {
+					setTimeout("fadeOutOutstandingWorkflowsDiv()", 2000);
+				}
+			} else {
+				// show the check me link
+				dojo.fadeIn(fadeArgs).play();
+			}
+		},
+		error: function(error) {
+			targetNode.innerHTML = "An unexpected error occurred";
+			dojo.fadeIn(fadeArgs).play();
+		}
+	}
+
+	//Call the asynchronous xhrGet
+	var deferred = dojo.xhrGet(xhrArgs);
+}
+
+function fadeOutOutstandingWorkflowsDiv() {
+	var fadeArgs = { node: "outstandingWorkflowsDiv" };
+	dojo.fadeOut(fadeArgs).play();
+}
 {/literal}

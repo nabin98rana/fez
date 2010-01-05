@@ -79,6 +79,24 @@ function loadPreview(pid,datastreamID, alt, origami)
 </script>
 <input type="hidden" name="cat" value="assign" />
 
+{* Div to show the outstanding workflows if they exist *}
+{if ($isEditor || $isAdministrator)}
+	<div id="outstandingWorkflowsDiv" class="flash_message" {if $workflow_count == 0} style="display:none"{/if}>
+		<span id="outstandingWorkflowsText">
+		{if $workflow_count == 0} There are currently no workflows 
+		{elseif $workflow_count == 1} There is currently 1 workflow
+		{else} There are currently {$workflow_count} workflows
+		{/if} 
+		outstanding on this item. 
+		</span> <a id="outstandingWorkflowsLink" href="javascript:checkOutstandingWorkflows('{$pid}');">Check again</a>
+	</div>
+	<script type="text/javascript">
+		dojo.addOnLoad(function() {ldelim} 
+			checkOutstandingWorkflows('{$pid}'); 
+		{rdelim});
+	</script>
+{/if}
+
 <table style="background: {$cell_color}; width: 100%;">
   <tr>
     <td>

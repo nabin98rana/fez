@@ -166,11 +166,11 @@ class WorkflowStatus {
 		 } */
 		$dbtp =  APP_TABLE_PREFIX;
 		$stmt = "UPDATE ".$dbtp."workflow_sessions " .
-                "SET wfses_object=?, wfses_listing=?, wfses_date=? " .
+                "SET wfses_object=?, wfses_listing=?, wfses_date=?, wfses_pid=? " .
                 "WHERE wfses_id=? AND wfses_usr_id=?";
 		$log->debug($stmt);
 		try {
-			$db->query($stmt, array($blob,$title,$date,$id,$usr_id));
+			$db->query($stmt, array($blob,$title,$date,$this->pid,$id,$usr_id));
 			$res = 1;
 		}
 		catch(Exception $ex) {
@@ -307,6 +307,8 @@ class WorkflowStatus {
 	 */
 	function auto_next()
 	{
+		$log = FezLog::get();
+		
 		//Error_Handler::logError($this->wfs_id);
 		if (empty($this->wfs_id)) {
 			// we must have just chained to a new workflow so run the first state.
@@ -336,6 +338,8 @@ class WorkflowStatus {
 	 */
 	function run()
 	{
+		$log = FezLog::get();
+		
 		$this->getBehaviourDetails();
 		$this->getTriggerDetails();
 		$this->getStateDetails();
@@ -677,6 +681,23 @@ class WorkflowStatusStatic
 			$res[$key]['wfses_date'] = Date_API::getFormattedDate($item['wfses_date'], $timezone);
 		}
 		return $res;
+	}
+
+	/**
+	 * Gets a count of the number of outstanding workflows for the specified pid
+	 *
+	 * @param string $pid
+	 * @return integer
+	 **/
+	public function getCountForPid($pid)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$prefix = APP_TABLE_PREFIX;
+		$q = "SELECT COUNT(*) FROM {$prefix}workflow_sessions WHERE wfses_pid = ?";
+		$count = $db->fetchOne($q, $pid);
+		return $count; 
 	}
 
 	/**

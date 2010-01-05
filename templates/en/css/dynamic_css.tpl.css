@@ -1873,6 +1873,14 @@ div.hr hr {
     padding: 3px 5px 3px 5px;
 }
 
+#outstandingWorkflowsDiv {
+	display:block;
+	border:1px dashed blue;
+	margin: 4px auto;
+	padding: 5px;
+	float: left;
+}
+
 /* OBJECT HISTORY */
 
 #object-history {
