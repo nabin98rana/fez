@@ -1,5 +1,6 @@
 <?php 
 require_once 'Zend/Session/SaveHandler/Interface.php';
+require_once 'class.auth.php';
 
 class Fez_Session_Manager implements Zend_Session_SaveHandler_Interface
 {
@@ -42,13 +43,19 @@ class Fez_Session_Manager implements Zend_Session_SaveHandler_Interface
  
 	public function write($id, $sessionData)
 	{
+		$userID = Auth::getUserID();
+		if ($userID == '') {
+			$userID = null;
+		}
+		
 		$data = array
 		(
 			'session_data' => $sessionData,
 			'session_ip' => $_SERVER['REMOTE_ADDR'],
-			'updated' => date('Y-m-d H:i:s')
+			'updated' => date('Y-m-d H:i:s'),
+			'user_id' => $userID
 		);
- 
+
 		if ($this->thisIsOldSession && $this->originalSessionId != $id)
 		{
 			// session ID is regenerated, so set $thisIsOldSession to false, so we insert new row

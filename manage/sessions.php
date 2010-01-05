@@ -61,7 +61,7 @@ if ($action == 'delete') {
 	Sessions::deleteSession($_POST['items']);
 }
 
-$sessionInfo = Sessions::listActiveSessions();
+$sessionInfo = Sessions::listActiveSessions(true);
 $active_sessions = $sessionInfo['res'];
 $userCount = $sessionInfo['distinctUserCount'];
 

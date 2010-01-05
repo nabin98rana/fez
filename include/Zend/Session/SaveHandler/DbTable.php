@@ -333,7 +333,7 @@ class Zend_Session_SaveHandler_DbTable extends Zend_Db_Table_Abstract implements
      * @param string $data
      * @return boolean
      */
-    public function write($id, $data)
+    public function write($id, $data, $user_id)
     {
         $return = false;
 

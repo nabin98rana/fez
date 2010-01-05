@@ -31,7 +31,7 @@
 			<tr>
 				<td style="width: 20px; white-space: nowrap" class="cell-colour">&nbsp;</td>
 				<td style="" class="default cell-colour"><b>Session ID</b></td>
-				<td style="" class="default cell-colour"><b>Type</b></td>
+				<td style="" class="default cell-colour"><b>User</b></td>
 				<td style="" class="default cell-colour"><b>IP address</b></td>
 				<td style="" class="default cell-colour"><b>Created</b></td>
 				<td style="" class="default cell-colour"><b>Updated</b></td>
@@ -47,10 +47,14 @@
 							{$active_sessions[i].session_id}
 						</td>
 						<td style="background: {$row_color}" class="default">
-							<a href="#" onclick="javascript:toggleHistory({$smarty.section.i.iteration});">{$active_sessions[i].fullname}</a>
+							{$active_sessions[i].fullname}
+							&nbsp;&nbsp;&nbsp;
+							<a href="#" onclick="javascript:toggleHistory({$smarty.section.i.iteration});">&dArr; History</a>
 						</td>
 						<td style="background: {$row_color}" class="default">
-							<a href="http://www.geoiptool.com/en/?IP={$active_sessions[i].session_ip}&amp;position=true" onclick="javascript:window.open('http://www.geoiptool.com/en/?IP={$active_sessions[i].session_ip}&amp;position=true'); return false;" title="Click to see GeoIP information for this IP address">{$active_sessions[i].session_ip}</a>
+							{$active_sessions[i].session_ip}
+							&nbsp;&nbsp;&nbsp;
+							<a href="http://www.geoiptool.com/en/?IP={$active_sessions[i].session_ip}&amp;position=true" onclick="javascript:window.open('http://www.geoiptool.com/en/?IP={$active_sessions[i].session_ip}&amp;position=true'); return false;" title="Click to see GeoIP information for this IP address">&rArr; Locate</a>
 						</td>
 						<td style="background: {$row_color}" class="default">
 							{$active_sessions[i].created}

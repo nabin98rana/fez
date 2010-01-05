@@ -42,15 +42,21 @@
 
 class Sessions {
 
-	public function listActiveSessions() {
+	public function listActiveSessions($loggedInOnly = false) {
 
 		$log = FezLog::get();
 		$db = DB_API::get();
+		
+		$cond = '';
+		if ($loggedInOnly) {
+			$cond = 'AND user_id IS NOT NULL';
+		}
 		
 		$stmt = '
 				SELECT * 
 				FROM ' . APP_TABLE_PREFIX . 'sessions 
 				WHERE DATE_ADD(updated, INTERVAL ' . APP_SESSION_TIMEOUT . ' SECOND) > NOW()
+				' . $cond . '
 				ORDER BY created DESC;
 		';
 		
@@ -64,14 +70,12 @@ class Sessions {
 		
 		$userIDs = array();
 		foreach ($res as &$row) {
-			$unserialised = Sessions::session_real_decode($row['session_data']);
-			$row['fullname'] = $unserialised['fullname'];
-			$row['username'] = $unserialised['username'];
-			$userID = User::getUserIDByUsername($unserialised['username']);
-			if ($userID != 0) {
-				$userIDs[] = $userID;
-				$row['history'] = History::getRecentListingByUser($userID);
-			}
+			//$unserialised = Sessions::session_real_decode($row['session_data']); // Old way
+			$userIDs[] = $row['user_id'];
+			$userDetails = User::getDetailsByID($row['user_id']);
+			$row['fullname'] = $userDetails['usr_full_name'];
+			$row['username'] = $userDetails['username'];
+			$row['history'] = History::getRecentListingByUser($row['user_id']);
 		}
 
 		// Get distinct users
