@@ -3051,7 +3051,6 @@ class Record
 				$escapedInput = str_replace($skey.":", $svalue.":", $escapedInput);
 			}
 			$pattern = '/(?<!'.implode("|", $solr_titles).')(\+|-|&&|\|\||!|\(|\)|\{|}|\[|]|\^|"|~|\*|\?|:|\\\)/';
-//			echo $pattern;
 			$replace = '\\\$1';
 			$escapedInput = preg_replace($pattern, $replace, $escapedInput);
 			$searchKey_join["sk_where_AND"][] = "" .$escapedInput;
@@ -3263,9 +3262,7 @@ class Record
 					$sekdet = Search_Key::getDetails($sek_id);
 
 					if( !empty($sekdet['sek_id']) ) {
-						
 						$sort_suffix = Record::getSolrSuffix($sekdet, 1);
-
 						if ($options["sort_order"] == "1") {
 							$searchKey_join[SK_SORT_ORDER] .= $sekdet['sek_title_db'].$sort_suffix." desc ";
 						} else {
@@ -3275,7 +3272,6 @@ class Record
 				}
 			}
 		}
-
 
 		return $searchKey_join;
 	}

@@ -645,28 +645,31 @@ class ResearcherID
 		    	$records = EstiSearchService::retrieve($aut[1], $aut[0]);
 				
 				if($records) {
-					foreach($records->REC as $_record) {						
-						$ut = $_record->item->ut;
-						$pid = Record::getPIDByIsiLoc($ut);
-			    		
-			    		// If the publication exists
-			    		if( $pid ) {
-			    			ResearcherID::insertAuthorId($pid, $author_id);
-			    			$times_cited = (string)$record->{'times-cited'};
-			    			if(! empty($times_cited)) {
-				    			Record::updateThomsonCitationCount($pid, $times_cited);
-			    			}
-			    			if( APP_SOLR_INDEXER == "ON" ) {
-								FulltextQueue::singleton()->add($pid);							
-							}
-			    		}
-			    		else {	    		
-							$mods = Misc::convertEstiRecordToMods($_record, $author_id);
-							if($mods) {
-								$times_cited = $_record->attributes()->timescited;
-			    				Record::insertFromArray($mods, $collection, 'MODS 1.0', 'Imported from ResearcherID', $times_cited);
-							}
-			    		}
+					foreach($records->REC as $_record) {
+						if(@$_record->item) {
+							$ut = $_record->item->ut;
+							$pid = Record::getPIDByIsiLoc($ut);
+				    		
+				    		// If the publication exists
+				    		if( $pid ) {
+				    			ResearcherID::insertAuthorId($pid, $author_id);
+				    			$times_cited = (string)$record->{'times-cited'};
+				    			if(! empty($times_cited)) {
+					    			Record::updateThomsonCitationCount($pid, $times_cited);
+				    			}
+				    			if( APP_SOLR_INDEXER == "ON" ) {
+									FulltextQueue::singleton()->add($pid);							
+								}
+				    		}
+				    		else {	    		
+								$mods = Misc::convertEstiRecordToMods($_record, $author_id);
+								$links = Misc::convertEstiRecordToLinks($_record);
+								if($mods) {
+									$times_cited = $_record->attributes()->timescited;
+				    				Record::insertFromArray($mods, $collection, 'MODS 1.0', 'Imported from ResearcherID', $times_cited, $links);
+								}
+				    		}
+						}
 					}
 				}	
 	    	}	    	

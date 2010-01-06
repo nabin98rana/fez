@@ -28,6 +28,11 @@ if(SHIB_SWITCH == 'ON' && SHIB_VERSION == '2') {
 	));
 }
 
+$max_age = 1800;
+if($file == 'js/shib.js') {
+	$max_age = 0;
+}
+
 Minify::setCache();
 Minify::serve('Groups', array(
     'groups' => array(
@@ -39,7 +44,8 @@ Minify::serve('Groups', array(
         'js/common.js'     =>  array(APP_PATH . '/js/browserSniffer.js', APP_PATH .'/js/global.js', APP_PATH .'/js/validation.js'),
         'js/tabs.js'       =>  array(APP_PATH . '/js/tabcontent.js', APP_PATH .'/js/ajaxtabs.js'),
 		'js/shib.js'       =>  $shib_source,		
-    )
+    ),
+    'maxAge' => $max_age
 ));
 
 

@@ -110,13 +110,24 @@ class Scopus
 				$cited_by_count = @$result['getCitedByCountRspPayload']['citedByCountList']['citedByCount'];
 				if(is_array($cited_by_count)) {
 					$return = array();
-					foreach($cited_by_count as $cited) {
-						$key = $cited['inputKey']['clientCRF'];
+					if(array_key_exists('inputKey', $cited_by_count)) {	
+						// Only 1 result					
+						$key = $cited_by_count['inputKey']['clientCRF'];
 						$return[$key] = array(
-											'eid' => $cited['linkData']['eid'],
-											'scopusID' => $cited['linkData']['scopusID'],
-											'citedByCount' => $cited['linkData']['citedByCount']
+											'eid' => $cited_by_count['linkData']['eid'],
+											'scopusID' => $cited_by_count['linkData']['scopusID'],
+											'citedByCount' => $cited_by_count['linkData']['citedByCount']
 										); 
+					}
+					else {
+						foreach($cited_by_count as $cited) {
+							$key = $cited['inputKey']['clientCRF'];
+							$return[$key] = array(
+												'eid' => $cited['linkData']['eid'],
+												'scopusID' => $cited['linkData']['scopusID'],
+												'citedByCount' => $cited['linkData']['citedByCount']
+											); 
+						}
 					}
 					return $return;
 				}

@@ -476,11 +476,11 @@ class RecordGeneral
 				$doc = $tempdoc;
 			}
 		}
-		echo "\nnewXML = \n";
+//		echo "\nnewXML = \n";
 
 
 		$newXML = $doc->SaveXML();
-		echo $newXML;
+//		echo $newXML;
 		if ((count($search_keys_added) > 0) && ($newXML != "")) {
 			/*	        $this->getDisplay();
 	 		$display->getXSD_HTML_Match();
@@ -553,13 +553,13 @@ class RecordGeneral
 				$parentNode = $fieldNode;
 			}
 		}
-                if (substr($element, 0, 1) == "@") {
-                  $parentNode->setAttribute(substr($element, 1), $value);
-                } else {
-		$newNode = $doc->createElement($element, $value);
-		$newNode->setAttribute($attributeName, $attributeValue);
-		$parentNode->appendChild($newNode); 
-	        }
+		if (substr($element, 0, 1) == "@") {
+			$parentNode->setAttribute(substr($element, 1), $value);
+		} else {
+			$newNode = $doc->createElement($element, $value);
+			$newNode->setAttribute($attributeName, $attributeValue);
+			$parentNode->appendChild($newNode); 
+		}
 		return $doc;
     }
 

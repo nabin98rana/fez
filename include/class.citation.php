@@ -458,7 +458,13 @@ class Citation
 				}
 			} else {
 				if ($xsdmf['sek_title'] == "Title") {
-					$value = Citation::formatTitle($value, $details);
+					if ($details['rek_object_type'] == 3) {
+						$value = '<a title="Click to view '.$details['rek_display_type_lookup'].': '.htmlentities($value, ENT_COMPAT, 'UTF-8').'" href="' . APP_RELATIVE_URL . 'view/'.$details['rek_pid'].'">'.$value.'</a>';
+					} elseif ($details['rek_object_type'] == 2) {
+						$value = '<a title="Click to list records in '.$details['rek_display_type_lookup'].' '.htmlentities($value, ENT_COMPAT, 'UTF-8').'" href="' . APP_RELATIVE_URL . 'collection/'.$details['rek_pid'].'">'.$value.'</a>';
+					} elseif ($details['rek_object_type'] == 1) {
+						$value = '<a title="Click to list collections in '.$details['rek_display_type_lookup'].' '.htmlentities($value, ENT_COMPAT, 'UTF-8').'" href="' . APP_RELATIVE_URL . 'community/'.$details['rek_pid'].'">'.$value.'</a>';
+					}
 				}
 				if ($xsdmf['sek_title'] == "Date") {
 					$value = '<a title="Browse by Year '.htmlentities($value, ENT_COMPAT, 'UTF-8').'" href="' . APP_RELATIVE_URL . 'list/year/'.htmlentities($value, ENT_COMPAT, 'UTF-8').'/">'.$value.'</a>';
