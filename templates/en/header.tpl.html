@@ -7,9 +7,6 @@
 <link rel="Bookmark" href="{$rel_url}favicon.ico" />
 <link rel="stylesheet" href="{$rel_url}css/dynamic_css.php" type="text/css" />
 <script type="text/javascript" src="{$rel_url}js/dojo/dojo.js"></script>
-{if $cv_css != ""}
-<link rel="stylesheet" href="{$cv_css}" type="text/css" />
-{/if}
 {if $setup}
 <link rel="stylesheet" href="../css/setup.css" type="text/css" />
 {/if}
@@ -53,6 +50,9 @@ dojo.require("dojo.rpc.JsonService");
 <script type="text/javascript" src="{$rel_url}js/swfupload/swfupload.queue.js"></script>
 <script type="text/javascript" src="{$rel_url}js/swfuploader.js"></script>
 <link type="text/css" href="{$rel_url}css/flash_uploader.css" rel="stylesheet" media="all" />
+{/if}
+{if $cv_css != ""}
+	<link rel="stylesheet" href="css/{$cv_css}" type="text/css" />
 {/if}
 {if $include_fckeditor}
 <script type="text/javascript" src="{$rel_url}js/fckeditor/fckeditor.js"></script>

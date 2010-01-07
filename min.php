@@ -8,7 +8,7 @@ set_include_path(
     . PATH_SEPARATOR . get_include_path()
 );
 
-$file = substr($_SERVER['PATH_INFO'], 1);
+$file = substr($_SERVER['REQUEST_URI'], 1);
 $file = str_replace('..', '', $file);
 
 if(! preg_match('/^(js\/)?([a-zA-Z0-9_\-\/\.])+.js(\?*.?)$/', $file) ) {
