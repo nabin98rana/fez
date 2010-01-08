@@ -315,7 +315,7 @@ function loadPreview(pid,datastreamID, alt, origami)
 									$datastreams[d].MIMEType == 'image/tiff' || 
 									$datastreams[d].MIMEType == 'image/tif' || 
 									$datastreams[d].MIMEType == 'image/jpg')}
-							<a onclick="javascript:window.open('{$rel_url}eserv/{$pid}/{$datastreams[d].ID}?oi=1{if $viewingPreviousVersion}&version_date={$versionDate}{/if}'); return false;" href="{$rel_url}eserv/{$pid}/{$datastreams[d].ID}?oi=1{if $viewingPreviousVersion}&version_date={$versionDate}{/if}">
+							<a onclick="javascript:window.open('{$rel_url}eserv/{$pid}/{$datastreams[d].ID}?oi=1{if $viewingPreviousVersion}&amp;version_date={$versionDate}{/if}'); return false;" href="{$rel_url}eserv/{$pid}/{$datastreams[d].ID}?oi=1{if $viewingPreviousVersion}&amp;version_date={$versionDate}{/if}">
 							{else}
 							<a onclick="javascript:window.open('{$rel_url}eserv/{$pid}/{$ds_show}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}'); return false;" href="{$rel_url}eserv/{$pid}/{$ds_show}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}">
 							{/if}
@@ -335,10 +335,10 @@ function loadPreview(pid,datastreamID, alt, origami)
 						{/if} 	
 							</td>
 							{if $display_checksums == 'ON'}<td>({$datastreams[d].checksumType}) {$datastreams[d].checksum}</td>{/if}
-							<td>{$datastreams[d].label}</td>
-							<td>{$datastreams[d].MIMEType}</td>
-							<td>{$datastreams[d].archival_size}</td>				
-							<td style="text-align: right"><!--fez:ds_{$datastreams[d].base64ID}-->{$datastreams[d].downloads}<!--/fez:ds_{$datastreams[d].base64ID}--></td>		
+							<td style="vertical-align: bottom">{$datastreams[d].label}</td>
+							<td style="vertical-align: bottom">{$datastreams[d].MIMEType}</td>
+							<td style="vertical-align: bottom">{$datastreams[d].archival_size}</td>				
+							<td style="vertical-align: bottom; text-align: right"><!--fez:ds_{$datastreams[d].base64ID}-->{$datastreams[d].downloads}<!--/fez:ds_{$datastreams[d].base64ID}--></td>		
 						</tr>
 						{/if}
 					{/section}
@@ -420,7 +420,7 @@ function loadPreview(pid,datastreamID, alt, origami)
 				<div class="outline light_background">
 				<div class="admin-header">This record has been deleted.</div>
 				{if $duplicate_pid}
-					<div  class="admin-content">
+					<div class="admin-content">
 					<div>It was marked as a duplicate of <a href="{$rel_url}view/{$duplicate_pid}">{$duplicate_pid}</a></div>
 					<div>Event detail: {$duplicate_premis.pre_detail}</div>
 					<div>Date: {$duplicate_premis.pre_date|date_format:'%a, %d %b %Y, %H:%M:%S %z'}</div>
@@ -432,37 +432,43 @@ function loadPreview(pid,datastreamID, alt, origami)
 {/if}
 
 {if $canViewVersions}
-     <form name="viewversionform" action="{$rel_url}view.php?pid={$pid|escape:"html"}" method="post">
- 			  <tr>
- 				<td class="default_white" colspan="5" style="background: {$heading_color}"><b>Versions</b></td>
- 			  </tr>
- 			  <tr style="background: {$cell_color}">
- 				<td colspan="2">Version</td>
- 				<td colspan="3">Filter Type</td>
- 			</tr>
- 			<tr>
- 				<td colspan="2" style="background: {$light_color}">
- 					<select name="version_date">
- 					{section name="versions" loop=$created_dates_list}
- 					{if $version_view_type == 'FULL' || !$created_dates_list[versions].filtered}
- 
- 					<option {if $created_dates_list[versions].filtered}class="phantomVersionItem" {/if}value="{$created_dates_list[versions].fedoraDate}"
- 					{if $created_dates_list[versions].selected} selected{/if}>{$created_dates_list[versions].displayDate}</option>
- 					{/if}
- 					{/section}
- 					</select>
- 					<input type="submit" value="View Version">
- 				</td>
- 				<td colspan="3" style="background: {$light_color}">
- 					<select name="version_view_type">
- 						<option value="FILTERED" {if $version_view_type == 'FILTERED'}selected{/if}>Filtered</option>
- 						<option value="FULL" {if $version_view_type == 'FULL'}selected{/if}>Full</option>
- 					</select>
- 					<input type="submit" name="fullVersionList" value="Change">
- 				</td>
- 			</tr>
-     </form>	
- 
+     
+	<tr>
+		<td>
+			<form id="viewversionform" action="{$rel_url}view/{$pid|escape:"html"}" method="post">
+				<table style="width: 100%;">
+					<tr>
+						<td class="default_white" colspan="5" style="background: {$heading_color}"><b>Versions</b></td>
+					</tr>
+					<tr style="background: {$cell_color}">
+						<td colspan="2">Version</td>
+						<td colspan="3">Filter Type</td>
+					</tr>
+					<tr>
+						<td colspan="2" style="background: {$light_color}">
+							<select name="version_date">
+							{section name="versions" loop=$created_dates_list}
+								{if $version_view_type == 'FULL' || !$created_dates_list[versions].filtered}
+									<option {if $created_dates_list[versions].filtered}class="phantomVersionItem" {/if}value="{$created_dates_list[versions].fedoraDate}"
+									{if $created_dates_list[versions].selected} selected="selected"{/if}>{$created_dates_list[versions].displayDate}</option>
+								{/if}
+							{/section}
+							</select>
+							<input type="submit" value="View Version" />
+						</td>
+						<td colspan="3" style="background: {$light_color}">
+							<select name="version_view_type">
+								<option value="FILTERED"{if $version_view_type == 'FILTERED'} selected="selected"{/if}>Filtered</option>
+								<option value="FULL"{if $version_view_type == 'FULL'} selected="selected"{/if}>Full</option>
+							</select>
+							<input type="submit" name="fullVersionList" value="Change" />
+						</td>
+					</tr>
+				</table>
+			</form>
+		</td>
+	</tr>
+    
 {/if}
 
 {if $displayusercomments && $show_tombstone && !$deleted}
@@ -498,8 +504,8 @@ function loadPreview(pid,datastreamID, alt, origami)
         <div id="comment" style="display: none">
         <form name="addusercommentform" action="{$rel_url}add_comment.php" method="post">
          <p>
-          <textarea name="usercommenttext" rows="10" cols="45"></textarea> <br>
-          <input type="hidden" name="pid" value="{$pid}">
+          <textarea name="usercommenttext" rows="10" cols="45"></textarea> <br />
+          <input type="hidden" name="pid" value="{$pid}" />
           <select name="rating">
            <option value="0">Rating out of 5 stars (optional)</option>
            <option value="1">One star (Awful)</option>
@@ -508,8 +514,8 @@ function loadPreview(pid,datastreamID, alt, origami)
            <option value="4">Four stars</option>
            <option value="5">Five stars (Superb)</option>
           </select>
-          <br>
-          <input type="submit" value="Add Comment">
+          <br />
+          <input type="submit" value="Add Comment" />
          </p>
         </form>
         </div>
@@ -529,26 +535,26 @@ function loadPreview(pid,datastreamID, alt, origami)
 
 		  <tr>
 			<td colspan="5">
-		      <table style="background: #FFFFFF; width: 100%;">
+		      <table id="view_stats">
 {if $WEBSERVER_LOG_STATISTICS == 'ON'}   		
 				<tr>
-				  <td style="white-space: nowrap;"> <b>Access Statistics:</b></td>
-				  <td style="white-space: nowrap; width: 100%;"> <!--fez:statsAbs-->{$statsAbstract}<!--/fez:statsAbs--> Abstract Views{if $fileCount > 0}, <!--fez:statsDownloads-->{$statsFiles}<!--/fez:statsDownloads--> File Downloads{/if}
+				  <th>Access Statistics:</th>
+				  <td><!--fez:statsAbs-->{$statsAbstract}<!--/fez:statsAbs--> Abstract Views{if $fileCount > 0}, <!--fez:statsDownloads-->{$statsFiles}<!--/fez:statsDownloads--> File Downloads{/if} &nbsp;-&nbsp;
 				  <a href="{$rel_url}stat_details.php?action=show_detail&amp;pid={$pid}">Detailed Statistics</a>
 				  </td>
 				</tr>
 {/if}				
 				<tr>
-				  <td style="white-space: nowrap; padding-right: 5px;"> <b>Created:</b></td>
-				  <td style="white-space: nowrap; width: 100%;">  {$created_date} 
+				  <th>Created:</th>
+				  <td>{$created_date} 
 				  {if $depositor != ""} by <a href="{$rel_url}list/depositor/{$depositor_id}/">{$depositor}</a> 
-				  {if $depositor_org != ""} on behalf of {$depositor_org}{/if}&nbsp;&nbsp;&nbsp;{/if}
+				  {if $depositor_org != ""} on behalf of {$depositor_org}{/if}{/if} &nbsp;-&nbsp; 
 				  <a title="view the full history of changes on this object" href="javascript:void(null);" onclick="javascript:openHistory('{$pid}');">Detailed History</a>
 				  </td>
 				</tr>
 				
 			  </table>
-			</td>		
+			</td>
 		  </tr>
     
 	    </table>

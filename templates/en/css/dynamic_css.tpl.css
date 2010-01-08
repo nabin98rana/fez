@@ -1997,3 +1997,26 @@ a.author_id_link:hover {
     padding-left: 3px;
     padding-right: 10px;
 }
+
+#view_stats {
+    width: 100%;
+    background: #FFFFFF;
+    margin-top: 15px;
+}
+
+#view_stats th {
+    text-align: right;
+    white-space: nowrap;
+    font-weight: bold;
+    padding-bottom: 3px;
+}
+
+#view_stats td {
+    padding-left: 10px;
+    padding-bottom: 3px;
+    white-space: nowrap;
+}
+
+#viewversionform td {
+    padding: 3px 5px 3px 5px;
+}

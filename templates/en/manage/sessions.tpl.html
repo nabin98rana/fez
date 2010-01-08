@@ -52,9 +52,11 @@
 							<a href="#" onclick="javascript:toggleHistory({$smarty.section.i.iteration});">&dArr; History</a>
 						</td>
 						<td style="background: {$row_color}" class="default">
-							{$active_sessions[i].session_ip}
-							&nbsp;&nbsp;&nbsp;
-							<a href="http://www.geoiptool.com/en/?IP={$active_sessions[i].session_ip}&amp;position=true" onclick="javascript:window.open('http://www.geoiptool.com/en/?IP={$active_sessions[i].session_ip}&amp;position=true'); return false;" title="Click to see GeoIP information for this IP address">&rArr; Locate</a>
+							{if $active_sessions[i].session_ip != ''}
+								{$active_sessions[i].session_ip}
+								&nbsp;&nbsp;&nbsp;
+								<a href="http://www.geoiptool.com/en/?IP={$active_sessions[i].session_ip}&amp;position=true" onclick="javascript:window.open('http://www.geoiptool.com/en/?IP={$active_sessions[i].session_ip}&amp;position=true'); return false;" title="Click to see GeoIP information for this IP address">&rArr; Locate</a>
+							{/if}
 						</td>
 						<td style="background: {$row_color}" class="default">
 							{$active_sessions[i].created}

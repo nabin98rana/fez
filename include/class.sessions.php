@@ -57,6 +57,7 @@ class Sessions {
 				FROM ' . APP_TABLE_PREFIX . 'sessions 
 				WHERE DATE_ADD(updated, INTERVAL ' . APP_SESSION_TIMEOUT . ' SECOND) > NOW()
 				' . $cond . '
+				AND user_id != ' . APP_SYSTEM_USER_ID . '
 				ORDER BY created DESC;
 		';
 		

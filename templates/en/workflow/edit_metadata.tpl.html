@@ -12,21 +12,21 @@
 <script type="text/javascript" src="{$rel_url}js/textarea.js"></script>
 {include file='workflow/edit_metadata_helpers/javascript_block.tpl.html'}
 
-<input type="hidden" name="cat" value="update_form">
-<input type="hidden" name="xdis_id" value="{$xdis_id}">
-<input type="hidden" name="sta_id" value="{$sta_id}">
-<input type="hidden" name="pid" value="{$pid}">
-<input type="hidden" name="id" value="{$id}">
-<input type="hidden" name="user_id" value="{$current_user_id}">
-<input type="hidden" name="userfullname" value="{$current_full_name}">
+<input type="hidden" name="cat" value="update_form" />
+<input type="hidden" name="xdis_id" value="{$xdis_id}" />
+<input type="hidden" name="sta_id" value="{$sta_id}" />
+<input type="hidden" name="pid" value="{$pid}" />
+<input type="hidden" name="id" value="{$id}" />
+<input type="hidden" name="user_id" value="{$current_user_id}" />
+<input type="hidden" name="userfullname" value="{$current_full_name}" />
 {foreach from=$xsdmf_states item=xsdmf_state}
-<input type="hidden" name="state" value="{$xsdmf_state.xsdmf_static_text}">
+<input type="hidden" name="state" value="{$xsdmf_state.xsdmf_static_text}" />
 {/foreach}
 
-      <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="0" border="0" id="edit_metadata_form_table">
+      <table cellspacing="1" cellpadding="0" id="edit_metadata_form_table" style="background: white; width: 100%">
         <tr>
-          <td class="default_white" bgcolor="{$heading_color}" colspan="10">
-            &nbsp;<img align="absmiddle" src="{$rel_url}images/edit_32.gif"><b>Edit {$xdis_title} Record</b>
+          <td class="default_white" style="background: {$heading_color}" colspan="10">
+          	<img style="vertical-align: middle" alt="" src="{$rel_url}images/edit_32.gif" /><b>Edit {$xdis_title} Record</b>
           </td>
         </tr>
         {section name="i" loop=$xsd_display_fields}
@@ -41,15 +41,15 @@
 
 {if $fileCount > 0}
 <script type="text/javascript" src="{$rel_url}js/validation.js"></script>
-<table border="0" cellpadding="2" cellspacing="0" width="100%"  bgcolor="#FFFFFF" >
+<table cellpadding="2" cellspacing="0" style="width: 100%; background: white">
 			  <tr>
-				<td class="default_white" colspan="4" bgcolor="{$heading_color}" height="22"><b>Attached Files</b></td>
+				<td class="default_white" colspan="4" style="background: {$heading_color}; height: 22px"><b>Attached Files</b></td>
 			  </tr>
 
 			  <tr class="default">
-				<td bgcolor="{$cell_color}">Name</td>
-				<td bgcolor="{$cell_color}">Description (click to edit)</td>
-				<td bgcolor="{$cell_color}">MIMEType</td>
+				<td style="background: {$cell_color}">Name</td>
+				<td style="background: {$cell_color}">Description (click to edit)</td>
+				<td style="background: {$cell_color}">MIMEType</td>
 			  </tr>
 		{assign var="filecounter" value=0}
         {section name="d" loop=$datastreams}
