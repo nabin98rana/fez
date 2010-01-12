@@ -362,7 +362,7 @@ function loadPreview(pid,datastreamID, alt, origami)
 		
 </table>
 
-		<table style="background: #FFFFFF; width: 100%;">
+		<table style="background: #FFFFFF; width: 100%;" id="viewrelatedlinksform">
 
 	{if $linkCount > 0}
 		  <tr>
@@ -434,7 +434,7 @@ function loadPreview(pid,datastreamID, alt, origami)
 {if $canViewVersions}
      
 	<tr>
-		<td>
+		<td colspan="5">
 			<form id="viewversionform" action="{$rel_url}view/{$pid|escape:"html"}" method="post">
 				<table style="width: 100%;">
 					<tr>

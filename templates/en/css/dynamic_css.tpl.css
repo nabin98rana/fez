@@ -2017,7 +2017,7 @@ a.author_id_link:hover {
     white-space: nowrap;
 }
 
-#viewversionform td {
+#viewversionform td, #viewrelatedlinksform td {
     padding: 3px 5px 3px 5px;
 }
 
