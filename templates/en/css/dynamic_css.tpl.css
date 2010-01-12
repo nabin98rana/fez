@@ -2020,3 +2020,8 @@ a.author_id_link:hover {
 #viewversionform td {
     padding: 3px 5px 3px 5px;
 }
+
+.ext-lookup-results tbody tr td {
+    padding: 2px;
+    font-size: 11px;
+}

@@ -1,6 +1,6 @@
 {section name="i" loop=$matches}	
 	{if $smarty.section.i.first}
-	<table cellpadding="5" cellspacing="0">
+	<table cellpadding="5" cellspacing="0" class="ext-lookup-results">
 		<tr><td colspan="2" valign="top"><h3 style="text-decoration:underline; color: #333333">Matching records found in ISI Web of Science<sup>&#174;</sup></h3>
 		
 		{if $found > $max_results}<p style="color: #333333">Found {$found} matching record{if $found > 1}s{/if}
@@ -47,7 +47,7 @@
 
 {section name="i" loop=$dupe_records}	
 	{if $smarty.section.i.first}	
-	<table cellpadding="5" cellspacing="0">
+	<table cellpadding="5" cellspacing="0" class="ext-lookup-results">
 		<tr><td colspan="2" valign="top"><h3 style="text-decoration:underline; color: #333333">Matching records found in repository</h3>
 		</td></tr>
 	{/if}

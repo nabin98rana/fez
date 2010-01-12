@@ -37,7 +37,7 @@ function loadPreview(pid,datastreamID, alt, origami)
         {/literal}
         {/if}
         
-        document.getElementById('datastream_preview_frame').innerHTML='<a id="datastream_preview_href" title="Click on the image to see a larger version"  target="_blank" href="{$rel_url}eserv/{$pid}/{$preview_ds_1.ID}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}"><img width="100%" id="datastream_preview" alt="Datastream Preview" src="#" /></a>';
+        document.getElementById('datastream_preview_frame').innerHTML='<a id="datastream_preview_href" title="Click on the image to see a larger version" target="_blank" href="{$rel_url}eserv/{$pid}/{$preview_ds_1.ID}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}"><img width="100%" id="datastream_preview" alt="Datastream Preview" src="#" /></a>';
         {literal}
         pv_img = document.getElementById('datastream_preview');
         pv_img_href = document.getElementById('datastream_preview_href');
@@ -380,7 +380,7 @@ function loadPreview(pid,datastreamID, alt, origami)
 			{if $doi}
 			<tr>
 			<td style="background: {$light_color}" colspan="2">
-			<a target="_blank" href="{$doi.location}">{$doi.location}</a> 
+			<a href="{$doi.location}" onclick="javascript:window.open('{$doi.location|escape:'html'}'); return false;">{$doi.location}</a> 
 			</td>
 			<td style="background: {$light_color}" colspan="3">{$doi.label}</td>
 			</tr>
@@ -389,7 +389,7 @@ function loadPreview(pid,datastreamID, alt, origami)
         {section name="d" loop=$datastreams}        
 			{if $datastreams[d].controlGroup == "R" && $datastreams[d].ID != "DOI"}
 			  <tr>
-				<td colspan="2" style="background: {$light_color}"><img src="{$rel_url}images/text_html.png"> <a target="_blank" href="{$datastreams[d].location}">{$datastreams[d].location|truncate:80:"..."}</a> &nbsp;{if $datastreams[d].prefix_location != ""}<br /> <img src="{$rel_url}images/org_link_16.gif"> <a target="_blank" href="{$datastreams[d].prefix_location}">Go to link with your {$APP_SHORT_ORG_NAME} access privileges</a> &nbsp;{/if}</td>
+				<td colspan="2" style="background: {$light_color}"><img src="{$rel_url}images/text_html.png" alt="" /> <a href="{$datastreams[d].location|escape:'html'}" onclick="javascript:window.open('{$datastreams[d].location|escape:'html'}'); return false;">{$datastreams[d].location|escape:'html'|truncate:80:"..."}</a> &nbsp;{if $datastreams[d].prefix_location != ""}<br /> <img src="{$rel_url}images/org_link_16.gif" alt="" /> <a href="{$datastreams[d].prefix_location|escape:'html'}" onclick="window.open('{$datastreams[d].prefix_location|escape:'html'}'); return false;">Go to link with your {$APP_SHORT_ORG_NAME} access privileges</a>{/if}</td>
 				<td colspan="3" style="background: {$light_color}">{$datastreams[d].label} &nbsp;</td>
 			  </tr>
 			 {/if}
