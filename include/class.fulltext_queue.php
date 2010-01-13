@@ -499,4 +499,20 @@ class FulltextQueue
 			
 		return $pids;
 	}
+	
+	/**
+	 * Gets a count of the number of times this pid has been queued in the full text queue
+	 *
+	 * @return int
+	 **/
+	public static function getDetailsForPid($pid)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		$prefix = APP_TABLE_PREFIX;
+		
+		$q = "SELECT ftq_key AS ftqId, ftq_pid AS pid, ftq_op AS operation FROM {$prefix}fulltext_queue WHERE ftq_pid = ?";
+		$details = $db->fetchAll($q, $pid);
+		return $details;
+	}
 }

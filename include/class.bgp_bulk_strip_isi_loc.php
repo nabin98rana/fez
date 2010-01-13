@@ -62,7 +62,8 @@ class BackgroundProcess_Bulk_Strip_Isi_Loc extends BackgroundProcess
 					$this->setStatus("Stripped isi_loc from record '".$pid."'");
 				} else {
 					$this->setStatus("ERROR stripping isi_loc from record '".$pid."'");
-				}				
+				}	
+				$this->markPidAsFinished($pid);			
 			}
 
 			$this->setStatus("Finished Bulk Strip isi_loc from record");

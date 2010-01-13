@@ -70,6 +70,7 @@ class BackgroundProcess_Bulk_Regenerate_Images extends BackgroundProcess
 				$rec_obj->regenerateImages();
 				
 				$this->setProgress($numPIDSUpdated);
+				$this->markPidAsFinished($pid);
     		}
     		
             $this->setStatus("Finished Regenerating Images");

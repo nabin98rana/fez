@@ -54,6 +54,7 @@ class BackgroundProcess_Bulk_Assign_Record_User extends BackgroundProcess
 		if (!empty($pids) && is_array($pids)) {
 			foreach ($pids as $pid) {
 				$barg->assignUserBGP($pid, $assign_usr_ids[0], $regen, true);
+				$this->markPidAsFinished($pid);
 			}
 		}
 		$this->setState(2);

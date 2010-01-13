@@ -98,6 +98,7 @@ class Bulk_Move_Record_Collection {
 			}
 
 			$this->bgp->setProgress($this->pid_count);
+			$this->markPidAsFinished($pid);
 		}
 
 		$extra_msg = '';

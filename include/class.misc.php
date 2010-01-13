@@ -3982,6 +3982,73 @@ class Misc
 	    }
 	    return $mods;
 	}
+	
+	/**
+	 * Generates an outstanding status message string for a specific pid
+	 *
+	 * @param string $pid
+	 * @return string empty string if no counts remaining, otherwise, a string detailing the outstanding details
+	 **/
+	public static function generateOutstandingStatusString($pid)
+	{
+		$workflowsCount = WorkflowStatusStatic::getCountForPid($pid);
+		$bgpsCount = BackgroundProcessPids::getCountForPid($pid);
+		$fulltextQueueDetails = FulltextQueue::getDetailsForPid($pid);
+		
+		// if we don't need to do anything, return empty string to calling function
+		if ($workflowsCount == 0 && $bgpsCount == 0 && count($fulltextQueueDetails) == 0)
+			return "";
+		
+		$outputString = "There";
+		$outputStarted = false;
+		
+		$workflowsString = '';	
+		if ($workflowsCount) {
+			$plural = $workflowsCount == 1 ? '' : 's';
+			$wfPrefix = $workflowsCount == 1 ? 'is' : 'are';
+			$workflowsString = "{$workflowsCount} workflow{$plural}";
+			$outputString .= " {$wfPrefix} <strong>{$workflowsString}</strong>";
+			$outputStarted = true;
+		}
+		
+		$bgpsString = '';
+		if ($bgpsCount) {
+			$plural = $bgpsCount == 1 ? '' : 'es';
+			$bgpPrefix = $bgpsCount == 1 ? 'is' : 'are';
+			$bgpString = "{$bgpsCount} background process{$plural}";
+			if ($outputStarted) {
+				$outputString .= " and <strong>{$bgpString}</strong>";
+			}
+			else {
+				$outputString .= " {$bgpPrefix} <strong>{$bgpsCount} background process{$plural}</strong>";
+			}
+			$outputStarted = true;
+		}
+
+		if ($outputStarted) {
+			$outputString .= " currently processing this item.";
+		}
+
+		$countFulltextQueue = count($fulltextQueueDetails);
+		if ($countFulltextQueue) {
+			if ($countFulltextQueue == 1) {
+				$operation = $fulltextQueueDetails[0]['operation'] == FulltextQueue::ACTION_INSERT ? 'insertion into' : 'deletion from';
+			} else {
+				$operation = 'insertion into and deletion from';
+			}
+			
+			$ftqString = "This item is queued for <strong>{$operation}</strong> SOLR.";
+			if ($outputStarted) {
+				$outputString .= " {$ftqString}";
+			} else {
+				// replace the whold string
+				$outputString = $ftqString;
+			}
+			
+		}
+
+		return $outputString;
+	}
 
 } // end of Misc class
 

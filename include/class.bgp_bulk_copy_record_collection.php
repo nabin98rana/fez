@@ -80,6 +80,7 @@ class BackgroundProcess_Bulk_Copy_Record_Collection extends BackgroundProcess
 				}
 				 
 				$this->setProgress($this->pid_count);
+				$this->markPidAsFinished($pid);
 			}
 
 			$this->setStatus("Finished Bulk Copy to Collection");

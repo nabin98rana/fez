@@ -1878,7 +1878,15 @@ div.hr hr {
 	border:1px dashed blue;
 	margin: 4px auto;
 	padding: 5px;
-	float: left;
+}
+
+.outstandingDetailsTable {
+/*	background-color: #bbb;*/
+	background-color: #fff;
+}
+.outstandingDetailsTable tr td, .outstandingDetailsTable tr th {
+	padding: 5px;
+	border: 1px solid #bbb;
 }
 
 /* OBJECT HISTORY */

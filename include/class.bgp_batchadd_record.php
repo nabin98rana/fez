@@ -51,6 +51,7 @@ class BackgroundProcess_BatchAdd_Record extends BackgroundProcess
 		$batch = new BatchAdd;
 		$batch->setBackgroundObject($this);
 		$batch->insert($files, $files_FezACML, $xdis_id, $pid, $wftpl);
+		$this->markPidAsFinished($pid);
 		$this->setState(2);
 	}
 }

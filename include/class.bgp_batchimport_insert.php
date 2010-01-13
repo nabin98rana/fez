@@ -51,6 +51,7 @@ class BackgroundProcess_BatchImport_Insert extends BackgroundProcess
 		$batch = new BatchImport;
 		$batch->setBackgroundObject($this);
 		$batch->insert($directory, $xdis_id, $pid, $wftpl);
+		$this->markPidAsFinished($pid);
 		$this->setState(2);
 	}
 }

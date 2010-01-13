@@ -52,6 +52,7 @@ class BackgroundProcess_Index_Auth extends BackgroundProcess
 		$auth_index = new AuthIndex;
 		$auth_index->setBGP($this);
 		$auth_index->setIndexAuthBGP($pid, $recurse);
+		$this->markPidAsFinished($pid);
 		$this->setState(2);
 	}
 }

@@ -107,6 +107,7 @@ class DuplicatesReport {
 				$this->bgp->setStatus("Processing " . $progress . " of " . $total_pids . ", "
 				. $pid . ". "
 				. $dupes_count . " dupes found so far. (Avg ".$time_per_object."s per Object, Expected Finish ".$expected_finish.")");
+				$this->bgp->markPidAsFinished($pid); // marking as finished here as there are too many paths out of this loop
 			}
 			$record = new RecordGeneral($pid);
 			if ($record->checkExists()) {

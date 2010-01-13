@@ -84,6 +84,7 @@ class BackgroundProcess_Publish extends BackgroundProcess
 				} else {
 					//echo "no publishing".$pid." as user does not have approver rights\n";
 				}
+				$this->markPidAsFinished($pid);
 			}
 		}
 		$this->setState(2);

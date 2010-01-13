@@ -525,6 +525,15 @@ if (!empty($pid) && $record->checkExists()) {
             }
         }
         $tpl->assign(compact('prev','next','go_next','go_prev'));
+		
+		// determine if there are workflows currently working on this pid and let the user know if there are
+		$outstandingStatus = '';
+		if ($isAdministrator) {
+			$outstandingStatus = Misc::generateOutstandingStatusString($pid);
+		}
+		$tpl->assign('outstandingStatus', $outstandingStatus);
+		
+
 	}
 } else {
     $tpl->assign('not_exists', true);

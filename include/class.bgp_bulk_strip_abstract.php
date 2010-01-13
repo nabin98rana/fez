@@ -66,7 +66,8 @@ class BackgroundProcess_Bulk_Strip_Abstract extends BackgroundProcess
 					$this->setStatus("Stripped abstract in record '".$pid."'");
 				} else {
 					$this->setStatus("ERROR stripping abstract in record '".$pid."'");
-				}				
+				}
+				$this->markPidAsFinished($pid);
 			}
 
 			$this->setStatus("Finished stripping abstracts from records");

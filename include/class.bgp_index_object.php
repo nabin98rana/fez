@@ -107,6 +107,8 @@ class BackgroundProcess_Index_Object extends BackgroundProcess
 					}
 
 				}
+				
+				$this->markPidAsFinished($pid);
 
 				$cnt++;
 				if(($cnt % 1000) == 0) {
@@ -175,6 +177,7 @@ class BackgroundProcess_Index_Object extends BackgroundProcess
 				}
 				$this->setProgress(100);
 				$this->setStatus("Reindexed ".count($source_pids)." items.");
+				$this->markPidAsFinished($pid);
 			}
 		}
 		elseif( $index_type == Reindex::INDEX_TYPE_SOLR )

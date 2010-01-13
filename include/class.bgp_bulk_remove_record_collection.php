@@ -70,6 +70,7 @@ class BackgroundProcess_Bulk_Remove_Record_Collection extends BackgroundProcess
 				} else {
 					$this->setStatus("Skipped '".$pid."'. User can't edit this record");
 				}
+				$this->markPidAsFinished($pid);
 			}
 
 			$this->setStatus("Finished Bulk Remove from Collection");

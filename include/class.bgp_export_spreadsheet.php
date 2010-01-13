@@ -51,6 +51,7 @@ class BackgroundProcess_Export_Spreadsheet extends BackgroundProcess
 		$exp = new ExportSpreadsheet;
 		$exp ->setBackgroundObject($this);
 		$exp->export2File($pid);
+		$this->markPidAsFinished($pid);
 		$this->setState(2);
 	}
 }

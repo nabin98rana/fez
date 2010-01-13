@@ -37,6 +37,7 @@ define('BGP_RUNNING',   1);
 define('BGP_FINISHED',  2);
 
 include_once(APP_INC_PATH . "class.date.php");
+include_once(APP_INC_PATH . "class.background_process_pids.php");
 /**
  * This is a virtual class.
  * Subclass this to make a background process with a customised 'run' method.
@@ -214,6 +215,18 @@ class BackgroundProcess {
 		}
 		exit;
 	}
+	
+	/**
+	 * Marks a pid as finished (by removing it from the table)
+	 *
+	 * @param string $pid
+	 * @return void
+	 **/
+	protected function markPidAsFinished($pid) 
+	{
+		$log = FezLog::get();
+		BackgroundProcessPids::removePid($this->bgp_id, $pid);
+	}
 
 	/***** APACHE SIDE *****/
 
@@ -247,6 +260,11 @@ class BackgroundProcess {
 			return -1;
 		}
 		$this->bgp_id = $db->lastInsertId();
+		
+		// insert the pids into the bgp pids table
+		$bgpPids = new BackgroundProcessPids();
+		$bgpPids->insertPids($this->bgp_id, $inputs);
+		
 		$this->serialize();
 		$command = APP_PHP_EXEC." \"".APP_PATH."misc/run_background_process.php\" ".$this->bgp_id." \""
 		.APP_PATH."\" > ".APP_TEMP_DIR."fezbgp/fezbgp_".$this->bgp_id.".log";
@@ -308,6 +326,5 @@ class BackgroundProcess {
 	{
 		return $this->local_session;
 	}
-
 }
 

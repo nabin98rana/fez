@@ -68,6 +68,7 @@ class BackgroundProcess_Bulk_Update_Authors_From_Esti extends BackgroundProcess
 				} else {
 					$this->setStatus("ERROR updating authors in record '".$pid."'");
 				}				
+				$this->markPidAsFinished($pid);
 			}
 
 			$this->setStatus("Finished Bulk Updating Authors From ESTI");

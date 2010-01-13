@@ -299,7 +299,8 @@ abstract class FulltextIndex {
 					$tz = Date_API::getPreferredTimezone($this->bgpDetails["bgp_usr_id"]);
 					$expected_finish = Date_API::getFormattedDate($date_now->getTime(), $tz);
 				}
-				 
+				
+				$this->bgp->markPidAsFinished($ftq_pid);
 				$this->bgp->setStatus("Finished Solr fulltext indexing for ($ftq_pid) (".$this->countDocs."/".$this->totalDocs." Added) (Avg ".$time_per_object."s per Object, Expected Finish ".$expected_finish.")");
 
 			} else {

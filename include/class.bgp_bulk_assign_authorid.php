@@ -88,6 +88,7 @@ class BackgroundProcess_Bulk_Assign_Authorid extends BackgroundProcess
 				} else {
 					$this->setStatus("Did NOT update " . $pid . " didn't have any authors with '" . $author_name . "'");
 				}
+				$this->markPidAsFinished($pid);
 				 
 			}
 			$this->setStatus("Finished. Updated " . $numAuthorsUpdated . " authors for " . count($updatedPids) . " pids");

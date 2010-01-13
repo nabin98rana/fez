@@ -54,6 +54,7 @@ class BackgroundProcess_Bulk_Assign_Record_Group extends BackgroundProcess
 		if (!empty($pids) && is_array($pids)) {
 			foreach ($pids as $pid) {
 				$barg->assignGroupBGP($pid, $assign_grp_id, $regen, true);
+				$this->markPidAsFinished($pid);
 			}
 		}
 		$this->setState(2);

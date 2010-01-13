@@ -463,9 +463,11 @@ class Reindex
 				if (Reindex::inIndex($detail['pid']) == true) {
 					$this->bgp->setStatus("Removing from Index Because Fedora State not 'A':  '".$detail['pid']."' ".$detail['title']. " (".$reindex_record_counter."/".$record_count.") (Avg ".$time_per_object."s per Object, Expected Finish ".$expected_finish.")");
 					Record::removeIndexRecord($detail['pid']);
+					$this->bgp->markPidAsFinished($detail['pid']);
 					continue;
 				} else {
 					$this->bgp->setStatus("Skipping Removing Non-A Fedora State object Because already not in Fez Index:  '".$detail['pid']."' ".$detail['title']. " (".$reindex_record_counter."/".$record_count.") (Avg ".$time_per_object."s per Object, Expected Finish ".$expected_finish.")");
+					$this->bgp->markPidAsFinished($detail['pid']);
 					continue;
 				}
 			}
@@ -493,6 +495,10 @@ class Reindex
 					$this->bgp->setProgress(intval(100*$reindex_record_counter/$record_count));
 					$this->bgp->setStatus("Skipping Because not in Fez Index:  '".$detail['pid']."' ".$detail['title']. " (".$reindex_record_counter."/".$record_count.") (Avg ".$time_per_object."s per Object, Expected Finish ".$expected_finish.")");
 				}
+			}
+			
+			if (!empty($this->bgp)) {
+				$this->bgp->markPidAsFinished($detail['pid']); 
 			}
 		}
 	}
@@ -527,6 +533,10 @@ class Reindex
 			}
 			$params['items'] = array($pid);
 			Reindex::indexFezFedoraObjects($params);
+
+			if (!empty($this->bgp)) {
+				$this->bgp->markPidAsFinished($pid);
+			}
 		}
 
 		if (!empty($this->bgp)) {
@@ -557,6 +567,17 @@ class Reindex
 			catch(Exception $ex) {
 				$log->err($ex);
 			}
+			// add the pids to the bgp processing table as well
+			$prefix = APP_TABLE_PREFIX;
+			$stmt = "INSERT IGNORE INTO {$prefix}background_process_pids (bgpid_bgp_id, bgpid_pid) ";
+			$stmt .= "SELECT {$this->bgp->bgp_id}, rek_pid FROM {$prefix}record_search_key ";
+			try {
+				$db->query($stmt);
+			}
+			catch (Exception $ex) {
+				$log->err($ex);
+			}
+			
 			FulltextQueue::singleton()->triggerUpdate();
 		} else {
 			//	        $fedoraDirect = new Fedora_Direct_Access();
@@ -573,6 +594,7 @@ class Reindex
 			foreach ($fezList as $detail) {
 
 				FulltextQueue::singleton()->add($detail['rek_pid']);
+				BackgroundProcessPids::insertPid($this->bgp->bgp_id, $detail['rek_pid']);
 				$this->bgp->setProgress(intval(100*$reindex_record_counter/$record_count));
 				$this->bgp->setStatus("Adding to Solr Queue:  '".$detail['rek_pid']."' ".$detail['rek_title']. " (".$reindex_record_counter."/".$record_count.")");
 

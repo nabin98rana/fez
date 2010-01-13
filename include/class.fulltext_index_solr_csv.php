@@ -431,6 +431,11 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 			if( $this->bgp ) {
 				$this->bgp->setStatus("Finished Solr fulltext indexing for (".$countDocs."/".$this->totalDocs." Added)");
 				$this->bgp->setProgress($countDocs);
+				
+				foreach ($pids_arr as $finishedPid) {
+					$this->bgp->markPidAsFinished($finishedPid);
+				}
+				
 			}
 
 		}

@@ -148,7 +148,8 @@ class WorkflowStatus {
 		if ($this->pid && !is_numeric($this->pid)) {
 			$title .= " on ".$this->pid.": ". $this->getRecordTitle();
 		}
-		$date = Date_API::getCurrentDateGMT();
+		// $date = Date_API::getCurrentDateGMT();
+		$date = date('Y-m-d H:i:s');
 		$usr_id = Auth::getUserID();
 		$id = $this->id;
 		// get rid of some stuff to cut the size of the serialised object down
@@ -675,10 +676,10 @@ class WorkflowStatusStatic
 			$log->err($ex);
 			return array();
 		}
-		
-		$timezone = Date_API::getPreferredTimezone();
+
+		// format the date output
 		foreach ($res as $key => $item) {
-			$res[$key]['wfses_date'] = Date_API::getFormattedDate($item['wfses_date'], $timezone);
+			$res[$key]['wfses_date'] = date('D, d M Y, H:i:s', strtotime($item['wfses_date']));
 		}
 		return $res;
 	}
@@ -693,11 +694,35 @@ class WorkflowStatusStatic
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
+
+		$details = self::getWorkflowDetailsForPid($pid);
+		return count($details);
+	}
+	
+	/**
+	 * Gets details of the various workflows that are currently outstanding on this pid
+	 *
+	 * @return void
+	 **/
+	public function getWorkflowDetailsForPid($pid)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
 		
+		$timeout = APP_SESSION_TIMEOUT;
+		$workflowTimeout = 60;
 		$prefix = APP_TABLE_PREFIX;
-		$q = "SELECT COUNT(*) FROM {$prefix}workflow_sessions WHERE wfses_pid = ?";
-		$count = $db->fetchOne($q, $pid);
-		return $count; 
+
+		$q = "SELECT wfses_id AS workflowId, wfses_listing AS workflowTitle, wfses_date AS dateStarted, usr_full_name AS username, sess.updated AS sessionLastUpdated ";
+		$q .= "FROM {$prefix}workflow_sessions ";
+		$q .= "JOIN {$prefix}user ON (wfses_usr_id = usr_id) ";
+		$q .= "JOIN {$prefix}sessions AS sess ON (sess.user_id = wfses_usr_id) "; 
+		$q .= "WHERE DATE_ADD(sess.updated, INTERVAL {$timeout} SECOND) > NOW() "; // only users with a current session
+		$q .= "AND DATE_ADD(wfses_date, INTERVAL {$workflowTimeout} MINUTE) > NOW() "; // and the workflow was started less than an hour ago
+		$q .= "AND wfses_pid = ? "; // find only for the specified pid
+		
+		$results = $db->fetchAll($q, $pid);
+		return $results;
 	}
 
 	/**
