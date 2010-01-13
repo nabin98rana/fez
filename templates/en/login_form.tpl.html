@@ -383,14 +383,14 @@ function toggleHideSecondaryLogin()
 window.onload = setFocus;
 function setFocus()
 {
-    if (!isWhitespace(document.login_form.username.value)) {
-        document.login_form.passwd.focus();
+    if (!isWhitespace(document.getElementById('login_form').username.value)) {
+        document.getElementById('login_form').passwd.focus();
     } else {
 		{/literal}
 		{if SHIB_SWITCH == "ON"}
-        document.idplist.origin.focus();
+        document.getElementById('idplist').origin.focus();
 		{else}
-        document.login_form.username.focus();		
+        document.getElementById('login_form').username.focus();		
 		{/if}
 		{literal}
     }
