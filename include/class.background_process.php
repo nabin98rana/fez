@@ -326,5 +326,6 @@ class BackgroundProcess {
 	{
 		return $this->local_session;
 	}
+
 }
 
