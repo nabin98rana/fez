@@ -716,7 +716,7 @@ class WorkflowStatusStatic
 		$q = "SELECT wfses_id AS workflowId, wfses_listing AS workflowTitle, wfses_date AS dateStarted, usr_full_name AS username, sess.updated AS sessionLastUpdated ";
 		$q .= "FROM {$prefix}workflow_sessions ";
 		$q .= "JOIN {$prefix}user ON (wfses_usr_id = usr_id) ";
-		$q .= "JOIN {$prefix}sessions AS sess ON (sess.user_id = wfses_usr_id) "; 
+		$q .= "JOIN {$prefix}sessions AS sess ON (sess.user_id = wfses_usr_id AND sess.session_ip IS NOT NULL) "; 
 		$q .= "WHERE DATE_ADD(sess.updated, INTERVAL {$timeout} SECOND) > NOW() "; // only users with a current session
 		$q .= "AND DATE_ADD(wfses_date, INTERVAL {$workflowTimeout} MINUTE) > NOW() "; // and the workflow was started less than an hour ago
 		$q .= "AND wfses_pid = ? "; // find only for the specified pid

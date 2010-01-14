@@ -97,6 +97,8 @@ class BackgroundProcessPids
 		
 		$arrayToCheck = unserialize($inputs);
 		$keysToKeep = array('pid', 'pids', 'params');
+		$possiblePids = array();
+		$keys = array();
 
 		if (is_array($arrayToCheck)) {
 			$keys = array_keys($arrayToCheck);	
