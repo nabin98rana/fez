@@ -450,6 +450,7 @@ if (!empty($pid) && $record->checkExists()) {
 		$derivationTree = "";
 		if ($hasVersions == 1) {
 			Record::generateDerivationTree($pid, $derivations, $derivationTree);
+			Record::wrapDerivationTree($derivationTree);
 		}
 		
 		$tpl->assign("origami", APP_ORIGAMI_SWITCH);

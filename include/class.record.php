@@ -230,18 +230,15 @@ class Record
 		if (!array($derivations)) {
 			return;
 		}
-		$dTree .= "<ul>";
 		foreach ($derivations as $devkey => $dev) { // now build HTML of the citation
 			if (!in_array($dev['rek_pid'], $shownPids)) {
 				if ($dev['pid'] != $pid) {
 					$xdis_title = XSD_Display::getTitle($dev['rek_display_type']);
-					$dTree .= "<li>";
-					$dTree .= "<a href='".APP_RELATIVE_URL."view/".$dev['rek_pid']."'>".$dev['rek_title']."</a> <i>".$xdis_title."</i> (deposited ".Date_API::getFormattedSimpleDate($dev['rek_created_date']).")";
-					$dTree .= "</li>";
+					$dTree .= '<li>';
+					$dTree .= '<a href="' . APP_RELATIVE_URL . 'view/' . $dev['rek_pid'] . '">' . $dev['rek_title'] . '</a> <i>' . $xdis_title . '</i> (deposited ' . Date_API::getFormattedSimpleDate($dev['rek_created_date']) . ')';
+					$dTree .= '</li>';
 				} else {
-					$dTree .= "<li>";
-					$dTree .= "".$dev['rek_title']." <b>(Current Record)</b>";
-					$dTree .= "</li>";
+					$dTree .= '<li>' . $dev['rek_title'] . ' <b>(Current Record)</b></li>';
 				}
 				array_push($shownPids, $dev['rek_pid']);
 				if (is_array($dev['children'])) {
@@ -249,10 +246,15 @@ class Record
 				}
 			}
 		}
-		$dTree .= "</ul>";
-
 	}
-
+	
+	
+	function wrapDerivationTree(&$dTree)
+	{
+		$dTree = "<ul>" . $dTree . "</ul>";
+	}
+	
+	
 	/**
 	 * Method used to get all of the parents of a given record available in the
 	 * system.
