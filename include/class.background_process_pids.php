@@ -53,7 +53,10 @@ class BackgroundProcessPids
 		$db = DB_API::get();
 		
 		$prefix = APP_TABLE_PREFIX;
-		$q = "SELECT COUNT(*) FROM {$prefix}background_process_pids WHERE bgpid_pid = ? AND bgp_state = " . BGP_RUNNING;
+		$q = "SELECT COUNT(*) FROM {$prefix}background_process_pids ";
+		$q .= "JOIN {$prefix}background_process ON (bgpid_bgp_id = bgp_id) ";
+		$q .= "WHERE bgpid_pid = ? ";
+		$q .= "AND bgp_state = " . BGP_RUNNING;
 		$count = $db->fetchOne($q, $pid);
 		return $count;
 		// $details = self::getForPid($pid);
