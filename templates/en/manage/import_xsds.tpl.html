@@ -91,7 +91,7 @@ var page_url = '{/literal}{$smarty.server.PHP_SELF}{literal}';
                           &nbsp;{$xdis.xdis_version}
                         </td>
                         <td style="background: {$row_color}" class="default">
-                          {if $xdis.overwrite}
+                          {if $xdis.overwrite == 1}
                             <span class="disabled">Will Overwrite {$xdis.exists_list[0].xdis_title} {$xdis.exists_list[0].xdis_version}</span>
                           {else}
                             <span class="enabled">New</span>

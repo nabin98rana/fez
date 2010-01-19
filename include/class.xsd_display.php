@@ -378,6 +378,7 @@ class XSD_Display
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
+		$xsd_id = str_replace("'", "", $xsd_id);
 		
 		$stmt = "SELECT
                     *
