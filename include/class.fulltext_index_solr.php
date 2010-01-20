@@ -366,7 +366,9 @@ class FulltextIndex_Solr extends FulltextIndex {
 			// filtering
 			$params['fq'] = $query['filter'];
 			$queryString = $query['query'];
-			$params['fl'] = '*,score';
+			$solr_titles = Search_Key::getSolrTitles();
+			$params['fl'] = implode(",", $solr_titles).',score,citation_t';
+//			$params['fl'] = '*,score';
 
 			// sorting
 			if (empty($searchKey_join[SK_SORT_ORDER])) {
@@ -573,7 +575,11 @@ class FulltextIndex_Solr extends FulltextIndex {
 			// filtering
 			$params['fq'] = $query['filter'];
 			$queryString = $query['query'];
-			$params['fl'] = '*,score';
+			
+			$solr_titles = Search_Key::getSolrTitles();
+			$params['fl'] = implode(",", $solr_titles).',score,citation_t';
+			
+//			$params['fl'] = '*,score';
 				
 			//$sort_by = 'score';
 				
