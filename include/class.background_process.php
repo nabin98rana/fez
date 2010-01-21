@@ -222,7 +222,7 @@ class BackgroundProcess {
 	 * @param string $pid
 	 * @return void
 	 **/
-	protected function markPidAsFinished($pid) 
+	public function markPidAsFinished($pid) 
 	{
 		$log = FezLog::get();
 		BackgroundProcessPids::removePid($this->bgp_id, $pid);
