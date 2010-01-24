@@ -162,11 +162,7 @@ class BackgroundProcessPids
 		$prefix = APP_TABLE_PREFIX;
 		$q = "DELETE FROM {$prefix}background_process_pids WHERE bgpid_bgp_id = ? AND bgpid_pid = ? ";
 		
-		$f = fopen("/var/www/fez/logs/deletes.log", "a");
-		fwrite($f, "$q\n");
-		fclose($f);
-		
-		// $db->query($q, array($bgpId, $pid));
+		$db->query($q, array($bgpId, $pid));
 	}
 	
 	/**
