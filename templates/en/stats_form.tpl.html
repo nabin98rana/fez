@@ -236,15 +236,11 @@ function disableFields()
 			
 			<tr>
 			
-			{if $list[i].spa_downloads > 0}
-					<td align="right" style="border-top:1px dashed #be87e9; width: 10px;"><strong>{$smarty.section.i.index+1}</strong></td>
-					<td align="left" style="border-top:1px dashed #be87e9;">
-					  {$list[i].spa_citation}
-					</td>
-			{else}
-					<td align="right" style="border-top:1px dashed #be87e9; white-space: nowrap;">{if $list[i].spa_downloads}<a class="author_link" title="View detailed statistics for this object" href="{$rel_url}stat_details.php?action=show_detail&amp;pid={$list[i].spa_pid}">{$list[i].spa_downloads|escape:"html"}</a>{/if}
-					</td>
-			{/if}
+				<td align="right" style="border-top:1px dashed #be87e9; width: 10px;"><strong>{$smarty.section.i.index+1}</strong></td>
+				<td align="left" style="border-top:1px dashed #be87e9;">
+				  {$list[i].spa_citation}
+				</td>
+				<td align="right" style="border-top:1px dashed #be87e9; white-space: nowrap;">{if $list[i].spa_downloads}<a class="author_link" title="View detailed statistics for this object" href="{$rel_url}stat_details.php?action=show_detail&amp;pid={$list[i].spa_pid}">{$list[i].spa_downloads|escape:"html"}</a>{else}&nbsp;{/if}</td>
 			
 			</tr>
 			
