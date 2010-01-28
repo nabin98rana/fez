@@ -5,10 +5,10 @@
         <!--
         function validateForm(f)
         {
-
+          
         // The dual multiple controls should select all the fields in the multiple combo box so that they will
         // be included in the form submission.
-        var field = document.group_form.userslist;
+        var field = document.getElementById('userslist');
 
         for (var y = 0; y < field.options.length; y++) {
           field.options[y].selected = true;
