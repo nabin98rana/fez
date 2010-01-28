@@ -1,0 +1,187 @@
+<div class="admin-box">
+
+            <form id="languages_form" onsubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}">
+            <div>
+              {if $smarty.get.cat == 'edit'}
+                <input type="hidden" name="cat" value="update" />
+                <input type="hidden" name="id" id="id" value="{$smarty.get.id|escape:"html"}" />
+              {else}
+                <input type="hidden" name="cat" value="new" />
+              {/if}
+            </div>
+              
+            <table style="width: 100%" cellspacing="0" cellpadding="0">
+              <tr>
+                <td colspan="2">
+                  <h1>Manage Languages</h1>
+                </td>
+              </tr>
+              {if $result != ""}
+              <tr>
+                <td colspan="2" style="text-align: center" class="error cell-colour">
+                  {if $smarty.post.cat == "new"}
+                    {if $result == -1}
+                      An error occurred while trying to add the new language.
+                    elseif $result == -2}
+                      An error occurred. You must enter an english name for the language.
+                    {elseif $result == -3}
+                      An error occurred. The Terminologic code must be 3 characters, or empty.
+                    {elseif $result == -4}
+                      An error occurred. The Alpha 2 code must be 2
+                    {elseif $result == -5}
+                      An error occurred. The ASCL code must be 4 characters, or empty.
+                    {elseif $result == 1}
+                      Thank you, the language was added successfully.
+                    {/if}
+                  {elseif $smarty.post.cat == "update"}
+                    {if $result == -1}
+                      An error occurred while trying to update the language information.
+                    {elseif $result == -2}
+                      An error occurred. You must enter an english name for the language.
+                    {elseif $result == -3}
+                      An error occurred. The Terminologic code must be 3 characters, or empty.
+                    {elseif $result == -4}
+                      An error occurred. The Alpha 2 code must be 2
+                    {elseif $result == -5}
+                      An error occurred. The ASCL code must be 4 characters, or empty.
+                    {elseif $result == 1}
+                      Thank you, the language was updated successfully.
+                    {/if}
+                  {/if}
+                </td>
+              </tr>
+              {/if}
+              {if $smarty.get.cat == 'edit'}
+                <tr>
+                  <td style="width: 120px" class="default cell-colour">
+                    <b>Language Code:</b>
+                  </td>
+                  <td style="background: {$light_color}; width: 80%">
+                    &nbsp; {$info.lng_alpha3_bibliographic}
+                  </td>
+                </tr>
+              {else}
+                <tr>
+                  <td style="width: 120px" class="default cell-colour">
+                    <b>Language Code: *</b>
+                  </td>
+                  <td style="background: {$light_color}; width: 80%">
+                    <input type="text" name="alpha3_bib" size="40" class="default" value="{$info.lng_alpha3_bibliographic}" /> &nbsp; Alpha3, bibliographic. Use <a href="http://en.wikipedia.org/wiki/ISO_639-2" onclick="javascript:window.open('http://en.wikipedia.org/wiki/ISO_639-2'); return false;">ISO 639 standard</a>
+                    {include file="error_icon.tpl.html" field="alpha3_bib"}
+                  </td>
+                </tr>
+              {/if}
+              <tr>
+                <td style="width: 120px" class="default cell-colour">
+                  <b>English Name *</b>
+                </td>
+                <td style="background: {$light_color}; width: 80%">
+                  <input type="text" name="en_name" size="40" class="default" value="{$info.lng_english_name}" />
+                  {include file="error_icon.tpl.html" field="lng_english_name"}
+                </td>
+              </tr>
+              <tr>
+                <td style="width: 120px" class="default cell-colour">
+                  <b>French Name</b>
+                </td>
+                <td style="background: {$light_color}; width: 80%">
+                  <input type="text" name="fr_name" size="40" class="default" value="{$info.lng_french_name}" />
+                  {include file="error_icon.tpl.html" field="lng_french_name"}
+                </td>
+              </tr>
+              <tr>
+                <td style="width: 120px" class="default cell-colour">
+                  <b>Terminologic code</b>
+                </td>
+                <td style="background: {$light_color}; width: 80%">
+                  <input type="text" name="alpha3_ter" size="40" class="default" value="{$info.lng_alpha3_terminologic}" /> &nbsp; Alpha3, terminologic.
+                  {include file="error_icon.tpl.html" field="alpha3_ter"}
+                </td>
+              </tr>
+              <tr>
+                <td style="width: 120px" class="default cell-colour">
+                  <b>Alpha 2 code</b>
+                </td>
+                <td style="background: {$light_color}; width: 80%">
+                  <input type="text" name="alpha2" size="40" class="default" value="{$info.lng_alpha2}" />
+                  {include file="error_icon.tpl.html" field="alpha2"}
+                </td>
+              </tr>
+              <tr>
+                <td style="width: 120px" class="default cell-colour">
+                  <b>ASCL code</b>
+                </td>
+                <td style="background: {$light_color}; width: 80%">
+                  <input type="text" name="ascl" size="40" class="default" value="{$info.lng_ascl_code}" /> &nbsp; Use <a href="http://www.abs.gov.au/Ausstats/abs@.nsf/66f306f503e529a5ca25697e0017661f/4293e19b52ac5377ca25703e00045c2e!OpenDocument" onclick="javascript:window.open('http://www.abs.gov.au/Ausstats/abs@.nsf/66f306f503e529a5ca25697e0017661f/4293e19b52ac5377ca25703e00045c2e!OpenDocument'); return false;">Australian Standard Classification of Languages standard</a>
+                  {include file="error_icon.tpl.html" field="ascl"}
+                </td>
+              </tr>
+              <tr>
+                <td colspan="2" style="background: {$cell_color}; text-align: center">
+                  {if $smarty.get.cat == 'edit'}
+                    <input class="button" type="submit" value="Update Language" />
+                  {else}
+                    <input class="button" type="submit" value="Add New Language" />
+                  {/if}
+                  <input class="button" type="reset" value="Reset" />
+                </td>
+              </tr>
+            </table>
+          </form>
+              
+        <form onsubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}">
+          <div>
+            <input type="hidden" name="cat" value="delete" />
+          </div>
+
+            <table style="width: 100%" cellspacing="0" cellpadding="0">  
+              <tr>
+                <td colspan="2" class="default">
+                  <h2>Existing Languages:</h2>
+                </td>
+              </tr>
+              <tr>
+                <td colspan="2">
+                  <table style="width: 100%" cellpadding="1" cellspacing="1">
+                    <tr>
+                      <td style="width: 4px; background: {$cell_color}; white-space: nowrap">
+                        <input type="button" value="All" class="shortcut button" onclick="javascript:toggleSelectAll(this.form, 'items[]');" />
+                      </td>
+                      <td class="default cell-colour">&nbsp;<b>Code</b></td>
+                      <td class="default cell-colour">&nbsp;<b>English Name</b></td>
+                      <td class="default cell-colour">&nbsp;<b>French Name</b></td>
+                    </tr>
+                    {section name="i" loop=$list}
+                    {cycle values=$cycle assign="row_color"}
+                    <tr>
+                      <td style="width: 4px; text-align: center; white-space: nowrap; background: {$row_color}">
+                        <input type="checkbox" name="items[]" value="{$list[i].lng_alpha3_bibliographic}" />
+                      </td>
+                      <td style="background: {$row_color}" class="default">
+                        &nbsp;<a href="{$smarty.server.PHP_SELF}?cat=edit&amp;id={$list[i].lng_alpha3_bibliographic}" title="Update this entry">{$list[i].lng_alpha3_bibliographic}</a>
+                      </td>
+                      <td style="background: {$row_color}" class="default">&nbsp;{$list[i].lng_english_name}</td>
+                      <td style="background: {$row_color}" class="default">&nbsp;{$list[i].lng_french_name}</td>
+                    </tr>
+                    {sectionelse}
+                    <tr>
+                      <td colspan="14" style="background: {$light_color}; text-align: center" class="default">
+                        No journals could be found.
+                      </td>
+                    </tr>
+                    {/section}
+                    <tr>
+                      <td style="width: 4px; background: {$cell_color}; text-align: center">
+                        <input type="button" value="All" class="shortcut button" onclick="javascript:toggleSelectAll(this.form, 'items[]');" />
+                      </td>
+                      <td colspan="3" style="background: {$cell_color}; text-align: center">
+                        <input type="submit" value="Delete" class="button" />
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </form>
+
+</div>
