@@ -8,7 +8,7 @@
 
 				  // The dual multiple controls should select all the fields in the multiple combo box so that they will
 				  // be included in the form submission.
-				  var field = document.user_form.groupslist;
+				  var field = document.getElementById('user_form').groupslist;
 
 				  for (var y = 0; y < field.options.length; y++) {
 					field.options[y].selected = true;
