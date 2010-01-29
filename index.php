@@ -150,16 +150,15 @@ $tpl->assign("news", $news);
 $tpl->assign("isHomePage", "true");
 $tpl->assign("news_count", $news_count);
 
-if( $front_page == "simple_front_page.tpl.html" || $front_page == "very_simple_front_page.tpl.html" ) {
-	$tpl->assign("autosuggest", 1);
-	$tpl->headerscript .= "window.oTextbox_front_search
-		= new AutoSuggestControl(document.search_frm, 'front_search', document.getElementById('front_search'), document.getElementById('front_search'),
-				new StateSuggestions('Collection','suggest',false,
-					'class.collection.php'));
-		";
-	
-	$tpl->registerNajax(NAJAX_Client::register('Suggestor', 'index.php'));
-}
+$tpl->assign("autosuggest", 1);
+$tpl->headerscript .= "window.oTextbox_front_search
+	= new AutoSuggestControl(document.search_frm, 'front_search', document.getElementById('front_search'), document.getElementById('front_search'),
+			new StateSuggestions('Collection','suggest',false,
+				'class.collection.php'));
+				document.getElementById('front_search').focus();";
+
+$tpl->registerNajax(NAJAX_Client::register('Suggestor', 'index.php'));
+
 
 $tpl->assign("active_nav", "home");
 $tpl->displayTemplate();
