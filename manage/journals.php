@@ -86,7 +86,7 @@ if ($isAdministrator) {
 		$tpl->assign("journal_id", $journal_id);
 		$tpl->assign();
 		
-		$journal_list = Journal::getList($pagerRow, $rows, 'aut_lname', $filter, $journal_id);
+		$journal_list = Journal::getList($pagerRow, $rows, 'jnl_journal_name', $filter, $journal_id);
 	} else {
 		$journal_list = Journal::getList($pagerRow, $rows);
 	}

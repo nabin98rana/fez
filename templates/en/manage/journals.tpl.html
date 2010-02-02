@@ -1,5 +1,26 @@
 <div class="admin-box">
 
+            {literal}
+            <script type="text/javascript">
+            <!--
+            function checkDelete(f)
+            {
+                var total_selected = getTotalCheckboxesChecked(f, 'items[]');
+                var total = getTotalCheckboxes(f, 'items[]');
+                if (!hasOneChecked(f, 'items[]')) {
+                    alert('Please select at least one journal.');
+                    return false;
+                }
+                if (!confirm('WARNING: This action will remove the selected journals permanently.\nPlease click OK to confirm.')) {
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+            //-->
+            </script>
+            {/literal}
+
             <form id="journal_form" onsubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}">
             <div>
               {if $smarty.get.cat == 'edit'}
@@ -53,6 +74,34 @@
                   {include file="error_icon.tpl.html" field="era_id"}
                 </td>
               </tr>
+              
+              {* ISSNs *}
+              
+              {if $smarty.get.cat == 'edit'}
+              
+                {section name="j" loop=$info.jnl_issns}
+                  <tr>
+                    <td style="width: 120px" class="default cell-colour">
+                      <b>ISSN #{$info.jnl_issns[j].jnl_issn_order}</b>
+                    </td>
+                    <td style="background: {$light_color}; width: 80%">
+                      <input type="text" name="issn[]" size="40" class="default" value="{$info.jnl_issns[j].jnl_issn}" />
+                    </td>
+                  </tr>
+                {/section}
+                  <tr>
+                    <td style="width: 120px" class="default cell-colour">
+                      <b>New ISSN</b>
+                    </td>
+                    <td style="background: {$light_color}; width: 80%">
+                      <input type="text" name="issn[]" size="40" class="default" value="" />
+                    </td>
+                  </tr>
+                  
+              {/if}
+              
+              {* End ISSNs *}              
+              
               <tr>
                 <td colspan="2" style="background: {$cell_color}; text-align: center">
                   {if $smarty.get.cat == 'edit'}
@@ -113,7 +162,7 @@
                     {cycle values=$cycle assign="row_color"}
                     <tr>
                       <td style="width: 4px; text-align: center; white-space: nowrap; background: {$row_color}">
-                        <input type="checkbox" name="items[]" value="{$list[i].aut_id}" />
+                        <input type="checkbox" name="items[]" value="{$list[i].jnl_journal_id}" />
                       </td>
                       <td style="background: {$row_color}" class="default">
                         &nbsp;<a href="{$smarty.server.PHP_SELF}?cat=edit&amp;id={$list[i].jnl_journal_id}" title="Update this entry">{$list[i].jnl_journal_id}</a>

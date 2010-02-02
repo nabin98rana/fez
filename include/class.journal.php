@@ -100,6 +100,8 @@ class Journal
 		} elseif(!empty($era_id)) {
 			$where_stmt .= " WHERE jnl_era_id = ".$db->quote($era_id);
 		}
+		
+		
 			
 		$start = $current_row * $max;
 
@@ -191,7 +193,8 @@ class Journal
 			return '';
 		}
 
-		$res["jnl_issns"] = Journal::getISSNs($res["jnl_journal_id"]);
+		$res["jnl_issns"] = Journal::getISSNs($jnl_id);
+		
 		return $res;
 	}
 	
@@ -220,27 +223,187 @@ class Journal
                  WHERE
                     jnl_journal_id = ".$db->quote($jnl_id, 'INTEGER')."
                  ORDER BY
-                 	jnl_issn_order DESC";
+                 	jnl_issn_order ASC";
 		try {
-			$res = $db->fetchRow($stmt);
+			$res = $db->fetchAll($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err($ex);
 			return '';
 		}
-
+		
 		return $res;
 	}	
 	
 	
 	
-	/*
-	TODO:
+	/**
+	 * Method used to update the details of the journal.
+	 *
+	 * @access  public
+	 * @return  integer 1 if the update worked, -1 otherwise
+	 */
+	function update()
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		if (Validation::isWhitespace($_POST["name"])) {
+			return -2;
+		}
 		
-	update
-	remove
-	insert	
+		/* Update the base journal item */
+		$stmt = "UPDATE
+                    " . APP_TABLE_PREFIX . "journal
+                 SET
+                    jnl_journal_name = " . $db->quote($_POST["name"]) . ",
+                    jnl_era_id = " . $db->quote($_POST["era_id"]) . ",
+                    jnl_updated_date = " . $db->quote(Date_API::getCurrentDateGMT()) ."
+                 WHERE
+                    jnl_journal_id = " . $db->quote($_POST["id"], 'INTEGER');
+		try {
+			$db->exec($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return -1;
+		}
+		
+		/* Remove any existing ISSNs */
+		$stmt = "DELETE FROM
+                    " . APP_TABLE_PREFIX . "journal_issns
+                 WHERE
+                    jnl_journal_id = " . $db->quote($_POST["id"], 'INTEGER');
+		try {
+			$db->query($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return false;
+		}
+		
+		$issnCounter = 0;
+		foreach ($_POST["issn"] as $issn) {
+			if ($issnCounter == 0) {
+				$stmt = "INSERT INTO
+							" . APP_TABLE_PREFIX . "journal_issns
+							(
+								jnl_journal_id,
+								jnl_issn,
+								jnl_issn_order
+							) VALUES ";
+			}
+			
+			if (trim($issn) != '') {
+				$issnCounter++;
+				if ($issnCounter > 1) {
+					$stmt .= ",";
+				}
+				$stmt .= "(
+							" . $db->quote($_POST["id"]) . ",
+							" . $db->quote($issn) . ",
+							" . $issnCounter . "
+						  )";
+			}
+		}
+		
+		if ($issnCounter > 0) {
+			/* Actually execute the SQL we've assembled if we have something to insert */
+			$stmt .= ";";
+			
+			try {
+				$db->query($stmt);
+			}
+			catch(Exception $ex) {
+				$log->err($ex);
+				return false;
+			}
+		}
+		
+		return 1;
+	}
 	
-	*/
+	
+	
+	/**
+	 * Method used to add a new journal to the system.
+	 *
+	 * @access  public
+	 * @return  integer 1 if the update worked, -1 or -2 otherwise
+	 */
+	function insert()
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		if (Validation::isWhitespace($_POST["name"])) {
+			return -2;
+		}
+		
+		$stmt = "INSERT INTO
+                    " . APP_TABLE_PREFIX . "journal
+                  (
+                    jnl_journal_name,
+					jnl_era_id,
+					jnl_created_date,
+					jnl_updated_date
+				  ) VALUES (
+                    " . $db->quote($_POST["name"]) . ",
+					" . $db->quote($_POST["era_id"]) . ",					
+                    " . $db->quote(Date_API::getCurrentDateGMT()) . ",
+                    " . $db->quote(Date_API::getCurrentDateGMT()) . "
+                   )";
+
+		try {
+			$db->exec($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return -1;
+		}
+		return 1;
+	}
+	
+	
+	
+	/**
+	 * Method used to remove a given set of journals from the system.
+	 *
+	 * @access  public
+	 * @return  boolean
+	 */
+	function remove()
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		/* Delete the base journal item */
+		$stmt = "DELETE FROM
+                    " . APP_TABLE_PREFIX . "journal
+                 WHERE
+                    jnl_journal_id IN (" . Misc::arrayToSQLBindStr($_POST["items"]) . ")";
+		try {
+			$db->query($stmt, $_POST['items']);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return false;
+		}
+		
+		/* Delete any attached ISSNs */
+		$stmt = "DELETE FROM
+                    " . APP_TABLE_PREFIX . "journal_issns
+                 WHERE
+                    jnl_journal_id IN (" . Misc::arrayToSQLBindStr($_POST["items"]) . ")";
+		try {
+			$db->query($stmt, $_POST['items']);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return false;
+		}
+		
+		return true;
+	}
 	
 }
