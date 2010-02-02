@@ -150,6 +150,7 @@
                       <td class="default cell-colour">&nbsp;<b>Code</b></td>
                       <td class="default cell-colour">&nbsp;<b>English Name</b></td>
                       <td class="default cell-colour">&nbsp;<b>French Name</b></td>
+                      <td class="default cell-colour">&nbsp;<b>ASCL Code</b></td>
                     </tr>
                     {section name="i" loop=$list}
                     {cycle values=$cycle assign="row_color"}
@@ -162,6 +163,7 @@
                       </td>
                       <td style="background: {$row_color}" class="default">&nbsp;{$list[i].lng_english_name}</td>
                       <td style="background: {$row_color}" class="default">&nbsp;{$list[i].lng_french_name}</td>
+                      <td style="background: {$row_color}" class="default">&nbsp;{$list[i].lng_ascl_code}</td>
                     </tr>
                     {sectionelse}
                     <tr>
