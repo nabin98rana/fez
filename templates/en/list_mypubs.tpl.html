@@ -231,6 +231,8 @@
 	       <td align="left"{if $icon}{else} colspan="2"{/if} valign="middle" style="border-top:1px dashed #be87e9; width: 100%;">
             {if $list[i].rek_thomson_citation_count != ""}
             	{$list[i].rek_thomson_citation_count}
+            {elseif $list[i].rek_thomson_citation_count == 0}
+               {$list[i].rek_thomson_citation_count}
             {else}
             	&nbsp;
             {/if}			
