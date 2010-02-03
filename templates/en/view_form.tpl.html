@@ -85,7 +85,7 @@ function loadPreview(pid,datastreamID, alt, origami)
 
 		<div id="outstandingStatus" {if ($outstandingStatus == '')} style="display:none;"{/if}>{$outstandingStatus}</div>
 
-		<div><a href="javascript:showOutstandingItemDetails('{$pid}');">Show Details</a> | <a id="outstandingWorkflowsLink" href="javascript:updateOutstandingDiv('{$pid}');">Check again</a><img src="{$rel_url}images/spinner.gif" id="outstandingSpinner" style="display:none;"/></div>
+		<div><a href="javascript:showOutstandingItemDetails('{$pid}');">Show Details</a> | <a id="outstandingWorkflowsLink" href="javascript:updateOutstandingDiv('{$pid}');">Check again</a><img src="{$rel_url}images/spinner.gif" id="outstandingSpinner" style="display:none;" alt="" /></div>
 		<div id="outstandingDetailsDiv" style="display:none;">
 			<div id="outstandingWorkflowsDetails" style="display:none;">&nbsp;</div>
 			<div id="outstandingBackgroundProcessDetails" style="display:none;">&nbsp;</div>
