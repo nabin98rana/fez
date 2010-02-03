@@ -85,33 +85,25 @@ class Journal
 	 * @access  public
 	 * @return  array The list of journals
 	 */
-	function getList($current_row = 0, $max = 25, $order_by = 'jnl_journal_name', $filter="", $era_id = "")
+	function getList($current_row = 0, $max = 25, $order_by = 'jnl_journal_name', $filter="")
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
 
 		$where_stmt = "";
-		$extra_stmt = "";
-		$extra_order_stmt = "";
 		if (!empty($filter)) {
-			$where_stmt .= " WHERE MATCH(jnl_journal_name) AGAINST (".$db->quote('*'.$filter.'*')." IN BOOLEAN MODE) ";
-			$extra_stmt = " , MATCH(jnl_journal_name) AGAINST (".$db->quote($filter).") as Relevance ";
-			$extra_order_stmt = " Relevance DESC, ";
-		} elseif(!empty($era_id)) {
-			$where_stmt .= " WHERE jnl_era_id = ".$db->quote($era_id);
+			$where_stmt .= " WHERE jnl_journal_name LIKE '%" . $filter . "%' ";
 		}
-		
-		
 			
 		$start = $current_row * $max;
 
 		$stmt = "SELECT
-					* ".$extra_stmt."
+					*
                  FROM
                     " . APP_TABLE_PREFIX . "journal
-				".$where_stmt."
-                 ORDER BY ".$extra_order_stmt."
-                    ".$db->quote($order_by)."
+				" . $where_stmt . "
+                 ORDER BY
+                 	jnl_journal_name ASC
 				 LIMIT ".$db->quote($max, 'INTEGER')." OFFSET ".$db->quote($start, 'INTEGER');
 
 		try {

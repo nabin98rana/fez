@@ -19,6 +19,63 @@
             }
             //-->
             </script>
+    
+            <script type="text/javascript">
+            <!--
+            var page_url = '{/literal}{$smarty.server.PHP_SELF}{literal}';
+            var current_page = {/literal}{if $list_info.current_page != ""}{$list_info.current_page}{else}0{/if}{literal};
+            var last_page = {/literal}{if $list_info.last_page != ""}{$list_info.last_page}{else}0{/if}{literal};        
+                  function validateForm(f)
+                  {
+                      if (isWhitespace(f.fname.value)) {
+                          alert('Please enter the first name of this author.');
+                          selectField(f, 'fname');
+                          return false;
+                      }
+                      if (isWhitespace(f.lname.value)) {
+                          alert('Please enter the last name of this author.');
+                          selectField(f, 'lname');
+                          return false;
+                      }
+                      if (!isWhitespace(f.mypub_url.value) && !isMyPubURL(f.mypub_url.value)) {
+                          alert('My Pub URL must be lowercase, only a-z characters and underscores, and less than 100 characters.');
+                          selectField(f, 'mypubs_url');
+                          return false;
+                      }
+                      return true;
+                  }
+              function resizePager(f)
+            {
+              var pagesize = f.page_size.options[f.page_size.selectedIndex].value;
+              window.location.href = page_url + "?" + replaceParam(window.location.href, 'rows', pagesize);
+            }
+            function checkPageField(ev)
+            {
+              // check if the user is trying to submit the form by hitting <enter>
+              if (((window.event) && (window.event.keyCode == 13)) ||
+                  ((ev) && (ev.which == 13))) {
+                return false;
+              }
+            }
+            function goPage(f, new_page)
+            {
+              if ((new_page > last_page+1) || (new_page <= 0) ||
+                  (new_page == current_page+1) || (!isNumberOnly(new_page))) {
+                f.page.value = current_page+1;
+                return false;
+              }
+              setPage(new_page-1);
+            }
+            function setPage(new_page)
+            {
+              if ((new_page > last_page) || (new_page < 0) ||
+                  (new_page == current_page)) {
+                return false;
+              }
+              window.location.href = page_url + "?" + replaceParam(window.location.href, 'pagerRow', new_page);
+            }
+            //-->
+            </script>
             {/literal}
 
             <form id="journal_form" onsubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}">

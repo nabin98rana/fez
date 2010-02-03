@@ -80,13 +80,8 @@ if ($isAdministrator) {
     }
 	if (@$_GET["cat"] == "search") {
 		$filter = Pager::getParam('search_filter',$params);
-		$journal_id = Pager::getParam('journal_id',$params);
-
 		$tpl->assign("search_filter", $filter);
-		$tpl->assign("journal_id", $journal_id);
-		$tpl->assign();
-		
-		$journal_list = Journal::getList($pagerRow, $rows, 'jnl_journal_name', $filter, $journal_id);
+		$journal_list = Journal::getList($pagerRow, $rows, 'jnl_journal_name', $filter);
 	} else {
 		$journal_list = Journal::getList($pagerRow, $rows);
 	}
