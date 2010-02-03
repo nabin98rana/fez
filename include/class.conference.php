@@ -38,30 +38,30 @@ include_once(APP_INC_PATH . "class.validation.php");
 include_once(APP_INC_PATH . "class.date.php");
 
 
-class Journal
+class Conference
 {
 	/**
-	 * Method used to check whether a journal exists or not.
+	 * Method used to check whether a conference exists or not.
 	 *
 	 * @access  public
-	 * @param   integer $jnl_id The journal ID
+	 * @param   integer $cnf_id The conference ID
 	 * @return  boolean
 	 */
-	function exists($jnl_id)
+	function exists($cnf_id)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
 
-		if(empty($jnl_id) || !is_numeric($jnl_id)) {
+		if(empty($cnf_id) || !is_numeric($cnf_id)) {
 			return false;
 		}
 
 		$stmt = "SELECT
                     COUNT(*) AS total
                  FROM
-                    " . APP_TABLE_PREFIX . "journal
+                    " . APP_TABLE_PREFIX . "conference
                  WHERE
-                    jnl_journal_id = ".$db->quote($jnl_id, 'INTEGER');
+                    cnf_conference_id = ".$db->quote($cnf_id, 'INTEGER');
 		try {
 			$res = $db->fetchOne($stmt);
 		}
@@ -80,19 +80,19 @@ class Journal
 	
 	
 	/**
-	 * Method used to get the list of journals available in the system.
+	 * Method used to get the list of conferences available in the system.
 	 *
 	 * @access  public
-	 * @return  array The list of journals
+	 * @return  array The list of conferences
 	 */
-	function getList($current_row = 0, $max = 25, $order_by = 'jnl_journal_name', $filter="")
+	function getList($current_row = 0, $max = 25, $order_by = ' cnf_conference_name', $filter="")
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
 
 		$where_stmt = "";
 		if (!empty($filter)) {
-			$where_stmt .= " WHERE jnl_journal_name LIKE '%" . $filter . "%' ";
+			$where_stmt .= " WHERE cnf_conference_name LIKE '%" . $filter . "%' ";
 		}
 			
 		$start = $current_row * $max;
@@ -100,10 +100,10 @@ class Journal
 		$stmt = "SELECT
 					*
                  FROM
-                    " . APP_TABLE_PREFIX . "journal
+                    " . APP_TABLE_PREFIX . "conference
 				" . $where_stmt . "
                  ORDER BY
-                 	jnl_journal_name ASC
+                 	cnf_conference_name ASC
 				 LIMIT ".$db->quote($max, 'INTEGER')." OFFSET ".$db->quote($start, 'INTEGER');
 
 		try {
@@ -156,27 +156,27 @@ class Journal
 	
 	
 	/**
-	 * Method used to get the details for a given journal ID.
+	 * Method used to get the details for a given conference ID.
 	 *
 	 * @access  public
-	 * @param   integer $jnl_id The journal ID
-	 * @return  array The journal details
+	 * @param   integer $cnf_id The conference ID
+	 * @return  array The conference details
 	 */
-	function getDetails($jnl_id)
+	function getDetails($cnf_id)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
 
-		if(empty($jnl_id) || !is_numeric($jnl_id)) {
+		if(empty($cnf_id) || !is_numeric($cnf_id)) {
 			return "";
 		}
 
 		$stmt = "SELECT
                     *
                  FROM
-                    " . APP_TABLE_PREFIX . "journal
+                    " . APP_TABLE_PREFIX . "conference
                  WHERE
-                    jnl_journal_id = ".$db->quote($jnl_id, 'INTEGER');
+                    cnf_conference_id = ".$db->quote($cnf_id, 'INTEGER');
 		try {
 			$res = $db->fetchRow($stmt);
 		}
@@ -185,52 +185,13 @@ class Journal
 			return '';
 		}
 
-		$res["jnl_issns"] = Journal::getISSNs($jnl_id);
-		
 		return $res;
 	}
 	
 	
 	
 	/**
-	 * Method used to get all ISSNs for a given journal ID.
-	 *
-	 * @access  public
-	 * @param   integer $jnl_id The journal ID
-	 * @return  array The journal's ISSNs
-	 */
-	function getISSNs($jnl_id)
-	{
-		$log = FezLog::get();
-		$db = DB_API::get();
-
-		if(empty($jnl_id) || !is_numeric($jnl_id)) {
-			return "";
-		}
-
-		$stmt = "SELECT
-                    *
-                 FROM
-                    " . APP_TABLE_PREFIX . "journal_issns
-                 WHERE
-                    jnl_journal_id = ".$db->quote($jnl_id, 'INTEGER')."
-                 ORDER BY
-                 	jnl_issn_order ASC";
-		try {
-			$res = $db->fetchAll($stmt);
-		}
-		catch(Exception $ex) {
-			$log->err($ex);
-			return '';
-		}
-		
-		return $res;
-	}	
-	
-	
-	
-	/**
-	 * Method used to update the details of the journal.
+	 * Method used to update the details of the conference.
 	 *
 	 * @access  public
 	 * @return  integer 1 if the update worked, -1 otherwise
@@ -244,15 +205,16 @@ class Journal
 			return -2;
 		}
 		
-		/* Update the base journal item */
 		$stmt = "UPDATE
-                    " . APP_TABLE_PREFIX . "journal
+                    " . APP_TABLE_PREFIX . "conference
                  SET
-                    jnl_journal_name = " . $db->quote($_POST["name"]) . ",
-                    jnl_era_id = " . $db->quote($_POST["era_id"]) . ",
-                    jnl_updated_date = " . $db->quote(Date_API::getCurrentDateGMT()) ."
+                    cnf_conference_name = " . $db->quote($_POST["name"]) . ",
+                    cnf_era_id = " . $db->quote($_POST["era_id"]) . ",
+                    cnf_acronym = " . $db->quote($_POST["acronym"]) . ",
+                    cnf_rank = " . $db->quote($_POST["rank"]) . ",
+                    cnf_updated_date = " . $db->quote(Date_API::getCurrentDateGMT()) ."
                  WHERE
-                    jnl_journal_id = " . $db->quote($_POST["id"], 'INTEGER');
+                    cnf_conference_id = " . $db->quote($_POST["id"], 'INTEGER');
 		try {
 			$db->exec($stmt);
 		}
@@ -261,64 +223,13 @@ class Journal
 			return -1;
 		}
 		
-		/* Remove any existing ISSNs */
-		$stmt = "DELETE FROM
-                    " . APP_TABLE_PREFIX . "journal_issns
-                 WHERE
-                    jnl_journal_id = " . $db->quote($_POST["id"], 'INTEGER');
-		try {
-			$db->query($stmt);
-		}
-		catch(Exception $ex) {
-			$log->err($ex);
-			return false;
-		}
-		
-		$issnCounter = 0;
-		foreach ($_POST["issn"] as $issn) {
-			if ($issnCounter == 0) {
-				$stmt = "INSERT INTO
-							" . APP_TABLE_PREFIX . "journal_issns
-							(
-								jnl_journal_id,
-								jnl_issn,
-								jnl_issn_order
-							) VALUES ";
-			}
-			
-			if (trim($issn) != '') {
-				$issnCounter++;
-				if ($issnCounter > 1) {
-					$stmt .= ",";
-				}
-				$stmt .= "(
-							" . $db->quote($_POST["id"]) . ",
-							" . $db->quote($issn) . ",
-							" . $issnCounter . "
-						  )";
-			}
-		}
-		
-		if ($issnCounter > 0) {
-			/* Actually execute the SQL we've assembled if we have something to insert */
-			$stmt .= ";";
-			
-			try {
-				$db->query($stmt);
-			}
-			catch(Exception $ex) {
-				$log->err($ex);
-				return false;
-			}
-		}
-		
 		return 1;
 	}
 	
 	
 	
 	/**
-	 * Method used to add a new journal to the system.
+	 * Method used to add a new conference to the system.
 	 *
 	 * @access  public
 	 * @return  integer 1 if the update worked, -1 or -2 otherwise
@@ -333,15 +244,19 @@ class Journal
 		}
 		
 		$stmt = "INSERT INTO
-                    " . APP_TABLE_PREFIX . "journal
+                    " . APP_TABLE_PREFIX . "conference
                   (
-                    jnl_journal_name,
-					jnl_era_id,
-					jnl_created_date,
-					jnl_updated_date
+                    cnf_conference_name,
+					cnf_era_id,
+					cnf_acronym,
+					cnf_rank,
+					cnf_created_date,
+					cnf_updated_date
 				  ) VALUES (
                     " . $db->quote($_POST["name"]) . ",
-					" . $db->quote($_POST["era_id"]) . ",					
+					" . $db->quote($_POST["era_id"]) . ",
+					" . $db->quote($_POST["acronym"]) . ",
+					" . $db->quote($_POST["rank"]) . ",
                     " . $db->quote(Date_API::getCurrentDateGMT()) . ",
                     " . $db->quote(Date_API::getCurrentDateGMT()) . "
                    )";
@@ -359,7 +274,7 @@ class Journal
 	
 	
 	/**
-	 * Method used to remove a given set of journals from the system.
+	 * Method used to remove a given set of conferences from the system.
 	 *
 	 * @access  public
 	 * @return  boolean
@@ -369,24 +284,10 @@ class Journal
 		$log = FezLog::get();
 		$db = DB_API::get();
 
-		/* Delete the base journal item */
 		$stmt = "DELETE FROM
-                    " . APP_TABLE_PREFIX . "journal
+                    " . APP_TABLE_PREFIX . "conference
                  WHERE
-                    jnl_journal_id IN (" . Misc::arrayToSQLBindStr($_POST["items"]) . ")";
-		try {
-			$db->query($stmt, $_POST['items']);
-		}
-		catch(Exception $ex) {
-			$log->err($ex);
-			return false;
-		}
-		
-		/* Delete any attached ISSNs */
-		$stmt = "DELETE FROM
-                    " . APP_TABLE_PREFIX . "journal_issns
-                 WHERE
-                    jnl_journal_id IN (" . Misc::arrayToSQLBindStr($_POST["items"]) . ")";
+                    cnf_conference_id IN (" . Misc::arrayToSQLBindStr($_POST["items"]) . ")";
 		try {
 			$db->query($stmt, $_POST['items']);
 		}

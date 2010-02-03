@@ -8,10 +8,10 @@
                 var total_selected = getTotalCheckboxesChecked(f, 'items[]');
                 var total = getTotalCheckboxes(f, 'items[]');
                 if (!hasOneChecked(f, 'items[]')) {
-                    alert('Please select at least one journal.');
+                    alert('Please select at least one conference.');
                     return false;
                 }
-                if (!confirm('WARNING: This action will remove the selected journals permanently.\nPlease click OK to confirm.')) {
+                if (!confirm('WARNING: This action will remove the selected conferences permanently.\nPlease click OK to confirm.')) {
                     return false;
                 } else {
                     return true;
@@ -25,7 +25,6 @@
             var page_url = '{/literal}{$smarty.server.PHP_SELF}{literal}';
             var current_page = {/literal}{if $list_info.current_page != ""}{$list_info.current_page}{else}0{/if}{literal};
             var last_page = {/literal}{if $list_info.last_page != ""}{$list_info.last_page}{else}0{/if}{literal};        
-
             function resizePager(f)
             {
               var pagesize = f.page_size.options[f.page_size.selectedIndex].value;
@@ -60,7 +59,7 @@
             </script>
             {/literal}
 
-            <form id="journal_form" onsubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}">
+            <form id="conference_form" onsubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}">
             <div>
               {if $smarty.get.cat == 'edit'}
                 <input type="hidden" name="cat" value="update" />
@@ -73,7 +72,7 @@
             <table style="width: 100%" cellspacing="0" cellpadding="0">
               <tr>
                 <td colspan="2">
-                  <h1>Manage Journals</h1>
+                  <h1>Manage Conferences</h1>
                 </td>
               </tr>
               {if $result != ""}
@@ -81,15 +80,15 @@
                 <td colspan="2" style="text-align: center" class="error cell-colour">
                   {if $smarty.post.cat == "new"}
                     {if $result == -1}
-                      An error occurred while trying to add the new journal.
+                      An error occurred while trying to add the new conference.
                     {elseif $result == 1}
-                      Thank you, the journal was added successfully.
+                      Thank you, the conference was added successfully.
                     {/if}
                   {elseif $smarty.post.cat == "update"}
                     {if $result == -1}
-                      An error occurred while trying to update the journal information.
+                      An error occurred while trying to update the conference information.
                     {elseif $result == 1}
-                      Thank you, the journal was updated successfully.
+                      Thank you, the conference was updated successfully.
                     {/if}
                   {/if}
                 </td>
@@ -97,56 +96,51 @@
               {/if}
               <tr>
                 <td style="width: 120px" class="default cell-colour">
-                  <b>Journal name: *</b>
+                  <b>Conference name: *</b>
                 </td>
                 <td style="background: {$light_color}; width: 80%">
-                  <input type="text" name="name" size="40" class="default" value="{$info.jnl_journal_name}" />
+                  <input type="text" name="name" size="40" class="default" value="{$info.cnf_conference_name}" />
                   {include file="error_icon.tpl.html" field="name"}
                 </td>
               </tr>
               <tr>
                 <td style="width: 120px" class="default cell-colour">
+                  <b>Acronym</b>
+                </td>
+                <td style="background: {$light_color}; width: 80%">
+                  <input type="text" name="acronym" size="40" class="default" value="{$info.cnf_acronym}" />
+                  {include file="error_icon.tpl.html" field="acronym"}
+                </td>
+              </tr>
+              <tr>
+                <td style="width: 120px" class="default cell-colour">
+                  <b>Rank</b>
+                </td>
+                <td style="background: {$light_color}; width: 80%">
+                  <select name="rank">
+                    <option value="">Not ranked</option>
+                    <option value="A"{if $info.cnf_rank == 'A'} selected="selected"{/if}>A</option>
+                    <option value="B"{if $info.cnf_rank == 'B'} selected="selected"{/if}>B</option>
+                    <option value="C"{if $info.cnf_rank == 'C'} selected="selected"{/if}>C</option>
+                  </select>
+                  {include file="error_icon.tpl.html" field="rank"}
+                </td>
+              </tr>             
+              <tr>
+                <td style="width: 120px" class="default cell-colour">
                   <b>ERA ID</b>
                 </td>
                 <td style="background: {$light_color}; width: 80%">
-                  <input type="text" name="era_id" size="40" class="default" value="{$info.jnl_era_id}" />
+                  <input type="text" name="era_id" size="40" class="default" value="{$info.cnf_era_id}" />
                   {include file="error_icon.tpl.html" field="era_id"}
                 </td>
               </tr>
-              
-              {* ISSNs *}
-              
-              {if $smarty.get.cat == 'edit'}
-              
-                {section name="j" loop=$info.jnl_issns}
-                  <tr>
-                    <td style="width: 120px" class="default cell-colour">
-                      <b>ISSN #{$info.jnl_issns[j].jnl_issn_order}</b>
-                    </td>
-                    <td style="background: {$light_color}; width: 80%">
-                      <input type="text" name="issn[]" size="40" class="default" value="{$info.jnl_issns[j].jnl_issn}" />
-                    </td>
-                  </tr>
-                {/section}
-                  <tr>
-                    <td style="width: 120px" class="default cell-colour">
-                      <b>New ISSN</b>
-                    </td>
-                    <td style="background: {$light_color}; width: 80%">
-                      <input type="text" name="issn[]" size="40" class="default" value="" />
-                    </td>
-                  </tr>
-                  
-              {/if}
-              
-              {* End ISSNs *}              
-              
               <tr>
                 <td colspan="2" style="background: {$cell_color}; text-align: center">
                   {if $smarty.get.cat == 'edit'}
-                    <input class="button" type="submit" value="Update Journal" />
+                    <input class="button" type="submit" value="Update Conference" />
                   {else}
-                    <input class="button" type="submit" value="Create Journal" />
+                    <input class="button" type="submit" value="Create Conference" />
                   {/if}
                   <input class="button" type="reset" value="Reset" />
                 </td>
@@ -154,7 +148,7 @@
             </table>
           </form>
               
-          <form id="journal_search_form" method="get" action="{$smarty.server.PHP_SELF}">              
+          <form id="conference_search_form" method="get" action="{$smarty.server.PHP_SELF}">              
           <div>
             <input type="hidden" name="cat" value="search" />
             <input type="hidden" name="id" value="{$smarty.get.id|escape:"html"}" />
@@ -163,7 +157,7 @@
             <table style="width: 100%" cellspacing="0" cellpadding="0">
               <tr>
                 <td class="default">
-                  <b>{if $search_filter != ""}<span class="disabled">{/if}Search Journals{if $search_filter != ""}</span>{/if}</b>
+                  <b>{if $search_filter != ""}<span class="disabled">{/if}Search Conferences{if $search_filter != ""}</span>{/if}</b>
                 </td>
                  <td style="white-space: nowrap; background: {$light_color}; width: 80%;">
                   <input type="text" name="search_filter" size="40" class="default" value="{$search_filter}" />
@@ -182,7 +176,7 @@
             <table style="width: 100%" cellspacing="0" cellpadding="0">  
               <tr>
                 <td colspan="2" class="default">
-                  <h2>Existing Journals:</h2>
+                  <h2>Existing Conferences:</h2>
                 </td>
               </tr>
               <tr>
@@ -194,6 +188,8 @@
                       </td>
                       <td class="default cell-colour">&nbsp;<b>ID</b></td>
                       <td class="default cell-colour">&nbsp;<b>Name</b></td>
+                      <td class="default cell-colour">&nbsp;<b>Acronym</b></td>
+                      <td class="default cell-colour">&nbsp;<b>Rank</b></td>
                       <td class="default cell-colour">&nbsp;<b>ERA ID</b></td>
                       <td class="default cell-colour">&nbsp;<b>Last Updated</b></td>
                     </tr>
@@ -201,19 +197,21 @@
                     {cycle values=$cycle assign="row_color"}
                     <tr>
                       <td style="width: 4px; text-align: center; white-space: nowrap; background: {$row_color}">
-                        <input type="checkbox" name="items[]" value="{$list[i].jnl_journal_id}" />
+                        <input type="checkbox" name="items[]" value="{$list[i].cnf_conference_id}" />
                       </td>
                       <td style="background: {$row_color}" class="default">
-                        &nbsp;<a href="{$smarty.server.PHP_SELF}?cat=edit&amp;id={$list[i].jnl_journal_id}" title="Update this entry">{$list[i].jnl_journal_id}</a>
+                        &nbsp;<a href="{$smarty.server.PHP_SELF}?cat=edit&amp;id={$list[i].cnf_conference_id}" title="Update this entry">{$list[i].cnf_conference_id}</a>
                       </td>
-                      <td style="background: {$row_color}" class="default">&nbsp;<a href="{$smarty.server.PHP_SELF}?cat=edit&amp;id={$list[i].jnl_journal_id}" title="Update this entry">{$list[i].jnl_journal_name}</a></td>
-                      <td style="background: {$row_color}" class="default">&nbsp;{$list[i].jnl_era_id}</td>
-                      <td style="background: {$row_color}" class="default">&nbsp;{$list[i].jnl_updated_date|date_format:'%d %b, %Y'}</td>
+                      <td style="background: {$row_color}" class="default">&nbsp;<a href="{$smarty.server.PHP_SELF}?cat=edit&amp;id={$list[i].cnf_conference_id}" title="Update this entry">{$list[i].cnf_conference_name}</a></td>
+                      <td style="background: {$row_color}" class="default">&nbsp;{$list[i].cnf_acronym}</td>
+                      <td style="background: {$row_color}" class="default">&nbsp;{$list[i].cnf_rank}</td>
+                      <td style="background: {$row_color}" class="default">&nbsp;{$list[i].cnf_era_id}</td>
+                      <td style="background: {$row_color}" class="default">&nbsp;{$list[i].cnf_updated_date|date_format:'%d %b, %Y'}</td>
                     </tr>
                     {sectionelse}
                     <tr>
                       <td colspan="14" style="background: {$light_color}; text-align: center" class="default">
-                        No journals could be found.
+                        No conferences could be found.
                       </td>
                     </tr>
                     {/section}
