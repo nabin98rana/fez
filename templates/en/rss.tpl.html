@@ -33,6 +33,12 @@
 			{/section}
 			</author>
 		{/if}
+		{section name="file_loop" loop=$list[i].rek_file_attachment_name}
+			{if $list[i].rek_file_attachment_name[file_loop]|contains:".pdf"}
+			<media:content url="{$app_base_url}eserv/{$list[i].rek_pid|escape:"html"}/{$list[i].rek_file_attachment_name[file_loop]|escape:"html"}" type="application/pdf" />
+			{/if}
+		{/section}
+		
 {if $list[i].thumbnail.0 != "" && $list[i].isViewer==1}
                         {assign var="icon" value=$eserv_url|cat:$list[i].rek_pid|cat:"/"|cat:$list[i].thumbnail.0}
                {if $list[i].stream.0 != ""} 
