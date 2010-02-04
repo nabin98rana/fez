@@ -1990,7 +1990,7 @@ a.author_id_link:hover {
 }
 
 .edit-metadata td {
-    background: [[$smarty.const.APP_LIGHT_COLOR]];
+    /*background: [[$smarty.const.APP_LIGHT_COLOR]];*/
     padding-left: 5px;
 }
 
