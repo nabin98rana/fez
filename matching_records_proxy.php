@@ -39,9 +39,6 @@ include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.user.php");
 
 Auth::checkAuthentication(APP_SESSION);
-if(! (Auth::isAdministrator() || User::isUserSuperAdministrator(Auth::getUsername()))) {
-	exit;
-}
 
 $server = new Zend_Json_Server();
 $server->setClass('MatchingRecords');
