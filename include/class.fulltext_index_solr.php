@@ -346,8 +346,8 @@ class FulltextIndex_Solr extends FulltextIndex {
 				if(count($sekIDs) > 0) {
 						
 					$params['facet'] = 'true';
-					$params['facet.limit'] = '5';
-					$params['facet.mincount'] = '2';
+					$params['facet.limit'] = APP_SOLR_FACET_LIMIT;
+					$params['facet.mincount'] = APP_SOLR_FACET_MINCOUNT;
 						
 					foreach ($sekIDs as $sek) {
 						$sek_title_db = Search_Key::makeSQLTableName($sek['sek_title']);

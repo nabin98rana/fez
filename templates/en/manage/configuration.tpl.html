@@ -1434,6 +1434,20 @@ function restoreDefaultColours(el)
 			  {include file="error_icon.tpl.html" field="app_solr_commit_limit"}
 			</td>
   		  </tr>
+		  <tr>
+			<th>Facet limit (default is 5)</th>
+			<td>
+				<input type="text" name="app_solr_facet_limit" value="{$config_settings.app_solr_facet_limit|escape:"html"}" size="4" />
+				{include file="error_icon.tpl.html" field="app_solr_facet_limit"}
+			</td>
+		  </tr>
+		  <tr>
+			<th>Facet minimum count (default is 2)</th>
+			<td>
+				<input type="text" name="app_solr_facet_mincount" value="{$config_settings.app_solr_facet_mincount|escape:"html"}" size="4" />
+				{include file="error_icon.tpl.html" field="app_solr_facet_mincount"}
+			</td>
+		  </tr>
   		 </tbody>
 		</table>
 		</div>
