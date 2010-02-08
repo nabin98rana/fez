@@ -192,4 +192,37 @@ class AuthRules
         
         return md5(implode(';',$row_strs));
     }
+    
+    
+    
+   /**
+     * Periodically call this function to truncate the user group cache table.
+     */
+    function truncateUserGroupCache()
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+        
+        $stmt = "
+                DELETE FROM 
+                    " . APP_TABLE_PREFIX . "auth_rule_group_users
+                WHERE 
+                    argu_usr_id IN
+                    (SELECT
+                        usr_id
+                    FROM
+                        fez_user
+                    WHERE
+                        usr_last_login_date < DATE_SUB(NOW(), INTERVAL " . APP_USER_GROUP_CACHE_EXPIRY . " DAY));";
+        
+        try {
+            $db->exec($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return -1;
+        }
+        return true;
+    }
+    
 }

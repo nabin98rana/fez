@@ -34,17 +34,17 @@
 //
 //
 
-//header("Location: doctypexsds.php");          // Un-comment this line to restore old-style admin.
-
 include_once("../config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
+include_once(APP_INC_PATH . "class.auth_rules.php");
 include_once(APP_INC_PATH . "db_access.php");
 
 $tpl = new Template_API();
 $tpl->setTemplate("manage/index.tpl.html");
 
 Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']);
+AuthRules::truncateUserGroupCache();
 
 $tpl->assign("type", "main");
 $tpl->assign("active_nav", "admin");

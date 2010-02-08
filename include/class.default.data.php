@@ -246,7 +246,8 @@ class Default_Data
 		$defaultData['app_template_compile_path']			= "";
 		$defaultData['app_internal_notes']					= "ON";
 		$defaultData['app_session_timeout']					= "10800";
-				
+		$defaultData['app_user_group_cache_expiry']			= "3";
+		
 		return $defaultData;
 
 	}

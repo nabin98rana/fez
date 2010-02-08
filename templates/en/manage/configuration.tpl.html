@@ -430,7 +430,6 @@ function restoreDefaultColours(el)
 			  {include file="error_icon.tpl.html" field="app_cookie"}
 			</td>
   		  </tr>
-  		  
 		  <tr>
 			<th>Session timeout</th>
 			<td>
@@ -439,7 +438,14 @@ function restoreDefaultColours(el)
 			  {include file="error_icon.tpl.html" field="app_session_timeout"}
 			</td>
   		  </tr>
-  		  
+		  <tr>
+			<th>User Group Cache Table Expiry</th>
+			<td>
+			  <input type="text" name="app_user_group_cache_expiry" value="{$config_settings.app_user_group_cache_expiry|escape:"html"}" size="5" />
+			  <br />Time after which the user group cache table will be truncated, in days.
+			  {include file="error_icon.tpl.html" field="app_user_group_cache_expiry"}
+			</td>
+  		  </tr>  		  
   		  <tr>
 		    <th>Google Analytics ID</th>
 			<td>
