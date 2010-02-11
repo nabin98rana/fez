@@ -457,7 +457,7 @@ class RecordGeneral
 		return -1;
 	}
 
-	function addSearchKeyValueList($datastreamName, $datastreamDesc, $search_keys=array(), $values=array(), $removeCurrent=true) {
+	function addSearchKeyValueList($datastreamName, $datastreamDesc, $search_keys=array(), $values=array(), $removeCurrent=true, $history="was added based on Links AMR Service data") {
 
 		$xmlString = Fedora_API::callGetDatastreamContents($this->pid, $datastreamName, true);
 		if (is_array($xmlString) || $xmlString == "") {
@@ -494,7 +494,7 @@ class RecordGeneral
 				}
 				$historyDetail .= $hkey.": ".$hval;
 			}
-			$historyDetail .= " was added based on Links AMR Service data";
+			$historyDetail .= " " . $history;
 			echo 'PID: ' . $this->pid . ' - ' . $historyDetail."\n";
 			History::addHistory($this->pid, null, "", "", true, $historyDetail);
 			$this->setIndexMatchingFields();
