@@ -1022,7 +1022,7 @@ class XSD_HTML_Match
 		                    " . APP_TABLE_PREFIX . "xsd_display_mf_option
 		                 WHERE
 		                    mfo_fld_id=".$db->quote($fld_id, 'INTEGER')." AND
-		                    mfo_id=".$dv->quote($value, 'INTEGER');
+		                    mfo_id=".$db->quote($value, 'INTEGER');
 			try {
 				$res = $db->fetchOne($stmt);
 			}
