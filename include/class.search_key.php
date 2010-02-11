@@ -1327,6 +1327,9 @@ class Search_Key
 	 */
 	function createSearchKeyDB($sek_id)
 	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
 		$stmt = Search_Key::createSQL($sek_id);
 		if(!$stmt) {
 			return -2;
