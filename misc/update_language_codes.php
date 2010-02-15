@@ -31,7 +31,10 @@
 // |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>                     |
 // +----------------------------------------------------------------------+
 
+define(APP_LOGGING_ENABLED, false);
+
 include_once('../config.inc.php');
+
 include_once(APP_INC_PATH . 'class.language.php');
 include_once(APP_INC_PATH . "class.record.php");
 
@@ -216,7 +219,27 @@ $langMapping = array(
 	"eg" => array('eng'),
 	"eng and korean" => array('eng', 'kor'),
 	"italian; eng" => array('ita', 'eng'),
-	"eng, portugese" => array('eng', 'por')
+	"eng, portugese" => array('eng', 'por'),
+	"portugese" => array('por'),
+	"english" => array('eng'),
+	"EN" => array('eng'),
+	"en, fr, ch" => array('eng', 'fre', 'chi'),
+	"german" => array('ger'),
+	"En" => array('eng'),
+	"chinese" => array('chi'),
+	"eng & french" => array('eng', 'fre'),
+	"spanish" => array('spa'),
+	"english and chinese" => array('eng', 'chi'),
+	"eng; chinese" => array('eng', 'chi'),
+	"eng " => array('eng'),
+	"eng, French" => array('eng', 'fre'),
+	"polish" => array('pol'),
+	"ENGLISH" => array('eng'),
+	"jap" => array('jpn'),
+	"Engl" => array('eng'),
+	"fre; ned; eng" => array('fre', 'dut', 'eng'),
+	"french" => array('fre'),
+	"Fr" => array('fre')
 	);
 
 $query = "	
