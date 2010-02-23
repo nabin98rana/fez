@@ -1421,7 +1421,7 @@ class XSD_HTML_Match
 		                    " . $db->quote($_POST["field_type"]) . ",
 		                    " . $db->quote($_POST["order"]) . ",
 		                    " . $db->quote($_POST["validation_types"]) . ",
-		                    " . $db->quote($_POST["validation_maxlength"]) . ",
+		                    " . $db->quote($_POST["validation_maxlength"], 'INTEGER') . ",
 		                    " . $db->quote($enabled, 'INTEGER') . ",
 		                    " . $db->quote($indexed, 'INTEGER') . ",
 		                    " . $db->quote($required, 'INTEGER') . ",
