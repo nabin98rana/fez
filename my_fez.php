@@ -99,9 +99,8 @@ foreach ($search_keys as $skey => $svalue) {
 $pager_row  = $_GET['pager_row'];
 $rows       = $options['rows'];
 
-
-//if (empty($pager_row))  $pager_row = 0;
-//if (empty($rows))       $rows = APP_DEFAULT_PAGER_SIZE;
+if (empty($pager_row))  $pager_row = 0;
+if (empty($rows))       $rows = APP_DEFAULT_PAGER_SIZE;
 
 $urlDataOrderBy = array(
     'cat'           =>  $_GET['cat'],
