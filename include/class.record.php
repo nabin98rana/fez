@@ -3498,7 +3498,6 @@ class Record
 		    $result = Fedora_API::callIngestObject($foxml);
 		    
 		    if($result) {
-		    	Record::setIndexMatchingFields($pid);
 		    	//Citation::updateCitationCache($pid, "");
 		    	if(!empty($times_cited)) {
 		    		Record::updateThomsonCitationCount($pid, $times_cited);
@@ -3509,6 +3508,7 @@ class Record
 	    	    if( APP_SOLR_INDEXER == "ON" ) {
 					FulltextQueue::singleton()->add($pid);							
 				}
+				Record::setIndexMatchingFields($pid);
 		    }
 	    }	
 	    
