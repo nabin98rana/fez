@@ -239,7 +239,13 @@ $langMapping = array(
 	"Engl" => array('eng'),
 	"fre; ned; eng" => array('fre', 'dut', 'eng'),
 	"french" => array('fre'),
-	"Fr" => array('fre')
+	"Fr" => array('fre'),
+	"e" => array('eng'),
+	"end" => array('eng'),
+	"spn" => array('spa'),
+	"Eng." => array('eng'),
+	"Enlish" => array('eng'),
+	"chn" => array('chi')
 	);
 
 $query = "	

@@ -266,7 +266,7 @@ function toggleHideSecondaryLogin()
 </form>
 {/if}	
 {/if}
-{if $SHIB_SWITCH == "ON"}<div id="secondary-login-unhider" style="margin: 20px;"><a href="#" onclick="javascript:toggleHideSecondaryLogin(); document.getElementById('username').focus(); return false;">Non-{$app_short_org_name} login</a></div>{/if}
+{if $SHIB_SWITCH == "ON"}<div id="secondary-login-unhider" style="margin: 20px;"><a href="#" onclick="javascript:toggleHideSecondaryLogin(); document.getElementById('username').focus(); return false;">Non-{$app_short_org_name} login (eg Thesis Examiners click here to login instead)</a></div>{/if}
 
 <div id="secondary-login"{if $SHIB_SWITCH == "ON"} style="display: none;"{/if}>
 

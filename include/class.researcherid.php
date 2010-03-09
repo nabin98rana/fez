@@ -172,7 +172,7 @@ class ResearcherID
         
         header('content-type: application/xml; charset=utf-8');
         
-        $list = Author::getListByAutIDList(0, 25, 'aut_lname', $ids);
+        $list = Author::getListByAutIDList(0, 200, 'aut_lname', $ids);
         
         $tpl = new Template_API();
         $tpl_file = "researcher_profile_upload.tpl.html";

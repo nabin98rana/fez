@@ -399,6 +399,7 @@ class Doc_Type_XSD
 		$xpath = new DOMXPath($doc);
 		$xdocs = $xpath->query('/fez_xsds/fez_xsd');
 		$list = array();
+		$item = array();
 		foreach ($xdocs as $idx => $xdoc) {
 			$item['xsd_id'] = $db->quote($xdoc->getAttribute('xsd_id'));
 			$item['xsd_title'] = $db->quote($xdoc->getAttribute('xsd_title'));

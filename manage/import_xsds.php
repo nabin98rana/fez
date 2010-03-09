@@ -78,7 +78,6 @@ switch ($step) {
         copy($tmp_name, $filename);
       }
       $list = Doc_Type_XSD::listImportFile($filename);
-      //print_r($list);
       $tpl->assign('list', $list);
       $tpl->assign('filename', $filename);
     break;
