@@ -241,6 +241,17 @@ function restoreDefaultColours(el)
 			  {include file="error_icon.tpl.html" field="app_cloud_tag"}
 			</td>
   		  </tr>
+  		  <tr>
+		    <th>Record count</th>
+			<td>
+			  <select name="app_main_page_record_count">
+			    <option value="ON"{if $config_settings.app_main_page_record_count == "ON"} selected="selected"{/if}>On</option>
+				<option value="OFF"{if $config_settings.app_main_page_record_count == "OFF"} selected="selected"{/if}>Off</option>
+			  </select>
+			  <br />Whether or not to display the total number of records on the front page.
+			  {include file="error_icon.tpl.html" field="app_main_page_record_count"}
+			</td>
+  		  </tr>
 		  <tr>
 		    <th>Secure logins</th>
 			<td>

@@ -4180,4 +4180,39 @@ class Record
 		$currentDetails = Fedora_API::callGetDatastream($pid, $dsID);
 		Fedora_API::callModifyDatastreamByReference($pid, $dsID, $newLabel, $currentDetails['location'], $currentDetails['MIMEtype'], $currentDetails['versionable']);
 	}
+	
+
+
+
+	/**
+	 * Get the total number of published records in the repository
+	 *
+	 * @return int Number of published records
+	 **/
+	public function getNumPublishedRecords()
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "
+			SELECT
+				COUNT(*) AS record_count
+			FROM
+				" . APP_TABLE_PREFIX . "record_search_key
+			WHERE
+				rek_status = 2
+				AND rek_object_type = 3
+			";
+
+		try {
+			$res = $db->fetchCol($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return false;
+		}
+
+		return $res[0];
+	}
+	
 }

@@ -144,6 +144,11 @@ if (is_numeric(APP_CUSTOM_VIEW_ID)) {
 	$tpl->assign("search_keys", $search_keys);
 }
 
+$recCount = Record::getNumPublishedRecords();
+$recCount = number_format($recCount, 0, ".", " ");
+$recCount = str_replace(" ", html_entity_decode(",&nbsp;", ENT_COMPAT, "UTF-8"), $recCount);
+$tpl->assign("record_count", $recCount);
+
 $news = News::getList(5);       // Maximum of 5 news posts for front page.
 $news_count = count($news);
 $tpl->assign("news", $news);

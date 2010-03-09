@@ -37,6 +37,7 @@
 							<input type="submit" value="Search" id="submit-button" />
 						</div>
 				</form>
+				{if APP_MAIN_PAGE_RECORD_COUNT == 'ON'}<p class="advanced-search-link">{$smarty.const.APP_NAME} holds <b>{$record_count}</b> records - and counting!</p>{/if}
 				<p class="advanced-search-link">Use <a title="Advanced Search" href="{$rel_url}adv_search.php">Advanced Search</a> to search by multiple criteria.</p>
 				</div>
 			</div>
