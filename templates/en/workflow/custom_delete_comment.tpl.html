@@ -1,0 +1,36 @@
+
+{if $message != ""}
+{$message}
+{else}
+<script language="JavaScript">
+<!--
+{literal}
+function validateForm(f)
+{
+}
+{/literal}
+// -->
+</script>
+
+<input type="hidden" name="xdis_id" value="{$xdis_id}">
+<input type="hidden" name="cat" value="submit">
+<input type="hidden" name="pid" value="{$pid}">
+<input type="hidden" name="collection_pid" value="{$pid}">
+  <table>
+       <tr>
+          <td class="contentheader" colspan="2">
+            <b><img align="absmiddle" src="{$rel_url}images/scanner_32.jpg" border="0"> {$form_title}</b>
+          </td>
+        </tr>
+
+		<tr id="historyComment">
+				  <td width="150" bgcolor="{$cell_color}" class="default">
+					<b>Please enter a reason why you are deleting this object</b>
+				  </td>
+				  <td width="90%" bgcolor="{$light_color}">
+					<textarea name="historyDetail" cols="40" rows="10"></textarea>
+				</td>
+		</tr>
+        </table>             
+
+{/if}

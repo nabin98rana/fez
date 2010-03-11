@@ -17,7 +17,17 @@ function checkDeleteRecords(f)
     if (!confirm('The checked items will be deleted, are you sure?')) {
         return false;
     } else {
+	
+		// ask the user for a history comment
+		var historyComment = window.prompt("Please enter a reason for the bulk delete (leave blank for no comment)","");
     
+	 	textField = document.createElement('INPUT');
+	 	textField.type = 'hidden';
+	 	textField.setAttribute('value', historyComment);
+	 	textField.setAttribute('Name', 'historyComment');
+		textField.id = 'historyComment';
+	 	f.appendChild(textField);
+
         f.cat.value = 'delete_objects';
         f.action = rel_url + 'popup.php';
         f.target = '_popup';

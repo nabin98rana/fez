@@ -32,10 +32,16 @@
 // |          Rhys Palmer <r.rpalmer@library.uq.edu.au>                   |
 // +----------------------------------------------------------------------+
 
+$wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
+
 Record::markAsDeleted($this->pid);
 // need to add history here because the status object doesn't like to add history to a deleted object
-History::addHistory($this->pid, $this->wfl_details['wfl_id'], '', '', true);
-
+$historyComment = $wfstatus->getVar('historyDetail');
+if ($historyComment) {
+	History::addHistory($this->pid, $this->wfl_details['wfl_id'], '', '', true, '', $historyComment);
+} else {
+	History::addHistory($this->pid, $this->wfl_details['wfl_id'], '', '', true);
+}
             
 $cache = new fileCache($this->pid, 'pid='.$this->pid);
 $cache->poisonCache();

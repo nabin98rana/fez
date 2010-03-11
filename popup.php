@@ -203,6 +203,12 @@ switch ($cat)
 
     case 'delete_objects':
         {
+			// add a history comment if one has been included
+			$historyComment = $_REQUEST['historyComment'];
+			if (!$historyComment) {
+				$historyComment = null;
+			}
+
             // first delete all indexes about this pid
             $items = $_REQUEST['items'];
             if (empty($items)) { // is named pids on the list form
@@ -212,7 +218,7 @@ switch ($cat)
                 $rec_obj = new RecordObject($pid);
 				if ($rec_obj->canDelete()) {	    
 					$rec_obj->markAsDeleted();
-					History::addHistory($pid, null, '', '', true, 'Bulk Deleted');
+					History::addHistory($pid, null, '', '', true, 'Bulk Deleted', $historyComment);
 					
 					if ( APP_SOLR_INDEXER == "ON" ) {
 	                    FulltextQueue::singleton()->remove($pid);
