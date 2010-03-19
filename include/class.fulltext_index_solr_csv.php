@@ -455,7 +455,10 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 			}
 			$this->solr->deleteByMultipleIds($deletePids);
 			$this->solr->commit();
-			$this->solr->triggerUpdate();
+			
+			// MT: 20100319 commented out this as the function doesn't exist in the Solr Service class. 
+			// $this->solr->triggerUpdate();
+			
 /*			foreach ( $deletePids as $row) {
 				$this->removeByPid($pid);
 				//$this->removeByPid($row['ftq_pid']);
