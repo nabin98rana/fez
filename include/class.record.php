@@ -843,7 +843,8 @@ class Record
 				// do final check for cardinality before trying to insert/update an array of values in one to many tables
 				if (is_array($sek_value['xsdmf_value'])) {
 					$xsdDetails = XSD_HTML_Match::getDetailsByXSDMF_ID($sek_value['xsdmf_id']);
-					if ($xsdDetails['sek_cardinality'] == 0) {
+					$searchKeyDetails = Search_Key::getDetails($xsdDetails['xsdmf_sek_id']);
+					if ($searchKeyDetails['sek_cardinality'] == 0) {
 						$log->err("The cardinality of this value is 1-1 but it is in the 1-M data and contains multiple values. We cannot insert/update pid {$pid} for the {$sek_table} table with data: " . print_r($sek_value, true));
 						$ret = false;
 						continue;
