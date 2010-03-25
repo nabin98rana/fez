@@ -54,6 +54,46 @@ class Scopus
 	{
 				
 	}
+
+
+	/**
+	 * Method used to get the pid and scopus eid from the returned eid tagging table - only really meant for UQ consumption but might be interesting to some other Australian users.
+	 *
+	 * @access  public
+	 * @return  array The list of languages
+	 */
+	function getReturnedEIDTaggingList($page = 0, $max = 0) {
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		if (!is_numeric($page) || !is_numeric($max)) {
+			return false;
+		}
+		$limit = "";
+		if ($max != 0) {
+			$limit = "LIMIT ".$max." OFFSET ".($page * $max);
+		}
+
+		$stmt = "
+					SELECT
+						uq_pid, sco_eid
+					FROM
+						era_eid_returned_results
+					ORDER BY
+						uq_pid ASC
+		".$limit;
+		
+		try {
+			$res = $db->fetchAll($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return '';
+		}
+		
+		return $res;
+	}	
+
 		
 	/**
 	 * Retrieve cited by count information for a list of articles
