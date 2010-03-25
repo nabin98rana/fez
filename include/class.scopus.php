@@ -79,6 +79,7 @@ class Scopus
 						uq_pid, sco_eid
 					FROM
 						era_eid_returned_results
+					WHERE sco_eid != ''
 					ORDER BY
 						uq_pid ASC
 		".$limit;
