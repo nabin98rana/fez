@@ -2262,6 +2262,8 @@ class Auth
 			catch(Exception $ex) {
 				$log->err($ex);
 			}
+// remove the below join so the query would run fast again. The join was meant to improve performance by limiting the set but doesnt really.
+//                INNER JOIN ".$dbtp."auth_index2 ON argr_arg_id=authi_arg_id
 				
 			// test and insert matching rules for this user
 			$authStmt = "
@@ -2269,7 +2271,7 @@ class Auth
                 SELECT distinct argr_arg_id, ".$db->quote($usr_id, 'INTEGER')." 
                 FROM ".$dbtp."auth_rule_group_rules
                 INNER JOIN ".$dbtp."auth_rules ON argr_ar_id=ar_id
-                INNER JOIN ".$dbtp."auth_index2 ON argr_arg_id=authi_arg_id
+
                 AND 
                 (
                     (ar_rule='public_list' AND ar_value='1') 
