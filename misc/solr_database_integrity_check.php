@@ -95,25 +95,10 @@ function doFezSolrIntegrityChecks() {
 	$fezPidsQuery = "SELECT rek_pid FROM {$prefix}record_search_key";
 	$fezPids = $db->fetchCol($fezPidsQuery);
 
-	// grab all solr pids
-	$params['fl'] = 'id';
 	// find all items
 	$solrQuery = 'id:[* TO *]'; 
 	
-	// get a list of all pids that exist in solr
-	$usr_id = Auth::getUserID();
-	if (defined(APP_SOLR_SLAVE_HOST) && defined(APP_SOLR_SLAVE_READ) && (APP_SOLR_SLAVE_READ == "ON") && ($readOnly == true) && !is_numeric($usr_id)) {
-		$solrHost = APP_SOLR_SLAVE_HOST;
-	} else {
-		$solrHost = APP_SOLR_HOST;
-	}
-	$solrPort = APP_SOLR_PORT;
-	$solrPath = APP_SOLR_PATH;
-  
-	$solr = new Apache_Solr_Service($solrHost, $solrPort, $solrPath);
-	
-	$stmt = "SELECT * FROM {$prefix}record_search_key WHERE rek_pid = ?";
-	$response = $solr->search($solrQuery, 0, 999999, $params);
+	$response = doSolrSearch($solrQuery);
 	foreach ($response->response->docs as $doc) {
 		$solrPids[] = $doc->id;
 	}
@@ -155,10 +140,21 @@ function doSolrCitationChecks() {
 
 	$db->query("TRUNCATE TABLE {$prefix}integrity_solr_unspawned_citations");
 
-	// we want just the pid
-	$params['fl'] = 'id';
 	// find where the citation_t field has no value
 	$solrQuery = '-citation_t:[* TO *]'; 
+	$response = doSolrSearch($solrQuery);
+	
+	foreach ($response->response->docs as $doc) {
+		$db->insert("{$prefix}integrity_solr_unspawned_citations", array('pid'=>$doc->id));
+		$countInserted++;
+	}
+	echo "\tFound {$countInserted} pids that don't have citations in solr\n";
+	
+}
+
+// BUILD OUR OWN VERSION OF THE SOLR SEARCH SERVICE BECAUSE THE GENERAL VERSION HAS A 30 SECOND TIMEOUT
+// COPIED AND PASTED FROM Apache_Solr_Service AND MODIFIED AS NECESSARY
+function doSolrSearch($query) {
 	
 	$usr_id = Auth::getUserID();
 	if (defined(APP_SOLR_SLAVE_HOST) && defined(APP_SOLR_SLAVE_READ) && (APP_SOLR_SLAVE_READ == "ON") && ($readOnly == true) && !is_numeric($usr_id)) {
@@ -171,12 +167,36 @@ function doSolrCitationChecks() {
   
 	$solr = new Apache_Solr_Service($solrHost, $solrPort, $solrPath);
 	
-	$response = $solr->search($solrQuery, 0, 999999, $params);
-	foreach ($response->response->docs as $doc) {
-		$db->insert("{$prefix}integrity_solr_unspawned_citations", array('pid'=>$doc->id));
-		$countInserted++;
-	}
-	echo "\tFound {$countInserted} pids that don't have citations in solr\n";
+	$params['fl'] = 'id';
+	$params['version'] = Apache_Solr_Service::SOLR_VERSION;
+	$params['wt'] = Apache_Solr_Service::SOLR_WRITER;
+	$params['json.nl'] = $solr->getNamedListTreatment();
+	$params['q'] = $query;
+	$params['start'] = 0;
+	$params['rows'] = 999999;
+	$queryString = http_build_query($params, null, '&');
+
+	// because http_build_query treats arrays differently than we want to, correct the query
+	// string by changing foo[#]=bar (# being an actual number) parameter strings to just
+	// multiple foo=bar strings. This regex should always work since '=' will be urlencoded
+	// anywhere else the regex isn't expecting it
+	$queryString = preg_replace('/%5B(?:[0-9]|[1-9][0-9]+)%5D=/', '=', $queryString);
 	
+	$url = "http://{$solrHost}:{$solrPort}{$solr->getPath()}select?{$queryString}";
+	
+	$raw_response = Misc::processURL($url, null, null, null, null, 600);
+	
+	if(! $raw_response[0]) {
+		$log->err('No response from solr.. trying again.');			
+		unset($raw_response);
+		sleep(1);
+		$raw_response = Misc::processURL($url, null, null, null, null, 600);
+		if(! $raw_response[0]) {
+			throw new Exception(print_r($raw_response[1], true));
+		}			
+	}
+	$response = new Apache_Solr_Response($raw_response[0], null, true, true);
+
+	return $response;
 }
 
