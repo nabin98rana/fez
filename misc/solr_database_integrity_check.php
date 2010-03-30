@@ -48,6 +48,7 @@ function main() {
 	doFedoraFezIntegrityChecks();
 	doFezSolrIntegrityChecks();
 	doSolrCitationChecks();
+	doPidAuthChecksAndDelete();
 }
 
 /**
@@ -150,6 +151,30 @@ function doSolrCitationChecks() {
 	}
 	echo "\tFound {$countInserted} pids that don't have citations in solr\n";
 	
+}
+
+/**
+ * Does auth checks for pids, removes old items in the auth_index2* tables
+ *
+ * @return void
+ **/
+function doPidAuthChecksAndDelete() {
+	
+	$db = DB_API::get();
+	$log = FezLog::get();
+	$prefix = APP_TABLE_PREFIX;
+	$sql = "SELECT authi_pid FROM {$prefix}auth_index2 LEFT JOIN {$prefix}record_search_key ON rek_pid = authi_pid WHERE rek_pid IS NULL";
+	$pids = $db->fetchCol($sql);
+	if (count($pids) > 0) {
+		$result = AuthIndex::clearIndexAuth($pids);
+		if ($result) {
+			echo "\t" . count($pids) . " pids auth index were deleted\n";
+		} else {
+			echo "\t*** There was an error in clearing out the pids auth index\n";
+		}
+	} else {
+		echo "\tNo missing pids auth indexes were found\n";
+	}
 }
 
 // BUILD OUR OWN VERSION OF THE SOLR SEARCH SERVICE BECAUSE THE GENERAL VERSION HAS A 30 SECOND TIMEOUT
