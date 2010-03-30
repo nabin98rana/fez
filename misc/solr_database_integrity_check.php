@@ -62,22 +62,28 @@ function doFedoraFezIntegrityChecks() {
 	$prefix = APP_TABLE_PREFIX;
 	$countInserted = 0;
 
-	// get the fedora pids
-	$fedoraDeletedPids = Fedora_Direct_Access::fetchAllFedoraPIDs('', 'D');
+	try {
+		// get the fedora pids
+		$fedoraDeletedPids = Fedora_Direct_Access::fetchAllFedoraPIDs('', 'D');
 
-	$db->query("TRUNCATE TABLE {$prefix}integrity_index_ghosts");
+		$db->query("TRUNCATE TABLE {$prefix}integrity_index_ghosts");
 	
-	// for each pid, check if it exists in fez, and if so, put into the exceptions table
-	// note, we're checking for items earlier than today
-	$stmt = "SELECT * FROM {$prefix}record_search_key WHERE rek_pid = ? AND rek_created_date < DATE_SUB(NOW(), INTERVAL 1 DAY)";
-	foreach($fedoraDeletedPids as $fedoraPid) {
-		$result = $db->fetchOne($stmt, $fedoraPid['pid']);
-		if ($result == $fedoraPid['pid']) {
-			$db->insert("{$prefix}integrity_index_ghosts", array('pid'=>$result));
-			$countInserted++;
+		// for each pid, check if it exists in fez, and if so, put into the exceptions table
+		// note, we're checking for items earlier than today
+		$stmt = "SELECT * FROM {$prefix}record_search_key WHERE rek_pid = ? AND rek_created_date < DATE_SUB(NOW(), INTERVAL 1 DAY)";
+		foreach($fedoraDeletedPids as $fedoraPid) {
+			$result = $db->fetchOne($stmt, $fedoraPid['pid']);
+			if ($result == $fedoraPid['pid']) {
+				$db->insert("{$prefix}integrity_index_ghosts", array('pid'=>$result));
+				$countInserted++;
+			}
 		}
+		echo "\tFound {$countInserted} pids that are in marked as deleted in fedora and also in fez when they shouldn't be\n";
+	} catch(Exception $ex) {
+		echo "The following exception occurred: " . $ex->getMessage() . "\n";
+		$log->err($ex);
+		return false;
 	}
-	echo "\tFound {$countInserted} pids that are in fedora but not in fez\n";
 }
 
 /**
@@ -92,40 +98,45 @@ function doFezSolrIntegrityChecks() {
 	$countInsertedGhosts = 0;
 	$countInsertedUnspawned = 0;
 	
-	// grab all fez pids
-	$fezPidsQuery = "SELECT rek_pid FROM {$prefix}record_search_key";
-	$fezPids = $db->fetchCol($fezPidsQuery);
+	try {
+		// grab all fez pids
+		$fezPidsQuery = "SELECT rek_pid FROM {$prefix}record_search_key";
+		$fezPids = $db->fetchCol($fezPidsQuery);
 
-	// find all items
-	$solrQuery = 'id:[* TO *]'; 
+		// find all items
+		$solrQuery = 'id:[* TO *]'; 
 	
-	$response = doSolrSearch($solrQuery);
-	foreach ($response->response->docs as $doc) {
-		$solrPids[] = $doc->id;
-	}
-	unset($response);
+		$response = doSolrSearch($solrQuery);
+		foreach ($response->response->docs as $doc) {
+			$solrPids[] = $doc->id;
+		}
+		unset($response);
 
-	// truncate the two result tables
-	$db->query("TRUNCATE TABLE {$prefix}integrity_solr_ghosts");
-	$db->query("TRUNCATE TABLE {$prefix}integrity_solr_unspawned");
+		// truncate the two result tables
+		$db->query("TRUNCATE TABLE {$prefix}integrity_solr_ghosts");
+		$db->query("TRUNCATE TABLE {$prefix}integrity_solr_unspawned");
 	
-	// compare arrays, finding pids that exist in one but not the other
-	$pidsInFezNotInSolr = array_diff($fezPids, $solrPids);
-	$pidsInSolrNotInFez = array_diff($solrPids, $fezPids);
+		// compare arrays, finding pids that exist in one but not the other
+		$pidsInFezNotInSolr = array_diff($fezPids, $solrPids);
+		$pidsInSolrNotInFez = array_diff($solrPids, $fezPids);
 	
-	foreach($pidsInFezNotInSolr as $pid) {
-		$db->insert("{$prefix}integrity_solr_unspawned", array('pid'=>$pid));
-		$countInsertedUnspawned++;
+		foreach($pidsInFezNotInSolr as $pid) {
+			$db->insert("{$prefix}integrity_solr_unspawned", array('pid'=>$pid));
+			$countInsertedUnspawned++;
 		
-	}
-	foreach($pidsInSolrNotInFez as $pid) {
-		$db->insert("{$prefix}integrity_solr_ghosts", array('pid'=>$pid));
-		$countInsertedGhosts++;
-	}
+		}
+		foreach($pidsInSolrNotInFez as $pid) {
+			$db->insert("{$prefix}integrity_solr_ghosts", array('pid'=>$pid));
+			$countInsertedGhosts++;
+		}
 	
-	echo "\tFound {$countInsertedGhosts} pids that are in solr but not in fez\n";
-	echo "\tFound {$countInsertedUnspawned} pids that are in fez but not in solr\n";
-	
+		echo "\tFound {$countInsertedGhosts} pids that are in solr but not in fez\n";
+		echo "\tFound {$countInsertedUnspawned} pids that are in fez but not in solr\n";
+	} catch(Exception $ex) {
+		echo "The following exception occurred: " . $ex->getMessage() . "\n";
+		$log->err($ex);
+		return false;
+	}	
 }
 
 /**
@@ -139,17 +150,23 @@ function doSolrCitationChecks() {
 	$prefix = APP_TABLE_PREFIX;
 	$countInserted = 0;
 
-	$db->query("TRUNCATE TABLE {$prefix}integrity_solr_unspawned_citations");
+	try {
+		$db->query("TRUNCATE TABLE {$prefix}integrity_solr_unspawned_citations");
 
-	// find where the citation_t field has no value
-	$solrQuery = '-citation_t:[* TO *]'; 
-	$response = doSolrSearch($solrQuery);
+		// find where the citation_t field has no value
+		$solrQuery = '-citation_t:[* TO *]'; 
+		$response = doSolrSearch($solrQuery);
 	
-	foreach ($response->response->docs as $doc) {
-		$db->insert("{$prefix}integrity_solr_unspawned_citations", array('pid'=>$doc->id));
-		$countInserted++;
-	}
-	echo "\tFound {$countInserted} pids that don't have citations in solr\n";
+		foreach ($response->response->docs as $doc) {
+			$db->insert("{$prefix}integrity_solr_unspawned_citations", array('pid'=>$doc->id));
+			$countInserted++;
+		}
+		echo "\tFound {$countInserted} pids that don't have citations in solr\n";
+	} catch(Exception $ex) {
+		echo "The following exception occurred: " . $ex->getMessage() . "\n";
+		$log->err($ex);
+		return false;
+	}	
 	
 }
 
@@ -163,18 +180,26 @@ function doPidAuthChecksAndDelete() {
 	$db = DB_API::get();
 	$log = FezLog::get();
 	$prefix = APP_TABLE_PREFIX;
-	$sql = "SELECT authi_pid FROM {$prefix}auth_index2 LEFT JOIN {$prefix}record_search_key ON rek_pid = authi_pid WHERE rek_pid IS NULL";
-	$pids = $db->fetchCol($sql);
-	if (count($pids) > 0) {
-		$result = AuthIndex::clearIndexAuth($pids);
-		if ($result) {
-			echo "\t" . count($pids) . " pids auth index were deleted\n";
+	
+	try {
+		$sql = "SELECT authi_pid FROM {$prefix}auth_index2 LEFT JOIN {$prefix}record_search_key ON rek_pid = authi_pid WHERE rek_pid IS NULL";
+		$pids = $db->fetchCol($sql);
+		if (count($pids) > 0) {
+			$result = AuthIndex::clearIndexAuth($pids);
+			if ($result) {
+				echo "\t" . count($pids) . " pids auth index were deleted\n";
+			} else {
+				echo "\t*** There was an error in clearing out the pids auth index\n";
+			}
 		} else {
-			echo "\t*** There was an error in clearing out the pids auth index\n";
+			echo "\tNo missing pids auth indexes were found\n";
 		}
-	} else {
-		echo "\tNo missing pids auth indexes were found\n";
-	}
+	} catch(Exception $ex) {
+		echo "The following exception occurred: " . $ex->getMessage() . "\n";
+		$log->err($ex);
+		return false;
+	}	
+
 }
 
 // BUILD OUR OWN VERSION OF THE SOLR SEARCH SERVICE BECAUSE THE GENERAL VERSION HAS A 30 SECOND TIMEOUT
