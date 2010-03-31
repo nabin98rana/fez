@@ -548,8 +548,7 @@ class Record
 	 *
 	 * @access  public
 	 * @param   string $pid The persistent identifier of the record
-	 * @param   string $dsID The ID of the datastream (optional)
-	 * @param   string $dsDelete A flag to check if th e datastream_id should be kept
+	 * @param   bool $remove_solr should this record be also removed from solr (defaults to true)
 	 * @return  void
 	 */
 	function removeIndexRecord($pid, $remove_solr=true)
@@ -598,7 +597,7 @@ class Record
 			FulltextQueue::singleton()->triggerUpdate();
 		}
 
-		$cache = new fileCache($this->pid, 'pid='.$this->pid);
+		$cache = new fileCache($pid, 'pid='.$pid);
 		$cache->poisonCache();
 
 	}

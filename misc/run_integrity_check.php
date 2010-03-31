@@ -35,8 +35,22 @@ include_once('../config.inc.php');
 include_once(APP_INC_PATH.'/class.fedora_direct_access.php');
 include_once(APP_INC_PATH . "Apache/Solr/Service.php");
 
+
+// get the command line options (show warning message if nothing passed in)
+if( $argc != 2 ) {
+	displayUsage();
+    exit(-1);
+}
+
+$runType = strtolower($argv[1]);
+if (!in_array($runType, array('check','fix','both'))) {
+	echo "\nERROR: Invalid mode '{$runType}'\n";
+	displayUsage();
+	exit(-2);
+}
+
 echo "Script started: " . date("Y-m-d H:i:s") . "\n";
-main();
+main($runType);
 echo "Script Finished: " . date("Y-m-d H:i:s") . "\n";
 
 /**
@@ -44,11 +58,25 @@ echo "Script Finished: " . date("Y-m-d H:i:s") . "\n";
  *
  * @return void
  **/
-function main() {
-	doFedoraFezIntegrityChecks();
-	doFezSolrIntegrityChecks();
-	doSolrCitationChecks();
-	doPidAuthChecksAndDelete();
+function main($runType = "check") {
+	
+	// run checks
+	if ($runType == 'check' || $runType == 'both') {
+		doFedoraFezIntegrityChecks();
+		if (APP_SOLR_INDEXER == "ON") {
+			doFezSolrIntegrityChecks();
+			doSolrCitationChecks();
+		}
+		doPidAuthChecks();
+	}
+	// run deletes
+	if ($runType == 'fix' || $runType == 'both') {
+		doFedoraFezDelete();
+		if (APP_SOLR_INDEXER == "ON") {
+			doFezSolrDeletes();
+		}
+		doPidAuthDeletes();
+	}
 }
 
 /**
@@ -80,6 +108,31 @@ function doFedoraFezIntegrityChecks() {
 		}
 		echo "\tFound {$countInserted} pids that are in marked as deleted in fedora and also in fez when they shouldn't be\n";
 	} catch(Exception $ex) {
+		echo "The following exception occurred: " . $ex->getMessage() . "\n";
+		$log->err($ex);
+		return false;
+	}
+}
+
+/**
+ * Do the delete from fedora/solr 
+ *
+ * @return void
+ **/
+function doFedoraFezDelete() {
+	$log = FezLog::get();
+	$db = DB_API::get();
+	$prefix = APP_TABLE_PREFIX;
+	
+	try {
+		$sql = "SELECT pid FROM {$prefix}integrity_index_ghosts";
+		$pids = $db->fetchCol($sql);
+		foreach($pids as $pid) {
+			Record::removeIndexRecord($pid);
+		}
+		echo "\t" . count($pids) . " deleted from fez (and possibly solr as well)\n";
+		
+	} catch (Exception $ex) {
 		echo "The following exception occurred: " . $ex->getMessage() . "\n";
 		$log->err($ex);
 		return false;
@@ -140,6 +193,32 @@ function doFezSolrIntegrityChecks() {
 }
 
 /**
+ * Do the delete from fedora/solr 
+ *
+ * @return void
+ **/
+function doFezSolrDeletes() {
+	$log = FezLog::get();
+	$db = DB_API::get();
+	$prefix = APP_TABLE_PREFIX;
+	
+	try {
+		$sql = "SELECT pid FROM {$prefix}integrity_solr_ghosts";
+		$pids = $db->fetchCol($sql);
+		foreach($pids as $pid) {
+			Record::removeIndexRecord($pid);
+		}
+		echo "\t" . count($pids) . " deleted from solr\n";
+		
+	} catch (Exception $ex) {
+		echo "The following exception occurred: " . $ex->getMessage() . "\n";
+		$log->err($ex);
+		return false;
+	}
+}
+
+
+/**
  * checks to make sure that all solr items have citations
  *
  * @return void
@@ -171,26 +250,29 @@ function doSolrCitationChecks() {
 }
 
 /**
- * Does auth checks for pids, removes old items in the auth_index2* tables
+ * Does auth checks for pids
  *
  * @return void
  **/
-function doPidAuthChecksAndDelete() {
+function doPidAuthChecks() {
 	
 	$db = DB_API::get();
 	$log = FezLog::get();
 	$prefix = APP_TABLE_PREFIX;
 	
 	try {
+		$db->query("TRUNCATE TABLE {$prefix}integrity_pid_auth_ghosts");
+		
 		$sql = "SELECT authi_pid FROM {$prefix}auth_index2 LEFT JOIN {$prefix}record_search_key ON rek_pid = authi_pid WHERE rek_pid IS NULL";
 		$pids = $db->fetchCol($sql);
 		if (count($pids) > 0) {
-			$result = AuthIndex::clearIndexAuth($pids);
-			if ($result) {
-				echo "\t" . count($pids) . " pids auth index were deleted\n";
-			} else {
-				echo "\t*** There was an error in clearing out the pids auth index\n";
+			$pids = array_unique($pids);
+			$countInserted = 0;
+			foreach($pids as $pid) {
+				$db->insert("{$prefix}integrity_pid_auth_ghosts", array('pid'=>$pid));
+				$countInserted++;
 			}
+			echo "\tFound {$countInserted} auth rows for missing pids\n";
 		} else {
 			echo "\tNo missing pids auth indexes were found\n";
 		}
@@ -200,6 +282,35 @@ function doPidAuthChecksAndDelete() {
 		return false;
 	}	
 
+}
+
+/**
+ * Does the delete of the auths for pids that don't exist any more
+ *
+ * @return void
+ **/
+function doPidAuthDeletes() {
+	$db = DB_API::get();
+	$log = FezLog::get();
+	$prefix = APP_TABLE_PREFIX;
+	
+	try {
+		$sql = "SELECT pid FROM {$prefix}integrity_pid_auth_ghosts";
+		$pids = $db->fetchCol($sql);
+		if (count($pids) > 0) {
+			$result = AuthIndex::clearIndexAuth($pids);
+			if ($result) {
+				echo "\t" . count($pids) . " pids auth index were deleted\n";
+			} else {
+				echo "\t*** There was an error in clearing out the pids auth index\n";
+			}
+		}
+	} catch(Exception $ex) {
+		echo "The following exception occurred: " . $ex->getMessage() . "\n";
+		$log->err($ex);
+		return false;
+	}	
+	
 }
 
 // BUILD OUR OWN VERSION OF THE SOLR SEARCH SERVICE BECAUSE THE GENERAL VERSION HAS A 30 SECOND TIMEOUT
@@ -250,3 +361,17 @@ function doSolrSearch($query) {
 	return $response;
 }
 
+/**
+ * helper function to display the usage of this script
+ *
+ * @return void
+ **/
+function displayUsage() {
+	$prefix = APP_TABLE_PREFIX;
+	$scriptName = basename(__FILE__);
+	echo "\nUsage: php {$scriptName} [check|fix|both]\n";
+	echo " - check = Run the checks, output into the {$prefix}integrity_* tables\n";
+	echo " - fix = Fix the problems based on a previous run of this script with the 'check' option\n";
+	echo " - both = Run the checks, then the deletes\n";
+	echo "\n";
+}
