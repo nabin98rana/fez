@@ -890,6 +890,7 @@ class Record
 		Statistics::updateSummaryStatsOnPid($pid);
 		Google_Scholar::updateCitationCache($pid);
 		Record::updateThomsonCitationCountFromHistory($pid);
+		Record::updateScopusCitationCountFromHistory($pid);
 		
 		//
 		// KJ: update fulltext index
@@ -1524,7 +1525,7 @@ class Record
 
 		$last_page = $total_pages - 1;
 		$next_page = ($current_page >= $last_page) ? -1 : $current_page + 1;
-		$prev_page = ($current_page <= 0) ? -1 : $current_page - 1;		
+		$prev_page = ($current_page <= 0) ? -1 : $current_page - 1;
 		$current_last_row = $current_row + count($list);
 		if (($current_page - 10) > 0) {
 			$start_range = $current_page - 10;
@@ -2459,6 +2460,42 @@ class Record
 		}
         return $res;
 	}
+
+
+    /**
+	 * Returns Scopus citation count history for a pid
+	 * 
+	 * @param $pid The PID to get the citation count history for 
+	 * @return array The citation count history 
+	 */
+	public static function getScopusCitationCountHistory($pid, $limit = false, $order = 'ASC') 
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$dbtp =  APP_TABLE_PREFIX; // Database and table prefix
+		
+		$limit = ($limit) ? 'LIMIT '.$limit:null;
+		$order = ($order == 'ASC') ? 'ASC' : 'DESC';
+		
+		$stmt = "SELECT
+					sc_last_checked,sc_created,sc_count
+				 FROM
+		           " . $dbtp . "scopus_citations		         
+                 WHERE
+                    sc_pid = ".$db->quote($pid)."
+                 ORDER BY sc_created ".$order."
+                 $limit";        
+		try {
+			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return false;
+		}
+        return $res;
+	}
+
 	
 	/**
 	 * Method updates the Scopus citation count

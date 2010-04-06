@@ -85,7 +85,8 @@ class Scopus
 						uq_pid, sco_eid
 					FROM
 						era_eid_returned_results
-					WHERE sco_eid != ''
+					INNER JOIN ".APP_TABLE_PREFIX."record_search_key
+					WHERE sco_eid != '' 
 					ORDER BY
 						uq_pid ASC
 		".$limit;
@@ -100,6 +101,8 @@ class Scopus
 		
 		return $res;
 	}	
+
+
 
 		
 	/**
