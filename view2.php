@@ -468,7 +468,15 @@ if (!empty($pid) && $record->checkExists()) {
         $tpl->assign('title', $record->getTitle());
 
 		$tpl->assign("statsAbstract", Statistics::getStatsByAbstractView($pid));				
-		$tpl->assign("statsFiles", Statistics::getStatsByAllFileDownloads($pid));						
+		$tpl->assign("statsFiles", Statistics::getStatsByAllFileDownloads($pid));				
+		
+		// citations from thomson and scopus
+		$countThomsonCitations = Record::getSearchKeyIndexValue($pid, "Thomson Citation Count", false);
+		$countScopusCitations = Record::getSearchKeyIndexValue($pid, "Scopus Citation Count", false);
+		$countThomsonCitations = $countThomsonCitations == '' ? 0 : $countThomsonCitations;
+		$countScopusCitations = $countScopusCitations == '' ? 0 : $countScopusCitations;
+		$tpl->assign("citationsThomson", $countThomsonCitations);
+		$tpl->assign("citationsScopus", $countScopusCitations);
 
 		// Add view to statistics buffer
 		Statistics::addBuffer($pid);
