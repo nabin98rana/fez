@@ -43,8 +43,9 @@ ini_set("memory_limit", "256M");
 $limit = 50;
 Mail_Queue::send('pending', $limit);
 // handle emails that we tried to send before, but an error happened...
-$limit = 50;
-Mail_Queue::send('error', $limit);
+// 2010-04-07 MT: Commented out the retrying sending of error emails
+// $limit = 50;
+// Mail_Queue::send('error', $limit);
 
 Mail_Queue::clearOld();
 
