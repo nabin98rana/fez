@@ -473,10 +473,17 @@ if (!empty($pid) && $record->checkExists()) {
 		// citations from thomson and scopus
 		$countThomsonCitations = Record::getSearchKeyIndexValue($pid, "Thomson Citation Count", false);
 		$countScopusCitations = Record::getSearchKeyIndexValue($pid, "Scopus Citation Count", false);
+		$countGoogleCitations = Record::getSearchKeyIndexValue($pid, "GS Citation Count", false);
 		$countThomsonCitations = $countThomsonCitations == '' ? 0 : $countThomsonCitations;
 		$countScopusCitations = $countScopusCitations == '' ? 0 : $countScopusCitations;
+		$countGoogleCitations = $countGoogleCitations == '' ? 0 : $countGoogleCitations;
 		$tpl->assign("citationsThomson", $countThomsonCitations);
 		$tpl->assign("citationsScopus", $countScopusCitations);
+		$tpl->assign("citationsGoogle", $countGoogleCitations);
+		if ($countGoogleCitations > 0) {
+			$googleCitationsLink = Record::getSearchKeyIndexValue($pid, "GS Cited By Link", false);
+			$tpl->assign("citationsGoogleLink", $googleCitationsLink);
+		}
 
 		// Add view to statistics buffer
 		Statistics::addBuffer($pid);

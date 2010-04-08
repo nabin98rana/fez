@@ -248,7 +248,7 @@ class Google_Scholar
 
         $cites = Google_Scholar::getGoogleScholarCitationCountHistory($pid, 1);
         if (count($cites) == 1) {
-            Record::updateGoogleScholarCitationCount($pid, $cites['gs_count'], $cites['gs_link']);
+            Record::updateGoogleScholarCitationCount($pid, $cites[0]['gs_count'], $cites[0]['gs_link']);
         }
     }
 
@@ -303,7 +303,7 @@ class Google_Scholar
                    " . $dbtp . "google_scholar_citations
                  WHERE
                     gs_pid = ?
-                 ORDER BY gs_created ASC
+                 ORDER BY gs_created DESC
                  $limit";    
 		try {
 			$res = $db->fetchAll($stmt, array($pid), Zend_Db::FETCH_ASSOC);
