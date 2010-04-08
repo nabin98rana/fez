@@ -266,7 +266,8 @@ class Lister
             "searchKey".Search_Key::getID("Updated Date") => 'Updated Date',
             "searchKey".Search_Key::getID("Sequence") => 'Sequence',
             "searchKey".Search_Key::getID("Thomson Citation Count") => 'Thomson Citation Count',
-            "searchKey".Search_Key::getID("Scopus Citation Count") => 'Scopus Citation Count'
+            "searchKey".Search_Key::getID("Scopus Citation Count") => 'Scopus Citation Count',
+			"searchKey".Search_Key::getID("GS Citation Count") => "Google Scholar Citation Count"
         );
         
         

@@ -247,7 +247,7 @@
 		  </td>		
 	       <td align="left"{if $icon}{else} colspan="2"{/if} valign="middle" style="border-top:1px dashed #be87e9; width: 100%;">
             {if $list[i].rek_gs_citation_count != ""}
-            	<a href="{$list[i].rek_gs_cited_by_link}|escape:"html"}" title="Cited {$list[i].rek_gs_citation_count} times in Google Scholar">{$list[i].rek_gs_citation_count}</a>
+            	<a href="{$list[i].rek_gs_cited_by_link|escape:"html"}" title="Cited {$list[i].rek_gs_citation_count} times in Google Scholar">{$list[i].rek_gs_citation_count}</a>
             {elseif $list[i].rek_gs_citation_count == 0}
                {$list[i].rek_gs_citation_count}
             {else}
