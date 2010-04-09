@@ -34,6 +34,8 @@ include_once('../config.inc.php');
 include_once(APP_INC_PATH . 'class.google_scholar.php');
 include_once(APP_INC_PATH . "class.record.php");
 
+GLOBAL $last_random;
+
 $max = 50; 	// Max number of primary key IDs to retrieve at a time
 $sleep = 63; 	// Number of seconds to wait for between successive service calls 
 $options = array();

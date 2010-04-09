@@ -117,6 +117,7 @@ class Google_Scholar
 
 	function citationcounts_retrieve_scholar_results($query) {
 		//	        $account = user_load(array('uid'=>1));
+		GLOBAL $last_random;
 		$url = "http://scholar.google.com.au/scholar?q=".$query;
 //					echo "querying $url <br />\n"; ob_flush();
 //					exit;
@@ -131,24 +132,49 @@ class Google_Scholar
 
 		//	        $gs = (file_get_contents($url));
 
-		// set user agent
-			$useragent="Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.1) Gecko/20061204 Firefox/2.0.0.1";
+		
+		$interface = array("eth0");
+		//uncomment and change depending on how many IPs/interfaces you have bound to the server that you want to use
+//		$interface = array("eth0", "eth0:0", "eth0:1", "eth0:2", "eth0:3");
+		if (!is_numeric($last_random)) {
+			 $last_random = rand(0, (count($interface)-1));
+		}
+		//RANDOMIZER!
+		$x = rand(0, (count($interface)-1));
+		while ($x != $last_random) {
+			$x = rand(0, (count($interface)-1));
+		} 
+		$last_random = $x;
+
+
+
 //		$useragent="Linux Mozilla"; // "Engage cloaking device!" = Thanks to ePrints 3 for the inspiration for this line of code!
-
-
+		// set user agent
+		$useragent= array("Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.1) Gecko/20061204 Firefox/2.0.0.1",
+		"Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.2.3) Gecko/20100401 Firefox/3.6.3",
+		"Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0; SLCC1; .NET CLR 2.0.50727; InfoPath.2; .NET CLR 3.5.30729; .NET CLR 3.0.30729)",
+		"Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/532.5 (KHTML, like Gecko) Chrome/4.1.249.1045 Safari/532.5",
+		"Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_2; en-US) AppleWebKit/533.2 (KHTML, like Gecko) Chrome/5.0.342.9 Safari/533.2"
+		);
+		
+		$hai =  "Using ".$interface[$x]." as ".$useragent[$x]."\n";
+                $a = $useragent[$x];
+                $b = $interface[$x];
 		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_USERAGENT, $useragent);
+		curl_setopt($ch, CURLOPT_USERAGENT, $a);
+		curl_setopt($ch, CURLOPT_INTERFACE, $b);
 		curl_setopt($ch, CURLOPT_URL, $url);
-		curl_setopt ($ch, CURLOPT_RETURNTRANSFER, 1);
-		$gs = curl_exec ($ch);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		$gs = curl_exec($ch);
 		$info = curl_getinfo($ch);
 		if ($gs && $info['http_code'] == 200) {			
-			curl_close ($ch);
+			curl_close($ch);
 		} else {
 			echo 'Curl error'.curl_error($ch)."\n";
 			Error_Handler::logError(curl_error($ch)." ".$url,__FILE__,__LINE__);
-			curl_close ($ch);
+			curl_close($ch);
 		} 
+		//echo "hai = ".$hai; ob_flush(); exit;
 		$articles = Google_Scholar::citationcounts_parseScholar($gs);
 //					print_r($articles); ob_flush();
 		//	        $_SESSION['citations']['arts'] = $articles;
@@ -162,7 +188,9 @@ class Google_Scholar
 		 exit(); */
 		//return false;
 		//	        }
-		sleep(rand(43, 74)); // enforce a wait period before the next query
+		$sleep = (int)rand(43, 74)/count($interface);
+		//echo "sleeping for ".$sleep." seconds zzzZZZZ \n";
+		sleep($sleep); // enforce a wait period before the next query
 		return $articles;
 	}
 
@@ -170,8 +198,8 @@ class Google_Scholar
 		$articles = array();
 		$p = '/<div class=gs_r>(.*?)<\/font>  /s';
 		preg_match_all($p, $gs, $matches);
-//		echo "matches: \n";
-//					print_r($matches); flush();
+		//echo "matches: \n";
+		//			print_r($matches); flush();
 		foreach($matches[0] as $a) {
 			$article = array();
 
