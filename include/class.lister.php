@@ -266,9 +266,12 @@ class Lister
             "searchKey".Search_Key::getID("Updated Date") => 'Updated Date',
             "searchKey".Search_Key::getID("Sequence") => 'Sequence',
             "searchKey".Search_Key::getID("Thomson Citation Count") => 'Thomson Citation Count',
-            "searchKey".Search_Key::getID("Scopus Citation Count") => 'Scopus Citation Count',
-			"searchKey".Search_Key::getID("GS Citation Count") => "Google Scholar Citation Count"
+            "searchKey".Search_Key::getID("Scopus Citation Count") => 'Scopus Citation Count'
         );
+
+		if (Auth::isValidSession($_SESSION)) {
+			$sort_by_list["searchKey".Search_Key::getID("GS Citation Count")] = "Google Scholar Citation Count";
+		}
         
         
         if (($cat == 'search' || $cat == 'all_fields' || $cat == 'quick_filter') ) {        	
