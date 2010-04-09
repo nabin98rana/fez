@@ -118,7 +118,8 @@ class Google_Scholar
 	function citationcounts_retrieve_scholar_results($query) {
 		//	        $account = user_load(array('uid'=>1));
 		$url = "http://scholar.google.com.au/scholar?q=".$query;
-		//			echo "querying $url <br />\n";
+//					echo "querying $url <br />\n"; ob_flush();
+//					exit;
 		//	        $_SESSION['citations']['url'] = $url;
 
 		/*
@@ -132,7 +133,7 @@ class Google_Scholar
 
 		// set user agent
 			$useragent="Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.1) Gecko/20061204 Firefox/2.0.0.1";
-		//$useragent="Linux Mozilla"; // "Engage cloaking device!" = Thanks to ePrints 3 for the inspiration for this line of code!
+//		$useragent="Linux Mozilla"; // "Engage cloaking device!" = Thanks to ePrints 3 for the inspiration for this line of code!
 
 
 		$ch = curl_init();
@@ -147,9 +148,9 @@ class Google_Scholar
 			echo 'Curl error'.curl_error($ch)."\n";
 			Error_Handler::logError(curl_error($ch)." ".$url,__FILE__,__LINE__);
 			curl_close ($ch);
-		}
+		} 
 		$articles = Google_Scholar::citationcounts_parseScholar($gs);
-		//			print_r($articles);
+//					print_r($articles); ob_flush();
 		//	        $_SESSION['citations']['arts'] = $articles;
 		//if ($articles['status'] == 'scholarblock') {
 		//	        if (preg_match("We're sorry", $gs)) {
@@ -167,9 +168,10 @@ class Google_Scholar
 
 	function citationcounts_parseScholar($gs) {
 		$articles = array();
-		$p = "/<p class=g>(.*?)<\/font>  /s";
+		$p = '/<div class=gs_r>(.*?)<\/font>  /s';
 		preg_match_all($p, $gs, $matches);
-		//			print_r($matches);
+//		echo "matches: \n";
+//					print_r($matches); flush();
 		foreach($matches[0] as $a) {
 			$article = array();
 
@@ -182,29 +184,32 @@ class Google_Scholar
 			//	                $p = '|<span class=a>&#x25ba;</span>|';
 			//	                $a = preg_replace($p, '', $a);
 			//					echo $a;
-			$p1 = '|<p class=g><h3 class="r"><a href="([^"]+q=)?([^"]+)"[^>]*>([^<]+)</a>|';
-			$p2 = '|<p class=g>([^<]+)<font|';
+			$p1 = '|<h3><a href="([^"]+q=)?([^"]+)"[^>]*>([^<]+)</a>|';
+			$p2 = '|<h3>([^<]+)<font|';
 
 			preg_match_all($p1, $a, $matches1, PREG_SET_ORDER);
 			$article['title'] = $matches1[0][3];
 			if (!isset($article['title'])) {
 				preg_match_all($p2, $a, $matches2, PREG_SET_ORDER);
 				$article['title'] = $matches2[0][1];
+			} else {
+//				print "found title ".$article['title']."\n"; flush();
 			}
 
 			$p = '|>Cited by ([0-9]+)<|';
 			preg_match($p, $a, $matches3);
 			$article['citations'] = $matches3[1];
+//			echo "found cited by ".$article['citations']."\n"; flush();
 			// href="/scholar?hl=en&lr=&ie=UTF-8&cites=2640258626553298920">Cited by 29
 			//	                $p = '|cites=([0-9]+)">Cited by |';
-			$p = '|&cites=([0-9]+)">Cited by |';
+			$p = '|cites=([0-9]+)&amp;.*">Cited by |';
 			preg_match($p, $a, $matches4);
 			if (is_numeric($matches4[1])) {
 				$article['citations_link'] = "http://scholar.google.com.au/scholar?hl=en&lr=&cites=".$matches4[1];
 			} else {
 				$article['citations_link'] = "";
 			}
-
+//			echo "found citation link ".$matches4[1]."\n"; flush();
 
 			$articles[] = $article;
 		}
