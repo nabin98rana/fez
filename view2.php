@@ -237,11 +237,12 @@ if (!empty($pid) && $record->checkExists()) {
 			if (isset($searchKeyDetails['sek_meta_header']) && $searchKeyDetails['sek_meta_header']) {
 				
 				// split the metadata field out into the various types
-				$metaDataFields[$dis_field['xsdmf_id']] = array('fieldnames'=>explode('|', $searchKeyDetails['sek_meta_header']), 'type'=>$searchKeyDetails['sek_data_type'], 'lookup'=>$searchKeyDetails['sek_lookup_function']);
+				$metaDataFields[$dis_field['xsdmf_id']] = array('fieldnames'=>explode('|', $searchKeyDetails['sek_meta_header']), 'type'=>$searchKeyDetails['sek_data_type'], 'lookup'=>$searchKeyDetails['sek_lookup_function'], 'can_output_multiple'=>$searchKeyDetails['sek_cardinality'] == 0 ? false : true);
 			}
 		}
 
 		$combineDataFields = array('citation_authors', 'citation_keywords');
+		$fieldsOutputAlready = array();
 		
 		// for every metadata field
 		foreach($metaDataFields as $xsdmfId => $metaDataDetails) {
@@ -249,6 +250,11 @@ if (!empty($pid) && $record->checkExists()) {
 			if (isset($details[$xsdmfId]) && trim($details[$xsdmfId]) != '') {
 				// foreach metadata field name
 				foreach ($metaDataDetails['fieldnames'] as $fieldName) {
+					// make sure we're only outputting multiple values for fields that are supposed to output multiple values
+					if (!$metaDataDetails['can_output_multiple'] && in_array($fieldName, $fieldsOutputAlready)) {
+						$log->info("Field {$fieldName} is not a multiple field, but has been asked to be output multiple times. Ignoring the second output attempt");
+						continue;
+					}
 					// do special processing for fields that should be joined in one field, separated with a semicolon
 					if (in_array($fieldName, $combineDataFields)) {
 						$fieldsCombinedData = array();
@@ -268,6 +274,7 @@ if (!empty($pid) && $record->checkExists()) {
 									eval("\$fieldsCombinedData[\$index] = {$metaDataDetails['lookup']}('{$data}');");
 								}
 							}
+							$fieldsOutputAlready[$fieldName] = $fieldName;
 							$meta_head .= "<meta name=\"{$fieldName}\" content=\"" . htmlspecialchars(trim(implode('; ', $fieldsCombinedData)), ENT_QUOTES). "\" />\n";
 						}
 					} elseif ($fieldName == 'citation_pdf_url') {
@@ -277,6 +284,7 @@ if (!empty($pid) && $record->checkExists()) {
 								if (trim($filename) != '') {
 									$pathinfo = pathinfo($filename);
 									if (strtolower($pathinfo['extension']) == 'pdf') {
+										$fieldsOutputAlready[$fieldName] = $fieldName;
 										$meta_head .= "<meta name=\"{$fieldName}\" content=\"" . htmlspecialchars(trim(APP_BASE_URL ."eserv/{$pid}/{$filename}"), ENT_QUOTES). "\" />\n";
 									}
 								}
@@ -298,6 +306,7 @@ if (!empty($pid) && $record->checkExists()) {
 									if ($metaDataDetails['lookup'] != '') {
 										eval("\$data = {$metaDataDetails['lookup']}('{$data}');");
 									}
+									$fieldsOutputAlready[$fieldName] = $fieldName;
 									$meta_head .= "<meta name=\"{$fieldName}\" content=\"" . htmlspecialchars(trim($data), ENT_QUOTES). "\" />\n";
 								}
 							}
@@ -315,6 +324,7 @@ if (!empty($pid) && $record->checkExists()) {
 							if ($metaDataDetails['lookup'] != '') {
 								eval("\$data = {$metaDataDetails['lookup']}('{$data}');");
 							}
+							$fieldsOutputAlready[$fieldName] = $fieldName;
 							$meta_head .= "<meta name=\"{$fieldName}\" content=\"" . htmlspecialchars(trim($data), ENT_QUOTES). "\" />\n";
 						}
 					}
