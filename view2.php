@@ -226,29 +226,106 @@ if (!empty($pid) && $record->checkExists()) {
 			array_push($parent_relationships[$parent['rek_pid']], $parent['rek_display_type']);
 		} 
 		// Now generate the META Tag headers
-		$meta_head = '<meta name="DC.Identifier" scheme="URI" content="'.substr(APP_BASE_URL,0,-1).$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'"/>'."\n";
-		// Get some extra bits out of the record
-		foreach ($xsd_display_fields as $dis_key => $dis_field) {
-		    
-			// Look for the meta tag header items
-			if (($dis_field['xsdmf_enabled'] == 1) && ($dis_field['xsdmf_meta_header'] == 1) && (trim($dis_field['xsdmf_meta_header_name']) != "")) {
-				if (is_array($details[$dis_field['xsdmf_id']])) {
-					foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
-						if ($cdata != "") {
-							$meta_head .= '<meta name="'.$dis_field['xsdmf_meta_header_name'].'" content="'.htmlspecialchars(trim($cdata), ENT_QUOTES).'"/>'."\n";
+		// lets add the dublin core schema
+		$meta_head = '<link rel="schema.DC" href="http://purl.org/DC/elements/1.0/" />'."\n";
+		// and the identifier
+		$meta_head .= '<meta name="DC.Identifier" scheme="URI" content="'.APP_BASE_URL."view/{$pid}\" />\n";
+
+		// grab the metadata fields out of the search keys
+		foreach($xsd_display_fields as $dis_key => $dis_field) {
+			$searchKeyDetails = Search_Key::getDetailsByXSDMF_ID($dis_field['xsdmf_id']);
+			if (isset($searchKeyDetails['sek_meta_header']) && $searchKeyDetails['sek_meta_header']) {
+				
+				// split the metadata field out into the various types
+				$metaDataFields[$dis_field['xsdmf_id']] = array('fieldnames'=>explode('|', $searchKeyDetails['sek_meta_header']), 'type'=>$searchKeyDetails['sek_data_type'], 'lookup'=>$searchKeyDetails['sek_lookup_function']);
+			}
+		}
+
+		$combineDataFields = array('citation_authors', 'citation_keywords');
+		
+		// for every metadata field
+		foreach($metaDataFields as $xsdmfId => $metaDataDetails) {
+			// if there are details
+			if (isset($details[$xsdmfId]) && trim($details[$xsdmfId]) != '') {
+				// foreach metadata field name
+				foreach ($metaDataDetails['fieldnames'] as $fieldName) {
+					// do special processing for fields that should be joined in one field, separated with a semicolon
+					if (in_array($fieldName, $combineDataFields)) {
+						$fieldsCombinedData = array();
+						if (is_array($details[$xsdmfId])) {
+							foreach($details[$xsdmfId] as $fieldData) {
+								if (trim($fieldData) != '') {
+									$fieldsCombinedData[] = $fieldData;
+								}
+							}
+						} else {
+							$fieldsCombinedData[] = $details[$xsdmfId];
 						}
-					}
-				} else {
-					if ($details[$dis_field['xsdmf_id']] != "") {
-						$meta_head .= '<meta name="'.$dis_field['xsdmf_meta_header_name'].'" content="'.htmlspecialchars(trim($details[$dis_field['xsdmf_id']]), ENT_QUOTES).'"/>'."\n";
-						if ($dis_field['xsdmf_meta_header_name'] == "DC.Title") {
-							$tpl->assign("extra_title", trim($details[$dis_field['xsdmf_id']]));
+						if (count($fieldsCombinedData) > 0) {
+							// use the lookup function if one is specified
+							if ($metaDataDetails['lookup'] != '') {
+								foreach($fieldsCombinedData as $index => $data) {
+									eval("\$fieldsCombinedData[\$index] = {$metaDataDetails['lookup']}('{$data}');");
+								}
+							}
+							$meta_head .= "<meta name=\"{$fieldName}\" content=\"" . htmlspecialchars(trim(implode('; ', $fieldsCombinedData)), ENT_QUOTES). "\" />\n";
+						}
+					} elseif ($fieldName == 'citation_pdf_url') {
+						// do special processing for pdf file links
+						if (is_array($details[$xsdmfId])) {
+							foreach($details[$xsdmfId] as $filename) {
+								if (trim($filename) != '') {
+									$pathinfo = pathinfo($filename);
+									if (strtolower($pathinfo['extension']) == 'pdf') {
+										$meta_head .= "<meta name=\"{$fieldName}\" content=\"" . htmlspecialchars(trim(APP_BASE_URL ."eserv/{$pid}/{$filename}"), ENT_QUOTES). "\" />\n";
+									}
+								}
+							}
+						}
+					} else {
+						// otherwise, process the field normally
+						if (is_array($details[$xsdmfId])) {
+							foreach($details[$xsdmfId] as $data) {
+								if (trim($data) != '') {
+									if ($metaDataDetails['type'] == 'date') {
+										if ($fieldName == 'citation_date') {
+											$data = date('Y/m/d', strtotime($data)); // google wants this format for the date
+										} else {
+											$data = date('Y-m-d', strtotime($data)); // everyone else
+										}
+									}
+									// use the lookup function if one is specified
+									if ($metaDataDetails['lookup'] != '') {
+										eval("\$data = {$metaDataDetails['lookup']}('{$data}');");
+									}
+									$meta_head .= "<meta name=\"{$fieldName}\" content=\"" . htmlspecialchars(trim($data), ENT_QUOTES). "\" />\n";
+								}
+							}
+						} else {
+							if ($metaDataDetails['type'] == 'date') {
+								if ($fieldName == 'citation_date') {
+									$data = date('Y/m/d', strtotime($details[$xsdmfId])); // google wants this format for the date
+								} else {
+									$data = date('Y-m-d', strtotime($details[$xsdmfId])); // everyone else
+								}
+							} else {
+								$data = $details[$xsdmfId];
+							}
+							// use the lookup function if one is specified
+							if ($metaDataDetails['lookup'] != '') {
+								eval("\$data = {$metaDataDetails['lookup']}('{$data}');");
+							}
+							$meta_head .= "<meta name=\"{$fieldName}\" content=\"" . htmlspecialchars(trim($data), ENT_QUOTES). "\" />\n";
 						}
 					}
 				}
 			}
+		}
+
+		// get the created / updated and depositor info
+		foreach ($xsd_display_fields as $dis_key => $dis_field) {
+
 			if ($dis_field['xsdmf_enabled'] == 1) {
-				// get the created / updated and depositor info
 				if ($dis_field['xsdmf_element'] == "!created_date") {
 					if (!empty($details[$dis_field['xsdmf_id']])) {
 						if (is_array($details[$dis_field['xsdmf_id']])) {
