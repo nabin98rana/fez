@@ -76,8 +76,8 @@ if (element{/literal}{$search_keys[i].sek_id}{literal} != null) {
   {/if}
   {if $search_keys[i].sek_html_input == 'text'}
   		{if $search_keys[i].sek_data_type == 'int'}
-            	<input id="search_keys[{$search_keys[i].sek_id}]_name" type="text" name="search_keys[{$search_keys[i].sek_id}]_name" maxlength="255" size="30" />
-            	<input id="search_keys[{$search_keys[i].sek_id}]" type="hidden" name="search_keys[{$search_keys[i].sek_id}]" />
+            	<input id="search_keys[{$search_keys[i].sek_id}]_name" type="text" name="search_keys[{$search_keys[i].sek_id}]_name" maxlength="255" size="30" value="{$last_key}" />
+            	<input id="search_keys[{$search_keys[i].sek_id}]" type="hidden" name="search_keys[{$search_keys[i].sek_id}]" value="{$last_key}" />
             {else}
             	<input id="search_keys[{$search_keys[i].sek_id}]" type="text" name="search_keys[{$search_keys[i].sek_id}]" maxlength="255" size="30" value="{$last_key|escape:'html'}" />
             {/if}
