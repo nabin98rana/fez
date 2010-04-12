@@ -43,7 +43,7 @@
 class Sessions {
 
 	public function listActiveSessions($loggedInOnly = false) {
-
+		
 		$log = FezLog::get();
 		$db = DB_API::get();
 		
@@ -53,7 +53,7 @@ class Sessions {
 		}
 		
 		$stmt = '
-				SELECT * 
+				SELECT DISTINCT(user_id), session_id, session_ip, created, updated, session_data
 				FROM ' . APP_TABLE_PREFIX . 'sessions 
 				WHERE DATE_ADD(updated, INTERVAL ' . APP_SESSION_TIMEOUT . ' SECOND) > NOW()
 				' . $cond . '
