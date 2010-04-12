@@ -2,14 +2,30 @@
 <script type="text/javascript">
 	<!--
 
-	function toggleHistory(divID) {
-		var historyDiv = document.getElementById('history_' + divID);
-		if (historyDiv.style.display == "block") {
-			historyDiv.style.display = "none";
-		} else {
-			historyDiv.style.display = "block";	
+	function getHistory(userID) {
+		
+		// Look up the node we'll stick the text under.
+		var targetNode = document.getElementById('history_' + userID);
+		
+		// Unhide the div (which will contain the loading message)
+		targetNode.style.display = "block";
+		
+		var url = "/manage/sessions_history.php?user=" + userID + "";
+		
+		// The parameters to pass to xhrGet, the url, how to handle it, and the callbacks.
+		var xhrArgs = {
+			url: "/manage/sessions_history.php?user=" + userID,
+			handleAs: "text",
+			load: function(data) {
+				targetNode.innerHTML = data;
+			},
+			error: function(error) {
+				targetNode.innerHTML = "An unexpected error occurred: " + error;
+			}
 		}
-		return;
+		
+		// Call the asynchronous xhrGet
+		var deferred = dojo.xhrGet(xhrArgs);
 	}
 
 	-->
@@ -49,7 +65,7 @@
 						<td style="background: {$row_color}" class="default">
 							{$active_sessions[i].fullname}
 							&nbsp;&nbsp;&nbsp;
-							<a href="#" onclick="javascript:toggleHistory({$smarty.section.i.iteration});">&dArr; History</a>
+							<a href="#" onclick="javascript:getHistory({$active_sessions[i].user_id});">&dArr; History</a>
 						</td>
 						<td style="background: {$row_color}" class="default">
 							{if $active_sessions[i].session_ip != ''}
@@ -67,28 +83,7 @@
 					</tr>
 					<tr>
 						<td colspan="6">
-							<div id="history_{$smarty.section.i.iteration}" style="display: none;">
-								{section name="j" loop=$active_sessions[i].history}
-									{if $smarty.section.j.first}
-										<h2>Recent Activity</h2>
-										<table class="admin-list" style="margin-left: 20px;">
-											<tr>
-												<th>Date</th>
-												<th>PID</th>
-												<th>Description</th>
-											</tr>
-									{/if}
-									<tr>
-										<td>{$active_sessions[i].history[j].pre_date}</td>
-										<td><a href="../view/{$active_sessions[i].history[j].pre_pid}" onclick="javascript:window.open('../view/{$active_sessions[i].history[j].pre_pid}'); return false;" title="Click to view record {$active_sessions[i].history[j].pre_pid}">{$active_sessions[i].history[j].pre_pid}</a></td>
-										<td>{$active_sessions[i].history[j].pre_detail}</td>													
-									</tr>
-									{if $smarty.section.j.last}
-										</table>
-										<br />
-									{/if}
-								{/section}
-							</div>
+							<div id="history_{$active_sessions[i].user_id}" style="display: none; padding: 20px;">Loading ...</div>
 						</td>
 					</tr>
 				{/if}

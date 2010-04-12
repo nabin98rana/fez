@@ -77,7 +77,6 @@ class Sessions {
 			$userDetails = User::getDetailsByID($row['user_id']);
 			$row['fullname'] = $userDetails['usr_full_name'];
 			$row['username'] = $userDetails['username'];
-			$row['history'] = History::getRecentListingByUser($row['user_id']);
 		}
 
 		// Get distinct users

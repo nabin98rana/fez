@@ -1,0 +1,22 @@
+{section name="j" loop=$history}
+	{if $smarty.section.j.first}
+		<h2>Recent Activity</h2>
+		<table class="admin-list" style="margin-left: 20px;">
+			<tr>
+				<th>Date</th>
+				<th>PID</th>
+				<th>Description</th>
+			</tr>
+	{/if}
+	<tr>
+		<td>{$history[j].pre_date}</td>
+		<td><a href="../view/{$history[j].pre_pid}" onclick="javascript:window.open('../view/{$history[j].pre_pid}'); return false;" title="Click to view record {$history[j].pre_pid}">{$history[j].pre_pid}</a></td>
+		<td>{$history[j].pre_detail}</td>													
+	</tr>
+	{if $smarty.section.j.last}
+		</table>
+		<br />
+	{/if}
+{sectionelse}
+	There is no object history on file for this user.
+{/section}
