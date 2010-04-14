@@ -2181,6 +2181,11 @@ class Record
 			$log->err($ex);
 			return false;
 		}
+	
+		if( APP_SOLR_INDEXER == "ON" ) {
+			FulltextQueue::singleton()->add($pid);							
+		}
+		
         return true;
 	}
 	
