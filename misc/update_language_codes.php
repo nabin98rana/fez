@@ -244,7 +244,7 @@ $langMapping = array(
 	);
 
 $query = "	
-			SELECT DISTINCT(rek_language_pid)
+			SELECT DISTINCT(rek_language_pid) AS rek_pid
 			FROM fez_record_search_key_language
 			LEFT JOIN fez_language ON rek_language = lng_alpha3_bibliographic
 			WHERE lng_alpha3_bibliographic IS NULL
