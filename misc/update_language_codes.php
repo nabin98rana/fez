@@ -45,16 +45,11 @@ Basic usage information
 Manually run this query against your Fez database:
 
 	SELECT rek_language, COUNT(rek_language) AS instances
-	FROM fez_record_search_key, fez_record_search_key_language
-	WHERE fez_record_search_key.rek_pid = fez_record_search_key_language.rek_language_pid
-	AND rek_language NOT IN
-	(
-		SELECT lng_alpha3_bibliographic
-		FROM fez_language
-	)
-	
+	FROM fez_record_search_key_language
+	LEFT JOIN fez_language ON rek_language = lng_alpha3_bibliographic
+	WHERE lng_alpha3_bibliographic IS NULL
 	GROUP BY rek_language
-	ORDER BY instances DESC
+	ORDER BY COUNT(rek_language) DESC;
 	
 This will give a list of distinct languages that are not already in the appropriate format,
 as well as the number of times each occurs. Each 'language' (and its ISO-639-2 mapping) 
@@ -249,16 +244,12 @@ $langMapping = array(
 	);
 
 $query = "	
-			SELECT DISTINCT(fez_record_search_key.rek_pid)
-			FROM fez_record_search_key, fez_record_search_key_language
-			WHERE fez_record_search_key.rek_pid = fez_record_search_key_language.rek_language_pid
-			AND rek_language NOT IN
-			(
-				SELECT lng_alpha3_bibliographic
-				FROM fez_language
-			)
-			ORDER BY fez_record_search_key.rek_pid ASC;
-			";
+			SELECT DISTINCT(rek_language_pid)
+			FROM fez_record_search_key_language
+			LEFT JOIN fez_language ON rek_language = lng_alpha3_bibliographic
+			WHERE lng_alpha3_bibliographic IS NULL
+			ORDER BY rek_language_pid ASC;
+		";
 
 $db = DB_API::get();
 $log = FezLog::get();
