@@ -240,7 +240,10 @@ $langMapping = array(
 	"spn" => array('spa'),
 	"Eng." => array('eng'),
 	"Enlish" => array('eng'),
-	"chn" => array('chi')
+	"chn" => array('chi'),
+	"Chil" => array('spa'),
+	"chin" => array('chi'),
+	"german" => array('ger')
 	);
 
 $query = "	
