@@ -1213,27 +1213,9 @@ class XSD_DisplayObject
 			}
 			return $this->xsdmf_array[$pid];
 
-
-
-			//			$this->processXSDMF($pid, $createdDT);
-			//}
-			//return $this->xsdmf_array[$pid];
-
 		}
 		exit;
-		 
-		 /*
-		if (APP_XPATH_SWITCH != "ON") {
-			if (isset($this->xsdmf_array[$pid])) {
-				return;
-			}
-			$this->xsdmf_array[$pid] = array();
-			$this->xsdmf_current = &$this->xsdmf_array[$pid];
-			$this->xsdmf_array[$pid] = XSD_HTML_Match::getDetailsByXPATH($pid, $this->xdis_id);
-		} else {
-			$this->processXSDMF($pid, $createdDT);
-		}
-		return $this->xsdmf_array[$pid]; */
+
 	}
 
 	// To get the values for a specific xml datastream only (eg for when there are many FezACML for datastream values set so they don't get confused)

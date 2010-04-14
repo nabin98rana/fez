@@ -148,6 +148,46 @@ class Language
 	
 	
 	/**
+	 * Method used to get the english name of a specific language code.
+	 *
+	 * @access  public
+	 * @param   string $lng_code The language code
+	 * @return  string The english name of the language
+	 */
+	function getTitle($lng_code)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		if(empty($lng_code)) {
+			return "";
+		}
+
+		$stmt = "SELECT
+                    lng_english_name
+                 FROM
+                    " . APP_TABLE_PREFIX . "language
+                 WHERE
+                    lng_alpha3_bibliographic = " . $db->quote($lng_code, 'STRING');
+        
+		try {
+			$res = $db->fetchRow($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return '';
+		}
+		
+		if ($res['lng_english_name'] != '') {
+			return $res['lng_english_name'];
+		} else {
+			return $lng_code;
+		}
+	}
+	
+	
+	
+	/**
 	 * Method used to update the details of the language.
 	 *
 	 * @access  public

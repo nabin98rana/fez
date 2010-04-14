@@ -174,6 +174,17 @@ class RecordView {
 						}
 					}
 				}
+				if ($dis_field['sek_title'] == "Language") {
+					if (!empty($details[$dis_field['xsdmf_id']])) {
+						if (is_array($details[$dis_field['xsdmf_id']])) {
+							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
+								$details[$dis_field['xsdmf_id']][$ckey] = Language::getTitle($cdata);
+							}
+						} else {
+							$details[$dis_field['xsdmf_id']] = Language::getTitle($details[$dis_field['xsdmf_id']]);
+						}
+					}
+				}
 				if ($dis_field["xsdmf_use_parent_option_list"] == 1 && is_array($parent_relationships)) {
 					// if the display field inherits this list from a parent then get those options
 					// Loop through the parents
