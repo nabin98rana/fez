@@ -460,6 +460,7 @@ class RecordGeneral
 	function addSearchKeyValueList($datastreamName, $datastreamDesc, $search_keys=array(), $values=array(), $removeCurrent=true, $history="was added based on Links AMR Service data") {
 
 		$xmlString = Fedora_API::callGetDatastreamContents($this->pid, $datastreamName, true);
+//echo $xmlString." here \n";
 		if (is_array($xmlString) || $xmlString == "") {
 			echo "\n**** PID ".$this->pid." without a ".$datastreamName." datastream was found, this will need content model changing first **** \n";
 			return -1;
@@ -510,11 +511,9 @@ class RecordGeneral
 		$newXML = "";
 		$xdis_id = $this->getXmlDisplayId();
 		$xpath_query = XSD_HTML_Match::getXPATHBySearchKeyTitleXDIS_ID($sek_title, $xdis_id);
-
                 if (empty($value)) {
                   return false;
                 } 
-
 		if (!$xpath_query) {
 			echo "\n**** PID ".$this->pid." has no search key ".$sek_title." so it will need content model changing first **** \n";
 			return false;
@@ -539,7 +538,7 @@ class RecordGeneral
 		$attributeValue = substr($attribute, $attributeValueStartPos, ($attributeValueEndPos - $attributeValueStartPos));
 		$attributeValue = str_replace("'", "", $attributeValue);
 
-		if ( $removeCurrent ) {		
+		if ( $removeCurrent && (substr($element, 0, 1) != "@") ) {		
 			foreach ($fieldNodeList as $fieldNode) { // first delete all the isMemberOfs
 				$parentNode = $fieldNode->parentNode;
                 $parentNode->removeChild($fieldNode);
@@ -547,7 +546,7 @@ class RecordGeneral
 		}
 		// If no existing one is found, add to the parent (will error currently if the xpath parent doesn't exist either, but thats unusual)
 		if (is_null($parentNode)) {
- echo "\n parent pre element query is $pre_element \n";
+// echo "\n parent pre element query is $pre_element \n";
 			$parentNodeList = $xpath->query($pre_element);
 			foreach ($parentNodeList as $fieldNode) {
 				$parentNode = $fieldNode;
