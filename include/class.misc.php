@@ -4001,7 +4001,7 @@ class Misc
 	    }
 	    $mods['identifier_isi_loc'] = $record->ut;
 	    $mods['identifier_isbn'] = $record->isbn;
-		$mods['language'] = $record->languages->primarylang;
+		$mods['language'] = Language::resolveWoSLanguage($record->languages->primarylang);
 		$mods['genre'] = $doc_type_mapping[$doc_type][0];
 		$mods['genre_type'] = $doc_type_mapping[$doc_type][1];
 		    

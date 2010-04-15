@@ -307,5 +307,68 @@ class Language
 		}
 		return 1;
 	}
+	
+	
+	
+	/**
+	 * Method used to resolve an ETSI language to an internal ISO 639 language code.
+	 *
+	 * @access  public
+	 * @param   string $lang The WoS language
+	 * @return  string The corresponding ISO 639 language code
+	 */
+	function resolveWoSLanguage($lang)
+	{
+		$lookup = array(
+				"Afrikaans" => "afr",
+				"Arabic" => "ara",
+				"Bengali" => "ben",
+				"Bulgarian" => "bul",
+				"Byelorussian" => "bel",
+				"Catalan" => "cat",
+				"Chinese" => "chi",
+				"Croatian" => "hrv",
+				"Czech" => "cze",
+				"Danish" => "dan",
+				"Dutch" => "dut",
+				"English" => "eng",
+				"Estonian" => "est",
+				"Finnish" => "fin",
+				"Flemish" => "dut",
+				"French" => "fre",
+				"Gaelic" => "gla",
+				"Galician" => "glg",
+				"Georgian" => "geo",
+				"German" => "ger",
+				"Greek" => "gre",
+				"Hebrew" => "heb",
+				"Hungarian" => "hun",
+				"Icelandic" => "ice",
+				"Italian" => "ita",
+				"Japanese" => "jpn",
+				"Korean" => "kor",
+				"Latin" => "lat",
+				"Macedonian" => "mac",
+				"Multi-Language" => "mul",
+				"Norwegian" => "nor",
+				"Persian" => "per",
+				"Polish" => "pol",
+				"Portuguese" => "por",
+				"Provencal" => "oci",
+				"Rumanian" => "rum",
+				"Russian" => "rus",
+				"Serbian" => "srp",
+				"Serbo-Croatian" => "srp",
+				"Slovak" => "slo",
+				"Slovene" => "slv",
+				"Spanish" => "spa",
+				"Swedish" => "swe",
+				"Turkish" => "tur",
+				"Ukrainian" => "ukr",
+				"Welsh" => "wel"
+			);
+
+		return $lookup[$lang];
+	}
 
 }
