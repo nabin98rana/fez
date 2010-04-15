@@ -368,7 +368,7 @@ class Language
 				"Welsh" => "wel"
 			);
 
-		return $lookup[$lang];
+		return $lookup[trim($lang)];
 	}
 
 }
