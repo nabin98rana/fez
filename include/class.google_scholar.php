@@ -91,6 +91,8 @@ class Google_Scholar
 		if (count($articles) > 0) {
 			$article = $articles[0];
 			$curtitle = trim(str_replace("&hellip;", "", $article['title']));
+                        echo Google_Scholar::citationcounts_normtitle($title); echo " vs returned \n";
+                        echo Google_Scholar::citationcounts_normtitle($curtitle); echo "\n";
 			if (
 				(strpos(Google_Scholar::citationcounts_normtitle($title), Google_Scholar::citationcounts_normtitle($curtitle))!==FALSE) or
 				(strpos(Google_Scholar::citationcounts_normtitle($querytitle), Google_Scholar::citationcounts_normtitle($curtitle))!==FALSE)
@@ -119,7 +121,7 @@ class Google_Scholar
 		//	        $account = user_load(array('uid'=>1));
 		GLOBAL $last_random;
 		$url = "http://scholar.google.com.au/scholar?q=".$query;
-//					echo "querying $url <br />\n"; ob_flush();
+					echo "\nquerying $url <br />\n"; ob_flush();
 //					exit;
 		//	        $_SESSION['citations']['url'] = $url;
 
@@ -133,15 +135,15 @@ class Google_Scholar
 		//	        $gs = (file_get_contents($url));
 
 		
-		$interface = array("eth0");
+//		$interface = array("eth0");
 		//uncomment and change depending on how many IPs/interfaces you have bound to the server that you want to use
-//		$interface = array("eth0", "eth0:0", "eth0:1", "eth0:2", "eth0:3");
+		$interface = array("eth0", "eth0:0", "eth0:1", "eth0:2", "eth0:3");
 		if (!is_numeric($last_random)) {
 			 $last_random = rand(0, (count($interface)-1));
 		}
 		//RANDOMIZER!
 		$x = rand(0, (count($interface)-1));
-		while ($x != $last_random) {
+		while ($x == $last_random) {
 			$x = rand(0, (count($interface)-1));
 		} 
 		$last_random = $x;
@@ -174,7 +176,11 @@ class Google_Scholar
 			Error_Handler::logError(curl_error($ch)." ".$url,__FILE__,__LINE__);
 			curl_close($ch);
 		} 
-		//echo "hai = ".$hai; ob_flush(); exit;
+		if (preg_match("We're sorry", $gs)) {
+                  echo "\n\n OH NOES!!! GOOGLE BLOCKED US!!!!!!!"; //could just sleep for 24hours on that IP..
+                  exit;
+                } 
+		echo $hai; ob_flush();
 		$articles = Google_Scholar::citationcounts_parseScholar($gs);
 //					print_r($articles); ob_flush();
 		//	        $_SESSION['citations']['arts'] = $articles;
@@ -201,8 +207,12 @@ class Google_Scholar
 		//echo "matches: \n";
 		//			print_r($matches); flush();
 		foreach($matches[0] as $a) {
+                        if (count($matches) > 1 && is_numeric($article['citations'])) {
+                          echo "returning because already found a count\n";
+                          return $articles;
+                        } 
 			$article = array();
-
+                         
 			$p = '|</?b>|';
 			$a = preg_replace($p, '', $a);
 			//					echo $a;
@@ -220,14 +230,42 @@ class Google_Scholar
 			if (!isset($article['title'])) {
 				preg_match_all($p2, $a, $matches2, PREG_SET_ORDER);
 				$article['title'] = $matches2[0][1];
+			        if (!isset($article['title'])) {
+                                  $p3 = '|<h3><span class=gs_ct[cu]{1}>.*<a href="([^"]+q=)?([^"]+)"[^>]*>([^<]+)<\/a><\/h3>|';
+//			          $p3 = '|<h3><span class=gs_ct[c|u]{1}>.*<a href="([^"]+q=)?([^"]+)"[^>]*>([^<]+)</a>|';
+			         // $p3 = '|<h3><span class=gs_ct[c|u]{1}>.*<a.*><b>(.+).*<\/a><\/h3>|';
+				  preg_match_all($p3, $a, $matches2, PREG_SET_ORDER);
+				  $article['title'] = $matches2[0][3];
+                                   
+			          if (!isset($article['title'])) {
+			            $p4 = '|<h3><span class=gs_ctu>\[CITATION\]<\/span>(.+)<\/h3|';
+				    preg_match_all($p4, $a, $matches2, PREG_SET_ORDER);
+				    $article['title'] = $matches2[0][1];
+                                    if (!isset($article['title'])) {
+                                      echo "could not find title :( \n";
+                                      echo $a."\n";
+                                    } else {
+				      print "found title BURIED by CITATION tag ".$article['title']."\n"; flush();
+                                    }
+                                  } else {
+				   print "found title BURIED by HTML tag ".$article['title']."\n"; flush();
+                                  }
+			        } else {
+				   print "found title ".$article['title']."\n"; flush();
+			        }
 			} else {
-//				print "found title ".$article['title']."\n"; flush();
+				print "found title ".$article['title']."\n"; flush();
 			}
 
 			$p = '|>Cited by ([0-9]+)<|';
 			preg_match($p, $a, $matches3);
 			$article['citations'] = $matches3[1];
-//			echo "found cited by ".$article['citations']."\n"; flush();
+                        if (!is_numeric($article['citations'])) { //if none found then set as 0 so it goes into the index as checked
+			  echo "no citation counts found so setting as zero \n"; flush();
+                          $article['citations'] = 0;
+                        } else {
+			  echo "found cited by ".$article['citations']."\n"; flush();
+                        }
 			// href="/scholar?hl=en&lr=&ie=UTF-8&cites=2640258626553298920">Cited by 29
 			//	                $p = '|cites=([0-9]+)">Cited by |';
 			$p = '|cites=([0-9]+)&amp;.*">Cited by |';
@@ -237,7 +275,7 @@ class Google_Scholar
 			} else {
 				$article['citations_link'] = "";
 			}
-//			echo "found citation link ".$matches4[1]."\n"; flush();
+			echo "found citation link ".$matches4[1]."\n"; flush();
 
 			$articles[] = $article;
 		}
