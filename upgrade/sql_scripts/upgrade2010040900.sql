@@ -1,6 +1,6 @@
 -- clearing some meta headers that shouldn't be set
-UPDATE %TABLE_PREFIX%search_key SET sek_meta_header = NULL WHERE sek_id = 'core_11'; -- display type
-UPDATE %TABLE_PREFIX%search_key SET sek_meta_header = NULL WHERE sek_id = 'core_84'; -- scopus id (should be null instead of 0)
+UPDATE %TABLE_PREFIX%search_key SET sek_meta_header = NULL WHERE sek_id = 'core_11';
+UPDATE %TABLE_PREFIX%search_key SET sek_meta_header = NULL WHERE sek_id = 'core_84'; 
 -- adding the google scholar citations to existing meta headers
 UPDATE %TABLE_PREFIX%search_key SET sek_meta_header = 'DC.Title|citation_title' WHERE sek_id = 'core_2';
 UPDATE %TABLE_PREFIX%search_key SET sek_meta_header = 'DC.Publisher|citation_publisher' WHERE sek_id = 'core_29';
