@@ -167,6 +167,7 @@ class Search_Key
 					sek_fez_variable,
 					sek_lookup_function,
 					sek_suggest_function,
+					sek_derived_function,
 					sek_smarty_variable ";
 		if (is_numeric($_POST["sek_cvo_id"])) {
 			$stmt .= " ,sek_cvo_id ";
@@ -200,6 +201,7 @@ class Search_Key
                     " . $db->quote($_POST["sek_fez_variable"]) . ",
 					" . $db->quote($_POST["sek_lookup_function"]) . ",
 					" . $db->quote($_POST["sek_suggest_function"]) . ",
+					" . $db->quote($_POST["sek_derived_function"]) . ",
                     " . $db->quote($_POST["sek_smarty_variable"]);
 		if (is_numeric($_POST["sek_cvo_id"])) {
 			$stmt .=  "," . $db->quote($_POST["sek_cvo_id"], 'INTEGER');
@@ -332,6 +334,7 @@ class Search_Key
                     sek_smarty_variable = " . $db->quote($_POST["sek_smarty_variable"]) . ",
 					sek_lookup_function = " . $db->quote($_POST["sek_lookup_function"]) . ",
 					sek_suggest_function = " . $db->quote($_POST["sek_suggest_function"]) . ",
+					sek_derived_function = " . $db->quote($_POST["sek_derived_function"]) . ",
 					sek_data_type = " . $db->quote($_POST["sek_data_type"]) . ",
                     sek_fez_variable = " . $db->quote($_POST["sek_fez_variable"]);
 		if (is_numeric($_POST["sek_cvo_id"])) {
