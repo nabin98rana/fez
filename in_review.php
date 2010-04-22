@@ -56,6 +56,10 @@ if (!array_key_exists("searchKeycore_9", $options)) {
     $options["noOrder"] = 0;
 }
 
+if (isset($_REQUEST['sort_by'])) {
+	$sort_by = $_REQUEST['sort_by'];
+}
+
 if (empty($sort_by) || ($sort_by == "searchKey0" && empty($options['searchKey0']))) {
     $sort_by = "searchKey".Search_Key::getID("Title");
 }

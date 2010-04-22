@@ -32,7 +32,6 @@
 // |          Rhys Palmer <r.palmer@library.uq.edu.au>                    |
 // +----------------------------------------------------------------------+
 
-
 include_once("config.inc.php");
 include_once(APP_INC_PATH . "db_access.php");
 
@@ -56,9 +55,15 @@ if (!array_key_exists("searchKeycore_9", $options)) {
 	$options["noOrder"] = 0;
 }
 
+// set up the $sort_by var if necessary (makes rest of page work for sorting)
+if (isset($_REQUEST['sort_by'])) {
+	$sort_by = $_REQUEST['sort_by'];
+}
+
 if (empty($sort_by) || ($sort_by == "searchKey0" && empty($options['searchKey0']))) {
 	$sort_by = "searchKey".Search_Key::getID("Title");
 }
+
 
 $collection_assoc_list = array();
 $collection_assoc_list = Collection::getEditListAssoc();
@@ -99,6 +104,7 @@ foreach ($search_keys as $skey => $svalue) {
 $pager_row  = $_GET['pager_row'];
 $rows       = $options['rows'];
 
+
 if (empty($pager_row))  $pager_row = 0;
 if (empty($rows))       $rows = APP_DEFAULT_PAGER_SIZE;
 
@@ -134,7 +140,8 @@ if ($options["searchKey0"] != "" && ($_REQUEST["sort_by"] == "" || $options["sor
 	$options["sort_order"] = 0;	
 }
 
-$assigned_items = Record::getListing($options, array("Editor", "Approver"), $pager_row, $rows, $sort_by);
+$assigned_items = Record::getListing($options, array("Editor", "Approver"), $pager_row, $rows, $sort_by, false, false, array(), 'AND', false, false, true);
+
 Record::getParentsByPids($assigned_items['list']);
 
 $tpl->assign("bulk_workflows",          $bulk_workflows);
@@ -151,6 +158,7 @@ $tpl->assign("status_list",             Status::getAssocList());
 $tpl->assign('my_assigned_items_list',  $assigned_items['list']);
 $tpl->assign('items_info',              $assigned_items['info']);
 $tpl->assign('isApprover',              $_SESSION['auth_is_approver']);
-$tpl->assign("active_nav", 				"my_fez");
+
+// echo "<pre>Assigned Items: "; print_r($assigned_items); echo "</pre>\n"; // DEBUG
 
 $tpl->displayTemplate();

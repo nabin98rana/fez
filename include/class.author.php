@@ -1132,6 +1132,60 @@ class Author
 		return $res;
 	}
 
+	/**
+	 * Gets the first author's surname for a particular pid
+	 *
+	 * @return string
+	 **/
+	public function getFirstAuthorInDocument($pid)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$prefix = APP_TABLE_PREFIX;
+
+		$q = "SELECT rek_author FROM {$prefix}record_search_key_author WHERE rek_author_pid = ? AND rek_author_order = 1";
+		
+		try {
+			$res = $db->fetchOne($q, $pid);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return '';
+		}
+		return $res;
+	}
+	
+	/**
+	 * Gets the first author's full name for a particular pid (returns the name as a lowercase string without punctuation)
+	 *
+	 * @param string $pid
+	 * @return string
+	 **/
+	public function getFirstAuthorInFez($pid)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$prefix = APP_TABLE_PREFIX;
+
+		$q = "SELECT aut_lname, aut_fname FROM {$prefix}record_search_key_author_id JOIN {$prefix}author ON aut_id = rek_author_id ";
+		$q .= "WHERE rek_author_id_pid = ? AND rek_author_id_order = 1";
+		
+		try {
+			$res = $db->fetchRow($q, $pid);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return '';
+		}
+
+		if ($res['aut_lname']) {
+			return "{$res['aut_lname']}, {$res['aut_fname']}";
+		} else {
+			return '';
+		}
+	}
 
 	function getOrgStaffId($aut_id)
 	{

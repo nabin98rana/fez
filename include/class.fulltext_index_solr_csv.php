@@ -109,6 +109,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 			// $sekDetails["sek_adv_visible"] == 1 || (Custom_View::searchKeyUsedCview($sekDetails["sek_id"]) == 1))
 			// {
 				$fieldType = $this->mapType($sekDetails['sek_data_type']);
+				$isMultiple = $sekDetails['sek_cardinality'] != 0;
 
 				if ($sekDetails["sek_relationship"] > 0) {
 
@@ -118,7 +119,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 						'cardinality' => $sekDetails['sek_cardinality']
 						);
 						//$sekDetails["sek_title_db"];
-					$mtColumnsHeader[] = $this->getFieldName($sekDetails["sek_title_db"],$fieldType, true);
+					$mtColumnsHeader[] = $this->getFieldName($sekDetails["sek_title_db"],$fieldType, $isMultiple);
 					// Add year and decade to solr if its a date field so they can be faceted on
 					if ($fieldType == FulltextIndex::FIELD_TYPE_DATE) {
 						$mtColumnsHeader[] = $sekDetails["sek_title_db"]."_year_t";
@@ -138,7 +139,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
                         'name'  => "rek_".$sekDetails["sek_title_db"],
                         'type'  =>  $fieldType,
 					);
-					$singleColumnsHeader[] = $this->getFieldName($sekDetails["sek_title_db"],$fieldType, false);
+					$singleColumnsHeader[] = $this->getFieldName($sekDetails["sek_title_db"],$fieldType, $isMultiple);
 					if ($fieldType == FulltextIndex::FIELD_TYPE_DATE) {
 						$singleColumnsHeader[] = $sekDetails["sek_title_db"]."_year_t";
 						

@@ -904,6 +904,31 @@ class Search_Key
 	}
 
 	/**
+	 * Returns the list of functions that have derived functions associated with them
+	 *
+	 * @return array the search key details
+	 **/
+	public function getDerivedList()
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$prefix = APP_TABLE_PREFIX;
+		$stmt = "SELECT sek_id FROM {$prefix}search_key WHERE sek_derived_function IS NOT NULL";
+		try {
+			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return '';
+		}
+		if (empty($res)) {
+			return array();
+		}
+		return $res;
+	}
+
+	/**
 	 * Method used to get the details of a specific search key.
 	 *
 	 * @access  public

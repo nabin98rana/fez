@@ -44,6 +44,14 @@ $options = Pager::saveSearchParams();
 $bulk_workflows = WorkflowTrigger::getAssocListByTrigger("-1", 7); //get the bulk change workflows
 $bulk_search_workflows = WorkflowTrigger::getAssocListByTrigger("-1", WorkflowTrigger::getTriggerId('Bulk Change Search')); 
 
+// // set up the $sort_by var if necessary (makes rest of page work for sorting)
+if (isset($_REQUEST['sort_by'])) {
+	$sort_by = $_REQUEST['sort_by'];
+}
+if (empty($sort_by) || ($sort_by == "searchKey0" && empty($options['searchKey0']))) {
+	$sort_by = "searchKey".Search_Key::getID("Title");
+}
+
 $options["searchKey".Search_Key::getID("Status")] = Status::getID("In Creation");
 $options["searchKey".Search_Key::getID("Assigned User ID")] = Auth::getUserID();
 
@@ -53,7 +61,7 @@ $rows       = $_GET['rows'];
 if (empty($pager_row))  $pager_row = 0;
 if (empty($rows))       $rows = APP_DEFAULT_PAGER_SIZE;
 
-$items = Record::getListing($options, array("Editor", "Creator"), $pager_row, $rows);
+$items = Record::getListing($options, array("Editor", "Creator"), $pager_row, $rows, $sort_by);
 Record::getParentsByPids($items['list']);
 
 $tpl->assign('extra_title',             "My Work In Progress");

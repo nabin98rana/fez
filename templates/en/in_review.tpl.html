@@ -42,6 +42,16 @@ No items found
        <th class="default tableheader" nowrap valign="middle">
         Assigned Group
        </th>
+
+		<th class="default tableheader" nowrap valign="middle">
+			{if $options.sort_by == 'searchKeycore_90'}
+	       		<a href='{$page_url_order}&sort_by=searchKeycore_91&sort_order=0' title="Click to sort by first author in {$app_name}">1st Author in Document</a>
+	       	{elseif $options.sort_by == 'searchKeycore_91'}
+	       		<a href='{$page_url_order}&sort_by=searchKeycore_90&sort_order=0' title="Click to sort by first author in document">1st Author in {$app_name}</a>
+			{else}
+				<a href='{$page_url_order}&sort_by=searchKeycore_90&sort_order=0' title="Click to sort by first author in document">1st Author</a>
+	       {/if}
+		</th>
        
        <th class="default tableheader">
        {if $options.sort_order == "1"}
@@ -85,6 +95,17 @@ No items found
 	      {$list[i].rek_assigned_group_id_lookup[m]|escape}
 	      {/section}
        </td>   
+
+		<td class="default">
+		{* show the fez first author if sorting by that, otherwise, just show the first author *}
+			{if $options.sort_by == 'searchKeycore_90'}
+				{$list[i].rek_first_author_in_document_derived|escape}
+			{elseif $options.sort_by == 'searchKeycore_91'}
+				{$list[i].rek_first_author_in_fez_derived|escape}
+			{else}
+				{$list[i].rek_author[0]|escape}
+			{/if}
+		</td>
        
         <td class="default">
             <a href="{$rel_url}view/{$list[i].rek_pid|escape}"><img align="absmiddle" src="{$icon}" border="0"></a>

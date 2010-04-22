@@ -886,6 +886,56 @@ class Record
 			}
 		}
 		
+		/*
+		 *	Update Derived search keys
+		 */
+		
+		$derivedSearchKeys = Search_Key::getDerivedList();
+		foreach($derivedSearchKeys as $sekId) {
+			$sekDetails = Search_Key::getDetails($sekId);
+			$sekTable = $sekDetails['sek_title_db'];
+			$deriveFunction = $sekDetails['sek_derived_function'];
+			$cardinalityCol = ",rek_".$sekTable."_order";
+
+			if (trim($deriveFunction) != '') {
+
+				$stmt = "INSERT INTO " . APP_TABLE_PREFIX . "record_search_key_{$sekTable} (rek_{$sekTable}_pid, rek_{$sekTable}) VALUES ";
+
+				eval("\$derivedValue = $deriveFunction(\$pid);");
+
+				// only run the sql if there are derived values to be put into the database
+				if (is_array($derivedValue) || trim($derivedValue) != '') {
+					
+					// deal with an array of derived values
+					if (is_array($derivedValue) && count($derivedValue) && $sekDetails['sek_cardinality'] == 1) {
+						$sek_table = $sekDetails['sek_title_db'];
+						$cardinalityCol = ",rek_".$sek_table."_order";
+		
+						$cardinalityVal = 1;
+						$stmtVars = array();
+						foreach ($derivedValue as $value) {
+							$stmtVars[] = "(".$db->quote($pid).",".$db->quote($value).")";
+							$cardinalityVal++;
+						}
+						$stmt .= implode(",", $stmtVars);
+						unset($stmtVars);
+						
+					} elseif (trim($derivedValue) != '') {
+						// deal with a single derived value
+						$stmt .= "(".$db->quote($pid).",".$db->quote($derivedValue).")";
+					}
+				
+					try {
+						$db->exec($stmt);
+					}
+					catch(Exception $ex) {
+						$log->err($ex);
+						$ret = false;
+					}
+				}				
+			}
+		}
+		
 		Citation::updateCitationCache($pid, "");
 		Statistics::updateSummaryStatsOnPid($pid);
 		Google_Scholar::updateCitationCache($pid);
@@ -3336,18 +3386,19 @@ class Record
 		$suffix = "";
 		$sek_data_type = $sek_det['sek_data_type'];
 		$sek_relationship = $sek_det['sek_relationship'];
-		if (($sek_data_type == 'int') && ($sek_relationship == 0)) {
+		$sek_cardinality = $sek_det['sek_cardinality'];
+		if (($sek_data_type == 'int') && ($sek_cardinality == 0)) {
 			$suffix = "_i";
-		} elseif (($sek_data_type == 'int') && ($sek_relationship == 1)) {
+		} elseif (($sek_data_type == 'int') && ($sek_cardinality == 1)) {
 			$suffix = "_mi";
-		} elseif (($sek_data_type == 'varchar' || $sek_data_type == 'text') && $sek_relationship == 0) {
+		} elseif (($sek_data_type == 'varchar' || $sek_data_type == 'text') && $sek_cardinality == 0) {
 			$suffix = "_t";
 			if ($sort == 1) {
 				$suffix .= "_s";
 			} elseif($facet == 1) {
 				$suffix .= "_ft";
 			}
-		} elseif (($sek_data_type == 'varchar' || $sek_data_type == 'text') && $sek_relationship == 1) {
+		} elseif (($sek_data_type == 'varchar' || $sek_data_type == 'text') && $sek_cardinality == 1) {
 			$suffix = "_m";
 			if ($sort == 1) {
 				$suffix .= "s";
@@ -3356,9 +3407,9 @@ class Record
 			} else {
 				$suffix .= "t";
 			}
-		} elseif (($sek_data_type == 'date') && ($sek_relationship == 0)) {
+		} elseif (($sek_data_type == 'date') && ($sek_cardinality == 0)) {
 			$suffix = "_dt";
-		} elseif (($sek_data_type == 'date') && ($sek_relationship == 1)) {
+		} elseif (($sek_data_type == 'date') && ($sek_cardinality == 1)) {
 			$suffix = "_mdt";
 		}
 		return $suffix;
