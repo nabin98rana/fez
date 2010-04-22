@@ -158,7 +158,6 @@ $tpl->assign("status_list",             Status::getAssocList());
 $tpl->assign('my_assigned_items_list',  $assigned_items['list']);
 $tpl->assign('items_info',              $assigned_items['info']);
 $tpl->assign('isApprover',              $_SESSION['auth_is_approver']);
-
-// echo "<pre>Assigned Items: "; print_r($assigned_items); echo "</pre>\n"; // DEBUG
+$tpl->assign("active_nav", 				"my_fez");
 
 $tpl->displayTemplate();
