@@ -105,6 +105,7 @@ class Workflow_State
                     wfs_description,
                     wfs_auto,
                     wfs_wfb_id,
+					wfs_display_order,
                     wfs_start,
                     wfs_end,
                     wfs_transparent
@@ -114,6 +115,7 @@ class Workflow_State
                     " . $db->quote($params['wfs_description']) . ",
                     " . $db->quote($wfs_auto, 'INTEGER').",
                     " . $db->quote($wfs_wfb_id, 'INTEGER').",
+                    " . $db->quote($params['wfs_display_order'], 'INTEGER').",
                     " . $db->quote(Misc::checkBox(@$params['wfs_start']), 'INTEGER') . ",
                     " . $db->quote(Misc::checkBox(@$params['wfs_end']), 'INTEGER') . ",
                     " . $db->quote(Misc::checkBox(@$params['wfs_transparent']), 'INTEGER') . "
@@ -198,6 +200,7 @@ class Workflow_State
                     wfs_description=" . $db->quote($params['wfs_description']) . ",
                     wfs_auto=".$db->quote($wfs_auto,'INTEGER').",
                     wfs_wfb_id=".$db->quote($wfs_wfb_id,'INTEGER').",
+                    wfs_display_order=".$db->quote($params['wfs_display_order'],'INTEGER').",
                     wfs_start=".$db->quote(Misc::checkBox(@$params['wfs_start']),'INTEGER').",
                     wfs_end=".$db->quote(Misc::checkBox(@$params['wfs_end']),'INTEGER').",
                     wfs_transparent=".$db->quote(Misc::checkBox(@$params['wfs_transparent']),'INTEGER')."

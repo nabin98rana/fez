@@ -513,12 +513,12 @@ class WorkflowStatus {
 						$title = $next2['wfs_title'];
 					}
 					// note the wfs_id is that of the transparent state - only the title is treated differently
-					$button_list[] = array(
+					$button_list[$next['wfs_display_order']][] = array(
                             'wfs_id' => $next['wfs_id'],
                             'wfs_title' => $title
 					);
 				} else {
-					$button_list[] = array(
+					$button_list[$next['wfs_display_order']][] = array(
                             'wfs_id' => $next['wfs_id'],
                             'wfs_title' => $next['wfs_title']
 					);
@@ -526,12 +526,22 @@ class WorkflowStatus {
 			}
 		}
 		if ($this->wfs_details['wfs_end'] == 1) {
-			$button_list[] = array(
+			$button_list[999999][] = array(
                     'wfs_id' => -1,
                     'wfs_title' => $this->wfl_details['wfl_end_button_label']
 			);
 		}
-		return $button_list;
+
+		// sort the button list to give priority to display order items
+		ksort($button_list, SORT_NUMERIC);
+		$returnButtonList = array();
+		foreach ($button_list as $priority => $buttons) {
+			foreach($buttons as $button) {
+				$returnButtonList[] = $button;
+			}
+		}
+		
+		return $returnButtonList;
 	}
 
 	/**
