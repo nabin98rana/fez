@@ -140,7 +140,7 @@ if ($options["searchKey0"] != "" && ($_REQUEST["sort_by"] == "" || $options["sor
 	$options["sort_order"] = 0;	
 }
 
-$assigned_items = Record::getListing($options, array("Editor", "Approver"), $pager_row, $rows, $sort_by, false, false, array(), 'AND', false, false, true);
+$assigned_items = Record::getListing($options, array("Editor", "Approver"), $pager_row, $rows, $sort_by);
 
 Record::getParentsByPids($assigned_items['list']);
 
