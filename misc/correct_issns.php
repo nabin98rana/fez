@@ -36,32 +36,49 @@
 include_once('../config.inc.php');
 include_once(APP_INC_PATH . "class.record.php");
 
-$rawData = ISSNfix::getISBNandISSNlist();
-$misplacedISSNs = ISSNfix::extractISSNsFromISBNlist($rawData);
-
-print_r($misplacedISSNs);
+echo "Running ISSN clean-up utility ...\n";
 
 
-exit;
 
+$rawData = ISSNfix::getISBNandISSNlist(); /* All PIDs, with ISSN and ISBN data */
+$misplacedISSNs = ISSNfix::extractISSNsFromISBNlist($rawData); /* Just those PIDs with what appears to be ISSNs in the ISBN field - including normalised data*/
+$actualISSNs = ISSNfix::getActualISSNs($rawData); /* All PIDs with ISSNs, including normalised data */
 
-$actualISSNsISSNfix::getActualISSNs($rawData);
-$pidsWithBadISSNs = ISSNfix::extractISSNsFromISBNlist($rawData);
+$history = "Auto-moved suspected ISSN across from ISBN field";
 
-echo "LOL!";
+echo "Entering update run ...\n";
 
-exit;
+foreach ($misplacedISSNs as $isbnKey => $isbnVal) {
 
-
-foreach ($misplacedISSN as $issn) {
+	$record = new RecordGeneral($isbnKey);
 	
-	if (ISSNfix::isISSNinProperISSNfield($issn)) {
-		echo "* The ISSN " . $issn . " is already in the ISSN field ... skipping.\n";
+	echo "\nProcessing record " . $isbnKey . " ... \n";
+	echo "Suspected ISSN: " . $isbnVal['isbn_raw'] . "\n";
+	echo "Current ISSN: " . $actualISSNs[$isbnKey]['issn_raw'] . "\n";
+	
+	if (ISSNfix::doesCandidateExistInProperISSNfield($isbnVal['isbn_clean'], $actualISSNs[$isbnKey]['issn_clean'])) {
+		// A suspected ISSN was found in the ISBN field, but it appears to already be in the ISSN field too. We need to zero the ISBN field.
+		//echo "ISSN repeated in ISBN and ISSN fields. Clearing from ISBN field... ";
+		//$record->addSearchKeyValueList("MODS", "Metadata Object Description Schema", array("ISSN"), array(''), true, $history);
+		//echo "done.\n";
+		//exit;
 	} else {
-		echo "ISSN not already on file. ADD! *** IMPLEMENT ME ***"; // LKDB
-		// TODO - actually write a function that will do this.
+		if ($actualISSNs[$isbnKey]['issn_raw'] == '') {
+			// We have no ISSN yet. Add our new value.
+			echo "New ISSN, with no existing. Adding ... ";
+			/*$history2 = "Auto-cleared old ISBN field";*/
+			$record->addSearchKeyValueList("MODS", "Metadata Object Description Schema", array("ISSN"), array($isbnVal['isbn_raw']), true, $history);
+			/*$record->addSearchKeyValueList("MODS", "Metadata Object Description Schema", array("ISBN"), array(), true, $history2);*/
+			echo "done.\n";
+		} else {
+			// We have an EXISTING ISSN, not including our new value. Append!
+			echo "New ISSN, with existing ISSN data. Appending ... ";
+			$record->addSearchKeyValueList("MODS", "Metadata Object Description Schema", array("ISSN"), array($actualISSNs[$isbnKey]['issn_raw'] . "; " . $isbnVal['isbn_raw']), true, $history);
+			echo "done.\n";
+		}
 	}
 	
+	echo "\n";
 	
 }
 
@@ -70,122 +87,10 @@ exit;
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/***************************************************************************************************************
- ***************************************************************************************************************
- ***************************************************************************************************************/
-
-/* Build a list of PIDs */
-$pids = array();
-foreach ($result as $item) {
-	$pids[] = $item['rek_pid'];
-}
-
-$search_keys = array("Language"); // The search key we are updating
-
-foreach ($pids as $pid) {
-	echo $pid . "\n";
-	$record = new RecordGeneral($pid);
-	$languages = getLanguagesForPID($pid);
-	$mapping = $langMapping[$languages];
-	$history = "was updated based on automagic language mapping";
-	
-	if (count($mapping) == 0) {
-		echo "ERROR - no mappings found for " . $languages . "\n";
-	} else {
-		$mapCount = 1;
-		foreach ($mapping as $map) {
-			if (count($mapping) > 1) {
-				// Multiple languages
-				if ($mapCount == 1) {
-					$record->addSearchKeyValueList("MODS", "Metadata Object Description Schema", array("Language"), array($map), true, $history);
-				} else {
-					$record->addSearchKeyValueList("MODS", "Metadata Object Description Schema", array("Language"), array($map), false, $history);
-				}
-			} else {
-				// Just one language
-				$record->addSearchKeyValueList("MODS", "Metadata Object Description Schema", array("Language"), array($map), true, $history);
-			}
-			$mapCount++;
-		}
-	}
-	echo "\n";
-}
-
-/***************************************************************************************************************
- ***************************************************************************************************************
- ***************************************************************************************************************/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 class ISSNfix {
-	
-	function getMisplacedISSNs($data)
-	{
-		$suspectedISSN = array();
-		foreach ($data as $possibleISSN) {
-			if ($possibleISSN['issn'] != '') {
-				$suspectedISSN[] = $possibleISSN['issn'];
-			}
-		}
-		
-		print_r($suspectedISSN);
-		
-		foreach($suspectedISSN as $issn) {
-			echo "~";
-			// LKDB -- store the normalised ISSN in parallel
-		}
-		
-		echo "DOWN TO HERE!";
-		exit;
-		return "*";
-	}
-	
-	
 	
 	function normaliseISBN($isbn)
 	{
-		//$isbn = preg_replace("/[^0-9\-X]/", "", $isbn);
 		$isbn = preg_replace("/[^0-9X]/", "", $isbn);
 		return $isbn;
 	}
@@ -199,12 +104,27 @@ class ISSNfix {
 		foreach ($data as $item) {
 			$isbnClean = ISSNfix::normaliseISBN($item['isbn']);
 			if (strlen($isbnClean) == 8) {
-				$issns[$item['pid']] = $item['isbn'];
+				$issns[$item['pid']]['isbn_raw'] = $item['isbn'];
+				$issns[$item['pid']]['isbn_clean'] = $isbnClean;
 			}
 		}
 		
-		print_r($issns);
-		exit;
+		return $issns;
+	}
+	
+	
+	
+	function getActualISSNs($data)
+	{
+		$issns = array();
+		
+		foreach ($data as $key => $val) {
+			if ($data[$key]['issn'] != '') {
+				$issnClean = ISSNfix::normaliseISBN($data[$key]['issn']);
+				$issns[$data[$key]['pid']]['issn_raw'] = $data[$key]['issn'];
+				$issns[$data[$key]['pid']]['issn_clean'] = $issnClean;
+			}
+		}
 		
 		return $issns;
 	}
@@ -218,7 +138,7 @@ class ISSNfix {
 		
 		$sql = 	"
 					SELECT
-						rek_pid, rek_isbn, rek_issn
+						rek_pid AS pid, rek_isbn AS isbn, rek_issn AS issn
 					FROM
 						fez_record_search_key
 						
@@ -247,7 +167,7 @@ class ISSNfix {
 					;
 					*/
 				";
-
+		
 		try {
 		        $result = $db->fetchAll($sql);
 		} catch (Exception $ex) {
@@ -259,6 +179,21 @@ class ISSNfix {
 		return $result;
 	}
 	
+	
+	
+	function doesCandidateExistInProperISSNfield($issn, $suspect)
+	{
+		if ($suspect == '') {
+			return false;
+		}
+		
+		if (substr_count($suspect, $issn, 0) > 0) {
+			return true;
+		}
+		
+		return false;
+	}
+
 }
 
 ?>
