@@ -551,7 +551,6 @@ class Collection
 		$middleStmt = "";
 		$order_field = "";
 		$termCounter = 1;
-		$stmtCount = "";
 		$extra_join = "";
 		$letter_restrict = "";
 		$show_field = "";
@@ -590,16 +589,10 @@ class Collection
 			$group_field = "r".$tid.".rek_".$sekdet['sek_title_db'];
 			$as_field = "record_author";
 
-			$stmtCount = "SELECT ".APP_SQL_CACHE." count(r2.rek_author) AS count_record_author
-              FROM fez_record_search_key_author AS r2 ";
 			if (!empty($letter)) {
 				$letter = addslashes($letter);
 				$letter_restrict = "WHERE r2.rek_".$sekdet['sek_title_db']." LIKE " . $db->quote($letter.'%') . " OR r".$tid.".rek_".$sekdet['sek_title_db']." LIKE " . $db->quote(strtolower($letter).'%') . " ";
-				$stmtCount .= $letter_restrict;
 			}
-
-			$stmtCount .= "group by r2.rek_author";
-
 		} elseif ($searchKey == "Depositor") {
 			$search_data_type = "int";
 			$group_field = "r".$tid.".rek_".$sekdet['sek_title_db'];
@@ -624,17 +617,12 @@ class Collection
 		$middleStmt .= $authStmt." ";
 
 		try {
-			if ($stmtCount == "") {
-				$stmtCount = "SELECT ".APP_SQL_CACHE."
-		 				count(distinct ".$show_field.") AS count_".$as_field."
-						".$middleStmt."
-						".$extra_join."
-		                ".$letter_restrict;				
-				$total_rows = $db->fetchOne($stmtCount);
-			} else { //group by is a lot faster for rek_author than count(distinct 16ms compared to 828ms)\
-				$total_rows = $db->fetchOne($stmtCount);
-				$total_rows = count($total_rows);
-			}
+			$stmtCount = "SELECT ".APP_SQL_CACHE."
+				count(distinct ".$show_field.") AS count_".$as_field."
+				".$middleStmt."
+				".$extra_join."
+				".$letter_restrict;
+			$total_rows = $db->fetchOne($stmtCount);
 		}
 		catch(Exception $ex) {
 			$log->err($ex);
