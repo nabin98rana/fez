@@ -74,6 +74,7 @@ function main($runType = "check") {
 		doFedoraFezDelete();
 		if (APP_SOLR_INDEXER == "ON") {
 			doFezSolrDeletes();
+			addSolrCitations();
 		}
 		doPidAuthDeletes();
 	}
@@ -217,7 +218,6 @@ function doFezSolrDeletes() {
 	}
 }
 
-
 /**
  * checks to make sure that all solr items have citations
  *
@@ -248,6 +248,36 @@ function doSolrCitationChecks() {
 	}	
 	
 }
+
+/**
+ * adds citations to solr for pids that didn't have them previously
+ *
+ * @return void
+ **/
+function addSolrCitations() {
+
+	$log = FezLog::get();
+	$db = DB_API::get();
+	$prefix = APP_TABLE_PREFIX;
+
+	try {
+		$sql = "SELECT pid FROM {$prefix}integrity_solr_unspawned_citations";
+		$pids = $db->fetchCol($sql);
+		$queue = FulltextQueue::singleton();
+		
+		foreach($pids as $pid) {
+			Citation::updateCitationCache($pid);
+			$queue->add($pid);
+		}
+		echo "\tUpdated " . count($pids) . " citations in solr\n";
+		
+	} catch (Exception $ex) {
+		echo "The following exception occurred: " . $ex->getMessage() . "\n";
+		$log->err($ex);
+		return false;
+	}
+}
+
 
 /**
  * Does auth checks for pids
