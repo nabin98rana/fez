@@ -58,10 +58,10 @@ foreach ($misplacedISSNs as $isbnKey => $isbnVal) {
 	
 	if (ISSNfix::doesCandidateExistInProperISSNfield($isbnVal['isbn_clean'], $actualISSNs[$isbnKey]['issn_clean'])) {
 		// A suspected ISSN was found in the ISBN field, but it appears to already be in the ISSN field too. We need to zero the ISBN field.
-		//echo "ISSN repeated in ISBN and ISSN fields. Clearing from ISBN field... ";
-		//$record->addSearchKeyValueList("MODS", "Metadata Object Description Schema", array("ISSN"), array(''), true, $history);
-		//echo "done.\n";
-		//exit;
+		$history = "Auto-stripped ISSN from ISBN field";
+		echo "ISSN repeated in ISBN and ISSN fields. Clearing from ISBN field... ";
+		$record->addSearchKeyValueList("MODS", "Metadata Object Description Schema", array("ISBN"), array(' '), true, $history);
+		echo "done.\n";
 	} else {
 		if ($actualISSNs[$isbnKey]['issn_raw'] == '') {
 			// We have no ISSN yet. Add our new value.
@@ -79,7 +79,6 @@ foreach ($misplacedISSNs as $isbnKey => $isbnVal) {
 	}
 	
 	echo "\n";
-	
 }
 
 echo "Exiting ... \n";
