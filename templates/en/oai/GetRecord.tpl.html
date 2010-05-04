@@ -11,12 +11,18 @@
       <header>
 	    <identifier>oai:{$app_hostname}:{$list[0].rek_pid}</identifier>
 	    <datestamp>{$list[0].rek_updated_date}</datestamp>
-	{assign var="loop_subjects" value=$list[0].rek_subject}
-	{section name="s" loop=$loop_subjects}
-	{if $loop_subjects[s] != ""}
-	    <setSpec>{$app_hostname}:{$app_pid_namespace}:cvo_id:{$loop_subjects[s]}</setSpec>
+	{if $list[0].rek_subject}
+		{if !is_array($list[0].rek_subject)}
+	    	<setSpec>{$app_hostname}:{$app_pid_namespace}:cvo_id:{$list[0].rek_subject}</setSpec>
+		{else}
+			{assign var="loop_subjects" value=$list[0].rek_subject}
+			{section name="s" loop=$loop_subjects}
+			{if $loop_subjects[s] != ""}
+			    <setSpec>{$app_hostname}:{$app_pid_namespace}:cvo_id:{$loop_subjects[s]}</setSpec>
+			{/if}
+			{/section}            
+		{/if}
 	{/if}
-	{/section}            
 	  </header>
 	  <metadata>
 		{if $metadataPrefix == "oai_dc"}
@@ -36,39 +42,86 @@
 	        <dc:date>{$list[0].rek_date|escape:"html"}</dc:date>
 			<dc:coverage>{$list[0].rek_date|escape:"html"}</dc:coverage>
 
-			{assign var="loop_authors" value=$list[0].rek_author}
-			{section name="a" loop=$loop_authors}
-	        <dc:creator>{$list[0].rek_author[a]|escape:"html"}</dc:creator>
-			{/section}
-
-			{assign var="loop_contributors" value=$list[0].rek_contributor}
-			{section name="a" loop=$loop_contributors}
-	        <dc:contributor>{$list[0].rek_contributor[a]|escape:"html"}</dc:contributor>
-			{/section}		
-			{assign var="loop_subjects" value=$list[0].rek_subject_lookup}
-			{section name="s" loop=$loop_subjects}
-	        <dc:subject>{$list[0].rek_subject_lookup[s]|escape:"html"}</dc:subject>
-			{/section}
-			{assign var="loop_keywords" value=$list[0].rek_keywords}
-    		{section name="s" loop=$loop_keywords}
-            <dc:subject>{$list[0].rek_keywords[s]|escape:"html"}</dc:subject>
-    		{/section}
-    		{assign var="loop_publisher" value=$list[0].rek_publisher}
-    		{section name="s" loop=$loop_publisher}
-            <dc:publisher>{$list[0].rek_publisher[s]|escape:"html"}</dc:publisher>
-    		{/section}
-	        {assign var="loop_relation" value=$list[0].rek_ismemberof_title}
-			{section name="s" loop=$loop_relation}
-	        <dc:relation>isMemberOf {$loop_relation[s]|escape:"html"} {$app_base_url}list/{$list[0].rek_ismemberof[s]|escape:"html"}</dc:relation>
-			{/section}
-			{assign var="loop_format" value=$list[0].rek_file_attachment_name}
-			{section name="f" loop=$loop_format}
-	        <dc:relation>{$app_base_url}eserv/{$list[0].rek_pid|escape:"html"}/{$list[0].rek_file_attachment_name[f]|escape:"html"}</dc:relation>
-			{/section}
-			{assign var="loop_rights" value=$list[0].rek_rights}
-			{section name="s" loop=$loop_rights}
-	        <dc:rights>{$loop_rights[s]|escape:"html"}</dc:rights>
-			{/section}	        
+			{if $list[0].rek_author}
+				{if !is_array($list[0].rek_author)}
+		        	<dc:creator>{$list[0].rek_author|escape:"html"}</dc:creator>
+				{else}
+					{assign var="loop_authors" value=$list[0].rek_author}
+					{section name="a" loop=$loop_authors}
+				        <dc:creator>{$list[0].rek_author[a]|escape:"html"}</dc:creator>
+					{/section}
+				{/if}
+			{/if}
+			{if $list[0].rek_contributor}
+				{if !is_array($list[0].rek_contributor)}
+		        	<dc:contributor>{$list[0].rek_contributor|escape:"html"}</dc:contributor>
+				{else}
+					{assign var="loop_contributors" value=$list[0].rek_contributor}
+					{section name="a" loop=$loop_contributors}
+				        <dc:contributor>{$list[0].rek_contributor[a]|escape:"html"}</dc:contributor>
+					{/section}		
+				{/if}
+			{/if}
+			{if $list[0].rek_subject_lookup}
+				{if !is_array($list[0].rek_subject_lookup)}
+		        	<dc:subject>{$list[0].rek_subject_lookup|escape:"html"}</dc:subject>
+				{else}
+					{assign var="loop_subjects" value=$list[0].rek_subject_lookup}
+					{section name="s" loop=$loop_subjects}
+				        <dc:subject>{$list[0].rek_subject_lookup[s]|escape:"html"}</dc:subject>
+					{/section}
+				{/if}
+			{/if}
+			{if $list[0].rek_keywords}
+				{if !is_array($list[0].rek_keywords)}
+	            	<dc:subject>{$list[0].rek_keywords|escape:"html"}</dc:subject>
+				{else}
+					{assign var="loop_keywords" value=$list[0].rek_keywords}
+		    		{section name="s" loop=$loop_keywords}
+			            <dc:subject>{$list[0].rek_keywords[s]|escape:"html"}</dc:subject>
+		    		{/section}
+				{/if}
+			{/if}
+			{if $list[0].rek_publisher}
+				{if !is_array($list[0].rek_publisher)}
+	            	<dc:publisher>{$list[0].rek_publisher|escape:"html"}</dc:publisher>
+				{else}
+		    		{assign var="loop_publisher" value=$list[0].rek_publisher}
+		    		{section name="s" loop=$loop_publisher}
+			            <dc:publisher>{$list[0].rek_publisher[s]|escape:"html"}</dc:publisher>
+		    		{/section}
+				{/if}
+			{/if}
+			{if $list[0].rek_ismemberof_title}
+				{if !is_array($list[0].rek_ismemberof_title)}
+		        	<dc:relation>isMemberOf {$list[0].rek_ismemberof_title|escape:"html"} {$app_base_url}list/{$list[0].rek_ismemberof|escape:"html"}</dc:relation>
+				{else}
+			        {assign var="loop_relation" value=$list[0].rek_ismemberof_title}
+					{section name="s" loop=$loop_relation}
+				        <dc:relation>isMemberOf {$loop_relation[s]|escape:"html"} {$app_base_url}list/{$list[0].rek_ismemberof[s]|escape:"html"}</dc:relation>
+					{/section}
+				{/if}
+			{/if}
+			{if $list[0].rek_file_attachment_name}
+				{if !is_array($list[0].rek_file_attachment_name)}
+		        	<dc:relation>{$app_base_url}eserv/{$list[0].rek_pid|escape:"html"}/{$list[0].rek_file_attachment_name|escape:"html"}</dc:relation>
+				{else}
+					{assign var="loop_format" value=$list[0].rek_file_attachment_name}
+					{section name="f" loop=$loop_format}
+				        <dc:relation>{$app_base_url}eserv/{$list[0].rek_pid|escape:"html"}/{$list[0].rek_file_attachment_name[f]|escape:"html"}</dc:relation>
+					{/section}
+				{/if}
+			{/if}
+			{if $list[0].rek_rights}
+				{if !is_array($list[0].rek_rights)}
+		        	<dc:rights>{$loop_rights|escape:"html"}</dc:rights>
+				{else}
+					{assign var="loop_rights" value=$list[0].rek_rights}
+					{section name="s" loop=$loop_rights}
+				        <dc:rights>{$loop_rights[s]|escape:"html"}</dc:rights>
+					{/section}	        
+				{/if}
+			{/if}
 		{if $metadataPrefix == "oai_dc"}
 	      </oai_dc:dc>
 		{elseif $metadataPrefix == "pa"}
