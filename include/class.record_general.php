@@ -657,7 +657,51 @@ class RecordGeneral
 
 		return false;
 	}
-	
+
+
+	/**
+	 * Strips scopus ID (EID) from a record
+	 *
+	 * @return bool  TRUE if stripped OK. FALSE if not stripped.
+	 *
+	 * @access public
+	 */
+	function stripScopusID()
+	{
+		$newXML = "";
+		$xmlString = Fedora_API::callGetDatastreamContents($this->pid, 'MODS', true);
+
+		$doc = DOMDocument::loadXML($xmlString);
+		$xpath = new DOMXPath($doc);
+
+		//$fieldNodeList = $xpath->query("//rel:isMemberOf[@rdf:resource='info:fedora/$collection']");
+		$fieldNodeList = $xpath->query("/mods:mods/mods:identifier[@type = 'scopus']");
+
+		if( $fieldNodeList->length == 0 ) {
+			return false;
+		}
+
+		$collectionNode   = $fieldNodeList->item(0);
+		$parentNode       = $collectionNode->parentNode;
+		$parentNode->removeChild($collectionNode);
+
+		$newXML = $doc->SaveXML();
+		if ($newXML != "") {
+			Fedora_API::callModifyDatastreamByValue($this->pid, "MODS", "A", "Metadata Object Description Schema", $newXML, "text/xml", "inherit");
+			
+			$historyDetail = "Scopus ID (EID) was stripped";
+			History::addHistory($this->pid, null, "", "", true, $historyDetail);
+			
+			Record::setIndexMatchingFields($this->pid);
+			/*if( APP_SOLR_INDEXER == "ON" ) {
+				FulltextQueue::singleton()->add($this->pid);
+				FulltextQueue::singleton()->commit();
+			}*/
+			return true;
+		}
+
+		return false;
+	}	
 	
 	/**
 	 * Replaces authors in a record using the authors in ESTI
