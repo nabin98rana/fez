@@ -98,6 +98,7 @@ class SanityChecks
 		$results = array_merge($results, SanityChecks::exiftool());
 		$results = array_merge($results, SanityChecks::imageMagick());
 		$results = array_merge($results, SanityChecks::FFMPEG());
+		$results = array_merge($results, SanityChecks::FFMPEG_Yamdi());
 		$results = array_merge($results, SanityChecks::backgroundProcess());
 		$results = array_merge($results, SanityChecks::dot());
 		$results = array_merge($results, SanityChecks::tidy());
@@ -313,6 +314,16 @@ class SanityChecks
 		$results = array_merge($results, SanityChecks::checkFile('APP_FFMPEG_CMD', APP_FFMPEG_CMD, false, true));
 		if (SanityChecks::resultsClean($results)) {
 			$results[] = ConfigResult::messageOk('All FFMPEG tests passed');
+		}
+		return $results;
+	}
+
+	function FFMPEG_Yamdi()
+	{
+		$results = array(ConfigResult::message('Testing Yamdi flv metadata injector'));
+		$results = array_merge($results, SanityChecks::checkFile('APP_PATH . APP_FFMPEG_YAMDI_CMD', APP_PATH . APP_FFMPEG_YAMDI_CMD, false, true));
+		if (SanityChecks::resultsClean($results)) {
+			$results[] = ConfigResult::messageOk('All Yamdi flv metadata tests passed');
 		}
 		return $results;
 	}
