@@ -75,16 +75,32 @@ if ((!(is_numeric(strpos($file, "&")))) && (!(is_numeric(strpos($file, "|"))))) 
     if (!empty($error)) {
         Error_Handler::logError($error,__FILE__,__LINE__);
     }
+	
 	$return_status = 0;
 	$return_array = array();
 	exec($command.$unix_extra , $return_array, $return_status);
 	if ($return_status <> 0) {
 		Error_Handler::logError("FFMpeg Error: ".implode(",", $return_array).", return status = $return_status, for command $command \n", __FILE__,__LINE__);
 	}
-        if (!empty($newfile)) {
-            unlink($full_file);
-        }
-        echo $ffpmeg_file;
+	
+	// add metadata to ffmpeg file using yamdi (yamdi cannot overwrite the file so we need to specify another file)
+	$metadataCommand = APP_PATH . APP_FFMPEG_YAMDI_CMD . " -i {$ffpmeg_file} -o {$ffpmeg_file}.2";
+	$return_status = 0;
+	$return_array = array();
+	exec($metadataCommand.$unix_extra , $return_array, $return_status);
+	if ($return_status <> 0) {
+		Error_Handler::logError("FFMpeg Yamdi Error: ".implode(",", $return_array).", return status = $return_status, for command $metadataCommand \n", __FILE__,__LINE__);
+	}
+
+	// rename the file back to the original name (overwriting the original)
+	if ($return_status == 0) {
+		rename("{$ffpmeg_file}.2", $ffpmeg_file);
+	}
+	
+	if (!empty($newfile)) {
+	    unlink($full_file);
+	}
+	echo $ffpmeg_file;
 } 
 
 ?>

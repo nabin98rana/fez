@@ -15,22 +15,24 @@ Start FLV Player Code
 -->
 {literal}
 
-<CENTER>
-<p id="player1"><a href="http://www.macromedia.com/go/getflashplayer">Get the Flash Player</a> to see this player.</p>
-<script type="text/javascript">
-	var s1 = new SWFObject("{/literal}{$rel_url}{literal}js/mediaplayer.swf","single","425","350","7");
-	s1.addParam("allowfullscreen","true");
-	s1.addVariable("streamscript","{/literal}{$eserv_url}{literal}");	
-	s1.addVariable("file",escape("dummy&pid={/literal}{$pid}{literal}&stream=1&dsID={/literal}{$dsID}{literal}"));	
-	{/literal}
-	{assign var="image_file_name" value=$dsID|replace:"stream":"thumbnail"|replace:"flv":"jpg"}
-	{literal}
+<center>
+
+<p id='flashmedia'>&nbsp;</p>
+<script type='text/javascript' src='{/literal}{$rel_url}{literal}js/swfobject.js'></script>
+<script type='text/javascript'>
+	var s1 = new SWFObject('{/literal}{$rel_url}{literal}flash/player.swf','player','425','350','7');
+	s1.addParam('allowfullscreen','true');
+	s1.addParam('allowscriptaccess','always');
+	s1.addVariable("file",escape("{/literal}{$rel_url}{literal}stream/{/literal}{$pid}{literal}/{/literal}{$dsID}{literal}"));
+	{/literal}{if $smarty.const.APP_FEDORA_APIA_DIRECT == 'ON'} 
+	s1.addVariable('http.startparam', 'pos');
+	s1.addVariable('provider', 'http');
+	{/if}{literal}
 	s1.addVariable("image", "{/literal}{$eserv_url|replace:".php":""}{literal}/{/literal}{$pid}{literal}/{/literal}{$image_file_name}{literal}");
-	s1.addVariable("enablejs","true");
-	s1.write("player1");
+	s1.write('flashmedia');
 </script>
 
-</CENTER>
+</center>
 {/literal}
 
 <!-- 
