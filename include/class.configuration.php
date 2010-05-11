@@ -161,8 +161,8 @@ class Configuration
         define('APP_VIEWER_ROLES', "Viewer,Community_Administrator,Editor,Creator,Annotator,Approver"); 
         define('APP_EDITOR_ROLES', "Community_Administrator,Editor,Approver");
         define('APP_CREATOR_ROLES', "Creator,Community_Administrator,Editor,Approver");
-        define('APP_APPROVER_ROLES', "Community_Admin,Approver");
-        define('APP_DELETER_ROLES', "Community_Admin");
+        define('APP_APPROVER_ROLES', "Community_Administrator,Approver");
+        define('APP_DELETER_ROLES', "Community_Administrator");
         define('APP_LISTER_ROLES', "Lister,Viewer,Community_Administrator,Editor,Creator,Annotator,Approver"); 
         define('APP_VIEW_VERSIONS_ROLES', "");  // if none, available to Admins only
 //        define('APP_REVERT_VERSIONS_ROLES', "");  // not implemented yet
