@@ -84,7 +84,7 @@ if ((!(is_numeric(strpos($file, "&")))) && (!(is_numeric(strpos($file, "|"))))) 
 	}
 	
 	// add metadata to ffmpeg file using yamdi (yamdi cannot overwrite the file so we need to specify another file)
-	$metadataCommand = APP_PATH . APP_FFMPEG_YAMDI_CMD . " -i {$ffpmeg_file} -o {$ffpmeg_file}.2";
+	$metadataCommand = APP_FFMPEG_YAMDI_CMD . " -i {$ffpmeg_file} -o {$ffpmeg_file}.2";
 	$return_status = 0;
 	$return_array = array();
 	exec($metadataCommand.$unix_extra , $return_array, $return_status);

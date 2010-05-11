@@ -321,7 +321,7 @@ class SanityChecks
 	function FFMPEG_Yamdi()
 	{
 		$results = array(ConfigResult::message('Testing Yamdi flv metadata injector'));
-		$results = array_merge($results, SanityChecks::checkFile('APP_PATH . APP_FFMPEG_YAMDI_CMD', APP_PATH . APP_FFMPEG_YAMDI_CMD, false, true));
+		$results = array_merge($results, SanityChecks::checkFile('APP_FFMPEG_YAMDI_CMD', APP_FFMPEG_YAMDI_CMD, false, true));
 		if (SanityChecks::resultsClean($results)) {
 			$results[] = ConfigResult::messageOk('All Yamdi flv metadata tests passed');
 		}

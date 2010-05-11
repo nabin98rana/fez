@@ -764,6 +764,14 @@ function restoreDefaultColours(el)
 			</td>
   		  </tr>
 		  <tr>
+		    <th>yamdi command</th>
+			<td>
+			  <input type="text" name="app_ffmpeg_yamdi_cmd" value="{$config_settings.app_ffmpeg_yamdi_cmd|escape:"html"}" size="40" /> 
+			  <br />This injects metadata into the flash video files
+			  {include file="error_icon.tpl.html" field="app_ffmpeg_yamdi_cmd"}
+			</td>
+  		  </tr>
+		  <tr>
 		    <th>Convert command</th>
 			<td>
 			  <input type="text" name="app_convert_cmd" value="{$config_settings.app_convert_cmd|escape:"html"}" size="40" /> 
