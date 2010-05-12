@@ -234,6 +234,7 @@ function loadPreview(pid,datastreamID, alt, origami)
 													{assign var="ds_show" value=$datastreams[d].web}
 												{/if}
 											{/if}
+											
 											{if $datastreams[d].archival_size_raw > 1048576 && $origami == 'ON' && $datastreams[d].origami_switch == 'ON'
 												&& ($datastreams[d].MIMEType == 'image/jpeg' || 
 													$datastreams[d].MIMEType == 'image/tiff' || 
@@ -247,13 +248,13 @@ function loadPreview(pid,datastreamID, alt, origami)
 										{assign var="show_preview_pane" value="1"}
 										{if $datastreams[d].thumbnail != "0"}
 											<img alt="Click to show the corresponding preview" title="Click to show the corresponding preview" src="{$eserv_url}{$datastreams[d].thumbnail}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}" 
-											{if ($datastreams[d].canPreview || $isAdministrator) && $datastreams[d].stream != "0"}
+											{*if ($datastreams[d].canPreview || $isAdministrator) && $datastreams[d].stream != "0"}
 												onclick="javascript:loadPreview('{$pid}','{$datastreams[d].stream}', '{$datastreams[d].ID|escape:'html'}', '{$origami_preview}');" />
 											{else}
 												{if ($datastreams[d].canPreview || $isAdministrator) && $datastreams[d].web != "0"}
 													onclick="javascript:loadPreview('{$pid}','{$datastreams[d].ID}', '{$datastreams[d].ID|escape:'html'}', '{$origami_preview}');" />
 												{/if}
-											{/if}
+											{/if*}
 										{elseif ($datastreams[d].canPreview || $isAdministrator) && $datastreams[d].stream != "0"}
 											{assign var="ds_show" value=$datastreams[d].ID}
 											{assign var="ds_show_extra" value=$datastreams[d].stream}
