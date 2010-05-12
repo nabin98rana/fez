@@ -13,7 +13,7 @@ RewriteRule ^robots.txt$         robots.php [L]
 #REWRITE RULES APPLYING TO BASE FEZ CODE 
 RewriteRule     ^errors/([0-9]+)$                                   errors/index.php?code=$1 [L]
 RewriteRule     ^view/([A-Za-z]+):([0-9]+)(\?.*)*$                  view.php?pid=$1:$2$3 [L]
-RewriteRule     ^eserv/([A-Za-z]+):([0-9]+)/(.+)(/.+)*$             eserv.php?pid=$1:$2&dsID=$3$4 [L,QSA]
+RewriteRule     ^eserv/([A-Za-z]+):([0-9]+)/(.+?)(/.*)*$            eserv.php?pid=$1:$2&dsID=$3&qs=$4 [L]
 RewriteRule     ^community/([A-Za-z]+):([0-9]+)$	                list.php?community_pid=$1:$2 [L,QSA]
 RewriteRule     ^community/([A-Za-z]+):([0-9]+)/(.+)$	            list.php?community_pid=$1:$2&$3 [L,QSA]
 RewriteRule     ^collection/([A-Za-z]+):([0-9]+)$                   list.php?collection_pid=$1:$2 [L,QSA]
@@ -26,7 +26,7 @@ RewriteRule     ^scopus_citation_count_history_([A-Za-z]+):([0-9]+)$            
 RewriteRule     ^scopus_citation_count_history_([A-Za-z]+):([0-9]+)_graph.?(.*)$   scopus_citation_count_history_graph.php?pid=$1:$2&ext=$3 [L,QSA]
 RewriteRule     ^js/(.*).js$                                       	min.php/js/$1.js [L,QSA]
 #RewriteRule     ^js/(.*).js$                                       	min.php/js/$1.js?debug=1 [L,QSA]
-RewriteRule     ^stream/([A-Za-z]+):([0-9]+)/(.+)(/.+)*$             eserv.php?pid=$1:$2&stream=1&dsID=$3$4 [L,QSA]
+RewriteRule     ^stream/([A-Za-z]+):([0-9]+)/(.+?)(/.*)*$           eserv.php?pid=$1:$2&dsID=$3&qs=$4/stream=1 [L]
 
 #TESTING SEND EVERYTHING TO index.php for user defined author my pubs aliases etc
 RewriteCond     %{REQUEST_FILENAME} -s [OR]

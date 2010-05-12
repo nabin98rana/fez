@@ -117,7 +117,7 @@ class Origami {
 
 		// We must cd in the origami directory because the tile_image script uses a relative path for
 		// processing images. Basically its crashes without doing this..
-		return "cd " . APP_ORIGAMI_PATH . "; " .APP_PY_EXEC . " ". APP_ORIGAMI_PATH . "/tile_image.py";
+		return APP_PY_EXEC . " ". APP_ORIGAMI_PATH . "/tile_image.py";
 	}
 
 	function getTitleHome() {

@@ -41,6 +41,9 @@ include_once(APP_INC_PATH . "class.fedora_direct_access.php");
 $auth = new Auth();
 $auth->checkForBasicAuthRequest('eserv');
 
+$qs         = @$_REQUEST["qs"];
+extractQS();
+
 $stream     = @$_REQUEST["stream"];
 $wrapper    = @$_REQUEST["wrapper"];
 $pid        = @$_REQUEST["pid"];
@@ -288,3 +291,20 @@ $tpl->assign("pid", $pid);
 $tpl->assign("not_exists", $not_exists);
 //$tpl->assign("show_not_allowed_msg", true);  // prefer non_exists message
 $tpl->displayTemplate();
+
+
+
+function extractQS()
+{
+	$qs = substr(@$_REQUEST["qs"], 1); // Remove the leading slash
+	$components = explode("/", $qs);   // Split into components
+	
+	foreach ($components as $component) {
+		if ($component != '') {
+			$nameValPairs = explode('=', $component);       // Extract name-value pairs.
+			$_REQUEST[$nameValPairs[0]] = $nameValPairs[1]; // Add them to the request object.
+		}
+	}
+
+	return;
+}

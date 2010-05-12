@@ -415,7 +415,7 @@ h4 {
 }
 
 .white_link_underline {
-	color: #FFFFFF;
+	color: #FFFFFF !important;
 	text-decoration: underline;
 }
 
@@ -1344,7 +1344,7 @@ hr {
 #viewInfoBoxTable th {
 	text-align: right;
 	padding-right: 15px;
-	
+	vertical-align: top;
 }
 
 a.app_errors {
@@ -1846,10 +1846,24 @@ div.hr hr {
 #view-attachments {
 	background: white;
     width: 100%;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+#view-attachments tr {
+    border-bottom: 1px solid [[$smarty.const.APP_CELL_COLOR]];
+}
+
+#view-attachments th {
+    background: [[$smarty.const.APP_HEADING_COLOR]];
+    color: #FFFFFF;
+    padding: 4px;
+    text-align: left;
 }
 
 #view-attachments td {
-	padding: 3px 5px 3px 5px;
+	padding: 4px;
+    vertical-align: middle;
 }
 
 #view-metadata {
@@ -1870,7 +1884,8 @@ div.hr hr {
 }
 
 #view-metadata th, #view-metadata td {
-    padding: 3px 5px 3px 5px;
+    padding: 3px 10px 3px 10px;
+    border-bottom: 1px dotted [[$smarty.const.APP_CELL_COLOR]];
 }
 
 #outstandingWorkflowsDiv {
@@ -2025,8 +2040,36 @@ a.author_id_link:hover {
     white-space: nowrap;
 }
 
-#viewversionform td, #viewrelatedlinksform td {
+#viewversionform td {
     padding: 3px 5px 3px 5px;
+}
+
+
+
+#related-links {
+    margin-top: 20px;
+    background: #FFFFFF;
+    width: 100%;
+}
+
+#related-links th, #related-links td {
+    padding: 3px 5px 3px 5px;
+}
+
+#related-links tr {
+    border-bottom: 1px solid [[$smarty.const.APP_CELL_COLOR]];
+}
+
+#related-links td {
+    background-color: [[$smarty.const.APP_LIGHT_COLOR]];
+    padding: 4px;
+    vertical-align: middle;
+}
+
+#versions {
+    margin-top: 20px;
+    background: #FFFFFF;
+    width: 100%;
 }
 
 .ext-lookup-results tbody tr td {
