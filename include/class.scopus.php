@@ -140,9 +140,9 @@ class Scopus
 					 <absMetSource>all</absMetSource>
 					 <responseStyle>wellDefined</responseStyle>';		
 		foreach($input_keys as $k => $v) {			
-			$params .= '<inputKey><clientCRF xmlns="">'.$k.'</clientCRF>';
+			$params .= '<inputKey><clientCRF xmlns="">'.trim($k).'</clientCRF>';
 			foreach($v as $_k => $_v) {
-				$params .= '<'.$_k.' xmlns="">'.$_v.'</'.$_k.'>';
+				$params .= '<'.trim($_k).' xmlns="">'.trim($_v).'</'.trim($_k).'>';
 			}
 			$params .= '</inputKey>';
 		}
