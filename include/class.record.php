@@ -4344,3 +4344,127 @@ class Record
 	}
 	
 }
+
+
+
+function addHandle($pid)
+{
+	// set testrun to true if you don't want changes written to Fedora 
+	$testrun = false;
+	$success = false;  // set to true when handle is written to Fedora
+	$count2 = 0;
+	
+	// get mods datastream
+	$newXML = '';
+	$xmlString = Fedora_API::callGetDatastreamContents($pid, 'MODS', true);
+	$doc = DOMDocument::loadXML($xmlString);
+	$xpath = new DOMXPath($doc);
+	$xpath->registerNamespace("mods","http://www.loc.gov/mods/v3"); // must register namespace if one exists
+	$fieldNodeList = $xpath->query("/mods:mods/mods:identifier[@type='hdl']");
+
+	$count = 0;
+		foreach ($fieldNodeList as $node) {  // count 
+			$count++;
+		}
+		
+	if ($count == 0) {  // there isn't an empty handle tag - add one
+		//Error_Handler::logChange('No handle tag');  // output to error_handler.log for inspection
+		
+		//  for xslt transform
+		$xslString = "<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\"
+		version=\"1.0\"  
+		xmlns:mods=\"http://www.loc.gov/mods/v3\"
+		exclude-result-prefixes=\"mods\">
+		<xsl:output method=\"xml\"/>
+
+		<!-- insert new tag after this path  -->
+		<xsl:template match=\"mods:mods/mods:titleInfo[1]\">
+		<xsl:copy-of select=\".\" />
+		<xsl:choose>
+			<xsl:when test=\"../mods:identifier[@type='hdl']\" />
+			<xsl:otherwise><xsl:text>
+</xsl:text><mods:identifier type='hdl'></mods:identifier>
+			</xsl:otherwise>
+				</xsl:choose>
+			</xsl:template>
+
+	<!-- copies everything else  -->
+	<xsl:template match=\"*|@*|text()\">
+		<xsl:copy>
+		<xsl:apply-templates select=\"*|@*|text()\" />
+		</xsl:copy>
+	</xsl:template>
+
+	</xsl:stylesheet>";
+
+		$xsl = DOMDocument::loadXML($xslString);
+
+		// Configure the transformer to add handle tag 
+		$proc = new XSLTProcessor;
+		$proc->importStyleSheet($xsl); // attach the xsl rules
+		$xmlString = $proc->transformToXML($doc);
+		
+		// reload xml string with new empty handle tag
+		$doc = DOMDocument::loadXML($xmlString);
+		$xpath = new DOMXPath($doc);
+		$xpath->registerNamespace("mods","http://www.loc.gov/mods/v3"); // must register namespace if one exists
+		$fieldNodeList = $xpath->query("/mods:mods/mods:identifier[@type='hdl']");
+		
+		
+		foreach ($fieldNodeList as $node) {  // count the number of identifier@type=hdl tags  (should now be 1)
+			$count2++;
+		}
+	}  // added empty handle tag
+	
+	if ($count != 0 || $count2 != 0) {  // insert handle value if there is an empty handle tag
+	
+		$oldHandle = $fieldNodeList->item(0)->nodeValue;  // get the handle value from MODS if one exists
+	
+		if ($oldHandle == '')  {  // no handle
+
+			if ( substr(HANDLE_NA_PREFIX_DERIVATIVE, 0,1) == "/") {       
+				// when the derivative prefix from the site config screen starts with a "/" we do not want to
+				// treat it as part of the handle prefix
+				$pseudoPrefix = HANDLE_NA_PREFIX_DERIVATIVE;
+				$derivativePrefix = "";
+			} else {
+				$pseudoPrefix = "";
+				$derivativePrefix = HANDLE_NA_PREFIX_DERIVATIVE;
+			}
+
+			$newHandle = HANDLE_NAMING_AUTHORITY_PREFIX . $derivativePrefix . $pseudoPrefix . '/' . $pid;
+		
+			$fieldNodeList->item(0)->nodeValue = $newHandle;
+			//Error_Handler::logChange("$pid	$oldHandle	$newHandle	+++");
+		
+			if ($testrun === false) {
+				$newXML = $doc->SaveXML();  // put results in newXML to be written to Fedora
+			}  else {
+				Error_Handler::logChangeMODS($doc->SaveXML());  // output to error_handler.log for inspection
+			}
+		
+			if ($newXML != "") {
+				Fedora_API::callModifyDatastreamByValue($this->pid, "MODS", "A", "Metadata Object Description Schema", $newXML, "text/xml", "inherit");
+		
+				//specify what to put in premis record
+				$historyDetail = "Add handle to MODS datastream";
+				History::addHistory($this->pid, null, "", "", true, $historyDetail);
+				Record::setIndexMatchingFields($this->pid);  // index record
+
+				$handleRequestor = new HandleRequestor( HANDLE_NAMING_AUTHORITY_PREFIX . $derivativePrefix );
+
+				if ($newHandle != $oldHandle) {
+					$handleRequestor->changeHandle($oldHandle, $newHandle, "http://" . APP_HOSTNAME . APP_RELATIVE_URL . "view/" . $pid );
+					$handleRequestor->processHandleRequests();
+				}
+				
+				$success = true;  // have written handle to fedora
+			}
+
+		} else {
+			//Error_Handler::logChange("$pid	$oldHandle	---");  // old handle is not empty
+		}
+	}  // end if count != 0 OR count2 != 0
+	
+	return $success;
+}
