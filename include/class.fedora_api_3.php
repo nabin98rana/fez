@@ -1536,8 +1536,8 @@ class Fedora_API {
 			);
 			Fedora_API::openSoapCall('setDatastreamVersionable', $parms);
 		}
-		Fedora_API::callModifyDatastream($pid, $dsID, $dsLocation, $dsLabel, "A", $mimetype, $versionable);	  
-/*		$logmsg = 'Modifying datastream by reference';
+//		Fedora_API::callModifyDatastream($pid, $dsID, $dsLocation, $dsLabel, "A", $mimetype, $versionable);	  
+		$logmsg = 'Modifying datastream by reference';
 		$parms= array(
 	       'pid'           => $pid, 
 	       'dsID'  => $dsID, 
@@ -1549,7 +1549,7 @@ class Fedora_API {
 	       'logMessage'    => $logmsg, 
 	       'force'         => true
 		);
-		Fedora_API::openSoapCall('modifyDatastreamByReference', $parms); */
+		Fedora_API::openSoapCall('modifyDatastreamByReference', $parms); 
 	}
 
 	/**
