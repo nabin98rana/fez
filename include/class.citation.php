@@ -246,15 +246,16 @@ class Citation
 		
 		$log = FezLog::get();
 		foreach ($list as $row => $value) {
+			$pid = $list[$row]['rek_pid'];
 			if ($list[$row]['rek_citation'] == "" || $cache == false) {
 				$xdis_id = $value['rek_display_type'];
 				$det = Citation::getDetails($xdis_id, $type);
 				$result = $det['cit_template'];
 				if (empty($result)) {
 					$citation = Record::getTitleFromIndex($list[$row]['rek_pid']);
-					$log->debug("No Style, so setting Citation to just title of ".$citation." for PID ".$pid);
+					$log->debug("No Style, so setting Citation to just title of ".$citation." for PID ".$pid." xdis_id of ".$xdis_id);
 					$citation = Citation::formatTitle($citation, $list[$row]);
-					Citation::updateCitationCache($list[$row]['rek_pid'], $citation);				
+					Citation::updateCitationCache($list[$row]['rek_pid'], $citation);
 					continue;
 				}
 				if ($knownFull == false) {

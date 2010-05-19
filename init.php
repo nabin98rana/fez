@@ -78,6 +78,10 @@ $params = array(
             )
 );
 
+if (defined("APP_SQL_DBPORT")) {
+	$params['port'] = APP_SQL_DBPORT;
+}
+
 try {
     $db = Zend_Db::factory(APP_SQL_DBTYPE, $params);
     $db->getConnection();

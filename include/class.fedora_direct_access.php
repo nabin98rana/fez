@@ -78,19 +78,27 @@ class Fedora_Direct_Access {
 		$terms = str_replace("*", "", $terms);  // Get the search terms ready for SQLage.
 		$state_sql = "";
 		if ($object_state != "") {
-			$state_sql = " AND doState = ".$db->quote($object_state);
+			if (APP_FEDORA_VERSION == "3") {
+				$state_sql = " AND objectState = ".$db->quote($object_state);
+			} else {
+				$state_sql = " AND doState = ".$db->quote($object_state);
+			}
+
 		}
 		
 		$no_result = false;
 		try {
-			$stmt = "SELECT doregistry.dopid AS pid, label AS title, doState as dostate FROM doregistry, dobj WHERE doregistry.doPID = dobj.doPID AND (doregistry.dopid LIKE ".$db->quote("%" . $terms . "%")." OR label LIKE ".$db->quote("%" . $terms . "%").") ".$state_sql;
+			if (APP_FEDORA_VERSION == "3") {
+				$stmt = "SELECT doRegistry.doPID AS pid, label AS title, objectState as dostate FROM doRegistry WHERE (doRegistry.doPID LIKE ".$db->quote("%" . $terms . "%")." OR label LIKE ".$db->quote("%" . $terms . "%").") ".$state_sql;
+			} else {
+				$stmt = "SELECT doregistry.dopid AS pid, label AS title, doState as dostate FROM doregistry, dobj WHERE doregistry.doPID = dobj.doPID AND (doregistry.dopid LIKE ".$db->quote("%" . $terms . "%")." OR label LIKE ".$db->quote("%" . $terms . "%").") ".$state_sql;				
+			}
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
 			$log->err($ex);
 			$no_result = true;
 		}
-		
 		if($no_result) {
 			try {
 			$stmt =	"SELECT doRegistry.dopid AS pid, label AS title, doState AS dostate FROM doRegistry, dobj WHERE doRegistry.doPID = dobj.doPID AND (doRegistry.dopid LIKE ".$db->quote("%" . $terms . "%")." OR label LIKE ".$db->quote("%" . $terms . "%").") ".$state_sql;
@@ -171,7 +179,12 @@ class Fedora_Direct_Access {
 		$db = DB_API::get('fedora_db');
 		
 		try {
-			$stmt = "SELECT dostate FROM dObj WHERE dopid = ?";
+			if (APP_FEDORA_VERSION == "3") {
+				$stmt = "SELECT objectState FROM doRegistry WHERE doPID = ?";
+			} else {
+				$stmt = "SELECT dostate FROM dObj WHERE dopid = ?";
+			}
+
 			$res = $db->fetchOne($stmt, $pid);
 		}
 		catch(Exception $ex) {
@@ -194,7 +207,12 @@ class Fedora_Direct_Access {
 		$db = DB_API::get('fedora_db');
 		
 		try {
-			$stmt = "SELECT path FROM datastreampaths WHERE token = ".$db->quote($pid."+".$dsID."+".$dsID.".".$dsVersionID);
+			if (APP_FEDORA_VERSION == "3") {
+				$stmt = "SELECT path FROM datastreamPaths WHERE token = ".$db->quote($pid."+".$dsID."+".$dsID.".".$dsVersionID);
+			} else {
+				$stmt = "SELECT path FROM datastreampaths WHERE token = ".$db->quote($pid."+".$dsID."+".$dsID.".".$dsVersionID);
+			}
+
 			$res = $db->fetchOne($stmt);
 		}
 		catch(Exception $ex) {
@@ -216,7 +234,12 @@ class Fedora_Direct_Access {
 		$db = DB_API::get('fedora_db');
 		
 		try {
-			$stmt = "SELECT path FROM datastreampaths WHERE token = ".$db->quote($pid."+".$dsID."+".$dsID.".".$dsVersionID);
+			if (APP_FEDORA_VERSION == "3") {
+				$stmt = "SELECT path FROM datastreamPaths WHERE token = ".$db->quote($pid."+".$dsID."+".$dsID.".".$dsVersionID);
+			} else {
+				$stmt = "SELECT path FROM datastreampaths WHERE token = ".$db->quote($pid."+".$dsID."+".$dsID.".".$dsVersionID);
+			}
+
 			$res = $db->fetchOne($stmt);
 		}
 		catch(Exception $ex) {
@@ -237,7 +260,12 @@ class Fedora_Direct_Access {
 		$db = DB_API::get('fedora_db');
 
 		try {
-			$stmt = "SELECT path FROM datastreampaths WHERE token = ".$db->quote($pid."+".$dsID."+".$dsID.".".$dsVersionID);
+			if (APP_FEDORA_VERSION == "3") {
+				$stmt = "SELECT path FROM datastreamPaths WHERE token = ".$db->quote($pid."+".$dsID."+".$dsID.".".$dsVersionID);
+			} else {
+				$stmt = "SELECT path FROM datastreampaths WHERE token = ".$db->quote($pid."+".$dsID."+".$dsID.".".$dsVersionID);
+			}
+
 			$res = $db->fetchOne($stmt);
 		}
 		catch(Exception $ex) {

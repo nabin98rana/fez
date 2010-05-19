@@ -135,7 +135,7 @@ for($i=0; $i<($total+$inc); $i=$i+$inc) {
 				$doc_type = "$doc_type";
 				if(! array_key_exists($doc_type, $doc_type_mapping)) {
 				        echo('Unsupported doc type when adding journal article subtype (Genre Subtype search key) ESTI record to MODS:'.$doc_type);
-                                        ob_flush();
+						ob_flush();
 				        $log->err('Unsupported doc type when adding journal article subtype (Genre Subtype search key) ESTI record to MODS:'.$doc_type);
 				        return false;
 				} else {

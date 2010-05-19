@@ -66,7 +66,7 @@ class Fedora_API {
 		
 		$ch = curl_init(APP_BASE_FEDORA_APIA_DOMAIN."/search");
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		if (APP_HTTPS_CURL_CHECK_CERT == "OFF")  {
+		if (APP_HTTPS_CURL_CHECK_CERT == "OFF" && APP_FEDORA_APIA_PROTOCOL_TYPE == 'https://')  {
 			curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, 0);
 			curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, 0);
 		}
@@ -121,7 +121,7 @@ class Fedora_API {
 		$getString = APP_BASE_FEDORA_APIM_DOMAIN."/management/getNextPID?xml=true";
 		$ch = curl_init($getString);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		if (APP_HTTPS_CURL_CHECK_CERT == "OFF")  {
+		if (APP_HTTPS_CURL_CHECK_CERT == "OFF" && APP_FEDORA_APIA_PROTOCOL_TYPE == 'https://')  {
 			curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, 0);
 			curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, 0);
 		}
@@ -542,7 +542,7 @@ class Fedora_API {
 			curl_setopt($ch, CURLOPT_POSTFIELDS, array('file' => "@".$loc_dir.$dsIDName)); //@@@ CK - 28/7/2005 - Trying to make the file name in /tmp the uploaded file name
 			curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-			if (APP_HTTPS_CURL_CHECK_CERT == "OFF")  {
+			if (APP_HTTPS_CURL_CHECK_CERT == "OFF" && APP_FEDORA_APIA_PROTOCOL_TYPE == 'https://')  {
 				curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, 0);
 				curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, 0);
 			}
@@ -657,7 +657,7 @@ class Fedora_API {
 			curl_setopt($ch, CURLOPT_POSTFIELDS, array('file' => "@".$local_file_location));
 			curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-			if (APP_HTTPS_CURL_CHECK_CERT == "OFF")  {
+			if (APP_HTTPS_CURL_CHECK_CERT == "OFF" && APP_FEDORA_APIA_PROTOCOL_TYPE == 'https://')  {
 				curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, 0);
 				curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, 0);
 			}
@@ -868,7 +868,7 @@ class Fedora_API {
 			$getString = APP_BASE_FEDORA_APIA_DOMAIN."/listDatastreams/".$pid."?xml=true";
 			$ch = curl_init($getString);
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-			if (APP_HTTPS_CURL_CHECK_CERT == "OFF")  {
+			if (APP_HTTPS_CURL_CHECK_CERT == "OFF" && APP_FEDORA_APIA_PROTOCOL_TYPE == 'https://')  {
 				curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, 0);
 				curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, 0);
 			}

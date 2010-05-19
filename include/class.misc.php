@@ -138,6 +138,41 @@ class Misc
 	}
 
 
+	/**
+	 * Calculate new image dimensions to new constraints
+	 *
+	 * @param Original X size in pixels
+	 * @param Original Y size in pixels
+	 * @return New X maximum size in pixels
+	 * @return New Y maximum size in pixels
+	 */
+	function scaleImage($x,$y,$cx,$cy) {
+	    //Set the default NEW values to be the old, in case it doesn't even need scaling
+	    list($nx,$ny)=array($x,$y);
+
+	    //If image is generally smaller, don't even bother
+	    if ($x>=$cx || $y>=$cx) {
+
+	        //Work out ratios
+	        if ($x>0) $rx=$cx/$x;
+	        if ($y>0) $ry=$cy/$y;
+
+	        //Use the lowest ratio, to ensure we don't go over the wanted image size
+	        if ($rx>$ry) {
+	            $r=$ry;
+	        } else {
+	            $r=$rx;
+	        }
+
+	        //Calculate the new size based on the chosen ratio
+	        $nx=intval($x*$r);
+	        $ny=intval($y*$r);
+	    }    
+
+	    //Return the results
+	    return array($nx,$ny);
+	}
+
 	/*
 	 *  To use instead of php file_get_contents or fopen/fread as curl is much faster
 	 * @param string $url
@@ -153,11 +188,12 @@ class Misc
 		$url = str_replace('&amp;','&', $url);
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
-	  
+
 		if ($filehandle != null) {
 			curl_setopt($ch, CURLOPT_FILE, $filehandle);
 			curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
 			curl_setopt($ch, CURLOPT_BUFFERSIZE, 64000);
+			
 		} else {
 			if (!$passthru) {
 				curl_setopt ($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -172,17 +208,18 @@ class Misc
 		if($timeout != null) {
 			curl_setopt ($ch, CURLOPT_TIMEOUT, $timeout);
 		} 
-		
+		$contenttype = "image/jpeg2";
 		if($contenttype != null) {
 			curl_setopt($ch, CURLOPT_HTTPHEADER, Array("Content-Type: ".$contenttype));			
 		}
 
-		if (APP_HTTPS_CURL_CHECK_CERT == "OFF")  {
+		if (APP_HTTPS_CURL_CHECK_CERT == "OFF" && APP_FEDORA_APIA_PROTOCOL_TYPE == 'https://')  {
 			curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
 			curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
 		}
 
 		$data = curl_exec ($ch);
+//		print_r($data);
 		if ($data) {
 			$info = curl_getinfo($ch);
 			curl_close ($ch);
@@ -239,7 +276,7 @@ class Misc
 		curl_setopt ($ch, CURLOPT_NOBODY, 1);
 		curl_setopt ($ch, CURLOPT_HEADER, 1);
 		curl_setopt ($ch, CURLOPT_RETURNTRANSFER, 1);
-		if (APP_HTTPS_CURL_CHECK_CERT == "OFF")  {
+		if (APP_HTTPS_CURL_CHECK_CERT == "OFF" && APP_FEDORA_APIA_PROTOCOL_TYPE == 'https://')  {
 			curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
 			curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
 		}
@@ -272,7 +309,7 @@ class Misc
 		curl_setopt($ch, CURLOPT_HEADER, 1);
 		// make it a http HEAD request
 		curl_setopt($ch, CURLOPT_NOBODY, 1);
-		if (APP_HTTPS_CURL_CHECK_CERT == "OFF")  {
+		if (APP_HTTPS_CURL_CHECK_CERT == "OFF" && APP_FEDORA_APIA_PROTOCOL_TYPE == 'https://')  {
 			curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
 			curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
 		}
@@ -371,7 +408,7 @@ class Misc
 		curl_setopt($ch, CURLOPT_URL, $uri);
 		curl_setopt ($ch, CURLOPT_RETURNTRANSFER, 1);
 		//	   $ch = curl_init($uri);
-		if (APP_HTTPS_CURL_CHECK_CERT == "OFF")  {
+		if (APP_HTTPS_CURL_CHECK_CERT == "OFF" && APP_FEDORA_APIA_PROTOCOL_TYPE == 'https://')  {
 			curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
 			curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
 		}
@@ -1102,7 +1139,7 @@ class Misc
 		curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
 		curl_setopt($ch, CURLOPT_HEADER, TRUE);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER,TRUE);
-		if (APP_HTTPS_CURL_CHECK_CERT == "OFF")  {
+		if (APP_HTTPS_CURL_CHECK_CERT == "OFF" && APP_FEDORA_APIA_PROTOCOL_TYPE == 'https://')  {
 			curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
 			curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
 		}

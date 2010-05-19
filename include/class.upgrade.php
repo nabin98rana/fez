@@ -348,8 +348,10 @@ class upgrade {
 	 **/
 	function checkForPendingUpgrades()
 	{
-		$upgrades = upgrade::getUpdateSqlList();
+//		$upgrades = upgrade::getUpdateSqlList();
+
 		$version = upgrade::get_data_model_version();
+	    $upgrades = upgrade::getUpdateSqlList('upgrade/sql_scripts', $version);
 		
 		$pendingUpgrades = false;
 		foreach ($upgrades as $upgrade) {

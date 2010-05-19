@@ -3597,8 +3597,13 @@ class Record
 	    if(! @$xml_request_data->loadXML($foxml)) {
 	    	$log->err($foxml);
 	    }
-	    else {  
-		    $result = Fedora_API::callIngestObject($foxml);
+	    else {
+			if (APP_FEDORA_VERSION == "3") {
+			    $result = Fedora_API::callIngestObject($foxml, $pid);
+		    } else {
+		    	$result = Fedora_API::callIngestObject($foxml);			
+			}
+
 		    
 		    if($result) {
 		    	//Citation::updateCitationCache($pid, "");
@@ -3654,7 +3659,6 @@ class Record
 		$existingDatastreams = array();  // may be overwritten by extract
 
 		extract($dsarray);
-
 		$params = array();
 
 		$datastreamXMLHeaders = Misc::getDatastreamXMLHeaders($datastreamTitles, $xmlObj, $existingDatastreams);
@@ -3670,7 +3674,6 @@ class Record
 
 		if( APP_VERSION_UPLOADS_AND_LINKS == "ON" && !in_array("FezACML", $specify_list))
 		$datastreamXMLHeaders = Misc::processLinkVersioning($pid,$datastreamXMLHeaders,$datastreamXMLContent,$existingDatastreams);
-
 		if ($ingestObject) {
 			// Actually Ingest the object Into Fedora
 			// We only have to do this when first creating the object, subsequent updates should just work with the
@@ -3689,7 +3692,12 @@ class Record
 				$tidy->cleanRepair();
 				$xmlObj = "$tidy";
 			}
-			$result = Fedora_API::callIngestObject($xmlObj);
+			if (APP_FEDORA_VERSION == "3") {
+				$result = Fedora_API::callIngestObject($xmlObj, $pid);
+			} else {
+				$result = Fedora_API::callIngestObject($xmlObj);				
+			}
+
 			if (is_array($result)) {
 				$log->err(array($xmlObj, __FILE__,__LINE__));
 			}
@@ -3699,7 +3707,6 @@ class Record
 
 		// ingest the datastreams
 		foreach ($datastreamXMLHeaders as $dsKey => $dsTitle) {
-
 			$dsIDName = $dsTitle['ID'];
 
 			if (is_numeric(strpos($dsIDName, "."))) {
@@ -3715,7 +3722,6 @@ class Record
 				continue;
 			} else {
 				$datastreamID = $dsIDName;
-
 				$new_loc = false;
 				$new_locByLocalRef = false;
 				$new_add = false;
@@ -3803,7 +3809,7 @@ class Record
 						$dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP'],null,$versionable);
 					} elseif( $new_add ){
 						//                        Fedora_API::callAddDatastream($pid, $dsTitle['ID'], $datastreamXMLContent[$dsKey],
-						Fedora_API::callAddDatastream($pid, $dsTitle['ID'], $location,
+						Fedora_API::callAddDatastream($pid, $datastreamID, $location,
 						$dsTitle['LABEL'], $dsTitle['STATE'], $dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP'],$versionable);
 					} else {
 						$log->err(array("Unable to add datastream.  Missing add type.", __FILE__,__LINE__));
@@ -3811,7 +3817,6 @@ class Record
 				} elseif ($mod) {
 					
 					//First check 
-					
 					if( $mod_ByValue ) {
 						
 						$currentXML = Fedora_API::callGetDatastreamContents($pid, $datastreamID, true);
@@ -4256,7 +4261,6 @@ class Record
 	protected function renameDatastreamInternal($pid, $ds, $newName)
 	{
 		$log = FezLog::get();
-		
 		if (!Fedora_API::datastreamExists($pid, $ds['ID'])) {
 			$log->err("Could not rename datastream '{$ds['ID']}' to '{$newName}' in {$pid} because it doesn't exist");
 			return false;
@@ -4277,7 +4281,7 @@ class Record
 		}
 		
 		if (!$result) {
-			$log->err("Could not rename datastream '{$ds['ID']}' to '{$newName}' in {$pid} because we couldn't add the new datastream first");
+			$log->err("Could not rename datastream '{$ds['ID']}' to '{$newName}' in {$pid} because we couldn't add the new datastream first ".print_r($ds, true));
 			return $result;
 		}
 		

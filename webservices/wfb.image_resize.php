@@ -107,8 +107,21 @@ if (!stristr(PHP_OS, 'win') || stristr(PHP_OS, 'darwin')) { // Not Windows Serve
 if ($watermark == "" && $copyright == "") {
 //	if(!is_file(APP_TEMP_DIR.$temp_file)) {
 	if(!is_file(APP_TEMP_DIR.$temp_file)) {
-		$command = APP_CONVERT_CMD." -strip -quality ".escapeshellcmd($quality)." -resize \"".escapeshellcmd($width)."x".escapeshellcmd($height).">\" -colorspace rgb \"".$image_dir.escapeshellcmd($image)."\" ".APP_TEMP_DIR.escapeshellcmd($temp_file);
-		exec($command.$unix_extra, $return_array, $return_status);
+		if (extension_loaded('imagick')) {
+			$im = new Imagick($image_dir.escapeshellcmd($image));
+			$im->setImageColorspace(1); // 1 = rgb
+			$existingQuality = $im->getCompressionQuality();
+			if ($quality < $existingQuality) {
+				$im->setCompressionQuality($quality);
+			}
+			$im->thumbnailImage($width, $height);
+			$im->stripImage();
+			$im->writeImage(APP_TEMP_DIR.escapeshellcmd($temp_file));
+		} else {
+			$command = APP_CONVERT_CMD." -strip -quality ".escapeshellcmd($quality)." -resize \"".escapeshellcmd($width)."x".escapeshellcmd($height).">\" -colorspace rgb \"".$image_dir.escapeshellcmd($image)."\" ".APP_TEMP_DIR.escapeshellcmd($temp_file);
+			exec($command.$unix_extra, $return_array, $return_status);
+		}
+
 //		$error_message = shell_exec($command.$unix_extra);		
 	//	exec(escapeshellcmd($command));
 	} 
@@ -130,6 +143,8 @@ if ($watermark == "" && $copyright == "") {
 	$command = APP_COMPOSITE_CMD." -dissolve 15 -tile ".escapeshellcmd(APP_PATH)."/images/".APP_WATERMARK." ".APP_TEMP_DIR.escapeshellcmd($temp_file)." ".APP_TEMP_DIR.escapeshellcmd($temp_file)."";
 	exec($command.$unix_extra, $return_array, $return_status);
 }
+
+$log->err($command);
 //Error_Handler::logError("Image Magick Error: ".$error_message.", for command $command \n", __FILE__,__LINE__);
 if ($return_status <> 0) {	
 	//Error_Handler::logError("Image Magick Error: ".implode(",", $return_array).", return status = $return_status, for command $command$unix_extra \n", __FILE__,__LINE__);

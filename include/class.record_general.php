@@ -1517,7 +1517,7 @@ class RecordGeneral
 			$node->parentNode->removeChild($node);
 		}
 		$new_xml = $doc->saveXML();
-		if (APP_FEDORA_VERSION == "3.2.1") {
+		if (APP_FEDORA_VERSION == "3") {
 			Fedora_API::callIngestObject($new_xml, $pid);
 		} else {
 			Fedora_API::callIngestObject($new_xml);			

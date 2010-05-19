@@ -56,10 +56,10 @@ if (!file_exists($filepath)) {
     if (empty($quality)) {
         $quality = APP_THUMBNAIL_QUALITY;
     }
-    if (empty($height)) {
+    if (empty($height) || $height == '') {
         $height = APP_THUMBNAIL_HEIGHT;
     }
-    if (empty($width)) {
+    if (empty($width) || $width == '') {
         $width = APP_THUMBNAIL_WIDTH;
     }
 
@@ -75,11 +75,28 @@ if (!file_exists($filepath)) {
 	
         $new_file .= ".jpg";
     }
+
+	$imageDetails = Exiftool::getDetails($pid, $dsIDName);
+	$maxWidth = $imageDetails['exif_image_width'];
+	$maxHeight = $imageDetails['exif_image_height'];
+	if ($width > $maxWidth) { $width = $maxWidth; }
+	if ($height > $maxHeight) { $height = $maxHeight; }
+//	list($width,$height) = Misc::scaleImage($width, $height, $maxWidth, $maxHeight);
+
+	// if using php pecl image magick it uses zeros 0s as its constraint flag.. annoyingly
+	if (extension_loaded('imagick')) {
+		$fitbyWidth = (($width/$maxWidth)<($height/$maxHeight)) ?true:false;
+		if($fitbyWidth){
+		    $height = 0;
+		}else{
+		    $width = 0;
+		}
+	}
+
     $getString = APP_BASE_URL."webservices/wfb.image_resize.php?image="
         .urlencode($filename)."&height=$height&width=$width&quality=$quality&ext=jpg&outfile=".$new_file;
-//	echo $getString;
 	Misc::ProcessURL($getString);
-	
+
     if (!empty($new_file)) {
         if (Fedora_API::datastreamExists($pid, $new_file) && APP_VERSION_UPLOADS_AND_LINKS!="ON") {
             Fedora_API::callPurgeDatastream($pid, $new_file);
@@ -89,7 +106,7 @@ if (!file_exists($filepath)) {
         $new_file = APP_TEMP_DIR.$new_file;
         if (file_exists($new_file)) {
    	        $versionable = APP_VERSION_UPLOADS_AND_LINKS == "ON" ? 'true' : 'false';
-            Fedora_API::getUploadLocationByLocalRef($pid, $new_file, $new_file, $new_file, 'image/jpeg', 'M', null, $versionable);
+            Fedora_API::getUploadLocationByLocalRef($pid, $new_file_name, $new_file, $new_file_name, 'image/jpeg', 'M', null, $versionable);
 			Exiftool::saveExif($pid, $new_file_name);
             if (is_file($new_file)) {
                 $deleteCommand = APP_DELETE_CMD." ".$delete_file;
