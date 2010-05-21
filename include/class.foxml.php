@@ -500,7 +500,7 @@ class Foxml
 									}
 								} elseif ($xsdmf_details['xsdmf_html_input'] == 'contvocab' || $xsdmf_details['xsdmf_html_input'] == 'contvocab_selector') {
 									Foxml::handleMultipleInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details, array(), $attrib_loop_index, $element_prefix, $i, $xmlObj, $tagIndent);
-								} elseif ($xsdmf_details['xsdmf_html_input'] == 'multiple' || $xsdmf_details['xsdmf_html_input'] == 'dual_multiple') {
+								} elseif ($xsdmf_details['xsdmf_html_input'] == 'multiple' || $xsdmf_details['xsdmf_html_input'] == 'dual_multiple' || $xsdmf_details['xsdmf_html_input'] == 'customvocab_suggest') {
 									Foxml::handleMultipleInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details, array(),$attrib_loop_index, $element_prefix, $i, $xmlObj, $tagIndent);
 								} elseif ($xsdmf_details['xsdmf_html_input'] == 'xsdmf_id_ref') { // this assumes the xsdmf_id_ref will only refer to an xsdmf_id which is a text/textarea/combo/multiple, will have to modify if we need more
 									$xsdmf_details_ref = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_details['xsdmf_id_ref']);
@@ -531,7 +531,7 @@ class Foxml
 										}
 									} elseif ($xsdmf_details_ref['xsdmf_html_input'] == 'contvocab' || $xsdmf_details_ref['xsdmf_html_input'] == 'contvocab_selector') {
 										Foxml::handleMultipleInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_details_ref['xsdmf_id'], $xsdmf_details_ref, $xsdmf_details, $attrib_loop_index, $xsdmf_details_ref['xsdmf_element_prefix'], $i, $xmlObj, $tagIndent);
-									} elseif ($xsdmf_details_ref['xsdmf_html_input'] == 'multiple'  || $xsdmf_details_ref['xsdmf_html_input'] == 'dual_multiple') {
+									} elseif ($xsdmf_details_ref['xsdmf_html_input'] == 'multiple'  || $xsdmf_details_ref['xsdmf_html_input'] == 'dual_multiple' || $xsdmf_details_ref['xsdmf_html_input'] == 'customvocab_suggest') {
 										Foxml::handleMultipleInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_details_ref['xsdmf_id'], $xsdmf_details_ref,  $xsdmf_details, $attrib_loop_index, $xsdmf_details_ref['xsdmf_element_prefix'], $i, $xmlObj, $tagIndent);
 									} elseif ($xsdmf_details_ref['xsdmf_html_input'] == 'text' || $xsdmf_details_ref['xsdmf_html_input'] == 'rich_text' || $xsdmf_details_ref['xsdmf_html_input'] == 'textarea'  || $xsdmf_details_ref['xsdmf_html_input'] == 'hidden') {
 										Foxml::handleTextInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details, $xsdmf_details_ref, $attrib_loop_index, $element_prefix, $i, $xmlObj, $tagIndent);
@@ -697,12 +697,14 @@ class Foxml
 
 	function outputElementValue($i, $j, &$xmlObj, $element_prefix, $sought_node_type, $tagIndent, $parent_sel_id, $xdis_id, $pid, $top_xdis_id, $attrib_loop_index, &$indexArray, $file_downloads, $created_date, $updated_date, $depositor, $assign_usr_id, $assign_grp_id)
 	{
+		
 		$xsdmf_details = array();
 		if (is_numeric($parent_sel_id)) {
 			$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElementSEL_ID(urldecode($j['fez_hyperlink']), $parent_sel_id, $xdis_id);
 		} else {
 			$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElement(urldecode($j['fez_hyperlink']), $xdis_id);
 		}
+		
 		if (is_numeric($xsdmf_id)) { // if the xsdmf_id exists - then this is the only time we want to add to the xml instance object for non attributes
 
 			$xmlObj .= $tagIndent;
@@ -770,7 +772,7 @@ class Foxml
 				}
 			} elseif ($xsdmf_details['xsdmf_html_input'] == 'contvocab' || $xsdmf_details['xsdmf_html_input'] == 'contvocab_selector') {
 				Foxml::handleMultipleInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details, array(), $attrib_loop_index, $element_prefix, $i, $xmlObj, $tagIndent);
-			} elseif (($xsdmf_details['xsdmf_html_input'] == 'multiple' || $xsdmf_details['xsdmf_html_input'] == 'dual_multiple') && isset($_POST['xsd_display_fields'][$xsdmf_id])) {
+			} elseif (($xsdmf_details['xsdmf_html_input'] == 'multiple' || $xsdmf_details['xsdmf_html_input'] == 'dual_multiple' || $xsdmf_details['xsdmf_html_input'] == 'customvocab_suggest') && isset($_POST['xsd_display_fields'][$xsdmf_id])) {
 				Foxml::handleMultipleInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details, array(), $attrib_loop_index, $element_prefix, $i, $xmlObj, $tagIndent);
 			} elseif ($xsdmf_details['xsdmf_html_input'] == 'xsdmf_id_ref') { // this assumes the xsdmf_id_ref will only refer to an xsdmf_id which is a text/textarea/combo/multiple, will have to modify if we need more
 				$xsdmf_details_ref = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_details['xsdmf_id_ref']);
@@ -805,7 +807,7 @@ class Foxml
 						}									}
 				} elseif ($xsdmf_details['xsdmf_html_input'] == 'contvocab' || $xsdmf_details['xsdmf_html_input'] == 'contvocab_selector') {
 					Foxml::handleMultipleInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_details_ref['xsdmf_id'], $xsdmf_details_ref, $xsdmf_details, $attrib_loop_index, $xsdmf_details_ref['element_prefix'], $i, $xmlObj, $tagIndent);
-				} elseif ($xsdmf_details_ref['xsdmf_html_input'] == 'multiple' || $xsdmf_details_ref['xsdmf_html_input'] == 'dual_multiple') {
+				} elseif ($xsdmf_details_ref['xsdmf_html_input'] == 'multiple' || $xsdmf_details_ref['xsdmf_html_input'] == 'dual_multiple' || $xsdmf_details_ref['xsdmf_html_input'] == 'customvocab_suggest') {
 					Foxml::handleMultipleInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_details_ref['xsdmf_id'], $xsdmf_details_ref, $xsdmf_details, $attrib_loop_index, $xsdmf_details_ref['element_prefix'], $i, $xmlObj, $tagIndent);
 				} elseif ($xsdmf_details_ref['xsdmf_html_input'] == 'file_input' || $xsdmf_details_ref['xsdmf_html_input'] == 'file_selector') {
 					// check for file upload error
@@ -868,8 +870,12 @@ class Foxml
 				//                                $xsdmf_details_ref = array();
 				Foxml::handleTextInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details, $xsdmf_details_ref, $attrib_loop_index, $element_prefix, $i, $xmlObj, $tagIndent);
 			} else { // not necessary in this side
-				$attrib_value = Misc::addPrefix(@$_POST['xsd_display_fields'][$xsdmf_id], $xsdmf_details['xsdmf_value_prefix']);
-				array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], @$_POST['xsd_display_fields'][$xsdmf_id]));
+				if ($xsdmf_details['xsdmf_multiple'] == 1) {
+					Foxml::handleMultipleInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_details['xsdmf_id'], $xsdmf_details, $xsdmf_details, $attrib_loop_index, $xsdmf_details['element_prefix'], $i, $xmlObj, $tagIndent);
+				} else {
+					$attrib_value = Misc::addPrefix(@$_POST['xsd_display_fields'][$xsdmf_id], $xsdmf_details['xsdmf_value_prefix']);
+					array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], @$_POST['xsd_display_fields'][$xsdmf_id]));
+				}
 			}
 			if (trim($attrib_value) != "") {
 				$xmlObj .= $attrib_value; // The actual value to store inside the element tags, if one exists

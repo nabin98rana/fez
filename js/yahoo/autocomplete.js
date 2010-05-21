@@ -2182,9 +2182,14 @@ YAHOO.widget.AutoComplete.prototype.addMulti = function (stextBoxValue, multi, d
         
         // add the option to the multi select and select it
         multi.options.length = multi.options.length + 1;
-        multi.options[multi.options.length-1].text = stextBoxValue + ' (' + dbID + ')' + ' (' + username + ')';
+        if (username != null) {
+            multi.options[multi.options.length-1].text = stextBoxValue + ' (' + dbID + ')' + ' (' + username + ')';
+        } else {
+            multi.options[multi.options.length-1].text = stextBoxValue;
+        }
         multi.options[multi.options.length-1].value = dbID;
         multi.options[multi.options.length-1].selected = true;
+		multi.onchange();
     }
 };
 

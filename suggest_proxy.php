@@ -36,6 +36,7 @@ include_once("config.inc.php");
 include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.setup.php");
 include_once(APP_INC_PATH . "class.author.php");
+include_once(APP_INC_PATH . "class.xsd_html_match.php");
 
 $sek_suggest_function = false;
 
@@ -45,7 +46,10 @@ $use_xsdmf_id = false;
 
 if ((!empty($xsdmf_id)) && is_numeric($xsdmf_id)) {	
 	$use_xsdmf_id = true;
-	$sek_suggest_function = Search_Key::getSuggestFunctionByXSDMF_ID($xsdmf_id);
+	$sek_suggest_function = XSD_HTML_Match::getSmartyVarByXSDMF_ID($xsdmf_id);
+        if (! $sek_suggest_function) {
+	    $sek_suggest_function = Search_Key::getSuggestFunctionByXSDMF_ID($xsdmf_id);
+        }
 }
 else if (! empty($sek_id)) {
 	$sek_suggest_function = Search_Key::getSuggestFunctionBySek_ID($sek_id);
@@ -57,7 +61,6 @@ if(! $sek_suggest_function) {
 $suggestions = array();
 $query = Misc::escapeString($_GET['query']);
 if ($sek_suggest_function == "Search_Key::suggestSearchKeyIndexValue") {
-	
 	if($use_xsdmf_id) {
 		$sek_details = Search_Key::getDetailsByXSDMF_ID($xsdmf_id);
 	}

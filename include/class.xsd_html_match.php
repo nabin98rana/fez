@@ -806,7 +806,8 @@ class XSD_HTML_Match
 							xsdmf_xdis_id,
 							xsdmf_xpath,
 							sek_title,
-							sek_suggest_function
+							sek_suggest_function,
+							sek_lookup_function
 		                 FROM
 		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields as m1
 							left join " . APP_TABLE_PREFIX . "search_key as sk1 on sk1.sek_id = m1.xsdmf_sek_id ";
@@ -2978,6 +2979,35 @@ class XSD_HTML_Match
 			}
 			return $res;
 		}
+
+
+                /**
+                 * Method used to get the XSD Display ID with a given XSDMFID
+                 *
+                 * @access  public
+                 * @param   integer $xdis_title The XSD title to search by.
+                 * @return  array $res The xdis_id
+                 */
+                function getSmartyVarByXSDMF_ID($xsdmf_id)
+                {
+                        $log = FezLog::get();
+                        $db = DB_API::get();
+
+                        $stmt = "SELECT
+                                   xsdmf_smarty_variable
+                                 FROM
+                                    " . APP_TABLE_PREFIX . "xsd_display_matchfields
+                                 WHERE
+                                    xsdmf_id = ".$db->quote($xsdmf_id, 'INTEGER');
+                        try {
+                                $res = $db->fetchOne($stmt);
+                        }
+                        catch(Exception $ex) {
+                                $log->err($ex);
+                                return '';
+                        }
+                        return $res;
+                }
 
 		/**
 		 * Method used to get the details of a specific XSD HTML Matching Field, by xml element and sublooping id.

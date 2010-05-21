@@ -77,7 +77,103 @@ class Language
 	}
 	
 	
-	
+	/**
+     * Method used to get an associative array of the 3 char lang code (eg eng) and
+     * full details of a language code
+     *
+     * @access  public
+     * @return  array The list of languages
+     */
+    function getAssocList()
+    {
+            $log = FezLog::get();
+            $db = DB_API::get();
+
+            $stmt = "SELECT
+                lng_alpha3_bibliographic as id,
+                                    CONCAT(lng_alpha3_bibliographic, ' (', lng_english_name, ')') as name
+             FROM
+                " . APP_TABLE_PREFIX . "language
+             ORDER BY
+                lng_alpha3_bibliographic ASC";
+            try {
+                    $res = $db->fetchPairs($stmt);
+            }
+            catch(Exception $ex) {
+                    $log->err($ex);
+                    return '';
+            }
+            return $res;
+    }	
+
+    function suggest($term, $assoc = true)
+    {
+            $log = FezLog::get();
+            $db = DB_API::get();
+
+            if (empty($term)) { return array(); }
+ 
+            $stmt = "SELECT
+                lng_alpha3_bibliographic as id,
+                                    CONCAT(lng_alpha3_bibliographic, ' (', lng_english_name, ')') as name
+             FROM
+                " . APP_TABLE_PREFIX . "language
+			 WHERE lng_alpha3_bibliographic LIKE ".$db->quote($term."%")." OR lng_english_name LIKE ".$db->quote($term."%")."
+             ORDER BY
+                lng_english_name ASC";
+            try {
+                if ($assoc) {
+                     $res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+                } else {
+                     $res = $db->fetchAssoc($stmt);
+                }
+            }
+            catch(Exception $ex) {
+                    $log->err($ex);
+                    return '';
+            }
+            return $res;
+    }	
+
+	/**
+	 * Method used to get the full title for a given language code.
+	 *
+	 * @access  public
+	 * @param   string $lng_code The language code
+	 * @return  string The language title
+	 */
+	function getTitle($lng_code)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		if(empty($lng_code)) {
+			return "";
+		}
+
+        $stmt = "SELECT
+                  CONCAT(lng_alpha3_bibliographic, ' (', lng_english_name, ')') as name
+         FROM
+            " . APP_TABLE_PREFIX . "language
+         WHERE
+                    lng_alpha3_bibliographic = " . $db->quote($lng_code, 'STRING');
+        
+		try {
+			$res = $db->fetchOne($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return '';
+		}
+
+		if (empty($res)) { // for languages that were set before the language vocab was forced in
+			return $lng_code;
+		}
+		return $res;
+	}
+
+
+
 	/**
 	 * Method used to get the list of languages available in the system.
 	 *
@@ -145,48 +241,7 @@ class Language
 		return $res;
 	}
 	
-	
-	
-	/**
-	 * Method used to get the english name of a specific language code.
-	 *
-	 * @access  public
-	 * @param   string $lng_code The language code
-	 * @return  string The english name of the language
-	 */
-	function getTitle($lng_code)
-	{
-		$log = FezLog::get();
-		$db = DB_API::get();
-		
-		if(empty($lng_code)) {
-			return "";
-		}
 
-		$stmt = "SELECT
-                    lng_english_name
-                 FROM
-                    " . APP_TABLE_PREFIX . "language
-                 WHERE
-                    lng_alpha3_bibliographic = " . $db->quote($lng_code, 'STRING');
-        
-		try {
-			$res = $db->fetchRow($stmt);
-		}
-		catch(Exception $ex) {
-			$log->err($ex);
-			return '';
-		}
-		
-		if ($res['lng_english_name'] != '') {
-			return $res['lng_english_name'];
-		} else {
-			return $lng_code;
-		}
-	}
-	
-	
-	
 	/**
 	 * Method used to update the details of the language.
 	 *

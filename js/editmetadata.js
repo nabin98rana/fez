@@ -139,7 +139,7 @@ function createTextBox(xsdmf_id, loop_num, name, limit, axsdmf_id, aname, attach
         td2.className = "default text-input-odd";
     }
     
-    textbox.onkeyup = function () {createTextBox(xsdmf_id,loop_num,name,limit,axsdmf_id,aname, attachSuggest)};
+    textbox.onblur = function () {createTextBox(xsdmf_id,loop_num,name,limit,axsdmf_id,aname, attachSuggest)};
     textbox.onchange = function () {createTextBox(xsdmf_id,loop_num,name,limit,axsdmf_id,aname, attachSuggest)};
     textbox.onfocus = function () {createTextBox(xsdmf_id,loop_num,name,limit,axsdmf_id,aname, attachSuggest)};
     
@@ -158,7 +158,7 @@ function createTextBox(xsdmf_id, loop_num, name, limit, axsdmf_id, aname, attach
     }
     
     if(attachSuggest == 1) {
-        createGeneralSuggest(td2, xsdmf_id, loop_num);
+        createGeneralSuggest(td2, xsdmf_id, '', loop_num);
     }
     
     /*
@@ -233,7 +233,134 @@ function createAuthorSuggest(td, xsdmf_id, axsdmf_id, name, loop_num) {
     attachYuiAuthorSuggest(axsdmf_id, xsdmf_id, loop_num);
 }
 
-function createGeneralSuggest(td, xsdmf_id, loop_num) {
+function createCustomVocabSuggest(xsdmf_id, axsdmf_id, name, loop_num, limit) {
+
+
+    var trID = "tr_xsd_display_fields_" +xsdmf_id+ "_" + loop_num;
+    var textboxID = "xsd_display_fields_" +xsdmf_id+ "_" + loop_num;
+    prevElem = document.getElementById(trID);
+    currElem = document.getElementById(textboxID);
+    
+    if(currElem.value == "")
+        return;
+
+    var table = document.createElement("table");
+    var tbody = document.createElement("tbody");
+    var row = document.createElement("tr");
+    var td1 = document.createElement("td");
+    var td2 = document.createElement("td");
+    var textbox = document.createElement("input");
+    var bold = document.createElement("b");
+    
+    if(loop_num == limit) {
+        currElem.onkeyup = null;
+        currElem.onfocus = null;
+        currElem.onchange = null;
+        return;
+    }
+    
+    loop_num++;
+    
+    /*
+     * Create our up and down images
+     * for swapping textbox content
+     */
+    var uparrow=document.createElement('img');
+    uparrow.src = rel_url+"images/uparrow.png";
+    uparrow.style.cursor = "pointer";
+    uparrow.onclick = function () {swapDropDowns("xsd_display_fields_"+xsdmf_id+"_"+loop_num, "xsd_display_fields_"+xsdmf_id+"_"+(loop_num-1))};
+    
+    var downarrow=document.createElement('img');
+    downarrow.src = rel_url+"images/downarrow.png";
+    downarrow.id = "xsd_display_fields_"+xsdmf_id+"_"+loop_num+"_arrow";
+    downarrow.style.cursor = "pointer";
+    downarrow.style.display = "none";
+
+
+    downarrow.onclick = function () {swapDropDowns("xsd_display_fields_"+xsdmf_id+"_"+loop_num, "xsd_display_fields_"+xsdmf_id+"_"+(loop_num+1))}; 
+    
+    row.setAttribute("id", "tr_xsd_display_fields_" + xsdmf_id + "_" +loop_num);
+    row.className = "default";
+    td1.setAttribute("bgColor",cell_color);
+    td2.setAttribute("bgColor",value_color);
+    td2.style.whiteSpace="nowrap";
+    // selectbox to hold the author id
+    var select = document.createElement("select");
+    select.id = "xsd_display_fields_"+axsdmf_id+"_"+loop_num;
+    select.name = "xsd_display_fields["+axsdmf_id+"]["+loop_num+"]";
+    
+    var option = document.createElement("option");
+    option.value = "";
+    option.text = "(none)";
+    
+    try {
+      select.add(option, null); // standards compliant; doesn't work in IE
+    }
+    catch(ex) {
+      select.add(option, 0); // IE only
+    }
+
+    select.onkeyup = function () {createCustomVocabSuggest(xsdmf_id,axsdmf_id,name,loop_num,limit)};
+    select.onchange = function () {createCustomVocabSuggest(xsdmf_id,axsdmf_id,name,loop_num,limit)};
+    select.onfocus = function () {createCustomVocabSuggest(xsdmf_id,axsdmf_id,name,loop_num,limit)};
+	select.style.width="300px";
+	select.style.cssFloat="left";
+    select.className="default";
+    var div1 = document.createElement("div");
+    div1.id = "customsuggest";
+    div1.style.width = "30em";
+    div1.style.height = "2em";
+    div1.style.position = "relative";
+	div1.style.cssFloat = "left";
+    
+    // The div container that shows the results
+    var div2 = document.createElement("div");
+    div2.id = "xsd_display_fields_"+axsdmf_id+"_"+loop_num+"_container";
+    div2.style.position="absolute";
+
+    // The textbox the user searches in
+    var input = document.createElement("input");
+    input.type = "text";
+    input.id = "xsd_display_fields_"+axsdmf_id+"_"+loop_num+"_lookup";
+    
+    div2.appendChild(input);
+    div1.appendChild(div2);
+    td1.appendChild(uparrow);
+    td1.appendChild(downarrow);
+    
+    bold.appendChild(document.createTextNode(name + ": "));
+    td1.appendChild(bold);
+    td2.appendChild(select);
+    td2.appendChild(div1);
+    row.appendChild(td1);
+    row.appendChild(td2);
+//    tbody.appendChild(row);
+//    table.appendChild(tbody);
+//    td.appendChild(table);
+
+    insertAfter(row, prevElem);
+    attachYuiGeneralSuggest(xsdmf_id, xsdmf_id, loop_num);
+//    createGeneralSuggest(td2, xsdmf_id, '', loop_num);
+//    attachGeneralSuggest(axsdmf_id, xsdmf_id, loop_num);
+
+
+/*
+	 * Now we've created our new textbox, find the textbox row 
+	 * above and unhide its down arrow
+	 */
+	var show_arrow = document.getElementById('xsd_display_fields_' + xsdmf_id + '_' + (loop_num-1)+'_arrow');
+	if (show_arrow != null) {
+	    show_arrow.style.display = 'inline';
+	}
+
+	currElem.onkeyup = null;
+	currElem.onfocus = null;
+	currElem.onchange = null;
+
+
+}
+
+function createGeneralSuggest(td, xsdmf_id, to_fill_xsdmf_id, loop_num) {
     var div1 = document.createElement("div");
     div1.id = "generalsuggest";
     div1.style.width = "15em";
@@ -246,7 +373,7 @@ function createGeneralSuggest(td, xsdmf_id, loop_num) {
     div1.appendChild(div2);
     td.appendChild(div1);
    
-    attachYuiGeneralSuggest(xsdmf_id, loop_num);
+    attachYuiGeneralSuggest(xsdmf_id, to_fill_xsdmf_id, loop_num);
 }
 
 function formatAuthorRes(oResultItem, sQuery) {
@@ -272,19 +399,36 @@ function attachYuiAuthorSuggest(axsdmf_id, xsdmf_id, loop_num)
     });
 }
 
-function attachYuiGeneralSuggest(xsdmf_id, loop_num) 
+function attachYuiGeneralSuggest(xsdmf_id, to_fill_xsdmf_id, loop_num) 
 {
     var myDataSource = new YAHOO.widget.DS_XHR(myServer, mySchema);
     myDataSource.scriptQueryAppend = "xsdmf_id=" +xsdmf_id;
 
     // Instantiate first AutoComplete
-    oAutoComp = new YAHOO.widget.AutoComplete("xsd_display_fields_"+xsdmf_id+"_"+loop_num, xsdmf_id+"_"+loop_num+"_container", myDataSource);
+	if (to_fill_xsdmf_id != '') {
+    	oAutoComp = new YAHOO.widget.AutoComplete("xsd_display_fields_"+xsdmf_id+"_"+loop_num+"_lookup", "xsd_display_fields_"+xsdmf_id+"_"+loop_num+"_container", myDataSource);
+	} else {
+//		oAutoComp = new YAHOO.widget.AutoComplete("xsd_display_fields_"+xsdmf_id+"_"+loop_num, "xsd_display_fields_"+xsdmf_id+"_"+loop_num, myDataSource);
+	    oAutoComp = new YAHOO.widget.AutoComplete("xsd_display_fields_"+xsdmf_id+"_"+loop_num, xsdmf_id+"_"+loop_num+"_container", myDataSource);
+	}
     oAutoComp.maxResultsDisplayed = 10;
     oAutoComp.formatResult = function(oResultItem, sQuery) {
         return oResultItem[1].name;
     };
+	if (to_fill_xsdmf_id != '') {
+           if (to_fill_xsdmf_id == xsdmf_id) {
+		oAutoComp.registerControls(document.getElementById("xsd_display_fields_"+xsdmf_id+"_"+loop_num+"_lookup"), document.getElementById("xsd_display_fields_"+xsdmf_id+"_"+loop_num));
+		//oAutoComp.registerControls(document.getElementById("xsd_display_fields_"+to_fill_xsdmf_id+"_"+loop_num));
+           } else {
+		oAutoComp.registerControls(document.getElementById("xsd_display_fields_"+xsdmf_id+"_"+loop_num), document.getElementById("xsd_display_fields_"+to_fill_xsdmf_id+"_"+loop_num));
+           }
+	}
     oAutoComp.textboxFocusEvent.subscribe(function(){
-        var sInputValue = YAHOO.util.Dom.get("xsd_display_fields_"+xsdmf_id+"_"+loop_num).value;
+		if (to_fill_xsdmf_id != '') {
+        	var sInputValue = YAHOO.util.Dom.get("xsd_display_fields_"+xsdmf_id+"_"+loop_num+"_lookup").value;
+		} else {
+        	var sInputValue = YAHOO.util.Dom.get("xsd_display_fields_"+xsdmf_id+"_"+loop_num).value;
+		}
         if(sInputValue.length === 0) {
             var oSelf = this;
             setTimeout(function(){oSelf.sendQuery(sInputValue);},0);

@@ -783,6 +783,13 @@ function swapTextBox(textbox, xsdmf_id, loopnum, direction)
     }
 }
 
+function swapDropDowns(dropDownOne, DropDownTwo) {
+    var dd1 = document.getElementById(dropDownOne);
+	var dd2 = document.getElementById(DropDownTwo);
+    if (dd1 && dd2) {
+        swapDropDownValues(dd1, dd2);
+    }
+}
 
 function swapDropDownValues(dropDownOne, DropDownTwo)
 {

@@ -33,6 +33,7 @@
 // +----------------------------------------------------------------------+
  
  include_once(APP_INC_PATH . "class.community.php");
+ include_once(APP_INC_PATH . "class.search_key.php");
  require_once(APP_INC_PATH . "najax_classes.php");
  
  class RecordEditForm 
@@ -94,11 +95,13 @@
         $details = $record->getDetails();
         $this->fixDetails($details);
         $this->details = $details;
-        
         foreach ($xsdmf_to_use as &$xsdmf) {
-        	
             if( $xsdmf['xsdmf_multiple'] == 1 ) {
-				$xsdmf['fields_num_display'] = count(array_filter($details[$xsdmf['xsdmf_id']])) + 1;
+				if (empty($details[$xsdmf['xsdmf_id']])) {
+					$xsdmf['fields_num_display'] = 1;
+				} else {
+					$xsdmf['fields_num_display'] = count(array_filter($details[$xsdmf['xsdmf_id']])) + 1;
+				}
             }
         }
         
@@ -326,7 +329,7 @@
 					}
 				} 
 				
-                if ($dis_field["xsdmf_html_input"] == 'combo' || $dis_field["xsdmf_html_input"] == 'dual_multiple' || $dis_field["xsdmf_html_input"] == 'multiple' || $dis_field["xsdmf_html_input"] == 'contvocab' || $dis_field["xsdmf_html_input"] == 'contvocab_selector') {
+                if ($dis_field["xsdmf_html_input"] == 'combo' || $dis_field["xsdmf_html_input"] == 'dual_multiple' || $dis_field["xsdmf_html_input"] == 'customvocab_suggest' || $dis_field["xsdmf_html_input"] == 'multiple' || $dis_field["xsdmf_html_input"] == 'contvocab' || $dis_field["xsdmf_html_input"] == 'contvocab_selector') {
                     if (@$details[$dis_field["xsdmf_id"]]) { // if a record detail matches a display field xsdmf entry
                         if (($dis_field["xsdmf_html_input"] == 'contvocab_selector') && ($dis_field['xsdmf_cvo_save_type'] != 1)) {         
                             $tempArray = $details[$dis_field["xsdmf_id"]];
@@ -353,8 +356,33 @@
                                 $details[$dis_field["xsdmf_id"]] = array();
                                 $details[$dis_field["xsdmf_id"]][$tempValue] = Record::getTitleFromIndex($tempValue);
                             }    
-
-
+ 
+						} elseif ($dis_field["xsdmf_html_input"] == 'customvocab_suggest') {
+							$lookupFunction = $dis_field["sek_lookup_function"];
+                            $tempArray = $details[$dis_field["xsdmf_id"]];
+                            if (is_array($tempArray)) {
+                                $details[$dis_field["xsdmf_id"]] = array();
+                                foreach ($tempArray as $cv_key => $cv_value) {
+									$temp = $cv_value;
+									if ($lookupFunction != "") {
+										eval("\$temp = ".$lookupFunction."(".$cv_value.");");
+									}
+									$tempArray['id'] = $cv_value;
+									$tempArray['text'] = $temp;
+									$details[$dis_field["xsdmf_id"]][] = $tempArray;
+                                }
+                            } elseif  (trim($details[$dis_field["xsdmf_id"]]) != "") {
+                                $tempValue = $details[$dis_field["xsdmf_id"]];
+								$temp = $tempValue;
+                                $details[$dis_field["xsdmf_id"]] = array();
+								if ($lookupFunction != "") {
+									eval("\$temp = ".$lookupFunction."(".$tempValue.");");
+								}
+								$tempArray = array();
+								$tempArray['id'] = $tempValue;
+								$tempArray['text'] = $temp;
+								$details[$dis_field["xsdmf_id"]][] = $tempArray;
+                            }    
                         } elseif (is_array($dis_field["field_options"])) { // if the display field has a list of matching options
                             foreach ($dis_field["field_options"] as $field_key => $field_option) { // for all the matching options match the set the details array the template uses
                                 if (is_array($details[$dis_field["xsdmf_id"]])) { // if there are multiple selected options (it will be an array)
@@ -498,14 +526,14 @@
             	continue; // skip non-enabled items
     		}
     		// make sure multiple items are arrays even if they only have one item
-            if ( ($dis_field["xsdmf_html_input"] == 'multiple' || $dis_field["xsdmf_html_input"] == 'dual_multiple'
+            if ( ($dis_field["xsdmf_html_input"] == 'multiple' || $dis_field["xsdmf_html_input"] == 'dual_multiple' || $dis_field["xsdmf_html_input"] == 'customvocab_suggest'
         	    		|| $dis_field["xsdmf_html_input"] == 'contvocab_selector') 
     	        	&& (!@is_array($params['xsd_display_fields'][$dis_field["xsdmf_id"]])) ){ 
 	            $params['xsd_display_fields'][$dis_field["xsdmf_id"]] 
 	            	= array($params['xsd_display_fields'][$dis_field["xsdmf_id"]]);
             }
             // the contvocab selector uses key value pairs but we only want the keys
-            if ($dis_field["xsdmf_html_input"] == 'contvocab_selector' || $dis_field["xsdmf_html_input"] == 'dual_multiple') {
+            if ($dis_field["xsdmf_html_input"] == 'contvocab_selector' || $dis_field["xsdmf_html_input"] == 'dual_multiple' || $dis_field["xsdmf_html_input"] == 'customvocab_suggest') {
             	$params['xsd_display_fields'][$dis_field["xsdmf_id"]] 
 	            	= array_keys($params['xsd_display_fields'][$dis_field["xsdmf_id"]]);
 			}
