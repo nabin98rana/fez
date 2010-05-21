@@ -303,7 +303,7 @@ class NAJAX_Server extends NAJAX_Observable
 
 					if (method_exists($requestBody['source'], NAJAX_CLIENT_METADATA_METHOD_NAME)) {
 
-						call_user_func_array(array(&$requestBody['source'], NAJAX_CLIENT_METADATA_METHOD_NAME), null);
+						call_user_func_array(array(&$requestBody['source'], NAJAX_CLIENT_METADATA_METHOD_NAME), array());
 
 						if (isset($requestBody['source']->najaxMeta)) {
 
