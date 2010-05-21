@@ -1588,6 +1588,23 @@ class Misc
 	}
 
 
+	function obj2array($obj) {
+	  $out = array();
+	  foreach ($obj as $key => $val) {
+	    switch(true) {
+	        case is_object($val):
+	         $out[$key] = Misc::obj2array($val);
+	         break;
+	      case is_array($val):
+	         $out[$key] = Misc::obj2array($val);
+	         break;
+	      default:
+	        $out[$key] = $val;
+	    }
+	  }
+	  return $out;
+	}
+
 	/**
 	 * Retrieves the inline xml content datastream of the given titles in the xml string.
 	 * Used to pull out the datastream from a created XML object after an update html post.

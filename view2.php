@@ -247,7 +247,7 @@ if (!empty($pid) && $record->checkExists()) {
 		// for every metadata field
 		foreach($metaDataFields as $xsdmfId => $metaDataDetails) {
 			// if there are details
-			if (isset($details[$xsdmfId]) && trim($details[$xsdmfId]) != '') {
+			if (isset($details[$xsdmfId]) && !empty($details[$xsdmfId])) {
 				// foreach metadata field name
 				foreach ($metaDataDetails['fieldnames'] as $fieldName) {
 					// make sure we're only outputting multiple values for fields that are supposed to output multiple values

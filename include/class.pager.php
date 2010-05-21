@@ -252,14 +252,15 @@ class Pager
 				 
 				foreach ($searchKeyArray as $sek_id => $value) {
 					// only save values that are useful to save (no empty vars, or filters that are not enabled or multiple types = any)
-					if (trim($value) == '') 
-						continue;
 					if (is_array($value)) {
 						if (isset($value['filter_enabled']) && $value['filter_enabled'] == 0)
 							continue;
 						if (isset($value['multiple_type']) && $value['multiple_type'] == 'any' && count($value) == 1)
 							continue;
 					}
+
+					if (!is_array($value)) 
+						continue;
 						
 					if ($from_cookie == true) {
 						$tempArray = array($sek_id => $value);

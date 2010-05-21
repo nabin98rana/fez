@@ -481,7 +481,7 @@ class SanityChecks
 	{
 		$results = array(ConfigResult::message('Testing Fedora'));
 		$results = array_merge($results, SanityChecks::checkHTTPConnect('APP_BASE_FEDORA_APIA_DOMAIN',APP_BASE_FEDORA_APIA_DOMAIN.'/describe'));
-		$results = array_merge($results, SanityChecks::checkHTTPConnect('APP_BASE_FEDORA_APIM_DOMAIN',APP_BASE_FEDORA_APIM_DOMAIN));
+		$results = array_merge($results, SanityChecks::checkHTTPConnect('APP_BASE_FEDORA_APIM_DOMAIN',APP_BASE_FEDORA_APIM_DOMAIN.'/'));
 		$results = array_merge($results, SanityChecks::checkHTTPConnect('APP_FEDORA_ACCESS_API',APP_FEDORA_ACCESS_API));
 		$results = array_merge($results, SanityChecks::checkHTTPConnect('APP_FEDORA_MANAGEMENT_API',APP_FEDORA_MANAGEMENT_API));
 		$security_advice = 'Check that you supplied the correct password in ' .
@@ -501,7 +501,7 @@ class SanityChecks
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 			curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
 			curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
-			if (APP_HTTPS_CURL_CHECK_CERT == "OFF")  {
+			if (APP_HTTPS_CURL_CHECK_CERT == "OFF" && APP_FEDORA_APIA_PROTOCOL_TYPE == 'https://')  {
 				curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
 				curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
 			}
@@ -542,7 +542,7 @@ class SanityChecks
                         "Check that the database password is correct. " .
                         "Check that database name is set correctly. DB Error");
 			} else {
-				$stmt = "SELECT * FROM policy ";
+				$stmt = "SELECT * FROM doFields ";
 				$db->limit($stmt, 1, 0);
 				try {
 					$db->query($stmt);
@@ -767,7 +767,7 @@ class SanityChecks
 		curl_setopt ($ch, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
 		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
-		if (APP_HTTPS_CURL_CHECK_CERT == "OFF")  {
+		if (APP_HTTPS_CURL_CHECK_CERT == "OFF" && APP_FEDORA_APIA_PROTOCOL_TYPE == 'https://')  {
 			curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
 			curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
 		}

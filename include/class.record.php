@@ -2857,7 +2857,7 @@ class Record
 		$tableJoinID = 1;
 		foreach ($searchKeys as $sek_id => $searchValue ) {
 
-			if (!empty($searchValue) && trim($searchValue) != "") {
+			if (!empty($searchValue) && is_array($searchValue)) {
 
 				$sekdet = Search_Key::getDetails($sek_id);
 

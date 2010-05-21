@@ -213,6 +213,11 @@ class Configuration
         define("APP_FEDORA_OAI_URL", APP_BASE_FEDORA_APIA_DOMAIN . "/oai");                           // OAI URL
         define("APP_FEDORA_ACCESS_API", APP_BASE_FEDORA_APIA_DOMAIN . "/services/access");
         define("APP_FEDORA_MANAGEMENT_API", APP_BASE_FEDORA_APIM_DOMAIN . "/services/management");
+        //define("APP_FEDORA_ACCESS_WSDL_API", APP_SIMPLE_FEDORA_APIA_DOMAIN . "/wsdl?api=API-A");
+        //define("APP_FEDORA_MANAGEMENT_WSDL_API", APP_SIMPLE_FEDORA_APIM_DOMAIN . "/wsdl?api=API-M");
+        define("APP_FEDORA_ACCESS_WSDL_API", APP_FEDORA_ACCESS_API . "?wsdl");
+        define("APP_FEDORA_MANAGEMENT_WSDL_API", APP_FEDORA_MANAGEMENT_API . "?wsdl");
+
         
         // OS-specific tweaks (Formerly Bill vs Linus).
         if (stristr(PHP_OS, 'darwin')) {

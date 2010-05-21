@@ -157,7 +157,7 @@ class NAJAX_Client extends NAJAX_Observable
 
 			if (method_exists($var, NAJAX_CLIENT_METADATA_METHOD_NAME)) {
 
-				call_user_func_array(array(&$var, NAJAX_CLIENT_METADATA_METHOD_NAME), null);
+				call_user_func_array(array(&$var, NAJAX_CLIENT_METADATA_METHOD_NAME), array());
 			}
 
 			$objectCode = array();
