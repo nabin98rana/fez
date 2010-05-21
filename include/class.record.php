@@ -2367,6 +2367,10 @@ class Record
         
         // Record in history
         Record::insertThomsonCitationCount($pid, $count);
+
+		if( APP_SOLR_INDEXER == "ON" ) {
+			FulltextQueue::singleton()->add($pid);							
+		}
                 
         return true;
 	}
@@ -2582,6 +2586,10 @@ class Record
         
         // Record in history
         Record::insertScopusCitationCount($pid, $count);
+
+		if( APP_SOLR_INDEXER == "ON" ) {
+			FulltextQueue::singleton()->add($pid);							
+		}
                 
         return true;
 	}
@@ -3852,7 +3860,7 @@ class Record
 //							Logger::debug($datastreamXMLContent[$dsKey]);
 				    	Fedora_API::callModifyDatastreamByValue($pid, $datastreamID, $dsTitle['STATE'], $dsTitle['LABEL'],
 	   	                    $cleanXML, $dsTitle['MIMETYPE'], $versionable);
-						}					
+						}
 						
 					} elseif( $mod_ByRef ) {
 						Fedora_API::callModifyDatastreamByReference($pid, $datastreamID, $dsTitle['LABEL'],
