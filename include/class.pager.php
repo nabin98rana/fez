@@ -252,8 +252,8 @@ class Pager
 				 
 				foreach ($searchKeyArray as $sek_id => $value) {
 					// only save values that are useful to save (no empty vars, or filters that are not enabled or multiple types = any)
-					if (trim($value) == '') 
-						continue;
+//					if (trim($value) == '') 
+//						continue;
 					if (is_array($value)) {
 						if (isset($value['filter_enabled']) && $value['filter_enabled'] == 0)
 							continue;
