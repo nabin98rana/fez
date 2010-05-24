@@ -1,0 +1,60 @@
+	<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" {if $xsd_display_fields[i].xsdmf_invisible == 1}style="display:none"{/if}>
+
+	<td width="200" bgcolor="{$cell_color}" class="default" valign="top">
+		<b>{$xsdmf.xsdmf_title}{if $xsdmf.xsdmf_multiple == 1} {math equation="x + 1" x=$loop_num}{/if}</b>
+		{if $xsdmf.xsdmf_multiple == 1}<img id="xsd_display_fields_{$xsdmf.xsdmf_id}_{$loop_num}_arrow" src="{$rel_url}images/downarrow.png" onclick="javascript:swapDropDownValues(document.getElementById('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}'),document.getElementById('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num+1}'));" style="cursor: pointer;{if $details[$temp_fld_id][$loop_num] == ''}display: none;{/if}" />{if $loop_num != 0 }<img src="{$rel_url}images/uparrow.png" onclick="javascript:swapDropDownValues(document.getElementById('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}'),document.getElementById('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num-1}'));" style="cursor: pointer" />{/if}{/if}
+		{if $xsdmf.xsdmf_required == 1 && $loop_num == 0} * {/if}
+		{if $xsdmf.xsdmf_description != "" && $loop_num == 0}
+			<br /><i>{$xsdmf.xsdmf_description}</i>
+		{/if}				
+		{if $xsdmf.xsdmf_multiple == 1 && $loop_num == 0}<br /><i>(More {$xsdmf.xsdmf_title} input boxes will appear as they are used up)</i>{/if}
+	</td>
+    	<td style="white-space:nowrap">
+            {assign var="custom_field_id" value="xsd_display_fields_"|cat:$xsd_display_fields[i].xsdmf_id|cat:"_"|cat:$loop_num}
+            <select class="default" style="float:left;width:300px;" id="{$custom_field_id}"
+			{if $xsd_display_fields[i].xsdmf_multiple == 1}
+				name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]{$squares}" value="{$details[$temp_fld_id][$loop_num]|escape:"html"}" >
+			{else}
+				name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]{$squares}" value="{$details[$temp_fld_id]|escape:"html"}" >
+			{/if}
+               <option value="">(none)</option>
+				{assign var="custom_details" value=$xsd_display_fields[i].xsdmf_id}
+				
+               {if ($details[$custom_details][$loop_num] != "" && $details[$custom_details][$loop_num] != 0)}
+            	   {if is_array($details[$custom_details])}
+            		 {if $details[$custom_details][$loop_num].id != ""}
+            		   {assign var="custom_id" value=$details[$custom_details][$loop_num]}
+            		   <option value="{$custom_id.id}" selected>{$custom_id.text}</option>
+            		  {/if}
+            	   {/if}
+            	{/if}
+            </select>
+	        {if $smarty.section.textfield.last && $xsd_display_fields[i].xsdmf_multiple == 1}
+	        <script>
+	        var field = document.getElementById('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}');
+	        field.onchange = {literal}function () {{/literal}createCustomVocabSuggest({$xsd_display_fields[i].xsdmf_id},{$xsd_display_fields[i].xsdmf_id},'{$xsd_display_fields[i].xsdmf_title}', {$loop_num}, {math equation="y-1" y=$xsd_display_fields[i].xsdmf_multiple_limit})}
+	        field.onfocus = {literal}function () {{/literal}createCustomVocabSuggest({$xsd_display_fields[i].xsdmf_id},{$xsd_display_fields[i].xsdmf_id},'{$xsd_display_fields[i].xsdmf_title}', {$loop_num}, {math equation="y-1" y=$xsd_display_fields[i].xsdmf_multiple_limit})}
+	        field.onblur = {literal}function () {{/literal}createCustomVocabSuggest({$xsd_display_fields[i].xsdmf_id},{$xsd_display_fields[i].xsdmf_id},'{$xsd_display_fields[i].xsdmf_title}', {$loop_num}, {math equation="y-1" y=$xsd_display_fields[i].xsdmf_multiple_limit})}
+	        </script>
+	        {/if}
+            <!-- Google suggest style selection -->
+            {* IE HACK: We want the suggest dropdown to be on top of any other auto-suggest controls which appear below it *}
+            {* smarty.section.i.index is used incase this suggest control is used by more than 1 element ie. custom and Editor *}
+			<div id="customsuggest" style="float:left;width:30em;height:2em;position:relative;z-index:{math equation="2000 - x - y" y=$loop_num x=$smarty.section.i.index};">
+			  <div id="{$custom_field_id}_container" style="position:absolute;top:1.6em;"></div>
+            	<input id="{$custom_field_id}_lookup" type="text">
+            </div>
+        </td>
+    </tr>
+{literal}
+<script type="text/javascript">    
+attachYuiGeneralSuggest({/literal}{$xsd_display_fields[i].xsdmf_id}, {$xsd_display_fields[i].xsdmf_id}, {$loop_num}{literal});
+</script>
+{/literal}
+
+{if $xsd_display_fields[i].xsdmf_attached_xsdmf_id != ""}
+	{assign var="attached_xsdmf_id" value=$xsd_display_fields[i].xsdmf_attached_xsdmf_id}
+	{section name='aas' loop=$xsd_display_fields}{if $xsd_display_fields[aas].xsdmf_id == $xsd_display_fields[i].xsdmf_id}{assign var="attached_xsdmf" value=$xsd_display_fields[aas]}{/if}{/section}
+	{assign var="attached_field_name" value="xsd_display_fields_"|cat:$xsd_display_fields[i].xsdmf_id|cat:"_"|cat:$loop_num}						
+	{include file='workflow/edit_metadata_helpers/attached_'|cat:$xsd_display_fields[i].xsdmf_html_input|cat:'.tpl.html'}
+{/if}
