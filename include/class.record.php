@@ -2777,18 +2777,20 @@ class Record
 
 		$operatorToUse = trim($operator);
 
+
+
 		/*
 		 * Fulltext SQL (Special Case)
 		 */
-		if ($searchKeys["0"]  && trim($searchKeys["0"]) != "") { //this will have to replaced with lots of union select joins like eventum
 
+		if ($searchKeys["0"]  && trim($searchKeys["0"]) != "") { //this will have to replaced with lots of union select joins like eventum
 			$joinType = " INNER JOIN ";
 			if( $operatorToUse == 'OR' )
 			{
 				$joinType = " LEFT JOIN ";
 			}
 
-			$input = $searchKeys["0"];
+			$escapedInput = $searchKeys["0"];
 
 			$searchKey_join[SK_KEY_ID] = 1;
 			$searchKey_join[SK_SEARCH_TXT] .= "Title, Abstract, Keywords:\"".trim(htmlspecialchars($searchKeys["0"]))."\", ";
@@ -2857,7 +2859,7 @@ class Record
 		$tableJoinID = 1;
 		foreach ($searchKeys as $sek_id => $searchValue ) {
 
-			if (!empty($searchValue) && is_array($searchValue)) {
+			if (!empty($searchValue)) {
 
 				$sekdet = Search_Key::getDetails($sek_id);
 
