@@ -54,6 +54,7 @@ class WorkflowStatus {
 	var $outcome = "";
 	var $outcomeDetail = "";
 	var $xdis_id;
+	var $new_xdis_id;
 	var $wft_id;
 	var $custom_view_pid;
 	var $wfl_details;
