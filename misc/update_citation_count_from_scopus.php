@@ -66,7 +66,12 @@ for($i=0; $i<((int)$listing['info']['total_pages']+1); $i++) {
 	if(count($input_keys) > 0) {		
 		$result = Scopus::getCitedByCount($input_keys);
 		foreach($result as $pid => $link_data) {
-			Record::updateScopusCitationCount($pid, $link_data['citedByCount']);
+			if (is_numeric($link_data['citedByCount'])) {
+				$count = $link_data['citedByCount']; 
+			} else {
+				$count = 0;
+			}
+			Record::updateScopusCitationCount($pid, $count);
 		}
 		
 		sleep($sleep); // Wait before using the service again		
