@@ -88,6 +88,7 @@ class Lister
             'sort_by'       =>  'string',
             'search_keys'   =>  'array',
             'order_by'      =>  'string',
+            'sort_order'    =>  'string',
             'value'         =>  'string',
             'operator'      =>  'string',
             'custom_view_pid' =>  'string',
