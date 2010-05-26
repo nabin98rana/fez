@@ -39,11 +39,7 @@ include_once(APP_INC_PATH. 'class.error_handler.php');
 $pids = $this->pids;  /* The Pids to copy */
 $xdis_id = $this->xdis_id; /* The display type to change the doc types from*/
 $new_xdis_id =  $this->getvar('new_xdis_id'); /* The display type to change the doc types to*/
-$log = FezLog::get();
-$log->err("in bulk change display type - ".print_r($pids, true).$new_xdis_id);
 if (!empty($pids) && is_array($pids)) {
     $bgp = new BackgroundProcess_Bulk_Change_Display_Type;
     $bgp->register(serialize(compact('pids', 'xdis_id', 'new_xdis_id')), Auth::getUserID());
 }
-
-?>
