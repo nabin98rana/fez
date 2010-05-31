@@ -1437,8 +1437,8 @@ class RecordGeneral
 						}
 						// Looks like a regular fully-formed date.
 						$xsdmf_value = strtotime($xsdmf_value);
-						$date = new Date($xsdmf_value);
-						$xsdmf_value = $date->format('%Y-%m-%d %T');
+						$xsdmf_value = date('Y-m-d T', $xsdmf_value);
+						
 						if ($xsdmf_value == "0000-01-01 00:00:00" || $xsdmf_value == "0000-00-00 00:00:00" || $xsdmf_value == "0-01-01 00:00:00") {
 							$xsdmf_value = "NULL";
 						}
@@ -1474,6 +1474,7 @@ class RecordGeneral
 
 			}
 		}
+		
 		Record::removeIndexRecord($pid, false); //clean out the SQL index, but do not remove from Solr, the solr entry will get updated in updateSearchKeys
 		Record::updateSearchKeys($pid, $searchKeyData);
 	}
@@ -1517,7 +1518,7 @@ class RecordGeneral
 			$node->parentNode->removeChild($node);
 		}
 		$new_xml = $doc->saveXML();
-		if (APP_FEDORA_VERSION == "3") {
+		if (APP_FEDORA_VERSION == "3.2.1") {
 			Fedora_API::callIngestObject($new_xml, $pid);
 		} else {
 			Fedora_API::callIngestObject($new_xml);			
@@ -1709,4 +1710,5 @@ class RecordGeneral
 	{
 		return RecordLock::getOwner($this->pid) > 0 ? true : false;
 	}
+
 }
