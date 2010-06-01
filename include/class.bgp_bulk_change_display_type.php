@@ -33,6 +33,7 @@
 // +----------------------------------------------------------------------+
 
 include_once(APP_INC_PATH.'class.background_process.php');
+include_once(APP_INC_PATH.'class.history.php');
 include_once(APP_INC_PATH.'class.xsd_display.php');
 
 class BackgroundProcess_Bulk_Change_Display_Type extends BackgroundProcess
@@ -58,6 +59,7 @@ class BackgroundProcess_Bulk_Change_Display_Type extends BackgroundProcess
 		/*
 		 * Copy pid(s) to collection
 		 */
+
 		$xdis_title = XSD_Display::getTitle($new_xdis_id);
 		if (!empty($pids) && is_array($pids)) {
 
@@ -65,11 +67,16 @@ class BackgroundProcess_Bulk_Change_Display_Type extends BackgroundProcess
 
 			foreach ($pids as $pid) {
 				$this->setHeartbeat();
-				 
 				$record = new RecordObject($pid);
+				$xdis_id = $record->getXmlDisplayIdUseIndex();
+				$old_xdis_title = XSD_Display::getTitle($xdis_id);				 
+
 				if ($record->canEdit()) {
 					$record->updateAdminDatastream($new_xdis_id);
-					$this->setStatus("Change display type in $pid from $xdis_id to $new_xdis_id");
+					$historyDetail = "Changed Display Type from ".$old_xdis_title." (".$xdis_id.") to ".$xdis_title." (".$new_xdis_id.")";
+					History::addHistory($pid, null, "", "", true, $historyDetail);
+					
+					$this->setStatus("Changed display type in $pid from $xdis_id to $new_xdis_id");
 				} else {
 					$this->setStatus("Skipped '".$pid."'. User can't edit this record");
 				}
