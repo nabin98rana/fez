@@ -53,7 +53,7 @@ class Sessions {
 		}
 		
 		$stmt = '
-				SELECT MAX(updated), session_id, session_ip, created, session_data, user_id
+				SELECT MAX(updated) AS updated, session_id, session_ip, created, session_data, user_id
 				FROM ' . APP_TABLE_PREFIX . 'sessions
 				WHERE
 					DATE_ADD(updated, INTERVAL ' . APP_SESSION_TIMEOUT . ' SECOND) > NOW()
