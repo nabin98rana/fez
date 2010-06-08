@@ -60,22 +60,23 @@ for($i=0; $i<((int)$listing['info']['total_pages']+1); $i++) {
 	 	for($j=0; $j<count($listing['list']); $j++) {
 	 		$record = $listing['list'][$j];
 	 		$key = $record['rek_pid'];
-	 		$eid = $record['rek_scopus_id'];	// We store the EID as the Scopus ID 		
+	 		$eid = $record['rek_scopus_id'];	// We store the EID as the Scopus ID
 	 		if(! empty($eid)) {
 	 			$input_keys[$key] = array('eid' => $eid);
 	 		}
 	 	}
 	}
 	
-	if(count($input_keys) > 0) {		
+	if(count($input_keys) > 0) {
 		$result = Scopus::getCitedByCount($input_keys);
 		foreach($result as $pid => $link_data) {
+			$eid = $link_data['eid']; 
 			if (is_numeric($link_data['citedByCount'])) {
 				$count = $link_data['citedByCount']; 
 			} else {
 				$count = 0;
 			}
-			Record::updateScopusCitationCount($pid, $count);
+			Record::updateScopusCitationCount($pid, $count, $eid);
 		}
 		sleep($sleep); // Wait before using the service again		
 	}

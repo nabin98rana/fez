@@ -2345,7 +2345,7 @@ class Record
 	 * @param $count The count to update with 
 	 * @return bool True if the update was successful else false
 	 */
-	public static function updateThomsonCitationCount($pid, $count) 
+	public static function updateThomsonCitationCount($pid, $count, $isi_loc) 
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -2366,7 +2366,7 @@ class Record
 		}
         
         // Record in history
-        Record::insertThomsonCitationCount($pid, $count);
+        Record::insertThomsonCitationCount($pid, $count, $isi_loc);
 
 		if( APP_SOLR_INDEXER == "ON" ) {
 			FulltextQueue::singleton()->add($pid);							
@@ -2432,7 +2432,7 @@ class Record
 	 * @param $count The count to insert 
 	 * @return bool True if the insert was successful else false
 	 */
-	private static function insertThomsonCitationCount($pid, $count) 
+	private static function insertThomsonCitationCount($pid, $count, $isi_loc) 
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -2441,9 +2441,9 @@ class Record
 		
 		$stmt = "INSERT INTO
                     " . $dbtp . "thomson_citations
-                 (tc_id, tc_pid, tc_count, tc_last_checked, tc_created)
+                 (tc_id, tc_pid, tc_count, tc_last_checked, tc_created, tc_isi_loc)
                  VALUES
-                 (NULL, ".$db->quote($pid).", ".$db->quote($count).", '".time()."', '".time()."')";
+                 (NULL, ".$db->quote($pid).", ".$db->quote($count).", '".time()."', '".time()."', ".$db->quote($isi_loc).")";
 		
 		try {
 			$db->query($stmt);
@@ -2601,7 +2601,7 @@ class Record
 	 * @param $count The count to insert 
 	 * @return bool True if the insert was successful else false
 	 */
-	private static function insertScopusCitationCount($pid, $count) 
+	private static function insertScopusCitationCount($pid, $count, $eid) 
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -2610,9 +2610,9 @@ class Record
 		
 		$stmt = "INSERT INTO
                     " . $dbtp . "scopus_citations
-                 (sc_id, sc_pid, sc_count, sc_last_checked, sc_created)
+                 (sc_id, sc_pid, sc_count, sc_last_checked, sc_created, sc_eid)
                  VALUES
-                 (NULL, ".$db->quote($pid).", ".$db->quote($count).", '".time()."', '".time()."')";
+                 (NULL, ".$db->quote($pid).", ".$db->quote($count).", '".time()."', '".time()."', ".$db->quote($eid).")";
 		
 		try {
 			$db->query($stmt);

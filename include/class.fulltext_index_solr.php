@@ -44,7 +44,8 @@ class FulltextIndex_Solr extends FulltextIndex {
 	 */
 	private function getSolr() 
 	{
-		$solr = &new Apache_Solr_Service($this->solrHost, $this->solrPort, $this->solrPath);
+//		$solr = &new Apache_Solr_Service($this->solrHost, $this->solrPort, $this->solrPath);
+		$solr = new Apache_Solr_Service($this->solrHost, $this->solrPort, $this->solrPath);
 		return $solr;
 	}
 

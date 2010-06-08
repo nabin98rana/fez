@@ -65,7 +65,7 @@ for($i=0; $i<((int)$listing['info']['total_pages']+1); $i++) {
 			foreach($records_xml->REC as $record) {
 				if(@$record->item) {
 					$pid = Record::getPIDByIsiLoc($record->item->ut);	
-					Record::updateThomsonCitationCount($pid, $record->attributes()->timescited);
+					Record::updateThomsonCitationCount($pid, $record->attributes()->timescited, $record->item->ut);
 				}
 			}
 		}
