@@ -2563,7 +2563,7 @@ class Record
 	 * @param $count The count to update with 
 	 * @return bool True if the update was successful else false
 	 */
-	public static function updateScopusCitationCount($pid, $count) 
+	public static function updateScopusCitationCount($pid, $count, $eid) 
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -2585,7 +2585,7 @@ class Record
 		}
         
         // Record in history
-        Record::insertScopusCitationCount($pid, $count);
+        Record::insertScopusCitationCount($pid, $count, $eid);
 
 		if( APP_SOLR_INDEXER == "ON" ) {
 			FulltextQueue::singleton()->add($pid);							
