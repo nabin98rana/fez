@@ -82,7 +82,7 @@
 				[ <a href="javascript:editFilename('{$pid}', '{$datastreams[d].ID}', '{$filecounter}')">Rename</a> ]
 				</td>
 
-				<td bgcolor="{$value_color}"><div id="{$pid}_{$filecounter}_div"><span id="{$pid}_{$filecounter}_span" onclick="editFileLabel('{$pid}', '{$datastreams[d].ID}', {$filecounter});">{$datastreams[d].label}</span></div></td>
+				<td bgcolor="{$value_color}"><div id="{$pid}_{$filecounter}_div"><span id="{$pid}_{$filecounter}_span" onclick="editFileLabel('{$pid}', '{$datastreams[d].ID}', {$filecounter});">{if $datastreams[d].label == ""}(empty){else}{$datastreams[d].label}{/if}</span></div></td>
 				<td bgcolor="{$value_color}">{$datastreams[d].MIMEType}</td>
 			  </tr>
 			 {/if}
