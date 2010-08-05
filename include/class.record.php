@@ -444,6 +444,18 @@ class Record
 			Fedora_API::getUploadLocation($pid, $FezACML_dsID, $xmlObj, "FezACML security for datastream - ".$dsID,
 					"text/xml", "X", null, "true");
 		}
+		/*
+		 * This pid has been updated, we want to delete any
+		 * cached files as well as cached files for custom views
+		 */
+
+		if(APP_FILECACHE == "ON") {
+
+			$cache = new fileCache($pid, 'pid='.$pid);
+			$cache->poisonCache();
+
+		}
+
 	}
 
 	/**
