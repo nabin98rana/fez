@@ -2202,7 +2202,7 @@ class Record
                  FROM
                     " . $dbtp . "record_search_key_isi_loc
                  WHERE
-                    rek_isi_loc = ".$db->quote($isi_loc);
+                    rek_isi_loc = ".$db->quote($isi_loc). " ORDER BY rek_isi_loc_id ASC ";
         
         try {
 			$res = $db->fetchOne($stmt);
