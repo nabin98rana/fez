@@ -50,6 +50,93 @@ include_once(APP_INC_PATH . 'class.esti_search_service.php');
 
 class ResearcherID
 {
+	
+	/**
+	 * Returns the full path to the file that keeps the process ID of the
+	 * running script.
+	 *
+	 * @access  private
+	 * @return  string The full path of the process file
+	 */
+	function _getProcessFilename()
+	{
+		return APP_PATH . 'misc/check_researcherid_download_status.pid';
+	}
+	
+
+
+	/**
+	 * Checks whether it is safe or not to run the check rid downlod/process download script.
+	 *
+	 * @access  public
+	 * @return  boolean
+	 */
+	function isSafeToRun()
+	{
+		$pid = ResearcherID::getProcessID();
+		if (!empty($pid)) {
+			// the pid file exists, but may have been left orphaned by a previous failed run
+			// so we want to check that the process $pid is actually running
+			$running_pid = trim( `ps auwwx | grep $pid | grep -v grep | awk '{print $2}'` );
+			if ( $running_pid == "" ) {
+				// the process $pid is not actually running, so create the pid file and say it's safe to run
+				$fp = fopen(ResearcherID::_getProcessFilename(), 'w');
+				fwrite($fp, getmypid());
+				fclose($fp);
+				return true;
+			} else {
+				// the process $pid IS actually running, so it's not safe to run
+				return false;
+			}
+		} else {
+			// create the pid file
+			$fp = fopen(ResearcherID::_getProcessFilename(), 'w');
+			fwrite($fp, getmypid());
+			fclose($fp);
+			return true;
+		}
+	}
+
+
+	/**
+	 * Returns the process ID of the script, if any.
+	 *
+	 * @access  public
+	 * @return  integer The process ID of the script
+	 */
+	function getProcessID()
+	{
+		static $pid;
+
+		if (!empty($pid)) {
+			return $pid;
+		}
+
+		$pid_file = ResearcherID::_getProcessFilename();
+		if (!file_exists($pid_file)) {
+			return 0;
+		} else {
+			$pid = trim(implode('', file($pid_file)));
+			return $pid;
+		}
+	}
+
+
+	/**
+	 * Removes the process file to allow other instances of this script to run.
+	 *
+	 * @access  public
+	 * @return  void
+	 */
+	function removeProcessFile()
+	{
+		@unlink(ResearcherID::_getProcessFilename());
+	}
+
+
+
+	
+	
    /**
      * Method used to request a ResearcherID download. 
      *

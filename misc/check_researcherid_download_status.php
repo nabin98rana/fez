@@ -34,6 +34,15 @@ include_once("../config.inc.php");
 include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.researcherid.php");
 
+if (!ResearcherID::isSafeToRun()) {
+    $pid = ResearcherID::getProcessID();
+    echo "ERROR: There is already a process (pid=$pid) of this script running.\n";
+    exit;
+}
+
+
 ResearcherID::checkAllJobsStatus();
+
+ResearcherID::removeProcessFile();
 
 ?>
