@@ -208,7 +208,7 @@ class Misc
 		if($timeout != null) {
 			curl_setopt ($ch, CURLOPT_TIMEOUT, $timeout);
 		} 
-		$contenttype = "image/jpeg2";
+		//$contenttype = "image/jpeg2";
 		if($contenttype != null) {
 			curl_setopt($ch, CURLOPT_HTTPHEADER, Array("Content-Type: ".$contenttype));			
 		}

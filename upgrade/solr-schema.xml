@@ -271,7 +271,7 @@
         Longer patterns will be matched first.  if equal size patterns
         both match, the first appearing in the schema will be used.  -->
    <dynamicField name="*_i"  type="sint"    indexed="true"  stored="true"/>
-   <dynamicField name="*_mi"  type="sint"    indexed="true"  stored="true" multiValued="true" />
+   <dynamicField name="*_mi"  type="integer"    indexed="true"  stored="true" multiValued="true" />
    
    <dynamicField name="*_s"  type="alphaOnlySort"  indexed="true"  stored="true"/>
    <dynamicField name="*_ms"  type="alphaOnlySort"  indexed="true"  stored="true" multiValued="true"/>
