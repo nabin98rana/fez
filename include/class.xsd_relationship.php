@@ -301,7 +301,8 @@ class XSD_Relationship
                  ) VALUES (
                     " . $db->quote($xsdmf_id, 'INTEGER') . ",
                     " . $db->quote($insertArray["xsdrel_xdis_id"], 'INTEGER') . ",
-                    " . $db->quote($insertArray["xsdrel_order"], 'INTEGER');
+                    " . $db->quote($insertArray["xsdrel_order"], 'INTEGER').
+                 ")";
         try {
 			$db->query($stmt);
 		}
