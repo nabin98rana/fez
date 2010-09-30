@@ -1759,7 +1759,11 @@ class Auth
 			$t_username             = $p_user_id;
 			$t_ds                   = ldap_connect(LDAP_SERVER, LDAP_PORT);
 			# Attempt to bind with the DN and password
-			$t_br = @ldap_bind( $t_ds, LDAP_PREFIX."\\".$t_username, $p_password );
+			if(LDAP_PREFIX) {
+				$t_br = @ldap_bind( $t_ds, LDAP_PREFIX."\\".$t_username, $p_password );
+			} else {
+				$t_br = @ldap_bind( $t_ds, $t_username ."@".LDAP_SERVER, $p_password );
+			}
 			if ($t_br) {
 				$t_authenticated = true;
 			}
