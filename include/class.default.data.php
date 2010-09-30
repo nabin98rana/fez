@@ -250,6 +250,8 @@ class Default_Data
 		$defaultData['app_session_timeout']					= "10800";
 		$defaultData['app_user_group_cache_expiry']			= "3";
 		$defaultData['app_main_page_record_count']			= "OFF";
+		$defaultData['app_my_research_module']				= "OFF";
+		$defaultData['app_my_research_new_items_collection']= "";
 		
 		return $defaultData;
 

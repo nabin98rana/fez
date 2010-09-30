@@ -1,0 +1,46 @@
+{literal}
+<script type="text/javascript"> 
+<!--
+
+function createRecord(f, xdis_id_sel) 
+{
+	f = document.getElementById('addForm');
+	s = document.getElementById('xdis_id_top');
+
+    f.action = rel_url + 'workflow/new.php';
+    var val = s.options[s.selectedIndex].value;
+    f.xdis_id.setAttribute('value', val);
+    
+    f.submit();
+}
+
+-->
+</script>
+{/literal}
+
+<h1>Add Missing Publication</h1>
+
+<p>Can't find your publication listed under either of the other two tabs? Use this screen to tell us about it.</p>
+
+<p>What type of record will you be entering?</p>
+
+<form action="" method="post" id="addForm">
+
+<!--input type="hidden" name="href" value="/collection/UQ:23835" /-->
+<input type="hidden" name="xdis_id" value="" />
+
+<div id="add-missing">
+
+	<input type="hidden" name="collection_pid" value="{$APP_MY_RESEARCH_NEW_ITEMS_COLLECTION}" />
+
+	<select id="xdis_id_top">
+		<option label="Conference Paper" value="130">Conference Paper</option>
+		<option label="Book" value="174">Book</option>
+		<option label="Book Chapter" value="177">Book Chapter</option>
+		<option label="Journal Article" value="179">Journal Article</option>
+	
+	</select>
+	<input type="button" value="Next" onclick="javascript:createRecord();" class="button" /> 
+</div> 
+
+</form>

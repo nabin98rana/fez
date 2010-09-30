@@ -293,7 +293,9 @@ class Template_API
 		$this->assign("SHIB_HOME_IDP", SHIB_HOME_IDP);
 		$this->assign("SHIB_FEDERATION_NAME", SHIB_FEDERATION_NAME);
 		$this->assign("APP_INTERNAL_NOTES", APP_INTERNAL_NOTES);
-
+		$this->assign("APP_MY_RESEARCH_MODULE", APP_MY_RESEARCH_MODULE);
+		$this->assign("APP_MY_RESEARCH_NEW_ITEMS_COLLECTION", APP_MY_RESEARCH_NEW_ITEMS_COLLECTION);
+		
 		if (count(Error_Handler::$app_errors) > 0) {
 			if ((APP_DISPLAY_ERRORS_USER == 1) && ($isAdministrator)) {
 				$this->assign('app_errors', Error_Handler::$app_errors);

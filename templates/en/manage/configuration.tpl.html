@@ -530,6 +530,25 @@ function restoreDefaultColours(el)
 			  {include file="error_icon.tpl.html" field="app_herdc_support"}
 			</td>
   		  </tr>
+  		  <tr>
+		    <th>My Research Publications Module</th>
+			<td>
+			  <select name="app_my_research_module">
+			    <option value="ON"{if $config_settings.app_my_research_module == "ON"} selected="selected"{/if}>On</option>
+				<option value="OFF"{if $config_settings.app_my_research_module == "OFF"} selected="selected"{/if}>Off</option>
+			  </select>
+			  <br />Enable My Research Publications module. Relies on special HR tables in database. As above, if you don't know what thi is, don't enable it.
+			  {include file="error_icon.tpl.html" field="app_my_research_module"}
+			</td>
+  		  </tr>
+  		  <tr>
+		    <th>My Research: New Records Collection</th>
+			<td>
+			  <input type="text" name="app_my_research_new_items_collection" value="{$config_settings.app_my_research_new_items_collection|escape:"html"}" size="10" />
+			  <br />Enter a PID (optional). New records added through the My Research module will be automatically added to this collection.
+			  {include file="error_icon.tpl.html" field="app_my_research_new_items_collection"}
+			</td>
+  		  </tr>
   		  </tbody>
 		</table>
 		</div>
