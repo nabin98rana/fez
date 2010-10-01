@@ -496,6 +496,8 @@ class Doc_Type_XSD
 		//print_r($maps);
 		$bgp->setStatus("Remapping ids");
 		XSD_HTML_Match::remapImport($maps, $bgp);
+		$bgp->setStatus("Refreshing XPATHs");
+		XSD_HTML_Match::refreshXPATH();
 		$bgp->setStatus("Done");
 	}
 }

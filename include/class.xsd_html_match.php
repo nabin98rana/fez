@@ -2154,7 +2154,7 @@ class XSD_HTML_Match
 			$stmt = rtrim($stmt,", \n"); // get rid of trailing comma
 			$stmt .= " WHERE xsdmf_id=".$db->quote($xsdmf_id, 'INTEGER');
 			try {
-				$res = $db->fetchCol($stmt);
+				$res = $db->exec($stmt);
 			}
 			catch(Exception $ex) {
 				$log->err($ex);
@@ -3537,9 +3537,7 @@ class XSD_HTML_Match
 				XSD_HTML_Match::addOptions($xsdmf_id, $opts);
 				XSD_Loop_Subelement::importSubelements($xmatch, $xsdmf_id, $maps);
 				XSD_Relationship::importRels($xmatch, $xsdmf_id, $maps);
-				XSD_HTML_Match::refreshXPATH();
 			}
-
 		}
 
 		/**
