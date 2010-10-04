@@ -34,11 +34,7 @@ function createRecord(f, xdis_id_sel)
 	<input type="hidden" name="collection_pid" value="{$APP_MY_RESEARCH_NEW_ITEMS_COLLECTION}" />
 
 	<select id="xdis_id_top">
-		<option label="Conference Paper" value="130">Conference Paper</option>
-		<option label="Book" value="174">Book</option>
-		<option label="Book Chapter" value="177">Book Chapter</option>
-		<option label="Journal Article" value="179">Journal Article</option>
-	
+		{html_options options=$childXDisplayOptions}	
 	</select>
 	<input type="button" value="Next" onclick="javascript:createRecord();" class="button" /> 
 </div> 

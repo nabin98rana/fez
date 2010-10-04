@@ -1,3 +1,48 @@
 <h1>{if $isUPO}Our{else}My{/if} Claimed Research</h1>
 
-<p><i>A list of publications tied to the current user's Author ID goes here.</i></p>
+{if $isUPO}
+	<p>The publications listed below are currently associated with authors in your unit.</p>
+{else}
+	<p>The publications listed below are currently claimed by you.</p>
+{/if}
+
+<table id="research-record-listing">
+
+	{* Use a smarty loop here to echo the real citation data *}
+	
+	{* SAMPLE  RECORD 1 *}
+	<tr>{* class may also be set to one of "claimed-not-my-pub", "claimed-correction-required", or "claimed-not-my-pub-and-correction-required" *}
+		<td style="width: 10px;"><input type="checkbox" /></td>
+		<td style="width: 100%;">Record citation goes here (#1).</td>
+		<td>
+			{* We will hide these buttons if the operation in question has already been used *}
+			<input type="button" class="claimed-not-my-pub" value="This is not my publication" onclick="javascript:alert('TODO: Fire up a workflow for marking this item NOT MINE.');" /><br />
+			<input type="button" class="claimed-correction-required" value="This is my publication, but a correction is required" onclick="javascript:alert('TODO: Fire up a workflow for collecting CORRECTION INFORMATION for this item.');" />
+		</td>
+	</tr>
+	
+	{* SAMPLE  RECORD 2 *}
+	<tr>{* class may also be set to one of "claimed-not-my-pub", "claimed-correction-required", or "claimed-not-my-pub-and-correction-required" *}
+		<td style="width: 10px;"><input type="checkbox" /></td>
+		<td style="width: 100%;">Record citation goes here (#2).</td>
+		<td>
+			{* We will hide these buttons if the operation in question has already been used *}
+			<input type="button" class="claimed-not-my-pub" value="This is not my publication" onclick="javascript:alert('TODO: Fire up a workflow for marking this item NOT MINE.');" /><br />
+			<input type="button" class="claimed-correction-required" value="This is my publication, but a correction is required" onclick="javascript:alert('TODO: Fire up a workflow for collecting CORRECTION INFORMATION for this item.');" />
+		</td>
+	</tr>
+	
+	{* SAMPLE  RECORD 3 *}
+	<tr>{* class may also be set to one of "claimed-not-my-pub", "claimed-correction-required", or "claimed-not-my-pub-and-correction-required" *}
+		<td style="width: 10px;"><input type="checkbox" /></td>
+		<td style="width: 100%;">Record citation goes here (#3).</td>
+		<td>
+			{* We will hide these buttons if the operation in question has already been used *}
+			<input type="button" class="claimed-not-my-pub" value="This is not my publication" onclick="javascript:alert('TODO: Fire up a workflow for marking this item NOT MINE.');" /><br />
+			<input type="button" class="claimed-correction-required" value="This is my publication, but a correction is required" onclick="javascript:alert('TODO: Fire up a workflow for collecting CORRECTION INFORMATION for this item.');" />
+		</td>
+	</tr>
+	
+</table>
+
+<input type="button" class="claimed-not-my-pub" value="None of the above ticked publications are mine" onclick="javascript:alert('TODO: Fire up a workflow for marking all the ticked items NOT MINE.');" />

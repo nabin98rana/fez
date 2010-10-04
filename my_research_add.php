@@ -44,6 +44,7 @@ include_once(APP_INC_PATH . "class.workflow_trigger.php");
 include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.pager.php");
+include_once(APP_INC_PATH . "class.select_create_info.php");
 
 if (APP_MY_RESEARCH_MODULE != 'ON') {
 	die('Sorry - this module is not enabled.');
@@ -67,8 +68,8 @@ $tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 $tpl->assign("isUPO", $isUPO);
 
 $tpl->assign("active_nav", "my_fez");
-
-// Do stuff
+$tpl->assign("childXDisplayOptions", Record::getSearchKeyIndexValue(APP_MY_RESEARCH_NEW_ITEMS_COLLECTION, "XSD Display Option"));
 
 $tpl->displayTemplate();
+
 ?>
