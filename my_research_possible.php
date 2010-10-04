@@ -39,6 +39,9 @@ include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.author.php");
 include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.status.php");
+include_once(APP_INC_PATH . "class.misc.php");
+include_once(APP_INC_PATH . "class.workflow_trigger.php");
+include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.pager.php");
 
@@ -56,9 +59,13 @@ $tpl->assign("type", "possible");
 $isUser = Auth::getUsername();
 $isAdministrator = User::isUserAdministrator($isUser);
 $isSuperAdministrator = User::isUserSuperAdministrator($isUser);
+$isUPO = User::isUserUPO($isUser);
+
 $tpl->assign("isUser", $isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
 $tpl->assign("isSuperAdministrator", $isSuperAdministrator);
+$tpl->assign("isUPO", $isUPO);
+
 $tpl->assign("active_nav", "my_fez");
 
 // Do stuff

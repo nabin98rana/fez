@@ -42,6 +42,7 @@ include_once(APP_INC_PATH . "class.status.php");
 include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.workflow_trigger.php");
 include_once(APP_INC_PATH . "class.collection.php");
+include_once(APP_INC_PATH . "class.org_structure.php");
 include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.pager.php");
 
@@ -54,7 +55,7 @@ $tpl->setTemplate("myresearch/index.tpl.html");
 
 Auth::checkAuthentication(APP_SESSION);
 
-$tpl->assign("type", "claimed");
+$tpl->assign("type", "upo");
 
 $isUser = Auth::getUsername();
 $isAdministrator = User::isUserAdministrator($isUser);
@@ -66,9 +67,16 @@ $tpl->assign("isAdministrator", $isAdministrator);
 $tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 $tpl->assign("isUPO", $isUPO);
 
-$tpl->assign("active_nav", "my_fez");
+/*$thing = Org_Structure::getOrgUnitList();
+echo "<pre>";
+print_r($thing);
+echo "</pre>";
+exit;
+*/
 
-// Do stuff
+$tpl->assign("org_units", Org_Structure::getOrgUnitList()); // All org units, for the drop-down
+
+$tpl->assign("active_nav", "my_fez");
 
 $tpl->displayTemplate();
 ?>

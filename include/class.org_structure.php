@@ -910,4 +910,46 @@ class Org_Structure
 		}
 		return $res;
 	}
+		
+	/**
+	 * Method used to get a list of all known org units.
+	 *
+	 * @access  public
+	 * @return  array The organisational unit list.
+	 */
+	function getOrgUnitList()
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "SELECT
+					aurion_org_id,
+					aurion_org_desc
+				FROM
+					hr_org_unit_distinct_manual
+				ORDER BY
+					aurion_org_desc;
+				";
+		try {
+			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		
+		catch(Exception $ex) {
+			$log->err($ex);
+			return '';
+		}
+		
+		$return = array();
+		if (empty($res)) {
+			return array();
+		} else {
+			
+			foreach ($res as $row) {
+				$return[$row['aurion_org_id']] = $row['aurion_org_desc'];
+			}
+			return $return;
+		}
+		
+	}
+	
 }

@@ -1,0 +1,30 @@
+{if !$isUPO}
+
+	<h1>Sorry</h1>
+	<p>You do not have sufficient privileges to access this area.</p>
+	<p>If you believe you should have UPO access, please contact the {$app_name} Support Team.</p>
+
+{else}
+
+	<h1>Administer Another Organisational Unit</h1>
+	
+	<p>Select the org unit you wish to process form the list below.</p>
+	
+	<form action="" method="post">
+	
+	<div>
+		<select id="org_unit_id">
+			{foreach from=$org_units key=k item=v}
+				<option value="{$k}">{$v}</option>
+			{/foreach}
+		</select>
+		
+		<br /><br />
+		
+		<input type="button" value="Administer this unit" class="button" onclick="javascript:alert('TODO: This will override the current UPO\'s default unit, allowing them to process another part of the university.');" /> 
+		
+	</div> 
+	
+	</form>
+	
+{/if}

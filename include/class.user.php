@@ -233,7 +233,32 @@ class User
 			return false;
 		}
 	}
-
+	
+	/**
+	 * Method used to check whether an user is a UPO or not.
+	 *
+	 * @access  public
+	 * @param   string $username The username of the user
+	 * @return  boolean
+	 */
+	function isUserUPO($username)
+	{
+		$isUPO = false;
+		
+		$upoGroupID = Group::getID(APP_MY_RESEARCH_UPO_GROUP);
+		$userGroups = Group::getGroupColList(User::getUserIDByUsername($username));
+		
+		if (count($userGroups) > 0) {
+			foreach ($userGroups as $ug) {
+				if ($ug == $upoGroupID) {
+					$isUPO = true;
+				}
+			}
+		}
+		
+		return $isUPO;
+	}
+	
 	/**
 	 * Method used to check whether an user is an administrator.
 	 *

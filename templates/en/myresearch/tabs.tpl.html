@@ -1,5 +1,14 @@
-<ul id="research-tabs">
-	<li><a href="my_research_claimed.php"{if $type == 'claimed'} class="research-tabs-active"{/if}>My Claimed Research</a></li>
-	<li><a href="my_research_possible.php"{if $type == 'possible'} class="research-tabs-active"{/if}>Possibly My Research</a></li>
-	<li><a href="my_research_add.php"{if $type == 'add'} class="research-tabs-active"{/if}>Add Missing Publication</a></li>
-</ul>
+{if $isUPO}
+	<ul id="research-tabs">
+		<li><a href="my_research_claimed.php"{if $type == 'claimed'} class="research-tabs-active"{/if}>Our Claimed Research</a></li>
+		<li><a href="my_research_possible.php"{if $type == 'possible'} class="research-tabs-active"{/if}>Possibly Our Research</a></li>
+		<li><a href="my_research_add.php"{if $type == 'add'} class="research-tabs-active"{/if}>Add Missing Publication</a></li>
+		<li><a href="my_upo_tools.php"{if $type == 'upo'} class="research-tabs-active"{/if}>UPO Options</a></li>
+	</ul>
+{else}
+	<ul id="research-tabs">
+		<li><a href="my_research_claimed.php"{if $type == 'claimed'} class="research-tabs-active"{/if}>My Claimed Research</a></li>
+		<li><a href="my_research_possible.php"{if $type == 'possible'} class="research-tabs-active"{/if}>Possibly My Research</a></li>
+		<li><a href="my_research_add.php"{if $type == 'add'} class="research-tabs-active"{/if}>Add Missing Publication</a></li>
+	</ul>
+{/if}
