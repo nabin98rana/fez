@@ -549,9 +549,18 @@ function restoreDefaultColours(el)
 			  {include file="error_icon.tpl.html" field="app_my_research_new_items_collection"}
 			</td>
   		  </tr>
+  		  <tr>
+		    <th>My Research: UPO Group Name</th>
+			<td>
+			  <input type="text" name="app_my_research_upo_group" value="{$config_settings.app_my_research_upo_group|escape:"html"}" size="30" />
+			  <br />Enter the exact name of the group for the 'Unit Publication Officers' users.
+			  {include file="error_icon.tpl.html" field="app_my_research_upo_group"}
+			</td>
+  		  </tr>
   		  </tbody>
 		</table>
 		</div>
+
 
 
 

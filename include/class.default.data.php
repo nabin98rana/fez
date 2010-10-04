@@ -252,6 +252,7 @@ class Default_Data
 		$defaultData['app_main_page_record_count']			= "OFF";
 		$defaultData['app_my_research_module']				= "OFF";
 		$defaultData['app_my_research_new_items_collection']= "";
+		$defaultData['app_my_research_upo_group']			= "Unit Publication Officers";
 		
 		return $defaultData;
 
