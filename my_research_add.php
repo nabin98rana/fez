@@ -44,7 +44,6 @@ include_once(APP_INC_PATH . "class.workflow_trigger.php");
 include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.pager.php");
-include_once(APP_INC_PATH . "class.select_create_info.php");
 
 if (APP_MY_RESEARCH_MODULE != 'ON') {
 	die('Sorry - this module is not enabled.');
