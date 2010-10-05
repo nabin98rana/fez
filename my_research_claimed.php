@@ -50,26 +50,6 @@ if (APP_MY_RESEARCH_MODULE != 'ON') {
 	die('Sorry - this module is not enabled.');
 }
 
-$tpl = new Template_API();
-$tpl->setTemplate("myresearch/index.tpl.html");
+MyResearch::claimedPubsDispatcher();
 
-Auth::checkAuthentication(APP_SESSION);
-
-$tpl->assign("type", "claimed");
-
-$isUser = Auth::getUsername();
-$isAdministrator = User::isUserAdministrator($isUser);
-$isSuperAdministrator = User::isUserSuperAdministrator($isUser);
-$isUPO = User::isUserUPO($isUser);
-
-$tpl->assign("isUser", $isUser);
-$tpl->assign("isAdministrator", $isAdministrator);
-$tpl->assign("isSuperAdministrator", $isSuperAdministrator);
-$tpl->assign("isUPO", $isUPO);
-
-$tpl->assign("active_nav", "my_fez");
-
-// Do stuff
-
-$tpl->displayTemplate();
 ?>

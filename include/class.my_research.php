@@ -39,8 +39,12 @@ include_once(APP_INC_PATH . "class.eventum.php");
  */
 class MyResearch
 {
+	/**********************************
+	 * POSSIBLE PUBLICATION FUNCTIONS *
+	 **********************************/
+	 
 	/**
-	 * This function dispatches to the appropriate possiblie publications functionality
+	 * This function dispatches to the appropriate possible publications functionality
 	 */
 	function possiblePubsDispatcher()
 	{
@@ -73,6 +77,7 @@ class MyResearch
 			$tpl->assign("pid", $recordDetails[0]['rek_pid']);
 			$tpl->assign("citation", $recordDetails[0]['rek_citation']);
 		} else {
+			//$list = xxxfunctionCall(); // TODO :: Write the function which gets the list of records, pass to tpl
 			$flagged = MyResearch::getPossibleFlaggedPubs($username);
 			$tpl->assign("flagged", $flagged);
 		}
@@ -142,6 +147,95 @@ class MyResearch
 	 */
 	function getPossibleFlaggedPubs($username)
 	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "SELECT
+					mrp_pid,
+					mrp_correction
+				FROM
+					" . APP_TABLE_PREFIX . "my_research_possible_flagged
+				WHERE
+					mrp_author_username = " . $db->quote($username) . "";
+		try {
+			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return '';
+		}
+
+		// Reformat the results so that we can easily comapre them to the record index.
+		$ret = array();	
+		foreach ($res as $row) {
+			$ret[$row['mrp_pid']] = $row['mrp_correction'];
+		}
+		
+		return $ret;
+	}
+	
+	
+	
+	/*********************************
+	 * CLAIMED PUBLICATION FUNCTIONS *
+	 *********************************/
+	
+	/**
+	 * This function dispatches to the appropriate claimed publications functionality
+	 */
+	function claimedPubsDispatcher()
+	{
+		$tpl = new Template_API();
+		$tpl->setTemplate("myresearch/index.tpl.html");
+		
+		Auth::checkAuthentication(APP_SESSION);
+		$username = Auth::getUsername();
+		
+		$tpl->assign("type", "claimed");
+		
+		$isUser = Auth::getUsername();
+		$isAdministrator = User::isUserAdministrator($isUser);
+		$isSuperAdministrator = User::isUserSuperAdministrator($isUser);
+		$isUPO = User::isUserUPO($isUser);
+		
+		$tpl->assign("isUser", $isUser);
+		$tpl->assign("isAdministrator", $isAdministrator);
+		$tpl->assign("isSuperAdministrator", $isSuperAdministrator);
+		$tpl->assign("isUPO", $isUPO);
+		$tpl->assign("active_nav", "my_fez");
+		
+		// Determine what we're actually doing here.
+		$action = @$_POST['action'];
+		
+		if ($action == 'not-mine') {
+			// TODO
+			die("Not my publication!");
+		} elseif ($action == 'correction') {
+			// TODO
+			die("Enter correction");
+		} else {
+			//$list = xxxfunctionCall(); // TODO :: Write the function which gets the list of records, pass to tpl
+			$flagged = MyResearch::getClaimedFlaggedPubs($username);
+			$tpl->assign("flagged", $flagged);
+		}
+		
+		$tpl->assign("action", $action);
+		$tpl->displayTemplate();
+		
+		return;
+	}
+	
+	
+	
+	/**
+	 * Get all flagged claimed publications for a given user.
+	 */
+	function getClaimedFlaggedPubs($username)
+	{
+		// LKDB -- this has not been re-written yet!
+		return;
+		
+		
 		$log = FezLog::get();
 		$db = DB_API::get();
 		
