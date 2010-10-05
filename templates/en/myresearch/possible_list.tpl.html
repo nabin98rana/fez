@@ -1,0 +1,64 @@
+{literal}
+<script type="text/javascript">
+<!--
+function claimPID(pid)
+{
+    document.getElementById('pid').value = pid;
+    document.forms['possibleForm'].submit();
+}
+//-->
+</script>
+{/literal}
+
+<h1>Possibly {if $isUPO}Our{else}My{/if} Research</h1>
+
+{if $isUPO}
+	<p>The publications listed below may belong to authors in your unit.</p>
+{else}
+	<p>The publications listed below may belong to you.</p>
+{/if}
+
+<form action="{$rel_url}my_research_possible.php" method="post" id="possibleForm">
+
+<table id="research-record-listing">
+
+	{* Use a smarty loop here to echo the real citation data *}
+	
+	{* SAMPLE  RECORD 1 *}
+	<tr>{* class may also be set to "possible-my-pub" *}
+		<td style="width: 10px;"><input type="checkbox" /></td>
+		<td style="width: 100%;">Record citation goes here (#1).</td>
+		<td>
+			{* We will hide this button if the operation in question has already been used *}
+			<input type="button" class="possible-my-pub" value="This is my publication" onclick="javascript:claimPID('uq:111');" />
+		</td>
+	</tr>
+	
+	<tr>{* class may also be set to "possible-my-pub" *}
+		<td style="width: 10px;"><input type="checkbox" /></td>
+		<td style="width: 100%;">Record citation goes here (#2).</td>
+		<td>
+			{* We will hide this button if the operation in question has already been used *}
+			<input type="button" class="possible-my-pub" value="This is my publication" onclick="javascript:claimPID('uq:222');" />
+		</td>
+	</tr>
+	
+	<tr>{* class may also be set to "possible-my-pub" *}
+		<td style="width: 10px;"><input type="checkbox" /></td>
+		<td style="width: 100%;">Record citation goes here (#3).</td>
+		<td>
+			{* We will hide this button if the operation in question has already been used *}
+			<input type="button" class="possible-my-pub" value="This is my publication" onclick="javascript:claimPID('uq:333');" />
+		</td>
+	</tr>
+	
+</table>
+
+<div>
+	{* We're going to knock this out because it complicates things to have to supply multiple corrections *}
+	<!--input type="button" class="possible-my-pub" value="All of the above ticked publications are mine" onclick="javascript:alert('TODO: Fire up a workflow for marking all the ticked items MY PUBLICATION.\n\nLK: Is this a good idea? How would we ask for corrections for a heap of records at once? Maybe this option shouldn\'t exist.');" /-->
+	<input type="hidden" id="pid" name="pid" value="" />
+	<input type="hidden" name="action" value="claim" />
+</div>
+
+</form>

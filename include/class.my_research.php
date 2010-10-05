@@ -31,18 +31,136 @@
 // |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>                     |
 // +----------------------------------------------------------------------+
 
+include_once(APP_INC_PATH . "class.eventum.php");
+
 /**
- * RecordLock
- * This is a static class that handles getting a lock and listing locks
+ * MyResearch
+ * This is a static class that handles My Research functionality, such as record correction flagging.
  */
 class MyResearch
 {
-	function myFunction()
+	/**
+	 * This function dispatches to the appropriate possiblie publications functionality
+	 */
+	function possiblePubsDispatcher()
+	{
+		$tpl = new Template_API();
+		$tpl->setTemplate("myresearch/index.tpl.html");
+		
+		Auth::checkAuthentication(APP_SESSION);
+		
+		$tpl->assign("type", "possible");
+		
+		$isUser = Auth::getUsername();
+		$isAdministrator = User::isUserAdministrator($isUser);
+		$isSuperAdministrator = User::isUserSuperAdministrator($isUser);
+		$isUPO = User::isUserUPO($isUser);
+		
+		$tpl->assign("isUser", $isUser);
+		$tpl->assign("isAdministrator", $isAdministrator);
+		$tpl->assign("isSuperAdministrator", $isSuperAdministrator);
+		$tpl->assign("isUPO", $isUPO);
+		$tpl->assign("active_nav", "my_fez");
+		
+		// Determine what we're actually doing here.
+		$action = @$_POST['action'];
+		if ($action == 'claim-add') {
+			MyResearch::possiblePubsClaim();
+		}
+		
+		$username = Auth::getUsername();
+		$flagged = MyResearch::getPossibleFlaggedPubs($username);
+		$tpl->assign("flagged", $flagged);
+		$tpl->assign("action", $action);
+		$tpl->displayTemplate();
+		
+		return;
+	}
+	
+	
+	
+	function possiblePubsClaim()
+	{
+		// 1. Mark the publication claimed in the database
+		$pid = @$_POST['pid'];
+		$username = "UQ_USER_NAME";
+		$correction = @$_POST['correction'];
+		MyResearch::markPossiblePubAsMine($pid, $username, $correction);
+		
+		// 2. Send an email to Eventum about it
+		$subject = "ESPACE :: Claimed Publication";
+		$body = "Here is the body of the email. Include all the appropriate details here for letting the data team know what they have to do."; // LKDB
+		Eventum::lodgeJob($subject, $body);
+		
+		return;
+	}
+	
+	
+	
+	/**
+	 * This function is invoed when a user marks a publication as belonging to a particular author.
+	 */	
+	function markPossiblePubAsMine($pid, $username, $correction = '')
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
 		
-		return "Jerds";
+		$stmt = "INSERT INTO
+					" . APP_TABLE_PREFIX . "my_research_possible_flagged
+				(
+					mrp_pid,
+					mrp_author_username,
+					mrp_timestamp,
+					mrp_correction
+				) VALUES (
+					" . $db->quote($pid) . ",
+					" . $db->quote($username) . ",
+					" . $db->quote(Date_API::getCurrentDateGMT()) . ",
+					" . $db->quote($correction) . ");";
+		try {
+			$db->exec($stmt);
+		}
+		
+		catch(Exception $ex) {
+			$log->err($ex);
+			return -1;
+		}
+		
+		return 1;
+	}
+	
+	
+	
+	/**
+	 * Get all flagged publications for a given user.
+	 */
+	function getPossibleFlaggedPubs($username)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "SELECT
+					mrp_pid,
+					mrp_correction
+				FROM
+					" . APP_TABLE_PREFIX . "my_research_possible_flagged
+				WHERE
+					mrp_author_username = " . $db->quote($username) . "";
+		try {
+			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return '';
+		}
+
+		// Reformat the results so that we can easily comapre them to the record index.
+		$ret = array();	
+		foreach ($res as $row) {
+			$ret[$row['mrp_pid']] = $row['mrp_correction'];
+		}
+		
+		return $ret;
 	}
 	
 }

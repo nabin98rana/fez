@@ -2156,6 +2156,13 @@ a.author_id_link:hover {
     padding: 5px;
 }
 
+#research-solo-citation {
+    width: 100%;
+    padding: 20px;
+    border: 1px solid #c28ed7;
+    margin-bottom: 10px;
+}
+
 .claimed-not-my-pub { background: #ffc9c9; }
 .claimed-correction-required { background: #fffdc9; }
 .claimed-not-my-pub-and-correction-required { background: #ffcbab; }

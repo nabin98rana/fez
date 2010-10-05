@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------+
 // | Fez - Digital Repository System                                      |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 2005, 2006, 2007 The University of Queensland,         |
+// | Copyright (c) 2005 - 2008 The University of Queensland,              |
 // | Australian Partnership for Sustainable Repositories,                 |
 // | eScholarship Project                                                 |
 // |                                                                      |
@@ -30,26 +30,24 @@
 // | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
 // |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>                     |
 // +----------------------------------------------------------------------+
-//
-//
-set_time_limit(0);
-include_once("config.inc.php");
-include_once(APP_INC_PATH . "class.template.php");
-include_once(APP_INC_PATH . "class.auth.php");
-include_once(APP_INC_PATH . "class.author.php");
-include_once(APP_INC_PATH . "class.user.php");
-include_once(APP_INC_PATH . "class.status.php");
-include_once(APP_INC_PATH . "class.misc.php");
-include_once(APP_INC_PATH . "class.workflow_trigger.php");
-include_once(APP_INC_PATH . "class.collection.php");
-include_once(APP_INC_PATH . "db_access.php");
-include_once(APP_INC_PATH . "class.pager.php");
-include_once(APP_INC_PATH . "class.my_research.php");
 
-if (APP_MY_RESEARCH_MODULE != 'ON') {
-	die('Sorry - this module is not enabled.');
+include_once(APP_INC_PATH . "class.mail.php");
+
+class Eventum
+{
+	/** 
+	 * We want to send an email to someone about something. Rejoice!
+	 */
+	function lodgeJob($subject, $body)
+	{
+		//echo "EMAIL AHOY!<br />";
+		//echo "Will be sent to: " . APP_EVENTUM_NEW_JOB_EMAIL_ADDRESS;
+		
+		$to = APP_EVENTUM_NEW_JOB_EMAIL_ADDRESS;
+		
+		//Mail_API::_sendEmail($from, $to, $subject);
+		
+		return;
+	}
+
 }
-
-MyResearch::possiblePubsDispatcher();
-
-?>

@@ -1,25 +1,5 @@
-<h1>Possibly {if $isUPO}Our{else}My{/if} Research</h1>
-
-{if $isUPO}
-	<p>The publications listed below may belong to authors in your unit.</p>
+{if $action == 'claim'}
+	{include file="myresearch/possible_claim.tpl.html"}
 {else}
-	<p>The publications listed below may belong to you.</p>
+	{include file="myresearch/possible_list.tpl.html"}
 {/if}
-
-<table id="research-record-listing">
-
-	{* Use a smarty loop here to echo the real citation data *}
-	
-	{* SAMPLE  RECORD 1 *}
-	<tr>{* class may also be set to "possible-my-pub" *}
-		<td style="width: 10px;"><input type="checkbox" /></td>
-		<td style="width: 100%;">Record citation goes here (#1).</td>
-		<td>
-			{* We will hide this button if the operation in question has already been used *}
-			<input type="button" class="possible-my-pub" value="This is my publication" onclick="javascript:alert('TODO: Fire up a workflow for marking this item MY PUBLICATION. This process will also prompt for corrections.');" />
-		</td>
-	</tr>
-	
-</table>
-
-<input type="button" class="possible-my-pub" value="All of the above ticked publications are mine" onclick="javascript:alert('TODO: Fire up a workflow for marking all the ticked items MY PUBLICATION.\n\nLK: Is this a good idea? How would we ask for corrections for a heap of records at once? Maybe this option shouldn\'t exist.');" />

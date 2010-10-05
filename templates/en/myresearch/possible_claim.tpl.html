@@ -1,0 +1,69 @@
+{literal}
+<script type="text/javascript">
+<!--
+function toggleCorrections()
+{
+	if (document.getElementById('ok').checked) {
+		document.getElementById('correction').disabled = true;
+		document.getElementById('correction').style.display = 'none';
+		document.getElementById('correction').value = '';
+	} else {
+		document.getElementById('correction').disabled = false;
+		document.getElementById('correction').style.display = 'block';
+		document.getElementById('correction').value = 'Please tell us what is wrong with the record.';
+	}
+	
+	return;
+}
+
+function toggleCorrectionsText()
+{
+	if (document.getElementById('correction').value == 'Please tell us what is wrong with the record.') {
+		document.getElementById('correction').value = '';
+	}
+}
+
+function submitForm()
+{
+	if (!document.getElementById('ok').checked && !document.getElementById('nok').checked) {
+		window.alert('You must select one of the two radio boxes.');
+		return false;
+	}
+	
+	if (document.getElementById('nok').checked && (document.getElementById('correction').value == '' || document.getElementById('correction').value == 'Please tell us what is wrong with the record.')) {
+		window.alert('You must tell us what is wrong with the record.');
+		return false;
+	}
+	
+	document.forms['claimForm'].submit();
+	return;
+}
+
+//-->
+</script>
+{/literal}
+
+<h1>Claim Research</h1>
+
+<form action="my_research_possible.php" method="post" id="claimForm">
+
+<p>You are claiming to be the author of this item:</p>
+
+<div id="research-solo-citation">[CITATION INFORMATION FOR PID]</div>
+
+<p>
+	<input type="radio" name="confirm" id="ok" value="ok" onclick="javascript:toggleCorrections();" /> This record is mine, and the citation is correct<br />
+	<input type="radio" name="confirm" id="nok" value="nok" onclick="javascript:toggleCorrections();" /> This record is mine, but the record requires a correction
+</p>
+
+<p>
+	<textarea id="correction" name="correction" rows="5" cols="70" disabled="disabled" style="display: none;" onfocus="javascript:toggleCorrectionsText();"></textarea>
+</p>
+
+<p>
+	<input type="button" value="Claim publication" name="button" onclick="javascript:submitForm();" />
+	<input type="hidden" value="[PID HERE]" name="pid" />
+	<input type="hidden" value="claim-add" name="action" />
+</p>
+
+</form>
