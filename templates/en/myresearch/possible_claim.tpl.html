@@ -49,7 +49,9 @@ function submitForm()
 
 <p>You are claiming to be the author of this item:</p>
 
-<div id="research-solo-citation">[CITATION INFORMATION FOR PID]</div>
+<div id="research-solo-citation">{$citation}</div>
+
+<p style="text-align: right;"><a href="{$rel_url}view/{$pid}" onclick="javascript:window.open('{$rel_url}view/{$pid}'); return false;">View the full record</a></p>
 
 <p>
 	<input type="radio" name="confirm" id="ok" value="ok" onclick="javascript:toggleCorrections();" /> This record is mine, and the citation is correct<br />
@@ -62,7 +64,7 @@ function submitForm()
 
 <p>
 	<input type="button" value="Claim publication" name="button" onclick="javascript:submitForm();" />
-	<input type="hidden" value="[PID HERE]" name="pid" />
+	<input type="hidden" value="{$pid}" name="pid" />
 	<input type="hidden" value="claim-add" name="action" />
 </p>
 

@@ -48,6 +48,7 @@ class MyResearch
 		$tpl->setTemplate("myresearch/index.tpl.html");
 		
 		Auth::checkAuthentication(APP_SESSION);
+		$username = Auth::getUsername();
 		
 		$tpl->assign("type", "possible");
 		
@@ -64,13 +65,18 @@ class MyResearch
 		
 		// Determine what we're actually doing here.
 		$action = @$_POST['action'];
+		
 		if ($action == 'claim-add') {
 			MyResearch::possiblePubsClaim();
+		} elseif ($action == 'claim') {
+			$recordDetails = Record::getDetailsLite(@$_POST['pid']);
+			$tpl->assign("pid", $recordDetails[0]['rek_pid']);
+			$tpl->assign("citation", $recordDetails[0]['rek_citation']);
+		} else {
+			$flagged = MyResearch::getPossibleFlaggedPubs($username);
+			$tpl->assign("flagged", $flagged);
 		}
 		
-		$username = Auth::getUsername();
-		$flagged = MyResearch::getPossibleFlaggedPubs($username);
-		$tpl->assign("flagged", $flagged);
 		$tpl->assign("action", $action);
 		$tpl->displayTemplate();
 		
@@ -83,13 +89,13 @@ class MyResearch
 	{
 		// 1. Mark the publication claimed in the database
 		$pid = @$_POST['pid'];
-		$username = "UQ_USER_NAME";
+		$username = "UQ_USER_NAME"; // LKDB / TODO
 		$correction = @$_POST['correction'];
 		MyResearch::markPossiblePubAsMine($pid, $username, $correction);
 		
 		// 2. Send an email to Eventum about it
 		$subject = "ESPACE :: Claimed Publication";
-		$body = "Here is the body of the email. Include all the appropriate details here for letting the data team know what they have to do."; // LKDB
+		$body = "Here is the body of the email. Include all the appropriate details here for letting the data team know what they have to do."; // LKDB / TODO
 		Eventum::lodgeJob($subject, $body);
 		
 		return;
