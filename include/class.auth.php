@@ -1426,6 +1426,7 @@ class Auth
 		$ipaddress = @$_SERVER['REMOTE_ADDR'];
 		$time = time();
 		$ses["username"] = $username;
+		$ses["acting_username"] = $username;
 		$ses["fullname"] = $fullname;
 		$ses["distinguishedname"] = $distinguishedname;
 		$ses["email"] = $email;
@@ -1632,6 +1633,46 @@ class Auth
 			return $session['username'];
 		}
 	}
+	
+	/**
+	 * Gets the current acting username.
+	 *
+	 * @access  public
+	 * @return  string The username of the user
+	 */
+	function getActingUsername() 
+	{
+		global $auth_bgp_session, $auth_isBGP;
+		if ($auth_isBGP) {
+			$session =& $auth_bgp_session;
+		} else {
+			session_name(APP_SESSION);
+			@session_start();
+			$session =& $_SESSION;
+		}
+		if (empty($session) || empty($session['acting_username'])) {
+			return '';
+		} else {
+			return $session['acting_username'];
+		}
+	}
+	
+	/**
+	 * Update the current acting username.
+	 *
+	 * @access  public
+	 */
+	function setActingUsername($username) 
+	{
+		if ($username == '') {
+			return;
+		}
+		
+		Auth::setSession('acting_username', $username);
+		
+		return;
+	}
+	
 	/**
 	 * Gets the current user ID.
 	 *
