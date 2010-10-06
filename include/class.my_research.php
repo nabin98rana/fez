@@ -232,20 +232,16 @@ class MyResearch
 	 */
 	function getClaimedFlaggedPubs($username)
 	{
-		// LKDB -- this has not been re-written yet!
-		return;
-		
-		
 		$log = FezLog::get();
 		$db = DB_API::get();
 		
 		$stmt = "SELECT
-					mrp_pid,
-					mrp_correction
+					mrc_pid,
+					mrc_correction
 				FROM
-					" . APP_TABLE_PREFIX . "my_research_possible_flagged
+					" . APP_TABLE_PREFIX . "my_research_claimed_flagged
 				WHERE
-					mrp_author_username = " . $db->quote($username) . "";
+					mrc_author_username = " . $db->quote($username) . "";
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
@@ -257,7 +253,7 @@ class MyResearch
 		// Reformat the results so that we can easily comapre them to the record index.
 		$ret = array();	
 		foreach ($res as $row) {
-			$ret[$row['mrp_pid']] = $row['mrp_correction'];
+			$ret[$row['mrc_pid']] = $row['mrc_correction'];
 		}
 		
 		return $ret;
