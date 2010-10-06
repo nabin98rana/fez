@@ -109,7 +109,7 @@ class MyResearch
 	
 	
 	/**
-	 * This function is invoed when a user marks a publication as belonging to a particular author.
+	 * This function is invoked when a user marks a publication as belonging to a particular author.
 	 */	
 	function markPossiblePubAsMine($pid, $username, $correction = '')
 	{
@@ -208,8 +208,9 @@ class MyResearch
 		$action = @$_POST['action'];
 		
 		if ($action == 'not-mine') {
-			// TODO
-			die("Not my publication!");
+			MyResearch::claimedPubsDisown(@$_POST['not-mine-pid']);
+		} elseif ($action == 'not-mine-bulk') {	
+			MyResearch::handleBulkDisown();
 		} elseif ($action == 'correction') {
 			// TODO
 			die("Enter correction");
@@ -237,6 +238,7 @@ class MyResearch
 		
 		$stmt = "SELECT
 					mrc_pid,
+					mrc_type,
 					mrc_correction
 				FROM
 					" . APP_TABLE_PREFIX . "my_research_claimed_flagged
@@ -253,10 +255,85 @@ class MyResearch
 		// Reformat the results so that we can easily comapre them to the record index.
 		$ret = array();	
 		foreach ($res as $row) {
-			$ret[$row['mrc_pid']] = $row['mrc_correction'];
+			$ret[$row['mrc_pid']]['type'] = $row['mrc_type'];
+			$ret[$row['mrc_pid']]['correction'] = $row['mrc_correction'];
 		}
 		
 		return $ret;
 	}
 	
+	
+	
+	/**
+	 * Get the list of PIDs we are disowning, pass off to the singular disown function.
+	 */
+	function handleBulkDisown()
+	{
+		$pids = explode(",", @$_POST['bulk-not-mine-pids']);
+		
+		foreach ($pids as $pid) {
+			MyResearch::claimedPubsDisown($pid);
+		}
+		
+		return;
+	}
+	
+	
+	
+	/**
+	 * Fire relevant subroutines for disowning a publication.
+	 */
+	function claimedPubsDisown($pid)
+	{
+		// 1. Mark the publication claimed in the database
+		$username = "UQ_USER_NAME"; // LKDB / TODO
+		$correction = '';
+		MyResearch::markClaimedPubAsNotMine($pid, $username);
+		
+		// 2. Send an email to Eventum about it
+		$subject = "ESPACE :: Disowned Publication";
+		$body = "Here is the body of the email. Include all the appropriate details here for letting the data team know what they have to do."; // LKDB / TODO
+		Eventum::lodgeJob($subject, $body);
+		
+		return;
+	}
+	
+	
+	
+	/**
+	 * This function is invoked when a user marks a claimed publication as not being theirs.
+	 */	
+	function markClaimedPubAsNotMine($pid, $username)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$correction = '';
+		
+		$stmt = "INSERT INTO
+					" . APP_TABLE_PREFIX . "my_research_claimed_flagged
+				(
+					mrc_pid,
+					mrc_author_username,
+					mrc_timestamp,
+					mrc_type,
+					mrc_correction
+				) VALUES (
+					" . $db->quote($pid) . ",
+					" . $db->quote($username) . ",
+					" . $db->quote(Date_API::getCurrentDateGMT()) . ",
+					" . $db->quote('D') . ",
+					" . $db->quote($correction) . ");";
+		try {
+			$db->exec($stmt);
+		}
+		
+		catch(Exception $ex) {
+			$log->err($ex);
+			return -1;
+		}
+		
+		return 1;
+	}	
+
 }

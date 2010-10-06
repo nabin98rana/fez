@@ -1,3 +1,43 @@
+{literal}
+<script type="text/javascript">
+<!--
+function notMine(pid)
+{
+    document.getElementById('not-mine-pid').value = pid;
+    document.forms['notMine'].submit();
+    
+    return;
+}
+
+function notMineBulk()
+{
+	frm = document.getElementById('claimedForm');
+	count = 0;
+	pids = [];
+	for (i = 0; i < frm.pid.length; i++) {
+		if (frm.pid[i].checked) {
+			pids.push(frm.pid[i].value);
+			count++;
+		}
+	}
+	
+	if (count == 0) {
+		window.alert('No records were marked for deletion.');
+		return;
+	}
+	
+	if (confirm('You are about to mark the ticked records as not belonging to you. Proceed?')) {
+		document.getElementById('bulk-not-mine-pids').value = pids;
+		document.forms['claimedForm'].submit();
+	}
+	
+	return;
+}
+
+//-->
+</script>
+{/literal}
+
 <h1>{if $isUPO}Our{else}My{/if} Claimed Research</h1>
 
 {if $isUPO}
@@ -6,43 +46,59 @@
 	<p>The publications listed below are currently claimed by you.</p>
 {/if}
 
+<form action="{$rel_url}my_research_claimed.php" method="post" id="claimedForm">
+
 <table id="research-record-listing">
 
 	{* Use a smarty loop here to echo the real citation data *}
 	
-	{* SAMPLE  RECORD 1 *}
+	{* SAMPLE  RECORD 41 *}
 	<tr>{* class may also be set to one of "claimed-not-my-pub", "claimed-correction-required", or "claimed-not-my-pub-and-correction-required" *}
-		<td style="width: 10px;"><input type="checkbox" /></td>
+		<td style="width: 10px;"><input type="checkbox" name="pid" value="uq:41" /></td>
 		<td style="width: 100%;">Record citation goes here (#1).</td>
 		<td>
 			{* We will hide these buttons if the operation in question has already been used *}
-			<input type="button" class="claimed-not-my-pub" value="This is not my publication" onclick="javascript:alert('TODO: Fire up a workflow for marking this item NOT MINE.');" /><br />
+			<input type="button" class="claimed-not-my-pub" value="This is not my publication" onclick="javascript:notMine('uq:41');" /><br />
 			<input type="button" class="claimed-correction-required" value="This is my publication, but a correction is required" onclick="javascript:alert('TODO: Fire up a workflow for collecting CORRECTION INFORMATION for this item.');" />
 		</td>
 	</tr>
 	
-	{* SAMPLE  RECORD 2 *}
+	{* SAMPLE  RECORD 42 *}
 	<tr>{* class may also be set to one of "claimed-not-my-pub", "claimed-correction-required", or "claimed-not-my-pub-and-correction-required" *}
-		<td style="width: 10px;"><input type="checkbox" /></td>
+		<td style="width: 10px;"><input type="checkbox" name="pid" value="uq:42" /></td>
 		<td style="width: 100%;">Record citation goes here (#2).</td>
 		<td>
 			{* We will hide these buttons if the operation in question has already been used *}
-			<input type="button" class="claimed-not-my-pub" value="This is not my publication" onclick="javascript:alert('TODO: Fire up a workflow for marking this item NOT MINE.');" /><br />
+			<input type="button" class="claimed-not-my-pub" value="This is not my publication" onclick="javascript:notMine('uq:42');" /><br />
 			<input type="button" class="claimed-correction-required" value="This is my publication, but a correction is required" onclick="javascript:alert('TODO: Fire up a workflow for collecting CORRECTION INFORMATION for this item.');" />
 		</td>
 	</tr>
 	
-	{* SAMPLE  RECORD 3 *}
+	{* SAMPLE  RECORD 43 *}
 	<tr>{* class may also be set to one of "claimed-not-my-pub", "claimed-correction-required", or "claimed-not-my-pub-and-correction-required" *}
-		<td style="width: 10px;"><input type="checkbox" /></td>
+		<td style="width: 10px;"><input type="checkbox" name="pid" value="uq:43" /></td>
 		<td style="width: 100%;">Record citation goes here (#3).</td>
 		<td>
 			{* We will hide these buttons if the operation in question has already been used *}
-			<input type="button" class="claimed-not-my-pub" value="This is not my publication" onclick="javascript:alert('TODO: Fire up a workflow for marking this item NOT MINE.');" /><br />
+			<input type="button" class="claimed-not-my-pub" value="This is not my publication" onclick="javascript:notMine('uq:43');" /><br />
 			<input type="button" class="claimed-correction-required" value="This is my publication, but a correction is required" onclick="javascript:alert('TODO: Fire up a workflow for collecting CORRECTION INFORMATION for this item.');" />
 		</td>
 	</tr>
 	
 </table>
 
-<input type="button" class="claimed-not-my-pub" value="None of the above ticked publications are mine" onclick="javascript:alert('TODO: Fire up a workflow for marking all the ticked items NOT MINE.');" />
+<div>
+	<input type="button" class="claimed-not-my-pub" value="None of the above ticked publications are mine" onclick="javascript:notMineBulk();" />
+</div>
+
+<input type="hidden" id="bulk-not-mine-pids" name="bulk-not-mine-pids" value="" />
+<input type="hidden" name="action" value="not-mine-bulk" />
+
+</form>
+
+<form action="{$rel_url}my_research_claimed.php" method="post" id="notMine">	
+	<div>
+		<input type="hidden" id="not-mine-pid" name="pid" value="" />
+		<input type="hidden" name="action" value="not-mine" />
+	</div>
+</form>

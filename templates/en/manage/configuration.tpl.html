@@ -558,6 +558,15 @@ function restoreDefaultColours(el)
 			</td>
   		  </tr>
   		  <tr>
+		    <th>Send Eventum Emails</th>
+			<td>
+			  <input type="radio" name="app_eventum_send_emails" value="ON" {if $config_settings.app_eventum_send_emails == "ON"}checked="checked"{/if}/> Enabled &nbsp;
+			  <input type="radio" name="app_eventum_send_emails" value="OFF" {if $config_settings.app_eventum_send_emails == "OFF"}checked="checked"{/if}/> Disabled  &nbsp;
+			  <br />Switching to enabled will send emails to Eventum when publications are claimed, disowned, or corrected.
+			  {include file="error_icon.tpl.html" field="app_eventum_send_emails"}
+			</td>
+  		  </tr>
+  		  <tr>
 		    <th>Eventum New Job Email Address</th>
 			<td>
 			  <input type="text" name="app_eventum_new_job_email_address" value="{$config_settings.app_eventum_new_job_email_address|escape:"html"}" size="30" />
