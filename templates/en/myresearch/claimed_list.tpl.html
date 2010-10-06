@@ -34,6 +34,14 @@ function notMineBulk()
 	return;
 }
 
+function correctionRequired(pid)
+{
+	document.getElementById('correction-pid').value = pid;
+	document.forms['correctMe'].submit();
+	
+	return;
+}
+
 //-->
 </script>
 {/literal}
@@ -55,33 +63,33 @@ function notMineBulk()
 	{* SAMPLE  RECORD 41 *}
 	<tr>{* class may also be set to one of "claimed-not-my-pub", "claimed-correction-required", or "claimed-not-my-pub-and-correction-required" *}
 		<td style="width: 10px;"><input type="checkbox" name="pid" value="uq:41" /></td>
-		<td style="width: 100%;">Record citation goes here (#1).</td>
+		<td style="width: 100%;">Record citation goes here (#41).</td>
 		<td>
 			{* We will hide these buttons if the operation in question has already been used *}
 			<input type="button" class="claimed-not-my-pub" value="This is not my publication" onclick="javascript:notMine('uq:41');" /><br />
-			<input type="button" class="claimed-correction-required" value="This is my publication, but a correction is required" onclick="javascript:alert('TODO: Fire up a workflow for collecting CORRECTION INFORMATION for this item.');" />
+			<input type="button" class="claimed-correction-required" value="This is my publication, but a correction is required" onclick="javascript:correctionRequired('uq:41');" />
 		</td>
 	</tr>
 	
 	{* SAMPLE  RECORD 42 *}
 	<tr>{* class may also be set to one of "claimed-not-my-pub", "claimed-correction-required", or "claimed-not-my-pub-and-correction-required" *}
 		<td style="width: 10px;"><input type="checkbox" name="pid" value="uq:42" /></td>
-		<td style="width: 100%;">Record citation goes here (#2).</td>
+		<td style="width: 100%;">Record citation goes here (#42).</td>
 		<td>
 			{* We will hide these buttons if the operation in question has already been used *}
 			<input type="button" class="claimed-not-my-pub" value="This is not my publication" onclick="javascript:notMine('uq:42');" /><br />
-			<input type="button" class="claimed-correction-required" value="This is my publication, but a correction is required" onclick="javascript:alert('TODO: Fire up a workflow for collecting CORRECTION INFORMATION for this item.');" />
+			<input type="button" class="claimed-correction-required" value="This is my publication, but a correction is required" onclick="javascript:correctionRequired('uq:42');" />
 		</td>
 	</tr>
 	
 	{* SAMPLE  RECORD 43 *}
 	<tr>{* class may also be set to one of "claimed-not-my-pub", "claimed-correction-required", or "claimed-not-my-pub-and-correction-required" *}
 		<td style="width: 10px;"><input type="checkbox" name="pid" value="uq:43" /></td>
-		<td style="width: 100%;">Record citation goes here (#3).</td>
+		<td style="width: 100%;">Record citation goes here (#43).</td>
 		<td>
 			{* We will hide these buttons if the operation in question has already been used *}
 			<input type="button" class="claimed-not-my-pub" value="This is not my publication" onclick="javascript:notMine('uq:43');" /><br />
-			<input type="button" class="claimed-correction-required" value="This is my publication, but a correction is required" onclick="javascript:alert('TODO: Fire up a workflow for collecting CORRECTION INFORMATION for this item.');" />
+			<input type="button" class="claimed-correction-required" value="This is my publication, but a correction is required" onclick="javascript:correctionRequired('uq:43');" />
 		</td>
 	</tr>
 	
@@ -91,8 +99,10 @@ function notMineBulk()
 	<input type="button" class="claimed-not-my-pub" value="None of the above ticked publications are mine" onclick="javascript:notMineBulk();" />
 </div>
 
-<input type="hidden" id="bulk-not-mine-pids" name="bulk-not-mine-pids" value="" />
-<input type="hidden" name="action" value="not-mine-bulk" />
+<div>
+	<input type="hidden" id="bulk-not-mine-pids" name="bulk-not-mine-pids" value="" />
+	<input type="hidden" name="action" value="not-mine-bulk" />
+</div>
 
 </form>
 
@@ -100,5 +110,12 @@ function notMineBulk()
 	<div>
 		<input type="hidden" id="not-mine-pid" name="pid" value="" />
 		<input type="hidden" name="action" value="not-mine" />
+	</div>
+</form>
+
+<form action="{$rel_url}my_research_claimed.php" method="post" id="correctMe">	
+	<div>
+		<input type="hidden" id="correction-pid" name="pid" value="" />
+		<input type="hidden" name="action" value="correction" />
 	</div>
 </form>

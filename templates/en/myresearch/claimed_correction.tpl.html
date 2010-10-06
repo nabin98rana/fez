@@ -1,48 +1,47 @@
-<h1>{if $isUPO}Our{else}My{/if} Claimed Research</h1>
+{literal}
+<script type="text/javascript">
+<!--
 
-{if $isUPO}
-	<p>The publications listed below are currently associated with authors in your unit.</p>
-{else}
-	<p>The publications listed below are currently claimed by you.</p>
-{/if}
+function toggleCorrectionsText()
+{
+	if (document.getElementById('correction').value == 'Please tell us what is wrong with the record.') {
+		document.getElementById('correction').value = '';
+	}
+}
 
-<table id="research-record-listing">
+function submitForm()
+{
+	if (document.getElementById('correction').value == '' || document.getElementById('correction').value == 'Please tell us what is wrong with the record.') {
+		window.alert('You must tell us what is wrong with the record.');
+		return false;
+	}
+	
+	document.forms['correctForm'].submit();
+	return;
+}
 
-	{* Use a smarty loop here to echo the real citation data *}
-	
-	{* SAMPLE  RECORD 1 *}
-	<tr>{* class may also be set to one of "claimed-not-my-pub", "claimed-correction-required", or "claimed-not-my-pub-and-correction-required" *}
-		<td style="width: 10px;"><input type="checkbox" /></td>
-		<td style="width: 100%;">Record citation goes here (#1).</td>
-		<td>
-			{* We will hide these buttons if the operation in question has already been used *}
-			<input type="button" class="claimed-not-my-pub" value="This is not my publication" onclick="javascript:alert('TODO: Fire up a workflow for marking this item NOT MINE.');" /><br />
-			<input type="button" class="claimed-correction-required" value="This is my publication, but a correction is required" onclick="javascript:alert('TODO: Fire up a workflow for collecting CORRECTION INFORMATION for this item.');" />
-		</td>
-	</tr>
-	
-	{* SAMPLE  RECORD 2 *}
-	<tr>{* class may also be set to one of "claimed-not-my-pub", "claimed-correction-required", or "claimed-not-my-pub-and-correction-required" *}
-		<td style="width: 10px;"><input type="checkbox" /></td>
-		<td style="width: 100%;">Record citation goes here (#2).</td>
-		<td>
-			{* We will hide these buttons if the operation in question has already been used *}
-			<input type="button" class="claimed-not-my-pub" value="This is not my publication" onclick="javascript:alert('TODO: Fire up a workflow for marking this item NOT MINE.');" /><br />
-			<input type="button" class="claimed-correction-required" value="This is my publication, but a correction is required" onclick="javascript:alert('TODO: Fire up a workflow for collecting CORRECTION INFORMATION for this item.');" />
-		</td>
-	</tr>
-	
-	{* SAMPLE  RECORD 3 *}
-	<tr>{* class may also be set to one of "claimed-not-my-pub", "claimed-correction-required", or "claimed-not-my-pub-and-correction-required" *}
-		<td style="width: 10px;"><input type="checkbox" /></td>
-		<td style="width: 100%;">Record citation goes here (#3).</td>
-		<td>
-			{* We will hide these buttons if the operation in question has already been used *}
-			<input type="button" class="claimed-not-my-pub" value="This is not my publication" onclick="javascript:alert('TODO: Fire up a workflow for marking this item NOT MINE.');" /><br />
-			<input type="button" class="claimed-correction-required" value="This is my publication, but a correction is required" onclick="javascript:alert('TODO: Fire up a workflow for collecting CORRECTION INFORMATION for this item.');" />
-		</td>
-	</tr>
-	
-</table>
+//-->
+</script>
+{/literal}
 
-<input type="button" class="claimed-not-my-pub" value="None of the above ticked publications are mine" onclick="javascript:alert('TODO: Fire up a workflow for marking all the ticked items NOT MINE.');" />
+<h1>Supply a Correction</h1>
+
+<form action="my_research_claimed.php" method="post" id="correctForm">
+
+<div id="research-solo-citation">{$citation}</div>
+
+<p style="text-align: right;"><a href="{$rel_url}view/{$pid}" onclick="javascript:window.open('{$rel_url}view/{$pid}'); return false;">View the full record</a></p>
+
+<p>You have indicated that the record above contains a problem of some kind. Please tell us what needs to be fixed:</p>
+
+<p>
+	<textarea id="correction" name="correction" rows="5" cols="70" onfocus="javascript:toggleCorrectionsText();">Please tell us what is wrong with the record.</textarea>
+</p>
+
+<p>
+	<input type="button" value="Claim publication" name="button" onclick="javascript:submitForm();" />
+	<input type="hidden" value="{$pid}" name="pid" />
+	<input type="hidden" value="correction-add" name="action" />
+</p>
+
+</form>

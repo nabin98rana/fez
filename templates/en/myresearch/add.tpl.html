@@ -26,11 +26,10 @@ function createRecord(f, xdis_id_sel)
 
 <form action="" method="post" id="addForm">
 
-<!--input type="hidden" name="href" value="/collection/UQ:23835" /-->
-<input type="hidden" name="xdis_id" value="" />
-
 <div id="add-missing">
 
+	<input type="hidden" name="xdis_id" value="" />
+	<input type="hidden" name="href" value="{$rel_url}my_research_add.php" />
 	<input type="hidden" name="collection_pid" value="{$APP_MY_RESEARCH_NEW_ITEMS_COLLECTION}" />
 
 	<select id="xdis_id_top">

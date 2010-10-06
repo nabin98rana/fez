@@ -212,8 +212,11 @@ class MyResearch
 		} elseif ($action == 'not-mine-bulk') {	
 			MyResearch::handleBulkDisown();
 		} elseif ($action == 'correction') {
-			// TODO
-			die("Enter correction");
+			$recordDetails = Record::getDetailsLite(@$_POST['pid']);
+			$tpl->assign("pid", $recordDetails[0]['rek_pid']);
+			$tpl->assign("citation", $recordDetails[0]['rek_citation']);
+		} elseif ($action == 'correction-add') {
+			MyResearch::claimedPubsCorrect(@$_POST['pid']);
 		} else {
 			//$list = xxxfunctionCall(); // TODO :: Write the function which gets the list of records, pass to tpl
 			$flagged = MyResearch::getClaimedFlaggedPubs($username);
@@ -301,6 +304,26 @@ class MyResearch
 	
 	
 	/**
+	 * Fire relevant subroutines for correcting a claimed publication.
+	 */
+	function claimedPubsCorrect($pid)
+	{
+		// 1. Mark the publication claimed in the database
+		$username = "UQ_USER_NAME"; // LKDB / TODO
+		$correction = '';
+		MyResearch::markClaimedPubAsNeedingCorrection($pid, $username, @$_POST['correction']);
+		
+		// 2. Send an email to Eventum about it
+		$subject = "ESPACE :: Correction Required";
+		$body = "Here is the body of the email. Include all the appropriate details here for letting the data team know what they have to do."; // LKDB / TODO
+		Eventum::lodgeJob($subject, $body);
+		
+		return;
+	}
+	
+	
+	
+	/**
 	 * This function is invoked when a user marks a claimed publication as not being theirs.
 	 */	
 	function markClaimedPubAsNotMine($pid, $username)
@@ -334,6 +357,42 @@ class MyResearch
 		}
 		
 		return 1;
-	}	
+	}
+	
+	
+	
+	/**
+	 * This function is invoked when a user marks a claimed publication as not being theirs.
+	 */	
+	function markClaimedPubAsNeedingCorrection($pid, $username, $correction)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "INSERT INTO
+					" . APP_TABLE_PREFIX . "my_research_claimed_flagged
+				(
+					mrc_pid,
+					mrc_author_username,
+					mrc_timestamp,
+					mrc_type,
+					mrc_correction
+				) VALUES (
+					" . $db->quote($pid) . ",
+					" . $db->quote($username) . ",
+					" . $db->quote(Date_API::getCurrentDateGMT()) . ",
+					" . $db->quote('C') . ",
+					" . $db->quote($correction) . ");";
+		try {
+			$db->exec($stmt);
+		}
+		
+		catch(Exception $ex) {
+			$log->err($ex);
+			return -1;
+		}
+		
+		return 1;
+	}
 
 }
