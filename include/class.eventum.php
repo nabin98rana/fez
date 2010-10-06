@@ -36,22 +36,25 @@ include_once(APP_INC_PATH . "class.mail.php");
 class Eventum
 {
 	/** 
-	 * We want to send an email to someone about something. Rejoice!
+	 * Invoking this function will cause a job to be logged in Eventum.
 	 */
 	function lodgeJob($subject, $body)
 	{
+		// Bail out if we have Eventum emails turned off.
 		if (APP_EVENTUM_SEND_EMAILS != 'ON') {
 			return;
 		}
 		
-		// TODO!
-		echo "EMAIL AHOY!<br />";
-		echo "Will be sent to: " . APP_EVENTUM_NEW_JOB_EMAIL_ADDRESS;
-		
-		$to = APP_EVENTUM_NEW_JOB_EMAIL_ADDRESS;
-		
-		die("This still needs te be implemented."); // LKDB
-		//Mail_API::_sendEmail($from, $to, $subject);
+		// Otherwise, assemble a message for sending.
+		$to      = APP_EVENTUM_NEW_JOB_EMAIL_ADDRESS;
+		$headers = 'From: ' . APP_ADMIN_EMAIL . "\r\n" .
+		'Reply-To: ' . APP_ADMIN_EMAIL . "\r\n" .
+		'X-Mailer: PHP/' . phpversion();
+
+		// Send the email. We could probably use the Mail_API methods, but this will do for now.		
+		if (!mail($to, $subject, $body, $headers)) {
+			die("There was a problem submitting this job to Eventum. Please contact the " . APP_NAME . " Manager.");
+		}
 		
 		return;
 	}

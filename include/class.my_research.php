@@ -100,7 +100,11 @@ class MyResearch
 		
 		// 2. Send an email to Eventum about it
 		$subject = "ESPACE :: Claimed Publication";
-		$body = "Here is the body of the email. Include all the appropriate details here for letting the data team know what they have to do."; // LKDB / TODO
+		$body = "PID: " . $pid . "\n";
+		$body .= "Author claim by: " . $username;
+		if ($correction != '') {
+			$body .= "\n\nCorrection information:\n\n" . $correction;
+		}
 		Eventum::lodgeJob($subject, $body);
 		
 		return;
@@ -208,7 +212,7 @@ class MyResearch
 		$action = @$_POST['action'];
 		
 		if ($action == 'not-mine') {
-			MyResearch::claimedPubsDisown(@$_POST['not-mine-pid']);
+			MyResearch::claimedPubsDisown(@$_POST['pid']);
 		} elseif ($action == 'not-mine-bulk') {	
 			MyResearch::handleBulkDisown();
 		} elseif ($action == 'correction') {
@@ -290,12 +294,12 @@ class MyResearch
 	{
 		// 1. Mark the publication claimed in the database
 		$username = "UQ_USER_NAME"; // LKDB / TODO
-		$correction = '';
 		MyResearch::markClaimedPubAsNotMine($pid, $username);
 		
 		// 2. Send an email to Eventum about it
 		$subject = "ESPACE :: Disowned Publication";
-		$body = "Here is the body of the email. Include all the appropriate details here for letting the data team know what they have to do."; // LKDB / TODO
+		$body = "PID: " . $pid . "\n";
+		$body .= "Author to remove: " . $username;
 		Eventum::lodgeJob($subject, $body);
 		
 		return;
@@ -315,7 +319,8 @@ class MyResearch
 		
 		// 2. Send an email to Eventum about it
 		$subject = "ESPACE :: Correction Required";
-		$body = "Here is the body of the email. Include all the appropriate details here for letting the data team know what they have to do."; // LKDB / TODO
+		$body = "PID: " . $pid . "\n";
+		$body .= "\n\nCorrection information:\n\n" . $correction;
 		Eventum::lodgeJob($subject, $body);
 		
 		return;

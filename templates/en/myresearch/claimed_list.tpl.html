@@ -3,8 +3,10 @@
 <!--
 function notMine(pid)
 {
-    document.getElementById('not-mine-pid').value = pid;
-    document.forms['notMine'].submit();
+	if (confirm('You are about to mark this record (' + pid + ') as not belonging to you. Proceed?')) {
+		document.getElementById('not-mine-pid').value = pid;
+		document.forms['notMine'].submit();
+	}
     
     return;
 }
