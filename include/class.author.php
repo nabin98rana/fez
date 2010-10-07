@@ -181,6 +181,35 @@ class Author
 	}
 
 	/**
+	 * Method used to get the author ID of the given author username. Use carefully as if there are more than one match it will only return the first.
+	 *
+	 * @access  public
+	 * @param   string $username The author username
+	 * @return  integer The author ID
+	 */
+	function getIDByUsername($username)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		$stmt = "SELECT
+                    aut_id
+                 FROM
+                    " . APP_TABLE_PREFIX . "author
+                 WHERE ";
+			$stmt .= " aut_org_username = ".$db->quote($username);
+		try {
+			$res = $db->fetchOne($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return '';
+		}
+		return $res;
+	}
+
+
+	/**
 	 * Method used to get the title of a given author ID.
 	 *
 	 * @access  public

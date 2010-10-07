@@ -24,33 +24,16 @@ function claimPID(pid)
 <table id="research-record-listing">
 
 	{* Use a smarty loop here to echo the real citation data *}
-	
+	{section name="i" loop=$list}
 	<tr>{* class may also be set to "possible-my-pub" *}
 		<td style="width: 10px;"><input type="checkbox" /></td>
-		<td style="width: 100%;">Record citation goes here (#41).</td>
+		<td style="width: 100%;">{$list[i].rek_citation}</td>
 		<td>
 			{* We will hide this button if the operation in question has already been used *}
-			<input type="button" class="possible-my-pub" value="This is my publication" onclick="javascript:claimPID('uq:41');" />
+			<input type="button" class="possible-my-pub" value="This is my publication" onclick="javascript:claimPID('{$list[i].rek_pid}');" />
 		</td>
 	</tr>
-	
-	<tr>{* class may also be set to "possible-my-pub" *}
-		<td style="width: 10px;"><input type="checkbox" /></td>
-		<td style="width: 100%;">Record citation goes here (#42).</td>
-		<td>
-			{* We will hide this button if the operation in question has already been used *}
-			<input type="button" class="possible-my-pub" value="This is my publication" onclick="javascript:claimPID('uq:42');" />
-		</td>
-	</tr>
-	
-	<tr>{* class may also be set to "possible-my-pub" *}
-		<td style="width: 10px;"><input type="checkbox" /></td>
-		<td style="width: 100%;">Record citation goes here (#43).</td>
-		<td>
-			{* We will hide this button if the operation in question has already been used *}
-			<input type="button" class="possible-my-pub" value="This is my publication" onclick="javascript:claimPID('uq:43');" />
-		</td>
-	</tr>
+	{/section}
 	
 </table>
 

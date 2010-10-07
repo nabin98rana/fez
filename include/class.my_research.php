@@ -55,6 +55,7 @@ class MyResearch
 		Auth::checkAuthentication(APP_SESSION);
 		$username = Auth::getUsername();
 		$actingUser = Auth::getActingUsername();
+		$author_id = Author::getIDByUsername($actingUser);
 		$actingUser = Author::getDetailsByUsername($actingUser);
 		
 		$tpl->assign("type", "possible");
@@ -79,11 +80,14 @@ class MyResearch
 			$recordDetails = Record::getDetailsLite(@$_POST['pid']);
 			$tpl->assign("pid", $recordDetails[0]['rek_pid']);
 			$tpl->assign("citation", $recordDetails[0]['rek_citation']);
-		} else {
-			//$list = xxxfunctionCall(); // TODO :: Write the function which gets the list of records, pass to tpl
-			$flagged = MyResearch::getPossibleFlaggedPubs($username);
-			$tpl->assign("flagged", $flagged);
 		}
+		//$list = xxxfunctionCall(); // TODO :: Write the function which gets the list of records, pass to tpl
+		$flagged = MyResearch::getPossibleFlaggedPubs($username);
+		
+		$return = MyResearch::getList("possible", $author_id);
+		$tpl->assign("list", $return['list']);
+		$tpl->assign("flagged", $flagged);	
+
 		
 		$tpl->assign("action", $action);
 		$tpl->assign("acting_user", $actingUser);
@@ -183,6 +187,89 @@ class MyResearch
 		return $ret;
 	}
 	
+
+	function getList($type, $author_id) {
+		/*
+     * These are the only $params(ie. $_GET) vars that can be passed to this page.
+     * Strip out any that aren't in this list
+     */
+    $args = array(
+        'browse'        =>  'string',
+        'author_id'     =>  'numeric',
+        'collection_pid'=>  'string',
+        'community_pid' =>  'string',
+        'cat'           =>  'string',
+        'author'        =>  'string',
+        'tpl'           =>  'numeric',
+        'year'          =>  'numeric',
+        'rows'          =>  'numeric',
+        'pager_row'     =>  'numeric',
+        'sort'          =>  'string',
+        'sort_by'       =>  'string',
+        'search_keys'   =>  'array',
+        'order_by'      =>  'string',
+        'sort_order'    =>  'string',
+        'value'         =>  'string',
+        'operator'      =>  'string',
+        'custom_view_pid' =>  'string',
+        'form_name'     =>  'string',
+    );
+		$params = $_GET;
+    foreach ($args as $getName => $getType) {            
+        if( Misc::sanity_check($params[$getName], $getType) !== false ) {
+            $allowed[$getName] = $params[$getName];
+        }
+    }
+    $params = $allowed;
+
+    $pager_row = $params['pager_row'];
+    if (empty($pager_row)) {
+        $pager_row = 0;
+    }
+    
+    
+    $rows = $params['rows'];
+    if (empty($rows)) {
+        
+        if(!empty($_SESSION['rows'])) {
+            $rows = $_SESSION['rows'];
+        } else {
+            $rows = APP_DEFAULT_PAGER_SIZE;
+        }
+        
+    } else {
+        $_SESSION['rows'] = $rows;
+    }
+
+				$order_dir = 'ASC';
+				$options = array();
+				if ($max == "ALL") {
+					$max = 9999999;
+				}
+		//		$current_row = ($current_row/100);
+				$citationCache = true;
+				$getSimple = true;
+
+
+		if ($type == "claimed") {
+			$filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
+			$filter["searchKey".Search_key::getID("Object Type")] = 3; 
+			$filter["searchKey".Search_Key::getID("Author ID")] = $author_id; 
+		} elseif ($type == "possible") {
+			$lastname = Author::getLastName($author_id);
+			$filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
+			$filter["searchKey".Search_key::getID("Object Type")] = 3; 
+			$filter["searchKey".Search_Key::getID("Author")] = $lastname;
+			
+
+			
+		}
+		$return = Record::getListing($options, array(9,10), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter);
+//		$return = Record::getListing($options, array(9,10), $current_row, $max, $order_by, false, false, $filter);
+//		print_r($return);
+		return $return;
+
+	}
 	
 	
 	/*********************************
@@ -200,8 +287,9 @@ class MyResearch
 		Auth::checkAuthentication(APP_SESSION);
 		$username = Auth::getUsername();
 		$actingUser = Auth::getActingUsername();
+		$author_id = Author::getIDByUsername($actingUser);
 		$actingUser = Author::getDetailsByUsername($actingUser);
-		
+
 		$tpl->assign("type", "claimed");
 		
 		$isUser = Auth::getUsername();
@@ -228,11 +316,12 @@ class MyResearch
 			$tpl->assign("citation", $recordDetails[0]['rek_citation']);
 		} elseif ($action == 'correction-add') {
 			MyResearch::claimedPubsCorrect(@$_POST['pid']);
-		} else {
-			//$list = xxxfunctionCall(); // TODO :: Write the function which gets the list of records, pass to tpl
-			$flagged = MyResearch::getClaimedFlaggedPubs($username);
-			$tpl->assign("flagged", $flagged);
 		}
+		$flagged = MyResearch::getClaimedFlaggedPubs($username);
+		$return = MyResearch::getList("claimed", $author_id);
+		$tpl->assign("list", $return['list']);
+		$tpl->assign("flagged", $flagged);
+
 		
 		$tpl->assign("action", $action);
 		$tpl->assign("acting_user", $actingUser);
