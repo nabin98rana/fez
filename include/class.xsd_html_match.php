@@ -1138,7 +1138,8 @@ class XSD_HTML_Match
 				}
 				$mfo_list = XSD_HTML_Match::getOptions($xsdmf_id);
 				if (is_array($mfo_list) && !empty($mfo_list)) {
-					$mfo_ids = array_keys(Misc::keyArray($mfo_list, 'mfo_id'));
+					//$mfo_ids = array_keys(Misc::keyArray($mfo_list, 'mfo_id'));
+					$mfo_ids = array_keys($mfo_list);
 					$stmt = "delete from " . APP_TABLE_PREFIX . "xsd_display_mf_option " .
 				"where mfo_id in (".Misc::arrayToSQLBindStr($mfo_ids).")";
 					try {

@@ -105,6 +105,31 @@ class XSD_Display
 		catch(Exception $ex) {
 			$log->err($ex);
 		}
+		
+		// remove any related entries in fez_xsd_display_match
+		$stmt = "DELETE FROM
+                        " . APP_TABLE_PREFIX . "xsd_display_attach
+                     WHERE
+                        att_parent_xsdmf_id IN ( SELECT xsdmf_id FROM " . APP_TABLE_PREFIX . "xsd_display_matchfields where xsdmf_xdis_id IN (" . Misc::arrayToSQLBindStr($params["items"]) . "))";
+
+		try {
+			$db->query($stmt, $params["items"]);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+		}
+		// remove any related entries in fez_xsd_display_mf_options
+		$stmt = "DELETE FROM
+                        " . APP_TABLE_PREFIX . "xsd_display_mf_option
+                     WHERE
+                        mfo_fld_id IN ( SELECT xsdmf_id FROM " . APP_TABLE_PREFIX . "xsd_display_matchfields where xsdmf_xdis_id IN (" . Misc::arrayToSQLBindStr($params["items"]) . "))";
+
+		try {
+			$db->query($stmt, $params["items"]);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+		}
 
 		$stmt = "DELETE FROM
                         " . APP_TABLE_PREFIX . "xsd_display_matchfields
