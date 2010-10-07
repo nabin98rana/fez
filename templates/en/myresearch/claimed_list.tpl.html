@@ -48,43 +48,48 @@ function correctionRequired(pid)
 </script>
 {/literal}
 
-<h1>{if !$isUPO}My {/if}Claimed Research</h1>
+<h1>My Claimed Research</h1>
 
 {if $isUPO}
 	{include file="myresearch/acting.tpl.html"}
 {/if}
 
-<p>The publications listed below are currently claimed by you.</p>
-
 <form action="{$rel_url}my_research_claimed.php" method="post" id="claimedForm">
 
-<table id="research-record-listing">
-
 	{section name="i" loop=$list}
-	<tr>{* class may also be set to one of "claimed-not-my-pub", "claimed-correction-required", or "claimed-not-my-pub-and-correction-required" *}
-		<td style="width: 10px;"><input type="checkbox" name="pid" value="{$list[i].rek_pid}" /></td>
-		<td style="width: 100%;">{$list[i].rek_citation}</td>
-		<td>
-			{* We will hide these buttons if the operation in question has already been used *}
-			<input type="button" class="claimed-not-my-pub" value="This is not my publication" onclick="javascript:notMine('{$list[i].rek_pid}');" /><br />
-			<input type="button" class="claimed-correction-required" value="This is my publication, but a correction is required" onclick="javascript:correctionRequired('{$list[i].rek_pid}');" />
-		</td>
-	</tr>
+	
+		{if $smarty.section.i.first}
+			<p>The publications listed below are currently claimed by you.</p>
+			<table id="research-record-listing">
+		{/if}
+	
+		<tr>{* class may also be set to one of "claimed-not-my-pub", "claimed-correction-required", or "claimed-not-my-pub-and-correction-required" *}
+			<td style="width: 10px;"><input type="checkbox" name="pid" value="{$list[i].rek_pid}" /></td>
+			<td style="width: 100%;">{$list[i].rek_citation}</td>
+			<td>
+				{* We will hide these buttons if the operation in question has already been used *}
+				<input type="button" class="claimed-not-my-pub" value="This is not my publication" onclick="javascript:notMine('{$list[i].rek_pid}');" /><br />
+				<input type="button" class="claimed-correction-required" value="This is my publication, but a correction is required" onclick="javascript:correctionRequired('{$list[i].rek_pid}');" />
+			</td>
+		</tr>
+		
+		{if $smarty.section.i.last}
+			</table>
+			
+			<div>
+				<input type="button" class="claimed-not-my-pub" value="None of the above ticked publications are mine" onclick="javascript:notMineBulk();" />
+			</div>
+			
+			<div>
+				<input type="hidden" id="bulk-not-mine-pids" name="bulk-not-mine-pids" value="" />
+				<input type="hidden" name="action" value="not-mine-bulk" />
+			</div>
+		{/if}
+		
 	{sectionelse}
-		<p>No publications found.</p>
+		<p>We could not find any publications authored by you.</p>
 	{/section}
 	
-</table>
-
-<div>
-	<input type="button" class="claimed-not-my-pub" value="None of the above ticked publications are mine" onclick="javascript:notMineBulk();" />
-</div>
-
-<div>
-	<input type="hidden" id="bulk-not-mine-pids" name="bulk-not-mine-pids" value="" />
-	<input type="hidden" name="action" value="not-mine-bulk" />
-</div>
-
 </form>
 
 <form action="{$rel_url}my_research_claimed.php" method="post" id="notMine">	

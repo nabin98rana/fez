@@ -66,7 +66,7 @@ class Zend_Db_Adapter_Db2 extends Zend_Db_Adapter_Abstract
         'dbname'       => null,
         'username'     => null,
         'password'     => null,
-        'host'         => 'localhost',
+        'host'         => '127.0.0.1',
         'port'         => '50000',
         'protocol'     => 'TCPIP',
         'persistent'   => false,
@@ -154,7 +154,7 @@ class Zend_Db_Adapter_Db2 extends Zend_Db_Adapter_Abstract
             $this->_config['driver_options']['DB2_ATTR_CASE'] = $caseAttrMap[$this->_config['options'][Zend_Db::CASE_FOLDING]];
         }
 
-        if ($this->_config['host'] !== 'localhost' && !$this->_isI5) {
+        if ($this->_config['host'] !== '127.0.0.1' && !$this->_isI5) {
             // if the host isn't localhost, use extended connection params
             $dbname = 'DRIVER={IBM DB2 ODBC DRIVER}' .
                      ';DATABASE=' . $this->_config['dbname'] .

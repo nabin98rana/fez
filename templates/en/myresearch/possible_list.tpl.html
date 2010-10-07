@@ -10,38 +10,41 @@ function claimPID(pid)
 </script>
 {/literal}
 
-<h1>{if $isUPO}Possible Research{else}My Research{/if}</h1>
+<h1>Possibly My Research</h1>
 
 {if $isUPO}
 	{include file="myresearch/acting.tpl.html"}
 {/if}
 
-<p>The publications listed below may belong to you.</p>
-
-
 <form action="{$rel_url}my_research_possible.php" method="post" id="possibleForm">
 
-<table id="research-record-listing">
-
-	{* Use a smarty loop here to echo the real citation data *}
 	{section name="i" loop=$list}
-	<tr>{* class may also be set to "possible-my-pub" *}
-		<td style="width: 10px;"><input type="checkbox" /></td>
-		<td style="width: 100%;">{$list[i].rek_citation}</td>
-		<td>
-			{* We will hide this button if the operation in question has already been used *}
-			<input type="button" class="possible-my-pub" value="This is my publication" onclick="javascript:claimPID('{$list[i].rek_pid}');" />
-		</td>
-	</tr>
-	{sectionelse}
-		<p>No publications found.</p>
-	{/section}
 	
-</table>
+		{if $smarty.section.i.first}
+			<p>The publications listed below may belong to you.</p>
+			<table id="research-record-listing">
+		{/if}
+	
+		<tr>{* class may also be set to "possible-my-pub" *}
+			<td style="width: 10px;"><input type="checkbox" /></td>
+			<td style="width: 100%;">{$list[i].rek_citation}</td>
+			<td>
+				{* We will hide this button if the operation in question has already been used *}
+				<input type="button" class="possible-my-pub" value="This is my publication" onclick="javascript:claimPID('{$list[i].rek_pid}');" />
+			</td>
+		</tr>
+	
+		{if $smarty.section.i.last}
+			<table id="research-record-listing">
 
-<div>
-	<input type="hidden" id="pid" name="pid" value="" />
-	<input type="hidden" name="action" value="claim" />
-</div>
+			<div>
+				<input type="hidden" id="pid" name="pid" value="" />
+				<input type="hidden" name="action" value="claim" />
+			</div>			
+		{/if}
+	
+	{sectionelse}
+		<p>We could not find any publications that we suspect might be yours.</p>
+	{/section}
 
 </form>
