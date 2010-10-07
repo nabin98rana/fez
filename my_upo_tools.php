@@ -45,6 +45,7 @@ include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "class.org_structure.php");
 include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.pager.php");
+include_once(APP_INC_PATH . "class.my_research.php");
 
 if (APP_MY_RESEARCH_MODULE != 'ON') {
 	die('Sorry - this module is not enabled.');
@@ -54,6 +55,9 @@ $tpl = new Template_API();
 $tpl->setTemplate("myresearch/index.tpl.html");
 
 Auth::checkAuthentication(APP_SESSION);
+$username = Auth::getUsername();
+$actingUser = Auth::getActingUsername();
+$actingUser = Author::getDetailsByUsername($actingUser);
 
 $tpl->assign("type", "upo");
 
@@ -67,16 +71,22 @@ $tpl->assign("isAdministrator", $isAdministrator);
 $tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 $tpl->assign("isUPO", $isUPO);
 
-/*$thing = Org_Structure::getOrgUnitList();
-echo "<pre>";
-print_r($thing);
-echo "</pre>";
-exit;
-*/
+
+$currentAOU = '410'; // TODO:-
+/* If not already set in the session, we need to determine a default value for the current user.
+   We'll consult the HR tables for the current user, determine their AOU, and write it to the session. */
+
+$currentAuthor = ''; // TODO:-
+/* Same as with current AOU. We need to have the option of over-writing this value. */
+
+$authors = MyResearch::listAuthorsByAOU($currentAOU);
 
 $tpl->assign("org_units", Org_Structure::getOrgUnitList()); // All org units, for the drop-down
+$tpl->assign("authors", $authors); // The authors in the currently-selected org unit
+$tpl->assign("acting_user", $actingUser);
 
 $tpl->assign("active_nav", "my_fez");
 
 $tpl->displayTemplate();
+
 ?>

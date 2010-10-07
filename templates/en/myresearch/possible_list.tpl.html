@@ -10,13 +10,14 @@ function claimPID(pid)
 </script>
 {/literal}
 
-<h1>Possibly {if $isUPO}Our{else}My{/if} Research</h1>
+<h1>{if $isUPO}Possible Research{else}My Research{/if}</h1>
 
 {if $isUPO}
-	<p>The publications listed below may belong to authors in your unit.</p>
-{else}
-	<p>The publications listed below may belong to you.</p>
+	{include file="myresearch/acting.tpl.html"}
 {/if}
+
+<p>The publications listed below may belong to you.</p>
+
 
 <form action="{$rel_url}my_research_possible.php" method="post" id="possibleForm">
 

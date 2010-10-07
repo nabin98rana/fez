@@ -1,3 +1,23 @@
+{literal}
+<script type="text/javascript">
+<!--
+function userSelect()
+{
+	window.alert('TODO: Assume the user that was just clicked.');
+	/*document.forms['claimForm'].submit();*/
+	return;
+}
+
+function changeOrgUnit()
+{
+	window.alert('TODO: This will override the current UPO\'s default unit, allowing them to process another org unit within the university.');
+	return;
+}
+
+//-->
+</script>
+{/literal}
+
 {if !$isUPO}
 
 	<h1>Sorry</h1>
@@ -6,25 +26,31 @@
 
 {else}
 
-	<h1>Administer Another Organisational Unit</h1>
+	<h1>UPO Options</h1>
 	
-	<p>Select the org unit you wish to process form the list below.</p>
+	{if $isUPO}
+		{include file="myresearch/acting.tpl.html"}
+	{/if}
 	
 	<form action="" method="post">
+		<div>
+			<select id="org_unit_id">
+				{foreach from=$org_units key=k item=v}
+					<option value="{$k}">{$v}</option>
+				{/foreach}
+			</select>
+			<input type="button" value="Switch org unit" class="button" onclick="javascript:changeOrgUnit();" /> 
+		</div> 
+	</form>
+	
+	<br />
+	<h2>Select an author to process:</h2>
+	<br />
 	
 	<div>
-		<select id="org_unit_id">
-			{foreach from=$org_units key=k item=v}
-				<option value="{$k}">{$v}</option>
-			{/foreach}
-		</select>
-		
-		<br /><br />
-		
-		<input type="button" value="Administer this unit" class="button" onclick="javascript:alert('TODO: This will override the current UPO\'s default unit, allowing them to process another part of the university.');" /> 
-		
-	</div> 
-	
-	</form>
+		{foreach from=$authors key=k item=v}
+			<input type="radio" name="username" value="{$v.username}" onclick="javascript:userSelect();" {if $v.username == $acting_user.aut_org_username}checked="checked"{/if} /> {$v.last_name}, {$v.first_name}<br />
+		{/foreach}
+	</div>
 	
 {/if}

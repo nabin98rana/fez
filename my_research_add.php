@@ -53,6 +53,9 @@ $tpl = new Template_API();
 $tpl->setTemplate("myresearch/index.tpl.html");
 
 Auth::checkAuthentication(APP_SESSION);
+$username = Auth::getUsername();
+$actingUser = Auth::getActingUsername();
+$actingUser = Author::getDetailsByUsername($actingUser);
 
 $tpl->assign("type", "add");
 
@@ -68,6 +71,7 @@ $tpl->assign("isUPO", $isUPO);
 
 $tpl->assign("active_nav", "my_fez");
 $tpl->assign("childXDisplayOptions", Record::getSearchKeyIndexValue(APP_MY_RESEARCH_NEW_ITEMS_COLLECTION, "XSD Display Option"));
+$tpl->assign("acting_user", $actingUser);
 
 $tpl->displayTemplate();
 

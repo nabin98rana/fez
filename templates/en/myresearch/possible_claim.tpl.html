@@ -47,6 +47,10 @@ function submitForm()
 
 <form action="my_research_possible.php" method="post" id="claimForm">
 
+{if $isUPO}
+	{include file="myresearch/acting.tpl.html"}
+{/if}
+
 <p>You are claiming to be the author of this item:</p>
 
 <div id="research-solo-citation">{$citation}</div>

@@ -33,6 +33,7 @@
 
 include_once(APP_INC_PATH . "class.eventum.php");
 
+
 /**
  * MyResearch
  * This is a static class that handles My Research functionality, such as record correction flagging.
@@ -53,6 +54,8 @@ class MyResearch
 		
 		Auth::checkAuthentication(APP_SESSION);
 		$username = Auth::getUsername();
+		$actingUser = Auth::getActingUsername();
+		$actingUser = Author::getDetailsByUsername($actingUser);
 		
 		$tpl->assign("type", "possible");
 		
@@ -83,6 +86,8 @@ class MyResearch
 		}
 		
 		$tpl->assign("action", $action);
+		$tpl->assign("acting_user", $actingUser);
+		
 		$tpl->displayTemplate();
 		
 		return;
@@ -194,6 +199,8 @@ class MyResearch
 		
 		Auth::checkAuthentication(APP_SESSION);
 		$username = Auth::getUsername();
+		$actingUser = Auth::getActingUsername();
+		$actingUser = Author::getDetailsByUsername($actingUser);
 		
 		$tpl->assign("type", "claimed");
 		
@@ -228,6 +235,8 @@ class MyResearch
 		}
 		
 		$tpl->assign("action", $action);
+		$tpl->assign("acting_user", $actingUser);
+		
 		$tpl->displayTemplate();
 		
 		return;
@@ -399,5 +408,48 @@ class MyResearch
 		
 		return 1;
 	}
+	
+	
+	
+	/*****************
+	 * UPO FUNCTIONS *
+	 *****************/
+	 
+	 /**
+	 * Shows a list of all authors within a given AOU.
+	 */	
+	 function listAuthorsByAOU($orgID)
+	 {
+	 	$log = FezLog::get();
+		$db = DB_API::get();
+		
+	 	$stmt = "
+				SELECT
+					DISTINCT(aut_org_username) AS username,
+					aut_fname AS first_name,
+					UCASE(aut_lname) AS last_name
+				FROM
+					" . APP_TABLE_PREFIX . "author,
+					hr_position_vw
+				WHERE
+					hr_position_vw.USER_NAME = fez_author.aut_org_username
+					AND AOU = " . $db->quote($orgID) . "
+					AND (aut_org_username IS NOT NULL
+					OR aut_org_staff_id IS NOT NULL)
+				ORDER BY
+					aut_lname ASC,
+					aut_fname ASC;
+	 	";
+	 	
+	 	try {
+			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return '';
+		}
+
+		return $res;
+	 }
 
 }

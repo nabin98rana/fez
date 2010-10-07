@@ -48,13 +48,13 @@ function correctionRequired(pid)
 </script>
 {/literal}
 
-<h1>{if $isUPO}Our{else}My{/if} Claimed Research</h1>
+<h1>{if !$isUPO}My {/if}Claimed Research</h1>
 
 {if $isUPO}
-	<p>The publications listed below are currently associated with authors in your unit.</p>
-{else}
-	<p>The publications listed below are currently claimed by you.</p>
+	{include file="myresearch/acting.tpl.html"}
 {/if}
+
+<p>The publications listed below are currently claimed by you.</p>
 
 <form action="{$rel_url}my_research_claimed.php" method="post" id="claimedForm">
 

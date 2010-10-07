@@ -26,6 +26,10 @@ function submitForm()
 
 <h1>Supply a Correction</h1>
 
+{if $isUPO}
+	{include file="myresearch/acting.tpl.html"}
+{/if}
+
 <form action="my_research_claimed.php" method="post" id="correctForm">
 
 <div id="research-solo-citation">{$citation}</div>

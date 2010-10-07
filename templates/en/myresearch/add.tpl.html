@@ -20,7 +20,11 @@ function createRecord(f, xdis_id_sel)
 
 <h1>Add Missing Publication</h1>
 
-<p>Can't find your publication listed under either of the other two tabs? Use this screen to tell us about it.</p>
+{if $isUPO}
+	{include file="myresearch/acting.tpl.html"}
+{/if}
+
+<p>Can't find {if $isUPO}the{else}your{/if} publication listed under either of the other tabs? Use this screen to tell us about it.</p>
 
 <p>What type of record will you be entering?</p>
 
