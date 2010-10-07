@@ -59,6 +59,8 @@ $isUPO = User::isUserUPO($isUser);
 $action = @$_POST['action'];
 if ($isUPO && $action == 'change-user') {
 	Auth::setActingUsername(@$_POST['change-user']); // Change to a new acting user
+} elseif ($isUPO && $action == 'change-org-unit') {
+	$_SESSION['my_researcher_aou'] = @$_POST['change-org-unit']; // Change to a new org unit
 }
 
 $tpl = new Template_API();
@@ -69,6 +71,12 @@ $username = Auth::getUsername();
 $actingUser = Auth::getActingUsername();
 $actingUser = Author::getDetailsByUsername($actingUser);
 
+/* Get &&|| set the AOU */
+if (!isset($_SESSION['my_researcher_aou'])) {
+	$_SESSION['my_researcher_aou'] = MyResearch::getDefaultAOU($username);
+}
+$currentAOU = $_SESSION['my_researcher_aou'];
+
 $tpl->assign("type", "upo");
 
 $tpl->assign("isUser", $isUser);
@@ -76,26 +84,12 @@ $tpl->assign("isAdministrator", $isAdministrator);
 $tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 $tpl->assign("isUPO", $isUPO);
 
-
-
-
-/* Get and/or set the AOU */
-if (!isset($_SESSION['my_researcher_aou'])) {
-	$_SESSION['my_researcher_aou'] = MyResearch::getDefaultAOU($username);
-}
-$currentAOU = $_SESSION['my_researcher_aou'];
-
-/* If not already set in the session, we need to determine a default value for the current user.
-   We'll consult the HR tables for the current user, determine their AOU, and write it to the session. */
-   //$defaultAOU = 
-
-
-
 $authors = MyResearch::listAuthorsByAOU($currentAOU);
 
 $tpl->assign("org_units", Org_Structure::getOrgUnitList()); // All org units, for the drop-down
 $tpl->assign("authors", $authors); // The authors in the currently-selected org unit
 $tpl->assign("acting_user", $actingUser);
+$tpl->assign("current_aou", $currentAOU);
 
 $tpl->assign("active_nav", "my_fez");
 

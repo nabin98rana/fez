@@ -10,7 +10,10 @@ function userSelect(username)
 
 function changeOrgUnit()
 {
-	window.alert('TODO: This will override the current UPO\'s default unit, allowing them to process another org unit within the university.');
+	s = document.getElementById('org_unit_id');
+    var val = s.options[s.selectedIndex].value;
+	document.getElementById('change-org-unit').value = val;
+	document.forms['orgUnitSelect'].submit();
 	return;
 }
 
@@ -32,15 +35,20 @@ function changeOrgUnit()
 		{include file="myresearch/acting.tpl.html"}
 	{/if}
 	
-	<form action="" method="post">
+	<form action="my_upo_tools.php" method="post" id="orgUnitSelect">
 
 		<div>
 			<select id="org_unit_id">
 				{foreach from=$org_units key=k item=v}
-					<option value="{$k}">{$v}</option>
+					<option value="{$k}" {if $k == $current_aou}selected="selected"{/if}>{$v}</option>
 				{/foreach}
 			</select>
 			<input type="button" value="Switch org unit" class="button" onclick="javascript:changeOrgUnit();" /> 
+		</div>
+		
+		<div>
+			<input type="hidden" value="change-org-unit" name="action" />
+			<input type="hidden" value="" name="change-org-unit" id="change-org-unit" />
 		</div>
 		
 	</form>
