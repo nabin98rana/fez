@@ -40,7 +40,7 @@ function changeOrgUnit()
 		<div>
 			<select id="org_unit_id">
 				{foreach from=$org_units key=k item=v}
-					<option value="{$k}" {if $k == $current_aou}selected="selected"{/if}>{$v}</option>
+					<option value="{$k}"{if $k == $current_aou} selected="selected"{/if}>{$v|escape:'html'}</option>
 				{/foreach}
 			</select>
 			<input type="button" value="Switch org unit" class="button" onclick="javascript:changeOrgUnit();" /> 
