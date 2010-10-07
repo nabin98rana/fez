@@ -451,5 +451,36 @@ class MyResearch
 
 		return $res;
 	 }
+	 
+	 
+	 
+	 /**
+	 * Gets the default Org Unit for a particular user.
+	 */	
+	 function getDefaultAOU($username)
+	 {
+	 	$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "
+				SELECT
+					AOU AS aou
+				FROM
+					hr_position_vw
+				WHERE
+					USER_NAME = " . $db->quote($username) . "
+				LIMIT 1
+				";
+		
+		try {
+			$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return '';
+		}
+		
+		return $res['aou'];
+	 }
 
 }

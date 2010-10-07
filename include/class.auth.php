@@ -126,7 +126,7 @@ class Auth
 		}
 		Auth::checkRuleGroups();
 		// if the current session is still valid, then renew the expiration
-		Auth::createLoginSession($ses['username'], $ses['fullname'], $ses['email'], $ses['distinguishedname'], $ses['autologin']);
+		Auth::createLoginSession($ses['username'], $ses['fullname'], $ses['email'], $ses['distinguishedname'], $ses['autologin'], $ses['acting_username']);
 	}
 
 
@@ -1414,7 +1414,7 @@ class Auth
 	 * @param   integer $autologin Flag to indicate whether this user should be automatically logged in or not
 	 * @return  void
 	 */
-	function createLoginSession($username, $fullname,  $email, $distinguishedname, $autologin = 0) 
+	function createLoginSession($username, $fullname,  $email, $distinguishedname, $autologin = 0, $actingUsername = '') 
 	{			
 		global $auth_bgp_session, $auth_isBGP;
 
@@ -1423,10 +1423,15 @@ class Auth
 		} else {
 			$ses =& $_SESSION;
 		}
+		
+		if ($actingUsername == '') {
+			$actingUsername = $username;
+		}
+		
 		$ipaddress = @$_SERVER['REMOTE_ADDR'];
 		$time = time();
 		$ses["username"] = $username;
-		$ses["acting_username"] = $username;
+		$ses["acting_username"] = $actingUsername;
 		$ses["fullname"] = $fullname;
 		$ses["distinguishedname"] = $distinguishedname;
 		$ses["email"] = $email;

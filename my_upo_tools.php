@@ -51,6 +51,16 @@ if (APP_MY_RESEARCH_MODULE != 'ON') {
 	die('Sorry - this module is not enabled.');
 }
 
+$isUser = Auth::getUsername();
+$isAdministrator = User::isUserAdministrator($isUser);
+$isSuperAdministrator = User::isUserSuperAdministrator($isUser);
+$isUPO = User::isUserUPO($isUser);
+
+$action = @$_POST['action'];
+if ($isUPO && $action == 'change-user') {
+	Auth::setActingUsername(@$_POST['change-user']); // Change to a new acting user
+}
+
 $tpl = new Template_API();
 $tpl->setTemplate("myresearch/index.tpl.html");
 
@@ -61,23 +71,25 @@ $actingUser = Author::getDetailsByUsername($actingUser);
 
 $tpl->assign("type", "upo");
 
-$isUser = Auth::getUsername();
-$isAdministrator = User::isUserAdministrator($isUser);
-$isSuperAdministrator = User::isUserSuperAdministrator($isUser);
-$isUPO = User::isUserUPO($isUser);
-
 $tpl->assign("isUser", $isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
 $tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 $tpl->assign("isUPO", $isUPO);
 
 
-$currentAOU = '410'; // TODO:-
+
+
+/* Get and/or set the AOU */
+if (!isset($_SESSION['my_researcher_aou'])) {
+	$_SESSION['my_researcher_aou'] = MyResearch::getDefaultAOU($username);
+}
+$currentAOU = $_SESSION['my_researcher_aou'];
+
 /* If not already set in the session, we need to determine a default value for the current user.
    We'll consult the HR tables for the current user, determine their AOU, and write it to the session. */
+   //$defaultAOU = 
 
-$currentAuthor = ''; // TODO:-
-/* Same as with current AOU. We need to have the option of over-writing this value. */
+
 
 $authors = MyResearch::listAuthorsByAOU($currentAOU);
 

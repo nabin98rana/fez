@@ -1,10 +1,10 @@
 {literal}
 <script type="text/javascript">
 <!--
-function userSelect()
+function userSelect(username)
 {
-	window.alert('TODO: Assume the user that was just clicked.');
-	/*document.forms['claimForm'].submit();*/
+	document.getElementById('change-user').value = username;
+	document.forms['userSelect'].submit();
 	return;
 }
 
@@ -33,6 +33,7 @@ function changeOrgUnit()
 	{/if}
 	
 	<form action="" method="post">
+
 		<div>
 			<select id="org_unit_id">
 				{foreach from=$org_units key=k item=v}
@@ -40,17 +41,27 @@ function changeOrgUnit()
 				{/foreach}
 			</select>
 			<input type="button" value="Switch org unit" class="button" onclick="javascript:changeOrgUnit();" /> 
-		</div> 
+		</div>
+		
 	</form>
 	
 	<br />
 	<h2>Select an author to process:</h2>
 	<br />
 	
-	<div>
-		{foreach from=$authors key=k item=v}
-			<input type="radio" name="username" value="{$v.username}" onclick="javascript:userSelect();" {if $v.username == $acting_user.aut_org_username}checked="checked"{/if} /> {$v.last_name}, {$v.first_name}<br />
-		{/foreach}
-	</div>
+	<form action="my_upo_tools.php" method="post" id="userSelect">
+	
+		<div>
+			{foreach from=$authors key=k item=v}
+				<input type="radio" name="username" value="{$v.username}" onclick="javascript:userSelect('{$v.username}');" {if $v.username == $acting_user.aut_org_username}checked="checked"{/if} /> {$v.last_name}, {$v.first_name}<br />
+			{/foreach}
+		</div>
+		
+		<div>
+			<input type="hidden" value="change-user" name="action" />
+			<input type="hidden" value="" name="change-user" id="change-user" />
+		</div>
+	
+	</form>
 	
 {/if}
