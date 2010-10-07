@@ -33,13 +33,13 @@ function claimPID(pid)
 			<input type="button" class="possible-my-pub" value="This is my publication" onclick="javascript:claimPID('{$list[i].rek_pid}');" />
 		</td>
 	</tr>
+	{sectionelse}
+		<p>No publications found.</p>
 	{/section}
 	
 </table>
 
 <div>
-	{* We're going to knock this out because it complicates things to have to supply multiple corrections *}
-	<!--input type="button" class="possible-my-pub" value="All of the above ticked publications are mine" onclick="javascript:alert('TODO: Fire up a workflow for marking all the ticked items MY PUBLICATION.\n\nLK: Is this a good idea? How would we ask for corrections for a heap of records at once? Maybe this option shouldn\'t exist.');" /-->
 	<input type="hidden" id="pid" name="pid" value="" />
 	<input type="hidden" name="action" value="claim" />
 </div>

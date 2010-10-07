@@ -60,9 +60,6 @@ function correctionRequired(pid)
 
 <table id="research-record-listing">
 
-	{* Use a smarty loop here to echo the real citation data *}
-
-
 	{section name="i" loop=$list}
 	<tr>{* class may also be set to one of "claimed-not-my-pub", "claimed-correction-required", or "claimed-not-my-pub-and-correction-required" *}
 		<td style="width: 10px;"><input type="checkbox" name="pid" value="{$list[i].rek_pid}" /></td>
@@ -73,6 +70,8 @@ function correctionRequired(pid)
 			<input type="button" class="claimed-correction-required" value="This is my publication, but a correction is required" onclick="javascript:correctionRequired('{$list[i].rek_pid}');" />
 		</td>
 	</tr>
+	{sectionelse}
+		<p>No publications found.</p>
 	{/section}
 	
 </table>
