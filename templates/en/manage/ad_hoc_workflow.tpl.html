@@ -11,6 +11,7 @@ var last_page = {/literal}{if $list_info.last_page != ""}{$list_info.last_page}{
 function resizePager(f)
 {
 	//ad_hoc_workflow_form
+	f.action = page_url;   //  return to current page
 	f.rows.value = f.page_size.options[f.page_size.selectedIndex].value;
 	f.submit();
 }
