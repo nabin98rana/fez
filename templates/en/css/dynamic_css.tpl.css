@@ -2140,20 +2140,25 @@ a.author_id_link:hover {
 
 #research-old-interface-link {
     margin-top: 15px;
-    border-top: 1px solid #c28ed7;
+    /*border-top: 1px solid #c28ed7;*/
     padding-top: 5px;
 }
 
 #research-record-listing {
     width: 100%;
+    margin-bottom: 10px;
 }
 
 #research-record-listing td {
     border-top: 1px solid #c28ed7;
     border-bottom: 1px solid #c28ed7;
-    border-left: 1px dotted #c28ed7;
-    border-right: 1px dotted #c28ed7;
-    padding: 5px;
+    /*border-left: 1px dotted #c28ed7;
+    border-right: 1px dotted #c28ed7;*/
+    padding: 8px;
+}
+
+.research-record-note {
+    font-size: 10px;
 }
 
 #research-solo-citation {
@@ -2166,10 +2171,9 @@ a.author_id_link:hover {
 #research-acting-as {
     background: #ffffe5;
     padding: 10px 5px 10px 5px;
-    margin: -5px 0px 5px 0px;
+    margin: -5px 0px 10px 0px;
 }
 
-.claimed-not-my-pub { background: #ffc9c9; }
-.claimed-correction-required { background: #fffdc9; }
-.claimed-not-my-pub-and-correction-required { background: #ffcbab; }
-.possible-my-pub { background: #abffbf; }
+.claimed-not-my-pub { background: #ffe2e2; }
+.claimed-correction-required { background: #fffeeb; }
+.possible-my-pub { background: #d6ffe0; }

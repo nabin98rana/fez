@@ -20,17 +20,21 @@ function claimPID(pid)
 
 	{section name="i" loop=$list}
 	
+		{assign var=pid value=$list[i].rek_pid}
+	
 		{if $smarty.section.i.first}
 			<p>The publications listed below may belong to you.</p>
 			<table id="research-record-listing">
 		{/if}
 	
-		<tr>{* class may also be set to "possible-my-pub" *}
-			<td style="width: 10px;"><input type="checkbox" /></td>
+		<tr class="{if $flagged[$pid].type == 'C'}possible-my-pub{/if}">
 			<td style="width: 100%;">{$list[i].rek_citation}</td>
 			<td>
-				{* We will hide this button if the operation in question has already been used *}
-				<input type="button" class="possible-my-pub" value="This is my publication" onclick="javascript:claimPID('{$list[i].rek_pid}');" />
+				{if $flagged[$pid].type == 'C'}
+					<div class="research-record-note" style="width: 200px;">You have indicated that this record does not belong to you. A job has been logged with the {$app_name} team.</div>
+				{else}
+					<input type="button" class="possible-my-pub" value="This is my publication" onclick="javascript:claimPID('{$list[i].rek_pid}');" />
+				{/if}
 			</td>
 		</tr>
 	

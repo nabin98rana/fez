@@ -56,7 +56,7 @@ class MyResearch
 		$username = Auth::getUsername();
 		$actingUser = Auth::getActingUsername();
 		$author_id = Author::getIDByUsername($actingUser);
-		$actingUser = Author::getDetailsByUsername($actingUser);
+		$actingUserArray = Author::getDetailsByUsername($actingUser);
 		
 		$tpl->assign("type", "possible");
 		
@@ -81,16 +81,13 @@ class MyResearch
 			$tpl->assign("pid", $recordDetails[0]['rek_pid']);
 			$tpl->assign("citation", $recordDetails[0]['rek_citation']);
 		}
-		//$list = xxxfunctionCall(); // TODO :: Write the function which gets the list of records, pass to tpl
-		$flagged = MyResearch::getPossibleFlaggedPubs($username);
-		
+		$flagged = MyResearch::getPossibleFlaggedPubs($actingUser);
 		$return = MyResearch::getList("possible", $author_id);
+		
 		$tpl->assign("list", $return['list']);
 		$tpl->assign("flagged", $flagged);	
-
-		
 		$tpl->assign("action", $action);
-		$tpl->assign("acting_user", $actingUser);
+		$tpl->assign("acting_user", $actingUserArray);
 		
 		$tpl->displayTemplate();
 		
@@ -103,7 +100,7 @@ class MyResearch
 	{
 		// 1. Mark the publication claimed in the database
 		$pid = @$_POST['pid'];
-		$username = "UQ_USER_NAME"; // LKDB / TODO
+		$username = Auth::getActingUsername();
 		$correction = @$_POST['correction'];
 		MyResearch::markPossiblePubAsMine($pid, $username, $correction);
 		
@@ -135,11 +132,13 @@ class MyResearch
 					mrp_pid,
 					mrp_author_username,
 					mrp_timestamp,
+					mrp_type,
 					mrp_correction
 				) VALUES (
 					" . $db->quote($pid) . ",
 					" . $db->quote($username) . ",
 					" . $db->quote(Date_API::getCurrentDateGMT()) . ",
+					" . $db->quote('C') . ",
 					" . $db->quote($correction) . ");";
 		try {
 			$db->exec($stmt);
@@ -165,6 +164,7 @@ class MyResearch
 		
 		$stmt = "SELECT
 					mrp_pid,
+					mrp_type,
 					mrp_correction
 				FROM
 					" . APP_TABLE_PREFIX . "my_research_possible_flagged
@@ -181,7 +181,8 @@ class MyResearch
 		// Reformat the results so that we can easily comapre them to the record index.
 		$ret = array();	
 		foreach ($res as $row) {
-			$ret[$row['mrp_pid']] = $row['mrp_correction'];
+			$ret[$row['mrp_pid']]['type'] = $row['mrp_type'];
+			$ret[$row['mrp_pid']]['correction'] = $row['mrp_correction'];
 		}
 		
 		return $ret;
@@ -288,7 +289,7 @@ class MyResearch
 		$username = Auth::getUsername();
 		$actingUser = Auth::getActingUsername();
 		$author_id = Author::getIDByUsername($actingUser);
-		$actingUser = Author::getDetailsByUsername($actingUser);
+		$actingUserArray = Author::getDetailsByUsername($actingUser);
 
 		$tpl->assign("type", "claimed");
 		
@@ -317,14 +318,13 @@ class MyResearch
 		} elseif ($action == 'correction-add') {
 			MyResearch::claimedPubsCorrect(@$_POST['pid']);
 		}
-		$flagged = MyResearch::getClaimedFlaggedPubs($username);
+		$flagged = MyResearch::getClaimedFlaggedPubs($actingUser);
 		$return = MyResearch::getList("claimed", $author_id);
+		
 		$tpl->assign("list", $return['list']);
 		$tpl->assign("flagged", $flagged);
-
-		
 		$tpl->assign("action", $action);
-		$tpl->assign("acting_user", $actingUser);
+		$tpl->assign("acting_user", $actingUserArray);
 		
 		$tpl->displayTemplate();
 		
@@ -349,6 +349,7 @@ class MyResearch
 					" . APP_TABLE_PREFIX . "my_research_claimed_flagged
 				WHERE
 					mrc_author_username = " . $db->quote($username) . "";
+		
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
@@ -391,7 +392,7 @@ class MyResearch
 	function claimedPubsDisown($pid)
 	{
 		// 1. Mark the publication claimed in the database
-		$username = "UQ_USER_NAME"; // LKDB / TODO
+		$username = Auth::getActingUsername();
 		MyResearch::markClaimedPubAsNotMine($pid, $username);
 		
 		// 2. Send an email to Eventum about it
@@ -411,7 +412,7 @@ class MyResearch
 	function claimedPubsCorrect($pid)
 	{
 		// 1. Mark the publication claimed in the database
-		$username = "UQ_USER_NAME"; // LKDB / TODO
+		$username = Auth::getActingUsername();
 		$correction = '';
 		MyResearch::markClaimedPubAsNeedingCorrection($pid, $username, @$_POST['correction']);
 		

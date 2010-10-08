@@ -3,7 +3,7 @@
 <!--
 function notMine(pid)
 {
-	if (confirm('You are about to mark this record (' + pid + ') as not belonging to you. Proceed?')) {
+	if (confirm('You are about to mark this record as not belonging to you. Proceed?')) {
 		document.getElementById('not-mine-pid').value = pid;
 		document.forms['notMine'].submit();
 	}
@@ -58,18 +58,29 @@ function correctionRequired(pid)
 
 	{section name="i" loop=$list}
 	
+		{assign var=pid value=$list[i].rek_pid}
+	
 		{if $smarty.section.i.first}
 			<p>The publications listed below are currently claimed by you.</p>
 			<table id="research-record-listing">
 		{/if}
 	
-		<tr>{* class may also be set to one of "claimed-not-my-pub", "claimed-correction-required", or "claimed-not-my-pub-and-correction-required" *}
+		<tr class="{if $flagged[$pid].type == 'D'}claimed-not-my-pub{elseif $flagged[$pid].type == 'C'}claimed-correction-required{/if}">
 			<td style="width: 10px;"><input type="checkbox" name="pid" value="{$list[i].rek_pid}" /></td>
 			<td style="width: 100%;">{$list[i].rek_citation}</td>
-			<td>
-				{* We will hide these buttons if the operation in question has already been used *}
-				<input type="button" class="claimed-not-my-pub" value="This is not my publication" onclick="javascript:notMine('{$list[i].rek_pid}');" /><br />
-				<input type="button" class="claimed-correction-required" value="This is my publication, but a correction is required" onclick="javascript:correctionRequired('{$list[i].rek_pid}');" />
+			<td {*style="background: #ffffff; border: none;"*}>
+				{if $flagged[$pid].type == 'D'}
+					<div class="research-record-note">You have indicated that this record does not belong to you. A job has been logged with the {$app_name} team.</div>
+				{elseif $flagged[$pid].type == 'C'}
+					<div class="research-record-note">You have indicated that this record is yours, but requires a correction. A job has been logged with the {$app_name} team.</div>
+				{/if}
+				
+				{if $flagged[$pid].type != 'D'}
+					<input type="button" class="claimed-not-my-pub" value="This is not my publication" onclick="javascript:notMine('{$list[i].rek_pid}');" /><br />
+				{/if}
+				{if $flagged[$pid].type != 'C'}
+					<input type="button" class="claimed-correction-required" value="This is my publication, but a correction is required" onclick="javascript:correctionRequired('{$list[i].rek_pid}');" />
+				{/if}
 			</td>
 		</tr>
 		
