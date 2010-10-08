@@ -34,18 +34,28 @@ if($file == 'js/shib.js') {
 }
 
 Minify::setCache();
+
+$pathfixup = substr( str_replace($_SERVER["DOCUMENT_ROOT"], '', APP_PATH), 1); //GC
+
 Minify::serve('Groups', array(
     'groups' => array(
-		$file =>  array(APP_PATH . $file),
-        'editmeta.js'   =>  array(APP_PATH . '/js/editmetadata.js'),
-        'common.js'     =>  array(APP_PATH . '/js/browserSniffer.js', APP_PATH .'/js/global.js', APP_PATH .'/js/validation.js'),
-        'tabs.js'       =>  array(APP_PATH . '/js/tabcontent.js', APP_PATH .'/js/ajaxtabs.js'),
-		'js/editmeta.js'   =>  array(APP_PATH . '/js/editmetadata.js'),
-        'js/common.js'     =>  array(APP_PATH . '/js/browserSniffer.js', APP_PATH .'/js/global.js', APP_PATH .'/js/validation.js'),
-        'js/tabs.js'       =>  array(APP_PATH . '/js/tabcontent.js', APP_PATH .'/js/ajaxtabs.js'),
-		'js/shib.js'       =>  $shib_source,		
-    ),
-    'maxAge' => $max_age
+        $file =>  array($_SERVER["DOCUMENT_ROOT"] . $_SERVER["REQUEST_URI"]), //GC
+//	 $file =>  array(APP_PATH . $file),
+//        'editmeta.js'   =>  array(APP_PATH . 'js/editmetadata.js'),
+//        'common.js'     =>  array(APP_PATH . 'js/browserSniffer.js', APP_PATH .'js/global.js', APP_PATH .'js/validation.js'),
+//        'tabs.js'       =>  array(APP_PATH . 'js/tabcontent.js', APP_PATH .'js/ajaxtabs.js'),
+	
+//	 'js/editmeta.js'   =>  array(APP_PATH . 'js/editmetadata.js'),
+//        'js/common.js'     =>  array(APP_PATH . 'js/browserSniffer.js', APP_PATH .'js/global.js', APP_PATH .'js/validation.js'),
+//        'js/tabs.js'       =>  array(APP_PATH . 'js/tabcontent.js', APP_PATH .'js/ajaxtabs.js'),
+//	 'js/shib.js'       =>  $shib_source,	
+//GC 
+        $pathfixup . 'js/editmeta.js'   =>  array(APP_PATH . 'js/editmetadata.js'),
+        $pathfixup . 'js/common.js'     =>  array(APP_PATH . 'js/browserSniffer.js', APP_PATH .'js/global.js', APP_PATH .'js/validation.js'),
+        $pathfixup . 'js/tabs.js'       =>  array(APP_PATH . 'js/tabcontent.js', APP_PATH .'js/ajaxtabs.js'),
+	    $pathfixup . 'js/shib.js'       =>  $shib_source, 
+        ),
+    'maxAge' => $max_age 
 ));
 
 
