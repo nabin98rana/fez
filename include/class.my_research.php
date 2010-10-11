@@ -261,9 +261,7 @@ class MyResearch
 			$filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
 			$filter["searchKey".Search_key::getID("Object Type")] = 3; 
 			$filter["searchKey".Search_Key::getID("Author")] = $lastname;
-			
-
-			
+			$filter["manualFilter"] = " !author_id_mi:".$author_id;
 		}
 		$return = Record::getListing($options, array(9,10), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter);
 //		$return = Record::getListing($options, array(9,10), $current_row, $max, $order_by, false, false, $filter);
