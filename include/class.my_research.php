@@ -88,7 +88,7 @@ class MyResearch
 		$tpl->assign("flagged", $flagged);	
 		$tpl->assign("action", $action);
 		$tpl->assign("acting_user", $actingUserArray);
-		
+		$tpl->assign("actual_user", $username);
 		$tpl->displayTemplate();
 		
 		return;
@@ -100,9 +100,10 @@ class MyResearch
 	{
 		// 1. Mark the publication claimed in the database
 		$pid = @$_POST['pid'];
-		$username = Auth::getActingUsername();
+		$author = Auth::getActingUsername();
+		$user = Auth::getUsername();
 		$correction = @$_POST['correction'];
-		MyResearch::markPossiblePubAsMine($pid, $username, $correction);
+		MyResearch::markPossiblePubAsMine($pid, $author, $user, $correction);
 		
 		// 2. Send an email to Eventum about it
 		$subject = "ESPACE :: Claimed Publication";
@@ -121,7 +122,7 @@ class MyResearch
 	/**
 	 * This function is invoked when a user marks a publication as belonging to a particular author.
 	 */	
-	function markPossiblePubAsMine($pid, $username, $correction = '')
+	function markPossiblePubAsMine($pid, $author, $user, $correction = '')
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -131,12 +132,14 @@ class MyResearch
 				(
 					mrp_pid,
 					mrp_author_username,
+					mrp_user_username,
 					mrp_timestamp,
 					mrp_type,
 					mrp_correction
 				) VALUES (
 					" . $db->quote($pid) . ",
-					" . $db->quote($username) . ",
+					" . $db->quote($author) . ",
+					" . $db->quote($user) . ",
 					" . $db->quote(Date_API::getCurrentDateGMT()) . ",
 					" . $db->quote('C') . ",
 					" . $db->quote($correction) . ");";
@@ -165,7 +168,8 @@ class MyResearch
 		$stmt = "SELECT
 					mrp_pid,
 					mrp_type,
-					mrp_correction
+					mrp_correction,
+					mrp_user_username
 				FROM
 					" . APP_TABLE_PREFIX . "my_research_possible_flagged
 				WHERE
@@ -183,6 +187,7 @@ class MyResearch
 		foreach ($res as $row) {
 			$ret[$row['mrp_pid']]['type'] = $row['mrp_type'];
 			$ret[$row['mrp_pid']]['correction'] = $row['mrp_correction'];
+			$ret[$row['mrp_pid']]['user'] = $row['mrp_user_username'];
 		}
 		
 		return $ret;
@@ -323,7 +328,7 @@ class MyResearch
 		$tpl->assign("flagged", $flagged);
 		$tpl->assign("action", $action);
 		$tpl->assign("acting_user", $actingUserArray);
-		
+		$tpl->assign("actual_user", $username);
 		$tpl->displayTemplate();
 		
 		return;
@@ -342,7 +347,8 @@ class MyResearch
 		$stmt = "SELECT
 					mrc_pid,
 					mrc_type,
-					mrc_correction
+					mrc_correction,
+					mrc_user_username
 				FROM
 					" . APP_TABLE_PREFIX . "my_research_claimed_flagged
 				WHERE
@@ -361,6 +367,7 @@ class MyResearch
 		foreach ($res as $row) {
 			$ret[$row['mrc_pid']]['type'] = $row['mrc_type'];
 			$ret[$row['mrc_pid']]['correction'] = $row['mrc_correction'];
+			$ret[$row['mrc_pid']]['user'] = $row['mrc_user_username'];
 		}
 		
 		return $ret;
@@ -390,8 +397,9 @@ class MyResearch
 	function claimedPubsDisown($pid)
 	{
 		// 1. Mark the publication claimed in the database
-		$username = Auth::getActingUsername();
-		MyResearch::markClaimedPubAsNotMine($pid, $username);
+		$author = Auth::getActingUsername();
+		$user = Auth::getUsername();
+		MyResearch::markClaimedPubAsNotMine($pid, $author, $user);
 		
 		// 2. Send an email to Eventum about it
 		$subject = "ESPACE :: Disowned Publication";
@@ -410,9 +418,10 @@ class MyResearch
 	function claimedPubsCorrect($pid)
 	{
 		// 1. Mark the publication claimed in the database
-		$username = Auth::getActingUsername();
+		$author = Auth::getActingUsername();
+		$user = Auth::getUsername();
 		$correction = '';
-		MyResearch::markClaimedPubAsNeedingCorrection($pid, $username, @$_POST['correction']);
+		MyResearch::markClaimedPubAsNeedingCorrection($pid, $author, $user, @$_POST['correction']);
 		
 		// 2. Send an email to Eventum about it
 		$subject = "ESPACE :: Correction Required";
@@ -428,7 +437,7 @@ class MyResearch
 	/**
 	 * This function is invoked when a user marks a claimed publication as not being theirs.
 	 */	
-	function markClaimedPubAsNotMine($pid, $username)
+	function markClaimedPubAsNotMine($pid, $author, $user)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -440,12 +449,14 @@ class MyResearch
 				(
 					mrc_pid,
 					mrc_author_username,
+					mrc_user_username,
 					mrc_timestamp,
 					mrc_type,
 					mrc_correction
 				) VALUES (
 					" . $db->quote($pid) . ",
-					" . $db->quote($username) . ",
+					" . $db->quote($author) . ",
+					" . $db->quote($user) . ",
 					" . $db->quote(Date_API::getCurrentDateGMT()) . ",
 					" . $db->quote('D') . ",
 					" . $db->quote($correction) . ");";
@@ -466,7 +477,7 @@ class MyResearch
 	/**
 	 * This function is invoked when a user marks a claimed publication as not being theirs.
 	 */	
-	function markClaimedPubAsNeedingCorrection($pid, $username, $correction)
+	function markClaimedPubAsNeedingCorrection($pid, $author, $user, $correction)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -476,12 +487,14 @@ class MyResearch
 				(
 					mrc_pid,
 					mrc_author_username,
+					mrc_user_username,
 					mrc_timestamp,
 					mrc_type,
 					mrc_correction
 				) VALUES (
 					" . $db->quote($pid) . ",
-					" . $db->quote($username) . ",
+					" . $db->quote($author) . ",
+					" . $db->quote($user) . ",
 					" . $db->quote(Date_API::getCurrentDateGMT()) . ",
 					" . $db->quote('C') . ",
 					" . $db->quote($correction) . ");";

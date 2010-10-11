@@ -3,7 +3,7 @@
 <!--
 function notMine(pid)
 {
-	if (confirm('You are about to mark this record as not belonging to you. Proceed?')) {
+	if (confirm('You are about to mark this record as not being authored by you. Proceed?')) {
 		document.getElementById('not-mine-pid').value = pid;
 		document.forms['notMine'].submit();
 	}
@@ -24,11 +24,11 @@ function notMineBulk()
 	}
 	
 	if (count == 0) {
-		window.alert('No records were marked for deletion.');
+		window.alert('No records were marked for authorship removal.');
 		return;
 	}
 	
-	if (confirm('You are about to mark the ticked records as not belonging to you. Proceed?')) {
+	if (confirm('You are about to mark the ticked records as not being authored by you. Proceed?')) {
 		document.getElementById('bulk-not-mine-pids').value = pids;
 		document.forms['claimedForm'].submit();
 	}
@@ -70,9 +70,21 @@ function correctionRequired(pid)
 			<td style="width: 100%;">{$list[i].rek_citation}</td>
 			<td {*style="background: #ffffff; border: none;"*}>
 				{if $flagged[$pid].type == 'D'}
-					<div class="research-record-note">You have indicated that this record does not belong to you. A job has been logged with the {$app_name} team.</div>
+					<div class="research-record-note">
+						{if $flagged[$pid].user == $actual_user}
+							You have indicated that this record was not authored by you. A job has been logged with the {$app_name} team.
+						{else}
+							User <span style="font-weight: bold">{$flagged[$pid].user}</span> has indicated that this record was not authored by you. A job has already been logged with the {$app_name} team.
+						{/if}
+					</div>
 				{elseif $flagged[$pid].type == 'C'}
-					<div class="research-record-note">You have indicated that this record is yours, but requires a correction. A job has been logged with the {$app_name} team.</div>
+					<div class="research-record-note">
+						{if $flagged[$pid].user == $actual_user}
+							You have indicated that this record is yours, but requires a correction. A job has been logged with the {$app_name} team.
+						{else}
+							User <span style="font-weight: bold">{$flagged[$pid].user}</span> has indicated that this record is yours, but requires a correction. A job has already been logged with the {$app_name} team.
+						{/if}
+					</div>
 				{/if}
 				
 				{if $flagged[$pid].type != 'D'}
