@@ -44,6 +44,7 @@ include_once(APP_INC_PATH . "class.workflow_trigger.php");
 include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.pager.php");
+include_once(APP_INC_PATH . "class.my_research.php");
 
 if (APP_MY_RESEARCH_MODULE != 'ON') {
 	die('Sorry - this module is not enabled.');
@@ -55,7 +56,9 @@ $tpl->setTemplate("myresearch/index.tpl.html");
 Auth::checkAuthentication(APP_SESSION);
 $username = Auth::getUsername();
 $actingUser = Auth::getActingUsername();
-$actingUser = Author::getDetailsByUsername($actingUser);
+$author_id = Author::getIDByUsername($actingUser);
+$actingUserArray = Author::getDetailsByUsername($actingUser);
+$actingUserArray['org_unit_description'] = MyResearch::getHRorgUnit($actingUser);
 
 $tpl->assign("type", "add");
 
@@ -71,7 +74,8 @@ $tpl->assign("isUPO", $isUPO);
 
 $tpl->assign("active_nav", "my_fez");
 $tpl->assign("childXDisplayOptions", Record::getSearchKeyIndexValue(APP_MY_RESEARCH_NEW_ITEMS_COLLECTION, "XSD Display Option"));
-$tpl->assign("acting_user", $actingUser);
+$tpl->assign("acting_user", $actingUserArray);
+$tpl->assign("actual_user", $username);
 
 $tpl->displayTemplate();
 

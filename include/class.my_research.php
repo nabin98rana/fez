@@ -57,6 +57,7 @@ class MyResearch
 		$actingUser = Auth::getActingUsername();
 		$author_id = Author::getIDByUsername($actingUser);
 		$actingUserArray = Author::getDetailsByUsername($actingUser);
+		$actingUserArray['org_unit_description'] = MyResearch::getHRorgUnit($actingUser);
 		
 		$tpl->assign("type", "possible");
 		
@@ -293,6 +294,7 @@ class MyResearch
 		$actingUser = Auth::getActingUsername();
 		$author_id = Author::getIDByUsername($actingUser);
 		$actingUserArray = Author::getDetailsByUsername($actingUser);
+		$actingUserArray['org_unit_description'] = MyResearch::getHRorgUnit($actingUser);
 
 		$tpl->assign("type", "claimed");
 		
@@ -582,6 +584,40 @@ class MyResearch
 		}
 		
 		return $res['aou'];
+	 }
+	 
+	 
+	 
+	 /**
+	 * Gets the org unit description for a given username.
+	 */	
+	 function getHRorgUnit($username)
+	 {
+	 	$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "
+				SELECT
+					aurion_org_desc AS org_description
+				FROM
+					hr_position_vw,
+					hr_org_unit_distinct_manual
+				WHERE
+					hr_position_vw.AOU = hr_org_unit_distinct_manual.aurion_org_id
+				AND
+					USER_NAME = " . $db->quote($username) . "
+				LIMIT 1
+				";
+		
+		try {
+			$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return '';
+		}
+		
+		return $res['org_description'];
 	 }
 
 }

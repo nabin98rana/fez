@@ -69,7 +69,9 @@ $tpl->setTemplate("myresearch/index.tpl.html");
 Auth::checkAuthentication(APP_SESSION);
 $username = Auth::getUsername();
 $actingUser = Auth::getActingUsername();
-$actingUser = Author::getDetailsByUsername($actingUser);
+$author_id = Author::getIDByUsername($actingUser);
+$actingUserArray = Author::getDetailsByUsername($actingUser);
+$actingUserArray['org_unit_description'] = MyResearch::getHRorgUnit($actingUser);
 
 /* Get &&|| set the AOU */
 if (!isset($_SESSION['my_researcher_aou'])) {
@@ -88,7 +90,8 @@ $authors = MyResearch::listAuthorsByAOU($currentAOU);
 
 $tpl->assign("org_units", Org_Structure::getOrgUnitList()); // All org units, for the drop-down
 $tpl->assign("authors", $authors); // The authors in the currently-selected org unit
-$tpl->assign("acting_user", $actingUser);
+$tpl->assign("acting_user", $actingUserArray);
+$tpl->assign("actual_user", $username);
 $tpl->assign("current_aou", $currentAOU);
 
 $tpl->assign("active_nav", "my_fez");
