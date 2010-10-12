@@ -2140,7 +2140,6 @@ a.author_id_link:hover {
 
 #research-old-interface-link {
     margin-top: 15px;
-    /*border-top: 1px solid #c28ed7;*/
     padding-top: 5px;
 }
 
@@ -2152,9 +2151,12 @@ a.author_id_link:hover {
 #research-record-listing td {
     border-top: 1px solid #c28ed7;
     border-bottom: 1px solid #c28ed7;
-    /*border-left: 1px dotted #c28ed7;
-    border-right: 1px dotted #c28ed7;*/
     padding: 8px;
+}
+
+#research-record-listing th {
+    font-weight: normal;
+    text-align: left;
 }
 
 .research-record-note {

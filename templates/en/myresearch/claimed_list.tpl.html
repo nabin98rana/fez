@@ -67,24 +67,42 @@ function correctionRequired(pid)
 		{if $smarty.section.i.first}
 			<table id="research-record-listing">
 				<tr>
-			        <td colspan="3">The publications listed below are currently claimed by you. &nbsp;</td>
-			        <td align="center">
-			        {if $list_info.total_rows > 0 && ($list_type !== 'collection_list' && $list_type !== 'community_list')}
-			        	<img src="{$rel_url}images/rid_16.png" title="ResearcherID Citation Count" alt="ResearcherID Citation Count" />            
-			        {/if}
-			        </td>
-			        <td align="center">
-			        {if $list_info.total_rows > 0 && ($list_type !== 'collection_list' && $list_type !== 'community_list')}
-			        	<img src="{$rel_url}images/scopus_logo_small.gif" title="Scopus Citation Count" alt="Scopus Citation Count" />            
-			        {/if}
-			        </td>
+			        <th colspan="2">The publications listed below are currently claimed by you.</th>
+			        <th style="text-align: center; padding: 2px;">
+			        	{if $list_info.total_rows > 0 && ($list_type !== 'collection_list' && $list_type !== 'community_list')}
+			        		<img src="{$rel_url}images/rid_16.png" title="ResearcherID Citation Count" alt="ResearcherID Citation Count" />
+			        	{/if}
+			        </th>
+			        <th style="text-align: center; padding: 2px;">
+			        	{if $list_info.total_rows > 0 && ($list_type !== 'collection_list' && $list_type !== 'community_list')}
+			        		<img src="{$rel_url}images/scopus_logo_small.gif" title="Scopus Citation Count" alt="Scopus Citation Count" />
+			        	{/if}
+			        </th>
+			        <th></th>
 			    </tr>
 		{/if}
 	
 		<tr class="{if $flagged[$pid].type == 'D'}claimed-not-my-pub{elseif $flagged[$pid].type == 'C'}claimed-correction-required{/if}">
 			<td style="width: 10px;"><input type="checkbox" name="pid" value="{$list[i].rek_pid}" /></td>
 			<td style="width: 100%;">{$list[i].rek_citation}</td>
-			<td {*style="background: #ffffff; border: none;"*}>
+			
+			<td style="vertical-align: middle; text-align: center;">
+				{if $list[i].rek_thomson_citation_count != ""}
+					<a href="{$rel_url}rid_citation_count_history_{$list[i].rek_pid|escape:"html"}" title="Cited {$list[i].rek_thomson_citation_count} times in Thomson Reuters Researcher ID">{$list[i].rek_thomson_citation_count}</a>
+				{elseif $list[i].rek_thomson_citation_count == 0}
+					{$list[i].rek_thomson_citation_count}
+				{/if}
+			</td>
+			
+			<td style="vertical-align: middle; text-align: center;">
+				{if $list[i].rek_scopus_citation_count != ""}
+					<a href="{$rel_url}scopus_citation_count_history_{$list[i].rek_pid|escape:"html"}" class="form_note"> <span class="form_note">Cited {$list[i].rek_scopus_citation_count} times in Scopus</span>{$list[i].rek_scopus_citation_count}</a>
+				{elseif $list[i].rek_scopus_citation_count == 0}
+					{$list[i].rek_scopus_citation_count}
+				{/if}
+			</td>
+			
+			<td>
 				{if $flagged[$pid].type == 'D'}
 					<div class="research-record-note">
 						{if $flagged[$pid].user == $actual_user}
@@ -111,24 +129,6 @@ function correctionRequired(pid)
 				{/if}
 			</td>
 			
-			<td align="left" valign="middle" style="border-top:1px dashed #be87e9; width: 100%;">
-            {if $list[i].rek_thomson_citation_count != ""}
-            	<a href="{$rel_url}rid_citation_count_history_{$list[i].rek_pid|escape:"html"}" title="Cited {$list[i].rek_thomson_citation_count} times in Thomson Reuters Researcher ID">{$list[i].rek_thomson_citation_count}</a>
-            {elseif $list[i].rek_thomson_citation_count == 0}
-               {$list[i].rek_thomson_citation_count}
-            {else}
-            	&nbsp;
-            {/if}			
-		  </td>		
-	       <td align="left"{if !$isUser && !$icon}colspan="2" {/if} valign="middle" style="border-top:1px dashed #be87e9; width: 100%;">
-            {if $list[i].rek_scopus_citation_count != ""}
-            	<a href="{$rel_url}scopus_citation_count_history_{$list[i].rek_pid|escape:"html"}" class="form_note"> <span class="form_note">Cited {$list[i].rek_scopus_citation_count} times in Scopus</span>{$list[i].rek_scopus_citation_count}</a>
-            {elseif $list[i].rek_scopus_citation_count == 0}
-               {$list[i].rek_scopus_citation_count}
-            {else}
-            	&nbsp;
-            {/if}			
-		  </td>		
 		</tr>
 		
 		{if $smarty.section.i.last}
