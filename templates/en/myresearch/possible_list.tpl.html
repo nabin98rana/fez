@@ -6,6 +6,44 @@ function claimPID(pid)
     document.getElementById('pid').value = pid;
     document.forms['possibleForm'].submit();
 }
+
+function hide(pid)
+{
+	if (confirm('You are about to mark this record as not being authored by you. Proceed?')) {
+	    document.getElementById('hide-pid').value = pid;
+	    document.forms['hide'].submit();
+	}
+    
+}
+
+function hideBulk()
+{
+	window.alert('Really bulk hide?');
+	return;
+	
+    frm = document.getElementById('claimedForm');
+	count = 0;
+	pids = [];
+	for (i = 0; i < frm.pid.length; i++) {
+		if (frm.pid[i].checked) {
+			pids.push(frm.pid[i].value);
+			count++;
+		}
+	}
+	
+	if (count == 0) {
+		window.alert('No records were marked for authorship removal.');
+		return;
+	}
+	
+	if (confirm('You are about to mark the ticked records as not being authored by you. Proceed?')) {
+		document.getElementById('bulk-not-mine-pids').value = pids;
+		document.forms['claimedForm'].submit();
+	}
+	
+	return;
+}
+
 //-->
 </script>
 {/literal}
@@ -56,6 +94,9 @@ function claimPID(pid)
 				{else}
 					<input type="button" class="possible-my-pub" value="This is my publication" onclick="javascript:claimPID('{$list[i].rek_pid}');" />
 				{/if}
+				
+				<input type="button" class="possible-hide" value="Hide this publication" onclick="javascript:hide('{$list[i].rek_pid}');" />
+				
 			</td>
 			
 			<td align="left" valign="middle" style="border-top:1px dashed #be87e9; width: 100%;">
@@ -82,6 +123,10 @@ function claimPID(pid)
 			</table>
 
 			<div>
+				<input type="button" class="possible-hide" value="Hide all ticked publications" onclick="javascript:hideBulk();" />
+			</div>
+
+			<div>
 				<input type="hidden" id="pid" name="pid" value="" />
 				<input type="hidden" name="action" value="claim" />
 			</div>			
@@ -93,4 +138,11 @@ function claimPID(pid)
    	&nbsp;
     {include file="paging_control.tpl.html" field="paginat0r"}		
 
+</form>
+
+<form action="{$rel_url}my_research_possible.php" method="post" id="hide">	
+	<div>
+		<input type="hidden" id="hide-pid" name="pid" value="" />
+		<input type="hidden" name="action" value="hide" />
+	</div>
 </form>

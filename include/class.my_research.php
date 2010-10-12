@@ -76,7 +76,12 @@ class MyResearch
 				$recordDetails = Record::getDetailsLite(@$_POST['pid']);
 				$tpl->assign("pid", $recordDetails[0]['rek_pid']);
 				$tpl->assign("citation", $recordDetails[0]['rek_citation']);
+			} elseif ($action == 'hide') {
+				MyResearch::hide(@$_POST['pid']);
+			} elseif ($action == 'hide-bulk') {	
+				MyResearch::bulkHide();
 			}
+			
 			$flagged = MyResearch::getPossibleFlaggedPubs($actingUser);
 		} elseif ($type == "claimed") {
 			if ($action == 'not-mine') {
@@ -294,6 +299,54 @@ class MyResearch
 	
 	
 	/**
+	 * This function hides a possible publication from the user.
+	 */	
+	function hide($pid)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$author = Auth::getActingUsername();
+		$user = Auth::getUsername();
+		$correction = '';
+		
+		$stmt = "INSERT INTO
+					" . APP_TABLE_PREFIX . "my_research_possible_flagged
+				(
+					mrp_pid,
+					mrp_author_username,
+					mrp_user_username,
+					mrp_timestamp,
+					mrp_type,
+					mrp_correction
+				) VALUES (
+					" . $db->quote($pid) . ",
+					" . $db->quote($author) . ",
+					" . $db->quote($user) . ",
+					" . $db->quote(Date_API::getCurrentDateGMT()) . ",
+					" . $db->quote('H') . ",
+					" . $db->quote($correction) . ");";
+		try {
+			$db->exec($stmt);
+		}
+		
+		catch(Exception $ex) {
+			$log->err($ex);
+			return -1;
+		}
+		
+		if ( APP_SOLR_INDEXER == "ON") {
+			FulltextQueue::singleton()->remove($pid);
+			FulltextQueue::singleton()->commit();
+			FulltextQueue::singleton()->triggerUpdate();
+		}
+		
+		return 1;
+	}
+	
+	
+	
+	/**
 	 * Get all flagged publications for a given user.
 	 */
 	function getPossibleFlaggedPubs($username)
@@ -380,46 +433,23 @@ class MyResearch
 		return $ret;
 	}
 	
-	function getClaimedChunk($pids) 
+	
+	
+	/**
+	 * Get the list of PIDs we are disowning, pass off to the singular disown function.
+	 */
+	function handleBulkDisown()
 	{
-		$log = FezLog::get();
-		$db = DB_API::get();
-
-		$stmt =  'SELECT mrc_pid as pid, GROUP_CONCAT(mrc_id ORDER BY mrc_id ASC SEPARATOR \"\t\") as value
-                  FROM '.APP_TABLE_PREFIX.'my_research_claimed_flagged
-                  WHERE mrc_pid IN ('.$pids.')
-									GROUP BY mrc_pid ';
-
-		try {
-			$res = $db->fetchPairs($stmt);
+		$pids = explode(",", @$_POST['bulk-not-mine-pids']);
+		
+		foreach ($pids as $pid) {
+			MyResearch::claimedPubsDisown($pid);
 		}
-		catch(Exception $ex) {
-			$log->err($ex);
-			return '';
-		}
-		return $res;
+		
+		return;
 	}
-
-	function getPossibleChunk($pids) 
-	{
-		$log = FezLog::get();
-		$db = DB_API::get();
-
-		$stmt =  'SELECT mrp_pid as pid, GROUP_CONCAT(mrp_id ORDER BY mrp_id ASC SEPARATOR \"\t\") as value
-                  FROM '.APP_TABLE_PREFIX.'my_research_possible_flagged
-                  WHERE mrp_pid IN ('.$pids.')
-									GROUP BY mrp_pid ';
-
-		try {
-			$res = $db->fetchPairs($stmt);
-		}
-		catch(Exception $ex) {
-			$log->err($ex);
-			return '';
-		}
-		return $res;
-	}
-
+	
+	
 	
 	/**
 	 * Fire relevant subroutines for disowning a publication.
