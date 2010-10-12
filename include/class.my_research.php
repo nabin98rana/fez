@@ -261,7 +261,7 @@ class MyResearch
 			// Determine what we're actually doing here.
 			$action = @$_POST['action'];
 
-			if ($type == "claimed") {
+			if ($type == "possible") {
 				if ($action == 'claim-add') {
 					MyResearch::possiblePubsClaim();
 				} elseif ($action == 'claim') {
@@ -270,8 +270,7 @@ class MyResearch
 					$tpl->assign("citation", $recordDetails[0]['rek_citation']);
 				}
 				$flagged = MyResearch::getPossibleFlaggedPubs($actingUser);
-			} elseif ($type == "possible") {
-
+			} elseif ($type == "claimed") {
 				if ($action == 'not-mine') {
 					MyResearch::claimedPubsDisown(@$_POST['pid']);
 				} elseif ($action == 'not-mine-bulk') {	
@@ -371,7 +370,6 @@ class MyResearch
 				}
 			}
 			$return = Record::getListing($options, array(9,10), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter);
-
 
 			$tpl->assign("list", $return['list']);
 			$tpl->assign("list_info", $return['info']);
