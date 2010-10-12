@@ -1225,13 +1225,13 @@ class Record
 	 * @param string $options The search parameters
 	 * @return array $res2 The index details of records associated with the search params
 	 */
-	function getListing($options, $approved_roles=array(9,10), $current_page=0,$page_rows="ALL", $sort_by="Title", $getSimple=false, $citationCache=false, $filter=array(), $operator='AND', $use_faceting = false, $use_highlighting = false, $doExactMatch = false)
+	function getListing($options, $approved_roles=array(9,10), $current_page=0,$page_rows="ALL", $sort_by="Title", $getSimple=false, $citationCache=false, $filter=array(), $operator='AND', $use_faceting = false, $use_highlighting = false, $doExactMatch = false, $facet_limit = APP_SOLR_FACET_LIMIT, $facet_mincount = APP_SOLR_FACET_MINCOUNT)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
 
 		if (APP_SOLR_SWITCH == "ON" ) {
-			return Record::getSearchListing($options, $approved_roles, $current_page,$page_rows, $sort_by, $getSimple, $citationCache, $filter, $operator, $use_faceting, $use_highlighting, $doExactMatch);
+			return Record::getSearchListing($options, $approved_roles, $current_page,$page_rows, $sort_by, $getSimple, $citationCache, $filter, $operator, $use_faceting, $use_highlighting, $doExactMatch, $facet_limit, $facet_mincount);
 		} else {
 			$options = array_merge($options, $filter);
 		}
@@ -1501,7 +1501,7 @@ class Record
 	 * @param string $options The search parameters
 	 * @return array $res2 The index details of records associated with the search params
 	 */
-	function getSearchListing($options, $approved_roles=array(9,10), $current_page=0, $page_rows="ALL", $sort_by="", $getSimple=false, $citationCache=false, $filter=array(), $operator="AND", $use_faceting = false, $use_highlighting = false, $doExactMatch = false)
+	function getSearchListing($options, $approved_roles=array(9,10), $current_page=0, $page_rows="ALL", $sort_by="", $getSimple=false, $citationCache=false, $filter=array(), $operator="AND", $use_faceting = false, $use_highlighting = false, $doExactMatch = false, $facet_limit = APP_SOLR_FACET_LIMIT, $facet_mincount = APP_SOLR_FACET_MINCOUNT)
 	{
 		$log = FezLog::get();
 		
@@ -1529,7 +1529,7 @@ class Record
 
 		$index = new FulltextIndex_Solr(true);
 
-		$res = $index->searchAdvancedQuery($searchKey_join, $filter_join, $approved_roles, $start, $page_rows, $use_faceting, $use_highlighting);
+		$res = $index->searchAdvancedQuery($searchKey_join, $filter_join, $approved_roles, $start, $page_rows, $use_faceting, $use_highlighting, $facet_limit, $facet_mincount);
 		$total_rows = $res['total_rows'];
 		$facets = $res['facets'];
 		$snips = $res['snips'];

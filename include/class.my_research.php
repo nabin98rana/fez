@@ -176,8 +176,26 @@ class MyResearch
 				//TODO: get the list of pids to filter out and add these to the manual filter
 			}
 		}
-		$return = Record::getListing($options, array(9,10), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter);
+		$return = Record::getListing($options, array(9,10), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter, "AND", true, false, false, 10, 1);
 
+
+    $facets = @$return['facets'];
+
+    /*
+     * We dont want to display facets that a user
+     * has already searched by
+     */
+    if(isset($facets)) {
+            
+        foreach ($facets as $sek_id => $facetData) {
+            if(!empty($options['searchKey'.$sek_id])) {
+                unset($facets[$sek_id]);
+            }
+        }
+            
+    }
+
+		$tpl->assign("facets", $facets);
 		$tpl->assign("list", $return['list']);
 		$tpl->assign("list_info", $return['info']);
 		$tpl->assign("flagged", $flagged);
@@ -207,12 +225,32 @@ class MyResearch
 		}
 		
 		$tpl->assign('sort_by_list', $sort_by_list);
+		
+		
+		if(count($params) > 0) {
+        
+        $exclude[] = 'rows';
+        $tpl->assign('url_wo_rows', Misc::query_string_encode($params,$exclude));
+        array_pop($exclude);
+        
+        $exclude[] = 'tpl';
+        $tpl->assign('url_wo_tpl',  Misc::query_string_encode($params,$exclude));
+        array_pop($exclude);
+        
+        $exclude[] = 'sort';
+        $exclude[] = 'sort_by';
+        $tpl->assign('url_wo_sort', Misc::query_string_encode($params,$exclude));
+    }
+		
 		// Hack to get SCRIPT_URL without querystrings.
 		// Usually we could get this info from $_SERVER['SCRIPT_URL'], but can't since 
 		// we are doing rewrite rules on a per-directory basis via .htaccess file
 		$PAGE_URL = preg_replace('/(\?.*)/','',$_SERVER['REQUEST_URI']);
 		$tpl->assign('PAGE_URL', $PAGE_URL);
 		$tpl->assign('list_type', $type);
+   	$terms = @$return['info']['search_info'];
+    $tpl->assign('terms', $terms);
+   	$tpl->assign("list_heading", "My $type Research");        	 
 		$sort_by = $options["sort_by"];
     $tpl->assign('rows', $rows);
     $tpl->assign('sort_by_default', $sort_by);

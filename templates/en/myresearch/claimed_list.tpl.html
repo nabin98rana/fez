@@ -55,9 +55,9 @@ function correctionRequired(pid)
 {if $isUPO}
 	{include file="myresearch/acting.tpl.html"}
 {/if}
-
-
-
+{if $terms}
+<div id="research-acting-as">Refine Filter: {$terms}</div>
+{/if}
 <form action="{$rel_url}my_research_claimed.php" method="post" id="claimedForm">
 	{include file="paging_control_header.tpl.html" hide_list_heading="true"}
 	{section name="i" loop=$list}
@@ -65,6 +65,33 @@ function correctionRequired(pid)
 		{assign var=pid value=$list[i].rek_pid}
 	
 		{if $smarty.section.i.first}
+		{if ($facets)}
+	    <div class="facet">
+	    <div class="facetheader">
+	    	<h2>Refine (10 facets)</h2>
+	    </div>
+
+	    <ul>
+	    {foreach from=$facets key=sek_id item=items}
+	        <li><strong>{$items.sek_title}</strong></li>
+	        {foreach from=$items.values key=id item=valueData}
+	        {if $valueData.num > 0}
+	        {if $id != '0'}<li class='facetarrow'><a href="?{$url_wo_rows}&search_keys[{$sek_id}]={$id}">{$valueData.value}</a> ({$valueData.num})</li>{/if}
+	        {/if}
+	        {/foreach}
+	        <li>&nbsp;</li>
+	    {/foreach}
+		{if is_array($alternativeAuthorNamesList) && count($alternativeAuthorNamesList) > 1}
+			<li><strong>Names this author has published as</strong></li>
+			{foreach from=$alternativeAuthorNamesList item=authorLink}
+			<li class="facetarrow">{$authorLink}</li>
+			{/foreach}
+			<li>&nbsp;</li>
+		{/if}
+	    </ul>
+
+	    </div>
+	    {/if}
 			<table id="research-record-listing">
 				<tr>
 			        <th colspan="2">The publications listed below are currently claimed by you.</th>

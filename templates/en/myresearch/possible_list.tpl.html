@@ -51,6 +51,10 @@ function hideBulk()
 	{include file="myresearch/acting.tpl.html"}
 {/if}
 
+{if $terms}
+<div id="research-acting-as">Refine Filter: {$terms}</div>
+{/if}
+
 <form action="{$rel_url}my_research_possible.php" method="post" id="possibleForm">
 	{include file="paging_control_header.tpl.html" hide_list_heading="true"}
 
@@ -60,7 +64,34 @@ function hideBulk()
 		{assign var=pid value=$list[i].rek_pid}
 	
 		{if $smarty.section.i.first}
-			<table id="research-record-listing">
+			{if ($facets)}
+		    <div class="facet">
+		    <div class="facetheader">
+		    <h2>Refine (10 facets)</h2>
+		    </div>
+
+		    <ul>
+		    {foreach from=$facets key=sek_id item=items}
+		        <li><strong>{$items.sek_title}</strong></li>
+		        {foreach from=$items.values key=id item=valueData}
+		        {if $valueData.num > 0}
+		        {if $id != '0'}<li class='facetarrow'><a href="?{$url_wo_rows}&search_keys[{$sek_id}]={$id}">{$valueData.value}</a> ({$valueData.num})</li>{/if}
+		        {/if}
+		        {/foreach}
+		        <li>&nbsp;</li>
+		    {/foreach}
+			{if is_array($alternativeAuthorNamesList) && count($alternativeAuthorNamesList) > 1}
+				<li><strong>Names this author has published as</strong></li>
+				{foreach from=$alternativeAuthorNamesList item=authorLink}
+				<li class="facetarrow">{$authorLink}</li>
+				{/foreach}
+				<li>&nbsp;</li>
+			{/if}
+		    </ul>
+
+		    </div>
+		    {/if}
+			<table {if ($facets)}width="70%"{else}width="100%"{/if} id="research-record-listing">
 				<tr>
 			        <th colspan="2">The publications listed below may belong to you.</th>
 			        <th style="text-align: center; padding: 2px;">

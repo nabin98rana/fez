@@ -322,7 +322,7 @@ class FulltextIndex_Solr extends FulltextIndex {
 	}
 
 
-	public function searchAdvancedQuery($searchKey_join, $filter_join, $approved_roles, $start, $page_rows, $use_faceting = false, $use_highlighting = false) 
+	public function searchAdvancedQuery($searchKey_join, $filter_join, $approved_roles, $start, $page_rows, $use_faceting = false, $use_highlighting = false, $facet_limit = APP_SOLR_FACET_LIMIT, $facet_mincount = APP_SOLR_FACET_MINCOUNT) 
 	{
 		$log = FezLog::get();
 		
@@ -347,8 +347,10 @@ class FulltextIndex_Solr extends FulltextIndex {
 				if(count($sekIDs) > 0) {
 						
 					$params['facet'] = 'true';
-					$params['facet.limit'] = APP_SOLR_FACET_LIMIT;
-					$params['facet.mincount'] = APP_SOLR_FACET_MINCOUNT;
+					// $params['facet.limit'] = APP_SOLR_FACET_LIMIT;
+					// $params['facet.mincount'] = APP_SOLR_FACET_MINCOUNT;
+					$params['facet.limit'] = $facet_limit;
+					$params['facet.mincount'] = $facet_mincount;
 						
 					foreach ($sekIDs as $sek) {
 						$sek_title_db = Search_Key::makeSQLTableName($sek['sek_title']);
