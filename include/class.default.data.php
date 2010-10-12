@@ -255,6 +255,10 @@ class Default_Data
 		$defaultData['app_my_research_upo_group']			= "Unit Publication Officers";
 		$defaultData['app_eventum_send_emails']				= "OFF";
 		$defaultData['app_eventum_new_job_email_address']	= "";
+		$defaultData['app_eventum_database_host']			= "";
+		$defaultData['app_eventum_database_name']			= "";
+		$defaultData['app_eventum_database_user']			= "";
+		$defaultData['app_eventum_database_pass']			= "";
 		
 		return $defaultData;
 	}

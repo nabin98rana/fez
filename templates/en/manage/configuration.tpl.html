@@ -574,6 +574,34 @@ function restoreDefaultColours(el)
 			  {include file="error_icon.tpl.html" field="app_eventum_new_job_email_address"}
 			</td>
   		  </tr>
+  		  <tr>
+		    <th>Eventum database host</th>
+			<td>
+			  <input type="text" name="app_eventum_database_host" value="{$config_settings.app_eventum_database_host|escape:"html"}" size="30" />
+			  {include file="error_icon.tpl.html" field="app_eventum_database_host"}
+			</td>
+  		  </tr>
+  		  <tr>
+		    <th>Eventum database name</th>
+			<td>
+			  <input type="text" name="app_eventum_database_name" value="{$config_settings.app_eventum_database_name|escape:"html"}" size="30" />
+			  {include file="error_icon.tpl.html" field="app_eventum_database_name"}
+			</td>
+  		  </tr>
+  		  <tr>
+		    <th>Eventum database user</th>
+			<td>
+			  <input type="text" name="app_eventum_database_user" value="{$config_settings.app_eventum_database_user|escape:"html"}" size="30" />
+			  {include file="error_icon.tpl.html" field="app_eventum_database_user"}
+			</td>
+  		  </tr>
+  		  <tr>
+		    <th>Eventum database password</th>
+			<td>
+			  <input type="text" name="app_eventum_database_pass" value="{$config_settings.app_eventum_database_pass|escape:"html"}" size="30" />
+			  {include file="error_icon.tpl.html" field="app_eventum_database_pass"}
+			</td>
+  		  </tr>
   		  </tbody>
 		</table>
 		</div>
