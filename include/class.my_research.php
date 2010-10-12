@@ -207,7 +207,10 @@ class MyResearch
 		// we are doing rewrite rules on a per-directory basis via .htaccess file
 		$PAGE_URL = preg_replace('/(\?.*)/','',$_SERVER['REQUEST_URI']);
 		$tpl->assign('PAGE_URL', $PAGE_URL);
-		$tpl->assign('list_type', $type);		
+		$tpl->assign('list_type', $type);
+		$sort_by = $options["sort_by"];
+    $tpl->assign('rows', $rows);
+    $tpl->assign('sort_by_default', $sort_by);
 		$tpl->displayTemplate();
 		
 		return;
@@ -331,6 +334,14 @@ class MyResearch
 	/*********************************
 	 * CLAIMED PUBLICATION FUNCTIONS *
 	 *********************************/
+	
+	/**
+	 * This function dispatches to the appropriate claimed publications functionality
+	 */
+	function claimedPubsDispatcher()
+	{
+			MyResearch::dispatcher("claimed");
+	}
 	
 	/**
 	 * Get all flagged claimed publications for a given user.
