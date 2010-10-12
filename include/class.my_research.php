@@ -78,7 +78,7 @@ class MyResearch
 				$tpl->assign("citation", $recordDetails[0]['rek_citation']);
 			} elseif ($action == 'hide') {
 				MyResearch::hide(@$_POST['pid']);
-			} elseif ($action == 'hide-bulk') {	
+			} elseif ($action == 'hide-bulk') {
 				MyResearch::bulkHide();
 			}
 			
@@ -342,6 +342,22 @@ class MyResearch
 		}
 		
 		return 1;
+	}
+	
+	
+	
+	/**
+	 * Hide a whole bunch of PIDs at once.
+	 */
+	function bulkHide()
+	{
+		$pids = explode(",", @$_POST['bulk-hide-pids']);
+		
+		foreach ($pids as $pid) {
+			MyResearch::hide($pid);
+		}
+		
+		return;
 	}
 	
 	

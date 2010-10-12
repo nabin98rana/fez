@@ -18,10 +18,7 @@ function hide(pid)
 
 function hideBulk()
 {
-	window.alert('Really bulk hide?');
-	return;
-	
-    frm = document.getElementById('claimedForm');
+    frm = document.getElementById('possibleForm');
 	count = 0;
 	pids = [];
 	for (i = 0; i < frm.pid.length; i++) {
@@ -32,13 +29,13 @@ function hideBulk()
 	}
 	
 	if (count == 0) {
-		window.alert('No records were marked for authorship removal.');
+		window.alert('No records were marked for hiding.');
 		return;
 	}
 	
-	if (confirm('You are about to mark the ticked records as not being authored by you. Proceed?')) {
-		document.getElementById('bulk-not-mine-pids').value = pids;
-		document.forms['claimedForm'].submit();
+	if (confirm('You are about to hide the ticked records. Proceed?')) {
+		document.getElementById('bulk-hide-pids').value = pids;
+		document.forms['possibleForm'].submit();
 	}
 	
 	return;
@@ -81,6 +78,7 @@ function hideBulk()
 		{/if}
 	
 		<tr class="{if $flagged[$pid].type == 'C'}possible-my-pub{/if}">
+			<td style="width: 10px;"><input type="checkbox" name="pid" value="{$list[i].rek_pid}" /></td>
 			<td style="width: 100%;">{$list[i].rek_citation}</td>
 			<td>
 				{if $flagged[$pid].type == 'C'}
@@ -127,9 +125,9 @@ function hideBulk()
 			</div>
 
 			<div>
-				<input type="hidden" id="pid" name="pid" value="" />
-				<input type="hidden" name="action" value="claim" />
-			</div>			
+				<input type="hidden" id="bulk-hide-pids" name="bulk-hide-pids" value="" />
+				<input type="hidden" name="action" value="hide-bulk" />
+			</div>
 		{/if}
 	
 	{sectionelse}
