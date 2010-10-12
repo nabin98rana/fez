@@ -65,8 +65,20 @@ function correctionRequired(pid)
 		{assign var=pid value=$list[i].rek_pid}
 	
 		{if $smarty.section.i.first}
-			<p>The publications listed below are currently claimed by you.</p>
 			<table id="research-record-listing">
+				<tr>
+			        <td colspan="3">The publications listed below are currently claimed by you. &nbsp;</td>
+			        <td align="center">
+			        {if $list_info.total_rows > 0 && ($list_type !== 'collection_list' && $list_type !== 'community_list')}
+			        	<img src="{$rel_url}images/rid_16.png" title="ResearcherID Citation Count" alt="ResearcherID Citation Count" />            
+			        {/if}
+			        </td>
+			        <td align="center">
+			        {if $list_info.total_rows > 0 && ($list_type !== 'collection_list' && $list_type !== 'community_list')}
+			        	<img src="{$rel_url}images/scopus_logo_small.gif" title="Scopus Citation Count" alt="Scopus Citation Count" />            
+			        {/if}
+			        </td>
+			    </tr>
 		{/if}
 	
 		<tr class="{if $flagged[$pid].type == 'D'}claimed-not-my-pub{elseif $flagged[$pid].type == 'C'}claimed-correction-required{/if}">
@@ -98,6 +110,25 @@ function correctionRequired(pid)
 					<input type="button" class="claimed-correction-required" value="This is my publication, but a correction is required" onclick="javascript:correctionRequired('{$list[i].rek_pid}');" />
 				{/if}
 			</td>
+			
+			<td align="left" valign="middle" style="border-top:1px dashed #be87e9; width: 100%;">
+            {if $list[i].rek_thomson_citation_count != ""}
+            	<a href="{$rel_url}rid_citation_count_history_{$list[i].rek_pid|escape:"html"}" title="Cited {$list[i].rek_thomson_citation_count} times in Thomson Reuters Researcher ID">{$list[i].rek_thomson_citation_count}</a>
+            {elseif $list[i].rek_thomson_citation_count == 0}
+               {$list[i].rek_thomson_citation_count}
+            {else}
+            	&nbsp;
+            {/if}			
+		  </td>		
+	       <td align="left"{if !$isUser && !$icon}colspan="2" {/if} valign="middle" style="border-top:1px dashed #be87e9; width: 100%;">
+            {if $list[i].rek_scopus_citation_count != ""}
+            	<a href="{$rel_url}scopus_citation_count_history_{$list[i].rek_pid|escape:"html"}" class="form_note"> <span class="form_note">Cited {$list[i].rek_scopus_citation_count} times in Scopus</span>{$list[i].rek_scopus_citation_count}</a>
+            {elseif $list[i].rek_scopus_citation_count == 0}
+               {$list[i].rek_scopus_citation_count}
+            {else}
+            	&nbsp;
+            {/if}			
+		  </td>		
 		</tr>
 		
 		{if $smarty.section.i.last}
