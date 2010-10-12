@@ -33,7 +33,7 @@
 <div class="result-box clearfix" style="width: 980px;">
 
   <h2>Browse Results ({$list_info.total_rows} results found)</h2>
-  {if $list_type != 'community_list'}
+  {if $list_type != 'community_list' && $list_type != 'claimed' && $list_type != 'possible'}
   <p class="rss"><a title="Subscribe to the RSS feed for this result set" href="{$PAGE_URL}?{if $url_wo_tpl != ''}{$url_wo_tpl}&amp;{/if}tpl=2"><img src="{$rel_url}images/icons/rss-icon.png" alt="Subscribe to the RSS feed for this result set" />Subscribe to the RSS feed for this result set</a></p>
   {/if}
 
