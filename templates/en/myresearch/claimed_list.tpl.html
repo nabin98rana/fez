@@ -50,12 +50,16 @@ function correctionRequired(pid)
 
 <h1>My Claimed Research</h1>
 
+{include file="list_browse_type.tpl.html"}
+
 {if $isUPO}
 	{include file="myresearch/acting.tpl.html"}
 {/if}
 
-<form action="{$rel_url}my_research_claimed.php" method="post" id="claimedForm">
 
+
+<form action="{$rel_url}my_research_claimed.php" method="post" id="claimedForm">
+	{include file="paging_control_header.tpl.html"}
 	{section name="i" loop=$list}
 	
 		{assign var=pid value=$list[i].rek_pid}
@@ -102,19 +106,20 @@ function correctionRequired(pid)
 			<div>
 				<input type="button" class="claimed-not-my-pub" value="None of the above ticked publications are mine" onclick="javascript:notMineBulk();" />
 			</div>
-			
+
 			<div>
 				<input type="hidden" id="bulk-not-mine-pids" name="bulk-not-mine-pids" value="" />
 				<input type="hidden" name="action" value="not-mine-bulk" />
 			</div>
 		{/if}
-		
+
 	{sectionelse}
 		<p>We could not find any publications authored by you.</p>
 	{/section}
 	
 </form>
-
+       	&nbsp;
+	    {include file="paging_control.tpl.html" field="paginat0r"}		
 <form action="{$rel_url}my_research_claimed.php" method="post" id="notMine">	
 	<div>
 		<input type="hidden" id="not-mine-pid" name="pid" value="" />

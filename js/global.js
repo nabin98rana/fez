@@ -14,6 +14,15 @@ function closeAndGotoList()
     window.close();
 }
 
+function hideClosed(f)
+{
+    if (f.hide_closed.checked) {
+        window.location.href = page_url + "?" + replaceParam(window.location.href, 'hide_closed', '1');
+    } else {
+        window.location.href = page_url + "?" + replaceParam(window.location.href, 'hide_closed', '0');
+    }
+}
+
 function unhideRow(element_name, table_name)
 {
 	var firstHiddenRow = 0;

@@ -278,6 +278,7 @@ class Pager
 
 		$operator = Pager::getParam('operator',$params);
 
+
 		if( empty($operator) && !empty($existing_cookie['operator']) ) {
 			$operator = $existing_cookie['operator'];
 		}
@@ -285,6 +286,18 @@ class Pager
 		if ($operator) {
 			$cookie['operator'] = $operator;
 		}
+
+		$hide_closed = Pager::getParam('hide_closed',$params);
+
+
+		if( empty($hide_closed) && !empty($existing_cookie['hide_closed']) ) {
+			$hide_closed = $existing_cookie['hide_closed'];
+		}
+
+		if ($hide_closed) {
+			$cookie['hide_closed'] = $hide_closed;
+		}
+
 
 		if (!empty($cookie))
 			$cookieToSave[$cookie_key] = $cookie;

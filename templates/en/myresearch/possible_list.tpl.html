@@ -17,7 +17,7 @@ function claimPID(pid)
 {/if}
 
 <form action="{$rel_url}my_research_possible.php" method="post" id="possibleForm">
-
+	{include file="paging_control_header.tpl.html"}
 	{section name="i" loop=$list}
 	
 		{assign var=pid value=$list[i].rek_pid}
@@ -56,5 +56,7 @@ function claimPID(pid)
 	{sectionelse}
 		<p>We could not find any publications that we suspect might be yours.</p>
 	{/section}
+   	&nbsp;
+    {include file="paging_control.tpl.html" field="paginat0r"}		
 
 </form>
