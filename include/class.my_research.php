@@ -33,88 +33,196 @@
 
 include_once(APP_INC_PATH . "class.eventum.php");
 
-
 /**
  * MyResearch
  * This is a static class that handles My Research functionality, such as record correction flagging.
  */
 class MyResearch
 {
-	/**********************************
-	 * POSSIBLE PUBLICATION FUNCTIONS *
-	 **********************************/
-	 
 	/**
-	 * This function dispatches to the appropriate possible publications functionality
+	 * Dispatch to the appropriate functionality for the requested page.
 	 */
-	function possiblePubsDispatcher()
-	{
-		
-		return MyResearch::dispatcher("possible");
-/*		$tpl = new Template_API();
+	function dispatcher($type) {
+		$tpl = new Template_API();
 		$tpl->setTemplate("myresearch/index.tpl.html");
-		
+
 		Auth::checkAuthentication(APP_SESSION);
 		$username = Auth::getUsername();
 		$actingUser = Auth::getActingUsername();
 		$author_id = Author::getIDByUsername($actingUser);
 		$actingUserArray = Author::getDetailsByUsername($actingUser);
 		$actingUserArray['org_unit_description'] = MyResearch::getHRorgUnit($actingUser);
-		
-		$tpl->assign("type", "possible");
-		
+
+		$tpl->assign("type", $type);
+
 		$isUser = Auth::getUsername();
 		$isAdministrator = User::isUserAdministrator($isUser);
 		$isSuperAdministrator = User::isUserSuperAdministrator($isUser);
 		$isUPO = User::isUserUPO($isUser);
-		
+
 		$tpl->assign("isUser", $isUser);
 		$tpl->assign("isAdministrator", $isAdministrator);
 		$tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 		$tpl->assign("isUPO", $isUPO);
 		$tpl->assign("active_nav", "my_fez");
-		
+
 		// Determine what we're actually doing here.
 		$action = @$_POST['action'];
-		
-		if ($action == 'claim-add') {
-			MyResearch::possiblePubsClaim();
-		} elseif ($action == 'claim') {
-			$recordDetails = Record::getDetailsLite(@$_POST['pid']);
-			$tpl->assign("pid", $recordDetails[0]['rek_pid']);
-			$tpl->assign("citation", $recordDetails[0]['rek_citation']);
+
+		if ($type == "possible") {
+			if ($action == 'claim-add') {
+				MyResearch::possiblePubsClaim();
+			} elseif ($action == 'claim') {
+				$recordDetails = Record::getDetailsLite(@$_POST['pid']);
+				$tpl->assign("pid", $recordDetails[0]['rek_pid']);
+				$tpl->assign("citation", $recordDetails[0]['rek_citation']);
+			}
+			$flagged = MyResearch::getPossibleFlaggedPubs($actingUser);
+		} elseif ($type == "claimed") {
+			if ($action == 'not-mine') {
+				MyResearch::claimedPubsDisown(@$_POST['pid']);
+			} elseif ($action == 'not-mine-bulk') {	
+				MyResearch::handleBulkDisown();
+			} elseif ($action == 'correction') {
+				$recordDetails = Record::getDetailsLite(@$_POST['pid']);
+				$tpl->assign("pid", $recordDetails[0]['rek_pid']);
+				$tpl->assign("citation", $recordDetails[0]['rek_citation']);
+			} elseif ($action == 'correction-add') {
+				MyResearch::claimedPubsCorrect(@$_POST['pid']);
+			}
+			$flagged = MyResearch::getClaimedFlaggedPubs($actingUser);
 		}
-		$flagged = MyResearch::getPossibleFlaggedPubs($actingUser);
-		$return = MyResearch::getList("possible", $author_id);
+
+		/*
+	     * These are the only $params(ie. $_GET) vars that can be passed to this page.
+	     * Strip out any that aren't in this list
+	     */
+	    $args = array(
+	        'browse'        =>  'string',
+	        'author_id'     =>  'numeric',
+	        'hide_closed'     =>  'numeric',
+	        'collection_pid'=>  'string',
+	        'community_pid' =>  'string',
+	        'cat'           =>  'string',
+	        'author'        =>  'string',
+	        'tpl'           =>  'numeric',
+	        'year'          =>  'numeric',
+	        'rows'          =>  'numeric',
+	        'pager_row'     =>  'numeric',
+	        'sort'          =>  'string',
+	        'sort_by'       =>  'string',
+	        'search_keys'   =>  'array',
+	        'order_by'      =>  'string',
+	        'sort_order'    =>  'string',
+	        'value'         =>  'string',
+	        'operator'      =>  'string',
+	        'custom_view_pid' =>  'string',
+	        'form_name'     =>  'string',
+	    );
 		
+		$params = $_GET;
+	    foreach ($args as $getName => $getType) {            
+	        if( Misc::sanity_check($params[$getName], $getType) !== false ) {
+	            $allowed[$getName] = $params[$getName];
+	        }
+	    }
+	    $params = $allowed;
+
+		$cookie_key = "my_research_possible_list";
+		$options = array();
+		$options = Pager::saveSearchParams($params, $cookie_key);
+
+		$pager_row = $params['pager_row'];
+		if (empty($pager_row)) {
+			$pager_row = 0;
+		}
+		
+		$rows = $params['rows'];
+		if (empty($rows)) {
+			if(!empty($_SESSION['rows'])) {
+				$rows = $_SESSION['rows'];
+			} else {
+				$rows = APP_DEFAULT_PAGER_SIZE;
+			}
+		} else {
+			$_SESSION['rows'] = $rows;
+		}
+
+		$order_dir = 'ASC';
+
+		if ($max == "ALL") {
+			$max = 9999999;
+		}
+		//$current_row = ($current_row/100);
+		$citationCache = true;
+		$getSimple = true;
+
+		if ($type == "claimed") {
+			$filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
+			$filter["searchKey".Search_key::getID("Object Type")] = 3; 
+			$filter["searchKey".Search_Key::getID("Author ID")] = $author_id; 
+		} elseif ($type == "possible") {
+			$lastname = Author::getLastName($author_id);
+			$filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
+			$filter["searchKey".Search_key::getID("Object Type")] = 3; 
+			$filter["searchKey".Search_Key::getID("Author")] = $lastname;
+			$filter["manualFilter"] = " !author_id_mi:".$author_id;
+			if ($options['hide_closed'] == 1) {
+				//TODO: get the list of pids to filter out and add these to the manual filter
+			}
+		}
+		$return = Record::getListing($options, array(9,10), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter);
+
 		$tpl->assign("list", $return['list']);
 		$tpl->assign("list_info", $return['info']);
-		$tpl->assign("flagged", $flagged);	
-		$tpl->assign("action", $action);
+		$tpl->assign("flagged", $flagged);
+		$tpl->assign("action", $action); 
+		$tpl->assign("options", $options);
 		$tpl->assign("acting_user", $actingUserArray);
 		$tpl->assign("actual_user", $username);
-    $options = Pager::saveSearchParams($params, $cookie_key);
-    $tpl->assign("options", $options);
+
+		/*
+		 * These options are used in a dropdown box to allow the 
+		 * user to sort a list
+		 */
+		$sort_by_list = array(
+			"searchKey".Search_Key::getID("Title") => 'Title',
+			"searchKey".Search_Key::getID("Description") => 'Description',
+			"searchKey".Search_Key::getID("File Downloads") => 'File Downloads',
+			"searchKey".Search_Key::getID("Date") => 'Date',
+			"searchKey".Search_Key::getID("Created Date") => 'Created Date',
+			"searchKey".Search_Key::getID("Updated Date") => 'Updated Date',
+			"searchKey".Search_Key::getID("Sequence") => 'Sequence',
+			"searchKey".Search_Key::getID("Thomson Citation Count") => 'Thomson Citation Count',
+			"searchKey".Search_Key::getID("Scopus Citation Count") => 'Scopus Citation Count'
+		);
 
 		if (Auth::isValidSession($_SESSION)) {
 			$sort_by_list["searchKey".Search_Key::getID("GS Citation Count")] = "Google Scholar Citation Count";
 		}
-    $tpl->assign('sort_by_list', $sort_by_list);
-    // Hack to get SCRIPT_URL without querystrings.
-    // Usually we could get this info from $_SERVER['SCRIPT_URL'], but can't since 
-    // we are doing rewrite rules on a per-directory basis via .htaccess file
-    $PAGE_URL = preg_replace('/(\?.*)/','',$_SERVER['REQUEST_URI']);
-
-
-    $tpl->assign('PAGE_URL', $PAGE_URL);
-    $tpl->assign('list_type', 'possible');		
+		
+		$tpl->assign('sort_by_list', $sort_by_list);
+		// Hack to get SCRIPT_URL without querystrings.
+		// Usually we could get this info from $_SERVER['SCRIPT_URL'], but can't since 
+		// we are doing rewrite rules on a per-directory basis via .htaccess file
+		$PAGE_URL = preg_replace('/(\?.*)/','',$_SERVER['REQUEST_URI']);
+		$tpl->assign('PAGE_URL', $PAGE_URL);
+		$tpl->assign('list_type', $type);		
 		$tpl->displayTemplate();
 		
-		return; */
-	}
+		return;
+
+	}	
 	
 	
 	
+	/**********************************
+	 * POSSIBLE PUBLICATION FUNCTIONS *
+	 **********************************/
+	 
+	/**
+	 * This function handles the various actions associated with claiming a possible publication.
+	 */
 	function possiblePubsClaim()
 	{
 		// 1. Mark the publication claimed in the database
@@ -218,199 +326,11 @@ class MyResearch
 		return $ret;
 	}
 	
-
-
 	
 	
 	/*********************************
 	 * CLAIMED PUBLICATION FUNCTIONS *
 	 *********************************/
-	
-	/**
-	 * This function dispatches to the appropriate claimed publications functionality
-	 */
-	function claimedPubsDispatcher()
-	{
-			MyResearch::dispatcher("claimed");
-	}
-	
-	function dispatcher($type) {
-			$tpl = new Template_API();
-			$tpl->setTemplate("myresearch/index.tpl.html");
-
-			Auth::checkAuthentication(APP_SESSION);
-			$username = Auth::getUsername();
-			$actingUser = Auth::getActingUsername();
-			$author_id = Author::getIDByUsername($actingUser);
-			$actingUserArray = Author::getDetailsByUsername($actingUser);
-			$actingUserArray['org_unit_description'] = MyResearch::getHRorgUnit($actingUser);
-
-			$tpl->assign("type", $type);
-
-			$isUser = Auth::getUsername();
-			$isAdministrator = User::isUserAdministrator($isUser);
-			$isSuperAdministrator = User::isUserSuperAdministrator($isUser);
-			$isUPO = User::isUserUPO($isUser);
-
-			$tpl->assign("isUser", $isUser);
-			$tpl->assign("isAdministrator", $isAdministrator);
-			$tpl->assign("isSuperAdministrator", $isSuperAdministrator);
-			$tpl->assign("isUPO", $isUPO);
-			$tpl->assign("active_nav", "my_fez");
-
-			// Determine what we're actually doing here.
-			$action = @$_POST['action'];
-
-			if ($type == "possible") {
-				if ($action == 'claim-add') {
-					MyResearch::possiblePubsClaim();
-				} elseif ($action == 'claim') {
-					$recordDetails = Record::getDetailsLite(@$_POST['pid']);
-					$tpl->assign("pid", $recordDetails[0]['rek_pid']);
-					$tpl->assign("citation", $recordDetails[0]['rek_citation']);
-				}
-				$flagged = MyResearch::getPossibleFlaggedPubs($actingUser);
-			} elseif ($type == "claimed") {
-				if ($action == 'not-mine') {
-					MyResearch::claimedPubsDisown(@$_POST['pid']);
-				} elseif ($action == 'not-mine-bulk') {	
-					MyResearch::handleBulkDisown();
-				} elseif ($action == 'correction') {
-					$recordDetails = Record::getDetailsLite(@$_POST['pid']);
-					$tpl->assign("pid", $recordDetails[0]['rek_pid']);
-					$tpl->assign("citation", $recordDetails[0]['rek_citation']);
-				} elseif ($action == 'correction-add') {
-					MyResearch::claimedPubsCorrect(@$_POST['pid']);
-				}
-				$flagged = MyResearch::getClaimedFlaggedPubs($actingUser);
-			}
-
-
-			/*
-	     * These are the only $params(ie. $_GET) vars that can be passed to this page.
-	     * Strip out any that aren't in this list
-	     */
-	    $args = array(
-	        'browse'        =>  'string',
-	        'author_id'     =>  'numeric',
-	        'hide_closed'     =>  'numeric',
-	        'collection_pid'=>  'string',
-	        'community_pid' =>  'string',
-	        'cat'           =>  'string',
-	        'author'        =>  'string',
-	        'tpl'           =>  'numeric',
-	        'year'          =>  'numeric',
-	        'rows'          =>  'numeric',
-	        'pager_row'     =>  'numeric',
-	        'sort'          =>  'string',
-	        'sort_by'       =>  'string',
-	        'search_keys'   =>  'array',
-	        'order_by'      =>  'string',
-	        'sort_order'    =>  'string',
-	        'value'         =>  'string',
-	        'operator'      =>  'string',
-	        'custom_view_pid' =>  'string',
-	        'form_name'     =>  'string',
-	    );
-			$params = $_GET;
-	    foreach ($args as $getName => $getType) {            
-	        if( Misc::sanity_check($params[$getName], $getType) !== false ) {
-	            $allowed[$getName] = $params[$getName];
-	        }
-	    }
-	    $params = $allowed;
-
-      $cookie_key = "my_research_possible_list";
-			$options = array();
-      $options = Pager::saveSearchParams($params, $cookie_key);
-
-	    $pager_row = $params['pager_row'];
-	    if (empty($pager_row)) {
-	        $pager_row = 0;
-	    }
-
-
-	    $rows = $params['rows'];
-	    if (empty($rows)) {
-
-	        if(!empty($_SESSION['rows'])) {
-	            $rows = $_SESSION['rows'];
-	        } else {
-	            $rows = APP_DEFAULT_PAGER_SIZE;
-	        }
-
-	    } else {
-	        $_SESSION['rows'] = $rows;
-	    }
-
-					$order_dir = 'ASC';
-
-					if ($max == "ALL") {
-						$max = 9999999;
-					}
-			//		$current_row = ($current_row/100);
-					$citationCache = true;
-					$getSimple = true;
-
-
-			if ($type == "claimed") {
-				$filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
-				$filter["searchKey".Search_key::getID("Object Type")] = 3; 
-				$filter["searchKey".Search_Key::getID("Author ID")] = $author_id; 
-			} elseif ($type == "possible") {
-				$lastname = Author::getLastName($author_id);
-				$filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
-				$filter["searchKey".Search_key::getID("Object Type")] = 3; 
-				$filter["searchKey".Search_Key::getID("Author")] = $lastname;
-				$filter["manualFilter"] = " !author_id_mi:".$author_id;
-				if ($options['hide_closed'] == 1) {
-					//TODO: get the list of pids to filter out and add these to the manual filter
-					
-					
-				}
-			}
-			$return = Record::getListing($options, array(9,10), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter);
-
-			$tpl->assign("list", $return['list']);
-			$tpl->assign("list_info", $return['info']);
-			$tpl->assign("flagged", $flagged);
-			$tpl->assign("action", $action); 
-			$tpl->assign("options", $options);
-			$tpl->assign("acting_user", $actingUserArray);
-			$tpl->assign("actual_user", $username);
-
-
-		/*
-		 * These options are used in a dropdown box to allow the 
-		 * user to sort a list
-		 */
-	       $sort_by_list = array(
-	           "searchKey".Search_Key::getID("Title") => 'Title',
-	           "searchKey".Search_Key::getID("Description") => 'Description',
-	           "searchKey".Search_Key::getID("File Downloads") => 'File Downloads',
-	           "searchKey".Search_Key::getID("Date") => 'Date',
-	           "searchKey".Search_Key::getID("Created Date") => 'Created Date',
-	           "searchKey".Search_Key::getID("Updated Date") => 'Updated Date',
-	           "searchKey".Search_Key::getID("Sequence") => 'Sequence',
-	           "searchKey".Search_Key::getID("Thomson Citation Count") => 'Thomson Citation Count',
-	           "searchKey".Search_Key::getID("Scopus Citation Count") => 'Scopus Citation Count'
-	       );
-
-			if (Auth::isValidSession($_SESSION)) {
-				$sort_by_list["searchKey".Search_Key::getID("GS Citation Count")] = "Google Scholar Citation Count";
-			}
-	    $tpl->assign('sort_by_list', $sort_by_list);
-	    // Hack to get SCRIPT_URL without querystrings.
-	    // Usually we could get this info from $_SERVER['SCRIPT_URL'], but can't since 
-	    // we are doing rewrite rules on a per-directory basis via .htaccess file
-	    $PAGE_URL = preg_replace('/(\?.*)/','',$_SERVER['REQUEST_URI']);
-	    $tpl->assign('PAGE_URL', $PAGE_URL);
-	    $tpl->assign('list_type', $type);		
-			$tpl->displayTemplate();
-
-			return;
-		
-	}
 	
 	/**
 	 * Get all flagged claimed publications for a given user.

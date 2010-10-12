@@ -17,7 +17,7 @@ function claimPID(pid)
 {/if}
 
 <form action="{$rel_url}my_research_possible.php" method="post" id="possibleForm">
-	{include file="paging_control_header.tpl.html"}
+	{include file="paging_control_header.tpl.html" hide_list_heading="true"}
 	{section name="i" loop=$list}
 	
 		{assign var=pid value=$list[i].rek_pid}

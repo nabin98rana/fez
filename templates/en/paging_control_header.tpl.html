@@ -1,31 +1,33 @@
-<div id="criteria-box">
-  <h1>
-  {if $list_type == 'all_records_list' || $list_type == 'collection_records_list'}
-    <img src="{$rel_url}images/record_32.jpg" alt="" />		
-  {elseif $list_type == 'community_list'}
-    <img src="{$rel_url}images/community_32.jpg" alt="" />
-  {elseif $list_type == 'collection_list'}
-    <img src="{$rel_url}images/collection_32.jpg" alt="" />
-  {elseif $browse_type == 'browse_author'}			
-    <a href="{$rel_url}list/author/"><img title="Browse by all authors" alt="Browse by all authors" src="{$rel_url}images/browse_32.jpg" /></a>
+{if $hide_list_heading != "true"}
+  <div id="criteria-box">
+    <h1>
+    {if $list_type == 'all_records_list' || $list_type == 'collection_records_list'}
+      <img src="{$rel_url}images/record_32.jpg" alt="" />		
+    {elseif $list_type == 'community_list'}
+      <img src="{$rel_url}images/community_32.jpg" alt="" />
+    {elseif $list_type == 'collection_list'}
+      <img src="{$rel_url}images/collection_32.jpg" alt="" />
+    {elseif $browse_type == 'browse_author'}			
+      <a href="{$rel_url}list/author/"><img title="Browse by all authors" alt="Browse by all authors" src="{$rel_url}images/browse_32.jpg" /></a>
+    {/if}
+    {$list_heading}</h1>
+  
+  {if $list_type == 'collection_records_list'}
+    {if $parents}
+    <div id="parent-list"><b>Parents:</b> 
+  	{section name="i" loop=$parents}
+  		{if $parents[i].rek_object_type == 1}
+  		<a href="{$rel_url}community/{$parents[i].rek_pid}">{$parents[i].rek_title}</a> &nbsp; 
+  		{else}
+  		<a href="{$rel_url}collection/{$parents[i].rek_pid}">{$parents[i].rek_title}</a> &nbsp; 
+  		{/if}
+  	{/section}
+    </div>
+    {/if}
   {/if}
-  {$list_heading}</h1>
-
-{if $list_type == 'collection_records_list'}
-  {if $parents}
-  <div id="parent-list"><b>Parents:</b> 
-	{section name="i" loop=$parents}
-		{if $parents[i].rek_object_type == 1}
-		<a href="{$rel_url}community/{$parents[i].rek_pid}">{$parents[i].rek_title}</a> &nbsp; 
-		{else}
-		<a href="{$rel_url}collection/{$parents[i].rek_pid}">{$parents[i].rek_title}</a> &nbsp; 
-		{/if}
-	{/section}
+  
   </div>
-  {/if}
 {/if}
-
-</div>
 
 
 <div class="result-box clearfix" style="width: 980px;">

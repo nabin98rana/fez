@@ -59,7 +59,7 @@ function correctionRequired(pid)
 
 
 <form action="{$rel_url}my_research_claimed.php" method="post" id="claimedForm">
-	{include file="paging_control_header.tpl.html"}
+	{include file="paging_control_header.tpl.html" hide_list_heading="true"}
 	{section name="i" loop=$list}
 	
 		{assign var=pid value=$list[i].rek_pid}

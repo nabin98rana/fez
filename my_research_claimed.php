@@ -50,6 +50,6 @@ if (APP_MY_RESEARCH_MODULE != 'ON') {
 	die('Sorry - this module is not enabled.');
 }
 
-MyResearch::claimedPubsDispatcher();
+MyResearch::dispatcher("claimed");
 
 ?>
