@@ -77,7 +77,7 @@ function hideBulk()
 			    </tr>
 		{/if}
 	
-		<tr class="{if $flagged[$pid].type == 'C'}possible-my-pub{/if}">
+		<tr class="{if $flagged[$pid].type == 'C'}possible-my-pub{elseif $flagged[$pid].type == 'H'}possible-hide{/if}">
 			<td style="width: 10px;"><input type="checkbox" name="pid" value="{$list[i].rek_pid}" /></td>
 			<td style="width: 100%;">{$list[i].rek_citation}</td>
 			<td>
@@ -93,8 +93,9 @@ function hideBulk()
 					<input type="button" class="possible-my-pub" value="This is my publication" onclick="javascript:claimPID('{$list[i].rek_pid}');" />
 				{/if}
 				
-				<input type="button" class="possible-hide" value="Hide this publication" onclick="javascript:hide('{$list[i].rek_pid}');" />
-				
+				{if $flagged[$pid].type != 'H'}
+					<input type="button" class="possible-hide" value="Hide this publication" onclick="javascript:hide('{$list[i].rek_pid}');" />
+				{/if}
 			</td>
 			
 			<td align="left" valign="middle" style="border-top:1px dashed #be87e9; width: 100%;">
