@@ -154,7 +154,7 @@ function correctionRequired(pid)
 					<input type="button" class="claimed-not-my-pub" value="This is not my publication" onclick="javascript:notMine('{$list[i].rek_pid}');" /><br />
 				{/if}
 				{if $flagged[$pid].type != 'C'}
-					<input type="button" class="claimed-correction-required" value="This is my publication, but a correction is required" onclick="javascript:correctionRequired('{$list[i].rek_pid}');" />
+					<input type="button" class="claimed-correction-required" value="I am an author, but a correction is required" onclick="javascript:correctionRequired('{$list[i].rek_pid}');" />
 				{/if}
 			</td>
 			

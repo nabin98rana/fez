@@ -3,8 +3,8 @@
 <!--
 function claimPID(pid)
 {
-    document.getElementById('pid').value = pid;
-    document.forms['possibleForm'].submit();
+	document.getElementById('pid').value = pid;
+	document.forms['possibleForm'].submit();
 }
 
 function hide(pid)
@@ -137,12 +137,21 @@ function hideBulk()
 							User <span style="font-weight: bold">{$flagged[$pid].user}</span> has indicated that this record was authored by you. A job has already been logged with the {$app_name} team.
 						{/if}
 					</div>
-				{else}
-					<input type="button" class="possible-my-pub" value="This is my publication" onclick="javascript:claimPID('{$list[i].rek_pid}');" />
+				{elseif $flagged[$pid].type == 'H'}
+					<div class="research-record-note" style="width: 200px;">
+						{if $flagged[$pid].user == $actual_user}
+							You have indicated that this record was not authored by you.
+						{else}
+							User <span style="font-weight: bold">{$flagged[$pid].user}</span> has indicated that this record was not authored by you.
+						{/if}
+					</div>
 				{/if}
 				
+				{if $flagged[$pid].type != 'C'}
+					<input type="button" class="possible-my-pub" value="I am an author of this publication" onclick="javascript:claimPID('{$list[i].rek_pid}');" />
+				{/if}
 				{if $flagged[$pid].type != 'H'}
-					<input type="button" class="possible-hide" value="Hide this publication" onclick="javascript:hide('{$list[i].rek_pid}');" />
+					<input type="button" class="possible-hide" value="This is not my publication" onclick="javascript:hide('{$list[i].rek_pid}');" />
 				{/if}
 			</td>
 		</tr>
@@ -156,7 +165,7 @@ function hideBulk()
 
 			<div>
 				<input type="hidden" id="pid" name="pid" value="" />
-				<input type="hidden" name="action" value="claim-add" />
+				<input type="hidden" name="action" value="claim" />
 			</div>
 		{/if}
 	
