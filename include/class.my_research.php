@@ -182,22 +182,19 @@ class MyResearch
 
 		$return = Record::getListing($options, array(9,10), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter, "AND", true, false, false, 10, 1);
 
-
-    $facets = @$return['facets'];
-
-    /*
-     * We dont want to display facets that a user
-     * has already searched by
-     */
-    if(isset($facets)) {
-            
-        foreach ($facets as $sek_id => $facetData) {
-            if(!empty($options['searchKey'.$sek_id])) {
-                unset($facets[$sek_id]);
-            }
-        }
-            
-    }
+		$facets = @$return['facets'];
+		
+		/*
+		 * We dont want to display facets that a user
+		 * has already searched by
+		 */
+		if (isset($facets)) {
+			foreach ($facets as $sek_id => $facetData) {
+				if (!empty($options['searchKey'.$sek_id])) {
+					unset($facets[$sek_id]);
+				}
+			}
+		}
 
 		$tpl->assign("facets", $facets);
 		$tpl->assign("list", $return['list']);
@@ -281,7 +278,7 @@ class MyResearch
 		$author = Auth::getActingUsername();
 		$user = Auth::getUsername();
 		$correction = @$_POST['correction'];
-		MyResearch::markPossiblePubAsMine($pid, $author, $user, $correction);
+		$jobID = MyResearch::markPossiblePubAsMine($pid, $author, $user, $correction);
 		
 		// 2. Send an email to Eventum about it
 		$authorDetails = Author::getDetailsByUsername($author);
@@ -291,7 +288,7 @@ class MyResearch
 		$userName = $userDetails['usr_full_name'];
 		$userEmail = $userDetails['usr_email'];
 
-		$subject = "My Research :: Claimed Publication :: " . $pid . " :: " . $author;
+		$subject = "My Research :: Claimed Publication :: " . $jobID . " :: " . $pid . " :: " . $author;
 		
 		$body = "Record: http://" . APP_HOSTNAME . APP_RELATIVE_URL . "view/" . $pid . "\n\n";
 		if ($author == $user) {
@@ -343,8 +340,8 @@ class MyResearch
 			$log->err($ex);
 			return -1;
 		}
-				
-		return 1;
+		
+		return $db->lastInsertId();
 	}
 	
 	
@@ -539,7 +536,7 @@ class MyResearch
 		// 1. Mark the publication claimed in the database
 		$author = Auth::getActingUsername();
 		$user = Auth::getUsername();
-		MyResearch::markClaimedPubAsNotMine($pid, $author, $user);
+		$jobID = MyResearch::markClaimedPubAsNotMine($pid, $author, $user);
 		
 		// 2. Send an email to Eventum about it
 		$authorDetails = Author::getDetailsByUsername($author);
@@ -549,7 +546,7 @@ class MyResearch
 		$userName = $userDetails['usr_full_name'];
 		$userEmail = $userDetails['usr_email'];
 		
-		$subject = "My Research :: Disowned Publication :: " . $pid . " :: " . $author;
+		$subject = "My Research :: Disowned Publication :: " . $jobID . " :: " . $pid . " :: " . $author;
 		
 		$body = "Record: http://" . APP_HOSTNAME . APP_RELATIVE_URL . "view/" . $pid . "\n\n";
 		if ($author == $user) {
@@ -574,7 +571,7 @@ class MyResearch
 		$author = Auth::getActingUsername();
 		$user = Auth::getUsername();
 		$correction = @$_POST['correction'];
-		MyResearch::markClaimedPubAsNeedingCorrection($pid, $author, $user, $correction);
+		$jobID = MyResearch::markClaimedPubAsNeedingCorrection($pid, $author, $user, $correction);
 		
 		// 2. Send an email to Eventum about it
 		$authorDetails = Author::getDetailsByUsername($author);
@@ -584,7 +581,7 @@ class MyResearch
 		$userName = $userDetails['usr_full_name'];
 		$userEmail = $userDetails['usr_email'];
 		
-		$subject = "My Research :: Correction Required :: " . $pid . " :: " . $author;
+		$subject = "My Research :: Correction Required :: " . $jobID . " :: " . $pid . " :: " . $author;
 		
 		$body = "Record: http://" . APP_HOSTNAME . APP_RELATIVE_URL . "view/" . $pid . "\n\n";
 		if ($author == $user) {
@@ -633,9 +630,8 @@ class MyResearch
 			$log->err($ex);
 			return -1;
 		}
-
 		
-		return 1;
+		return $db->lastInsertId();
 	}
 	
 	
@@ -672,9 +668,8 @@ class MyResearch
 			$log->err($ex);
 			return -1;
 		}
-
 		
-		return 1;
+		return $db->lastInsertId();
 	}
 	
 	

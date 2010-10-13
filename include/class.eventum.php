@@ -79,7 +79,7 @@ class Eventum
 					WHERE
 						eventum_issue.iss_sta_id = eventum_status.sta_id
 						AND sta_is_closed = 1
-						AND iss_summary LIKE 'Thesis Examinations%'
+						AND iss_summary LIKE 'My Research :: %'
 					ORDER BY
 						iss_id DESC;
 				";
@@ -114,7 +114,7 @@ class Eventum
 			die ("Can't use " . APP_EVENTUM_DATABASE_NAME . " : " . mysql_error());
 		}
 		
-		echo "done!\n";
+		echo "done.\n";
 		$db = $conn;
 		
 		return;
