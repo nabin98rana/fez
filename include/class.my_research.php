@@ -284,13 +284,27 @@ class MyResearch
 		MyResearch::markPossiblePubAsMine($pid, $author, $user, $correction);
 		
 		// 2. Send an email to Eventum about it
-		$subject = "ESPACE :: Claimed Publication";
-		$body = "PID: " . $pid . "\n";
-		$body .= "Author claim by: " . $username;
-		if ($correction != '') {
-			$body .= "\n\nCorrection information:\n\n" . $correction;
+		$authorDetails = Author::getDetailsByUsername($author);
+		$userDetails = User::getDetails($user);
+		$authorID = $authorDetails['aut_id'];
+		$authorName = $authorDetails['aut_display_name'];
+		$userName = $userDetails['usr_full_name'];
+		$userEmail = $userDetails['usr_email'];
+
+		$subject = "My Research :: Claimed Publication :: " . $pid . " :: " . $author;
+		
+		$body = "Record: http://" . APP_HOSTNAME . APP_RELATIVE_URL . "view/" . $pid . "\n\n";
+		if ($author == $user) {
+			$body .= $authorName . " (" . $authorID . ") has claimed to be an author of this publication.\n\n";
+		} else {
+			$body .= "User "  . $userName . " has indicated that " . $authorName . " (" . $authorID . ") is an author of this publication.\n\n";
 		}
-		Eventum::lodgeJob($subject, $body);
+		
+		if ($correction != '') {
+			$body .= "Additionally, the following correction information was supplied:\n\n" . $correction;
+		}
+		
+		Eventum::lodgeJob($subject, $body, $userEmail);
 		
 		return;
 	}
@@ -528,10 +542,23 @@ class MyResearch
 		MyResearch::markClaimedPubAsNotMine($pid, $author, $user);
 		
 		// 2. Send an email to Eventum about it
-		$subject = "ESPACE :: Disowned Publication";
-		$body = "PID: " . $pid . "\n";
-		$body .= "Author to remove: " . $username;
-		Eventum::lodgeJob($subject, $body);
+		$authorDetails = Author::getDetailsByUsername($author);
+		$userDetails = User::getDetails($user);
+		$authorID = $authorDetails['aut_id'];
+		$authorName = $authorDetails['aut_display_name'];
+		$userName = $userDetails['usr_full_name'];
+		$userEmail = $userDetails['usr_email'];
+		
+		$subject = "My Research :: Disowned Publication :: " . $pid . " :: " . $author;
+		
+		$body = "Record: http://" . APP_HOSTNAME . APP_RELATIVE_URL . "view/" . $pid . "\n\n";
+		if ($author == $user) {
+			$body .= $authorName . " (" . $authorID . ") has indicated that they are not the author of this publication.";
+		} else {
+			$body .= "User "  . $userName . " has indicated that " . $authorName . " (" . $authorID . ") is not the author of this publication.";
+		}
+		
+		Eventum::lodgeJob($subject, $body, $userEmail);
 		
 		return;
 	}
@@ -546,14 +573,28 @@ class MyResearch
 		// 1. Mark the publication claimed in the database
 		$author = Auth::getActingUsername();
 		$user = Auth::getUsername();
-		$correction = '';
-		MyResearch::markClaimedPubAsNeedingCorrection($pid, $author, $user, @$_POST['correction']);
+		$correction = @$_POST['correction'];
+		MyResearch::markClaimedPubAsNeedingCorrection($pid, $author, $user, $correction);
 		
 		// 2. Send an email to Eventum about it
-		$subject = "ESPACE :: Correction Required";
-		$body = "PID: " . $pid . "\n";
-		$body .= "\n\nCorrection information:\n\n" . $correction;
-		Eventum::lodgeJob($subject, $body);
+		$authorDetails = Author::getDetailsByUsername($author);
+		$userDetails = User::getDetails($user);
+		$authorID = $authorDetails['aut_id'];
+		$authorName = $authorDetails['aut_display_name'];
+		$userName = $userDetails['usr_full_name'];
+		$userEmail = $userDetails['usr_email'];
+		
+		$subject = "My Research :: Correction Required :: " . $pid . " :: " . $author;
+		
+		$body = "Record: http://" . APP_HOSTNAME . APP_RELATIVE_URL . "view/" . $pid . "\n\n";
+		if ($author == $user) {
+			$body .= $authorName . " (" . $authorID . ") has supplied the following correction information:\n\n";
+		} else {
+			$body .= "User "  . $userName . ", acting on behalf of " . $authorName . ", has supplied the following correction information:\n\n";
+		}
+		$body .= $correction;
+		
+		Eventum::lodgeJob($subject, $body, $userEmail);
 		
 		return;
 	}

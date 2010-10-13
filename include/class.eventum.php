@@ -38,7 +38,7 @@ class Eventum
 	/** 
 	 * Invoking this function will cause a job to be logged in Eventum.
 	 */
-	function lodgeJob($subject, $body)
+	function lodgeJob($subject, $body, $from)
 	{
 		// Bail out if we have Eventum emails turned off.
 		if (APP_EVENTUM_SEND_EMAILS != 'ON') {
@@ -47,14 +47,75 @@ class Eventum
 		
 		// Otherwise, assemble a message for sending.
 		$to      = APP_EVENTUM_NEW_JOB_EMAIL_ADDRESS;
-		$headers = 'From: ' . APP_ADMIN_EMAIL . "\r\n" .
-		'Reply-To: ' . APP_ADMIN_EMAIL . "\r\n" .
+		$headers = 'From: ' . $from . "\r\n" .
+		'Reply-To: ' . $from . "\r\n" .
 		'X-Mailer: PHP/' . phpversion();
 
 		// Send the email. We could probably use the Mail_API methods, but this will do for now.		
 		if (!mail($to, $subject, $body, $headers)) {
 			die("There was a problem submitting this job to Eventum. Please contact the " . APP_NAME . " Manager.");
 		}
+		
+		return;
+	}
+	
+	
+	
+	/** 
+	 * Returns the subject lines of all closed My Research jobs in Eventum.
+	 */
+	function getAllClosedMyResearchJobs()
+	{
+		Eventum::dbSetup();
+		
+		global $db;
+		
+		$query = "
+					SELECT
+						iss_summary AS ticket_subject
+					FROM
+						eventum_issue,
+						eventum_status
+					WHERE
+						eventum_issue.iss_sta_id = eventum_status.sta_id
+						AND sta_is_closed = 1
+						AND iss_summary LIKE 'Thesis Examinations%'
+					ORDER BY
+						iss_id DESC;
+				";
+		
+		$result = mysql_query($query, $db);
+
+		$return = array();		
+		while ($row = mysql_fetch_assoc($result)) {
+			$return[] = $row['ticket_subject'];
+		}
+		
+		return $return;
+	}
+	
+	
+	
+	/**
+	 * Set up the Eventum database connection.
+	 */
+	function dbSetup() {
+	
+		global $db;
+		echo "Connecting to database ... ";
+		$conn = @mysql_connect(APP_EVENTUM_DATABASE_HOST, APP_EVENTUM_DATABASE_USER, APP_EVENTUM_DATABASE_PASS);
+
+		if (!$conn) {
+			die("Error: Could not connect to Eventum database. Aborting.\n");
+		}
+
+		$db_selected = @mysql_select_db(APP_EVENTUM_DATABASE_NAME, $conn);
+		if (!$db_selected) {
+			die ("Can't use " . APP_EVENTUM_DATABASE_NAME . " : " . mysql_error());
+		}
+		
+		echo "done!\n";
+		$db = $conn;
 		
 		return;
 	}
