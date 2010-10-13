@@ -489,6 +489,7 @@ class FulltextIndex_Solr extends FulltextIndex {
 									if($tmpArr) {
 										$facets[$sval['sek_id']] = array(
                                             'sek_title'     =>  $sval['sek_title'],
+  																					'sek_alt_title'     =>  $sval['sek_alt_title'],
                                             'values'        =>  $tmpArr,
 										);
 										unset($tmpArr);

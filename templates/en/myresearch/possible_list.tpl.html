@@ -72,7 +72,11 @@ function hideBulk()
 
 		    <ul>
 		    {foreach from=$facets key=sek_id item=items}
-		        <li><strong>{$items.sek_title}</strong></li>
+			{if $items.sek_alt_title == ""}
+			        <li><strong>{$items.sek_title}</strong></li>
+			{else}
+			        <li><strong>{$items.sek_alt_title}</strong></li>
+			{/if}
 		        {foreach from=$items.values key=id item=valueData}
 		        {if $valueData.num > 0}
 		        {if $id != '0'}<li class='facetarrow'><a href="?{$url_wo_rows}&search_keys[{$sek_id}]={$id}">{$valueData.value}</a> ({$valueData.num})</li>{/if}
