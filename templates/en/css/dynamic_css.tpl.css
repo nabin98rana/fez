@@ -2176,6 +2176,10 @@ a.author_id_link:hover {
     margin: -5px 0px 10px 0px;
 }
 
+#research-refine-filter {
+    padding: 5px 5px 5px 5px;
+}
+
 .claimed-not-my-pub { background: #ffe2e2; }
 .claimed-correction-required { background: #fffeeb; }
 .possible-my-pub { background: #d6ffe0; }

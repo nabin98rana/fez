@@ -35,7 +35,7 @@ function hideBulk()
 	
 	if (confirm('You are about to hide the ticked records. Proceed?')) {
 		document.getElementById('bulk-hide-pids').value = pids;
-		document.forms['possibleForm'].submit();
+		document.forms['bulkHide'].submit();
 	}
 	
 	return;
@@ -52,7 +52,7 @@ function hideBulk()
 {/if}
 
 {if $terms}
-<div id="research-acting-as">Refine Filter: {$terms}</div>
+	<div id="research-refine-filter"><b>Refine Filter:</b> {$terms}</div>
 {/if}
 
 <form action="{$rel_url}my_research_possible.php" method="post" id="possibleForm">
@@ -155,8 +155,8 @@ function hideBulk()
 			</div>
 
 			<div>
-				<input type="hidden" id="bulk-hide-pids" name="bulk-hide-pids" value="" />
-				<input type="hidden" name="action" value="hide-bulk" />
+				<input type="hidden" id="pid" name="pid" value="" />
+				<input type="hidden" name="action" value="claim-add" />
 			</div>
 		{/if}
 	
@@ -172,5 +172,12 @@ function hideBulk()
 	<div>
 		<input type="hidden" id="hide-pid" name="pid" value="" />
 		<input type="hidden" name="action" value="hide" />
+	</div>
+</form>
+
+<form action="{$rel_url}my_research_possible.php" method="post" id="bulkHide">	
+	<div>
+		<input type="hidden" id="bulk-hide-pids" name="bulk-hide-pids" value="" />
+		<input type="hidden" name="action" value="hide-bulk" />
 	</div>
 </form>
