@@ -53,6 +53,7 @@ include_once(APP_INC_PATH . "class.news.php");
 include_once(APP_INC_PATH . "class.lister.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.validation.php");
+include_once(APP_INC_PATH . "class.my_research.php");
 include_once(APP_INC_PATH . "class.pager.php");
 include_once(APP_INC_PATH . "najax/najax.php");
 include_once(APP_INC_PATH . "najax_objects/class.suggestor.php");
@@ -104,12 +105,12 @@ if (@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "" || @$_SERVE
         Auth::redirect(APP_RELATIVE_URL . "login.php?err={$loginres}&username=" . $_POST["username"]);	
     }
 	Zend_Session::writeClose(); // write the session data out before doing a redirect
-	if (!empty($_POST["url"])) {
+	$realUrl = urldecode($_POST["url"]);
+	if (!empty($_POST["url"]) && $realUrl != APP_RELATIVE_URL && $realUrl != "/index.php?err=6") {
 		Auth::redirect(urldecode($_POST["url"])); 
 	} else {
-//		Auth::redirect(APP_RELATIVE_URL); // even though its the same page redirect so if they refresh it doesnt have the post vars
-		Auth::redirect(APP_BASE_URL); // even though its the same page redirect so if they refresh it doesnt have the post vars
-		$extra = '';
+			Auth::redirect(APP_BASE_URL); // even though its the same page redirect so if they refresh it doesnt have the post vars
+			$extra = '';
 	}
 }
 
@@ -119,6 +120,12 @@ $tpl = new Template_API();
 //$tpl->setTemplate("maintenance.tpl.html");
 $front_page = "";
 $username = Auth::getUsername();
+
+if (APP_MY_RESEARCH_MODULE && MyResearch::getHRorgUnit($username) != "") {
+	Auth::redirect(APP_BASE_URL."/my_fez.php"); // even though its the same page redirect so if they refresh it doesnt have the post vars
+	$extra = '';
+}
+
 if (Auth::userExists($username)) { // if the user is registered as a Fez user
     $prefs = Prefs::get(Auth::getUserID());  	
 	$front_page = $prefs['front_page'];
