@@ -172,10 +172,14 @@ class MyResearch
 			$filter["searchKey".Search_key::getID("Object Type")] = 3; 
 			$filter["searchKey".Search_Key::getID("Author")] = $lastname;
 			$filter["manualFilter"] = " !author_id_mi:".$author_id;
-			if ($options['hide_closed'] == 1) {
-				//TODO: get the list of pids to filter out and add these to the manual filter
+			if ($options['hide_closed'] == 0) {
+				$hidePids = MyResearch::getHiddenPidsByUsername($actingUser);
+				if (count($hidePids) > 0) {
+						$filter["manualFilter"] .= " AND !pid_t:('".str_replace(':', '\:', implode("' OR '", $hidePids))."')";
+				}
 			}
 		}
+
 		$return = Record::getListing($options, array(9,10), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter, "AND", true, false, false, 10, 1);
 
 
@@ -253,6 +257,7 @@ class MyResearch
    	$tpl->assign("list_heading", "My $type Research");        	 
 		$sort_by = $options["sort_by"];
     $tpl->assign('rows', $rows);
+    $tpl->assign('sort_order', $options["sort_order"]);
     $tpl->assign('sort_by_default', $sort_by);
 		$tpl->displayTemplate();
 		
@@ -324,13 +329,7 @@ class MyResearch
 			$log->err($ex);
 			return -1;
 		}
-		
-		if ( APP_SOLR_INDEXER == "ON") {
-			FulltextQueue::singleton()->remove($pid);
-			FulltextQueue::singleton()->commit();
-			FulltextQueue::singleton()->triggerUpdate();
-		}
-		
+				
 		return 1;
 	}
 	
@@ -372,13 +371,7 @@ class MyResearch
 			$log->err($ex);
 			return -1;
 		}
-		
-		if ( APP_SOLR_INDEXER == "ON") {
-			FulltextQueue::singleton()->remove($pid);
-			FulltextQueue::singleton()->commit();
-			FulltextQueue::singleton()->triggerUpdate();
-		}
-		
+			
 		return 1;
 	}
 	
@@ -398,6 +391,25 @@ class MyResearch
 		return;
 	}
 	
+
+	public static function getHiddenPidsByUsername($username)
+	{
+		$log = FezLog::get();
+
+		$res = array();
+		$db = DB_API::get();
+		
+		$stmt = "SELECT mrp_pid FROM " . APP_TABLE_PREFIX . "my_research_possible_flagged
+							WHERE mrp_type = 'H' and mrp_author_username = " . $db->quote($username) . "";
+
+		try {
+			$res = $db->fetchCol($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);	
+		}
+		return $res;
+	}
 	
 	
 	/**
@@ -581,12 +593,6 @@ class MyResearch
 			return -1;
 		}
 
-		if ( APP_SOLR_INDEXER == "ON") {
-			FulltextQueue::singleton()->remove($pid);
-			FulltextQueue::singleton()->commit();
-			FulltextQueue::singleton()->triggerUpdate();
-		}
-
 		
 		return 1;
 	}
@@ -624,12 +630,6 @@ class MyResearch
 		catch(Exception $ex) {
 			$log->err($ex);
 			return -1;
-		}
-
-		if ( APP_SOLR_INDEXER == "ON") {
-			FulltextQueue::singleton()->remove($pid);
-			FulltextQueue::singleton()->commit();
-			FulltextQueue::singleton()->triggerUpdate();
 		}
 
 		
