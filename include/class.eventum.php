@@ -33,6 +33,8 @@
 
 include_once(APP_INC_PATH . "class.mail.php");
 
+define('STATUS_CLOSED_AND_SYNCHED', 21);
+
 class Eventum
 {
 	/** 
@@ -72,13 +74,14 @@ class Eventum
 		
 		$query = "
 					SELECT
+						iss_id AS ticket_id,
 						iss_summary AS ticket_subject
 					FROM
 						eventum_issue,
 						eventum_status
 					WHERE
 						eventum_issue.iss_sta_id = eventum_status.sta_id
-						AND sta_is_closed = 1
+						AND sta_title = 'Closed'
 						AND iss_summary LIKE 'My Research :: %'
 					ORDER BY
 						iss_id DESC;
@@ -88,7 +91,7 @@ class Eventum
 
 		$return = array();		
 		while ($row = mysql_fetch_assoc($result)) {
-			$return[] = $row['ticket_subject'];
+			$return[] = array('ticket_id' => $row['ticket_id'], 'ticket_subject' => $row['ticket_subject']);
 		}
 		
 		return $return;
@@ -116,6 +119,28 @@ class Eventum
 		
 		echo "done.\n";
 		$db = $conn;
+		
+		return;
+	}
+	
+	
+	/**
+	 * Mark a given Eventum job 'Closed and Synched'.
+	 */
+	function closeAndSynchJob($eventumID)
+	{
+		global $db;
+		
+		$query = "
+					UPDATE eventum_issue
+					SET iss_sta_id = " . STATUS_CLOSED_AND_SYNCHED . "
+					WHERE iss_id = '" . mysql_real_escape_string($eventumID) . "';
+				";
+		
+		$result = mysql_query($query, $db);
+		if (!$result) {
+			echo "There was a problem re,oving Eventum Job " . $eventumID . " : " . mysql_error() . "\n";
+		}
 		
 		return;
 	}

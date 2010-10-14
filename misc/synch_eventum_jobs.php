@@ -33,11 +33,8 @@
 
 include_once('../config.inc.php');
 include_once(APP_INC_PATH . 'class.eventum.php');
+include_once(APP_INC_PATH . 'class.my_research.php');
 
-/*ini_set("display_errors", 1);
-error_reporting(1);
-error_reporting(E_ALL ^ E_NOTICE);
-*/
 set_time_limit(0);
 
 main();
@@ -48,56 +45,18 @@ function main()
 	
 	$jobs = Eventum::getAllClosedMyResearchJobs();
 	
+	// Step through each of the Closed (but non-synched) Eventum jobs
 	foreach ($jobs as $job) {
-		$parts = explode(" :: ", $job); // Extract the information from the subject line
+		
+		$parts = explode(" :: ", $job['ticket_subject']); // Extract the information from the subject line
 		$type = $parts[1];
 		$jobID = $parts[2];
 		
-		closeJob($type, $jobID);
+		MyResearch::closeJob($type, $jobID); // Kill the job in Fez
+		Eventum::closeAndSynchJob($job['ticket_id']); // Mark the job 'Closed and Synched' in Eventum
 	}
 	
 	echo "Synch complete.";
 	
 	exit;
-}
-
-
-
-
-function closeJob($type, $jobID)
-{
-	$log = FezLog::get();
-	$db = DB_API::get();
-	
-	if ($type == 'Claimed Publication') {
-		$query = "
-				DELETE
-				FROM
-					fez_my_research_possible_flagged
-				WHERE
-					mrp_id = " . $db->quote($jobID) . ";
-				";
-	} else {
-		$query = "
-				DELETE
-				FROM
-					fez_my_research_claimed_flagged
-				WHERE
-					mrc_id = " . $db->quote($jobID) . ";
-				";
-	}
-	
-	// Perform the deletion
-	try {
-		$db->query($query);
-	}
-	catch(Exception $ex) {
-		$log->err($ex);
-		return false;
-	}
-	
-	// TODO: Check to see if something was actually removed. If not, don't display this next line.
-	echo "* Deleting job type '" . $type . "', ID: " . $jobID . "\n";
-		
-	return true;
 }

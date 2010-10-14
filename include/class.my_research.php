@@ -678,15 +678,15 @@ class MyResearch
 	 * UPO FUNCTIONS *
 	 *****************/
 	 
-	 /**
+	/**
 	 * Shows a list of all authors within a given AOU.
 	 */	
-	 function listAuthorsByAOU($orgID)
-	 {
-	 	$log = FezLog::get();
+	function listAuthorsByAOU($orgID)
+	{
+		$log = FezLog::get();
 		$db = DB_API::get();
 		
-	 	$stmt = "
+		$stmt = "
 				SELECT
 					DISTINCT(aut_org_username) AS username,
 					aut_fname AS first_name,
@@ -702,9 +702,9 @@ class MyResearch
 				ORDER BY
 					aut_lname ASC,
 					aut_fname ASC;
-	 	";
-	 	
-	 	try {
+		";
+		
+		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
@@ -713,16 +713,16 @@ class MyResearch
 		}
 
 		return $res;
-	 }
-	 
-	 
-	 
-	 /**
+	}
+	
+	
+	
+	/**
 	 * Gets the default Org Unit for a particular user.
 	 */	
-	 function getDefaultAOU($username)
-	 {
-	 	$log = FezLog::get();
+	function getDefaultAOU($username)
+	{
+		$log = FezLog::get();
 		$db = DB_API::get();
 		
 		$stmt = "
@@ -744,16 +744,16 @@ class MyResearch
 		}
 		
 		return $res['aou'];
-	 }
-	 
-	 
-	 
-	 /**
+	}
+	
+	
+	
+	/**
 	 * Gets the org unit description for a given username.
 	 */	
-	 function getHRorgUnit($username)
-	 {
-	 	$log = FezLog::get();
+	function getHRorgUnit($username)
+	{
+		$log = FezLog::get();
 		$db = DB_API::get();
 		
 		$stmt = "
@@ -778,6 +778,54 @@ class MyResearch
 		}
 		
 		return $res['org_description'];
-	 }
+	}
+	 
+	 
+	 
+	/******************
+	 * MISC FUNCTIONS *
+	 ******************/
+
+	/**
+	 * Closes a My Research job. This function is invoked from a shell script after scanning for
+	 * recently closed jobs in Eventum.
+	 */
+	function closeJob($type, $jobID)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		// This is slightly counter-intuitive. Jobs for 'Claimed Publications' are actually sitting in the
+		// 'Possible' flagged table, as they were lodged against possible publications. And vice-versa.
+		if ($type == 'Claimed Publication') {
+			$query = "
+					DELETE
+					FROM
+						fez_my_research_possible_flagged
+					WHERE
+						mrp_id = " . $db->quote($jobID) . ";
+					";
+		} else {
+			$query = "
+					DELETE
+					FROM
+						fez_my_research_claimed_flagged
+					WHERE
+						mrc_id = " . $db->quote($jobID) . ";
+					";
+		}
+		
+		try {
+			$db->query($query);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return false;
+		}
+		
+		echo "* Deleting job type '" . $type . "', ID: " . $jobID . "\n";
+			
+		return true;
+	}
 
 }
