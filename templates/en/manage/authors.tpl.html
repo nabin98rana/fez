@@ -313,6 +313,7 @@
 	                  		Profile is under Registration Process in Researcher ID.
 	                  	{/if}
 	                {else}
+	                  <input type="text" name="researcher_id" size="40" class="default" value="{$info.aut_researcher_id}" />
 	                	{$info.aut_researcher_id} &nbsp;
 	                	<a href="javascript:void(null)" id="download_from_researcherid">Download</a>
 	                	{if $info.aut_rid_password}&nbsp;(Temp pass: {$info.aut_rid_password}){/if}

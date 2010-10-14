@@ -356,10 +356,17 @@ class Author
 		if (Validation::isWhitespace($_POST["lname"])) {
 			return -2;
 		}
+		$rid = "";
+		// RIDs are always 11 chars
+		if (strlen($_POST["researcher_id"]) == 11 || strlen($_POST["researcher_id"]) == 0) {
+			$rid = " aut_researcher_id=  ". $db->quote($_POST["researcher_id"]) . ",";
+		}
+		
+		
 		$stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "author
                  SET
-                    aut_title=" . $db->quote($_POST["title"]) . ",
+                    aut_title=" . $db->quote($_POST["title"]) . ", ".$rid."
                     aut_fname=" . $db->quote($_POST["fname"]) . ",
                     aut_mname=" . $db->quote($_POST["mname"]) . ",
                     aut_lname=" . $db->quote($_POST["lname"]) . ",
@@ -370,7 +377,7 @@ class Author
                     aut_homepage_link=" . $db->quote($_POST["homepage_link"]) . ",
                     aut_ref_num=" . $db->quote($_POST["aut_ref_num"]) . ",
                     aut_scopus_id=" . $db->quote($_POST["scopus_id"]).",
-					aut_mypub_url=" . $db->quote($_POST["mypub_url"]).",
+										aut_mypub_url=" . $db->quote($_POST["mypub_url"]).",
                     aut_update_date=" . $db->quote(Date_API::getCurrentDateGMT());
 		if ($_POST["org_staff_id"] !== "") {
 			$stmt .= ",aut_org_staff_id=" . $db->quote($_POST["org_staff_id"]) . " ";
