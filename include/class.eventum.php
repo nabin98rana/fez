@@ -139,7 +139,7 @@ class Eventum
 		
 		$result = mysql_query($query, $db);
 		if (!$result) {
-			echo "There was a problem re,oving Eventum Job " . $eventumID . " : " . mysql_error() . "\n";
+			echo "There was a problem removing Eventum Job " . $eventumID . " : " . mysql_error() . "\n";
 		}
 		
 		return;
