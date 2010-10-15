@@ -121,10 +121,10 @@ $tpl = new Template_API();
 $front_page = "";
 $username = Auth::getUsername();
 
-if (APP_MY_RESEARCH_MODULE && MyResearch::getHRorgUnit($username) != "") {
+/*if (APP_MY_RESEARCH_MODULE && MyResearch::getHRorgUnit($username) != "") {
 	Auth::redirect(APP_BASE_URL."/my_fez.php"); // even though its the same page redirect so if they refresh it doesnt have the post vars
 	$extra = '';
-}
+}*/ // <LK> I'm disabling this until it can be fixed.
 
 if (Auth::userExists($username)) { // if the user is registered as a Fez user
     $prefs = Prefs::get(Auth::getUserID());  	
