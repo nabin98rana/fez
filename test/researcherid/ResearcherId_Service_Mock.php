@@ -27,80 +27,91 @@
 // | 59 Temple Place - Suite 330                                          |
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
-// | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
-// |          Matthew Smith <m.smith@library.uq.edu.au>                   |
+// | Authors: Andrew Martlew <a.martlew@library.uq.edu.au>                |
 // +----------------------------------------------------------------------+
 //
 //
 
 
 /**
- * Class to manage all tasks related to error conditions of the site, such as
- * logging facilities or alert notifications to the site administrators.
+ * Mock ResearcherID service class used when testing against the 
+ * Thomson Reuters batch upload/download service.
  *
  * @version 1.0
- * @author Jo Prado Maia <jpm@mysql.com>
+ * @author Andrew Martlew <a.martlew@library.uq.edu.au>
+ *
  */
+require_once '../../config.inc.php';
 
-//include_once(APP_INC_PATH . "class.misc.php");
-include_once(APP_INC_PATH . "class.setup.php");
-
-
-class Error_Handler
+class ResearcherId_Service_Mock
 {
-
-  static $app_errors = array();
-  static $debug_on = false;
-
   /**
-   * Logs the specified error
+   * Handles service download requests 
    *
-   * @access public
-   * @param  string $error_code The error code
-   * @param  string $error_msg The error message
-   * @param  string $script The script name where the error happened
-   * @param  int $line The line number where the error happened
+   * @return string
    */
-  function logError($error_msg = "", $script = "", $line = "")
-  {
-    $log = FezLog::get();
-    $log->err(
-        array('Message' => $error_msg, 'File' => $script, 'Line' => $line)
-    );
+  public function download() {
+    $responseXml = '';
+    
+    $requestXml = file_get_contents('php://input');  
+    $functions  = self::getRequestedFunction($requestXml);
+    
+    foreach ($functions as $function) {
+      switch ($function) {
+        case 'AuthorResearch.downloadRIDData':
+          $responseXml = file_get_contents('download-rid-data-output.xml');
+          $responseXml = new SimpleXMLElement($responseXml);  
+          break;
+        case 'AuthorResearch.getDownloadStatus':
+          $responseXml = file_get_contents('get-download-status-output.xml');
+          $responseXml = new SimpleXMLElement($responseXml);  
+          break;
+      }
+    }    
+    return $responseXml;
   }
-
-
-  function simpleBacktrace($backtrace = array())
-  {
-    $sbt = "";
-    $errorCounter = 0;
-    foreach ($backtrace as $bt) {
-      $errorCounter++;
-      $sbt .= "\n<br/> #".$errorCounter." ".$bt['function'].
-        " called at [".$bt['file'].":".$bt['line']."]";
-    }
-    return $sbt."\n";
-  }
-
+  
   /**
-   * @param string $initials - Your initials.  
-   *                           e.g. MSS =>  /tmp/fez_debug_mss.txt
-   * @param array $var - the variable to be debugged - use compact 
-   *                     to create it, e.g. compact('thing');
+   * Handles service upload requests 
+   *
+   * @return string
    */
-  function debug($initials, $vars)
-  {
-    $log = FezLog::get();
-    $log->debug(array('Message' => $vars, 'Initials' => $initials));
+  public function upload() {
+    $responseXml = '';
+    
+    $requestXml = file_get_contents('php://input');  
+    $functions  = self::getRequestedFunction($requestXml);
+    
+    foreach ($functions as $function) {
+      switch ($function) {
+        case 'AuthorResearch.uploadRIDData':
+          $responseXml = file_get_contents('upload-rid-data-output.xml');
+          $responseXml = new SimpleXMLElement($responseXml);  
+          break;
+      }
+    }    
+    return $responseXml;
   }
-
-  function debugStart()
-  {
-    self::$debug_on = true;
-  }
-
-  function debugStop()
-  {
-    self::$debug_on = false;
+  
+  /**
+   * Retrieves the requested functions from the service request
+   *  
+   * @param $xml The XML request
+   * 
+   * @return array
+   */  
+  private static function getRequestedFunction($xml) {
+    $functions = array();
+    
+    $reqXmlObj = new SimpleXMLElement($xml);    
+    foreach ($reqXmlObj->fn as $function) {
+      $attributes = $function->attributes();
+      $functions[] = (string)$attributes['name'];
+    }
+    return $functions;
   }
 }
+
+$service = new Zend_Rest_Server();
+$service->setClass('ResearcherId_Service_Mock');
+$service->handle();

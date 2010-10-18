@@ -1,4 +1,4 @@
-<?php
+<?php 
 /* vim: set expandtab tabstop=4 shiftwidth=4: */
 // +----------------------------------------------------------------------+
 // | Fez - Digital Repository System                                      |
@@ -55,45 +55,48 @@ $tpl->assign("isAdministrator", $isAdministrator);
 $tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 
 if (!$isSuperAdministrator) {
-    $tpl->assign("show_not_allowed_msg", true);
+  $tpl->assign("show_not_allowed_msg", true);
 }
 
 $step = Misc::GETorPOST('step');
 if (empty($step)) {
-   $step = 1;
+  $step = 1;
 }
 
 switch ($step) {
-    case 1:
-      // just show the form
+  case 1:
+    // just show the form
       break;
-    case 2:
-      if ($_POST['cat'] == 'go') { 
-        extract($_FILES['import_xml']);
-        if ($type != 'text/xml') {
-            Error_Handler::logError("Can't import files of type $type", __FILE__,__LINE__);
-            exit;
-        }
-        $filename = APP_TEMP_DIR.'fezxsd'.basename($tmp_name);
-        copy($tmp_name, $filename);
+  case 2:
+    if ($_POST['cat'] == 'go') {
+      extract($_FILES['import_xml']);
+      if ($type != 'text/xml') {
+        Error_Handler::logError(
+            "Can't import files of type $type", __FILE__, __LINE__
+        );
+        exit;
       }
-      $list = Doc_Type_XSD::listImportFile($filename);
-      $tpl->assign('list', $list);
-      $tpl->assign('filename', $filename);
-    break;
-    case 3:
-      if ($_POST['cat'] == 'go') {  
-        $filename = $_POST['filename'];
-        $xdis_ids = $_POST['xdis_ids'];
-        $bgp = new BackgroundProcess_Import_XDSs;
-        $bgp->register(serialize(compact('filename','xdis_ids')), Auth::getUserID());
-        $feedback[] = "The XSDs are being imported as a background process, see My_Fez for progress.";
-        $tpl->assign('feedback',$feedback);
-      }
-    break;
+      $filename = APP_TEMP_DIR.'fezxsd'.basename($tmpName);
+      copy($tmpName, $filename);
+    }
+    $list = Doc_Type_XSD::listImportFile($filename);
+    $tpl->assign('list', $list);
+    $tpl->assign('filename', $filename);
+      break;
+  case 3:
+    if ($_POST['cat'] == 'go') {
+      $filename = $_POST['filename'];
+      $xdisIds = $_POST['xdis_ids'];
+      $bgp = new BackgroundProcess_Import_XDSs;
+      $bgp->register(
+          serialize(compact('filename', 'xdisIds')), Auth::getUserID()
+      );
+      $feedback[] = "The XSDs are being imported as a background process, ".
+        "see My_Fez for progress.";
+      $tpl->assign('feedback', $feedback);
+    }
+      break;
 }
 
-$tpl->assign('step',$step);
+$tpl->assign('step', $step);
 $tpl->displayTemplate();
-
-?>
