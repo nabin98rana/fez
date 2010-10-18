@@ -39,6 +39,7 @@ include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
 
 include_once(APP_INC_PATH . "class.misc.php");
+include_once(APP_INC_PATH . "class.my_research.php");
 include_once(APP_INC_PATH . "class.workflow_trigger.php");
 include_once(APP_INC_PATH . "class.status.php");
 include_once(APP_INC_PATH . "class.collection.php");
@@ -143,6 +144,13 @@ if ($options["searchKey0"] != "" && ($_REQUEST["sort_by"] == "" || $options["sor
 $assigned_items = Record::getListing($options, array("Editor", "Approver"), $pager_row, $rows, $sort_by);
 
 Record::getParentsByPids($assigned_items['list']);
+$username = Auth::getUsername();
+if (APP_MY_RESEARCH_MODULE == "ON" && MyResearch::getHRorgUnit($username) != "") {
+	$show_my_pubs = "1";
+} else {
+	$show_my_pubs = "0";
+}
+$tpl->assign("show_my_pubs", 	       	  $show_my_pubs);
 
 $tpl->assign("bulk_workflows",          $bulk_workflows);
 $tpl->assign("bulk_search_workflows",   $bulk_search_workflows);
