@@ -32,7 +32,7 @@ if (!isElementVisible(basic_element)) {
     <ul class="my_views_tab">
         <li><a {if $smarty.server.PHP_SELF|replace:$rel_url:'' == 'my_collections.php'}class="my_views_tab_here" {/if}href="{$rel_url}my_collections.php" title="See the complete list of collections you have access to.">My Collections</a></li>
         <li><a {if $smarty.server.PHP_SELF|replace:$rel_url:'' == 'my_created_items.php'}class="my_views_tab_here" {/if}href="{$rel_url}my_created_items.php" title="See the list of items you have created.">My Created Items</a></li>
-        <li><a {if $smarty.server.PHP_SELF|replace:$rel_url:'' == 'my_fez.php'}class="my_views_tab_here" {/if}href="{$rel_url}my_fez.php" title="See which of your items are not yet published.">Unpublished Items</a></li>
+        <li><a {if $smarty.server.PHP_SELF|replace:$rel_url:'' == 'my_fez_traditional.php'}class="my_views_tab_here" {/if}href="{$rel_url}my_fez_traditional.php" title="See which of your items are not yet published.">Unpublished Items</a></li>
         <li><a {if $smarty.server.PHP_SELF|replace:$rel_url:'' == 'my_work_in_progress.php'}class="my_views_tab_here" {/if}href="{$rel_url}my_work_in_progress.php" title="See the list of items you have created.">My Work In Progress</a></li>
         {if $isApprover}<li><a {if $smarty.server.PHP_SELF|replace:$rel_url:'' == 'submitted_for_approval.php'}class="my_views_tab_here" {/if}href="{$rel_url}submitted_for_approval.php" title="See the list of items you can approve.">Submitted for Approval</a></li>{/if}
         {if $isApprover}<li><a {if $smarty.server.PHP_SELF|replace:$rel_url:'' == 'in_review.php'}class="my_views_tab_here" {/if}href="{$rel_url}in_review.php" title="See the list of items you are reviewing.">In Review</a></li>{/if}

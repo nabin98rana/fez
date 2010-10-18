@@ -1,6 +1,6 @@
 {include file="js/my_fez.tpl.js"}
 <br />
-<form name="custom_filter_form" action="my_fez.php" method="get" onsubmit="javascript:return validateSearchForm();">
+<form name="custom_filter_form" action="{$smarty.server.PHP_SELF}" method="get" onsubmit="javascript:return validateSearchForm();">
 {include file="quick_filter_form.tpl.html"}         
 <br />
 
@@ -79,7 +79,7 @@ No items found
      </tr>
 
 
-<input type="hidden" name="href" value="/my_fez.php" />
+<input type="hidden" name="href" value="/my_fez_traditional.php" />
 {assign var="list" value=$my_assigned_items_list}
      {section name="i" loop=$list}
 		{if $list[i].thumbnail.0 != ""}
