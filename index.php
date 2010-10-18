@@ -83,9 +83,20 @@ if (@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "" || @$_SERVE
 	}
 	if (!empty($_SESSION["url"])) { 
 		$url = $_SESSION["url"];
+		$realUrl = urldecode($url);
 		$_SESSION["url"] = "";
+		$username = Auth::getUsername();
 		Zend_Session::writeClose(); // write the session data out before doing a redirect
-		Auth::redirect($url);
+		if (!empty($url) && $realUrl != APP_RELATIVE_URL && $realUrl != "/index.php?err=6") {		
+			Auth::redirect($url);
+		} else {
+			if (APP_MY_RESEARCH_MODULE && MyResearch::getHRorgUnit($username) != "") {
+				Auth::redirect(APP_BASE_URL."/my_fez.php"); // even though its the same page redirect so if they refresh it doesnt have the post vars
+			} else {
+				Auth::redirect(APP_BASE_URL); // even though its the same page redirect so if they refresh it doesnt have the post vars
+				$extra = '';
+			}
+		}
 		exit;
 	}
 } elseif (count($_POST) > 0) {
@@ -104,13 +115,18 @@ if (@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "" || @$_SERVE
     if ($loginres > 0) {
         Auth::redirect(APP_RELATIVE_URL . "login.php?err={$loginres}&username=" . $_POST["username"]);	
     }
+	$username = Auth::getUsername();
 	Zend_Session::writeClose(); // write the session data out before doing a redirect
 	$realUrl = urldecode($_POST["url"]);
 	if (!empty($_POST["url"]) && $realUrl != APP_RELATIVE_URL && $realUrl != "/index.php?err=6") {
 		Auth::redirect(urldecode($_POST["url"])); 
 	} else {
+		if (APP_MY_RESEARCH_MODULE && MyResearch::getHRorgUnit($username) != "") {
+			Auth::redirect(APP_BASE_URL."/my_fez.php"); // even though its the same page redirect so if they refresh it doesnt have the post vars
+		} else {
 			Auth::redirect(APP_BASE_URL); // even though its the same page redirect so if they refresh it doesnt have the post vars
 			$extra = '';
+		}
 	}
 }
 
@@ -120,11 +136,6 @@ $tpl = new Template_API();
 //$tpl->setTemplate("maintenance.tpl.html");
 $front_page = "";
 $username = Auth::getUsername();
-
-/*if (APP_MY_RESEARCH_MODULE && MyResearch::getHRorgUnit($username) != "") {
-	Auth::redirect(APP_BASE_URL."/my_fez.php"); // even though its the same page redirect so if they refresh it doesnt have the post vars
-	$extra = '';
-}*/ // <LK> I'm disabling this until it can be fixed.
 
 if (Auth::userExists($username)) { // if the user is registered as a Fez user
     $prefs = Prefs::get(Auth::getUserID());  	
