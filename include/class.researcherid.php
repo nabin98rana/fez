@@ -157,16 +157,23 @@ class ResearcherID
     $ticket_number = null;
 
     // Validate params
-    if(! is_array($ids)) {
-      $log->err(array('First parameter for downloadRequest() requires an array containing researcher ids or employee ids', __FILE__, __LINE__));
+    if (! is_array($ids)) {
+      $log->err(
+          array('First parameter for downloadRequest() requires an array containing researcher ids or '.
+          'employee ids', __FILE__, __LINE__)
+      );
       return false;
-    }
-    else if(! ($researchers_id_type == 'researcherIDs' || $researchers_id_type == 'employeeIDs')) {
-      $log->err(array('Second parameter for downloadRequest() requires either "researcherIDs" or "employeeIDs", given "'.$researchers_type.'"', __FILE__, __LINE__));
+    } else if (! ($researchers_id_type == 'researcherIDs' || $researchers_id_type == 'employeeIDs')) {
+      $log->err(
+          array('Second parameter for downloadRequest() requires either "researcherIDs" or "employeeIDs"'.
+          ', given "'.$researchers_type.'"', __FILE__, __LINE__)
+      );
       return false;
-    }
-    else if(! ($researcher_id_type == 'researcherID' || $researcher_id_type == 'employeeID')) {
-      $log->err(array('Third parameter for downloadRequest() requires either "researcherID" or "employeeID", given "'.$researchers_type.'"', __FILE__, __LINE__));
+    } else if (! ($researcher_id_type == 'researcherID' || $researcher_id_type == 'employeeID')) {
+      $log->err(
+          array('Third parameter for downloadRequest() requires either "researcherID" or "employeeID"'.
+          ', given "'.$researchers_type.'"', __FILE__, __LINE__)
+      );
       return false;
     }
 
@@ -187,8 +194,7 @@ class ResearcherID
       // Not valid
       $log->err(array('XML request data does not validate against schema.', __FILE__, __LINE__));
       return false;
-    }
-    else {
+    } else {
       $tpl = new Template_API();
       $tpl_file = "researcher_download_request.tpl.html";
       $tpl->setTemplate($tpl_file);
@@ -207,10 +213,7 @@ class ResearcherID
       $response_document = new DOMDocument();
       $response_document = ResearcherID::doServiceRequest($xml_api_data_request->saveXML());
 
-      //header('content-type: application/xml; charset=utf-8');
-      //echo $response_document->saveXML();
-
-      if($response_document) {
+      if ($response_document) {
         // Get job ticket number from response
         $xpath = new DOMXPath($response_document);
         $xpath->registerNamespace('rid', 'http://www.isinet.com/xrpc41');
@@ -224,18 +227,16 @@ class ResearcherID
             }
           }
         }
-      }
-      else {
+      } else {
         // Service request failed
         return false;
       }
     }
 
-    if(is_null($ticket_number) || empty($ticket_number)) {
+    if (is_null($ticket_number) || empty($ticket_number)) {
       $log->err(array('Failed to get a ticket number.', __FILE__, __LINE__));
       return false;
-    }
-    else {
+    } else {
       return ResearcherID::addJob($ticket_number, $xml_api_data_request->saveXML(), $response_document->saveXML());
     }
   }
@@ -256,12 +257,13 @@ class ResearcherID
     $ticket_number = null;
 
     // Validate params
-    if(! is_array($ids)) {
-      $log->err('First parameter for profileUpload() requires an array containing researcher ids or employee ids', __FILE__, __LINE__);
+    if (! is_array($ids)) {
+      $log->err(
+          'First parameter for profileUpload() requires an array containing researcher ids or employee ids',
+          __FILE__, __LINE__
+      );
       return false;
     }
-
-    header('content-type: application/xml; charset=utf-8');
 
     $list = Author::getListByAutIDList(0, 200, 'aut_lname', $ids);
 
@@ -277,15 +279,12 @@ class ResearcherID
     $xml_request_data = new DOMDocument();
     $xml_request_data->loadXML($request_data);
 
-    //echo $xml_request_data->saveXML(); return; // DEBUG
-
     // Validate against schema
     if (! @$xml_request_data->schemaValidate(RID_UL_SERVICE_PROFILES_XSD)) {
       // Not valid
       $log->err(array('XML request data does not validate against schema.', __FILE__, __LINE__, $request_data));
       return false;
-    }
-    else {
+    } else {
       $tpl = new Template_API();
       $tpl_file = "researcher_upload_request.tpl.html";
       $tpl->setTemplate($tpl_file);
@@ -302,17 +301,14 @@ class ResearcherID
       $response_document = new DOMDocument();
       $response_document = ResearcherID::doServiceRequest($xml_api_data_request->saveXML());
 
-      //echo $response_document->saveXML();
-
-      if(! $response_document) {
+      if (! $response_document) {
         return false;
-      }
-      else {
+      } else {
         return true;
       }
     }
      
-    if(is_null($ticket_number) || empty($ticket_number)) {
+    if (is_null($ticket_number) || empty($ticket_number)) {
       $log->err('Failed to get a ticket number.', __FILE__, __LINE__);
       return false;
     }
@@ -331,19 +327,15 @@ class ResearcherID
     $db = DB_API::get();
 
     // Validate params
-    if(! is_array($ids)) {
+    if (! is_array($ids)) {
       $log->err('First parameter for publicationsUpload() requires an array containing author ids', __FILE__, __LINE__);
       return false;
     }
 
-    header('content-type: application/xml; charset=utf-8');
-
-    foreach($ids as $id) {
+    foreach ($ids as $id) {
       $list = ResearcherID::listAllRecordsByAuthorID($id);
        
-      if(count($list['list']) > 0) {
-
-        //print_r($list); return;
+      if (count($list['list']) > 0) {
         $tpl = new Template_API();
         $tpl_file = "researcher_publications_upload.tpl.html";
         $tpl->setTemplate($tpl_file);
@@ -356,15 +348,12 @@ class ResearcherID
         $xml_request_data = new DOMDocument();
         $xml_request_data->loadXML($request_data);
 
-        //echo $xml_request_data->saveXML(); return; // DEBUG
-
         // Validate against schema
         if (! @$xml_request_data->schemaValidate(RID_UL_SERVICE_PUBLICATIONS_XSD)) {
           // Not valid
           $log->err('XML request data does not validate against schema.', __FILE__, __LINE__);
           return false;
-        }
-        else {
+        } else {
           $tpl = new Template_API();
           $tpl_file = "researcher_upload_request.tpl.html";
           $tpl->setTemplate($tpl_file);
@@ -377,13 +366,9 @@ class ResearcherID
           $xml_api_data_request = new DOMDocument();
           $xml_api_data_request->loadXML($request);
 
-          //echo $xml_api_data_request->saveXML(); return; // DEBUG
-
           // Do the service request
           $response_document = new DOMDocument();
           $response_document = ResearcherID::doServiceRequest($xml_api_data_request->saveXML());
-
-          echo $response_document->saveXML();
         }
       }
     }
@@ -405,15 +390,16 @@ class ResearcherID
     $emails = ResearcherID::getRoutedEmails($dir);
 
     // Create a processed directory if one doesn't already exist
-    if(! is_dir($processed_dir)) {
+    if (! is_dir($processed_dir)) {
       // create it..
-      if(! mkdir($processed_dir, 0770))
-      $log->err(array('Unable to create processed email directory '.$processed_dir, __FILE__, __LINE__));
+      if (! mkdir($processed_dir, 0770)) {
+        $log->err(array('Unable to create processed email directory '.$processed_dir, __FILE__, __LINE__));
+      }
       return false;
     }
      
-    if($emails) {
-      foreach($emails as $email) {
+    if ($emails) {
+      foreach ($emails as $email) {
         $full_message = file_get_contents($dir . '/' . $email);
          
         // join the Content-Type line (for easier parsing?)
@@ -442,52 +428,48 @@ class ResearcherID
         $subject = $structure->headers['subject'];
         $body = $structure->body;
 
-        if($subject == 'ResearcherID Batch Processing Status') {
+        if ($subject == 'ResearcherID Batch Processing Status') {
           // Processing - don't need to do anything with these
-        }
-        else if($subject == 'ResearcherID Batch Processing Status (completed)') {
+        } else if ($subject == 'ResearcherID Batch Processing Status (completed)') {
           // Completed
           $attachments = Mime_Helper::getAttachments($full_message);
-          if(count($attachments) > 0) {
+          if (count($attachments) > 0) {
 
             $attachment_filename = $attachments[0]['filename'];
             $attachment_filetype = $attachments[0]['filetype'];
             $attachment_blob = $attachments[0]['blob'];
 
-            if($attachment_blob) {
+            if ($attachment_blob) {
               $xml_report = new SimpleXMLElement($attachment_blob);
                
               // Process profile list
-              if($xml_report->profileList) {
+              if ($xml_report->profileList) {
 
                 $profiles = $xml_report->profileList->{'successfully-uploaded'}->{'researcher-profile'};
-                foreach($profiles as $profile) {
+                foreach ($profiles as $profile) {
                   Author::setResearcherIdByRidProfile($profile);
                 }
 
                 $profiles = $xml_report->profileList->{'existing-researchers'}->{'researcher-profile'};
-                foreach($profiles as $profile) {
+                foreach ($profiles as $profile) {
                   Author::setResearcherIdByOrgUsername($profile->employeeID, $profile->researcherID);
                 }
 
                 $profiles = $xml_report->profileList->{'failed-to-upload'}->{'researcher-profile'};
-                foreach($profiles as $profile) {
-                  if(! (empty($profile->employeeID) || empty($profile->researcherID)) ) {
+                foreach ($profiles as $profile) {
+                  if (! (empty($profile->employeeID) || empty($profile->researcherID)) ) {
                     Author::setResearcherIdByOrgUsername($profile->employeeID, $profile->researcherID);
-                  }
-                  else {
+                  } else {
                     Author::setResearcherIdByOrgUsername($profile->employeeID, 'ERR: '.$profile->{'error-desc'});
                   }
                 }
-              }
-              // Process publication list
-              else if($xml_report->publicationList) {
+              } else if ($xml_report->publicationList) {
+                // Process publication list
                 $publications = $xml_report->publicationList->{'successfully-uploaded'}->{'researcher-profile'};
               }
             }
           }
-        }
-        else {
+        } else {
           // Unknown email
           $log->err('Received an unknown email '.$email, __FILE__, __LINE__);
         }
@@ -523,7 +505,7 @@ class ResearcherID
       $log->err($ex);
       return false;
     }
-    foreach($res as $r) {
+    foreach ($res as $r) {
       ResearcherID::checkJobStatus($r['rij_ticketno']);
     }
   }
@@ -542,14 +524,12 @@ class ResearcherID
     $emails = array();
      
     if ($handle = opendir($dir)) {
-
       while (false !== ($file = readdir($handle))) {
-        if(! (is_dir($dir.$file) || $file == '.' ||  $file == '..') )
+        if (! (is_dir($dir.$file) || $file == '.' ||  $file == '..') )
         $emails[] = $file;
       }
       closedir($handle);
-    }
-    else {
+    } else {
       $log->err('Unable to open routed emails directory', __FILE__, __LINE__);
       return false;
     }
@@ -587,7 +567,7 @@ class ResearcherID
 
     // Get the download status from the response
     $job_status = null;
-    if($response_document) {
+    if ($response_document) {
       $xpath = new DOMXPath($response_document);
       $xpath->registerNamespace('rid', 'http://www.isinet.com/xrpc41');
       $query = "/rid:response/rid:fn[@name='AuthorResearch.getDownloadStatus']/rid:map/rid:val[@name='Status']";
@@ -600,9 +580,9 @@ class ResearcherID
           }
         }
       }
-      if($job_status) {
-        if($job_status == 'DONE') {
-          if(ResearcherID::processDownloadResponse($response_document)) {
+      if ($job_status) {
+        if ($job_status == 'DONE') {
+          if (ResearcherID::processDownloadResponse($response_document)) {
             return ResearcherID::updateJobStatus($ticket_number, $job_status, $response_document->saveXML());
           } else {            
             return false;
@@ -649,10 +629,10 @@ class ResearcherID
         }
       }
     }
-    if($download_response) {
+    if ($download_response) {
       $xml_dl_response = new SimpleXMLElement($download_response);
        
-      foreach($xml_dl_response->outputfile as $output_file) {
+      foreach ($xml_dl_response->outputfile as $output_file) {
 
         $type = $output_file->attributes()->type;
         $url = $output_file->url;
@@ -660,11 +640,11 @@ class ResearcherID
 
         switch($type) {
           case 'profile':
-        				$result = ResearcherID::processDownloadedProfiles($url);
-        				break;
+            $result = ResearcherID::processDownloadedProfiles($url);
+              break;
           case 'publication':
-        				$result = ResearcherID::processDownloadedPublications($url);
-        				break;
+            $result = ResearcherID::processDownloadedPublications($url);
+              break;
         }
         $return = (! $return) ? false: $result; // ignore result if we have already had a previous fail
         // which will ensure this job is processed again
@@ -703,8 +683,8 @@ class ResearcherID
     $db = DB_API::get();
 
     $publications = @file_get_contents($url);
-    if(! $publications) {
-    		return false;
+    if (! $publications) {
+      return false;
     }
     
     $xml_publications = new SimpleXMLElement($publications);
@@ -712,8 +692,8 @@ class ResearcherID
     $researcherid = $xml_publications->publicationList->{'researcher-publications'}->researcherID;
     $author_id = Author::getIDByResearcherID($researcherid);
 
-    foreach($records as $record) {
-    		ResearcherID::addPublication($record, $author_id);
+    foreach ($records as $record) {
+      ResearcherID::addPublication($record, $author_id);
     }
     return true;
   }
@@ -730,38 +710,40 @@ class ResearcherID
 
     $collection = RID_DL_COLLECTION;
     $processedUT = array();
-    if(Fedora_API::objectExists($collection)) {
-      	
+    if (Fedora_API::objectExists($collection)) {
+        
       $aut = @split(':', $record->{'accession-num'});
-      if(count($aut) > 1) {
+      if (count($aut) > 1) {
         $records = EstiSearchService::retrieve($aut[1], $aut[0]);
 
-        if($records) {
-          foreach($records->REC as $_record) {
-            if(@$_record->item) {
+        if ($records) {
+          foreach ($records->REC as $_record) {
+            if (@$_record->item) {
               $ut = $_record->item->ut;
-              	
+                
               if (!in_array($ut, $processedUT)) {
-                	
+                  
                 $pid = Record::getPIDByIsiLoc($ut);
 
                 // If the publication exists
-                if( $pid ) {
+                if ( $pid ) {
                   ResearcherID::insertAuthorId($pid, $author_id);
                   $times_cited = (string)$record->{'times-cited'};
-                  if(! empty($times_cited)) {
+                  if (! empty($times_cited)) {
                     Record::updateThomsonCitationCount($pid, $times_cited);
                   }
-                  if( APP_SOLR_INDEXER == "ON" ) {
+                  if ( APP_SOLR_INDEXER == "ON" ) {
                     FulltextQueue::singleton()->add($pid);
                   }
-                }
-                else {
+                } else {
                   $mods = Misc::convertEstiRecordToMods($_record, $author_id);
                   $links = Misc::convertEstiRecordToLinks($_record);
-                  if($mods) {
+                  if ($mods) {
                     $times_cited = $_record->attributes()->timescited;
-                    Record::insertFromArray($mods, $collection, 'MODS 1.0', 'Imported from ResearcherID', $times_cited, $links);
+                    Record::insertFromArray(
+                        $mods, $collection, 'MODS 1.0', 'Imported from ResearcherID', 
+                        $times_cited, $links
+                    );
                   }
                 }
                 array_push($processedUT, $ut);
@@ -771,8 +753,7 @@ class ResearcherID
         }
       }
       return true;
-    }
-    else {
+    } else {
       return false;
     }
   }
@@ -844,7 +825,8 @@ class ResearcherID
                     SET 
                      rij_lastcheck = " . $db->quote(Date_API::getCurrentDateGMT()) . ",
                      rij_status = " . $db->quote($job_status) . ",
-                     rij_count = (SELECT rij_count FROM (SELECT * FROM " . APP_TABLE_PREFIX . "rid_jobs) AS x WHERE rij_ticketno = " . $db->quote($ticket_number) . ")+1 ".",
+                     rij_count = (SELECT rij_count FROM (SELECT * FROM " . APP_TABLE_PREFIX . 
+                     "rid_jobs) AS x WHERE rij_ticketno = " . $db->quote($ticket_number) . ")+1 ".",
                      rij_lastresponse =  ". $db->quote($response) . 
     $finished . "
                     WHERE 
@@ -907,7 +889,7 @@ class ResearcherID
     curl_setopt($ch, CURLOPT_NOBODY, 1);
     curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
     curl_setopt($ch, CURLOPT_POST, 1);
-    if (APP_HTTPS_CURL_CHECK_CERT == 'OFF')  {
+    if (APP_HTTPS_CURL_CHECK_CERT == 'OFF') {
       curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
       curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
     }
@@ -953,68 +935,67 @@ class ResearcherID
     $filter["searchKey".Search_Key::getID("Author ID")] = $aut_id;
     $filter["searchKey".Search_Key::getID("Object Type")] = 3; // records only
 
-    $listing = Record::getListing($options, array(9,10), $current_row, $max, $order_by, false, false, $filter);
-    	
+    $listing = Record::getListing($options, array(9, 10), $current_row, $max, $order_by, false, false, $filter);
+      
     if (is_array($listing['list'])) {
-      for($i=0; $i<count($listing['list']); $i++) {
+      for ($i=0; $i<count($listing['list']); $i++) {
         $record = $listing['list'][$i];
-        	
+          
         // Get the ref-type based on this record's display type
-        if( !empty($record['rek_display_type']) ) {
+        if ( !empty($record['rek_display_type']) ) {
           $record['rek_ref_type'] = ResearcherID::getRefTypeByDisplayType($record['rek_display_type']);
         }
-        	
-        if( is_array($record['rek_isi_loc']) ) {
+          
+        if ( is_array($record['rek_isi_loc']) ) {
           $record['rek_isi_loc'] = $record['rek_isi_loc'][0];
         }
 
         // Replace double quotes with double double quotes
-        if( !empty($record['rek_title']) ) {
+        if ( !empty($record['rek_title']) ) {
           $record['rek_title'] = str_replace('"', '""', $record['rek_title']);
         }
-        	
+          
         // Set the secondary title from the book title if one exists
-        if( !empty($record['rek_book_title']) ) {
+        if ( !empty($record['rek_book_title']) ) {
           $record['rek_secondary_title'] = $record['rek_book_title'];
         }
-        	
+          
         // Replace double quotes with double double quotes
-        if( !empty($record['rek_secondary_title']) ) {
+        if ( !empty($record['rek_secondary_title']) ) {
           $record['rek_secondary_title'] = str_replace('"', '""', $record['rek_secondary_title']);
         }
-        	
+          
         // Get the Digital Object Identifier (DOI) for the publication if one exists in rek_link
-        if( is_array($record['rek_link']) ) {
-          for($j=0; $j<count($record['rek_link']); $j++) {
-            	
-            if(preg_match('/^http:\/\/dx\.doi\.org\/(.*)$/i', $record['rek_link'][$j], $matches)) {
+        if ( is_array($record['rek_link']) ) {
+          for ($j=0; $j<count($record['rek_link']); $j++) {              
+            if (preg_match('/^http:\/\/dx\.doi\.org\/(.*)$/i', $record['rek_link'][$j], $matches)) {
               $record['rek_electronic_resource_num'] = $matches[1];
             }
           }
         }
-        	
+          
         // Set end page to be the start page, if only start page exists
-        if((!empty($list['rek_start_page'][0])) && empty($list['rek_end_page'][0])) {
+        if ((!empty($list['rek_start_page'][0])) && empty($list['rek_end_page'][0])) {
           $list['rek_end_page'][0] = $list['rek_start_page'][0];
           unset($list['rek_start_page']);
         }
-        	
+          
         // Get the author details where an rek_author_id array is specified
-        if(is_array($record['rek_author_id'])) {
+        if (is_array($record['rek_author_id'])) {
           $record['rek_author_id_details'] = array();
-          for($j=0; $j<count($record['rek_author_id']); $j++) {
+          for ($j=0; $j<count($record['rek_author_id']); $j++) {
             $record['rek_author_id_details'][] = Author::getDetails($record['rek_author_id'][$j]);
           }
         }
-        	
+          
         // We need at least one author and a title
-        if( (! (is_array($record['rek_author_id_details'])
-        && is_array($record['rek_author'])))
-        || empty($record['rek_title']) ) {
+        if ( (! (is_array($record['rek_author_id_details'])
+            && is_array($record['rek_author'])))
+            || empty($record['rek_title']) ) {
           // Record does not have required data
+        } else {
+          $return['list'][] = $record;
         }
-        else
-        $return['list'][] = $record;
       }
     }
     return $return;
@@ -1033,11 +1014,11 @@ class ResearcherID
     $db = DB_API::get();
 
     $stmt = "SELECT
-                    fdtrt_ref_type
-                 FROM
-                    " . APP_TABLE_PREFIX . "display_type_ref_type
-                 WHERE
-                    fdtrt_display_type = ?";
+                  fdtrt_ref_type
+               FROM
+                  " . APP_TABLE_PREFIX . "display_type_ref_type
+               WHERE
+                  fdtrt_display_type = ?";
 
     try {
       $res = $db->fetchOne($stmt, array($display_type));
@@ -1047,10 +1028,11 @@ class ResearcherID
       return '13'; // Return generic ref-type
     }
 
-    if(! $res)
-    return '13';
-    else
-    return $res;
+    if (! $res) {
+      return '13';
+    } else {
+      return $res;
+    }
   }
 
 
@@ -1081,8 +1063,7 @@ class ResearcherID
     $new_authors = array();
     $aut_id_inserted = false;
 
-    if( $count > 0 )
-    {
+    if ( $count > 0 ) {
       $authors_matching_count = 0;
       $authors_matching_index = 0;
 
@@ -1093,32 +1074,31 @@ class ResearcherID
         $_authority = $collection_node->getAttribute('authority');
 
         $_document = new DOMDocument();
-     			$_document->appendChild($_document->importNode($collection_node,true));
+        $_document->appendChild($_document->importNode($collection_node, true));
+        $_xpath = new DOMXPath($_document);
+        $_node_list = $_xpath->query("/mods:name/mods:namePart[@type='personal']");
+        $_name_node = $_node_list->item(0);
+        $_name = $_name_node->textContent;
+  
+        // Attempt to match on last name
+        if ((!empty($author_lname)) && preg_match('/^'.$author_lname.'/', strtolower($_name))) {
+          $authors_matching_count++;
+          $authors_matching_index = $i;
+        }
+        
+        $new_authors[] = array(
+            'id' => $_id, 
+            'authority' => $_authority, 
+            'author' => $_name
+        );
 
-     			$_xpath = new DOMXPath($_document);
-     			$_node_list = $_xpath->query("/mods:name/mods:namePart[@type='personal']");
-     			$_name_node = $_node_list->item(0);
-     			$_name = $_name_node->textContent;
-
-     			// Attempt to match on last name
-     			if((!empty($author_lname)) && preg_match('/^'.$author_lname.'/', strtolower($_name))) {
-     			  $authors_matching_count++;
-     			  $authors_matching_index = $i;
-     			}
-
-     			$new_authors[] = array(
-									'id' => $_id, 
-									'authority' => $_authority, 
-									'author' => $_name
-     			);
-
-     			$parent_node       = $collection_node->parentNode;
-     			$parent_node->removeChild($collection_node);
+        $parent_node = $collection_node->parentNode;
+        $parent_node->removeChild($collection_node);
       }
-      	
+        
       // Update with author id if not set (i.e. 0) and only one last name match found
-      if($authors_matching_count == 1) {
-        if($new_authors[$authors_matching_index]['id'] == '0') {
+      if ($authors_matching_count == 1) {
+        if ($new_authors[$authors_matching_index]['id'] == '0') {
           $new_authors[$authors_matching_index]['id'] = $author_id;
           $aut_id_inserted = true;
         }
@@ -1126,16 +1106,16 @@ class ResearcherID
     }
 
     $mods = '
-				<mods:name ID="%s" authority="%s">
-		        	<mods:namePart type="personal">%s</mods:namePart>
-		            <mods:role>
-		            	<mods:roleTerm type="text">author</mods:roleTerm>
-		            </mods:role>
-		        </mods:name>
-		';
+        <mods:name ID="%s" authority="%s">
+              <mods:namePart type="personal">%s</mods:namePart>
+                <mods:role>
+                  <mods:roleTerm type="text">author</mods:roleTerm>
+                </mods:role>
+            </mods:name>
+    ';
 
     $authors = '<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">';
-    foreach($new_authors as $_author) {
+    foreach ($new_authors as $_author) {
       $authors .= sprintf($mods, $_author['id'], $_author['authority'], $_author['author']);
     }
     $authors .= '</mods:mods>';
@@ -1145,7 +1125,7 @@ class ResearcherID
     $author_nodes = $authors_doc->getElementsByTagName("name");
 
     $count = $author_nodes->length;
-    if( $count > 0 ) {
+    if ( $count > 0 ) {
       for ($i = 0; $i < $count; $i++) {
         $node = $doc->importNode($author_nodes->item($i), true);
         $doc->documentElement->appendChild($node);
@@ -1155,13 +1135,15 @@ class ResearcherID
     $newXML = $doc->SaveXML();
 
     if ($newXML != "" && $aut_id_inserted) {
-      Fedora_API::callModifyDatastreamByValue($pid, "MODS", "A", "Metadata Object Description Schema", $newXML, "text/xml", "inherit");
-      	
+      Fedora_API::callModifyDatastreamByValue(
+          $pid, "MODS", "A", "Metadata Object Description Schema", $newXML, "text/xml", "inherit"
+      );
+        
       $historyDetail = "Author ID inserted using last name match";
       History::addHistory($pid, null, "", "", true, $historyDetail);
-      	
+        
       Record::setIndexMatchingFields($pid);
-      	
+        
       return true;
     }
 
