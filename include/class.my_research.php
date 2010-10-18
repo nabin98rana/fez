@@ -135,8 +135,8 @@ class MyResearch
 
 		$cookie_key = "my_research_possible_list";
 		$options = array();
-		$options = Pager::saveSearchParams($params, $cookie_key);
-
+//		$options = Pager::saveSearchParams($params, $cookie_key);
+		$options = Pager::saveSearchParams($params);
 		$pager_row = $params['pager_row'];
 		if (empty($pager_row)) {
 			$pager_row = 0;
@@ -776,8 +776,11 @@ class MyResearch
 			$log->err($ex);
 			return '';
 		}
-		
-		return $res['org_description'];
+		if (count($res) == 0) {
+			return "";
+		} else {
+			return $res['org_description'];			
+		}
 	}
 	 
 	 
