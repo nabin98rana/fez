@@ -3,10 +3,10 @@
 <!--
 function notMine(pid)
 {
-	if (confirm('You are about to mark this record as not being authored by you. Proceed?')) {
+	/*if (confirm('You are about to mark this record as not being authored by you. Proceed?')) {*/
 		document.getElementById('not-mine-pid').value = pid;
 		document.forms['notMine'].submit();
-	}
+	/*}*/
     
     return;
 }
@@ -48,16 +48,12 @@ function correctionRequired(pid)
 </script>
 {/literal}
 
-<h1>My Claimed Research</h1>
+<h1>My Research</h1>
 
 {include file="list_browse_type.tpl.html"}
 
 {if $isUPO}
 	{include file="myresearch/acting.tpl.html"}
-{/if}
-
-{if $terms}
-	<div id="research-refine-filter"><b>Refine Filter:</b> {$terms}</div>
 {/if}
 
 <form action="{$rel_url}my_research_claimed.php" method="post" id="claimedForm">
@@ -72,6 +68,10 @@ function correctionRequired(pid)
 	    <div class="facetheader">
 	    	<h2>Refine (10 facets)</h2>
 	    </div>
+	    
+		{if $terms}
+			<div id="research-refine-filter"><b>Refine Filter:</b> {$terms}</div>
+		{/if}
 
 	    <ul>
 	    {foreach from=$facets key=sek_id item=items}
@@ -100,7 +100,7 @@ function correctionRequired(pid)
 	    {/if}
 			<table id="research-record-listing">
 				<tr>
-			        <th colspan="2">The publications listed below are currently claimed by you.</th>
+			        <th colspan="2">The publications listed below are currently attributed to you within the {$org_short_name} data set.</th>
 			        <th style="text-align: center; padding: 2px;">
 			        	{if $list_info.total_rows > 0 && ($list_type !== 'collection_list' && $list_type !== 'community_list')}
 			        		<img src="{$rel_url}images/rid_16.png" title="ResearcherID Citation Count" alt="ResearcherID Citation Count" />
@@ -155,10 +155,10 @@ function correctionRequired(pid)
 				{/if}
 				
 				{if $flagged[$pid].type != 'D'}
-					<input type="button" class="claimed-not-my-pub" value="This is not my publication" onclick="javascript:notMine('{$list[i].rek_pid}');" /><br />
+					<input type="button" class="claimed-not-my-pub" value="Not mine" onclick="javascript:notMine('{$list[i].rek_pid}');" /><br />
 				{/if}
 				{if $flagged[$pid].type != 'C'}
-					<input type="button" class="claimed-correction-required" value="I am an author, but a correction is required" onclick="javascript:correctionRequired('{$list[i].rek_pid}');" />
+					<input type="button" class="claimed-correction-required" value="Fix" onclick="javascript:correctionRequired('{$list[i].rek_pid}');" />
 				{/if}
 			</td>
 			

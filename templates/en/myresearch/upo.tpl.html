@@ -38,12 +38,12 @@ function changeOrgUnit()
 	<form action="my_upo_tools.php" method="post" id="orgUnitSelect">
 
 		<div>
-			<select id="org_unit_id">
+			<select id="org_unit_id" onchange="javascript:changeOrgUnit();">
 				{foreach from=$org_units key=k item=v}
 					<option value="{$k}"{if $k == $current_aou} selected="selected"{/if}>{$v|escape:'html'}</option>
 				{/foreach}
 			</select>
-			<input type="button" value="Switch org unit" class="button" onclick="javascript:changeOrgUnit();" /> 
+			<!--input type="button" value="Switch org unit" class="button" onclick="javascript:changeOrgUnit();" /-->
 		</div>
 		
 		<div>

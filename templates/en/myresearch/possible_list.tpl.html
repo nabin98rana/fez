@@ -9,10 +9,10 @@ function claimPID(pid)
 
 function hide(pid)
 {
-	if (confirm('You are about to mark this record as not being authored by you. Proceed?')) {
+	/*if (confirm('You are about to mark this record as not being authored by you. Proceed?')) {*/
 	    document.getElementById('hide-pid').value = pid;
 	    document.forms['hide'].submit();
-	}
+	/*}*/
     
 }
 
@@ -45,14 +45,10 @@ function hideBulk()
 </script>
 {/literal}
 
-<h1>Possibly My Research</h1>
+<h1>Possibly My Research?</h1>
 
 {if $isUPO}
 	{include file="myresearch/acting.tpl.html"}
-{/if}
-
-{if $terms}
-	<div id="research-refine-filter"><b>Refine Filter:</b> {$terms}</div>
 {/if}
 
 <form action="{$rel_url}my_research_possible.php" method="post" id="possibleForm">
@@ -69,6 +65,10 @@ function hideBulk()
 		    <div class="facetheader">
 		    <h2>Refine (10 facets)</h2>
 		    </div>
+		    
+			{if $terms}
+				<div id="research-refine-filter"><b>Refine Filter:</b> {$terms}</div>
+			{/if}
 
 		    <ul>
 		    {foreach from=$facets key=sek_id item=items}
@@ -152,10 +152,10 @@ function hideBulk()
 				{/if}
 				
 				{if $flagged[$pid].type != 'C'}
-					<input type="button" class="possible-my-pub" value="I am an author of this publication" onclick="javascript:claimPID('{$list[i].rek_pid}');" />
+					<input type="button" class="possible-my-pub" value="Mine" onclick="javascript:claimPID('{$list[i].rek_pid}');" />
 				{/if}
 				{if $flagged[$pid].type != 'H'}
-					<input type="button" class="possible-hide" value="This is not my publication" onclick="javascript:hide('{$list[i].rek_pid}');" />
+					<input type="button" class="possible-hide" value="Not mine" onclick="javascript:hide('{$list[i].rek_pid}');" />
 				{/if}
 			</td>
 		</tr>
@@ -164,7 +164,7 @@ function hideBulk()
 			</table>
 
 			<div>
-				<input type="button" class="possible-hide" value="Hide all ticked publications" onclick="javascript:hideBulk();" />
+				<input type="button" class="possible-hide" value="None of the above ticked publications are mine" onclick="javascript:hideBulk();" />
 			</div>
 
 			<div>
