@@ -101,6 +101,21 @@ function correctionRequired(pid)
 			<table id="research-record-listing">
 				<tr>
 			        <th colspan="2">The publications listed below are currently attributed to you within the {$org_short_name} data set.</th>
+					<th style="text-align: center; padding: 2px;">
+						{if $list_info.total_rows > 0}
+							<img src="{$rel_url}images/journal_ranking_16.png" title="Ranked Journal List Ranking" alt="Ranked Journal List Ranking" />
+						{/if}
+					</th>
+					<th style="text-align: center; padding: 2px;">
+						{if $list_info.total_rows > 0}
+							<img src="{$rel_url}images/conference_ranking_16.png" title="Ranked Conference List Ranking" alt="Ranked Conference List Ranking" />
+						{/if}
+					</th>
+					<th style="text-align: center; padding: 2px;">
+						{if $list_info.total_rows > 0}
+							<img src="{$rel_url}images/herdc_code_16.png" title="HERDC Code" alt="HERDC Code" />
+						{/if}
+					</th>
 			        <th style="text-align: center; padding: 2px;">
 			        	{if $list_info.total_rows > 0 && ($list_type !== 'collection_list' && $list_type !== 'community_list')}
 			        		<img src="{$rel_url}images/rid_16.png" title="ResearcherID Citation Count" alt="ResearcherID Citation Count" />
@@ -118,6 +133,18 @@ function correctionRequired(pid)
 		<tr class="{if $flagged[$pid].type == 'D'}claimed-not-my-pub{elseif $flagged[$pid].type == 'C'}claimed-correction-required{/if}">
 			<td style="width: 10px;"><input type="checkbox" name="pid" value="{$list[i].rek_pid}" /></td>
 			<td style="width: 100%;">{$list[i].rek_citation}</td>
+
+			<td style="vertical-align: middle; text-align: center;">
+				-
+			</td>
+			
+			<td style="vertical-align: middle; text-align: center;">
+				-
+			</td>
+			
+			<td style="vertical-align: middle; text-align: center;">
+				-
+			</td>
 			
 			<td style="vertical-align: middle; text-align: center;">
 				{if $list[i].rek_thomson_citation_count != ""}
