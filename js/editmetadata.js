@@ -139,7 +139,7 @@ function createTextBox(xsdmf_id, loop_num, name, limit, axsdmf_id, aname, attach
         td2.className = "default text-input-odd";
     }
     
-    textbox.onblur = function () {createTextBox(xsdmf_id,loop_num,name,limit,axsdmf_id,aname, attachSuggest)};
+    textbox.onkeyup = function () {createTextBox(xsdmf_id,loop_num,name,limit,axsdmf_id,aname, attachSuggest)};
     textbox.onchange = function () {createTextBox(xsdmf_id,loop_num,name,limit,axsdmf_id,aname, attachSuggest)};
     textbox.onfocus = function () {createTextBox(xsdmf_id,loop_num,name,limit,axsdmf_id,aname, attachSuggest)};
     
