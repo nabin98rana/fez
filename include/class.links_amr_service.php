@@ -47,85 +47,79 @@ include_once(APP_INC_PATH . "class.misc.php");
 
 class LinksAmrService
 {
-	//const SERVICE_ENDPOINT = 'https://ws.isiknowledge.com/esti/xrpc';
-	const SERVICE_ENDPOINT = 'https://ws.isiknowledge.com/cps/xrpc';
-	
-	const COLLECTION = 'WOS';
-	
-	function __construct()
-	{
+  //const SERVICE_ENDPOINT = 'https://ws.isiknowledge.com/esti/xrpc';
+  const SERVICE_ENDPOINT = 'https://ws.isiknowledge.com/cps/xrpc';
+  
+  const COLLECTION = 'WOS';
+  
+  function __construct()
+  {
 
-	}
+  }
 
-	/**
-	 *
-	 * @param array $list 	Named list comprising the data elements to be included in the response,
-	 * 						and the articles for which you are requesting data
-	 * @param string $collection 	The product code for the ISI Web of Knowledge collection to be
-	 * 								searched for matching citations
-	 * @return mixed
-	 */
-	public static function retrieve($list, $collection = self::COLLECTION)
-	{
-		header('content-type: application/xml; charset=utf-8');
+  /**
+   *
+   * @param array $list 	Named list comprising the data elements to be included in the response,
+   * 						and the articles for which you are requesting data
+   * @param string $collection 	The product code for the ISI Web of Knowledge collection to be
+   * 								searched for matching citations
+   * @return mixed
+   */
+  public static function retrieve($list, $collection = self::COLLECTION)
+  {
+    $tpl = new Template_API();
+    $tpl_file = "links_amr_retrieve.tpl.html";
+    $tpl->setTemplate($tpl_file);
+    $tpl->assign("collection", $collection);
+    $tpl->assign("list", $list);
+    $request_data = $tpl->getTemplateContents();
 
-		$tpl = new Template_API();
-		$tpl_file = "links_amr_retrieve.tpl.html";
-		$tpl->setTemplate($tpl_file);
-		$tpl->assign("collection", $collection);
-		$tpl->assign("list", $list);
-		$request_data = $tpl->getTemplateContents();
+    $xml_api_data_request = new DOMDocument();
+    $xml_api_data_request->loadXML($request_data);
 
-		$xml_api_data_request = new DOMDocument();
-		$xml_api_data_request->loadXML($request_data);
+    // Do the service request
+    $response_document = new DOMDocument();
+    $response_document = LinksAmrService::doServiceRequest($xml_api_data_request->saveXML());
+    
+    return $response_document;		
+  }
 
-		//echo $xml_api_data_request->saveXML();
+  /**
+   * Method used to perform a service request
+   *
+   * @access  private
+   * @param   string $post Data to POST to the service
+   * @return  string The XML returned by the service.
+   */
+  private static function doServiceRequest($post_fields)
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+    
+    // Do the service request
+    $header[] = "Content-type: text/xml";
+    $ch = curl_init(self::SERVICE_ENDPOINT);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 100);
+    curl_setopt($ch, CURLOPT_NOBODY, 1);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+    curl_setopt($ch, CURLOPT_POST, 1);
+    if (APP_HTTPS_CURL_CHECK_CERT == 'OFF') {
+      curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+      curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+    }
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $post_fields);
 
-		// Do the service request
-		$response_document = new DOMDocument();
-		$response_document = LinksAmrService::doServiceRequest($xml_api_data_request->saveXML());
-		
-		//echo $response_document->saveXML();
-		
-		return $response_document;		
-	}
+    $response = curl_exec($ch);
 
-	/**
-	 * Method used to perform a service request
-	 *
-	 * @access  private
-	 * @param   string $post Data to POST to the service
-	 * @return  string The XML returned by the service.
-	 */
-	private static function doServiceRequest($post_fields)
-	{
-		$log = FezLog::get();
-		$db = DB_API::get();
-		
-		// Do the service request
-		$header[] = "Content-type: text/xml";
-		$ch = curl_init(self::SERVICE_ENDPOINT);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($ch, CURLOPT_TIMEOUT, 100);
-		curl_setopt($ch, CURLOPT_NOBODY, 1);
-		curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
-		curl_setopt($ch, CURLOPT_POST, 1);
-		if (APP_HTTPS_CURL_CHECK_CERT == 'OFF')  {
-			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
-		}
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $post_fields);
-
-		$response = curl_exec($ch);
-
-		if (curl_errno($ch)) {
-			$log->err(array(curl_error($ch)." ".self::SERVICE_ENDPOINT, __FILE__, __LINE__));
-			return false;
-		} else {
-			curl_close($ch);
-			$response_document = new DOMDocument();
-            $response_document->loadXML($response);  
-            return $response_document;
-		}
-	}
+    if (curl_errno($ch)) {
+      $log->err(array(curl_error($ch)." ".self::SERVICE_ENDPOINT, __FILE__, __LINE__));
+      return false;
+    } else {
+      curl_close($ch);
+      $response_document = new DOMDocument();
+      $response_document->loadXML($response);  
+      return $response_document;
+    }
+  }
 }
