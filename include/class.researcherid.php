@@ -371,6 +371,10 @@ class ResearcherID
           $response_document = ResearcherID::doServiceRequest($xml_api_data_request->saveXML());
         }
       }
+      else {
+        $log->err('No publications to upload for author '. $id, __FILE__, __LINE__);
+        return false;
+      }
     }
   }
 

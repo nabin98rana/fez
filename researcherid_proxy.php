@@ -101,15 +101,15 @@ class ResearcherIDProxy
   
   /**
    * Uploads publications for a researcher using the ResearcherID Batch Upload Service
-   * @param string $researcher_id The ResearcherID to upload publications for 
+   * @param string $aut_id ID of the author to upload publications for 
    * @return string
    */
-  public function upload($researcher_id) 
+  public function upload($aut_id) 
   {
     $log = FezLog::get();
     $db = DB_API::get();
   
-    if (ResearcherID::publicationsUpload(array($researcher_id))) {
+    if (ResearcherID::publicationsUpload(array($aut_id))) {
       return 'true'; 
     } else {
       return 'false';
