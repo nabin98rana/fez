@@ -369,6 +369,12 @@ class ResearcherID
           // Do the service request
           $response_document = new DOMDocument();
           $response_document = ResearcherID::doServiceRequest($xml_api_data_request->saveXML());
+          
+          if (! $response_document) {
+            return false;
+          } else {
+            return true;
+          }
         }
       }
       else {
