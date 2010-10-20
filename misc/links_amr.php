@@ -81,7 +81,7 @@ for ($i=0; $i<((int)$listing['info']['total_pages']+1); $i++) {
           if ($_node_list->length > 0) { 		
             $ut = $_node_list->item(0)->nodeValue;
             
-            file_put_contents('/tmp/found_uts.txt', "$pid - $ut", FILE_APPEND); // TEST
+            file_put_contents('/tmp/found_uts.txt', "$pid - $ut\n", FILE_APPEND); // TEST
             // Update record with new UT
             /*$record = new RecordGeneral($pid);
             $search_keys = array("ISI Loc");
