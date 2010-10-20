@@ -145,8 +145,9 @@
                         return false;
                       }
                       var aut_rid_id = '{/literal}{$info.aut_researcher_id}{literal}';
+                      var aut_id = '{/literal}{$smarty.get.id|escape:"html"}{literal}';
                       dojo.byId(rid_container_id).innerHTML = aut_rid_id + ' - Starting upload, please wait..';
-                      var rid_u = rid_server.upload(aut_rid_id);
+                      var rid_u = rid_server.upload(aut_id);
                        
                       rid_u.addCallback( function(msg) {
                         if(msg == '' || msg == 'false') {
