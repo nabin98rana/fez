@@ -64,71 +64,99 @@
                   <script type="text/javascript">
                   <!--
                   var rid_server = new dojo.rpc.JsonService("{/literal}{$rel_url}{literal}researcherid_proxy.php");
-                      var rid_container_id = 'register_rid_container';
-                      var rid_register = 'register_researcherid_profile';
-                      var rid_download = 'download_from_researcherid';
-            
-                      dojo.addOnLoad(function(){
-                        var id = dojo.byId(rid_register);
-                        if(id) {
-                          dojo.connect(id, 'onclick', 'register_in_rid');
+                  var rid_container_id = 'register_rid_container';
+                  var rid_register = 'register_researcherid_profile';
+                  var rid_download = 'download_from_researcherid';
+                  var rid_upload = 'upload_to_researcherid';
+        
+                  dojo.addOnLoad(function(){
+                    var id = dojo.byId(rid_register);
+                    if(id) {
+                      dojo.connect(id, 'onclick', 'register_in_rid');
+                    }
+                    var did = dojo.byId(rid_download);
+                    if(did) {
+                      dojo.connect(did, 'onclick', 'download_from_rid');
+                    }
+                    var uid = dojo.byId(rid_upload);
+                    if(uid) {
+                      dojo.connect(uid, 'onclick', 'upload_to_rid');
+                    }
+                  });
+                      
+                  function register_in_rid(e) {
+                    dojo.stopEvent(e);
+                    
+                    var confirm_register = confirm("You are about to register this author in ResearcherID.\n\n"+
+                                      "For authors with an existing ResearcherID profile, please ensure that:\n\n"+
+                                      "  -  The ResearcherID profile has their primary affiliation as this institution.\n"+
+                                      "  -  The employeeID in ResearcherID is '{/literal}{$info.aut_org_username}{literal}'.\n\n"+
+                                      "For authors who do not have an existing ResearcherID profile, a new profile will be created."+
+                                      "\n\n");
+                    
+                    if(! confirm_register) {
+                      return false;
+                    }
+
+                    var aut_id = '{/literal}{$smarty.get.id|escape:"html"}{literal}';
+                    dojo.byId(rid_container_id).innerHTML = 'Registering, please wait..';
+                    var rid_t = rid_server.register(aut_id);
+                     
+				            rid_t.addCallback( function(msg) {
+					            if(msg == '' || msg == 'false') {
+					              dojo.byId(rid_container_id).innerHTML = 'Oops! Something unexpected happened. Please try again later..';                  
+					            }
+					            else {
+					              dojo.byId(rid_container_id).innerHTML = 'Profile is under Registration Process in Researcher ID.';
+					            }
+                    });
+                  }
+
+                  function download_from_rid(e) {
+                    dojo.stopEvent(e);
+                    
+                    var confirm_download = confirm("You are about to download publication for this author from ResearcherID.\n\n"+
+                                      "Any new publications found, which have a ISI UT number, will be added to the repository.");
+                    
+                    if(! confirm_download) {
+                      return false;
+                    }
+                    var aut_rid_id = '{/literal}{$info.aut_researcher_id}{literal}';
+                    dojo.byId(rid_container_id).innerHTML = aut_rid_id + ' - Starting download, please wait..';
+                    var rid_d = rid_server.download(aut_rid_id);
+                     
+                    rid_d.addCallback( function(msg) {
+			                if(msg == '' || msg == 'false') {
+			                  dojo.byId(rid_container_id).innerHTML = aut_rid_id + ' - Oops! Something unexpected happened. Please try again later..';                  
+			                }
+			                else {
+			                  dojo.byId(rid_container_id).innerHTML = aut_rid_id + ' - Publications are being downloaded from Researcher ID. Any new publications will be added to <a href="{/literal}{$rel_url}collection/{$smarty.const.RID_DL_COLLECTION}"{literal}>this collection</a>.';
+			                }
+                    });
+                  }
+
+                  function upload_to_rid(e) {
+                      dojo.stopEvent(e);
+                      
+                      var confirm_upload = confirm("You are about to upload publications for this author to ResearcherID.\n\n"+
+                                        "Only publications which have a ISI UT number will be uploaded.");
+                      
+                      if(! confirm_upload) {
+                        return false;
+                      }
+                      var aut_rid_id = '{/literal}{$info.aut_researcher_id}{literal}';
+                      dojo.byId(rid_container_id).innerHTML = aut_rid_id + ' - Starting upload, please wait..';
+                      var rid_u = rid_server.upload(aut_rid_id);
+                       
+                      rid_u.addCallback( function(msg) {
+                        if(msg == '' || msg == 'false') {
+                          dojo.byId(rid_container_id).innerHTML = aut_rid_id + ' - Oops! Something unexpected happened. Please try again later..';                  
                         }
-                        var did = dojo.byId(rid_download);
-                        if(did) {
-                          dojo.connect(did, 'onclick', 'download_from_rid');
+                        else {
+                          dojo.byId(rid_container_id).innerHTML = aut_rid_id + ' - Publications are being uploaded to Researcher ID.';
                         }
                       });
-                      
-                      function register_in_rid(e) {
-                        dojo.stopEvent(e);
-                        
-                        var confirm_register = confirm("You are about to register this author in ResearcherID.\n\n"+
-                                          "For authors with an existing ResearcherID profile, please ensure that:\n\n"+
-                                          "  -  The ResearcherID profile has their primary affiliation as this institution.\n"+
-                                          "  -  The employeeID in ResearcherID is '{/literal}{$info.aut_org_username}{literal}'.\n\n"+
-                                          "For authors who do not have an existing ResearcherID profile, a new profile will be created."+
-                                          "\n\n");
-                        
-                        if(! confirm_register) {
-                          return false;
-                        }
-                        var aut_id = '{/literal}{$smarty.get.id|escape:"html"}{literal}';
-                        dojo.byId(rid_container_id).innerHTML = 'Registering, please wait..';
-                        var rid_t = rid_server.register(aut_id);
-                         
-                        rid_t.addCallback( function(msg) {
-                if(msg == '' || msg == 'false') {
-                  dojo.byId(rid_container_id).innerHTML = 'Oops! Something unexpected happened. Please try again later..';                  
-                }
-                else {
-                  dojo.byId(rid_container_id).innerHTML = 'Profile is under Registration Process in Researcher ID.';
-                }
-                        });
-                       }
-
-                      function download_from_rid(e) {
-                        dojo.stopEvent(e);
-                        
-                        var confirm_download = confirm("You are about to download publication for this author from ResearcherID.\n\n"+
-                                          "Any new publications found, which have a ISI UT number, will be added to the repository.\n\n"+
-                                          "");
-                        
-                        if(! confirm_download) {
-                          return false;
-                        }
-                        var aut_rid_id = '{/literal}{$info.aut_researcher_id}{literal}';
-                        dojo.byId(rid_container_id).innerHTML = aut_rid_id + ' - Starting download, please wait..';
-                        var rid_d = rid_server.download(aut_rid_id);
-                         
-                        rid_d.addCallback( function(msg) {
-                if(msg == '' || msg == 'false') {
-                  dojo.byId(rid_container_id).innerHTML = aut_rid_id + ' - Oops! Something unexpected happened. Please try again later..';                  
-                }
-                else {
-                  dojo.byId(rid_container_id).innerHTML = aut_rid_id + ' - Publications are being downloaded from Researcher ID. Any new publications will be added to <a href="{/literal}{$rel_url}collection/{$smarty.const.RID_DL_COLLECTION}"{literal}>this collection</a>.';
-                }
-                        });
-                       }
+                    }
                       //-->
                       </script>
                   {/literal}              
@@ -316,6 +344,9 @@
 	                  <input type="text" name="researcher_id" size="40" class="default" value="{$info.aut_researcher_id}" />
 	                	{$info.aut_researcher_id} &nbsp;
 	                	<a href="javascript:void(null)" id="download_from_researcherid">Download</a>
+	                	&nbsp;&nbsp;
+	                	<a href="javascript:void(null)" id="upload_to_researcherid">Upload</a>
+                    
 	                	{if $info.aut_rid_password}&nbsp;(Temp pass: {$info.aut_rid_password}){/if}
     	          	{/if}
     	          	</div>

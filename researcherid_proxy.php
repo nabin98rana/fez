@@ -43,62 +43,76 @@ $user = Auth::getUsername();
 $isAdministrator = User::isUserAdministrator($user);
 $isSuperAdministrator = User::isUserSuperAdministrator($user);
 
-if(! $isAdministrator || ! $isSuperAdministrator) {
-	exit;
+if (! $isAdministrator || ! $isSuperAdministrator) {
+  exit;
 }
 
 $server = new Zend_Json_Server();
 $server->setClass('ResearcherIDProxy');
 
-if ('GET' == $_SERVER['REQUEST_METHOD']) {
-    
-	$server->setTarget($_SERVER["SCRIPT_NAME"])
-           ->setEnvelope(Zend_Json_Server_Smd::ENV_JSONRPC_2);
-    $smd = $server->getServiceMap();
-    $smd->setDojoCompatible(true);
-    header('Content-Type: application/json');
-    echo $smd;
-    return;
+if ('GET' == $_SERVER['REQUEST_METHOD']) {    
+  $server->setTarget($_SERVER["SCRIPT_NAME"])
+         ->setEnvelope(Zend_Json_Server_Smd::ENV_JSONRPC_2);
+  $smd = $server->getServiceMap();
+  $smd->setDojoCompatible(true);
+  header('Content-Type: application/json');
+  echo $smd;
+  return;
 }
 $server->handle();
 
 class ResearcherIDProxy
 {
-    /**
-     * Creates a ResearcherID account for an author
-     *
-     * @param  string $aut_id ID of the author to create a ResearcherID account for
-     * @return string
-     */
-    public function register($aut_id)
-    {
-    	$log = FezLog::get();
-		$db = DB_API::get();
-		
-		if(ResearcherID::profileUpload(array($aut_id))) {
-			Author::setResearcherIdByAutId($aut_id, '-1');
-			return 'true'; 
-		}
-		else {
-			return 'false';
-		}
+  /**
+   * Creates a ResearcherID account for an author
+   *
+   * @param  string $aut_id ID of the author to create a ResearcherID account for
+   * @return string
+   */
+  public function register($aut_id)
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+  
+    if (ResearcherID::profileUpload(array($aut_id))) {
+      Author::setResearcherIdByAutId($aut_id, '-1');
+      return 'true'; 
+    } else {
+      return 'false';
     }
-    
-    /**
-     * Downloads publications for a researcher using the ResearcherID Batch Download Service
-     * @param string $researcher_id The ResearcherID to downlaod publications for 
-     * @return string
-     */
-    public function download($researcher_id) 
-    {
-    	$log = FezLog::get();
-		$db = DB_API::get();
-		
-		if(ResearcherID::downloadRequest(array($researcher_id), 'researcherIDs', 'researcherID')) {
-			return 'true'; 
-		}
-		else {
-			return 'false';
-		}
+  }
+  
+  /**
+   * Downloads publications for a researcher using the ResearcherID Batch Download Service
+   * @param string $researcher_id The ResearcherID to download publications for 
+   * @return string
+   */
+  public function download($researcher_id) 
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+  
+    if (ResearcherID::downloadRequest(array($researcher_id), 'researcherIDs', 'researcherID')) {
+      return 'true'; 
+    } else {
+      return 'false';
     }
+  }
+  
+  /**
+   * Uploads publications for a researcher using the ResearcherID Batch Upload Service
+   * @param string $researcher_id The ResearcherID to upload publications for 
+   * @return string
+   */
+  public function upload($researcher_id) 
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+  
+    if (ResearcherID::publicationsUpload(array($researcher_id))) {
+      return 'true'; 
+    } else {
+      return 'false';
+    }
+  }
 }

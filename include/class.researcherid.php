@@ -333,7 +333,7 @@ class ResearcherID
     }
 
     foreach ($ids as $id) {
-      $list = ResearcherID::listAllRecordsByAuthorID($id);
+      $list = ResearcherID::listAllRecordsByAuthorID($id, '', 'Created Date', array(), true);
        
       if (count($list['list']) > 0) {
         $tpl = new Template_API();
@@ -918,9 +918,12 @@ class ResearcherID
    * @param   string $set oai set collection (optional).
    * @param   integer $current_row The point in the returned results to start from.
    * @param   integer $max The maximum number of records to return
+   * @param   bool $requireIsiLoc If set to true, only records with an Isi Loc will be returned
    * @return  array The list of records
    */
-  private static function listAllRecordsByAuthorID($aut_id, $identifier="", $order_by = 'Created Date', $filter=array())
+  private static function listAllRecordsByAuthorID(
+      $aut_id, $identifier="", $order_by = 'Created Date', $filter=array(), $requireIsiLoc = false
+  )
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -934,7 +937,10 @@ class ResearcherID
     $filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
     $filter["searchKey".Search_Key::getID("Author ID")] = $aut_id;
     $filter["searchKey".Search_Key::getID("Object Type")] = 3; // records only
-
+    if ($requireIsiLoc) {
+      $filter["manualFilter"] = " (isi_loc_t_s:[* TO *]) "; // require Isi Loc
+    }
+    
     $listing = Record::getListing($options, array(9, 10), $current_row, $max, $order_by, false, false, $filter);
       
     if (is_array($listing['list'])) {
@@ -949,7 +955,7 @@ class ResearcherID
         if ( is_array($record['rek_isi_loc']) ) {
           $record['rek_isi_loc'] = $record['rek_isi_loc'][0];
         }
-
+                
         // Replace double quotes with double double quotes
         if ( !empty($record['rek_title']) ) {
           $record['rek_title'] = str_replace('"', '""', $record['rek_title']);
