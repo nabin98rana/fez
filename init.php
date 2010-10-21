@@ -34,7 +34,7 @@
 //
 
 ini_set('allow_url_fopen', 0);
-ini_set("display_errors", 0); // LKDB - tmp (was 1)
+ini_set("display_errors", 1); // LKDB - tmp (was 1)
 error_reporting(1);
 error_reporting(E_ALL ^ E_NOTICE);
 set_time_limit(0);

@@ -70,6 +70,7 @@ class MyResearch
 		$action = @$_POST['action'];
 
 		if ($type == "possible") {
+			$cookie_key = "my_research_possible_list";
 			if ($action == 'claim-add') {
 				MyResearch::possiblePubsClaim();
 			} elseif ($action == 'claim') {
@@ -84,6 +85,7 @@ class MyResearch
 			
 			$flagged = MyResearch::getPossibleFlaggedPubs($actingUser);
 		} elseif ($type == "claimed") {
+			$cookie_key = "my_research_claimed_list";
 			if ($action == 'not-mine') {
 				MyResearch::claimedPubsDisown(@$_POST['pid']);
 			} elseif ($action == 'not-mine-bulk') {	
@@ -152,7 +154,7 @@ class MyResearch
 			);
 
 
-		$cookie_key = "my_research_possible_list";
+
 		$options = array();
 //		$options = Pager::saveSearchParams($params, $cookie_key);
 		$options = Pager::saveSearchParams($params);
@@ -227,8 +229,9 @@ class MyResearch
 						$filter["manualFilter"] .= " AND !pid_t:('".str_replace(':', '\:', implode("' OR '", $hidePids))."')";
 				}
 			}
+			$options["manualFilter"] = $filter["manualFilter"];
 		}
-		$options["manualFilter"] = $filter["manualFilter"];
+
 		$return = Record::getListing($options, array(9,10), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter, "AND", true, false, false, 10, 1);
 
 		$facets = @$return['facets'];
