@@ -14,13 +14,17 @@
     </sponsor>
 	<profileList>
         <default-institution-name>{$org_name}</default-institution-name>
-        {section name="i" loop=$list}
         <researcher-profile>
-            <firstName>{$list[i].aut_fname|escape:"html"}</firstName>
-            <lastName>{$list[i].aut_lname|escape:"html"}</lastName>
-            <email>{$list[i].aut_org_username|escape:"html"}@uq.edu.au</email>
-            {section name="y" loop=$list[i].positions}
-            {if $list[i].positions[y].DT_TO != '0' && ($list[i].positions[y].DT_TO) < ($smarty.now|date_format:'%Y')}
+            <firstName>{$list.aut_fname|escape:"html"}</firstName>
+            <lastName>{$list.aut_lname|escape:"html"}</lastName>
+            
+            {if $rid_alt_email}
+              <email>{$rid_alt_email|escape:"html"}</email>
+            {else}
+              <email>{$list.aut_org_username|escape:"html"}@uq.edu.au</email>
+            {/if}
+            {section name="y" loop=$list.positions}
+            {if $list.positions[y].DT_TO != '0' && ($list.positions[y].DT_TO) < ($smarty.now|date_format:'%Y')}
                 <past-institution>
             {else}
                 {if $smarty.section.y.index > 0}
@@ -37,16 +41,16 @@
                 <country>Australia</country>
                 <postalcode>4072</postalcode>
             </address>
-            <departmentName>{$list[i].positions[y].org_title|escape:"html"}</departmentName>
-            {if $smarty.section.y.index == 0}<employeeID>{$list[i].aut_org_username|escape:"html"}</employeeID>{/if}
+            <departmentName>{$list.positions[y].org_title|escape:"html"}</departmentName>
+            {if $smarty.section.y.index == 0}<employeeID>{$list.aut_org_username|escape:"html"}</employeeID>{/if}
             <role>Other</role>
-            {if $list[i].positions[y].DT_FROM > 2008 || $list[i].positions[y].DT_FROM == ''}
+            {if $list.positions[y].DT_FROM > 2008 || $list.positions[y].DT_FROM == ''}
             	<start-date>2008</start-date>
             {else}
-            	<start-date>{$list[i].positions[y].DT_FROM}</start-date>
+            	<start-date>{$list.positions[y].DT_FROM}</start-date>
             {/if}
-            {if $list[i].positions[y].DT_TO != '0' && ($list[i].positions[y].DT_TO) < ($smarty.now|date_format:'%Y')}<end-date>{$list[i].positions[y].DT_TO}</end-date>{/if}
-            {if $list[i].positions[y].DT_TO != '0' && ($list[i].positions[y].DT_TO) < ($smarty.now|date_format:'%Y')}
+            {if $list.positions[y].DT_TO != '0' && ($list.positions[y].DT_TO) < ($smarty.now|date_format:'%Y')}<end-date>{$list.positions[y].DT_TO}</end-date>{/if}
+            {if $list.positions[y].DT_TO != '0' && ($list.positions[y].DT_TO) < ($smarty.now|date_format:'%Y')}
                 </past-institution>
             {else}
                 {if $smarty.section.y.index > 0}
@@ -57,6 +61,5 @@
             {/if}
             {/section}
         </researcher-profile>
-        {/section}
     </profileList>
 </profileUpload>

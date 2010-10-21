@@ -246,36 +246,35 @@ class ResearcherID
    * Method used to perform a ResearcherID profile upload.
    *
    * @access  public
-   * @param   array  $ids An array of employee/researcher IDs to request data for.
+   * @param   array  $aut_id The author ID to upload a profile for
+   * @param   string  $alt_email An alternate email address to use in the registration process
    * @return  string The job ticket number if the request is successful, otherwise false.
    */
-  public static function profileUpload($ids)
+  public static function profileUpload($aut_id, $alt_email = '')
   {
     $log = FezLog::get();
     $db = DB_API::get();
 
     $ticket_number = null;
 
-    // Validate params
-    if (! is_array($ids)) {
-      $log->err(
-          'First parameter for profileUpload() requires an array containing researcher ids or employee ids',
-          __FILE__, __LINE__
-      );
+    $list = Author::getListByAutIDList(0, 1, 'aut_lname', array($aut_id));    
+    if (! (is_array($list) && array_key_exists('list', $list) && is_array($list['list']))) {
+      $log->err('Author not found');
       return false;
     }
-
-    $list = Author::getListByAutIDList(0, 200, 'aut_lname', $ids);
 
     $tpl = new Template_API();
     $tpl_file = "researcher_profile_upload.tpl.html";
     $tpl->setTemplate($tpl_file);
-    $tpl->assign("list", $list['list']);
+    if (! empty($alt_email)) {
+      $tpl->assign("rid_alt_email", $alt_email);
+    }
+    $tpl->assign("list", $list['list'][0]);
     $tpl->assign("app_admin_email", RID_UL_SERVICE_USERNAME);
     $tpl->assign("org_name", APP_ORG_NAME);
     $tpl->assign("email_append_note", RID_UL_SERVICE_EMAIL_APPEND_NOTE);
     $request_data = $tpl->getTemplateContents();
-
+    
     $xml_request_data = new DOMDocument();
     $xml_request_data->loadXML($request_data);
 
@@ -328,7 +327,7 @@ class ResearcherID
 
     // Validate params
     if (! is_array($ids)) {
-      $log->err('First parameter for publicationsUpload() requires an array containing author ids', __FILE__, __LINE__);
+      $log->err('First parameter for publicationsUpload() requires an array containing author ids');
       return false;
     }
 
@@ -351,7 +350,7 @@ class ResearcherID
         // Validate against schema
         if (! @$xml_request_data->schemaValidate(RID_UL_SERVICE_PUBLICATIONS_XSD)) {
           // Not valid
-          $log->err('XML request data does not validate against schema.', __FILE__, __LINE__);
+          $log->err('XML request data does not validate against schema.');
           return false;
         } else {
           $tpl = new Template_API();
@@ -378,7 +377,7 @@ class ResearcherID
         }
       }
       else {
-        $log->err('No publications to upload for author '. $id, __FILE__, __LINE__);
+        $log->err('No publications to upload for author '. $id);
         return false;
       }
     }
@@ -481,7 +480,7 @@ class ResearcherID
           }
         } else {
           // Unknown email
-          $log->err('Received an unknown email '.$email, __FILE__, __LINE__);
+          $log->err('Received an unknown email '.$email);
         }
         // Move to processed directory
         rename($dir . '/' . $email, $processed_dir . $email);
@@ -540,7 +539,7 @@ class ResearcherID
       }
       closedir($handle);
     } else {
-      $log->err('Unable to open routed emails directory', __FILE__, __LINE__);
+      $log->err('Unable to open routed emails directory');
       return false;
     }
 
@@ -572,9 +571,6 @@ class ResearcherID
     $response_document = new DOMDocument();
     $response_document = ResearcherID::doServiceRequest($xml_api_status_request->saveXML());
 
-    //header('content-type: application/xml; charset=utf-8');
-    //echo $response_document->saveXML();
-
     // Get the download status from the response
     $job_status = null;
     if ($response_document) {
@@ -602,12 +598,12 @@ class ResearcherID
         }
 
       } else {
-        $log->err('No job status returned for ticket number: '.$ticket_number, __FILE__, __LINE__);
+        $log->err('No job status returned for ticket number: '.$ticket_number);
         return false;
       }
     } else {
       // Service request failed
-      $log->err('Failed to check job status for ticket number: '.$ticket_number, __FILE__, __LINE__);
+      $log->err('Failed to check job status for ticket number: '.$ticket_number);
       return false;
     }
   }
@@ -705,6 +701,11 @@ class ResearcherID
     foreach ($records as $record) {
       ResearcherID::addPublication($record, $author_id);
     }
+    
+    // Finally clear the temp password - a successful download indicates the researcher has
+    // logged in to ResearcherID and completed the registration process, which requires the
+    // temp password be changed 
+    Author::setRIDPassword($researcherid, ''); 
     return true;
   }
 

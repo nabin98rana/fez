@@ -68,6 +68,7 @@
                   var rid_register = 'register_researcherid_profile';
                   var rid_download = 'download_from_researcherid';
                   var rid_upload = 'upload_to_researcherid';
+                  var rid_register_alt_email = 'register_researcherid_alt_email';
         
                   dojo.addOnLoad(function(){
                     var id = dojo.byId(rid_register);
@@ -91,23 +92,24 @@
                                       "For authors with an existing ResearcherID profile, please ensure that:\n\n"+
                                       "  -  The ResearcherID profile has their primary affiliation as this institution.\n"+
                                       "  -  The employeeID in ResearcherID is '{/literal}{$info.aut_org_username}{literal}'.\n\n"+
-                                      "For authors who do not have an existing ResearcherID profile, a new profile will be created."+
-                                      "\n\n");
+                                      "For authors who do not have an existing ResearcherID profile, a new profile will be created.");
                     
                     if(! confirm_register) {
                       return false;
                     }
 
                     var aut_id = '{/literal}{$smarty.get.id|escape:"html"}{literal}';
+                    var rid_alt_email = dojo.byId(rid_register_alt_email).value;
+                                                            
                     dojo.byId(rid_container_id).innerHTML = 'Registering, please wait..';
-                    var rid_t = rid_server.register(aut_id);
+                    var rid_t = rid_server.register(aut_id, rid_alt_email);
                      
 				            rid_t.addCallback( function(msg) {
-					            if(msg == '' || msg == 'false') {
-					              dojo.byId(rid_container_id).innerHTML = 'Oops! Something unexpected happened. Please try again later..';                  
+					            if(msg == 'true') {
+					            	dojo.byId(rid_container_id).innerHTML = 'Profile is under Registration Process in Researcher ID.';                  
 					            }
 					            else {
-					              dojo.byId(rid_container_id).innerHTML = 'Profile is under Registration Process in Researcher ID.';
+					            	dojo.byId(rid_container_id).innerHTML = 'Oops! Something unexpected happened. Please try again later..(' + msg + ')';
 					            }
                     });
                   }
@@ -115,7 +117,7 @@
                   function download_from_rid(e) {
                     dojo.stopEvent(e);
                     
-                    var confirm_download = confirm("You are about to download publication for this author from ResearcherID.\n\n"+
+                    var confirm_download = confirm("You are about to download publications for this author from ResearcherID.\n\n"+
                                       "Any new publications found, which have a ISI UT number, will be added to the repository.");
                     
                     if(! confirm_download) {
@@ -126,12 +128,12 @@
                     var rid_d = rid_server.download(aut_rid_id);
                      
                     rid_d.addCallback( function(msg) {
-			                if(msg == '' || msg == 'false') {
-			                  dojo.byId(rid_container_id).innerHTML = aut_rid_id + ' - Oops! Something unexpected happened. Please try again later..';                  
-			                }
-			                else {
-			                  dojo.byId(rid_container_id).innerHTML = aut_rid_id + ' - Publications are being downloaded from Researcher ID. Any new publications will be added to <a href="{/literal}{$rel_url}collection/{$smarty.const.RID_DL_COLLECTION}"{literal}>this collection</a>.';
-			                }
+                      if(msg == 'true') {
+                    	  dojo.byId(rid_container_id).innerHTML = aut_rid_id + ' - Publications are being downloaded from Researcher ID. Any new publications will be added to <a href="{/literal}{$rel_url}collection/{$smarty.const.RID_DL_COLLECTION}"{literal}>this collection</a>.';                  
+                      }
+                      else {
+                        dojo.byId(rid_container_id).innerHTML = 'Oops! Something unexpected happened. Please try again later..(' + msg + ')';
+                      }
                     });
                   }
 
@@ -149,12 +151,12 @@
                       dojo.byId(rid_container_id).innerHTML = aut_rid_id + ' - Starting upload, please wait..';
                       var rid_u = rid_server.upload(aut_id);
                        
-                      rid_u.addCallback( function(msg) {
-                        if(msg == '' || msg == 'false') {
-                          dojo.byId(rid_container_id).innerHTML = aut_rid_id + ' - Oops! Something unexpected happened. Please try again later..';                  
+                      rid_u.addCallback( function(msg) {                        
+                        if(msg == 'true') {
+                        	dojo.byId(rid_container_id).innerHTML = aut_rid_id + ' - Publications are being uploaded to Researcher ID.';                  
                         }
                         else {
-                          dojo.byId(rid_container_id).innerHTML = aut_rid_id + ' - Publications are being uploaded to Researcher ID.';
+                          dojo.byId(rid_container_id).innerHTML = 'Oops! Something unexpected happened. Please try again later..(' + msg + ')';
                         }
                       });
                     }
@@ -334,7 +336,23 @@
                 <td style="background: {$light_color}; width: 80%">
 	                <div id="register_rid_container" style="font-size: 0.8em;">
                   	{if $info.aut_researcher_id == ''}
-                  		<a href="javascript:void(null)" id="register_researcherid_profile"><img src="{$rel_url}images/create.gif" width="45" height="16" alt="Register ResearcherID Profile" title="Register ResearcherID Profile" style="border:0;" /></a>
+                  		
+                  		<table style="width: 740px" cellspacing="0" cellpadding="0">                  		
+                  		<tr>
+                        <td style="width: 100px">
+                  		    <input type="text" name="researcher_id" size="11" class="default" value="{$info.aut_researcher_id}" />
+                        </td>
+                        <td style="width: 40px; text-align: center">
+                          - OR -
+                        </td>            
+				                <td style="width: 600px">
+				                  <input class="button" type="submit" value="Register in ResearcherID" id="register_researcherid_profile" />
+				                  &nbsp;
+				                  Register with this email address (optional): <input type="text" id="register_researcherid_alt_email" size="30" class="default" value="" />
+				                </td>
+				              </tr>
+                    </table>
+                  		
                   	{elseif $info.aut_researcher_id == '-1' || strstr($info.aut_researcher_id, 'ERR:')}
                   		{if strstr($info.aut_researcher_id, 'ERR:')}
 	                  		{$info.aut_researcher_id}
@@ -343,10 +361,8 @@
 	                  	{/if}
 	                {else}
 	                  <input type="text" name="researcher_id" size="40" class="default" value="{$info.aut_researcher_id}" />
-	                	{$info.aut_researcher_id} &nbsp;
-	                	<a href="javascript:void(null)" id="download_from_researcherid">Download</a>
-	                	&nbsp;&nbsp;
-	                	<a href="javascript:void(null)" id="upload_to_researcherid">Upload</a>
+	                	<input class="button" type="submit" value="Download Publications" id="download_from_researcherid" />
+	                	<input class="button" type="submit" value="Upload Publications" id="upload_to_researcherid" />
                     
 	                	{if $info.aut_rid_password}&nbsp;(Temp pass: {$info.aut_rid_password}){/if}
     	          	{/if}

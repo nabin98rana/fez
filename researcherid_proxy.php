@@ -67,14 +67,16 @@ class ResearcherIDProxy
    * Creates a ResearcherID account for an author
    *
    * @param  string $aut_id ID of the author to create a ResearcherID account for
+   * @param  string $alt_email Optional alternate email to register with
+   *
    * @return string
    */
-  public function register($aut_id)
+  public function register($aut_id, $alt_email)
   {
     $log = FezLog::get();
     $db = DB_API::get();
-  
-    if (ResearcherID::profileUpload(array($aut_id))) {
+    
+    if (ResearcherID::profileUpload($aut_id, $alt_email)) {
       Author::setResearcherIdByAutId($aut_id, '-1');
       return 'true'; 
     } else {
