@@ -375,8 +375,7 @@ class ResearcherID
             return true;
           }
         }
-      }
-      else {
+      } else {
         $log->err('No publications to upload for author '. $id);
         return false;
       }
@@ -1074,6 +1073,7 @@ class ResearcherID
 
     $author_lname = '';
     $author_lname = strtolower(Author::getLastname($author_id));
+    $author_alt_names = Author::getAlternativeNamesList($author_id);
 
     $newXML = "";
 
@@ -1108,6 +1108,19 @@ class ResearcherID
         if ((!empty($author_lname)) && preg_match('/^'.$author_lname.'/', strtolower($_name))) {
           $authors_matching_count++;
           $authors_matching_index = $i;
+        } else {
+          // Attempt to match on other names for this author we know about
+          foreach ($author_alt_names as $aut_alt_name => $paper_count) {
+            $pattern = '/[\s,.]/';
+            $aut_alt_name = preg_replace($pattern, '', $aut_alt_name);
+            $_name = preg_replace($pattern, '', $_name);
+            $lev = levenshtein($aut_alt_name, $_name);
+            $minlen = min(strlen($aut_alt_name), strlen($_name));
+            if ($lev < $minlen / 2) {
+              $authors_matching_count++;
+              $authors_matching_index = $i;
+            }
+          }
         }
         
         $new_authors[] = array(
