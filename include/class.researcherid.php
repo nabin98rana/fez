@@ -699,7 +699,7 @@ class ResearcherID
     $author_id = Author::getIDByResearcherID($researcherid);
 
     foreach ($records as $record) {
-      ResearcherID::addPublication($record, $author_id);
+      ResearcherID::addPublication($record, $author_id, $researcherid);
     }
     
     // Finally clear the temp password - a successful download indicates the researcher has
@@ -708,13 +708,16 @@ class ResearcherID
     Author::setRIDPassword($researcherid, ''); 
     return true;
   }
-
+  
   /**
+   * Adds a downloaded publication to the repository
    *
-   * @param $record The record containing the publication to add
-   * @return unknown_type
+   * @param The $record
+   * @param int $author_id 
+   * @param string $researcherid Optionally specify which ResearcherID account the pub was downloaded from 
+   * @return bool
    */
-  private static function addPublication($record, $author_id = false)
+  private static function addPublication($record, $author_id = false, $researcherid = false)
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -750,9 +753,13 @@ class ResearcherID
                   $mods = Misc::convertEstiRecordToMods($_record, $author_id);
                   $links = Misc::convertEstiRecordToLinks($_record);
                   if ($mods) {
+                    $history = 'Imported from ResearcherID';
+                    if ($researcherid) {
+                      $history .= ' '.$researcherid;
+                    }
                     $times_cited = $_record->attributes()->timescited;
                     Record::insertFromArray(
-                        $mods, $collection, 'MODS 1.0', 'Imported from ResearcherID', 
+                        $mods, $collection, 'MODS 1.0', $history, 
                         $times_cited, $links
                     );
                   }
