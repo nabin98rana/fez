@@ -124,7 +124,7 @@ class Pager
 		$sort_order = Pager::getParam('sort_order',$params);
 		$rows = Pager::getParam('rows',$params);
 		$keywords = Pager::getParam('keywords', $params);
-		
+		$reset = Pager::getParam('reset',$params);
 		$cookie = array();
 		if ($rows)
 			$cookie['rows'] = $rows;
@@ -199,6 +199,7 @@ class Pager
 			$searchKeyArray = array();
 			$from_cookie = false;
 			$searchKeyArray = Pager::getParam('search_keys',$params);
+			
 
 			/*
 			 * If no search keys were submitted
@@ -211,9 +212,17 @@ class Pager
 				foreach ($searchKeys as $sek_id => $searchValue) {
 
 					if (isset($existing_cookie['searchKey'.$sek_id])) {
-						$existing = array(
-                            'searchKey'.$sek_id => $existing_cookie['searchKey'.$sek_id]
-						);
+						if ($reset == 1) {
+							$existing = array(
+	                            'searchKey'.$sek_id => ''
+							);
+							
+						} else {
+							$existing = array(
+	                            'searchKey'.$sek_id => $existing_cookie['searchKey'.$sek_id]
+							);
+							
+						}
 						$searchKeyArray = array_merge($searchKeyArray, $existing);
 					}
 				}
@@ -251,9 +260,6 @@ class Pager
 				}
 				 
 				foreach ($searchKeyArray as $sek_id => $value) {
-					// only save values that are useful to save (no empty vars, or filters that are not enabled or multiple types = any)
-//					if (trim($value) == '') 
-//						continue;
 					if (is_array($value)) {
 						if (isset($value['filter_enabled']) && $value['filter_enabled'] == 0)
 							continue;

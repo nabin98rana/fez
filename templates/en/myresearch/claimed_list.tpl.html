@@ -58,46 +58,50 @@ function correctionRequired(pid)
 
 <form action="{$rel_url}my_research_claimed.php" method="post" id="claimedForm">
 	{include file="paging_control_header.tpl.html" hide_list_heading="true"}
+	
+	
+	{if ($facets || $terms)}
+    <div class="facet">
+    <div class="facetheader">
+    	<h2>Refine (10 facets)</h2>
+    </div>
+    
+	{if $terms}
+		<div id="research-refine-filter"><b>Refine Filter:</b> {$terms} <a href="{$relurl}my_research_claimed.php?reset=1">(reset)</a></div>
+	{/if}
+
+    <ul>
+    {foreach from=$facets key=sek_id item=items}
+	{if $items.sek_alt_title == ""}
+	        <li><strong>{$items.sek_title}</strong></li>
+	{else}
+	        <li><strong>{$items.sek_alt_title}</strong></li>
+	{/if}
+        {foreach from=$items.values key=id item=valueData}
+        {if $valueData.num > 0}
+        {if $id != '0'}<li class='facetarrow'><a href="?{$url_wo_rows}&search_keys[{$sek_id}]={$id}">{$valueData.value}</a> ({$valueData.num})</li>{/if}
+        {/if}
+        {/foreach}
+        <li>&nbsp;</li>
+    {/foreach}
+	{if is_array($alternativeAuthorNamesList) && count($alternativeAuthorNamesList) > 1}
+		<li><strong>Names this author has published as</strong></li>
+		{foreach from=$alternativeAuthorNamesList item=authorLink}
+		<li class="facetarrow">{$authorLink}</li>
+		{/foreach}
+		<li>&nbsp;</li>
+	{/if}
+    </ul>
+
+    </div>
+    {/if}
+	
 	{section name="i" loop=$list}
 	
 		{assign var=pid value=$list[i].rek_pid}
 	
 		{if $smarty.section.i.first}
-		{if ($facets)}
-	    <div class="facet">
-	    <div class="facetheader">
-	    	<h2>Refine (10 facets)</h2>
-	    </div>
-	    
-		{if $terms}
-			<div id="research-refine-filter"><b>Refine Filter:</b> {$terms}</div>
-		{/if}
 
-	    <ul>
-	    {foreach from=$facets key=sek_id item=items}
-		{if $items.sek_alt_title == ""}
-		        <li><strong>{$items.sek_title}</strong></li>
-		{else}
-		        <li><strong>{$items.sek_alt_title}</strong></li>
-		{/if}
-	        {foreach from=$items.values key=id item=valueData}
-	        {if $valueData.num > 0}
-	        {if $id != '0'}<li class='facetarrow'><a href="?{$url_wo_rows}&search_keys[{$sek_id}]={$id}">{$valueData.value}</a> ({$valueData.num})</li>{/if}
-	        {/if}
-	        {/foreach}
-	        <li>&nbsp;</li>
-	    {/foreach}
-		{if is_array($alternativeAuthorNamesList) && count($alternativeAuthorNamesList) > 1}
-			<li><strong>Names this author has published as</strong></li>
-			{foreach from=$alternativeAuthorNamesList item=authorLink}
-			<li class="facetarrow">{$authorLink}</li>
-			{/foreach}
-			<li>&nbsp;</li>
-		{/if}
-	    </ul>
-
-	    </div>
-	    {/if}
 			<table id="research-record-listing">
 				<tr>
 			        <th colspan="2">The publications listed below are currently attributed to you within the {$org_short_name} data set.</th>

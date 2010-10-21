@@ -111,6 +111,7 @@ class MyResearch
 	        'collection_pid'=>  'string',
 	        'community_pid' =>  'string',
 	        'cat'           =>  'string',
+	        'reset'         =>  'numeric',
 	        'author'        =>  'string',
 	        'tpl'           =>  'numeric',
 	        'year'          =>  'numeric',
@@ -156,8 +157,8 @@ class MyResearch
 
 
 		$options = array();
-//		$options = Pager::saveSearchParams($params, $cookie_key);
 		$options = Pager::saveSearchParams($params);
+		
 		$sort_by = $options["sort_by"];
 		$sort_order = $options["sort_order"];
 		
