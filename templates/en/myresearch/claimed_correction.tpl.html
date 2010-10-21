@@ -2,18 +2,52 @@
 <script type="text/javascript">
 <!--
 
+function toggleCorrections()
+{
+	if (document.getElementById('qindex').checked) {
+		document.getElementById('correction-area-fix').disabled = true;
+		document.getElementById('correction-area-fix').style.display = 'none';
+		document.getElementById('correction-area-qindex').disabled = false;
+		document.getElementById('correction-area-qindex').style.display = 'block';
+		document.getElementById('form-type').value = 'qindex';
+		
+	} else {
+		document.getElementById('correction-area-fix').disabled = false;
+		document.getElementById('correction-area-fix').style.display = 'block';
+		document.getElementById('correction-area-qindex').disabled = true;
+		document.getElementById('correction-area-qindex').style.display = 'none';
+		document.getElementById('form-type').value = 'correction';
+	}
+	
+	return;
+}
+
 function toggleCorrectionsText()
 {
-	if (document.getElementById('correction').value == 'Please tell us what is wrong with the record.') {
+	if (document.getElementById('correction').value == 'Please tell us what is wrong with the record. Be specific.') {
 		document.getElementById('correction').value = '';
 	}
 }
 
-function submitForm()
+function toggleEnquiryText()
 {
-	if (document.getElementById('correction').value == '' || document.getElementById('correction').value == 'Please tell us what is wrong with the record.') {
-		window.alert('You must tell us what is wrong with the record.');
-		return false;
+	if (document.getElementById('enquiry').value == 'What do you think is wrong with the Q-index data?') {
+		document.getElementById('enquiry').value = '';
+	}
+}
+
+function submitForm(type)
+{
+	if (type == 'C') {
+		if (document.getElementById('correction').value == '' || document.getElementById('correction').value == 'Please tell us what is wrong with the record. Be specific.') {
+			window.alert('You must tell us what is wrong with the record.');
+			return false;
+		}
+	} else if (type == 'E') {
+		if (document.getElementById('enquiry').value == '' || document.getElementById('enquiry').value == 'What do you think is wrong with the Q-index data?') {
+			window.alert('You must tell us what you think is wrong with the data.');
+			return false;
+		}
 	}
 	
 	document.forms['correctForm'].submit();
@@ -24,7 +58,7 @@ function submitForm()
 </script>
 {/literal}
 
-<h1>Supply a Correction</h1>
+<h1>Fix Record</h1>
 
 {if $isUPO}
 	{include file="myresearch/acting.tpl.html"}
@@ -32,20 +66,71 @@ function submitForm()
 
 <form action="my_research_claimed.php" method="post" id="correctForm">
 
-<div id="research-solo-citation">{$citation}</div>
+<div id="research-solo-citation">
+	{$citation}
+	<div style="display: block; font-size: 80%; padding-top: 15px;">[ <a href="{$rel_url}view/{$pid}" onclick="javascript:window.open('{$rel_url}view/{$pid}'); return false;">View the full record</a> ]</div>
+</div>
 
-<p style="text-align: right;"><a href="{$rel_url}view/{$pid}" onclick="javascript:window.open('{$rel_url}view/{$pid}'); return false;">View the full record</a></p>
-
-<p>You have indicated that the record above contains a problem of some kind. Please tell us what needs to be fixed:</p>
+<table id="research-q-index-details">
+	<tr>
+		<td><img src="{$rel_url}images/journal_ranking_16.png" title="Ranked Journal List Ranking" alt="Ranked Journal List Ranking" /> Journal Rank</td>
+		<td>
+			{if $qindex_meta.rj == ''}
+				This record is not recorded as being in a ranked journal.
+			{else}
+				<b>{$qindex_meta.rj.rank}</b> &nbsp; ({$qindex_meta.rj.title})
+			{/if}
+		</td>
+	</tr>
+	<tr>
+		<td><img src="{$rel_url}images/conference_ranking_16.png" title="Ranked Conference List Ranking" alt="Ranked Conference List Ranking" /> Conference Rank</td>
+		<td>
+			{if $qindex_meta.rc == ''}
+				This record is not recorded as being in a ranked conference.
+			{else}
+				<b>{$qindex_meta.rc.rank}</b> &nbsp; ({$qindex_meta.rc.title})
+			{/if}
+		</td>
+	</tr>
+	<tr>
+		<td><img src="{$rel_url}images/herdc_code_16.png" title="HERDC Code" alt="HERDC Code" /> HERDC Code</td>
+		<td>
+			{if $qindex_meta.hc == ''}
+				This record is not marked as having a HERDC code.
+			{else}
+				<b>{$qindex_meta.hc.herdc_code}</b> &nbsp; ({$qindex_meta.hc.herdc_code_description})
+			{/if}
+		</td>
+	</tr>
+</table>
 
 <p>
-	<textarea id="correction" name="correction" rows="5" cols="70" onfocus="javascript:toggleCorrectionsText();">Please tell us what is wrong with the record.</textarea>
+	<input type="radio" name="type" id="fix" value="fix" onclick="javascript:toggleCorrections();" /> Submit a citation correction<br />
+	<input type="radio" name="type" id="qindex" value="qindex" onclick="javascript:toggleCorrections();" /> Q-Index problem
 </p>
 
+
+<div id="correction-area-fix" style="display: none;">
+	<p>
+		<textarea id="correction" name="correction" rows="5" cols="70" onfocus="javascript:toggleCorrectionsText();">Please tell us what is wrong with the record. Be specific.</textarea>
+	</p>
+	
+	<input type="button" value="Submit correction" name="button" onclick="javascript:submitForm('C');" />
+</div>
+
+<div id="correction-area-qindex" style="display: none;">
+	<p>
+		<textarea id="enquiry" name="enquiry" rows="5" cols="70" onfocus="javascript:toggleEnquiryText();">What do you think is wrong with the Q-index data?</textarea>
+	</p>
+	
+	<input type="button" value="Submit enquiry" name="button" onclick="javascript:submitForm('E');" />
+</div>
+
+
 <p>
-	<input type="button" value="Submit correction" name="button" onclick="javascript:submitForm();" />
 	<input type="hidden" value="{$pid}" name="pid" />
 	<input type="hidden" value="correction-add" name="action" />
+	<input type="hidden" id="form-type" name="form-type" value="" />
 </p>
 
 </form>

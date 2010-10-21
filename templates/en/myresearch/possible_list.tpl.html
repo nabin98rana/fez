@@ -97,7 +97,7 @@ function hideBulk()
 
 			<table {if ($facets)}width="70%"{else}width="100%"{/if} id="research-record-listing">
 				<tr>
-			        <th colspan="2">The publications listed below may belong to you.</th>
+			        <th colspan="2">These publications <i>may</i> belong to you. They were authored by someone sharing your surname, but have not yet been claimed by another researcher.</th>
 					<th style="text-align: center; padding: 2px;">
 						{if $list_info.total_rows > 0}
 							<img src="{$rel_url}images/journal_ranking_16.png" title="Ranked Journal List Ranking" alt="Ranked Journal List Ranking" />
@@ -179,7 +179,7 @@ function hideBulk()
 				{/if}
 				
 				{if $flagged[$pid].type != 'C'}
-					<input type="button" class="possible-my-pub" value="Mine" onclick="javascript:claimPID('{$list[i].rek_pid}');" />
+					<input type="button" class="possible-my-pub" value="Mine" onclick="javascript:claimPID('{$list[i].rek_pid}');" /><br />
 				{/if}
 				{if $flagged[$pid].type != 'H'}
 					<input type="button" class="possible-hide" value="Not mine" onclick="javascript:hide('{$list[i].rek_pid}');" />

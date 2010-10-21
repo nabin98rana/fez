@@ -178,9 +178,9 @@ function correctionRequired(pid)
 				{elseif $flagged[$pid].type == 'C'}
 					<div class="research-record-note">
 						{if $flagged[$pid].user == $actual_user}
-							You have indicated that this record is yours, but requires a correction. A job has been logged with the {$app_name} team.
+							You have indicated that this record may have data problems. A job has been logged with the {$app_name} team.
 						{else}
-							User <span style="font-weight: bold">{$flagged[$pid].user}</span> has indicated that this record is yours, but requires a correction. A job has already been logged with the {$app_name} team.
+							User <span style="font-weight: bold">{$flagged[$pid].user}</span> has indicated that this record may have data problems. A job has already been logged with the {$app_name} team.
 						{/if}
 					</div>
 				{/if}

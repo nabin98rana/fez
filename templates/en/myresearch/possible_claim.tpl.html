@@ -53,9 +53,43 @@ function submitForm()
 
 <p>You are claiming to be the author of this item:</p>
 
-<div id="research-solo-citation">{$citation}</div>
+<div id="research-solo-citation">
+	{$citation}
+	<div style="display: block; font-size: 80%; padding-top: 15px;">[ <a href="{$rel_url}view/{$pid}" onclick="javascript:window.open('{$rel_url}view/{$pid}'); return false;">View the full record</a> ]</div>
+</div>
 
-<p style="text-align: right;"><a href="{$rel_url}view/{$pid}" onclick="javascript:window.open('{$rel_url}view/{$pid}'); return false;">View the full record</a></p>
+<table id="research-q-index-details">
+	<tr>
+		<td><img src="{$rel_url}images/journal_ranking_16.png" title="Ranked Journal List Ranking" alt="Ranked Journal List Ranking" /> Journal Rank</td>
+		<td>
+			{if $qindex_meta.rj == ''}
+				This record is not recorded as being in a ranked journal.
+			{else}
+				<b>{$qindex_meta.rj.rank}</b> &nbsp; ({$qindex_meta.rj.title})
+			{/if}
+		</td>
+	</tr>
+	<tr>
+		<td><img src="{$rel_url}images/conference_ranking_16.png" title="Ranked Conference List Ranking" alt="Ranked Conference List Ranking" /> Conference Rank</td>
+		<td>
+			{if $qindex_meta.rc == ''}
+				This record is not recorded as being in a ranked conference.
+			{else}
+				<b>{$qindex_meta.rc.rank}</b> &nbsp; ({$qindex_meta.rc.title})
+			{/if}
+		</td>
+	</tr>
+	<tr>
+		<td><img src="{$rel_url}images/herdc_code_16.png" title="HERDC Code" alt="HERDC Code" /> HERDC Code</td>
+		<td>
+			{if $qindex_meta.hc == ''}
+				This record is not marked as having a HERDC code.
+			{else}
+				<b>{$qindex_meta.hc.herdc_code}</b> &nbsp; ({$qindex_meta.hc.herdc_code_description})
+			{/if}
+		</td>
+	</tr>
+</table>
 
 <p>
 	<input type="radio" name="confirm" id="ok" value="ok" onclick="javascript:toggleCorrections();" /> This record is mine, and the citation is correct<br />

@@ -391,6 +391,121 @@ class Record
     }
     return $details;
   }
+	
+   /**
+	* Method used to return the core metadata for a record that affects the Q-index calculation.
+	*
+	* @access  public
+	* @param   string $pid The persistent identifier of the record
+	* @return  array A series of strings, representing the data for each of the key fields
+	*/
+	function getQindexMeta($pid)
+	{
+	
+	$rj = Record::getRankedJournalInfo($pid);
+	$rc = Record::getRankedConferenceInfo($pid);
+	$hc = Record::getHERDCcode($pid);
+	
+	return array(	'rj' => $rj,
+					'rc' => $rc,
+					'hc' => $hc	);
+	}
+	
+	function getRankedJournalInfo($pid)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "
+			SELECT
+				rank,
+				title
+			FROM
+				__temp_lk_matched_journals,
+				__era_journals
+			WHERE
+				__temp_lk_matched_journals.eraid = __era_journals.eraid
+				AND pid = " . $db->quote($pid) . ";
+		";
+	
+		try {
+			$res = $db->fetchRow($stmt, $aut_ids, Zend_Db::FETCH_ASSOC);
+		} catch(Exception $ex) {
+			$log->err($ex);
+			return "";
+		}
+		
+		if (count($res) == 0) {
+			return "";
+		}
+		
+		return $res;
+	}
+	
+	function getRankedConferenceInfo($pid)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "
+			SELECT
+				rank,
+				title
+			FROM
+				__temp_lk_matched_conferences,
+				__era_conferences
+			WHERE
+				__temp_lk_matched_conferences.eraid = __era_conferences.eraid
+				AND pid = " . $db->quote($pid) . ";
+		";
+	
+		try {
+			$res = $db->fetchRow($stmt, $aut_ids, Zend_Db::FETCH_ASSOC);
+		} catch(Exception $ex) {
+			$log->err($ex);
+			return "";
+		}
+		
+		if (count($res) == 0) {
+			return "";
+		}
+		
+		return $res;
+	}
+	
+	function getHERDCcode($pid)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "
+			SELECT
+				cvo_title AS herdc_code,
+				cvo_desc AS herdc_code_description
+			FROM
+				fez_record_search_key_subject,
+				fez_controlled_vocab,
+				fez_controlled_vocab_relationship
+			WHERE
+				fez_record_search_key_subject.rek_subject = fez_controlled_vocab.cvo_id
+				AND fez_controlled_vocab_relationship.cvr_child_cvo_id = fez_controlled_vocab.cvo_id
+				AND fez_controlled_vocab_relationship.cvr_parent_cvo_id = '450000'
+				AND rek_subject_pid = " . $db->quote($pid) . ";
+		";
+	
+		try {
+			$res = $db->fetchRow($stmt, $aut_ids, Zend_Db::FETCH_ASSOC);
+		} catch(Exception $ex) {
+			$log->err($ex);
+			return "";
+		}
+		
+		if (count($res) == 0) {
+			return "";
+		}
+		
+		return $res;
+	}
 
   /**
    * Method used to update the details of a specific Record. Now calls the class.

@@ -2161,13 +2161,26 @@ a.author_id_link:hover {
 
 .research-record-note {
     font-size: 10px;
+    width: 180px;
 }
 
 #research-solo-citation {
-    width: 100%;
+    /*width: 100%;*/
     padding: 20px;
     border: 1px solid #c28ed7;
+    margin-bottom: 20px;
+}
+
+#research-q-index-details {
+    margin-bottom: 20px;
+}
+
+#research-q-index-details td {
+    padding: 5px;
+    border: 1px solid #c28ed7;
     margin-bottom: 10px;
+    vertical-align: middle;
+    white-space: nowrap;
 }
 
 #research-acting-as {

@@ -77,6 +77,7 @@ class MyResearch
 				$recordDetails = Record::getDetailsLite(@$_POST['pid']);
 				$tpl->assign("pid", $recordDetails[0]['rek_pid']);
 				$tpl->assign("citation", $recordDetails[0]['rek_citation']);
+				$tpl->assign("qindex_meta", Record::getQindexMeta($recordDetails[0]['rek_pid']));
 			} elseif ($action == 'hide') {
 				MyResearch::hide(@$_POST['pid']);
 			} elseif ($action == 'hide-bulk') {
@@ -94,6 +95,7 @@ class MyResearch
 				$recordDetails = Record::getDetailsLite(@$_POST['pid']);
 				$tpl->assign("pid", $recordDetails[0]['rek_pid']);
 				$tpl->assign("citation", $recordDetails[0]['rek_citation']);
+				$tpl->assign("qindex_meta", Record::getQindexMeta($recordDetails[0]['rek_pid']));
 			} elseif ($action == 'correction-add') {
 				MyResearch::claimedPubsCorrect(@$_POST['pid']);
 			}
@@ -609,7 +611,13 @@ class MyResearch
 		$author = Auth::getActingUsername();
 		$user = Auth::getUsername();
 		$correction = @$_POST['correction'];
-		$jobID = MyResearch::markClaimedPubAsNeedingCorrection($pid, $author, $user, $correction);
+		$enquiry = @$_POST['enquiry'];
+		$type = @$_POST['form-type'];
+		if ($type == 'correction') {
+			$jobID = MyResearch::markClaimedPubAsNeedingCorrection($pid, $author, $user, $correction);
+		} elseif ($type == 'qindex') {
+			$jobID = MyResearch::markClaimedPubAsNeedingCorrection($pid, $author, $user, $enquiry);
+		}
 		
 		// 2. Send an email to Eventum about it
 		$authorDetails = Author::getDetailsByUsername($author);
@@ -619,15 +627,29 @@ class MyResearch
 		$userName = $userDetails['usr_full_name'];
 		$userEmail = $userDetails['usr_email'];
 		
-		$subject = "My Research :: Correction Required :: " . $jobID . " :: " . $pid . " :: " . $author;
-		
-		$body = "Record: http://" . APP_HOSTNAME . APP_RELATIVE_URL . "view/" . $pid . "\n\n";
-		if ($author == $user) {
-			$body .= $authorName . " (" . $authorID . ") has supplied the following correction information:\n\n";
-		} else {
-			$body .= "User "  . $userName . ", acting on behalf of " . $authorName . ", has supplied the following correction information:\n\n";
+		if ($type == 'correction') {
+			
+			$subject = "My Research :: Correction Required :: " . $jobID . " :: " . $pid . " :: " . $author;
+			$body = "Record: http://" . APP_HOSTNAME . APP_RELATIVE_URL . "view/" . $pid . "\n\n";
+			if ($author == $user) {
+				$body .= $authorName . " (" . $authorID . ") has supplied the following correction information:\n\n";
+			} else {
+				$body .= "User "  . $userName . ", acting on behalf of " . $authorName . ", has supplied the following correction information:\n\n";
+			}
+			$body .= $correction;
+			
+		} elseif ($type == 'qindex') {
+			
+			$subject = "My Research :: Q-index enquiry :: " . $jobID . " :: " . $pid . " :: " . $author;
+			$body = "Record: http://" . APP_HOSTNAME . APP_RELATIVE_URL . "view/" . $pid . "\n\n";
+			if ($author == $user) {
+				$body .= $authorName . " (" . $authorID . ") has submitted the following enquiry:\n\n";
+			} else {
+				$body .= "User "  . $userName . ", acting on behalf of " . $authorName . ", has submitted the following enquiry:\n\n";
+			}
+			$body .= $enquiry;
+			
 		}
-		$body .= $correction;
 		
 		Eventum::lodgeJob($subject, $body, $userEmail);
 		
