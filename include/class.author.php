@@ -1142,6 +1142,34 @@ class Author
 		return $res;
 	}
 
+	function getFirstname($aut_id)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		if(empty($aut_id) || !is_numeric($aut_id)) {
+			return "";
+		}
+			
+		$stmt = "SELECT
+                    aut_fname
+                 FROM
+                    " . APP_TABLE_PREFIX . "author
+                 WHERE
+                    aut_id=".$db->quote($aut_id, 'INTEGER')."
+                 ORDER BY
+                    aut_title";
+		try {
+			$res = $db->fetchOne($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return '';
+		}
+		return $res;
+	}
+
+
 	function getDisplayNameUserName($aut_id)
 	{
 		$log = FezLog::get();

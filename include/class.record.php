@@ -3074,7 +3074,7 @@ class Record
       if (strpos($sek_id, "searchKey") !== false) {
         $searchKeys[str_replace("searchKey", "", $sek_id)] = $value;
       } else if (strpos($sek_id, "manualFilter") !== false) {
-        $searchKey_join[SK_WHERE] .= " ".$value." AND ";
+        $searchKey_join[SK_WHERE] .= " ".$value." ";
       }
     }
     

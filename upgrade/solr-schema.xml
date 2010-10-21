@@ -137,6 +137,10 @@
     <fieldType name="text_ws" class="solr.TextField" positionIncrementGap="100">
       <analyzer>
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+        <filter class="solr.PatternReplaceFilterFactory"
+              pattern="([^a-zA-Z-'])" replacement="" replace="all"
+        />
       </analyzer>
     </fieldType>
 
@@ -223,6 +227,8 @@
      --> 
     <fieldtype name="ignored" stored="false" indexed="false" class="solr.StrField" /> 
 
+
+
  </types>
 
 
@@ -270,6 +276,8 @@
         EXAMPLE:  name="*_i" will match any field ending in _i (like myid_i, z_i)
         Longer patterns will be matched first.  if equal size patterns
         both match, the first appearing in the schema will be used.  -->
+
+
    <dynamicField name="*_i"  type="sint"    indexed="true"  stored="true"/>
    <dynamicField name="*_mi"  type="integer"    indexed="true"  stored="true" multiValued="true" />
    
@@ -280,9 +288,11 @@
    
    <dynamicField name="*_t"  type="text"    indexed="true"  stored="true"/>
    <dynamicField name="*_t_s"  type="alphaOnlySort"    indexed="true"  stored="true"/>
+   <dynamicField name="*_t_ws"  type="text_ws"    indexed="true"  stored="true"/>
    <dynamicField name="*_t_ft" type="string" indexed="true" stored="false"/>
    <!-- <dynamicField name="author_mt"  type="text"    indexed="true"  stored="true" multiValued="true"/> -->
    <dynamicField name="*_mt"  type="text"    indexed="true"  stored="true" multiValued="true"/>
+   <dynamicField name="*_mws"  type="text_ws"    indexed="true"  stored="true" multiValued="true"/>
    <!-- long texts -->
    <dynamicField name="*_mtl"  type="text"    indexed="true"  stored="false" multiValued="true"/>
    
@@ -322,6 +332,9 @@
    <!-- Copy for Sorting -->
    <copyField source="*_t" dest="*_t_s"/>
    <copyField source="*_mt" dest="*_ms"/>  
+   <!-- Copy for Whitespace tokenized only searches -->
+   <copyField source="*_t" dest="*_t_ws"/>
+   <copyField source="*_mt" dest="*_mws"/>  
 
    <!-- Copy for ALL search -->
    <copyField source="*_t" dest="*_t_ft"/>

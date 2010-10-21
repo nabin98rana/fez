@@ -133,10 +133,51 @@ class MyResearch
 	    }
 	    $params = $allowed;
 
+
+			/*
+			 * These options are used in a dropdown box to allow the 
+			 * user to sort a list
+			 */
+			$sort_by_list = array(
+				"searchKey0" => "Search Relevance",
+				"searchKey".Search_Key::getID("Title") => 'Title',
+				"searchKey".Search_Key::getID("Description") => 'Description',
+				"searchKey".Search_Key::getID("File Downloads") => 'File Downloads',
+				"searchKey".Search_Key::getID("Date") => 'Date',
+				"searchKey".Search_Key::getID("Created Date") => 'Created Date',
+				"searchKey".Search_Key::getID("Updated Date") => 'Updated Date',
+				"searchKey".Search_Key::getID("Sequence") => 'Sequence',
+				"searchKey".Search_Key::getID("Thomson Citation Count") => 'Thomson Citation Count',
+				"searchKey".Search_Key::getID("Scopus Citation Count") => 'Scopus Citation Count'
+			);
+
+
 		$cookie_key = "my_research_possible_list";
 		$options = array();
 //		$options = Pager::saveSearchParams($params, $cookie_key);
 		$options = Pager::saveSearchParams($params);
+		$sort_by = $options["sort_by"];
+		$sort_order = $options["sort_order"];
+		
+		  $sort_by_list['searchKey0'] = "Search Relevance";           
+      if (($params["sort_by"]) == "") {
+      	$sort_by = "searchKey0";
+      }
+      
+      // if searching by Title, Abstract, Keywords and sort order not specifically set in the querystring 
+      // (from a manual sort order change) than make search revelance sort descending
+      if (!is_numeric($params["sort_order"]) && ($sort_by == "searchKey0")) {
+      	$options["sort_order"] = 1; // DESC relevance
+  		}
+    
+		
+			// Default Sort
+	        if (!array_key_exists($sort_by, $sort_by_list)) {
+	        	$sort_by = "searchKey".Search_Key::getID("Created Date");
+						$options["sort_order"] = 1;
+	        }
+		
+	
 		$pager_row = $params['pager_row'];
 		if (empty($pager_row)) {
 			$pager_row = 0;
@@ -168,18 +209,26 @@ class MyResearch
 			$filter["searchKey".Search_Key::getID("Author ID")] = $author_id; 
 		} elseif ($type == "possible") {
 			$lastname = Author::getLastName($author_id);
+			$firstname = Author::getFirstname($author_id);
+			$firstname = trim($firstname);
+			if ($firstname != "") {
+				$firstname = " ".substr($firstname, 0, 1);
+			}
 			$filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
 			$filter["searchKey".Search_key::getID("Object Type")] = 3; 
 			$filter["searchKey".Search_Key::getID("Author")] = $lastname;
+//			$filter["manualFilter"] = "author_ms:".$lastname." AND !author_id_mi:".$author_id;
 			$filter["manualFilter"] = " !author_id_mi:".$author_id;
+			$filter["manualFilter"] .= " AND (author_mws:".'"'.$lastname.'" OR author_mws:'.'"'.$lastname.$firstname.'")';
 			if ($options['hide_closed'] == 0) {
 				$hidePids = MyResearch::getHiddenPidsByUsername($actingUser);
+
 				if (count($hidePids) > 0) {
 						$filter["manualFilter"] .= " AND !pid_t:('".str_replace(':', '\:', implode("' OR '", $hidePids))."')";
 				}
 			}
 		}
-
+		$options["manualFilter"] = $filter["manualFilter"];
 		$return = Record::getListing($options, array(9,10), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter, "AND", true, false, false, 10, 1);
 
 		$facets = @$return['facets'];
@@ -205,21 +254,6 @@ class MyResearch
 		$tpl->assign("acting_user", $actingUserArray);
 		$tpl->assign("actual_user", $username);
 
-		/*
-		 * These options are used in a dropdown box to allow the 
-		 * user to sort a list
-		 */
-		$sort_by_list = array(
-			"searchKey".Search_Key::getID("Title") => 'Title',
-			"searchKey".Search_Key::getID("Description") => 'Description',
-			"searchKey".Search_Key::getID("File Downloads") => 'File Downloads',
-			"searchKey".Search_Key::getID("Date") => 'Date',
-			"searchKey".Search_Key::getID("Created Date") => 'Created Date',
-			"searchKey".Search_Key::getID("Updated Date") => 'Updated Date',
-			"searchKey".Search_Key::getID("Sequence") => 'Sequence',
-			"searchKey".Search_Key::getID("Thomson Citation Count") => 'Thomson Citation Count',
-			"searchKey".Search_Key::getID("Scopus Citation Count") => 'Scopus Citation Count'
-		);
 
 		if (Auth::isValidSession($_SESSION)) {
 			$sort_by_list["searchKey".Search_Key::getID("GS Citation Count")] = "Google Scholar Citation Count";
