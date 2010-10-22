@@ -140,7 +140,7 @@ function hideBulk()
 			</td>
 			
 			<td style="vertical-align: middle; text-align: center;">
-				{if $list[i].herdc_code}{$list[i].herdc_code}{else}-{/if}
+				{if $list[i].herdc_code}<a href="#" title="{$list[i].herdc_code_description}">{$list[i].herdc_code}</a>{else}-{/if}
 			</td>
 			
 			<td style="vertical-align: middle; text-align: center;">
