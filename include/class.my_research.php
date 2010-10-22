@@ -249,6 +249,8 @@ class MyResearch
 
 		$return = Record::getListing($options, array(9,10), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter, "AND", true, false, false, 10, 1);
 
+		$return['list'] = Record::getResearchDetailsbyPIDS($return['list']);
+
 		$facets = @$return['facets'];
 		
 		/*
@@ -312,9 +314,7 @@ class MyResearch
 		
 		return;
 
-	}	
-	
-	
+	}		
 	
 	/**********************************
 	 * POSSIBLE PUBLICATION FUNCTIONS *

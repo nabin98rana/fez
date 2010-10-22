@@ -410,6 +410,65 @@ class Record
 					'rc' => $rc,
 					'hc' => $hc	);
 	}
+
+  function getResearchDetailsbyPIDS($result)
+  {		
+
+    $pids = array();
+    for ($i = 0; $i < count($result); $i++) {
+      $pids[] = $result[$i]["rek_pid"];
+    }
+    if (count($pids) == 0) {
+      return;
+    }
+
+		$herdc = Record::getHERDCcodeByPIDs($pids);
+
+		$rj = Record::getRankedJournalInfoByPIDs($pids);
+
+		$rc = Record::getRankedConferenceInfoByPIDs($pids);
+
+		$ht = array();
+		$rjt = array();
+		$rct = array();
+		$res = $herdc;
+	  for ($i = 0; $i < count($res); $i++) {
+      $ht[$res[$i]["pid"]] = array();
+      $ht[$res[$i]["pid"]]['herdc_code'] = $res[$i]["herdc_code"];
+      $ht[$res[$i]["pid"]]['herdc_code_description'] = $res[$i]["herdc_code_description"];
+    }
+
+		$res = $rj;
+	  for ($i = 0; $i < count($res); $i++) {
+      $rjt[$res[$i]["pid"]]['rj_rank'] = $res[$i]["rank"];
+      $rjt[$res[$i]["pid"]]['rj_title'] = $res[$i]["title"];
+    }
+
+		$res = $rc;
+	  for ($i = 0; $i < count($res); $i++) {
+      $rct[$res[$i]["pid"]]['rc_rank'] = $res[$i]["rank"];
+      $rct[$res[$i]["pid"]]['rc_title'] = $res[$i]["title"];
+    }
+
+    // now populate the $result variable again
+    // for ($i = 0; $i < count($result); $i++) {
+    //   $result[$i]["rek_ismemberof_count"] = $t[$result[$i]["rek_pid"]];
+    // }
+  
+    for ($i = 0; $i < count($result); $i++) {
+			$pid = $result[$i]['rek_pid'];
+			if (is_array($ht[$pid])) {
+        $result[$i] = array_merge($result[$i], $ht[$pid]);
+			}
+			if (is_array($rjt[$pid])) {
+        $result[$i] = array_merge($result[$i], $rjt[$pid]);
+			}
+			if (is_array($rct[$pid])) {
+        $result[$i] = array_merge($result[$i], $rct[$pid]);
+			}
+		}
+		return $result;
+	}
 	
 	function getRankedJournalInfo($pid)
 	{
@@ -429,13 +488,41 @@ class Record
 		";
 	
 		try {
-			$res = $db->fetchRow($stmt, $aut_ids, Zend_Db::FETCH_ASSOC);
+			$res = $db->fetchRow($stmt, Zend_Db::FETCH_ASSOC);
 		} catch(Exception $ex) {
 			$log->err($ex);
 			return "";
 		}
 		
 		if (count($res) == 0) {
+			return "";
+		}
+		
+		return $res;
+	}
+
+	function getRankedJournalInfoByPIDs($pids)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "
+			SELECT
+				pid,
+				rank,
+				title
+			FROM
+				__temp_lk_matched_journals,
+				__era_journals
+			WHERE
+				__temp_lk_matched_journals.eraid = __era_journals.eraid
+				AND pid in (".Misc::arrayToSQLBindStr($pids).") 
+		";
+
+		try {
+			$res = $db->fetchAll($stmt, $pids, Zend_Db::FETCH_ASSOC);
+		} catch(Exception $ex) {
+			$log->err($ex);
 			return "";
 		}
 		
@@ -460,13 +547,41 @@ class Record
 		";
 	
 		try {
-			$res = $db->fetchRow($stmt, $aut_ids, Zend_Db::FETCH_ASSOC);
+			$res = $db->fetchRow($stmt, Zend_Db::FETCH_ASSOC);
 		} catch(Exception $ex) {
 			$log->err($ex);
 			return "";
 		}
 		
 		if (count($res) == 0) {
+			return "";
+		}
+		
+		return $res;
+	}
+	
+	function getRankedConferenceInfoByPIDs($pids)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "
+			SELECT
+				pid,
+				rank,
+				title
+			FROM
+				__temp_lk_matched_conferences,
+				__era_conferences
+			WHERE
+				__temp_lk_matched_conferences.eraid = __era_conferences.eraid
+				AND pid in (".Misc::arrayToSQLBindStr($pids).") 
+		";
+	
+		try {
+			$res = $db->fetchAll($stmt, $pids, Zend_Db::FETCH_ASSOC);
+		} catch(Exception $ex) {
+			$log->err($ex);
 			return "";
 		}
 		
@@ -494,13 +609,45 @@ class Record
 		";
 	
 		try {
-			$res = $db->fetchRow($stmt, $aut_ids, Zend_Db::FETCH_ASSOC);
+			$res = $db->fetchRow($stmt, Zend_Db::FETCH_ASSOC);
 		} catch(Exception $ex) {
 			$log->err($ex);
 			return "";
 		}
 		
 		if (count($res) == 0) {
+			return "";
+		}
+		
+		return $res;
+	}
+
+
+	function getHERDCcodeByPIDs($pids)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "
+			SELECT
+				rek_subject_pid as pid,
+				cvo_title AS herdc_code,
+				cvo_desc AS herdc_code_description
+			FROM
+				fez_record_search_key_subject,
+				fez_controlled_vocab,
+				fez_controlled_vocab_relationship
+			WHERE
+				fez_record_search_key_subject.rek_subject = fez_controlled_vocab.cvo_id
+				AND fez_controlled_vocab_relationship.cvr_child_cvo_id = fez_controlled_vocab.cvo_id
+				AND fez_controlled_vocab_relationship.cvr_parent_cvo_id = '450000'
+				AND rek_subject_pid in (".Misc::arrayToSQLBindStr($pids).") 
+		";
+	
+		try {
+			$res = $db->fetchAll($stmt, $pids, Zend_Db::FETCH_ASSOC);
+		} catch(Exception $ex) {
+			$log->err($ex);
 			return "";
 		}
 		

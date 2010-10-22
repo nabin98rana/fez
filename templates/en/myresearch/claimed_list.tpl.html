@@ -139,15 +139,15 @@ function correctionRequired(pid)
 			<td style="width: 100%;">{$list[i].rek_citation}</td>
 
 			<td style="vertical-align: middle; text-align: center;">
-				-
+				{if $list[i].rj_rank}<a href="#" title="{$list[i].rj_title}">{$list[i].rj_rank}</a>{else}-{/if}
 			</td>
 			
 			<td style="vertical-align: middle; text-align: center;">
-				-
+				{if $list[i].rc_rank}<a href="#" title="{$list[i].rc_title}">{$list[i].rc_rank}</a>{else}-{/if}
 			</td>
 			
 			<td style="vertical-align: middle; text-align: center;">
-				-
+				{if $list[i].herdc_code}{$list[i].herdc_code}{else}-{/if}
 			</td>
 			
 			<td style="vertical-align: middle; text-align: center;">
