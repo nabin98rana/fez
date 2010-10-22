@@ -219,12 +219,24 @@ class MyResearch
 			if ($firstname != "") {
 				$firstname = " ".substr($firstname, 0, 1);
 			}
+			if (is_numeric($author_id)) {
+				$alternativeAuthorNames = Author::getAlternativeNames($author_id);
+				$alternatives = "";
+				if (count($alternativeAuthorNames) > 0) { 
+					$alternatives = implode('"'." OR author_mws:".'"', $alternativeAuthorNames);
+				}
+				if ($alternatives != "") {
+					$alternatives = "OR author_mws:".'"'.$alternatives.'"';
+				}
+			}
+			//echo $alternatives;
+			
 			$filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
 			$filter["searchKey".Search_key::getID("Object Type")] = 3; 
 			$filter["searchKey".Search_Key::getID("Author")] = $lastname;
-//			$filter["manualFilter"] = "author_ms:".$lastname." AND !author_id_mi:".$author_id;
 			$filter["manualFilter"] = " !author_id_mi:".$author_id;
-			$filter["manualFilter"] .= " AND (author_mws:".'"'.$lastname.'" OR author_mws:'.'"'.$lastname.$firstname.'")';
+			$filter["manualFilter"] .= " AND (author_mws:".'"'.$lastname.'" OR author_mws:'.'"'.$lastname.$firstname.'" '.$alternatives.')';
+
 			if ($options['hide_closed'] == 0) {
 				$hidePids = MyResearch::getHiddenPidsByUsername($actingUser);
 

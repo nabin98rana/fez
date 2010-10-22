@@ -1423,8 +1423,29 @@ class Author
     }
     return $res;
   }
+
+  function getAlternativeNames($authorId)
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
   
-  
+    $query = "SELECT rek_author FROM " . APP_TABLE_PREFIX . "record_search_key_author aut ";
+    $query .= "JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id autid ";
+    $query .= "ON (rek_author_pid = rek_author_id_pid AND aut.rek_author_order = autid.rek_author_id_order) ";
+    $query .= "WHERE autid.rek_author_id = ".$db->quote($authorId, 'INTEGER');
+    $query .= " GROUP BY rek_author ";
+
+    try {
+      $res = $db->fetchCol($query);
+    }
+    catch(Exception $ex) {
+      $log->err($ex);
+      return '';
+    }
+    return $res;
+  }
+
+
   /**
    * Method used to set the ResearcherID for an author.
    *

@@ -918,6 +918,10 @@ class Apache_Solr_Service
 		// anywhere else the regex isn't expecting it
 		$queryString = preg_replace('/%5B(?:[0-9]|[1-9][0-9]+)%5D=/', '=', $queryString);
 
+		if (strlen($queryString) > 8000) {
+			$method = self::METHOD_POST;
+		}
+
 		if ($method == self::METHOD_GET)
 		{
 			return $this->_sendRawGet($this->_searchUrl . $this->_queryDelimiter . $queryString);
