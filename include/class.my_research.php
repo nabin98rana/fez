@@ -760,22 +760,22 @@ class MyResearch
 		
 		$stmt = "
 				SELECT
-					DISTINCT(aut_org_username) AS username,
+					aut_org_username AS username,
 					aut_fname AS first_name,
-					UCASE(aut_lname) AS last_name
+					UCASE(aut_lname) AS last_name,
+					GROUP_CONCAT(POS_TITLE SEPARATOR ', ') AS pos_title
 				FROM
-					" . APP_TABLE_PREFIX . "author,
-					hr_position_vw
+					" . APP_TABLE_PREFIX . "author INNER JOIN
+					hr_position_vw on aut_org_username = USER_NAME
 				WHERE
-					hr_position_vw.USER_NAME = fez_author.aut_org_username
-					AND AOU = " . $db->quote($orgID) . "
-					AND (aut_org_username IS NOT NULL
-					OR aut_org_staff_id IS NOT NULL)
+					AOU = " . $db->quote($orgID) . "
+					AND USER_NAME != ''
+				GROUP BY aut_org_username
 				ORDER BY
 					aut_lname ASC,
 					aut_fname ASC;
 		";
-		
+
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}

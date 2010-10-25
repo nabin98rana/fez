@@ -61,7 +61,7 @@ function changeOrgUnit()
 	
 		<div>
 			{foreach from=$authors key=k item=v}
-				<input type="radio" name="username" value="{$v.username}" onclick="javascript:userSelect('{$v.username}');" {if $v.username == $acting_user.aut_org_username}checked="checked"{/if} /> {$v.last_name}, {$v.first_name}<br />
+				<input type="radio" name="username" value="{$v.username}" onclick="javascript:userSelect('{$v.username}');" {if $v.username == $acting_user.aut_org_username}checked="checked"{/if} /> {$v.last_name}, {$v.first_name} ({$v.pos_title})<br />
 			{/foreach}
 		</div>
 		
