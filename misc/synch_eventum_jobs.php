@@ -41,7 +41,9 @@ main();
 
 function main()
 {
+	echo "====================================\n";
 	echo "Running Eventum job synch script ...\n";
+	echo date('d/m/Y H:i:s') . "\n";
 	
 	$jobs = Eventum::getAllClosedMyResearchJobs();
 	
@@ -56,7 +58,7 @@ function main()
 		Eventum::closeAndSynchJob($job['ticket_id']); // Mark the job 'Closed and Synched' in Eventum
 	}
 	
-	echo "Synch complete.";
+	echo "Synch complete.\n\n";
 	
 	exit;
 }
