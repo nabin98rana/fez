@@ -196,12 +196,14 @@ function correctionRequired(pid)
 		</tr>
 		
 		{if $smarty.section.i.last}
+			<tr>
+				<td colspan="8">
+					<input type="button" class="claimed-not-my-pub" value="None of the above ticked publications are mine" onclick="javascript:notMineBulk();" />
+				</td>
+			</tr>
+			
 			</table>
 			
-			<div>
-				<input type="button" class="claimed-not-my-pub" value="None of the above ticked publications are mine" onclick="javascript:notMineBulk();" />
-			</div>
-
 			<div>
 				<input type="hidden" id="bulk-not-mine-pids" name="bulk-not-mine-pids" value="" />
 				<input type="hidden" name="action" value="not-mine-bulk" />

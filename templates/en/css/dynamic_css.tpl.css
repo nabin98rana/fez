@@ -2197,3 +2197,15 @@ a.author_id_link:hover {
 .claimed-correction-required { background: #fffeeb; }
 .possible-my-pub { background: #d6ffe0; }
 .possible-hide { background: #eaeaea; }
+
+.upo-staff td {
+    padding: 2px 20px 2px 4px;
+}
+
+.upo-staff-odd {
+    background-color: #f3f3f3;
+}
+
+.upo-staff-active {
+    background: #ffffe5;
+}

@@ -59,11 +59,18 @@ function changeOrgUnit()
 	
 	<form action="my_upo_tools.php" method="post" id="userSelect">
 	
-		<div>
+		<table class="upo-staff">
 			{foreach from=$authors key=k item=v}
-				<input type="radio" name="username" value="{$v.username}" onclick="javascript:userSelect('{$v.username}');" {if $v.username == $acting_user.aut_org_username}checked="checked"{/if} /> {$v.last_name}, {$v.first_name} ({$v.pos_title})<br />
+				<tr class="{cycle values="upo-staff-even,upo-staff-odd"}{if $v.username == $acting_user.aut_org_username} upo-staff-active{/if}">
+					<td>
+						<input type="radio" name="username" value="{$v.username}" onclick="javascript:userSelect('{$v.username}');" {if $v.username == $acting_user.aut_org_username}checked="checked"{/if} /> {$v.last_name}, {$v.first_name}
+					</td>
+					<td>
+						{$v.pos_title}
+					</td>
+				</tr>
 			{/foreach}
-		</div>
+		</table>
 		
 		<div>
 			<input type="hidden" value="change-user" name="action" />

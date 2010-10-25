@@ -97,7 +97,7 @@ function hideBulk()
 
 			<table {if ($facets)}width="70%"{else}width="100%"{/if} id="research-record-listing">
 				<tr>
-			        <th colspan="2">These publications <i>may</i> belong to you. They were authored by someone sharing your surname, but have not yet been claimed by another researcher.</th>
+			        <th colspan="2">These publications <i>may</i> belong to you. They were authored by someone either sharing your surname, or by someone with one of the names you are known to have published under in the past.</th>
 					<th style="text-align: center; padding: 2px;">
 						{if $list_info.total_rows > 0}
 							<img src="{$rel_url}images/journal_ranking_16.png" title="Ranked Journal List Ranking" alt="Ranked Journal List Ranking" />
@@ -188,11 +188,13 @@ function hideBulk()
 		</tr>
 	
 		{if $smarty.section.i.last}
+			<tr>
+				<td colspan="8">
+					<input type="button" class="possible-hide" value="None of the above ticked publications are mine" onclick="javascript:hideBulk();" />
+				</td>
+			</tr>
+			
 			</table>
-
-			<div>
-				<input type="button" class="possible-hide" value="None of the above ticked publications are mine" onclick="javascript:hideBulk();" />
-			</div>
 
 			<div>
 				<input type="hidden" id="pid" name="pid" value="" />
