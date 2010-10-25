@@ -203,7 +203,11 @@ function hideBulk()
 		{/if}
 	
 	{sectionelse}
+		{if $author_id_message != ''}
+		<p>{$author_id_message}</p>
+		{else}
 		<p>We could not find any publications that we suspect might be yours.</p>
+		{/if}
 	{/section}
 
     {include file="paging_control.tpl.html" field="paginat0r"}		

@@ -246,11 +246,13 @@ class MyResearch
 			}
 			$options["manualFilter"] = $filter["manualFilter"];
 		}
-
-		$return = Record::getListing($options, array(9,10), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter, "AND", true, false, false, 10, 1);
-
-		$return['list'] = Record::getResearchDetailsbyPIDS($return['list']);
-
+		$message = '';
+		if (is_numeric($author_id)) {
+			$return = Record::getListing($options, array(9,10), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter, "AND", true, false, false, 10, 1);
+			$return['list'] = Record::getResearchDetailsbyPIDS($return['list']);
+		} else {
+			$message = "You are not registered in ".APP_SHORT_ORG_NAME." as an author. Please contact the <a href='".APP_BASE_URL."contact.php'>".APP_SHORT_ORG_NAME." Manager</a> to resolve this.";
+		}
 		$facets = @$return['facets'];
 		
 		/*
@@ -264,7 +266,7 @@ class MyResearch
 				}
 			}
 		}
-
+		$tpl->assign("author_id_message", $message);
 		$tpl->assign("facets", $facets);
 		$tpl->assign("list", $return['list']);
 		$tpl->assign("list_info", $return['info']);
