@@ -147,7 +147,7 @@ function correctionRequired(pid)
 			</td>
 
 			<td style="vertical-align: middle; text-align: center;">
-				{if $list[i].herdc_code}<a href="#" title="{if $list[i].confirmed != ''}CONFIRMED {else}PROVISIONAL {/if}{$list[i].herdc_code_description}">{$list[i].herdc_code}{if $list[i].confirmed != ''}{else}^{/if}</a>{else}-{/if}
+				{if $list[i].herdc_code}<a href="#" title="{if $list[i].confirmed != ''}CONFIRMED {else}PROVISIONAL {/if}{$list[i].herdc_code_description}">{$list[i].herdc_code}{if $list[i].confirmed != ''}{else}P{/if}</a>{else}-{/if}
 			</td>
 			
 			<td style="vertical-align: middle; text-align: center;">
