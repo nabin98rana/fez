@@ -611,9 +611,9 @@ class Record
 		}
 		$stmt .=
 			" WHERE
-				fez_record_search_key_subject.rek_subject = fez_controlled_vocab.cvo_id
-				AND fez_controlled_vocab_relationship.cvr_child_cvo_id = fez_controlled_vocab.cvo_id
-				AND fez_controlled_vocab_relationship.cvr_parent_cvo_id = '450000'
+				rek_subject = cvo_id
+				AND cvr_child_cvo_id = cvo_id
+				AND cvr_parent_cvo_id = '450000'
 				AND rek_subject_pid = " . $db->quote($pid);
 		if (APP_HERDC_COLLECTIONS && trim(APP_HERDC_COLLECTIONS != "")) {
 			$stmt .= " GROUP BY cvo_title";
@@ -651,25 +651,20 @@ class Record
 				
 		$stmt .= "
 			FROM
-				fez_record_search_key_subject,
-				fez_controlled_vocab,
-				fez_controlled_vocab_relationship ";
+				fez_record_search_key_subject 
+				INNER JOIN fez_controlled_vocab ON rek_subject = cvo_id 
+				INNER JOIN fez_controlled_vocab_relationship ON cvr_child_cvo_id = cvo_id AND cvr_parent_cvo_id = '450000'  ";
 			if (APP_HERDC_COLLECTIONS && trim(APP_HERDC_COLLECTIONS != "")) {
-				$stmt .= "LEFT JOIN fez_record_search_key_ismemberof ON rek_ismemberof_pid = " . $db->quote($pid) . " AND rek_ismemberof IN (".APP_HERDC_COLLECTIONS.")";
+				$stmt .= "LEFT JOIN fez_record_search_key_ismemberof ON rek_ismemberof IN (".APP_HERDC_COLLECTIONS.") AND rek_ismemberof_pid = rek_subject_pid ";
 			}
-			$stmt .=
-				
-				
+			$stmt .= 
 		"	WHERE
-				fez_record_search_key_subject.rek_subject = fez_controlled_vocab.cvo_id
-				AND fez_controlled_vocab_relationship.cvr_child_cvo_id = fez_controlled_vocab.cvo_id
-				AND fez_controlled_vocab_relationship.cvr_parent_cvo_id = '450000'
-				AND rek_subject_pid in (".Misc::arrayToSQLBindStr($pids).") 
+				rek_subject_pid in (".Misc::arrayToSQLBindStr($pids).") 
 		";
 		if (APP_HERDC_COLLECTIONS && trim(APP_HERDC_COLLECTIONS != "")) {
 			$stmt .= " GROUP BY pid, cvo_title";
 		}
-	
+
 		try {
 			$res = $db->fetchAll($stmt, $pids, Zend_Db::FETCH_ASSOC);
 		} catch(Exception $ex) {
