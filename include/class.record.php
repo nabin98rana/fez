@@ -642,17 +642,32 @@ class Record
 			SELECT
 				rek_subject_pid as pid,
 				cvo_title AS herdc_code,
-				cvo_desc AS herdc_code_description
+				cvo_desc AS herdc_code_description ";
+				
+		if (APP_HERDC_COLLECTIONS && trim(APP_HERDC_COLLECTIONS != "")) {
+			$stmt .= " , GROUP_CONCAT(rek_ismemberof) AS confirmed ";
+		}
+				
+		$stmt .= "
 			FROM
 				fez_record_search_key_subject,
 				fez_controlled_vocab,
-				fez_controlled_vocab_relationship
-			WHERE
+				fez_controlled_vocab_relationship ";
+			if (APP_HERDC_COLLECTIONS && trim(APP_HERDC_COLLECTIONS != "")) {
+				$stmt .= "LEFT JOIN fez_record_search_key_ismemberof ON rek_ismemberof_pid = " . $db->quote($pid) . " AND rek_ismemberof IN (".APP_HERDC_COLLECTIONS.")";
+			}
+			$stmt .=
+				
+				
+		"	WHERE
 				fez_record_search_key_subject.rek_subject = fez_controlled_vocab.cvo_id
 				AND fez_controlled_vocab_relationship.cvr_child_cvo_id = fez_controlled_vocab.cvo_id
 				AND fez_controlled_vocab_relationship.cvr_parent_cvo_id = '450000'
 				AND rek_subject_pid in (".Misc::arrayToSQLBindStr($pids).") 
 		";
+		if (APP_HERDC_COLLECTIONS && trim(APP_HERDC_COLLECTIONS != "")) {
+			$stmt .= " GROUP BY pid, cvo_title";
+		}
 	
 		try {
 			$res = $db->fetchAll($stmt, $pids, Zend_Db::FETCH_ASSOC);

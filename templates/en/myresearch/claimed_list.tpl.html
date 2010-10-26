@@ -145,9 +145,9 @@ function correctionRequired(pid)
 			<td style="vertical-align: middle; text-align: center;">
 				{if $list[i].rc_rank}<a href="#" title="{$list[i].rc_title}">{$list[i].rc_rank}</a>{else}<a href="#" title="This is outside the ERA window (pre-2003) and/or not identified as being in a 2010 ERA Ranked Conference.">-</a>{/if}
 			</td>
-			
+
 			<td style="vertical-align: middle; text-align: center;">
-				{if $list[i].herdc_code}<a href="#" title="{$list[i].herdc_code_description}">{$list[i].herdc_code}</a>{else}-{/if}
+				{if $list[i].herdc_code}<a href="#" title="{if $list[i].confirmed != ''}CONFIRMED {else}PROVISIONAL {/if}{$list[i].herdc_code_description}">{$list[i].herdc_code}{if $list[i].confirmed != ''}{else}^{/if}</a>{else}-{/if}
 			</td>
 			
 			<td style="vertical-align: middle; text-align: center;">
