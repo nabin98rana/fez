@@ -460,15 +460,15 @@ class ResearcherID
 
                 $profiles = $xml_report->profileList->{'existing-researchers'}->{'researcher-profile'};
                 foreach ($profiles as $profile) {
-                  Author::setResearcherIdByOrgUsername($profile->employeeID, $profile->researcherID);
+                  Author::setResearcherIdByOrgUsername((string)$profile->employeeID, (string)$profile->researcherID);
                 }
 
                 $profiles = $xml_report->profileList->{'failed-to-upload'}->{'researcher-profile'};
                 foreach ($profiles as $profile) {
                   if (! (empty($profile->employeeID) || empty($profile->researcherID)) ) {
-                    Author::setResearcherIdByOrgUsername($profile->employeeID, $profile->researcherID);
+                    Author::setResearcherIdByOrgUsername((string)$profile->employeeID, (string)$profile->researcherID);
                   } else {
-                    Author::setResearcherIdByOrgUsername($profile->employeeID, 'ERR: '.$profile->{'error-desc'});
+                    Author::setResearcherIdByOrgUsername((string)$profile->employeeID, 'ERR: '.(string)$profile->{'error-desc'});
                   }
                 }
               } else if ($xml_report->publicationList) {
