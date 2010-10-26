@@ -436,6 +436,7 @@ class Record
       $ht[$res[$i]["pid"]] = array();
       $ht[$res[$i]["pid"]]['herdc_code'] = $res[$i]["herdc_code"];
       $ht[$res[$i]["pid"]]['herdc_code_description'] = $res[$i]["herdc_code_description"];
+      $ht[$res[$i]["pid"]]['confirmed'] = $res[$i]["confirmed"];
     }
 
 		$res = $rj;
