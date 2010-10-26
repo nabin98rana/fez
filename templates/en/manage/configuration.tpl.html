@@ -530,6 +530,14 @@ function restoreDefaultColours(el)
 			  {include file="error_icon.tpl.html" field="app_herdc_support"}
 			</td>
   		  </tr>
+		  <tr>
+		    <th>HERDC Collections</th>
+			<td>
+			  <input type="text" name="app_herdc_collections" value="{$config_settings.app_herdc_collections|escape:"html"}" size="100" />
+			  <br />List of comma separated ' quote enclosed pids which are used to contain the confirmed HERDC pids for each year.
+			  {include file="error_icon.tpl.html" field="app_herdc_collection"}
+			</td>
+  		  </tr>
   		  <tr>
 		    <th>My Research Publications Module</th>
 			<td>
