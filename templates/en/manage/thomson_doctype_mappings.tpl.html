@@ -1,0 +1,182 @@
+<div class="admin-box">
+
+<form id="custom_field_form" name="custom_field_form"
+	    onsubmit="javascript:return validateForm(this);" method="post"
+	    action="{$smarty.server.PHP_SELF}" enctype="multipart/form-data">
+<div>
+{if $smarty.get.cat == 'edit'}
+  <input type="hidden" name="cat" value="update" /> 
+  <input type="hidden" name="id" value="{$smarty.get.id}" />
+{else}
+  <input type="hidden" name="cat" value="new" /> 
+{/if}
+</div>
+
+<table style="width: 100%;" cellspacing="0" cellpadding="0">
+	<tr>
+		<td colspan="2">
+		<h1>Manage Thomson Document Type Mappings</h1>
+		</td>
+	</tr>
+	{if $result != ""}
+	<tr>
+		<td colspan="2" style="background: {$cell_color}"
+			  class="{if $result == 1 || $result == 3}success{else}error{/if}">		
+		  {if $result == 1}
+		    The row was added successfully. 
+		  {elseif $result == -1}
+		    An error occurred while trying to add the row 
+		  {elseif $result == 3}
+		    The row(s) were successfully deleted 
+		  {elseif $result == 4}
+		    An error occurred while trying to delete row(s)
+		  {/if}</td>
+	</tr>
+	{/if}
+	<tr>
+		<td style="width: 140px" class="default cell-colour">
+		  <b>XSD Display:</b></td>
+		<td style="background: {$light_color}" class="default">
+		  <select name="tdm_xdis_id" onchange="displaySubtypes(this.options[this.selectedIndex].value);">
+      {foreach from=$xsd_disp_list item=xsd_disp}
+			 <option value="{$xsd_disp.xdis_id|escape:"html"}">
+			   {$xsd_disp.xdis_title|escape:"html"}
+			 </option>
+			{/foreach}
+		  </select>
+		  <div id="subtypes" style="visibility: hidden"><select name="tdm_subtype"></select></div></td>
+	</tr>
+	<tr>
+    <td style="width: 140px" class="default cell-colour">
+      <b>Document Type Code:</b></td>
+    <td style="background: {$light_color}" class="default">
+      <input type="text" name="tdm_doctype" value="" size="2" /></td>
+  </tr>
+  <tr>
+    <td style="width: 140px" class="default cell-colour">
+      <b>Thomson Service:</b></td>
+    <td style="background: {$light_color}" class="default">
+      <select name="tdm_service">
+        <option value="ESTI">ESTI</option>
+        <option value="ResearcherID">ResearcherID</option>
+      </select></td>
+  </tr>
+  
+	<tr>
+		<td colspan="2" style="background: {$cell_color}">
+		{if $smarty.get.cat == 'edit'}
+		  <input class="button" type="submit" value="Update Mapping" />
+		{else}
+		  <input class="button" type="submit" value="Add Mapping" />
+		{/if}
+		<input class="button" type="reset" value="Reset" /></td>
+	</tr>
+</table>
+</form>
+
+{literal}
+<script type="text/javascript">
+<!--
+function checkDelete(f)
+{
+	if (!hasOneChecked(f, 'items[]')) {
+	  alert('Please select at least one of the mappings.');
+	  return false;
+	}
+	if (!confirm('This action will permanently remove the selected mapping.')) {
+		return false;
+	} else {
+	  return true;
+	}
+}
+
+var subTypes = new Array();
+{/literal}
+{foreach from=$xsd_disp_list item=xsd_disp}
+  {foreach from=$xsd_disp.subtypes key=mfo_id item=mfo_value}
+    subType = new Object();
+    subType.id = {$xsd_disp.xdis_id|escape:"html"};
+    subType.value = "{$mfo_value|escape:"html"}";
+    subTypes.push(subType);
+  {/foreach}
+{/foreach}
+{literal}
+
+var frm = document.custom_field_form.tdm_subtype;
+var frmCtnr = document.getElementById('subtypes');
+function displaySubtypes(xdis_id)
+{
+	frm.options.length = 0;
+	frm.options[frm.options.length] = new Option('-- Select a subtype (optional) --', '');
+	for (var i=0; i<subTypes.length; i++) {
+	  if (subTypes[i].id == xdis_id) {		  	
+      frm.options[frm.options.length] = new Option(subTypes[i].value, subTypes[i].value);
+	  }
+  }
+	if (frm.options.length == 1) {
+		frmCtnr.style.visibility = "hidden";
+	} else {
+		frmCtnr.style.visibility = "visible";
+	}
+}
+displaySubtypes({/literal}{$xsd_disp_list[0].xdis_id|escape:"html"}{literal});
+//-->
+</script>
+{/literal}
+
+<form onsubmit="javascript:return checkDelete(this);" method="post"
+	    action="{$smarty.server.PHP_SELF}">
+<div><input type="hidden" name="cat" value="delete" /></div>
+
+<table style="width: 100%;" cellspacing="0" cellpadding="0">
+	<tr>
+		<td class="default">
+		<h2>Existing Thomson Document Type Mappings ({$list_count}):</h2>
+		</td>
+	</tr>
+	<tr>
+		<td>
+		<table border="0" width="100%" cellpadding="1" cellspacing="1">
+			<tr>
+				<td style="width: 5px; background: {$cell_color}">
+				  <input type="button" value="All" class="shortcut button"
+					       onclick="javascript:toggleSelectAll(this.form, 'items[]');" /></td>
+				<td class="default cell-colour">&nbsp;<b>XSD Display</b>&nbsp;</td>
+				<td class="default cell-colour">&nbsp;<b>XSD Display Subtype</b>&nbsp;</td>
+				<td class="default cell-colour">&nbsp;<b>Document Type Code</b>&nbsp;</td>
+				<td class="default cell-colour">&nbsp;<b>Thomson Service</b>&nbsp;</td>
+			</tr>
+			{section name="i" loop=$list} {cycle values=$cycle assign="row_color"}
+			<tr>
+				<td style="width: 4px; white-space: nowrap; background: {$row_color}">
+				  <input type="checkbox" name="items[]" value="{$list[i].tdm_id|escape:"html"}"
+				    {if $smarty.section.i.total== 0}disabled="disabled" {/if} /></td>
+				<td style="background: {$row_color}" class="default">
+				  &nbsp;{$list[i].xdis_title|escape:"html"}</td>
+				<td style="background: {$row_color}" class="default">
+          &nbsp;{$list[i].tdm_subtype|escape:"html"}</td>
+				<td style="background: {$row_color}" class="default">
+				  &nbsp;{$list[i].tdm_doctype|escape:"html"}</td>
+				<td style="background: {$row_color}" class="default">
+          &nbsp;{$list[i].tdm_service|escape:"html"}</td>
+			</tr>
+			{sectionelse}
+			<tr>
+				<td colspan="13" style="background: {$light_color}; text-align: center;" class="default">
+				No mappings could be found.</td>
+			</tr>
+			{/section}
+			<tr>
+				<td style="width: 4px; text-align: center; background: {$cell_color}">
+				  <input type="button" value="All" class="shortcut button"
+			 		       onclick="javascript:toggleSelectAll(this.form, 'items[]');" /></td>
+				<td colspan="13" style="background: {$cell_color}"><input
+					  type="submit" value="Delete" class="button" /></td>
+			</tr>
+		</table>
+		</td>
+	</tr>
+</table>
+</form>
+
+</div>

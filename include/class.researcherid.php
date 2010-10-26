@@ -966,7 +966,7 @@ class ResearcherID
           
         // Get the ref-type based on this record's display type
         if ( !empty($record['rek_display_type']) ) {
-          $record['rek_ref_type'] = ResearcherID::getRefTypeByDisplayType($record['rek_display_type']);
+          $record['rek_ref_type'] = ResearcherID::getDocTypeByDisplayType($record['rek_display_type']);
         }
           
         if ( is_array($record['rek_isi_loc']) ) {
@@ -1025,23 +1025,23 @@ class ResearcherID
   }
 
   /**
-   * Method used to get the ResearcherID ref-type based on the record's display type
+   * Method used to get the ResearcherID doc-type based on the record's display type
    *
    * @access  public
    * @param   string $display_type The display type to get the ref type for
    * @return  string The ref-type.
    */
-  private static function getRefTypeByDisplayType($display_type)
+  private static function getDocTypeByDisplayType($display_type)
   {
     $log = FezLog::get();
     $db = DB_API::get();
 
     $stmt = "SELECT
-                  fdtrt_ref_type
+                  tdm_doctype
                FROM
-                  " . APP_TABLE_PREFIX . "display_type_ref_type
+                  " . APP_TABLE_PREFIX . "thomson_doctype_mappings
                WHERE
-                  fdtrt_display_type = ?";
+                  tdm_xdis_id = ?";
 
     try {
       $res = $db->fetchOne($stmt, array($display_type));
