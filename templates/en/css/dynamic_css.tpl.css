@@ -2157,21 +2157,24 @@ a.author_id_link:hover {
 #research-record-listing th {
     font-weight: normal;
     text-align: left;
+    vertical-align: bottom;
+    padding-bottom: 4px;
 }
 
 .research-record-note {
-    font-size: 10px;
+    font-size: 5px;
     width: 180px;
 }
 
 #research-solo-citation {
-    /*width: 100%;*/
+    margin-top: 5px;
     padding: 20px;
     border: 1px solid #c28ed7;
     margin-bottom: 20px;
 }
 
 #research-q-index-details {
+    margin-top: 5px;
     margin-bottom: 20px;
 }
 

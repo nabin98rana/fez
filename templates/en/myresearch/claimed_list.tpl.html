@@ -104,7 +104,7 @@ function correctionRequired(pid)
 
 			<table id="research-record-listing">
 				<tr>
-			        <th colspan="2">The publications listed below are currently attributed to you within the {$org_short_name} data set.</th>
+			        <th colspan="2">The publications listed below are currently attributed to you.</th>
 					<th style="text-align: center; padding: 2px;">
 						{if $list_info.total_rows > 0}
 							<img src="{$rel_url}images/journal_ranking_16.png" title="Ranked Journal List Ranking" alt="Ranked Journal List Ranking" />
@@ -139,11 +139,11 @@ function correctionRequired(pid)
 			<td style="width: 100%;">{$list[i].rek_citation}</td>
 
 			<td style="vertical-align: middle; text-align: center;">
-				{if $list[i].rj_rank}<a href="#" title="{$list[i].rj_title}">{$list[i].rj_rank}</a>{else}-{/if}
+				{if $list[i].rj_rank}<a href="#" title="{$list[i].rj_title}">{$list[i].rj_rank}</a>{else}<a href="#" title="This publication is outside the ERA window (pre-2003) and/or not identified as being in a 2010 ERA Ranked Journal.">-</a>{/if}
 			</td>
 			
 			<td style="vertical-align: middle; text-align: center;">
-				{if $list[i].rc_rank}<a href="#" title="{$list[i].rc_title}">{$list[i].rc_rank}</a>{else}-{/if}
+				{if $list[i].rc_rank}<a href="#" title="{$list[i].rc_title}">{$list[i].rc_rank}</a>{else}<a href="#" title="This is outside the ERA window (pre-2003) and/or not identified as being in a 2010 ERA Ranked Conference.">-</a>{/if}
 			</td>
 			
 			<td style="vertical-align: middle; text-align: center;">

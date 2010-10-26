@@ -66,17 +66,21 @@ function submitForm(type)
 
 <form action="my_research_claimed.php" method="post" id="correctForm">
 
+<h2>Citation details</h2>
+
 <div id="research-solo-citation">
 	{$citation}
 	<div style="display: block; font-size: 80%; padding-top: 15px;">[ <a href="{$rel_url}view/{$pid}" onclick="javascript:window.open('{$rel_url}view/{$pid}'); return false;">View the full record</a> ]</div>
 </div>
+
+<h2>Q-index details</h2>
 
 <table id="research-q-index-details">
 	<tr>
 		<td><img src="{$rel_url}images/journal_ranking_16.png" title="Ranked Journal List Ranking" alt="Ranked Journal List Ranking" /> Journal Rank</td>
 		<td>
 			{if $qindex_meta.rj == ''}
-				This record is not recorded as being in a ranked journal.
+				This publication is outside the ERA window (pre-2003) and/or not identified as being in a 2010 ERA Ranked Journal.
 			{else}
 				<b>{$qindex_meta.rj.rank}</b> &nbsp; ({$qindex_meta.rj.title})
 			{/if}
@@ -86,7 +90,7 @@ function submitForm(type)
 		<td><img src="{$rel_url}images/conference_ranking_16.png" title="Ranked Conference List Ranking" alt="Ranked Conference List Ranking" /> Conference Rank</td>
 		<td>
 			{if $qindex_meta.rc == ''}
-				This record is not recorded as being in a ranked conference.
+				This is outside the ERA window (pre-2003) and/or not identified as being in a 2010 ERA Ranked Conference.
 			{else}
 				<b>{$qindex_meta.rc.rank}</b> &nbsp; ({$qindex_meta.rc.title})
 			{/if}

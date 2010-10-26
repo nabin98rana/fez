@@ -97,7 +97,11 @@ function hideBulk()
 
 			<table {if ($facets)}width="70%"{else}width="100%"{/if} id="research-record-listing">
 				<tr>
-			        <th colspan="2">These publications <i>may</i> belong to you. They were authored by someone either sharing your surname, or by someone with one of the names you are known to have published under in the past.</th>
+			        <th colspan="2">
+			        These publications may be authored by you. Your surname or one of the variants of your name that we know about is listed as an author of this publication.<br /><br />
+			        
+			        You can use the refine feature at the left to find publications more likely to be yours, based on co-authors, keywords etc.
+			        </th>
 					<th style="text-align: center; padding: 2px;">
 						{if $list_info.total_rows > 0}
 							<img src="{$rel_url}images/journal_ranking_16.png" title="Ranked Journal List Ranking" alt="Ranked Journal List Ranking" />
@@ -132,11 +136,11 @@ function hideBulk()
 			<td style="width: 100%;">{$list[i].rek_citation}</td>
 			
 			<td style="vertical-align: middle; text-align: center;">
-				{if $list[i].rj_rank}<a href="#" title="{$list[i].rj_title}">{$list[i].rj_rank}</a>{else}-{/if}
+				{if $list[i].rj_rank}<a href="#" title="{$list[i].rj_title}">{$list[i].rj_rank}</a>{else}<a href="#" title="This publication is outside the ERA window (pre-2003) and/or not identified as being in a 2010 ERA Ranked Journal.">-</a>{/if}
 			</td>
 			
 			<td style="vertical-align: middle; text-align: center;">
-				{if $list[i].rc_rank}<a href="#" title="{$list[i].rc_title}">{$list[i].rc_rank}</a>{else}-{/if}
+				{if $list[i].rc_rank}<a href="#" title="{$list[i].rc_title}">{$list[i].rc_rank}</a>{else}<a href="#" title="This is outside the ERA window (pre-2003) and/or not identified as being in a 2010 ERA Ranked Conference.">-</a>{/if}
 			</td>
 			
 			<td style="vertical-align: middle; text-align: center;">
