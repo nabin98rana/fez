@@ -89,7 +89,7 @@ function submitForm()
 			{if $qindex_meta.hc == ''}
 				This record is not marked as having a HERDC code.
 			{else}
-				<b>{$qindex_meta.hc.herdc_code}</b> &nbsp; ({$qindex_meta.hc.herdc_code_description})
+				<b>{$qindex_meta.hc.herdc_code}{if $qindex_meta.hc.confirmed != ''} CONFIRMED{else} PROVISIONAL{/if}</b> &nbsp; ({$qindex_meta.hc.herdc_code_description})
 			{/if}
 		</td>
 	</tr>
