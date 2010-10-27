@@ -2192,6 +2192,12 @@ a.author_id_link:hover {
     margin: -5px 0px 10px 0px;
 }
 
+#research-missing-meta {
+    background: #fff5e5;
+    padding: 10px 5px 10px 5px;
+    margin: -5px 0px 10px 0px;
+}
+
 #research-refine-filter {
     padding: 5px 5px 5px 5px;
 }

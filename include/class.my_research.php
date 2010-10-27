@@ -78,6 +78,7 @@ class MyResearch
 				$tpl->assign("pid", $recordDetails[0]['rek_pid']);
 				$tpl->assign("citation", $recordDetails[0]['rek_citation']);
 				$tpl->assign("qindex_meta", Record::getQindexMeta($recordDetails[0]['rek_pid']));
+				$tpl->assign("wos_collection", Record::isInWOScollection($recordDetails[0]['rek_pid']));
 			} elseif ($action == 'hide') {
 				MyResearch::hide(Misc::GETorPOST('pid'));
 			} elseif ($action == 'hide-bulk') {
@@ -96,6 +97,7 @@ class MyResearch
 				$tpl->assign("pid", $recordDetails[0]['rek_pid']);
 				$tpl->assign("citation", $recordDetails[0]['rek_citation']);
 				$tpl->assign("qindex_meta", Record::getQindexMeta($recordDetails[0]['rek_pid']));
+				$tpl->assign("wos_collection", Record::isInWOScollection($recordDetails[0]['rek_pid']));
 			} elseif ($action == 'correction-add') {
 				MyResearch::claimedPubsCorrect(Misc::GETorPOST('pid'));
 			}

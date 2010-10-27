@@ -603,11 +603,11 @@ class Record
 		}
 		$stmt .= "
 			FROM
-				fez_record_search_key_subject,
-				fez_controlled_vocab,
-				fez_controlled_vocab_relationship ";
+				" . APP_TABLE_PREFIX . "record_search_key_subject,
+				" . APP_TABLE_PREFIX . "controlled_vocab,
+				" . APP_TABLE_PREFIX . "controlled_vocab_relationship ";
 		if (APP_HERDC_COLLECTIONS && trim(APP_HERDC_COLLECTIONS != "")) {
-			$stmt .= "LEFT JOIN fez_record_search_key_ismemberof ON rek_ismemberof_pid = " . $db->quote($pid) . " AND rek_ismemberof IN (".APP_HERDC_COLLECTIONS.")";
+			$stmt .= "LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_ismemberof ON rek_ismemberof_pid = " . $db->quote($pid) . " AND rek_ismemberof IN (".APP_HERDC_COLLECTIONS.")";
 		}
 		$stmt .=
 			" WHERE
@@ -651,11 +651,11 @@ class Record
 				
 		$stmt .= "
 			FROM
-				fez_record_search_key_subject 
-				INNER JOIN fez_controlled_vocab ON rek_subject = cvo_id 
-				INNER JOIN fez_controlled_vocab_relationship ON cvr_child_cvo_id = cvo_id AND cvr_parent_cvo_id = '450000'  ";
+				" . APP_TABLE_PREFIX . "record_search_key_subject 
+				INNER JOIN " . APP_TABLE_PREFIX . "controlled_vocab ON rek_subject = cvo_id 
+				INNER JOIN " . APP_TABLE_PREFIX . "controlled_vocab_relationship ON cvr_child_cvo_id = cvo_id AND cvr_parent_cvo_id = '450000'  ";
 			if (defined(APP_HERDC_COLLECTIONS) && trim(APP_HERDC_COLLECTIONS != "")) {
-				$stmt .= "LEFT JOIN fez_record_search_key_ismemberof ON rek_ismemberof IN (".APP_HERDC_COLLECTIONS.") AND rek_ismemberof_pid = rek_subject_pid ";
+				$stmt .= "LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_ismemberof ON rek_ismemberof IN (".APP_HERDC_COLLECTIONS.") AND rek_ismemberof_pid = rek_subject_pid ";
 			}
 			$stmt .= 
 		"	WHERE
@@ -674,6 +674,33 @@ class Record
 		
 		return $res;
 	}
+  
+  /**
+   * Determines if a given PID is in one of the nominates W.O.S. collections.
+   */
+  function isInWOScollection($pid)
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+    
+    if (defined(APP_WOS_COLLECTIONS) && trim(APP_WOS_COLLECTIONS != "")) {
+      return 0;
+    }
+
+    $stmt = "SELECT COUNT(*) AS memberships
+            FROM " . APP_TABLE_PREFIX . "record_search_key_ismemberof
+            WHERE rek_ismemberof_pid = " . $db->quote($pid) . "
+            AND rek_ismemberof IN (" . APP_WOS_COLLECTIONS . ");";
+    
+   try {
+      $res = $db->fetchRow($stmt, $pids, Zend_Db::FETCH_ASSOC);
+    } catch(Exception $ex) {
+      $log->err($ex);
+      return 0;
+    }
+
+    return $res['memberships'];
+  }
 
   /**
    * Method used to update the details of a specific Record. Now calls the class.

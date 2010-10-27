@@ -108,6 +108,13 @@ function submitForm(type)
 	</tr>
 </table>
 
+{if $wos_collection > 0}
+	<div id="research-missing-meta">
+		<b>PLEASE NOTE</b><br />
+		<div>This record was recently imported from an external source, and has not yet been processed by the {$app_name} data team. You therefore <span style="text-decoration: underline;";>do not have to notify us about missing metadata</span> for this record - it will be added later by the data team.</div>
+	</div>
+{/if}
+
 <p>
 	<input type="radio" name="type" id="fix" value="fix" onclick="javascript:toggleCorrections();" /> Submit a citation correction<br />
 	<input type="radio" name="type" id="qindex" value="qindex" onclick="javascript:toggleCorrections();" /> Q-Index problem
