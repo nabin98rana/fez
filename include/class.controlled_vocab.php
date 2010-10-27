@@ -1068,7 +1068,15 @@ class Controlled_Vocab
 		$log = FezLog::get();
 		$db = DB_API::get();
 
+		$username = Auth::getUsername();
+		$isAdministrator = User::isUserAdministrator($username);
+
 		$cache_key = 'buildCVtree';		
+		if ($isAdministrator) {
+			$cache_key = "_admin";
+		}
+		
+		
 		$cvTree = array();
 		
 		$cache = FezCache::load(Controlled_Vocab::CACHE_KEY);
@@ -1097,8 +1105,6 @@ class Controlled_Vocab
 			$log->err($ex);
 			return '';
 		}
-		$username = Auth::getUsername();
-		$isAdministrator = User::isUserAdministrator($username);
 		
 		foreach ($res as $row) {
 			if (is_null($row['cvo_parent_id'])) {
