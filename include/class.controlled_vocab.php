@@ -1073,7 +1073,7 @@ class Controlled_Vocab
 
 		$cache_key = 'buildCVtree';		
 		if ($isAdministrator) {
-			$cache_key = "_admin";
+			$cache_key .= "_admin";
 		}
 		
 		
