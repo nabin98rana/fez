@@ -978,14 +978,20 @@ class Controlled_Vocab
 		
 		$cv = array();
 		$parent_cvo_ids = array();
+		$username = Auth::getUsername();
+		$isAdministrator = User::isUserAdministrator($username);
 		
 		if (is_numeric($parent_id)) {
 			// Get all of the controlled_vocabularies with this parent
 			$stmt = "SELECT cvo_id
 	                 FROM
 	                    " . APP_TABLE_PREFIX . "controlled_vocab,			
-						" . APP_TABLE_PREFIX . "controlled_vocab_relationship
-							 WHERE cvo_hide != 1 AND cvr_parent_cvo_id = ".$db->quote($parent_id, 'INTEGER')." AND cvr_child_cvo_id = cvo_id ";			
+						" . APP_TABLE_PREFIX . "controlled_vocab_relationship WHERE ";
+			if ($isAdministrator != true) {
+				$stmt .= " cvo_hide != 1 AND ";
+			}
+			$stmt .= "
+							cvr_parent_cvo_id = ".$db->quote($parent_id, 'INTEGER')." AND cvr_child_cvo_id = cvo_id ";			
 			try {
 				$res = $db->fetchAll($stmt);
 			}
@@ -1002,8 +1008,12 @@ class Controlled_Vocab
 			$stmt = "SELECT cvo_id
 	                 FROM
 	                    " . APP_TABLE_PREFIX . "controlled_vocab, 
-						"  . APP_TABLE_PREFIX . "controlled_vocab_relationship
-							 WHERE cvo_hide != 1 AND cvr_parent_cvo_id = ".$db->quote($parent_id, 'INTEGER')." AND cvr_child_cvo_id = cvo_id  AND cvo_id in (SELECT cvr_parent_cvo_id from fez_controlled_vocab_relationship)";			
+														" . APP_TABLE_PREFIX . "controlled_vocab_relationship WHERE ";
+			if ($isAdministrator != true) {
+				$stmt .= " cvo_hide != 1 AND ";
+			}
+			$stmt .= "
+							  cvr_parent_cvo_id = ".$db->quote($parent_id, 'INTEGER')." AND cvr_child_cvo_id = cvo_id  AND cvo_id in (SELECT cvr_parent_cvo_id from fez_controlled_vocab_relationship)";			
 			
 			try {
 				$res = $db->fetchAll($stmt);
@@ -1020,8 +1030,12 @@ class Controlled_Vocab
 		else {
 			$stmt = "SELECT cvo_id
 	                 FROM
-	                    " . APP_TABLE_PREFIX . "controlled_vocab ";
-			$stmt .= " WHERE cvo_hide != 1 AND cvo_id not in (SELECT cvr_child_cvo_id from  " . APP_TABLE_PREFIX . "controlled_vocab_relationship)";
+	                    " . APP_TABLE_PREFIX . "controlled_vocab WHERE ";
+	
+			if ($isAdministrator != true) {
+				$stmt .= " cvo_hide != 1 AND ";
+			}
+			$stmt .= " cvo_id not in (SELECT cvr_child_cvo_id from  " . APP_TABLE_PREFIX . "controlled_vocab_relationship)";
 			try {
 				$res = $db->fetchAll($stmt);
 			}
@@ -1053,7 +1067,7 @@ class Controlled_Vocab
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$cache_key = 'buildCVtree';		
 		$cvTree = array();
 		
@@ -1065,7 +1079,7 @@ class Controlled_Vocab
 		else if(! $cache) {
 			$cache = array();
 		}
-		
+	
 		$visible_cv_ids = Controlled_Vocab::getVisibleCvs();
 
 		$stmt = "SELECT cvo_id, cvo_title, cvo_hide, CONCAT(cvo_title, ' ', cvo_desc) as cvo_title_extended, cvr_parent_cvo_id as cvo_parent_id " .
@@ -1075,7 +1089,7 @@ class Controlled_Vocab
 				"FROM " . APP_TABLE_PREFIX . "controlled_vocab_relationship) AS t2 " .
 				"ON t1.cvo_id = t2.cvr_child_cvo_id " .
 				"ORDER BY cvo_id ASC";
-		
+
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
@@ -1083,19 +1097,21 @@ class Controlled_Vocab
 			$log->err($ex);
 			return '';
 		}
+		$username = Auth::getUsername();
+		$isAdministrator = User::isUserAdministrator($username);
 		
 		foreach ($res as $row) {
 			if (is_null($row['cvo_parent_id'])) {
-				if($row['cvo_hide'] != '1' && (in_array($row['cvo_id'], $visible_cv_ids))) {
+				if(($row['cvo_hide'] != '1' || $isAdministrator == true) && (in_array($row['cvo_id'], $visible_cv_ids))) {
 					array_push($cvTree, "var tmpNode".$row['cvo_id']." = new YAHOO.widget.TextNode('" . addslashes($row['cvo_title']) . "', tree.getRoot(), false);");
 				}
-			} else {
-				if($row['cvo_hide'] != '1' &&  (in_array($row['cvo_id'], $visible_cv_ids))) {
+			} else {				
+				if(($row['cvo_hide'] != '1' || $isAdministrator == true)  &&  (in_array($row['cvo_id'], $visible_cv_ids))) {
 					array_push($cvTree, "var tmpNode".$row['cvo_id']." = new YAHOO.widget.TextNode('<a href=\"javascript:addItemToParent(" . $row['cvo_id'] . ", \'" . addslashes(addslashes($row['cvo_title_extended'])) . "\');\">" . addslashes($row['cvo_title_extended']) . "</a>', tmpNode" . $row['cvo_parent_id'] . ", false);");
 				}
 			}
 		}
-		
+
 		$cache[$cache_key] = $cvTree;
 		FezCache::save($cache, Controlled_Vocab::CACHE_KEY);
 		
