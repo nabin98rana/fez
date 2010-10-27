@@ -46,7 +46,7 @@ class MyResearch
 		$tpl = new Template_API();
 		$tpl->setTemplate("myresearch/index.tpl.html");
 
-		Auth::checkAuthentication(APP_SESSION);
+		Auth::checkAuthentication(APP_SESSION, $_SERVER['REQUEST_URI']);
 		$username = Auth::getUsername();
 		$actingUser = Auth::getActingUsername();
 		$author_id = Author::getIDByUsername($actingUser);
