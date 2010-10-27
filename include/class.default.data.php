@@ -259,6 +259,7 @@ class Default_Data
 		$defaultData['app_eventum_database_name']			= "";
 		$defaultData['app_eventum_database_user']			= "";
 		$defaultData['app_eventum_database_pass']			= "";
+		$defaultData['app_wos_collections']					= "";
 		
 		return $defaultData;
 	}

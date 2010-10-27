@@ -67,19 +67,19 @@ class MyResearch
 		$tpl->assign("active_nav", "my_fez");
 
 		// Determine what we're actually doing here.
-		$action = @$_POST['action'];
+		$action = Misc::GETorPOST('action');
 
 		if ($type == "possible") {
 			$cookie_key = "my_research_possible_list";
 			if ($action == 'claim-add') {
 				MyResearch::possiblePubsClaim();
 			} elseif ($action == 'claim') {
-				$recordDetails = Record::getDetailsLite(@$_POST['pid']);
+				$recordDetails = Record::getDetailsLite(Misc::GETorPOST('pid'));
 				$tpl->assign("pid", $recordDetails[0]['rek_pid']);
 				$tpl->assign("citation", $recordDetails[0]['rek_citation']);
 				$tpl->assign("qindex_meta", Record::getQindexMeta($recordDetails[0]['rek_pid']));
 			} elseif ($action == 'hide') {
-				MyResearch::hide(@$_POST['pid']);
+				MyResearch::hide(Misc::GETorPOST('pid'));
 			} elseif ($action == 'hide-bulk') {
 				MyResearch::bulkHide();
 			}
@@ -88,16 +88,16 @@ class MyResearch
 		} elseif ($type == "claimed") {
 			$cookie_key = "my_research_claimed_list";
 			if ($action == 'not-mine') {
-				MyResearch::claimedPubsDisown(@$_POST['pid']);
+				MyResearch::claimedPubsDisown(Misc::GETorPOST('pid'));
 			} elseif ($action == 'not-mine-bulk') {	
 				MyResearch::handleBulkDisown();
 			} elseif ($action == 'correction') {
-				$recordDetails = Record::getDetailsLite(@$_POST['pid']);
+				$recordDetails = Record::getDetailsLite(Misc::GETorPOST('pid'));
 				$tpl->assign("pid", $recordDetails[0]['rek_pid']);
 				$tpl->assign("citation", $recordDetails[0]['rek_citation']);
 				$tpl->assign("qindex_meta", Record::getQindexMeta($recordDetails[0]['rek_pid']));
 			} elseif ($action == 'correction-add') {
-				MyResearch::claimedPubsCorrect(@$_POST['pid']);
+				MyResearch::claimedPubsCorrect(Misc::GETorPOST('pid'));
 			}
 			$flagged = MyResearch::getClaimedFlaggedPubs($actingUser);
 		}

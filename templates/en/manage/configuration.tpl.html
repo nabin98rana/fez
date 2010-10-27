@@ -539,6 +539,14 @@ function restoreDefaultColours(el)
 			</td>
   		  </tr>
   		  <tr>
+		    <th>WOS Collections</th>
+			<td>
+			  <input type="text" name="app_wos_collections" value="{$config_settings.app_wos_collections|escape:"html"}" size="100" />
+			  <br />List of comma separated ' quote enclosed pids which are used to contain the Web of Science imported records.
+			  {include file="error_icon.tpl.html" field="app_wos_collections"}
+			</td>
+  		  </tr>
+  		  <tr>
 		    <th>My Research Publications Module</th>
 			<td>
 			  <select name="app_my_research_module">

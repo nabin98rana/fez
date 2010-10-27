@@ -104,7 +104,7 @@ function correctionRequired(pid)
 
 			<table id="research-record-listing">
 				<tr>
-			        <th colspan="2">The publications listed below are currently attributed to you.</th>
+			        <th>The publications listed below are currently attributed to you.</th>
 					<th style="text-align: center; padding: 2px;">
 						{if $list_info.total_rows > 0}
 							<img src="{$rel_url}images/journal_ranking_16.png" title="Ranked Journal List Ranking" alt="Ranked Journal List Ranking" />
@@ -135,7 +135,7 @@ function correctionRequired(pid)
 		{/if}
 	
 		<tr class="{if $flagged[$pid].type == 'D'}claimed-not-my-pub{elseif $flagged[$pid].type == 'C'}claimed-correction-required{/if}">
-			<td style="width: 10px;"><input type="checkbox" name="pid" value="{$list[i].rek_pid}" /></td>
+			{*<td style="width: 10px;"><input type="checkbox" name="pid" value="{$list[i].rek_pid}" /></td>*}
 			<td style="width: 100%;">{$list[i].rek_citation}</td>
 
 			<td style="vertical-align: middle; text-align: center;">
@@ -196,11 +196,11 @@ function correctionRequired(pid)
 		</tr>
 		
 		{if $smarty.section.i.last}
-			<tr>
-				<td colspan="8">
+			{*<tr>
+				<td colspan="7">
 					<input type="button" class="claimed-not-my-pub" value="None of the above ticked publications are mine" onclick="javascript:notMineBulk();" />
 				</td>
-			</tr>
+			</tr>*}
 			
 			</table>
 			

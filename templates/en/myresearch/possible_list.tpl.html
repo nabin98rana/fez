@@ -97,7 +97,7 @@ function hideBulk()
 
 			<table {if ($facets)}width="70%"{else}width="100%"{/if} id="research-record-listing">
 				<tr>
-			        <th colspan="2">
+			        <th>
 			        These publications may be authored by you. Your surname or one of the variants of your name that we know about is listed as an author of this publication.<br /><br />
 			        
 			        You can use the refine feature at the left to find publications more likely to be yours, based on co-authors, keywords etc.
@@ -132,7 +132,7 @@ function hideBulk()
 		{/if}
 	
 		<tr class="{if $flagged[$pid].type == 'C'}possible-my-pub{elseif $flagged[$pid].type == 'H'}possible-hide{/if}">
-			<td style="width: 10px;"><input type="checkbox" name="pid" value="{$list[i].rek_pid}" /></td>
+			{*<td style="width: 10px;"><input type="checkbox" name="pid" value="{$list[i].rek_pid}" /></td>*}
 			<td style="width: 100%;">{$list[i].rek_citation}</td>
 			
 			<td style="vertical-align: middle; text-align: center;">
@@ -192,11 +192,11 @@ function hideBulk()
 		</tr>
 	
 		{if $smarty.section.i.last}
-			<tr>
+			{*<tr>
 				<td colspan="8">
 					<input type="button" class="possible-hide" value="None of the above ticked publications are mine" onclick="javascript:hideBulk();" />
 				</td>
-			</tr>
+			</tr>*}
 			
 			</table>
 
