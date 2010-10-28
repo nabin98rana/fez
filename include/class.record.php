@@ -598,7 +598,7 @@ class Record
 			SELECT
 				cvo_title AS herdc_code,
 				cvo_desc AS herdc_code_description";
-		if (APP_HERDC_COLLECTIONS && trim(APP_HERDC_COLLECTIONS != "")) {
+		if (APP_HERDC_COLLECTIONS && trim(APP_HERDC_COLLECTIONS) != "") {
 			$stmt .= " , GROUP_CONCAT(rek_ismemberof) AS confirmed ";
 		}
 		$stmt .= "
@@ -606,7 +606,7 @@ class Record
 				" . APP_TABLE_PREFIX . "record_search_key_subject,
 				" . APP_TABLE_PREFIX . "controlled_vocab,
 				" . APP_TABLE_PREFIX . "controlled_vocab_relationship ";
-		if (APP_HERDC_COLLECTIONS && trim(APP_HERDC_COLLECTIONS != "")) {
+		if (APP_HERDC_COLLECTIONS && trim(APP_HERDC_COLLECTIONS) != "") {
 			$stmt .= "LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_ismemberof ON rek_ismemberof_pid = " . $db->quote($pid) . " AND rek_ismemberof IN (".APP_HERDC_COLLECTIONS.")";
 		}
 		$stmt .=
@@ -615,7 +615,7 @@ class Record
 				AND cvr_child_cvo_id = cvo_id
 				AND cvr_parent_cvo_id = '450000'
 				AND rek_subject_pid = " . $db->quote($pid);
-		if (APP_HERDC_COLLECTIONS && trim(APP_HERDC_COLLECTIONS != "")) {
+		if (APP_HERDC_COLLECTIONS && trim(APP_HERDC_COLLECTIONS) != "") {
 			$stmt .= " GROUP BY cvo_title";
 		}
 
@@ -645,7 +645,7 @@ class Record
 				cvo_title AS herdc_code,
 				cvo_desc AS herdc_code_description ";
 				
-		if (defined(APP_HERDC_COLLECTIONS) && trim(APP_HERDC_COLLECTIONS != "")) {
+		if (defined(APP_HERDC_COLLECTIONS) && trim(APP_HERDC_COLLECTIONS) != "") {
 			$stmt .= " , GROUP_CONCAT(rek_ismemberof) AS confirmed ";
 		}
 				
@@ -654,14 +654,14 @@ class Record
 				" . APP_TABLE_PREFIX . "record_search_key_subject 
 				INNER JOIN " . APP_TABLE_PREFIX . "controlled_vocab ON rek_subject = cvo_id 
 				INNER JOIN " . APP_TABLE_PREFIX . "controlled_vocab_relationship ON cvr_child_cvo_id = cvo_id AND cvr_parent_cvo_id = '450000'  ";
-			if (defined(APP_HERDC_COLLECTIONS) && trim(APP_HERDC_COLLECTIONS != "")) {
+			if (defined(APP_HERDC_COLLECTIONS) && trim(APP_HERDC_COLLECTIONS) != "") {
 				$stmt .= "LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_ismemberof ON rek_ismemberof IN (".APP_HERDC_COLLECTIONS.") AND rek_ismemberof_pid = rek_subject_pid ";
 			}
 			$stmt .= 
 		"	WHERE
 				rek_subject_pid in (".Misc::arrayToSQLBindStr($pids).") 
 		";
-		if (defined(APP_HERDC_COLLECTIONS) && trim(APP_HERDC_COLLECTIONS != "")) {
+		if (defined(APP_HERDC_COLLECTIONS) && trim(APP_HERDC_COLLECTIONS) != "") {
 			$stmt .= " GROUP BY pid, cvo_title";
 		}
     
