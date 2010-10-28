@@ -167,9 +167,9 @@ function hideBulk()
 				{if $flagged_possible[$pid].type == 'C'}
 					<div class="research-record-note" style="width: 200px;">
 						{if $flagged_possible[$pid].user == $actual_user}
-							You have indicated that this record was authored by you. A job has been logged with the {$app_name} team.
+							You have indicated that this record was authored by you{if $flagged_possible[$pid].correction != ''}, and that the record may have data problems{/if}. A job has been logged with the {$app_name} team.
 						{else}
-							User <span style="font-weight: bold">{$flagged_possible[$pid].user}</span> has indicated that this record was authored by you. A job has already been logged with the {$app_name} team.
+							User <span style="font-weight: bold">{$flagged_possible[$pid].user}</span> has indicated that this record was authored by you{if $flagged_possible[$pid].correction != ''}, and that the record may have data problems{/if}. A job has already been logged with the {$app_name} team.
 						{/if}
 					</div>
 				{elseif $flagged_possible[$pid].type == 'H'}
