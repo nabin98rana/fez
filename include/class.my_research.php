@@ -68,6 +68,7 @@ class MyResearch
 
 		// Determine what we're actually doing here.
 		$action = Misc::GETorPOST('action');
+		$list = true;
 
 		if ($type == "possible") {
 			$cookie_key = "my_research_possible_list";
@@ -79,12 +80,12 @@ class MyResearch
 				$tpl->assign("citation", $recordDetails[0]['rek_citation']);
 				$tpl->assign("qindex_meta", Record::getQindexMeta($recordDetails[0]['rek_pid']));
 				$tpl->assign("wos_collection", Record::isInWOScollection($recordDetails[0]['rek_pid']));
+				$list = false;
 			} elseif ($action == 'hide') {
 				MyResearch::hide(Misc::GETorPOST('pid'));
 			} elseif ($action == 'hide-bulk') {
 				MyResearch::bulkHide();
 			}
-			
 			$flagged = MyResearch::getPossibleFlaggedPubs($actingUser);
 		} elseif ($type == "claimed") {
 			$cookie_key = "my_research_claimed_list";
@@ -98,208 +99,206 @@ class MyResearch
 				$tpl->assign("citation", $recordDetails[0]['rek_citation']);
 				$tpl->assign("qindex_meta", Record::getQindexMeta($recordDetails[0]['rek_pid']));
 				$tpl->assign("wos_collection", Record::isInWOScollection($recordDetails[0]['rek_pid']));
+				$list = false;
 			} elseif ($action == 'correction-add') {
 				MyResearch::claimedPubsCorrect(Misc::GETorPOST('pid'));
 			}
 			$flagged = MyResearch::getClaimedFlaggedPubs($actingUser);
 		}
-
-		/*
-	     * These are the only $params(ie. $_GET) vars that can be passed to this page.
-	     * Strip out any that aren't in this list
-	     */
-	    $args = array(
-	        'browse'        =>  'string',
-	        'author_id'     =>  'numeric',
-	        'hide_closed'     =>  'numeric',
-	        'collection_pid'=>  'string',
-	        'community_pid' =>  'string',
-	        'cat'           =>  'string',
-	        'reset'         =>  'numeric',
-	        'author'        =>  'string',
-	        'tpl'           =>  'numeric',
-	        'year'          =>  'numeric',
-	        'rows'          =>  'numeric',
-	        'pager_row'     =>  'numeric',
-	        'sort'          =>  'string',
-	        'sort_by'       =>  'string',
-	        'search_keys'   =>  'array',
-	        'order_by'      =>  'string',
-	        'sort_order'    =>  'string',
-	        'value'         =>  'string',
-	        'operator'      =>  'string',
-	        'custom_view_pid' =>  'string',
-	        'form_name'     =>  'string',
-	    );
 		
-		$params = $_GET;
-	    foreach ($args as $getName => $getType) {            
-	        if( Misc::sanity_check($params[$getName], $getType) !== false ) {
-	            $allowed[$getName] = $params[$getName];
-	        }
-	    }
-	    $params = $allowed;
-
-
-			/*
-			 * These options are used in a dropdown box to allow the 
-			 * user to sort a list
-			 */
-			$sort_by_list = array(
-				"searchKey0" => "Search Relevance",
-				"searchKey".Search_Key::getID("Title") => 'Title',
-				"searchKey".Search_Key::getID("Description") => 'Description',
-				"searchKey".Search_Key::getID("File Downloads") => 'File Downloads',
-				"searchKey".Search_Key::getID("Date") => 'Date',
-				"searchKey".Search_Key::getID("Created Date") => 'Created Date',
-				"searchKey".Search_Key::getID("Updated Date") => 'Updated Date',
-				"searchKey".Search_Key::getID("Sequence") => 'Sequence',
-				"searchKey".Search_Key::getID("Thomson Citation Count") => 'Thomson Citation Count',
-				"searchKey".Search_Key::getID("Scopus Citation Count") => 'Scopus Citation Count'
-			);
-
-
-
-		$options = array();
-		$options = Pager::saveSearchParams($params);
-		
-		$sort_by = $options["sort_by"];
-		$sort_order = $options["sort_order"];
-		
-		  $sort_by_list['searchKey0'] = "Search Relevance";           
-      if (($params["sort_by"]) == "") {
-      	$sort_by = "searchKey0";
-      }
-      
-      // if searching by Title, Abstract, Keywords and sort order not specifically set in the querystring 
-      // (from a manual sort order change) than make search revelance sort descending
-      if (!is_numeric($params["sort_order"]) && ($sort_by == "searchKey0")) {
-      	$options["sort_order"] = 1; // DESC relevance
-  		}
-    
-		
-			// Default Sort
-	        if (!array_key_exists($sort_by, $sort_by_list)) {
-	        	$sort_by = "searchKey".Search_Key::getID("Created Date");
-						$options["sort_order"] = 1;
-	        }
-		
+		if ($list) {
 	
-		$pager_row = $params['pager_row'];
-		if (empty($pager_row)) {
-			$pager_row = 0;
-		}
-		
-		$rows = $params['rows'];
-		if (empty($rows)) {
-			if(!empty($_SESSION['rows'])) {
-				$rows = $_SESSION['rows'];
-			} else {
-				$rows = APP_DEFAULT_PAGER_SIZE;
-			}
-		} else {
-			$_SESSION['rows'] = $rows;
-		}
-
-		$order_dir = 'ASC';
-
-		if ($max == "ALL") {
-			$max = 9999999;
-		}
-		//$current_row = ($current_row/100);
-		$citationCache = true;
-		$getSimple = true;
-
-		if ($type == "claimed") {
-			$filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
-			$filter["searchKey".Search_key::getID("Object Type")] = 3; 
-			$filter["searchKey".Search_Key::getID("Author ID")] = $author_id; 
-		} elseif ($type == "possible") {
-			$lastname = Author::getLastName($author_id);
-			$firstname = Author::getFirstname($author_id);
-			$firstname = trim($firstname);
-			if ($firstname != "") {
-				$firstname = " ".substr($firstname, 0, 1);
-			}
-			if (is_numeric($author_id)) {
-				$alternativeAuthorNames = Author::getAlternativeNames($author_id);
-				$alternatives = "";
-				if (count($alternativeAuthorNames) > 0) { 
-					$alternatives = implode('"^3'." OR author_mws:".'"', $alternativeAuthorNames);
-				}
-				if ($alternatives != "") {
-					$alternatives = "OR author_mws:".'"'.$alternatives.'"^3';
-				}
-			}
-			//echo $alternatives;
+			/*
+		     * These are the only $params(ie. $_GET) vars that can be passed to this page.
+		     * Strip out any that aren't in this list
+		     */
+		    $args = array(
+		        'browse'        =>  'string',
+		        'author_id'     =>  'numeric',
+		        'hide_closed'     =>  'numeric',
+		        'collection_pid'=>  'string',
+		        'community_pid' =>  'string',
+		        'cat'           =>  'string',
+		        'reset'         =>  'numeric',
+		        'author'        =>  'string',
+		        'tpl'           =>  'numeric',
+		        'year'          =>  'numeric',
+		        'rows'          =>  'numeric',
+		        'pager_row'     =>  'numeric',
+		        'sort'          =>  'string',
+		        'sort_by'       =>  'string',
+		        'search_keys'   =>  'array',
+		        'order_by'      =>  'string',
+		        'sort_order'    =>  'string',
+		        'value'         =>  'string',
+		        'operator'      =>  'string',
+		        'custom_view_pid' =>  'string',
+		        'form_name'     =>  'string',
+		    );
 			
-			$filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
-			$filter["searchKey".Search_key::getID("Object Type")] = 3; 
-			$filter["searchKey".Search_Key::getID("Author")] = $lastname;
-			$filter["manualFilter"] = "author_id_mi:0 AND !author_id_mi:".$author_id;
-			$filter["manualFilter"] .= " AND (author_mws:".'"'.$lastname.'" OR author_mws:'.'"'.$lastname.$firstname.'"^4 '.$alternatives.')';
-
-			if ($options['hide_closed'] == 0) {
-				$hidePids = MyResearch::getHiddenPidsByUsername($actingUser);
-
-				if (count($hidePids) > 0) {
-						$filter["manualFilter"] .= " AND !pid_t:('".str_replace(':', '\:', implode("' OR '", $hidePids))."')";
+			$params = $_GET;
+		    foreach ($args as $getName => $getType) {            
+		        if( Misc::sanity_check($params[$getName], $getType) !== false ) {
+		            $allowed[$getName] = $params[$getName];
+		        }
+		    }
+		    $params = $allowed;
+	
+	
+				/*
+				 * These options are used in a dropdown box to allow the 
+				 * user to sort a list
+				 */
+				$sort_by_list = array(
+					"searchKey0" => "Search Relevance",
+					"searchKey".Search_Key::getID("Title") => 'Title',
+					"searchKey".Search_Key::getID("Description") => 'Description',
+					"searchKey".Search_Key::getID("File Downloads") => 'File Downloads',
+					"searchKey".Search_Key::getID("Date") => 'Date',
+					"searchKey".Search_Key::getID("Created Date") => 'Created Date',
+					"searchKey".Search_Key::getID("Updated Date") => 'Updated Date',
+					"searchKey".Search_Key::getID("Sequence") => 'Sequence',
+					"searchKey".Search_Key::getID("Thomson Citation Count") => 'Thomson Citation Count',
+					"searchKey".Search_Key::getID("Scopus Citation Count") => 'Scopus Citation Count'
+				);
+	
+	
+	
+			$options = array();
+			$options = Pager::saveSearchParams($params);
+			
+			$sort_by = $options["sort_by"];
+			$sort_order = $options["sort_order"];
+			
+			  $sort_by_list['searchKey0'] = "Search Relevance";           
+	      if (($params["sort_by"]) == "") {
+	      	$sort_by = "searchKey0";
+	      }
+	      
+	      // if searching by Title, Abstract, Keywords and sort order not specifically set in the querystring 
+	      // (from a manual sort order change) than make search revelance sort descending
+	      if (!is_numeric($params["sort_order"]) && ($sort_by == "searchKey0")) {
+	      	$options["sort_order"] = 1; // DESC relevance
+	  		}
+	    
+			
+				// Default Sort
+		        if (!array_key_exists($sort_by, $sort_by_list)) {
+		        	$sort_by = "searchKey".Search_Key::getID("Created Date");
+							$options["sort_order"] = 1;
+		        }
+			
+		
+			$pager_row = $params['pager_row'];
+			if (empty($pager_row)) {
+				$pager_row = 0;
+			}
+			
+			$rows = $params['rows'];
+			if (empty($rows)) {
+				if(!empty($_SESSION['rows'])) {
+					$rows = $_SESSION['rows'];
+				} else {
+					$rows = APP_DEFAULT_PAGER_SIZE;
+				}
+			} else {
+				$_SESSION['rows'] = $rows;
+			}
+	
+			$order_dir = 'ASC';
+	
+			if ($max == "ALL") {
+				$max = 9999999;
+			}
+			//$current_row = ($current_row/100);
+			$citationCache = true;
+			$getSimple = true;
+	
+			if ($type == "claimed") {
+				$filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
+				$filter["searchKey".Search_key::getID("Object Type")] = 3; 
+				$filter["searchKey".Search_Key::getID("Author ID")] = $author_id; 
+			} elseif ($type == "possible") {
+				$lastname = Author::getLastName($author_id);
+				$firstname = Author::getFirstname($author_id);
+				$firstname = trim($firstname);
+				if ($firstname != "") {
+					$firstname = " ".substr($firstname, 0, 1);
+				}
+				if (is_numeric($author_id)) {
+					$alternativeAuthorNames = Author::getAlternativeNames($author_id);
+					$alternatives = "";
+					if (count($alternativeAuthorNames) > 0) { 
+						$alternatives = implode('"^3'." OR author_mws:".'"', $alternativeAuthorNames);
+					}
+					if ($alternatives != "") {
+						$alternatives = "OR author_mws:".'"'.$alternatives.'"^3';
+					}
+				}
+				//echo $alternatives;
+				
+				$filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
+				$filter["searchKey".Search_key::getID("Object Type")] = 3; 
+				$filter["searchKey".Search_Key::getID("Author")] = $lastname;
+				$filter["manualFilter"] = "author_id_mi:0 AND !author_id_mi:".$author_id;
+				$filter["manualFilter"] .= " AND (author_mws:".'"'.$lastname.'" OR author_mws:'.'"'.$lastname.$firstname.'"^4 '.$alternatives.')';
+	
+				if ($options['hide_closed'] == 0) {
+					$hidePids = MyResearch::getHiddenPidsByUsername($actingUser);
+	
+					if (count($hidePids) > 0) {
+							$filter["manualFilter"] .= " AND !pid_t:('".str_replace(':', '\:', implode("' OR '", $hidePids))."')";
+					}
+				}
+				$options["manualFilter"] = $filter["manualFilter"];
+			}
+			$message = '';
+			if (is_numeric($author_id)) {
+				$return = Record::getListing($options, array(9,10), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter, "AND", true, false, false, 10, 1);
+				$return['list'] = Record::getResearchDetailsbyPIDS($return['list']);
+			} else {
+				$message = "You are not registered in ".APP_NAME." as an author. Please contact the <a href='".APP_BASE_URL."contact.php'>".APP_SHORT_ORG_NAME." Manager</a> to resolve this.";
+			}
+			$facets = @$return['facets'];
+			
+			/*
+			 * We dont want to display facets that a user
+			 * has already searched by
+			 */
+			if (isset($facets)) {
+				foreach ($facets as $sek_id => $facetData) {
+					if (!empty($options['searchKey'.$sek_id])) {
+						unset($facets[$sek_id]);
+					}
 				}
 			}
-			$options["manualFilter"] = $filter["manualFilter"];
-		}
-		$message = '';
-		if (is_numeric($author_id)) {
-			$return = Record::getListing($options, array(9,10), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter, "AND", true, false, false, 10, 1);
-			$return['list'] = Record::getResearchDetailsbyPIDS($return['list']);
-		} else {
-			$message = "You are not registered in ".APP_NAME." as an author. Please contact the <a href='".APP_BASE_URL."contact.php'>".APP_SHORT_ORG_NAME." Manager</a> to resolve this.";
-		}
-		$facets = @$return['facets'];
-		
-		/*
-		 * We dont want to display facets that a user
-		 * has already searched by
-		 */
-		if (isset($facets)) {
-			foreach ($facets as $sek_id => $facetData) {
-				if (!empty($options['searchKey'.$sek_id])) {
-					unset($facets[$sek_id]);
-				}
+			$tpl->assign("author_id_message", $message);
+			$tpl->assign("facets", $facets);
+			$tpl->assign("list", $return['list']);
+			$tpl->assign("list_info", $return['info']);
+			$tpl->assign("flagged", $flagged);
+			$tpl->assign("options", $options);
+	
+			if (Auth::isValidSession($_SESSION)) {
+				$sort_by_list["searchKey".Search_Key::getID("GS Citation Count")] = "Google Scholar Citation Count";
 			}
-		}
-		$tpl->assign("author_id_message", $message);
-		$tpl->assign("facets", $facets);
-		$tpl->assign("list", $return['list']);
-		$tpl->assign("list_info", $return['info']);
-		$tpl->assign("flagged", $flagged);
-		$tpl->assign("action", $action); 
-		$tpl->assign("options", $options);
-		$tpl->assign("acting_user", $actingUserArray);
-		$tpl->assign("actual_user", $username);
-
-
-		if (Auth::isValidSession($_SESSION)) {
-			$sort_by_list["searchKey".Search_Key::getID("GS Citation Count")] = "Google Scholar Citation Count";
-		}
-		
-		$tpl->assign('sort_by_list', $sort_by_list);
-		
-		
-		if(count($params) > 0) {
-        
-        $exclude[] = 'rows';
-        $tpl->assign('url_wo_rows', Misc::query_string_encode($params,$exclude));
-        array_pop($exclude);
-        
-        $exclude[] = 'tpl';
-        $tpl->assign('url_wo_tpl',  Misc::query_string_encode($params,$exclude));
-        array_pop($exclude);
-        
-        $exclude[] = 'sort';
-        $exclude[] = 'sort_by';
-        $tpl->assign('url_wo_sort', Misc::query_string_encode($params,$exclude));
-    }
+			
+			$tpl->assign('sort_by_list', $sort_by_list);
+			
+			if(count($params) > 0) {
+				$exclude[] = 'rows';
+				$tpl->assign('url_wo_rows', Misc::query_string_encode($params,$exclude));
+				array_pop($exclude);
+				
+				$exclude[] = 'tpl';
+				$tpl->assign('url_wo_tpl',  Misc::query_string_encode($params,$exclude));
+				array_pop($exclude);
+				
+				$exclude[] = 'sort';
+				$exclude[] = 'sort_by';
+				$tpl->assign('url_wo_sort', Misc::query_string_encode($params,$exclude));
+	    	}
+	    }
 		
 		// Hack to get SCRIPT_URL without querystrings.
 		// Usually we could get this info from $_SERVER['SCRIPT_URL'], but can't since 
@@ -307,17 +306,19 @@ class MyResearch
 		$PAGE_URL = preg_replace('/(\?.*)/','',$_SERVER['REQUEST_URI']);
 		$tpl->assign('PAGE_URL', $PAGE_URL);
 		$tpl->assign('list_type', $type);
-   	$terms = @$return['info']['search_info'];
-    $tpl->assign('terms', $terms);
-   	$tpl->assign("list_heading", "My $type Research");        	 
+		$terms = @$return['info']['search_info'];
+		$tpl->assign('terms', $terms);
+		$tpl->assign("list_heading", "My $type Research");        	 
 		$sort_by = $options["sort_by"];
-    $tpl->assign('rows', $rows);
-    $tpl->assign('sort_order', $options["sort_order"]);
-    $tpl->assign('sort_by_default', $sort_by);
+		$tpl->assign('rows', $rows);
+		$tpl->assign('sort_order', $options["sort_order"]);
+		$tpl->assign('sort_by_default', $sort_by);
+		$tpl->assign("action", $action); 
+		$tpl->assign("acting_user", $actingUserArray);
+		$tpl->assign("actual_user", $username);
 		$tpl->displayTemplate();
 		
 		return;
-
 	}		
 	
 	/**********************************
