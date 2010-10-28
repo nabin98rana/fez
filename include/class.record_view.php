@@ -42,7 +42,7 @@ class RecordView {
 	}
 
 	function getDetails()
-	{
+	{	
 		$details = $this->record->getDetails();
 		$xsd_display_fields = $this->getDisplayFields();
 		foreach ($xsd_display_fields as $dis_key => $dis_field) {
@@ -163,14 +163,54 @@ class RecordView {
 						}
 					}
 				}
+				if ($dis_field['sek_title'] == "Journal Name") {
+					if (!empty($details[$dis_field['xsdmf_id']])) {
+						//Check for Ranked Journal Rank
+						$rjl = "";
+						if (APP_MY_RESEARCH_MODULE == 'ON') {
+							$rjinfo = Record::getRankedJournalInfo($this->record->pid);
+							if (is_array($rjinfo)) {
+								$rjl = "&nbsp;&nbsp;&nbsp; (<a href='#' title='ERA 2010 Ranked Journal: ".$rjinfo['title'].", ranked ".$rjinfo['rank']."'>ERA Rank ".$rjinfo['rank']."</a>)";
+							}
+						}
+						if (is_array($details[$dis_field['xsdmf_id']])) {
+							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
+								$details[$dis_field['xsdmf_id']][$ckey] = "<a class='silent_link' href=".'"'.APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B".$dis_field['xsdmf_sek_id']."%5D=".urlencode($details[$dis_field['xsdmf_id']][$ckey]).'"'.">".$details[$dis_field['xsdmf_id']][$ckey]."</a>".$rjl;
+							}
+						} else {
+							$details[$dis_field['xsdmf_id']] = "<a class='silent_link' href=".'"'.APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B".$dis_field['xsdmf_sek_id']."%5D=".urlencode($details[$dis_field['xsdmf_id']]).'"'.">".$details[$dis_field['xsdmf_id']]."</a>".$rjl;
+						}
+					}
+				}
+
+				if ($dis_field['sek_title'] == "Conference Name") {
+					if (!empty($details[$dis_field['xsdmf_id']])) {
+						//Check for Ranked Conference Rank
+						$rcl = "";
+						if (APP_MY_RESEARCH_MODULE == 'ON') {
+							$rcinfo = Record::getRankedConferenceInfo($this->record->pid);
+							if (is_array($rcinfo)) {
+								$rcl = "&nbsp;&nbsp;&nbsp; (<a href='#' title='ERA 2010 Ranked Conference: ".$rcinfo['title'].", ranked ".$rcinfo['rank']."'>ERA Rank ".$rcinfo['rank']."</a>)";
+							}
+						}
+						if (is_array($details[$dis_field['xsdmf_id']])) {
+							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
+								$details[$dis_field['xsdmf_id']][$ckey] = "<a class='silent_link' href=".'"'.APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B".$dis_field['xsdmf_sek_id']."%5D=".urlencode($details[$dis_field['xsdmf_id']][$ckey]).'"'.">".$details[$dis_field['xsdmf_id']][$ckey]."</a>".$rcl;
+							}
+						} else {
+							$details[$dis_field['xsdmf_id']] = "<a class='silent_link' href=".'"'.APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B".$dis_field['xsdmf_sek_id']."%5D=".urlencode($details[$dis_field['xsdmf_id']]).'"'.">".$details[$dis_field['xsdmf_id']]."</a>".$rcl;
+						}
+					}
+				}
+				
 				if ($dis_field['sek_title'] == "Subject" && (($dis_field['xsdmf_html_input'] != "contvocab_selector")) ) {
 					if (!empty($details[$dis_field['xsdmf_id']])) {
 						if (is_array($details[$dis_field['xsdmf_id']])) {
 							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
-								$details[$dis_field['xsdmf_id']][$ckey] = "<a class='silent_link' href='".APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B0%5D=".$details[$dis_field['xsdmf_id']][$ckey]."'>".$details[$dis_field['xsdmf_id']][$ckey]."</a>";
+								$details[$dis_field['xsdmf_id']][$ckey] = "<a class='silent_link' href='".APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B".$dis_field['xsdmf_sek_id']."%5D=".$details[$dis_field['xsdmf_id']][$ckey]."'>".$details[$dis_field['xsdmf_id']][$ckey]."</a>";
 							}
 						} else {
-							$details[$dis_field['xsdmf_id']] = "<a class='silent_link' href='".APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B0%5D=".$details[$dis_field['xsdmf_id']]."'>".$details[$dis_field['xsdmf_id']]."</a>";
+							$details[$dis_field['xsdmf_id']] = "<a class='silent_link' href='".APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B".$dis_field['xsdmf_sek_id']."%5D=".$details[$dis_field['xsdmf_id']]."'>".$details[$dis_field['xsdmf_id']]."</a>";
 						}
 					}
 				}

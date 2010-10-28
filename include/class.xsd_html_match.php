@@ -805,6 +805,7 @@ class XSD_HTML_Match
 							xsdmf_show_simple_create,
 							xsdmf_xdis_id,
 							xsdmf_xpath,
+							xsdmf_sek_id,
 							sek_title,
 							sek_suggest_function,
 							sek_lookup_function
