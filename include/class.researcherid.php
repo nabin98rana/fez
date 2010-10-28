@@ -724,7 +724,7 @@ class ResearcherID
                   ResearcherID::insertAuthorId($pid, $author_id);
                   $times_cited = (string)$record->{'times-cited'};
                   if (! empty($times_cited)) {
-                    Record::updateThomsonCitationCount($pid, $times_cited);
+                    Record::updateThomsonCitationCount($pid, $times_cited, $ut);
                   }
                   if ( APP_SOLR_INDEXER == "ON" ) {
                     FulltextQueue::singleton()->add($pid);

@@ -47,6 +47,7 @@
 include_once(APP_INC_PATH . 'common.inc.php');
 include_once(APP_INC_PATH . 'class.fezacml.php');
 include_once(APP_INC_PATH . "class.error_handler.php");
+include_once(APP_INC_PATH . "class.thomson_doctype_mappings.php");
 include_once(APP_INC_PATH . "class.setup.php");
 include_once('HTML/AJAX/JSON.php');
 
