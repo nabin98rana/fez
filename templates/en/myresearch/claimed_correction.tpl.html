@@ -2,21 +2,26 @@
 <script type="text/javascript">
 <!--
 
+function notMine(pid)
+{
+	if (confirm('You are about to mark this record as not being authored by you. Proceed?')) {
+		document.getElementById('not-mine-pid').value = pid;
+		document.forms['notMine'].submit();
+	} else {
+		document.getElementById('rad-not-mine').checked = false;
+	}
+    
+    return;
+}
+
 function toggleCorrections()
 {
-	if (document.getElementById('qindex').checked) {
-		document.getElementById('correction-area-fix').disabled = true;
-		document.getElementById('correction-area-fix').style.display = 'none';
-		document.getElementById('correction-area-qindex').disabled = false;
-		document.getElementById('correction-area-qindex').style.display = 'block';
-		document.getElementById('form-type').value = 'qindex';
-		
-	} else {
+	if (document.getElementById('rad-fix').checked) {
 		document.getElementById('correction-area-fix').disabled = false;
 		document.getElementById('correction-area-fix').style.display = 'block';
-		document.getElementById('correction-area-qindex').disabled = true;
-		document.getElementById('correction-area-qindex').style.display = 'none';
-		document.getElementById('form-type').value = 'correction';
+	} else {
+		document.getElementById('correction-area-fix').disabled = true;
+		document.getElementById('correction-area-fix').style.display = 'none';
 	}
 	
 	return;
@@ -29,25 +34,11 @@ function toggleCorrectionsText()
 	}
 }
 
-function toggleEnquiryText()
+function submitForm()
 {
-	if (document.getElementById('enquiry').value == 'What do you think is wrong with the Q-index data?') {
-		document.getElementById('enquiry').value = '';
-	}
-}
-
-function submitForm(type)
-{
-	if (type == 'C') {
-		if (document.getElementById('correction').value == '' || document.getElementById('correction').value == 'Please tell us what is wrong with the record. Be specific.') {
-			window.alert('You must tell us what is wrong with the record.');
-			return false;
-		}
-	} else if (type == 'E') {
-		if (document.getElementById('enquiry').value == '' || document.getElementById('enquiry').value == 'What do you think is wrong with the Q-index data?') {
-			window.alert('You must tell us what you think is wrong with the data.');
-			return false;
-		}
+	if (document.getElementById('correction').value == '' || document.getElementById('correction').value == 'Please tell us what is wrong with the record. Be specific.') {
+		window.alert('You must tell us what is wrong with the record.');
+		return false;
 	}
 	
 	document.forms['correctForm'].submit();
@@ -111,37 +102,33 @@ function submitForm(type)
 {if $wos_collection > 0}
 	<div id="research-missing-meta">
 		<b>PLEASE NOTE</b><br />
-		<div>This record was recently imported from an external source, and has not yet been processed by the {$app_name} data team. You therefore <span style="text-decoration: underline;";>do not have to notify us about missing metadata</span> for this record - it will be added later by the data team.</div>
+		<div>This record was recently imported from an external source, and has not yet been processed by the {$app_name} data team. You therefore <span style="text-decoration: underline;">do not have to notify us about missing metadata</span> for this record - it will be added later by the data team.</div>
 	</div>
 {/if}
 
 <p>
-	<input type="radio" name="type" id="fix" value="fix" onclick="javascript:toggleCorrections();" /> Submit a citation correction<br />
-	<input type="radio" name="type" id="qindex" value="qindex" onclick="javascript:toggleCorrections();" /> Q-Index problem
+	<input type="radio" name="type" id="rad-not-mine" value="rad-not-mine" onclick="javascript:toggleCorrections(); notMine('{$pid}');" /> This is not my record<br />
+	<input type="radio" name="type" id="rad-fix" value="rad-fix" onclick="javascript:toggleCorrections();" /> There is a data problem with this record
 </p>
-
 
 <div id="correction-area-fix" style="display: none;">
 	<p>
 		<textarea id="correction" name="correction" rows="5" cols="70" onfocus="javascript:toggleCorrectionsText();">Please tell us what is wrong with the record. Be specific.</textarea>
 	</p>
 	
-	<input type="button" value="Submit correction" name="button" onclick="javascript:submitForm('C');" />
+	<input type="button" value="Submit correction" name="button" onclick="javascript:submitForm();" />
 </div>
-
-<div id="correction-area-qindex" style="display: none;">
-	<p>
-		<textarea id="enquiry" name="enquiry" rows="5" cols="70" onfocus="javascript:toggleEnquiryText();">What do you think is wrong with the Q-index data?</textarea>
-	</p>
-	
-	<input type="button" value="Submit enquiry" name="button" onclick="javascript:submitForm('E');" />
-</div>
-
 
 <p>
 	<input type="hidden" value="{$pid}" name="pid" />
 	<input type="hidden" value="correction-add" name="action" />
-	<input type="hidden" id="form-type" name="form-type" value="" />
 </p>
 
+</form>
+
+<form action="{$rel_url}my_research_claimed.php" method="post" id="notMine">	
+	<div>
+		<input type="hidden" id="not-mine-pid" name="pid" value="" />
+		<input type="hidden" name="action" value="not-mine" />
+	</div>
 </form>

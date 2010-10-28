@@ -192,12 +192,13 @@ function correctionRequired(pid)
 					</div>
 				{/if}
 				
-				{if $flagged_claimed[$pid].type != 'D'}
+				{*if $flagged_claimed[$pid].type != 'D'}
 					<input type="button" class="claimed-not-my-pub" value="Not mine" onclick="javascript:notMine('{$list[i].rek_pid}');" /><br />
-				{/if}
-				{if $flagged_claimed[$pid].type != 'C'}
+				{/if*}
+				
+				{*if $flagged_claimed[$pid].type != 'C'*}
 					<input type="button" class="claimed-correction-required" value="Fix" onclick="javascript:correctionRequired('{$list[i].rek_pid}');" />
-				{/if}
+				{*/if*}
 			</td>
 			
 		</tr>
