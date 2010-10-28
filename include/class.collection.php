@@ -563,6 +563,7 @@ class Collection
     $middleStmt = "";
     $order_field = "";
     $termCounter = 1;
+    $count_field = "";
     $extra_join = "";
     $letter_restrict = "";
     $show_field = "";
@@ -610,7 +611,8 @@ class Collection
     } elseif ($searchKey == "Depositor") {
       $search_data_type = "int";
       $group_field = "r".$tid.".rek_".$sekdet['sek_title_db'];
-      $show_field = "u.usr_full_name as fullname, ";
+      $show_field = "u.usr_full_name as fullname, ".$group_field;
+      $count_field = $group_field;
       $order_field = " u.usr_full_name asc";
       $as_field = "record_depositor";
       $extra_join = "LEFT JOIN " . APP_TABLE_PREFIX . "user u ON u.usr_id = r".$tid.".rek_".$sekdet['sek_title_db'];
@@ -633,8 +635,13 @@ class Collection
     $middleStmt .= $authStmt." ";
 
     try {
+      if (! empty($count_field)) {
+        $_show_field = $count_field;
+      } else {
+        $_show_field = $show_field;
+      }
       $stmtCount = "SELECT ".APP_SQL_CACHE."
-        count(distinct ".$show_field.") AS count_".$as_field."
+        count(distinct ".$_show_field.") AS count_".$as_field."
         ".$middleStmt."
         ".$extra_join."
         ".$letter_restrict;
