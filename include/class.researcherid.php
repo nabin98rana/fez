@@ -50,92 +50,71 @@ include_once(APP_INC_PATH . 'class.esti_search_service.php');
 
 class ResearcherID
 {
-
   /**
    * Returns the full path to the file that keeps the process ID of the
    * running script.
    *
-   * @access  private
    * @return  string The full path of the process file
    */
-  function _getProcessFilename()
+  private static function getProcessFilename()
   {
     return APP_PATH . 'misc/check_researcherid_download_status.pid';
   }
-
-
 
   /**
    * Checks whether it is safe or not to run the check rid downlod/process 
    * download script.
    *
-   * @access  public
    * @return  boolean
    */
-  function isSafeToRun()
+  public static function isSafeToRun()
   {
+    $safe_to_run = false;
     $pid = ResearcherID::getProcessID();
-    if (!empty($pid)) {
-      // the pid file exists, but may have been left orphaned by a 
-      // previous failed run so we want to check that the process $pid 
-      // is actually running
-      $running_pid = trim(
-          `ps auwwx | grep $pid | grep -v grep | awk '{print $2}'` 
-      );
-      if ( $running_pid == "" ) {
-        // the process $pid is not actually running, so create the pid file and
-        // say it's safe to run
-        $fp = fopen(ResearcherID::_getProcessFilename(), 'w');
-        fwrite($fp, getmypid());
-        fclose($fp);
-        return true;
-      } else {
-        // the process $pid IS actually running, so it's not safe to run
-        return false;
-      }
+    $pid_file = ResearcherID::getProcessFilename();
+    
+    // Check for the process file, and also check that it has not been
+    // orphaned by a previous script crash - this is based on the  
+    // assumption that if it was last modified over 24 hours ago the
+    // previous script probably died 
+    if ($pid && (filemtime($pid_file) >= (time() - 86400))) {      
+      $safe_to_run = false;    
     } else {
-      // create the pid file
-      $fp = fopen(ResearcherID::_getProcessFilename(), 'w');
-      fwrite($fp, getmypid());
-      fclose($fp);
-      return true;
-    }
+      // create the pid file and say it's safe to run
+      $fp = @fopen($pid_file, 'w');
+      @fwrite($fp, getmypid());
+      @fclose($fp);
+      $safe_to_run = true;
+    }    
+    return $safe_to_run;
   }
-
 
   /**
-   * Returns the process ID of the script, if any.
+   * Returns the process ID of the script from a file
    *
-   * @access  public
+   * @param $pid_file The file containing the process ID
+   * 
    * @return  integer The process ID of the script
    */
-  function getProcessID()
+  public static function getProcessID()
   {
-    static $pid;
-
-    if (!empty($pid)) {
-      return $pid;
-    }
-
-    $pid_file = ResearcherID::_getProcessFilename();
-    if (!file_exists($pid_file)) {
-      return 0;
-    } else {
+    $pid = false;
+    $pid_file = ResearcherID::getProcessFilename();
+    
+    if (@file_exists($pid_file)) {      
       $pid = trim(implode('', file($pid_file)));
-      return $pid;
     }
+    return $pid;
   }
-
 
   /**
    * Removes the process file to allow other instances of this script to run.
    *
-   * @access  public
    * @return  void
    */
-  function removeProcessFile()
+  public static function removeProcessFile()
   {
-    @unlink(ResearcherID::_getProcessFilename());
+    @unlink(ResearcherID::getProcessFilename());
   }
 
   /**
@@ -468,7 +447,9 @@ class ResearcherID
                   if (! (empty($profile->employeeID) || empty($profile->researcherID)) ) {
                     Author::setResearcherIdByOrgUsername((string)$profile->employeeID, (string)$profile->researcherID);
                   } else {
-                    Author::setResearcherIdByOrgUsername((string)$profile->employeeID, 'ERR: '.(string)$profile->{'error-desc'});
+                    Author::setResearcherIdByOrgUsername(
+                        (string)$profile->employeeID, 'ERR: '.(string)$profile->{'error-desc'}
+                    );
                   }
                 }
               } else if ($xml_report->publicationList) {

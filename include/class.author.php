@@ -1541,7 +1541,6 @@ class Author
              WHERE
                 aut_org_username=?";
     
-    $log->err(array($stmt,$researcher_id, $aut_org_username));
     try {
       $db->query($stmt, array($researcher_id, $aut_org_username));
     }

@@ -37,12 +37,7 @@ include_once(APP_INC_PATH . "class.researcherid.php");
 if (!ResearcherID::isSafeToRun()) {
     $pid = ResearcherID::getProcessID();
     echo "ERROR: There is already a process (pid=$pid) of this script running.\n";
-    exit;
+} else {
+  ResearcherID::checkAllJobsStatus();
+  ResearcherID::removeProcessFile();
 }
-
-
-ResearcherID::checkAllJobsStatus();
-
-ResearcherID::removeProcessFile();
-
-?>
