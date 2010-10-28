@@ -86,7 +86,6 @@ class MyResearch
 			} elseif ($action == 'hide-bulk') {
 				MyResearch::bulkHide();
 			}
-			$flagged = MyResearch::getPossibleFlaggedPubs($actingUser);
 		} elseif ($type == "claimed") {
 			$cookie_key = "my_research_claimed_list";
 			if ($action == 'not-mine') {
@@ -103,10 +102,12 @@ class MyResearch
 			} elseif ($action == 'correction-add') {
 				MyResearch::claimedPubsCorrect(Misc::GETorPOST('pid'));
 			}
-			$flagged = MyResearch::getClaimedFlaggedPubs($actingUser);
 		}
 		
 		if ($list) {
+			
+			$flagged_claimed = MyResearch::getClaimedFlaggedPubs($actingUser);
+			$flagged_possible = MyResearch::getPossibleFlaggedPubs($actingUser);
 	
 			/*
 		     * These are the only $params(ie. $_GET) vars that can be passed to this page.
@@ -276,7 +277,8 @@ class MyResearch
 			$tpl->assign("facets", $facets);
 			$tpl->assign("list", $return['list']);
 			$tpl->assign("list_info", $return['info']);
-			$tpl->assign("flagged", $flagged);
+			$tpl->assign("flagged_claimed", $flagged_claimed);
+			$tpl->assign("flagged_possible", $flagged_possible);
 			$tpl->assign("options", $options);
 	
 			if (Auth::isValidSession($_SESSION)) {

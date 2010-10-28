@@ -134,7 +134,7 @@ function correctionRequired(pid)
 			    </tr>
 		{/if}
 	
-		<tr class="{if $flagged[$pid].type == 'D'}claimed-not-my-pub{elseif $flagged[$pid].type == 'C'}claimed-correction-required{/if}">
+		<tr class="{if $flagged_claimed[$pid].type == 'D'}claimed-not-my-pub{elseif $flagged_claimed[$pid].type == 'C'}claimed-correction-required{elseif $flagged_possible[$pid].type == 'C'}claimed-correction-required{/if}">
 			<td style="width: 10px;"><input type="checkbox" name="pid" value="{$list[i].rek_pid}" /></td>
 			<td style="width: 100%;">{$list[i].rek_citation}</td>
 
@@ -167,28 +167,36 @@ function correctionRequired(pid)
 			</td>
 			
 			<td>
-				{if $flagged[$pid].type == 'D'}
+				{if $flagged_claimed[$pid].type == 'D'}
 					<div class="research-record-note">
-						{if $flagged[$pid].user == $actual_user}
+						{if $flagged_claimed[$pid].user == $actual_user}
 							You have indicated that this record was not authored by you. A job has been logged with the {$app_name} team.
 						{else}
-							User <span style="font-weight: bold">{$flagged[$pid].user}</span> has indicated that this record was not authored by you. A job has already been logged with the {$app_name} team.
+							User <span style="font-weight: bold">{$flagged_claimed[$pid].user}</span> has indicated that this record was not authored by you. A job has already been logged with the {$app_name} team.
 						{/if}
 					</div>
-				{elseif $flagged[$pid].type == 'C'}
+				{elseif $flagged_claimed[$pid].type == 'C'}
 					<div class="research-record-note">
-						{if $flagged[$pid].user == $actual_user}
+						{if $flagged_claimed[$pid].user == $actual_user}
 							You have indicated that this record may have data problems. A job has been logged with the {$app_name} team.
 						{else}
-							User <span style="font-weight: bold">{$flagged[$pid].user}</span> has indicated that this record may have data problems. A job has already been logged with the {$app_name} team.
+							User <span style="font-weight: bold">{$flagged_claimed[$pid].user}</span> has indicated that this record may have data problems. A job has already been logged with the {$app_name} team.
+						{/if}
+					</div>
+				{elseif $flagged_possible[$pid].type == 'C'}
+					<div class="research-record-note">
+						{if $flagged_possible[$pid].user == $actual_user}
+							You have indicated that this record may have data problems. A job has been logged with the {$app_name} team.
+						{else}
+							User <span style="font-weight: bold">{$flagged_possible[$pid].user}</span> has indicated that this record may have data problems. A job has already been logged with the {$app_name} team.
 						{/if}
 					</div>
 				{/if}
 				
-				{if $flagged[$pid].type != 'D'}
+				{if $flagged_claimed[$pid].type != 'D'}
 					<input type="button" class="claimed-not-my-pub" value="Not mine" onclick="javascript:notMine('{$list[i].rek_pid}');" /><br />
 				{/if}
-				{if $flagged[$pid].type != 'C'}
+				{if $flagged_claimed[$pid].type != 'C'}
 					<input type="button" class="claimed-correction-required" value="Fix" onclick="javascript:correctionRequired('{$list[i].rek_pid}');" />
 				{/if}
 			</td>

@@ -131,7 +131,7 @@ function hideBulk()
 			    </tr>
 		{/if}
 	
-		<tr class="{if $flagged[$pid].type == 'C'}possible-my-pub{elseif $flagged[$pid].type == 'H'}possible-hide{/if}">
+		<tr class="{if $flagged_possible[$pid].type == 'C'}possible-my-pub{elseif $flagged_possible[$pid].type == 'H'}possible-hide{/if}">
 			<td style="width: 10px;"><input type="checkbox" name="pid" value="{$list[i].rek_pid}" /></td>
 			<td style="width: 100%;">{$list[i].rek_citation}</td>
 			
@@ -164,28 +164,28 @@ function hideBulk()
 			</td>
 			
 			<td>
-				{if $flagged[$pid].type == 'C'}
+				{if $flagged_possible[$pid].type == 'C'}
 					<div class="research-record-note" style="width: 200px;">
-						{if $flagged[$pid].user == $actual_user}
+						{if $flagged_possible[$pid].user == $actual_user}
 							You have indicated that this record was authored by you. A job has been logged with the {$app_name} team.
 						{else}
-							User <span style="font-weight: bold">{$flagged[$pid].user}</span> has indicated that this record was authored by you. A job has already been logged with the {$app_name} team.
+							User <span style="font-weight: bold">{$flagged_possible[$pid].user}</span> has indicated that this record was authored by you. A job has already been logged with the {$app_name} team.
 						{/if}
 					</div>
-				{elseif $flagged[$pid].type == 'H'}
+				{elseif $flagged_possible[$pid].type == 'H'}
 					<div class="research-record-note" style="width: 200px;">
-						{if $flagged[$pid].user == $actual_user}
+						{if $flagged_possible[$pid].user == $actual_user}
 							You have indicated that this record was not authored by you.
 						{else}
-							User <span style="font-weight: bold">{$flagged[$pid].user}</span> has indicated that this record was not authored by you.
+							User <span style="font-weight: bold">{$flagged_possible[$pid].user}</span> has indicated that this record was not authored by you.
 						{/if}
 					</div>
 				{/if}
 				
-				{if $flagged[$pid].type != 'C'}
+				{if $flagged_possible[$pid].type != 'C'}
 					<input type="button" class="possible-my-pub" value="Mine" onclick="javascript:claimPID('{$list[i].rek_pid}');" /><br />
 				{/if}
-				{if $flagged[$pid].type != 'H'}
+				{if $flagged_possible[$pid].type != 'H'}
 					<input type="button" class="possible-hide" value="Not mine" onclick="javascript:hide('{$list[i].rek_pid}');" />
 				{/if}
 			</td>
