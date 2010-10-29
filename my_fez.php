@@ -46,7 +46,7 @@ $isSuperAdministrator = User::isUserSuperAdministrator($isUser);
 $isUPO = User::isUserUPO($isUser);
 
 // Do the appropriate redirect.
-if (!APP_MY_RESEARCH_MODULE) {
+if (APP_MY_RESEARCH_MODULE != 'ON') {
 	header("Location: " . APP_RELATIVE_URL . "my_fez_traditional.php");
 } else {
 	if ($isUPO) {

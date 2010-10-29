@@ -90,7 +90,7 @@ if (@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "" || @$_SERVE
 		if (!empty($url) && $realUrl != APP_RELATIVE_URL && $realUrl != "/index.php?err=6") {		
 			Auth::redirect($url);
 		} else {
-			if (APP_MY_RESEARCH_MODULE && MyResearch::getHRorgUnit($username) != "") {
+			if (APP_MY_RESEARCH_MODULE == 'ON' && MyResearch::getHRorgUnit($username) != "") {
 				Auth::redirect(APP_BASE_URL."/my_fez.php"); // even though its the same page redirect so if they refresh it doesnt have the post vars
 			} else {
 				Auth::redirect(APP_BASE_URL); // even though its the same page redirect so if they refresh it doesnt have the post vars
@@ -121,7 +121,7 @@ if (@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "" || @$_SERVE
 	if (!empty($_POST["url"]) && $realUrl != APP_RELATIVE_URL && $realUrl != "/index.php?err=6") {
 		Auth::redirect(urldecode($_POST["url"])); 
 	} else {
-		if (APP_MY_RESEARCH_MODULE && MyResearch::getHRorgUnit($username) != "") {
+		if (APP_MY_RESEARCH_MODULE == 'ON' && MyResearch::getHRorgUnit($username) != "") {
 			Auth::redirect(APP_BASE_URL."/my_fez.php"); // even though its the same page redirect so if they refresh it doesnt have the post vars
 		} else {
 			Auth::redirect(APP_BASE_URL); // even though its the same page redirect so if they refresh it doesnt have the post vars
