@@ -726,9 +726,6 @@ class ResearcherID
                   if (! empty($times_cited)) {
                     Record::updateThomsonCitationCount($pid, $times_cited, $ut);
                   }
-                  if ( APP_SOLR_INDEXER == "ON" ) {
-                    FulltextQueue::singleton()->add($pid);
-                  }
                 } else {
                   $mods = Misc::convertEstiRecordToMods($_record, $author_id);
                   $links = Misc::convertEstiRecordToLinks($_record);
@@ -743,6 +740,9 @@ class ResearcherID
                         $times_cited, $links
                     );
                   }
+                }
+                if ( APP_SOLR_INDEXER == "ON" ) {
+                  FulltextQueue::singleton()->add($pid);
                 }
                 array_push($processedUT, $ut);
               }
