@@ -45,6 +45,11 @@ function submitForm()
 	return;
 }
 
+function cancel()
+{
+	window.location = 'my_research_claimed.php';
+}
+
 //-->
 </script>
 {/literal}
@@ -118,6 +123,8 @@ function submitForm()
 	
 	<input type="button" value="Submit correction" name="button" onclick="javascript:submitForm();" />
 </div>
+
+<input type="button" value="Cancel" name="button" onclick="javascript:cancel();" />
 
 <p>
 	<input type="hidden" value="{$pid}" name="pid" />

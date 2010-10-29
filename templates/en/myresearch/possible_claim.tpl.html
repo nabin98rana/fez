@@ -39,6 +39,11 @@ function submitForm()
 	return;
 }
 
+function cancel()
+{
+	window.location = 'my_research_possible.php';
+}
+
 //-->
 </script>
 {/literal}
@@ -113,6 +118,7 @@ function submitForm()
 
 <p>
 	<input type="button" value="Claim publication" name="button" onclick="javascript:submitForm();" />
+	<input type="button" value="Cancel" name="button" onclick="javascript:cancel();" />
 	<input type="hidden" value="{$pid}" name="pid" />
 	<input type="hidden" value="claim-add" name="action" />
 </p>
