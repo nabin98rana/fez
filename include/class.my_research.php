@@ -155,7 +155,7 @@ class MyResearch
 					"searchKey".Search_Key::getID("Title") => 'Title',
 					"searchKey".Search_Key::getID("Description") => 'Description',
 					"searchKey".Search_Key::getID("File Downloads") => 'File Downloads',
-					"searchKey".Search_Key::getID("Date") => 'Date',
+					"searchKey".Search_Key::getID("Date") => 'Published Date',
 					"searchKey".Search_Key::getID("Created Date") => 'Created Date',
 					"searchKey".Search_Key::getID("Updated Date") => 'Updated Date',
 					"searchKey".Search_Key::getID("Sequence") => 'Sequence',
@@ -167,18 +167,21 @@ class MyResearch
 	
 			$options = array();
 			$options = Pager::saveSearchParams($params);
-			
 			$sort_by = $options["sort_by"];
 			$sort_order = $options["sort_order"];
-			
-			  $sort_by_list['searchKey0'] = "Search Relevance";           
-	      if (($params["sort_by"]) == "") {
-	      	$sort_by = "searchKey0";
+
+			  $sort_by_list['searchKey0'] = "Search Relevance";
+	      if (empty($params["sort_by"])) {
+					if ($type == "possible") {
+	      		$sort_by = "searchKey0";
+					} else {
+						$sort_by = "searchKey".Search_Key::getID("Date");
+					}
 	      }
 	      
 	      // if searching by Title, Abstract, Keywords and sort order not specifically set in the querystring 
 	      // (from a manual sort order change) than make search revelance sort descending
-	      if (!is_numeric($params["sort_order"]) && ($sort_by == "searchKey0")) {
+	      if (!is_numeric($params["sort_order"]) && ($sort_by == "searchKey0" || $sort_by == "searchKey".Search_Key::getID("Date"))) {
 	      	$options["sort_order"] = 1; // DESC relevance
 	  		}
 	    
@@ -311,7 +314,7 @@ class MyResearch
 		$terms = @$return['info']['search_info'];
 		$tpl->assign('terms', $terms);
 		$tpl->assign("list_heading", "My $type Research");        	 
-		$sort_by = $options["sort_by"];
+
 		$tpl->assign('rows', $rows);
 		$tpl->assign('sort_order', $options["sort_order"]);
 		$tpl->assign('sort_by_default', $sort_by);
