@@ -3871,6 +3871,7 @@ class Record
       }
               
       if ($result) {
+        Record::setIndexMatchingFields($pid);
         //Citation::updateCitationCache($pid, "");
         if (!empty($times_cited)) {
           Record::updateThomsonCitationCount($pid, $times_cited);
@@ -3878,7 +3879,6 @@ class Record
         if (!empty($history)) {
           History::addHistory($pid, null, "", "", true, $history);
         }
-        Record::setIndexMatchingFields($pid);
       }
     }	
     
