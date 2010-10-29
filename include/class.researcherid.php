@@ -741,9 +741,6 @@ class ResearcherID
                     );
                   }
                 }
-                if ( APP_SOLR_INDEXER == "ON" ) {
-                  FulltextQueue::singleton()->add($pid);
-                }
                 array_push($processedUT, $ut);
               }
             }
