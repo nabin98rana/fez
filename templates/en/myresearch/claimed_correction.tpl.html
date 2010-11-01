@@ -62,14 +62,10 @@ function cancel()
 
 <form action="my_research_claimed.php" method="post" id="correctForm">
 
-<h2>Citation details</h2>
-
 <div id="research-solo-citation">
 	{$citation}
 	<div style="display: block; font-size: 80%; padding-top: 15px;">[ <a href="{$rel_url}view/{$pid}" onclick="javascript:window.open('{$rel_url}view/{$pid}'); return false;">View the full record</a> ]</div>
 </div>
-
-<h2>Q-index details</h2>
 
 <table id="research-q-index-details">
 	<tr>
@@ -113,7 +109,7 @@ function cancel()
 
 <p>
 	<input type="radio" name="type" id="rad-not-mine" value="rad-not-mine" onclick="javascript:toggleCorrections(); notMine('{$pid}');" /> This is not my record<br />
-	<input type="radio" name="type" id="rad-fix" value="rad-fix" onclick="javascript:toggleCorrections();" /> I would like to report a data problem for this record
+	<input type="radio" name="type" id="rad-fix" value="rad-fix" onclick="javascript:toggleCorrections();" /> I would like to report a problem
 </p>
 
 <div id="correction-area-fix" style="display: none;">
