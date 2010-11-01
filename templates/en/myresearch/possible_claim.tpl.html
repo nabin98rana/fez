@@ -106,6 +106,13 @@ function cancel()
 	</div>
 {/if}
 
+{if $year == $smarty.now|date_format:'%Y'}
+	<div id="research-herdc-message">
+		<b>PLEASE NOTE</b><br />
+		<div>As part of the current HERDC process all publications are being reviewed, so it is not necessary to report problems relating the current HERDC code.</div>
+	</div>
+{/if}
+
 <p>
 	<input type="radio" name="confirm" id="ok" value="ok" onclick="javascript:toggleCorrections();" /> This record is mine, and the citation is correct<br />
 	<input type="radio" name="confirm" id="nok" value="nok" onclick="javascript:toggleCorrections();" /> This record is mine, but the record requires a correction

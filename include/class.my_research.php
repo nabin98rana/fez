@@ -78,6 +78,7 @@ class MyResearch
 				$recordDetails = Record::getDetailsLite(Misc::GETorPOST('pid'));
 				$tpl->assign("pid", $recordDetails[0]['rek_pid']);
 				$tpl->assign("citation", $recordDetails[0]['rek_citation']);
+				$tpl->assign("year", date("Y", strtotime($recordDetails[0]['rek_date'])));
 				$tpl->assign("qindex_meta", Record::getQindexMeta($recordDetails[0]['rek_pid']));
 				$tpl->assign("wos_collection", Record::isInWOScollection($recordDetails[0]['rek_pid']));
 				$list = false;
