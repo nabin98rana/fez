@@ -78,7 +78,7 @@ class MyResearch
 				$recordDetails = Record::getDetailsLite(Misc::GETorPOST('pid'));
 				$tpl->assign("pid", $recordDetails[0]['rek_pid']);
 				$tpl->assign("citation", $recordDetails[0]['rek_citation']);
-				$tpl->assign("year", date("Y", strtotime($recordDetails[0]['rek_date'])));
+				$tpl->assign("herdc_message", MyResearch::herdcMessage($recordDetails[0]['rek_date']));
 				$tpl->assign("qindex_meta", Record::getQindexMeta($recordDetails[0]['rek_pid']));
 				$tpl->assign("wos_collection", Record::isInWOScollection($recordDetails[0]['rek_pid']));
 				$list = false;
@@ -733,6 +733,31 @@ class MyResearch
 		}
 		
 		return $db->lastInsertId();
+	}
+	
+	
+	
+	/**
+	 * Determine whether we need to display a message concerning correction of HERDC codes.
+	 */
+	function herdcMessage($year)
+	{
+		/* 
+		SC says: "The HERDC coding for a given year will not be finalised until about June/July 
+		the following year (so 2010 publications should have a finalised HERDC code by July 2011)."
+		*/
+		$pubYear = date("Y", strtotime($year + '1 year'));
+		$pubYear = (int)$pubYear;
+		
+		$currentMonth = date("m");
+		$currentYear = date("Y");
+		
+		if	($pubYear >= $currentYear || 
+			($pubYear == ($currentYear - 1) && $currentMonth < 7)) {
+			return true;
+		}
+		
+		return false;
 	}
 	
 	
