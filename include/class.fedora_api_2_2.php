@@ -1224,6 +1224,10 @@ class Fedora_API {
 	function callModifyDatastreamByValue ($pid, $dsID, $state, $label, $dsContent, $mimetype='text/xml', $versionable='inherit') 
 	{
 		$log = FezLog::get();
+
+		// force state to 'A'; otherwise, if the dsID is the same
+		// as a DS that was deleted, then the modify will fail
+		Fedora_API::callSetDatastreamState($pid,$dsID,'A');
 		
 		$versionable = $versionable === true ? 'true' : $versionable === false ? 'false' : $versionable;
 		if( strcasecmp($versionable,'inherit') != 0 ){
