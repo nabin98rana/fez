@@ -336,22 +336,28 @@
                 <td style="background: {$light_color}; width: 80%">
 	                <div id="register_rid_container" style="font-size: 0.8em;">
                   	{if $info.aut_researcher_id == ''}
-                  		
-                  		<table style="width: 740px" cellspacing="0" cellpadding="0">                  		
-                  		<tr>
-                        <td style="width: 100px">
-                  		    <input type="text" name="researcher_id" size="11" class="default" value="{$info.aut_researcher_id}" />
-                        </td>
-                        <td style="width: 40px; text-align: center">
-                          - OR -
-                        </td>            
-				                <td style="width: 600px">
-				                  <input class="button" type="submit" value="Register in ResearcherID" id="register_researcherid_profile" />
-				                  &nbsp;
-				                  Register with this email address (optional): <input type="text" id="register_researcherid_alt_email" size="30" class="default" value="" />
-				                </td>
-				              </tr>
-                    </table>
+                  	
+	                  	 {if $info.aut_org_staff_id == '' && $info.aut_org_username == ''}
+	                  	  <input type="text" name="researcher_id" size="11" class="default" value="" />
+                        &nbsp;Registration Process in Researcher ID requires an Organisation Staff Username or 
+                        an Organisation Staff ID.
+	                  	 {else}	                  		
+		                  		<table style="width: 740px" cellspacing="0" cellpadding="0">                  		
+		                  		<tr>
+		                        <td style="width: 100px">
+		                  		    <input type="text" name="researcher_id" size="11" class="default" value="{$info.aut_researcher_id}" />
+		                        </td>
+		                        <td style="width: 40px; text-align: center">
+		                          - OR -
+		                        </td>            
+						                <td style="width: 600px">
+						                  <input class="button" type="submit" value="Register in ResearcherID" id="register_researcherid_profile" />
+						                  &nbsp;
+						                  Register with this email address (optional): <input type="text" id="register_researcherid_alt_email" size="30" class="default" value="" />
+						                </td>
+						              </tr>
+		                    </table>
+	                    {/if}
                   		
                   	{elseif $info.aut_researcher_id == '-1' || strstr($info.aut_researcher_id, 'ERR:')}
                   		{if strstr($info.aut_researcher_id, 'ERR:')}

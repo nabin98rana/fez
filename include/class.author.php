@@ -652,7 +652,52 @@ class Author
           FROM fez_author
           LEFT JOIN hr_position_vw on WAMIKEY = aut_org_staff_id
           LEFT JOIN fez_org_structure on AOU = org_extdb_id AND org_extdb_name = 'hr'
-          WHERE aut_org_staff_id = ".$db->quote($org_staff_id, 'INTEGER');
+          WHERE aut_org_staff_id != '' AND aut_org_staff_id = ".$db->quote($org_staff_id, 'INTEGER');
+    try {
+      $res = $db->fetchAll($stmt);
+    }
+    catch(Exception $ex) {
+      $log->err($ex);
+      return '';
+    }
+
+    return $res;
+  }
+  
+  function getPositionsByOrgUsername($org_username)
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $stmt = "SELECT
+                    POS_TITLE, org_title, YEAR(DT_FROM) AS DT_FROM, YEAR(DT_TO) AS DT_TO
+          FROM fez_author
+          LEFT JOIN hr_position_vw on USER_NAME = aut_org_username
+          LEFT JOIN fez_org_structure on AOU = org_extdb_id AND org_extdb_name = 'hr'
+          WHERE aut_org_username != '' AND aut_org_username = ".$db->quote($org_username);
+
+    try {
+      $res = $db->fetchAll($stmt);
+    }
+    catch(Exception $ex) {
+      $log->err($ex);
+      return '';
+    }
+
+    return $res;
+  }
+  
+  function getPositions($org_username)
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $stmt = "SELECT
+                    POS_TITLE, org_title, YEAR(DT_FROM) AS DT_FROM, YEAR(DT_TO) AS DT_TO
+          FROM fez_author
+          LEFT JOIN hr_position_vw on USER_NAME = aut_org_username
+          LEFT JOIN fez_org_structure on AOU = org_extdb_id AND org_extdb_name = 'hr'
+          WHERE aut_org_username = ".$db->quote($org_username);
 
     try {
       $res = $db->fetchAll($stmt);
@@ -970,6 +1015,9 @@ class Author
     foreach ($res as $key => $row) {
       $res[$key]['positions'] = array();
       $res[$key]['positions'] = Author::getPositionsByOrgStaffID($res[$key]['aut_org_staff_id']);
+      if (empty($res[$key]['positions'])) {
+        $res[$key]['positions'] = Author::getPositionsByOrgUsername($res[$key]['aut_org_username']);
+      }
     }
     
     if (($start + $max) < $total_rows) {
