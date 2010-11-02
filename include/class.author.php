@@ -1014,9 +1014,13 @@ class Author
   
     foreach ($res as $key => $row) {
       $res[$key]['positions'] = array();
-      $res[$key]['positions'] = Author::getPositionsByOrgStaffID($res[$key]['aut_org_staff_id']);
-      if (empty($res[$key]['positions'])) {
+      if ($res[$key]['aut_org_staff_id'] != '') {
+        $res[$key]['positions'] = Author::getPositionsByOrgStaffID($res[$key]['aut_org_staff_id']);
+      } else if ($res[$key]['aut_org_username'] != '') {
         $res[$key]['positions'] = Author::getPositionsByOrgUsername($res[$key]['aut_org_username']);
+      } else {
+        $log->err('No position found');
+        return '';
       }
     }
     
