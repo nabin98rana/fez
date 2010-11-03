@@ -1,77 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- ResearcherID profile creation sample XML -->
 <profileUpload xsi:schemaLocation="http://www.thomsonreuters.com/ns/researcher-profile/Researcher-Bulk-Profiles-schema.xsd" xmlns="http://www.thomsonreuters.com/ns/researcher-profile/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<sponsor>
-	      <name>{$org_name}</name>
-	      <admin>
-			  <!-- first name, last name, middle name are all optional for the admin -->
-{if 1 < 0}
-		      <firstName>I</firstName>
-		      <middleName>M.</middleName>
-		      <lastName>Admin</lastName>
-{/if}
-		      <email>{$app_admin_email}</email>
-{if 1 < 0}
-		      <!-- cc-list is optional, but if mentioned has to have at least one email in it -->
-		      <email-cc-list>
-			      <email>1.another.admin.to.cc@uq.edu.au</email>
-			      <email>2.another.admin.to.cc@uq.edu.au</email>
-			      <email>3.another.admin.to.cc@uq.edu.au</email>
-		      </email-cc-list>
-{/if}
-	      </admin>
-	      <!-- The intimate-researcher-individually value determines if ResearcherID should (true) sent notification of account creation to researchers
-	      directly or if instituion would like to do this (false). -->
-	      <intimate-researcher-individually>false</intimate-researcher-individually>
-	      <email-append-note-content>This static text, with no placeholders, 
-	      				 will be appended to every confirmation mail sent out.
-	      				 This will be the message from the institution,
-	      				 on top (or bottom!) of our own templated mail.
-	      </email-append-note-content>
-	</sponsor>
-	<!-- Default institution name will be used in cases where the indiviudals institution name differs from the instituion performing the batch upload -->
+    <sponsor>
+        <name>{$org_name}</name>
+        <admin>
+            <email>{$app_admin_email}</email>
+        </admin>
+        <intimate-researcher-individually>false</intimate-researcher-individually>
+        {if $email_append_note == ''}
+        	<email-append-note-content>N/A</email-append-note-content>
+        {else}
+        	<email-append-note-content>{$email_append_note}</email-append-note-content>
+        {/if}
+    </sponsor>
 	<profileList>
-		<default-institution-name>{$org_name}</default-institution-name>
-{section name="i" loop=$list}
-		<researcher-profile>
-			      <firstName>{$list[i].aut_fname|escape:"html"}</firstName>
-			      <lastName>{$list[i].aut_lname|escape:"html"}</lastName>
-			      <email>{$list[i].aut_email|escape:"html"}</email>
-				{section name="y" loop=$list[i].positions}
-				{if $list[i].positions[y].DT_TO != '0' && ($list[i].positions[y].DT_TO) < ($smarty.now|date_format:'%Y')}
-			      <past-institution>
-				{else}
-					{if $smarty.section.y.index > 0}
-			      <affiliate-institution>
-					{else}
-			      <institution>
-					{/if}
-				{/if}
-					<name>{$org_name|escape:"html"}</name>
-					<address>
-						<addressLine1>St Lucia</addressLine1> 
-						<city>Brisbane</city>
-						<state-or-province>Queensland</state-or-province>
-						<country>Australia</country>
-						<postalcode>4072</postalcode>
-					</address>
-					<!-- At least one department -->
-					<departmentName>{$list[i].positions[y].org_title|escape:"html"}</departmentName>
-					{if $smarty.section.y.index == 0}<employeeID>{$list[i].aut_id}</employeeID>{/if}
-					<role>Other</role>
-					<start-date>{$list[i].positions[y].DT_FROM}</start-date>
-					{if $list[i].positions[y].DT_TO != '0' && ($list[i].positions[y].DT_TO) < ($smarty.now|date_format:'%Y')}<end-date>{$list[i].positions[y].DT_TO}</end-date>{/if}
-				{if $list[i].positions[y].DT_TO != '0' && ($list[i].positions[y].DT_TO) < ($smarty.now|date_format:'%Y')}
-			      </past-institution>
-					{else}
-						{if $smarty.section.y.index > 0}
-				      </affiliate-institution>
-						{else}
-				      </institution>
-						{/if}
-				{/if}
-				{/section}
-		</researcher-profile>
-{/section}
-	</profileList>
+        <default-institution-name>{$org_name}</default-institution-name>
+        <researcher-profile>
+            <firstName>{$list.aut_fname|escape:"html"}</firstName>
+            <lastName>{$list.aut_lname|escape:"html"}</lastName>
+            
+            {if $rid_alt_email}
+              <email>{$rid_alt_email|escape:"html"}</email>
+            {else}
+              <email>{$list.aut_org_username|escape:"html"}@uq.edu.au</email>
+            {/if}
+            {section name="y" loop=$list.positions}
+              {if $smarty.section.y.index == 0}
+                <institution>
+                <address>
+                    <addressLine1>St Lucia</addressLine1> 
+                    <city>Brisbane</city>
+                    <state-or-province>Queensland</state-or-province>
+                    <country>Australia</country>
+                    <postalcode>4072</postalcode>
+                </address>
+                <departmentName>{$list.positions[y].org_title|escape:"html"}</departmentName>
+                <employeeID>{$list.aut_org_username|escape:"html"}</employeeID>
+                <role>Other</role>
+                {if $list.positions[y].DT_FROM > 2008 || $list.positions[y].DT_FROM == ''}
+                  <start-date>2008</start-date>
+                {else}
+                  <start-date>{$list.positions[y].DT_FROM}</start-date>
+                {/if}
+                </institution>                
+              {/if}
+            {/section}
+        </researcher-profile>
+    </profileList>
 </profileUpload>

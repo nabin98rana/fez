@@ -23,43 +23,37 @@
             {else}
               <email>{$list.aut_org_username|escape:"html"}@uq.edu.au</email>
             {/if}
-            {section name="y" loop=$list.positions}
-            {if $list.positions[y].DT_TO != '0' && ($list.positions[y].DT_TO) < ($smarty.now|date_format:'%Y')}
-                <past-institution>
-            {else}
-                {if $smarty.section.y.index > 0}
-                    <affiliate-institution>
-                {else}
-                    <institution>
-                {/if}
-            {/if}
-            <name>{$org_name|escape:"html"}</name>
-            <address>
-                <addressLine1>St Lucia</addressLine1> 
-                <city>Brisbane</city>
-                <state-or-province>Queensland</state-or-province>
-                <country>Australia</country>
-                <postalcode>4072</postalcode>
-            </address>
-            <departmentName>{$list.positions[y].org_title|escape:"html"}</departmentName>
-            {if $smarty.section.y.index == 0}<employeeID>{$list.aut_org_username|escape:"html"}</employeeID>{/if}
-            <role>Other</role>
-            {if $list.positions[y].DT_FROM > 2008 || $list.positions[y].DT_FROM == ''}
-            	<start-date>2008</start-date>
-            {else}
-            	<start-date>{$list.positions[y].DT_FROM}</start-date>
-            {/if}
-            {if $list.positions[y].DT_TO != '0' && ($list.positions[y].DT_TO) < ($smarty.now|date_format:'%Y')}<end-date>{$list.positions[y].DT_TO}</end-date>{/if}
-            {if $list.positions[y].DT_TO != '0' && ($list.positions[y].DT_TO) < ($smarty.now|date_format:'%Y')}
-                </past-institution>
-            {else}
-                {if $smarty.section.y.index > 0}
-                    </affiliate-institution>
-                {else}
-                    </institution>
-                {/if}
-            {/if}
-            {/section}
+            
+            <institution>
+              <address>
+                  <addressLine1>St Lucia</addressLine1> 
+                  <city>Brisbane</city>
+                  <state-or-province>Queensland</state-or-province>
+                  <country>Australia</country>
+                  <postalcode>4072</postalcode>
+              </address>
+              {if $list.positions != ''}
+                {section name="y" loop=$list.positions}
+                  {if $smarty.section.y.index == 0}                  
+                      {if $list.positions[y].org_title == ''}
+                        <departmentName>Other</departmentName>
+                      {else}
+                        <departmentName>{$list.positions[y].org_title|escape:"html"}</departmentName>
+                      {/if}                      
+                      {if $list.positions[y].DT_FROM > 2008 || $list.positions[y].DT_FROM == ''}
+                        <start-date>2008</start-date>
+                      {else}
+                        <start-date>{$list.positions[y].DT_FROM}</start-date>
+                      {/if}               
+                  {/if}
+                {/section}            
+              {else}
+                  <departmentName>Other</departmentName>
+                  <start-date>2008</start-date>
+              {/if}
+              <role>Other</role>
+              <employeeID>{$list.aut_org_username|escape:"html"}</employeeID>
+            </institution>
         </researcher-profile>
     </profileList>
 </profileUpload>

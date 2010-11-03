@@ -31,9 +31,9 @@
 						</authors>
 					</contributors>			
 					<titles>
-						<title>{$list[i].rek_title|escape:"html"}</title>
+						<title>{$list[i].rek_title|escape:"html"|escape:"quotesxml"}</title>
 						{if $list[i].rek_secondary_title != ''}
-						<secondary-title>{$list[i].rek_secondary_title|escape:"html"}</secondary-title>
+						<secondary-title>{$list[i].rek_secondary_title|escape:"html"|escape:"quotesxml"}</secondary-title>
 						{/if}
 					</titles>					
 					{if $list[i].rek_end_page[0] != ''}
@@ -56,7 +56,7 @@
 						</dates>
 					{/if}					
 					{if $list[i].rek_ref_type == '25' && $list[i].rek_publisher != ''}
-						<publisher>{$list[i].rek_publisher}</publisher>
+						<publisher>{$list[i].rek_publisher|escape:"html"|escape:"quotesxml"}</publisher>
 					{/if}						
 					{if $list[i].rek_ref_type == '25' && $list[i].rek_ref_type == '25' && $list[i].rek_isbn != ''}
 						<isbn>{$list[i].rek_isbn|escape:"html"}</isbn>

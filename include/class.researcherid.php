@@ -943,8 +943,14 @@ class ResearcherID
         $record = $listing['list'][$i];
           
         // Get the ref-type based on this record's display type
-        if ( !empty($record['rek_display_type']) ) {
+        /*if ( !empty($record['rek_display_type']) ) {
           $record['rek_ref_type'] = ResearcherID::getDocTypeByDisplayType($record['rek_display_type']);
+        }*/
+        // Journal articles only
+        if ($record['rek_display_type'] == 179) {
+          $record['rek_ref_type'] = 17;
+        } else {
+          $record['rek_ref_type'] = '';
         }
           
         if ( is_array($record['rek_isi_loc']) ) {
@@ -989,10 +995,11 @@ class ResearcherID
           }
         }
           
-        // We need at least one author and a title
+        // We need at least one author and a title and the ref type
         if ( (! (is_array($record['rek_author_id_details'])
             && is_array($record['rek_author'])))
-            || empty($record['rek_title']) ) {
+            || empty($record['rek_title'])
+            || empty($record['rek_ref_type']) ) {
           // Record does not have required data
         } else {
           $return['list'][] = $record;
