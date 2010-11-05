@@ -70,7 +70,7 @@
 		function validateForm() {
 		{/literal}
 		{section name="i" loop=$xsd_display_fields}
-		{if ($xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector' || $xsd_display_fields[i].xsdmf_html_input == 'dual_multiple') && $xsd_display_fields[i].xsdmf_enabled == 1}
+		{if (($xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector' && $xsd_display_fields[i].xsdmf_cvo_min_level != 3) || $xsd_display_fields[i].xsdmf_html_input == 'dual_multiple') && $xsd_display_fields[i].xsdmf_enabled == 1}
 		{literal}
 			var field = document.getElementById('xsd_display_fields_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}_0');
 		    for (var y = 0; y < field.options.length; y++) {
@@ -1057,7 +1057,7 @@
 			</tr>
 	
 		{elseif $xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector' && $xsd_display_fields[i].xsdmf_enabled == 1}
-				<tr id="tr_list_{$list[i].xsdmf_id}_0" valign="top" {if ($isEditor != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && $xsd_display_fields[i].xsdmf_required != 1) || $xsd_display_fields[i].xsdmf_invisible == 1 || ($xsd_display_fields[i].cvo_hide == 1 && !$isAdmin)}style="display:none"{/if}>
+				<tr id="tr_list_{$list[i].xsdmf_id}_0" valign="top" {if ($isEditor != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && $xsd_display_fields[i].xsdmf_required != 1) || $xsd_display_fields[i].xsdmf_invisible == 1 || ($xsd_display_fields[i].cvo_hide == 1 && $xsd_display_fields[i].xsdmf_cvo_min_level == 3 && !$isAdmin)}style="display:none"{/if}>
 				  <th>
 					<b>{$xsd_display_fields[i].xsdmf_title} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b><br />
 				  </th>

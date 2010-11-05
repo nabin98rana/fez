@@ -810,9 +810,11 @@ class XSD_HTML_Match
 							xsdmf_sek_id,
 							sek_title,
 							sek_suggest_function,
-							sek_lookup_function
+							sek_lookup_function,
+							cvo_hide
 		                 FROM
 		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields as m1
+							left join " . APP_TABLE_PREFIX . "controlled_vocab as cv1 on cvo_id = m1.xsdmf_cvo_id
 							left join " . APP_TABLE_PREFIX . "search_key as sk1 on sk1.sek_id = m1.xsdmf_sek_id ";
 
 			if ($specify_str != "") {
