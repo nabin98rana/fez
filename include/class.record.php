@@ -86,6 +86,9 @@ define('SK_SEARCH_TXT', 7);
 define('SK_GROUP_BY', 8);
 define('SK_ORDER_BY', 9);
 
+const ERA_STATUS_ELIGIBLE = 'Y';
+const ERA_STATUS_INELIGIBLE = 'N';
+const ERA_STATUS_NOT_FOUND = 'X';
 
 /**
  * Record
@@ -4639,7 +4642,132 @@ class Record
 
     return $res[0];
   }
+
+
+
+/**
+ * This function is to be called for records that don't have a HERDC code assigned. This routine makes an
+ * attempt to guess at what the HERDC code should be set to, based on various things including whether
+ * or not the record was eligible for ERA. This function makes use of a custom table, and should not be
+ * called from an instance of Fez without it.
+ */
+function getSpeculativeHERDCcode($pid)
+{
+  $status = Record::getIntERActStatus($pid); // Get the IntERAct status.
   
+  // Get the content type (and possibly subtype) of the record in question.
+  $record = New RecordGeneral($pid);
+  $docType = $record->getDocumentType();
+  $subType = Record::getSearchKeyIndexValue($pid, "Subtype");
+  
+  $herdcCode = ""; // Default
+  
+  /////////////////////////////////////////////////////////////////////
+  // BUSINESS RULES
+  /////////////////////////////////////////////////////////////////////
+  // These rules are outlined by Heather Todd in a document entitled
+  // "ERA smart matching rules (for existing pubs without HERDC codes)"
+  /////////////////////////////////////////////////////////////////////
+  if ($docType == "Conference Paper") {
+    
+    if ($status == ERA_STATUS_ELIGIBLE) {
+      $herdcCode = "E1";
+    } elseif ($status == ERA_STATUS_INELIGIBLE) {
+      $herdcCode = "EX";
+    } elseif ($status == ERA_STATUS_NOT_FOUND) {
+      $herdcCode = "EX";
+    }
+    
+  } elseif ($docType == "Journal Article") {
+
+    if ($status == ERA_STATUS_ELIGIBLE) {
+      $herdcCode = "C1";
+    } elseif ($status == ERA_STATUS_INELIGIBLE) {
+      $herdcCode = "CX";
+    } elseif ($status == ERA_STATUS_NOT_FOUND) {
+      $herdcCode = "C1";
+    }
+    
+  } elseif ($docType == "Book") {
+
+    if ($status == ERA_STATUS_ELIGIBLE) {
+      $herdcCode = "A1";
+    } elseif ($status == ERA_STATUS_INELIGIBLE) {
+      $herdcCode = "AX";
+    } elseif ($status == ERA_STATUS_NOT_FOUND) {
+      $herdcCode = "AX";
+    }
+    
+  } elseif ($docType == "Book Chapter") {
+
+    if ($status == ERA_STATUS_ELIGIBLE) {
+      $herdcCode = "B1";
+    } elseif ($status == ERA_STATUS_INELIGIBLE) {
+      $herdcCode = "BX";
+    } elseif ($status == ERA_STATUS_NOT_FOUND) {
+      $herdcCode = "BX";
+    }
+    
+  } else {
+    
+    // For everything else in eSpace, published 2003 onwards, WITHOUT a HERDC code, and 
+    // NOT in the smart matching list of publications that were compared to ERA data:
+
+    // If Document Type = Journal Article and Subtype NOT (Article or Review of Research) then Confirmed CX
+    if ($docType == "Journal Article" && 
+        $subType != "Article" &&
+        $subType != "Review of research - research literature review (NOT book review") {
+    
+          $herdcCode = "CX";
+
+    // If Document Type = Book and Subtype NOT non-Fiction then Confirmed AX    
+    } elseif ($docType == "Book" &&
+              $subType != "Non-fiction") {
+    
+          $herdcCode = "AX";
+
+    // If Document Type = Book Chapter and Subtype NOT non-Fiction then Confirmed BX      
+    } elseif ($docType == "Book Chapter" &&
+              $subType != "Non-fiction") {
+    
+          $herdcCode = "BX";
+      
+    }
+  }
+  
+  // This return value will eventually be extended into an array capable of housing 
+  // additional information such as whether the code is confirmed or provisional.
+  return $herdcCode;
+}
+
+
+
+/**
+ * Find out what the ERA status of a given PID was in IntERAct. Warning: This function makes
+ * use of a custom table - do not call it unless you have the table in your installation.
+ */
+function getIntERActStatus($pid)
+{
+  $log = FezLog::get();
+  $db = DB_API::get();
+  
+  $stmt = "
+          SELECT status
+          FROM __temp_lk_interact_status
+          WHERE pid = " . $db->quote($pid) . ";";
+  try {
+    $res = $db->fetchOne($stmt);
+  } catch(Exception $ex) {
+    $log->err($ex);
+    return false;
+  }
+  
+  if (!$res) {
+    return null;
+  }
+  return $res;
+}
+
 }
 
 
