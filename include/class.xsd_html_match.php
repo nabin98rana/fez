@@ -620,9 +620,11 @@ class XSD_HTML_Match
 							xsdmf_cvo_id,
 							xsdmf_cvo_min_level,
 							xsdmf_cvo_save_type,
+							cvo_hide,
 							xsdsel_order
 		                 FROM
 		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields left join
+		                    " . APP_TABLE_PREFIX . "controlled_vocab on xsdmf_cvo_id = cvo_id left join			
 		                    " . APP_TABLE_PREFIX . "xsd_loop_subelement on (xsdsel_id = xsdmf_xsdsel_id)
 		                 WHERE
 		                   xsdmf_xdis_id=".$db->quote($xdis_id, 'INTEGER')." AND xsdmf_enabled=1";

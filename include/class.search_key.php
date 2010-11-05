@@ -583,7 +583,7 @@ class Search_Key
                  FROM
                     " . APP_TABLE_PREFIX . "search_key
                  ORDER BY
-                    sek_order ASC";
+                    sek_title ASC";
 		try {
 			$res = $db->fetchPairs($stmt);
 		}

@@ -1096,6 +1096,7 @@
 					  	<option value=0 {if ($info.xsdmf_cvo_min_level == 0) or ($info.xsdmf_cvo_min_level == '')}selected{/if}>Top Parent Branch</option>
 					  	<option value=1 {if ($info.xsdmf_cvo_min_level == 1)}selected{/if}>First Child Branch</option>
 					  	<option value=2 {if ($info.xsdmf_cvo_min_level == 2)}selected{/if}>Last Child Branch</option>
+						<option value=3 {if ($info.xsdmf_cvo_min_level == 3)}selected{/if}>First Child Branch Only</option>
 					</select><br />
 					<span class="default">Save CVO value or ID?:</span>					
 					<select class="default" name="xsdmf_cvo_save_type">
@@ -1116,6 +1117,7 @@
 					<input class="default" type="text" name="dynamic_selected_option" size="26" value="{$info.xsdmf_dynamic_selected_option}">
 			  	</td>
 		     </tr>
+        
 					<tr id="tr_parent_option_xdis_id" {$selectingfield_only}>
 					  <td bgcolor="{$cell_color}" class="default" valign="top">
 						<b>Parent XSDMF Element list:</b><i>(If this option is checked then the list of options will come from the first parent object of this type and this xsd matching field)<br /><br />(If this is an <b>Author Selector</b> then it will use this element to limit the author check to an organisation level eg School. For an Author Selector the element should point to an organisation ID that has relationships with authors, again like School.)</i>

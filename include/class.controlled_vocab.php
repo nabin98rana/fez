@@ -140,6 +140,10 @@ class Controlled_Vocab
 		if (is_numeric($_POST["cvo_external_id"])) {
 			$stmt .= ", cvo_external_id";
 		}
+		if (is_numeric($_POST["cvo_hide"])) {
+			$stmt .= ", cvo_hide";
+		}
+
 		$stmt .= "
                  ) VALUES (
                     " . $db->quote($_POST["cvo_title"]) . ",

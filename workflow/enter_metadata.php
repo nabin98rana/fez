@@ -260,6 +260,9 @@ if ($access_ok) {
 			if (($dis_field["xsdmf_html_input"] == 'contvocab')
 					|| ($dis_field["xsdmf_html_input"] == 'contvocab_selector')) {
 				$xsd_display_fields[$dis_key]['field_options'] = @$cvo_list['data'][$dis_field['xsdmf_cvo_id']];
+				if ($dis_field["xsdmf_html_input"] == "contvocab_selector" && $dis_field["xsdmf_cvo_min_level"] == 3) {
+					$xsd_display_fields[$dis_key]['field_options'] = Controlled_Vocab::getAssocListFullDisplay($dis_field["xsdmf_cvo_id"], '',  1,2);
+				}				
 			}
 		}
     }

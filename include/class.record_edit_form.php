@@ -95,6 +95,7 @@
         $details = $record->getDetails();
         $this->fixDetails($details);
         $this->details = $details;
+
         foreach ($xsdmf_to_use as &$xsdmf) {
             if( $xsdmf['xsdmf_multiple'] == 1 ) {
 				if (empty($details[$xsdmf['xsdmf_id']])) {
@@ -251,18 +252,32 @@
                         }
                     }
                 }
+								if ($dis_field["xsdmf_html_input"] == "contvocab_selector" && $dis_field["xsdmf_cvo_min_level"] == 3) {
+									$xsd_display_fields[$dis_key]['field_options'] = Controlled_Vocab::getAssocListFullDisplay($dis_field["xsdmf_cvo_id"], '',  1,2);
+								}
+
                 if ($dis_field["xsdmf_html_input"] == 'combo' || $dis_field["xsdmf_html_input"] == 'multiple' || $dis_field["xsdmf_html_input"] == 'dual_multiple') {
                     if (!empty($dis_field["xsdmf_smarty_variable"]) && $dis_field["xsdmf_smarty_variable"] != "none") {
-                        $this->setDynamicVar($dis_field["xsdmf_smarty_variable"]);
-                        eval("global ".$dis_field['xsdmf_smarty_variable']
-                        	."; \$xsd_display_fields[\$dis_key]['field_options'] = " 
-	                        . $dis_field["xsdmf_smarty_variable"] . ";");
+												if (is_numeric(strpos($dis_field["xsdmf_smarty_variable"], "::"))) {
+													eval("\$temp = ".$dis_field['xsdmf_smarty_variable']
+	                             ."; \$xsd_display_fields[\$dis_key]['field_options'] = \$temp;");
+												} else {
+	                        $this->setDynamicVar($dis_field["xsdmf_smarty_variable"]);
+	                        eval("global ".$dis_field['xsdmf_smarty_variable']
+	                        	."; \$xsd_display_fields[\$dis_key]['field_options'] = " 
+		                        . $dis_field["xsdmf_smarty_variable"] . ";");													
+												}
                     }
                     if (!empty($dis_field["xsdmf_dynamic_selected_option"]) && $dis_field["xsdmf_dynamic_selected_option"] != "none") {
-                        $this->setDynamicVar($dis_field["xsdmf_smarty_variable"]);
-                        eval("global ".$dis_field['xsdmf_smarty_variable']
-                        	."; \$xsd_display_fields[\$dis_key]['selected_option'] = " 
-                        	. $dis_field["xsdmf_dynamic_selected_option"] . ";");
+												if (is_numeric(strpos($dis_field["xsdmf_smarty_variable"], "::"))) {
+													eval("\$temp = ".$dis_field['xsdmf_smarty_variable']
+	                             ."; \$xsd_display_fields[\$dis_key]['field_options'] = \$temp;");
+												} else {
+	                        $this->setDynamicVar($dis_field["xsdmf_smarty_variable"]);
+	                        eval("global ".$dis_field['xsdmf_smarty_variable']
+	                        	."; \$xsd_display_fields[\$dis_key]['selected_option'] = " 
+	                        	. $dis_field["xsdmf_dynamic_selected_option"] . ";");													
+												}
                     }
         
                     // if the display field inherits this list from a 
@@ -304,7 +319,6 @@
      
      function fixDetails(&$details)
      {
-     	
         $xsd_display_fields = $this->xsd_display_fields;
         foreach ($xsd_display_fields  as $dis_field) {
             if ($dis_field["xsdmf_enabled"] == 1) {
@@ -328,10 +342,10 @@
 						$this->default_depositor_org_id = 1; // will show a message on the form warning this was set from default lookup and needs saving to take affect
 					}
 				} 
-				
+
                 if ($dis_field["xsdmf_html_input"] == 'combo' || $dis_field["xsdmf_html_input"] == 'dual_multiple' || $dis_field["xsdmf_html_input"] == 'customvocab_suggest' || $dis_field["xsdmf_html_input"] == 'multiple' || $dis_field["xsdmf_html_input"] == 'contvocab' || $dis_field["xsdmf_html_input"] == 'contvocab_selector') {
                     if (@$details[$dis_field["xsdmf_id"]]) { // if a record detail matches a display field xsdmf entry
-                        if (($dis_field["xsdmf_html_input"] == 'contvocab_selector') && ($dis_field['xsdmf_cvo_save_type'] != 1)) {         
+                        if (($dis_field["xsdmf_html_input"] == 'contvocab_selector') && ($dis_field['xsdmf_cvo_save_type'] != 1)) {
                             $tempArray = $details[$dis_field["xsdmf_id"]];
                             if (is_array($tempArray)) {
                                 $details[$dis_field["xsdmf_id"]] = array();
@@ -435,11 +449,19 @@
                             if (is_array($details[$dis_field['xsdmf_id']])) {
                                 foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
                                     if (!empty($cdata)) {
-                                        $details[$xsdmf_id_ref][$cdata] = Controlled_Vocab::getTitle($cdata);
+																				if ($xsdmf_details_ref['xsdmf_cvo_min_level'] == 3) {
+                                        	$details[$xsdmf_id_ref][$cdata] = $cdata;
+																				} else {
+                                        	$details[$xsdmf_id_ref][$cdata] = Controlled_Vocab::getTitle($cdata);																					
+																				}
                                     }
                                 }
                             } elseif (!empty($details[$dis_field['xsdmf_id']])) {
-                                $details[$xsdmf_id_ref][$details[$dis_field['xsdmf_id']]] = Controlled_Vocab::getTitle($details[$dis_field['xsdmf_id']]);
+																if ($xsdmf_details_ref['xsdmf_cvo_min_level'] == 3) {
+                                	$details[$xsdmf_id_ref][$details[$dis_field['xsdmf_id']]] = $details[$dis_field['xsdmf_id']];
+																} else {
+																	$details[$xsdmf_id_ref][$details[$dis_field['xsdmf_id']]] = Controlled_Vocab::getTitle($details[$dis_field['xsdmf_id']]);
+																}
                             }
                         }               
                     }                   
@@ -521,6 +543,7 @@
         $this->fixDisplayFields($xsd_display_fields, $record);
         $this->xsd_display_fields = $xsd_display_fields;
         $this->fixDetails($params['xsd_display_fields']);
+
         foreach ($xsd_display_fields  as $dis_field) {
             if ($dis_field["xsdmf_enabled"] != 1) {
             	continue; // skip non-enabled items

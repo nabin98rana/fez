@@ -1057,13 +1057,29 @@
 			</tr>
 	
 		{elseif $xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector' && $xsd_display_fields[i].xsdmf_enabled == 1}
-	
-				<tr id="tr_list_{$list[i].xsdmf_id}_0" valign="top" {if ($isEditor != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && $xsd_display_fields[i].xsdmf_required != 1) || $xsd_display_fields[i].xsdmf_invisible == 1}style="display:none"{/if}>
+				<tr id="tr_list_{$list[i].xsdmf_id}_0" valign="top" {if ($isEditor != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && $xsd_display_fields[i].xsdmf_required != 1) || $xsd_display_fields[i].xsdmf_invisible == 1 || ($xsd_display_fields[i].cvo_hide == 1 && !$isAdmin)}style="display:none"{/if}>
 				  <th>
 					<b>{$xsd_display_fields[i].xsdmf_title} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b><br />
 				  </th>
 				  {assign var="field_name" value="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"][]"}
 				  <td>
+					{if $xsd_display_fields[i].xsdmf_cvo_min_level == 3}
+					   {assign var="field_name" value="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"][]"}
+						<select id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}" class="default" 
+							name="{$field_name}">
+							 <option value="-1">Please choose an option</option>
+							  {html_options options=$xsd_display_fields[i].field_options}
+						</select>
+						{include file="error_icon.tpl.html" field=$field_name}
+					{if $xsd_display_fields[i].xsdmf_required == 1}
+				    	<script type="text/javascript">
+				       <!--
+				    	xsd_display_fields[xsd_display_fields.length] = new Option('xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]', '{$xsd_display_fields[i].xsdmf_title}');
+				        required_xsd_display_fields[required_xsd_display_fields.length] = new Option('xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]', 'multiple');
+				    	//-->
+				        </script>
+				    {/if}
+				   {else}
 					<select id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" multiple="multiple" size="10" class="default" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]">
 					</select>
 					{include file="error_icon.tpl.html" field=$field_name}
@@ -1071,7 +1087,7 @@
 					<input class="button" type="button" value="Remove Subject" onclick="javascript:deleteSelectedItemsFromList(xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0);" />
 				 </td>
 				</tr>				
-	
+				{/if}
 	    {elseif $xsd_display_fields[i].xsdmf_html_input == 'contvocab' && $xsd_display_fields[i].xsdmf_enabled == 1}
 	
 				<tr id="tr_list_{$list[i].xsdmf_id}_0" valign="top" {if ($isEditor != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && $xsd_display_fields[i].xsdmf_required != 1) || $xsd_display_fields[i].xsdmf_invisible == 1}style="display:none"{/if}>
