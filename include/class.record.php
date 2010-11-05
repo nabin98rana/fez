@@ -86,9 +86,6 @@ define('SK_SEARCH_TXT', 7);
 define('SK_GROUP_BY', 8);
 define('SK_ORDER_BY', 9);
 
-const ERA_STATUS_ELIGIBLE = 'Y';
-const ERA_STATUS_INELIGIBLE = 'N';
-const ERA_STATUS_NOT_FOUND = 'X';
 
 /**
  * Record
@@ -100,6 +97,11 @@ class Record
   const status_undefined = 0;
   const status_unpublished = 1;
   const status_published = 2;
+
+	const ERA_STATUS_ELIGIBLE = 'Y';
+	const ERA_STATUS_INELIGIBLE = 'N';
+	const ERA_STATUS_NOT_FOUND = 'X';
+
 
   /**
    * Method used to get the parents of a given record available in the
@@ -2119,7 +2121,7 @@ class Record
                    "AND rek_status != 2 AND (rek_assigned_user_id IN (".$db->quote($usr_id, 'INTEGER').") ) )
                    LEFT JOIN ".$dbtp."workflow ON wfr_wfl_id = wfl_id 
                    LEFT JOIN ".$dbtp."workflow_trigger ON wfl_id = wft_wfl_id 
-                                      AND (wft_pid = -1 or wft_pid = authi_pid)
+                                      AND (wft_pid = '-1' or wft_pid = authi_pid)
                                     AND (wft_xdis_id = -1 or wft_xdis_id = rek_display_type) 
                                     AND (wft_ret_id = 0 or wft_ret_id = rek_object_type)
            WHERE rek_pid IN ('".$pids."') and (wft_options = 1 or wfl_id IS NULL)
@@ -2140,7 +2142,7 @@ class Record
                  "FROM {$dbtp}record_search_key " .
           "LEFT JOIN ".$dbtp."auth_index2 on authi_pid = rek_pid " .
           "INNER JOIN ".$dbtp."workflow_trigger ON wft_options = 1 " .
-                    "AND (wft_pid = -1 or wft_pid = rek_pid) " .
+                    "AND (wft_pid = '-1' or wft_pid = rek_pid) " .
                                "AND (wft_xdis_id = -1 or wft_xdis_id = rek_display_type) " .
                                "AND (wft_ret_id = 0 or wft_ret_id = rek_object_type) " .
                     "INNER JOIN ".$dbtp."workflow on wfl_id = wft_wfl_id " .
