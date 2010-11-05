@@ -86,7 +86,6 @@ define('SK_SEARCH_TXT', 7);
 define('SK_GROUP_BY', 8);
 define('SK_ORDER_BY', 9);
 
-
 /**
  * Record
  * Static class for accessing record related queries
@@ -97,11 +96,6 @@ class Record
   const status_undefined = 0;
   const status_unpublished = 1;
   const status_published = 2;
-
-	const ERA_STATUS_ELIGIBLE = 'Y';
-	const ERA_STATUS_INELIGIBLE = 'N';
-	const ERA_STATUS_NOT_FOUND = 'X';
-
 
   /**
    * Method used to get the parents of a given record available in the
@@ -4672,41 +4666,41 @@ function getSpeculativeHERDCcode($pid)
   /////////////////////////////////////////////////////////////////////
   if ($docType == "Conference Paper") {
     
-    if ($status == ERA_STATUS_ELIGIBLE) {
+    if ($status == "Y") {
       $herdcCode = "E1";
-    } elseif ($status == ERA_STATUS_INELIGIBLE) {
+    } elseif ($status == "N") {
       $herdcCode = "EX";
-    } elseif ($status == ERA_STATUS_NOT_FOUND) {
+    } elseif ($status == "X") {
       $herdcCode = "EX";
     }
     
   } elseif ($docType == "Journal Article") {
 
-    if ($status == ERA_STATUS_ELIGIBLE) {
+    if ($status == "Y") {
       $herdcCode = "C1";
-    } elseif ($status == ERA_STATUS_INELIGIBLE) {
+    } elseif ($status == "N") {
       $herdcCode = "CX";
-    } elseif ($status == ERA_STATUS_NOT_FOUND) {
+    } elseif ($status == "X") {
       $herdcCode = "C1";
     }
     
   } elseif ($docType == "Book") {
 
-    if ($status == ERA_STATUS_ELIGIBLE) {
+    if ($status == "Y") {
       $herdcCode = "A1";
-    } elseif ($status == ERA_STATUS_INELIGIBLE) {
+    } elseif ($status == "N") {
       $herdcCode = "AX";
-    } elseif ($status == ERA_STATUS_NOT_FOUND) {
+    } elseif ($status == "X") {
       $herdcCode = "AX";
     }
     
   } elseif ($docType == "Book Chapter") {
 
-    if ($status == ERA_STATUS_ELIGIBLE) {
+    if ($status == "Y") {
       $herdcCode = "B1";
-    } elseif ($status == ERA_STATUS_INELIGIBLE) {
+    } elseif ($status == "N") {
       $herdcCode = "BX";
-    } elseif ($status == ERA_STATUS_NOT_FOUND) {
+    } elseif ($status == "X") {
       $herdcCode = "BX";
     }
     
