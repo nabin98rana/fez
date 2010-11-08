@@ -4674,7 +4674,10 @@ function getSpeculativeHERDCcode($pid)
       $herdcCode = "EX";
     }
     
-  } elseif ($docType == "Journal Article") {
+  } elseif (($docType == "Journal Article" && 
+              ($subType == "Review of research - research literature review (NOT book review" || 
+               $subType == "Article")) || 
+             $docType == "Online Journal Article") {
 
     if ($status == "Y") {
       $herdcCode = "C1";
