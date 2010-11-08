@@ -7,12 +7,12 @@
         </admin>
         <intimate-researcher-individually>false</intimate-researcher-individually>
         {if $email_append_note == ''}
-        	<email-append-note-content>N/A</email-append-note-content>
+          <email-append-note-content>N/A</email-append-note-content>
         {else}
-        	<email-append-note-content>{$email_append_note}</email-append-note-content>
+          <email-append-note-content>{$email_append_note}</email-append-note-content>
         {/if}
     </sponsor>
-	<profileList>
+  <profileList>
         <default-institution-name>{$org_name}</default-institution-name>
         <researcher-profile>
             <firstName>{$list.aut_fname|escape:"html"}</firstName>
@@ -33,7 +33,7 @@
                     <country>Australia</country>
                     <postalcode>4072</postalcode>
                 </address>
-                <departmentName>{$list.positions[y].org_title|escape:"html"}</departmentName>
+                <departmentName>Other</departmentName>
                 <employeeID>{$list.aut_org_username|escape:"html"}</employeeID>
                 <role>Other</role>
                 {if $list.positions[y].DT_FROM > 2008 || $list.positions[y].DT_FROM == ''}
