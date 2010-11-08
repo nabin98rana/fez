@@ -44,11 +44,13 @@ $filter["searchKey".Search_Key::getID("Object Type")] = 3; // records only
 $query1 = "SELECT count(*) as cc
 FROM fez_record_search_key
 INNER JOIN fez_xsd_display ON xdis_id = rek_display_type AND xdis_version = 'MODS 1.0' AND xdis_title IN ('Journal Article', 'Conference Paper', 'Book', 'Book Chapter', 'Conference Proceeding', 'Conference Item', 'Online Journal Article')
+INNER JOIN __temp_lk_interact_status ON pid = rek_pid
 LEFT JOIN fez_record_search_key_herdc_code ON rek_pid = rek_herdc_code_pid
 LEFT JOIN fez_record_search_key_subject ON rek_pid = rek_subject_pid 
 LEFT JOIN fez_controlled_vocab ON rek_subject = cvo_id 
 LEFT JOIN fez_controlled_vocab_relationship ON cvr_child_cvo_id = cvo_id AND cvr_parent_cvo_id = '450000'
-WHERE cvo_id IS NULL AND rek_herdc_code IS NULL
+WHERE cvr_parent_cvo_id IS NULL AND rek_herdc_code IS NULL
+group by rek_pid
 ";
 
 //$query1 = 'SELECT count(*) as subtype_count FROM __era_subtype_manual_cleanup INNER JOIN ' . APP_TABLE_PREFIX . 'record_search_key on rek_pid = st_pid ';
@@ -58,7 +60,8 @@ $db = DB_API::get();
 $log = FezLog::get();
 
 try {
-        $total = $db->fetchOne($query1);
+        $total = $db->fetchAll($query1);
+$total = count($total);
 } catch (Exception $ex) {
         $log = FezLog::get();
         $log->err('Message: '.$ex->getMessage().', File: '.__FILE__.', Line: '.__LINE__);
@@ -73,12 +76,14 @@ for($i=0; $i<($total+$inc); $i=$i+$inc) {
 	$query2 = "SELECT rek_pid
 	FROM fez_record_search_key
 INNER JOIN fez_xsd_display ON xdis_id = rek_display_type AND xdis_version = 'MODS 1.0' AND xdis_title IN ('Journal Article', 'Conference Paper', 'Book', 'Book Chapter', 'Conference Proceeding', 'Conference Item', 'Online Journal Article')
+INNER JOIN __temp_lk_interact_status ON pid = rek_pid
 LEFT JOIN fez_record_search_key_herdc_code ON rek_pid = rek_herdc_code_pid
 LEFT JOIN fez_record_search_key_subject ON rek_pid = rek_subject_pid 
 LEFT JOIN fez_controlled_vocab ON rek_subject = cvo_id 
 LEFT JOIN fez_controlled_vocab_relationship ON cvr_child_cvo_id = cvo_id AND cvr_parent_cvo_id = '450000'
-WHERE cvo_id IS NULL AND rek_herdc_code IS NULL
-	ORDER BY rek_date ASC LIMIT ".$inc.' OFFSET '.$i;
+WHERE cvr_parent_cvo_id IS NULL AND rek_herdc_code IS NULL
+GROUP BY rek_pid
+	ORDER BY rek_date DESC LIMIT ".$inc.' OFFSET '.$i;
 	
 //	$query2 = "SELECT * FROM __era_subtype_manual_cleanup INNER JOIN " . APP_TABLE_PREFIX . "record_search_key on rek_pid
 // = st_pid ORDER BY st_pid ASC  LIMIT ".$inc." OFFSET ".$i;

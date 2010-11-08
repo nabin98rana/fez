@@ -43,7 +43,7 @@ $filter["searchKey".Search_Key::getID("Object Type")] = 3; // records only
 
 $query1 = "SELECT count(*) as cc
 FROM fez_record_search_key
-INNER JOIN fez_record_search_key_subject ON rek_pid = rek_subject_pid AND rek_subject 
+INNER JOIN fez_record_search_key_subject ON rek_pid = rek_subject_pid 
 INNER JOIN " . APP_TABLE_PREFIX . "controlled_vocab ON rek_subject = cvo_id 
 INNER JOIN " . APP_TABLE_PREFIX . "controlled_vocab_relationship ON cvr_child_cvo_id = cvo_id AND cvr_parent_cvo_id = '450000'
 INNER JOIN fez_xsd_display ON xdis_id = rek_display_type AND xdis_version = 'MODS 1.0' AND xdis_title IN ('Journal Article', 'Conference Paper', 'Book', 'Book Chapter', 'Conference Proceeding', 'Conference Item', 'Online Journal Article')
@@ -59,7 +59,7 @@ $db = DB_API::get();
 $log = FezLog::get();
 
 try {
-        $total = $db->fetchOne($query1);
+        $total = $db->fetchAll($query1);
 				$total = count($total);
 } catch (Exception $ex) {
         $log = FezLog::get();
@@ -74,18 +74,19 @@ for($i=0; $i<($total+$inc); $i=$i+$inc) {
 
 	$query2 = "SELECT rek_pid,  rek_subject, cvo_title
 	FROM fez_record_search_key
-	INNER JOIN fez_record_search_key_subject ON rek_pid = rek_subject_pid AND rek_subject 
+	INNER JOIN fez_record_search_key_subject ON rek_pid = rek_subject_pid 
 	INNER JOIN " . APP_TABLE_PREFIX . "controlled_vocab ON rek_subject = cvo_id 
 	INNER JOIN " . APP_TABLE_PREFIX . "controlled_vocab_relationship ON cvr_child_cvo_id = cvo_id AND cvr_parent_cvo_id = '450000'  
 	INNER JOIN fez_xsd_display ON xdis_id = rek_display_type AND xdis_version = 'MODS 1.0' AND xdis_title IN ('Journal Article', 'Conference Paper', 'Book', 'Book Chapter', 'Conference Proceeding', 'Conference Item', 'Online Journal Article')
 	LEFT JOIN fez_record_search_key_herdc_code ON rek_pid = rek_herdc_code_pid
 	WHERE rek_herdc_code IS NULL
-	ORDER BY rek_date ASC GROUP BY rek_pid LIMIT ".$inc.' OFFSET '.$i;
+GROUP BY rek_pid
+	ORDER BY rek_date ASC LIMIT ".$inc.' OFFSET '.$i;
 	
 //	$query2 = "SELECT * FROM __era_subtype_manual_cleanup INNER JOIN " . APP_TABLE_PREFIX . "record_search_key on rek_pid
 // = st_pid ORDER BY st_pid ASC  LIMIT ".$inc." OFFSET ".$i;
 
-	// echo $query2 ."\n";
+	 echo $query2 ."\n";
 	ob_flush();
 	try {
 	        $listing = $db->fetchAll($query2);
@@ -103,10 +104,10 @@ for($i=0; $i<($total+$inc); $i=$i+$inc) {
 			$record = new RecordGeneral($pid);
 			// get parent cvo title eg HERDC Category Codes -> this will go into the new source attribute for the subject
 			// $parent_title = Controlled_Vocab::getTopParentTitle($cvo_id);			
-			$parents = Controlled_Vocab::getParentListFullDisplay($cvo_id);
-			$parent_title = $parents[0]["cvo_title"];
+		//	$parents = Controlled_Vocab::getParentListFullDisplay($cvo_id);
+		//	$parent_title = $parents[0]["cvo_title"];
 			// 
-			$values = array($cvo_id);
+/*			$values = array($cvo_id);
 			if ($parent_title == "HERDC Category Codes") {
 				$search_keys = array("HERDC Code");
 			} elseif ($parent_title == "Fields of Research") {
@@ -119,8 +120,8 @@ for($i=0; $i<($total+$inc); $i=$i+$inc) {
 				$search_keys = array("SEO_2008");
 			} else {
 				continue;
-			}
-			echo "about to modify $pid with parent title ".$parent_title." and subject ".$cvo_id."\n";			
+			}*/
+			echo "about to modify $pid with title ".$cvo_title." and subject ".$cvo_id."\n";			
 			$history = "Copied in HERDC code from deprecated Subject field / search key value ".$cvo_title."(".$cvo_id.")";
 //			$record->addSearchKeyValueList("MODS", "Metadata Object Description Schema", $search_keys, $values, false, $history);
 //			$datastreamName =  "Metadata Object Description Schema";
@@ -140,14 +141,14 @@ for($i=0; $i<($total+$inc); $i=$i+$inc) {
 			</mods:subject>';
 			$doc .= $add;	
 			$doc .= "</mods:mods>";
-			echo $doc;
+//			echo $doc;
 			
 			Fedora_API::callModifyDatastreamByValue($pid, "MODS", "A", "Metadata Object Description Schema", $doc, "text/xml", "inherit");
 			History::addHistory($pid, null, "", "", true, $history);
 			
 			Record::setIndexMatchingFields($pid);
 			
-exit;
+//exit;
 
 			
 	 	}
