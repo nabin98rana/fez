@@ -682,7 +682,7 @@ class Record
     $log = FezLog::get();
     $db = DB_API::get();
     
-    if (defined('APP_WOS_COLLECTIONS') && trim(APP_WOS_COLLECTIONS) != "") {
+    if (!defined('APP_WOS_COLLECTIONS') || trim(APP_WOS_COLLECTIONS) == "") {
       return 0;
     }
 
