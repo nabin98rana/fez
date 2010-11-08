@@ -602,7 +602,7 @@ class Record
 		}
 		$stmt .= "
 			FROM
-				" . APP_TABLE_PREFIX . "fez_record_search_key_herdc_code,
+				" . APP_TABLE_PREFIX . "record_search_key_herdc_code,
 				" . APP_TABLE_PREFIX . "controlled_vocab,
 				" . APP_TABLE_PREFIX . "controlled_vocab_relationship ";
 		if (APP_HERDC_COLLECTIONS && trim(APP_HERDC_COLLECTIONS) != "") {
@@ -650,7 +650,7 @@ class Record
 				
 		$stmt .= "
 			FROM
-				" . APP_TABLE_PREFIX . "fez_record_search_key_herdc_code 
+				" . APP_TABLE_PREFIX . "record_search_key_herdc_code 
 				INNER JOIN " . APP_TABLE_PREFIX . "controlled_vocab ON rek_herdc_code = cvo_id 
 				INNER JOIN " . APP_TABLE_PREFIX . "controlled_vocab_relationship ON cvr_child_cvo_id = cvo_id AND cvr_parent_cvo_id = '450000'  ";
 			if (defined('APP_HERDC_COLLECTIONS') && trim(APP_HERDC_COLLECTIONS) != "") {
@@ -664,8 +664,6 @@ class Record
 			$stmt .= " GROUP BY pid, cvo_title";
 		}
     
-    die($stmt);
-
 		try {
 			$res = $db->fetchAll($stmt, $pids, Zend_Db::FETCH_ASSOC);
 		} catch(Exception $ex) {
