@@ -4687,7 +4687,7 @@ function getSpeculativeHERDCcode($pid)
       $herdcCode = "C1";
     }
     
-  } elseif ($docType == "Book") {
+  } elseif ($docType == "Book" && $subType == "Non-fiction") {
 
     if ($status == "Y") {
       $herdcCode = "A1";
@@ -4697,7 +4697,7 @@ function getSpeculativeHERDCcode($pid)
       $herdcCode = "AX";
     }
     
-  } elseif ($docType == "Book Chapter") {
+  } elseif ($docType == "Book Chapter" && $subType == "Non-fiction") {
 
     if ($status == "Y") {
       $herdcCode = "B1";
