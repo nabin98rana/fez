@@ -135,7 +135,13 @@ function correctionRequired(pid)
 		{/if}
 	
 		<tr class="{if $flagged_claimed[$pid].type == 'D'}claimed-not-my-pub{elseif $flagged_claimed[$pid].type == 'C'}claimed-correction-required{elseif $flagged_possible[$pid].type == 'C' && $flagged_possible[$pid].correction != ''}claimed-correction-required{/if}">
-			<td style="width: 100%;">{$list[i].rek_citation}</td>
+			<td style="width: 100%;">
+				{if $list[i].rek_citation != ""}
+					{$list[i].rek_citation}
+				{else}
+					<a href="{$rel_url}view/{$list[i].rek_pid}" target="_blank">{$list[i].rek_title}</a>
+				{/if}
+			</td>
 
 			<td style="vertical-align: middle; text-align: center;">
 				{if $list[i].rj_rank}<a href="#" title="{$list[i].rj_title}">{$list[i].rj_rank}</a>{else}<a href="#" title="This publication is outside the ERA window (pre-2003) and/or not identified as being in a 2010 ERA Ranked Journal.">-</a>{/if}
