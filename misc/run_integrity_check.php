@@ -276,6 +276,7 @@ function addSolrUnspawned() {
 			Citation::updateCitationCache($pid);
 			$queue->add($pid);
 		}
+		$queue->commit();
 		echo "\tAdded " . count($pids) . " missing pid in solr\n";
 		
 	} catch (Exception $ex) {
@@ -305,6 +306,7 @@ function addSolrCitations() {
 			Citation::updateCitationCache($pid);
 			$queue->add($pid);
 		}
+		$queue->commit();
 		echo "\tUpdated " . count($pids) . " citations in solr\n";
 		
 	} catch (Exception $ex) {
