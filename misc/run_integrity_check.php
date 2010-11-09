@@ -75,6 +75,7 @@ function main($runType = "check") {
 		if (APP_SOLR_INDEXER == "ON") {
 			doFezSolrDeletes();
 			addSolrCitations();
+			addSolrUnspawned();
 		}
 		doPidAuthDeletes();
 	}
@@ -99,7 +100,13 @@ function doFedoraFezIntegrityChecks() {
 	
 		// for each pid, check if it exists in fez, and if so, put into the exceptions table
 		// note, we're checking for items earlier than today
-		$stmt = "SELECT * FROM {$prefix}record_search_key WHERE rek_pid = ? AND rek_created_date < DATE_SUB(NOW(), INTERVAL 1 DAY)";
+		
+		if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) { //eg if postgresql etc
+			$stmt = "SELECT * FROM {$prefix}record_search_key WHERE rek_pid = ? AND rek_created_date < (NOW() - INTERVAL '1 days')";
+		} else {
+			$stmt = "SELECT * FROM {$prefix}record_search_key WHERE rek_pid = ? AND rek_created_date < DATE_SUB(NOW(), INTERVAL 1 DAY)";			
+		}
+		
 		foreach($fedoraDeletedPids as $fedoraPid) {
 			$result = $db->fetchOne($stmt, $fedoraPid['pid']);
 			if ($result == $fedoraPid['pid']) {
@@ -247,6 +254,35 @@ function doSolrCitationChecks() {
 		return false;
 	}	
 	
+}
+
+/**
+ * adds citations to solr for pids that didn't have them previously
+ *
+ * @return void
+ **/
+function addSolrUnspawned() {
+
+	$log = FezLog::get();
+	$db = DB_API::get();
+	$prefix = APP_TABLE_PREFIX;
+
+	try {
+		$sql = "SELECT pid FROM {$prefix}integrity_solr_unspawned";
+		$pids = $db->fetchCol($sql);
+		$queue = FulltextQueue::singleton();
+		
+		foreach($pids as $pid) {
+			Citation::updateCitationCache($pid);
+			$queue->add($pid);
+		}
+		echo "\tAdded " . count($pids) . " missing pid in solr\n";
+		
+	} catch (Exception $ex) {
+		echo "The following exception occurred: " . $ex->getMessage() . "\n";
+		$log->err($ex);
+		return false;
+	}
 }
 
 /**
