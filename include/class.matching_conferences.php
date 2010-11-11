@@ -398,21 +398,6 @@ class RCL
 	
 	
 	
-	function subtractMatchesFromCandidates(&$candidates, $matches)
-	{
-		echo "Removing matches from conference pool ... ";
-		
-		foreach ($matches as $matchKey => $matchVal){
-			unset($candidates[$matchKey]);
-		}
-		
-		echo " done.\n";
-		
-		return;
-	}
-	
-		
-	
 	function runInserts($matches)
 	{
 		$log = FezLog::get();
@@ -422,7 +407,7 @@ class RCL
 		
 		foreach ($matches as $pid => $eraid) {
 			
-			$stmt = "INSERT INTO __temp_lk_matched_conferences (pid, eraid) VALUES ('" . $pid . "', '" . $eraid . "') ON DUPLICATE KEY UPDATE pid = pid;";
+			$stmt = "INSERT INTO " . APP_TABLE_PREFIX . "matched_conferences (mtc_pid, mtc_eraid, mtc_status) VALUES ('" . $pid . "', '" . $eraid . "', 'S') ON DUPLICATE KEY UPDATE mtc_pid = mtc_pid;";
 			
 			try {
 				$db->exec($stmt);

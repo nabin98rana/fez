@@ -295,6 +295,7 @@ class Template_API
 		$this->assign("APP_INTERNAL_NOTES", APP_INTERNAL_NOTES);
 		$this->assign("APP_MY_RESEARCH_MODULE", APP_MY_RESEARCH_MODULE);
 		$this->assign("APP_MY_RESEARCH_NEW_ITEMS_COLLECTION", APP_MY_RESEARCH_NEW_ITEMS_COLLECTION);
+		$this->assign("APP_MATCHING_TOOLS", APP_MATCHING_TOOLS);
 		
 		if (count(Error_Handler::$app_errors) > 0) {
 			if ((APP_DISPLAY_ERRORS_USER == 1) && ($isAdministrator)) {

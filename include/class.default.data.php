@@ -260,6 +260,7 @@ class Default_Data
 		$defaultData['app_eventum_database_user']			= "";
 		$defaultData['app_eventum_database_pass']			= "";
 		$defaultData['app_wos_collections']					= "";
+		$defaultData['app_matching_tools']					= "OFF";
 		
 		return $defaultData;
 	}

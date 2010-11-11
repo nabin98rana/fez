@@ -57,12 +57,7 @@ class RJL
 		$rankedJournalISSNs = RJL::getISSNsRJL();
 		$manualMatches = RJL::getManualMatches();
 		RJL::getForcedMatches($matchesF);
-
-		/* Build core arrays */
-		$coreJournals = RJL::keyMasterList($candidateJournals);
-		$coreISSNs = RJL::keyMasterList($candidateISSNs);
-		$coreConferences = RJL::keyMasterList($candidateConferences);
-
+		
 		/* Perform normalisation */
 		$normalisedCandidateJournals = RJL::normaliseListOfTitles($candidateJournals);
 		$normalisedCandidateISSNs = RJL::normaliseListOfISSNs($candidateISSNs);
@@ -602,7 +597,7 @@ class RJL
 		echo "\n\nRunning insertion queries on eSpace database ... ";
 		
 		foreach ($matches as $pid => $eraid) {
-			$stmt = "INSERT INTO __temp_lk_matched_journals (pid, eraid) VALUES ('" . $pid . "', '" . $eraid . "') ON DUPLICATE KEY UPDATE eraid = '" . $eraid . "';";
+			$stmt = "INSERT INTO " . APP_TABLE_PREFIX . "matched_journals (mtj_pid, mtj_eraid, mtj_status) VALUES ('" . $pid . "', '" . $eraid . "', 'S') ON DUPLICATE KEY UPDATE mtj_eraid = '" . $eraid . "';";
 			
 			try {
 				$db->exec($stmt);

@@ -519,6 +519,17 @@ function restoreDefaultColours(el)
 			  The collection should be set to the PID of the parent collection new articles will be added to. OG is optional, and is used in the WoS search query to filter on address.
 			</td>
   		  </tr>
+  		  <tr>
+		    <th>Matching Tools</th>
+			<td>
+			  <select name="app_matching_tools">
+			    <option value="ON"{if $config_settings.app_matching_tools == "ON"} selected="selected"{/if}>On</option>
+				<option value="OFF"{if $config_settings.app_matching_tools == "OFF"} selected="selected"{/if}>Off</option>
+			  </select>
+			  <br />Enable ranked list matching functionality for journals and conferences.
+			  {include file="error_icon.tpl.html" field="app_matching_tools"}
+			</td>
+  		  </tr>
 		  <tr>
 		    <th>HERDC Support Features</th>
 			<td>
