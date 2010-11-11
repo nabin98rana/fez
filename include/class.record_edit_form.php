@@ -345,7 +345,7 @@
 
                 if ($dis_field["xsdmf_html_input"] == 'combo' || $dis_field["xsdmf_html_input"] == 'dual_multiple' || $dis_field["xsdmf_html_input"] == 'customvocab_suggest' || $dis_field["xsdmf_html_input"] == 'multiple' || $dis_field["xsdmf_html_input"] == 'contvocab' || $dis_field["xsdmf_html_input"] == 'contvocab_selector') {
                     if (@$details[$dis_field["xsdmf_id"]]) { // if a record detail matches a display field xsdmf entry
-                        if (($dis_field["xsdmf_html_input"] == 'contvocab_selector') && ($dis_field['xsdmf_cvo_save_type'] != 1)) {
+                        if (($dis_field["xsdmf_html_input"] == 'contvocab_selector') && ($dis_field['xsdmf_cvo_save_type'] != 1) && ($dis_field['xsdmf_cvo_min_level'] != 3)) {
                             $tempArray = $details[$dis_field["xsdmf_id"]];
                             if (is_array($tempArray)) {
                                 $details[$dis_field["xsdmf_id"]] = array();
