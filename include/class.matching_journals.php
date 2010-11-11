@@ -32,6 +32,7 @@
 
 define("TEST",   		 			false); // limit to 250 records only if TRUE
 define("SIMILARITY_THRESHOLD",		80);    // These similarity functions aren't currently invoked
+define("WINDOW_START",				'2003-01-01 00:00:00');
 
 class RJL
 {
@@ -172,11 +173,11 @@ class RJL
 				rek_pid AS record_pid,
 				rek_journal_name AS journal_title
 			FROM
-				fez_record_search_key, fez_record_search_key_journal_name, fez_xsd_display
+				" . APP_TABLE_PREFIX . "record_search_key, " . APP_TABLE_PREFIX . "record_search_key_journal_name, " . APP_TABLE_PREFIX . "xsd_display
 			WHERE
-				fez_record_search_key_journal_name.rek_journal_name_pid = fez_record_search_key.rek_pid
+				" . APP_TABLE_PREFIX . "record_search_key_journal_name.rek_journal_name_pid = " . APP_TABLE_PREFIX . "record_search_key.rek_pid
 				AND rek_display_type = xdis_id
-				AND fez_record_search_key.rek_date >= '2003-01-01 00:00:00'
+				AND " . APP_TABLE_PREFIX . "record_search_key.rek_date >= '" . WINDOW_START . "'
 				AND xdis_title IN ('Conference Paper', 'Conference Item', 'Journal Article', 'RQF 2006 Journal Article', 'RQF 2006 Conference Paper', 'RQF 2007 Journal Article', 'RQF 2007 Conference Paper', 'Online Journal Article')
 			ORDER BY
 				journal_title ASC;
@@ -220,11 +221,11 @@ class RJL
 				rek_pid AS record_pid,
 				rek_issn AS issn
 			FROM
-				fez_record_search_key, fez_record_search_key_issn, fez_xsd_display
+				" . APP_TABLE_PREFIX . "record_search_key, " . APP_TABLE_PREFIX . "record_search_key_issn, " . APP_TABLE_PREFIX . "xsd_display
 			WHERE
-				fez_record_search_key_issn.rek_issn_pid = fez_record_search_key.rek_pid
+				" . APP_TABLE_PREFIX . "record_search_key_issn.rek_issn_pid = " . APP_TABLE_PREFIX . "record_search_key.rek_pid
 				AND rek_display_type = xdis_id
-				AND fez_record_search_key.rek_date >= '2003-01-01 00:00:00'
+				AND " . APP_TABLE_PREFIX . "record_search_key.rek_date >= '" . WINDOW_START . "'
 				AND xdis_title IN ('Conference Paper', 'Conference Item', 'Journal Article', 'RQF 2006 Journal Article', 'RQF 2006 Conference Paper', 'RQF 2007 Journal Article', 'RQF 2007 Conference Paper', 'Online Journal Article')
 			ORDER BY
 				issn ASC;
@@ -268,11 +269,11 @@ class RJL
 				rek_pid AS record_pid,
 				rek_proceedings_title AS conference_name
 			FROM
-				fez_record_search_key, fez_record_search_key_proceedings_title, fez_xsd_display
+				" . APP_TABLE_PREFIX . "record_search_key, " . APP_TABLE_PREFIX . "record_search_key_proceedings_title, " . APP_TABLE_PREFIX . "xsd_display
 			WHERE
-				fez_record_search_key_proceedings_title.rek_proceedings_title_pid = fez_record_search_key.rek_pid
+				" . APP_TABLE_PREFIX . "record_search_key_proceedings_title.rek_proceedings_title_pid = " . APP_TABLE_PREFIX . "record_search_key.rek_pid
 				AND rek_display_type = xdis_id
-				AND fez_record_search_key.rek_date >= '2003-01-01 00:00:00'
+				AND " . APP_TABLE_PREFIX . "record_search_key.rek_date >= '" . WINDOW_START . "'
 				AND xdis_title IN ('Conference Paper', 'Conference Item', 'Journal Article', 'RQF 2006 Journal Article', 'RQF 2006 Conference Paper', 'RQF 2007 Journal Article', 'RQF 2007 Conference Paper')
 			ORDER BY
 				conference_name ASC;

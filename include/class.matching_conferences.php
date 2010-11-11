@@ -31,6 +31,8 @@
 // +----------------------------------------------------------------------+
 
 define("TEST", false); // Limit to 50 records only if TRUE
+define("WINDOW_START",				'2003-01-01 00:00:00');
+define("WINDOW_END",				'2099-01-01 00:00:00');
 
 class RCL
 {
@@ -107,12 +109,12 @@ class RCL
 				rek_pid AS record_pid,
 				rek_conference_name AS conference_name
 			FROM
-				fez_record_search_key, fez_record_search_key_conference_name
+				" . APP_TABLE_PREFIX . "record_search_key, " . APP_TABLE_PREFIX . "record_search_key_conference_name
 			WHERE
-				fez_record_search_key_conference_name.rek_conference_name_pid = fez_record_search_key.rek_pid
+				" . APP_TABLE_PREFIX . "record_search_key_conference_name.rek_conference_name_pid = " . APP_TABLE_PREFIX . "record_search_key.rek_pid
 				AND rek_status = 2
-				AND fez_record_search_key.rek_date > '2003-01-01 00:00:00'
-				AND fez_record_search_key.rek_date < '2009-01-01 00:00:00'
+				AND " . APP_TABLE_PREFIX . "record_search_key.rek_date > '" . WINDOW_START . "'
+				AND " . APP_TABLE_PREFIX . "record_search_key.rek_date < '" . WINDOW_END . "'
 			ORDER BY
 				conference_name ASC;
 		";
