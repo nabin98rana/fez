@@ -6,9 +6,11 @@
 	{include file="myresearch/$type.tpl.html"}
 </div>
 
-<div id="research-old-interface-link">
-	<a href="{$rel_url}my_fez_traditional.php">Old My eSpace Interface</a>
-</div>
+{if $isAdmin}
+	<div id="research-old-interface-link">
+		<a href="{$rel_url}my_fez_traditional.php">Old My eSpace Interface</a>
+	</div>
+{/if}
 
 {include file="app_info.tpl.html"}
 {include file="footer.tpl.html"}
