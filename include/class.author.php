@@ -1513,10 +1513,9 @@ class Author
   
     $email = $profile->email;
     $researcher_id = $profile->researcherID;
-    $password = $profile->{'temp-password'};
-    
-    $email_pieces = explode('@', $email);
-    $aut_org_username = count($email_pieces) > 0 ? $email_pieces[0] : false;
+    $employee_id = $profile->employeeID;
+    $password = $profile->{'temp-password'};    
+    $aut_org_username = $employee_id;
     
     if ($aut_org_username) {
       $stmt = "UPDATE
