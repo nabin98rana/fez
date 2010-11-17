@@ -906,7 +906,7 @@ class MyResearch
 			$log->err($ex);
 			return '';
 		}
-		if (count($res) == 1) {
+		if (is_numeric($res['usr_id'])) {
 			return 1;
 		} else {
 			return 0;			
