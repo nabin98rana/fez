@@ -927,7 +927,10 @@ class Author
                  FROM
                     " . APP_TABLE_PREFIX . "author
                  WHERE
-                    aut_researcher_id IS NOT NULL";
+                    aut_researcher_id IS NOT NULL 
+                      AND aut_researcher_id != '' 
+                      AND aut_researcher_id NOT LIKE 'ERR:%'
+                      AND aut_researcher_id != '-1';";
     try {
       $res = $db->fetchPairs($stmt);
     }
