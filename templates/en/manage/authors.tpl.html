@@ -171,8 +171,8 @@
             {
                 var total_selected = getTotalCheckboxesChecked(f, 'items[]');
                 var total = getTotalCheckboxes(f, 'items[]');
-                if (total == total_selected) {
-                    alert('You cannot remove all of the authors in the system.');
+                if (total_selected > 1) {
+                    alert('You cannot remove more than one author at a time.');
                     return false;
                 }
                 if (!hasOneChecked(f, 'items[]')) {
