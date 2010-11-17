@@ -585,6 +585,14 @@ function restoreDefaultColours(el)
 			</td>
   		  </tr>
   		  <tr>
+		    <th>My Research: Use Classic UQ eSpace Group Names</th>
+			<td>
+			  <input type="text" name="app_my_research_use_classic_groups" value="{$config_settings.app_my_research_use_classic_groups|escape:"html"}" size="30" />
+			  <br />Enter the exact names of the fez groups you wish to be redirected to the classic UQ eSpace group when the My Research module is enabled. Adminsitrators automatically get sent there. Quoted with single quotes and comma separated. Eg 'thesisoffice', 'SBS Theses'
+			  {include file="error_icon.tpl.html" field="app_my_research_use_classic_groups"}
+			</td>
+  		  </tr>
+  		  <tr>
 		    <th>Send Eventum Emails</th>
 			<td>
 			  <input type="radio" name="app_eventum_send_emails" value="ON" {if $config_settings.app_eventum_send_emails == "ON"}checked="checked"{/if}/> Enabled &nbsp;

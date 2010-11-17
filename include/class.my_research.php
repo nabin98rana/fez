@@ -404,7 +404,7 @@ class MyResearch
 			return -1;
 		}
 		
-		return $db->lastInsertId();
+		return $db->lastInsertId(APP_TABLE_PREFIX . "my_research_possible_flagged", "mrp_id");
 	}
 	
 	
@@ -694,7 +694,7 @@ class MyResearch
 			return -1;
 		}
 		
-		return $db->lastInsertId();
+		return $db->lastInsertId(APP_TABLE_PREFIX . "my_research_claimed_flagged", "mrc_id");
 	}
 	
 	
@@ -732,7 +732,7 @@ class MyResearch
 			return -1;
 		}
 		
-		return $db->lastInsertId();
+		return $db->lastInsertId(APP_TABLE_PREFIX . "my_research_claimed_flagged", "mrc_id");
 	}
 	
 	
@@ -779,13 +779,13 @@ class MyResearch
 					aut_org_username AS username,
 					aut_fname AS first_name,
 					UCASE(aut_lname) AS last_name,
-					GROUP_CONCAT(POS_TITLE SEPARATOR ', ') AS pos_title
+					GROUP_CONCAT(pos_title SEPARATOR ', ') AS pos_title
 				FROM
 					" . APP_TABLE_PREFIX . "author INNER JOIN
-					hr_position_vw on aut_org_username = USER_NAME
+					hr_position_vw on aut_org_username = user_name
 				WHERE
-					AOU = " . $db->quote($orgID) . "
-					AND USER_NAME != ''
+					aou = " . $db->quote($orgID) . "
+					AND user_name != ''
 				GROUP BY aut_org_username
 				ORDER BY
 					aut_lname ASC,
@@ -815,11 +815,11 @@ class MyResearch
 		
 		$stmt = "
 				SELECT
-					AOU AS aou
+					aou AS aou
 				FROM
 					hr_position_vw
 				WHERE
-					USER_NAME = " . $db->quote($username) . "
+					user_name = " . $db->quote($username) . "
 				LIMIT 1
 				";
 		
@@ -851,9 +851,9 @@ class MyResearch
 					hr_position_vw,
 					hr_org_unit_distinct_manual
 				WHERE
-					hr_position_vw.AOU = hr_org_unit_distinct_manual.aurion_org_id
+					hr_position_vw.aou = hr_org_unit_distinct_manual.aurion_org_id
 				AND
-					USER_NAME = " . $db->quote($username) . "
+					user_name = " . $db->quote($username) . "
 				LIMIT 1
 				";
 		
@@ -868,6 +868,48 @@ class MyResearch
 			return "";
 		} else {
 			return $res['org_description'];			
+		}
+	}
+	
+	
+	/**
+	 * Checks if the user is in one of the my research groups that should go to the classic my uq espace instead when this module is on.
+	 * RETURNS 0/1 as true/false
+	 */	
+	function isClassicUser($username)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		if (!defined('APP_MY_RESEARCH_USE_CLASSIC_GROUPS') || APP_MY_RESEARCH_USE_CLASSIC_GROUPS == '') {
+			return 0;
+		}
+		
+		$stmt = "
+				SELECT
+					usr_id
+				FROM
+					" . APP_TABLE_PREFIX . "user INNER JOIN
+					" . APP_TABLE_PREFIX . "group_user on gpu_usr_id = usr_id INNER JOIN
+					" . APP_TABLE_PREFIX . "group on grp_id = gpu_grp_id
+				WHERE
+					grp_title IN (".APP_MY_RESEARCH_USE_CLASSIC_GROUPS.")
+				AND
+					usr_username = " . $db->quote($username) . "
+				LIMIT 1
+				";
+		
+		try {
+			$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return '';
+		}
+		if (count($res) == 0) {
+			return 0;
+		} else {
+			return 1;			
 		}
 	}
 	 
@@ -892,7 +934,7 @@ class MyResearch
 			$query = "
 					DELETE
 					FROM
-						fez_my_research_possible_flagged
+						" . APP_TABLE_PREFIX . "my_research_possible_flagged
 					WHERE
 						mrp_id = " . $db->quote($jobID) . ";
 					";
@@ -900,7 +942,7 @@ class MyResearch
 			$query = "
 					DELETE
 					FROM
-						fez_my_research_claimed_flagged
+						" . APP_TABLE_PREFIX . "my_research_claimed_flagged
 					WHERE
 						mrc_id = " . $db->quote($jobID) . ";
 					";

@@ -121,7 +121,9 @@ if (@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "" || @$_SERVE
 	if (!empty($_POST["url"]) && $realUrl != APP_RELATIVE_URL && $realUrl != "/index.php?err=6") {
 		Auth::redirect(urldecode($_POST["url"])); 
 	} else {
-		if (APP_MY_RESEARCH_MODULE == 'ON' && MyResearch::getHRorgUnit($username) != "") {
+		if (APP_MY_RESEARCH_MODULE == 'ON' && MyResearch::isClassicUser($username) == 1) {
+			Auth::redirect(APP_BASE_URL."/my_fez_traditional.php");
+		} elseif (APP_MY_RESEARCH_MODULE == 'ON' && MyResearch::getHRorgUnit($username) != "") {
 			Auth::redirect(APP_BASE_URL."/my_fez.php"); // even though its the same page redirect so if they refresh it doesnt have the post vars
 		} else {
 			Auth::redirect(APP_BASE_URL); // even though its the same page redirect so if they refresh it doesnt have the post vars
