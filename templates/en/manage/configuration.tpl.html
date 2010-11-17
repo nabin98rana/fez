@@ -1535,7 +1535,7 @@ function restoreDefaultColours(el)
 			</td>
   		  </tr>
   		  <tr>
-	        <th>Solr Send Public/Non-logged in Reads to Slave replicant (requires above slave host value set)</th>
+	        <th>Solr Send Public/Non-Administrator Reads to Slave replicant (requires above slave host value set)</th>
 			<td>
 			  <input type="radio" name="app_solr_slave_read" value="ON" {if $config_settings.app_solr_slave_read == "ON"}checked="checked"{/if}/> On &nbsp; 
 			  <input type="radio" name="app_solr_slave_read" value="OFF" {if $config_settings.app_solr_slave_read == "OFF"}checked="checked"{/if}/> Off

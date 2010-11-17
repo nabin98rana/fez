@@ -305,9 +305,14 @@ class Apache_Solr_Service
 		
 		if(! $raw_response[0]) {
 			// Caught solr napping.. try again 1 more time
-			$log->err('No response from solr.. trying again.');			
 			unset($raw_response);
 			sleep(1);
+			if (defined('APP_SOLR_SLAVE_HOST') && defined('APP_SOLR_SLAVE_READ') && (APP_SOLR_SLAVE_READ == "ON")) {
+				$url = str_replace(APP_SOLR_HOST, APP_SOLR_SLAVE_HOST, $url);
+				$log->err('No response from solr.. trying again with the slave solr server.');			
+			} else {
+				$log->err('No response from solr.. trying again.');
+			}
 			$raw_response = Misc::processURL($url, null, null, null, null, 30);
 			if(! $raw_response[0]) {
 				throw new Exception(print_r($raw_response[1], true));
@@ -336,9 +341,14 @@ class Apache_Solr_Service
 		$raw_response = Misc::processURL($url, null, null, $rawPost, $contentType, 30);
 		if(! $raw_response[0]) {
 			// Caught solr napping.. try again 1 more time	
-			$log->err('No response from solr.. trying again.');			
 			unset($raw_response);
 			sleep(1);
+			if (defined('APP_SOLR_SLAVE_HOST') && defined('APP_SOLR_SLAVE_READ') && (APP_SOLR_SLAVE_READ == "ON")) {
+				$url = str_replace(APP_SOLR_HOST, APP_SOLR_SLAVE_HOST, $url);
+				$log->err('No response from solr.. trying again with the slave solr server.');			
+			} else {
+				$log->err('No response from solr.. trying again.');
+			}
 			$raw_response = Misc::processURL($url, null, null, $rawPost, $contentType, 30);
 			if(! $raw_response[0]) {
 				throw new Exception(print_r($raw_response[1], true));

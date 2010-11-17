@@ -25,8 +25,9 @@ class FulltextIndex_Solr extends FulltextIndex {
 
 	function __construct($readOnly = false) 
 	{
-		$usr_id = Auth::getUserID();
-		if (defined(APP_SOLR_SLAVE_HOST) && defined(APP_SOLR_SLAVE_READ) && (APP_SOLR_SLAVE_READ == "ON") && ($readOnly == true) && !is_numeric($usr_id)) {
+//		$usr_id = Auth::getUserID();
+		$isAdministrator = Auth::isAdministrator();
+		if (defined('APP_SOLR_SLAVE_HOST') && defined('APP_SOLR_SLAVE_READ') && (APP_SOLR_SLAVE_READ == "ON") && ($readOnly == true) && $isAdministrator != true) {
 			$this->solrHost = APP_SOLR_SLAVE_HOST;
 		} else {
 			$this->solrHost = APP_SOLR_HOST;
