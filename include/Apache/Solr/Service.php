@@ -308,8 +308,13 @@ class Apache_Solr_Service
 			unset($raw_response);
 			sleep(1);
 			if (defined('APP_SOLR_SLAVE_HOST') && defined('APP_SOLR_SLAVE_READ') && (APP_SOLR_SLAVE_READ == "ON")) {
-				$url = str_replace(APP_SOLR_HOST, APP_SOLR_SLAVE_HOST, $url);
-				$log->err('No response from solr.. trying again with the slave solr server.');			
+				if (is_numeric(strpos($url, APP_SOLR_SLAVE_HOST))) { //if already using the slave, try the master for the read cause the slave might have died (java memory error or something)
+					$url = str_replace(APP_SOLR_SLAVE_HOST, APP_SOLR_HOST, $url);
+					$log->err('No response from solr.. trying again with the master solr server.');			
+				} else {
+					$url = str_replace(APP_SOLR_HOST, APP_SOLR_SLAVE_HOST, $url);					
+					$log->err('No response from solr.. trying again with the slave solr server.');			
+				}
 			} else {
 				$log->err('No response from solr.. trying again.');
 			}
@@ -344,8 +349,13 @@ class Apache_Solr_Service
 			unset($raw_response);
 			sleep(1);
 			if (defined('APP_SOLR_SLAVE_HOST') && defined('APP_SOLR_SLAVE_READ') && (APP_SOLR_SLAVE_READ == "ON")) {
-				$url = str_replace(APP_SOLR_HOST, APP_SOLR_SLAVE_HOST, $url);
-				$log->err('No response from solr.. trying again with the slave solr server.');			
+				if (is_numeric(strpos($url, APP_SOLR_SLAVE_HOST))) { //if already using the slave, try the master for the read cause the slave might have died (java memory error or something)
+					$url = str_replace(APP_SOLR_SLAVE_HOST, APP_SOLR_HOST, $url);
+					$log->err('No response from solr.. trying again with the master solr server.');			
+				} else {
+					$url = str_replace(APP_SOLR_HOST, APP_SOLR_SLAVE_HOST, $url);					
+					$log->err('No response from solr.. trying again with the slave solr server.');			
+				}
 			} else {
 				$log->err('No response from solr.. trying again.');
 			}
