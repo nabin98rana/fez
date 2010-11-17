@@ -927,7 +927,7 @@ class Author
                  FROM
                     " . APP_TABLE_PREFIX . "author
                  WHERE
-                    aut_researcher_id NOT NULL";
+                    aut_researcher_id IS NOT NULL";
     try {
       $res = $db->fetchPairs($stmt);
     }
