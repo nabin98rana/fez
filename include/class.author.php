@@ -910,6 +910,36 @@ class Author
 
 
   /**
+   * Method used to get an associative array of author ID and ResearcherID
+   * of all authors with a ResearcherID
+   *
+   * @access  public
+   * @return  array The list of authors
+   */
+  function getAllWithResearcherId()
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $stmt = "SELECT
+                    aut_id,
+                    aut_researcher_id
+                 FROM
+                    " . APP_TABLE_PREFIX . "author
+                 WHERE
+                    aut_researcher_id NOT NULL";
+    try {
+      $res = $db->fetchPairs($stmt);
+    }
+    catch(Exception $ex) {
+      $log->err($ex);
+      return '';
+    }
+    
+    return $res;
+  }
+  
+/**
    * Method used to get an associative array of author ID and title
    * of all authors available in the system.
    *
