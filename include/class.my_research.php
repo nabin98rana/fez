@@ -906,10 +906,10 @@ class MyResearch
 			$log->err($ex);
 			return '';
 		}
-		if (count($res) == 0) {
-			return 0;
+		if (count($res) == 1) {
+			return 1;
 		} else {
-			return 1;			
+			return 0;			
 		}
 	}
 	 
