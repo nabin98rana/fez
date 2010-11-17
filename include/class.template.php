@@ -48,6 +48,7 @@ require_once(APP_INC_PATH . "class.collection.php");
 require_once(APP_INC_PATH . "class.auth.php");
 require_once(APP_INC_PATH . "class.author.php");
 require_once(APP_INC_PATH . "class.user.php");
+require_once(APP_INC_PATH . "class.my_research.php");
 require_once(APP_INC_PATH . "class.setup.php");
 //require_once(APP_INC_PATH . "najax_classes.php");
 require_once(APP_INC_PATH . "najax/najax.php");
@@ -225,6 +226,12 @@ class Template_API
 				$isAuthor = 0;
 				$myPubURL = "";
 			}
+			if (defined('APP_MY_RESEARCH_MODULE') && APP_MY_RESEARCH_MODULE == 'ON') {
+				$useClassic = MyResearch::isClassicUser($username);
+			} else {
+				$useClassic = 1;
+			}
+      $this->assign("useClassic", $useClassic);
             $this->assign("isUser", $username);
 			$this->assign("myPubURL", $myPubURL);
 			$this->assign("isAuthor", $isAuthor);
