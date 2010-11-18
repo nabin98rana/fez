@@ -17,6 +17,7 @@ function loadPreview(pid,datastreamID, alt, origami)
         document.getElementById('datastream_preview_td').width = 450;
         document.getElementById('datastream_preview_frame').innerHTML='<iframe frameborder="no" width="100%" height="400" src="'+rel_url+'eserv/'+pid+'/'+datastreamID+'?wrapper=no{/literal}{if $viewingPreviousVersion}&version_date={$versionDate}{/if}{literal}"></iframe>';
     } else {
+		datastreamID = str_replace(datastreamID, '.tiff', '.jpg');
 		datastreamID = str_replace(datastreamID, '.tif', '.jpg');
 		datastreamID = str_replace(datastreamID, '.gif', '.jpg');
 		datastreamID = str_replace(datastreamID, '.eps', '.jpg');
