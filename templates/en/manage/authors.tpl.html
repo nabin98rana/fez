@@ -345,7 +345,7 @@
 		                  		<table style="width: 740px" cellspacing="0" cellpadding="0">                  		
 		                  		<tr>
 		                        <td style="width: 100px">
-		                  		    <input type="text" name="researcher_id" size="11" class="default" value="{$info.aut_researcher_id}" />
+		                  		    <input type="text" name="researcher_id" size="12" class="default" value="{$info.aut_researcher_id}" />
 		                        </td>
 		                        <td style="width: 40px; text-align: center">
 		                          - OR -
@@ -361,14 +361,14 @@
                   		
                   	{elseif $info.aut_researcher_id == '-1' || strstr($info.aut_researcher_id, 'ERR:')}
                   		{if strstr($info.aut_researcher_id, 'ERR:')}
-	                  		<input type="text" name="researcher_id" size="11" class="default" value="" />
+	                  		<input type="text" name="researcher_id" size="12" class="default" value="" />
 	                  		&nbsp;{$info.aut_researcher_id}
 	                  	{else}	                  	
-	                  	  <input type="text" name="researcher_id" size="11" class="default" value="" />
+	                  	  <input type="text" name="researcher_id" size="12" class="default" value="" />
 	                  		&nbsp;Profile is under Registration Process in Researcher ID.
 	                  	{/if}
 	                {else}
-	                  <input type="text" name="researcher_id" size="11" class="default" value="{$info.aut_researcher_id}" />
+	                  <input type="text" name="researcher_id" size="12" class="default" value="{$info.aut_researcher_id}" />
 	                	<input class="button" type="submit" value="Download Publications" id="download_from_researcherid" />
 	                	<input class="button" type="submit" value="Upload Publications" id="upload_to_researcherid" />
                     
