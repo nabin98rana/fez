@@ -192,7 +192,6 @@
                       <td style="width: 4px; background: {$cell_color}; white-space: nowrap">
                         <input type="button" value="All" class="shortcut button" onclick="javascript:toggleSelectAll(this.form, 'items[]');" />
                       </td>
-                      <td class="default cell-colour">&nbsp;<b>ID</b></td>
                       <td class="default cell-colour">&nbsp;<b>Name</b></td>
                       <td class="default cell-colour">&nbsp;<b>ERA ID</b></td>
                       <td class="default cell-colour">&nbsp;<b>Last Updated</b></td>
@@ -202,9 +201,6 @@
                     <tr>
                       <td style="width: 4px; text-align: center; white-space: nowrap; background: {$row_color}">
                         <input type="checkbox" name="items[]" value="{$list[i].jnl_journal_id}" />
-                      </td>
-                      <td style="background: {$row_color}" class="default">
-                        &nbsp;<a href="{$smarty.server.PHP_SELF}?cat=edit&amp;id={$list[i].jnl_journal_id}" title="Update this entry">{$list[i].jnl_journal_id}</a>
                       </td>
                       <td style="background: {$row_color}" class="default">&nbsp;<a href="{$smarty.server.PHP_SELF}?cat=edit&amp;id={$list[i].jnl_journal_id}" title="Update this entry">{$list[i].jnl_journal_name}</a></td>
                       <td style="background: {$row_color}" class="default">&nbsp;{$list[i].jnl_era_id}</td>

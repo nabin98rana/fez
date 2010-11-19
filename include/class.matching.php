@@ -33,7 +33,7 @@
 class matching
 {
 	/**
-	 * Returns all matches (automatic and manual). This excludes the blacklist rows.
+	 * Returns all matches (automatic, manual, and black-listed items).
 	 */
 	function getAllMatches($type)
 	{
@@ -79,6 +79,9 @@ class matching
 	
 	
 	
+	/**
+	 * Save an existing mapping.
+	 */
 	function save()
 	{
 		$log = FezLog::get();
@@ -123,6 +126,9 @@ class matching
 	
 	
 	
+	/**
+	 * Add a brand new mapping.
+	 */
 	function add()
 	{
 		$log = FezLog::get();

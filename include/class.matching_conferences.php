@@ -409,7 +409,7 @@ class RCL
 		
 		foreach ($matches as $pid => $eraid) {
 			
-			$stmt = "INSERT INTO " . APP_TABLE_PREFIX . "matched_conferences (mtc_pid, mtc_eraid, mtc_status) VALUES ('" . $pid . "', '" . $eraid . "', 'S') ON DUPLICATE KEY UPDATE mtc_pid = mtc_pid;";
+			$stmt = "INSERT INTO " . APP_TABLE_PREFIX . "matched_conferences (mtc_pid, mtc_eraid, mtc_status) VALUES ('" . $pid . "', '" . $eraid . "', 'A') ON DUPLICATE KEY UPDATE mtc_pid = mtc_pid;";
 			
 			try {
 				$db->exec($stmt);

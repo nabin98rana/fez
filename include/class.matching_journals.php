@@ -647,7 +647,7 @@ class RJL
 		echo "Running insertion queries on eSpace database ... ";
 		
 		foreach ($matches as $pid => $eraid) {
-			$stmt = "INSERT INTO " . APP_TABLE_PREFIX . "matched_journals (mtj_pid, mtj_eraid, mtj_status) VALUES ('" . $pid . "', '" . $eraid . "', 'S') ON DUPLICATE KEY UPDATE mtj_eraid = '" . $eraid . "';";
+			$stmt = "INSERT INTO " . APP_TABLE_PREFIX . "matched_journals (mtj_pid, mtj_eraid, mtj_status) VALUES ('" . $pid . "', '" . $eraid . "', 'A') ON DUPLICATE KEY UPDATE mtj_eraid = '" . $eraid . "';";
 			
 			try {
 				$db->exec($stmt);
