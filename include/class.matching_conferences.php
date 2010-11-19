@@ -378,6 +378,8 @@ class RCL
 						&& $targetVal != "Interact"
 						&& $targetVal != "Middleware"
 						&& $targetVal != "PRIMA"
+						&& $targetVal != "Agile"
+						&& $targetVal != "DNA"
 						) {
 							if (array_key_exists($sourceKey, $matches)) {
 								//echo "~DOUBLE MATCH~"; // This is probably bad news.

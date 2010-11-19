@@ -500,7 +500,32 @@ class Record
 		
 		return $res;
 	}
-
+  
+  function getRankedJournal($pid)
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+    
+    $stmt = "
+      SELECT
+        mtj_eraid AS eraid,
+        mtj_status AS status
+      FROM
+        " . APP_TABLE_PREFIX . "matched_journals
+      WHERE
+        mtj_pid = " . $db->quote($pid) . ";
+    ";
+    
+    try {
+      $res = $db->fetchRow($stmt, Zend_Db::FETCH_ASSOC);
+    } catch(Exception $ex) {
+      $log->err($ex);
+      return "";
+    }
+    
+    return $res;
+  }
+  
 	function getRankedJournalInfoByPIDs($pids)
 	{
 		$log = FezLog::get();
@@ -559,7 +584,32 @@ class Record
 		
 		return $res;
 	}
-	
+  
+  function getRankedConference($pid)
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+    
+    $stmt = "
+      SELECT
+        mtc_eraid AS eraid,
+        mtc_status AS status
+      FROM
+        " . APP_TABLE_PREFIX . "matched_conferences
+      WHERE
+        mtc_pid = " . $db->quote($pid) . ";
+    ";
+  
+    try {
+      $res = $db->fetchRow($stmt, Zend_Db::FETCH_ASSOC);
+    } catch(Exception $ex) {
+      $log->err($ex);
+      return "";
+    }
+    
+    return $res;
+  }
+  
 	function getRankedConferenceInfoByPIDs($pids)
 	{
 		$log = FezLog::get();

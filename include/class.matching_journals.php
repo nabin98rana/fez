@@ -101,7 +101,6 @@ class RJL
 		/* Assemble list of all matches */
 		$matches = array_merge($matchesT, $matchesI, $matchesM, $matchesC, $matchesS, $matchesF);
 		echo "Total number of matches: " . sizeof($matches) . "\n";
-		echo "Number of unmatched records: " . (sizeof($master) - sizeof($matches)) . "\n";
 
 		/* Subtract matches from list before printing unmatched */
 		/*
@@ -175,11 +174,11 @@ class RJL
 				AND " . APP_TABLE_PREFIX . "record_search_key.rek_date >= '" . WINDOW_START . "'
 				AND xdis_title IN ('Conference Paper', 'Conference Item', 'Journal Article', 'RQF 2006 Journal Article', 'RQF 2006 Conference Paper', 'RQF 2007 Journal Article', 'RQF 2007 Conference Paper', 'Online Journal Article')
 			ORDER BY
-				journal_title ASC;
+				journal_title ASC
 		";
 		
 		if (TEST) {
-			$stmt .= " LIMIT 250";
+			$stmt .= " LIMIT 250;";
 		}
 		
 		try {
@@ -223,11 +222,11 @@ class RJL
 				AND " . APP_TABLE_PREFIX . "record_search_key.rek_date >= '" . WINDOW_START . "'
 				AND xdis_title IN ('Conference Paper', 'Conference Item', 'Journal Article', 'RQF 2006 Journal Article', 'RQF 2006 Conference Paper', 'RQF 2007 Journal Article', 'RQF 2007 Conference Paper', 'Online Journal Article')
 			ORDER BY
-				issn ASC;
+				issn ASC
 		";
 		
 		if (TEST) {
-			$stmt .= " LIMIT 250";
+			$stmt .= " LIMIT 250;";
 		}
 		
 		try {
@@ -271,11 +270,11 @@ class RJL
 				AND " . APP_TABLE_PREFIX . "record_search_key.rek_date >= '" . WINDOW_START . "'
 				AND xdis_title IN ('Conference Paper', 'Conference Item', 'Journal Article', 'RQF 2006 Journal Article', 'RQF 2006 Conference Paper', 'RQF 2007 Journal Article', 'RQF 2007 Conference Paper')
 			ORDER BY
-				conference_name ASC;
+				conference_name ASC
 		";
 		
 		if (TEST) {
-			$stmt .= " LIMIT 250";
+			$stmt .= " LIMIT 250;";
 		}
 		
 		try {
@@ -589,34 +588,6 @@ class RJL
 	
 	
 	
-	function runInserts($matches)
-	{
-		$log = FezLog::get();
-		$db = DB_API::get();
-		
-		echo "\n\nRunning insertion queries on eSpace database ... ";
-		
-		foreach ($matches as $pid => $eraid) {
-			$stmt = "INSERT INTO " . APP_TABLE_PREFIX . "matched_journals (mtj_pid, mtj_eraid, mtj_status) VALUES ('" . $pid . "', '" . $eraid . "', 'S') ON DUPLICATE KEY UPDATE mtj_eraid = '" . $eraid . "';";
-			
-			try {
-				$db->exec($stmt);
-			}
-			catch(Exception $ex) {
-				$log->err($ex);
-				die('There was a problem with the query ' . $stmt);
-			}
-			
-			//echo $stmt . "\n"; // This will tell us what's actually going to be run.
-		}
-		
-		echo "done.\n";
-		
-		return;
-	}
-	
-	
-	
 	function lookForManualMatches($check, $manualMatches, &$matches)
 	{
 		echo "Checking un-matched journals for manual matches... ";
@@ -662,6 +633,34 @@ class RJL
 	function getForcedMatches(&$matches)
 	{
 		$matches['UQ:72013'] = 9773;
+		
+		return;
+	}
+	
+	
+	
+	function runInserts($matches)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		echo "Running insertion queries on eSpace database ... ";
+		
+		foreach ($matches as $pid => $eraid) {
+			$stmt = "INSERT INTO " . APP_TABLE_PREFIX . "matched_journals (mtj_pid, mtj_eraid, mtj_status) VALUES ('" . $pid . "', '" . $eraid . "', 'S') ON DUPLICATE KEY UPDATE mtj_eraid = '" . $eraid . "';";
+			
+			try {
+				$db->exec($stmt);
+			}
+			catch(Exception $ex) {
+				$log->err($ex);
+				die('There was a problem with the query ' . $stmt);
+			}
+			
+			//echo $stmt . "\n"; // This will tell us what's actually going to be run.
+		}
+		
+		echo "done.\n";
 		
 		return;
 	}

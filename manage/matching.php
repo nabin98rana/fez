@@ -39,6 +39,8 @@ include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.language.php");
 include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.pager.php");
+include_once(APP_INC_PATH . "class.matching.php");
+include_once(APP_INC_PATH . "class.record.php");
 
 $tpl = new Template_API();
 $tpl->setTemplate("manage/index.tpl.html");
@@ -56,19 +58,71 @@ $tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 $tpl->assign("active_nav", "admin");
 
 if ($isAdministrator) {
+
+    $type = @$_GET['type'];
+    $action = @$_GET['action'];
+    if ($type == 'J' || $type == 'C') {
+        
+        if ($action == 'edit') {
+            $recordDetails = Record::getDetailsLite(Misc::GETorPOST('pid'));
+            $pid = $recordDetails[0]['rek_pid'];
+            $tpl->assign("pid", $pid);
+            if ($type == 'C') {
+                $mapping = Record::getRankedConference($pid);
+                $listing = Matching::getConferences();
+            } elseif ($type == 'J') {
+                $mapping = Record::getRankedJournal($pid);
+                $listing = Matching::getJournals();
+            }
+            $tpl->assign("mapping", $mapping);
+            $tpl->assign("list", $listing);
+            $tpl->assign("citation", $recordDetails[0]['rek_citation']);
+            $tpl->assign("show", "edit-screen");
+            
+        } elseif ($action == 'save') {
+            Matching::save();
+            
+        } elseif ($action == 'new') {
+            
+            $message = '';
+            $pid = Misc::GETorPOST('pid');
+            $recordDetails = Record::getDetailsLite($pid);
+            $tpl->assign("pid", $pid);
+            
+            if (empty($recordDetails)) {
+                $message = "The PID you entered could not be found. Click back and ensure you have entered a valid PID.";
+            }
+            
+            if ($type == 'C') {
+                $mapping = Record::getRankedConference($pid);
+                $listing = Matching::getConferences();
+            } elseif ($type == 'J') {
+                $mapping = Record::getRankedJournal($pid);
+                $listing = Matching::getJournals();
+            }
+            
+            if (isset($mapping['status'])) {
+                $message = "Cannot create a mapping for this PID, as one already exists. Return to the previous screen to edit it.";
+            } 
+            
+            $tpl->assign("mapping", $mapping);
+            $tpl->assign("list", $listing);
+            $tpl->assign("citation", $recordDetails[0]['rek_citation']);
+            $tpl->assign("message", $message);
+            $tpl->assign("show", "new-screen");
+            
+        } elseif ($action == 'add') {
+            Matching::add();
+            
+        } else {
+            $tpl->assign("matches", Matching::getAllMatches($type));
+        }
+        
+    } else {
+        $tpl->assign("show", "select-screen");
+    }
     
-    /*if (@$_POST["cat"] == "new") {
-        $tpl->assign("result", Language::insert());
-    } elseif (@$_POST["cat"] == "update") {
-        $tpl->assign("result", Language::update());
-    } elseif (@$_POST["cat"] == "delete") {
-        Language::remove();
-    }
-    if (@$_GET["cat"] == "edit") {
-        $tpl->assign("info", Language::getDetails($_GET["id"]));
-    }
-    $tpl->assign("list", Language::getList());
-    */
+    $tpl->assign("match_type", $type);
     
 } else {
     $tpl->assign("show_not_allowed_msg", true);

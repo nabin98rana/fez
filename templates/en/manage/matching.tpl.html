@@ -1,23 +1,217 @@
+{literal}
+<script type="text/javascript">
+<!--
+function autoConfirm()
+{
+	window.alert("Saving an 'Auto' mapping is not persistent - it may be overridden when the matching script next runs. Use 'Manual' if you wish to make a permanent change.");
+}
+
+function blacklistConfirm()
+{
+	if (confirm("Blacklisting this match will destroy the current mapping, and exclude this record from future automatic mapping. Proceed?")) {
+		document.forms['mappings'].submit();
+	}
+	
+	return false;
+}
+
+function blacklistConfirmNew()
+{
+	if (confirm("Blacklisting will exclude this record from future automatic mapping. Proceed?")) {
+		document.forms['mappings'].submit();
+	}
+	
+	return false;
+}
+
+function save()
+{
+	if (document.getElementById('status_manual').checked &&
+		document.getElementById('eraid').value == '') {
+		window.alert("You must specify the mapping from the drop-down list.");
+		return false;
+	}
+	if (document.getElementById('status_auto').checked &&
+		document.getElementById('eraid').value == '') {
+		window.alert("Please select a mapping from the drop-down list. Note that this may be overriden during future automatic mapping.");
+		return false;
+	}
+	
+	document.forms['mappings'].submit();
+}
+
+function add()
+{
+	if (document.getElementById('status_manual').checked &&
+		document.getElementById('eraid').value == '') {
+		window.alert("You must specify the mapping from the drop-down list.");
+		return false;
+	}
+	document.forms['mappings'].submit();
+}
+
+function delete()
+{
+	if (confirm("This action will remove the current mapping, but will not prevent it from re-appearing in subsequent automatic mapping runs. Use 'Blacklist' to stop re-mappings. Proceed with deletion?")) {
+		document.forms['mappings'].submit();
+	}
+	return false;
+}
+
+//-->
+</script>
+{/literal}
+
 <div class="admin-box">
 
+	{if $show == "select-screen"}
+
 		<h1>Journal / Conference Matching</h1>
+		
+		<a href="{$smarty.server.PHP_SELF}?type=J">Manage Journal mappings<br />
+		<a href="{$smarty.server.PHP_SELF}?type=C">Manage Conference mappings</a>
+	
+	{elseif $show == "edit-screen"}
+	
+		<h1>Edit {if $match_type == 'C'}Conference{elseif $match_type == 'J'}Journal{/if} Mapping for {$pid}</h1>
+		
+		<div id="research-solo-citation">
+			{$citation}
+			<div style="display: block; font-size: 80%; padding-top: 15px;">[ <a href="{$rel_url}view/{$pid}" onclick="javascript:window.open('{$rel_url}view/{$pid}'); return false;">View the full record</a> ]</div>
+		</div>
+		
+		<form method="post" action="{$smarty.server.PHP_SELF}?type={$match_type}&amp;action=save" id="mappings">
+			<div>
+				
+				{if $mapping.status == 'A'}
+					<p>This record is <b>auto-mapped</b> by the Journal Matching script. To override, select Manual below, and set a new value from the drop-down list.</p>
+				{elseif $mapping.status == 'M'}
+					<p>This record is <b>manually mapped</b>. To restore this record to automatic script matching, select Auto below. The drop-down list value may be updated when the script next runs.</p>
+				{elseif $mapping.status == 'B'}
+					<p>This record is <b>black-listed</b>. It will be excluded from automatic matching.</p>
+				{/if}
+				
+				<select name="eraid" id="eraid">
+					<option value="">Please select the {if $match_type == 'C'}conference{elseif $match_type == 'J'}journal{/if} this PID maps to ...</option>
+					{section name="i" loop=$list}
+						<option value="{$list[i].eraid}"{if $mapping.eraid == $list[i].eraid} selected="selected"{/if}>{$list[i].title|truncate:125:"...":true} &nbsp; (Rank {$list[i].rank})</option>
+					{/section}
+				</select>
+				
+				<br /><br />
+				
+				<input type="radio" name="status" value="A" {if $mapping.status == 'A'}checked="checked"{/if} id="status_auto" onclick="javascript:autoConfirm();" /> Auto<br />
+				<input type="radio" name="status" value="M" {if $mapping.status == 'M'}checked="checked"{/if} id="status_manual" /> Manual<br />
+				<input type="radio" name="status" value="B" {if $mapping.status == 'B'}checked="checked"{/if} id="status_blacklist" onclick="javascript:blacklistConfirm();" /> Blacklist<br />
+				
+				<br />
+				
+				<input type="hidden" name="pid" value="{$pid}" />
+				<input type="hidden" name="type" value="{$match_type}" />
+				<input type="button" value="Save" onclick="javascript:save();" />
+				{*<input type="button" value="Delete" onclick="javascript:delete();" />*}
+			</div>
+		</form>
+	
+	{elseif $show == "new-screen"}
+	
+		{if $message != ""}
+		
+			<h1>Error</h1>
+			<p>{$message}</p>
+			
+		{else}
+		
+			<h1>New {if $match_type == 'C'}Conference{elseif $match_type == 'J'}Journal{/if} Mapping</h1>
+		
+			<div id="research-solo-citation">
+				{$citation}
+				<div style="display: block; font-size: 80%; padding-top: 15px;">[ <a href="{$rel_url}view/{$pid}" onclick="javascript:window.open('{$rel_url}view/{$pid}'); return false;">View the full record</a> ]</div>
+			</div>
+			
+			<form method="post" action="{$smarty.server.PHP_SELF}?type={$match_type}&amp;action=add" id="mappings">
+				<div>
+					
+					{if $mapping.status == 'A'}
+						<p>This record is <b>auto-mapped</b> by the Journal Matching script. To override, select Manual below, and set a new value from the drop-down list.</p>
+					{elseif $mapping.status == 'M'}
+						<p>This record is <b>manually mapped</b>. To restore this record to automatic script matching, select Auto below. The drop-down list value may be updated when the script next runs.</p>
+					{elseif $mapping.status == 'B'}
+						<p>This record is <b>black-listed</b>. It will be excluded from automatic matching.</p>
+					{/if}
+					
+					<select name="eraid" id="eraid">
+						<option value="">Please select the {if $match_type == 'C'}conference{elseif $match_type == 'J'}journal{/if} this PID maps to ...</option>
+						{section name="i" loop=$list}
+							<option value="{$list[i].eraid}">{$list[i].title|truncate:125:"...":true} &nbsp; (Rank {$list[i].rank})</option>
+						{/section}
+					</select>
+					
+					<br /><br />
+					
+					<h2>Type</h2>
+					
+					<input type="radio" name="status" value="M" checked="checked" id="status_manual" /> Manual<br />
+					<input type="radio" name="status" value="B" onclick="javascript:blacklistConfirmNew();"/> Blacklist<br />
+					
+					<br />
+					
+					<input type="hidden" name="pid" value="{$pid}" />
+					<input type="hidden" name="type" value="{$match_type}" />
+					<input type="button" value="Add" onclick="javascript:add();" />
+				</div>
+			</form>
+		
+		{/if}
+	
+	{else}
+		
+		<h1>Manage {if $match_type == 'C'}Conference{elseif $match_type == 'J'}Journal{/if} Mappings</h1>
+		
+		<h2>Create New Mapping</h2>
+		
+		<form method="post" action="{$smarty.server.PHP_SELF}?type={$match_type}&amp;action=new">
+			<div>
+				Enter PID:
+				<input type="text" id="pid" name="pid" />
+				<input type="submit" value="Next" />
+			</div>
+		</form>
+		
+		<h2>Edit Existing Mappings</h2>
+		
+		<table style="width: 100%" cellpadding="2" cellspacing="2">
+			<tr>
+				<td class="default cell-colour"><b>PID</b></td>
+				<td class="default cell-colour"><b>ERAID</b></td>
+				<td class="default cell-colour"><b>Source</b></td>
+				<td class="default cell-colour"><b>Actions</b></td>
+			</tr>
+			{section name="j" loop=$matches}
+				{cycle values=$cycle assign="row_color"}
+				<tr style="background: {$row_color}">
+					<td>
+						<a href="{$rel_url}view/{$matches[j].pid}" title="{$matches[j].record_title}">{$matches[j].pid}</a>
+					</td>
+					<td>
+						{if $matches[j].status == 'B'}
+							N/A
+						{else}
+							<a href="#" title="{$matches[j].match_title}">{$matches[j].eraid}</a>
+						{/if}
+					</td>
+					<td>
+						{if $matches[j].status == 'A'}Auto{/if}
+						{if $matches[j].status == 'M'}Manual{/if}
+						{if $matches[j].status == 'B'}Blacklisted (not an active mapping){/if}
+					</td>
+					<td>
+						<a href="{$smarty.server.PHP_SELF}?type={$match_type}&amp;action=edit&amp;pid={$matches[j].pid}">Edit</a>
+					</td>
+				</tr>
+			{/section}
+		</table>
 
-		<!--ul>
-			<li><a href="#">Add new Ranked Journal mapping</a></li>
-			<li><a href="#">Add new Ranked Conference mapping</a></li>
-		</ul>
-		
-		<br />
-		
-		<ul>
-			<li><a href="#">Add new Ranked Journal mapping</a></li>
-			<li><a href="#">Add new Ranked Conference mapping</a></li>
-		</ul-->
-		
-		<p><i>Coming soon to a Fez near you!</i></p>
-		
+	{/if}
+
 </div>
-
-{*
-<form id="languages_form" onsubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}"></form>
-*}

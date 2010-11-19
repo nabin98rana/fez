@@ -216,7 +216,7 @@ class Auth
 		$db = DB_API::get();
 		
 
-		$stmt = "SELECT aro_id FROM ". APP_TABLE_PREFIX . "auth_roles where aro_role = ?";
+		$stmt = "SELECT aro_id FROM " . APP_TABLE_PREFIX . "auth_roles where aro_role = ?";
 		try {
 			$res = $db->fetchOne($stmt, $title);
 		}
