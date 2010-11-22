@@ -398,4 +398,36 @@ class Journal
 		return true;
 	}
 	
+	
+	
+	/**
+	 * Get the complete list of journals.
+	 */
+	function getJournals()
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "
+			SELECT
+				jnl_era_id AS eraid,
+				jnl_rank AS rank,
+				jnl_journal_name AS title
+			FROM
+				" . APP_TABLE_PREFIX . "journal
+			ORDER BY
+				jnl_journal_name ASC;
+		";
+		
+		try {
+			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return '';
+		}
+		
+		return $res;
+	}
+
 }

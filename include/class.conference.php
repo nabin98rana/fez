@@ -299,4 +299,36 @@ class Conference
 		return true;
 	}
 	
+	
+	
+	/**
+	 * Get the complete list of conferences.
+	 */
+	function getConferences()
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "
+			SELECT
+				cnf_era_id AS eraid,
+				cnf_rank AS rank,
+				cnf_conference_name AS title
+			FROM
+				" . APP_TABLE_PREFIX . "conference
+			ORDER BY
+				cnf_conference_name ASC;
+		";
+		
+		try {
+			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return '';
+		}
+		
+		return $res;
+	}
+
 }

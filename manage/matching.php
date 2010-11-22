@@ -41,6 +41,8 @@ include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.pager.php");
 include_once(APP_INC_PATH . "class.matching.php");
 include_once(APP_INC_PATH . "class.record.php");
+include_once(APP_INC_PATH . "class.conference.php");
+include_once(APP_INC_PATH . "class.journal.php");
 
 $tpl = new Template_API();
 $tpl->setTemplate("manage/index.tpl.html");
@@ -69,10 +71,10 @@ if ($isAdministrator) {
             $tpl->assign("pid", $pid);
             if ($type == 'C') {
                 $mapping = Record::getRankedConference($pid);
-                $listing = Matching::getConferences();
+                $listing = Conference::getConferences();
             } elseif ($type == 'J') {
                 $mapping = Record::getRankedJournal($pid);
-                $listing = Matching::getJournals();
+                $listing = Journal::getJournals();
             }
             $tpl->assign("mapping", $mapping);
             $tpl->assign("list", $listing);
@@ -95,10 +97,10 @@ if ($isAdministrator) {
             
             if ($type == 'C') {
                 $mapping = Record::getRankedConference($pid);
-                $listing = Matching::getConferences();
+                $listing = Conference::getConferences();
             } elseif ($type == 'J') {
                 $mapping = Record::getRankedJournal($pid);
-                $listing = Matching::getJournals();
+                $listing = Journal::getJournals();
             }
             
             if (isset($mapping['status'])) {
