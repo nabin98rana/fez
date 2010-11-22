@@ -76,7 +76,7 @@ class RJL
 		echo "Total number of candidate records: " . sizeof($master) . "\n";
 		echo "Number of ranked journals: " . sizeof($rankedJournals) . "\n";
 		echo "Number of ranked ISSNs: " . sizeof($normalisedRankedJournalISSNs) . "\n";
-
+		
 		/* Look for ISSN matches */
 		RJL::lookForMatchesByISSN($normalisedCandidateISSNs, $normalisedRankedJournalISSNs, $matchesI);
 		echo "Number of ISSN matches: " . sizeof($matchesI) . "\n";
@@ -308,12 +308,12 @@ class RJL
 
 		$stmt = "
 			SELECT
-				eraid,
-				title
+				jnl_era_id AS eraid,
+				jnl_journal_name AS title
 			FROM
-				__era_journals
+				" . APP_TABLE_PREFIX . "journal
 			ORDER BY
-				title ASC;
+				jnl_journal_name ASC;
 		";
 		
 		try {
@@ -386,16 +386,16 @@ class RJL
 
 		$stmt = "
 			SELECT
-				issn,
-				__era_journals.eraid
+				jnl_issn AS issn,
+				" . APP_TABLE_PREFIX . "journal.jnl_era_id AS eraid
 			FROM
-				__era_journals,
-				__era_journal_issns
+				" . APP_TABLE_PREFIX . "journal,
+				" . APP_TABLE_PREFIX . "journal_issns
 			WHERE
-				__era_journals.eraid = __era_journal_issns.eraid
+				" . APP_TABLE_PREFIX . "journal.jnl_era_id = " . APP_TABLE_PREFIX . "journal_issns.jnl_journal_id
 			ORDER BY
-				issn ASC,
-				number ASC;
+				jnl_issn ASC,
+				jnl_issn_order ASC;
 		";
 		
 		try {

@@ -477,13 +477,13 @@ class Record
 		
 		$stmt = "
 			SELECT
-				rank,
-				title
+				jnl_rank AS rank,
+				jnl_journal_name AS title
 			FROM
 				__temp_lk_matched_journals,
-				__era_journals
+				" . APP_TABLE_PREFIX . "journal
 			WHERE
-				__temp_lk_matched_journals.eraid = __era_journals.eraid
+				__temp_lk_matched_journals.eraid = " . APP_TABLE_PREFIX . "journal.jnl_era_id
 				AND pid = " . $db->quote($pid) . ";
 		";
 	
@@ -534,13 +534,13 @@ class Record
 		$stmt = "
 			SELECT
 				pid,
-				rank,
-				title
+				jnl_rank AS rank,
+				jnl_journal_name AS title
 			FROM
 				__temp_lk_matched_journals,
-				__era_journals
+				" . APP_TABLE_PREFIX . "journal
 			WHERE
-				__temp_lk_matched_journals.eraid = __era_journals.eraid
+				__temp_lk_matched_journals.eraid = " . APP_TABLE_PREFIX . "journal.jnl_era_id
 				AND pid in (".Misc::arrayToSQLBindStr($pids).") 
 		";
 
@@ -561,13 +561,13 @@ class Record
 		
 		$stmt = "
 			SELECT
-				rank,
-				title
+				cnf_rank AS rank,
+				cnf_conference_name AS title
 			FROM
 				__temp_lk_matched_conferences,
-				__era_conferences
+				" . APP_TABLE_PREFIX . "conference
 			WHERE
-				__temp_lk_matched_conferences.eraid = __era_conferences.eraid
+				__temp_lk_matched_conferences.eraid = " . APP_TABLE_PREFIX . "conference.cnf_era_id
 				AND pid = " . $db->quote($pid) . ";
 		";
 	
@@ -618,13 +618,13 @@ class Record
 		$stmt = "
 			SELECT
 				pid,
-				rank,
-				title
+				cnf_rank AS rank,
+				cnf_conference_name AS title
 			FROM
 				__temp_lk_matched_conferences,
-				__era_conferences
+				" . APP_TABLE_PREFIX . "conference
 			WHERE
-				__temp_lk_matched_conferences.eraid = __era_conferences.eraid
+				__temp_lk_matched_conferences.eraid = " . APP_TABLE_PREFIX . "conference.cnf_era_id
 				AND pid in (".Misc::arrayToSQLBindStr($pids).") 
 		";
 	

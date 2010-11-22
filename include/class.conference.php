@@ -117,7 +117,7 @@ class Conference
 		if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
 			$stmt = "SELECT COUNT(*)
 	                 FROM
-	                    " . APP_TABLE_PREFIX . "journal
+	                    " . APP_TABLE_PREFIX . "conference
 					".$where_stmt;
 		} else {
 			$stmt = 'SELECT FOUND_ROWS()';

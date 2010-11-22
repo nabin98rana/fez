@@ -178,8 +178,7 @@ class matching
 	
 	/**
 	 * Get all the ERA journals.
-	 * Note: This whole setup will be replaced with the class.journal.php functions when
-	 * the ERA RJL/RCL data is migrated into the internal Fez tables.
+	 * Note: Move this function to class.journal.php in due course.
 	 */
 	function getJournals()
 	{
@@ -188,13 +187,13 @@ class matching
 		
 		$stmt = "
 			SELECT
-				eraid,
-				rank,
-				title
+				jnl_era_id AS eraid,
+				jnl_rank AS rank,
+				jnl_journal_name AS title
 			FROM
-				__era_journals
+				" . APP_TABLE_PREFIX . "journal
 			ORDER BY
-				title ASC;
+				jnl_journal_name ASC;
 		";
 		
 		try {
@@ -212,8 +211,7 @@ class matching
 	
 	/**
 	 * Get all the ERA conferences.
-	 * Note: This whole setup will be replaced with the class.journal.php functions when
-	 * the ERA RJL/RCL data is migrated into the internal Fez tables.
+	 * Note: Move this function to class.conference.php in due course.
 	 */
 	function getConferences()
 	{
@@ -222,13 +220,13 @@ class matching
 		
 		$stmt = "
 			SELECT
-				eraid,
-				rank,
-				title
+				cnf_era_id AS eraid,
+				cnf_rank AS rank,
+				cnf_conference_name AS title
 			FROM
-				__era_conferences
+				" . APP_TABLE_PREFIX . "conference
 			ORDER BY
-				title ASC;
+				cnf_conference_name ASC;
 		";
 		
 		try {

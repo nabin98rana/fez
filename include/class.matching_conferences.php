@@ -154,12 +154,12 @@ class RCL
 
 		$stmt = "
 			SELECT
-				eraid,
-				title
+				cnf_era_id AS eraid,
+				cnf_conference_name AS title
 			FROM
-				__era_conferences
+				" . APP_TABLE_PREFIX . "conference
 			ORDER BY
-				title ASC;
+				cnf_conference_name ASC;
 		";
 		
 		try {
@@ -197,15 +197,15 @@ class RCL
 				acronym
 			FROM (
 				SELECT
-					eraid,
-					acronym,
-					COUNT(acronym) AS acronym_count
+					cnf_era_id AS eraid,
+					cnf_acronym AS acronym,
+					COUNT(cnf_acronym) AS acronym_count
 				FROM
-					__era_conferences
+					" . APP_TABLE_PREFIX . "conference
 				WHERE
-					acronym != ''
+					cnf_acronym != ''
 				GROUP BY
-					acronym
+					cnf_acronym
 				) Q1
 			WHERE acronym_count < 2
 			ORDER BY
