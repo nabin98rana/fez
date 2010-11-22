@@ -227,7 +227,7 @@ class User
 			$log->err($ex);
 			return false;
 		}
-		if ($res['usr_super_administrator'] == 1) {
+		if ($res == 1) {
 			return true;
 		} else {
 			return false;
@@ -768,11 +768,18 @@ class User
 		$db = DB_API::get();
 		
 		$dbRes = 1;
-
+		$db->beginTransaction();
 		foreach ($_SESSION[APP_SHIB_ATTRIBUTES_SESSION] as $shib_name => $shib_value)
 		{
 			if ( (is_numeric(strpos($shib_name, "Shib-EP")) || is_numeric(strpos($shib_name, "Shib-Person"))) && $shib_value != '' ) {
-				$stmt = "REPLACE INTO
+				
+				$stmt = "DELETE FROM
+		                    " . APP_TABLE_PREFIX . "user_shibboleth_attribs
+		                 WHERE
+		                    usa_usr_id = ".$db->quote($usr_id, 'INTEGER');
+				
+				$db->exec($stmt);
+				$stmt = "INSERT INTO
                             " . APP_TABLE_PREFIX . "user_shibboleth_attribs
                             (
                             usa_usr_id,
@@ -786,8 +793,10 @@ class User
         				)";
 				try {
 					$db->exec($stmt);
+					$db->commit();
 				}
 				catch(Exception $ex) {
+					$db->rollBack();
 					$log->err($ex);
 					$dbRes = -1;
 				}
@@ -821,6 +830,27 @@ class User
 		return true;
 	}
 
+
+	function getShibAttribsAssoc($usr_id)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		$return = array();
+		$stmt = "SELECT usa_shib_name, usa_shib_value
+                 FROM " . APP_TABLE_PREFIX . "user_shibboleth_attribs
+                 WHERE usa_usr_id = " . $db->quote($usr_id, 'INTEGER');
+
+		try {
+			$res = $db->fetchPairs($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return false;
+		}
+
+		return $res;
+	}
+
 	/**
 	 * Method used to update the account details for a specific user.
 	 *
@@ -837,24 +867,24 @@ class User
 		 return 1;
 		 }*/
 		if (@$_POST["administrator"]) {
-			$usr_administrator = 1;
+			$usr_administrator = 'TRUE';
 		} else {
-			$usr_administrator = 0;
+			$usr_administrator = 'FALSE';
 		}
 		if ($superAdmin) {
 			if (@$_POST["super_administrator"]) {
-				$usr_super_administrator = 1;
+				$usr_super_administrator = 'TRUE';
 			} else {
-				$usr_super_administrator = 0;
+				$usr_super_administrator = 'FALSE';
 			}
-			$superAdminUpdateStatement = "usr_super_administrator=" . $usr_super_administrator . ", ";
+			$superAdminUpdateStatement = "usr_super_administrator=" . $db->quote($usr_super_administrator) . ", ";
 		} else {
 			$superAdminUpdateStatement = "";
 		}
 		if (@$_POST["ldap_authentication"]) {
-			$ldap_authentication = 1;
+			$ldap_authentication = 'TRUE';
 		} else {
-			$ldap_authentication = 0;
+			$ldap_authentication = 'FALSE';
 		}
 
 		$stmt = "UPDATE
@@ -863,9 +893,9 @@ class User
                     usr_username=" . $db->quote($_POST["username"]) . ",
                     usr_full_name=" . $db->quote($_POST["full_name"]) . ",
                     usr_email=" . $db->quote($_POST["email"]) . ",
-                    usr_administrator=" . $db->quote($usr_administrator, 'INTEGER') . ",
+                    usr_administrator=" . $db->quote($usr_administrator) . ",
                     " . $superAdminUpdateStatement . "
-                    usr_ldap_authentication=" . $db->quote($ldap_authentication, 'INTEGER');
+                    usr_ldap_authentication=" . $db->quote($ldap_authentication);
 
 		if ((!empty($_POST["password"])) && (($_POST["change_password"]))) {
 			$stmt .= ",
@@ -929,21 +959,21 @@ class User
 		$db = DB_API::get();
 		
 		if (@$_POST["administrator"]) {
-			$usr_administrator = 1;
+			$usr_administrator = TRUE;
 		} else {
-			$usr_administrator = 0;
+			$usr_administrator = FALSE;
 		}
 
 		if (@$_POST["super_administrator"]) {
-			$usr_super_administrator = 1;
+			$usr_super_administrator = TRUE;
 		} else {
-			$usr_super_administrator = 0;
+			$usr_super_administrator = FALSE;
 		}
 
 		if (@$_POST["ldap_authentication"]) {
-			$ldap_authentication = 1;
+			$ldap_authentication = TRUE;
 		} else {
-			$ldap_authentication = 0;
+			$ldap_authentication = FALSE;
 		}
 
 		$prefs = Prefs::getDefaults();
@@ -967,9 +997,9 @@ class User
                     " . $db->quote(Date_API::getCurrentDateGMT()) . ",
                     " . $db->quote($_POST["full_name"]) . ",
                     " . $db->quote($_POST["email"]) . ",
-                    " . $db->quote($usr_administrator, 'INTEGER') . ",
-                    " . $db->quote($usr_super_administrator, 'INTEGER') . ",
-                    " . $db->quote($ldap_authentication, 'INTEGER') . ",
+                    " . $db->quote($usr_administrator) . ",
+                    " . $db->quote($usr_super_administrator) . ",
+                    " . $db->quote($ldap_authentication) . ",
                     " . $db->quote($prefs) . ",
                     " . $db->quote($_POST["username"]);
 		if (!empty($_POST["password"]))  {
@@ -984,7 +1014,7 @@ class User
 			return -1;
 		}
 		
-		$new_usr_id = $db->lastInsertId();
+		$new_usr_id = $db->lastInsertId(APP_TABLE_PREFIX . "user", "usr_id");
 		// add the group associations!
 		for ($i = 0; $i < count($_POST["groups"]); $i++) {
 			Group::associateUser($_POST["groups"][$i], $new_usr_id);
@@ -1003,9 +1033,9 @@ class User
 		$log = FezLog::get();
 		$db = DB_API::get();
 		
-		$usr_administrator = 0;
+		$usr_administrator = FALSE;
 
-		$ldap_authentication = 0;
+		$ldap_authentication = FALSE;
 
 		$prefs = Prefs::getDefaults();
 		$stmt = "INSERT INTO
@@ -1025,8 +1055,8 @@ class User
                     " . $db->quote(Date_API::getCurrentDateGMT()) . ",
                     " . $db->quote(ucwords($_POST["fullname"])) . ",
                     " . $db->quote($_POST["email"]) . ",
-                    " . $db->quote($usr_administrator, 'INTEGER') . ",
-                    " . $db->quote($ldap_authentication, 'INTEGER') . ",
+                    " . $db->quote($usr_administrator) . ",
+                    " . $db->quote($ldap_authentication) . ",
                     " . $db->quote($prefs) . ",
                     " . $db->quote($_POST["username"]) . ",
                     " . $db->quote(md5($_POST["passwd"])) . ",
@@ -1040,7 +1070,7 @@ class User
 			$log->err($ex);
 			return -1;
 		}
-		$new_usr_id = $db->lastInsertId();
+		$new_usr_id = $db->lastInsertId(APP_TABLE_PREFIX . "user", "usr_id");
 		// send email to user
 		//            Notification::notifyNewUser($new_usr_id, "");
 		return 1;
@@ -1057,8 +1087,8 @@ class User
 		$log = FezLog::get();
 		$db = DB_API::get();
 		
-		$usr_administrator = 0;
-		$ldap_authentication = 1;
+		$usr_administrator = FALSE;
+		$ldap_authentication = TRUE;
 
 		$prefs = Prefs::getDefaults();
 		$stmt = "INSERT INTO
@@ -1079,8 +1109,8 @@ class User
                     " . $db->quote(Date_API::getCurrentDateGMT()) . ",
                     " . $db->quote(ucwords(strtolower($usr_full_name))) . ",
                     " . $db->quote($usr_email) . ",
-                    " . $db->quote($usr_administrator, 'INTEGER') . ",
-                    " . $db->quote($ldap_authentication, 'INTEGER') . ",
+                    " . $db->quote($usr_administrator) . ",
+                    " . $db->quote($ldap_authentication) . ",
                     " . $db->quote($prefs) . ",
                     " . $db->quote($usr_username) . ",
                     " . $db->quote($shib_username) . ",
@@ -1114,9 +1144,9 @@ class User
 		$log = FezLog::get();
 		$db = DB_API::get();
 		
-		$usr_administrator = 0;
+		$usr_administrator = FALSE;
 
-		$ldap_authentication = 1;
+		$ldap_authentication = TRUE;
 
 		$prefs = Prefs::getDefaults();
 		$stmt = "INSERT INTO
@@ -1137,8 +1167,8 @@ class User
                     " . $db->quote(Date_API::getCurrentDateGMT()) . ",
                     " . $db->quote(ucwords(strtolower($usr_full_name))) . ",
                     " . $db->quote($usr_email) . ",
-                    " . $db->quote($usr_administrator, 'INTEGER') . ",
-                    " . $db->quote($ldap_authentication, 'INTEGER') . ",
+                    " . $db->quote($usr_administrator) . ",
+                    " . $db->quote($ldap_authentication) . ",
                     " . $db->quote($prefs) . ",
                     " . $db->quote($usr_username) . ",
                     " . $db->quote($usr_username) . ",
@@ -1153,7 +1183,7 @@ class User
 			$log->err($ex);
 			return -1;
 		}
-		$new_usr_id = $db->lastInsertId();
+		$new_usr_id = $db->lastInsertId(APP_TABLE_PREFIX . "user", "usr_id");
 		// send email to user
 		//            Notification::notifyNewUser($new_usr_id, "");
 		return 1;
@@ -1170,8 +1200,8 @@ class User
 		$log = FezLog::get();
 		$db = DB_API::get();
 		
-		$usr_administrator = 0;
-		$ldap_authentication = 1;
+		$usr_administrator = FALSE;
+		$ldap_authentication = TRUE;
 		$userDetails = User::GetUserLDAPDetails($_POST["username"], $_POST["passwd"]);
 
 		$prefs = Prefs::getDefaults();
@@ -1191,8 +1221,8 @@ class User
                     " . $db->quote(Date_API::getCurrentDateGMT()) . ",
                     " . $db->quote(ucwords(strtolower($userDetails['displayname']))) . ",
                     " . $db->quote($userDetails['email']) . ",
-                    " . $db->quote($usr_administrator, 'INTEGER') . ",
-                    " . $db->quote($ldap_authentication, 'INTEGER') . ",
+                    " . $db->quote($usr_administrator) . ",
+                    " . $db->quote($ldap_authentication) . ",
                     " . $db->quote($prefs) . ",
                     " . $db->quote($_POST["username"]) . ",
 					1,
@@ -1205,7 +1235,7 @@ class User
 			$log->err($ex);
 			return -1;
 		}
-		$new_usr_id = $db->lastInsertId();
+		$new_usr_id = $db->lastInsertId(APP_TABLE_PREFIX . "user", "usr_id");
 		// send email to user
 		//            Notification::notifyNewUser($new_usr_id, "");
 		return 1;
@@ -1282,37 +1312,66 @@ class User
 		$extra_stmt = "";
 		$extra_order_stmt = "";
 		if (!empty($filter)) {
-			$where_stmt .= " WHERE match(usr_full_name, usr_given_names, usr_family_name, usr_username, usr_shib_username) AGAINST (".$db->quote('*'.$filter.'*')." IN BOOLEAN MODE) ";
-			$extra_stmt = " , match(usr_full_name, usr_given_names, usr_family_name, usr_username, usr_shib_username) AGAINST (".$db->quote($filter).") as Relevance ";
-			$extra_order_stmt = " Relevance DESC, ";
+	    if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) { 
+				$where_stmt .= " WHERE match(usr_full_name, usr_given_names, usr_family_name, usr_username, usr_shib_username) AGAINST (".$db->quote('*'.$filter.'*')." IN BOOLEAN MODE) ";
+				$extra_stmt = " , match(usr_full_name, usr_given_names, usr_family_name, usr_username, usr_shib_username) AGAINST (".$db->quote($filter).") as Relevance ";
+				$extra_order_stmt = " Relevance DESC, ";
+			} else {
+			    if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) { 
+						$where_stmt .= " WHERE (usr_full_name ILIKE ".$db->quote('%'.$filter.'%')." OR usr_username ILIKE ".$db->quote($filter.'%').") ";
+					} else {
+						$where_stmt .= " WHERE (usr_full_name LIKE ".$db->quote('%'.$filter.'%')." OR usr_username LIKE ".$db->quote($filter.'%').") ";						
+					}
+			}
 		}
 		 
 		if(!$isSuperAdmin){
 			if($where_stmt) {
-				$where_stmt .= " AND usr_super_administrator != 1";
+				$where_stmt .= " AND usr_super_administrator = FALSE";
 			} else {
-				$where_stmt = " WHERE usr_super_administrator != 1";
+				$where_stmt = " WHERE usr_super_administrator = FALSE";
 			}
 		}
 		 
 		$start = $current_row * $max;
-		$stmt = "SELECT SQL_CALC_FOUND_ROWS
-					* ".$extra_stmt."
-                 FROM
-                    " . APP_TABLE_PREFIX . "user
-				".$where_stmt."
-                 ORDER BY ".$extra_order_stmt."
-                    ".$order_by."
-				 LIMIT ".$db->quote($start, 'INTEGER').", ".$db->quote($max, 'INTEGER');
-		try {
-			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
-			$total_rows = $db->fetchOne('SELECT FOUND_ROWS()');
+    if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) { 
+			$stmt = "SELECT SQL_CALC_FOUND_ROWS
+						* ".$extra_stmt."
+	                 FROM
+	                    " . APP_TABLE_PREFIX . "user
+					".$where_stmt."
+	                 ORDER BY ".$extra_order_stmt."
+	                    ".$order_by."
+					 LIMIT ".$db->quote($max, 'INTEGER')." OFFSET ".$db->quote($start, 'INTEGER');
+			try {
+				$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+				$total_rows = $db->fetchOne('SELECT FOUND_ROWS()');
+			}
+			catch(Exception $ex) {
+				$log->err($ex);
+				return '';
+			}
+    } else {
+     	$countStmt =  "SELECT COUNT(usr_id) AS count_of_users FROM 
+        " . APP_TABLE_PREFIX . "user
+				".$where_stmt;
+			$stmt = "SELECT 
+						* ".$extra_stmt."
+	                 FROM
+	                    " . APP_TABLE_PREFIX . "user
+					".$where_stmt."
+	                 ORDER BY ".$extra_order_stmt."
+	                    ".$order_by."
+					 LIMIT ".$db->quote($max, 'INTEGER')." OFFSET ".$db->quote($start, 'INTEGER');
+      try {
+				$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+
+        $total_rows = $db->fetchOne($countStmt);
+      }
+      catch(Exception $ex) {
+        $log->err($ex);
+      }
 		}
-		catch(Exception $ex) {
-			$log->err($ex);
-			return '';
-		}
-		
 		$timezone = Date_API::getPreferredTimezone();
 		foreach ($res as $key => $row) {
 			$res[$key]["usr_last_login_date"] = Date_API::getFormattedDate($res[$key]["usr_last_login_date"], $timezone);
@@ -1390,7 +1449,7 @@ class User
                  FROM
                     " . APP_TABLE_PREFIX . "user
                  WHERE
-                    usr_administrator = 1 
+                    usr_administrator = TRUE
                  ORDER BY
                     usr_full_name ASC";
 		try {
@@ -1423,7 +1482,7 @@ class User
                  FROM
                     " . APP_TABLE_PREFIX . "user
                  WHERE
-                    usr_super_administrator = 1 
+                    usr_super_administrator = TRUE
                  ORDER BY
                     usr_full_name ASC";
 		try {

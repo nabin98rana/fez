@@ -98,7 +98,21 @@ if ($isAdministrator) {
             header('Location: ' . $_SERVER['PHP_SELF']);
             exit();
         }
-        
+				$shibAttribs = array();
+
+				if (SHIB_CACHE_ATTRIBS == "ON") {
+					$counter = 0;
+					$attribs = User::getShibAttribsAssoc($_GET["id"]);
+					foreach ($attribs as $name => $value) {
+						if (is_numeric(strpos($name, "Shib-EP")) || is_numeric(strpos($name, "Shib-Person"))) {
+							$shibAttribs[$counter]['name'] = $name;
+							$shibAttribs[$counter]['value'] = $value;
+							$counter++;
+						}
+					}
+				}        
+				$tpl->assign("shibAttribs", $shibAttribs);
+
         $tpl->assign("info", $user);
     }
 

@@ -230,6 +230,29 @@
                   {include file="error_icon.tpl.html" field="users[]"}
                 </td>
               </tr>
+
+
+			{if $SHIB_SWITCH == "ON" && $smarty.get.cat == 'edit'}
+
+
+			        <tr style="background: {$heading_color};">
+			          <td class="default_white" colspan="2">
+			            <b>Shibboleth Attributes</b>
+			          </td>
+			        </tr>
+					{section name="i" loop=$shibAttribs}
+			        <tr>
+			          <td style="background: {$cell_color}; width: 190px;" class="default">
+
+			            <b>{$shibAttribs[i].name}:</b>
+			          </td>
+			          <td style="background: {$light_color};" class="default">
+						{$shibAttribs[i].value}
+			          </td>
+			        </tr>
+					{/section}
+			{/if}
+
 			  
               <tr>
                 <td colspan="2" style="background: {$cell_color}; text-align: center;">
