@@ -37,16 +37,17 @@ function goPage(f, new_page)
         f.page.value = current_page+1;
         return false;
     }
-    setPage(new_page-1);
+    setPage(f, new_page-1);
 }
-function setPage(new_page)
+function setPage(f, new_page)
 {
     if ((new_page > last_page) || (new_page < 0) || (new_page == current_page)) {
         return false;
     }
 	//window.alert('We want to go to page ' + new_page);
-	document.ad_hoc_workflow_form.pagerRow.value = new_page;
-	document.ad_hoc_workflow_form.submit();
+	f.action = page_url;
+	f.pagerRow.value = new_page;
+	f.submit();
 //    window.location.href = page_url + "?" + replaceParam(window.location.href, 'pagerRow', new_page);
 }
 
@@ -233,7 +234,7 @@ function validateFormSelections() {
 			  	<td>
                   <table border="0" width="100%" cellpadding="1" cellspacing="1">
                     <tr>
-                      <td colspan="4" style="width: 5px; background: {$cell_color}; white-space: nowrap">Showing {$list_info.start_offset+1} to {$list_info.end_offset} of {$list_info.total_rows}</td>
+                      <td colspan="4" style="width: 5px; background: {$cell_color}; white-space: nowrap">Showing {$list_info.start_offset*$options.rows+1} to {if $list_info.start_offset*$options.rows+$options.rows<$list_info.total_rows}{$list_info.start_offset*$options.rows+$options.rows}{else}{$list_info.total_rows}{/if} of {$list_info.total_rows}</td>
                     </tr>
 
                     <tr>
@@ -286,12 +287,12 @@ function validateFormSelections() {
                       <tr>
                         <td style="width: 30%; white-space: nowrap"></td>
                         <td style="width: 40%; text-align: center; white-space: nowrap">
-                          <input name="first" type="button" value="|&lt;" class="shortcut button" onclick="javascript:setPage(0);" />
-                          <input name="previous" type="button" value="&lt;&lt;" class="shortcut button" onclick="javascript:setPage({$list_info.prev_page});" />
+                          <input name="first" type="button" value="|&lt;" class="shortcut button" onclick="javascript:setPage(this.form,0);" />
+                          <input name="previous" type="button" value="&lt;&lt;" class="shortcut button" onclick="javascript:setPage(this.form,{$list_info.prev_page});" />
                           <input type="text" name="page" size="3" maxlength="3" value="{math equation="x + 1" x=$list_info.current_page}" style="background: {$cell_color};" class="paging_input" onkeypress="javascript:return checkPageField(event);" />
                           <input name="go" type="button" value="Go" class="shortcut button" onclick="javascript:goPage(this.form, this.form.page.value);" />
-                          <input name="next" type="button" value="&gt;&gt;" class="shortcut button" onclick="javascript:setPage({$list_info.next_page});" />
-                          <input name="last" type="button" value="&gt;|" class="shortcut button" onclick="javascript:setPage({$list_info.last_page});" />
+                          <input name="next" type="button" value="&gt;&gt;" class="shortcut button" onclick="javascript:setPage(this.form, {$list_info.next_page});" />
+                          <input name="last" type="button" value="&gt;|" class="shortcut button" onclick="javascript:setPage(this.form,{$list_info.last_page});" />
                         </td>
                         <td style="width: 30%; white-space: nowrap">
                           <span class="default_white">Rows per Page:</span>
