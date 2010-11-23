@@ -79,6 +79,42 @@ class matching
 	
 	
 	
+	function getMatchingExceptions($type)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		if ($type == 'J') {
+			$table = "journals";
+			$prefix = "mtj";
+		} elseif ($type == 'C') {
+			$table = "conferences";
+			$prefix = "mtc";
+		}
+		
+		$stmt = "	
+			SELECT
+				" . $prefix . "_pid AS pid
+			FROM
+				fez_matched_" . $table . "
+			WHERE
+				" . $prefix . "_status != 'A'
+			;
+		";
+		
+		try {
+			$result = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return '';
+		}
+		
+		return $result;
+	}
+	
+	
+	
 	/**
 	 * Save an existing mapping.
 	 */

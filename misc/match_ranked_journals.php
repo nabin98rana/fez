@@ -31,6 +31,7 @@
 // +----------------------------------------------------------------------+
 
 include_once('../config.inc.php');
+include_once(APP_INC_PATH . "class.matching.php");
 include_once(APP_INC_PATH . "class.matching_journals.php");
 
 $matcheroo = new RJL();
