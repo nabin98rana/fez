@@ -79,6 +79,9 @@ class matching
 	
 	
 	
+	/**
+	 * Get a list of all PIDs that are not to be mapped.
+	 */
 	function getMatchingExceptions($type)
 	{
 		$log = FezLog::get();
@@ -110,7 +113,15 @@ class matching
 			return '';
 		}
 		
-		return $result;
+		// Pack all the returned PIDs into an array
+		$exceptions = array();
+		if (count($result) > 0) {
+			foreach ($result as $row) {
+				$exceptions[$row['pid']] = '';
+			}
+		}
+		
+		return $exceptions;
 	}
 	
 	

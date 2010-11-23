@@ -76,6 +76,9 @@ class RCL
 		/* Look for manual matches */
 		//RCL::lookForManualMatches($normalisedCandidateJournals, $manualMatches, $matches); // -- this looks like it was never implemented?
 		
+		/* Subtract from any match results those PIDs that are either black-listed, or manually mapped */
+		$matches = array_diff_key($matches, matching::getMatchingExceptions("C"));
+		
 		echo "Total number of matches: " . sizeof($matches) . "\n";
 
 		RCL::runInserts($matches);

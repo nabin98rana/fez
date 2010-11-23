@@ -134,7 +134,10 @@ class RJL
 		$nonMatchingConferences = array_diff($nonMatchingConferences, RJL::keyMasterList($matchesC)); // Next remove the manual matches
 		echo "Number of non-matching conferences after manual match subtraction: " . sizeof($nonMatchingConferences) . "\n";
 		*/
-			
+		
+		/* Subtract from any match results those PIDs that are either black-listed, or manually mapped */
+		$matches = array_diff_key($matches, matching::getMatchingExceptions("J"));
+		
 		/* Insert all the found matches */
 		RJL::runInserts($matches);
 		
