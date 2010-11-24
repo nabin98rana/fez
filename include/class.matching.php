@@ -41,11 +41,13 @@ class matching
 		$db = DB_API::get();
 		
 		if ($type == 'J') {
-			$table = "journals";
+			$table = "journal";
 			$prefix = "mtj";
+			$prefix2 = "jnl";
 		} elseif ($type == 'C') {
-			$table = "conferences";
+			$table = "conference";
 			$prefix = "mtc";
+			$prefix2 = "cnf";
 		}
 		
 		$stmt = "	
@@ -54,13 +56,11 @@ class matching
 				" . $prefix . "_eraid AS eraid,
 				" . $prefix . "_status AS status,
 				rek_title AS record_title,
-				title AS match_title
+				" . $prefix2 . "_" . $table . "_name AS match_title
 			FROM
-				fez_matched_" . $table . "
-			LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key ON " . APP_TABLE_PREFIX . "matched_" . $table . "." . $prefix . "_pid = " . APP_TABLE_PREFIX . "record_search_key.rek_pid
-			LEFT JOIN __era_" . $table . " ON " . APP_TABLE_PREFIX . "matched_" . $table . "." . $prefix . "_eraid = __era_" . $table . ".eraid
-			/*WHERE
-				" . $prefix . "_status != 'B'*/
+				fez_matched_" . $table . "s
+			LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key ON " . APP_TABLE_PREFIX . "matched_" . $table . "s." . $prefix . "_pid = " . APP_TABLE_PREFIX . "record_search_key.rek_pid
+			LEFT JOIN " . APP_TABLE_PREFIX . $table . " ON " . APP_TABLE_PREFIX . "matched_" . $table . "s." . $prefix . "_eraid = " . APP_TABLE_PREFIX . $table . "." . $prefix2 . "_era_id
 			ORDER BY
 				" . $prefix . "_status
 			;
