@@ -47,7 +47,6 @@ class RJL
 		$matchesC = array(); // Conference title matches
 		$matchesS = array(); // Similar title matches
 		$matchesM = array(); // Manual matches
-		$matchesF = array(); // Forced matches
 		$matches = array();  // All matches
 		
 		$candidateJournals = RJL::getCandidateJournals();
@@ -56,7 +55,6 @@ class RJL
 		$rankedJournals = RJL::getRankedJournals();
 		$rankedJournalISSNs = RJL::getISSNsRJL();
 		$manualMatches = RJL::getManualMatches();
-		RJL::getForcedMatches($matchesF);
 		
 		/* Perform normalisation */
 		$normalisedCandidateJournals = RJL::normaliseListOfTitles($candidateJournals);
@@ -99,7 +97,7 @@ class RJL
 		echo "Number of manual matches: " . sizeof($matchesM) . "\n";
 		
 		/* Assemble list of all matches */
-		$matches = array_merge($matchesT, $matchesI, $matchesM, $matchesC, $matchesS, $matchesF);
+		$matches = array_merge($matchesT, $matchesI, $matchesM, $matchesC, $matchesS);
 		echo "Total number of matches: " . sizeof($matches) . "\n";
 
 		/* Subtract matches from list before printing unmatched */
@@ -342,36 +340,21 @@ class RJL
 	
 	function getManualMatches()
 	{
-		$log = FezLog::get();
-		$db = DB_API::get();
-		
 		echo "Retrieving list of manual matches ... ";
-		$manualMatches = array();
-
-		$stmt = "
-			SELECT
-				journal_title,
-				eraid
-			FROM
-				__era_manual_journal_matches
-			ORDER BY
-				journal_title ASC;
-		";
-		
-		try {
-			$result = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
-		}
-		catch(Exception $ex) {
-			$log->err($ex);
-			return '';
-		}
-		
-		if (count($result) > 0) {
-			foreach ($result as $key => $row) {
-		    	$manualMatches[$row['eraid']] = $row['journal_title'];
-		    }
-		}
-		
+		$manualMatches = array(
+			"1017" => "physical review a",
+			"1131" => "physical review b",
+			"40222" => "british medical journal",
+			"9242" => "media international australia",
+			"18714" => "arena magazine",
+			"15305" => "cochrane database of systematic reviews",
+			"2110" => "proceedings of the national academy of sciences of the united states of america",
+			"15320" => "lancet",
+			"4674" => "environmental science and technology",
+			"1479" => "langmuir",
+			"2090" => "journal of experimental biology",
+			"1467" => "journal of physical chemistry b"
+		);
 		echo "done.\n";
 		
 		return $manualMatches;
@@ -524,8 +507,6 @@ class RJL
 	{
 		echo "Running normalised string match ... ";
 		
-		$exceptions = RJL::getTitleMatchExceptionList(); // Retrieve list of exceptions.
-		
 		/* Step through each source item */
 		foreach ($check as $sourceKey => $sourceVal) {
 
@@ -533,13 +514,8 @@ class RJL
 			foreach ($against as $targetKey => $targetVal) {
 				/* Test for exact string match */
 				if ($sourceVal == $targetVal) {
-					
-					/* Make sure this PID isn't on the exceptions list. */
-					if (!in_array($sourceKey, $exceptions)) {
-						//echo $type;
-						$matches[$sourceKey] = $targetKey;	
-					}										
-					
+					//echo $type;
+					$matches[$sourceKey] = $targetKey;	
 				}
 			}
 		}
@@ -621,23 +597,6 @@ class RJL
 		}
 		
 		return $clean;
-	}
-	
-	
-	
-	function getTitleMatchExceptionList()
-	{
-		$exceptions = array('UQ:133037');
-		return $exceptions;
-	}
-	
-	
-	
-	function getForcedMatches(&$matches)
-	{
-		$matches['UQ:72013'] = 9773;
-		
-		return;
 	}
 	
 	
