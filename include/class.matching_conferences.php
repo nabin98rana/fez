@@ -408,7 +408,7 @@ class RCL
 		$log = FezLog::get();
 		$db = DB_API::get();
 		
-		echo "\n\nRunning insertion queries on eSpace database ... ";
+		echo "Running insertion queries on eSpace database ... ";
 		
 		foreach ($matches as $pid => $eraid) {
 			
