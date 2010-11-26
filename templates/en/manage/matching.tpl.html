@@ -50,7 +50,7 @@ function add()
 	document.forms['mappings'].submit();
 }
 
-function delete()
+function deleteMapping()
 {
 	if (confirm("This action will remove the current mapping, but will not prevent it from re-appearing in subsequent automatic mapping runs. Use 'Blacklist' to stop re-mappings. Proceed with deletion?")) {
 		document.forms['mappings'].submit();
@@ -139,7 +139,7 @@ function setPage(new_page)
 				<input type="hidden" name="pid" value="{$pid}" />
 				<input type="hidden" name="type" value="{$match_type}" />
 				<input type="button" value="Save" onclick="javascript:save();" />
-				{*<input type="button" value="Delete" onclick="javascript:delete();" />*}
+				{*<input type="button" value="Delete" onclick="javascript:deleteMapping();" />*}
 			</div>
 		</form>
 	
