@@ -35,36 +35,53 @@ class matching
 	/**
 	 * Returns all matches (automatic, manual, and black-listed items).
 	 */
-	function getAllMatches($type)
+	function getAllMatches($current_row = 0, $max = 25, $filter = "")
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
 		
-		if ($type == 'J') {
-			$table = "journal";
-			$prefix = "mtj";
-			$prefix2 = "jnl";
-		} elseif ($type == 'C') {
-			$table = "conference";
-			$prefix = "mtc";
-			$prefix2 = "cnf";
+		$start = $current_row * $max;
+		
+		$stmtSelect = "
+			SELECT
+				pid,
+				rek_title AS record_title,
+				jnl_era_id AS journal_era_id,
+				jnl_journal_name AS journal_name,
+				mtj_status AS journal_match_status,
+				cnf_era_id AS conference_era_id,
+				cnf_conference_name AS conference_name,
+				mtc_status AS conference_match_status
+		";
+		
+		$stmtFrom = "
+			 FROM
+				(SELECT
+					mtj_pid AS pid
+				FROM
+					" . APP_TABLE_PREFIX . "matched_journals
+				UNION
+				SELECT
+					mtc_pid AS pid
+				FROM
+					" . APP_TABLE_PREFIX . "matched_conferences) AS Q0
+			LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key ON Q0.pid = " . APP_TABLE_PREFIX . "record_search_key.rek_pid
+			LEFT JOIN " . APP_TABLE_PREFIX . "matched_journals ON Q0.pid = " . APP_TABLE_PREFIX . "matched_journals.mtj_pid
+			LEFT JOIN " . APP_TABLE_PREFIX . "journal ON " . APP_TABLE_PREFIX . "matched_journals.mtj_eraid = " . APP_TABLE_PREFIX . "journal.jnl_era_id
+			LEFT JOIN " . APP_TABLE_PREFIX . "matched_conferences ON Q0.pid = " . APP_TABLE_PREFIX . "matched_conferences.mtc_pid
+			LEFT JOIN " . APP_TABLE_PREFIX . "conference ON " . APP_TABLE_PREFIX . "matched_conferences.mtc_eraid = " . APP_TABLE_PREFIX . "conference.cnf_era_id
+		";
+		
+		
+		if ($filter != '') {
+			$stmtFrom .= "WHERE Q0.pid = " . $db->quote($filter) . "";
 		}
 		
-		$stmt = "	
-			SELECT
-				" . $prefix . "_pid AS pid,
-				" . $prefix . "_eraid AS eraid,
-				" . $prefix . "_status AS status,
-				rek_title AS record_title,
-				" . $prefix2 . "_" . $table . "_name AS match_title
-			FROM
-				fez_matched_" . $table . "s
-			LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key ON " . APP_TABLE_PREFIX . "matched_" . $table . "s." . $prefix . "_pid = " . APP_TABLE_PREFIX . "record_search_key.rek_pid
-			LEFT JOIN " . APP_TABLE_PREFIX . $table . " ON " . APP_TABLE_PREFIX . "matched_" . $table . "s." . $prefix . "_eraid = " . APP_TABLE_PREFIX . $table . "." . $prefix2 . "_era_id
-			ORDER BY
-				" . $prefix . "_status
-			;
-		";
+		$stmtLimit = "
+			ORDER BY pid ASC
+			LIMIT " . $db->quote($max, 'INTEGER') . " OFFSET " . $db->quote($start, 'INTEGER') . ";";
+		
+		$stmt = $stmtSelect . $stmtFrom . $stmtLimit;
 		
 		try {
 			$result = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
@@ -74,7 +91,35 @@ class matching
 			return '';
 		}
 		
-		return $result;
+		/* Get page count stuff */
+		$stmt = "SELECT COUNT(*) " . $stmtFrom;
+		try {
+			$total_rows = $db->fetchOne($stmt);
+		} catch(Exception $ex) {
+			$log->err($ex);
+			return '';
+		}
+		if (($start + $max) < $total_rows) {
+			$total_rows_limit = $start + $max;
+		} else {
+			$total_rows_limit = $total_rows;
+		}
+		$total_pages = ceil($total_rows / $max);
+		$last_page = $total_pages - 1;
+		
+		return array(
+			"list" => $result,
+			"list_info" => array(
+				"current_page"  => $current_row,
+				"start_offset"  => $start,
+				"end_offset"    => $total_rows_limit,
+				"total_rows"    => $total_rows,
+				"total_pages"   => $total_pages,
+				"prev_page" 	=> ($current_row == 0) ? "-1" : ($current_row - 1),
+				"next_page"     => ($current_row == $last_page) ? "-1" : ($current_row + 1),
+				"last_page"     => $last_page
+			)
+		);
 	}
 	
 	
@@ -167,7 +212,7 @@ class matching
 			return -1;
 		}
 		
-		header("Location: http://" . APP_HOSTNAME . "/manage/matching.php?type=" . $type);
+		header("Location: http://" . APP_HOSTNAME . "/manage/matching.php");
 		exit;
 	}
 	
@@ -217,7 +262,7 @@ class matching
 			return -1;
 		}
 		
-		header("Location: http://" . APP_HOSTNAME . "/manage/matching.php?type=" . $type);
+		header("Location: http://" . APP_HOSTNAME . "/manage/matching.php");
 		exit;
 	}
 
