@@ -91,7 +91,9 @@ class Fedora_Direct_Access {
 			if (APP_FEDORA_VERSION == "3") {
 				$stmt = "SELECT doRegistry.doPID AS pid, label AS title, objectState as dostate FROM doRegistry WHERE (doRegistry.doPID LIKE ".$db->quote("%" . $terms . "%")." OR label LIKE ".$db->quote("%" . $terms . "%").") ".$state_sql;
 			} else {
-				$stmt = "SELECT doregistry.dopid AS pid, label AS title, doState as dostate FROM doregistry, dobj WHERE doregistry.doPID = dobj.doPID AND (doregistry.dopid LIKE ".$db->quote("%" . $terms . "%")." OR label LIKE ".$db->quote("%" . $terms . "%").") ".$state_sql;				
+
+//20101125 bh changed from "doregistry" to "doRegister" in below line, wherever it occurred
+				$stmt = "SELECT doRegistry.dopid AS pid, label AS title, doState as dostate FROM doRegistry, dobj WHERE doRegistry.doPID = dobj.doPID AND (doRegistry.dopid LIKE ".$db->quote("%" . $terms . "%")." OR label LIKE ".$db->quote("%" . $terms . "%").") ".$state_sql;				
 			}
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
