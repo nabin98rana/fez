@@ -50,8 +50,8 @@ class InternalNotes
 	/**
 	 * Read and return the note for the requested PID.
 	 */
-	function readNote($pid) {
-		
+	function readNote($pid)
+	{
 		$log = FezLog::get();
 		$db = DB_API::get();
 		
@@ -60,7 +60,7 @@ class InternalNotes
 				 FROM
 					" . APP_TABLE_PREFIX . "internal_notes
 				 WHERE
-						ain_pid = " . $db->quote($pid) . "";
+						ain_pid = " . $db->quote($pid) . ";";
 		try {
 			$res = $db->fetchOne($stmt);			
 		} catch(Exception $ex) {
@@ -77,14 +77,14 @@ class InternalNotes
 	 * Clear the note entirely (sufficient to handle empty/deleted note), and possibly write 
 	 * in the new note, if one has been supplied.
 	 */
-	function recordNote($pid, $note) {
-		
+	function recordNote($pid, $note)
+	{
 		$log = FezLog::get();
 		$db = DB_API::get();
 		
 		InternalNotes::clearNote($pid); // Murder, Death, Kill.
-
-		if ($note != '') {
+		
+		if ($note !== '') {
 
 			$stmt = "INSERT INTO
 					" . APP_TABLE_PREFIX . "internal_notes
@@ -94,9 +94,9 @@ class InternalNotes
 					) VALUES (
 						" . $db->quote($pid) . ",
 						" . $db->quote($note) . "
-					)";
+					);";
 			try {
-				$db->query($stmt);
+				$db->exec($stmt);
 			} catch(Exception $ex) {
 				$log->err($ex);
 				return false;
@@ -111,14 +111,15 @@ class InternalNotes
 	/**
 	 * Completely remove an internal note.
 	 */
-	function clearNote($pid) {
+	function clearNote($pid)
+	{
 		$log = FezLog::get();
 		$db = DB_API::get();
 		
 		$stmt = "DELETE FROM
 					" . APP_TABLE_PREFIX . "internal_notes
 				 WHERE
-					ain_pid = " . $db->quote($pid) . "";
+					ain_pid = " . $db->quote($pid) . ";";
 		
 		try {
 			$db->query($stmt);
@@ -135,7 +136,8 @@ class InternalNotes
 	/**
 	 * Move a note from one PID to another.
 	 */
-	function moveNote($oldPID, $newPID) {
+	function moveNote($oldPID, $newPID)
+	{
 		// TODO: This function has not yet been implemented.
 		/* Description of functionality required: 
 			1a. Append the existing note attached to oldPID to the note of newPID, OR
