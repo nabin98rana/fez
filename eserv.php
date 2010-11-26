@@ -175,17 +175,20 @@ if (!empty($pid) && !empty($dsID)) {
 			$urldata = APP_FEDORA_GET_URL."/".$pid."/".$dsID.$requestedVersionDate;
 			$file = $urldata;
 			$seekat = $_GET["pos"];
+			if ($seekat == '') { // if seekat isn't defined, set it to -1, the default for stream_get_contents(), else stream won't get contents
+				$seekat = -1;
+			}
 	        $size = Misc::remote_filesize($urldata);
 			# content headers
 			header("Content-Type: video/x-flv");
 			header("Content-Disposition: attachment; filename=\"" . $dsID . "\"");
-	
-		    if ($seekat != 0) {
+		    if ($seekat > 0) {
 	        	print("FLV");
 	   			print(pack('C', 1 ));
 	    		print(pack('C', 1 ));
 	    		print(pack('N', 9 ));
-	    		print(pack('N', 9 ));
+	    		//print(pack('N', 9 ));
+				print(pack('N', 0 ));  // Total size of previous tag, or 0 for this first tag
 		    }
 			if (APP_FEDORA_APIA_DIRECT == "ON") {
 	            $fda = new Fedora_Direct_Access();
@@ -193,7 +196,7 @@ if (!empty($pid) && !empty($dsID)) {
 				$fda->getDatastreamManagedContentStream($pid, $dsID, $dsVersionID, $seekat);
 			} else {
 				$fh = fopen($file, "rb");
-				$buffer = 512;
+				//$buffer = 512;  not needed?
 			  	echo stream_get_contents($fh, $size, $seekat);
 				fclose($fh);
 			}
