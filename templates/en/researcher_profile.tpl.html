@@ -36,10 +36,10 @@
                 <departmentName>Other</departmentName>
                 <employeeID>{$list.aut_org_username|escape:"html"}</employeeID>
                 <role>Other</role>
-                {if $list.positions[y].DT_FROM > 2008 || $list.positions[y].DT_FROM == ''}
+                {if $list.positions[y].dt_from > 2008 || $list.positions[y].dt_from == ''}
                   <start-date>2008</start-date>
                 {else}
-                  <start-date>{$list.positions[y].DT_FROM}</start-date>
+                  <start-date>{$list.positions[y].dt_from}</start-date>
                 {/if}
                 </institution>                
               {/if}
