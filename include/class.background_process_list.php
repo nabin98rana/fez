@@ -52,8 +52,14 @@ class BackgroundProcessList
 		}
 		$utc_date = Date_API::getSimpleDateUTC();
 		$dbtp =  APP_TABLE_PREFIX;
-		$stmt = "SELECT bgp_id, bgp_usr_id, bgp_status_message, bgp_progress, bgp_state, bgp_heartbeat,bgp_name,bgp_started," .
-                "if (bgp_heartbeat < DATE_SUB('".$utc_date."',INTERVAL 1 DAY), 1, 0) as is_old
+		$stmt = "SELECT bgp_id, bgp_usr_id, bgp_status_message, bgp_progress, bgp_state, bgp_heartbeat,bgp_name,bgp_started,";
+		if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) { //eg if postgresql etc
+			$stmt .= " CASE WHEN  (bgp_heartbeat <  (TIMESTAMP '".$utc_date."' - INTERVAL '1 days')) THEN 1 ELSE 0 END AS is_old ";
+		} else {
+      $stmt .= " if (bgp_heartbeat < DATE_SUB('".$utc_date."',INTERVAL 1 DAY), 1, 0) as is_old ";
+		}
+		
+			$stmt .= "
             FROM ".$dbtp."background_process
             WHERE bgp_usr_id=".$db->quote($usr_id)." ".$extra_sql."
             ORDER BY bgp_started";
@@ -81,7 +87,13 @@ class BackgroundProcessList
 		$utc_date = Date_API::getSimpleDateUTC();
 
 		$dbtp =  APP_TABLE_PREFIX;
-		$stmt = "SELECT *,if (bgp_heartbeat < DATE_SUB('".$utc_date."',INTERVAL 1 DAY), 1, 0) as is_old
+		$stmt = "SELECT *, ";
+		if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) { //eg if postgresql etc
+			$stmt .= " CASE WHEN  (bgp_heartbeat <  (TIMESTAMP '".$utc_date."' - INTERVAL '1 days')) THEN 1 ELSE 0 END AS is_old ";
+		} else {
+			$stmt .= "if (bgp_heartbeat < DATE_SUB('".$utc_date."',INTERVAL 1 DAY), 1, 0) as is_old ";			
+		}
+		$stmt .= "
             FROM ".$dbtp."background_process
             WHERE bgp_id=".$db->quote($id, 'INTEGER');
 		try {
@@ -147,9 +159,17 @@ class BackgroundProcessList
 		$utc_date = Date_API::getSimpleDateUTC();
 		$stmt = "DELETE FROM ".$dbtp."background_process
                 WHERE 
-                    bgp_name IN (".$auto_delete_names.") " .
-                    "AND (((bgp_state = 0 OR bgp_state IS NULL) AND bgp_started < DATE_SUB('".$utc_date."',INTERVAL 1 HOUR) )  " .
-                    "OR ((bgp_state = 2) AND (bgp_heartbeat IS NULL OR bgp_heartbeat < DATE_SUB('".$utc_date."',INTERVAL 1 HOUR) ) ) )";
+                    bgp_name IN (".$auto_delete_names.") ";
+
+		if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) { //eg if postgresql etc
+			$stmt .=
+	             "AND (((bgp_state = 0 OR bgp_state IS NULL) AND bgp_started < (TIMESTAMP '".$utc_date."' - INTERVAL '1 hours') )  " .
+	             "OR ((bgp_state = 2) AND (bgp_heartbeat IS NULL OR bgp_heartbeat < (TIMESTAMP '".$utc_date."' - INTERVAL '1 hours') ) ) )";
+		} else {
+			$stmt .=
+	             "AND (((bgp_state = 0 OR bgp_state IS NULL) AND bgp_started < DATE_SUB('".$utc_date."',INTERVAL 1 HOUR) )  " .
+	             "OR ((bgp_state = 2) AND (bgp_heartbeat IS NULL OR bgp_heartbeat < DATE_SUB('".$utc_date."',INTERVAL 1 HOUR) ) ) )";
+		}
 		try {
 			$res = $db->query($stmt);
 		}

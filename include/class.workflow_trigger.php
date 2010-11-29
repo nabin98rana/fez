@@ -215,7 +215,7 @@ class WorkflowTrigger
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+		$pid = "$pid"; //cast to string
 		$stmt = "SELECT * FROM " . APP_TABLE_PREFIX . "workflow_trigger
 				INNER JOIN " . APP_TABLE_PREFIX . "workflow on (wfl_id = wft_wfl_id) WHERE wft_pid=".$db->quote($pid)."
             ".$wherestr." ORDER BY wft_type_id, wft_xdis_id";
@@ -263,7 +263,7 @@ class WorkflowTrigger
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+		$pid = "$pid"; //cast to string
 		$stmt = "SELECT wft_id, wfl_title
                  FROM " . APP_TABLE_PREFIX . "workflow_trigger
 				 INNER JOIN " . APP_TABLE_PREFIX . "workflow on (wfl_id = wft_wfl_id) 
@@ -398,7 +398,7 @@ class WorkflowTrigger
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		if (!Misc::isInt($trigger)) {
 			$trigger = WorkflowTrigger::getTriggerId($trigger);
 		}

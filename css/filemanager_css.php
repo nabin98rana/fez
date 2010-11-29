@@ -1,5 +1,5 @@
 <?php 
-include_once("../config.inc.php");
+include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
 header("Content-type: text/css");
 $rel_url = APP_RELATIVE_URL;
 ?>

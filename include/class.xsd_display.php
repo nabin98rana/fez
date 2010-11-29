@@ -183,7 +183,7 @@ class XSD_Display
 			return -1;
 		}
 		
-		$new_xdis_id = $db->lastInsertId();
+		$new_xdis_id = $db->lastInsertId(APP_TABLE_PREFIX . "xsd_display", "xdis_id");
 		// get a list of all the non-sel-child elements (where xsdmf_xsdsel_id = null)
 		$xsdmf_res = XSD_HTML_Match::getNonSELChildListByDisplay($xdis_id);
 		foreach ($xsdmf_res as $xsdmf_row) {
@@ -192,19 +192,19 @@ class XSD_Display
 			$xsdmf_row['xsdmf_id'] = "";
 			XSD_HTML_Match::insertFromArray($new_xdis_id, $xsdmf_row);
 			// get the new xsdmf_id
-			$new_xsdmf_id = $db->lastInsertId();
+			$new_xsdmf_id = $db->lastInsertId(APP_TABLE_PREFIX . "xsd_display_matchfields", "xsdmf_id");
 			// get the sels for the current row
 			$xsd_sel_res = XSD_Loop_Subelement::getSimpleListByXSDMF($current_xsdmf_id);
 			// is the xsdmf a parent in the xsd_loop_subelement table? if so then create a clone entry for its sel entry
 			if (count($xsd_sel_res) > 0) {
 				foreach ($xsd_sel_res as $xsd_sel_row) {
 					XSD_Loop_Subelement::insertFromArray($new_xsdmf_id, $xsd_sel_row);
-					$new_sel_id = $db->lastInsertId();;
+					$new_sel_id = $db->lastInsertId(APP_TABLE_PREFIX . "xsd_loop_subelement", "xsdsel_id");
 					$child_xsdmf_sel_res = XSD_HTML_Match::getSELChildListByDisplay($xdis_id, $xsd_sel_row['xsdsel_id']);
 					// does the clone parent SEL record have any child sel elements? if so then insert clones for those too
 					foreach ($child_xsdmf_sel_res as $child_xsdmf_sel_row) {
 						XSD_HTML_Match::insertFromArraySEL($new_xdis_id, $new_sel_id, $child_xsdmf_sel_row);
-						$new_child_xsdmf_id = $db->lastInsertId();
+						$new_child_xsdmf_id = $db->lastInsertId(APP_TABLE_PREFIX . "xsd_display_matchfields", "xsdmf_id");
 						// do any of the children have xsd relationships? if so then insert them
 						$xsdrel_res = XSD_Relationship::getSimpleListByXSDMF($child_xsdmf_sel_row['xsdmf_id']);
 						foreach ($xsdrel_res as $xsdrel_row) {
@@ -304,9 +304,9 @@ class XSD_Display
 		}
 
 		if (@$params["xdis_enabled"]) {
-			$xdis_enabled = 1;
+			$xdis_enabled = TRUE;
 		} else {
-			$xdis_enabled = 0;
+			$xdis_enabled = FALSE;
 		}
 		$bind = array();
 		if (!empty($xdis_id)) {
@@ -341,7 +341,7 @@ class XSD_Display
 			$log->err($ex);
 			return -1;
 		}
-		return $db->lastInsertId();
+		return $db->lastInsertId(APP_TABLE_PREFIX . "xsd_display", "xdis_id");
 	}
 
 	function insertAtId($xdis_id,$xsd_id, $params=array())
@@ -367,9 +367,9 @@ class XSD_Display
 			$params = &$_POST;
 		}
 		if (@$params["xdis_enabled"]) {
-			$xdis_enabled = 1;
+			$xdis_enabled = TRUE;
 		} else {
-			$xdis_enabled = 0;
+			$xdis_enabled = FALSE;
 		}
 
 		$stmt = "UPDATE
@@ -377,7 +377,7 @@ class XSD_Display
                  SET 
                     xdis_title = " . $db->quote($params["xdis_title"]) . ",
                     xdis_version = " . $db->quote($params["xdis_version"]) . ",
-					xdis_enabled = " .$db->quote($xdis_enabled, 'INTEGER') . ",
+					xdis_enabled = " .$db->quote($xdis_enabled) . ",
 					xdis_object_type = " .$db->quote($params["xdis_object_type"], 'INTEGER') . "
                  WHERE xdis_id = ".$db->quote($xdis_id, 'INTEGER');
 
@@ -440,7 +440,7 @@ class XSD_Display
 					concat(xdis_title, ' Version ', xdis_version) as xdis_desc
                  FROM
                     " . APP_TABLE_PREFIX . "xsd_display
-                 WHERE xdis_enabled = 1
+                 WHERE xdis_enabled = TRUE
                  ORDER BY
                     xdis_title, xdis_version ASC";
 		try {
@@ -470,7 +470,7 @@ class XSD_Display
 					concat(xdis_title, ' Version ', xdis_version) as xdis_desc
                  FROM
                     " . APP_TABLE_PREFIX . "xsd_display 
-				 WHERE xdis_object_type = 2	and xdis_enabled = 1			 
+				 WHERE xdis_object_type = 2	and xdis_enabled = TRUE
                  ORDER BY
                     xdis_title, xdis_version ASC";
 		try {
@@ -531,7 +531,7 @@ class XSD_Display
 					concat(xdis_title, ' Version ', xdis_version) as xdis_desc
                  FROM
                     " . APP_TABLE_PREFIX . "xsd_display
-				 WHERE xdis_object_type = 3	and xdis_enabled = 1				 
+				 WHERE xdis_object_type = 3	and xdis_enabled = TRUE
                  ORDER BY
                     xdis_title, xdis_version ASC";
 		try {
@@ -561,7 +561,7 @@ class XSD_Display
 					concat(xdis_title, ' Version ', xdis_version) as xdis_desc
                  FROM
                     " . APP_TABLE_PREFIX . "xsd_display
-				 WHERE xdis_object_type != 4 and xdis_enabled = 1		 
+				 WHERE xdis_object_type != 4 and xdis_enabled = TRUE
                  ORDER BY
                     xdis_title, xdis_version ASC";
 		try {

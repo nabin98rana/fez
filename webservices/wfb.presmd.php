@@ -35,7 +35,7 @@
 // @@@ CK - 28/7/05
 // Preservation Metadata automatic extraction webservice
 
-include_once("../config.inc.php");
+include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
 include_once(APP_INC_PATH."class.foxml.php");
 $file = escapeshellcmd(urldecode($_GET['file']));
 $file_dir = "";	

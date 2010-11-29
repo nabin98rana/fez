@@ -198,9 +198,16 @@ class Mail_Queue
 		$log = FezLog::get();
 		$db = DB_API::get();
 		
-		$stmt = " delete from " . APP_TABLE_PREFIX . "mail_queue_log where
-            mql_maq_id in (select maq_id from " . APP_TABLE_PREFIX . "mail_queue where
-                    maq_status='sent' and maq_queued_date < date_sub(NOW(), interval 1 month))";
+		$stmt = " DELETE FROM " . APP_TABLE_PREFIX . "mail_queue_log WHERE
+            mql_maq_id IN (select maq_id FROM " . APP_TABLE_PREFIX . "mail_queue WHERE
+                    maq_status='sent' AND ";
+		if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) { //eg if postgresql etc
+			$stmt .= "maq_queued_date < (NOW() - INTERVAL '1 MONTHS'))";
+		} else {
+			$stmt .= "maq_queued_date < date_sub(NOW(), INTERVAL 1 MONTH))";			
+		}
+
+
 		try {
 			$db->query($stmt);
 		}
@@ -208,8 +215,13 @@ class Mail_Queue
 			$log->err($ex);
 		}
 
-		$stmt = "delete from " . APP_TABLE_PREFIX . "mail_queue where
-            maq_status='sent' and maq_queued_date < date_sub(NOW(), interval 1 month);";
+		$stmt = "DELETE FROM " . APP_TABLE_PREFIX . "mail_queue WHERE
+            maq_status='sent' AND ";
+		if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) { //eg if postgresql etc
+			$stmt .= "maq_queued_date < (NOW() - INTERVAL '1 MONTHS')";
+		} else {
+			$stmt .= "maq_queued_date < date_sub(NOW(), INTERVAL 1 MONTH)";
+		}
 		try {
 			$db->query($stmt);
 		}
@@ -296,7 +308,7 @@ class Mail_Queue
                  ORDER BY
                     maq_id ASC
                  LIMIT
-                    0, ".$db->quote($limit, 'INTEGER');
+                    ".$db->quote($limit, 'INTEGER')." OFFSET 0";
 		
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);

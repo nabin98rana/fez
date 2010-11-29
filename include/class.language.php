@@ -90,8 +90,13 @@ class Language
             $db = DB_API::get();
 
             $stmt = "SELECT
-                lng_alpha3_bibliographic as id,
-                                    CONCAT(lng_alpha3_bibliographic, ' (', lng_english_name, ')') as name
+                lng_alpha3_bibliographic as id,";
+						if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
+							$stmt .= " lng_alpha3_bibliographic || ' (' || lng_english_name || ')' as name ";
+						} else {
+							$stmt .= " CONCAT(lng_alpha3_bibliographic, ' (', lng_english_name, ')') as name ";							
+						}
+						$stmt .= "
              FROM
                 " . APP_TABLE_PREFIX . "language
              ORDER BY
@@ -114,9 +119,14 @@ class Language
             if (empty($term)) { return array(); }
  
             $stmt = "SELECT
-                lng_alpha3_bibliographic as id,
-                                    CONCAT(lng_alpha3_bibliographic, ' (', lng_english_name, ')') as name
-             FROM
+	                lng_alpha3_bibliographic as id,";
+							if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
+								$stmt .= " lng_alpha3_bibliographic || ' (' || lng_english_name || ')' as name ";
+							} else {
+								$stmt .= " CONCAT(lng_alpha3_bibliographic, ' (', lng_english_name, ')') as name ";							
+							}
+							$stmt .= "
+	             FROM
                 " . APP_TABLE_PREFIX . "language
 			 WHERE lng_alpha3_bibliographic LIKE ".$db->quote($term."%")." OR lng_english_name LIKE ".$db->quote($term."%")."
              ORDER BY
@@ -152,8 +162,14 @@ class Language
 		}
 
         $stmt = "SELECT
-                  CONCAT(lng_alpha3_bibliographic, ' (', lng_english_name, ')') as name
-         FROM
+              lng_alpha3_bibliographic as id,";
+					if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
+						$stmt .= " lng_alpha3_bibliographic || ' (' || lng_english_name || ')' as name ";
+					} else {
+						$stmt .= " CONCAT(lng_alpha3_bibliographic, ' (', lng_english_name, ')') as name ";							
+					}
+					$stmt .= "
+           FROM
             " . APP_TABLE_PREFIX . "language
          WHERE
                     lng_alpha3_bibliographic = " . $db->quote($lng_code, 'STRING');

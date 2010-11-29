@@ -151,7 +151,7 @@ class Org_Structure
 		}
 		
 		// get last db entered id
-		$new_id = $db->lastInsertId();
+		$new_id = $db->lastInsertId(APP_TABLE_PREFIX . "org_structure", "org_id");
 		Org_Structure::associateParent($_POST["parent_id"], $new_id);
 		return 1;
 	}
@@ -273,8 +273,8 @@ class Org_Structure
                     org_id
                  FROM
                     " . APP_TABLE_PREFIX . "org_structure
-                 INNER JOIN hr_position_vw ON AOU = org_extdb_id
-                 AND USER_NAME = ".$db->quote($username)."
+                 INNER JOIN hr_position_vw ON aou = org_extdb_id
+                 AND user_name = ".$db->quote($username)."
                  WHERE (org_extdb_name = 'hr' OR org_extdb_name = 'rrtd')";
 		try {
 			$res = $db->fetchOne($stmt);
@@ -628,10 +628,15 @@ class Org_Structure
 			}
 		}
 		$level++;
-		$stmt = "SELECT
-                    org_id,
-					concat(".$db->quote($indent).",org_title) as org_title
-                 FROM
+		$stmt = "SELECT org_id, ";
+
+		if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
+			$stmt .= $db->quote($indent)." || org_title as org_title ";
+		} else {
+			$stmt .= " CONCAT(".$db->quote($indent).",org_title) as org_title ";							
+		}
+		
+    $stmt .= " FROM
                     " . APP_TABLE_PREFIX . "org_structure ";
 
 		if (is_numeric($parent_id)) {
@@ -688,10 +693,15 @@ class Org_Structure
 		$log = FezLog::get();
 		$db = DB_API::get();
 		
-		$stmt = "SELECT
-                    org_id,
-					concat(".$db->quote($indent).",org_title) as org_title
-                 FROM
+		$stmt = "SELECT org_id, ";
+
+		if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
+			$stmt .= $db->quote($indent)." || org_title as org_title ";
+		} else {
+			$stmt .= " CONCAT(".$db->quote($indent).",org_title) as org_title ";							
+		}
+		
+    $stmt .= " FROM
                     " . APP_TABLE_PREFIX . "org_structure ";
 		$stmt .=   "," . APP_TABLE_PREFIX . "org_structure_relationship
 					     WHERE orr_parent_org_id = org_id AND orr_child_org_id = ".$db->quote($child_id, 'INTEGER');			
@@ -743,9 +753,13 @@ class Org_Structure
 		$db = DB_API::get();
 		
 		$stmt = "SELECT distinct
-                    aut_id,
-                    concat_ws(', ',   aut_lname, aut_mname, aut_fname, aut_id) as aut_fullname
-                 FROM
+                    aut_id, ";
+		if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
+			$stmt .= " concat_ws(TEXT(', '), TEXT(aut_lname), TEXT(aut_mname), concat_ws(TEXT(', '), TEXT(aut_fname), TEXT(aut_id))) as aut_fullname ";			
+		} else {
+			$stmt .= " concat_ws(', ',   aut_lname, aut_mname, aut_fname, aut_id) as aut_fullname ";
+		}
+    $stmt .= " FROM
                     " . APP_TABLE_PREFIX . "author INNER JOIN ".
 		APP_SQL_DBNAME . "." . APP_TABLE_PREFIX . "author_org_structure ON (auo_org_id = ".$db->quote($org_id, 'INTEGER')." AND aut_id = auo_aut_id)
 				 WHERE auo_assessed = 'Y'
@@ -770,9 +784,9 @@ class Org_Structure
 		
 		$stmt = "SELECT
                     org_title
-					FROM fez_author
-					LEFT JOIN hr_position_vw on WAMIKEY = aut_org_staff_id
-					LEFT JOIN fez_org_structure on AOU = org_extdb_id AND org_extdb_name = 'hr'
+					FROM " . APP_TABLE_PREFIX . "author
+					LEFT JOIN hr_position_vw on wamikey = aut_org_staff_id
+					LEFT JOIN " . APP_TABLE_PREFIX . "org_structure on aou = org_extdb_id AND org_extdb_name = 'hr'
 					WHERE aut_org_staff_id = ".$db->quote($org_staff_id, 'INTEGER');
 		
 		try {

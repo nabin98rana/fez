@@ -350,7 +350,7 @@ class Group
 			return -1;
 		}
 	
-		$new_grp_id = $db->lastInsertId();
+		$new_grp_id = $db->lastInsertId(APP_TABLE_PREFIX . "group", "grp_id");
 		for ($i = 0; $i < count($_POST["users"]); $i++) {
 			Group::associateUser($new_grp_id, $_POST["users"][$i]);
 		}

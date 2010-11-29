@@ -117,7 +117,7 @@ class WorkflowStatus
       $log->err($ex);
       return -1;
     }
-    return $db->lastInsertId();
+    return $db->lastInsertId($dbtp."workflow_sessions", "wfses_id");
   }
 
   /**
@@ -692,6 +692,7 @@ class WorkflowStatusStatic
     try {
       $log->debug($stmt);
       $res = $db->fetchOne($stmt);
+
     }
     catch(Exception $ex) {
       $log->err($ex);
@@ -701,6 +702,7 @@ class WorkflowStatusStatic
       return null;
     }
     $obj = unserialize($res);
+
     if (!is_object($obj) || get_class($obj) != 'WorkflowStatus' ) {
       $log->err(
           "Workflow object is corrupt. get_class: ".get_class($obj).
@@ -783,21 +785,30 @@ class WorkflowStatusStatic
     $timeout = APP_SESSION_TIMEOUT;
     $workflowTimeout = 60;
     $prefix = APP_TABLE_PREFIX;
-
+		$pid = "$pid"; //cast to string
     $q = "SELECT wfses_id AS workflowId, wfses_listing AS workflowTitle, ".
           "wfses_date AS dateStarted, usr_full_name AS username, sess.updated ".
           "AS sessionLastUpdated ".
           "FROM {$prefix}workflow_sessions ".
           "JOIN {$prefix}user ON (wfses_usr_id = usr_id) ".
           "JOIN {$prefix}sessions AS sess ON (sess.user_id = wfses_usr_id AND ".
-          "sess.session_ip IS NOT NULL) ".
+          "sess.session_ip IS NOT NULL) ";
           // only users with a current session
-          "WHERE DATE_ADD(sess.updated, INTERVAL {$timeout} SECOND) > ".
-          "NOW() ". 
-          // and the workflow was started less than an hour ago
-          "AND DATE_ADD(wfses_date, INTERVAL {$workflowTimeout} MINUTE) > ".
-          "NOW() ".
+					if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) { //eg if postgresql etc
+						$q .= "WHERE (sess.updated + INTERVAL '{$timeout} seconds') > ".
+	          "NOW() ". 
+	          // and the workflow was started less than an hour ago
+	          "AND (wfses_date + INTERVAL '{$workflowTimeout} minutes') > ".
+	          "NOW() ";
+					} else {
+						$q .= "WHERE DATE_ADD(sess.updated, INTERVAL {$timeout} SECOND) > ".
+	          "NOW() ". 
+	          // and the workflow was started less than an hour ago
+	          "AND DATE_ADD(wfses_date, INTERVAL {$workflowTimeout} MINUTE) > ".
+	          "NOW() ";
+					}
           // find only for the specified pid
+				$q .= 
           "AND wfses_pid = ? ";
 
     $results = $db->fetchAll($q, $pid);

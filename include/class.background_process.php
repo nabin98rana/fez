@@ -259,7 +259,7 @@ class BackgroundProcess {
 			$log->err($ex);
 			return -1;
 		}
-		$this->bgp_id = $db->lastInsertId();
+		$this->bgp_id = $db->lastInsertId($dbtp."background_process", "bgp_id");
 		
 		// insert the pids into the bgp pids table
 		$bgpPids = new BackgroundProcessPids();

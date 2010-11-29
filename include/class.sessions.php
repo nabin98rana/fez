@@ -55,8 +55,16 @@ class Sessions {
 		$stmt = '
 				SELECT MAX(updated) AS updated, session_id, session_ip, created, session_data, user_id
 				FROM ' . APP_TABLE_PREFIX . 'sessions
-				WHERE
-					DATE_ADD(updated, INTERVAL ' . APP_SESSION_TIMEOUT . ' SECOND) > NOW()
+				WHERE ';
+				
+				if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) { //eg if postgresql etc
+					$stmt .= " (updated + INTERVAL '" . APP_SESSION_TIMEOUT . " seconds') > NOW() ";
+				} else {
+					$stmt .= ' DATE_ADD(updated, INTERVAL ' . APP_SESSION_TIMEOUT . ' SECOND) > NOW() ';
+
+				}
+				
+		$stmt .= '		
 					' . $cond . '
 					AND user_id != ' . APP_SYSTEM_USER_ID . '
 				GROUP BY user_id
@@ -103,7 +111,7 @@ class Sessions {
 			$idList .= "'" . $id . "'";
 		}
 		
-		$stmt = "DELETE FROM fez_sessions WHERE session_id IN (" . $idList . ");";
+		$stmt = "DELETE FROM " . APP_TABLE_PREFIX . "sessions WHERE session_id IN (" . $idList . ");";
 
 		try {	
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);

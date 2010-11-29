@@ -36,7 +36,7 @@
 // Image resize webservice
 // - Takes url parameters to convert an image file in the Fez temp directory into a image file of the given format and size
 
-include_once("../config.inc.php");
+include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
 include_once(APP_INC_PATH. 'class.error_handler.php');
 
 $log = FezLog::get();

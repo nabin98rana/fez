@@ -2302,6 +2302,8 @@ class Auth
 
 			$dbtp =  APP_TABLE_PREFIX;
 			$usr_id = Auth::getUserID();
+			
+
 //                        $log->err("user id for set auth rules is ".$usr_id);
 
 			// clear the rule matches for this user
@@ -2325,7 +2327,7 @@ class Auth
                 AND 
                 (
                     (ar_rule='public_list' AND ar_value='1') 
-                OR  (ar_rule = '!rule!role!Fez_User' AND ar_value=".$db->quote($usr_id, 'INTEGER').") 
+                OR  (ar_rule = '!rule!role!Fez_User' AND ar_value='".$usr_id."') 
                 OR (ar_rule = '!rule!role!AD_User' AND ar_value=".$db->quote(Auth::getUsername()).") ";
 			$bindParams = array();
 				
@@ -2342,58 +2344,58 @@ class Auth
 			if (!empty($ses['distinguishedname'])) {
 				$authStmt .= "
                     OR (ar_rule = '!rule!role!AD_DistinguishedName' 
-                            AND INSTR(".$db->quote($ses['distinguishedname']).", ar_value)
+                            AND INSTR(".$db->quote($ses['distinguishedname']).", ar_value) > 0
                        ) ";
 			}
 
 			if (!empty($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'])) {
 				$authStmt .= "
                     OR (ar_rule = '!rule!role!eduPersonTargetedID' 
-                            AND INSTR(".$db->quote($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID']).", ar_value)
+                            AND INSTR(".$db->quote($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID']).", ar_value) > 0
                        ) ";
 			}
 			if (!empty($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-UnscopedAffiliation'])) {
 				$authStmt .= "
                     OR (ar_rule = '!rule!role!eduPersonAffiliation' 
                             AND INSTR(".$db->quote($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-UnscopedAffiliation']).", 
-                                ar_value)
+                                ar_value) > 0
                        ) ";
 			}
 			if (!empty($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-ScopedAffiliation'])) {
 				$authStmt .= "
                     OR (ar_rule = '!rule!role!eduPersonScopedAffiliation' 
                             AND INSTR(".$db->quote($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-ScopedAffiliation']).", 
-                                ar_value)
+                                ar_value) > 0
                        ) ";
 			}
 			if (!empty($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryAffiliation'])) {
 				$authStmt .= "
                     OR (ar_rule = '!rule!role!eduPersonPrimaryAffiliation' 
-                            AND INSTR(".$db->quote($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryAffiliation']).", ar_value)
+                            AND INSTR(".$db->quote($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryAffiliation']).", ar_value) > 0
                        ) ";
 			}
 			if (!empty($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'])) {
 				$authStmt .= "
                     OR (ar_rule = '!rule!role!eduPersonPrincipalName' 
-                            AND INSTR(".$db->quote($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName']).", ar_value)
+                            AND INSTR(".$db->quote($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName']).", ar_value) > 0
                        ) ";
 			}
 			if (!empty($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgDN'])) {
 				$authStmt .= "
                     OR (ar_rule = '!rule!role!eduPersonOrgDN' 
-                            AND INSTR(".$db->quote($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgDN']).", ar_value)
+                            AND INSTR(".$db->quote($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgDN']).", ar_value) > 0
                        ) ";
 			}
 			if (!empty($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgUnitDN'])) {
 				$authStmt .= "
                     OR (ar_rule = '!rule!role!eduPersonOrgUnitDN' 
-                            AND INSTR(".$db->quote($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgUnitDN']).", ar_value)
+                            AND INSTR(".$db->quote($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgUnitDN']).", ar_value) > 0
                        ) ";
 			}
 			if (!empty($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryOrgUnitDN'])) {
 				$authStmt .= "
                     OR (ar_rule = '!rule!role!eduPersonPrimaryOrgUnitDN' 
-                            AND INSTR(".$db->quote($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryOrgUnitDN']).", ar_value)
+                            AND INSTR(".$db->quote($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryOrgUnitDN']).", ar_value) > 0
                        ) ";
 			}
 

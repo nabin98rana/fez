@@ -109,7 +109,7 @@ class Workflow
 			return -1;
 		}
 		
-		$new_wfl_id = $db->lastInsertId();
+		$new_wfl_id = $db->lastInsertId(APP_TABLE_PREFIX . "workflow", "wfl_id");
 		// add the auth role associations!
 		for ($i = 0; $i < count($params["wfl_roles"]); $i++) {
 			if (!is_numeric($params["wfl_roles"][$i])) {

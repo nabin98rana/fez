@@ -1,7 +1,9 @@
 <?php
 
-include_once("../config.inc.php");
-require_once("../filemanager/inc/config.php");
+//include_once("../config.inc.php");
+include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
+//require_once("../filemanager/inc/config.php");
+include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."filemanager".DIRECTORY_SEPARATOR."inc".DIRECTORY_SEPARATOR."config.php");
 require_once(CLASS_MANAGER);
 define('URL_AJAX_FILE_MANAGER', CONFIG_URL_HOME);
 require_once(CLASS_SESSION_ACTION);

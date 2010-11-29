@@ -27,7 +27,7 @@
 //
 // @(#) $Id: s.help.php 1.7 03/01/16 01:47:32-00:00 jpm $
 //
-include_once("../config.inc.php");
+include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "db_access.php");
 

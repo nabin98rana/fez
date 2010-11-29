@@ -105,7 +105,7 @@ class History
                     " . APP_TABLE_PREFIX . "premis_event
                  WHERE ";
 		if ($show_hidden==false) {
-			$stmt .= "pre_is_hidden != 1 AND ";
+			$stmt .= "pre_is_hidden != TRUE AND ";
 		}
 		$stmt .= "pre_pid=".$db->quote($pid)."
                  ORDER BY
@@ -144,7 +144,7 @@ class History
                     " . APP_TABLE_PREFIX . "premis_event
                  WHERE ";
 		if ($show_hidden==false) {
-			$stmt .= "pre_is_hidden != 1 AND ";
+			$stmt .= "pre_is_hidden != TRUE AND ";
 		}
 		$stmt .= "pre_pid=".$db->quote($pid)."
                  ORDER BY
@@ -180,7 +180,7 @@ class History
                     " . APP_TABLE_PREFIX . "premis_event
                  WHERE ";
 		if ($show_hidden==false) {
-			$stmt .= "pre_is_hidden != 1 AND ";
+			$stmt .= "pre_is_hidden != TRUE AND ";
 		}
 		$stmt .= "
 					pre_usr_id = " . $db->quote($userID) . "
@@ -220,7 +220,7 @@ class History
                     *
                  FROM
                     " . APP_TABLE_PREFIX . "premis_event
-                 WHERE 1 ";
+                 WHERE TRUE ";
 		$stmt .= $search_clause;
 		$stmt .= " AND pre_pid=".$db->quote($pid)."
 			                 ORDER BY pre_id DESC";
@@ -266,12 +266,11 @@ class History
                     pre_date,
                     pre_detail,
                     pre_outcome,
-                    pre_outcomeDetail,
+                    pre_outcomedetail,
                     pre_usr_id,
                     pre_pid";
-		if ($hide == true) {
 			$stmt .= ", pre_is_hidden";
-		}
+
 		$stmt .= ") VALUES (
                     ".$db->quote($l_wfl_id, 'INTEGER').",
                     ".$db->quote($event_date) . ",
@@ -281,7 +280,9 @@ class History
                     ".$db->quote($usr_id, 'INTEGER').",
                     ".$db->quote($pid);
 		if ($hide == true) {
-			$stmt .= ", 1";
+			$stmt .= ", TRUE";
+		} else {
+			$stmt .= ", FALSE";
 		}
 		$stmt .= ")";
 		try {
@@ -291,7 +292,7 @@ class History
 			$log->err($ex);
 			return -1;
 		}
-		$pre_id = $db->lastInsertId();
+		$pre_id = $db->lastInsertId(APP_TABLE_PREFIX . "premis_event", "pre_id");
 		return $pre_id;
 	}
 
@@ -329,7 +330,7 @@ class History
 			foreach ($eventList as $event) {
 				$wfl_title = $event["pre_detail"];
 				$event_usr_full_name = User::getFullName($event["pre_usr_id"]);
-				$newevent = History::generateHistoryAction($event["pre_id"], $wfl_title, $event["pre_date"], $event["pre_usr_id"], $event_usr_full_name, $event["pre_detail"], $event["pre_pid"], $event["pre_outcome"], $event["pre_outcomeDetail"], $event["pre_usr_id"], "");
+				$newevent = History::generateHistoryAction($event["pre_id"], $wfl_title, $event["pre_date"], $event["pre_usr_id"], $event_usr_full_name, $event["pre_detail"], $event["pre_pid"], $event["pre_outcome"], $event["pre_outcomedetail"], $event["pre_usr_id"], "");
 				$newXML .= $newevent;
 			}
 			$newXML .= ' </premis:premis>';

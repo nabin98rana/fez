@@ -568,7 +568,11 @@ class Author
           if ($nameCounter > 1) {
             $where_stmt .= " AND ";
           }
-          $where_stmt .= " (aut_fname LIKE ".$db->quote($name.'%')." OR aut_lname LIKE ".$db->quote($name.'%').") ";
+			    if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) { 
+						$where_stmt .= " (aut_fname ILIKE ".$db->quote('%'.$name.'%')." OR aut_lname ILIKE ".$db->quote('%'.$name.'%')." OR aut_org_username ILIKE ".$db->quote($name.'%').") ";
+					} else {
+          	$where_stmt .= " (aut_fname LIKE ".$db->quote($name.'%')." OR aut_lname LIKE ".$db->quote($name.'%').") ";						
+					}
         }
       } else {
         $where_stmt .= " WHERE MATCH(aut_fname, aut_lname) AGAINST (".$db->quote('*'.$filter.'*')." IN BOOLEAN MODE) ";
@@ -591,7 +595,7 @@ class Author
                     " . APP_TABLE_PREFIX . "author
         ".$where_stmt."
                  ORDER BY ".$extra_order_stmt."
-                    ".$db->quote($order_by)."
+                    ".$order_by."
          LIMIT ".$db->quote($max, 'INTEGER')." OFFSET ".$db->quote($start, 'INTEGER');
 
     try {
@@ -648,10 +652,10 @@ class Author
     $db = DB_API::get();
 
     $stmt = "SELECT
-                    POS_TITLE, org_title, YEAR(DT_FROM) AS DT_FROM, YEAR(DT_TO) AS DT_TO
-          FROM fez_author
-          LEFT JOIN hr_position_vw on WAMIKEY = aut_org_staff_id
-          LEFT JOIN fez_org_structure on AOU = org_extdb_id AND org_extdb_name = 'hr'
+                    pos_title, org_title, YEAR(DATE(dt_from)) AS dt_from, YEAR(DATE(dt_to)) AS dt_to
+          FROM " . APP_TABLE_PREFIX . "author
+          LEFT JOIN hr_position_vw on wamikey = aut_org_staff_id
+          LEFT JOIN " . APP_TABLE_PREFIX . "org_structure on aou = org_extdb_id AND org_extdb_name = 'hr'
           WHERE aut_org_staff_id != '' AND aut_org_staff_id = ".$db->quote($org_staff_id, 'INTEGER');
     try {
       $res = $db->fetchAll($stmt);
@@ -670,10 +674,10 @@ class Author
     $db = DB_API::get();
 
     $stmt = "SELECT
-                    POS_TITLE, org_title, YEAR(DT_FROM) AS DT_FROM, YEAR(DT_TO) AS DT_TO
-          FROM fez_author
-          LEFT JOIN hr_position_vw on USER_NAME = aut_org_username
-          LEFT JOIN fez_org_structure on AOU = org_extdb_id AND org_extdb_name = 'hr'
+                    pos_title, org_title, YEAR(DATE(dt_from)) AS dt_from, YEAR(DATE(dt_to)) AS dt_to
+          FROM " . APP_TABLE_PREFIX . "author
+          LEFT JOIN hr_position_vw on user_name = aut_org_username
+          LEFT JOIN " . APP_TABLE_PREFIX . "org_structure on aou = org_extdb_id AND org_extdb_name = 'hr'
           WHERE aut_org_username != '' AND aut_org_username = ".$db->quote($org_username);
 
     try {
@@ -693,10 +697,10 @@ class Author
     $db = DB_API::get();
 
     $stmt = "SELECT
-                    POS_TITLE, org_title, YEAR(DT_FROM) AS DT_FROM, YEAR(DT_TO) AS DT_TO
-          FROM fez_author
-          LEFT JOIN hr_position_vw on USER_NAME = aut_org_username
-          LEFT JOIN fez_org_structure on AOU = org_extdb_id AND org_extdb_name = 'hr'
+                    pos_title, org_title, YEAR(DATE(dt_from)) AS dt_from, YEAR(DATE(dt_to)) AS dt_to
+          FROM " . APP_TABLE_PREFIX . "author
+          LEFT JOIN hr_position_vw on user_name = aut_org_username
+          LEFT JOIN " . APP_TABLE_PREFIX . "org_structure on aou = org_extdb_id AND org_extdb_name = 'hr'
           WHERE aut_org_username = ".$db->quote($org_username);
 
     try {
@@ -956,8 +960,13 @@ class Author
     $db = DB_API::get();
 
     $stmt = "SELECT
-                    aut_id,
-                    concat_ws(', ',   aut_lname, aut_fname, aut_id) as aut_fullname
+                    aut_id, ";
+		if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
+			$stmt .= "concat_ws(TEXT(', '),   TEXT(aut_lname), TEXT(aut_fname), TEXT(aut_id)) as aut_fullname";
+		} else {
+			$stmt .= "concat_ws(', ',   aut_lname, aut_fname, aut_id) as aut_fullname";
+		}
+	  $stmt .= "
                  FROM
                     " . APP_TABLE_PREFIX . "author
                  ORDER BY
@@ -1124,7 +1133,11 @@ class Author
         if ($nameCounter > 1) {
           $stmt .= " AND ";
         }
-        $stmt .= " (aut_fname LIKE ".$db->quote($name.'%')." OR aut_lname LIKE ".$db->quote($name.'%').") ";
+				if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) {
+        	$stmt .= " (aut_fname ILIKE ".$db->quote('%'.$name.'%')." OR aut_lname ILIKE ".$db->quote('%'.$name.'%').") ";
+				} else {
+        	$stmt .= " (aut_fname LIKE ".$db->quote($name.'%')." OR aut_lname LIKE ".$db->quote($name.'%').") ";					
+				}
       }
     }
     if (APP_AUTHOR_SUGGEST_MODE == 2) {
@@ -1464,8 +1477,13 @@ class Author
     $db = DB_API::get();
 
     $stmt = "SELECT
-                    aut_id,
-                    concat_ws(' ', aut_title, aut_fname, aut_mname, aut_lname) as aut_fullname
+                    aut_id, ";
+		if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
+			$stmt .= " concat_ws(TEXT(', '), TEXT(aut_lname), TEXT(aut_mname), concat_ws(TEXT(', '), TEXT(aut_fname), TEXT(aut_id))) as aut_fullname ";			
+		} else {
+			$stmt .= " concat_ws(', ',   aut_lname, aut_mname, aut_fname, aut_id) as aut_fullname ";
+		}
+		$stmt .= "
                  FROM
                     " . APP_TABLE_PREFIX . "author
                  ORDER BY

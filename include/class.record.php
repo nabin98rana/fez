@@ -648,7 +648,11 @@ class Record
 				cvo_title AS herdc_code,
 				cvo_desc AS herdc_code_description";
 		if (APP_HERDC_COLLECTIONS && trim(APP_HERDC_COLLECTIONS) != "") {
-			$stmt .= " , GROUP_CONCAT(rek_ismemberof) AS confirmed ";
+			if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) { 
+				$stmt .= " array_to_string(array_accum(rek_ismemberof), ',') AS confirmed ";
+			} else {
+				$stmt .= " , GROUP_CONCAT(rek_ismemberof) AS confirmed ";
+			}
 		}
 		$stmt .= "
 			FROM
@@ -665,7 +669,7 @@ class Record
 				AND cvr_parent_cvo_id = '450000'
 				AND rek_herdc_code_pid = " . $db->quote($pid);
 		if (APP_HERDC_COLLECTIONS && trim(APP_HERDC_COLLECTIONS) != "") {
-			$stmt .= " GROUP BY cvo_title";
+			$stmt .= " GROUP BY cvo_title, cvo_desc";
 		}
     
 		try {
@@ -695,7 +699,12 @@ class Record
 				cvo_desc AS herdc_code_description ";
 
 		if (defined('APP_HERDC_COLLECTIONS') && trim(APP_HERDC_COLLECTIONS) != "") {
-			$stmt .= " , GROUP_CONCAT(rek_ismemberof) AS confirmed ";
+			
+			if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) { 
+				$stmt .= " array_to_string(array_accum(rek_ismemberof), ',') AS confirmed ";
+			} else {
+				$stmt .= " , GROUP_CONCAT(rek_ismemberof) AS confirmed ";
+			}
 		}
 				
 		$stmt .= "
@@ -711,7 +720,7 @@ class Record
 				rek_herdc_code_pid in (".Misc::arrayToSQLBindStr($pids).") 
 		";
 		if (defined('APP_HERDC_COLLECTIONS') && trim(APP_HERDC_COLLECTIONS) != "") {
-			$stmt .= " GROUP BY pid, cvo_title";
+			$stmt .= " GROUP BY pid, cvo_title, cvo_desc ";
 		}
     
 		try {
@@ -1066,22 +1075,23 @@ class Record
       
     $stmtIns = "INSERT INTO " . APP_TABLE_PREFIX . "record_search_key (" . implode(",", $stmt) . ") ";
     $stmtIns .= " VALUES (" . implode(",", $valuesIns) . ")";
-      
+		$db->beginTransaction();      
     if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
       $stmt = $stmtIns ." ON DUPLICATE KEY UPDATE " . implode(",", $valuesUpd);
     } else {
-
-      $stmt = "IF EXISTS( SELECT * FROM " . APP_TABLE_PREFIX . "record_search_key WHERE rek_pid = '".$pid."' )
-                        UPDATE " . APP_TABLE_PREFIX . "record_search_key
-                        SET " . implode(",", $valuesUpd) . "
-                        WHERE rek_pid = ".$db->quote($pid)."
-                     ELSE ".$stmtIns;
+      $stmt = "DELETE FROM ".
+                  APP_TABLE_PREFIX . "record_search_key ".
+                "WHERE rek_pid = " . $db->quote($pid);
+      $db->exec($stmt);
+			$stmt = $stmtIns;
     }
 
     try {
       $db->exec($stmt);
+			$db->commit();
     }
     catch(Exception $ex) {
+			$db->rollBack();
       $log->err($ex);
       $ret = false;
     }
@@ -2155,7 +2165,7 @@ class Record
     if (!Auth::isAdministrator() && (is_numeric($usr_id))) {
       $log->debug('Not an administrator');
       // TODO: OR rek_assigned_group_id IN (2,3))
-      $stmt = "SELECT rek_pid, authi_pid, authi_role, wfl_id, wfl_title, wft_id, wft_icon
+      $stmt = "SELECT rek_pid, authi_pid, authi_role, wfl_id, wfl_title, wft_id, wft_icon, wft_order
                    FROM ".$dbtp."record_search_key 
                    INNER JOIN ".$dbtp."auth_index2 ON rek_pid = authi_pid 
                    INNER JOIN ".$dbtp."auth_rule_group_users ON authi_arg_id = argu_arg_id and argu_usr_id = ".
@@ -2182,7 +2192,7 @@ class Record
                WHERE rek_pid IN ('".$pids."')";
     } else {
       $log->debug('Administrator');
-      $stmt = "SELECT DISTINCT rek_pid, authi_arg_id, wfl_id, wfl_title, wft_id, wft_icon ".
+      $stmt = "SELECT DISTINCT rek_pid, authi_arg_id, wfl_id, wfl_title, wft_id, wft_icon, wft_order ".
                  "FROM {$dbtp}record_search_key " .
           "LEFT JOIN ".$dbtp."auth_index2 on authi_pid = rek_pid " .
           "INNER JOIN ".$dbtp."workflow_trigger ON wft_options = 1 " .
@@ -2982,7 +2992,7 @@ class Record
 
     $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
 
-    if (!$sek_details) {
+    if (!is_array($sek_details)) {
       $sek_details = Search_Key::getBasicDetailsByTitle($searchKeyTitle);
     }
     $sek_title = Search_Key::makeSQLTableName($sek_details['sek_title']);

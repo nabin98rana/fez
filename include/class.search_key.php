@@ -114,25 +114,36 @@ class Search_Key
 		}
 
 		if (@$_POST["sek_simple_used"]) {
-			$sek_simple_used = 1;
+			$sek_simple_used = TRUE;
 		} else {
-			$sek_simple_used = 0;
+			$sek_simple_used = FALSE;
 		}
 		if (@$_POST["sek_adv_visible"]) {
-			$sek_adv_visible = 1;
+			$sek_adv_visible = TRUE;
 		} else {
-			$sek_adv_visible = 0;
+			$sek_adv_visible = FALSE;
 		}
 		if (@$_POST["sek_myfez_visible"]) {
-			$sek_myfez_visible = 1;
+			$sek_myfez_visible = TRUE;
 		} else {
-			$sek_myfez_visible = 0;
+			$sek_myfez_visible = FALSE;
 		}
 		if (@$_POST["sek_faceting"]) {
-			$sek_faceting = 1;
+			$sek_faceting = TRUE;
 		} else {
-			$sek_faceting = 0;
+			$sek_faceting = FALSE;
 		}
+		if (@$_POST["sek_cardinality"]) {
+			$sek_cardinality = TRUE;
+		} else {
+			$sek_cardinality = FALSE;
+		}
+		if (@$_POST["sek_relationship"]) {
+			$sek_relationship = TRUE;
+		} else {
+			$sek_relationship = FALSE;
+		}
+
 
 		$sekIncrId = Search_Key::getNextIncrId(APP_PID_NAMESPACE);
 		$sek_id = APP_PID_NAMESPACE . '_' . $sekIncrId;
@@ -181,18 +192,18 @@ class Search_Key
                     " . $db->quote($_POST["sek_desc"]) . ",
 					" . $db->quote($_POST["sek_alt_title"]) . ",
 					" . $db->quote($_POST["sek_meta_header"]) . ",
-					" . $db->quote($sek_simple_used, 'INTEGER') .",
-					" . $db->quote($sek_adv_visible, 'INTEGER') .",
-					" . $db->quote($sek_myfez_visible, 'INTEGER') .",
-		            " . $db->quote($sek_faceting, 'INTEGER') .",";
+					" . $db->quote($sek_simple_used) .",
+					" . $db->quote($sek_adv_visible) .",
+					" . $db->quote($sek_myfez_visible) .",
+		            " . $db->quote($sek_faceting) .",";
 		if (is_numeric($_POST["sek_order"])) {
 			$stmt .=  $_POST["sek_order"] . ",";
 		}
 		if (is_numeric($_POST["sek_relationship"])) {
-			$stmt .=  $_POST["sek_relationship"] . ",";
+			$stmt .=  $db->quote($sek_relationship) . ",";
 		}
 		if (is_numeric($_POST["sek_cardinality"])) {
-			$stmt .=  $_POST["sek_cardinality"] . ",";
+			$stmt .=  $db->quote($sek_cardinality) . ",";
 		}
 
 		$stmt .= "
@@ -284,24 +295,34 @@ class Search_Key
 		$db = DB_API::get();
 		
 		if (@$_POST["sek_simple_used"]) {
-			$sek_simple_used = 1;
+			$sek_simple_used = TRUE;
 		} else {
-			$sek_simple_used = 0;
+			$sek_simple_used = FALSE;
 		}
 		if (@$_POST["sek_adv_visible"]) {
-			$sek_adv_visible = 1;
+			$sek_adv_visible = TRUE;
 		} else {
-			$sek_adv_visible = 0;
+			$sek_adv_visible = FALSE;
 		}
 		if (@$_POST["sek_myfez_visible"]) {
-			$sek_myfez_visible = 1;
+			$sek_myfez_visible = TRUE;
 		} else {
-			$sek_myfez_visible = 0;
+			$sek_myfez_visible = FALSE;
 		}
 		if (@$_POST["sek_faceting"]) {
-			$sek_faceting = 1;
+			$sek_faceting = TRUE;
 		} else {
-			$sek_faceting = 0;
+			$sek_faceting = FALSE;
+		}
+		if (@$_POST["sek_cardinality"]) {
+			$sek_cardinality = TRUE;
+		} else {
+			$sek_cardinality = FALSE;
+		}
+		if (@$_POST["sek_relationship"]) {
+			$sek_relationship = TRUE;
+		} else {
+			$sek_relationship = FALSE;
 		}
 
 		if(function_exists('apc_clear_cache')) {
@@ -315,18 +336,18 @@ class Search_Key
                     sek_desc = " . $db->quote($_POST["sek_desc"]) . ",
 					sek_alt_title = " . $db->quote($_POST["sek_alt_title"]) . ",
                     sek_meta_header = " . $db->quote($_POST["sek_meta_header"]) . ",
-					sek_simple_used = ".$db->quote($sek_simple_used, 'INTEGER').",
-					sek_myfez_visible = ".$db->quote($sek_myfez_visible, 'INTEGER').",
-					sek_adv_visible = ".$db->quote($sek_adv_visible, 'INTEGER').",
-					sek_faceting = ".$db->quote($sek_faceting, 'INTEGER').",";
+					sek_simple_used = ".$db->quote($sek_simple_used).",
+					sek_myfez_visible = ".$db->quote($sek_myfez_visible).",
+					sek_adv_visible = ".$db->quote($sek_adv_visible).",
+					sek_faceting = ".$db->quote($sek_faceting).",";
 		if ($_POST["sek_order"]) {
 			$stmt .= "sek_order = ".$db->quote($_POST["sek_order"], 'INTEGER').",";
 		}
 		if (isset($_POST["sek_relationship"])) {
-			$stmt .= "sek_relationship = ".$db->quote($_POST["sek_relationship"], 'INTEGER').",";
+			$stmt .= "sek_relationship = ".$db->quote($sek_relationship).",";
 		}
 		if (isset($_POST["sek_cardinality"])) {
-			$stmt .= "sek_cardinality = ".$db->quote($_POST["sek_cardinality"], 'INTEGER').",";
+			$stmt .= "sek_cardinality = ".$db->quote($sek_cardinality).",";
 		}
 
 		$stmt .= "
@@ -616,7 +637,7 @@ class Search_Key
                     on xsdmf_sek_id=sek_id ";
 		}
 		$stmt .= "
-				 WHERE sek_adv_visible = 1                    
+				 WHERE sek_adv_visible = TRUE
                  ORDER BY
                     sek_order ASC";
 		try {
@@ -647,7 +668,7 @@ class Search_Key
 					sek_fez_variable
                  FROM
                     " . APP_TABLE_PREFIX . "search_key
-				 WHERE sek_adv_visible = 1                    
+				 WHERE sek_adv_visible = TRUE                  
                  ORDER BY
                     sek_order ASC";
 		try {
@@ -704,7 +725,7 @@ class Search_Key
                  FROM
                     " . APP_TABLE_PREFIX . "search_key
                  ORDER BY
-                    sek_order ASC";
+                    sek_title ASC";
 		
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
@@ -746,7 +767,7 @@ class Search_Key
                     *
                  FROM
                     " . APP_TABLE_PREFIX . "search_key
-				 WHERE sek_adv_visible = 1
+				 WHERE sek_adv_visible = TRUE
                  ORDER BY
                     sek_order ASC";
 		try {
@@ -785,7 +806,7 @@ class Search_Key
                     *
                  FROM
                     " . APP_TABLE_PREFIX . "search_key
-				 WHERE sek_myfez_visible = 1
+				 WHERE sek_myfez_visible = TRUE
                  ORDER BY
                     sek_order ASC";
 		try {
@@ -822,7 +843,7 @@ class Search_Key
                     *
                  FROM
                     " . APP_TABLE_PREFIX . "search_key
-				 WHERE sek_simple_used = 1
+				 WHERE sek_simple_used = TRUE
                  ORDER BY
                     sek_order ASC";
 		try {
@@ -858,7 +879,7 @@ class Search_Key
 		 
 		$stmt = "SELECT *
                  FROM " . APP_TABLE_PREFIX . "search_key
-				 WHERE sek_faceting = 1";
+				 WHERE sek_faceting = TRUE";
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
@@ -891,7 +912,7 @@ class Search_Key
                  FROM
                     " . APP_TABLE_PREFIX . "search_key
 				 WHERE
-				   sek_simple_used = 1";
+				   sek_simple_used = TRUE";
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
@@ -942,7 +963,9 @@ class Search_Key
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+		if ($sek_id == "0") {
+			return false;
+		}
 		$stmt = "SELECT
                     *
                  FROM
@@ -1115,7 +1138,7 @@ class Search_Key
 					  SELECT rek_".$sek_title."_id, rek_".$sek_title.",
 						MATCH(rek_".$sek_title.") AGAINST (".$db->quote($term).") as Relevance FROM ".$dbtp."record_search_key_".$sek_title."
 					 WHERE MATCH (rek_".$sek_title.") AGAINST (".$db->quote('*'.$term.'*')." IN BOOLEAN MODE) ";
-				$stmt .= " GROUP BY rek_".$sek_title." ORDER BY Relevance DESC, rek_".$sek_title." LIMIT 0,10) as tempsuggest ";
+				$stmt .= " GROUP BY rek_".$sek_title." ORDER BY Relevance DESC, rek_".$sek_title." LIMIT 10 OFFSET 0) as tempsuggest ";
 			}
 		} else { //1-1 index table
 			if (APP_MYSQL_INNODB_FLAG == "ON" || (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql")))) {
@@ -1131,7 +1154,7 @@ class Search_Key
 					  SELECT 1, rek_".$sek_title.",
 						MATCH(rek_".$sek_title.") AGAINST (".$db->quote($term).") as Relevance FROM ".$dbtp."record_search_key
 					 WHERE MATCH (rek_".$sek_title.") AGAINST (".$db->quote('*'.$term.'*')." IN BOOLEAN MODE) ";
-				$stmt .= " GROUP BY rek_".$sek_title." ORDER BY Relevance DESC, rek_".$sek_title." LIMIT 0,10) as tempsuggest";
+				$stmt .= " GROUP BY rek_".$sek_title." ORDER BY Relevance DESC, rek_".$sek_title." LIMIT 10 OFFSET 0) as tempsuggest";
 			}
 		}
 		try {
@@ -1245,7 +1268,6 @@ class Search_Key
 	function makeSQLTableName($sek_title) 
 	{
 		$retString = str_replace(" ", "_", trim(strtolower($sek_title)));
-
 		return $retString;
 	}
 	/**
@@ -1297,8 +1319,12 @@ class Search_Key
                     *
                  FROM
                     " . APP_TABLE_PREFIX . "search_key
-                 WHERE
-                    sek_title=".$db->quote($sek_title);
+                 WHERE ";
+		if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) { //pgsql is case sensitive
+			$stmt .= " sek_title ILIKE ".$db->quote($sek_title);
+		} else {
+			$stmt .= " sek_title=".$db->quote($sek_title);
+		}
 		try {
 			$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
@@ -1458,8 +1484,12 @@ class Search_Key
                    "     `$column_prefix` $column_type default NULL, \n" .
                    "     PRIMARY KEY (`{$column_prefix}_id`), \n" .
                    "     $key_type `$column_prefix` (`$column_prefix`), \n" .
-                   "     KEY `{$column_prefix}_pid` (`{$column_prefix}_pid`) \n" .
-                   ") ENGINE=MyISAM DEFAULT CHARSET=utf8";
+                   "     KEY `{$column_prefix}_pid` (`{$column_prefix}_pid`) \n";
+			if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
+				$cardinality_extra .= ") ENGINE=InnoDB DEFAULT CHARSET=utf8";
+			} else { //otherwise just use the defaults of the non-mysql database
+				$cardinality_extra .= ")";
+			}
 			return $sql;
 
 		} elseif( $relationship == 0 ) {

@@ -35,7 +35,7 @@
  * This script deletes a PID from the solr index
  */
 
-include_once("../config.inc.php");
+include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
 include_once(APP_INC_PATH . "Apache/Solr/Service.php");
 
 if( $argc != 2 ) {

@@ -771,6 +771,7 @@ class MyResearch
 	 */	
 	function listAuthorsByAOU($orgID)
 	{
+		
 		$log = FezLog::get();
 		$db = DB_API::get();
 		
@@ -778,15 +779,21 @@ class MyResearch
 				SELECT
 					aut_org_username AS username,
 					aut_fname AS first_name,
-					UCASE(aut_lname) AS last_name,
-					GROUP_CONCAT(pos_title SEPARATOR ', ') AS pos_title
-				FROM
+					UCASE(aut_lname) AS last_name,";
+					
+	  if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) { 
+			$stmt .= " array_to_string(array_accum(pos_title), ', ') AS pos_title ";
+		} else {
+			$stmt .= " GROUP_CONCAT(pos_title SEPARATOR ', ') AS pos_title ";
+		}					
+
+		$stmt .= " FROM
 					" . APP_TABLE_PREFIX . "author INNER JOIN
 					hr_position_vw on aut_org_username = user_name
 				WHERE
 					aou = " . $db->quote($orgID) . "
 					AND user_name != ''
-				GROUP BY aut_org_username
+				GROUP BY aut_org_username, aut_fname, aut_lname
 				ORDER BY
 					aut_lname ASC,
 					aut_fname ASC;

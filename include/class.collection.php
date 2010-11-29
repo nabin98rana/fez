@@ -467,9 +467,13 @@ class Collection
                         ".$dbtp."record_search_key AS r2 ON r2.rek_pid = r3.rek_author_id_pid
                         AND r2.rek_status = 2
                         $authStmt ".$extra_join." ".$letter_restrict_id." ".$sql_where_id." ";
-      $stmt .= " SELECT ".APP_SQL_CACHE."
-                      COUNT(*) AS record_count, CONCAT(" . $show_field_id2 . ",', '," . $show_field_id1 . ") AS ".
-                      $as_field.", a1.aut_id AS record_author_id ".$countStmt;
+      $stmt .= " SELECT ".APP_SQL_CACHE;
+    	if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
+        $stmt .= " COUNT(*) AS record_count, " . $show_field_id2 . " || ', ' || " . $show_field_id1 . " AS ";
+			} else {
+        $stmt .= " COUNT(*) AS record_count, CONCAT(" . $show_field_id2 . ",', '," . $show_field_id1 . ") AS ";			
+			}
+			$stmt .= $as_field.", a1.aut_id AS record_author_id ".$countStmt;
 
          $countStmt = " SELECT ".APP_SQL_CACHE." COUNT(DISTINCT a1.aut_id) ".$countStmt;
                         $stmt .= " GROUP BY	".$group_field_id."
@@ -588,7 +592,7 @@ class Collection
       $search_data_type = "varchar";
     } elseif ($searchKey == "Date") {
       $search_data_type = "date";
-      $group_field = "year(r".$tid.".rek_".$sekdet['sek_title_db'].")";
+      $group_field = "YEAR(DATE(r".$tid.".rek_".$sekdet['sek_title_db']."))";
       $order_field = $group_field." DESC";
       $as_field = "record_year";
     } elseif ($searchKey == "Author ID") {
@@ -744,12 +748,17 @@ class Collection
         $limit .= " and month(date(stl_request_date)) = ".$db->quote($month, 'INTEGER');
       }
       $extra_join = "INNER JOIN ".$dbtp."statistics_all ON stl_pid = r2.rek_pid AND stl_dsid <> '' 
-                     AND stl_counter_bad = 0";
+                     AND stl_counter_bad = FALSE";
       $count_sql = "COUNT(stl_pid)";
     } elseif ($range != 'all' && $range == '4w') {
-      $limit .= " and date(stl_request_date) >= CURDATE()-INTERVAL 1 MONTH";
+			if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) { //eg if postgresql etc
+	      $limit .= " and date(stl_request_date) >= NOW() - INTERVAL '1 months'";
+			} else {
+      	$limit .= " and date(stl_request_date) >= NOW() - INTERVAL 1 MONTH";				
+			}
+
       $extra_join = "INNER JOIN ".$dbtp."statistics_all ON stl_pid = r2.rek_pid AND stl_dsid <> '' 
-                     AND stl_counter_bad = 0";
+                     AND stl_counter_bad = FALSE";
       $count_sql = "COUNT(stl_pid)";
     }
 
@@ -796,10 +805,10 @@ class Collection
           ".$extra_join."
                     ".$authStmt."
           ".$memberOfStmt." ";
-    $bodyStmt = $bodyStmtPart1." ".$limit." WHERE r2.rek_status=2 GROUP BY rek_".$group_field." ";
+    $bodyStmt = $bodyStmtPart1." ".$limit." WHERE r2.rek_status=2 GROUP BY rek_pid, rek_citation, rek_".$group_field." ";
     
     $innerStmt = "
-                    SELECT ".APP_SQL_CACHE."  r2.*, ".$count_sql." AS sort_column
+                    SELECT ".APP_SQL_CACHE." rek_pid, rek_citation, rek_".$group_field.", ".$count_sql." AS sort_column
                     ".$bodyStmt."
           ORDER BY sort_column ".$sort_order."
                     LIMIT ".$db->quote($max, 'INTEGER')." OFFSET ".$db->quote($start, 'INTEGER')." ";
@@ -846,7 +855,11 @@ class Collection
         $limit .= " and month(date(stl_request_date)) = ".$db->quote($month, 'INTEGER');
       }
     } elseif ($range != 'all' && $range == '4w') {
-      $limit .= " and date(stl_request_date) >= CURDATE()-INTERVAL 1 MONTH";
+			if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) { //eg if postgresql etc
+	      $limit .= " and date(stl_request_date) >= NOW() - INTERVAL '1 months'";
+			} else {
+      	$limit .= " and date(stl_request_date) >= NOW() - INTERVAL 1 MONTH";				
+			}
     }
 
     if ($max == "ALL") {
@@ -1024,6 +1037,7 @@ class Collection
     }
     $options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
     $options["searchKey".Search_Key::getID("Object Type")] = 2; // collections only
+
     $list = Record::getListing($options, array("Lister"), 0, 1000, "Title", true, false);
 
     $list = $list['list'];

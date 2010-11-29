@@ -142,7 +142,7 @@ class WF_Behaviour
 			$log->err($ex);
 			return -1;
 		}
-		return $db->lastInsertId();
+		return $db->lastInsertId(APP_TABLE_PREFIX . "wfbehaviour", "wfb_id");
 	}
 
 	/**

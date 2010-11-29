@@ -527,11 +527,17 @@ class Fedora_API {
 	function getUploadLocation ($pid, $dsIDName, $file, $dsLabel, $mimetype='text/xml', $controlGroup='M', $dsID=NULL,$versionable='false') 
 	{
 		$log = FezLog::get();
+		if (!is_numeric(strpos($dsIDName, "/"))) {
+			$loc_dir = APP_TEMP_DIR;
+		}
 
 		if (!empty($file) && (trim($file) != "")) {
-			$fp = fopen($loc_dir.$dsIDName, "w"); //@@@ CK - 28/7/2005 - Trying to make the file name in /tmp the uploaded file name
+			$file_full = $loc_dir.str_replace(":", "_", $pid)."_".$dsIDName.".xml";
+			$fp = fopen($file_full, "w"); //@@@ CK - 28/7/2005 - Trying to make the file name in /tmp the uploaded file name
 			fwrite($fp, $file);
 			fclose($fp);
+//			echo "-".$loc_dir.str_replace(":", "_", $pid)."_"$dsIDName."-".$file; exit;
+//			echo $file; exit;
 		}
 
 /*		
@@ -588,14 +594,17 @@ class Fedora_API {
 				$dsExists = Fedora_API::datastreamExists($pid, $dsIDName, true);
 				if ($dsExists !== true) {
 					//Call callAddDatastream
-					$dsID = Fedora_API::callAddDatastream($pid, $dsIDName, $loc_dir.$dsIDName, $dsLabel, "A", $mimetype, $controlGroup, $versionable, '');
+					$dsID = Fedora_API::callAddDatastream($pid, $dsIDName, $file_full, $dsLabel, "A", $mimetype, $controlGroup, $versionable, '');
+					unlink($file_full);
 					return $dsID;
 				} elseif (!empty($dsIDName)) {
 					// Let fedora handle versioning
 					//Fedora_API::callModifyDatastreamByReference ($pid, $dsIDName, $dsLabel, $uploadLocation, $mimetype, $versionable);
-					Fedora_API::callModifyDatastream($pid, $dsIDName, $loc_dir.$dsIDName, $dsLabel, "A", $mimetype, $versionable, '');
+					Fedora_API::callModifyDatastream($pid, $dsIDName, $file_full, $dsLabel, "A", $mimetype, $versionable, '');
+					unlink($file_full);
 					return $dsIDName;
 				}
+
 /*				curl_close ($ch);
 			} else {
 				$log->err(array(curl_error($ch),__FILE__,__LINE__));
@@ -835,9 +844,11 @@ class Fedora_API {
 		 if ($results) {
 		         //$info = curl_getinfo($ch);
 		         curl_close ($ch);
+						 unlink($tempFile);
 		         return true;
 		 } else {
-		         $log->err(array(print_r($results, true).print_r(curl_error($ch), true).print_r(curl_getinfo($ch), true),__FILE__,__LINE__));
+//		         $log->err(array(print_r($results, true).print_r(curl_error($ch), true).print_r(curl_getinfo($ch), true),__FILE__,__LINE__).$getString.print_r(debug_backtrace(),true));
+		         $log->err(array(print_r($results, true).print_r(curl_error($ch), true).print_r(curl_getinfo($ch), true),__FILE__,__LINE__).$getString.$tempFile.$xmlContent);
 //				exit;
 		         curl_close ($ch);
 		         return false;

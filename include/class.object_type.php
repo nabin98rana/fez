@@ -186,6 +186,7 @@ class Object_Type
                     " . APP_TABLE_PREFIX . "object_type
                  WHERE
                     ret_title=".$db->quote($ret_title);
+
 		try {
 			$res = $db->fetchOne($stmt);
 		}
@@ -209,9 +210,14 @@ class Object_Type
 		$db = DB_API::get();
 		
 		$stmt = "SELECT
-                    ret_id,
-					CONCAT('(',ret_id,') ',ret_title) as ret_title
-                 FROM
+                    ret_id,";
+    if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
+			$stmt .= " '(' || ret_id || ') ' || ret_title as ret_title ";	
+		} else {
+			$stmt .= " CONCAT('(',ret_id,') ',ret_title) as ret_title ";
+		}
+
+    $stmt .= " FROM
                     " . APP_TABLE_PREFIX . "object_type
 				 WHERE ret_id not in  (0,4)
                  ORDER BY				 
@@ -239,9 +245,14 @@ class Object_Type
 		$db = DB_API::get();
 		
 		$stmt = "SELECT
-                    ret_id,
-					CONCAT('(',ret_id,') ',ret_title) as ret_title
-                 FROM
+	                    ret_id,";
+	    if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
+				$stmt .= " '(' || ret_id || ') ' || ret_title as ret_title ";	
+			} else {
+				$stmt .= " CONCAT('(',ret_id,') ',ret_title) as ret_title ";
+			}
+
+	    $stmt .= " FROM
                     " . APP_TABLE_PREFIX . "object_type
                  ORDER BY
                     ret_id ASC";

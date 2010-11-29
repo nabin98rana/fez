@@ -149,11 +149,11 @@ class XSD_HTML_Match
 			$db = DB_API::get();
 
 			$stmt = "SELECT m2.xsdmf_xpath
-				 FROM fez_xsd_display_matchfields m1
-				 INNER JOIN  fez_xsd_relationship ON xsdrel_xsdmf_id = m1.xsdmf_id
-				 INNER JOIN fez_xsd_display ON xdis_id = m1.xsdmf_xdis_id
-				 INNER JOIN fez_xsd_display_matchfields m2 ON m2.xsdmf_xdis_id = xsdrel_xdis_id 
-				 INNER JOIN fez_search_key ON sek_id = m2.xsdmf_sek_id
+				 FROM " . APP_TABLE_PREFIX . "xsd_display_matchfields m1
+				 INNER JOIN  " . APP_TABLE_PREFIX . "xsd_relationship ON xsdrel_xsdmf_id = m1.xsdmf_id
+				 INNER JOIN " . APP_TABLE_PREFIX . "xsd_display ON xdis_id = m1.xsdmf_xdis_id
+				 INNER JOIN " . APP_TABLE_PREFIX . "xsd_display_matchfields m2 ON m2.xsdmf_xdis_id = xsdrel_xdis_id 
+				 INNER JOIN " . APP_TABLE_PREFIX . "search_key ON sek_id = m2.xsdmf_sek_id
  				 WHERE sek_title = ".$db->quote($sek_title)." AND m1.xsdmf_xdis_id = ".$db->quote($xdis_id, 'INTEGER')."
 				 GROUP BY m2.xsdmf_xpath ";
 
@@ -1215,91 +1215,91 @@ class XSD_HTML_Match
 			$db = DB_API::get();
 
 			if (@ $_POST["enabled"]) {
-				$enabled = 1;
+				$enabled = TRUE;
 			} else {
-				$enabled = 0;
+				$enabled = FALSE;
 			}
 			if (@ $_POST["multiple"]) {
-				$multiple = 1;
+				$multiple = TRUE;
 			} else {
-				$multiple = 0;
+				$multiple = FALSE;
 			}
 			if (@ $_POST["indexed"]) {
-				$indexed = 1;
+				$indexed = TRUE;
 			} else {
-				$indexed = 0;
+				$indexed = FALSE;
 			}
 			if (@ $_POST["required"]) {
-				$required = 1;
+				$required = TRUE;
 			} else {
-				$required = 0;
+				$required = FALSE;
 			}
 			if (@ $_POST["show_in_view"]) {
-				$show_in_view = 1;
+				$show_in_view = TRUE;
 			} else {
-				$show_in_view = 0;
+				$show_in_view = FALSE;
 			}
 			if (@ $_POST["invisible"]) {
-				$invisible = 1;
+				$invisible = TRUE;
 			} else {
-				$invisible = 0;
+				$invisible = FALSE;
 			}
 			if (@ $_POST["show_simple_create"]) {
-				$show_simple_create = 1;
+				$show_simple_create = TRUE;
 			} else {
-				$show_simple_create = 0;
+				$show_simple_create = FALSE;
 			}
 			if (@ $_POST["valueintag"]) {
-				$valueintag = 1;
+				$valueintag = TRUE;
 			} else {
-				$valueintag = 0;
+				$valueintag = FALSE;
 			}
 			if (@ $_POST["is_key"]) {
-				$is_key = 1;
+				$is_key = TRUE;
 			} else {
-				$is_key = 0;
+				$is_key = FALSE;
 			}
 			if (@ $_POST["xsdmf_citation"]) {
-				$xsdmf_citation = 1;
+				$xsdmf_citation = TRUE;
 			} else {
-				$xsdmf_citation = 0;
+				$xsdmf_citation = FALSE;
 			}
 			if (@ $_POST["xsdmf_citation_browse"]) {
-				$xsdmf_citation_browse = 1;
+				$xsdmf_citation_browse = TRUE;
 			} else {
-				$xsdmf_citation_browse = 0;
+				$xsdmf_citation_browse = FALSE;
 			}
 
 			if (@ $_POST["xsdmf_citation_bold"]) {
-				$xsdmf_citation_bold = 1;
+				$xsdmf_citation_bold = TRUE;
 			} else {
-				$xsdmf_citation_bold = 0;
+				$xsdmf_citation_bold = FALSE;
 			}
 			if (@ $_POST["xsdmf_citation_italics"]) {
-				$xsdmf_citation_italics = 1;
+				$xsdmf_citation_italics = TRUE;
 			} else {
-				$xsdmf_citation_italics = 0;
+				$xsdmf_citation_italics = FALSE;
 			}
 			if (@ $_POST["xsdmf_citation_brackets"]) {
-				$xsdmf_citation_brackets = 1;
+				$xsdmf_citation_brackets = TRUE;
 			} else {
-				$xsdmf_citation_brackets = 0;
+				$xsdmf_citation_brackets = FALSE;
 			}
 
 			if (@ $_POST["xsdmf_use_parent_option_list"]) {
-				$xsdmf_use_parent_option_list = 1;
+				$xsdmf_use_parent_option_list = TRUE;
 			} else {
-				$xsdmf_use_parent_option_list = 0;
+				$xsdmf_use_parent_option_list = FALSE;
 			}
 			if (@ $_POST["xsdmf_use_org_to_fill"]) {
-				$xsdmf_use_org_to_fill = 1;
+				$xsdmf_use_org_to_fill = TRUE;
 			} else {
-				$xsdmf_use_org_to_fill = 0;
+				$xsdmf_use_org_to_fill = FALSE;
 			}
 			if (@ $_POST["xsdmf_meta_header"]) {
-				$xsdmf_meta_header = 1;
+				$xsdmf_meta_header = TRUE;
 			} else {
-				$xsdmf_meta_header = 0;
+				$xsdmf_meta_header = FALSE;
 			}
 
 			$stmt = "INSERT INTO
@@ -1429,17 +1429,17 @@ class XSD_HTML_Match
 		                    " . $db->quote($_POST["order"]) . ",
 		                    " . $db->quote($_POST["validation_types"]) . ",
 		                    " . $db->quote($_POST["validation_maxlength"], 'INTEGER') . ",
-		                    " . $db->quote($enabled, 'INTEGER') . ",
-		                    " . $db->quote($indexed, 'INTEGER') . ",
-		                    " . $db->quote($required, 'INTEGER') . ",
-		                    " . $db->quote($multiple, 'INTEGER') . ",
+		                    " . $db->quote($enabled) . ",
+		                    " . $db->quote($indexed) . ",
+		                    " . $db->quote($required) . ",
+		                    " . $db->quote($multiple) . ",
 		                    " . $db->quote($_POST["xsdmf_meta_header_name"]) . ",					
-		                    " . $db->quote($xsdmf_meta_header, 'INTEGER') . ",
-		                    " . $db->quote($xsdmf_citation_browse, 'INTEGER') . ",
-		                    " . $db->quote($xsdmf_citation, 'INTEGER') . ",
-		                    " . $db->quote($xsdmf_citation_bold, 'INTEGER') . ",
-		                    " . $db->quote($xsdmf_citation_italics, 'INTEGER') . ",
-		                    " . $db->quote($xsdmf_citation_brackets, 'INTEGER') . ", ";
+		                    " . $db->quote($xsdmf_meta_header) . ",
+		                    " . $db->quote($xsdmf_citation_browse) . ",
+		                    " . $db->quote($xsdmf_citation) . ",
+		                    " . $db->quote($xsdmf_citation_bold) . ",
+		                    " . $db->quote($xsdmf_citation_italics) . ",
+		                    " . $db->quote($xsdmf_citation_brackets) . ", ";
 			if (is_numeric($_POST["xsdmf_citation_order"])) {
 				$stmt .= $db->quote($_POST["xsdmf_citation_order"], 'INTEGER') . ", ";
 			}
@@ -1480,12 +1480,12 @@ class XSD_HTML_Match
 				$stmt .= $db->quote($_POST["xsdmf_cvo_min_level"], 'INTEGER') . ",";
 			}
 			if (is_numeric($_POST["xsdmf_cvo_save_type"])) {
-				$stmt .= $db->quote($_POST["xsdmf_cvo_save_type"], 'INTEGER') . ",";
+				$stmt .= $db->quote($_POST["xsdmf_cvo_save_type"]) . ",";
 			}
-			$stmt .= $xsdmf_use_org_to_fill . ",
-							" . $db->quote($xsdmf_use_parent_option_list, 'INTEGER') . ",					
-		                    " . $db->quote($valueintag, 'INTEGER') . ",
-		                    " . $db->quote($is_key, 'INTEGER') . ",
+			$stmt .= $db->quote($xsdmf_use_org_to_fill) . ",
+							" . $db->quote($xsdmf_use_parent_option_list) . ",					
+		                    " . $db->quote($valueintag) . ",
+		                    " . $db->quote($is_key) . ",
 		                    " . $db->quote($_POST["xsdmf_data_type"]) . ",
 		                    " . $db->quote($_POST["parent_key_match"]) . ",
 		                    " . $db->quote($_POST["key_match"]) . ",";
@@ -1497,7 +1497,7 @@ class XSD_HTML_Match
 				$stmt .= $db->quote($_POST["xsdmf_id_ref"], 'INTEGER') . ",";
 			}
 			if ($_POST["xsdmf_id_ref_save_type"] != "") {
-				$stmt .= $db->quote($_POST["xsdmf_id_ref_save_type"], 'INTEGER') . ",";
+				$stmt .= $db->quote($_POST["xsdmf_id_ref_save_type"]) . ",";
 			}
 			if ($_POST["smarty_variable"] != "") {
 				$stmt .= $db->quote($_POST["smarty_variable"]) . ",";
@@ -1514,13 +1514,13 @@ class XSD_HTML_Match
 
 			$stmt .= $db->quote($_POST["checkbox_selected_option"]) . ",";
 
-			$stmt .= $db->quote($show_in_view, 'INTEGER') . ", ". $db->quote($invisible, 'INTEGER') .", ".$db->quote($show_simple_create, 'INTEGER').",
+			$stmt .= $db->quote($show_in_view) . ", ". $db->quote($invisible) .", ".$db->quote($show_simple_create).",
 		                    " . $db->quote($_POST["enforced_prefix"]) . ",
 		                    " . $db->quote($_POST["value_prefix"]) . ",
 		                    " . $db->quote($_POST["image_location"]) . ",
 		                    " . $db->quote($_POST["static_text"]) . ",
 		                    " . $db->quote($_POST["dynamic_text"]) . ",
-		                    " . $db->quote($_POST["xsdmf_date_type"], 'INTEGER') . ",
+		                    " . $db->quote($_POST["xsdmf_date_type"]) . ",
 		                    " . $db->quote($_POST["xsdmf_cvo_id"], 'INTEGER');
 
 			if (is_numeric($_POST["attached_xsdmf_id"])) {
@@ -1540,7 +1540,7 @@ class XSD_HTML_Match
 				return -1;
 			}
 				
-			$new_id = $db->lastInsertId();
+			$new_id = $db->lastInsertId(APP_TABLE_PREFIX . "xsd_display_matchfields", "xsdmf_id");
 			XSD_HTML_Match::refreshXPATH($new_id);
 			if (($_POST["field_type"] == 'combo') || ($_POST["field_type"] == 'multiple')) {
 				foreach ($_POST["field_options"] as $option_value) {
@@ -1590,7 +1590,8 @@ class XSD_HTML_Match
 				return -1;
 			}
 
-			$xsdmf_id = $db->lastInsertId();
+			$xsdmf_id = $db->lastInsertId(APP_TABLE_PREFIX . "xsd_display_matchfields", "xsdmf_id");
+
 			XSD_HTML_Match::refreshXPATH($xsdmf_id);
 			return $xsdmf_id;
 		}
@@ -1636,19 +1637,19 @@ class XSD_HTML_Match
 			}
 			if (!empty ($insertArray["xsdmf_enabled"])) {
 				$inserts .= " xsdmf_enabled, ";
-				$values  .= $db->quote($insertArray["xsdmf_enabled"], 'INTEGER') . ", ";
+				$values  .= $db->quote($insertArray["xsdmf_enabled"]) . ", ";
 			}
 			if (!empty ($insertArray["xsdmf_indexed"])) {
 				$inserts .= " xsdmf_indexed, ";
-				$values  .= $db->quote($insertArray["xsdmf_indexed"], 'INTEGER') . ", ";
+				$values  .= $db->quote($insertArray["xsdmf_indexed"]) . ", ";
 			}
 			if (!empty ($insertArray["xsdmf_required"])) {
 				$inserts .= " xsdmf_required, ";
-				$values  .= $db->quote($insertArray["xsdmf_required"], 'INTEGER') . ", ";
+				$values  .= $db->quote($insertArray["xsdmf_required"]) . ", ";
 			}
 			if (!empty ($insertArray["xsdmf_multiple"])) {
 				$inserts .= " xsdmf_multiple, ";
-				$values  .= $db->quote($insertArray["xsdmf_multiple"], 'INTEGER') . ", ";
+				$values  .= $db->quote($insertArray["xsdmf_multiple"]) . ", ";
 			}
 			if (!empty ($insertArray["xsdmf_multiple_limit"])) {
 				$inserts .= " xsdmf_multiple_limit, ";
@@ -1660,11 +1661,11 @@ class XSD_HTML_Match
 			}
 			if (!empty ($insertArray["xsdmf_valueintag"])) {
 				$inserts .= " xsdmf_valueintag, ";
-				$values  .= $db->quote($insertArray["xsdmf_valueintag"], 'INTEGER') . ", ";
+				$values  .= $db->quote($insertArray["xsdmf_valueintag"]) . ", ";
 			}
 			if (!empty ($insertArray["xsdmf_is_key"])) {
 				$inserts .= " xsdmf_is_key, ";
-				$values  .= $db->quote($insertArray["xsdmf_is_key"], 'INTEGER') . ", ";
+				$values  .= $db->quote($insertArray["xsdmf_is_key"]) . ", ";
 			}
 			if (!empty ($insertArray["xsdmf_meta_header_name"])) {
 				$inserts .= " xsdmf_meta_header_name, ";
@@ -1672,27 +1673,27 @@ class XSD_HTML_Match
 			}
 			if (!empty ($insertArray["xsdmf_meta_header"])) {
 				$inserts .= " xsdmf_meta_header, ";
-				$values  .= $db->quote($insertArray["xsdmf_meta_header"], 'INTEGER') . ", ";
+				$values  .= $db->quote($insertArray["xsdmf_meta_header"]) . ", ";
 			}
 			if (!empty ($insertArray["xsdmf_citation_browse"])) {
 				$inserts .= " xsdmf_citation_browse, ";
-				$values  .= $db->quote($insertArray["xsdmf_citation_browse"], 'INTEGER') . ", ";
+				$values  .= $db->quote($insertArray["xsdmf_citation_browse"]) . ", ";
 			}
 			if (!empty ($insertArray["xsdmf_citation"])) {
 				$inserts .= " xsdmf_citation, ";
-				$values  .= $db->quote($insertArray["xsdmf_citation"], 'INTEGER'). ", ";
+				$values  .= $db->quote($insertArray["xsdmf_citation"]). ", ";
 			}
 			if (!empty ($insertArray["xsdmf_citation_bold"])) {
 				$inserts .= " xsdmf_citation_bold, ";
-				$values  .= $db->quote($insertArray["xsdmf_citation_bold"], 'INTEGER') . ", ";
+				$values  .= $db->quote($insertArray["xsdmf_citation_bold"]) . ", ";
 			}
 			if (!empty ($insertArray["xsdmf_citation_italics"])) {
 				$inserts .= " xsdmf_citation_italics, ";
-				$values  .= $db->quote($insertArray["xsdmf_citation_italics"], 'INTEGER') . ", ";
+				$values  .= $db->quote($insertArray["xsdmf_citation_italics"]) . ", ";
 			}
 			if (!empty ($insertArray["xsdmf_citation_brackets"])) {
 				$inserts .= " xsdmf_citation_brackets, ";
-				$values  .= $db->quote($insertArray["xsdmf_citation_brackets"], 'INTEGER') . ", ";
+				$values  .= $db->quote($insertArray["xsdmf_citation_brackets"]) . ", ";
 			}
 			if (!empty ($insertArray["xsdmf_citation_order"])) {
 				$inserts .= " xsdmf_citation_order, ";
@@ -1716,7 +1717,7 @@ class XSD_HTML_Match
 			}
 			if (!empty ($insertArray["xsdmf_id_ref_save_type"])) {
 				$inserts .= " xsdmf_id_ref_save_type, ";
-				$values  .= $db->quote($insertArray["xsdmf_id_ref_save_type"], 'INTEGER') . ", ";
+				$values  .= $db->quote($insertArray["xsdmf_id_ref_save_type"]) . ", ";
 			}
 			if (!empty ($insertArray["xsdmf_smarty_variable"])) {
 				$inserts .= " xsdmf_smarty_variable, ";
@@ -1736,19 +1737,19 @@ class XSD_HTML_Match
 			}
 			if (is_numeric($insertArray["xsdmf_show_in_view"])) {
 				$inserts .= " xsdmf_show_in_view, ";
-				$values  .= $db->quote($insertArray["xsdmf_show_in_view"], 'INTEGER') . ", ";
+				$values  .= $db->quote($insertArray["xsdmf_show_in_view"]) . ", ";
 			}
 			if (is_numeric($insertArray["xsdmf_invisible"])) {
 				$inserts .= " xsdmf_invisible, ";
-				$values  .= $db->quote($insertArray["xsdmf_invisible"], 'INTEGER') . ", ";
+				$values  .= $db->quote($insertArray["xsdmf_invisible"]) . ", ";
 			}
 			if (is_numeric($insertArray["xsdmf_show_simple_create"])) {
 				$inserts .= " xsdmf_show_simple_create, ";
-				$values  .= $db->quote($insertArray["xsdmf_show_simple_create"], 'INTEGER') . ", ";
+				$values  .= $db->quote($insertArray["xsdmf_show_simple_create"]) . ", ";
 			}
 			if (!empty ($insertArray["xsdmf_use_parent_option_list"])) {
 				$inserts .= " xsdmf_use_parent_option_list, ";
-				$values  .= $db->quote($insertArray["xsdmf_use_parent_option_list"], 'INTEGER') . ", ";
+				$values  .= $db->quote($insertArray["xsdmf_use_parent_option_list"]) . ", ";
 			}
 			if (!empty ($insertArray["xsdmf_parent_option_xdis_id"])) {
 				$inserts .= " xsdmf_parent_option_xdis_id, ";
@@ -1768,7 +1769,7 @@ class XSD_HTML_Match
 			}
 			if (!empty ($insertArray["xsdmf_cvo_save_type"])) {
 				$inserts .= " xsdmf_cvo_save_type, ";
-				$values  .= $db->quote($insertArray["xsdmf_cvo_save_type"], 'INTEGER') . ", ";
+				$values  .= $db->quote($insertArray["xsdmf_cvo_save_type"]) . ", ";
 			}
 			if (!empty ($insertArray["xsdmf_cvo_min_level"])) {
 				$inserts .= " xsdmf_cvo_min_level, ";
@@ -1784,7 +1785,7 @@ class XSD_HTML_Match
 			}
 			if (!empty ($insertArray["xsdmf_use_org_to_fill"])) {
 				$inserts .= " xsdmf_use_org_to_fill, ";
-				$values  .= $db->quote($insertArray["xsdmf_use_org_to_fill"], 'INTEGER') . ", ";
+				$values  .= $db->quote($insertArray["xsdmf_use_org_to_fill"]) . ", ";
 			}
 			if (!empty ($insertArray["xsdmf_org_fill_xdis_id"])) {
 				$inserts .= " xsdmf_org_fill_xdis_id, ";
@@ -1827,7 +1828,7 @@ class XSD_HTML_Match
 				return -1;
 			}
 				
-			$xsdmf_id = $db->lastInsertId();
+			$xsdmf_id = $db->lastInsertId(APP_TABLE_PREFIX . "xsd_display_matchfields", "xsdmf_id");
 			XSD_HTML_Match::refreshXPATH($xsdmf_id);
 			return 1;
 		}
@@ -1849,93 +1850,93 @@ class XSD_HTML_Match
 			}
 
 			if (@ $_POST["enabled"]) {
-				$enabled = 1;
+				$enabled = TRUE;
 			} else {
-				$enabled = 0;
+				$enabled = FALSE;
 			}
 
 			if (@ $_POST["multiple"]) {
-				$multiple = 1;
+				$multiple = TRUE;
 			} else {
-				$multiple = 0;
+				$multiple = FALSE;
 			}
 			if (@ $_POST["required"]) {
-				$required = 1;
+				$required = TRUE;
 			} else {
-				$required = 0;
+				$required = FALSE;
 			}
 			if (@ $_POST["indexed"]) {
-				$indexed = 1;
+				$indexed = TRUE;
 			} else {
-				$indexed = 0;
+				$indexed = FALSE;
 			}
 
 			if (@ $_POST["valueintag"]) {
-				$valueintag = 1;
+				$valueintag = TRUE;
 			} else {
-				$valueintag = 0;
+				$valueintag = FALSE;
 			}
 
 			if (@ $_POST["show_in_view"]) {
-				$show_in_view = 1;
+				$show_in_view = TRUE;
 			} else {
-				$show_in_view = 0;
+				$show_in_view = FALSE;
 			}
 			if (@ $_POST["invisible"]) {
-				$invisible = 1;
+				$invisible = TRUE;
 			} else {
-				$invisible = 0;
+				$invisible = FALSE;
 			}
 			if (@ $_POST["show_simple_create"]) {
-				$show_simple_create = 1;
+				$show_simple_create = TRUE;
 			} else {
-				$show_simple_create = 0;
+				$show_simple_create = FALSE;
 			}
 			if (@ $_POST["is_key"]) {
-				$is_key = 1;
+				$is_key = TRUE;
 			} else {
-				$is_key = 0;
+				$is_key = FALSE;
 			}
 			if (@ $_POST["xsdmf_meta_header"]) {
-				$xsdmf_meta_header = 1;
+				$xsdmf_meta_header = TRUE;
 			} else {
-				$xsdmf_meta_header = 0;
+				$xsdmf_meta_header = FALSE;
 			}
 
 			if (@ $_POST["xsdmf_citation_browse"]) {
-				$xsdmf_citation_browse = 1;
+				$xsdmf_citation_browse = TRUE;
 			} else {
-				$xsdmf_citation_browse = 0;
+				$xsdmf_citation_browse = FALSE;
 			}
 			if (@ $_POST["xsdmf_citation"]) {
-				$xsdmf_citation = 1;
+				$xsdmf_citation = TRUE;
 			} else {
-				$xsdmf_citation = 0;
+				$xsdmf_citation = FALSE;
 			}
 			if (@ $_POST["xsdmf_citation_bold"]) {
-				$xsdmf_citation_bold = 1;
+				$xsdmf_citation_bold = TRUE;
 			} else {
-				$xsdmf_citation_bold = 0;
+				$xsdmf_citation_bold = FALSE;
 			}
 			if (@ $_POST["xsdmf_citation_italics"]) {
-				$xsdmf_citation_italics = 1;
+				$xsdmf_citation_italics = TRUE;
 			} else {
-				$xsdmf_citation_italics = 0;
+				$xsdmf_citation_italics = FALSE;
 			}
 			if (@ $_POST["xsdmf_citation_brackets"]) {
-				$xsdmf_citation_brackets = 1;
+				$xsdmf_citation_brackets = TRUE;
 			} else {
-				$xsdmf_citation_brackets = 0;
+				$xsdmf_citation_brackets = FALSE;
 			}
 			if (@ $_POST["xsdmf_use_parent_option_list"]) {
-				$xsdmf_use_parent_option_list = 1;
+				$xsdmf_use_parent_option_list = TRUE;
 			} else {
-				$xsdmf_use_parent_option_list = 0;
+				$xsdmf_use_parent_option_list = FALSE;
 			}
 			if (@ $_POST["xsdmf_use_org_to_fill"]) {
-				$xsdmf_use_org_to_fill = 1;
+				$xsdmf_use_org_to_fill = TRUE;
 			} else {
-				$xsdmf_use_org_to_fill = 0;
+				$xsdmf_use_org_to_fill = FALSE;
 			}
 			/*		if (is_numeric($_POST["xsdsel_id"])) {
 			 $extra_where = " AND xsdmf_xsdsel_id = " . $_POST["xsdsel_id"];
@@ -1955,21 +1956,21 @@ class XSD_HTML_Match
 		                    xsdmf_order = " . $db->quote($_POST["order"], 'INTEGER') . ",
 		                    xsdmf_date_type = " . $db->quote($_POST["xsdmf_date_type"], 'INTEGER') . ",					
 		                    xsdmf_cvo_id = " . $db->quote($_POST["xsdmf_cvo_id"], 'INTEGER') . ",					
-		                    xsdmf_use_org_to_fill = " . $db->quote($xsdmf_use_org_to_fill, 'INTEGER') . ",
+		                    xsdmf_use_org_to_fill = " . $db->quote($xsdmf_use_org_to_fill) . ",
 		                    xsdmf_use_parent_option_list = " . $db->quote($xsdmf_use_parent_option_list, 'INTEGER') . ",
-		                    xsdmf_required = " . $db->quote($required, 'INTEGER') . ",
-		                    xsdmf_indexed = " . $db->quote($indexed, 'INTEGER') . ",
-		                    xsdmf_enabled = " . $db->quote($enabled, 'INTEGER') . ",
+		                    xsdmf_required = " . $db->quote($required) . ",
+		                    xsdmf_indexed = " . $db->quote($indexed) . ",
+		                    xsdmf_enabled = " . $db->quote($enabled) . ",
 		                    xsdmf_meta_header_name = " . $db->quote($_POST["xsdmf_meta_header_name"]) . ",
-		                    xsdmf_meta_header = " . $db->quote($xsdmf_meta_header, 'INTEGER') . ",
-		                    xsdmf_citation_browse = " . $db->quote($xsdmf_citation_browse, 'INTEGER') . ",
-		                    xsdmf_citation = " . $db->quote($xsdmf_citation, 'INTEGER') . ",
-		                    xsdmf_citation_bold = " . $db->quote($xsdmf_citation_bold, 'INTEGER') . ",
-		                    xsdmf_citation_italics = " . $db->quote($xsdmf_citation_italics, 'INTEGER') . ",										
-		                    xsdmf_citation_brackets = " . $db->quote($xsdmf_citation_brackets, 'INTEGER') . ",
+		                    xsdmf_meta_header = " . $db->quote($xsdmf_meta_header) . ",
+		                    xsdmf_citation_browse = " . $db->quote($xsdmf_citation_browse) . ",
+		                    xsdmf_citation = " . $db->quote($xsdmf_citation) . ",
+		                    xsdmf_citation_bold = " . $db->quote($xsdmf_citation_bold) . ",
+		                    xsdmf_citation_italics = " . $db->quote($xsdmf_citation_italics) . ",										
+		                    xsdmf_citation_brackets = " . $db->quote($xsdmf_citation_brackets) . ",
 		                    xsdmf_citation_prefix = " . $db->quote($_POST["xsdmf_citation_prefix"]) . ",
 		                    xsdmf_citation_suffix = " . $db->quote($_POST["xsdmf_citation_suffix"]) . ",
-		                    xsdmf_multiple = " . $db->quote($multiple, 'INTEGER') . ",";
+		                    xsdmf_multiple = " . $db->quote($multiple) . ",";
 			if ($_POST["multiple_limit"] != "") {
 				$stmt .= " xsdmf_multiple_limit = " . $db->quote($_POST["multiple_limit"], 'INTEGER') . ",";
 			}
@@ -2003,7 +2004,7 @@ class XSD_HTML_Match
 				$stmt .= " xsdmf_cvo_min_level = " . $db->quote($_POST["xsdmf_cvo_min_level"], 'INTEGER') . ",";
 			}
 			if (is_numeric($_POST["xsdmf_cvo_save_type"])) {
-				$stmt .= " xsdmf_cvo_save_type = " . $db->quote($_POST["xsdmf_cvo_save_type"], 'INTEGER') . ",";
+				$stmt .= " xsdmf_cvo_save_type = " . $db->quote($_POST["xsdmf_cvo_save_type"]) . ",";
 			}
 			if (is_numeric($_POST["xsdmf_citation_order"])) {
 				$stmt .= " xsdmf_citation_order = " . $db->quote($_POST["xsdmf_citation_order"], 'INTEGER') . ",";
@@ -2021,11 +2022,11 @@ class XSD_HTML_Match
 				$stmt .= " xsdmf_selected_option = " . $db->quote($_POST["selected_option"]) . ",";
 			}
 			$stmt .= "
-		                    xsdmf_valueintag = " . $db->quote($valueintag, 'INTEGER') . ",
-		                    xsdmf_is_key = " . $db->quote($is_key, 'INTEGER') . ",
-		                    xsdmf_show_in_view = " . $db->quote($show_in_view, 'INTEGER') . ",
-		                    xsdmf_invisible = " . $db->quote($invisible, 'INTEGER') . ",
-		                    xsdmf_show_simple_create = " . $db->quote($show_simple_create, 'INTEGER') . ",
+		                    xsdmf_valueintag = " . $db->quote($valueintag) . ",
+		                    xsdmf_is_key = " . $db->quote($is_key) . ",
+		                    xsdmf_show_in_view = " . $db->quote($show_in_view) . ",
+		                    xsdmf_invisible = " . $db->quote($invisible) . ",
+		                    xsdmf_show_simple_create = " . $db->quote($show_simple_create) . ",
 		                    xsdmf_key_match = " . $db->quote($_POST["key_match"]) . ",
 		                    xsdmf_parent_key_match = " . $db->quote($_POST["parent_key_match"]) . ",
 		                    xsdmf_data_type = " . $db->quote($_POST["xsdmf_data_type"]) . ",";
@@ -2049,7 +2050,7 @@ class XSD_HTML_Match
 			}
 
 			if (is_numeric($_POST["xsdmf_id_ref_save_type"])) {
-				$stmt .= " xsdmf_id_ref_save_type = " . $db->quote($_POST["xsdmf_id_ref_save_type"], 'INTEGER') . ",";
+				$stmt .= " xsdmf_id_ref_save_type = " . $db->quote($_POST["xsdmf_id_ref_save_type"]) . ",";
 			}
 			elseif (trim($_POST["xsdmf_id_ref_save_type"]) == "") {
 				$stmt .= "   xsdmf_id_ref_save_type = NULL,";
@@ -2393,7 +2394,7 @@ class XSD_HTML_Match
 		                 FROM
 		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields
 		                 WHERE
-		                     xsdmf_element = ".$db->quote($xsdmf_element)." and xsdmf_xdis_id in (".$xdis_str.") and (xsdmf_is_key != 1 || xsdmf_is_key is null)";
+		                     xsdmf_element = ".$db->quote($xsdmf_element)." and xsdmf_xdis_id in (".$xdis_str.") and (xsdmf_is_key = FALSE || xsdmf_is_key is null)";
 				
 			try {
 				$res = $db->fetchAll($stmt);
@@ -2431,7 +2432,7 @@ class XSD_HTML_Match
 		                 FROM
 		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields
 		                 WHERE
-		                    (".$db->quote($xsdmf_element)." = xsdmf_element) and xsdmf_xdis_id in (".$xdis_str.") and xsdmf_is_key = 1 and (".$db->quote($element_value)." = xsdmf_key_match)";
+		                    (".$db->quote($xsdmf_element)." = xsdmf_element) and xsdmf_xdis_id in (".$xdis_str.") and xsdmf_is_key = TRUE and (".$db->quote($element_value)." = xsdmf_key_match)";
 			try {
 				$res = $db->fetchAll($stmt);
 			}
@@ -2508,7 +2509,7 @@ class XSD_HTML_Match
 		                 FROM
 		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields
 		                 WHERE
-		                    (".$db->quote($xsdmf_element)." = xsdmf_element) and xsdmf_xdis_id in (".$xdis_str.") and xsdmf_is_key = 1 and (".$db->quote($key_value)." = xsdmf_key_match) and xsdmf_xsdsel_id = ".$db->quote($xsdsel_id);
+		                    (".$db->quote($xsdmf_element)." = xsdmf_element) and xsdmf_xdis_id in (".$xdis_str.") and xsdmf_is_key = TRUE and (".$db->quote($key_value)." = xsdmf_key_match) and xsdmf_xsdsel_id = ".$db->quote($xsdsel_id);
 			try {
 				$res = $db->fetchAll($stmt);
 			}
@@ -3151,7 +3152,7 @@ class XSD_HTML_Match
 				$log->err($ex);
 				return -1;
 			}
-			return $db->lastInsertId();
+			return $db->lastInsertId(APP_TABLE_PREFIX . "xsd_display_attach", "att_id");
 		}
 
 		/**
@@ -3737,10 +3738,9 @@ class XSD_HTML_MatchObject {
 		$db = DB_API::get();
 		
 		$mc = $this->getMatchCols();
-//		print_r($mc);
 		foreach ($mc as $xsdmf) {
 //			echo $xsdmf['xsdmf_element'];
-			if (($xsdmf['xsdmf_element'] == $xsdmf_element) && $xsdmf['xsdmf_is_key'] != 1 && is_numeric($xsdmf['xsdmf_id'])) {
+			if (($xsdmf['xsdmf_element'] == $xsdmf_element) && $xsdmf['xsdmf_is_key'] == FALSE && is_numeric($xsdmf['xsdmf_id'])) {
 				if ($xsdmf_title != "") {
 					if ($xsdmf['xsdmf_title'] == $xsdmf_title) {
 						return $xsdmf['xsdmf_id'];

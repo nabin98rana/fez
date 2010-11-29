@@ -370,9 +370,9 @@ class Statistics
 			$gi = geoip_open(APP_GEOIP_PATH."GeoLiteCity.dat",GEOIP_STANDARD);
 			$record = geoip_record_by_addr($gi,$ip);
 			$country_code = $record->country_code;
-			$country_name = $record->country_name;
-			$city = $record->city;
-			$region = $record->region;
+			$country_name = utf8_encode($record->country_name);
+			$city = utf8_encode($record->city);
+			$region = utf8_encode($record->region);
 
 			// Make this stuff SQL-safe.
 			$pidNum = Misc::numPID($pid);
@@ -389,7 +389,7 @@ class Statistics
 			$pidNum = $db->quote(Misc::numPID($pid));
 			$usr_id = $db->quote($brow['str_usr_id'], 'INTEGER'); */
 			if (!is_numeric($usr_id)) {
-				$usr_id = "NULL";
+				$usr_id = NULL;
 			}
 			// below commented out lines are other GeoIP information you could possibly use if you are interested
 			/*				print $record->postal_code . "\n";
@@ -535,10 +535,10 @@ class Statistics
 				" . APP_TABLE_PREFIX . "record_search_key r1
 				SET rek_file_downloads = (
 				SELECT COUNT(*) FROM " . APP_TABLE_PREFIX . "statistics_all
-				WHERE stl_dsid <> '' AND stl_pid = r1.rek_pid AND stl_counter_bad = 0),
+				WHERE stl_dsid <> '' AND stl_pid = r1.rek_pid AND stl_counter_bad = FALSE),
 				rek_views = (
 				SELECT COUNT(*) FROM " . APP_TABLE_PREFIX . "statistics_all
-				WHERE stl_dsid = '' AND stl_pid = r1.rek_pid AND stl_counter_bad = 0)";
+				WHERE stl_dsid = '' AND stl_pid = r1.rek_pid AND stl_counter_bad = FALSE)";
 		try {
 			$db->query($stmt);
 		}
@@ -662,9 +662,9 @@ class Statistics
 		//		echo "Starting Country Region summary: " . date('H:i:s') . "\n";
 
 		$query = "SELECT stl_country_name, stl_country_code, stl_region, stl_city, sum(abstract) as abstract, sum(downloads) as downloads from ( ";
-		$query .= "SELECT stl_country_name, stl_country_code, stl_region, stl_city, sum(1) as abstract, 0 as downloads FROM " . APP_TABLE_PREFIX . "statistics_all WHERE stl_dsid = '' AND stl_counter_bad = 0 GROUP BY 4,3,2,1 ";
+		$query .= "SELECT stl_country_name, stl_country_code, stl_region, stl_city, sum(1) as abstract, 0 as downloads FROM " . APP_TABLE_PREFIX . "statistics_all WHERE stl_dsid = '' AND stl_counter_bad = FALSE GROUP BY 4,3,2,1 ";
 		$query .= "UNION ";
-		$query .= "SELECT stl_country_name, stl_country_code, stl_region, stl_city, 0 as abstract, sum(1) as downloads FROM " . APP_TABLE_PREFIX . "statistics_all WHERE stl_dsid <> '' AND stl_counter_bad = 0 GROUP BY 4,3,2,1) AS tblA ";
+		$query .= "SELECT stl_country_name, stl_country_code, stl_region, stl_city, 0 as abstract, sum(1) as downloads FROM " . APP_TABLE_PREFIX . "statistics_all WHERE stl_dsid <> '' AND stl_counter_bad = FALSE GROUP BY 4,3,2,1) AS tblA ";
 		$query .= "GROUP BY 1,2,3,4 ";
 		
 		try {
@@ -810,7 +810,7 @@ class Statistics
 		//		echo "Starting Year/Month Summary: " . date('H:i:s') . "\n";
 
 		// Get the boundaries of our summarising table
-		$stmt = 'SELECT year(stl_request_date) as yr, month(stl_request_date) as mth, count(1) FROM ' . APP_TABLE_PREFIX . 'statistics_all group by 1,2';
+		$stmt = 'SELECT YEAR(DATE(stl_request_date)) as yr, MONTH(DATE(stl_request_date)) as mth, count(1) FROM ' . APP_TABLE_PREFIX . 'statistics_all GROUP BY 1,2';
 		
 		try {
 			$result = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
@@ -832,7 +832,7 @@ class Statistics
 			$month = $yearmonth['mth'];
 
 			// check if there is already data in the table for this year/month combo (we don't need to recalculate these each time)
-			$checkSql = 'SELECT count(1) as data_exists FROM ' . APP_TABLE_PREFIX . 'statistics_sum_yearmonth WHERE sym_year = ? AND sym_month = ? ';
+			$checkSql = 'SELECT count(1) AS data_exists FROM ' . APP_TABLE_PREFIX . 'statistics_sum_yearmonth WHERE sym_year = ? AND sym_month = ? ';
 			try {
 				$checkResult = $db->fetchOne($checkSql, array($year, $month));
 			}
@@ -1165,10 +1165,10 @@ class Statistics
 				" . APP_TABLE_PREFIX . "record_search_key r1
 				SET rek_file_downloads = (
 						SELECT COUNT(*) FROM " . APP_TABLE_PREFIX . "statistics_all
-						WHERE stl_dsid <> '' AND stl_pid = ".$db->quote($pid)." AND stl_counter_bad = 0),
+						WHERE stl_dsid <> '' AND stl_pid = ".$db->quote($pid)." AND stl_counter_bad = FALSE),
 					rek_views = (
 						SELECT COUNT(*) FROM " . APP_TABLE_PREFIX . "statistics_all
-						WHERE stl_dsid = '' AND stl_pid = ".$db->quote($pid)." AND stl_counter_bad = 0)
+						WHERE stl_dsid = '' AND stl_pid = ".$db->quote($pid)." AND stl_counter_bad = FALSE)
 				WHERE rek_pid = ".$db->quote($pid);
 		
 		try {
@@ -1716,9 +1716,9 @@ class Statistics
 		$query .= 'UNION ';
 
 		$query .= "SELECT scr_country_code AS country_code, scr_country_name AS country_name, gcr_location_name AS region, gcity_city AS city, gcity_latitude as latitude, gcity_longitude AS longitude, scr_count_abstract AS abstracts, scr_count_downloads AS downloads ";
-		$query .= "FROM fez_statistics_sum_countryregion ";
-		$query .= "JOIN fez_geocode_regions ON (scr_country_code = gcr_country_code AND scr_country_region = gcr_region_code) ";
-		$query .= "JOIN fez_geocode_cities ON (gcr_country_code = gcity_country_code AND gcr_region_code = gcity_region_code AND gcity_city = scr_city) ";
+		$query .= "FROM " . APP_TABLE_PREFIX . "statistics_sum_countryregion ";
+		$query .= "JOIN " . APP_TABLE_PREFIX . "geocode_regions ON (scr_country_code = gcr_country_code AND scr_country_region = gcr_region_code) ";
+		$query .= "JOIN " . APP_TABLE_PREFIX . "geocode_cities ON (gcr_country_code = gcity_country_code AND gcr_region_code = gcity_region_code AND gcity_city = scr_city) ";
 
 		if ($neLongitude > $swLongitude)
 		{
@@ -1949,7 +1949,7 @@ class Statistics
 			$params[] = $usr_id;
 		}
 		$stmt .= ")";
-		
+
 		try {
 			$db->query($stmt, $params);
 		}
@@ -1966,9 +1966,9 @@ class Statistics
 		$db = DB_API::get();
 	  
 		$stmt = "SELECT stl_pid, COUNT(*) as downloads
-                 FROM fez_statistics_all
+                 FROM " . APP_TABLE_PREFIX . "statistics_all
                  WHERE stl_dsid <> '' AND stl_request_date > ".$db->quote(date('Y-m-d H:i:s',strtotime("-1 week")))."
-				 AND stl_counter_bad = 0
+				 AND stl_counter_bad = FALSE
                  GROUP BY stl_pid
                  ORDER BY downloads DESC
                  LIMIT $limit";
@@ -2012,9 +2012,13 @@ class Statistics
 		$db = DB_API::get();
 		
 		$stmt = "SELECT stl_id, stl_pid, stl_dsid, stl_ip, stl_request_date, stl_counter_bad
-                 FROM fez_statistics_all ";
+                 FROM " . APP_TABLE_PREFIX . "statistics_all ";
 		if ($min_date !== false) {
-			$stmt .= " WHERE stl_request_date >= date_sub(".$db->quote($min_date).", INTERVAL 11 SECOND) ";
+			if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) { //eg if postgresql etc
+				$stmt .= " WHERE stl_request_date >= (TIMESTAMP ".$db->quote($min_date)." - INTERVAL '11 seconds') ";				
+			} else {
+				$stmt .= " WHERE stl_request_date >= date_sub(".$db->quote($min_date).", INTERVAL 11 SECOND) ";				
+			}
 		}
 		$stmt .= " ORDER BY stl_request_date ASC LIMIT $limit OFFSET $offset";
 		
@@ -2028,16 +2032,20 @@ class Statistics
 		return $res;
 	}
 
-	function cleanupFalseHitsCount($date_min = false) 
+	function cleanupFalseHitsCount($min_date = false) 
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
 		
 		$stmt = "SELECT count(*)
-                 FROM fez_statistics_all";
+                 FROM " . APP_TABLE_PREFIX . "statistics_all";
 
 		if ($date_min !== false) {
-			$stmt .= " WHERE stl_request_date >= date_sub(".$db->quote($date_min).", INTERVAL 11 SECOND) ";
+			if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) { //eg if postgresql etc
+				$stmt .= " WHERE stl_request_date >= (TIMESTAMP ".$db->quote($min_date)." - INTERVAL '11 seconds') ";				
+			} else {
+				$stmt .= " WHERE stl_request_date >= date_sub(".$db->quote($min_date).", INTERVAL 11 SECOND) ";				
+			}
 		}
 		
 		try {
@@ -2057,8 +2065,8 @@ class Statistics
 		$db = DB_API::get();
 		
 		$stmt = "SELECT MAX(stl_request_date)
-                 FROM fez_statistics_all
- 				 WHERE stl_counter_bad = 1";
+                 FROM " . APP_TABLE_PREFIX . "statistics_all
+ 				 WHERE stl_counter_bad = TRUE";
 
 		try {
 			$res = $db->fetchOne($stmt);
@@ -2081,7 +2089,7 @@ class Statistics
 		
 		$stmt = "UPDATE
                                 " . APP_TABLE_PREFIX . "statistics_all
-                                SET stl_counter_bad = 1
+                                SET stl_counter_bad = TRUE
                                 WHERE stl_id = ".$db->quote($stl_id, 'INTEGER');
 		try {
 			$db->query($stmt);
@@ -2211,7 +2219,7 @@ class Statistics
 		$params = array($pid,$dsid,$web,$stream);
 		$stmt = "select count(*)
 			 	 from " . APP_TABLE_PREFIX . "statistics_all
-				 where stl_pid = ? and (stl_dsid = ? or stl_dsid = ? or stl_dsid = ?) AND stl_counter_bad = 0";
+				 where stl_pid = ? and (stl_dsid = ? or stl_dsid = ? or stl_dsid = ?) AND stl_counter_bad = FALSE";
 		
 		try {
 			$res = $db->fetchOne($stmt,$params);
@@ -2243,12 +2251,16 @@ class Statistics
 				$limit .= " and month(date(stl_request_date)) = $month";
 			}
 		} elseif ($range != 'all' && $range == '4w') {
-			$limit .= " and date(stl_request_date) >= CURDATE()-INTERVAL 1 MONTH";
+			if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) { //eg if postgresql etc
+				$limit .= " and date(stl_request_date) >= CURRENT_DATE - INTERVAL '1 months'";
+			} else {
+				$limit .= " and date(stl_request_date) >= CURDATE()-INTERVAL 1 MONTH";
+			}
 		}
 
 		$stmt = "select count(*)
 			 	 from " . APP_TABLE_PREFIX . "statistics_all
-				 where stl_pid = ".$db->quote($pid)." AND stl_counter_bad = 0 AND stl_dsid = '' ".$limit;
+				 where stl_pid = ".$db->quote($pid)." AND stl_counter_bad = FALSE AND stl_dsid = '' ".$limit;
 		try {
 			$res = $db->fetchOne($stmt);
 		}
@@ -2280,12 +2292,16 @@ class Statistics
 				$limit .= " and month(date(stl_request_date)) = ".$month;
 			}
 		} elseif ($range != 'all' && $range == '4w') {
-			$limit .= " and date(stl_request_date) >= CURDATE()-INTERVAL 1 MONTH";
+			if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) { //eg if postgresql etc
+				$limit .= " and date(stl_request_date) >= CURRENT_DATE - INTERVAL '1 months'";
+			} else {
+				$limit .= " and date(stl_request_date) >= CURDATE()-INTERVAL 1 MONTH";
+			}
 		}
 
 		$stmt = "select count(*)
 			 	 from " . APP_TABLE_PREFIX . "statistics_all
-				 where stl_pid = ".$db->quote($pid)." AND stl_counter_bad = 0 and stl_dsid <> '' ".$limit;
+				 where stl_pid = ".$db->quote($pid)." AND stl_counter_bad = FALSE and stl_dsid <> '' ".$limit;
 		try {
 			$res = $db->fetchOne($stmt);
 		}
@@ -2319,13 +2335,17 @@ class Statistics
 				$limit .= " and month(date(stl_request_date)) = ".$month;
 			}
 		} elseif ($range != 'all' && $range == '4w') {
-			$limit .= " and date(stl_request_date) >= CURDATE()-INTERVAL 1 MONTH";
+			if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) { //eg if postgresql etc
+				$limit .= " and date(stl_request_date) >= CURRENT_DATE - INTERVAL '1 months'";
+			} else {
+				$limit .= " and date(stl_request_date) >= CURDATE()-INTERVAL 1 MONTH";
+			}
 		}
 
 		$stmt = "select count(*) as abstracts, usr_full_name
 			 	 from " . APP_TABLE_PREFIX . "statistics_all
 				 inner join " . APP_TABLE_PREFIX . "user on usr_id = stl_usr_id
-				 ".$limit." AND stl_counter_bad = 0
+				 ".$limit." AND stl_counter_bad = FALSE
 				 group by usr_full_name
 				 order by abstracts desc, usr_full_name asc";
 
@@ -2364,12 +2384,16 @@ class Statistics
 				$limit .= " and month(date(stl_request_date)) = ".$month;
 			}
 		} elseif ($range != 'all' && $range == '4w') {
-			$limit .= " and date(stl_request_date) >= CURDATE()-INTERVAL 1 MONTH";
+			if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) { //eg if postgresql etc
+				$limit .= " and date(stl_request_date) >= CURRENT_DATE - INTERVAL '1 months'";
+			} else {
+				$limit .= " and date(stl_request_date) >= CURDATE()-INTERVAL 1 MONTH";
+			}
 		}
 
 		$stmt = "select count(*) as stl_country_count, stl_country_name, stl_country_code
 			 	 from " . APP_TABLE_PREFIX . "statistics_all
-				 ".$limit." AND stl_counter_bad = 0
+				 ".$limit." AND stl_counter_bad = FALSE
 				 group by stl_country_name, stl_country_code
 				 order by stl_country_count desc, stl_country_name asc";
 		
@@ -2406,12 +2430,16 @@ class Statistics
 				$limit .= " and month(date(stl_request_date)) = ".$month;
 			}
 		} elseif ($range != 'all' && $range == '4w') {
-			$limit .= " and date(stl_request_date) >= CURDATE()-INTERVAL 1 MONTH";
+			if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) { //eg if postgresql etc
+				$limit .= " and date(stl_request_date) >= CURRENT_DATE - INTERVAL '1 months'";
+			} else {
+				$limit .= " and date(stl_request_date) >= CURDATE()-INTERVAL 1 MONTH";
+			}
 		}
 		$limit .= " and stl_country_name = ".$db->quote($country);
 		$stmt = "select count(*) as stl_country_count, stl_country_name, stl_country_code, stl_region, stl_city
 			 	 from " . APP_TABLE_PREFIX . "statistics_all
-				 ".$limit." AND stl_counter_bad = 0
+				 ".$limit." AND stl_counter_bad = FALSE
 				 group by stl_country_name, stl_country_code, stl_region, stl_city
 				 order by stl_country_name asc, stl_region asc, stl_city asc, stl_country_count desc";
 
@@ -2500,12 +2528,16 @@ class Statistics
 				$limit .= " and month(date(stl_request_date)) = ".$db->quote($month);
 			}
 		} elseif ($range != 'all' && $range == '4w') {
-			$limit .= " and date(stl_request_date) >= CURDATE()-INTERVAL 1 MONTH";
+			if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) { //eg if postgresql etc
+				$limit .= " and date(stl_request_date) >= CURRENT_DATE - INTERVAL '1 months'";
+			} else {
+				$limit .= " and date(stl_request_date) >= CURDATE()-INTERVAL 1 MONTH";
+			}
 		}
 
 		$stmt = "select count(*) as stl_country_count, stl_country_name, stl_country_code
 			 	 from " . APP_TABLE_PREFIX . "statistics_all
-				 ".$limit." AND stl_counter_bad = 0
+				 ".$limit." AND stl_counter_bad = FALSE
 				 group by stl_country_name, stl_country_code
 				 order by stl_country_count desc, stl_country_name asc";
 		try {
@@ -2541,13 +2573,17 @@ class Statistics
 				$limit .= " and month(date(stl_request_date)) = ".$db->quote($month);
 			}
 		} elseif ($range != 'all' && $range == '4w') {
-			$limit .= " and date(stl_request_date) >= CURDATE()-INTERVAL 1 MONTH";
+			if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) { //eg if postgresql etc
+				$limit .= " and date(stl_request_date) >= CURRENT_DATE - INTERVAL '1 months'";
+			} else {
+				$limit .= " and date(stl_request_date) >= CURDATE()-INTERVAL 1 MONTH";
+			}
 		}
 
 		$stmt = "select count(*) as downloads, usr_full_name
 			 	 from " . APP_TABLE_PREFIX . "statistics_all
 				 inner join " . APP_TABLE_PREFIX . "user on usr_id = stl_usr_id
-				 ".$limit." AND stl_counter_bad = 0
+				 ".$limit." AND stl_counter_bad = FALSE
 				 group by usr_full_name
 				 order by downloads desc, usr_full_name asc";
 		try {
@@ -2579,19 +2615,23 @@ class Statistics
 		}
 		if ($year != 'all' && is_numeric($year)) {
 			$year = $db->quote($year);
-			$limit .= " and year(stl_request_date) = ".$db->quote($year);
+			$limit .= " and YEAR(DATE(stl_request_date)) = ".$db->quote($year);
 			if ($month != 'all' && is_numeric($month)) {
 				$month = $db->quote($month);
-				$limit .= " and month(stl_request_date) = ".$db->quote($month);
+				$limit .= " and MONTH(DATE(stl_request_date)) = ".$db->quote($month);
 			}
 		} elseif ($range != 'all' && $range == '4w') {
-			$limit .= " and stl_request_date >= CURDATE()-INTERVAL 1 MONTH";
+			if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) { //eg if postgresql etc
+				$limit .= " and date(stl_request_date) >= CURRENT_DATE - INTERVAL '1 months'";
+			} else {
+				$limit .= " and date(stl_request_date) >= CURDATE()-INTERVAL 1 MONTH";
+			}
 		}
 		$limit .= " and stl_country_name = ".$db->quote($country);
 
 		$stmt = "select count(*) as stl_country_count, stl_country_name, stl_country_code, stl_region, stl_city
 			 	 from " . APP_TABLE_PREFIX . "statistics_all
-				 ".$limit." AND stl_counter_bad = 0
+				 ".$limit." AND stl_counter_bad = FALSE
 				 group by stl_country_name, stl_country_code, stl_region, stl_city
 				 order by stl_country_name asc, stl_region asc, stl_city asc, stl_country_count desc";
 		try {
@@ -2617,7 +2657,7 @@ class Statistics
 		
 		$stmt = "select count(*)
 			 	 from " . APP_TABLE_PREFIX . "statistics_all
-				 where stl_pid = ".$db->quote($pid)." AND stl_counter_bad = 0";
+				 where stl_pid = ".$db->quote($pid)." AND stl_counter_bad = FALSE";
 		try {
 			$res = $db->fetchOne($stmt);
 		}
@@ -2647,7 +2687,7 @@ class Statistics
 
 		$stmt = "select count(*) as count,month(date(stl_request_date)) as monthnum,date_format(date(stl_request_date),'%b') as month,year(date(stl_request_date)) as year
 	 	 from " . APP_TABLE_PREFIX . "statistics_all
-		 ".$limit." AND stl_counter_bad = 0
+		 ".$limit." AND stl_counter_bad = FALSE
  		 group by year, month, monthnum
 		 order by year DESC, monthnum DESC";
 		
@@ -2679,7 +2719,7 @@ class Statistics
 
 		$stmt = "select count(*) as count,month(date(stl_request_date)) as monthnum,date_format(date(stl_request_date),'%b') as month,year(date(stl_request_date)) as year
 	 	 from " . APP_TABLE_PREFIX . "statistics_all
-		 ".$limit." AND stl_counter_bad = 0
+		 ".$limit." AND stl_counter_bad = FALSE
  		 group by year, month, monthnum 
 		 order by year DESC, monthnum DESC";
 		

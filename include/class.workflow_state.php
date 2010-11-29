@@ -127,7 +127,7 @@ class Workflow_State
 			$log->err($ex);
 			return -1;
 		}
-		$wfs_id = $db->lastInsertId();
+		$wfs_id = $db->lastInsertId(APP_TABLE_PREFIX . "workflow_state", "wfs_id");
 		WorkflowStateLink::insertPost($wfs_id);
 		// add the auth role associations!
 		for ($i = 0; $i < count($params["wfs_roles"]); $i++) {
@@ -327,7 +327,7 @@ class Workflow_State
 		if ($wfl_id) {
 			$wherestr = " wfs_wfl_id=".$db->quote($wfl_id, 'INTEGER')." ";
 		} else {
-			$wherestr = " 1 ";
+			$wherestr = " TRUE ";
 		}
 
 		$stmt = "SELECT
@@ -417,7 +417,7 @@ class Workflow_State
 	 */
 	function getStartState($wfl_id)
 	{
-		$states = Workflow_State::getList($wfl_id, " AND wfs_start=1 ");
+		$states = Workflow_State::getList($wfl_id, " AND wfs_start=TRUE ");
 		return $states[0];
 	}
 

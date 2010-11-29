@@ -97,7 +97,11 @@ class Fez_Session_Manager implements Zend_Session_SaveHandler_Interface
 	public function gc($maxLifetime)
 	{
 		$maxLifetime = intval($maxLifetime);
-		$this->sessionData->delete("DATE_ADD(updated, INTERVAL $maxLifetime SECOND) < NOW()");
+		if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) { //eg if postgresql etc
+			$this->sessionData->delete("updated + INTERVAL '$maxLifetime seconds' < NOW()");
+		} else {
+			$this->sessionData->delete("DATE_ADD(updated, INTERVAL $maxLifetime SECOND) < NOW()");
+		}
 		return true;
 	}
 }

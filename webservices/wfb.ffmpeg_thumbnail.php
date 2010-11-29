@@ -36,7 +36,7 @@
 // FFMpeg video to flash video converter webservice
 // - Takes url parameters to convert an video file to a flash video cached dissemination
 
-include_once("../config.inc.php");
+include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
 include_once(APP_INC_PATH."class.foxml.php");
 $file = escapeshellcmd(urldecode($_GET['file']));
 $file_dir = "";	

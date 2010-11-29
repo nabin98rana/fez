@@ -267,25 +267,25 @@ class AuthorAffiliations
 		/* -- Original way of doing it
 		 $stmt = "SELECT " .
 		 "aut_display_name AS name, " .
-		 "WAMIKEY AS wamikey, " .
-		 "FTE AS fte, " .
-		 "AOU AS aou, " .
+		 "wamikey AS wamikey, " .
+		 "fte AS fte, " .
+		 "aou AS aou, " .
 		 "PAYPOINTLONG AS paypointlong, " .
 		 "STATUS AS status, " .
-		 "PAYROLL_FLAG AS payroll_flag, " .
-		 "AWARD AS award " .
+		 "payroll_flag AS payroll_flag, " .
+		 "award AS award " .
 		 "FROM " . APP_TABLE_PREFIX . "author, hr_position_vw " .
-		 "WHERE " . APP_TABLE_PREFIX . "author.aut_org_staff_id = hr_position_vw.WAMIKEY " .
+		 "WHERE " . APP_TABLE_PREFIX . "author.aut_org_staff_id = hr_position_vw.wamikey " .
 		 "AND aut_id = " . $authorID . "";
 
 		 */
 
-		$stmt = "SELECT aut_display_name AS name, t1.aut_id AS aut_id, WAMIKEY AS wamikey, FTE AS fte, AOU AS aou, STATUS AS status, PAYROLL_FLAG AS payroll_flag, AWARD AS award, org_title AS org_title, org_id AS org_id " .
+		$stmt = "SELECT aut_display_name AS name, t1.aut_id AS aut_id, wamikey AS wamikey, fte AS fte, aou AS aou, status AS status, payroll_flag AS payroll_flag, award AS award, org_title AS org_title, org_id AS org_id " .
 				"FROM " . APP_TABLE_PREFIX . "author AS t1 " .
 				"INNER JOIN hr_position_vw " .
-				"ON aut_org_staff_id = WAMIKEY " .
+				"ON aut_org_staff_id = wamikey " .
 				"LEFT JOIN " . APP_TABLE_PREFIX . "org_structure " .
-				"ON AOU = org_extdb_id " .
+				"ON aou = org_extdb_id " .
 				"WHERE aut_id = " . $db->quote($authorID, 'INTEGER') . " " .
 				"AND (org_extdb_name = 'hr' " .
 				"OR org_extdb_name = 'rrtd')";
@@ -425,7 +425,7 @@ class AuthorAffiliations
 				"WHERE org_title LIKE ". $db->quote('%'.$term.'%')." " .
 				"AND (org_extdb_name = 'hr' " .
 				"OR org_extdb_name = 'rrtd') " .
-				"ORDER BY org_title LIMIT 0, 20";
+				"ORDER BY org_title LIMIT 20 OFFSET 0";
 
 		try {
 			if($assoc) {

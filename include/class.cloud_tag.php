@@ -52,7 +52,7 @@ class Cloud_Tag
                         FROM " . APP_TABLE_PREFIX . "record_search_key_keywords kw
                         GROUP BY rek_keywords
                         ORDER BY quantity DESC
-                        LIMIT 0, 30
+                        LIMIT 30 OFFSET 0
                     ) as t1 ORDER BY tag ASC";
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);

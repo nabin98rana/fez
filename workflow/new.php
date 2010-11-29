@@ -32,7 +32,7 @@
 // +----------------------------------------------------------------------+
 //
 //
-include_once("../config.inc.php");
+include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.auth.php");
@@ -148,8 +148,10 @@ if ($pid == -1) {
     $tpl->assign("pid", $pid);
 
     $record = new RecordObject($pid);
+echo "here";
     if ($record->canCreate()) {
         $tpl->assign("isCreator", 1);
+echo "hmm";
         if ($record->isCommunity()) {
             $ret_id = Object_Type::getID('Collection');
             $workflows = WorkflowTrigger::getFilteredList(-1, array(

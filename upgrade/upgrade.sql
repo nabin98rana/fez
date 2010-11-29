@@ -120,7 +120,7 @@ CREATE TABLE %TABLE_PREFIX%premis_event (
                     `pre_date` datetime default NULL,                   
                     `pre_detail` text,                                  
                     `pre_outcome` varchar(50) default NULL,             
-                    `pre_outcomeDetail` text,                           
+                    `pre_outcomedetail` text,                           
                     `pre_usr_id` int(11) default NULL,                  
                     `pre_pid` varchar(255) default NULL,                
                     `pre_is_hidden` tinyint(1) default '0',             

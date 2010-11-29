@@ -65,9 +65,18 @@ class XSD_Loop_Subelement
 		$db = DB_API::get();
 
 		$stmt = "SELECT
-					s1.*, m1.*, d1.*,
+					s1.*, m1.*, d1.*, ";
+					
+    if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) { 
+ 			$stmt .= "
+					IFNULL(('(' || s1.xsdsel_attribute_loop_xsdmf_id || ') (' || s2.xsdsel_title || ') ' || m2.xsdmf_element), ('(' || m2.xsdmf_id || ') ' || m2.xsdmf_element)) as xsdmf_attribute_loop_presentation,
+					IFNULL(('(' || s1.xsdsel_indicator_xsdmf_id || ') (' || s3.xsdsel_title || ') ' || m3.xsdmf_element), ('(' || m3.xsdmf_id || ') ' || m3.xsdmf_element)) as xsdmf_indicator_presentation ";
+		} else {
+			$stmt .= "
 					IFNULL(CONCAT('(', s1.xsdsel_attribute_loop_xsdmf_id, ') (', s2.xsdsel_title, ') ', m2.xsdmf_element), CONCAT('(', m2.xsdmf_id, ') ', m2.xsdmf_element)) as xsdmf_attribute_loop_presentation,
-					IFNULL(CONCAT('(', s1.xsdsel_indicator_xsdmf_id, ') (', s3.xsdsel_title, ') ', m3.xsdmf_element), CONCAT('(', m3.xsdmf_id, ') ', m3.xsdmf_element)) as xsdmf_indicator_presentation
+					IFNULL(CONCAT('(', s1.xsdsel_indicator_xsdmf_id, ') (', s3.xsdsel_title, ') ', m3.xsdmf_element), CONCAT('(', m3.xsdmf_id, ') ', m3.xsdmf_element)) as xsdmf_indicator_presentation ";			
+		}
+		$stmt .= "
                  FROM
                     " . APP_TABLE_PREFIX . "xsd_loop_subelement s1 inner join
                     " . APP_TABLE_PREFIX . "xsd_display_matchfields m1 on (s1.xsdsel_xsdmf_id = m1.xsdmf_id) and (s1.xsdsel_xsdmf_id=".$db->quote($xsdmf_id, 'INTEGER').") inner join
@@ -424,7 +433,7 @@ class XSD_Loop_Subelement
 			$log->err($ex);
 			return -1;
 		}
-		return $db->lastInsertId();
+		return $db->lastInsertId(APP_TABLE_PREFIX . "xsd_loop_subelement", "xsdsel_id");
 	}
 
 	/**

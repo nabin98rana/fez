@@ -74,10 +74,10 @@ class RecordLock
 		// Insert the row into the DB.  If two users simultaneously run this, then two rows will be created.
 		// After the rows has been inserted, check that no-one else has the PID and delete the row we just made if there is
 		$stmt = "INSERT INTO ".$dbtp."record_locks " .
-                "SET rl_pid=".$db->quote($pid).", " .
-                    "rl_usr_id=".$db->quote($usr_id, 'INTEGER').", " .
-                    "rl_context_type=".$db->quote($context, 'INTEGER').", " .
-                    "rl_context_value=".$db->quote($extra_context, 'INTEGER');
+                "(rl_pid, rl_usr_id, rl_context_type, rl_context_value) VALUES (".$db->quote($pid).", " .
+                    $db->quote($usr_id, 'INTEGER').", " .
+                    $db->quote($context, 'INTEGER').", " .
+                    $db->quote($extra_context, 'INTEGER').")";
 		try {
 			$db->query($stmt);
 		}

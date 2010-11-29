@@ -127,7 +127,7 @@ class WorkflowStateLink
 			$log->err($ex);
 			return -1;
 		}
-		return $db->lastInsertId();
+		return $db->lastInsertId(APP_TABLE_PREFIX . "workflow_state_link", "wfsl_id");
 	}
 
 	function remove($from, $to)

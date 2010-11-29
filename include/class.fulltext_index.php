@@ -44,7 +44,7 @@
  * @version 1.1, February 2008
  *
  */
-include_once(APP_PATH . "config.inc.php");
+include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
 include_once(APP_INC_PATH . "db_access.php");
 include_once(APP_INC_PATH . "class.bgp_fulltext_index.php");
 include_once(APP_INC_PATH . "class.fulltext_queue.php");
@@ -1058,10 +1058,12 @@ abstract class FulltextIndex {
 		//$GLOBALS['db_api']->dbh->autoCommit(false);
 		//$this->deleteFulltextCache($pid, $dsID);
 
+		$db->beginTransaction();
+		$this->deleteFulltextCache($pid, $dsID);
 		// REPLACE: MySQL specific syntax
 		// can be replaced with IF EXISTS INSERT or DELETE/INSERT for other databases
 		// or use transactional integrity - if using multiple indexing processes		
-		$stmt = "REPLACE INTO ".APP_TABLE_PREFIX.FulltextIndex::FULLTEXT_TABLE_NAME." ";
+		$stmt = "INSERT INTO ".APP_TABLE_PREFIX.FulltextIndex::FULLTEXT_TABLE_NAME." ";
         	
         $values = array($pid,$dsID,$is_text_usable);        
         if(! empty($fulltext)) {
@@ -1073,8 +1075,10 @@ abstract class FulltextIndex {
         
 		try {
 			$db->query($stmt, $values);
+			$db->commit();
 		}
 		catch(Exception $ex) {
+			$db->rollBack();
 			$log->err($ex);
 			return false;
 		}

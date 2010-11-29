@@ -32,7 +32,7 @@
 // |          Rhys Palmer <r.rpalmer@library.uq.edu.au>                   |
 // +----------------------------------------------------------------------+
 
-include_once("../config.inc.php");
+include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
 include_once(APP_INC_PATH. 'class.bgp_bulk_change_display_type.php');
 include_once(APP_INC_PATH. 'class.error_handler.php');
 

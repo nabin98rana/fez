@@ -182,7 +182,7 @@ class UserComments
 			$log->err($ex);
 			return false;
 		}
-		$comment['usc_id'] = $db->lastInsertId();
+		$comment['usc_id'] = $db->lastInsertId(APP_TABLE_PREFIX ."user_comments", "usc_id");
 
 		$this->comments[] = $comment;
 		$this->number_of_ratings ++;

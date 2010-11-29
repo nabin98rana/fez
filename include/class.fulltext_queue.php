@@ -29,7 +29,7 @@
  *
  */
 
-include_once(APP_PATH . "config.inc.php");
+include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
 include_once(APP_INC_PATH . "class.bgp_fulltext_index.php");
 include_once(APP_INC_PATH . "class.logger.php");
 
@@ -229,14 +229,13 @@ class FulltextQueue
 				$log->debug("FulltextIndex::triggerUpdate acquire lock");
 
 				// delete (postgresql) / use INSERT instead of REPLACE below
-				/*
+				
 					$sql = "DELETE FROM ".APP_TABLE_PREFIX."fulltext_locks WHERE ftl_name='";
 					$sql .= self::LOCK_NAME_FULLTEXT_INDEX."'";
-					Logger::debug($sql);
-					$GLOBALS["db_api"]->dbh->query($sql);
-					*/
+					$db->query($sql);
+					
 				$invalidProcessId = -1;
-				$stmt  = "REPLACE INTO ".APP_TABLE_PREFIX."fulltext_locks (ftl_name,ftl_value,ftl_pid) ";
+				$stmt  = "INSERT INTO ".APP_TABLE_PREFIX."fulltext_locks (ftl_name,ftl_value,ftl_pid) ";
 				$stmt .= " VALUES ('".self::LOCK_NAME_FULLTEXT_INDEX."', 1, $invalidProcessId) ";
 			
 				$ok = true;
@@ -299,14 +298,21 @@ class FulltextQueue
 
 		foreach ($this->pids as $pid => $action) {
 			//Logger::debug("FulltextQueue::commit() queing ". Misc::escapeString($pid).", ".Misc::escapeString($action));
-
-			$stmt = "REPLACE INTO ".APP_TABLE_PREFIX."fulltext_queue (ftq_pid,ftq_op) VALUES (".
+			$db->beginTransaction();
+			
+			$sql = "DELETE FROM ".APP_TABLE_PREFIX."fulltext_queue WHERE ftq_pid=";
+			$sql .= $db->quote($pid)." AND ftq_op = ".$db->quote($action);
+			$db->query($sql);
+			
+			$stmt = "INSERT INTO ".APP_TABLE_PREFIX."fulltext_queue (ftq_pid,ftq_op) VALUES (".
 			$db->quote($pid).", ".$db->quote($action).")";
 			
 			try {
 				$db->query($stmt);
+				$db->commit();
 			}
 			catch(Exception $ex) {
+				$db->rollBack();
 				$log->err($ex);
 				return false;
 			}

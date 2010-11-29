@@ -166,7 +166,7 @@ class Controlled_Vocab
 		}
 		
 		// get last db entered id
-		$new_id = $db->lastInsertId();
+		$new_id = $db->lastInsertId(APP_TABLE_PREFIX . "controlled_vocab", "cvo_id");
 		if (is_numeric($_POST["parent_id"])) {
 			Controlled_Vocab::associateParent($_POST["parent_id"], $new_id);
 		}
@@ -211,7 +211,7 @@ class Controlled_Vocab
 		}
 
 		// get last db entered id
-		$new_id = $db->lastInsertId();
+		$new_id = $db->lastInsertId(APP_TABLE_PREFIX . "controlled_vocab", "cvo_id");
 		if (is_numeric($parent_id)) {
 			Controlled_Vocab::associateParent($parent_id, $new_id);
 		}
@@ -570,7 +570,7 @@ class Controlled_Vocab
                  FROM
                     " . APP_TABLE_PREFIX . "controlled_vocab";
 		if (is_numeric($start) && is_numeric($max)) {
-			$stmt .= " LIMIT ".$db->quote($start, 'INTEGER').", ".$db->quote($max, 'INTEGER');
+			$stmt .= " LIMIT ".$db->quote($max, 'INTEGER')." OFFSET ".$db->quote($start, 'INTEGER');
 		}
 		try {
 			$res = $db->fetchPairs($stmt);
@@ -602,7 +602,7 @@ class Controlled_Vocab
 				 WHERE cvo_id not in (SELECT cvr_parent_cvo_id from  " . APP_TABLE_PREFIX . "controlled_vocab_relationship)
 				 ORDER BY cvo_id ASC";
 		if (is_numeric($start) && is_numeric($max)) {
-			$stmt .= " LIMIT ".$db->quote($start, 'INTEGER').", ".$db->quote($max, 'INTEGER');
+			$stmt .= " LIMIT ".$db->quote($max, 'INTEGER')." OFFSET ".$db->quote($start, 'INTEGER');
 		}
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
@@ -734,9 +734,13 @@ class Controlled_Vocab
 		}
 		$level++;
 		$stmt = "SELECT
-                    cvo_id,
-					CONCAT(cvo_title, ' ', cvo_desc) as cvo_title
-                 FROM
+                    cvo_id, ";
+		if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
+			$stmt .= "cvo_title || ' ' || cvo_desc as cvo_title ";
+		} else {
+			$stmt .= "CONCAT(cvo_title, ' ', cvo_desc) as cvo_title ";			
+		}
+    $stmt .= "FROM
                     " . APP_TABLE_PREFIX . "controlled_vocab ";
 
 		if (is_numeric($parent_id)) {
@@ -794,8 +798,14 @@ class Controlled_Vocab
 		if (empty($child_id)) {
 	 		return array();
 	 	}
-		$stmt = "SELECT cvo_id, concat(".$db->quote($indent).",cvo_title) as cvo_title
-	               FROM
+		$stmt = "SELECT
+                    cvo_id, ";
+		if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
+			$stmt .= "cvo_title || ' ' || cvo_desc as cvo_title ";
+		} else {
+			$stmt .= "CONCAT(cvo_title, ' ', cvo_desc) as cvo_title ";			
+		}
+    $stmt .= "FROM
 	                    " . APP_TABLE_PREFIX . "controlled_vocab ";
 		$stmt .=   "," . APP_TABLE_PREFIX . "controlled_vocab_relationship
 						     WHERE cvr_parent_cvo_id = cvo_id AND cvr_child_cvo_id = ".$db->quote($child_id, 'INTEGER');			
@@ -846,12 +856,15 @@ class Controlled_Vocab
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
-                    cvo_id,
-					concat(".$db->quote($indent).",cvo_title) as cvo_title
-                 FROM
-                    " . APP_TABLE_PREFIX . "controlled_vocab ";
+                    cvo_id, ";
+		if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
+			$stmt .= $db->quote($indent)." || ' ' || cvo_title as cvo_title ";
+		} else {
+			$stmt .= "CONCAT(".$db->quote($indent).", ' ', cvo_title) as cvo_title ";			
+		}
+    $stmt .= " FROM " . APP_TABLE_PREFIX . "controlled_vocab ";
 		$stmt .=   "," . APP_TABLE_PREFIX . "controlled_vocab_relationship
 					     WHERE cvr_parent_cvo_id = cvo_id AND cvr_child_cvo_id = ".$db->quote($child_id, 'INTEGER');			
 		$stmt .= " ORDER BY cvo_title ASC";
@@ -1017,7 +1030,7 @@ class Controlled_Vocab
 				$stmt .= " cvo_hide != 1 AND ";
 			}
 			$stmt .= "
-							  cvr_parent_cvo_id = ".$db->quote($parent_id, 'INTEGER')." AND cvr_child_cvo_id = cvo_id  AND cvo_id in (SELECT cvr_parent_cvo_id from fez_controlled_vocab_relationship)";			
+							  cvr_parent_cvo_id = ".$db->quote($parent_id, 'INTEGER')." AND cvr_child_cvo_id = cvo_id  AND cvo_id in (SELECT cvr_parent_cvo_id from " . APP_TABLE_PREFIX . "controlled_vocab_relationship)";			
 			
 			try {
 				$res = $db->fetchAll($stmt);
@@ -1094,7 +1107,12 @@ class Controlled_Vocab
 	
 		$visible_cv_ids = Controlled_Vocab::getVisibleCvs();
 
-		$stmt = "SELECT cvo_id, cvo_title, cvo_hide, CONCAT(cvo_title, ' ', cvo_desc) as cvo_title_extended, cvr_parent_cvo_id as cvo_parent_id " .
+		if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
+			$stmt = "SELECT cvo_id, cvo_title, cvo_hide, cvo_title || ' ' || cvo_desc as cvo_title_extended, cvr_parent_cvo_id as cvo_parent_id ";
+		} else {
+			$stmt = "SELECT cvo_id, cvo_title, cvo_hide, CONCAT(cvo_title, ' ', cvo_desc) as cvo_title_extended, cvr_parent_cvo_id as cvo_parent_id ";
+		}
+		$stmt .=
 				"FROM " . APP_TABLE_PREFIX . "controlled_vocab AS t1 " .
 				"LEFT JOIN " .
 				"(SELECT cvr_parent_cvo_id, cvr_child_cvo_id " .

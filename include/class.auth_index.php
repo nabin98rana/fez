@@ -183,7 +183,7 @@ class AuthIndex
 				$values[$loop][] = $roles[$role];
 				$values[$loop][] = $arg_id;
 				
-				$values_sql[] = '(?,?,?)';
+				$values_sql[0] = '(?,?,?)';
 
 				$rows[] = array(
                     'authi_pid'     => $pid, 
@@ -263,8 +263,9 @@ class AuthIndex
 			}
 			try {				
 				if(is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
-					$values = Misc::array_flatten($values, '', TRUE);
-					$db->query($stmt, $values);
+					foreach($values as $value) {
+						$db->query($stmt, $value);
+					}
 				}
 				else {
 					$stmt_delete = 'DELETE FROM '.$dbtp.'auth_index2 WHERE authi_pid=?';

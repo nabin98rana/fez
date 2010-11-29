@@ -234,20 +234,41 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 			
 				$col_name = "";
 				if ($mtColumn['type'] == FulltextIndex::FIELD_TYPE_DATE ) {
-					$col_name = "(DATE_FORMAT(rek_".$mtColumn["name"] .",'%Y-%m-%dT%H:%i:%sZ'))";
+				  if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) { 
+						$col_name = "(DATE_FORMAT(a1.rek_".$mtColumn["name"] .",'%Y-%m-%dT%H:%i:%sZ'))";
+					} else {
+						$col_name = "(DATE_FORMAT(a2.rek_".$mtColumn["name"] .",'%Y-%m-%dT%H:%i:%sZ'))";
+					}
 				} else {
-					$col_name = "rek_".$mtColumn["name"];
+				  if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) { 
+						$col_name = "a1.rek_".$mtColumn["name"];
+					} else {
+						$col_name = "a2.rek_".$mtColumn["name"];
+					}
 				}
 
 				$orderByClause = '';
 				if ($mtColumn['cardinality'] == 1) {
-					$orderByClause = "ORDER BY rek_{$mtColumn['name']}_order ASC";
+			  	if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) { 
+						$orderByClause = "ORDER BY a1.rek_{$mtColumn['name']}_order ASC";
+					} else {
+						$orderByClause = "ORDER BY a2.rek_{$mtColumn['name']}_order ASC";
+					}
 				}
 				
-				$stmt = "    SELECT rek_".$mtColumn["name"]."_pid as pid, GROUP_CONCAT(".$col_name." {$orderByClause} SEPARATOR \"\t\") as value
-                            FROM ".APP_TABLE_PREFIX."record_search_key_".$mtColumn["name"]." 
-                            WHERE rek_".$mtColumn["name"]."_pid IN (". $pids . ")
-                            GROUP BY rek_".$mtColumn["name"]."_pid";
+				$stmt = "    SELECT a2.rek_".$mtColumn["name"]."_pid as pid, ";
+				
+						  if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) { 
+								$stmt .= " array_to_string(array(SELECT ".$col_name." FROM ".APP_TABLE_PREFIX."record_search_key_".$mtColumn["name"]." a1 WHERE a1.rek_".$mtColumn["name"]."_pid = a2.rek_".$mtColumn["name"]."_pid {$orderByClause}), \"\t\") AS value ";
+							} else {
+								$stmt .= " GROUP_CONCAT(".$col_name." {$orderByClause} SEPARATOR \"\t\") as value ";
+							}					
+
+							$stmt .= "
+														
+                            FROM ".APP_TABLE_PREFIX."record_search_key_".$mtColumn["name"]." a2 
+                            WHERE a2.rek_".$mtColumn["name"]."_pid IN (". $pids . ")
+                            GROUP BY a2.rek_".$mtColumn["name"]."_pid";
 				
 				try {
 					$resultSeks = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
@@ -288,17 +309,32 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 
 				if ($mtColumn['type'] == FulltextIndex::FIELD_TYPE_DATE ) {
 					$tmpArr = array();
-					$col_name = "(DATE_FORMAT(rek_".$mtColumn["name"] .",'%Y'))";
-					
+				  if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) { 
+						$col_name = "(DATE_FORMAT(a1.rek_".$mtColumn["name"] .",'%Y'))";
+					} else {
+						$col_name = "(DATE_FORMAT(a2.rek_".$mtColumn["name"] .",'%Y'))";
+					}
+
 					$orderByClause = '';
 					if ($mtColumn['cardinality'] == 1) {
-						$orderByClause = "ORDER BY rek_{$mtColumn['name']}_order ASC";
+						if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) { 
+							$orderByClause = "ORDER BY a1.rek_{$mtColumn['name']}_order ASC";
+						} else {
+							$orderByClause = "ORDER BY a2.rek_{$mtColumn['name']}_order ASC";
+						}
 					}
+
+					$stmt = "    SELECT a2.rek_".$mtColumn["name"]."_pid as pid, ";
+
+				  if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) { 
+						$stmt .= " array_to_string(array(SELECT ".$col_name." FROM ".APP_TABLE_PREFIX."record_search_key_".$mtColumn["name"]." a1 WHERE a1.rek_".$mtColumn["name"]."_pid = a2.rek_".$mtColumn["name"]."_pid {$orderByClause}), \"\t\") AS value ";
+					} else {
+						$stmt .= " GROUP_CONCAT(".$col_name." {$orderByClause} SEPARATOR \"\t\") as value ";
+					}					
 					
-					$stmt = "    SELECT rek_".$mtColumn["name"]."_pid as pid, GROUP_CONCAT(".$col_name." {$orderByClause} SEPARATOR \"\t\") as value
-	                            FROM ".APP_TABLE_PREFIX."record_search_key_".$mtColumn["name"]." 
-	                            WHERE rek_".$mtColumn["name"]."_pid IN (". $pids . ")
-	                            GROUP BY rek_".$mtColumn["name"]."_pid";
+					$stmt .= "          FROM ".APP_TABLE_PREFIX."record_search_key_".$mtColumn["name"]." a2
+	                            WHERE a2.rek_".$mtColumn["name"]."_pid IN (". $pids . ")
+	                            GROUP BY a2.rek_".$mtColumn["name"]."_pid";
 
 					try {
 						$resultSeks = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);

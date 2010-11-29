@@ -87,7 +87,7 @@ class AuthRules
 				
 				return -1;
 			}
-            $arg_id = $db->lastInsertId();
+            $arg_id = $db->lastInsertId($dbtp."auth_rule_groups", "arg_id");
 
             $values = array();
             $values_sql = array();
@@ -166,7 +166,7 @@ class AuthRules
 				return -1;				
 			}
 			
-			return $db->lastInsertId();
+			return $db->lastInsertId($dbtp."auth_rules", "ar_id");
         } 
         else {
         	
@@ -211,10 +211,14 @@ class AuthRules
                     (SELECT
                         usr_id
                     FROM
-                        fez_user
-                    WHERE
-                        usr_last_login_date < DATE_SUB(NOW(), INTERVAL " . APP_USER_GROUP_CACHE_EXPIRY . " DAY));";
-        
+                        " . APP_TABLE_PREFIX . "user
+                    WHERE ";
+				if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) { //eg if postgresql etc
+					$stmt .= " usr_last_login_date <  (NOW() - INTERVAL '" . APP_USER_GROUP_CACHE_EXPIRY . " days'))";
+				} else {
+          $stmt .= " usr_last_login_date < DATE_SUB(NOW(), INTERVAL " . APP_USER_GROUP_CACHE_EXPIRY . " DAY))";	
+				}
+
         try {
             $db->exec($stmt);
         }
