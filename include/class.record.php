@@ -3170,6 +3170,7 @@ class Record
      */
     $tableJoinID = 1;
     foreach ($searchKeys as $sek_id => $searchValue ) {
+      if (empty($sek_id)) continue;
 
       if (!empty($searchValue)) {
 
