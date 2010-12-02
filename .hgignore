@@ -1,0 +1,11 @@
+syntax: glob
+
+config.inc.php
+test.php
+.hgignore.swp
+phpinfo.php
+libckvm_fez.tmproj
+._*
+*.orig
+#syntax: regexp
+
