@@ -125,10 +125,11 @@ class Scopus
 			$log->err('Error occurred while creating new soap client: '.$err, __FILE__, __LINE__);
 			return false;
 		}		
+        // XSD now found at http://schema.elsevier.com/waldo/easi/v1-0-0/requestheader/EASIRequestSchema.xsd
 		$headers = '<EASIReq xmlns="http://webservices.elsevier.com/schemas/easi/headers/types/v1">
 						<ReqId xmlns="">001</ReqId>
 						<Ver xmlns="">2</Ver>
-						<Consumer xmlns="">ESPACE</Consumer>
+						<Consumer xmlns="">' . substr(APP_SHORT_ORG_NAME, 0, 20) . '</Consumer>
 						<ConsumerClient xmlns="">tester_client</ConsumerClient>
 						<OpaqueInfo xmlns="">prodId=1053;acctId=53745</OpaqueInfo>
 						<LogLevel xmlns="">Default</LogLevel>
