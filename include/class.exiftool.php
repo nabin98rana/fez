@@ -89,7 +89,11 @@ class Exiftool
 		if ($exif_array["create_date"] == "" || empty($exif_array["create_date"])) {
 			$values .= ",NULL";
 		} else {
-			$values .= "," . $db->quote($exif_array["create_date"]);
+			if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) { //eg if postgresql etc
+				$values .= ", TIMESTAMP(" . $db->quote($exif_array["create_date"]).")";
+			} else {
+				$values .= ", " . $db->quote($exif_array["create_date"]);
+			}
 		}
 		$values .= ")";
 
