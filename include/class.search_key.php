@@ -1138,7 +1138,7 @@ class Search_Key
 					  SELECT rek_".$sek_title."_id, rek_".$sek_title.",
 						MATCH(rek_".$sek_title.") AGAINST (".$db->quote($term).") as Relevance FROM ".$dbtp."record_search_key_".$sek_title."
 					 WHERE MATCH (rek_".$sek_title.") AGAINST (".$db->quote('*'.$term.'*')." IN BOOLEAN MODE) ";
-				$stmt .= " GROUP BY rek_".$sek_title." ORDER BY Relevance DESC, rek_".$sek_title." LIMIT 10 OFFSET 0) as tempsuggest ";
+				$stmt .= " GROUP BY rek_".$sek_title."_id, rek_".$sek_title." ORDER BY Relevance DESC, rek_".$sek_title." LIMIT 10 OFFSET 0) as tempsuggest ";
 			}
 		} else { //1-1 index table
 			if (APP_MYSQL_INNODB_FLAG == "ON" || (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql")))) {

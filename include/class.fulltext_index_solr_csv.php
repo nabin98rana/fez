@@ -577,7 +577,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 		$stmt = "SELECT rek_pid
                 FROM ".APP_TABLE_PREFIX."record_search_key
                 WHERE rek_pid IN (" . $pids . ") AND
-                      rek_citation IS NULL OR rek_citation = ''";
+                      (rek_citation IS NULL OR rek_citation = '')";
 		
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
