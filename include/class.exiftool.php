@@ -70,8 +70,8 @@ class Exiftool
                     " . $db->quote($exif_array["dsid"]) . ",
                     " . $db->quote($exif_array["file_size"]) . ",
                     " . $db->quote($exif_array["file_size_human"]) . ",
-                    " . $db->quote($exif_array["image_width"]) . ",
-                    " . $db->quote($exif_array["image_height"]) . ",
+                    " . $db->quote($exif_array["image_width"], 'INTEGER') . ",
+                    " . $db->quote($exif_array["image_height"], 'INTEGER') . ",
                     " . $db->quote($exif_array["mime_type"]) . ",
                     " . $db->quote($exif_array["camera_model_name"]) . ",
                     " . $db->quote($exif_array["make"]) . ",
@@ -82,15 +82,16 @@ class Exiftool
 
 		if (is_integer($exif_array["page_count"])) {
 			$insert .= ",exif_page_count";
-			$values .= "," . $db->quote($exif_array["page_count"]);
+			$values .= "," . $db->quote($exif_array["page_count"], 'INTEGER');
 		}
 
 		$insert .= ",exif_create_date";
 		if ($exif_array["create_date"] == "" || empty($exif_array["create_date"])) {
 			$values .= ",NULL";
 		} else {
+			$exif_array["create_date"] = date( 'Y-m-d H:i:s', strtotime($exif_array["create_date"]));
 			if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) { //eg if postgresql etc
-				$values .= ", TIMESTAMP(" . $db->quote($exif_array["create_date"]).")";
+				$values .= ", TIMESTAMP " . $db->quote($exif_array["create_date"])." ";
 			} else {
 				$values .= ", " . $db->quote($exif_array["create_date"]);
 			}
