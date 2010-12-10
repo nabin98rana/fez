@@ -764,10 +764,14 @@ class Fedora_API {
 				$dsLabel = $dsID;
 			}
 		}
+		$dsIDName = $dsID;
+		if (is_numeric(strpos($dsIDName, "/"))) {
+			$dsIDName = substr($dsIDName, strrpos($dsIDName, "/")+1);
+		}
 
 		$versionable = $versionable === true ? 'true' : $versionable === false ? 'false' : $versionable;
         $log = FezLog::get();
-		$getString = APP_SIMPLE_FEDORA_APIM_DOMAIN."/objects/".$pid."/datastreams/".$dsID."?dsLabel=".urlencode($dsLabel)."&versionable=".$versionable."&mimeType=".$mimetype.
+		$getString = APP_SIMPLE_FEDORA_APIM_DOMAIN."/objects/".$pid."/datastreams/".$dsIDName."?dsLabel=".urlencode($dsIDName)."&versionable=".$versionable."&mimeType=".$mimetype.
 			          "&controlGroup=".$controlGroup."&dsState=A&logMessage=Added%20Datastream";
 
 
