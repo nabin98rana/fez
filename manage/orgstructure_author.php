@@ -41,7 +41,7 @@ include_once(APP_INC_PATH . "class.author.php");
 include_once(APP_INC_PATH . "class.author_org.php");
 include_once(APP_INC_PATH . "class.author_classification.php");
 include_once(APP_INC_PATH . "class.author_function.php");
-include_once(APP_INC_PATH . "db_access.php");
+include_once(APP_INC_PATH . "class.db_api.php");
 
 $tpl = new Template_API();
 $tpl->setTemplate("manage/index.tpl.html");

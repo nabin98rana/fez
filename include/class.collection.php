@@ -43,7 +43,7 @@
  * @author Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>
  * @author Matthew Smith <m.smith@library.uq.edu.au>
  */
-include_once(APP_INC_PATH . "db_access.php");
+include_once(APP_INC_PATH . "class.db_api.php");
 include_once(APP_INC_PATH . "class.error_handler.php");
 include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.validation.php");

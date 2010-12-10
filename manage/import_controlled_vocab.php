@@ -37,7 +37,7 @@ include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.controlled_vocab.php");
-include_once(APP_INC_PATH . "db_access.php");
+include_once(APP_INC_PATH . "class.db_api.php");
 
 $tpl = new Template_API();
 $tpl->setTemplate("manage/index.tpl.html");

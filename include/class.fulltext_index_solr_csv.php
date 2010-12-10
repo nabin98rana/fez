@@ -8,7 +8,7 @@
  *
  */
 
-include_once(APP_INC_PATH . "db_access.php");
+include_once(APP_INC_PATH . "class.db_api.php");
 include_once(APP_INC_PATH . "class.fulltext_index.php");
 include_once(APP_INC_PATH . "class.fulltext_queue.php");
 include_once(APP_INC_PATH . "class.custom_view.php");

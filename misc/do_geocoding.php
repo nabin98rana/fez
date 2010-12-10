@@ -1,7 +1,7 @@
 <?php
 
 include('../config.inc.php');
-include_once('../include/db_access.php');
+include_once('../include/class.db_api.php');
 include_once('../include/class.googlemap.php');
 include_once('../include/class.geocode_cities.php');
 include_once('../include/class.geocode_location_cache.php');

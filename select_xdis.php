@@ -40,7 +40,7 @@ include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.doc_type_xsd.php");
 include_once(APP_INC_PATH . "class.xsd_display.php");
-include_once(APP_INC_PATH . "db_access.php");
+include_once(APP_INC_PATH . "class.db_api.php");
 
 $tpl = new Template_API();
 $tpl->setTemplate("select_xdis.tpl.html");

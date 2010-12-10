@@ -43,7 +43,7 @@ include_once(APP_INC_PATH . "class.community.php");
 include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.status.php");
-include_once(APP_INC_PATH . "db_access.php");
+include_once(APP_INC_PATH . "class.db_api.php");
 include_once(APP_INC_PATH . "class.pager.php");
 include_once(APP_INC_PATH . "class.bgp_index_object.php");
 include_once(APP_INC_PATH . "najax_classes.php");

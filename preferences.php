@@ -39,7 +39,7 @@ include_once(APP_INC_PATH . "class.prefs.php");
 include_once(APP_INC_PATH . "class.setup.php");
 include_once(APP_INC_PATH . "class.date.php");
 include_once(APP_INC_PATH . "class.author.php");
-include_once(APP_INC_PATH . "db_access.php");
+include_once(APP_INC_PATH . "class.db_api.php");
 
 $tpl = new Template_API();
 $tpl->setTemplate("preferences.tpl.html");

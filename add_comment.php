@@ -32,7 +32,7 @@
 // +----------------------------------------------------------------------+
 
 include_once "config.inc.php";
-include_once APP_INC_PATH . "db_access.php";
+include_once APP_INC_PATH . "class.db_api.php";
 include_once APP_INC_PATH . "class.user_comments.php";
 include_once APP_INC_PATH . "class.auth.php";
 

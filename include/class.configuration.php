@@ -35,7 +35,7 @@
 //
 
 include_once(APP_INC_PATH . "class.validation.php");
-include_once(APP_INC_PATH . "db_access.php");
+include_once(APP_INC_PATH . "class.db_api.php");
 include_once(APP_INC_PATH . "class.custom_view.php");
 include_once(APP_INC_PATH . "class.misc.php");
 

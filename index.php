@@ -44,7 +44,7 @@ if (!defined('APP_INC_PATH')) {
     exit;
 }
 
-include_once(APP_INC_PATH . "db_access.php");
+include_once(APP_INC_PATH . "class.db_api.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.citation.php");

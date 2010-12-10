@@ -40,7 +40,7 @@ include_once(APP_INC_PATH . "class.history.php");
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.fedora_api.php");
-include_once(APP_INC_PATH . "db_access.php");
+include_once(APP_INC_PATH . "class.db_api.php");
 include_once(APP_INC_PATH . "class.workflow_trigger.php");
 include_once(APP_INC_PATH . "class.background_process_list.php");
 include_once(APP_INC_PATH . "class.fulltext_queue.php");

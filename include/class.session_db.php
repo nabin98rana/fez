@@ -40,7 +40,7 @@
  * @author Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>
  */
 //include_once('config.inc.php');
-//require_once(APP_INC_PATH . "db_access.php");
+//require_once(APP_INC_PATH . "class.db_api.php");
 //include_once(APP_INC_PATH . "class.misc.php");
 //include_once(APP_INC_PATH . "class.error_handler.php");
 //include_once(APP_INC_PATH . "class.template.php");

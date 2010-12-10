@@ -32,7 +32,7 @@
 // +----------------------------------------------------------------------+
 //
 //
-include_once(APP_INC_PATH.'db_access.php');
+include_once(APP_INC_PATH."class.db_api.php");
 include_once(APP_INC_PATH.'class.wfbehaviours.php');
 include_once(APP_INC_PATH.'class.workflow_state.php');
 include_once(APP_INC_PATH.'class.workflow_trigger.php');

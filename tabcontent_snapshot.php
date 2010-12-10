@@ -4,7 +4,7 @@
    demo site. We'll use their code to do this as soon as it's available. */
 
 include_once("config.inc.php");
-include_once(APP_INC_PATH . "db_access.php");
+include_once(APP_INC_PATH . "class.db_api.php");
 include_once(APP_INC_PATH . "class.cloud_tag.php");
 include_once(APP_INC_PATH . "class.template.php");
 
