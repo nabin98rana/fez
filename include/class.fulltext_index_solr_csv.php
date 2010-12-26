@@ -176,14 +176,13 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 				if(empty($row['rek_pid']))
 				continue;
 				 
-				$csv[$row['rek_pid']] = '"'.$row['rek_pid'] .'","'.$row['row'] .  '"';
+				$csv[$row['rek_pid']] = '"'.$row['rek_pid'] .'",'. preg_replace('/[^(\x20-\x7F)]*/','', $row['row']).  '"';
+				// $csv[$row['rek_pid']] = '"'.$row['rek_pid'] .'","'.$row['row'] .  '"';
 				$pids_arr[] = $row['rek_pid'];
 				 
 			}
 				
-			$pids = '"'.implode('","', $pids_arr).'"';
-			
-			
+			$pids = "'".implode("','", $pids_arr)."'";			
 				
 			/*
 			 * Rebuild any empty citations so
@@ -219,8 +218,9 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 					if (!empty($rules[$roleIDs['Editor']])) {
 						$editor_rules = $rules[$roleIDs['Editor']];
 					}
-
+				
 					$csv[$rek_pid] .= ',' . $lister_rules .','.$creator_rules. ','. $editor_rules;
+					// $csv[$rek_pid] .= ',"' . $lister_rules .'","'.$creator_rules. '","'. $editor_rules;
 				} else {
 					$csv[$rek_pid] .= ',"","",""';
 				}
@@ -259,7 +259,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 				$stmt = "    SELECT a2.rek_".$mtColumn["name"]."_pid as pid, ";
 				
 						  if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) { 
-								$stmt .= " array_to_string(array(SELECT ".$col_name." FROM ".APP_TABLE_PREFIX."record_search_key_".$mtColumn["name"]." a1 WHERE a1.rek_".$mtColumn["name"]."_pid = a2.rek_".$mtColumn["name"]."_pid {$orderByClause}), \"\t\") AS value ";
+								$stmt .= " array_to_string(array(SELECT ".$col_name." FROM ".APP_TABLE_PREFIX."record_search_key_".$mtColumn["name"]." a1 WHERE a1.rek_".$mtColumn["name"]."_pid = a2.rek_".$mtColumn["name"]."_pid {$orderByClause}), '"."\t"."') AS value ";
 							} else {
 								$stmt .= " GROUP_CONCAT(".$col_name." {$orderByClause} SEPARATOR \"\t\") as value ";
 							}					
@@ -284,7 +284,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 			   
 					if( !empty($tmpArr[$rek_pid]) ) {
 						$val = str_replace('"', '""', $tmpArr[$rek_pid]);
-						$csv[$rek_pid] .= ',"' . $val .'"';
+						$csv[$rek_pid] .= ',"' . $val.'"';
 					} else {
 						$csv[$rek_pid] .= ',""';
 					}
@@ -327,7 +327,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 					$stmt = "    SELECT a2.rek_".$mtColumn["name"]."_pid as pid, ";
 
 				  if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) { 
-						$stmt .= " array_to_string(array(SELECT ".$col_name." FROM ".APP_TABLE_PREFIX."record_search_key_".$mtColumn["name"]." a1 WHERE a1.rek_".$mtColumn["name"]."_pid = a2.rek_".$mtColumn["name"]."_pid {$orderByClause}), \"\t\") AS value ";
+						$stmt .= " array_to_string(array(SELECT ".$col_name." FROM ".APP_TABLE_PREFIX."record_search_key_".$mtColumn["name"]." a1 WHERE a1.rek_".$mtColumn["name"]."_pid = a2.rek_".$mtColumn["name"]."_pid {$orderByClause}), '"."\t"."') AS value ";
 					} else {
 						$stmt .= " GROUP_CONCAT(".$col_name." {$orderByClause} SEPARATOR \"\t\") as value ";
 					}					
@@ -367,7 +367,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 			 * Add datasteam text to CSV array
 			 */
 			$content = $this->getCachedContent($pids);
-				
+			$content = preg_replace('/[^(\x20-\x7F)]*/','',$content);
 			foreach ($csv as $rek_pid => $rek_line) {
 				 
 				if( !empty($content[$rek_pid]) ) {
@@ -430,15 +430,16 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 			 */
 			$raw_response = Misc::processURL($url, null, null, $postFields, null, 30);
 			$uploaded = false;
-			
-			if(! $raw_response[0]) {
+			if($raw_response[1]["http_code"] != "200") {
 				// Caught solr napping.. try again 1 more time	
-				$log->err('No response from solr.. trying again.');			
+				$log->err('No response from solr.. trying again: '.print_r($raw_response, true));			
 				unset($raw_response);
 				sleep(1);
 				$raw_response = Misc::processURL($url, null, null, $postFields, null, 30);
-				if(! $raw_response[0]) {
+				//if(! $raw_response[0]) {
+				if($raw_response[1]["http_code"] != "200") {
 					$info = array();
+					$log->err('No response from solr.. after the second attempt: '.print_r($raw_response, true));			
 					$log->err(array('Message' => curl_error($ch)." with file ".$tmpfname, 'File' => __FILE__, 'Line' => __LINE__));
 					$log->debug(array($url));
 					curl_close ($ch);
@@ -452,8 +453,8 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 			}
 			
 			// Dont delete csv if there is an error
-			if($uploaded) {
-				unlink($tmpfnworame);
+			if($uploaded == true) {
+				unlink($tmpfname);
 			}
 		
 
@@ -652,11 +653,11 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+		$pids = str_replace('"', "'", $pids);
 		// Remove newlines, page breaks and replace " with "" (which is how to escape for CSV files)
-		$stmt = 'SELECT ftc_pid as pid, REPLACE(REPLACE(REPLACE(ftc_content, \'"\',\'""\'), "\n", " "), "\t", " ") as content '.
+		$stmt = "SELECT ftc_pid as pid, REPLACE(REPLACE(REPLACE(ftc_content, '\"','\"\"'), '\n', ' '), '\t', ' ') as content ".
         		'FROM '.APP_TABLE_PREFIX.FulltextIndex::FULLTEXT_TABLE_NAME.
-        		' WHERE ftc_pid IN ('.$pids.') AND ftc_is_text_usable = 1';
+        		' WHERE ftc_pid IN ('.$pids.') AND ftc_is_text_usable = TRUE';
 		
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);

@@ -58,12 +58,12 @@ class FulltextQueue
 	
 	public function __destruct() 
 	{
-		$command = APP_PHP_EXEC." \"".APP_PATH."misc/process_fulltext_queue.php\"";
-		if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Server
-			pclose(popen("start /min /b ".$command,'r'));
-		} else {
-			exec($command." 2>&1 &");
-		}
+		// $command = APP_PHP_EXEC." \"".APP_PATH."misc/process_fulltext_queue.php\"";
+		// if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Server
+		// 	pclose(popen("start /min /b ".$command,'r'));
+		// } else {
+		// 	exec($command." 2>&1 &");
+		// }
 	}
 
 	/**
@@ -234,7 +234,7 @@ class FulltextQueue
 					$sql .= self::LOCK_NAME_FULLTEXT_INDEX."'";
 					$db->query($sql);
 					
-				$invalidProcessId = -1;
+				$invalidProcessId = -2;
 				$stmt  = "INSERT INTO ".APP_TABLE_PREFIX."fulltext_locks (ftl_name,ftl_value,ftl_pid) ";
 				$stmt .= " VALUES ('".self::LOCK_NAME_FULLTEXT_INDEX."', 1, $invalidProcessId) ";
 			
@@ -321,7 +321,7 @@ class FulltextQueue
 			
 		// reset cached pids
 		$this->pids = array();
-			
+		$this->triggerUpdate();	
 		return true;
 	}
 	
@@ -416,19 +416,42 @@ class FulltextQueue
 		$pids = array();
 			
 		// fetch first row
-		$stmt  = "SELECT ftq_key, sk.rek_pid, CONCAT_WS('\",\"' ";
+		if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) { //pgsql
+			$stmt  = "SELECT ftq_key, sk.rek_pid, ( '\"' ";
+		} else {
+			$stmt  = "SELECT ftq_key, sk.rek_pid, CONCAT('\"', CONCAT_WS('\",\"' ";
+		}
 
 		foreach ($singleColumns as $column) {
-			 
-			if($column['type'] == FulltextIndex::FIELD_TYPE_DATE ) {
-				$stmt .= ",IFNULL(DATE_FORMAT(sk.".$column['name'] .",'%Y-%m-%dT%H:%i:%sZ'),'') ";
-				// If a date, also send the year to solr right next to its full value for faceting etc
-				$stmt .= ",IFNULL(DATE_FORMAT(sk.".$column['name'] .",'%Y'),'') ";
-			} else {
-				$stmt .= ",IFNULL(REPLACE(sk.".$column['name'] .",'\"','\"\"'),'') ";
-			}
-		}
+
+
+			if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) { //pgsql
+				if($column['type'] == FulltextIndex::FIELD_TYPE_DATE ) {
+					$stmt .= " || IFNULL(DATE_FORMAT(sk.".$column['name'] .",'%Y-%m-%dT%H:%i:%sZ'),'') || '\",\"' ";
+					// If a date, also send the year to solr right next to its full value for faceting etc
+					$stmt .= " || IFNULL(DATE_FORMAT(sk.".$column['name'] .",'%Y'),'') || '\",\"' ";
+				} else {
+					$stmt .= " || IFNULL(REPLACE(TEXT(sk.".$column['name'] ."), TEXT '\"', TEXT '\"\"'),'') || '\",\"' ";
+				}
 			
+			} else {
+				if($column['type'] == FulltextIndex::FIELD_TYPE_DATE ) {
+					$stmt .= ",IFNULL(DATE_FORMAT(sk.".$column['name'] .",'%Y-%m-%dT%H:%i:%sZ'),'') ";
+					// If a date, also send the year to solr right next to its full value for faceting etc
+					$stmt .= ",IFNULL(DATE_FORMAT(sk.".$column['name'] .",'%Y'),'') ";
+				} else {
+					$stmt .= ",IFNULL(REPLACE(sk.".$column['name'] .",'\"','\"\"'),'') ";
+				}		
+			}	 
+		}
+		if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) { //pgsql	
+			$stmt = rtrim($stmt, " || '\",\"' ");
+			$stmt = str_replace("SELECT ftq_key, sk.rek_pid, ( ,", "SELECT ftq_key, sk.rek_pid, ( ", $stmt);
+		} else {
+			$stmt .= ")";
+		}
+		
+		
 		// MT 20100317 - modified order by clause from pid ASC to key DESC so that we have a last-in-first-out order on the queue
 		$stmt .= ") as row FROM ".APP_TABLE_PREFIX."fulltext_queue
 			             LEFT JOIN ".APP_TABLE_PREFIX."record_search_key as sk ON rek_pid = ftq_pid 
