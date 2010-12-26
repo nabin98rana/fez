@@ -130,9 +130,8 @@ function hideBulk()
 			        <th></th>
 			    </tr>
 		{/if}
-	
-		<tr class="{if $flagged_possible[$pid].type == 'C'}possible-my-pub{elseif $flagged_possible[$pid].type == 'H'}possible-hide{/if}">
-			<td style="width: 100%;">
+		<tr class="{if $flagged_possible[$pid].type == 'C'}possible-my-pub{elseif $flagged_possible[$pid].type == 'H'}possible-hide{elseif $list[i].rek_status != '2'}unpublished-pub{/if}">
+			<td style="width: 100%;"> {if $list[i].rek_status != 2} (waiting on an administrator for approval to be published) {/if}
 				{if $list[i].rek_citation != ""}
 					{$list[i].rek_citation}
 				{else}

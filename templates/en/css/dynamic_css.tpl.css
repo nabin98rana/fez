@@ -2208,6 +2208,7 @@ a.author_id_link:hover {
     padding: 5px 5px 5px 5px;
 }
 
+.unpublished-pub { background: #f6cbbe; }
 .claimed-not-my-pub { background: #ffe2e2; }
 .claimed-correction-required { background: #fffeeb; }
 .possible-my-pub { background: #d6ffe0; }

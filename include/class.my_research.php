@@ -242,7 +242,7 @@ class MyResearch
 				}
 				//echo $alternatives;
 				
-				$filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
+//				$filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only // now been asked to show everything, and indicated the unpublished ones
 				$filter["searchKey".Search_key::getID("Object Type")] = 3; 
 				$filter["searchKey".Search_Key::getID("Author")] = $lastname;
 				$filter["manualFilter"] = "!author_id_mi:".$author_id;
@@ -774,6 +774,10 @@ class MyResearch
 		
 		$log = FezLog::get();
 		$db = DB_API::get();
+		
+		if (!is_numeric($orgID)) {
+			return false;
+		}
 		
 		$stmt = "
 				SELECT

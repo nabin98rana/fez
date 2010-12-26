@@ -431,25 +431,28 @@ class Record
 		$rjt = array();
 		$rct = array();
 		$res = $herdc;
-	  for ($i = 0; $i < count($res); $i++) {
-      $ht[$res[$i]["pid"]] = array();
-      $ht[$res[$i]["pid"]]['herdc_code'] = $res[$i]["herdc_code"];
-      $ht[$res[$i]["pid"]]['herdc_code_description'] = $res[$i]["herdc_code_description"];
-      $ht[$res[$i]["pid"]]['confirmed'] = $res[$i]["confirmed"];
-    }
-
+		if (is_array($res)) {
+		  for ($i = 0; $i < count($res); $i++) {
+	      $ht[$res[$i]["pid"]] = array();
+	      $ht[$res[$i]["pid"]]['herdc_code'] = $res[$i]["herdc_code"];
+	      $ht[$res[$i]["pid"]]['herdc_code_description'] = $res[$i]["herdc_code_description"];
+	      $ht[$res[$i]["pid"]]['confirmed'] = $res[$i]["confirmed"];
+	    }
+		}
 		$res = $rj;
-	  for ($i = 0; $i < count($res); $i++) {
-      $rjt[$res[$i]["pid"]]['rj_rank'] = $res[$i]["rank"];
-      $rjt[$res[$i]["pid"]]['rj_title'] = $res[$i]["title"];
-    }
-
+		if (is_array($res)) {
+		  for ($i = 0; $i < count($res); $i++) {
+	      $rjt[$res[$i]["pid"]]['rj_rank'] = $res[$i]["rank"];
+	      $rjt[$res[$i]["pid"]]['rj_title'] = $res[$i]["title"];
+	    }
+		}
 		$res = $rc;
-	  for ($i = 0; $i < count($res); $i++) {
-      $rct[$res[$i]["pid"]]['rc_rank'] = $res[$i]["rank"];
-      $rct[$res[$i]["pid"]]['rc_title'] = $res[$i]["title"];
-    }
-
+		if (is_array($res)) {
+		  for ($i = 0; $i < count($res); $i++) {
+	      $rct[$res[$i]["pid"]]['rc_rank'] = $res[$i]["rank"];
+	      $rct[$res[$i]["pid"]]['rc_title'] = $res[$i]["title"];
+	    }
+		}
     // now populate the $result variable again
     // for ($i = 0; $i < count($result); $i++) {
     //   $result[$i]["rek_ismemberof_count"] = $t[$result[$i]["rek_pid"]];
@@ -649,7 +652,7 @@ class Record
 				cvo_desc AS herdc_code_description";
 		if (APP_HERDC_COLLECTIONS && trim(APP_HERDC_COLLECTIONS) != "") {
 			if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) { 
-				$stmt .= " array_to_string(array_accum(rek_ismemberof), ',') AS confirmed ";
+				$stmt .= ", array_to_string(array_accum(rek_ismemberof), ',') AS confirmed ";
 			} else {
 				$stmt .= " , GROUP_CONCAT(rek_ismemberof) AS confirmed ";
 			}
@@ -701,7 +704,7 @@ class Record
 		if (defined('APP_HERDC_COLLECTIONS') && trim(APP_HERDC_COLLECTIONS) != "") {
 			
 			if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) { 
-				$stmt .= " array_to_string(array_accum(rek_ismemberof), ',') AS confirmed ";
+				$stmt .= ", array_to_string(array_accum(rek_ismemberof), ',') AS confirmed ";
 			} else {
 				$stmt .= " , GROUP_CONCAT(rek_ismemberof) AS confirmed ";
 			}
@@ -1822,7 +1825,6 @@ class Record
 
     $searchKey_join = self::buildSearchKeyFilterSolr($options, $sort_by, $operator, $doExactMatch);
     $filter_join = self::buildSearchKeyFilterSolr($filter, "", $operator, $doExactMatch);
-
     $index = new FulltextIndex_Solr(true);
 
     $res = $index->searchAdvancedQuery(
@@ -3439,7 +3441,7 @@ class Record
 
     $searchKey_join['sk_where_AND'] = '';
     $searchKey_join['sk_where_OR'] = '';
-
+//print_r($options);
     foreach ($options as $sek_id => $value) {
       if (strpos($sek_id, "searchKey") !== false) {
         $searchKeys[str_replace("searchKey", "", $sek_id)] = $value;
