@@ -220,7 +220,7 @@ class MyResearch
 			$getSimple = true;
 	
 			if ($type == "claimed") {
-				$filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
+				// $filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
 				$filter["searchKey".Search_key::getID("Object Type")] = 3; 
 				$filter["searchKey".Search_Key::getID("Author ID")] = $author_id; 
 			} elseif ($type == "possible") {
