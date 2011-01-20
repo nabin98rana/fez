@@ -35,6 +35,8 @@ if($file == 'js/shib.js') {
 
 Minify::setCache();
 
+// ensure $_SERVER['DOCUMENT_ROOT'] never has a trailing slash, because some servers don't have the trailing slash while others do.
+$_SERVER['DOCUMENT_ROOT'] = rtrim($_SERVER['DOCUMENT_ROOT'],'/');
 $pathfixup = substr( str_replace($_SERVER["DOCUMENT_ROOT"], '', APP_PATH), 1); //GC
 
 Minify::serve('Groups', array(
