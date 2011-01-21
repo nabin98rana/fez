@@ -1912,7 +1912,6 @@ class Auth
 			$alreadyLoggedIn = false;
 		}
 
-
 		if ($shib_login == true && (@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'] == "" && $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'] == "")) {
 			return 24;
 		}
@@ -2086,9 +2085,9 @@ class Auth
 		$headers = array(); 
 		session_name(APP_SESSION);
 		@session_start();
-		if (SHIB_VERSION == "1") {
+		if (SHIB_VERSION == "2") {
 			$headers = apache_request_headers();
-		} elseif (SHIB_VERSION == "2") { //Shib 2 puts things in $_SERVER, not in the apache request headers..
+		} elseif (SHIB_VERSION == "1") { //Shib 2 puts things in $_SERVER, not in the apache request headers..
 			//Shib 2.x also calls things different ids, so here is a mapping.
 			$shibboleth2_ids = array(
 				"eppn" => "Shib-EP-PrincipalName", 
