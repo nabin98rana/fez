@@ -2109,6 +2109,30 @@ class Auth
 					$headers[$value] = $_SERVER[$key];
 				}
 			}
+		} elseif (SHIB_VERSION == "3") { //SIMPLESAML puts things in the session, not in the $_SERVER or apache request headers.
+			//Shib 2.x also calls things different ids, so here is a mapping.
+			
+			//shoudl probably just make a oid2fez.php rather than do this here.
+			$shibboleth2_ids = array(
+				"eduPersonPrincipalName" => "Shib-EP-PrincipalName", 
+				"eduPersonTargetedID" => "Shib-EP-TargetedID", 
+				"eduPersonScopedAffiliation" => "Shib-EP-ScopedAffiliation", 
+				"eduPersonAffiliation" => "Shib-EP-UnscopedAffiliation", 
+				"entitlement" => "Shib-EP-Entitlement", 
+				"assurance" => "Shib-EP-Assurance", 
+				"urn:oid:1.3.6.1.4.1.5158.100.1" => "Shib-EP-LibraryNumber", 
+				"student-number" => "Shib-EP-StudentNumber", 
+				"eduPersonPrimaryOrgUnitDN" => "Shib-EP-PrimaryOrgUnitDN", 
+				"eduPersonOrgUnitDN" => "Shib-EP-OrgUnitDN", 
+				"cn" => "Shib-Person-commonName", 
+				"mail" => "Shib-Person-mail", 
+				"eduPersonPrimaryAffiliation"  => "Shib-EP-PrimaryAffiliation");
+			$ssp = unserialize($_SESSION['SimpleSAMLphp_SESSION']);
+			foreach($shibboleth2_ids as $key => $value) {
+				if ($ssp[$key] != "") {
+					$headers[$value] = $ssp[$key];
+				}
+			}
 		}
 		$_SESSION[APP_SHIB_ATTRIBUTES_SESSION] = $headers;
 	}

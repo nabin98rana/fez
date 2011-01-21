@@ -1224,11 +1224,12 @@ function restoreDefaultColours(el)
 			</td>
   		  </tr>
 		  <tr>
-		    <th>Shib SP Version (1.x or 2.x)</th>
+		    <th>Shib SP Version: 1.x or 2.x (Apache Shibboleth), or SimpleSAML PHP (SAML2, can be used on any webserver eg NGinx)</th>
 			<td>
 			  <select name="shib_version">
 			    <option value="1"{if $config_settings.shib_version == "1"} selected="selected"{/if}>1.x (eg 1.3)</option>
 				<option value="2"{if $config_settings.shib_version == "2"} selected="selected"{/if}>2.x</option>
+				<option value="3"{if $config_settings.shib_version == "3"} selected="selected"{/if}>SimpleSAML SP (SAML2)</option>
 			  </select>
 			</td>
   		  </tr>
@@ -1303,7 +1304,7 @@ function restoreDefaultColours(el)
 			</td>
   		  </tr>
 		  <tr>
-		    <th>Non Javascript url location</th>
+		    <th>Non Javascript url location (non SimpleSAMLPHP only)</th>
 			<td>
 			  <input type="text" name="shib_nonjs_url" value="{$config_settings.shib_nonjs_url|escape:"html"}" size="50" />
 			  <br />Link to show if the user has javascript turn off
