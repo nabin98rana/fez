@@ -9,3 +9,6 @@ libckvm_fez.tmproj
 *.orig
 #syntax: regexp
 
+glob:cache
+glob:secure
+glob:templates_c/*

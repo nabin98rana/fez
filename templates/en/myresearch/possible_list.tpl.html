@@ -132,6 +132,29 @@ function hideBulk()
 		{/if}
 		<tr class="{if $flagged_possible[$pid].type == 'C'}possible-my-pub{elseif $flagged_possible[$pid].type == 'H'}possible-hide{elseif $list[i].rek_status != '2'}unpublished-pub{/if}">
 			<td style="width: 100%;"> {if $list[i].rek_status != 2} (waiting on an administrator for approval to be published) {/if}
+				{if $list[i].rek_display_type_lookup == "Book" || $list[i].rek_display_type_lookup == "Book Chapter" || $list[i].rek_display_type_lookup == "Journal Article" || $list[i].rek_display_type_lookup == "Conference Paper"}
+				<a class="form_note" href="#">
+					<span class="form_note">
+						Display Type: {$list[i].rek_display_type_lookup}<br/>
+						HERDC Status: {$list[i].rek_herdc_status_lookup}<br/>
+						Institutional Status: {$list[i].rek_institutional_status_lookup}<br/><br />
+					{if $list[i].rek_display_type_lookup == "Book" || $list[i].rek_display_type_lookup == "Book Chapter"}
+						Edition: {$list[i].rek_edition} </br>
+						ISBN: {$list[i].rek_isbn} </br>
+					{elseif $list[i].rek_display_type_lookup == "Journal Article"}
+						{if $list[i].rek_refereed == '0'} Refereed: No </br> {/if}
+						{if $list[i].rek_refereed == '1'} Refereed: Yes </br> {/if}
+						ISSN: {$list[i].rek_issn} </br>
+					{elseif $list[i].rek_display_type_lookup == "Conference Paper"}
+						{if $list[i].rek_refereed == '0'} Refereed: No </br> {/if}
+						{if $list[i].rek_refereed == '1'} Refereed: Yes </br> {/if}											
+					{/if}
+						Thomson ISI Loc: {$list[i].rek_isi_loc}<br/>
+						Scopus ID: {$list[i].rek_scopus_id}<br/>
+					</span>	
+					<img style="padding-right:2px" src="{$rel_url}images/views_16.png" valign="middle" />
+				</a>
+				{/if}
 				{if $list[i].rek_citation != ""}
 					{$list[i].rek_citation}
 				{else}

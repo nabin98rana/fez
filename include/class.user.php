@@ -793,15 +793,17 @@ class User
         				)";
 				try {
 					$db->exec($stmt);
-					$db->commit();
+
 				}
 				catch(Exception $ex) {
-					$db->rollBack();
 					$log->err($ex);
+					$db->rollBack();
 					$dbRes = -1;
+					return false;
 				}
 			}
 		}
+		$db->commit();
 
 		return $dbRes;
 	}
