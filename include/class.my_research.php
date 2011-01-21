@@ -216,8 +216,8 @@ class MyResearch
 				$max = 9999999;
 			}
 			//$current_row = ($current_row/100);
-			$citationCache = true;
-			$getSimple = true;
+			$citationCache = false;
+			$getSimple = false;
 	
 			if ($type == "claimed") {
 				// $filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
