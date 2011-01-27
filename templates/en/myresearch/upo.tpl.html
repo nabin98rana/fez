@@ -17,6 +17,12 @@ function changeOrgUnit()
 	return;
 }
 
+function clearSearchInput()
+{
+	document.getElementById('author_find').value = '';
+	return;
+}
+
 //-->
 </script>
 {/literal}
@@ -43,7 +49,6 @@ function changeOrgUnit()
 					<option value="{$k}"{if $k == $current_aou} selected="selected"{/if}>{$v|escape:'html'}</option>
 				{/foreach}
 			</select>
-			<!--input type="button" value="Switch org unit" class="button" onclick="javascript:changeOrgUnit();" /-->
 		</div>
 		
 		<div>
@@ -56,6 +61,20 @@ function changeOrgUnit()
 	<br />
 	<h2>Select an author to process:</h2>
 	<br />
+
+
+	<form action="my_upo_tools.php" method="post" id="authorSearch">
+	
+		<p>
+		
+		<input type="hidden" name="action" value="author-search" />
+		<img src="{$rel_url}images/search_16.png" width="16" height="16" alt="Search" /> <input type="text" name="username" id="author_find" value="{if $search_term != ''}{$search_term|escape:htmlall}{else}Search by UQ username ...{/if}" size="23" onclick="javascript:clearSearchInput();" />
+		<input type="submit" value="Find" />
+		
+		</p>
+	
+	</form>
+	
 	
 	<form action="my_upo_tools.php" method="post" id="userSelect">
 	
@@ -63,10 +82,19 @@ function changeOrgUnit()
 			{foreach from=$authors key=k item=v}
 				<tr class="{cycle values="upo-staff-even,upo-staff-odd"}{if $v.username == $acting_user.aut_org_username} upo-staff-active{/if}">
 					<td>
-						<input type="radio" name="username" value="{$v.username}" onclick="javascript:userSelect('{$v.username}');" {if $v.username == $acting_user.aut_org_username}checked="checked"{/if} /> {$v.last_name}, {$v.first_name}
+						<input type="radio" name="username" value="{$v.username}" onclick="javascript:userSelect('{$v.username}');" {if $v.username == $acting_user.aut_org_username}checked="checked"{/if} />
 					</td>
 					<td>
-						{$v.pos_title}
+						{$v.last_name}, {$v.first_name}
+					</td>
+					<td style="padding-left: 20px;">
+						{$v.pos_title|escape:htmlall}
+					</td>
+				</tr>
+			{foreachelse}
+				<tr>
+					<td>
+						Sorry, no authors found.
 					</td>
 				</tr>
 			{/foreach}
