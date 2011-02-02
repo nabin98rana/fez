@@ -147,8 +147,10 @@ class Lister
 		} 
 
 
-    
-		if ($tpl_idx != 0 && $tpl_index != 4) {
+    $username = Auth::getUsername();
+		$isAdministrator = User::isUserAdministrator($username);
+		
+		if (($tpl_idx != 0 && $tpl_index != 4) || $isAdministrator == true) {
 			$citationCache = false;
 		} else {
 			$citationCache = true;
