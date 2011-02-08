@@ -1987,6 +1987,8 @@ class Auth
 				$distinguishedname = "";
 				// Create the user in Fez
 				User::insertFromShibLogin($username, $fullname, $email, $shib_username);
+				$usr_id = User::getUserIDByUsername($username);
+				User::updateShibAttribs($usr_id);
 			} else {
 				$session['isInAD'] = true;
 				$session['isInDB'] = false;

@@ -1,5 +1,6 @@
 syntax: glob
 
+error_handler.log
 config.inc.php
 test.php
 .hgignore.swp
@@ -12,3 +13,15 @@ libckvm_fez.tmproj
 glob:cache
 glob:secure
 glob:templates_c/*
+glob:flviewer/1*
+glob:flviewer/2*
+glob:flviewer/3*
+glob:flviewer/4*
+glob:flviewer/5*
+glob:flviewer/6*
+glob:flviewer/7*
+glob:flviewer/8*
+glob:flviewer/9*
+glob:include/simplesaml/metadata/metadata-aaf-consuming/*
+glob:include/simplesaml/config/*
+glob:include/simplesaml/log/*
