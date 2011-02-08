@@ -33,7 +33,7 @@
 // +----------------------------------------------------------------------+
 //
 //
-
+require_once(dirname(__FILE__).DIRECTORY_SEPARATOR.'include/simplesaml/lib/_autoload.php');
 include_once("config.inc.php");
 
 include_once(APP_INC_PATH . "class.template.php");
@@ -156,7 +156,7 @@ if (SHIB_SWITCH == "ON" && SHIB_VERSION == "1") {
 	
 	// set the url session for shib logins so redirects 
 	// to index.php (front page) then redirecto to the original url
-	if (!empty($_GET["url"])) { 		
+	if (!empty($_GET["url"])) {
 		$_SESSION["url"] = $_GET["url"];			
 	}
 	
@@ -311,6 +311,19 @@ if (SHIB_SWITCH == "ON" && SHIB_VERSION == "1") {
 		$_SESSION['IDP_LOGIN_FLAG'] = 1; // set the login flag to that fez will know the next time (only) it goes to index.php it has to get the shib attribs
 	}
 	$tpl->assign("SHIB_IDP_LIST", array());
+
+	if (SHIB_VERSION == "3" && SHIB_SWITCH == "ON") { // so easy with simple saml.. all the above taken care of by the embedded wayf from Simple SAML PHP
+		$auth = new SimpleSAML_Auth_Simple('default-sp');
+		$_SESSION['IDP_LOGIN_FLAG'] = 1;
+		if ($_GET['default-idp'] == "true") {
+			$auth->login(array('saml:SP','saml:idp' => SHIB_HOME_IDP, 'ReturnTo' => "https://".APP_HOSTNAME));
+			exit;
+		}
+		$SSPUrl = $auth->getLoginURL("https://".APP_HOSTNAME);
+		$tpl->assign("SSP_URL", $SSPUrl);
+		$SSPDirectUrl = $_SERVER['PHP_SELF']."?default-idp=true";
+		$tpl->assign("SSP_DIRECT_URL", $SSPDirectUrl);		
+	}
 }
 $shib_home_idp = Auth::getHomeIDPCookie();
 if ($shib_home_idp == "") {

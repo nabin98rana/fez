@@ -12,9 +12,11 @@ $this->includeAtTemplateBase('includes/header.php');
 
 <p><?php echo($this->t('{status:intro}')); ?></p>
 
-<p><?php echo($this->t('{status:validfor}', array('%SECONDS%' => $this->data['remaining']))); ?></p>
-
 <?php
+if (isset($this->data['remaining'])) {
+	echo('<p>' . $this->t('{status:validfor}', array('%SECONDS%' => $this->data['remaining'])) . '</p>');
+}
+
 if(isset($this->data['sessionsize'])) {
 	echo('<p>' . $this->t('{status:sessionsize}', array('%SIZE%' => $this->data['sessionsize'])) . '</p>');
 }
@@ -62,11 +64,8 @@ function present_attributes($t, $attributes, $nameParent) {
 	foreach ($attributes as $name => $value) {
 	
 		$nameraw = $name;
-		$nameTag = '{attributes:attribute_' . $parentStr . str_replace(":", "_", strtolower($name) ) . '}';
-		if ($t->getTag($nameTag) !== NULL) {
-			$name = $t->t($nameTag);
-		}
-		
+		$name = $t->getAttributeTranslation($parentStr . $nameraw);
+
 		if (preg_match('/^child_/', $nameraw)) {
 			$parentName = preg_replace('/^child_/', '', $nameraw);
 			foreach($value AS $child) {

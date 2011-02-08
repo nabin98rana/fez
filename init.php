@@ -34,7 +34,7 @@
 //
 
 ini_set('allow_url_fopen', 0);
-ini_set("display_errors", 0); // LKDB - tmp (was 1)
+ini_set("display_errors", 1); // LKDB - tmp (was 1)
 error_reporting(1);
 error_reporting(E_ALL ^ E_NOTICE);
 set_time_limit(0);
@@ -57,9 +57,17 @@ if (!defined("APP_DB_USE_PROFILER")) {
 set_include_path(APP_PEAR_PATH . PATH_SEPARATOR . APP_INC_PATH);
 
 // set up the Zend loader
+
+
+
 require_once('Zend/Loader/Autoloader.php');
+
 $autoloader = Zend_Loader_Autoloader::getInstance()->setFallbackAutoloader(true);
 $autoloader->pushAutoloader(array('ezcBase', 'autoload'), 'ezc');
+// or its not! // below is now called in _autoload.php in a Fez specific SimpleSAMLPHP install fork
+$autoloader->pushAutoloader('SimpleSAML_autoload', 'SimpleSAML');
+
+
 
 include_once(APP_INC_PATH . 'class.log.php');
 include_once(APP_INC_PATH . "class.cache.php");

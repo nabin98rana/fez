@@ -7,7 +7,7 @@ require_once(dirname(dirname(dirname(dirname(dirname(__FILE__))))) . '/oauth/lib
  *
  * @author Andreas Åkre Solberg, UNINETT AS.
  * @package simpleSAMLphp
- * @version $Id: Twitter.php 1933 2009-10-29 07:53:56Z andreassolberg $
+ * @version $Id: Twitter.php 2654 2010-11-18 12:13:08Z olavmrk $
  */
 class sspmod_authtwitter_Auth_Source_Twitter extends SimpleSAML_Auth_Source {
 
@@ -115,18 +115,16 @@ class sspmod_authtwitter_Auth_Source_Twitter extends SimpleSAML_Auth_Source {
 		$attributes = array();
 		foreach($userdata AS $key => $value) {
 			if (is_string($value))
-				$attributes[$key] = array((string)$value);
+				$attributes['twitter.' . $key] = array((string)$value);
 			
 		}
 		
-		if (array_key_exists('screen_name', $userdata) )
-			$attributes['eduPersonPrincipalName'] = array('@' . $userdata['screen_name']);
-		if (array_key_exists('name', $userdata) )
-			$attributes['displayName'] = array($userdata['name']);
-		if (array_key_exists('profile_image_url', $userdata) )
-			$attributes['jpegPhoto'] = array(base64_encode(file_get_contents($userdata['profile_image_url'])));
-		if (array_key_exists('url', $userdata) )
-			$attributes['labeledURI'] = array($userdata['url']);
+		if (array_key_exists('screen_name', $userdata) ) {
+			$attributes['twitter_at_screen_name'] = array('@' . $userdata['screen_name']);
+			$attributes['twitter_screen_n_realm'] = array($userdata['screen_name'] . '@twitter.com');
+		}
+		if (array_key_exists('id_str', $userdata) )
+			$attributes['twitter_targetedID'] = array('http://twitter.com!' . $userdata['id_str']);
 			
 		
 		$state['Attributes'] = $attributes;

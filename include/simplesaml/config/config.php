@@ -2,7 +2,7 @@
 /* 
  * The configuration of simpleSAMLphp
  * 
- * $Id: config.php 2180 2010-02-15 09:46:55Z olavmrk $
+ * $Id: config.php 2659 2010-11-30 10:06:03Z olavmrk $
  */
 
 $config = array (
@@ -11,7 +11,7 @@ $config = array (
 	 * Setup the following parameters to match the directory of your installation.
 	 * See the user manual for more details.
 	 */
-	'baseurlpath'           => 'include/simplesaml/www/',
+	'baseurlpath'           => 'simplesaml/',
 	'certdir'               => 'cert/',
 	'loggingdir'            => 'log/',
 	'datadir'               => 'data/',
@@ -24,12 +24,18 @@ $config = array (
 	'tempdir'               => '/tmp/simplesaml',
 	
 
-	/**
-	 * If you set the debug parameter to true, all SAML messages will be visible in the
-	 * browser, and require the user to click the submit button. If debug is set to false,
-	 * Browser/POST SAML messages will be automaticly submitted.
+	/*
+	 * If you enable this option, simpleSAMLphp will log all sent and received messages
+	 * to the log file.
+	 *
+	 * This option also enables logging of the messages that are encrypted and decrypted.
+	 *
+	 * Note: The messages are logged with the DEBUG log level, so you also need to set
+	 * the 'logging.level' option to LOG_DEBUG.
 	 */
-	'debug'                 =>	FALSE,
+	'debug' => FALSE,
+
+
 	'showerrors'            =>	TRUE,
 
 	/**
@@ -43,7 +49,7 @@ $config = array (
 	 * This password will give access to the installation page of simpleSAMLphp with
 	 * metadata listing and diagnostics pages.
 	 */
-	'auth.adminpassword'		=> 'serious',
+	'auth.adminpassword'		=> 'serioussaml99',
 	'admin.protectindexpage'	=> false,
 	'admin.protectmetadata'		=> false,
 
@@ -55,15 +61,15 @@ $config = array (
 	 * A possible way to generate a random salt is by running the following command from a unix shell:
 	 * tr -c -d '0123456789abcdefghijklmnopqrstuvwxyz' </dev/urandom | dd bs=32 count=1 2>/dev/null;echo
 	 */
-	'secretsalt' => 'defaultsecretsalt',
+	'secretsalt' => '57swzc3z4v14904z6zoguvg2tpvonw2l',
 	
 	/*
 	 * Some information about the technical persons running this installation.
 	 * The email address will be used as the recipient address for error reports, and
 	 * also as the technical contact in generated metadata.
 	 */
-	'technicalcontact_name'     => 'Administrator',
-	'technicalcontact_email'    => 'na@example.org',
+	'technicalcontact_name'     => 'Administrator (Christiaan Kortekaas)',
+	'technicalcontact_email'    => 'c.kortekaas@library.uq.edu.au',
 
 	/*
 	 * The timezone of the server. This option should be set to the timezone you want
@@ -146,6 +152,36 @@ $config = array (
 	
 
 	/*
+	 * Expiration time for the session cookie, in seconds.
+	 *
+	 * Defaults to 0, which means that the cookie expires when the browser is closed.
+	 *
+	 * Example:
+	 *  'session.cookie.lifetime' => 30*60,
+	 */
+	'session.cookie.lifetime' => 0,
+
+	/*
+	 * Limit the path of the cookies.
+	 *
+	 * Can be used to limit the path of the cookies to a specific subdirectory.
+	 *
+	 * Example:
+	 *  'session.cookie.path' => '/simplesaml/',
+	 */
+	'session.cookie.path' => '/',
+
+	/*
+	 * Cookie domain.
+	 *
+	 * Can be used to make the session cookie available to several domains.
+	 *
+	 * Example:
+	 *  'session.cookie.domain' => '.example.org',
+	 */
+	'session.cookie.domain' => NULL,
+
+	/*
 	 * Set the secure flag in the cookie.
 	 *
 	 * Set this to TRUE if the user only accesses your service
@@ -158,15 +194,41 @@ $config = array (
 	 * Options to override the default settings for php sessions.
 	 */
 	'session.phpsession.cookiename'  => null,
-	'session.phpsession.limitedpath' => false,
 	'session.phpsession.savepath'    => null,
+	'session.phpsession.httponly'    => FALSE,
 	
 	/*
 	 * Languages available and what language is default
 	 */
-	'language.available'	=> array('en', 'no', 'nn', 'se', 'fi', 'da', 'sv', 'de', 'es', 'fr', 'nl', 'lb', 'hr', 'hu', 'pl', 'sl', 'pt', 'pt-BR', 'tr'),
+	'language.available'	=> array('en', 'no', 'nn', 'se', 'da', 'de', 'sv', 'fi', 'es', 'fr', 'it', 'nl', 'lb', 'cs', 'sl', 'lt', 'hr', 'hu', 'pl', 'pt', 'pt-BR', 'tr', 'ja'),
 	'language.default'		=> 'en',
-	
+
+	/*
+	 * Extra dictionary for attribute names.
+	 * This can be used to define local attributes.
+	 *
+	 * The format of the parameter is a string with <module>:<dictionary>.
+	 *
+	 * Specifying this option will cause us to look for modules/<module>/dictionaries/<dictionary>.definition.json
+	 * The dictionary should look something like:
+	 *
+	 * {
+	 *     "firstattribute": {
+	 *         "en": "English name",
+	 *         "no": "Norwegian name"
+	 *     },
+	 *     "secondattribute": {
+	 *         "en": "English name",
+	 *         "no": "Norwegian name"
+	 *     }
+	 * }
+	 *
+	 * Note that all attribute names in the dictionary must in lowercase.
+	 *
+	 * Example: 'attributes.extradictionary' => 'ourmodule:ourattributes',
+	 */
+	'attributes.extradictionary' => NULL,
+
 	/*
 	 * Which theme directory should be used?
 	 */
@@ -279,6 +341,11 @@ $config = array (
 			'class' => 'core:AttributeMap', 'removeurnprefix'
 		),
 		*/
+		10 => array(
+            'class' => 'core:AttributeMap', 'oid2name',
+            'class' => 'core:AttributeMap', 'removeurnprefix'
+    ),
+		
 
 		/* When called without parameters, it will fallback to filter attributes ‹the old way›
 		 * by checking the 'attributes' parameter in metadata on SP hosted and IdP remote.
@@ -288,9 +355,9 @@ $config = array (
 		/*
 		 * Generate the 'group' attribute populated from other variables, including eduPersonAffiliation.
 		 */
- 		60 => array('class' => 'core:GenerateGroups', 'eduPersonAffiliation'),
+ 		// 60 => array('class' => 'core:GenerateGroups', 'eduPersonAffiliation'),
  		// All users will be members of 'users' and 'members' 	
- 		61 => array('class' => 'core:AttributeAdd', 'groups' => array('users', 'members')),
+ 		// 61 => array('class' => 'core:AttributeAdd', 'groups' => array('users', 'members')),
  		
 		// Adopts language from attribute to use in UI
  		90 => 'core:LanguageAdaptor',
@@ -345,22 +412,44 @@ $config = array (
 	 *     array('type' => 'flatfile')
 	 *     ),
 	 */
-	'metadata.sources' => array(
-		array('type' => 'flatfile'),
-	),
+ 'metadata.sources' => array(
+         array('type' => 'flatfile'),
+         array('type' => 'flatfile', 'directory' => 'metadata/metadata-aaf-consuming'),
+ ),
 
 
 	/*
-	 * This configuration option allows you to select which session handler
-	 * SimpleSAMLPHP should use to store the session information. Currently
-	 * we have two session handlers:
-	 * - 'phpsession': The default PHP session handler.
-	 * - 'memcache': Stores the session information in one or more
-	 *   memcache servers by using the MemcacheStore class.
+	 * Configure the datastore for simpleSAMLphp.
 	 *
-	 * The default session handler is 'phpsession'.
+	 * - 'phpsession': Limited datastore, which uses the PHP session.
+	 * - 'memcache': Key-value datastore, based on memcache.
+	 * - 'sql': SQL datastore, using PDO.
+	 *
+	 * The default datastore is 'phpsession'.
+	 *
+	 * (This option replaces the old 'session.handler'-option.)
 	 */
-	'session.handler'       => 'phpsession',
+	'store.type' => 'sql',
+
+
+	/*
+	 * The DSN the sql datastore should connect to.
+	 *
+	 * See http://www.php.net/manual/en/pdo.drivers.php for the various
+	 * syntaxes.
+	 */
+	// 'store.sql.dsn' => 'sqlite:/path/to/sqlitedatabase.sq3',
+ 'store.sql.dsn' => 'mysql:host=vmdev-repo.library.uq.edu.au;dbname=fez',
+	/*
+	 * The username and password to use when connecting to the database.
+	 */
+	'store.sql.username' => 'fez',
+	'store.sql.password' => 'fezRocks1969',
+
+	/*
+	 * The prefix we should use on our tables.
+	 */
+	'store.sql.prefix' => 'simpleSAMLphp',
 
 
 	/*
@@ -461,13 +550,13 @@ $config = array (
 	'metadata.sign.privatekey_pass' => NULL,
 	'metadata.sign.certificate' => NULL,
 
+
 	/*
-	 * This is the default URL to a MetaShare service where a SAML 2.0 IdP can register its metadata.
-	 * This is a highly experimentar feature.
+	 * Proxy to use for retrieving URLs.
+	 *
+	 * Example:
+	 *   'proxy' => 'tcp://proxy.example.com:5100'
 	 */
-	'metashare.publishurl' => NULL,
+	'proxy' => NULL,
 
 );
-
-
-?>

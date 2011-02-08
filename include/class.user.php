@@ -769,16 +769,17 @@ class User
 		
 		$dbRes = 1;
 		$db->beginTransaction();
+		$stmt = "DELETE FROM
+                    " . APP_TABLE_PREFIX . "user_shibboleth_attribs
+                 WHERE
+                    usa_usr_id = ".$db->quote($usr_id, 'INTEGER');
+		
+		$db->exec($stmt);
+		
 		foreach ($_SESSION[APP_SHIB_ATTRIBUTES_SESSION] as $shib_name => $shib_value)
 		{
 			if ( (is_numeric(strpos($shib_name, "Shib-EP")) || is_numeric(strpos($shib_name, "Shib-Person"))) && $shib_value != '' ) {
 				
-				$stmt = "DELETE FROM
-		                    " . APP_TABLE_PREFIX . "user_shibboleth_attribs
-		                 WHERE
-		                    usa_usr_id = ".$db->quote($usr_id, 'INTEGER');
-				
-				$db->exec($stmt);
 				$stmt = "INSERT INTO
                             " . APP_TABLE_PREFIX . "user_shibboleth_attribs
                             (

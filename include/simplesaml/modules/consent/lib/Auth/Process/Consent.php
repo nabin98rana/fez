@@ -149,11 +149,15 @@ class sspmod_consent_Auth_Process_Consent extends SimpleSAML_Auth_ProcessingFilt
 		$session = SimpleSAML_Session::getInstance(); 
 		$metadata = SimpleSAML_Metadata_MetaDataStorageHandler::getMetadataHandler();
 
-		/* If the consent module is active on a bridge $session->getIdP() will contain
-		 * an entry id for the remote IdP. If $session->getIdP() is NULL, then the
+		/* If the consent module is active on a bridge $state['saml:sp:IdP'] will contain
+		 * an entry id for the remote IdP. If not, then the
 		 * consent module is active on a local IdP and nothing needs to be done.
 		 */
-		if($session->getIdP() != null) {
+		if(isset($state['saml:sp:IdP'])) {
+			$idpmeta = $metadata->getMetaData($state['saml:sp:IdP'], 'saml20-idp-remote');
+			$state['Source'] = $idpmeta;
+		} elseif($session->getIdP() !== NULL) {
+			/* For backwards compatibility. TODO: Remove in version 1.8. */
 			$idpmeta = $metadata->getMetaData($session->getIdP(), 'saml20-idp-remote');
 			$state['Source'] = $idpmeta;
 		}
@@ -223,7 +227,7 @@ class sspmod_consent_Auth_Process_Consent extends SimpleSAML_Auth_ProcessingFilt
 	/**
 	 * Get a targeted ID. An identifier that is unique per SP entity ID.
 	 */
-	public function getTargetedID($userid, $source, $destination) {
+	public static function getTargetedID($userid, $source, $destination) {
 		return hash('sha1', $userid . '|' . SimpleSAML_Utilities::getSecretSalt() . '|' . $source . '|' . $destination);
 	}
 
@@ -231,7 +235,7 @@ class sspmod_consent_Auth_Process_Consent extends SimpleSAML_Auth_ProcessingFilt
 	 * Get a hash value that changes when attributes are added or attribute values changed.
 	 * @param boolean $includeValues Whether or not to include the attribute value in the generation of the hash.
 	 */
-	public function getAttributeHash($attributes, $includeValues = FALSE) {
+	public static function getAttributeHash($attributes, $includeValues = FALSE) {
 
 		$hashBase = NULL;	
 		if ($includeValues) {

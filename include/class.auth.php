@@ -1953,7 +1953,7 @@ class Auth
 		}
 
 		// If the user isn't a registered fez user, get their details elsewhere (The AD/LDAP)
-		// as they must have logged in with LDAP or Shibboleth:w
+		// as they must have logged in with LDAP or Shibboleth
 
 		if (!Auth::userExists($username)) {
 			if ($shib_login == true) {
@@ -2110,14 +2110,16 @@ class Auth
 			}
 		} elseif (SHIB_VERSION == "3") { //SIMPLESAML puts things in the session, not in the $_SERVER or apache request headers.
 			//Shib 2.x also calls things different ids, so here is a mapping.
+			$auth = new SimpleSAML_Auth_Simple('default-sp');
+			$attrs = $auth->getAttributes();
 			
 			//shoudl probably just make a oid2fez.php rather than do this here.
 			$shibboleth2_ids = array(
-				"eduPersonPrincipalName" => "Shib-EP-PrincipalName", 
-				"eduPersonTargetedID" => "Shib-EP-TargetedID", 
-				"eduPersonScopedAffiliation" => "Shib-EP-ScopedAffiliation", 
+				"eduPersonPrincipalName" => "Shib-EP-PrincipalName",
+				"eduPersonTargetedID" => "Shib-EP-TargetedID",
+				"eduPersonScopedAffiliation" => "Shib-EP-ScopedAffiliation",
 				"eduPersonAffiliation" => "Shib-EP-UnscopedAffiliation", 
-				"entitlement" => "Shib-EP-Entitlement", 
+				"entitlement" => "Shib-EP-Entitlement",
 				"assurance" => "Shib-EP-Assurance", 
 				"urn:oid:1.3.6.1.4.1.5158.100.1" => "Shib-EP-LibraryNumber", 
 				"student-number" => "Shib-EP-StudentNumber", 
@@ -2126,10 +2128,9 @@ class Auth
 				"cn" => "Shib-Person-commonName", 
 				"mail" => "Shib-Person-mail", 
 				"eduPersonPrimaryAffiliation"  => "Shib-EP-PrimaryAffiliation");
-			$ssp = unserialize($_SESSION['SimpleSAMLphp_SESSION']);
 			foreach($shibboleth2_ids as $key => $value) {
-				if ($ssp[$key] != "") {
-					$headers[$value] = $ssp[$key];
+				if ($attrs[$key][0] != "") {
+					$headers[$value] = $attrs[$key][0];
 				}
 			}
 		}

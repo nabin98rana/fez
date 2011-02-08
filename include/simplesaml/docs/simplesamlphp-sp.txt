@@ -7,7 +7,7 @@ SimpleSAMLphp Service Provider QuickStart
 	http://daringfireball.net/projects/markdown/syntax
 -->
 
-  * Version: `$Id: simplesamlphp-sp.txt 2363 2010-06-24 06:45:28Z olavmrk $`
+  * Version: `$Id: simplesamlphp-sp.txt 2362 2010-06-24 06:43:16Z olavmrk $`
 
 <!-- {{TOC}} -->
 

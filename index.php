@@ -33,7 +33,7 @@
 // +----------------------------------------------------------------------+
 //
 //
-
+require_once(dirname(__FILE__).DIRECTORY_SEPARATOR.'include/simplesaml/lib/_autoload.php');
 if (!is_file("config.inc.php")) {
     header("Location: setup/");
     exit;
@@ -72,12 +72,12 @@ if (@$_SESSION['IDP_LOGIN_FLAG'] == 1) {
 	Auth::GetShibAttributes();
 	$_SESSION['IDP_LOGIN_FLAG'] = 0;
 }
-if (@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Attributes'] != "" || @$_SERVER['Shib-Session-ID'] != "") {
+if (@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'] != "" || @$_SERVER['Shib-Session-ID'] != "") {
 // Uncomment this to see a debug output of all the shibboleth attributes in the session
-/*	echo "<pre>"; 
-	print_r($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]);
-	echo "</pre>";  
-*/
+	// echo "<pre>"; 
+	// print_r($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]);
+	// echo "</pre>";  
+
 	if (Auth::LoginAuthenticatedUser("", "", true) > 0) {
     	Auth::redirect(APP_RELATIVE_URL . "login.php?err=22");
 	}
