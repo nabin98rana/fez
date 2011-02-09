@@ -1612,6 +1612,9 @@ class Record
         if ($getSimple == false || empty($getSimple)) {
           if ($citationCache == false) {
             Record::getSearchKeysByPIDS($res);
+						if (APP_MY_RESEARCH_MODULE == 'ON') {
+						  $res = Record::getResearchDetailsbyPIDS($res);
+						} 
           }
           Record::identifyThumbnails($res, $citationCache);
           Record::getAuthWorkflowsByPIDS($res, $usr_id);
@@ -1844,6 +1847,9 @@ class Record
       if ($getSimple == false || empty($getSimple)) {
         if ($citationCache == false) {
           Record::getSearchKeysByPIDS($res);
+					if (APP_MY_RESEARCH_MODULE == 'ON') {
+					  $res = Record::getResearchDetailsbyPIDS($res);
+					} 
         }
         Record::identifyThumbnails($res, $citationCache);
         Record::getAuthWorkflowsByPIDS($res, $usr_id);
