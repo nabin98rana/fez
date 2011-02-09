@@ -86,7 +86,13 @@ $tpl->assign("isAdministrator", $isAdministrator);
 $tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 $tpl->assign("isUPO", $isUPO);
 
-$authors = MyResearch::listAuthorsByAOU($currentAOU);
+$action = @$_POST['action'];
+if ($action == 'author-search') {
+	$authors = MyResearch::findAuthorsByUsername(@$_POST['username']);
+	$tpl->assign("search_term", @$_POST['username']);
+} else {
+	$authors = MyResearch::listAuthorsByAOU($currentAOU);
+}
 
 $tpl->assign("org_units", Org_Structure::getOrgUnitList()); // All org units, for the drop-down
 $tpl->assign("authors", $authors); // The authors in the currently-selected org unit

@@ -923,9 +923,56 @@ class MyResearch
 			return 0;			
 		}
 	}
-	 
-	 
-	 
+	
+	
+	
+	/**
+	 * Returns only users who match a particular UQ username.
+	 */	
+	function findAuthorsByUsername($username)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		if ($username == '') {
+			return false;
+		}
+		
+		$stmt = "
+				SELECT
+					aut_org_username AS username,
+					aut_fname AS first_name,
+					UCASE(aut_lname) AS last_name,";
+					
+		if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) { 
+			$stmt .= " array_to_string(array_accum(pos_title), ', ') AS pos_title ";
+		} else {
+			$stmt .= " GROUP_CONCAT(pos_title SEPARATOR ', ') AS pos_title ";
+		}					
+
+		$stmt .= " FROM
+					" . APP_TABLE_PREFIX . "author INNER JOIN
+					hr_position_vw on aut_org_username = user_name
+				WHERE
+					user_name = '" . $username . "'
+				GROUP BY aut_org_username, aut_fname, aut_lname
+				ORDER BY
+					aut_lname ASC,
+					aut_fname ASC;
+		";
+		
+		try {
+			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return '';
+		}
+		
+		return $res;
+	}
+	
+	
 	/******************
 	 * MISC FUNCTIONS *
 	 ******************/
