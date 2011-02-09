@@ -317,12 +317,18 @@ if (SHIB_SWITCH == "ON" && SHIB_VERSION == "1") {
 			$_SESSION["url"] = $_GET["url"];			
 		}
 		$auth = new SimpleSAML_Auth_Simple('default-sp');
-		$_SESSION['IDP_LOGIN_FLAG'] = 1;
+
 		if ($_GET['default-idp'] == "true") {
+			$_SESSION['IDP_LOGIN_FLAG'] = 1;
 			$auth->login(array('saml:SP','saml:idp' => SHIB_HOME_IDP, 'ReturnTo' => "https://".APP_HOSTNAME));
 			exit;
-		}
-		$SSPUrl = $auth->getLoginURL("https://".APP_HOSTNAME);
+		} elseif ($_GET['wayf-idp'] == "true") {
+			$_SESSION['IDP_LOGIN_FLAG'] = 1;
+			$SSPUrl = $auth->getLoginURL("https://".APP_HOSTNAME);
+			Auth::redirect($SSPUrl);
+			exit;
+		} 
+		$SSPUrl = $_SERVER['PHP_SELF']."?wayf-idp=true";
 		$tpl->assign("SSP_URL", $SSPUrl);
 		$SSPDirectUrl = $_SERVER['PHP_SELF']."?default-idp=true";
 		$tpl->assign("SSP_DIRECT_URL", $SSPDirectUrl);		
