@@ -87,8 +87,8 @@ if (@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'] != "" || @$_SE
 		$_SESSION["url"] = "";
 		$username = Auth::getUsername();
 		Zend_Session::writeClose(); // write the session data out before doing a redirect
-		if (!empty($url) && $realUrl != APP_RELATIVE_URL && $realUrl != "/index.php?err=6") {		
-			Auth::redirect($url);
+		if (!empty($realUrl) && $realUrl != APP_RELATIVE_URL && $realUrl != "/index.php?err=6") {		
+			Auth::redirect($realUrl);
 		} else {
 			if (APP_MY_RESEARCH_MODULE == 'ON' && MyResearch::getHRorgUnit($username) != "") {
 				Auth::redirect(APP_BASE_URL."/my_fez.php"); // even though its the same page redirect so if they refresh it doesnt have the post vars

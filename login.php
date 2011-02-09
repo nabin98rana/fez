@@ -313,6 +313,9 @@ if (SHIB_SWITCH == "ON" && SHIB_VERSION == "1") {
 	$tpl->assign("SHIB_IDP_LIST", array());
 
 	if (SHIB_VERSION == "3" && SHIB_SWITCH == "ON") { // so easy with simple saml.. all the above taken care of by the embedded wayf from Simple SAML PHP
+		if (!empty($_GET["url"])) { 		
+			$_SESSION["url"] = $_GET["url"];			
+		}
 		$auth = new SimpleSAML_Auth_Simple('default-sp');
 		$_SESSION['IDP_LOGIN_FLAG'] = 1;
 		if ($_GET['default-idp'] == "true") {
