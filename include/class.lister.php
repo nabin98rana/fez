@@ -997,7 +997,7 @@ class Lister
         // When generating the URL's for sorting etc do not include 
         // these variables as they will already be in the PAGE_URL
         $exclude = array(
-            'pager_row',
+            /*'pager_row', */ /* This breaks CSV / Excel exports. I'm removing it -- LK */
             'browse',
             'value',
             'community_pid',
