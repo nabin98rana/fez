@@ -94,6 +94,16 @@ class Default_Data
 			$defaultData['app_jahdl_dir']                   = "/usr/local/jahdl/";
 			$defaultData['handle_admpriv_key_file']         = "/usr/local/handle/data/admpriv.bin";
 			$defaultData['app_log_location']                = "/var/log/fez/fez-error.log";
+
+			// Sensible Debian/Ubuntu defaults
+			if (is_readable('/etc/debian_version')) {
+			    $defaultData['webserver_log_dir']           = "/var/log/apache2/";
+			    $defaultData['webserver_log_file']          = "access.log";
+			    $defaultData['app_geoip_path']              = "/usr/share/GeoIP/";
+			    $defaultData['app_dot_exec']                = "/usr/bin/dot";
+			    $defaultData['app_php_exec']                = "/usr/bin/php";
+			}
+
 		}   // Can add some other defaults here for other common OS setups
 
 		$defaultData['datamodel_version']                   = "2008102701";                 // Change this to last upgrade + 1
