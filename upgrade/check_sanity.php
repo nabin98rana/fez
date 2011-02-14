@@ -8,8 +8,10 @@
  * http://www.gnu.org/copyleft/gpl.html
  * 
  */
+
+$rootpath = dirname(dirname(__FILE__));
  
-include_once('../config.inc.php');
+include_once "$rootpath/config.inc.php";
 include_once(APP_INC_PATH.'class.sanity_checks.php');
 include_once(APP_INC_PATH.'class.template.php');
 

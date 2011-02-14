@@ -760,6 +760,9 @@ class SanityChecks
 
 	function checkHTTPConnect($configDefine,$value)
 	{
+        // if curl is not installed, this will have been picked up earlier.
+        if (!function_exists('curl_init')) return array();
+
 		$ch=curl_init();
 		curl_setopt($ch, CURLOPT_URL, $value);
 		curl_setopt ($ch, CURLOPT_NOBODY, 1);
