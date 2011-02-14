@@ -173,6 +173,7 @@ function testBaseConfigValues() {
     // Extract the form values
     $path       = $_POST['app_path'];
     $relURL     = $_POST['app_relative_url'];
+    $dbtype     = $_POST['app_sql_dbtype'];
     $host       = $_POST['app_sql_dbhost'];
     $database   = $_POST['app_sql_dbname'];
     $user       = $_POST['app_sql_dbuser'];
@@ -188,6 +189,9 @@ function testBaseConfigValues() {
         return "The specified path does not exist.";
     }
     // Attempt database connection with the supplied credentials.
+    if ($dbtype == 'pdo_mysql' and !function_exists(mysql_connect)) {
+        return "The MySQL PHP extension is not installed. Please correct the problem and refresh this page.";
+    }
     $conn = @mysql_connect($_POST['app_sql_dbhost'], $_POST['app_sql_dbuser'], $_POST['app_sql_dbpass']);
     if (!$conn) {
         return "Could not connect to the specified database host with these credentials.";
