@@ -183,7 +183,7 @@ class SanityChecks
 	function dirs()
 	{
 		if (!defined('APP_TEMPLATE_COMPILE_PATH')) {
-			DEFINE("APP_TEMPLATE_COMPILE_PATH", APP_PATH . "templates_c");
+			DEFINE("APP_TEMPLATE_COMPILE_PATH", APP_PATH . "templates_c/");
 		}
 		$results = array(ConfigResult::message('Testing general directories'));
 		$results = array_merge($results, SanityChecks::checkDir('APP_TEMP_DIR', APP_TEMP_DIR, true));
@@ -528,12 +528,16 @@ class SanityChecks
 	function fedoraDirect()
 	{
 		$log = FezLog::get();
-		$db = DB_API::get('fedora_db');
-		
 		// I'm not very happy about this. We should be actually testing the credentials. Re-write this entire class at some point.
 		$results = array(ConfigResult::message('Testing Fedora Direct Access'));
 		$server = FEDORA_DB_HOST;
 		$port = FEDORA_DB_PORT;
+        try {
+            $db = DB_API::get('fedora_db');
+        } catch (Exception $e) {
+            $results[] = new ConfigResult('Fedora Direct','DB_API','fedora_db',"Fedora database details incorrect: Zend raised an exception.");
+        }
+
 		$results = array_merge($results, SanityChecks::checkConnect('FEDORA_DB_HOST', $server . ':' . $port));
 		if (SanityChecks::resultsClean($results)) {
 			if (! $db->getConnection()) {
