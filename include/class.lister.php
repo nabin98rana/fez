@@ -968,14 +968,17 @@ class Lister
          * We dont want to display facets that a user
          * has already searched by
          */
-        if(isset($facets)) {
-                
+        if (isset($facets)) {
             foreach ($facets as $sek_id => $facetData) {
-                if(!empty($options['searchKey'.$sek_id])) {
+                if (!empty($options['searchKey'.$sek_id])) {
                     unset($facets[$sek_id]);
                 }
             }
-                
+        }
+        
+        if ($tpl_idx == 1) {
+        	// Add the Research Details to the array
+        	$list = Record::getResearchDetailsbyPIDS($list);
         }
         
         $tpl->assign('facets', $facets);

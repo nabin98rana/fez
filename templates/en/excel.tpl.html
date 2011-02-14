@@ -6,6 +6,13 @@
     <td bgcolor="#CCCCCC"><b>Details</b></td>
     <td bgcolor="#CCCCCC"><b>Abstract views</b></td>
     <td bgcolor="#CCCCCC"><b>Downloads</b></td>
+    <td bgcolor="#CCCCCC"><b>WoS citations</b></td>
+    <td bgcolor="#CCCCCC"><b>Scopus citations</b></td>
+    <td bgcolor="#CCCCCC"><b>Google Scholar citations</b></td>
+    <td bgcolor="#CCCCCC"><b>ERA Journal ranking</b></td>
+    <td bgcolor="#CCCCCC"><b>HERDC code</b></td>
+    <td bgcolor="#CCCCCC"><b>HERDC status</b></td>
+    <td bgcolor="#CCCCCC"><b>HERDC affiliation</b></td>
   </tr>
 {section name="i" loop=$list}
   <tr>
@@ -13,8 +20,15 @@
     <td>{$list[i].rek_title|escape:"html"}</td>
     <td>{$list[i].rek_genre|escape:"html"}</td>
     <td>{$list[i].rek_citation_stripped|escape:"html"}</td>
-	<td>{$list[i].rek_views|escape:"html"}</td>
-	<td>{$list[i].rek_file_downloads|escape:"html"}</td>
+    <td>{$list[i].rek_views|escape:"html"}</td>
+    <td>{$list[i].rek_file_downloads|escape:"html"}</td>
+    <td>{$list[i].rek_thomson_citation_count|escape:"html"}</td>
+    <td>{$list[i].rek_scopus_citation_count|escape:"html"}</td>
+    <td>{$list[i].rek_gs_citation_count|escape:"html"}</td>
+    <td>{$list[i].rj_rank|escape:"html"}</td>
+    <td>{$list[i].rek_herdc_code_lookup|escape:"html"}</td>
+    <td>{$list[i].rek_herdc_status_lookup|escape:"html"}</td>
+    <td>{$list[i].rek_institutional_status_lookup|escape:"html"}</td>
   </tr>
 {/section}
 </table>
