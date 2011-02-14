@@ -47,15 +47,30 @@ exit;
  */
 function startSetup() {
 
+    $rootpath = dirname(dirname(__FILE__));
     ini_set("include_path", '.');
-    include_once("../include/Smarty/Smarty.class.php");
-    include_once("../include/class.default.data.php");
+    include_once "$rootpath/include/Smarty/Smarty.class.php";
+    include_once "$rootpath/include/class.default.data.php";
 
     $tpl = new Smarty();
-    $tpl->template_dir = '../templates/en';
-    $tpl->compile_dir = "../templates_c";
+    $tpl->template_dir = "$rootpath/templates/en";
+    $templates_c = "$rootpath/templates_c";
+    $tpl->compile_dir = $templates_c;
     $tpl->config_dir = '';
 
+    // check for the existence of templates_c and try to create it, otherwise smarty won't display.
+    if (!file_exists($templates_c) and !mkdir($templates_c)) {
+        $tpl->compile_dir = "/tmp";
+        $tpl->assign("problems", "Could not find or create the Smarty template compilation directory:<br>\n<pre>$templates_c</pre><br>\nThis directory needs to be writeable by the webserver. Please correct this problem and refresh this page.");
+        $tpl->display('setup.tpl.html');
+        exit;
+    }
+    if (!is_writeable($templates_c)) {
+        $tpl->compile_dir = "/tmp";
+        $tpl->assign("problems", "The Smarty template compilation directory needs to be writeable by the webserver:<br>\n<pre>$templates_c</pre><br>\n Please correct this problem and refresh this page.");
+        $tpl->display('setup.tpl.html');
+        exit;
+    }
 
     $tpl->assign('setup', true);
 
@@ -112,20 +127,22 @@ function startSetup() {
  */
 function prepareForSuperHappyFun() {
 
+    $rootpath = dirname(dirname(__FILE__));
+
     // If there's already a configuration file there, the site may already be setup.
     clearstatcache();
-    if (file_exists('../config.inc.php') && filesize('../config.inc.php') > 0) {
+    if (file_exists("$rootpath/config.inc.php") && filesize("$rootpath/config.inc.php") > 0) {
         return "An existing 'config.inc.php' was found in Fez's root directory. Your site may already be configured. If you wish to proceed with this installation, delete the file and refresh this page.";
     }
 
     // If the file exists, check that it's writable. If it doesn't, create it.
     clearstatcache();
-    if (file_exists('../config.inc.php')) {
-        if (!is_writable('../config.inc.php')) {
+    if (file_exists("$rootpath/config.inc.php")) {
+        if (!is_writable("$rootpath/config.inc.php")) {
             return "The file 'config.inc.php' in Fez's root directory needs to be writable by the web server user. Please correct this problem and refresh this page.";
         }
     } else {
-        $fp = fopen('../config.inc.php', 'w');
+        $fp = fopen("$rootpath/config.inc.php", 'w');
         if ($fp === false) {
             return "Could not create the file 'config.inc.php'. The web server needs to be able to create this file in Fez's root directory. You can bypass this error message by creating the file yourself, and ensuring that it is writable by the web server. Please correct this problem and refresh this page.";
         }
@@ -137,7 +154,7 @@ function prepareForSuperHappyFun() {
 
     // Find out if we can read the configuration template.
     clearstatcache();
-    if (!is_readable('../upgrade/config.inc.php.NEW')) {
+    if (!is_readable("$rootpath/upgrade/config.inc.php.NEW")) {
         return "The file '/upgrade/config.inc.php.NEW' needs to be readable by the web server user. Please correct this problem and refresh this page.";
     }
 
@@ -190,6 +207,8 @@ function testBaseConfigValues() {
  */
 function writeBaseConfigFile() {
 
+    $rootpath = dirname(dirname(__FILE__));
+
     // Extract the form values
     $path       = $_POST['app_path'];
 	$rel_url    = $_POST['app_relative_url'];
@@ -201,7 +220,7 @@ function writeBaseConfigFile() {
 
     // Get the config file template
     clearstatcache();
-    $filename = '../upgrade/config.inc.php.NEW';
+    $filename = "$rootpath/upgrade/config.inc.php.NEW";
     $handle = fopen($filename, "r");
     $contents = fread($handle, filesize($filename));
     fclose($handle);
@@ -217,7 +236,7 @@ function writeBaseConfigFile() {
 
     // Write the file to where it needs to go
     clearstatcache();
-    $fp = fopen('../config.inc.php', 'w');
+    $fp = fopen("$rootpath/config.inc.php", 'w');
     if ($fp === FALSE) {
         return "Could not open the file 'config.inc.php' for writing. The permissions on the file should be set as to allow the user that the web server runs as to open it. Please correct this problem and refresh this page.";
     }
