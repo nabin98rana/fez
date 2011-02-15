@@ -360,30 +360,30 @@
                     </tr>
                     {section name="i" loop=$list}
                     {cycle values=$cycle assign="row_color"}
-                    <tr>
-                      <td style="white-space: nowrap; background: {$row_color}; text-align: center;">
+                    <tr onmouseover="this.style.background='{$smarty.const.APP_HIGHLIGHT_COLOR}';" onmouseout="this.style.background='{$row_color}';" style="background: {$row_color}">
+                      <td style="white-space: nowrap; text-align: center;">
                         <input type="checkbox" name="items[]" value="{$list[i].wft_id}" {if $smarty.section.i.total == 0}disabled="disabled"{/if} />
                       </td>
-                      <td style="background: {$row_color}" class="default">
+                      <td style="" class="default">
                         <img src="{$rel_url}{$list[i].wft_icon}" alt="icon" />
                         {assign var="type_id" value=$list[i].wft_type_id}
                         &nbsp;{$triggers_list.$type_id}
                       </td>
-                      <td style="background: {$row_color}" class="default">
+                      <td style="" class="default">
                         {assign var="object_type" value=$list[i].wft_ret_id}&nbsp;{$object_options.$object_type|replace:' ':'&nbsp;'}
                       </td>
-                      <td style="background: {$row_color}" class="default">
+                      <td style="" class="default">
                         {assign var="xdis_id" value=$list[i].wft_xdis_id}
                         &nbsp;{$xdis_list.$xdis_id}
                       </td>
-                      <td style="background: {$row_color}" class="default">
+                      <td style="" class="default">
                         {assign var="wfl_id" value=$list[i].wft_wfl_id}
                         &nbsp;{$wfl_list.$wfl_id}
                       </td>
-                      <td style="background: {$row_color}; width: 200px;" class="default">
+                      <td style="width: 200px;" class="default">
                         &nbsp;{$list[i].wft_mimetype}
                       </td>
-                      <td style="background: {$row_color}" class="default">
+                      <td style="" class="default">
                         &nbsp;<a href="{$rel_url}manage/workflow_triggers.php?cat=edit&amp;wft_id={$list[i].wft_id}&amp;pid={$pid}">Edit</a>
                       </td>
                     </tr>

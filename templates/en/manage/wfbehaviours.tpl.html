@@ -261,20 +261,20 @@ function checkRequiredFields()
                     </tr>
                     {section name="i" loop=$list}
                     {cycle values=$cycle assign="row_color"}
-                    <tr>
-                      <td style="white-space: nowrap; background: {$row_color}; text-align: center">
+                    <tr onmouseover="this.style.background='{$smarty.const.APP_HIGHLIGHT_COLOR}';" onmouseout="this.style.background='{$row_color}';" style="background: {$row_color}">
+                      <td style="white-space: nowrap; text-align: center">
                         <input type="checkbox" name="items[]" value="{$list[i].wfb_id}" {if $smarty.section.i.total == 0}disabled="disabled"{/if} />
                       </td>
-                      <td style="background: {$row_color}" class="default">
+                      <td style="" class="default">
                         &nbsp;<a href="wfbehaviours.php?cat=edit&amp;id={$list[i].wfb_id}{if $wfl_id}&amp;wfl_id={$wfl_id}{/if}">{$list[i].wfb_title}</a>
                       </td>
-                      <td style="background: {$row_color}" class="default">
+                      <td style="" class="default">
                         &nbsp;{$list[i].wfb_version}
                       </td>
-                      <td style="background: {$row_color}" class="default">
+                      <td style="" class="default">
                         &nbsp;{$list[i].wfb_description}
                       </td>
-                      <td style="background: {$row_color}" class="default">
+                      <td style="" class="default">
                         &nbsp;{$list[i].wfb_script_name}
                         {if $list[i].wfb_auto}<span class="enabled">(auto)</span>{/if}
                       </td>

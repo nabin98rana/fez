@@ -141,27 +141,27 @@
                     </tr>
                     {section name="i" loop=$list}
                     {cycle values=$cycle assign="row_color"}
-                    <tr>
-                      <td style="width: 4px; white-space: nowrap; text-align: center; background: {$row_color};">
+                    <tr onmouseover="this.style.background='{$smarty.const.APP_HIGHLIGHT_COLOR}';" onmouseout="this.style.background='{$row_color}';" style="background: {$row_color}">
+                      <td style="width: 4px; white-space: nowrap; text-align: center;">
                         <input type="checkbox" name="items[]" value="{$list[i].xdis_id}" {if $smarty.section.i.total == 0}disabled="disabled"{/if} />
                       </td>
-                      <td style="width: 35%; background: {$row_color}" class="default">
+                      <td style="width: 35%;" class="default">
                         &nbsp;<a href="xsd_displays.php?cat=edit&amp;id={$list[i].xdis_id}&amp;xsd_id={$list[i].xdis_xsd_id}">{$list[i].xdis_title}</a>
                       </td>
 
-                      <td style="width: 15%; background: {$row_color}" class="default">
+                      <td style="width: 15%;" class="default">
                         &nbsp;{$list[i].xdis_version|replace:' ':'&nbsp;'}
                       </td>
-                      <td style="background: {$row_color}" class="default">
+                      <td style="" class="default">
 						{assign var="temp_fld_id" value=$list[i].xdis_object_type}&nbsp;{$object_options[$temp_fld_id]|replace:' ':'&nbsp;'}
                       </td>
-                      <td style="background: {$row_color}" class="default">
+                      <td style="" class="default">
                         &nbsp;{if $list[i].xdis_enabled == 1}<span class="enabled">yes</span>{else}<span class="disabled">no</span>{/if}
                       </td>
-                      <td style="width: 15%; background: {$row_color}" class="default">
+                      <td style="width: 15%;" class="default">
                         &nbsp;<a class="link" href="xsd_tree_match.php?xdis_id={$list[i].xdis_id}" title="match this XSD Display against HTML elements">Edit</a>
                       </td>
-                      <td style="width: 15%; background: {$row_color}" class="default">
+                      <td style="width: 15%;" class="default">
                         &nbsp;<a class="link" href="xsd_displays.php?cat=clone&amp;id={$list[i].xdis_id}&amp;xsd_id={$list[i].xdis_xsd_id}" title="Clone this display">Clone</a>
                       </td>
 

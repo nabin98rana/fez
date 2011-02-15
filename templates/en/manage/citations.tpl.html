@@ -17,23 +17,23 @@
 {section name="i" loop=$list}
 			  {assign var="xdis" value=$list[i]}
 			  {cycle values=$cycle assign="row_color"}
-                    <tr>
-                      <td style="width: 35%; background: {$row_color}" class="default">
+                    <tr onmouseover="this.style.background='{$smarty.const.APP_HIGHLIGHT_COLOR}';" onmouseout="this.style.background='{$row_color}';" style="background: {$row_color}">
+                      <td style="width: 35%;" class="default">
                         <a href="{$smarty.server.PHP_SELF}?action=edit&amp;xdis_id={$xdis.xdis_id}">{$xdis.xdis_title}</a>
                       </td>
-                      <td style="width: 15%; background: {$row_color}" class="default">
+                      <td style="width: 15%;" class="default">
                         &nbsp;{$xdis.xdis_version}
                       </td>
-                      <td style="background: {$row_color}" class="default">
+                      <td style="" class="default">
                         &nbsp;{if $xdis.xdis_enabled == 1}<span class="enabled">yes</span>{else}<span class="disabled">no</span>{/if}
                       </td>
-                      <td style="background: {$row_color}" class="default">
+                      <td style="" class="default">
                         &nbsp;{if $xdis.cit == 1}<span class="enabled">yes</span>{else}<span class="disabled">no</span>{/if}
                       </td>
                     </tr>
 {sectionelse}
                     <tr>
-                      <td colspan="7" style="background: {$light_color}; text-align: center" class="default">
+                      <td colspan="7" style="text-align: center" class="default">
                         No displays could be found.
                       </td>
                     </tr>
