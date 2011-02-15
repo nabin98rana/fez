@@ -142,6 +142,7 @@ class Default_Data
 		$defaultData['app_cycle_color_one']                 = "#ebebeb";
 		$defaultData['app_cycle_color_two']                 = "#f7f7f7";
 		$defaultData['app_internal_color']                  = "#d9d9d9";
+		$defaultData['app_highlight_color']                 = "#ffe0d0";
 		$defaultData['app_fedora_setup']                    = "";   // Empty default
 		$defaultData['app_fedora_location']                 = "";   // Empty default
 		$defaultData['app_fedora_ssl_location']             = "";   // Empty default
