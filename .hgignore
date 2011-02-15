@@ -25,3 +25,4 @@ glob:flviewer/9*
 glob:include/simplesaml/metadata/metadata-aaf-consuming/*
 glob:include/simplesaml/config/*
 glob:include/simplesaml/log/*
+apc.php

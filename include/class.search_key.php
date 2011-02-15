@@ -118,6 +118,11 @@ class Search_Key
 		} else {
 			$sek_simple_used = FALSE;
 		}
+		if (@$_POST["sek_bulkchange"]) {
+			$sek_bulkchange = TRUE;
+		} else {
+			$sek_bulkchange = FALSE;
+		}
 		if (@$_POST["sek_adv_visible"]) {
 			$sek_adv_visible = TRUE;
 		} else {
@@ -159,6 +164,7 @@ class Search_Key
 					sek_alt_title,
 					sek_meta_header,
 					sek_simple_used,
+					sek_bulkchange,
 					sek_adv_visible,
 					sek_myfez_visible,
 					sek_faceting,";
@@ -192,6 +198,7 @@ class Search_Key
                     " . $db->quote($_POST["sek_desc"]) . ",
 					" . $db->quote($_POST["sek_alt_title"]) . ",
 					" . $db->quote($_POST["sek_meta_header"]) . ",
+					" . $db->quote($sek_simple_used) .",
 					" . $db->quote($sek_simple_used) .",
 					" . $db->quote($sek_adv_visible) .",
 					" . $db->quote($sek_myfez_visible) .",
@@ -299,6 +306,11 @@ class Search_Key
 		} else {
 			$sek_simple_used = FALSE;
 		}
+		if (@$_POST["sek_bulkchange"]) {
+			$sek_bulkchange = TRUE;
+		} else {
+			$sek_bulkchange = FALSE;
+		}
 		if (@$_POST["sek_adv_visible"]) {
 			$sek_adv_visible = TRUE;
 		} else {
@@ -337,6 +349,7 @@ class Search_Key
 					sek_alt_title = " . $db->quote($_POST["sek_alt_title"]) . ",
                     sek_meta_header = " . $db->quote($_POST["sek_meta_header"]) . ",
 					sek_simple_used = ".$db->quote($sek_simple_used).",
+					sek_bulkchange = ".$db->quote($sek_bulkchange).",
 					sek_myfez_visible = ".$db->quote($sek_myfez_visible).",
 					sek_adv_visible = ".$db->quote($sek_adv_visible).",
 					sek_faceting = ".$db->quote($sek_faceting).",";
@@ -603,6 +616,36 @@ class Search_Key
 					IF(sek_alt_title <> '', sek_alt_title, sek_title)
                  FROM
                     " . APP_TABLE_PREFIX . "search_key
+                 ORDER BY
+                    sek_title ASC";
+		try {
+			$res = $db->fetchPairs($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return '';
+		}
+		return $res;
+	}
+
+	/**
+	 * Method used to get the list of search keys available in the
+	 * system returned in an associative array for drop down lists.
+	 *
+	 * @access  public
+	 * @return  array The list of search keys in an associative array (for drop down lists).
+	 */
+	function getBulkChangeAssocList()
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "SELECT
+                    sek_id,
+					IF(sek_alt_title <> '', sek_alt_title, sek_title)
+                 FROM
+                    " . APP_TABLE_PREFIX . "search_key
+								 WHERE sek_bulkchange = TRUE
                  ORDER BY
                     sek_title ASC";
 		try {

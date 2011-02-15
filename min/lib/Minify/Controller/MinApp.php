@@ -37,9 +37,18 @@ class Minify_Controller_MinApp extends Minify_Controller_Base {
         if (isset($_GET['g'])) {
             // try groups
             if (! isset($cOptions['groups'][$_GET['g']])) {
+                $this->log("A group configuration for \"{$_GET['g']}\" was not set");
                 return $options;
             }
-            foreach ((array)$cOptions['groups'][$_GET['g']] as $file) {
+            
+            $files = $cOptions['groups'][$_GET['g']];
+            // if $files is a single object, casting will break it
+            if (is_object($files)) {
+                $files = array($files);
+            } elseif (! is_array($files)) {
+                $files = (array)$files;
+            }
+            foreach ($files as $file) {
                 if ($file instanceof Minify_Source) {
                     $sources[] = $file;
                     continue;
@@ -53,7 +62,7 @@ class Minify_Controller_MinApp extends Minify_Controller_Base {
                         'filepath' => $file
                     ));    
                 } else {
-                    // file doesn't exist
+                    $this->log("The path \"{$file}\" could not be found (or was not a file)");
                     return $options;
                 }
             }
@@ -71,11 +80,12 @@ class Minify_Controller_MinApp extends Minify_Controller_Base {
                 // no "./"
                 || preg_match('/(?:^|[^\\.])\\.\\//', $_GET['f'])
             ) {
+                $this->log("GET param 'f' invalid (see MinApp.php line 63)");
                 return $options;
             }
             $files = explode(',', $_GET['f']);
             if (count($files) > $cOptions['maxFiles'] || $files != array_unique($files)) {
-                // too many or duplicate files
+                $this->log("Too many or duplicate files specified");
                 return $options;
             }
             if (isset($_GET['b'])) {
@@ -86,6 +96,7 @@ class Minify_Controller_MinApp extends Minify_Controller_Base {
                     // valid base
                     $base = "/{$_GET['b']}/";       
                 } else {
+                    $this->log("GET param 'b' invalid (see MinApp.php line 84)");
                     return $options;
                 }
             } else {
@@ -96,20 +107,25 @@ class Minify_Controller_MinApp extends Minify_Controller_Base {
                 $allowDirs[] = realpath(str_replace('//', $_SERVER['DOCUMENT_ROOT'] . '/', $allowDir));
             }
             foreach ($files as $file) {
-                $file = realpath($_SERVER['DOCUMENT_ROOT'] . $base . $file);
-                // don't allow unsafe or duplicate files
-                if (parent::_fileIsSafe($file, $allowDirs)) {
+                $path = $_SERVER['DOCUMENT_ROOT'] . $base . $file;
+                $file = realpath($path);
+                if (false === $file) {
+                    $this->log("Path \"{$path}\" failed realpath()");
+                    return $options;
+                } elseif (! parent::_fileIsSafe($file, $allowDirs)) {
+                    $this->log("Path \"{$path}\" failed Minify_Controller_Base::_fileIsSafe()");
+                    return $options;
+                } else {
                     $sources[] = new Minify_Source(array(
                         'filepath' => $file
                     ));
-                } else {
-                    // unsafe file
-                    return $options;
                 }
             }
         }
         if ($sources) {
             $this->sources = $sources;
+        } else {
+            $this->log("No sources to serve");
         }
         return $options;
     }
