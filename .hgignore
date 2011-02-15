@@ -12,3 +12,4 @@ libckvm_fez.tmproj
 glob:cache
 glob:secure
 glob:templates_c/*
+apc.php

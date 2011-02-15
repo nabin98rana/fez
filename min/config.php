@@ -1,31 +1,31 @@
 <?php
 /**
- * Configuration for default Minify implementation
+ * Configuration for default Minify application
  * @package Minify
  */
 
 
 /**
- * Path to Minify's lib folder. If you happen to move it, change 
- * this accordingly.
+ * In 'debug' mode, Minify can combine files with no minification and 
+ * add comments to indicate line #s of the original files. 
+ * 
+ * To allow debugging, set this option to true and add "&debug=1" to 
+ * a URI. E.g. /min/?f=script1.js,script2.js&debug=1
  */
-$min_libPath = dirname(__FILE__) . '/lib';
+$min_allowDebugFlag = true;
 
 
 /**
- * For best performance, specify your temp directory here. Otherwise 
- * Minify will have to load extra code to guess. Commented out below
- * are a few possible choices.
+ * Set to true to log messages to FirePHP (Firefox Firebug addon).
+ * Set to false for no error logging (Minify may be slightly faster).
+ * @link http://www.firephp.org/
+ *
+ * If you want to use a custom error logger, set this to your logger 
+ * instance. Your object should have a method log(string $message).
+ *
+ * @todo cache system does not have error logging yet.
  */
-//$min_cachePath = 'c:\\WINDOWS\Temp';
-//$min_cachePath = '/tmp';
-//$min_cachePath = preg_replace('/^\\d+;/', '', session_save_path());
-
-
-/**
- * Cache file locking. Set to false if filesystem is NFS.
- */
-$min_cacheFileLocking = true;
+$min_errorLogger = true;
 
 
 /**
@@ -36,20 +36,55 @@ $min_enableBuilder = true;
 
 
 /**
- * In 'debug' mode, Minify can combine files with no minification and 
- * add comments to indicate line #s of the original files. 
- * 
- * To allow debugging, set this option to true and add "&debug=1" to 
- * a URI. E.g. /min/?f=script1.js,script2.js&debug=1
+ * For best performance, specify your temp directory here. Otherwise Minify
+ * will have to load extra code to guess. Some examples below:
  */
-$min_allowDebugFlag = false;
+//$min_cachePath = 'c:\\WINDOWS\\Temp';
+//$min_cachePath = '/tmp';
+//$min_cachePath = preg_replace('/^\\d+;/', '', session_save_path());
 
 
 /**
- * Maximum age of browser cache in seconds. After this period,
- * the browser will send another conditional GET. You might
- * want to shorten this before making changes if it's crucial
+ * Leave an empty string to use PHP's $_SERVER['DOCUMENT_ROOT'].
+ *
+ * On some servers, this value may be misconfigured or missing. If so, set this 
+ * to your full document root path with no trailing slash.
+ * E.g. '/home/accountname/public_html' or 'c:\\xampp\\htdocs'
+ *
+ * If /min/ is directly inside your document root, just uncomment the 
+ * second line. The third line might work on some Apache servers.
+ */
+$min_documentRoot = '';
+//$min_documentRoot = substr(__FILE__, 0, strlen(__FILE__) - 15);
+//$min_documentRoot = $_SERVER['SUBDOMAIN_DOCUMENT_ROOT'];
+
+
+/**
+ * Cache file locking. Set to false if filesystem is NFS. On at least one 
+ * NFS system flock-ing attempts stalled PHP for 30 seconds!
+ */
+$min_cacheFileLocking = true;
+
+
+/**
+ * Combining multiple CSS files can place @import declarations after rules, which
+ * is invalid. Minify will attempt to detect when this happens and place a
+ * warning comment at the top of the CSS output. To resolve this you can either 
+ * move the @imports within your CSS files, or enable this option, which will 
+ * move all @imports to the top of the output. Note that moving @imports could 
+ * affect CSS values (which is why this option is disabled by default).
+ */
+$min_serveOptions['bubbleCssImports'] = false;
+
+
+/**
+ * Maximum age of browser cache in seconds. After this period, the browser
+ * will send another conditional GET. Use a longer period for lower traffic
+ * but you may want to shorten this before making changes if it's crucial
  * those changes are seen immediately.
+ *
+ * Note: Despite this setting, if you include a number at the end of the
+ * querystring, maxAge will be set to one year. E.g. /min/f=hello.css&123456
  */
 $min_serveOptions['maxAge'] = 1800;
 
@@ -60,7 +95,7 @@ $min_serveOptions['maxAge'] = 1800;
  * You will still need to include the directory in the
  * f or b GET parameters.
  * 
- * // = DOCUMENT_ROOT 
+ * // = shortcut for DOCUMENT_ROOT 
  */
 //$min_serveOptions['minApp']['allowDirs'] = array('//js', '//css');
 
@@ -74,6 +109,21 @@ $min_serveOptions['minApp']['groupsOnly'] = false;
  * Maximum # of files that can be specified in the "f" GET parameter
  */
 $min_serveOptions['minApp']['maxFiles'] = 10;
+
+
+/**
+ * If you minify CSS files stored in symlink-ed directories, the URI rewriting
+ * algorithm can fail. To prevent this, provide an array of link paths to
+ * target paths, where the link paths are within the document root.
+ * 
+ * Because paths need to be normalized for this to work, use "//" to substitute 
+ * the doc root in the link paths (the array keys). E.g.:
+ * <code>
+ * array('//symlink' => '/real/target/path') // unix
+ * array('//static' => 'D:\\staticStorage')  // Windows
+ * </code>
+ */
+$min_symlinks = array();
 
 
 /**
@@ -94,3 +144,13 @@ $min_serveOptions['minApp']['maxFiles'] = 10;
  */
 $min_uploaderHoursBehind = 0;
 
+
+/**
+ * Path to Minify's lib folder. If you happen to move it, change 
+ * this accordingly.
+ */
+$min_libPath = dirname(__FILE__) . '/lib';
+
+
+// try to disable output_compression (may not have an effect)
+ini_set('zlib.output_compression', '0');

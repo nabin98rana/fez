@@ -28,7 +28,8 @@ require_once 'Minify/Source.php';
  * @link http://code.google.com/p/minify/
  */
 class Minify {
-
+    
+    const VERSION = '2.1.3';
     const TYPE_CSS = 'text/css';
     const TYPE_HTML = 'text/html';
     // there is some debate over the ideal JS Content-Type, but this is the
@@ -49,6 +50,16 @@ class Minify {
     public static $uploaderHoursBehind = 0;
     
     /**
+     * If this string is not empty AND the serve() option 'bubbleCssImports' is
+     * NOT set, then serve() will check CSS files for @import declarations that
+     * appear too late in the combined stylesheet. If found, serve() will prepend
+     * the output with this warning.
+     *
+     * @var string $importWarning
+     */
+    public static $importWarning = "/* See http://code.google.com/p/minify/wiki/CommonProblems#@imports_can_appear_in_invalid_locations_in_combined_CSS_files */\n";
+    
+    /**
      * Specify a cache object (with identical interface as Minify_Cache_File) or
      * a path to use with Minify_Cache_File.
      * 
@@ -56,7 +67,7 @@ class Minify {
      * need to recombine files, minify and encode the output.
      *
      * @param mixed $cache object with identical interface as Minify_Cache_File or
-     * a directory path. (default = '')
+     * a directory path, or null to disable caching. (default = '')
      * 
      * @param bool $fileLocking (default = true) This only applies if the first
      * parameter is a string.
@@ -84,16 +95,17 @@ class Minify {
      * 'quiet' : set to true to have serve() return an array rather than sending
      * any headers/output (default false)
      * 
-     * 'encodeOutput' : to disable content encoding, set this to false (default true)
+     * 'encodeOutput' : set to false to disable content encoding, and not send
+     * the Vary header (default true)
      * 
      * 'encodeMethod' : generally you should let this be determined by 
      * HTTP_Encoder (leave null), but you can force a particular encoding
-     * to be returned, by setting this to 'gzip', 'deflate', or '' (no encoding)
+     * to be returned, by setting this to 'gzip' or '' (no encoding)
      * 
      * 'encodeLevel' : level of encoding compression (0 to 9, default 9)
      * 
      * 'contentTypeCharset' : appended to the Content-Type header sent. Set to a falsey
-     * value to remove. (default 'UTF-8')  
+     * value to remove. (default 'utf-8')  
      * 
      * 'maxAge' : set this to the number of seconds the client should use its cache
      * before revalidating with the server. This sets Cache-Control: max-age and the
@@ -102,6 +114,10 @@ class Minify {
      * 
      * 'rewriteCssUris' : If true, serve() will automatically set the 'currentDir'
      * minifier option to enable URI rewriting in CSS files (default true)
+     * 
+     * 'bubbleCssImports' : If true, all @import declarations in combined CSS
+     * files will be move to the top. Note this may alter effective CSS values
+     * due to a change in order. (default false)
      * 
      * 'debug' : set to true to minify all sources with the 'Lines' controller, which
      * eases the debugging of combined files. This also prevents 304 responses.
@@ -141,7 +157,8 @@ class Minify {
      * with keys "success" (bool), "statusCode" (int), "content" (string), and
      * "headers" (array).
      */
-    public static function serve($controller, $options = array()) {
+    public static function serve($controller, $options = array())
+    {
         if (is_string($controller)) {
             // make $controller into object
             $class = 'Minify_Controller_' . $controller;
@@ -151,11 +168,12 @@ class Minify {
             }
             $controller = new $class();
         }
-        
+
         // set up controller sources and mix remaining options with
         // controller defaults
         $options = $controller->setupSources($options);
         $options = $controller->analyzeSources($options);
+
         self::$_options = $controller->mixInDefaultOptions($options);
         
         // check request validity
@@ -183,11 +201,29 @@ class Minify {
             self::$_options['maxAge'] = 0;
         }
         
+        // determine encoding
+        if (self::$_options['encodeOutput']) {
+            if (self::$_options['encodeMethod'] !== null) {
+                // controller specifically requested this
+                $contentEncoding = self::$_options['encodeMethod'];
+            } else {
+                // sniff request header
+                require_once 'HTTP/Encoder.php';
+                // depending on what the client accepts, $contentEncoding may be 
+                // 'x-gzip' while our internal encodeMethod is 'gzip'. Calling
+                // getAcceptedEncoding(false, false) leaves out compress and deflate as options.
+                list(self::$_options['encodeMethod'], $contentEncoding) = HTTP_Encoder::getAcceptedEncoding(false, false);
+            }
+        } else {
+            self::$_options['encodeMethod'] = ''; // identity (no encoding)
+        }
+        
         // check client cache
         require_once 'HTTP/ConditionalGet.php';
         $cgOptions = array(
-        	'lastModifiedTime' => self::$_options['lastModifiedTime']
+            'lastModifiedTime' => self::$_options['lastModifiedTime']
             ,'isPublic' => self::$_options['isPublic']
+            ,'encoding' => self::$_options['encodeMethod']
         );
         if (self::$_options['maxAge'] > 0) {
             $cgOptions['maxAge'] = self::$_options['maxAge'];
@@ -201,7 +237,7 @@ class Minify {
             } else {
                 return array(
                     'success' => true
-                    ,'statusCode' => 304 
+                    ,'statusCode' => 304
                     ,'content' => ''
                     ,'headers' => $cg->getHeaders()
                 );
@@ -210,23 +246,6 @@ class Minify {
             // client will need output
             $headers = $cg->getHeaders();
             unset($cg);
-        }
-        
-        // determine encoding
-        if (self::$_options['encodeOutput']) {
-            if (self::$_options['encodeMethod'] !== null) {
-                // controller specifically requested this
-                $contentEncoding = self::$_options['encodeMethod'];
-            } else {
-                // sniff request header
-                require_once 'HTTP/Encoder.php';
-                // depending on what the client accepts, $contentEncoding may be 
-                // 'x-gzip' while our internal encodeMethod is 'gzip'. Calling
-                // getAcceptedEncoding() with false leaves out compress as an option.
-                list(self::$_options['encodeMethod'], $contentEncoding) = HTTP_Encoder::getAcceptedEncoding(false);
-            }
-        } else {
-            self::$_options['encodeMethod'] = ''; // identity (no encoding)
         }
         
         if (self::$_options['contentType'] === self::TYPE_CSS
@@ -249,12 +268,9 @@ class Minify {
             // output the content, as they do not require ever loading the file into
             // memory.
             $cacheId = 'minify_' . self::_getCacheId();
-            $encodingExtension = self::$_options['encodeMethod']
-                ? ('deflate' === self::$_options['encodeMethod']
-                    ? '.zd'
-                    : '.zg')
-                : '';
-            $fullCacheId = $cacheId . $encodingExtension;
+            $fullCacheId = (self::$_options['encodeMethod'])
+                ? $cacheId . '.gz'
+                : $cacheId;
             // check cache for valid entry
             $cacheIsReady = self::$_cache->isValid($fullCacheId, self::$_options['lastModifiedTime']); 
             if ($cacheIsReady) {
@@ -263,8 +279,9 @@ class Minify {
                 // generate & cache content
                 $content = self::_combineMinify();
                 self::$_cache->store($cacheId, $content);
-                self::$_cache->store($cacheId . '.zd', gzdeflate($content, self::$_options['encodeLevel']));
-                self::$_cache->store($cacheId . '.zg', gzencode($content, self::$_options['encodeLevel']));
+                if (function_exists('gzencode')) {
+                    self::$_cache->store($cacheId . '.gz', gzencode($content, self::$_options['encodeLevel']));
+                }
             }
         } else {
             // no cache
@@ -273,9 +290,7 @@ class Minify {
         }
         if (! $cacheIsReady && self::$_options['encodeMethod']) {
             // still need to encode
-            $content = ('deflate' === self::$_options['encodeMethod'])
-                ? gzdeflate($content, self::$_options['encodeLevel'])
-                : gzencode($content, self::$_options['encodeLevel']);
+            $content = gzencode($content, self::$_options['encodeLevel']);
         }
         
         // add headers
@@ -287,6 +302,8 @@ class Minify {
             : self::$_options['contentType'];
         if (self::$_options['encodeMethod'] !== '') {
             $headers['Content-Encoding'] = $contentEncoding;
+        }
+        if (self::$_options['encodeOutput']) {
             $headers['Vary'] = 'Accept-Encoding';
         }
 
@@ -307,7 +324,7 @@ class Minify {
                 ,'content' => $cacheIsReady
                     ? self::$_cache->fetch($fullCacheId)
                     : $content
-                ,'headers' => $headers                
+                ,'headers' => $headers
             );
         }
     }
@@ -319,18 +336,22 @@ class Minify {
      * 
      * @param array $sources array of filepaths and/or Minify_Source objects
      * 
+     * @param array $options (optional) array of options for serve. By default
+     * these are already set: quiet = true, encodeMethod = '', lastModifiedTime = 0.
+     * 
      * @return string
      */
-    public static function combine($sources)
+    public static function combine($sources, $options = array())
     {
         $cache = self::$_cache;
         self::$_cache = null;
-        $out = self::serve('Files', array(
+        $options = array_merge(array(
             'files' => (array)$sources
             ,'quiet' => true
             ,'encodeMethod' => ''
             ,'lastModifiedTime' => 0
-        ));
+        ), $options);
+        $out = self::serve('Files', $options);
         self::$_cache = $cache;
         return $out['content'];
     }
@@ -348,14 +369,16 @@ class Minify {
         if (isset($_SERVER['SERVER_SOFTWARE'])
             && 0 === strpos($_SERVER['SERVER_SOFTWARE'], 'Microsoft-IIS/')
         ) {
-            $_SERVER['DOCUMENT_ROOT'] = substr(
+            $_SERVER['DOCUMENT_ROOT'] = rtrim(substr(
                 $_SERVER['PATH_TRANSLATED']
                 ,0
                 ,strlen($_SERVER['PATH_TRANSLATED']) - strlen($_SERVER['SCRIPT_NAME'])
-            );
+            ), '\\');
             if ($unsetPathInfo) {
                 unset($_SERVER['PATH_INFO']);
             }
+            require_once 'Minify/Logger.php';
+            Minify_Logger::log("setDocRoot() set DOCUMENT_ROOT to \"{$_SERVER['DOCUMENT_ROOT']}\"");
         }
     }
     
@@ -397,12 +420,14 @@ class Minify {
      *
      * @return string
      */
-    protected static function _combineMinify() {
+    protected static function _combineMinify()
+    {
         $type = self::$_options['contentType']; // ease readability
         
-        // when combining scripts, make sure all statements separated
+        // when combining scripts, make sure all statements separated and
+        // trailing single line comment is terminated
         $implodeSeparator = ($type === self::TYPE_JS)
-            ? ';'
+            ? "\n;"
             : '';
         // allow the user to pass a particular array of options to each
         // minifier (designated by type). source objects may still override
@@ -437,7 +462,7 @@ class Minify {
                 $options = (null !== $source->minifyOptions)
                     ? array_merge($defaultOptions, $source->minifyOptions)
                     : $defaultOptions;
-                if ($defaultMinifier) {
+                if ($minifier) {
                     self::$_controller->loadMinifier($minifier);
                     // get source content and minify it
                     $pieces[] = call_user_func($minifier, $source->getContent(), $options);     
@@ -446,6 +471,10 @@ class Minify {
                 }
             }
             $content = implode($implodeSeparator, $pieces);
+        }
+        
+        if ($type === self::TYPE_CSS && false !== strpos($content, '@import')) {
+            $content = self::_handleCssImports($content);
         }
         
         // do any post-processing (esp. for editing build URIs)
@@ -465,12 +494,40 @@ class Minify {
      *
      * @return string
      */
-    protected static function _getCacheId() {
+    protected static function _getCacheId()
+    {
         return md5(serialize(array(
             Minify_Source::getDigest(self::$_controller->sources)
             ,self::$_options['minifiers'] 
             ,self::$_options['minifierOptions']
             ,self::$_options['postprocessor']
+            ,self::$_options['bubbleCssImports']
         )));
-    }    
+    }
+    
+    /**
+     * Bubble CSS @imports to the top or prepend a warning if an
+     * @import is detected not at the top.
+     */
+    protected static function _handleCssImports($css)
+    {
+        if (self::$_options['bubbleCssImports']) {
+            // bubble CSS imports
+            preg_match_all('/@import.*?;/', $css, $imports);
+            $css = implode('', $imports[0]) . preg_replace('/@import.*?;/', '', $css);
+        } else if ('' !== self::$importWarning) {
+            // remove comments so we don't mistake { in a comment as a block
+            $noCommentCss = preg_replace('@/\\*[\\s\\S]*?\\*/@', '', $css);
+            $lastImportPos = strrpos($noCommentCss, '@import');
+            $firstBlockPos = strpos($noCommentCss, '{');
+            if (false !== $lastImportPos
+                && false !== $firstBlockPos
+                && $firstBlockPos < $lastImportPos
+            ) {
+                // { appears before @import : prepend warning
+                $css = self::$importWarning . $css;
+            }
+        }
+        return $css;
+    }
 }
