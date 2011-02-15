@@ -622,6 +622,36 @@ class Search_Key
 	 * @access  public
 	 * @return  array The list of search keys in an associative array (for drop down lists).
 	 */
+	function getBulkChangeAssocList()
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "SELECT
+                    sek_id,
+					IF(sek_alt_title <> '', sek_alt_title, sek_title)
+                 FROM
+                    " . APP_TABLE_PREFIX . "search_key
+								 WHERE sek_bulkchange = TRUE
+                 ORDER BY
+                    sek_title ASC";
+		try {
+			$res = $db->fetchPairs($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return '';
+		}
+		return $res;
+	}
+
+	/**
+	 * Method used to get the list of search keys available in the
+	 * system returned in an associative array for drop down lists.
+	 *
+	 * @access  public
+	 * @return  array The list of search keys in an associative array (for drop down lists).
+	 */
 	function getAssocListAdvanced($hide_unused=0)
 	{
 		$log = FezLog::get();
