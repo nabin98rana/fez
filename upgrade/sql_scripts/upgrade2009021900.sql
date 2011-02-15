@@ -1,1 +1,1 @@
-ALTER TABLE `%TABLE_PREFIX%xsd_display_matchfields` ADD `xsdmf_validation_maxlength` INT( 4 ) NULL AFTER `xsdmf_validation_type` ;
+ALTER TABLE %TABLE_PREFIX%xsd_display_matchfields ADD xsdmf_validation_maxlength INT( 4 ) NULL AFTER xsdmf_validation_type ;

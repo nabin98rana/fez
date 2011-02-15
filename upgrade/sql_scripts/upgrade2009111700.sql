@@ -1,5 +1,5 @@
 UPDATE
-	`%TABLE_PREFIX%config`
+	%TABLE_PREFIX%config
 SET
 	config_name = 'app_herdc_support'
 WHERE

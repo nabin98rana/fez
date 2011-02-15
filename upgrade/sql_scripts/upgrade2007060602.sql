@@ -1,5 +1,5 @@
 ALTER TABLE %TABLE_PREFIX%search_key 
-  ADD COLUMN `sek_lookup_function` varchar(255) default NULL;
+  ADD COLUMN sek_lookup_function varchar(255) default NULL;
 
 UPDATE %TABLE_PREFIX%search_key 
   SET sek_lookup_function = 'Controlled_Vocab::getTitle' 

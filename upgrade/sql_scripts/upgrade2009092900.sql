@@ -1,1 +1,1 @@
-REPLACE INTO `%TABLE_PREFIX%config` (`config_name`,`config_module`,`config_value`) VALUES ('app_template_compile_path', 'core', '');
+REPLACE INTO %TABLE_PREFIX%config (config_name,config_module,config_value) VALUES ('app_template_compile_path', 'core', '');
