@@ -150,11 +150,10 @@
                       </td>
 
                       <td style="width: 15%; background: {$row_color}" class="default">
-                        &nbsp;{$list[i].xdis_version}
+                        &nbsp;{$list[i].xdis_version|replace:' ':'&nbsp;'}
                       </td>
                       <td style="background: {$row_color}" class="default">
-						{assign var="temp_fld_id" value=$list[i].xdis_object_type}
-                        &nbsp;{$object_options[$temp_fld_id]}
+						{assign var="temp_fld_id" value=$list[i].xdis_object_type}&nbsp;{$object_options[$temp_fld_id]|replace:' ':'&nbsp;'}
                       </td>
                       <td style="background: {$row_color}" class="default">
                         &nbsp;{if $list[i].xdis_enabled == 1}<span class="enabled">yes</span>{else}<span class="disabled">no</span>{/if}

@@ -178,7 +178,7 @@
             							  {/section}
                       </td>
                       <td style="background: {$row_color};" class="default">
-                        &nbsp;{$list[i].wfl_end_button_label}
+                        &nbsp;{$list[i].wfl_end_button_label|replace:' ':'&nbsp;'}
                       </td>
                       <td style="background: {$row_color};" class="default">
                         &nbsp;<a href="workflow_states.php?wfl_id={$list[i].wfl_id}" class="link">{$list[i].total_states} State{if $list[i].total_states != 1}s{/if}</a>

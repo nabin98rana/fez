@@ -370,8 +370,7 @@
                         &nbsp;{$triggers_list.$type_id}
                       </td>
                       <td style="background: {$row_color}" class="default">
-                        {assign var="object_type" value=$list[i].wft_ret_id}
-                        &nbsp;{$object_options.$object_type}
+                        {assign var="object_type" value=$list[i].wft_ret_id}&nbsp;{$object_options.$object_type|replace:' ':'&nbsp;'}
                       </td>
                       <td style="background: {$row_color}" class="default">
                         {assign var="xdis_id" value=$list[i].wft_xdis_id}
