@@ -142,11 +142,11 @@ function prepareForSuperHappyFun() {
             return "The file 'config.inc.php' in Fez's root directory needs to be writable by the web server user. Please correct this problem and refresh this page.";
         }
     } else {
-        $fp = fopen("$rootpath/config.inc.php", 'w');
+        $fp = @fopen("$rootpath/config.inc.php", 'w');
         if ($fp === false) {
             return "Could not create the file 'config.inc.php'. The web server needs to be able to create this file in Fez's root directory. You can bypass this error message by creating the file yourself, and ensuring that it is writable by the web server. Please correct this problem and refresh this page.";
         }
-        if (fwrite($fp, "") === false) {
+        if (@fwrite($fp, "") === false) {
             return "Could not write to 'config.inc.php'. The file should be writable by the user that the web server runs as. Please correct this problem and refresh this page.";
         }
         fclose($fp);
@@ -240,12 +240,12 @@ function writeBaseConfigFile() {
 
     // Write the file to where it needs to go
     clearstatcache();
-    $fp = fopen("$rootpath/config.inc.php", 'w');
+    $fp = @fopen("$rootpath/config.inc.php", 'w');
     if ($fp === FALSE) {
         return "Could not open the file 'config.inc.php' for writing. The permissions on the file should be set as to allow the user that the web server runs as to open it. Please correct this problem and refresh this page.";
     }
-    $res = fwrite($fp, $contents);
-    if ($fp === FALSE) {
+    $res = @fwrite($fp, $contents);
+    if ($res === FALSE) {
         return "Could not write the configuration information to 'config.inc.php'. The file should be writable by the user that the web server runs as. Please correct this problem and refresh this page.";
     }
     fclose($fp);
