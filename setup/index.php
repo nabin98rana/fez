@@ -59,7 +59,7 @@ function startSetup() {
     $tpl->config_dir = '';
 
     // check for the existence of templates_c and try to create it, otherwise smarty won't display.
-    if (!file_exists($templates_c) and !mkdir($templates_c)) {
+    if (!file_exists($templates_c) and ! @mkdir($templates_c)) {
         $tpl->compile_dir = "/tmp";
         $tpl->assign("problems", "Could not find or create the Smarty template compilation directory:<br>\n<pre>$templates_c</pre><br>\nThis directory needs to be writeable by the webserver. Please correct this problem and refresh this page.");
         $tpl->display('setup.tpl.html');
