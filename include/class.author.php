@@ -1123,7 +1123,8 @@ class Author
     if (is_numeric($term)) {
       $stmt .= " WHERE aut_id=".$db->quote($term, 'INTEGER');
     } else if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
-      $stmt .= " WHERE MATCH (aut_display_name) AGAINST (".$db->quote('*'.$term.'*')." IN BOOLEAN MODE)";
+      $stmt .= " WHERE MATCH (aut_display_name) AGAINST (".$db->quote('*'.$term.'*')." IN BOOLEAN MODE)
+                 OR MATCH (aut_org_username) AGAINST (".$db->quote('*'.$term.'*')." IN BOOLEAN MODE)";
     } else {
       $stmt .= " WHERE ";
       $names = explode(" ", $term);
@@ -1134,9 +1135,13 @@ class Author
           $stmt .= " AND ";
         }
 				if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) {
-        	$stmt .= " (aut_fname ILIKE ".$db->quote('%'.$name.'%')." OR aut_lname ILIKE ".$db->quote('%'.$name.'%').") ";
+        	$stmt .= " (aut_fname ILIKE ".$db->quote('%'.$name.'%')." 
+                      OR aut_lname ILIKE ".$db->quote('%'.$name.'%')."
+                      OR aut_org_username ILIKE ".$db->quote('%'.$name.'%').") ";
 				} else {
-        	$stmt .= " (aut_fname LIKE ".$db->quote($name.'%')." OR aut_lname LIKE ".$db->quote($name.'%').") ";					
+        	$stmt .= " (aut_fname LIKE ".$db->quote($name.'%')."
+                     OR aut_lname LIKE ".$db->quote($name.'%')."
+                     OR aut_org_username LIKE ".$db->quote($name.'%').") ";
 				}
       }
     }
