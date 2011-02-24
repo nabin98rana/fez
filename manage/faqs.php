@@ -70,10 +70,12 @@ if ($isAdministrator) {
         if (@$_POST["action"] == 'save') {
             FAQ::updateCategory();
             $tpl->assign("mode", 'cat-saved');
-            
         } elseif (@$_POST["action"] == 'add') {
             FAQ::addCategory();
             $tpl->assign("mode", 'cat-added');
+        } elseif (@$_POST["action"] == 'delete') {
+            FAQ::deleteCategory();
+            $tpl->assign("mode", 'cat-deleted');
         }
         
         $categories = FAQ::getCategoriesAll();
@@ -97,10 +99,12 @@ if ($isAdministrator) {
         if (@$_POST["action"] == 'save') {
             FAQ::updateQuestion();
             $tpl->assign("msg", 'question-saved');
-            
         } elseif (@$_POST["action"] == 'add') {
             FAQ::addQuestion();
             $tpl->assign("msg", 'question-added');
+        } elseif (@$_POST["action"] == 'delete') {
+            FAQ::deleteQuestion();
+            $tpl->assign("msg", 'question-deleted');
         }
         
         $catInfo = FAQ::getCategoryByID(@$_POST["category"]);
