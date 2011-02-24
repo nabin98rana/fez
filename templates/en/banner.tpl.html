@@ -67,7 +67,7 @@
 				  {if $isAdministrator}<li{if $active_nav == 'admin'} id="nav-focus"{/if}><a href="{$rel_url}manage/">Administration</a></li>{/if}  
 				  <li><a href="{$rel_url}logout.php">Logout</a></li>
 				{else}
-				  <li{if $active_nav == 'help'} id="nav-focus"{/if}><a title="Browse the Frequently Asked Questions section" href="{$rel_url}help.php?topic=main">FAQs</a></li>
+				  <li{if $active_nav == 'help'} id="nav-focus"{/if}><a title="Browse the Frequently Asked Questions section" href="{$rel_url}faq">FAQs</a></li>
 				  <li{if $active_nav == 'about'} id="nav-focus"{/if}><a href="{$rel_url}about.php">About</a></li>
 				  <li{if $active_nav == 'login'} id="nav-focus"{/if}><a href="{$rel_url}login.php?url={$uri_encoded}">Login</a></li>
 				{/if}

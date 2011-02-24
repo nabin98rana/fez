@@ -116,7 +116,7 @@ div#wordmark { display: none; visibility: hidden; }
 
 #topnav { margin: 0pt; padding: 8px 0pt; background: rgb(0, 0, 0) none repeat scroll 0% 0%; color: rgb(255, 255, 255); font-size: 11px; font-family: Helvetica,"Trebuchet MS",sans-serif; font-weight: lighter; }
 #topnav ul { margin: 0pt; padding: 2pt 0pt 0pt 25px; list-style-type: none; list-style-image: none; list-style-position: outside; letter-spacing: 1px; }
-#topnav ul li { margin: 0 30px 0 0; padding: 0 0 0 0; float: left; display: inline; }
+#topnav ul li { margin: 0 24px 0 0; padding: 0 0 0 0; float: left; display: inline; }
 #topnav ul li a { text-transform: uppercase; margin: 0 0 0 -8px; padding: 12px 8px 12px 8px; }
 #topnav li a:link { color: rgb(223, 223, 223); text-decoration: none; }
 #topnav li a:visited { color: rgb(223, 223, 223); text-decoration: none; }
@@ -2077,6 +2077,18 @@ a.author_id_link:hover {
     font-size: 11px;
 }
 
+#faq hr {
+    background-color: #4c4c4c;
+    height: 1px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+#faq h2 {
+    color: #4c4c4c;
+    padding-top: 10px;
+    padding-bottom: 5px;
+}
 
 /* Login page stylings */
 

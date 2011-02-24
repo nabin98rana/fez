@@ -1,0 +1,245 @@
+<div class="admin-box">
+
+{literal}
+<script type="text/javascript">
+<!--
+function catEdit(f)
+{
+    if (isWhitespace(f.name.value)) {
+        alert('Please enter the name of this category.');
+        selectField(f, 'name');
+        return false;
+    } else if (isWhitespace(f.order.value)) {
+        alert('Please enter an order for this category.');
+        selectField(f, 'order');
+        return false;
+    } else if (f.name.value.length > 255) {
+        alert('Please revise the length of the category name so that it is less than 255 characters.');
+        selectField(f, 'name');
+        return false;
+    } else if (f.order.value != parseInt(f.order.value))
+        alert('The order must be a number.');
+        selectField(f, 'order');
+        return false;
+    }
+    return true;
+}
+
+function questionEdit(f)
+{
+  window.alert('!');
+}
+//-->
+</script>
+{/literal}
+
+<h1>Manage FAQs</h1>
+
+{if $mode == 'questions-edit'}
+
+  <h2>Edit Questions For Category [[[X]]]</h2>
+
+  {foreach item=i from=$questions name=questions}
+  
+    <a href="{$smarty.server.PHP_SELF}?cat=question-edit&amp;id={$i.id}">{$i.question}</a><br /><br />
+  
+  {foreachelse}
+  
+    <p>No questions yet. Click back to add one.</p>
+    
+  {/foreach}
+
+
+{elseif $mode == 'category-edit' || $mode == 'category-add'}
+
+  {if $msg == 'question-saved'}
+    <div style="padding: 5px; background: ">Question updated.</div>
+  {elseif $msg == 'question-added'}
+    <div style="padding: 5px; background: ">New question added.</div>
+  {/if}
+  
+  
+  {if $mode == 'category-edit'}<h2>Edit Category</h2>
+  {elseif $mode == 'category-add'}<h2>Add New Category</h2>{/if}
+  
+  <form id="faq_cat_form" onsubmit="javascript:return catEdit(this);" method="post" action="{$smarty.server.PHP_SELF}?cat=category-update">
+  
+    <table style="width: 100%" cellspacing="0" cellpadding="0">
+    
+      <tr>
+        <td style="width: 140px;" class="default cell-colour">
+          <b>Name:</b>
+        </td>
+        <td style="background: {$light_color}">
+          <input type="text" name="name" value="{$cat.name}" size="80" />
+        </td>
+      </tr>
+
+      <tr>
+        <td style="width: 140px;" class="default cell-colour">
+          <b>Order:</b>
+        </td>
+        <td style="background: {$light_color}">
+          <input type="text" name="order" value="{$cat.sequence}" size="10" /><br />
+          <sub>The order determines where this category is placed in relation to other categories. Categories will be ordered sequentially, in ascending order. Numbers do not have to be adjacent (i.e. 10, 20, 30, 50 is okay).</sub>
+        </td>
+      </tr>
+      
+      <tr>
+        <td colspan="2" style="background: {$cell_color}; text-align: center">
+          {if $mode == 'category-edit'}
+            <input type="submit" class="button" value="Update" />
+            <input type="submit" class="button" value="Delete" />
+            <input type="hidden" name="action" value="save" />
+            <input type="hidden" name="cat_id" value="{$cat.id}" />
+          {elseif $mode == 'category-add'}
+            <input type="submit" class="button" value="Add" />
+            <input type="hidden" name="action" value="add" />
+          {/if}
+        </td>
+      </tr>
+    </table>
+
+  </form>
+  
+  {if $mode == 'category-edit'}
+  
+    <h2>Questions</h2>
+    
+    <div style="padding: 10px 0px;">
+      <a href="{$smarty.server.PHP_SELF}?cat=question-add&amp;id={$cat.id}">Add a new question</a>
+    </div>
+    
+    <table style="width: 100%" cellspacing="0" cellpadding="0">  
+      <tr>
+        <td colspan="2">
+          <table style="width: 100%" cellpadding="1" cellspacing="1">
+          
+            {foreach item=i from=$questions name=questions}
+            
+              {cycle values=$cycle assign="row_color"}
+              
+              <tr>
+                <td style="background: {$row_color}" class="default"><a href="{$smarty.server.PHP_SELF}?cat=question-edit&amp;id={$i.id}" title="Edit this question">{$i.question}</a></td>
+              </tr>
+              
+            {foreachelse}
+            
+              <tr><td>No questions yet.</td></tr>
+              
+            {/foreach}
+          
+          </table>
+        </td>
+      </tr>
+    </table>
+  
+  {/if}
+
+{elseif $mode == 'question-edit' || $mode == 'question-add'}
+  
+  {if $mode == 'question-edit'}<h2>Edit Question</h2>
+  {elseif $mode == 'question-add'}<h2>Add New Category</h2>{/if}
+  
+  <form id="faq_question_form" onsubmit="javascript:return questionEdit(this);" method="post" action="{$smarty.server.PHP_SELF}?cat=question-update">
+  
+    <table style="width: 100%" cellspacing="0" cellpadding="0">
+
+      <tr>
+        <td style="width: 140px;" class="default cell-colour">
+          <b>Category:</b>
+        </td>
+        <td style="background: {$light_color}">
+          <select name="category">
+            {foreach item=i from=$categories name=categories}
+              <option value="{$i.category_id}"{if $i.category_id == $question.faq_group || $i.category_id == $cat_id} selected="selected"{/if}>{$i.category_name}</option>
+            {/foreach}
+          </select>
+        </td>
+      </tr>
+    
+      <tr>
+        <td style="width: 140px;" class="default cell-colour">
+          <b>Question:</b>
+        </td>
+        <td style="background: {$light_color}">
+          <input type="text" name="question" value="{$question.question}" size="80" />
+        </td>
+      </tr>
+      
+      <tr>
+        <td style="width: 140px;" class="default cell-colour">
+          <b>Answer:</b>
+        </td>
+        <td style="background: {$light_color}">
+          <textarea name="answer" rows="10" cols="60">{$question.answer}</textarea>
+        </td>
+      </tr>
+
+      <tr>
+        <td style="width: 140px;" class="default cell-colour">
+          <b>Order:</b>
+        </td>
+        <td style="background: {$light_color}">
+          <input type="text" name="order" value="{$question.sequence}" size="10" /><br />
+          <sub>The order determines where this question is placed in relation to other questions. Questions will be ordered sequentially, in ascending order. Numbers do not have to be adjacent (i.e. 10, 20, 30, 50 is okay).</sub>
+        </td>
+      </tr>
+      
+      <tr>
+        <td colspan="2" style="background: {$cell_color}; text-align: center">
+          {if $mode == 'question-edit'}
+            <input type="submit" class="button" value="Update" />
+            <input type="submit" class="button" value="Delete" />
+            <input type="hidden" name="action" value="save" />
+            <input type="hidden" name="question_id" value="{$question.id}" />
+          {elseif $mode == 'question-add'}
+            <input type="submit" class="button" value="Add" />
+            <input type="hidden" name="action" value="add" />
+          {/if}
+        </td>
+      </tr>
+    </table>
+
+  </form>
+
+{else}
+
+  {if $mode == 'cat-saved'}
+    <div style="padding: 5px; background: ">Category updated.</div>
+  {elseif $mode == 'cat-added'}
+    <div style="padding: 5px; background: ">New category added.</div>
+  {/if}
+
+  <div style="padding: 10px 0px;">
+    <a href="{$smarty.server.PHP_SELF}?cat=category-add">Add a new category</a>
+  </div>
+  
+  <table style="width: 100%" cellspacing="0" cellpadding="0">  
+    <tr>
+      <td colspan="2">
+        <table style="width: 100%" cellpadding="1" cellspacing="1">
+        
+          {foreach item=i from=$categories name=categories}
+          
+            {cycle values=$cycle assign="row_color"}
+            
+            <tr>
+              <td style="background: {$row_color}" class="default"><a href="{$smarty.server.PHP_SELF}?cat=category-edit&amp;id={$i.category_id}" title="Edit this category">{$i.category_name}</a></td>
+              <td style="background: {$row_color}" class="default">{$i.num_questions} question{if $i.num_questions != 1}s{/if}</td>
+            </tr>        
+          
+          {foreachelse}
+          
+            <tr><td>No categories yet. Please add one.</td></tr>
+            
+          {/foreach}
+        
+        </table>
+      </td>
+    </tr>
+  </table>
+
+{/if}
+
+</div>

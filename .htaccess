@@ -20,6 +20,7 @@ RewriteRule     ^collection/([A-Za-z]+):([0-9]+)$                   list.php?col
 RewriteRule     ^collection/([A-Za-z]+):([0-9]+)/(.+)$              list.php?collection_pid=$1:$2&$3 [L,QSA]
 RewriteRule     ^list/([^/]*)/([^/]*)(/?)$                          list.php?browse=$1&value=$2 [L,QSA]
 RewriteRule     ^list/(.*)$                                         list.php?$1 [L,QSA]
+RewriteRule     ^faq$                                               faq.php
 RewriteRule     ^rid_citation_count_history_([A-Za-z]+):([0-9]+)$              rid_citation_count_history.php?pid=$1:$2 [L,QSA]
 RewriteRule     ^rid_citation_count_history_([A-Za-z]+):([0-9]+)_graph.?(.*)$   rid_citation_count_history_graph.php?pid=$1:$2&ext=$3 [L,QSA]
 RewriteRule     ^scopus_citation_count_history_([A-Za-z]+):([0-9]+)$              scopus_citation_count_history.php?pid=$1:$2 [L,QSA]

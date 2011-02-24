@@ -1,0 +1,40 @@
+{include file="header.tpl.html" extra_title="$list_heading"}
+
+{if $cv_header != ""}
+    {include file=$cv_header}
+{else}
+    {include file="navigation.tpl.html"}
+{/if}
+
+<h1>Frequently Asked Questions</h1>
+
+<div id="faq">
+
+{* Questions *}
+{foreach item=i from=$faqs name=faqs}
+	{if $current_cat != $i.category}
+		<h2>{$i.category}</h2>
+	{/if}
+	<a href="#q{$i.id}">{$i.question}</a><br />
+	{assign var='current_cat' value=$i.category}
+{foreachelse}
+	<p>There are currently no FAQs on file.</p>
+{/foreach}
+
+<hr />
+
+{* Answers *}
+{foreach item=i from=$faqs name=faqs}
+	<a id="q{$i.id}" name="q{$i.id}"></a><b>{$i.question}</b><br />
+	{$i.answer}<hr />
+{/foreach}
+
+{if $cv_footer != ""}
+    {include file=$cv_footer}
+{else}
+    {include file="app_info.tpl.html"}
+{/if}
+
+</div>
+
+{include file="footer.tpl.html"}
