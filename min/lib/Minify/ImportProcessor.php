@@ -141,10 +141,15 @@ class Minify_ImportProcessor {
                 $path = $this->_currentDir 
                     . DIRECTORY_SEPARATOR . strtr($url, '/', DIRECTORY_SEPARATOR);
                 // strip doc root
-                $path = substr($path, strlen($_SERVER['DOCUMENT_ROOT']));
+                $path = substr($path, strlen(realpath($_SERVER['DOCUMENT_ROOT'])));
                 // fix to absolute URL
-                $url = strtr($path, DIRECTORY_SEPARATOR, '/');
+                $url = strtr($path, '/\\', '//');
+                // remove /./ and /../ where possible
                 $url = str_replace('/./', '/', $url);
+                // inspired by patch from Oleg Cherniy
+                do {
+                    $url = preg_replace('@/[^/]+/\\.\\./@', '/', $url, 1, $changed);
+                } while ($changed);
             }
         }
         return "url({$quote}{$url}{$quote})";

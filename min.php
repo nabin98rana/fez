@@ -19,7 +19,7 @@ if(! preg_match('/^(js\/)?([a-zA-Z0-9_\-\/\.])+.js(\?*.?)$/', $file) ) {
 require 'Minify.php';
 
 $shib_source = array();
-if(SHIB_SWITCH == 'ON' && SHIB_VERSION == '2') {
+if(SHIB_SWITCH == 'ON' && (SHIB_VERSION == '2' || SHIB_VERSION == '3')) {
 	$shib_source[] = new Minify_Source(array(
 	    'id' 				=> 'js/shib.js',
 	    'getContentFunc' 	=> 'shib_wayf_js_fetch',
@@ -33,7 +33,10 @@ if($file == 'js/shib.js') {
 	$max_age = 0;
 }
 
-Minify::setCache();
+//Minify::setCache();
+//echo APP_PATH.$file; exit;
+//$pathfixup = substr( str_replace($_SERVER["DOCUMENT_ROOT"], '', APP_PATH), 1); //GC
+//echo $pathfixup; echo "here"; echo $_SERVER['DOCUMENT_ROOT']." - ".$_SERVER['REQUEST_URI']; 
 
 // ensure $_SERVER['DOCUMENT_ROOT'] never has a trailing slash, because some servers don't have the trailing slash while others do.
 $_SERVER['DOCUMENT_ROOT'] = rtrim($_SERVER['DOCUMENT_ROOT'],'/');
@@ -57,18 +60,18 @@ Minify::serve('Groups', array(
         $pathfixup . 'js/tabs.js'       =>  array(APP_PATH . 'js/tabcontent.js', APP_PATH .'js/ajaxtabs.js'),
 	    $pathfixup . 'js/shib.js'       =>  $shib_source, 
         ),
-    'maxAge' => $max_age 
+    'maxAge' => $max_age
 ));
-
+//echo "hai";
 
 function shib_wayf_js_fetch() {
 	$cache_file = APP_TEMP_DIR . '/shib_wayf_js_fetch_cache.js';
 	$js = Misc::processURL(SHIB_WAYF_JS);
 	if(is_array($js) && count($js) > 0 && (!empty($js[0])) && $js[1]['http_code'] == '200') {
-		@file_put_contents($cache_file, $js[0]);
+		file_put_contents($cache_file, $js[0]);
 		return $js[0];
 	}
 	else {
-		return @file_get_contents($cache_file);
+		return file_get_contents($cache_file);
 	}
 }

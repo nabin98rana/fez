@@ -40,7 +40,14 @@ class Minify_Controller_Files extends Minify_Controller_Base {
      */
     public function setupSources($options) {
         // strip controller options
-        $files = (array)$options['files'];
+        
+        $files = $options['files'];
+        // if $files is a single object, casting will break it
+        if (is_object($files)) {
+            $files = array($files);
+        } elseif (! is_array($files)) {
+            $files = (array)$files;
+        }
         unset($options['files']);
         
         $sources = array();
@@ -52,13 +59,13 @@ class Minify_Controller_Files extends Minify_Controller_Base {
             if (0 === strpos($file, '//')) {
                 $file = $_SERVER['DOCUMENT_ROOT'] . substr($file, 1);
             }
-            $file = realpath($file);
-            if (file_exists($file)) {
+            $realPath = realpath($file);
+            if (is_file($realPath)) {
                 $sources[] = new Minify_Source(array(
-                    'filepath' => $file
+                    'filepath' => $realPath
                 ));    
             } else {
-                // file not found
+                $this->log("The path \"{$file}\" could not be found (or was not a file)");
                 return $options;
             }
         }

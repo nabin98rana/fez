@@ -45,20 +45,30 @@ class Minify_Controller_Groups extends Minify_Controller_Base {
         // strip controller options
         $groups = $options['groups'];
         unset($options['groups']);
-        
         // mod_fcgid places PATH_INFO in ORIG_PATH_INFO
         $pi = isset($_SERVER['ORIG_PATH_INFO'])
             ? substr($_SERVER['ORIG_PATH_INFO'], 1) 
-            : (isset($_SERVER['REQUEST_URI'])
-                ? substr($_SERVER['REQUEST_URI'], 1) 
+            : (isset($_SERVER['PATH_INFO'])
+                ? substr($_SERVER['PATH_INFO'], 1) 
                 : false
             );
-        if (false === $pi || ! isset($groups[$pi])) {
+        if (false === $pi || !isset($groups[$pi])) {
             // no PATH_INFO or not a valid group
+            $this->log("Missing PATH_INFO or no group set for \"$pi\"");
             return $options;
-        }
+        } 
         $sources = array();
-        foreach ((array)$groups[$pi] as $file) {
+ 
+        $files = $groups[$pi];
+
+        // print_r($files); exit;
+        // if $files is a single object, casting will break it
+        if (is_object($files)) {
+            $files = array($files);
+        } elseif (! is_array($files)) {
+            $files = (array)$files;
+        }
+        foreach ($files as $file) {
             if ($file instanceof Minify_Source) {
                 $sources[] = $file;
                 continue;
@@ -66,13 +76,13 @@ class Minify_Controller_Groups extends Minify_Controller_Base {
             if (0 === strpos($file, '//')) {
                 $file = $_SERVER['DOCUMENT_ROOT'] . substr($file, 1);
             }
-            $file = realpath($file);
-            if (file_exists($file)) {
+            $realPath = realpath($file);
+            if (is_file($realPath)) {
                 $sources[] = new Minify_Source(array(
-                    'filepath' => $file
+                    'filepath' => $realPath
                 ));    
             } else {
-                // file doesn't exist
+                $this->log("The path \"{$file}\" could not be found (or was not a file)");
                 return $options;
             }
         }

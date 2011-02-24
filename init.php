@@ -36,7 +36,7 @@
 ini_set('allow_url_fopen', 0);
 ini_set("display_errors", 1); // LKDB - tmp (was 1)
 error_reporting(1);
-error_reporting(E_ALL ^ E_NOTICE);
+error_reporting(E_ERROR);
 set_time_limit(0);
 date_default_timezone_set("Australia/Brisbane");
 
@@ -133,14 +133,15 @@ if (APP_LOGGING_ENABLED == "true") {
   $file_log->addWriter($file_writer);
 
   // Firebug logging
-  /*$firebug_log = new Zend_Log();
+/*  $firebug_log = new Zend_Log();
   $firebug_writer = new Zend_Log_Writer_Firebug();
-  $firebug_log->addWriter($firebug_writer);*/
-
+	$firebug_writer->addFilter(Zend_Log::DEBUG);
+  $firebug_log->addWriter($firebug_writer);
+*/
   $log = new FezLog(array(
-    //array('log'=>$firebug_log, 'type' => 'firebug'),
+//    array('log'=>$firebug_log, 'type' => 'firebug'),
     array('log'=>$file_log, 'type' => 'file')
-  ), false);
+  ), true, true);
 } else {
   $null_writer = new Zend_Log_Writer_Null;
   $null_log = new Zend_Log($null_writer);
