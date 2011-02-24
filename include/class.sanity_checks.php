@@ -578,26 +578,16 @@ class SanityChecks
         }
         $results = array_merge($results, SanityChecks::checkConnect('APP_SQL_DBHOST', $server . ':' . $port));
         if (SanityChecks::resultsClean($results)) {
-            $stmt = "use " . APP_SQL_DBNAME;
-            try {
-                $db->query($stmt);
-            }
-            catch (Exception $ex) {
-                $results[] = new ConfigResult('SQL', 'APP_SQL_DBNAME', APP_SQL_DBNAME, "Failed to use DB. " .
-                                                                                       "Check that the configured APP_SQL_DBUSER has permissions on the DB in SQL. " .
-                                                                                       "Check that APP_SQL_DBPASS is correct. " .
-                                                                                       "Check that APP_SQL_DBNAME is set correctly. DB Error: " .
-                                                                                       $ex->getMessage());
-            }
-        }
-        if (SanityChecks::resultsClean($results)) {
-            $stmt = "SELECT * FROM " . APP_SQL_DBNAME . "." . APP_TABLE_PREFIX . "xsd_loop_subelement limit 1";
+            $stmt = "SELECT * FROM " . APP_SQL_DBNAME . "." . APP_TABLE_PREFIX . "xsd_loop_subelement limit 1 offset 0";
             try {
                 $res = $db->fetchAll($stmt);
             }
             catch (Exception $ex) {
                 $results[] = new ConfigResult('SQL', 'APP_TABLE_PREFIX', APP_TABLE_PREFIX, "Failed to query " .
-                                                                                           "one of the Fez tables.  Check that APP_TABLE_PREFIX is correct. DB Error: " .
+                                                                                           "one of the Fez tables.  Check that APP_TABLE_PREFIX is correct. " .
+                                                                                           "Check that the configured APP_SQL_DBUSER has permissions on the DB in SQL. " .
+                                                                                           "Check that APP_SQL_DBPASS is correct. " .
+                                                                                           "Check that APP_SQL_DBNAME is set correctly. DB Error: " .
                                                                                            $ex->getMessage());
             }
         }
