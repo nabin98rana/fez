@@ -1070,7 +1070,7 @@ class Lister
 
 	function checkAliasController() {
 //		print_r($_SERVER);
-		$uri = strtolower($_SERVER['REDIRECT_URL']);
+		$uri = strtolower($_SERVER['REQUEST_URI']);
 		$uri = str_replace(" ", "_", $uri);
 		$uri = preg_replace("/[^a-z0-9_]/", "", $uri);
 		

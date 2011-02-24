@@ -32,7 +32,7 @@
 // +----------------------------------------------------------------------+
 //
 //
-include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
+include_once(dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . "config.inc.php");
 
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
@@ -50,7 +50,7 @@ include_once(APP_INC_PATH . "najax_objects/class.select_search_key.php");
 
 NAJAX_Server::allowClasses('SelectSearchKey');
 if (NAJAX_Server::runServer()) {
-	exit;
+    exit;
 }
 
 Auth::checkAuthentication(APP_SESSION);
@@ -70,12 +70,12 @@ if ($cat == 'submit') {
 }
 $wfstatus->checkStateChange();
 
-$communities_list = Community::getAssocList();
+$search_keys_list = Search_Key::getAssocList();
 $tpl->assign('search_keys_list', $search_keys_list);
 $tpl->assign('search_keys_list_selected', $search_keys_list[0]['sek_id']);
 
-$tpl->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));
-$tpl->registerNajax( NAJAX_Client::register('SelectSearchKey', 'select_search_key.php'));
+$tpl->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL . 'include/najax'));
+$tpl->registerNajax(NAJAX_Client::register('SelectSearchKey', 'select_search_key.php'));
 
 $tpl->displayTemplate();
 ?>
