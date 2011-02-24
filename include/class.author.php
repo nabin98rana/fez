@@ -376,7 +376,7 @@ class Author
                     aut_display_name=" . $db->quote($_POST["dname"]) . ",
                     aut_position=" . $db->quote($_POST["position"]) . ",
                     aut_org_username=" . $db->quote($_POST["org_username"]) . ",
-                    aut_cv_link=" . $db->quote($_POST["cv_link"]) . ",																				
+                    aut_cv_link=" . $db->quote($_POST["cv_link"]) . ",
                     aut_homepage_link=" . $db->quote($_POST["homepage_link"]) . ",
                     aut_ref_num=" . $db->quote($_POST["aut_ref_num"]) . ",
                     aut_scopus_id=" . $db->quote($_POST["scopus_id"]).",
@@ -485,7 +485,7 @@ class Author
 
     $values = ") VALUES (
                     " . $db->quote($_POST["title"]) . ",
-          " . $db->quote($_POST["fname"]) . ",					
+          " . $db->quote($_POST["fname"]) . ",
           " . $db->quote($_POST["lname"]) . ",
                     " . $db->quote(Date_API::getCurrentDateGMT()) . "
                   ";
@@ -751,7 +751,6 @@ class Author
         ".$where_stmt."
                  ORDER BY ".$db->quote($order_by)."
          LIMIT ".$db->quote($max, 'INTEGER')." OFFSET ".$db->quote($start, 'INTEGER');
-    //		echo $stmt;
 
     try {
       $res = $db->fetchAll($stmt, $bind_params);
@@ -816,7 +815,7 @@ class Author
     $where_stmt = "";
     $extra_stmt = "";
     $extra_order_stmt = "";
-    $bind_params = array();    	    	
+    $bind_params = array();
     if (!empty($researcher_ids)) {
       $where_stmt .= " WHERE aut_researcher_id in  (".Misc::arrayToSQLBindStr($researcher_ids).")";
       $bind_params = $researcher_ids;
@@ -850,7 +849,7 @@ class Author
        $total_rows_limit = $total_rows;
     }
     $total_pages = ceil($total_rows / $max);
-    $last_page = $total_pages - 1;	
+    $last_page = $total_pages - 1;
     
     return array(
         "list" => $res,
@@ -1072,7 +1071,7 @@ class Author
        $total_rows_limit = $total_rows;
     }
     $total_pages = ceil($total_rows / $max);
-    $last_page = $total_pages - 1;			
+    $last_page = $total_pages - 1;
             return array(
                 "list" => $res,
                 "list_info" => array(
@@ -1121,12 +1120,12 @@ class Author
     $stmt .= " FROM ".$dbtp."author";
     
     if (is_numeric($term)) {
-      $stmt .= " WHERE aut_id=".$db->quote($term, 'INTEGER');
+      $stmt .= " WHERE (aut_id=".$db->quote($term, 'INTEGER');
     } else if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
-      $stmt .= " WHERE MATCH (aut_display_name) AGAINST (".$db->quote('*'.$term.'*')." IN BOOLEAN MODE)
-                 OR MATCH (aut_org_username) AGAINST (".$db->quote('*'.$term.'*')." IN BOOLEAN MODE)";
+      $stmt .= " WHERE (MATCH (aut_display_name) AGAINST (".$db->quote('*'.$term.'*')." IN BOOLEAN MODE)
+                 OR MATCH (aut_org_username) AGAINST (".$db->quote($term)." IN BOOLEAN MODE)";
     } else {
-      $stmt .= " WHERE ";
+      $stmt .= " WHERE (";
       $names = explode(" ", $term);
       $nameCounter = 0;
       foreach ($names as $name) {
@@ -1134,19 +1133,22 @@ class Author
         if ($nameCounter > 1) {
           $stmt .= " AND ";
         }
-				if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) {
-        	$stmt .= " (aut_fname ILIKE ".$db->quote('%'.$name.'%')." 
+        if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) {
+          $stmt .= " (aut_fname ILIKE ".$db->quote('%'.$name.'%')." 
                       OR aut_lname ILIKE ".$db->quote('%'.$name.'%')."
-                      OR aut_org_username ILIKE ".$db->quote('%'.$name.'%').") ";
-				} else {
-        	$stmt .= " (aut_fname LIKE ".$db->quote($name.'%')."
+                      OR aut_org_username = ".$db->quote($name).") ";
+        } else {
+          $stmt .= " (aut_fname LIKE ".$db->quote($name.'%')."
                      OR aut_lname LIKE ".$db->quote($name.'%')."
-                     OR aut_org_username LIKE ".$db->quote($name.'%').") ";
-				}
+                     OR aut_org_username = ".$db->quote($name).") ";
+        }
       }
     }
+
+    $stmt .= " ) ";
+
     if (APP_AUTHOR_SUGGEST_MODE == 2) {
-      $stmt .= " AND (aut_org_username IS NOT NULL OR aut_org_staff_id IS NOT NULL)";
+      $stmt .= " AND ((aut_org_username IS NOT NULL AND aut_org_username != '') OR (aut_org_staff_id IS NOT NULL AND aut_org_staff_id != ''))";
     }
     
     if (is_numeric($term)) {
@@ -1577,7 +1579,7 @@ class Author
       $stmt = "UPDATE
                   " . APP_TABLE_PREFIX . "author
                SET
-                  aut_researcher_id=" . $db->quote($researcher_id) . "	                    
+                  aut_researcher_id=" . $db->quote($researcher_id) . "
                WHERE
                   aut_org_username=" . $db->quote($aut_org_username);
       
@@ -1614,7 +1616,7 @@ class Author
     $stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "author
                  SET
-                    aut_researcher_id=?	                    
+                    aut_researcher_id=?
                  WHERE
                     aut_id=?";
     
@@ -1644,7 +1646,7 @@ class Author
     $stmt = "UPDATE
                 " . APP_TABLE_PREFIX . "author
              SET
-                aut_researcher_id=?	                    
+                aut_researcher_id=?
              WHERE
                 aut_org_username=?";
     
@@ -1697,7 +1699,7 @@ class Author
   public static function getRIDPassword($aut_researcher_id) 
   {
     $log = FezLog::get();
-    $db = DB_API::get();    	
+    $db = DB_API::get();
     
     $stmt = "SELECT
                   aut_rid_password
