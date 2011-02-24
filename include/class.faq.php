@@ -239,6 +239,27 @@ class FAQ
 	
 	
 	
+	function deleteCategory()
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "DELETE FROM
+					" . APP_TABLE_PREFIX . "faq_categories
+				WHERE
+					faq_cat_id = " . $db->quote($_POST["category"]) . ";";
+		try {
+			$db->exec($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return false;
+		}
+		return true;
+	}
+	
+	
+	
 	function getQuestionByID($questionID)
 	{
 		$log = FezLog::get();
@@ -323,6 +344,27 @@ class FAQ
 			return -1;
 		}
 		return 1;
+	}
+	
+	
+	
+	function deleteQuestion()
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "DELETE FROM
+					" . APP_TABLE_PREFIX . "faq_questions
+				WHERE
+					faq_id = " . $db->quote($_POST["question"]) . ";";
+		try {
+			$db->exec($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return false;
+		}
+		return true;
 	}
 
 }
