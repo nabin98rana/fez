@@ -1,1 +1,1 @@
-insert into %TABLE_PREFIX%search_key(`sek_title`,`sek_alt_title`,`sek_adv_visible`,`sek_simple_used`,`sek_order`,`sek_html_input`,`sek_fez_variable`,`sek_smarty_variable`,`sek_cvo_id`) values ('Author ID','Author',1,1,1,'multiple','none','Author::getAssocListAll()',450005);
+insert into %TABLE_PREFIX%search_key(sek_title,sek_alt_title,sek_adv_visible,sek_simple_used,sek_order,sek_html_input,sek_fez_variable,sek_smarty_variable,sek_cvo_id) values ('Author ID','Author',1,1,1,'multiple','none','Author::getAssocListAll()',450005);

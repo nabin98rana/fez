@@ -158,29 +158,29 @@
                     </tr>
                     {section name="i" loop=$list}
                     {cycle values=$cycle assign="row_color"}
-                    <tr>
-                      <td style="background: {$row_color}; white-space: nowrap;" align="center">
+                    <tr onmouseover="this.style.background='{$smarty.const.APP_HIGHLIGHT_COLOR}';" onmouseout="this.style.background='{$row_color}';" style="background: {$row_color}">
+                      <td style="white-space: nowrap;" align="center">
                         <input type="checkbox" name="items[]" value="{$list[i].wfl_id}" {if $smarty.section.i.total == 0}disabled="disabled"{/if} />
                       </td>
-                      <td style="background: {$row_color};" class="default">
+                      <td style="" class="default">
                         &nbsp;<a href="workflows.php?cat=edit&amp;id={$list[i].wfl_id}">{$list[i].wfl_title}</a>
                       </td>
-                      <td style="background: {$row_color};" class="default">
+                      <td style="" class="default">
                         &nbsp;{$list[i].wfl_version}
                       </td>
-                      <td style="background: {$row_color};" class="default">
+                      <td style="" class="default">
                         &nbsp;{$list[i].wfl_description}
                       </td>
-                      <td style="background: {$row_color};" class="default">
+                      <td style="" class="default">
                         	  {section name="r" loop=$list[i].wfl_roles}
             								  {assign var="aro_id" value=$list[i].wfl_roles[r]}
             								  {$auth_role_options[$aro_id]}
             							  {/section}
                       </td>
-                      <td style="background: {$row_color};" class="default">
+                      <td style="" class="default">
                         &nbsp;{$list[i].wfl_end_button_label|replace:' ':'&nbsp;'}
                       </td>
-                      <td style="background: {$row_color};" class="default">
+                      <td style="" class="default">
                         &nbsp;<a href="workflow_states.php?wfl_id={$list[i].wfl_id}" class="link">{$list[i].total_states} State{if $list[i].total_states != 1}s{/if}</a>
                       </td>
                     </tr>

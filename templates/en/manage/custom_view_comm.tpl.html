@@ -127,20 +127,20 @@
                     </tr>
                     {section name="i" loop=$list}
                     {cycle values=$cycle assign="row_color"}
-                    <tr>
-                      <td style="width: 4px; white-space: nowrap; background: {$row_color}; text-align: center;">
+                    <tr onmouseover="this.style.background='{$smarty.const.APP_HIGHLIGHT_COLOR}';" onmouseout="this.style.background='{$row_color}';" style="background: {$row_color}">
+                      <td style="width: 4px; white-space: nowrap; text-align: center;">
                         <input type="checkbox" name="items[]" value="{$list[i].cvcom_id}" {if $smarty.section.i.total == 0}disabled="disabled"{/if} />
                       </td>
-                      <td style="background: {$row_color}" class="default">
+                      <td style="" class="default">
                          &nbsp;<a href="custom_views_comm.php?cat=edit&amp;id={$list[i].cvcom_id}">{$list[i].rek_title}</a>
                       </td>
-                      <td style="background: {$row_color}" class="default">
+                      <td style="" class="default">
                         &nbsp;{$list[i].cview_name}
                       </td>
-                      <td style="background: {$row_color}" class="default">
+                      <td style="" class="default">
                         &nbsp;{$list[i].cvcom_hostname}
                       </td>
-                      <td style="background: {$row_color}" class="default">
+                      <td style="" class="default">
                         &nbsp;{$list[i].cvcom_default_template}
                       </td>
                     </tr>
