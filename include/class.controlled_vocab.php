@@ -570,7 +570,7 @@ class Controlled_Vocab
                  FROM
                     " . APP_TABLE_PREFIX . "controlled_vocab";
 		if (is_numeric($start) && is_numeric($max)) {
-			$stmt .= " LIMIT ".$db->quote($max, 'INTEGER')." OFFSET ".$db->quote($start, 'INTEGER');
+			$stmt .= " LIMIT ".$db->quote($start, 'INTEGER').", ".$db->quote($max, 'INTEGER');
 		}
 		try {
 			$res = $db->fetchPairs($stmt);
@@ -602,7 +602,7 @@ class Controlled_Vocab
 				 WHERE cvo_id not in (SELECT cvr_parent_cvo_id from  " . APP_TABLE_PREFIX . "controlled_vocab_relationship)
 				 ORDER BY cvo_id ASC";
 		if (is_numeric($start) && is_numeric($max)) {
-			$stmt .= " LIMIT ".$db->quote($max, 'INTEGER')." OFFSET ".$db->quote($start, 'INTEGER');
+			$stmt .= " LIMIT ".$db->quote($start, 'INTEGER').", ".$db->quote($max, 'INTEGER');
 		}
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
@@ -856,7 +856,7 @@ class Controlled_Vocab
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-
+		
 		$stmt = "SELECT
                     cvo_id, ";
 		if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
