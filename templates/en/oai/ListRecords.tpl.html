@@ -50,8 +50,8 @@
         <dc:identifier>{$app_base_url}view/{$list[i].rek_pid|escape:"html"}</dc:identifier>
         <dc:description>{$list[i].rek_description|escape:"html"}</dc:description>
         <dc:type>{$list[i].rek_display_type_lookup|escape:"html"}</dc:type>
-        <dc:date>{$list[i].rek_date|escape:"html"}</dc:date>
-		<dc:coverage>{$list[i].rek_date|escape:"html"}</dc:coverage>
+        <dc:date>{$list[i].rek_date|date_format:"%Y-%m-%d"|escape:"html"}</dc:date>
+		<dc:coverage>{$list[i].rek_date|date_format:"%Y-%m-%d"|escape:"html"}</dc:coverage>
 
 		{if $list[i].rek_author}
 			{if !is_array($list[i].rek_author)}
@@ -103,7 +103,7 @@
 				{/section}
 			{/if}
 		{/if}
-		{if $list[i].rek_ismemberof_title}
+		{*if $list[i].rek_ismemberof_title}
 			{if !is_array($list[i].rek_ismemberof_title)}
 	        	<dc:relation>isMemberOf {$is_memberof_title|escape:"html"} {$app_base_url}list/{$list[i].rek_ismemberof|escape:"html"}</dc:relation>
 			{else}
@@ -112,7 +112,7 @@
 			        <dc:relation>isMemberOf {$loop_relation[s]|escape:"html"} {$app_base_url}list/{$list[i].rek_ismemberof[s]|escape:"html"}</dc:relation>
 				{/section}
 			{/if}
-		{/if}
+		{/if*}
 		{if $list[i].rek_file_attachment_name}
 			{if !is_array($list[i].rek_file_attachment_name)}
 	        	<dc:relation>{$app_base_url}eserv/{$list[i].rek_pid|escape:"html"}/{$list[i].rek_file_attachment_name|escape:"html"}</dc:relation>
