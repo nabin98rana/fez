@@ -1083,8 +1083,8 @@
 					<select id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" multiple="multiple" size="10" class="default" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]">
 					</select>
 					{include file="error_icon.tpl.html" field=$field_name}
-					<input class="button" type="button" value="Add Subject" onclick="javascript:small_window('{$rel_url}cv_selector.php?cvo_id=&amp;form=wfl_form1&amp;element=xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0&amp;xsdmf_cvo_min_level={$xsd_display_fields[i].xsdmf_cvo_min_level}');">
-					<input class="button" type="button" value="Remove Subject" onclick="javascript:deleteSelectedItemsFromList(xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0);" />
+					<input class="button" type="button" value="Add New" onclick="javascript:small_window('{$rel_url}cv_selector.php?cvo_id=&amp;form=wfl_form1&amp;element=xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0&amp;xsdmf_cvo_min_level={$xsd_display_fields[i].xsdmf_cvo_min_level}');">
+					<input class="button" type="button" value="Remove Selected" onclick="javascript:deleteSelectedItemsFromList(xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0);" />
 				 </td>
 				</tr>				
 				{/if}

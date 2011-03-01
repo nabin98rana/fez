@@ -570,7 +570,7 @@ class Controlled_Vocab
                  FROM
                     " . APP_TABLE_PREFIX . "controlled_vocab";
 		if (is_numeric($start) && is_numeric($max)) {
-			$stmt .= " LIMIT ".$db->quote($start, 'INTEGER').", ".$db->quote($max, 'INTEGER');
+			$stmt .= " LIMIT ".$db->quote($max, 'INTEGER')." OFFSET ".$db->quote($start, 'INTEGER');
 		}
 		try {
 			$res = $db->fetchPairs($stmt);
@@ -602,7 +602,7 @@ class Controlled_Vocab
 				 WHERE cvo_id not in (SELECT cvr_parent_cvo_id from  " . APP_TABLE_PREFIX . "controlled_vocab_relationship)
 				 ORDER BY cvo_id ASC";
 		if (is_numeric($start) && is_numeric($max)) {
-			$stmt .= " LIMIT ".$db->quote($start, 'INTEGER').", ".$db->quote($max, 'INTEGER');
+			$stmt .= " LIMIT ".$db->quote($max, 'INTEGER')." OFFSET ".$db->quote($start, 'INTEGER');
 		}
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
@@ -856,7 +856,7 @@ class Controlled_Vocab
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     cvo_id, ";
 		if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
@@ -1080,7 +1080,7 @@ class Controlled_Vocab
 	 * @param   none
 	 * @return  array The JavaScript tree creation statements
 	 */
-	function buildCVtree() 
+	function buildCVtree($parentID) 
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -1093,9 +1093,7 @@ class Controlled_Vocab
 			$cache_key .= "_admin";
 		}
 		
-		
 		$cvTree = array();
-		
 		$cache = FezCache::load(Controlled_Vocab::CACHE_KEY);
 
 		if($cache && array_key_exists($cache_key, $cache)) {
@@ -1107,6 +1105,13 @@ class Controlled_Vocab
 	
 		$visible_cv_ids = Controlled_Vocab::getVisibleCvs();
 
+		$where = '';
+		if (is_numeric($parentID)) {
+			$where = "WHERE cvr_parent_cvo_id = " . $db->quote($parentID) . " " . 
+					 "OR cvo_id = " . $db->quote($parentID) . " ";
+			;
+		}
+		
 		if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
 			$stmt = "SELECT cvo_id, cvo_title, cvo_hide, cvo_title || ' ' || cvo_desc as cvo_title_extended, cvr_parent_cvo_id as cvo_parent_id ";
 		} else {
@@ -1118,6 +1123,7 @@ class Controlled_Vocab
 				"(SELECT cvr_parent_cvo_id, cvr_child_cvo_id " .
 				"FROM " . APP_TABLE_PREFIX . "controlled_vocab_relationship) AS t2 " .
 				"ON t1.cvo_id = t2.cvr_child_cvo_id " .
+				$where .
 				"ORDER BY cvo_id ASC";
 
 		try {
@@ -1129,13 +1135,21 @@ class Controlled_Vocab
 		}
 		
 		foreach ($res as $row) {
-			if (is_null($row['cvo_parent_id'])) {
-				if(($row['cvo_hide'] != '1' || $isAdministrator == true) && (in_array($row['cvo_id'], $visible_cv_ids))) {
+			if (is_numeric($parentID)) {
+				if (is_null($row['cvo_parent_id'])) {
 					array_push($cvTree, "var tmpNode".$row['cvo_id']." = new YAHOO.widget.TextNode('" . addslashes($row['cvo_title']) . "', tree.getRoot(), false);");
-				}
-			} else {				
-				if(($row['cvo_hide'] != '1' || $isAdministrator == true)  &&  (in_array($row['cvo_id'], $visible_cv_ids))) {
+				} else {				
 					array_push($cvTree, "var tmpNode".$row['cvo_id']." = new YAHOO.widget.TextNode('<a href=\"javascript:addItemToParent(" . $row['cvo_id'] . ", \'" . addslashes(addslashes($row['cvo_title_extended'])) . "\');\">" . addslashes($row['cvo_title_extended']) . "</a>', tmpNode" . $row['cvo_parent_id'] . ", false);");
+				}
+			} else {
+				if (is_null($row['cvo_parent_id'])) {
+					if(($row['cvo_hide'] != '1' || $isAdministrator == true) && (in_array($row['cvo_id'], $visible_cv_ids))) {
+						array_push($cvTree, "var tmpNode".$row['cvo_id']." = new YAHOO.widget.TextNode('" . addslashes($row['cvo_title']) . "', tree.getRoot(), false);");
+					}
+				} else {				
+					if(($row['cvo_hide'] != '1' || $isAdministrator == true)  &&  (in_array($row['cvo_id'], $visible_cv_ids))) {
+						array_push($cvTree, "var tmpNode".$row['cvo_id']." = new YAHOO.widget.TextNode('<a href=\"javascript:addItemToParent(" . $row['cvo_id'] . ", \'" . addslashes(addslashes($row['cvo_title_extended'])) . "\');\">" . addslashes($row['cvo_title_extended']) . "</a>', tmpNode" . $row['cvo_parent_id'] . ", false);");
+					}
 				}
 			}
 		}

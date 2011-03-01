@@ -147,8 +147,8 @@ Use as many or as few criteria as you like <br />
 		<select id="search_keys_{$search_keys[i].sek_id}" multiple size="5" class="default" name="search_keys[{$search_keys[i].sek_id}][]">
   		{html_options options=$search_keys[i].field_options}
 		</select>
-		<input class="default" type="button" value="Add Subject" onclick="javascript:small_window('cv_selector.php?cvo_id={$search_keys[i].cv_ids[z]}&amp;form=custom_filter_form&amp;element=search_keys_{$search_keys[i].sek_id}');" />
-		<input class="default" type="button" value="Remove Subject" onclick="javascript:deleteSelectedItemsFromList(search_keys_{$search_keys[i].sek_id});" />
+		<input class="default" type="button" value="Add New" onclick="javascript:small_window('cv_selector.php?cvo_id={$search_keys[i].cv_ids[z]}&amp;form=custom_filter_form&amp;element=search_keys_{$search_keys[i].sek_id}');" />
+		<input class="default" type="button" value="Remove Selected" onclick="javascript:deleteSelectedItemsFromList(search_keys_{$search_keys[i].sek_id});" />
 	</div>	
   {elseif $search_keys[i].sek_html_input == 'date'}
 

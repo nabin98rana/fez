@@ -28,7 +28,7 @@
 		<td style="background: {$row_color};" >
 		  {if $changes[i].pre_outcome}{$changes[i].pre_outcome|escape:"html"}, {/if}
 		  {$changes[i].pre_detail|escape:"html"|replace:"no value set":"<i>no value set</i>"}
-		  {if $changes[i].pre_outcomedetail}<br />{$changes[i].pre_outcomedetail|escape:"html"}{/if}
+		  {if $changes[i].pre_outcomeDetail}<br />{$changes[i].pre_outcomeDetail|escape:"html"}{/if}
 		</td>
 	  </tr>
 	  {sectionelse}

@@ -71,9 +71,9 @@ foreach ($list as $list_key => $list_field) {
 				eval("\$temp_value = ".$list_field["sek_lookup_function"]."(".$option.");");		
 				$list[$list_key]["field_options"][$option] = $temp_value;
 			}
-			
 			$list[$list_key]['field_options_count'] = count($list[$list_key]["field_options"]);
 		}
+		$list[$list_key]["parent_id"] = $list_field['sek_cvo_id'];
 	}
 	if ($list_field["sek_html_input"] == 'allcontvocab') {
 		$temp_value = "";
