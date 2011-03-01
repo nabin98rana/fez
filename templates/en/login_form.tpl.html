@@ -393,7 +393,7 @@ function setFocus()
         document.getElementById('login_form').passwd.focus();
     } else {
 		{/literal}
-		{if SHIB_SWITCH == "ON"}
+		{if $SHIB_SWITCH == "ON" && SHIB_VERSION != "3"}
         document.getElementById('idplist').origin.focus();
 		{else}
         document.getElementById('login_form').username.focus();		
