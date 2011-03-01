@@ -46,10 +46,11 @@ class Minify_Controller_Groups extends Minify_Controller_Base {
         $groups = $options['groups'];
         unset($options['groups']);
         // mod_fcgid places PATH_INFO in ORIG_PATH_INFO
+                // mod_fcgid places PATH_INFO in ORIG_PATH_INFO
         $pi = isset($_SERVER['ORIG_PATH_INFO'])
-            ? substr($_SERVER['ORIG_PATH_INFO'], 1) 
-            : (isset($_SERVER['PATH_INFO'])
-                ? substr($_SERVER['PATH_INFO'], 1) 
+            ? substr($_SERVER['ORIG_PATH_INFO'], 1)
+            : (isset($_SERVER['REQUEST_URI'])
+                ? substr($_SERVER['REQUEST_URI'], 1)
                 : false
             );
         if (false === $pi || !isset($groups[$pi])) {
