@@ -3479,7 +3479,8 @@ class Record
       foreach ($solr_titles as $skey => $svalue) {
         $escapedInput = str_replace($skey.":", $svalue.":", $escapedInput);
       }
-      $pattern = '/(?<!'.implode("|", $solr_titles).')(\+|-|&&|\|\||!|\(|\)|\{|}|\[|]|\^|"|~|\*|\?|:|\\\)/';
+        // negative look ahead for things starting withing ! and the solr chars 
+      $pattern = '/(?!'.'!'.implode("|!", $solr_titles).')(?<!'.implode("|", $solr_titles).')(\+|-|&&|\|\||!|\(|\)|\{|}|\[|]|\^|"|~|\*|\?|:|\\\)/';
       $replace = '\\\$1';
       $escapedInput = preg_replace($pattern, $replace, $escapedInput);
       $searchKey_join["sk_where_AND"][] = "" .$escapedInput;
