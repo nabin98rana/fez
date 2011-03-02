@@ -1092,6 +1092,7 @@ class Controlled_Vocab
 		if ($isAdministrator) {
 			$cache_key .= "_admin";
 		}
+		$cache_key .= "_" . $parentID; // Make each cached CV tree unique!
 		
 		$cvTree = array();
 		$cache = FezCache::load(Controlled_Vocab::CACHE_KEY);
