@@ -954,8 +954,9 @@ class MyResearch
 					" . APP_TABLE_PREFIX . "author INNER JOIN
 					hr_position_vw on aut_org_username = user_name
 				WHERE
-					user_name LIKE '%" . $username . "%'
-					OR CONCAT_WS(' ', aut_fname, aut_lname) LIKE '%" . $username . "%'
+					(user_name LIKE '%" . $username . "%'
+					OR CONCAT_WS(' ', aut_fname, aut_lname) LIKE '%" . $username . "%')
+					AND user_name != ''
 				GROUP BY aut_org_username, aut_fname, aut_lname
 				ORDER BY
 					aut_lname ASC,
