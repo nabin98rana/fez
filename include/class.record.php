@@ -3483,6 +3483,29 @@ class Record
       $pattern = '/(?!'.'!'.implode("|!", $solr_titles).')(?<!'.implode("|", $solr_titles).')(\+|-|&&|\|\||!|\{|}|\[|]|\^|"|~|\*|\?|:|\\\)/';
       $replace = '\\\$1';
       $escapedInput = preg_replace($pattern, $replace, $escapedInput);
+echo $escapedInput;
+      // match where there is only only value after the search key, not inside brackets (do that one later) to simplify this code
+      $skPattern = '/('.implode("|", $solr_titles).'):(?<!\()([^\s]+)/';
+
+      $lookups = array();
+      preg_match_all($skPattern, $escapedInput, $lookups);
+      print_r($lookups);
+
+      for ($i=0, $j=count($lookups); $i<$j; ++$i) {
+          $sek = new Search_Key();
+          $sekDetails = $sek->getDetailsBySolrName($lookups[1][$i]);
+          $temp_value = "";
+          if (!empty($sekDetails)) {
+              if ($sekDetails['sek_data_type'] == 'int' && $sekDetails['sek_lookup_id_function'] != '') {
+                  eval("\$temp_value = ".$sekDetails["sek_lookup_id_function"]."(".$lookups[2][$i].");");
+                  if (!empty($temp_value)) {
+                    $escapedInput = str_replace($lookups[0][$i], $lookups[1][$i].":".$temp_value, $escapedInput);
+                  }
+              }
+          }
+      }
+      echo $escapedInput;
+
       $searchKey_join["sk_where_AND"][] = "" .$escapedInput;
     }
 
@@ -3712,7 +3735,6 @@ class Record
   {
     $suffix = "";
     $sek_data_type = $sek_det['sek_data_type'];
-    $sek_relationship = $sek_det['sek_relationship'];
     $sek_cardinality = $sek_det['sek_cardinality'];
     if (($sek_data_type == 'int') && ($sek_cardinality == 0)) {
       $suffix = "_i";

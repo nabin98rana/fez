@@ -1215,91 +1215,91 @@ class XSD_HTML_Match
 			$db = DB_API::get();
 
 			if (@ $_POST["enabled"]) {
-				$enabled = TRUE;
+				$enabled = 'TRUE';
 			} else {
-				$enabled = FALSE;
+				$enabled = 'FALSE';
 			}
 			if (@ $_POST["multiple"]) {
-				$multiple = TRUE;
+				$multiple = 'TRUE';
 			} else {
-				$multiple = FALSE;
+				$multiple = 'FALSE';
 			}
 			if (@ $_POST["indexed"]) {
-				$indexed = TRUE;
+				$indexed = 'TRUE';
 			} else {
-				$indexed = FALSE;
+				$indexed = 'FALSE';
 			}
 			if (@ $_POST["required"]) {
-				$required = TRUE;
+				$required = 'TRUE';
 			} else {
-				$required = FALSE;
+				$required = 'FALSE';
 			}
 			if (@ $_POST["show_in_view"]) {
-				$show_in_view = TRUE;
+				$show_in_view = 'TRUE';
 			} else {
-				$show_in_view = FALSE;
+				$show_in_view = 'FALSE';
 			}
 			if (@ $_POST["invisible"]) {
-				$invisible = TRUE;
+				$invisible = 'TRUE';
 			} else {
-				$invisible = FALSE;
+				$invisible = 'FALSE';
 			}
 			if (@ $_POST["show_simple_create"]) {
-				$show_simple_create = TRUE;
+				$show_simple_create = 'TRUE';
 			} else {
-				$show_simple_create = FALSE;
+				$show_simple_create = 'FALSE';
 			}
 			if (@ $_POST["valueintag"]) {
-				$valueintag = TRUE;
+				$valueintag = 'TRUE';
 			} else {
-				$valueintag = FALSE;
+				$valueintag = 'FALSE';
 			}
 			if (@ $_POST["is_key"]) {
-				$is_key = TRUE;
+				$is_key = 'TRUE';
 			} else {
-				$is_key = FALSE;
+				$is_key = 'FALSE';
 			}
 			if (@ $_POST["xsdmf_citation"]) {
-				$xsdmf_citation = TRUE;
+				$xsdmf_citation = 'TRUE';
 			} else {
-				$xsdmf_citation = FALSE;
+				$xsdmf_citation = 'FALSE';
 			}
 			if (@ $_POST["xsdmf_citation_browse"]) {
-				$xsdmf_citation_browse = TRUE;
+				$xsdmf_citation_browse = 'TRUE';
 			} else {
-				$xsdmf_citation_browse = FALSE;
+				$xsdmf_citation_browse = 'FALSE';
 			}
 
 			if (@ $_POST["xsdmf_citation_bold"]) {
-				$xsdmf_citation_bold = TRUE;
+				$xsdmf_citation_bold = 'TRUE';
 			} else {
-				$xsdmf_citation_bold = FALSE;
+				$xsdmf_citation_bold = 'FALSE';
 			}
 			if (@ $_POST["xsdmf_citation_italics"]) {
-				$xsdmf_citation_italics = TRUE;
+				$xsdmf_citation_italics = 'TRUE';
 			} else {
-				$xsdmf_citation_italics = FALSE;
+				$xsdmf_citation_italics = 'FALSE';
 			}
 			if (@ $_POST["xsdmf_citation_brackets"]) {
-				$xsdmf_citation_brackets = TRUE;
+				$xsdmf_citation_brackets = 'TRUE';
 			} else {
-				$xsdmf_citation_brackets = FALSE;
+				$xsdmf_citation_brackets = 'FALSE';
 			}
 
 			if (@ $_POST["xsdmf_use_parent_option_list"]) {
-				$xsdmf_use_parent_option_list = TRUE;
+				$xsdmf_use_parent_option_list = 'TRUE';
 			} else {
-				$xsdmf_use_parent_option_list = FALSE;
+				$xsdmf_use_parent_option_list = 'FALSE';
 			}
 			if (@ $_POST["xsdmf_use_org_to_fill"]) {
-				$xsdmf_use_org_to_fill = TRUE;
+				$xsdmf_use_org_to_fill = 'TRUE';
 			} else {
-				$xsdmf_use_org_to_fill = FALSE;
+				$xsdmf_use_org_to_fill = 'FALSE';
 			}
 			if (@ $_POST["xsdmf_meta_header"]) {
-				$xsdmf_meta_header = TRUE;
+				$xsdmf_meta_header = 'TRUE';
 			} else {
-				$xsdmf_meta_header = FALSE;
+				$xsdmf_meta_header = 'FALSE';
 			}
 
 			$stmt = "INSERT INTO
@@ -1850,93 +1850,93 @@ class XSD_HTML_Match
 			}
 
 			if (@ $_POST["enabled"]) {
-				$enabled = TRUE;
+				$enabled = 'TRUE';
 			} else {
-				$enabled = FALSE;
+				$enabled = 'FALSE';
 			}
 
 			if (@ $_POST["multiple"]) {
-				$multiple = TRUE;
+				$multiple = 'TRUE';
 			} else {
-				$multiple = FALSE;
+				$multiple = 'FALSE';
 			}
 			if (@ $_POST["required"]) {
-				$required = TRUE;
+				$required = 'TRUE';
 			} else {
-				$required = FALSE;
+				$required = 'FALSE';
 			}
 			if (@ $_POST["indexed"]) {
-				$indexed = TRUE;
+				$indexed = 'TRUE';
 			} else {
-				$indexed = FALSE;
+				$indexed = 'FALSE';
 			}
 
 			if (@ $_POST["valueintag"]) {
-				$valueintag = TRUE;
+				$valueintag = 'TRUE';
 			} else {
-				$valueintag = FALSE;
+				$valueintag = 'FALSE';
 			}
 
 			if (@ $_POST["show_in_view"]) {
-				$show_in_view = TRUE;
+				$show_in_view = 'TRUE';
 			} else {
-				$show_in_view = FALSE;
+				$show_in_view = 'FALSE';
 			}
 			if (@ $_POST["invisible"]) {
-				$invisible = TRUE;
+				$invisible = 'TRUE';
 			} else {
-				$invisible = FALSE;
+				$invisible = 'FALSE';
 			}
 			if (@ $_POST["show_simple_create"]) {
-				$show_simple_create = TRUE;
+				$show_simple_create = 'TRUE';
 			} else {
-				$show_simple_create = FALSE;
+				$show_simple_create = 'FALSE';
 			}
 			if (@ $_POST["is_key"]) {
-				$is_key = TRUE;
+				$is_key = 'TRUE';
 			} else {
-				$is_key = FALSE;
+				$is_key = 'FALSE';
 			}
 			if (@ $_POST["xsdmf_meta_header"]) {
-				$xsdmf_meta_header = TRUE;
+				$xsdmf_meta_header = 'TRUE';
 			} else {
-				$xsdmf_meta_header = FALSE;
+				$xsdmf_meta_header = 'FALSE';
 			}
 
 			if (@ $_POST["xsdmf_citation_browse"]) {
-				$xsdmf_citation_browse = TRUE;
+				$xsdmf_citation_browse = 'TRUE';
 			} else {
-				$xsdmf_citation_browse = FALSE;
+				$xsdmf_citation_browse = 'FALSE';
 			}
 			if (@ $_POST["xsdmf_citation"]) {
-				$xsdmf_citation = TRUE;
+				$xsdmf_citation = 'TRUE';
 			} else {
-				$xsdmf_citation = FALSE;
+				$xsdmf_citation = 'FALSE';
 			}
 			if (@ $_POST["xsdmf_citation_bold"]) {
-				$xsdmf_citation_bold = TRUE;
+				$xsdmf_citation_bold = 'TRUE';
 			} else {
-				$xsdmf_citation_bold = FALSE;
+				$xsdmf_citation_bold = 'FALSE';
 			}
 			if (@ $_POST["xsdmf_citation_italics"]) {
-				$xsdmf_citation_italics = TRUE;
+				$xsdmf_citation_italics = 'TRUE';
 			} else {
-				$xsdmf_citation_italics = FALSE;
+				$xsdmf_citation_italics = 'FALSE';
 			}
 			if (@ $_POST["xsdmf_citation_brackets"]) {
-				$xsdmf_citation_brackets = TRUE;
+				$xsdmf_citation_brackets = 'TRUE';
 			} else {
-				$xsdmf_citation_brackets = FALSE;
+				$xsdmf_citation_brackets = 'FALSE';
 			}
 			if (@ $_POST["xsdmf_use_parent_option_list"]) {
-				$xsdmf_use_parent_option_list = TRUE;
+				$xsdmf_use_parent_option_list = 'TRUE';
 			} else {
-				$xsdmf_use_parent_option_list = FALSE;
+				$xsdmf_use_parent_option_list = 'FALSE';
 			}
 			if (@ $_POST["xsdmf_use_org_to_fill"]) {
-				$xsdmf_use_org_to_fill = TRUE;
+				$xsdmf_use_org_to_fill = 'TRUE';
 			} else {
-				$xsdmf_use_org_to_fill = FALSE;
+				$xsdmf_use_org_to_fill = 'FALSE';
 			}
 			/*		if (is_numeric($_POST["xsdsel_id"])) {
 			 $extra_where = " AND xsdmf_xsdsel_id = " . $_POST["xsdsel_id"];

@@ -113,39 +113,39 @@ class Search_Key
         }
 
         if (@$_POST["sek_simple_used"]) {
-            $sek_simple_used = TRUE;
+            $sek_simple_used = 'TRUE';
         } else {
-            $sek_simple_used = FALSE;
+            $sek_simple_used = 'FALSE';
         }
         if (@$_POST["sek_bulkchange"]) {
-            $sek_bulkchange = TRUE;
+            $sek_bulkchange = 'TRUE';
         } else {
-            $sek_bulkchange = FALSE;
+            $sek_bulkchange = 'FALSE';
         }
         if (@$_POST["sek_adv_visible"]) {
-            $sek_adv_visible = TRUE;
+            $sek_adv_visible = 'TRUE';
         } else {
-            $sek_adv_visible = FALSE;
+            $sek_adv_visible = 'FALSE';
         }
         if (@$_POST["sek_myfez_visible"]) {
-            $sek_myfez_visible = TRUE;
+            $sek_myfez_visible = 'TRUE';
         } else {
-            $sek_myfez_visible = FALSE;
+            $sek_myfez_visible = 'FALSE';
         }
         if (@$_POST["sek_faceting"]) {
-            $sek_faceting = TRUE;
+            $sek_faceting = 'TRUE';
         } else {
-            $sek_faceting = FALSE;
+            $sek_faceting = 'FALSE';
         }
         if (@$_POST["sek_cardinality"]) {
-            $sek_cardinality = TRUE;
+            $sek_cardinality = 'TRUE';
         } else {
-            $sek_cardinality = FALSE;
+            $sek_cardinality = 'FALSE';
         }
         if (@$_POST["sek_relationship"]) {
-            $sek_relationship = TRUE;
+            $sek_relationship = 'TRUE';
         } else {
-            $sek_relationship = FALSE;
+            $sek_relationship = 'FALSE';
         }
 
 
@@ -182,6 +182,7 @@ class Search_Key
 					sek_html_input,
 					sek_fez_variable,
 					sek_lookup_function,
+					sek_lookup_id_function,
 					sek_suggest_function,
 					sek_derived_function,
 					sek_smarty_variable ";
@@ -217,6 +218,7 @@ class Search_Key
                     " . $db->quote($_POST["field_type"]) . ",					
                     " . $db->quote($_POST["sek_fez_variable"]) . ",
 					" . $db->quote($_POST["sek_lookup_function"]) . ",
+					" . $db->quote($_POST["sek_lookup_id_function"]) . ",
 					" . $db->quote($_POST["sek_suggest_function"]) . ",
 					" . $db->quote($_POST["sek_derived_function"]) . ",
                     " . $db->quote($_POST["sek_smarty_variable"]);
@@ -301,39 +303,39 @@ class Search_Key
         $db = DB_API::get();
 
         if (@$_POST["sek_simple_used"]) {
-            $sek_simple_used = TRUE;
+            $sek_simple_used = 'TRUE';
         } else {
-            $sek_simple_used = FALSE;
+            $sek_simple_used = 'FALSE';
         }
         if (@$_POST["sek_bulkchange"]) {
-            $sek_bulkchange = TRUE;
+            $sek_bulkchange = 'TRUE';
         } else {
-            $sek_bulkchange = FALSE;
+            $sek_bulkchange = 'FALSE';
         }
         if (@$_POST["sek_adv_visible"]) {
-            $sek_adv_visible = TRUE;
+            $sek_adv_visible = 'TRUE';
         } else {
-            $sek_adv_visible = FALSE;
+            $sek_adv_visible = 'FALSE';
         }
         if (@$_POST["sek_myfez_visible"]) {
-            $sek_myfez_visible = TRUE;
+            $sek_myfez_visible = 'TRUE';
         } else {
-            $sek_myfez_visible = FALSE;
+            $sek_myfez_visible = 'FALSE';
         }
         if (@$_POST["sek_faceting"]) {
-            $sek_faceting = TRUE;
+            $sek_faceting = 'TRUE';
         } else {
-            $sek_faceting = FALSE;
+            $sek_faceting = 'FALSE';
         }
         if (@$_POST["sek_cardinality"]) {
-            $sek_cardinality = TRUE;
+            $sek_cardinality = 'TRUE';
         } else {
-            $sek_cardinality = FALSE;
+            $sek_cardinality = 'FALSE';
         }
         if (@$_POST["sek_relationship"]) {
-            $sek_relationship = TRUE;
+            $sek_relationship = 'TRUE';
         } else {
-            $sek_relationship = FALSE;
+            $sek_relationship = 'FALSE';
         }
 
         if (function_exists('apc_clear_cache')) {
@@ -366,6 +368,7 @@ class Search_Key
                     sek_html_input = " . $db->quote($_POST["field_type"]) . ",
                     sek_smarty_variable = " . $db->quote($_POST["sek_smarty_variable"]) . ",
 					sek_lookup_function = " . $db->quote($_POST["sek_lookup_function"]) . ",
+					sek_lookup_id_function = " . $db->quote($_POST["sek_lookup_id_function"]) . ",
 					sek_suggest_function = " . $db->quote($_POST["sek_suggest_function"]) . ",
 					sek_derived_function = " . $db->quote($_POST["sek_derived_function"]) . ",
 					sek_data_type = " . $db->quote($_POST["sek_data_type"]) . ",
@@ -479,6 +482,35 @@ class Search_Key
             return false;
         }
 
+        return $res;
+
+    }
+
+    function getDetailsBySolrName($solr_name)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+        // remove the solr suffix
+        $solr_name = preg_replace('/{_t_s|_mt|_t|_t_s|_dt|_ms|_s|_t_ws|_t_ft|_f|_mws|_ft|_mft|_mtl|_l|_mi|_i|_b|_mdt|_mt_exact}$/', '', $solr_name);
+        $solr_name = str_replace("_", " ", trim(strtolower($solr_name)));
+
+        $stmt = "SELECT
+                     sek_id
+                 FROM
+                    " . APP_TABLE_PREFIX . "search_key
+                 WHERE
+                    LOWER(sek_title)=" . $db->quote($solr_name);
+
+        try {
+            $res = $db->fetchOne($stmt);
+        }
+        catch (Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+        if (!empty($res)) {
+            $res = Search_Key::getDetails($res);
+        }
         return $res;
 
     }

@@ -962,21 +962,21 @@ class User
 		$db = DB_API::get();
 		
 		if (@$_POST["administrator"]) {
-			$usr_administrator = TRUE;
+			$usr_administrator = 'TRUE';
 		} else {
-			$usr_administrator = FALSE;
+			$usr_administrator = 'FALSE';
 		}
 
 		if (@$_POST["super_administrator"]) {
-			$usr_super_administrator = TRUE;
+			$usr_super_administrator = 'TRUE';
 		} else {
-			$usr_super_administrator = FALSE;
+			$usr_super_administrator = 'FALSE';
 		}
 
 		if (@$_POST["ldap_authentication"]) {
-			$ldap_authentication = TRUE;
+			$ldap_authentication = 'TRUE';
 		} else {
-			$ldap_authentication = FALSE;
+			$ldap_authentication = 'FALSE';
 		}
 
 		$prefs = Prefs::getDefaults();
@@ -1036,9 +1036,9 @@ class User
 		$log = FezLog::get();
 		$db = DB_API::get();
 		
-		$usr_administrator = FALSE;
+		$usr_administrator = 'FALSE';
 
-		$ldap_authentication = FALSE;
+		$ldap_authentication = 'FALSE';
 
 		$prefs = Prefs::getDefaults();
 		$stmt = "INSERT INTO
@@ -1090,8 +1090,8 @@ class User
 		$log = FezLog::get();
 		$db = DB_API::get();
 		
-		$usr_administrator = FALSE;
-		$ldap_authentication = TRUE;
+		$usr_administrator = 'FALSE';
+		$ldap_authentication = 'TRUE';
 
 		$prefs = Prefs::getDefaults();
 		$stmt = "INSERT INTO
@@ -1147,9 +1147,9 @@ class User
 		$log = FezLog::get();
 		$db = DB_API::get();
 		
-		$usr_administrator = FALSE;
+		$usr_administrator = 'FALSE';
 
-		$ldap_authentication = TRUE;
+		$ldap_authentication = 'TRUE';
 
 		$prefs = Prefs::getDefaults();
 		$stmt = "INSERT INTO
@@ -1203,8 +1203,8 @@ class User
 		$log = FezLog::get();
 		$db = DB_API::get();
 		
-		$usr_administrator = FALSE;
-		$ldap_authentication = TRUE;
+		$usr_administrator = 'FALSE';
+		$ldap_authentication = 'TRUE';
 		$userDetails = User::GetUserLDAPDetails($_POST["username"], $_POST["passwd"]);
 
 		$prefs = Prefs::getDefaults();
