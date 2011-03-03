@@ -3447,7 +3447,8 @@ class Record
 
     $searchKey_join['sk_where_AND'] = '';
     $searchKey_join['sk_where_OR'] = '';
-//print_r($options);
+
+    $searchKeys = array();
     foreach ($options as $sek_id => $value) {
       if (strpos($sek_id, "searchKey") !== false) {
         $searchKeys[str_replace("searchKey", "", $sek_id)] = $value;
@@ -3483,13 +3484,12 @@ class Record
       $pattern = '/(?!'.'!'.implode("|!", $solr_titles).')(?<!'.implode("|", $solr_titles).')(\+|-|&&|\|\||!|\{|}|\[|]|\^|"|~|\*|\?|:|\\\)/';
       $replace = '\\\$1';
       $escapedInput = preg_replace($pattern, $replace, $escapedInput);
-echo $escapedInput;
+
       // match where there is only only value after the search key, not inside brackets (do that one later) to simplify this code
       $skPattern = '/('.implode("|", $solr_titles).'):(?<!\()([^\s]+)/';
 
       $lookups = array();
       preg_match_all($skPattern, $escapedInput, $lookups);
-      print_r($lookups);
 
       for ($i=0, $j=count($lookups); $i<$j; ++$i) {
           $sek = new Search_Key();
@@ -3504,7 +3504,6 @@ echo $escapedInput;
               }
           }
       }
-      echo $escapedInput;
 
       $searchKey_join["sk_where_AND"][] = "" .$escapedInput;
     }
@@ -3515,6 +3514,7 @@ echo $escapedInput;
     if (is_array($searchKeys)) {
       foreach ($searchKeys as $sek_id => $searchValue ) {
 
+        if (empty($sek_id)) continue;
         if (!empty($searchValue) && trim($searchValue) != "") {
 
           $sekdet = Search_Key::getDetails($sek_id);
