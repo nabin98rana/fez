@@ -3492,6 +3492,7 @@ class Record
     if (is_array($searchKeys)) {
       foreach ($searchKeys as $sek_id => $searchValue ) {
 
+        if (empty($sek_id)) continue;
         if (!empty($searchValue) && trim($searchValue) != "") {
 
           $sekdet = Search_Key::getDetails($sek_id);
