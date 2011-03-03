@@ -228,6 +228,32 @@ class RecordView {
 						}
 					}
 				}
+				
+			   if ($dis_field['sek_title'] == "Faculty") {
+					if (!empty($details[$dis_field['xsdmf_id']])) {
+						if (is_array($details[$dis_field['xsdmf_id']])) {
+							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
+								$details[$dis_field['xsdmf_id']][$ckey] = "<a class='silent_link' href=".'"'.APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B0%5D=".urlencode($details[$dis_field['xsdmf_id']][$ckey]).'"'.">".$details[$dis_field['xsdmf_id']][$ckey]."</a>";
+							}
+						} else {
+							$details[$dis_field['xsdmf_id']] = "<a class='silent_link' href=".'"'.APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B0%5D=".urlencode($details[$dis_field['xsdmf_id']]).'"'.">".$details[$dis_field['xsdmf_id']]."</a>";
+						}
+					}
+				}
+
+				if ($dis_field['sek_title'] == "Org Unit Name") {
+					if (!empty($details[$dis_field['xsdmf_id']])) {
+						if (is_array($details[$dis_field['xsdmf_id']])) {
+							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
+								$details[$dis_field['xsdmf_id']][$ckey] = "<a class='silent_link' href=".'"'.APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B0%5D=".urlencode($details[$dis_field['xsdmf_id']][$ckey]).'"'.">".$details[$dis_field['xsdmf_id']][$ckey]."</a>";
+							}
+						} else {
+							$details[$dis_field['xsdmf_id']] = "<a class='silent_link' href=".'"'.APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B0%5D=".urlencode($details[$dis_field['xsdmf_id']]).'"'.">".$details[$dis_field['xsdmf_id']]."</a>";
+						}
+					}
+				}
+				
+				
 				if ($dis_field['sek_title'] == "Language") {
 					if (!empty($details[$dis_field['xsdmf_id']])) {
 						if (is_array($details[$dis_field['xsdmf_id']])) {
