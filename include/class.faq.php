@@ -73,8 +73,6 @@ class FAQ
 			;
 		";
 		
-		die($stmt);
-		
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
