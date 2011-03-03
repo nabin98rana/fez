@@ -4,77 +4,77 @@
 
 function showSubPage(p)
 {
-        hideAllSubPages();
-        document.getElementById(p).style.display = "block";
-        document.getElementById('submit').style.display = "block";
+	hideAllSubPages();
+	document.getElementById(p).style.display = "block";
+	document.getElementById('submit').style.display = "block";
 }
 
 function hideAllSubPages()
 {
-        document.getElementById('general').style.display = "none";
-        document.getElementById('fedora').style.display = "none";
-        document.getElementById('paths').style.display = "none";
-        document.getElementById('themes').style.display = "none";
-        document.getElementById('webstats').style.display = "none";
-        document.getElementById('shib').style.display = "none";
-        document.getElementById('ldap').style.display = "none";
-        document.getElementById('eprints').style.display = "none";
-        document.getElementById('submit').style.display = "none";
-        document.getElementById('solr').style.display = "none";
-        document.getElementById('origami').style.display = "none";
-        document.getElementById('exiftool').style.display = "none";
-        document.getElementById('handle').style.display = "none";
-        document.getElementById('versioning').style.display = "none";
-    document.getElementById('researcherid').style.display = "none";
+	document.getElementById('general').style.display = "none";
+	document.getElementById('fedora').style.display = "none";
+	document.getElementById('paths').style.display = "none";
+	document.getElementById('themes').style.display = "none";
+	document.getElementById('webstats').style.display = "none";
+	document.getElementById('shib').style.display = "none";
+	document.getElementById('ldap').style.display = "none";
+	document.getElementById('eprints').style.display = "none";
+	document.getElementById('submit').style.display = "none";
+	document.getElementById('solr').style.display = "none";
+	document.getElementById('origami').style.display = "none";
+	document.getElementById('exiftool').style.display = "none";
+	document.getElementById('handle').style.display = "none";
+	document.getElementById('versioning').style.display = "none";
+	document.getElementById('researcherid').style.display = "none";
 }
 
 function updatePreviewColour(el)
 {
-        document.getElementById(el).style.backgroundColor = document.getElementsByName(el).item(0).value;
+	document.getElementById(el).style.backgroundColor = document.getElementsByName(el).item(0).value;
 }
 
 function validateForm(f)
 {
-        if (isWhitespace(f.webserver_log_dir.value)) {
-                errors[errors.length] = new Option('Web Stats (log directory)', 'webserver_log_dir');
-        }
-        if (isWhitespace(f.webserver_log_file.value)) {
-                errors[errors.length] = new Option('Web Stats (log file)', 'webserver_log_file');
-        }
-        if (isWhitespace(f.app_geoip_path.value)) {
-                errors[errors.length] = new Option('Web Stats (GEOIP path)', 'app_geoip_path');
-        }
+	if (isWhitespace(f.webserver_log_dir.value)) {
+		errors[errors.length] = new Option('Web Stats (log directory)', 'webserver_log_dir');
+	}
+	if (isWhitespace(f.webserver_log_file.value)) {
+		errors[errors.length] = new Option('Web Stats (log file)', 'webserver_log_file');
+	}
+	if (isWhitespace(f.app_geoip_path.value)) {
+		errors[errors.length] = new Option('Web Stats (GEOIP path)', 'app_geoip_path');
+	}
 
-        // And then all the rest. Careful not demand no white space for non-compulsory fields.
+	// And then all the rest. Careful not demand no white space for non-compulsory fields.
 
 }
 
 function runSanityCheck(el)
 {
-        var queryString = '../upgrade/check_sanity.php?field=' + el;
-        var formValue = '&value=' + document.getElementsByName(el).item(0).value;
-        window.open(queryString + formValue, "sanity", "status=0, scrollbars=1, toolbar=0, width=400, height=300");
+	var queryString = '../upgrade/check_sanity.php?field=' + el;
+	var formValue = '&value=' + document.getElementsByName(el).item(0).value;
+	window.open(queryString + formValue, "sanity", "status=0, scrollbars=1, toolbar=0, width=400, height=300");
 }
 
 function restoreDefaultColours(el)
 {
-        if (el.checked == true) {
-                // Change every known colour back to whatever the default config says it was to begin with.
-                {/literal}
-                {foreach from=$colour_defaults key=var_name item=var_value}
-                document.getElementsByName('{$var_name}').item(0).value = "{$var_value}";
-                document.getElementById('{$var_name}').style.backgroundColor = "{$var_value}";
-                {/foreach}
-                {literal}
-        } else {
-                // Change every known colour back to the value it had when the form was loaded.
-                {/literal}
-                {foreach from=$colour_defaults key=var_name item=var_value}
-                document.getElementsByName('{$var_name}').item(0).value = "{$config_settings.$var_name}";
-                document.getElementById('{$var_name}').style.backgroundColor = "{$config_settings.$var_name}";
-                {/foreach}
-                {literal}
-        }
+	if (el.checked == true) {
+		// Change every known colour back to whatever the default config says it was to begin with.
+		{/literal}
+		{foreach from=$colour_defaults key=var_name item=var_value}
+		document.getElementsByName('{$var_name}').item(0).value = "{$var_value}";
+		document.getElementById('{$var_name}').style.backgroundColor = "{$var_value}";
+		{/foreach}
+		{literal}
+	} else {
+		// Change every known colour back to the value it had when the form was loaded.
+		{/literal}
+		{foreach from=$colour_defaults key=var_name item=var_value}
+		document.getElementsByName('{$var_name}').item(0).value = "{$config_settings.$var_name}";
+		document.getElementById('{$var_name}').style.backgroundColor = "{$config_settings.$var_name}";
+		{/foreach}
+		{literal}
+	}
 }
 
 //-->
@@ -84,206 +84,206 @@ function restoreDefaultColours(el)
 
 <div class="admin-box">
 
-        <h1>Site Configuration</h1>
+	<h1>Site Configuration</h1>
 
     <div class="default admin-content">
-        <img src="{$rel_url}images/config_22.png" style="position: relative; top: 5px;" alt="Configuration" /> Modify Fez configuration settings.
+	<img src="{$rel_url}images/config_22.png" style="position: relative; top: 5px;" alt="Configuration" /> Modify Fez configuration settings.
 
-        <br /><br />
+	<br /><br />
 
-        {if $action == "save"}
-          <p>
-          {section name=value loop=$save_errors}
-            <b>PROBLEM UPDATING:</b> {$save_errors[value]}<br />
-          {sectionelse}
-            Configuration settings were successfully saved.
-          {/section}
-          </p>
-          <p><img src="{$rel_url}images/warning_16.png" alt="Warning" title="Warning" width="16" height="16" /> It is highly recommended that you run the <a href="../upgrade/check_sanity.php" onclick="javascript: window.open('../upgrade/check_sanity.php'); return false;">Sanity Checks</a> now, to ensure there are no serious problems with your changes.</p>
-          <br />
+	{if $action == "save"}
+	  <p>
+	  {section name=value loop=$save_errors}
+	    <b>PROBLEM UPDATING:</b> {$save_errors[value]}<br />
+	  {sectionelse}
+	    Configuration settings were successfully saved.
+	  {/section}
+	  </p>
+	  <p><img src="{$rel_url}images/warning_16.png" alt="Warning" title="Warning" width="16" height="16" /> It is highly recommended that you run the <a href="../upgrade/check_sanity.php" onclick="javascript: window.open('../upgrade/check_sanity.php'); return false;">Sanity Checks</a> now, to ensure there are no serious problems with your changes.</p>
+	  <br />
     {else}
       <p>&raquo; <a href="../upgrade/check_sanity.php" onclick="javascript: window.open('../upgrade/check_sanity.php'); return false;">Run Sanity Check</a></p>
-          <br />
-        {/if}
+	  <br />
+	{/if}
 
-        <table>
-          <tr>
-            <td style="width: 160px;">
-                  <a href="#" onclick="javascript:showSubPage('general');">General Settings</a><br />
-                  <a href="#" onclick="javascript:showSubPage('fedora');">Fedora Settings</a><br />
-                  <a href="#" onclick="javascript:showSubPage('paths');">Programs and Paths</a><br />
-                  <a href="#" onclick="javascript:showSubPage('themes');">Themes &amp; Appearance</a><br />
-                  <a href="#" onclick="javascript:showSubPage('solr');">Solr Settings</a><br />
-                  <a href="#" onclick="javascript:showSubPage('exiftool');">Exiftool Settings</a><br />
-                  <a href="#" onclick="javascript:showSubPage('handle');">Handle Settings</a><br />
-                </td>
-            <td>
-                  <a href="#" onclick="javascript:showSubPage('webstats');">Web Statistics</a><br />
-                  <a href="#" onclick="javascript:showSubPage('shib');">Shibboleth Settings</a><br />
-                  <a href="#" onclick="javascript:showSubPage('ldap');">LDAP Settings</a><br />
-                  <a href="#" onclick="javascript:showSubPage('eprints');">ePrints Settings</a><br />
-                  <a href="#" onclick="javascript:showSubPage('origami');">Origami Settings</a><br />
-                  <a href="#" onclick="javascript:showSubPage('versioning');">Versioning Settings</a><br />
-                  <a href="#" onclick="javascript:showSubPage('researcherid');">ResearcherID Web Service Settings</a><br />
-                </td>
-          </tr>
-        </table>
+	<table>
+	  <tr>
+	    <td style="width: 160px;">
+		  <a href="#" onclick="javascript:showSubPage('general');">General Settings</a><br />
+		  <a href="#" onclick="javascript:showSubPage('fedora');">Fedora Settings</a><br />
+		  <a href="#" onclick="javascript:showSubPage('paths');">Programs and Paths</a><br />
+		  <a href="#" onclick="javascript:showSubPage('themes');">Themes &amp; Appearance</a><br />
+		  <a href="#" onclick="javascript:showSubPage('solr');">Solr Settings</a><br />
+		  <a href="#" onclick="javascript:showSubPage('exiftool');">Exiftool Settings</a><br />
+		  <a href="#" onclick="javascript:showSubPage('handle');">Handle Settings</a><br />
+		</td>
+	    <td>
+		  <a href="#" onclick="javascript:showSubPage('webstats');">Web Statistics</a><br />
+		  <a href="#" onclick="javascript:showSubPage('shib');">Shibboleth Settings</a><br />
+		  <a href="#" onclick="javascript:showSubPage('ldap');">LDAP Settings</a><br />
+		  <a href="#" onclick="javascript:showSubPage('eprints');">ePrints Settings</a><br />
+		  <a href="#" onclick="javascript:showSubPage('origami');">Origami Settings</a><br />
+		  <a href="#" onclick="javascript:showSubPage('versioning');">Versioning Settings</a><br />
+		  <a href="#" onclick="javascript:showSubPage('researcherid');">ResearcherID Web Service Settings</a><br />
+		</td>
+	  </tr>
+	</table>
 
-        <br /><br />
+	<br /><br />
 
     <form id="run_stats" onsubmit="javascript:return checkFormSubmission(this, 'validateForm');" method="post" action="{$smarty.server.PHP_SELF}">
-                <div>
-                        <input type="hidden" name="action" value="save" />
-                        <input type="hidden" name="datamodel_version" value="{$config_settings.datamodel_version|escape:"html"}" />
-                </div>
+		<div>
+			<input type="hidden" name="action" value="save" />
+			<input type="hidden" name="datamodel_version" value="{$config_settings.datamodel_version|escape:"html"}" />
+		</div>
 
-                <div id="general" style="display: none;">
-                <table width="100%" class="admin-edit">
-                        <thead>
-                  <tr>
-                        <th colspan="2">
-                          <h2>General Settings</h2>
-                        </th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                  <tr>
-                    <th>Application name</th>
-                        <td>
-                          <input type="text" name="app_name" value="{$config_settings.app_name|escape:"html"}" size="30" />
-                          {include file="error_icon.tpl.html" field="app_name"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Admin email</th>
-                        <td>
-                          <input type="text" name="app_admin_email" value="{$config_settings.app_admin_email|escape:"html"}" size="30" />
-                          <br />Used in the OAI identify verb and page footer.
-                          {include file="error_icon.tpl.html" field="app_admin_email"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Organisation name</th>
-                        <td>
-                          <input type="text" name="app_org_name" value="{$config_settings.app_org_name|escape:"html"}" size="30" />
-                          {include file="error_icon.tpl.html" field="app_org_name"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Short org. name</th>
-                        <td>
-                          <input type="text" name="app_short_org_name" value="{$config_settings.app_short_org_name|escape:"html"}" size="15" />
-                          {include file="error_icon.tpl.html" field="app_short_org_name"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Application URL</th>
-                        <td>
-                          <input type="text" name="app_url" value="{$config_settings.app_url|escape:"html"}" size="50" />
-                          {include file="error_icon.tpl.html" field="app_url"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Hostname</th>
-                        <td>
-                          <input type="text" name="app_hostname" value="{$config_settings.app_hostname|escape:"html"}" size="30" />
-                          {include file="error_icon.tpl.html" field="app_hostname"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Relative URL</th>
-                        <td>
-                          <input type="text" name="app_relative_url" value="{$config_settings.app_relative_url|escape:"html"}" size="30" />
-                          {include file="error_icon.tpl.html" field="app_relative_url"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>System user</th>
-                        <td>
-                          <select name="app_system_user_id">
-                            {foreach from=$admin_users key=user_id item=user_name}
-                            <option value="{$user_id}"{if $config_settings.app_system_user_id == $user_id} selected="selected"{/if}>{$user_name} &nbsp; (ID: {$user_id})</option>
-                                {/foreach}
-                          </select>
-                          {include file="error_icon.tpl.html" field="app_system_user_id"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>HTTPS CURL certificate checking</th>
-                        <td>
-                          <select name="app_https_curl_check_cert">
-                            <option value="ON"{if $config_settings.app_https_curl_check_cert == "ON"} selected="selected"{/if}>On</option>
-                                <option value="OFF"{if $config_settings.app_https_curl_check_cert == "OFF"} selected="selected"{/if}>Off</option>
-                          </select>
-                          <br />If you have a development host with an SSL certificate that's not officially signed, set this 'Off', otherwise Fedora SSL calls will fail in CURL.
-                          {include file="error_icon.tpl.html" field="app_https_curl_check_cert"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Self registration</th>
-                        <td>
-                          <select name="self_registration">
-                            <option value="ON"{if $config_settings.self_registration == "ON"} selected="selected"{/if}>On</option>
-                                <option value="OFF"{if $config_settings.self_registration == "OFF"} selected="selected"{/if}>Off</option>
-                          </select>
-                          <br />Whether you want users to be able to create their own fez accounts. Not necessary for LDAP/AD/Shibboleth enabled sites.
-                          {include file="error_icon.tpl.html" field="self_registration"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Cloud tag</th>
-                        <td>
-                          <select name="app_cloud_tag">
-                            <option value="ON"{if $config_settings.app_cloud_tag == "ON"} selected="selected"{/if}>On</option>
-                                <option value="OFF"{if $config_settings.app_cloud_tag == "OFF"} selected="selected"{/if}>Off</option>
-                          </select>
-                          <br />Whether or not to display the keyword cloud tag on the front page.
-                          {include file="error_icon.tpl.html" field="app_cloud_tag"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Record count</th>
-                        <td>
-                          <select name="app_main_page_record_count">
-                            <option value="ON"{if $config_settings.app_main_page_record_count == "ON"} selected="selected"{/if}>On</option>
-                                <option value="OFF"{if $config_settings.app_main_page_record_count == "OFF"} selected="selected"{/if}>Off</option>
-                          </select>
-                          <br />Whether or not to display the total number of records on the front page.
-                          {include file="error_icon.tpl.html" field="app_main_page_record_count"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Secure logins</th>
-                        <td>
-                          <select name="app_https">
-                            <option value="ON"{if $config_settings.app_https == ""} selected="selected"{/if}>On</option>
-                                <option value="OFF"{if $config_settings.app_https == "OFF"} selected="selected"{/if}>Off</option>
-                          </select>
-                          <br />Whether you want users redirected to SSL/HTTPS for login/password screens.
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Disable password checking</th>
-                        <td>
-                          <select name="app_disable_password_checking">
-                            <option value="true"{if $config_settings.app_disable_password_checking == "true"} selected="selected"{/if}>On</option>
-                                <option value="false"{if $config_settings.app_disable_password_checking == "false"} selected="selected"{/if}>Off</option>
-                          </select>
-                          <input type="text" name="app_disable_password_ip" value="{$config_settings.app_disable_password_ip}" /> Allow this IP only
-                          <br />Mainly used for testing. Not recommended to set this to On.
-                          
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>SQL caching</th>
-                        <td>
-                          <select name="app_sql_cache">
-                            <option value=""{if $config_settings.app_sql_cache == ""} selected="selected"{/if}>On</option>
-                                <option value="SQL_NO_CACHE"{if $config_settings.app_sql_cache == "SQL_NO_CACHE"} selected="selected"{/if}>Off</option>
-                          </select>
-                        </td>
-                  </tr>
-                  <tr>
+		<div id="general" style="display: none;">
+		<table width="100%" class="admin-edit">
+			<thead>
+		  <tr>
+			<th colspan="2">
+			  <h2>General Settings</h2>
+			</th>
+		  </tr>
+		  </thead>
+		  <tbody>
+		  <tr>
+		    <th>Application name</th>
+			<td>
+			  <input type="text" name="app_name" value="{$config_settings.app_name|escape:"html"}" size="30" />
+			  {include file="error_icon.tpl.html" field="app_name"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Admin email</th>
+			<td>
+			  <input type="text" name="app_admin_email" value="{$config_settings.app_admin_email|escape:"html"}" size="30" />
+			  <br />Used in the OAI identify verb and page footer.
+			  {include file="error_icon.tpl.html" field="app_admin_email"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Organisation name</th>
+			<td>
+			  <input type="text" name="app_org_name" value="{$config_settings.app_org_name|escape:"html"}" size="30" />
+			  {include file="error_icon.tpl.html" field="app_org_name"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Short org. name</th>
+			<td>
+			  <input type="text" name="app_short_org_name" value="{$config_settings.app_short_org_name|escape:"html"}" size="15" />
+			  {include file="error_icon.tpl.html" field="app_short_org_name"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Application URL</th>
+			<td>
+			  <input type="text" name="app_url" value="{$config_settings.app_url|escape:"html"}" size="50" />
+			  {include file="error_icon.tpl.html" field="app_url"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Hostname</th>
+			<td>
+			  <input type="text" name="app_hostname" value="{$config_settings.app_hostname|escape:"html"}" size="30" />
+			  {include file="error_icon.tpl.html" field="app_hostname"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Relative URL</th>
+			<td>
+			  <input type="text" name="app_relative_url" value="{$config_settings.app_relative_url|escape:"html"}" size="30" />
+			  {include file="error_icon.tpl.html" field="app_relative_url"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>System user</th>
+			<td>
+			  <select name="app_system_user_id">
+			    {foreach from=$admin_users key=user_id item=user_name}
+			    <option value="{$user_id}"{if $config_settings.app_system_user_id == $user_id} selected="selected"{/if}>{$user_name} &nbsp; (ID: {$user_id})</option>
+				{/foreach}
+			  </select>
+			  {include file="error_icon.tpl.html" field="app_system_user_id"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>HTTPS CURL certificate checking</th>
+			<td>
+			  <select name="app_https_curl_check_cert">
+			    <option value="ON"{if $config_settings.app_https_curl_check_cert == "ON"} selected="selected"{/if}>On</option>
+				<option value="OFF"{if $config_settings.app_https_curl_check_cert == "OFF"} selected="selected"{/if}>Off</option>
+			  </select>
+			  <br />If you have a development host with an SSL certificate that's not officially signed, set this 'Off', otherwise Fedora SSL calls will fail in CURL.
+			  {include file="error_icon.tpl.html" field="app_https_curl_check_cert"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Self registration</th>
+			<td>
+			  <select name="self_registration">
+			    <option value="ON"{if $config_settings.self_registration == "ON"} selected="selected"{/if}>On</option>
+				<option value="OFF"{if $config_settings.self_registration == "OFF"} selected="selected"{/if}>Off</option>
+			  </select>
+			  <br />Whether you want users to be able to create their own fez accounts. Not necessary for LDAP/AD/Shibboleth enabled sites.
+			  {include file="error_icon.tpl.html" field="self_registration"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Cloud tag</th>
+			<td>
+			  <select name="app_cloud_tag">
+			    <option value="ON"{if $config_settings.app_cloud_tag == "ON"} selected="selected"{/if}>On</option>
+				<option value="OFF"{if $config_settings.app_cloud_tag == "OFF"} selected="selected"{/if}>Off</option>
+			  </select>
+			  <br />Whether or not to display the keyword cloud tag on the front page.
+			  {include file="error_icon.tpl.html" field="app_cloud_tag"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Record count</th>
+			<td>
+			  <select name="app_main_page_record_count">
+			    <option value="ON"{if $config_settings.app_main_page_record_count == "ON"} selected="selected"{/if}>On</option>
+				<option value="OFF"{if $config_settings.app_main_page_record_count == "OFF"} selected="selected"{/if}>Off</option>
+			  </select>
+			  <br />Whether or not to display the total number of records on the front page.
+			  {include file="error_icon.tpl.html" field="app_main_page_record_count"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Secure logins</th>
+			<td>
+			  <select name="app_https">
+			    <option value="ON"{if $config_settings.app_https == ""} selected="selected"{/if}>On</option>
+				<option value="OFF"{if $config_settings.app_https == "OFF"} selected="selected"{/if}>Off</option>
+			  </select>
+			  <br />Whether you want users redirected to SSL/HTTPS for login/password screens.
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Disable password checking</th>
+			<td>
+			  <select name="app_disable_password_checking">
+			    <option value="true"{if $config_settings.app_disable_password_checking == "true"} selected="selected"{/if}>On</option>
+				<option value="false"{if $config_settings.app_disable_password_checking == "false"} selected="selected"{/if}>Off</option>
+			  </select>
+			  <input type="text" name="app_disable_password_ip" value="{$config_settings.app_disable_password_ip}" /> Allow this IP only
+			  <br />Mainly used for testing. Not recommended to set this to On.
+			  
+			</td>
+		  </tr>
+		  <tr>
+		    <th>SQL caching</th>
+			<td>
+			  <select name="app_sql_cache">
+			    <option value=""{if $config_settings.app_sql_cache == ""} selected="selected"{/if}>On</option>
+				<option value="SQL_NO_CACHE"{if $config_settings.app_sql_cache == "SQL_NO_CACHE"} selected="selected"{/if}>Off</option>
+			  </select>
+			</td>
+  		  </tr>
+  		  <tr>
             <th>View page caching</th>
             <td>
               <select name="app_filecache">
@@ -293,1523 +293,1631 @@ function restoreDefaultColours(el)
             </td>
           </tr>
           <tr>
-                    <th>Smarty Template Cache Path</th>
-                        <td>
-                          <input type="text" name="app_template_compile_path" value="{$config_settings.app_template_compile_path|escape:"html"}" size="50" />
-                          <br />The path of the directory to store smarty compiled files. The default is in templates_c under the app root. Please ensure the web server has write access to this directory.
-                          {include file="error_icon.tpl.html" field="app_template_compile_path"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Link prefix</th>
-                        <td>
-                          <input type="text" name="app_link_prefix" value="{$config_settings.app_link_prefix|escape:"html"}" size="40" />
-                          <br />If you want to prepend the way all Fez Link datastreams display with a prefix then put it in this field. Fez will check first to see if the prefix is already there before adding it. Useful for ezproxying of external database resources, e.g. http://ezproxy.library.yourorg.edu/url=
-                          {include file="error_icon.tpl.html" field="app_link_prefix"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Debug level</th>
-                        <td>
-                          <select name="app_debug_level">
-                            <option value="1"{if $config_settings.app_debug_level == "1"} selected="selected"{/if}>Level 1 - Basic error messages</option>
-                                <option value="2"{if $config_settings.app_debug_level == "2"} selected="selected"{/if}>Level 2 - Basic + stacktrace</option>
-                                <option value="3"{if $config_settings.app_debug_level == "3"} selected="selected"{/if}>Level 3 - Basic + stacktrace + function arguments passed (highest detail)</option>
-                          </select>
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Display error level</th>
-                        <td>
-                          <select name="app_display_error_level">
-                            <option value="0"{if $config_settings.app_display_error_level == "0"} selected="selected"{/if}>Level 0 - No display of errors in browser</option>
-                                <option value="1"{if $config_settings.app_display_error_level == "1"} selected="selected"{/if}>Level 1 - Basic error messages</option>
-                                <option value="2"{if $config_settings.app_display_error_level == "2"} selected="selected"{/if}>Level 2 - Basic + stacktrace</option>
-                                <option value="3"{if $config_settings.app_display_error_level == "3"} selected="selected"{/if}>Level 3 - Basic + stacktrace + function arguments passed (highest detail)</option>
-                          </select>
-                          <br />This setting is always limited by the max value set in 'Debug level'.
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>User error display level</th>
-                        <td>
-                          <select name="app_display_errors_user">
-                            <option value="0"{if $config_settings.app_display_errors_user == "0"} selected="selected"{/if}>Level 0 - No display of errors to any users</option>
-                                <option value="1"{if $config_settings.app_display_errors_user == "1"} selected="selected"{/if}>Level 1 - Only show errors to administrators</option>
-                                <option value="2"{if $config_settings.app_display_errors_user == "2"} selected="selected"{/if}>Level 2 - Show errors for all users</option>
-                          </select>
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Logging</th>
-                        <td>
-                          <select name="app_logging_enabled">
-                            <option value="true"{if $config_settings.app_logging_enabled == "true"} selected="selected"{/if}>Enabled</option>
-                                <option value="false"{if $config_settings.app_logging_enabled == "false"} selected="selected"{/if}>Disabled</option>
-                          </select>
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Log location</th>
-                        <td>
-                          <input type="text" name="app_log_location" value="{$config_settings.app_log_location|escape:"html"}" size="40" />
-                          <br />You may want to change this to be below the document root, or at least make it non-readable by Apache. You may also optionally include 
-                          the placeholder text <b>%&lt;format&gt;%</b> which will be replaced with the generated date in the format specified.
-                          <br />For example: <b>/var/log/fez/fez-%Ymd%.log</b> will output log files to the directory /var/log/fez/ 
-                          with a file name fez-20090921.log (i.e. rotated daily). For more information about date formats, please see 
-                          the PHP Manual date reference page <a href="http://www.php.net/manual/en/function.date.php" onclick="javascript: window.open('http://www.php.net/manual/en/function.date.php'); return false;">here</a>.
-                          {include file="error_icon.tpl.html" field="app_log_location"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Log level</th>
-                        <td>
-                                <select name="app_log_level">
-                                    <option value="0"{if $config_settings.app_log_level|escape == "0"} selected="selected"{/if}>Emergency - system is unusable</option>
-                                        <option value="1"{if $config_settings.app_log_level|escape == "1"} selected="selected"{/if}>Alert: action must be taken immediately</option>
-                                        <option value="2"{if $config_settings.app_log_level|escape == "2"} selected="selected"{/if}>Critical: critical conditions</option>
-                                        <option value="3"{if $config_settings.app_log_level|escape == "3"} selected="selected"{/if}>Error: error conditions</option>
-                                        <option value="4"{if $config_settings.app_log_level|escape == "4"} selected="selected"{/if}>Warning: warning conditions</option>
-                                        <option value="5"{if $config_settings.app_log_level|escape == "5"} selected="selected"{/if}>Notice: normal but significant condition</option>
-                                        <option value="6"{if $config_settings.app_log_level|escape == "6"} selected="selected"{/if}>Informational: informational messages</option>
-                                        <option value="7"{if $config_settings.app_log_level|escape == "7"} selected="selected"{/if}>Debug: debug messages</option>
+		    <th>Smarty Template Cache Path</th>
+			<td>
+			  <input type="text" name="app_template_compile_path" value="{$config_settings.app_template_compile_path|escape:"html"}" size="50" />
+			  <br />The path of the directory to store smarty compiled files. The default is in templates_c under the app root. Please ensure the web server has write access to this directory.
+			  {include file="error_icon.tpl.html" field="app_template_compile_path"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Link prefix</th>
+			<td>
+			  <input type="text" name="app_link_prefix" value="{$config_settings.app_link_prefix|escape:"html"}" size="40" />
+			  <br />If you want to prepend the way all Fez Link datastreams display with a prefix then put it in this field. Fez will check first to see if the prefix is already there before adding it. Useful for ezproxying of external database resources, e.g. http://ezproxy.library.yourorg.edu/url=
+			  {include file="error_icon.tpl.html" field="app_link_prefix"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Debug level</th>
+			<td>
+			  <select name="app_debug_level">
+			    <option value="1"{if $config_settings.app_debug_level == "1"} selected="selected"{/if}>Level 1 - Basic error messages</option>
+				<option value="2"{if $config_settings.app_debug_level == "2"} selected="selected"{/if}>Level 2 - Basic + stacktrace</option>
+				<option value="3"{if $config_settings.app_debug_level == "3"} selected="selected"{/if}>Level 3 - Basic + stacktrace + function arguments passed (highest detail)</option>
+			  </select>
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Display error level</th>
+			<td>
+			  <select name="app_display_error_level">
+			    <option value="0"{if $config_settings.app_display_error_level == "0"} selected="selected"{/if}>Level 0 - No display of errors in browser</option>
+				<option value="1"{if $config_settings.app_display_error_level == "1"} selected="selected"{/if}>Level 1 - Basic error messages</option>
+				<option value="2"{if $config_settings.app_display_error_level == "2"} selected="selected"{/if}>Level 2 - Basic + stacktrace</option>
+				<option value="3"{if $config_settings.app_display_error_level == "3"} selected="selected"{/if}>Level 3 - Basic + stacktrace + function arguments passed (highest detail)</option>
+			  </select>
+			  <br />This setting is always limited by the max value set in 'Debug level'.
+			</td>
+		  </tr>
+		  <tr>
+		    <th>User error display level</th>
+			<td>
+			  <select name="app_display_errors_user">
+			    <option value="0"{if $config_settings.app_display_errors_user == "0"} selected="selected"{/if}>Level 0 - No display of errors to any users</option>
+				<option value="1"{if $config_settings.app_display_errors_user == "1"} selected="selected"{/if}>Level 1 - Only show errors to administrators</option>
+				<option value="2"{if $config_settings.app_display_errors_user == "2"} selected="selected"{/if}>Level 2 - Show errors for all users</option>
+			  </select>
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Logging</th>
+			<td>
+			  <select name="app_logging_enabled">
+			    <option value="true"{if $config_settings.app_logging_enabled == "true"} selected="selected"{/if}>Enabled</option>
+				<option value="false"{if $config_settings.app_logging_enabled == "false"} selected="selected"{/if}>Disabled</option>
+			  </select>
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Log location</th>
+			<td>
+			  <input type="text" name="app_log_location" value="{$config_settings.app_log_location|escape:"html"}" size="40" />
+			  <br />You may want to change this to be below the document root, or at least make it non-readable by Apache. You may also optionally include 
+			  the placeholder text <b>%&lt;format&gt;%</b> which will be replaced with the generated date in the format specified.
+			  <br />For example: <b>/var/log/fez/fez-%Ymd%.log</b> will output log files to the directory /var/log/fez/ 
+			  with a file name fez-20090921.log (i.e. rotated daily). For more information about date formats, please see 
+			  the PHP Manual date reference page <a href="http://www.php.net/manual/en/function.date.php" onclick="javascript: window.open('http://www.php.net/manual/en/function.date.php'); return false;">here</a>.
+			  {include file="error_icon.tpl.html" field="app_log_location"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Log level</th>
+			<td>
+				<select name="app_log_level">
+				    <option value="0"{if $config_settings.app_log_level|escape == "0"} selected="selected"{/if}>Emergency - system is unusable</option>
+					<option value="1"{if $config_settings.app_log_level|escape == "1"} selected="selected"{/if}>Alert: action must be taken immediately</option>
+					<option value="2"{if $config_settings.app_log_level|escape == "2"} selected="selected"{/if}>Critical: critical conditions</option>
+					<option value="3"{if $config_settings.app_log_level|escape == "3"} selected="selected"{/if}>Error: error conditions</option>
+					<option value="4"{if $config_settings.app_log_level|escape == "4"} selected="selected"{/if}>Warning: warning conditions</option>
+					<option value="5"{if $config_settings.app_log_level|escape == "5"} selected="selected"{/if}>Notice: normal but significant condition</option>
+					<option value="6"{if $config_settings.app_log_level|escape == "6"} selected="selected"{/if}>Informational: informational messages</option>
+					<option value="7"{if $config_settings.app_log_level|escape == "7"} selected="selected"{/if}>Debug: debug messages</option>
 
-                                </select>
-                          <br />The log levels are show in descending order of importance. Setting a log level further down the list will include log messages 
-                          at higher levels, for example, setting the log level to 'Error' will include 'Critical', 'Alert' and 'Emergency' log messages, 
-                          but will not include 'Warning', 'Notice', 'Informational' or 'Debug' log messages.
-                          {include file="error_icon.tpl.html" field="app_log_level"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>SMTP server</th>
-                        <td>
-                          <input type="text" name="app_email_smtp" value="{$config_settings.app_email_smtp|escape:"html"}" size="30" />
-                          <br />The mail server through which Fez should send email alerts, e.g. mail.yourhost.com
-                          {include file="error_icon.tpl.html" field="app_email_smtp"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>System email from address</th>
-                        <td>
-                          <input type="text" name="app_email_system_from_address" value="{$config_settings.app_email_system_from_address|escape:"html"}" size="30" />
-                          <br />All Fez system notifications will appear to come from this address. Use a real account if for some reason you wish to collect replies.
-                          {include file="error_icon.tpl.html" field="app_email_system_from_address"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Timezone</th>
-                        <td>
-                          <select name="app_default_user_timezone">
-                            {section name=zone loop=$timezones}
-                            <option{if $config_settings.app_default_user_timezone == $timezones[zone]} selected="selected"{/if}>{$timezones[zone]|escape:html}</option>
-                                {/section}
-                          </select>
-                          {include file="lookup_field.tpl.html" lookup_field_name="search" lookup_field_target="app_default_user_timezone"}
-                          <br />Change this to your local timezone, e.g. Australia/Brisbane. Fez will still store dates as UTC but will default display them as this timezone until the user has logged in and set their preferred timezone.
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Default pager size</th>
-                        <td>
-                          <input type="text" name="app_default_pager_size" value="{$config_settings.app_default_pager_size|escape:"html"}" size="30" />
-                          <br />Please enter a numerical value.
-                          {include file="error_icon.tpl.html" field="app_default_pager_size"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Default refresh rate</th>
-                        <td>
-                          <input type="text" name="app_default_refresh_rate" value="{$config_settings.app_default_refresh_rate|escape:"html"}" size="30" />
-                          <br />Enter a numerical value, in minutes.
-                          {include file="error_icon.tpl.html" field="app_default_refresh_rate"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Earliest Input Year</th>
-                        <td>
-                          <input type="text" name="app_earliest_input_year" value="{$config_settings.app_earliest_input_year|escape:"html"}" size="4" />
-                          <br />The earliest year to appear in date drop-downs. Enter a 4-digit year.
-                          {include file="error_icon.tpl.html" field="app_earliest_input_year"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Cookie / session name</th>
-                        <td>
-                          <input type="text" name="app_cookie" value="{$config_settings.app_cookie|escape:"html"}" size="20" />
-                          <br />This should be a short, lower-case name with no spaces.<br /><b>Note:</b> If you alter this value, you will be logged out of Fez.
-                          {include file="error_icon.tpl.html" field="app_cookie"}
-                        </td>
-                  </tr>
-                  <tr>
-                        <th>Session timeout</th>
-                        <td>
-                          <input type="text" name="app_session_timeout" value="{$config_settings.app_session_timeout|escape:"html"}" size="5" />
-                          <br />Length of time an unattended session can exist before automatic timeout, in seconds.
-                          {include file="error_icon.tpl.html" field="app_session_timeout"}
-                        </td>
-                  </tr>
-                  <tr>
-                        <th>User Group Cache Table Expiry</th>
-                        <td>
-                          <input type="text" name="app_user_group_cache_expiry" value="{$config_settings.app_user_group_cache_expiry|escape:"html"}" size="5" />
-                          <br />Time after which the user group cache table will be truncated, in days.
-                          {include file="error_icon.tpl.html" field="app_user_group_cache_expiry"}
-                        </td>
-                  </tr>                   
-                  <tr>
-                    <th>Google Analytics ID</th>
-                        <td>
-                          <input type="radio" name="app_analytics_switch" value="ON" {if $config_settings.app_analytics_switch == "ON"}checked="checked"{/if}/> Enabled &nbsp; 
-                          <input type="radio" name="app_analytics_switch" value="OFF" {if $config_settings.app_analytics_switch == "OFF"}checked="checked"{/if}/> Disabled  &nbsp; &nbsp;                   
-                          <input type="text" name="app_analytics_id" value="{$config_settings.app_analytics_id|escape:"html"}" size="20" />
-                          Format: <strong><i>xxxxxx-x</i></strong><br />
-                          {include file="error_icon.tpl.html" field="app_analytics_id"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Google Maps API Key</th>
-                        <td>
-                          <input type="radio" name="app_use_google_map_switch" value="ON" {if $config_settings.app_use_google_map_switch == "ON"}checked="checked"{/if}/> Enabled &nbsp;
-                          <input type="radio" name="app_use_google_map_switch" value="OFF" {if $config_settings.app_use_google_map_switch == "OFF"}checked="checked"{/if}/> Disabled  &nbsp; &nbsp;
-                          <input type="text" name="app_google_map_key" value="{$config_settings.app_google_map_key|escape:"html"}" size="60" />
-                          {include file="error_icon.tpl.html" field="app_google_maps_key"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Flash File Uploader</th>
-                        <td>
-                          <select name="app_enable_flash_uploader_switch">
-                            <option value="ON"{if $config_settings.app_enable_flash_uploader_switch == "ON"} selected="selected"{/if}>On</option>
-                                <option value="OFF"{if $config_settings.app_enable_flash_uploader_switch == "OFF"} selected="selected"{/if}>Off</option>
-                          </select>
-                        <br />Whether you want users to be able to use the flash file uploader (gives more feedback including progress bars)
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Administrator Internal Notes</th>
-                        <td>
-                          <select name="app_internal_notes">
-                            <option value="ON"{if $config_settings.app_internal_notes == "ON"} selected="selected"{/if}>On</option>
-                                <option value="OFF"{if $config_settings.app_internal_notes == "OFF"} selected="selected"{/if}>Off</option>
-                          </select>
-                        <br />If set to on, administrator users will have the option of recording internal notes about repository objects.
-                        </td>
-                  </tr>                   
-                  <tr>
-                    <th>Author auto-suggest mode</th>
-                        <td>
-                          <select name="app_author_suggest_mode">
-                            <option value="1"{if $config_settings.app_author_suggest_mode == "1"} selected="selected"{/if}>No restriction - list all authors</option>
-                                <option value="2"{if $config_settings.app_author_suggest_mode == "2"} selected="selected"{/if}>Limit suggestions to authors with an internal username or ID</option>
-                          </select>
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Article Title Search</th>
-                        <td>
-                          <select name="app_use_article_title_search">
-                            <option value="OFF"{if $config_settings.app_use_article_title_search == "OFF"} selected="selected"{/if}>Off</option>
-                                <option value="ON"{if $config_settings.app_use_article_title_search == "ON"} selected="selected"{/if}>On</option>
-                          </select>
-                          &nbsp; Collection : <input type="text" name="app_article_add_to_collection" value="{$config_settings.app_article_add_to_collection|escape:"html"}" size="20" />
-                          &nbsp; OG=(<input type="text" name="app_article_search_wos_address" value="{$config_settings.app_article_search_wos_address|escape:"html"}" size="20" />)
-                          {include file="error_icon.tpl.html" field="app_article_add_to_collection"} {include file="error_icon.tpl.html" field="app_article_search_wos_address"}
-                          <br />If 'ON', will search matching articles in both ISI Web of Science<sup>&#174;</sup> and the repository based on Article Title when creating a new record.
-                          The collection should be set to the PID of the parent collection new articles will be added to. OG is optional, and is used in the WoS search query to filter on address.
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>HERDC Support Features</th>
-                        <td>
-                          <select name="app_herdc_support">
-                            <option value="ON"{if $config_settings.app_herdc_support == "ON"} selected="selected"{/if}>On</option>
-                                <option value="OFF"{if $config_settings.app_herdc_support == "OFF"} selected="selected"{/if}>Off</option>
-                          </select>
-                          <br />Enable HERDC integrity reports and special HERDC-related messages in edit templates.
-                          {include file="error_icon.tpl.html" field="app_herdc_support"}
-                        </td>
-                  </tr>
-                  </tbody>
-                </table>
-                </div>
-
-
-
-                <div id="fedora" style="display: none;">
-                <table width="100%" class="admin-edit">
-                 <thead>
-                  <tr>
-                        <th colspan="2">
-                          <h2>Fedora Settings</h2>
-                        </th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                  <tr>
-                    <th>Version</th>
-                        <td>
-                          <select name="app_fedora_version">
-                            <option value="2.1.1"{if $config_settings.app_fedora_version == "2.1.1"} selected="selected"{/if}>2.1.1</option>
-                                <option value="2.2"{if $config_settings.app_fedora_version == "2.2"} selected="selected"{/if}>2.2 or 2.2.1</option>
-                            <option value="3"{if $config_settings.app_fedora_version == "3"} selected="selected"{/if}>3.x</option>
-                          </select>
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Location</th>
-                        <td>
-                          <input type="text" name="app_fedora_location" value="{$config_settings.app_fedora_location|escape:"html"}" size="50" />
-                          <br />The location of your Fedora server, without the &quot;http://&quot; component. Port is usually 8080.
-                          <br />e.g. localhost:8080/fedora
-                          {include file="error_icon.tpl.html" field="app_fedora_location"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>SSL location</th>
-                        <td>
-                          <input type="text" name="app_fedora_ssl_location" value="{$config_settings.app_fedora_ssl_location|escape:"html"}" size="50" />
-                          <br />The location of your Fedora SSL server, without the &quot;https://&quot; component. Port is usually 8443.
-                          {include file="error_icon.tpl.html" field="app_fedora_ssl_location"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Server setup</th>
-                        <td>
-                          <select name="app_fedora_setup">
-                            <option value="sslall"{if $config_settings.app_fedora_setup == "sslall"} selected="selected"{/if}>ssl-authenticate-all</option>
-                                <option value="sslapim"{if $config_settings.app_fedora_setup == "sslapim"} selected="selected"{/if}>ssl-authenticate-apim</option>
-                                <option value="nosslall"{if $config_settings.app_fedora_setup == "nosslall"} selected="selected"{/if}>no-ssl-authenticate-all</option>
-                                <option value="nosslapim"{if $config_settings.app_fedora_setup == "nosslapim"} selected="selected"{/if}>no-ssl-authenticate-apim</option>
-                          </select>
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>PID namespace</th>
-                        <td>
-                          <input type="text" name="app_pid_namespace" value="{$config_settings.app_pid_namespace|escape:"html"}" size="20" />
-                          <br />Must be the same as your Fedora fedora.fcfg &quot;namespace&quot; variable.
-                          {include file="error_icon.tpl.html" field="app_pid_namespace"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Username</th>
-                        <td>
-                          <input type="text" name="app_fedora_username" value="{$config_settings.app_fedora_username|escape:"html"}" size="20" />
-                          {include file="error_icon.tpl.html" field="app_fedora_username"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Password</th>
-                        <td>
-                          <input type="password" name="app_fedora_pwd" value="{$config_settings.app_fedora_pwd|escape:"html"}" size="20" />
-                          {include file="error_icon.tpl.html" field="app_fedora_pwd"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Server hostname</th>
-                        <td>
-                          <input type="text" name="fedora_db_host" value="{$config_settings.fedora_db_host|escape:"html"}" size="20" />
-                          {include file="error_icon.tpl.html" field="fedora_db_host"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Database type</th>
-                        <td>
-                          <select name="fedora_db_type">
-                            <!-- Have commented out all PEAR db systems that the Fedora site doens't claim they support -->
-                            <!--option value="sybase"{if $config_settings.fedora_db_type == "sybase"} selected="selected"{/if}>Sybase</option-->
-                                <option value="pdo_pgsql"{if $config_settings.fedora_db_type == "pdo_pgsql"} selected="selected"{/if}>PostgreSQL</option>
-                                <!--option value="odbc"{if $config_settings.fedora_db_type == "odbc"} selected="selected"{/if}>ODBC</option>
-                                <option value="oci8"{if $config_settings.fedora_db_type == "oci8"} selected="selected"{/if}>Oracle 8</option-->
-                                <option value="pdo_mysql"{if $config_settings.fedora_db_type == "pdo_mysql"} selected="selected"{/if}>MySQL</option>
-                                <!--option value="mssql"{if $config_settings.fedora_db_type == "mssql"} selected="selected"{/if}>Microsoft SQL Server</option>
-                                <option value="msql"{if $config_settings.fedora_db_type == "msql"} selected="selected"{/if}>Mini-SQL</option>
-                                <option value="ifx"{if $config_settings.fedora_db_type == "ifx"} selected="selected"{/if}>Informix</option>
-                                <option value="ibase"{if $config_settings.fedora_db_type == "ibase"} selected="selected"{/if}>Interbase</option>
-                                <option value="fbsql"{if $config_settings.fedora_db_type == "fbsql"} selected="selected"{/if}>FrontBase</option>
-                                <option value="dbase"{if $config_settings.fedora_db_type == "dbase"} selected="selected"{/if}>dbase</option-->
-                          </select>
-                          {include file="error_icon.tpl.html" field="fedora_db_type"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Database port</th>
-                        <td>
-                          <input type="text" name="fedora_db_port" value="{$config_settings.fedora_db_port|escape:"html"}" size="5" />
-                          <br />Usually 3306 for MySQL, 5432 for PostgreSQL.
-                          {include file="error_icon.tpl.html" field="fedora_db_port"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Database name</th>
-                        <td>
-                          <input type="text" name="fedora_db_database_name" value="{$config_settings.fedora_db_database_name|escape:"html"}" size="20" />
-                          {include file="error_icon.tpl.html" field="fedora_db_database_name"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Database username</th>
-                        <td>
-                          <input type="text" name="fedora_db_username" value="{$config_settings.fedora_db_username|escape:"html"}" size="20" />
-                          {include file="error_icon.tpl.html" field="fedora_db_username"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Database password</th>
-                        <td>
-                          <input type="password" name="fedora_db_passwd" value="{$config_settings.fedora_db_passwd|escape:"html"}" size="20" />
-                          {include file="error_icon.tpl.html" field="fedora_db_passwd"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>&nbsp;</th>
-                        <td>&nbsp;</td>
-                  </tr>
-                  <tr>
-                    <th>Use XPATH (xsdmf_xpath) for querying xml datatreams? (experimental)</th>
-                        <td>
-                          <select name="app_xpath_switch">
-                            <option value="ON"{if $config_settings.app_xpath_switch == "ON"} selected="selected"{/if}>On</option>
-                                <option value="OFF"{if $config_settings.app_xpath_switch == "OFF"} selected="selected"{/if}>Off</option>
-                          </select>
-                          {include file="error_icon.tpl.html" field="app_xpath_switch"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Use MySQL InnoDB turns off fulltext indexing, insert delayed and other MyISAM only tricks, but you get row level locking(experimental)</th>
-                        <td>
-                          <select name="app_mysql_innodb_flag">
-                            <option value="ON"{if $config_settings.app_mysql_innodb_flag == "ON"} selected="selected"{/if}>On</option>
-                                <option value="OFF"{if $config_settings.app_mysql_innodb_flag == "OFF"} selected="selected"{/if}>Off</option>
-                          </select>
-                          {include file="error_icon.tpl.html" field="app_mysql_innodb_flag"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Use Index for getting data rather than querying xml datastreams (Solr, or Mysql if Solr search is off)- (experimental)</th>
-                        <td>
-                          <select name="app_xsdmf_index_switch">
-                            <option value="ON"{if $config_settings.app_xsdmf_index_switch == "ON"} selected="selected"{/if}>On</option>
-                                <option value="OFF"{if $config_settings.app_xsdmf_index_switch == "OFF"} selected="selected"{/if}>Off</option>
-                          </select>
-                          {include file="error_icon.tpl.html" field="app_xsdmf_index_switch"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Direct APIA Access (experimental)</th>
-                        <td>
-                          <select name="app_fedora_apia_direct">
-                            <option value="ON"{if $config_settings.app_fedora_apia_direct == "ON"} selected="selected"{/if}>On</option>
-                                <option value="OFF"{if $config_settings.app_fedora_apia_direct == "OFF"} selected="selected"{/if}>Off</option>
-                          </select>
-                          {include file="error_icon.tpl.html" field="app_fedora_apia_direct"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Display Fedora Checksums</th>
-                        <td>
-                          <select name="app_fedora_display_checksums">
-                            <option value="ON"{if $config_settings.app_fedora_display_checksums == "ON"} selected="selected"{/if}>On</option>
-                                <option value="OFF"{if $config_settings.app_fedora_display_checksums == "OFF"} selected="selected"{/if}>Off</option>
-                          </select>
-                          <br />Displays checksums for attached files (needs to be enabled in Fedora Commons)
-                          {include file="error_icon.tpl.html" field="app_fedora_display_checksums"}
-                        </td>
-                  </tr>
-                  </tbody>
-                </table>
-                </div>
+				</select>
+			  <br />The log levels are show in descending order of importance. Setting a log level further down the list will include log messages 
+			  at higher levels, for example, setting the log level to 'Error' will include 'Critical', 'Alert' and 'Emergency' log messages, 
+			  but will not include 'Warning', 'Notice', 'Informational' or 'Debug' log messages.
+			  {include file="error_icon.tpl.html" field="app_log_level"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>SMTP server</th>
+			<td>
+			  <input type="text" name="app_email_smtp" value="{$config_settings.app_email_smtp|escape:"html"}" size="30" />
+			  <br />The mail server through which Fez should send email alerts, e.g. mail.yourhost.com
+			  {include file="error_icon.tpl.html" field="app_email_smtp"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>System email from address</th>
+			<td>
+			  <input type="text" name="app_email_system_from_address" value="{$config_settings.app_email_system_from_address|escape:"html"}" size="30" />
+			  <br />All Fez system notifications will appear to come from this address. Use a real account if for some reason you wish to collect replies.
+			  {include file="error_icon.tpl.html" field="app_email_system_from_address"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Timezone</th>
+			<td>
+			  <select name="app_default_user_timezone">
+			    {section name=zone loop=$timezones}
+			    <option{if $config_settings.app_default_user_timezone == $timezones[zone]} selected="selected"{/if}>{$timezones[zone]|escape:html}</option>
+				{/section}
+			  </select>
+			  {include file="lookup_field.tpl.html" lookup_field_name="search" lookup_field_target="app_default_user_timezone"}
+			  <br />Change this to your local timezone, e.g. Australia/Brisbane. Fez will still store dates as UTC but will default display them as this timezone until the user has logged in and set their preferred timezone.
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Default pager size</th>
+			<td>
+			  <input type="text" name="app_default_pager_size" value="{$config_settings.app_default_pager_size|escape:"html"}" size="30" />
+			  <br />Please enter a numerical value.
+			  {include file="error_icon.tpl.html" field="app_default_pager_size"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Default refresh rate</th>
+			<td>
+			  <input type="text" name="app_default_refresh_rate" value="{$config_settings.app_default_refresh_rate|escape:"html"}" size="30" />
+			  <br />Enter a numerical value, in minutes.
+			  {include file="error_icon.tpl.html" field="app_default_refresh_rate"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Earliest Input Year</th>
+			<td>
+			  <input type="text" name="app_earliest_input_year" value="{$config_settings.app_earliest_input_year|escape:"html"}" size="4" />
+			  <br />The earliest year to appear in date drop-downs. Enter a 4-digit year.
+			  {include file="error_icon.tpl.html" field="app_earliest_input_year"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Cookie / session name</th>
+			<td>
+			  <input type="text" name="app_cookie" value="{$config_settings.app_cookie|escape:"html"}" size="20" />
+			  <br />This should be a short, lower-case name with no spaces.<br /><b>Note:</b> If you alter this value, you will be logged out of Fez.
+			  {include file="error_icon.tpl.html" field="app_cookie"}
+			</td>
+		  </tr>
+		  <tr>
+			<th>Session timeout</th>
+			<td>
+			  <input type="text" name="app_session_timeout" value="{$config_settings.app_session_timeout|escape:"html"}" size="5" />
+			  <br />Length of time an unattended session can exist before automatic timeout, in seconds.
+			  {include file="error_icon.tpl.html" field="app_session_timeout"}
+			</td>
+		  </tr>
+		  <tr>
+			<th>User Group Cache Table Expiry</th>
+			<td>
+			  <input type="text" name="app_user_group_cache_expiry" value="{$config_settings.app_user_group_cache_expiry|escape:"html"}" size="5" />
+			  <br />Time after which the user group cache table will be truncated, in days.
+			  {include file="error_icon.tpl.html" field="app_user_group_cache_expiry"}
+			</td>
+		  </tr>		   
+		  <tr>
+		    <th>Google Analytics ID</th>
+			<td>
+			  <input type="radio" name="app_analytics_switch" value="ON" {if $config_settings.app_analytics_switch == "ON"}checked="checked"{/if}/> Enabled &nbsp; 
+			  <input type="radio" name="app_analytics_switch" value="OFF" {if $config_settings.app_analytics_switch == "OFF"}checked="checked"{/if}/> Disabled  &nbsp; &nbsp;		   
+			  <input type="text" name="app_analytics_id" value="{$config_settings.app_analytics_id|escape:"html"}" size="20" />
+			  Format: <strong><i>xxxxxx-x</i></strong><br />
+			  {include file="error_icon.tpl.html" field="app_analytics_id"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Google Maps API Key</th>
+			<td>
+			  <input type="radio" name="app_use_google_map_switch" value="ON" {if $config_settings.app_use_google_map_switch == "ON"}checked="checked"{/if}/> Enabled &nbsp;
+			  <input type="radio" name="app_use_google_map_switch" value="OFF" {if $config_settings.app_use_google_map_switch == "OFF"}checked="checked"{/if}/> Disabled  &nbsp; &nbsp;
+			  <input type="text" name="app_google_map_key" value="{$config_settings.app_google_map_key|escape:"html"}" size="60" />
+			  {include file="error_icon.tpl.html" field="app_google_maps_key"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Flash File Uploader</th>
+			<td>
+			  <select name="app_enable_flash_uploader_switch">
+			    <option value="ON"{if $config_settings.app_enable_flash_uploader_switch == "ON"} selected="selected"{/if}>On</option>
+				<option value="OFF"{if $config_settings.app_enable_flash_uploader_switch == "OFF"} selected="selected"{/if}>Off</option>
+			  </select>
+			<br />Whether you want users to be able to use the flash file uploader (gives more feedback including progress bars)
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Administrator Internal Notes</th>
+			<td>
+			  <select name="app_internal_notes">
+			    <option value="ON"{if $config_settings.app_internal_notes == "ON"} selected="selected"{/if}>On</option>
+				<option value="OFF"{if $config_settings.app_internal_notes == "OFF"} selected="selected"{/if}>Off</option>
+			  </select>
+			<br />If set to on, administrator users will have the option of recording internal notes about repository objects.
+			</td>
+		  </tr>		   
+		  <tr>
+		    <th>Author auto-suggest mode</th>
+			<td>
+			  <select name="app_author_suggest_mode">
+			    <option value="1"{if $config_settings.app_author_suggest_mode == "1"} selected="selected"{/if}>No restriction - list all authors</option>
+				<option value="2"{if $config_settings.app_author_suggest_mode == "2"} selected="selected"{/if}>Limit suggestions to authors with an internal username or ID</option>
+			  </select>
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Article Title Search</th>
+			<td>
+			  <select name="app_use_article_title_search">
+			    <option value="OFF"{if $config_settings.app_use_article_title_search == "OFF"} selected="selected"{/if}>Off</option>
+				<option value="ON"{if $config_settings.app_use_article_title_search == "ON"} selected="selected"{/if}>On</option>
+			  </select>
+			  &nbsp; Collection : <input type="text" name="app_article_add_to_collection" value="{$config_settings.app_article_add_to_collection|escape:"html"}" size="20" />
+			  &nbsp; OG=(<input type="text" name="app_article_search_wos_address" value="{$config_settings.app_article_search_wos_address|escape:"html"}" size="20" />)
+			  {include file="error_icon.tpl.html" field="app_article_add_to_collection"} {include file="error_icon.tpl.html" field="app_article_search_wos_address"}
+			  <br />If 'ON', will search matching articles in both ISI Web of Science<sup>&#174;</sup> and the repository based on Article Title when creating a new record.
+			  The collection should be set to the PID of the parent collection new articles will be added to. OG is optional, and is used in the WoS search query to filter on address.
+			</td>
+  		  </tr>
+  		  <tr>
+		    <th>Matching Tools</th>
+			<td>
+			  <select name="app_matching_tools">
+			    <option value="ON"{if $config_settings.app_matching_tools == "ON"} selected="selected"{/if}>On</option>
+				<option value="OFF"{if $config_settings.app_matching_tools == "OFF"} selected="selected"{/if}>Off</option>
+			  </select>
+			  <br />Enable ranked list matching functionality for journals and conferences.
+			  {include file="error_icon.tpl.html" field="app_matching_tools"}
+			</td>
+  		  </tr>
+		  <tr>
+		    <th>HERDC Support Features</th>
+			<td>
+			  <select name="app_herdc_support">
+			    <option value="ON"{if $config_settings.app_herdc_support == "ON"} selected="selected"{/if}>On</option>
+				<option value="OFF"{if $config_settings.app_herdc_support == "OFF"} selected="selected"{/if}>Off</option>
+			  </select>
+			  <br />Enable HERDC integrity reports and special HERDC-related messages in edit templates.
+			  {include file="error_icon.tpl.html" field="app_herdc_support"}
+			</td>
+  		  </tr>
+		  <tr>
+		    <th>HERDC Collections</th>
+			<td>
+			  <input type="text" name="app_herdc_collections" value="{$config_settings.app_herdc_collections|escape:"html"}" size="100" />
+			  <br />List of comma separated ' quote enclosed pids which are used to contain the confirmed HERDC pids for each year.
+			  {include file="error_icon.tpl.html" field="app_herdc_collection"}
+			</td>
+  		  </tr>
+  		  <tr>
+		    <th>WOS Collections</th>
+			<td>
+			  <input type="text" name="app_wos_collections" value="{$config_settings.app_wos_collections|escape:"html"}" size="100" />
+			  <br />List of comma separated ' quote enclosed pids which are used to contain the Web of Science imported records.
+			  {include file="error_icon.tpl.html" field="app_wos_collections"}
+			</td>
+  		  </tr>
+  		  <tr>
+		    <th>My Research Publications Module</th>
+			<td>
+			  <select name="app_my_research_module">
+			    <option value="ON"{if $config_settings.app_my_research_module == "ON"} selected="selected"{/if}>On</option>
+				<option value="OFF"{if $config_settings.app_my_research_module == "OFF"} selected="selected"{/if}>Off</option>
+			  </select>
+			  <br />Enable My Research Publications module. Relies on special HR tables in database. As above, if you don't know what thi is, don't enable it.
+			  {include file="error_icon.tpl.html" field="app_my_research_module"}
+			</td>
+  		  </tr>
+  		  <tr>
+		    <th>My Research: New Records Collection</th>
+			<td>
+			  <input type="text" name="app_my_research_new_items_collection" value="{$config_settings.app_my_research_new_items_collection|escape:"html"}" size="10" />
+			  <br />Enter a PID (optional). New records added through the My Research module will be automatically added to this collection.
+			  {include file="error_icon.tpl.html" field="app_my_research_new_items_collection"}
+			</td>
+  		  </tr>
+  		  <tr>
+		    <th>My Research: UPO Group Name</th>
+			<td>
+			  <input type="text" name="app_my_research_upo_group" value="{$config_settings.app_my_research_upo_group|escape:"html"}" size="30" />
+			  <br />Enter the exact name of the group for the 'Unit Publication Officers' users.
+			  {include file="error_icon.tpl.html" field="app_my_research_upo_group"}
+			</td>
+  		  </tr>
+  		  <tr>
+		    <th>My Research: Use Classic UQ eSpace Group Names</th>
+			<td>
+			  <input type="text" name="app_my_research_use_classic_groups" value="{$config_settings.app_my_research_use_classic_groups|escape:"html"}" size="30" />
+			  <br />Enter the exact names of the fez groups you wish to be redirected to the classic UQ eSpace group when the My Research module is enabled. Adminsitrators automatically get sent there. Quoted with single quotes and comma separated. Eg 'thesisoffice', 'SBS Theses'
+			  {include file="error_icon.tpl.html" field="app_my_research_use_classic_groups"}
+			</td>
+  		  </tr>
+  		  <tr>
+		    <th>Send Eventum Emails</th>
+			<td>
+			  <input type="radio" name="app_eventum_send_emails" value="ON" {if $config_settings.app_eventum_send_emails == "ON"}checked="checked"{/if}/> Enabled &nbsp;
+			  <input type="radio" name="app_eventum_send_emails" value="OFF" {if $config_settings.app_eventum_send_emails == "OFF"}checked="checked"{/if}/> Disabled  &nbsp;
+			  <br />Switching to enabled will send emails to Eventum when publications are claimed, disowned, or corrected.
+			  {include file="error_icon.tpl.html" field="app_eventum_send_emails"}
+			</td>
+  		  </tr>
+  		  <tr>
+		    <th>Eventum New Job Email Address</th>
+			<td>
+			  <input type="text" name="app_eventum_new_job_email_address" value="{$config_settings.app_eventum_new_job_email_address|escape:"html"}" size="30" />
+			  <br />Emails about new jobs will be sent to this email address.
+			  {include file="error_icon.tpl.html" field="app_eventum_new_job_email_address"}
+			</td>
+  		  </tr>
+  		  <tr>
+		    <th>Eventum database host</th>
+			<td>
+			  <input type="text" name="app_eventum_database_host" value="{$config_settings.app_eventum_database_host|escape:"html"}" size="30" />
+			  {include file="error_icon.tpl.html" field="app_eventum_database_host"}
+			</td>
+  		  </tr>
+  		  <tr>
+		    <th>Eventum database name</th>
+			<td>
+			  <input type="text" name="app_eventum_database_name" value="{$config_settings.app_eventum_database_name|escape:"html"}" size="30" />
+			  {include file="error_icon.tpl.html" field="app_eventum_database_name"}
+			</td>
+  		  </tr>
+  		  <tr>
+		    <th>Eventum database user</th>
+			<td>
+			  <input type="text" name="app_eventum_database_user" value="{$config_settings.app_eventum_database_user|escape:"html"}" size="30" />
+			  {include file="error_icon.tpl.html" field="app_eventum_database_user"}
+			</td>
+  		  </tr>
+  		  <tr>
+		    <th>Eventum database password</th>
+			<td>
+			  <input type="text" name="app_eventum_database_pass" value="{$config_settings.app_eventum_database_pass|escape:"html"}" size="30" />
+			  {include file="error_icon.tpl.html" field="app_eventum_database_pass"}
+			</td>
+  		  </tr>
+  		  </tbody>
+		</table>
+		</div>
 
 
 
-                <div id="paths" style="display: none;">
-                <table width="100%" class="admin-edit">
-                 <thead>
-                  <tr>
-                        <th colspan="2">
-                          <h2>Programs and Paths</h2>
-                        </th>
-                  </tr>
-                 </thead>
-                 <tbody>
-                  <tr>
-                    <th>SAN import directory</th>
-                        <td>
-                          <input type="text" name="app_san_import_dir" value="{$config_settings.app_san_import_dir|escape:"html"}" size="40" />
-                          <br />e.g. /fez/incoming/ or C:/fez/incoming/
-                          {include file="error_icon.tpl.html" field="app_san_import_dir"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Duplicate reports directory</th>
-                        <td>
-                          <input type="text" name="app_duplicates_reports_location" value="{$config_settings.app_duplicates_reports_location|escape:"html"}" size="40" />
-                          <br />You may need to create this directory if it does not exist
-                          {include file="error_icon.tpl.html" field="app_duplicates_reports_location"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Temp directory</th>
-                        <td>
-                          <input type="text" name="app_temp_dir" value="{$config_settings.app_temp_dir|escape:"html"}" size="40" />
-                          {include file="error_icon.tpl.html" field="app_temp_dir"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>FFMPEG command</th>
-                        <td>
-                          <input type="text" name="app_ffmpeg_cmd" value="{$config_settings.app_ffmpeg_cmd|escape:"html"}" size="40" /> 
-                          <br />This is part of FFMPEG Video Encoder tool 
-                          {include file="error_icon.tpl.html" field="app_ffmpeg_cmd"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>yamdi command</th>
-                        <td>
-                          <input type="text" name="app_ffmpeg_yamdi_cmd" value="{$config_settings.app_ffmpeg_yamdi_cmd|escape:"html"}" size="40" /> 
-                          <br />This injects metadata into the flash video files
-                          {include file="error_icon.tpl.html" field="app_ffmpeg_yamdi_cmd"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Convert command</th>
-                        <td>
-                          <input type="text" name="app_convert_cmd" value="{$config_settings.app_convert_cmd|escape:"html"}" size="40" /> 
-                          <!--a href="#" onclick="javascript:runSanityCheck('app_convert_cmd');"><img src="{$rel_url}images/sanity_check_16.png" title="Run sanity check for this value" width="18" height="18" border="0" alt="" /></a-->
-                          <br />This is part of ImageMagick 
-                          {include file="error_icon.tpl.html" field="app_convert_cmd"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Composite command</th>
-                        <td>
-                          <input type="text" name="app_composite_cmd" value="{$config_settings.app_composite_cmd|escape:"html"}" size="40" />
-                          <br />This is part of ImageMagick 
-                          {include file="error_icon.tpl.html" field="app_composite_cmd"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Identify command</th>
-                        <td>
-                          <input type="text" name="app_identify_cmd" value="{$config_settings.app_identify_cmd|escape:"html"}" size="40" />
-                          <br />This is part of ImageMagick 
-                          {include file="error_icon.tpl.html" field="app_identify_cmd"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>JHOVE directory</th>
-                        <td>
-                          <input type="text" name="app_jhove_dir" value="{$config_settings.app_jhove_dir|escape:"html"}" size="40" />
-                          {include file="error_icon.tpl.html" field="app_jhove_dir"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Graphviz DOT executable location</th>
-                        <td>
-                          <input type="text" name="app_dot_exec" value="{$config_settings.app_dot_exec|escape:"html"}" size="40" />
-                          {include file="error_icon.tpl.html" field="app_dot_exec"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>PHP executable location</th>
-                        <td>
-                          <input type="text" name="app_php_exec" value="{$config_settings.app_php_exec|escape:"html"}" size="40" />
-                          {include file="error_icon.tpl.html" field="app_php_exec"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>PDF-to-Text executable location</th>
-                        <td>
-                          <input type="text" name="app_pdftotext_exec" value="{$config_settings.app_pdftotext_exec|escape:"html"}" size="40" />
-                          {include file="error_icon.tpl.html" field="app_pdftotext_exec"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Python executable location</th>
-                        <td>
-                          <input type="text" name="app_py_exec" value="{$config_settings.app_py_exec|escape:"html"}" size="40" />
-                          {include file="error_icon.tpl.html" field="app_py_exec"}
-                        </td>
-                  </tr>
-                  <tr>
-            <th>File Cache location</th>
-            <td>
-              <input type="text" name="app_filecache_dir" value="{$config_settings.app_filecache_dir|escape:"html"}" size="40" />
-              {include file="error_icon.tpl.html" field="app_filecache_dir"}
-            </td>
-          </tr>
-         </tbody>
-                </table>
-                </div>
+		<div id="fedora" style="display: none;">
+		<table width="100%" class="admin-edit">
+		 <thead>
+		  <tr>
+			<th colspan="2">
+			  <h2>Fedora Settings</h2>
+			</th>
+		  </tr>
+		  </thead>
+		  <tbody>
+		  <tr>
+		    <th>Version</th>
+			<td>
+			  <select name="app_fedora_version">
+			    <option value="2.1.1"{if $config_settings.app_fedora_version == "2.1.1"} selected="selected"{/if}>2.1.1</option>
+				<option value="2.2"{if $config_settings.app_fedora_version == "2.2"} selected="selected"{/if}>2.2 or 2.2.1</option>
+			    <option value="3"{if $config_settings.app_fedora_version == "3"} selected="selected"{/if}>3.x</option>
+			  </select>
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Location</th>
+			<td>
+			  <input type="text" name="app_fedora_location" value="{$config_settings.app_fedora_location|escape:"html"}" size="50" />
+			  <br />The location of your Fedora server, without the &quot;http://&quot; component. Port is usually 8080.
+			  <br />e.g. localhost:8080/fedora
+			  {include file="error_icon.tpl.html" field="app_fedora_location"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>SSL location</th>
+			<td>
+			  <input type="text" name="app_fedora_ssl_location" value="{$config_settings.app_fedora_ssl_location|escape:"html"}" size="50" />
+			  <br />The location of your Fedora SSL server, without the &quot;https://&quot; component. Port is usually 8443.
+			  {include file="error_icon.tpl.html" field="app_fedora_ssl_location"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Server setup</th>
+			<td>
+			  <select name="app_fedora_setup">
+			    <option value="sslall"{if $config_settings.app_fedora_setup == "sslall"} selected="selected"{/if}>ssl-authenticate-all</option>
+				<option value="sslapim"{if $config_settings.app_fedora_setup == "sslapim"} selected="selected"{/if}>ssl-authenticate-apim</option>
+				<option value="nosslall"{if $config_settings.app_fedora_setup == "nosslall"} selected="selected"{/if}>no-ssl-authenticate-all</option>
+				<option value="nosslapim"{if $config_settings.app_fedora_setup == "nosslapim"} selected="selected"{/if}>no-ssl-authenticate-apim</option>
+			  </select>
+			</td>
+		  </tr>
+		  <tr>
+		    <th>PID namespace</th>
+			<td>
+			  <input type="text" name="app_pid_namespace" value="{$config_settings.app_pid_namespace|escape:"html"}" size="20" />
+			  <br />Must be the same as your Fedora fedora.fcfg &quot;namespace&quot; variable.
+			  {include file="error_icon.tpl.html" field="app_pid_namespace"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Username</th>
+			<td>
+			  <input type="text" name="app_fedora_username" value="{$config_settings.app_fedora_username|escape:"html"}" size="20" />
+			  {include file="error_icon.tpl.html" field="app_fedora_username"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Password</th>
+			<td>
+			  <input type="password" name="app_fedora_pwd" value="{$config_settings.app_fedora_pwd|escape:"html"}" size="20" />
+			  {include file="error_icon.tpl.html" field="app_fedora_pwd"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Server hostname</th>
+			<td>
+			  <input type="text" name="fedora_db_host" value="{$config_settings.fedora_db_host|escape:"html"}" size="20" />
+			  {include file="error_icon.tpl.html" field="fedora_db_host"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Database type</th>
+			<td>
+			  <select name="fedora_db_type">
+			    <!-- Have commented out all PEAR db systems that the Fedora site doens't claim they support -->
+			    <!--option value="sybase"{if $config_settings.fedora_db_type == "sybase"} selected="selected"{/if}>Sybase</option-->
+				<option value="pdo_pgsql"{if $config_settings.fedora_db_type == "pdo_pgsql"} selected="selected"{/if}>PostgreSQL</option>
+				<!--option value="odbc"{if $config_settings.fedora_db_type == "odbc"} selected="selected"{/if}>ODBC</option>
+				<option value="oci8"{if $config_settings.fedora_db_type == "oci8"} selected="selected"{/if}>Oracle 8</option-->
+				<option value="pdo_mysql"{if $config_settings.fedora_db_type == "pdo_mysql"} selected="selected"{/if}>MySQL</option>
+				<!--option value="mssql"{if $config_settings.fedora_db_type == "mssql"} selected="selected"{/if}>Microsoft SQL Server</option>
+				<option value="msql"{if $config_settings.fedora_db_type == "msql"} selected="selected"{/if}>Mini-SQL</option>
+				<option value="ifx"{if $config_settings.fedora_db_type == "ifx"} selected="selected"{/if}>Informix</option>
+				<option value="ibase"{if $config_settings.fedora_db_type == "ibase"} selected="selected"{/if}>Interbase</option>
+				<option value="fbsql"{if $config_settings.fedora_db_type == "fbsql"} selected="selected"{/if}>FrontBase</option>
+				<option value="dbase"{if $config_settings.fedora_db_type == "dbase"} selected="selected"{/if}>dbase</option-->
+			  </select>
+			  {include file="error_icon.tpl.html" field="fedora_db_type"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Database port</th>
+			<td>
+			  <input type="text" name="fedora_db_port" value="{$config_settings.fedora_db_port|escape:"html"}" size="5" />
+			  <br />Usually 3306 for MySQL, 5432 for PostgreSQL.
+			  {include file="error_icon.tpl.html" field="fedora_db_port"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Database name</th>
+			<td>
+			  <input type="text" name="fedora_db_database_name" value="{$config_settings.fedora_db_database_name|escape:"html"}" size="20" />
+			  {include file="error_icon.tpl.html" field="fedora_db_database_name"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Database username</th>
+			<td>
+			  <input type="text" name="fedora_db_username" value="{$config_settings.fedora_db_username|escape:"html"}" size="20" />
+			  {include file="error_icon.tpl.html" field="fedora_db_username"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Database password</th>
+			<td>
+			  <input type="password" name="fedora_db_passwd" value="{$config_settings.fedora_db_passwd|escape:"html"}" size="20" />
+			  {include file="error_icon.tpl.html" field="fedora_db_passwd"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>&nbsp;</th>
+			<td>&nbsp;</td>
+		  </tr>
+		  <tr>
+		    <th>Use XPATH (xsdmf_xpath) for querying xml datatreams? (experimental)</th>
+			<td>
+			  <select name="app_xpath_switch">
+			    <option value="ON"{if $config_settings.app_xpath_switch == "ON"} selected="selected"{/if}>On</option>
+				<option value="OFF"{if $config_settings.app_xpath_switch == "OFF"} selected="selected"{/if}>Off</option>
+			  </select>
+			  {include file="error_icon.tpl.html" field="app_xpath_switch"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Use MySQL InnoDB turns off fulltext indexing, insert delayed and other MyISAM only tricks, but you get row level locking(experimental)</th>
+			<td>
+			  <select name="app_mysql_innodb_flag">
+			    <option value="ON"{if $config_settings.app_mysql_innodb_flag == "ON"} selected="selected"{/if}>On</option>
+				<option value="OFF"{if $config_settings.app_mysql_innodb_flag == "OFF"} selected="selected"{/if}>Off</option>
+			  </select>
+			  {include file="error_icon.tpl.html" field="app_mysql_innodb_flag"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Use Index for getting data rather than querying xml datastreams (Solr, or Mysql if Solr search is off)- (experimental)</th>
+			<td>
+			  <select name="app_xsdmf_index_switch">
+			    <option value="ON"{if $config_settings.app_xsdmf_index_switch == "ON"} selected="selected"{/if}>On</option>
+				<option value="OFF"{if $config_settings.app_xsdmf_index_switch == "OFF"} selected="selected"{/if}>Off</option>
+			  </select>
+			  {include file="error_icon.tpl.html" field="app_xsdmf_index_switch"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Direct APIA Access (experimental)</th>
+			<td>
+			  <select name="app_fedora_apia_direct">
+			    <option value="ON"{if $config_settings.app_fedora_apia_direct == "ON"} selected="selected"{/if}>On</option>
+				<option value="OFF"{if $config_settings.app_fedora_apia_direct == "OFF"} selected="selected"{/if}>Off</option>
+			  </select>
+			  {include file="error_icon.tpl.html" field="app_fedora_apia_direct"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Display Fedora Checksums</th>
+			<td>
+			  <select name="app_fedora_display_checksums">
+			    <option value="ON"{if $config_settings.app_fedora_display_checksums == "ON"} selected="selected"{/if}>On</option>
+				<option value="OFF"{if $config_settings.app_fedora_display_checksums == "OFF"} selected="selected"{/if}>Off</option>
+			  </select>
+			  <br />Displays checksums for attached files (needs to be enabled in Fedora Commons)
+			  {include file="error_icon.tpl.html" field="app_fedora_display_checksums"}
+			</td>
+		  </tr>
+		  </tbody>
+		</table>
+		</div>
 
 
 
-                <div id="themes" style="display: none;">
-                <table width="100%" class="admin-edit">
-                 <thead>
-                  <tr>
-                        <th colspan="2">
-                          <h2>Themes &amp; Appearance</h2>
-                        </th>
-                  </tr>
-                 </thead>
-                 <tbody>
-                  <tr>
-                        <td colspan="2">
-                          <input type="checkbox" name="restore_default_colours" onclick="javascript:restoreDefaultColours(this);" value="1" /> Check this box to restore all colours to default values
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Cell colour</th>
-                        <td>
-                          <input type="text" name="app_cell_color" value="{$config_settings.app_cell_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_cell_color')" /><div id="app_cell_color" style="background-color: {$config_settings.app_cell_color}; height: 10px; width: 85px;"></div>
-                          {include file="error_icon.tpl.html" field="app_cell_color"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Value colour</th>
-                        <td>
-                          <input type="text" name="app_value_color" value="{$config_settings.app_value_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_value_color')"/><div id="app_value_color" style="background-color: {$config_settings.app_value_color}; height: 10px; width: 85px;"></div>
-                          {include file="error_icon.tpl.html" field="app_value_color"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Advanced cell colour</th>
-                        <td>
-                          <input type="text" name="app_adv_color_dark" value="{$config_settings.app_adv_color_dark|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_adv_color_dark')" /><div id="app_adv_color_dark" style="background-color: {$config_settings.app_adv_color_dark}; height: 10px; width: 85px;"></div>
-                          {include file="error_icon.tpl.html" field="app_adv_color_dark"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Advanced value colour</th>
-                        <td>
-                          <input type="text" name="app_adv_color_light" value="{$config_settings.app_adv_color_light|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_adv_color_light')"/><div id="app_adv_color_light" style="background-color: {$config_settings.app_adv_color_light}; height: 10px; width: 85px;"></div>
-                          {include file="error_icon.tpl.html" field="app_adv_color_light"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Light colour</th>
-                        <td>
-                          <input type="text" name="app_light_color" value="{$config_settings.app_light_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColourColour('app_light_color')"/><div id="app_light_color" style="background-color: {$config_settings.app_light_color}; height: 10px; width: 85px;"></div>
-                          {include file="error_icon.tpl.html" field="app_light_color"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Selected colour</th>
-                        <td>
-                          <input type="text" name="app_selected_color" value="{$config_settings.app_selected_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_selected_color')"/><div id="app_selected_color" style="background-color: {$config_settings.app_selected_color}; height: 10px; width: 85px;"></div>
-                          {include file="error_icon.tpl.html" field="app_selected_color"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Middle colour</th>
-                        <td>
-                          <input type="text" name="app_middle_color" value="{$config_settings.app_middle_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_middle_color')"/><div id="app_middle_color" style="background-color: {$config_settings.app_middle_color}; height: 10px; width: 85px;"></div>
-                          {include file="error_icon.tpl.html" field="app_middle_color"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Dark colour</th>
-                        <td>
-                          <input type="text" name="app_dark_color" value="{$config_settings.app_dark_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_dark_color')"/><div id="app_dark_color" style="background-color: {$config_settings.app_dark_color}; height: 10px; width: 85px;"></div>
-                          {include file="error_icon.tpl.html" field="app_dark_color"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Heading colour</th>
-                        <td>
-                          <input type="text" name="app_heading_color" value="{$config_settings.app_heading_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_heading_color')"/><div id="app_heading_color" style="background-color: {$config_settings.app_heading_color}; height: 10px; width: 85px;"></div>
-                          {include file="error_icon.tpl.html" field="app_heading_color"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Cycle colour #1</th>
-                        <td>
-                          <input type="text" name="app_cycle_color_one" value="{$config_settings.app_cycle_color_one|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_cycle_color_one')"/><div id="app_cycle_color_one" style="background-color: {$config_settings.app_cycle_color_one}; height: 10px; width: 85px;"></div>
-                          {include file="error_icon.tpl.html" field="app_cycle_color_one"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Cycle colour #2</th>
-                        <td>
-                          <input type="text" name="app_cycle_color_two" value="{$config_settings.app_cycle_color_two|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_cycle_color_two')"/><div id="app_cycle_color_two" style="background-color: {$config_settings.app_cycle_color_two}; height: 10px; width: 85px;"></div>
-                          {include file="error_icon.tpl.html" field="app_cycle_color_two"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Internal colour</th>
-                        <td>
-                          <input type="text" name="app_internal_color" value="{$config_settings.app_internal_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_internal_color')"/><div id="app_internal_color" style="background-color: {$config_settings.app_internal_color}; height: 10px; width: 85px;"></div>
-                          {include file="error_icon.tpl.html" field="app_internal_color"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Highlight colour</th>
-                        <td>
-                          <input type="text" name="app_highlight_color" value="{$config_settings.app_highlight_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_highlight_color')"/><div id="app_highlight_color" style="background-color: {$config_settings.app_highlight_color}; height: 10px; width: 85px;"></div>
-                          {include file="error_icon.tpl.html" field="app_highlight_color"}
-                        </td>
-                  </tr>
-                  <tr><td colspan="2">&nbsp;<br /></td></tr>
-                  <tr>
-                    <th>Default FFMPEG Flash Video Width</th>
-                        <td>
-                          <input type="text" name="app_ffmpeg_default_width" value="{$config_settings.app_ffmpeg_default_width|escape:"html"}" size="10" />
-                          {include file="error_icon.tpl.html" field="app_ffmpeg_default_width"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Default FFMPEG Flash Video Height</th>
-                        <td>
-                          <input type="text" name="app_ffmpeg_default_height" value="{$config_settings.app_ffmpeg_default_height|escape:"html"}" size="10" />
-                          {include file="error_icon.tpl.html" field="app_ffmpeg_default_height"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Default FFMPEG Video Thumbnail/Screenshot Start Position (time - default 5 seconds = 00:00:05)</th>
-                        <td>
-                          <input type="text" name="app_ffmpeg_default_thumb_pos" value="{$config_settings.app_ffmpeg_default_thumb_pos|escape:"html"}" size="10" />
-                          {include file="error_icon.tpl.html" field="app_ffmpeg_default_thumb_pos"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Thumbnail quality (default 70)</th>
-                        <td>
-                          <input type="text" name="app_thumbnail_quality" value="{$config_settings.app_thumbnail_quality|escape:"html"}" size=
+		<div id="paths" style="display: none;">
+		<table width="100%" class="admin-edit">
+		 <thead>
+		  <tr>
+			<th colspan="2">
+			  <h2>Programs and Paths</h2>
+			</th>
+		  </tr>
+		 </thead>
+		 <tbody>
+		  <tr>
+		    <th>SAN import directory</th>
+			<td>
+			  <input type="text" name="app_san_import_dir" value="{$config_settings.app_san_import_dir|escape:"html"}" size="40" />
+			  <br />e.g. /fez/incoming/ or C:/fez/incoming/
+			  {include file="error_icon.tpl.html" field="app_san_import_dir"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Duplicate reports directory</th>
+			<td>
+			  <input type="text" name="app_duplicates_reports_location" value="{$config_settings.app_duplicates_reports_location|escape:"html"}" size="40" />
+			  <br />You may need to create this directory if it does not exist
+			  {include file="error_icon.tpl.html" field="app_duplicates_reports_location"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Temp directory</th>
+			<td>
+			  <input type="text" name="app_temp_dir" value="{$config_settings.app_temp_dir|escape:"html"}" size="40" />
+			  {include file="error_icon.tpl.html" field="app_temp_dir"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>FFMPEG command</th>
+			<td>
+			  <input type="text" name="app_ffmpeg_cmd" value="{$config_settings.app_ffmpeg_cmd|escape:"html"}" size="40" /> 
+			  <br />This is part of FFMPEG Video Encoder tool 
+			  {include file="error_icon.tpl.html" field="app_ffmpeg_cmd"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>yamdi command</th>
+			<td>
+			  <input type="text" name="app_ffmpeg_yamdi_cmd" value="{$config_settings.app_ffmpeg_yamdi_cmd|escape:"html"}" size="40" /> 
+			  <br />This injects metadata into the flash video files
+			  {include file="error_icon.tpl.html" field="app_ffmpeg_yamdi_cmd"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Convert command</th>
+			<td>
+			  <input type="text" name="app_convert_cmd" value="{$config_settings.app_convert_cmd|escape:"html"}" size="40" /> 
+			  <!--a href="#" onclick="javascript:runSanityCheck('app_convert_cmd');"><img src="{$rel_url}images/sanity_check_16.png" title="Run sanity check for this value" width="18" height="18" border="0" alt="" /></a-->
+			  <br />This is part of ImageMagick 
+			  {include file="error_icon.tpl.html" field="app_convert_cmd"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Composite command</th>
+			<td>
+			  <input type="text" name="app_composite_cmd" value="{$config_settings.app_composite_cmd|escape:"html"}" size="40" />
+			  <br />This is part of ImageMagick 
+			  {include file="error_icon.tpl.html" field="app_composite_cmd"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Identify command</th>
+			<td>
+			  <input type="text" name="app_identify_cmd" value="{$config_settings.app_identify_cmd|escape:"html"}" size="40" />
+			  <br />This is part of ImageMagick 
+			  {include file="error_icon.tpl.html" field="app_identify_cmd"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>JHOVE directory</th>
+			<td>
+			  <input type="text" name="app_jhove_dir" value="{$config_settings.app_jhove_dir|escape:"html"}" size="40" />
+			  {include file="error_icon.tpl.html" field="app_jhove_dir"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Graphviz DOT executable location</th>
+			<td>
+			  <input type="text" name="app_dot_exec" value="{$config_settings.app_dot_exec|escape:"html"}" size="40" />
+			  {include file="error_icon.tpl.html" field="app_dot_exec"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>PHP executable location</th>
+			<td>
+			  <input type="text" name="app_php_exec" value="{$config_settings.app_php_exec|escape:"html"}" size="40" />
+			  {include file="error_icon.tpl.html" field="app_php_exec"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>PDF-to-Text executable location</th>
+			<td>
+			  <input type="text" name="app_pdftotext_exec" value="{$config_settings.app_pdftotext_exec|escape:"html"}" size="40" />
+			  {include file="error_icon.tpl.html" field="app_pdftotext_exec"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Python executable location</th>
+			<td>
+			  <input type="text" name="app_py_exec" value="{$config_settings.app_py_exec|escape:"html"}" size="40" />
+			  {include file="error_icon.tpl.html" field="app_py_exec"}
+			</td>
+		  </tr>
+		  <tr>
+	    <th>File Cache location</th>
+	    <td>
+	      <input type="text" name="app_filecache_dir" value="{$config_settings.app_filecache_dir|escape:"html"}" size="40" />
+	      {include file="error_icon.tpl.html" field="app_filecache_dir"}
+	    </td>
+	  </tr>
+	 </tbody>
+		</table>
+		</div>
+
+
+
+		<div id="themes" style="display: none;">
+		<table width="100%" class="admin-edit">
+		 <thead>
+		  <tr>
+			<th colspan="2">
+			  <h2>Themes &amp; Appearance</h2>
+			</th>
+		  </tr>
+		 </thead>
+		 <tbody>
+		  <tr>
+			<td colspan="2">
+			  <input type="checkbox" name="restore_default_colours" onclick="javascript:restoreDefaultColours(this);" value="1" /> Check this box to restore all colours to default values
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Cell colour</th>
+			<td>
+			  <input type="text" name="app_cell_color" value="{$config_settings.app_cell_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_cell_color')" /><div id="app_cell_color" style="background-color: {$config_settings.app_cell_color}; height: 10px; width: 85px;"></div>
+			  {include file="error_icon.tpl.html" field="app_cell_color"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Value colour</th>
+			<td>
+			  <input type="text" name="app_value_color" value="{$config_settings.app_value_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_value_color')"/><div id="app_value_color" style="background-color: {$config_settings.app_value_color}; height: 10px; width: 85px;"></div>
+			  {include file="error_icon.tpl.html" field="app_value_color"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Advanced cell colour</th>
+			<td>
+			  <input type="text" name="app_adv_color_dark" value="{$config_settings.app_adv_color_dark|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_adv_color_dark')" /><div id="app_adv_color_dark" style="background-color: {$config_settings.app_adv_color_dark}; height: 10px; width: 85px;"></div>
+			  {include file="error_icon.tpl.html" field="app_adv_color_dark"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Advanced value colour</th>
+			<td>
+			  <input type="text" name="app_adv_color_light" value="{$config_settings.app_adv_color_light|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_adv_color_light')"/><div id="app_adv_color_light" style="background-color: {$config_settings.app_adv_color_light}; height: 10px; width: 85px;"></div>
+			  {include file="error_icon.tpl.html" field="app_adv_color_light"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Light colour</th>
+			<td>
+			  <input type="text" name="app_light_color" value="{$config_settings.app_light_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColourColour('app_light_color')"/><div id="app_light_color" style="background-color: {$config_settings.app_light_color}; height: 10px; width: 85px;"></div>
+			  {include file="error_icon.tpl.html" field="app_light_color"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Selected colour</th>
+			<td>
+			  <input type="text" name="app_selected_color" value="{$config_settings.app_selected_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_selected_color')"/><div id="app_selected_color" style="background-color: {$config_settings.app_selected_color}; height: 10px; width: 85px;"></div>
+			  {include file="error_icon.tpl.html" field="app_selected_color"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Middle colour</th>
+			<td>
+			  <input type="text" name="app_middle_color" value="{$config_settings.app_middle_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_middle_color')"/><div id="app_middle_color" style="background-color: {$config_settings.app_middle_color}; height: 10px; width: 85px;"></div>
+			  {include file="error_icon.tpl.html" field="app_middle_color"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Dark colour</th>
+			<td>
+			  <input type="text" name="app_dark_color" value="{$config_settings.app_dark_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_dark_color')"/><div id="app_dark_color" style="background-color: {$config_settings.app_dark_color}; height: 10px; width: 85px;"></div>
+			  {include file="error_icon.tpl.html" field="app_dark_color"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Heading colour</th>
+			<td>
+			  <input type="text" name="app_heading_color" value="{$config_settings.app_heading_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_heading_color')"/><div id="app_heading_color" style="background-color: {$config_settings.app_heading_color}; height: 10px; width: 85px;"></div>
+			  {include file="error_icon.tpl.html" field="app_heading_color"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Cycle colour #1</th>
+			<td>
+			  <input type="text" name="app_cycle_color_one" value="{$config_settings.app_cycle_color_one|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_cycle_color_one')"/><div id="app_cycle_color_one" style="background-color: {$config_settings.app_cycle_color_one}; height: 10px; width: 85px;"></div>
+			  {include file="error_icon.tpl.html" field="app_cycle_color_one"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Cycle colour #2</th>
+			<td>
+			  <input type="text" name="app_cycle_color_two" value="{$config_settings.app_cycle_color_two|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_cycle_color_two')"/><div id="app_cycle_color_two" style="background-color: {$config_settings.app_cycle_color_two}; height: 10px; width: 85px;"></div>
+			  {include file="error_icon.tpl.html" field="app_cycle_color_two"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Internal colour</th>
+			<td>
+			  <input type="text" name="app_internal_color" value="{$config_settings.app_internal_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_internal_color')"/><div id="app_internal_color" style="background-color: {$config_settings.app_internal_color}; height: 10px; width: 85px;"></div>
+			  {include file="error_icon.tpl.html" field="app_internal_color"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Highlight colour</th>
+			<td>
+			  <input type="text" name="app_highlight_color" value="{$config_settings.app_highlight_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_highlight_color')"/><div id="app_highlight_color" style="background-color: {$config_settings.app_highlight_color}; height: 10px; width: 85px;"></div>
+			  {include file="error_icon.tpl.html" field="app_highlight_color"}
+			</td>
+		  </tr>
+		  <tr><td colspan="2">&nbsp;<br /></td></tr>
+		  <tr>
+		    <th>Default FFMPEG Flash Video Width</th>
+			<td>
+			  <input type="text" name="app_ffmpeg_default_width" value="{$config_settings.app_ffmpeg_default_width|escape:"html"}" size="10" />
+			  {include file="error_icon.tpl.html" field="app_ffmpeg_default_width"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Default FFMPEG Flash Video Height</th>
+			<td>
+			  <input type="text" name="app_ffmpeg_default_height" value="{$config_settings.app_ffmpeg_default_height|escape:"html"}" size="10" />
+			  {include file="error_icon.tpl.html" field="app_ffmpeg_default_height"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Default FFMPEG Video Thumbnail/Screenshot Start Position (time - default 5 seconds = 00:00:05)</th>
+			<td>
+			  <input type="text" name="app_ffmpeg_default_thumb_pos" value="{$config_settings.app_ffmpeg_default_thumb_pos|escape:"html"}" size="10" />
+			  {include file="error_icon.tpl.html" field="app_ffmpeg_default_thumb_pos"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Thumbnail quality (default 70)</th>
+			<td>
+			  <input type="text" name="app_thumbnail_quality" value="{$config_settings.app_thumbnail_quality|escape:"html"}" size=
 "10" />
-                          {include file="error_icon.tpl.html" field="app_thumbnail_quality"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Thumbnail max width</th>
-                        <td>
-                          <input type="text" name="app_thumbnail_width" value="{$config_settings.app_thumbnail_width|escape:"html"}" size="10" />
-                          {include file="error_icon.tpl.html" field="app_thumbnail_width"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Thumbnail max height</th>
-                        <td>
-                          <input type="text" name="app_thumbnail_height" value="{$config_settings.app_thumbnail_height|escape:"html"}" size="10" />
-                          {include file="error_icon.tpl.html" field="app_thumbnail_height"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Preview quality (default 80)</th>
-                        <td>
-                          <input type="text" name="app_image_preview_quality" value="{$config_settings.app_image_preview_quality|escape:"html"}" size="10" />
-                          {include file="error_icon.tpl.html" field="app_image_preview_quality"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Preview max width</th>
-                        <td>
-                          <input type="text" name="app_image_preview_max_width" value="{$config_settings.app_image_preview_max_width|escape:"html"}" size="10" />
-                          {include file="error_icon.tpl.html" field="app_image_preview_max_width"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Preview max height</th>
-                        <td>
-                          <input type="text" name="app_image_preview_max_height" value="{$config_settings.app_image_preview_max_height|escape:"html"}" size="10" />
-                          {include file="error_icon.tpl.html" field="app_image_preview_max_height"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Web image quality (default 80)</th>
-                        <td>
-                          <input type="text" name="app_image_web_quality" value="{$config_settings.app_image_web_quality|escape:"html"
+			  {include file="error_icon.tpl.html" field="app_thumbnail_quality"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Thumbnail max width</th>
+			<td>
+			  <input type="text" name="app_thumbnail_width" value="{$config_settings.app_thumbnail_width|escape:"html"}" size="10" />
+			  {include file="error_icon.tpl.html" field="app_thumbnail_width"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Thumbnail max height</th>
+			<td>
+			  <input type="text" name="app_thumbnail_height" value="{$config_settings.app_thumbnail_height|escape:"html"}" size="10" />
+			  {include file="error_icon.tpl.html" field="app_thumbnail_height"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Preview quality (default 80)</th>
+			<td>
+			  <input type="text" name="app_image_preview_quality" value="{$config_settings.app_image_preview_quality|escape:"html"}" size="10" />
+			  {include file="error_icon.tpl.html" field="app_image_preview_quality"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Preview max width</th>
+			<td>
+			  <input type="text" name="app_image_preview_max_width" value="{$config_settings.app_image_preview_max_width|escape:"html"}" size="10" />
+			  {include file="error_icon.tpl.html" field="app_image_preview_max_width"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Preview max height</th>
+			<td>
+			  <input type="text" name="app_image_preview_max_height" value="{$config_settings.app_image_preview_max_height|escape:"html"}" size="10" />
+			  {include file="error_icon.tpl.html" field="app_image_preview_max_height"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Web image quality (default 80)</th>
+			<td>
+			  <input type="text" name="app_image_web_quality" value="{$config_settings.app_image_web_quality|escape:"html"
 }" size="10" />
-                          {include file="error_icon.tpl.html" field="app_image_web_quality"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Web image max width</th>
-                        <td>
-                          <input type="text" name="app_image_web_max_width" value="{$config_settings.app_image_web_max_width|escape:"html"}" size="10" />
-                          {include file="error_icon.tpl.html" field="app_image_web_max_width"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Web image max height</th>
-                        <td>
-                          <input type="text" name="app_image_web_max_height" value="{$config_settings.app_image_web_max_height|escape:"html"}" size="10" />
-                          {include file="error_icon.tpl.html" field="app_image_web_max_height"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Watermark image</th>
-                        <td>
-                          <input type="text" name="app_watermark" value="{$config_settings.app_watermark|escape:"html"}" size="20" />
-                          <br />The image to be used for watermarking of copyright images.<br />Place the image in the 'images' directory.
-                          {include file="error_icon.tpl.html" field="app_watermark"}
-                        </td>
-                  </tr>
-                 </tbody>
-                </table>
-                </div>
+			  {include file="error_icon.tpl.html" field="app_image_web_quality"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Web image max width</th>
+			<td>
+			  <input type="text" name="app_image_web_max_width" value="{$config_settings.app_image_web_max_width|escape:"html"}" size="10" />
+			  {include file="error_icon.tpl.html" field="app_image_web_max_width"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Web image max height</th>
+			<td>
+			  <input type="text" name="app_image_web_max_height" value="{$config_settings.app_image_web_max_height|escape:"html"}" size="10" />
+			  {include file="error_icon.tpl.html" field="app_image_web_max_height"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Watermark image</th>
+			<td>
+			  <input type="text" name="app_watermark" value="{$config_settings.app_watermark|escape:"html"}" size="20" />
+			  <br />The image to be used for watermarking of copyright images.<br />Place the image in the 'images' directory.
+			  {include file="error_icon.tpl.html" field="app_watermark"}
+			</td>
+		  </tr>
+		 </tbody>
+		</table>
+		</div>
 
 
 
-                <div id="webstats" style="display: none;">
-                <table width="100%" class="admin-edit">
-                 <thead>
-                  <tr>
-                        <th colspan="2">
-                          <h2>Web Statistics</h2>
-                      <p>To turn this feature off, select &quot;disabled&quot;. All other settings will be preserved.</p>
-                        </th>
-                  </tr>
-                 </thead>
-                 <tbody>
-                  <tr>
-                        <td colspan="2">
-                          <input type="radio" name="webserver_log_statistics" value="ON" {if $config_settings.webserver_log_statistics == "ON"}checked="checked"{/if}/> Enabled &nbsp; 
-                          <input type="radio" name="webserver_log_statistics" value="OFF" {if $config_settings.webserver_log_statistics == "OFF"}checked="checked"{/if}/> Disabled
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Log directory</th>
-                        <td>
-                          <input type="text" name="webserver_log_dir" value="{$config_settings.webserver_log_dir|escape:"html"}" size="50" />
-                          <br />You must include a trailing slash.
-                          {include file="error_icon.tpl.html" field="webserver_log_dir"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Log file</th>
-                        <td>
-                          <input type="text" name="webserver_log_file" value="{$config_settings.webserver_log_file|escape:"html"}" size="50" />
-                          {include file="error_icon.tpl.html" field="webserver_log_file"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>GEOIP path</th>
-                        <td>
-                          <input type="text" name="app_geoip_path" value="{$config_settings.app_geoip_path|escape:"html"}" size="50" />
-                          <br />You must include a trailing slash.
-                          {include file="error_icon.tpl.html" field="app_geoip_path"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Max number of stats to process per gather stats from buffer run (if too many php may run out of memory, leave empty for no limit, default 50000)</th>
-                        <td>
-                          <input type="text" name="webserver_log_stat_cron_limit" value="{$config_settings.webserver_log_stat_cron_limit|escape:"html"}" size="50" />
-                          {include file="error_icon.tpl.html" field="webserver_log_stat_cron_limit"}
-                        </td>
-                  </tr>
-                 </tbody>
-                </table>
-                </div>
+		<div id="webstats" style="display: none;">
+		<table width="100%" class="admin-edit">
+		 <thead>
+		  <tr>
+			<th colspan="2">
+			  <h2>Web Statistics</h2>
+		      <p>To turn this feature off, select &quot;disabled&quot;. All other settings will be preserved.</p>
+			</th>
+		  </tr>
+		 </thead>
+		 <tbody>
+		  <tr>
+			<td colspan="2">
+			  <input type="radio" name="webserver_log_statistics" value="ON" {if $config_settings.webserver_log_statistics == "ON"}checked="checked"{/if}/> Enabled &nbsp; 
+			  <input type="radio" name="webserver_log_statistics" value="OFF" {if $config_settings.webserver_log_statistics == "OFF"}checked="checked"{/if}/> Disabled
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Log directory</th>
+			<td>
+			  <input type="text" name="webserver_log_dir" value="{$config_settings.webserver_log_dir|escape:"html"}" size="50" />
+			  <br />You must include a trailing slash.
+			  {include file="error_icon.tpl.html" field="webserver_log_dir"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Log file</th>
+			<td>
+			  <input type="text" name="webserver_log_file" value="{$config_settings.webserver_log_file|escape:"html"}" size="50" />
+			  {include file="error_icon.tpl.html" field="webserver_log_file"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>GEOIP path</th>
+			<td>
+			  <input type="text" name="app_geoip_path" value="{$config_settings.app_geoip_path|escape:"html"}" size="50" />
+			  <br />You must include a trailing slash.
+			  {include file="error_icon.tpl.html" field="app_geoip_path"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Max number of stats to process per gather stats from buffer run (if too many php may run out of memory, leave empty for no limit, default 50000)</th>
+			<td>
+			  <input type="text" name="webserver_log_stat_cron_limit" value="{$config_settings.webserver_log_stat_cron_limit|escape:"html"}" size="50" />
+			  {include file="error_icon.tpl.html" field="webserver_log_stat_cron_limit"}
+			</td>
+		  </tr>
+		 </tbody>
+		</table>
+		</div>
 
 
 
-                <div id="shib" style="display: none;">
-                <table width="100%" class="admin-edit">
-                 <thead>
-                  <tr>
-                        <th colspan="2">
-                          <h2>Shibboleth Settings</h2>
-                          <p>You may need to query your Organisation's Shibboleth expert for help on these settings.</p>
-                        </th>
-                  </tr>
-                 </thead>
-                 <tbody>
-                  <tr>
-                        <td colspan="2">
-                          <input type="radio" name="shib_switch" value="ON" {if $config_settings.shib_switch == "ON"}checked="checked"{/if}/> Enabled &nbsp; 
-                          <input type="radio" name="shib_switch" value="OFF" {if $config_settings.shib_switch == "OFF"}checked="checked"{/if}/> Disabled
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Shib SP Version (1.x or 2.x)</th>
-                        <td>
-                          <select name="shib_version">
-                            <option value="1"{if $config_settings.shib_version == "1"} selected="selected"{/if}>1.x (eg 1.3)</option>
-                                <option value="2"{if $config_settings.shib_version == "2"} selected="selected"{/if}>2.x</option>
-                          </select>
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Direct Login</th>
-                        <td>
-                          <select name="shib_direct_login">
-                            <option value="ON"{if $config_settings.shib_direct_login == "ON"} selected="selected"{/if}>Yes</option>
-                                <option value="OFF"{if $config_settings.shib_direct_login == "OFF"} selected="selected"{/if}>No</option>
-                          </select>
-                          <br />If Shibboleth support is Enabled, and this option is set to 'Yes', the front page of Fez will have a link to direct login for Fez home institution Shib login and a link to Other for non-home institution Shib and Fez logins.
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Federation name</th>
-                        <td>
-                          <input type="text" name="shib_federation_name" value="{$config_settings.shib_federation_name|escape:"html"}" size="50" />
-                          <br />Change this to the name of your Shibboleth Federation, e.g. <i>Inqueue, InCommon, MAMS Testbed Federation</i>.
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Survey</th>
-                        <td>
-                          <select name="shib_survey">
-                            <option value="ON"{if $config_settings.shib_survey == "ON"} selected="selected"{/if}>Active</option>
-                                <option value="OFF"{if $config_settings.shib_survey == "OFF"} selected="selected"{/if}>Disabled</option>
-                          </select>
-                          <br />Activates the post-Shibboleth login survey.
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Federation</th>
-                        <td>
-                          <input type="text" name="shib_federation" value="{$config_settings.shib_federation|escape:"html"}" size="50" />
-                          <br />Change this to the base URN of your federation, e.g. <i>Inqueue or InCommon</i>.
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Home SP</th>
-                        <td>
-                          <input type="text" name="shib_home_sp" value="{$config_settings.shib_home_sp|escape:"html"}" size="70" />
-                          <br />Change this to the URN of your Fez service provider, if different.
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Home IDP</th>
-                        <td>
-                          <input type="text" name="shib_home_idp" value="{$config_settings.shib_home_idp|escape:"html"}" size="70" />
-                          <br />Change this to the URN of your home institution's IDP.
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>WAYF metadata location</th>
-                        <td>
-                          <input type="text" name="shib_wayf_metadata_location" value="{$config_settings.shib_wayf_metadata_location|escape:"html"}" size="70" />
-                          <br />Change this to path location of the WAYF metadata XML file. You can update this with a cronjob / schedulated task. Your WAYF drop-down list will fill from this XML file.
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>WAYF/DS URL</th>
-                        <td>
-                          <input type="text" name="shib_wayf_url" value="{$config_settings.shib_wayf_url|escape:"html"}" size="50" />
-                          <br />Location of the federation WAYF (where are you from) or DS (discovery service) eg https://ds.test.aaf.edu.au/discovery/DS
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>WAYF/DS Javascript location</th>
-                        <td>
-                          <input type="text" name="shib_wayf_js" value="{$config_settings.shib_wayf_js|escape:"html"}" size="50" />
-                          <br />Location of the federation WAYF (where are you from) or DS (discovery service) javascript file to include.
-                          <br />It can (preferably) be a locally crontab/wget copy eg /js/embedded_wayf.js 
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Non Javascript url location</th>
-                        <td>
-                          <input type="text" name="shib_nonjs_url" value="{$config_settings.shib_nonjs_url|escape:"html"}" size="50" />
-                          <br />Link to show if the user has javascript turn off
-                          <br />eg /Shibboleth.sso/DS?target=https://manager.aaf.edu.au/rr/
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Cache Shibboleth Attributes?</th>
-                        <td>
-                          <select name="shib_cache_attribs">
-                            <option value="ON"{if $config_settings.shib_cache_attribs == "ON"} selected="selected"{/if}>ON</option>
-                                <option value="OFF"{if $config_settings.shib_cache_attribs == "OFF"} selected="selected"{/if}>OFF</option>
-                          </select>
-                          <br />If shib attribute caching is on it will save the last attributes gotten for each use in the fez_user_shibboleth_attribs table. Useful for when/if shib goes down and LDAP is the only
-                          option as it will load the same username up with their last known attributes. Also useful for figuring out appropriate FezACML policies to apply based on attributes, and for
-                          diagnosing shibboleth authorisation problems. 
-                        </td>
-                  </tr>
-                 </tbody>
-                </table>
-                </div>
+		<div id="shib" style="display: none;">
+		<table width="100%" class="admin-edit">
+		 <thead>
+		  <tr>
+			<th colspan="2">
+			  <h2>Shibboleth Settings</h2>
+			  <p>You may need to query your Organisation's Shibboleth expert for help on these settings.</p>
+			</th>
+		  </tr>
+		 </thead>
+		 <tbody>
+		  <tr>
+			<td colspan="2">
+			  <input type="radio" name="shib_switch" value="ON" {if $config_settings.shib_switch == "ON"}checked="checked"{/if}/> Enabled &nbsp; 
+			  <input type="radio" name="shib_switch" value="OFF" {if $config_settings.shib_switch == "OFF"}checked="checked"{/if}/> Disabled
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Shib SP Version: 1.x or 2.x (Apache Shibboleth), or SimpleSAML PHP (SAML2, can be used on any webserver eg NGinx)</th>
+			<td>
+			  <select name="shib_version">
+			    <option value="1"{if $config_settings.shib_version == "1"} selected="selected"{/if}>1.x (eg 1.3)</option>
+				<option value="2"{if $config_settings.shib_version == "2"} selected="selected"{/if}>2.x</option>
+				<option value="3"{if $config_settings.shib_version == "3"} selected="selected"{/if}>SimpleSAML SP (SAML2)</option>
+			  </select>
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Direct Login</th>
+			<td>
+			  <select name="shib_direct_login">
+			    <option value="ON"{if $config_settings.shib_direct_login == "ON"} selected="selected"{/if}>Yes</option>
+				<option value="OFF"{if $config_settings.shib_direct_login == "OFF"} selected="selected"{/if}>No</option>
+			  </select>
+			  <br />If Shibboleth support is Enabled, and this option is set to 'Yes', the front page of Fez will have a link to direct login for Fez home institution Shib login and a link to Other for non-home institution Shib and Fez logins.
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Federation name</th>
+			<td>
+			  <input type="text" name="shib_federation_name" value="{$config_settings.shib_federation_name|escape:"html"}" size="50" />
+			  <br />Change this to the name of your Shibboleth Federation, e.g. <i>Inqueue, InCommon, MAMS Testbed Federation</i>.
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Survey</th>
+			<td>
+			  <select name="shib_survey">
+			    <option value="ON"{if $config_settings.shib_survey == "ON"} selected="selected"{/if}>Active</option>
+				<option value="OFF"{if $config_settings.shib_survey == "OFF"} selected="selected"{/if}>Disabled</option>
+			  </select>
+			  <br />Activates the post-Shibboleth login survey.
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Federation</th>
+			<td>
+			  <input type="text" name="shib_federation" value="{$config_settings.shib_federation|escape:"html"}" size="50" />
+			  <br />Change this to the base URN of your federation, e.g. <i>Inqueue or InCommon</i>.
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Home SP</th>
+			<td>
+			  <input type="text" name="shib_home_sp" value="{$config_settings.shib_home_sp|escape:"html"}" size="70" />
+			  <br />Change this to the URN of your Fez service provider, if different.
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Home IDP</th>
+			<td>
+			  <input type="text" name="shib_home_idp" value="{$config_settings.shib_home_idp|escape:"html"}" size="70" />
+			  <br />Change this to the URN of your home institution's IDP.
+			</td>
+		  </tr>
+		  <tr>
+		    <th>WAYF metadata location</th>
+			<td>
+			  <input type="text" name="shib_wayf_metadata_location" value="{$config_settings.shib_wayf_metadata_location|escape:"html"}" size="70" />
+			  <br />Change this to path location of the WAYF metadata XML file. You can update this with a cronjob / schedulated task. Your WAYF drop-down list will fill from this XML file.
+			</td>
+		  </tr>
+		  <tr>
+		    <th>WAYF/DS URL</th>
+			<td>
+			  <input type="text" name="shib_wayf_url" value="{$config_settings.shib_wayf_url|escape:"html"}" size="50" />
+			  <br />Location of the federation WAYF (where are you from) or DS (discovery service) eg https://ds.test.aaf.edu.au/discovery/DS
+			</td>
+		  </tr>
+		  <tr>
+		    <th>WAYF/DS Javascript location</th>
+			<td>
+			  <input type="text" name="shib_wayf_js" value="{$config_settings.shib_wayf_js|escape:"html"}" size="50" />
+			  <br />Location of the federation WAYF (where are you from) or DS (discovery service) javascript file to include.
+			  <br />It can (preferably) be a locally crontab/wget copy eg /js/embedded_wayf.js 
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Non Javascript url location (non SimpleSAMLPHP only)</th>
+			<td>
+			  <input type="text" name="shib_nonjs_url" value="{$config_settings.shib_nonjs_url|escape:"html"}" size="50" />
+			  <br />Link to show if the user has javascript turn off
+			  <br />eg /Shibboleth.sso/DS?target=https://manager.aaf.edu.au/rr/
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Cache Shibboleth Attributes?</th>
+			<td>
+			  <select name="shib_cache_attribs">
+			    <option value="ON"{if $config_settings.shib_cache_attribs == "ON"} selected="selected"{/if}>ON</option>
+				<option value="OFF"{if $config_settings.shib_cache_attribs == "OFF"} selected="selected"{/if}>OFF</option>
+			  </select>
+			  <br />If shib attribute caching is on it will save the last attributes gotten for each use in the fez_user_shibboleth_attribs table. Useful for when/if shib goes down and LDAP is the only
+			  option as it will load the same username up with their last known attributes. Also useful for figuring out appropriate FezACML policies to apply based on attributes, and for
+			  diagnosing shibboleth authorisation problems. 
+			</td>
+		  </tr>
+		 </tbody>
+		</table>
+		</div>
 
 
 
-                <div id="ldap" style="display: none;">
-                <table width="100%" class="admin-edit">
-                 <thead>
-                  <tr>
-                        <th colspan="2">
-                          <h2>LDAP Settings</h2>
-                          <p>To turn off LDAP authentication, select &quot;disabled&quot;. All other settings will be preserved.</p>
-                        </th>
-                  </tr>
-                 </thead>
-                 <tbody>
-                  <tr>
-                        <td colspan="2">
-                          <input type="radio" name="ldap_switch" value="ON" {if $config_settings.ldap_switch == "ON"}checked="checked"{/if}/> Enabled &nbsp; 
-                          <input type="radio" name="ldap_switch" value="OFF" {if $config_settings.ldap_switch == "OFF"}checked="checked"{/if}/> Disabled
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Organisation</th>
-                        <td>
-                          <input type="text" name="ldap_organisation" value="{$config_settings.ldap_organisation|escape:"html"}" size="50" />
-                          <br />e.g. o=The University of Fez, c=AU
-                          {include file="error_icon.tpl.html" field="ldap_organisation"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Root DN</th>
-                        <td>
-                          <input type="text" name="ldap_root_dn" value="{$config_settings.ldap_root_dn|escape:"html"}" size="50" />
-                          <br />e.g. DC=uq,DC=edu,DC=au
-                          {include file="error_icon.tpl.html" field="ldap_root_dn"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Prefix</th>
-                        <td>
-                          <input type="text" name="ldap_prefix" value="{$config_settings.ldap_prefix|escape:"html"}" size="50" />
-                          <br />e.g. UQ
-                          {include file="error_icon.tpl.html" field="ldap_prefix"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Server</th>
-                        <td>
-                          <input type="text" name="ldap_server" value="{$config_settings.ldap_server|escape:"html"}" size="50" />
-                          <br />e.g. yourldapserver.yourdomain.edu
-                          {include file="error_icon.tpl.html" field="ldap_server"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Port</th>
-                        <td>
-                          <input type="text" name="ldap_port" value="{$config_settings.ldap_port|escape:"html"}" size="50" />
-                          <br />Usually 389
-                          {include file="error_icon.tpl.html" field="ldap_port"}
-                        </td>
-                  </tr>
-                 </tbody>
-                </table>
-                </div>
+		<div id="ldap" style="display: none;">
+		<table width="100%" class="admin-edit">
+		 <thead>
+		  <tr>
+			<th colspan="2">
+			  <h2>LDAP Settings</h2>
+			  <p>To turn off LDAP authentication, select &quot;disabled&quot;. All other settings will be preserved.</p>
+			</th>
+		  </tr>
+		 </thead>
+		 <tbody>
+		  <tr>
+			<td colspan="2">
+			  <input type="radio" name="ldap_switch" value="ON" {if $config_settings.ldap_switch == "ON"}checked="checked"{/if}/> Enabled &nbsp; 
+			  <input type="radio" name="ldap_switch" value="OFF" {if $config_settings.ldap_switch == "OFF"}checked="checked"{/if}/> Disabled
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Organisation</th>
+			<td>
+			  <input type="text" name="ldap_organisation" value="{$config_settings.ldap_organisation|escape:"html"}" size="50" />
+			  <br />e.g. o=The University of Fez, c=AU
+			  {include file="error_icon.tpl.html" field="ldap_organisation"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Root DN</th>
+			<td>
+			  <input type="text" name="ldap_root_dn" value="{$config_settings.ldap_root_dn|escape:"html"}" size="50" />
+			  <br />e.g. DC=uq,DC=edu,DC=au
+			  {include file="error_icon.tpl.html" field="ldap_root_dn"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Prefix</th>
+			<td>
+			  <input type="text" name="ldap_prefix" value="{$config_settings.ldap_prefix|escape:"html"}" size="50" />
+			  <br />e.g. UQ
+			  {include file="error_icon.tpl.html" field="ldap_prefix"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Server</th>
+			<td>
+			  <input type="text" name="ldap_server" value="{$config_settings.ldap_server|escape:"html"}" size="50" />
+			  <br />e.g. yourldapserver.yourdomain.edu
+			  {include file="error_icon.tpl.html" field="ldap_server"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Port</th>
+			<td>
+			  <input type="text" name="ldap_port" value="{$config_settings.ldap_port|escape:"html"}" size="50" />
+			  <br />Usually 389
+			  {include file="error_icon.tpl.html" field="ldap_port"}
+			</td>
+		  </tr>
+		 </tbody>
+		</table>
+		</div>
 
 
 
-                <div id="eprints" style="display: none;">
-                <table width="100%" class="admin-edit">
-                 <thead>
-                  <tr>
-                        <th colspan="2">
-                          <h2>ePrints Settings</h2>
-                        </th>
-                  </tr>
-                 </thead>
-                 <tbody>
-                  <tr>
-                    <th>OAI Provider</th>
-                        <td>
-                          <input type="text" name="eprints_oai" value="{$config_settings.eprints_oai|escape:"html"}" size="100" />
-                          <br />Change this to your ePrints OAI service provider for batch importing of ePrints records
-                          {include file="error_icon.tpl.html" field="eprints_oai"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>ePrints username</th>
-                        <td>
-                          <input type="text" name="eprints_username" value="{$config_settings.eprints_username|escape:"html"}" size="20" />
-                          <br />ePrints requires basic authentication for the download of secured PDFs and files
-                          {include file="error_icon.tpl.html" field="eprints_username"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>ePrints password</th>
-                        <td>
-                          <input type="password" name="eprints_passwd" value="{$config_settings.eprints_passwd|escape:"html"}" size="20" />
-                          {include file="error_icon.tpl.html" field="eprints_passwd"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Subject authority</th>
-                        <td>
-                          <input type="text" name="eprints_subject_authority" value="{$config_settings.eprints_subject_authority|escape:"html"}" size="20" />
-                          <br />For use when your ePrints IR uses a controlled vocabulary, e.g. Australian ASRC use 'asrc'. Otherwise leave blank.
-                          {include file="error_icon.tpl.html" field="eprints_subject_authority"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Database host</th>
-                        <td>
-                          <input type="text" name="eprints_db_host" value="{$config_settings.eprints_db_host|escape:"html"}" size="20" />
-                          <br />Used to get things that are not in the ePrints export XML that really should be for migration purposes.
-                          {include file="error_icon.tpl.html" field="eprints_db_host"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Database type</th>
-                        <td>
-                          <input type="text" name="eprints_db_type" value="{$config_settings.eprints_db_type|escape:"html"}" size="20" />
-                          <br />Generally 'pdo_mysql' although other will probably work as long as they are support by Zend DB.
-                          {include file="error_icon.tpl.html" field="eprints_db_type"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Database name</th>
-                        <td>
-                          <input type="text" name="eprints_db_database_name" value="{$config_settings.eprints_db_database_name|escape:"html"}" size="20" />
-                          {include file="error_icon.tpl.html" field="eprints_db_database_name"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Database username</th>
-                        <td>
-                          <input type="text" name="eprints_db_username" value="{$config_settings.eprints_db_username|escape:"html"}" size="20" />
-                          {include file="error_icon.tpl.html" field="eprints_db_username"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Database password</th>
-                        <td>
-                          <input type="password" name="eprints_db_passwd" value="{$config_settings.eprints_db_passwd|escape:"html"}" size="20" />
-                          {include file="error_icon.tpl.html" field="eprints_db_passwd"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Import users</th>
-                        <td>
-                          <select name="eprints_import_users">
-                            <option value="ON"{if $config_settings.eprints_import_users == "ON"} selected="selected"{/if}>On</option>
-                                <option value="OFF"{if $config_settings.eprints_import_users == "OFF"} selected="selected"{/if}>Off</option>
-                          </select>
-                          <br />If this is on then Fez will create usernames for all the ePrints server users so it can match depositor with the imported ePrints objects. Passwords cannot be brought across so user accounts need to move to LDAP/Shibboleth or have passwords reissued.
-                          {include file="error_icon.tpl.html" field="eprints_import_users"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Batch import type</th>
-                        <td>
-                          <select name="batch_import_type">
-                            <option value="MODS 1.0"{if $config_settings.batch_import_type == "MODS 1.0"} selected="selected"{/if}>MODS 1.0</option>
-                                <option value="Dublin Core 1.0"{if $config_settings.batch_import_type == "Dublin Core 1.0"} selected="selected"{/if}>Dublin Core 1.0</option>
-                          </select>
-                          {include file="error_icon.tpl.html" field="batch_import_type"}
-                        </td>
-                  </tr>
-                 </tbody>
-                </table>
-                </div>
+		<div id="eprints" style="display: none;">
+		<table width="100%" class="admin-edit">
+		 <thead>
+		  <tr>
+			<th colspan="2">
+			  <h2>ePrints Settings</h2>
+			</th>
+		  </tr>
+		 </thead>
+		 <tbody>
+		  <tr>
+		    <th>OAI Provider</th>
+			<td>
+			  <input type="text" name="eprints_oai" value="{$config_settings.eprints_oai|escape:"html"}" size="100" />
+			  <br />Change this to your ePrints OAI service provider for batch importing of ePrints records
+			  {include file="error_icon.tpl.html" field="eprints_oai"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>ePrints username</th>
+			<td>
+			  <input type="text" name="eprints_username" value="{$config_settings.eprints_username|escape:"html"}" size="20" />
+			  <br />ePrints requires basic authentication for the download of secured PDFs and files
+			  {include file="error_icon.tpl.html" field="eprints_username"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>ePrints password</th>
+			<td>
+			  <input type="password" name="eprints_passwd" value="{$config_settings.eprints_passwd|escape:"html"}" size="20" />
+			  {include file="error_icon.tpl.html" field="eprints_passwd"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Subject authority</th>
+			<td>
+			  <input type="text" name="eprints_subject_authority" value="{$config_settings.eprints_subject_authority|escape:"html"}" size="20" />
+			  <br />For use when your ePrints IR uses a controlled vocabulary, e.g. Australian ASRC use 'asrc'. Otherwise leave blank.
+			  {include file="error_icon.tpl.html" field="eprints_subject_authority"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Database host</th>
+			<td>
+			  <input type="text" name="eprints_db_host" value="{$config_settings.eprints_db_host|escape:"html"}" size="20" />
+			  <br />Used to get things that are not in the ePrints export XML that really should be for migration purposes.
+			  {include file="error_icon.tpl.html" field="eprints_db_host"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Database type</th>
+			<td>
+			  <input type="text" name="eprints_db_type" value="{$config_settings.eprints_db_type|escape:"html"}" size="20" />
+			  <br />Generally 'pdo_mysql' although other will probably work as long as they are support by Zend DB.
+			  {include file="error_icon.tpl.html" field="eprints_db_type"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Database name</th>
+			<td>
+			  <input type="text" name="eprints_db_database_name" value="{$config_settings.eprints_db_database_name|escape:"html"}" size="20" />
+			  {include file="error_icon.tpl.html" field="eprints_db_database_name"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Database username</th>
+			<td>
+			  <input type="text" name="eprints_db_username" value="{$config_settings.eprints_db_username|escape:"html"}" size="20" />
+			  {include file="error_icon.tpl.html" field="eprints_db_username"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Database password</th>
+			<td>
+			  <input type="password" name="eprints_db_passwd" value="{$config_settings.eprints_db_passwd|escape:"html"}" size="20" />
+			  {include file="error_icon.tpl.html" field="eprints_db_passwd"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Import users</th>
+			<td>
+			  <select name="eprints_import_users">
+			    <option value="ON"{if $config_settings.eprints_import_users == "ON"} selected="selected"{/if}>On</option>
+				<option value="OFF"{if $config_settings.eprints_import_users == "OFF"} selected="selected"{/if}>Off</option>
+			  </select>
+			  <br />If this is on then Fez will create usernames for all the ePrints server users so it can match depositor with the imported ePrints objects. Passwords cannot be brought across so user accounts need to move to LDAP/Shibboleth or have passwords reissued.
+			  {include file="error_icon.tpl.html" field="eprints_import_users"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Batch import type</th>
+			<td>
+			  <select name="batch_import_type">
+			    <option value="MODS 1.0"{if $config_settings.batch_import_type == "MODS 1.0"} selected="selected"{/if}>MODS 1.0</option>
+				<option value="Dublin Core 1.0"{if $config_settings.batch_import_type == "Dublin Core 1.0"} selected="selected"{/if}>Dublin Core 1.0</option>
+			  </select>
+			  {include file="error_icon.tpl.html" field="batch_import_type"}
+			</td>
+		  </tr>
+		 </tbody>
+		</table>
+		</div>
 
 
 
-                <div id="solr" style="display: none;">
-                <table width="100%" class="admin-edit">
-                 <thead>
-                  <tr>
-                        <th colspan="2">
-                          <h2>Solr Settings</h2>
-                        </th>
-                  </tr>
-                 </thead>
-                 <tbody>
-                  <tr>
-                <th>Use Solr for Search</th>
-                        <td>
-                          <input type="radio" name="app_solr_switch" value="ON" {if $config_settings.app_solr_switch == "ON"}checked="checked"{/if}/> Enabled &nbsp; 
-                          <input type="radio" name="app_solr_switch" value="OFF" {if $config_settings.app_solr_switch == "OFF"}checked="checked"{/if}/> Disabled
-                        </td>
-                  </tr>
-                  <tr>
-                <th>Solr Indexer</th>
-                        <td>
-                          <input type="radio" name="app_solr_indexer" value="ON" {if $config_settings.app_solr_indexer == "ON"}checked="checked"{/if}/> On &nbsp; 
-                          <input type="radio" name="app_solr_indexer" value="OFF" {if $config_settings.app_solr_indexer == "OFF"}checked="checked"{/if}/> Off
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Solr Host</th>
-                        <td>
-                          <input type="text" name="app_solr_host" value="{$config_settings.app_solr_host|escape:"html"}" size="50" />
-                          {include file="error_icon.tpl.html" field="app_solr_host"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Solr Slave Replicant Host (not required)</th>
-                        <td>
-                          <input type="text" name="app_solr_slave_host" value="{$config_settings.app_solr_slave_host|escape:"html"}" size="50" />
-                          {include file="error_icon.tpl.html" field="app_solr_slave_host"}
-                        </td>
-                  </tr>
-                  <tr>
-                <th>Solr Send Public/Non-logged in Reads to Slave replicant (requires above slave host value set)</th>
-                        <td>
-                          <input type="radio" name="app_solr_slave_read" value="ON" {if $config_settings.app_solr_slave_read == "ON"}checked="checked"{/if}/> On &nbsp; 
-                          <input type="radio" name="app_solr_slave_read" value="OFF" {if $config_settings.app_solr_slave_read == "OFF"}checked="checked"{/if}/> Off
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Solr Port</th>
-                        <td>
-                          <input type="text" name="app_solr_port" value="{$config_settings.app_solr_port|escape:"html"}" size="50" />
-                          {include file="error_icon.tpl.html" field="app_solr_port"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Solr Path</th>
-                        <td>
-                          <input type="text" name="app_solr_path" value="{$config_settings.app_solr_path|escape:"html"}" size="50" />
-                          {include file="error_icon.tpl.html" field="app_solr_path"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Solr Commit Limit (the maximum number of objects to queue in a solr batch before sending to solr. Lower if you have having PHP out of memory issues - default is 100)</th>
-                        <td>
-                          <input type="text" name="app_solr_commit_limit" value="{$config_settings.app_solr_commit_limit|escape:"html"}" size="50" />
-                          {include file="error_icon.tpl.html" field="app_solr_commit_limit"}
-                        </td>
-                  </tr>
-                  <tr>
-                        <th>Facet limit (default is 5)</th>
-                        <td>
-                                <input type="text" name="app_solr_facet_limit" value="{$config_settings.app_solr_facet_limit|escape:"html"}" size="4" />
-                                {include file="error_icon.tpl.html" field="app_solr_facet_limit"}
-                        </td>
-                  </tr>
-                  <tr>
-                        <th>Facet minimum count (default is 2)</th>
-                        <td>
-                                <input type="text" name="app_solr_facet_mincount" value="{$config_settings.app_solr_facet_mincount|escape:"html"}" size="4" />
-                                {include file="error_icon.tpl.html" field="app_solr_facet_mincount"}
-                        </td>
-                  </tr>
-                 </tbody>
-                </table>
-                </div>
+		<div id="solr" style="display: none;">
+		<table width="100%" class="admin-edit">
+		 <thead>
+		  <tr>
+			<th colspan="2">
+			  <h2>Solr Settings</h2>
+			</th>
+		  </tr>
+		 </thead>
+		 <tbody>
+		  <tr>
+		<th>Use Solr for Search</th>
+			<td>
+			  <input type="radio" name="app_solr_switch" value="ON" {if $config_settings.app_solr_switch == "ON"}checked="checked"{/if}/> Enabled &nbsp; 
+			  <input type="radio" name="app_solr_switch" value="OFF" {if $config_settings.app_solr_switch == "OFF"}checked="checked"{/if}/> Disabled
+			</td>
+		  </tr>
+		  <tr>
+		<th>Solr Indexer</th>
+			<td>
+			  <input type="radio" name="app_solr_indexer" value="ON" {if $config_settings.app_solr_indexer == "ON"}checked="checked"{/if}/> On &nbsp; 
+			  <input type="radio" name="app_solr_indexer" value="OFF" {if $config_settings.app_solr_indexer == "OFF"}checked="checked"{/if}/> Off
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Solr Host</th>
+			<td>
+			  <input type="text" name="app_solr_host" value="{$config_settings.app_solr_host|escape:"html"}" size="50" />
+			  {include file="error_icon.tpl.html" field="app_solr_host"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Solr Slave Replicant Host (not required)</th>
+			<td>
+			  <input type="text" name="app_solr_slave_host" value="{$config_settings.app_solr_slave_host|escape:"html"}" size="50" />
+			  {include file="error_icon.tpl.html" field="app_solr_slave_host"}
+			</td>
+		  </tr>
+		  <tr>
+		<th>Solr Send Public/Non-logged in Reads to Slave replicant (requires above slave host value set)</th>
+			<td>
+			  <input type="radio" name="app_solr_slave_read" value="ON" {if $config_settings.app_solr_slave_read == "ON"}checked="checked"{/if}/> On &nbsp; 
+			  <input type="radio" name="app_solr_slave_read" value="OFF" {if $config_settings.app_solr_slave_read == "OFF"}checked="checked"{/if}/> Off
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Solr Port</th>
+			<td>
+			  <input type="text" name="app_solr_port" value="{$config_settings.app_solr_port|escape:"html"}" size="50" />
+			  {include file="error_icon.tpl.html" field="app_solr_port"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Solr Path</th>
+			<td>
+			  <input type="text" name="app_solr_path" value="{$config_settings.app_solr_path|escape:"html"}" size="50" />
+			  {include file="error_icon.tpl.html" field="app_solr_path"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Solr Commit Limit (the maximum number of objects to queue in a solr batch before sending to solr. Lower if you have having PHP out of memory issues - default is 100)</th>
+			<td>
+			  <input type="text" name="app_solr_commit_limit" value="{$config_settings.app_solr_commit_limit|escape:"html"}" size="50" />
+			  {include file="error_icon.tpl.html" field="app_solr_commit_limit"}
+			</td>
+		  </tr>
+		  <tr>
+			<th>Facet limit (default is 5)</th>
+			<td>
+				<input type="text" name="app_solr_facet_limit" value="{$config_settings.app_solr_facet_limit|escape:"html"}" size="4" />
+				{include file="error_icon.tpl.html" field="app_solr_facet_limit"}
+			</td>
+		  </tr>
+		  <tr>
+			<th>Facet minimum count (default is 2)</th>
+			<td>
+				<input type="text" name="app_solr_facet_mincount" value="{$config_settings.app_solr_facet_mincount|escape:"html"}" size="4" />
+				{include file="error_icon.tpl.html" field="app_solr_facet_mincount"}
+			</td>
+		  </tr>
+		 </tbody>
+		</table>
+		</div>
 
 
 
-                <div id="origami" style="display: none;">
-                <table width="100%" class="admin-edit">
-                 <thead>
-                  <tr>
-                        <th colspan="2">
-                          <h2>Origami Settings</h2>
-                        </th>
-                  </tr>
-                 </thead>
-                 <tbody>
-                  <tr>
-                <th>Use Origami</th>
-                        <td>
-                          <input type="radio" name="app_origami_switch" value="ON" {if $config_settings.app_origami_switch == "ON"}checked="checked"{/if}/> On &nbsp; 
-                          <input type="radio" name="app_origami_switch" value="OFF" {if $config_settings.app_origami_switch == "OFF"}checked="checked"{/if}/> Off
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Path To Origami</th>
-                        <td>
-                          <input type="text" name="app_origami_path" value="{$config_settings.app_origami_path|escape:"html"}" size="50" />
-                          {include file="error_icon.tpl.html" field="app_origami_path"}
-                        </td>
-                  </tr>
-                 </tbody>
-                </table>
-                </div>
+		<div id="origami" style="display: none;">
+		<table width="100%" class="admin-edit">
+		 <thead>
+		  <tr>
+			<th colspan="2">
+			  <h2>Origami Settings</h2>
+			</th>
+		  </tr>
+		 </thead>
+		 <tbody>
+		  <tr>
+		<th>Use Origami</th>
+			<td>
+			  <input type="radio" name="app_origami_switch" value="ON" {if $config_settings.app_origami_switch == "ON"}checked="checked"{/if}/> On &nbsp; 
+			  <input type="radio" name="app_origami_switch" value="OFF" {if $config_settings.app_origami_switch == "OFF"}checked="checked"{/if}/> Off
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Path To Origami</th>
+			<td>
+			  <input type="text" name="app_origami_path" value="{$config_settings.app_origami_path|escape:"html"}" size="50" />
+			  {include file="error_icon.tpl.html" field="app_origami_path"}
+			</td>
+		  </tr>
+		 </tbody>
+		</table>
+		</div>
 
 
 
-                <div id="exiftool" style="display: none;">
-                <table width="100%" class="admin-edit">
-                 <thead>
-                  <tr>
-                        <th colspan="2">
-                          <h2>Exiftool Settings</h2>
-                        </th>
-                  </tr>
-                 </thead>
-                 <tbody>
-                  <tr>
-                <th>Use Exiftool</th>
-                        <td>
-                          <input type="radio" name="app_exiftool_switch" value="ON" {if $config_settings.app_exiftool_switch == "ON"}checked="checked"{/if}/> On &nbsp; 
-                          <input type="radio" name="app_exiftool_switch" value="OFF" {if $config_settings.app_exiftool_switch == "OFF"}checked="checked"{/if}/> Off
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Path To Exiftool executable (eg /usr/bin/exiftool)</th>
-                        <td>
-                          <input type="text" name="app_exiftool_cmd" value="{$config_settings.app_exiftool_cmd|escape:"html"}" size="50" />
-                          {include file="error_icon.tpl.html" field="app_exiftool_cmd"}
-                        </td>
-                  </tr>
-                 </tbody>
-                </table>
-                </div>
+		<div id="exiftool" style="display: none;">
+		<table width="100%" class="admin-edit">
+		 <thead>
+		  <tr>
+			<th colspan="2">
+			  <h2>Exiftool Settings</h2>
+			</th>
+		  </tr>
+		 </thead>
+		 <tbody>
+		  <tr>
+		<th>Use Exiftool</th>
+			<td>
+			  <input type="radio" name="app_exiftool_switch" value="ON" {if $config_settings.app_exiftool_switch == "ON"}checked="checked"{/if}/> On &nbsp; 
+			  <input type="radio" name="app_exiftool_switch" value="OFF" {if $config_settings.app_exiftool_switch == "OFF"}checked="checked"{/if}/> Off
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Path To Exiftool executable (eg /usr/bin/exiftool)</th>
+			<td>
+			  <input type="text" name="app_exiftool_cmd" value="{$config_settings.app_exiftool_cmd|escape:"html"}" size="50" />
+			  {include file="error_icon.tpl.html" field="app_exiftool_cmd"}
+			</td>
+		  </tr>
+		 </tbody>
+		</table>
+		</div>
 
 
 
-                <div id="handle" style="display: none;">
-                <table width="100%" class="admin-edit">
-                 <thead>
-                  <tr>
-                        <th colspan="2">
-                          <h2>Handle Settings</h2>
-                      <p>To turn this feature off, select &quot;disabled&quot;. All other settings will be preserved.</p>
-                        </th>
-                  </tr>
-                 </thead>
-                 <tbody>
-                  <tr>
-                        <td colspan="2">
-                          <input type="radio" name="app_handle" value="ON" {if $config_settings.app_handle == "ON"}checked="checked"{/if}/> Enabled &nbsp; 
-                          <input type="radio" name="app_handle" value="OFF" {if $config_settings.app_handle == "OFF"}checked="checked"{/if}/> Disabled
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>JAHDL Path</th>
-                        <td>
-                          <input type="text" name="app_jahdl_dir" value="{$config_settings.app_jahdl_dir|escape:"html"}" size="50" />
-                          <br />You must include a trailing slash.
-                          {include file="error_icon.tpl.html" field="app_jahdl_dir"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Handle admin private key file</th>
-                        <td>
-                          <input type="text" name="handle_admpriv_key_file" value="{$config_settings.handle_admpriv_key_file|escape:"html"}" size="50" />
-                          {include file="error_icon.tpl.html" field="handle_admpriv_key_file"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Handle admin private key passphrase</th>
-                        <td>
-                          <input type="text" name="handle_admpriv_key_passphrase" value="{$config_settings.handle_admpriv_key_passphrase|escape:"html"}" size="50" />
-                          {include file="error_icon.tpl.html" field="handle_admpriv_key_passphrase"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Handle naming authority prefix</th>
-                        <td>
-                          <input type="text" name="handle_naming_authority_prefix" value="{$config_settings.handle_naming_authority_prefix|escape:"html"}" size="50" />
-                          {include file="error_icon.tpl.html" field="handle_naming_authority_prefix"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Handle naming authority prefix derivative</th>
-                        <td>
-                          <input type="text" name="handle_na_prefix_derivative" value="{$config_settings.handle_na_prefix_derivative|escape:"html"}" size="50" />
-                          <br />Can be a real handle derivative (i.e. &quot;.01&quot;) or a pseudo-derivative (i.e. &quot;/01&quot;).
-                          {include file="error_icon.tpl.html" field="handle_na_prefix_derivative"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Handle resolver URL</th>
-                        <td>
-                          <input type="text" name="handle_resolver_url" value="{$config_settings.handle_resolver_url|escape:"html"}" size="50" />
-                          {include file="error_icon.tpl.html" field="handle_resolver_url"}
-                        </td>
-                  </tr>
-                 </tbody>
-                </table>
-                </div>
+		<div id="handle" style="display: none;">
+		<table width="100%" class="admin-edit">
+		 <thead>
+		  <tr>
+			<th colspan="2">
+			  <h2>Handle Settings</h2>
+		      <p>To turn this feature off, select &quot;disabled&quot;. All other settings will be preserved.</p>
+			</th>
+		  </tr>
+		 </thead>
+		 <tbody>
+		  <tr>
+			<td colspan="2">
+			  <input type="radio" name="app_handle" value="ON" {if $config_settings.app_handle == "ON"}checked="checked"{/if}/> Enabled &nbsp; 
+			  <input type="radio" name="app_handle" value="OFF" {if $config_settings.app_handle == "OFF"}checked="checked"{/if}/> Disabled
+			</td>
+		  </tr>
+		  <tr>
+		    <th>JAHDL Path</th>
+			<td>
+			  <input type="text" name="app_jahdl_dir" value="{$config_settings.app_jahdl_dir|escape:"html"}" size="50" />
+			  <br />You must include a trailing slash.
+			  {include file="error_icon.tpl.html" field="app_jahdl_dir"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Handle admin private key file</th>
+			<td>
+			  <input type="text" name="handle_admpriv_key_file" value="{$config_settings.handle_admpriv_key_file|escape:"html"}" size="50" />
+			  {include file="error_icon.tpl.html" field="handle_admpriv_key_file"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Handle admin private key passphrase</th>
+			<td>
+			  <input type="text" name="handle_admpriv_key_passphrase" value="{$config_settings.handle_admpriv_key_passphrase|escape:"html"}" size="50" />
+			  {include file="error_icon.tpl.html" field="handle_admpriv_key_passphrase"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Handle naming authority prefix</th>
+			<td>
+			  <input type="text" name="handle_naming_authority_prefix" value="{$config_settings.handle_naming_authority_prefix|escape:"html"}" size="50" />
+			  {include file="error_icon.tpl.html" field="handle_naming_authority_prefix"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Handle naming authority prefix derivative</th>
+			<td>
+			  <input type="text" name="handle_na_prefix_derivative" value="{$config_settings.handle_na_prefix_derivative|escape:"html"}" size="50" />
+			  <br />Can be a real handle derivative (i.e. &quot;.01&quot;) or a pseudo-derivative (i.e. &quot;/01&quot;).
+			  {include file="error_icon.tpl.html" field="handle_na_prefix_derivative"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Handle resolver URL</th>
+			<td>
+			  <input type="text" name="handle_resolver_url" value="{$config_settings.handle_resolver_url|escape:"html"}" size="50" />
+			  {include file="error_icon.tpl.html" field="handle_resolver_url"}
+			</td>
+		  </tr>
+		 </tbody>
+		</table>
+		</div>
 
 
 
-                <div id="versioning" style="display: none;">
-                <table width="100%" class="admin-edit">
-                 <thead>
-                  <tr>
-                        <th colspan="2">
-                          <h2>Versioning Settings</h2>
-                          <p>Fedora 2.2: - Fully Tested<br />
-                             Fedora 2.1.1: - Implemented, but not fully tested<br />
-                             Direct Access: - Not Implemented
-                          </p>
-                          <p><b>NOTE:</b> This controls versioning of attached files and external 
-                             links only.  XML datastreams defined in XSD Displays are controlled by
-                             the value of Versionable set in the XSD matching field.  Certain Fez 
-                             controlled datastreams ignore this field and hardcode turning Versionable 
-                             on or off.</p> 
-                          <p><b>NOTE:</b> <em>Interval Between Fedora Versions</em> is the minimum amount of time 
-                             in seconds between amalgamated versions of datastreams of a record that 
-                             are deemed to correspond to an atomic Fez operation. If this value is 
-                             set too high, the filtered list of version times may not display 
-                             legitimate edits. If the value is set too low, the filtered list may 
-                             include times that correspond to updates of individual datastreams.</p>
-                          <p><b>NOTE:</b> You also need to set APP_VIEW_VERSIONS_ROLES and 
-                             APP_VIEW_VERSIONS_ROLE_IDS in include/class.configuration.php.</p>
-                        </th>
-                  </tr>
-                 </thead>
-                 <tbody>
-                  <tr>
-                <th>Enable Versioning for Attached Files and External Links</th>
-                        <td>
-                          <input type="radio" name="app_version_uploads_and_links" value="ON" {if $config_settings.app_version_uploads_and_links == "ON"}checked="checked"{/if}/> On &nbsp; 
-                          <input type="radio" name="app_version_uploads_and_links" value="OFF" {if $config_settings.app_version_uploads_and_links == "OFF"}checked="checked"{/if}/> Off
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Interval Between Fedora Versions</th>
-                        <td>
-                          <input type="text" name="app_version_time_interval" value="{$config_settings.app_version_time_interval|escape:"html"}" size="10" /> (seconds)
-                          {include file="error_icon.tpl.html" field="app_version_time_interval"}
-                        </td>
-                  </tr>
-                 </tbody>
-                </table>
-                </div>
+		<div id="versioning" style="display: none;">
+		<table width="100%" class="admin-edit">
+		 <thead>
+		  <tr>
+			<th colspan="2">
+			  <h2>Versioning Settings</h2>
+			  <p>Fedora 2.2: - Fully Tested<br />
+			     Fedora 2.1.1: - Implemented, but not fully tested<br />
+			     Direct Access: - Not Implemented
+			  </p>
+			  <p><b>NOTE:</b> This controls versioning of attached files and external 
+			     links only.  XML datastreams defined in XSD Displays are controlled by
+			     the value of Versionable set in the XSD matching field.  Certain Fez 
+			     controlled datastreams ignore this field and hardcode turning Versionable 
+			     on or off.</p> 
+			  <p><b>NOTE:</b> <em>Interval Between Fedora Versions</em> is the minimum amount of time 
+			     in seconds between amalgamated versions of datastreams of a record that 
+			     are deemed to correspond to an atomic Fez operation. If this value is 
+			     set too high, the filtered list of version times may not display 
+			     legitimate edits. If the value is set too low, the filtered list may 
+			     include times that correspond to updates of individual datastreams.</p>
+			  <p><b>NOTE:</b> You also need to set APP_VIEW_VERSIONS_ROLES and 
+			     APP_VIEW_VERSIONS_ROLE_IDS in include/class.configuration.php.</p>
+			</th>
+		  </tr>
+		 </thead>
+		 <tbody>
+		  <tr>
+		<th>Enable Versioning for Attached Files and External Links</th>
+			<td>
+			  <input type="radio" name="app_version_uploads_and_links" value="ON" {if $config_settings.app_version_uploads_and_links == "ON"}checked="checked"{/if}/> On &nbsp; 
+			  <input type="radio" name="app_version_uploads_and_links" value="OFF" {if $config_settings.app_version_uploads_and_links == "OFF"}checked="checked"{/if}/> Off
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Interval Between Fedora Versions</th>
+			<td>
+			  <input type="text" name="app_version_time_interval" value="{$config_settings.app_version_time_interval|escape:"html"}" size="10" /> (seconds)
+			  {include file="error_icon.tpl.html" field="app_version_time_interval"}
+			</td>
+		  </tr>
+		 </tbody>
+		</table>
+		</div>
 
 
 
-                <div id="researcherid" style="display: none;">
-                <table width="100%" class="admin-edit">
-                 <thead>
-                  <tr>
-                        <th colspan="2">
-                          <h2>ResearcherID Web Service Settings</h2>
-                        </th>
-                  </tr>
-                 </thead>
-                 <tbody>
-                  <tr>
-                        <td colspan="2">
-                          <h3>General Settings</h3>
-                          <p>General settings for the ResearcherID web service.</p>
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Enabled</th>
-                        <td>
-                          <select name="rid_enabled">
-                            <option value="false"{if $config_settings.rid_enabled == "false"} selected="selected"{/if}>No</option>
-                                <option value="true"{if $config_settings.rid_enabled == "true"} selected="selected"{/if}>Yes</option>
-                          </select>
-                          <br />Enable ResearcherID web service features. This means you can create ResearcherID profiles and download publications from ResearcherID.  
-                          when managing authors.
-                          {include file="error_icon.tpl.html" field="rid_enabled"}
-                        </td>
-                  </tr>
-                  <tr>
-                        <td colspan="2">
-                         <p><br /></p>
-                        </td>
-                  </tr>
-                  <tr>
-                        <td colspan="2">
-                          <h3>Batch Download Settings</h3>
-                          <p>Settings for the ResearcherID Batch download service.</p>
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Username</th>
-                        <td>
-                          <input type="text" name="rid_dl_service_username" value="{$config_settings.rid_dl_service_username|escape:"html"}" size="20" />
-                          <br />The username you use to authenticate to the ResearcherID web service.
-                          {include file="error_icon.tpl.html" field="rid_dl_service_username"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Password</th>
-                        <td>
-                          <input type="password" name="rid_dl_service_password" value="{$config_settings.rid_dl_service_password|escape:"html"}" size="20" />
-                          <br />The password you use to authenticate to the ResearcherID web service.
-                          {include file="error_icon.tpl.html" field="rid_dl_service_password"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Web Service URL</th>
-                        <td>
-                          <input type="text" name="rid_dl_service_url" value="{$config_settings.rid_dl_service_url|escape:"html"}" size="50" />
-                          <br />The URL of the ResearcherID batch download web service.
-                          {include file="error_icon.tpl.html" field="rid_dl_service_url"}
-                        </td>
-                  </tr>                   
-                  <tr>
-                    <th>Download Request XSD</th>
-                        <td>
-                          <input type="text" name="rid_dl_service_request_xsd" value="{$config_settings.rid_dl_service_request_xsd|escape:"html"}" size="50" />
-                          <br />Local file name and path of the supplied XML schema document for validating the request for data.
-                          {include file="error_icon.tpl.html" field="rid_dl_service_request_xsd"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Download Response XSD</th>
-                        <td>
-                          <input type="text" name="rid_dl_service_response_xsd" value="{$config_settings.rid_dl_service_response_xsd|escape:"html"}" size="50" />
-                          <br />Local file name and path of the supplied XML schema document for validating the response to the request for data.
-                          {include file="error_icon.tpl.html" field="rid_dl_service_response_xsd"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Collection</th>
-                        <td>
-                          <input type="text" name="rid_dl_collection" value="{$config_settings.rid_dl_collection|escape:"html"}" size="10" />
-                          <br />Set this to the PID of the collection the downloaded publications will be added to.
-                          {include file="error_icon.tpl.html" field="rid_dl_collection"}
-                        </td>
-                  </tr>
-                  <tr>
-                        <td colspan="2">
-                         <p><br /></p>
-                        </td>
-                  </tr>
-                  <tr>
-                        <td colspan="2">
-                          <h3>Batch Upload Settings</h3>
-                          <p>Settings for the ResearcherID Batch upload service.</p>
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Username</th>
-                        <td>
-                          <input type="text" name="rid_ul_service_username" value="{$config_settings.rid_ul_service_username|escape:"html"}" size="20" />
-                          <br />The username you use to authenticate to the ResearcherID web service.
-                          {include file="error_icon.tpl.html" field="rid_ul_service_username"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Password</th>
-                        <td>
-                          <input type="password" name="rid_ul_service_password" value="{$config_settings.rid_ul_service_password|escape:"html"}" size="20" />
-                          <br />The password you use to authenticate to the ResearcherID web service.
-                          {include file="error_icon.tpl.html" field="rid_ul_service_password"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Web Service URL</th>
-                        <td>
-                          <input type="text" name="rid_ul_service_url" value="{$config_settings.rid_ul_service_url|escape:"html"}" size="50" />
-                          <br />The URL of the ResearcherID batch upload web service.
-                          {include file="error_icon.tpl.html" field="rid_ul_service_url"}
-                        </td>
-                  </tr>                   
-                  <tr>
-                    <th>Upload Profiles XSD</th>
-                        <td>
-                          <input type="text" name="rid_ul_service_profiles_xsd" value="{$config_settings.rid_ul_service_profiles_xsd|escape:"html"}" size="50" />
-                          <br />Local file name and path of the supplied XML schema document for validating the profiles list.
-                          {include file="error_icon.tpl.html" field="rid_ul_service_profiles_xsd"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Upload Publications XSD</th>
-                        <td>
-                          <input type="text" name="rid_ul_service_publications_xsd" value="{$config_settings.rid_ul_service_publications_xsd|escape:"html"}" size="50" />
-                          <br />Local file name and path of the supplied XML schema document for validating the publications list.
-                          {include file="error_icon.tpl.html" field="rid_ul_service_publications_xsd"}
-                        </td>
-                  </tr>
-                  <tr>
-                    <th>Upload Emails Path</th>
-                        <td>
-                          <input type="text" name="rid_ul_service_routed_email_path" value="{$config_settings.rid_ul_service_routed_email_path|escape:"html"}" size="50" />
-                          <br />The upload service sends its report via email. This is the path the email server stores emails sent by the ResearcherID service.
-                          {include file="error_icon.tpl.html" field="rid_ul_service_routed_email_path"}
-                        </td>
-                  </tr>
-                 </tbody>
-                </table>
-                </div>
+		<div id="researcherid" style="display: none;">
+		<table width="100%" class="admin-edit">
+		 <thead>
+		  <tr>
+			<th colspan="2">
+			  <h2>ResearcherID Web Service Settings</h2>
+			</th>
+		  </tr>
+		 </thead>
+		 <tbody>
+		  <tr>
+			<td colspan="2">
+			  <h3>General Settings</h3>
+			  <p>General settings for the ResearcherID web service.</p>
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Enabled</th>
+			<td>
+			  <select name="rid_enabled">
+			    <option value="false"{if $config_settings.rid_enabled == "false"} selected="selected"{/if}>No</option>
+				<option value="true"{if $config_settings.rid_enabled == "true"} selected="selected"{/if}>Yes</option>
+			  </select>
+			  <br />Enable ResearcherID web service features. This means you can create ResearcherID profiles and download publications from ResearcherID.  
+			  when managing authors.
+			  {include file="error_icon.tpl.html" field="rid_enabled"}
+			</td>
+		  </tr>
+		  <tr>
+			<td colspan="2">
+			 <p><br /></p>
+			</td>
+		  </tr>
+		  <tr>
+			<td colspan="2">
+			  <h3>Batch Download Settings</h3>
+			  <p>Settings for the ResearcherID Batch download service.</p>
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Username</th>
+			<td>
+			  <input type="text" name="rid_dl_service_username" value="{$config_settings.rid_dl_service_username|escape:"html"}" size="20" />
+			  <br />The username you use to authenticate to the ResearcherID web service.
+			  {include file="error_icon.tpl.html" field="rid_dl_service_username"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Password</th>
+			<td>
+			  <input type="password" name="rid_dl_service_password" value="{$config_settings.rid_dl_service_password|escape:"html"}" size="20" />
+			  <br />The password you use to authenticate to the ResearcherID web service.
+			  {include file="error_icon.tpl.html" field="rid_dl_service_password"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Web Service URL</th>
+			<td>
+			  <input type="text" name="rid_dl_service_url" value="{$config_settings.rid_dl_service_url|escape:"html"}" size="50" />
+			  <br />The URL of the ResearcherID batch download web service.
+			  {include file="error_icon.tpl.html" field="rid_dl_service_url"}
+			</td>
+		  </tr>		   
+		  <tr>
+		    <th>Download Request XSD</th>
+			<td>
+			  <input type="text" name="rid_dl_service_request_xsd" value="{$config_settings.rid_dl_service_request_xsd|escape:"html"}" size="50" />
+			  <br />Local file name and path of the supplied XML schema document for validating the request for data.
+			  {include file="error_icon.tpl.html" field="rid_dl_service_request_xsd"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Download Response XSD</th>
+			<td>
+			  <input type="text" name="rid_dl_service_response_xsd" value="{$config_settings.rid_dl_service_response_xsd|escape:"html"}" size="50" />
+			  <br />Local file name and path of the supplied XML schema document for validating the response to the request for data.
+			  {include file="error_icon.tpl.html" field="rid_dl_service_response_xsd"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Collection</th>
+			<td>
+			  <input type="text" name="rid_dl_collection" value="{$config_settings.rid_dl_collection|escape:"html"}" size="10" />
+			  <br />Set this to the PID of the collection the downloaded publications will be added to.
+			  {include file="error_icon.tpl.html" field="rid_dl_collection"}
+			</td>
+		  </tr>
+		  <tr>
+			<td colspan="2">
+			 <p><br /></p>
+			</td>
+		  </tr>
+		  <tr>
+			<td colspan="2">
+			  <h3>Batch Upload Settings</h3>
+			  <p>Settings for the ResearcherID Batch upload service.</p>
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Username</th>
+			<td>
+			  <input type="text" name="rid_ul_service_username" value="{$config_settings.rid_ul_service_username|escape:"html"}" size="20" />
+			  <br />The username you use to authenticate to the ResearcherID web service.
+			  {include file="error_icon.tpl.html" field="rid_ul_service_username"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Password</th>
+			<td>
+			  <input type="password" name="rid_ul_service_password" value="{$config_settings.rid_ul_service_password|escape:"html"}" size="20" />
+			  <br />The password you use to authenticate to the ResearcherID web service.
+			  {include file="error_icon.tpl.html" field="rid_ul_service_password"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Web Service URL</th>
+			<td>
+			  <input type="text" name="rid_ul_service_url" value="{$config_settings.rid_ul_service_url|escape:"html"}" size="50" />
+			  <br />The URL of the ResearcherID batch upload web service.
+			  {include file="error_icon.tpl.html" field="rid_ul_service_url"}
+			</td>
+		  </tr>		   
+		  <tr>
+		    <th>Upload Profiles XSD</th>
+			<td>
+			  <input type="text" name="rid_ul_service_profiles_xsd" value="{$config_settings.rid_ul_service_profiles_xsd|escape:"html"}" size="50" />
+			  <br />Local file name and path of the supplied XML schema document for validating the profiles list.
+			  {include file="error_icon.tpl.html" field="rid_ul_service_profiles_xsd"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Upload Publications XSD</th>
+			<td>
+			  <input type="text" name="rid_ul_service_publications_xsd" value="{$config_settings.rid_ul_service_publications_xsd|escape:"html"}" size="50" />
+			  <br />Local file name and path of the supplied XML schema document for validating the publications list.
+			  {include file="error_icon.tpl.html" field="rid_ul_service_publications_xsd"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Upload Emails Path</th>
+			<td>
+			  <input type="text" name="rid_ul_service_routed_email_path" value="{$config_settings.rid_ul_service_routed_email_path|escape:"html"}" size="50" />
+			  <br />The upload service sends its report via email. This is the path the email server stores emails sent by the ResearcherID service.
+			  {include file="error_icon.tpl.html" field="rid_ul_service_routed_email_path"}
+			</td>
+		  </tr>
+		 </tbody>
+		</table>
+		</div>
 
-                <div id="submit" style="display: none;">
-                <br />&nbsp;&nbsp;&nbsp;<input type="submit" name="button" value="Save changes" class="submit" /> &nbsp; <input type="reset" value="Discard changes" /><br /><br />
-                </div>
+		<div id="submit" style="display: none;">
+		<br />&nbsp;&nbsp;&nbsp;<input type="submit" name="button" value="Save changes" class="submit" /> &nbsp; <input type="reset" value="Discard changes" /><br /><br />
+		</div>
 
-        </form>
+	</form>
     </div>
 
 </div>
