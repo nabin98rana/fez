@@ -68,10 +68,12 @@ class FAQ
 			ON
 				faq_group = faq_cat_id
 			ORDER BY
-				faq_group ASC,
+				faq_cat_order ASC,
 				faq_order ASC
 			;
 		";
+		
+		die($stmt);
 		
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
