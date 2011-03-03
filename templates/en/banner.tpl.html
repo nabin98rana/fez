@@ -59,7 +59,8 @@
 				<li{if $active_nav == 'home'} id="nav-focus"{/if}><a href="{$rel_url}">Home</a></li>
 				<li{if $active_nav == 'list'} id="nav-focus"{/if}><a href="{$rel_url}list/">Browse</a></li>
 				<li{if $active_nav == 'search'} id="nav-focus"{/if}><a href="{$rel_url}adv_search.php">Search</a></li>
-				<li{if $active_nav == 'deposit'} id="nav-focus"{/if}><a href="{$rel_url}deposit.php" class="iconized icon-lock-go">Deposit</a></li>
+				<li{if $active_nav == 'help'} id="nav-focus"{/if}><a title="Browse the Frequently Asked Questions section" href="{$rel_url}faq">FAQs</a></li>
+				<li{if $active_nav == 'about'} id="nav-focus"{/if}><a href="{$rel_url}about.php">About</a></li>
 				{if $isUser}
 				  <li{if $active_nav == 'preferences'} id="nav-focus"{/if}><a href="{$rel_url}preferences.php">Preferences</a></li>
 				  {if $isAuthor == 1}<li{if $active_nav == 'mypubs'} id="nav-focus"{/if}><a href="{$rel_url}{$myPubURL}">My Pubs</a></li>{/if}
@@ -67,8 +68,6 @@
 				  {if $isAdministrator}<li{if $active_nav == 'admin'} id="nav-focus"{/if}><a href="{$rel_url}manage/">Administration</a></li>{/if}  
 				  <li><a href="{$rel_url}logout.php">Logout</a></li>
 				{else}
-				  <li{if $active_nav == 'help'} id="nav-focus"{/if}><a title="Browse the Frequently Asked Questions section" href="{$rel_url}faq">FAQs</a></li>
-				  <li{if $active_nav == 'about'} id="nav-focus"{/if}><a href="{$rel_url}about.php">About</a></li>
 				  <li{if $active_nav == 'login'} id="nav-focus"{/if}><a href="{$rel_url}login.php?url={$uri_encoded}">Login</a></li>
 				{/if}
 			</ul>
