@@ -41,7 +41,7 @@
  * @author Lachlan Kuhn <l.kuhn@library.uq.edu.au>
  */
 
-//include_once(APP_INC_PATH . "class.error_handler.php");
+require_once(APP_INC_PATH . "class.misc.php");
 
 class FAQ
 {
@@ -297,6 +297,19 @@ class FAQ
 		$log = FezLog::get();
 		$db = DB_API::get();
 		
+		$answer = nl2br($_POST["answer"]);
+		$config = array('indent' => true,
+						'output-xhtml' => true,
+						'doctype' => omit,
+						'show-body-only' => true,
+						'wrap' => 0
+						);
+		
+		$tidy = new tidy;
+		$tidy->parseString($answer, $config, 'utf8');
+		$tidy->cleanRepair();
+		$answer = Misc::strip_breaks($tidy);
+		
 		$stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "faq_questions
                  (
@@ -307,7 +320,7 @@ class FAQ
                  ) VALUES (
                     " . $db->quote($_POST["category"]) . ",
                     " . $db->quote($_POST["question"]) . ",
-                    " . $db->quote($_POST["answer"]) . ",
+                    " . $db->quote($answer) . ",
                     " . $db->quote($_POST["order"], 'INTEGER') . "
                  );";
 		try {
@@ -327,12 +340,25 @@ class FAQ
 		$log = FezLog::get();
 		$db = DB_API::get();
 		
+		$answer = nl2br($_POST["answer"]);
+		$config = array('indent' => true,
+						'output-xhtml' => true,
+						'doctype' => omit,
+						'show-body-only' => true,
+						'wrap' => 0
+						);
+		
+		$tidy = new tidy;
+		$tidy->parseString($answer, $config, 'utf8');
+		$tidy->cleanRepair();
+		$answer = Misc::strip_breaks($tidy);
+		
 		$stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "faq_questions
                  SET
                     faq_group = " . $db->quote($_POST["category"]) . ",
                     faq_question = " . $db->quote($_POST["question"]) . ",
-                    faq_answer = " . $db->quote($_POST["answer"]) . ",
+                    faq_answer = " . $db->quote($answer) . ",
                     faq_order = " . $db->quote($_POST["order"], 'INTEGER') . "
                  WHERE
                     faq_id=" . $db->quote($_POST["question_id"], 'INTEGER');
