@@ -107,6 +107,10 @@ class Misc
     return $ret;
   }
 
+  function strip_breaks($string)
+  {
+    return preg_replace('#<br\s*?/?>#i', "", $string);
+  }
 
   function addToWhere($sql, $newString, $operator = 'and') 
   {
