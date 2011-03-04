@@ -2096,7 +2096,7 @@ a.author_id_link:hover {
 
 /* Login page stylings */
 
-#secondary-login-unhider {
+#primary-login-unhider, #secondary-login-unhider {
     background: #FEFCEE;
     border: 1px solid #00247D;
     padding: 10px;

@@ -34,7 +34,7 @@ function toggleHideSecondaryLogin()
 <div style="margin-left: auto; margin-right: auto; width: 600px;">
 {if $SHIB_SWITCH == "ON"}
 {if $SHIB_VERSION == "3"}
-<div id="secondary-login-unhider" style="margin: 20px;">					
+<div id="primary-login-unhider">
 	<a href="{$SSP_DIRECT_URL}">Login to {$app_short_org_name} (via {$SHIB_FEDERATION_NAME})</a><br /><br />
 	<a href="{$SSP_URL}">Login via another {$SHIB_FEDERATION_NAME} affiliated institution</a>
 </div>
@@ -197,8 +197,10 @@ function toggleHideSecondaryLogin()
 			// ];
 		    -->
 	    </script>
-
-	    <script type="text/javascript" src="{/literal}{$rel_url}js/shib.js{literal}"></script>
+	    
+	    <div id="shib-login">
+	    	<script type="text/javascript" src="{/literal}{$rel_url}js/shib.js{literal}"></script>
+	    </div>
 
 	<noscript>
 		<!-- Fallback to Shibboleth DS session initiator for non-JavaScript users -->
@@ -272,7 +274,12 @@ function toggleHideSecondaryLogin()
 </form>
 {/if}	
 {/if}
-{if $SHIB_SWITCH == "ON"}<div id="secondary-login-unhider" style="margin: 20px;"><a href="#" onclick="javascript:toggleHideSecondaryLogin(); document.getElementById('username').focus(); return false;">Non-{$app_short_org_name} login (eg Thesis Examiners click here to login instead)</a></div>{/if}
+
+{if $SHIB_SWITCH == "ON"}
+<div id="secondary-login-unhider">
+	<h2>Thesis examiners</h2>
+	If you are a thesis examiner, or you need to bypass the Australian Access Federation with a local UQ eSpace account, <a href="#" onclick="javascript:toggleHideSecondaryLogin(); document.getElementById('username').focus(); return false;">click here to login</a>.
+</div>{/if}
 
 <div id="secondary-login"{if $SHIB_SWITCH == "ON"} style="display: none;"{/if}>
 
@@ -375,11 +382,11 @@ function toggleHideSecondaryLogin()
   </tr>
 </table>
 
-	<div style="padding: 30px;"><a href="mailto:{$smarty.const.APP_ADMIN_EMAIL}?subject={$application_title}: Non-{$app_short_org_name} access request">Request access to the system - for former {$org_short_name} staff and students only</a></div>
-
 </form>
 
 </div>
+
+<div id="request-access" >No access? Former {$org_short_name} staff and students can <a href="mailto:{$smarty.const.APP_ADMIN_EMAIL}?subject={$application_title}: Non-{$app_short_org_name} access request">request it here</a>.</div>
 
 </div>
 
@@ -393,10 +400,8 @@ function setFocus()
         document.getElementById('login_form').passwd.focus();
     } else {
 		{/literal}
-		{if $SHIB_SWITCH == "ON" && SHIB_VERSION != "3"}
-        document.getElementById('idplist').origin.focus();
-		{else}
-        document.getElementById('login_form').username.focus();		
+		{if SHIB_SWITCH != "ON"}
+        	document.getElementById('login_form').username.focus();		
 		{/if}
 		{literal}
     }
