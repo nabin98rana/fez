@@ -1,0 +1,68 @@
+<div class="admin-box">
+
+<h1>Manage Pages</h1>
+
+{if $mode == 'page-edit'}
+
+  <h2>Edit Page</h2>
+  
+  <form id="page_edit_form" method="post" action="{$smarty.server.PHP_SELF}?cat=page-update">
+  
+    <table style="width: 100%" cellspacing="0" cellpadding="0">
+    
+      <tr>
+        <td style="width: 140px;" class="default cell-colour">
+          <b>Title:</b>
+        </td>
+        <td style="background: {$light_color}">
+          <input type="text" name="title" value="{$page.title}" size="80" />
+        </td>
+      </tr>
+
+      <tr>
+        <td style="width: 140px;" class="default cell-colour">
+          <b>Page content:</b>
+        </td>
+        <td style="background: {$light_color}">
+          <textarea name="content" rows="20" cols="80">{$page.content}</textarea>
+        </td>
+      </tr>
+      
+      <tr>
+        <td colspan="2" style="background: {$cell_color}; text-align: center">
+          <input type="submit" class="button" value="Save" />
+          <input type="hidden" name="id" value="{$page.id}" />
+        </td>
+      </tr>
+    </table>
+
+  </form>
+
+{elseif $mode == 'page-list'}
+
+  {if $msg != ''}<div>{$msg}</div>{/if}
+
+  <h2>Select a page to edit:</h2>
+
+  <table style="width: 100%" cellspacing="0" cellpadding="0">  
+    <tr>
+      <td colspan="2">
+        <table style="width: 100%" cellpadding="1" cellspacing="1">
+          {foreach item=i from=$pages name=pages}
+            {cycle values=$cycle assign="row_color"}
+            <tr>
+              <td style="background: {$row_color}" class="default">{$i.title}</td>
+              <td style="background: {$row_color}" class="default"><a href="{$smarty.server.PHP_SELF}?cat=page-edit&amp;id={$i.id}" title="Edit this page">Edit this page</a></td>
+              <td style="background: {$row_color}" class="default"><a href="{$rel_url}{$i.id}" onclick="window.open('{$rel_url}{$i.id}'); return false;">View this page</a></td>
+            </tr>        
+          {foreachelse}
+            <tr><td>There are no pages in the system.</td></tr>
+          {/foreach}
+        </table>
+      </td>
+    </tr>
+  </table>
+
+{/if}
+
+</div>

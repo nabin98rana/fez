@@ -247,7 +247,7 @@ p.centenary { padding: 16px 0 0 0; }
 	color: #dfdfdf !important;
 }
 
-#content p {
+#content p, #content div {
 	margin-bottom: 20px;
 	line-height: 1.4em;
 }
@@ -945,6 +945,10 @@ td.toplinks {background-color: #367FCC;}
 }
 
 /************************* Content Tags *************************/
+
+#custom-content h2 {
+    padding-bottom: 10px;
+}
 
 .table-header {background: #003399;}
 

@@ -6,7 +6,8 @@
 
 	<div class="wrapper">
 		
-		<!--div id="siteinfo" class="vcard">
+		{*
+		<div id="siteinfo" class="vcard">
 			<div class="org fn"><a href="http://www.uq.edu.au/">The University of Queensland</a></div>
 			<address id="uq-address" class="adr"><span class="street-address">Brisbane</span>
 			<span class="locality">St Lucia</span>, <span class="region">QLD</span> <span class="postal-code">4072</span></address>
@@ -74,9 +75,10 @@
 			<p><a href="http://www.uq.edu.au/uqanswers/" class="opacity-toggle"><img src="/images/2009/button-uqanswers.png" width="102" height="28" alt="UQ Answers" /></a></p>
 			<p class="centenary"><a href="http://www.uq.edu.au/centenary/" class="opacity-toggle"><img src="/images/2009/logo-centenary.png" width="102" height="69" alt="UQ Centenary" /></a></p>
 			</div>
-		</div-->
+		</div>
+		*}
 
-		<div id="powered-by">Powered by <a title="Fez website" href="http://fez.library.uq.edu.au/" onclick="javascript:window.open('http://fez.library.uq.edu.au/'); return false;">Fez {$application_version} Software</a> &bull; <a href="{$rel_url}contact.php">Contact us</a> &bull; <a href="{$rel_url}faq">Help</a>
+		<div id="powered-by">Powered by <a title="Fez website" href="http://fez.library.uq.edu.au/" onclick="javascript:window.open('http://fez.library.uq.edu.au/'); return false;">Fez {$application_version} Software</a> &bull; <a href="{$rel_url}contact">Contact us</a> &bull; <a href="{$rel_url}faq">Help</a>
 	
 			<div>Page generated in <!--fez:totaltime-->{$benchmark_total}<!--/fez:totaltime--> seconds {if $total_queries}({$total_queries} queries{if $total_elapsed_secs} taking {$total_elapsed_secs} seconds{/if}){/if} on {$generated_time}</div>
 		

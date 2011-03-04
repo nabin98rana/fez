@@ -33,6 +33,7 @@
               <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/integrity.php'}class="focus" {/if} href="{$rel_url}manage/integrity.php">HERDC Integrity Report</a></li>
             {/if}
             <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/faqs.php'}class="focus" {/if}href="{$rel_url}manage/faqs.php">FAQs</a></li>
+            <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/pages.php'}class="focus" {/if}href="{$rel_url}manage/pages.php">Pages</a></li>
           </ul>
 
           {if $isSuperAdministrator}

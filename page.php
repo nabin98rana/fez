@@ -27,17 +27,24 @@
 // | 59 Temple Place - Suite 330                                          |
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
-// | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
-// |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>,                    |
-// |          Rhys Palmer <r.palmer@library.uq.edu.au>                    |
+// | Authors: Lachlan Kuhn <l.kuhn@library.uq.edu.au>,                    |
 // +----------------------------------------------------------------------+
 //
 //
+
 include_once("config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.db_api.php");
+include_once(APP_INC_PATH . "class.page.php");
+
+$pageID = @$_GET["page"];
+$page = Page::getPage($pageID);
+$title = $page['title'];
+$content = $page['content'];
 
 $tpl = new Template_API();
-
-$tpl->setTemplate("contact.tpl.html");
+$tpl->setTemplate("page.tpl.html");
+$tpl->assign("active_nav", $pageID);
+$tpl->assign("title", $title);
+$tpl->assign("content", $content);
 $tpl->displayTemplate();
