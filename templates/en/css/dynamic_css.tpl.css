@@ -946,8 +946,13 @@ td.toplinks {background-color: #367FCC;}
 
 /************************* Content Tags *************************/
 
-#custom-content h2 {
+#custom-content h2, #maintenance h2 {
     padding-bottom: 10px;
+}
+
+#maintenance {
+    text-align: center;
+    padding: 75px;
 }
 
 .table-header {background: #003399;}
