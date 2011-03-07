@@ -1429,17 +1429,17 @@ class XSD_HTML_Match
 		                    " . $db->quote($_POST["order"]) . ",
 		                    " . $db->quote($_POST["validation_types"]) . ",
 		                    " . $db->quote($_POST["validation_maxlength"], 'INTEGER') . ",
-		                    " . $db->quote($enabled) . ",
-		                    " . $db->quote($indexed) . ",
-		                    " . $db->quote($required) . ",
-		                    " . $db->quote($multiple) . ",
-		                    " . $db->quote($_POST["xsdmf_meta_header_name"]) . ",					
-		                    " . $db->quote($xsdmf_meta_header) . ",
-		                    " . $db->quote($xsdmf_citation_browse) . ",
-		                    " . $db->quote($xsdmf_citation) . ",
-		                    " . $db->quote($xsdmf_citation_bold) . ",
-		                    " . $db->quote($xsdmf_citation_italics) . ",
-		                    " . $db->quote($xsdmf_citation_brackets) . ", ";
+		                    " . $enabled . ",
+		                    " . $indexed . ",
+		                    " . $required . ",
+		                    " . $multiple . ",
+		                    " . $db->quote($_POST["xsdmf_meta_header_name"]) . ",
+		                    " . $xsdmf_meta_header . ",
+		                    " . $xsdmf_citation_browse . ",
+		                    " . $xsdmf_citation . ",
+		                    " . $xsdmf_citation_bold . ",
+		                    " . $xsdmf_citation_italics . ",
+		                    " . $xsdmf_citation_brackets . ", ";
 			if (is_numeric($_POST["xsdmf_citation_order"])) {
 				$stmt .= $db->quote($_POST["xsdmf_citation_order"], 'INTEGER') . ", ";
 			}
@@ -1483,9 +1483,9 @@ class XSD_HTML_Match
 				$stmt .= $db->quote($_POST["xsdmf_cvo_save_type"]) . ",";
 			}
 			$stmt .= $db->quote($xsdmf_use_org_to_fill) . ",
-							" . $db->quote($xsdmf_use_parent_option_list) . ",					
-		                    " . $db->quote($valueintag) . ",
-		                    " . $db->quote($is_key) . ",
+							" . $xsdmf_use_parent_option_list . ",
+		                    " . $valueintag . ",
+		                    " . $is_key . ",
 		                    " . $db->quote($_POST["xsdmf_data_type"]) . ",
 		                    " . $db->quote($_POST["parent_key_match"]) . ",
 		                    " . $db->quote($_POST["key_match"]) . ",";
@@ -1956,21 +1956,21 @@ class XSD_HTML_Match
 		                    xsdmf_order = " . $db->quote($_POST["order"], 'INTEGER') . ",
 		                    xsdmf_date_type = " . $db->quote($_POST["xsdmf_date_type"], 'INTEGER') . ",					
 		                    xsdmf_cvo_id = " . $db->quote($_POST["xsdmf_cvo_id"], 'INTEGER') . ",					
-		                    xsdmf_use_org_to_fill = " . $db->quote($xsdmf_use_org_to_fill) . ",
-		                    xsdmf_use_parent_option_list = " . $db->quote($xsdmf_use_parent_option_list, 'INTEGER') . ",
-		                    xsdmf_required = " . $db->quote($required) . ",
-		                    xsdmf_indexed = " . $db->quote($indexed) . ",
-		                    xsdmf_enabled = " . $db->quote($enabled) . ",
+		                    xsdmf_use_org_to_fill = " . $xsdmf_use_org_to_fill . ",
+		                    xsdmf_use_parent_option_list = " . $xsdmf_use_parent_option_list . ",
+		                    xsdmf_required = " . $required . ",
+		                    xsdmf_indexed = " . $indexed . ",
+		                    xsdmf_enabled = " . $enabled . ",
 		                    xsdmf_meta_header_name = " . $db->quote($_POST["xsdmf_meta_header_name"]) . ",
-		                    xsdmf_meta_header = " . $db->quote($xsdmf_meta_header) . ",
-		                    xsdmf_citation_browse = " . $db->quote($xsdmf_citation_browse) . ",
-		                    xsdmf_citation = " . $db->quote($xsdmf_citation) . ",
-		                    xsdmf_citation_bold = " . $db->quote($xsdmf_citation_bold) . ",
-		                    xsdmf_citation_italics = " . $db->quote($xsdmf_citation_italics) . ",										
-		                    xsdmf_citation_brackets = " . $db->quote($xsdmf_citation_brackets) . ",
+		                    xsdmf_meta_header = " . $xsdmf_meta_header . ",
+		                    xsdmf_citation_browse = " . $xsdmf_citation_browse . ",
+		                    xsdmf_citation = " . $xsdmf_citation . ",
+		                    xsdmf_citation_bold = " . $xsdmf_citation_bold . ",
+		                    xsdmf_citation_italics = " . $xsdmf_citation_italics . ",
+		                    xsdmf_citation_brackets = " . $xsdmf_citation_brackets . ",
 		                    xsdmf_citation_prefix = " . $db->quote($_POST["xsdmf_citation_prefix"]) . ",
 		                    xsdmf_citation_suffix = " . $db->quote($_POST["xsdmf_citation_suffix"]) . ",
-		                    xsdmf_multiple = " . $db->quote($multiple) . ",";
+		                    xsdmf_multiple = " . $multiple . ",";
 			if ($_POST["multiple_limit"] != "") {
 				$stmt .= " xsdmf_multiple_limit = " . $db->quote($_POST["multiple_limit"], 'INTEGER') . ",";
 			}
@@ -2022,11 +2022,11 @@ class XSD_HTML_Match
 				$stmt .= " xsdmf_selected_option = " . $db->quote($_POST["selected_option"]) . ",";
 			}
 			$stmt .= "
-		                    xsdmf_valueintag = " . $db->quote($valueintag) . ",
-		                    xsdmf_is_key = " . $db->quote($is_key) . ",
-		                    xsdmf_show_in_view = " . $db->quote($show_in_view) . ",
-		                    xsdmf_invisible = " . $db->quote($invisible) . ",
-		                    xsdmf_show_simple_create = " . $db->quote($show_simple_create) . ",
+		                    xsdmf_valueintag = " . $valueintag . ",
+		                    xsdmf_is_key = " . $is_key . ",
+		                    xsdmf_show_in_view = " . $show_in_view . ",
+		                    xsdmf_invisible = " . $invisible . ",
+		                    xsdmf_show_simple_create = " . $show_simple_create . ",
 		                    xsdmf_key_match = " . $db->quote($_POST["key_match"]) . ",
 		                    xsdmf_parent_key_match = " . $db->quote($_POST["parent_key_match"]) . ",
 		                    xsdmf_data_type = " . $db->quote($_POST["xsdmf_data_type"]) . ",";

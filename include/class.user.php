@@ -880,7 +880,7 @@ class User
 			} else {
 				$usr_super_administrator = 'FALSE';
 			}
-			$superAdminUpdateStatement = "usr_super_administrator=" . $db->quote($usr_super_administrator) . ", ";
+			$superAdminUpdateStatement = "usr_super_administrator=" . $usr_super_administrator . ", ";
 		} else {
 			$superAdminUpdateStatement = "";
 		}
@@ -896,9 +896,9 @@ class User
                     usr_username=" . $db->quote($_POST["username"]) . ",
                     usr_full_name=" . $db->quote($_POST["full_name"]) . ",
                     usr_email=" . $db->quote($_POST["email"]) . ",
-                    usr_administrator=" . $db->quote($usr_administrator) . ",
+                    usr_administrator=" . $usr_administrator . ",
                     " . $superAdminUpdateStatement . "
-                    usr_ldap_authentication=" . $db->quote($ldap_authentication);
+                    usr_ldap_authentication=" . $ldap_authentication;
 
 		if ((!empty($_POST["password"])) && (($_POST["change_password"]))) {
 			$stmt .= ",
@@ -1000,9 +1000,9 @@ class User
                     " . $db->quote(Date_API::getCurrentDateGMT()) . ",
                     " . $db->quote($_POST["full_name"]) . ",
                     " . $db->quote($_POST["email"]) . ",
-                    " . $db->quote($usr_administrator) . ",
-                    " . $db->quote($usr_super_administrator) . ",
-                    " . $db->quote($ldap_authentication) . ",
+                    " . $usr_administrator . ",
+                    " . $usr_super_administrator . ",
+                    " . $ldap_authentication . ",
                     " . $db->quote($prefs) . ",
                     " . $db->quote($_POST["username"]);
 		if (!empty($_POST["password"]))  {
@@ -1170,8 +1170,8 @@ class User
                     " . $db->quote(Date_API::getCurrentDateGMT()) . ",
                     " . $db->quote(ucwords(strtolower($usr_full_name))) . ",
                     " . $db->quote($usr_email) . ",
-                    " . $db->quote($usr_administrator) . ",
-                    " . $db->quote($ldap_authentication) . ",
+                    " . $usr_administrator . ",
+                    " . $ldap_authentication . ",
                     " . $db->quote($prefs) . ",
                     " . $db->quote($usr_username) . ",
                     " . $db->quote($usr_username) . ",
@@ -1224,8 +1224,8 @@ class User
                     " . $db->quote(Date_API::getCurrentDateGMT()) . ",
                     " . $db->quote(ucwords(strtolower($userDetails['displayname']))) . ",
                     " . $db->quote($userDetails['email']) . ",
-                    " . $db->quote($usr_administrator) . ",
-                    " . $db->quote($ldap_authentication) . ",
+                    " . $usr_administrator . ",
+                    " . $ldap_authentication . ",
                     " . $db->quote($prefs) . ",
                     " . $db->quote($_POST["username"]) . ",
 					1,

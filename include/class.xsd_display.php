@@ -377,7 +377,7 @@ class XSD_Display
                  SET 
                     xdis_title = " . $db->quote($params["xdis_title"]) . ",
                     xdis_version = " . $db->quote($params["xdis_version"]) . ",
-					xdis_enabled = " .$db->quote($xdis_enabled) . ",
+					xdis_enabled = " . $xdis_enabled . ",
 					xdis_object_type = " .$db->quote($params["xdis_object_type"], 'INTEGER') . "
                  WHERE xdis_id = ".$db->quote($xdis_id, 'INTEGER');
 
