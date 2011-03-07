@@ -59,69 +59,83 @@ $tpl->assign("isAdministrator", $isAdministrator);
 $tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 $tpl->assign("active_nav", "admin");
 
+$pagerRow = Pager::getParam('pagerRow',$params);
+if (empty($pagerRow)) {
+    $pagerRow = 0;
+}
+$rows = Pager::getParam('rows',$params);
+if (empty($rows)) {
+    $rows = APP_DEFAULT_PAGER_SIZE;
+}
+$options = Pager::saveSearchParams($params);
+$tpl->assign("options", $options);
+
 if ($isAdministrator) {
 
-    $type = @$_GET['type'];
-    $action = @$_GET['action'];
-    if ($type == 'J' || $type == 'C') {
+    $type = Misc::GETorPOST('type');
+    $action = Misc::GETorPOST('action');
+    
+    if ($action == 'edit') {
+        $recordDetails = Record::getDetailsLite(Misc::GETorPOST('pid'));
+        $pid = $recordDetails[0]['rek_pid'];
+        $tpl->assign("pid", $pid);
+        if ($type == 'C') {
+            $mapping = Record::getRankedConference($pid);
+            $listing = Conference::getConferences();
+        } elseif ($type == 'J') {
+            $mapping = Record::getRankedJournal($pid);
+            $listing = Journal::getJournals();
+        }
+        $tpl->assign("mapping", $mapping);
+        $tpl->assign("list", $listing);
+        $tpl->assign("citation", $recordDetails[0]['rek_citation']);
+        $tpl->assign("show", "edit-screen");
         
-        if ($action == 'edit') {
-            $recordDetails = Record::getDetailsLite(Misc::GETorPOST('pid'));
-            $pid = $recordDetails[0]['rek_pid'];
-            $tpl->assign("pid", $pid);
-            if ($type == 'C') {
-                $mapping = Record::getRankedConference($pid);
-                $listing = Conference::getConferences();
-            } elseif ($type == 'J') {
-                $mapping = Record::getRankedJournal($pid);
-                $listing = Journal::getJournals();
-            }
-            $tpl->assign("mapping", $mapping);
-            $tpl->assign("list", $listing);
-            $tpl->assign("citation", $recordDetails[0]['rek_citation']);
-            $tpl->assign("show", "edit-screen");
-            
-        } elseif ($action == 'save') {
-            Matching::save();
-            
-        } elseif ($action == 'new') {
-            
-            $message = '';
-            $pid = Misc::GETorPOST('pid');
-            $recordDetails = Record::getDetailsLite($pid);
-            $tpl->assign("pid", $pid);
-            
-            if (empty($recordDetails)) {
-                $message = "The PID you entered could not be found. Click back and ensure you have entered a valid PID.";
-            }
-            
-            if ($type == 'C') {
-                $mapping = Record::getRankedConference($pid);
-                $listing = Conference::getConferences();
-            } elseif ($type == 'J') {
-                $mapping = Record::getRankedJournal($pid);
-                $listing = Journal::getJournals();
-            }
-            
-            if (isset($mapping['status'])) {
-                $message = "Cannot create a mapping for this PID, as one already exists. Return to the previous screen to edit it.";
-            } 
-            
-            $tpl->assign("mapping", $mapping);
-            $tpl->assign("list", $listing);
-            $tpl->assign("citation", $recordDetails[0]['rek_citation']);
-            $tpl->assign("message", $message);
-            $tpl->assign("show", "new-screen");
-            
-        } elseif ($action == 'add') {
-            Matching::add();
-            
-        } else {
-            $tpl->assign("matches", Matching::getAllMatches($type));
+    } elseif ($action == 'save') {
+        Matching::save();
+        
+    } elseif ($action == 'new') {
+        $message = '';
+        $pid = Misc::GETorPOST('pid');
+        $recordDetails = Record::getDetailsLite($pid);
+        $tpl->assign("pid", $pid);
+        
+        if (empty($recordDetails)) {
+            $message = "The PID you entered could not be found. Click back and ensure you have entered a valid PID.";
         }
         
+        if ($type == 'C') {
+            $mapping = Record::getRankedConference($pid);
+            $listing = Conference::getConferences();
+        } elseif ($type == 'J') {
+            $mapping = Record::getRankedJournal($pid);
+            $listing = Journal::getJournals();
+        }
+        
+        if (isset($mapping['status'])) {
+            $message = "Cannot create a mapping for this PID, as one already exists. Return to the previous screen to edit it.";
+        } 
+        
+        $tpl->assign("mapping", $mapping);
+        $tpl->assign("list", $listing);
+        $tpl->assign("citation", $recordDetails[0]['rek_citation']);
+        $tpl->assign("message", $message);
+        $tpl->assign("show", "new-screen");
+        
+    } elseif ($action == 'add') {
+        Matching::add();
+        
+    } elseif ($action == 'search') {
+        $filter = Pager::getParam('search_filter',$params);
+        $tpl->assign("search_filter", $filter);
+        $matches = Matching::getAllMatches($pagerRow, $rows, $filter);
+        $tpl->assign("matches", $matches['list']);
+        $tpl->assign("list_info", $matches['list_info']);
+        
     } else {
-        $tpl->assign("show", "select-screen");
+        $matches = Matching::getAllMatches($pagerRow, $rows);
+        $tpl->assign("matches", $matches['list']);
+        $tpl->assign("list_info", $matches['list_info']);
     }
     
     $tpl->assign("match_type", $type);
