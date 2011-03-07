@@ -1,0 +1,986 @@
+/*--------------------------------
+	General
+--------------------------------*/
+
+/* YKJ: IE has a different H1 font size, therefore fix it here */
+
+/* maybe we can optimize this with a IE CSS switch */
+
+
+body {
+	font-family: "Lucida Grande", Verdana, Arial, sans-serif;
+	font-size: small;
+	background: #fefefe;
+	color: #333;
+}
+
+/*--------------------------------
+	Personal Toolbar
+--------------------------------*/
+
+#toolbar {
+	position: relative;
+	top: -115px;
+	font-size: 13px;
+	line-height: 27px;
+}
+
+#p-bar {
+	position: relative;
+	margin: 0 auto;
+	width: 970px;
+	height: 28px;
+	text-align: right;
+	padding-right: 12px;
+	border-right: 2px solid #d2d2d2;
+	border-bottom: 2px solid #d2d2d2;
+	border-left: 2px solid #d2d2d2;
+	background: #f2f2f2 url([[$smarty.const.APP_RELATIVE_URL]]images/bg-toolbar.png) top left repeat-x;
+}
+
+.p-elements {
+	float: right;
+	margin-left: 25px;
+}
+
+p.home {
+	position: absolute;
+	top: 0px;
+	left: 10px;
+}
+
+.login_link {
+	color: #0D63FF;
+	background-color: transparent;
+	border: none;
+	cursor: pointer;
+}
+
+.flash_message {
+font-family: "Lucida Grande", Verdana, Arial, sans-serif;
+font-size: 13px;
+color: black;
+border: 2px solid yellow;
+background-color: #ffffee;
+width: 100%;
+text-align: center;
+}
+
+
+/*--------------------------------
+	Quick Filter Form
+--------------------------------*/
+
+#quick-search {
+	position: relative;
+	/*background: #f2f2f2;*/
+	background: #f2f2f2 url([[$smarty.const.APP_RELATIVE_URL]]images/bg-searchbox.png) top left repeat-x;
+	margin-bottom: 2em;
+	border-top: 2px solid #d2d2d2;
+	border-right: 2px solid #d2d2d2;
+	border-bottom: 2px solid #d2d2d2;
+	border-left: 2px solid #d2d2d2;
+	padding: 15px;
+	font-size: 90%;
+}
+
+#quick-search p {
+	width: 500px;
+	text-align: left;
+}
+
+/*
+#quick-search form {
+	position: absolute;
+	top: 13px;
+	right: 15px;
+	width: 400px;
+	text-align: right;
+	border:1px solid red;
+}
+*/
+
+#quick-search input#search-field {
+	width: 175px;
+	border-top: 1px solid #b2b2b2;
+	border-right: 1px solid #d2d2d2;
+	border-bottom: 1px solid #d2d2d2;
+	border-left: 1px solid #d2d2d2;
+	padding: 0.25em;
+	font-size: 12px;
+	color: #333;
+	background: #fff url([[$smarty.const.APP_RELATIVE_URL]]images/bg-field.png) top left repeat-x;
+}
+
+
+/*--------------------------------
+	Content
+--------------------------------*/
+
+/* General */
+
+.boxes, 
+.floated-boxes {
+	margin-bottom: 2em;
+	background: #f2f2f2;
+}
+
+.floated-boxes {
+	float: left;
+}
+
+.boxes {
+	clear: left;
+}
+
+.floated-boxes h2 {
+	margin: 0px;
+	background: [[$smarty.const.APP_DARK_COLOR]] url([[$smarty.const.APP_RELATIVE_URL]]images/bg-smallboxes-top.png) top left no-repeat;
+	color: white;
+	font-size: 18px;
+	padding: 20px 0 5px 15px;
+}
+
+.boxes h2 {
+	background: [[$smarty.const.APP_DARK_COLOR]] url([[$smarty.const.APP_RELATIVE_URL]]images/bg-boxes-top.png) top left no-repeat;
+	color: white;
+	font-size: 18px;
+	padding: 20px 0 5px 15px;
+}
+
+ul.box-tab {
+	margin-top: 0.5em;
+	background: transparent url([[$smarty.const.APP_RELATIVE_URL]]images/bg-tab-nav.png) bottom left repeat-x;
+}
+
+ul.box-tab li {
+	float: left;
+	margin-left: 15px;
+	display: inline;
+	padding: 5px 17px 7px;
+	background: transparent url([[$smarty.const.APP_RELATIVE_URL]]images/tab-arrow.gif) 5px 50% no-repeat;
+}
+
+ul.box-tab li a {
+	text-decoration: none;
+	font-size: 13px;
+	color: #555;
+}
+
+ul.box-tab li a:hover {
+	text-decoration: underline;
+	background: none;
+}
+
+ul.box-tab li.box-tab-active {
+	background: #e5e5e5;
+	border-top: 2px solid #d6d6d6;
+	border-right: 2px solid #d6d6d6;
+	border-left: 2px solid #d6d6d6;
+}
+
+ul.box-tab li.box-tab-active a {
+	text-decoration: none;
+}
+
+.box-content {
+	padding: 1.5em 0;
+	background: #e5e5e5;
+	list-style: none;
+}
+
+/* Startpage */
+
+#first-box {
+	width: 465px;
+	padding-top: 15px;
+	background: none !important;
+}
+
+#first-box h1 { 
+	margin-bottom: 0.5em;	
+}
+
+#first-box p {
+	margin-bottom: 1em;
+	line-height: 1.5em;
+}
+
+/* Search-Box */
+
+#search-box {
+	margin-top: 0px;
+	margin-bottom: 25px;
+}
+
+#searchbox-content, #searchbox-content-digilib {
+	position: relative;
+	background: #f2f2f2 url([[$smarty.const.APP_RELATIVE_URL]]images/bg-searchbox.png) top left repeat-x;
+	padding: 20px;
+	border-top: 2px solid #d2d2d2;
+	border-right: 2px solid #d2d2d2;
+	border-bottom: 2px solid #d2d2d2;
+	border-left: 2px solid #d2d2d2;
+}
+
+#searchbox-content-digilib {
+	width: 450px;
+}
+
+#search-box form {
+	margin-bottom: 20px;
+}
+
+#search-box p.advanced-search-link {
+	margin-bottom: 0px;
+}
+
+#search-box #search-field {
+	width: 325px;
+	border-top: 1px solid #b2b2b2;
+	border-right: 1px solid #b2b2b2;
+	border-bottom: 1px solid #b2b2b2;
+	border-left: 1px solid #b2b2b2;
+	padding: 0.25em;
+	font-size: 14px;
+	color: #333;
+	background: #fff;
+}
+
+#search-box label {
+	display: block;
+	font-size: 13px;
+	margin-bottom: 10px;
+}
+
+#search-box #submit-button {
+	margin-left: 10px;
+	padding: 0.25em;
+}
+
+a.icon-help {
+	text-decoration: none;
+	color: #fff;
+	
+}
+
+a.icon-help img {
+	border: 0;
+	margin-right: 0.5em;
+}
+
+/* Snapshot-Box */
+
+#snapshot-box, #snapshot-box-digilib {
+	padding: 0px;
+	margin: 0px;
+	width: 465px;
+	margin-left: 25px;
+	padding-bottom: 15px;
+	padding-top: 0px;
+	background: #f2f2f2 url([[$smarty.const.APP_RELATIVE_URL]]images/bg-smallboxes-bottom.png) bottom left no-repeat;
+}
+
+#snapshot-box-digilib {
+	margin-left: 40px;
+	margin-top: 15px;
+}
+
+#snapshot-box .box-content {
+	margin: 0px;
+	padding: 20px 10px 10px -10px;
+	border-right: 2px solid #d6d6d6;
+	border-bottom: 2px solid #d6d6d6;
+	border-left: 2px solid #d6d6d6;
+}
+
+#snapshot-box .box-content p {
+	margin-bottom: 1.5em;
+	line-height: 1.25em;
+}
+
+#snapshot-box .box-content ol {
+	margin-left: 25px;
+}
+
+#cloud-tag {
+	padding: 15px;
+}
+
+/* Browse-Box */
+
+#browse-box {
+	padding-bottom: 15px;
+	background: #f2f2f2 url([[$smarty.const.APP_RELATIVE_URL]]images/bg-boxes-bottom.png) bottom left no-repeat;
+	visibility: hidden;
+}
+
+#browse-box .box-content {
+	border-right: 2px solid #d6d6d6;
+	border-bottom: 2px solid #d6d6d6;
+	border-left: 2px solid #d6d6d6;
+}
+
+.browse-item {
+	float: left;
+	width: 300px;
+	margin-left: 15px;
+	line-height: 1.75em;
+}
+
+.browse-item2col {
+	float: left;
+	width: 450px;
+	margin-left: 15px;
+	line-height: 1.75em;
+}
+
+.browse-item4col {
+	float: left;
+	width: 150px;
+	margin-left: 15px;
+	line-height: 1.75em;
+}
+
+.rowlist {
+	float: left;
+	width: 300px;
+	margin-left: 15px;
+	line-height: 1.75em;
+}
+
+/* List */
+
+
+
+.page-anker {
+	position: absolute;
+	top: 15px;
+	right: 15px;
+	width: 75px;
+	text-align: right;
+}
+
+.page-anker img {
+	border: 0;
+}
+
+.page-anker a {
+	text-decoration: none;
+}
+
+.results-object {
+	margin-bottom: 0em;
+}
+
+.results-object h3 {
+	margin-top:2em;
+	margin-bottom: 0.9em;
+}
+.results-object .checkbox {
+	float:left;
+	margin-top:0.25em;
+	margin-right:0.5em;
+}
+.results-object .actions {
+	margin-top:1.5em;
+}
+.results-object p {
+	line-height: 1.25em;
+}
+
+.term-marker {
+	background: #B9FF74;
+}
+
+.object-number {
+
+}
+
+.author {
+	margin-top: 0.75em;
+}
+
+.abstract {
+	margin-top: 0.5em;
+	margin-bottom: 1em;
+}
+
+#didyoumean {
+	background-color:#FFFFCC;
+	border:1px solid #FF9900;
+	padding:0.5em;
+	font-weight:normal;
+}
+
+
+/* Object */
+
+#object-box {
+	margin-bottom: 2em;
+}
+#object-box p {
+	line-height: 1.5em;
+}
+
+#object-box .abstract {
+	margin: 1.5em 0;
+}
+
+#object-box h3 {
+	margin-top: 2em;
+	background: brown;
+	color: #e5e5e5;
+	font-size: 20px;
+	padding: 0.25em 15px;
+}
+
+#object-box h1 {
+	margin: 1em 0 0.75em;
+	font-size: 28px;
+}
+
+#browse-box table {
+	margin: 0 15px;
+	text-align: left;
+	border: 2px solid #d6d6d6;
+	border-collapse: collapse;
+	
+	width: 946px;
+}
+
+#browse-box table th,
+#browse-box table td {
+	padding: 0.5em;
+	border: 2px solid #A2A292;
+		
+	vertical-align: text-top;
+}
+
+#browse-box table th.column1 {
+	width: 25%;
+	background: #A2A292;
+	color: #e5e5e5;
+	border-right: 2px solid #e5e5e5;
+}
+
+#browse-box table th.column2 {
+	width: 75%;
+	background: #A2A292;
+	color: #e5e5e5;
+}
+
+#browse-collection .browse-prev {
+	float: left;
+	width: 490px;
+}
+
+#browse-collection .browse-next {
+	float: left;
+	width: 490px;
+	text-align: right;
+}
+
+#show-comment {
+	position: relative;
+	margin-bottom: 2em;
+	border-top: 2px solid #d2d2d2;
+	border-right: 2px solid #d2d2d2;
+	border-bottom: 2px solid #d2d2d2;
+	border-left: 2px solid #d2d2d2;
+	padding: 15px;
+	font-size: 90%;
+}
+
+#quick-search p {
+	width: 500px;
+	text-align: left;
+}
+
+/* Browse overview */
+
+
+ul li.browse-box-overview ul li {
+	line-height: 1.75em	;
+}
+
+ul li.browse-box-overview ul li a {
+	/*color: #555;*/
+}
+
+#browse-controller {
+	text-align: left;
+}
+
+#browse-controller p {
+	text-align: center;
+	margin: 0 !important;
+	padding: 0 !important;
+}
+
+#browse-controller p.abc {
+	background: #f2f2f2;
+	border-top: 2px solid #d6d6d6;
+	border-right: 2px solid #d6d6d6;
+	border-left: 2px solid #d6d6d6;
+}
+
+#browse-controller p.abc a {
+	padding: 0.25em;
+	color: #555;
+	text-decoration: none;
+}
+
+#browse-controller p.abc a:hover {
+	background: #b2b2b2;
+	color: #fff;
+}
+
+#browse-controller p.abc a.active {
+	background: #727272;
+	color: #fff;
+	text-decoration: none;
+}
+
+#browse-controller p.sub-abc {
+	background: #e5e5e5;
+	border: 2px solid #d6d6d6;
+}
+
+#browse-controller p.sub-abc a {
+	padding: 0.02em;
+	color: #555;
+	text-decoration: none;
+}
+
+#browse-controller p.sub-abc a:hover {  
+	text-decoration: underline;
+	background: none;
+}
+
+/* Static Pages */
+
+#static-container {
+	margin-bottom: 2em;
+}
+
+#static-content {
+	float: left;
+	width: 680px;
+}
+
+#static-container2 #static-content { /* alternative width for static.2.tpl.html */
+	float: left;
+	width: 580px;
+}
+
+#static-sidebar {
+	float: left;
+	width: 250px;
+	margin-left: 50px;
+}
+
+#static-container2 #static-sidebar { /* alternative width for static.2.tpl.html */
+	float: left;
+	width: 350px;
+	margin-left: 50px;
+}
+
+#sidebar-search {
+	margin-bottom: 1.5em;
+}
+
+#sidebar-search input#search-field {
+	border: 1px solid #d2d2d2;
+	padding: 5px;
+	color: #929292;
+}
+
+#static-content h2, #static-content h3 {
+	margin-bottom: 0.75em;
+}
+
+#static-content h2 {
+	margin-top: 15px;
+	font-size: 2em;
+}
+
+#static-content h3 {
+	margin-top: 1.5em;
+	font-size: 1.5em;
+}
+
+#static-content p {
+	margin-bottom: 1.5em;
+	line-height: 1.75em;
+}
+
+#static-sidebar h3 {
+	background: #317DCE url([[$smarty.const.APP_RELATIVE_URL]]images/bg-subnav-boxes-top.png) top left no-repeat;
+	padding: 20px 10px 5px;
+	color: #fff;
+}
+
+#static-container2 #static-sidebar h3 { /* alternative width for static.2.tpl.html */
+	background: #317DCE url([[$smarty.const.APP_RELATIVE_URL]]images/bg-subnav-boxes-top2.png) top left no-repeat;
+	padding: 20px 10px 5px;
+	color: #fff;
+}
+
+#static-sidebar ul li ul {
+	padding-bottom: 16px;
+	background: transparent url([[$smarty.const.APP_RELATIVE_URL]]images/bg-subnav-boxes-bottom.png) bottom left no-repeat;
+}
+
+#static-container2 #static-sidebar ul li ul { /* alternative width for static.2.tpl.html */
+	padding-bottom: 16px;
+	background: transparent url([[$smarty.const.APP_RELATIVE_URL]]images/bg-subnav-boxes-bottom2.png) bottom left no-repeat;
+}
+
+#static-sidebar ul li ul li {
+	border-right: 2px solid #d2d2d2;
+	border-bottom: 1px solid #d2d2d2;
+	border-left: 2px solid #d2d2d2;
+	background: #fff;
+}
+
+#static-sidebar ul li ul li.sub-plus {
+	border-bottom: none !important;
+}
+
+#static-sidebar ul li ul li a {
+	line-height: 2.5em;
+	text-decoration: none;
+	color: #727272;
+	margin-left: 15px;
+}
+
+#static-sidebar ul li ul li a:hover {
+	text-decoration: underline;
+	background: none	;
+}
+
+
+#static-sidebar ul li ul li.active {
+	/*background: #d6d6d6;*/
+	background: #e5e5e5;
+}
+
+#static-sidebar ul li ul li.active a:hover {
+	text-decoration: none;
+}
+
+#static-sidebar ul li ul li ul {
+	border-top: 1px solid #d2d2d2 !important; /* not IE6 compatible! */
+	border-bottom: 1px solid #d2d2d2 !important; /* not IE6 compatible! */
+	margin: 0 !important;
+	padding: 0 !important;
+	border: 0;
+	background: #fff;
+	list-style: inside;
+	list-style-type: square;
+	color: #727272;
+}
+
+#static-sidebar ul li ul li ul li {
+	border: 0;
+	padding-left: 15px;
+}
+
+#static-sidebar ul li ul li ul li a {
+	margin-left: 0;
+}
+
+/* FAQ */
+
+#faq-index {
+	background: #f2f2f2 url([[$smarty.const.APP_RELATIVE_URL]]images/bg-searchbox.png) top left repeat-x;
+	padding: 15px;
+	border: 2px solid #d2d2d2;
+}
+
+#faq-index ul {
+	
+}
+
+#faq-index ul li {
+	line-height: 1.5em;
+}
+
+#faq-index ul li a {
+	text-decoration: none;
+}
+
+.faq-box {
+	position: relative;
+	padding-bottom: 1em;
+	margin-bottom: 2.5em;
+	/*border-bottom: 1px dotted #b2b2b2;*/
+}
+
+
+h3.faq-topic {
+	padding-top: 1em;
+	padding-bottom: 0.75em;
+	/*border-bottom: 1px dotted #b2b2b2;*/
+}
+
+.faq-box h4 {
+	font-size: 1.25em;
+	margin-bottom: 0.5em;
+}
+
+
+.faq-box ul li {
+	line-height: 2em;	
+}
+
+.faq-box ul li.faq-related {
+	background: transparent url([[$smarty.const.APP_RELATIVE_URL]]images/famfamicons/page_white_text.png) left 50% no-repeat;
+	padding-left: 20px;
+}
+
+.faq-box ul li.faq-questions {
+	line-height: 1.5em;
+	background: transparent url([[$smarty.const.APP_RELATIVE_URL]]images/famfamicons/help.png) left 50% no-repeat;
+	padding-left: 20px;
+}
+
+.faq-box ul li.faq-links {
+	line-height: 1.5em;
+	background: transparent url([[$smarty.const.APP_RELATIVE_URL]]images/famfamicons/link_go.png) left 50% no-repeat;
+	padding-left: 20px;
+}
+
+/* Publish Form */
+
+#publish-form fieldset {
+	border: none;
+	border-top: 2px solid #d2d2d2;
+	margin-bottom: 1.5em;
+}
+
+#publish-form fieldset legend {
+	align: left;
+	font-size: 1.5em;
+	font-weight: bold;
+	margin-left: 0 !important;
+	padding-left: 0 !important;
+	padding-right: 0.75em;
+	color: #777;
+}
+
+#publish-form .field-container {
+	margin: 1em 0;
+}
+
+#publish-form .field-box {
+	float: left;
+	width: 400px;
+	background: #EAF5FA;
+	border: 2px solid #CAEAF9;	
+	padding: 20px 20px 25px;
+}
+
+#publish-form .help-box {
+	float: left;
+	width: 170px;
+	margin-left: 30px;
+	background: #fffbb8;
+	font-size: 90%;
+	padding: 15px;
+	border: 2px solid #DEDCA0;
+}
+
+#publish-form .help-box p {
+	margin: 0 !important;
+	line-height: 1.25em;
+}
+
+#publish-form label {
+	display: block;
+	font-weight: bold;
+	margin-bottom: 0.25em;
+}
+
+.text-field {
+	width: 350px;
+	border: 1px solid #b2b2b2;
+	padding: 0.25em;
+	color: #555;
+}
+
+
+#search-options .text-field {
+	float:left;
+}
+
+#publish-form .text-area {
+	width: 350px;
+	height: 100px;
+	border: 1px solid #b2b2b2;
+	padding: 0.25em;
+	color: #555;	
+}
+
+#publish-form .checkbox-field {
+	/*border: 1px solid #b2b2b2;
+	padding: 0.25em;
+	color: #555;*/
+}
+
+#publish-form .buttons {
+	width: auto;
+	font-weight: bold;
+	background: #f2f2f2;
+	border: 1px solid #b2b2b2;
+	padding: 0.25em;
+	color: #555;	
+}
+
+#publish-form #submit {
+	margin-left: 0.5em;
+}
+
+#publish-form #reset {
+	font-weight: normal;
+}
+
+#publish-form label.checkbox-label {
+	display: inline;
+	font-weight: normal;
+	margin-left: 5px;
+}
+
+#publish-form label.error {
+	background: #f00;
+	width: 340px;
+	color: #fff;
+	padding: 5px 10px;
+}
+
+/*--------------------------------
+	Ajax Tabs
+--------------------------------*/
+
+ul.shadetabs{
+	padding: 0px;
+	margin: 0px;
+	margin-top: 0.5em;
+	background: transparent url([[$smarty.const.APP_RELATIVE_URL]]images/bg-tab-nav.png) bottom left repeat-x;
+}
+
+ul.shadetabs li{
+	float: left;
+	margin-left: 15px;
+	display: inline;
+	padding: 5px 13px 7px 12px;
+	background: transparent url([[$smarty.const.APP_RELATIVE_URL]]images/tab-arrow.gif) 5px 50% no-repeat;
+}
+
+ul.shadetabs li a:hover{
+	text-decoration: underline;
+	background: none;
+}
+
+ul.shadetabs li.selected{ /*selected main tab style */
+	background: #e5e5e5;
+	border-top: 2px solid #d6d6d6;
+	border-right: 2px solid #d6d6d6;
+	border-left: 2px solid #d6d6d6;
+}
+
+ul.shadetabs li a.selected{ /*selected main tab style */
+
+}
+
+ul.shadetabs li a.selected:hover{ /*selected main tab style */
+	text-decoration: none;
+}
+
+.tabcontent{
+display:none;
+}
+
+@media print {
+.tabcontent {
+display:block !important;
+}
+}
+
+ul.shadetabs li a{
+	z-index: 1;
+	text-decoration: none;
+	font-size: 13px;
+	color: #555;
+}
+
+.search-element {
+	margin-top: 1em;
+}
+
+.search-element .textfield {
+	width: 25em;
+	border-top: 1px solid #b2b2b2;
+	border-right: 1px solid #d2d2d2;
+	border-bottom: 1px solid #d2d2d2;
+	border-left: 1px solid #d2d2d2;
+	padding: 0.25em;
+	font-size: 12px;
+	color: #333;
+	background: #fff url([[$smarty.const.APP_RELATIVE_URL]]images/bg-field.png) top left repeat-x;
+}
+
+
+/* general horizontal ruler */
+div.hr {
+  border-top:1px dotted #b2b2b2;
+  height:1px;
+  margin-top:2em;
+  margin-bottom:0.1em;
+}
+
+div.hr hr {
+  display: none;
+}
+
+
+/*--------------------------------
+	FAQs scriptaculous styles
+--------------------------------*/
+
+ .altlink {
+  cursor: pointer; 
+ }
+ .c
+ {
+
+cursor:pointer;
+ }
+
+/* citation styles */
+.citation {
+	line-height:1.25em;
+	margin-bottom:1.5em;
+}
+.citation-small {
+	line-height:1.25em;
+	margin-bottom:1.5em;
+}
+
+/* hit highlighting */
+em {
+	font-weight:normal;
+	font-style:normal;
+	background-color:#C6FF9B;
+	padding-left:0.25em;
+	padding-right:0.25em;
+}
+
+a:link, a:visited {
+	text-decoration: none;
+}
+
+a:hover  {
+	text-decoration: underline;
+}

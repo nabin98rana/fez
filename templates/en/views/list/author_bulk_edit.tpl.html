@@ -1,0 +1,234 @@
+{include file="header.tpl.html" extra_title="$list_heading"}
+{include file="navigation.tpl.html"}
+
+<script type="text/javascript">
+<!--
+var page_url = '{$smarty.server.PHP_SELF}';
+var current_page = {if $list_info.current_page != ""}{$list_info.current_page}{else}0{/if};
+var last_page = {if $list_info.last_page != ""}{$list_info.last_page}{else}0{/if};
+{literal}
+
+function resizePager(f)
+{
+    var pagesize = f.page_size.options[f.page_size.selectedIndex].value;
+    window.location.href = page_url + "?" + replaceParam(window.location.href, 'rows', pagesize);
+}
+function goPage(f, new_page)
+{
+    if ((new_page > last_page+1) || (new_page <= 0) ||
+            (new_page == current_page+1) || (!isNumberOnly(new_page))) {
+        f.page.value = current_page+1;
+        return false;
+    }
+    setPage(new_page-1);
+}
+function setPage(new_page)
+{
+    if ((new_page > last_page) || (new_page < 0) ||
+            (new_page == current_page)) {
+        return false;
+    }
+    window.location.href = page_url + "?" + replaceParam(window.location.href, 'pagerRow', new_page);
+}
+function sortList(f, field) {
+    order_by = getSelectedOption(f, field);
+    window.location.href = page_url + "?" + replaceParam(window.location.href, 'order_by', order_by);
+}
+function setTemplate(f, field) {
+    tpl = getSelectedOption(f, field);
+    window.location.href = page_url + "?" + replaceParam(window.location.href, 'tpl', tpl);
+}
+
+{/literal}
+-->
+</script>
+
+<style type="text/css">
+{literal}
+
+.list_heading {
+  font-family: Verdana, Arial, Helvetica, sans-serif;
+  font-style: normal;
+  font-weight: bold;
+  font-size: 11px;
+  margin: 10px;
+vertical-align: middle;
+}
+
+.list_heading img {
+vertical-align: middle;
+  margin: 2px 5px 2px 2px;
+}
+
+.listing {
+  /*border: 1px solid {/literal}{$smarty.const.APP_CELL_COLOR}{literal};*/
+  font-family: Verdana, Arial, Helvetica, sans-serif;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 11px;
+}
+
+.listing_item {
+  border: 1px solid {/literal}{$smarty.const.APP_CELL_COLOR}{literal};
+  margin: 10px;
+  padding: 2px;
+  clear: both;
+}
+
+.li_pid {
+display:none;
+}
+
+.li_title {
+font-weight:bold;
+}
+
+.li_object_type_1, .li_object_type_2, .li_object_type_3 {
+width: 22px;
+height: 22px;
+float:left;
+margin: 5px;
+text-indent: -100px;
+}
+.li_object_type_1 {
+background-image: url('{/literal}{$rel_url}images/community.jpg{literal}');
+}
+.li_object_type_2 {
+background-image: url('{/literal}{$rel_url}images/collection.jpg{literal}');
+}
+.li_object_type_3 {
+background-image: url('{/literal}{$rel_url}images/record.jpg{literal}');
+}
+
+.li_authors {
+float:left;
+}
+
+.li_clear {
+clear:both;
+}
+
+.updating {
+	margin:2px;
+	padding: 2px;
+}
+
+.list_footer {
+background-color: {/literal}{$smarty.const.APP_CELL_COLOR}{literal};
+width: 100%;
+text-align: center;
+}
+
+.list_paging, .list_rows {
+display: table-cell;
+margin: 4px 10px 4px 10px;
+}
+
+.list_numbers {
+  font-family: Verdana, Arial, Helvetica, sans-serif;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 11px;
+  float: left;
+  top: 0px;
+  margin: 4px 4px 4px 4px;
+}
+
+.list_order {
+  float: right;
+  top: 0px;
+  margin: 4px 4px 4px 4px;
+}
+
+div.xsdmf_editor_div {
+ display: table-row;
+}
+
+.xsdmf_edit_widget {
+}
+
+.xsdmf_editor_label {
+ display: table-cell;
+ width: 150px;
+ margin-left: 22px;
+ font-weight: bold;
+ padding: 2px;
+ background-color:  {/literal}{$smarty.const.APP_CELL_COLOR}{literal};
+}
+
+form.xsdmf_editor_input_form  {
+ display: table-cell;
+ padding: 4px;
+ }
+
+{/literal}
+</style>
+
+<script type="text/javascript">
+{$najax_register}
+</script>
+
+<div class="list_heading">
+<img src="{$rel_url}images/community_32.jpg"/> Bulk Edit Authors - {$list_heading}
+</div>
+
+<div class="list_numbers">
+<b>({$list_info.total_rows} results found{if $list_info.end_offset > 0}, {math equation="x + 1" x=$list_info.start_offset|default:0} - {$list_info.end_offset} shown{/if}) ({$list_info.hidden_rows} hidden)</b> 
+</div>
+                   <div class="list_order">
+                   <form name="order_by_form">
+                   <span class="default">Order By </span>
+                   <select class="default" name="order_by" onchange="javascript:sortList(this.form, 'order_by');">
+                       {html_options options=$order_by_list selected=$order_by_default}
+                   </select>
+                   </form>
+                   </div>
+
+<div class="listing">
+{section name="ii" loop=$list}
+{assign var='item' value=$list[ii]}
+	<div class="listing_item">
+	  <div class="li_object_type_{$item.object_type[0]}" >{$item.object_type[0]}</div>
+	  <div class="li_pid">{$item.pid}</div>
+	  <div class="li_title">{$item.title[0]}</div>
+	  <div class="li_description">{$item.description[0]}</div>
+	  <div class="li_submitting_author">{element_editor pid=$item.pid xpath='/NA/submitting_author' 
+	  label='Submitting Author:'}</div>
+	  <div class="li_authors">{element_editor pid=$item.pid xpath='/NA/dc:creator' 
+	  label='Author:'}</div>
+	  <!-- <div class="li_authors">{*element_editor pid=$item.pid xpath='/NA/dc:creator/@authorID' 
+	  label='Author ID:'*}</div> -->
+	  <div class="li_clear">&nbsp;</div>
+	</div>
+{/section}
+</div>
+
+<div class="list_footer">
+                <div class="list_paging">
+                  <input name="first" type="button" value="|&lt;" class="shortcut" onClick="javascript:setPage(0);">
+                  <input name="previous" type="button" value="&lt;&lt;" class="shortcut" onClick="javascript:setPage({$list_info.prev_page});">
+                  <input type="text" name="page" size="3" maxlength="3" value="{math equation="x + 1" x=$list_info.current_page}" style="background: {$cell_color};" class="paging_input" onKeyPress="javascript:return checkPageField(event);">
+                  <input name="go" type="button" value="Go" class="shortcut" onClick="javascript:goPage(this.form, this.form.page.value);">
+                  <input name="next" type="button" value="&gt;&gt;" class="shortcut" onClick="javascript:setPage({$list_info.next_page});">
+                  <input name="last" type="button" value="&gt;|" class="shortcut" onClick="javascript:setPage({$list_info.last_page});">
+                </div><div class="list_rows">
+                  <form name="page_size_form">
+                  <span class="default_white">Rows per Page:</span>
+                  <select name="page_size" class="default" onChange="javascript:resizePager(this.form);">
+                    <option value="5" {if $options.rows == 5}selected{/if}>5</option>
+                    <option value="10" {if $options.rows == 10}selected{/if}>10</option>
+                    <option value="25" {if $options.rows == 25}selected{/if}>25</option>
+                    <option value="50" {if $options.rows == 50}selected{/if}>50</option>
+                    <option value="100" {if $options.rows == 100}selected{/if}>100</option>
+                    <option value="150" {if $options.rows == 150}selected{/if}>150</option>
+                  </select>
+                  <input type="button" value="Set" class="shortcut" onClick="javascript:resizePager(this.form);">
+                  <span class="default_white">Change View:</span><select  name="tpl" onchange="javascript:setTemplate(this.form, 'tpl');">
+                       {html_options options=$tpl_list selected=$smarty.get.tpl}
+                   </select>
+                  </form>
+                </div>
+</div>
+
+{include file="app_info.tpl.html"}
+{include file="footer.tpl.html"}

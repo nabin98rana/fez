@@ -1,0 +1,33 @@
+
+
+<table width="100%" class="admin-box" cellspacing="0" cellpadding="1" align="center">
+<tr><td>
+<table width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="white">
+<tr><td align="left" class="default" ><b>{$record_type}:</b> <a class="link"
+href="{$view_href}">{$title}</a></td>
+</tr>
+{if $parents}
+<tr>
+<td align="left" class="default" > <b>Parent {$parent_type}: </b>
+{section name="i" loop=$parents}
+<a class="link" 
+href="list.php?{$parent_type|lower}_pid={$parents[i].pid}">{$parents[i].title}</a> &nbsp;
+{/section}
+</td>
+</tr>
+{/if}
+<tr> <td width="100%" valign="top"> &nbsp; </td> </tr>
+<tr>
+<td width="100%" valign="top">
+{include file="$type.tpl.html"}
+</td>
+</tr>
+  <tr>
+    <td height="8" valign="top">
+    </td>
+  </tr>
+</table>
+</td>
+</tr>
+</table>
+
