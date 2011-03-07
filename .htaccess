@@ -1,4 +1,15 @@
 RewriteEngine   on
+#############################################################################
+# Maintenance block - uncomment this block to put site in maintenance mode. #
+#############################################################################
+#RewriteCond %{REMOTE_ADDR} !^130.102.44.~YOUR_IP~$      # This IP will not be redirected during maintenance
+RewriteCond %{REQUEST_URI} !^/images/
+RewriteCond %{REQUEST_URI} !^/css/
+RewriteCond %{REQUEST_URI} !^/js/
+RewriteRule     (.*)$                                    maintenance.php [L]
+#############################################################################
+# End maintenance block                                                     #
+#############################################################################
 
 # Custom 404 error page
 ErrorDocument 404 /errors/404
