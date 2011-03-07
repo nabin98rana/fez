@@ -189,17 +189,21 @@ class Author
    * @param   string $username The author username
    * @return  integer The author ID
    */
-  function getIDByUsername($username)
+  function getIDByUsername($username, $exclude = '')
   {
     $log = FezLog::get();
     $db = DB_API::get();
 
     $stmt = "SELECT
-                    aut_id
-                 FROM
-                    " . APP_TABLE_PREFIX . "author
-                 WHERE ";
-      $stmt .= " aut_org_username = ".$db->quote($username);
+                aut_id
+             FROM
+                " . APP_TABLE_PREFIX . "author
+             WHERE
+                aut_org_username = ".$db->quote($username) . " ";
+    if ($exclude != '') {
+      $stmt .= "AND aut_id != " . $db->quote($exclude) . "";
+    }
+      
     try {
       $res = $db->fetchOne($stmt);
     }
@@ -399,6 +403,12 @@ class Author
       }
     }
     
+    if ($_POST["org_username"] !== "") {
+      if (author::getIDByUsername($_POST["org_username"], $_POST["id"])) {
+        return -4;
+      }
+    }
+    
     $rid = "";
     // RIDs are always 11 chars
     if (strlen($_POST["researcher_id"]) == 11 || strlen($_POST["researcher_id"]) == 0) {
@@ -487,6 +497,12 @@ class Author
     if ($_POST["org_staff_id"] !== "") {
       if (author::getIDByOrgStaffID($_POST["org_staff_id"])) {
         return -3;
+      }
+    }
+    
+    if ($_POST["org_username"] !== "") {
+      if (author::getIDByUsername($_POST["org_username"])) {
+        return -4;
       }
     }
     
