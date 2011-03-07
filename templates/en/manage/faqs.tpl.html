@@ -127,7 +127,7 @@ function questionDelete(questionID)
         <td colspan="2" style="background: {$cell_color}; text-align: center">
           {if $mode == 'category-edit'}
             <input type="submit" class="button" value="Update" />
-            <input type="button" class="button" value="Delete" onclick="javascript:categoryDelete({$cat.id});" />
+            <input type="button" class="button" value="Delete" onclick="javascript:{if count($questions) > 0}window.alert('Before you can delete this category, you must either delete all its individual questions, or assign its questions to another category.');{else}categoryDelete({$cat.id});{/if}" />
             <input type="hidden" name="action" value="save" />
             <input type="hidden" name="cat_id" value="{$cat.id}" />
           {elseif $mode == 'category-add'}
