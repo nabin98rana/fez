@@ -273,6 +273,7 @@ class Default_Data
 		$defaultData['app_eventum_database_pass']			= "";
 		$defaultData['app_wos_collections']					= "";
 		$defaultData['app_matching_tools']					= "OFF";
+		$defaultData['app_record_locking']					= "OFF";
 		
 		return $defaultData;
 	}

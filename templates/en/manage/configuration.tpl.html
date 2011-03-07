@@ -520,6 +520,17 @@ function restoreDefaultColours(el)
 			</td>
   		  </tr>
   		  <tr>
+		    <th>Record Locking</th>
+			<td>
+			  <select name="app_record_locking">
+			    <option value="ON"{if $config_settings.app_record_locking == "ON"} selected="selected"{/if}>On</option>
+				<option value="OFF"{if $config_settings.app_record_locking == "OFF"} selected="selected"{/if}>Off</option>
+			  </select>
+			  <br />Enable record locking on edit metadata pages.
+			  {include file="error_icon.tpl.html" field="app_record_locking"}
+			</td>
+  		  </tr>
+  		  <tr>
 		    <th>Matching Tools</th>
 			<td>
 			  <select name="app_matching_tools">

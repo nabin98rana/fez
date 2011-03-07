@@ -43,6 +43,10 @@ class RecordLock
 
 	function getLock($pid, $usr_id, $context=self::CONTEXT_NONE, $extra_context=0)
 	{
+		if (APP_RECORD_LOCKING == 'OFF') {
+			return 1;
+		}
+		
 		$log = FezLog::get();
 		$db = DB_API::get();
 		
