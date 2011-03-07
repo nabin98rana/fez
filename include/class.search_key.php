@@ -198,19 +198,19 @@ class Search_Key
                     " . $db->quote($_POST["sek_desc"]) . ",
 					" . $db->quote($_POST["sek_alt_title"]) . ",
 					" . $db->quote($_POST["sek_meta_header"]) . ",
-					" . $db->quote($sek_simple_used) . ",
-					" . $db->quote($sek_simple_used) . ",
-					" . $db->quote($sek_adv_visible) . ",
-					" . $db->quote($sek_myfez_visible) . ",
-		            " . $db->quote($sek_faceting) . ",";
+					" . $sek_simple_used . ",
+					" . $sek_simple_used . ",
+					" . $sek_adv_visible . ",
+					" . $sek_myfez_visible . ",
+		            " . $sek_faceting . ",";
         if (is_numeric($_POST["sek_order"])) {
             $stmt .= $_POST["sek_order"] . ",";
         }
         if (is_numeric($_POST["sek_relationship"])) {
-            $stmt .= $db->quote($sek_relationship) . ",";
+            $stmt .= $sek_relationship . ",";
         }
         if (is_numeric($_POST["sek_cardinality"])) {
-            $stmt .= $db->quote($sek_cardinality) . ",";
+            $stmt .= $sek_cardinality . ",";
         }
 
         $stmt .= "
@@ -349,19 +349,19 @@ class Search_Key
                     sek_desc = " . $db->quote($_POST["sek_desc"]) . ",
 					sek_alt_title = " . $db->quote($_POST["sek_alt_title"]) . ",
                     sek_meta_header = " . $db->quote($_POST["sek_meta_header"]) . ",
-					sek_simple_used = " . $db->quote($sek_simple_used) . ",
-					sek_bulkchange = " . $db->quote($sek_bulkchange) . ",
-					sek_myfez_visible = " . $db->quote($sek_myfez_visible) . ",
-					sek_adv_visible = " . $db->quote($sek_adv_visible) . ",
-					sek_faceting = " . $db->quote($sek_faceting) . ",";
+					sek_simple_used = " . $sek_simple_used . ",
+					sek_bulkchange = " . $sek_bulkchange . ",
+					sek_myfez_visible = " . $sek_myfez_visible . ",
+					sek_adv_visible = " . $sek_adv_visible . ",
+					sek_faceting = " . $sek_faceting . ",";
         if ($_POST["sek_order"]) {
             $stmt .= "sek_order = " . $db->quote($_POST["sek_order"], 'INTEGER') . ",";
         }
         if (isset($_POST["sek_relationship"])) {
-            $stmt .= "sek_relationship = " . $db->quote($sek_relationship) . ",";
+            $stmt .= "sek_relationship = " . $sek_relationship . ",";
         }
         if (isset($_POST["sek_cardinality"])) {
-            $stmt .= "sek_cardinality = " . $db->quote($sek_cardinality) . ",";
+            $stmt .= "sek_cardinality = " . $sek_cardinality . ",";
         }
 
         $stmt .= "
