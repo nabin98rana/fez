@@ -213,6 +213,8 @@
                       An error occurred while trying to add the new author.
                     {elseif $result == -2}
                       Please enter the title for this new author.
+                    {elseif $result == -3}
+                      Could not create new author - the supplied Organisation Staff ID is already on file for another author.
                     {elseif $result == 1}
                       Thank you, the author was added successfully.
                     {/if}
@@ -221,6 +223,8 @@
                       An error occurred while trying to update the author information.
                     {elseif $result == -2}
                       Please enter the title for this author.
+                    {elseif $result == -3}
+                      Could not save - the supplied Organisation Staff ID is already on file for another author.
                     {elseif $result == 1}
                       Thank you, the author was updated successfully.
                     {/if}

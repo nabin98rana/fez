@@ -209,8 +209,41 @@ class Author
     }
     return $res;
   }
+  
+  /**
+   * Method used to get the author ID of the given author org staff ID.
+   *
+   * @access  public
+   * @param   string $orgStaffID The author org staff ID
+   * @return  integer The author ID
+   */
+  function getIDByOrgStaffID($orgStaffID, $exclude = '')
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
 
-
+    $stmt = "
+              SELECT
+                aut_id
+              FROM
+                " . APP_TABLE_PREFIX . "author
+              WHERE 
+                aut_org_staff_id = " . $db->quote($orgStaffID) . "
+            ";
+    if ($exclude != '') {
+      $stmt .= "AND aut_id != " . $db->quote($exclude) . "";
+    }
+    
+    try {
+      $res = $db->fetchOne($stmt);
+    }
+    catch(Exception $ex) {
+      $log->err($ex);
+      return false;
+    }
+    return $res;
+  }
+  
   /**
    * Method used to get the title of a given author ID.
    *
@@ -359,6 +392,13 @@ class Author
     if (Validation::isWhitespace($_POST["lname"])) {
       return -2;
     }
+    
+    if ($_POST["org_staff_id"] !== "") {
+      if (author::getIDByOrgStaffID($_POST["org_staff_id"], $_POST["id"])) {
+        return -3;
+      }
+    }
+    
     $rid = "";
     // RIDs are always 11 chars
     if (strlen($_POST["researcher_id"]) == 11 || strlen($_POST["researcher_id"]) == 0) {
@@ -443,6 +483,13 @@ class Author
     if (Validation::isWhitespace($_POST["lname"])) {
       return -2;
     }
+    
+    if ($_POST["org_staff_id"] !== "") {
+      if (author::getIDByOrgStaffID($_POST["org_staff_id"])) {
+        return -3;
+      }
+    }
+    
     $insert = "INSERT INTO
                     " . APP_TABLE_PREFIX . "author
                  (
