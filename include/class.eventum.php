@@ -46,17 +46,25 @@ class Eventum
 		if (APP_EVENTUM_SEND_EMAILS != 'ON') {
 			return;
 		}
-		
+
 		// Otherwise, assemble a message for sending.
+		/* Old way - we're swapping this for the Mail_API way.
 		$to      = APP_EVENTUM_NEW_JOB_EMAIL_ADDRESS;
 		$headers = 'From: ' . $from . "\r\n" .
 		'Reply-To: ' . $from . "\r\n" .
 		'X-Mailer: PHP/' . phpversion();
 
-		// Send the email. We could probably use the Mail_API methods, but this will do for now.		
+		// Send the email.
 		if (!mail($to, $subject, $body, $headers)) {
 			die("There was a problem submitting this job to Eventum. Please contact the " . APP_NAME . " Manager.");
 		}
+		*/
+		
+		// Send the email.
+		$mail = new Mail_API;
+		$to = APP_EVENTUM_NEW_JOB_EMAIL_ADDRESS;
+		$mail->setTextBody(stripslashes($body));
+		$mail->send($from, $to, $subject, false);
 		
 		return;
 	}

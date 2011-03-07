@@ -148,10 +148,8 @@ if ($pid == -1) {
     $tpl->assign("pid", $pid);
 
     $record = new RecordObject($pid);
-echo "here";
     if ($record->canCreate()) {
         $tpl->assign("isCreator", 1);
-echo "hmm";
         if ($record->isCommunity()) {
             $ret_id = Object_Type::getID('Collection');
             $workflows = WorkflowTrigger::getFilteredList(-1, array(

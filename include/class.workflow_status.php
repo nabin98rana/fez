@@ -692,7 +692,6 @@ class WorkflowStatusStatic
     try {
       $log->debug($stmt);
       $res = $db->fetchOne($stmt);
-
     }
     catch(Exception $ex) {
       $log->err($ex);
@@ -702,7 +701,6 @@ class WorkflowStatusStatic
       return null;
     }
     $obj = unserialize($res);
-
     if (!is_object($obj) || get_class($obj) != 'WorkflowStatus' ) {
       $log->err(
           "Workflow object is corrupt. get_class: ".get_class($obj).
