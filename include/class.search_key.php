@@ -137,12 +137,12 @@ class Search_Key
         } else {
             $sek_faceting = 'FALSE';
         }
-        if (@$_POST["sek_cardinality"]) {
+        if (@$_POST["sek_cardinality"] == '1') {
             $sek_cardinality = 'TRUE';
         } else {
             $sek_cardinality = 'FALSE';
         }
-        if (@$_POST["sek_relationship"]) {
+        if (@$_POST["sek_relationship"] == '1') {
             $sek_relationship = 'TRUE';
         } else {
             $sek_relationship = 'FALSE';
@@ -327,12 +327,12 @@ class Search_Key
         } else {
             $sek_faceting = 'FALSE';
         }
-        if (@$_POST["sek_cardinality"]) {
+        if (@$_POST["sek_cardinality"] == '1') {
             $sek_cardinality = 'TRUE';
         } else {
             $sek_cardinality = 'FALSE';
         }
-        if (@$_POST["sek_relationship"]) {
+        if (@$_POST["sek_relationship"] == '1') {
             $sek_relationship = 'TRUE';
         } else {
             $sek_relationship = 'FALSE';
