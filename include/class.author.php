@@ -397,13 +397,13 @@ class Author
       return -2;
     }
     
-    if ($_POST["org_staff_id"] !== "") {
+    if (trim($_POST["org_staff_id"] !== "")) {
       if (author::getIDByOrgStaffID($_POST["org_staff_id"], $_POST["id"])) {
         return -3;
       }
     }
     
-    if ($_POST["org_username"] !== "") {
+    if (trim($_POST["org_username"] !== "")) {
       if (author::getIDByUsername($_POST["org_username"], $_POST["id"])) {
         return -4;
       }
@@ -425,17 +425,21 @@ class Author
                     aut_lname=" . $db->quote($_POST["lname"]) . ",
                     aut_display_name=" . $db->quote($_POST["dname"]) . ",
                     aut_position=" . $db->quote($_POST["position"]) . ",
-                    aut_org_username=" . $db->quote($_POST["org_username"]) . ",
                     aut_cv_link=" . $db->quote($_POST["cv_link"]) . ",
                     aut_homepage_link=" . $db->quote($_POST["homepage_link"]) . ",
                     aut_ref_num=" . $db->quote($_POST["aut_ref_num"]) . ",
                     aut_scopus_id=" . $db->quote($_POST["scopus_id"]).",
                     aut_mypub_url=" . $db->quote($_POST["mypub_url"]).",
                     aut_update_date=" . $db->quote(Date_API::getCurrentDateGMT());
-    if ($_POST["org_staff_id"] !== "") {
+    if (trim($_POST["org_staff_id"] !== "")) {
       $stmt .= ",aut_org_staff_id=" . $db->quote($_POST["org_staff_id"]) . " ";
     } else {
       $stmt .= ",aut_org_staff_id=null ";
+    }
+    if (trim($_POST["org_username"] !== "")) {
+      $stmt .= ",aut_org_username=" . $db->quote($_POST["org_username"]) . " ";
+    } else {
+      $stmt .= ",aut_org_username=null ";
     }
     $stmt .= "WHERE
                     aut_id=" . $db->quote($_POST["id"], 'INTEGER');
@@ -494,13 +498,13 @@ class Author
       return -2;
     }
     
-    if ($_POST["org_staff_id"] !== "") {
+    if (trim($_POST["org_staff_id"] !== "")) {
       if (author::getIDByOrgStaffID($_POST["org_staff_id"])) {
         return -3;
       }
     }
     
-    if ($_POST["org_username"] !== "") {
+    if (trim($_POST["org_username"] !== "")) {
       if (author::getIDByUsername($_POST["org_username"])) {
         return -4;
       }
@@ -515,10 +519,10 @@ class Author
                     aut_created_date,
                     aut_display_name";
 
-    if ($_POST["org_staff_id"] !== "") {
+    if (trim($_POST["org_staff_id"] !== "")) {
       $insert .= ", aut_org_staff_id ";
     }
-    if ($_POST["org_username"] !== "") {
+    if (trim($_POST["org_username"] !== "")) {
       $insert .= ", aut_org_username ";
     }
     if ($_POST["mname"] !== "") {
@@ -559,10 +563,10 @@ class Author
       $values .= ", " . $db->quote($_POST["fname"] . ' ' . $_POST["lname"]);
     }
 
-    if ($_POST["org_staff_id"] !== "") {
+    if (trim($_POST["org_staff_id"] !== "")) {
       $values .= ", " . $db->quote($_POST["org_staff_id"]);
     }
-    if ($_POST["org_username"] !== "") {
+    if (trim($_POST["org_username"] !== "")) {
       $values .= ", " . $db->quote($_POST["org_username"]);
     }
     if ($_POST["mname"] !== "") {
