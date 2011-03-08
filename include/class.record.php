@@ -3496,7 +3496,6 @@ class Record
 //      $pattern = '/(?!'.'!'.implode("|!", $solr_titles).')(?<!'.implode("|", $solr_titles).')(\+|-|&&|\|\||!|\{|}|\[|]|\^|"|~|\*|\?|:|\\\)/';
       $replace = '\\\$1';
       $escapedInput = preg_replace($pattern, $replace, $escapedInput);
-        echo $escapedInput;
       // match where there is only only value after the search key, not inside brackets or in double quotes (do that one later) to simplify this code
       $skPattern = '/('.implode("|", $solr_titles).')(?:|:\(|:)"([^"\)\(]+)"\)/';
       $lookups = array();
