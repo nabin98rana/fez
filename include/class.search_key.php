@@ -491,7 +491,7 @@ class Search_Key
         $log = FezLog::get();
         $db = DB_API::get();
         // remove the solr suffix
-        $solr_name = preg_replace('/{_t_s|_mt|_t|_t_s|_dt|_ms|_s|_t_ws|_t_ft|_f|_mws|_ft|_mft|_mtl|_l|_mi|_i|_b|_mdt|_mt_exact}$/', '', $solr_name);
+        $solr_name = preg_replace('/(.*)({_t_s|_mt|_t|_t_s|_dt|_ms|_s|_t_ws|_t_ft|_f|_mws|_ft|_mft|_mtl|_l|_mi|_i|_b|_mdt|_mt_exact}$)/', '$1', $solr_name);
         $solr_name = str_replace("_", " ", trim(strtolower($solr_name)));
 
         $stmt = "SELECT

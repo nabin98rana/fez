@@ -511,8 +511,8 @@ class Controlled_Vocab
                  FROM
                     " . APP_TABLE_PREFIX . "controlled_vocab
                  WHERE
-                    cvo_title=".$db->quote($cvo_title);
-		try {
+                    cvo_title LIKE ".$db->quote($cvo_title."%");
+        try {
 			$res = $db->fetchOne($stmt);
 		}
 		catch(Exception $ex) {
