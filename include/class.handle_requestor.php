@@ -332,9 +332,9 @@ class HandleRequestor {
 					} else {
 		    $message = " with result:\n";
 					}
-					$log = file_get_contents($updateTmpLog);
+					$log_message = file_get_contents($updateTmpLog);
 					$log->err(array("JAHDL Test results: \n Return status = ".$return_status.", for command ".$command.$message.$result.
-					  "\n and log file: \n".$log, __FILE__,__LINE__));
+					  "\n and log file: \n".$log_message, __FILE__,__LINE__));
 				}
 			}
 		}
@@ -356,9 +356,9 @@ class HandleRequestor {
 					} else {
 		    $message = " with result:\n";
 					}
-					$log = file_get_contents($createTmpLog);
+					$log_message = file_get_contents($createTmpLog);
 					$log->err(array("JAHDL Test results: \n Return status = ".$return_status.", for command ".$command.$message.$result.
-					  "\n and log file: \n".$log, __FILE__,__LINE__));
+					  "\n and log file: \n".$log_message, __FILE__,__LINE__));
 				}
 			}
 		}
@@ -380,9 +380,9 @@ class HandleRequestor {
 					} else {
 						$message = " with result:\n";
 					}
-					$log = file_get_contents($deleteTmpLog);
+					$log_message = file_get_contents($deleteTmpLog);
 					$log->err(array("JAHDL Test results: \n Return status = ".$return_status.", for command ".$command.$message.$result.
-					    "\n and log file: \n".$log, __FILE__,__LINE__));
+					    "\n and log file: \n".$log_message, __FILE__,__LINE__));
 				}
 			}
 		}
