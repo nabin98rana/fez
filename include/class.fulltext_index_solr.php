@@ -290,17 +290,21 @@ class FulltextIndex_Solr extends FulltextIndex {
 				}
 				if(in_array('Editor', $approved_roles)) {
 					$editorGroups = Auth::getUserRoleAuthRuleGroupsInUse($usr_id, "Editor");
-					if (is_array($editorGroups)) {
-						$editorGroups = implode(" OR ", $editorGroups);
-						$filterQueryParts[] = "(_autheditor_t:(" .$editorGroups . "))";
-					} else {
-						$filterQueryParts[] = "(_autheditor_t:(" .$rulegroups . "))";
+					if (!empty($editorGroups)) {
+					      if (is_array($editorGroups)) {
+						    $editorGroups = implode(" OR ", $editorGroups);
+						    $filterQueryParts[] = "(_autheditor_t:(" .$editorGroups . "))";
+					      } else {
+						    $filterQueryParts[] = "(_autheditor_t:(" .$rulegroups . "))";
+					      }
 					}
 				}
 				if (in_array('Lister', $approved_roles)) {
 					$listerGroups = Auth::getUserListerAuthRuleGroupsInUse($usr_id);
-					$listerGroups = implode(" OR ", $listerGroups);
-					$filterQueryParts[] = "(_authlister_t:(" . $listerGroups . "))";
+					if (!empty($editorGroups)) {
+					      $listerGroups = implode(" OR ", $listerGroups);
+					      $filterQueryParts[] = "(_authlister_t:(" . $listerGroups . "))";
+					}
 				}
 			} else {
 				$filterQueryParts[] = "(_authlister_t:(" . $rulegroups . "))";
