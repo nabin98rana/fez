@@ -322,7 +322,10 @@ class Apache_Solr_Service
 			if(! $raw_response[0]) {
 				throw new Exception(print_r($raw_response[1], true));
 			}			
+		} elseif (empty($raw_response['http_code']) || $raw_response['http_code'] != '200') {
+			$log->err('Error in solr query/filter: '.print_r($raw_response, true));
 		}
+		
 		$response = new Apache_Solr_Response($raw_response[0], null, $this->_createDocuments, $this->_collapseSingleValueArrays);
 
 		return $response;
@@ -363,6 +366,8 @@ class Apache_Solr_Service
 			if(! $raw_response[0]) {
 				throw new Exception(print_r($raw_response[1], true));
 			}
+		} elseif (empty($raw_response['http_code']) || $raw_response['http_code'] != '200') {
+			$log->err('Error in solr query/filter: '.print_r($raw_response, true));
 		}		
 		$response = new Apache_Solr_Response($raw_response[0], null, $this->_createDocuments, $this->_collapseSingleValueArrays);
 
