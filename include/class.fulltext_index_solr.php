@@ -301,7 +301,7 @@ class FulltextIndex_Solr extends FulltextIndex {
 				}
 				if (in_array('Lister', $approved_roles)) {
 					$listerGroups = Auth::getUserListerAuthRuleGroupsInUse($usr_id);
-					if (!empty($editorGroups)) {
+					if (!empty($listerGroups)) {
 					      $listerGroups = implode(" OR ", $listerGroups);
 					      $filterQueryParts[] = "(_authlister_t:(" . $listerGroups . "))";
 					}
