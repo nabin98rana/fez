@@ -127,6 +127,11 @@ function hideBulk()
 							<img src="{$rel_url}images/scopus_logo_small.gif" title="Scopus Citation Count" alt="Scopus Citation Count" />            
 						{/if}
 			        </th>
+			        <th style="text-align: center; padding: 2px;">
+	          {if $list_info.total_rows > 0}
+		          <img src="{$rel_url}images/thermometer_16.png" title="Search Relevance" alt="Search Relevance" />
+		        {/if}
+		          </th>
 			        <th></th>
 			    </tr>
 		{/if}
@@ -189,6 +194,12 @@ function hideBulk()
 					{$list[i].rek_scopus_citation_count}
 				{/if}
 			</td>
+			
+			<td style="vertical-align: middle; text-align: center;">
+        {if $list[i].Relevance != ""}
+          <span {if $list[i].Relevance_Boosted}class="success"{/if}>{$list[i].Relevance|@number_format:2}</span>
+        {else}-{/if}
+      </td>
 			
 			<td>
 				{if $flagged_possible[$pid].type == 'C'}

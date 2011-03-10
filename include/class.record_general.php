@@ -836,10 +836,11 @@ class RecordGeneral
 	 *                        on this pub, otherwise leave as FALSE. Default is FALSE.
 	 * @param int  $threshold (optional) If the resulting percentage value is greater than the threshold then
 	 *                        a matching author has been identified on this pub. Default is 1 (100%).
+	 * @param int  $keywords  (optional) Whether to include keywords when matching on co-authors. Default is TRUE.
 	 * 
 	 * @return mixed
 	 */
-	function matchAuthor($aut_id, $update = TRUE, $known = FALSE, $threshold = 1)
+	function matchAuthor($aut_id, $update = TRUE, $known = FALSE, $threshold = 1, $keywords = TRUE)
 	{
 	  $log = FezLog::get();
 	  
@@ -920,11 +921,14 @@ class RecordGeneral
     $percent_2 = 0;
     if ($authors_count <= 10) {      
       if (count($co_aut_ids) > 0) {
-        $pids = $this->coAuthored($aut_id, $co_aut_ids, TRUE);
+        $pids = $this->coAuthored($aut_id, $co_aut_ids, $keywords);
         $pid_count = count($pids);
         if ($pid_count > 0) {
           $percent_2 = 1 - (1 / $pid_count++);
-          $rule2 = TRUE;
+          // To satisfy rule 2 we must have used keywords
+          if ($keywords) {
+            $rule2 = TRUE;
+          }
         }
       }
     } else {
@@ -973,8 +977,11 @@ class RecordGeneral
 	  $log = FezLog::get();
 	  $db = DB_API::get();
 	  
-    $sql =  "SELECT DISTINCT a1.rek_author_id_pid, k1.rek_keywords ".
-            "FROM " . APP_TABLE_PREFIX . "record_search_key_author_id a1 ".
+    $sql =  "SELECT DISTINCT a1.rek_author_id_pid ";
+    if ($keywords) {
+      $sql .= ", k1.rek_keywords ";
+    }
+    $sql .= "FROM " . APP_TABLE_PREFIX . "record_search_key_author_id a1 ".
             "JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id a2 ".
             "ON a1.rek_author_id_pid = a2.rek_author_id_pid ";
     

@@ -458,6 +458,9 @@ class Record
     //   $result[$i]["rek_ismemberof_count"] = $t[$result[$i]["rek_pid"]];
     // }
   
+    $username = Auth::getUsername();
+    $aut_id = Author::getIDByUsername($username);
+    
     for ($i = 0; $i < count($result); $i++) {
 			$pid = $result[$i]['rek_pid'];
 			if (is_array($ht[$pid])) {
@@ -469,6 +472,13 @@ class Record
 			if (is_array($rct[$pid])) {
         $result[$i] = array_merge($result[$i], $rct[$pid]);
 			}
+      if ($aut_id) {
+        $record = new RecordObject($result[$i]["rek_pid"]);
+        // Bump relevance using matchAuthor 
+        $match_res = $record->matchAuthor($aut_id, FALSE, FALSE, 1, FALSE);
+        $result[$i]["Relevance"] *= (1 + $match_res[1]);
+        $result[$i]["Relevance_Boosted"] = 1; 
+      }
 		}
 		return $result;
 	}
