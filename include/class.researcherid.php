@@ -47,6 +47,8 @@ include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.validation.php");
 include_once(APP_INC_PATH . "class.date.php");
 include_once(APP_INC_PATH . 'class.esti_search_service.php');
+include_once(APP_INC_PATH . "class.record_object.php");
+include_once(APP_INC_PATH . "class.record_general.php");
 
 class ResearcherID
 {
@@ -720,8 +722,10 @@ class ResearcherID
                 $pid = Record::getPIDByIsiLoc($ut);
 
                 // If the publication exists
-                if ( $pid ) {
-                  ResearcherID::insertAuthorId($pid, $author_id);
+                if ( $pid ) {                
+                  $record = new RecordObject($pid);
+                  $record->matchAuthor($author_id, TRUE, TRUE);
+                  
                   $times_cited = (string)$record->{'times-cited'};
                   if (! empty($times_cited)) {
                     Record::updateThomsonCitationCount($pid, $times_cited, $ut);
@@ -1041,134 +1045,5 @@ class ResearcherID
     } else {
       return $res;
     }
-  }
-
-
-  /**
-   * Attempt to insert an author id for an author on an existing publication using a last name match
-   *
-   * @param string $author_id The author id whose last name we will attempt to identify on the publication's author list
-   * @return bool  TRUE if replaced OK. FALSE if not replaced.
-   *
-   * @access public
-   */
-  function insertAuthorId($pid, $author_id)
-  {
-    $log = FezLog::get();
-
-    $author_lname = '';
-    $author_lname = strtolower(Author::getLastname($author_id));
-    $author_alt_names = Author::getAlternativeNamesList($author_id);
-
-    $newXML = "";
-
-    $xmlString = Fedora_API::callGetDatastreamContents($pid, 'MODS', true);
-    $doc = DOMDocument::loadXML($xmlString);
-    $xpath = new DOMXPath($doc);
-
-    $field_node_list = $xpath->query("/mods:mods/mods:name");
-    $count = $field_node_list->length;
-
-    $new_authors = array();
-    $aut_id_inserted = false;
-
-    if ( $count > 0 ) {
-      $authors_matching_count = 0;
-      $authors_matching_index = 0;
-
-      for ($i = 0; $i < $count; $i++) {
-        $collection_node   = $field_node_list->item($i);
-
-        $_id = $collection_node->getAttribute('ID');
-        $_authority = $collection_node->getAttribute('authority');
-
-        $_document = new DOMDocument();
-        $_document->appendChild($_document->importNode($collection_node, true));
-        $_xpath = new DOMXPath($_document);
-        $_node_list = $_xpath->query("/mods:name/mods:namePart[@type='personal']");
-        $_name_node = $_node_list->item(0);
-        $_name = $_name_node->textContent;
-  
-        // Attempt to match on last name
-        if ((!empty($author_lname)) && preg_match('/^'.$author_lname.'/', strtolower($_name))) {
-          $authors_matching_count++;
-          $authors_matching_index = $i;
-        } else {
-          // Attempt to match on other names for this author we know about
-          foreach ($author_alt_names as $aut_alt_name => $paper_count) {
-            $pattern = '/[\s,.]/';
-            $aut_alt_name = preg_replace($pattern, '', $aut_alt_name);
-            $_name = preg_replace($pattern, '', $_name);
-            $lev = levenshtein($aut_alt_name, $_name);
-            $minlen = min(strlen($aut_alt_name), strlen($_name));
-            if ($lev < $minlen / 2) {
-              $authors_matching_count++;
-              $authors_matching_index = $i;
-            }
-          }
-        }
-        
-        $new_authors[] = array(
-            'id' => $_id, 
-            'authority' => $_authority, 
-            'author' => $_name
-        );
-
-        $parent_node = $collection_node->parentNode;
-        $parent_node->removeChild($collection_node);
-      }
-        
-      // Update with author id if not set (i.e. 0) and only one last name match found
-      if ($authors_matching_count == 1) {
-        if ($new_authors[$authors_matching_index]['id'] == '0') {
-          $new_authors[$authors_matching_index]['id'] = $author_id;
-          $aut_id_inserted = true;
-        }
-      }
-    }
-
-    $mods = '
-        <mods:name ID="%s" authority="%s">
-              <mods:namePart type="personal">%s</mods:namePart>
-                <mods:role>
-                  <mods:roleTerm type="text">author</mods:roleTerm>
-                </mods:role>
-            </mods:name>
-    ';
-
-    $authors = '<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">';
-    foreach ($new_authors as $_author) {
-      $authors .= sprintf($mods, $_author['id'], $_author['authority'], $_author['author']);
-    }
-    $authors .= '</mods:mods>';
-
-    $authors_doc = new DOMDocument;
-    $authors_doc->loadXML($authors);
-    $author_nodes = $authors_doc->getElementsByTagName("name");
-
-    $count = $author_nodes->length;
-    if ( $count > 0 ) {
-      for ($i = 0; $i < $count; $i++) {
-        $node = $doc->importNode($author_nodes->item($i), true);
-        $doc->documentElement->appendChild($node);
-      }
-    }
-
-    $newXML = $doc->SaveXML();
-
-    if ($newXML != "" && $aut_id_inserted) {
-      Fedora_API::callModifyDatastreamByValue(
-          $pid, "MODS", "A", "Metadata Object Description Schema", $newXML, "text/xml", "inherit"
-      );
-        
-      $historyDetail = "Author ID inserted using last name match";
-      History::addHistory($pid, null, "", "", true, $historyDetail);
-        
-      Record::setIndexMatchingFields($pid);
-        
-      return true;
-    }
-
-    return false;
   }
 }
