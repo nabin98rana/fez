@@ -813,17 +813,14 @@ class RecordGeneral
 	 * 
 	 *    For any of the matched pubs above, optionally check the keywords on both pubs to determine if we're 
 	 *    dealing with similarly categorised pubs.
-	 * 
-	 * 3. The likelihood of matching the correct author diminishes as the number of authors increases.
-	 *    Below 10 authors and we bump the percentage higher based on the number listed.
-	 * 
+	 *  
 	 * The following rules determine whether we have found the author on this pub:
 	 * 
 	 * 1. In 1 above, if only one match is found based on Levenshtein distance (@see matchAuthorNameByLev)
 	 *       
 	 * 2. In 2 above, if at least one co-authored pub is found AND both pubs share at least one keyword.
 	 * 
-	 * 3. In 3 above, there's 10 or less authors on the pub.
+	 * 3. There's 10 or less authors on the pub.
 	 * 
 	 * If all of these rules are satisifed, the pub is automatically amended with the author's ID ($update = TRUE), 
 	 * else it returns a percentage of how likely a match was found. If $known is set to TRUE, only rule #1 needs 
@@ -936,14 +933,12 @@ class RecordGeneral
     }
     
     // Step 3: Less than 10 authors on the pub
-    $percent_3 = 0;
     if ($authors_count <= 10) {
-      $percent_3 = 1 / $authors_count;
       $rule3 = TRUE;
     }
     
     // Collate results
-    $final_percent = (($percent_1*0.6) + ($percent_2*0.3) + ($percent_3*0.1));
+    $final_percent = (($percent_1*0.6) + ($percent_2*0.4));
     $matched = FALSE;
     if ($rule1 && $rule2 && $rule3) {
       $message .= ' (deterministic match)';
@@ -1045,8 +1040,10 @@ class RecordGeneral
       foreach($matches as $m) {
         $middle[] = substr($m, 0, 1);
       }
-      $middle = implode('. ', $middle) . '.';
-      $names_to_match[] = $lname_to_match . ', ' . substr(strtolower($aut_details['aut_fname']), 0, 1) . $middle;
+      $middle1 = implode('. ', $middle) . '.';
+      $names_to_match[] = $lname_to_match . ', ' . substr(strtolower($aut_details['aut_fname']), 0, 1) . ". " . $middle1;
+      $middle2 = implode('', $middle);
+      $names_to_match[] = $lname_to_match . ', ' . substr(strtolower($aut_details['aut_fname']), 0, 1) . $middle2;
     }
     $name = trim(strtolower($name));
     
