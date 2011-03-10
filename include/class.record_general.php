@@ -797,6 +797,371 @@ class RecordGeneral
 		return false;
 	}
 	
+	/**
+	 * Attempt to match $aut_id with an author on $this->pid. This is a multi-step process in order
+	 * to establish a percentage value of how likely this author is on this pub (probablistic matching)  
+	 * and also whether we have identified the correct author on the pub based on some rules (deterministic
+	 * matching).
+	 * 
+	 * The following steps are used to establish the percentage:
+	 * 
+	 * 1. Match their name, or other names they've published under, with the authors listed on this pub.
+	 * 
+	 * 2. For all other authors on the pub with an author ID set, determine how many pubs they have been 
+	 *    co-authors on with $aut_id. This step should only be completed where there are 10 or less authors
+	 *    on this pub.
+	 * 
+	 *    For any of the matched pubs above, optionally check the keywords on both pubs to determine if we're 
+	 *    dealing with similarly categorised pubs.
+	 * 
+	 * 3. The likelihood of matching the correct author diminishes as the number of authors increases.
+	 *    Below 10 authors and we bump the percentage higher based on the number listed.
+	 * 
+	 * The following rules determine whether we have found the author on this pub:
+	 * 
+	 * 1. In 1 above, if only one match is found based on Levenshtein distance (@see matchAuthorNameByLev)
+	 *       
+	 * 2. In 2 above, if at least one co-authored pub is found AND both pubs share at least one keyword.
+	 * 
+	 * 3. In 3 above, there's 10 or less authors on the pub.
+	 * 
+	 * If all of these rules are satisifed, the pub is automatically amended with the author's ID ($update = TRUE), 
+	 * else it returns a percentage of how likely a match was found. If $known is set to TRUE, only rule #1 needs 
+	 * to be satisfied.
+	 * 
+	 * @param int  $aut_id    The author ID we are attempting to match on this pub
+	 * @param bool $update    (optional) Whether you want the pub to be automatically amended with the author's ID
+	 *                        if a match is found. Default is TRUE, which will amend the pub.
+	 * @param bool $known     (optional) Set to TRUE if you are certain that the author $aut_id is listed 
+	 *                        on this pub, otherwise leave as FALSE. Default is FALSE.
+	 * @param int  $threshold (optional) If the resulting percentage value is greater than the threshold then
+	 *                        a matching author has been identified on this pub. Default is 1 (100%).
+	 * 
+	 * @return mixed
+	 */
+	function matchAuthor($aut_id, $update = TRUE, $known = FALSE, $threshold = 1)
+	{
+	  $log = FezLog::get();
+	  
+	  $rule1 = FALSE;
+    $rule2 = FALSE;
+    $rule3 = FALSE;
+    
+    // Step 1: Match on name
+	  $authors = $this->getAuthors();
+	  $known_authors = array();
+	  
+	  $aut_details = Author::getDetails($aut_id);
+    $aut_alt_names = Author::getAlternativeNamesList($aut_id);	  
+    $exact_match_count = 0;
+    $match_index = 0;
+    $percent_1 = 0;
+    // Message to add to the record if we find an author and update
+    $message = 'Author ID '.$aut_id.' inserted using author matching'; 
+    
+    // Get only authors missing a author ID and make sure the author isn't already set on the pub
+    $unknown_authors = array();
+    $co_aut_ids = array();
+    for ($i = 0; $i < count($authors); $i++) {
+      if ($authors[$i]['aut_id'] == 0) {
+        $unknown_authors[] = $authors[$i];
+      } else if ($authors[$i]['aut_id'] == $aut_id) {
+        // Nothing to do, the author ID has already been set
+        return array(TRUE, 'Already set');
+      } else {
+        $known_authors[] = $authors[$i];
+        $co_aut_ids[] = $authors[$i]['aut_id'];
+      }
+    }
+    $authors = $unknown_authors;
+    $authors_count = count($authors);
+        
+    for ($i = 0; $i < $authors_count; $i++) {
+      $authors[$i]['match'] = FALSE;
+      $percent = $this->matchAuthorNameByLev($authors[$i]['name'], $aut_details, $percent_1);
+      if ($percent == 1) {
+        $exact_match_count++;
+        $match_index = $i;
+        $authors[$i]['match'] = $percent;
+      } else {
+        $authors[$i]['match'] = $percent;
+        // Attempt to match on other names for this author we know about
+        foreach ($author_alt_names as $aut_alt_name => $count) {
+          $percent = $this->matchAuthorNameByLev($aut_alt_name, $aut_details, $percent_1);
+          if ($percent == 1) {
+            $exact_match_count++;
+            $match_index = $i;
+            break;
+          }
+          $authors[$i]['match'] = $percent;          
+        }
+      }
+    }
+
+    if ($exact_match_count == 1) {
+      // One match found
+      $rule1 = TRUE;
+      $authors[$match_index]['aut_id'] = $aut_id;
+      if ($known == TRUE) {
+        // Nothing more to do, we have a match so update the author on the pub
+        // with the found aut_id        
+        $message .= ' (known)';
+        $this->replaceAuthors(array_merge($known_authors,$authors), $message);
+        return array(TRUE, 'Inserted');        
+      }
+    } else {
+      // Multiple matches found
+      if ($known == TRUE) {
+        return array(FALSE, 'Multiple');
+      }
+    }
+    
+    // Step 2: Co-authored pubs
+    $percent_2 = 0;
+    if ($authors_count <= 10) {      
+      if (count($co_aut_ids) > 0) {
+        $pids = $this->coAuthored($aut_id, $co_aut_ids, TRUE);
+        $pid_count = count($pids);
+        if ($pid_count > 0) {
+          $percent_2 = 1 - (1 / $pid_count++);
+          $rule2 = TRUE;
+        }
+      }
+    } else {
+      // Too many authors to perform step 2
+    }
+    
+    // Step 3: Less than 10 authors on the pub
+    $percent_3 = 0;
+    if ($authors_count <= 10) {
+      $percent_3 = 1 / $authors_count;
+      $rule3 = TRUE;
+    }
+    
+    // Collate results
+    $final_percent = (($percent_1*0.6) + ($percent_2*0.3) + ($percent_3*0.1));
+    $matched = FALSE;
+    if ($rule1 && $rule2 && $rule3) {
+      $message .= ' (deterministic match)';
+      $matched = TRUE;
+    } else if ($final_percent >= $threshold) {
+      $message .= ' (probablistic match)';
+      $matched = TRUE;
+    }
+    
+    if ($matched && $update) {
+      $message = 'Author ID '.$aut_id.' inserted using author matching';  
+      $this->replaceAuthors(array_merge($known_authors,$authors), $message);
+    }
+    
+    return array($matched, $final_percent, $aut_details, $authors, $pids);
+	}
+
+	/**
+	 * Returns the pubs where author $aut_id has co-authored on pubs with authors in $aut_id_list.
+	 * Can optionally require there be shared keywords between this pub and co-authored pubs 
+	 *
+	 * @param int   $aut_id
+	 * @param array $aut_id_list
+	 * @param array $keywords (optional)
+	 * 
+	 * 
+	 * @return array
+	 */
+	function coAuthored($aut_id, $aut_id_list, $keywords=FALSE)
+	{
+	  $log = FezLog::get();
+	  $db = DB_API::get();
+	  
+    $sql =  "SELECT DISTINCT a1.rek_author_id_pid, k1.rek_keywords ".
+            "FROM " . APP_TABLE_PREFIX . "record_search_key_author_id a1 ".
+            "JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id a2 ".
+            "ON a1.rek_author_id_pid = a2.rek_author_id_pid ";
+    
+    if ($keywords) {
+      $sql .= "LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_keywords k1 ".
+              "ON a1.rek_author_id_pid=k1.rek_keywords_pid ";
+    }    
+    $sql .= "WHERE a1.rek_author_id = ? AND a2.rek_author_id IN (".Misc::arrayToSQLBindStr($aut_id_list).") ";    
+    if ($keywords) {
+      $sql .=  "AND k1.rek_keywords IN (".
+               "SELECT k2.rek_keywords FROM " . APP_TABLE_PREFIX . "record_search_key_keywords k2 ".
+               "WHERE k2.rek_keywords_pid=?)";
+    }
+    
+    try {      
+      if ($keywords) {
+        $params = array_merge(array($aut_id), $aut_id_list, array($this->pid));
+      } else {
+        $params = array_merge(array($aut_id), $aut_id_list);
+      }
+      $res = $db->fetchAll($sql, $params);
+    }
+    catch(Exception $ex) {
+      $log->err($ex);
+      return FALSE;
+    }
+    return $res;
+	}
+	
+	/**
+	 * Match $name with author in $aut_details using Levenschtein distance. A comparison
+	 * percentage is assigned to the $percent referenced variable if one is found in 
+	 * this match that is higher than what is was previously set to
+	 *
+	 * @param string $name
+	 * @param array  $aut_details
+	 * @param float  $percent
+	 * 
+	 * @return float Percentage for this match
+	 */
+  function matchAuthorNameByLev($name, $aut_details, &$percent)
+  { 
+    // Require org username
+    if (! $aut_details['aut_org_username']) {
+      return 0;
+    }
+    $rpercent = 0;
+    
+    // Build array of possible author name formats
+    $names_to_match = array();
+    $lname_to_match = strtolower($aut_details['aut_lname']);
+    $names_to_match[] = $aut_details['aut_display_name'];
+    // Lname, Fname    
+    $names_to_match[] = $lname_to_match . ', ' . strtolower($aut_details['aut_fname']);
+    // Lname, F.
+    $names_to_match[] = $lname_to_match . ', ' . substr(strtolower($aut_details['aut_fname']), 0, 1) . ".";
+    // Lname, F. M.
+    if ($aut_details['aut_mname']) {
+      $matches = explode(' ', $aut_details['aut_mname']);
+      $middle = array();
+      foreach($matches as $m) {
+        $middle[] = substr($m, 0, 1);
+      }
+      $middle = implode('. ', $middle) . '.';
+      $names_to_match[] = $lname_to_match . ', ' . substr(strtolower($aut_details['aut_fname']), 0, 1) . $middle;
+    }
+    $name = trim(strtolower($name));
+    
+    foreach ($names_to_match as $name_to_match) {
+      if ($name_to_match == $name) {
+        // exact match
+        $percent = 1;
+        return 1;
+      } else {
+        $min_length = min(strlen($name_to_match), strlen($name));
+        $max_length = max(strlen($name_to_match), strlen($name));
+        $accept_distance = 1;      
+        $distance = levenshtein($name_to_match, $name);
+        $_percent = 1 - ($distance / (max(strlen($name_to_match), strlen($name))));
+        if ($distance < $accept_distance) {
+          // matched within acceptable distance
+          $percent = 1;        
+          return 1;
+        }
+      }
+      if ($_percent > $percent) {
+        $percent = $_percent;
+      }
+      if ($_percent > $rpercent) {
+        $rpercent = $_percent;
+      }
+    }
+    
+    return $rpercent;
+  }
+
+  /**
+   * Returns an assoc array of authors and their author IDs for this record
+   *
+   * @return mixed
+   */
+  function getAuthors()
+  {   
+    $log = FezLog::get();
+    $db = DB_API::get();
+    
+    $authors = array();
+    $stmt =  "SELECT a.rek_author as name, i.rek_author_id as aut_id
+              FROM " . APP_TABLE_PREFIX . "record_search_key_author a
+              LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id i
+                 ON a.rek_author_order=i.rek_author_id_order AND a.rek_author_pid=i.rek_author_id_pid
+              WHERE a.rek_author_pid=?";
+    try {
+      $res = $db->fetchAll($stmt, $this->pid, Zend_Db::FETCH_ASSOC);
+    }
+    catch(Exception $ex) {
+      $log->err($ex);
+      return FALSE;
+    }
+    return $res;
+  }
+  
+/**
+   * Replaces authors on a record
+   *
+   * @param array  $authors The list of authors to replace authors on this pub with
+   * @param string $message A message about why the authors were replaced
+   * 
+   * @return bool  TRUE if replaced OK. FALSE if not replaced.
+   *
+   * @access public
+   */
+  function replaceAuthors($authors_list, $message)
+  {
+    $log = FezLog::get();
+        
+    $newXML = "";
+    
+    $xmlString = Fedora_API::callGetDatastreamContents($this->pid, 'MODS', TRUE);
+    $doc = DOMDocument::loadXML($xmlString);
+    $xpath = new DOMXPath($doc);
+
+    $field_node_list = $xpath->query("/mods:mods/mods:name");
+    $count = $field_node_list->length; 
+    if( $count > 0 ) {
+      for ($i = 0; $i < $count; $i++) {
+        $collection_node = $field_node_list->item($i);
+        $parent_node = $collection_node->parentNode;
+        $parent_node->removeChild($collection_node);
+      }
+    }
+    
+    $mods = '<mods:name ID="%d" authority="%s">
+               <mods:namePart type="personal">%s</mods:namePart>
+               <mods:role>
+                 <mods:roleTerm type="text">%s</mods:roleTerm>
+               </mods:role>
+             </mods:name>';
+    $authors = '<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">';
+    foreach($authors_list as $author) {
+      $authors .= sprintf($mods, $author['aut_id'], APP_ORG_NAME, $author['name'], 'author');
+    }
+    $authors .= '</mods:mods>';
+    
+    $authors_doc = new DOMDocument;
+    $authors_doc->loadXML($authors);
+    $author_nodes = $authors_doc->getElementsByTagName("name");
+    
+    $count = $author_nodes->length;
+    if( $count > 0 ) { 
+      for ($i = 0; $i < $count; $i++) {
+        $node = $doc->importNode($author_nodes->item($i), TRUE);
+        $doc->documentElement->appendChild($node);
+      }
+    }
+    $newXML = $doc->SaveXML();
+        
+    if ($newXML != "") {
+      Fedora_API::callModifyDatastreamByValue($this->pid, "MODS", "A", "Metadata Object Description Schema", $newXML, "text/xml", "inherit");      
+      History::addHistory($this->pid, null, "", "", TRUE, $message);      
+      Record::setIndexMatchingFields($this->pid);      
+      return TRUE;
+    } else {
+      return FALSE;
+    }
+  }
+	
 	
 	/**
 	 * Strips abstracts from a record
