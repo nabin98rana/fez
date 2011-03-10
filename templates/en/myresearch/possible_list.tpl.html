@@ -129,7 +129,7 @@ function hideBulk()
 			        </th>
 			        <th style="text-align: center; padding: 2px;">
 	          {if $list_info.total_rows > 0}
-		          <img src="{$rel_url}images/thermometer_16.png" title="Search Relevance" alt="Search Relevance" />
+		          <img src="{$rel_url}images/granter_16.png" title="If you have collaborated with authors on the publication" alt="If you have collaborated with authors on the publication" />
 		        {/if}
 		          </th>
 			        <th></th>
@@ -196,8 +196,8 @@ function hideBulk()
 			</td>
 			
 			<td style="vertical-align: middle; text-align: center;">
-        {if $list[i].Relevance != ""}
-          <span {if $list[i].Relevance_Boosted}class="success"{/if}>{$list[i].Relevance|@number_format:2}</span>
+        {if $list[i].Relevance_Boosted}
+          <img src="{$rel_url}images/granter.png" title="We know you have collaborated with authors already identified on this publication" alt="We know you have collaborated with authors already identified on this publication" />
         {else}-{/if}
       </td>
 			
