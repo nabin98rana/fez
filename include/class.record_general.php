@@ -949,7 +949,6 @@ class RecordGeneral
     }
     
     if ($matched && $update) {
-      $message = 'Author ID '.$aut_id.' inserted using author matching';  
       $this->replaceAuthors(array_merge($known_authors,$authors), $message);
     }
     
