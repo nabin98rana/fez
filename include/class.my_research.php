@@ -263,7 +263,7 @@ class MyResearch
 				$return = Record::getListing($options, array(9,10), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter, "AND", true, false, false, 10, 1);
 				$return['list'] = Record::getResearchDetailsbyPIDS($return['list']);
 			} else {
-				$message = "You are not registered in ".APP_NAME." as an author. Please contact the <a href='".APP_BASE_URL."contact.php'>".APP_SHORT_ORG_NAME." Manager</a> to resolve this.";
+				$message = "You are not registered in ".APP_NAME." as an author. Please contact the <a href='".APP_BASE_URL."contact'>".APP_SHORT_ORG_NAME." Manager</a> to resolve this.";
 			}
 			$facets = @$return['facets'];
 			
@@ -345,6 +345,7 @@ class MyResearch
 		$jobID = MyResearch::markPossiblePubAsMine($pid, $author, $user, $correction);
 		
 		// 2. Send an email to Eventum about it
+		$sendEmail = true;
 		$authorDetails = Author::getDetailsByUsername($author);
 		$userDetails = User::getDetails($user);
 		$authorID = $authorDetails['aut_id'];
@@ -354,10 +355,10 @@ class MyResearch
 		
 		// Attempt to link author ID to author on the pub
 		$record = new RecordObject($pid);
-    $result = $record->matchAuthor($authorID, TRUE, TRUE, 1, FALSE);
-    if ((!is_array($result)) || $result[0] === FALSE) {
-      $correction .= " ";
-    }
+		$result = $record->matchAuthor($authorID, TRUE, TRUE, 1, FALSE);
+		if ((is_array($result)) && $result[0] === true && $correction == '') {) {
+			$sendEmail = false;
+		}
 
 		$subject = "My Research :: Claimed Publication :: " . $jobID . " :: " . $pid . " :: " . $author;
 		
@@ -369,9 +370,10 @@ class MyResearch
 		}
 		
 		if ($correction != '') {
-		  if (! empty(trim($correction))) {
-			 $body .= "Additionally, the following correction information was supplied:\n\n" . $correction;
-		  }
+			$body .= "Additionally, the following correction information was supplied:\n\n" . $correction;
+		}
+		
+		if ($sendEmail) {
 			Eventum::lodgeJob($subject, $body, $userEmail);
 		}
 		
@@ -965,8 +967,9 @@ class MyResearch
 					" . APP_TABLE_PREFIX . "author INNER JOIN
 					hr_position_vw on aut_org_username = user_name
 				WHERE
-					user_name LIKE '%" . $username . "%'
-					OR CONCAT_WS(' ', aut_fname, aut_lname) LIKE '%" . $username . "%'
+					(user_name LIKE '%" . $username . "%'
+					OR CONCAT_WS(' ', aut_fname, aut_lname) LIKE '%" . $username . "%')
+					AND user_name != ''
 				GROUP BY aut_org_username, aut_fname, aut_lname
 				ORDER BY
 					aut_lname ASC,
