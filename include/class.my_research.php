@@ -356,7 +356,7 @@ class MyResearch
 		// Attempt to link author ID to author on the pub
 		$record = new RecordObject($pid);
 		$result = $record->matchAuthor($authorID, TRUE, TRUE, 1, FALSE);
-		if ((is_array($result)) && $result[0] === true && $correction == '') {) {
+		if ((is_array($result)) && $result[0] === true && $correction == '') {
 			$sendEmail = false;
 		}
 
