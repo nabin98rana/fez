@@ -3538,8 +3538,7 @@ class Record
       foreach ($searchKeys as $sek_id => $searchValue ) {
 
         if (empty($sek_id)) continue;
-        if (!empty($searchValue) && trim($searchValue) != "") {
-
+        if ((!empty($searchValue) && (is_array($searchValue) || trim($searchValue) != ""))) {
           $sekdet = Search_Key::getDetails($sek_id);
           $suffix = Record::getSolrSuffix($sekdet);
           if(empty($sekdet['sek_id']))
