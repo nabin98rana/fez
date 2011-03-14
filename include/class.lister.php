@@ -1069,14 +1069,15 @@ class Lister
 
 
 	function checkAliasController() {
-//		print_r($_SERVER);
+
 		$uri = strtolower($_SERVER['REQUEST_URI']);
 		$uri = str_replace(" ", "_", $uri);
 		$uri = preg_replace("/[^a-z0-9_]/", "", $uri);
-		
+
 		if (empty($uri)) {
 			return false;
 		}
+
 		//check if it is an author username
 		$authorDetails = Author::getDetailsByUsername($uri);
 		$params = $_GET;
@@ -1085,7 +1086,7 @@ class Lister
             $params['author_id'] = $authorDetails['aut_id'];
 			Lister::getList($params, true);
 		}
-		exit;
+        return false;
 	}
 
 }

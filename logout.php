@@ -41,15 +41,16 @@ include_once(APP_INC_PATH . "class.auth.php");
 foreach($_SESSION as $k => $v) {
 	unset($_SESSION[$k]);
 }
-if (isset($_COOKIE['_saml_idp'])) {
-	setcookie(session_name(), '', time()-42000, '/');
+if (SHIB_VERSION != "3" && SHIB_SWITCH == "ON") {
+    if (isset($_COOKIE['_saml_idp'])) {
+        setcookie(session_name(), '', time()-42000, '/');
+    }
+    foreach($_COOKIE as $k => $v) {
+        if (is_numeric(strpos($k, "_shibsession_"))) {
+            setcookie($k, '', time()-42000, '/');
+        }
+    }
 }
-foreach($_COOKIE as $k => $v) {
-	if (is_numeric(strpos($k, "_shibsession_"))) {
-		setcookie($k, '', time()-42000, '/');
-	}
-}
-
 
 Zend_Session::destroy();
 
