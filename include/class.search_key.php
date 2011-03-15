@@ -199,7 +199,7 @@ class Search_Key
 					" . $db->quote($_POST["sek_alt_title"]) . ",
 					" . $db->quote($_POST["sek_meta_header"]) . ",
 					" . $sek_simple_used . ",
-					" . $sek_simple_used . ",
+					" . $sek_bulkchange . ",
 					" . $sek_adv_visible . ",
 					" . $sek_myfez_visible . ",
 		            " . $sek_faceting . ",";
