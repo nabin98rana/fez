@@ -1482,7 +1482,7 @@ class XSD_HTML_Match
 			if (is_numeric($_POST["xsdmf_cvo_save_type"])) {
 				$stmt .= $db->quote($_POST["xsdmf_cvo_save_type"]) . ",";
 			}
-			$stmt .= $db->quote($xsdmf_use_org_to_fill) . ",
+			$stmt .= 			$xsdmf_use_org_to_fill . ",
 							" . $xsdmf_use_parent_option_list . ",
 		                    " . $valueintag . ",
 		                    " . $is_key . ",
@@ -1514,7 +1514,7 @@ class XSD_HTML_Match
 
 			$stmt .= $db->quote($_POST["checkbox_selected_option"]) . ",";
 
-			$stmt .= $db->quote($show_in_view) . ", ". $db->quote($invisible) .", ".$db->quote($show_simple_create).",
+			$stmt .= 			$show_in_view . ", " . $invisible . ", " . $show_simple_create . ",
 		                    " . $db->quote($_POST["enforced_prefix"]) . ",
 		                    " . $db->quote($_POST["value_prefix"]) . ",
 		                    " . $db->quote($_POST["image_location"]) . ",
