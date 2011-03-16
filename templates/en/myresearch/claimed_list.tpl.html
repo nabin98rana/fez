@@ -104,7 +104,11 @@ function correctionRequired(pid)
 
 			<table id="research-record-listing">
 				<tr>
-			        <th>The publications listed below are currently attributed to you.</th>
+			        <th>The publications listed below are currently attributed to you.
+						{if $is_editor}
+							<br /><br />This list does NOT include items that you edited. See the My Pubs page.
+						{/if}
+			        </th>
 					<th style="text-align: center; padding: 2px;">
 						{if $list_info.total_rows > 0}
 							<img src="{$rel_url}images/journal_ranking_16.png" title="Ranked Journal List Ranking" alt="Ranked Journal List Ranking" />

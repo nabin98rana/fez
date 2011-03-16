@@ -1786,6 +1786,37 @@ class Author
     return $res;    
   }
   
+  /**
+   * Method used to determine if the specified author has also ever edited anything.
+   *
+   * @param integer $aut_id The author id of the author we are interested in
+   * @return  bool True if the author has edited something, false if they haven't
+   */
+  function isAuthorAlsoAnEditor($authorID)
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+    
+    $stmt = "
+      SELECT
+        *
+      FROM
+        " . APP_TABLE_PREFIX . "record_search_key_contributor_id
+      WHERE
+        rek_contributor_id = " . $db->quote($authorID) . ";
+    ";
+    
+    try {
+      $res = $db->fetchOne($stmt);
+    }
+    catch(Exception $ex) {
+      $log->err($ex);
+      return false;
+    }
+    
+    return $res;
+  }
+  
 
   function najaxGetMeta()
   {
