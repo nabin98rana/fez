@@ -967,10 +967,19 @@ class MyResearch
 		$stmt .= " FROM
 					" . APP_TABLE_PREFIX . "author INNER JOIN
 					hr_position_vw on aut_org_username = user_name
-				WHERE
+				WHERE ";
+        if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) {
+            $stmt .= "
+					(user_name ILIKE '%" . $username . "%'
+					OR CONCAT_WS(' ', aut_fname, aut_lname) ILIKE '%" . $username . "%')
+					AND user_name != ''";
+        } else {
+            $stmt .= "
 					(user_name LIKE '%" . $username . "%'
 					OR CONCAT_WS(' ', aut_fname, aut_lname) LIKE '%" . $username . "%')
-					AND user_name != ''
+					AND user_name != ''";
+		}
+		$stmt .= "
 				GROUP BY aut_org_username, aut_fname, aut_lname
 				ORDER BY
 					aut_lname ASC,
