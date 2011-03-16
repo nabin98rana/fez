@@ -1083,7 +1083,13 @@ class RecordGeneral
       } else {
         $min_length = min(strlen($name_to_match), strlen($name));
         $max_length = max(strlen($name_to_match), strlen($name));
+        
+        // An exact match without spaces, commas or full stops
         $accept_distance = 1;
+        $pattern = '/[\s,.]/';
+        $name_to_match = preg_replace($pattern, '', $name_to_match);
+        $name = preg_replace($pattern, '', $name);
+        
         $distance = levenshtein($name_to_match, $name);
         $_percent = 1 - ($distance / (max(strlen($name_to_match), strlen($name))));
         if ($distance < $accept_distance) {
