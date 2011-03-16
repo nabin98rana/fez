@@ -247,7 +247,8 @@ class MyResearch
 				$filter["searchKey".Search_key::getID("Object Type")] = 3; 
 				$filter["searchKey".Search_Key::getID("Author")] = $lastname;
 				$filter["manualFilter"] = "!author_id_mi:".$author_id;
-				$filter["manualFilter"] .= " AND (author_mws:".'"'.$lastname.'" OR author_mws:'.'"'.$lastname.$firstname.'"^4 '.$alternatives.')';
+				//$filter["manualFilter"] .= " AND (author_mws:".'"'.$lastname.'" OR author_mws:'.'"'.$lastname.$firstname.'"^4 '.$alternatives.')';
+				$filter["manualFilter"] .= " AND (author_mws:".'"'.$lastname.'" OR author_mt:'.$lastname.' OR author_mws:'.'"'.$lastname.$firstname.'"^4 '.$alternatives.')';
 	
 				if ($options['hide_closed'] == 0) {
 					$hidePids = MyResearch::getHiddenPidsByUsername($actingUser);
