@@ -31,6 +31,7 @@
 // |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>                     |
 // +----------------------------------------------------------------------+
 
+include_once(APP_INC_PATH . "class.author.php");
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.eventum.php");
 
@@ -66,6 +67,9 @@ class MyResearch
 		$tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 		$tpl->assign("isUPO", $isUPO);
 		$tpl->assign("active_nav", "my_fez");
+		
+		// Some text will be presented slightly differently to the user if they also have edited something.
+		$tpl->assign("is_editor", Author::isAuthorAlsoAnEditor($author_id));
 
 		// Determine what we're actually doing here.
 		$action = Misc::GETorPOST('action');
@@ -869,6 +873,10 @@ class MyResearch
 		$log = FezLog::get();
 		$db = DB_API::get();
 		
+//		if ($username == '' || !isset($username)) {
+//			return '';
+//		}
+		
 		$stmt = "
 				SELECT
 					aurion_org_desc AS org_description
@@ -890,7 +898,7 @@ class MyResearch
 			return '';
 		}
 		if (count($res) == 0) {
-			return "";
+			return '';
 		} else {
 			return $res['org_description'];			
 		}
