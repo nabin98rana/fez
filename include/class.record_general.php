@@ -1054,12 +1054,12 @@ class RecordGeneral
 
     // Build array of possible author name formats
     $names_to_match = array();
-    $lname_to_match = strtolower($aut_details['aut_lname']);
+    $lname_to_match = $aut_details['aut_lname'];
     $names_to_match[] = $aut_details['aut_display_name'];
     // Lname, Fname
-    $names_to_match[] = $lname_to_match . ', ' . strtolower($aut_details['aut_fname']);
+    $names_to_match[] = $lname_to_match . ', ' . $aut_details['aut_fname'];
     // Lname, F.
-    $names_to_match[] = $lname_to_match . ', ' . substr(strtolower($aut_details['aut_fname']), 0, 1) . ".";
+    $names_to_match[] = $lname_to_match . ', ' . substr($aut_details['aut_fname'], 0, 1) . ".";
     // Lname, F. M.
     if ($aut_details['aut_mname']) {
       $matches = explode(' ', $aut_details['aut_mname']);
@@ -1068,10 +1068,10 @@ class RecordGeneral
         $middle[] = substr($m, 0, 1);
       }
       $middle1 = implode('. ', $middle) . '.';
-      $names_to_match[] = $lname_to_match . ', ' . substr(strtolower($aut_details['aut_fname']), 0, 1) . 
+      $names_to_match[] = $lname_to_match . ', ' . substr($aut_details['aut_fname'], 0, 1) . 
                           ". " . $middle1;
       $middle2 = implode('', $middle);
-      $names_to_match[] = $lname_to_match . ', ' . substr(strtolower($aut_details['aut_fname']), 0, 1) . $middle2;
+      $names_to_match[] = $lname_to_match . ', ' . substr($aut_details['aut_fname'], 0, 1) . $middle2;
     }
     $name = trim(strtolower($name));
 
@@ -1087,9 +1087,9 @@ class RecordGeneral
         // An exact match without spaces, commas or full stops
         $accept_distance = 1;
         $pattern = '/[\s,.]/';
-        $name_to_match = preg_replace($pattern, '', $name_to_match);
-        $name = preg_replace($pattern, '', $name);
-        
+        $name_to_match = strtolower(preg_replace($pattern, '', $name_to_match));
+        $name = strtolower(preg_replace($pattern, '', $name));
+                
         $distance = levenshtein($name_to_match, $name);
         $_percent = 1 - ($distance / (max(strlen($name_to_match), strlen($name))));
         if ($distance < $accept_distance) {
