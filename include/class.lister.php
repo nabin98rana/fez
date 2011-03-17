@@ -1085,6 +1085,7 @@ class Lister
 			$params['browse'] = 'mypubs';
             $params['author_id'] = $authorDetails['aut_id'];
 			Lister::getList($params, true);
+            return true;
 		}
         return false;
 	}

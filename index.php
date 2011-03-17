@@ -132,59 +132,63 @@ if (@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'] != "" || @$_SE
 	}
 }
 
-Lister::checkAliasController();
+$aliasResult = Lister::checkAliasController();
 
-$tpl = new Template_API();
-//$tpl->setTemplate("maintenance.tpl.html");
-$front_page = "";
-$username = Auth::getUsername();
+// Don't need to proceed with the front page if we found an alias piped to index.php eg for my pubs aliases like fez/Christiaan
+if ($aliasResult == false) {
+    
+    $tpl = new Template_API();
+    //$tpl->setTemplate("maintenance.tpl.html");
+    $front_page = "";
+    $username = Auth::getUsername();
 
-if (Auth::userExists($username)) { // if the user is registered as a Fez user
-    $prefs = Prefs::get(Auth::getUserID());  	
-	$front_page = $prefs['front_page'];
-} else {
-	$front_page = Pager::getParam("front_page");
+    if (Auth::userExists($username)) { // if the user is registered as a Fez user
+        $prefs = Prefs::get(Auth::getUserID());
+        $front_page = $prefs['front_page'];
+    } else {
+        $front_page = Pager::getParam("front_page");
+    }
+
+    if ($front_page == "" || $front_page == "front_page") {
+        $front_page = "front_page.tpl.html";
+    } elseif ($front_page == "simple_front_page") {
+        $front_page = "simple_front_page.tpl.html";
+    } elseif ($front_page == "very_simple_front_page") {
+        $front_page = "very_simple_front_page.tpl.html";
+    }
+
+    $tpl->assign('fedora_connectivity', $fedoraConnectivity);
+    $tpl->setTemplate($front_page);
+
+    //check for custom view search keys
+    if (is_numeric(APP_CUSTOM_VIEW_ID)) {
+        include_once(APP_INC_PATH . "class.custom_view.php");
+        $search_keys = Custom_View::getSekList(APP_CUSTOM_VIEW_ID);
+        $tpl->assign("search_keys", $search_keys);
+    }
+
+    $recCount = Record::getNumPublishedRecords();
+    $recCount = number_format($recCount, 0, ".", " ");
+    $recCount = str_replace(" ", html_entity_decode(",&nbsp;", ENT_COMPAT, "UTF-8"), $recCount);
+    $tpl->assign("record_count", $recCount);
+
+    $news = News::getList(5);       // Maximum of 5 news posts for front page.
+    $news_count = count($news);
+    $tpl->assign("news", $news);
+    $tpl->assign("isHomePage", "true");
+    $tpl->assign("news_count", $news_count);
+
+    $tpl->assign("autosuggest", 1);
+    /* $tpl->headerscript .= "window.oTextbox_front_search
+        = new AutoSuggestControl(document.search_frm, 'front_search', document.getElementById('front_search'), document.getElementById('front_search'),
+                new StateSuggestions('Collection','suggest',false,
+                    'class.collection.php'));
+                    document.getElementById('front_search').focus();";
+
+    $tpl->registerNajax(NAJAX_Client::register('Suggestor', 'index.php')); */
+
+
+    $tpl->assign("active_nav", "home");
+    $tpl->displayTemplate();
 }
-
-if ($front_page == "" || $front_page == "front_page") {
-	$front_page = "front_page.tpl.html";
-} elseif ($front_page == "simple_front_page") {
-	$front_page = "simple_front_page.tpl.html";
-} elseif ($front_page == "very_simple_front_page") {
-	$front_page = "very_simple_front_page.tpl.html";
-}
-
-$tpl->assign('fedora_connectivity', $fedoraConnectivity);
-$tpl->setTemplate($front_page);
-
-//check for custom view search keys
-if (is_numeric(APP_CUSTOM_VIEW_ID)) {
-	include_once(APP_INC_PATH . "class.custom_view.php");
-	$search_keys = Custom_View::getSekList(APP_CUSTOM_VIEW_ID); 
-	$tpl->assign("search_keys", $search_keys);
-}
-
-$recCount = Record::getNumPublishedRecords();
-$recCount = number_format($recCount, 0, ".", " ");
-$recCount = str_replace(" ", html_entity_decode(",&nbsp;", ENT_COMPAT, "UTF-8"), $recCount);
-$tpl->assign("record_count", $recCount);
-
-$news = News::getList(5);       // Maximum of 5 news posts for front page.
-$news_count = count($news);
-$tpl->assign("news", $news);
-$tpl->assign("isHomePage", "true");
-$tpl->assign("news_count", $news_count);
-
-$tpl->assign("autosuggest", 1);
-/* $tpl->headerscript .= "window.oTextbox_front_search
-	= new AutoSuggestControl(document.search_frm, 'front_search', document.getElementById('front_search'), document.getElementById('front_search'),
-			new StateSuggestions('Collection','suggest',false,
-				'class.collection.php'));
-				document.getElementById('front_search').focus();"; 
-
-$tpl->registerNajax(NAJAX_Client::register('Suggestor', 'index.php')); */
-
-
-$tpl->assign("active_nav", "home");
-$tpl->displayTemplate();
 //echo ($GLOBALS['bench']->getOutput());

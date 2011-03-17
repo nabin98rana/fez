@@ -322,7 +322,6 @@
                   <span class="small_default">(The maximum amount of html input elements that will show for this element if it is a multiple)</span>
                 </td>
               </tr>
-              <tr>
                 <td class="default cell-colour">
                   <b>Field Type:</b>
                 </td>
@@ -427,7 +426,16 @@
 				</select>
 			  	</td>
 		     </tr>
-		     
+              <tr>
+                <td class="default cell-colour">
+                  <b>Use in bulk change search key workflow?:</b>
+                </td>
+                <td style="background: {$light_color}">
+                  <input type="checkbox" name="sek_bulkchange" class="default" {if ($info.sek_bulkchange == 1)}checked="checked"{/if} /><br />
+                    <span class="small_default">(only applies to Data Cardinality Core One to One search keys)</span>
+                </td>
+              </tr>
+              <tr>
 			 <tr id="sek_fez_variable_tr" {if $info.sek_html_input != 'static' && !$selectingfield}style="display:none"{/if}>
                  <td class="default cell-colour"><b>Fez Variable:</b><i>(If a Fez variable is set it will be used instead of any other options including smarty template variables)</i></td>
 				<td class="default" style="background: {$light_color}"><br /><b>OR use one of these Fez variables: </b> <br />

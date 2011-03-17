@@ -28,27 +28,40 @@ if(SHIB_SWITCH == 'ON' && SHIB_VERSION == '2') {
 	));
 }
 
-$max_age = 1800;
+$max_age = 1;
 if($file == 'js/shib.js') {
 	$max_age = 0;
+}
+$min_allowDebugFlag = true;
+$min_serveOptions = array();
+if ($min_allowDebugFlag && isset($_GET['debug'])) {
+    $min_serveOptions['debug'] = true;
+}
+
+if ($min_errorLogger) {
+    require_once 'Minify/Logger.php';
+    if (true === $min_errorLogger) {
+        require_once 'FirePHP.php';
+        Minify_Logger::setLogger(FirePHP::getInstance(true));
+    } else {
+        Minify_Logger::setLogger($min_errorLogger);
+    }
 }
 
 // ensure $_SERVER['DOCUMENT_ROOT'] never has a trailing slash, because some servers don't have the trailing slash while others do.
 $_SERVER['DOCUMENT_ROOT'] = rtrim($_SERVER['DOCUMENT_ROOT'],'/');
 $pathfixup = substr( str_replace($_SERVER["DOCUMENT_ROOT"], '', APP_PATH), 1); //GC
 
-Minify::setCache();
-Minify::serve('Groups', array(
-    'groups' => array(
+$min_serveOptions['groups'] = array(
         $file =>  array($_SERVER["DOCUMENT_ROOT"] . $_SERVER["REQUEST_URI"]), //GC
         $pathfixup . 'js/editmeta.js'   =>  array(APP_PATH . 'js/editmetadata.js'),
         $pathfixup . 'js/common.js'     =>  array(APP_PATH . 'js/browserSniffer.js', APP_PATH .'js/global.js', APP_PATH .'js/validation.js'),
         $pathfixup . 'js/tabs.js'       =>  array(APP_PATH . 'js/tabcontent.js', APP_PATH .'js/ajaxtabs.js'),
 	    $pathfixup . 'js/shib.js'       =>  $shib_source,
-        ),
-    'maxAge' => $max_age
-));
-
+        );
+$min_serveOptions['maxAge'] = $max_age;
+Minify::setCache();
+Minify::serve('Groups', $min_serveOptions);
 
 function shib_wayf_js_fetch() {
 	$cache_file = APP_TEMP_DIR . '/shib_wayf_js_fetch_cache.js';

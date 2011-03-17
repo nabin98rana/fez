@@ -9,17 +9,15 @@ class SelectSearchKey {
 
     function getSearchKeyOptions($sek_id)
     {
-        $list = array();
+        $log = FezLog::get();
         $list_field = Search_Key::getDetails($sek_id);
-        if (!empty($list_field["sek_smarty_variable"]) && $list_field["sek_smarty_variable"] != "none") {
-            eval("\$list['field_options'] = " . $list_field["sek_smarty_variable"] . ";");
-        }
+        $list = array();
 
-		/*$list = array();
-        foreach($result as $pid => $item) {
-            $list[] = array('value' => $pid, 'text' => $item);
-        }*/
-        return $list['field_options'];
+        if ($list_field['sek_html_input'] == 'contvocab' && $list_field['sek_cardinality'] != 1) {
+         $cv = new Controlled_Vocab();
+         $list = $cv->getAssocListFullDisplay($list_field['sek_cvo_id']);
+        }
+        return $list;
     }
 
     

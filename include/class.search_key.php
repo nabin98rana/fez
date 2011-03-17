@@ -676,7 +676,7 @@ class Search_Key
 					IF(sek_alt_title <> '', sek_alt_title, sek_title)
                  FROM
                     " . APP_TABLE_PREFIX . "search_key
-								 WHERE sek_bulkchange = TRUE
+								 WHERE sek_bulkchange = TRUE AND sek_cardinality = FALSE
                  ORDER BY
                     sek_title ASC";
         try {

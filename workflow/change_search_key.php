@@ -57,7 +57,7 @@ Auth::checkAuthentication(APP_SESSION);
 
 $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");
-$tpl->assign("type", "select_search_key");
+$tpl->assign("type", "change_search_key_form");
 $tpl->assign("type_name", "Select Search Key");
 
 $wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
@@ -70,12 +70,13 @@ if ($cat == 'submit') {
 }
 $wfstatus->checkStateChange();
 
-$search_keys_list = Search_Key::getAssocList();
+$search_keys_list = Search_Key::getBulkChangeAssocList();
+
 $tpl->assign('search_keys_list', $search_keys_list);
-$tpl->assign('search_keys_list_selected', $search_keys_list[0]['sek_id']);
+$tpl->assign('search_keys_list_selected', $search_keys_list[0]);
 
 $tpl->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL . 'include/najax'));
-$tpl->registerNajax(NAJAX_Client::register('SelectSearchKey', 'select_search_key.php'));
+$tpl->registerNajax(NAJAX_Client::register('SelectSearchKey', 'change_search_key.php'));
 
 $tpl->displayTemplate();
 ?>
