@@ -900,25 +900,27 @@ class RecordGeneral
     }
     $authors = $unknown_authors;
     $authors_count = count($authors);
-
+    
     for ($i = 0; $i < $authors_count; $i++) {
       $authors[$i]['match'] = FALSE;
-      $percent = $this->matchAuthorNameByLev($authors[$i]['name'], $aut_details, $percent_1);
-      if ($percent == 1) {
-        $exact_match_count++;
-        $match_index = $i;
-        $authors[$i]['match'] = $percent;
-      } else {
-        $authors[$i]['match'] = $percent;
-        // Attempt to match on other names for this author we know about
-        foreach ($author_alt_names as $aut_alt_name => $count) {
-          $percent = $this->matchAuthorNameByLev($aut_alt_name, $aut_details, $percent_1);
-          if ($percent == 1) {
-            $exact_match_count++;
-            $match_index = $i;
-            break;
-          }
+      if ($aut_details['aut_org_username']) {
+        $percent = $this->matchAuthorNameByLev($authors[$i]['name'], $aut_details['aut_display_name'], $percent_1);      
+        if ($percent == 1) {
+          $exact_match_count++;
+          $match_index = $i;
           $authors[$i]['match'] = $percent;
+        } else {
+          $authors[$i]['match'] = $percent;
+          // Attempt to match on other names for this author we know about
+          foreach ($aut_alt_names as $aut_alt_name => $count) {
+            $percent = $this->matchAuthorNameByLev($authors[$i]['name'], $aut_alt_name, $percent_1);
+            if ($percent == 1) {
+              $exact_match_count++;
+              $match_index = $i;
+              break;
+            }
+            $authors[$i]['match'] = $percent;
+          }
         }
       }
     }
@@ -1034,77 +1036,45 @@ class RecordGeneral
   }
 
   /**
-   * Match $name with author in $aut_details using Levenschtein distance. A comparison
+   * Match $name with $name_to_match using Levenschtein distance. A comparison
    * percentage is assigned to the $percent referenced variable if one is found in
    * this match that is higher than what is was previously set to
    *
    * @param string $name
-   * @param array  $aut_details
+   * @param string $name_to_match
    * @param float  $percent
    *
    * @return float Percentage for this match
    */
-  function matchAuthorNameByLev($name, $aut_details, &$percent)
+  function matchAuthorNameByLev($name, $name_to_match, &$percent)
   {
-    // Require org username
-    if (! $aut_details['aut_org_username']) {
-      return 0;
-    }
     $rpercent = 0;
 
-    // Build array of possible author name formats
-    $names_to_match = array();
-    $lname_to_match = $aut_details['aut_lname'];
-    $names_to_match[] = $aut_details['aut_display_name'];
-    // Lname, Fname
-    $names_to_match[] = $lname_to_match . ', ' . $aut_details['aut_fname'];
-    // Lname, F.
-    $names_to_match[] = $lname_to_match . ', ' . substr($aut_details['aut_fname'], 0, 1) . ".";
-    // Lname, F. M.
-    if ($aut_details['aut_mname']) {
-      $matches = explode(' ', $aut_details['aut_mname']);
-      $middle = array();
-      foreach ($matches as $m) {
-        $middle[] = substr($m, 0, 1);
-      }
-      $middle1 = implode('. ', $middle) . '.';
-      $names_to_match[] = $lname_to_match . ', ' . substr($aut_details['aut_fname'], 0, 1) . 
-                          ". " . $middle1;
-      $middle2 = implode('', $middle);
-      $names_to_match[] = $lname_to_match . ', ' . substr($aut_details['aut_fname'], 0, 1) . $middle2;
-    }
-    $name = trim(strtolower($name));
-
-    foreach ($names_to_match as $name_to_match) {
-      if ($name_to_match == $name) {
-        // exact match
+    if ($name_to_match == $name) {
+      // exact match
+      $percent = 1;
+      return 1;
+    } else {      
+      // An exact match without spaces, commas or full stops
+      $accept_distance = 1;
+      $pattern = '/[\s,.]/';
+      $name_to_match = strtolower(preg_replace($pattern, '', $name_to_match));
+      $name = strtolower(preg_replace($pattern, '', $name));
+      $distance = levenshtein($name_to_match, $name);
+      $_percent = 1 - ($distance / (max(strlen($name_to_match), strlen($name))));
+      if ($distance < $accept_distance) {
+        // matched within acceptable distance
         $percent = 1;
         return 1;
-      } else {
-        $min_length = min(strlen($name_to_match), strlen($name));
-        $max_length = max(strlen($name_to_match), strlen($name));
-        
-        // An exact match without spaces, commas or full stops
-        $accept_distance = 1;
-        $pattern = '/[\s,.]/';
-        $name_to_match = strtolower(preg_replace($pattern, '', $name_to_match));
-        $name = strtolower(preg_replace($pattern, '', $name));
-                
-        $distance = levenshtein($name_to_match, $name);
-        $_percent = 1 - ($distance / (max(strlen($name_to_match), strlen($name))));
-        if ($distance < $accept_distance) {
-          // matched within acceptable distance
-          $percent = 1;
-          return 1;
-        }
-      }
-      if ($_percent > $percent) {
-        $percent = $_percent;
-      }
-      if ($_percent > $rpercent) {
-        $rpercent = $_percent;
       }
     }
+    if ($_percent > $percent) {
+      $percent = $_percent;
+    }
+    if ($_percent > $rpercent) {
+      $rpercent = $_percent;
+    }
+    
 
     return $rpercent;
   }
