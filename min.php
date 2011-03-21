@@ -28,7 +28,7 @@ if(SHIB_SWITCH == 'ON' && SHIB_VERSION == '2') {
 	));
 }
 
-$max_age = 1;
+$max_age = 1800;
 if($file == 'js/shib.js') {
 	$max_age = 0;
 }
