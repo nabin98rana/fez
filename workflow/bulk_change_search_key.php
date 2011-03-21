@@ -37,7 +37,9 @@ include_once(APP_INC_PATH. 'class.bgp_bulk_change_search_key.php');
 include_once(APP_INC_PATH. 'class.error_handler.php');
 
 $pids           = $this->pids;  /* The Pids to copy */
-$collection_pid = $this->pid;   /* The collection to copy PID's into */
+$sek_id    = $this->getvar('sek_id');
+$sek_value      = $this->getvar('sek_value');
+
 $regen          = false;
 
 if (!empty($pids) && is_array($pids)) { 

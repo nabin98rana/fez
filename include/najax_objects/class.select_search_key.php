@@ -12,10 +12,15 @@ class SelectSearchKey {
         $log = FezLog::get();
         $list_field = Search_Key::getDetails($sek_id);
         $list = array();
+        $result = array();
 
         if ($list_field['sek_html_input'] == 'contvocab' && $list_field['sek_cardinality'] != 1) {
          $cv = new Controlled_Vocab();
-         $list = $cv->getAssocListFullDisplay($list_field['sek_cvo_id']);
+         $result = $cv->getAssocListFullDisplay($list_field['sek_cvo_id']);
+        }
+        
+        foreach($result as $pid => $item) {
+            $list[] = array('value' => $pid, 'text' => $item);
         }
         return $list;
     }

@@ -1,9 +1,11 @@
-//** Tab Content script v2.0- � Dynamic Drive DHTML code library (http://www.dynamicdrive.com)
+//** Tab Content script v2.0- © Dynamic Drive DHTML code library (http://www.dynamicdrive.com)
 //** Updated Oct 7th, 07 to version 2.0. Contains numerous improvements:
 //   -Added Auto Mode: Script auto rotates the tabs based on an interval, until a tab is explicitly selected
 //   -Ability to expand/contract arbitrary DIVs on the page as the tabbed content is expanded/ contracted
 //   -Ability to dynamically select a tab either based on its position within its peers, or its ID attribute (give the target tab one 1st)
-//   -Ability to set where the CSS classname "selected" get assigned- either to the target tab's link ("A"), or its parent container 
+//   -Ability to set where the CSS classname "selected" get assigned- either to the target tab's link ("A"), or its parent container
+//** Updated Feb 18th, 08 to version 2.1: Adds a "tabinstance.cycleit(dir)" method to cycle forward or backward between tabs dynamically
+//** Updated April 8th, 08 to version 2.2: Adds support for expanding a tab using a URL parameter (ie: http://mysite.com/tabcontent.htm?tabinterfaceid=0) 
 
 ////NO NEED TO EDIT BELOW////////////////////////
 
@@ -12,6 +14,7 @@ function ddtabcontent(tabinterfaceid){
 	this.tabs=document.getElementById(tabinterfaceid).getElementsByTagName("a") //Get all tab links within container
 	this.enabletabpersistence=true
 	this.hottabspositions=[] //Array to store position of tabs that have a "rel" attr defined, relative to all tab links, within container
+	this.currentTabIndex=0 //Index of currently selected hot tab (tab with sub content) within hottabspositions[] array
 	this.subcontentids=[] //Array to store ids of the sub contents ("rel" attr values)
 	this.revcontentids=[] //Array to store ids of arbitrary contents to expand/contact as well ("rev" attr values)
 	this.selectedClassTarget="link" //keyword to indicate which target element to assign "selected" CSS class ("linkparent" or "link")
@@ -44,6 +47,18 @@ ddtabcontent.prototype={
 			this.expandtab(tabref) //expand this tab
 	},
 
+	cycleit:function(dir, autorun){ //PUBLIC function to move foward or backwards through each hot tab (tabinstance.cycleit('foward/back') )
+		if (dir=="next"){
+			var currentTabIndex=(this.currentTabIndex<this.hottabspositions.length-1)? this.currentTabIndex+1 : 0
+		}
+		else if (dir=="prev"){
+			var currentTabIndex=(this.currentTabIndex>0)? this.currentTabIndex-1 : this.hottabspositions.length-1
+		}
+		if (typeof autorun=="undefined") //if cycleit() is being called by user, versus autorun() function
+			this.cancelautorun() //stop auto cycling of tabs (if running)
+		this.expandtab(this.tabs[this.hottabspositions[currentTabIndex]])
+	},
+
 	setpersist:function(bool){ //PUBLIC function to toggle persistence feature
 			this.enabletabpersistence=bool
 	},
@@ -54,6 +69,11 @@ ddtabcontent.prototype={
 
 	getselectedClassTarget:function(tabref){ //Returns target element to assign "selected" CSS class to
 		return (this.selectedClassTarget==("linkparent".toLowerCase()))? tabref.parentNode : tabref
+	},
+
+	urlparamselect:function(tabinterfaceid){
+		var result=window.location.search.match(new RegExp(tabinterfaceid+"=(\\d+)", "i")) //check for "?tabinterfaceid=2" in URL
+		return (result==null)? null : parseInt(RegExp.$1) //returns null or index, where index (int) is the selected tab's index
 	},
 
 	expandtab:function(tabref){
@@ -67,6 +87,7 @@ ddtabcontent.prototype={
 		}
 		if (this.enabletabpersistence) //if persistence enabled, save selected tab position(int) relative to its peers
 			ddtabcontent.setCookie(this.tabinterfaceid, tabref.tabposition)
+		this.setcurrenttabindex(tabref.tabposition) //remember position of selected tab within hottabspositions[] array
 	},
 
 	expandsubcontent:function(subcontentid){
@@ -76,7 +97,6 @@ ddtabcontent.prototype={
 		}
 	},
 
-
 	expandrevcontent:function(associatedrevids){
 		var allrevids=this.revcontentids
 		for (var i=0; i<allrevids.length; i++){ //Loop through rev attributes for all tabs in this tab interface
@@ -85,11 +105,17 @@ ddtabcontent.prototype={
 		}
 	},
 
+	setcurrenttabindex:function(tabposition){ //store current position of tab (within hottabspositions[] array)
+		for (var i=0; i<this.hottabspositions.length; i++){
+			if (tabposition==this.hottabspositions[i]){
+				this.currentTabIndex=i
+				break
+			}
+		}
+	},
+
 	autorun:function(){ //function to auto cycle through and select tabs based on a set interval
-		var currentTabIndex=this.automode_currentTabIndex //index within this.hottabspositions to begin
-		var hottabspositions=this.hottabspositions //Array containing position numbers of "hot" tabs (those with a "rel" attr)
-		this.expandtab(this.tabs[hottabspositions[currentTabIndex]])
-		this.automode_currentTabIndex=(currentTabIndex<hottabspositions.length-1)? currentTabIndex+1 : 0 //increment currentTabIndex
+		this.cycleit('next', true)
 	},
 
 	cancelautorun:function(){
@@ -99,7 +125,8 @@ ddtabcontent.prototype={
 
 	init:function(automodeperiod){
 		var persistedtab=ddtabcontent.getCookie(this.tabinterfaceid) //get position of persisted tab (applicable if persistence is enabled)
-		var persisterror=true //Bool variable to check whether persisted tab position is valid (can become invalid if user has modified tab structure)
+		var selectedtab=-1 //Currently selected tab index (-1 meaning none)
+		var selectedtabfromurl=this.urlparamselect(this.tabinterfaceid) //returns null or index from: tabcontent.htm?tabinterfaceid=index
 		this.automodeperiod=automodeperiod || 0
 		for (var i=0; i<this.tabs.length; i++){
 			this.tabs[i].tabposition=i //remember position of tab relative to its peers
@@ -115,18 +142,16 @@ ddtabcontent.prototype={
 				if (this.tabs[i].getAttribute("rev")){ //if "rev" attr defined, store each value within "rev" as an array element
 					this.revcontentids=this.revcontentids.concat(this.tabs[i].getAttribute("rev").split(/\s*,\s*/))
 				}
-				if (this.enabletabpersistence && parseInt(persistedtab)==i || !this.enabletabpersistence && this.getselectedClassTarget(this.tabs[i]).className=="selected"){
-					this.expandtab(this.tabs[i]) //expand current tab if it's the persisted tab, or if persist=off, carries the "selected" CSS class
-					persisterror=false //Persisted tab (if applicable) was found, so set "persisterror" to false
-					//If currently selected tab's index(i) is greater than 0, this means its not the 1st tab, so set the tab to begin in automode to 1st tab:
-					this.automode_currentTabIndex=(i>0)? 0 : 1
+				if (selectedtabfromurl==i || this.enabletabpersistence && selectedtab==-1 && parseInt(persistedtab)==i || !this.enabletabpersistence && selectedtab==-1 && this.getselectedClassTarget(this.tabs[i]).className=="selected"){
+					selectedtab=i //Selected tab index, if found
 				}
 			}
 		} //END for loop
-		if (persisterror) //if an error has occured while trying to retrieve persisted tab (based on its position within its peers)
+		if (selectedtab!=-1) //if a valid default selected tab index is found
+			this.expandtab(this.tabs[selectedtab]) //expand selected tab (either from URL parameter, persistent feature, or class="selected" class)
+		else //if no valid default selected index found
 			this.expandtab(this.tabs[this.hottabspositions[0]]) //Just select first tab that contains a "rel" attr
 		if (parseInt(this.automodeperiod)>500 && this.hottabspositions.length>1){
-			this.automode_currentTabIndex=this.automode_currentTabIndex || 0
 			this.autoruntimer=setInterval(function(){tabinstance.autorun()}, this.automodeperiod)
 		}
 	} //END int() function

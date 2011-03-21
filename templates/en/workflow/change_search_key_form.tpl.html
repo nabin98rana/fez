@@ -20,9 +20,10 @@ function hideLoading()
 
 function selectSearchKey(f, field_name)
 {
+
     if (coll_load_state > 0) {
-       return false;
-    } 
+        return false;
+    }
     var field = getFormElement(f, field_name);
     var selections = getSelectedItems(field);
 
@@ -74,6 +75,7 @@ function validateForm(f)
   </td>
   <td width="75%" bgcolor="{$light_color}">
     <select class="default" name="sek_id" onChange="javascript: selectSearchKey(this.form, 'sek_id')" >
+        <option value="">(select a search key)</option>
       {html_options options=$search_keys_list selected=$search_keys_list_selected }
     </select>
   </td>
@@ -89,7 +91,7 @@ function validateForm(f)
   </td>
 </tr>
     
-<script type="text/javascript"><!-- 
+<script type="text/javascript"><!--
 selectSearchKey(getForm('wfl_form1'), 'sek_id');
 // --></script>
 

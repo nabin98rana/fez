@@ -576,7 +576,8 @@ class Lister
 			} elseif (!empty($author_refine)) {
 	        	$options = Search_Key::stripSearchKeys($options);
             	$filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
-				$filter["searchKey".Search_Key::getID("Author")] = $author_refine; 
+				$filter["searchKey".Search_Key::getID("Author")] = str_replace("+", " ", $author_refine);
+                
             	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter, 'AND', false, false, true); // do an exact match
 
                 $list_info = $list["info"];
@@ -809,7 +810,7 @@ class Lister
 	        $tpl->assign("list", $list);
 	        $tpl->assign("list_info", $list_info);
 	        $tpl->assign('facets', $facets);
-
+            $tpl->assign("author_id", $author_id);
 			$tpl->assign("authorDetails", $authorDetails);			
 			$tpl->assign("active_nav", "mypubs");
 //			$tpl->displayTemplate();
@@ -1072,7 +1073,8 @@ class Lister
 
 		$uri = strtolower($_SERVER['REQUEST_URI']);
 		$uri = str_replace(" ", "_", $uri);
-		$uri = preg_replace("/[^a-z0-9_]/", "", $uri);
+		$uri = preg_replace('/(.*)\?(.*)/', "$1", $uri);
+        $uri = preg_replace("/[^a-z0-9_]/", "", $uri);
 
 		if (empty($uri)) {
 			return false;
@@ -1081,6 +1083,7 @@ class Lister
 		//check if it is an author username
 		$authorDetails = Author::getDetailsByUsername($uri);
 		$params = $_GET;
+        
 		if (count($authorDetails) != 0 && is_numeric($authorDetails['aut_id'])) {
 			$params['browse'] = 'mypubs';
             $params['author_id'] = $authorDetails['aut_id'];
