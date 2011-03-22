@@ -903,23 +903,37 @@ class RecordGeneral
     
     for ($i = 0; $i < $authors_count; $i++) {
       $authors[$i]['match'] = FALSE;
-      if ($aut_details['aut_org_username']) {
-        $percent = $this->matchAuthorNameByLev($authors[$i]['name'], $aut_details['aut_display_name'], $percent_1);      
-        if ($percent == 1) {
-          $exact_match_count++;
-          $match_index = $i;
-          $authors[$i]['match'] = $percent;
-        } else {
-          $authors[$i]['match'] = $percent;
-          // Attempt to match on other names for this author we know about
-          foreach ($aut_alt_names as $aut_alt_name => $count) {
-            $percent = $this->matchAuthorNameByLev($authors[$i]['name'], $aut_alt_name, $percent_1);
-            if ($percent == 1) {
-              $exact_match_count++;
-              $match_index = $i;
-              break;
-            }
+      $percent = 0;      
+      if ($aut_details['aut_org_username']) {        
+        if ($known) {
+          // Last name match first, if we have $authors[$i]['name'] in the format LName, F
+          $name_parts = explode(',', $authors[$i]['name']);          
+          $percent = $this->matchAuthorNameByLev($name_parts[0], $aut_details['aut_lname'], $percent_1);
+          if ($percent == 1) {
+            $exact_match_count++;
+            $match_index = $i;
             $authors[$i]['match'] = $percent;
+          }
+        }
+        // No exact match above found        
+        if ($percent < 1) {
+          $percent = $this->matchAuthorNameByLev($authors[$i]['name'], $aut_details['aut_display_name'], $percent_1);      
+          if ($percent == 1) {
+            $exact_match_count++;
+            $match_index = $i;
+            $authors[$i]['match'] = $percent;
+          } else {
+            $authors[$i]['match'] = $percent;
+            // Attempt to match on other names for this author we know about
+            foreach ($aut_alt_names as $aut_alt_name => $count) {
+              $percent = $this->matchAuthorNameByLev($authors[$i]['name'], $aut_alt_name, $percent_1);
+              if ($percent == 1) {
+                $exact_match_count++;
+                $match_index = $i;
+                break;
+              }
+              $authors[$i]['match'] = $percent;
+            }
           }
         }
       }
@@ -1036,20 +1050,22 @@ class RecordGeneral
   }
 
   /**
-   * Match $name with $name_to_match using Levenschtein distance. A comparison
+   * Match $name with author in $aut_details using Levenschtein distance. A comparison
    * percentage is assigned to the $percent referenced variable if one is found in
    * this match that is higher than what is was previously set to
    *
    * @param string $name
-   * @param string $name_to_match
+   * @param array  $aut_details
    * @param float  $percent
    *
    * @return float Percentage for this match
    */
   function matchAuthorNameByLev($name, $name_to_match, &$percent)
   {
+    $log = FezLog::get();
+    
     $rpercent = 0;
-
+    
     if ($name_to_match == $name) {
       // exact match
       $percent = 1;
