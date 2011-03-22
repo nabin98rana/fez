@@ -562,7 +562,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 			$log->err($ex);
 			return '';
 		}
-			
+		$ret = array();
 		foreach ($res as $row) {
 			$ret[$row['authi_pid']][$row['authi_role']] = $row['authi_arg_id'];
 		}
