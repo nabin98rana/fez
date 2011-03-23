@@ -96,7 +96,6 @@ class LinksAmrService
     $db = DB_API::get();
     
     $config = array(
-        'adapter' => 'Zend_Http_Client_Adapter_Proxy',
         'maxredirects' => 0,
         'timeout' => 120
     );
