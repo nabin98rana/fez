@@ -31,6 +31,7 @@
 // |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>                     |
 // +----------------------------------------------------------------------+
 
+include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.author.php");
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.eventum.php");
@@ -70,7 +71,13 @@ class MyResearch
 		
 		// Some text will be presented slightly differently to the user if they also have edited something.
 		$tpl->assign("is_editor", Author::isAuthorAlsoAnEditor($author_id));
-
+		
+		// Find out if the facets refine request had a proxy component, and set the acting user if necessary
+		$proxy = @$_GET['proxy'];
+		if ($isUPO && $proxy != '') {
+			Auth::setActingUsername($proxy); // Change to a new acting user
+		}
+		
 		// Determine what we're actually doing here.
 		$action = Misc::GETorPOST('action');
 		$list = true;
@@ -873,9 +880,9 @@ class MyResearch
 		$log = FezLog::get();
 		$db = DB_API::get();
 		
-//		if ($username == '' || !isset($username)) {
-//			return '';
-//		}
+		if ($username == '' || !isset($username)) {
+			return '';
+		}
 		
 		$stmt = "
 				SELECT

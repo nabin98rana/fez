@@ -50,6 +50,7 @@ if (APP_MY_RESEARCH_MODULE != 'ON') {
 	die('Sorry - this module is not enabled.');
 }
 
+$username = Auth::getUsername();
 if (APP_MY_RESEARCH_MODULE == "ON" && MyResearch::getHRorgUnit($username) != "") {
 	MyResearch::dispatcher("possible");
 } else {

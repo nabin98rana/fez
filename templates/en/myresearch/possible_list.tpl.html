@@ -57,7 +57,7 @@ function hideBulk()
 	{if ($facets || $terms)}
     <div class="facet">
     <div class="facetheader">
-    <h2>Refine (10 facets)</h2>
+    	<h2>Refine (10 facets)</h2>
     </div>
     
 	{if $terms}
@@ -73,7 +73,7 @@ function hideBulk()
 	{/if}
         {foreach from=$items.values key=id item=valueData}
         {if $valueData.num > 0}
-        {if $id != '0'}<li class='facetarrow'><a href="?{$url_wo_rows}&search_keys[{$sek_id}]={$id}">{$valueData.value}</a> ({$valueData.num})</li>{/if}
+        {if $id != '0'}<li class='facetarrow'><a href="?{$url_wo_rows}&search_keys[{$sek_id}]={$id}{if $acting_user.aut_org_username != ''}&proxy={$acting_user.aut_org_username}{/if}">{$valueData.value}</a> ({$valueData.num})</li>{/if}
         {/if}
         {/foreach}
         <li>&nbsp;</li>
