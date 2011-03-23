@@ -170,6 +170,13 @@ class LinksAmrQueue extends Queue
   {
     $log = FezLog::get();
     
+    // Don't process the queue until we have reached the batch size
+    // This is so we at least attempt to play nicely with the 
+    // Links AMR service.    
+    if ($this->size() < $this->_batch_size) {
+      return;
+    }
+    
     // Mark lock with pid
     if ($this->_use_locking) {
       if (!$this->updateLock()) {
@@ -177,12 +184,6 @@ class LinksAmrQueue extends Queue
       }
     }
     
-    // Don't process the queue until we have reached the batch size
-    // This is so we at least attempt to play nicely with the 
-    // Links AMR service.    
-    if ($this->size() < $this->_batch_size) {
-      return;
-    }
     $this->_bgp->setStatus("Links AMR queue processing started");
     $started = time();
     $count_docs = 0;
