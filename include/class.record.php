@@ -3539,7 +3539,7 @@ class Record
 
         if (empty($sek_id)) continue;
 
-        if (!empty($searchValue) && (!is_array($searchValue) || trim($searchValue) != "")) {
+        if (!empty($searchValue) && !is_array($searchValue) ) {
 
           $sekdet = Search_Key::getDetails($sek_id);
           $suffix = Record::getSolrSuffix($sekdet);
