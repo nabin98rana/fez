@@ -3528,23 +3528,26 @@ class Record
               }
           }
       }
-      $searchKey_join["sk_where_AND"][] = "" .$escapedInput;
+      $searchKey_join["sk_where_AND"][] = "(" .$escapedInput.")";
     }
 
     /*
      * For each search key build SQL if data was submitted
      */
+
     if (is_array($searchKeys)) {
       foreach ($searchKeys as $sek_id => $searchValue ) {
 
-        if (empty($sek_id)) continue;
+          //already dealt with search key '0' above don't need to do it here
+        if ($sek_id == '0') { continue; }
 
-        if (!empty($searchValue) && !is_array($searchValue) ) {
+        if (!empty($searchValue)) {
 
           $sekdet = Search_Key::getDetails($sek_id);
           $suffix = Record::getSolrSuffix($sekdet);
-          if(empty($sekdet['sek_id']))
-          continue;
+          if(empty($sekdet['sek_id'])) {
+            continue;
+          }
 
           // if we're looking for an exact match specifically, then substitute the mt_exact suffix instead
           if ($doExactMatch && strtolower($sekdet['sek_title']) == 'author') {
@@ -3750,7 +3753,6 @@ class Record
         }
       }
     }
-
     return $searchKey_join;
   }
 
