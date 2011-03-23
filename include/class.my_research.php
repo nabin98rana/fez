@@ -69,9 +69,9 @@ class MyResearch
 
 		$tpl->assign("type", $type);
 		
-		/*if (MyResearch::getHRorgUnit($username) == "") {
-			die('You must be in both the HR system and the eSpace author table in order to use this system.');
-		}*/		
+		if (MyResearch::getHRorgUnit($username) == "") {
+			$tpl->assign("non_hr", true); // This will cause a bail-out in template land
+		}
 
 		$tpl->assign("isUser", $isUser);
 		$tpl->assign("isAdministrator", $isAdministrator);

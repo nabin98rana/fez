@@ -100,6 +100,10 @@ $tpl->assign("acting_user", $actingUserArray);
 $tpl->assign("actual_user", $username);
 $tpl->assign("current_aou", $currentAOU);
 
+if (MyResearch::getHRorgUnit($username) == "") {
+	$tpl->assign("non_hr", true); // This will cause a bail-out in template land
+}
+
 $tpl->assign("active_nav", "my_fez");
 
 $tpl->displayTemplate();

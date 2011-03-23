@@ -1,15 +1,26 @@
 {include file="header.tpl.html"}
 {include file="navigation.tpl.html"}
 
-<div id="research">
-	{include file="myresearch/tabs.tpl.html"}
-	{include file="myresearch/$type.tpl.html"}
-</div>
+{if $non_hr == true}
 
-{if $isAdministrator}
-	<div id="research-old-interface-link">
-		<a href="{$rel_url}my_fez_traditional.php">Old My eSpace Interface</a>
+	<div id="research">
+		<h1>Insufficient permission</h1>
+		<p>You must be on file in the HR system to access this functionality. Contact the eSpace Manager if you believe you are seeing this message in error.</p>
 	</div>
+
+{else}
+
+	<div id="research">
+		{include file="myresearch/tabs.tpl.html"}
+		{include file="myresearch/$type.tpl.html"}
+	</div>
+
+	{if $isAdministrator}
+		<div id="research-old-interface-link">
+			<a href="{$rel_url}my_fez_traditional.php">Old My eSpace Interface</a>
+		</div>
+	{/if}	
+	
 {/if}
 
 {include file="app_info.tpl.html"}
