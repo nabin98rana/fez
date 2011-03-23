@@ -75,6 +75,7 @@ include_once(APP_INC_PATH . "class.handle_requestor.php");
 include_once(APP_INC_PATH . "class.record_object.php");
 include_once(APP_INC_PATH . "class.record_general.php");
 include_once(APP_INC_PATH . "class.validation.php");
+include_once(APP_INC_PATH . "class.links_amr_queue.php");
 
 define('SK_JOIN', 0);
 define('SK_LEFT_JOIN', 1);
@@ -1258,7 +1259,12 @@ class Record
       $cache = new fileCache($pid, 'pid='.$pid);
       $cache->poisonCache();
     }
-
+    
+    // Add the updated record for Links AMR processing
+    if (APP_AUTO_LINKSAMR_UPLOAD == "ON" ) {
+      LinksAmrQueue::get()->add($pid);
+    }
+       
     return $ret;
   }
 
