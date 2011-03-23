@@ -50,40 +50,33 @@ if (APP_MY_RESEARCH_MODULE != 'ON') {
 	die('Sorry - this module is not enabled.');
 }
 
-if (APP_MY_RESEARCH_MODULE == "ON" && MyResearch::getHRorgUnit($username) != "") {
+$tpl = new Template_API();
+$tpl->setTemplate("myresearch/index.tpl.html");
 
-	$tpl = new Template_API();
-	$tpl->setTemplate("myresearch/index.tpl.html");
+Auth::checkAuthentication(APP_SESSION);
+$username = Auth::getUsername();
+$actingUser = Auth::getActingUsername();
+$author_id = Author::getIDByUsername($actingUser);
+$actingUserArray = Author::getDetailsByUsername($actingUser);
+$actingUserArray['org_unit_description'] = MyResearch::getHRorgUnit($actingUser);
 
-	Auth::checkAuthentication(APP_SESSION);
-	$username = Auth::getUsername();
-	$actingUser = Auth::getActingUsername();
-	$author_id = Author::getIDByUsername($actingUser);
-	$actingUserArray = Author::getDetailsByUsername($actingUser);
-	$actingUserArray['org_unit_description'] = MyResearch::getHRorgUnit($actingUser);
+$tpl->assign("type", "add");
 
-	$tpl->assign("type", "add");
+$isUser = Auth::getUsername();
+$isAdministrator = User::isUserAdministrator($isUser);
+$isSuperAdministrator = User::isUserSuperAdministrator($isUser);
+$isUPO = User::isUserUPO($isUser);
 
-	$isUser = Auth::getUsername();
-	$isAdministrator = User::isUserAdministrator($isUser);
-	$isSuperAdministrator = User::isUserSuperAdministrator($isUser);
-	$isUPO = User::isUserUPO($isUser);
+$tpl->assign("isUser", $isUser);
+$tpl->assign("isAdministrator", $isAdministrator);
+$tpl->assign("isSuperAdministrator", $isSuperAdministrator);
+$tpl->assign("isUPO", $isUPO);
 
-	$tpl->assign("isUser", $isUser);
-	$tpl->assign("isAdministrator", $isAdministrator);
-	$tpl->assign("isSuperAdministrator", $isSuperAdministrator);
-	$tpl->assign("isUPO", $isUPO);
+$tpl->assign("active_nav", "my_fez");
+$tpl->assign("childXDisplayOptions", Record::getSearchKeyIndexValue(APP_MY_RESEARCH_NEW_ITEMS_COLLECTION, "XSD Display Option"));
+$tpl->assign("acting_user", $actingUserArray);
+$tpl->assign("actual_user", $username);
 
-	$tpl->assign("active_nav", "my_fez");
-	$tpl->assign("childXDisplayOptions", Record::getSearchKeyIndexValue(APP_MY_RESEARCH_NEW_ITEMS_COLLECTION, "XSD Display Option"));
-	$tpl->assign("acting_user", $actingUserArray);
-	$tpl->assign("actual_user", $username);
-
-	$tpl->displayTemplate();
-
-} else {
-	die('Sorry - this module is only for users in the Human Resources system as employees.');	
-}
-
+$tpl->displayTemplate();
 
 ?>

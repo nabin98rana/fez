@@ -48,7 +48,18 @@ class MyResearch
 	function dispatcher($type) {
 		$tpl = new Template_API();
 		$tpl->setTemplate("myresearch/index.tpl.html");
+		
+		$isUser = Auth::getUsername();
+		$isAdministrator = User::isUserAdministrator($isUser);
+		$isSuperAdministrator = User::isUserSuperAdministrator($isUser);
+		$isUPO = User::isUserUPO($isUser);
 
+		// Find out if the facets refine request had a proxy component, and set the acting user if necessary
+		$proxy = @$_GET['proxy'];
+		if ($isUPO && $proxy != '') {
+			Auth::setActingUsername($proxy); // Change to a new acting user
+		}
+		
 		Auth::checkAuthentication(APP_SESSION, $_SERVER['REQUEST_URI']);
 		$username = Auth::getUsername();
 		$actingUser = Auth::getActingUsername();
@@ -57,11 +68,10 @@ class MyResearch
 		$actingUserArray['org_unit_description'] = MyResearch::getHRorgUnit($actingUser);
 
 		$tpl->assign("type", $type);
-
-		$isUser = Auth::getUsername();
-		$isAdministrator = User::isUserAdministrator($isUser);
-		$isSuperAdministrator = User::isUserSuperAdministrator($isUser);
-		$isUPO = User::isUserUPO($isUser);
+		
+		/*if (MyResearch::getHRorgUnit($username) == "") {
+			die('You must be in both the HR system and the eSpace author table in order to use this system.');
+		}*/		
 
 		$tpl->assign("isUser", $isUser);
 		$tpl->assign("isAdministrator", $isAdministrator);
@@ -71,12 +81,6 @@ class MyResearch
 		
 		// Some text will be presented slightly differently to the user if they also have edited something.
 		$tpl->assign("is_editor", Author::isAuthorAlsoAnEditor($author_id));
-		
-		// Find out if the facets refine request had a proxy component, and set the acting user if necessary
-		$proxy = @$_GET['proxy'];
-		if ($isUPO && $proxy != '') {
-			Auth::setActingUsername($proxy); // Change to a new acting user
-		}
 		
 		// Determine what we're actually doing here.
 		$action = Misc::GETorPOST('action');
