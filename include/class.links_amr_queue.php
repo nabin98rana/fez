@@ -370,9 +370,6 @@ class LinksAmrQueue extends Queue
         }
       }
     }    
-    if ($this->_bgp) {
-      $this->_bgp->setStatus("Found UTs for PIDS: ".print_r($pid_updates, TRUE));
-    }    
     foreach ($pid_updates as $pid => $ut) {
       // Update record with new UT
       $record = new RecordGeneral($pid);
