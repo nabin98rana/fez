@@ -360,7 +360,7 @@ class LinksAmrQueue extends Queue
           if ($_node_list->length > 0) {
             $ut = $_node_list->item(0)->nodeValue;
             if (strpos($pid, ':identifier') !== FALSE) {
-              $pid = str_replace(':identifier', '');              
+              $pid = str_replace(':identifier', '', $pid);              
               // UTs found using identifiers take precedence
               $pid_updates[$pid] = $ut;
             } else if (! array_key_exists($pid, $pid_updates)) {
