@@ -47,7 +47,7 @@ class BackgroundProcess_Bulk_Change_Search_Key extends BackgroundProcess
 	{
 		$this->setState(BGP_RUNNING);
 		extract(unserialize($this->inputs));
-
+        $this->setStatus("Starting ".$this->name." with parameters ".print_r(unserialize($this->inputs), true));
 		if (!empty($options)) {
 			$this->setStatus("Running search");
 			$pids = $this->getPidsFromSearchBGP($options);
