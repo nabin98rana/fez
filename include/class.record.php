@@ -75,6 +75,7 @@ include_once(APP_INC_PATH . "class.handle_requestor.php");
 include_once(APP_INC_PATH . "class.record_object.php");
 include_once(APP_INC_PATH . "class.record_general.php");
 include_once(APP_INC_PATH . "class.validation.php");
+include_once(APP_INC_PATH . "class.links_amr_queue.php");
 
 define('SK_JOIN', 0);
 define('SK_LEFT_JOIN', 1);
@@ -1258,7 +1259,12 @@ class Record
       $cache = new fileCache($pid, 'pid='.$pid);
       $cache->poisonCache();
     }
-
+    
+    // Add the updated record for Links AMR processing
+    if (APP_AUTO_LINKSAMR_UPLOAD == "ON" ) {
+      LinksAmrQueue::get()->add($pid);
+    }
+       
     return $ret;
   }
 
@@ -3528,23 +3534,26 @@ class Record
               }
           }
       }
-      $searchKey_join["sk_where_AND"][] = "" .$escapedInput;
+      $searchKey_join["sk_where_AND"][] = "(" .$escapedInput.")";
     }
 
     /*
      * For each search key build SQL if data was submitted
      */
+
     if (is_array($searchKeys)) {
       foreach ($searchKeys as $sek_id => $searchValue ) {
 
-        if (empty($sek_id)) continue;
+          //already dealt with search key '0' above don't need to do it here
+        if ($sek_id == '0') { continue; }
 
-        if (!empty($searchValue) && !is_array($searchValue) ) {
+        if (!empty($searchValue)) {
 
           $sekdet = Search_Key::getDetails($sek_id);
           $suffix = Record::getSolrSuffix($sekdet);
-          if(empty($sekdet['sek_id']))
-          continue;
+          if(empty($sekdet['sek_id'])) {
+            continue;
+          }
 
           // if we're looking for an exact match specifically, then substitute the mt_exact suffix instead
           if ($doExactMatch && strtolower($sekdet['sek_title']) == 'author') {
@@ -3750,7 +3759,6 @@ class Record
         }
       }
     }
-
     return $searchKey_join;
   }
 

@@ -48,7 +48,7 @@ include_once(APP_INC_PATH . "class.misc.php");
 class LinksAmrService
 {
   //const SERVICE_ENDPOINT = 'https://ws.isiknowledge.com/esti/xrpc';
-  const SERVICE_ENDPOINT = 'https://ws.isiknowledge.com/cps/xrpc';
+  const SERVICE_ENDPOINT = 'http://ws.isiknowledge.com/cps/xrpc';
   
   const COLLECTION = 'WOS';
   
@@ -87,39 +87,42 @@ class LinksAmrService
   /**
    * Method used to perform a service request
    *
-   * @access  private
-   * @param   string $post Data to POST to the service
-   * @return  string The XML returned by the service.
+   * @param  string $xml Raw XML data to POST to the service
+   * @return string The XML returned by the service.
    */
-  private static function doServiceRequest($post_fields)
+  private static function doServiceRequest($xml)
   {
     $log = FezLog::get();
     $db = DB_API::get();
     
-    // Do the service request
-    $header[] = "Content-type: text/xml";
-    $ch = curl_init(self::SERVICE_ENDPOINT);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 100);
-    curl_setopt($ch, CURLOPT_NOBODY, 1);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
-    curl_setopt($ch, CURLOPT_POST, 1);
-    if (APP_HTTPS_CURL_CHECK_CERT == 'OFF') {
-      curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-      curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
-    }
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $post_fields);
-
-    $response = curl_exec($ch);
-
-    if (curl_errno($ch)) {
-      $log->err(array(curl_error($ch)." ".self::SERVICE_ENDPOINT, __FILE__, __LINE__));
-      return false;
+    $config = array(
+        'maxredirects' => 0,
+        'timeout' => 120
+    );
+    $client = new Zend_Http_Client(null, $config);
+    $client->setUri(self::SERVICE_ENDPOINT);
+    $client->setHeaders(
+        array(
+          'Content-type' => 'text/xml'
+        )
+    );
+    $response = $client->setRawData($xml, 'text/xml')->request('POST');
+    
+    if ($response->getStatus() == 200) {
+      $response_doc = new DOMDocument();
+      $response_doc->loadXML($response->getBody());  
+      return $response_doc;      
     } else {
-      curl_close($ch);
-      $response_document = new DOMDocument();
-      $response_document->loadXML($response);  
-      return $response_document;
+      $log->err(
+          array
+          (
+              'An error occurred while fetching data: ' . 
+              $response->getStatus() . ': ' .
+              $response->getMessage() . ': '.
+              self::SERVICE_ENDPOINT, __FILE__, __LINE__
+          )
+      );
+      return false;
     }
   }
 }

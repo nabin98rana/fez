@@ -649,6 +649,17 @@ function restoreDefaultColours(el)
 			</td>
   		  </tr>
   		  <tr>
+        <th>Automatic Links AMR Upload</th>
+      <td>
+        <select name="app_auto_linksamr_upload">
+          <option value="ON"{if $config_settings.app_auto_linksamr_upload == "ON"} selected="selected"{/if}>On</option>
+        <option value="OFF"{if $config_settings.app_auto_linksamr_upload == "OFF"} selected="selected"{/if}>Off</option>
+        </select>
+        <br />Enable automatic upload of records to Links Article Match Retrieve Service on create/update. Requires IP access to the service. If you don't know what this is, don't enable it.
+        {include file="error_icon.tpl.html" field="app_auto_linksamr_upload"}
+      </td>
+        </tr>
+        <tr>
 		    <th>Masquering Users Group</th>
 			<td>
 			  <input type="text" name="app_wheel_group" value="{$config_settings.app_wheel_group|escape:"html"}" size="30" />
