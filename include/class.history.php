@@ -258,7 +258,7 @@ class History
 		$log = FezLog::get();
 		$db = DB_API::get();
 		
-		$session =& $_SESSION;
+		$session =&$_SESSION;
 		$masquerader = Masquerade::getMasquerader($session);
 		$masquerader = User::getDetails($masquerader);
 		$masqueraderID = $masquerader['usr_id'];
@@ -314,7 +314,7 @@ class History
 	 */
 	function addHistory($pid, $wfl_id=null, $outcome="", $outcomeDetail="", $refreshDatastream=false, $historyDetail="", $historyDetailExtra=null) 
 	{
-		$session =& $_SESSION;
+		$session = &$_SESSION;
 		$masquerader = Masquerade::getMasquerader($session);
 		$masquerader = User::getDetails($masquerader);
 		$masqueraderName = $masquerader['usr_full_name'];

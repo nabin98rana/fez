@@ -72,7 +72,9 @@ if (@$_SESSION['IDP_LOGIN_FLAG'] == 1) {
 	Auth::GetShibAttributes();
 	$_SESSION['IDP_LOGIN_FLAG'] = 0;
 }
-if (@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'] != "" || @$_SERVER['Shib-Session-ID'] != "") {
+
+$masquerade = @$_POST["masquerade"];
+if ((@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'] != "" || @$_SERVER['Shib-Session-ID'] != "") && $masquerade == '') {
 // Uncomment this to see a debug output of all the shibboleth attributes in the session
 	// echo "<pre>"; 
 	// print_r($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]);
@@ -108,7 +110,6 @@ if (@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'] != "" || @$_SE
 	}
 	// check if the password matches
 	// This method can also check via LDAP
-	$masquerade = @$_POST["masquerade"];
 	if ($masquerade != '' && User::isUserSuperAdministrator($_POST["username"])) {
 		Auth::redirect(APP_RELATIVE_URL . "login.php?err=30&username=" . $_POST["username"]);	
 	}
