@@ -58,10 +58,10 @@ $tpl->assign("active_nav", "admin");
 
 Auth::checkAuthentication(APP_SESSION);
 $isUser = Auth::getUsername();
-$isSuperAdministrator = User::isUserSuperAdministrator($isUser);
-$tpl->assign("isSuperAdministrator", $isSuperAdministrator);
+$isAdministrator = User::isUserAdministrator($isUser);
+$tpl->assign("isAdministrator", $isAdministrator);
 
-if (!$isSuperAdministrator) {
+if (!$isAdministrator) {
     $tpl->assign("show_not_allowed_msg", true);
 }
 
