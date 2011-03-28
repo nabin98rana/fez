@@ -108,10 +108,17 @@ if (@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'] != "" || @$_SE
 	}
 	// check if the password matches
 	// This method can also check via LDAP
+	$masquerade = @$_POST["masquerade"];
+	if ($masquerade != '' && User::isUserSuperAdministrator($_POST["username"])) {
+		Auth::redirect(APP_RELATIVE_URL . "login.php?err=30&username=" . $_POST["username"]);	
+	}
+	
 	if (!Auth::isCorrectPassword($_POST["username"], $_POST["passwd"])) {
 		Auth::redirect(APP_RELATIVE_URL . "login.php?err=3&username=" . $_POST["username"]);
 	}
-    $loginres = Auth::LoginAuthenticatedUser($_POST["username"], $_POST["passwd"]);
+	
+    $loginres = Auth::LoginAuthenticatedUser($_POST["username"], $_POST["passwd"], false, $masquerade);
+    
     if ($loginres > 0) {
         Auth::redirect(APP_RELATIVE_URL . "login.php?err={$loginres}&username=" . $_POST["username"]);	
     }

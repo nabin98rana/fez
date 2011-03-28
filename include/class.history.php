@@ -48,6 +48,7 @@ include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.date.php");
 include_once(APP_INC_PATH . "class.fedora_api.php");
+include_once(APP_INC_PATH . "class.masquerade.php");
 
 class History
 {
@@ -257,7 +258,13 @@ class History
 		$log = FezLog::get();
 		$db = DB_API::get();
 		
+		$session =& $_SESSION;
+		$masquerader = Masquerade::getMasquerader($session);
+		$masquerader = User::getDetails($masquerader);
+		$masqueraderID = $masquerader['usr_id'];
+		
 		$l_wfl_id = (is_null($wfl_id)) ? 'NULL' : $wfl_id;
+		$hide = ($hide == true) ? "true" : "false";
 		 
 		$stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "premis_event
@@ -268,8 +275,9 @@ class History
                     pre_outcome,
                     pre_outcomedetail,
                     pre_usr_id,
-                    pre_pid";
-			$stmt .= ", pre_is_hidden";
+                    pre_pid,
+                    pre_is_hidden,
+                    pre_msq_usr_id";
 
 		$stmt .= ") VALUES (
                     ".$db->quote($l_wfl_id, 'INTEGER').",
@@ -278,13 +286,14 @@ class History
                     ".$db->quote($outcome).",
                     ".$db->quote($outcomeDetail).",                                        
                     ".$db->quote($usr_id, 'INTEGER').",
-                    ".$db->quote($pid);
-		if ($hide == true) {
-			$stmt .= ", TRUE";
-		} else {
-			$stmt .= ", FALSE";
-		}
-		$stmt .= ")";
+                    ".$db->quote($pid).",
+                    ".$hide.",";
+                    if ($masqueraderID != '') {
+                    	$stmt .= $db->quote($masqueraderID, 'INTEGER').")";
+                    } else {
+                    	$stmt .= "NULL)";
+                    }
+                    
 		try {
 			$db->exec($stmt);
 		}
@@ -305,6 +314,11 @@ class History
 	 */
 	function addHistory($pid, $wfl_id=null, $outcome="", $outcomeDetail="", $refreshDatastream=false, $historyDetail="", $historyDetailExtra=null) 
 	{
+		$session =& $_SESSION;
+		$masquerader = Masquerade::getMasquerader($session);
+		$masquerader = User::getDetails($masquerader);
+		$masqueraderName = $masquerader['usr_full_name'];
+		
 		$dsIDName = "PremisEvent";
 		$event_usr_id = Auth::getUserID();
 		if (!is_numeric($event_usr_id)) {
@@ -312,9 +326,13 @@ class History
 		}
 		$event_usr_full_name = User::getFullName($event_usr_id);
 		$event_date = Date_API::getCurrentDateGMT(true); //date("Y-m-d H:i:s.u");
-
+		
 		$wfl_title = (is_null($wfl_id)) ? $historyDetail : Workflow::getTitle($wfl_id);
-		$detail = $wfl_title. " by " . $event_usr_full_name;
+		if ($masqueraderName != '') {
+			$detail = $wfl_title. " by " . $masqueraderName . ", masquerading as " . $event_usr_full_name;
+		} else {
+			$detail = $wfl_title. " by " . $event_usr_full_name;
+		}
 		if (!is_null($historyDetailExtra)) {
 			$detail .=  " - " . $historyDetailExtra;
 		}

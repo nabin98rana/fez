@@ -264,7 +264,7 @@ class Default_Data
 		$defaultData['app_my_research_module']				= "OFF";
 		$defaultData['app_my_research_new_items_collection']= "";
 		$defaultData['app_my_research_upo_group']			= "Unit Publication Officers";
-		$defaultData['app_my_research_use_classic_groups']			= "";
+		$defaultData['app_my_research_use_classic_groups']	= "";
 		$defaultData['app_eventum_send_emails']				= "OFF";
 		$defaultData['app_eventum_new_job_email_address']	= "";
 		$defaultData['app_eventum_database_host']			= "";
@@ -274,6 +274,7 @@ class Default_Data
 		$defaultData['app_wos_collections']					= "";
 		$defaultData['app_matching_tools']					= "OFF";
 		$defaultData['app_record_locking']					= "OFF";
+		$defaultData['app_wheel_group']						= "Masqueraders";
 		
 		return $defaultData;
 	}

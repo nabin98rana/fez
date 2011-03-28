@@ -1,0 +1,28 @@
+{literal}
+<script type="text/javascript">
+<!--
+
+window.onload = function() {
+  document.getElementById('username').focus();
+}
+
+-->
+</script>
+{/literal}
+
+<div class="admin-box">
+
+  <h1>Masquerade</h1>
+
+  <form id="login_form" method="post" action="{$rel_url}">
+    <div>
+      <input type="hidden" name="cat" value="login" />
+      <input type="hidden" name="url" value="{$smarty.get.url|escape:"html"}" />
+      <input type="hidden" name="masquerade" value="1" />
+      <input type="hidden" name="passwd" value="non-empty-dummy-password" />
+      <input class="default" type="text" id="username" name="username" size="30" />
+      <input type="submit" name="Submit" value="Become this user" class="button" />
+    </div>
+  </form>
+  
+</div>

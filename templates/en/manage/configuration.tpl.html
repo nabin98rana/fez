@@ -648,6 +648,14 @@ function restoreDefaultColours(el)
 			  {include file="error_icon.tpl.html" field="app_eventum_database_pass"}
 			</td>
   		  </tr>
+  		  <tr>
+		    <th>Masquering Users Group</th>
+			<td>
+			  <input type="text" name="app_wheel_group" value="{$config_settings.app_wheel_group|escape:"html"}" size="30" />
+			  <br />Users placed in the spcified group will have access to masquerade functionality (i.e. they will be able to log in as any user).
+			  {include file="error_icon.tpl.html" field="app_wheel_group"}
+			</td>
+  		  </tr>
   		  </tbody>
 		</table>
 		</div>
