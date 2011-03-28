@@ -258,7 +258,7 @@ class History
 		$log = FezLog::get();
 		$db = DB_API::get();
 		
-		$session =&$_SESSION;
+		$session = &$_SESSION;
 		$masquerader = Masquerade::getMasquerader($session);
 		$masquerader = User::getDetails($masquerader);
 		$masqueraderID = $masquerader['usr_id'];
