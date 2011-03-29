@@ -27,52 +27,67 @@
 // | 59 Temple Place - Suite 330                                          |
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
-// | Authors: Andrew Martlew <a.martlew@library.uq.edu.au>                |
+// | Authors: Lachlan Kuhn <l.kuhn@library.uq.edu.au>                     |
 // +----------------------------------------------------------------------+
+//
+//
 
-include_once('../config.inc.php');
-include_once(APP_INC_PATH . "class.record.php");
-include_once(APP_INC_PATH . 'class.links_amr_queue.php');
+include_once(APP_INC_PATH . "class.group.php");
+include_once(APP_INC_PATH . "class.user.php");
 
-$filter = array();
+class Masquerade
+{
+	/**
+	* Method used to check whether a user is allowed to masquerade.
+	*
+	* @access  public
+	* @param   string $username The user's username
+	* @return  boolean TRUE if can masquerade, otherwise FALSE
+	*/
+	function canUserMasquerade($username)
+	{
+		$canMasquerade = false;
+		
+		$masqueradeGroupID = Group::getID(APP_WHEEL_GROUP);
+		$userGroups = Group::getGroupColList(User::getUserIDByUsername($username));
+		if (count($userGroups) > 0) {
+			foreach ($userGroups as $ug) {
+				if ($ug == $masqueradeGroupID) {
+					$canMasquerade = true;
+				}
+			}
+		}
+		
+		return $canMasquerade;
+	}
+	
+	
+	
+	/**
+	* Method used to update the session with information about the user who
+	* enacted a masquerade.
+	*
+	* @access  public
+	* @param   string $username The masquerading user's username
+	*/
+	function setMasquerader(&$session, $username)
+	{
+		$session['masquerader'] = $username;
+		
+		return;
+	}
+	
+	
+	
+	/**
+	* Method used to find out who the masquerading user is, if there is one.
+	*
+	* @access  public
+	* @return  string Username of masquerading user
+	*/
+	function getMasquerader($session)
+	{
+		return $session['masquerader'];
+	}
 
-// Get records ..
-$filter["searchKey".Search_Key::getID("Object Type")] = 3;
-// .. which are either journal articles and conference papers ..
-$filter["searchKey".Search_Key::getID("Display Type")] = array();
-$filter["searchKey".Search_Key::getID("Display Type")]['override_op'] = 'OR';
-$filter["searchKey".Search_Key::getID("Display Type")][] = 
-    XSD_Display::getXDIS_IDByTitleVersion('Journal Article', 'MODS 1.0');
-$filter["searchKey".Search_Key::getID("Display Type")][] = 
-    XSD_Display::getXDIS_IDByTitleVersion('Conference Paper', 'MODS 1.0');
-// .. which were created in the last month ..
-$filter["searchKey".Search_Key::getID("Created Date")] = array();
-$filter["searchKey".Search_Key::getID("Created Date")]["filter_type"] = "greater";
-$filter["searchKey".Search_Key::getID("Created Date")]["filter_enabled"] = 1;
-$filter["searchKey".Search_Key::getID("Created Date")]["start_date"] = 
-    Date_API::getFedoraFormattedDateUTC(strtotime("-1 months"));
-// .. without a UT ..
-$filter["manualFilter"] = " -isi_loc_t_s:[* TO *] AND ";
-// ..and optionally enforce published records only
-//$filter["searchKey".Search_Key::getID("Status")] = 2;
-
-$max = 50;
-$listing = Record::getListing(array(), array(9,10), 0, $max, 'Created Date', false, false, $filter);
-
-for ($i=0; $i<((int)$listing['info']['total_pages']+1); $i++) {  
-  // Skip first loop - we have called getListing once already
-  if ($i>0) {
-    $listing = Record::getListing(
-        array(), array(9,10), $listing['info']['next_page'], $max, 'Created Date', false, false, $filter
-    );
-  }
-  
-  if (is_array($listing['list'])) {
-    for ($j=0; $j<count($listing['list']); $j++) {      
-      LinksAmrQueue::get()->add($listing['list'][$j]['rek_pid']);
-    }
-  }
 }
-
-$log = FezLog::get();
-$log->close();

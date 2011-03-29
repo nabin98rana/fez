@@ -34,6 +34,10 @@
             {/if}
             <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/faqs.php'}class="focus" {/if}href="{$rel_url}manage/faqs.php">FAQs</a></li>
             <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/pages.php'}class="focus" {/if}href="{$rel_url}manage/pages.php">Pages</a></li>
+            {if $canMasquerade == true}
+              <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/masquerade.php'}class="focus" {/if}href="{$rel_url}manage/masquerade.php">Masquerade</a></li>
+            {/if}
+            <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/index_new.php'}class="focus" {/if}href="{$rel_url}manage/index_new.php">Index Objects</a></li>
           </ul>
 
           {if $isSuperAdministrator}
@@ -56,7 +60,6 @@
           {if $isSuperAdministrator}
             <div class="admin-side-nav-title">Maintenance</div>
             <ul class="admin-side-nav">
-              <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/index_new.php'}class="focus" {/if}href="{$rel_url}manage/index_new.php">Index Objects</a></li>
               <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/ad_hoc_sql.php' || $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/ad_hoc_workflow.php' || $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/ad_hoc.php'}class="focus" {/if}href="{$rel_url}manage/ad_hoc.php">Ad Hoc Queries</a></li>
               <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/io_workflows.php' || $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/import_workflows.php' || $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/export_workflows.php'}class="focus" {/if}href="{$rel_url}manage/io_workflows.php">Import / Export Workflows</a></li>
               <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/io_xsds.php' || $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/import_xsds.php' || $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/export_xsds.php'}class="focus" {/if}href="{$rel_url}manage/io_xsds.php">Import / Export XSDs</a></li>

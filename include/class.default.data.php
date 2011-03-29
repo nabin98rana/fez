@@ -274,6 +274,8 @@ class Default_Data
 		$defaultData['app_wos_collections']					= "";
 		$defaultData['app_matching_tools']					= "OFF";
 		$defaultData['app_record_locking']					= "OFF";
+		$defaultData['app_auto_linksamr_upload']    		= "OFF";
+		$defaultData['app_wheel_group']						= "Masqueraders";
 		
 		return $defaultData;
 	}
