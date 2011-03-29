@@ -475,22 +475,61 @@ class RecordGeneral
     return -1;
   }
 
+  function getDatastreamName($sek_title)
+  {
+      $log = FezLog::get();
+      $db = DB_API::get();
+      // remove the solr suffix
+
+			
+			$xdis_id = $this->getXmlDisplayId();
+	    // Get XDIS and all SUBXDIS
+	    $xdis_list = XSD_Relationship::getListByXDIS($xdis_id);
+	    array_push($xdis_list, array("0" => $xdis_id));
+	    $xdis_str = Misc::sql_array_to_string($xdis_list);
+
+
+			
+      $stmt = "SELECT
+                   xdis_title
+               FROM " . APP_TABLE_PREFIX . "xsd_html
+							 INNER JOIN " . APP_TABLE_PREFIX . "xsd_display x1 on x
+               WHERE
+                  LOWER(sek_title)=" . $db->quote($solr_name);
+
+      try {
+          $res = $db->fetchOne($stmt);
+      }
+      catch (Exception $ex) {
+          $log->err($ex);
+          return false;
+      }
+      if (!empty($res)) {
+          $res = Search_Key::getDetails($res);
+      }
+      return $res;
+
+  }
+
+
   function addSearchKeyValueList(
       $datastreamName, $datastreamDesc, $search_keys=array(), $values=array(), 
       $removeCurrent=true, $history="was added based on Links AMR Service data"
   )
   {
-    $xmlString = Fedora_API::callGetDatastreamContents($this->pid, $datastreamName, true);
-    //echo $xmlString." here \n";
-    if (is_array($xmlString) || $xmlString == "") {
-      echo "\n**** PID ".$this->pid." without a ".$datastreamName.
-           " datastream was found, this will need content model changing first **** \n";
-      return -1;
-    }
-    $doc = DOMDocument::loadXML($xmlString);
+	
 
     $search_keys_added = array();
     foreach ($search_keys as $s => $sk) {
+			$dsName = SearchKey::getDatastreamName($sk);
+	    $xmlString = Fedora_API::callGetDatastreamContents($this->pid, $datastreamName, true);
+	    //echo $xmlString." here \n";
+	    if (is_array($xmlString) || $xmlString == "") {
+	      echo "\n**** PID ".$this->pid." without a ".$datastreamName.
+	           " datastream was found, this will need content model changing first **** \n";
+	      return -1;
+	    }
+	    $doc = DOMDocument::loadXML($xmlString);
       $tempdoc = $this->addSearchKeyValue($doc, $sk, $values[$s], $removeCurrent);
       if ($tempdoc !== false) {
         if (!empty($values[$s])) {
@@ -535,6 +574,7 @@ class RecordGeneral
     $newXML = "";
     $xdis_id = $this->getXmlDisplayId();
     $xpath_query = XSD_HTML_Match::getXPATHBySearchKeyTitleXDIS_ID($sek_title, $xdis_id);
+      echo "xpq: ".$xpath_query;
     if (empty($value)) {
       return false;
     }
@@ -579,6 +619,9 @@ class RecordGeneral
       }
     }
     if (substr($element, 0, 1) == "@") {
+        echo "element: ".$element;
+        echo "value: ".$value;
+        echo "substr = ".substr($element, 1);
       $parentNode->setAttribute(substr($element, 1), $value);
     } else {
       $newNode = $doc->createElement($element, $value);
