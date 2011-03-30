@@ -43,6 +43,7 @@ include_once(APP_INC_PATH . "class.my_research.php");
 include_once(APP_INC_PATH . "class.workflow_trigger.php");
 include_once(APP_INC_PATH . "class.status.php");
 include_once(APP_INC_PATH . "class.collection.php");
+include_once(APP_INC_PATH . "class.xsd_display.php");
 
 Auth::checkAuthentication(APP_SESSION);
 
@@ -68,15 +69,22 @@ if (empty($sort_by) || ($sort_by == "searchKey0" && empty($options['searchKey0']
 
 $collection_assoc_list = array();
 $collection_assoc_list = Collection::getEditListAssoc();
+$display_types_assoc_list = array();
+$display_types_assoc_list = XSD_Display::getAssocListDocTypes();
 $search_keys = Search_Key::getMyFezSearchList();
 $cache_id = array();
 $skey_ismemberof = Search_Key::getID("isMemberOf");
 $skey_status = Search_Key::getID("Status");
+$skey_display_type = Search_Key::getID("Display Type");
 
 foreach ($search_keys as $skey => $svalue) {
 	
 	if ($svalue["sek_id"] == $skey_ismemberof) {
 		$search_keys[$skey]["field_options"] = $collection_assoc_list;
+	}
+	
+	if ($svalue["sek_id"] == $skey_display_type) {
+		$search_keys[$skey]["field_options"] = $display_types_assoc_list;
 	}
 	
 	if ($svalue["sek_smarty_variable"] == 'User::getAssocList()') {
