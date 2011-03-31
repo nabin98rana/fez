@@ -2574,6 +2574,12 @@ class Record
     if ( APP_SOLR_INDEXER == "ON" ) {
       FulltextQueue::singleton()->add($pid);							
     }
+    if (APP_FILECACHE == "ON") {
+      $cache = new fileCache($pid, 'pid='.$pid);
+      $cache->poisonCache();
+    }
+
+
     return true;
   }
   
@@ -2709,6 +2715,11 @@ class Record
     if ( APP_SOLR_INDEXER == "ON" ) {
       FulltextQueue::singleton()->add($pid);							
     }
+    if (APP_FILECACHE == "ON") {
+      $cache = new fileCache($pid, 'pid='.$pid);
+      $cache->poisonCache();
+    }
+
     return true;
   }
   
@@ -2928,6 +2939,11 @@ class Record
     if ( APP_SOLR_INDEXER == "ON" ) {
       FulltextQueue::singleton()->add($pid);							
     }
+    if (APP_FILECACHE == "ON") {
+      $cache = new fileCache($pid, 'pid='.$pid);
+      $cache->poisonCache();
+    }
+
     return true;
   }
   
@@ -3497,9 +3513,16 @@ class Record
 
       $solr_titles = Search_Key::getSolrTitles();
       $solr_titles["citation"] = "citation_t";
+			$solr_titles_temp = $solr_titles;
+      foreach ($solr_titles_temp as $skey => $svalue) {
+				if (is_numeric(strpos($svalue, "_dt"))) {
+					$solr_titles[$skey."_year"] = $skey."_year_t";
+				} 
+      }
       foreach ($solr_titles as $skey => $svalue) {
         $escapedInput = str_replace($skey.":", $svalue.":", $escapedInput);
       }
+
         // negative look ahead and behind for search keys starting withing ! and the solr chars
         // Espace any solr chars NOT before a search key (with or without a !),
       $pattern = '/(?!'.'!'.implode("|!", $solr_titles).'|'.

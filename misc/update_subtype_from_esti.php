@@ -146,7 +146,7 @@ for($i=0; $i<($total+$inc); $i=$i+$inc) {
 						$search_keys = array("Subtype");
 						$values = array($doc_type_mapping[$doc_type][1]);
 						echo "about to modify $pid with subtype ".$doc_type_mapping[$doc_type][1]."\n";
-						$record->addSearchKeyValueList("MODS", "Metadata Object Description Schema", $search_keys, $values, true);
+						$record->addSearchKeyValueList($search_keys, $values, true);
 					}
 
 				}

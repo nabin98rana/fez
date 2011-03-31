@@ -82,7 +82,7 @@ for($i=0; $i<((int)$listing['info']['total_pages']+1); $i++) {
 			/*$record = new RecordGeneral($pid);
 			$search_keys = array("Scopus ID");
         	$values = array($link_data['eid']);*/
-        	//$record->addSearchKeyValueList("MODS", "Metadata Object Description Schema", $search_keys, $values, true, ' was added based on Scopus Service data');
+        	//$record->addSearchKeyValueList($search_keys, $values, true, ' was added based on Scopus Service data');
 		}
 		
 		sleep($sleep); // Wait before using the service again		

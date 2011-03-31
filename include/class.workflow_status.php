@@ -68,6 +68,8 @@ class WorkflowStatus
   var $end_on_refresh;
   var $parents_list;
   var $parent_pid;
+  var $sek_id;
+  var $sek_value;
   var $vars = array(); // associative array for storing workflow 
                        // variables between states
   var $rec_obj;
