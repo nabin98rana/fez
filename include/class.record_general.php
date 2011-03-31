@@ -475,37 +475,31 @@ class RecordGeneral
     return -1;
   }
 
-  function getDatastreamName($sek_title)
+  function getDatastreamNameDesc($sek_title)
   {
       $log = FezLog::get();
       $db = DB_API::get();
       // remove the solr suffix
 
 			
-			$xdis_id = $this->getXmlDisplayId();
-	    // Get XDIS and all SUBXDIS
-	    $xdis_list = XSD_Relationship::getListByXDIS($xdis_id);
-	    array_push($xdis_list, array("0" => $xdis_id));
-	    $xdis_str = Misc::sql_array_to_string($xdis_list);
-
-
 			
-      $stmt = "SELECT
-                   xdis_title
-               FROM " . APP_TABLE_PREFIX . "xsd_html
-							 INNER JOIN " . APP_TABLE_PREFIX . "xsd_display x1 on x
-               WHERE
-                  LOWER(sek_title)=" . $db->quote($solr_name);
+      $stmt = "SELECT xsdsel_title as datastreamname, x3.xsdmf_static_text as datastreamdesc
+			FROM 
+			 fez_xsd_display_matchfields x1
+			INNER JOIN fez_search_key ON x1.xsdmf_sek_id = sek_id AND sek_title = ".$db->quote($sek_title)."
+			INNER JOIN fez_xsd_relationship ON xsdrel_xdis_id = x1.xsdmf_xdis_id
+			INNER JOIN fez_xsd_display_matchfields x2 ON x2.xsdmf_id = xsdrel_xsdmf_id
+			INNER JOIN fez_xsd_loop_subelement ON x2.xsdmf_xsdsel_id = xsdsel_id
+			INNER JOIN fez_record_search_key ON rek_display_type = x2.xsdmf_xdis_id
+			INNER JOIN  fez_xsd_display_matchfields x3 ON x3.xsdmf_xsdsel_id = xsdsel_id AND x3.xsdmf_element = '!datastream!datastreamVersion!LABEL'
+			WHERE rek_pid = ".$db->quote($this->pid);
 
       try {
-          $res = $db->fetchOne($stmt);
+          $res = $db->fetchRow($stmt);
       }
       catch (Exception $ex) {
           $log->err($ex);
           return false;
-      }
-      if (!empty($res)) {
-          $res = Search_Key::getDetails($res);
       }
       return $res;
 
@@ -513,29 +507,35 @@ class RecordGeneral
 
 
   function addSearchKeyValueList(
-      $datastreamName, $datastreamDesc, $search_keys=array(), $values=array(), 
+      $search_keys=array(), $values=array(), 
       $removeCurrent=true, $history="was added based on Links AMR Service data"
   )
   {
 	
-
+		$datastreams = array();
     $search_keys_added = array();
     foreach ($search_keys as $s => $sk) {
-			$dsName = SearchKey::getDatastreamName($sk);
-	    $xmlString = Fedora_API::callGetDatastreamContents($this->pid, $datastreamName, true);
+			$dsDetails = $this->getDatastreamNameDesc($sk);
+
+			$datastreamName = $dsDetails['datastreamname'];
+			$datastreamDesc = $dsDetails['datastreamdesc'];
+			if (!array_key_exists($datastreamName, $datastreams)) {
+	    	$datastreams[$datastreamName] = Fedora_API::callGetDatastreamContents($this->pid, $datastreamName, true);
+			}
 	    //echo $xmlString." here \n";
 	    if (is_array($xmlString) || $xmlString == "") {
-	      echo "\n**** PID ".$this->pid." without a ".$datastreamName.
-	           " datastream was found, this will need content model changing first **** \n";
-	      return -1;
+	      // echo "\n**** PID ".$this->pid." without a ".$datastreamName.
+	      //      " datastream was found, this will need content model changing first **** \n";
+	      // return -1;
+				$xmlString = "";
 	    }
-	    $doc = DOMDocument::loadXML($xmlString);
+	    $doc = DOMDocument::loadXML($datastreams[$datastreamName]);
       $tempdoc = $this->addSearchKeyValue($doc, $sk, $values[$s], $removeCurrent);
       if ($tempdoc !== false) {
         if (!empty($values[$s])) {
           $search_keys_added[$sk] = $values[$s];
         }
-        $doc = $tempdoc;
+        $datastreams[$datastreamName] = $tempdoc;
       }
     }
     //		echo "\nnewXML = \n";
@@ -544,13 +544,17 @@ class RecordGeneral
     $newXML = $doc->SaveXML();
     //		echo $newXML;
     if ((count($search_keys_added) > 0) && ($newXML != "")) {
-      /*	        $this->getDisplay();
-       $display->getXSD_HTML_Match();
-       $datastreamTitles = $display->getDatastreamTitles(); */
-      //Need to make this not just for MODS at some stage
-      Fedora_API::callModifyDatastreamByValue(
-          $this->pid, $datastreamName, "A", $datastreamDesc, $newXML, "text/xml", "inherit"
-      );
+			foreach ($datastreams as $datastreamName => $newXML) {
+				$dsExists = Fedora_API::datastreamExists($this->pid, $datastreamName);
+				if ($dsExists !== true) {
+					Fedora_API::getUploadLocation($this->pid, $datastreamName, $newXML, $datastreamDesc,
+							"text/xml", "X",null,"true");
+				} else {
+		      Fedora_API::callModifyDatastreamByValue(
+		          $this->pid, $datastreamName, "A", $datastreamDesc, $newXML, "text/xml", "inherit"
+		      );
+				}	
+			}
       $historyDetail = "";
       foreach ($search_keys_added as $hkey => $hval) {
         if ($historyDetail != "") {
@@ -559,7 +563,7 @@ class RecordGeneral
         $historyDetail .= $hkey.": ".$hval;
       }
       $historyDetail .= " " . $history;
-      echo 'PID: ' . $this->pid . ' - ' . $historyDetail."\n";
+      // echo 'PID: ' . $this->pid . ' - ' . $historyDetail."\n";
       History::addHistory($this->pid, null, "", "", true, $historyDetail);
       $this->setIndexMatchingFields();
       return 1;
@@ -568,13 +572,85 @@ class RecordGeneral
 
   }
 
+	function buildXMLWithXPATH($xpath_query, $doc, $value, $lookup_value, $recurseLevel) {
+	    $xpath = new DOMXPath($doc);
+
+	    $pre_xpath_query = substr($xpath_query, 0, (strrpos($xpath_query, "/")));
+       // echo "\n parent pre element query is $pre_xpath_query <br /> \n";
+	    $parentNodeList = $xpath->query($pre_xpath_query);
+
+      foreach ($parentNodeList as $fieldNode) {
+        $parentNode = $fieldNode;
+      }
+			$goingDown = 0;
+      if (is_null($parentNode)) {
+				$goingDown = 1;
+				// echo "the query $xpath_query found nothing so recursing down $recurseLevel \n";
+				$parentNode = $this->returnLowestParent($pre_xpath_query, $doc, $value, ($recurseLevel+1));
+			}
+			if (!is_null($parentNode)) {
+			  // echo "found a $pre_xpath_query so going to add $xpath_query to it \n";
+
+				// If we have had to dig down then we have to build the foundations up
+			  $element = substr($xpath_query, (strrpos($xpath_query, "/") + 1));
+
+				// echo "in recursion $recurseLevel adding $element \n";
+
+		    $attributeStartPos = strpos($element, "[");
+		    $attributeEndPos = strpos($element, "]") + 1;
+		    $attribute = "";
+		    if (is_numeric($attributeStartPos) && is_numeric($attributeEndPos)) {
+		      $attribute = substr($element, $attributeStartPos, ($attributeEndPos - $attributeStartPos));
+		      $element = substr($element, 0, $attributeStartPos);
+		    }
+		    $attributeNameStartPos = strpos($attribute, "[@") + 2;
+		    $attributeNameEndPos = strpos($attribute, " =");
+		    $attributeValueStartPos = strpos($attribute, "= ") + 2;
+		    $attributeValueEndPos = strpos($attribute, "]");
+		    $attributeName = substr($attribute, $attributeNameStartPos, ($attributeNameEndPos - $attributeNameStartPos));
+		    $attributeValue = substr($attribute, $attributeValueStartPos, ($attributeValueEndPos - $attributeValueStartPos));
+		    $attributeValue = str_replace("'", "", $attributeValue);
+
+		  	if (substr($element, 0, 1) == "@") {
+		        // echo "\n element: ".$element;
+		        // echo "\n value: ".$value;
+		        // echo "\n substr = ".substr($element, 1);
+		      $parentNode->setAttribute(substr($element, 1), $value);
+					// if this is an ID value, and we have a lookup value, set the element to the lookup value to keep the xml clean
+					if ($lookup_value != "") {
+						$parentNode->nodeValue = $lookup_value;
+					}
+		    } else {
+					// if this is an ID on an attribute xpath like mods:subject/@ID then put the subject lookup value into the element (recurse level 2) 
+					if ($recurseLevel == 2 && $lookup_value != "") {
+			      $newNode = $doc->createElement($element, $lookup_value);
+					} elseif ($recurseLevel == 1) {
+		      	$newNode = $doc->createElement($element, $value);					
+					} else {
+			      $newNode = $doc->createElement($element);
+					}
+
+		      $newNode->setAttribute($attributeName, $attributeValue);
+		      $parentNode->appendChild($newNode);
+		    }
+			}			
+			return $parentNode;
+	}
+
   // Experimental function - like a swiss army knife for adding abitrary values to datastreams
   function addSearchKeyValue($doc, $sek_title, $value, $removeCurrent = true)
   {
     $newXML = "";
     $xdis_id = $this->getXmlDisplayId();
     $xpath_query = XSD_HTML_Match::getXPATHBySearchKeyTitleXDIS_ID($sek_title, $xdis_id);
-      echo "xpq: ".$xpath_query;
+
+		$sekDetails = Search_Key::getDetailsByTitle($sek_title);
+
+		$lookup_value = "";
+		if ($sekDetails['sek_lookup_function'] != "")  {
+			eval("\$lookup_value = ".$sekDetails["sek_lookup_function"]."(".$value.");");
+		} 
+
     if (empty($value)) {
       return false;
     }
@@ -583,11 +659,9 @@ class RecordGeneral
            " so it will need content model changing first **** \n";
       return false;
     }
-
     $xpath = new DOMXPath($doc);
     $fieldNodeList = $xpath->query($xpath_query);
     $element = substr($xpath_query, (strrpos($xpath_query, "/") + 1));
-    $pre_element = substr($xpath_query, 0, (strrpos($xpath_query, "/")));
     $attributeStartPos = strpos($element, "[");
     $attributeEndPos = strpos($element, "]") + 1;
     $attribute = "";
@@ -595,39 +669,14 @@ class RecordGeneral
       $attribute = substr($element, $attributeStartPos, ($attributeEndPos - $attributeStartPos));
       $element = substr($element, 0, $attributeStartPos);
     }
-    $attributeNameStartPos = strpos($attribute, "[@") + 2;
-    $attributeNameEndPos = strpos($attribute, " =");
-    $attributeValueStartPos = strpos($attribute, "= ") + 2;
-    $attributeValueEndPos = strpos($attribute, "]");
-    $attributeName = substr($attribute, $attributeNameStartPos, ($attributeNameEndPos - $attributeNameStartPos));
-    $attributeValue = substr($attribute, $attributeValueStartPos, ($attributeValueEndPos - $attributeValueStartPos));
-    $attributeValue = str_replace("'", "", $attributeValue);
-
     if ( $removeCurrent && (substr($element, 0, 1) != "@") ) {
       foreach ($fieldNodeList as $fieldNode) { // first delete all the isMemberOfs
         $parentNode = $fieldNode->parentNode;
         $parentNode->removeChild($fieldNode);
       }
     }
-    // If no existing one is found, add to the parent (will error currently if the xpath parent doesn't 
-    // exist either, but thats unusual)
-    if (is_null($parentNode)) {
-      // echo "\n parent pre element query is $pre_element \n";
-      $parentNodeList = $xpath->query($pre_element);
-      foreach ($parentNodeList as $fieldNode) {
-        $parentNode = $fieldNode;
-      }
-    }
-    if (substr($element, 0, 1) == "@") {
-        echo "element: ".$element;
-        echo "value: ".$value;
-        echo "substr = ".substr($element, 1);
-      $parentNode->setAttribute(substr($element, 1), $value);
-    } else {
-      $newNode = $doc->createElement($element, $value);
-      $newNode->setAttribute($attributeName, $attributeValue);
-      $parentNode->appendChild($newNode);
-    }
+		$parentNode = $this->buildXMLWithXPATH($xpath_query, $doc, $value, $lookup_value, 1);
+		// echo "created this: ".$doc->saveXML();
     return $doc;
   }
 
