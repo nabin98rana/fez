@@ -87,6 +87,17 @@ function loadPreview(pid,datastreamID, alt, origami)
 				{$xdis_title}
 			</td>
 		</tr>
+		
+		{if $sub_type}
+		<tr>
+			<th>
+				Sub-type:
+			</th>
+			<td>
+				{$sub_type}
+			</td>
+		</tr>
+		{/if}
 
 {if $isUser && !$hide_edit}
 	{if $isEditor || $isAdministrator}

@@ -235,7 +235,6 @@ if (!empty($pid) && $record->checkExists()) {
 		foreach($xsd_display_fields as $dis_key => $dis_field) {
 			$searchKeyDetails = Search_Key::getDetailsByXSDMF_ID($dis_field['xsdmf_id']);
 			if (isset($searchKeyDetails['sek_meta_header']) && $searchKeyDetails['sek_meta_header']) {
-				
 				// split the metadata field out into the various types
 				$metaDataFields[$dis_field['xsdmf_id']] = array('fieldnames'=>explode('|', $searchKeyDetails['sek_meta_header']), 'type'=>$searchKeyDetails['sek_data_type'], 'lookup'=>$searchKeyDetails['sek_lookup_function'], 'can_output_multiple'=>$searchKeyDetails['sek_cardinality'] == 0 ? false : true);
 			}
@@ -383,6 +382,16 @@ if (!empty($pid) && $record->checkExists()) {
 		$tpl->assign("show_not_allowed_msg", true);
 		$savePage = false;
 	}
+	
+	// If we have a Journal Article of a Conference Paper, we want to display the sub-type information.
+	if ($xdis_title == 'Journal Article') {
+		$sub_type = Record::getSearchKeyIndexValue($pid, "Subtype", false);
+	} elseif ($xdis_title == 'Conference Paper') {
+		$sub_type = Record::getSearchKeyIndexValue($pid, "Genre Type", false);
+	} else {
+		$sub_type = false;
+	}
+	$tpl->assign("sub_type", $sub_type);
 	
 	if (empty($details)) {
 		$tpl->assign('details', '');
