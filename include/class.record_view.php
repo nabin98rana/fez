@@ -171,7 +171,7 @@ class RecordView {
 						}
 					}
 				}
-				if ($dis_field['sek_title'] == "Journal Name" || $dis_field['sek_title'] == "Proceedings title") {
+				if ($dis_field['sek_title'] == "Journal Name" || $dis_field['sek_title'] == "Proceedings Title") {
 					if (!empty($details[$dis_field['xsdmf_id']])) {
 						//Check for Ranked Journal Rank
 						$rjl = "";
