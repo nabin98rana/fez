@@ -65,8 +65,8 @@ $wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus obje
 $wfstatus->setTemplateVars($tpl);
 $cat = $_REQUEST['cat'];
 if ($cat == 'submit') {
-    $wfstatus->sekvalue = $_REQUEST['sek_value'];
-    $wfstatus->parent_pid = $_REQUEST['sek_id'];
+    $wfstatus->sek_value = $_REQUEST['sek_value'];
+    $wfstatus->sek_id = $_REQUEST['sek_id'];
 }
 $wfstatus->checkStateChange();
 

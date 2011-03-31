@@ -27,3 +27,4 @@ glob:include/simplesaml/config/*
 glob:include/simplesaml/log/*
 apc.php
 .idea
+\.tmtags

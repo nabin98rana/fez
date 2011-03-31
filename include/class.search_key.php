@@ -1363,7 +1363,7 @@ class Search_Key
                     inner join " . APP_TABLE_PREFIX . "xsd_display_matchfields
                     on xsdmf_sek_id=sek_id
                  WHERE
-                    sek_title=" . $db->quote($sek_id);
+                    sek_title=" . $db->quote($sek_title);
         try {
             $res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
         }

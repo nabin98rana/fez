@@ -60,7 +60,7 @@ if (is_array($listing)) {
 		$rec = new RecordGeneral($pid);
 		$search_keys = array("Scopus ID");
        	$values = array($eid);
-       	$rec->addSearchKeyValueList("MODS", "Metadata Object Description Schema", $search_keys, $values, true, ' was added based on Scopus EID Tagging data');
+       	$rec->addSearchKeyValueList($search_keys, $values, true, ' was added based on Scopus EID Tagging data');
 
  	}
 }
