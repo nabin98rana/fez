@@ -47,23 +47,24 @@ class BackgroundProcess_Bulk_Change_Search_Key extends BackgroundProcess
 	{
 		$this->setState(BGP_RUNNING);
 		extract(unserialize($this->inputs));
-
+        $this->setStatus("Starting ".$this->name." with parameters ".print_r(unserialize($this->inputs), true));
 		if (!empty($options)) {
 			$this->setStatus("Running search");
 			$pids = $this->getPidsFromSearchBGP($options);
 			$this->setStatus("Found ".count($pids). " records");
 		}
-
+		$history = "change it's $sek_title to ";
 		/*
 		 * Changes pids search keys to value
 		 */
 		if (!empty($pids) && is_array($pids) && !empty($sek_id) && !empty($sek_value)) {
 
 			$this->setStatus("Changing ".count($pids)." Records search key ".$sek_id." to ".$sek_value);
-            $sk = new Search_Key();
-            $sekDetails = $sk->getDetails($sek_id);
-            $search_keys = array($sekDetails['sek_title']);
-            $values = array($sek_value);
+      $sk = new Search_Key();
+      $sekDetails = $sk->getDetails($sek_id);
+			$history = "changed ".$sekDetails['sek_title']." (".$sek_id.") to ".$sek_value;
+      $search_keys = array($sekDetails['sek_title']);
+      $values = array($sek_value);
 			foreach ($pids as $pid) {
 				$this->setHeartbeat();
 				 
@@ -72,7 +73,7 @@ class BackgroundProcess_Bulk_Change_Search_Key extends BackgroundProcess
 
 					// TODO: Update search key function here
 
-					$record->addSearchKeyValueList("MODS", "Metadata Object Description Schema", $search_keys, $values, true);
+					$record->addSearchKeyValueList($search_keys, $values, true, $history);
 					
 					// $res = $record->updateRELSEXT("rel:isMemberOf", $collection_pid, false);
 						

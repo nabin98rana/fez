@@ -290,13 +290,13 @@ foreach ($pids as $pid) {
 			if (count($mapping) > 1) {
 				// Multiple languages
 				if ($mapCount == 1) {
-					$record->addSearchKeyValueList("MODS", "Metadata Object Description Schema", array("Language"), array($map), true, $history);
+					$record->addSearchKeyValueList(array("Language"), array($map), true, $history);
 				} else {
-					$record->addSearchKeyValueList("MODS", "Metadata Object Description Schema", array("Language"), array($map), false, $history);
+					$record->addSearchKeyValueList(array("Language"), array($map), false, $history);
 				}
 			} else {
 				// Just one language
-				$record->addSearchKeyValueList("MODS", "Metadata Object Description Schema", array("Language"), array($map), true, $history);
+				$record->addSearchKeyValueList(array("Language"), array($map), true, $history);
 			}
 			$mapCount++;
 		}

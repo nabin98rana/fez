@@ -60,20 +60,20 @@ foreach ($misplacedISSNs as $isbnKey => $isbnVal) {
 		// A suspected ISSN was found in the ISBN field, but it appears to already be in the ISSN field too. We need to zero the ISBN field.
 		$history = "Auto-stripped ISSN from ISBN field";
 		echo "ISSN repeated in ISBN and ISSN fields. Clearing from ISBN field... ";
-		$record->addSearchKeyValueList("MODS", "Metadata Object Description Schema", array("ISBN"), array(' '), true, $history);
+		$record->addSearchKeyValueList(array("ISBN"), array(' '), true, $history);
 		echo "done.\n";
 	} else {
 		if ($actualISSNs[$isbnKey]['issn_raw'] == '') {
 			// We have no ISSN yet. Add our new value.
 			echo "New ISSN, with no existing. Adding ... ";
 			/*$history2 = "Auto-cleared old ISBN field";*/
-			$record->addSearchKeyValueList("MODS", "Metadata Object Description Schema", array("ISSN"), array($isbnVal['isbn_raw']), true, $history);
-			/*$record->addSearchKeyValueList("MODS", "Metadata Object Description Schema", array("ISBN"), array(), true, $history2);*/
+			$record->addSearchKeyValueList(array("ISSN"), array($isbnVal['isbn_raw']), true, $history);
+			/*$record->addSearchKeyValueList(array("ISBN"), array(), true, $history2);*/
 			echo "done.\n";
 		} else {
 			// We have an EXISTING ISSN, not including our new value. Append!
 			echo "New ISSN, with existing ISSN data. Appending ... ";
-			$record->addSearchKeyValueList("MODS", "Metadata Object Description Schema", array("ISSN"), array($actualISSNs[$isbnKey]['issn_raw'] . "; " . $isbnVal['isbn_raw']), true, $history);
+			$record->addSearchKeyValueList(array("ISSN"), array($actualISSNs[$isbnKey]['issn_raw'] . "; " . $isbnVal['isbn_raw']), true, $history);
 			echo "done.\n";
 		}
 	}

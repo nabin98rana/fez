@@ -123,7 +123,7 @@ GROUP BY rek_pid
 			}*/
 			echo "about to modify $pid with title ".$cvo_title." and subject ".$cvo_id."\n";			
 			$history = "Copied in HERDC code from deprecated Subject field / search key value ".$cvo_title."(".$cvo_id.")";
-//			$record->addSearchKeyValueList("MODS", "Metadata Object Description Schema", $search_keys, $values, false, $history);
+//			$record->addSearchKeyValueList($search_keys, $values, false, $history);
 //			$datastreamName =  "Metadata Object Description Schema";
 			$datastreamName =  "MODS";
 
