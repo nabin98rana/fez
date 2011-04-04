@@ -2646,7 +2646,7 @@ class XSD_HTML_Match
 		                 FROM
 		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields
 		                 WHERE
-		                    xsdmf_original_xsdmf_id = " . $dv->quote($original_xsdmf_id, 'INTEGER') . " AND xsdmf_xdis_id = " . $db->quote($xdis_id, 'INTEGER');
+		                    xsdmf_original_xsdmf_id = " . $db->quote($original_xsdmf_id, 'INTEGER') . " AND xsdmf_xdis_id = " . $db->quote($xdis_id, 'INTEGER');
 			try {
 				$res = $db->fetchAll($stmt);
 			}
