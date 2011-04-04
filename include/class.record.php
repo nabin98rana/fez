@@ -3526,19 +3526,33 @@ class Record
         // negative look ahead and behind for search keys starting withing ! and the solr chars
         // Espace any solr chars NOT before a search key (with or without a !),
       $pattern = '/(?!'.'!'.implode("|!", $solr_titles).'|'.
-                 implode("|!", $solr_titles).":".'|'.
-                 implode(':\(|!', $solr_titles).':\('.'|'.
+                 implode("|!", $solr_titles).":".'|!'.
+                 implode(':\(|!', $solr_titles).':\('.'|!'.
                  implode(':"|!', $solr_titles).':"'.'|'.
+
+                 implode(':\[|', $solr_titles).':\['.'|!'.
+                 implode(':\[|!', $solr_titles).':\['.'|'.
+
+
                  implode(':\(|!', $solr_titles).':\("'.
                  ')(?<!'.implode("|", $solr_titles).'|'.
                  implode(":|", $solr_titles).":".'|'.
                  implode(':\(|', $solr_titles).':\('.'|'.
+
+                 implode(':\[|', $solr_titles).':\['.'|\*|'.
+                 // implode(':\[|!', $solr_titles).':\['.'|'.
+
+
+
                  implode(':"|', $solr_titles).':"'.'|'.
                  implode(':\(|', $solr_titles).':\("'.
-                 ')(\+|-|&&|\|\||!|\{|}|\[|]|\^|"|~|\*|\?|:|\\\)(?!\))/';
+                 ')(\+|-|&&|\|\||!|\{|}|\[|]|\^|"|~|\*|\?|:|\\\)(?!\))(?!\])/';
 //      $pattern = '/(?!'.'!'.implode("|!", $solr_titles).')(?<!'.implode("|", $solr_titles).')(\+|-|&&|\|\||!|\{|}|\[|]|\^|"|~|\*|\?|:|\\\)/';
       $replace = '\\\$1';
       $escapedInput = preg_replace($pattern, $replace, $escapedInput);
+			// $pattern = '/(?!
+      // $escapedInput = preg_replace($pattern, $replace, $escapedInput);
+
       // match where there is only only value after the search key, not inside brackets or in double quotes (do that one later) to simplify this code
       $skPattern = '/('.implode("|", $solr_titles).')(?:|:\(|:)"([^"\)\(]+)"\)/';
       $lookups = array();
@@ -3550,16 +3564,18 @@ class Record
           if (!empty($sekDetails)) {
               if ($sekDetails['sek_data_type'] == 'int' && $sekDetails['sek_lookup_id_function'] != '') {
                   eval("\$temp_value = ".$sekDetails["sek_lookup_id_function"]."('".$lookups[2][$i]."');");
-
                   if (!empty($temp_value)) {
                     $escapedInput = str_replace($lookups[0][$i], $lookups[1][$i].":".$temp_value, $escapedInput);
                   }
               }
           }
       }
-      $searchKey_join["sk_where_AND"][] = "(" .$escapedInput.")";
+			if (is_numeric(strpos($escapedInput, " OR "))) {
+      	$searchKey_join["sk_where_AND"][] = "(" .$escapedInput.")";
+			} else {
+      	$searchKey_join["sk_where_AND"][] = $escapedInput;
+			}
     }
-
     /*
      * For each search key build SQL if data was submitted
      */

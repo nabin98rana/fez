@@ -99,7 +99,12 @@ if ($cat == 'select_workflow') {
 
 $message = '';
 $wfl_list = Misc::keyArray(Workflow::getList(), 'wfl_id');
-$xdis_list = array(-1 => 'Any') + XSD_Display::getAssocListDocTypes(); 
+$doctypes  = XSD_Display::getAssocListDocTypes();
+$xdis_list = array('-1' => 'Any'); 
+if (is_array($doctypes)) {
+	$xdis_list = (array('-1' => 'Any') + $doctypes); 
+}
+
 $tpl->assign('wfl_list', $wfl_list);
 $tpl->assign('xdis_list', $xdis_list);
 

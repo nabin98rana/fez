@@ -20,6 +20,8 @@ class RecordGeneral
   var $display;
   var $details;
   var $record_parents;
+	var $doc;
+	var $parentNode;
   var $status_array = array(
   Record::status_undefined => 'Undefined',
   Record::status_unpublished => 'Unpublished',
@@ -535,25 +537,27 @@ class RecordGeneral
         if (!empty($values[$s])) {
           $search_keys_added[$sk] = $values[$s];
         }
-        $datastreams[$datastreamName] = $tempdoc;
+        $datastreams[$datastreamName] = $tempdoc->saveXML();;
       }
     }
     //		echo "\nnewXML = \n";
 
 
-    $newXML = $doc->SaveXML();
+    // $newXML = $doc->SaveXML();
     //		echo $newXML;
-    if ((count($search_keys_added) > 0) && ($newXML != "")) {
+    if (count($search_keys_added) > 0) {
 			foreach ($datastreams as $datastreamName => $newXML) {
-				$dsExists = Fedora_API::datastreamExists($this->pid, $datastreamName);
-				if ($dsExists !== true) {
-					Fedora_API::getUploadLocation($this->pid, $datastreamName, $newXML, $datastreamDesc,
-							"text/xml", "X",null,"true");
-				} else {
-		      Fedora_API::callModifyDatastreamByValue(
-		          $this->pid, $datastreamName, "A", $datastreamDesc, $newXML, "text/xml", "inherit"
-		      );
-				}	
+				if ($newXML != "") {
+					$dsExists = Fedora_API::datastreamExists($this->pid, $datastreamName);
+					if ($dsExists !== true) {
+						Fedora_API::getUploadLocation($this->pid, $datastreamName, $newXML, $datastreamDesc,
+								"text/xml", "X",null,"true");
+					} else {
+			      Fedora_API::callModifyDatastreamByValue(
+			          $this->pid, $datastreamName, "A", $datastreamDesc, $newXML, "text/xml", "inherit"
+			      );
+					}	
+				}
 			}
       $historyDetail = "";
       foreach ($search_keys_added as $hkey => $hval) {
@@ -572,21 +576,44 @@ class RecordGeneral
 
   }
 
-	function buildXMLWithXPATH($xpath_query, $doc, $value, $lookup_value, $recurseLevel) {
-	    $xpath = new DOMXPath($doc);
-
+	function buildXMLWithXPATH($xpath_query, $value, $lookup_value, $recurseLevel) {
+	    $xpath = new DOMXPath($this->doc);
+			// echo "\n IN WITH THIS: ".$this->doc->saveXML();
+			// ob_flush();
 	    $pre_xpath_query = substr($xpath_query, 0, (strrpos($xpath_query, "/")));
+			if ($pre_xpath_query == "" ) {
+				return false;
+			}
        // echo "\n parent pre element query is $pre_xpath_query <br /> \n";
 	    $parentNodeList = $xpath->query($pre_xpath_query);
-
+			$parentNode = NULL;
       foreach ($parentNodeList as $fieldNode) {
+				// echo "\n FOUND initial $pre_xpath_query for parentNode will just add to this \n";
         $parentNode = $fieldNode;
       }
+
 			$goingDown = 0;
       if (is_null($parentNode)) {
 				$goingDown = 1;
 				// echo "the query $xpath_query found nothing so recursing down $recurseLevel \n";
-				$parentNode = $this->returnLowestParent($pre_xpath_query, $doc, $value, ($recurseLevel+1));
+				$this->buildXMLWithXPATH($pre_xpath_query, $value, $lookup_value, ($recurseLevel+1));
+//				$parentNode = $this->buildXMLWithXPATH($pre_xpath_query, $doc, $value, $lookup_value, ($recurseLevel+1));
+	    		//check the base has now been added ok
+	
+					// echo "\n BACK FROM recursion and now doc is ".$this->doc->saveXML(); echo "\n";
+					
+					$this->doc = DOMDocument::loadXML($this->doc->saveXML());
+					
+					// echo "Searching it now for ".$pre_xpath_query."...\n";
+					$xpath2 = new DOMXPath($this->doc);
+					$parentNodeList = $xpath2->query($pre_xpath_query);
+					
+					foreach ($parentNodeList as $fieldNode) {
+						// echo "FOUND ONE !\n";
+					  $parentNode = $fieldNode;
+					}
+   				// echo "current parent node after recurse is ".$parentNode->node_name() . "\n";
+
 			}
 			if (!is_null($parentNode)) {
 			  // echo "found a $pre_xpath_query so going to add $xpath_query to it \n";
@@ -610,31 +637,32 @@ class RecordGeneral
 		    $attributeName = substr($attribute, $attributeNameStartPos, ($attributeNameEndPos - $attributeNameStartPos));
 		    $attributeValue = substr($attribute, $attributeValueStartPos, ($attributeValueEndPos - $attributeValueStartPos));
 		    $attributeValue = str_replace("'", "", $attributeValue);
-
+   				// echo "current parent node appending/setting is ".$parentNode->node_name() . "\n";
 		  	if (substr($element, 0, 1) == "@") {
 		        // echo "\n element: ".$element;
 		        // echo "\n value: ".$value;
 		        // echo "\n substr = ".substr($element, 1);
 		      $parentNode->setAttribute(substr($element, 1), $value);
 					// if this is an ID value, and we have a lookup value, set the element to the lookup value to keep the xml clean
-					if ($lookup_value != "") {
+					if ($lookup_value != "" && $recurseLevel == 2) {
 						$parentNode->nodeValue = $lookup_value;
 					}
 		    } else {
 					// if this is an ID on an attribute xpath like mods:subject/@ID then put the subject lookup value into the element (recurse level 2) 
 					if ($recurseLevel == 2 && $lookup_value != "") {
-			      $newNode = $doc->createElement($element, $lookup_value);
+			      $newNode = $this->doc->createElement($element, $lookup_value);
 					} elseif ($recurseLevel == 1) {
-		      	$newNode = $doc->createElement($element, $value);					
+		      	$newNode = $this->doc->createElement($element, $value);					
 					} else {
-			      $newNode = $doc->createElement($element);
+			      $newNode = $this->doc->createElement($element);
 					}
 
 		      $newNode->setAttribute($attributeName, $attributeValue);
 		      $parentNode->appendChild($newNode);
 		    }
-			}			
-			return $parentNode;
+				// echo "\n created this: ".$this->doc->saveXML();
+			}
+			return true;
 	}
 
   // Experimental function - like a swiss army knife for adding abitrary values to datastreams
@@ -675,9 +703,12 @@ class RecordGeneral
         $parentNode->removeChild($fieldNode);
       }
     }
-		$parentNode = $this->buildXMLWithXPATH($xpath_query, $doc, $value, $lookup_value, 1);
-		// echo "created this: ".$doc->saveXML();
-    return $doc;
+		$this->doc = $doc;
+		//$parentNode = $this->buildXMLWithXPATH($xpath_query, $value, $lookup_value, 1);
+		$this->buildXMLWithXPATH($xpath_query, $value, $lookup_value, 1);
+		$this->doc = DOMDocument::loadXML($this->doc->saveXML());
+		// echo "\n created this: ".$this->doc->saveXML();
+    return $this->doc;
   }
 
 
