@@ -94,8 +94,29 @@ class Workflow_State
 		if (empty($params)) {
 			$params = &$_POST;
 		}
-		$wfs_auto = Misc::checkBox(@$params['wfs_auto']);
-		$wfs_wfb_id = $wfs_auto ? $params['wfs_wfb_id'] : @$params['wfs_wfb_id2'];
+
+    if (@$_POST["wfs_auto"]) {
+        $wfs_auto = 'TRUE';
+    } else {
+        $wfs_auto = 'FALSE';
+    }
+    if (@$_POST["wfs_start"]) {
+        $wfs_start = 'TRUE';
+    } else {
+        $wfs_start = 'FALSE';
+    }
+    if (@$_POST["wfs_end"]) {
+        $wfs_end = 'TRUE';
+    } else {
+        $wfs_end = 'FALSE';
+    }
+    if (@$_POST["wfs_transparent"]) {
+        $wfs_transparent = 'TRUE';
+    } else {
+        $wfs_transparent = 'FALSE';
+    }
+		$wfs_wfb_id = $wfs_auto == 'TRUE' ? $params['wfs_wfb_id'] : @$params['wfs_wfb_id2'];
+
 
 		$stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "workflow_state
@@ -113,12 +134,12 @@ class Workflow_State
                     " . $db->quote($params['wfs_wfl_id'], 'INTEGER') . ",
                     " . $db->quote($params['wfs_title']) . ",
                     " . $db->quote($params['wfs_description']) . ",
-                    " . $db->quote($wfs_auto, 'INTEGER').",
+                    " . $wfs_auto.",
                     " . $db->quote($wfs_wfb_id, 'INTEGER').",
                     " . $db->quote($params['wfs_display_order'], 'INTEGER').",
-                    " . $db->quote(Misc::checkBox(@$params['wfs_start']), 'INTEGER') . ",
-                    " . $db->quote(Misc::checkBox(@$params['wfs_end']), 'INTEGER') . ",
-                    " . $db->quote(Misc::checkBox(@$params['wfs_transparent']), 'INTEGER') . "
+                    " . $wfs_start . ",
+                    " . $wfs_end . ",
+                    " . $wfs_transparent . "
                  )";	
 		try {
 			$db->exec($stmt);
@@ -190,22 +211,44 @@ class Workflow_State
 		if (empty($params)) {
 			$params = &$_POST;
 		}
-		$wfs_auto = Misc::checkBox(@$params['wfs_auto']);
-		$wfs_wfb_id = $wfs_auto ? $params['wfs_wfb_id'] : $params['wfs_wfb_id2'];
+		
+		if (@$_POST["wfs_auto"]) {
+        $wfs_auto = 'TRUE';
+    } else {
+        $wfs_auto = 'FALSE';
+    }
+    if (@$_POST["wfs_start"]) {
+        $wfs_start = 'TRUE';
+    } else {
+        $wfs_start = 'FALSE';
+    }
+    if (@$_POST["wfs_end"]) {
+        $wfs_end = 'TRUE';
+    } else {
+        $wfs_end = 'FALSE';
+    }
+    if (@$_POST["wfs_transparent"]) {
+        $wfs_transparent = 'TRUE';
+    } else {
+        $wfs_transparent = 'FALSE';
+    }
+		
+		$wfs_wfb_id = $wfs_auto == 'TRUE' ? $params['wfs_wfb_id'] : $params['wfs_wfb_id2'];
 		$wfs_id = $params['id'];
 		$stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "workflow_state
                  SET
                     wfs_title=" . $db->quote($params['wfs_title']) . ",
                     wfs_description=" . $db->quote($params['wfs_description']) . ",
-                    wfs_auto=".$db->quote($wfs_auto,'INTEGER').",
+                    wfs_auto=".$wfs_auto.",
                     wfs_wfb_id=".$db->quote($wfs_wfb_id,'INTEGER').",
                     wfs_display_order=".$db->quote($params['wfs_display_order'],'INTEGER').",
-                    wfs_start=".$db->quote(Misc::checkBox(@$params['wfs_start']),'INTEGER').",
-                    wfs_end=".$db->quote(Misc::checkBox(@$params['wfs_end']),'INTEGER').",
-                    wfs_transparent=".$db->quote(Misc::checkBox(@$params['wfs_transparent']),'INTEGER')."
+                    wfs_start=".$wfs_start.",
+                    wfs_end=".$wfs_end.",
+                    wfs_transparent=".$wfs_transparent."
                  WHERE
                     wfs_id=" . $db->quote($params['id'],'INTEGER');
+
 		try {
 			$db->exec($stmt);
 		}

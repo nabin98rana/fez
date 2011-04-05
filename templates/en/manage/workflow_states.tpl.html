@@ -228,10 +228,10 @@
                   <b>Options:</b>
                 </td>
                 <td style="background: {$light_color}">
-                  <label class="default"><input type="checkbox" name="wfs_auto" id="wfs_auto" size="30" class="default" {if $info.wfs_auto}checked="checked"{/if} onclick="javascript:showOrHideElement('tr_wfs_wfb_id','wfs_auto',false); showOrHideElement('tr_wfs_wfb_id2','wfs_auto',true)"/>Scripted</label>
-                  <label class="default"><input type="checkbox" name="wfs_start" id="wfs_start" size="30" class="default" {if $info.wfs_start}checked="checked"{/if} />Start State</label>
-                  <label class="default"><input type="checkbox" name="wfs_end" id="wfs_end" size="30" class="default" {if $info.wfs_end}checked="checked"{/if} />End State</label>
-                  <label class="default"><input type="checkbox" name="wfs_transparent" id="wfs_transparent" size="30" class="default" {if $info.wfs_transparent}checked="checked"{/if} />Transparent</label>
+                  <label class="default"><input type="checkbox" name="wfs_auto" id="wfs_auto" size="30" class="default" {if $info.wfs_auto == 1}checked="checked"{/if} onclick="javascript:showOrHideElement('tr_wfs_wfb_id','wfs_auto',false); showOrHideElement('tr_wfs_wfb_id2','wfs_auto',true)"/>Scripted</label>
+                  <label class="default"><input type="checkbox" name="wfs_start" id="wfs_start" size="30" class="default" {if $info.wfs_start == 1}checked="checked"{/if} />Start State</label>
+                  <label class="default"><input type="checkbox" name="wfs_end" id="wfs_end" size="30" class="default" {if $info.wfs_end == 1}checked="checked"{/if} />End State</label>
+                  <label class="default"><input type="checkbox" name="wfs_transparent" id="wfs_transparent" size="30" class="default" {if $info.wfs_transparent == 1}checked="checked"{/if} />Transparent</label>
                 </td>
               </tr>  
               <tr id="tr_wfs_wfb_id">
