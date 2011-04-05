@@ -90,7 +90,13 @@ $record_id = Misc::GETorPOST('pid');
 $cat = Misc::GETorPOST('cat');
 $pid = $record_id;
 $tpl->assign("pid", $pid);
-$xdis_list = array(-2 => 'None', -1 => 'Any') + XSD_Display::getAssocListDocTypes(); 
+
+$doctypes  = XSD_Display::getAssocListDocTypes();
+$xdis_list = array('-1' => 'Any'); 
+if (is_array($doctypes)) {
+	$xdis_list = (array('-1' => 'Any') + $doctypes); 
+}
+
 if ($pid == -1) {
     // setting trigger on the overall repository - default triggers
     $canEdit = $isSuperAdministrator;
