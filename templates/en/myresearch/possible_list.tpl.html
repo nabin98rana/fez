@@ -140,22 +140,33 @@ function hideBulk()
 				{if $list[i].rek_display_type_lookup == "Book" || $list[i].rek_display_type_lookup == "Book Chapter" || $list[i].rek_display_type_lookup == "Journal Article" || $list[i].rek_display_type_lookup == "Conference Paper"}
 				<a class="form_note" href="#">
 					<span class="form_note">
-						Display Type: {$list[i].rek_display_type_lookup}<br/>
-						HERDC Status: {$list[i].rek_herdc_status_lookup}<br/>
-						Institutional Status: {$list[i].rek_institutional_status_lookup}<br/><br />
-					{if $list[i].rek_display_type_lookup == "Book" || $list[i].rek_display_type_lookup == "Book Chapter"}
-						Edition: {$list[i].rek_edition} </br>
-						ISBN: {$list[i].rek_isbn} </br>
-					{elseif $list[i].rek_display_type_lookup == "Journal Article"}
-						{if $list[i].rek_refereed == '0'} Refereed: No </br> {/if}
-						{if $list[i].rek_refereed == '1'} Refereed: Yes </br> {/if}
-						ISSN: {$list[i].rek_issn} </br>
-					{elseif $list[i].rek_display_type_lookup == "Conference Paper"}
-						{if $list[i].rek_refereed == '0'} Refereed: No </br> {/if}
-						{if $list[i].rek_refereed == '1'} Refereed: Yes </br> {/if}											
-					{/if}
-						Thomson ISI Loc: {$list[i].rek_isi_loc}<br/>
-						Scopus ID: {$list[i].rek_scopus_id}<br/>
+							Display Type: {$list[i].rek_display_type_lookup}<br/>
+							HERDC Status: {$list[i].rek_herdc_status_lookup}<br/>
+							HERDC Code: {$list[i].rek_herdc_code_lookup}<br/>
+							Institutional Status: {$list[i].rek_institutional_status_lookup}<br/><br />
+						{if $list[i].rek_display_type_lookup == "Book" || $list[i].rek_display_type_lookup == "Book Chapter"}
+							Edition: {$list[i].rek_edition} </br>
+							ISBN: {$list[i].rek_isbn} </br>
+						{elseif $list[i].rek_display_type_lookup == "Journal Article"}
+							{if $list[i].rj_rank} ERA Rank: {$list[i].rj_rank} ({$list[i].rj_title})<br />{/if}
+							{if $list[i].rek_refereed == '0'} Refereed: No </br> {/if}
+							{if $list[i].rek_refereed == '1'} Refereed: Yes </br> {/if}
+							ISSN: {$list[i].rek_issn} </br>
+						{elseif $list[i].rek_display_type_lookup == "Conference Paper"}
+							{if $list[i].rc_rank}ERA Rank: {$list[i].rc_rank} ({$list[i].rc_title})<br />{/if}
+							{if $list[i].rek_refereed == '0'} Refereed: No </br> {/if}
+							{if $list[i].rek_refereed == '1'} Refereed: Yes </br> {/if}											
+						{/if}
+							Thomson ISI Loc: {$list[i].rek_isi_loc}<br/>
+							Scopus ID: {$list[i].rek_scopus_id}<br/><br />
+
+							eSpace Follow up Flag: {$list[i].rek_follow_up_flags_lookup}<br/>
+							IMU Follow up Flag: {$list[i].rek_follow_up_flags_imu_lookup}<br/><br />
+
+							HERDC Notes: {$list[i].rek_herdc_notes}<br/><br/>
+							
+							Internal Notes: {$list[i].rek_notes}
+
 					</span>	
 					<img style="padding-right:2px" src="{$rel_url}images/views_16.png" valign="middle" />
 				</a>
