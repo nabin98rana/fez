@@ -1559,10 +1559,11 @@ class Search_Key
                    "     $key_type `$column_prefix` (`$column_prefix`), \n" .
                    "     KEY `{$column_prefix}_pid` (`{$column_prefix}_pid`) \n";
             if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
-                $cardinality_extra .= ") ENGINE=InnoDB DEFAULT CHARSET=utf8";
+                $query_end = ") ENGINE=InnoDB DEFAULT CHARSET=utf8";
             } else { //otherwise just use the defaults of the non-mysql database
-                $cardinality_extra .= ")";
+                $query_end = ")";
             }
+			$sql .= $query_end;
             return $sql;
 
         } elseif ($relationship == 0) {
