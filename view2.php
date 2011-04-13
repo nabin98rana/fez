@@ -135,7 +135,12 @@ if (!empty($pid) && $record->checkExists()) {
 		}
 	}
 	
-
+	if (APP_SOLR_SWITCH == 'ON') {
+		$details = FulltextQueue::getDetailsForPid($pid);
+		if (count($details) > 0) {
+			Session::setMessage('This record is currently in the Solr queue - changes may not appear for a few moments.');
+		}
+	}
 	
 	if (!is_numeric($xdis_id)) { // if still can't find the xdisplay id then ask for it
 		Auth::redirect(APP_RELATIVE_URL . "select_xdis.php?return=view_form&pid=".$pid.$extra_redirect, false);
