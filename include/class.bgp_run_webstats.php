@@ -55,7 +55,7 @@ class BackgroundProcess_Run_Webstats extends BackgroundProcess
 			$stats->updateSummaryStats();
         	$stats->updateSummaryTables();
 		} else {
-			$stats->gatherStats(); //updateSummaryStats is called in the end of gatherStats
+			$stats->gatherStatsFromBuffer(); //updateSummaryStats (but not updateSummaryTables) is called in the end of gatherStatsFromBuffer 
 		}
 		$this->setState(2);
 	}

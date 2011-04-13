@@ -538,7 +538,7 @@ class Statistics
 				WHERE stl_dsid <> '' AND stl_pid = r1.rek_pid AND stl_counter_bad = FALSE),
 				rek_views = (
 				SELECT COUNT(*) FROM " . APP_TABLE_PREFIX . "statistics_all
-				WHERE stl_dsid = '' AND stl_pid = r1.rek_pid AND stl_counter_bad = FALSE)";
+				WHERE (stl_dsid = '' OR stl_dsid IS NULL) AND stl_pid = r1.rek_pid AND stl_counter_bad = FALSE)";
 		try {
 			$db->query($stmt);
 		}
@@ -662,7 +662,7 @@ class Statistics
 		//		echo "Starting Country Region summary: " . date('H:i:s') . "\n";
 
 		$query = "SELECT stl_country_name, stl_country_code, stl_region, stl_city, sum(abstract) as abstract, sum(downloads) as downloads from ( ";
-		$query .= "SELECT stl_country_name, stl_country_code, stl_region, stl_city, sum(1) as abstract, 0 as downloads FROM " . APP_TABLE_PREFIX . "statistics_all WHERE stl_dsid = '' AND stl_counter_bad = FALSE GROUP BY 4,3,2,1 ";
+		$query .= "SELECT stl_country_name, stl_country_code, stl_region, stl_city, sum(1) as abstract, 0 as downloads FROM " . APP_TABLE_PREFIX . "statistics_all WHERE (stl_dsid = '' OR stl_dsid IS NULL) AND stl_counter_bad = FALSE GROUP BY 4,3,2,1 ";
 		$query .= "UNION ";
 		$query .= "SELECT stl_country_name, stl_country_code, stl_region, stl_city, 0 as abstract, sum(1) as downloads FROM " . APP_TABLE_PREFIX . "statistics_all WHERE stl_dsid <> '' AND stl_counter_bad = FALSE GROUP BY 4,3,2,1) AS tblA ";
 		$query .= "GROUP BY 1,2,3,4 ";
@@ -1168,7 +1168,7 @@ class Statistics
 						WHERE stl_dsid <> '' AND stl_pid = ".$db->quote($pid)." AND stl_counter_bad = FALSE),
 					rek_views = (
 						SELECT COUNT(*) FROM " . APP_TABLE_PREFIX . "statistics_all
-						WHERE stl_dsid = '' AND stl_pid = ".$db->quote($pid)." AND stl_counter_bad = FALSE)
+						WHERE (stl_dsid = '' OR stl_dsid IS NULL) AND stl_pid = ".$db->quote($pid)." AND stl_counter_bad = FALSE)
 				WHERE rek_pid = ".$db->quote($pid);
 		
 		try {
@@ -2260,7 +2260,7 @@ class Statistics
 
 		$stmt = "select count(*)
 			 	 from " . APP_TABLE_PREFIX . "statistics_all
-				 where stl_pid = ".$db->quote($pid)." AND stl_counter_bad = FALSE AND stl_dsid = '' ".$limit;
+				 where stl_pid = ".$db->quote($pid)." AND stl_counter_bad = FALSE AND (stl_dsid = '' OR stl_dsid IS NULL) ".$limit;
 		try {
 			$res = $db->fetchOne($stmt);
 		}
@@ -2323,9 +2323,9 @@ class Statistics
 		$db = DB_API::get();
 		
 		if ($pid != 'all') {
-			$limit = "where stl_pid = ".$db->quote($pid)." and stl_dsid = ''";
+			$limit = "where stl_pid = ".$db->quote($pid)." and (stl_dsid = '' OR stl_dsid IS NULL)";
 		} else {
-			$limit = "where stl_dsid = '' ";
+			$limit = "where (stl_dsid = '' OR stl_dsid IS NULL) ";
 		}
 		if ($year != 'all' && is_numeric($year)) {
 			$year = $db->quote($year);
@@ -2372,9 +2372,9 @@ class Statistics
 		$db = DB_API::get();
 		
 		if ($pid != 'all') {
-			$limit = "where stl_pid = ".$db->quote($pid)." and stl_dsid = ''";
+			$limit = "where stl_pid = ".$db->quote($pid)." and (stl_dsid = '' OR stl_dsid IS NULL)";
 		} else {
-			$limit = "where stl_dsid = '' ";
+			$limit = "where (stl_dsid = '' OR stl_dsid IS NULL) ";
 		}
 		if ($year != 'all' && is_numeric($year)) {
 			$year = $db->quote($year);
@@ -2418,9 +2418,9 @@ class Statistics
 		$db = DB_API::get();
 		
 		if ($pid != 'all') {
-			$limit = "where stl_pid = ".$db->quote($pid)." and stl_dsid = ''";
+			$limit = "where stl_pid = ".$db->quote($pid)." and (stl_dsid = '' OR stl_dsid IS NULL)";
 		} else {
-			$limit = "where stl_dsid = '' ";
+			$limit = "where (stl_dsid = '' OR stl_dsid IS NULL) ";
 		}
 		if ($year != 'all' && is_numeric($year)) {
 			$year = $db->quote($year);
