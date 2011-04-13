@@ -105,7 +105,7 @@ class LinksAmrQueue extends Queue
       // Register the commit shutdown
       if ((! $this->_commit_shutdown_registered) && $in_memory) {
         register_shutdown_function(array($this,"commit"));
-        $this->_commit_shutdown_reg = TRUE;
+        $this->_commit_shutdown_registered = TRUE;
       }
     }
     catch(Exception $ex) {
