@@ -8,30 +8,30 @@
 	<div id="header">
 		<div id="header-inner">
 
-			<h1><a name="link-to-your-institition"></a>{*<a href="http://www.uq.edu.au/" title="Home" accesskey="1">The University of Queensland</a>*}</h1>
-			<h2><a href="{$rel_url}">{$app_name}</a></h2>
+			<h1><a name="link-to-your-institition" target="_parent"></a>{*<a href="http://www.uq.edu.au/" title="Home" accesskey="1" target="_parent">The University of Queensland</a>*}</h1>
+			<h2><a href="{$rel_url}" target="_parent">{$app_name}</a></h2>
 
 			<div id="mininav">
 			 <ul>
-				<li><a href="http://link1.com/" accesskey="3">Offsite&nbsp;Link&nbsp;1</a></li>
-				<li><a href="http://link2.com/" accesskey="4">Offsite&nbsp;Link&nbsp;2</a></li>
-				<li><a href="http://link3.com/" accesskey="5">Offsite&nbsp;Link&nbsp;3</a></li>
-				<li><a href="http://link4.com/" accesskey="6">Offsite&nbsp;Link&nbsp;4</a></li>
+				<li><a href="http://link1.com/" accesskey="3" target="_parent">Offsite&nbsp;Link&nbsp;1</a></li>
+				<li><a href="http://link2.com/" accesskey="4" target="_parent">Offsite&nbsp;Link&nbsp;2</a></li>
+				<li><a href="http://link3.com/" accesskey="5" target="_parent">Offsite&nbsp;Link&nbsp;3</a></li>
+				<li><a href="http://link4.com/" accesskey="6" target="_parent">Offsite&nbsp;Link&nbsp;4</a></li>
 				{* UQ specific links
-				<li><a href="http://www.uq.edu.au/" accesskey="3">UQ Home</a></li>
-				<li><a href="http://www.uq.edu.au/contacts/" accesskey="3">Contacts</a></li>
-				<li><a href="http://www.uq.edu.au/study/" accesskey="4">Study</a></li>
-				<li><a href="http://www.uq.edu.au/maps/" accesskey="5">Maps</a></li>
-				<li><a href="http://www.uq.edu.au/news/" accesskey="6">News</a></li>
-				<li><a href="http://www.uq.edu.au/events/" accesskey="7">Events</a></li>
-				<li><a href="http://www.library.uq.edu.au/" accesskey="8">Library</a></li>
-				<li><a href="http://my.uq.edu.au/" accesskey="9">my.UQ</a></li>*}
+				<li><a href="http://www.uq.edu.au/" accesskey="3" target="_parent">UQ Home</a></li>
+				<li><a href="http://www.uq.edu.au/contacts/" accesskey="3" target="_parent">Contacts</a></li>
+				<li><a href="http://www.uq.edu.au/study/" accesskey="4" target="_parent">Study</a></li>
+				<li><a href="http://www.uq.edu.au/maps/" accesskey="5" target="_parent">Maps</a></li>
+				<li><a href="http://www.uq.edu.au/news/" accesskey="6" target="_parent">News</a></li>
+				<li><a href="http://www.uq.edu.au/events/" accesskey="7" target="_parent">Events</a></li>
+				<li><a href="http://www.library.uq.edu.au/" accesskey="8" target="_parent">Library</a></li>
+				<li><a href="http://my.uq.edu.au/" accesskey="9" target="_parent">my.UQ</a></li>*}
 			 </ul>
 			<div class="clear">&nbsp;</div>
 			</div>
 
 			<div id="search">
-			<form id="searchbox" method="get" action="{$rel_url}list/">
+			<form id="searchbox" method="get" action="{$rel_url}list/" target="_parent">
 			<fieldset>
 			<label for="search-entry">Search Entry</label>
                 {literal}
@@ -56,19 +56,32 @@
 	<div id="topnav">
 		<div id="topnav-inner">
 			<ul>
+<<<<<<< local
 				<li{if $active_nav == 'home'} id="nav-focus"{/if}><a href="{$rel_url}">Home</a></li>
 				<li{if $active_nav == 'list'} id="nav-focus"{/if}><a href="{$rel_url}list/">Browse</a></li>
 				<li{if $active_nav == 'search'} id="nav-focus"{/if}><a href="{$rel_url}adv_search.php">Search</a></li>
 				<li{if $active_nav == 'help'} id="nav-focus"{/if}><a title="Browse the Frequently Asked Questions section" href="{$rel_url}faq">FAQs</a></li>
 				<li{if $active_nav == 'about'} id="nav-focus"{/if}><a href="{$rel_url}about">About</a></li>
+=======
+				<li{if $active_nav == 'home'} id="nav-focus"{/if}><a href="{$rel_url}" target="_parent">Home</a></li>
+				<li{if $active_nav == 'list'} id="nav-focus"{/if}><a href="{$rel_url}list/" target="_parent">Browse</a></li>
+				<li{if $active_nav == 'search'} id="nav-focus"{/if}><a href="{$rel_url}adv_search.php" target="_parent">Search</a></li>
+				<li{if $active_nav == 'deposit'} id="nav-focus"{/if}><a href="{$rel_url}deposit.php" class="iconized icon-lock-go" target="_parent">Deposit</a></li>
+>>>>>>> other
 				{if $isUser}
-				  <li{if $active_nav == 'preferences'} id="nav-focus"{/if}><a href="{$rel_url}preferences.php">Preferences</a></li>
-				  {if $isAuthor == 1}<li{if $active_nav == 'mypubs'} id="nav-focus"{/if}><a href="{$rel_url}{$myPubURL}">My Pubs</a></li>{/if}
-				  <li{if $active_nav == 'my_fez'} id="nav-focus"{/if}><a href="{$rel_url}my_fez{if $useClassic == 1}_traditional{/if}.php">My {$app_name}</a></li>
-				  {if $isAdministrator}<li{if $active_nav == 'admin'} id="nav-focus"{/if}><a href="{$rel_url}manage/">Administration</a></li>{/if}  
-				  <li><a href="{$rel_url}logout.php">Logout</a></li>
+				  <li{if $active_nav == 'preferences'} id="nav-focus"{/if}><a href="{$rel_url}preferences.php" target="_parent">Preferences</a></li>
+				  {if $isAuthor == 1}<li{if $active_nav == 'mypubs'} id="nav-focus"{/if}><a href="{$rel_url}{$myPubURL}" target="_parent">My Pubs</a></li>{/if}
+				  <li{if $active_nav == 'my_fez'} id="nav-focus"{/if}><a href="{$rel_url}my_fez{if $useClassic == 1}_traditional{/if}.php" target="_parent">My {$app_name}</a></li>
+				  {if $isAdministrator}<li{if $active_nav == 'admin'} id="nav-focus"{/if}><a href="{$rel_url}manage/" target="_parent">Administration</a></li>{/if}  
+				  <li><a href="{$rel_url}logout.php" target="_parent">Logout</a></li>
 				{else}
+<<<<<<< local
 				  <li{if $active_nav == 'login'} id="nav-focus"{/if}><a href="{$rel_url}login.php?url={$uri_encoded}">Login</a></li>
+=======
+				  <li{if $active_nav == 'help'} id="nav-focus"{/if}><a title="Browse the Frequently Asked Questions section" href="{$rel_url}help.php?topic=main" target="_parent">FAQs</a></li>
+				  <li{if $active_nav == 'about'} id="nav-focus"{/if}><a href="{$rel_url}about.php" target="_parent">About</a></li>
+				  <li{if $active_nav == 'login'} id="nav-focus"{/if}><a href="{$rel_url}login.php?url={$uri_encoded}" target="_parent">Login</a></li>
+>>>>>>> other
 				{/if}
 			</ul>
 			<div class="clear">&nbsp;</div>
