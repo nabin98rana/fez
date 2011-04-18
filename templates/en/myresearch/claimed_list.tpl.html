@@ -140,6 +140,7 @@ function correctionRequired(pid)
 	
 		<tr class="{if $flagged_claimed[$pid].type == 'D'}claimed-not-my-pub{elseif $flagged_claimed[$pid].type == 'C'}claimed-correction-required{elseif $flagged_possible[$pid].type == 'C' && $flagged_possible[$pid].correction != ''}claimed-correction-required{elseif $list[i].rek_status != '2'}unpublished-pub{/if}">
 			<td style="width: 100%;">  {if $list[i].rek_status != 2} (waiting on an administrator for approval to be published) {/if}
+                {if $isAdministrator}
 				{if $list[i].rek_display_type_lookup == "Book" || $list[i].rek_display_type_lookup == "Book Chapter" || $list[i].rek_display_type_lookup == "Journal Article" || $list[i].rek_display_type_lookup == "Conference Paper"}
 				<a class="form_note" href="#">
 					<span class="form_note">
@@ -172,6 +173,7 @@ function correctionRequired(pid)
 					<img style="padding-right:2px" src="{$rel_url}images/views_16.png" valign="middle" />
 				</a>
 				{/if}
+                {/if}
 				{if $list[i].rek_citation != ""}
 					{$list[i].rek_citation}
 				{else}

@@ -688,14 +688,19 @@ class XSD_HTML_Match
 		{
 			$log = FezLog::get();
 			$db = DB_API::get();
-
-			$stmt = "SELECT
-		                    distinct xsdmf_id, IFNULL(CONCAT('(', xsdmf_id, ') (', xsdsel_title, ') ', xsdmf_element), CONCAT('(', xsdmf_id, ') ', xsdmf_element)) as xsdmf_presentation
+      if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
+				$stmt = "SELECT distinct xsdmf_id, IFNULL(CONCAT('(', xsdmf_id, ') (', xsdsel_title, ') ', xsdmf_element), CONCAT('(', xsdmf_id, ') ', xsdmf_element)) as xsdmf_presentation ";
+			} else {
+					$stmt = "SELECT xsdmf_id, IFNULL(('(' || xsdmf_id || ') (' || xsdsel_title || ') ' || xsdmf_element), ('(' || xsdmf_id || ') ' || xsdmf_element)) as xsdmf_presentation ";
+			}
+		
+			$stmt .= "
 						 FROM 
 							" . APP_TABLE_PREFIX . "xsd_display_matchfields as m1 left join
 							" . APP_TABLE_PREFIX . "xsd_loop_subelement as s1 on s1.xsdsel_id = m1.xsdmf_xsdsel_id
 			 			 WHERE xsdmf_xdis_id = " . $db->quote($xdis_id, 'INTEGER') . " 
 						 ORDER BY xsdsel_title";
+
 			try {
 				$res = $db->fetchPairs($stmt);
 			}

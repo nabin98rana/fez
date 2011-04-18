@@ -436,8 +436,14 @@ class XSD_Display
 		$db = DB_API::get();
 		
 		$stmt = "SELECT
-                    xdis_id,
-					concat(xdis_title, ' Version ', xdis_version) as xdis_desc
+                    xdis_id, ";
+
+		if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
+			$stmt .= " concat(xdis_title, ' Version ', xdis_version) as xdis_desc ";
+		} else {
+			$stmt .= " (xdis_title || ' Version ' || xdis_version) as xdis_desc ";			
+		}
+		$stmt .= "
                  FROM
                     " . APP_TABLE_PREFIX . "xsd_display
                  WHERE xdis_enabled = TRUE
@@ -466,8 +472,14 @@ class XSD_Display
 		$db = DB_API::get();
 		
 		$stmt = "SELECT
-                    xdis_id,
-					concat(xdis_title, ' Version ', xdis_version) as xdis_desc
+                    xdis_id, ";
+
+		if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
+			$stmt .= " concat(xdis_title, ' Version ', xdis_version) as xdis_desc ";
+		} else {
+			$stmt .= " (xdis_title || ' Version ' || xdis_version) as xdis_desc ";			
+		}
+		$stmt .= "
                  FROM
                     " . APP_TABLE_PREFIX . "xsd_display 
 				 WHERE xdis_object_type = 2	and xdis_enabled = TRUE
@@ -497,8 +509,14 @@ class XSD_Display
 		$db = DB_API::get();
 		
 		$stmt = "SELECT
-                    xdis_id,
-					concat(xdis_title, ' Version ', xdis_version) as xdis_desc
+                    xdis_id, ";
+
+		if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
+			$stmt .= " concat(xdis_title, ' Version ', xdis_version) as xdis_desc ";
+		} else {
+			$stmt .= " (xdis_title || ' Version ' || xdis_version) as xdis_desc ";			
+		}
+		$stmt .= "
                  FROM
                     " . APP_TABLE_PREFIX . "xsd_display 
 				 WHERE xdis_object_type = ".$db->quote($ret_id, 'INTEGER')."			 
@@ -527,8 +545,14 @@ class XSD_Display
 		$db = DB_API::get();
 		
 		$stmt = "SELECT
-                    xdis_id,
-					concat(xdis_title, ' Version ', xdis_version) as xdis_desc
+                    xdis_id, ";
+
+		if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
+			$stmt .= " concat(xdis_title, ' Version ', xdis_version) as xdis_desc ";
+		} else {
+			$stmt .= " (xdis_title || ' Version ' || xdis_version) as xdis_desc ";			
+		}
+		$stmt .= "
                  FROM
                     " . APP_TABLE_PREFIX . "xsd_display
 				 WHERE xdis_object_type = 3	and xdis_enabled = TRUE
@@ -557,8 +581,14 @@ class XSD_Display
 		$db = DB_API::get();
 		
 		$stmt = "SELECT
-                    xdis_id,
-					concat(xdis_title, ' Version ', xdis_version) as xdis_desc
+                    xdis_id, ";
+
+		if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
+			$stmt .= " concat(xdis_title, ' Version ', xdis_version) as xdis_desc ";
+		} else {
+			$stmt .= " (xdis_title || ' Version ' || xdis_version) as xdis_desc ";			
+		}
+		$stmt .= "
                  FROM
                     " . APP_TABLE_PREFIX . "xsd_display
 				 WHERE xdis_object_type != 4 and xdis_enabled = TRUE
