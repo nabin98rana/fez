@@ -72,13 +72,10 @@ if (@$_SESSION['IDP_LOGIN_FLAG'] == 1) {
 	Auth::GetShibAttributes();
 	$_SESSION['IDP_LOGIN_FLAG'] = 0;
 }
-<<<<<<< local
 
 $masquerade = @$_POST["masquerade"];
 if ((@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'] != "" || @$_SERVER['Shib-Session-ID'] != "") && $masquerade == '') {
-=======
-if (@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'] != "" || @$_SERVER['Shib-Session-ID'] != "") {
->>>>>>> other
+
 // Uncomment this to see a debug output of all the shibboleth attributes in the session
 	// echo "<pre>"; 
 	// print_r($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]);

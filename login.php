@@ -313,26 +313,15 @@ if (SHIB_SWITCH == "ON" && SHIB_VERSION == "1") {
 	$tpl->assign("SHIB_IDP_LIST", array());
 
 	if (SHIB_VERSION == "3" && SHIB_SWITCH == "ON") { // so easy with simple saml.. all the above taken care of by the embedded wayf from Simple SAML PHP
-<<<<<<< local
-		if (!empty($_GET["url"])) { 		
+		if (!empty($_GET["url"])) {
 			$_SESSION["url"] = $_GET["url"];			
 		}
-=======
->>>>>>> other
 		$auth = new SimpleSAML_Auth_Simple('default-sp');
-<<<<<<< local
 
-=======
-		$_SESSION['IDP_LOGIN_FLAG'] = 1;
->>>>>>> other
 		if ($_GET['default-idp'] == "true") {
-<<<<<<< local
 			$_SESSION['IDP_LOGIN_FLAG'] = 1;
-=======
->>>>>>> other
 			$auth->login(array('saml:SP','saml:idp' => SHIB_HOME_IDP, 'ReturnTo' => "https://".APP_HOSTNAME));
 			exit;
-<<<<<<< local
 		} elseif ($_GET['wayf-idp'] == "true") {
 			$_SESSION['IDP_LOGIN_FLAG'] = 1;
 			$SSPUrl = $auth->getLoginURL("https://".APP_HOSTNAME);
@@ -340,10 +329,6 @@ if (SHIB_SWITCH == "ON" && SHIB_VERSION == "1") {
 			exit;
 		} 
 		$SSPUrl = $_SERVER['PHP_SELF']."?wayf-idp=true";
-=======
-		}
-		$SSPUrl = $auth->getLoginURL("https://".APP_HOSTNAME);
->>>>>>> other
 		$tpl->assign("SSP_URL", $SSPUrl);
 		$SSPDirectUrl = $_SERVER['PHP_SELF']."?default-idp=true";
 		$tpl->assign("SSP_DIRECT_URL", $SSPDirectUrl);		
