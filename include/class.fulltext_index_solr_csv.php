@@ -366,8 +366,9 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 			/*
 			 * Add datasteam text to CSV array
 			 */
-			$content = $this->getCachedContent($pids);
-			$content = preg_replace('/[^(\x20-\x7F)]*/','',$content);
+			//$content = $this->getCachedContent($pids);
+			//$content = preg_replace('/[^(\x20-\x7F)]*/','',$content);
+            $content = array();
 			foreach ($csv as $rek_pid => $rek_line) {
 				 
 				if( !empty($content[$rek_pid]) ) {
