@@ -1410,12 +1410,25 @@ top: 5px;
 .sanity_result_failed {color: red;}
 
 .flash_message {
-    border: 2px solid #fffc00;
-    background-color: #fffec6;
-    width: 100%;
+    width: 935px;
     padding: 10px;
     text-align: center;
     margin-bottom: 15px;
+}
+
+.message_ok {
+    border: 1px solid #08ac00;
+    background-color: #c9ffc6;
+}
+
+.message_alert {
+    border: 1px solid #fffc00;
+    background-color: #fffec6;
+}
+
+.message_error {
+    border: 1px solid #ff1010;
+    background-color: #ffc6c6;
 }
 
 .loading {
@@ -1894,8 +1907,8 @@ div.hr hr {
 }
 
 #view-metadata th, #view-metadata td {
-    padding: 3px 10px 3px 10px;
-    border-bottom: 1px dotted [[$smarty.const.APP_CELL_COLOR]];
+    padding: 4px 10px 4px 10px;
+    border-bottom: 1px solid [[$smarty.const.APP_CELL_COLOR]];
 }
 
 #outstandingWorkflowsDiv {

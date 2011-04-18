@@ -44,30 +44,36 @@
         }
      }
      
-    function setMessage($str)
+    function setMessage($str, $type = 'alert')
     {
         if (!empty($_SESSION['flash'])) {
             $_SESSION['flash'] .= "<br/>\n".$str;
         } else {
             $_SESSION['flash'] = $str;
         }
-        //Error_Handler::logError($_SESSION['flash'],__FILE__,__LINE__);
+        $_SESSION['flash_type'] = $type;
     }
     
     function clearMessage()
     {
         $_SESSION['flash'] = '';
+        $_SESSION['flash_type'] = '';
     }
     
     function getMessage()
     {
         return @$_SESSION['flash'];
     }
+    
+    function getMessageType()
+    {
+        return @$_SESSION['flash_type'];
+    }
      
      function najaxGetMeta()
     {
-        NAJAX_Client::mapMethods($this, array('setSession','getSession','setMessage','getMessage','clearMessage' ));
-        NAJAX_Client::publicMethods($this, array('setSession','getSession','setMessage','getMessage','clearMessage'));
+        NAJAX_Client::mapMethods($this, array('setSession','getSession','setMessage','getMessage','getMessageType','clearMessage' ));
+        NAJAX_Client::publicMethods($this, array('setSession','getSession','setMessage','getMessage','getMessageType','clearMessage'));
     }
  }
  

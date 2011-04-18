@@ -30,16 +30,26 @@
 // | Authors: Andrew Martlew <a.martlew@library.uq.edu.au>                |
 // +----------------------------------------------------------------------+
 
-include_once("../config.inc.php");
-include_once(APP_INC_PATH . "class.db_api.php");
-include_once(APP_INC_PATH . "class.author.php");
-include_once(APP_INC_PATH . "class.researcherid.php");
+include_once(APP_INC_PATH.'class.background_process.php');
+include_once(APP_INC_PATH.'class.wok_queue.php');
+include_once(APP_INC_PATH.'class.auth.php');
 
-$authors = Author::getAllWithResearcherId();
-// Split into array chunks so we can send each chunk
-// as a single RID service call
-$rids_chunked = array_chunk($authors, 100);
+class BackgroundProcess_Wok extends BackgroundProcess
+{
+  function __construct()
+  {
+    parent::__construct();
+    $this->include = 'class.bgp_wok.php';
+    $this->name = 'WoK Service';
+  }
 
-for($i=0; $i<count($rids_chunked); $i++) {
-  ResearcherID::downloadRequest($rids_chunked[$i], 'researcherIDs', 'researcherID');
+  function run()
+  {
+    $this->setState(BGP_RUNNING);
+    extract(unserialize($this->inputs));
+    $queue = WokQueue::get();
+    $queue->setBGP($this);
+    $queue->bgProcess();
+    $this->setState(BGP_FINISHED);
+  }
 }

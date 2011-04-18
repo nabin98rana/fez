@@ -117,12 +117,15 @@ class Google_Scholar
 		return $norm;
 	}
 
+    /**
+     * Use curl to scrape Google scholar results for given query
+     */
 	function citationcounts_retrieve_scholar_results($query) {
 		//	        $account = user_load(array('uid'=>1));
 		GLOBAL $last_random;
 		$url = "http://scholar.google.com.au/scholar?q=".$query;
-					echo "\nquerying $url <br />\n"; ob_flush();
-//					exit;
+		echo "\nquerying $url <br />\n"; ob_flush();
+        //			exit;
 		//	        $_SESSION['citations']['url'] = $url;
 
 		/*
@@ -135,33 +138,42 @@ class Google_Scholar
 		//	        $gs = (file_get_contents($url));
 
 		
-//		$interface = array("eth0");
-		//uncomment and change depending on how many IPs/interfaces you have bound to the server that you want to use
+        // Todo: move $interface into config table...
+		// uncomment and change depending on how many IPs/interfaces you have bound to the server that you want to use
+
+        //$interface = array("eth0");
 		$interface = array("eth0", "eth0:0", "eth0:1", "eth0:2", "eth0:3");
+
 		if (!is_numeric($last_random)) {
 			 $last_random = rand(0, (count($interface)-1));
 		}
-		//RANDOMIZER!
+
+		// RANDOMIZER!
 		$x = rand(0, (count($interface)-1));
-		while ($x == $last_random) {
-			$x = rand(0, (count($interface)-1));
-		} 
+
+        // This if prevents an ininite loop if
+        // there is only one interface!
+        if(count($interface) != 1) {
+
+		    while ($x == $last_random) {
+			    $x = rand(0, (count($interface)-1));
+    		} 
+
+        }
 		$last_random = $x;
-
-
 
 //		$useragent="Linux Mozilla"; // "Engage cloaking device!" = Thanks to ePrints 3 for the inspiration for this line of code!
 		// set user agent
-		$useragent= array("Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.1) Gecko/20061204 Firefox/2.0.0.1",
+		$useragent = array("Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.1) Gecko/20061204 Firefox/2.0.0.1",
 		"Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.2.3) Gecko/20100401 Firefox/3.6.3",
 		"Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0; SLCC1; .NET CLR 2.0.50727; InfoPath.2; .NET CLR 3.5.30729; .NET CLR 3.0.30729)",
 		"Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/532.5 (KHTML, like Gecko) Chrome/4.1.249.1045 Safari/532.5",
 		"Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_2; en-US) AppleWebKit/533.2 (KHTML, like Gecko) Chrome/5.0.342.9 Safari/533.2"
 		);
 		
-		$hai =  "Using ".$interface[$x]." as ".$useragent[$x]."\n";
-                $a = $useragent[$x];
-                $b = $interface[$x];
+		$hai =  "Using " . $interface[$x] . " as " . $useragent[$x] . "\n";
+        $a = $useragent[$x];
+        $b = $interface[$x];
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_USERAGENT, $a);
 		curl_setopt($ch, CURLOPT_INTERFACE, $b);
@@ -176,16 +188,17 @@ class Google_Scholar
 			Error_Handler::logError(curl_error($ch)." ".$url,__FILE__,__LINE__);
 			curl_close($ch);
 		} 
-		if (preg_match("We're sorry", $gs)) {
-                  echo "\n\n OH NOES!!! GOOGLE BLOCKED US!!!!!!!"; //could just sleep for 24hours on that IP..
-                  exit;
-                } 
+		if (preg_match("/We're sorry/", $gs)) {
+            echo "\n\n OH NOES!!! GOOGLE BLOCKED US!!!!!!!"; //could just sleep for 24hours on that IP..
+            exit;
+        } 
+
 		echo $hai; ob_flush();
 		$articles = Google_Scholar::citationcounts_parseScholar($gs);
-//					print_r($articles); ob_flush();
+        //			print_r($articles); ob_flush();
 		//	        $_SESSION['citations']['arts'] = $articles;
 		//if ($articles['status'] == 'scholarblock') {
-		//	        if (preg_match("We're sorry", $gs)) {
+		//	        if (preg_match("/We're sorry/", $gs)) {
 		/*	                drupal_set_message("status: ".$articles['status']);
 		 variable_set("citationcounts_googlescholar_blocked", "1 ".$gsjson);
 		 watchdog("citations", "scholar block", WATCHDOG_ERROR);
@@ -194,6 +207,8 @@ class Google_Scholar
 		 exit(); */
 		//return false;
 		//	        }
+
+        // Todo: move these sleep constants into config table.
 		$sleep = (int)rand(43, 74)/count($interface);
 		//echo "sleeping for ".$sleep." seconds zzzZZZZ \n";
 		sleep($sleep); // enforce a wait period before the next query
@@ -207,10 +222,10 @@ class Google_Scholar
 		//echo "matches: \n";
 		//			print_r($matches); flush();
 		foreach($matches[0] as $a) {
-                        if (count($matches) > 1 && is_numeric($article['citations'])) {
-                          echo "returning because already found a count\n";
-                          return $articles;
-                        } 
+            if (count($matches) > 1 && is_numeric($article['citations'])) {
+                echo "returning because already found a count\n";
+                return $articles;
+            } 
 			$article = array();
                          
 			$p = '|</?b>|';
