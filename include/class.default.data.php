@@ -276,6 +276,13 @@ class Default_Data
 		$defaultData['app_record_locking']					= "OFF";
 		$defaultData['app_auto_linksamr_upload']    		= "OFF";
 		$defaultData['app_wheel_group']						= "Masqueraders";
+		$defaultData['wok_ws_base_url']                     = "http://search.isiknowledge.com/esti/wokmws/ws/";
+		$defaultData['wok_database_id']                     = "WOS";
+		$defaultData['wok_cookie_name']                     = "SID";
+		$defaultData['wok_username']                        = "";
+		$defaultData['wok_password']                        = "";
+		$defaultData['wok_batch_size']                      = "50";
+		$defaultData['wok_seconds_between_calls']           = "300";
 		
 		return $defaultData;
 	}
