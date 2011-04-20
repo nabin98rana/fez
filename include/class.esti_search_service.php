@@ -93,8 +93,6 @@ class EstiSearchService
 	// (1) research_addrs may be ok, but we do not require it anyway
 	const FIELDS = 'times_cited abbrev_11 abbrev_22 abbrev_29 abbrev_iso author author authors bib_date bib_id bib_issue bib_misc bib_pagecount bib_pages bib_pages bib_vol bk_binding bk_ordering bk_prepay bk_price bk_publisher book_authors book_chapters book_corpauthor book_desc book_editor book_editors book_note book_notes book_series book_series_title book_subtitle bs_subtitle bs_title conf_city conf_date conf_end conf_host conf_id conf_location conf_sponsor conf_sponsors conf_start conf_state conf_title conference conferences copyright corp_authors doctype editions editor i_cid i_ckey ids io isbn issn issue_ed issue_title item item_enhancedtitle item_title items keyword keyword keywords keywords_plus languages load loc meeting_abstract p primaryauthor primarylang pub_address pub_city pub_url publisher pubtype ref refs reprint research reviewed_work rp_address rp_author rp_city rp_country rp_organization rp_state rp_street rp_suborganization rp_suborganizations rp_zip rp_zips rs_address rs_city rs_country rs_organization rs_state rs_street rs_suborganization rs_suborganizations rs_zip rs_zips rw_author rw_authors rw_lang rw_langs rw_year source_abbrev source_editors source_series source_title sq subject subjects ui unit units ut';
 	
-	const DATABASE_ID = 'WOS';
-	
 	function __construct()
 	{
 				
@@ -111,7 +109,7 @@ class EstiSearchService
 	 * @param string $fields The fields that will be retrieved for each record.
 	 * @return SimpleXMLElement The object containing records found in WoS matching the primaryKey(s) specified 
 	 */
-	public static function retrieve($primary_keys, $database_id = self::DATABASE_ID, $sort = '', $fields = self::FIELDS) 
+	public static function retrieve($primary_keys, $database_id = WOK_DATABASE_ID, $sort = '', $fields = self::FIELDS) 
 	{		
 		$log = FezLog::get();
 		
@@ -204,7 +202,7 @@ class EstiSearchService
 	 * @param string $format Identifies the format desired.  Recognized formats are: "catalog", "databases", "instnames", "loaddate" and "metadata".  
 	 * @return SimpleXMLElement The meta-data XML
 	 */
-	public static function describe_database($database_id = self::DATABASE_ID, $format = 'instnames') 
+	public static function describe_database($database_id = WOK_DATABASE_ID, $format = 'instnames') 
 	{		
 		$log = FezLog::get();
 					

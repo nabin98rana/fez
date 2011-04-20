@@ -42,15 +42,6 @@
 
 class WokService
 {
-  const WOKWSBASE = 'http://search.isiknowledge.com/esti/wokmws/ws/';
-  
-  const DATABASE_ID = 'WOS';
-  const COOKIE_NAME = 'SID';
-   
-  // TODO: shove these into fez_config
-  const USERNAME = 'username';
-  const PASSWORD = 'password';
-  
   private $searchEndpoint;
   private $authEndpoint;
   private $client;
@@ -66,14 +57,14 @@ class WokService
   public function __construct($lite = TRUE)
   {
     $this->log = FezLog::get();
-    $this->authEndpoint = self::WOKWSBASE . 'WOKMWSAuthenticate'; 
-    $this->searchEndpoint = self::WOKWSBASE . 'WokSearch';
+    $this->authEndpoint = WOK_WS_BASE_URL . 'WOKMWSAuthenticate'; 
+    $this->searchEndpoint = WOK_WS_BASE_URL . 'WokSearch';
     if ($lite) {
       $this->searchEndpoint .= 'Lite';
     }
     $options = array();
     $this->client = new Zend_Soap_Client($this->authEndpoint . '?wsdl', $options);
-    $this->sessionId = $this->authenticate(self::USERNAME, self::PASSWORD);
+    $this->sessionId = $this->authenticate(WOK_USERNAME, WOK_PASSWORD);
     if ($this->sessionId) {
       $this->ready = TRUE;
       $this->sessionId = "\"{$this->sessionId}\""; // cursed @ symbol, can't encode else the service
@@ -108,7 +99,7 @@ class WokService
     );
     try {
       // Make SOAP request
-      $this->client->setCookie(self::COOKIE_NAME, $this->sessionId);
+      $this->client->setCookie(WOK_COOKIE_NAME, $this->sessionId);
       $response = $this->client->retrieve($retrieve);      
       return $response;
     }
@@ -127,7 +118,7 @@ class WokService
    *                            will search (default is WOS)
    * @param string $query_lang This element can take only one value: en for English.
    */
-  public function retrieveById($uids, $database_id = self::DATABASE_ID, $query_lang = 'en')
+  public function retrieveById($uids, $database_id = WOK_DATABASE_ID, $query_lang = 'en')
   {
     $retrieve = array(
       'databaseId' => $database_id,
@@ -139,7 +130,7 @@ class WokService
         )
     );
     try {      
-      $this->client->setCookie(self::COOKIE_NAME, $this->sessionId);
+      $this->client->setCookie(WOK_COOKIE_NAME, $this->sessionId);
       $response = $this->client->retrieveById($retrieve);
       return $response->return->records;
     }
@@ -187,7 +178,7 @@ class WokService
   {
     try {
       // Make SOAP request 
-      $this->client->setCookie(self::COOKIE_NAME, $this->sessionId); 
+      $this->client->setCookie(WOK_COOKIE_NAME, $this->sessionId); 
       $this->client->closeSession();
     }
     catch(SoapFault $ex) {

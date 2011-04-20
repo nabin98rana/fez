@@ -60,8 +60,8 @@ class WokQueue extends Queue
       $instance->_dbap = 'wka_';
       $instance->_lock = 'wok';
       $instance->_use_locking = TRUE;
-      $instance->_batch_size = 50;
-      $instance->_time_between_calls = 300;
+      $instance->_batch_size = WOK_BATCH_SIZE;
+      $instance->_time_between_calls = WOK_SECONDS_BETWEEN_CALLS;
       $instance->_commit_shutdown_registered = FALSE;
       Zend_Registry::set('Wok', $instance);
     }

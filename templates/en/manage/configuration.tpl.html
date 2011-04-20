@@ -26,6 +26,7 @@ function hideAllSubPages()
 	document.getElementById('handle').style.display = "none";
 	document.getElementById('versioning').style.display = "none";
 	document.getElementById('researcherid').style.display = "none";
+	document.getElementById('wok').style.display = "none";
 }
 
 function updatePreviewColour(el)
@@ -108,7 +109,7 @@ function restoreDefaultColours(el)
 
 	<table>
 	  <tr>
-	    <td style="width: 160px;">
+	    <td style="width: 200px; vertical-align: top;">
 		  <a href="#" onclick="javascript:showSubPage('general');">General Settings</a><br />
 		  <a href="#" onclick="javascript:showSubPage('fedora');">Fedora Settings</a><br />
 		  <a href="#" onclick="javascript:showSubPage('paths');">Programs and Paths</a><br />
@@ -116,8 +117,9 @@ function restoreDefaultColours(el)
 		  <a href="#" onclick="javascript:showSubPage('solr');">Solr Settings</a><br />
 		  <a href="#" onclick="javascript:showSubPage('exiftool');">Exiftool Settings</a><br />
 		  <a href="#" onclick="javascript:showSubPage('handle');">Handle Settings</a><br />
+		  <a href="#" onclick="javascript:showSubPage('wok');">Web of Knowledge Settings</a><br />
 		</td>
-	    <td>
+	    <td style="width: 200px; vertical-align: top;">
 		  <a href="#" onclick="javascript:showSubPage('webstats');">Web Statistics</a><br />
 		  <a href="#" onclick="javascript:showSubPage('shib');">Shibboleth Settings</a><br />
 		  <a href="#" onclick="javascript:showSubPage('ldap');">LDAP Settings</a><br />
@@ -1942,6 +1944,73 @@ function restoreDefaultColours(el)
 		 </tbody>
 		</table>
 		</div>
+		
+		<div id="wok" style="display: none;">
+		<table width="100%" class="admin-edit">
+		 <thead>
+		  <tr>
+			<th colspan="2">
+			  <h2>Web of Knowledge Web Service Settings</h2>
+			</th>
+		  </tr>
+		 </thead>
+		 <tbody>
+		  <tr>
+		    <th>Web service base URL</th>
+			<td>
+			  <input type="text" name="wok_ws_base_url" value="{$config_settings.wok_ws_base_url|escape:"html"}" size="100" />
+			  <br />The URL of the Web of Knowledge web service.
+			  {include file="error_icon.tpl.html" field="wok_ws_base_url"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Database ID</th>
+			<td>
+			  <input type="text" name="wok_database_id" value="{$config_settings.wok_database_id|escape:"html"}" size="10" />
+			  {include file="error_icon.tpl.html" field="wok_database_id"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Cookie name</th>
+			<td>
+			  <input type="text" name="wok_cookie_name" value="{$config_settings.wok_cookie_name|escape:"html"}" size="10" />
+			  {include file="error_icon.tpl.html" field="wok_cookie_name"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Username</th>
+			<td>
+			  <input type="text" name="wok_username" value="{$config_settings.wok_username|escape:"html"}" size="20" />
+			  {include file="error_icon.tpl.html" field="wok_username"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Password</th>
+			<td>
+			  <input type="password" name="wok_password" value="{$config_settings.wok_password|escape:"html"}" size="20" />
+			  {include file="error_icon.tpl.html" field="wok_password"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Batch size</th>
+			<td>
+			  <input type="text" name="wok_batch_size" value="{$config_settings.wok_batch_size|escape:"html"}" size="5" />
+			  <br />Enter a number.<br /><b>IMPORTANT:</b> Changing the batch size may be violation of the WoS license. Do not change this value unless you are authorised to do so by Thomson Reuters.
+			  {include file="error_icon.tpl.html" field="wok_batch_size"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Seconds between calls</th>
+			<td>
+			  <input type="text" name="wok_seconds_between_calls" value="{$config_settings.wok_seconds_between_calls|escape:"html"}" size="5" />
+			  <br />Please enter the delay between calls, in seconds.<br /><b>IMPORTANT:</b> Calling the WoS web service more frequently than the negotiated value may be violation of the WoS license. Do not change this value unless you are authorised to do so by Thomson Reuters.
+			  {include file="error_icon.tpl.html" field="wok_seconds_between_calls"}
+			</td>
+		  </tr>
+		 </table>
+		</div>
+		
+		
 
 		<div id="submit" style="display: none;">
 		<br />&nbsp;&nbsp;&nbsp;<input type="submit" name="button" value="Save changes" class="submit" /> &nbsp; <input type="reset" value="Discard changes" /><br /><br />

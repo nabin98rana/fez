@@ -46,7 +46,7 @@ include_once(APP_INC_PATH . "class.error_handler.php");
 include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.validation.php");
 include_once(APP_INC_PATH . "class.date.php");
-include_once(APP_INC_PATH . 'class.esti_search_service.php');
+include_once(APP_INC_PATH . "class.wok_queue.php");
 include_once(APP_INC_PATH . "class.record_object.php");
 include_once(APP_INC_PATH . "class.record_general.php");
 
@@ -703,53 +703,17 @@ class ResearcherID
   {
     $log = FezLog::get();
     $db = DB_API::get();
+    
+    return TRUE; // TODO: disabled until wok queue finalised
 
     $collection = RID_DL_COLLECTION;
-    $processedUT = array();
+    
     if (Fedora_API::objectExists($collection)) {
-        
       $aut = @split(':', $record->{'accession-num'});
-      if (count($aut) > 1) {
-        $records = EstiSearchService::retrieve($aut[1], $aut[0]);
-
-        if ($records) {
-          foreach ($records->REC as $_record) {
-            if (@$_record->item) {
-              $ut = $_record->item->ut;
-                
-              if (!in_array($ut, $processedUT)) {
-                  
-                $pid = Record::getPIDByIsiLoc($ut);
-
-                // If the publication exists
-                if ( $pid ) {                
-                  $record = new RecordObject($pid);
-                  $record->matchAuthor($author_id, TRUE, TRUE);
-                  
-                  $times_cited = (string)$record->{'times-cited'};
-                  if (! empty($times_cited)) {
-                    Record::updateThomsonCitationCount($pid, $times_cited, $ut);
-                  }
-                } else {
-                  $mods = Misc::convertEstiRecordToMods($_record, $author_id);
-                  $links = Misc::convertEstiRecordToLinks($_record);
-                  if ($mods) {
-                    $history = 'Imported from ResearcherID';
-                    if ($researcherid) {
-                      $history .= ' '.$researcherid;
-                    }
-                    $times_cited = $_record->attributes()->timescited;
-                    Record::insertFromArray(
-                        $mods, $collection, 'MODS 1.0', $history, 
-                        $times_cited, $links
-                    );
-                  }
-                }
-                array_push($processedUT, $ut);
-              }
-            }
-          }
-        }
+      // Download from WOS collection only
+      if (count($aut) > 1 && $aut[0] == 'WOS') {
+        $ut = $aut[1];
+        WokQueue::get()->add($ut, $author_id);
       }
       return true;
     } else {
