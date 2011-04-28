@@ -1,3 +1,89 @@
+{literal}
+
+	<script type="text/javascript">
+	<!--
+	
+	var star_proxy = new dojo.rpc.JsonService("{/literal}{$rel_url}{literal}record_star_proxy.php");
+	var star_toggle = 'off';
+	
+	function addStar(pid)
+	{
+		var image = document.getElementById('star_' + pid);
+		image.src = rel_url + 'images/star_16_active.png';
+		var star_result = star_proxy.star(pid);
+		
+		star_result.addCallback( function(msg) {
+			if (msg == 'true') {
+				image.src = rel_url + 'images/star_16.png';
+			}
+		});
+		
+		return;
+	}
+	
+	function removeStar(pid)
+	{
+		var image = document.getElementById('star_' + pid);
+		image.src = rel_url + 'images/star_16_active.png';
+		var star_result = star_proxy.unstar(pid);
+		
+		star_result.addCallback( function(msg) {
+			if (msg == 'true') {
+				image.src = rel_url + 'images/star_16_grey.png';
+			}
+		});
+		
+		return;
+	}
+	
+	function starToggle(pid)
+	{
+		var image = document.getElementById('star_' + pid);
+		
+		/* Determine whether to add or remove the star, based on it current value */
+		if (image.src.indexOf("star_16_grey") != -1 || image.src.indexOf("star_16_active") != -1) {
+			addStar(pid);
+		} else {
+			removeStar(pid);
+		}
+		
+		return;
+	}
+	
+	function toggleStarAll(f, field_name)
+	{
+		var pids = [];
+		/* Get all the PIDS on the page */
+		for (var i = 0; i < f.elements.length; i++) {
+			if (f.elements[i].name == field_name) {
+				pids.push(f.elements[i].value);
+			}
+		}
+		
+		/* Add or Remove the stars, depending on the toggle value */
+		for (var i = 0; i < pids.length; i++) {
+			if (star_toggle == 'off') {
+				addStar(pids[i]);
+			} else {
+				removeStar(pids[i]);
+			}
+		}
+		
+		/* Adjust toggle */
+	    if (star_toggle == 'off') {
+	        star_toggle = 'on';
+	    } else {
+	        star_toggle = 'off';
+	    }
+	    
+	    return;
+	}
+	
+	-->
+	</script> 
+
+{/literal}
+
 {include file="js/list.tpl.js"}
 <script type="text/javascript" src="{$rel_url}js/listpage.js"></script>
 
@@ -85,7 +171,7 @@
 <div style="padding:20px;">
 	<table {if ($facets  && $list_type != 'collection_records_list' && $list_type != 'collection_list' && $list_type != 'community_list') || (is_array($alternativeAuthorNamesList) && count($alternativeAuthorNamesList) > 1)}width="70%"{else}width="100%"{/if} cellpadding="10" cellspacing="0" class="listrecord">
         <tr>
-            <td colspan="{if ($isAdministrator)}3{else}2{/if}">&nbsp;</td>
+            <td colspan="{if ($isAdministrator)}4{else}3{/if}">&nbsp;</td>
             {if $showEdit || $isAdministrator}		
                 <td align="right">&nbsp;</td>
             {/if}
@@ -166,6 +252,12 @@
            {/if}
 
 		  <tr>
+		  	{if $list_type != 'community_list' && $list_type != 'collection_list' && $isAdministrator}
+				<td style="border-top: 1px dashed #be87e9; width: 10px; vertical-align: middle;">
+					<img id="star_{$list[i].rek_pid}" src="{$rel_url}images/star_16{if !$list[i].starred}_grey{/if}.png" alt="Star/unstar this record" title="Star/unstar this record" onclick="javascript:starToggle('{$list[i].rek_pid}')"; />
+				</td>
+			{/if}
+		  
 		  {if ($isAdministrator)}  		  
               <td style="border-top: 1px dashed #be87e9; width: 10px; vertical-align: middle;">
 	              <input type="checkbox" name="pids[]" value="{$list[i].rek_pid}" />
@@ -318,6 +410,7 @@
 	<div class="result-box clearfix" style="width: 980px; margin-top: 20px;">
 		<div class="clearfix sub-box">
 		  <div class="order-element" style="padding: 10px 0px 10px 10px;">
+		  	  <input type="button" value="Star All" class="button" onclick="javascript:toggleStarAll(this.form, 'pids[]');" />
 			  <input type="button" value="Select All" class="button" onclick="javascript:toggleSelectAll(this.form, 'pids[]');" />
 			  <select name="wft_id" class="default">
 				{html_options options=$bulk_workflows}
@@ -325,6 +418,8 @@
 			  <input type="button" value="Run Workflow" class="button" onclick="javascript:workflowItems(this.form, '{$rel_url}');" />
 			  <input type="button" value="Delete" onclick="javascript:return checkDeleteRecords(this.form);" class="button" />
 			  {include file="error_icon.tpl.html" field="users"}
+			  
+			  <a href="{$rel_url}favourites"><!--img src="{$rel_url}images/star_16.png" width="16" height="16" alt="view starred records" /--> View starred records</a>
 		  </div>
 		</div>
 	</div>
