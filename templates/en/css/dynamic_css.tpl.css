@@ -1255,6 +1255,11 @@ td.search_multi_input {
 	Miscellanous
 --------------------------------*/
 
+.page_master_icon {
+    position: relative;
+    bottom: -10px;
+}
+
 hr {
 	display: block;
 	margin-top:2em;

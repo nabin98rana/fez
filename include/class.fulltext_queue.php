@@ -33,7 +33,6 @@ include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
 include_once(APP_INC_PATH . "class.bgp_fulltext_index.php");
 include_once(APP_INC_PATH . "class.logger.php");
 
-
 class FulltextQueue 
 {
 	// disable this to allow multiple indexer processes
@@ -157,13 +156,21 @@ class FulltextQueue
 			     'pid'   =>  getmypid(),
 			);
 		} else {
-			exec("ps ".$pid, $output);
-
-			if(count($output) < 2){
-				return false;
+			// Windows
+			if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) {
+				//exec("tasklist /FI \"PID eq " . $pid . "\"", $output); // This will work in W7 is psinfo not installed
+				exec("pslist.exe /accepteula " . $pid, $output);
+				if (count($output) < 4) {
+					return false;
+				}
+				return $output;
+			} else {
+				exec("ps " . $pid, $output);
+				if (count($output) < 2) {
+					return false;
+				}
+				return $output;
 			}
-
-			return $output;
 		}
 	}
 
@@ -206,14 +213,14 @@ class FulltextQueue
 			$lockValue = $res['ftl_value'];
 			$acquireLock = true;
 			$log->debug("FulltextIndex::triggerUpdate got lockValue=".$lockValue.", pid=".$process_id." with ".$stmt." and ".print_r($res, true));
-		
+			
 			if ($lockValue > 0 && !empty($process_id) && is_numeric($process_id)) {
-			 
+				
 				// check if process is still running or if this is an invalid lock
 				$psinfo = self::getProcessInfo($process_id);
 
 				// TODO: unix, windows, ...
-				$log->debug(array("psinfo",$psinfo));
+				$log->debug(array("psinfo", $psinfo));
 
 				if (!empty($psinfo)) {
 					// override existing lock

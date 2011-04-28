@@ -60,6 +60,7 @@ include_once(APP_INC_PATH . "class.citation.php");
 include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.workflow_trigger.php");
 include_once(APP_INC_PATH . "class.custom_view.php");
+include_once(APP_INC_PATH . "class.favourites.php");
 include_once(APP_INC_PATH . "najax_classes.php");
 
 class Lister
@@ -146,8 +147,7 @@ class Lister
 			}
 		} 
 
-
-    $username = Auth::getUsername();
+		$username = Auth::getUsername();
 		$isAdministrator = User::isUserAdministrator($username);
 		
 		if (($tpl_idx != 0 && $tpl_index != 4) || $isAdministrator == true) {
@@ -439,6 +439,30 @@ class Lister
         	 */
         	//unset($tpls[4]);
         	//unset($tpls[5]);
+        
+        } elseif ($browse == "favourites") {
+            
+			$filter["searchKey".Search_key::getID("Object Type")] = 3;
+			$starredPids = Favourites::getStarred();
+
+			/* Only the starred records */
+			if (count($starredPids) > 0) {
+				if (APP_SOLR_SWITCH == 'ON') {
+					$filter["manualFilter"] .= "(pid_t:('".str_replace(':', '\:', implode("' OR '", $starredPids))."'))";
+				} else {
+					$filter["searchKey".Search_Key::getID("Pid")]['override_op'] = 'OR';
+					foreach ($starredPids as $starredPid) {
+						$filter["searchKey".Search_Key::getID("Pid")][] = $starredPid;
+					}
+				}
+			}
+			
+			$list = Record::$getFunction($options, $approved_roles=array("Lister"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter);
+            $list_info = $list["info"];
+            $list = $list["list"];
+            $tpl->assign("browse_type", "browse_favourites");
+            $tpl->assign("list_heading", "Starred Records");
+            $tpl->assign("list_type", "all_records_list");
             
         } elseif ($browse == "latest") {
             $log->debug('Latest');
@@ -982,6 +1006,16 @@ class Lister
         	$list = Record::getResearchDetailsbyPIDS($list);
         }
         
+        /* Star muxing time */
+        $stars = Favourites::getStarred();
+        foreach ($list as &$record) {
+        	foreach ($stars as $star) {
+        		if ($record['rek_pid'] == $star) {
+        			$record['starred'] = true;
+        		}
+        	}
+        }
+        
         $tpl->assign('facets', $facets);
         $tpl->assign('snips', $snips);
         $tpl->assign('rows', $rows);
@@ -1044,7 +1078,7 @@ class Lister
         $tpl_file = $tpls[$tpl_idx]['file'];
         $tpl->setTemplate($tpl_file);
 		$tpl->assign("template_mode", $tpl_idx);
-
+		$tpl->assign("use_json", true);
         if ($display) {
             $tpl->displayTemplate();
         } 
