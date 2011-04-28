@@ -43,7 +43,7 @@ $user = Auth::getUsername();
 $isAdministrator = User::isUserAdministrator($user);
 $isSuperAdministrator = User::isUserSuperAdministrator($user);
 
-if (! $isAdministrator || ! $isSuperAdministrator) {
+if (! ($isAdministrator || $isSuperAdministrator)) {
   exit;
 }
 
