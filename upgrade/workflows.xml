@@ -58,6 +58,20 @@
     <WorkflowStateLinks wfsl_id="973" wfsl_from_id="621" wfsl_to_id="620"/>
     <WorkflowTrigger wft_id="216" wft_pid="-1" wft_type_id="7" wft_xdis_id="-2" wft_order="0" wft_mimetype="" wft_icon="images/bulk_move_16.png" wft_ret_id="0" wft_options="0"/>
   </workflow>
+  <workflow wfl_id="115" wfl_title="Bulk Change Display Type" wfl_version="1.0" wfl_description="Change a list of display types from a search or an ad-hoc query to a different display type. This will cause data loss where the display types don't overlap next time the pid is updated. " wfl_roles="Community_Administrator" wfl_end_button_label="Ok">
+    <WorkflowState wfs_id="817" wfs_title="Choose new display type" wfs_description="Change a list of display types from a search or an ad-hoc query to a different display type. This will cause data loss where the display types don't overlap next time the pid is updated. " wfs_auto="0" wfs_wfb_id="87" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="818" wfs_title="Bulk Change Display Type" wfs_description="" wfs_auto="1" wfs_wfb_id="94" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="819" wfs_title="Started" wfs_description="" wfs_auto="0" wfs_wfb_id="33" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowStateLinks wfsl_id="1176" wfsl_from_id="817" wfsl_to_id="818"/>
+    <WorkflowStateLinks wfsl_id="1177" wfsl_from_id="818" wfsl_to_id="819"/>
+    <WorkflowTrigger wft_id="303" wft_pid="-1" wft_type_id="7" wft_xdis_id="0" wft_order="0" wft_mimetype="" wft_icon="images/bulk_move_16.png" wft_ret_id="0" wft_options="0"/>
+  </workflow>
+  <workflow wfl_id="117" wfl_title="Bulk Change Search Key Value" wfl_version="1.0" wfl_description="Bulk Change Search Key Value" wfl_roles="Community_Administrator" wfl_end_button_label="Ok">
+    <WorkflowState wfs_id="822" wfs_title="Select Search Key and Value" wfs_description="" wfs_auto="0" wfs_wfb_id="97" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles="Community_Administrator"/>
+    <WorkflowState wfs_id="823" wfs_title="Bulk Change Search Key and Value" wfs_description="" wfs_auto="1" wfs_wfb_id="96" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="1" wfs_roles="Community_Administrator"/>
+    <WorkflowStateLinks wfsl_id="1182" wfsl_from_id="822" wfsl_to_id="823"/>
+    <WorkflowTrigger wft_id="305" wft_pid="-1" wft_type_id="7" wft_xdis_id="0" wft_order="0" wft_mimetype="" wft_icon="images/bulk_move_16.png" wft_ret_id="0" wft_options="0"/>
+  </workflow>
   <workflow wfl_id="101" wfl_title="Bulk Copy to Collection" wfl_version="1.0" wfl_description="" wfl_roles="Community_Administrator" wfl_end_button_label="Ok">
     <WorkflowState wfs_id="719" wfs_title="Select Collection" wfs_description="" wfs_auto="0" wfs_wfb_id="24" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
     <WorkflowState wfs_id="720" wfs_title="Bulk Copy into Selected Collection" wfs_description="" wfs_auto="1" wfs_wfb_id="70" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
@@ -66,6 +80,12 @@
     <WorkflowStateLinks wfsl_id="1048" wfsl_from_id="720" wfsl_to_id="721"/>
     <WorkflowTrigger wft_id="268" wft_pid="-1" wft_type_id="7" wft_xdis_id="-2" wft_order="0" wft_mimetype="" wft_icon="images/bulk_move_16.png" wft_ret_id="0" wft_options="0"/>
     <WorkflowTrigger wft_id="269" wft_pid="-1" wft_type_id="8" wft_xdis_id="-2" wft_order="0" wft_mimetype="" wft_icon="images/bulk_move_16.png" wft_ret_id="0" wft_options="0"/>
+  </workflow>
+  <workflow wfl_id="116" wfl_title="Bulk Links AMR Upload" wfl_version="1.0" wfl_description="Uploads selected PIDs to Thomson Reuter's Links Article Match Retrieve Service for identifying UTs." wfl_roles="Community_Administrator" wfl_end_button_label="OK">
+    <WorkflowState wfs_id="820" wfs_title="Run Process" wfs_description="Runs the process of uploading PIDs to Links AMR for identification of UT." wfs_auto="1" wfs_wfb_id="95" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="821" wfs_title="Finished" wfs_description="" wfs_auto="0" wfs_wfb_id="33" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowStateLinks wfsl_id="1180" wfsl_from_id="820" wfsl_to_id="821"/>
+    <WorkflowTrigger wft_id="304" wft_pid="-1" wft_type_id="7" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/bulk_move_16.png" wft_ret_id="3" wft_options="0"/>
   </workflow>
   <workflow wfl_id="83" wfl_title="Bulk Move to Collection" wfl_version="1.0" wfl_description="" wfl_roles="Community_Administrator" wfl_end_button_label="Ok">
     <WorkflowState wfs_id="622" wfs_title="Started" wfs_description="The bulk mover is running as a background task.  Progress can be followed on the My Fez page." wfs_auto="0" wfs_wfb_id="33" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
@@ -106,6 +126,12 @@
     <WorkflowState wfs_id="805" wfs_title="Finished" wfs_description="" wfs_auto="0" wfs_wfb_id="52" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
     <WorkflowStateLinks wfsl_id="1154" wfsl_from_id="804" wfsl_to_id="805"/>
     <WorkflowTrigger wft_id="299" wft_pid="-1" wft_type_id="7" wft_xdis_id="-2" wft_order="0" wft_mimetype="" wft_icon="images/bulk_move_16.png" wft_ret_id="0" wft_options="0"/>
+  </workflow>
+  <workflow wfl_id="114" wfl_title="Bulk Strip Scopus ID" wfl_version="1.0" wfl_description="Strip Scopus ID (EID). Usually run due against an Ad Hoc query." wfl_roles="Community_Administrator" wfl_end_button_label="Save">
+    <WorkflowState wfs_id="815" wfs_title="Run Process" wfs_description="Runs the process of stripping Scopus ID from records." wfs_auto="1" wfs_wfb_id="93" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles="Community_Administrator"/>
+    <WorkflowState wfs_id="816" wfs_title="Finished" wfs_description="" wfs_auto="0" wfs_wfb_id="92" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowStateLinks wfsl_id="1175" wfsl_from_id="815" wfsl_to_id="816"/>
+    <WorkflowTrigger wft_id="302" wft_pid="-1" wft_type_id="7" wft_xdis_id="0" wft_order="0" wft_mimetype="" wft_icon="images/bulk_move_16.png" wft_ret_id="0" wft_options="0"/>
   </workflow>
   <workflow wfl_id="112" wfl_title="Bulk Update Authors From ESTI" wfl_version="1.0" wfl_description="Updates authors on a record using ESTI" wfl_roles="Community_Administrator" wfl_end_button_label="Save">
     <WorkflowState wfs_id="806" wfs_title="Run Process" wfs_description="Runs the process of updating the authors on a record using ESTI." wfs_auto="1" wfs_wfb_id="90" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
@@ -176,9 +202,9 @@
     <WorkflowState wfs_id="767" wfs_title="Submit for Approval" wfs_description="" wfs_auto="1" wfs_wfb_id="51" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
     <WorkflowState wfs_id="768" wfs_title="Publish" wfs_description="" wfs_auto="1" wfs_wfb_id="28" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles="Approver"/>
     <WorkflowState wfs_id="769" wfs_title="SFA Confirm" wfs_description="" wfs_auto="0" wfs_wfb_id="78" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowStateLinks wfsl_id="1100" wfsl_from_id="766" wfsl_to_id="768"/>
     <WorkflowStateLinks wfsl_id="1101" wfsl_from_id="767" wfsl_to_id="769"/>
-    <WorkflowStateLinks wfsl_id="1102" wfsl_from_id="766" wfsl_to_id="767"/>
+    <WorkflowStateLinks wfsl_id="1168" wfsl_from_id="766" wfsl_to_id="767"/>
+    <WorkflowStateLinks wfsl_id="1169" wfsl_from_id="766" wfsl_to_id="768"/>
     <WorkflowTrigger wft_id="287" wft_pid="-1" wft_type_id="4" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/folder_new.gif" wft_ret_id="3" wft_options="0"/>
   </workflow>
   <workflow wfl_id="74" wfl_title="Create Record" wfl_version="1.0" wfl_description="" wfl_roles="Approver,Community_Administrator,Creator,Editor" wfl_end_button_label="Save">
@@ -217,10 +243,14 @@
   <workflow wfl_id="76" wfl_title="Delete Record" wfl_version="1.0" wfl_description="" wfl_roles="Community_Administrator" wfl_end_button_label="Save">
     <WorkflowState wfs_id="655" wfs_title="Select Record" wfs_description="" wfs_auto="0" wfs_wfb_id="23" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
     <WorkflowState wfs_id="656" wfs_title="Delete" wfs_description="" wfs_auto="1" wfs_wfb_id="62" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
-    <WorkflowStateLinks wfsl_id="1006" wfsl_from_id="655" wfsl_to_id="656"/>
+    <WorkflowState wfs_id="813" wfs_title="Add custom history comment" wfs_description="Add a custom comment to the object's history relating to why this object has been deleted." wfs_auto="0" wfs_wfb_id="92" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowStateLinks wfsl_id="1171" wfsl_from_id="813" wfsl_to_id="656"/>
+    <WorkflowStateLinks wfsl_id="1172" wfsl_from_id="655" wfsl_to_id="813"/>
   </workflow>
   <workflow wfl_id="94" wfl_title="Delete Selected Record" wfl_version="1.0" wfl_description="Marks record as deleted.  (Can be undeleted by an Administrator)" wfl_roles="Community_Administrator" wfl_end_button_label="Delete">
-    <WorkflowState wfs_id="657" wfs_title="Delete" wfs_description="" wfs_auto="1" wfs_wfb_id="62" wfs_start="1" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="657" wfs_title="Delete" wfs_description="" wfs_auto="1" wfs_wfb_id="62" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="814" wfs_title="Add custom history comment" wfs_description="Add a custom comment to the history of this object" wfs_auto="0" wfs_wfb_id="92" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowStateLinks wfsl_id="1174" wfsl_from_id="814" wfsl_to_id="657"/>
     <WorkflowTrigger wft_id="298" wft_pid="-1" wft_type_id="1" wft_xdis_id="187" wft_order="25" wft_mimetype="" wft_icon="images/delete.gif" wft_ret_id="3" wft_options="1"/>
     <WorkflowTrigger wft_id="225" wft_pid="-1" wft_type_id="3" wft_xdis_id="-1" wft_order="5" wft_mimetype="" wft_icon="images/delete.gif" wft_ret_id="3" wft_options="0"/>
     <WorkflowTrigger wft_id="226" wft_pid="-1" wft_type_id="3" wft_xdis_id="-1" wft_order="5" wft_mimetype="" wft_icon="images/delete.gif" wft_ret_id="2" wft_options="0"/>
@@ -463,6 +493,7 @@
     <WorkflowTrigger wft_id="290" wft_pid="-1" wft_type_id="1" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/edit.gif" wft_ret_id="2" wft_options="1"/>
     <WorkflowTrigger wft_id="291" wft_pid="-1" wft_type_id="1" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/edit.gif" wft_ret_id="1" wft_options="1"/>
   </workflow>
+  <WorkflowBehaviour wfb_id="92" wfb_title="Add custom delete comment" wfb_description="Add a custom comment relating to the deletion of one or more objects" wfb_version="1.0" wfb_script_name="custom_delete_comment.php" wfb_auto="0"/>
   <WorkflowBehaviour wfb_id="61" wfb_title="Batch add files to record" wfb_description="Needs the select add files to record workflow behaviour to have been run first. Does the actual adding to the object. " wfb_version="1.0" wfb_script_name="batchadd_record.php" wfb_auto="1"/>
   <WorkflowBehaviour wfb_id="66" wfb_title="Batch add files to record by Group" wfb_description="Needs the select add files to record workflow behaviour to have been run first. Does the actual adding to the object." wfb_version="1.0" wfb_script_name="batchadd_record_group.php" wfb_auto="1"/>
   <WorkflowBehaviour wfb_id="31" wfb_title="Batch Import" wfb_description="Needs the select batchimport to have been run first.  Does the actual importing.  Will use any template that has been set in 'set_template' or else will make mostly blank metadata." wfb_version="" wfb_script_name="batchimport.php" wfb_auto="1"/>
@@ -470,12 +501,16 @@
   <WorkflowBehaviour wfb_id="82" wfb_title="Bulk Assign Author ID to Record" wfb_description="" wfb_version="1.0" wfb_script_name="bulk_assign_authorid.php" wfb_auto="1"/>
   <WorkflowBehaviour wfb_id="46" wfb_title="Bulk Assign Record to Group" wfb_description="Accepts a list of PIDs and changes their grp_id value to a given Fez group ID parameter. Does this in each xml FezMD datastream and reindexes the object including security. Runs in background." wfb_version="1.0" wfb_script_name="bulk_assign_record_group.php" wfb_auto="1"/>
   <WorkflowBehaviour wfb_id="47" wfb_title="Bulk Assign Record to User" wfb_description="Accepts a list of PIDs and changes their FezMD usr_id value to a given Fez usr ID parameter. Does this in each xml FezMD datastream and reindexes the object including security. Runs in background." wfb_version="1.0" wfb_script_name="bulk_assign_record_user.php" wfb_auto="1"/>
+  <WorkflowBehaviour wfb_id="94" wfb_title="Bulk Change Display Type" wfb_description="Change a list of display types from a search or an ad-hoc query to a different display type. This will cause data loss where the display types don't overlap next time the pid is updated. " wfb_version="1.0" wfb_script_name="bulk_change_display_type.php" wfb_auto="1"/>
+  <WorkflowBehaviour wfb_id="96" wfb_title="Bulk Change Search Key" wfb_description="Change any search key value" wfb_version="1.0" wfb_script_name="bulk_change_search_key.php" wfb_auto="1"/>
   <WorkflowBehaviour wfb_id="70" wfb_title="Bulk Copy Record to Collection" wfb_description="Accepts a list of PIDs and changes their isMemberOf value to a new given collection PID parameter. Does this in each xml RELS-EXT datastream and reindexes the object including security. Runs in background." wfb_version="1.0" wfb_script_name="bulk_copy_record_collection.php" wfb_auto="1"/>
+  <WorkflowBehaviour wfb_id="95" wfb_title="Bulk Links AMR Upload" wfb_description="Uploads selected PIDs to Thomson Reuter's Links Article Match Retrieve Service for identifying UTs." wfb_version="1.0" wfb_script_name="bulk_links_amr_upload.php" wfb_auto="1"/>
   <WorkflowBehaviour wfb_id="41" wfb_title="Bulk Move Record to Collection" wfb_description="Accepts a list of PIDs and changes their isMemberOf value to a  new given collection PID parameter. Does this in each xml RELS-EXT datastream and reindexes the object including security. Runs in background." wfb_version="1.0" wfb_script_name="bulk_move_record_collection.php" wfb_auto="1"/>
   <WorkflowBehaviour wfb_id="88" wfb_title="Bulk Reindex and Regenerate Derivated Datastreams" wfb_description="" wfb_version="1.0" wfb_script_name="reindex_and_derivations.php" wfb_auto="1"/>
   <WorkflowBehaviour wfb_id="71" wfb_title="Bulk Remove Record from Collection" wfb_description="Accepts a list of PIDs and changes their isMemberOf value to a new given collection PID parameter. Does this in each xml RELS-EXT datastream and reindexes the object including security. Runs in background." wfb_version="1.0" wfb_script_name="bulk_remove_record_collection.php" wfb_auto="1"/>
   <WorkflowBehaviour wfb_id="91" wfb_title="Bulk Strip Abstract" wfb_description="Strips abstracts from records - to be run on ESTI imported records" wfb_version="1.0" wfb_script_name="bulk_strip_abstract.php" wfb_auto="1"/>
   <WorkflowBehaviour wfb_id="89" wfb_title="Bulk Strip isi_loc" wfb_description="Strips Isi_loc from records in preparation of Links AMR Service data import." wfb_version="1.0" wfb_script_name="bulk_strip_isi_loc.php" wfb_auto="1"/>
+  <WorkflowBehaviour wfb_id="93" wfb_title="Bulk Strip Scopus ID" wfb_description=" Strips Scopus ID (EID) values from mods:identifier - eg for when they have been badly assigned. Mainly for use with the Ad Hoc query -&gt; bulk workflow system." wfb_version="1.0" wfb_script_name="bulk_strip_scopus_id.php" wfb_auto="1"/>
   <WorkflowBehaviour wfb_id="90" wfb_title="Bulk Update Authors From ESTI" wfb_description="Updates authors on a record using ESTI" wfb_version="1.0" wfb_script_name="bulk_update_authors_from_esti.php" wfb_auto="1"/>
   <WorkflowBehaviour wfb_id="53" wfb_title="Chain Workflow" wfb_description="Links to another workflow based on trigger wft_id stored in workflow var 'chain_wft_id'" wfb_version="1.0" wfb_script_name="chain_workflow.php" wfb_auto="1"/>
   <WorkflowBehaviour wfb_id="86" wfb_title="Change Display Type" wfb_description="" wfb_version="1.0" wfb_script_name="change_display_type.php" wfb_auto="1"/>
@@ -523,6 +558,7 @@
   <WorkflowBehaviour wfb_id="23" wfb_title="Select Record" wfb_description="Select Community, Collection and Record using javascript to drill down." wfb_version="" wfb_script_name="select_record.php" wfb_auto="0"/>
   <WorkflowBehaviour wfb_id="63" wfb_title="Select SAN files to add to object" wfb_description="Allows the user to select a number of network files to be uploaded to the object. Especially useful for large files which cannot be uploaded via the browser." wfb_version="1.0" wfb_script_name="select_batchadd_record.php" wfb_auto="0"/>
   <WorkflowBehaviour wfb_id="67" wfb_title="Select SAN files to add to object by group" wfb_description="Allows the user to select a number of network files to be uploaded to the object. Especially useful for large files which cannot be uploaded via the browser." wfb_version="1.0" wfb_script_name="select_batchadd_record_group.php" wfb_auto="0"/>
+  <WorkflowBehaviour wfb_id="97" wfb_title="Select Search Key and Value" wfb_description="Select a search key and its new value" wfb_version="1.0" wfb_script_name="change_search_key.php" wfb_auto="0"/>
   <WorkflowBehaviour wfb_id="49" wfb_title="Select User" wfb_description="" wfb_version="1.0" wfb_script_name="select_user.php" wfb_auto="0"/>
   <WorkflowBehaviour wfb_id="27" wfb_title="Set Community XDIS_ID" wfb_description="" wfb_version="" wfb_script_name="set_community_xdis_id.php" wfb_auto="1"/>
   <WorkflowBehaviour wfb_id="85" wfb_title="Set FezACML for Student PD Submission" wfb_description="" wfb_version="1.0" wfb_script_name="secure_student_pd_submission.php" wfb_auto="1"/>
