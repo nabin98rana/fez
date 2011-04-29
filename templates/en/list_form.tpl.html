@@ -171,7 +171,7 @@
 <div style="padding:20px;">
 	<table {if ($facets  && $list_type != 'collection_records_list' && $list_type != 'collection_list' && $list_type != 'community_list') || (is_array($alternativeAuthorNamesList) && count($alternativeAuthorNamesList) > 1)}width="70%"{else}width="100%"{/if} cellpadding="10" cellspacing="0" class="listrecord">
         <tr>
-            <td colspan="{if ($isAdministrator)}4{else}3{/if}">&nbsp;</td>
+            <td colspan="{if ($isAdministrator)}4{else}2{/if}">&nbsp;</td>
             {if $showEdit || $isAdministrator}		
                 <td align="right">&nbsp;</td>
             {/if}
