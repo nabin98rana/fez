@@ -455,6 +455,12 @@ class Lister
 						$filter["searchKey".Search_Key::getID("Pid")][] = $starredPid;
 					}
 				}
+			} else {
+				if (APP_SOLR_SWITCH == 'ON') {
+					$filter["manualFilter"] .= "(pid_t:('INVALID_PID'))";
+				} else {
+					$filter["searchKey".Search_Key::getID("Pid")][] = 'INVALID_PID';
+				}
 			}
 			
 			$list = Record::$getFunction($options, $approved_roles=array("Lister"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter);
