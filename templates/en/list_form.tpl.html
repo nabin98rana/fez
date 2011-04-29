@@ -288,17 +288,17 @@
 					<strong>eSpace Follow up Flag:</strong> {$list[i].rek_follow_up_flags_lookup}<br />
 					<strong>IMU Follow up Flag:</strong> {$list[i].rek_follow_up_flags_imu_lookup}<br /><br />
 					{if $list[i].rek_display_type_lookup == "Book" || $list[i].rek_display_type_lookup == "Book Chapter"}
-						<strong>Edition:</strong> {$list[i].rek_edition} </br>
-						<strong>ISBN:</strong> {$list[i].rek_isbn} </br>
+						<strong>Edition:</strong> {$list[i].rek_edition}<br />
+						<strong>ISBN:</strong> {$list[i].rek_isbn}<br />
 					{elseif $list[i].rek_display_type_lookup == "Journal Article"}
 						{if $list[i].rj_rank} <strong>ERA Rank:</strong> {$list[i].rj_rank} ({$list[i].rj_title})<br />{/if}
-						{if $list[i].rek_refereed == '0'} <strong>Refereed:</strong> No </br> {/if}
-						{if $list[i].rek_refereed == '1'} <strong>Refereed:</strong> Yes </br> {/if}
-						<strong>ISSN:</strong> {$list[i].rek_issn} </br>
+						{if $list[i].rek_refereed == '0'} <strong>Refereed:</strong> No<br /> {/if}
+						{if $list[i].rek_refereed == '1'} <strong>Refereed:</strong> Yes<br /> {/if}
+						<strong>ISSN:</strong> {$list[i].rek_issn}<br />
 					{elseif $list[i].rek_display_type_lookup == "Conference Paper"}
 						{if $list[i].rc_rank}<strong>ERA Rank:</strong> {$list[i].rc_rank} ({$list[i].rc_title})<br />{/if}
-						{if $list[i].rek_refereed == '0'} <strong>Refereed:</strong> No </br> {/if}
-						{if $list[i].rek_refereed == '1'} <strong>Refereed:</strong> Yes </br> {/if}
+						{if $list[i].rek_refereed == '0'} <strong>Refereed:</strong> No<br /> {/if}
+						{if $list[i].rek_refereed == '1'} <strong>Refereed:</strong> Yes<br /> {/if}
 					{/if}
 					<strong>Thomson ISI Loc:</strong> {$list[i].rek_isi_loc}<br />
 					<strong>Scopus ID:</strong> {$list[i].rek_scopus_id}<br /><br />
