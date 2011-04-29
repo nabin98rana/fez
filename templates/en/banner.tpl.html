@@ -65,8 +65,13 @@
 				  <li{if $active_nav == 'preferences'} id="nav-focus"{/if}><a href="{$rel_url}preferences.php" target="_parent">Preferences</a></li>
 				  {if $isAuthor == 1}<li{if $active_nav == 'mypubs'} id="nav-focus"{/if}><a href="{$rel_url}{$myPubURL}" target="_parent">My Pubs</a></li>{/if}
 				  <li{if $active_nav == 'my_fez'} id="nav-focus"{/if}><a href="{$rel_url}my_fez{if $useClassic == 1}_traditional{/if}.php" target="_parent">My {$app_name}</a></li>
-				  {if $isAdministrator}<li{if $active_nav == 'admin'} id="nav-focus"{/if}><a href="{$rel_url}manage/" target="_parent">Administration</a></li>{/if}  
+				  {if $isAdministrator}
+				  	<li{if $active_nav == 'admin'} id="nav-focus"{/if}><a href="{$rel_url}manage/" target="_parent">Administration</a></li>
+				  {/if}  
 				  <li><a href="{$rel_url}logout.php" target="_parent">Logout</a></li>
+				  {if $isAdministrator}
+				  	<li{if $active_nav == 'favourites'} id="nav-focus"{/if}><a href="{$rel_url}favourites" target="_parent"><img src="{$rel_url}images/star_16.png" width="16" height="16" alt="View starred records" /></a></li>
+				  {/if}
 				{else}
 				  <li{if $active_nav == 'login'} id="nav-focus"{/if}><a href="{$rel_url}login.php?url={$uri_encoded}">Login</a></li>
 				{/if}

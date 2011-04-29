@@ -463,6 +463,7 @@ class Lister
             $tpl->assign("browse_type", "browse_favourites");
             $tpl->assign("list_heading", "Starred Records");
             $tpl->assign("list_type", "all_records_list");
+            $tpl->assign("active_nav", "favourites");
             
         } elseif ($browse == "latest") {
             $log->debug('Latest');
