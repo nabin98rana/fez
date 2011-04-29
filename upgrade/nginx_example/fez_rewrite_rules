@@ -1,0 +1,66 @@
+# uncomment the below to go into maintenance, but allowing one IP through
+#	if ($remote_addr != "172.18.208.4") {
+#		return 503;
+#	}
+#	error_page 503 @maintenance;
+#	location @maintenance {
+#		rewrite ^(.*)$ /maintenance.html break;
+#   }
+#
+
+# DIGILIB CUSTOM VIEW
+if ($host = 'digilib.libckvm.library.uq.edu.au') {
+	rewrite     ^/collection/([A-Za-z]+):([0-9]+)$                   /list.php?custom_view_pid=UQ:3682&collection_pid=$1:$2;
+	rewrite     ^/collection/([A-Za-z]+):([0-9]+)/(.+)$              /list.php?custom_view_pid=UQ:3682&collection_pid=$1:$2&$3;
+#	rewrite     ^/community/([A-Za-z]+):([0-9]+)$                   /; 
+#	rewrite     ^/community/([A-Za-z]+):([0-9]+)/(.+)$              /; 
+	rewrite     ^/view/([A-Za-z]+):([0-9]+)(\?.*)*$                  /view.php?custom_view_pid=UQ:3682&pid=$1:$2$3;
+	rewrite     ^/list/([^/]*)/([^/]*)(/?)$                          /list.php?custom_view_pid=UQ:3682&browse=$1&value=$2;
+	rewrite     ^/list/(.*)$                                         /list.php?custom_view_pid=UQ:3682&$1;
+	rewrite     ^/eserv/([A-Za-z]+):([0-9]+)/(.+)(/.+)*$             /eserv.php?pid=$1:$2&dsID=$3$4;
+	rewrite     ^/stream/([A-Za-z]+):([0-9]+)/(.+)(/.+)*$             /eserv.php?pid=$1:$2&stream=1&dsID=$3$4;
+	rewrite     ^/index.php$                                         /index.php?custom_view_pid=UQ:3682&community_pid=UQ:3682 last;
+	rewrite     ^/(.*)$						 /$1?custom_view_pid=UQ:3682 last;
+
+#	rewrite     ^/js/(.*).js$                                            /min.php?js/$1.js; 
+}
+rewrite     ^/errors/([0-9]+)$                                   /errors/index.php?code=$1;
+rewrite     ^/view/([A-Za-z]+):([0-9]+)(\?.*)*$                  /view.php?pid=$1:$2$3;
+rewrite     ^/eserv/([A-Za-z]+):([0-9]+)/(.+?)(/.*)*$            /eserv.php?pid=$1:$2&dsID=$3&qs=$4; 
+rewrite     ^/community/([A-Za-z]+):([0-9]+)$                        /list.php?community_pid=$1:$2;
+rewrite     ^/community/([A-Za-z]+):([0-9]+)/(.+)$               /list.php?community_pid=$1:$2&$3;
+rewrite     ^/collection/([A-Za-z]+):([0-9]+)$                   /list.php?collection_pid=$1:$2;
+rewrite     ^/collection/([A-Za-z]+):([0-9]+)/(.+)$              /list.php?collection_pid=$1:$2&$3;
+rewrite     ^/list/([^/]*)/([^/]*)(/?)$                          /list.php?browse=$1&value=$2 last;
+rewrite     ^/list/(.*)$                                         /list.php?$1 last;
+rewrite     ^/rid_citation_count_history_([A-Za-z]+):([0-9]+)$              /rid_citation_count_history.php?pid=$1:$2;
+rewrite     ^/rid_citation_count_history_([A-Za-z]+):([0-9]+)_graph.?(.*)$   /rid_citation_count_history_graph.php?pid=$1:$2&ext=$3; 
+rewrite     ^/scopus_citation_count_history_([A-Za-z]+):([0-9]+)$              /scopus_citation_count_history.php?pid=$1:$2;
+rewrite     ^/scopus_citation_count_history_([A-Za-z]+):([0-9]+)_graph.?(.*)$   /scopus_citation_count_history_graph.php?pid=$1:$2&ext=$3;
+rewrite     ^/js/(.*).js$                                            /min.php?$1.js;
+#uncomment below line, and recomment out the above line to enable minify debugging
+#rewrite     ^/js/(.*).js$                                            /min.php?$1.js&debug=1;
+#REWRITE RULES APPLYING TO BASE FEZ CODE 
+rewrite     ^/stream/([A-Za-z]+):([0-9]+)/(.+?)(/.*)*$           /eserv.php?pid=$1:$2&dsID=$3&qs=$4/stream=1;
+
+# Student Thesis Submission simple URL CK added 18/8/2008
+rewrite     ^/rhdsubmission*$                 /workflow/new.php?xdis_id=187&pid=UQ:152694&custom_view_pid=UQ:11407&wft_id=292&cat=select_workflow;
+
+# SBS Professional Doctorate Thesis Submission simple URL CK added 16/10/2008
+rewrite     ^/sbslodge*$                 /workflow/new.php?xdis_id=187&pid=UQ:155729&custom_view_pid=UQ:11407&wft_id=295&cat=select_workflow;
+
+# Show all page so GSA Crawlers etc can traverse this and simply exclude all /list* pages from traversal or indexing
+rewrite     ^/showall/(.*)$                                         /list.php?cat=quick_filter&sort_by=searchKeycore_17&sort_order=1&search_keys[0]=$1;
+
+rewrite		^/robots.txt$	/robots.php;
+rewrite     ^/era-na/([A-Za-z]+):([0-9]+)/view.pdf$              /era/requested_attachment_unavailable.pdf;  # ERA -- can delete this rule once ERA is over.
+
+#rewrite     ^/min/([a-z]=.*)  /min/index.php?$1; 
+#rewrite ^/min/([a-z]=.*) /min/index.php?$1&debug=1;
+
+rewrite ^/logs/.*\.log$ -;
+
+if (!-e $request_filename) {
+  rewrite ^/(.*)$ /index.php?$1 last;
+}
+
