@@ -79,7 +79,7 @@ function correctionRequired(pid)
 	{/if}
         {foreach from=$items.values key=id item=valueData}
         {if $valueData.num > 0}
-        {if $id != '0'}<li class='facetarrow'><a href="?{$url_wo_rows}&search_keys[{$sek_id}]={$id}{if $acting_user.aut_org_username != ''}&proxy={$acting_user.aut_org_username}{/if}">{$valueData.value}</a> ({$valueData.num})</li>{/if}
+        {if $id != '0'}<li class='facetarrow'><a href="?{$url_wo_rows}&amp;search_keys[{$sek_id}]={$id}{if $acting_user.aut_org_username != ''}&amp;proxy={$acting_user.aut_org_username}{/if}">{$valueData.value}</a> ({$valueData.num})</li>{/if}
         {/if}
         {/foreach}
         <li>&nbsp;</li>
