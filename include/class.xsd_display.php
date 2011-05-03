@@ -304,9 +304,9 @@ class XSD_Display
 		}
 
 		if (@$params["xdis_enabled"]) {
-			$xdis_enabled = 'TRUE';
+			$xdis_enabled = TRUE;
 		} else {
-			$xdis_enabled = 'FALSE';
+			$xdis_enabled = FALSE;
 		}
 		$bind = array();
 		if (!empty($xdis_id)) {
@@ -367,9 +367,9 @@ class XSD_Display
 			$params = &$_POST;
 		}
 		if (@$params["xdis_enabled"]) {
-			$xdis_enabled = 'TRUE';
+			$xdis_enabled = TRUE;
 		} else {
-			$xdis_enabled = 'FALSE';
+			$xdis_enabled = FALSE;
 		}
 
 		$stmt = "UPDATE
