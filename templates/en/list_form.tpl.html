@@ -152,7 +152,7 @@
 	{/if}
         {foreach from=$items.values key=id item=valueData}
         {if $valueData.num > 0}
-        {if $id != '0'}<li class='facetarrow'><a href="?{$url_wo_rows}&search_keys[{$sek_id}]={$id}">{$valueData.value}</a> ({$valueData.num})</li>{/if}
+        {if $id != '0'}<li class='facetarrow'><a href="?{$url_wo_rows}&amp;search_keys[{$sek_id}]={$id}">{$valueData.value}</a> ({$valueData.num})</li>{/if}
         {/if}
         {/foreach}
         <li>&nbsp;</li>
@@ -304,7 +304,7 @@
 					<strong>Scopus ID:</strong> {$list[i].rek_scopus_id}<br /><br />
 					<strong>HERDC Notes:</strong> {$list[i].rek_herdc_notes}<br /><br />
 				</span>	
-				<img style="padding-right:2px" src="{$rel_url}images/views_16.png" valign="middle" />
+				<img style="padding-right: 2px;" src="{$rel_url}images/views_16.png" valign="middle" alt="" />
 			</a>
 			{/if}
             {/if}
