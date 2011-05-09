@@ -431,7 +431,7 @@ class WosRecItem
     $xdis_title = $dTMap[$this->docTypeCode][0];
     $xdis_subtype = $dTMap[$this->docTypeCode][1];
     $xdis_id = $dTMap[$this->docTypeCode][2];
-    $collection = 'UQ:11'; // TODO: Use collection value stored in config table
+    $collection = RID_DL_COLLECTION;
     $history = 'Imported from WoK Web Services Premium';
     // MODS
     $mods = array();
