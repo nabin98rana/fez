@@ -90,7 +90,7 @@ class WokQueue extends Queue
         parent::add($ut);
         if ($aut_id) {
           $sql = "INSERT INTO ".$this->_dbtp."queue_aut (".$this->_dbap."id,".$this->_dbap."aut_id) VALUES (?,?)";
-          $db->query($sql, array($id, $aut_id));
+          $db->query($sql, array($ut, $aut_id));
         }
       }
       // Register the commit shutdown
