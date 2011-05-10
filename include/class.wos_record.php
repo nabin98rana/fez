@@ -57,7 +57,7 @@ class WosRecItem
    *
    * @var string
    */
-  public $ut = null;
+  private $ut = null;
   
   /**
    * The full name of the journal
