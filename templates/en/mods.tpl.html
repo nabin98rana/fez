@@ -1,0 +1,165 @@
+	<foxml:datastream CONTROL_GROUP="X" ID="MODS" STATE="A" VERSIONABLE="false">
+    	<foxml:datastreamVersion ID="MODS.0" LABEL="Metadata Object Description Schema" MIMETYPE="text/xml">
+      		<foxml:xmlContent>
+      			
+      				<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+					  	{if $mods.titleInfo.title != ''}
+					  	<mods:titleInfo>
+					  		<mods:title>{$mods.titleInfo.title}</mods:title>
+						</mods:titleInfo>
+						{/if}
+						{if $mods.titleInfo.title_phonetic != ''}
+						<mods:titleInfo type="phonetic">
+					  		<mods:title>{$mods.titleInfo_phonetic.title}</mods:title>
+						</mods:titleInfo>
+						{/if}					
+						{if $mods.titleInfo.title_translated != ''}
+						<mods:titleInfo type="translated">
+					  		<mods:title>{$mods.titleInfo_translated.title}</mods:title>
+						</mods:titleInfo>
+						{/if}
+						{if $mods.titleInfo.title_formatted != ''}
+						<mods:titleInfo type="formatted">
+					  		<mods:title>{$mods.titleInfo_formatted.title}</mods:title>
+						</mods:titleInfo>
+						{/if}
+						
+						{section name="i" loop=$mods.name}
+				  			<mods:name ID="{$mods.name[i].id}" authority="{$mods.name[i].authority}">
+					        	<mods:namePart type="personal">{$mods.name[i].namePart_personal}</mods:namePart>
+					            <mods:role>
+					            	<mods:roleTerm type="text">{$mods.name[i].role.roleTerm_text}</mods:roleTerm>
+					            </mods:role>
+					        </mods:name>
+			          	{/section}
+			          	
+			          	<mods:genre {if $mods.genre_type != ''}type="{$mods.genre_type}"{/if}>{$mods.genre}</mods:genre>
+			          	
+			          	{if $mods.originInfo != ''}
+						<mods:originInfo>
+					  		{if $mods.originInfo.place.placeTerm != ''}
+					  		<mods:place>
+					    		<mods:placeTerm>{$mods.originInfo.place.placeTerm}</mods:placeTerm>
+					  		</mods:place>
+					  		{/if}
+					  		{if $mods.originInfo.publisher != ''}<mods:publisher>{$mods.originInfo.publisher}</mods:publisher>{/if}
+					  		{if $mods.originInfo.dateIssued != ''}<mods:dateIssued>{$mods.originInfo.dateIssued}</mods:dateIssued>{/if}
+					  		{if $mods.originInfo.dateValid != ''}<mods:dateValid>{$mods.originInfo.dateValid}</mods:dateValid>{/if}		
+					  		{if $mods.originInfo.dateOther != ''}<mods:dateOther {if $mods.originInfo.dateOther_type != ''}type="{$mods.originInfo.dateOther_type}"{/if}>{$mods.originInfo.dateOther}</mods:dateOther>{/if}
+					  		{if $mods.originInfo.edition != ''}<mods:edition>{$mods.originInfo.edition}</mods:edition>{/if}		
+						</mods:originInfo>
+						{/if}
+						
+						{if $mods.language != ''}<mods:language>{$mods.language}</mods:language>{/if}
+					
+						{if $mods.physicalDescription != ''}
+						<mods:physicalDescription>
+					  		{if $mods.physicalDescription.note.code != ''}<mods:note type="code">{$mods.physicalDescription.note.code}</mods:note>{/if}
+					  		{if $mods.physicalDescription.note.non_repo_expl != ''}<mods:note type="non-repo-expl">{$mods.physicalDescription.note.non_repo_expl}</mods:note>{/if}
+					  		{if $mods.physicalDescription.sensitive_expl != ''}<mods:note type="sensitive-expl">{$mods.physicalDescription.sensitive_expl}</mods:note>{/if}
+						</mods:physicalDescription>
+						{/if}
+			          	
+						{if $mods.abstract != ''}<mods:abstract>{$mods.abstract}</mods:abstract>{/if}
+						{if $mods.abstract_formatted != ''}<mods:abstract type="formatted">{$mods.abstract_formatted}</mods:abstract>{/if}
+						{if $mods.note != ''}<mods:note>{$mods.note}</mods:note>{/if}
+						
+						{section name="i" loop=$mods.subject}
+				  			<mods:subject 
+				  				{if $mods.subject[$i].id != ''} ID="{$mods.subject[i].id}" {/if}
+				  				authority="{$mods.subject[i].authority}">
+						  		<mods:topic>{$mods.subject[i].topic}</mods:topic>
+							</mods:subject>
+			          	{/section}
+			          	
+			          	{if $mods.relatedItem != ''}
+			          	<mods:relatedItem type="host">			          	
+			          		{if $mods.relatedItem.titleInfo.title != ''}
+			          		<mods:titleInfo>
+						    	<mods:title>{$mods.relatedItem.titleInfo.title}</mods:title>
+						    </mods:titleInfo>
+						    {/if}
+						    {if $mods.relatedItem.titleInfo_phonetic.title != ''}
+						    <mods:titleInfo type="phonetic">
+						    	<mods:title>{$mods.relatedItem.titleInfo_phonetic.title}</mods:title>
+						    </mods:titleInfo>
+						    {/if}
+						    {if $mods.relatedItem.titleInfo_translated.title != ''}
+						    <mods:titleInfo type="translated">
+						    	<mods:title>{$mods.relatedItem.titleInfo_translated.title}</mods:title>
+						    </mods:titleInfo>
+    						{/if}
+    						
+			          		{section name="i" loop=$mods.relatedItem.name}
+					    	<mods:name>
+					      		<mods:namePart type="{$mods.relatedItem.name[i].namePart_type}">{$mods.relatedItem.name[i].namePart}</mods:namePart>
+					    	</mods:name>
+					    	{/section}
+					    	
+					    	{if $mods.relatedItem.originInfo != ''}
+					    	<mods:originInfo>
+					    		{if $mods.relatedItem.originInfo.place.placeTerm != ''}
+						    	<mods:place>
+						        	<mods:placeTerm>{$mods.relatedItem.originInfo.place.placeTerm}</mods:placeTerm>
+						      	</mods:place>
+						      	{/if}
+						      	{if $mods.relatedItem.originInfo.publisher != ''}<mods:publisher>{$mods.relatedItem.originInfo.publisher}</mods:publisher>{/if}
+						      	{if $mods.relatedItem.originInfo.dateIssued != ''}<mods:dateIssued>{$mods.relatedItem.originInfo.dateIssued}</mods:dateIssued>{/if}
+						      	{if $mods.relatedItem.originInfo.dateValid != ''}<mods:dateValid>{$mods.relatedItem.originInfo.dateValid}</mods:dateValid>{/if}
+						      	{if $mods.relatedItem.originInfo.dateOther != ''}<mods:dateOther {if $mods.relatedItem.originInfo.dateOther_type != ''}type="{$mods.relatedItem.originInfo.dateOther_type}"{/if}>{$mods.relatedItem.originInfo.dateOther}</mods:dateOther>{/if}
+						      	{if $mods.relatedItem.originInfo.edition != ''}<mods:edition>{$mods.relatedItem.originInfo.edition}</mods:edition>{/if}
+						    </mods:originInfo>
+						    {/if}
+						    
+						    {if $mods.relatedItem.part != ''}			    
+						    <mods:part>
+						    	{if $mods.relatedItem.part.detail_issue.number != ''}
+						    	<mods:detail type="issue">
+						        	<mods:number>{$mods.relatedItem.part.detail_issue.number}</mods:number>
+						      	</mods:detail>
+						      	{/if}
+						      	{if $mods.relatedItem.part.detail_volume.number != ''}
+						      	<mods:detail type="volume">
+							        <mods:number>{$mods.relatedItem.part.detail_volume.number}</mods:number>
+							    </mods:detail>
+							    {/if}
+							    {if $mods.relatedItem.part.detail_chapter.number != ''}
+							    <mods:detail type="chapter">
+        							<mods:number>{$mods.relatedItem.part.detail_chapter.number}</mods:number>
+      							</mods:detail>
+      							{/if}
+      							{if $mods.relatedItem.part.detail_total_chapters.number != ''}
+      							<mods:detail type="total_chapters">
+        							<mods:number>{$mods.relatedItem.part.detail_total_chapters.number}</mods:number>
+      							</mods:detail>
+      							{/if}
+      							{if $mods.relatedItem.part.extent_page != ''}
+						      	<mods:extent unit="page">
+						        	{if $mods.relatedItem.part.extent_page.start != ''}<mods:start>{$mods.relatedItem.part.extent_page.start}</mods:start>{/if}
+						        	{if $mods.relatedItem.part.extent_page.end != ''}<mods:end>{$mods.relatedItem.part.extent_page.end}</mods:end>{/if}						
+						        	{if $mods.relatedItem.part.extent_page.total != ''}<mods:total>{$mods.relatedItem.part.extent_page.total}</mods:total>{/if}
+						      	</mods:extent>
+						      	{/if}
+						    </mods:part>
+						    {/if}
+					  	</mods:relatedItem>
+			          	{/if}
+			          	
+			          	{section name="i" loop=$mods.part}
+				  			<mods:part>
+				  				<mods:extent unit="{$mods.part[i].extent_unit}">
+						  			<mods:total>{$mods.part[i].extent.total}</mods:total>
+						  		</mods:extent>
+							</mods:part>
+			          	{/section}
+			          	
+			          	{if $mods.identifier_isi_loc != ''}<mods:identifier type="isi_loc">{$mods.identifier_isi_loc}</mods:identifier>{/if}
+						{if $mods.identifier_rm_prn != ''}<mods:identifier type="rm_prn">{$mods.identifier_rm_prn}</mods:identifier>{/if}
+						{if $mods.identifier_isbn != ''}<mods:identifier type="isbn">{$mods.identifier_isbn}</mods:identifier>{/if}
+						{if $mods.identifier_issn != ''}<mods:identifier type="issn">{$mods.identifier_issn}</mods:identifier>{/if}
+						{if $mods.accessCondition != ''}<mods:accessCondition>{$mods.accessCondition}</mods:accessCondition>{/if}							          	
+					</mods:mods>
+				
+    		</foxml:xmlContent>
+		</foxml:datastreamVersion>
+	</foxml:datastream>

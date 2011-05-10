@@ -1,0 +1,12 @@
+	<foxml:datastream ID="RELS-EXT" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
+		<foxml:datastreamVersion MIMETYPE="text/xml" ID="RELS-EXT.0" LABEL="Relationships to other objects">
+			<foxml:xmlContent>
+				<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+						 xmlns:rel="info:fedora/fedora-system:def/relations-external#" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+				<rdf:description rdf:about="info:fedora/{$pid}">
+					<rel:isMemberOf rdf:resource="info:fedora/{$rels.parent_pid}"/>
+				</rdf:description>
+				</rdf:RDF>
+			</foxml:xmlContent>
+		</foxml:datastreamVersion>
+	</foxml:datastream>
