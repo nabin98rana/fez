@@ -32,6 +32,7 @@
 
 include_once('../config.inc.php');
 include_once(APP_INC_PATH . 'class.esti_search_service.php');
+include_once(APP_INC_PATH . 'class.wok_service.php');
 include_once(APP_INC_PATH . "class.record.php");
 
 $query = 'OG=(Univ Queensland)';
