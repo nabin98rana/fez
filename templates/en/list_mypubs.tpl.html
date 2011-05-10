@@ -104,36 +104,32 @@
                 <img src="{$rel_url}images/downloads_16.png" title="File Downloads" alt="File Downloads" />
             {/if}
             </td>
-            
-
             <td style="text-align: center; padding: 2px;">
 			{if $list_info.total_rows > 0}
 				<img src="{$rel_url}images/journal_ranking_16.png" title="Ranked Journal List Ranking" alt="Ranked Journal List Ranking" />
 			{/if}
-		</td>
-		<td style="text-align: center; padding: 2px;">
-			{if $list_info.total_rows > 0}
-				<img src="{$rel_url}images/conference_ranking_16.png" title="Ranked Conference List Ranking" alt="Ranked Conference List Ranking" />
-			{/if}
-		</td>
-		<td style="text-align: center; padding: 2px;">
-			{if $list_info.total_rows > 0}
-				<img src="{$rel_url}images/herdc_code_16.png" title="HERDC Code" alt="HERDC Code" />
-			{/if}
-		</td>
-		<td style="text-align: center; padding: 2px;">
-			{if $list_info.total_rows > 0 && ($list_type !== 'collection_list' && $list_type !== 'community_list')}
-				<img src="{$rel_url}images/rid_16.png" title="Thomson Reuters Citation Count" alt="Thomson Reuters Citation Count" />
-			{/if}
-		</td>
-		<td style="text-align: center; padding: 2px;">
-			{if $list_info.total_rows > 0 && ($list_type !== 'collection_list' && $list_type !== 'community_list')}
-				<img src="{$rel_url}images/scopus_logo_small.gif" title="Scopus Citation Count" alt="Scopus Citation Count" />
-			{/if}
-		</td>
+			</td>
+			<td style="text-align: center; padding: 2px;">
+				{if $list_info.total_rows > 0}
+					<img src="{$rel_url}images/conference_ranking_16.png" title="Ranked Conference List Ranking" alt="Ranked Conference List Ranking" />
+				{/if}
+			</td>
+			<td style="text-align: center; padding: 2px;">
+				{if $list_info.total_rows > 0}
+					<img src="{$rel_url}images/herdc_code_16.png" title="HERDC Code" alt="HERDC Code" />
+				{/if}
+			</td>
+			<td style="text-align: center; padding: 2px;">
+				{if $list_info.total_rows > 0 && ($list_type !== 'collection_list' && $list_type !== 'community_list')}
+					<img src="{$rel_url}images/rid_16.png" title="Thomson Reuters Citation Count" alt="Thomson Reuters Citation Count" />
+				{/if}
+			</td>
+			<td style="text-align: center; padding: 2px;">
+				{if $list_info.total_rows > 0 && ($list_type !== 'collection_list' && $list_type !== 'community_list')}
+					<img src="{$rel_url}images/scopus_logo_small.gif" title="Scopus Citation Count" alt="Scopus Citation Count" />
+				{/if}
+			</td>
         </tr>
-
-
 		{section name="m" loop=$masterList}
         {assign var="list" value=$masterList[m].0}
 		{assign var="listInfo" value=$masterList[m].1}
@@ -142,8 +138,6 @@
 		  <td class="no-wrap bold" colspan="10">
 		    {$masterList[m].2} ({$listInfo.total_rows})
           </td>
-
-
         </tr>
 		{/if}
         {section name="i" loop=$list}
