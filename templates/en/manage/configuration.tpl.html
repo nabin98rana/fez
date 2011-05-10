@@ -1004,91 +1004,91 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Cell colour</th>
 			<td>
-			  <input type="text" class="color" name="app_cell_color" value="{$config_settings.app_cell_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_cell_color')" /><div id="app_cell_color" style="background-color: {$config_settings.app_cell_color}; height: 10px; width: 85px;"></div>
+			  <input type="text" class="color" name="app_cell_color" value="{$config_settings.app_cell_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_cell_color')" /><div id="app_cell_color" style="background-color: #{$config_settings.app_cell_color}; height: 10px; width: 85px;"></div>
 			  {include file="error_icon.tpl.html" field="app_cell_color"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Value colour</th>
 			<td>
-			  <input type="text" class="color" name="app_value_color" value="{$config_settings.app_value_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_value_color')"/><div id="app_value_color" style="background-color: {$config_settings.app_value_color}; height: 10px; width: 85px;"></div>
+			  <input type="text" class="color" name="app_value_color" value="{$config_settings.app_value_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_value_color')"/><div id="app_value_color" style="background-color: #{$config_settings.app_value_color}; height: 10px; width: 85px;"></div>
 			  {include file="error_icon.tpl.html" field="app_value_color"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Advanced cell colour</th>
 			<td>
-			  <input type="text" class="color" name="app_adv_color_dark" value="{$config_settings.app_adv_color_dark|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_adv_color_dark')" /><div id="app_adv_color_dark" style="background-color: {$config_settings.app_adv_color_dark}; height: 10px; width: 85px;"></div>
+			  <input type="text" class="color" name="app_adv_color_dark" value="{$config_settings.app_adv_color_dark|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_adv_color_dark')" /><div id="app_adv_color_dark" style="background-color: #{$config_settings.app_adv_color_dark}; height: 10px; width: 85px;"></div>
 			  {include file="error_icon.tpl.html" field="app_adv_color_dark"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Advanced value colour</th>
 			<td>
-			  <input type="text" class="color" name="app_adv_color_light" value="{$config_settings.app_adv_color_light|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_adv_color_light')"/><div id="app_adv_color_light" style="background-color: {$config_settings.app_adv_color_light}; height: 10px; width: 85px;"></div>
+			  <input type="text" class="color" name="app_adv_color_light" value="{$config_settings.app_adv_color_light|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_adv_color_light')"/><div id="app_adv_color_light" style="background-color: #{$config_settings.app_adv_color_light}; height: 10px; width: 85px;"></div>
 			  {include file="error_icon.tpl.html" field="app_adv_color_light"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Light colour</th>
 			<td>
-			  <input type="text" class="color" name="app_light_color" value="{$config_settings.app_light_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColourColour('app_light_color')"/><div id="app_light_color" style="background-color: {$config_settings.app_light_color}; height: 10px; width: 85px;"></div>
+			  <input type="text" class="color" name="app_light_color" value="{$config_settings.app_light_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColourColour('app_light_color')"/><div id="app_light_color" style="background-color: #{$config_settings.app_light_color}; height: 10px; width: 85px;"></div>
 			  {include file="error_icon.tpl.html" field="app_light_color"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Selected colour</th>
 			<td>
-			  <input type="text" class="color" name="app_selected_color" value="{$config_settings.app_selected_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_selected_color')"/><div id="app_selected_color" style="background-color: {$config_settings.app_selected_color}; height: 10px; width: 85px;"></div>
+			  <input type="text" class="color" name="app_selected_color" value="{$config_settings.app_selected_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_selected_color')"/><div id="app_selected_color" style="background-color: #{$config_settings.app_selected_color}; height: 10px; width: 85px;"></div>
 			  {include file="error_icon.tpl.html" field="app_selected_color"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Middle colour</th>
 			<td>
-			  <input type="text" class="color" name="app_middle_color" value="{$config_settings.app_middle_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_middle_color')"/><div id="app_middle_color" style="background-color: {$config_settings.app_middle_color}; height: 10px; width: 85px;"></div>
+			  <input type="text" class="color" name="app_middle_color" value="{$config_settings.app_middle_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_middle_color')"/><div id="app_middle_color" style="background-color: #{$config_settings.app_middle_color}; height: 10px; width: 85px;"></div>
 			  {include file="error_icon.tpl.html" field="app_middle_color"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Dark colour</th>
 			<td>
-			  <input type="text" class="color" name="app_dark_color" value="{$config_settings.app_dark_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_dark_color')"/><div id="app_dark_color" style="background-color: {$config_settings.app_dark_color}; height: 10px; width: 85px;"></div>
+			  <input type="text" class="color" name="app_dark_color" value="{$config_settings.app_dark_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_dark_color')"/><div id="app_dark_color" style="background-color: #{$config_settings.app_dark_color}; height: 10px; width: 85px;"></div>
 			  {include file="error_icon.tpl.html" field="app_dark_color"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Heading colour</th>
 			<td>
-			  <input type="text" class="color" name="app_heading_color" value="{$config_settings.app_heading_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_heading_color')"/><div id="app_heading_color" style="background-color: {$config_settings.app_heading_color}; height: 10px; width: 85px;"></div>
+			  <input type="text" class="color" name="app_heading_color" value="{$config_settings.app_heading_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_heading_color')"/><div id="app_heading_color" style="background-color: #{$config_settings.app_heading_color}; height: 10px; width: 85px;"></div>
 			  {include file="error_icon.tpl.html" field="app_heading_color"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Cycle colour #1</th>
 			<td>
-			  <input type="text" class="color" name="app_cycle_color_one" value="{$config_settings.app_cycle_color_one|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_cycle_color_one')"/><div id="app_cycle_color_one" style="background-color: {$config_settings.app_cycle_color_one}; height: 10px; width: 85px;"></div>
+			  <input type="text" class="color" name="app_cycle_color_one" value="{$config_settings.app_cycle_color_one|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_cycle_color_one')"/><div id="app_cycle_color_one" style="background-color: #{$config_settings.app_cycle_color_one}; height: 10px; width: 85px;"></div>
 			  {include file="error_icon.tpl.html" field="app_cycle_color_one"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Cycle colour #2</th>
 			<td>
-			  <input type="text" class="color" name="app_cycle_color_two" value="{$config_settings.app_cycle_color_two|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_cycle_color_two')"/><div id="app_cycle_color_two" style="background-color: {$config_settings.app_cycle_color_two}; height: 10px; width: 85px;"></div>
+			  <input type="text" class="color" name="app_cycle_color_two" value="{$config_settings.app_cycle_color_two|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_cycle_color_two')"/><div id="app_cycle_color_two" style="background-color: #{$config_settings.app_cycle_color_two}; height: 10px; width: 85px;"></div>
 			  {include file="error_icon.tpl.html" field="app_cycle_color_two"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Internal colour</th>
 			<td>
-			  <input type="text" class="color" name="app_internal_color" value="{$config_settings.app_internal_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_internal_color')"/><div id="app_internal_color" style="background-color: {$config_settings.app_internal_color}; height: 10px; width: 85px;"></div>
+			  <input type="text" class="color" name="app_internal_color" value="{$config_settings.app_internal_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_internal_color')"/><div id="app_internal_color" style="background-color: #{$config_settings.app_internal_color}; height: 10px; width: 85px;"></div>
 			  {include file="error_icon.tpl.html" field="app_internal_color"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Highlight colour</th>
 			<td>
-			  <input type="text" class="color" name="app_highlight_color" value="{$config_settings.app_highlight_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_highlight_color')"/><div id="app_highlight_color" style="background-color: {$config_settings.app_highlight_color}; height: 10px; width: 85px;"></div>
+			  <input type="text" class="color" name="app_highlight_color" value="{$config_settings.app_highlight_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_highlight_color')"/><div id="app_highlight_color" style="background-color: #{$config_settings.app_highlight_color}; height: 10px; width: 85px;"></div>
 			  {include file="error_icon.tpl.html" field="app_highlight_color"}
 			</td>
 		  </tr>

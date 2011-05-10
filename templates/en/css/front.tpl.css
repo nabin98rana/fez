@@ -135,14 +135,14 @@ text-align: center;
 
 .floated-boxes h2 {
 	margin: 0px;
-	background: [[$smarty.const.APP_DARK_COLOR]] url([[$smarty.const.APP_RELATIVE_URL]]images/bg-smallboxes-top.png) top left no-repeat;
+	background: #[[$smarty.const.APP_DARK_COLOR]] url([[$smarty.const.APP_RELATIVE_URL]]images/bg-smallboxes-top.png) top left no-repeat;
 	color: white;
 	font-size: 18px;
 	padding: 20px 0 5px 15px;
 }
 
 .boxes h2 {
-	background: [[$smarty.const.APP_DARK_COLOR]] url([[$smarty.const.APP_RELATIVE_URL]]images/bg-boxes-top.png) top left no-repeat;
+	background: #[[$smarty.const.APP_DARK_COLOR]] url([[$smarty.const.APP_RELATIVE_URL]]images/bg-boxes-top.png) top left no-repeat;
 	color: white;
 	font-size: 18px;
 	padding: 20px 0 5px 15px;

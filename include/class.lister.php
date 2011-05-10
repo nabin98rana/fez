@@ -1029,7 +1029,7 @@ class Lister
         $tpl->assign('tpl_list', array_map(create_function('$a','return $a[\'title\'];'), $tpls));
         $tpl->assign('browse', $browse);
         $tpl->assign('sort_by_list', $sort_by_list);
-		$tpl->assign("cycle_colours", "#FFFFFF," . APP_CYCLE_COLOR_TWO);
+		$tpl->assign("cycle_colours", "#FFFFFF," . "#" . APP_CYCLE_COLOR_TWO);
         $tpl->assign('sort_by_default', $sort_by);
         $tpl->assign("eserv_url", APP_BASE_URL."eserv/");
         $tpl->assign('sort_order', $options["sort_order"]);
