@@ -654,41 +654,41 @@
                 </td>
               </tr>
 				<tr>
-				  <td width="5" bgcolor="#{$cell_color}" nowrap align="center"><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
-				  <td width="35%" bgcolor="#{$cell_color}" class="default">&nbsp;<b>Title</b></td>
-				  <td width="15%" bgcolor="#{$cell_color}" class="default">&nbsp;<b>Type</b></td>
-				  <td width="15%" bgcolor="#{$cell_color}" class="default">&nbsp;<b>XSDMF ID</b></td>
-				  <td width="15%" bgcolor="#{$cell_color}" class="default">&nbsp;<b>Order</b></td>
-				  <td width="15%" bgcolor="#{$cell_color}" class="default">&nbsp;<b>Link to XSD Match Field for this Subelement Instance</b></td>
+				  <td width="5" bgcolor="{$cell_color}" nowrap align="center"><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
+				  <td width="35%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Title</b></td>
+				  <td width="15%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Type</b></td>
+				  <td width="15%" bgcolor="{$cell_color}" class="default">&nbsp;<b>XSDMF ID</b></td>
+				  <td width="15%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Order</b></td>
+				  <td width="15%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Link to XSD Match Field for this Subelement Instance</b></td>
 				</tr>
 				{section name="i" loop=$xsdsel_loop_list}
 				{cycle values=$cycle assign="row_color"}
 				<tr>
-				  <td width="4" nowrap bgcolor="#{$row_color}" align="center">
+				  <td width="4" nowrap bgcolor="{$row_color}" align="center">
 					<input type="checkbox" name="items[]" value="{$xsdsel_loop_list[i].xsdsel_id}" {if $smarty.section.i.total == 0}disabled{/if}>
 				  </td>
-				  <td width="35%" bgcolor="#{$row_color}" class="default">
+				  <td width="35%" bgcolor="{$row_color}" class="default">
 					&nbsp;{$xsdsel_loop_list[i].xsdsel_title}
 				  </td>
-				  <td width="15%" bgcolor="#{$row_color}" class="default">
+				  <td width="15%" bgcolor="{$row_color}" class="default">
 					&nbsp;{$xsdsel_loop_list[i].xsdsel_type}
 				  </td>
-				  <td width="15%" bgcolor="#{$row_color}" class="default">
+				  <td width="15%" bgcolor="{$row_color}" class="default">
 					&nbsp;{$xsdsel_loop_list[i].child_xsdmf_id}
 				  </td>
-				  <td width="15%" bgcolor="#{$row_color}" class="default">
+				  <td width="15%" bgcolor="{$row_color}" class="default">
 					&nbsp;{$xsdsel_loop_list[i].xsdsel_order}
 				  </td>
-				  <td width="15%" bgcolor="#{$row_color}" class="default">
-                        &nbsp;<a class="link" href="xsd_tree_match_form.php?&amp;xdis_id={$xdis_id}&amp;xml_element={$xml_element}&amp;xsdsel_id={$xsdsel_loop_list[i].xsdsel_id}" title="match this XSD Display against HTML elements">Link</a>
+				  <td width="15%" bgcolor="{$row_color}" class="default">
+                        &nbsp;<a class="link" href="xsd_tree_match_form.php?&xdis_id={$xdis_id}&xml_element={$xml_element}&xsdsel_id={$xsdsel_loop_list[i].xsdsel_id}" title="match this XSD Display against HTML elements">Link</a>
 				  </td>
 				</tr>
 				{/section}
 				<tr>
-				  <td width="4" align="center" bgcolor="#{$cell_color}">
+				  <td width="4" align="center" bgcolor="{$cell_color}">
 					<input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
 				  </td>
-				  <td colspan="5" bgcolor="#{$cell_color}">
+				  <td colspan="5" bgcolor="{$cell_color}">
 					<input type="submit" value="Delete" class="button">
 				  </td>
 				</tr>
@@ -699,7 +699,7 @@
 	  </table>	
 {/if}
 {if !$show_subelement_parents || $is_sublooping_base_element}
-      <table width="100%" bgcolor="#{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
+      <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
         <tr>
           <td>
             <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">			  
@@ -721,7 +721,7 @@
               </tr>
               {if $result != ""  && $smarty.post.form_name == "xsdmf"}
               <tr>
-                <td colspan="2" bgcolor="#{$cell_color}" align="center" class="error">
+                <td colspan="2" bgcolor="{$cell_color}" align="center" class="error">
                   {if $cat == "delete"}
                     {if $result == -1}
                       An error occurred while trying to remove the xsd element to html element match information.
@@ -745,7 +745,7 @@
               </tr>
               {/if}
               <tr>
-                <td colspan="2" bgcolor="#{$cell_color}" align="center">
+                <td colspan="2" bgcolor="{$cell_color}" align="center">
                   {if $form_cat == 'edit'}
                   <input class="button" type="submit" value="Update XSD Element to HTML Element Match">
                   {else}
@@ -758,35 +758,35 @@
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="#{$cell_color}" class="default">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>XSD Sublooping Element Title:</b>
                 </td>
-                <td bgcolor="#{$light_color}" class="default">
+                <td bgcolor="{$light_color}" class="default">
 					{$xsdsel_title}
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="#{$cell_color}" class="default">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>XML Element:</b>
                 </td>
-                <td bgcolor="#{$light_color}" class="default">
+                <td bgcolor="{$light_color}" class="default">
                   {$xml_element_clean} {if $info.xsdmf_id} <b>(XSDMF_ID -> {$info.xsdmf_id})</b>{/if}
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="#{$cell_color}" class="default">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>XML XPATH</b> (read only - automatically generated when mapping is created):</b>
                 </td>
-                <td bgcolor="#{$light_color}" class="default">
+                <td bgcolor="{$light_color}" class="default">
                    {if $info.xsdmf_xpath} {$info.xsdmf_xpath}{/if}
                 </td>
               </tr>
 
 		              <tr>
-		                <td width="120" bgcolor="#{$cell_color}" class="default">
+		                <td width="120" bgcolor="{$cell_color}" class="default">
 		                  <b>Field Type:</b>
 		                </td>
-		                <td bgcolor="#{$light_color}" class="default">
+		                <td bgcolor="{$light_color}" class="default">
 						  {literal}
 		                  <img src="{/literal}{$rel_url}{literal}images/text_16.png" alt="" /> <input type="radio" name="field_type" value="text" {/literal}{if ($info.xsdmf_html_input == 'xsd_ref' && $xsd_display_count > 0) || ($info.xsdmf_html_input == 'xsd_loop_subelement' && $xsd_subelement_count > 0)}disabled{/if} {if $info.xsdmf_html_input == 'text'}checked{/if}{literal} onClick="javascript: if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { toggleAuthorSelector(false);toggleControlledVocab(false);toggleFezVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(true);toggleStaticText(true);toggleDynamicText(true);toggleFieldOptions(false);toggleValidationType(true);toggleValidationLength(true);toggleXSDMF_ID_Refs(false);toggleCheckboxSelectedOption(false);toggleAuthorSuggestor(false);toggleDateType(false);}">
 		                  <a id="link" class="link" href="javascript:void(null);" onClick="javascript:if (toggleXSDRef(false) && toggleXSDLoopSubelement(false)) { checkRadio('xsd_tree_match_form', 'field_type', 0);  toggleAuthorSelector(false);toggleControlledVocab(false);toggleFezVarText(false);toggleSmartyVarText(false);toggleXSDMatchField(true);toggleStaticText(true);toggleDynamicText(true);toggleFieldOptions(false);toggleValidationType(true);toggleValidationLength(true);toggleXSDMF_ID_Refs(false);toggleCheckboxSelectedOption(false);toggleAuthorSuggestor(false);toggleDateType(false);}">Text Input</a><br />
@@ -840,65 +840,65 @@
 		                </td>
 		              </tr>
               <tr>
-                <td width="120" bgcolor="#{$cell_color}" class="default">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Title:</b>
                 </td>
-                <td bgcolor="#{$light_color}">
+                <td bgcolor="{$light_color}">
                   <input type="text" name="title" size="50" class="default" value="{if $info.xsdmf_title}{$info.xsdmf_title}{else}{if $xsdsel_title != "N/A"}{$xsdsel_title} - {/if}{$xml_element_clean}{/if}">
                   {include file="error_icon.tpl.html" field="title"}
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="#{$cell_color}" class="default">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Label Description:</b>
                 </td>
-                <td bgcolor="#{$light_color}">
+                <td bgcolor="{$light_color}">
                   <input type="text" name="description" size="50" class="default" value="{$info.xsdmf_description}">
                   <span class="small_default">(it will show up by the side of the title)</span>
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="#{$cell_color}" class="default">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Field Description:</b>
                 </td>
-                <td bgcolor="#{$light_color}">
+                <td bgcolor="{$light_color}">
                   <textarea name="long_description" rows="10" cols="60" class="default">{$info.xsdmf_long_description}</textarea>
                   <span class="small_default">(it will show up by the side of the field control)</span>
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="#{$cell_color}" class="default">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Image Location:</b>
                 </td>
-                <td bgcolor="#{$light_color}">
+                <td bgcolor="{$light_color}">
                   <input type="text" name="image_location" size="30" class="default" value="{$info.xsdmf_image_location}">
                   <span class="small_default">(It will be shown to the left of the title of the element if it exists in the /images directory of Fez.)</span>
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="#{$cell_color}" class="default">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Display Order Priority:</b>
                 </td>
-                <td bgcolor="#{$light_color}">
+                <td bgcolor="{$light_color}">
                   <input type="text" name="order" size="30" class="default" value="{if $info.xsdmf_order}{$info.xsdmf_order}{else}0{/if}"><br />
                   <span class="small_default">(The order the field will display on HTML forms, 0 is highest priority, 1, 2 next etc.)</span>
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="#{$cell_color}" class="default">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Enabled in Form?:</b>
                 </td>
-                <td bgcolor="#{$light_color}">
+                <td bgcolor="{$light_color}">
                   <input type="checkbox" name="enabled" class="default" {if (($info.xsdmf_enabled != 0) || ($info.xsdmf_enabled==''))}checked{/if}><br />
                   <span class="small_default">This should be checked to make this field appear on the forms for editing metadata.  If the field is static text, 
                   it will only be shown if the 'Show in View Details' box is also checked (used to make a section heading in the form) .  If this box is unchecked, the resulting XML will have a blank value for this element.</span>
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="#{$cell_color}" class="default">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Search Key:</b>
                 </td>
-                <td bgcolor="#{$light_color}">
+                <td bgcolor="{$light_color}">
 					<select name="xsdmf_sek_id" class="default">
 						<option value="">(no search key)</option>
 						{html_options options=$search_key_list selected=$info.xsdmf_sek_id}
@@ -906,55 +906,55 @@
                 </td>
               </tr>			  
               <tr>
-                <td width="120" bgcolor="#{$cell_color}" class="default">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Required?:</b>
                 </td>
-                <td bgcolor="#{$light_color}">
+                <td bgcolor="{$light_color}">
                   <input type="checkbox" name="required" class="default" {if ($info.xsdmf_required == 1)}checked{/if}><br />
                   <span class="small_default">(If this enabled tickbox is not ticked you the input form will not require this field)</span>
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="#{$cell_color}" class="default">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Multiple?:</b>
                 </td>
-                <td bgcolor="#{$light_color}">
+                <td bgcolor="{$light_color}">
                   <input type="checkbox" name="multiple" class="default" {if ($info.xsdmf_multiple == 1)}checked{/if}><br />
                   <span class="small_default">(If this enabled tickbox is ticked this element will be able to be entered multiple times in forms, must have a multiple limit set or the control wont show)</span>
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="#{$cell_color}" class="default">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Multiple Limit:</b>
                 </td>
-                <td bgcolor="#{$light_color}">
+                <td bgcolor="{$light_color}">
                   <input type="text" name="multiple_limit" class="default" size="30" value="{$info.xsdmf_multiple_limit}"><br />
                   <span class="small_default">(The maximum amount of html input elements that will show for this element if it is a multiple)</span>
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="#{$cell_color}" class="default">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Show in View Details?:</b>
                 </td>
-                <td bgcolor="#{$light_color}">
+                <td bgcolor="{$light_color}">
                   <input type="checkbox" name="show_in_view" class="default" {if ($info.xsdmf_show_in_view == 1 || $info.xsdmf_show_in_view == "")}checked{/if}><br />
                   <span class="small_default">(If this enabled tickbox is ticked this element will show its heading and value in the object view form (view.php))</span>
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="#{$cell_color}" class="default">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Invisible?:</b>
                 </td>
-                <td bgcolor="#{$light_color}">
+                <td bgcolor="{$light_color}">
                   <input type="checkbox" name="invisible" class="default" {if ($info.xsdmf_invisible == 1)}checked{/if}><br />
                   <span class="small_default">(If this enabled tickbox is ticked this element will be wrapped in an invisible DIV tag - good for disabling fields temporarily while keeping their values intact when the edit metadata form is updated)</span>
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="#{$cell_color}" class="default">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Show in Simple Create Form?:</b>
                 </td>
-                <td bgcolor="#{$light_color}">
+                <td bgcolor="{$light_color}">
                   <input type="checkbox" name="show_simple_create" class="default" {if ($info.xsdmf_show_simple_create == 1)}checked{/if}><br />
                   <span class="small_default">(If this enabled tickbox is ticked this element will be wrapped in an invisible DIV tag in simple create forms - will be shown again if 'advanced tab' is ticked or a users preference is set to see the advanced create form by default)</span>
                 </td>
@@ -1046,11 +1046,11 @@
                   {assign var="show_field_options" value=false}
                 {/if}
               <tr id="field_options_tr" {if !$show_field_options}style="display:none"{/if} >
-                <td width="120" bgcolor="#{$cell_color}" class="default">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Field Options:</b><i>(If a dynamic variable is set it will be used instead of the entered values)</i>
                 </td>
-                <td bgcolor="#{$light_color}">
-                  <table bgcolor="#{$light_color}" cellspacing="0" cellpadding="0" border="0">
+                <td bgcolor="{$light_color}">
+                  <table bgcolor="{$light_color}" cellspacing="0" cellpadding="0" border="0">
                     <tr>
                       <td rowspan="2"><img src="{$rel_url}images/blank.gif" width="30" height="1"></td>
                       <td>
@@ -1086,8 +1086,8 @@
                 </td>
               </tr>
               <tr id="controlled_vocab_tr"  {if $info.xsdmf_html_input != 'contvocab'}style="display:none"{/if}>
-                 <td width="120" bgcolor="#{$cell_color}" class="default"><b>Controlled Vocabulary:</b></td>
- 				<td bgcolor="#{$light_color}">
+                 <td width="120" bgcolor="{$cell_color}" class="default"><b>Controlled Vocabulary:</b></td>
+ 				<td bgcolor="{$light_color}">
 					<select class="default" name="xsdmf_cvo_id">
 					  {html_options options=$controlled_vocab_list selected=$info.xsdmf_cvo_id}
 					</select><br />
@@ -1106,23 +1106,23 @@
 			  	</td>
 		     </tr>			  
               <tr id="smarty_variable_tr"  {if $info.xsdmf_html_input != 'static' && !$selectingfield}style="display:none"{/if}>
-                 <td width="120" bgcolor="#{$cell_color}" class="default"><b>Dynamic Variable:</b><i>(If a dynamic variable is set it will be used instead of the entered values, or if this is a combo or multiple html input then the dynamic variable will be used as the field options)</i></td>
- 				<td bgcolor="#{$light_color}">
+                 <td width="120" bgcolor="{$cell_color}" class="default"><b>Dynamic Variable:</b><i>(If a dynamic variable is set it will be used instead of the entered values, or if this is a combo or multiple html input then the dynamic variable will be used as the field options)</i></td>
+ 				<td bgcolor="{$light_color}">
 					<input class="default" type="text" name="smarty_variable" size="26" value="{$info.xsdmf_smarty_variable}">
 			  	</td>
 		     </tr>
 		      <tr id="dynamic_selected_option_tr" {$selectingfield_only}>
-                 <td width="120" bgcolor="#{$cell_color}" class="default" valign="top"><b>Dynamic Selected Option:</b><i>(If a dynamic variable is set it will be used to preselect the select options for combo boxes and multiple select boxes)</i></td>
- 				<td bgcolor="#{$light_color}">
+                 <td width="120" bgcolor="{$cell_color}" class="default" valign="top"><b>Dynamic Selected Option:</b><i>(If a dynamic variable is set it will be used to preselect the select options for combo boxes and multiple select boxes)</i></td>
+ 				<td bgcolor="{$light_color}">
 					<input class="default" type="text" name="dynamic_selected_option" size="26" value="{$info.xsdmf_dynamic_selected_option}">
 			  	</td>
 		     </tr>
         
 					<tr id="tr_parent_option_xdis_id" {$selectingfield_only}>
-					  <td bgcolor="#{$cell_color}" class="default" valign="top">
+					  <td bgcolor="{$cell_color}" class="default" valign="top">
 						<b>Parent XSDMF Element list:</b><i>(If this option is checked then the list of options will come from the first parent object of this type and this xsd matching field)<br /><br />(If this is an <b>Author Selector</b> then it will use this element to limit the author check to an organisation level eg School. For an Author Selector the element should point to an organisation ID that has relationships with authors, again like School.)</i>
 					  </td>
-					  <td bgcolor="#{$light_color}">
+					  <td bgcolor="{$light_color}">
 		                <span class="default">Use this list?:</span> <input type="checkbox" name="xsdmf_use_parent_option_list" class="default" {if ($info.xsdmf_use_parent_option_list == 1)}checked{/if}><br />
 						<select class="default" name="xsdmf_parent_option_xdis_id" onChange="javascript: selectXSDDisplayList(this.form, 'xsdmf_parent_option_xdis_id')">
 						 {html_options options=$xsd_displays selected=$info.xsdmf_parent_option_xdis_id}
@@ -1140,10 +1140,10 @@
       </script>
       {/literal}					
 					<tr id="tr_asuggest_xdis_id" {$selectingfield_only}>
-					  <td bgcolor="#{$cell_color}" class="default" valign="top">
+					  <td bgcolor="{$cell_color}" class="default" valign="top">
 						<b>Suggest Target Element:</b><i>(The selected target element will be filled with the lookup text, eg Full name)</i>
 					  </td>
-					  <td bgcolor="#{$light_color}">
+					  <td bgcolor="{$light_color}">
 						<select class="default" name="xsdmf_asuggest_xdis_id" onChange="javascript: selectXSDDisplayListSuggestor(this.form, 'xsdmf_asuggest_xdis_id')">
 						 {html_options options=$xsd_displays selected=$info.xsdmf_asuggest_xdis_id}
 						</select><br />
@@ -1162,10 +1162,10 @@
       {/literal}
 
 				<tr id="tr_parent_option_xdis_id" {if $info.xsdmf_html_input != 'org_selector'}style="display:none"{/if}>
-				  <td bgcolor="#{$cell_color}" class="default" valign="top">
+				  <td bgcolor="{$cell_color}" class="default" valign="top">
 					<b>Organisational Structure Level:</b><br /><i>(The level where the list of values will be selected from)</i>
 				  </td>
-				  <td bgcolor="#{$light_color}">
+				  <td bgcolor="{$light_color}">
 					<select class="default" name="xsdmf_org_level"> 
 					 {html_options options=$org_levels selected=$info.xsdmf_org_level}
 					</select><br />
@@ -1187,8 +1187,8 @@
       {/literal}
 
 		      <tr id="checkbox_selected_option_tr" {if $info.xsdmf_html_input != 'checkbox'}style="display:none"{/if}>
-                 <td width="120" bgcolor="#{$cell_color}" class="default"><b>Checkbox Default Value:</b><i>(The default value of a checkbox input - checked or not checked)</i></td>
- 				<td bgcolor="#{$light_color}">
+                 <td width="120" bgcolor="{$cell_color}" class="default"><b>Checkbox Default Value:</b><i>(The default value of a checkbox input - checked or not checked)</i></td>
+ 				<td bgcolor="{$light_color}">
 					<select class="default" name="checkbox_selected_option">
 					  {html_options options=$checkbox_options_list selected=$info.xsdmf_cso_value}
 					</select>
@@ -1196,8 +1196,8 @@
 		     </tr>
 
 			 <tr id="fez_variable_tr" {if $info.xsdmf_html_input != 'static' && !$selectingfield}style="display:none"{/if}>
-                 <td width="120" bgcolor="#{$cell_color}" class="default"><b>Fez Variable:</b><i>(If a Fez variable is set it will be used instead of any other options including smarty template variables)</i></td>
-				<td class="default" bgcolor="#{$light_color}"><br /><b>OR use one of these Fez variables: </b> <br />
+                 <td width="120" bgcolor="{$cell_color}" class="default"><b>Fez Variable:</b><i>(If a Fez variable is set it will be used instead of any other options including smarty template variables)</i></td>
+				<td class="default" bgcolor="{$light_color}"><br /><b>OR use one of these Fez variables: </b> <br />
 					<INPUT TYPE=RADIO NAME="fez_variable" VALUE="none" {if ($info.xsdmf_fez_variable == "" || $info.xsdmf_fez_variable == "none")}checked{/if}/>None<BR>
 					<INPUT TYPE=RADIO NAME="fez_variable" VALUE="pid" {if $info.xsdmf_fez_variable == "pid"}checked{/if}/>Pid (for new records it will get the new Pid)<BR>
 					<INPUT TYPE=RADIO NAME="fez_variable" VALUE="xdis_id" {if $info.xsdmf_fez_variable == "xdis_id"}checked{/if}/>XSD Display ID<BR>
@@ -1212,10 +1212,10 @@
  			  </tr> 
 
               <tr id="tr_xsdmf_id_ref" {if $info.xsdmf_html_input != 'xsdmf_id_ref'}style="display:none"{/if}>
-                <td width="120" bgcolor="#{$cell_color}" class="default">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>XSDMF ID Reference:</b>
                 </td>
-                <td bgcolor="#{$light_color}">
+                <td bgcolor="{$light_color}">
 									{if $info.xsdmf_xdis_id_ref == '' ||  $info.xsdmf_xdis_id_ref == 0}
 					                  {assign var="idref_xdis_id" value=$xdis_id}
 									{else}
@@ -1237,13 +1237,13 @@
                 </td>
               </tr>
               <tr id="static_text_tr" {if $info.xsdmf_html_input != 'static' && $info.xsdmf_html_input != 'text' && $info.xsdmf_html_input != 'textarea' && $info.xsdmf_html_input != 'rich_text'}style="display:none"{/if}>
-				<td width="120" bgcolor="#{$cell_color}" class="default">
+				<td width="120" bgcolor="{$cell_color}" class="default">
 				  <b>Static Text:</b>
 				</td>
-                <td bgcolor="#{$light_color}">
+                <td bgcolor="{$light_color}">
                   <table bgcolor="{$dark_color}" cellspacing="0" cellpadding="0" border="0">
                     <tr>			
-						<td bgcolor="#{$light_color}">
+						<td bgcolor="{$light_color}">
 						  <textarea name="static_text" rows="20" cols="60" class="default" value="{$info.xsdmf_static_text}">{$info.xsdmf_static_text}</textarea>
 						  <br /><span class="small_default">(it will be added when XML for an instance of this XSD is created OR if this is a user input field this value will be prefilled in metadata entry forms)</span>
 						</td>
@@ -1253,19 +1253,19 @@
 			  </tr>
 
               <tr id="dynamic_text_tr" {if $info.xsdmf_html_input != 'static' && $info.xsdmf_html_input != 'text' && $info.xsdmf_html_input != 'textarea' && $info.xsdmf_html_input != 'rich_text'}style="display:none"{/if}>
-                <td width="120" bgcolor="#{$cell_color}" class="default">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Dynamic Text: <br /><i>(The xml creation process will look for a post variable with the name you put in the textarea and use it as the dynamic variable so make sure it exists, usually as a hidden form html input OR if this is a user input field this value will be prefilled in metadata entry forms)</i></b>
                 </td>
-                <td bgcolor="#{$light_color}">
+                <td bgcolor="{$light_color}">
                   <textarea name="dynamic_text" rows="20" cols="60" class="default" value="{$info.xsdmf_dynamic_text}">{$info.xsdmf_dynamic_text}</textarea>
                   <br /><span class="small_default">(it will be added when XML for an instance of this XSD is created OR if this is a user input field this value will be prefilled in metadata entry forms)</span>
                 </td>
               </tr>
               <tr id="validation_type_tr" style="display:none">
-                <td width="120" bgcolor="#{$cell_color}" class="default">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Validation Type: </b>
                 </td>
-                <td bgcolor="#{$light_color}">
+                <td bgcolor="{$light_color}">
 				  <select name="validation_types" class="default">
 				  	<option value="none" {if ($info.xsdmf_validation_type == 'none') or ($info.xsdmf_validation_type == '')}selected{/if}>None</option>
 				  	<option value="numeric" {if ($info.xsdmf_validation_type == 'numeric')}selected{/if}>Numeric</option>
@@ -1277,19 +1277,19 @@
                 </td>
               </tr>
               <tr id="validation_length_tr" style="display:none">
-                <td width="120" bgcolor="#{$cell_color}" class="default">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Validation Maxlength: </b>
                 </td>
-                <td bgcolor="#{$light_color}">
+                <td bgcolor="{$light_color}">
                   <input type="text" name="validation_maxlength" class="default" size="30" value="{$info.xsdmf_validation_maxlength}">
                   <br /><span class="small_default">(The maximum number of characters allowed for this field.)</span>
                 </td>
               </tr>
               <tr id="date_type_tr" style="display:none">
-                <td width="120" bgcolor="#{$cell_color}" class="default">
+                <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Date Type: </b>
                 </td>
-                <td bgcolor="#{$light_color}">
+                <td bgcolor="{$light_color}">
 				  <select name="xsdmf_date_type" class="default">
 				  	<option value="0" {if ($info.xsdmf_date_type == 0) or ($info.xsdmf_date_type == '')}selected{/if}>Full Date (eg 26/01/1981)</option>
 				  	<option value="1" {if ($info.xsdmf_date_type == 1)}selected{/if}>Year Only (eg 2006)</option>
@@ -1299,7 +1299,7 @@
               </tr>			  
 			  
               <tr>
-                <td colspan="2" bgcolor="#{$cell_color}" align="center">
+                <td colspan="2" bgcolor="{$cell_color}" align="center">
                   {if $form_cat == 'edit'}
                   <input class="button" type="submit" value="Update XSD Element to HTML Element Match">
                   {else}
@@ -1319,7 +1319,7 @@
 		<tr id="xsd_display_ref_tr" {if $info.xsdmf_html_input != 'xsd_ref'}style="display:none"{/if}>
 			<td>
 		    {if $form_cat == 'edit'}		
-			  <table width="100%" bgcolor="#{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
+			  <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
 				<tr>
 				  <td>
 					<table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
@@ -1343,7 +1343,7 @@
 					  </tr>
 					  {if $result != ""}
 					  <tr>
-						<td colspan="2" bgcolor="#{$cell_color}" align="center" class="error">
+						<td colspan="2" bgcolor="{$cell_color}" align="center" class="error">
 						  {if $smarty.post.form_cat == "new"}
 							{if $result == -1}
 							  An error occurred while trying to add the new xsd display.
@@ -1361,10 +1361,10 @@
 					  </tr>
 					  {/if}
 					  <tr>
-						<td width="120" bgcolor="#{$cell_color}" class="default">
+						<td width="120" bgcolor="{$cell_color}" class="default">
 						  <b>XSD Display:</b>
 						</td>
-						<td bgcolor="#{$light_color}">
+						<td bgcolor="{$light_color}">
 						<select class="default" name="xsd_display_id">
 						  {html_options options=$xsd_reference_displays}
 						</select>
@@ -1374,16 +1374,16 @@
 						</td>
 					  </tr>
 					  <tr>
-						<td width="120" bgcolor="#{$cell_color}" class="default">
+						<td width="120" bgcolor="{$cell_color}" class="default">
 						  <b>Order:</b>
 						</td>
-						<td bgcolor="#{$light_color}">
+						<td bgcolor="{$light_color}">
 						  <input type="text" name="xsdrel_order" size="20" class="default">
 						  {include file="error_icon.tpl.html" field="xsdrel_order"}
 						</td>
 					  </tr>
 					  <tr>
-						<td colspan="2" bgcolor="#{$cell_color}" align="center">
+						<td colspan="2" bgcolor="{$cell_color}" align="center">
 						  {if $smarty.get.xsdref_cat == 'edit'}
 						  <input class="button" type="submit" value="Update XSD Display Reference">
 						  {else}
@@ -1409,11 +1409,11 @@
 							<input type="hidden" name="form_cat" value="delete">
 							<input type="hidden" name="xsdrel_xsdmf_id" value="{$xsdrel_xsdmf_id}">
 							<tr>
-							  <td width="5" bgcolor="#{$cell_color}" nowrap align="center"><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
-							  <td width="50%" bgcolor="#{$cell_color}" class="default">&nbsp;<b>Title</b></td>
-							  <td width="15%" bgcolor="#{$cell_color}" class="default">&nbsp;<b>Version</b></td>
-							  <td width="15%" bgcolor="#{$cell_color}" class="default">&nbsp;<b>Order</b></td>
-							  <td width="15%" bgcolor="#{$cell_color}" class="default" nowrap>&nbsp;<b>XSD HTML Matching Editor&nbsp;</b></td>
+							  <td width="5" bgcolor="{$cell_color}" nowrap align="center"><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
+							  <td width="50%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Title</b></td>
+							  <td width="15%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Version</b></td>
+							  <td width="15%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Order</b></td>
+							  <td width="15%" bgcolor="{$cell_color}" class="default" nowrap>&nbsp;<b>XSD HTML Matching Editor&nbsp;</b></td>
 							</tr>
 							{section name="i" loop=$xsd_display_ref_list}
 							{cycle values=$cycle assign="row_color"}
@@ -1436,17 +1436,17 @@
 							</tr>
 							{sectionelse}
 							<tr>
-							  <td colspan="5" bgcolor="#{$light_color}" align="center" class="default">
+							  <td colspan="5" bgcolor="{$light_color}" align="center" class="default">
 								No xsd display references could be found.
 								<input type="hidden" id="no_xsd_refs" name="no_xsd_refs" value="true">
 							  </td>
 							</tr>
 							{/section}
 							<tr>
-							  <td width="4" align="center" bgcolor="#{$cell_color}">
+							  <td width="4" align="center" bgcolor="{$cell_color}">
 								<input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
 							  </td>
-							  <td colspan="5" bgcolor="#{$cell_color}">
+							  <td colspan="5" bgcolor="{$cell_color}">
 								<input type="submit" value="Delete" class="button">
 							  </td>
 							</tr>
@@ -1468,7 +1468,7 @@
 				<tr id="xsd_loop_subelement_tr" {if $info.xsdmf_html_input != 'xsd_loop_subelement'}style="display:none"{/if}>
 					<td>
 					 {if $form_cat == 'edit'}
-					  <table width="100%" bgcolor="#{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
+					  <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
 						<tr>
 						  <td>
 							<table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
@@ -1493,7 +1493,7 @@
 							  </tr>
 							  {if $result != "" && $smarty.post.form_name == "xsdsel_main"}
 							  <tr>
-								<td colspan="2" bgcolor="#{$cell_color}" align="center" class="error">
+								<td colspan="2" bgcolor="{$cell_color}" align="center" class="error">
 								  {if $smarty.post.form_cat == "new"}
 									{if $result == -1}
 									  An error occurred while trying to add the new xsd looping subelement.
@@ -1511,19 +1511,19 @@
 							  </tr>
 							  {/if}
 							  <tr>
-								<td width="120" bgcolor="#{$cell_color}" class="default">
+								<td width="120" bgcolor="{$cell_color}" class="default">
 								  <b>XSD Subelement Loop Title:</b>
 								</td>
-								<td bgcolor="#{$light_color}">
+								<td bgcolor="{$light_color}">
 								 <input type="text" name="xsdsel_title" size="50" class="default" value="{$xsd_loop_subelement_details.xsdsel_title}">		
 								  {include file="error_icon.tpl.html" field="title"}
 								</td>
 							  </tr>
 							  <tr>
-								<td width="120" bgcolor="#{$cell_color}" class="default">
+								<td width="120" bgcolor="{$cell_color}" class="default">
 								  <b>Subelement Loop Type:</b>
 								</td>
-								<td bgcolor="#{$light_color}">
+								<td bgcolor="{$light_color}">
 								<select class="default" name="xsdsel_type" {literal}onChange="javascript:if(this.form.xsdsel_type.value=='attributeloop'){toggleXSDSEL_loop(true);}else{toggleXSDSEL_loop(false);}">{/literal}
 								  <option value="hardset" {if $xsd_loop_subelement_details.xsdsel_type == 'hardset'}selected{/if}>Hardset (One Loop)</option>
 								  <option value="attributeloop"  {if $xsd_loop_subelement_details.xsdsel_type == 'attributeloop'}selected{/if}>Loop on Element or Attribute</option>
@@ -1531,10 +1531,10 @@
 								</td>
 							  </tr>
 							  <tr id="tr_xsdsel_attribute_loop_xsdmf_id" {if $xsd_loop_subelement_details.xsdsel_type != 'attributeloop'}style="display:none"{/if}>
-								<td width="120" bgcolor="#{$cell_color}" class="default">
+								<td width="120" bgcolor="{$cell_color}" class="default">
 								  <b>Loop on Matching Field:</b>
 								</td>
-								<td bgcolor="#{$light_color}" nowrap>
+								<td bgcolor="{$light_color}" nowrap>
 
 									{if $xsd_loop_subelement_details.xsdsel_attribute_loop_xdis_id == '' ||  $xsd_loop_subelement_details.xsdsel_attribute_loop_xdis_id == 0}
 					                  {assign var="loop_mf_xdis_id" value=$xdis_id}
@@ -1552,10 +1552,10 @@
 								</td>
 							  </tr>
 							  <tr id="tr_xsdsel_indicator_xsdmf_id">
-								<td width="120" bgcolor="#{$cell_color}" class="default">
+								<td width="120" bgcolor="{$cell_color}" class="default">
 								  <b>Indicator:</b>
 								</td>
-								<td bgcolor="#{$light_color}" nowrap>
+								<td bgcolor="{$light_color}" nowrap>
 
 									{if $xsd_loop_subelement_details.xsdsel_indicator_xdis_id == '' ||  $xsd_loop_subelement_details.xsdsel_indicator_xdis_id == 0}
 					                  {assign var="indicator_xdis_id" value=0}
@@ -1574,25 +1574,25 @@
 								</td>
 							  </tr>
 							  <tr>
-								<td width="120" bgcolor="#{$cell_color}" class="default">
+								<td width="120" bgcolor="{$cell_color}" class="default">
 								  <b>Indicator Value:</b>
 								</td>
-								<td bgcolor="#{$light_color}">
+								<td bgcolor="{$light_color}">
 								  <input type="text" name="xsdsel_indicator_value" size="20" class="default" value="{$xsd_loop_subelement_details.xsdsel_indicator_value}">
 								  {include file="error_icon.tpl.html" field="xsdsel_indicator_value"}
 								</td>
 							  </tr>
 							  <tr>
-								<td width="120" bgcolor="#{$cell_color}" class="default">
+								<td width="120" bgcolor="{$cell_color}" class="default">
 								  <b>Order:</b>
 								</td>
-								<td bgcolor="#{$light_color}">
+								<td bgcolor="{$light_color}">
 								  <input type="text" name="xsdsel_order" size="20" class="default" value="{$xsd_loop_subelement_details.xsdsel_order}">
 								  {include file="error_icon.tpl.html" field="xsdsel_order"}
 								</td>
 							  </tr>
 							  <tr>
-								<td colspan="2" bgcolor="#{$cell_color}" align="center">
+								<td colspan="2" bgcolor="{$cell_color}" align="center">
 								  {if $smarty.get.xsdsel_cat == 'edit'}
 								  <input class="button" type="submit" value="Update XSD Looping Subelement">
 								  {else}
@@ -1618,13 +1618,13 @@
 									<input type="hidden" name="form_cat" value="delete">
 									<input type="hidden" name="xsdsel_xsdmf_id" value="{$xsdsel_xsdmf_id}">
 									<tr>
-									  <td width="5" bgcolor="#{$cell_color}" nowrap align="center"><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
-									  <td width="35%" bgcolor="#{$cell_color}" class="default">&nbsp;<b>Title</b></td>
-									  <td width="15%" bgcolor="#{$cell_color}" class="default">&nbsp;<b>Type</b></td>
-									  <td width="15%" bgcolor="#{$cell_color}" class="default">&nbsp;<b>Order</b></td>
-									  <td width="15%" bgcolor="#{$cell_color}" class="default">&nbsp;<b>Loop on Matching Field</b></td>
-									  <td width="15%" bgcolor="#{$cell_color}" class="default">&nbsp;<b>Indicator</b></td>
-									  <td width="15%" bgcolor="#{$cell_color}" class="default">&nbsp;<b>Indicator Value</b></td>
+									  <td width="5" bgcolor="{$cell_color}" nowrap align="center"><input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');"></td>
+									  <td width="35%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Title</b></td>
+									  <td width="15%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Type</b></td>
+									  <td width="15%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Order</b></td>
+									  <td width="15%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Loop on Matching Field</b></td>
+									  <td width="15%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Indicator</b></td>
+									  <td width="15%" bgcolor="{$cell_color}" class="default">&nbsp;<b>Indicator Value</b></td>
 									</tr>
 									{section name="i" loop=$xsd_loop_subelement_list}
 									{cycle values=$cycle assign="row_color"}
@@ -1654,17 +1654,17 @@
 									</tr>
 									{sectionelse}
 									<tr>
-									  <td colspan="8" bgcolor="#{$light_color}" align="center" class="default">
+									  <td colspan="8" bgcolor="{$light_color}" align="center" class="default">
 										No xsd looping subelements could be found.
 										<input type="hidden" id="no_xsd_looping_subelements" name="no_xsd_looping_subelements" value="true">
 									  </td>
 									</tr>
 									{/section}
 									<tr>
-									  <td width="4" align="center" bgcolor="#{$cell_color}">
+									  <td width="4" align="center" bgcolor="{$cell_color}">
 										<input type="button" value="All" class="shortcut" onClick="javascript:toggleSelectAll(this.form, 'items[]');">
 									  </td>
-									  <td colspan="7" bgcolor="#{$cell_color}">
+									  <td colspan="7" bgcolor="{$cell_color}">
 										<input type="submit" value="Delete" class="button">
 									  </td>
 									</tr>
