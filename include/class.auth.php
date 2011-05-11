@@ -630,7 +630,16 @@ class Auth
 		if ($auth_ok != true) {
 			// Perhaps the user hasn't logged in
 			if (!Auth::isValidSession($session)) {
-				if (defined('APP_BASIC_AUTH_IP') && ($_SERVER['REMOTE_ADDR'] == APP_BASIC_AUTH_IP)) {
+
+# this is wrong as it only works for one IP address and not the pool
+# The rest of the system should be audited for other references to Basic Auth that don't work for more than one IP as well
+#				if (defined('APP_BASIC_AUTH_IP') && ($_SERVER['REMOTE_ADDR'] == APP_BASIC_AUTH_IP)) {
+
+                $ipPool = Auth::getBasicAuthIPs();
+                $ipPool = explode(",",$ipPool[0]);
+
+                # Check pool of Basic Auth IP addresses
+				if (defined('APP_BASIC_AUTH_IP') && (in_array($_SERVER['REMOTE_ADDR'], $ipPool))) {
 					if ((($_SERVER["SERVER_PORT"] != 443) && (APP_HTTPS == "ON"))) { //should be ssl when using basic auth
 						header ("Location: https://".APP_HOSTNAME.APP_RELATIVE_URL."view/".$_GET['pid']);
 						exit;        		
