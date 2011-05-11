@@ -707,13 +707,9 @@ class Lister
 
 			$use_faceting = true;
 			$use_highlighting = false;
-			if (in_array($tpl_idx, array(1,3,7,8,9))) {
-				$simple = false;
-				$citationCache = false;
-			} else {
-				$simple = true;
-				$citationCache = true;
-			}
+            $simple = false;
+            $citationCache = false;
+
 			$xdis_version = "MODS 1.0";
 
 
