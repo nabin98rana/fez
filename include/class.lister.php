@@ -705,11 +705,17 @@ class Lister
 //			$filter["searchKey".Search_key::getID("Author ID")]=$authorDetails["aut_id"]; //author id
 	 		$filter["manualFilter"] = " (author_id_mi:".$authorDetails["aut_id"]." OR contributor_id_mi:".$authorDetails["aut_id"].") "; // enforce display type X only
 
-			$use_faceting = true;
-			$use_highlighting = false;
-            $simple = false;
-            $citationCache = false;
-
+            if ($tpl_idx == 0) {
+                $use_faceting = true;
+                $use_highlighting = false;
+                $simple = true;
+                $citationCache = true;
+            } else {
+                $use_faceting = false;
+                $use_highlighting = false;
+                $simple = false;
+                $citationCache = false;
+            }
 			$xdis_version = "MODS 1.0";
 
 
@@ -719,7 +725,9 @@ class Lister
             $list = $list["list"];
 
 			$otherDisplayTypes = array();
-
+            $use_faceting = false; //faceting is only required for the full author search
+            $simple = false; //need the extra details for the actual results
+            $citationCache = false; //need the extra details for the actual results
 
 			if ($tpl_idx == 0) {
 				$order_dir = 'ASC';
