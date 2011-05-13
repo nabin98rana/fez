@@ -487,10 +487,8 @@ class WosRecItem
       $links[0]['created'] = date('c');
       $links[0]['name'] = 'Link to Full Text (DOI)';
     }
-    // TODO: ingest object and return PID of created object
-
     $rec = new Record();
-    $pid = $rec->insertFromArray($mods, $collection, "1.0", $history, 0, $links, array());
+    $pid = $rec->insertFromArray($mods, $collection, "MODS 1.0", $history, 0, $links, array());
     return $pid;
   }
   

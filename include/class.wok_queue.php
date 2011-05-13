@@ -152,7 +152,43 @@ class WokQueue extends Queue
   {
     $this->_bgp = &$bgp;
   }
-  
+
+   public function commit()
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    if (!$this->_ids || count($this->_ids) == 0) {
+      if ($this->size() == 0) {
+        return false;
+      }
+    }
+
+    foreach ($this->_ids as $id => $action) {
+      try {
+        $db->beginTransaction();
+        $sql = "DELETE FROM ".$this->_dbtp."queue WHERE ".$this->_dbqp."id=? ".
+               "AND ".$this->_dbqp."op=?";
+        $db->query($sql, array($id, $action));
+        $sql = "INSERT INTO ".$this->_dbtp."queue (".$this->_dbqp."id,".$this->_dbqp."op) VALUES (?,?)";
+        $db->query($sql, array($id, $action));
+        $db->commit();
+      }
+      catch(Exception $ex) {
+        $db->rollBack();
+        $log->err($ex);
+        return false;
+      }
+      unset($this->_ids[$id]);
+    }
+
+    // reset cached object ids
+    $this->_ids = array();
+//    $this->triggerUpdate(); // now dont want to trigger an update, will run it on cron every minute to triggerupdate and flush what has been added
+    return true;
+  }
+
+
   /**
    * Processes the queue in the background. Retrieves an item using the pop() 
    * function of the queue and calls the index or remove methods.   
@@ -163,10 +199,11 @@ class WokQueue extends Queue
     
     // Don't process the queue until we have reached the batch size
     // This is so we at least attempt to play nicely with the 
-    // Links AMR service.    
-    if ($this->size() < $this->_batch_size) {
+    // Links AMR service.
+    // Turn this off now.
+/*    if ($this->size() < $this->_batch_size) {
       return;
-    }
+    } */
     
     // Mark lock with pid
     if ($this->_use_locking) {
@@ -261,8 +298,8 @@ class WokQueue extends Queue
               $this->_bgp->setStatus('Updated existing PID: '.$existing_uts[$rec->ut]);
               $processed[$ut] = $existing_uts[$rec->ut];          
             }
-          } else {            
-            $pid = $rec->save();            
+          } else {
+            $pid = $rec->save();
             if ($pid) {
               $this->_bgp->setStatus('Created new PID: '.$pid);
               $processed[$ut] = $pid;
@@ -270,6 +307,9 @@ class WokQueue extends Queue
           }
         }
       }
+    } else {
+        $log->err("Aborted because WoKService not ready");
+        $this->_bgp->setStatus('Aborted because WoKService not ready');
     }
     // Match authors where we know the aut_id
     foreach ($processed as $ut => $pid) {
