@@ -289,20 +289,20 @@ class WokQueue extends Queue
       $result = $wok_ws->retrieveById($uts);
       if ($result) {
         $doc = new DOMDocument();
-        $doc->loadXml($result);
+        $doc->loadXML($result);
         $recs = $doc->getElementsByTagName("REC");
         foreach ($recs as $rec_elem) {
           $rec = new WosRecItem($rec_elem);
           if (array_key_exists($rec->ut, $existing_uts)) {
             if ($rec->update()) {
               $this->_bgp->setStatus('Updated existing PID: '.$existing_uts[$rec->ut]);
-              $processed[$ut] = $existing_uts[$rec->ut];          
+              $processed[$rec->ut] = $existing_uts[$rec->ut];
             }
           } else {
             $pid = $rec->save();
             if ($pid) {
               $this->_bgp->setStatus('Created new PID: '.$pid);
-              $processed[$ut] = $pid;
+              $processed[$rec->ut] = $pid;
             }
           }
         }
@@ -352,7 +352,7 @@ class WokQueue extends Queue
     }
     
     foreach ($res as $r) {
-      $aut_ids[] = $r['aut_id'];
+      $aut_ids[] = $r[$this->_dbap.'aut_id'];
     }
       
     // Delete rows
