@@ -51,8 +51,6 @@
         <dc:description>{$list[i].rek_description|escape:"html"}</dc:description>
         <dc:type>{$list[i].rek_display_type_lookup|escape:"html"}</dc:type>
         <dc:date>{$list[i].rek_date|date_format:"%Y-%m-%d"|escape:"html"}</dc:date>
-		<dc:coverage>{$list[i].rek_date|date_format:"%Y-%m-%d"|escape:"html"}</dc:coverage>
-
 		{if $list[i].rek_author}
 			{if !is_array($list[i].rek_author)}
 	        	<dc:creator>{$list[i].rek_author|escape:"html"}</dc:creator>
