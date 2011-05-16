@@ -320,6 +320,7 @@ class WokQueue extends Queue
         foreach ($aut_ids as $author_id) {
           $record->matchAuthor($author_id, TRUE, TRUE); // TODO: enable this when required
         }
+        $record->setIndexMatchingFields();
       }
     }
   }
