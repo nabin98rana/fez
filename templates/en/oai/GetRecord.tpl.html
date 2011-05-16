@@ -40,8 +40,6 @@
 	        <dc:description>{$list[0].rek_description|escape:"html"}</dc:description>
 	        <dc:type>{$list[0].rek_display_type_lookup|escape:"html"}</dc:type>
 	        <dc:date>{$list[0].rek_date|escape:"html"}</dc:date>
-			<dc:coverage>{$list[0].rek_date|escape:"html"}</dc:coverage>
-
 			{if $list[0].rek_author}
 				{if !is_array($list[0].rek_author)}
 		        	<dc:creator>{$list[0].rek_author|escape:"html"}</dc:creator>
