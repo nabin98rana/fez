@@ -192,21 +192,22 @@ class Lister
         }
         
         $pager_row = $params['pager_row'];
-        if (empty($pager_row)) {
+        if (empty($pager_row) || $pager_row < 0) {
             $pager_row = 0;
         }
         
         
         $rows = $params['rows'];
         if (empty($rows)) {
-            
             if(!empty($_SESSION['rows'])) {
                 $rows = $_SESSION['rows'];
             } else {
                 $rows = APP_DEFAULT_PAGER_SIZE;
             }
-            
         } else {
+            if ($rows < 0) {
+                $rows = APP_DEFAULT_PAGER_SIZE;
+            }
             $_SESSION['rows'] = $rows;
         }
         
