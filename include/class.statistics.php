@@ -3065,14 +3065,6 @@ class Statistics
 	{
 		$failure = '';
 		
-		/*  no longer need these checks since we don't gather stats from the access log.
-		if (WEBSERVER_LOG_STATISTICS == "OFF") {
-			$failure = "You must set WEBSERVER_LOG_STATISTICS to 'ON' in order to generate log reports. Please check the config file.";
-		} elseif (!is_dir(WEBSERVER_LOG_DIR)) {
-			$failure = "Please ensure that WEBSERVER_LOG_DIR is set to a valid directory in the config file.";
-		} elseif (!is_file(WEBSERVER_LOG_DIR . WEBSERVER_LOG_FILE)) {
-			$failure = "Please ensure that WEBSERVER_LOG_FILE is set to a valid log in the config file.";
-		} else  */
 		if (!is_dir(APP_GEOIP_PATH)) {
 			$failure = "Please ensure that APP_GEOIP_PATH is set to a valid directory in the config file.";
 		}

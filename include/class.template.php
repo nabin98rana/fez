@@ -348,7 +348,8 @@ class Template_API
             "middle_color"   => "#" . APP_MIDDLE_COLOR,
             "dark_color"     => "#" . APP_DARK_COLOR,
             "cycle"          => APP_CYCLE_COLORS,
-            "internal_color" => "#" . APP_INTERNAL_COLOR
+            "internal_color" => "#" . APP_INTERNAL_COLOR,
+			"highlight_color" => APP_HIGHLIGHT_COLOR
 		));
 		$this->assign('phpini_upload_max_filesize', Misc::convertSize(ini_get('upload_max_filesize')));
 
