@@ -126,7 +126,7 @@ class WokService
       'uids' => $uids,
       'retrieveParameters' => array(
           'firstRecord' => '1',
-          'count' => 5
+          'count' => count($uids)
         )
     );
     try {      

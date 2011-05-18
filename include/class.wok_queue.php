@@ -234,7 +234,7 @@ class WokQueue extends Queue
 
         if ($count_docs % $this->_batch_size == 0) {
           // Batch process UTs
-          $this->_bgp->setStatus("WoK queue sending now because count_docs ".$count_docs." mod ".$this->_batch_size." = 0, with: \n".print_r($uts));
+          $this->_bgp->setStatus("WoK queue sending now because count_docs ".$count_docs." mod ".$this->_batch_size." = 0, with: \n".print_r($uts,true));
           $this->sendToWok($uts);          
           $uts = array(); // reset
           // Sleep before next batch to avoid triggering the service throttling.
@@ -250,7 +250,7 @@ class WokQueue extends Queue
     
     if (count($uts) > 0) {
       // Process remainder of UTs
-      $this->_bgp->setStatus("WoK queue sending remainder with: \n".print_r($uts));
+      $this->_bgp->setStatus("WoK queue sending remainder with: \n".print_r($uts,true));
       $this->sendToWok($uts);
       $uts = array(); // reset
       sleep($this->_time_between_calls); // same as above
@@ -289,11 +289,12 @@ class WokQueue extends Queue
     $processed = array();
     $wok_ws = new WokService(FALSE);
     if ($wok_ws->ready === TRUE) {
-      $this->_bgp->setStatus("WoK queue sendToWok searching for: \n".print_r($uts));
+      $this->_bgp->setStatus("WoK queue sendToWok searching for: \n".print_r($uts,true));
       $result = $wok_ws->retrieveById($uts);
       if ($result) {
         $doc = new DOMDocument();
         $doc->loadXML($result);
+        $this->_bgp->setStatus("WoK response is: \n".$result."\n");
         $recs = $doc->getElementsByTagName("REC");
         foreach ($recs as $rec_elem) {
           $rec = new WosRecItem($rec_elem);
