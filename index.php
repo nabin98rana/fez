@@ -33,7 +33,9 @@
 // +----------------------------------------------------------------------+
 //
 //
+
 require_once(dirname(__FILE__).DIRECTORY_SEPARATOR.'include/simplesaml/lib/_autoload.php');
+
 if (!is_file("config.inc.php")) {
     header("Location: setup/");
     exit;
@@ -43,7 +45,6 @@ if (!defined('APP_INC_PATH')) {
     header("Location: setup/");
     exit;
 }
-
 include_once(APP_INC_PATH . "class.db_api.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.user.php");

@@ -36,11 +36,12 @@
 ini_set('allow_url_fopen', 0);
 ini_set("display_errors", 1); // LKDB - tmp (was 1)
 error_reporting(1);
+//error_reporting(E_ALL | E_STRICT); //Use this to show all errs. E_ERROR used by default because otherwise PHP4 style code in this code base causes Strict Standards warnings.
 error_reporting(E_ERROR);
 set_time_limit(0);
 date_default_timezone_set("Australia/Brisbane");
 
-// Set defaults if not specified in config.inc.php
+// Set defaults if not specified in config.inc.phpƒ
 if (!defined("APP_INC_PATH")) {
   define("APP_INC_PATH", APP_PATH . "include/");
 }
@@ -58,9 +59,7 @@ set_include_path(APP_PEAR_PATH . PATH_SEPARATOR . APP_INC_PATH);
 
 // set up the Zend loader
 
-
-
-require_once('Zend/Loader/Autoloader.php');
+require_once(APP_INC_PATH.'Zend/Loader/Autoloader.php');
 
 $autoloader = Zend_Loader_Autoloader::getInstance()->setFallbackAutoloader(true);
 $autoloader->pushAutoloader(array('ezcBase', 'autoload'), 'ezc');
@@ -133,13 +132,13 @@ if (APP_LOGGING_ENABLED == "true") {
   $file_log->addWriter($file_writer);
 
   // Firebug logging
-/*  $firebug_log = new Zend_Log();
+  $firebug_log = new Zend_Log();
   $firebug_writer = new Zend_Log_Writer_Firebug();
 	$firebug_writer->addFilter(Zend_Log::DEBUG);
   $firebug_log->addWriter($firebug_writer);
-*/
+
   $log = new FezLog(array(
-//    array('log'=>$firebug_log, 'type' => 'firebug'),
+    array('log'=>$firebug_log, 'type' => 'firebug'),
     array('log'=>$file_log, 'type' => 'file')
   ), true, true);
 } else {

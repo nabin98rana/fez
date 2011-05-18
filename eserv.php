@@ -36,6 +36,7 @@ include_once("config.inc.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.exiftool.php");
+
 include_once(APP_INC_PATH . "class.fedora_direct_access.php");
 
 $auth = new Auth();
@@ -49,6 +50,7 @@ $wrapper    = @$_REQUEST["wrapper"];
 $pid        = @$_REQUEST["pid"];
 $dsID       = @$_REQUEST["dsID"];
 $origami    = @$_REQUEST["oi"];
+$bookreader    = @$_REQUEST["bookreader"];
 
 $SHOW_STATUS_PARM = @$_REQUEST["status"];
 $SHOW_STATUS = @($SHOW_STATUS_PARM == "true") ? true : false; 
@@ -203,12 +205,44 @@ if (!empty($pid) && !empty($dsID)) {
 			// Add view to statistics buffer
 			Statistics::addBuffer($pid, $dsID);							
 		    exit;
-		    
+
+         } elseif( $bookreader == true ) {
+            include_once(APP_INC_PATH . "class.template.php");
+            require_once(APP_INC_PATH. "class.bookreaderimplementation.php");
+
+            //Replace the colon in the pid.
+            if(strstr($pid,':'))
+            {
+                $pid = str_replace(':','_',$pid);
+            }
+
+            //Resource name works whether or not the .pdf file extension is added.
+            $dsID = explode('.pdf', $dsID);
+            $dsID = $dsID[0];
+            
+            $resourcePath = 'pidimages/' . $pid . '/' . $dsID;
+
+            $bri = new bookReaderImplementation($resourcePath);
+
+            $tpl = new Template_API();
+            $tpl->setTemplate("bookreader.tpl.html");
+
+            $tpl->assign('pid', $pid);
+            $tpl->assign('resource', $dsID);
+            $tpl->assign('pageCount', $bri->countPages());
+
+            $tpl->displayTemplate();
+            // Add view to statistics buffer
+            Statistics::addBuffer($pid, $dsID);
+            exit;
+
+
+
 		} elseif( $origami == true ) {
 		    
 	        include_once(APP_INC_PATH . "class.template.php");
 	        include_once(APP_INC_PATH . "class.origami.php");
-	        
+
 			$tpl = new Template_API();
 			$tpl->setTemplate("flviewer.tpl.html");           
 	        
@@ -219,7 +253,7 @@ if (!empty($pid) && !empty($dsID)) {
 			exit;
 		    
 		} elseif (($is_video == 1) && (is_numeric(strpos($ctype, "flv")))) {
-			
+
 	        include_once(APP_INC_PATH . "class.template.php");
 			$tpl = new Template_API();
 			$tpl->setTemplate("flv.tpl.html");

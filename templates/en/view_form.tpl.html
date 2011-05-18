@@ -276,15 +276,26 @@ function loadPreview(pid,datastreamID, alt, origami)
 								{/if}
 								
 								{* Name of file *}
-								{if $datastreams[d].isViewer == 1 || $isAdministrator}
-									<a onclick="javascript:window.open('{$rel_url}eserv/{$pid}/{$ds_show}{if $viewingPreviousVersion}/version_date={$versionDate}{/if}'); return false;" href="{$rel_url}eserv/{$pid}/{$ds_show}{if $viewingPreviousVersion}/version_date={$versionDate}{/if}">
-								{/if}
-							
-								{$datastreams[d].ID}
-								
-								{if $datastreams[d].isViewer == 1 || $isAdministrator}
-									</a> 
-								{/if}
+                                {assign var="dsName" value=$datastreams[d].ID}
+                                {if $datastreams[d].MIMEType == 'application/pdf' && $pageCounts[$dsName]}
+                                    {if $datastreams[d].isViewer == 1 || $isAdministrator}
+                                        <a target="_blank" href="{$rel_url}eserv/{$pid}/{$ds_show}?bookreader=true">
+                                            <img style="float:left;clear:none;" src="/images/icons/bookreader.png" alt="Read with bookreader" /></a><span>&nbsp;{$datastreams[d].ID}</span>
+                                    {else}
+                                        {$datastreams[d].ID}
+                                 {/if}
+
+                                {else}
+                                    {if $datastreams[d].isViewer == 1 || $isAdministrator}
+                                        <a onclick="javascript:window.open('{$rel_url}eserv/{$pid}/{$ds_show}{if $viewingPreviousVersion}/version_date={$versionDate}{/if}'); return false;" href="{$rel_url}eserv/{$pid}/{$ds_show}{if $viewingPreviousVersion}/version_date={$versionDate}{/if}">
+                                    {/if}
+
+                                    {$datastreams[d].ID}
+
+                                    {if $datastreams[d].isViewer == 1 || $isAdministrator}
+                                        </a>
+                                    {/if}
+                                {/if}
 								
 								</td>
 								

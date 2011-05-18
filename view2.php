@@ -669,6 +669,23 @@ if(!empty($username))
 $tpl->assign('displayusercomments', true);
 $tpl->assign('usercomments', $uc->comments);
 
+$pageCounts = array();
+
+//Find the pdf stream
+foreach($datastreams as $ds)
+{
+    if($ds['MIMEType'] == 'application/pdf')
+    {
+        //Check that it has been converted to images
+        //and let the template know.
+        $resource = explode('.pdf', $ds['ID']);
+        $pidFs = str_replace(':','_',$pid);
+        $resourcePath = 'pidimages/' . $pidFs . '/' . $resource[0];
+        $bri = new bookReaderImplementation($resourcePath);
+        $pageCounts[$resource[0] . '.pdf'] = $bri->countPages(); //Page count check for the template
+    }
+}
+$tpl->assign('pageCounts',$pageCounts);
 
 function getNextPage($currentPid)
 {

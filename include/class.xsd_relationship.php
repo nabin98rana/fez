@@ -39,7 +39,7 @@
  *
  * @version 1.0
  * @author Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>
- * @author Matthew Smith <m.smith@library.uq.edu.au>
+ * @author Matthew Smith <m.smith@libddrary.uq.edu.au>
  */
 
 include_once(APP_INC_PATH . "class.error_handler.php");
@@ -47,7 +47,6 @@ include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.auth.php");
-
 
 
 class XSD_Relationship
