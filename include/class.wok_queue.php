@@ -225,14 +225,16 @@ class WokQueue extends Queue
         
         $q_op = $this->_dbqp.'op';
         $q_ut = $this->_dbqp.'id';
-        
+
         if ($$q_op == self::ACTION_ADD) {
           $uts[] = $$q_ut;
           $count_docs++;
         }
-        
+        $this->_bgp->setStatus("WoK queue popped ".$q_ut." for operation ".$q_op.". Count is now ".$count_docs);
+
         if ($count_docs % $this->_batch_size == 0) {
           // Batch process UTs
+          $this->_bgp->setStatus("WoK queue sending now because count_docs ".$count_docs." mod ".$this->_batch_size." = 0, with: \n".print_r($uts));
           $this->sendToWok($uts);          
           $uts = array(); // reset
           // Sleep before next batch to avoid triggering the service throttling.
@@ -248,6 +250,7 @@ class WokQueue extends Queue
     
     if (count($uts) > 0) {
       // Process remainder of UTs
+      $this->_bgp->setStatus("WoK queue sending remainder with: \n".print_r($uts));
       $this->sendToWok($uts);
       $uts = array(); // reset
       sleep($this->_time_between_calls); // same as above
@@ -270,7 +273,7 @@ class WokQueue extends Queue
    *
    * @param array $uts the array of UTs to send
    */
-  private function sendToWok($uts)
+   function sendToWok($uts)
   {
     $log = FezLog::get();
     // Find out which already exist in the repository. For these we'll be adding
@@ -286,6 +289,7 @@ class WokQueue extends Queue
     $processed = array();
     $wok_ws = new WokService(FALSE);
     if ($wok_ws->ready === TRUE) {
+      $this->_bgp->setStatus("WoK queue sendToWok searching for: \n".print_r($uts));
       $result = $wok_ws->retrieveById($uts);
       if ($result) {
         $doc = new DOMDocument();
@@ -295,21 +299,21 @@ class WokQueue extends Queue
           $rec = new WosRecItem($rec_elem);
           if (array_key_exists($rec->ut, $existing_uts)) {
             if ($rec->update()) {
-              $this->_bgp->setStatus('Updated existing PID: '.$existing_uts[$rec->ut]);
+              $this->_bgp->setStatus('Updated existing PID: '.$existing_uts[$rec->ut]." for UT: ".$rec->ut);
               $processed[$rec->ut] = $existing_uts[$rec->ut];
             }
           } else {
             $pid = $rec->save();
             if ($pid) {
-              $this->_bgp->setStatus('Created new PID: '.$pid);
+              $this->_bgp->setStatus('Created new PID: '.$pid." for UT: ".$rec->ut);
               $processed[$rec->ut] = $pid;
             }
           }
         }
       }
     } else {
-        $log->err("Aborted because WoKService not ready");
         $this->_bgp->setStatus('Aborted because WoKService not ready');
+        $log->err("Aborted because WoKService not ready");
     }
     // Match authors where we know the aut_id
     foreach ($processed as $ut => $pid) {
