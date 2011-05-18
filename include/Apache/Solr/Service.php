@@ -345,34 +345,36 @@ class Apache_Solr_Service
 	{
 		$log = FezLog::get();
 		
-		$raw_response = Misc::processURL($url, null, null, null, null, 30);
-		
-		if(! $raw_response[0]) {
-			// Caught solr napping.. try again 1 more time
-			unset($raw_response);
-			sleep(1);
-			if (defined('APP_SOLR_SLAVE_HOST') && defined('APP_SOLR_SLAVE_READ') && (APP_SOLR_SLAVE_READ == "ON")) {
-				if (is_numeric(strpos($url, APP_SOLR_SLAVE_HOST))) { //if already using the slave, try the master for the read cause the slave might have died (java memory error or something)
-					$url = str_replace(APP_SOLR_SLAVE_HOST, APP_SOLR_HOST, $url);
-					$log->err('No response from solr.. trying again with the master solr server.');			
-				} else {
-					$url = str_replace(APP_SOLR_HOST, APP_SOLR_SLAVE_HOST, $url);					
-					$log->err('No response from solr.. trying again with the slave solr server.');			
-				}
-			} else {
-				$log->err('No response from solr.. trying again.');
-			}
-			$raw_response = Misc::processURL($url, null, null, null, null, 30);
-			if(! $raw_response[0]) {
-				throw new Exception(print_r($raw_response[1], true));
-			}			
-		} elseif (empty($raw_response[1]['http_code']) || ($raw_response[1]['http_code'] != '200')) {
-			$log->err('Error in solr query/filter: '.print_r($raw_response, true));
-		}
-		
-		$response = new Apache_Solr_Response($raw_response[0], null, $this->_createDocuments, $this->_collapseSingleValueArrays);
+		$httpTransport = $this->getHttpTransport();
 
-		return $response;
+		$httpResponse = $httpTransport->performGetRequest($url, $timeout);
+		$solrResponse = new Apache_Solr_Response($httpResponse, $this->_createDocuments, $this->_collapseSingleValueArrays);
+
+		if ($solrResponse->getHttpStatus() != 200)
+		{
+            // Caught solr napping.. try again 1 more time
+            sleep(1);
+            if (defined('APP_SOLR_SLAVE_HOST') && defined('APP_SOLR_SLAVE_READ') && (APP_SOLR_SLAVE_READ == "ON")) {
+                if (is_numeric(strpos($url, APP_SOLR_SLAVE_HOST))) { //if already using the slave, try the master for the read cause the slave might have died (java memory error or something)
+                    $url = str_replace(APP_SOLR_SLAVE_HOST, APP_SOLR_HOST, $url);
+                    $log->err('No response from solr.. trying again with the master solr server.');
+                } else {
+                    $url = str_replace(APP_SOLR_HOST, APP_SOLR_SLAVE_HOST, $url);
+                    $log->err('No response from solr.. trying again with the slave solr server.');
+                }
+            } else {
+                $log->err('No response from solr.. trying again.');
+            }
+
+            $httpResponse = $httpTransport->performGetRequest($url, $timeout);
+            $solrResponse = new Apache_Solr_Response($httpResponse, $this->_createDocuments, $this->_collapseSingleValueArrays);
+
+            if ($solrResponse->getHttpStatus() != 200) {
+       			throw new Apache_Solr_HttpTransportException($solrResponse);
+            }
+		}
+
+		return $solrResponse;
 	}
 
 	/**
@@ -388,35 +390,37 @@ class Apache_Solr_Service
 	 */
 	protected function _sendRawPost($url, $rawPost, $timeout = FALSE, $contentType = 'text/xml; charset=UTF-8')
 	{		
-		$log = FezLog::get();
-		
-		$raw_response = Misc::processURL($url, null, null, $rawPost, $contentType, 30);
-		if(! $raw_response[0]) {
-			// Caught solr napping.. try again 1 more time	
-			unset($raw_response);
-			sleep(1);
-			if (defined('APP_SOLR_SLAVE_HOST') && defined('APP_SOLR_SLAVE_READ') && (APP_SOLR_SLAVE_READ == "ON")) {
-				if (is_numeric(strpos($url, APP_SOLR_SLAVE_HOST))) { //if already using the slave, try the master for the read cause the slave might have died (java memory error or something)
-					$url = str_replace(APP_SOLR_SLAVE_HOST, APP_SOLR_HOST, $url);
-					$log->err('No response from solr.. trying again with the master solr server.');			
-				} else {
-					$url = str_replace(APP_SOLR_HOST, APP_SOLR_SLAVE_HOST, $url);					
-					$log->err('No response from solr.. trying again with the slave solr server.');			
-				}
-			} else {
-				$log->err('No response from solr.. trying again.');
-			}
-			$raw_response = Misc::processURL($url, null, null, $rawPost, $contentType, 30);
-			if(! $raw_response[0]) {
-				throw new Exception(print_r($raw_response[1], true));
-			}
-		} elseif (empty($raw_response[1]['http_code']) || ($raw_response[1]['http_code'] != '200')) {
-			$log->err('Error in solr query/filter: '.print_r($raw_response, true));
-		}		
-		$response = new Apache_Solr_Response($raw_response[0], null, $this->_createDocuments, $this->_collapseSingleValueArrays);
+		$httpTransport = $this->getHttpTransport();
 
-		return $response;
-	}
+		$httpResponse = $httpTransport->performPostRequest($url, $rawPost, $contentType, $timeout);
+		$solrResponse = new Apache_Solr_Response($httpResponse, $this->_createDocuments, $this->_collapseSingleValueArrays);
+
+        if ($solrResponse->getHttpStatus() != 200)
+        {
+            // Caught solr napping.. try again 1 more time
+            sleep(1);
+            if (defined('APP_SOLR_SLAVE_HOST') && defined('APP_SOLR_SLAVE_READ') && (APP_SOLR_SLAVE_READ == "ON")) {
+                if (is_numeric(strpos($url, APP_SOLR_SLAVE_HOST))) { //if already using the slave, try the master for the read cause the slave might have died (java memory error or something)
+                    $url = str_replace(APP_SOLR_SLAVE_HOST, APP_SOLR_HOST, $url);
+                    $log->err('No response from solr.. trying again with the master solr server.');
+                } else {
+                    $url = str_replace(APP_SOLR_HOST, APP_SOLR_SLAVE_HOST, $url);
+                    $log->err('No response from solr.. trying again with the slave solr server.');
+                }
+            } else {
+                $log->err('No response from solr.. trying again.');
+            }
+
+            $httpResponse = $httpTransport->performPostRequest($url, $rawPost, $contentType, $timeout);
+            $solrResponse = new Apache_Solr_Response($httpResponse, $this->_createDocuments, $this->_collapseSingleValueArrays);
+
+            if ($solrResponse->getHttpStatus() != 200) {
+                   throw new Apache_Solr_HttpTransportException($solrResponse);
+            }
+        }
+
+		return $solrResponse;
+    }
 
 	/**
 	 * Returns the set host
