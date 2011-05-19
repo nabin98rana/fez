@@ -588,7 +588,6 @@ class WosRecItem
 
 
     $searchKeyTargets = array(
-      "Genre Type" => $xdis_subtype,
       "Date" => $this->date_issued,
       "ISSN" => $this->issn,
       "ISBN" => $this->isbn,
@@ -603,6 +602,12 @@ class WosRecItem
       "Conference Name" => $this->confTitle,
       "Journal Name" => $this->sourceTitle
     );
+  /// exception for conf papers that the subtype goes into genre type
+  if ($xdis_title == "Conference Paper") {
+   $searchKeyTargets["Genre Type"] = $xdis_subtype;
+  } else {
+   $searchKeyTargets["Subtype"] = $xdis_subtype;
+  }
 
     $search_keys = array();
     $values = array();
