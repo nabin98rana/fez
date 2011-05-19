@@ -511,6 +511,7 @@ class WosRecItem
     }
     $mods['identifier_isi_loc'] = $this->ut;
     $mods['identifier_isbn'] = $this->isbn;
+    $mods['identifier_issn'] = $this->issn;
     $mods['language'] = Language::resolveWoSLanguage($this->primaryLang);
     $mods['genre'] = $xdis_title;
     $mods['genre_type'] = $xdis_subtype;
