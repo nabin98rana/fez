@@ -306,7 +306,7 @@ class WosRecItem
    */
   public function load($node)
   {
-    $this->timesCited = $node->getAttribute('timecited');
+    $this->timesCited = $node->getAttribute('timescited');
     $this->abstract = $node->getElementsByTagName("abstract")->item(0)->nodeValue;
     $this->ut = $node->getElementsByTagName("ut")->item(0)->nodeValue;
     $this->issn = $node->getElementsByTagName("issn")->item(0)->nodeValue;
