@@ -58,7 +58,14 @@ class WosRecItem
    * @var string
    */
   private $ut = null;
-  
+
+  /**
+  * The ISI Times Cited value
+  *
+  * @var int
+  */
+  private $timesCited = null;
+
   /**
    * The full name of the journal
    *
@@ -298,7 +305,8 @@ class WosRecItem
    * @param DomNode $node
    */
   public function load($node)
-  {    
+  {
+    $this->timesCited = $node->attributes()->timescited;
     $this->abstract = $node->getElementsByTagName("abstract")->item(0)->nodeValue;
     $this->ut = $node->getElementsByTagName("ut")->item(0)->nodeValue;
     $this->issn = $node->getElementsByTagName("issn")->item(0)->nodeValue;
@@ -543,6 +551,9 @@ class WosRecItem
     }
     $rec = new Record();
     $pid = $rec->insertFromArray($mods, $collection, "MODS 1.0", $history, 0, $links, array());
+    if (is_numeric($this->timesCited)) {
+        $rec->updateThomsonCitationCount($pid, $this->timesCited, $this->ut);
+    }
     return $pid;
   }
   
