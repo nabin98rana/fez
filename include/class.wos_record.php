@@ -79,7 +79,14 @@ class WosRecItem
    * @var string
    */
   private $itemTitle = null;
-  
+
+  /**
+   * Date published of the bibliographic item
+   *
+   * @var string
+   */
+  private $date_issued = null;
+
   /**
    * DOIs etc..
    *
@@ -135,7 +142,14 @@ class WosRecItem
    * @var int
    */
   private $bibIssueMnth = null;
-  
+
+    /**
+   * Issue number
+   *
+   * @var int
+   */
+  private $bibIssueNum = null;
+
   /**
    * Issue volume
    *
@@ -310,7 +324,8 @@ class WosRecItem
     }
     
     $this->setBibIssueYVM($node);
-    
+    $this->setDateIssued($node);
+      
     $docType = $node->getElementsByTagName("doctype")->item(0);
     if ($docType) {
       $this->docType = $docType->nodeValue;
@@ -366,7 +381,9 @@ class WosRecItem
     }
     return FALSE;
   }
-  
+
+
+
   /**
    * Bib issue number is buried in the bib_id precomposed string
    * 
@@ -405,9 +422,42 @@ class WosRecItem
         $this->bibIssueYear = $bibIssue->getAttribute('year');
         $this->bibIssueVol = $bibIssue->getAttribute('vol');
       }
+
+      $bibVol = $node->getElementsByTagName("bib_vol")->item(0);
+      if ($bibVol) {
+        $this->bibIssueNum = $bibVol->getAttribute('issue');
+        //$this->bibIssueVol = $bibIssue->getAttribute('volume'); //Already gotten from bib_issue element - same value
+      }
+
+
     }    
   }
-  
+
+  /**
+   * Sets the issue year and volume and the month if exists
+   *
+   * @param DomNode $node
+   * @return null
+   */
+  public function setDateIssued($node) {
+    $this->date_issued = '';
+    if ($node->item->attributes()->coverdate) {
+      preg_match('/(\d{4})(\d{2})/', $node->item->attributes()->coverdate, $matches);
+      if (count($matches) == 3) {
+        if ($matches[2] == '00') {
+          $this->date_issued = $matches[1];
+        } else {
+          $this->date_issued = $matches[1] . '-' . $matches[2];
+        }
+      } else {
+        if ($node->item->bib_issue->attributes()->year) {
+          $this->date_issued = $node->item->bib_issue->attributes()->year;
+        }
+      }
+    }
+
+  }
+
   /**
    * Stores to a new record in Fez
    */
@@ -433,7 +483,10 @@ class WosRecItem
     $xdis_id = $dTMap[$this->docTypeCode][2];
     $collection = RID_DL_COLLECTION;
     $history = 'Imported from WoK Web Services Premium';
+
+
     // MODS
+      
     $mods = array();
     $mods['titleInfo']['title'] = $this->itemTitle;
     if (count($this->authors) > 0) {
@@ -467,14 +520,14 @@ class WosRecItem
     $mods['relatedItem']['part']['extent_page']['end'] = $this->bibPageEnd;
     $mods['relatedItem']['part']['extent_page']['total'] = $this->bibPageCount;        
     if ($xdis_title == 'Conference Paper') {
-      $mods['originInfo']['dateIssued'] = $date_issued;     
+      $mods['originInfo']['dateIssued'] = $this->date_issued;
       $mods['relatedItem']['titleInfo']['title'] = $this->sourceTitle;
       $mods['relatedItem']['name'][0]['namePart_type'] = 'conference';
       $mods['relatedItem']['name'][0]['namePart'] = $this->confTitle;
       $mods['relatedItem']['originInfo']['place']['placeTerm'] =  $this->confLocCity . ' ' . $this->confLocState;
       $mods['relatedItem']['originInfo']['dateOther'] = $this->confDate;  
     } else if ($xdis_title == 'Journal Article') {
-      $mods['relatedItem']['originInfo']['dateIssued'] = $date_issued;
+      $mods['relatedItem']['originInfo']['dateIssued'] = $this->date_issued;
       $mods['relatedItem']['name'][0]['namePart_type'] = 'journal';
       $mods['relatedItem']['name'][0]['namePart'] = $this->sourceTitle;
     }
