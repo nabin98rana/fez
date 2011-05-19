@@ -289,38 +289,52 @@ class WokQueue extends Queue
     $processed = array();
     $wok_ws = new WokService(FALSE);
     if ($wok_ws->ready === TRUE) {
-      $this->_bgp->setStatus("WoK queue sendToWok searching for: \n".print_r($uts,true));
+      if ($this->_bgp) {
+        $this->_bgp->setStatus("WoK queue sendToWok searching for: \n".print_r($uts,true));
+      }
+//      echo "WoK queue sendToWok searching for: \n".print_r($uts,true);
       $result = $wok_ws->retrieveById($uts);
       if ($result) {
         $doc = new DOMDocument();
         $doc->loadXML($result);
-        $this->_bgp->setStatus("WoK response is: \n".$result."\n");
+        if (!empty($this->_bgp)) {
+          $this->_bgp->setStatus("WoK response is: \n".$result."\n");
+        }
         $recs = $doc->getElementsByTagName("REC");
         foreach ($recs as $rec_elem) {
           $rec = new WosRecItem($rec_elem);
           if (array_key_exists($rec->ut, $existing_uts)) {
-            if ($rec->update()) {
-              $this->_bgp->setStatus('Updated existing PID: '.$existing_uts[$rec->ut]." for UT: ".$rec->ut);
+            if ($rec->update($existing_uts[$rec->ut])) {
+              if ($this->_bgp) {
+                $this->_bgp->setStatus('Updated existing PID: '.$existing_uts[$rec->ut]." for UT: ".$rec->ut);
+              }
+//              echo 'Updated existing PID: '.$existing_uts[$rec->ut]." for UT: ".$rec->ut;
               $processed[$rec->ut] = $existing_uts[$rec->ut];
             }
           } else {
             $pid = $rec->save();
             if ($pid) {
-              $this->_bgp->setStatus('Created new PID: '.$pid." for UT: ".$rec->ut);
+              if ($this->_bgp) {
+                $this->_bgp->setStatus('Created new PID: '.$pid." for UT: ".$rec->ut);
+              }
               $processed[$rec->ut] = $pid;
             }
           }
         }
       }
     } else {
-        $this->_bgp->setStatus('Aborted because WoKService not ready');
+        if ($this->_bgp) {
+          $this->_bgp->setStatus('Aborted because WoKService not ready');
+        }
         $log->err("Aborted because WoKService not ready");
     }
     // Match authors where we know the aut_id
     foreach ($processed as $ut => $pid) {
       $aut_ids = $this->getAutIds($ut);
       if ($aut_ids) {
-        $this->_bgp->setStatus('Matched authors on PID: '.$pid);
+        if ($this->_bgp) {
+          $this->_bgp->setStatus('Matched authors on PID: '.$pid);
+        }
         $record = new RecordObject($pid);
         foreach ($aut_ids as $author_id) {
           $record->matchAuthor($author_id, TRUE, TRUE); // TODO: enable this when required

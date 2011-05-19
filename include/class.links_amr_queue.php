@@ -376,7 +376,7 @@ class LinksAmrQueue extends Queue
       $search_keys = array("ISI Loc");
       $values = array($ut);      
       $record->addSearchKeyValueList(
-          "MODS", "Metadata Object Description Schema", $search_keys, $values, true
+          $search_keys, $values, true
       );
     }
   }

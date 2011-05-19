@@ -562,10 +562,70 @@ class WosRecItem
   /**
    * Update an existing record with additional bib data from WoK
    */
-  public function update()
+  public function update($pid)
   {
     $log = FezLog::get();
     // TODO: update an existing record
+
+
+    if (! $this->_loaded) {
+      $log->err('WoS record must be loaded before saving');
+      return FALSE;
+    }
+    // List of doc types we support saving
+    $dTMap = Thomson_Doctype_Mappings::getList('ESTI');
+    foreach ($dTMap as $map) {
+      $dTMap[$map['tdm_doctype']] = array($map['xdis_title'], $map['tdm_subtype'], $map['tdm_xdis_id']);
+    }
+    if (! array_key_exists($this->docTypeCode, $dTMap)) {
+      $log->err('Unsupported doc type: '.$this->docTypeCode);
+      return FALSE;
+    }
+    $xdis_title = $dTMap[$this->docTypeCode][0];
+    $xdis_subtype = $dTMap[$this->docTypeCode][1];
+    $xdis_id = $dTMap[$this->docTypeCode][2];
+    $collection = RID_DL_COLLECTION;
+
+
+    $searchKeyTargets = array(
+      "Subtype" => $xdis_subtype,
+      "Date" => $this->date_issued,
+      "ISSN" => $this->issn,
+      "ISBN" => $this->isbn,
+      "Volume Number" => $this->bibIssueVol,
+      "Start Page" => $this->bibPageBegin,
+      "End Page" => $this->bibPageEnd,
+      "Total Pages" => $this->bibPageCount,
+      "Issue Number" => $this->bibIssueNum,
+      "Language" => Language::resolveWoSLanguage($this->primaryLang),
+      "Conference Dates" => $this->confDate,
+      "Conference Location" => $this->confLocCity . ' ' . $this->confLocState,
+      "Conference Name" => $this->confTitle,
+      "Journal Name" => $this->sourceTitle
+    );
+
+    $search_keys = array();
+    $values = array();
+      
+    foreach ($searchKeyTargets as $skey => $svalue) {
+        if (!empty($svalue)) {
+            $existingValue =  Record::getSearchKeyIndexValue($pid, $skey, false);
+            if (empty($existingValue)) {
+                $search_keys[] = $skey;
+                $values[] = $svalue;
+            }
+        }
+    }
+
+    $history = 'Filled empty metadata fields ('.implode(", ",$search_keys).') using WoK Web Services Premium';
+    $record = new RecordGeneral($pid);
+    $record->addSearchKeyValueList(
+        $search_keys, $values, true, $history
+    );
+
+    if (is_numeric($this->timesCited)) {
+       Record::updateThomsonCitationCount($pid, $this->timesCited, $this->ut);
+    }
     return TRUE;
   }
 }
