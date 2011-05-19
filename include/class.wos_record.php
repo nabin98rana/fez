@@ -306,7 +306,7 @@ class WosRecItem
    */
   public function load($node)
   {
-    $this->timesCited = $node->attributes()->timescited;
+    $this->timesCited = $node->getAttribute('timecited');
     $this->abstract = $node->getElementsByTagName("abstract")->item(0)->nodeValue;
     $this->ut = $node->getElementsByTagName("ut")->item(0)->nodeValue;
     $this->issn = $node->getElementsByTagName("issn")->item(0)->nodeValue;
@@ -436,8 +436,6 @@ class WosRecItem
         $this->bibIssueNum = $bibVol->getAttribute('issue');
         //$this->bibIssueVol = $bibIssue->getAttribute('volume'); //Already gotten from bib_issue element - same value
       }
-
-
     }    
   }
 
@@ -449,8 +447,10 @@ class WosRecItem
    */
   public function setDateIssued($node) {
     $this->date_issued = '';
-    if ($node->item->attributes()->coverdate) {
-      preg_match('/(\d{4})(\d{2})/', $node->item->attributes()->coverdate, $matches);
+    $item = $node->getElementsByTagName("item")->item(0);
+    if ($item) {
+      $coverDate = $item->getAttribute('coverdate');
+      preg_match('/(\d{4})(\d{2})/', $coverDate, $matches);
       if (count($matches) == 3) {
         if ($matches[2] == '00') {
           $this->date_issued = $matches[1];
@@ -458,8 +458,10 @@ class WosRecItem
           $this->date_issued = $matches[1] . '-' . $matches[2];
         }
       } else {
-        if ($node->item->bib_issue->attributes()->year) {
-          $this->date_issued = $node->item->bib_issue->attributes()->year;
+        $bib_issue = $item->getElementsByTagName("bib_issue")->bib_issue(0);
+        $year = $bib_issue->getAttribute('year');
+        if ($year) {
+          $this->date_issued = $year;
         }
       }
     }
