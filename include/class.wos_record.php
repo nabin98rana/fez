@@ -554,7 +554,7 @@ class WosRecItem
     $rec = new Record();
     $pid = $rec->insertFromArray($mods, $collection, "MODS 1.0", $history, 0, $links, array());
     if (is_numeric($this->timesCited)) {
-        $rec->updateThomsonCitationCount($pid, $this->timesCited, $this->ut);
+       Record::updateThomsonCitationCount($pid, $this->timesCited, $this->ut);
     }
     return $pid;
   }
