@@ -588,7 +588,7 @@ class WosRecItem
 
 
     $searchKeyTargets = array(
-      "Subtype" => $xdis_subtype,
+      "Genre Type" => $xdis_subtype,
       "Date" => $this->date_issued,
       "ISSN" => $this->issn,
       "ISBN" => $this->isbn,
