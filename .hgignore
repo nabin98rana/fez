@@ -32,6 +32,7 @@ glob:pidsources/*
 glob:bookreadertest*
 glob:solr_upload/*
 glob:testst.txt.txt
+glob:*nfs*
 apc.php
 .idea
 \.tmtags

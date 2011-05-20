@@ -980,6 +980,13 @@ function restoreDefaultColours(el)
 	      {include file="error_icon.tpl.html" field="app_filecache_dir"}
 	    </td>
 	  </tr>
+         <tr>
+             <th>Bookreader root image directory</th>
+            <td>
+                <input type="text" name="br_img_dir" value="{$config_settings.br_img_dir|escape:"html"}" size="40" />
+                {include file="error_icon.tpl.html" field="br_img_dir"}
+            </td>
+         </tr>
 	 </tbody>
 		</table>
 		</div>

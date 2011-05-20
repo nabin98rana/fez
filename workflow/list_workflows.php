@@ -81,7 +81,7 @@ if ($cat == 'select_workflow') {
 				$log->debug('Bulk change search');
 		        if (Workflow::userCanTrigger($wfl_id,$user_id)) {
 		        	$log->debug('User can trigger');
-	    			Workflow::start($wft_id, $pid, $xdis_id, $href, $dsID, $pids);				
+	    			Workflow::start($wft_id, $pid, $xdis_id, $href, $dsID, $pids);
 				} else {
 					$message = "You do not have the rights to run this workflow";					
 				}
@@ -89,7 +89,7 @@ if ($cat == 'select_workflow') {
 				$log->debug('PID selected');
 		        if (Workflow::userCanTrigger($wfl_id,$user_id)) {
 		        	$log->debug('User can trigger');
-	    			Workflow::start($wft_id, $pid, $xdis_id, $href, $dsID, $pids);				
+	    			Workflow::start($wft_id, $pid, $xdis_id, $href, $dsID, $pids);
 				} else {
 					$message = "You do not have the rights to run this workflow";					
 				}
@@ -97,7 +97,7 @@ if ($cat == 'select_workflow') {
 				$log->debug('Other workflow');
 	            if (Workflow::canTrigger($wfl_id, $pid)) {
 	            	$log->debug('User can trigger');
-	    			Workflow::start($wft_id, $pid, $xdis_id, $href, $dsID, $pids);	
+	    			Workflow::start($wft_id, $pid, $xdis_id, $href, $dsID, $pids);
 				} else {
 					$message = "You do not have the rights to run this workflow";					
 				}
