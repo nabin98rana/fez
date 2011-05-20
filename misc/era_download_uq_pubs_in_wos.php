@@ -61,10 +61,11 @@ for($i=0; $i<$pages; $i++) {
 	
 	$first_rec += $num_recs;
 	
-	if($i>0)
+	if($i>0) {
 		//$result = EstiSearchService::searchRetrieve('WOS', $query, $depth, $editions, $sort, $first_rec, $num_recs);
-        $result = $wok_ws->retrieve($queryId, $first_rec, $num_recs);
-	
+        $response = $wok_ws->retrieve($queryId, $first_rec, $num_recs);
+        $result = $response->return->records;
+    }
 //	$records = @simplexml_load_string($result['records']);
     $records = @simplexml_load_string($result);
 	
