@@ -25,6 +25,7 @@ include_once(APP_INC_PATH . "class.bgp_wok.php");
 include_once(APP_INC_PATH . "class.date.php");
 include_once(APP_INC_PATH . "class.wok_service.php");
 include_once(APP_INC_PATH . "class.wos_record.php");
+include_once(APP_INC_PATH . "class.matching_conferences.php");
 
 class WokQueue extends Queue
 {
@@ -290,27 +291,65 @@ class WokQueue extends Queue
     $wok_ws = new WokService(FALSE);
     if ($wok_ws->ready === TRUE) {
       if ($this->_bgp) {
-        $this->_bgp->setStatus("WoK queue sendToWok searching for: \n".print_r($uts,true));
+        $this->_bgp->setStatus("WoK queue sendToWok searching for: \n".implode(", ",$uts));
       }
 //      echo "WoK queue sendToWok searching for: \n".print_r($uts,true);
       $result = $wok_ws->retrieveById($uts);
       if ($result) {
         $doc = new DOMDocument();
         $doc->loadXML($result);
-        if (!empty($this->_bgp)) {
-          $this->_bgp->setStatus("WoK response is: \n".$result."\n");
-        }
+//        if (!empty($this->_bgp)) {
+//          $this->_bgp->setStatus("WoK response is: \n".$result."\n");
+//        }
         $recs = $doc->getElementsByTagName("REC");
         foreach ($recs as $rec_elem) {
           $rec = new WosRecItem($rec_elem);
           if (array_key_exists($rec->ut, $existing_uts)) {
-            if ($rec->update($existing_uts[$rec->ut])) {
-              if ($this->_bgp) {
-                $this->_bgp->setStatus('Updated existing PID: '.$existing_uts[$rec->ut]." for UT: ".$rec->ut);
+              // If this came through with an author id it means it came via RID so put the pid in the RID collection, otherwise put it in the WOS import collection
+              $wos_collection = trim(APP_WOS_COLLECTIONS, "'");
+              $aut_ids = $this->getAutIds($rec->ut);
+              if (!defined('APP_WOS_COLLECTIONS') || trim(APP_WOS_COLLECTIONS) == "") {
+                $rec->collections = array(RID_DL_COLLECTION);
+              } else {
+
+                  if ($aut_ids) {
+                    $rec->collections = array(RID_DL_COLLECTION);
+                  } else {
+                    $rec->collections = array($wos_collection);
+                  }
               }
-//              echo 'Updated existing PID: '.$existing_uts[$rec->ut]." for UT: ".$rec->ut;
-              $processed[$rec->ut] = $existing_uts[$rec->ut];
-            }
+              $isMemberOf = Record::getSearchKeyIndexValue($existing_uts[$rec->ut], "isMemberOf", false);
+              $updateOK = true;
+              // If isn't currently in the WOS or RID collections, skip updating this UT unless the title matches quite well
+              if (!in_array(RID_DL_COLLECTION, $isMemberOf) && !in_array($wos_collection, $isMemberOf)) {
+                  //check the title is close before updating
+                  $title = Record::getSearchKeyIndexValue($existing_uts[$rec->ut], "Title", false);
+                  $stripA = RCL::normaliseTitle($title);
+                  $stripB = RCL::normaliseTitle($rec->itemTitle);
+                  
+                  if ($stripA != $stripB) {
+                      $updateOK = false;
+                  } else {
+                      $this->_bgp->setStatus('FOUND matching UT outside RID/WoS collections matching titles ok so RUNNING updating existing PID: '.$existing_uts[$rec->ut]." for UT: ".
+                         $rec->ut." Title match was: (Ours: \n".$stripA." - Theirs: \n".$stripB.")\nOriginal Ours: \n". $title." \nOriginal Theirs: \n".$stripB);
+                  }
+              }
+
+              if ($updateOK == true) {
+                  if ($rec->update($existing_uts[$rec->ut])) {
+                    if ($this->_bgp) {
+                      $this->_bgp->setStatus('Updated existing PID: '.$existing_uts[$rec->ut]." for UT: ".$rec->ut);
+                    }
+      //              echo 'Updated existing PID: '.$existing_uts[$rec->ut]." for UT: ".$rec->ut;
+                    $processed[$rec->ut] = $existing_uts[$rec->ut];
+                  }
+               } else {
+                  if ($this->_bgp) {
+                    $this->_bgp->setStatus('Skipped updating existing PID: '.$existing_uts[$rec->ut]." for UT: ".
+                       $rec->ut." because title didn't match well enough: (Ours: \n".$stripA."\nTheirs: \n".$stripB.")");
+                  }
+               }
+
           } else {
             $pid = $rec->save();
             if ($pid) {

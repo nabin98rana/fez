@@ -46,6 +46,13 @@ include_once(APP_INC_PATH . "class.thomson_doctype_mappings.php");
 class WosRecItem
 {
   /**
+   * Collections
+   *
+   * @var array
+   */
+  private $collections;
+
+  /**
    * Abstract
    * 
    * @var string
@@ -491,7 +498,7 @@ class WosRecItem
     $xdis_title = $dTMap[$this->docTypeCode][0];
     $xdis_subtype = $dTMap[$this->docTypeCode][1];
     $xdis_id = $dTMap[$this->docTypeCode][2];
-    $collection = RID_DL_COLLECTION;
+    
     $history = 'Imported from WoK Web Services Premium';
 
 
@@ -552,7 +559,7 @@ class WosRecItem
       $links[0]['name'] = 'Link to Full Text (DOI)';
     }
     $rec = new Record();
-    $pid = $rec->insertFromArray($mods, $collection, "MODS 1.0", $history, 0, $links, array());
+    $pid = $rec->insertFromArray($mods, $this->collections[0], "MODS 1.0", $history, 0, $links, array());
     if (is_numeric($this->timesCited)) {
        Record::updateThomsonCitationCount($pid, $this->timesCited, $this->ut);
     }
@@ -584,8 +591,6 @@ class WosRecItem
     $xdis_title = $dTMap[$this->docTypeCode][0];
     $xdis_subtype = $dTMap[$this->docTypeCode][1];
     $xdis_id = $dTMap[$this->docTypeCode][2];
-    $collection = RID_DL_COLLECTION;
-
 
     $searchKeyTargets = array(
       "Date" => $this->date_issued,
@@ -627,6 +632,37 @@ class WosRecItem
     $record->addSearchKeyValueList(
         $search_keys, $values, true, $history
     );
+
+    // If this update came from a RID download, put this in the RID collection
+    if ($this->collections[0] = RID_DL_COLLECTION) {
+        $isMemberOf = Record::getSearchKeyIndexValue($pid, "isMemberOf", false);
+        if (!in_array(RID_DL_COLLECTION, $isMemberOf)) { //if it doesn't currently live in the RID collection, add it as a parent
+            $res = $record->updateRELSEXT("rel:isMemberOf", RID_DL_COLLECTION, false);
+            if($res >= 1) {
+                $log->debug("Copied '".$pid."' into RID Download Collection ".RID_DL_COLLECTION);
+            } else {
+                $log->err("Copy of '".$pid."' into RID Download Collection ".RID_DL_COLLECTION." Failed");
+            }
+             $wos_collection = trim(APP_WOS_COLLECTIONS, "'");
+            // If this record is in the WOS collection, remove it from it now that is in the RID collection
+            if (in_array($wos_collection, $isMemberOf)) {
+                $res = $record->removeFromCollection($wos_collection);
+                if( $res ) {
+                    $log->debug("Removed record '".$pid."' from collection '".$wos_collection."'");
+                } else {
+                    $log->err("ERROR Removing '".$pid."' from collection '".$wos_collection."'");
+                }
+
+            }
+        }
+    } else { //Add it to the wos collection (or whatever $this->collections[0] is currently set to
+        $res = $record->updateRELSEXT("rel:isMemberOf", $this->collections[0], false);
+        if($res >= 1) {
+            $log->debug("Copied '".$pid."' into Collection ".$this->collections[0]);
+        } else {
+            $log->err("Copy of '".$pid."' into Collection ".$this->collections[0]." Failed");
+        }
+    }
 
     if (is_numeric($this->timesCited)) {
        Record::updateThomsonCitationCount($pid, $this->timesCited, $this->ut);

@@ -325,7 +325,7 @@ class Fedora_API {
 							return false;
 						}
                         curl_close ($ch);
-						//unlink($tempFile);
+						unlink($tempFile);
                         return true;
                 } else {
                         $log->err(array(curl_error($ch),__FILE__,__LINE__));
