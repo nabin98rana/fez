@@ -37,16 +37,19 @@ include_once(APP_INC_PATH . 'class.wok_queue.php');
 include_once(APP_INC_PATH . "class.record.php");
 
 $query = 'OG=(Univ Queensland)';
-$depth = '1week';
+$depth = '4week';
 $timeSpan = array();
 $editions = '';
 $sort = '';
 $first_rec = 1;
-$num_recs = 100;
+$num_recs = WOK_BATCH_SIZE;
 
 $wok_ws = new WokService(FALSE);
 
 //$result = EstiSearchService::searchRetrieve('WOS', $query, $depth, $editions, $sort, $first_rec, $num_recs);
+
+// Do an initial sleep just in something else ran just before this..
+sleep(WOK_SECONDS_BETWEEN_CALLS);
 $response = $wok_ws->search("WOS", $query, $editions, $timeSpan, $depth, "en", $num_recs);
 $queryId = $response->return->queryID;
 $records_found = $response->return->recordsFound;
@@ -63,6 +66,7 @@ for($i=0; $i<$pages; $i++) {
 	
 	if($i>0) {
 		//$result = EstiSearchService::searchRetrieve('WOS', $query, $depth, $editions, $sort, $first_rec, $num_recs);
+        sleep(WOK_SECONDS_BETWEEN_CALLS);
         $response = $wok_ws->retrieve($queryId, $first_rec, $num_recs);
         $result = $response->return->records;
     }

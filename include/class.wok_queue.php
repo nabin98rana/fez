@@ -302,22 +302,23 @@ class WokQueue extends Queue
 //          $this->_bgp->setStatus("WoK response is: \n".$result."\n");
 //        }
         $recs = $doc->getElementsByTagName("REC");
+        $wos_collection = trim(APP_WOS_COLLECTIONS, "'");
+
         foreach ($recs as $rec_elem) {
           $rec = new WosRecItem($rec_elem);
-          if (array_key_exists($rec->ut, $existing_uts)) {
-              // If this came through with an author id it means it came via RID so put the pid in the RID collection, otherwise put it in the WOS import collection
-              $wos_collection = trim(APP_WOS_COLLECTIONS, "'");
-              $aut_ids = $this->getAutIds($rec->ut);
-              if (!defined('APP_WOS_COLLECTIONS') || trim(APP_WOS_COLLECTIONS) == "") {
+          $aut_ids = $this->getAutIds($rec->ut);
+          if (!defined('APP_WOS_COLLECTIONS') || trim(APP_WOS_COLLECTIONS) == "") {
+            $rec->collections = array(RID_DL_COLLECTION);
+          } else {
+              if ($aut_ids) {
                 $rec->collections = array(RID_DL_COLLECTION);
               } else {
-
-                  if ($aut_ids) {
-                    $rec->collections = array(RID_DL_COLLECTION);
-                  } else {
-                    $rec->collections = array($wos_collection);
-                  }
+                $rec->collections = array($wos_collection);
               }
+          }
+
+          if (array_key_exists($rec->ut, $existing_uts)) {
+              // If this came through with an author id it means it came via RID so put the pid in the RID collection, otherwise put it in the WOS import collection
               $isMemberOf = Record::getSearchKeyIndexValue($existing_uts[$rec->ut], "isMemberOf", false);
               $updateOK = true;
               // If isn't currently in the WOS or RID collections, skip updating this UT unless the title matches quite well

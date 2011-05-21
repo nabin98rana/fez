@@ -33,6 +33,7 @@
 //
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.language.php");
+include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.thomson_doctype_mappings.php");
 
 /**
@@ -321,7 +322,15 @@ class WosRecItem
     $this->sourceAbbrev = $node->getElementsByTagName("source_abbrev")->item(0)->nodeValue;
     $this->itemTitle = $node->getElementsByTagName("item_title")->item(0)->nodeValue;
     $this->bibId = $node->getElementsByTagName("bib_id")->item(0)->nodeValue;
-    
+
+    if ($this->itemTitle == strtoupper($this->itemTitle)) {
+        $this->itemTitle = Misc::smart_ucwords($this->itemTitle);
+    }
+
+    if ($this->sourceTitle == strtoupper($this->sourceTitle)) {
+        $this->sourceTitle = Misc::smart_ucwords($this->sourceTitle);
+    }
+
     $articleNo = $node->getElementsByTagName("article_no");
     foreach ($articleNo as $n) {
       $articleNos[] = $n->nodeValue;
@@ -356,7 +365,11 @@ class WosRecItem
     $authors[] = $node->getElementsByTagName("primaryauthor")->item(0)->nodeValue;
     $author = $node->getElementsByTagName("author");
     foreach ($author as $a) {
-      $authors[] = $a->nodeValue;
+      $atemp = $a->nodeValue;
+      if ($atemp == strtoupper($atemp)) {
+          $atemp = Misc::smart_ucwords($atemp, 2);
+      }
+      $authors[] = $atemp;
     }
     if (is_array($authors) && count($authors) > 0) {
       $this->authors = $authors;
@@ -364,7 +377,11 @@ class WosRecItem
     
     $keyword = $node->getElementsByTagName("keyword");
     foreach ($keyword as $k) {
-      $keywords[] = $k->nodeValue;
+      $ktemp = $k->nodeValue;
+      if ($ktemp == strtoupper($ktemp)) {
+          $ktemp = Misc::smart_ucwords($ktemp);
+      }
+      $keywords[] =$ktemp;
     }
     if (is_array($keywords) && count($keywords) > 0) {
       $this->keywords = $keywords;
@@ -376,7 +393,19 @@ class WosRecItem
       $this->confTitle = $firstConf->getElementsByTagName("conf_title")->item(0)->nodeValue;
       $this->confLocCity = $firstConf->getElementsByTagName("conf_city")->item(0)->nodeValue;
       $this->confLocState = $firstConf->getElementsByTagName("conf_state")->item(0)->nodeValue;
-    }
+      if ($this->confDate == strtoupper($this->confDate)) {
+          $this->confDate = Misc::smart_ucwords($this->confDate);
+      }
+      if ($this->confTitle == strtoupper($this->confTitle)) {
+          $this->confTitle = Misc::smart_ucwords($this->confTitle);
+      }
+      if ($this->confLocCity == strtoupper($this->confLocCity)) {
+          $this->confLocCity = Misc::smart_ucwords($this->confLocCity);
+      }
+      if ($this->confLocState == strtoupper($this->confLocState)) {
+          $this->confLocState = Misc::smart_ucwords($this->confLocState);
+      }
+  }
     
     $this->_loaded = TRUE;
   }
