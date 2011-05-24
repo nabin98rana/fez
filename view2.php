@@ -45,6 +45,7 @@ include_once(APP_INC_PATH . "class.record_view.php");
 include_once(APP_INC_PATH . "class.user_comments.php");
 include_once(APP_INC_PATH . "class.origami.php");
 include_once(APP_PEAR_PATH . "Date.php");
+include_once(APP_INC_PATH . "class.bookreaderimplementation.php");
 
 $username = Auth::getUsername();
 $isAdministrator = Auth::isAdministrator(); 
