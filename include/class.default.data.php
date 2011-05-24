@@ -73,7 +73,8 @@ class Default_Data
 			$defaultData['app_jahdl_dir']                   = "C:/PROGRA~1/jahdl/";
 			$defaultData['handle_admpriv_key_file']         = "C:/path_to_file/admpriv.bin";
 			$defaultData['app_log_location']                = "C:/temp/fez-error.log";
-            $defaultData['br_img_dir']                          = "C:/temp/pidimages/";
+            $defaultData['br_img_dir']                      = "C:/temp/pidimages/";
+            $defaultData['ghostscript_pth']                 = "C:/utils/gs9.02/bin/gswin32.exe";
 		} else {
 			// Unix
 			$defaultData['webserver_log_dir']               = "/usr/local/apache/logs/";
@@ -95,7 +96,8 @@ class Default_Data
 			$defaultData['app_jahdl_dir']                   = "/usr/local/jahdl/";
 			$defaultData['handle_admpriv_key_file']         = "/usr/local/handle/data/admpriv.bin";
 			$defaultData['app_log_location']                = "/var/log/fez/fez-error.log";
-            $defaultData['br_img_dir']                          = "/var/www/fez/pidimages/";
+            $defaultData['br_img_dir']                      = "/var/www/fez/pidimages/";
+            $defaultData['ghostscript_pth']                 = "/usr/bin/gs";
 
 			// Sensible Debian/Ubuntu defaults
 			if (is_readable('/etc/debian_version')) {

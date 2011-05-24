@@ -967,6 +967,13 @@ function restoreDefaultColours(el)
 			</td>
 		  </tr>
 		  <tr>
+		    <th>Ghostscript executable location</th>
+			<td>
+			  <input type="text" name="ghostscript_pth" value="{$config_settings.ghostscript_pth|escape:"html"}" size="40" />
+			  {include file="error_icon.tpl.html" field="ghostscript_pth"}
+			</td>
+		  </tr>
+		  <tr>
 		    <th>Python executable location</th>
 			<td>
 			  <input type="text" name="app_py_exec" value="{$config_settings.app_py_exec|escape:"html"}" size="40" />
