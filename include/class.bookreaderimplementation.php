@@ -19,7 +19,10 @@ class bookReaderImplementation
      */
     public function countPages()
     {
-        return count(array_filter(scandir($this->bookDir),
+        if(is_dir($this->bookDir))
+        {
+            return count(array_filter(scandir($this->bookDir),
                          function($element){return !in_array($element, array('.','..'));}));
+        }
     }
 }

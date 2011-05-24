@@ -34,6 +34,7 @@ glob:solr_upload/*
 glob:testst.txt.txt
 glob:*nfs*
 apc.php
+glob:init.php
 .idea
 \.tmtags
 glob:bookreader/*

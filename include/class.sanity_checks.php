@@ -109,6 +109,7 @@ class SanityChecks
         $results = array_merge($results, SanityChecks::stats());
         $results = array_merge($results, SanityChecks::checkSearchKeys());
         $results = array_merge($results, SanityChecks::handle());
+        $results = array_merge($results, SanityChecks::ghostscript());
         if (SanityChecks::resultsClean($results)) {
             $results[] = ConfigResult::messageOk('All tests Passed');
         }
@@ -189,6 +190,7 @@ class SanityChecks
         $results = array_merge($results, SanityChecks::checkDir('APP_TEMP_DIR', APP_TEMP_DIR, true));
         $results = array_merge($results, SanityChecks::checkDir('APP_SAN_IMPORT_DIR', APP_SAN_IMPORT_DIR));
         $results = array_merge($results, SanityChecks::checkDir('APP_TEMPLATE_COMPILE_PATH', APP_TEMPLATE_COMPILE_PATH, true));
+        $results = array_merge($results,SanityChecks::checkdir('BR_IMG_DIR',BR_IMG_DIR, true));
         if (APP_REPORT_ERROR_FILE == "true") {
             $results = array_merge($results, SanityChecks::checkFile('APP_ERROR_LOG', APP_ERROR_LOG, true));
         }
@@ -212,6 +214,12 @@ class SanityChecks
         }
     }
 
+    function ghostscript()
+    {
+        $results = array(ConfigResult::message('Testing for Ghostscript'));
+        $results = array_merge($results, SanityChecks::checkFile("GHOSTSCRIPT_PTH", GHOSTSCRIPT_PTH, true));
+        return $results;
+    }
 
     function jhove()
     {
