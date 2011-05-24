@@ -95,22 +95,22 @@ class Workflow_State
 			$params = &$_POST;
 		}
 
-    if (@$_POST["wfs_auto"]) {
+    if ($params["wfs_auto"]) {
         $wfs_auto = 'TRUE';
     } else {
         $wfs_auto = 'FALSE';
     }
-    if (@$_POST["wfs_start"]) {
+    if ($params["wfs_start"]) {
         $wfs_start = 'TRUE';
     } else {
         $wfs_start = 'FALSE';
     }
-    if (@$_POST["wfs_end"]) {
+    if ($params["wfs_end"]) {
         $wfs_end = 'TRUE';
     } else {
         $wfs_end = 'FALSE';
     }
-    if (@$_POST["wfs_transparent"]) {
+    if ($params["wfs_transparent"]) {
         $wfs_transparent = 'TRUE';
     } else {
         $wfs_transparent = 'FALSE';
@@ -140,7 +140,8 @@ class Workflow_State
                     " . $wfs_start . ",
                     " . $wfs_end . ",
                     " . $wfs_transparent . "
-                 )";	
+                 )";
+        
 		try {
 			$db->exec($stmt);
 		}
@@ -212,22 +213,22 @@ class Workflow_State
 			$params = &$_POST;
 		}
 		
-		if (@$_POST["wfs_auto"]) {
+	if ($params["wfs_auto"]) {
         $wfs_auto = 'TRUE';
     } else {
         $wfs_auto = 'FALSE';
     }
-    if (@$_POST["wfs_start"]) {
+    if ($params["wfs_start"]) {
         $wfs_start = 'TRUE';
     } else {
         $wfs_start = 'FALSE';
     }
-    if (@$_POST["wfs_end"]) {
+    if ($params["wfs_end"]) {
         $wfs_end = 'TRUE';
     } else {
         $wfs_end = 'FALSE';
     }
-    if (@$_POST["wfs_transparent"]) {
+    if ($params["wfs_transparent"]) {
         $wfs_transparent = 'TRUE';
     } else {
         $wfs_transparent = 'FALSE';
