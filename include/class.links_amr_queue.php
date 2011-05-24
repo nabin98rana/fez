@@ -300,9 +300,22 @@ class LinksAmrQueue extends Queue
       $map['issn'] = $record['rek_issn'];
       $map['year'] = date('Y', strtotime($record['rek_date']));
       $map['stitle'] = $record['rek_journal_name'];
-      $map['vol'] = $record['rek_volume_number'];
-      $map['issue'] = $record['rek_issue_number'];
-      $map['spage'] = $record['rek_start_page'];
+      if (is_numeric($record['rek_volume_number'])) {
+        $map['vol'] = $record['rek_volume_number'];
+      } else {
+        $map['vol'] = null;
+      }
+      if (is_numeric($record['issue_number'])) {
+        $map['issue'] = $record['rek_issue_number'];
+      } else {
+        $map['issue'] = null;
+      }
+      if (is_numeric($record['rek_start_page'])) {
+        $map['spage'] = $record['rek_start_page'];
+      } else {
+        $map['spage'] = null;
+      }
+      
       $map['an'] = null; // We don't store this yet
       // Only the first author      
       if ($record['rek_author'] && is_array($record['rek_author'])) {
