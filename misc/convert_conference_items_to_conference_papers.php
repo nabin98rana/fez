@@ -95,7 +95,7 @@ foreach ($pids as $pid) {
 	// If we had a subtype, create it in the new content model
 	if ($subType != "") {
 		$history = "automagically mapped from original Conference Paper sub-type value '" . $subType . "'";
-		$record->addSearchKeyValueList("MODS", "Metadata Object Description Schema", array("Genre Type"), array($newSubType), true, $history);
+		$record->addSearchKeyValueList(array("Genre Type"), array($newSubType), true, $history);
 	}
 	
 	$historyDetail = "Automagically changed display type from Conference Item to Conference Paper";

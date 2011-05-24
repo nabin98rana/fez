@@ -132,19 +132,19 @@ class Default_Data
 		$defaultData['fedora_db_passwd']                    = "";   // Empty default
 		$defaultData['fedora_db_port']                      = "3306";
 		$defaultData['app_shaded_bar']                      = "gradient.gif";           // DISCONTINUED
-		$defaultData['app_cell_color']                      = "#e5e5e5";
-		$defaultData['app_value_color']                     = "#f6f6f6";
-		$defaultData['app_adv_color_light']                 = "#fff0f0";
-		$defaultData['app_adv_color_dark']                  = "#ffc1bf";		
-		$defaultData['app_light_color']                     = "#f6f6f6";
-		$defaultData['app_selected_color']                  = "#fdffd9";
-		$defaultData['app_middle_color']                    = "#e5e5e5";
-		$defaultData['app_dark_color']                      = "#5e217a";
-		$defaultData['app_heading_color']                   = "#732a95";
-		$defaultData['app_cycle_color_one']                 = "#ebebeb";
-		$defaultData['app_cycle_color_two']                 = "#f7f7f7";
-		$defaultData['app_internal_color']                  = "#d9d9d9";
-		$defaultData['app_highlight_color']                 = "#ffe0d0";
+		$defaultData['app_cell_color']                      = "E5E5E5";
+		$defaultData['app_value_color']                     = "F6F6F6";
+		$defaultData['app_adv_color_light']                 = "FFF0F0";
+		$defaultData['app_adv_color_dark']                  = "FFC1BF";		
+		$defaultData['app_light_color']                     = "F6F6F6";
+		$defaultData['app_selected_color']                  = "FDFFD9";
+		$defaultData['app_middle_color']                    = "E5E5E5";
+		$defaultData['app_dark_color']                      = "5E217A";
+		$defaultData['app_heading_color']                   = "732A95";
+		$defaultData['app_cycle_color_one']                 = "EBEBEB";
+		$defaultData['app_cycle_color_two']                 = "F7F7F7";
+		$defaultData['app_internal_color']                  = "D9D9D9";
+		$defaultData['app_highlight_color']                 = "FFE0D0";
 		$defaultData['app_fedora_setup']                    = "";   // Empty default
 		$defaultData['app_fedora_location']                 = "";   // Empty default
 		$defaultData['app_fedora_ssl_location']             = "";   // Empty default
@@ -299,7 +299,7 @@ class Default_Data
 	 */
 	function buildColourConfigArray()
 	{
-		$colourConfs = array("app_cell_color", "app_value_color", "app_light_color", "app_selected_color", "app_middle_color", "app_dark_color", "app_heading_color", "app_cycle_color_one", "app_cycle_color_two", "app_internal_color", "app_adv_color_light", "app_adv_color_dark");
+		$colourConfs = array("app_cell_color", "app_value_color", "app_light_color", "app_selected_color", "app_middle_color", "app_dark_color", "app_heading_color", "app_cycle_color_one", "app_cycle_color_two", "app_internal_color", "app_adv_color_light", "app_adv_color_dark", "app_highlight_color");
 		return $colourConfs;
 	}
 

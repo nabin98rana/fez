@@ -704,7 +704,7 @@ class ResearcherID
     $log = FezLog::get();
     $db = DB_API::get();
     
-    return TRUE; // TODO: disabled until wok queue finalised
+//    return TRUE; // TODO: disabled until wok queue finalised
 
     $collection = RID_DL_COLLECTION;
     

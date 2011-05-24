@@ -192,21 +192,22 @@ class Lister
         }
         
         $pager_row = $params['pager_row'];
-        if (empty($pager_row)) {
+        if (empty($pager_row) || $pager_row < 0) {
             $pager_row = 0;
         }
         
         
         $rows = $params['rows'];
         if (empty($rows)) {
-            
             if(!empty($_SESSION['rows'])) {
                 $rows = $_SESSION['rows'];
             } else {
                 $rows = APP_DEFAULT_PAGER_SIZE;
             }
-            
         } else {
+            if ($rows < 0) {
+                $rows = APP_DEFAULT_PAGER_SIZE;
+            }
             $_SESSION['rows'] = $rows;
         }
         
@@ -705,15 +706,17 @@ class Lister
 //			$filter["searchKey".Search_key::getID("Author ID")]=$authorDetails["aut_id"]; //author id
 	 		$filter["manualFilter"] = " (author_id_mi:".$authorDetails["aut_id"]." OR contributor_id_mi:".$authorDetails["aut_id"].") "; // enforce display type X only
 
-			$use_faceting = true;
-			$use_highlighting = false;
-			if (in_array($tpl_idx, array(1,3,7,8,9))) {
-				$simple = false;
-				$citationCache = false;
-			} else {
-				$simple = true;
-				$citationCache = true;
-			}
+            if ($tpl_idx == 0) {
+                $use_faceting = true;
+                $use_highlighting = false;
+                $simple = true;
+                $citationCache = true;
+            } else {
+                $use_faceting = false;
+                $use_highlighting = false;
+                $simple = false;
+                $citationCache = false;
+            }
 			$xdis_version = "MODS 1.0";
 
 
@@ -723,7 +726,9 @@ class Lister
             $list = $list["list"];
 
 			$otherDisplayTypes = array();
-
+            $use_faceting = false; //faceting is only required for the full author search
+            $simple = false; //need the extra details for the actual results
+            $citationCache = false; //need the extra details for the actual results
 
 			if ($tpl_idx == 0) {
 				$order_dir = 'ASC';
@@ -1029,7 +1034,7 @@ class Lister
         $tpl->assign('tpl_list', array_map(create_function('$a','return $a[\'title\'];'), $tpls));
         $tpl->assign('browse', $browse);
         $tpl->assign('sort_by_list', $sort_by_list);
-		$tpl->assign("cycle_colours", "#FFFFFF," . APP_CYCLE_COLOR_TWO);
+		$tpl->assign("cycle_colours", "#FFFFFF," . "#" . APP_CYCLE_COLOR_TWO);
         $tpl->assign('sort_by_default', $sort_by);
         $tpl->assign("eserv_url", APP_BASE_URL."eserv/");
         $tpl->assign('sort_order', $options["sort_order"]);

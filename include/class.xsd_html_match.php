@@ -282,6 +282,7 @@ class XSD_HTML_Match
 			} else {
 			 array_push($list, XSD_HTML_Match::getAllDetailsByXSDMF_ID($xsdmf_id));
 			}
+            
 			foreach ($list as $lrow) {
 				$xpath = str_replace("!", "/", $lrow['xsdmf_element']);
 				$xpath_ns_search = "";
@@ -400,6 +401,11 @@ class XSD_HTML_Match
 					$xpath_ns_fixes[$xpath] = array($xpath_ns_search, $lrow['xsdmf_xdis_id']);
 				}
 				XSD_HTML_Match::updateXPathByXSDMF_ID($lrow['xsdmf_id'], $xpath);
+                //Now check to see if any parents / heads have a namespace prefix and if so refresh those parents (which will in turn fix this child if necessary).
+//                $temp_element = ltrim($lrow['xsdmf_element'], "!");
+//                $top_parent_element = substr($temp_element, 0, (strpos($temp_element, "!") + 1));
+//                XSD_HTML_Match::getXSDMF_IDByElement($xsdmf_element, $xsdmf_xdis_id);
+
 			}
 			foreach ($xpath_ns_fixes as $xpath_replace => $xpath_search) {
 				$fixes = XSD_HTML_Match::getXPATHTails($xpath_search[0], $xpath_search[1]);
@@ -2415,6 +2421,40 @@ class XSD_HTML_Match
 				return $res[0]['xsdmf_id'];
 			}
 		}
+
+
+    function getXSDMF_IDByXDIS_IDLowestNamespaceDiff($xsdmf_element, $xdis_str, $xsdmf_sel_id="")
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $stmt = "SELECT
+                        xsdmf_id
+                     FROM
+                        " . APP_TABLE_PREFIX . "xsd_display_matchfields
+                     WHERE
+                         xsdmf_element LIKE ".$db->quote($xsdmf_element."%")." and xsdmf_xdis_id in (".$xdis_str.") ";
+
+        if (!is_numeric($xsdmf_sel_id)) {
+            $stmt .= " AND xsdmf_sel_id = ".$xsdmf_sel_id;
+        }
+        $stmt .= " ORDER BY LENGTH(xsdmf_element) ASC";
+
+        try {
+            $res = $db->fetchAll($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return '';
+        }
+
+        if (count($res) != 1) {
+            return false;
+        } else {
+            return $res[0]['xsdmf_id'];
+        }
+    }
+
 
 		/**
 	  * getXSDMF_IDByKeyXDIS_ID

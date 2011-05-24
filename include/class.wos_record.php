@@ -33,6 +33,7 @@
 //
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.language.php");
+include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.thomson_doctype_mappings.php");
 
 /**
@@ -46,6 +47,13 @@ include_once(APP_INC_PATH . "class.thomson_doctype_mappings.php");
 class WosRecItem
 {
   /**
+   * Collections
+   *
+   * @var array
+   */
+  private $collections;
+
+  /**
    * Abstract
    * 
    * @var string
@@ -58,7 +66,14 @@ class WosRecItem
    * @var string
    */
   private $ut = null;
-  
+
+  /**
+  * The ISI Times Cited value
+  *
+  * @var int
+  */
+  private $timesCited = null;
+
   /**
    * The full name of the journal
    *
@@ -79,7 +94,14 @@ class WosRecItem
    * @var string
    */
   private $itemTitle = null;
-  
+
+  /**
+   * Date published of the bibliographic item
+   *
+   * @var string
+   */
+  private $date_issued = null;
+
   /**
    * DOIs etc..
    *
@@ -135,7 +157,14 @@ class WosRecItem
    * @var int
    */
   private $bibIssueMnth = null;
-  
+
+    /**
+   * Issue number
+   *
+   * @var int
+   */
+  private $bibIssueNum = null;
+
   /**
    * Issue volume
    *
@@ -284,7 +313,8 @@ class WosRecItem
    * @param DomNode $node
    */
   public function load($node)
-  {    
+  {
+    $this->timesCited = $node->getAttribute('timescited');
     $this->abstract = $node->getElementsByTagName("abstract")->item(0)->nodeValue;
     $this->ut = $node->getElementsByTagName("ut")->item(0)->nodeValue;
     $this->issn = $node->getElementsByTagName("issn")->item(0)->nodeValue;
@@ -292,7 +322,15 @@ class WosRecItem
     $this->sourceAbbrev = $node->getElementsByTagName("source_abbrev")->item(0)->nodeValue;
     $this->itemTitle = $node->getElementsByTagName("item_title")->item(0)->nodeValue;
     $this->bibId = $node->getElementsByTagName("bib_id")->item(0)->nodeValue;
-    
+
+    if ($this->itemTitle == strtoupper($this->itemTitle)) {
+        $this->itemTitle = Misc::smart_ucwords($this->itemTitle);
+    }
+
+    if ($this->sourceTitle == strtoupper($this->sourceTitle)) {
+        $this->sourceTitle = Misc::smart_ucwords($this->sourceTitle);
+    }
+
     $articleNo = $node->getElementsByTagName("article_no");
     foreach ($articleNo as $n) {
       $articleNos[] = $n->nodeValue;
@@ -310,7 +348,8 @@ class WosRecItem
     }
     
     $this->setBibIssueYVM($node);
-    
+    $this->setDateIssued($node);
+      
     $docType = $node->getElementsByTagName("doctype")->item(0);
     if ($docType) {
       $this->docType = $docType->nodeValue;
@@ -326,7 +365,11 @@ class WosRecItem
     $authors[] = $node->getElementsByTagName("primaryauthor")->item(0)->nodeValue;
     $author = $node->getElementsByTagName("author");
     foreach ($author as $a) {
-      $authors[] = $a->nodeValue;
+      $atemp = $a->nodeValue;
+      if ($atemp == strtoupper($atemp)) {
+          $atemp = Misc::smart_ucwords($atemp, 2);
+      }
+      $authors[] = $atemp;
     }
     if (is_array($authors) && count($authors) > 0) {
       $this->authors = $authors;
@@ -334,7 +377,11 @@ class WosRecItem
     
     $keyword = $node->getElementsByTagName("keyword");
     foreach ($keyword as $k) {
-      $keywords[] = $k->nodeValue;
+      $ktemp = $k->nodeValue;
+      if ($ktemp == strtoupper($ktemp)) {
+          $ktemp = Misc::smart_ucwords($ktemp);
+      }
+      $keywords[] =$ktemp;
     }
     if (is_array($keywords) && count($keywords) > 0) {
       $this->keywords = $keywords;
@@ -346,7 +393,19 @@ class WosRecItem
       $this->confTitle = $firstConf->getElementsByTagName("conf_title")->item(0)->nodeValue;
       $this->confLocCity = $firstConf->getElementsByTagName("conf_city")->item(0)->nodeValue;
       $this->confLocState = $firstConf->getElementsByTagName("conf_state")->item(0)->nodeValue;
-    }
+      if ($this->confDate == strtoupper($this->confDate)) {
+          $this->confDate = Misc::smart_ucwords($this->confDate);
+      }
+      if ($this->confTitle == strtoupper($this->confTitle)) {
+          $this->confTitle = Misc::smart_ucwords($this->confTitle);
+      }
+      if ($this->confLocCity == strtoupper($this->confLocCity)) {
+          $this->confLocCity = Misc::smart_ucwords($this->confLocCity);
+      }
+      if ($this->confLocState == strtoupper($this->confLocState)) {
+          $this->confLocState = Misc::smart_ucwords($this->confLocState);
+      }
+  }
     
     $this->_loaded = TRUE;
   }
@@ -366,7 +425,9 @@ class WosRecItem
     }
     return FALSE;
   }
-  
+
+
+
   /**
    * Bib issue number is buried in the bib_id precomposed string
    * 
@@ -405,9 +466,44 @@ class WosRecItem
         $this->bibIssueYear = $bibIssue->getAttribute('year');
         $this->bibIssueVol = $bibIssue->getAttribute('vol');
       }
+
+      $bibVol = $node->getElementsByTagName("bib_vol")->item(0);
+      if ($bibVol) {
+        $this->bibIssueNum = $bibVol->getAttribute('issue');
+        //$this->bibIssueVol = $bibIssue->getAttribute('volume'); //Already gotten from bib_issue element - same value
+      }
     }    
   }
-  
+
+  /**
+   * Sets the issue year and volume and the month if exists
+   *
+   * @param DomNode $node
+   * @return null
+   */
+  public function setDateIssued($node) {
+    $this->date_issued = '';
+    $item = $node->getElementsByTagName("item")->item(0);
+    if ($item) {
+      $coverDate = $item->getAttribute('coverdate');
+      preg_match('/(\d{4})(\d{2})/', $coverDate, $matches);
+      if (count($matches) == 3) {
+        if ($matches[2] == '00') {
+          $this->date_issued = $matches[1];
+        } else {
+          $this->date_issued = $matches[1] . '-' . $matches[2];
+        }
+      } else {
+        $bib_issue = $item->getElementsByTagName("bib_issue")->bib_issue(0);
+        $year = $bib_issue->getAttribute('year');
+        if ($year) {
+          $this->date_issued = $year;
+        }
+      }
+    }
+
+  }
+
   /**
    * Stores to a new record in Fez
    */
@@ -431,9 +527,12 @@ class WosRecItem
     $xdis_title = $dTMap[$this->docTypeCode][0];
     $xdis_subtype = $dTMap[$this->docTypeCode][1];
     $xdis_id = $dTMap[$this->docTypeCode][2];
-    $collection = 'UQ:11'; // TODO: Use collection value stored in config table
+    
     $history = 'Imported from WoK Web Services Premium';
+
+
     // MODS
+      
     $mods = array();
     $mods['titleInfo']['title'] = $this->itemTitle;
     if (count($this->authors) > 0) {
@@ -458,6 +557,7 @@ class WosRecItem
     }
     $mods['identifier_isi_loc'] = $this->ut;
     $mods['identifier_isbn'] = $this->isbn;
+    $mods['identifier_issn'] = $this->issn;
     $mods['language'] = Language::resolveWoSLanguage($this->primaryLang);
     $mods['genre'] = $xdis_title;
     $mods['genre_type'] = $xdis_subtype;
@@ -467,14 +567,14 @@ class WosRecItem
     $mods['relatedItem']['part']['extent_page']['end'] = $this->bibPageEnd;
     $mods['relatedItem']['part']['extent_page']['total'] = $this->bibPageCount;        
     if ($xdis_title == 'Conference Paper') {
-      $mods['originInfo']['dateIssued'] = $date_issued;     
+      $mods['originInfo']['dateIssued'] = $this->date_issued;
       $mods['relatedItem']['titleInfo']['title'] = $this->sourceTitle;
       $mods['relatedItem']['name'][0]['namePart_type'] = 'conference';
       $mods['relatedItem']['name'][0]['namePart'] = $this->confTitle;
       $mods['relatedItem']['originInfo']['place']['placeTerm'] =  $this->confLocCity . ' ' . $this->confLocState;
       $mods['relatedItem']['originInfo']['dateOther'] = $this->confDate;  
     } else if ($xdis_title == 'Journal Article') {
-      $mods['relatedItem']['originInfo']['dateIssued'] = $date_issued;
+      $mods['relatedItem']['originInfo']['dateIssued'] = $this->date_issued;
       $mods['relatedItem']['name'][0]['namePart_type'] = 'journal';
       $mods['relatedItem']['name'][0]['namePart'] = $this->sourceTitle;
     }
@@ -487,17 +587,115 @@ class WosRecItem
       $links[0]['created'] = date('c');
       $links[0]['name'] = 'Link to Full Text (DOI)';
     }
-    // TODO: ingest object and return PID of created object 
-    // return $pid;
+    $rec = new Record();
+    $pid = $rec->insertFromArray($mods, $this->collections[0], "MODS 1.0", $history, 0, $links, array());
+    if (is_numeric($this->timesCited)) {
+       Record::updateThomsonCitationCount($pid, $this->timesCited, $this->ut);
+    }
+    return $pid;
   }
   
   /**
    * Update an existing record with additional bib data from WoK
    */
-  public function update()
+  public function update($pid)
   {
     $log = FezLog::get();
     // TODO: update an existing record
+
+
+    if (! $this->_loaded) {
+      $log->err('WoS record must be loaded before saving');
+      return FALSE;
+    }
+    // List of doc types we support saving
+    $dTMap = Thomson_Doctype_Mappings::getList('ESTI');
+    foreach ($dTMap as $map) {
+      $dTMap[$map['tdm_doctype']] = array($map['xdis_title'], $map['tdm_subtype'], $map['tdm_xdis_id']);
+    }
+    if (! array_key_exists($this->docTypeCode, $dTMap)) {
+      $log->err('Unsupported doc type: '.$this->docTypeCode);
+      return FALSE;
+    }
+    $xdis_title = $dTMap[$this->docTypeCode][0];
+    $xdis_subtype = $dTMap[$this->docTypeCode][1];
+    $xdis_id = $dTMap[$this->docTypeCode][2];
+
+    $searchKeyTargets = array(
+      "Date" => $this->date_issued,
+      "ISSN" => $this->issn,
+      "ISBN" => $this->isbn,
+      "Volume Number" => $this->bibIssueVol,
+      "Start Page" => $this->bibPageBegin,
+      "End Page" => $this->bibPageEnd,
+      "Total Pages" => $this->bibPageCount,
+      "Issue Number" => $this->bibIssueNum,
+      "Language" => Language::resolveWoSLanguage($this->primaryLang),
+      "Conference Dates" => $this->confDate,
+      "Conference Location" => $this->confLocCity . ' ' . $this->confLocState,
+      "Conference Name" => $this->confTitle,
+      "Journal Name" => $this->sourceTitle
+    );
+  /// exception for conf papers that the subtype goes into genre type
+  if ($xdis_title == "Conference Paper") {
+   $searchKeyTargets["Genre Type"] = $xdis_subtype;
+  } else {
+   $searchKeyTargets["Subtype"] = $xdis_subtype;
+  }
+
+    $search_keys = array();
+    $values = array();
+      
+    foreach ($searchKeyTargets as $skey => $svalue) {
+        if (!empty($svalue)) {
+            $existingValue =  Record::getSearchKeyIndexValue($pid, $skey, false);
+            if (empty($existingValue)) {
+                $search_keys[] = $skey;
+                $values[] = $svalue;
+            }
+        }
+    }
+
+    $history = 'Filled empty metadata fields ('.implode(", ",$search_keys).') using WoK Web Services Premium';
+    $record = new RecordGeneral($pid);
+    $record->addSearchKeyValueList(
+        $search_keys, $values, true, $history
+    );
+
+    // If this update came from a RID download, put this in the RID collection
+    if ($this->collections[0] = RID_DL_COLLECTION) {
+        $isMemberOf = Record::getSearchKeyIndexValue($pid, "isMemberOf", false);
+        if (!in_array(RID_DL_COLLECTION, $isMemberOf)) { //if it doesn't currently live in the RID collection, add it as a parent
+            $res = $record->updateRELSEXT("rel:isMemberOf", RID_DL_COLLECTION, false);
+            if($res >= 1) {
+                $log->debug("Copied '".$pid."' into RID Download Collection ".RID_DL_COLLECTION);
+            } else {
+                $log->err("Copy of '".$pid."' into RID Download Collection ".RID_DL_COLLECTION." Failed");
+            }
+             $wos_collection = trim(APP_WOS_COLLECTIONS, "'");
+            // If this record is in the WOS collection, remove it from it now that is in the RID collection
+            if (in_array($wos_collection, $isMemberOf)) {
+                $res = $record->removeFromCollection($wos_collection);
+                if( $res ) {
+                    $log->debug("Removed record '".$pid."' from collection '".$wos_collection."'");
+                } else {
+                    $log->err("ERROR Removing '".$pid."' from collection '".$wos_collection."'");
+                }
+
+            }
+        }
+    } else { //Add it to the wos collection (or whatever $this->collections[0] is currently set to
+        $res = $record->updateRELSEXT("rel:isMemberOf", $this->collections[0], false);
+        if($res >= 1) {
+            $log->debug("Copied '".$pid."' into Collection ".$this->collections[0]);
+        } else {
+            $log->err("Copy of '".$pid."' into Collection ".$this->collections[0]." Failed");
+        }
+    }
+
+    if (is_numeric($this->timesCited)) {
+       Record::updateThomsonCitationCount($pid, $this->timesCited, $this->ut);
+    }
     return TRUE;
   }
 }

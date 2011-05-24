@@ -525,11 +525,11 @@ class RecordGeneral
 	    	$datastreams[$datastreamName] = Fedora_API::callGetDatastreamContents($this->pid, $datastreamName, true);
 			}
 	    //echo $xmlString." here \n";
-	    if (is_array($xmlString) || $xmlString == "") {
-	      // echo "\n**** PID ".$this->pid." without a ".$datastreamName.
-	      //      " datastream was found, this will need content model changing first **** \n";
+	    if (is_array($datastreams[$datastreamName]) || $datastreams[$datastreamName] == "") {
+	       echo "\n**** PID ".$this->pid." without a ".$datastreamName.
+	            " datastream was found, this will need content model changing first **** \n";
 	      // return -1;
-				$xmlString = "";
+//				$xmlString = "";
 	    }
 	    $doc = DOMDocument::loadXML($datastreams[$datastreamName]);
       $tempdoc = $this->addSearchKeyValue($doc, $sk, $values[$s], $removeCurrent);

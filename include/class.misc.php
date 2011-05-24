@@ -54,6 +54,69 @@ include_once('HTML/AJAX/JSON.php');
 class Misc
 {
 
+ public static function smart_ucwords($string, $upper_all_length = false) {
+
+     $delimiters = array(
+        " ", "-", ".", "'", "O'", "Mc"
+     );
+     $exceptions = array(
+        "to", "a", "the", "of", "by", "and",
+        "with", "in", "as", "or", "for", "its", "de la", "de las", "der", "van de", "van",
+        "der", "vit de", "von", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"
+     );
+
+     // check the multibyte functions are enabled in this PHP install or just use the normal ones
+    if (function_exists("mb_convert_case")) {
+       $string = mb_strtolower($string, "UTF-8");
+       $string = mb_convert_case($string, MB_CASE_TITLE, "UTF-8");
+       foreach ($delimiters as $delimiter){
+           $words = explode($delimiter, $string);
+           $newwords = array();
+           foreach ($words as $word){
+                   if (in_array(mb_strtoupper($word, "UTF-8"), $exceptions) || (is_numeric($upper_all_length) && (strlen($word) <= $upper_all_length))) {
+                           // check exceptions list for any words that should be in upper case
+                           $word = mb_strtoupper($word, "UTF-8");
+                   }
+                   elseif (in_array(mb_strtolower($word, "UTF-8"), $exceptions)){
+                           // check exceptions list for any words that should be in lower case
+                           $word = mb_strtolower($word, "UTF-8");
+                   }
+                   elseif (!in_array($word, $exceptions) ){
+                           // convert to uppercase (non-utf8 only)
+                           $word = ucfirst($word);
+                   }
+                   array_push($newwords, $word);
+           }
+           $string = join($delimiter, $newwords);
+        }//foreach
+    } else {
+       $string = strtolower($string);
+       $string = ucfirst($string);
+       foreach ($delimiters as $delimiter){
+           $words = explode($delimiter, $string);
+           $newwords = array();
+           foreach ($words as $word){
+                   if (in_array(strtoupper($word), $exceptions) || (is_numeric($upper_all_length) && (strlen($word) <= $upper_all_length))) {
+                           // check exceptions list for any words that should be in upper case
+                           $word = strtoupper($word);
+                   }
+                   elseif (in_array(strtolower($word), $exceptions)){
+                           // check exceptions list for any words that should be in lower case
+                           $word = strtolower($word);
+                   }
+                   elseif (!in_array($word, $exceptions) ){
+                           // convert to uppercase (non-utf8 only)
+                           $word = ucfirst($word);
+                   }
+                   array_push($newwords, $word);
+           }
+           $string = join($delimiter, $newwords);
+        }//foreach
+    }
+    return $string;
+ }
+
+
   // Method to escape apostrophes etc in a xpath query value.. horrible but this is how it's done
   public function xpathescape($string)
   {

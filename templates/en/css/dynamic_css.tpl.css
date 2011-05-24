@@ -983,14 +983,14 @@ div.wfl_description {
 padding: 1em;
 margin: 1em;
 font-size: 110%;        
-border: 1px solid [[$smarty.const.APP_DARK_COLOR]];
-background-color: [[$smarty.const.APP_LIGHT_COLOR]];
+border: 1px solid #[[$smarty.const.APP_DARK_COLOR]];
+background-color: #[[$smarty.const.APP_LIGHT_COLOR]];
 }
 
 span.wfl_progress {
 padding: 3px;
-border: 1px solid [[$smarty.const.APP_DARK_COLOR]];
-background-color: [[$smarty.const.APP_LIGHT_COLOR]];
+border: 1px solid #[[$smarty.const.APP_DARK_COLOR]];
+background-color: #[[$smarty.const.APP_LIGHT_COLOR]];
 }
 
 .outline
@@ -998,13 +998,13 @@ background-color: [[$smarty.const.APP_LIGHT_COLOR]];
     /* width:99%; */
     /* padding: 2px 2px 2px 2px; */
     /* margin: 0px 2px 2px 2px; */
-    border: 1px solid [[$smarty.const.APP_CELL_COLOR]];
+    border: 1px solid #[[$smarty.const.APP_CELL_COLOR]];
     background-color: white;
 }
 
 .msg {
 color: black;
-background-color: [[$smarty.const.APP_CELL_COLOR]];
+background-color: #[[$smarty.const.APP_CELL_COLOR]];
 text-align: center;
 font-weight: bold;
 font-size: 12px;
@@ -1012,7 +1012,7 @@ padding: 2px;
 }
 
 .table_heading_row {
-background-color: [[$smarty.const.APP_CELL_COLOR]];
+background-color: #[[$smarty.const.APP_CELL_COLOR]];
 font-weight: bold;
 font-size: 11px;
 margin: 10px;
@@ -1024,24 +1024,24 @@ vertical-align: middle;
 
 .citation_preview {
     padding: 3px;
-    border: 1px solid [[$smarty.const.APP_DARK_COLOR]];
-    background-color: [[$smarty.const.APP_LIGHT_COLOR]];
+    border: 1px solid #[[$smarty.const.APP_DARK_COLOR]];
+    background-color: #[[$smarty.const.APP_LIGHT_COLOR]];
 }
 
 div.fez_form {
     padding: 3px;
-    border: 1px solid [[$smarty.const.APP_CELL_COLOR]];
-    background-color: [[$smarty.const.APP_LIGHT_COLOR]];
+    border: 1px solid #[[$smarty.const.APP_CELL_COLOR]];
+    background-color: #[[$smarty.const.APP_LIGHT_COLOR]];
 }
 
 div.fez_form_item {
     display: table-row;
-    border: 1px solid [[$smarty.const.APP_LIGHT_COLOR]];
+    border: 1px solid #[[$smarty.const.APP_LIGHT_COLOR]];
 }
 
 .fez_form label {
     display: table-cell;
-    background-color: [[$smarty.const.APP_CELL_COLOR]];
+    background-color: #[[$smarty.const.APP_CELL_COLOR]];
     font-weight: bold;
     font-size: 11px;
     padding: 5px;
@@ -1051,7 +1051,7 @@ div.fez_form_item {
  
 span.fez_form_input {
     display: table-cell;
-    background-color: [[$smarty.const.APP_LIGHT_COLOR]];
+    background-color: #[[$smarty.const.APP_LIGHT_COLOR]];
     font-size: 11px;
     padding: 2px;
 }
@@ -1074,30 +1074,30 @@ ul.my_views_tab a, ul.my_views_tab a:active {
     text-decoration:none;
     font-weight:bold;
     font-size: 12px;
-    background:[[$smarty.const.APP_LIGHT_COLOR]];
+    background:#[[$smarty.const.APP_LIGHT_COLOR]];
     margin:0;
     padding:0.25em 1em;
     border-left:1px solid #fff;
     border-top:1px solid #fff;
-    border-right:1px solid [[$smarty.const.APP_CELL_COLOR]];
+    border-right:1px solid #[[$smarty.const.APP_CELL_COLOR]];
 }
 
 ul.my_views_tab a:hover,ul.my_views_tab a.my_views_tab_here
 {
-    background:[[$smarty.const.APP_CELL_COLOR]];
+    background:#[[$smarty.const.APP_CELL_COLOR]];
 }
 
 div.cv_selection, .light_background
 {
-    background:[[$smarty.const.APP_LIGHT_COLOR]];
+    background:#[[$smarty.const.APP_LIGHT_COLOR]];
 }
 
 .compare_records_left_side {
-    background-color: [[$smarty.const.APP_LIGHT_COLOR]];
+    background-color: #[[$smarty.const.APP_LIGHT_COLOR]];
 }
 
 .dark_background {
-    background-color: [[$smarty.const.APP_DARK_COLOR]];
+    background-color: #[[$smarty.const.APP_DARK_COLOR]];
 }
 
 /*
@@ -1145,7 +1145,7 @@ div.cv_selection, .light_background
 .search_fields th {padding:4px;}
 
 th.search_heading {
-    border-top:1px dashed [[$smarty.const.APP_DARK_COLOR]];
+    border-top:1px dashed #[[$smarty.const.APP_DARK_COLOR]];
     padding-bottom:0.5em;
     padding-right:0.5em;
     padding-top:0.5em;
@@ -1154,8 +1154,8 @@ th.search_heading {
 }
 
 td.search_multi_input {
-    border-left:1px dashed [[$smarty.const.APP_DARK_COLOR]];
-    border-top:1px dashed [[$smarty.const.APP_DARK_COLOR]];
+    border-left:1px dashed #[[$smarty.const.APP_DARK_COLOR]];
+    border-top:1px dashed #[[$smarty.const.APP_DARK_COLOR]];
     padding:0.5em;
 }
 
@@ -1204,7 +1204,7 @@ td.search_multi_input {
 }
 
 .result-box h2 {
-	background: [[$smarty.const.APP_DARK_COLOR]] url([[$smarty.const.APP_RELATIVE_URL]]images/bg-boxes-top.png) top left no-repeat;
+	background: #[[$smarty.const.APP_DARK_COLOR]] url([[$smarty.const.APP_RELATIVE_URL]]images/bg-boxes-top.png) top left no-repeat;
 	color: white;
 	font-size: 18px;
 	padding: 20px 0 5px 15px;
@@ -1353,7 +1353,7 @@ hr {
 }
 
 #viewInfoBoxNoEdit {
-	background-color: [[$smarty.const.APP_SELECTED_COLOR]];
+	background-color: #[[$smarty.const.APP_SELECTED_COLOR]];
 }
 
 #viewInfoBoxTable th {
@@ -1490,7 +1490,7 @@ margin-bottom: 1em;
 }
 
 .facetheader {
-	background: [[$smarty.const.APP_DARK_COLOR]];
+	background: #[[$smarty.const.APP_DARK_COLOR]];
 	color: white;
 	padding: 3px 2px 2px 5px;
     width: 90%;
@@ -1583,14 +1583,14 @@ span.maxlength_exceeded {
 
 .floated-boxes h2 {
 	margin: 0px;
-	background: [[$smarty.const.APP_DARK_COLOR]] url([[$smarty.const.APP_RELATIVE_URL]]images/bg-smallboxes-top.png) top left no-repeat;
+	background: #[[$smarty.const.APP_DARK_COLOR]] url([[$smarty.const.APP_RELATIVE_URL]]images/bg-smallboxes-top.png) top left no-repeat;
 	color: white;
 	font-size: 18px;
 	padding: 20px 0 5px 15px;
 }
 
 .boxes h2 {
-	background: [[$smarty.const.APP_DARK_COLOR]] url([[$smarty.const.APP_RELATIVE_URL]]images/bg-boxes-top.png) top left no-repeat;
+	background: #[[$smarty.const.APP_DARK_COLOR]] url([[$smarty.const.APP_RELATIVE_URL]]images/bg-boxes-top.png) top left no-repeat;
 	color: white;
 	font-size: 18px;
 	padding: 20px 0 5px 15px;
@@ -1880,11 +1880,11 @@ div.hr hr {
 }
 
 #view-attachments tr {
-    border-bottom: 1px solid [[$smarty.const.APP_CELL_COLOR]];
+    border-bottom: 1px solid #[[$smarty.const.APP_CELL_COLOR]];
 }
 
 #view-attachments th {
-    background: [[$smarty.const.APP_HEADING_COLOR]];
+    background: #[[$smarty.const.APP_HEADING_COLOR]];
     color: #FFFFFF;
     padding: 4px;
     text-align: left;
@@ -1900,7 +1900,7 @@ div.hr hr {
 }
 
 #view-metadata th {
-    background: [[$smarty.const.APP_CELL_COLOR]];
+    background: #[[$smarty.const.APP_CELL_COLOR]];
     width: 20%;
     vertical-align: top;
     white-space: nowrap;
@@ -1908,13 +1908,13 @@ div.hr hr {
 }
 
 #view-metadata td {
-    background: [[$smarty.const.APP_LIGHT_COLOR]];
+    background: #[[$smarty.const.APP_LIGHT_COLOR]];
     width: 80%;
 }
 
 #view-metadata th, #view-metadata td {
     padding: 4px 10px 4px 10px;
-    border-bottom: 1px solid [[$smarty.const.APP_CELL_COLOR]];
+    border-bottom: 1px solid #[[$smarty.const.APP_CELL_COLOR]];
 }
 
 #outstandingWorkflowsDiv {
@@ -1951,7 +1951,7 @@ div.hr hr {
 }
 
 #object-history .date-col, #object-history .details-col {
-	background: [[$smarty.const.APP_HEADING_COLOR]];
+	background: #[[$smarty.const.APP_HEADING_COLOR]];
 	color: white;
 	font-weight: bold;
 }
@@ -1968,11 +1968,11 @@ div.hr hr {
 }
 
 .text-input-even {
-    background: [[$smarty.const.APP_VALUE_COLOR]];
+    background: #[[$smarty.const.APP_VALUE_COLOR]];
 }
 
 .text-input-odd {
-    background: [[$smarty.const.APP_CELL_COLOR]];
+    background: #[[$smarty.const.APP_CELL_COLOR]];
 }
 
 a.author_id_link {
@@ -1984,11 +1984,11 @@ a.author_id_link:hover {
 }
 
 .cell-colour {
-    background: [[$smarty.const.APP_CELL_COLOR]];
+    background: #[[$smarty.const.APP_CELL_COLOR]];
 }
 
 .light-colour {
-    background: [[$smarty.const.APP_LIGHT_COLOR]];
+    background: #[[$smarty.const.APP_LIGHT_COLOR]];
 }
 
 .enabled {
@@ -2004,13 +2004,13 @@ a.author_id_link:hover {
 }
 
 .admin-edit th {
-    background: [[$smarty.const.APP_CELL_COLOR]];
+    background: #[[$smarty.const.APP_CELL_COLOR]];
     text-align: right;
     padding-right: 10px;
 }
 
 .admin-edit td {
-    background: [[$smarty.const.APP_VALUE_COLOR]];
+    background: #[[$smarty.const.APP_VALUE_COLOR]];
     width: 80%;
     padding-left: 15px;
 }
@@ -2021,11 +2021,11 @@ a.author_id_link:hover {
 }
 
 .edit-metadata thead td {
-    background: [[$smarty.const.APP_CELL_COLOR]];
+    background: #[[$smarty.const.APP_CELL_COLOR]];
 }
 
 .edit-metadata th {
-    background: [[$smarty.const.APP_CELL_COLOR]];
+    background: #[[$smarty.const.APP_CELL_COLOR]];
     width: 200px;
     vertical-align: top;
     text-align: left;
@@ -2034,12 +2034,12 @@ a.author_id_link:hover {
 }
 
 .edit-metadata td {
-    /*background: [[$smarty.const.APP_LIGHT_COLOR]];*/
+    /*background: #[[$smarty.const.APP_LIGHT_COLOR]];*/
     padding-left: 5px;
 }
 
 .admin-list th {
-    background: [[$smarty.const.APP_CELL_COLOR]];
+    background: #[[$smarty.const.APP_CELL_COLOR]];
     text-align: left;
     padding: 3px;
     font-weight: bold;
@@ -2086,11 +2086,11 @@ a.author_id_link:hover {
 }
 
 #related-links tr {
-    border-bottom: 1px solid [[$smarty.const.APP_CELL_COLOR]];
+    border-bottom: 1px solid #[[$smarty.const.APP_CELL_COLOR]];
 }
 
 #related-links td {
-    background-color: [[$smarty.const.APP_LIGHT_COLOR]];
+    background-color: #[[$smarty.const.APP_LIGHT_COLOR]];
     padding: 4px;
     vertical-align: middle;
 }

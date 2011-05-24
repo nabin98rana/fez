@@ -203,26 +203,9 @@ class SanityChecks
         if (WEBSERVER_LOG_STATISTICS == "ON") {
             $results = array(ConfigResult::message('Testing Stats Setup'));
             $results = array_merge($results, SanityChecks::checkDir('APP_GEOIP_PATH', APP_GEOIP_PATH));
-            $results = array_merge($results, SanityChecks::checkDir('WEBSERVER_LOG_DIR', WEBSERVER_LOG_DIR));
-            $results = array_merge($results, SanityChecks::checkFile('WEBSERVER_LOG_DIR.WEBSERVER_LOG_FILE', WEBSERVER_LOG_DIR . WEBSERVER_LOG_FILE, false, false, true));
-            if (SanityChecks::resultsClean($results)) {
-                $logf = WEBSERVER_LOG_DIR . WEBSERVER_LOG_FILE;
-                $archive_name = APP_HOSTNAME;
-                $handle = fopen($logf, "r");
-                $found_match = false;
-                while (!feof($handle)) {
-                    $buffer = fgets($handle, 4096);
-                    if (preg_match("/^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}) - - \[(.*?)\] \"GET " . preg_quote(APP_RELATIVE_URL, '/') . "\/?\S* HTTP\/1..\" 200 .*/i", $buffer, $matches)) {
-                        $found_match = true;
-                        break;
-                    }
-                }
-                fclose($handle);
-                if (!$found_match) {
-                    $results[] = new ConfigResult('Stats', '', '', 'The apache logfile didn\'t match the expected format. ' .
-                                                                   'The format should be \'combined\'.  See \'Download Statistics setup\' in the Fez Wiki');
-                }
-            }
+			if (SanityChecks::resultsClean($results)) {
+				$results[] = ConfigResult::messageOk('All Stats tests passed');
+			}
             return $results;
         } else {
             return array();

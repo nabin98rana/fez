@@ -71,9 +71,56 @@ class WokService
                                                    // fails to recognise the session
       $this->client->setOptions($options);
       $this->client->setWsdl($this->searchEndpoint.'?wsdl');      
-      register_shutdown_function(array($this, 'closeSession'));
+//    register_shutdown_function(array($this, 'closeSession'));
+//      register_shutdown_function('$this->closeSession');
     } else {
       $this->ready = FALSE;
+    }
+  }
+
+  /**
+   * Performs a search of records from an ISI Web of Knowledge, Web Service Premium.
+   *
+   * @param string $databaseID Identifies the ISI Web of Knowledge resource that this request will search (default is WOS).
+   * @param string $userQuery The search expression in Advanced Search format.
+   * @param string $editions The editions that this search will cover. Array containing collection and edition strings as elements.
+   * @param array $timeSpan The time span that this search will cover such as 2000-2002. Using begin and end array elements.
+   * @param array $symbolicTimeSpan This element defines a range of load dates. Allowed values are 1week, 2week and 4week The load date is the date when a record was added to a database.
+   * If symbolicTimeSpan is specified, the timeSpan parameter should be omitted, or it must be null.
+   * If timeSpan and symbolicTimeSpan are both null or omitted, then the maximum publication date time span will be inferred from the editions data.
+   * @param string $queryLanguage This element can take only one value: en for English.
+   * @param int $count The number of results to return in the initial resultset you get back from the initial query
+   * @return SimpleXMLElement The object containing records found in WoS matching the search query specified.
+   */
+  public function search($databaseID = "WOS", $userQuery, $editions='', $timeSpan=array(), $symbolicTimeSpan="1week", $queryLanguage="en", $count)
+  {
+
+    $editions = array("collection" => $databaseID, "edition" => "SCI");
+    $search = array(
+               'queryParameters' =>
+                    array(
+                      'databaseID' => $databaseID,
+                      'userQuery' => $userQuery,
+                      'editions' => $editions,
+//                      'timeSpan' => $timeSpan,
+                      'symbolicTimeSpan' => $symbolicTimeSpan,
+                      'queryLanguage' => $queryLanguage
+                    ),
+               'retrieveParameters' =>
+                    array(
+                       'firstRecord' => 1,
+                       'count' => $count
+                    )
+    );
+    try {
+      // Make SOAP request
+      $this->client->setCookie(WOK_COOKIE_NAME, $this->sessionId);
+      $response = $this->client->search($search);
+      return $response;
+    }
+    catch(SoapFault $ex) {
+      $this->log->err($ex);
+      return FALSE;
     }
   }
 
@@ -81,6 +128,7 @@ class WokService
    * The retrieve operation submits query returned by a previous search, citingArticles, relatedRecords, 
    * or retrieveById operation.
    *
+   * @param int $queryID
    * @param int $first_record
    * @param int $count
    * @param array $fields
@@ -88,15 +136,17 @@ class WokService
    * @param array $collection_fields
    * @return unknown
    */
-  public function retrieve($first_record, $count, $fields = array(), $options = array(), $collection_fields = array())
+  public function retrieve($queryId, $first_record, $count, $fields = array(), $options = array(), $collection_fields = array())
   {
-    $retrieve = array(
-      'firstRecord' => $first_record,
-      'count' => $count,
-      'fields' => $fields,
-      'options' => $options,
-      'collection_fields' => $collection_fields
-    );
+
+      $retrieve = array(
+        'queryId' => $queryId,
+        'retrieveParameters' => array(
+            'firstRecord' => $first_record,
+            'count' => $count
+          )
+      );
+
     try {
       // Make SOAP request
       $this->client->setCookie(WOK_COOKIE_NAME, $this->sessionId);
@@ -126,7 +176,7 @@ class WokService
       'uids' => $uids,
       'retrieveParameters' => array(
           'firstRecord' => '1',
-          'count' => 5
+          'count' => count($uids)
         )
     );
     try {      

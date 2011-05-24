@@ -17,7 +17,7 @@
 {section name="i" loop=$list}
 			  {assign var="xdis" value=$list[i]}
 			  {cycle values=$cycle assign="row_color"}
-                    <tr onmouseover="this.style.background='{$smarty.const.APP_HIGHLIGHT_COLOR}';" onmouseout="this.style.background='{$row_color}';" style="background: {$row_color}">
+                    <tr onmouseover="this.style.background='#{$smarty.const.APP_HIGHLIGHT_COLOR}';" onmouseout="this.style.background='{$row_color}';" style="background: {$row_color}">
                       <td style="width: 35%;" class="default">
                         <a href="{$smarty.server.PHP_SELF}?action=edit&amp;xdis_id={$xdis.xdis_id}">{$xdis.xdis_title}</a>
                       </td>
