@@ -4,9 +4,9 @@
 <head>
     <title>bookreader demo</title>
 
-    <link rel="stylesheet" type="text/css" href="/include/bookreader/BookReader/BookReader.css"/>
+    <link rel="stylesheet" type="text/css" href="{$rel_url}include/bookreader/BookReader/BookReader.css"/>
     <!-- Custom CSS overrides -->
-    <link rel="stylesheet" type="text/css" href="/include/bookreader/BookreaderDemo/BookReaderDemo.css"/>
+    <link rel="stylesheet" type="text/css" href="{$rel_url}include/bookreader/BookreaderDemo/BookReaderDemo.css"/>
 
     <script type="text/javascript">
 
@@ -14,21 +14,21 @@
         pid:"{$pid}",
         resource:"{$resource}",
         pageCount:"{$pageCount}",
-        host:"{$host}",
+        host:"{$host}{$rel_url}",
         urlPath:"{$urlPath}"
     {rdelim}
 
     </script>
 
-    <script type="text/javascript" src="/include/bookreader/BookReader/jquery-1.4.2.min.js"></script>
-    <script type="text/javascript" src="/include/bookreader/BookReader/jquery-ui-1.8.5.custom.min.js"></script>
+    <script type="text/javascript" src="{$rel_url}include/bookreader/BookReader/jquery-1.4.2.min.js"></script>
+    <script type="text/javascript" src="{$rel_url}include/bookreader/BookReader/jquery-ui-1.8.5.custom.min.js"></script>
 
-    <script type="text/javascript" src="/include/bookreader/BookReader/dragscrollable.js"></script>
-    <script type="text/javascript" src="/include/bookreader/BookReader/jquery.colorbox-min.js"></script>
-    <script type="text/javascript" src="/include/bookreader/BookReader/jquery.ui.ipad.js"></script>
-    <script type="text/javascript" src="/include/bookreader/BookReader/jquery.bt.min.js"></script>
+    <script type="text/javascript" src="{$rel_url}include/bookreader/BookReader/dragscrollable.js"></script>
+    <script type="text/javascript" src="{$rel_url}include/bookreader/BookReader/jquery.colorbox-min.js"></script>
+    <script type="text/javascript" src="{$rel_url}include/bookreader/BookReader/jquery.ui.ipad.js"></script>
+    <script type="text/javascript" src="{$rel_url}include/bookreader/BookReader/jquery.bt.min.js"></script>
 
-    <script type="text/javascript" src="/include/bookreader/BookReader/BookReader.js"></script>
+    <script type="text/javascript" src="{$rel_url}include/bookreader/BookReader/BookReader.js"></script>
 </head>
 <body style="background-color: ##939598;">
 
@@ -42,7 +42,7 @@
     </noscript>
 </div>
 
-<script type="text/javascript" src="/js/BookReaderJSSimple.js"></script>
+<script type="text/javascript" src="{$rel_url}js/BookReaderJSSimple.js"></script>
 
 </body>
 </html>
