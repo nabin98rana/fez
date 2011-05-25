@@ -220,7 +220,10 @@ if (!empty($pid) && !empty($dsID)) {
             $dsID = explode('.pdf', $dsID);
             $dsID = $dsID[0];
             
-            $resourcePath = 'pidimages/' . $pid . '/' . $dsID;
+            $resourcePath = BR_IMG_DIR . $pid . '/' . $dsID;
+            $protocol = ($_SERVER['HTTPS']) ? 'https://' : 'http://';
+            $host = $protocol . $_SERVER['HTTP_HOST'];
+            $urlPath = str_replace($_SERVER['DOCUMENT_ROOT'], '', BR_IMG_DIR);
 
             $bri = new bookReaderImplementation($resourcePath);
 
@@ -230,6 +233,8 @@ if (!empty($pid) && !empty($dsID)) {
             $tpl->assign('pid', $pid);
             $tpl->assign('resource', $dsID);
             $tpl->assign('pageCount', $bri->countPages());
+            $tpl->assign('host', $host);
+            $tpl->assign('urlPath', $urlPath);
 
             $tpl->displayTemplate();
             // Add view to statistics buffer
