@@ -37,4 +37,3 @@ apc.php
 glob:init.php
 .idea
 \.tmtags
-glob:bookreader/*
