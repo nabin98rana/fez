@@ -85,9 +85,14 @@ class bookReaderPDFConverter
     public function resourceGenerated($resourcePath)
     {
         $pageCount = count(array_filter(scandir($resourcePath),
-                         function($element){return !in_array($element, array('.','..'));}));
+                         array($this, 'ct')));
 
         return ($pageCount > 0) ? true : false;
+    }
+
+    public function ct($element)
+    {
+        return !in_array($element, array('.','..'));
     }
 
     /**
