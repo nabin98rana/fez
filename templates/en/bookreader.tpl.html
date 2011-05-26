@@ -2,7 +2,7 @@
 
 <html>
 <head>
-    <title>bookreader demo</title>
+    <title>{$resource} - {$application_title}</title>
 
     <link rel="stylesheet" type="text/css" href="{$rel_url}include/bookreader/BookReader/BookReader.css"/>
     <!-- Custom CSS overrides -->
@@ -15,7 +15,8 @@
         resource:"{$resource}",
         pageCount:"{$pageCount}",
         host:"{$host}{$rel_url}",
-        urlPath:"{$urlPath}"
+        urlPath:"{$urlPath}",
+        appName:" {$application_title}"
     {rdelim}
 
     </script>
@@ -33,7 +34,7 @@
 <body style="background-color: ##939598;">
 
 <div id="BookReader">
-    Internet Archive BookReader Demo    <br/>
+    Internet Archive BookReader<br/>
 
     <noscript>
     <p>
