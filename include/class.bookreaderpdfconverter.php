@@ -1,6 +1,6 @@
 <?php
 
-include_once("config.inc.php");
+include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
 
 class bookReaderPDFConverter
 {
@@ -40,7 +40,7 @@ class bookReaderPDFConverter
             $this->sourceFilePath = $sourceFile;
         }
         $this->sourceInfo();
-        $this->bookreaderDataPath = BR_IMG_DIR . $pid . '/' . $this->sourceFileStat['filename'];
+        $this->bookreaderDataPath = APP_PATH . BR_IMG_DIR . $pid . '/' . $this->sourceFileStat['filename'];
     }
 
     /**
