@@ -80,7 +80,7 @@ br.getPageNum = function(index) {
 br.numLeafs = bookreaderConfig.pageCount;
 
 // Book title and the URL used for the book title link
-br.bookTitle= 'Open Library BookReader Presentation';
+br.bookTitle= bookreaderConfig.resource + " - " + bookreaderConfig.appName;
 br.bookUrl  = bookreaderConfig.urlPath;
 
 // Override the path used to find UI images

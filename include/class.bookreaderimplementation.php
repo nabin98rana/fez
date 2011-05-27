@@ -1,6 +1,6 @@
 <?php
 
-include_once("config.inc.php");
+include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
 
 class bookReaderImplementation
 {
@@ -22,7 +22,12 @@ class bookReaderImplementation
         if(is_dir($this->bookDir))
         {
             return count(array_filter(scandir($this->bookDir),
-                         function($element){return !in_array($element, array('.','..'));}));
+                         array($this, 'ct')));
         }
+    }
+
+    public function ct($element)
+    {
+        return !in_array($element, array('.','..'));
     }
 }

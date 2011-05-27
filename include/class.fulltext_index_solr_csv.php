@@ -176,7 +176,8 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 				if(empty($row['rek_pid']))
 				continue;
 				 
-				$csv[$row['rek_pid']] = '"'.$row['rek_pid'] .'",'. preg_replace('/[^(\x20-\x7F)]*/','', $row['row']).  '"';
+				//$csv[$row['rek_pid']] = '"'.$row['rek_pid'] .'",'. preg_replace('/[^(\x20-\x7F)]*/','', $row['row']).  '"';
+				$csv[$row['rek_pid']] = '"'.$row['rek_pid'] .'",'. $row['row'].  '"';   //20110527 preg-replace removed
 				// $csv[$row['rek_pid']] = '"'.$row['rek_pid'] .'","'.$row['row'] .  '"';
 				$pids_arr[] = $row['rek_pid'];
 				 
@@ -366,9 +367,8 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 			/*
 			 * Add datasteam text to CSV array
 			 */
-			//$content = $this->getCachedContent($pids);
-			//$content = preg_replace('/[^(\x20-\x7F)]*/','',$content);
-            $content = array();
+			$content = $this->getCachedContent($pids);
+			$content = preg_replace('/[^(\x20-\x7F)]*/','',$content);
 			foreach ($csv as $rek_pid => $rek_line) {
 				 
 				if( !empty($content[$rek_pid]) ) {
@@ -402,7 +402,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 //			$spliting .= "&f.content.split=true&f.content.separator=%09";
 
 			$log->debug(array("processQueue: about to send"));
-			$postFields["commit"] = "false";
+			$postFields["commit"] = "true";
 			$url = "http://".APP_SOLR_HOST.":".APP_SOLR_PORT.APP_SOLR_PATH."update/csv";
 			
 			if (APP_SOLR_HOST == APP_HOSTNAME) {
@@ -484,17 +484,16 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 		}
 		 
 		$deletePids = $queue->popDeleteChunk();
-        
-		$this->connectToSolr();
+		 
 		if( $deletePids ) {
 				
-
+			$this->connectToSolr();
 				
 			if( $this->bgp ) {
 				$this->bgp->setStatus("Deleting " . count($deletePids) . " from Solr Index");
 			}
 			$this->solr->deleteByMultipleIds($deletePids);
-
+			$this->solr->commit();
 			
 			// MT: 20100319 commented out this as the function doesn't exist in the Solr Service class. 
 			// $this->solr->triggerUpdate();
@@ -504,7 +503,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 				//$this->removeByPid($row['ftq_pid']);
 			} */
 		} 
-		$this->solr->commit();
+		 
 		return $countDocs;
 	}
 
@@ -564,7 +563,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 			$log->err($ex);
 			return '';
 		}
-		$ret = array();
+			
 		foreach ($res as $row) {
 			$ret[$row['authi_pid']][$row['authi_role']] = $row['authi_arg_id'];
 		}

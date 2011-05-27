@@ -1,6 +1,6 @@
 <?php
 
-include_once("config.inc.php");
+include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
 
 class bookReaderPDFConverter
 {
@@ -40,7 +40,7 @@ class bookReaderPDFConverter
             $this->sourceFilePath = $sourceFile;
         }
         $this->sourceInfo();
-        $this->bookreaderDataPath = BR_IMG_DIR . $pid . '/' . $this->sourceFileStat['filename'];
+        $this->bookreaderDataPath = APP_PATH . BR_IMG_DIR . $pid . '/' . $this->sourceFileStat['filename'];
     }
 
     /**
@@ -85,9 +85,14 @@ class bookReaderPDFConverter
     public function resourceGenerated($resourcePath)
     {
         $pageCount = count(array_filter(scandir($resourcePath),
-                         function($element){return !in_array($element, array('.','..'));}));
+                         array($this, 'ct')));
 
         return ($pageCount > 0) ? true : false;
+    }
+
+    public function ct($element)
+    {
+        return !in_array($element, array('.','..'));
     }
 
     /**
