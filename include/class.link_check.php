@@ -33,13 +33,13 @@
 //
 //
 
+// We may want to redefine these values as configuration variables down the line ...
+define('LINK_CHECK_TIMEOUT', 10);
+define('LINK_CHECK_USER_AGENT', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.1) Gecko/20061204 Firefox/2.0.0.1');
+define('LINK_CHECK_LINK_DEATH_WINDOW', 7); // After 90 days, well assume a link needs to be purged from the link reports table.
+
 class LinkCheck
 {
-	// We may want to redefine these values as configuration variables down the line ...
-	const LINK_CHECK_TIMEOUT = 10;
-	const LINK_CHECK_USER_AGENT = "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.1) Gecko/20061204 Firefox/2.0.0.1";
-	const LINK_CHECK_LINK_DEATH_WINDOW = 90; // After 90 days, well assume a link needs to be purged from the link reports table.
-	
 	function findLinks()
 	{
 		$log = FezLog::get();
@@ -218,14 +218,27 @@ class LinkCheck
 	
 	public function purgeOldLinks()
 	{
-		// This function will identify all links in the link state table that no 
-		// longer appear attached to records, and kill them. This is a periodic 
-		// function that should be run from time to time, for moderate justice.
+		$log = FezLog::get();
+		$db = DB_API::get();
+				
+		$stmt = "
+				DELETE
+				FROM
+					" . APP_TABLE_PREFIX . "link_status_reports
+				WHERE 
+					lsr_timestamp <= DATE_SUB(NOW(), INTERVAL " . LINK_CHECK_LINK_DEATH_WINDOW . " DAY)
+				;
+				";
 		
-		// TODO: Implement me.
-		// LINK_CHECK_LINK_DEATH_WINDOW <-- timeout in days, after which to purge
-		
-		return;
+		try {
+			$db->exec($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return false;
+		}
+				
+		return true;
 	}
 
 }

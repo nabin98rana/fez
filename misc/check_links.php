@@ -45,4 +45,6 @@ if (count($links) > 0) {
 	}
 }
 
+LinkCheck::purgeOldLinks();
+
 exit;
