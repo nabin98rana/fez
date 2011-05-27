@@ -1860,6 +1860,18 @@ div.hr hr {
   display: none;
 }
 
+.link-status-good {
+    background-color: #bfffd3;
+}
+
+.link-status-bad {
+    background-color: #ffbfbf;
+}
+
+.link-status-unknown {
+    background-color: #feffbb;
+}
+
 /* VIEW PAGES */
 
 #datastream_preview {
