@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type='text/xsl' href='/oai2.xsl' ?>
+<?xml-stylesheet type='text/xsl' href='{$app_relative_url}oai2.xsl' ?>
 <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
 <responseDate>{$responseDate}</responseDate>
 {if $verb == "GetRecord"} 
@@ -40,8 +40,6 @@
 	        <dc:description>{$list[0].rek_description|escape:"html"}</dc:description>
 	        <dc:type>{$list[0].rek_display_type_lookup|escape:"html"}</dc:type>
 	        <dc:date>{$list[0].rek_date|escape:"html"}</dc:date>
-			<dc:coverage>{$list[0].rek_date|escape:"html"}</dc:coverage>
-
 			{if $list[0].rek_author}
 				{if !is_array($list[0].rek_author)}
 		        	<dc:creator>{$list[0].rek_author|escape:"html"}</dc:creator>

@@ -71,6 +71,6 @@ if ($isAdministrator) {
     $tpl->assign("show_not_allowed_msg", true);
 }
 
-$tpl->assign("cycle_colours", APP_CYCLE_COLOR_TWO . ",#FFFFFF");
+$tpl->assign("cycle_colours", "#" . APP_CYCLE_COLOR_TWO . ",#FFFFFF");
 $tpl->displayTemplate();
 ?>

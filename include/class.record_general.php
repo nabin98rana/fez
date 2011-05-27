@@ -20,6 +20,8 @@ class RecordGeneral
   var $display;
   var $details;
   var $record_parents;
+	var $doc;
+	var $parentNode;
   var $status_array = array(
   Record::status_undefined => 'Undefined',
   Record::status_unpublished => 'Unpublished',
@@ -475,43 +477,88 @@ class RecordGeneral
     return -1;
   }
 
+  function getDatastreamNameDesc($sek_title)
+  {
+      $log = FezLog::get();
+      $db = DB_API::get();
+      // remove the solr suffix
+
+			
+			
+      $stmt = "SELECT xsdsel_title as datastreamname, x3.xsdmf_static_text as datastreamdesc
+			FROM 
+			 fez_xsd_display_matchfields x1
+			INNER JOIN fez_search_key ON x1.xsdmf_sek_id = sek_id AND sek_title = ".$db->quote($sek_title)."
+			INNER JOIN fez_xsd_relationship ON xsdrel_xdis_id = x1.xsdmf_xdis_id
+			INNER JOIN fez_xsd_display_matchfields x2 ON x2.xsdmf_id = xsdrel_xsdmf_id
+			INNER JOIN fez_xsd_loop_subelement ON x2.xsdmf_xsdsel_id = xsdsel_id
+			INNER JOIN fez_record_search_key ON rek_display_type = x2.xsdmf_xdis_id
+			INNER JOIN  fez_xsd_display_matchfields x3 ON x3.xsdmf_xsdsel_id = xsdsel_id AND x3.xsdmf_element = '!datastream!datastreamVersion!LABEL'
+			WHERE rek_pid = ".$db->quote($this->pid);
+
+      try {
+          $res = $db->fetchRow($stmt);
+      }
+      catch (Exception $ex) {
+          $log->err($ex);
+          return false;
+      }
+      return $res;
+
+  }
+
+
   function addSearchKeyValueList(
-      $datastreamName, $datastreamDesc, $search_keys=array(), $values=array(), 
+      $search_keys=array(), $values=array(), 
       $removeCurrent=true, $history="was added based on Links AMR Service data"
   )
   {
-    $xmlString = Fedora_API::callGetDatastreamContents($this->pid, $datastreamName, true);
-    //echo $xmlString." here \n";
-    if (is_array($xmlString) || $xmlString == "") {
-      echo "\n**** PID ".$this->pid." without a ".$datastreamName.
-           " datastream was found, this will need content model changing first **** \n";
-      return -1;
-    }
-    $doc = DOMDocument::loadXML($xmlString);
-
+	
+		$datastreams = array();
     $search_keys_added = array();
     foreach ($search_keys as $s => $sk) {
+			$dsDetails = $this->getDatastreamNameDesc($sk);
+
+			$datastreamName = $dsDetails['datastreamname'];
+			$datastreamDesc = $dsDetails['datastreamdesc'];
+			if (!array_key_exists($datastreamName, $datastreams)) {
+	    	$datastreams[$datastreamName] = Fedora_API::callGetDatastreamContents($this->pid, $datastreamName, true);
+			}
+	    //echo $xmlString." here \n";
+	    if (is_array($datastreams[$datastreamName]) || $datastreams[$datastreamName] == "") {
+	       echo "\n**** PID ".$this->pid." without a ".$datastreamName.
+	            " datastream was found, this will need content model changing first **** \n";
+	      // return -1;
+//				$xmlString = "";
+	    }
+	    $doc = DOMDocument::loadXML($datastreams[$datastreamName]);
       $tempdoc = $this->addSearchKeyValue($doc, $sk, $values[$s], $removeCurrent);
       if ($tempdoc !== false) {
         if (!empty($values[$s])) {
           $search_keys_added[$sk] = $values[$s];
         }
-        $doc = $tempdoc;
+        $datastreams[$datastreamName] = $tempdoc->saveXML();;
       }
     }
     //		echo "\nnewXML = \n";
 
 
-    $newXML = $doc->SaveXML();
+    // $newXML = $doc->SaveXML();
     //		echo $newXML;
-    if ((count($search_keys_added) > 0) && ($newXML != "")) {
-      /*	        $this->getDisplay();
-       $display->getXSD_HTML_Match();
-       $datastreamTitles = $display->getDatastreamTitles(); */
-      //Need to make this not just for MODS at some stage
-      Fedora_API::callModifyDatastreamByValue(
-          $this->pid, $datastreamName, "A", $datastreamDesc, $newXML, "text/xml", "inherit"
-      );
+    if (count($search_keys_added) > 0) {
+			foreach ($datastreams as $datastreamName => $newXML) {
+				if ($newXML != "") {
+					$dsExists = Fedora_API::datastreamExists($this->pid, $datastreamName);
+					if ($dsExists !== true) {
+						Fedora_API::getUploadLocation($this->pid, $datastreamName, $newXML, $datastreamDesc,
+								"text/xml", "X",null,"true");
+					} else {
+			      Fedora_API::callModifyDatastreamByValue(
+			          $this->pid, $datastreamName, "A", $datastreamDesc, $newXML, "text/xml", "inherit"
+			      );
+					}	
+				}
+			}
       $historyDetail = "";
       foreach ($search_keys_added as $hkey => $hval) {
         if ($historyDetail != "") {
@@ -520,7 +567,7 @@ class RecordGeneral
         $historyDetail .= $hkey.": ".$hval;
       }
       $historyDetail .= " " . $history;
-      echo 'PID: ' . $this->pid . ' - ' . $historyDetail."\n";
+      // echo 'PID: ' . $this->pid . ' - ' . $historyDetail."\n";
       History::addHistory($this->pid, null, "", "", true, $historyDetail);
       $this->setIndexMatchingFields();
       return 1;
@@ -529,12 +576,109 @@ class RecordGeneral
 
   }
 
+	function buildXMLWithXPATH($xpath_query, $value, $lookup_value, $recurseLevel) {
+	    $xpath = new DOMXPath($this->doc);
+			// echo "\n IN WITH THIS: ".$this->doc->saveXML();
+			// ob_flush();
+	    $pre_xpath_query = substr($xpath_query, 0, (strrpos($xpath_query, "/")));
+			if ($pre_xpath_query == "" ) {
+				return false;
+			}
+       // echo "\n parent pre element query is $pre_xpath_query <br /> \n";
+	    $parentNodeList = $xpath->query($pre_xpath_query);
+			$parentNode = NULL;
+      foreach ($parentNodeList as $fieldNode) {
+				// echo "\n FOUND initial $pre_xpath_query for parentNode will just add to this \n";
+        $parentNode = $fieldNode;
+      }
+
+			$goingDown = 0;
+      if (is_null($parentNode)) {
+				$goingDown = 1;
+				// echo "the query $xpath_query found nothing so recursing down $recurseLevel \n";
+				$this->buildXMLWithXPATH($pre_xpath_query, $value, $lookup_value, ($recurseLevel+1));
+//				$parentNode = $this->buildXMLWithXPATH($pre_xpath_query, $doc, $value, $lookup_value, ($recurseLevel+1));
+	    		//check the base has now been added ok
+	
+					// echo "\n BACK FROM recursion and now doc is ".$this->doc->saveXML(); echo "\n";
+					
+					$this->doc = DOMDocument::loadXML($this->doc->saveXML());
+					
+					// echo "Searching it now for ".$pre_xpath_query."...\n";
+					$xpath2 = new DOMXPath($this->doc);
+					$parentNodeList = $xpath2->query($pre_xpath_query);
+					
+					foreach ($parentNodeList as $fieldNode) {
+						// echo "FOUND ONE !\n";
+					  $parentNode = $fieldNode;
+					}
+   				// echo "current parent node after recurse is ".$parentNode->node_name() . "\n";
+
+			}
+			if (!is_null($parentNode)) {
+			  // echo "found a $pre_xpath_query so going to add $xpath_query to it \n";
+
+				// If we have had to dig down then we have to build the foundations up
+			  $element = substr($xpath_query, (strrpos($xpath_query, "/") + 1));
+
+				// echo "in recursion $recurseLevel adding $element \n";
+
+		    $attributeStartPos = strpos($element, "[");
+		    $attributeEndPos = strpos($element, "]") + 1;
+		    $attribute = "";
+		    if (is_numeric($attributeStartPos) && is_numeric($attributeEndPos)) {
+		      $attribute = substr($element, $attributeStartPos, ($attributeEndPos - $attributeStartPos));
+		      $element = substr($element, 0, $attributeStartPos);
+		    }
+		    $attributeNameStartPos = strpos($attribute, "[@") + 2;
+		    $attributeNameEndPos = strpos($attribute, " =");
+		    $attributeValueStartPos = strpos($attribute, "= ") + 2;
+		    $attributeValueEndPos = strpos($attribute, "]");
+		    $attributeName = substr($attribute, $attributeNameStartPos, ($attributeNameEndPos - $attributeNameStartPos));
+		    $attributeValue = substr($attribute, $attributeValueStartPos, ($attributeValueEndPos - $attributeValueStartPos));
+		    $attributeValue = str_replace("'", "", $attributeValue);
+   				// echo "current parent node appending/setting is ".$parentNode->node_name() . "\n";
+		  	if (substr($element, 0, 1) == "@") {
+		        // echo "\n element: ".$element;
+		        // echo "\n value: ".$value;
+		        // echo "\n substr = ".substr($element, 1);
+		      $parentNode->setAttribute(substr($element, 1), $value);
+					// if this is an ID value, and we have a lookup value, set the element to the lookup value to keep the xml clean
+					if ($lookup_value != "" && $recurseLevel == 2) {
+						$parentNode->nodeValue = $lookup_value;
+					}
+		    } else {
+					// if this is an ID on an attribute xpath like mods:subject/@ID then put the subject lookup value into the element (recurse level 2) 
+					if ($recurseLevel == 2 && $lookup_value != "") {
+			      $newNode = $this->doc->createElement($element, $lookup_value);
+					} elseif ($recurseLevel == 1) {
+		      	$newNode = $this->doc->createElement($element, $value);					
+					} else {
+			      $newNode = $this->doc->createElement($element);
+					}
+
+		      $newNode->setAttribute($attributeName, $attributeValue);
+		      $parentNode->appendChild($newNode);
+		    }
+				// echo "\n created this: ".$this->doc->saveXML();
+			}
+			return true;
+	}
+
   // Experimental function - like a swiss army knife for adding abitrary values to datastreams
   function addSearchKeyValue($doc, $sek_title, $value, $removeCurrent = true)
   {
     $newXML = "";
     $xdis_id = $this->getXmlDisplayId();
     $xpath_query = XSD_HTML_Match::getXPATHBySearchKeyTitleXDIS_ID($sek_title, $xdis_id);
+
+		$sekDetails = Search_Key::getDetailsByTitle($sek_title);
+
+		$lookup_value = "";
+		if ($sekDetails['sek_lookup_function'] != "")  {
+			eval("\$lookup_value = ".$sekDetails["sek_lookup_function"]."(".$value.");");
+		} 
+
     if (empty($value)) {
       return false;
     }
@@ -543,11 +687,9 @@ class RecordGeneral
            " so it will need content model changing first **** \n";
       return false;
     }
-
     $xpath = new DOMXPath($doc);
     $fieldNodeList = $xpath->query($xpath_query);
     $element = substr($xpath_query, (strrpos($xpath_query, "/") + 1));
-    $pre_element = substr($xpath_query, 0, (strrpos($xpath_query, "/")));
     $attributeStartPos = strpos($element, "[");
     $attributeEndPos = strpos($element, "]") + 1;
     $attribute = "";
@@ -555,37 +697,18 @@ class RecordGeneral
       $attribute = substr($element, $attributeStartPos, ($attributeEndPos - $attributeStartPos));
       $element = substr($element, 0, $attributeStartPos);
     }
-    $attributeNameStartPos = strpos($attribute, "[@") + 2;
-    $attributeNameEndPos = strpos($attribute, " =");
-    $attributeValueStartPos = strpos($attribute, "= ") + 2;
-    $attributeValueEndPos = strpos($attribute, "]");
-    $attributeName = substr($attribute, $attributeNameStartPos, ($attributeNameEndPos - $attributeNameStartPos));
-    $attributeValue = substr($attribute, $attributeValueStartPos, ($attributeValueEndPos - $attributeValueStartPos));
-    $attributeValue = str_replace("'", "", $attributeValue);
-
     if ( $removeCurrent && (substr($element, 0, 1) != "@") ) {
       foreach ($fieldNodeList as $fieldNode) { // first delete all the isMemberOfs
         $parentNode = $fieldNode->parentNode;
         $parentNode->removeChild($fieldNode);
       }
     }
-    // If no existing one is found, add to the parent (will error currently if the xpath parent doesn't 
-    // exist either, but thats unusual)
-    if (is_null($parentNode)) {
-      // echo "\n parent pre element query is $pre_element \n";
-      $parentNodeList = $xpath->query($pre_element);
-      foreach ($parentNodeList as $fieldNode) {
-        $parentNode = $fieldNode;
-      }
-    }
-    if (substr($element, 0, 1) == "@") {
-      $parentNode->setAttribute(substr($element, 1), $value);
-    } else {
-      $newNode = $doc->createElement($element, $value);
-      $newNode->setAttribute($attributeName, $attributeValue);
-      $parentNode->appendChild($newNode);
-    }
-    return $doc;
+		$this->doc = $doc;
+		//$parentNode = $this->buildXMLWithXPATH($xpath_query, $value, $lookup_value, 1);
+		$this->buildXMLWithXPATH($xpath_query, $value, $lookup_value, 1);
+		$this->doc = DOMDocument::loadXML($this->doc->saveXML());
+		// echo "\n created this: ".$this->doc->saveXML();
+    return $this->doc;
   }
 
 
@@ -900,25 +1023,41 @@ class RecordGeneral
     }
     $authors = $unknown_authors;
     $authors_count = count($authors);
-
+    
     for ($i = 0; $i < $authors_count; $i++) {
       $authors[$i]['match'] = FALSE;
-      $percent = $this->matchAuthorNameByLev($authors[$i]['name'], $aut_details, $percent_1);
-      if ($percent == 1) {
-        $exact_match_count++;
-        $match_index = $i;
-        $authors[$i]['match'] = $percent;
-      } else {
-        $authors[$i]['match'] = $percent;
-        // Attempt to match on other names for this author we know about
-        foreach ($author_alt_names as $aut_alt_name => $count) {
-          $percent = $this->matchAuthorNameByLev($aut_alt_name, $aut_details, $percent_1);
+      $percent = 0;      
+      if ($aut_details['aut_org_username']) {        
+        if ($known) {
+          // Last name match first, if we have $authors[$i]['name'] in the format LName, F
+          $name_parts = explode(',', $authors[$i]['name']);          
+          $percent = $this->matchAuthorNameByLev($name_parts[0], $aut_details['aut_lname'], $percent_1);
           if ($percent == 1) {
             $exact_match_count++;
             $match_index = $i;
-            break;
+            $authors[$i]['match'] = $percent;
           }
-          $authors[$i]['match'] = $percent;
+        }
+        // No exact match above found        
+        if ($percent < 1) {
+          $percent = $this->matchAuthorNameByLev($authors[$i]['name'], $aut_details['aut_display_name'], $percent_1);      
+          if ($percent == 1) {
+            $exact_match_count++;
+            $match_index = $i;
+            $authors[$i]['match'] = $percent;
+          } else {
+            $authors[$i]['match'] = $percent;
+            // Attempt to match on other names for this author we know about
+            foreach ($aut_alt_names as $aut_alt_name => $count) {
+              $percent = $this->matchAuthorNameByLev($authors[$i]['name'], $aut_alt_name, $percent_1);
+              if ($percent == 1) {
+                $exact_match_count++;
+                $match_index = $i;
+                break;
+              }
+              $authors[$i]['match'] = $percent;
+            }
+          }
         }
       }
     }
@@ -1044,61 +1183,37 @@ class RecordGeneral
    *
    * @return float Percentage for this match
    */
-  function matchAuthorNameByLev($name, $aut_details, &$percent)
+  function matchAuthorNameByLev($name, $name_to_match, &$percent)
   {
-    // Require org username
-    if (! $aut_details['aut_org_username']) {
-      return 0;
-    }
+    $log = FezLog::get();
+    
     $rpercent = 0;
-
-    // Build array of possible author name formats
-    $names_to_match = array();
-    $lname_to_match = strtolower($aut_details['aut_lname']);
-    $names_to_match[] = $aut_details['aut_display_name'];
-    // Lname, Fname
-    $names_to_match[] = $lname_to_match . ', ' . strtolower($aut_details['aut_fname']);
-    // Lname, F.
-    $names_to_match[] = $lname_to_match . ', ' . substr(strtolower($aut_details['aut_fname']), 0, 1) . ".";
-    // Lname, F. M.
-    if ($aut_details['aut_mname']) {
-      $matches = explode(' ', $aut_details['aut_mname']);
-      $middle = array();
-      foreach ($matches as $m) {
-        $middle[] = substr($m, 0, 1);
-      }
-      $middle1 = implode('. ', $middle) . '.';
-      $names_to_match[] = $lname_to_match . ', ' . substr(strtolower($aut_details['aut_fname']), 0, 1) . 
-                          ". " . $middle1;
-      $middle2 = implode('', $middle);
-      $names_to_match[] = $lname_to_match . ', ' . substr(strtolower($aut_details['aut_fname']), 0, 1) . $middle2;
-    }
-    $name = trim(strtolower($name));
-
-    foreach ($names_to_match as $name_to_match) {
-      if ($name_to_match == $name) {
-        // exact match
+    
+    if ($name_to_match == $name) {
+      // exact match
+      $percent = 1;
+      return 1;
+    } else {      
+      // An exact match without spaces, commas or full stops
+      $accept_distance = 1;
+      $pattern = '/[\s,.]/';
+      $name_to_match = strtolower(preg_replace($pattern, '', $name_to_match));
+      $name = strtolower(preg_replace($pattern, '', $name));
+      $distance = levenshtein($name_to_match, $name);
+      $_percent = 1 - ($distance / (max(strlen($name_to_match), strlen($name))));
+      if ($distance < $accept_distance) {
+        // matched within acceptable distance
         $percent = 1;
         return 1;
-      } else {
-        $min_length = min(strlen($name_to_match), strlen($name));
-        $max_length = max(strlen($name_to_match), strlen($name));
-        $accept_distance = 1;
-        $distance = levenshtein($name_to_match, $name);
-        $_percent = 1 - ($distance / (max(strlen($name_to_match), strlen($name))));
-        if ($distance < $accept_distance) {
-          // matched within acceptable distance
-          $percent = 1;
-          return 1;
-        }
-      }
-      if ($_percent > $percent) {
-        $percent = $_percent;
-      }
-      if ($_percent > $rpercent) {
-        $rpercent = $_percent;
       }
     }
+    if ($_percent > $percent) {
+      $percent = $_percent;
+    }
+    if ($_percent > $rpercent) {
+      $rpercent = $_percent;
+    }
+    
 
     return $rpercent;
   }

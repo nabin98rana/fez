@@ -26,6 +26,7 @@ function hideAllSubPages()
 	document.getElementById('handle').style.display = "none";
 	document.getElementById('versioning').style.display = "none";
 	document.getElementById('researcherid').style.display = "none";
+	document.getElementById('wok').style.display = "none";
 }
 
 function updatePreviewColour(el)
@@ -80,7 +81,9 @@ function restoreDefaultColours(el)
 //-->
 </script>
 {/literal}
-
+<!-- LGPL colour picker jscolor 1.3.1 from http://jscolor.com/ -->
+<!-- License: http://www.gnu.org/copyleft/lesser.html -->
+<script type="text/javascript" src="{$rel_url}js/jscolor/jscolor.js"></script>
 
 <div class="admin-box">
 
@@ -108,7 +111,7 @@ function restoreDefaultColours(el)
 
 	<table>
 	  <tr>
-	    <td style="width: 160px;">
+	    <td style="width: 200px; vertical-align: top;">
 		  <a href="#" onclick="javascript:showSubPage('general');">General Settings</a><br />
 		  <a href="#" onclick="javascript:showSubPage('fedora');">Fedora Settings</a><br />
 		  <a href="#" onclick="javascript:showSubPage('paths');">Programs and Paths</a><br />
@@ -116,8 +119,9 @@ function restoreDefaultColours(el)
 		  <a href="#" onclick="javascript:showSubPage('solr');">Solr Settings</a><br />
 		  <a href="#" onclick="javascript:showSubPage('exiftool');">Exiftool Settings</a><br />
 		  <a href="#" onclick="javascript:showSubPage('handle');">Handle Settings</a><br />
+		  <a href="#" onclick="javascript:showSubPage('wok');">Web of Knowledge Settings</a><br />
 		</td>
-	    <td>
+	    <td style="width: 200px; vertical-align: top;">
 		  <a href="#" onclick="javascript:showSubPage('webstats');">Web Statistics</a><br />
 		  <a href="#" onclick="javascript:showSubPage('shib');">Shibboleth Settings</a><br />
 		  <a href="#" onclick="javascript:showSubPage('ldap');">LDAP Settings</a><br />
@@ -648,6 +652,25 @@ function restoreDefaultColours(el)
 			  {include file="error_icon.tpl.html" field="app_eventum_database_pass"}
 			</td>
   		  </tr>
+  		  <tr>
+        <th>Automatic Links AMR Upload</th>
+      <td>
+        <select name="app_auto_linksamr_upload">
+          <option value="ON"{if $config_settings.app_auto_linksamr_upload == "ON"} selected="selected"{/if}>On</option>
+        <option value="OFF"{if $config_settings.app_auto_linksamr_upload == "OFF"} selected="selected"{/if}>Off</option>
+        </select>
+        <br />Enable automatic upload of records to Links Article Match Retrieve Service on create/update. Requires IP access to the service. If you don't know what this is, don't enable it.
+        {include file="error_icon.tpl.html" field="app_auto_linksamr_upload"}
+      </td>
+        </tr>
+        <tr>
+		    <th>Masquering Users Group</th>
+			<td>
+			  <input type="text" name="app_wheel_group" value="{$config_settings.app_wheel_group|escape:"html"}" size="30" />
+			  <br />Users placed in the spcified group will have access to masquerade functionality (i.e. they will be able to log in as any user).
+			  {include file="error_icon.tpl.html" field="app_wheel_group"}
+			</td>
+  		  </tr>
   		  </tbody>
 		</table>
 		</div>
@@ -944,6 +967,13 @@ function restoreDefaultColours(el)
 			</td>
 		  </tr>
 		  <tr>
+		    <th>Ghostscript executable location</th>
+			<td>
+			  <input type="text" name="ghostscript_pth" value="{$config_settings.ghostscript_pth|escape:"html"}" size="40" />
+			  {include file="error_icon.tpl.html" field="ghostscript_pth"}
+			</td>
+		  </tr>
+		  <tr>
 		    <th>Python executable location</th>
 			<td>
 			  <input type="text" name="app_py_exec" value="{$config_settings.app_py_exec|escape:"html"}" size="40" />
@@ -957,6 +987,13 @@ function restoreDefaultColours(el)
 	      {include file="error_icon.tpl.html" field="app_filecache_dir"}
 	    </td>
 	  </tr>
+         <tr>
+             <th>Bookreader root image directory</th>
+            <td>
+                <input type="text" name="br_img_dir" value="{$config_settings.br_img_dir|escape:"html"}" size="40" />
+                {include file="error_icon.tpl.html" field="br_img_dir"}
+            </td>
+         </tr>
 	 </tbody>
 		</table>
 		</div>
@@ -981,91 +1018,91 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Cell colour</th>
 			<td>
-			  <input type="text" name="app_cell_color" value="{$config_settings.app_cell_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_cell_color')" /><div id="app_cell_color" style="background-color: {$config_settings.app_cell_color}; height: 10px; width: 85px;"></div>
+			  <input type="text" class="color" name="app_cell_color" value="{$config_settings.app_cell_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_cell_color')" /><div id="app_cell_color" style="background-color: #{$config_settings.app_cell_color}; height: 10px; width: 85px;"></div>
 			  {include file="error_icon.tpl.html" field="app_cell_color"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Value colour</th>
 			<td>
-			  <input type="text" name="app_value_color" value="{$config_settings.app_value_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_value_color')"/><div id="app_value_color" style="background-color: {$config_settings.app_value_color}; height: 10px; width: 85px;"></div>
+			  <input type="text" class="color" name="app_value_color" value="{$config_settings.app_value_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_value_color')"/><div id="app_value_color" style="background-color: #{$config_settings.app_value_color}; height: 10px; width: 85px;"></div>
 			  {include file="error_icon.tpl.html" field="app_value_color"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Advanced cell colour</th>
 			<td>
-			  <input type="text" name="app_adv_color_dark" value="{$config_settings.app_adv_color_dark|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_adv_color_dark')" /><div id="app_adv_color_dark" style="background-color: {$config_settings.app_adv_color_dark}; height: 10px; width: 85px;"></div>
+			  <input type="text" class="color" name="app_adv_color_dark" value="{$config_settings.app_adv_color_dark|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_adv_color_dark')" /><div id="app_adv_color_dark" style="background-color: #{$config_settings.app_adv_color_dark}; height: 10px; width: 85px;"></div>
 			  {include file="error_icon.tpl.html" field="app_adv_color_dark"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Advanced value colour</th>
 			<td>
-			  <input type="text" name="app_adv_color_light" value="{$config_settings.app_adv_color_light|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_adv_color_light')"/><div id="app_adv_color_light" style="background-color: {$config_settings.app_adv_color_light}; height: 10px; width: 85px;"></div>
+			  <input type="text" class="color" name="app_adv_color_light" value="{$config_settings.app_adv_color_light|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_adv_color_light')"/><div id="app_adv_color_light" style="background-color: #{$config_settings.app_adv_color_light}; height: 10px; width: 85px;"></div>
 			  {include file="error_icon.tpl.html" field="app_adv_color_light"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Light colour</th>
 			<td>
-			  <input type="text" name="app_light_color" value="{$config_settings.app_light_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColourColour('app_light_color')"/><div id="app_light_color" style="background-color: {$config_settings.app_light_color}; height: 10px; width: 85px;"></div>
+			  <input type="text" class="color" name="app_light_color" value="{$config_settings.app_light_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColourColour('app_light_color')"/><div id="app_light_color" style="background-color: #{$config_settings.app_light_color}; height: 10px; width: 85px;"></div>
 			  {include file="error_icon.tpl.html" field="app_light_color"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Selected colour</th>
 			<td>
-			  <input type="text" name="app_selected_color" value="{$config_settings.app_selected_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_selected_color')"/><div id="app_selected_color" style="background-color: {$config_settings.app_selected_color}; height: 10px; width: 85px;"></div>
+			  <input type="text" class="color" name="app_selected_color" value="{$config_settings.app_selected_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_selected_color')"/><div id="app_selected_color" style="background-color: #{$config_settings.app_selected_color}; height: 10px; width: 85px;"></div>
 			  {include file="error_icon.tpl.html" field="app_selected_color"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Middle colour</th>
 			<td>
-			  <input type="text" name="app_middle_color" value="{$config_settings.app_middle_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_middle_color')"/><div id="app_middle_color" style="background-color: {$config_settings.app_middle_color}; height: 10px; width: 85px;"></div>
+			  <input type="text" class="color" name="app_middle_color" value="{$config_settings.app_middle_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_middle_color')"/><div id="app_middle_color" style="background-color: #{$config_settings.app_middle_color}; height: 10px; width: 85px;"></div>
 			  {include file="error_icon.tpl.html" field="app_middle_color"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Dark colour</th>
 			<td>
-			  <input type="text" name="app_dark_color" value="{$config_settings.app_dark_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_dark_color')"/><div id="app_dark_color" style="background-color: {$config_settings.app_dark_color}; height: 10px; width: 85px;"></div>
+			  <input type="text" class="color" name="app_dark_color" value="{$config_settings.app_dark_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_dark_color')"/><div id="app_dark_color" style="background-color: #{$config_settings.app_dark_color}; height: 10px; width: 85px;"></div>
 			  {include file="error_icon.tpl.html" field="app_dark_color"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Heading colour</th>
 			<td>
-			  <input type="text" name="app_heading_color" value="{$config_settings.app_heading_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_heading_color')"/><div id="app_heading_color" style="background-color: {$config_settings.app_heading_color}; height: 10px; width: 85px;"></div>
+			  <input type="text" class="color" name="app_heading_color" value="{$config_settings.app_heading_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_heading_color')"/><div id="app_heading_color" style="background-color: #{$config_settings.app_heading_color}; height: 10px; width: 85px;"></div>
 			  {include file="error_icon.tpl.html" field="app_heading_color"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Cycle colour #1</th>
 			<td>
-			  <input type="text" name="app_cycle_color_one" value="{$config_settings.app_cycle_color_one|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_cycle_color_one')"/><div id="app_cycle_color_one" style="background-color: {$config_settings.app_cycle_color_one}; height: 10px; width: 85px;"></div>
+			  <input type="text" class="color" name="app_cycle_color_one" value="{$config_settings.app_cycle_color_one|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_cycle_color_one')"/><div id="app_cycle_color_one" style="background-color: #{$config_settings.app_cycle_color_one}; height: 10px; width: 85px;"></div>
 			  {include file="error_icon.tpl.html" field="app_cycle_color_one"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Cycle colour #2</th>
 			<td>
-			  <input type="text" name="app_cycle_color_two" value="{$config_settings.app_cycle_color_two|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_cycle_color_two')"/><div id="app_cycle_color_two" style="background-color: {$config_settings.app_cycle_color_two}; height: 10px; width: 85px;"></div>
+			  <input type="text" class="color" name="app_cycle_color_two" value="{$config_settings.app_cycle_color_two|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_cycle_color_two')"/><div id="app_cycle_color_two" style="background-color: #{$config_settings.app_cycle_color_two}; height: 10px; width: 85px;"></div>
 			  {include file="error_icon.tpl.html" field="app_cycle_color_two"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Internal colour</th>
 			<td>
-			  <input type="text" name="app_internal_color" value="{$config_settings.app_internal_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_internal_color')"/><div id="app_internal_color" style="background-color: {$config_settings.app_internal_color}; height: 10px; width: 85px;"></div>
+			  <input type="text" class="color" name="app_internal_color" value="{$config_settings.app_internal_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_internal_color')"/><div id="app_internal_color" style="background-color: #{$config_settings.app_internal_color}; height: 10px; width: 85px;"></div>
 			  {include file="error_icon.tpl.html" field="app_internal_color"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Highlight colour</th>
 			<td>
-			  <input type="text" name="app_highlight_color" value="{$config_settings.app_highlight_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_highlight_color')"/><div id="app_highlight_color" style="background-color: {$config_settings.app_highlight_color}; height: 10px; width: 85px;"></div>
+			  <input type="text" class="color" name="app_highlight_color" value="{$config_settings.app_highlight_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_highlight_color')"/><div id="app_highlight_color" style="background-color: #{$config_settings.app_highlight_color}; height: 10px; width: 85px;"></div>
 			  {include file="error_icon.tpl.html" field="app_highlight_color"}
 			</td>
 		  </tr>
@@ -1923,6 +1960,73 @@ function restoreDefaultColours(el)
 		 </tbody>
 		</table>
 		</div>
+		
+		<div id="wok" style="display: none;">
+		<table width="100%" class="admin-edit">
+		 <thead>
+		  <tr>
+			<th colspan="2">
+			  <h2>Web of Knowledge Web Service Settings</h2>
+			</th>
+		  </tr>
+		 </thead>
+		 <tbody>
+		  <tr>
+		    <th>Web service base URL</th>
+			<td>
+			  <input type="text" name="wok_ws_base_url" value="{$config_settings.wok_ws_base_url|escape:"html"}" size="100" />
+			  <br />The URL of the Web of Knowledge web service.
+			  {include file="error_icon.tpl.html" field="wok_ws_base_url"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Database ID</th>
+			<td>
+			  <input type="text" name="wok_database_id" value="{$config_settings.wok_database_id|escape:"html"}" size="10" />
+			  {include file="error_icon.tpl.html" field="wok_database_id"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Cookie name</th>
+			<td>
+			  <input type="text" name="wok_cookie_name" value="{$config_settings.wok_cookie_name|escape:"html"}" size="10" />
+			  {include file="error_icon.tpl.html" field="wok_cookie_name"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Username</th>
+			<td>
+			  <input type="text" name="wok_username" value="{$config_settings.wok_username|escape:"html"}" size="20" />
+			  {include file="error_icon.tpl.html" field="wok_username"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Password</th>
+			<td>
+			  <input type="password" name="wok_password" value="{$config_settings.wok_password|escape:"html"}" size="20" />
+			  {include file="error_icon.tpl.html" field="wok_password"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Batch size</th>
+			<td>
+			  <input type="text" name="wok_batch_size" value="{$config_settings.wok_batch_size|escape:"html"}" size="5" />
+			  <br />Enter a number.<br /><b>IMPORTANT:</b> Changing the batch size may be violation of the WoS license. Do not change this value unless you are authorised to do so by Thomson Reuters.
+			  {include file="error_icon.tpl.html" field="wok_batch_size"}
+			</td>
+		  </tr>
+		  <tr>
+		    <th>Seconds between calls</th>
+			<td>
+			  <input type="text" name="wok_seconds_between_calls" value="{$config_settings.wok_seconds_between_calls|escape:"html"}" size="5" />
+			  <br />Please enter the delay between calls, in seconds.<br /><b>IMPORTANT:</b> Calling the WoS web service more frequently than the negotiated value may be violation of the WoS license. Do not change this value unless you are authorised to do so by Thomson Reuters.
+			  {include file="error_icon.tpl.html" field="wok_seconds_between_calls"}
+			</td>
+		  </tr>
+		 </table>
+		</div>
+		
+		
 
 		<div id="submit" style="display: none;">
 		<br />&nbsp;&nbsp;&nbsp;<input type="submit" name="button" value="Save changes" class="submit" /> &nbsp; <input type="reset" value="Discard changes" /><br /><br />

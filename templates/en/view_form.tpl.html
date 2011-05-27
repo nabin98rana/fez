@@ -87,6 +87,17 @@ function loadPreview(pid,datastreamID, alt, origami)
 				{$xdis_title}
 			</td>
 		</tr>
+		
+		{if $sub_type}
+		<tr>
+			<th>
+				Sub-type:
+			</th>
+			<td>
+				{$sub_type}
+			</td>
+		</tr>
+		{/if}
 
 {if $isUser && !$hide_edit}
 	{if $isEditor || $isAdministrator}
@@ -265,15 +276,27 @@ function loadPreview(pid,datastreamID, alt, origami)
 								{/if}
 								
 								{* Name of file *}
-								{if $datastreams[d].isViewer == 1 || $isAdministrator}
-									<a onclick="javascript:window.open('{$rel_url}eserv/{$pid}/{$ds_show}{if $viewingPreviousVersion}/version_date={$versionDate}{/if}'); return false;" href="{$rel_url}eserv/{$pid}/{$ds_show}{if $viewingPreviousVersion}/version_date={$versionDate}{/if}">
-								{/if}
-							
-								{$datastreams[d].ID}
-								
-								{if $datastreams[d].isViewer == 1 || $isAdministrator}
-									</a> 
-								{/if}
+                                {assign var="dsName" value=$datastreams[d].ID}
+                                {if $datastreams[d].MIMEType == 'application/pdf' && $pageCounts[$dsName]}
+                                    {if $datastreams[d].isViewer == 1 || $isAdministrator}
+                                        <a target="_blank" href="{$rel_url}eserv/{$pid}/{$ds_show}?bookreader=true">
+                                            <img style="float:left;clear:none;" src="/images/icons/bookreader.png" alt="Read with bookreader" /></a>
+                                            <a href="{$rel_url}eserv/{$pid}/{$ds_show}" ><span style="display:block; margin-top: 7px;">&nbsp;{$datastreams[d].ID}</span></a>
+                                    {else}
+                                        {$datastreams[d].ID}
+                                 {/if}
+
+                                {else}
+                                    {if $datastreams[d].isViewer == 1 || $isAdministrator}
+                                        <a onclick="javascript:window.open('{$rel_url}eserv/{$pid}/{$ds_show}{if $viewingPreviousVersion}/version_date={$versionDate}{/if}'); return false;" href="{$rel_url}eserv/{$pid}/{$ds_show}{if $viewingPreviousVersion}/version_date={$versionDate}{/if}">
+                                    {/if}
+
+                                    {$datastreams[d].ID}
+
+                                    {if $datastreams[d].isViewer == 1 || $isAdministrator}
+                                        </a>
+                                    {/if}
+                                {/if}
 								
 								</td>
 								

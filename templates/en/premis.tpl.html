@@ -1,0 +1,27 @@
+  		<foxml:datastream CONTROL_GROUP="X" ID="PremisEvent" STATE="A" VERSIONABLE="false">
+    		<foxml:datastreamVersion CREATED="{$premis.created_date}" FORMAT_URI="unknown" ID="PremisEvent.0" LABEL="Premis Event Datastream" MIMETYPE="text/xml">
+      			<foxml:xmlContent>
+					<premis:premis xmlns:premis="http://www.loc.gov/standards/premis">
+					  	<premis:event>
+					    	<premis:eventIdentifier>{$premis.identifier}</premis:eventIdentifier>
+					    	<premis:eventType>{$premis.type}</premis:eventType>
+					    	<premis:eventDateTime>{$premis.datetime}</premis:eventDateTime>
+					    	<premis:eventDetail>{$premis.detail}</premis:eventDetail>
+					    	<premis:eventOutcomeInformation>
+					      		<premis:eventOutcome/>
+					      		<premis:eventOutcomeDetail/>
+					    	</premis:eventOutcomeInformation>
+					    	<premis:linkingAgentIdentifier>
+					      		<premis:linkingAgentIdentifierType>ID</premis:linkingAgentIdentifierType>
+					      		<premis:linkingAgentIdentifierValue></premis:linkingAgentIdentifierValue>
+					    	</premis:linkingAgentIdentifier>
+					    	<premis:linkingAgentIdentifier>
+					      		<premis:linkingAgentIdentifierType>Full Name</premis:linkingAgentIdentifierType>
+					      		<premis:linkingAgentIdentifierValue></premis:linkingAgentIdentifierValue>
+					    	</premis:linkingAgentIdentifier>
+					    	<premis:linkingObjectIdentifier>{$premis.link_identifier}</premis:linkingObjectIdentifier>
+					  	</premis:event>
+					</premis:premis>
+	  			</foxml:xmlContent>
+    		</foxml:datastreamVersion>
+  		</foxml:datastream>

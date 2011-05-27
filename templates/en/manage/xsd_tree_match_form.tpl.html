@@ -960,68 +960,68 @@
                 </td>
               </tr>
               <tr>
-                <td colspan="2" width="120" bgcolor="{$smarty.const.APP_ADV_COLOR_DARK}" class="default">
+                <td colspan="2" width="120" bgcolor="#{$smarty.const.APP_ADV_COLOR_DARK}" class="default">
                   <b>Advanced Settings (not required for most mappings)</b>
                 </td>
 			  </tr>
               <tr>
-                <td width="120" bgcolor="{$smarty.const.APP_ADV_COLOR_DARK}" class="default">
+                <td width="120" bgcolor="#{$smarty.const.APP_ADV_COLOR_DARK}" class="default">
                   <b>Enforced Namespace Prefix:</b>
                 </td>
-                <td bgcolor="{$smarty.const.APP_ADV_COLOR_LIGHT}">
+                <td bgcolor="#{$smarty.const.APP_ADV_COLOR_LIGHT}">
                   <input type="text" name="enforced_prefix" size="30" class="default" value="{$info.xsdmf_enforced_prefix}">
                   <span class="small_default">(it will be used as the namespace for this field and override the main object namespace. You must include the ":".)</span>
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$smarty.const.APP_ADV_COLOR_DARK}" class="default">
+                <td width="120" bgcolor="#{$smarty.const.APP_ADV_COLOR_DARK}" class="default">
                   <b>Value In Tag?:</b>
                 </td>
-                <td bgcolor="{$smarty.const.APP_ADV_COLOR_LIGHT}">
+                <td bgcolor="#{$smarty.const.APP_ADV_COLOR_LIGHT}">
                   <input type="checkbox" name="valueintag" class="default" {if ($info.xsdmf_valueintag == 1 || $info.xsdmf_valueintag == "")}checked{/if}><br />
                   <span class="small_default">(If this enabled tickbox is ticked this element will have a start and end tag, rather than one which does both. Mainly used for element attributes.)</span>
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$smarty.const.APP_ADV_COLOR_DARK}" class="default">
+                <td width="120" bgcolor="#{$smarty.const.APP_ADV_COLOR_DARK}" class="default">
                   <b>Is a SEL Unique Key?:</b>
                 </td>
-                <td bgcolor="{$smarty.const.APP_ADV_COLOR_LIGHT}">
+                <td bgcolor="#{$smarty.const.APP_ADV_COLOR_LIGHT}">
                   <input type="checkbox" name="is_key" class="default" {if ($info.xsdmf_is_key == 1)}checked{/if}><br />
                   <span class="small_default">(If this tickbox is ticked the element key match value will match against)</span>
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$smarty.const.APP_ADV_COLOR_DARK}" class="default">
+                <td width="120" bgcolor="#{$smarty.const.APP_ADV_COLOR_DARK}" class="default">
                   <b>Key Match Text:</b>
                 </td>
-                <td bgcolor="{$smarty.const.APP_ADV_COLOR_LIGHT}">
+                <td bgcolor="#{$smarty.const.APP_ADV_COLOR_LIGHT}">
 				  <input type="text" name="key_match" size="40" class="default" value="{$info.xsdmf_key_match}">
                   <span class="small_default">(If the above tickbox is ticked xml elements will be matched against this text value to get the corresponding xsdmf_id)</span>
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$smarty.const.APP_ADV_COLOR_DARK}" class="default">
+                <td width="120" bgcolor="#{$smarty.const.APP_ADV_COLOR_DARK}" class="default">
                   <b>Parent Key Match Text:</b>
                 </td>
-                <td bgcolor="{$smarty.const.APP_ADV_COLOR_LIGHT}">
+                <td bgcolor="#{$smarty.const.APP_ADV_COLOR_LIGHT}">
 				  <input type="text" name="parent_key_match" size="40" class="default" value="{$info.xsdmf_parent_key_match}">
                   <span class="small_default">(If the above tickbox is ticked xml elements will be matched against this text value to get the corresponding xsdmf_id from the parent element passed key match (if one exists))</span>
                 </td>
               </tr>
               <tr>
-                <td width="120" bgcolor="{$smarty.const.APP_ADV_COLOR_DARK}" class="default">
+                <td width="120" bgcolor="#{$smarty.const.APP_ADV_COLOR_DARK}" class="default">
                   <b>Attached XSDMF ID:</b>
                 </td>
-                <td bgcolor="{$smarty.const.APP_ADV_COLOR_LIGHT}">
+                <td bgcolor="#{$smarty.const.APP_ADV_COLOR_LIGHT}">
 				  <input type="text" name="attached_xsdmf_id" size="40" class="default" value="{$info.xsdmf_attached_xsdmf_id}">
                   <span class="small_default">(If an existing XSDMF ID is entered here then that matching field will be shown to the right of this matching field in any forms. Mainly useful for Author ID selectors)</span> </td>
               </tr>			
               <tr>
-                <td width="120" bgcolor="{$smarty.const.APP_ADV_COLOR_DARK}" class="default">
+                <td width="120" bgcolor="#{$smarty.const.APP_ADV_COLOR_DARK}" class="default">
                   <b>Value Prefix:</b>
                 </td>
-                <td bgcolor="{$smarty.const.APP_ADV_COLOR_LIGHT}">
+                <td bgcolor="#{$smarty.const.APP_ADV_COLOR_LIGHT}">
                   <input type="text" name="value_prefix" size="30" class="default" value="{$info.xsdmf_value_prefix}">
                   <span class="small_default">(it will be appended to the front of any form entered variable for this xsdmf match eg for Pids to have info:fedora/ at the front.)</span>
                 </td>

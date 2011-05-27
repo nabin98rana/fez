@@ -79,7 +79,7 @@ function correctionRequired(pid)
 	{/if}
         {foreach from=$items.values key=id item=valueData}
         {if $valueData.num > 0}
-        {if $id != '0'}<li class='facetarrow'><a href="?{$url_wo_rows}&search_keys[{$sek_id}]={$id}">{$valueData.value}</a> ({$valueData.num})</li>{/if}
+        {if $id != '0'}<li class='facetarrow'><a href="?{$url_wo_rows}&amp;search_keys[{$sek_id}]={$id}{if $acting_user.aut_org_username != ''}&amp;proxy={$acting_user.aut_org_username}{/if}">{$valueData.value}</a> ({$valueData.num})</li>{/if}
         {/if}
         {/foreach}
         <li>&nbsp;</li>
@@ -104,7 +104,11 @@ function correctionRequired(pid)
 
 			<table id="research-record-listing">
 				<tr>
-			        <th>The publications listed below are currently attributed to you.</th>
+			        <th>The publications listed below are currently attributed to you.
+						{if $is_editor}
+							<br /><br />This list does NOT include items that you edited. See the My Pubs page.
+						{/if}
+			        </th>
 					<th style="text-align: center; padding: 2px;">
 						{if $list_info.total_rows > 0}
 							<img src="{$rel_url}images/journal_ranking_16.png" title="Ranked Journal List Ranking" alt="Ranked Journal List Ranking" />
@@ -136,29 +140,43 @@ function correctionRequired(pid)
 	
 		<tr class="{if $flagged_claimed[$pid].type == 'D'}claimed-not-my-pub{elseif $flagged_claimed[$pid].type == 'C'}claimed-correction-required{elseif $flagged_possible[$pid].type == 'C' && $flagged_possible[$pid].correction != ''}claimed-correction-required{elseif $list[i].rek_status != '2'}unpublished-pub{/if}">
 			<td style="width: 100%;">  {if $list[i].rek_status != 2} (waiting on an administrator for approval to be published) {/if}
+                {if $isAdministrator}
 				{if $list[i].rek_display_type_lookup == "Book" || $list[i].rek_display_type_lookup == "Book Chapter" || $list[i].rek_display_type_lookup == "Journal Article" || $list[i].rek_display_type_lookup == "Conference Paper"}
 				<a class="form_note" href="#">
 					<span class="form_note">
-						Display Type: {$list[i].rek_display_type_lookup}<br/>
-						HERDC Status: {$list[i].rek_herdc_status_lookup}<br/>
-						Institutional Status: {$list[i].rek_institutional_status_lookup}<br/><br />
-					{if $list[i].rek_display_type_lookup == "Book" || $list[i].rek_display_type_lookup == "Book Chapter"}
-						Edition: {$list[i].rek_edition} </br>
-						ISBN: {$list[i].rek_isbn} </br>
-					{elseif $list[i].rek_display_type_lookup == "Journal Article"}
-						{if $list[i].rek_refereed == '0'} Refereed: No </br> {/if}
-						{if $list[i].rek_refereed == '1'} Refereed: Yes </br> {/if}
-						ISSN: {$list[i].rek_issn} </br>
-					{elseif $list[i].rek_display_type_lookup == "Conference Paper"}
-						{if $list[i].rek_refereed == '0'} Refereed: No </br> {/if}
-						{if $list[i].rek_refereed == '1'} Refereed: Yes </br> {/if}											
-					{/if}
-						Thomson ISI Loc: {$list[i].rek_isi_loc}<br/>
-						Scopus ID: {$list[i].rek_scopus_id}<br/>
+						<strong>PID:</strong> {$list[i].rek_pid}<br />
+						<strong>Display Type:</strong> {$list[i].rek_display_type_lookup}<br />
+						{if $list[i].rek_subtype != ''}
+							<strong>Sub Type:</strong> {$list[i].rek_subtype}<br />
+						{else if $list[i].rek_genre_type != ''}
+							<strong>Sub Type:</strong> {$list[i].rek_genre_type}<br />
+						{/if}
+						<strong>HERDC Status:</strong> {$list[i].rek_herdc_status_lookup}<br />
+						<strong>HERDC Code:</strong> {$list[i].rek_herdc_code_lookup}<br />
+						<strong>Institutional Status:</strong> {$list[i].rek_institutional_status_lookup}<br /><br />
+						<strong>eSpace Follow up Flag:</strong> {$list[i].rek_follow_up_flags_lookup}<br />
+						<strong>IMU Follow up Flag:</strong> {$list[i].rek_follow_up_flags_imu_lookup}<br /><br />
+						{if $list[i].rek_display_type_lookup == "Book" || $list[i].rek_display_type_lookup == "Book Chapter"}
+							<strong>Edition:</strong> {$list[i].rek_edition}<br />
+							<strong>ISBN:</strong> {$list[i].rek_isbn}<br />
+						{elseif $list[i].rek_display_type_lookup == "Journal Article"}
+							{if $list[i].rj_rank} <strong>ERA Rank:</strong> {$list[i].rj_rank} ({$list[i].rj_title})<br />{/if}
+							{if $list[i].rek_refereed == '0'} <strong>Refereed:</strong> No<br /> {/if}
+							{if $list[i].rek_refereed == '1'} <strong>Refereed:</strong> Yes<br /> {/if}
+							<strong>ISSN:</strong> {$list[i].rek_issn}<br />
+						{elseif $list[i].rek_display_type_lookup == "Conference Paper"}
+							{if $list[i].rc_rank}<strong>ERA Rank:</strong> {$list[i].rc_rank} ({$list[i].rc_title})<br />{/if}
+							{if $list[i].rek_refereed == '0'} <strong>Refereed:</strong> No<br /> {/if}
+							{if $list[i].rek_refereed == '1'} <strong>Refereed:</strong> Yes<br /> {/if}
+						{/if}
+						<strong>Thomson ISI Loc:</strong> {$list[i].rek_isi_loc}<br />
+						<strong>Scopus ID:</strong> {$list[i].rek_scopus_id}<br /><br />
+						<strong>HERDC Notes:</strong> {$list[i].rek_herdc_notes}<br /><br />
 					</span>	
 					<img style="padding-right:2px" src="{$rel_url}images/views_16.png" valign="middle" />
 				</a>
 				{/if}
+                {/if}
 				{if $list[i].rek_citation != ""}
 					{$list[i].rek_citation}
 				{else}

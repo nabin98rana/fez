@@ -69,23 +69,19 @@ if (!empty($custom_view_pid)) {
 	}
 } 
 
-// For Picture Australia feeds filter to only show Image Objects (Image and Diglib Image) - will move this from hardcoded to admin menu at some stage
+// For Picture Australia feeds filter to only show Image / Diglib Image / Photograph objects
 if ($metadataPrefix == "pa") {
 	$digilib_image_xdis_id = XSD_Display::getXDIS_IDByTitle("Digilib Image");
 	$image_xdis_id = XSD_Display::getXDIS_IDByTitle("Image");
-	
-	// 26/11/2008 bh added support for photograph doc type
 	$photograph_xdis_id = XSD_Display::getXDIS_IDByTitle("Photograph");
-		if (is_numeric($photograph_xdis_id)) {
-		$filter["searchKey".Search_Key::getID("Display Type")][] = $photograph_xdis_id;
+	if (is_numeric($digilib_image_xdis_id)) {
+		$filter["searchKey".Search_Key::getID("Display Type")][] = $digilib_image_xdis_id;
 	}
-	
-	
 	if (is_numeric($image_xdis_id)) {
 		$filter["searchKey".Search_Key::getID("Display Type")][] = $image_xdis_id;
 	}
-	if (is_numeric($digilib_image_xdis_id)) {
-		$filter["searchKey".Search_Key::getID("Display Type")][] = $digilib_image_xdis_id;
+	if (is_numeric($photograph_xdis_id)) {
+		$filter["searchKey".Search_Key::getID("Display Type")][] = $photograph_xdis_id;
 	}
 }
 

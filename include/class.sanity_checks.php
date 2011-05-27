@@ -109,6 +109,7 @@ class SanityChecks
         $results = array_merge($results, SanityChecks::stats());
         $results = array_merge($results, SanityChecks::checkSearchKeys());
         $results = array_merge($results, SanityChecks::handle());
+        $results = array_merge($results, SanityChecks::ghostscript());
         if (SanityChecks::resultsClean($results)) {
             $results[] = ConfigResult::messageOk('All tests Passed');
         }
@@ -189,6 +190,7 @@ class SanityChecks
         $results = array_merge($results, SanityChecks::checkDir('APP_TEMP_DIR', APP_TEMP_DIR, true));
         $results = array_merge($results, SanityChecks::checkDir('APP_SAN_IMPORT_DIR', APP_SAN_IMPORT_DIR));
         $results = array_merge($results, SanityChecks::checkDir('APP_TEMPLATE_COMPILE_PATH', APP_TEMPLATE_COMPILE_PATH, true));
+        $results = array_merge($results,SanityChecks::checkdir('BR_IMG_DIR',BR_IMG_DIR, true));
         if (APP_REPORT_ERROR_FILE == "true") {
             $results = array_merge($results, SanityChecks::checkFile('APP_ERROR_LOG', APP_ERROR_LOG, true));
         }
@@ -203,32 +205,21 @@ class SanityChecks
         if (WEBSERVER_LOG_STATISTICS == "ON") {
             $results = array(ConfigResult::message('Testing Stats Setup'));
             $results = array_merge($results, SanityChecks::checkDir('APP_GEOIP_PATH', APP_GEOIP_PATH));
-            $results = array_merge($results, SanityChecks::checkDir('WEBSERVER_LOG_DIR', WEBSERVER_LOG_DIR));
-            $results = array_merge($results, SanityChecks::checkFile('WEBSERVER_LOG_DIR.WEBSERVER_LOG_FILE', WEBSERVER_LOG_DIR . WEBSERVER_LOG_FILE, false, false, true));
-            if (SanityChecks::resultsClean($results)) {
-                $logf = WEBSERVER_LOG_DIR . WEBSERVER_LOG_FILE;
-                $archive_name = APP_HOSTNAME;
-                $handle = fopen($logf, "r");
-                $found_match = false;
-                while (!feof($handle)) {
-                    $buffer = fgets($handle, 4096);
-                    if (preg_match("/^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}) - - \[(.*?)\] \"GET " . preg_quote(APP_RELATIVE_URL, '/') . "\/?\S* HTTP\/1..\" 200 .*/i", $buffer, $matches)) {
-                        $found_match = true;
-                        break;
-                    }
-                }
-                fclose($handle);
-                if (!$found_match) {
-                    $results[] = new ConfigResult('Stats', '', '', 'The apache logfile didn\'t match the expected format. ' .
-                                                                   'The format should be \'combined\'.  See \'Download Statistics setup\' in the Fez Wiki');
-                }
-            }
+			if (SanityChecks::resultsClean($results)) {
+				$results[] = ConfigResult::messageOk('All Stats tests passed');
+			}
             return $results;
         } else {
             return array();
         }
     }
 
+    function ghostscript()
+    {
+        $results = array(ConfigResult::message('Testing for Ghostscript'));
+        $results = array_merge($results, SanityChecks::checkFile("GHOSTSCRIPT_PTH", GHOSTSCRIPT_PTH, true));
+        return $results;
+    }
 
     function jhove()
     {

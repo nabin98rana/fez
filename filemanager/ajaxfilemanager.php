@@ -10,6 +10,9 @@ require_once(CLASS_SESSION_ACTION);
 $sessionAction = new SessionAction();
 require_once(DIR_AJAX_INC . "class.manager.php");
 
+include_once(APP_INC_PATH . "class.auth.php");
+Auth::checkAuthentication(APP_SESSION);
+
 $path = $_GET['path'];
 $canViewFolders = @$_SESSION['canViewFolders'];
 
@@ -34,7 +37,29 @@ if( is_array($canViewFolders) )
 $manager = new manager();
 $manager->setSessionAction($sessionAction);
 $fileList = $manager->getFileList();
+
+$numFiles = count($fileList);
+$alertMsg = ' We cannot allow this file due to its filename, please rename it. Please check that the new name conforms to the following:<br/>';
+$alertMsg = $alertMsg.' - only upper or lowercase alphanumeric characters or underscores (a-z, A-Z, _ and 0-9 only, NO SPACES)<br/>';
+$alertMsg = $alertMsg.' - with only numbers and lowercase characters in the file extension,<br/>';
+$alertMsg = $alertMsg.' - under 45 characters,<br/>';
+$alertMsg = $alertMsg.' - with only one file extension (one period (.) character) and <br/>';
+$alertMsg = $alertMsg.' - starting with a letter. Eg "s12345678_phd_thesis.pdf"';
+for ($x = 0; $x < $numFiles; $x++) {
+    $regexp = '/^[a-zA-Z][a-zA-Z0-9_]*[\.][a-z0-9]+$/';
+    if ($fileList[$x]['type'] == 'file') {
+        if (!preg_match($regexp, $fileList[$x]['name']) || strlen($fileList[$x][$name]) > 45) {
+            $fileList[$x]['is_writable'] = 0;
+            $fileList[$x]['name'] = "<span style='color:red;'>".$fileList[$x]['name'] . "</span>" . $alertMsg;
+        }
+    } else {
+        $fileList[$x]['is_writable'] = 0;
+    }
+}
+
+
 $folderInfo = $manager->getFolderInfo();
+
 $rel_url = APP_RELATIVE_URL;
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">

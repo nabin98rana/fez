@@ -69,7 +69,7 @@ if ($access_ok) {
 	$listAll = MainChapter::getListAll($pid);
 	$tpl->assign("list", $listAll);
 	$list_keyed = Misc::keyArray($listAll, 'af_id');
-	$tpl->assign("cycle_colours", APP_CYCLE_COLOR_TWO . ",#FFFFFF");
+	$tpl->assign("cycle_colours", "#" . APP_CYCLE_COLOR_TWO . ",#FFFFFF");
 	$tpl->assign(compact('list','authors','author_ids','wf_id'));
 
 } else {

@@ -595,6 +595,8 @@ function getFlashMessage(id)
 			e = document.getElementById('flash_message_div');
 			if (e != null) {
 				e.innerHTML = s;
+                currentClass = e.getAttribute("class");
+                e.setAttribute("class", currentClass + " message_" + wfs.getMessageType());
 				showFlashMessage();
 			}
 		}

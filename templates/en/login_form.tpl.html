@@ -352,6 +352,8 @@ function toggleHideSecondaryLogin()
               again and accept all cookies coming from it.
             {elseif $smarty.get.err == 23}
                Shibboleth can't find a username in the IDP attributes
+            {elseif $smarty.get.err == 30}
+               You cannot masquerade as a super administrator.
             {/if}
             </b>
           </td>

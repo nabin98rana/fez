@@ -1,3 +1,89 @@
+{literal}
+
+	<script type="text/javascript">
+	<!--
+	
+	var star_proxy = new dojo.rpc.JsonService("{/literal}{$rel_url}{literal}record_star_proxy.php");
+	var star_toggle = 'off';
+	
+	function addStar(pid)
+	{
+		var image = document.getElementById('star_' + pid);
+		image.src = rel_url + 'images/star_16_active.png';
+		var star_result = star_proxy.star(pid);
+		
+		star_result.addCallback( function(msg) {
+			if (msg == 'true') {
+				image.src = rel_url + 'images/star_16.png';
+			}
+		});
+		
+		return;
+	}
+	
+	function removeStar(pid)
+	{
+		var image = document.getElementById('star_' + pid);
+		image.src = rel_url + 'images/star_16_active.png';
+		var star_result = star_proxy.unstar(pid);
+		
+		star_result.addCallback( function(msg) {
+			if (msg == 'true') {
+				image.src = rel_url + 'images/star_16_grey.png';
+			}
+		});
+		
+		return;
+	}
+	
+	function starToggle(pid)
+	{
+		var image = document.getElementById('star_' + pid);
+		
+		/* Determine whether to add or remove the star, based on it current value */
+		if (image.src.indexOf("star_16_grey") != -1 || image.src.indexOf("star_16_active") != -1) {
+			addStar(pid);
+		} else {
+			removeStar(pid);
+		}
+		
+		return;
+	}
+	
+	function toggleStarAll(f, field_name)
+	{
+		var pids = [];
+		/* Get all the PIDS on the page */
+		for (var i = 0; i < f.elements.length; i++) {
+			if (f.elements[i].name == field_name) {
+				pids.push(f.elements[i].value);
+			}
+		}
+		
+		/* Add or Remove the stars, depending on the toggle value */
+		for (var i = 0; i < pids.length; i++) {
+			if (star_toggle == 'off') {
+				addStar(pids[i]);
+			} else {
+				removeStar(pids[i]);
+			}
+		}
+		
+		/* Adjust toggle */
+	    if (star_toggle == 'off') {
+	        star_toggle = 'on';
+	    } else {
+	        star_toggle = 'off';
+	    }
+	    
+	    return;
+	}
+	
+	-->
+	</script> 
+
+{/literal}
+
 {include file="js/list.tpl.js"}
 <script type="text/javascript" src="{$rel_url}js/listpage.js"></script>
 
@@ -66,7 +152,7 @@
 	{/if}
         {foreach from=$items.values key=id item=valueData}
         {if $valueData.num > 0}
-        {if $id != '0'}<li class='facetarrow'><a href="?{$url_wo_rows}&search_keys[{$sek_id}]={$id}">{$valueData.value}</a> ({$valueData.num})</li>{/if}
+        {if $id != '0'}<li class='facetarrow'><a href="?{$url_wo_rows}&amp;search_keys[{$sek_id}]={$id}">{$valueData.value}</a> ({$valueData.num})</li>{/if}
         {/if}
         {/foreach}
         <li>&nbsp;</li>
@@ -85,7 +171,7 @@
 <div style="padding:20px;">
 	<table {if ($facets  && $list_type != 'collection_records_list' && $list_type != 'collection_list' && $list_type != 'community_list') || (is_array($alternativeAuthorNamesList) && count($alternativeAuthorNamesList) > 1)}width="70%"{else}width="100%"{/if} cellpadding="10" cellspacing="0" class="listrecord">
         <tr>
-            <td colspan="{if ($isAdministrator)}3{else}2{/if}">&nbsp;</td>
+            <td colspan="{if ($isAdministrator)}4{else}2{/if}">&nbsp;</td>
             {if $showEdit || $isAdministrator}		
                 <td align="right">&nbsp;</td>
             {/if}
@@ -166,6 +252,12 @@
            {/if}
 
 		  <tr>
+		  	{if $list_type != 'community_list' && $list_type != 'collection_list' && $isAdministrator}
+				<td style="border-top: 1px dashed #be87e9; width: 10px; vertical-align: middle;">
+					<img id="star_{$list[i].rek_pid}" src="{$rel_url}images/star_16{if !$list[i].starred}_grey{/if}.png" alt="Star/unstar this record" title="Star/unstar this record" onclick="javascript:starToggle('{$list[i].rek_pid}')"; />
+				</td>
+			{/if}
+		  
 		  {if ($isAdministrator)}  		  
               <td style="border-top: 1px dashed #be87e9; width: 10px; vertical-align: middle;">
 	              <input type="checkbox" name="pids[]" value="{$list[i].rek_pid}" />
@@ -179,35 +271,43 @@
 		  {/if}
 				  
 		  <td align="left"{if $icon}{else} colspan="2"{/if} valign="middle" style="border-top:1px dashed #be87e9; width: 100%;">
+            {if $isAdministrator}
 			{if $list[i].rek_display_type_lookup == "Book" || $list[i].rek_display_type_lookup == "Book Chapter" || $list[i].rek_display_type_lookup == "Journal Article" || $list[i].rek_display_type_lookup == "Conference Paper"}
 			<a class="form_note" href="#">
 				<span class="form_note">
-					Display Type: {$list[i].rek_display_type_lookup}<br/>
-					HERDC Status: {$list[i].rek_herdc_status_lookup}<br/>
-					HERDC Code: {$list[i].rek_herdc_code_lookup}<br/>
-					Institutional Status: {$list[i].rek_institutional_status_lookup}<br/><br />
-				{if $list[i].rek_display_type_lookup == "Book" || $list[i].rek_display_type_lookup == "Book Chapter"}
-					Edition: {$list[i].rek_edition} </br>
-					ISBN: {$list[i].rek_isbn} </br>
-				{elseif $list[i].rek_display_type_lookup == "Journal Article"}
-					{if $list[i].rj_rank} ERA Rank: {$list[i].rj_rank} ({$list[i].rj_title})<br />{/if}
-					{if $list[i].rek_refereed == '0'} Refereed: No </br> {/if}
-					{if $list[i].rek_refereed == '1'} Refereed: Yes </br> {/if}
-					ISSN: {$list[i].rek_issn} </br>
-				{elseif $list[i].rek_display_type_lookup == "Conference Paper"}
-					{if $list[i].rc_rank}ERA Rank: {$list[i].rc_rank} ({$list[i].rc_title})<br />{/if}
-					{if $list[i].rek_refereed == '0'} Refereed: No </br> {/if}
-					{if $list[i].rek_refereed == '1'} Refereed: Yes </br> {/if}											
-				{/if}
-					Thomson ISI Loc: {$list[i].rek_isi_loc}<br/>
-					Scopus ID: {$list[i].rek_scopus_id}<br/><br />
-					
-					HERDC Notes: {$list[i].rek_herdc_notes}
-					
+					<strong>PID:</strong> {$list[i].rek_pid}<br />
+					<strong>Display Type:</strong> {$list[i].rek_display_type_lookup}<br />
+					{if $list[i].rek_subtype != ''}
+						<strong>Sub Type:</strong> {$list[i].rek_subtype}<br />
+					{else if $list[i].rek_genre_type != ''}
+						<strong>Sub Type:</strong> {$list[i].rek_genre_type}<br />
+					{/if}
+					<strong>HERDC Status:</strong> {$list[i].rek_herdc_status_lookup}<br />
+					<strong>HERDC Code:</strong> {$list[i].rek_herdc_code_lookup}<br />
+					<strong>Institutional Status:</strong> {$list[i].rek_institutional_status_lookup}<br /><br />
+					<strong>eSpace Follow up Flag:</strong> {$list[i].rek_follow_up_flags_lookup}<br />
+					<strong>IMU Follow up Flag:</strong> {$list[i].rek_follow_up_flags_imu_lookup}<br /><br />
+					{if $list[i].rek_display_type_lookup == "Book" || $list[i].rek_display_type_lookup == "Book Chapter"}
+						<strong>Edition:</strong> {$list[i].rek_edition}<br />
+						<strong>ISBN:</strong> {$list[i].rek_isbn}<br />
+					{elseif $list[i].rek_display_type_lookup == "Journal Article"}
+						{if $list[i].rj_rank} <strong>ERA Rank:</strong> {$list[i].rj_rank} ({$list[i].rj_title})<br />{/if}
+						{if $list[i].rek_refereed == '0'} <strong>Refereed:</strong> No<br /> {/if}
+						{if $list[i].rek_refereed == '1'} <strong>Refereed:</strong> Yes<br /> {/if}
+						<strong>ISSN:</strong> {$list[i].rek_issn}<br />
+					{elseif $list[i].rek_display_type_lookup == "Conference Paper"}
+						{if $list[i].rc_rank}<strong>ERA Rank:</strong> {$list[i].rc_rank} ({$list[i].rc_title})<br />{/if}
+						{if $list[i].rek_refereed == '0'} <strong>Refereed:</strong> No<br /> {/if}
+						{if $list[i].rek_refereed == '1'} <strong>Refereed:</strong> Yes<br /> {/if}
+					{/if}
+					<strong>Thomson ISI Loc:</strong> {$list[i].rek_isi_loc}<br />
+					<strong>Scopus ID:</strong> {$list[i].rek_scopus_id}<br /><br />
+					<strong>HERDC Notes:</strong> {$list[i].rek_herdc_notes}<br /><br />
 				</span>	
-				<img style="padding-right:2px" src="{$rel_url}images/views_16.png" valign="middle" />
+				<img style="padding-right: 2px;" src="{$rel_url}images/views_16.png" valign="middle" alt="" />
 			</a>
 			{/if}
+            {/if}
             {if $list[i].rek_citation != ""}
             {$list[i].rek_citation}
             {else}
@@ -313,6 +413,7 @@
 	<div class="result-box clearfix" style="width: 980px; margin-top: 20px;">
 		<div class="clearfix sub-box">
 		  <div class="order-element" style="padding: 10px 0px 10px 10px;">
+		  	  <input type="button" value="Star All" class="button" onclick="javascript:toggleStarAll(this.form, 'pids[]');" />
 			  <input type="button" value="Select All" class="button" onclick="javascript:toggleSelectAll(this.form, 'pids[]');" />
 			  <select name="wft_id" class="default">
 				{html_options options=$bulk_workflows}

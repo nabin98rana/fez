@@ -31,6 +31,8 @@
 // |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>                     |
 // +----------------------------------------------------------------------+
 
+include_once(APP_INC_PATH . "class.auth.php");
+include_once(APP_INC_PATH . "class.author.php");
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.eventum.php");
 
@@ -46,7 +48,18 @@ class MyResearch
 	function dispatcher($type) {
 		$tpl = new Template_API();
 		$tpl->setTemplate("myresearch/index.tpl.html");
+		
+		$isUser = Auth::getUsername();
+		$isAdministrator = User::isUserAdministrator($isUser);
+		$isSuperAdministrator = User::isUserSuperAdministrator($isUser);
+		$isUPO = User::isUserUPO($isUser);
 
+		// Find out if the facets refine request had a proxy component, and set the acting user if necessary
+		$proxy = @$_GET['proxy'];
+		if ($isUPO && $proxy != '') {
+			Auth::setActingUsername($proxy); // Change to a new acting user
+		}
+		
 		Auth::checkAuthentication(APP_SESSION, $_SERVER['REQUEST_URI']);
 		$username = Auth::getUsername();
 		$actingUser = Auth::getActingUsername();
@@ -55,18 +68,20 @@ class MyResearch
 		$actingUserArray['org_unit_description'] = MyResearch::getHRorgUnit($actingUser);
 
 		$tpl->assign("type", $type);
-
-		$isUser = Auth::getUsername();
-		$isAdministrator = User::isUserAdministrator($isUser);
-		$isSuperAdministrator = User::isUserSuperAdministrator($isUser);
-		$isUPO = User::isUserUPO($isUser);
+		
+		if (MyResearch::getHRorgUnit($username) == "") {
+			$tpl->assign("non_hr", true); // This will cause a bail-out in template land
+		}
 
 		$tpl->assign("isUser", $isUser);
 		$tpl->assign("isAdministrator", $isAdministrator);
 		$tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 		$tpl->assign("isUPO", $isUPO);
 		$tpl->assign("active_nav", "my_fez");
-
+		
+		// Some text will be presented slightly differently to the user if they also have edited something.
+		$tpl->assign("is_editor", Author::isAuthorAlsoAnEditor($author_id));
+		
 		// Determine what we're actually doing here.
 		$action = Misc::GETorPOST('action');
 		$list = true;
@@ -247,7 +262,8 @@ class MyResearch
 				$filter["searchKey".Search_key::getID("Object Type")] = 3; 
 				$filter["searchKey".Search_Key::getID("Author")] = $lastname;
 				$filter["manualFilter"] = "!author_id_mi:".$author_id;
-				$filter["manualFilter"] .= " AND (author_mws:".'"'.$lastname.'" OR author_mws:'.'"'.$lastname.$firstname.'"^4 '.$alternatives.')';
+				//$filter["manualFilter"] .= " AND (author_mws:".'"'.$lastname.'" OR author_mws:'.'"'.$lastname.$firstname.'"^4 '.$alternatives.')';
+				$filter["manualFilter"] .= " AND (author_mws:".'"'.$lastname.'" OR author_mt:'.$lastname.' OR author_mws:'.'"'.$lastname.$firstname.'"^4 '.$alternatives.')';
 	
 				if ($options['hide_closed'] == 0) {
 					$hidePids = MyResearch::getHiddenPidsByUsername($actingUser);
@@ -868,6 +884,10 @@ class MyResearch
 		$log = FezLog::get();
 		$db = DB_API::get();
 		
+		if ($username == '' || !isset($username)) {
+			return '';
+		}
+		
 		$stmt = "
 				SELECT
 					aurion_org_desc AS org_description
@@ -889,7 +909,7 @@ class MyResearch
 			return '';
 		}
 		if (count($res) == 0) {
-			return "";
+			return '';
 		} else {
 			return $res['org_description'];			
 		}
@@ -966,10 +986,19 @@ class MyResearch
 		$stmt .= " FROM
 					" . APP_TABLE_PREFIX . "author INNER JOIN
 					hr_position_vw on aut_org_username = user_name
-				WHERE
+				WHERE ";
+        if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) {
+            $stmt .= "
+					(user_name ILIKE '%" . $username . "%'
+					OR CONCAT_WS(' ', aut_fname, aut_lname) ILIKE '%" . $username . "%')
+					AND user_name != ''";
+        } else {
+            $stmt .= "
 					(user_name LIKE '%" . $username . "%'
 					OR CONCAT_WS(' ', aut_fname, aut_lname) LIKE '%" . $username . "%')
-					AND user_name != ''
+					AND user_name != ''";
+		}
+		$stmt .= "
 				GROUP BY aut_org_username, aut_fname, aut_lname
 				ORDER BY
 					aut_lname ASC,

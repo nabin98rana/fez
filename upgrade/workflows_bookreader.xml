@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<workflows schema_version="1.0">
+  <workflow wfl_id="118" wfl_title="Generate bookreader images" wfl_version="0.5" wfl_description="" wfl_roles="Annotator,Approver,Archival_Format_Viewer,Commentor,Comment_Viewer,Community_Administrator,Creator,Editor,Lister,Viewer" wfl_end_button_label="Save">
+    <WorkflowState wfs_id="1170" wfs_title="Generate bookreader images" wfs_description="" wfs_auto="1" wfs_wfb_id="98" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="1175" wfs_title="Started" wfs_description="" wfs_auto="0" wfs_wfb_id="33" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowStateLinks wfsl_id="1497" wfsl_from_id="1170" wfsl_to_id="1175"/>
+    <WorkflowTrigger wft_id="486" wft_pid="-1" wft_type_id="1" wft_xdis_id="-1" wft_order="0" wft_mimetype="" wft_icon="images/regen.gif" wft_ret_id="3" wft_options="0"/>
+    <WorkflowTrigger wft_id="487" wft_pid="-1" wft_type_id="4" wft_xdis_id="-2" wft_order="0" wft_mimetype="" wft_icon="images/regen.gif" wft_ret_id="3" wft_options="0"/>
+  </workflow>
+  <WorkflowBehaviour wfb_id="98" wfb_title="Generate bookreader images from pdfs" wfb_description="Generate one jpeg image per page of each pdf in a pid. Images then to be accessible through bookreader." wfb_version="0.5" wfb_script_name="generate_bookreader_images.php" wfb_auto="1"/>
+  <WorkflowBehaviour wfb_id="33" wfb_title="No Action" wfb_description="Just displays the state information.  Use to have an information only step." wfb_version="" wfb_script_name="no_action.php" wfb_auto="0"/>
+</workflows>

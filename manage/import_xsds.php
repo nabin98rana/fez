@@ -76,8 +76,8 @@ switch ($step) {
         );
         exit;
       }
-      $filename = APP_TEMP_DIR.'fezxsd'.basename($tmpName);
-      copy($tmpName, $filename);
+      $filename = APP_TEMP_DIR.'fezxsd'.basename($tmp_name);
+      copy($tmp_name, $filename);
     }
     $list = Doc_Type_XSD::listImportFile($filename);
     $tpl->assign('list', $list);
@@ -86,10 +86,10 @@ switch ($step) {
   case 3:
     if ($_POST['cat'] == 'go') {
       $filename = $_POST['filename'];
-      $xdisIds = $_POST['xdis_ids'];
+      $xdis_ids = $_POST['xdis_ids'];
       $bgp = new BackgroundProcess_Import_XDSs;
       $bgp->register(
-          serialize(compact('filename', 'xdisIds')), Auth::getUserID()
+          serialize(compact('filename', 'xdis_ids')), Auth::getUserID()
       );
       $feedback[] = "The XSDs are being imported as a background process, ".
         "see My_Fez for progress.";

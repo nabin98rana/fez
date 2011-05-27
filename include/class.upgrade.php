@@ -183,6 +183,7 @@ class upgrade {
 	    $defaultData['app_dark_color']                      = APP_DARK_COLOR;
 	    $defaultData['app_heading_color']                   = APP_HEADING_COLOR;
 	    $defaultData['app_internal_color']                  = APP_INTERNAL_COLOR;
+		$defaultData['app_highlight_color']                 = APP_HIGHLIGHT_COLOR;
 	    $defaultData['app_fedora_setup']                    = APP_FEDORA_SETUP;
 	    $defaultData['app_fedora_location']                 = APP_FEDORA_LOCATION;
 	    $defaultData['app_fedora_ssl_location']             = APP_FEDORA_SSL_LOCATION;

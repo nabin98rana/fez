@@ -68,7 +68,6 @@ include_once(APP_INC_PATH . "class.auth_index.php");
 include_once(APP_INC_PATH . "class.xml_helper.php");
 include_once(APP_INC_PATH . "class.record_lock.php");
 include_once(APP_INC_PATH . "class.fulltext_queue.php");
-include_once(APP_INC_PATH . "class.enrich_queue.php");
 include_once(APP_INC_PATH . "class.exiftool.php");
 include_once(APP_INC_PATH . "class.statistics.php");
 include_once(APP_INC_PATH . "class.filecache.php");
@@ -76,6 +75,7 @@ include_once(APP_INC_PATH . "class.handle_requestor.php");
 include_once(APP_INC_PATH . "class.record_object.php");
 include_once(APP_INC_PATH . "class.record_general.php");
 include_once(APP_INC_PATH . "class.validation.php");
+include_once(APP_INC_PATH . "class.links_amr_queue.php");
 
 define('SK_JOIN', 0);
 define('SK_LEFT_JOIN', 1);
@@ -416,7 +416,6 @@ class Record
   {		
 
     $pids = array();
-    
     for ($i = 0; $i < count($result); $i++) {
       $pids[] = $result[$i]["rek_pid"];
     }
@@ -429,7 +428,7 @@ class Record
 		$rj = Record::getRankedJournalInfoByPIDs($pids);
 
 		$rc = Record::getRankedConferenceInfoByPIDs($pids);
-		
+
 		$ht = array();
 		$rjt = array();
 		$rct = array();
@@ -463,7 +462,7 @@ class Record
   	
 		$username = Auth::getActingUsername();
     $aut_id = Author::getIDByUsername($username);
-        
+    
     for ($i = 0; $i < count($result); $i++) {
 			$pid = $result[$i]['rek_pid'];
 			if (is_array($ht[$pid])) {
@@ -1255,18 +1254,17 @@ class Record
       FulltextQueue::singleton()->add($pid);
       FulltextQueue::singleton()->commit();
     }
-    
-    if (APP_ENRICH == "ON") {
-      $log->err("Record::updateSearchKeys() ADDING ".$pid." TO ENRICHMENT QUEUE");
-      EnrichQueue::singleton()->add($pid);
-      EnrichQueue::singleton()->commit();
-    }
 
     if (APP_FILECACHE == "ON" ) {
       $cache = new fileCache($pid, 'pid='.$pid);
       $cache->poisonCache();
     }
-
+    
+    // Add the updated record for Links AMR processing
+    if (APP_AUTO_LINKSAMR_UPLOAD == "ON" ) {
+      LinksAmrQueue::get()->add($pid);
+    }
+       
     return $ret;
   }
 
@@ -2576,6 +2574,12 @@ class Record
     if ( APP_SOLR_INDEXER == "ON" ) {
       FulltextQueue::singleton()->add($pid);							
     }
+    if (APP_FILECACHE == "ON") {
+      $cache = new fileCache($pid, 'pid='.$pid);
+      $cache->poisonCache();
+    }
+
+
     return true;
   }
   
@@ -2711,6 +2715,11 @@ class Record
     if ( APP_SOLR_INDEXER == "ON" ) {
       FulltextQueue::singleton()->add($pid);							
     }
+    if (APP_FILECACHE == "ON") {
+      $cache = new fileCache($pid, 'pid='.$pid);
+      $cache->poisonCache();
+    }
+
     return true;
   }
   
@@ -2930,6 +2939,11 @@ class Record
     if ( APP_SOLR_INDEXER == "ON" ) {
       FulltextQueue::singleton()->add($pid);							
     }
+    if (APP_FILECACHE == "ON") {
+      $cache = new fileCache($pid, 'pid='.$pid);
+      $cache->poisonCache();
+    }
+
     return true;
   }
   
@@ -3469,7 +3483,8 @@ class Record
 
     $searchKey_join['sk_where_AND'] = '';
     $searchKey_join['sk_where_OR'] = '';
-//print_r($options);
+
+    $searchKeys = array();
     foreach ($options as $sek_id => $value) {
       if (strpos($sek_id, "searchKey") !== false) {
         $searchKeys[str_replace("searchKey", "", $sek_id)] = $value;
@@ -3498,27 +3513,86 @@ class Record
 
       $solr_titles = Search_Key::getSolrTitles();
       $solr_titles["citation"] = "citation_t";
+			$solr_titles_temp = $solr_titles;
+      foreach ($solr_titles_temp as $skey => $svalue) {
+				if (is_numeric(strpos($svalue, "_dt"))) {
+					$solr_titles[$skey."_year"] = $skey."_year_t";
+				} 
+      }
       foreach ($solr_titles as $skey => $svalue) {
         $escapedInput = str_replace($skey.":", $svalue.":", $escapedInput);
       }
-      $pattern = '/(?<!'.implode("|", $solr_titles).')(\+|-|&&|\|\||!|\(|\)|\{|}|\[|]|\^|"|~|\*|\?|:|\\\)/';
+
+        // negative look ahead and behind for search keys starting withing ! and the solr chars
+        // Espace any solr chars NOT before a search key (with or without a !),
+      $pattern = '/(?!'.'!'.implode("|!", $solr_titles).'|'.
+                 implode("|!", $solr_titles).":".'|!'.
+                 implode(':\(|!', $solr_titles).':\('.'|!'.
+                 implode(':"|!', $solr_titles).':"'.'|'.
+
+                 implode(':\[|', $solr_titles).':\['.'|!'.
+                 implode(':\[|!', $solr_titles).':\['.'|'.
+
+
+                 implode(':\(|!', $solr_titles).':\("'.
+                 ')(?<!'.implode("|", $solr_titles).'|'.
+                 implode(":|", $solr_titles).":".'|'.
+                 implode(':\(|', $solr_titles).':\('.'|'.
+
+                 implode(':\[|', $solr_titles).':\['.'|\*|'.
+                 // implode(':\[|!', $solr_titles).':\['.'|'.
+
+
+
+                 implode(':"|', $solr_titles).':"'.'|'.
+                 implode(':\(|', $solr_titles).':\("'.
+                 ')(\+|-|&&|\|\||!|\{|}|\[|]|\^|"|~|\*|\?|:|\\\)(?!\))(?!\])/';
+//      $pattern = '/(?!'.'!'.implode("|!", $solr_titles).')(?<!'.implode("|", $solr_titles).')(\+|-|&&|\|\||!|\{|}|\[|]|\^|"|~|\*|\?|:|\\\)/';
       $replace = '\\\$1';
       $escapedInput = preg_replace($pattern, $replace, $escapedInput);
-      $searchKey_join["sk_where_AND"][] = "" .$escapedInput;
-    }
+			// $pattern = '/(?!
+      // $escapedInput = preg_replace($pattern, $replace, $escapedInput);
 
+      // match where there is only only value after the search key, not inside brackets or in double quotes (do that one later) to simplify this code
+      $skPattern = '/('.implode("|", $solr_titles).')(?:|:\(|:)"([^"\)\(]+)"\)/';
+      $lookups = array();
+      preg_match_all($skPattern, $escapedInput, $lookups);
+      for ($i=0, $j=count($lookups); $i<$j; ++$i) {
+          $sek = new Search_Key();
+          $sekDetails = $sek->getDetailsBySolrName($lookups[1][$i]);
+          $temp_value = "";
+          if (!empty($sekDetails)) {
+              if ($sekDetails['sek_data_type'] == 'int' && $sekDetails['sek_lookup_id_function'] != '') {
+                  eval("\$temp_value = ".$sekDetails["sek_lookup_id_function"]."('".$lookups[2][$i]."');");
+                  if (!empty($temp_value)) {
+                    $escapedInput = str_replace($lookups[0][$i], $lookups[1][$i].":".$temp_value, $escapedInput);
+                  }
+              }
+          }
+      }
+			if (is_numeric(strpos($escapedInput, " OR "))) {
+      	$searchKey_join["sk_where_AND"][] = "(" .$escapedInput.")";
+			} else {
+      	$searchKey_join["sk_where_AND"][] = $escapedInput;
+			}
+    }
     /*
      * For each search key build SQL if data was submitted
      */
+
     if (is_array($searchKeys)) {
       foreach ($searchKeys as $sek_id => $searchValue ) {
 
-        if (!empty($searchValue) && trim($searchValue) != "") {
+          //already dealt with search key '0' above don't need to do it here
+        if ($sek_id == '0') { continue; }
+
+        if (!empty($searchValue)) {
 
           $sekdet = Search_Key::getDetails($sek_id);
           $suffix = Record::getSolrSuffix($sekdet);
-          if(empty($sekdet['sek_id']))
-          continue;
+          if(empty($sekdet['sek_id'])) {
+            continue;
+          }
 
           // if we're looking for an exact match specifically, then substitute the mt_exact suffix instead
           if ($doExactMatch && strtolower($sekdet['sek_title']) == 'author') {
@@ -3724,7 +3798,6 @@ class Record
         }
       }
     }
-
     return $searchKey_join;
   }
 
@@ -3733,7 +3806,6 @@ class Record
   {
     $suffix = "";
     $sek_data_type = $sek_det['sek_data_type'];
-    $sek_relationship = $sek_det['sek_relationship'];
     $sek_cardinality = $sek_det['sek_cardinality'];
     if (($sek_data_type == 'int') && ($sek_cardinality == 0)) {
       $suffix = "_i";

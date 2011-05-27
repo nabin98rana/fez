@@ -50,10 +50,6 @@ if (APP_MY_RESEARCH_MODULE != 'ON') {
 	die('Sorry - this module is not enabled.');
 }
 
-if (APP_MY_RESEARCH_MODULE == "ON" && MyResearch::getHRorgUnit($username) != "") {
-	MyResearch::dispatcher("possible");
-} else {
-	die('Sorry - this module is only for users in the Human Resources system as employees.');	
-}
+MyResearch::dispatcher("possible");
 
 ?>

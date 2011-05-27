@@ -107,7 +107,7 @@ class Configuration
     }
 
     // Assemble compound variables
-    define("APP_CYCLE_COLORS", APP_CYCLE_COLOR_ONE . "," . APP_CYCLE_COLOR_TWO);
+    define("APP_CYCLE_COLORS", "#" . APP_CYCLE_COLOR_ONE . "," . "#" . APP_CYCLE_COLOR_TWO);
     define("APP_TPL_PATH", APP_PATH . "templates/");
     define("APP_THUMBS_PATH", APP_INC_PATH . "thumbs/");
     define("APP_JPGRAPH_PATH", APP_INC_PATH . "jpgraph/");

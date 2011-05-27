@@ -16,17 +16,17 @@
 
                   checkLeadSelection(f);
                   if (isWhitespace(f.title.value)) {
-                      alert('Please enter the title of this team.');
+                      alert('Please enter the title of this group.');
                       selectField(f, 'title');
                       return false;
                   }
                   if (!hasOneSelected(f, 'users[]')) {
-                      alert('Please assign the users for this team.');
+                      alert('Please assign the users for this group.');
                       selectField(f, 'users[]');
                       return false;
                   }
                   if (!hasOneSelected(f, 'statuses[]')) {
-                      alert('Please assign the statuses for this team.');
+                      alert('Please assign the statuses for this group.');
                       selectField(f, 'statuses[]');
                       return false;
                   }
@@ -40,12 +40,12 @@
                       }
                   }
                   if (!found) {
-                      alert('Please choose the initial status from one of the assigned statuses of this team.');
+                      alert('Please choose the initial status from one of the assigned statuses of this group.');
                       selectField(f, 'initial_status');
                       return false;
                   }
                   if (isWhitespace(f.outgoing_sender_email.value)) {
-                      alert('Please enter the outgoing sender address for this team.');
+                      alert('Please enter the outgoing sender address for this group.');
                       selectField(f, 'outgoing_sender_email');
                       return false;
                   }
@@ -82,19 +82,19 @@
                 <td colspan="2" style="background: {$cell_color}; text-align: center" class="error">
                   {if $smarty.post.cat == "new"}
                     {if $result == -1}
-                      An error occurred while trying to add the new team.
+                      An error occurred while trying to add the new group.
                     {elseif $result == -2}
-                      Please enter the title for this new team.
+                      Please enter the title for this new group.
                     {elseif $result == 1}
-                      Thank you, the team was added successfully.
+                      Thank you, the group was added successfully.
                     {/if}
                   {elseif $smarty.post.cat == "update"}
                     {if $result == -1}
-                      An error occurred while trying to update the team information.
+                      An error occurred while trying to update the group information.
                     {elseif $result == -2}
-                      Please enter the title for this team.
+                      Please enter the title for this group.
                     {elseif $result == 1}
-                      Thank you, the team was updated successfully.
+                      Thank you, the group was updated successfully.
                     {/if}
                   {/if}
                 </td>
@@ -174,14 +174,14 @@
               var total_selected = getTotalCheckboxesChecked(f, 'items[]');
               var total = getTotalCheckboxes(f, 'items[]');
               if (total == total_selected) {
-                  alert('You cannot remove all of the teams in the system.');
+                  alert('You cannot remove all of the groups in the system.');
                   return false;
               }
               if (!hasOneChecked(f, 'items[]')) {
-                  alert('Please select at least one of the teams.');
+                  alert('Please select at least one of the groups.');
                   return false;
               }
-              if (!confirm('WARNING: This action will remove the selected teams permanently.\nIt will remove all of its associated entries as well (issues, notes, attachments,\netc), so please click OK to confirm.')) {
+              if (!confirm('WARNING: This action will remove the selected groups permanently.\nIt will remove all of its associated entries as well (issues, notes, attachments,\netc), so please click OK to confirm.')) {
                   return false;
               } else {
                   return true;

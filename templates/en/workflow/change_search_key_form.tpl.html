@@ -18,28 +18,29 @@ function hideLoading()
 };
 
 
-function selectCommunity(f, field_name)
+function selectSearchKey(f, field_name)
 {
+
     if (coll_load_state > 0) {
-       return false;
-    } 
+        return false;
+    }
     var field = getFormElement(f, field_name);
     var selections = getSelectedItems(field);
 
     if (selections.length > 0) {
         coll_load_state++;
-        document.getElementById('tr_collection_pid').style.display = '';
+        document.getElementById('tr_search_key_value').style.display = '';
         showLoading();
-        var obj = new SelectCollection();
+        var obj = new SelectSearchKey();
         obj.onGetCollectionsError = function() {
-            removeAllOptions(f, 'collection_pid');
+            removeAllOptions(f, 'search_key_value');
             hideLoading();
             coll_load_state--;
         }
         obj.setTimeout(10000);
-        obj.getCollections(selections[0].value, function(collections_list) {
-                removeAllOptions(f, 'collection_pid');
-                addOptions(f, 'collection_pid', collections_list);
+        obj.getSearchKeyOptions(selections[0].value, function(search_keys_list) {
+                removeAllOptions(f, 'sek_value');
+                addOptions(f, 'sek_value', search_keys_list);
                 hideLoading();
                 coll_load_state--;
                 });
@@ -48,11 +49,11 @@ function selectCommunity(f, field_name)
 
 function validateForm(f)
 {
-    if (!hasOneSelected(f, 'community_pid')) {
-        errors[errors.length] = new Option('Community','community_pid');
+    if (!hasOneSelected(f, 'sek_id')) {
+        errors[errors.length] = new Option('Search Key','sek_id');
     }
-    if (!hasOneSelected(f, 'collection_pid')) {
-        errors[errors.length] = new Option('Collection','collection_pid');
+    if (!hasOneSelected(f, 'sek_value')) {
+        errors[errors.length] = new Option('Search Key Value','sek_value');
     }
 }
 
@@ -64,33 +65,34 @@ function validateForm(f)
 <input type="hidden" name="cat" value="submit">
 <tr>
   <td class="contentheader" colspan="2">
-    <b><img align="absmiddle" src="{$rel_url}images/collection_32.jpg" border="0">Select Destination Collection if Moving or Copying to a collection, Source Collection if Removing from a collection</b>
+    <b><img align="absmiddle" src="{$rel_url}images/search_32.png" border="0">Select Search Key to replace, and it's new value</b>
   </td>
 </tr>
 
 <tr >
   <td width="100" bgcolor="{$cell_color}" class="default">
-    <b>Parent Community</b>
+    <b>Search Key</b>
   </td>
   <td width="75%" bgcolor="{$light_color}">
-    <select class="default" name="community_pid" onChange="javascript: selectCommunity(this.form, 'community_pid')" >
-      {html_options options=$communities_list selected=$communities_list_selected }
+    <select class="default" name="sek_id" onChange="javascript: selectSearchKey(this.form, 'sek_id')" >
+        <option value="">(select a search key)</option>
+      {html_options options=$search_keys_list selected=$search_keys_list_selected }
     </select>
   </td>
 </tr>
-<tr style="display:none;" id="tr_collection_pid">
+<tr style="display:none;" id="tr_search_key_value">
   <td bgcolor="{$cell_color}" class="default">
-    <b>Collection</b>
+    <b>Search Key Replacement Value</b>
   </td>
   <td bgcolor="{$light_color}">
     <div id="loading" style="display:none;">Loading...</div>
-    <select class="default" name="collection_pid" >
+    <select class="default" name="sek_value" >
     </select>
   </td>
 </tr>
     
-<script type="text/javascript"><!-- 
-selectCommunity(getForm('wfl_form1'), 'community_pid'); 
+<script type="text/javascript"><!--
+selectSearchKey(getForm('wfl_form1'), 'sek_id');
 // --></script>
 
 </table>

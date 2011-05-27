@@ -92,7 +92,7 @@ if ($access_ok) {
 	}
 
 	$tpl->assign('affiliation_suggestions', $suggestseans);
-	$tpl->assign("cycle_colours", APP_CYCLE_COLOR_TWO . ",#FFFFFF");
+	$tpl->assign("cycle_colours", "#" . APP_CYCLE_COLOR_TWO . ",#FFFFFF");
 	$authors = array_values($authors);
 	$author_ids = array_values($author_ids);
 	$list = AuthorAffiliations::getList($pid, 1);

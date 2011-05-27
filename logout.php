@@ -36,21 +36,5 @@ include_once("config.inc.php");
 include_once(APP_INC_PATH . "class.configuration.php");
 include_once(APP_INC_PATH . "class.auth.php");
 
-// IMPORTANT! everytime you destroy a cookie and you are using save_session_handler (database storage for sessions for instance) then you need to reset the save_session_hanlder
-// see the unresolved php bug for details http://bugs.php.net/bug.php?id=32330
-foreach($_SESSION as $k => $v) {
-	unset($_SESSION[$k]);
-}
-if (isset($_COOKIE['_saml_idp'])) {
-	setcookie(session_name(), '', time()-42000, '/');
-}
-foreach($_COOKIE as $k => $v) {
-	if (is_numeric(strpos($k, "_shibsession_"))) {
-		setcookie($k, '', time()-42000, '/');
-	}
-}
-
-
-Zend_Session::destroy();
-
+Auth::logout();
 Auth::redirect(APP_RELATIVE_URL . "index.php?err=6");

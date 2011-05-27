@@ -48,7 +48,7 @@ include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.fedora_api.php");
 include_once(APP_INC_PATH . "class.date.php");
-//include_once(APP_INC_PATH . "private_key.php");
+include_once(APP_INC_PATH . "class.masquerade.php");
 
 global $NonRestrictedRoles;
 $NonRestrictedRoles = array("Viewer","Lister","Comment_Viewer");
@@ -630,7 +630,16 @@ class Auth
 		if ($auth_ok != true) {
 			// Perhaps the user hasn't logged in
 			if (!Auth::isValidSession($session)) {
-				if (defined('APP_BASIC_AUTH_IP') && ($_SERVER['REMOTE_ADDR'] == APP_BASIC_AUTH_IP)) {
+
+# this is wrong as it only works for one IP address and not the pool
+# The rest of the system should be audited for other references to Basic Auth that don't work for more than one IP as well
+#				if (defined('APP_BASIC_AUTH_IP') && ($_SERVER['REMOTE_ADDR'] == APP_BASIC_AUTH_IP)) {
+
+                $ipPool = Auth::getBasicAuthIPs();
+                $ipPool = explode(",",$ipPool[0]);
+
+                # Check pool of Basic Auth IP addresses
+				if (defined('APP_BASIC_AUTH_IP') && (in_array($_SERVER['REMOTE_ADDR'], $ipPool))) {
 					if ((($_SERVER["SERVER_PORT"] != 443) && (APP_HTTPS == "ON"))) { //should be ssl when using basic auth
 						header ("Location: https://".APP_HOSTNAME.APP_RELATIVE_URL."view/".$_GET['pid']);
 						exit;        		
@@ -1539,7 +1548,8 @@ class Auth
 	{
 		$log = FezLog::get();
 
-		if (APP_DISABLE_PASSWORD_CHECKING == "true" && $_SERVER['REMOTE_ADDR'] == APP_DISABLE_PASSWORD_IP) {
+		if ((APP_DISABLE_PASSWORD_CHECKING == "true" && $_SERVER['REMOTE_ADDR'] == APP_DISABLE_PASSWORD_IP) || 
+			(Masquerade::canUserMasquerade(Auth::getUsername()) && Auth::userExists($_POST["username"]))) {
 			return true;
 		} else {
 			if (empty($username)) {
@@ -1894,10 +1904,10 @@ class Auth
 	 * @param   string $password The password of the user (in ldap)
 	 * @return  boolean true if the user successfully binds to the LDAP server
 	 */
-	function LoginAuthenticatedUser($username, $password, $shib_login=false) 
+	function LoginAuthenticatedUser($username, $password, $shib_login = false, $masquerade = false) 
 	{
 		$log = FezLog::get();
-		
+
 		global $auth_bgp_session, $auth_isBGP;
 		if ($auth_isBGP) {
 			$session =& $auth_bgp_session;
@@ -1905,11 +1915,17 @@ class Auth
 			$session =& $_SESSION;
 		}
 		$alreadyLoggedIn = false;
-		if (!empty($session["login_time"])) {
+		if (!empty($session["login_time"]) && $masquerade == false) {
 			$alreadyLoggedIn = true;
-                        return 0;
+            return 0;
 		} else {
 			$alreadyLoggedIn = false;
+		}
+		
+		if ($masquerade) {
+			$masqueradingUsername = $session['username'];
+			$session = null;
+			Masquerade::setMasquerader($session, $masqueradingUsername);
 		}
 
 		if ($shib_login == true && (@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'] == "" && $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'] == "")) {
@@ -2533,6 +2549,39 @@ class Auth
 				header ("Location: https://" . APP_HOSTNAME.APP_RELATIVE_URL . "basiceserv.php?pid=" . $_GET['pid'] . "&dsid=" . $_GET['dsID']);
 			}
 		}
+	}
+	
+	
+	
+	/**
+	 * Logs the current user out of Fez.
+	 */
+	function logout()
+	{
+		////////////////////////////////////////////////////////////////////////////////
+		// IMPORTANT! everytime you destroy a cookie and you are using 
+		// save_session_handler (database storage for sessions for 
+		// instance) then you need to reset the save_session_hanlder
+		// See the unresolved php bug for details http://bugs.php.net/bug.php?id=32330
+		////////////////////////////////////////////////////////////////////////////////
+		foreach($_SESSION as $k => $v) {
+			unset($_SESSION[$k]);
+		}
+		
+		if (SHIB_VERSION != "3" && SHIB_SWITCH == "ON") {
+			if (isset($_COOKIE['_saml_idp'])) {
+				setcookie(session_name(), '', time()-42000, '/');
+			}
+			foreach($_COOKIE as $k => $v) {
+				if (is_numeric(strpos($k, "_shibsession_"))) {
+					setcookie($k, '', time()-42000, '/');
+				}
+			}
+		}
+		
+		Zend_Session::destroy();
+		
+		return;
 	}
 
 }

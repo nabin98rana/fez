@@ -39,91 +39,44 @@ include_once(APP_INC_PATH . "class.db_api.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.user.php");
 
-$tpl = new Template_API();
-$tpl->setTemplate("workflow/index.tpl.html");
-$tpl->assign("type", 'end');
-
-// sometime in the future, this page should display a summary of the process record produced by the 
-// workflow just finished - we would supply the PID and process record ID in the GET params.
-// TODO: implement process records for workflows!
-
+$pid = $_REQUEST['pid'];
+$href = $_REQUEST['href'];
 $wfl_title = $_REQUEST['wfl_title'];
 $wft_type = $_REQUEST['wft_type'];
-$parent_pid = $_REQUEST['parent_pid'];
-$action = $_REQUEST['action'];
-$href = $_REQUEST['href'];
 
-$href_title = substr($href, 0, strpos($href, "?"));
-$href_title = basename($href_title, ".php");
-$href_title = ucwords(str_replace('_', ' ', basename($href_title, ".php")));
-
-$tpl->assign('href',$href);
 if ($href) {
-    $tpl->assign('refresh_rate', 5);
-    $tpl->assign('refresh_page', substr($href,strlen(APP_RELATIVE_URL)));
-}
-
-$parents_list = unserialize($_REQUEST['parents_list']);
-
-if (is_array($parents_list)) {
-    foreach ($parents_list as &$item) {
-        if (Misc::isValidPid($item)) {
-            $precord = new RecordObject($item);
-            if ($precord->isCommunity()) {
-				$item = array(
-					"url"=>APP_RELATIVE_URL."community/".$item,
-					"rek_title"=>$precord->getTitle()
-				);
+    $redirect = APP_RELATIVE_URL . substr($_REQUEST['href'], strlen(APP_RELATIVE_URL));
+} else {
+    if ($wft_type != 'Delete') {
+        if (Misc::isValidPid($pid)) {
+            $record = new RecordObject($pid);
+            if ($record->isCommunity()) {
+                $redirect = APP_RELATIVE_URL . "community/" . $pid;
+            } elseif ($record->isCollection()) {
+                $redirect = APP_RELATIVE_URL . "collection/" . $pid;
             } else {
-                $item = array(
-					"url"=>APP_RELATIVE_URL."collection/".$item,
-					"rek_title"=>$precord->getTitle()
-				);
+                $redirect = APP_RELATIVE_URL . "view/" . $pid;
             }
         }
-    }
-}
-$pid = $_REQUEST['pid'];
-if ($wft_type != 'Delete') {
-    $view_record_url = APP_RELATIVE_URL."view/".$pid;
-    if (Misc::isValidPid($pid)) {
-        $record = new RecordObject($pid);
-        if ($record->isCommunity()) {
-            $view_record_url = APP_RELATIVE_URL."community/".$pid;
-        } elseif ($record->isCollection()) {
-            $view_record_url = APP_RELATIVE_URL."collection/".$pid;
-        }
-        $record_title = $record->getTitle();
     } else {
-        $record_title = $pid;
-    }
-}
-$parent_title = '';
-if ($parent_pid) {
-    if ($parent_pid == -1 || $parent_pid == -2) {
-        $view_parent_url = APP_RELATIVE_URL."list.php";
-        $parent_title = "Repository";
-    } else {
-        if (Misc::isValidPid($parent_pid)) {
-            $precord = new RecordObject($parent_pid);
-            if ($precord) {
+        // Take a stab at a parent URL.
+        $parents_list = unserialize($_REQUEST['parents_list']);
+        foreach ($parents_list as &$item) {
+            if (Misc::isValidPid($item)) {
+                $precord = new RecordObject($item);
                 if ($precord->isCommunity()) {
-                    $view_parent_url = APP_RELATIVE_URL."community/".$parent_pid;
+                    $redirect = APP_RELATIVE_URL . "community/" . $item;
                 } else {
-                    $view_parent_url = APP_RELATIVE_URL."collection/".$parent_pid;
+                    $redirect = APP_RELATIVE_URL . "collection/" . $item;
                 }
-                $parent_title = $precord->getTitle();
-            } else {
-                $parent_title = $parent_pid;
+                break;
             }
         }
     }
-} 
-$tpl->assign(compact('wfl_title','wft_type','parent_title','record_title', 'view_record_url', 
-            'view_parent_url', 'parents_list', 'action', 'href_title'));
+}
 
-
-$tpl->displayTemplate();
-
+$message = "Finished " . $_REQUEST['wfl_title'];
+Session::setMessage($message, 'ok');
+header('Location: ' . $redirect);
 
 ?>

@@ -45,6 +45,7 @@ include_once(APP_INC_PATH . "class.record_view.php");
 include_once(APP_INC_PATH . "class.user_comments.php");
 include_once(APP_INC_PATH . "class.origami.php");
 include_once(APP_PEAR_PATH . "Date.php");
+include_once(APP_INC_PATH . "class.bookreaderimplementation.php");
 
 $username = Auth::getUsername();
 $isAdministrator = Auth::isAdministrator(); 
@@ -135,7 +136,12 @@ if (!empty($pid) && $record->checkExists()) {
 		}
 	}
 	
-
+	if (APP_SOLR_SWITCH == 'ON') {
+		$details = FulltextQueue::getDetailsForPid($pid);
+		if (count($details) > 0) {
+			Session::setMessage('This record is currently in the Solr queue - changes may not appear for a few moments.');
+		}
+	}
 	
 	if (!is_numeric($xdis_id)) { // if still can't find the xdisplay id then ask for it
 		Auth::redirect(APP_RELATIVE_URL . "select_xdis.php?return=view_form&pid=".$pid.$extra_redirect, false);
@@ -235,7 +241,6 @@ if (!empty($pid) && $record->checkExists()) {
 		foreach($xsd_display_fields as $dis_key => $dis_field) {
 			$searchKeyDetails = Search_Key::getDetailsByXSDMF_ID($dis_field['xsdmf_id']);
 			if (isset($searchKeyDetails['sek_meta_header']) && $searchKeyDetails['sek_meta_header']) {
-				
 				// split the metadata field out into the various types
 				$metaDataFields[$dis_field['xsdmf_id']] = array('fieldnames'=>explode('|', $searchKeyDetails['sek_meta_header']), 'type'=>$searchKeyDetails['sek_data_type'], 'lookup'=>$searchKeyDetails['sek_lookup_function'], 'can_output_multiple'=>$searchKeyDetails['sek_cardinality'] == 0 ? false : true);
 			}
@@ -383,6 +388,16 @@ if (!empty($pid) && $record->checkExists()) {
 		$tpl->assign("show_not_allowed_msg", true);
 		$savePage = false;
 	}
+	
+	// If we have a Journal Article of a Conference Paper, we want to display the sub-type information.
+	if ($xdis_title == 'Journal Article') {
+		$sub_type = Record::getSearchKeyIndexValue($pid, "Subtype", false);
+	} elseif ($xdis_title == 'Conference Paper') {
+		$sub_type = Record::getSearchKeyIndexValue($pid, "Genre Type", false);
+	} else {
+		$sub_type = false;
+	}
+	$tpl->assign("sub_type", $sub_type);
 	
 	if (empty($details)) {
 		$tpl->assign('details', '');
@@ -655,6 +670,23 @@ if(!empty($username))
 $tpl->assign('displayusercomments', true);
 $tpl->assign('usercomments', $uc->comments);
 
+$pageCounts = array();
+
+//Find the pdf stream
+foreach($datastreams as $ds)
+{
+    if($ds['MIMEType'] == 'application/pdf')
+    {
+        //Check that it has been converted to images
+        //and let the template know.
+        $resource = explode('.pdf', $ds['ID']);
+        $pidFs = str_replace(':','_',$pid);
+        $resourcePath = BR_IMG_DIR . $pidFs . '/' . $resource[0];
+        $bri = new bookReaderImplementation($resourcePath);
+        $pageCounts[$resource[0] . '.pdf'] = $bri->countPages(); //Page count check for the template
+    }
+}
+$tpl->assign('pageCounts',$pageCounts);
 
 function getNextPage($currentPid)
 {

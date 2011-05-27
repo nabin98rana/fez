@@ -319,13 +319,13 @@ class Fedora_API {
                 if ($results) {
 
                         $info = curl_getinfo($ch);
-						if ($info['http_code'] != '200') {
+						if ($info['http_code'] != '200' && $info['http_code'] != '201') {
 	                        $log->err(array($info, $results),__FILE__,__LINE__);
 							curl_close($ch);
 							return false;
 						}
                         curl_close ($ch);
-						//unlink($tempFile);
+						unlink($tempFile);
                         return true;
                 } else {
                         $log->err(array(curl_error($ch),__FILE__,__LINE__));

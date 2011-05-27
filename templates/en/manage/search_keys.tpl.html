@@ -427,7 +427,15 @@
 				</select>
 			  	</td>
 		     </tr>
-		     
+              <tr>
+                <td class="default cell-colour">
+                  <b>Use in bulk change search key workflow?:</b>
+                </td>
+                <td style="background: {$light_color}">
+                  <input type="checkbox" name="sek_bulkchange" class="default" {if ($info.sek_bulkchange == 1)}checked="checked"{/if} /><br />
+                    <span class="small_default">(only applies to Data Cardinality Core One to One search keys)</span>
+                </td>
+              </tr>
 			 <tr id="sek_fez_variable_tr" {if $info.sek_html_input != 'static' && !$selectingfield}style="display:none"{/if}>
                  <td class="default cell-colour"><b>Fez Variable:</b><i>(If a Fez variable is set it will be used instead of any other options including smarty template variables)</i></td>
 				<td class="default" style="background: {$light_color}"><br /><b>OR use one of these Fez variables: </b> <br />
@@ -511,7 +519,7 @@
                     {section name="i" loop=$list}
                     {cycle values=$cycle assign="row_color"}
                     {if $list[i].key_table_exists == 0}{assign var="row_color" value="#FFCCCC"}{/if}
-                    <tr onmouseover="this.style.background='{$smarty.const.APP_HIGHLIGHT_COLOR}';" onmouseout="this.style.background='{$row_color}';" style="background: {$row_color}">
+                    <tr onmouseover="this.style.background='#{$smarty.const.APP_HIGHLIGHT_COLOR}';" onmouseout="this.style.background='{$row_color}';" style="background: {$row_color}">
                       <td style="width: 4px; white-space: nowrap; text-align: center;">
                         <input type="checkbox" name="items[]" value="{$list[i].sek_id}" {if $smarty.section.i.total == 0}disabled="disabled"{/if} />
                       </td>

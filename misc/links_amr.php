@@ -31,22 +31,35 @@
 // +----------------------------------------------------------------------+
 
 include_once('../config.inc.php');
-include_once(APP_INC_PATH . 'class.links_amr_service.php');
 include_once(APP_INC_PATH . "class.record.php");
-
-$max = 50; 		// Max number of pubs to send with each service request call
-$sleep = 1; 	// Number of seconds to wait for between successive service calls 
+include_once(APP_INC_PATH . 'class.links_amr_queue.php');
 
 $filter = array();
-$filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
-$filter["searchKey".Search_Key::getID("Object Type")] = 3; // records only
-$filter["searchKey".Search_Key::getID("Display Type")] = 
-    XSD_Display::getXDIS_IDByTitleVersion('Journal Article', 'MODS 1.0'); // Journal Articles only
 
+// Get records ..
+$filter["searchKey".Search_Key::getID("Object Type")] = 3;
+// .. which are either journal articles and conference papers ..
+$filter["searchKey".Search_Key::getID("Display Type")] = array();
+$filter["searchKey".Search_Key::getID("Display Type")]['override_op'] = 'OR';
+$filter["searchKey".Search_Key::getID("Display Type")][] = 
+    XSD_Display::getXDIS_IDByTitleVersion('Journal Article', 'MODS 1.0');
+$filter["searchKey".Search_Key::getID("Display Type")][] = 
+    XSD_Display::getXDIS_IDByTitleVersion('Conference Paper', 'MODS 1.0');
+// .. which were created in the last month ..
+$filter["searchKey".Search_Key::getID("Created Date")] = array();
+$filter["searchKey".Search_Key::getID("Created Date")]["filter_type"] = "greater";
+$filter["searchKey".Search_Key::getID("Created Date")]["filter_enabled"] = 1;
+$filter["searchKey".Search_Key::getID("Created Date")]["start_date"] = 
+    Date_API::getFedoraFormattedDateUTC(strtotime("-1 months"));
+// .. without a UT ..
+$filter["manualFilter"] = " -isi_loc_t_s:[* TO *] AND ";
+// ..and optionally enforce published records only
+//$filter["searchKey".Search_Key::getID("Status")] = 2;
+
+$max = 50;
 $listing = Record::getListing(array(), array(9,10), 0, $max, 'Created Date', false, false, $filter);
 
-for ($i=0; $i<((int)$listing['info']['total_pages']+1); $i++) {
-  
+for ($i=0; $i<((int)$listing['info']['total_pages']+1); $i++) {  
   // Skip first loop - we have called getListing once already
   if ($i>0) {
     $listing = Record::getListing(
@@ -54,45 +67,12 @@ for ($i=0; $i<((int)$listing['info']['total_pages']+1); $i++) {
     );
   }
   
-  $list = array();
   if (is_array($listing['list'])) {
-     for ($j=0; $j<count($listing['list']); $j++) {	 		
-       if (empty($listing['list'][$j]['rek_isi_loc'])) {
-         $listing['list'][$j]['year'] = date('Y', strtotime($listing['list'][$j]['rek_date'])); 
-         $list[] = $listing['list'][$j];		
-       }
-     }
-  }
-  
-  if (count($list) > 0) {
-    $records = LinksAmrService::retrieve($list);
-        
-    $xpath = new DOMXPath($records);
-    $xpath->registerNamespace('lamr', 'http://www.isinet.com/xrpc41');
-    $query = "/lamr:response/lamr:fn[@name='LinksAMR.retrieve'][@rc='OK']/lamr:map/lamr:map";			
-    $node_list = $xpath->query($query);
-    
-    if (!is_null($node_list)) {
-      foreach ($node_list as $_element) {
-        $pid = $_element->getAttribute('name');
-        $_query = $query . "[@name='$pid']/lamr:map[@name='".LinksAmrService::COLLECTION."']/lamr:val[@name='ut']";
-        $_node_list = $xpath->query($_query);		
-        if (!is_null($_node_list)) {	
-          if ($_node_list->length > 0) { 		
-            $ut = $_node_list->item(0)->nodeValue;
-            
-            file_put_contents('/tmp/found_uts.txt', "$pid - $ut\n", FILE_APPEND); // TEST
-            // Update record with new UT
-            /*$record = new RecordGeneral($pid);
-            $search_keys = array("ISI Loc");
-            $values = array($ut);
-            $record->addSearchKeyValueList(
-                "MODS", "Metadata Object Description Schema", $search_keys, $values, true
-            );*/        				
-          }
-        }
-      }
+    for ($j=0; $j<count($listing['list']); $j++) {      
+      LinksAmrQueue::get()->add($listing['list'][$j]['rek_pid']);
     }
-    sleep($sleep); // Wait before using the service again		
   }
 }
+
+$log = FezLog::get();
+$log->close();

@@ -199,7 +199,7 @@ class Search_Key
 					" . $db->quote($_POST["sek_alt_title"]) . ",
 					" . $db->quote($_POST["sek_meta_header"]) . ",
 					" . $sek_simple_used . ",
-					" . $sek_simple_used . ",
+					" . $sek_bulkchange . ",
 					" . $sek_adv_visible . ",
 					" . $sek_myfez_visible . ",
 		            " . $sek_faceting . ",";
@@ -676,7 +676,7 @@ class Search_Key
 					IF(sek_alt_title <> '', sek_alt_title, sek_title)
                  FROM
                     " . APP_TABLE_PREFIX . "search_key
-								 WHERE sek_bulkchange = TRUE
+								 WHERE sek_bulkchange = TRUE AND sek_cardinality = FALSE
                  ORDER BY
                     sek_title ASC";
         try {
@@ -1363,7 +1363,7 @@ class Search_Key
                     inner join " . APP_TABLE_PREFIX . "xsd_display_matchfields
                     on xsdmf_sek_id=sek_id
                  WHERE
-                    sek_title=" . $db->quote($sek_id);
+                    sek_title=" . $db->quote($sek_title);
         try {
             $res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
         }
@@ -1559,10 +1559,11 @@ class Search_Key
                    "     $key_type `$column_prefix` (`$column_prefix`), \n" .
                    "     KEY `{$column_prefix}_pid` (`{$column_prefix}_pid`) \n";
             if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
-                $cardinality_extra .= ") ENGINE=InnoDB DEFAULT CHARSET=utf8";
+                $query_end = ") ENGINE=InnoDB DEFAULT CHARSET=utf8";
             } else { //otherwise just use the defaults of the non-mysql database
-                $cardinality_extra .= ")";
+                $query_end = ")";
             }
+			$sql .= $query_end;
             return $sql;
 
         } elseif ($relationship == 0) {

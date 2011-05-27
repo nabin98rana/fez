@@ -48,7 +48,7 @@
 {/if}
 
 {include file="list_browse_type.tpl.html"}
-{if ($browse_heading == "") ||  ($browse_type != "" && ($author != "" || $author_id != "")) || ($browse_type != "" & $depositor != "") || ($browse_type != "" && $year != "") || ($browse_type != "" && $parent_id != "" && $max_subject_breadcrumb != 0)} 
+{if ($browse_heading == "") ||  ($browse_type != "" && ($author != "" || $author_id != "")) || ($browse_type != "" & $depositor != "") || ($browse_type != "" && $year != "") || ($browse_type != "" && $parent_id != "" && $max_subject_breadcrumb != 0)}
         
 	{if $spell_suggest != ""}
 	<table width="100%" cellpadding="10" cellspacing="0" class="listrecord">
@@ -73,7 +73,7 @@
 	{/if}
         {foreach from=$items.values key=id item=valueData}
         {if $valueData.num > 0}
-        {if $id != '0'}<li class='facetarrow'><a href="?{$url_wo_rows}&search_keys[{$sek_id}]={$id}">{$valueData.value}</a> ({$valueData.num})</li>{/if}
+        {if $id != '0'}<li class='facetarrow'><a href="{$rel_url}list/?cat=quick_filter&search_keys[core_26]={$author_id}&{$url_wo_rows}&search_keys[{$sek_id}]={$id}">{$valueData.value}</a> ({$valueData.num})</li>{/if}
         {/if}
         {/foreach}
         <li>&nbsp;</li>
@@ -104,14 +104,32 @@
                 <img src="{$rel_url}images/downloads_16.png" title="File Downloads" alt="File Downloads" />
             {/if}
             </td>
-            <td align="center">
-            {if $list_info.total_rows > 0 && ($list_type !== 'collection_list' && $list_type !== 'community_list')}
-            	<img src="{$rel_url}images/rid_16.png" title="Thomson Reuters Citation Count" alt="Thomson Reuters Citation Count" />            
-            {/if}
-            </td>
+            <td style="text-align: center; padding: 2px;">
+			{if $list_info.total_rows > 0}
+				<img src="{$rel_url}images/journal_ranking_16.png" title="Ranked Journal List Ranking" alt="Ranked Journal List Ranking" />
+			{/if}
+			</td>
+			<td style="text-align: center; padding: 2px;">
+				{if $list_info.total_rows > 0}
+					<img src="{$rel_url}images/conference_ranking_16.png" title="Ranked Conference List Ranking" alt="Ranked Conference List Ranking" />
+				{/if}
+			</td>
+			<td style="text-align: center; padding: 2px;">
+				{if $list_info.total_rows > 0}
+					<img src="{$rel_url}images/herdc_code_16.png" title="HERDC Code" alt="HERDC Code" />
+				{/if}
+			</td>
+			<td style="text-align: center; padding: 2px;">
+				{if $list_info.total_rows > 0 && ($list_type !== 'collection_list' && $list_type !== 'community_list')}
+					<img src="{$rel_url}images/rid_16.png" title="Thomson Reuters Citation Count" alt="Thomson Reuters Citation Count" />
+				{/if}
+			</td>
+			<td style="text-align: center; padding: 2px;">
+				{if $list_info.total_rows > 0 && ($list_type !== 'collection_list' && $list_type !== 'community_list')}
+					<img src="{$rel_url}images/scopus_logo_small.gif" title="Scopus Citation Count" alt="Scopus Citation Count" />
+				{/if}
+			</td>
         </tr>
-
-
 		{section name="m" loop=$masterList}
         {assign var="list" value=$masterList[m].0}
 		{assign var="listInfo" value=$masterList[m].1}
@@ -189,7 +207,7 @@
             {/if}
 			{assign var="pid" value =$list[i].rek_pid}
             {if $snips[$pid] != '' && $isAdministrator}<br /><br /><div class='snip'>...{$snips[$pid]}...</div>{/if}
-		  </td>		
+		  </td>
 
 			{if $list[i].isEditor==1 || $isAdministrator}
 			  <td align="left" valign="middle" style="border-top:1px dashed #be87e9; white-space: nowrap;">
@@ -221,27 +239,47 @@
                 <a href="{$rel_url}workflow/list_workflows2.php?pid={$list[i].rek_pid|escape}"><img src="{$rel_url}images/options_16.png" alt="More options" title="More options" width="16" height="16" /></a> 
 			</td>
            {/if}
-           
-			{if $smarty.get.cat =='Search' || $smarty.get.cat == 'all_fields' || $smarty.get.cat == 'quick_filter'}
-			<td align="center" valign="middle" style="border-top:1px dashed #be87e9; width: 10px; white-space: nowrap;">&nbsp;{if $list[i].Relevance}{$list[i].Relevance|@number_format:2}{/if}</td>
-			{/if}
-			
-			{if $list[i].rek_object_type == 3}
-			<td align="center" valign="middle" style="border-top:1px dashed #be87e9; width: 10px; white-space: nowrap;">{if $list[i].rek_views}{$list[i].rek_views|escape:"html"}{else}&nbsp;{/if}</td>
-			<td align="center" valign="middle" style="border-top:1px dashed #be87e9; width: 10px; white-space: nowrap;">{if $list[i].rek_file_downloads}<a class="author_link" title="View detailed statistics for this object" href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].rek_pid}">{$list[i].rek_file_downloads|escape:"html"}</a>{else}&nbsp;{/if}</td>
-	       {else}
-            <td colspan="2" style="border-top:1px dashed #be87e9;">&nbsp;</td>
-	       {/if}
-	       <td align="left"{if $icon}{else} colspan="2"{/if} valign="middle" style="border-top:1px dashed #be87e9; width: 100%;">
-            {if $list[i].rek_thomson_citation_count != ""}
-            	{$list[i].rek_thomson_citation_count}
-            {elseif $list[i].rek_thomson_citation_count == 0}
-               {$list[i].rek_thomson_citation_count}
-            {else}
-            	&nbsp;
-            {/if}			
-		  </td>		
-	       </tr>
+
+				{if $smarty.get.cat =='Search' || $smarty.get.cat == 'all_fields' || $smarty.get.cat == 'quick_filter'}
+					<td align="center" valign="middle" style="border-top:1px dashed #be87e9; width: 10px; white-space: nowrap;">&nbsp;{if $list[i].Relevance}{$list[i].Relevance|@number_format:2}{/if}</td>
+				{/if}
+				
+				{if $list[i].rek_object_type == 3}
+					<td align="center" valign="middle" style="border-top:1px dashed #be87e9; width: 10px; white-space: nowrap;">{if $list[i].rek_views}{$list[i].rek_views|escape:"html"}{else}&nbsp;{/if}</td>
+					<td align="center" valign="middle" style="border-top:1px dashed #be87e9; width: 10px; white-space: nowrap;">{if $list[i].rek_file_downloads}<a class="author_link" title="View detailed statistics for this object" href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].rek_pid}">{$list[i].rek_file_downloads|escape:"html"}</a>{else}&nbsp;{/if}</td>
+				{else}
+					<tdstyle="border-top:1px dashed #be87e9;">&nbsp;</td>
+				{/if}
+		
+				<td style="vertical-align: middle; text-align: center; border-top:1px dashed #be87e9;">
+					{if $list[i].rj_rank}<a href="#" title="{$list[i].rj_title}">{$list[i].rj_rank}</a>{else}<a href="#" title="This publication is outside the ERA window (pre-2003) and/or not identified as being in a 2010 ERA Ranked Journal.">-</a>{/if}
+				</td>
+	
+				<td style="vertical-align: middle; text-align: center; border-top:1px dashed #be87e9;">
+					{if $list[i].rc_rank}<a href="#" title="{$list[i].rc_title}">{$list[i].rc_rank}</a>{else}<a href="#" title="This is outside the ERA window (pre-2003) and/or not identified as being in a 2010 ERA Ranked Conference.">-</a>{/if}
+				</td>
+	
+				<td style="vertical-align: middle; text-align: center; border-top:1px dashed #be87e9;">
+					{if $list[i].herdc_code}<a href="#" title="{if $list[i].confirmed != ''}CONFIRMED {else}PROVISIONAL {/if}{$list[i].herdc_code_description}">{$list[i].herdc_code}{if $list[i].confirmed != ''}{else}P{/if}</a>{else}-{/if}
+				</td>
+	
+				<td style="vertical-align: middle; text-align: center; border-top:1px dashed #be87e9;">
+					{if $list[i].rek_thomson_citation_count != ""}
+						<a href="{$rel_url}rid_citation_count_history_{$list[i].rek_pid|escape:"html"}" title="Cited {$list[i].rek_thomson_citation_count} times in Thomson Reuters Researcher ID">{$list[i].rek_thomson_citation_count}</a>
+					{elseif $list[i].rek_thomson_citation_count == 0}
+						{$list[i].rek_thomson_citation_count}
+					{/if}
+				</td>
+	
+				<td style="vertical-align: middle; text-align: center; border-top:1px dashed #be87e9;">
+					{if $list[i].rek_scopus_citation_count != ""}
+						<a href="{$rel_url}scopus_citation_count_history_{$list[i].rek_pid|escape:"html"}" class="form_note"> <span class="form_note">Cited {$list[i].rek_scopus_citation_count} times in Scopus</span>{$list[i].rek_scopus_citation_count}</a>
+					{elseif $list[i].rek_scopus_citation_count == 0}
+						{$list[i].rek_scopus_citation_count}
+					{/if}
+				</td>
+
+			</tr>
 	       
         {/if}
 	   

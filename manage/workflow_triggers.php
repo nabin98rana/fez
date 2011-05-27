@@ -90,7 +90,13 @@ $record_id = Misc::GETorPOST('pid');
 $cat = Misc::GETorPOST('cat');
 $pid = $record_id;
 $tpl->assign("pid", $pid);
-$xdis_list = array(-2 => 'None', -1 => 'Any') + XSD_Display::getAssocListDocTypes(); 
+
+$doctypes  = XSD_Display::getAssocListDocTypes();
+$xdis_list = array('-1' => 'Any'); 
+if (is_array($doctypes)) {
+	$xdis_list = (array('-1' => 'Any') + $doctypes); 
+}
+
 if ($pid == -1) {
     // setting trigger on the overall repository - default triggers
     $canEdit = $isSuperAdministrator;
@@ -115,7 +121,7 @@ if ($pid == -1) {
     $title = $record->getTitle(); // RecordObject
     $tpl->assign("title", $title);
     if ($record->isCollection()) {
-        $tpl->assign('record_type', 'Collection');
+        $tpl->assign('record_type', 'Collection');	
         $tpl->assign('parent_type', 'Community');
         $tpl->assign('view_href', APP_RELATIVE_URL."collection/$pid");
         $xdis_list += array(Collection::getCollectionXDIS_ID() => 'Collection'); 
@@ -124,7 +130,7 @@ if ($pid == -1) {
         $tpl->assign('view_href', APP_RELATIVE_URL."community/$pid");
         $xdis_list += array(Collection::getCollectionXDIS_ID() => 'Collection', 
                 Community::getCommunityXDIS_ID() => 'Community'); 
-        $tpl->assign('xdis_list', array(-2 => 'None', -1 => 'Any') + $xdis_list);
+        $tpl->assign('xdis_list', array('-2' => 'None', '-1' => 'Any') + $xdis_list);
     } else {
         $tpl->assign('record_type', 'Record');
         $tpl->assign('parent_type', 'Collection');

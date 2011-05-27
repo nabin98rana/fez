@@ -73,6 +73,8 @@ class Default_Data
 			$defaultData['app_jahdl_dir']                   = "C:/PROGRA~1/jahdl/";
 			$defaultData['handle_admpriv_key_file']         = "C:/path_to_file/admpriv.bin";
 			$defaultData['app_log_location']                = "C:/temp/fez-error.log";
+            $defaultData['br_img_dir']                      = "C:/temp/pidimages/";
+            $defaultData['ghostscript_pth']                 = "C:/utils/gs9.02/bin/gswin32.exe";
 		} else {
 			// Unix
 			$defaultData['webserver_log_dir']               = "/usr/local/apache/logs/";
@@ -94,6 +96,8 @@ class Default_Data
 			$defaultData['app_jahdl_dir']                   = "/usr/local/jahdl/";
 			$defaultData['handle_admpriv_key_file']         = "/usr/local/handle/data/admpriv.bin";
 			$defaultData['app_log_location']                = "/var/log/fez/fez-error.log";
+            $defaultData['br_img_dir']                      = "/var/www/fez/pidimages/";
+            $defaultData['ghostscript_pth']                 = "/usr/bin/gs";
 
 			// Sensible Debian/Ubuntu defaults
 			if (is_readable('/etc/debian_version')) {
@@ -130,19 +134,19 @@ class Default_Data
 		$defaultData['fedora_db_passwd']                    = "";   // Empty default
 		$defaultData['fedora_db_port']                      = "3306";
 		$defaultData['app_shaded_bar']                      = "gradient.gif";           // DISCONTINUED
-		$defaultData['app_cell_color']                      = "#e5e5e5";
-		$defaultData['app_value_color']                     = "#f6f6f6";
-		$defaultData['app_adv_color_light']                 = "#fff0f0";
-		$defaultData['app_adv_color_dark']                  = "#ffc1bf";		
-		$defaultData['app_light_color']                     = "#f6f6f6";
-		$defaultData['app_selected_color']                  = "#fdffd9";
-		$defaultData['app_middle_color']                    = "#e5e5e5";
-		$defaultData['app_dark_color']                      = "#5e217a";
-		$defaultData['app_heading_color']                   = "#732a95";
-		$defaultData['app_cycle_color_one']                 = "#ebebeb";
-		$defaultData['app_cycle_color_two']                 = "#f7f7f7";
-		$defaultData['app_internal_color']                  = "#d9d9d9";
-		$defaultData['app_highlight_color']                 = "#ffe0d0";
+		$defaultData['app_cell_color']                      = "E5E5E5";
+		$defaultData['app_value_color']                     = "F6F6F6";
+		$defaultData['app_adv_color_light']                 = "FFF0F0";
+		$defaultData['app_adv_color_dark']                  = "FFC1BF";		
+		$defaultData['app_light_color']                     = "F6F6F6";
+		$defaultData['app_selected_color']                  = "FDFFD9";
+		$defaultData['app_middle_color']                    = "E5E5E5";
+		$defaultData['app_dark_color']                      = "5E217A";
+		$defaultData['app_heading_color']                   = "732A95";
+		$defaultData['app_cycle_color_one']                 = "EBEBEB";
+		$defaultData['app_cycle_color_two']                 = "F7F7F7";
+		$defaultData['app_internal_color']                  = "D9D9D9";
+		$defaultData['app_highlight_color']                 = "FFE0D0";
 		$defaultData['app_fedora_setup']                    = "";   // Empty default
 		$defaultData['app_fedora_location']                 = "";   // Empty default
 		$defaultData['app_fedora_ssl_location']             = "";   // Empty default
@@ -274,6 +278,15 @@ class Default_Data
 		$defaultData['app_wos_collections']					= "";
 		$defaultData['app_matching_tools']					= "OFF";
 		$defaultData['app_record_locking']					= "OFF";
+		$defaultData['app_auto_linksamr_upload']    		= "OFF";
+		$defaultData['app_wheel_group']						= "Masqueraders";
+		$defaultData['wok_ws_base_url']                     = "http://search.isiknowledge.com/esti/wokmws/ws/";
+		$defaultData['wok_database_id']                     = "WOS";
+		$defaultData['wok_cookie_name']                     = "SID";
+		$defaultData['wok_username']                        = "";
+		$defaultData['wok_password']                        = "";
+		$defaultData['wok_batch_size']                      = "50";
+		$defaultData['wok_seconds_between_calls']           = "300";
 		
 		return $defaultData;
 	}
@@ -288,7 +301,7 @@ class Default_Data
 	 */
 	function buildColourConfigArray()
 	{
-		$colourConfs = array("app_cell_color", "app_value_color", "app_light_color", "app_selected_color", "app_middle_color", "app_dark_color", "app_heading_color", "app_cycle_color_one", "app_cycle_color_two", "app_internal_color", "app_adv_color_light", "app_adv_color_dark");
+		$colourConfs = array("app_cell_color", "app_value_color", "app_light_color", "app_selected_color", "app_middle_color", "app_dark_color", "app_heading_color", "app_cycle_color_one", "app_cycle_color_two", "app_internal_color", "app_adv_color_light", "app_adv_color_dark", "app_highlight_color");
 		return $colourConfs;
 	}
 

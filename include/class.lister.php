@@ -60,6 +60,7 @@ include_once(APP_INC_PATH . "class.citation.php");
 include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.workflow_trigger.php");
 include_once(APP_INC_PATH . "class.custom_view.php");
+include_once(APP_INC_PATH . "class.favourites.php");
 include_once(APP_INC_PATH . "najax_classes.php");
 
 class Lister
@@ -146,8 +147,7 @@ class Lister
 			}
 		} 
 
-
-    $username = Auth::getUsername();
+		$username = Auth::getUsername();
 		$isAdministrator = User::isUserAdministrator($username);
 		
 		if (($tpl_idx != 0 && $tpl_index != 4) || $isAdministrator == true) {
@@ -192,21 +192,22 @@ class Lister
         }
         
         $pager_row = $params['pager_row'];
-        if (empty($pager_row)) {
+        if (empty($pager_row) || $pager_row < 0) {
             $pager_row = 0;
         }
         
         
         $rows = $params['rows'];
         if (empty($rows)) {
-            
             if(!empty($_SESSION['rows'])) {
                 $rows = $_SESSION['rows'];
             } else {
                 $rows = APP_DEFAULT_PAGER_SIZE;
             }
-            
         } else {
+            if ($rows < 0) {
+                $rows = APP_DEFAULT_PAGER_SIZE;
+            }
             $_SESSION['rows'] = $rows;
         }
         
@@ -439,6 +440,37 @@ class Lister
         	 */
         	//unset($tpls[4]);
         	//unset($tpls[5]);
+        
+        } elseif ($browse == "favourites") {
+            
+			$filter["searchKey".Search_key::getID("Object Type")] = 3;
+			$starredPids = Favourites::getStarred();
+
+			/* Only the starred records */
+			if (count($starredPids) > 0) {
+				if (APP_SOLR_SWITCH == 'ON') {
+					$filter["manualFilter"] .= "(pid_t:('".str_replace(':', '\:', implode("' OR '", $starredPids))."'))";
+				} else {
+					$filter["searchKey".Search_Key::getID("Pid")]['override_op'] = 'OR';
+					foreach ($starredPids as $starredPid) {
+						$filter["searchKey".Search_Key::getID("Pid")][] = $starredPid;
+					}
+				}
+			} else {
+				if (APP_SOLR_SWITCH == 'ON') {
+					$filter["manualFilter"] .= "(pid_t:('INVALID_PID'))";
+				} else {
+					$filter["searchKey".Search_Key::getID("Pid")][] = 'INVALID_PID';
+				}
+			}
+			
+			$list = Record::$getFunction($options, $approved_roles=array("Lister"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter);
+            $list_info = $list["info"];
+            $list = $list["list"];
+            $tpl->assign("browse_type", "browse_favourites");
+            $tpl->assign("list_heading", "Starred Records");
+            $tpl->assign("list_type", "all_records_list");
+            $tpl->assign("active_nav", "favourites");
             
         } elseif ($browse == "latest") {
             $log->debug('Latest');
@@ -576,7 +608,8 @@ class Lister
 			} elseif (!empty($author_refine)) {
 	        	$options = Search_Key::stripSearchKeys($options);
             	$filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
-				$filter["searchKey".Search_Key::getID("Author")] = $author_refine; 
+				$filter["searchKey".Search_Key::getID("Author")] = str_replace("+", " ", $author_refine);
+                
             	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter, 'AND', false, false, true); // do an exact match
 
                 $list_info = $list["info"];
@@ -673,15 +706,17 @@ class Lister
 //			$filter["searchKey".Search_key::getID("Author ID")]=$authorDetails["aut_id"]; //author id
 	 		$filter["manualFilter"] = " (author_id_mi:".$authorDetails["aut_id"]." OR contributor_id_mi:".$authorDetails["aut_id"].") "; // enforce display type X only
 
-			$use_faceting = true;
-			$use_highlighting = false;
-			if (in_array($tpl_idx, array(1,3,7,8,9))) {
-				$simple = false;
-				$citationCache = false;
-			} else {
-				$simple = true;
-				$citationCache = true;
-			}
+            if ($tpl_idx == 0) {
+                $use_faceting = true;
+                $use_highlighting = false;
+                $simple = true;
+                $citationCache = true;
+            } else {
+                $use_faceting = false;
+                $use_highlighting = false;
+                $simple = false;
+                $citationCache = false;
+            }
 			$xdis_version = "MODS 1.0";
 
 
@@ -691,7 +726,9 @@ class Lister
             $list = $list["list"];
 
 			$otherDisplayTypes = array();
-
+            $use_faceting = false; //faceting is only required for the full author search
+            $simple = false; //need the extra details for the actual results
+            $citationCache = false; //need the extra details for the actual results
 
 			if ($tpl_idx == 0) {
 				$order_dir = 'ASC';
@@ -809,7 +846,7 @@ class Lister
 	        $tpl->assign("list", $list);
 	        $tpl->assign("list_info", $list_info);
 	        $tpl->assign('facets', $facets);
-
+            $tpl->assign("author_id", $author_id);
 			$tpl->assign("authorDetails", $authorDetails);			
 			$tpl->assign("active_nav", "mypubs");
 //			$tpl->displayTemplate();
@@ -981,13 +1018,23 @@ class Lister
         	$list = Record::getResearchDetailsbyPIDS($list);
         }
         
+        /* Star muxing time */
+        $stars = Favourites::getStarred();
+        foreach ($list as &$record) {
+        	foreach ($stars as $star) {
+        		if ($record['rek_pid'] == $star) {
+        			$record['starred'] = true;
+        		}
+        	}
+        }
+        
         $tpl->assign('facets', $facets);
         $tpl->assign('snips', $snips);
         $tpl->assign('rows', $rows);
         $tpl->assign('tpl_list', array_map(create_function('$a','return $a[\'title\'];'), $tpls));
         $tpl->assign('browse', $browse);
         $tpl->assign('sort_by_list', $sort_by_list);
-		$tpl->assign("cycle_colours", "#FFFFFF," . APP_CYCLE_COLOR_TWO);
+		$tpl->assign("cycle_colours", "#FFFFFF," . "#" . APP_CYCLE_COLOR_TWO);
         $tpl->assign('sort_by_default', $sort_by);
         $tpl->assign("eserv_url", APP_BASE_URL."eserv/");
         $tpl->assign('sort_order', $options["sort_order"]);
@@ -1043,7 +1090,7 @@ class Lister
         $tpl_file = $tpls[$tpl_idx]['file'];
         $tpl->setTemplate($tpl_file);
 		$tpl->assign("template_mode", $tpl_idx);
-
+		$tpl->assign("use_json", true);
         if ($display) {
             $tpl->displayTemplate();
         } 
@@ -1069,23 +1116,27 @@ class Lister
 
 
 	function checkAliasController() {
-//		print_r($_SERVER);
+
 		$uri = strtolower($_SERVER['REQUEST_URI']);
 		$uri = str_replace(" ", "_", $uri);
-		$uri = preg_replace("/[^a-z0-9_]/", "", $uri);
-		
+		$uri = preg_replace('/(.*)\?(.*)/', "$1", $uri);
+        $uri = preg_replace("/[^a-z0-9_]/", "", $uri);
+
 		if (empty($uri)) {
 			return false;
 		}
+
 		//check if it is an author username
 		$authorDetails = Author::getDetailsByUsername($uri);
 		$params = $_GET;
+        
 		if (count($authorDetails) != 0 && is_numeric($authorDetails['aut_id'])) {
 			$params['browse'] = 'mypubs';
             $params['author_id'] = $authorDetails['aut_id'];
 			Lister::getList($params, true);
+            return true;
 		}
-		exit;
+        return false;
 	}
 
 }

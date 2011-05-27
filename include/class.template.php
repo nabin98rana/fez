@@ -48,6 +48,7 @@ require_once(APP_INC_PATH . "class.collection.php");
 require_once(APP_INC_PATH . "class.auth.php");
 require_once(APP_INC_PATH . "class.author.php");
 require_once(APP_INC_PATH . "class.user.php");
+require_once(APP_INC_PATH . "class.masquerade.php");
 require_once(APP_INC_PATH . "class.my_research.php");
 require_once(APP_INC_PATH . "class.setup.php");
 //require_once(APP_INC_PATH . "najax_classes.php");
@@ -231,7 +232,7 @@ class Template_API
 			} else {
 				$useClassic = 1;
 			}
-      $this->assign("useClassic", $useClassic);
+      		$this->assign("useClassic", $useClassic);
             $this->assign("isUser", $username);
 			$this->assign("myPubURL", $myPubURL);
 			$this->assign("isAuthor", $isAuthor);
@@ -242,6 +243,9 @@ class Template_API
 
 		$isAdministrator = Auth::isAdministrator();
 		$this->assign("isAdministrator", $isAdministrator);
+		$canMasquerade = Masquerade::canUserMasquerade($username);
+		$this->assign("canMasquerade", $canMasquerade);
+		
 		$custom_view_pid = $_GET['custom_view_pid'];
 		if (!empty($custom_view_pid)) {
 			$customView = Custom_View::getCommCview($custom_view_pid);
@@ -336,15 +340,16 @@ class Template_API
 
 		$this->assign(array(
 		//"shaded_bar"     => "background='".APP_RELATIVE_URL."images/".APP_SHADED_BAR."'",
-            "heading_color"  => APP_HEADING_COLOR,
-            "value_color"    => APP_VALUE_COLOR,
-            "cell_color"     => APP_CELL_COLOR,
-            "light_color"    => APP_LIGHT_COLOR,
-            "selected_color" => APP_SELECTED_COLOR,
-            "middle_color"   => APP_MIDDLE_COLOR,
-            "dark_color"     => APP_DARK_COLOR,
+            "heading_color"  => "#" . APP_HEADING_COLOR,
+            "value_color"    => "#" . APP_VALUE_COLOR,
+            "cell_color"     => "#" . APP_CELL_COLOR,
+            "light_color"    => "#" . APP_LIGHT_COLOR,
+            "selected_color" => "#" . APP_SELECTED_COLOR,
+            "middle_color"   => "#" . APP_MIDDLE_COLOR,
+            "dark_color"     => "#" . APP_DARK_COLOR,
             "cycle"          => APP_CYCLE_COLORS,
-            "internal_color" => APP_INTERNAL_COLOR
+            "internal_color" => "#" . APP_INTERNAL_COLOR,
+			"highlight_color" => APP_HIGHLIGHT_COLOR
 		));
 		$this->assign('phpini_upload_max_filesize', Misc::convertSize(ini_get('upload_max_filesize')));
 

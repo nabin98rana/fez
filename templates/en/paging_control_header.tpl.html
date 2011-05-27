@@ -1,14 +1,16 @@
 {if $hide_list_heading != "true"}
   <div id="criteria-box">
     <h1>
-    {if $list_type == 'all_records_list' || $list_type == 'collection_records_list'}
-      <img src="{$rel_url}images/record_32.jpg" alt="" />		
+    {if $browse_type == 'browse_favourites'}      
+      <img src="{$rel_url}images/star_32.png" alt="" class="page_master_icon" />   
+    {elseif $list_type == 'all_records_list' || $list_type == 'collection_records_list'}
+      <img src="{$rel_url}images/record_32.jpg" alt="" class="page_master_icon" />		
     {elseif $list_type == 'community_list'}
-      <img src="{$rel_url}images/community_32.jpg" alt="" />
+      <img src="{$rel_url}images/community_32.jpg" alt="" class="page_master_icon" />
     {elseif $list_type == 'collection_list'}
-      <img src="{$rel_url}images/collection_32.jpg" alt="" />
+      <img src="{$rel_url}images/collection_32.jpg" alt="" class="page_master_icon" />
     {elseif $browse_type == 'browse_author'}			
-      <a href="{$rel_url}list/author/"><img title="Browse by all authors" alt="Browse by all authors" src="{$rel_url}images/browse_32.jpg" /></a>
+      <a href="{$rel_url}list/author/"><img title="Browse by all authors" alt="Browse by all authors" src="{$rel_url}images/browse_32.jpg" class="page_master_icon" /></a>
     {/if}
     {$list_heading}</h1>
   
@@ -72,6 +74,7 @@
     			<option value="150" {if $rows == 150}selected="selected"{/if}>150</option>
     			<option value="300" {if $rows == 300}selected="selected"{/if}>300</option>
     			<option value="500" {if $rows == 500}selected="selected"{/if}>500</option>
+          <option value="1000" {if $rows == 1000}selected="selected"{/if}>1000</option>
     		  </select>
     
     	</div>

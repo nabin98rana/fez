@@ -43,8 +43,8 @@ $user = Auth::getUsername();
 $isAdministrator = User::isUserAdministrator($user);
 $isSuperAdministrator = User::isUserSuperAdministrator($user);
 
-if (! $isAdministrator || ! $isSuperAdministrator) {
-  exit;
+if (!($isAdministrator || $isSuperAdministrator)) {
+	exit;
 }
 
 $server = new Zend_Json_Server();
