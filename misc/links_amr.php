@@ -55,7 +55,7 @@ $filter["searchKey".Search_Key::getID("Created Date")]["start_date"] =
 $filter["manualFilter"] = " -isi_loc_t_s:[* TO *] AND ";
 // ..and optionally enforce published records only
 //$filter["searchKey".Search_Key::getID("Status")] = 2;
-
+$laq = LinksAmrQueue::get();
 $max = 50;
 $listing = Record::getListing(array(), array(9,10), 0, $max, 'Created Date', false, false, $filter);
 
@@ -69,7 +69,8 @@ for ($i=0; $i<((int)$listing['info']['total_pages']+1); $i++) {
   
   if (is_array($listing['list'])) {
     for ($j=0; $j<count($listing['list']); $j++) {      
-      LinksAmrQueue::get()->add($listing['list'][$j]['rek_pid']);
+//      LinksAmrQueue::get()->add($listing['list'][$j]['rek_pid']);
+      $laq->add($listing['list'][$j]['rek_pid']);
     }
   }
 }
