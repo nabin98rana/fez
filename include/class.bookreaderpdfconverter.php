@@ -224,7 +224,7 @@ class bookReaderPDFConverter
         $this->makePath();
         if(is_writable($this->bookreaderDataPath))
         {
-            $cmd = GHOSTSCRIPT_PTH . ' -q -dBATCH -dNOPAUSE -dJPEGQ=60 -sDEVICE=jpeg -r150 -sOutputFile=' .
+            $cmd = GHOSTSCRIPT_PTH . ' -q -dBATCH -dNOPAUSE -dJPEGQ=80 -sDEVICE=jpeg -r150 -sOutputFile=' .
                    $this->bookreaderDataPath . '/' . $this->sourceFileStat['filename'] . '-%04d.jpg ' .
                    realpath($this->sourceFilePath);
             shell_exec(escapeshellcmd($cmd));

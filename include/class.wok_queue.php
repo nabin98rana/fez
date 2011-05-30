@@ -381,6 +381,7 @@ class WokQueue extends Queue
         }
         $record->setIndexMatchingFields();
       }
+      $this->deleteAutIds($ut);
     }
   }
   
@@ -414,9 +415,14 @@ class WokQueue extends Queue
     foreach ($res as $r) {
       $aut_ids[] = $r[$this->_dbap.'aut_id'];
     }
-      
+
+    return $aut_ids;
+  }
+
+
+  private function deleteAutIds($ut) {
     // Delete rows
-    $sql = "DELETE FROM ".$this->_dbtp."queue_aut WHERE ".$this->_dbap."id=?"; 
+    $sql = "DELETE FROM ".$this->_dbtp."queue_aut WHERE ".$this->_dbap."id=?";
     try {
       $db->query($sql, $ut);
     }
@@ -424,7 +430,12 @@ class WokQueue extends Queue
       $log->err($ex);
       return null;
     }
-    
-    return $aut_ids;
+
+
+
+
+
   }
+
+
 }
