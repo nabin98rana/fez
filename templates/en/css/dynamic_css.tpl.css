@@ -1537,6 +1537,11 @@ a.form_note:hover span.form_note {
         text-align: left;
 }
 
+.form_note img {
+    padding-right: 2px;
+    vertical-align: top;
+}
+
 div.maxlength {
     font-size: 70%;
     color: black;
