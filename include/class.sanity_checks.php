@@ -217,7 +217,7 @@ class SanityChecks
     function ghostscript()
     {
         $results = array(ConfigResult::message('Testing for Ghostscript'));
-        $results = array_merge($results, SanityChecks::checkFile("GHOSTSCRIPT_PTH", GHOSTSCRIPT_PTH, true));
+        $results = array_merge($results, SanityChecks::checkFile("GHOSTSCRIPT_PTH", GHOSTSCRIPT_PTH, false, true));
         return $results;
     }
 
