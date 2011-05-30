@@ -663,7 +663,7 @@ class WosRecItem
     );
 
     // If this update came from a RID download, put this in the RID collection
-    if ($this->collections[0] = RID_DL_COLLECTION) {
+    if ($this->collections[0] == RID_DL_COLLECTION) {
         $isMemberOf = Record::getSearchKeyIndexValue($pid, "isMemberOf", false);
         if (!in_array(RID_DL_COLLECTION, $isMemberOf)) { //if it doesn't currently live in the RID collection, add it as a parent
             $res = $record->updateRELSEXT("rel:isMemberOf", RID_DL_COLLECTION, false);

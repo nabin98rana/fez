@@ -799,6 +799,27 @@ class Org_Structure
 		return $res;
 	}
 
+    public static function getAuthorOrgListByAutID($aut_id)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		$stmt = "SELECT
+                    org_id
+					FROM " . APP_TABLE_PREFIX . "author
+					LEFT JOIN hr_position_vw on wamikey = aut_org_staff_id
+					LEFT JOIN " . APP_TABLE_PREFIX . "org_structure on aou = org_extdb_id AND org_extdb_name = 'hr'
+					WHERE aut_id = ".$db->quote($aut_id, 'INTEGER');
+
+		try {
+			$res = $db->fetchCol($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return '';
+		}
+		return $res;
+	}
 
 	/**
 	 * Method used to get the list of organsational structures available in the
