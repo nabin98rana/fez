@@ -1,6 +1,7 @@
 <?php
 
 include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
+include_once(APP_INC_PATH . "class.filecache.php");
 
 class bookReaderPDFConverter
 {
@@ -84,8 +85,15 @@ class bookReaderPDFConverter
      */
     public function resourceGenerated($resourcePath)
     {
-        $pageCount = count(array_filter(scandir($resourcePath),
-                         array($this, 'ct')));
+        if(is_dir($resourcePath))
+        {
+            $pageCount = count(array_filter(scandir($resourcePath),
+                          array($this, 'ct')));
+        }
+        else
+        {
+            $pageCount = 0;
+        }
 
         return ($pageCount > 0) ? true : false;
     }
@@ -185,6 +193,11 @@ class bookReaderPDFConverter
             {
                 $this->setSource($job[0],$job[1]);
                 $this->run($job[2], $forceRegenerate);
+                if (APP_FILECACHE == "ON")
+                {
+                  $cache = new fileCache($pid, 'pid='.$pid);
+                  $cache->poisonCache();
+                }
             }
             else
             {
