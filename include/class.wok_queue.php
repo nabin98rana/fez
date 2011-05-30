@@ -88,7 +88,7 @@ class WokQueue extends Queue
            "WHERE ".$this->_dbqp."id=?";    
     try {
       $res = $db->fetchOne($sql, $ut, Zend_Db::FETCH_ASSOC);
-      if (! $res) {   
+      if (!$res) {   
         parent::add($ut);
         if ($aut_id) {
           $sql = "INSERT INTO ".$this->_dbtp."queue_aut (".$this->_dbap."id,".$this->_dbap."aut_id) VALUES (?,?)";

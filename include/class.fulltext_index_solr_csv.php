@@ -402,7 +402,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 //			$spliting .= "&f.content.split=true&f.content.separator=%09";
 
 			$log->debug(array("processQueue: about to send"));
-			$postFields["commit"] = "true";
+			$postFields["commit"] = "false";
 			$url = "http://".APP_SOLR_HOST.":".APP_SOLR_PORT.APP_SOLR_PATH."update/csv";
 			
 			if (APP_SOLR_HOST == APP_HOSTNAME) {
@@ -484,16 +484,17 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 		}
 		 
 		$deletePids = $queue->popDeleteChunk();
-		 
+        
+		$this->connectToSolr();
 		if( $deletePids ) {
 				
-			$this->connectToSolr();
+
 				
 			if( $this->bgp ) {
 				$this->bgp->setStatus("Deleting " . count($deletePids) . " from Solr Index");
 			}
 			$this->solr->deleteByMultipleIds($deletePids);
-			$this->solr->commit();
+
 			
 			// MT: 20100319 commented out this as the function doesn't exist in the Solr Service class. 
 			// $this->solr->triggerUpdate();
@@ -503,7 +504,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 				//$this->removeByPid($row['ftq_pid']);
 			} */
 		} 
-		 
+		$this->solr->commit();
 		return $countDocs;
 	}
 
@@ -563,7 +564,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 			$log->err($ex);
 			return '';
 		}
-			
+		$ret = array();
 		foreach ($res as $row) {
 			$ret[$row['authi_pid']][$row['authi_role']] = $row['authi_arg_id'];
 		}
