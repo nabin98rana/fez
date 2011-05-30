@@ -103,7 +103,7 @@ class WokService
                       'userQuery' => $userQuery,
                       'editions' => $editions,
 //                      'timeSpan' => $timeSpan,
-                      'symbolicTimeSpan' => $symbolicTimeSpan,
+//                      'symbolicTimeSpan' => $symbolicTimeSpan,
                       'queryLanguage' => $queryLanguage
                     ),
                'retrieveParameters' =>
@@ -112,6 +112,9 @@ class WokService
                        'count' => $count
                     )
     );
+    if (!empty($symbolicTimeSpan)) {
+        $search['queryParameters']['symbolicTimeSpan'] = $symbolicTimeSpan;
+    }
     try {
       // Make SOAP request
       $this->client->setCookie(WOK_COOKIE_NAME, $this->sessionId);
