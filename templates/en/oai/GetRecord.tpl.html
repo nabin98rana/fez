@@ -34,8 +34,8 @@
 			{if $metadataPrefix == "pa"}
 	        <pa:location>{$app_base_url}view/{$list[0].rek_pid|escape:"html"}</pa:location>
 	        {assign var="loop_thumbnail" value=$list[0].thumbnail}
-        	<pa:thumbnail>{$app_base_url}eserv/{$list[0].rek_pid|escape:"html"}/{$loop_thumbnail[0]|escape:"html"}</pa:thumbnail>
-        	<dc:identifier linktype="thumbnail">{$app_base_url}view/{$list[0].rek_pid|escape:"html"}</dc:identifier>
+        	<dc:identifier linktype="thumbnail">{$app_base_url}eserv/{$list[0].rek_pid|escape:"html"}/{$loop_thumbnail[0]|escape:"html"}</pa:thumbnail>
+        	<dc:identifier linktype="fulltext">{$app_base_url}view/{$list[0].rek_pid|escape:"html"}</dc:identifier>
 			{else}
 			<dc:identifier>{$app_base_url}view/{$list[0].rek_pid|escape:"html"}</dc:identifier>
 			{/if}
