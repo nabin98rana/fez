@@ -900,6 +900,16 @@ class ResearcherID
     $filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
     $filter["searchKey".Search_Key::getID("Author ID")] = $aut_id;
     $filter["searchKey".Search_Key::getID("Object Type")] = 3; // records only
+
+    // .. which are either journal articles and conference papers ..
+    $filter["searchKey".Search_Key::getID("Display Type")] = array();
+    $filter["searchKey".Search_Key::getID("Display Type")]['override_op'] = 'OR';
+    $filter["searchKey".Search_Key::getID("Display Type")][] =
+        XSD_Display::getXDIS_IDByTitleVersion('Journal Article', 'MODS 1.0');
+    $filter["searchKey".Search_Key::getID("Display Type")][] =
+        XSD_Display::getXDIS_IDByTitleVersion('Conference Paper', 'MODS 1.0');
+
+
     if ($requireIsiLoc) {
       $filter["manualFilter"] = " (isi_loc_t_s:[* TO *]) "; // require Isi Loc
     }
@@ -914,15 +924,17 @@ class ResearcherID
         /*if ( !empty($record['rek_display_type']) ) {
           $record['rek_ref_type'] = ResearcherID::getDocTypeByDisplayType($record['rek_display_type']);
         }*/
-        // Journal articles only
+        // Journal articles
         if ($record['rek_display_type'] == 179) {
           $record['rek_ref_type'] = 17;
+        } elseif ($record['rek_display_type'] == 130) { //conference papers
+          $record['rek_ref_type'] = 10;
         } else {
           $record['rek_ref_type'] = '';
         }
           
         if ( is_array($record['rek_isi_loc']) ) {
-          $record['rek_isi_loc'] = $record['rek_isi_loc'][0];
+          $record['rek_isi_loc'] = $record['rek_isi_loc'];
         }
                 
         // Replace double quotes with double double quotes
@@ -934,7 +946,17 @@ class ResearcherID
         if ( !empty($record['rek_book_title']) ) {
           $record['rek_secondary_title'] = $record['rek_book_title'];
         }
-          
+
+        // Set the secondary title from the journal name if one exists
+        if ( !empty($record['rek_journal_name']) && $record['rek_display_type'] == 179 ) {
+          $record['rek_secondary_title'] = $record['rek_journal_name'];
+        }
+
+        // Set the secondary title from the conference title if one exists
+        if ( !empty($record['rek_conference_name']) && $record['rek_display_type'] == 130 ) {
+          $record['rek_secondary_title'] = $record['rek_conference_name'];
+        }
+
         // Replace double quotes with double double quotes
         if ( !empty($record['rek_secondary_title']) ) {
           $record['rek_secondary_title'] = str_replace('"', '""', $record['rek_secondary_title']);
@@ -950,9 +972,9 @@ class ResearcherID
         }
           
         // Set end page to be the start page, if only start page exists
-        if ((!empty($list['rek_start_page'][0])) && empty($list['rek_end_page'][0])) {
-          $list['rek_end_page'][0] = $list['rek_start_page'][0];
-          unset($list['rek_start_page']);
+        if ((!empty($list['rek_start_page'])) && empty($list['rek_end_page'])) {
+          $list['rek_end_page'] = $list['rek_start_page'];
+//          unset($list['rek_start_page']);
         }
           
         // Get the author details where an rek_author_id array is specified

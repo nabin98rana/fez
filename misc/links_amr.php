@@ -50,7 +50,7 @@ $filter["searchKey".Search_Key::getID("Created Date")] = array();
 $filter["searchKey".Search_Key::getID("Created Date")]["filter_type"] = "greater";
 $filter["searchKey".Search_Key::getID("Created Date")]["filter_enabled"] = 1;
 $filter["searchKey".Search_Key::getID("Created Date")]["start_date"] = 
-    Date_API::getFedoraFormattedDateUTC(strtotime("-1 months"));
+    Date_API::getFedoraFormattedDateUTC(strtotime("-3 months"));
 // .. without a UT ..
 $filter["manualFilter"] = " -isi_loc_t_s:[* TO *] AND ";
 // ..and optionally enforce published records only
