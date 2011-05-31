@@ -1,3 +1,4 @@
+
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type='text/xsl' href='{$app_relative_url}oai2.xsl' ?>
 <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
@@ -45,12 +46,9 @@
 		{if $metadataPrefix == "pa"}
 	        <pa:location>{$app_base_url}view/{$list[i].rek_pid|escape:"html"}</pa:location>
 	        {assign var="loop_thumbnail" value=$list[i].thumbnail}
-	        <dc:identifier linktype="thumbnail">{$app_base_url}eserv/{$list[i].rek_pid|escape:"html"}/{$loop_thumbnail[0]|escape:"html"}</dc:identifier>
-	        <dc:identifier linktype="fulltext">{$app_base_url}view/{$list[i].rek_pid|escape:"html"}</dc:identifier>
-		{else}
-			<dc:identifier>{$app_base_url}view/{$list[i].rek_pid|escape:"html"}</dc:identifier>
+	        <pa:thumbnail>{$app_base_url}eserv/{$list[i].rek_pid|escape:"html"}/{$loop_thumbnail[0]|escape:"html"}</pa:thumbnail>
 		{/if}
-        
+        <dc:identifier>{$app_base_url}view/{$list[i].rek_pid|escape:"html"}</dc:identifier>
         <dc:description>{$list[i].rek_description|escape:"html"}</dc:description>
         <dc:type>{$list[i].rek_display_type_lookup|escape:"html"}</dc:type>
         <dc:date>{$list[i].rek_date|date_format:"%Y-%m-%d"|escape:"html"}</dc:date>
