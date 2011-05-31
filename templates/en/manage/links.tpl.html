@@ -1,0 +1,120 @@
+{literal}
+<script type="text/javascript">
+<!--
+var page_url = '{/literal}{$smarty.server.PHP_SELF}{literal}';
+var current_page = {/literal}{if $list_info.current_page != ""}{$list_info.current_page}{else}0{/if}{literal};
+var last_page = {/literal}{if $list_info.last_page != ""}{$list_info.last_page}{else}0{/if}{literal};        
+
+function resizePager(f)
+{
+  var pagesize = f.page_size.options[f.page_size.selectedIndex].value;
+  window.location.href = page_url + "?" + replaceParam(window.location.href, 'rows', pagesize);
+}
+function checkPageField(ev)
+{
+  // check if the user is trying to submit the form by hitting <enter>
+  if (((window.event) && (window.event.keyCode == 13)) ||
+      ((ev) && (ev.which == 13))) {
+    return false;
+  }
+}
+function goPage(f, new_page)
+{
+  if ((new_page > last_page+1) || (new_page <= 0) ||
+      (new_page == current_page+1) || (!isNumberOnly(new_page))) {
+    f.page.value = current_page+1;
+    return false;
+  }
+  setPage(new_page-1);
+}
+function setPage(new_page)
+{
+  if ((new_page > last_page) || (new_page < 0) ||
+      (new_page == current_page)) {
+    return false;
+  }
+  window.location.href = page_url + "?" + replaceParam(window.location.href, 'pagerRow', new_page);
+}
+//-->
+</script>
+{/literal}
+
+<div class="admin-box">
+
+<h1>Link Status Report</h1>
+
+<form method="get" action="{$smarty.server.PHP_SELF}">
+  <div>
+    
+    Search by PID: <input type="text" name="pid_filter" value="{$filter_pid}" size="10" /> &nbsp; 
+    Search by status code: <input type="text" name="code_filter" value="{$filter_code}" size="3" />
+    <input type="submit" value="Apply filter" />
+  </div>
+</form>
+
+<table style="width: 100%" cellpadding="1" cellspacing="1">
+  <tr>
+    <td style="width: 100px;" class="default cell-colour">&nbsp;<b>PID</b></td>
+    <td style="" class="default cell-colour">&nbsp;<b>URL</b></td>
+    <td style="width: 50px;" class="default cell-colour">&nbsp;<b>Status</b></td>
+    <td style="width: 150px;" class="default cell-colour">&nbsp;<b>Last checked</b></td>
+  </tr>
+  {section name="i" loop=$report}
+    {assign var="status" value=$report[i].url_status}
+    <tr>
+      <td>
+        {if $last_pid != $report[i].pid}
+          <a href="{$rel_url}view/{$report[i].pid}" onclick="javascript:window.open('{$rel_url}view/{$report[i].pid}'); return false;">{$report[i].pid}</a>
+        {/if}
+      </td>
+      <td class="link-status-{$code_colours[$status]}">
+        <a href="{$report[i].url|escape:'html'}" onclick="javascript:window.open('{$report[i].url|escape:'html'}'); return false;">{$report[i].url|escape:'htmlall'}</a>
+      </td>
+      <td class="link-status-{$code_colours[$status]}">
+        <a href="#" title="{$codes[$status]}">{$report[i].url_status}</a>
+      </td>
+      <td class="link-status-{$code_colours[$status]}">
+        {$report[i].last_checked|date_format:'%m/%d/%y, %H:%M:%S'}
+      </td>
+    </tr>
+    {assign var="last_pid" value=$report[i].pid}
+  {sectionelse}
+  <tr>
+    <td colspan="7" style="background: {$light_color}; text-align: center" class="default">
+      No PIDs containing links could be found.
+    </td>
+  </tr>
+  {/section}
+  
+  <tr style="background: {$cell_color}">
+    <td colspan="15">
+      <table style="width: 100%" cellspacing="0" cellpadding="0">
+        <tr>
+          <td style="width: 40%; text-align: center; white-space: nowrap">
+            <input name="first" type="button" value="|&lt;" class="shortcut button" onclick="javascript:setPage(0);" />
+            <input name="previous" type="button" value="&lt;&lt;" class="shortcut button" onclick="javascript:setPage({$list_info.prev_page});" />
+            <input type="text" name="page" size="3" maxlength="3" value="{math equation="x + 1" x=$list_info.current_page}" style="background: {$cell_color};" class="paging_input" onkeypress="javascript:return checkPageField(event);" />
+            <input name="go" type="button" value="Go" class="shortcut button" onclick="javascript:goPage(this.form, this.form.page.value);" />
+            <input name="next" type="button" value="&gt;&gt;" class="shortcut button" onclick="javascript:setPage({$list_info.next_page});" />
+            <input name="last" type="button" value="&gt;|" class="shortcut button" onclick="javascript:setPage({$list_info.last_page});" />
+          </td>
+          <td style="white-space: nowrap">
+            <span class="default_white">Rows per Page:</span>
+            <select name="page_size" class="default" onchange="javascript:resizePager(this.form);">
+              <option value="5" {if $options.rows == 5}selected="selected"{/if}>5</option>
+              <option value="10" {if $options.rows == 10}selected="selected"{/if}>10</option>
+              <option value="25" {if $options.rows == 25}selected="selected"{/if}>25</option>
+              <option value="50" {if $options.rows == 50}selected="selected"{/if}>50</option>
+              <option value="100" {if $options.rows == 100}selected="selected"{/if}>100</option>
+              <option value="150" {if $options.rows == 150}selected="selected"{/if}>150</option>
+            </select>
+            <input type="button" value="Set" class="shortcut button" onclick="javascript:resizePager(this.form);" />
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr> 
+  
+</table>
+
+</div>

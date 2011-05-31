@@ -25,6 +25,7 @@ include_once(APP_INC_PATH . "class.bgp_wok.php");
 include_once(APP_INC_PATH . "class.date.php");
 include_once(APP_INC_PATH . "class.wok_service.php");
 include_once(APP_INC_PATH . "class.wos_record.php");
+include_once(APP_INC_PATH . "class.org_structure.php");
 include_once(APP_INC_PATH . "class.matching_conferences.php");
 
 class WokQueue extends Queue
@@ -87,7 +88,7 @@ class WokQueue extends Queue
            "WHERE ".$this->_dbqp."id=?";    
     try {
       $res = $db->fetchOne($sql, $ut, Zend_Db::FETCH_ASSOC);
-      if (! $res) {   
+      if (!$res) {   
         parent::add($ut);
         if ($aut_id) {
           $sql = "INSERT INTO ".$this->_dbtp."queue_aut (".$this->_dbap."id,".$this->_dbap."aut_id) VALUES (?,?)";
@@ -337,6 +338,27 @@ class WokQueue extends Queue
               }
 
               if ($updateOK == true) {
+                  //check to not copy a pid into the rid collection when a wos or rid download updates it, if one of the author ids already on it is in the same org unit as the new author id
+                  if (count($aut_ids) > 0) {
+                      $aut_org_ids =  Org_Structure::getAuthorOrgListByAutID($aut_ids[0]);
+                      $pid_aut_ids = Record::getSearchKeyIndexValue($existing_uts[$rec->ut], "Author ID", false);
+                      if (count($pid_aut_ids) > 0) {
+                          $all_org_ids = array();
+                          foreach($pid_aut_ids as $pid_aut_id) {
+                              $org_ids = Org_Structure::getAuthorOrgListByAutID($pid_aut_id);
+                              $all_org_ids = array_merge($org_ids, $all_org_ids);
+                          }
+                          $all_org_ids = array_unique($all_org_ids);
+                          foreach ($aut_org_ids as $aut_org_id) {
+                              if (in_array($aut_org_id, $all_org_ids)) { //if one of the pid authors is already in the same org unit as the new author, don't copy into a new collection
+                                  if ($this->_bgp) {
+                                    $this->_bgp->setStatus('DISCOVERED one of the existing pid '.$existing_uts[$rec->ut]." - Already has Org Unit ".$aut_org_id." set so not going to put into RID collection");
+                                  }
+                                  $rec->collections = array();
+                              }
+                          }
+                      }
+                  }
                   if ($rec->update($existing_uts[$rec->ut])) {
                     if ($this->_bgp) {
                       $this->_bgp->setStatus('Updated existing PID: '.$existing_uts[$rec->ut]." for UT: ".$rec->ut);
@@ -381,6 +403,7 @@ class WokQueue extends Queue
         }
         $record->setIndexMatchingFields();
       }
+      $this->deleteAutIds($ut);
     }
   }
   
@@ -391,7 +414,7 @@ class WokQueue extends Queue
    * @return null, if queue is empty or if there is an error
    *
    */
-  private function getAutIds($ut) 
+  private function getAutIds($ut)
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -414,9 +437,19 @@ class WokQueue extends Queue
     foreach ($res as $r) {
       $aut_ids[] = $r[$this->_dbap.'aut_id'];
     }
-      
+
+    return $aut_ids;
+  }
+
+
+  private function deleteAutIds($ut) {
+
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+
     // Delete rows
-    $sql = "DELETE FROM ".$this->_dbtp."queue_aut WHERE ".$this->_dbap."id=?"; 
+    $sql = "DELETE FROM ".$this->_dbtp."queue_aut WHERE ".$this->_dbap."id=?";
     try {
       $db->query($sql, $ut);
     }
@@ -424,7 +457,6 @@ class WokQueue extends Queue
       $log->err($ex);
       return null;
     }
-    
-    return $aut_ids;
   }
+
 }

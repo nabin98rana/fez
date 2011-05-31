@@ -1129,6 +1129,90 @@ class Misc
       return sprintf("%02dh %02dm", $hours, $mins);
     }
   }
+  
+  /**
+   * Method used to get a list of HTTP status codes and their meanings.
+   *
+   * @access  public
+   * @return  array The list of HTTP status codes & their explainations.
+   */
+  function httpStatusCodes()
+  {
+    return array(
+      "0" => "No HTTP Status Code Returned",
+      "100" => "Continue",
+      "101" => "Switching Protocols",
+      "102" => "Processing (WebDAV) (RFC 2518)",
+      "122" => "Request-URI too long",
+      "200" => "OK",
+      "201" => "Created",
+      "202" => "Accepted",
+      "203" => "Non-Authoritative Information (since HTTP/1.1)",
+      "204" => "No Content",
+      "205" => "Reset Content",
+      "206" => "Partial Content",
+      "207" => "Multi-Status (WebDAV) (RFC 4918)",
+      "226" => "IM Used (RFC 3229)",
+      "300" => "Multiple Choices",
+      "301" => "Moved Permanently",
+      "302" => "Found",
+      "303" => "See Other (since HTTP/1.1)",
+      "304" => "Not Modified",
+      "305" => "Use Proxy (since HTTP/1.1)",
+      "306" => "Switch Proxy",
+      "307" => "Temporary Redirect (since HTTP/1.1)",
+      "400" => "Bad Request",
+      "401" => "Unauthorized",
+      "402" => "Payment Required",
+      "403" => "Forbidden",
+      "404" => "Not Found",
+      "405" => "Method Not Allowed",
+      "406" => "Not Acceptable",
+      "407" => "Proxy Authentication Required[2]",
+      "408" => "Request Timeout",
+      "409" => "Conflict",
+      "410" => "Gone",
+      "411" => "Length Required",
+      "412" => "Precondition Failed",
+      "413" => "Request Entity Too Large",
+      "414" => "Request-URI Too Long",
+      "415" => "Unsupported Media Type",
+      "416" => "Requested Range Not Satisfiable",
+      "417" => "Expectation Failed",
+      "418" => "I'm a teapot",
+      "422" => "Unprocessable Entity (WebDAV) (RFC 4918)",
+      "423" => "Locked (WebDAV) (RFC 4918)",
+      "424" => "Failed Dependency (WebDAV) (RFC 4918)",
+      "425" => "Unordered Collection (RFC 3648)",
+      "426" => "Upgrade Required (RFC 2817)",
+      "444" => "No Response",
+      "449" => "Retry With",
+      "450" => "Blocked by Windows Parental Controls",
+      "499" => "Client Closed Request",
+      "500" => "Internal Server Error",
+      "501" => "Not Implemented",
+      "502" => "Bad Gateway",
+      "503" => "Service Unavailable",
+      "504" => "Gateway Timeout",
+      "505" => "HTTP Version Not Supported",
+      "506" => "Variant Also Negotiates (RFC 2295)",
+      "507" => "Insufficient Storage (WebDAV) (RFC 4918)[6]",
+      "509" => "Bandwidth Limit Exceeded (Apache bw/limited extension)",
+      "510" => "Not Extended (RFC 2774)"
+    );
+  }
+  
+  function httpStatusCodeColourise($code)
+  {
+    // This could be done better with classes.
+    if ($code == "200" || $code == "301" || $code == "302" || $code == "303" || $code == "304" || $code == "307") {
+      return "good";
+    } elseif ($code == "0") {
+      return "unknown";
+    } else {
+      return "bad";
+    }
+  }
 
   /**
    * Method used to get the mime content type in a better way than the default PHP way.

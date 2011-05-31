@@ -35,6 +35,7 @@ include_once('config.inc.php');
 include_once(APP_INC_PATH . 'class.esti_search_service.php');
 include_once(APP_INC_PATH . 'class.links_amr_service.php');
 include_once(APP_INC_PATH . "class.record.php");
+include_once(APP_INC_PATH . 'class.wok_service.php');
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.user.php");
 
@@ -94,8 +95,16 @@ class MatchingRecords
 			$sort = 'Relevance';
 			$first_rec = 1;
 			$num_recs = 3;
-			
-			$result = EstiSearchService::searchRetrieve('WOS', $query, $depth, $editions, $sort, $first_rec, $num_recs);
+            $timeSpan = '';
+
+//            if (defined('WOK_PASSWORD') && WOK_PASSWORD != '') { //still need to pop things back onto the wok queue if they fail if this goes into production
+//                $wok_ws = new WokService(FALSE);
+//                $response = $wok_ws->search("WOS", $query, $editions, $timeSpan, $depth, "en", $num_recs);
+//                $result = $response->return;
+//            } else { //try and use ESTI service if TR WS Premium not setup
+                $result = EstiSearchService::searchRetrieve('WOS', $query, $depth, $editions, $sort, $first_rec, $num_recs);
+//            }
+
     		
 			$records = @simplexml_load_string($result['records']);	
 			

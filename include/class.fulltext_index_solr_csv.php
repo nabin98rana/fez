@@ -176,7 +176,8 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 				if(empty($row['rek_pid']))
 				continue;
 				 
-				$csv[$row['rek_pid']] = '"'.$row['rek_pid'] .'",'. preg_replace('/[^(\x20-\x7F)]*/','', $row['row']).  '"';
+				//$csv[$row['rek_pid']] = '"'.$row['rek_pid'] .'",'. preg_replace('/[^(\x20-\x7F)]*/','', $row['row']).  '"';
+				$csv[$row['rek_pid']] = '"'.$row['rek_pid'] .'",'. $row['row'].  '"';   //20110527 preg-replace removed
 				// $csv[$row['rek_pid']] = '"'.$row['rek_pid'] .'","'.$row['row'] .  '"';
 				$pids_arr[] = $row['rek_pid'];
 				 
@@ -366,9 +367,8 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 			/*
 			 * Add datasteam text to CSV array
 			 */
-			//$content = $this->getCachedContent($pids);
-			//$content = preg_replace('/[^(\x20-\x7F)]*/','',$content);
-            $content = array();
+			$content = $this->getCachedContent($pids);
+			$content = preg_replace('/[^(\x20-\x7F)]*/','',$content);
 			foreach ($csv as $rek_pid => $rek_line) {
 				 
 				if( !empty($content[$rek_pid]) ) {
