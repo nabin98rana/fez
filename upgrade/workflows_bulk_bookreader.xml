@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<workflows schema_version="1.0">
+  <workflow wfl_id="120" wfl_title="Bulk generate bookreader images" wfl_version="0.5" wfl_description="Bulk generate bookreader images." wfl_roles="Annotator,Approver,Archival_Format_Viewer,Commentor,Comment_Viewer,Community_Administrator,Creator,Editor,Lister,Viewer" wfl_end_button_label="OK">
+    <WorkflowState wfs_id="1182" wfs_title="Bulk generate bookreader images" wfs_description="" wfs_auto="1" wfs_wfb_id="99" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="1183" wfs_title="Started" wfs_description="" wfs_auto="0" wfs_wfb_id="33" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowStateLinks wfsl_id="1508" wfsl_from_id="1182" wfsl_to_id="1183"/>
+    <WorkflowTrigger wft_id="490" wft_pid="-1" wft_type_id="7" wft_xdis_id="-2" wft_order="0" wft_mimetype="" wft_icon="images/bulk_move_16.png" wft_ret_id="3" wft_options="0"/>
+  </workflow>
+  <WorkflowBehaviour wfb_id="99" wfb_title="Bulk generate bookreader images" wfb_description="Generate images for all pdfs for all specified PIDs." wfb_version="0.5" wfb_script_name="bulk_generate_bookreader_images.php" wfb_auto="1"/>
+  <WorkflowBehaviour wfb_id="33" wfb_title="No Action" wfb_description="Just displays the state information.  Use to have an information only step." wfb_version="" wfb_script_name="no_action.php" wfb_auto="0"/>
+</workflows>
