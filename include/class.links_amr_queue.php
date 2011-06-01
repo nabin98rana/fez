@@ -57,7 +57,7 @@ class LinksAmrQueue extends Queue
       $instance->_lock = 'linksamr';
       $instance->_use_locking = TRUE; 
       $instance->_batch_size = 50;
-      $instance->_time_between_calls = 2;
+      $instance->_time_between_calls = 30;
       $instance->_commit_shutdown_registered = FALSE;
       Zend_Registry::set('LinksAmrQueue', $instance);
     }
