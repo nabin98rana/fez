@@ -34,12 +34,9 @@
 			{if $metadataPrefix == "pa"}
 	        <pa:location>{$app_base_url}view/{$list[0].rek_pid|escape:"html"}</pa:location>
 	        {assign var="loop_thumbnail" value=$list[0].thumbnail}
-        	<dc:identifier linktype="thumbnail">{$app_base_url}eserv/{$list[0].rek_pid|escape:"html"}/{$loop_thumbnail[0]|escape:"html"}</dc:identifier>
-        	<dc:identifier linktype="fulltext">{$app_base_url}view/{$list[0].rek_pid|escape:"html"}</dc:identifier>
-			{else}
-			<dc:identifier>{$app_base_url}view/{$list[0].rek_pid|escape:"html"}</dc:identifier>
+        	<pa:thumbnail>{$app_base_url}eserv/{$list[0].rek_pid|escape:"html"}/{$loop_thumbnail[0]|escape:"html"}</pa:thumbnail>
 			{/if}
-	        
+	        <dc:identifier>{$app_base_url}view/{$list[0].rek_pid|escape:"html"}</dc:identifier>
 	        <dc:description>{$list[0].rek_description|escape:"html"}</dc:description>
 	        <dc:type>{$list[0].rek_display_type_lookup|escape:"html"}</dc:type>
 	        <dc:date>{$list[0].rek_date|escape:"html"}</dc:date>

@@ -57,7 +57,7 @@ class LinksAmrQueue extends Queue
       $instance->_lock = 'linksamr';
       $instance->_use_locking = TRUE; 
       $instance->_batch_size = 50;
-      $instance->_time_between_calls = 300;
+      $instance->_time_between_calls = 30;
       $instance->_commit_shutdown_registered = FALSE;
       Zend_Registry::set('LinksAmrQueue', $instance);
     }
@@ -391,12 +391,14 @@ class LinksAmrQueue extends Queue
     }    
     foreach ($pid_updates as $pid => $ut) {
       // Update record with new UT
-      $record = new RecordGeneral($pid);
-      $search_keys = array("ISI Loc");
-      $values = array($ut);      
-      $record->addSearchKeyValueList(
-          $search_keys, $values, true
-      );
+      if ($ut != '000084278100002') { // this UT is a known bug in Links AMR where it's "Untitled" so links amr often returns it as a match when it's really not
+        $record = new RecordGeneral($pid);
+        $search_keys = array("ISI Loc");
+        $values = array($ut);
+        $record->addSearchKeyValueList(
+            $search_keys, $values, true
+        );
+      }
     }
   }
 }
