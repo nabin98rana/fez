@@ -23,11 +23,6 @@
 							{section name="j" loop=$list[i].rek_author}
 							<author>{$list[i].rek_author[j]|escape:"html"}</author>	
 							{/section}
-							{section name="j" loop=$list[i].rek_author_id_details}
-							{if $list[i].rek_author_id_details[j].aut_title != '' && $list[i].rek_author_id_details[j].aut_lname != '' && $list[i].rek_author_id_details[j].aut_fname != ''}
-								<author initials="" suffix="{$list[i].rek_author_id_details[j].aut_title|escape:"html"}" last-name="{$list[i].rek_author_id_details[j].aut_lname|escape:"html"}" first-name="{$list[i].rek_author_id_details[j].aut_fname|escape:"html"}" />							
-							{/if}	
-							{/section}
 						</authors>
 					</contributors>			
 					<titles>
