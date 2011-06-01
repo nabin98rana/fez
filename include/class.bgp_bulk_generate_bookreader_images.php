@@ -62,10 +62,9 @@ class BackgroundProcess_Bulk_Generate_Bookreader_Images extends BackgroundProces
 		 * Copy pid(s) to collection
 		 */
 
-		$xdis_title = XSD_Display::getTitle($new_xdis_id);
 		if (!empty($pids) && is_array($pids)) {
 
-			$this->setStatus("Changing Display Type of ".count($pids)." Records to ".$xdis_title."(".$new_xdis_id.")");
+			$this->setStatus("Bulk generating bookreader images.");
 
 			foreach ($pids as $pid) {
 				$this->setHeartbeat();

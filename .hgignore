@@ -35,5 +35,15 @@ glob:testst.txt.txt
 glob:*nfs*
 apc.php
 glob:init.php
+glob:*.orig
+glob:.buildpath
+glob:.buildpath/*
+glob:.project
+glob:.project/*
+glob:.settings
+glob:settings/*
+glob:tmp
+glob:tmp/*
+glob:.
 .idea
 \.tmtags

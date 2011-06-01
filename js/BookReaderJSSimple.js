@@ -81,10 +81,8 @@ br.numLeafs = bookreaderConfig.pageCount;
 
 // Book title and the URL used for the book title link
 br.bookTitle= bookreaderConfig.resource + " - " + bookreaderConfig.appName;
-br.bookUrl  = bookreaderConfig.urlPath;
+br.bookUrl = bookreaderConfig.host + 'eserv/' + bookreaderConfig.pid.replace(/_/, ':') + '/' + bookreaderConfig.resource + '.pdf';
 
-// Override the path used to find UI images
-//br.imagesBaseURL = '/bookreader/bookimgs/';
 
 br.getEmbedCode = function(frameWidth, frameHeight, viewParams) {
     return "Embed code not supported in bookreader demo.";
