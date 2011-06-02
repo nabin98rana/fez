@@ -51,6 +51,8 @@ $pid        = @$_REQUEST["pid"];
 $dsID       = @$_REQUEST["dsID"];
 $origami    = @$_REQUEST["oi"];
 $bookreader    = @$_REQUEST["bookreader"];
+$bookreaderui = "full";
+$bookreaderui    = @$_REQUEST["ui"];
 
 $SHOW_STATUS_PARM = @$_REQUEST["status"];
 $SHOW_STATUS = @($SHOW_STATUS_PARM == "true") ? true : false; 
@@ -234,6 +236,7 @@ if (!empty($pid) && !empty($dsID)) {
             $tpl->assign('resource', $dsID);
             $tpl->assign('pageCount', $bri->countPages());
             $tpl->assign('host', $host);
+            $tpl->assign('ui', $bookreaderui);
             $tpl->assign('urlPath', $urlPath);
 
             $tpl->displayTemplate();
