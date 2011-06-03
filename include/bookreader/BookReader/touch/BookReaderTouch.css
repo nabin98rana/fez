@@ -13,9 +13,6 @@
 .BRicon{
     height:132px;
     width:132px;
-    /*border:46px solid #000;*/
-    /*border:1px solid red;*/
-    /*float:right;*/
 }
 
 div#BRpage{
@@ -26,18 +23,7 @@ div#BRpage{
 #BRnavCntlBtm{
     width:160px;
     height:110px;
-    /*border: 1px solid red;*/
 }
-
-/*.BRicon.info:hover {background-position:-40px 0;}
-.BRicon.share:hover {background-position:-120px 0;}
-.BRicon.read:hover {background-position:-200px 0;}
-.BRicon.unread:hover {background-position:-280px 0;}
-.BRicon.full:hover {background-position:-360px 0;}*/
-/*.BRicon.book_left:hover {background-position:-440px 0;}*/
-/*.BRicon.book_right:hover {background-position:-520px 0;}*/
-/*.BRicon.zoom_out:hover {background-position:-606px 0;}*/
-/*.BRicon.zoom_in:hover {background-position:-686px 0;}*/
 
 .BRicon.onepg, .BRicon.onepg:hover{
     background-image:url('/images/brMbl1pg.png');    
