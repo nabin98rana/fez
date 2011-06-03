@@ -82,7 +82,7 @@ br.numLeafs = bookreaderConfig.pageCount;
 // Book title and the URL used for the book title link
 br.ui = bookreaderConfig.ui;
 br.bookTitle= bookreaderConfig.resource + " - " + bookreaderConfig.appName;
-br.bookUrl = bookreaderConfig.host + 'eserv/' + bookreaderConfig.pid.replace(/_/, ':') + '/' + bookreaderConfig.resource + '.pdf';
+br.bookUrl = bookreaderConfig.host + 'view/' + bookreaderConfig.pid.replace(/_/, ':');
 
 
 br.getEmbedCode = function(frameWidth, frameHeight, viewParams) {
