@@ -211,6 +211,7 @@ if (!empty($pid) && !empty($dsID)) {
          } elseif( $bookreader == true ) {
             include_once(APP_INC_PATH . "class.template.php");
             require_once(APP_INC_PATH. "class.bookreaderimplementation.php");
+            require_once(APP_INC_PATH . "bookreader/BookReaderIA/inc/BookReader.inc");
 
             //Replace the colon in the pid.
             if(strstr($pid,':'))
@@ -226,6 +227,8 @@ if (!empty($pid) && !empty($dsID)) {
             $protocol = ($_SERVER['HTTPS']) ? 'https://' : 'http://';
             $host = $protocol . $_SERVER['HTTP_HOST'];
             $urlPath = str_replace($_SERVER['DOCUMENT_ROOT'], '', BR_IMG_DIR);
+            
+            $agent = BookReader::browserFromUserAgent($_SERVER['HTTP_USER_AGENT']);
 
             $bri = new bookReaderImplementation($resourcePath);
 
@@ -238,6 +241,7 @@ if (!empty($pid) && !empty($dsID)) {
             $tpl->assign('host', $host);
             $tpl->assign('ui', $bookreaderui);
             $tpl->assign('urlPath', $urlPath);
+            $tpl->assign('agent', $agent);
 
             $tpl->displayTemplate();
             // Add view to statistics buffer
