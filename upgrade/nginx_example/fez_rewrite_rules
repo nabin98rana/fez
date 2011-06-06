@@ -17,6 +17,7 @@ if ($host = 'digilib.libckvm.library.uq.edu.au') {
 	rewrite     ^/view/([A-Za-z]+):([0-9]+)(\?.*)*$                  /view.php?custom_view_pid=UQ:3682&pid=$1:$2$3;
 	rewrite     ^/list/([^/]*)/([^/]*)(/?)$                          /list.php?custom_view_pid=UQ:3682&browse=$1&value=$2;
 	rewrite     ^/list/(.*)$                                         /list.php?custom_view_pid=UQ:3682&$1;
+	rewrite     ^/favourites/(.*)$                                         /list.php?browse=favourites&custom_view_pid=UQ:3682&$1;
 	rewrite     ^/eserv/([A-Za-z]+):([0-9]+)/(.+)(/.+)*$             /eserv.php?pid=$1:$2&dsID=$3$4;
 	rewrite     ^/stream/([A-Za-z]+):([0-9]+)/(.+)(/.+)*$             /eserv.php?pid=$1:$2&stream=1&dsID=$3$4;
 	rewrite     ^/index.php$                                         /index.php?custom_view_pid=UQ:3682&community_pid=UQ:3682 last;
@@ -33,6 +34,7 @@ rewrite     ^/collection/([A-Za-z]+):([0-9]+)$                   /list.php?colle
 rewrite     ^/collection/([A-Za-z]+):([0-9]+)/(.+)$              /list.php?collection_pid=$1:$2&$3;
 rewrite     ^/list/([^/]*)/([^/]*)(/?)$                          /list.php?browse=$1&value=$2 last;
 rewrite     ^/list/(.*)$                                         /list.php?$1 last;
+rewrite     ^/favourites(.*)$                                   /list.php?browse=favourites&$1;
 rewrite     ^/rid_citation_count_history_([A-Za-z]+):([0-9]+)$              /rid_citation_count_history.php?pid=$1:$2;
 rewrite     ^/rid_citation_count_history_([A-Za-z]+):([0-9]+)_graph.?(.*)$   /rid_citation_count_history_graph.php?pid=$1:$2&ext=$3; 
 rewrite     ^/scopus_citation_count_history_([A-Za-z]+):([0-9]+)$              /scopus_citation_count_history.php?pid=$1:$2;
