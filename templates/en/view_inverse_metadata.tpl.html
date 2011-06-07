@@ -45,7 +45,22 @@
     {sectionelse}
         <tr>
             <td>
-                <b>No details could be found.</b>
+                <b>No metadata could be found.</b>
+            </td>
+        </tr>
+    {/section}
+        <tr>
+            <th colspan="2" style="text-align:center;">
+            Affiliate Authors
+            </th>
+        </tr>
+    {section name="i" loop=$affilliations}
+        <tr>
+            <th>
+                {$affilliations[i].author_name}
+            </th>
+            <td>
+                {$affilliations[i].org_title}, {$affilliations[i].af_percent_affiliation}% affilliation
             </td>
         </tr>
     {/section}
