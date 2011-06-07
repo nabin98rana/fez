@@ -49,6 +49,8 @@ include_once(APP_INC_PATH . "class.bookreaderimplementation.php");
 
 $username = Auth::getUsername();
 $isAdministrator = Auth::isAdministrator(); 
+$isSuperAdministrator = User::isUserSuperAdministrator($username);
+$tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 
 if ($isAdministrator) {
 	if (APP_FEDORA_SETUP == 'sslall' || APP_FEDORA_SETUP == 'sslapim') {

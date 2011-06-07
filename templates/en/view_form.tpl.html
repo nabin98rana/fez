@@ -61,7 +61,13 @@ function loadPreview(pid,datastreamID, alt, origami)
           <td colspan="2">
 			  <table style="margin-left: 15px;">
 			  <tr>
-			  <td style="vertical-align: top; width: 10px;">{if $fedora_get_view != "0"}<a title="Click to open this PID in Fedora (admin access only)" href="{$fedora_get_view}" onclick="javascript:window.open('{$fedora_get_view}'); return false;" >{/if}<img src="{$rel_url}images/record_view_32.jpg" alt="" />{if $fedora_get_view != "0"}</a>{/if}
+			  <td style="vertical-align: top; width: 10px;">{if $fedora_get_view != "0"}<a class="form_note" title="Click to open this PID in Fedora (admin access only)" href="{$fedora_get_view}" onclick="javascript:window.open('{$fedora_get_view}'); return false;" >{/if}<img src="{$rel_url}images/record_view_32.jpg" alt="" />{if $fedora_get_view != "0"}
+			     {if $isSuperAdministrator}
+			     <span class="form_note">
+				    {include file='view_inverse_metadata.tpl.html'}
+				</span>
+				{/if}
+			  </a>{/if}
 			  </td>
 			  <td>
 				  <h1>{$title}</h1>
