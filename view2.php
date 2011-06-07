@@ -63,6 +63,11 @@ if ($isAdministrator) {
 	$tpl->assign("fedora_get_view", 0);	
 }
 
+$spyglasshref = ($isSuperAdministrator) ? $get_url : '#';
+$spyglassclick = ($isSuperAdministrator) ? "javascript:window.open('$get_url'); return false;" : "";
+$tpl->assign('spyglasshref', $spyglasshref);
+$tpl->assign('spyglassclick', $spyglassclick);
+
 $tpl->assign("fez_root_dir", APP_PATH);
 $tpl->assign("eserv_url", APP_BASE_URL."eserv/".$pid."/");
 $tpl->assign("local_eserv_url", APP_BASE_URL."eserv/".$pid."/");
