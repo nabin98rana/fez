@@ -53,7 +53,7 @@ define('PROVISIONAL_CODE_UPDATE_FROM_SCRIPT', true);
 	AND (rek_herdc_code IS NULL
 		OR rek_herdc_code  = '-1')
 
-2. WOD Import collection (UQ:180159)
+2. WOS Import collection (UQ:180159)
 
 	SELECT rek_pid AS pid
 	FROM fez_record_search_key
@@ -61,7 +61,7 @@ define('PROVISIONAL_CODE_UPDATE_FROM_SCRIPT', true);
 		ON rek_pid = rek_ismemberof_pid
 	LEFT JOIN fez_record_search_key_herdc_code
 		ON rek_pid = rek_herdc_code_pid
-	WHERE rek_ismemberof = 'UQ:183940'
+	WHERE rek_ismemberof = 'UQ:180159'
 	AND (rek_herdc_code IS NULL
 		OR rek_herdc_code  = '-1')
 
