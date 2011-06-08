@@ -427,11 +427,6 @@ class XSD_HTML_Match
 					$xpath_ns_fixes[$xpath] = array($xpath_ns_search, $lrow['xsdmf_xdis_id']);
 				}
 				XSD_HTML_Match::updateXPathByXSDMF_ID($lrow['xsdmf_id'], $xpath);
-                //Now check to see if any parents / heads have a namespace prefix and if so refresh those parents (which will in turn fix this child if necessary).
-//                $temp_element = ltrim($lrow['xsdmf_element'], "!");
-//                $top_parent_element = substr($temp_element, 0, (strpos($temp_element, "!") + 1));
-//                XSD_HTML_Match::getXSDMF_IDByElement($xsdmf_element, $xsdmf_xdis_id);
-
 			}
 			foreach ($xpath_ns_fixes as $xpath_replace => $xpath_search) {
 				$fixes = XSD_HTML_Match::getXPATHTails($xpath_search[0], $xpath_search[1]);
