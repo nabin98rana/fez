@@ -170,8 +170,34 @@ class XSD_HTML_Match
 				return $res;
 			}
 		}
+		
+		function getXSDMFIDBySearchKeyTitleXDIS_ID($sek_title, $xdis_id)
+		{
+			$log = FezLog::get();
+			$db = DB_API::get();
 
-
+			$stmt = "SELECT m2.xsdmf_id
+				 FROM " . APP_TABLE_PREFIX . "xsd_display_matchfields m1
+				 INNER JOIN  " . APP_TABLE_PREFIX . "xsd_relationship ON xsdrel_xsdmf_id = m1.xsdmf_id
+				 INNER JOIN " . APP_TABLE_PREFIX . "xsd_display ON xdis_id = m1.xsdmf_xdis_id
+				 INNER JOIN " . APP_TABLE_PREFIX . "xsd_display_matchfields m2 ON m2.xsdmf_xdis_id = xsdrel_xdis_id 
+				 INNER JOIN " . APP_TABLE_PREFIX . "search_key ON sek_id = m2.xsdmf_sek_id
+ 				 WHERE sek_title = ".$db->quote($sek_title)." AND m1.xsdmf_xdis_id = ".$db->quote($xdis_id, 'INTEGER')."
+				 GROUP BY m2.xsdmf_xpath ";
+			try {
+				$res = $db->fetchOne($stmt);
+			}
+			catch(Exception $ex) {
+				$log->err($ex);
+				return '';
+			}
+			if ($res == NULL) {
+				return "";
+			} else {
+				return $res;
+			}
+		}
+		
 		function getDetailsByXPATH($pid, $xdis_id, $exclude_list=array(), $specify_list=array())
 		{
 			$log = FezLog::get();

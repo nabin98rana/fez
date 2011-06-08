@@ -1240,6 +1240,9 @@ class Record
       }
     }
     
+    if (!defined(PROVISIONAL_CODE_UPDATE_FROM_SCRIPT) || PROVISIONAL_CODE_UPDATE_FROM_SCRIPT === false) {
+      Record::applyProvisionalCode($pid);
+    }
     Citation::updateCitationCache($pid, "");
     Statistics::updateSummaryStatsOnPid($pid);
     Google_Scholar::updateCitationCache($pid);
@@ -1266,6 +1269,164 @@ class Record
     }
        
     return $ret;
+  }
+  
+  
+  
+  function applyProvisionalCode($pid)
+  {
+    // Load up the record, extract the bits we need to determine the provisional HERDC code.
+    $record = new RecordGeneral($pid);
+    $docType = $record->getDocumentType();
+    $subType = $record->getFieldValueBySearchKey("Subtype");
+    $subType = $subType[0];
+    $genreType = $record->getFieldValueBySearchKey("Genre Type");
+    $genreType = $genreType[0];
+    $existingHERDCcode = $record->getFieldValueBySearchKey("HERDC code");
+    $existingHERDCcode = $existingHERDCcode[0];
+    $provHERDCcode = "";
+    
+    // Bail out if we already have a HERDC code
+    if (!is_null($existingHERDCcode) && $existingHERDCcode != '' && $existingHERDCcode != -1) {
+      return;
+    }
+    
+    //////////////////////////////////////////////////////////////////////////////
+    // This is a fairly linear translation of MG's business rules. I have not   //
+    // attempted to optimise them in any way. Leaving them in this form makes   //
+    // the mapping between the source rules and the code as simple as possible. //
+    // Note: There are some extra rules here that were not in MG's original     //
+    // document; these have come from email discussions.                        //
+    //////////////////////////////////////////////////////////////////////////////
+    if ($docType == "Conference Paper") {
+      if ($genreType == "Fully Published Paper") {
+        $provHERDCcode = "E1";
+      } elseif ($genreType == "Oral Presentation") {
+        $provHERDCcode = "EX";
+      } elseif ($genreType == "Other") {
+        $provHERDCcode = "EX";
+      } elseif ($genreType == "Poster") {
+        $provHERDCcode = "EX";
+      } elseif ($genreType == "Published Abstract") {
+        $provHERDCcode = "EX";
+      }
+      
+    } elseif ($docType == "Book") {
+      if ($subType == "Anthologies") {
+        $provHERDCcode = "AX";
+      } elseif ($subType == "Critical scholarly texts") {
+        $provHERDCcode = "A1";
+      } elseif ($subType == "Edited books") {
+        $provHERDCcode = "A3";
+      } elseif ($subType == "Fiction") {
+        $provHERDCcode = "AX";
+      } elseif ($subType == "New ideas or perspectives based on established research finding") {
+        $provHERDCcode = "A1";
+      } elseif ($subType == "New interpretations of historical events") {
+        $provHERDCcode = "A1";
+      } elseif ($subType == "Non-fiction") {
+        $provHERDCcode = "AX";
+      } elseif ($subType == "Other") {
+        $provHERDCcode = "AX";
+      } elseif ($subType == "Reference") {
+        $provHERDCcode = "AX";
+      } elseif ($subType == "Revision or new edition") {
+        $provHERDCcode = "AX";
+      } elseif ($subType == "Textbooks") {
+        $provHERDCcode = "AX";
+      }
+      
+    } elseif ($docType == "Book Chapter") {
+      if ($subType == "Chapter in a textbook, anthology, reference book") {
+        $provHERDCcode = "BX";
+      } elseif ($subType == "Critical review of current research") {
+        $provHERDCcode = "B1";
+      } elseif ($subType == "Critical scholarly text") {
+        $provHERDCcode = "B1";
+      } elseif ($subType == "Fiction") {
+        $provHERDCcode = "BX";
+      } elseif ($subType == "Forewords, brief introductions, editorials or appendices") {
+        $provHERDCcode = "BX";
+      } elseif ($subType == "Non-fiction") {
+        $provHERDCcode = "BX";
+      } elseif ($subType == "Other") {
+        $provHERDCcode = "BX";
+      } elseif ($subType == "Reference") {
+        $provHERDCcode = "BX";
+      } elseif ($subType == "Revision of a chapter in an edited work") {
+        $provHERDCcode = "BX";
+      } elseif ($subType == "Scholarly introduction to an edited work") {
+        $provHERDCcode = "BX";
+      }
+    
+    } elseif ($docType == "Journal Article") {
+      if ($subType == "Article") {
+        $provHERDCcode = "C1";
+      } elseif ($subType == "Correction/erratum") {
+        $provHERDCcode = "CX";
+      } elseif ($subType == "Creative output (poetry, musical score, fiction or prose)") {
+        $provHERDCcode = "CX";
+      } elseif ($subType == "Discussion (responses, round table/panel discussions, Q&A, reply") {
+        $provHERDCcode = "CX";
+      } elseif ($subType == "Editorial") {
+        $provHERDCcode = "CX";
+      } elseif ($subType == "Journal – editorial role") {
+        $provHERDCcode = "CX";
+      } elseif ($subType == "Letter") {
+        $provHERDCcode = "CX";
+      } elseif ($subType == "Other (News item, press release, note, obituary, other not liste") {
+        $provHERDCcode = "CX";
+      } elseif ($subType == "Published Abstract") {
+        $provHERDCcode = "CX";
+      } elseif ($subType == "Review of Book, Film, TV, video, software, performance, music et") {
+        $provHERDCcode = "CX";
+      } elseif ($subType == "Review of research - research literature review (NOT book review") {
+        $provHERDCcode = "C1";
+      }
+      
+    } elseif ($docType == "Online Journal Article") {
+      if ($subType == "Article") {
+        $provHERDCcode = "C1";
+      } elseif ($subType == "Correction/erratum") {
+        $provHERDCcode = "CX";
+      } elseif ($subType == "Creative output (poetry, musical score, fiction or prose)") {
+        $provHERDCcode = "CX";
+      } elseif ($subType == "Discussion (responses, round table/panel discussions, Q&A, reply") {
+        $provHERDCcode = "CX";
+      } elseif ($subType == "Editorial") {
+        $provHERDCcode = "CX";
+      } elseif ($subType == "Journal – editorial role") {
+        $provHERDCcode = "CX";
+      } elseif ($subType == "Letter") {
+        $provHERDCcode = "CX";
+      } elseif ($subType == "Other (News item, press release, note, obituary, other not liste") {
+        $provHERDCcode = "CX";
+      } elseif ($subType == "Review of Book, Film, TV, video, software, performance, music et") {
+        $provHERDCcode = "CX";
+      } elseif ($subType == "Review of research - research literature review (NOT book review") {
+        $provHERDCcode = "C1";
+      }
+      
+    }
+    
+    if ($provHERDCcode != '') {
+
+      $history = "was set based on Provisional HERDC assignment rules";
+      
+      // HERDC code
+      $provCode = Controlled_Vocab::getID($provHERDCcode);
+      $record->addSearchKeyValueList(array("HERDC code"), array($provCode), true, $history);
+      
+      // HERDC status
+      $provisional = Controlled_Vocab::getID('Provisional Code');
+      $record->addSearchKeyValueList(array("HERDC Status"), array($provisional), true, $history);
+      
+      // Institutional status
+      $unknown = Controlled_Vocab::getID('Unknown');
+      $record->addSearchKeyValueList(array("Institutional Status"), array($unknown), true, $history);
+    }
+    
+    return;
   }
 
 

@@ -513,23 +513,18 @@ class RecordGeneral
       $removeCurrent=true, $history="was added based on Links AMR Service data"
   )
   {
-	
 		$datastreams = array();
-    $search_keys_added = array();
-    foreach ($search_keys as $s => $sk) {
+		$search_keys_added = array();
+		foreach ($search_keys as $s => $sk) {
 			$dsDetails = $this->getDatastreamNameDesc($sk);
-
 			$datastreamName = $dsDetails['datastreamname'];
 			$datastreamDesc = $dsDetails['datastreamdesc'];
 			if (!array_key_exists($datastreamName, $datastreams)) {
-	    	$datastreams[$datastreamName] = Fedora_API::callGetDatastreamContents($this->pid, $datastreamName, true);
+	    		$datastreams[$datastreamName] = Fedora_API::callGetDatastreamContents($this->pid, $datastreamName, true);
 			}
-	    //echo $xmlString." here \n";
 	    if (is_array($datastreams[$datastreamName]) || $datastreams[$datastreamName] == "") {
 	       echo "\n**** PID ".$this->pid." without a ".$datastreamName.
 	            " datastream was found, this will need content model changing first **** \n";
-	      // return -1;
-//				$xmlString = "";
 	    }
 	    $doc = DOMDocument::loadXML($datastreams[$datastreamName]);
       $tempdoc = $this->addSearchKeyValue($doc, $sk, $values[$s], $removeCurrent);
@@ -540,11 +535,7 @@ class RecordGeneral
         $datastreams[$datastreamName] = $tempdoc->saveXML();;
       }
     }
-    //		echo "\nnewXML = \n";
-
-
-    // $newXML = $doc->SaveXML();
-    //		echo $newXML;
+    
     if (count($search_keys_added) > 0) {
 			foreach ($datastreams as $datastreamName => $newXML) {
 				if ($newXML != "") {
@@ -567,7 +558,6 @@ class RecordGeneral
         $historyDetail .= $hkey.": ".$hval;
       }
       $historyDetail .= " " . $history;
-      // echo 'PID: ' . $this->pid . ' - ' . $historyDetail."\n";
       History::addHistory($this->pid, null, "", "", true, $historyDetail);
       $this->setIndexMatchingFields();
       return 1;
@@ -671,9 +661,8 @@ class RecordGeneral
     $newXML = "";
     $xdis_id = $this->getXmlDisplayId();
     $xpath_query = XSD_HTML_Match::getXPATHBySearchKeyTitleXDIS_ID($sek_title, $xdis_id);
-
 		$sekDetails = Search_Key::getDetailsByTitle($sek_title);
-
+		$sekID = $sekDetails['sek_id'];
 		$lookup_value = "";
 		if ($sekDetails['sek_lookup_function'] != "")  {
 			eval("\$lookup_value = ".$sekDetails["sek_lookup_function"]."(".$value.");");
@@ -703,12 +692,25 @@ class RecordGeneral
         $parentNode->removeChild($fieldNode);
       }
     }
+    
 		$this->doc = $doc;
-		//$parentNode = $this->buildXMLWithXPATH($xpath_query, $value, $lookup_value, 1);
+		$xsdmf_id = XSD_HTML_Match::getXSDMFIDBySearchKeyTitleXDIS_ID($sek_title, $xdis_id);
+		$xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
+		
+		if ($xsdmf_details['xsdmf_html_input'] == 'xsdmf_id_ref') {
+			$xsdmf_ref_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_details['xsdmf_id_ref']);
+			$this->buildXMLWithXPATH($xsdmf_ref_details['xsdmf_xpath'], $lookup_value, $lookup_value, 1);
+			$xmlString = $this->doc->saveXML();
+			$xmlString = str_replace('<mods:topic></mods:topic>', '', $xmlString); // BEGONE, FOUL EMPTY ELEMENT
+			$xmlString = str_replace('<mods:topic/>', '', $xmlString); // AND YE!
+			$this->doc = DOMDocument::loadXML($xmlString);
+		}
+		
 		$this->buildXMLWithXPATH($xpath_query, $value, $lookup_value, 1);
-		$this->doc = DOMDocument::loadXML($this->doc->saveXML());
-		// echo "\n created this: ".$this->doc->saveXML();
-    return $this->doc;
+	    $xmlString = $this->doc->saveXML();
+	    $this->doc = DOMDocument::loadXML($xmlString);
+	    
+	    return $this->doc;
   }
 
 

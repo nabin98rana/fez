@@ -35,6 +35,8 @@ set_time_limit(0);
 include_once('../config.inc.php');
 include_once(APP_INC_PATH . "class.record.php");
 
+define('PROVISIONAL_CODE_UPDATE_FROM_SCRIPT', true);
+
 /*
  * These three queries are retrieve the three sets of records that MG wants processed.
  * 
@@ -87,15 +89,11 @@ include_once(APP_INC_PATH . "class.record.php");
 		OR rek_herdc_code  = '-1')
 	AND rek_author_id != 0
 
- * 
- * 
  */
 
 $query = "
 
-	SELECT rek_pid
-	FROM fez_record_search_key
-	WHERE rek_pid = 'uq:99'
+
 
 		";
 
@@ -124,3 +122,5 @@ foreach ($pids as $pid) {
 	echo "* " . $pid . "\n";
 	Record::applyProvisionalCode($pid);
 }
+
+echo "\nDone.\n";
