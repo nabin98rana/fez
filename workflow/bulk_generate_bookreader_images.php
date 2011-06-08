@@ -32,7 +32,6 @@
 // |          Rhys Palmer <r.rpalmer@library.uq.edu.au>                   |
 // +----------------------------------------------------------------------+
 
-file_put_contents('/var/www/fez/pres.txt', time()."\n", FILE_APPEND);
 
 include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
 include_once(APP_INC_PATH. 'class.bgp_bulk_generate_bookreader_images.php');

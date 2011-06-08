@@ -1,0 +1,1 @@
+ALTER TABLE %TABLE_PREFIX%workflow_sessions CHANGE column wfses_object wfses_object LONGTEXT

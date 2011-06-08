@@ -46,9 +46,12 @@ include_once(APP_INC_PATH . "class.user_comments.php");
 include_once(APP_INC_PATH . "class.origami.php");
 include_once(APP_PEAR_PATH . "Date.php");
 include_once(APP_INC_PATH . "class.bookreaderimplementation.php");
+include_once(APP_INC_PATH . "class.author_affiliations.php");
 
 $username = Auth::getUsername();
 $isAdministrator = Auth::isAdministrator(); 
+$isSuperAdministrator = User::isUserSuperAdministrator($username);
+$tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 
 if ($isAdministrator) {
 	if (APP_FEDORA_SETUP == 'sslall' || APP_FEDORA_SETUP == 'sslapim') {
@@ -60,6 +63,16 @@ if ($isAdministrator) {
 } else {
 	$tpl->assign("fedora_get_view", 0);	
 }
+
+$spyglasshref = ($isSuperAdministrator) ? $get_url : '#';
+$spyglassclick = ($isSuperAdministrator) ? "javascript:window.open('$get_url'); return false;" : "";
+if($isAdministrator)
+{
+    $affilliations = AuthorAffiliations::getListAll($pid);
+    $tpl->assign('affilliations', $affilliations);
+}
+$tpl->assign('spyglasshref', $spyglasshref);
+$tpl->assign('spyglassclick', $spyglassclick);
 
 $tpl->assign("fez_root_dir", APP_PATH);
 $tpl->assign("eserv_url", APP_BASE_URL."eserv/".$pid."/");

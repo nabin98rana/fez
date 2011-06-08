@@ -1,0 +1,67 @@
+<table id="view-metadata">
+    {section name="i" loop=$xsd_display_fields}
+        {if $xsd_display_fields[i].xsdmf_show_in_view == 0 and 
+          in_array($xsd_display_fields[i].xsdmf_title, array('ISI LOC', 'Scopus ID', 'Refereed?', 'eSpace follow-up Flags', 'IMU Follow-up Flags', 'HERDC Notes', 'Additional Notes'))}
+            {assign var="temp_fld_id" value=$xsd_display_fields[i].xsdmf_id}
+            {assign var="attached_temp_fld_id" value=$xsd_display_fields[i].xsdmf_attached_xsdmf_id}
+            {if $xsd_display_fields[i].xsdmf_show_in_view == 0}
+                {if $xsd_display_fields[i].xsdmf_data_type == 'date'}
+                    <tr>
+                        <th>{$xsd_display_fields[i].xsdmf_title|escape:'htmlall'}
+                            {if $debug == 1}
+                                {$xsd_display_fields[i].xsdmf_order|escape:'htmlall'}
+                            {/if}
+                        </th>
+                        <td>
+                            {if $xsd_display_fields[i].xsdmf_html_input == 'date'}
+                                {$details[$temp_fld_id]|escape:'htmlall'}
+                            {else}
+                                {if $details[$attached_temp_fld_id] == 0}
+                                    {$details[$temp_fld_id]|date_format:"%A, %B %e, %Y"|escape:'htmlall'}
+                                {else}
+                                    {$details[$temp_fld_id]|escape:'htmlall'}
+                                {/if}
+                            {/if}
+                        </td>
+                    </tr>
+                {else}
+                    <tr>
+                        <th>{$xsd_display_fields[i].xsdmf_title|escape:'htmlall'}
+                            {if $debug == 1}
+                                {$xsd_display_fields[i].xsdmf_order|escape:'htmlall'}
+                            {/if}
+                        </th>
+                        <td>
+                            {if $xsd_display_fields[i].xsdmf_title == 'Handle'}
+                                <a href="{$xsd_display_fields[i].xsdmf_value_prefix|escape:'url'}{$details[$temp_fld_id]|escape:'url'}">{$xsd_display_fields[i].xsdmf_value_prefix|escape:'htmlall'}{$details[$temp_fld_id]|escape:'htmlall'}</a>
+                            {else}
+                                {$xsd_display_fields[i].xsdmf_value_prefix}{$details[$temp_fld_id]}
+                            {/if}
+                        </td>
+                    </tr>
+                {/if}
+            {/if}
+        {/if}
+    {sectionelse}
+        <tr>
+            <td>
+                <b>No metadata could be found.</b>
+            </td>
+        </tr>
+    {/section}
+        <tr>
+            <th colspan="2" style="text-align:center;">
+            Affiliate Authors
+            </th>
+        </tr>
+    {section name="i" loop=$affilliations}
+        <tr>
+            <th>
+                {$affilliations[i].author_name}
+            </th>
+            <td>
+                {$affilliations[i].org_title}, {$affilliations[i].af_percent_affiliation}% affilliation
+            </td>
+        </tr>
+    {/section}
+</table>

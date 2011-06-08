@@ -80,11 +80,10 @@ br.getPageNum = function(index) {
 br.numLeafs = bookreaderConfig.pageCount;
 
 // Book title and the URL used for the book title link
+br.ui = bookreaderConfig.ui;
 br.bookTitle= bookreaderConfig.resource + " - " + bookreaderConfig.appName;
-br.bookUrl  = bookreaderConfig.urlPath;
+br.bookUrl = bookreaderConfig.host + 'view/' + bookreaderConfig.pid.replace(/_/, ':');
 
-// Override the path used to find UI images
-//br.imagesBaseURL = '/bookreader/bookimgs/';
 
 br.getEmbedCode = function(frameWidth, frameHeight, viewParams) {
     return "Embed code not supported in bookreader demo.";
@@ -97,3 +96,27 @@ br.init();
 $('#BRtoolbar').find('.read').hide();
 $('#textSrch').hide();
 $('#btnSrch').hide();
+
+if(bookreaderConfig.agent == 'iphone' || bookreaderConfig.agent == 'android')
+{
+	$('.BRnavCntl').unbind('click');
+	$('.BRnavCntl').click(
+	        function(){
+	            if ($('#BRnavCntlBtm').hasClass('BRdn')) {
+	                $('#BRtoolbar').animate({top:-132});
+	                $('#BRnav').animate({bottom:-160});
+	                $('#BRnavCntlBtm').addClass('BRup').removeClass('BRdn');
+	                $('#BRnavCntlTop').addClass('BRdn').removeClass('BRup');
+	                $('#BRnavCntlBtm.BRnavCntl').animate({height:'110px'});
+	                $('.BRnavCntl').delay(1000).animate({opacity:.25},1000);
+	            } else {
+	                $('#BRtoolbar').animate({top:0});
+	                $('#BRnav').animate({bottom:0});
+	                $('#BRnavCntlBtm').addClass('BRdn').removeClass('BRup');
+	                $('#BRnavCntlTop').addClass('BRup').removeClass('BRdn');
+	                $('#BRnavCntlBtm.BRnavCntl').animate({height:'110px'});
+	                $('.BRvavCntl').animate({opacity:1});
+	            };
+	        }
+	    );
+}

@@ -7,15 +7,21 @@
     <link rel="stylesheet" type="text/css" href="{$rel_url}include/bookreader/BookReader/BookReader.css"/>
     <!-- Custom CSS overrides -->
     <link rel="stylesheet" type="text/css" href="{$rel_url}include/bookreader/BookreaderDemo/BookReaderDemo.css"/>
+    
+    {if $agent == 'iphone' || $agent == 'android'}
+    <link rel="stylesheet" type="text/css" href="{$rel_url}include/bookreader/BookReader/touch/BookReaderTouch.css"/>
+    {/if}
 
     <script type="text/javascript">
 
     bookreaderConfig = {ldelim}
         pid:"{$pid}",
+        agent:"{$agent}",
         resource:"{$resource}",
         pageCount:"{$pageCount}",
         host:"{$host}{$rel_url}",
         urlPath:"{$urlPath}",
+        ui:"{$ui}",
         appName:" {$application_title}"
     {rdelim}
 

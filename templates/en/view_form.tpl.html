@@ -61,7 +61,13 @@ function loadPreview(pid,datastreamID, alt, origami)
           <td colspan="2">
 			  <table style="margin-left: 15px;">
 			  <tr>
-			  <td style="vertical-align: top; width: 10px;">{if $fedora_get_view != "0"}<a title="Click to open this PID in Fedora (admin access only)" href="{$fedora_get_view}" onclick="javascript:window.open('{$fedora_get_view}'); return false;" >{/if}<img src="{$rel_url}images/record_view_32.jpg" alt="" />{if $fedora_get_view != "0"}</a>{/if}
+			  <td style="vertical-align: top; width: 10px;">{if $fedora_get_view != "0"}<a class="form_note" title="Click to open this PID in Fedora (admin access only)" href="{$spyglasshref}" onclick="{$spyglassclick}" >{/if}<img src="{$rel_url}images/record_view_32.jpg" alt="" />{if $fedora_get_view != "0"}
+			     {if $isAdministrator}
+			     <span class="form_note">
+				    {include file='view_inverse_metadata.tpl.html'}
+				</span>
+				{/if}
+			  </a>{/if}
 			  </td>
 			  <td>
 				  <h1>{$title}</h1>
@@ -563,16 +569,16 @@ function loadPreview(pid,datastreamID, alt, origami)
 		  <tr>
 			<td colspan="5">
 		      <table id="view_stats">
-{if $citationsThomson != 0 || $citationsScopus != 0 || ($isUser && $citationsGoogle != 0)}
+{if $citationsThomson != ''  || $citationsScopus != ''  || ($isUser && $citationsGoogle != '' )}
 				<tr>
 					<th style="vertical-align:text-top;">Citation counts:</th>
 					<td>
-					{if $citationsThomson != 0}<img src="{$rel_url}images/rid_16.png" style="vertical-align: text-top;" alt="Thomson Reuters Citation Count" title="Thomson Reuters Citation Count"/> Cited <a href="{$rel_url}rid_citation_count_history_{$pid}">{$citationsThomson}</a> times in <a href="http://www.researcherid.com/">Thomson Reuters Researcher ID</a>{/if}
-					{if $citationsThomson != 0 && ($citationsScopus != 0 || ($isUser && $citationsGoogle != 0))}<br />{/if}
-					{if $citationsScopus != 0}<img src="{$rel_url}images/scopus_logo_small.gif" style="vertical-align: text-top;" alt="Scopus Citation Count" title="Scopus Citation Count"/> Cited <a href="{$rel_url}scopus_citation_count_history_{$pid}">{$citationsScopus}</a> times in <a href="http://www.scopus.com/">Scopus</a>{/if}
-					{if $isUser && ($citationsScopus != 0)}<br />{/if}
+					{if $citationsThomson != ''}<img src="{$rel_url}images/rid_16.png" style="vertical-align: text-top;" alt="Thomson Reuters Citation Count" title="Thomson Reuters Citation Count"/> Cited <a href="{$rel_url}rid_citation_count_history_{$pid}">{$citationsThomson}</a> times in <a href="http://www.researcherid.com/">Thomson Reuters Researcher ID</a>{/if}
+					{if $citationsThomson != '' && ($citationsScopus != '' || ($isUser && $citationsGoogle != ''))}<br />{/if}
+					{if $citationsScopus != ''}<img src="{$rel_url}images/scopus_logo_small.gif" style="vertical-align: text-top;" alt="Scopus Citation Count" title="Scopus Citation Count"/> Cited <a href="{$rel_url}scopus_citation_count_history_{$pid}">{$citationsScopus}</a> times in <a href="http://www.scopus.com/">Scopus</a>{/if}
+					{if $isUser && ($citationsScopus != '')}<br />{/if}
 					{if $isUser}
-						{if $citationsGoogle != 0}<img src="{$rel_url}images/favicon_googlescholar.png" style="vertial-align: text-top;" alt="Google Scholar Citation Count" title="Google Scholar Citation Count" /> Cited <a href="{$citationsGoogleLink}">{$citationsGoogle}</a> times in <a href="http://scholar.google.com/">Google Scholar</a>{/if}
+						{if $citationsGoogle != ''}<img src="{$rel_url}images/favicon_googlescholar.png" style="vertial-align: text-top;" alt="Google Scholar Citation Count" title="Google Scholar Citation Count" /> Cited <a href="{$citationsGoogleLink}">{$citationsGoogle}</a> times in <a href="http://scholar.google.com/">Google Scholar</a>{/if}
 					{/if}
 					</td>
 				</tr>
