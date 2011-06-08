@@ -66,11 +66,13 @@ if ($isAdministrator) {
 
 $spyglasshref = ($isSuperAdministrator) ? $get_url : '#';
 $spyglassclick = ($isSuperAdministrator) ? "javascript:window.open('$get_url'); return false;" : "";
-$affilliations = AuthorAffiliations::getListAll($pid);
-//die(var_dump($affilliations[0]));
+if($isAdministrator)
+{
+    $affilliations = AuthorAffiliations::getListAll($pid);
+    $tpl->assign('affilliations', $affilliations);
+}
 $tpl->assign('spyglasshref', $spyglasshref);
 $tpl->assign('spyglassclick', $spyglassclick);
-$tpl->assign('affilliations', $affilliations);
 
 $tpl->assign("fez_root_dir", APP_PATH);
 $tpl->assign("eserv_url", APP_BASE_URL."eserv/".$pid."/");

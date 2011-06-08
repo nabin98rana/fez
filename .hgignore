@@ -30,6 +30,8 @@ glob:pidimages/*
 glob:pidsources
 glob:pidsources/*
 glob:bookreadertest*
+glob:tests
+glob:tests/*
 glob:solr_upload/*
 glob:testst.txt.txt
 glob:*nfs*
