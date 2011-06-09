@@ -1264,8 +1264,12 @@ class Record
     }
     
     // Add the updated record for Links AMR processing
-    if (APP_AUTO_LINKSAMR_UPLOAD == "ON" ) {
-      LinksAmrQueue::get()->add($pid);
+    if (APP_AUTO_LINKSAMR_UPLOAD == "ON") {
+      $isi_loc = Record::getSearchKeyIndexValue($pid, "ISI Loc", false);
+      // only send to the queue if we don't already have an ISI Loc for this pid
+      if ($isi_loc == '' || empty($isi_loc)) {
+        LinksAmrQueue::get()->add($pid);
+      }
     }
        
     return $ret;
@@ -1420,7 +1424,7 @@ class Record
       // HERDC status
       $provisional = Controlled_Vocab::getID('Provisional Code');
       $record->addSearchKeyValueList(array("HERDC Status"), array($provisional), true, $history);
-      
+
       // Institutional status
       $unknown = Controlled_Vocab::getID('Unknown');
       $record->addSearchKeyValueList(array("Institutional Status"), array($unknown), true, $history);
