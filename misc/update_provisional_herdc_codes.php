@@ -52,6 +52,7 @@ define('PROVISIONAL_CODE_UPDATE_FROM_SCRIPT', true);
 	WHERE rek_ismemberof = 'UQ:183940'
 	AND (rek_herdc_code IS NULL
 		OR rek_herdc_code  = '-1')
+	ORDER BY rek_pid;
 
 2. WOS Import collection (UQ:180159)
 
@@ -64,6 +65,7 @@ define('PROVISIONAL_CODE_UPDATE_FROM_SCRIPT', true);
 	WHERE rek_ismemberof = 'UQ:180159'
 	AND (rek_herdc_code IS NULL
 		OR rek_herdc_code  = '-1')
+	ORDER BY rek_pid;
 
 3. Records that are:
 	* conf papers, journal articles, online journal articles, books or book chapters.
@@ -88,6 +90,7 @@ define('PROVISIONAL_CODE_UPDATE_FROM_SCRIPT', true);
 	AND (rek_herdc_code IS NULL
 		OR rek_herdc_code  = '-1')
 	AND rek_author_id != 0
+	ORDER BY rek_pid;
 
  */
 
