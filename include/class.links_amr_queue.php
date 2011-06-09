@@ -302,12 +302,12 @@ class LinksAmrQueue extends Queue
       $map['atitle'] = $title;
       $map['issn'] = $record['rek_issn'];
       $map['year'] = date('Y', strtotime($record['rek_date']));
-      // Don't send journal title if you have an ISSN
-      if (!empty($record['rek_issn'])) {
-        $map['stitle'] = null;
-      } else {
+      // Don't send journal title if you have an ISSN // Actually this is a really bad idea to not send journal title because TR need it
+//      if (!empty($record['rek_issn'])) {
+//        $map['stitle'] = null;
+//      } else {
         $map['stitle'] = $record['rek_journal_name'];
-      }
+//      }
 
       if (is_numeric($record['rek_volume_number'])) {
         $map['vol'] = $record['rek_volume_number'];
