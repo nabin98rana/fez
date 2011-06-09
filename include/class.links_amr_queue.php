@@ -333,16 +333,15 @@ class LinksAmrQueue extends Queue
       
       // Check we have the minimum required data and bib data fits one of the combinations 
       // required for unique identification
-      if (! ($map['stitle'] && $map['vol'] && $map['issue'] && ($map['spage'] || $map['an']))) {
-        $this->_bgp->setStatus("Not enough bib data to do a safe match for PID ".$record['rek_pid'].": \n".print_r($map, true));
-        // Not enough bib data
-      } else if (
+      if (
           ($map['stitle'] && $map['vol'] && $map['issue'] && $map['spage']) ||
           ($map['stitle'] && $map['vol'] && $map['issue'] && $map['an']) ||
           ($map['first_author'] && $map['issn'] && $map['vol'] && $map['issue'] && $map['spage']) ||
           ($map['first_author'] && $map['issn'] && $map['vol'] && $map['issue'] && $map['an'])
       ) {
         $maps[] = $map;
+      } else {
+          $this->_bgp->setStatus("Not enough bib data to do a safe match for PID ".$record['rek_pid'].": \n".print_r($map, true));
       }
     }
     
