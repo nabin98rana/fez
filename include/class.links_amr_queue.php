@@ -205,10 +205,12 @@ class LinksAmrQueue extends Queue
         
         if ($count_docs % $this->_batch_size == 0) {
           // Batch process pids
+          $this->_bgp->setStatus("sending these pids to links amr: \n".print_r($pids, true)."\n");
           $this->sendToLinksAmr($pids);          
           $pids = array(); // reset
           // Give Links AMR a bit of a rest before moving on to the next batch.
           // Also helps when the service may be unresponsive.
+          $this->_bgp->setStatus("Sleeping for : ".$this->_time_between_calls." seconds as per Links AMR throttling requirements");
           sleep($this->_time_between_calls);
         }
       } else {
@@ -254,8 +256,9 @@ class LinksAmrQueue extends Queue
     
     // Build the map array we'll be send to the service
     foreach ($details as $record) {      
-      if ($record['rek_isi_loc']) {
+      if ($record['rek_isi_loc'] != '' || !empty($record['rek_isi_loc'])) {
         // Skip if we already know the UT
+        $this->_bgp->setStatus("Already know the ISI Loc ".$record['rek_isi_loc']." for PID ".$record['rek_pid']);
         continue;
       }
       // Data elements for identifying articles
@@ -331,6 +334,7 @@ class LinksAmrQueue extends Queue
       // Check we have the minimum required data and bib data fits one of the combinations 
       // required for unique identification
       if (! ($map['stitle'] && $map['vol'] && $map['issue'] && ($map['spage'] || $map['an']))) {
+        $this->_bgp->setStatus("Not enough bib data to do a safe match for PID ".$record['rek_pid'].": \n".print_r($map, true));
         // Not enough bib data
       } else if (
           ($map['stitle'] && $map['vol'] && $map['issue'] && $map['spage']) ||
@@ -356,8 +360,9 @@ class LinksAmrQueue extends Queue
     }
     
     // Unresponsive service, re-queue these PIDs once we've finished processing the queue
-    if (! $response) {
+    if (!$response) {
       // Add/remove pids from the retry queue
+      $this->_bgp->setStatus("Unresponsive service so adding ".count($pids)." back on the queue");
       foreach ($pids as $pid) {
         $this->add($pid, FALSE);
       }
@@ -395,6 +400,7 @@ class LinksAmrQueue extends Queue
         $record = new RecordGeneral($pid);
         $search_keys = array("ISI Loc");
         $values = array($ut);
+        $this->_bgp->setStatus("Adding Links AMR found UT Loc ".$ut." to PID ".$pid);
         $record->addSearchKeyValueList(
             $search_keys, $values, true
         );
