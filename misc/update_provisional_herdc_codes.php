@@ -51,7 +51,9 @@ define('PROVISIONAL_CODE_UPDATE_FROM_SCRIPT', true);
 		ON rek_pid = rek_herdc_code_pid
 	WHERE rek_ismemberof = 'UQ:183940'
 	AND (rek_herdc_code IS NULL
-		OR rek_herdc_code  = '-1')
+		OR rek_herdc_code = '-1')
+	AND (rek_subtype IS NOT NULL
+		OR rek_genre_type IS NOT NULL)
 	ORDER BY rek_pid;
 
 2. WOS Import collection (UQ:180159)
@@ -64,7 +66,9 @@ define('PROVISIONAL_CODE_UPDATE_FROM_SCRIPT', true);
 		ON rek_pid = rek_herdc_code_pid
 	WHERE rek_ismemberof = 'UQ:180159'
 	AND (rek_herdc_code IS NULL
-		OR rek_herdc_code  = '-1')
+		OR rek_herdc_code = '-1')
+	AND (rek_subtype IS NOT NULL
+		OR rek_genre_type IS NOT NULL)
 	ORDER BY rek_pid;
 
 3. Records that are:
@@ -88,8 +92,10 @@ define('PROVISIONAL_CODE_UPDATE_FROM_SCRIPT', true);
 		OR xdis_title = 'Book Chapter')
 	AND xdis_version = 'MODS 1.0'
 	AND (rek_herdc_code IS NULL
-		OR rek_herdc_code  = '-1')
+		OR rek_herdc_code = '-1')
 	AND rek_author_id != 0
+	AND (rek_subtype IS NOT NULL
+		OR rek_genre_type IS NOT NULL)
 	ORDER BY rek_pid;
 
  */
