@@ -314,7 +314,7 @@ class LinksAmrQueue extends Queue
       } else {
         $map['vol'] = null;
       }
-      if (is_numeric($record['issue_number'])) {
+      if (is_numeric($record['rek_issue_number'])) {
         $map['issue'] = $record['rek_issue_number'];
       } else {
         $map['issue'] = null;
@@ -339,8 +339,8 @@ class LinksAmrQueue extends Queue
       } else if (
           ($map['stitle'] && $map['vol'] && $map['issue'] && $map['spage']) ||
           ($map['stitle'] && $map['vol'] && $map['issue'] && $map['an']) ||
-          ($map['author'] && $map['issn'] && $map['vol'] && $map['issue'] && $map['spage']) ||
-          ($map['author'] && $map['issn'] && $map['vol'] && $map['issue'] && $map['an'])
+          ($map['first_author'] && $map['issn'] && $map['vol'] && $map['issue'] && $map['spage']) ||
+          ($map['first_author'] && $map['issn'] && $map['vol'] && $map['issue'] && $map['an'])
       ) {
         $maps[] = $map;
       }
