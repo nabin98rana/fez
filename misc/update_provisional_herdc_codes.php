@@ -43,7 +43,7 @@ define('PROVISIONAL_CODE_UPDATE_FROM_SCRIPT', true);
 
 1. RID Download collection (UQ:183940)
 
-	SELECT rek_pid AS pid
+	SELECT rek_pid
 	FROM fez_record_search_key
 	LEFT JOIN fez_record_search_key_ismemberof
 		ON rek_pid = rek_ismemberof_pid
@@ -58,7 +58,7 @@ define('PROVISIONAL_CODE_UPDATE_FROM_SCRIPT', true);
 
 2. WOS Import collection (UQ:180159)
 
-	SELECT rek_pid AS pid
+	SELECT rek_pid
 	FROM fez_record_search_key
 	LEFT JOIN fez_record_search_key_ismemberof
 		ON rek_pid = rek_ismemberof_pid
@@ -76,7 +76,7 @@ define('PROVISIONAL_CODE_UPDATE_FROM_SCRIPT', true);
 	* do not have a herdc code
 	* have at least 1 linked author
 
-	SELECT DISTINCT(rek_pid) AS pid
+	SELECT DISTINCT(rek_pid)
 	FROM fez_record_search_key
 	LEFT JOIN fez_xsd_display
 		ON fez_record_search_key.rek_display_type = fez_xsd_display.xdis_id
@@ -84,6 +84,8 @@ define('PROVISIONAL_CODE_UPDATE_FROM_SCRIPT', true);
 		ON rek_pid = rek_herdc_code_pid
 	LEFT JOIN fez_record_search_key_author_id
 		ON rek_pid = rek_author_id_pid
+	LEFT JOIN fez_record_search_key_ismemberof
+		ON rek_pid = rek_ismemberof_pid
 	WHERE
 	(xdis_title = 'Conference Paper'
 		OR xdis_title = 'Journal Article'
@@ -96,13 +98,39 @@ define('PROVISIONAL_CODE_UPDATE_FROM_SCRIPT', true);
 	AND rek_author_id != 0
 	AND (rek_subtype IS NOT NULL
 		OR rek_genre_type IS NOT NULL)
+	AND (rek_ismemberof != 'UQ:183940'
+		AND rek_ismemberof != 'UQ:180159')
 	ORDER BY rek_pid;
 
  */
 
 $query = "
 
-
+	SELECT DISTINCT(rek_pid)
+	FROM fez_record_search_key
+	LEFT JOIN fez_xsd_display
+		ON fez_record_search_key.rek_display_type = fez_xsd_display.xdis_id
+	LEFT JOIN fez_record_search_key_herdc_code
+		ON rek_pid = rek_herdc_code_pid
+	LEFT JOIN fez_record_search_key_author_id
+		ON rek_pid = rek_author_id_pid
+	LEFT JOIN fez_record_search_key_ismemberof
+		ON rek_pid = rek_ismemberof_pid
+	WHERE
+	(xdis_title = 'Conference Paper'
+		OR xdis_title = 'Journal Article'
+		OR xdis_title = 'Online Journal Article'
+		OR xdis_title = 'Book'
+		OR xdis_title = 'Book Chapter')
+	AND xdis_version = 'MODS 1.0'
+	AND (rek_herdc_code IS NULL
+		OR rek_herdc_code = '-1')
+	AND rek_author_id != 0
+	AND (rek_subtype IS NOT NULL
+		OR rek_genre_type IS NOT NULL)
+	AND (rek_ismemberof != 'UQ:183940'
+		AND rek_ismemberof != 'UQ:180159')
+	ORDER BY rek_pid;
 
 		";
 
