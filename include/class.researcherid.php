@@ -709,7 +709,7 @@ class ResearcherID
     $collection = RID_DL_COLLECTION;
     
     if (Fedora_API::objectExists($collection)) {
-      $aut = @preg_split(':', $record->{'accession-num'});
+      $aut = @preg_split('/:/', $record->{'accession-num'});
       // Download from WOS collection only
       if (count($aut) > 1 && $aut[0] == 'WOS') {
         $ut = $aut[1];

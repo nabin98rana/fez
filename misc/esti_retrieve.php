@@ -49,7 +49,7 @@ if(isset($_GET['d']) && @constant('EstiSearchService::'.$_GET['d']) !== NULL) {
 	$query = 'OG=(Univ Queensland) and DT=('.$doc_type.')';
 
         //$aut = split(':', "WOS:000225243000002");
-        $aut = preg_split(':', "WOS:A1982PK71700083");
+        $aut = preg_split('/:/', "WOS:A1982PK71700083");
 
 	//$query = '000225243000002';
 	$depth = '2000-2009';

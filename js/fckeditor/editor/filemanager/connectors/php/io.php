@@ -216,7 +216,7 @@ function GetCurrentFolder()
 	$sCurrentFolder	= isset( $_GET['CurrentFolder'] ) ? $_GET['CurrentFolder'] : '/' ;
 
 	// Check the current folder syntax (must begin and start with a slash).
-	if ( ! preg_match( '/$', $sCurrentFolder ) ) $sCurrentFolder .= '/' ;
+	if ( ! preg_match( '/\/$/', $sCurrentFolder ) ) $sCurrentFolder .= '/' ;
 	if ( strpos( $sCurrentFolder, '/' ) !== 0 ) $sCurrentFolder = '/' . $sCurrentFolder ;
 
 	// Ensure the folder path has no double-slashes
