@@ -105,7 +105,7 @@ class BatchImport
 	{
 		$pageArray = array(0 => "", 1=>"");
 		if (is_numeric(strpos($pages, "-"))) {
-			$pageArray = split("-", $pages);
+			$pageArray = preg_split("-", $pages);
 		}
 		return $pageArray;
 	}
@@ -113,7 +113,7 @@ class BatchImport
 	function getEprintsKeywords($keywords)
 	{
 		$keywords = str_replace(",", ";", $keywords);
-		$keywordArray = split(";", $keywords);
+		$keywordArray = preg_split(";", $keywords);
 		return $keywordArray;
 	}
 
