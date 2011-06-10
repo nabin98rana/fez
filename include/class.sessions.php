@@ -68,6 +68,7 @@ class Sessions {
 					' . $cond . '
 					AND user_id != ' . APP_SYSTEM_USER_ID . '
 				GROUP BY user_id
+				ORDER BY updated DESC
 		';
 		
 		try {	
