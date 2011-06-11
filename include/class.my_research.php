@@ -276,8 +276,7 @@ class MyResearch
 			}
 			$message = '';
 			if (is_numeric($author_id)) {
-				$return = Record::getListing($options, array(9,10), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter, "AND", true, false, false, 10, 1);
-				$return['list'] = Record::getResearchDetailsbyPIDS($return['list']);
+				$return = Record::getListing($options, array(9,10), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter, "AND", true, false, false, 10, 1, true);
 			} else {
 				$message = "You are not registered in ".APP_NAME." as an author. Please contact the <a href='".APP_BASE_URL."contact'>".APP_SHORT_ORG_NAME." Manager</a> to resolve this.";
 			}
