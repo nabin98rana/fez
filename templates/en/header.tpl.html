@@ -16,7 +16,7 @@
 {if $swfobject}
 <script type="text/javascript" src="{$rel_url}js/swfobject.js"></script>
 {/if}
-{if $authors_form || $enter_metadata || $use_json} {* TODO: Depracate first 2 vars in due course; only use 3rd *}
+{if $isUser && ($authors_form || $enter_metadata || $use_json)} {* TODO: Depracate first 2 vars in due course; only use 3rd *}
 <script type="text/javascript">
 <!--
 dojo.require("dojo.rpc.JsonService");
@@ -60,11 +60,15 @@ dojo.require("dojo.rpc.JsonService");
 {if $refresh_rate}
 <meta http-equiv="Refresh" content="{$refresh_rate};URL={$app_base_url}{$refresh_page}" />
 {/if}
+{if $isUser}
 {$najax_header}
+{/if}
 {$meta_head}
 	<script type="text/javascript">
 	<!--
+    {if $isUser}
 	{$najax_register}
+    {/if}
 	{* Change the window.onload if we're using dojo so that this doesn't overwrite our flash uploader callback *}
 	{if $header_include_flash_uploader_files == 1 && $smarty.const.APP_ENABLE_FLASH_UPLOADER_SWITCH == 'ON'}
 	dojo.addOnLoad( function() {ldelim}

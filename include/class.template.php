@@ -352,12 +352,13 @@ class Template_API
 			"highlight_color" => APP_HIGHLIGHT_COLOR
 		));
 		$this->assign('phpini_upload_max_filesize', Misc::convertSize(ini_get('upload_max_filesize')));
+    if ($username) {
+      $this->registerNajax(NAJAX_Client::register('Session', APP_RELATIVE_URL.'ajax.php'));
+      $this->onload("getFlashMessage();");
 
-		$this->registerNajax(NAJAX_Client::register('Session', APP_RELATIVE_URL.'ajax.php'));
-		$this->onload("getFlashMessage();");
-
-		$this->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));
-		$this->assign('najax_register', $this->najax_register);
+      $this->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));
+      $this->assign('najax_register', $this->najax_register);
+     }
 		$this->assign('headerscript', $this->headerscript);	
 		$this->assign('benchmark_total', $log->getLogElapsedTime());
 		

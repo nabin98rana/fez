@@ -1075,10 +1075,10 @@ class Lister
         if($tpl->smarty->get_template_vars('active_nav') == '') {
 			$tpl->assign("active_nav", "list");
         }
-        
-        $tpl->registerNajax(NAJAX_Client::register('NajaxRecord', APP_RELATIVE_URL.'ajax.php')."\n"
+        if ($username) {
+          $tpl->registerNajax(NAJAX_Client::register('NajaxRecord', APP_RELATIVE_URL.'ajax.php')."\n"
             .NAJAX_Client::register('Suggestor', APP_RELATIVE_URL.'ajax.php')."\n");
-
+        }
 		// If most results have thumbnails and there is no template set in the querystring than force the image gallery template
 		if (!is_numeric($params['tpl'])) {
 			if (is_numeric($list_info['thumb_ratio'])) {

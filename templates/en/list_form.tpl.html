@@ -2,8 +2,13 @@
 
 	<script type="text/javascript">
 	<!--
-	
+	{/literal}
+	{if $isUser}
+	{literal}
 	var star_proxy = new dojo.rpc.JsonService("{/literal}{$rel_url}{literal}record_star_proxy.php");
+	{/literal}
+	{/if}
+	{literal}
 	var star_toggle = 'off';
 	
 	function addStar(pid)
