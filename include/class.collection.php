@@ -825,7 +825,7 @@ class Collection
     foreach ($res as $key => $result) {
       $res[$key]['rek_file_downloads'] = $res[$key]['sort_column'];
     }
-    Record::getSearchKeysByPIDS($res);
+    Record::getSearchKeysByPIDS($res, true);
     return array(
                 "list" => $res,
                 "info" => array()

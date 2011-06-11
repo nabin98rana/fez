@@ -1900,7 +1900,7 @@ class Record
     if (count($res) > 0) {
 
       $usr_id = Auth::getUserID();
-      Record::getSearchKeysByPIDS($res);
+      Record::getSearchKeysByPIDS($res, true);
       Record::getChildCountByPIDS($res, $usr_id);
 
     }
@@ -2173,7 +2173,7 @@ class Record
     }
   }
 
-  function getSearchKeysByPIDS(&$result)
+  function getSearchKeysByPIDS(&$result, $forceGetExtra = false)
   {		
     $pids = array();
     for ($i = 0; $i < count($result); $i++) {
@@ -2205,9 +2205,12 @@ class Record
         }
 
       } else {
-        // Solr already returns all this data, just need the lookups
-//        $res = Record::getSearchKeyByPIDS($sek_sql_title, $pids);
-        $res = $result;
+        // Solr already returns all this data, just need the lookups, unless called from somewhere other than solr
+        if ($forceGetExtra == true) {
+          $res = Record::getSearchKeyByPIDS($sek_sql_title, $pids);
+        } else {
+          $res = $result;
+        }
 
         $t = array();
         $p = array();
