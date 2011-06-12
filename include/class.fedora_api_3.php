@@ -1762,7 +1762,7 @@ class Fedora_API {
 //		    $client->__getLastResponse();
 			return false;
 		}
-
+    return $result;
 	}
 
 	/**

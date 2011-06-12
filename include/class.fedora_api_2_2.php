@@ -1443,14 +1443,26 @@ class Fedora_API {
 		 * the preceding functions.
 		 * $call is the api call to the fedora api-m.
 		 ********************************************/
-		$client = new soapclient_internal(APP_FEDORA_MANAGEMENT_API);
-		$client->setCredentials(APP_FEDORA_USERNAME, APP_FEDORA_PWD);
-		$result = $client->call($call, $parms);
-		if ($debug_error && is_array($result) && isset($result['faultcode'])) {
-			$fedoraError = "Error when calling ".$call." :".$result['faultstring'];
-			$log->err(array($fedoraError,$client->request, __FILE__,__LINE__));
-			return false;
-		}
+//		$client = new soapclient_internal(APP_FEDORA_MANAGEMENT_API);
+//		$client->setCredentials(APP_FEDORA_USERNAME, APP_FEDORA_PWD);
+//		$result = $client->call($call, $parms);
+//		if ($debug_error && is_array($result) && isset($result['faultcode'])) {
+//			$fedoraError = "Error when calling ".$call." :".$result['faultstring'];
+//			$log->err(array($fedoraError,$client->request, __FILE__,__LINE__));
+//			return false;
+//		}
+
+    try {
+				$client = new SoapClient(APP_FEDORA_MANAGEMENT_WSDL_API, array("login" => APP_FEDORA_USERNAME, "password" => APP_FEDORA_PWD, 'trace' => 1));
+				$result = $client->__soapCall($call, array('parameters' => $parms));
+				$result = array_values(Misc::obj2array($result));
+				$result = $result[0];
+			} catch (SoapFault $fault) {
+//				$fedoraError = "Error when calling ".$call." :".$fault->faultstring;
+				$fedoraError = "Error when calling ".$call." :".$fault->faultstring."\n\n REQUEST: \n\n".$client->__getLastRequest()."\n\n RESPONSE: \n\n ".$client->__getLastResponse();
+				$log->err(array($fedoraError, __FILE__,__LINE__));
+				return false;
+			}
 		return $result;
 
 	}
@@ -1472,16 +1484,30 @@ class Fedora_API {
 		 * the preceding functions.
 		 * $call is the api call to the fedora api-a.
 		 ********************************************/
-		$client = new soapclient_internal(APP_FEDORA_ACCESS_API);
-		$client->setCredentials(APP_FEDORA_USERNAME, APP_FEDORA_PWD);
-		$client->namespaces['fedora-types'] = 'http://www.fedora.info/definitions/1/0/types/';
-		$result = $client->call($call, $parms, 'http://www.fedora.info/definitions/1/0/types/');
-		//Fedora_API::debugInfo($client);
-		if (is_array($result) && isset($result['faultcode'])) {
-			$fedoraError = "Error when calling ".$call." :".$result['faultstring'];
-			$log->err(array($fedoraError,$client->request, __FILE__,__LINE__));
-		}return $result;
-
+//		$client = new soapclient_internal(APP_FEDORA_ACCESS_API);
+//		$client->setCredentials(APP_FEDORA_USERNAME, APP_FEDORA_PWD);
+//		$client->namespaces['fedora-types'] = 'http://www.fedora.info/definitions/1/0/types/';
+//		$result = $client->call($call, $parms, 'http://www.fedora.info/definitions/1/0/types/');
+//		//Fedora_API::debugInfo($client);
+//		if (is_array($result) && isset($result['faultcode'])) {
+//			$fedoraError = "Error when calling ".$call." :".$result['faultstring'];
+//			$log->err(array($fedoraError,$client->request, __FILE__,__LINE__));
+//		}
+//    return $result;
+    try {
+//			$client = new SoapClient(APP_FEDORA_ACCESS_WSDL_API, array("login" => APP_FEDORA_USERNAME, "password" => APP_FEDORA_PWD));
+      $client = new SoapClient(APP_FEDORA_ACCESS_WSDL_API, array("login" => APP_FEDORA_USERNAME, "password" => APP_FEDORA_PWD, 'trace' => 1));
+      $result = $client->__soapCall($call, array('parameters' => $parms));
+      $result = array_values(Misc::obj2array($result));
+      $result = $result[0];
+    } catch (SoapFault $fault) {
+      $fedoraError = "Error when calling ".$call." :".$fault->faultstring."\n\n REQUEST: \n\n".$client->__getLastRequest()."\n\n RESPONSE: \n\n ".$client->__getLastResponse();
+      $log->err(array($fedoraError, __FILE__,__LINE__));
+//			$client->__getLastRequest();
+//		    $client->__getLastResponse();
+      return false;
+    }
+    return $result;
 	}
 
 	/**
