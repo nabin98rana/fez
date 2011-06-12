@@ -843,6 +843,9 @@ class XSD_HTML_Match
 							sek_title,
 							sek_suggest_function,
 							sek_lookup_function,
+							sek_meta_header,
+							sek_data_type,
+							sek_cardinality,
 							cvo_hide
 		                 FROM
 		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields as m1

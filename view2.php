@@ -249,13 +249,13 @@ if (!empty($pid) && $record->checkExists()) {
 		$meta_head = '<link rel="schema.DC" href="http://purl.org/DC/elements/1.0/" />'."\n";
 		// and the identifier
 		$meta_head .= '<meta name="DC.Identifier" scheme="URI" content="'.APP_BASE_URL."view/{$pid}\" />\n";
-
-		// grab the metadata fields out of the search keys
+//    print_r($xsd_display_fields);
+		// grab the metadata fields o ut of the search keys
 		foreach($xsd_display_fields as $dis_key => $dis_field) {
-			$searchKeyDetails = Search_Key::getDetailsByXSDMF_ID($dis_field['xsdmf_id']);
-			if (isset($searchKeyDetails['sek_meta_header']) && $searchKeyDetails['sek_meta_header']) {
+//			$searchKeyDetails = Search_Key::getDetailsByXSDMF_ID($dis_field['xsdmf_id']);
+			if (isset($dis_field['sek_meta_header']) && $dis_field['sek_meta_header']) {
 				// split the metadata field out into the various types
-				$metaDataFields[$dis_field['xsdmf_id']] = array('fieldnames'=>explode('|', $searchKeyDetails['sek_meta_header']), 'type'=>$searchKeyDetails['sek_data_type'], 'lookup'=>$searchKeyDetails['sek_lookup_function'], 'can_output_multiple'=>$searchKeyDetails['sek_cardinality'] == 0 ? false : true);
+				$metaDataFields[$dis_field['xsdmf_id']] = array('fieldnames'=>explode('|', $dis_field['sek_meta_header']), 'type'=>$dis_field['sek_data_type'], 'lookup'=>$dis_field['sek_lookup_function'], 'can_output_multiple'=>$dis_field['sek_cardinality'] == 0 ? false : true);
 			}
 		}
 
