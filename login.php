@@ -45,7 +45,7 @@ include_once(APP_INC_PATH . "class.db_api.php");
 function generateCookieArray($value){
 
 	// Decodes and splits cookie value
-	$CookieArray = split(' ', $value);
+	$CookieArray = preg_split('/ /', $value);
 	$CookieArray = array_map('base64_decode', $CookieArray);
 	
 	return $CookieArray;

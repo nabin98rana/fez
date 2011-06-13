@@ -249,7 +249,7 @@ class LinksAmrQueue extends Queue
   {
     $log = FezLog::get();
     $details = Record::getDetailsLite($pids);
-    Record::getSearchKeysByPIDS($details);
+    Record::getSearchKeysByPIDS($details, true);
    
     $maps = array();
     $doi_prefix = 'http://dx.doi.org/';

@@ -1779,8 +1779,8 @@ class Auth
 					}
 				}
 				foreach($memberships as $item) {
-					list($CNitem, $rest) = split(",", $item);
-					list($tag, $group) = split("=", $CNitem);
+					list($CNitem, $rest) = preg_split("/,/", $item);
+					list($tag, $group) = preg_split("/=/", $CNitem);
 					//					echo $username." is a member of group: $group<br>\n";
 					array_push($usersgroups, $group);
 				}

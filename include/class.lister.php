@@ -299,11 +299,15 @@ class Lister
         $list_info = array();
         
         //get the bulk change workflows
-		$bulk_workflows = WorkflowTrigger::getAssocListByTrigger("-1", WorkflowTrigger::getTriggerId('Bulk Change'));
-		$bulk_search_workflows = WorkflowTrigger::getAssocListByTrigger("-1", WorkflowTrigger::getTriggerId('Bulk Change Search')); 
-		
-        $tpl->assign("bulk_workflows",          $bulk_workflows);
-        $tpl->assign("bulk_search_workflows",   $bulk_search_workflows);
+    $bulk_workflows = array();
+    $bulk_search_workflows = array();
+
+    if ($username) {
+      $bulk_workflows = WorkflowTrigger::getAssocListByTrigger("-1", WorkflowTrigger::getTriggerId('Bulk Change'));
+      $bulk_search_workflows = WorkflowTrigger::getAssocListByTrigger("-1", WorkflowTrigger::getTriggerId('Bulk Change Search'));       
+      $tpl->assign("bulk_workflows",          $bulk_workflows);
+      $tpl->assign("bulk_search_workflows",   $bulk_search_workflows);
+    }
 		// if it is 
         if (!empty($custom_view_pid) &&  empty($collection_pid) && empty($community_pid) && ($browse != "latest") && ($browse != "year") && (($browse != "author") && ($browse != "author_id")) &&  ($browse != "depositor") &&  ($browse != "subject") && ($cat != "quick_filter")) {
 			$community_pid = $custom_view_pid;
@@ -1075,10 +1079,10 @@ class Lister
         if($tpl->smarty->get_template_vars('active_nav') == '') {
 			$tpl->assign("active_nav", "list");
         }
-        
-        $tpl->registerNajax(NAJAX_Client::register('NajaxRecord', APP_RELATIVE_URL.'ajax.php')."\n"
+        if ($username) {
+          $tpl->registerNajax(NAJAX_Client::register('NajaxRecord', APP_RELATIVE_URL.'ajax.php')."\n"
             .NAJAX_Client::register('Suggestor', APP_RELATIVE_URL.'ajax.php')."\n");
-
+        }
 		// If most results have thumbnails and there is no template set in the querystring than force the image gallery template
 		if (!is_numeric($params['tpl'])) {
 			if (is_numeric($list_info['thumb_ratio'])) {

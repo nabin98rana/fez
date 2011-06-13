@@ -1427,6 +1427,9 @@ class Author
       $log->err($ex);
       return '';
     }
+	// grab just the surname
+	$regex = '/([^,.]+).*/i';
+	$res = preg_replace($regex, '$1', $res);
     return $res;
   }
   

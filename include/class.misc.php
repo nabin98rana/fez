@@ -198,9 +198,9 @@ class Misc
   function parse_str_ext($toparse) 
   {
     $returnarray = array();
-    $keyvaluepairs = split("&", $toparse);
+    $keyvaluepairs = preg_split("/&/", $toparse);
     foreach ($keyvaluepairs as $pairval) {
-      $splitpair = split("=", $pairval);
+      $splitpair = preg_split("/=/", $pairval);
       if (!array_key_exists($splitpair[0], $returnarray)) {
         $returnarray[$splitpair[0]] = array();
       }
@@ -4574,7 +4574,7 @@ class Misc
       }
       $mods['relatedItem']['part']['detail_volume']['number'] = @$record->bib_issue->attributes()->vol;
       if ($record->bib_pages) {
-        $pages = @split('-', $record->bib_pages);    	
+        $pages = @preg_split('/-/', $record->bib_pages);
         if (count($pages) == 2) {
           $mods['relatedItem']['part']['extent_page']['start'] = $pages[0];
           $mods['relatedItem']['part']['extent_page']['end'] = $pages[1];
@@ -4598,7 +4598,7 @@ class Misc
       }
       $mods['relatedItem']['part']['detail_volume']['number'] = @$record->bib_issue->attributes()->vol;
       if ($record->bib_pages) {
-        $pages = @split('-', $record->bib_pages);    	
+        $pages = @preg_split('/-/', $record->bib_pages);
         if (count($pages) == 2) {
           $mods['relatedItem']['part']['extent_page']['start'] = $pages[0];
           $mods['relatedItem']['part']['extent_page']['end'] = $pages[1];
@@ -4616,7 +4616,7 @@ class Misc
       }
       $mods['relatedItem']['part']['detail_volume']['number'] = @$record->bib_issue->attributes()->vol;
       if ($record->bib_pages) {
-        $pages = @split('-', $record->bib_pages);    	
+        $pages = @preg_split('/-/', $record->bib_pages);
         if (count($pages) == 2) {
           $mods['relatedItem']['part']['extent_page']['start'] = $pages[0];
           $mods['relatedItem']['part']['extent_page']['end'] = $pages[1];

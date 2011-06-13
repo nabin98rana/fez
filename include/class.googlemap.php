@@ -132,7 +132,7 @@ class GoogleMap
         if (! empty($xml->Response)) {
             $point= $xml->Response->Placemark->Point;
             if (! empty($point)) {
-                $coordinatesSplit = split(",", $point->coordinates);
+                $coordinatesSplit = preg_split("/,/", $point->coordinates);
                 // Format: Longitude, Latitude, Altitude
                 $this->_latitude = $coordinatesSplit[1];
                 $this->_longitude = $coordinatesSplit[0];

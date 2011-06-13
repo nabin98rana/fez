@@ -1451,6 +1451,7 @@ class Fedora_API {
 			$log->err(array($fedoraError,$client->request, __FILE__,__LINE__));
 			return false;
 		}
+
 		return $result;
 
 	}
@@ -1480,8 +1481,8 @@ class Fedora_API {
 		if (is_array($result) && isset($result['faultcode'])) {
 			$fedoraError = "Error when calling ".$call." :".$result['faultstring'];
 			$log->err(array($fedoraError,$client->request, __FILE__,__LINE__));
-		}return $result;
-
+		}
+    return $result;
 	}
 
 	/**

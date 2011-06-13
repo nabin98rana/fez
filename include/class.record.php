@@ -412,7 +412,7 @@ class Record
 					'hc' => $hc	);
 	}
 
-  function getResearchDetailsbyPIDS($result)
+  function getResearchDetailsbyPIDS($result, $getAuthorMatching = false)
   {		
 
     $pids = array();
@@ -459,10 +459,12 @@ class Record
     // for ($i = 0; $i < count($result); $i++) {
     //   $result[$i]["rek_ismemberof_count"] = $t[$result[$i]["rek_pid"]];
     // }
-  	
-		$username = Auth::getActingUsername();
-    $aut_id = Author::getIDByUsername($username);
-    
+  	if ($getAuthorMatching == true) {
+      $username = Auth::getActingUsername();
+      $aut_id = Author::getIDByUsername($username);
+    } else {
+      $aut_id = false;
+    }
     for ($i = 0; $i < count($result); $i++) {
 			$pid = $result[$i]['rek_pid'];
 			if (is_array($ht[$pid])) {
@@ -1264,8 +1266,12 @@ class Record
     }
     
     // Add the updated record for Links AMR processing
-    if (APP_AUTO_LINKSAMR_UPLOAD == "ON" ) {
-      LinksAmrQueue::get()->add($pid);
+    if (APP_AUTO_LINKSAMR_UPLOAD == "ON") {
+      $isi_loc = Record::getSearchKeyIndexValue($pid, "ISI Loc", false);
+      // only send to the queue if we don't already have an ISI Loc for this pid
+      if ($isi_loc == '' || empty($isi_loc)) {
+        LinksAmrQueue::get()->add($pid);
+      }
     }
        
     return $ret;
@@ -1420,7 +1426,7 @@ class Record
       // HERDC status
       $provisional = Controlled_Vocab::getID('Provisional Code');
       $record->addSearchKeyValueList(array("HERDC Status"), array($provisional), true, $history);
-      
+
       // Institutional status
       $unknown = Controlled_Vocab::getID('Unknown');
       $record->addSearchKeyValueList(array("Institutional Status"), array($unknown), true, $history);
@@ -1692,7 +1698,7 @@ class Record
       $options, $approved_roles=array(9,10), $current_page=0,$page_rows="ALL", $sort_by="Title", 
       $getSimple=false, $citationCache=false, $filter=array(), $operator='AND', $use_faceting = false, 
       $use_highlighting = false, $doExactMatch = false, $facet_limit = APP_SOLR_FACET_LIMIT, 
-      $facet_mincount = APP_SOLR_FACET_MINCOUNT
+      $facet_mincount = APP_SOLR_FACET_MINCOUNT, $getAuthorMatching = false
   )
   {
     $log = FezLog::get();
@@ -1702,7 +1708,7 @@ class Record
       return Record::getSearchListing(
           $options, $approved_roles, $current_page, $page_rows, $sort_by, $getSimple, 
           $citationCache, $filter, $operator, $use_faceting, $use_highlighting, $doExactMatch, 
-          $facet_limit, $facet_mincount
+          $facet_limit, $facet_mincount, $getAuthorMatching
       );
     } else {
       $options = array_merge($options, $filter);
@@ -1794,7 +1800,7 @@ class Record
           if ($citationCache == false) {
             Record::getSearchKeysByPIDS($res);
 						if (APP_MY_RESEARCH_MODULE == 'ON') {
-						  $res = Record::getResearchDetailsbyPIDS($res);
+						  $res = Record::getResearchDetailsbyPIDS($res, $getAuthorMatching);
 						} 
           }
           Record::identifyThumbnails($res, $citationCache);
@@ -1894,7 +1900,7 @@ class Record
     if (count($res) > 0) {
 
       $usr_id = Auth::getUserID();
-      Record::getSearchKeysByPIDS($res);
+      Record::getSearchKeysByPIDS($res, true);
       Record::getChildCountByPIDS($res, $usr_id);
 
     }
@@ -1983,7 +1989,7 @@ class Record
       $options, $approved_roles=array(9,10), $current_page=0, $page_rows="ALL", 
       $sort_by="", $getSimple=false, $citationCache=false, $filter=array(), $operator="AND", 
       $use_faceting = false, $use_highlighting = false, $doExactMatch = false, $facet_limit = APP_SOLR_FACET_LIMIT, 
-      $facet_mincount = APP_SOLR_FACET_MINCOUNT
+      $facet_mincount = APP_SOLR_FACET_MINCOUNT, $getAuthorMatching = false
   )
   {
     $log = FezLog::get();
@@ -2023,13 +2029,12 @@ class Record
     $usr_id = Auth::getUserID();
     // disable citation caching for the moment - CK commented out forced citation true on 17/6/08, was a Rhys thin
     //		$citationCache = true;
-
     if (count($res) > 0) {
       if ($getSimple == false || empty($getSimple)) {
         if ($citationCache == false) {
           Record::getSearchKeysByPIDS($res);
 					if (APP_MY_RESEARCH_MODULE == 'ON') {
-					  $res = Record::getResearchDetailsbyPIDS($res);
+					  $res = Record::getResearchDetailsbyPIDS($res, $getAuthorMatching);
 					} 
         }
         Record::identifyThumbnails($res, $citationCache);
@@ -2038,7 +2043,6 @@ class Record
       }
 
     }
-    
     $thumb_counter = 0;
     // KJ/ETH: if the object came up to here, it can be listed (Solr filter!)
     if (!empty($res)) {
@@ -2169,7 +2173,7 @@ class Record
     }
   }
 
-  function getSearchKeysByPIDS(&$result)
+  function getSearchKeysByPIDS(&$result, $forceGetExtra = false)
   {		
     $pids = array();
     for ($i = 0; $i < count($result); $i++) {
@@ -2186,8 +2190,8 @@ class Record
       if ($sekData['sek_relationship'] == 0) { //already have the data, just need to do any required lookups for 1-1
         if ($sekData['sek_lookup_function'] != "") {
           for ($i = 0; $i < count($result); $i++) {
-            if ($result[$i]['rek_'.$sek_sql_title]) {              
-              $func = $sekData['sek_lookup_function'].'('.$result[$i]['rek_'.$sek_sql_title].');';              
+            if ($result[$i]['rek_'.$sek_sql_title]) {
+              $func = $sekData['sek_lookup_function'].'('.$result[$i]['rek_'.$sek_sql_title].');';
               if (array_key_exists($func, $cache_eval)) {
                 $result[$i]["rek_".$sek_sql_title."_lookup"] = $cache_eval[$func];
               } else {
@@ -2201,18 +2205,24 @@ class Record
         }
 
       } else {
-        $res = Record::getSearchKeyByPIDS($sek_sql_title, $pids);
+        // Solr already returns all this data, just need the lookups, unless called from somewhere other than solr
+        if ($forceGetExtra == true) {
+          $res = Record::getSearchKeyByPIDS($sek_sql_title, $pids);
+        } else {
+          $res = $result;
+        }
+
         $t = array();
         $p = array();
         for ($i = 0; $i < count($res); $i++) {
           if (!is_array($t[$res[$i]["rek_".$sek_sql_title."_pid"]]) && ($sekData['sek_cardinality'] == 1)) {
             $t[$res[$i]["rek_".$sek_sql_title."_pid"]] = array();
           }
+          if (!is_array($p[$res[$i]["rek_".$sek_sql_title."_pid"]]) && ($sekData['sek_cardinality'] == 1)) {
+            $p[$res[$i]["rek_".$sek_sql_title."_pid"]] = array();
+          }
+
           if ($sekData['sek_lookup_function'] != "") {
-            if (!is_array($p[$res[$i]["rek_".$sek_sql_title."_pid"]]) && ($sekData['sek_cardinality'] == 1)) {
-              $p[$res[$i]["rek_".$sek_sql_title."_pid"]] = array();
-            }
-            
             $func = $sekData['sek_lookup_function']."('".$res[$i]['rek_'.$sek_sql_title]."');";
             
             if (array_key_exists($func, $cache_eval)) {
@@ -2223,9 +2233,9 @@ class Record
             }
             
             if ($sekData['sek_cardinality'] == 1) {
-              $p[$res[$i]["rek_".$sek_sql_title."_pid"]][] =  $res[$i]["rek_".$sek_sql_title."_lookup"];
+              $p[$res[$i]["rek_pid"]]["rek_".$sek_sql_title."_lookup"][] =  $res[$i]["rek_".$sek_sql_title."_lookup"];
             } else {
-              $p[$res[$i]["rek_".$sek_sql_title."_pid"]] =  $res[$i]["rek_".$sek_sql_title."_lookup"];
+              $p[$res[$i]["rek_pid"]]["rek_".$sek_sql_title."_lookup"] =  $res[$i]["rek_".$sek_sql_title."_lookup"];
             }
           }
           if ($sekData['sek_cardinality'] == 1) {
@@ -2239,9 +2249,11 @@ class Record
           if (!is_array($result[$i]["rek_".$sek_sql_title]) && ($sekData['sek_cardinality'] == 1)) {
             $result[$i]["rek_".$sek_sql_title] = array();
           }
-          $result[$i]["rek_".$sek_sql_title] = $t[$result[$i]["rek_pid"]];
+          if (!$result[$i]["rek_".$sek_sql_title]) {
+            $result[$i]["rek_".$sek_sql_title] = $t[$result[$i]["rek_pid"]];
+          }
           if ($sekData['sek_lookup_function'] != "") {
-            $result[$i]["rek_".$sek_sql_title."_lookup"] = $p[$result[$i]["rek_pid"]];
+            $result[$i]["rek_".$sek_sql_title."_lookup"] = $p[$result[$i]["rek_pid"]]["rek_".$sek_sql_title."_lookup"];
           }
         }
       }
@@ -3194,7 +3206,6 @@ class Record
   {
     $log = FezLog::get();
     $db = DB_API::get();
-
     $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
 
     if (!is_array($sek_details)) {
