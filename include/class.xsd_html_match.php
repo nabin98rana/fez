@@ -143,6 +143,29 @@ class XSD_HTML_Match
 			return $res;
 		}
 
+    function getXPATHByXSDMF_ID($xsdmf_id) {
+      $log = FezLog::get();
+      $db = DB_API::get();
+
+      $stmt = "SELECT
+              xsdmf_xpath
+                     FROM
+                        " . APP_TABLE_PREFIX . "xsd_display_matchfields as m1
+             WHERE m1.xsdmf_id = " . $db->quote($xsdmf_id, 'INTEGER');
+
+      try {
+        $res = $db->fetchOne($stmt);
+      }
+      catch(Exception $ex) {
+        $log->err($ex);
+        return array();
+      }
+
+      return $res;
+
+    }
+
+
 		function getXPATHBySearchKeyTitleXDIS_ID($sek_title, $xdis_id)
 		{
 			$log = FezLog::get();
@@ -297,145 +320,164 @@ class XSD_HTML_Match
 		}
 
 
-		function refreshXPATH($xsdmf_id = null)
-		{
-			$xpath = "";
-			$xpath_ns_fixes = array();
-			$list = array();
-			if ($xsdmf_id == null) {
-				$list = XSD_HTML_Match::getListAll();
-			} else {
-			 array_push($list, XSD_HTML_Match::getAllDetailsByXSDMF_ID($xsdmf_id));
-			}
-            
-			foreach ($list as $lrow) {
-				$xpath = str_replace("!", "/", $lrow['xsdmf_element']);
-				$xpath_ns_search = "";
-				$isAttribute = XSD_HTML_Match::isAttribute($lrow['xsdmf_element'], $lrow['xsdmf_xdis_id']);
-				$xpath = "/".$lrow['xsd_top_element_name'] . $xpath;
+  function refreshXPATH($xsdmf_id = null)
+  {
+    $xpath = "";
+    $parentRefreshs = array();
+    $xpath_ns_fixes = array();
+    $list = array();
+    if ($xsdmf_id == null) {
+      $list = XSD_HTML_Match::getListAll();
+    } else {
+      array_push($list, XSD_HTML_Match::getAllDetailsByXSDMF_ID($xsdmf_id));
+    }
 
-				if ($isAttribute == true) {
-					$xpath = substr($xpath, 0, strrpos($xpath, "/") + 1)."@".substr($xpath, strrpos($xpath, "/") + 1);
-					if (($lrow["xsdmf_enforced_prefix"]) != "") {
-						$xpath = substr($xpath, 0, strrpos($xpath, "/@") + 2).$lrow["xsdmf_enforced_prefix"].substr($xpath, strrpos($xpath, "/@") + 2);
-					}
-				} else {
-					if (($lrow["xsdmf_enforced_prefix"]) != "") {
-						$xpath_ns_search = $xpath;
-						$xpath = substr($xpath, 0, strrpos($xpath, "/") + 1).$lrow["xsdmf_enforced_prefix"].substr($xpath, strrpos($xpath, "/") + 1);
-					}
-				}
-					
-				//			if ($lrow['xsdmf_xdis_id'] == 16) echo "before xpath = ".$xpath."\n";
-				if (!empty($lrow["xsd_element_prefix"])) {
+    foreach ($list as $lrow) {
+      $xpath = str_replace("!", "/", $lrow['xsdmf_element']);
+      $xpath_ns_search = "";
+      $isAttribute = XSD_HTML_Match::isAttribute($lrow['xsdmf_element'], $lrow['xsdmf_xdis_id']);
+      $xpath = "/".$lrow['xsd_top_element_name'] . $xpath;
 
-					$xpath = preg_replace("/\/([^\/:@]+[^:\/])((?=\/)|(?![\/:])$)/", "/".$lrow["xsd_element_prefix"].":$1", $xpath);
-					$xpath_ns_search = preg_replace("/\/([^\/:@]+[^:\/])((?=\/)|(?![\/:])$)/", "/".$lrow["xsd_element_prefix"].":$1", $xpath_ns_search);
-					//$xpath = preg_replace("/\/([^\/:]+[^:\/])((?=\/)|(?![\/:]))/", "/".$lrow["xsd_element_prefix"].":$1", $xpath);
-					//$xpath = preg_replace("/\/(?!.*\:.*)(?!\/.*)$/", "/".$lrow["xsd_element_prefix"].":", $xpath);
-				}
-				//			if ($lrow['xsdmf_xdis_id'] == 16) echo "after xpath = ".$xpath."\n\n";
-					
-					
-				//XSD_HTML_Match::isAttribute($lrow['xsdmf_id'], $lrow['xsdmf_xdis_id']);
-				if (is_numeric($lrow['xsdmf_xsdsel_id'])) {
-					if ($lrow['xsdsel_type'] == "attributeloop" || $lrow['xsdsel_type'] == "hardset") {
-						/*[local-name()='mods' and namespace-uri()='http://www.loc.gov/mods/v3']/*[local-name()='abstract' and namespace-uri()='http://www.loc.gov/mods/v3'][1] */
-						if (is_numeric($lrow['xsdsel_indicator_xsdmf_id'])) {
-							//					echo " HERE = ".$lrow['xsdsel_indicator_xsdmf_id']."<";
-							$indicator_details = XSD_HTML_Match::getAllDetailsByXSDMF_ID($lrow['xsdsel_indicator_xsdmf_id']);
-							//print_r($indicator_details);
-							if (is_numeric($indicator_details['xsdmf_id'])) {
-								$ind_xpath = str_replace("!", "/", $indicator_details['xsdmf_element']);
-								$isAttribute = XSD_HTML_Match::isAttribute($indicator_details['xsdmf_element'], $indicator_details['xsdmf_xdis_id']);
-								$ind_xpath = "/".$indicator_details['xsd_top_element_name'] . $ind_xpath;
+      if ($isAttribute == true) {
+        $xpath = substr($xpath, 0, strrpos($xpath, "/") + 1)."@".substr($xpath, strrpos($xpath, "/") + 1);
+        if (($lrow["xsdmf_enforced_prefix"]) != "") {
+          $xpath = substr($xpath, 0, strrpos($xpath, "/@") + 2).$lrow["xsdmf_enforced_prefix"].substr($xpath, strrpos($xpath, "/@") + 2);
+        }
+      } else {
+        if (($lrow["xsdmf_enforced_prefix"]) != "") {
+          $xpath_ns_search = $xpath;
+          $xpath = substr($xpath, 0, strrpos($xpath, "/") + 1).$lrow["xsdmf_enforced_prefix"].substr($xpath, strrpos($xpath, "/") + 1);
+        }
+      }
 
-									
-									
-								if ($isAttribute == true) {
-									$ind_xpath = substr($ind_xpath, 0, strrpos($ind_xpath, "/") + 1)."@".substr($ind_xpath, strrpos($ind_xpath, "/") + 1);
-									if (!empty($indicator_details["xsdmf_enforced_prefix"])) {
-										$ind_xpath = substr($ind_xpath, 0, strrpos($ind_xpath, "/@") + 2).$indicator_details["xsdmf_enforced_prefix"].substr($ind_xpath, strrpos($ind_xpath, "/@") + 2);
-									}
-								} else {
-									if (!empty($indicator_details["xsdmf_enforced_prefix"])) {
-										$ind_xpath = substr($ind_xpath, 0, strrpos($ind_xpath, "/") + 1).$indicator_details["xsdmf_enforced_prefix"].substr($ind_xpath, strrpos($ind_xpath, "/") + 1);
-									}
-								}
-									
-									
-								if (!empty($indicator_details["xsd_element_prefix"])) {
-									//$ind_xpath = preg_replace("/\/([^\/:]+[^:\/])((?=\/)|(?![\/:]))/", "/".$indicator_details["xsd_element_prefix"].":$1", $ind_xpath);
-									$ind_xpath = preg_replace("/\/([^\/:@]+[^:\/])((?=\/)|(?![\/:])$)/", "/".$indicator_details["xsd_element_prefix"].":$1", $ind_xpath);
-									//$xpath = preg_replace("/\/(?!.*\:.*)(?!\/.*)$/", "/".$lrow["xsd_element_prefix"].":", $xpath);
-								}
-									
-									
-									
-								//							echo "xpath = ".$xpath."\n";
-								//							echo "indicator xpath = ".$ind_xpath."\n";
-									
-								$common_xpath = Misc::strlcs($xpath, $ind_xpath);
-								$after_common_xpath = substr($common_xpath, strrpos($common_xpath, "/"));
-								//							echo "AFTER C X = ".substr($after_common_xpath, -1)."\n";
-								if (in_array(substr($after_common_xpath, -1), array(":", "@", "/"))) {
-									$common_xpath = substr($common_xpath, 0 , strrpos($common_xpath, "/"));
-								}
-									
-								//							echo "common substring = ".$common_xpath."\n";
-								//$xpath_pre = substr($xpath, 0, strrpos($ind_xpath, "/"));
-								$xpath_post = substr($xpath, strrpos($xpath, $common_xpath)+strlen($common_xpath));
-								//echo "Xpost = ".$xpath_post."\n";
-								$ind_xpath = substr($ind_xpath, (strrpos($ind_xpath, $common_xpath)+strlen($common_xpath)));
-								$ind_xpath = ltrim($ind_xpath, "/");
-								//echo "Ipost = ".$ind_xpath."\n";
-								//$ind_xpath = $ind_xpath . " = '".$indicator_details['xsdsel_indicator_value']."'";
-									
-								if ($ind_xpath == "") {
-									$ind_xpath = $after_common_xpath;
-								}
-									
-									
-								if ($indicator_details['xsdsel_indicator_value'] == '') {
-									if (in_array(substr($after_common_xpath, -1), array(":", "@", "/"))) {
-										$xpath = $common_xpath."[not(".$ind_xpath. ") or ".$ind_xpath. " = '".$indicator_details['xsdsel_indicator_value']."']".$xpath_post;
-									} else {
-										$xpath = $common_xpath.$xpath_post."[not(".$ind_xpath. ") or ".$ind_xpath. " = '".$indicator_details['xsdsel_indicator_value']."']";
-									}
-								} else {
-									if (in_array(substr($after_common_xpath, -1), array(":", "@", "/"))) {
-										$xpath = $common_xpath."[".$ind_xpath. " = '".$indicator_details['xsdsel_indicator_value']."']".$xpath_post;
-									} else {
-										$xpath = $common_xpath.$xpath_post."[".$ind_xpath. " = '".$indicator_details['xsdsel_indicator_value']."']";
-									}
-								}
-									
-								//$ind_xpath_insert_pos = strrpos($ind_xpath, $xpath_pre) + strlen($xpath_pre);
-								//$ind_xpath_cut = substr($ind_xpath, $ind_xpath_insert_pos + 1);
+      //			if ($lrow['xsdmf_xdis_id'] == 16) echo "before xpath = ".$xpath."\n";
+      if (!empty($lrow["xsd_element_prefix"])) {
 
-								//$xpath = $xpath_pre."[".$ind_xpath_cut."]".substr($xpath, strrpos($xpath, "/"));
-									
-									
-								//echo " - INDY xpath = ".$ind_xpath."\n";
-								//echo " - FINAL xpath = ".$xpath."\n\n\n";
-							}
-						}
-					}
-				}
-				if (!empty($lrow["xsdmf_enforced_prefix"]) && $xpath_ns_search != "") {
-					$xpath_ns_fixes[$xpath] = array($xpath_ns_search, $lrow['xsdmf_xdis_id']);
-				}
-				XSD_HTML_Match::updateXPathByXSDMF_ID($lrow['xsdmf_id'], $xpath);
-			}
-			foreach ($xpath_ns_fixes as $xpath_replace => $xpath_search) {
-				$fixes = XSD_HTML_Match::getXPATHTails($xpath_search[0], $xpath_search[1]);
-				foreach ($fixes as $fix_row) {
-					$xpath_replace_save = str_replace($xpath_search[0], $xpath_replace, $fix_row['xsdmf_xpath']);
-					XSD_HTML_Match::updateXPathByXSDMF_ID($fix_row['xsdmf_id'], $xpath_replace_save);
-				}
-			}
+        $xpath = preg_replace("/\/([^\/:@]+[^:\/])((?=\/)|(?![\/:])$)/", "/".$lrow["xsd_element_prefix"].":$1", $xpath);
+        $xpath_ns_search = preg_replace("/\/([^\/:@]+[^:\/])((?=\/)|(?![\/:])$)/", "/".$lrow["xsd_element_prefix"].":$1", $xpath_ns_search);
+        //$xpath = preg_replace("/\/([^\/:]+[^:\/])((?=\/)|(?![\/:]))/", "/".$lrow["xsd_element_prefix"].":$1", $xpath);
+        //$xpath = preg_replace("/\/(?!.*\:.*)(?!\/.*)$/", "/".$lrow["xsd_element_prefix"].":", $xpath);
+      }
+      //			if ($lrow['xsdmf_xdis_id'] == 16) echo "after xpath = ".$xpath."\n\n";
 
-		}
+
+      //XSD_HTML_Match::isAttribute($lrow['xsdmf_id'], $lrow['xsdmf_xdis_id']);
+      if (is_numeric($lrow['xsdmf_xsdsel_id'])) {
+        if ($lrow['xsdsel_type'] == "attributeloop" || $lrow['xsdsel_type'] == "hardset") {
+          /*[local-name()='mods' and namespace-uri()='http://www.loc.gov/mods/v3']/*[local-name()='abstract' and namespace-uri()='http://www.loc.gov/mods/v3'][1] */
+          if (is_numeric($lrow['xsdsel_indicator_xsdmf_id'])) {
+            //					echo " HERE = ".$lrow['xsdsel_indicator_xsdmf_id']."<";
+            $indicator_details = XSD_HTML_Match::getAllDetailsByXSDMF_ID($lrow['xsdsel_indicator_xsdmf_id']);
+            //print_r($indicator_details);
+            if (is_numeric($indicator_details['xsdmf_id'])) {
+              $ind_xpath = str_replace("!", "/", $indicator_details['xsdmf_element']);
+              $isAttribute = XSD_HTML_Match::isAttribute($indicator_details['xsdmf_element'], $indicator_details['xsdmf_xdis_id']);
+              $ind_xpath = "/".$indicator_details['xsd_top_element_name'] . $ind_xpath;
+
+
+
+              if ($isAttribute == true) {
+                $ind_xpath = substr($ind_xpath, 0, strrpos($ind_xpath, "/") + 1)."@".substr($ind_xpath, strrpos($ind_xpath, "/") + 1);
+                if (!empty($indicator_details["xsdmf_enforced_prefix"])) {
+                  $ind_xpath = substr($ind_xpath, 0, strrpos($ind_xpath, "/@") + 2).$indicator_details["xsdmf_enforced_prefix"].substr($ind_xpath, strrpos($ind_xpath, "/@") + 2);
+                }
+              } else {
+                if (!empty($indicator_details["xsdmf_enforced_prefix"])) {
+                  $ind_xpath = substr($ind_xpath, 0, strrpos($ind_xpath, "/") + 1).$indicator_details["xsdmf_enforced_prefix"].substr($ind_xpath, strrpos($ind_xpath, "/") + 1);
+                }
+              }
+
+              if (!empty($indicator_details["xsd_element_prefix"])) {
+                //$ind_xpath = preg_replace("/\/([^\/:]+[^:\/])((?=\/)|(?![\/:]))/", "/".$indicator_details["xsd_element_prefix"].":$1", $ind_xpath);
+                $ind_xpath = preg_replace("/\/([^\/:@]+[^:\/])((?=\/)|(?![\/:])$)/", "/".$indicator_details["xsd_element_prefix"].":$1", $ind_xpath);
+                //$xpath = preg_replace("/\/(?!.*\:.*)(?!\/.*)$/", "/".$lrow["xsd_element_prefix"].":", $xpath);
+              }
+
+
+
+              //							echo "xpath = ".$xpath."\n";
+              //							echo "indicator xpath = ".$ind_xpath."\n";
+
+              $common_xpath = Misc::strlcs($xpath, $ind_xpath);
+              $after_common_xpath = substr($common_xpath, strrpos($common_xpath, "/"));
+              //							echo "AFTER C X = ".substr($after_common_xpath, -1)."\n";
+              if (in_array(substr($after_common_xpath, -1), array(":", "@", "/"))) {
+                $common_xpath = substr($common_xpath, 0 , strrpos($common_xpath, "/"));
+              }
+
+              //							echo "common substring = ".$common_xpath."\n";
+              //$xpath_pre = substr($xpath, 0, strrpos($ind_xpath, "/"));
+              $xpath_post = substr($xpath, strrpos($xpath, $common_xpath)+strlen($common_xpath));
+              //echo "Xpost = ".$xpath_post."\n";
+              $ind_xpath = substr($ind_xpath, (strrpos($ind_xpath, $common_xpath)+strlen($common_xpath)));
+              $ind_xpath = ltrim($ind_xpath, "/");
+              //echo "Ipost = ".$ind_xpath."\n";
+              //$ind_xpath = $ind_xpath . " = '".$indicator_details['xsdsel_indicator_value']."'";
+
+              if ($ind_xpath == "") {
+                $ind_xpath = $after_common_xpath;
+              }
+
+
+              if ($indicator_details['xsdsel_indicator_value'] == '') {
+                if (in_array(substr($after_common_xpath, -1), array(":", "@", "/"))) {
+                  $xpath = $common_xpath."[not(".$ind_xpath. ") or ".$ind_xpath. " = '".$indicator_details['xsdsel_indicator_value']."']".$xpath_post;
+                } else {
+                  $xpath = $common_xpath.$xpath_post."[not(".$ind_xpath. ") or ".$ind_xpath. " = '".$indicator_details['xsdsel_indicator_value']."']";
+                }
+              } else {
+                if (in_array(substr($after_common_xpath, -1), array(":", "@", "/"))) {
+                  $xpath = $common_xpath."[".$ind_xpath. " = '".$indicator_details['xsdsel_indicator_value']."']".$xpath_post;
+                } else {
+                  $xpath = $common_xpath.$xpath_post."[".$ind_xpath. " = '".$indicator_details['xsdsel_indicator_value']."']";
+                }
+              }
+
+              //$ind_xpath_insert_pos = strrpos($ind_xpath, $xpath_pre) + strlen($xpath_pre);
+              //$ind_xpath_cut = substr($ind_xpath, $ind_xpath_insert_pos + 1);
+
+              //$xpath = $xpath_pre."[".$ind_xpath_cut."]".substr($xpath, strrpos($xpath, "/"));
+
+
+              //echo " - INDY xpath = ".$ind_xpath."\n";
+              //echo " - FINAL xpath = ".$xpath."\n\n\n";
+            }
+          }
+        }
+      }
+      if (!empty($lrow["xsdmf_enforced_prefix"]) && $xpath_ns_search != "") {
+        $xpath_ns_fixes[$xpath] = array($xpath_ns_search, $lrow['xsdmf_xdis_id']);
+      }
+
+      // Check for any parents with different namespaces so they flow onto this child and it's children
+      $splitElement = $lrow['xsdmf_element'];
+      $splitElement = substr($splitElement, 0, strrpos($splitElement, "!"));
+      $splitCount = substr_count($splitElement, "!");
+      $elements = array($splitElement);
+      while ($splitCount > 1) {
+        $splitElement = substr($splitElement, 0, strrpos($splitElement, "!"));
+        $splitCount = substr_count($splitElement, "!");
+        array_push($elements, $splitElement);
+      }
+
+      $parentRefreshs = XSD_HTML_Match::getXSDMF_IDsByElements($elements, $lrow['xsdmf_xdis_id']);
+      XSD_HTML_Match::updateXPathByXSDMF_ID($lrow['xsdmf_id'], $xpath);
+    }
+
+    foreach ($parentRefreshs as $parent_xsdmf_id) {
+      XSD_HTML_Match::refreshXPATH($parent_xsdmf_id);
+    }
+
+
+    foreach ($xpath_ns_fixes as $xpath_replace => $xpath_search) {
+      $fixes = XSD_HTML_Match::getXPATHTails($xpath_search[0], $xpath_search[1]);
+      foreach ($fixes as $fix_row) {
+        $xpath_replace_save = str_replace($xpath_search[0], $xpath_replace, $fix_row['xsdmf_xpath']);
+        XSD_HTML_Match::updateXPathByXSDMF_ID($fix_row['xsdmf_id'], $xpath_replace_save);
+      }
+    }
+
+  }
 
 		function isAttribute($xsdmf_element, $xdis_id)
 		{
@@ -2233,15 +2275,39 @@ class XSD_HTML_Match
 				$log->err($ex);
 				return '';
 			}
-
-//			$log->debug("omg whats the story for $xsdmf_element $xdis_id ?! ".$res[0]['xsdmf_id']." - ".print_r($res, true).$stmt);
+      //			$log->debug("omg whats the story for $xsdmf_element $xdis_id ?! ".$res[0]['xsdmf_id']." - ".print_r($res, true).$stmt);
 			if (count($res) != 1) {
 //				$log->debug("omg count not one! - ".print_r($res, true));
 				return false;
 			} else {
-				
+
 				return $res[0]['xsdmf_id'];
 			}
+    }
+
+      function getXSDMF_IDsByElements($xsdmf_elements, $xsdmf_xdis_id)
+      {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $elements = "('".implode($xsdmf_elements, "','")."')";
+
+        $stmt = "SELECT
+                          xsdmf_id
+                       FROM
+                          " . APP_TABLE_PREFIX . "xsd_display_matchfields
+                       WHERE
+                          xsdmf_element IN ".$elements.
+                          " and xsdmf_xdis_id = ".$db->quote($xsdmf_xdis_id, 'INTEGER')." ORDER BY LENGTH(xsdmf_element) DESC ";
+
+        try {
+          $res = $db->fetchCol($stmt);
+        }
+        catch(Exception $ex) {
+          $log->err($ex);
+          return '';
+        }
+				return $res;
 		}
 
 		/**
@@ -2999,11 +3065,9 @@ class XSD_HTML_Match
 		{
 			$log = FezLog::get();
 			$db = DB_API::get();
-				
 			$stmt = "SELECT
 		                    *
 		                 FROM
-		                 
 		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields left join
 		                    " . APP_TABLE_PREFIX . "xsd_loop_subelement on (xsdmf_xsdsel_id = xsdsel_id) left join
 							" . APP_TABLE_PREFIX . "xsd_display on (xsdmf_xdis_id = xdis_id) left join
