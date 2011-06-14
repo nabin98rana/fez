@@ -217,7 +217,7 @@ class XSD_HTML_Match
 				$xdis_details = XSD_Display::getAllDetails($xdis_id);
 				if (Fedora_API::datastreamExists($pid, $xdis_details['xsd_title'])) {
 					$xsdmf_details = XSD_HTML_Match::getList($xdis_id);
-
+//          $xsdmf_details = XSD_HTML_Match::getBasicListByDisplay($xdis_id);
 					//print_r($xdis_details);
 					//echo $xdis_details['xsd_title'];
 
@@ -244,7 +244,7 @@ class XSD_HTML_Match
 								//echo "nothing found\n";
 							} else {
 								foreach ($fieldNodeList as $fieldNode) {
-									//echo $fieldNode->nodeValue."\n";
+//									echo $fieldNode->nodeValue."\n";
 									/*if ($fieldNodeList->length > 1) {
 									 $xsdmf_array[$xsdmf['xsdmf_id']][] = $fieldNode->nodeValue;
 									 } else {*/
@@ -252,7 +252,7 @@ class XSD_HTML_Match
 									if ($xsdmf['xsdmf_value_prefix'] != "") { //strip off stuff like info:fedora/ in rels-ext ismemberof @resource values
 										$fieldNode->nodeValue = str_replace($xsdmf['xsdmf_value_prefix'], "", $fieldNode->nodeValue);
 									}
-									if (!empty($fieldNode->nodeValue) && $fieldNode->nodeValue != "") {
+									if ((!empty($fieldNode->nodeValue) && $fieldNode->nodeValue != "") || $fieldNode->nodeValue === '0') {
 										if (isset($xsdmf_array[$xsdmf['xsdmf_id']])) {
 											if (!is_array($xsdmf_array[$xsdmf['xsdmf_id']])) {
 												$temp_val =	$xsdmf_array[$xsdmf['xsdmf_id']];
@@ -273,7 +273,6 @@ class XSD_HTML_Match
 					}
 				}
 			}
-			//print_r($xsdmf_array);
 			return($xsdmf_array);
 
 		}
