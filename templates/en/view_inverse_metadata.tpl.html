@@ -49,6 +49,16 @@
             </td>
         </tr>
     {/section}
+    {if $isAdministrator}
+    <tr>
+        <th>
+            Internal Notes
+        </th>
+        <td>
+            {if $internal_notes}{$internal_notes}{/if}
+        </td>
+    </tr>
+    {/if}
         <tr>
             <th colspan="2" style="text-align:center;">
             Affiliate Authors

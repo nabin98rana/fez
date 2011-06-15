@@ -41,6 +41,7 @@ include_once(APP_INC_PATH . "class.workflow_trigger.php");
 include_once(APP_INC_PATH . "class.statistics.php");
 include_once(APP_INC_PATH . "class.citation.php");
 include_once(APP_INC_PATH . "class.org_structure.php");
+include_once(APP_INC_PATH . "class.internal_notes.php");
 include_once(APP_INC_PATH . "class.record_view.php");
 include_once(APP_INC_PATH . "class.user_comments.php");
 include_once(APP_INC_PATH . "class.origami.php");
@@ -70,6 +71,7 @@ if($isAdministrator)
 {
     $affilliations = AuthorAffiliations::getListAll($pid);
     $tpl->assign('affilliations', $affilliations);
+    $tpl->assign("internal_notes", InternalNotes::readNote($pid));
 }
 $tpl->assign('spyglasshref', $spyglasshref);
 $tpl->assign('spyglassclick', $spyglassclick);
