@@ -259,7 +259,18 @@ class XSD_HTML_Match
 					foreach ($xsdmf_details as $xsdmf) {
 						if ($xsdmf['xsdmf_enabled'] == 1) {
 							//						echo "here: ".$xsdmf['xsdmf_id'].$xsdmf['xsdmf_xpath']."<br />";
-							$fieldNodeList = $xpath->query($xsdmf['xsdmf_xpath']);
+
+              //Workaround for authors elements that don't yet have an ID attribute for historical reasons
+              $name_id = false;
+              $xsdmf_xpath = $xsdmf['xsdmf_xpath'];
+
+              if (preg_match("/\/mods:mods\/mods:name\[mods:role\/mods:roleTerm = '.*'\]\/@ID/", $xsdmf_xpath)) {
+                $name_id = true;
+                $xsdmf_xpath = substr($xsdmf_xpath, 0, strrpos($xsdmf_xpath, "/@ID"));
+
+              }
+
+							$fieldNodeList = $xpath->query($xsdmf_xpath);
 							//$fieldNodeList = $xpath->query("/mods:mods/mods:subject/@ID");
 							//$fieldNodeList = $xpath->query("/mods:mods/mods:subject");
 							//$fieldNodeList = $xpath->query("/mods/subject");
@@ -272,19 +283,32 @@ class XSD_HTML_Match
 									 $xsdmf_array[$xsdmf['xsdmf_id']][] = $fieldNode->nodeValue;
 									 } else {*/
 //									$log->debug("XPATH fieldnode value: ".$fieldNode)
+
+                  $nodeValue = $fieldNode->nodeValue;
+
+                  if ($name_id == true) {
+                    $nodeValue = '0'; //preset the ID to 0 so it at least fills the array
+                    $attribs = $fieldNode->attributes;
+                    foreach ($attribs as $attr_name => $attr_value) {
+                      if ($attr_name == "ID") {
+                        $nodeValue = $attr_value->value;
+                      }
+                    }
+                  }
+
 									if ($xsdmf['xsdmf_value_prefix'] != "") { //strip off stuff like info:fedora/ in rels-ext ismemberof @resource values
-										$fieldNode->nodeValue = str_replace($xsdmf['xsdmf_value_prefix'], "", $fieldNode->nodeValue);
+										$nodeValue = str_replace($xsdmf['xsdmf_value_prefix'], "", $nodeValue);
 									}
-									if ((!empty($fieldNode->nodeValue) && $fieldNode->nodeValue != "") || $fieldNode->nodeValue === '0') {
+									if ((!empty($nodeValue) && $nodeValue != "") || $nodeValue === '0') {
 										if (isset($xsdmf_array[$xsdmf['xsdmf_id']])) {
 											if (!is_array($xsdmf_array[$xsdmf['xsdmf_id']])) {
 												$temp_val =	$xsdmf_array[$xsdmf['xsdmf_id']];
 												$xsdmf_array[$xsdmf['xsdmf_id']] = array();
 												array_push($xsdmf_array[$xsdmf['xsdmf_id']], $temp_val);
 											}
-											array_push($xsdmf_array[$xsdmf['xsdmf_id']], $fieldNode->nodeValue);
+											array_push($xsdmf_array[$xsdmf['xsdmf_id']], $nodeValue);
 										} else {
-											$xsdmf_array[$xsdmf['xsdmf_id']] = $fieldNode->nodeValue;
+											$xsdmf_array[$xsdmf['xsdmf_id']] = $nodeValue;
 										}
 									}
 
