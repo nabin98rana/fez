@@ -679,6 +679,14 @@ function restoreDefaultColours(el)
 			  {include file="error_icon.tpl.html" field="app_wheel_group"}
 			</td>
   		  </tr>
+  		  <tr>
+            <th>Background Process Poll Interval</th>
+            <td>
+              <input type="text" name="app_bg_poll_int" value="{$config_settings.app_bg_poll_int|escape:"html"}" size="30" />
+              <br />The interval at which the AJAX background process display in the main menu polls for new data.
+              {include file="error_icon.tpl.html" field="app_wheel_group"}
+            </td>
+          </tr>
   		  </tbody>
 		</table>
 		</div>

@@ -2283,3 +2283,36 @@ a.author_id_link:hover {
 .upo-staff-active {
     background: #ffffe5;
 }
+
+#topnav ul li#bgps{
+    margin-left:-7px;
+}
+
+#topnav ul li#bgps a{
+    margin-left:0;
+    padding:0;
+    background:none;
+    background-color:#000;
+    border:none;
+}
+
+#bgpsReceptacle table tr td{
+    background-color:#666;
+    padding:5px;
+}
+
+#bgpsReceptacle table tr th{
+    color:#666;
+}
+
+#topnav ul li a#bgpsClose, 
+#topnav ul li a#bgpsClose:hover{
+    cursor:pointer;
+    background:none;
+    background-color:#999;
+    color:#FFF;
+    font-weight:bold;
+    height:12px;
+    width:40px;
+    display:block;
+}

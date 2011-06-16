@@ -288,6 +288,7 @@ class Default_Data
 		$defaultData['wok_password']                        = "";
 		$defaultData['wok_batch_size']                      = "50";
 		$defaultData['wok_seconds_between_calls']           = "300";
+		$defaultData['app_bg_poll_int']                     = "20";
 		
 		return $defaultData;
 	}

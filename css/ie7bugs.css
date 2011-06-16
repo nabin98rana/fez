@@ -9,7 +9,7 @@
 #topnav { padding: 0px; margin: 0px; }
 #topnav ul { padding: 0px; margin: 0 0 0 20px;}
 #topnav ul li a { margin: 0px; padding: 0px; }
-#topnav ul li { margin: 0 30px 0 0; padding: 10px 5px 0px; float: left; display: block; height: 23px;}
+#topnav ul li { margin: 0 25px 0 0; padding: 10px 5px 0px; float: left; display: block; height: 23px;}
 #topnav ul li:hover { background: transparent url('../images/2009/top_nav_bg_active_IE.gif') repeat-x scroll right top; }
 #topnav li a:hover { background: none !important; color: rgb(245, 225, 255); text-decoration: none; }
 
