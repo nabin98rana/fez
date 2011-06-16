@@ -67,7 +67,10 @@ if ($access_ok) {
 		}
 	}
 	$listAll = MainChapter::getListAll($pid);
+	$orphaned = MainChapter::getListOrphans($pid);
+	
 	$tpl->assign("list", $listAll);
+	$tpl->assign("orphans", $orphaned);
 	$list_keyed = Misc::keyArray($listAll, 'af_id');
 	$tpl->assign("cycle_colours", "#" . APP_CYCLE_COLOR_TWO . ",#FFFFFF");
 	$tpl->assign(compact('list','authors','author_ids','wf_id'));

@@ -410,6 +410,38 @@ class Workflow
 		return $res;
 	}
 
+
+    /**
+	 * Method used to get the workflow ID of workflow by its title.
+	 *
+	 * @access  public
+	 * @param   string $wfl_title The workflow title
+	 * @return  array The custom field details
+	 */
+	function getWorkflowIDByTitle($wfl_title)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		$stmt = "SELECT
+		            wfl_id
+                FROM
+                    " . APP_TABLE_PREFIX . "workflow
+                WHERE
+                    wfl_title = " . $db->quote($wfl_title);
+                    
+		try {
+			$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return '';
+		}
+
+		return $res['wfl_id'];
+	}
+
+
 	/**
 	 * starts a workflow running.
 	 * @param string pid the PID of the record that workflow runs on.

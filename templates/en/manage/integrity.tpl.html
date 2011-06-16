@@ -5,40 +5,55 @@
 	<h1>HERDC Record Integrity Report</h1>
 
     <div>
-
-		{section name="jj" loop=$orphaned_affiliations}
-		  {if $smarty.section.jj.first}<h3><img src="{$rel_url}images/redled.png" alt="Problem" /> Orphaned author affiliations</h3><table style="width: 100%">{/if}
-		  <tr style="background: {cycle values="$cycle_colours"}">
-			<td style="width: 100px">{$orphaned_affiliations[jj].af_pid}</td>
-			<td><a href="../view/{$orphaned_affiliations[jj].af_pid}" onclick="javascript:window.open('../view/{$orphaned_affiliations[jj].af_pid}'); return false;">{$orphaned_affiliations[jj].rek_title}</a></td>
-		  </tr>
-		  {if $smarty.section.jj.last}</table>{/if}
-		  {sectionelse}
-		  <p><img src="{$rel_url}images/tick_16.png" alt="OK" /> No orphaned affiliations found.</p>
-		{/section}
-
-		<br />
-
+    
 		{section name="ii" loop=$bad_sums}
-		  {if $smarty.section.ii.first}<h3><img src="{$rel_url}images/redled.png" alt="Problem" /> Non-summing author affiliations</h3><table style="width: 100%">{/if}
+		  {if $smarty.section.ii.first}<h3><img src="{$rel_url}images/redled.png" alt="Problem" /> Non-summing author affiliations</h3>
+		  <p>These records have one or more affiliations that don't sum to the requisite 100%.</p>
+		  <table style="width: 100%">{/if}
 		  <tr style="background: {cycle values="$cycle_colours"}">
 			<td style="width: 100px">{$bad_sums[ii].af_pid}</td>
-			<td><a href="../view/{$bad_sums[ii].af_pid}" onclick="javascript:window.open('../view/{$bad_sums[ii].af_pid}'); return false;">{$bad_sums[ii].rek_title}</a></td>
+			<td><a href="{$rel_url}workflow/update.php?pid={$bad_sums[ii].af_pid}&amp;cat=select_workflow&amp;xdis_id={$bad_sums[ii].rek_display_type}&amp;wft_id={$author_affiliations_wf_details.wft_id}&amp;href={$rel_url}view/{$bad_sums[ii].af_pid}" onclick="javascript:window.open('{$rel_url}workflow/update.php?pid={$bad_sums[ii].af_pid}&amp;cat=select_workflow&amp;xdis_id={$bad_sums[ii].rek_display_type}&amp;wft_id={$author_affiliations_wf_details.wft_id}&amp;href={$rel_url}view/{$bad_sums[ii].af_pid}'); return false;">
+			<img src="{$rel_url}{$author_affiliations_wf_details.wft_icon}" alt="Edit Affiliations" title="Edit Affiliations" />
+			</a></td>
+			<td><a href="{$rel_url}view/{$bad_sums[ii].af_pid}" onclick="javascript:window.open('{$rel_url}view/{$bad_sums[ii].af_pid}'); return false;">{$bad_sums[ii].rek_title}</a></td>
 		  </tr>
 		  {if $smarty.section.ii.last}</table>{/if}
 		  {sectionelse}
 		  <p><img src="{$rel_url}images/tick_16.png" alt="OK" /> All affiliation percentages summed correctly.</p>
 		{/section}
+
+		<br />
+
+		{section name="jj" loop=$orphaned_affiliations}
+		  {if $smarty.section.jj.first}<h3><img src="{$rel_url}images/redled.png" alt="Problem" /> Orphaned author affiliations</h3>
+		  <p>These records have affiliations recorded against authors that are no longer attached to the publication. You can remove or update these affiliations by using the Edit Affiliation workflow.</p>
+		  <table style="width: 100%">{/if}
+		  <tr style="background: {cycle values="$cycle_colours"}">
+			<td style="width: 100px">{$orphaned_affiliations[jj].af_pid}</td>
+			<td><a href="{$rel_url}workflow/update.php?pid={$orphaned_affiliations[jj].af_pid}&amp;cat=select_workflow&amp;xdis_id={$orphaned_affiliations[jj].rek_display_type}&amp;wft_id={$author_affiliations_wf_details.wft_id}&amp;href={$rel_url}view/{$orphaned_affiliations[jj].af_pid}" onclick="javascript:window.open('{$rel_url}workflow/update.php?pid={$orphaned_affiliations[jj].af_pid}&amp;cat=select_workflow&amp;xdis_id={$orphaned_affiliations[jj].rek_display_type}&amp;wft_id={$author_affiliations_wf_details.wft_id}&amp;href={$rel_url}view/{$orphaned_affiliations[jj].af_pid}'); return false;">
+			<img src="{$rel_url}{$author_affiliations_wf_details.wft_icon}" alt="Edit Affiliations" title="Edit Affiliations" />
+			</a></td>
+			<td><a href="{$rel_url}view/{$orphaned_affiliations[jj].af_pid}" onclick="javascript:window.open('{$rel_url}view/{$orphaned_affiliations[jj].af_pid}'); return false;">{$orphaned_affiliations[jj].rek_title}</a></td>
+		  </tr>
+		  {if $smarty.section.jj.last}</table>{/if}
+		  {sectionelse}
+		  <p><img src="{$rel_url}images/tick_16.png" alt="OK" /> No orphaned affiliations found.</p>
+		{/section}
 		
 		<br />
 
-		{section name="ii" loop=$orphaned_main_chapters}
-		  {if $smarty.section.ii.first}<h3><img src="{$rel_url}images/redled.png" alt="Problem" /> Orphaned main chapter registrations</h3><table style="width: 100%">{/if}
+		{section name="kk" loop=$orphaned_main_chapters}
+		  {if $smarty.section.kk.first}<h3><img src="{$rel_url}images/redled.png" alt="Problem" /> Orphaned main chapter registrations</h3>
+		  <p>These records have main chapter registrations recorded against authors that are no longer on the publication. You can remove or update these registrations by using the Register Main Chapter workflow.</p>
+		  <table style="width: 100%">{/if}
 		  <tr style="background: {cycle values="$cycle_colours"}">
-			<td style="width: 100px">{$orphaned_main_chapters[ii].mc_pid}</td>
-			<td><a href="../view/{$orphaned_main_chapters[ii].mc_pid}" onclick="javascript:window.open('../view/{$orphaned_main_chapters[ii].mc_pid}'); return false;">{$orphaned_main_chapters[ii].rek_title}</a></td>
+			<td style="width: 100px">{$orphaned_main_chapters[kk].mc_pid}</td>
+			<td><a href="{$rel_url}workflow/update.php?pid={$orphaned_main_chapters[kk].mc_pid}&amp;cat=select_workflow&amp;xdis_id={$orphaned_main_chapters[kk].rek_display_type}&amp;wft_id={$main_chapter_registration_wf_details.wft_id}&amp;href={$rel_url}view/{$orphaned_main_chapters[kk].af_pid}" onclick="javascript:window.open('{$rel_url}workflow/update.php?pid={$orphaned_main_chapters[kk].mc_pid}&amp;cat=select_workflow&amp;xdis_id={$orphaned_main_chapters[kk].rek_display_type}&amp;wft_id={$main_chapter_registration_wf_details.wft_id}&amp;href={$rel_url}view/{$orphaned_main_chapters[kk].af_pid}'); return false;">
+			<img src="{$rel_url}{$main_chapter_registration_wf_details.wft_icon}" alt="Edit Main Chapter Registrations" title="Edit Main Chapter Registrations" />
+			</a></td>
+			<td><a href="{$rel_url}view/{$orphaned_main_chapters[kk].mc_pid}" onclick="javascript:window.open('{$rel_url}view/{$orphaned_main_chapters[kk].mc_pid}'); return false;">{$orphaned_main_chapters[kk].rek_title}</a></td>
 		  </tr>
-		  {if $smarty.section.ii.last}</table>{/if}
+		  {if $smarty.section.kk.last}</table>{/if}
 		  {sectionelse}
 		  <p><img src="{$rel_url}images/tick_16.png" alt="OK" /> No orphaned main chapter reigistrations found.</p>
 		{/section}

@@ -456,12 +456,11 @@ class AuthorAffiliations
 		$log = FezLog::get();
 		$db = DB_API::get();
 
-		$stmt = "SELECT af_pid, rek_title FROM ". APP_TABLE_PREFIX ."author_affiliation af " .
+		$stmt = "SELECT af_pid, rek_display_type, rek_title FROM ". APP_TABLE_PREFIX ."author_affiliation af " .
 			"LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id ON rek_author_id_pid = af_pid " .
 			"AND af_author_id = rek_author_id " .
 			"INNER JOIN " . APP_TABLE_PREFIX . "record_search_key ON rek_pid = af_pid " .
 			"WHERE rek_author_id_pid IS NULL ";
-
 		try {
 			$res = $db->fetchAll($stmt);
 		}

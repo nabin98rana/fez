@@ -64,7 +64,7 @@ class MainChapter
 					AND rek_author_id != 0
 					)
 				ORDER BY t1.aut_display_name";
-
+		
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
@@ -74,9 +74,49 @@ class MainChapter
 		}
 		return $res;
 	}
-
-
-
+	
+	
+	
+	/**
+	 * Retrieves a list of all orphaned authors attached to the current document.
+	 * 
+	 * @access  public
+	 * @param   integer $pid The PID of the document
+	 * @return  array The list of authors
+	 */
+	function getListOrphans($pid)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+		
+		$stmt = "
+				SELECT mc_author_id AS aut_id,
+					aut_display_name,
+					mc_status
+				FROM " . APP_TABLE_PREFIX . "main_chapter
+				LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id
+					ON mc_author_id = rek_author_id
+					AND rek_author_id_pid = " . $db->quote($pid) . " 
+				LEFT JOIN " . APP_TABLE_PREFIX . "author
+					ON mc_author_id = aut_id
+				WHERE 
+					rek_author_id IS NULL
+					AND mc_pid = " . $db->quote($pid) . " 
+				;
+				";
+		
+		try {
+			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return array();
+		}
+		return $res;
+	}
+	
+	
+	
 	/**
 	 * Destroys all existing main chapter registrations for a given PID. Typically invoked immediately
 	 * before writing out new values.
@@ -152,7 +192,7 @@ class MainChapter
 		$log = FezLog::get();
 		$db = DB_API::get();
 		
-		$stmt = "SELECT DISTINCT(mc_pid), rek_title " .
+		$stmt = "SELECT DISTINCT(mc_pid), rek_display_type, rek_title " .
 				"FROM " . APP_TABLE_PREFIX . "main_chapter AS t1, " . APP_TABLE_PREFIX . "record_search_key " .
 				"WHERE mc_author_id NOT IN " .
 				"(SELECT rek_author_id " .

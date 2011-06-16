@@ -38,6 +38,7 @@ include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.author_affiliations.php");
 include_once(APP_INC_PATH . "class.main_chapter.php");
+include_once(APP_INC_PATH . "class.workflow.php");
 include_once(APP_INC_PATH . "class.db_api.php");
 
 $tpl = new Template_API();
@@ -60,10 +61,20 @@ $tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 
 if ($isAdministrator) {
     if (@$_POST["action"] == "report") {
+    	$eaaWorkflowID = Workflow::getWorkflowIDByTitle('Edit Author Affiliations');
+    	$eaaWorkflowTriggerDetails = WorkflowTrigger::getListByWorkflow($eaaWorkflowID);
+        $eaaWorkflowTriggerDetails = $eaaWorkflowTriggerDetails[0];
+        
+        $mcrWorkflowID = Workflow::getWorkflowIDByTitle('Register Main Chapter');
+        $mcrWorkflowTriggerDetails = WorkflowTrigger::getListByWorkflow($mcrWorkflowID);
+        $mcrWorkflowTriggerDetails = $mcrWorkflowTriggerDetails[0];
+        
 		$tpl->assign("action", "report");
 		$tpl->assign("orphaned_affiliations", AuthorAffiliations::getOrphanedAffiliationsAll());
 		$tpl->assign("bad_sums", AuthorAffiliations::getBadSums());
 		$tpl->assign("orphaned_main_chapters", MainChapter::getOrphanedMainChaptersAll());
+		$tpl->assign("author_affiliations_wf_details", $eaaWorkflowTriggerDetails);
+        $tpl->assign("main_chapter_registration_wf_details", $mcrWorkflowTriggerDetails);
     } else {
 		$tpl->assign("action", "prompt");
 	}

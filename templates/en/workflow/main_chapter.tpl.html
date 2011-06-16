@@ -24,13 +24,25 @@ function validateForm(f) {
 	<input type="hidden" name="af_id" value="{$current.af_id}"/>
 
 	{section name='ii' loop=$list}
-	{if $smarty.section.ii.first}<h3>Tick to register an author</h3><table class="default" style="border-collapse: collapse; padding: 5px; margin: 0;">{/if}
+	{if $smarty.section.ii.first}<h3>Tick to register an author</h3><table class="default" style="border-collapse: collapse; padding: 5px; margin: 0; width: 100%;">{/if}
       <tr bgcolor="{cycle values="$cycle_colours"}">
-        <td width="350"><input type="checkbox" name="author_id[]" value="{$list[ii].aut_id}" {if $list[ii].mc_status !== null}checked{/if}/> {$list[ii].aut_display_name}</td>
+        <td><input type="checkbox" name="author_id[]" value="{$list[ii].aut_id}" {if $list[ii].mc_status !== null}checked{/if}/> {$list[ii].aut_display_name}</td>
       </tr>
       {if $smarty.section.ii.last}<tr><td><br /><input type="submit" name="save" value="Save" class="button" onclick="javascript:validateForm(this);" /></td></tr></table>{/if}
     {sectionelse}
 	<p>No authors are attached to this record.</p>
+	{/section}
+	
+	<br />
+	
+	{section name='jj' loop=$orphans}
+	{if $smarty.section.jj.first}<h3>Orphaned authors</h3>
+	<p>The authors listed below previously had main chapter registrations attached to them, but not longer appear as authors on the record. You must untick these authors to correct the problem. Transfer the ticks to the appropriate author in the above list if necessary.</p>
+	<table class="default" style="border-collapse: collapse; padding: 5px; margin: 0; width: 100%;">{/if}
+      <tr bgcolor="{cycle values="$cycle_colours"}">
+        <td style="background: red;"><input type="checkbox" name="author_id[]" value="{$orphans[jj].aut_id}" {if $orphans[jj].mc_status !== null}checked{/if}/> {$orphans[jj].aut_display_name}</td>
+      </tr>
+      {if $smarty.section.jj.last}<tr><td><br /><input type="submit" name="save" value="Save" class="button" onclick="javascript:validateForm(this);" /></td></tr></table>{/if}
 	{/section}
 
 	</div>
