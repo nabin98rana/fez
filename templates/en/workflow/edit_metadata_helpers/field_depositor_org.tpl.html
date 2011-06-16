@@ -10,7 +10,7 @@
 				{assign var="field_name" value=$field_name|cat:"[]"}
 			{/if}
 			<select {if $xsdmf.xsdmf_html_input == 'multiple'}multiple size="8"{/if} class="default" name="{$field_name}">
-			  {if $xsdmf.xsdmf_html_input != 'multiple'}<option value="-1"></option>{/if}
+			  {if $xsdmf.xsdmf_html_input != 'multiple'}<option value=""></option>{/if}
 			  {html_options options=$xsdmf.field_options selected=$details[$temp_fld_id]}
 			</select>
 			{if $default_depositor_org_id == 1}This value has not yet been saved. Please ensure the appropriate org unit for this record submission is set. You need to save this form for this value to be properly set.{/if}

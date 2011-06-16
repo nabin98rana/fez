@@ -13,7 +13,7 @@
 			<select id="xsd_display_fields_{$xsdmf.xsdmf_id}_0" name=$field_name
 		    	{if $xsdmf.xsdmf_use_org_to_fill == 1}onChange="javascript: selectOrgStructure_{$xsdmf.xsdmf_id}(this.form, 'xsd_display_fields[{$xsdmf.xsdmf_id}]')"{/if} 
 		    	{if $xsdmf.xsdmf_multiple == 1}multiple size="8"{/if} class="default"  >
-					{if $xsdmf.xsdmf_multiple != 1}<option value="-1">Please choose an option</option>{/if}
+					{if $xsdmf.xsdmf_multiple != 1}<option value="">Please choose an option</option>{/if}
 					{html_options options=$xsdmf.field_options selected=$details[$temp_fld_id]}
 			</select>
 			{include file="error_icon.tpl.html" field=$field_name}

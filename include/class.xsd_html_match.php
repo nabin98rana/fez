@@ -299,7 +299,7 @@ class XSD_HTML_Match
 									if ($xsdmf['xsdmf_value_prefix'] != "") { //strip off stuff like info:fedora/ in rels-ext ismemberof @resource values
 										$nodeValue = str_replace($xsdmf['xsdmf_value_prefix'], "", $nodeValue);
 									}
-									if ((!empty($nodeValue) && $nodeValue != "") || $nodeValue === '0') {
+									if (((!empty($nodeValue) && $nodeValue != "") || $nodeValue === '0') && $nodeValue != '-1') {
 										if (isset($xsdmf_array[$xsdmf['xsdmf_id']])) {
 											if (!is_array($xsdmf_array[$xsdmf['xsdmf_id']])) {
 												$temp_val =	$xsdmf_array[$xsdmf['xsdmf_id']];
