@@ -5,4 +5,4 @@ CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%link_status_reports (
   PRIMARY KEY (lsr_url)
 );
 
-CREATE UNIQUE INDEX idx_lsr_url ON %TABLE_PREFIX%link_status_reports (lsr_url);
+/*CREATE UNIQUE INDEX idx_lsr_url ON %TABLE_PREFIX%link_status_reports (lsr_url);*/
