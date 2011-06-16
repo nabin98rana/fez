@@ -102,7 +102,29 @@ value_color = '{$value_color}';
 {if $include_stats_map == 1 && APP_USE_GOOGLE_MAP_SWITCH == 'ON'}
 {include file="stats_map.javascript_include.tpl.html"}
 {/if}
+
 -->
+
+</script>
+
+{if $isAdministrator}
+
+<script type="text/javascript" src="{$rel_url}js/backgroundpsdisplay.js"></script>
+
+<script type="text/javascript">
+
+var config = {ldelim}pollInt:{$app_bg_poll_int}{rdelim};
+bgProc = new Bgps(config);
+
+if(typeof(NajaxBackgroundProcessList) !== 'undefined')
+{ldelim}
+    bgProc.addEvt(window, 'load', bgProc.bgpsStats);
+    bgProc.addEvt(window, 'load', bgProc.addBgClick);
+    /*bgProc.addEvt(window, 'load', bgProc.addBgHover);*/
+    bgProc.addEvt(window, 'load', bgProc.pollBgProcs);
+{rdelim}
+
+{/if}
 
 </script>
 

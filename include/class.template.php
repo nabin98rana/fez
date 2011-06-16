@@ -54,6 +54,7 @@ require_once(APP_INC_PATH . "class.setup.php");
 //require_once(APP_INC_PATH . "najax_classes.php");
 require_once(APP_INC_PATH . "najax/najax.php");
 include_once(APP_INC_PATH . "najax_objects/class.session.php");
+include_once(APP_INC_PATH . 'najax_objects/class.background_process_list.php');
 
 class Template_API
 {
@@ -239,6 +240,8 @@ class Template_API
             $this->assign("current_full_name", Auth::getUserFullName());
             $this->assign("current_email", Auth::getUserEmail());
             $this->assign("current_user_id", Auth::getUserID());
+            $this->registerNajax( NAJAX_Client::register('NajaxBackgroundProcessList', APP_RELATIVE_URL.'najax_services/generic.php'));
+            $this->assign("app_bg_poll_int", APP_BG_POLL_INT);
         }
 
 		$isAdministrator = Auth::isAdministrator();

@@ -48,6 +48,7 @@ include_once(APP_INC_PATH . "class.origami.php");
 include_once(APP_PEAR_PATH . "Date.php");
 include_once(APP_INC_PATH . "class.bookreaderimplementation.php");
 include_once(APP_INC_PATH . "class.author_affiliations.php");
+//include_once(APP_INC_PATH . 'najax_objects/class.background_process_list.php');
 
 $username = Auth::getUsername();
 $isAdministrator = Auth::isAdministrator(); 
@@ -75,6 +76,8 @@ if($isAdministrator)
 }
 $tpl->assign('spyglasshref', $spyglasshref);
 $tpl->assign('spyglassclick', $spyglassclick);
+
+//$tpl->registerNajax( NAJAX_Client::register('NajaxBackgroundProcessList', APP_RELATIVE_URL.'najax_services/generic.php'));
 
 $tpl->assign("fez_root_dir", APP_PATH);
 $tpl->assign("eserv_url", APP_BASE_URL."eserv/".$pid."/");

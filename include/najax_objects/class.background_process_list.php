@@ -21,11 +21,47 @@ class NajaxBackgroundProcessList {
         $result = BackgroundProcessList::getLog($bgp_id);
         return nl2br(htmlspecialchars(wordwrap($result, 70, "\n", true)));
     }
+    
+    function getUserBgProcs()
+    {
+        $runningProcs = array();
+        $bgpsCount = 0;
+        $returndata = array();
+        $bgList = new BackgroundProcessList();
+        $list = $bgList->getList(Auth::getUserID());
+        $returndata['proclist'] = array();
+        
+        foreach($list as $lItem)
+        {
+            if($lItem['bgp_state'] == 1)
+            {
+                $bgpsCount++;
+            }
+            
+            if($lItem['bgp_state'] == 1)
+            {
+                $returndata['proclist'][] = $lItem;
+            }
+        }
+        
+        $returndata['bgpsCount'] = $bgpsCount; 
+        
+        if($bgpsCount)
+        {
+            $returndata['hgImg'] = "bgps_running.png";
+        }
+        else
+        {
+            $returndata['hgImg'] = "bgps_stat.png";
+        }
+        
+        return $returndata;
+    }
 
     
     function najaxGetMeta()
     {
-        NAJAX_Client::mapMethods($this, array('getDetails','getLog' ));
-        NAJAX_Client::publicMethods($this, array('getDetails','getLog'));
+        NAJAX_Client::mapMethods($this, array('getDetails','getLog', 'getUserBgProcs' ));
+        NAJAX_Client::publicMethods($this, array('getDetails','getLog', 'getUserBgProcs'));
     }
 }
