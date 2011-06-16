@@ -12,7 +12,7 @@
 		  <table style="width: 100%">{/if}
 		  <tr style="background: {cycle values="$cycle_colours"}">
 			<td style="width: 100px">{$bad_sums[ii].af_pid}</td>
-			<td><a href="{$rel_url}workflow/update.php?pid={$bad_sums[ii].af_pid}&amp;cat=select_workflow&amp;xdis_id={$bad_sums[ii].rek_display_type}&amp;wft_id={$author_affiliations_wf_details.wft_id}&amp;href={$rel_url}view/{$bad_sums[ii].af_pid}" onclick="javascript:window.open('{$rel_url}workflow/update.php?pid={$bad_sums[ii].af_pid}&amp;cat=select_workflow&amp;xdis_id={$bad_sums[ii].rek_display_type}&amp;wft_id={$author_affiliations_wf_details.wft_id}&amp;href={$rel_url}view/{$bad_sums[ii].af_pid}'); return false;">
+			<td style="width: 30px"><a href="{$rel_url}workflow/update.php?pid={$bad_sums[ii].af_pid}&amp;cat=select_workflow&amp;xdis_id={$bad_sums[ii].rek_display_type}&amp;wft_id={$author_affiliations_wf_details.wft_id}&amp;href={$rel_url}view/{$bad_sums[ii].af_pid}" onclick="javascript:window.open('{$rel_url}workflow/update.php?pid={$bad_sums[ii].af_pid}&amp;cat=select_workflow&amp;xdis_id={$bad_sums[ii].rek_display_type}&amp;wft_id={$author_affiliations_wf_details.wft_id}&amp;href={$rel_url}view/{$bad_sums[ii].af_pid}'); return false;">
 			<img src="{$rel_url}{$author_affiliations_wf_details.wft_icon}" alt="Edit Affiliations" title="Edit Affiliations" />
 			</a></td>
 			<td><a href="{$rel_url}view/{$bad_sums[ii].af_pid}" onclick="javascript:window.open('{$rel_url}view/{$bad_sums[ii].af_pid}'); return false;">{$bad_sums[ii].rek_title}</a></td>
@@ -30,7 +30,7 @@
 		  <table style="width: 100%">{/if}
 		  <tr style="background: {cycle values="$cycle_colours"}">
 			<td style="width: 100px">{$orphaned_affiliations[jj].af_pid}</td>
-			<td><a href="{$rel_url}workflow/update.php?pid={$orphaned_affiliations[jj].af_pid}&amp;cat=select_workflow&amp;xdis_id={$orphaned_affiliations[jj].rek_display_type}&amp;wft_id={$author_affiliations_wf_details.wft_id}&amp;href={$rel_url}view/{$orphaned_affiliations[jj].af_pid}" onclick="javascript:window.open('{$rel_url}workflow/update.php?pid={$orphaned_affiliations[jj].af_pid}&amp;cat=select_workflow&amp;xdis_id={$orphaned_affiliations[jj].rek_display_type}&amp;wft_id={$author_affiliations_wf_details.wft_id}&amp;href={$rel_url}view/{$orphaned_affiliations[jj].af_pid}'); return false;">
+			<td style="width: 30px"><a href="{$rel_url}workflow/update.php?pid={$orphaned_affiliations[jj].af_pid}&amp;cat=select_workflow&amp;xdis_id={$orphaned_affiliations[jj].rek_display_type}&amp;wft_id={$author_affiliations_wf_details.wft_id}&amp;href={$rel_url}view/{$orphaned_affiliations[jj].af_pid}" onclick="javascript:window.open('{$rel_url}workflow/update.php?pid={$orphaned_affiliations[jj].af_pid}&amp;cat=select_workflow&amp;xdis_id={$orphaned_affiliations[jj].rek_display_type}&amp;wft_id={$author_affiliations_wf_details.wft_id}&amp;href={$rel_url}view/{$orphaned_affiliations[jj].af_pid}'); return false;">
 			<img src="{$rel_url}{$author_affiliations_wf_details.wft_icon}" alt="Edit Affiliations" title="Edit Affiliations" />
 			</a></td>
 			<td><a href="{$rel_url}view/{$orphaned_affiliations[jj].af_pid}" onclick="javascript:window.open('{$rel_url}view/{$orphaned_affiliations[jj].af_pid}'); return false;">{$orphaned_affiliations[jj].rek_title}</a></td>
@@ -48,7 +48,7 @@
 		  <table style="width: 100%">{/if}
 		  <tr style="background: {cycle values="$cycle_colours"}">
 			<td style="width: 100px">{$orphaned_main_chapters[kk].mc_pid}</td>
-			<td><a href="{$rel_url}workflow/update.php?pid={$orphaned_main_chapters[kk].mc_pid}&amp;cat=select_workflow&amp;xdis_id={$orphaned_main_chapters[kk].rek_display_type}&amp;wft_id={$main_chapter_registration_wf_details.wft_id}&amp;href={$rel_url}view/{$orphaned_main_chapters[kk].af_pid}" onclick="javascript:window.open('{$rel_url}workflow/update.php?pid={$orphaned_main_chapters[kk].mc_pid}&amp;cat=select_workflow&amp;xdis_id={$orphaned_main_chapters[kk].rek_display_type}&amp;wft_id={$main_chapter_registration_wf_details.wft_id}&amp;href={$rel_url}view/{$orphaned_main_chapters[kk].af_pid}'); return false;">
+			<td style="width: 30px"><a href="{$rel_url}workflow/update.php?pid={$orphaned_main_chapters[kk].mc_pid}&amp;cat=select_workflow&amp;xdis_id={$orphaned_main_chapters[kk].rek_display_type}&amp;wft_id={$main_chapter_registration_wf_details.wft_id}&amp;href={$rel_url}view/{$orphaned_main_chapters[kk].af_pid}" onclick="javascript:window.open('{$rel_url}workflow/update.php?pid={$orphaned_main_chapters[kk].mc_pid}&amp;cat=select_workflow&amp;xdis_id={$orphaned_main_chapters[kk].rek_display_type}&amp;wft_id={$main_chapter_registration_wf_details.wft_id}&amp;href={$rel_url}view/{$orphaned_main_chapters[kk].af_pid}'); return false;">
 			<img src="{$rel_url}{$main_chapter_registration_wf_details.wft_icon}" alt="Edit Main Chapter Registrations" title="Edit Main Chapter Registrations" />
 			</a></td>
 			<td><a href="{$rel_url}view/{$orphaned_main_chapters[kk].mc_pid}" onclick="javascript:window.open('{$rel_url}view/{$orphaned_main_chapters[kk].mc_pid}'); return false;">{$orphaned_main_chapters[kk].rek_title}</a></td>
