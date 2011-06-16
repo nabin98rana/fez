@@ -2054,9 +2054,9 @@ class Record
       $res = Auth::getIndexAuthCascade($res);
 
       foreach ($res as $key => $rec) {
-        if ($res[$key]['rek_display_type_lookup'] != "") {
-          $res[$key]['rek_coin'] = Misc::OpenURL($rec);
-        }
+//        if ($res[$key]['rek_display_type_lookup'] != "") {
+//          $res[$key]['rek_coin'] = Misc::OpenURL($rec);
+//        }
         if ($res[$key]['thumbnail'][0] != "") {
           $thumb_counter++;
         }

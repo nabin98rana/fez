@@ -462,7 +462,7 @@ class Search_Key
         $log = FezLog::get();
         $db = DB_API::get();
 
-        if (strpos($db_name, 'rek_')) {
+        if (strpos($db_name, 'rek_') === 0) {
             $db_name = str_replace('rek_', '', $db_name);
         }
 
