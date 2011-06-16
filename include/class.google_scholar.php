@@ -138,11 +138,8 @@ class Google_Scholar
 		//	        $gs = (file_get_contents($url));
 
 		
-        // Todo: move $interface into config table...
-		// uncomment and change depending on how many IPs/interfaces you have bound to the server that you want to use
+		$interface = array(APP_NETWORK_INTERFACES); 
 
-        //$interface = array("eth0");
-		$interface = array("eth0", "eth0:0", "eth0:1", "eth0:2", "eth0:3");
 
 		if (!is_numeric($last_random)) {
 			 $last_random = rand(0, (count($interface)-1));

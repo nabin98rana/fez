@@ -278,7 +278,9 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 					$log->err($ex);
 				}			
 				foreach ($resultSeks as $resultSek) {
-					$tmpArr[$resultSek['pid']] = $resultSek['value'];
+          if ($resultSek['value'] != '-1') {
+					  $tmpArr[$resultSek['pid']] = $resultSek['value'];
+          }
 				}
 				 
 				foreach ($csv as $rek_pid => $rek_line) {
@@ -344,7 +346,9 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 						$log->err($ex);
 					}			
 					foreach ($resultSeks as $resultSek) {
-						$tmpArr[$resultSek['pid']] = $resultSek['value'];
+            if ($resultSek['value'] != '-1') {
+						  $tmpArr[$resultSek['pid']] = $resultSek['value'];
+            }
 					}
 
 					foreach ($csv as $rek_pid => $rek_line) {

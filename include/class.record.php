@@ -76,6 +76,7 @@ include_once(APP_INC_PATH . "class.record_object.php");
 include_once(APP_INC_PATH . "class.record_general.php");
 include_once(APP_INC_PATH . "class.validation.php");
 include_once(APP_INC_PATH . "class.links_amr_queue.php");
+include_once(APP_INC_PATH . "class.internal_notes.php");
 
 define('SK_JOIN', 0);
 define('SK_LEFT_JOIN', 1);
@@ -1801,7 +1802,8 @@ class Record
             Record::getSearchKeysByPIDS($res);
 						if (APP_MY_RESEARCH_MODULE == 'ON') {
 						  $res = Record::getResearchDetailsbyPIDS($res, $getAuthorMatching);
-						} 
+						}
+            InternalNotes::readNotes($res);
           }
           Record::identifyThumbnails($res, $citationCache);
           Record::getAuthWorkflowsByPIDS($res, $usr_id);
@@ -2035,7 +2037,8 @@ class Record
           Record::getSearchKeysByPIDS($res);
 					if (APP_MY_RESEARCH_MODULE == 'ON') {
 					  $res = Record::getResearchDetailsbyPIDS($res, $getAuthorMatching);
-					} 
+					}
+          InternalNotes::readNotes($res);
         }
         Record::identifyThumbnails($res, $citationCache);
         Record::getAuthWorkflowsByPIDS($res, $usr_id);

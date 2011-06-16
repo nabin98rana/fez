@@ -845,4 +845,32 @@ class WorkflowStatusStatic
     }
     return 1;
   }
+
+  function cleanOld()
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $dbtp =  APP_TABLE_PREFIX;
+    $stmt = "DELETE FROM ".$dbtp."workflow_sessions ";
+
+
+    if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) { //eg if postgresql etc
+      $stmt .= " WHERE wfses_date < (NOW() - INTERVAL '2 days') ";
+    } else {
+      $stmt .= " WHERE wfses_date < date_sub(NOW(), INTERVAL 2 DAY) ";
+    }
+
+
+    try {
+      $db->query($stmt);
+    }
+    catch(Exception $ex) {
+      $log->err($ex);
+      return -1;
+    }
+    return 1;
+  }
+
+
 }

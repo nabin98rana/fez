@@ -33,12 +33,14 @@
 // +----------------------------------------------------------------------+
 
 include_once(APP_INC_PATH.'class.background_process.php');
+include_once(APP_INC_PATH.'class.workflow_status.php');
+include_once(APP_INC_PATH.'class.background_process_pids.php');
 include_once(APP_INC_PATH . "class.date.php");
 
 class BackgroundProcessList
 {
 
-	var $auto_delete_names = "'Index Auth','Fulltext Index','Fulltext Index Update'";
+	var $auto_delete_names = "'Index Auth','Fulltext Index','Fulltext Index Update','Run Webstats', 'Batch Add', 'Batch Import', 'WoK Service', 'Links AMR Update', 'Index Object'" ;
 
 	function getList($usr_id)
 	{
@@ -172,6 +174,8 @@ class BackgroundProcessList
 		}
 		try {
 			$res = $db->query($stmt);
+      BackgroundProcessPids::cleanDisconnectedPids();
+      WorkflowStatusStatic::cleanOld();
 		}
 		catch(Exception $ex) {
 			$log->err($ex);

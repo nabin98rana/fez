@@ -305,6 +305,14 @@ function restoreDefaultColours(el)
 			</td>
 		  </tr>
 		  <tr>
+		    <th>Network interfaces bound to server</th>
+			<td>
+			  <input type="text" name="app_network_interfaces" value="{$config_settings.app_network_interfaces|escape:"html"}" size="40" />
+			  <br />Enter the names of the network interfaces bound to the server you want to use, enclosed in quotation marks and separated by commas, e.g. "eth0", "eth0:0", "eth0:1", "eth0:2"
+			  {include file="error_icon.tpl.html" field="app_network_interfaces"}
+			</td>
+		  </tr>
+		  <tr>
 		    <th>Link prefix</th>
 			<td>
 			  <input type="text" name="app_link_prefix" value="{$config_settings.app_link_prefix|escape:"html"}" size="40" />

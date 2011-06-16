@@ -161,10 +161,32 @@ class BackgroundProcessPids
 		
 		$prefix = APP_TABLE_PREFIX;
 		$q = "DELETE FROM {$prefix}background_process_pids WHERE bgpid_bgp_id = ? AND bgpid_pid = ? ";
-		
-		$db->query($q, array($bgpId, $pid));
+		try {
+		  $db->query($q, array($bgpId, $pid));
+    }
+    catch(Exception $ex) {
+      $log->err($ex);
+    }
 	}
-	
+
+  public function cleanDisconnectedPids()
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $prefix = APP_TABLE_PREFIX;
+    $q = "DELETE FROM {$prefix}background_process_pids WHERE bgpid_bgp_id NOT IN (SELECT bgp_id FROM {$prefix}background_process)";
+    try {
+      $db->query($q);
+    }
+    catch(Exception $ex) {
+      $log->err($ex);
+      return -1;
+    }
+    return true;
+  }
+
+
 	/**
 	 * Determines if an item is a valid pid
 	 *

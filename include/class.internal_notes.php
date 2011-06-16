@@ -70,7 +70,46 @@ class InternalNotes
 		
 		return $res;
 	}
-	
+
+  function readNotes(&$result)
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    for ($i = 0; $i < count($result); $i++) {
+      $pids[] = $result[$i]["rek_pid"];
+    }
+    if (count($pids) == 0) {
+      return;
+    }
+
+    $stmt = "SELECT
+          ain_pid, ain_detail
+         FROM
+          " . APP_TABLE_PREFIX . "internal_notes
+         WHERE
+           ain_pid IN (".Misc::arrayToSQLBindStr($pids).")";
+    try {
+      $res = $db->fetchAll($stmt, $pids, Zend_Db::FETCH_ASSOC);
+    }
+    catch(Exception $ex) {
+      $log->err($ex);
+      return false;
+    }
+    
+    $t = array();
+    for ($i = 0; $i < count($res); $i++) {
+      $t[$res[$i]["ain_pid"]] =  $res[$i]["ain_detail"];
+    }
+
+    // now populate the $result variable again
+    for ($i = 0; $i < count($result); $i++) {
+      $result[$i]["rek_internal_notes"] = $t[$result[$i]["rek_pid"]];
+    }
+
+//    return $res;
+  }
+
 	
 	
 	/**

@@ -34,6 +34,8 @@
 //
 include_once('../config.inc.php');
 include_once(APP_INC_PATH . 'class.background_process.php');
+include_once(APP_INC_PATH . 'class.background_process_list.php');
+include_once(APP_INC_PATH . 'class.auth.php');
 include_once(APP_INC_PATH . 'class.record_general.php');
 include_once(APP_INC_PATH.'class.workflow_status.php');
 include_once(APP_INC_PATH.'najax_classes.php');
@@ -42,6 +44,9 @@ $id = $_REQUEST['id'];
 $res = WorkflowStatusStatic::remove($id);
 if ($res > 0) {
     Session::setMessage("Abandoned workflow");
+    $bgp_list = new BackgroundProcessList;
+    $bgp_list->autoDeleteOld(Auth::getUserID());
+
 } else {
     Session::setMessage("Couldn't remove workflow");
 }

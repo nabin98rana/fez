@@ -1664,6 +1664,11 @@ class XSD_DisplayObject
 			} else {
 				$ptr_value = $domNode->nodeValue;
 			}
+      // death to -1 values
+      if ($ptr_value == '-1') {
+        $ptr_value = '';
+      }
+
 
 			// we want to return an 'off' for elements that correspond to checkboxes if they are empty,
 			// as this is meaningful, while non-checkbox types empty is not worth indexing/returning
