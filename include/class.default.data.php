@@ -203,7 +203,7 @@ class Default_Data
 		$defaultData['app_cookie']                          = "fez";
 		$defaultData['app_https_curl_check_cert']           = "OFF";
 		$defaultData['batch_import_type']                   = "MODS 1.0";
-		$defaultData['app_network_interfaces']              = "\"etho0\"";  
+		$defaultData['app_network_interfaces']              = "\"eth0\"";  
 		$defaultData['app_link_prefix']                     = "";   // Empty default
 		$defaultData['app_cloud_tag']                       = "ON";
 		$defaultData['app_fedora_apia_direct']              = "OFF";
