@@ -287,14 +287,14 @@
 					{else if $list[i].rek_genre_type != ''}
 						<strong>Sub Type:</strong> {$list[i].rek_genre_type}<br />
 					{/if}
-					<strong>HERDC Status:</strong> {$list[i].herdc_status}<br />
-					<strong>HERDC Code:</strong> {$list[i].herdc_code}<br />
-					<strong>Institutional Status:</strong> {$list[i].institutional_status}<br /><br />
+					<strong>HERDC Status:</strong> {$list[i].rek_herdc_status_lookup}<br />
+					<strong>HERDC Code:</strong> {$list[i].rek_herdc_code_lookup}<br />
+					<strong>Institutional Status:</strong> {$list[i].rek_institutional_status_lookup}<br /><br />
 					<strong>eSpace Follow up Flag:</strong> {$list[i].rek_follow_up_flags_lookup}<br />
 					<strong>IMU Follow up Flag:</strong> {$list[i].rek_follow_up_flags_imu_lookup}<br /><br />
 					{if $list[i].rek_display_type_lookup == "Book" || $list[i].rek_display_type_lookup == "Book Chapter"}
 						<strong>Edition:</strong> {$list[i].rek_edition}<br />
-						<strong>ISBN:</strong> {if $list[i].rek_isbn|@is_array}{$list[i].rek_isbn[0]}{else}{$list[i].rek_isbn}{/if}<br />
+						<strong>ISBN:</strong> {$list[i].rek_isbn}<br />
 					{elseif $list[i].rek_display_type_lookup == "Journal Article"}
 						{if $list[i].rj_rank} <strong>ERA Rank:</strong> {$list[i].rj_rank} ({$list[i].rj_title})<br />{/if}
 						{if $list[i].rek_refereed == '0'} <strong>Refereed:</strong> No<br /> {/if}
