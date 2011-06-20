@@ -407,7 +407,7 @@ class FulltextIndex_Solr extends FulltextIndex {
 								$sek_rel = $cache_db_names[$sek_id];
 							}
 							else {
-								$sek_rel = Search_Key::getRelationshipByDBName($sek_id);
+								$sek_rel = Search_Key::getCardinalityByDBName($sek_id);
 								$cache_db_names[$sek_id] = $sek_rel;	
 							}
 							if ($sek_rel == '1' && !is_array($field)) {

@@ -486,6 +486,36 @@ class Search_Key
 
     }
 
+  function getCardinalityByDBName($db_name)
+  {
+      $log = FezLog::get();
+      $db = DB_API::get();
+
+      if (strpos($db_name, 'rek_') === 0) {
+          $db_name = str_replace('rek_', '', $db_name);
+      }
+
+      $db_name = str_replace("_", " ", trim(strtolower($db_name)));
+
+      $stmt = "SELECT
+                   sek_cardinality
+               FROM
+                  " . APP_TABLE_PREFIX . "search_key
+               WHERE
+                  LOWER(sek_title)=" . $db->quote($db_name);
+      try {
+          $res = $db->fetchOne($stmt);
+      }
+      catch (Exception $ex) {
+          $log->err($ex);
+          return false;
+      }
+
+      return $res;
+
+  }
+
+
     function getDetailsBySolrName($solr_name)
     {
         $log = FezLog::get();
