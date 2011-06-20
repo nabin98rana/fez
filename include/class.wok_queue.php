@@ -308,6 +308,7 @@ class WokQueue extends Queue
         foreach ($recs as $rec_elem) {
           $rec = new WosRecItem($rec_elem);
           $aut_ids = $this->getAutIds($rec->ut);
+          $rec->author_ids = $aut_ids;
           if (!defined('APP_WOS_COLLECTIONS') || trim(APP_WOS_COLLECTIONS) == "") {
             $rec->collections = array(RID_DL_COLLECTION);
           } else {
