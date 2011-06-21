@@ -1718,7 +1718,7 @@ class Fedora_API {
 			}	
 //		}
 		
-		return $result;
+		return true;
 
 	}
 

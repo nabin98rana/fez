@@ -4195,11 +4195,26 @@ class Record
       $tpl->assign("premis",	$premis);
     }
     
-    $foxml = $tpl->getTemplateContents();	    
+    $foxml = $tpl->getTemplateContents();
+    $config = array(
+              'indent'        => true,
+              'input-xml'     => true,
+              'output-xml'    => true,
+              'wrap'          => 0
+    );
+
+    if (!defined('APP_NO_TIDY') || !APP_NO_TIDY) {
+      $tidy = new tidy;
+      $tidy->parseString($foxml, $config, 'utf8');
+      $tidy->cleanRepair();
+      $foxml = $tidy;
+    }
+
     $xml_request_data = new DOMDocument();
    
-    if (! @$xml_request_data->loadXML($foxml)) {
-      $log->err($foxml);
+    if (!$xml_request_data->loadXML($foxml)) {
+      $log->err(array("Could not load the smarty made XML into a DOM object, aborting Ingest!: \n".$foxml, __FILE__,__LINE__));
+      return false;
     } else {
       if (APP_FEDORA_VERSION == "3") {
         $result = Fedora_API::callIngestObject($foxml, $pid);
@@ -4211,7 +4226,7 @@ class Record
         Record::setIndexMatchingFields($pid);
         //Citation::updateCitationCache($pid, "");
         if (!empty($times_cited)) {
-          Record::updateThomsonCitationCount($pid, $times_cited);
+          Record::updateThomsonCitationCount($pid, $times_cited, $mods['identifier_isi_loc']);
         }
         if (!empty($history)) {
           History::addHistory($pid, null, "", "", true, $history);

@@ -1451,8 +1451,8 @@ class Fedora_API {
 			$log->err(array($fedoraError,$client->request, __FILE__,__LINE__));
 			return false;
 		}
-
-		return $result;
+    return true;
+//		return $result;
 
 	}
 
