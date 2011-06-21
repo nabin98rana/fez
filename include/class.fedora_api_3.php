@@ -1716,10 +1716,7 @@ class Fedora_API {
 				$log->err(array($fedoraError, __FILE__,__LINE__));
 				return false;
 			}	
-//		}
-		
-		return true;
-
+		return $result;
 	}
 
 	/**
