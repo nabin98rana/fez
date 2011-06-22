@@ -129,7 +129,7 @@ class Scopus
 		$headers = '<EASIReq xmlns="http://webservices.elsevier.com/schemas/easi/headers/types/v1">
 						<ReqId xmlns="">001</ReqId>
 						<Ver xmlns="">2</Ver>
-						<Consumer xmlns="">' . substr(APP_SHORT_ORG_NAME, 0, 20) . '</Consumer>
+						<Consumer xmlns="">' . substr(APP_SCOPUS_CONSUMER_NAME, 0, 20) . '</Consumer>
 						<ConsumerClient xmlns="">tester_client</ConsumerClient>
 						<OpaqueInfo xmlns="">prodId=1053;acctId=53745</OpaqueInfo>
 						<LogLevel xmlns="">Default</LogLevel>
