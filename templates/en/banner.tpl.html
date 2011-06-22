@@ -62,7 +62,7 @@
 				<li{if $active_nav == 'help'} id="nav-focus"{/if}><a title="Browse the Frequently Asked Questions section" href="{$rel_url}faq">FAQs</a></li>
 				<li{if $active_nav == 'about'} id="nav-focus"{/if}><a href="{$rel_url}about">About</a></li>
 				{if $isUser}
-				  <li{if $active_nav == 'preferences'} id="nav-focus"{/if}><a href="{$rel_url}preferences.php">Preferences</a></li>
+				  <li{if $active_nav == 'preferences'} id="nav-focus"{/if}><a href="{$rel_url}preferences.php">Prefs</a></li>
 				  {if $isAuthor == 1}<li{if $active_nav == 'mypubs'} id="nav-focus"{/if}><a href="{$rel_url}{$myPubURL}">My Pubs</a></li>{/if}
 				  <li{if $active_nav == 'my_fez'} id="nav-focus"{/if}><a href="{$rel_url}my_fez{if $useClassic == 1}_traditional{/if}.php">My {$app_name}</a></li>
 				  {if $isAdministrator}
