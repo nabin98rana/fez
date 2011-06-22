@@ -720,36 +720,15 @@ class Record
 			SELECT
 				rek_herdc_code_pid as pid,
 				cvo_title AS herdc_code,
-				cvo_desc AS herdc_code_description ";
-
-		if (defined('APP_HERDC_COLLECTIONS') && trim(APP_HERDC_COLLECTIONS) != "") {
-			
-			if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) { 
-				$stmt .= ", array_to_string(array_accum(rek_ismemberof), ',') AS confirmed ";
-			} else {
-				$stmt .= " , GROUP_CONCAT(rek_ismemberof) AS confirmed ";
-			}
-		}
-				
-		$stmt .= "
+				cvo_desc AS herdc_code_description
 			FROM
 				" . APP_TABLE_PREFIX . "record_search_key_herdc_code 
 				INNER JOIN " . APP_TABLE_PREFIX . "controlled_vocab ON rek_herdc_code = cvo_id 
-				INNER JOIN " . APP_TABLE_PREFIX . "controlled_vocab_relationship ON cvr_child_cvo_id = cvo_id AND cvr_parent_cvo_id = '450000'  ";
-			if (defined('APP_HERDC_COLLECTIONS') && trim(APP_HERDC_COLLECTIONS) != "") {
-				$stmt .= "LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_ismemberof ON rek_ismemberof IN (".APP_HERDC_COLLECTIONS.") AND rek_ismemberof_pid = rek_herdc_code_pid ";
-			}
-			$stmt .= 
-		"	WHERE
+				INNER JOIN " . APP_TABLE_PREFIX . "controlled_vocab_relationship ON cvr_child_cvo_id = cvo_id AND cvr_parent_cvo_id = '450000' 
+			WHERE
 				rek_herdc_code_pid in (".Misc::arrayToSQLBindStr($pids).") 
 		";
-		if (defined('APP_HERDC_COLLECTIONS') && trim(APP_HERDC_COLLECTIONS) != "") {
-			$stmt .= " GROUP BY pid, cvo_title, cvo_desc ";
-		}
-    
-    // TODO: Remove some of these joins, in particular those relating to HERDC_COLLECTIONS membership.
-    // Examining collection membership is no longer the appropriate way of determining if a record is confirmed or provisional.
-    
+
 		try {
 			$res = $db->fetchAll($stmt, $pids, Zend_Db::FETCH_ASSOC);
 		} catch(Exception $ex) {
