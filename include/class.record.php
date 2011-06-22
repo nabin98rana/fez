@@ -436,10 +436,7 @@ class Record
 		$res = $herdc;
 		if (is_array($res)) {
 		  for ($i = 0; $i < count($res); $i++) {
-	      $ht[$res[$i]["pid"]] = array();
-	      $ht[$res[$i]["pid"]]['herdc_code'] = $res[$i]["herdc_code"];
 	      $ht[$res[$i]["pid"]]['herdc_code_description'] = $res[$i]["herdc_code_description"];
-	      $ht[$res[$i]["pid"]]['confirmed'] = $res[$i]["confirmed"];
 	    }
 		}
 		$res = $rj;
@@ -743,6 +740,9 @@ class Record
 		if (defined('APP_HERDC_COLLECTIONS') && trim(APP_HERDC_COLLECTIONS) != "") {
 			$stmt .= " GROUP BY pid, cvo_title, cvo_desc ";
 		}
+    
+    // TODO: Remove some of these joins, in particular those relating to HERDC_COLLECTIONS membership.
+    // Examining collection membership is no longer the appropriate way of determining if a record is confirmed or provisional.
     
 		try {
 			$res = $db->fetchAll($stmt, $pids, Zend_Db::FETCH_ASSOC);
