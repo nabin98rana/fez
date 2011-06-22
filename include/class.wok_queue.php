@@ -458,6 +458,7 @@ class WokQueue extends Queue
       $log->err($ex);
       return null;
     }
+    return true;
   }
 
 }
