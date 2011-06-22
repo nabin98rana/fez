@@ -27,6 +27,7 @@ function hideAllSubPages()
 	document.getElementById('versioning').style.display = "none";
 	document.getElementById('researcherid').style.display = "none";
 	document.getElementById('wok').style.display = "none";
+    document.getElementById('scopus').style.display = "none";
 }
 
 function updatePreviewColour(el)
@@ -129,6 +130,7 @@ function restoreDefaultColours(el)
 		  <a href="#" onclick="javascript:showSubPage('origami');">Origami Settings</a><br />
 		  <a href="#" onclick="javascript:showSubPage('versioning');">Versioning Settings</a><br />
 		  <a href="#" onclick="javascript:showSubPage('researcherid');">ResearcherID Web Service Settings</a><br />
+            <a href="#" onclick="javascript:showSubPage('scopus');">Scopus Settings</a><br />
 		</td>
 	  </tr>
 	</table>
@@ -2042,7 +2044,26 @@ function restoreDefaultColours(el)
 		 </table>
 		</div>
 		
-		
+       <div id="scopus" style="display: none;">
+		<table width="100%" class="admin-edit">
+		 <thead>
+		  <tr>
+			<th colspan="2">
+			  <h2>Scopus Web Service Settings</h2>
+			</th>
+		  </tr>
+		 </thead>
+		 <tbody>
+		  <tr>
+		    <th>Consumer Name</th>
+			<td>
+			  <input type="text" name="app_scopus_consumer_name" value="{$config_settings.app_scopus_consumer_name|escape:"html"}" size="100" />
+			  <br />The Consumer Name your institution has agreed to with the the Scopus web service (Name and IP restricted).
+			  {include file="error_icon.tpl.html" field="app_scopus_consumer_name"}
+			</td>
+		  </tr>
+		 </table>
+		</div>
 
 		<div id="submit" style="display: none;">
 		<br />&nbsp;&nbsp;&nbsp;<input type="submit" name="button" value="Save changes" class="submit" /> &nbsp; <input type="reset" value="Discard changes" /><br /><br />
