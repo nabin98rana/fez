@@ -436,10 +436,7 @@ class Record
 		$res = $herdc;
 		if (is_array($res)) {
 		  for ($i = 0; $i < count($res); $i++) {
-	      $ht[$res[$i]["pid"]] = array();
-	      $ht[$res[$i]["pid"]]['herdc_code'] = $res[$i]["herdc_code"];
 	      $ht[$res[$i]["pid"]]['herdc_code_description'] = $res[$i]["herdc_code_description"];
-	      $ht[$res[$i]["pid"]]['confirmed'] = $res[$i]["confirmed"];
 	    }
 		}
 		$res = $rj;
@@ -744,12 +741,24 @@ class Record
 			$stmt .= " GROUP BY pid, cvo_title, cvo_desc ";
 		}
     
+    //die($stmt); // LKDB -- Fix this shit up, make it return HERDC Code, HERDC Status, Institutionl Status
+                // Completely depracate the APP_HERDC_COLLECTIONS membership stuff ... it is not the correct way of determining if a record is confirmed or provisional.
+    
 		try {
 			$res = $db->fetchAll($stmt, $pids, Zend_Db::FETCH_ASSOC);
 		} catch(Exception $ex) {
 			$log->err($ex);
 			return "";
 		}
+
+    /*
+    echo "<pre>";
+    print_r($res);
+    echo "</pre>";
+    */
+
+    //exit('*');
+  
 		
 		return $res;
 	}

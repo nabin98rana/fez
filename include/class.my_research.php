@@ -161,27 +161,24 @@ class MyResearch
 		        }
 		    }
 		    $params = $allowed;
-	
-	
-				/*
-				 * These options are used in a dropdown box to allow the 
-				 * user to sort a list
-				 */
-				$sort_by_list = array(
-					"searchKey0" => "Search Relevance",
-					"searchKey".Search_Key::getID("Title") => 'Title',
-					"searchKey".Search_Key::getID("Description") => 'Description',
-					"searchKey".Search_Key::getID("File Downloads") => 'File Downloads',
-					"searchKey".Search_Key::getID("Date") => 'Published Date',
-					"searchKey".Search_Key::getID("Created Date") => 'Created Date',
-					"searchKey".Search_Key::getID("Updated Date") => 'Updated Date',
-					"searchKey".Search_Key::getID("Sequence") => 'Sequence',
-					"searchKey".Search_Key::getID("Thomson Citation Count") => 'Thomson Citation Count',
-					"searchKey".Search_Key::getID("Scopus Citation Count") => 'Scopus Citation Count'
-				);
-	
-	
-	
+			
+			/*
+			 * These options are used in a dropdown box to allow the 
+			 * user to sort a list
+			 */
+			$sort_by_list = array(
+				"searchKey0" => "Search Relevance",
+				"searchKey".Search_Key::getID("Title") => 'Title',
+				"searchKey".Search_Key::getID("Description") => 'Description',
+				"searchKey".Search_Key::getID("File Downloads") => 'File Downloads',
+				"searchKey".Search_Key::getID("Date") => 'Published Date',
+				"searchKey".Search_Key::getID("Created Date") => 'Created Date',
+				"searchKey".Search_Key::getID("Updated Date") => 'Updated Date',
+				"searchKey".Search_Key::getID("Sequence") => 'Sequence',
+				"searchKey".Search_Key::getID("Thomson Citation Count") => 'Thomson Citation Count',
+				"searchKey".Search_Key::getID("Scopus Citation Count") => 'Scopus Citation Count'
+			);
+			
 			$options = array();
 			$options = Pager::saveSearchParams($params);
 			$sort_by = $options["sort_by"];

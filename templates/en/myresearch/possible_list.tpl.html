@@ -136,7 +136,8 @@ function hideBulk()
 			    </tr>
 		{/if}
 		<tr class="{if $flagged_possible[$pid].type == 'C'}possible-my-pub{elseif $flagged_possible[$pid].type == 'H'}possible-hide{elseif $list[i].rek_status != '2'}unpublished-pub{/if}">
-			<td style="width: 100%;"> {if $list[i].rek_status != 2} (waiting on an administrator for approval to be published) {/if}
+			<td style="width: 100%;">
+			{if $list[i].rek_status != 2} (waiting on an administrator for approval to be published) {/if}
                 {if $isAdministrator}
 				{if $list[i].rek_display_type_lookup == "Book" || $list[i].rek_display_type_lookup == "Book Chapter" || $list[i].rek_display_type_lookup == "Journal Article" || $list[i].rek_display_type_lookup == "Conference Paper"}
 				<a class="form_note" href="#">
@@ -191,7 +192,11 @@ function hideBulk()
 			</td>
 			
 			<td style="vertical-align: middle; text-align: center;">
-				{if $list[i].herdc_code}<a href="#" title="{if $list[i].confirmed != ''}CONFIRMED {else}PROVISIONAL {/if}{$list[i].herdc_code_description}">{$list[i].herdc_code}{if $list[i].confirmed != ''}{else}P{/if}</a>{else}-{/if}
+				{if $list[i].rek_herdc_code_lookup != ''}
+					<a href="#" title="{if $list[i].rek_herdc_status_lookup == 'Provisional Code'}PROVISIONAL {elseif $list[i].rek_herdc_status_lookup == 'Confirmed Code'}CONFIRMED {/if}{$list[i].rek_herdc_code_lookup|escape:"html"}">{$list[i].rek_herdc_code_lookup|escape:"html"}{if $list[i].rek_herdc_status_lookup == 'Provisional Code'}P{elseif $list[i].rek_herdc_status_lookup == 'Confirmed Code'}&#10003;{/if}</a>
+				{else}
+					-
+				{/if}
 			</td>
 			
 			<td style="vertical-align: middle; text-align: center;">
