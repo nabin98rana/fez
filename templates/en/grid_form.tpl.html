@@ -1,0 +1,147 @@
+{literal}
+
+	<script type="text/javascript">
+	<!--
+	{/literal}
+	{if $isUser}
+	{literal}
+	var star_proxy = new dojo.rpc.JsonService("{/literal}{$rel_url}{literal}record_star_proxy.php");
+	{/literal}
+	{/if}
+	{literal}
+	var star_toggle = 'off';
+	
+	function addStar(pid)
+	{
+		var image = document.getElementById('star_' + pid);
+		image.src = rel_url + 'images/star_16_active.png';
+		var star_result = star_proxy.star(pid);
+		
+		star_result.addCallback( function(msg) {
+			if (msg == 'true') {
+				image.src = rel_url + 'images/star_16.png';
+			}
+		});
+		
+		return;
+	}
+	
+	function removeStar(pid)
+	{
+		var image = document.getElementById('star_' + pid);
+		image.src = rel_url + 'images/star_16_active.png';
+		var star_result = star_proxy.unstar(pid);
+		
+		star_result.addCallback( function(msg) {
+			if (msg == 'true') {
+				image.src = rel_url + 'images/star_16_grey.png';
+			}
+		});
+		
+		return;
+	}
+	
+	function starToggle(pid)
+	{
+		var image = document.getElementById('star_' + pid);
+		
+		/* Determine whether to add or remove the star, based on it current value */
+		if (image.src.indexOf("star_16_grey") != -1 || image.src.indexOf("star_16_active") != -1) {
+			addStar(pid);
+		} else {
+			removeStar(pid);
+		}
+		
+		return;
+	}
+	
+	function toggleStarAll(f, field_name)
+	{
+		var pids = [];
+		/* Get all the PIDS on the page */
+		for (var i = 0; i < f.elements.length; i++) {
+			if (f.elements[i].name == field_name) {
+				pids.push(f.elements[i].value);
+			}
+		}
+		
+		/* Add or Remove the stars, depending on the toggle value */
+		for (var i = 0; i < pids.length; i++) {
+			if (star_toggle == 'off') {
+				addStar(pids[i]);
+			} else {
+				removeStar(pids[i]);
+			}
+		}
+		
+		/* Adjust toggle */
+	    if (star_toggle == 'off') {
+	        star_toggle = 'on';
+	    } else {
+	        star_toggle = 'off';
+	    }
+	    
+	    return;
+	}
+	
+	-->
+	</script> 
+
+{/literal}
+
+{include file="js/list.tpl.js"}
+<script type="text/javascript" src="{$rel_url}js/listpage.js"></script>
+
+<div style="margin: 5px 0px 0px 0px; width: 1500px;">
+
+
+{literal}
+<script type="text/javascript">
+jQuery(document).ready(function(){
+  jQuery("#grid").jqGrid({
+      url:'/grid_proxy.php',
+      datatype: "json",
+      mtype: 'GET',
+      colNames:['PID', 'Title', 'Published Date', 'First Author'],
+      colModel:[
+                {name:'rek_pid',index:'searchKeycore_28', width:55, editable:false, editoptions:{readonly:true,size:10}},
+                {name:'rek_title',index:'searchKeycore_2', width:400,editable:false},
+              {name:'rek_date',index:'searchKeycore_14', width:200, editable:false},
+              {name:'rek_first_author_in_document_derived',index:'searchKeycore_90', width:200, editable:false}
+
+           ],
+     jsonReader : {
+      root: "rows",
+      page: "page",
+      total: "total",
+      records: "records",
+      repeatitems: true,
+      cell: "cell",
+      id: "id",
+      userdata: "userdata",
+      subgrid: {
+         root:"rows",
+         repeatitems: true,
+         cell:"cell"
+      }
+     },
+      rowNum:100,
+      rowList:[10,20,30,50,100,500],
+      pager: jQuery('#gridpager'),
+      sortname: 'searchKeycore_2',
+      viewrecords: true,
+      sortorder: "asc",
+      caption:"Search Results",
+      editurl:"/jqGridModel?model=Wine"
+ }).navGrid('#gridpager');
+});
+//jQuery("#list").jqGrid('columnChooser', options);
+</script>
+{/literal}
+
+<div id="jqgrid">
+    <table id="grid"></table>
+    <div id="gridpager"></div>
+</div>
+
+</div>
