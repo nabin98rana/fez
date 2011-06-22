@@ -662,34 +662,40 @@ class Record
 		$db = DB_API::get();
 
 		$stmt = "
-			SELECT
-				cvo_title AS herdc_code,
-				cvo_desc AS herdc_code_description";
-		if (APP_HERDC_COLLECTIONS && trim(APP_HERDC_COLLECTIONS) != "") {
-			if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) { 
-				$stmt .= ", array_to_string(array_accum(rek_ismemberof), ',') AS confirmed ";
-			} else {
-				$stmt .= " , GROUP_CONCAT(rek_ismemberof) AS confirmed ";
-			}
-		}
-		$stmt .= "
-			FROM
-				" . APP_TABLE_PREFIX . "record_search_key_herdc_code,
-				" . APP_TABLE_PREFIX . "controlled_vocab,
-				" . APP_TABLE_PREFIX . "controlled_vocab_relationship ";
-		if (APP_HERDC_COLLECTIONS && trim(APP_HERDC_COLLECTIONS) != "") {
-			$stmt .= "LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_ismemberof ON rek_ismemberof_pid = " . $db->quote($pid) . " AND rek_ismemberof IN (".APP_HERDC_COLLECTIONS.")";
-		}
-		$stmt .=
-			" WHERE
-				rek_herdc_code = cvo_id
-				AND cvr_child_cvo_id = cvo_id
-				AND cvr_parent_cvo_id = '450000'
-				AND rek_herdc_code_pid = " . $db->quote($pid);
-		if (APP_HERDC_COLLECTIONS && trim(APP_HERDC_COLLECTIONS) != "") {
-			$stmt .= " GROUP BY cvo_title, cvo_desc";
-		}
-    
+      SELECT
+        *
+      FROM
+      (
+        SELECT 
+          rek_herdc_code_pid,
+          cvo_title AS herdc_code, 
+          cvo_desc AS herdc_code_description 
+        FROM 
+          " . APP_TABLE_PREFIX . "record_search_key_herdc_code, 
+          " . APP_TABLE_PREFIX . "controlled_vocab, 
+          " . APP_TABLE_PREFIX . "controlled_vocab_relationship 
+        WHERE 
+          rek_herdc_code = cvo_id 
+          AND cvr_child_cvo_id = cvo_id 
+          AND cvr_parent_cvo_id = '450000' 
+          AND rek_herdc_code_pid = " . $db->quote($pid) . "
+      ) q1 LEFT JOIN 
+      (
+        SELECT 
+          rek_herdc_status_pid,
+          cvo_title AS herdc_status 
+        FROM
+          " . APP_TABLE_PREFIX . "record_search_key_herdc_status,
+          " . APP_TABLE_PREFIX . "controlled_vocab, 
+          " . APP_TABLE_PREFIX . "controlled_vocab_relationship 
+        WHERE 
+          rek_herdc_status = cvo_id 
+          AND cvr_child_cvo_id = cvo_id 
+          AND cvr_parent_cvo_id = '453219' 
+          AND rek_herdc_status_pid = " . $db->quote($pid) . "
+
+      ) q2 ON q1.rek_herdc_code_pid = q2.rek_herdc_status_pid;";
+
 		try {
 			$res = $db->fetchRow($stmt, Zend_Db::FETCH_ASSOC);
 		} catch(Exception $ex) {
@@ -700,7 +706,7 @@ class Record
 		if (count($res) == 0) {
 			return "";
 		}
-		
+
 		return $res;
 	}
 
