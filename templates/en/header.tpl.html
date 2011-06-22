@@ -51,6 +51,15 @@ dojo.require("dojo.rpc.JsonService");
 <script type="text/javascript" src="{$rel_url}js/swfuploader.js"></script>
 <link type="text/css" href="{$rel_url}css/flash_uploader.css" rel="stylesheet" media="all" />
 {/if}
+{if $template_mode == 10}
+    <link rel="stylesheet" type="text/css" media="screen" href="{$rel_url}css/jquery/redmond/jquery-ui-1.8.13.custom.css" />
+    <link rel="stylesheet" type="text/css" media="screen" href="{$rel_url}css/jquery/ui.jqgrid.css" />
+    <link rel="stylesheet" type="text/css" media="screen" href="{$rel_url}css/jquery/ui.multiselect.css" />
+    <script type="text/javascript" src="{$rel_url}js/jquery/jquery-1.6.1.js"></script>
+    <script type="text/javascript" src="{$rel_url}js/jquery/jquery-ui-1.8.13.custom.min.js"></script>
+    <script type="text/javascript" src="{$rel_url}js/jquery/i18n/grid.locale-en.js"></script>
+    <script type="text/javascript" src="{$rel_url}js/jquery/jquery.jqGrid.src.js"></script>
+{/if}
 {if $cv_css != ""}
 	<link rel="stylesheet" href="css/{$cv_css}" type="text/css" />
 {/if}

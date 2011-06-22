@@ -124,7 +124,8 @@ class Lister
             6 => array('file' => 'gallery_list.tpl.html', 'title' => 'Image Gallery View'),
 			7 => array('file' => 'endnote.tpl.html', 'title' => 'Export for Endnote'), //added for endnote - heaphey
 			8 => array('file' => 'js.tpl.html', 'title' => 'HTML Code'), //added for js - heaphey
-			9 => array('file' => 'msword.tpl.html', 'title' => 'Word File') //added for word out - heaphey
+			9 => array('file' => 'msword.tpl.html', 'title' => 'Word File'), //added for word out - heaphey
+      10 => array('file' => 'grid.tpl.html', 'title' => 'Grid View')
         );
 		// disabled edit authors view until it can be looked again in the future
         // 1 => array('file' => 'views/list/author_bulk_edit.tpl.html', 'title' => 'Edit Authors'),
@@ -150,7 +151,7 @@ class Lister
 		$username = Auth::getUsername();
 		$isAdministrator = User::isUserAdministrator($username);
 		
-		if (($tpl_idx != 0 && $tpl_index != 4) || $isAdministrator == true) {
+		if (($tpl_idx != 0 && $tpl_idx != 10 && $tpl_index != 4) || $isAdministrator == true) {
 			$citationCache = false;
 		} else {
 			$citationCache = true;

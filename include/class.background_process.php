@@ -203,8 +203,11 @@ class BackgroundProcess {
 		catch(Exception $ex) {
 			$log->err($ex);
 		}
+    $usr_id = Auth::getUserID();
 
-		if (Auth::getUserID() == $res['bgp_usr_id']) {
+    $isAdministrator = Auth::isAdministrator();     
+
+		if ($usr_id == $res['bgp_usr_id'] || $isAdministrator == true) {
 			$headers = explode("\n", $res['bgp_headers']);
 			foreach ($headers as $head) {
 				header($head);
