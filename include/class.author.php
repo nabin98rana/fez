@@ -638,11 +638,11 @@ class Author
 			    if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) { 
 						$where_stmt .= " (aut_fname ILIKE ".$db->quote('%'.$name.'%')." OR aut_lname ILIKE ".$db->quote('%'.$name.'%')." OR aut_org_username ILIKE ".$db->quote($name.'%').") ";
 					} else {
-          	$where_stmt .= " (aut_fname LIKE ".$db->quote($name.'%')." OR aut_lname LIKE ".$db->quote($name.'%').") ";						
+          	$where_stmt .= " (aut_fname LIKE ".$db->quote($name.'%')." OR aut_lname LIKE ".$db->quote($name.'%')." OR aut_org_username LIKE ".$db->quote($name.'%').") ";
 					}
         }
       } else {
-        $where_stmt .= " WHERE MATCH(aut_fname, aut_lname) AGAINST (".$db->quote('*'.$filter.'*')." IN BOOLEAN MODE) ";
+        $where_stmt .= " WHERE MATCH(aut_fname, aut_lname) AGAINST (".$db->quote('*'.$filter.'*')." IN BOOLEAN MODE) OR aut_org_username LIKE ".$db->quote($filter.'%')." ";
         $extra_stmt = " , MATCH(aut_fname, aut_lname) AGAINST (".$db->quote($filter).") as Relevance ";
         $extra_order_stmt = " Relevance DESC, ";
       }

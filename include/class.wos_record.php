@@ -34,6 +34,7 @@
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.language.php");
 include_once(APP_INC_PATH . "class.misc.php");
+include_once(APP_INC_PATH . "class.author.php");
 include_once(APP_INC_PATH . "class.thomson_doctype_mappings.php");
 
 /**
@@ -248,6 +249,12 @@ class WosRecItem
    * @var array
    */
   private $authors = array();
+    /**
+   * Author IDs (both primary as secondary) Array index is important.
+   *
+   * @var array
+   */
+  private $author_ids = array();
   
   /**
    * Keywords
@@ -527,10 +534,13 @@ class WosRecItem
     $xdis_title = $dTMap[$this->docTypeCode][0];
     $xdis_subtype = $dTMap[$this->docTypeCode][1];
     $xdis_id = $dTMap[$this->docTypeCode][2];
-    
+
     $history = 'Imported from WoK Web Services Premium';
 
-
+    if (count($this->author_ids) > 0) {
+      $aut_details = Author::getDetails($this->author_ids[0]);
+      $history .= " via Researcher ID download of ".$aut_details['aut_display_name']." (".$aut_details['aut_researcher_id']." - ".$aut_details['aut_id'].")";
+    }
     // MODS
       
     $mods = array();
