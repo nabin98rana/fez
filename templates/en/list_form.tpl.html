@@ -353,7 +353,7 @@
 				{/if}
 			  {/section}
 		          
-                <a href="{$rel_url}workflow/list_workflows2.php?pid={$list[i].rek_pid|escape}"><img src="{$rel_url}images/options_16.png" alt="More options" title="More options" width="16" height="16" /></a> 
+                <a href="{$rel_url}workflow/list_workflows2.php?pid={$list[i].rek_pid|escape}&amp;href={$smarty.server.REQUEST_URI|escape:'url'}"><img src="{$rel_url}images/options_16.png" alt="More options" title="More options" width="16" height="16" /></a> 
 			</td>
            {/if}
            
