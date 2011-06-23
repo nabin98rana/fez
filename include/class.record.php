@@ -4061,6 +4061,7 @@ class Record
    */
   function makeInsertTemplate()
   {
+    $log = FezLog::get();
     $created_date = Date_API::getFedoraFormattedDateUTC();
     $updated_date = $created_date;
     $pid = '__makeInsertTemplate_PID__';
@@ -4069,7 +4070,12 @@ class Record
     list($array_ptr,$xsd_element_prefix, $xsd_top_element_name, $xml_schema) = $display->getXsdAsReferencedArray();
     // find the title elements for this display (!dc:title or MODS)
     $display->getXSD_HTML_Match();
-    $xsdmf_id = $display->xsd_html_match->getXSDMF_IDByXDIS_ID('!titleInfo!title');
+//    $xsdmf_id = $display->xsd_html_match->getXSDMF_IDBySELNameXDIS_ID('!titleInfo!title', 'Title');
+    $xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElementSEL_Title('!titleInfo!title', 'Title', $xdis_id);
+    $xsdmf_id_label = XSD_HTML_Match::getXSDMF_IDByElementSEL_Title('!objectProperties!property!VALUE', 'Label', $xdis_id);
+//    $xsdmf_id_label = $display->xsd_html_match->getXSDMF_IDBySELNameXDIS_ID('!objectProperties!property!VALUE', 'Label');
+    $_POST['xsd_display_fields'][$xsdmf_id_label] = '__makeInsertTemplate_DCTitle__';
+
     $inherit_xsdmf_id = $display->xsd_html_match->getXSDMF_IDByXDIS_ID('!inherit_security');
     if ($inherit_xsdmf_id) {
       // fake the form input for inherit security
@@ -4079,14 +4085,13 @@ class Record
     if ($xsdmf_id) {
       // fake the form input for the object title
       $_POST['xsd_display_fields'][$xsdmf_id] = '__makeInsertTemplate_DCTitle__';
-    } else {
-      $xsdmf_id = $display->xsd_html_match->getXSDMF_IDByXDIS_ID('!dc:title');
-      if ($xsdmf_id) {
-        // fake the form input for the object title
-        $_POST['xsd_display_fields'][$xsdmf_id] = '__makeInsertTemplate_DCTitle__';
-      }
     }
-
+//    $xsdmf_id = $display->xsd_html_match->getXSDMF_IDBySELNameXDIS_ID('!dc:title');
+    $xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElementSEL_Title('!dc:title', 'Title', $xdis_id);
+    if ($xsdmf_id) {
+      // fake the form input for the object title
+      $_POST['xsd_display_fields'][$xsdmf_id] = '__makeInsertTemplate_DCTitle__';
+    }
     $indexArray = array();
     $xmlObj = '<?xml version="1.0"?>'."\n";
     $xmlObj .= "<".$xsd_element_prefix.$xsd_top_element_name." ";
@@ -4405,7 +4410,7 @@ class Record
           // that don't support versionable flag.
           Fedora_API::callPurgeDatastream($pid, $datastreamID);
         }
-        
+
         if ( $purgeANDadd || $add ) {
           if ( $new_loc ) {
             Fedora_API::getUploadLocation(

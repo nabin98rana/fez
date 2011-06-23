@@ -771,7 +771,7 @@ class Fedora_API {
 
 		$versionable = $versionable === true ? 'true' : $versionable === false ? 'false' : $versionable;
         $log = FezLog::get();
-		$getString = APP_SIMPLE_FEDORA_APIM_DOMAIN."/objects/".$pid."/datastreams/".$dsIDName."?dsLabel=".urlencode($dsIDName)."&versionable=".$versionable."&mimeType=".$mimetype.
+		$getString = APP_SIMPLE_FEDORA_APIM_DOMAIN."/objects/".$pid."/datastreams/".$dsIDName."?dsLabel=".urlencode($dsLabel)."&versionable=".$versionable."&mimeType=".$mimetype.
 			          "&controlGroup=".$controlGroup."&dsState=A&logMessage=Added%20Datastream";
 
 
@@ -1531,7 +1531,7 @@ class Fedora_API {
 	 * @param boolean $versionable Whether to version control this datastream or not
 	 * @return void
 	 */
-	function callModifyDatastreamByReference ($pid, $dsID, $dsLabel, $dsLocation=NULL, $mimetype,$versionable='inherit') 
+	function callModifyDatastreamByReference($pid, $dsID, $dsLabel, $dsLocation=NULL, $mimetype,$versionable='inherit')
 	{
 		// force state to 'A'; otherwise, if the dsID is the same
 		// as a DS that was deleted, then the modify will fail
@@ -1546,9 +1546,10 @@ class Fedora_API {
 			$parms= array(
 		       'pid'           => $pid, 
 		       'dsID'  => $dsID, 
-			new soapval('versionable', 'boolean', $versionable),
+		       'versionable'  => $versionable,
 		       'logMessage'    => $logmsg, 
 			);
+      //			new soapval('versionable', 'boolean', $versionable),
 			Fedora_API::openSoapCall('setDatastreamVersionable', $parms);
 		}
 //		Fedora_API::callModifyDatastream($pid, $dsID, $dsLocation, $dsLabel, "A", $mimetype, $versionable);	  
@@ -1560,7 +1561,9 @@ class Fedora_API {
 	       'dsLabel'       => $dsLabel, 
 	       'MIMEType'      => $mimetype, 
 	       'formatURI'     => 'unknown', 
-	       'dsLocation'    => $dsLocation, 
+	       'dsLocation'    => $dsLocation,
+         'checksumType'  => 'MD5',
+         'checksum'      => md5($dsLocation),
 	       'logMessage'    => $logmsg, 
 	       'force'         => true
 		);

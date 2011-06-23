@@ -2723,12 +2723,19 @@ class XSD_HTML_Match
 			$log = FezLog::get();
 			$db = DB_API::get();
 
+      $xdis_list = XSD_Relationship::getListByXDIS($xdis_id);
+      array_push($xdis_list, array("0" => $xdis_id));
+      $xdis_str = Misc::sql_array_to_string($xdis_list);
+
+
 			$stmt = "SELECT
 		                    xsdmf_id
 		                FROM " . APP_TABLE_PREFIX . "xsd_display_matchfields
 						INNER JOIN " . APP_TABLE_PREFIX . "xsd_loop_subelement on xsdmf_xsdsel_id = xsdsel_id
 		                 WHERE
-		                    xsdmf_element = ".$db->quote($xsdmf_element)." and xsdmf_xdis_id = ".$db->quote($xdis_id, 'INTEGER')." and xsdsel_title=" . $db->quote($xsdsel_title);
+		           xsdmf_element = ".$db->quote($xsdmf_element)." and xsdmf_xdis_id IN (".$xdis_str.") and xsdsel_title=" . $db->quote($xsdsel_title);
+//		                    xsdmf_element = ".$db->quote($xsdmf_element)." and xsdmf_xdis_id = ".$xdis_id." and xsdsel_title=" . $db->quote($xsdsel_title);
+
 			try {
 				$res = $db->fetchAll($stmt);
 			}
@@ -3855,7 +3862,6 @@ class XSD_HTML_MatchObject {
 								" . APP_TABLE_PREFIX . "xsd_display_matchfields m2 on (m2.xsdmf_id = s1.xsdsel_indicator_xsdmf_id)
 			                WHERE
 			                    m1.xsdmf_xdis_id in (".$this->xdis_str.")";
-		$log->debug($stmt);
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 			$GLOBALS['match_cols'][$this->xdis_str] = $res;

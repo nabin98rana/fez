@@ -214,6 +214,7 @@ if ($access_ok) {
     }
     $tpl->assign("xsd_display_fields", $xsd_display_fields);
     $tpl->assign("xdis_id", $xdis_id);
+    $tpl->assign("autosuggest", 1);
     $tpl->assign("form_title", "Set Template");
     $tpl->assign("form_description", "These values will be used as the defaults for the batch operation.");
 	$tpl->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));

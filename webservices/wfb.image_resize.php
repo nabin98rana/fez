@@ -144,7 +144,7 @@ if ($watermark == "" && $copyright == "") {
 	exec($command.$unix_extra, $return_array, $return_status);
 }
 
-$log->err($command);
+//$log->err($command);
 //Error_Handler::logError("Image Magick Error: ".$error_message.", for command $command \n", __FILE__,__LINE__);
 if ($return_status <> 0) {	
 	//Error_Handler::logError("Image Magick Error: ".implode(",", $return_array).", return status = $return_status, for command $command$unix_extra \n", __FILE__,__LINE__);

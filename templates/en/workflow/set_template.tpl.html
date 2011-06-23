@@ -47,8 +47,7 @@ function validateForm() {
 {section name="i" loop=$xsd_display_fields}
 {if ($xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector' || $xsd_display_fields[i].xsdmf_html_input == 'dual_multiple') && $xsd_display_fields[i].xsdmf_enabled == 1}
 {literal}
-//selectAllOptions(document.wfl_form1, 'xsd_display_fields_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}_0');
-	var field = document.wfl_form1.xsd_display_fields_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}_0;
+	var field = document.getElementById('xsd_display_fields_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}_0');
     for (var y = 0; y < field.options.length; y++) {
         field.options[y].selected = true;
     }
@@ -60,7 +59,7 @@ function validateForm() {
 	{if $xsd_display_fields[i].xsdmf_multiple == 1}
 		{section name="z" loop=$xsd_display_fields[i].multiple_array}
 			{assign var='loop_num' value=$smarty.section.z.index}
-			var field = document.wfl_form1.xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num};
+			var field = document.getElementById('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}');
 			{literal}
 			if (field != null) {
 				{/literal}
@@ -71,7 +70,7 @@ function validateForm() {
 	        {/literal}
 		{/section}
 	{else}
-		var field = document.wfl_form1.xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0;
+		var field = document.getElementById('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0');
 		{literal}
 		if (field != null) {
 			{/literal}
@@ -84,7 +83,7 @@ function validateForm() {
 {/if}
 {/section}
 {literal}
-checkRequiredFields(document.wfl_form1, required_xsd_display_fields);
+checkRequiredFields(document.getElementById('wfl_form1'), required_xsd_display_fields);
 }
 
 
@@ -117,7 +116,7 @@ function selectOrgStructure_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}
 	   return false;
 	} 
 //	var field = getFormElement(f, field_name);
-	var field = document.wfl_form1.xsd_display_fields_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}_0;
+	var field = document.getElementById('xsd_display_fields_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}_0;
 
 	var selections = getSelectedItems(field);
 
@@ -193,9 +192,9 @@ function selectDateOptions(field_prefix, date_str)
 }
 function selectDateField(field_name, day, month, year)
 {
-    selectOption(this.document.wfl_form1, field_name + '[Day]', day);
-    selectOption(this.document.wfl_form1, field_name + '[Month]', month);
-    selectOption(this.document.wfl_form1, field_name + '[Year]', year);
+    selectOption(document.getElementById('wfl_form1'), field_name + '[Day]', day);
+    selectOption(document.getElementById('wfl_form1'), field_name + '[Month]', month);
+    selectOption(document.getElementById('wfl_form1'), field_name + '[Year]', year);
 }
 
 
@@ -640,7 +639,7 @@ function selectDateField(field_name, day, month, year)
 	{if $xsd_display_fields[i].xsdmf_html_input == 'org_selector' && $xsd_display_fields[i].xsdmf_use_org_to_fill == 1}
 		<script language="JavaScript">
 		  <!--
-		  selectOrgStructure_{$xsd_display_fields[i].xsdmf_id}(document.wfl_form1, 'xsdmf_display_fields[{$xsd_display_fields[i].xsdmf_id}]'); 	
+		  selectOrgStructure_{$xsd_display_fields[i].xsdmf_id}(document.getElementById('wfl_form1'), 'xsdmf_display_fields[{$xsd_display_fields[i].xsdmf_id}]');
 		  //-->
 		  </script>
 	{/if}
