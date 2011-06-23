@@ -2,6 +2,8 @@ var Bgps = function(config)
 {
 	this.config = config || {pollInt:20};
 	this.hovering = 0;
+	this.polling = 0;
+	this.pollTimer = null;
 };
 var bgProc = new Bgps();
 
@@ -151,13 +153,23 @@ Bgps.prototype.addBgHover = function()
 	bgProc.addEvt(popLi, 'mouseover', bgProc.showPopup);
 };
 
+Bgps.prototype.poll = function()
+{
+	bgProc.bgpsStats();
+	bgProc.pollBgProcs();
+};
+
 Bgps.prototype.pollBgProcs = function()
 {
-	setTimeout(
-			function()
-			{
-				bgProc.bgpsStats();
-				bgProc.pollBgProcs();
-			}
-	, bgProc.config.pollInt * 1000);
+	bgProc.pollTimer = setTimeout('bgProc.poll()', bgProc.config.pollInt * 1000);
+	bgProc.polling = 1;
+};
+
+Bgps.prototype.killPoll = function()
+{
+	if(bgProc.polling === 1)
+	{
+		clearTimeout(bgProc.pollTimer);
+		bgProc.polling = 0;
+	}
 };
