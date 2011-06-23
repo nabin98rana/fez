@@ -120,8 +120,16 @@ if(typeof(NajaxBackgroundProcessList) !== 'undefined')
 {ldelim}
     bgProc.addEvt(window, 'load', bgProc.bgpsStats);
     bgProc.addEvt(window, 'load', bgProc.addBgClick);
-    /*bgProc.addEvt(window, 'load', bgProc.addBgHover);*/
-    bgProc.addEvt(window, 'load', bgProc.pollBgProcs);
+    if (/*@cc_on!@*/false)
+    {ldelim}
+    	bgProc.addEvt(document, 'focusin', bgProc.pollBgProcs);
+        bgProc.addEvt(document, 'focusout', bgProc.killPoll);
+    {rdelim}
+    else
+    {ldelim}
+    	bgProc.addEvt(window, 'focus', bgProc.pollBgProcs);
+        bgProc.addEvt(window, 'blur', bgProc.killPoll);
+    {rdelim}
 {rdelim}
 
 </script>
