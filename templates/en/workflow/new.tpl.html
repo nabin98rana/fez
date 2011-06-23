@@ -1,42 +1,70 @@
 {if $message}
-<tr>
-<td colspan="2" bgcolor="{$cell_color}" class="error">
-{$message}
-</td><tr>
+	<tr>
+		<td colspan="2" bgcolor="{$cell_color}" class="error">
+			{$message}
+		</td>
+	<tr>
 {/if}
+
 {if $workflows}
-<tr>
-<td   class="contentheader" >
-<b>Select Action</b>
-</td>
-</tr>
-{section name="i" loop=$workflows}
-<tr><td>
-<table style="margin: 5px 100px 0px 10px; border: 1px solid {$cell_color}; width: 70%; padding: 3px;">
-<tr>
-<td class="default">
-{assign var="wfl_id" value=$workflows[i].wft_wfl_id}
-{assign var="xdis_id1" value=$workflows[i].wft_xdis_id}
-{if $workflows[i].wft_icon}<img src="{$rel_url}{$workflows[i].wft_icon}" hspace="5" alt="" /></td><td class="default" width="100%">{/if}
-<a href="{$smarty.server.SCRIPT_NAME}?pid={$pid}&amp;cat=select_workflow&amp;xdis_id={$xdis_id}&amp;wft_id={$workflows[i].wft_id}&amp;href={$href}">{$wfl_list[$wfl_id].wfl_title|escape}</a> 
-{if $wfl_list[$wfl_id].wfl_description}<br /><br />{$wfl_list[$wfl_id].wfl_description|escape}{/if}
-</td>
-</tr>
- </table>
-</td></tr>
-<tr><td class="default"><br/></td></tr>
-{/section}
-{if $isAdministrator && $showTriggerEdit}
-<tr><td>
-<table style="margin: 5px 100px 0px 10px; border: 1px solid {$cell_color}; width: 70%; padding: 3px;">
-<tr>
-<td class="default">
-<img title="Workflow" src="{$rel_url}images/workflow_16.gif" hspace="5" alt="" /></td><td class="default" width="100%"><a href="{$rel_url}manage/workflow_triggers.php?pid={$pid}">Set workflow triggers for selected record</a>
+	<tr>
+		<td class="contentheader" >
+			<b>Select Action</b>
+		</td>
+	</tr>
+	{section name="i" loop=$workflows}
+		<tr>
+			<td>
+				<table style="margin: 5px 100px 0px 10px; border: 1px solid {$cell_color}; width: 70%; padding: 3px;">
+					<tr>
+						<td class="default">
+							{assign var="wfl_id" value=$workflows[i].wft_wfl_id}
+							{assign var="xdis_id1" value=$workflows[i].wft_xdis_id}
+							{if $workflows[i].wft_icon}
+								<img src="{$rel_url}{$workflows[i].wft_icon}" style="margin: 5px;" alt="" />
+								</td>
+								<td class="default" style="width: 100%;">
+							{/if}
+							<a href="{$smarty.server.SCRIPT_NAME}?pid={$pid}&amp;cat=select_workflow&amp;xdis_id={$xdis_id}&amp;wft_id={$workflows[i].wft_id}&amp;href={$href}">{$wfl_list[$wfl_id].wfl_title|escape}</a> 
+							{if $wfl_list[$wfl_id].wfl_description}
+								<br /><br />
+								{$wfl_list[$wfl_id].wfl_description|escape}
+							{/if}
+						</td>
+					</tr>
+				 </table>
+			</td>
+		</tr>
+		<tr>
+			<td class="default">
+				<br />
+			</td>
+		</tr>
+	{/section}
+	{if $isAdministrator && $showTriggerEdit}
+		<tr>
+			<td>
+				<table style="margin: 5px 100px 0px 10px; border: 1px solid {$cell_color}; width: 70%; padding: 3px;">
+					<tr>
+						<td class="default">
+							<img title="Workflow" src="{$rel_url}images/workflow_16.gif" style="margin: 5px;" alt="" />
+						</td>
+						<td class="default" style="width: 100%;"><a href="{$rel_url}manage/workflow_triggers.php?pid={$pid}">Set workflow triggers for selected record</a>
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+		<tr>
+			<td class="default">
+				<br />
+			</td>
+		</tr>
+	{/if}
 {/if}
-</td>
+
+<tr>
+	<td class="default">
+		<br />This is {$trigger} for {$pid}
+	</td>
 </tr>
- </table>
-</td></tr>
-<tr><td class="default"><br/></td></tr>
-{/if}
-<tr><td class="default"><br/>This is {$trigger} for {$pid}</td></tr>
