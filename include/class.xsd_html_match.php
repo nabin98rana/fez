@@ -238,13 +238,19 @@ class XSD_HTML_Match
 			foreach ($xdis_list as $xdis_id) {
 
 				$xdis_details = XSD_Display::getAllDetails($xdis_id);
-				if (Fedora_API::datastreamExists($pid, $xdis_details['xsd_title'])) {
+
+        $dsID = $xdis_details['xsd_title'];
+        if ($dsID == 'OAI DC') {
+          $dsID = 'DC';
+        }
+
+				if (Fedora_API::datastreamExists($pid, $dsID)) {
 					$xsdmf_details = XSD_HTML_Match::getList($xdis_id);
 //          $xsdmf_details = XSD_HTML_Match::getBasicListByDisplay($xdis_id);
 					//print_r($xdis_details);
 					//echo $xdis_details['xsd_title'];
 
-					$xmlString = Fedora_API::callGetDatastreamContents($pid, $xdis_details['xsd_title'], true);
+					$xmlString = Fedora_API::callGetDatastreamContents($pid, $dsID, true);
 					//		print_r($xmlString);
 					//exit;
 
@@ -258,7 +264,6 @@ class XSD_HTML_Match
 
 					foreach ($xsdmf_details as $xsdmf) {
 						if ($xsdmf['xsdmf_enabled'] == 1) {
-							//						echo "here: ".$xsdmf['xsdmf_id'].$xsdmf['xsdmf_xpath']."<br />";
 
               //Workaround for authors elements that don't yet have an ID attribute for historical reasons
               $name_id = false;
