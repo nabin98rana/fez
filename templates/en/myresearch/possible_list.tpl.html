@@ -146,7 +146,7 @@ function hideBulk()
 						<strong>Display Type:</strong> {$list[i].rek_display_type_lookup|escape:"html"}<br />
 						{if $list[i].rek_subtype != ''}
 							<strong>Sub Type:</strong> {$list[i].rek_subtype|escape:"html"}<br />
-						{else if $list[i].rek_genre_type != ''}
+						{elseif $list[i].rek_genre_type != ''}
 							<strong>Sub Type:</strong> {$list[i].rek_genre_type|escape:"html"}<br />
 						{/if}
 						<strong>HERDC Status:</strong> {$list[i].rek_herdc_status_lookup|escape:"html"}<br />
