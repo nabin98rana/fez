@@ -62,18 +62,34 @@ class BackgroundProcess_Bulk_Copy_Record_Collection extends BackgroundProcess
 			$this->setStatus("Copying ".count($pids)." Records to ".$collection_pid);
 
 			foreach ($pids as $pid) {
-				$this->setHeartbeat();
-				 
-				$record = new RecordObject($pid);
-				if ($record->canEdit()) {
 
-					$res = $record->updateRELSEXT("rel:isMemberOf", $collection_pid, false);
-						
-					if($res >= 1) {
-						$this->setStatus("Copied '".$pid."'");
-						$this->pid_count++;
-					} else {
-						$this->setStatus("Copied '".$pid."' Failed");
+				$this->setHeartbeat();
+				$record = new RecordObject($pid);
+
+				if ($record->canEdit()) {
+					
+					// Make sure the record isn't already in the destination collection.
+					$ok_to_move = true;
+					$collections = Record::getParentsAll($pid);
+					if (count($collections) > 0) {
+						foreach ($collections as $collection) {
+							if ($collection['rek_pid'] == $collection_pid) {
+								$ok_to_move = false;
+								$this->setStatus("Skipped '".$pid."' because record is already in target collection");
+							}
+						}
+					}
+
+					if ($ok_to_move) {
+
+						$res = $record->updateRELSEXT("rel:isMemberOf", $collection_pid, false);
+							
+						if ($res >= 1) {
+							$this->setStatus("Copied '".$pid."'");
+							$this->pid_count++;
+						} else {
+							$this->setStatus("Copied '".$pid."' Failed");
+						}
 					}
 				} else {
 					$this->setStatus("Skipped '".$pid."'. User can't edit this record");

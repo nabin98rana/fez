@@ -22,5 +22,6 @@ class BackgroundProcess_Generate_Bookreader_Images extends BackgroundProcess
 
         $this->pdfConverter->setPIDQueue($pid, 'pdfToJpg');
         $this->pdfConverter->runQueue();
+        $this->setState(BGP_FINISHED);
     }
 }
