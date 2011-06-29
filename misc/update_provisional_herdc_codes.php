@@ -106,32 +106,13 @@ define('PROVISIONAL_CODE_UPDATE_FROM_SCRIPT', true);
 
 $query = "
 
-	SELECT DISTINCT(rek_pid)
-	FROM fez_record_search_key
-	LEFT JOIN fez_xsd_display
-		ON fez_record_search_key.rek_display_type = fez_xsd_display.xdis_id
-	LEFT JOIN fez_record_search_key_herdc_code
-		ON rek_pid = rek_herdc_code_pid
-	LEFT JOIN fez_record_search_key_author_id
-		ON rek_pid = rek_author_id_pid
-	LEFT JOIN fez_record_search_key_ismemberof
-		ON rek_pid = rek_ismemberof_pid
-	WHERE
-	(xdis_title = 'Conference Paper'
-		OR xdis_title = 'Journal Article'
-		OR xdis_title = 'Online Journal Article'
-		OR xdis_title = 'Book'
-		OR xdis_title = 'Book Chapter')
-	AND xdis_version = 'MODS 1.0'
-	AND (rek_herdc_code IS NULL
-		OR rek_herdc_code = '-1')
-	AND rek_author_id != 0
-	AND (rek_subtype IS NOT NULL
-		OR rek_genre_type IS NOT NULL)
-	AND (rek_ismemberof != 'UQ:183940'
-		AND rek_ismemberof != 'UQ:180159')
-	ORDER BY rek_pid;
-
+	SELECT 
+		* 
+	FROM 
+		fez_lk_wok_enriched_herdc_codes_required
+	ORDER BY 
+		pid ASC;
+	
 		";
 
 $db = DB_API::get();
