@@ -1173,7 +1173,7 @@ class XSD_DisplayObject
 				$this->xsdmf_array[$pid] = array();
 				$this->xsdmf_current = &$this->xsdmf_array[$pid];
 				//print_r($this->exclude_list); echo "HERE";
-				$this->xsdmf_array[$pid] = XSD_HTML_Match::getDetailsByXPATH($pid, $this->xdis_id, $this->exclude_list, $this->specify_list);
+				$this->xsdmf_array[$pid] = XSD_HTML_Match::getDetailsByXPATH($pid, $this->xdis_id, $this->exclude_list, $this->specify_list, $createdDT);
 				
 				// Now get the Non-XML stuff.. this could be cleaned up 
 				

@@ -221,7 +221,7 @@ class XSD_HTML_Match
 			}
 		}
 		
-		function getDetailsByXPATH($pid, $xdis_id, $exclude_list=array(), $specify_list=array())
+		function getDetailsByXPATH($pid, $xdis_id, $exclude_list=array(), $specify_list=array(), $createdDT = null)
 		{
 			$log = FezLog::get();
 
@@ -250,7 +250,9 @@ class XSD_HTML_Match
 					//print_r($xdis_details);
 					//echo $xdis_details['xsd_title'];
 
-					$xmlString = Fedora_API::callGetDatastreamContents($pid, $dsID, true);
+//					$xmlString = Fedora_API::callGetDatastreamContents($pid, $dsID, true);
+          $DSResultArray = Fedora_API::callGetDatastreamDissemination($pid, $dsID, $createdDT);
+          $xmlString = $DSResultArray['stream'];
 					//		print_r($xmlString);
 					//exit;
 
@@ -3058,6 +3060,42 @@ class XSD_HTML_Match
 				foreach ($options as $mfo_id => $mfo_value) {
 					$res["field_options"]["existing:" . $mfo_id . ":" . $mfo_value] = $mfo_value;
 				}
+			}
+			return $res;
+		}
+
+  		/**
+		 * Method used to get the details of a specific XSD HTML Matching Field, by XSDMF ID
+		 *
+		 * @access  public
+		 * @param   array $xsdmf_ids
+		 * @return  array The details
+		 */
+		function getSearchKeysByXSDMF_IDS($xsdmf_ids)
+		{
+			$log = FezLog::get();
+			$db = DB_API::get();
+
+      if (!is_array($xsdmf_ids)) {
+        return false;
+      }
+
+      $xsdmf_str = Misc::array_to_sql_string($xsdmf_ids);
+
+			$stmt = "SELECT
+		                   xsdmf_id, sek_title
+		                 FROM
+		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields INNER JOIN
+		                    " . APP_TABLE_PREFIX . "search_key on xsdmf_sek_id = sek_id
+		                    
+		                 WHERE
+		                    xsdmf_id IN (" . $xsdmf_str .")";
+			try {
+				$res = $db->fetchPairs($stmt);
+			}
+			catch(Exception $ex) {
+				$log->err($ex);
+				return '';
 			}
 			return $res;
 		}
