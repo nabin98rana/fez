@@ -305,21 +305,30 @@ class FulltextQueue
 
 		foreach ($this->pids as $pid => $action) {
 			//Logger::debug("FulltextQueue::commit() queing ". Misc::escapeString($pid).", ".Misc::escapeString($action));
-			$db->beginTransaction();
-			
-			$sql = "DELETE FROM ".APP_TABLE_PREFIX."fulltext_queue WHERE ftq_pid=";
-			$sql .= $db->quote($pid)." AND ftq_op = ".$db->quote($action);
-			$db->query($sql);
-			
-			$stmt = "INSERT INTO ".APP_TABLE_PREFIX."fulltext_queue (ftq_pid,ftq_op) VALUES (".
-			$db->quote($pid).", ".$db->quote($action).")";
-			
+      if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
+
+        $db->beginTransaction();
+
+        $sql = "DELETE FROM ".APP_TABLE_PREFIX."fulltext_queue WHERE ftq_pid=";
+        $sql .= $db->quote($pid)." AND ftq_op = ".$db->quote($action);
+        $db->query($sql);
+
+        $stmt = "INSERT INTO ".APP_TABLE_PREFIX."fulltext_queue (ftq_pid,ftq_op) VALUES (".
+        $db->quote($pid).", ".$db->quote($action).")";
+      } else {
+        $stmt = "REPLACE INTO ".APP_TABLE_PREFIX."fulltext_queue (ftq_pid,ftq_op) VALUES (".
+        $db->quote($pid).", ".$db->quote($action).")";
+      }      
 			try {
 				$db->query($stmt);
-				$db->commit();
+        if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
+				  $db->commit();
+        }
 			}
 			catch(Exception $ex) {
-				$db->rollBack();
+        if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
+				  $db->rollBack();
+        }
 				$log->err($ex);
 				return false;
 			}
