@@ -225,7 +225,7 @@ function swfuploaderUploadError(file, errorCode, message) {
 				this.debug("Error Code: Invalid File Type, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
 				return;
 			default:
-				alert("An error occurred in the upload. Try again later.\n\nTechnical Details - Error Code:"+errorCode);
+				alert("An error occurred in the upload. Try again later.\n\nTechnical Details - Error Code:"+errorCode+"\n" + message);
 				this.debug("Error Code: " + errorCode + ", File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
 				return;
 		}
