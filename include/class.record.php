@@ -811,7 +811,7 @@ class Record
     $display = new XSD_DisplayObject($xdis_id);
     list($array_ptr,$xsd_element_prefix, $xsd_top_element_name, $xml_schema) = $display->getXsdAsReferencedArray();
     $indexArray = array();
-    $header .= "<".$xsd_element_prefix.$xsd_top_element_name." ";
+    $header = "<".$xsd_element_prefix.$xsd_top_element_name." ";
     $header .= Misc::getSchemaSubAttributes($array_ptr, $xsd_top_element_name, $xdis_id, $pid);
     $header .= ">\n";
     $xmlObj = Foxml::array_to_xml_instance(
@@ -1481,7 +1481,7 @@ class Record
         $dsIDCore = preg_replace("/(web_|preview_|thumbnail_|stream_)/", "", $dsID);
         $dsIDCore = substr($dsIDCore, 0, strrpos($dsIDCore, "."));
         $ds_pattern = '/^FezACML_'.$dsIDCore.'(.*)\.xml$/';
-        //				$ds_search = 'FezACML_'.$dsID.'.xml';
+        //$ds_search = 'FezACML_'.$dsID.'.xml';
       }
     } else {
       $ds_search = 'FezACML';
@@ -1490,7 +1490,7 @@ class Record
       }
     }
     $dsExists = Fedora_API::datastreamExists($pid, $ds_search, true, $ds_pattern);
-    if ($dsExists != false) {
+    if ($dsExists !== false) {
       if ($ds_pattern != false) {
         $DSResultArray = Fedora_API::callGetDatastreamDissemination($pid, $dsExists);
       } else {
