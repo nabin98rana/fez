@@ -1411,7 +1411,7 @@ class Auth
 		} else {
 			if ($session['ipaddress'] != @$_SERVER['REMOTE_ADDR']) {
 				$log = FezLog::get();
-				$log->crit("IP Session hijacking possibly detected. Session IP is ".$session['ipaddress']." and remote addr is ".@$_SERVER['REMOTE_ADDR'].". Session details are ".print_r($session, true));
+				$log->debug("IP Session hijacking possibly detected. Session IP is ".$session['ipaddress']." and remote addr is ".@$_SERVER['REMOTE_ADDR'].". Session details are ".print_r($session, true));
 			}
 			return true;
 		}
