@@ -47,7 +47,7 @@ $listing = Record::getListing(array(), array(9,10), 0, $max, 'Created Date', fal
 for($i=0; $i<((int)$listing['info']['total_pages']+1); $i++) {
 	
 	// Skip first loop - we have called getListing once already
-	if($i>0) {
+	if($i>0 && $listing['info']['next_page'] != '-1') {
 		$listing = Record::getListing(array(), array(9,10), $listing['info']['next_page'], $max, 'Created Date', false, false, $filter);
 	}
 	$input_keys = array();
