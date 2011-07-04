@@ -33,10 +33,14 @@
 //
 //
 
-if (APP_FEDORA_VERSION == "3") {
-    include_once(APP_INC_PATH . "class.fedora_api_3.php");
-} elseif (APP_FEDORA_VERSION == "2.2") {
-    include_once(APP_INC_PATH . "class.fedora_api_2_2.php");
+if (APP_FEDORA_BYPASS == "ON") {
+	include_once(APP_INC_PATH . "class.fedora_bypass.php");
 } else {
-    include_once(APP_INC_PATH . "class.fedora_api_2_1_1.php");
+	if (APP_FEDORA_VERSION == "3") {
+	    include_once(APP_INC_PATH . "class.fedora_api_3.php");
+	} elseif (APP_FEDORA_VERSION == "2.2") {
+	    include_once(APP_INC_PATH . "class.fedora_api_2_2.php");
+	} else {
+	    include_once(APP_INC_PATH . "class.fedora_api_2_1_1.php");
+	}
 }

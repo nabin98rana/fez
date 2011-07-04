@@ -82,6 +82,23 @@ foreach ($searchKeys as $sk) {
 }
 echo "Done.\n\n";
 
+// 1.5 Determine the maximum PID, save it to the new pid_index table.
+$nextPID = Fedora_API::getNextPID(false);
+$nextPIDParts = explode(":", $nextPID);
+$nextPIDNumber = $nextPIDParts[1];
+
+echo "Creating pid_index table ... ";
+$stmt = "CREATE TABLE fez_pid_index (pid_number int(10) unsigned NOT NULL, PRIMARY KEY (pid_number));";
+$db->exec($stmt);
+echo "ok!\n";
+
+echo "Fetching next PID from Fedora, and writing to pid_index table ... ";
+$stmt = "INSERT INTO fez_pid_index (pid_number) values ('" . $nextPIDNumber . "');";
+$db->exec($stmt);
+echo "ok!\n";
+
+// Other steps as necessary.
+
 exit ("\n\nExiting Fedora upgrade script.\n");
 
 ?>
