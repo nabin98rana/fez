@@ -686,7 +686,7 @@ function restoreDefaultColours(el)
             <td>
               <input type="text" name="app_bg_poll_int" value="{$config_settings.app_bg_poll_int|escape:"html"}" size="30" />
               <br />The interval at which the AJAX background process display in the main menu polls for new data.
-              {include file="error_icon.tpl.html" field="app_wheel_group"}
+              {include file="error_icon.tpl.html" field="app_bg_poll_int"}
             </td>
           </tr>
   		  </tbody>
@@ -705,6 +705,17 @@ function restoreDefaultColours(el)
 		  </tr>
 		  </thead>
 		  <tbody>
+		  <tr>
+		    <th>Bypass Fedora</th>
+			<td>
+			  <select name="app_fedora_bypass">
+			    <option value="ON"{if $config_settings.app_fedora_bypass == "ON"} selected="selected"{/if}>On</option>
+				<option value="OFF"{if $config_settings.app_fedora_bypass == "OFF"} selected="selected"{/if}>Off</option>
+			  </select>
+			  <br /><b>EXPERIMENTAL FEATURE:</b> Enabling this option will remove Fedora as the primary data store. You will also need to run <code>upgrade/rm_fedora.php</code>
+			  {include file="error_icon.tpl.html" field="app_fedora_bypass"}
+			</td>
+		  </tr>
 		  <tr>
 		    <th>Version</th>
 			<td>
@@ -2041,6 +2052,7 @@ function restoreDefaultColours(el)
 			  {include file="error_icon.tpl.html" field="wok_seconds_between_calls"}
 			</td>
 		  </tr>
+		  </tbody>
 		 </table>
 		</div>
 		
@@ -2062,6 +2074,7 @@ function restoreDefaultColours(el)
 			  {include file="error_icon.tpl.html" field="app_scopus_consumer_name"}
 			</td>
 		  </tr>
+		  </tbody>
 		 </table>
 		</div>
 

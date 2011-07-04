@@ -1516,7 +1516,8 @@ class Search_Key
     {
         $log = FezLog::get();
         $db = DB_API::get();
-
+        
+        // Create primary tables
         $stmt = Search_Key::createSQL($sek_id);
         if (!$stmt) {
             return -2;
@@ -1528,6 +1529,22 @@ class Search_Key
             $log->err($ex);
             return -2;
         }
+
+        // Create shadow tables
+        if (APP_FEDORA_BYPASS == "ON") {
+            $stmt = Search_Key::createSQL($sek_id, true);
+            if (!$stmt) {
+                return -2;
+            }
+            try {
+                $db->exec($stmt);
+            }
+            catch (Exception $ex) {
+                $log->err($ex);
+                return -2;
+            }
+        }
+        
         return 1;
     }
 
@@ -1542,7 +1559,7 @@ class Search_Key
      * @access public
      * @since Method available since Fez 2.0
      */
-    function createSQL($sek_id)
+    function createSQL($sek_id, $shadow = false)
     {
         $log = FezLog::get();
         $db = DB_API::get();
@@ -1554,6 +1571,7 @@ class Search_Key
         $column_type = $details['sek_data_type'];
         $key_type = 'KEY';
         $cardinality_extra = "";
+        $shadow_extra = "";
 
         if (!isset($sek_title_db) || $sek_title_db == "" || $column_type == "") {
             return -2;
@@ -1570,10 +1588,16 @@ class Search_Key
         if ($relationship == 1) {
 
             /*
-                * Create new table
-                */
-            $table_name = APP_TABLE_PREFIX . 'record_search_key_' . $sek_title_db;
+             * Create new table
+             */
             $column_prefix = 'rek_' . $sek_title_db;
+
+            $table_name = APP_TABLE_PREFIX . 'record_search_key_' . $sek_title_db;
+            if ($shadow) {
+                $table_name .= "__shadow";
+                $shadow_extra = "     `{$column_prefix}_stamp` datetime,\n ";
+            }
+
             if ($cardinality == 1) {
                 $cardinality_extra = "     `{$column_prefix}_order` int(11) default 1,\n ";
             }
@@ -1581,6 +1605,7 @@ class Search_Key
 
             $sql = "CREATE TABLE `$table_name` ( \n" .
                    "     `{$column_prefix}_id` int(11) NOT NULL auto_increment, \n" .
+                   $shadow_extra .
                    "     `{$column_prefix}_pid` varchar(64) default NULL, \n" .
                    "     `{$column_prefix}_xsdmf_id` int(11) default NULL,\n " .
                    $cardinality_extra .
@@ -1593,22 +1618,23 @@ class Search_Key
             } else { //otherwise just use the defaults of the non-mysql database
                 $query_end = ")";
             }
-			$sql .= $query_end;
+			$sql .= $query_end . ";";
             return $sql;
 
         } elseif ($relationship == 0) {
             /*
-                * Create new columns
-                */
+             * Create new columns
+             */
             $table_name = APP_TABLE_PREFIX . 'record_search_key';
+            if ($shadow) {
+                $table_name .= "__shadow";
+            }
             $column_name = 'rek_' . $sek_title_db;
 
             $sql = "ALTER TABLE `$table_name` \n" .
                    "    ADD COLUMN `{$column_name}_xsdmf_id` int(11), \n" .
                    "    ADD COLUMN `$column_name` $column_type \n";
-
-            return $sql;
-
+            return $sql . ";";
         }
 
         return false;

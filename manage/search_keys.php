@@ -72,7 +72,12 @@ if (@$_GET["cat"] == "edit") {
     $tpl->assign("info", Search_Key::getDetails($_GET["id"]));
 } elseif (@$_GET["cat"] == "view_sql") {
     if(!empty($_GET["id"])) {
+        $details = Search_Key::getDetails($_GET["id"]);
         echo '<pre>'.Search_Key::createSQL($_GET["id"]) . '</pre>';
+        if ($details['sek_relationship'] == '1') {
+            echo '<hr />';
+            echo '<pre>'.Search_Key::createSQL($_GET["id"], true) . '</pre>';
+        };
         exit();
     }
 }
