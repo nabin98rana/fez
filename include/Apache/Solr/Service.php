@@ -1221,6 +1221,10 @@ class Apache_Solr_Service
 		$params['rows'] = $limit;
 
 		$queryString = $this->_generateQueryString($params);
+    // Catch any querystrings longer than the default Tomcat length ~8000 and use POST instead. Nice to default to use GET most of the time for debug ease.
+    if (strlen($queryString) > 7000) {
+      $method = self::METHOD_POST;
+    }
 
 		if ($method == self::METHOD_GET)
 		{
