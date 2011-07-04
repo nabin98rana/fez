@@ -106,10 +106,8 @@ SWFUpload.completeURL = function (url) {
                 } else {
                         path = window.location.pathname.substr(0, indexSlash) + "/";
                 }
-            alert('part 1 '+path+url);
                 return path + url;
         } catch (ex) {
-            alert('part 2 '+url);
                 return url;
         }
 };
