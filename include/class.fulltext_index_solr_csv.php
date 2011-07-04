@@ -255,7 +255,10 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 					} else {
 						$orderByClause = "ORDER BY a2.rek_{$mtColumn['name']}_order ASC";
 					}
-				}
+          $limitExtra = "";
+				} else {
+          $limitExtra = " LIMIT 1 OFFSET 0 "; //to catch any data inconsistences not caught earlier or by DDL unique keys
+        }
 				
 				$stmt = "    SELECT a2.rek_".$mtColumn["name"]."_pid as pid, ";
 				
@@ -269,7 +272,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 														
                             FROM ".APP_TABLE_PREFIX."record_search_key_".$mtColumn["name"]." a2 
                             WHERE a2.rek_".$mtColumn["name"]."_pid IN (". $pids . ")
-                            GROUP BY a2.rek_".$mtColumn["name"]."_pid";
+                            GROUP BY a2.rek_".$mtColumn["name"]."_pid".$limitExtra;
 				
 				try {
 					$resultSeks = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
@@ -325,7 +328,11 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 						} else {
 							$orderByClause = "ORDER BY a2.rek_{$mtColumn['name']}_order ASC";
 						}
-					}
+            $limitExtra = "";
+          } else {
+            $limitExtra = " LIMIT 1 OFFSET 0 "; //to catch any data inconsistences not caught earlier or by DDL unique keys
+          }
+
 
 					$stmt = "    SELECT a2.rek_".$mtColumn["name"]."_pid as pid, ";
 
@@ -337,7 +344,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 					
 					$stmt .= "          FROM ".APP_TABLE_PREFIX."record_search_key_".$mtColumn["name"]." a2
 	                            WHERE a2.rek_".$mtColumn["name"]."_pid IN (". $pids . ")
-	                            GROUP BY a2.rek_".$mtColumn["name"]."_pid";
+	                            GROUP BY a2.rek_".$mtColumn["name"]."_pid".$limitExtra;
 
 					try {
 						$resultSeks = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
