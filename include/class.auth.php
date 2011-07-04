@@ -809,7 +809,13 @@ class Auth
 			}
 
 			if ($inherit == true) { // if need to inherit, check if at dsID level or not first and then
-				$userPIDAuthGroups["security"] = "inherit";
+
+        if ($dsID != '' && $acmlBase != false) {
+          $userPIDAuthGroups["security"] = "include";
+        } else {
+          $userPIDAuthGroups["security"] = "inherit";
+        }
+
 
 				// if already at PID level just get parent pids and add them
 				if (($dsID == "") || ($usingDS == false)) {
@@ -821,7 +827,7 @@ class Auth
 						$parents = Record::getParents($pid);
 						Auth::getParentACMLs(&$ACMLArray, $parents);
 					} else { // otherwise found pid level so add to ACMLArray and check whether to inherit or not
-						$userPIDAuthGroups["security"] = "include";
+            $userPIDAuthGroups["security"] = "include";
 						array_push($ACMLArray, $acmlBase);
 						// If found an ACML then check if it inherits security
 						$inherit = false;
