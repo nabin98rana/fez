@@ -1116,19 +1116,22 @@ class Fedora_API {
 		}
 //		echo $urldata;
 		list($dsIDListArray['stream'],$info) = Misc::processURL($urldata);
-    $config = array(
-              'indent'        => true,
-              'input-xml'     => true,
-              'output-xml'    => true,
-              'wrap'          => 0
-    );
+    if ($asofDateTime != "") {
+          $config = array(
+                    'indent'        => true,
+                    'input-xml'     => true,
+                    'output-xml'    => true,
+                    'wrap'          => 0
+          );
 
-    if (!defined('APP_NO_TIDY') || !APP_NO_TIDY) {
-      $tidy = new tidy;
-      $tidy->parseString($dsIDListArray['stream'], $config, 'utf8');
-      $tidy->cleanRepair();
-      $dsIDListArray['stream'] = $tidy;
-    }
+          if (!defined('APP_NO_TIDY') || !APP_NO_TIDY) {
+            $tidy = new tidy;
+            $tidy->parseString($dsIDListArray['stream'], $config, 'utf8');
+            $tidy->cleanRepair();
+            $dsIDListArray['stream'] = $tidy;
+          }
+        }
+
 		return $dsIDListArray;
 	}
 
