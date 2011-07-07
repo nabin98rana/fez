@@ -1090,8 +1090,10 @@ class Record
     if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
       $stmt = $stmtIns ." ON DUPLICATE KEY UPDATE " . implode(",", $valuesUpd);
     } else {
-      $stmt = "DELETE FROM " . $table . "WHERE rek_pid = " . $db->quote($pid);
-      $db->exec($stmt);
+      if (!$shadow) {
+        $stmt = "DELETE FROM " . $table . "WHERE rek_pid = " . $db->quote($pid);
+        $db->exec($stmt);
+      }
 			$stmt = $stmtIns;
     }
 
