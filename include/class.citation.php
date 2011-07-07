@@ -280,7 +280,7 @@ class Citation
 		return $list;
 	}
 
-	function updateCitationCache($pid, $citation="")
+	function updateCitationCache($pid, $citation="", $shadow = false)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -299,8 +299,12 @@ class Citation
 			return;
 		}
 
-		$stmt = "UPDATE
-				" . APP_TABLE_PREFIX . "record_search_key r1
+		$table = APP_TABLE_PREFIX . "record_search_key";
+		if ($shadow) {
+			$table .= "__shadow";
+		}
+
+		$stmt = "UPDATE " . $table . " r1
 				SET rek_citation = ".$db->quote($citation)."
 				WHERE rek_pid = ".$db->quote($pid);
 		try {

@@ -61,7 +61,6 @@ abstract class FulltextIndex {
 	const FIELD_TYPE_VARCHAR = 2;
 	const FIELD_TYPE_TEXT = 3;
 		
-	//const FULLTEXT_TABLE_NAME = "record_search_key_file_attachment_content";
 	const FULLTEXT_TABLE_NAME = "fulltext_cache";
 
 	const FIELD_MOD_MULTI = '_multivalue';
@@ -83,10 +82,7 @@ abstract class FulltextIndex {
 	protected $bgpDetails;
 	protected $searchKeyData;
 
-	//public $memory_man;
-
 	// how often the index optimizer is called
-	//	const COMMIT_COUNT = 500;
 	const COMMIT_COUNT = APP_SOLR_COMMIT_LIMIT; // Now gets this variablee from a config var set in the admin gui
 
 	/**
@@ -218,7 +214,6 @@ abstract class FulltextIndex {
 			$this->releaseLock();
 		}
 		 
-//		$this->bgp->setStatus("Fulltext indexer finished. Processed ".$this->countDocs." item(s).");
 	}
 
 
@@ -304,20 +299,13 @@ abstract class FulltextIndex {
 				$this->bgp->setStatus("Finished Solr fulltext indexing for ($ftq_pid) (".$this->countDocs."/".$this->totalDocs." Added) (Avg ".$time_per_object."s per Object, Expected Finish ".$expected_finish.")");
 
 			} else {
-				//Logger::error("processQueue error ".Logger::str_r($result));
 				$empty = true;
 			}
-
-			//Logger::debug("processQueue: almost finished indexing mem_used=".memory_get_usage());
 
 			unset($result);
 			unset($ftq_op);
 			unset($ftq_pid);
 			unset($ftq_key);
-
-
-			//$this->postprocessIndex($ftq_pid, $ftq_op);
-			//Logger::debug("processQueue: finished indexing mem_used=".memory_get_usage());
 
 		} while (!$empty);
 		 
@@ -390,12 +378,6 @@ abstract class FulltextIndex {
 	 */
 	public function indexRecord($pid, $regen=false, $topcall=true)
 	{
-		// maybe do test? (!$record->isCommunity() && !$record->isCollection())
-		//$GLOBALS['db_api']->dbh->autoCommit(true);
-
-		//Logger::debug("FulltextIndex::indexRecordSolr start mem_usage=".memory_get_usage());
-		//$this->memory_man->register("FulltextIndex::indexRecordSolr start");
-		 
 		$this->regen = $regen;
 
 		if ($this->bgp) {
@@ -403,24 +385,12 @@ abstract class FulltextIndex {
 			$this->bgp->setProgress(++$this->pid_count);
 		}
 
-		//
-		// process datastreams (update Fez database search index)
-		//
-		//Logger::debug("FulltextIndex::indexRecordSolr before RecordGeneral mem_usage=".memory_get_usage());
-		//$this->memory_man->register("FulltextIndex::indexRecordSolr before RecordGeneral");
-
 		$record = new RecordGeneral($pid);
-		//$this->memory_man->register("FulltextIndex::indexRecordSolr after RecordGeneral");
 		$dslist = $record->getDatastreams();
-		//$this->memory_man->register("FulltextIndex::indexRecordSolr after getDatastreams");
-		//Logger::debug("FulltextIndex::indexRecordSolr before indexDS mem_usage=".memory_get_usage());
-		//$this->memory_man->register("FulltextIndex::indexRecordSolr before indexDS");
+
 		foreach ($dslist as $dsitem) {
 			$this->indexDS($record, $dsitem);
 		}
-
-		//Logger::debug("FulltextIndex::indexRecordSolr after indexDS mem_usage=".memory_get_usage());
-		//$this->memory_man->register("FulltextIndex::indexRecordSolr after indexDS");
 
 		//
 		// get record metadata from Fez search index
@@ -442,9 +412,6 @@ abstract class FulltextIndex {
 		);
 
 		$searchKeys[] = $citationKey;
-
-		//Logger::debug("FulltextIndex::indexRecordSolr before searchKeys mem_usage=".memory_get_usage());
-		//$this->memory_man->register("FulltextIndex::indexRecordSolr before searchKeys");
 
 		foreach ($searchKeys as $sekDetails) {
 			$title = $sekDetails["sek_title"];
@@ -481,40 +448,24 @@ abstract class FulltextIndex {
 				$title = $this->getFieldName($title, $fieldType, $isMultiValued);
 				$docfields[$title] = $fieldValue;
 				$fieldTypes[$title] = $fieldType;
-
-				// for debugging
-				//             	$strValue = $fieldValue;
-				//            	if (strlen($strValue) > 255 && !$fieldTypes['_multivalue']) {
-				//            		$strValue = substr($strValue, 0, 255);
-				//            	}
-				//Logger::debug("---> setting field value for \"$title\" to \"$strValue\" (type ".$fieldTypes[$title].")");
 				unset($fieldValue);
 				unset($fieldType);
 			}
 		}
 
 		unset($searchKeys);
-		//Logger::debug("FulltextIndex::indexRecordSolr after searchKeys mem_usage=".memory_get_usage());
-		//$this->memory_man->register("FulltextIndex::indexRecordSolr after searchKeys");
 
-
-		//
 		// add fulltext for each datastream (fulltext is supposed to be in the special cache)
-		//
 		$title = $this->getFieldName(self::FIELD_NAME_FULLTEXT, self::FIELD_TYPE_TEXT, true);
 		$docfields[$title] = array();
 		$fieldTypes[$title] = self::FIELD_TYPE_TEXT;
 		$fieldTypes[$title.FulltextIndex::FIELD_MOD_MULTI] = true;
-
-		//Logger::debug("FulltextIndex::indexRecordSolr before DSLIST mem_usage=".memory_get_usage());
-		//$this->memory_man->register("FulltextIndex::indexRecordSolr before DSLIST");
 
 		foreach ($dslist as $dsitem) {
 			$dsid = $dsitem['ID'];
 			$ftResult = $this->getCachedContent($pid, $dsid);
 			if (!empty($ftResult) && !empty($ftResult['content'])) {
 				$docfields[$title][$dsid] = $ftResult['content'];
-				//Logger::debug("added fulltext($pid,$dsid) with content = ".Logger::str_r(&$ftResult['content']));
 			}
 			unset($ftResult);
 		}
@@ -533,53 +484,14 @@ abstract class FulltextIndex {
 		//
 		$this->updateFulltextIndex($pid, $docfields, $fieldTypes);
 
-
-
-		//
-		// recurse children
-		//
-		//$children = $record->getChildrenPids();
-
-		//Logger::debug("- children: ".Logger::str_r($children));
-		//        if (!empty($children)) {
-		//            if ($this->bgp) {
-		//            	Logger::debug("Recursing into children of pid ".$pid);
-		//            	Logger::debug("Recursing into children of (title=".$record->getTitle().")");
-		//            	$this->bgp->setStatus("Recursing into ".$record->getTitle());
-		//            }
-		//
-		//            foreach ($children as $child_pid) {
-		//            	$regen = false;
-		//                //$this->indexRecord($child_pid, $regen, false);
-		//                Logger::debug("Adding child <".$child_pid."> to queue");
-		//                FulltextQueue::singleton()->add($child_pid);
-		//                Logger::debug("Adding child <".$child_pid."> to queue done.");
-		//            }
-		//        }
-
-
-
 		if ($this->bgp) {
-			//Logger::debug("BGP Finished Solr fulltext indexing for pid ".$pid);
-			//Logger::debug("BGP Finished Solr fulltext indexing for (title=".$record->getTitle().")");
 			$this->bgp->setStatus("Finished Solr fulltext indexing for ".$record->getFieldValueBySearchKey("Title")." ($pid)");
-			//        	$this->bgp->setStatus("Finished Solr fulltext indexing for ".$record->getTitle()." ($pid)");
 		}
 
 		unset($record);
-		//$this->memory_man->register("FulltextIndex::indexRecordSolr after destroying record");
 		unset($dslist);
-		//$this->memory_man->register("FulltextIndex::indexRecordSolr after destroying dslist");
 		unset($docfields);
 		unset($fieldTypes);
-		 
-
-		//Logger::debug("======= FulltextIndex::indexRecordSolr finished solr update mem_usage=".memory_get_usage() . "=======");
-		//$this->memory_man->register("======= FulltextIndex::indexRecordSolr finished solr =======");
-		//$this->memory_man->display();
-
-		// optimize lucene index if topcall=true?
-		//Logger::debug("====== finished fulltext indexing for ($pid)");
 	}
 
 
@@ -617,9 +529,6 @@ abstract class FulltextIndex {
 	 */
 	protected function indexManaged($rec, $dsitem)
 	{
-		//Logger::debug("FulltextIndex::indexManaged mem_usage=".memory_get_usage());
-		//$GLOBALS['db_api']->dbh->autoCommit(true);
-
 		// check if the fulltext index can do anything with this stream
 		$can_index = Fulltext_Tools::checkMimeType($dsitem['MIMEType']);
 		if (!$can_index) {
@@ -643,20 +552,6 @@ abstract class FulltextIndex {
 		$filehandle = fopen($filename, "w");
 		$rec->getDatastreamContents($dsitem['ID'], $filehandle);
 		fclose($filehandle);
-
-		//        $content = $rec->getDatastreamContents($dsitem['ID']);
-		//file_put_contents($filename, $rec->getDatastreamContents($dsitem['ID']));
-
-		//unset($content);
-
-		// temporary performance hack?
-		// TODO!
-		/*
-		 $tempFilename = APP_TEMP_DIR."fulltext_".$dsitem['ID'].rand(1000000);
-		 $fd = fopen($tempFilename, "w");
-		 $fedoraFilename = APP_FEDORA_GET_URL."/".$rec->pid."/".$dsitem['ID'];
-		 list($blob,$info) = Misc::processURL($filename, true, $fd);
-		 */
 
 		$textfilename = Fulltext_Tools::convertFile($dsitem['MIMEType'], $filename);
 		unlink($filename);
@@ -846,31 +741,6 @@ abstract class FulltextIndex {
 		$snips = $qresult['snips'];
 
 		$log->debug(array("FulltextIndex::search found ".$total_rows." items"));
-
-		//		if ($total_rows > 0) {
-		//
-		//			$i = 0;
-		//			$res = array();
-		//            foreach ($qresult['docs'] as $doc) {
-		//            	$pid = $doc['pid'];
-		//
-		//            	// for the moment: lookup 1:1 values from record_search_key table
-		//            	$sql =  "SELECT * FROM ".APP_TABLE_PREFIX."record_search_key ";
-		//            	$sql .= "WHERE rek_pid='".$pid."'";
-		//
-		//            	$objRes = $GLOBALS["db_api"]->dbh->getAll($sql, DB_FETCHMODE_ASSOC);
-		//
-		//            	$res[$i] = $objRes[0];
-		//				$res[$i]['xtract'] = $snips[$pid];
-		//
-		//				$i++;
-		//
-		//		    }
-		//		}
-
-		//		echo "<pre>";
-		//		print_r($res);
-		//		echo "</pre>";
 
 		$result = array();
 		$result['list'] = $qresult['docs'];
@@ -1083,15 +953,6 @@ abstract class FulltextIndex {
 			return false;
 		}
 
-		/* if using transactions
-		 // commit transaction
-		 $GLOBALS['db_api']->dbh->commit();
-		 if (PEAR::isError($res)) {
-		 Error_Handler::logError(array($res->getMessage(), $res->getDebugInfo()), __FILE__, __LINE__);
-		 Logger::error($res->getMessage());
-		 }
-		 */
 	}
-
 
 }

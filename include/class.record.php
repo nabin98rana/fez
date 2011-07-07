@@ -1054,7 +1054,7 @@ class Record
   }
 
 
-  function updateSearchKeys($pid, $sekData)
+  function updateSearchKeys($pid, $sekData, $shadow = false)
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -1078,17 +1078,22 @@ class Record
       $valuesIns[] = "$xsdmf_value, {$sek_value['xsdmf_id']}";
       $valuesUpd[] = "rek_{$sek_column} = $xsdmf_value, rek_{$sek_column}_xsdmf_id = {$sek_value['xsdmf_id']}";
     }
+
+    $table = APP_TABLE_PREFIX . "record_search_key";
+    if ($shadow) {
+      $table .= "__shadow";
+    }
       
-    $stmtIns = "INSERT INTO " . APP_TABLE_PREFIX . "record_search_key (" . implode(",", $stmt) . ") ";
+    $stmtIns = "INSERT INTO " . $table . " (" . implode(",", $stmt) . ") ";
     $stmtIns .= " VALUES (" . implode(",", $valuesIns) . ")";
 		$db->beginTransaction();      
     if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
       $stmt = $stmtIns ." ON DUPLICATE KEY UPDATE " . implode(",", $valuesUpd);
     } else {
-      $stmt = "DELETE FROM ".
-                  APP_TABLE_PREFIX . "record_search_key ".
-                "WHERE rek_pid = " . $db->quote($pid);
-      $db->exec($stmt);
+      if (!$shadow) {
+        $stmt = "DELETE FROM " . $table . "WHERE rek_pid = " . $db->quote($pid);
+        $db->exec($stmt);
+      }
 			$stmt = $stmtIns;
     }
 
@@ -1146,8 +1151,13 @@ class Record
             $cardinalityCol = ",rek_".$sek_table."_order";
           }
           
-          $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "record_search_key_".$sek_table."
-                (rek_".$sek_table."_pid, rek_".$sek_table."_xsdmf_id, rek_".$sek_table . $cardinalityCol.")
+          $table = APP_TABLE_PREFIX . "record_search_key_" . $sek_table;
+          if ($shadow) {
+            $table .= "__shadow";
+          }
+
+          $stmt = "INSERT INTO " . $table . " 
+                (rek_" . $sek_table . "_pid, rek_" . $sek_table . "_xsdmf_id, rek_" . $sek_table . $cardinalityCol . ")
               VALUES ";
             
           if (is_array($sek_value['xsdmf_value'])) {
@@ -1190,8 +1200,13 @@ class Record
 
       if (trim($deriveFunction) != '') {
 
-        $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "record_search_key_{$sekTable} ".
-            "(rek_{$sekTable}_pid, rek_{$sekTable}) VALUES ";
+        $table = APP_TABLE_PREFIX . "record_search_key_" . $sekTable;
+        if ($shadow) {
+          $table .= "__shadow";
+        }
+
+        $stmt = "INSERT INTO " . $table . 
+            " (rek_{$sekTable}_pid, rek_{$sekTable}) VALUES ";
 
         eval("\$derivedValue = $deriveFunction(\$pid);");
 
@@ -1227,11 +1242,11 @@ class Record
         }				
       }
     }
-    
+
     if (!defined(PROVISIONAL_CODE_UPDATE_FROM_SCRIPT) || PROVISIONAL_CODE_UPDATE_FROM_SCRIPT === false) {
       Record::applyProvisionalCode($pid);
     }
-    Citation::updateCitationCache($pid, "");
+    Citation::updateCitationCache($pid, "", $shadow);
     Statistics::updateSummaryStatsOnPid($pid);
     Google_Scholar::updateCitationCache($pid);
     Record::updateThomsonCitationCountFromHistory($pid);

@@ -2020,6 +2020,11 @@ class RecordGeneral
     Record::removeIndexRecord($pid, false); // clean out the SQL index, but do not remove from Solr, 
                                             // the solr entry will get updated in updateSearchKeys
     Record::updateSearchKeys($pid, $searchKeyData);
+    if (APP_FEDORA_BYPASS == 'ON') {
+      Record::updateSearchKeys($pid, $searchKeyData, true); // Update shadow tables
+    }
+
+
   }
 
   /**

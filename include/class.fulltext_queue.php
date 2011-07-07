@@ -128,25 +128,9 @@ class FulltextQueue
 		$log = FezLog::get();
 		
 		$bgp = new BackgroundProcess_Fulltext_Index();
-		//$bgp->register(serialize(compact('pid','regen')), Auth::getUserID());
 		$bgp->register(serialize(array()), APP_SYSTEM_USER_ID); // todo: maybe take something other than admin
-		//Logger::debug("FulltextQueue::createUpdateProcess bgp registered");
 	}
 		
-
-	/*
-		public function removeLock() {
-		$GLOBALS["db_api"]->dbh->autoCommit(false);
-		$sql = "DELETE FROM ".APP_TABLE_PREFIX."fulltext_locks WHERE lockName='".self::LOCK_FULLTEXT_INDEX."'";
-		$GLOBALS["db_api"]->dbh->query($sql);
-			
-		if ($GLOBALS["db_api"]->dbh->commit() != DB_OK) {
-		// setting lock failed because another process was faster
-		Logger::error("FulltextQueue::removeLock - could not delete lock");
-		}
-		}
-		*/
-
 	public static function getProcessInfo($pid='') 
 	{
 		$log = FezLog::get();
@@ -299,9 +283,6 @@ class FulltextQueue
 			
 		$pidList = array();
 		$actionList = array();
-			
-		//$psql = "INSERT INTO ".APP_TABLE_PREFIX."fulltext_queue (ftq_pid,ftq_op) VALUES (?,?)";
-		//$pstmt = $GLOBALS["db_api"]->dbh->prepare($psql);
 
 		foreach ($this->pids as $pid => $action) {
 			//Logger::debug("FulltextQueue::commit() queing ". Misc::escapeString($pid).", ".Misc::escapeString($action));
@@ -373,7 +354,6 @@ class FulltextQueue
 		$stmt  = "SELECT * FROM ".APP_TABLE_PREFIX."fulltext_queue ";
 		$stmt .= "ORDER BY ftq_key ASC "; //maybe this needs to be commented out like RP did because of hte below? doubt it surely.. CK
 		$stmt = $db->limit($stmt, 1, 0);
-//		$stmt .= " FOR UPDATE ";
 		
 		try {
 			$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
@@ -391,7 +371,6 @@ class FulltextQueue
 		// delete row
 		$stmt =  "DELETE FROM ".APP_TABLE_PREFIX."fulltext_queue ";
 		$stmt .= "WHERE ftq_key=".$db->quote($res['ftq_key'], 'INTEGER');
-		//Logger::debug($sql);
 		
 		try {
 			$db->query($stmt);
