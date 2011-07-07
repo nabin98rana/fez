@@ -97,10 +97,6 @@ class RecordObject extends RecordGeneral
 		$newXML .= "</FezMD>";
 		if ($newXML != "") {
 			Fedora_API::callModifyDatastreamByValue($this->pid, "FezMD", "A", "Fez extension metadata", $newXML, "text/xml", "inherit");
-			/*			$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElement("!xdis_id", 15);
-			 Record::removeIndexRecordByXSDMF_ID($this->pid, $xsdmf_id);
-			 Record::insertIndexMatchingField($this->pid, '', $xsdmf_id, $this->xdis_id);
-			 */
 			$this->setIndexMatchingFields();
 		}
 	}
@@ -147,7 +143,6 @@ class RecordObject extends RecordGeneral
 			$this->getXmlDisplayId();
 		}
 		$pid = $this->pid;
-
 
 		if (empty($this->xdis_id)) {
 			$this->xdis_id = $_POST["xdis_id"];
@@ -217,13 +212,6 @@ class RecordObject extends RecordGeneral
 			{
 				// first extract the image and save temporary copy
 				$urldata = APP_FEDORA_GET_URL."/".$pid."/".$dsIDName;
-				//              copy($urldata,APP_TEMP_DIR.$dsIDName);
-				/*$urlReturn = Misc::ProcessURL($urldata);
-				 $handle = fopen(APP_TEMP_DIR.$dsIDName, "w");
-				 fwrite($handle, $urlReturn[0]);
-				 fclose($handle);*/
-
-				//				$urlReturn = Misc::ProcessURL($urldata);
 				$handle = fopen(APP_TEMP_DIR.$dsIDName, "w");
 				Misc::processURL($urldata, false, $handle);
 				fclose($handle);
@@ -243,13 +231,6 @@ class RecordObject extends RecordGeneral
 					// strip directory off the name
 					$pres_dsID = basename($presmd_check);
 					if (Fedora_API::datastreamExists($pid, $pres_dsID)) {
-						//$presData = Misc::ProcessURL($presmd_check);
-						//						$xml = $presData[0];
-						//($pid, $dsID, $dsLabel, $dsLocation=NULL, $mimetype) {
-						//						Fedora_API::callModifyDatastreamByReference($pid, $pres_dsID,
-						//                                "Preservation Metadata", $presmd_check, "text/xml");
-						//                        Fedora_API::callModifyDatastreamByValue($pid, $pres_dsID, "A",
-						//                                "Preservation Metadata", $xml, "text/xml", "inherit");
 						Fedora_API::callPurgeDatastream($pid, $pres_dsID);
 						Fedora_API::getUploadLocationByLocalRef($pid, $pres_dsID, $presmd_check, $presmd_check,
                                 "text/xml", "M");
