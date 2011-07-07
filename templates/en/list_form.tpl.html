@@ -259,7 +259,7 @@
 		  <tr>
 		  	{if $list_type != 'community_list' && $list_type != 'collection_list' && $isAdministrator}
 				<td style="border-top: 1px dashed #be87e9; width: 10px; vertical-align: middle;">
-					<img id="star_{$list[i].rek_pid}" src="{$rel_url}images/star_16{if !$list[i].starred}_grey{/if}.png" alt="Star/unstar this record" title="Star/unstar this record" onclick="javascript:starToggle('{$list[i].rek_pid}')"; />
+					<img id="star_{$list[i].rek_pid}" src="{$rel_url}images/star_16{if !$list[i].starred}_grey{/if}.png" alt="Star/unstar this record" title="Star/unstar this record" onclick="javascript:starToggle('{$list[i].rek_pid}');" />
 				</td>
 			{/if}
 		  
