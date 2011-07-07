@@ -51,6 +51,7 @@ $pid        = @$_REQUEST["pid"];
 $dsID       = @$_REQUEST["dsID"];
 $origami    = @$_REQUEST["oi"];
 $bookreader    = @$_REQUEST["bookreader"];
+$bookpage     = @$_REQUEST["bookpage"];
 $bookreaderui = "full";
 $bookreaderui    = @$_REQUEST["ui"];
 
@@ -248,7 +249,38 @@ if (!empty($pid) && !empty($dsID)) {
             Statistics::addBuffer($pid, $dsID);
             exit;
 
-
+         } elseif($bookpage == true) {
+             
+             //$_SERVER['REQUEST_URI'] = "/pidimages/UQ_5403/../../../Arianrhod_Chapte/Arianrhod_Chapte-0002.jpg?bookpage=true";
+             $uri = $_SERVER['REQUEST_URI'];
+             
+             //Don't try to peek into our tree.
+             $filtStrings = array('..','./');
+             for($s=0;$s<count($filtStrings);$s++)//In case they create a condition to subvert this the first time, we'll go again.
+             {
+                 $uri = str_replace($filtStrings, '', $uri);
+             }
+             
+             $uri = explode('/',$_SERVER['REQUEST_URI']);
+             $image = $uri[count($uri) - 1];
+             $image = explode('?',$image);
+             $image = $image[0];
+             $resource = $uri[count($uri) - 2];
+             $pid = $uri[count($uri) - 3];
+             if(strstr($pid,':'))
+             {
+                 $pid = str_replace(':','_',$pid);
+             }
+             
+             $imageFile = BR_IMG_DIR . $pid . '/' . $resource . '/' . $image;
+             
+             if(is_file($imageFile))
+             {
+                 header('Content-Type: image/jpeg');
+                 echo file_get_contents($imageFile);
+             }
+             
+             exit;
 
 		} elseif( $origami == true ) {
 		    

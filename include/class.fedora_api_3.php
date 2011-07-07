@@ -1364,6 +1364,23 @@ class Fedora_API {
 			$urldata = APP_FEDORA_GET_URL."/".$pid."/".$dsID."/".$asofDateTime;
 		}
 		list($dsIDListArray['stream'],$info) = Misc::processURL($urldata);
+
+    if ($asofDateTime != "") {
+      $config = array(
+                'indent'        => true,
+                'input-xml'     => true,
+                'output-xml'    => true,
+                'wrap'          => 0
+      );
+
+      if (!defined('APP_NO_TIDY') || !APP_NO_TIDY) {
+        $tidy = new tidy;
+        $tidy->parseString($dsIDListArray['stream'], $config, 'utf8');
+        $tidy->cleanRepair();
+        $dsIDListArray['stream'] = $tidy;
+      }
+    }
+
 		return $dsIDListArray;
 	}
 
@@ -1393,12 +1410,10 @@ class Fedora_API {
 			} else {
 				list($blob,$info) = Misc::processURL($filename);
 			}
-				
 			// check if this is even XML, it might be binary, in which case we'll just return it.
 			if ($info['content_type'] != 'text/xml' || $getraw) {
 				return $blob;
 			}
-
 			// We've checked the mimetype is XML so lets parse it and make a simple array
 			if (!empty($blob) && $blob != false) {
 				$doc = DOMDocument::loadXML($blob);

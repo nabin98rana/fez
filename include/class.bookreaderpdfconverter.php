@@ -41,7 +41,7 @@ class bookReaderPDFConverter
             $this->sourceFilePath = $sourceFile;
         }
         $this->sourceInfo();
-        $this->bookreaderDataPath = APP_PATH . BR_IMG_DIR . $pid . '/' . $this->sourceFileStat['filename'];
+        $this->bookreaderDataPath = BR_IMG_DIR . $pid . '/' . $this->sourceFileStat['filename'];
     }
 
     /**
