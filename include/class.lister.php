@@ -102,7 +102,12 @@ class Lister
             }
         }
         $params = $allowed;
-
+        
+        foreach($params['search_keys'] as $paramk => $paramv)
+        {
+            $params['search_keys'][$paramk] = trim($paramv);
+        }
+        
 		$custom_view_pid = $params['custom_view_pid'];
 
 //		$filter["searchKey".Search_Key::getID("isMemberOf")];
