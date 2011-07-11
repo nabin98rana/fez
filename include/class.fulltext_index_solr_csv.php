@@ -452,9 +452,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 				if($raw_response[1]["http_code"] != "200") {
 					$info = array();
 					$log->err('No response from solr.. after the second attempt: '.print_r($raw_response, true));			
-					$log->err(array('Message' => curl_error($ch)." with file ".$tmpfname, 'File' => __FILE__, 'Line' => __LINE__));
 					$log->debug(array($url));
-					curl_close ($ch);
 				}
 				else {
 					$uploaded = true;
