@@ -390,6 +390,7 @@ class Apache_Solr_Service
 	 */
 	protected function _sendRawPost($url, $rawPost, $timeout = FALSE, $contentType = 'text/xml; charset=UTF-8')
 	{		
+		$log = FezLog::get();
 		$httpTransport = $this->getHttpTransport();
 
 		$httpResponse = $httpTransport->performPostRequest($url, $rawPost, $contentType, $timeout);
