@@ -449,7 +449,7 @@ class FulltextQueue
 		
 		// MT 20100317 - modified order by clause from pid ASC to key DESC so that we have a last-in-first-out order on the queue
 		$stmt .= ") as row FROM ".APP_TABLE_PREFIX."fulltext_queue
-			             LEFT JOIN ".APP_TABLE_PREFIX."record_search_key as sk ON rek_pid = ftq_pid 
+			             INNER JOIN ".APP_TABLE_PREFIX."record_search_key as sk ON rek_pid = ftq_pid
 		             WHERE ftq_op = '".FulltextQueue::ACTION_INSERT."'
 		             ORDER BY ftq_key DESC
 		             LIMIT ".APP_SOLR_COMMIT_LIMIT;
