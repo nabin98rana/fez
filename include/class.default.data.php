@@ -96,7 +96,7 @@ class Default_Data
 			$defaultData['app_jahdl_dir']                   = "/usr/local/jahdl/";
 			$defaultData['handle_admpriv_key_file']         = "/usr/local/handle/data/admpriv.bin";
 			$defaultData['app_log_location']                = "/var/log/fez/fez-error.log";
-            $defaultData['br_img_dir']                      = "/var/www/fez/pidimages/";
+            $defaultData['br_img_dir']                      = "/pidimages/";
             $defaultData['ghostscript_pth']                 = "/usr/bin/gs";
 
 			// Sensible Debian/Ubuntu defaults
