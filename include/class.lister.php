@@ -102,15 +102,15 @@ class Lister
             }
         }
         $params = $allowed;
-        
-        foreach($params['search_keys'] as $paramk => $paramv)
-        {
-            if (!is_array($paramv)) {
-              $params['search_keys'][$paramk] = trim($paramv);
-            }
+        if (is_array($params['search_keys'])) {
+          foreach($params['search_keys'] as $paramk => $paramv)
+          {
+              if (!is_array($paramv)) {
+                $params['search_keys'][$paramk] = trim($paramv);
+              }
 
+          }
         }
-        
 		$custom_view_pid = $params['custom_view_pid'];
 
 //		$filter["searchKey".Search_Key::getID("isMemberOf")];
@@ -159,7 +159,7 @@ class Lister
 		$username = Auth::getUsername();
 		$isAdministrator = User::isUserAdministrator($username);
 		
-		if (($tpl_idx != 0 && $tpl_idx != 10 && $tpl_index != 4) || $isAdministrator == true) {
+		if (($tpl_idx != 0 && $tpl_idx != 10 && $tpl_idx != 4) || $isAdministrator == true) {
 			$citationCache = false;
 		} else {
 			$citationCache = true;
