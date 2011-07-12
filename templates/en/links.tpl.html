@@ -1,5 +1,5 @@
   		{section name="i" loop=$links}
-  		<foxml:datastream CONTROL_GROUP="R" ID="{$links[i].id}" STATE="A" VERSIONABLE="false">
+  		<foxml:datastream CONTROL_GROUP="R" ID="{$links[i].id}" STATE="A" VERSIONABLE="true">
     		<foxml:datastreamVersion CREATED="{$links[i].created}" FORMAT_URI="unknown" ID="{$links[i].id}_0" LABEL="{$links[i].name}" MIMETYPE="text/xml" SIZE="0">
       			<foxml:contentLocation REF="{$links[i].url}" TYPE="URL"/>
     		</foxml:datastreamVersion>
