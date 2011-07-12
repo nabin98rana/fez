@@ -99,10 +99,10 @@ class Fedora_API {
 
 	/**
 	 * REPLACED
-	 * Gets the next available persistent identifier from the Fedora PID Handler webservice.
+	 * Gets the next available persistent identifier.
 	 *
 	 * @access  public
-	 * @return  string $pid The next avaiable PID in from the Fedora PID handler
+	 * @return  string $pid The next avaiable PID in from the PID handler
 	 */
 	function getNextPID($fedoraBypass = true) 
 	{
