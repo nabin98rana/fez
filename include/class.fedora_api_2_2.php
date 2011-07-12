@@ -1454,6 +1454,11 @@ class Fedora_API {
 	{
 		$log = FezLog::get();
 		
+	    if(!array_key_exists($parms['asOfDateTime']))
+	    {
+	        $parms['asOfDateTime'] = NULL;
+	    }
+		
 		/********************************************
 		 * This is a primary function called by all of
 		 * the preceding functions.

@@ -1415,7 +1415,12 @@ class Fedora_API {
 	 */
 	function openSoapCall ($call, $parms, $debug_error=true) 
 	{
-		$log = FezLog::get();
+	    $log = FezLog::get();
+	    
+	    if(!array_key_exists($parms['asOfDateTime']))
+	    {
+	        $parms['asOfDateTime'] = NULL;
+	    }
 		
 		/********************************************
 		 * This is a primary function called by all of
