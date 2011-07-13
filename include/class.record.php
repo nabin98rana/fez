@@ -1087,7 +1087,7 @@ class Record
     $stmtIns = "INSERT INTO " . $table . " (" . implode(",", $stmt) . ") ";
     $stmtIns .= " VALUES (" . implode(",", $valuesIns) . ")";
 		$db->beginTransaction();      
-    if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
+    if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql")) && !$shadow) {
       $stmt = $stmtIns ." ON DUPLICATE KEY UPDATE " . implode(",", $valuesUpd);
     } else {
       if (!$shadow) {
