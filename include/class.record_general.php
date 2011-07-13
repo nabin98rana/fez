@@ -1235,7 +1235,8 @@ class RecordGeneral
               FROM " . APP_TABLE_PREFIX . "record_search_key_author a
               LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id i
                  ON a.rek_author_order=i.rek_author_id_order AND a.rek_author_pid=i.rek_author_id_pid
-              WHERE a.rek_author_pid=?";
+              WHERE a.rek_author_pid=?
+			  ORDER BY a.rek_author_order ASC";
     try {
       $res = $db->fetchAll($stmt, $this->pid, Zend_Db::FETCH_ASSOC);
     }
