@@ -481,21 +481,18 @@ class RecordGeneral
   {
       $log = FezLog::get();
       $db = DB_API::get();
-      // remove the solr suffix
-
-			
 			
       $stmt = "SELECT xsdsel_title as datastreamname, x3.xsdmf_static_text as datastreamdesc
 			FROM 
-			 fez_xsd_display_matchfields x1
-			INNER JOIN fez_search_key ON x1.xsdmf_sek_id = sek_id AND sek_title = ".$db->quote($sek_title)."
-			INNER JOIN fez_xsd_relationship ON xsdrel_xdis_id = x1.xsdmf_xdis_id
-			INNER JOIN fez_xsd_display_matchfields x2 ON x2.xsdmf_id = xsdrel_xsdmf_id
-			INNER JOIN fez_xsd_loop_subelement ON x2.xsdmf_xsdsel_id = xsdsel_id
-			INNER JOIN fez_record_search_key ON rek_display_type = x2.xsdmf_xdis_id
-			INNER JOIN  fez_xsd_display_matchfields x3 ON x3.xsdmf_xsdsel_id = xsdsel_id AND x3.xsdmf_element = '!datastream!datastreamVersion!LABEL'
+			" . APP_TABLE_PREFIX . "xsd_display_matchfields x1
+			INNER JOIN " . APP_TABLE_PREFIX . "search_key ON x1.xsdmf_sek_id = sek_id AND sek_title = ".$db->quote($sek_title)."
+			INNER JOIN " . APP_TABLE_PREFIX . "xsd_relationship ON xsdrel_xdis_id = x1.xsdmf_xdis_id
+			INNER JOIN " . APP_TABLE_PREFIX . "xsd_display_matchfields x2 ON x2.xsdmf_id = xsdrel_xsdmf_id
+			INNER JOIN " . APP_TABLE_PREFIX . "xsd_loop_subelement ON x2.xsdmf_xsdsel_id = xsdsel_id
+			INNER JOIN " . APP_TABLE_PREFIX . "record_search_key ON rek_display_type = x2.xsdmf_xdis_id
+			INNER JOIN " . APP_TABLE_PREFIX . "xsd_display_matchfields x3 ON x3.xsdmf_xsdsel_id = xsdsel_id AND x3.xsdmf_element = '!datastream!datastreamVersion!LABEL'
 			WHERE rek_pid = ".$db->quote($this->pid);
-
+      
       try {
           $res = $db->fetchRow($stmt);
       }
