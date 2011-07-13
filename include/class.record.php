@@ -3233,6 +3233,10 @@ class Record
       $sek_details = Search_Key::getBasicDetailsByTitle($searchKeyTitle);
     }
     $sek_title = Search_Key::makeSQLTableName($sek_details['sek_title']);
+    if (empty($sek_title)) {
+        $log->err("No search key found: '{$sek_details['sek_title']}'");
+        return false;
+    }
 
     if ($sek_details['sek_relationship'] == 1) { //1-M so will return an array
       $log->debug('1-M will return array');
