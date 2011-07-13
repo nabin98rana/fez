@@ -1060,6 +1060,7 @@ class Record
     $db = DB_API::get();
       
     $ret = true;
+    $now = date('Y-m-d H:i:s'); // Database friendly datetime, for use in all shadow operations below.
       
     /*
      *  Update 1-to-1 search keys
@@ -1084,8 +1085,16 @@ class Record
       $table .= "__shadow";
     }
       
-    $stmtIns = "INSERT INTO " . $table . " (" . implode(",", $stmt) . ") ";
-    $stmtIns .= " VALUES (" . implode(",", $valuesIns) . ")";
+    $stmtIns = "INSERT INTO " . $table . " (" . implode(",", $stmt);
+    if ($shadow) {
+      $stmtIns .= ", rek_stamp";
+    }
+    $stmtIns .= ") ";
+    $stmtIns .= " VALUES (" . implode(",", $valuesIns);
+    if ($shadow) {
+      $stmtIns .= ", " . $db->quote($now);
+    }
+    $stmtIns .= ")";
 		$db->beginTransaction();      
     if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql")) && !$shadow) {
       $stmt = $stmtIns ." ON DUPLICATE KEY UPDATE " . implode(",", $valuesUpd);
@@ -1156,24 +1165,33 @@ class Record
             $table .= "__shadow";
           }
 
-          $stmt = "INSERT INTO " . $table . " 
-                (rek_" . $sek_table . "_pid, rek_" . $sek_table . "_xsdmf_id, rek_" . $sek_table . $cardinalityCol . ")
-              VALUES ";
+          $stmt = "INSERT INTO " . $table . " (rek_" . $sek_table . "_pid, rek_" . $sek_table . "_xsdmf_id, rek_" . $sek_table . $cardinalityCol;
+          if ($shadow) {
+            $stmt .= ", rek_" . $sek_table . "_stamp";
+          }
+          $stmt .= ") VALUES ";
             
           if (is_array($sek_value['xsdmf_value'])) {
             
             $cardinalityVal = 1;
             foreach ($sek_value['xsdmf_value'] as $value ) {
-              $stmtVars[] = "(".$db->quote($pid).",".$db->quote($sek_value['xsdmf_id'], 'INTEGER').",".
-                  $db->quote($value).",$cardinalityVal)";
+              $val = "(" . $db->quote($pid) . "," . $db->quote($sek_value['xsdmf_id'], 'INTEGER') . "," . $db->quote($value) . ", $cardinalityVal";
+              if ($shadow) {
+                $val .= ", " . $db->quote($now);
+              }
+              $val .= ")";
+              $stmtVars[] = $val;
               $cardinalityVal++;
             }
             $stmt .= implode(",", $stmtVars);
             unset($stmtVars);
           
           } else {
-            $stmt .= "(".$db->quote($pid).",".$db->quote($sek_value['xsdmf_id'], 'INTEGER').",".
-                $db->quote($sek_value['xsdmf_value']). ")";
+            $stmt .= "(" . $db->quote($pid) . "," . $db->quote($sek_value['xsdmf_id'], 'INTEGER') . "," . $db->quote($sek_value['xsdmf_value']);
+            if ($shadow) {
+              $stmt .= ", " . $db->quote($now);
+            }
+            $stmt .= ")";
           }
           
           try {
