@@ -97,6 +97,33 @@ $stmt = "INSERT INTO fez_pid_index (pid_number) values ('" . $nextPIDNumber . "'
 $db->exec($stmt);
 echo "ok!\n";
 
+// 1.6 Remove unique constraints from shadow tables
+$searchKeys = Search_Key::getList();
+foreach ($searchKeys as $sk) {
+	if ($sk['sek_relationship'] == '1') {
+		echo "* Removing unique constraints from fez_record_search_key_" . $sk['sek_title_db'] . "__shadow ... ";
+		$stmt = "DROP INDEX unique_constraint ON fez_record_search_key_" . $sk['sek_title_db'] . "__shadow;";
+		try {
+			$db->exec($stmt);
+		} catch (Exception $ex) {
+			echo "No constraint to remove.\n";
+		}
+		echo "ok!\n";
+	}
+}
+
+// And the master table ...
+echo "* Removing unique constraints from fez_record_search_key__shadow ... ";
+$stmt = "DROP INDEX unique_constraint ON fez_record_search_key__shadow;";
+try {
+	$db->exec($stmt);
+} catch (Exception $ex) {
+	echo "No constraint to remove.\n";
+}
+echo "ok!\n";
+
+echo "Done.\n\n";
+
 // Other steps as necessary.
 
 exit ("\n\nExiting Fedora upgrade script.\n");
