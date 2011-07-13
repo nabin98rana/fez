@@ -97,7 +97,7 @@ $stmt = "INSERT INTO fez_pid_index (pid_number) values ('" . $nextPIDNumber . "'
 $db->exec($stmt);
 echo "ok!\n";
 
-// 1.6 Remove unique constraints from shadow tables
+// 1.6 Remove unique constraints from non-core shadow tables
 $searchKeys = Search_Key::getList();
 foreach ($searchKeys as $sk) {
 	if ($sk['sek_relationship'] == '1') {
@@ -112,9 +112,18 @@ foreach ($searchKeys as $sk) {
 	}
 }
 
-// And the master table ...
-echo "* Removing unique constraints from fez_record_search_key__shadow ... ";
+// 1.7 Remove unique constraints from core shadow table
+echo "* Removing unique constraint from fez_record_search_key__shadow ... ";
 $stmt = "DROP INDEX unique_constraint ON fez_record_search_key__shadow;";
+try {
+	$db->exec($stmt);
+} catch (Exception $ex) {
+	echo "No constraint to remove.\n";
+}
+echo "ok!\n";
+
+echo "* Removing primary key constraint from fez_record_search_key__shadow ... ";
+$stmt = "ALTER TABLE fez_record_search_key__shadow DROP PRIMARY KEY;";
 try {
 	$db->exec($stmt);
 } catch (Exception $ex) {
