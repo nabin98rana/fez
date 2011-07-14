@@ -18,6 +18,7 @@ foreach($list['list'] as $index => $listItem) {
 	//$citation = str_replace('href="', 'href="'.APP_BASE_URL, $listItem['rek_citation']);
 	$citation = str_replace('href="', 'href="http://'.APP_HOSTNAME, $listItem['rek_citation']);   //works if fez not in root directory - heaphey
 	$citation = str_replace("'", "\'", $citation);
+	$citation = str_replace("\n", " ", $citation);
 	$list['list'][$index]['rek_citation'] = $citation;
 }
 
