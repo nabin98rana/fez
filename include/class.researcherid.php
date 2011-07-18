@@ -420,44 +420,40 @@ class ResearcherID
         if ($subject == 'ResearcherID Batch Processing Status') {
           // Processing - don't need to do anything with these
         } else if ($subject == 'ResearcherID Batch Processing Status (completed)') {
-          // Completed
-          $attachments = Mime_Helper::getAttachments($full_message);
-          if (count($attachments) > 0) {
+          //Researcher ID update 1.5 (July 17th 2011) now has the report in a URL link instead of an attachment - CK
+          $urlPattern = '/computer\.(.*)For easier/'; //TODO: change this regex to match something like http://ul.researcherid/blah which should be less volatile - CK
+          $uniBody = str_replace("\n", "", $body); // make the body one line so it can be preg 
+          preg_match($urlPattern, $uniBody, $urlMatches);
+          $url = $urlMatches[1];
+          $urlContent = @file_get_contents($url);
+          if ($urlContent) {
+            $xml_report = new SimpleXMLElement($urlContent);
+            // Process profile list
+            if ($xml_report->profileList) {
 
-            $attachment_filename = $attachments[0]['filename'];
-            $attachment_filetype = $attachments[0]['filetype'];
-            $attachment_blob = $attachments[0]['blob'];
-
-            if ($attachment_blob) {
-              $xml_report = new SimpleXMLElement($attachment_blob);
-               
-              // Process profile list
-              if ($xml_report->profileList) {
-
-                $profiles = $xml_report->profileList->{'successfully-uploaded'}->{'researcher-profile'};
-                foreach ($profiles as $profile) {
-                  Author::setResearcherIdByRidProfile($profile);
-                }
-
-                $profiles = $xml_report->profileList->{'existing-researchers'}->{'researcher-profile'};
-                foreach ($profiles as $profile) {
-                  Author::setResearcherIdByOrgUsername((string)$profile->employeeID, (string)$profile->researcherID);
-                }
-
-                $profiles = $xml_report->profileList->{'failed-to-upload'}->{'researcher-profile'};
-                foreach ($profiles as $profile) {
-                  if (! (empty($profile->employeeID) || empty($profile->researcherID)) ) {
-                    Author::setResearcherIdByOrgUsername((string)$profile->employeeID, (string)$profile->researcherID);
-                  } else {
-                    Author::setResearcherIdByOrgUsername(
-                        (string)$profile->employeeID, 'ERR: '.(string)$profile->{'error-desc'}
-                    );
-                  }
-                }
-              } else if ($xml_report->publicationList) {
-                // Process publication list
-                $publications = $xml_report->publicationList->{'successfully-uploaded'}->{'researcher-profile'};
+              $profiles = $xml_report->profileList->{'successfully-uploaded'}->{'researcher-profile'};
+              foreach ($profiles as $profile) {
+                Author::setResearcherIdByRidProfile($profile);
               }
+
+              $profiles = $xml_report->profileList->{'existing-researchers'}->{'researcher-profile'};
+              foreach ($profiles as $profile) {
+                Author::setResearcherIdByOrgUsername((string)$profile->employeeID, (string)$profile->researcherID);
+              }
+
+              $profiles = $xml_report->profileList->{'failed-to-upload'}->{'researcher-profile'};
+              foreach ($profiles as $profile) {
+                if (! (empty($profile->employeeID) || empty($profile->researcherID)) ) {
+                  Author::setResearcherIdByOrgUsername((string)$profile->employeeID, (string)$profile->researcherID);
+                } else {
+                  Author::setResearcherIdByOrgUsername(
+                      (string)$profile->employeeID, 'ERR: '.(string)$profile->{'error-desc'}
+                  );
+                }
+              }
+            } else if ($xml_report->publicationList) {
+              // Process publication list
+              $publications = $xml_report->publicationList->{'successfully-uploaded'}->{'researcher-profile'};
             }
           }
         } else {
