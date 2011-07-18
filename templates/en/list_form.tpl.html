@@ -322,6 +322,9 @@
             {if $list[i].rek_object_type != 3}
                 {if $list[i].rek_ismemberof_count != ""}({$list[i].rek_ismemberof_count}){/if}
             {/if}
+			{if $list[i].rek_object_type == 1}
+               <br> {$list[i].rek_description}
+            {/if}
 			{assign var="pid" value =$list[i].rek_pid}
             {if $snips[$pid] != '' && $isAdministrator}<br /><br /><div class='snip'>...{$snips[$pid]}...</div>{/if}
 		  </td>		
