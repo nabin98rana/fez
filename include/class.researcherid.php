@@ -425,7 +425,7 @@ class ResearcherID
           $uniBody = str_replace("\n", "", $body); // make the body one line so it can be preg 
           preg_match($urlPattern, $uniBody, $urlMatches);
           $url = $urlMatches[1];
-          $urlContent = @file_get_contents($url);
+          $urlContent = file_get_contents($url);
           if ($urlContent) {
             $xml_report = new SimpleXMLElement($urlContent);
             // Process profile list
