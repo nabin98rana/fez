@@ -415,7 +415,7 @@ class ResearcherID
         $from = $structure->headers['from'];
         $cc = $structure->headers['cc'];
         $subject = $structure->headers['subject'];
-        $body = $structure->body;
+        $body = $structure->parts[0]->body;
 
         if ($subject == 'ResearcherID Batch Processing Status') {
           // Processing - don't need to do anything with these
