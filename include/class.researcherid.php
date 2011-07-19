@@ -415,7 +415,7 @@ class ResearcherID
         $from = $structure->headers['from'];
         $cc = $structure->headers['cc'];
         $subject = $structure->headers['subject'];
-        $body = $structure->body;
+        $body = $structure->parts[0]->body;
 
         if ($subject == 'ResearcherID Batch Processing Status') {
           // Processing - don't need to do anything with these
@@ -424,8 +424,9 @@ class ResearcherID
           $urlPattern = '/computer\.(.*)For easier/'; //TODO: change this regex to match something like http://ul.researcherid/blah which should be less volatile - CK
           $uniBody = str_replace("\n", "", $body); // make the body one line so it can be preg 
           preg_match($urlPattern, $uniBody, $urlMatches);
-          $url = $urlMatches[1];
-          $urlContent = @file_get_contents($url);
+          $url = trim($urlMatches[1]);
+          $urlData = Misc::processURL($url);
+          $urlContent = $urlData[0];
           if ($urlContent) {
             $xml_report = new SimpleXMLElement($urlContent);
             // Process profile list
