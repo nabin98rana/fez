@@ -1054,14 +1054,20 @@ class Record
   }
 
 
+
+
+
   function updateSearchKeys($pid, $sekData, $shadow = false)
   {
     $log = FezLog::get();
     $db = DB_API::get();
       
     $ret = true;
-    $now = date('Y-m-d H:i:s'); // Database friendly datetime, for use in all shadow operations below.
-      
+    static $now;
+    if (!isset($now)) {
+      $now = date('Y-m-d H:i:s'); // Database friendly datetime, for use in all shadow operations below.
+    }
+
     /*
      *  Update 1-to-1 search keys
      */
@@ -1096,7 +1102,7 @@ class Record
     }
     $stmtIns .= ")";
 		$db->beginTransaction();      
-    if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql")) && !$shadow) {
+    if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
       $stmt = $stmtIns ." ON DUPLICATE KEY UPDATE " . implode(",", $valuesUpd);
     } else {
       if (!$shadow) {
