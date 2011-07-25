@@ -46,6 +46,7 @@ include_once(APP_INC_PATH . "class.error_handler.php");
 include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.validation.php");
 include_once(APP_INC_PATH . "class.date.php");
+include_once(APP_INC_PATH . "class.author.php");
 include_once(APP_INC_PATH . "class.wok_queue.php");
 include_once(APP_INC_PATH . "class.record_object.php");
 include_once(APP_INC_PATH . "class.record_general.php");
@@ -667,9 +668,14 @@ class ResearcherID
     $log = FezLog::get();
     $db = DB_API::get();
 
-    $publications = @file_get_contents($url);
+    //$publications = file_get_contents($url);
+    $urlData = Misc::processURL($url);
+    $publications = $urlData[0];
+
     if (! $publications) {
       return false;
+    } else {
+      $log->err("wasn't able to pull down RID url $url:".print_r($urlData, true));
     }
     
     $xml_publications = new SimpleXMLElement($publications);
@@ -677,10 +683,17 @@ class ResearcherID
     $researcherid = $xml_publications->publicationList->{'researcher-publications'}->researcherID;
     $author_id = Author::getIDByResearcherID($researcherid);
 
-    foreach ($records as $record) {
-      ResearcherID::addPublication($record, $author_id, $researcherid);
+    if (count($records) > 0) {
+      foreach ($records as $record) {
+        ResearcherID::addPublication($record, $author_id, $researcherid);
+      }
+    } else {
+      $aut_details = Author::getDetails($author_id);
+      $message = "FOUND no records for this RID download for ".$aut_details['aut_display_name']." with author id $author_id with Researcher ID $researcherid <br />\n".print_r($publications,true);
+      $log->warn($message);
+      echo $message;
     }
-    
+
     // Finally clear the temp password - a successful download indicates the researcher has
     // logged in to ResearcherID and completed the registration process, which requires the
     // temp password be changed 
@@ -931,7 +944,7 @@ class ResearcherID
         }
           
         if ( is_array($record['rek_isi_loc']) ) {
-          $record['rek_isi_loc'] = $record['rek_isi_loc'];
+          $record['rek_isi_loc'] = $record['rek_isi_loc'][0];
         }
                 
         // Replace double quotes with double double quotes
