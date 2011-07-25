@@ -1029,12 +1029,16 @@ class RecordGeneral
       if ($aut_details['aut_org_username']) {        
         if ($known) {
           // Last name match first, if we have $authors[$i]['name'] in the format LName, F
-          $name_parts = explode(',', $authors[$i]['name']);          
+          $name_parts = explode(',', $authors[$i]['name']);
           $percent = $this->matchAuthorNameByLev($name_parts[0], $aut_details['aut_lname'], $percent_1);
           if ($percent == 1) {
             $exact_match_count++;
             $match_index = $i;
             $authors[$i]['match'] = $percent;
+          } else {
+            if( $this->bgp ) {
+              echo "FAILED to match ".$name_parts[0]." against Manage Authors known last name: ".$aut_details['aut_lname']."<br />\n";
+            }
           }
         }
         // No exact match above found        
@@ -1045,6 +1049,12 @@ class RecordGeneral
             $match_index = $i;
             $authors[$i]['match'] = $percent;
           } else {
+
+            if( $this->bgp ) {
+              echo "FAILED to match by lev distance (".$percent." percent) ".$name_parts[0]." against Manager Authors display name words: ".implode("|",$aut_details['aut_display_name']) ."<br />\n";
+            }
+
+
             $authors[$i]['match'] = $percent;
             // Attempt to match on other names for this author we know about
             foreach ($aut_alt_names as $aut_alt_name => $count) {
@@ -1076,6 +1086,9 @@ class RecordGeneral
     } else {
       // Multiple matches found
       if ($known == TRUE) {
+        if( $this->bgp ) {
+          echo "FOUND TOO MANY (".$exact_match_count.") matches (so won't save any of them) for this author name: ".implode("|",$aut_details['aut_display_name']) ."<br />\n";
+        }
         return array(FALSE, 'Multiple');
       }
     }
@@ -1096,6 +1109,9 @@ class RecordGeneral
       }
     } else {
       // Too many authors to perform step 2
+      if( $this->bgp ) {
+        echo "FOUND TOO MANY CO-AUTHORS (".$authors_count.") so can't use co-authored logic on author name: ".implode("|",$aut_details['aut_display_name']) ."<br />\n";
+      }
     }
 
     // Step 3: Less than 10 authors on the pub
