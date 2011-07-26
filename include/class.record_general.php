@@ -1036,8 +1036,8 @@ class RecordGeneral
             $match_index = $i;
             $authors[$i]['match'] = $percent;
           } else {
-            if( $this->bgp ) {
-              echo "FAILED to match ".$name_parts[0]." against Manage Authors known last name: ".$aut_details['aut_lname']."<br />\n";
+            if( $this->_bgp ) {
+              $this->_bgp->setStatus("FAILED to match ".$name_parts[0]." against Manage Authors known last name: ".$aut_details['aut_lname']);
             }
           }
         }
@@ -1050,8 +1050,8 @@ class RecordGeneral
             $authors[$i]['match'] = $percent;
           } else {
 
-            if( $this->bgp ) {
-              echo "FAILED to match by lev distance (".$percent." percent) ".$name_parts[0]." against Manager Authors display name words: ".implode("|",$aut_details['aut_display_name']) ."<br />\n";
+            if( $this->_bgp ) {
+              $this->_bgp->setStatus("FAILED to match by lev distance (".$percent." percent) ".$name_parts[0]." against Manager Authors display name words: ".implode("|",$aut_details['aut_display_name']));
             }
 
 
@@ -1086,8 +1086,8 @@ class RecordGeneral
     } else {
       // Multiple matches found
       if ($known == TRUE) {
-        if( $this->bgp ) {
-          echo "FOUND TOO MANY (".$exact_match_count.") matches (so won't save any of them) for this author name: ".implode("|",$aut_details['aut_display_name']) ."<br />\n";
+        if( $this->_bgp ) {
+          $this->_bgp->setStatus("FOUND TOO MANY (".$exact_match_count.") matches (so won't save any of them) for this author name: ".implode("|",$aut_details['aut_display_name']));
         }
         return array(FALSE, 'Multiple');
       }
@@ -1109,8 +1109,8 @@ class RecordGeneral
       }
     } else {
       // Too many authors to perform step 2
-      if( $this->bgp ) {
-        echo "FOUND TOO MANY CO-AUTHORS (".$authors_count.") so can't use co-authored logic on author name: ".implode("|",$aut_details['aut_display_name']) ."<br />\n";
+      if( $this->_bgp ) {
+        $this->_bgp->setStatus("FOUND TOO MANY CO-AUTHORS (".$authors_count.") so can't use co-authored logic on author name: ".implode("|",$aut_details['aut_display_name']));
       }
     }
 
