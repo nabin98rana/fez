@@ -28,7 +28,18 @@ class RecordGeneral
   Record::status_published => 'Published'
   );
   var $title;
+  protected $_bgp;
 
+  /**
+   * Links this instance to a corresponding background process
+   *
+   * @param BackgroundProcess Object Instance $bgp
+   */
+  public function setBGP(&$bgp)
+  {
+    $this->_bgp = &$bgp;
+  }
+  
   /**
    * RecordGeneral
    * If instantiated with a pid, then this object is linked with the record with the pid, otherwise we are inserting
