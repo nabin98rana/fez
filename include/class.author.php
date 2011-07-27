@@ -415,6 +415,9 @@ class Author
       $rid = " aut_researcher_id=  ". $db->quote($_POST["researcher_id"]) . ",";
     }
     
+	//strip html tags from $_POST["description"] except for <b><i> etc
+	$tags = '<b><i><sup><sub><em><strong><u><br>';
+	$stripped_description = strip_tags($_POST["description"], $tags);	
     
     $stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "author
@@ -425,11 +428,13 @@ class Author
                     aut_lname=" . $db->quote($_POST["lname"]) . ",
                     aut_display_name=" . $db->quote($_POST["dname"]) . ",
                     aut_position=" . $db->quote($_POST["position"]) . ",
+					aut_email=" . $db->quote($_POST["email"]) . ",
                     aut_cv_link=" . $db->quote($_POST["cv_link"]) . ",
                     aut_homepage_link=" . $db->quote($_POST["homepage_link"]) . ",
                     aut_ref_num=" . $db->quote($_POST["aut_ref_num"]) . ",
                     aut_scopus_id=" . $db->quote($_POST["scopus_id"]).",
                     aut_mypub_url=" . $db->quote($_POST["mypub_url"]).",
+					aut_description=" . $db->quote($stripped_description) . ",						
                     aut_update_date=" . $db->quote(Date_API::getCurrentDateGMT());
     if (trim($_POST["org_staff_id"] !== "")) {
       $stmt .= ",aut_org_staff_id=" . $db->quote($_POST["org_staff_id"]) . " ";
@@ -531,6 +536,9 @@ class Author
     if ($_POST["position"] !== "") {
       $insert .= ", aut_position ";
     }
+	if ($_POST["email"] !== "") {
+      $insert .= ", aut_email ";
+    }	
     if ($_POST["cv_link"] !== "") {
       $insert .= ", aut_cv_link ";
     }
@@ -549,6 +557,9 @@ class Author
     if ($_POST["mypub_url"] !== "") {
       $insert .= ", aut_mypub_url ";
     }
+	if ($_POST["description"] !== "") {
+      $insert .= ", aut_description ";
+    }	
 
     $values = ") VALUES (
                     " . $db->quote($_POST["title"]) . ",
@@ -575,6 +586,9 @@ class Author
     if ($_POST["position"] !== "") {
       $values .= ", " . $db->quote($_POST["position"]);
     }
+    if ($_POST["email"] !== "") {
+      $values .= ", " . $db->quote($_POST["email"]);
+    }	
     if ($_POST["cv_link"] !== "") {
       $values .= ", " . $db->quote($_POST["cv_link"]);
     }
@@ -593,6 +607,10 @@ class Author
     if ($_POST["mypub_url"] !== "") {
         $values .= ", " . $db->quote($_POST["mypub_url"]);
     }
+    if ($_POST["description"] !== "") {
+	  $stripped_description = strip_tags($_POST["description"], $tags); //strip HTML tags 
+      $values .= ", " . $db->quote($stripped_description);
+    }	
 
     $values .= ")";
 
