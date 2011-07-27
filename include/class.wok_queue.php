@@ -399,6 +399,7 @@ class WokQueue extends Queue
           $this->_bgp->setStatus('Matched authors on PID: '.$pid);
         }
         $record = new RecordObject($pid);
+        $record->setBGP($this->_bgp);
         foreach ($aut_ids as $author_id) {
           $record->matchAuthor($author_id, TRUE, TRUE); // TODO: enable this when required
         }

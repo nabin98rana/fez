@@ -148,13 +148,13 @@ class ResearcherID
     } else if (! ($researchers_id_type == 'researcherIDs' || $researchers_id_type == 'employeeIDs')) {
       $log->err(
           array('Second parameter for downloadRequest() requires either "researcherIDs" or "employeeIDs"'.
-          ', given "'.$researchers_type.'"', __FILE__, __LINE__)
+          ', given "'.$researcher_id_type.'"', __FILE__, __LINE__)
       );
       return false;
     } else if (! ($researcher_id_type == 'researcherID' || $researcher_id_type == 'employeeID')) {
       $log->err(
           array('Third parameter for downloadRequest() requires either "researcherID" or "employeeID"'.
-          ', given "'.$researchers_type.'"', __FILE__, __LINE__)
+          ', given "'.$researcher_id_type.'"', __FILE__, __LINE__)
       );
       return false;
     }
