@@ -91,7 +91,11 @@ class WokQueue extends Queue
       if (!$res) {   
         parent::add($ut);
         if ($aut_id) {
-          $sql = "INSERT INTO ".$this->_dbtp."queue_aut (".$this->_dbap."id,".$this->_dbap."aut_id) VALUES (?,?)";
+          if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
+            $sql = "INSERT INTO ".$this->_dbtp."queue_aut (".$this->_dbap."id,".$this->_dbap."aut_id) VALUES (?,?)";
+          } else {
+            $sql = "REPLACE INTO ".$this->_dbtp."queue_aut (".$this->_dbap."id,".$this->_dbap."aut_id) VALUES (?,?)";
+          }
           $db->query($sql, array($ut, $aut_id));
         }
       }
