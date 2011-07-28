@@ -672,10 +672,9 @@ class ResearcherID
     $urlData = Misc::processURL($url);
     $publications = $urlData[0];
 
-    if (! $publications) {
-      return false;
-    } else {
+    if (!$publications) {
       $log->err("wasn't able to pull down RID url $url:".print_r($urlData, true));
+      return false;
     }
     
     $xml_publications = new SimpleXMLElement($publications);
@@ -689,7 +688,7 @@ class ResearcherID
       }
     } else {
       $aut_details = Author::getDetails($author_id);
-      $message = "FOUND no records for this RID download for ".$aut_details['aut_display_name']." with author id $author_id with Researcher ID $researcherid <br />\n".print_r($publications,true);
+      $message = "FOUND no records for this RID download for ".$aut_details['aut_display_name']." with author id $author_id with Researcher ID ".$aut_details['aut_display_name']." <br />\n".print_r($publications,true);
       $log->warn($message);
       echo $message;
     }
