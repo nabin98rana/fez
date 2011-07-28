@@ -369,7 +369,7 @@ class WosRecItem
       $this->primaryLangCode = $primaryLang->getAttribute('code');
     }
     
-    $authors[] = $node->getElementsByTagName("primaryauthor")->item(0)->nodeValue;
+    $authors[] = Misc::smart_ucwords($node->getElementsByTagName("primaryauthor")->item(0)->nodeValue, 2);
     $author = $node->getElementsByTagName("author");
     foreach ($author as $a) {
       $atemp = $a->nodeValue;
