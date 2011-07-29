@@ -76,8 +76,15 @@ try {
         $log->err('Message: '.$ex->getMessage().', File: '.__FILE__.', Line: '.__LINE__);
         return;
 }
-echo "count $total count for checking \n";
+echo "counted $total for checking \n";
 $inc = 100;
+
+$orderDiff = 0;
+$countDiff = 0;
+$pidListCount = array();
+$pidListDiff = array();
+
+
 $wok_ws = new WokService(FALSE);
 	ob_flush();
 for($i=0; $i<($total+$inc); $i=$i+$inc) {
@@ -112,8 +119,7 @@ LIMIT ".$inc." OFFSET ".$i;
 	}
 	$compareTitle = array();
   $uts = array();
-  $orderDiff = 0;
-  $countDiff = 0;
+
 //  print_r($listing);
 //  exit;
 	if (is_array($listing)) {
@@ -165,6 +171,9 @@ LIMIT ".$inc." OFFSET ".$i;
           $fails .= "WoK: ".print_r($authorCompare[$isi_loc],true);
           $fails .= "----------------\n";
           $countDiff++;
+          if (!in_array($pid, $pidListCount)) {
+              array_push($pidListCount, $pid);
+            }
         }
 
         foreach ($authorCompare[$isi_loc] as $akey => $authorWok) {
@@ -173,6 +182,9 @@ LIMIT ".$inc." OFFSET ".$i;
             $fails .= "$pid Author name at order position ". ($akey + 1) ." differs - fez: ".$authors[$akey]['name']." vs ".$authorWok."\n";
             $fails .= "@@@@@@@@@@@@@@@@@@@\n";
             $orderDiff++;
+            if (!in_array($pid, $pidListOrder)) {
+              array_push($pidListOrder, $pid);
+            }
           }
         }
       }
@@ -186,4 +198,23 @@ LIMIT ".$inc." OFFSET ".$i;
 echo $fails;
 echo "-------\n";
 echo "Total count of order difference is $orderDiff. Total count of count difference is $countDiff \n ";
+echo "-------\n";
+echo " The pids with different COUNTS of authors (".count($pidListCount).") are:\n";
+if (is_array($pidListCount)) {
+  foreach ($pidListCount as $pl) {
+    echo $pl." - http://espace.library.uq.edu.au/view/".$pl."\n";
+  }
+} else {
+  echo "(none) \n";
+}
 
+echo "-------\n";
+echo " The pids with different ORDER of authors (".count($pidListOrder).") are:\n";
+if (is_array($pidListOrder)) {
+  foreach ($pidListOrder as $pl) {
+    echo $pl." - http://espace.library.uq.edu.au/view/".$pl."\n";
+  }
+} else {
+  echo "(none) \n";
+}
+echo "-------\n";
