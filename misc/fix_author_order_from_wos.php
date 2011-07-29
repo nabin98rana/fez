@@ -82,7 +82,7 @@ $inc = 100;
 $orderDiff = 0;
 $countDiff = 0;
 $pidListCount = array();
-$pidListDiff = array();
+$pidListOrder = array();
 
 
 $wok_ws = new WokService(FALSE);
@@ -182,7 +182,7 @@ LIMIT ".$inc." OFFSET ".$i;
             $fails .= "$pid Author name at order position ". ($akey + 1) ." differs - fez: ".$authors[$akey]['name']." vs ".$authorWok."\n";
             $fails .= "@@@@@@@@@@@@@@@@@@@\n";
             $orderDiff++;
-            if (!in_array($pid, $pidListOrder)) {
+            if (!in_array($pid, $pidListOrder)) { 
               array_push($pidListOrder, $pid);
             }
           }
