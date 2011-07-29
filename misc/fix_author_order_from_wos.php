@@ -62,8 +62,7 @@ FROM fez_record_search_key_author a
 //  LEFT JOIN __temp_bug_matched_authors ON rek_author_pid = mat_pid
 
 $query1 .= "WHERE pre_detail LIKE '%using author matching%' "; // AND mat_pid IS NULL
-$query1 .= "GROUP BY rek_isi_loc
-";
+
 echo $query1."\n";
 ob_flush();
 $db = DB_API::get();
