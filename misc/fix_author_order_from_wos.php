@@ -49,7 +49,7 @@ $filter["searchKey".Search_Key::getID("Object Type")] = 3; // records only
 //$listing = Record::getListing(array(), array(9,10), 0, $max, 'Created Date', false, false, $filter);
 
 $query1 = "SELECT
-  count(rek_isi_loc) as county
+  count(DISTINCT rek_isi_loc) as county
 
 FROM fez_record_search_key_author a
   INNER JOIN fez_record_search_key_isi_loc
