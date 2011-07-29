@@ -112,6 +112,8 @@ LIMIT ".$inc." OFFSET ".$i;
 	}
 	$compareTitle = array();
   $uts = array();
+  $orderDiff = 0;
+  $countDiff = 0;
 //  print_r($listing);
 //  exit;
 	if (is_array($listing)) {
@@ -162,13 +164,15 @@ LIMIT ".$inc." OFFSET ".$i;
           $fails .= "\n vs \n";
           $fails .= "WoK: ".print_r($authorCompare[$isi_loc],true);
           $fails .= "----------------\n";
+          $countDiff++;
         }
 
         foreach ($authorCompare[$isi_loc] as $akey => $authorWok) {
-          if ($authorWok != $authors[$akey]['name']) {
+          if (preg_replace("/[^a-z]/", "", strtolower($authorWok)) != preg_replace("/[^a-z]/", "", strtolower($authors[$akey]['name']))) {
             $fails .= "@@@@@@@@@@@@@@@@@@@\n";
             $fails .= "$pid Author name at order position ". ($akey + 1) ." differs - fez: ".$authors[$akey]['name']." vs ".$authorWok."\n";
             $fails .= "@@@@@@@@@@@@@@@@@@@\n";
+            $orderDiff++;
           }
         }
       }
@@ -177,6 +181,9 @@ LIMIT ".$inc." OFFSET ".$i;
     }
   }
 }
-echo $matches;
-echo "-------\n";
+//echo $matches;
+
 echo $fails;
+echo "-------\n";
+echo "Total count of order difference is $orderDiff. Total count of count difference is $countDiff \n ";
+
