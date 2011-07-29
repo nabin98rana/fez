@@ -81,7 +81,7 @@ $inc = 100;
 $orderDiff = 0;
 $countDiff = 0;
 $pidListCount = array();
-$pidListDiff = array();
+$pidListOrder = array();
 
 
 $wok_ws = new WokService(FALSE);
