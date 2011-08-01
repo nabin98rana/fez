@@ -1071,6 +1071,7 @@ class Lister
         if(count($params) > 0) {
             
             $exclude[] = 'rows';
+            $exclude[] = 'pager_row';
             $tpl->assign('url_wo_rows', Misc::query_string_encode($params,$exclude));
             array_pop($exclude);
             
