@@ -82,7 +82,7 @@ $orderDiff = 0;
 $countDiff = 0;
 $pidListCount = array();
 $pidListOrder = array();
-
+$pidListFix = array();
 
 $wok_ws = new WokService(FALSE);
 	ob_flush();
@@ -159,6 +159,7 @@ LIMIT ".$inc." OFFSET ".$i;
         $isi_loc = $listing[$j]['rek_isi_loc'];
         $record = new RecordObject($pid);
 
+
         $authors = $record->getAuthors();
         $wok_count = count($authorCompare[$isi_loc]);
         $fez_count = count($authors);
@@ -176,6 +177,7 @@ LIMIT ".$inc." OFFSET ".$i;
         }
 
         foreach ($authorCompare[$isi_loc] as $akey => $authorWok) {
+
           if (preg_replace("/[^a-z]/", "", strtolower($authorWok)) != preg_replace("/[^a-z]/", "", strtolower($authors[$akey]['name']))) {
             $fails .= "@@@@@@@@@@@@@@@@@@@\n";
             $fails .= "$pid Author name at order position ". ($akey + 1) ." differs - fez: ".$authors[$akey]['name']." vs ".$authorWok."\n";
@@ -183,6 +185,30 @@ LIMIT ".$inc." OFFSET ".$i;
             $orderDiff++;
             if (!in_array($pid, $pidListOrder)) {
               array_push($pidListOrder, $pid);
+            }
+            $pidListFix[$pid][$akey]['name'] = $authorWok;
+//print_r($authors);
+            foreach ($authors as $apkey => $authorPair) {
+              if (preg_replace("/[^a-z]/", "", strtolower($authorWok)) == preg_replace("/[^a-z]/", "", strtolower($authors[$apkey]['name']))) {
+                if (!is_array($pidListFix[$pid])) {
+                  $pidListFix[$pid] = array();
+                }
+                if (!is_array($pidListFix[$pid][$akey])) {
+                  $pidListFix[$pid][$akey] = array();
+                }
+
+                $pidListFix[$pid][$akey]['aut_id'] = $authors[$apkey]['aut_id'];
+              }
+            }
+            if (!array_key_exists('aut_id', $pidListFix[$pid][$akey])) {
+              if (!is_array($pidListFix[$pid])) {
+                $pidListFix[$pid] = array();
+              }
+              if (!is_array($pidListFix[$pid][$akey])) {
+                $pidListFix[$pid][$akey] = array();
+              }
+
+              $pidListFix[$pid][$akey]['aut_id'] = 0;
             }
           }
         }
@@ -217,3 +243,17 @@ if (is_array($pidListOrder)) {
   echo "(none) \n";
 }
 echo "-------\n";
+
+echo "The correct order of pids and authors is:\n";
+print_r($pidListFix);
+
+
+echo "Going to fix these now..\n";
+foreach ($pidListFix as $fpid => $fix) {
+  $record = new RecordObject($fpid);
+  $record->replaceAuthors($fix, "Fixed author ordering based on Web of Knowledge");
+  echo "Fixed $fpid http://espace.library.uq.edu.au/view/".$fpid."\n";
+}
+echo "Done!";
+
+
