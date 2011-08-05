@@ -266,13 +266,15 @@ print_r($pidListFix);
 echo "Going to fix these now..\n";
 $differentCounts = 0;
 foreach ($pidListFix as $fpid => $fix) {
-  if ($pidAuthorCount[$fpid]['id_found'] != $pidAuthorCount[$fpid]['id_count']) {
-    echo "$fpid has ".$pidAuthorCount[$fpid]['id_count']." but could only match author ids on ".$pidAuthorCount[$fpid]['id_found']." so will have to do this one manually \n";
-    $differentCounts++;
-  } else {
-    $record = new RecordObject($fpid);
-    $record->replaceAuthors($fix, "Fixed author ordering based on Web of Knowledge");
-    echo "Fixed $fpid http://espace.library.uq.edu.au/view/".$fpid."\n";
+  if (!in_array($fpid, $pidListCount)) {
+    if ($pidAuthorCount[$fpid]['id_found'] != $pidAuthorCount[$fpid]['id_count']) {
+      echo "$fpid has ".$pidAuthorCount[$fpid]['id_count']." but could only match author ids on ".$pidAuthorCount[$fpid]['id_found']." so will have to do this one manually \n";
+      $differentCounts++;
+    } else {
+      $record = new RecordObject($fpid);
+      $record->replaceAuthors($fix, "Fixed author ordering based on Web of Knowledge");
+      echo "Fixed $fpid http://espace.library.uq.edu.au/view/".$fpid."\n";
+    }
   }
 }
 echo "Found $differentCounts different counts that will need manual replacing to maintain the author id associations correctly.\n";
