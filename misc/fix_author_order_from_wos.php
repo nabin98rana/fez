@@ -192,8 +192,8 @@ LIMIT ".$inc." OFFSET ".$i;
             if (!in_array($pid, $pidListOrder)) {
               array_push($pidListOrder, $pid);
             }
-//            $pidListFix[$pid][$akey]['name'] = $authorWok;
-            $pidListFix[$pid][$akey]['name'] = $authors[$akey]['name'];
+            $pidListFix[$pid][$akey]['name'] = $authorWok;
+//            $pidListFix[$pid][$akey]['name'] = $authors[$akey]['name'];
 //print_r($authors);
 
 
