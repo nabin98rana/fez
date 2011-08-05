@@ -272,7 +272,7 @@ $differentCounts = 0;
 foreach ($pidListFix as $fpid => $fix) {
   if (!in_array($fpid, $pidListCount)) {
     if ($pidAuthorCount[$fpid]['id_found'] != count($pidAuthorCount[$fpid]['ids'])) {
-      echo "$fpid has ".$pidAuthorCount[$fpid]['id_count']." but could only match author ids on ".$pidAuthorCount[$fpid]['id_found']." so will have to do this one manually \n";
+      echo "$fpid has ".count($pidAuthorCount[$fpid]['ids'])." but could only match author ids on ".$pidAuthorCount[$fpid]['id_found']." so will have to do this one manually \n";
       $differentCounts++;
     } else {
       $record = new RecordObject($fpid);
