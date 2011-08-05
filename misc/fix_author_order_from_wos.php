@@ -178,7 +178,8 @@ LIMIT ".$inc." OFFSET ".$i;
         }
         if (!is_array($pidAuthorCount[$pid])) {
           $pidAuthorCount[$pid] = array();
-          $pidAuthorCount[$pid]['id_count'] = 0;
+
+          $pidAuthorCount[$pid]['ids'] = array();
           $pidAuthorCount[$pid]['id_found'] = 0;
         }
         foreach ($authorCompare[$isi_loc] as $akey => $authorWok) {
@@ -213,7 +214,9 @@ LIMIT ".$inc." OFFSET ".$i;
                 }
               }
               if ($authors[$apkey]['aut_id'] != 0) {
-                $pidAuthorCount[$pid]['id_count'] = $pidAuthorCount[$pid]['id_count'] + 1;
+                if (!in_array($authors[$apkey]['aut_id'], $pidAuthorCount[$pid]['ids'])) {
+                  $pidAuthorCount[$pid]['ids'][] = $authors[$apkey]['aut_id'];
+                } 
               }
             }
             if (!array_key_exists('aut_id', $pidListFix[$pid][$akey])) {
@@ -268,7 +271,7 @@ echo "Going to fix these now..\n";
 $differentCounts = 0;
 foreach ($pidListFix as $fpid => $fix) {
   if (!in_array($fpid, $pidListCount)) {
-    if ($pidAuthorCount[$fpid]['id_found'] != $pidAuthorCount[$fpid]['id_count']) {
+    if ($pidAuthorCount[$fpid]['id_found'] != count($pidAuthorCount[$fpid]['ids'])) {
       echo "$fpid has ".$pidAuthorCount[$fpid]['id_count']." but could only match author ids on ".$pidAuthorCount[$fpid]['id_found']." so will have to do this one manually \n";
       $differentCounts++;
     } else {
