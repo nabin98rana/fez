@@ -176,7 +176,11 @@ LIMIT ".$inc." OFFSET ".$i;
               array_push($pidListCount, $pid);
             }
         }
-
+        if (!is_array($pidAuthorCount[$pid])) {
+          $pidAuthorCount[$pid] = array();
+          $pidAuthorCount[$pid]['id_count'] = 0;
+          $pidAuthorCount[$pid]['id_found'] = 0;
+        }
         foreach ($authorCompare[$isi_loc] as $akey => $authorWok) {
 
           if (preg_replace("/[^a-z]/", "", strtolower($authorWok)) != preg_replace("/[^a-z]/", "", strtolower($authors[$akey]['name']))) {
@@ -187,13 +191,10 @@ LIMIT ".$inc." OFFSET ".$i;
             if (!in_array($pid, $pidListOrder)) {
               array_push($pidListOrder, $pid);
             }
-            $pidListFix[$pid][$akey]['name'] = $authorWok;
+//            $pidListFix[$pid][$akey]['name'] = $authorWok;
+            $pidListFix[$pid][$akey]['name'] = $authors[$akey]['name'];
 //print_r($authors);
-            if (!is_array($pidAuthorCount[$pid])) {
-              $pidAuthorCount[$pid] = array();
-              $pidAuthorCount[$pid]['id_count'] = 0;
-              $pidAuthorCount[$pid]['id_found'] = 0;
-            }
+
 
 
             foreach ($authors as $apkey => $authorPair) {
