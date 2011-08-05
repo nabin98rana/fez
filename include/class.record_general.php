@@ -1328,7 +1328,7 @@ class RecordGeneral
 
     if ($newXML != "") {
       Fedora_API::callModifyDatastreamByValue(
-          $this->pid, "MODS", "A", "Metadata Object Description Schema", $newXML, "text/xml", "inherit"
+          $this->pid, "MODS", "A", "Metadata Object Description Schema", $newXML, "text/xml", true
       );
       History::addHistory($this->pid, null, "", "", TRUE, $message);
       Record::setIndexMatchingFields($this->pid);

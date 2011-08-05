@@ -83,10 +83,11 @@ $countDiff = 0;
 $pidListCount = array();
 $pidListOrder = array();
 $pidListFix = array();
+$pidAuthorCount = array();
 
 $wok_ws = new WokService(FALSE);
 	ob_flush();
-for($i=0; $i<($total+$inc); $i=$i+$inc) {
+for($i=0; $i<($total); $i=$i+$inc) {
 	
 	$query2 = "SELECT
   rek_isi_loc,
@@ -188,7 +189,15 @@ LIMIT ".$inc." OFFSET ".$i;
             }
             $pidListFix[$pid][$akey]['name'] = $authorWok;
 //print_r($authors);
+            if (!is_array($pidAuthorCount[$pid])) {
+              $pidAuthorCount[$pid] = array();
+              $pidAuthorCount[$pid]['id_count'] = 0;
+              $pidAuthorCount[$pid]['id_found'] = 0;
+            }
+
+
             foreach ($authors as $apkey => $authorPair) {
+
               if (preg_replace("/[^a-z]/", "", strtolower($authorWok)) == preg_replace("/[^a-z]/", "", strtolower($authors[$apkey]['name']))) {
                 if (!is_array($pidListFix[$pid])) {
                   $pidListFix[$pid] = array();
@@ -198,6 +207,12 @@ LIMIT ".$inc." OFFSET ".$i;
                 }
 
                 $pidListFix[$pid][$akey]['aut_id'] = $authors[$apkey]['aut_id'];
+                if ($authors[$apkey]['aut_id'] != 0) {
+                  $pidAuthorCount[$pid]['id_found'] = $pidAuthorCount[$pid]['id_found'] + 1;
+                }
+              }
+              if ($authors[$apkey]['aut_id'] != 0) {
+                $pidAuthorCount[$pid]['id_count'] = $pidAuthorCount[$pid]['id_count'] + 1;
               }
             }
             if (!array_key_exists('aut_id', $pidListFix[$pid][$akey])) {
@@ -249,11 +264,18 @@ print_r($pidListFix);
 
 
 echo "Going to fix these now..\n";
+$differentCounts = 0;
 foreach ($pidListFix as $fpid => $fix) {
-  $record = new RecordObject($fpid);
-  $record->replaceAuthors($fix, "Fixed author ordering based on Web of Knowledge");
-  echo "Fixed $fpid http://espace.library.uq.edu.au/view/".$fpid."\n";
+  if ($pidAuthorCount[$fpid]['id_found'] != $pidAuthorCount[$fpid]['id_count']) {
+    echo "$fpid has ".$pidAuthorCount[$fpid]['id_count']." but could only match author ids on ".$pidAuthorCount[$fpid]['id_found']." so will have to do this one manually \n";
+    $differentCounts++;
+  } else {
+    $record = new RecordObject($fpid);
+    $record->replaceAuthors($fix, "Fixed author ordering based on Web of Knowledge");
+    echo "Fixed $fpid http://espace.library.uq.edu.au/view/".$fpid."\n";
+  }
 }
+echo "Found $differentCounts different counts that will need manual replacing to maintain the author id associations correctly.\n";
 echo "Done!";
 
 
