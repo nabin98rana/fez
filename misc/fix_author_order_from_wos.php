@@ -192,34 +192,24 @@ LIMIT ".$inc." OFFSET ".$i;
             if (!in_array($pid, $pidListOrder)) {
               array_push($pidListOrder, $pid);
             }
-            $pidListFix[$pid][$akey]['name'] = $authorWok;
+          }
+
+          if (!is_array($pidListFix[$pid])) {
+              $pidListFix[$pid] = array();
+          }
+          if (!is_array($pidListFix[$pid][$akey])) {
+            $pidListFix[$pid][$akey] = array();
+          }
+
+          $pidListFix[$pid][$akey]['name'] = $authorWok;
 //            $pidListFix[$pid][$akey]['name'] = $authors[$akey]['name'];
 //print_r($authors);
 
 
 
-            foreach ($authors as $apkey => $authorPair) {
+          foreach ($authors as $apkey => $authorPair) {
 
-              if (preg_replace("/[^a-z]/", "", strtolower($authorWok)) == preg_replace("/[^a-z]/", "", strtolower($authors[$apkey]['name']))) {
-                if (!is_array($pidListFix[$pid])) {
-                  $pidListFix[$pid] = array();
-                }
-                if (!is_array($pidListFix[$pid][$akey])) {
-                  $pidListFix[$pid][$akey] = array();
-                }
-
-                $pidListFix[$pid][$akey]['aut_id'] = $authors[$apkey]['aut_id'];
-                if ($authors[$apkey]['aut_id'] != 0) {
-                  $pidAuthorCount[$pid]['id_found'] = $pidAuthorCount[$pid]['id_found'] + 1;
-                }
-              }
-              if ($authors[$apkey]['aut_id'] != 0) {
-                if (!in_array($authors[$apkey]['aut_id'], $pidAuthorCount[$pid]['ids'])) {
-                  $pidAuthorCount[$pid]['ids'][] = $authors[$apkey]['aut_id'];
-                } 
-              }
-            }
-            if (!array_key_exists('aut_id', $pidListFix[$pid][$akey])) {
+            if (preg_replace("/[^a-z]/", "", strtolower($authorWok)) == preg_replace("/[^a-z]/", "", strtolower($authors[$apkey]['name']))) {
               if (!is_array($pidListFix[$pid])) {
                 $pidListFix[$pid] = array();
               }
@@ -227,8 +217,26 @@ LIMIT ".$inc." OFFSET ".$i;
                 $pidListFix[$pid][$akey] = array();
               }
 
-              $pidListFix[$pid][$akey]['aut_id'] = 0;
+              $pidListFix[$pid][$akey]['aut_id'] = $authors[$apkey]['aut_id'];
+              if ($authors[$apkey]['aut_id'] != 0) {
+                $pidAuthorCount[$pid]['id_found'] = $pidAuthorCount[$pid]['id_found'] + 1;
+              }
             }
+            if ($authors[$apkey]['aut_id'] != 0) {
+              if (!in_array($authors[$apkey]['aut_id'], $pidAuthorCount[$pid]['ids'])) {
+                $pidAuthorCount[$pid]['ids'][] = $authors[$apkey]['aut_id'];
+              }
+            }
+          }
+          if (!array_key_exists('aut_id', $pidListFix[$pid][$akey])) {
+            if (!is_array($pidListFix[$pid])) {
+              $pidListFix[$pid] = array();
+            }
+            if (!is_array($pidListFix[$pid][$akey])) {
+              $pidListFix[$pid][$akey] = array();
+            }
+
+            $pidListFix[$pid][$akey]['aut_id'] = 0;
           }
         }
       }
@@ -275,9 +283,11 @@ foreach ($pidListFix as $fpid => $fix) {
       echo "$fpid has ".count($pidAuthorCount[$fpid]['ids'])." but could only match author ids on ".$pidAuthorCount[$fpid]['id_found']." so will have to do this one manually \n";
       $differentCounts++;
     } else {
-      $record = new RecordObject($fpid);
-      $record->replaceAuthors($fix, "Fixed author ordering based on Web of Knowledge");
-      echo "Fixed $fpid http://espace.library.uq.edu.au/view/".$fpid."\n";
+      if (in_array($fpid, $pidListOrder)) {
+        $record = new RecordObject($fpid);
+        $record->replaceAuthors($fix, "Fixed author ordering based on Web of Knowledge");
+        echo "Fixed $fpid http://espace.library.uq.edu.au/view/".$fpid."\n";
+      }
     }
   }
 }
