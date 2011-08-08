@@ -84,7 +84,7 @@ $pidListCount = array();
 $pidListOrder = array();
 $pidListFix = array();
 $pidAuthorCount = array();
-
+$dr = new DuplicatesReport();
 $wok_ws = new WokService(FALSE);
 	ob_flush();
 for($i=0; $i<($total); $i=$i+$inc) {
@@ -208,18 +208,24 @@ LIMIT ".$inc." OFFSET ".$i;
 
 
           foreach ($authors as $apkey => $authorPair) {
+            $authorTokens = $dr->tokenise($authors[$apkey]['name']);
+            
+            foreach ($authorTokens as $atoken) {
+              $x = preg_replace("/[^a-z]/", "", strtolower($authorWok));
+              $y = preg_replace("/[^a-z]/", "", strtolower($atoken));
+              if (is_numeric(strpos($x, $y))) {
+//              if (preg_replace("/[^a-z]/", "", strtolower($authorWok)) == preg_replace("/[^a-z]/", "", strtolower($authors[$apkey]['name']))) {
+                if (!is_array($pidListFix[$pid])) {
+                  $pidListFix[$pid] = array();
+                }
+                if (!is_array($pidListFix[$pid][$akey])) {
+                  $pidListFix[$pid][$akey] = array();
+                }
 
-            if (preg_replace("/[^a-z]/", "", strtolower($authorWok)) == preg_replace("/[^a-z]/", "", strtolower($authors[$apkey]['name']))) {
-              if (!is_array($pidListFix[$pid])) {
-                $pidListFix[$pid] = array();
-              }
-              if (!is_array($pidListFix[$pid][$akey])) {
-                $pidListFix[$pid][$akey] = array();
-              }
-
-              $pidListFix[$pid][$akey]['aut_id'] = $authors[$apkey]['aut_id'];
-              if ($authors[$apkey]['aut_id'] != 0) {
-                $pidAuthorCount[$pid]['id_found'] = $pidAuthorCount[$pid]['id_found'] + 1;
+                $pidListFix[$pid][$akey]['aut_id'] = $authors[$apkey]['aut_id'];
+                if ($authors[$apkey]['aut_id'] != 0) {
+                  $pidAuthorCount[$pid]['id_found'] = $pidAuthorCount[$pid]['id_found'] + 1;
+                }
               }
             }
             if ($authors[$apkey]['aut_id'] != 0) {
