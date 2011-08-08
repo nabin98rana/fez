@@ -1345,7 +1345,7 @@ class DuplicatesReport {
 
 	function shortWordsFilter($a)
 	{
-		return strlen($a) > 3;
+		return strlen($a) >= 3;
 	}
 
 	function getListing($page, $page_size, $show_resolved = true)
