@@ -210,11 +210,14 @@ LIMIT ".$inc." OFFSET ".$i;
 
           foreach ($authors as $apkey => $authorPair) {
             $authorTokens = $dr->tokenise($authors[$apkey]['name']);
-            
+//            print_r($authorTokens);
             foreach ($authorTokens as $atoken) {
-              $x = preg_replace("/[^a-z]/", "", strtolower($authorWok));
-              $y = preg_replace("/[^a-z]/", "", strtolower($atoken));
-              if (is_numeric(strpos($x, $y))) {
+              $x = preg_replace("/[^a-z ]/", "", strtolower($authorWok));
+//              $y = preg_replace("/[^a-z]/", "", strtolower($atoken));
+              $y = strtolower($atoken);
+              if (is_numeric(strpos($x, $y)) && ($pidListFix[$pid][$akey]['aut_id'] != $authors[$apkey]['aut_id'])) {
+                echo "$pid token matched $y on $x \n";
+
 //              if (preg_replace("/[^a-z]/", "", strtolower($authorWok)) == preg_replace("/[^a-z]/", "", strtolower($authors[$apkey]['name']))) {
                 if (!is_array($pidListFix[$pid])) {
                   $pidListFix[$pid] = array();
