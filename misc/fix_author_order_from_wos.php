@@ -209,7 +209,7 @@ LIMIT ".$inc." OFFSET ".$i;
 
 
           foreach ($authors as $apkey => $authorPair) {
-            $authorTokens = $dr->tokenise($authors[$apkey]['name']);
+            $authorTokens = $dr->authorTokenise($authors[$apkey]['name']);
 //            print_r($authorTokens);
             foreach ($authorTokens as $atoken) {
               $x = preg_replace("/[^a-z ]/", "", strtolower($authorWok));
