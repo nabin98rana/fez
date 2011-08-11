@@ -2079,6 +2079,7 @@ class RecordGeneral
     }
     $pid = $this->pid;
     $new_pid = Fedora_API::getNextPID();
+    $new_xml = "";
     // need to get hold of a copy of the fedora XML, and substitute the PIDs in it then ingest it.
     $xml_str = Fedora_API::getObjectXMLByPID($pid);
     $xml_str = str_replace($pid, $new_pid, $xml_str);  // change to new pid
@@ -2092,9 +2093,18 @@ class RecordGeneral
     foreach ($nodes as $node) {
       $node->parentNode->removeChild($node);
     }
+
+    if (APP_FEDORA_VERSION == "3") { // Fedora 3 doesn't have the VERSION attribute so remove it or it will cause an error
+      $new_xml = $doc->saveXML();
+      $nodes = $xpath->query('/foxml:digitalObject');
+      foreach ($nodes as $node) {
+        $node->removeAttribute('VERSION');
+      }
+    }
     $new_xml = $doc->saveXML();
-    if (APP_FEDORA_VERSION == "3.2.1") {
-      Fedora_API::callIngestObject($new_xml, $pid);
+
+    if (APP_FEDORA_VERSION == "3") {
+      Fedora_API::callIngestObject($new_xml, $new_pid);
     } else {
       Fedora_API::callIngestObject($new_xml);
     }
