@@ -125,6 +125,7 @@ class Pager
 		$rows = Pager::getParam('rows',$params);
 		$keywords = Pager::getParam('keywords', $params);
 		$reset = Pager::getParam('reset',$params);
+    $hide_closed = Pager::getParam('hide_closed',$params);
 		$cookie = array();
 		if ($rows)
 			$cookie['rows'] = $rows;
@@ -293,14 +294,13 @@ class Pager
 			$cookie['operator'] = $operator;
 		}
 
-		$hide_closed = Pager::getParam('hide_closed',$params);
 
 
-		if( empty($hide_closed) && !empty($existing_cookie['hide_closed']) ) {
+		if( empty($hide_closed) && !($existing_cookie['hide_closed'] == 1 || $existing_cookie['hide_closed'] === 0) ) {
 			$hide_closed = $existing_cookie['hide_closed'];
 		}
 
-		if ($hide_closed) {
+		if ($hide_closed === 0 || $hide_closed == 1) {
 			$cookie['hide_closed'] = $hide_closed;
 		}
 
