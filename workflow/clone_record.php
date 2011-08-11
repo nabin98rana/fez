@@ -31,6 +31,7 @@
 // |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>,                    |
 // |          Rhys Palmer <r.rpalmer@library.uq.edu.au>                   |
 // +----------------------------------------------------------------------+
+include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
 
 $pid = $this->pid;
 $new_xdis_id =  $this->getvar('new_xdis_id');
@@ -42,6 +43,7 @@ $record = new RecordGeneral($pid);
 $new_pid = $record->copyToNewPID($new_xdis_id,$is_succession,$clone_attached_datastreams,$collection_pid);
 if (!empty($new_pid)) {
     $this->setCreatedPid($new_pid);
+    $this->href = APP_RELATIVE_URL."view/".$new_pid;
     $this->assign('outcome', "Success");
     $this->assign('outcome_details', "Cloned from $pid to $new_pid");
 }
