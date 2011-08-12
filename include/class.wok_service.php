@@ -90,7 +90,7 @@ class WokService
 //      echo "Not reusing cookie :( \n";
       $this->sessionId = $this->authenticate(WOK_USERNAME, WOK_PASSWORD);
       $this->client->setCookie(WOK_COOKIE_NAME, $this->sessionId);
-      echo $this->sessionId;
+//      echo $this->sessionId;
       WokSession::insert($this->sessionId);
     }
     
