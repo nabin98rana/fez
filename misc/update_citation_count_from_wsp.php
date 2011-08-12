@@ -36,52 +36,58 @@ include_once(APP_INC_PATH . 'class.wok_service.php');
 include_once(APP_INC_PATH . 'class.wok_queue.php');
 include_once(APP_INC_PATH . "class.record.php");
 
-$query = 'OG=(Univ Queensland)';
-$depth = '4week';
-$timeSpan = array();
-$editions = '';
-$sort = '';
-$first_rec = 1;
-$num_recs = WOK_BATCH_SIZE;
+$max = 100; 		// Max number of primary key IDs to send with each ESTI Search Service request call
+$sleep = 1; 	// Number of seconds to wait for between successive ESTI Search Service calls 
+
+$filter = array();
+$filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
+$filter["searchKey".Search_Key::getID("Object Type")] = 3; // records only
+$filter["manualFilter"] = "isi_loc_t_s:[* TO *]"; //only records that have an isi loc
 
 $wok_ws = new WokService(FALSE);
-
-//$result = EstiSearchService::searchRetrieve('WOS', $query, $depth, $editions, $sort, $first_rec, $num_recs);
-
-// Do an initial sleep just in something else ran just before this..
-sleep(WOK_SECONDS_BETWEEN_CALLS);
-$response = $wok_ws->search("WOS", $query, $editions, $timeSpan, $depth, "en", $num_recs);
-$queryId = $response->return->queryID;
-$records_found = $response->return->recordsFound;
-
-$result = $response->return->records;
-//$result = $wok_ws->retrieve($first_rec, $num_recs);
-
-//$records_found = (int)$result['recordsFound'];
-$pages = ceil(($records_found/$num_recs));
-$wq = WokQueue::get();
-for($i=0; $i<$pages; $i++) {
+//sleep(WOK_SECONDS_BETWEEN_CALLS);
+$listing = Record::getListing(array(), array(9,10), 0, $max, 'Created Date', false, false, $filter);
+//echo "searching...\n";
+ob_flush();
+for($i=0; $i<((int)$listing['info']['total_pages']+1); $i++) {
+//  echo "page ".$i."\n";
+  ob_flush();
+	// Skip first loop - we have called getListing once already
+	if($i>0)
+		$listing = Record::getListing(array(), array(9,10), $listing['info']['next_page'], $max, 'Created Date', false, false, $filter);
 	
-	$first_rec += $num_recs;
-	
-	if($i>0) {
-		//$result = EstiSearchService::searchRetrieve('WOS', $query, $depth, $editions, $sort, $first_rec, $num_recs);
-        sleep(WOK_SECONDS_BETWEEN_CALLS);
-        $response = $wok_ws->retrieve($queryId, $first_rec, $num_recs);
-        $result = $response->return->records;
-    }
-//	$records = @simplexml_load_string($result['records']);
-    $records = @simplexml_load_string($result);
-	
-	if($records) {
-		foreach($records->REC as $record) {
-			if(@$record->item) {
-                $ut = (string) $record->item->ut;
-                $wq->add($ut);
-//				$pid = Record::getPIDByIsiLoc($record->item->ut);
+	$uts = array();
+	if (is_array($listing['list'])) {
+	 	for($j=0; $j<count($listing['list']); $j++) {
+	 		$ut = $listing['list'][$j]['rek_isi_loc'];
+	 		if(! empty($ut))
+//	 			$primary_keys .= $ut.' ';
+        array_push($uts, $ut);
+	 	}
+	}
+//	print_r($uts);
+	if(!empty($uts)) {
+//		$records_xml = EstiSearchService::retrieve($primary_keys);
+
+    $records_xml = $wok_ws->retrieveById($uts);
+
+//    $response = $wok_ws->search("WOS", $query, $editions, $timeSpan, $depth, "en", $num_recs);
+//    $queryId = $response->return->queryID;
+//    $records_found = $response->return->recordsFound;
+//
+//    $result = $response->return->records;
+
+    if ($records_xml) {
+      $records = simplexml_load_string($records_xml);
+		  foreach($records->REC as $record) {
+				if($record->item) {
+					$pid = Record::getPIDByIsiLoc($record->item->ut);
+//          echo "updating $pid with ut".$record->item->ut." with count of ".$record->attributes()->timescited."\n";
+          ob_flush();
+					Record::updateThomsonCitationCount($pid, $record->attributes()->timescited, $record->item->ut);
+				}
 			}
 		}
-	}	
+//		sleep($sleep); // Wait before using the ESTI Search Service again
+	}
 }
-// Commmented the line out below 
-//$wok_ws->closeSession();
