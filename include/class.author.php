@@ -433,6 +433,7 @@ class Author
                     aut_homepage_link=" . $db->quote($_POST["homepage_link"]) . ",
                     aut_ref_num=" . $db->quote($_POST["aut_ref_num"]) . ",
                     aut_scopus_id=" . $db->quote($_POST["scopus_id"]).",
+					aut_people_australia_id=" . $db->quote($_POST["people_australia_id"]).",
                     aut_mypub_url=" . $db->quote($_POST["mypub_url"]).",
 					aut_description=" . $db->quote($stripped_description) . ",						
                     aut_update_date=" . $db->quote(Date_API::getCurrentDateGMT());
@@ -554,6 +555,9 @@ class Author
     if ($_POST["scopus_id"] !== "") {
       $insert .= ", aut_scopus_id ";
     }
+    if ($_POST["people_australia_id"] !== "") {
+      $insert .= ", aut_people_australia_id ";
+    }	
     if ($_POST["mypub_url"] !== "") {
       $insert .= ", aut_mypub_url ";
     }
@@ -604,6 +608,9 @@ class Author
     if ($_POST["scopus_id"] !== "") {
       $values .= ", " . $db->quote($_POST["scopus_id"]);
     }
+    if ($_POST["people_australia_id"] !== "") {
+      $values .= ", " . $db->quote($_POST["people_australia_id"]);
+    }	
     if ($_POST["mypub_url"] !== "") {
         $values .= ", " . $db->quote($_POST["mypub_url"]);
     }

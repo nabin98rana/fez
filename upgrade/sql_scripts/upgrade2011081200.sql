@@ -1,0 +1,1 @@
+ALTER TABLE %TABLE_PREFIX%author ADD COLUMN aut_people_australia_id VARCHAR(255);
