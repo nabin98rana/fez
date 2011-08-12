@@ -82,44 +82,15 @@ class WokSession
 		$log = FezLog::get();
 		$db = DB_API::get();
 
-		if (empty($params)) {
-			$params = $_POST;
-		}
+    WokSession::remove();
 
 		$stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "wok_session
                  (
-                    wks_id,
+                    wks_id
                  ) VALUES (
-                    " . $db->quote($session) . ",
+                    " . $db->quote($session) . "
                  )";
-		try {
-			$db->exec($stmt);
-		}
-		catch(Exception $ex) {
-			$log->err($ex);
-			return -1;
-		}
-		return 1;
-	}
-
-	/**
-	 * Method used to update details of a session.
-	 *
-	 * @access  public
-	 * @param   text $session The session value
-	 * @return  integer 1 if the insert worked, -1 otherwise
-	 */
-	function update($session)
-	{
-		$log = FezLog::get();
-		$db = DB_API::get();
-
-		$stmt = "UPDATE
-                    " . APP_TABLE_PREFIX . "wok_session
-                 SET
-                    wks_id = " . $db->quote($session) . "";
-
 		try {
 			$db->exec($stmt);
 		}
