@@ -88,6 +88,6 @@ for($i=0; $i<((int)$listing['info']['total_pages']+1); $i++) {
 				}
 			}
 		}
-//		sleep($sleep); // Wait before using the ESTI Search Service again
+    sleep(WOK_SECONDS_BETWEEN_CALLS); // to work within TR minimum throttling requirements 
 	}
 }
