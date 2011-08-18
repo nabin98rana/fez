@@ -76,7 +76,7 @@ if ($isAdministrator && $wft_type == "Create") {
         }
     } else {
         // Take a stab at a parent URL.
-        $parents_list = unserialize($_REQUEST['parents_list']);
+        $parents_list = unserialize(stripslashes($_REQUEST['parents_list']));
         foreach ($parents_list as &$item) {
             if (Misc::isValidPid($item)) {
                 $precord = new RecordObject($item);
