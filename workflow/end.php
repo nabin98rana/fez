@@ -73,7 +73,9 @@ if ($isAdministrator && $wft_type == "Create") {
             } else {
                 $redirect = APP_RELATIVE_URL . "view/" . $pid;
             }
-        }
+        } else { 
+			$redirect = APP_RELATIVE_URL . "list.php";
+		}
     } else {
         // Take a stab at a parent URL.
         $parents_list = unserialize(stripslashes($_REQUEST['parents_list']));
