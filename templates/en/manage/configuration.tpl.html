@@ -689,6 +689,15 @@ function restoreDefaultColours(el)
               {include file="error_icon.tpl.html" field="app_bg_poll_int"}
             </td>
           </tr>
+  		  <tr>
+		    <th>Portfolios collection</th>
+			<td>
+			  <input type="text" name="app_portfolios_collection" value="{$config_settings.app_portfolios_collection|escape:"html"}" size="30" />
+			  <br />Children collections of the collection entered above will be considered portfolios.
+			  {include file="error_icon.tpl.html" field="app_portfolios_collection"}
+			</td>
+  		  </tr>
+  		  <tr>
   		  </tbody>
 		</table>
 		</div>

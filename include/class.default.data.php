@@ -291,6 +291,7 @@ class Default_Data
 		$defaultData['app_bg_poll_int']                     = "20";
 		$defaultData['app_scopus_consumer_name']            = "YOUR AGREED CONSUMER NAME";
 		$defaultData['app_fedora_bypass']                   = "OFF";
+		$defaultData['app_portfolios_collection']           = "";
 		
 		return $defaultData;
 	}
