@@ -31,7 +31,7 @@
 // | Authors: Lachlan Kuhn <l.kuhn@library.uq.edu.au>                     |
 // +----------------------------------------------------------------------+
 
-include_once('../config.inc.php');
+include_once dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'config.inc.php';
 include_once(APP_INC_PATH . 'class.eventum.php');
 include_once(APP_INC_PATH . 'class.my_research.php');
 

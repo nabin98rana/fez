@@ -30,7 +30,7 @@
 // | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>        |
 // +----------------------------------------------------------------------+
 ini_set("display_errors", 1); // LKDB - tmp (was 1)
-include_once('../config.inc.php');
+include_once dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'config.inc.php';
 include_once(APP_INC_PATH . "class.record.php");
 
 $max = 100; 		// Max number of primary key IDs to send with each ESTI Search Service request call

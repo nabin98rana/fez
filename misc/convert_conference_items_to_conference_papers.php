@@ -33,7 +33,7 @@
 
 define(APP_LOGGING_ENABLED, false);
 
-include_once('../config.inc.php');
+include_once dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'config.inc.php';
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.xsd_display.php");
 
