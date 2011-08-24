@@ -39,8 +39,7 @@ if (!(stristr(PHP_OS, 'win') && !stristr(PHP_OS, 'darwin'))) {
 $ARGV = $_SERVER['argv'];
 $base = $ARGV[2];
 
-//include_once(realpath('../') . '/config.inc.php');
-include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
+include_once dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'config.inc.php';
 include_once(APP_INC_PATH.'class.background_process.php');
 
 $bgp_id = $ARGV[1];

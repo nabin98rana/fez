@@ -5,7 +5,7 @@
 // - a 'link' datastream and 
 // - no 'link_##' datastream
 
-include_once('../config.inc.php');
+include_once dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'config.inc.php';
 
 echo "Script started: " . date('Y-m-d H:i:s') . "\n";
 
