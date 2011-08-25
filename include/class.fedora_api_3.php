@@ -915,8 +915,19 @@ class Fedora_API {
 															"logMessage" => "Modified Datastream"
 				
 				));
+      } elseif ($dsLocation != "") {
+        curl_setopt($ch, CURLOPT_POSTFIELDS, array("file" => "@".$dsLocation.";type=".$mimetype,
+                              "dsLabel" => urlencode($dsLabel),
+                              "versionable" => $versionable,
+                              "mimeType" => $mimetype,
+                              "formatURI" => $formatURI,
+//															"controlGroup" => $controlGroup,
+                              "dsState" => "A",
+                              "logMessage" => "Modified Datastream"
+        ));
+        $log->err("sending this as a file => got a location of ".$dsLocation);
 			} elseif ($xmlContent != "") {
-				$xmlContent = Fedora_API::tidyXML($xmlContent);
+//				$xmlContent = Fedora_API::tidyXML($xmlContent);
 				$tempFile = APP_TEMP_DIR.str_replace(":", "_", $pid)."_".$dsID.".xml";
 				$fp = fopen($tempFile, "w");
 				if (fwrite($fp, $xmlContent) === FALSE) {
@@ -933,17 +944,6 @@ class Fedora_API {
 															"dsState" => "A",
 															"logMessage" => "Modified Datastream"
 				));
-			} elseif ($dsLocation != "") {
-				curl_setopt($ch, CURLOPT_POSTFIELDS, array("file" => "@".$dsLocation.";type=".$mimetype,
-															"dsLabel" => urlencode($dsLabel),
-															"versionable" => $versionable,
-															"mimeType" => $mimetype,
-															"formatURI" => $formatURI,
-//															"controlGroup" => $controlGroup,
-															"dsState" => "A",
-															"logMessage" => "Modified Datastream"
-				));
-				$log->err("sending this as a file => got a location of ".$dsLocation);
 			}
 
 			 if (APP_HTTPS_CURL_CHECK_CERT == "OFF" && APP_FEDORA_APIA_PROTOCOL_TYPE == 'https://')  {
@@ -1698,7 +1698,7 @@ class Fedora_API {
 	 * @param array $parms The parameters
 	 * @return array $result
 	 */
-	function openSoapCall ($call, $parms, $debug_error=true) 
+	function openSoapCall ($call, $parms, $debug_error=true, $current_tries=0)
 	{
 		$log = FezLog::get();
 		
@@ -1731,9 +1731,16 @@ class Fedora_API {
 				$result = $result[0];
 			} catch (SoapFault $fault) { 
 //				$fedoraError = "Error when calling ".$call." :".$fault->faultstring;
-				$fedoraError = "Error when calling ".$call." :".$fault->faultstring."\n\n REQUEST: \n\n".$client->__getLastRequest()."\n\n RESPONSE: \n\n ".$client->__getLastResponse();
+        $current_tries++;
+				$fedoraError = "Error when calling ".$call." :".$fault->getMessage()."\n\n \n\n FOR THE $current_tries time REQUEST: \n\n".$client->__getLastRequest()."\n\n RESPONSE: \n\n ".$client->__getLastResponse();
 				$log->err(array($fedoraError, __FILE__,__LINE__));
-				return false;
+        // If it's an object locked exception.. some other thread is trying to modify it, so wait and try again as long as it hasn't been tried at least 4 times already
+        if (is_numeric(strpos($fault->getMessage(), "fedora.server.errors.ObjectLockedException")) && $current_tries < 5) {
+          sleep(5); // sleep for a bit so the object can get unlocked before trying again
+          return Fedora_API::openSoapCall($call, $parms, $debug_error, $current_tries);
+        } else {
+          return false;
+        }
 			}	
 		return $result;
 	}
@@ -1746,7 +1753,7 @@ class Fedora_API {
 	 * @param array $parms The parameters
 	 * @return array $result
 	 */
-	function openSoapCallAccess ($call, $parms) 
+	function openSoapCallAccess ($call, $parms, $current_tries=0)
 	{
 		$log = FezLog::get();
 		
@@ -1771,12 +1778,17 @@ class Fedora_API {
 			$result = $client->__soapCall($call, array('parameters' => $parms));
 			$result = array_values(Misc::obj2array($result));
 			$result = $result[0];
-		} catch (SoapFault $fault) { 
-			$fedoraError = "Error when calling ".$call." :".$fault->faultstring."\n\n REQUEST: \n\n".$client->__getLastRequest()."\n\n RESPONSE: \n\n ".$client->__getLastResponse();
-			$log->err(array($fedoraError, __FILE__,__LINE__));
-//			$client->__getLastRequest();
-//		    $client->__getLastResponse();
-			return false;
+		} catch (SoapFault $fault) {
+      $current_tries++;
+			$fedoraError = "Error when calling ".$call." :".$fault->getMessage()."\n\n FOR THE $current_tries time  \n\n REQUEST: \n\n".$client->__getLastRequest()."\n\n RESPONSE: \n\n ".$client->__getLastResponse();
+      $log->err(array($fedoraError, __FILE__,__LINE__));
+      // If it's an object locked exception.. some other thread is trying to modify it, so wait and try again as long as it hasn't been tried at least 4 times already
+      if (is_numeric(strpos($fault->getMessage(), "fedora.server.errors.ObjectLockedException")) && $current_tries < 5) {
+        sleep(5); // sleep for a bit so the object can get unlocked before trying again
+        return Fedora_API::openSoapCallAccess($call, $parms, $current_tries);
+      } else {
+        return false;
+      }
 		}
     return $result;
 	}

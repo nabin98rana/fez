@@ -1450,7 +1450,7 @@ class Fedora_API {
 	 * @param array $parms The parameters
 	 * @return array $result
 	 */
-	function openSoapCall ($call, $parms, $debug_error=true) 
+	function openSoapCall ($call, $parms, $debug_error=true, $current_tries=0)
 	{
 		$log = FezLog::get();
 		
@@ -1464,9 +1464,15 @@ class Fedora_API {
 		$client->setCredentials(APP_FEDORA_USERNAME, APP_FEDORA_PWD);
 		$result = $client->call($call, $parms);
 		if ($debug_error && is_array($result) && isset($result['faultcode'])) {
-			$fedoraError = "Error when calling ".$call." :".$result['faultstring'];
+      $current_tries++;
+			$fedoraError = "Error when calling ".$call." :".$result['faultstring']."\n\n FOR THE $current_tries time";
 			$log->err(array($fedoraError,$client->request, __FILE__,__LINE__));
-			return false;
+      if (is_numeric(strpos($result['faultstring'], "fedora.server.errors.ObjectLockedException")) && $current_tries < 5) {
+        sleep(5); // sleep for a bit so the object can get unlocked before trying again
+        return Fedora_API::openSoapCall($call, $parms, $debug_error, $current_tries);
+      } else {
+        return false;
+      }
 		}
 		return $result;
 	}
@@ -1479,7 +1485,7 @@ class Fedora_API {
 	 * @param array $parms The parameters
 	 * @return array $result
 	 */
-	function openSoapCallAccess ($call, $parms) 
+	function openSoapCallAccess ($call, $parms, $current_tries=0)
 	{
 		$log = FezLog::get();
 		
@@ -1494,8 +1500,15 @@ class Fedora_API {
 		$result = $client->call($call, $parms, 'http://www.fedora.info/definitions/1/0/types/');
 		//Fedora_API::debugInfo($client);
 		if (is_array($result) && isset($result['faultcode'])) {
-			$fedoraError = "Error when calling ".$call." :".$result['faultstring'];
+      $current_tries++;
+			$fedoraError = "Error when calling ".$call." :".$result['faultstring']."\n\n FOR THE $current_tries time";
 			$log->err(array($fedoraError,$client->request, __FILE__,__LINE__));
+      if (is_numeric(strpos($result['faultstring'], "fedora.server.errors.ObjectLockedException")) && $current_tries < 5) {
+        sleep(5); // sleep for a bit so the object can get unlocked before trying again
+        return Fedora_API::openSoapCallAccess($call, $parms, $current_tries);
+      } else {
+        return false;
+      }
 		}
     return $result;
 	}
