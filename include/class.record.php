@@ -1058,7 +1058,10 @@ class Record
   {
     $log = FezLog::get();
     $db = DB_API::get();
-      
+    
+    /*$data = var_export($sekData,TRUE);
+    file_put_contents('/var/www/fez/tmp/fedoraOut.txt', "\n".__METHOD__." | ".__FILE__." | ".__LINE__." >>>> ".$data, FILE_APPEND);
+    */  
     $ret = true;
     $now = date('Y-m-d H:i:s'); // Database friendly datetime, for use in all shadow operations below.
       
@@ -1073,6 +1076,8 @@ class Record
       if ($sek_value['xsdmf_value'] == 'NULL') {
         $xsdmf_value = $sek_value['xsdmf_value'];
       } else {
+        $sek_value['xsdmf_value'] = (is_array($sek_value['xsdmf_value']) && array_key_exists('Year', $sek_value['xsdmf_value']))
+            ? $sek_value['xsdmf_value']['Year'] : $sek_value['xsdmf_value'];
         $xsdmf_value = $db->quote(trim($sek_value['xsdmf_value']));
       }
 
@@ -1094,7 +1099,7 @@ class Record
     if ($shadow) {
       $stmtIns .= ", " . $db->quote($now);
     }
-    $stmtIns .= ")";
+    $stmtIns .= ")"; 
 		$db->beginTransaction();      
     if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql")) && !$shadow) {
       $stmt = $stmtIns ." ON DUPLICATE KEY UPDATE " . implode(",", $valuesUpd);
@@ -1105,7 +1110,7 @@ class Record
       }
 			$stmt = $stmtIns;
     }
-
+    
     try {
       $db->exec($stmt);
 			$db->commit();
@@ -1122,9 +1127,12 @@ class Record
     foreach ($sekData[1] as $sek_table => $sek_value) {
 
       $stmt = "";
+      $sekValTest = (is_array($sek_value['xsdmf_value'])) 
+          ? strtoupper(implode('', $sek_value['xsdmf_value'])) 
+          : $sek_value['xsdmf_value'];
       if (
           !empty($sek_value['xsdmf_value']) && !is_null($sek_value['xsdmf_value']) 
-          && (strtoupper($sek_value['xsdmf_value']) != "NULL")
+          && ($sekValTest != "NULL")
       ) {
 
         // Added this notEmpty check to look for empty arrays.  Stops fez from writing empty keyword 
@@ -1161,6 +1169,7 @@ class Record
           }
           
           $table = APP_TABLE_PREFIX . "record_search_key_" . $sek_table;
+          
           if ($shadow) {
             $table .= "__shadow";
           }
@@ -1170,7 +1179,7 @@ class Record
             $stmt .= ", rek_" . $sek_table . "_stamp";
           }
           $stmt .= ") VALUES ";
-            
+          
           if (is_array($sek_value['xsdmf_value'])) {
             
             $cardinalityVal = 1;
@@ -1788,6 +1797,7 @@ class Record
       $stmt =  "SELECT ".APP_SQL_CACHE." r1.* ".$searchKey_join[SK_FULLTEXT_REL]." ".$stmt.$searchKey_join[SK_GROUP_BY];
       $stmt .= " ORDER BY ".$searchKey_join[SK_SORT_ORDER]." r".$searchKey_join[SK_KEY_ID].".rek_pid DESC ";
     }
+    
     $usr_id = Auth::getUserID();
     if ($total_rows > 0) {
       try {
@@ -4829,84 +4839,103 @@ class Record
   {
     $log = FezLog::get();
     
-    $ncOldName = Foxml::makeNCName($oldName);
-    $ncNewName = Foxml::makeNCName($newName);
-    
-    if ($ncOldName == $ncNewName) {
-      $log->info("Renaming datastreams failed because both the old name and the new name are the same");
-      return;
-    }
-    
-    // 1. Get the details to the old datastream
-    $oldDatastream = Fedora_API::callGetDatastream($pid, $ncOldName);
-    
-    // if we have no details, ignore this rename
-    if (!count($oldDatastream)) {
-      $log->err(
-          "Could not rename datastream '{$oldName}' to '{$newName}' in {$pid} ".
-          "because the original datastream doesn't exist"
-      );
-      return false;
-    }
-
-    // do actual rename
-    $renameResult = self::renameDatastreamInternal($pid, $oldDatastream, $ncNewName);
-    if (!$renameResult) {
-      $log->err("Could not rename {$oldName} to {$newName} in {$pid}");
-      return;
-    }
-    
-    
-    // if we are renaming a file, 
-    if ($oldDatastream['controlGroup'] == 'M') {
-      
-      // then rename the presmd as well, start by generating the presmd filenames
-      if (is_numeric(strrpos($oldName, '.'))) {
-        $oldPresmdName = 'presmd_'.Foxml::makeNCName(substr($oldName, 0, strrpos($oldName, '.'))).'.xml';
-      } else {
-        $oldPresmdName = 'presmd_'.$ncOldName.'.xml';
-      }
-
-      if (is_numeric(strrpos($newName, '.'))) {
-        $newPresmdName = 'presmd_'.Foxml::makeNCName(substr($newName, 0, strrpos($newName, '.'))).'.xml';
-      } else {
-        $newPresmdName = 'presmd_'.$ncNewName.'.xml';
-      }
-
-      if (Fedora_API::datastreamExists($pid, $oldPresmdName)) {
-        $presmdDs = Fedora_API::callGetDatastream($pid, $oldPresmdName);
-        self::renameDatastreamInternal($pid, $presmdDs, $newPresmdName);
-      }
-
-      // move exif values if they exist
-      Exiftool::renameFile($pid, $oldName, $newName);
-    
-      // copy any of the generated datastreams that exist as part of this
-      $prefixes = array('thumbnail_', 'web_', 'preview_', 'FezACML_');
-      foreach ($prefixes as $prefix) {
-        $oldSubDatastreamName = "{$prefix}{$ncOldName}";
-        $newSubDatastreamName = "{$prefix}{$ncNewName}";
-        if ($prefix == 'FezACML_') {
-          $oldSubDatastreamName .= ".xml";
-          $newSubDatastreamName .= ".xml";
+    if(APP_FEDORA_BYPASS == 'ON')
+    {
+        $dsr = new DSResource(APP_DSTREE_PATH);
+        $res = $dsr->rename($oldName, $newName, $pid);
+        if($res)
+        {
+            if ($historyDescription == '')
+            {
+              $historyDescription = "Renamed the {$oldName} datastream to {$newName}";
+            }
+            History::addHistory($pid, null, "", "", true, $historyDescription, null); 
         }
-
-        if (Fedora_API::datastreamExists($pid, "{$oldSubDatastreamName}")) {
-          $subDs = Fedora_API::callGetDatastream($pid, "{$oldSubDatastreamName}");
-          self::renameDatastreamInternal($pid, $subDs, $newSubDatastreamName);
-          Exiftool::renameFile($pid, "{$oldSubDatastreamName}", "{$newSubDatastreamName}");
-        }					
-      }
-
-      // change download stats
-      Statistics::moveFileStats($pid, $oldName, $pid, $newName);
+        else
+        {
+            $log->err("Could not rename {$oldName} to {$newName} in {$pid}");
+        }   
+        
+        return $res;
+    }
+    else
+    {
+        $ncOldName = Foxml::makeNCName($oldName);
+        $ncNewName = Foxml::makeNCName($newName);
+        
+        if ($ncOldName == $ncNewName) {
+          $log->info("Renaming datastreams failed because both the old name and the new name are the same");
+          return;
+        }
+        
+        // 1. Get the details to the old datastream
+        $oldDatastream = Fedora_API::callGetDatastream($pid, $ncOldName);
+        
+        // if we have no details, ignore this rename
+        if (!count($oldDatastream)) {
+          $log->err(
+              "Could not rename datastream '{$oldName}' to '{$newName}' in {$pid} ".
+              "because the original datastream doesn't exist"
+          );
+          return false;
+        }
+    
+        // do actual rename
+        $renameResult = self::renameDatastreamInternal($pid, $oldDatastream, $ncNewName);
+        if (!$renameResult) {
+          $log->err("Could not rename {$oldName} to {$newName} in {$pid}");
+          return;
+        }
+        
+        
+        // if we are renaming a file, 
+        if ($oldDatastream['controlGroup'] == 'M') {
+          
+          // then rename the presmd as well, start by generating the presmd filenames
+          if (is_numeric(strrpos($oldName, '.'))) {
+            $oldPresmdName = 'presmd_'.Foxml::makeNCName(substr($oldName, 0, strrpos($oldName, '.'))).'.xml';
+          } else {
+            $oldPresmdName = 'presmd_'.$ncOldName.'.xml';
+          }
+    
+          if (is_numeric(strrpos($newName, '.'))) {
+            $newPresmdName = 'presmd_'.Foxml::makeNCName(substr($newName, 0, strrpos($newName, '.'))).'.xml';
+          } else {
+            $newPresmdName = 'presmd_'.$ncNewName.'.xml';
+          }
+    
+          if (Fedora_API::datastreamExists($pid, $oldPresmdName)) {
+            $presmdDs = Fedora_API::callGetDatastream($pid, $oldPresmdName);
+            self::renameDatastreamInternal($pid, $presmdDs, $newPresmdName);
+          }
+    
+          // move exif values if they exist
+          Exiftool::renameFile($pid, $oldName, $newName);
+        
+          // copy any of the generated datastreams that exist as part of this
+          $prefixes = array('thumbnail_', 'web_', 'preview_', 'FezACML_');
+          foreach ($prefixes as $prefix) {
+            $oldSubDatastreamName = "{$prefix}{$ncOldName}";
+            $newSubDatastreamName = "{$prefix}{$ncNewName}";
+            if ($prefix == 'FezACML_') {
+              $oldSubDatastreamName .= ".xml";
+              $newSubDatastreamName .= ".xml";
+            }
+    
+            if (Fedora_API::datastreamExists($pid, "{$oldSubDatastreamName}")) {
+              $subDs = Fedora_API::callGetDatastream($pid, "{$oldSubDatastreamName}");
+              self::renameDatastreamInternal($pid, $subDs, $newSubDatastreamName);
+              Exiftool::renameFile($pid, "{$oldSubDatastreamName}", "{$newSubDatastreamName}");
+            }					
+          }
+    
+          // change download stats
+          Statistics::moveFileStats($pid, $oldName, $pid, $newName);
+        }
     }
     
     // add history event about renaming file (from what to what, who and maybe why)
-    if ($historyDescription == '') {
-      $historyDescription = "Renamed the {$oldName} datastream to {$newName}";
-    }
-    History::addHistory($pid, null, "", "", true, $historyDescription, null);
+    
   }
   
   /**
@@ -4926,7 +4955,7 @@ class Record
       return false;
     }
     
-    // get the details
+    /*// get the details
     $result = false;
     switch ($ds['controlGroup']) {
       case 'M': 
@@ -4946,7 +4975,7 @@ class Record
           break;
     }
     
-    if (!$result) {
+    if (!$result) { 
       $log->err(
           "Could not rename datastream '{$ds['ID']}' to '{$newName}' ".
           "in {$pid} because we couldn't add the new datastream first ".
@@ -4965,7 +4994,7 @@ class Record
       );
     }
 
-    return $result;
+    return $result;*/
   }
   
   /**
@@ -4979,6 +5008,7 @@ class Record
   public function updateDatastreamLabel($pid, $dsID, $newLabel)
   {
     $currentDetails = Fedora_API::callGetDatastream($pid, $dsID);
+    
     Fedora_API::callModifyDatastreamByReference(
         $pid, $dsID, $newLabel, $currentDetails['location'], 
         $currentDetails['MIMEtype'], $currentDetails['versionable']

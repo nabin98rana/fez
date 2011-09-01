@@ -1,5 +1,6 @@
 <?php
 include_once(APP_INC_PATH.'class.record_general.php');
+include_once('/var/www/fez/include/class.digitalobject.php');
 /**
  * RecordObject
  * Manages the interface to the database and fedora for records.
@@ -100,7 +101,25 @@ class RecordObject extends RecordGeneral
 			$this->setIndexMatchingFields();
 		}
 	}
-
+    
+	function prepareSearchKeyData($params)
+	{
+	    $alphaParams = array();
+	    
+	    foreach($params['xsd_display_fields'] as $dfk => $dfv)
+	    {
+	        $alphaKey = Search_Key::getDetailsByXSDMF_ID($dfk);
+	        $alphaParams[$alphaKey['sek_title']] = $dfv;
+	        /*$DBGalphaKey = var_export($alphaKey,true);
+	        file_put_contents('/var/www/fez/tmp/fedoraOut.txt', $DBGalphaKey."\n\n", FILE_APPEND);*/
+	    }
+	    
+	    /*$dbg = var_export($alphaParams,true);
+	    file_put_contents('/var/www/fez/tmp/fedoraOut.txt', $dbg."\n####\n", FILE_APPEND);*/
+	    
+	    return $alphaParams;
+	}
+	
 	/**
 	 * fedoraInsertUpdate
 	 * Process a submitted record insert or update form
@@ -117,57 +136,139 @@ class RecordObject extends RecordGeneral
 			// to do with a form submission
 			$_POST = $params;
 		}
-
-		// If pid is null then we need to ingest the object as well
-		// otherwise we are updating an existing object
-		$ingestObject = false;
-		$existingDatastreams = array();
-		if (empty($this->pid)) {
-			$this->pid = Fedora_API::getNextPID();
-			$ingestObject = true;
-			$this->created_date = Date_API::getFedoraFormattedDateUTC();
-			$this->updated_date = $this->created_date;
-			$this->depositor = Auth::getUserID();
-			$this->assign_usr_id = array(Auth::getUserID());
-			$existingDatastreams = array();
-		} else {
-			$existingDatastreams = Fedora_API::callGetDatastreams($this->pid);
-			if (APP_VERSION_UPLOADS_AND_LINKS != "ON" && !in_array("FezACML", $specify_list)) {
-				Misc::purgeExistingLinks($this->pid, $existingDatastreams);
-			}
-			$this->getObjectAdminMD();
-			if (empty($this->created_date)) {
-				$this->created_date = Date_API::getFedoraFormattedDateUTC();
-			}
-			$this->updated_date = Date_API::getFedoraFormattedDateUTC();
-			$this->getXmlDisplayId();
+		
+		if(APP_FEDORA_BYPASS == 'ON')
+		{
+    		$digObj = new DigitalObject();
+    		/*$data = var_export($_POST,true);
+    		file_put_contents('/var/www/fez/tmp/fedoraOut.txt', "\n".__METHOD__." | ".__FILE__." | ".__LINE__." >>>> ".$data, FILE_APPEND);
+    		*/
+    		$xsd_display_fields = RecordGeneral::setDisplayFields($_POST['xsd_display_fields']);
+    		
+    		//TODO Need a better way to get these xsdmf_ids into the array.
+    		//$disp = RecordGeneral::getXSDMFByTitle($_POST['xdis_id']); 
+    		    // Get XDIS and all SUBXDIS
+            $xdis_list = XSD_Relationship::getListByXDIS($_POST['xdis_id']);
+            array_push($xdis_list, array("0" => $_POST['xdis_id']));
+            $xdis_str = Misc::sql_array_to_string($xdis_list);
+            
+            $xdis_details = XSD_Display::getDetails($_POST['xdis_id']);
+    		
+    		$xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Display Type'), $xdis_str);
+    		$xsd_display_fields[0]['display_type'] = array('xsdmf_id' => $xsdmf_id[0],'xsdmf_value' => $_POST['xdis_id']);
+    		
+    		/*$data = var_export($xdis_list,true);
+    		file_put_contents('/var/www/fez/tmp/fedoraOut.txt', "\n".__METHOD__." | ".__FILE__." | ".__LINE__." >>>> ".$data, FILE_APPEND);
+    		*/
+    		$xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Depositor'), $xdis_str);
+    		$xsd_display_fields[0]['depositor'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $_POST['user_id']);
+    		
+    		$createUpdateDate = Date_API::getFedoraFormattedDateUTC();
+    		$xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Created Date'), $xdis_str);
+    		$xsd_display_fields[0]['created_date'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $createUpdateDate);
+    		
+    		$xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Updated Date'), $xdis_str);
+    		$xsd_display_fields[0]['updated_date'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $createUpdateDate);
+    		
+    		$xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Status'), $xdis_str);
+    		$xsd_display_fields[0]['status'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $_POST['sta_id']);
+    		
+    		$xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Object Type'), $xdis_str);
+    		$xsd_display_fields[0]['object_type'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $xdis_details['xdis_object_type']);
+    		
+    		/*$xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Genre'), $xdis_str);
+    		$xsd_display_fields[0]['genre'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $_POST['xsd_display_fields'][$xsdmf_id[0]]);
+    		
+    		$xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Genre Type'), $xdis_str);
+    		$xsd_display_fields[0]['genre_type'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $_POST['xsd_display_fields'][$xsdmf_id[0]]);
+    		*/
+    		
+    		//Publish date in MySQL format
+    		$xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Date'), $xdis_str);
+    		$dte = $_POST['xsd_display_fields'][$xsdmf_id[0]];
+    		$dteSql = array();
+    		$dteSql[] = $dte['Year'];
+    		$dteSql[] = (isset($dte['Month'])) ? str_pad($dte['Month'], 2, '0', STR_PAD_LEFT) : '00';
+            $dteSql[] = (isset($dte['Day'])) ? str_pad($dte['Day'], 2, '0', STR_PAD_LEFT) : '00';
+            $dteSql = implode('-', $dteSql) . ' 00:00:00';
+    		$xsd_display_fields[0]['date'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $dteSql);
+    		
+    		/*$data = var_export($_POST['xsd_display_fields'][$xsdmf_id[0]],true);
+    		file_put_contents('/var/www/fez/tmp/fedoraOut.txt', "\n".__METHOD__." | ".__FILE__." | ".__LINE__." >>>> ".$data, FILE_APPEND);
+    		*/
+    		$digObjData = array(
+    		    'xdis_id' => $_POST['xdis_id'],
+                'sta_id' => $_POST['sta_id'],
+                'usr_id' => $_POST['user_id'],
+    		    'depositor' => $_POST['user_id']
+    		);
+    		
+    		$this->xdis_id = $_POST['xdis_id'];
+    		
+    		$this->pid = ($this->pid) ? $this->pid : $digObj->save($digObjData);
+    		
+    		$this->created_date = $createUpdateDate;
+    	    $this->updated_date = $createUpdateDate;
+    		$this->depositor = Auth::getUserID();
+    		$this->assign_usr_id = array(Auth::getUserID());
+    		        
+    		$this->getXmlDisplayId();
+    		Record::updateSearchKeys($this->pid, $xsd_display_fields);
+		
 		}
-		$pid = $this->pid;
-
-		if (empty($this->xdis_id)) {
-			$this->xdis_id = $_POST["xdis_id"];
+		else 
+		{
+    		// If pid is null then we need to ingest the object as well
+    		// otherwise we are updating an existing object
+    		$ingestObject = false;
+    		$existingDatastreams = array();
+    		if (empty($this->pid)) {
+    			$this->pid = Fedora_API::getNextPID();
+    			$ingestObject = true;
+    			$this->created_date = Date_API::getFedoraFormattedDateUTC();
+    			$this->updated_date = $this->created_date;
+    			$this->depositor = Auth::getUserID();
+    			$this->assign_usr_id = array(Auth::getUserID());
+    			$existingDatastreams = array();
+    		} else {
+    			$existingDatastreams = Fedora_API::callGetDatastreams($this->pid);
+    			if (APP_VERSION_UPLOADS_AND_LINKS != "ON" && !in_array("FezACML", $specify_list)) {
+    				Misc::purgeExistingLinks($this->pid, $existingDatastreams);
+    			}
+    			$this->getObjectAdminMD();
+    			if (empty($this->created_date)) {
+    				$this->created_date = Date_API::getFedoraFormattedDateUTC();
+    			}
+    			$this->updated_date = Date_API::getFedoraFormattedDateUTC();
+    			$this->getXmlDisplayId();
+    		}
+    		$pid = $this->pid;
+    
+    		if (empty($this->xdis_id)) {
+    			$this->xdis_id = $_POST["xdis_id"];
+    		}
+    		$xdis_id = $this->xdis_id;
+    		$this->getDisplay();
+    		$display = &$this->display;
+    		list($array_ptr,$xsd_element_prefix, $xsd_top_element_name, $xml_schema)
+    		= $display->getXsdAsReferencedArray();
+    		$xmlObj = '<?xml version="1.0"?>'."\n";
+    		$xmlObj .= "<".$xsd_element_prefix.$xsd_top_element_name." ";
+    		$xmlObj .= Misc::getSchemaSubAttributes($array_ptr, $xsd_top_element_name, $xdis_id, $pid); // for the pid, fedora uri etc
+    		$xmlObj .= $xml_schema;
+    		$xmlObj .= ">\n";
+    		// @@@ CK - 6/5/2005 - Added xdis so xml building could search using the xml display ids
+    		$indexArray = array();
+    
+    		$xmlObj = Foxml::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "", $indexArray, 0, $this->created_date, $this->updated_date, $this->depositor, $this->assign_usr_id, $this->assign_grp_id);
+    
+    		$xmlObj .= "</".$xsd_element_prefix.$xsd_top_element_name.">";
+    
+    		$datastreamTitles = $display->getDatastreamTitles($exclude_list, $specify_list);
+    		Record::insertXML($pid, compact('datastreamTitles', 'exclude_list', 'specify_list', 'xmlObj', 'indexArray', 'existingDatastreams', 'xdis_id'), $ingestObject);
+    		$this->clearDetails();  // force the details to be refreshed from fedora.
 		}
-		$xdis_id = $this->xdis_id;
-		$this->getDisplay();
-		$display = &$this->display;
-		list($array_ptr,$xsd_element_prefix, $xsd_top_element_name, $xml_schema)
-		= $display->getXsdAsReferencedArray();
-		$xmlObj = '<?xml version="1.0"?>'."\n";
-		$xmlObj .= "<".$xsd_element_prefix.$xsd_top_element_name." ";
-		$xmlObj .= Misc::getSchemaSubAttributes($array_ptr, $xsd_top_element_name, $xdis_id, $pid); // for the pid, fedora uri etc
-		$xmlObj .= $xml_schema;
-		$xmlObj .= ">\n";
-		// @@@ CK - 6/5/2005 - Added xdis so xml building could search using the xml display ids
-		$indexArray = array();
-
-		$xmlObj = Foxml::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "", $indexArray, 0, $this->created_date, $this->updated_date, $this->depositor, $this->assign_usr_id, $this->assign_grp_id);
-
-		$xmlObj .= "</".$xsd_element_prefix.$xsd_top_element_name.">";
-
-		$datastreamTitles = $display->getDatastreamTitles($exclude_list, $specify_list);
-		Record::insertXML($pid, compact('datastreamTitles', 'exclude_list', 'specify_list', 'xmlObj', 'indexArray', 'existingDatastreams', 'xdis_id'), $ingestObject);
-		$this->clearDetails();  // force the details to be refreshed from fedora.
-		return $pid;
+		return $this->pid;
 	}
 
 	function getIngestTrigger($mimetype)

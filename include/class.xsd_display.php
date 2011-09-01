@@ -738,9 +738,9 @@ class XSD_Display
 	 * @param   integer $xdis_id The XSD ID to search by.
 	 * @return  array $res The title
 	 */
-	function getTitle($xdis_id)
+	function getTitle($xdis_id=null)
 	{
-		$log = FezLog::get();
+	    $log = FezLog::get();
 		$db = DB_API::get();
 		
 		if(empty($xdis_id) || !is_numeric($xdis_id)) {
@@ -1269,6 +1269,7 @@ class XSD_DisplayObject
 			return $this->xsdmf_array[$pid];
 
 		}
+		
 		exit;
 
 	}

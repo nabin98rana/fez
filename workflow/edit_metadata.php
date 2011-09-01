@@ -167,7 +167,7 @@ if ($access_ok) {
             Record::updateAdminDatastream($pid, $xdis_id);
         }
     }
-
+    
     if (!is_numeric($xdis_id)) { // if still can't find the xdisplay id then ask for it
         Auth::redirect(APP_RELATIVE_URL . "select_xdis.php?return=update_form&pid=".$pid.$extra_redirect, false);
     }

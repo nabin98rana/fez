@@ -487,7 +487,21 @@
      {
         $pid = $record->pid;
         $securityfields = Auth::getAllRoles();
-        $datastreams = Fedora_API::callGetDatastreams($pid);
+        
+        if(APP_FEDORA_BYPASS == 'ON')
+        {
+            /*$xsdDispObj = new XSD_DisplayObject($record->xdis_id);
+            $datastreams = $xsdDispObj->getXSDMF_Values($pid);*/
+            
+            $dob = new DigitalObject();
+    		$datastreams = $dob->getDatastreams(array('pid' => $pid));
+            
+        }
+        else 
+        {
+            $datastreams = Fedora_API::callGetDatastreams($pid);
+        }
+        
         $datastreams = Misc::cleanDatastreamListLite($datastreams, $pid);
     
         $datastream_workflows = WorkflowTrigger::getListByTrigger('-1', 5); //5 is for datastreams
@@ -500,26 +514,29 @@
             array_push($datastream_isMemberOf, $parent);
         }
         
-        foreach ($datastreams as $ds_key => $ds) {
-            if ($datastreams[$ds_key]['controlGroup'] == 'R') {
-                $linkCount++;               
-            }       
-            if ($datastreams[$ds_key]['controlGroup'] == 'R' && $datastreams[$ds_key]['ID'] != 'DOI') {
-                $datastreams[$ds_key]['location'] = trim($datastreams[$ds_key]['location']);
-                // Check for APP_LINK_PREFIX and add if not already there
-                if (APP_LINK_PREFIX != "") {
-                    if (!is_numeric(strpos($datastreams[$ds_key]['location'], APP_LINK_PREFIX))) {
-                        $datastreams[$ds_key]['location'] = APP_LINK_PREFIX.$datastreams[$ds_key]['location'];
+        if($datastreams)
+        {
+            foreach ($datastreams as $ds_key => $ds) {
+                if ($datastreams[$ds_key]['controlGroup'] == 'R') {
+                    $linkCount++;               
+                }       
+                if ($datastreams[$ds_key]['controlGroup'] == 'R' && $datastreams[$ds_key]['ID'] != 'DOI') {
+                    $datastreams[$ds_key]['location'] = trim($datastreams[$ds_key]['location']);
+                    // Check for APP_LINK_PREFIX and add if not already there
+                    if (APP_LINK_PREFIX != "") {
+                        if (!is_numeric(strpos($datastreams[$ds_key]['location'], APP_LINK_PREFIX))) {
+                            $datastreams[$ds_key]['location'] = APP_LINK_PREFIX.$datastreams[$ds_key]['location'];
+                        }
                     }
+                } elseif ($datastreams[$ds_key]['controlGroup'] == 'M') {
+    				$datastreams[$ds_key]['workflows'] = $datastream_workflows;
+                    $datastreams[$ds_key]['FezACML'] = Auth::getAuthorisationGroups($pid, $ds['ID']);
+    				$datastreams[$ds_key] = Auth::getAuthorisation($datastreams[$ds_key]);
+                    $fileCount++;
                 }
-            } elseif ($datastreams[$ds_key]['controlGroup'] == 'M') {
-				$datastreams[$ds_key]['workflows'] = $datastream_workflows;
-                $datastreams[$ds_key]['FezACML'] = Auth::getAuthorisationGroups($pid, $ds['ID']);
-				$datastreams[$ds_key] = Auth::getAuthorisation($datastreams[$ds_key]);
-                $fileCount++;
-            }
-            
-        } 
+                
+            } 
+        }
         $tpl->assign("linkCount", $linkCount);
         $tpl->assign("datastreams", $datastreams);
         $tpl->assign("fileCount", $fileCount);                  

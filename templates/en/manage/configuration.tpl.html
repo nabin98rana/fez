@@ -1023,6 +1023,13 @@ function restoreDefaultColours(el)
                 {include file="error_icon.tpl.html" field="br_img_dir"}
             </td>
          </tr>
+         <tr>
+            <th>Datastream file storage directory</th>
+            <td>
+              <input type="text" name="app_dstree_path" value="{$config_settings.app_dstree_path|escape:"html"}" size="40" />
+              {include file="error_icon.tpl.html" field="app_duplicates_reports_location"}
+            </td>
+          </tr>
 	 </tbody>
 		</table>
 		</div>

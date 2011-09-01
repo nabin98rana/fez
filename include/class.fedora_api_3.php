@@ -1245,8 +1245,8 @@ class Fedora_API {
 	 */
 	function callGetDatastream($pid, $dsID) 
 	{
-		$parms=array('pid' => $pid, 'dsID' => $dsID);
-		$dsIDListArray = Fedora_API::openSoapCall('getDatastream', $parms);
+	    
+	    $dsIDListArray = Fedora_API::callGetDatastreamDisseminationLite($pid, $dsID);
 		return $dsIDListArray;
 	}
 
@@ -1702,7 +1702,9 @@ class Fedora_API {
 	{
 		$log = FezLog::get();
 		
-	    if(!array_key_exists($parms['asOfDateTime']))
+	    $setDateTimeTo = array('getDatastream');
+	    
+	    if(!array_key_exists($parms['asOfDateTime']) && in_array($call, $setDateTimeTo))
 	    {
 	        $parms['asOfDateTime'] = NULL;
 	    }
