@@ -2023,11 +2023,16 @@ class Auth
 				Auth::GetUsersLDAPGroups($username, $password);
 				// Create the user in Fez
 				User::insertFromLDAPLogin();
+        $usr_id = User::getUserIDByUsername($username);
+        $userDetails = User::GetUserLDAPDetails($username, $password);
+         //Overwrite shib attributes wiht those from ldap/ad
+        User::updateShibAttribs($usr_id);
 			}
 			$usr_id = User::getUserIDByUsername($username);
 		} else { // if it is a registered Fez user then get their details from the fez user table
 			$session['isInDB'] = true;
 			$userDetails = User::getDetails($username);
+      $usr_id = User::getUserIDByUsername($username);
 			if (!Auth::isActiveUser($username)) {
 				return 7;
 			}
@@ -2037,8 +2042,12 @@ class Auth
 				$session['isInFederation'] = false;
 				if ($userDetails['usr_ldap_authentication'] == 1) {
 					if (!$auth_isBGP) {
-						$distinguishedname = @$userDetails['distinguishedname'];
 						Auth::GetUsersLDAPGroups($userDetails['usr_username'], $password);
+            $userDetails = User::GetUserLDAPDetails($username, $password);
+            $distinguishedname = @$userDetails['distinguishedname'];
+            $userDetails = User::getDetails($username);
+            //Overwrite shib attributes wiht those from ldap/ad
+            User::updateShibAttribs($usr_id);
 					} else {
 						$distinguishedname = '';
 					}
@@ -2050,7 +2059,6 @@ class Auth
 			}
 			$fullname = $userDetails['usr_full_name'];
 			$email = $userDetails['usr_email'];
-			$usr_id = User::getUserIDByUsername($username);
 			if ($alreadyLoggedIn !== true) {
 				User::updateLoginDetails($usr_id); //incremement login count and last login date
 				if ($shib_login == true) {

@@ -1478,11 +1478,26 @@ function restoreDefaultColours(el)
 			  {include file="error_icon.tpl.html" field="ldap_port"}
 			</td>
 		  </tr>
+          <tr>
+            <th>Staff LDAP Group</th>
+            <td>
+              <input type="text" name="ldap_staff_group" value="{$config_settings.ldap_staff_group|escape:"html"}" size="50" />
+              <br />match what you have in your ldap or active directory for the group that contains all your staff (Only required for AD/LDAP attribute -> shibboleth mapping if you stop using shibboleth after using it in FezACML a  while and want to maintain the rules)
+              {include file="error_icon.tpl.html" field="ldap_staff_group"}
+            </td>
+          </tr>
+
+          <tr>
+            <th>Student LDAP Group</th>
+            <td>
+              <input type="text" name="ldap_student_group" value="{$config_settings.ldap_student_group|escape:"html"}" size="50" />
+              <br />match what you have in your ldap or active directory for the group that contains all your Students (Only required for AD/LDAP attribute -> shibboleth mapping if you stop using shibboleth after using it in FezACML a  while and want to maintain the rules)
+              {include file="error_icon.tpl.html" field="ldap_student_group"}
+            </td>
+          </tr>
 		 </tbody>
 		</table>
 		</div>
-
-
 
 		<div id="eprints" style="display: none;">
 		<table width="100%" class="admin-edit">
