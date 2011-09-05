@@ -1243,9 +1243,10 @@ class Fedora_API {
 	 * @param string $dsID The ID of the datastream
 	 * @return array $dsIDListArray The requested of datastream in an array.
 	 */
-	function callGetDatastream($pid, $dsID) 
+	function callGetDatastream($pid, $dsID, $createdDT=NULL)
 	{
-		$parms=array('pid' => $pid, 'dsID' => $dsID);
+//		$parms=array('pid' => $pid, 'dsID' => $dsID);
+    $parms=array('pid' => $pid, 'dsID' => $dsID, 'asOfDateTime' => $createdDT);
 		$dsIDListArray = Fedora_API::openSoapCall('getDatastream', $parms);
 		return $dsIDListArray;
 	}
