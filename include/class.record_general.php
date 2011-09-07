@@ -323,7 +323,7 @@ class RecordGeneral
    */
   function canViewVersions($redirect=false)
   {
-    if(APP_VERSION_UPLOADS_AND_LINKS != "ON") return false;
+//    if(APP_VERSION_UPLOADS_AND_LINKS != "ON") return false; // turned off only showing version button when file and link versioning was on so metadata versioning could still be shown
     return $this->checkAuth($this->versionsViewer_roles, $redirect);
   }
 
