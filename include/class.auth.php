@@ -2015,6 +2015,7 @@ class Auth
 				$session['isInAD'] = true;
 				$session['isInDB'] = false;
 				$session['isInFederation'] = false;
+
 				$userDetails = User::GetUserLDAPDetails($username, $password);
 
 				$fullname = $userDetails['displayname'];
@@ -2042,12 +2043,14 @@ class Auth
 				$session['isInFederation'] = false;
 				if ($userDetails['usr_ldap_authentication'] == 1) {
 					if (!$auth_isBGP) {
-						Auth::GetUsersLDAPGroups($userDetails['usr_username'], $password);
-            $userDetails = User::GetUserLDAPDetails($username, $password);
-            $distinguishedname = @$userDetails['distinguishedname'];
-            $userDetails = User::getDetails($username);
-            //Overwrite shib attributes wiht those from ldap/ad
-            User::updateShibAttribs($usr_id);
+            if (!$masquerade) { // only try and get ldap details if not masquerading, as ldap wont bind with a masq
+              Auth::GetUsersLDAPGroups($userDetails['usr_username'], $password);
+              $userDetails = User::GetUserLDAPDetails($username, $password);
+              $distinguishedname = @$userDetails['distinguishedname'];
+              $userDetails = User::getDetails($username);
+              //Overwrite shib attributes wiht those from ldap/ad
+              User::updateShibAttribs($usr_id);
+            }
 					} else {
 						$distinguishedname = '';
 					}
