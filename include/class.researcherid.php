@@ -678,7 +678,7 @@ class ResearcherID
     }
     
     $xml_publications = new SimpleXMLElement($publications);
-    $records = $xml_publications->publicationList->{'researcher-publications'}->records->record;
+    $records = $xml_publications->publicationList->{'researcher-publications'}->records;
     $researcherid = $xml_publications->publicationList->{'researcher-publications'}->researcherID;
     $author_id = Author::getIDByResearcherID($researcherid);
 
