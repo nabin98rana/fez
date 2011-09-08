@@ -678,19 +678,21 @@ class ResearcherID
     }
     
     $xml_publications = new SimpleXMLElement($publications);
-    $records = $xml_publications->publicationList->{'researcher-publications'}->records;
-    $researcherid = $xml_publications->publicationList->{'researcher-publications'}->researcherID;
-    $author_id = Author::getIDByResearcherID($researcherid);
-
-    if (count($records) > 0) {
-      foreach ($records as $record) {
-        ResearcherID::addPublication($record, $author_id, $researcherid);
+    foreach ($xml_publications->publicationList->{'researcher-publications'} as $rp) {
+      $researcherid = (string)$rp->researcherID;
+      $author_id = null;
+      $author_id = Author::getIDByResearcherID($researcherid);
+      if ($rp->records->count() > 0 && $author_id != null) {
+        foreach ($rp->records->record as $record) {
+          ResearcherID::addPublication($record, $author_id, $researcherid);
+        }
+      } else {
+        $aut_details = Author::getDetails($author_id);
+//        $message = "FOUND no records for this RID download for ".$aut_details['aut_display_name']." with author id $author_id with Researcher ID ".$aut_details['aut_display_name']." <br />\n".print_r($publications,true);
+        $message = "FOUND no records for this RID download for ".$aut_details['aut_display_name']." with author id $author_id with Researcher ID ".$aut_details['aut_researcher_id']." <br />\n";
+        $log->warn($message);
+        echo $message;
       }
-    } else {
-      $aut_details = Author::getDetails($author_id);
-      $message = "FOUND no records for this RID download for ".$aut_details['aut_display_name']." with author id $author_id with Researcher ID ".$aut_details['aut_display_name']." <br />\n".print_r($publications,true);
-      $log->warn($message);
-      echo $message;
     }
 
     // Finally clear the temp password - a successful download indicates the researcher has
