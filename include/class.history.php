@@ -61,23 +61,23 @@ class History
 	function generateHistoryAction($event_id, $event_type, $event_date, $event_usr_id, $event_usr_fullname, $event_detail, $event_pid, $event_outcome, $event_outcome_detail, $event_dsID="") 
 	{
 		$eventXML = "<premis:event>
-						<premis:eventIdentifier>".$event_id."</premis:eventIdentifier>
-						<premis:eventType>".$event_type."</premis:eventType>
-						<premis:eventDateTime>".$event_date."</premis:eventDateTime>
-						<premis:eventDetail>".$event_detail."</premis:eventDetail>
+						<premis:eventIdentifier>".htmlentities($event_id)."</premis:eventIdentifier>
+						<premis:eventType>".htmlentities($event_type)."</premis:eventType>
+						<premis:eventDateTime>".htmlentities($event_date)."</premis:eventDateTime>
+						<premis:eventDetail>".htmlentities($event_detail)."</premis:eventDetail>
 						<premis:eventOutcomeInformation>
-							<premis:eventOutcome>".$event_outcome."</premis:eventOutcome>
-							<premis:eventOutcomeDetail>".$event_outcome_detail."</premis:eventOutcomeDetail>
+							<premis:eventOutcome>".htmlentities($event_outcome)."</premis:eventOutcome>
+							<premis:eventOutcomeDetail>".htmlentities($event_outcome_detail)."</premis:eventOutcomeDetail>
 						</premis:eventOutcomeInformation>							
 						<premis:linkingAgentIdentifier>
 							<premis:linkingAgentIdentifierType>ID</premis:linkingAgentIdentifierType>
-							<premis:linkingAgentIdentifierValue>".$event_usr_id."</premis:linkingAgentIdentifierValue>							
+							<premis:linkingAgentIdentifierValue>".htmlentities($event_usr_id)."</premis:linkingAgentIdentifierValue>
 						</premis:linkingAgentIdentifier>
 						<premis:linkingAgentIdentifier>
 							<premis:linkingAgentIdentifierType>Full Name</premis:linkingAgentIdentifierType>
-							<premis:linkingAgentIdentifierValue>".$event_usr_fullname."</premis:linkingAgentIdentifierValue>							
+							<premis:linkingAgentIdentifierValue>".htmlentities($event_usr_fullname)."</premis:linkingAgentIdentifierValue>
 						</premis:linkingAgentIdentifier>													
-						<premis:linkingObjectIdentifier>".$event_pid."</premis:linkingObjectIdentifier>";
+						<premis:linkingObjectIdentifier>".htmlentities($event_pid)."</premis:linkingObjectIdentifier>";
 		/*		if ($event_dsID != "") {
 			$eventXML .= "	<event_dsID>$event_dsID</event_dsID>";
 			} else {
