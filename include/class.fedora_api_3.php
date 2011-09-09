@@ -931,11 +931,13 @@ class Fedora_API {
 				$tempFile = APP_TEMP_DIR.str_replace(":", "_", $pid)."_".$dsID.".xml";
 				$fp = fopen($tempFile, "w");
 				if (fwrite($fp, $xmlContent) === FALSE) {
-				        echo "Cannot write to file ($tempFile)";
+				        $err = "Cannot write to file ($tempFile)";
+                $log->err(array($err, __FILE__,__LINE__));
 				        exit;
 				}
-				fclose($fp); 
-				curl_setopt($ch, CURLOPT_POSTFIELDS, array("file" => "@".$tempFile.";type=".$mimetype,
+				fclose($fp);
+
+        $params = array("file" => "@".$tempFile.";type=".$mimetype,
 															"dsLabel" => urlencode($dsLabel),
 															"versionable" => $versionable,
 															"mimeType" => $mimetype,
@@ -943,7 +945,10 @@ class Fedora_API {
 //															"controlGroup" => $controlGroup,
 															"dsState" => "A",
 															"logMessage" => "Modified Datastream"
-				));
+				);
+
+
+				curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
 			}
 
 			 if (APP_HTTPS_CURL_CHECK_CERT == "OFF" && APP_FEDORA_APIA_PROTOCOL_TYPE == 'https://')  {
@@ -955,7 +960,7 @@ class Fedora_API {
 			 if ($results) {
 			        $info = curl_getinfo($ch);
 					if ($info['http_code'] != '200' && $info['http_code'] != '201') {
-			         	$log->err(array(print_r($results, true).curl_error($ch), $info,__FILE__,__LINE__));
+			         	$log->err(array(print_r($results, true).print_r($params, true).curl_error($ch), $info,__FILE__,__LINE__));
 						curl_close($ch);
 //						exit;
 						return false;
