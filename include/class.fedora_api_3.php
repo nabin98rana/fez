@@ -955,9 +955,9 @@ class Fedora_API {
 			 if ($results) {
 			        $info = curl_getinfo($ch);
 					if ($info['http_code'] != '200' && $info['http_code'] != '201') {
-			         	$log->err(array(curl_error($ch), $info,__FILE__,__LINE__));
+			         	$log->err(array(print_r($results, true).curl_error($ch), $info,__FILE__,__LINE__));
 						curl_close($ch);
-						exit;
+//						exit;
 						return false;
 					}
 			         curl_close ($ch);
