@@ -852,7 +852,7 @@ class Fedora_API {
 		         return true;
 		 } else {
 //		         $log->err(array(print_r($results, true).print_r(curl_error($ch), true).print_r(curl_getinfo($ch), true),__FILE__,__LINE__).$getString.print_r(debug_backtrace(),true));
-		         $log->err(array(print_r($results, true).print_r(curl_error($ch), true).print_r(curl_getinfo($ch), true),__FILE__,__LINE__).$getString.$tempFile.$xmlContent);
+		         $log->err(print_r(array(print_r($results, true).print_r(curl_error($ch), true).print_r(curl_getinfo($ch), true),__FILE__,__LINE__), true).$getString.$tempFile.$xmlContent.", dsID was $dsID, dsIDName was $dsIDName");
 //				exit;
 		         curl_close ($ch);
 		         return false;
