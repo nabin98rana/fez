@@ -1130,7 +1130,6 @@ class Record
       $stmt = "";
       if (
           !empty($sek_value['xsdmf_value']) && !is_null($sek_value['xsdmf_value']) 
-          && (strtoupper($sek_value['xsdmf_value']) != "NULL")
       ) {
 
         // Added this notEmpty check to look for empty arrays.  Stops fez from writing empty keyword 
