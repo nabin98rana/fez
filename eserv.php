@@ -322,7 +322,7 @@ if (!empty($pid) && !empty($dsID)) {
 		}
 		
 		// this should stop them dang haxors (forces the http on the front for starters)
-		$urldata = APP_FEDORA_GET_URL."/".$pid."/".$dsID.$requestedVersionDate; 
+		$urldata = APP_FEDORA_GET_URL."/".$pid."/".$dsID.$requestedVersionDate;
 		$urlpath = $urldata;
 	    if (!empty($header)) {
 	    	//echo $header; exit;
@@ -332,13 +332,13 @@ if (!empty($pid) && !empty($dsID)) {
 	    } else {
 	        header("Content-type: text/html");
 	    }
-	    
+
 	    // PDF? > 7MB? Firefox? Force download.
 	    if (is_numeric(strpos($ctype, "pdf")) && $info['download_content_length'] > 7000000 && Misc::is_firefox()) {
 	    	//header('Content-Type: application/download');
 	    	header("Content-Type: application/force-download");
 	    }
-	    
+
 	    header('Content-Disposition: filename="'.substr($urldata, (strrpos($urldata, '/')+1) ).'"');
 		if (!empty($info['download_content_length'])) {
 			header("Content-length: ".$info['download_content_length']);
@@ -349,9 +349,19 @@ if (!empty($pid) && !empty($dsID)) {
 		/*
 		 * Send file to user
 		 */
-		Misc::processURL($urldata, true);
+
+    if (APP_FEDORA_SENDFILE_DIRECT == "ON") {
+//      echo $pid; exit;
+      Statistics::addBuffer($pid, $dsID);
+      $fda = new Fedora_Direct_Access();
+      $dsVersionID = $fda->getMaxDatastreamVersion($pid, $dsID);
+      $fda->getDatastreamManagedContent($pid, $dsID, $dsVersionID);
+    } else {
+		  Misc::processURL($urldata, true);
+      Statistics::addBuffer($pid, $dsID);
+    }
 		// Add view to statistics buffer
-		Statistics::addBuffer($pid, $dsID);				
+
 		exit;
 	}
 }

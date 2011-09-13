@@ -293,6 +293,8 @@ class Default_Data
 		$defaultData['app_fedora_bypass']                   = "OFF";
     $defaultData['ldap_staff_group']                   = "uqStaff";
     $defaultData['ldap_student_group']                 = "uqStudents";
+    $defaultData['app_fedora_path_direct']             = "/fedora/data/";
+    $defaultData['app_fedora_sendfile_direct']         = "OFF";
 		//$defaultData['app_portfolios_collection']           = "";
 		
 		return $defaultData;

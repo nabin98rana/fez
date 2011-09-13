@@ -885,6 +885,23 @@ function restoreDefaultColours(el)
 			  {include file="error_icon.tpl.html" field="app_fedora_apia_direct"}
 			</td>
 		  </tr>
+          	<tr>
+		    <th>Direct APIA XSendFile X-Header-Accel (experimental)</th>
+			<td>
+			  <select name="app_fedora_sendfile_direct">
+			    <option value="ON"{if $config_settings.app_fedora_sendfile_direct == "ON"} selected="selected"{/if}>On</option>
+				<option value="OFF"{if $config_settings.app_fedora_sendfile_direct == "OFF"} selected="selected"{/if}>Off</option>
+			  </select>
+			  {include file="error_icon.tpl.html" field="app_fedora_sendfile_direct"}
+			</td>
+		  </tr>
+          <tr>
+            <th>Direct APIA Access Fedora Data Path (experimental)</th>
+            <td>
+              <input type="text" name="app_fedora_path_direct" value="{$config_settings.app_fedora_path_direct|escape:"html"}" size="50" />
+              {include file="error_icon.tpl.html" field="app_fedora_path_direct"}
+            </td>
+          </tr>
 		  <tr>
 		    <th>Display Fedora Checksums</th>
 			<td>

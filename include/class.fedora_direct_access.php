@@ -224,9 +224,16 @@ class Fedora_Direct_Access {
 		if ($res == "") {
 			return "";
 		}
-		$xml = "";
-		$xml = file_get_contents($res);
-		return $xml;
+    if (APP_FEDORA_SENDFILE_DIRECT == "ON") {
+      $res = str_replace(APP_FEDORA_PATH_DIRECT, "", $res);
+      header("X-Accel-Redirect: /fda".$res);
+    } else {
+      $xml = "";
+      $xml = file_get_contents($res);
+      return $xml;
+    }
+//exit;
+//    return true;
 	}
 
 
