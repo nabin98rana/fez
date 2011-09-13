@@ -1598,6 +1598,7 @@ class RecordGeneral
    */
   function getDetails($dsID = "", $xdis_id = "")
   {
+    
     $log = FezLog::get();
     $db = DB_API::get();
 
@@ -2202,6 +2203,9 @@ class RecordGeneral
             $proc->importStyleSheet($xsl_dom);
             $transformResult = $proc->transformToXML($dc_dom);
             $transformResult = self::clearMODSIdentifiers($transformResult);
+            file_put_contents('/var/www/fez/tmp/fedoraOut.txt', "\n"
+    .__METHOD__." | ".__FILE__." | ".__LINE__." >>>> "
+    .$new_pid, FILE_APPEND);
             Fedora_API::getUploadLocation(
                 $new_pid, "MODS", $transformResult, "Metadata Object Description Schema", 
                 "text/xml", "X", "MODS", 'true'

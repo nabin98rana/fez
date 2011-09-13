@@ -413,9 +413,9 @@ class Record
 					'hc' => $hc	);
 	}
 
-  function getResearchDetailsbyPIDS($result, $getAuthorMatching = false)
+  function getResearchDetailsbyPIDS($result, $getAuthorMatching = false, $versionDate=null)
   {		
-
+    
     $pids = array();
     for ($i = 0; $i < count($result); $i++) {
       $pids[] = $result[$i]["rek_pid"];
@@ -475,7 +475,7 @@ class Record
         $result[$i] = array_merge($result[$i], $rct[$pid]);
 			}
       if ($aut_id) {
-        $record = new RecordObject($result[$i]["rek_pid"]);
+        $record = new RecordObject($result[$i]["rek_pid"], $versionDate);
         // Bump relevance using matchAuthor 
         $match_res = $record->matchAuthor($aut_id, FALSE, FALSE, 1, FALSE);
         
@@ -1054,16 +1054,13 @@ class Record
   }
 
 
-  function updateSearchKeys($pid, $sekData, $shadow = false)
+  function updateSearchKeys($pid, $sekData, $shadow = false, $updateTS = false)
   {
     $log = FezLog::get();
     $db = DB_API::get();
     
-    /*$data = var_export($sekData,TRUE);
-    file_put_contents('/var/www/fez/tmp/fedoraOut.txt', "\n".__METHOD__." | ".__FILE__." | ".__LINE__." >>>> ".$data, FILE_APPEND);
-    */  
     $ret = true;
-    $now = date('Y-m-d H:i:s'); // Database friendly datetime, for use in all shadow operations below.
+    $now = ($updateTS) ? $updateTS : date('Y-m-d H:i:s'); // Database friendly datetime, for use in all shadow operations below.
       
     /*
      *  Update 1-to-1 search keys
@@ -1726,7 +1723,7 @@ class Record
       $options, $approved_roles=array(9,10), $current_page=0,$page_rows="ALL", $sort_by="Title", 
       $getSimple=false, $citationCache=false, $filter=array(), $operator='AND', $use_faceting = false, 
       $use_highlighting = false, $doExactMatch = false, $facet_limit = APP_SOLR_FACET_LIMIT, 
-      $facet_mincount = APP_SOLR_FACET_MINCOUNT, $getAuthorMatching = false
+      $facet_mincount = APP_SOLR_FACET_MINCOUNT, $getAuthorMatching = false, $versionDate=null
   )
   {
     $log = FezLog::get();
@@ -1774,10 +1771,26 @@ class Record
 
     $authArray = Collection::getAuthIndexStmt($approved_roles, "r1.rek_pid");
     $authStmt = $authArray['authStmt'];
-
-    $stmt = " FROM {$dbtp}record_search_key AS r1 ".
-    $searchKey_join[SK_JOIN].$searchKey_join[SK_LEFT_JOIN].$authStmt." ".
-    $searchKey_join[SK_WHERE];
+    
+    if(!is_null($versionDate))
+    {
+        $stmt = " FROM {$dbtp}record_search_key__shadow AS r1 ";
+    }
+    else 
+    {
+        $stmt = " FROM {$dbtp}record_search_key AS r1 ";
+    }
+    
+    $stmt .= $searchKey_join[SK_JOIN].$searchKey_join[SK_LEFT_JOIN].$authStmt." ";
+    
+    if(!is_null($versionDate))
+    {
+        $searchKey_join[SK_WHERE] = str_replace(')', 
+        		" AND rek_stamp = '$versionDate' )", 
+                $searchKey_join[SK_WHERE]);
+    }
+    
+    $stmt .= $searchKey_join[SK_WHERE];
 
     // If the DB is mysql then you can use SQL_NUM_ROWS, even with a limit and get better performance, otherwise you 
     // need to do a seperate query to get the total count
@@ -1824,12 +1837,14 @@ class Record
           $log->err($ex);
         }
       }
+      $getSimple = false;
+      $citationCache = false;
       if (count($res) > 0) {
         if ($getSimple == false || empty($getSimple)) {
           if ($citationCache == false) {
-            Record::getSearchKeysByPIDS($res);
+            Record::getSearchKeysByPIDS($res,true);
 						if (APP_MY_RESEARCH_MODULE == 'ON') {
-						  $res = Record::getResearchDetailsbyPIDS($res, $getAuthorMatching);
+						  $res = Record::getResearchDetailsbyPIDS($res, $getAuthorMatching, $versionDate);
 						}
             InternalNotes::readNotes($res);
           }

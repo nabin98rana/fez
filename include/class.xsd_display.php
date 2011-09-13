@@ -1130,7 +1130,7 @@ class XSD_DisplayObject
 	 */
 	function getXSDMF_Values($pid, $createdDT=null, $skipIndex = false)
 	{
-
+        
 		$log = FezLog::get();
 		$this->getXSD_HTML_Match();
 		
@@ -1145,7 +1145,8 @@ class XSD_DisplayObject
 			$current_row = 0;
 			$max = 1;
 			$order_by = "Title";
-			$return = Record::getListing($options, array(9,10), $current_row, $max, $order_by, false, false, $filter);
+			//$return = Record::getListing($options, array(9,10), $current_row, $max, $order_by, false, false, $filter);
+			$return = Record::getListing($options, array(9,10), $current_row, $max, $order_by, false, false, $filter, 'AND', false, false, false, APP_SOLR_FACET_LIMIT, APP_SOLR_FACET_MINCOUNT, false, $createdDT);
 		}
 		if (APP_XSDMF_INDEX_SWITCH == "ON" && count($return['list']) > 0 && $skipIndex != true && count($this->specify_list) == 0) {
 			$return = $return['list'][0];

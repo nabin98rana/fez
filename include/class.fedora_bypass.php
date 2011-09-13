@@ -650,6 +650,25 @@ class Fedora_API {
 	 */
 	function callAddDatastream ($pid, $dsID, $dsLocation, $dsLabel, $dsState, $mimetype, $controlGroup='M',$versionable='false', $xmlContent="") 
 	{
+	    /*$data = var_export(debug_backtrace(),true);
+        file_put_contents('/var/www/fez/tmp/fedoraOut.txt', "\n"
+            .__METHOD__." | ".__FILE__." | ".__LINE__." >>>> "
+            .$data, FILE_APPEND);*/
+	    /*if(APP_FEDORA_BYPASS == 'ON')
+	    {*/
+    	    /*$filesData = $_FILES['xsd_display_fields']['size'];
+    		$filesDataKeys = array_keys($filesData);
+    		$filesDataSize = $filesData[$filesDataKeys[0]][0];*/
+    		/*$meta = array('mimetype' => $mimeType, 
+    			'controlgroup' => $controlGroup, 
+    			'state' => 'A', 
+    		    'size' => '1234',
+    			'pid' => $pid);
+    		$dsr = new DSResource(APP_DSTREE_PATH, $dsLocation, $meta);
+    		$dsr->save();
+    		return;
+	    }*/
+	    
 	    if ($mimetype == "") {
 			$mimetype = "text/xml";
 		}
@@ -714,17 +733,16 @@ class Fedora_API {
 
 		} elseif ($dsLocation != "" && $controlGroup == "M") {
 		    
-		    $filesData = $_FILES['xsd_display_fields']['size'];
+		    /*$filesData = $_FILES['xsd_display_fields']['size'];
 		    $filesDataKeys = array_keys($filesData);
 		    $filesDataSize = $filesData[$filesDataKeys[0]][0];
-		    //file_put_contents('/var/www/fez/tmp/fedoraOut.txt', $filesDataSize."\n", FILE_APPEND);
 		    $meta = array('mimetype' => $mimeType, 
 		    	'controlgroup' => $controlGroup, 
 		    	'state' => 'A', 
 		        'size' => $filesDataSize,
 		    	'pid' => $pid);
 		    $dsr = new DSResource(APP_DSTREE_PATH, $dsLocation, $meta);
-		    $dsr->save();
+		    $dsr->save();*/
 		    
 		    //Fedora stuff below here. Remove.
 			$ch = curl_init($getString);
@@ -1105,28 +1123,33 @@ class Fedora_API {
 	 */
 	function callGetDatastream($pid, $dsID) 
 	{
-		$dsr = new DSResource(APP_DSTREE_PATH);
-		$dsr->load($dsID, $pid);
-		$dsArray = $dsr->getDSRev($dsID, $pid);
-		$dsArray['ID'] = $dsID;
-		$vers = $dsr->getDSRevs($dsID, $pid);
-		$vers = $vers[$dsArray['version']];
-		$dsArray['versionID'] = $vers;
-		$dsArray['label'] = $dsID;
-		$dsArray['controlGroup'] = $dsArray['controlgroup'];
-		$dsArray['MIMEType'] = $dsArray['mimetype'];
-		$dsArray['createDate'] = $dsArray['version'];
-		$dsArray['location'] = NULL; //TODO Check if this is needed and if so fill with a real value.
-		$dsArray['formatURI'] = NULL; //TODO Check if this is needed and if so fill with a real value.
-		$dsArray['checksumType'] = 'DISABLED'; //TODO Check if this is needed and if so fill with a real value.
-		$dsArray['checksum'] = 'none'; //TODO Check if this is needed and if so fill with a real value.
-		$dsArray['versionable'] = FALSE; //TODO Check if this is needed and if so fill with a real value.
-
-		return $dsArray;
-		
-	    /*$parms=array('pid' => $pid, 'dsID' => $dsID);
-		$dsIDListArray = Fedora_API::openSoapCall('getDatastream', $parms);
-		return $dsIDListArray;*/
+		if(APP_FEDORA_BYPASS == 'ON')
+		{
+    	    $dsr = new DSResource(APP_DSTREE_PATH);
+    		$dsr->load($dsID, $pid);
+    		$dsArray = $dsr->getDSRev($dsID, $pid);
+    		$dsArray['ID'] = $dsID;
+    		$vers = $dsr->getDSRevs($dsID, $pid);
+    		$vers = $vers[$dsArray['version']];
+    		$dsArray['versionID'] = $vers;
+    		$dsArray['label'] = $dsID;
+    		$dsArray['controlGroup'] = $dsArray['controlgroup'];
+    		$dsArray['MIMEType'] = $dsArray['mimetype'];
+    		$dsArray['createDate'] = $dsArray['version'];
+    		$dsArray['location'] = NULL; //TODO Check if this is needed and if so fill with a real value.
+    		$dsArray['formatURI'] = NULL; //TODO Check if this is needed and if so fill with a real value.
+    		$dsArray['checksumType'] = 'DISABLED'; //TODO Check if this is needed and if so fill with a real value.
+    		$dsArray['checksum'] = 'none'; //TODO Check if this is needed and if so fill with a real value.
+    		$dsArray['versionable'] = FALSE; //TODO Check if this is needed and if so fill with a real value.
+    
+    		return $dsArray;
+		}
+		else 
+		{
+    	    $parms=array('pid' => $pid, 'dsID' => $dsID);
+    		$dsIDListArray = Fedora_API::openSoapCall('getDatastream', $parms);
+    		return $dsIDListArray;
+		}
 	}
 
 	/**

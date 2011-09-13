@@ -139,15 +139,10 @@ class RecordObject extends RecordGeneral
 		
 		if(APP_FEDORA_BYPASS == 'ON')
 		{
-    		$digObj = new DigitalObject();
-    		/*$data = var_export($_POST,true);
-    		file_put_contents('/var/www/fez/tmp/fedoraOut.txt', "\n".__METHOD__." | ".__FILE__." | ".__LINE__." >>>> ".$data, FILE_APPEND);
-    		*/
+		    $digObj = new DigitalObject();
+    		
     		$xsd_display_fields = RecordGeneral::setDisplayFields($_POST['xsd_display_fields']);
     		
-    		//TODO Need a better way to get these xsdmf_ids into the array.
-    		//$disp = RecordGeneral::getXSDMFByTitle($_POST['xdis_id']); 
-    		    // Get XDIS and all SUBXDIS
             $xdis_list = XSD_Relationship::getListByXDIS($_POST['xdis_id']);
             array_push($xdis_list, array("0" => $_POST['xdis_id']));
             $xdis_str = Misc::sql_array_to_string($xdis_list);
@@ -157,9 +152,6 @@ class RecordObject extends RecordGeneral
     		$xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Display Type'), $xdis_str);
     		$xsd_display_fields[0]['display_type'] = array('xsdmf_id' => $xsdmf_id[0],'xsdmf_value' => $_POST['xdis_id']);
     		
-    		/*$data = var_export($xdis_list,true);
-    		file_put_contents('/var/www/fez/tmp/fedoraOut.txt', "\n".__METHOD__." | ".__FILE__." | ".__LINE__." >>>> ".$data, FILE_APPEND);
-    		*/
     		$xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Depositor'), $xdis_str);
     		$xsd_display_fields[0]['depositor'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $_POST['user_id']);
     		
@@ -213,8 +205,49 @@ class RecordObject extends RecordGeneral
     		$this->assign_usr_id = array(Auth::getUserID());
     		        
     		$this->getXmlDisplayId();
-    		Record::updateSearchKeys($this->pid, $xsd_display_fields);
-		
+    		
+    		if (isset($_POST['uploader_files_uploaded']))
+            {
+            	$wfstatus = &WorkflowStatusStatic::getSession();
+                $tmpFilesArray = Uploader::generateFilesArray($wfstatus->id, $_POST['uploader_files_uploaded']);
+                
+            	if (count($tmpFilesArray)) {
+            		$_FILES = $tmpFilesArray;
+            		
+                	$resourceData = $_FILES['xsd_display_fields']['new_file_location'];
+                    $resourceDataKeys = array_keys($resourceData);
+                    
+                    $numFiles = count($resourceData[$resourceDataKeys[0]]);
+                    
+                    $filesData = $_FILES['xsd_display_fields']['size'];
+                    $filesDataKeys = array_keys($filesData);
+                    
+                    $mimeData = $_FILES['xsd_display_fields']['type'];
+                    $mimeDataKeys = array_keys($mimeData);
+                    
+                    $now = date('Y-m-d H:i:s');
+                    
+                    for($i=0;$i<$numFiles;$i++)
+                    {
+                    	$resourceDataLocation = $resourceData[$resourceDataKeys[0]][$i];
+                    	$filesDataSize = $filesData[$filesDataKeys[0]][$i];
+                    	$mimeDataType = $mimeData[$mimeDataKeys[0]][$i];
+                    	
+                    	$meta = array('mimetype' => $mimeDataType, 
+                    		'controlgroup' => 'M', 
+                    		'state' => 'A', 
+                    	    'size' => $filesDataSize,
+                    		'updateTS' => $now,
+                    		'pid' => $_POST['pid']);
+                    	$dsr = new DSResource(APP_DSTREE_PATH, $resourceDataLocation, $meta);
+                    	$dsr->save();
+            		}
+            	}
+            }
+    		
+    		Record::updateSearchKeys($this->pid, $xsd_display_fields, false, $now); //into the non-shadow tables
+    		Record::updateSearchKeys($this->pid, $xsd_display_fields, true, $now); //into the shadow tables
+    		
 		}
 		else 
 		{

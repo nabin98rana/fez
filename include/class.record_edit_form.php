@@ -105,7 +105,9 @@
 				}
             }
         }
-        
+        /*echo "<pre>";
+        var_dump($details);
+        echo "</pre>";*/
         $tpl->assign("xsd_display_fields",  $xsdmf_to_use);
         $tpl->assign("xsdmf_states",        $xsdmf_state);
         $tpl->assign("parents",             $parents);

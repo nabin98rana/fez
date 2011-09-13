@@ -184,11 +184,14 @@ class DSResource
         {
             if($revision == 'HEAD')
             {
-                $sql = "SELECT at.id, at.metaid, hash, size, filename, mimetype, controlgroup, pid, state, version FROM " 
-                    . APP_TABLE_PREFIX . "file_attachments at, " . APP_TABLE_PREFIX . "file_meta me WHERE "
-                    . "at.metaid = me.id AND filename = :dsfilename AND me.pid = :pid "
-                    . "AND version = (SELECT MAX(VERSION) FROM " . APP_TABLE_PREFIX 
-                    . "file_attachments WHERE filename = :ifilename AND me.pid = :ipid)";
+                //TODO Make this query MUCH less ugly.
+                $sql = "SELECT at.id, at.metaid, hash, size, filename, mimetype, controlgroup, "
+                . "pid, state, version FROM " . APP_TABLE_PREFIX . "file_attachments at, " 
+                . APP_TABLE_PREFIX . "file_meta me WHERE at.metaid = me.id AND filename = :dsfilename "
+                . "AND me.pid = :pid AND version = (SELECT MAX(VERSION) FROM " . APP_TABLE_PREFIX 
+                . "file_attachments, " . APP_TABLE_PREFIX . "file_meta WHERE " . APP_TABLE_PREFIX 
+                . "file_attachments.metaid = " . APP_TABLE_PREFIX . "file_meta.id AND filename = :ifilename AND " 
+                . APP_TABLE_PREFIX . "file_meta.pid = :ipid)";
                 $stmt = $this->db->query($sql, array(':dsfilename' => $fileName, ':pid' => $pid,
                                             ':ifilename' => $fileName, ':ipid' => $pid));
             }
@@ -299,34 +302,45 @@ class DSResource
      */
     protected function storeDSReference()
     {
-        $this->db->beginTransaction();
+        //$this->db->beginTransaction();
         
         try
         {
             //does a record with this file name and hash already exist?
-            $sql = "SELECT hash FROM " . APP_TABLE_PREFIX . "file_attachments "
-                ."WHERE hash = :dshash AND filename = :dsfilename";
+            $sql = "SELECT hash FROM " . APP_TABLE_PREFIX . "file_attachments fa "
+            	."INNER JOIN " . APP_TABLE_PREFIX . "file_meta fm ON fm.id = fa.metaid "
+                ."WHERE hash = :dshash AND filename = :dsfilename AND pid = :pid";
             $stmt = $this->db->query($sql, array(':dshash' => $this->hash['rawHash'], 
-            	':dsfilename' => $this->hash['hashFile']));
+            	':dsfilename' => $this->hash['hashFile'],
+                ':pid' => $this->meta['pid']));
             $row = $stmt->fetch();
+            
+            /*$dbg = var_export($this->meta['pid'], true);
+            file_put_contents('/var/www/fez/tmp/fedoraOut.txt', "\n"
+                .__METHOD__." | ".__FILE__." | ".__LINE__." >>>> "
+                .$dbg, FILE_APPEND);*/
             
             if(!$row)
             {
                 $metaid = $this->storeDSMeta($this->meta);
+                
+                $now = (isset($this->meta['updateTS'])) ? $this->meta['updateTS'] : date('Y-m-d H:i:s');
+                
                 $sql = "INSERT INTO " . APP_TABLE_PREFIX . "file_attachments "
                     ."(hash, filename, version, metaid, size) VALUES "
-                    ."(:dshash, :dsfilename, NOW(), :metaid, :size)";
+                    ."(:dshash, :dsfilename, :version, :metaid, :size)";
                 $this->db->query($sql, array(':dshash' => $this->hash['rawHash'], 
                 	':dsfilename' => $this->hash['hashFile'],
                     ':size' => $this->meta['size'],
+                    ':version' => $now,
                     ':metaid' => $metaid));
                 
-                $this->db->commit();
+                //$this->db->commit();
             }
         }
         catch(Exception $e)
         {
-            $this->db->rollBack();
+            //$this->db->rollBack();
             $this->log->err($e->getMessage());
         }
     }
@@ -336,11 +350,18 @@ class DSResource
      */
     protected function storeDSMeta($data)
     {
+        /*$data = var_export($data, true);
+        file_put_contents('/var/www/fez/tmp/fedoraOut.txt', "\n"
+            .__METHOD__." | ".__FILE__." | ".__LINE__." >>>> "
+            .$data, FILE_APPEND);*/
         try
         {
             $sql = "SELECT metaid from " . APP_TABLE_PREFIX 
-                . "file_attachments WHERE filename = :filename";
-            $stmt = $this->db->query($sql, array(':filename' => $this->hash['hashFile']));
+                . "file_attachments fa INNER JOIN " . APP_TABLE_PREFIX . "file_meta fm "
+                . "ON fm.id = fa.metaid "
+                ."WHERE filename = :filename AND pid = :pid";
+            $stmt = $this->db->query($sql, array(':filename' => $this->hash['hashFile'], 
+                                                ':pid' => $data['pid']));
             $row = $stmt->fetch();
             
             if($row && $row['metaid'] > 0)
@@ -384,6 +405,13 @@ class DSResource
                     return true;
                 }
             }
+        }
+        elseif($this->resourceExists($this->hash['rawHash']))
+        {
+            /*file_put_contents('/var/www/fez/tmp/fedoraOut.txt', "\n"
+            .__METHOD__." | ".__FILE__." | ".__LINE__." >>>> Resource Exists\n", FILE_APPEND);*/
+            $this->storeDSReference();
+            return true;
         }
         
         return false;

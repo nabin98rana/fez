@@ -38,6 +38,12 @@ class DigitalObject
     private $pidData;
     
     /**
+     * Logging object.
+     * @var <FezLog>
+     */
+    private $log;
+    
+    /**
      * The currentn PID
      * @var <string>
      */
@@ -67,6 +73,7 @@ class DigitalObject
     public function __construct()
     {
         $this->db = DB_API::get();
+        $this->log = FezLog::get();
         $this->dsResource = new DSResource();
     }
     
@@ -88,24 +95,38 @@ class DigitalObject
             unset($objdata['pid']); //Exclude the pid from the update.
             $updateFields = $this->setUpdateFields($objdata);
             
-            $sql = "UPDATE " . APP_TABLE_PREFIX . "digital_object SET " 
-                . $updateFields['set'] . " WHERE pidns = :pidns AND pidint = :pidint";
+            try 
+            {
+                $sql = "UPDATE " . APP_TABLE_PREFIX . "digital_object SET " 
+                    . $updateFields['set'] . " WHERE pidns = :pidns AND pidint = :pidint";
+                    
+                //Bind pidint and pidns to the WHERE in the update.
+                $updateFields['binding'][':pidns'] = $pidns;
+                $updateFields['binding'][':pidint'] = $pidint;
                 
-            //Bind pidint and pidns to the WHERE in the update.
-            $updateFields['binding'][':pidns'] = $pidns;
-            $updateFields['binding'][':pidint'] = $pidint;
-            
-            $this->db->query($sql, $updateFields['binding']);
+                $this->db->query($sql, $updateFields['binding']);
+            }
+            catch(Exception $e)
+            {
+                $this->log->err($e->getMessage());
+            }
         }
         else
         {
             //If no namespace, use the one in the config.
             $pidns = ($objdata['pidns']) ? $objdata['pidns'] : APP_PID_NAMESPACE;
             
-            $sql = "SELECT MAX(pidint)+1 AS pidint FROM " . APP_TABLE_PREFIX 
-                . "digital_object WHERE pidns = :pidns";
-            $stmt = $this->db->query($sql, array(':pidns' => $pidns));
-            $pidint = $stmt->fetch();
+            try 
+            {
+                $sql = "SELECT MAX(pidint)+1 AS pidint FROM " . APP_TABLE_PREFIX 
+                    . "digital_object WHERE pidns = :pidns";
+                $stmt = $this->db->query($sql, array(':pidns' => $pidns));
+                $pidint = $stmt->fetch();
+            }
+            catch(Exception $e)
+            {
+                $this->log->err($e->getMessage());
+            }
             
             //Check to see if this the first pid for this namespace.
             $pidint = ($pidint['pidint'] == NULL) ? 1 : $pidint['pidint']; 
@@ -118,8 +139,15 @@ class DigitalObject
             
             $insert = $this->setInsertFields($objdata);
             
-            $sql = "INSERT INTO " . APP_TABLE_PREFIX . "digital_object " . $insert['insert'];
-            $this->db->query($sql, $insert['binding']);
+            try
+            {
+                $sql = "INSERT INTO " . APP_TABLE_PREFIX . "digital_object " . $insert['insert'];
+                $this->db->query($sql, $insert['binding']);
+            }
+            catch(Exception $e)
+            {
+                $this->log->err($e->getMessage());
+            }
         }
         
         return $this->pid;
@@ -176,10 +204,17 @@ class DigitalObject
     {
         list($pidns, $pidint) = explode(':', $pid);
         
-        $sql = "SELECT * FROM " . APP_TABLE_PREFIX . "digital_object WHERE"
-            . " pidns = :pidns AND pidint = :pidint";
-        $stmt = $this->db->query($sql, array(':pidns' => $pidns, ':pidint' => $pidint));
-        return $stmt->fetch();
+        try
+        {
+            $sql = "SELECT * FROM " . APP_TABLE_PREFIX . "digital_object WHERE"
+                . " pidns = :pidns AND pidint = :pidint";
+            $stmt = $this->db->query($sql, array(':pidns' => $pidns, ':pidint' => $pidint));
+            return $stmt->fetch();
+        }
+        catch(Exception $e)
+        {
+            $this->log->err($e->getMessage());
+        }
     }
     
     /**
@@ -243,5 +278,28 @@ class DigitalObject
         $data = var_export($out,true);
         file_put_contents('/var/www/fez/tmp/fedoraOut.txt', "\n".__METHOD__." | ".__FILE__." | ".__LINE__." >>>> ".$data, FILE_APPEND);
         return $out;*/
+    }
+    
+    /**
+     * Retrieve a list of all versions of a PID
+     * @param <string> $pid
+     */
+    public function listVersions($pid=null)
+    {
+        $pid = (!$pid) ? $this->pid : $pid;
+        
+        try 
+        {
+            $sql = "SELECT rek_pid, rek_stamp as createDate FROM " 
+            . APP_TABLE_PREFIX . "record_search_key__shadow "
+            . "WHERE rek_pid = :pid ORDER BY rek_stamp DESC";
+            $stmt = $this->db->query($sql, array(':pid' => $pid));
+            return $stmt->fetchAll();
+        }
+        catch(Exception $e)
+        {
+            echo $e->getMessage();
+            //$this->log->err($e->getMessage());
+        }
     }
 }
