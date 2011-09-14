@@ -248,6 +248,7 @@ class ResearcherID
     $tpl = new Template_API();
     $tpl_file = "researcher_profile_upload.tpl.html";
     $tpl->setTemplate($tpl_file);
+    $alt_email = trim($alt_email);
     if (! empty($alt_email)) {
       $tpl->assign("rid_alt_email", $alt_email);
     }
