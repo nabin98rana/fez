@@ -79,7 +79,8 @@ class Fedora_Direct_Access {
 		$state_sql = "";
 		if ($object_state != "") {
 			if (APP_FEDORA_VERSION == "3") {
-				$state_sql = " AND objectState = ".$db->quote($object_state);
+                $object_state = strtolower($object_state);
+                $state_sql = " AND state = ".$db->quote($object_state);
 			} else {
 				$state_sql = " AND doState = ".$db->quote($object_state);
 			}
@@ -89,7 +90,7 @@ class Fedora_Direct_Access {
 		$no_result = false;
 		try {
 			if (APP_FEDORA_VERSION == "3") {
-				$stmt = "SELECT doRegistry.doPID AS pid, label AS title, objectState as dostate FROM doRegistry WHERE (doRegistry.doPID LIKE ".$db->quote("%" . $terms . "%")." OR label LIKE ".$db->quote("%" . $terms . "%").") ".$state_sql;
+                $stmt = "SELECT pid AS pid, label AS title, state as dostate FROM doFields WHERE (pid LIKE ".$db->quote("%" . $terms . "%")." OR label LIKE ".$db->quote("%" . $terms . "%").") ".$state_sql;
 			} else {
 
 //20101125 bh changed from "doregistry" to "doRegister" in below line, wherever it occurred
