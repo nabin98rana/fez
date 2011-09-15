@@ -697,7 +697,7 @@ foreach($datastreams as $ds)
         //and let the template know.
         $resource = explode('.pdf', $ds['ID']);
         $pidFs = str_replace(':','_',$pid);
-        $resourcePath = BR_IMG_DIR . $pidFs . '/' . $resource[0];
+        $resourcePath = APP_PATH.BR_IMG_DIR . $pidFs . '/' . $resource[0];
         $bri = new bookReaderImplementation($resourcePath);
         $pageCounts[$resource[0] . '.pdf'] = $bri->countPages(); //Page count check for the template
     }

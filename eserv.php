@@ -81,7 +81,6 @@ if (!empty($pid) && !empty($dsID)) {
         $tpl->displayTemplate();
         exit;
 	}
-	
     // Retrieve the selected version date from the request. 
     // This will be null unless a version date has been
     // selected by the user.
@@ -122,9 +121,11 @@ if (!empty($pid) && !empty($dsID)) {
 		$info['content_type'] = $exif_array['exif_mime_type'];
 		$info['download_content_length'] = $exif_array['exif_file_size'];
 	}
-	if( $info['download_content_length'] == 0 )
+
+	if( $info['download_content_length'] == 0 && $bookpage != true ) { //if trying to get the book page then ignore this check
 		$not_exists = true;
-	
+  }
+
 	if ($not_exists == false) {
 		$ctype = $info['content_type'];
 		
@@ -224,7 +225,7 @@ if (!empty($pid) && !empty($dsID)) {
             $dsID = explode('.pdf', $dsID);
             $dsID = $dsID[0];
             
-            $resourcePath = BR_IMG_DIR . $pid . '/' . $dsID;
+            $resourcePath = APP_PATH.BR_IMG_DIR . $pid . '/' . $dsID;
             $protocol = ($_SERVER['HTTPS']) ? 'https://' : 'http://';
             $host = $protocol . $_SERVER['HTTP_HOST'];
             $urlPath = str_replace($_SERVER['DOCUMENT_ROOT'], '', BR_IMG_DIR);
@@ -250,7 +251,6 @@ if (!empty($pid) && !empty($dsID)) {
             exit;
 
          } elseif($bookpage == true) {
-             
              //$_SERVER['REQUEST_URI'] = "/pidimages/UQ_5403/../../../Arianrhod_Chapte/Arianrhod_Chapte-0002.jpg?bookpage=true";
              $uri = $_SERVER['REQUEST_URI'];
              
@@ -272,7 +272,7 @@ if (!empty($pid) && !empty($dsID)) {
                  $pid = str_replace(':','_',$pid);
              }
              
-             $imageFile = BR_IMG_DIR . $pid . '/' . $resource . '/' . $image;
+             $imageFile = APP_PATH.BR_IMG_DIR . $pid . '/' . $resource . '/' . $image;
              
              if(is_file($imageFile))
              {
@@ -351,7 +351,6 @@ if (!empty($pid) && !empty($dsID)) {
 		 */
 
     if (APP_FEDORA_SENDFILE_DIRECT == "ON") {
-//      echo $pid; exit;
       Statistics::addBuffer($pid, $dsID);
       $fda = new Fedora_Direct_Access();
       $dsVersionID = $fda->getMaxDatastreamVersion($pid, $dsID);

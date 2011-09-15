@@ -863,6 +863,7 @@ class Fedora_API {
 
 		function callModifyDatastream ($pid, $dsID, $dsLocation, $dsLabel, $dsState, $mimetype, $versionable='false', $xmlContent="") 
 		{
+      $tempFile = "";
 			if ($mimetype == "") {
 				$mimetype = "text/xml";
 			}
@@ -965,11 +966,14 @@ class Fedora_API {
 //						exit;
 						return false;
 					}
-			         curl_close ($ch);
-			         return true;
+          if (file_exists($tempFile)) {
+            unlink($tempFile);
+          }
+			    curl_close ($ch);
+			    return true;
 			 } else {
 			         $info = curl_getinfo($ch);
-			         $log->err(array(curl_error($ch), $info,__FILE__,__LINE__));
+			         $log->err(array($tempFile." ".curl_error($ch), $info,__FILE__,__LINE__));
 			         curl_close ($ch);
 			         return false;
 			 }
