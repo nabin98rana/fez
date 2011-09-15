@@ -131,7 +131,9 @@ class bookReaderPDFConverter
       $log->debug($url);
       $newfile = substr($url, strrpos($url, "/")+1);
       $tmpPth = APP_TEMP_DIR.$newfile;
-      Misc::processURL($url, true, APP_TEMP_DIR.$newfile);
+      $fh = fopen($tmpPth, 'w');
+      Misc::processURL($url, true, $fh);
+      fclose($fh);
 //        $parts = pathinfo($url);
 //        $fhurl = fopen($url, 'rb');
 //        $tmpPth = APP_TEMP_DIR . $parts['basename'];
