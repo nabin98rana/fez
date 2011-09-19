@@ -97,6 +97,8 @@ function hideBulk()
 
 			<table {if ($facets)}width="70%"{else}width="100%"{/if} id="research-record-listing">
 				<tr>
+                    <th>&nbsp;
+                    </th>
 			        <th>
 			        These publications may be authored by you. Your surname or one of the variants of your name that we know about is listed as an author of this publication.<br /><br />
 			        
@@ -136,6 +138,7 @@ function hideBulk()
 			    </tr>
 		{/if}
 		<tr class="{if $flagged_possible[$pid].type == 'C'}possible-my-pub{elseif $flagged_possible[$pid].type == 'H'}possible-hide{elseif $list[i].rek_status != '2'}unpublished-pub{/if}">
+            <td style="width: 10px;"><input type="checkbox" name="pid" value="{$list[i].rek_pid}" /></td>
 			<td style="width: 100%;">
 			{if $list[i].rek_status != 2} (waiting on an administrator for approval to be published) {/if}
                 {if $isAdministrator}
@@ -250,6 +253,11 @@ function hideBulk()
 		</tr>
 	
 		{if $smarty.section.i.last}
+        <tr>
+  			<td colspan="8">
+  				<input type="button" class="possible-hide" value="None of the above ticked publications are mine" onclick="javascript:hideBulk();" />
+  			</td>
+  		</tr>
 			</table>
 
 			<div>
