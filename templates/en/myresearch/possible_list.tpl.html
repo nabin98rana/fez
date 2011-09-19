@@ -101,7 +101,6 @@ function hideBulk()
                     </th>
 			        <th>
 			        These publications may be authored by you. Your surname or one of the variants of your name that we know about is listed as an author of this publication.<br /><br />
-			        
 			        You can use the refine feature at the left to find publications more likely to be yours, based on co-authors, keywords etc.
 			        </th>
 					<th style="text-align: center; padding: 2px;">
@@ -136,6 +135,12 @@ function hideBulk()
 		          </th>
 			        <th></th>
 			    </tr>
+                <tr>
+                      <td colspan="8">
+                          <input type="button" class="possible-hide" value="None of the below ticked publications are mine" onclick="javascript:hideBulk();" />
+                      </td>
+                  </tr>
+
 		{/if}
 		<tr class="{if $flagged_possible[$pid].type == 'C'}possible-my-pub{elseif $flagged_possible[$pid].type == 'H'}possible-hide{elseif $list[i].rek_status != '2'}unpublished-pub{/if}">
             <td style="width: 10px;"><input type="checkbox" name="pid" value="{$list[i].rek_pid}" /></td>
