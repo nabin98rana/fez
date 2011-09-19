@@ -19,9 +19,23 @@ function toggleCorrections()
 	if (document.getElementById('rad-fix').checked) {
 		document.getElementById('correction-area-fix').disabled = false;
 		document.getElementById('correction-area-fix').style.display = 'block';
+        document.getElementById('duplication-area-fix').disabled = true;
+        document.getElementById('duplication-area-fix').style.display = 'none';
+        document.getElementById('action').value = 'correction-add';
+
+    } else if (document.getElementById('rad-dupe').checked) {
+        document.getElementById('correction-area-fix').disabled = true;
+        document.getElementById('correction-area-fix').style.display = 'none';
+        document.getElementById('duplication-area-fix').disabled = false;
+        document.getElementById('duplication-area-fix').style.display = 'block';
+        document.getElementById('action').value = 'duplication-add';
+
 	} else {
 		document.getElementById('correction-area-fix').disabled = true;
 		document.getElementById('correction-area-fix').style.display = 'none';
+        document.getElementById('duplication-area-fix').disabled = true;
+        document.getElementById('duplication-area-fix').style.display = 'none';
+        document.getElementById('action').value = 'correction-add';
 	}
 	
 	return;
@@ -33,11 +47,19 @@ function toggleCorrectionsText()
 		document.getElementById('correction').value = '';
 	}
 }
+function toggleDuplicationText()
+{
+	if (document.getElementById('duplication').value == 'Please tell us the PID number or URL location of the original you believe this record duplicates.') {
+		document.getElementById('duplication').value = '';
+	}
+}
+
 
 function submitForm()
 {
-	if (document.getElementById('correction').value == '' || document.getElementById('correction').value == 'Please tell us what is wrong with the record. Be specific.') {
-		window.alert('You must tell us what is wrong with the record.');
+	if ((document.getElementById('rad-fix').checked && (document.getElementById('correction').value == '' || document.getElementById('correction').value == 'Please tell us what is wrong with the record. Be specific.'))
+            || (document.getElementById('rad-dupe').checked && (document.getElementById('duplication').value == '' || document.getElementById('duplication').value == 'Please tell us the PID number or URL location of the original you believe this record duplicates.'))) {
+		window.alert('You must tell us what is wrong with the record. Or what record you think this record duplicates.');
 		return false;
 	}
 	
@@ -109,6 +131,7 @@ function cancel()
 
 <p>
 	<input type="radio" name="type" id="rad-not-mine" value="rad-not-mine" onclick="javascript:toggleCorrections(); notMine('{$pid}');" /> This is not my record<br />
+    <input type="radio" name="type" id="rad-dupe" value="rad-dupe" onclick="javascript:toggleCorrections();" /> I am the author of this publication, but the record is a duplicate<br />
 	<input type="radio" name="type" id="rad-fix" value="rad-fix" onclick="javascript:toggleCorrections();" /> I would like to report a problem
 </p>
 
@@ -119,12 +142,19 @@ function cancel()
 	
 	<input type="button" value="Submit correction" name="button" onclick="javascript:submitForm();" />
 </div>
+    <div id="duplication-area-fix" style="display: none;">
+        <p>
+            <textarea id="duplication" name="duplication" rows="5" cols="70" onfocus="javascript:toggleDuplicationText();">Please tell us the PID number or URL location of the original you believe this record duplicates.</textarea>
+        </p>
+
+        <input type="button" value="Submit duplication fix request" name="button" onclick="javascript:submitForm();" />
+    </div>
 
 <input type="button" value="Cancel" name="button" onclick="javascript:cancel();" />
 
 <p>
 	<input type="hidden" value="{$pid}" name="pid" />
-	<input type="hidden" value="correction-add" name="action" />
+	<input type="hidden" value="correction-add" name="action" id="action" />
 </p>
 
 </form>

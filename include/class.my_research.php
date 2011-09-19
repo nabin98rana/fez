@@ -116,7 +116,9 @@ class MyResearch
 				$tpl->assign("qindex_meta", Record::getQindexMeta($recordDetails[0]['rek_pid']));
 				$tpl->assign("wos_collection", Record::isInWOScollection($recordDetails[0]['rek_pid']));
 				$list = false;
-			} elseif ($action == 'correction-add') {
+			} elseif ($action == 'duplication-add') {
+        MyResearch::claimedPubsDuplicate(Misc::GETorPOST('pid'));
+      } elseif ($action == 'correction-add') {
 				MyResearch::claimedPubsCorrect(Misc::GETorPOST('pid'));
 			}
 		}
@@ -683,7 +685,41 @@ class MyResearch
 		
 		return;
 	}
-		
+
+  	/**
+	 * Fire relevant subroutines for a de-duplication request on a claimed publication.
+	 */
+	function claimedPubsDuplicate($pid)
+	{
+		// 1. Mark the publication as a duplicate in the database
+		$author = Auth::getActingUsername();
+		$user = Auth::getUsername();
+		$duplication = @$_POST['duplication'];
+		$jobID = MyResearch::markClaimedPubAsDuplication($pid, $author, $user, $duplication);
+
+		// 2. Send an email to Eventum about it
+		$authorDetails = Author::getDetailsByUsername($author);
+		$userDetails = User::getDetails($user);
+		$authorID = $authorDetails['aut_id'];
+		$authorName = $authorDetails['aut_display_name'];
+		$userName = $userDetails['usr_full_name'];
+		$userEmail = $userDetails['usr_email'];
+
+
+		$subject = "My Research :: De-Duplication Required :: " . $jobID . " :: " . $pid . " :: " . $author;
+		$body = "Record: http://" . APP_HOSTNAME . APP_RELATIVE_URL . "view/" . $pid . "\n\n";
+		if ($author == $user) {
+			$body .= $authorName . " (" . $authorID . ") has supplied the following de-duplication information:\n\n";
+		} else {
+			$body .= "User "  . $userName . ", acting on behalf of " . $authorName . ", has supplied the following de-duplication information:\n\n";
+		}
+		$body .= $duplication;
+
+		Eventum::lodgeJob($subject, $body, $userEmail);
+
+		return;
+	}
+
 	/**
 	 * This function is invoked when a user marks a claimed publication as not being theirs.
 	 */	
@@ -760,7 +796,41 @@ class MyResearch
 		return $db->lastInsertId(APP_TABLE_PREFIX . "my_research_claimed_flagged", "mrc_id");
 	}
 	
-	
+		/**
+	 * This function is invoked when a user marks a claimed publication as being a duplicate of some other publication(s).
+	 */
+	function markClaimedPubAsDuplication($pid, $author, $user, $duplication)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		$stmt = "INSERT INTO
+					" . APP_TABLE_PREFIX . "my_research_claimed_flagged
+				(
+					mrc_pid,
+					mrc_author_username,
+					mrc_user_username,
+					mrc_timestamp,
+					mrc_type,
+					mrc_correction
+				) VALUES (
+					" . $db->quote($pid) . ",
+					" . $db->quote($author) . ",
+					" . $db->quote($user) . ",
+					" . $db->quote(Date_API::getCurrentDateGMT()) . ",
+					" . $db->quote('U') . ",
+					" . $db->quote($duplication) . ");";
+		try {
+			$db->exec($stmt);
+		}
+
+		catch(Exception $ex) {
+			$log->err($ex);
+			return -1;
+		}
+
+		return $db->lastInsertId(APP_TABLE_PREFIX . "my_research_claimed_flagged", "mrc_id");
+	}
 	
 	/**
 	 * Determine whether we need to display a message concerning correction of HERDC codes.
