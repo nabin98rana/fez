@@ -68,7 +68,7 @@ class Template_API
 	 *
 	 * @access public
 	 */
-	function Template_API()
+	function Template_API($tpl_name=null)
 	{
 		if (!defined('APP_CURRENT_LANG')) {
 			DEFINE("APP_CURRENT_LANG", "en");
@@ -92,6 +92,9 @@ class Template_API
 			if($customView) {
 				$this->smarty->custom_view_dir = $customView['cview_id'];
 			}
+		}
+		if (!empty($tpl_name)) {
+			$this->setTemplate($tpl_name);
 		}
 
 	}
