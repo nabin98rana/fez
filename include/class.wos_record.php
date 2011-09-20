@@ -672,7 +672,7 @@ class WosRecItem
         $search_keys, $values, true, $history
     );
 
-    // If this update came from a RID download, put this in the RID collection
+    // If this update came from a RID download, put this in the RID collection as long as it ONLY exists in the WoS collection right now
     if ($this->collections[0] == RID_DL_COLLECTION) {
         $isMemberOf = Record::getSearchKeyIndexValue($pid, "isMemberOf", false);
         if (!in_array(RID_DL_COLLECTION, $isMemberOf)) { //if it doesn't currently live in the RID collection, add it as a parent
@@ -693,13 +693,6 @@ class WosRecItem
                 }
 
             }
-        }
-    } else { //Add it to the wos collection (or whatever $this->collections[0] is currently set to
-        $res = $record->updateRELSEXT("rel:isMemberOf", $this->collections[0], false);
-        if($res >= 1) {
-            $log->debug("Copied '".$pid."' into Collection ".$this->collections[0]);
-        } else {
-            $log->err("Copy of '".$pid."' into Collection ".$this->collections[0]." Failed");
         }
     }
 

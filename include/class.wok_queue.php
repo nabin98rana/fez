@@ -326,6 +326,12 @@ class WokQueue extends Queue
           if (array_key_exists($rec->ut, $existing_uts)) {
               // If this came through with an author id it means it came via RID so put the pid in the RID collection, otherwise put it in the WOS import collection
               $isMemberOf = Record::getSearchKeyIndexValue($existing_uts[$rec->ut], "isMemberOf", false);
+              if (!in_array(RID_DL_COLLECTION, $rec->collections)) { // if not wok updated via a rid download don't put it into the wos collection
+                $rec->collections = array();
+              }
+              if (in_array(RID_DL_COLLECTION, $isMemberOf)) { // already in rid collection so don't try and add it again
+                $rec->collections = array();
+              }
               $updateOK = true;
               // If isn't currently in the WOS or RID collections, skip updating this UT unless the title matches quite well
               if (!in_array(RID_DL_COLLECTION, $isMemberOf) && !in_array($wos_collection, $isMemberOf)) {
@@ -337,6 +343,8 @@ class WokQueue extends Queue
                   if ($stripA != $stripB) {
                       $updateOK = false;
                   } else {
+                      // This record was found outside the wos and rid collections, so don't put it into them - it's good where it is now
+                      $rec->collections = array();
                       $this->_bgp->setStatus('FOUND matching UT outside RID/WoS collections matching titles ok so RUNNING updating existing PID: '.$existing_uts[$rec->ut]." for UT: ".
                          $rec->ut." Title match was: (Ours: \n".$stripA." - Theirs: \n".$stripB.")\nOriginal Ours: \n". $title." \nOriginal Theirs: \n".$stripB);
                   }
