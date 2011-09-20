@@ -91,7 +91,7 @@ class MyResearch
 			if ($action == 'claim-add') {
 				MyResearch::possiblePubsClaim();
 			} elseif ($action == 'claim') {
-				$recordDetails = Record::getDetailsLite(Misc::GETorPOST('pid'));
+				$recordDetails = Record::getDetailsLite(Misc::GETorPOST('claim-pid'));
 				$tpl->assign("pid", $recordDetails[0]['rek_pid']);
 				$tpl->assign("citation", $recordDetails[0]['rek_citation']);
 				$tpl->assign("herdc_message", MyResearch::herdcMessage($recordDetails[0]['rek_date']));
@@ -99,7 +99,7 @@ class MyResearch
 				$tpl->assign("wos_collection", Record::isInWOScollection($recordDetails[0]['rek_pid']));
 				$list = false;
 			} elseif ($action == 'hide') {
-				MyResearch::hide(Misc::GETorPOST('pid'));
+				MyResearch::hide(Misc::GETorPOST('hide-pid'));
 			} elseif ($action == 'hide-bulk') {
 				MyResearch::bulkHide();
 			}

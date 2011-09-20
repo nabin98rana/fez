@@ -3,7 +3,7 @@
 <!--
 function claimPID(pid)
 {
-	document.getElementById('pid').value = pid;
+	document.getElementById('claim-pid').value = pid;
 	document.forms['possibleForm'].submit();
 }
 
@@ -267,7 +267,7 @@ function hideBulk()
 			</table>
 
 			<div>
-                <input type="hidden" name="bulk_pid" value="" />
+                <input type="hidden" id="claim-pid" name="claim-pid" value="" />
 				<input type="hidden" name="action" value="claim" />
 			</div>
 		{/if}
@@ -286,7 +286,7 @@ function hideBulk()
 
 <form action="{$rel_url}my_research_possible.php" method="post" id="hide">	
 	<div>
-		<input type="hidden" id="hide-pid" name="pid" value="" />
+		<input type="hidden" id="hide-pid" name="hide-pid" value="" />
 		<input type="hidden" name="action" value="hide" />
 	</div>
 </form>
