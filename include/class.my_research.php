@@ -351,6 +351,8 @@ class MyResearch
 	 */
 	function possiblePubsClaim()
 	{
+    $log = FezLog::get();
+
 		// 1. Mark the publication claimed in the database
 		$pid = @$_POST['pid'];
 		$author = Auth::getActingUsername();
@@ -386,12 +388,34 @@ class MyResearch
 		if ($correction != '') {
 			$body .= "Additionally, the following correction information was supplied:\n\n" . $correction;
 		}
-		
+
+    // If this record is claimed and it is in the WoS import collection, strip it from there and put it into the provisional HERDC collection as long as it is in the last 6 years
+    $currentYear = date("Y");
+    $wos_collection = trim(APP_WOS_COLLECTIONS, "'");
+    $isMemberOf = Record::getSearchKeyIndexValue($pid, "isMemberOf", false);
+    $pubDate = Record::getSearchKeyIndexValue($pid, "Date", false);
+    $pubYear = date("Y", strtotime($pubDate));
+    if (is_numeric($pubYear) && is_numeric($currentYear)) {
+      if (in_array($wos_collection, $isMemberOf) && (($currentYear - $pubYear) < 7) ) {
+        $res = $record->removeFromCollection($wos_collection);
+        if( $res ) {
+            $log->debug("Removed record '".$pid."' from collection '".$wos_collection."'");
+        } else {
+            $log->err("ERROR Removing '".$pid."' from collection '".$wos_collection."'");
+        }
+
+        $res = $record->updateRELSEXT("rel:isMemberOf", APP_MY_RESEARCH_NEW_ITEMS_COLLECTION, false);
+        if($res >= 1) {
+            $log->debug("Copied '".$pid."' into the Provisional HERDC Collection ".APP_MY_RESEARCH_NEW_ITEMS_COLLECTION);
+        } else {
+            $log->err("Copy of '".$pid."' into the Provisional HERDC Collection ".APP_MY_RESEARCH_NEW_ITEMS_COLLECTION." Failed");
+        }
+      }
+    }
+
 		if ($sendEmail) {
 			Eventum::lodgeJob($subject, $body, $userEmail);
 		}
-		
-		
 		
 		return;
 	}
