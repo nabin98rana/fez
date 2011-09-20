@@ -144,7 +144,7 @@ function hideBulk()
 
 		{/if}
 		<tr class="{if $flagged_possible[$pid].type == 'C'}possible-my-pub{elseif $flagged_possible[$pid].type == 'H'}possible-hide{elseif $list[i].rek_status != '2'}unpublished-pub{/if}">
-            <td style="width: 10px;"><input type="checkbox" id="bulk_pid" name="bulk_pid" value="{$list[i].rek_pid}" /></td>
+            <td style="width: 10px;"><input type="checkbox" id="bulk_pid" name="bulk_pid" value="{$list[i].rek_pid}" /><input type="hidden" id="pid" name="pid" value="{$list[i].rek_pid}" /></td>
 			<td style="width: 100%;">
 			{if $list[i].rek_status != 2} (waiting on an administrator for approval to be published) {/if}
                 {if $isAdministrator}
@@ -267,8 +267,7 @@ function hideBulk()
 			</table>
 
 			<div>
-				<input type="hidden" id="pid" name="pid" value="{$list[i].rek_pid}" />
-                <input type="hidden" name="bulk_pid" value="" /
+                <input type="hidden" name="bulk_pid" value="" />
 				<input type="hidden" name="action" value="claim" />
 			</div>
 		{/if}
