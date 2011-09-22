@@ -67,7 +67,7 @@ if (empty($rows)) {
 $options = Pager::saveSearchParams($params);
 $tpl->assign("options", $options);
 
-if ($isAdministrator) {
+if ($isSuperAdministrator) {
     if (@$_POST["cat"] == "new") {
         $tpl->assign("result", Conference::insert());
     } elseif (@$_POST["cat"] == "update") {
