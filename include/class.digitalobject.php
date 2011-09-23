@@ -229,18 +229,53 @@ class DigitalObject
     }
     
     /**
+     * Take a snapshot of the current state of 
+     * all this PID's resources and store in the 
+     * shadow table
+     */
+    public function snapshotResources($timestamp)
+    {
+        $resources = $this->dsResource->listStreams($this->pidData['pid']);
+        
+        if($resources)
+        {
+            try 
+            {
+                $sql = "INSERT INTO fez_file_attachments__shadow "
+                        . "(hash, filename, version, state, size, pid, mimetype, controlgroup) "
+                        . "SELECT hash, filename, :now AS version, state, size, pid, mimetype, " 
+                        . "controlgroup FROM fez_file_attachments WHERE pid = :pid";
+                        
+                $this->db->query($sql, array(':now' => $timestamp, 
+                						':pid' => $this->pidData['pid']));
+            }
+            catch(Exception $e)
+            {
+                $this->log->err($e->getMessage());
+            }
+        }
+    }
+    
+    /**
      * Get all the datastreams for a PID
      * @param <array> $params
      */
     public function getDatastreams($params)
     {
+        /*$dbg = var_export($params, true);
+        file_put_contents('/var/www/fez/tmp/fedoraOut.txt', "\n"
+            .__METHOD__." | ".__FILE__." | ".__LINE__." | ".date('y:m:d G:i:s')." >>>> "
+            .$dbg."\n", FILE_APPEND);*/
+        
         $dsList = $this->dsResource->listStreams($params['pid']);
         $datastreams = array();
+        
+        $rev = (isset($params['rev'])) ? $params['rev'] : 'HEAD'; 
         
         foreach($dsList as $datastream)
         {
             $dsFormatted = array();
-            $dsRev = $this->dsResource->getDSRev($datastream['filename'], $datastream['pid']);
+            $dsRev = $this->dsResource->getDSRev($datastream['filename'], $datastream['pid'], $rev);
             $dsFormatted['controlGroup'] = $dsRev['controlgroup'];
             $dsFormatted['ID'] = $dsRev['filename'];
             $dsFormatted['versionID'] = $dsRev['version'];
@@ -298,8 +333,7 @@ class DigitalObject
         }
         catch(Exception $e)
         {
-            echo $e->getMessage();
-            //$this->log->err($e->getMessage());
+            $this->log->err($e->getMessage());
         }
     }
 }

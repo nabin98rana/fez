@@ -184,22 +184,22 @@ class DSResource
         {
             if($revision == 'HEAD')
             {
-                //TODO Make this query MUCH less ugly.
-                $sql = "SELECT at.id, at.metaid, hash, size, filename, mimetype, controlgroup, "
-                . "pid, state, version FROM " . APP_TABLE_PREFIX . "file_attachments at, " 
-                . APP_TABLE_PREFIX . "file_meta me WHERE at.metaid = me.id AND filename = :dsfilename "
-                . "AND me.pid = :pid AND version = (SELECT MAX(VERSION) FROM " . APP_TABLE_PREFIX 
-                . "file_attachments, " . APP_TABLE_PREFIX . "file_meta WHERE " . APP_TABLE_PREFIX 
-                . "file_attachments.metaid = " . APP_TABLE_PREFIX . "file_meta.id AND filename = :ifilename AND " 
-                . APP_TABLE_PREFIX . "file_meta.pid = :ipid)";
+                //TODO Rework this query. No longer need MAX as the versions are in the shadow table.
+                $sql = "SELECT id, metaid, hash, size, filename, mimetype, controlgroup, "
+                . "pid, state, version FROM " . APP_TABLE_PREFIX . "file_attachments " 
+                . "WHERE filename = :dsfilename "
+                . "AND pid = :pid AND state = 'A' AND version = (SELECT MAX(VERSION) FROM " 
+                . APP_TABLE_PREFIX . "file_attachments WHERE " 
+                . "filename = :ifilename AND pid = :ipid)";
+                
                 $stmt = $this->db->query($sql, array(':dsfilename' => $fileName, ':pid' => $pid,
                                             ':ifilename' => $fileName, ':ipid' => $pid));
             }
             else 
             {
-                $sql = "SELECT at.id, at.metaid, hash, size, filename, mimetype, controlgroup, pid, state, version FROM " 
-                    . APP_TABLE_PREFIX . "file_attachments at, " . APP_TABLE_PREFIX . "file_meta me WHERE "
-                    . "at.metaid = me.id AND filename = :dsfilename "
+                $sql = "SELECT id, metaid, hash, size, filename, mimetype, controlgroup, pid, state, version FROM " 
+                    . APP_TABLE_PREFIX . "file_attachments__shadow WHERE "
+                    . "state = 'A' AND filename = :dsfilename "
                     . "AND version = :version AND pid = :pid";
                 $stmt = $this->db->query($sql, array(':dsfilename' => $fileName, 
                 	':version' => $revision, ':pid' => $pid));
@@ -223,9 +223,9 @@ class DSResource
     {
         try
         {
-            $sql = "SELECT at.id, at.metaid, hash, filename, pid, version FROM "  . APP_TABLE_PREFIX 
-                . "file_attachments at, " . APP_TABLE_PREFIX . "file_meta me WHERE " 
-                . "at.metaid = me.id AND filename = :dsfilename AND pid = :pid ORDER BY version DESC";
+            $sql = "SELECT id, hash, filename, pid, version FROM "  
+                . APP_TABLE_PREFIX . "file_attachments WHERE " 
+                . "filename = :dsfilename AND pid = :pid ORDER BY version DESC";
             $stmt = $this->db->query($sql, array(':dsfilename' => $fileName, ':pid' => $pid));
             $rows = $stmt->fetchAll();
         }
@@ -246,8 +246,8 @@ class DSResource
     {
         try
         {
-            $sql = "SELECT count(*) as count FROM " . APP_TABLE_PREFIX . "file_attachments at, "
-            . APP_TABLE_PREFIX . "file_meta me WHERE at.metaid = me.id AND filename = :filename AND pid = :pid";
+            $sql = "SELECT count(*) as count FROM " . APP_TABLE_PREFIX . "file_attachments "
+            . "WHERE filename = :filename AND pid = :pid";
             $stmt = $this->db->query($sql, array(':filename' => $filename, ':pid' => $pid));
             $row = $stmt->fetch();
         }
@@ -263,15 +263,16 @@ class DSResource
      * List all the resources for a PID
      * @param <string> $pid
      */
-    public function listStreams($pid)
+    public function listStreams($pid, $distinct=true)
     {
         $rows = false;
+        $distinct = ($distinct) ? ' DISTINCT' : '';
         
         try
         {
-        $sql = "SELECT DISTINCT at.id, at.metaid, hash, filename, pid FROM "  . APP_TABLE_PREFIX 
-            . "file_attachments at, " . APP_TABLE_PREFIX . "file_meta me WHERE " 
-            . "at.metaid = me.id AND pid = :pid GROUP BY filename";
+        $sql = "SELECT{$distinct} id, hash, filename, pid FROM "  . APP_TABLE_PREFIX 
+            . "file_attachments WHERE " 
+            . "pid = :pid GROUP BY filename";
         $stmt = $this->db->query($sql, array(':pid' => $pid));
         $rows = $stmt->fetchAll();
         }
@@ -307,33 +308,28 @@ class DSResource
         try
         {
             //does a record with this file name and hash already exist?
-            $sql = "SELECT hash FROM " . APP_TABLE_PREFIX . "file_attachments fa "
-            	."INNER JOIN " . APP_TABLE_PREFIX . "file_meta fm ON fm.id = fa.metaid "
+            $sql = "SELECT hash FROM " . APP_TABLE_PREFIX . "file_attachments "
                 ."WHERE hash = :dshash AND filename = :dsfilename AND pid = :pid";
             $stmt = $this->db->query($sql, array(':dshash' => $this->hash['rawHash'], 
             	':dsfilename' => $this->hash['hashFile'],
                 ':pid' => $this->meta['pid']));
             $row = $stmt->fetch();
             
-            /*$dbg = var_export($this->meta['pid'], true);
-            file_put_contents('/var/www/fez/tmp/fedoraOut.txt', "\n"
-                .__METHOD__." | ".__FILE__." | ".__LINE__." >>>> "
-                .$dbg, FILE_APPEND);*/
-            
             if(!$row)
             {
-                $metaid = $this->storeDSMeta($this->meta);
+                //$metaid = $this->storeDSMeta($this->meta);
                 
                 $now = (isset($this->meta['updateTS'])) ? $this->meta['updateTS'] : date('Y-m-d H:i:s');
                 
                 $sql = "INSERT INTO " . APP_TABLE_PREFIX . "file_attachments "
-                    ."(hash, filename, version, metaid, size) VALUES "
-                    ."(:dshash, :dsfilename, :version, :metaid, :size)";
+                    ."(hash, filename, version, pid, size, mimetype) VALUES "
+                    ."(:dshash, :dsfilename, :version, :pid, :size, :mimetype)";
                 $this->db->query($sql, array(':dshash' => $this->hash['rawHash'], 
                 	':dsfilename' => $this->hash['hashFile'],
                     ':size' => $this->meta['size'],
                     ':version' => $now,
-                    ':metaid' => $metaid));
+                    ':mimetype' => $this->meta['mimetype'],
+                    ':pid' => $this->meta['pid']));
                 
                 //$this->db->commit();
             }
@@ -350,10 +346,8 @@ class DSResource
      */
     protected function storeDSMeta($data)
     {
-        /*$data = var_export($data, true);
-        file_put_contents('/var/www/fez/tmp/fedoraOut.txt', "\n"
-            .__METHOD__." | ".__FILE__." | ".__LINE__." >>>> "
-            .$data, FILE_APPEND);*/
+        //TODO - Can this method be absorbed into another method
+        //now that we no longer have a seperate meta table?
         try
         {
             $sql = "SELECT metaid from " . APP_TABLE_PREFIX 
@@ -408,8 +402,6 @@ class DSResource
         }
         elseif($this->resourceExists($this->hash['rawHash']))
         {
-            /*file_put_contents('/var/www/fez/tmp/fedoraOut.txt', "\n"
-            .__METHOD__." | ".__FILE__." | ".__LINE__." >>>> Resource Exists\n", FILE_APPEND);*/
             $this->storeDSReference();
             return true;
         }
@@ -442,6 +434,22 @@ class DSResource
         }
         
         return false;
+    }
+    
+    /**
+     * Mark a datastream for a particular PID
+     * as deleted.
+     */
+    public function dereference()
+    {
+        $datastream = $this->getDSRev($this->hash['hashFile'], $this->meta['pid']);
+        
+        $sql = "UPDATE " . APP_TABLE_PREFIX . "file_attachments SET state = 'D' "
+            . "WHERE version = :version AND filename = :filename AND pid = :pid";
+            
+        $this->db->query($sql, array(':version' => $datastream['version'],
+                                    ':filename' => $datastream['filename'],
+                                    ':pid' => $datastream['pid']));
     }
     
     /**
@@ -498,7 +506,7 @@ class DSResource
         }
         
         //Get rid of the metadata for this resource if have deleted the last rev or if we are deleting all revs.
-        if($revCount == 1 || $revs === 'ALL')
+        /*if($revCount == 1 || $revs === 'ALL')
         {
             try
             {
@@ -509,7 +517,7 @@ class DSResource
             {
                 $this->log->err($e->getMessage());
             }
-        }
+        }*/
     }
     
     /**
@@ -526,9 +534,11 @@ class DSResource
         {
             try
             {
-                $sql = "UPDATE " . APP_TABLE_PREFIX . "file_attachments att, " . APP_TABLE_PREFIX 
+                /*$sql = "UPDATE " . APP_TABLE_PREFIX . "file_attachments att, " . APP_TABLE_PREFIX 
                      . "file_meta met SET filename = :newFileName WHERE att.metaid = met.id AND "
-                     . "att.filename = :oldFileName AND met.pid = :pid";
+                     . "att.filename = :oldFileName AND met.pid = :pid";*/
+                $sql = "UPDATE " . APP_TABLE_PREFIX . "file_attachments SET filename = :newFileName WHERE "
+                     . "filename = :oldFileName AND pid = :pid";
                 $res = $this->db->query($sql, array(':newFileName' => $newName, 
              	    ':oldFileName' => $oldName, 
              	    ':pid' => $pid));

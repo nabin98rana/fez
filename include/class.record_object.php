@@ -1,6 +1,6 @@
 <?php
 include_once(APP_INC_PATH.'class.record_general.php');
-include_once('/var/www/fez/include/class.digitalobject.php');
+include_once(APP_INC_PATH . 'class.digitalobject.php');
 /**
  * RecordObject
  * Manages the interface to the database and fedora for records.
@@ -129,7 +129,9 @@ class RecordObject extends RecordGeneral
 	 */
 	function fedoraInsertUpdate($exclude_list=array(), $specify_list=array(), $params = array())
 	{
-		$log = FezLog::get();
+		
+    
+	    $log = FezLog::get();
 		
 		if (!empty($params)) {
 			// dirty double hack as this function and all the ones it calls assumes this is
@@ -137,9 +139,15 @@ class RecordObject extends RecordGeneral
 			$_POST = $params;
 		}
 		
+		$dbg = var_export($_POST, true);
+        file_put_contents('/var/www/fez/tmp/fedoraOut.txt', "\n"
+            .__METHOD__." | ".__FILE__." | ".__LINE__." | ".date('y:m:d G:i:s')." >>>> "
+            .$dbg."\n", FILE_APPEND);
+		
 		if(APP_FEDORA_BYPASS == 'ON')
 		{
 		    $digObj = new DigitalObject();
+		    $now = date('Y-m-d H:i:s');
     		
     		$xsd_display_fields = RecordGeneral::setDisplayFields($_POST['xsd_display_fields']);
     		
@@ -185,9 +193,6 @@ class RecordObject extends RecordGeneral
             $dteSql = implode('-', $dteSql) . ' 00:00:00';
     		$xsd_display_fields[0]['date'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $dteSql);
     		
-    		/*$data = var_export($_POST['xsd_display_fields'][$xsdmf_id[0]],true);
-    		file_put_contents('/var/www/fez/tmp/fedoraOut.txt', "\n".__METHOD__." | ".__FILE__." | ".__LINE__." >>>> ".$data, FILE_APPEND);
-    		*/
     		$digObjData = array(
     		    'xdis_id' => $_POST['xdis_id'],
                 'sta_id' => $_POST['sta_id'],
@@ -209,7 +214,8 @@ class RecordObject extends RecordGeneral
     		if (isset($_POST['uploader_files_uploaded']))
             {
             	$wfstatus = &WorkflowStatusStatic::getSession();
-                $tmpFilesArray = Uploader::generateFilesArray($wfstatus->id, $_POST['uploader_files_uploaded']);
+                $tmpFilesArray = Uploader::generateFilesArray($wfstatus->id, 
+                                            $_POST['uploader_files_uploaded']);
                 
             	if (count($tmpFilesArray)) {
             		$_FILES = $tmpFilesArray;
@@ -225,7 +231,7 @@ class RecordObject extends RecordGeneral
                     $mimeData = $_FILES['xsd_display_fields']['type'];
                     $mimeDataKeys = array_keys($mimeData);
                     
-                    $now = date('Y-m-d H:i:s');
+                    //$now = date('Y-m-d H:i:s');
                     
                     for($i=0;$i<$numFiles;$i++)
                     {
@@ -238,15 +244,35 @@ class RecordObject extends RecordGeneral
                     		'state' => 'A', 
                     	    'size' => $filesDataSize,
                     		'updateTS' => $now,
-                    		'pid' => $_POST['pid']);
+                    		'pid' => Fez_Validate::run('Fez_Validate_Pid', $_POST['pid']));
                     	$dsr = new DSResource(APP_DSTREE_PATH, $resourceDataLocation, $meta);
                     	$dsr->save();
             		}
             	}
             }
-    		
+            
     		Record::updateSearchKeys($this->pid, $xsd_display_fields, false, $now); //into the non-shadow tables
     		Record::updateSearchKeys($this->pid, $xsd_display_fields, true, $now); //into the shadow tables
+    		
+    		//Mark any files required for deletion.
+    		if(isset($_POST['removeFiles']))
+    		{
+    		    $dresource = new DSResource();
+    		    
+    		    foreach($_POST['removeFiles'] as $removeFile)
+    		    {
+    		        $dresource->load($removeFile, $this->pid);
+    		        $dresource->dereference();
+    		    }
+    		}
+    		
+		    //If any files are being uploaded or changed, take a snapshot.
+    		if (isset($_POST['removeFiles']) || isset($_POST['editedFilenames']) 
+    		    || isset($_POST['uploader_files_uploaded']))
+            {
+                $digObj->load($this->pid);
+                $digObj->snapshotResources($now);
+            }
     		
 		}
 		else 

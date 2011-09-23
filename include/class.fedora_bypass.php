@@ -30,17 +30,6 @@
 // | Authors: Lachlan Kuhn <l.kuhn@library.uq.edu.au>                     |
 // +----------------------------------------------------------------------+
 
-function bt($dbg)
-{
-    $dbgOut = '';
-    foreach($dbg as $trace)
-    {
-        $dbgOut .= $trace['class'] . "::" . $trace['function'] . " | " . $trace['file'] . " | " . $trace['line'] . "->-> \n\n";
-    }
-    
-    return $dbgOut;
-}
-
 include_once(APP_INC_PATH . "class.error_handler.php");
 include_once(APP_INC_PATH . "class.setup.php");
 include_once(APP_INC_PATH . "class.misc.php");
@@ -992,9 +981,12 @@ class Fedora_API {
 			$returns = array();
 		}*/
 		if (!is_numeric($pid)) {
-		    $sql = "SELECT at.filename, me.mimetype, MAX(at.version) as version FROM " . APP_TABLE_PREFIX 
+		    $sql = "SELECT filename, mimetype, MAX(version) as version FROM " . APP_TABLE_PREFIX 
+		        . "file_attachments WHERE "
+		        . "pid = :pid GROUP BY filename";
+		    /*$sql = "SELECT at.filename, me.mimetype, MAX(at.version) as version FROM " . APP_TABLE_PREFIX 
 		        . "file_attachments at, " . APP_TABLE_PREFIX . "file_meta me WHERE at.metaid = me.id "
-		        . "AND me.pid = :pid GROUP BY filename";
+		        . "AND me.pid = :pid GROUP BY filename";*/
 		    $stmt = $db->query($sql, array(':pid' => $pid));
 		    $rows = $stmt->fetchAll();
 		    

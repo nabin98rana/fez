@@ -51,6 +51,14 @@ include_once(APP_INC_PATH . "class.author_affiliations.php");
 include_once(APP_INC_PATH . "class.xsd_display.php");
 //include_once(APP_INC_PATH . 'najax_objects/class.background_process_list.php');
 
+/*$xdis_id = Record::getSearchKeyIndexValue($pid,'Display Type');
+$xdo = new XSD_DisplayObject($xdis_id);
+$vals = $xdo->getXSDMF_Values($pid);
+$dbg = var_export($vals, true);
+file_put_contents('/var/www/fez/tmp/fedoraOut.txt', "\n"
+    .__METHOD__." | ".__FILE__." | ".__LINE__." | ".date('y:m:d G:i:s')." >>>> "
+    .$dbg."\n", FILE_APPEND);*/
+
 $username = Auth::getUsername();
 $isAdministrator = Auth::isAdministrator(); 
 $isSuperAdministrator = User::isUserSuperAdministrator($username);
@@ -435,7 +443,14 @@ if (!empty($pid) && $record->checkExists()) {
     		//This retrieves the datastreams
     		//Metadata is retrieved by XSD_DisplayObject::getXSDMF_Values
 		    $dob = new DigitalObject();
-    		$datastreams = $dob->getDatastreams(array('pid' => $pid));
+		    $params = array('pid' => $pid);
+		    
+		    if($requestedVersionDate)
+		    {
+		        $params['rev'] = $requestedVersionDate;
+		    }
+		    
+    		$datastreams = $dob->getDatastreams($params);
 		}
 		else
 		{
