@@ -59,98 +59,91 @@ $usr_id = Auth::getUserID();
 
 //Perform some input validation.
 
-if(!$cat = Fez_Validate::run('Fez_Validate_Simpleparam', $_REQUEST["cat"]))
+if(in_array('cat', $_REQUEST) && 
+    !$cat = Fez_Validate::run('Fez_Validate_Simpleparam', $_REQUEST["cat"]))
 {
     exit;
 }
 
-if(!$dsID = Fez_Validate::run('Fez_Validate_Filename', $_GET["dsID"]))
+if(in_array('dsID', $_GET) && 
+    !$dsID = Fez_Validate::run('Fez_Validate_Filename', $_GET["dsID"]))
 {
     exit;
 }
 
-if(!$pid = Fez_Validate::run('Fez_Validate_Pid', $_GET['pid']))
+if(in_array('pid', $_GET) && 
+    !$pid = Fez_Validate::run('Fez_Validate_Pid', $_GET['pid']))
 {
     exit;
 }
 
-
-//if(false)
-/*if(APP_FEDORA_BYPASS == 'ON')
+if(APP_FEDORA_BYPASS == 'ON')
 {
     $now = date('Y-m-d H:i:s');
     $dsr = new DSResource();
     $dsr->load($dsID, $pid);
     $do = new DigitalObject();
-    
-    switch($cat)
-    {
-        case 'delete_datastream':
-        {
-            $dsr->dereference();
-            $do->load($pid);
-            $do->snapshotResources($now);
-        }
-        case 'purge_datastream':
-        {
-            //perform purge
-        }
-    }
+    $dbgRec = new RecordObject($_GET['pid']);
 }
-else 
-{*/
-    switch ($cat) 
-    {	
-        case 'file_manager':
+
+switch ($cat) 
+{	
+    case 'file_manager':
+        {
+            $wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
+            $wfstatus->assign('folder',     $_POST['currentFolderPath']);
+            $wfstatus->assign('files',      $_POST['check']);
+            $wfstatus->setSession();
+            
+            $tpl->assign("file_manager_result", 1);
+            break;
+        }
+    case 'purge_datastream':
+        {
+            /*$dsID = $_GET["dsID"];
+            $pid = $_GET["pid"];*/
+			$record = new RecordObject($pid);
+			if ($record->canEdit()) {
+	            $res = Fedora_API::callPurgeDatastream($pid, $dsID);
+	            $stream = "stream_".str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))).".flv";
+	            $thumbnail = "thumbnail_".str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))).".jpg";
+	            $web = "web_".str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))).".jpg";
+	            $preview = "preview_".str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))).".jpg";
+	            $FezACML_DS = "FezACML_".str_replace(" ", "_", $dsID).".xml";
+	            $PresMD_DS = "presmd_".str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))).".xml";
+	            if (Fedora_API::datastreamExists($pid, $stream)) {
+	                Fedora_API::callPurgeDatastream($pid, $stream);
+	            }
+	            if (Fedora_API::datastreamExists($pid, $thumbnail)) {
+	                Fedora_API::callPurgeDatastream($pid, $thumbnail);
+	            }
+	            if (Fedora_API::datastreamExists($pid, $preview)) {
+	                Fedora_API::callPurgeDatastream($pid, $preview);
+				}
+	            if (Fedora_API::datastreamExists($pid, $web)) {
+	                Fedora_API::callPurgeDatastream($pid, $web);
+				}
+	            if (Fedora_API::datastreamExists($pid, $FezACML_DS)) {
+	                Fedora_API::callPurgeDatastream($pid, $FezACML_DS);
+				}
+	            if (Fedora_API::datastreamExists($pid, $PresMD_DS)) {
+	                Fedora_API::callPurgeDatastream($pid, $PresMD_DS);
+				}
+				Record::setIndexMatchingFields($pid);
+	            if (count($res) == 1) { $res = 1; } else { $res = -1; }
+	            $tpl->assign("purge_datastream_result", $res);
+			} else {
+				$tpl->assign("purge_datastream_result", -1);
+			}
+            break;
+        }
+    case 'delete_datastream':
+        {
+            if(APP_FEDORA_BYPASS == 'ON')
             {
-                $wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
-                $wfstatus->assign('folder',     $_POST['currentFolderPath']);
-                $wfstatus->assign('files',      $_POST['check']);
-                $wfstatus->setSession();
-                
-                $tpl->assign("file_manager_result", 1);
-                break;
+                $dbgRec->forceInsertUpdate(array('removeFiles' => array($dsID)));
             }
-        case 'purge_datastream':
-            {
-                /*$dsID = $_GET["dsID"];
-                $pid = $_GET["pid"];*/
-    			$record = new RecordObject($pid);
-    			if ($record->canEdit()) {
-    	            $res = Fedora_API::callPurgeDatastream($pid, $dsID);
-    	            $stream = "stream_".str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))).".flv";
-    	            $thumbnail = "thumbnail_".str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))).".jpg";
-    	            $web = "web_".str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))).".jpg";
-    	            $preview = "preview_".str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))).".jpg";
-    	            $FezACML_DS = "FezACML_".str_replace(" ", "_", $dsID).".xml";
-    	            $PresMD_DS = "presmd_".str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))).".xml";
-    	            if (Fedora_API::datastreamExists($pid, $stream)) {
-    	                Fedora_API::callPurgeDatastream($pid, $stream);
-    	            }
-    	            if (Fedora_API::datastreamExists($pid, $thumbnail)) {
-    	                Fedora_API::callPurgeDatastream($pid, $thumbnail);
-    	            }
-    	            if (Fedora_API::datastreamExists($pid, $preview)) {
-    	                Fedora_API::callPurgeDatastream($pid, $preview);
-    				}
-    	            if (Fedora_API::datastreamExists($pid, $web)) {
-    	                Fedora_API::callPurgeDatastream($pid, $web);
-    				}
-    	            if (Fedora_API::datastreamExists($pid, $FezACML_DS)) {
-    	                Fedora_API::callPurgeDatastream($pid, $FezACML_DS);
-    				}
-    	            if (Fedora_API::datastreamExists($pid, $PresMD_DS)) {
-    	                Fedora_API::callPurgeDatastream($pid, $PresMD_DS);
-    				}
-    				Record::setIndexMatchingFields($pid);
-    	            if (count($res) == 1) { $res = 1; } else { $res = -1; }
-    	            $tpl->assign("purge_datastream_result", $res);
-    			} else {
-    				$tpl->assign("purge_datastream_result", -1);
-    			}
-                break;
-            }
-        case 'delete_datastream':
+            else 
             {
                 /*$dsID = $_GET["dsID"];
                 $pid = $_GET["pid"];*/	
@@ -187,166 +180,166 @@ else
     			} else {
     				$tpl->assign("delete_datastream_result", -1);
     			}
-                break;
             }
-        case 'update_form':
-            {
-                $id = $_REQUEST['id'];
-                $wfstatus = WorkflowStatusStatic::getSession($id); // restores WorkflowStatus object from the session
-                $pid = $wfstatus->pid;
-                $res = Record::update($pid, array("FezACML"), array(""));
-                $tpl->assign("update_form_result", $res);
-                $wfstatus->checkStateChange(true);
-                break;
+            break;
+        }
+    case 'update_form':
+        {
+            $id = $_REQUEST['id'];
+            $wfstatus = WorkflowStatusStatic::getSession($id); // restores WorkflowStatus object from the session
+            $pid = $wfstatus->pid;
+            $res = Record::update($pid, array("FezACML"), array(""));
+            $tpl->assign("update_form_result", $res);
+            $wfstatus->checkStateChange(true);
+            break;
+        }
+    case 'update_security':
+        {
+            $id = $_REQUEST['id'];
+            $wfstatus = WorkflowStatusStatic::getSession($id); // restores WorkflowStatus object from the session
+            $pid = $wfstatus->pid;
+            $dsID = $wfstatus->dsID;
+			if ($dsID != "") {
+	            $res = Record::editDatastreamSecurity($pid, $dsID);			
+			} else { 
+	            $res = Record::update($pid, array(""), array("FezACML"));
+			}
+            $tpl->assign("update_form_result", $res);
+            $wfstatus->checkStateChange(true);
+            break;
+        }		
+    case 'purge_object':
+        {
+			if ($isAdministrator) {
+	            // first delete all indexes about this pid
+	            $id = $_REQUEST['id'];
+	            $wfstatus = WorkflowStatusStatic::getSession($id); // restores WorkflowStatus object from the session
+	            $pid = $wfstatus->pid;
+	            Record::removeIndexRecord($pid);
+	            $res = Fedora_API::callPurgeObject($pid);
+	            $tpl->assign("purge_object_result", $res);
+	            $wfstatus->checkStateChange(true);
+			}
+            break;
+        }
+
+    case 'delete_object':
+        {
+            $rec_obj = new RecordObject($pid);
+			if ($rec_obj->canDelete()) {
+				$rec_obj->markAsDeleted();
+				History::addHistory($pid, null, '', '', true, 'Deleted');
+	            $tpl->assign("delete_object_result", 1);
+	            
+				if ( APP_SOLR_INDEXER == "ON" ) {
+					FulltextQueue::singleton()->remove($pid);
+					FulltextQueue::singleton()->commit();
+					FulltextQueue::singleton()->triggerUpdate();
+	            }
+			}
+            break;
+        }
+
+    case 'delete_objects':
+        {
+			// add a history comment if one has been included
+			$historyComment = $_REQUEST['historyComment'];
+			if (!$historyComment) {
+				$historyComment = null;
+			}
+
+            // first delete all indexes about this pid
+            $items = $_REQUEST['items'];
+            if (empty($items)) { // is named pids on the list form
+	            $items = $_REQUEST['pids'];
             }
-        case 'update_security':
-            {
-                $id = $_REQUEST['id'];
-                $wfstatus = WorkflowStatusStatic::getSession($id); // restores WorkflowStatus object from the session
-                $pid = $wfstatus->pid;
-                $dsID = $wfstatus->dsID;
-    			if ($dsID != "") {
-    	            $res = Record::editDatastreamSecurity($pid, $dsID);			
-    			} else { 
-    	            $res = Record::update($pid, array(""), array("FezACML"));
-    			}
-                $tpl->assign("update_form_result", $res);
-                $wfstatus->checkStateChange(true);
-                break;
-            }		
-        case 'purge_object':
-            {
-    			if ($isAdministrator) {
-    	            // first delete all indexes about this pid
-    	            $id = $_REQUEST['id'];
-    	            $wfstatus = WorkflowStatusStatic::getSession($id); // restores WorkflowStatus object from the session
-    	            $pid = $wfstatus->pid;
-    	            Record::removeIndexRecord($pid);
-    	            $res = Fedora_API::callPurgeObject($pid);
-    	            $tpl->assign("purge_object_result", $res);
-    	            $wfstatus->checkStateChange(true);
-    			}
-                break;
-            }
-    
-        case 'delete_object':
-            {
+            foreach ($items as $pid) {
                 $rec_obj = new RecordObject($pid);
-    			if ($rec_obj->canDelete()) {
-    				$rec_obj->markAsDeleted();
-    				History::addHistory($pid, null, '', '', true, 'Deleted');
-    	            $tpl->assign("delete_object_result", 1);
-    	            
-    				if ( APP_SOLR_INDEXER == "ON" ) {
-    					FulltextQueue::singleton()->remove($pid);
-    					FulltextQueue::singleton()->commit();
-    					FulltextQueue::singleton()->triggerUpdate();
-    	            }
-    			}
-                break;
+				if ($rec_obj->canDelete()) {	    
+					$rec_obj->markAsDeleted();
+					History::addHistory($pid, null, '', '', true, 'Bulk Deleted', $historyComment);
+					
+					if ( APP_SOLR_INDEXER == "ON" ) {
+	                    FulltextQueue::singleton()->remove($pid);
+	                }
+				}
             }
-    
-        case 'delete_objects':
-            {
-    			// add a history comment if one has been included
-    			$historyComment = $_REQUEST['historyComment'];
-    			if (!$historyComment) {
-    				$historyComment = null;
-    			}
-    
-                // first delete all indexes about this pid
-                $items = $_REQUEST['items'];
-                if (empty($items)) { // is named pids on the list form
-    	            $items = $_REQUEST['pids'];
-                }
-                foreach ($items as $pid) {
-                    $rec_obj = new RecordObject($pid);
-    				if ($rec_obj->canDelete()) {	    
-    					$rec_obj->markAsDeleted();
-    					History::addHistory($pid, null, '', '', true, 'Bulk Deleted', $historyComment);
-    					
-    					if ( APP_SOLR_INDEXER == "ON" ) {
-    	                    FulltextQueue::singleton()->remove($pid);
-    	                }
-    				}
-                }
-    			if ( APP_SOLR_INDEXER == "ON" ) {
-    				FulltextQueue::singleton()->commit();
-    				FulltextQueue::singleton()->triggerUpdate();
-    			}
-                $tpl->assign("delete_object_result", 1);
-                break;
+			if ( APP_SOLR_INDEXER == "ON" ) {
+				FulltextQueue::singleton()->commit();
+				FulltextQueue::singleton()->triggerUpdate();
+			}
+            $tpl->assign("delete_object_result", 1);
+            break;
+        }
+
+    case 'new_workflow_triggers':
+        {
+            $tpl->assign("generic_result",WorkflowTrigger::insert());
+            $tpl->assign("generic_action",'add');
+            $tpl->assign("generic_type",'workflow trigger');
+            break;
+        }
+    case 'edit_workflow_triggers':
+        {
+            $tpl->assign("generic_result",WorkflowTrigger::update());
+            $tpl->assign("generic_action",'update');
+            $tpl->assign("generic_type",'workflow trigger');
+            break;
+        }
+    case 'list_action_workflow_triggers':
+        {
+            if (Misc::GETorPOST('delete')) {
+                $tpl->assign("generic_result",WorkflowTrigger::remove());
+                $tpl->assign("generic_action",'delete');
             }
-    
-        case 'new_workflow_triggers':
-            {
-                $tpl->assign("generic_result",WorkflowTrigger::insert());
-                $tpl->assign("generic_action",'add');
-                $tpl->assign("generic_type",'workflow trigger');
-                break;
+            $tpl->assign("generic_type",'workflow trigger');
+            break;
+        }
+    case 'delete_background_processes':
+        {
+			if ($isAdministrator) {
+	            $items = Misc::GETorPOST('items');
+	            $bgpl = new BackgroundProcessList();
+	            $res = $bgpl->delete($items);
+	            $tpl->assign('generic_result', $res);
+	            $tpl->assign("generic_action",'delete');
+	            $tpl->assign("generic_type",'background processes');
+			}
+            break;
+        }
+    case 'purge_objects':
+        {
+            // first delete all indexes about this pid
+            $items = $_REQUEST['items'];
+            if (empty($items)) { // is named pids on the list form
+	            $items = $_REQUEST['pids'];
             }
-        case 'edit_workflow_triggers':
-            {
-                $tpl->assign("generic_result",WorkflowTrigger::update());
-                $tpl->assign("generic_action",'update');
-                $tpl->assign("generic_type",'workflow trigger');
-                break;
+            foreach ($items as $pid) {
+                $rec_obj = new RecordObject($pid);
+				if ($rec_obj->canDelete()) {	    
+	                Record::removeIndexRecord($pid);
+	                $res = Fedora_API::callPurgeObject($pid);
+				}
             }
-        case 'list_action_workflow_triggers':
-            {
-                if (Misc::GETorPOST('delete')) {
-                    $tpl->assign("generic_result",WorkflowTrigger::remove());
-                    $tpl->assign("generic_action",'delete');
-                }
-                $tpl->assign("generic_type",'workflow trigger');
-                break;
+            $tpl->assign("purge_object_result", $res);
+            break;
+        }
+    case 'publish_objects':
+        {
+            $items = $_REQUEST['pids'];
+            foreach ($items as $pid) {
+                $rec_obj = new RecordObject($pid);
+				if ($rec_obj->canApprove()) {
+                	$res = $rec_obj->setStatusId(2);
+					History::addHistory($pid, null, '', '', true, 'Bulk Published');
+				}
             }
-        case 'delete_background_processes':
-            {
-    			if ($isAdministrator) {
-    	            $items = Misc::GETorPOST('items');
-    	            $bgpl = new BackgroundProcessList();
-    	            $res = $bgpl->delete($items);
-    	            $tpl->assign('generic_result', $res);
-    	            $tpl->assign("generic_action",'delete');
-    	            $tpl->assign("generic_type",'background processes');
-    			}
-                break;
-            }
-        case 'purge_objects':
-            {
-                // first delete all indexes about this pid
-                $items = $_REQUEST['items'];
-                if (empty($items)) { // is named pids on the list form
-    	            $items = $_REQUEST['pids'];
-                }
-                foreach ($items as $pid) {
-                    $rec_obj = new RecordObject($pid);
-    				if ($rec_obj->canDelete()) {	    
-    	                Record::removeIndexRecord($pid);
-    	                $res = Fedora_API::callPurgeObject($pid);
-    				}
-                }
-                $tpl->assign("purge_object_result", $res);
-                break;
-            }
-        case 'publish_objects':
-            {
-                $items = $_REQUEST['pids'];
-                foreach ($items as $pid) {
-                    $rec_obj = new RecordObject($pid);
-    				if ($rec_obj->canApprove()) {
-                    	$res = $rec_obj->setStatusId(2);
-    					History::addHistory($pid, null, '', '', true, 'Bulk Published');
-    				}
-                }
-                $tpl->assign('generic_result', $res);
-                $tpl->assign("generic_action",'publish');
-                $tpl->assign("generic_type",'records');
-                break;
-            }
-    }
-//}
+            $tpl->assign('generic_result', $res);
+            $tpl->assign("generic_action",'publish');
+            $tpl->assign("generic_type",'records');
+            break;
+        }
+}
 
 $tpl->assign("current_user_prefs", Prefs::get($usr_id));
 

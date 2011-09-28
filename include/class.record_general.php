@@ -1964,7 +1964,7 @@ class RecordGeneral
   {
     return Fedora_API::callGetDatastreamContents($this->pid, $dsID, false, $filehandle);
   }
-
+  
   function setIndexMatchingFields($opts=null)
   {
     $log = FezLog::get();
@@ -1983,6 +1983,11 @@ class RecordGeneral
         $pid = $opts['pid'];
         $xdis_id = $opts['xdis_id'];
     }
+    
+    $dbg = var_export($xdis_id, true);
+file_put_contents('/var/www/fez/tmp/fedoraOut.txt', "\n"
+    .__METHOD__." | ".__FILE__." | ".__LINE__." | ".date('y:m:d G:i:s')." >>>> "
+    .$dbg."\n", FILE_APPEND);
     
     $display = new XSD_DisplayObject($xdis_id);
     $xsdmf_array = $display->getXSDMF_Values($pid, null, true);

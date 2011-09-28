@@ -262,11 +262,6 @@ class DigitalObject
      */
     public function getDatastreams($params)
     {
-        /*$dbg = var_export($params, true);
-        file_put_contents('/var/www/fez/tmp/fedoraOut.txt', "\n"
-            .__METHOD__." | ".__FILE__." | ".__LINE__." | ".date('y:m:d G:i:s')." >>>> "
-            .$dbg."\n", FILE_APPEND);*/
-        
         $dsList = $this->dsResource->listStreams($params['pid']);
         $datastreams = array();
         

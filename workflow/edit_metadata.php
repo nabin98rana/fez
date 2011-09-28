@@ -61,6 +61,11 @@ if (empty($wfstatus)) {
     exit;
 }
 
+//DBG##############
+/*$dbgRec = new RecordObject($wfstatus->pid);
+$dbgRec->createObjectUpdateArray();*/
+//DBG##############
+
 // if we have uploaded files using the flash uploader, then generate $_FILES array entries for them
 if (isset($_POST['uploader_files_uploaded']) && APP_FEDORA_BYPASS != 'ON')
 {

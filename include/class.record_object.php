@@ -139,10 +139,10 @@ class RecordObject extends RecordGeneral
 			$_POST = $params;
 		}
 		
-		$dbg = var_export($_POST, true);
-        file_put_contents('/var/www/fez/tmp/fedoraOut.txt', "\n"
-            .__METHOD__." | ".__FILE__." | ".__LINE__." | ".date('y:m:d G:i:s')." >>>> "
-            .$dbg."\n", FILE_APPEND);
+		/*$dbg = var_export($_POST, true);
+file_put_contents('/var/www/fez/tmp/fedoraOut.txt', "\n"
+    .__METHOD__." | ".__FILE__." | ".__LINE__." | ".date('y:m:d G:i:s')." >>>> "
+    .$dbg."\n", FILE_APPEND);*/
 		
 		if(APP_FEDORA_BYPASS == 'ON')
 		{
@@ -267,12 +267,12 @@ class RecordObject extends RecordGeneral
     		}
     		
 		    //If any files are being uploaded or changed, take a snapshot.
-    		if (isset($_POST['removeFiles']) || isset($_POST['editedFilenames']) 
+    		/*if (isset($_POST['removeFiles']) || isset($_POST['editedFilenames']) 
     		    || isset($_POST['uploader_files_uploaded']))
-            {
+            {*/
                 $digObj->load($this->pid);
                 $digObj->snapshotResources($now);
-            }
+            //}
     		
 		}
 		else 
@@ -328,6 +328,66 @@ class RecordObject extends RecordGeneral
     		$this->clearDetails();  // force the details to be refreshed from fedora.
 		}
 		return $this->pid;
+	}
+	
+	function forceInsertUpdate($edits)
+	{
+	    $wfstatus = &WorkflowStatusStatic::getSession();
+        $this->getDisplay();
+        
+        $matchFieldsList = $this->display->getMatchFieldsList(array("FezACML"), array());
+        
+        $xsdmf_to_use = array();
+        $xsdmf_state = array();
+        
+        foreach ($matchFieldsList as $xsdmf) {
+            
+        	if(($xsdmf['xsdmf_html_input'] != '' && $xsdmf['xsdmf_enabled'] == 1)) {
+            	
+            	if($xsdmf['xsdmf_html_input'] != 'static' ) {
+                    $xsdmf_to_use[] = $xsdmf;
+            		
+            	} elseif($xsdmf['xsdmf_html_input'] == 'static' 
+                    	   && $xsdmf['xsdmf_show_in_view'] == 1
+                    	   && $xsdmf['xsdmf_static_text'] != '') {
+                    	   	
+                    $xsdmf_to_use[] = $xsdmf;
+            	}
+            	
+            } elseif($xsdmf['xsdmf_title'] == 'state') {
+                $xsdmf_state[] = $xsdmf;
+            }
+            
+        }
+        
+        $sta_id = $this->getPublishedStatus();
+        $details = $this->getDetails();
+        $xdis_id = $this->getXmlDisplayId();
+        $current_user_id = Auth::getUserID();
+        $internal_notes = InternalNotes::readNote($this->pid);
+        
+        $fauxPost = array(
+            'id' => $wfstatus->id,
+            'workflow_button_1136' => 'Save Changes',
+        	'cat' => 'update_form',
+        	'xdis_id' => $xdis_id,
+            'sta_id' => $sta_id,
+            'userfullname'  => Auth::getUserFullName(),
+            'state' => $xsdmf_state[0]['xsdmf_static_text'],
+            'user_id' => $current_user_id,
+            'xsd_display_fields' => $details,
+            'internal_notes' => $internal_notes
+        );
+        
+        $fauxPost = array_replace_recursive($fauxPost, $edits);
+        
+        $this->fedoraInsertUpdate(array(), array(), $fauxPost);
+        InternalNotes::recordNote($this->pid, $fauxPost['internal_notes']);
+        
+        /*$dbg = var_export($fauxPost,true);
+        file_put_contents('/var/www/fez/tmp/fedoraOut.txt', "\n"
+            .__METHOD__." | ".__FILE__." | ".__LINE__." | ".date('y:m:d G:i:s')." >>>> "
+            .$dbg."\n", FILE_APPEND);*/
 	}
 
 	function getIngestTrigger($mimetype)
