@@ -105,14 +105,6 @@
 				}
             }
         }
-        /*echo "<pre>";
-        var_dump($details);
-        echo "</pre>";*/
-        
-        /*$dbg = var_export($xsdmf_state, true);
-file_put_contents('/var/www/fez/tmp/fedoraOut.txt', "\n"
-    .__METHOD__." | ".__FILE__." | ".__LINE__." | ".date('y:m:d G:i:s')." >>>> "
-    .$dbg."\n", FILE_APPEND);*/
         
         $tpl->assign("xsd_display_fields",  $xsdmf_to_use);
         $tpl->assign("xsdmf_states",        $xsdmf_state);
@@ -158,6 +150,7 @@ file_put_contents('/var/www/fez/tmp/fedoraOut.txt', "\n"
 		}
         $tpl->assign("showPurge", $show_purge);
         $tpl->assign("showDelete", $show_delete);
+        $tpl->assign("APP_FEDORA_BYPASS", APP_FEDORA_BYPASS);
 
      }
 
