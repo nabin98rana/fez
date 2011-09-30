@@ -59,19 +59,19 @@ $usr_id = Auth::getUserID();
 
 //Perform some input validation.
 
-if(in_array('cat', $_REQUEST) && 
+if(array_key_exists('cat', $_REQUEST) && 
     !$cat = Fez_Validate::run('Fez_Validate_Simpleparam', $_REQUEST["cat"]))
 {
     exit;
 }
 
-if(in_array('dsID', $_GET) && 
+if(array_key_exists('dsID', $_GET) && 
     !$dsID = Fez_Validate::run('Fez_Validate_Filename', $_GET["dsID"]))
 {
     exit;
 }
 
-if(in_array('pid', $_GET) && 
+if(array_key_exists('pid', $_GET) && 
     !$pid = Fez_Validate::run('Fez_Validate_Pid', $_GET['pid']))
 {
     exit;

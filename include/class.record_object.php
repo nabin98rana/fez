@@ -139,11 +139,6 @@ class RecordObject extends RecordGeneral
 			$_POST = $params;
 		}
 		
-		/*$dbg = var_export($_POST, true);
-file_put_contents('/var/www/fez/tmp/fedoraOut.txt', "\n"
-    .__METHOD__." | ".__FILE__." | ".__LINE__." | ".date('y:m:d G:i:s')." >>>> "
-    .$dbg."\n", FILE_APPEND);*/
-		
 		if(APP_FEDORA_BYPASS == 'ON')
 		{
 		    $digObj = new DigitalObject();
@@ -199,6 +194,7 @@ file_put_contents('/var/www/fez/tmp/fedoraOut.txt', "\n"
                 'usr_id' => $_POST['user_id'],
     		    'depositor' => $_POST['user_id']
     		);
+    		//$digObjData = array();
     		
     		$this->xdis_id = $_POST['xdis_id'];
     		
@@ -218,6 +214,7 @@ file_put_contents('/var/www/fez/tmp/fedoraOut.txt', "\n"
                                             $_POST['uploader_files_uploaded']);
                 
             	if (count($tmpFilesArray)) {
+            	    
             		$_FILES = $tmpFilesArray;
             		
                 	$resourceData = $_FILES['xsd_display_fields']['new_file_location'];
@@ -230,8 +227,6 @@ file_put_contents('/var/www/fez/tmp/fedoraOut.txt', "\n"
                     
                     $mimeData = $_FILES['xsd_display_fields']['type'];
                     $mimeDataKeys = array_keys($mimeData);
-                    
-                    //$now = date('Y-m-d H:i:s');
                     
                     for($i=0;$i<$numFiles;$i++)
                     {
@@ -267,12 +262,12 @@ file_put_contents('/var/www/fez/tmp/fedoraOut.txt', "\n"
     		}
     		
 		    //If any files are being uploaded or changed, take a snapshot.
-    		/*if (isset($_POST['removeFiles']) || isset($_POST['editedFilenames']) 
+    		if (isset($_POST['removeFiles']) || isset($_POST['editedFilenames']) 
     		    || isset($_POST['uploader_files_uploaded']))
-            {*/
+            {
                 $digObj->load($this->pid);
                 $digObj->snapshotResources($now);
-            //}
+            }
     		
 		}
 		else 

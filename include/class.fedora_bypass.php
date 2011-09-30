@@ -976,69 +976,83 @@ class Fedora_API {
 		$log = FezLog::get();
 		$db = DB_API::get();
 		
-		/*static $returns;
-		if (!is_array($returns)) {
-			$returns = array();
-		}*/
+		if(APP_FEDORA_BYPASS != 'ON')
+		{
+    		static $returns;
+    		if (!is_array($returns)) {
+    			$returns = array();
+    		}
+		}
+		
 		if (!is_numeric($pid)) {
-		    $sql = "SELECT filename, mimetype, MAX(version) as version FROM " . APP_TABLE_PREFIX 
-		        . "file_attachments WHERE "
-		        . "pid = :pid GROUP BY filename";
-		    /*$sql = "SELECT at.filename, me.mimetype, MAX(at.version) as version FROM " . APP_TABLE_PREFIX 
-		        . "file_attachments at, " . APP_TABLE_PREFIX . "file_meta me WHERE at.metaid = me.id "
-		        . "AND me.pid = :pid GROUP BY filename";*/
-		    $stmt = $db->query($sql, array(':pid' => $pid));
-		    $rows = $stmt->fetchAll();
 		    
-		    $resultlist = array();
-		    foreach($rows as $row)
+		    if(APP_FEDORA_BYPASS == 'ON')
 		    {
-		        $resultlist[] = array('dsid' => $row['filename'], 
-		        	'label' => $row['filename'], 
-		        	'mimeType' => $row['mimetype']);
+    		    $sql = "SELECT filename, mimetype, version FROM " 
+    		        . APP_TABLE_PREFIX . "file_attachments WHERE pid = :pid GROUP BY filename";
+    		    
+    		    try 
+    		    {
+        		    $stmt = $db->query($sql, array(':pid' => $pid));
+        		    $rows = $stmt->fetchAll();
+    		    }
+    		    catch(Exception $e)
+    		    {
+    		        $log->err($e->getMessage());
+    		    }
+    		    
+    		    $resultlist = array();
+    		    foreach($rows as $row)
+    		    {
+    		        $resultlist[] = array('dsid' => $row['filename'], 
+    		        	'label' => $row['filename'], 
+    		        	'mimeType' => $row['mimetype']);
+    		    }
 		    }
+		    else 
+		    {
 		    
-		    
-			/*if ($refresh == false && isset($returns[$pid]) && is_array($returns[$pid])) {
-				return $returns[$pid];
-			}
-			if (APP_FEDORA_APIA_DIRECT == "ON") {
-				$fda = new Fedora_Direct_Access();
-				$dsIDListArray = $fda->listDatastreams($pid);
-				return $dsIDListArray;
-			}
-			$getString = APP_BASE_FEDORA_APIA_DOMAIN."/listDatastreams/".$pid."?xml=true";
-			$ch = curl_init($getString);
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-			if (APP_HTTPS_CURL_CHECK_CERT == "OFF" && APP_FEDORA_APIA_PROTOCOL_TYPE == 'https://')  {
-				curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, 0);
-				curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, 0);
-			}
-			$results = curl_exec($ch);
-			$info = curl_getinfo($ch);
-			curl_close ($ch);
-			$xml = $results;
-			$dom = @DomDocument::loadXML($xml);
-			if (!$dom) {
-				$log->err(array("Couldn't parse datastream XML",$info,$xml));
-				return false;
-			}
-			$xpath = new DOMXPath($dom);*/
-			//$fieldNodeList = $xpath->query("/*/*");
-			/*$counter = 0;
-			foreach ($fieldNodeList as $fieldNode) {
-				$fieldAttList = $xpath->query("@*",$fieldNode);
-				foreach ($fieldAttList as $fieldAtt) {
-					$resultlist[$counter][$fieldAtt->nodeName] = trim($fieldAtt->nodeValue);
-				}
-				$counter++;
-			}
-			if ($GLOBALS['app_cache']) {
-				if (!is_array($returns) || count($returns) > 10) { //make sure the static memory var doesnt grow too large and cause a fatal out of memory error
-					$returns = array();
-				}
-				$returns[$pid] = $resultlist;
-			}*/
+    			if ($refresh == false && isset($returns[$pid]) && is_array($returns[$pid])) {
+    				return $returns[$pid];
+    			}
+    			if (APP_FEDORA_APIA_DIRECT == "ON") {
+    				$fda = new Fedora_Direct_Access();
+    				$dsIDListArray = $fda->listDatastreams($pid);
+    				return $dsIDListArray;
+    			}
+    			$getString = APP_BASE_FEDORA_APIA_DOMAIN."/listDatastreams/".$pid."?xml=true";
+    			$ch = curl_init($getString);
+    			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    			if (APP_HTTPS_CURL_CHECK_CERT == "OFF" && APP_FEDORA_APIA_PROTOCOL_TYPE == 'https://')  {
+    				curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, 0);
+    				curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, 0);
+    			}
+    			$results = curl_exec($ch);
+    			$info = curl_getinfo($ch);
+    			curl_close ($ch);
+    			$xml = $results;
+    			$dom = @DomDocument::loadXML($xml);
+    			if (!$dom) {
+    				$log->err(array("Couldn't parse datastream XML",$info,$xml));
+    				return false;
+    			}
+    			$xpath = new DOMXPath($dom);
+    			$fieldNodeList = $xpath->query("/*/*");
+    			$counter = 0;
+    			foreach ($fieldNodeList as $fieldNode) {
+    				$fieldAttList = $xpath->query("@*",$fieldNode);
+    				foreach ($fieldAttList as $fieldAtt) {
+    					$resultlist[$counter][$fieldAtt->nodeName] = trim($fieldAtt->nodeValue);
+    				}
+    				$counter++;
+    			}
+    			if ($GLOBALS['app_cache']) {
+    				if (!is_array($returns) || count($returns) > 10) { //make sure the static memory var doesnt grow too large and cause a fatal out of memory error
+    					$returns = array();
+    				}
+    				$returns[$pid] = $resultlist;
+    			}
+		    }
 			return $resultlist;
 		} else {
 			return array();
@@ -1253,62 +1267,67 @@ class Fedora_API {
 	function callGetDatastreamContents($pid, $dsID, $getraw = false, $filehandle = null) 
 	{
 		//$filehandle is a legacy arg left here to keep the API intact.
-	    $dsr = new DSResource(APP_DSTREE_PATH);
-		$dsMeta = $dsr->getDSRev($dsID, $pid);
-		
-		$dsExists = Fedora_API::datastreamExists($pid, $dsID);
-		if($dsExists)
+		if(APP_FEDORA_BYPASS == 'ON')
 		{
-		    if($dsMeta['mimetype'] != 'text/xml' || $getraw)
-		    {
-		        $return =  $dsr->getDSData($dsMeta['hash']);
-		    }
-		    else
-		    {
-		        $return = array(
-		            'date' => array($dsMeta['version']),
-		            'repInfo' => array($dsr->getDSData($dsMeta['hash'])),
-		            'uri' => array($dsr->createPath($dsMeta['hash']) . $dsMeta['hash'])
-		        );
-		    }
-		    
-		    return $return;
+    	    $dsr = new DSResource(APP_DSTREE_PATH);
+    		$dsMeta = $dsr->getDSRev($dsID, $pid);
+    		
+    		$dsExists = Fedora_API::datastreamExists($pid, $dsID);
+    		if($dsExists)
+    		{
+    		    if($dsMeta['mimetype'] != 'text/xml' || $getraw)
+    		    {
+    		        $return =  $dsr->getDSData($dsMeta['hash']);
+    		    }
+    		    else
+    		    {
+    		        $return = array(
+    		            'date' => array($dsMeta['version']),
+    		            'repInfo' => array($dsr->getDSData($dsMeta['hash'])),
+    		            'uri' => array($dsr->createPath($dsMeta['hash']) . $dsMeta['hash'])
+    		        );
+    		    }
+    		    
+    		    return $return;
+    		}
 		}
-		
-		/*$resultlist = array();
-		$dsExists = Fedora_API::datastreamExists($pid, $dsID);
-		if ($dsExists === true) {
-
-			$filename = APP_FEDORA_GET_URL."/".$pid."/".$dsID;
-
-			if($filehandle != null) {
-				$ret = Misc::processURL($filename, false, $filehandle);
-				return $ret;
-			} else {
-				list($blob,$info) = Misc::processURL($filename);
-			}
-				
-			// check if this is even XML, it might be binary, in which case we'll just return it.
-			if ($info['content_type'] != 'text/xml' || $getraw) {
-				return $blob;
-			}
-
-			// We've checked the mimetype is XML so lets parse it and make a simple array
-			if (!empty($blob) && $blob != false) {
-				$doc = DOMDocument::loadXML($blob);
-				$xpath = new DOMXPath($doc);*/
-				//$fieldNodeList = $xpath->query("/*/*");
-				/*foreach ($fieldNodeList as $fieldNode) {
-					$resultlist[$fieldNode->nodeName][] = trim($fieldNode->nodeValue);
-					// get attributes
-					$fieldAttList = $xpath->query("@*",$fieldNode);
-					foreach ($fieldAttList as $fieldAtt) {
-						$resultlist[$fieldAtt->nodeName][] = trim($fieldAtt->nodeValue);
-					}
-				}
-			}
+		else 
+		{
+    		$resultlist = array();
+    		$dsExists = Fedora_API::datastreamExists($pid, $dsID);
+    		if ($dsExists === true) {
+    
+    			$filename = APP_FEDORA_GET_URL."/".$pid."/".$dsID;
+    
+    			if($filehandle != null) {
+    				$ret = Misc::processURL($filename, false, $filehandle);
+    				return $ret;
+    			} else {
+    				list($blob,$info) = Misc::processURL($filename);
+    			}
+    				
+    			// check if this is even XML, it might be binary, in which case we'll just return it.
+    			if ($info['content_type'] != 'text/xml' || $getraw) {
+    				return $blob;
+    			}
+    
+    			// We've checked the mimetype is XML so lets parse it and make a simple array
+    			if (!empty($blob) && $blob != false) {
+    				$doc = DOMDocument::loadXML($blob);
+    				$xpath = new DOMXPath($doc);
+    				//$fieldNodeList = $xpath->query("/*/*");
+    				foreach ($fieldNodeList as $fieldNode) {
+    					$resultlist[$fieldNode->nodeName][] = trim($fieldNode->nodeValue);
+    					// get attributes
+    					$fieldAttList = $xpath->query("@*",$fieldNode);
+    					foreach ($fieldAttList as $fieldAtt) {
+    						$resultlist[$fieldAtt->nodeName][] = trim($fieldAtt->nodeValue);
+    					}
+    				}
+    			}
+    		}
+    		return $resultlist;
 		}
-		return $resultlist;*/
 	}
 
 	/**

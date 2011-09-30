@@ -103,65 +103,6 @@ if (!empty($pid)) {
     
  	$record = new RecordObject($pid, $requestedVersionDate);
 }
-
-//DBG##################################################
-
-/*$dbg_wfstatus = &WorkflowStatusStatic::getSession();
-
-$recordDbg = new RecordObject($pid, $requestedVersionDate);
-$recordDbg->getDisplay();
-
-$dbgarr01 = $recordDbg->display->getMatchFieldsList(array("FezACML"), array());
-
-$xsdmf_to_use = array();
-$xsdmf_state = array();
-
-foreach ($dbgarr01 as $xsdmf) {
-    
-	if(($xsdmf['xsdmf_html_input'] != '' && $xsdmf['xsdmf_enabled'] == 1)) {
-    	
-    	if($xsdmf['xsdmf_html_input'] != 'static' ) {
-    		
-            $xsdmf_to_use[] = $xsdmf;
-    		
-    	} elseif($xsdmf['xsdmf_html_input'] == 'static' 
-            	   && $xsdmf['xsdmf_show_in_view'] == 1
-            	   && $xsdmf['xsdmf_static_text'] != '') {
-            	   	
-            $xsdmf_to_use[] = $xsdmf;
-    	}
-    	
-    } elseif($xsdmf['xsdmf_title'] == 'state') {
-        $xsdmf_state[] = $xsdmf;
-    }
-    
-}
-
-$dbg_sta_id = $record->getPublishedStatus();
-$dbg_details = $record->getDetails();
-$dbg_xdis_id = $record->getXmlDisplayId();
-$dbg_current_user_id = Auth::getUserID();
-$dbg_internal_notes = InternalNotes::readNote($pid);
-
-$fauxPost = array(
-    'id' => 0,
-    'workflow_button_1136' => 'Save Changes',
-	'cat' => 'update_form',
-	'xdis_id' => $dbg_xdis_id,
-    'sta_id' => $dbg_sta_id,
-    'userfullname'  => Auth::getUserFullName(),
-    'state' => $xsdmf_state['xsdmf_static_text'],
-    'user_id' => $dbg_current_user_id,
-    'xsd_display_fields' => $dbg_details,
-    'internal_notes' => $dbg_internal_notes
-);
-
-$dbg = var_export($fauxPost,true);
-file_put_contents('/var/www/fez/tmp/fedoraOut.txt', "\n"
-    .__METHOD__." | ".__FILE__." | ".__LINE__." | ".date('y:m:d G:i:s')." >>>> "
-    .$dbg."\n", FILE_APPEND);*/
-
-//DBG###################################################
     
 if (!empty($pid) && $record->checkExists()) {
 
@@ -512,7 +453,7 @@ if (!empty($pid) && $record->checkExists()) {
         generateTimestamps($pid, $datastreams, $requestedVersionDate, $tpl);
 
         //Make this method call pull from the db.
-		if( $requestedVersionDate != null ){
+		if( $requestedVersionDate != null && APP_FEDORA_BYPASS != 'ON'){
 			$datastreams = Misc::addDeletedDatastreams($datastreams,$pid,$requestedVersionDate);
 		}
 
