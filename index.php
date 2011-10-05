@@ -35,7 +35,6 @@
 //
 
 require_once(dirname(__FILE__).DIRECTORY_SEPARATOR.'include/simplesaml/lib/_autoload.php');
-$a ='test';
 
 if (!is_file("config.inc.php")) {
     header("Location: setup/");
