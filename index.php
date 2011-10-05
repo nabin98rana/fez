@@ -35,6 +35,7 @@
 //
 
 require_once(dirname(__FILE__).DIRECTORY_SEPARATOR.'include/simplesaml/lib/_autoload.php');
+$a ='test';
 
 if (!is_file("config.inc.php")) {
     header("Location: setup/");
@@ -62,7 +63,7 @@ include_once(APP_INC_PATH . "najax_objects/class.suggestor.php");
 
 // Redirect if sent from an alias or IP as shibboleth and sessions won't like it otherwise
 if (($_SERVER['HTTP_HOST'] != APP_HOSTNAME) && (!is_numeric(APP_CUSTOM_VIEW_ID))) {
-	   header ("HTTP 302 Redirect");
+       header ("HTTP 302 Redirect");
        header ("Location: http://".APP_HOSTNAME);
 }
 
