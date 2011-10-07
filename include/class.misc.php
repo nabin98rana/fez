@@ -4018,7 +4018,18 @@ class Misc
     }
     return @$errs[$e];
   }
-
+  
+  function MySQLDate($dateArray)
+  {
+      $dteSql = array();
+      $dteSql[] = $dateArray['Year'];
+      $dteSql[] = (isset($dateArray['Month'])) ? str_pad($dateArray['Month'], 2, '0', STR_PAD_LEFT) : '00';
+      $dteSql[] = (isset($dateArray['Day'])) ? str_pad($dateArray['Day'], 2, '0', STR_PAD_LEFT) : '00';
+      $dteSql = implode('-', $dteSql) . ' 00:00:00';
+      
+      return $dteSql;
+  }
+  
   function MySQLTZ($s)
   {
     $tz = new Date_TimeZone($s);

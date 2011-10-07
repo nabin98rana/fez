@@ -58,16 +58,20 @@ if (empty($wfstatus)) {
     exit;
 }
 
+//Generate a version
+if(APP_FEDORA_BYPASS == 'ON')
+{
+    Zend_Registry::set('version', date('Y-m-d H:i:s'));    
+}
+
 // if we have uploaded files using the flash uploader, then generate $_FILES array entries for them
-if (isset($_POST['uploader_files_uploaded']))
+if (isset($_POST['uploader_files_uploaded']) && APP_FEDORA_BYPASS != 'ON')
 {
 	$tmpFilesArray = Uploader::generateFilesArray($wfstatus->id, $_POST['uploader_files_uploaded']);
 	if (count($tmpFilesArray)) {
 		$_FILES = $tmpFilesArray;
 	}
 }
-
-
 
 $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");

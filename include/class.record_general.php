@@ -2088,26 +2088,37 @@ file_put_contents('/var/www/fez/tmp/fedoraOut.txt', "\n"
   function setDisplayFields($xsdFields)
   {
       $db = DB_API::get();
+      $log = FezLog::get();
       $xsdmf_ids = array_keys($xsdFields);
       
       $sekFields = array();
       
-      $sql = "SELECT mf.xsdmf_id, TRIM(LOWER(REPLACE(sk.sek_title,\" \",\"_\"))) AS sek_title, "
-      . "sk.sek_relationship FROM fez_search_key sk, fez_xsd_display_matchfields mf WHERE sk.sek_id = "
-      . "mf.xsdmf_sek_id AND mf.xsdmf_id IN (?)";
+      try
+      {
+          $sql = "SELECT mf.xsdmf_id, TRIM(LOWER(REPLACE(sk.sek_title,\" \",\"_\"))) AS sek_title, "
+          . "sk.sek_relationship, sk.sek_cardinality FROM " . APP_TABLE_PREFIX . "search_key sk, " 
+          . APP_TABLE_PREFIX . "xsd_display_matchfields mf WHERE sk.sek_id = "
+          . "mf.xsdmf_sek_id AND mf.xsdmf_id IN (?)";
+          
+          $query = str_replace('?', substr(str_repeat('?, ', count($xsdmf_ids)), 0, -2), $sql);
+          
+          $stmt = $db->query($query, $xsdmf_ids);
+          $fields = $stmt->fetchAll();
+      }
+      catch(Exception $e)
+      {
+          $log->err($e->getMessage());
+      }
       
-      $query = str_replace('?', substr(str_repeat('?, ', count($xsdmf_ids)), 0, -2), $sql);
-      
-      $stmt = $db->query($query, $xsdmf_ids);
-      $fields = $stmt->fetchAll();
-      
-      /*$data = var_export($fields,true);
-      file_put_contents('/var/www/fez/tmp/fedoraOut.txt', "\n".__METHOD__." | ".__FILE__." | ".__LINE__." >>>> ".$data, FILE_APPEND);
-      */
       foreach($fields as $field)
       {
+          if(is_array($xsdFields[$field['xsdmf_id']]) && isset($xsdFields[$field['xsdmf_id']]['Year']))
+          {
+              $xsdFields[$field['xsdmf_id']] = Misc::MySQLDate($xsdFields[$field['xsdmf_id']]);
+          }
+          
           //1 - 1 relationship values should not have array values.
-          if($field['sek_relationship'] == '0' && is_array($xsdFields[$field['xsdmf_id']]))
+          if($field['sek_cardinality'] == '0' && is_array($xsdFields[$field['xsdmf_id']]))
           {
               $valueKeys = array_keys($xsdFields[$field['xsdmf_id']]); //Not all keys are numeric.
               $xsdFields[$field['xsdmf_id']] = $xsdFields[$field['xsdmf_id']][$valueKeys[0]];

@@ -85,9 +85,6 @@ class DigitalObject
      */
     public function save($objdata)
     {
-        //TODO A lot of this method can be gutted. It originally
-        //catered to populating a table with many more fields than there 
-        //are now.
         if(array_key_exists('pid', $objdata))
         {
             $this->pid = $objdata['pid'];

@@ -1,5 +1,5 @@
-var required_xsd_display_fields = new Array();
-var xsd_display_fields = new Array();
+var required_xsd_display_fields = new Array(); 
+var xsd_display_fields = new Array(); 
 var myDataSourceAuthor = new YAHOO.widget.DS_XHR(rel_url+"author_suggest_proxy.php", ["Result","name"]);
 
 // Instantiate first JS Array DataSource

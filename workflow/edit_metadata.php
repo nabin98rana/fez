@@ -61,41 +61,18 @@ if (empty($wfstatus)) {
     exit;
 }
 
+//Generate a version
+if(APP_FEDORA_BYPASS == 'ON')
+{
+    Zend_Registry::set('version', date('Y-m-d H:i:s'));    
+}
+
 // if we have uploaded files using the flash uploader, then generate $_FILES array entries for them
 if (isset($_POST['uploader_files_uploaded']) && APP_FEDORA_BYPASS != 'ON')
 {
 	$tmpFilesArray = Uploader::generateFilesArray($wfstatus->id, $_POST['uploader_files_uploaded']);
 	if (count($tmpFilesArray)) {
 		$_FILES = $tmpFilesArray;
-		
-		/*if(APP_FEDORA_BYPASS == 'ON')
-		{
-    		$resourceData = $_FILES['xsd_display_fields']['new_file_location'];
-        	$resourceDataKeys = array_keys($resourceData);
-        	
-        	$numFiles = count($resourceData[$resourceDataKeys[0]]);
-        	
-        	$filesData = $_FILES['xsd_display_fields']['size'];
-        	$filesDataKeys = array_keys($filesData);
-        	
-        	$mimeData = $_FILES['xsd_display_fields']['type'];
-        	$mimeDataKeys = array_keys($mimeData);
-        	
-        	for($i=0;$i<$numFiles;$i++)
-        	{
-            	$resourceDataLocation = $resourceData[$resourceDataKeys[0]][$i];
-            	$filesDataSize = $filesData[$filesDataKeys[0]][$i];
-            	$mimeDataType = $mimeData[$mimeDataKeys[0]][$i];
-            	
-            	$meta = array('mimetype' => $mimeDataType, 
-            		'controlgroup' => 'M', 
-            		'state' => 'A', 
-            	    'size' => $filesDataSize,
-            		'pid' => $_POST['pid']);
-            	$dsr = new DSResource(APP_DSTREE_PATH, $resourceDataLocation, $meta);
-            	$dsr->save();
-        	}
-		}*/
 	}
 }
 

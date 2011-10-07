@@ -1131,7 +1131,7 @@ class Record
           !empty($sek_value['xsdmf_value']) && !is_null($sek_value['xsdmf_value']) 
           && ($sekValTest != "NULL")
       ) {
-
+          
         // Added this notEmpty check to look for empty arrays.  Stops fez from writing empty keyword 
         // values to fez_record_search_key_keywords table.  -  heaphey
         $notEmpty = 1;  // start assuming that value is not empty
@@ -1151,7 +1151,7 @@ class Record
             $log->err(
                 "The cardinality of this value is 1-1 but it is in the 1-M data and contains multiple ".
                 "values. We cannot insert/update pid {$pid} for the {$sek_table} table with data: " . 
-                print_r($sek_value, true)
+                var_export($sek_value, true)
             );
             $ret = false;
             continue;

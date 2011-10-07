@@ -142,7 +142,8 @@ class RecordObject extends RecordGeneral
 		if(APP_FEDORA_BYPASS == 'ON')
 		{
 		    $digObj = new DigitalObject();
-		    $now = date('Y-m-d H:i:s');
+		    //$now = date('Y-m-d H:i:s');
+		    $now = Zend_Registry::get('version');
     		
     		$xsd_display_fields = RecordGeneral::setDisplayFields($_POST['xsd_display_fields']);
     		
@@ -179,22 +180,32 @@ class RecordObject extends RecordGeneral
     		*/
     		
     		//Publish date in MySQL format
-    		$xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Date'), $xdis_str);
-    		$dte = $_POST['xsd_display_fields'][$xsdmf_id[0]];
-    		$dteSql = array();
+    		/*$xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Date'), $xdis_str);
+    		$dte = $_POST['xsd_display_fields'][$xsdmf_id[0]];*/
+    		/*$dteSql = array();
     		$dteSql[] = $dte['Year'];
     		$dteSql[] = (isset($dte['Month'])) ? str_pad($dte['Month'], 2, '0', STR_PAD_LEFT) : '00';
             $dteSql[] = (isset($dte['Day'])) ? str_pad($dte['Day'], 2, '0', STR_PAD_LEFT) : '00';
-            $dteSql = implode('-', $dteSql) . ' 00:00:00';
-    		$xsd_display_fields[0]['date'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $dteSql);
+            $dteSql = implode('-', $dteSql) . ' 00:00:00';*/
+    		/*$dteSql = Misc::MySQLDate($dte);
+    		$xsd_display_fields[0]['date'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $dteSql);*/
+    		
+    		/*$xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Collection Year'), $xdis_str);
+    		$dte = $_POST['xsd_display_fields'][$xsdmf_id[0]];
+    		$dteSql = Misc::MySQLDate($dte);
+    		$xsd_display_fields[1]['collection_year'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $dteSql);
+    		
+    		$xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Date Available'), $xdis_str);
+    		$dte = $_POST['xsd_display_fields'][$xsdmf_id[0]];
+    		$dteSql = Misc::MySQLDate($dte);
+    		$xsd_display_fields[1]['date_available'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $dteSql);*/
     		
     		$digObjData = array(
     		    'xdis_id' => $_POST['xdis_id'],
-                'sta_id' => $_POST['sta_id'],
+                /*'sta_id' => $_POST['sta_id'],
                 'usr_id' => $_POST['user_id'],
-    		    'depositor' => $_POST['user_id']
+    		    'depositor' => $_POST['user_id']*/
     		);
-    		//$digObjData = array();
     		
     		$this->xdis_id = $_POST['xdis_id'];
     		
@@ -210,8 +221,14 @@ class RecordObject extends RecordGeneral
     		if (isset($_POST['uploader_files_uploaded']))
             {
             	$wfstatus = &WorkflowStatusStatic::getSession();
-                $tmpFilesArray = Uploader::generateFilesArray($wfstatus->id, 
-                                            $_POST['uploader_files_uploaded']);
+            	
+            	/*This condition required to stop additional ephemera 
+            	 in the tmp upload dir being attached to the pid*/
+            	if(!isset($tmpFilesArray))
+            	{
+                    $tmpFilesArray = Uploader::generateFilesArray($wfstatus->id, 
+                                                $_POST['uploader_files_uploaded']);
+            	}
                 
             	if (count($tmpFilesArray)) {
             	    
@@ -239,18 +256,19 @@ class RecordObject extends RecordGeneral
                     		'state' => 'A', 
                     	    'size' => $filesDataSize,
                     		'updateTS' => $now,
-                    		'pid' => Fez_Validate::run('Fez_Validate_Pid', $_POST['pid']));
+                    		'pid' => $this->pid);
                     	$dsr = new DSResource(APP_DSTREE_PATH, $resourceDataLocation, $meta);
                     	$dsr->save();
             		}
             	}
             }
             
+            Record::removeIndexRecord($this->pid, false);
     		Record::updateSearchKeys($this->pid, $xsd_display_fields, false, $now); //into the non-shadow tables
     		Record::updateSearchKeys($this->pid, $xsd_display_fields, true, $now); //into the shadow tables
     		
     		//Mark any files required for deletion.
-    		if(isset($_POST['removeFiles']))
+    		/*if(isset($_POST['removeFiles']))
     		{
     		    $dresource = new DSResource();
     		    
@@ -259,7 +277,7 @@ class RecordObject extends RecordGeneral
     		        $dresource->load($removeFile, $this->pid);
     		        $dresource->dereference();
     		    }
-    		}
+    		}*/
     		
 		    //If any files are being uploaded or changed, take a snapshot.
     		if (isset($_POST['removeFiles']) || isset($_POST['editedFilenames']) 

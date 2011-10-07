@@ -303,40 +303,37 @@ class DSResource
      */
     protected function storeDSReference()
     {
-        //$this->db->beginTransaction();
+        $now = Zend_Registry::get('version');
         
         try
         {
             //does a record with this file name and hash already exist?
             $sql = "SELECT hash FROM " . APP_TABLE_PREFIX . "file_attachments "
-                ."WHERE hash = :dshash AND filename = :dsfilename AND pid = :pid";
-            $stmt = $this->db->query($sql, array(':dshash' => $this->hash['rawHash'], 
-            	':dsfilename' => $this->hash['hashFile'],
+                . "WHERE hash = :dshash AND pid = :pid "
+                . "AND version = :version";
+            
+            $stmt = $this->db->query($sql, array(
+            	':dshash' => $this->hash['rawHash'], 
+                ':version' => $now,
                 ':pid' => $this->meta['pid']));
             $row = $stmt->fetch();
             
             if(!$row)
             {
-                //$metaid = $this->storeDSMeta($this->meta);
-                
-                $now = (isset($this->meta['updateTS'])) ? $this->meta['updateTS'] : date('Y-m-d H:i:s');
-                
                 $sql = "INSERT INTO " . APP_TABLE_PREFIX . "file_attachments "
                     ."(hash, filename, version, pid, size, mimetype) VALUES "
                     ."(:dshash, :dsfilename, :version, :pid, :size, :mimetype)";
+                    
                 $this->db->query($sql, array(':dshash' => $this->hash['rawHash'], 
                 	':dsfilename' => $this->hash['hashFile'],
                     ':size' => $this->meta['size'],
                     ':version' => $now,
                     ':mimetype' => $this->meta['mimetype'],
                     ':pid' => $this->meta['pid']));
-                
-                //$this->db->commit();
             }
         }
         catch(Exception $e)
         {
-            //$this->db->rollBack();
             $this->log->err($e->getMessage());
         }
     }
