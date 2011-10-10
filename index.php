@@ -62,7 +62,7 @@ include_once(APP_INC_PATH . "najax_objects/class.suggestor.php");
 
 // Redirect if sent from an alias or IP as shibboleth and sessions won't like it otherwise
 if (($_SERVER['HTTP_HOST'] != APP_HOSTNAME) && (!is_numeric(APP_CUSTOM_VIEW_ID))) {
-	   header ("HTTP 302 Redirect");
+       header ("HTTP 302 Redirect");
        header ("Location: http://".APP_HOSTNAME);
 }
 
