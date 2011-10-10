@@ -723,7 +723,7 @@ class ResearcherID
     if (Fedora_API::objectExists($collection)) {
       $aut = @preg_split('/:/', $record->{'accession-num'});
       // Download from WOS collection only
-      if (count($aut) > 1 && $aut[0] == 'WOS') {
+      if (count($aut) > 1 && ($aut[0] == 'WOS' || $aut[0] == 'ISI')) {
         $ut = $aut[1];
         WokQueue::get()->add($ut, $author_id);
       }
