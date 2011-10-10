@@ -193,14 +193,14 @@ class Community
 		return $returnList;
 	}
 
-	/**
-	 * Method used to get an associative array of community ID and title
-	 * of all communities available in the system.
-	 *
-	 * @access  public
-	 * @param   integer $usr_id The user ID
-	 * @return  array The list of collections
-	 */
+    /**
+     * Method used to get an associative array of community ID and title
+     * of all communities available in the system.
+     *
+     * @access  public
+     * @internal param int $usr_id The user ID
+     * @return  array The list of collections
+     */
 	function getAssocList()
 	{
 		$options = array();
