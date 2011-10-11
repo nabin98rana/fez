@@ -697,45 +697,38 @@ class Fedora_API {
 
 
 		} elseif ($xmlContent != "") {
-			$ch = curl_init($getString);
- 		 	curl_setopt($ch, CURLOPT_POST, 1);
-			if ($controlGroup == 'X') {
-				$xmlContent = Fedora_API::tidyXML($xmlContent);
-				$tempFile = APP_TEMP_DIR.str_replace(":", "_", $pid)."_".$dsID.".xml";			
-			} else {
-				$tempFile = APP_TEMP_DIR.$dsID;
-			}
-			$fp = fopen($tempFile, "w");
-			if (fwrite($fp, $xmlContent) === FALSE) {
-			        echo "Cannot write to file ($tempFile)";
-			        exit;
-			}
-			fclose($fp);
-			curl_setopt($ch, CURLOPT_POSTFIELDS, array("file[]" => "@".$tempFile.";type=".$mimetype, 
-											"dsLabel" => urlencode($dsLabel),
-											"versionable" => $versionable,
-											"mimeType" => $mimeType,
-											"controlGroup" => $controlGroup,
-											"dsState" => "A",
-											"logMessage" => "Added Datastream"
-											));
+		    
+		    
+		    if(APP_FEDORA_BYPASS != 'ON')
+		    {
+    			$ch = curl_init($getString);
+     		 	curl_setopt($ch, CURLOPT_POST, 1);
+    			if ($controlGroup == 'X') {
+    				$xmlContent = Fedora_API::tidyXML($xmlContent);
+    				$tempFile = APP_TEMP_DIR.str_replace(":", "_", $pid)."_".$dsID.".xml";			
+    			} else {
+    				$tempFile = APP_TEMP_DIR.$dsID;
+    			}
+    			$fp = fopen($tempFile, "w");
+    			if (fwrite($fp, $xmlContent) === FALSE) {
+    			        echo "Cannot write to file ($tempFile)";
+    			        exit;
+    			}
+    			fclose($fp);
+    			curl_setopt($ch, CURLOPT_POSTFIELDS, array("file[]" => "@".$tempFile.";type=".$mimetype, 
+    											"dsLabel" => urlencode($dsLabel),
+    											"versionable" => $versionable,
+    											"mimeType" => $mimeType,
+    											"controlGroup" => $controlGroup,
+    											"dsState" => "A",
+    											"logMessage" => "Added Datastream"
+    											));
+		    }
 
 		} elseif ($dsLocation != "" && $controlGroup == "M") {
 		    
-		    /*$filesData = $_FILES['xsd_display_fields']['size'];
-		    $filesDataKeys = array_keys($filesData);
-		    $filesDataSize = $filesData[$filesDataKeys[0]][0];
-		    $meta = array('mimetype' => $mimeType, 
-		    	'controlgroup' => $controlGroup, 
-		    	'state' => 'A', 
-		        'size' => $filesDataSize,
-		    	'pid' => $pid);
-		    $dsr = new DSResource(APP_DSTREE_PATH, $dsLocation, $meta);
-		    $dsr->save();*/
-		    
-		    //Fedora stuff below here. Remove.
 			$ch = curl_init($getString);
-	 		 curl_setopt($ch, CURLOPT_POST, 1);
+	 		curl_setopt($ch, CURLOPT_POST, 1);
 			curl_setopt($ch, CURLOPT_POSTFIELDS, array("file_name" => "@".$dsLocation.";type=".$mimetype, 
 														"dsLabel" => urlencode($dsLabel),
 														"versionable" => $versionable,
