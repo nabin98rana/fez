@@ -198,6 +198,7 @@ function checkDelete(f)
     <tr style="background: {$cell_color};" class="tableheader">
         <th><input type="button" value="All" onclick="javascript:toggleSelectAll(this.form,'items[]');" class="button" /></th>
         <th class="default">Started</th>
+        <th class="default">User</th>
         <th class="default">Name</th>
         <th class="default">Progress</th>
         <th class="default">Message</th>
@@ -210,6 +211,7 @@ function checkDelete(f)
     <tr>
         <td class="default"><input type="checkbox" name="items[]" value="{$bgp_list[iii].bgp_id}"/></td>
         <td class="default" id="{$bgp_list[iii].bgp_id}_started">{$bgp_list[iii].bgp_started}</td>
+        <td class="default" id="{$bgp_list[iii].bgp_id}_user">{$bgp_list[iii].bgp_usr_id} - {$bgp_list[iii].usr_username} <br />{$bgp_list[iii].usr_full_name}</td>
         <td class="default" id="{$bgp_list[iii].bgp_id}_name">{$bgp_list[iii].bgp_name}</td>
         <td class="default" id="{$bgp_list[iii].bgp_id}_progress">{$bgp_list[iii].bgp_progress}</td>
         <td class="default" id="{$bgp_list[iii].bgp_id}_status_message">{$bgp_list[iii].bgp_status_message}</td>

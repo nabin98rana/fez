@@ -54,15 +54,17 @@ class BackgroundProcessList
 		}
 		$utc_date = Date_API::getSimpleDateUTC();
 		$dbtp =  APP_TABLE_PREFIX;
-		$stmt = "SELECT bgp_id, bgp_usr_id, bgp_status_message, bgp_progress, bgp_state, bgp_heartbeat,bgp_name,bgp_started,";
+		$stmt = "SELECT bgp_id, bgp_usr_id, bgp_status_message, bgp_progress, bgp_state, bgp_heartbeat, bgp_name, bgp_started,";
+		$stmt .= " usr.usr_full_name, usr.usr_username,";
 		if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) { //eg if postgresql etc
 			$stmt .= " CASE WHEN  (bgp_heartbeat <  (TIMESTAMP '".$utc_date."' - INTERVAL '1 days')) THEN 1 ELSE 0 END AS is_old ";
 		} else {
-      $stmt .= " if (bgp_heartbeat < DATE_SUB('".$utc_date."',INTERVAL 1 DAY), 1, 0) as is_old ";
+			$stmt .= " if (bgp_heartbeat < DATE_SUB('".$utc_date."',INTERVAL 1 DAY), 1, 0) as is_old ";
 		}
 		
 			$stmt .= "
             FROM ".$dbtp."background_process
+            LEFT JOIN ". $dbtp ."user AS usr ON bgp_usr_id = usr.usr_id
             WHERE bgp_usr_id=".$db->quote($usr_id)." ".$extra_sql."
             ORDER BY bgp_started";
 		try {
