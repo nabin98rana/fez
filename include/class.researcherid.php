@@ -683,14 +683,19 @@ class ResearcherID
       $researcherid = (string)$rp->researcherID;
       $author_id = null;
       $author_id = Author::getIDByResearcherID($researcherid);
+
+      // Clear the temp password.
+      // An attempt to download (regardless of the number of records downloaded)
+      // indicates that the researcher has logged in to ResearcherID and completed the registration process,
+      // which requires the temp password be changed.
+      if ($author_id != null) {
+        Author::setRIDPassword($researcherid, '');
+      }
+
       if ($rp->records->count() > 0 && $author_id != null) {
         foreach ($rp->records->record as $record) {
           ResearcherID::addPublication($record, $author_id, $researcherid);
         }
-        // Finally clear the temp password - a successful download indicates the researcher has
-        // logged in to ResearcherID and completed the registration process, which requires the
-        // temp password be changed
-        Author::setRIDPassword($researcherid, '');
       } else {
         $aut_details = Author::getDetails($author_id);
 //        $message = "FOUND no records for this RID download for ".$aut_details['aut_display_name']." with author id $author_id with Researcher ID ".$aut_details['aut_display_name']." <br />\n".print_r($publications,true);
