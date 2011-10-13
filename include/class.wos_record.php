@@ -539,7 +539,8 @@ class WosRecItem
 
     if (count($this->author_ids) > 0) {
       $aut_details = Author::getDetails($this->author_ids[0]);
-      $history .= " via Researcher ID download of ".$aut_details['aut_display_name']." (".$aut_details['aut_researcher_id']." - ".$aut_details['aut_id'].")";
+      $history .= " via Researcher ID download of ".$aut_details['aut_display_name']." (".
+                   $aut_details['aut_researcher_id']." - ".$aut_details['aut_id']." - ".$aut_details['aut_org_username'].")";
     }
     // MODS
       
