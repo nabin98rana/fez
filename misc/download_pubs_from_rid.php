@@ -35,7 +35,7 @@ include_once(APP_INC_PATH . "class.db_api.php");
 include_once(APP_INC_PATH . "class.author.php");
 include_once(APP_INC_PATH . "class.researcherid.php");
 
-$authors = Author::getAllWithResearcherId();
+$authors = Author::getAllCurrentStaffWithResearcherId();
 // Split into array chunks so we can send each chunk
 // as a single RID service call
 $rids_chunked = array_chunk($authors, 100);

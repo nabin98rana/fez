@@ -1036,7 +1036,44 @@ class Author
     
     return $res;
   }
-  
+
+    /**
+   * Method used to get an associative array of author ID and ResearcherID
+   * of all authors with a ResearcherID who are current staff
+   *
+   * @access  public
+   * @return  array The list of authors
+   */
+  function getAllCurrentStaffWithResearcherId()
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $stmt = "SELECT
+                    aut_id,
+                    aut_researcher_id
+                 FROM
+                    fez_author
+                 INNER JOIN hr_position_vw ON USER_NAME = aut_org_username
+                 WHERE
+                    (DT_TO >= NOW() OR DT_TO = '0000-00-00')
+                    AND aut_researcher_id IS NOT NULL
+                    AND aut_researcher_id != ''
+                    AND aut_researcher_id NOT LIKE 'ERR:%'
+                    AND aut_researcher_id != '-1'
+                    GROUP BY aut_id, aut_researcher_id";
+    try {
+      $res = $db->fetchPairs($stmt);
+    }
+    catch(Exception $ex) {
+      $log->err($ex);
+      return '';
+    }
+
+    return $res;
+  }
+
+
 /**
    * Method used to get an associative array of author ID and title
    * of all authors available in the system.
