@@ -268,7 +268,7 @@ class RecordObject extends RecordGeneral
     		Record::updateSearchKeys($this->pid, $xsd_display_fields, true, $now); //into the shadow tables
     		
     		//Mark any files required for deletion.
-    		/*if(isset($_POST['removeFiles']))
+    		if(isset($_POST['removeFiles']))
     		{
     		    $dresource = new DSResource();
     		    
@@ -277,7 +277,7 @@ class RecordObject extends RecordGeneral
     		        $dresource->load($removeFile, $this->pid);
     		        $dresource->dereference();
     		    }
-    		}*/
+    		}
     		
 		    //If any files are being uploaded or changed, take a snapshot.
     		if (isset($_POST['removeFiles']) || isset($_POST['editedFilenames']) 

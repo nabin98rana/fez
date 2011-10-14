@@ -1,28 +1,5 @@
 <?php
 
-/*
-
-The part of the array produced by Record::updateSearchKeys 
-looks like this:
-
-'file_attachment_name' => 
-    array (
-      'xsdmf_id' => 6166,
-      'xsdmf_value' => 
-      array (
-        0 => 'Arianrhod_Chapte.pdf',
-        1 => 'cmtest1.pdf',
-        2 => 'presmd_Arianrhod_Chapte.xml',
-        3 => 'presmd_cmtest1.xml',
-      ),
-    )
-    
-When we instatiate a DSResource for each of the files
-this will be the file name data used to make hashes 
-for the CAS, etc.
-
- */
-
 class DigitalObject
 {
     /**
@@ -240,10 +217,11 @@ class DigitalObject
         {
             try 
             {
-                $sql = "INSERT INTO fez_file_attachments__shadow "
+                $sql = "INSERT INTO " . APP_TABLE_PREFIX . "file_attachments__shadow "
                         . "(hash, filename, version, state, size, pid, mimetype, controlgroup) "
                         . "SELECT hash, filename, :now AS version, state, size, pid, mimetype, " 
-                        . "controlgroup FROM fez_file_attachments WHERE pid = :pid";
+                        . "controlgroup FROM " . APP_TABLE_PREFIX 
+                        . "file_attachments WHERE pid = :pid";
                         
                 $this->db->query($sql, array(':now' => $timestamp, 
                 						':pid' => $this->pidData['pid']));
@@ -282,31 +260,11 @@ class DigitalObject
             $dsFormatted['size'] = $dsRev['size'];
             $dsFormatted['state'] = $dsRev['state'];
             $dsFormatted['location'] = '';
-            //$dsFormatted['checksumType'] = $datastream['controlgroup'];
-            //$dsFormatted['checksum'] = $datastream['controlgroup'];
-            //$dsFormatted['altIDs'] = $datastream['controlgroup'];
             
             $datastreams[] = $dsFormatted;
         }
         
         return $datastreams;
-        //$data = var_export($datastreams,true);
-        //file_put_contents('/var/www/fez/tmp/fedoraOut.txt', "\n".__METHOD__." | ".__FILE__." | ".__LINE__." >>>> ".$data, FILE_APPEND);
-        
-        //$parms=array('pid' => $pid, 'asOfDateTime' => $createdDT, 'dsState' => $dsState);
-        /*$this->load($params['pid']);
-        
-        $sql = "SELECT fm.mimetype as MIMEType, fm.controlgroup as controlGroup, fa.size, fm.state, "
-        . "fa.filename as ID, MAX(fa.version) as versionID, MAX(fa.version) as createDate "
-        . "FROM " . APP_TABLE_PREFIX . "file_meta fm, " . APP_TABLE_PREFIX . "file_attachments fa "
-        . "WHERE fm.id = fa.metaid AND fm.pid = :pid GROUP BY filename";
-        $stmt = $this->db->query($sql, array(':pid' => $params['pid']));
-        
-        //return $stmt->fetchAll();
-        $out = $stmt->fetchAll();
-        $data = var_export($out,true);
-        file_put_contents('/var/www/fez/tmp/fedoraOut.txt', "\n".__METHOD__." | ".__FILE__." | ".__LINE__." >>>> ".$data, FILE_APPEND);
-        return $out;*/
     }
     
     /**

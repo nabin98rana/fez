@@ -42,7 +42,7 @@ class DSResource
     
     /**
      * The database object.
-     * @var Zend_Db
+     * @var <Zend_Db>
      */
     private $db;
     
@@ -155,8 +155,9 @@ class DSResource
      * Check if the resource already exists in the CAS
      * @param <string> $hash
      */
-    public function resourceExists($hash)
+    public function resourceExists($hash=null)
     {
+        $hash = ($hash) ? $hash : $this->hash['rawHash'];
         $resource = $this->dsTreePath . $this->createPath($hash) . $hash;
         
         try 
@@ -290,12 +291,21 @@ class DSResource
      */
     public function getDSData($hash)
     {
-        $dsPath = $this->dsTreePath . $this->createPath($hash) . $hash;
+        $dsPath = $this->getResourcePath($hash);
         if(is_file($dsPath))
         {
             $fileData = file_get_contents($dsPath);
             return $fileData;
         }
+    }
+    
+    /**
+     * Create a path to the resource in the CAS
+     * @param <string> $hash
+     */
+    public function getResourcePath($hash)
+    {
+        return $this->dsTreePath . $this->createPath($hash) . $hash;
     }
     
     /**

@@ -111,11 +111,17 @@ $tpl->assign('xdis_list', $xdis_list);
 if (($pid != -1) && (!empty($pid) || $pid == -2)) {
     
 	$tpl->assign("pid", $pid);
+	
+	$dbg = (Fedora_API::objectExists($pid) == $pid);
+	
+	$obExists = (APP_FEDORA_BYPASS == 'ON') 
+	        ? (Fedora_API::objectExists($pid) == $pid) 
+	        : (Fedora_API::objectExists($pid) == 1);
     
     /*
      * If this is a proper pid ie. demo:1232 make sure it exists
      */
-    if($pid != -1 && $pid != -2 && Fedora_API::objectExists($pid) == 1) {
+    if($pid != -1 && $pid != -2 && $obExists) {
 	    
     	$record = new RecordObject($pid);
 	    
