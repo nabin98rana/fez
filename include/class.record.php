@@ -2017,8 +2017,9 @@ class Record
       $facet_mincount = APP_SOLR_FACET_MINCOUNT, $getAuthorMatching = false
   )
   {
-    $log = FezLog::get();
     
+    $log = FezLog::get();
+
     // paging preparation
     if ($page_rows == "ALL") {
       $page_rows = 9999999;
@@ -2027,9 +2028,8 @@ class Record
     // make sure the sort by is setup well
     if (!is_numeric(strpos($sort_by, "searchKey"))) {
       $sort_by_id = Search_Key::getID($sort_by);
-      if ($sort_by_id != "") {
-        $sort_by = "searchKey".$sort_by_id;
-      } else {
+      $cardinality = Search_Key::getCardinality($sort_by);
+      if (($sort_by_id != "") && ($cardinality != '1') ) {
         $sort_by_id = Search_Key::getID("Title");
         $sort_by = "searchKey".$sort_by_id;
       }
