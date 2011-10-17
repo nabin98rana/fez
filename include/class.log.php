@@ -182,10 +182,13 @@ class FezLog
     	
     	switch($type) {
     		case 'file':
-    			if(is_object($message) && is_subclass_of($message, 'Exception'))
+    			if(is_object($message) && is_subclass_of($message, 'Exception')) {
     				return print_r($user_message, true) . print_r(array('Exception Message' => $message->getMessage()), true) . print_r($message->getTrace(), true);
-    			else
-    				return print_r($user_message, true) . print_r($message, true);
+                } elseif (APP_LOG_LEVEL == '3') { //if highest level of logging then include the full backtrace
+    				return print_r($user_message, true) . print_r($message, true) . print_r(debug_backtrace(false), true);
+                } else {
+                    return print_r($user_message, true) . print_r($message, true);
+                }
     		case 'firebug':    			
     			return $this->_stopwatch->elapsed().' '.print_r($message, true);
     		default:
