@@ -143,6 +143,12 @@ class RecordObject extends RecordGeneral
 		{
 		    $digObj = new DigitalObject();
 		    //$now = date('Y-m-d H:i:s');
+		    
+		    if(!Zend_Registry::isRegistered('version'))
+		    {
+		        Zend_Registry::set('version', date('Y-m-d H:i:s'));
+		    }
+		    
 		    $now = Zend_Registry::get('version');
     		
     		$xsd_display_fields = RecordGeneral::setDisplayFields($_POST['xsd_display_fields']);
@@ -172,39 +178,8 @@ class RecordObject extends RecordGeneral
     		$xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Object Type'), $xdis_str);
     		$xsd_display_fields[0]['object_type'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $xdis_details['xdis_object_type']);
     		
-    		/*$xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Genre'), $xdis_str);
-    		$xsd_display_fields[0]['genre'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $_POST['xsd_display_fields'][$xsdmf_id[0]]);
-    		
-    		$xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Genre Type'), $xdis_str);
-    		$xsd_display_fields[0]['genre_type'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $_POST['xsd_display_fields'][$xsdmf_id[0]]);
-    		*/
-    		
-    		//Publish date in MySQL format
-    		/*$xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Date'), $xdis_str);
-    		$dte = $_POST['xsd_display_fields'][$xsdmf_id[0]];*/
-    		/*$dteSql = array();
-    		$dteSql[] = $dte['Year'];
-    		$dteSql[] = (isset($dte['Month'])) ? str_pad($dte['Month'], 2, '0', STR_PAD_LEFT) : '00';
-            $dteSql[] = (isset($dte['Day'])) ? str_pad($dte['Day'], 2, '0', STR_PAD_LEFT) : '00';
-            $dteSql = implode('-', $dteSql) . ' 00:00:00';*/
-    		/*$dteSql = Misc::MySQLDate($dte);
-    		$xsd_display_fields[0]['date'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $dteSql);*/
-    		
-    		/*$xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Collection Year'), $xdis_str);
-    		$dte = $_POST['xsd_display_fields'][$xsdmf_id[0]];
-    		$dteSql = Misc::MySQLDate($dte);
-    		$xsd_display_fields[1]['collection_year'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $dteSql);
-    		
-    		$xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Date Available'), $xdis_str);
-    		$dte = $_POST['xsd_display_fields'][$xsdmf_id[0]];
-    		$dteSql = Misc::MySQLDate($dte);
-    		$xsd_display_fields[1]['date_available'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $dteSql);*/
-    		
     		$digObjData = array(
-    		    'xdis_id' => $_POST['xdis_id'],
-                /*'sta_id' => $_POST['sta_id'],
-                'usr_id' => $_POST['user_id'],
-    		    'depositor' => $_POST['user_id']*/
+    		    /*'xdis_id' => $_POST['xdis_id']*/
     		);
     		
     		$this->xdis_id = $_POST['xdis_id'];
