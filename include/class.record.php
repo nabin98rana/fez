@@ -2025,14 +2025,15 @@ class Record
       $page_rows = 9999999;
     }
 
-    // make sure the sort by is setup well
+      // make sure the sort by is setup well
     if (!is_numeric(strpos($sort_by, "searchKey"))) {
-      $sort_by_id = Search_Key::getID($sort_by);
-      $cardinality = Search_Key::getCardinality($sort_by);
-      if (($sort_by_id != "") && ($cardinality != '1') ) {
-        $sort_by_id = Search_Key::getID("Title");
-        $sort_by = "searchKey".$sort_by_id;
-      }
+        $cardinality = Search_Key::getCardinality($sort_by);
+        if (($sort_by_id != "") && ($cardinality != '1') ) {
+  		    $sort_by_id = Search_Key::getID($sort_by);
+        } else {
+            $sort_by_id = Search_Key::getID("Title");
+        }
+  	    $sort_by = "searchKey".$sort_by_id;
     }
 
     $start = $current_page * $page_rows;
@@ -5126,35 +5127,32 @@ function getSpeculativeHERDCcode($pid)
 
 
 
-/**
- * Find out what the ERA status of a given PID was in IntERAct. Warning: This function makes
- * use of a custom table - do not call it unless you have the table in your installation.
- */
-function getIntERActStatus($pid)
-{
-  $log = FezLog::get();
-  $db = DB_API::get();
-  
-  $stmt = "
-          SELECT status
-          FROM __temp_lk_interact_status
-          WHERE pid = " . $db->quote($pid) . ";";
-  try {
-    $res = $db->fetchOne($stmt);
-  } catch(Exception $ex) {
-    $log->err($ex);
-    return false;
-  }
-  
-  if (!$res) {
-    return null;
-  }
-  return $res;
+    /**
+     * Find out what the ERA status of a given PID was in IntERAct. Warning: This function makes
+     * use of a custom table - do not call it unless you have the table in your installation.
+     */
+    function getIntERActStatus($pid)
+    {
+      $log = FezLog::get();
+      $db = DB_API::get();
+
+      $stmt = "
+              SELECT status
+              FROM __temp_lk_interact_status
+              WHERE pid = " . $db->quote($pid) . ";";
+      try {
+        $res = $db->fetchOne($stmt);
+      } catch(Exception $ex) {
+        $log->err($ex);
+        return false;
+      }
+
+      if (!$res) {
+        return null;
+      }
+      return $res;
+    }
 }
-
-}
-
-
 
 function addHandle($pid)
 {
