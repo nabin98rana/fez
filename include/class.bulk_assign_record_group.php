@@ -50,14 +50,27 @@ class Bulk_Assign_Record_Group {
 		$bgp->register(serialize(compact('pids', 'assign_grp_id', 'regen')), Auth::getUserID());
 	}
 
-	function assignGroupBGP($pid, $assign_grp_id, $regen=false,$topcall=true)
+	function assignGroupBGP($pid, $assign_grp_id, $regen=false,$topcall=true, $eta_cfg=null, $record_counter=0, $record_count=0)
 	{
 		$this->regen = $regen;
 		$this->bgp->setHeartbeat();
 		$this->bgp->setProgress(++$this->pid_count);
 		$dbtp =  APP_TABLE_PREFIX;
+
+
+        // Get the ETA calculations
+        $eta = $this->bgp->getETA($record_counter, $record_count, $eta_cfg);
+
+        $this->bgp->setProgress($eta['progress']);
+        $this->bgp->setStatus( "Assigning:  '" . $pid . "' " .
+                                  "(" . $record_counter . "/" . $record_count . ") <br />".
+                                  "(Avg " . $eta['time_per_object'] . "s per Object. " .
+                                    "Expected Finish " . $eta['expected_finish'] . ")"
+                                );
+
 		$record = new RecordObject($pid);
 		$record->updateFezMD_Group("grp_id", $assign_grp_id);
+
 		History::addHistory($pid, null, "", "", true, "Assigned Record to Group ".Group::getName($assign_grp_id)." (".$assign_grp_id.")");
 		$this->bgp->setStatus("Finished Bulk Assign Record to Group ".Group::getName($assign_grp_id)."(".$assign_grp_id.") for ".$record->getTitle());
 	}

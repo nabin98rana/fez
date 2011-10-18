@@ -59,11 +59,31 @@ class BackgroundProcess_Bulk_Copy_Record_Collection extends BackgroundProcess
 		 */
 		if (!empty($pids) && is_array($pids)) {
 
-			$this->setStatus("Copying ".count($pids)." Records to ".$collection_pid);
+			$this->setStatus("Copying ".count($pids)." Records to Collection ". $collection_pid);
+
+            $record_counter = 0;
+            $record_count = count($pids);
+
+            // Get the configurations for ETA calculation
+            $eta_cfg = $this->getETAConfig();
 
 			foreach ($pids as $pid) {
+                $record_counter++;
 
-				$this->setHeartbeat();
+                $this->setHeartbeat();
+                $this->setProgress(++$this->pid_count);
+
+                // Get the ETA calculations
+                $eta = $this->getETA($record_counter, $record_count, $eta_cfg);
+
+                $this->setProgress($eta['progress']);
+                $this->setStatus( "Copying:  '" . $pid . "' " .
+                                          "(" . $record_counter . "/" . $record_count . ") <br />".
+                                          "(Avg " . $eta['time_per_object'] . "s per Object. " .
+                                            "Expected Finish " . $eta['expected_finish'] . ")"
+                                        );
+
+
 				$record = new RecordObject($pid);
 
 				if ($record->canEdit()) {
@@ -85,21 +105,21 @@ class BackgroundProcess_Bulk_Copy_Record_Collection extends BackgroundProcess
 						$res = $record->updateRELSEXT("rel:isMemberOf", $collection_pid, false);
 							
 						if ($res >= 1) {
-							$this->setStatus("Copied '".$pid."'");
+                            $this->setStatus("Copied record '". $pid ."' to collection '". $collection_pid ."'");
 							$this->pid_count++;
 						} else {
-							$this->setStatus("Copied '".$pid."' Failed");
+                            $this->setStatus("ERROR Copying record '". $pid ."' to collection '". $collection_pid ."'");
 						}
 					}
 				} else {
-					$this->setStatus("Skipped '".$pid."'. User can't edit this record");
+					$this->setStatus("Skipped '".$pid."'. User can't edit this record.");
 				}
 				 
-				$this->setProgress($this->pid_count);
 				$this->markPidAsFinished($pid);
 			}
-
-			$this->setStatus("Finished Bulk Copy to Collection");
+            
+            $this->setProgress(100);
+			$this->setStatus("Finished Bulk Copy to Collection '". $collection_pid ."'");
 
 		}
 		$this->setState(BGP_FINISHED);

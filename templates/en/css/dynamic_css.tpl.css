@@ -1116,6 +1116,15 @@ div.cv_selection, .light_background
     padding:5px;
 }
 
+.my_fez_table td{
+    background-color: #FFFFFF;
+}
+
+/* Highlight bgp that is currently running */
+.my_fez_table tr.state-running td{
+    background-color: #E5E5EF;
+}
+
 .my_fez_table {border-collapse:collapse;}
 
 .my_fez_table_footer {

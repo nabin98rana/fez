@@ -53,18 +53,38 @@ class BackgroundProcess_Bulk_Remove_Record_Collection extends BackgroundProcess
 		 */
 		if (!empty($pids) && is_array($pids)) {
 
+            $this->setStatus("Removing ". count($pids) ." Records from Collection ". $collection_pid);
+
+            $record_counter = 0;
+            $record_count = count($pids);
+
+            // Get the configurations for ETA calculation
+            $eta_cfg = $this->getETAConfig();
+
 			foreach ($pids as $pid) {
-				$this->setHeartbeat();
-				$this->setProgress(++$this->pid_count);
-				 
+                $record_counter++;
+
+                $this->setHeartbeat();
+                $this->setProgress(++$this->pid_count);
+
+                // Get the ETA calculations
+                $eta = $this->getETA($record_counter, $record_count, $eta_cfg);
+
+                $this->setProgress($eta['progress']);
+                $this->setStatus( "Removing:  '" . $pid . "' " .
+                                          "(" . $record_counter . "/" . $record_count . ") <br />".
+                                          "(Avg " . $eta['time_per_object'] . "s per Object. " .
+                                            "Expected Finish " . $eta['expected_finish'] . ")"
+                                        );
+
 				$record = new RecordObject($pid);
 				if ($record->canEdit()) {
 
 					$res = $record->removeFromCollection($collection_pid);
 					if( $res ) {
-						$this->setStatus("Removed record '".$pid."' from collection '".$collection_pid."'");
+						$this->setStatus("Removed record '".$pid."' from Collection '".$collection_pid."'");
 					} else {
-						$this->setStatus("ERROR Removing '".$pid."' from collection '".$collection_pid."'");
+						$this->setStatus("ERROR Removing record '".$pid."' from Collection '".$collection_pid."'");
 					}
 
 				} else {
@@ -72,8 +92,9 @@ class BackgroundProcess_Bulk_Remove_Record_Collection extends BackgroundProcess
 				}
 				$this->markPidAsFinished($pid);
 			}
-
-			$this->setStatus("Finished Bulk Remove from Collection");
+            
+            $this->setProgress(100);
+			$this->setStatus("Finished Bulk Remove from Collection '".$collection_pid."'");
 
 		}
 		$this->setState(BGP_FINISHED);

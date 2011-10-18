@@ -52,8 +52,18 @@ class BackgroundProcess_Bulk_Assign_Record_User extends BackgroundProcess
 		$barg = new Bulk_Assign_Record_User;
 		$barg->setBGP($this);
 		if (!empty($pids) && is_array($pids)) {
+
+            $this->setStatus("Assigning ". count($pids) ." Records to User '". $assign_usr_ids[0] ."'");
+
+            $record_counter = 0;
+            $record_count = count($pids);
+
+            // Get the configurations for ETA calculation
+            $eta_cfg = $this->getETAConfig();
+
 			foreach ($pids as $pid) {
-				$barg->assignUserBGP($pid, $assign_usr_ids[0], $regen, true);
+                $record_counter++;
+				$barg->assignUserBGP($pid, $assign_usr_ids[0], $regen, true, $eta_cfg, $record_counter, $record_count);
 				$this->markPidAsFinished($pid);
 			}
 		}

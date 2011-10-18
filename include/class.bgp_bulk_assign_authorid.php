@@ -56,10 +56,28 @@ class BackgroundProcess_Bulk_Assign_Authorid extends BackgroundProcess
 
 			$this->setStatus("Trying to update " . count($pids) . " pids with author id " . $author_id . " for authors with '" . $author_name . "'");
 			 
+            $record_counter = 0;
+            $record_count = count($pids);
+
+            // Get the configurations for ETA calculation
+            $eta_cfg = $this->getETAConfig();
+
 			/*
 			 * For each pid update author id
 			 */
 			foreach ($pids as $pid) {
+                $record_counter++;
+
+                // Get the ETA calculations
+                $eta = $this->getETA($record_counter, $record_count, $eta_cfg);
+
+                $this->setProgress($eta['progress']);
+                $this->setStatus( "Updating Author ID for '" . $pid . "' " .
+                                          "(" . $record_counter . "/" . $record_count . ") <br />".
+                                          "(Avg " . $eta['time_per_object'] . "s per Object. " .
+                                            "Expected Finish " . $eta['expected_finish'] . ")"
+                                        );
+
 				$modsXML = Fedora_API::callGetDatastreamContents($pid, 'MODS', true);
 				 
 				$doc = new DOMDocument();
@@ -91,6 +109,7 @@ class BackgroundProcess_Bulk_Assign_Authorid extends BackgroundProcess
 				$this->markPidAsFinished($pid);
 				 
 			}
+            $this->setProgress(100);
 			$this->setStatus("Finished. Updated " . $numAuthorsUpdated . " authors for " . count($updatedPids) . " pids");
 
 			if( APP_SOLR_INDEXER == "ON" ) {

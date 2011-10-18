@@ -51,9 +51,20 @@ class BackgroundProcess_Bulk_Assign_Record_Group extends BackgroundProcess
 
 		$barg = new Bulk_Assign_Record_Group;
 		$barg->setBGP($this);
+
 		if (!empty($pids) && is_array($pids)) {
+
+            $this->setStatus("Assigning ". count($pids) ." Records to Group '". $assign_grp_id ."'");
+
+            $record_counter = 0;
+            $record_count = count($pids);
+
+            // Get the configurations for ETA calculation
+            $eta_cfg = $this->getETAConfig();
+
 			foreach ($pids as $pid) {
-				$barg->assignGroupBGP($pid, $assign_grp_id, $regen, true);
+                $record_counter++;
+				$barg->assignGroupBGP($pid, $assign_grp_id, $regen, true, $eta_cfg, $record_counter, $record_count);
 				$this->markPidAsFinished($pid);
 			}
 		}

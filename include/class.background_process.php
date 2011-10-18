@@ -330,5 +330,50 @@ class BackgroundProcess {
 		return $this->local_session;
 	}
 
-}
 
+    /**
+     * Collects & returns details required for ETA calculation.
+     *
+     * @return array : The configurations that required for calculating bgp ETA.
+     */
+    function getETAConfig()
+    {
+        $eta_cfg = array();
+        $eta_cfg['bgp_details'] = $this->getDetails();
+        $eta_cfg['timezone'] = Date_API::getPreferredTimezone($bgp_details["bgp_usr_id"]);
+
+        return $eta_cfg;
+    }
+
+
+    /**
+     * Returns an array of calculated ETA, which consists of time per object, expected finish time.
+     *
+     * @param integer $record_counter : The counter number of PID that being processed.
+     * @param integer $record_count : The total number of PIDs to process on BGP.
+     * @param array $cfg : The configurations to assist ETA calculation.
+     * @return array : The ETA calculation results.
+     */
+    function getETA($record_counter=0, $record_count=0, $cfg=null)
+    {
+        $eta = array();
+
+        $utc_date = Date_API::getSimpleDateUTC();
+
+        $records_left = $record_count - $record_counter;
+
+        $time_per_object = Date_API::dateDiff("s", $cfg['bgp_details']['bgp_started'], $utc_date);
+        $time_per_object = round(($time_per_object / $record_counter), 2);
+        $eta['time_per_object'] = $time_per_object;
+
+        $exp_finish_time = new Date($utc_date);
+        $exp_finish_time->addSeconds($time_per_object * $records_left);
+        $eta['expected_finish'] = Date_API::getFormattedDate($exp_finish_time->getTime(), $cfg['timezone']);
+
+        $eta['progress'] = intval(100 * $record_counter / $record_count);
+
+        return $eta;
+    }
+
+
+}

@@ -73,9 +73,28 @@ class Bulk_Move_Record_Collection {
 		$this->regen = $regen;
 		$this->bgp->setStatus("Moving ".count($pids)." Records to ".$parent_pid);
 
+        $record_counter = 0;
+        $record_count = count($pids);
+
+        // Get the configurations for ETA calculation
+        $eta_cfg = $this->bgp->getETAConfig();
+
 		foreach ($pids as $pid) {
-			$this->bgp->setHeartbeat();
-			$this->bgp->setStatus("Trying to move '".$pid."'");
+            $this->bgp->setHeartbeat();
+            $this->bgp->setProgress(++$this->pid_count);
+
+            $record_counter++;
+
+            // Get the ETA calculations
+            $eta = $this->bgp->getETA($record_counter, $record_count, $eta_cfg);
+
+            $this->bgp->setProgress($eta['progress']);
+            $this->bgp->setStatus( "Moving:  '" . $pid . "' " .
+                                      "(" . $record_counter . "/" . $record_count . ") <br />".
+                                      "(Avg " . $eta['time_per_object'] . "s per Object. " .
+                                        "Expected Finish " . $eta['expected_finish'] . ")"
+                                    );
+
 			$record = new RecordObject($pid);
 
 			if ($record->canEdit()) {
@@ -97,7 +116,6 @@ class Bulk_Move_Record_Collection {
 				$this->bgp->setStatus("Skipped '".$pid."'. User can't edit this record");
 			}
 
-			$this->bgp->setProgress($this->pid_count);
 			$this->bgp->markPidAsFinished($pid);
 		}
 
@@ -106,6 +124,7 @@ class Bulk_Move_Record_Collection {
 			$skipped =  count($pids) - $this->pid_count;
 			$extra_msg = ' Skipped ' . $skipped;
 		}
+        $this->bgp->setProgress(100);
 		$this->bgp->setStatus("Finished Bulk Move to Collection.".$extra_msg);
 	}
 
