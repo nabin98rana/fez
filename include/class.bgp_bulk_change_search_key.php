@@ -47,26 +47,51 @@ class BackgroundProcess_Bulk_Change_Search_Key extends BackgroundProcess
 	{
 		$this->setState(BGP_RUNNING);
 		extract(unserialize($this->inputs));
+
         $this->setStatus("Starting ".$this->name." with parameters ".print_r(unserialize($this->inputs), true));
+
 		if (!empty($options)) {
 			$this->setStatus("Running search");
 			$pids = $this->getPidsFromSearchBGP($options);
 			$this->setStatus("Found ".count($pids). " records");
 		}
+
 		/*
 		 * Changes pids search keys to value
 		 */
 		if (!empty($pids) && is_array($pids) && !empty($sek_id) && !empty($sek_value)) {
 
-			$this->setStatus("Changing ".count($pids)." Records search key ".$sek_id." to ".$sek_value);
-      $sk = new Search_Key();
-      $sekDetails = $sk->getDetails($sek_id);
-			$history = "changed ".$sekDetails['sek_title']." (".$sek_id.") to ".$sek_value;
-      $search_keys = array($sekDetails['sek_title']);
-      $values = array($sek_value);
+            $this->setStatus("Changing ". count($pids) ." Records search key ". $sek_id ." to ". $sek_value);
+
+            $sk = new Search_Key();
+            $sekDetails = $sk->getDetails($sek_id);
+            $history = "changed ".$sekDetails['sek_title']." (".$sek_id.") to ".$sek_value;
+            $search_keys = array($sekDetails['sek_title']);
+            $values = array($sek_value);
+
+            $record_counter = 0;
+            $record_count = count($pids);
+
+            // Get the configurations for ETA calculation
+            $eta_cfg = $this->getETAConfig();
+
 			foreach ($pids as $pid) {
-				$this->setHeartbeat();
-				 
+                $record_counter++;
+
+                $this->setHeartbeat();
+                $this->setProgress(++$this->pid_count);
+
+                // Get the ETA calculations
+                $eta = $this->getETA($record_counter, $record_count, $eta_cfg);
+
+                $this->setProgress($eta['progress']);
+                $this->setStatus( "Changing:  '" . $pid . "' " .
+                                          "(" . $record_counter . "/" . $record_count . ") <br />".
+                                          "(Avg " . $eta['time_per_object'] . "s per Object. " .
+                                            "Expected Finish " . $eta['expected_finish'] . ")"
+                                        );
+
+
 				$record = new RecordObject($pid);
 				if ($record->canEdit()) {
 
@@ -82,10 +107,10 @@ class BackgroundProcess_Bulk_Change_Search_Key extends BackgroundProcess
 					$this->setStatus("Skipped '".$pid."'. User can't edit this record");
 				}
 				 
-				$this->setProgress($this->pid_count);
 				$this->markPidAsFinished($pid);
 			}
 
+            $this->setProgress(100);
 			$this->setStatus("Finished Bulk Change Search Key");
 
 		}

@@ -54,10 +54,30 @@ class BackgroundProcess_Bulk_Update_Authors_From_Esti extends BackgroundProcess
 		 * Remove isi_loc from record
 		 */
 		if (!empty($pids) && is_array($pids)) {
-			
+            $this->setStatus("Updating Authors in ". count($pids) ." Records");
+
+            $record_counter = 0;
+            $record_count = count($pids);
+
+            // Get the configurations for ETA calculation
+            $eta_cfg = $this->getETAConfig();
+
 			foreach ($pids as $pid) {
+                $record_counter++;
+
 				$this->setHeartbeat();
 				$this->setProgress(++$this->pid_count);
+
+                // Get the ETA calculations
+                $eta = $this->getETA($record_counter, $record_count, $eta_cfg);
+
+                $this->setProgress($eta['progress']);
+                $this->setStatus( "Updating authors in record:  '" . $pid . "' " .
+                                          "(" . $record_counter . "/" . $record_count . ") <br />".
+                                          "(Avg " . $eta['time_per_object'] . "s per Object. " .
+                                            "Expected Finish " . $eta['expected_finish'] . ")"
+                                        );
+
 				 
 				$record = new RecordObject($pid);
 				$res = $record->replaceAuthorsFromEsti();
@@ -67,10 +87,11 @@ class BackgroundProcess_Bulk_Update_Authors_From_Esti extends BackgroundProcess
 					$this->setStatus("Updated authors in record '".$pid."'");
 				} else {
 					$this->setStatus("ERROR updating authors in record '".$pid."'");
-				}				
+				}
 				$this->markPidAsFinished($pid);
 			}
-
+            
+            $this->setProgress(100);
 			$this->setStatus("Finished Bulk Updating Authors From ESTI");
 
 		}

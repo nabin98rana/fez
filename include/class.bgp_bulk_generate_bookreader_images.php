@@ -66,16 +66,35 @@ class BackgroundProcess_Bulk_Generate_Bookreader_Images extends BackgroundProces
 
 			$this->setStatus("Bulk generating bookreader images.");
 
+            $record_counter = 0;
+            $record_count = count($pids);
+
+            // Get the configurations for ETA calculation
+            $eta_cfg = $this->getETAConfig();
+
 			foreach ($pids as $pid) {
-				$this->setHeartbeat();
+                $record_counter++;
+
+                $this->setHeartbeat();
+                $this->setProgress(++$this->pid_count);
+
+                // Get the ETA calculations
+                $eta = $this->getETA($record_counter, $record_count, $eta_cfg);
+
+                $this->setProgress($eta['progress']);
+                $this->setStatus( "Generating:  '" . $pid . "' " .
+                                          "(" . $record_counter . "/" . $record_count . ") <br />".
+                                          "(Avg " . $eta['time_per_object'] . "s per Object. " .
+                                            "Expected Finish " . $eta['expected_finish'] . ")"
+                                        );
 
                 $this->pdfConverter->setPIDQueue($pid, 'pdfToJpg');
                 $this->pdfConverter->runQueue();
 				 
-				$this->setProgress($this->pid_count);
 				$this->markPidAsFinished($pid);
 			}
-
+            
+            $this->setProgress(100);
 			$this->setStatus("Finished ".$this->name);
 
 		}

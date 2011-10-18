@@ -52,21 +52,42 @@ class BackgroundProcess_Bulk_Strip_Scopus_ID extends BackgroundProcess
 		 */
 		if (!empty($pids) && is_array($pids)) {
 
+            $this->setStatus("Stripping Scopus ID from ". count($pids) ." Records");
+
+            $record_counter = 0;
+            $record_count = count($pids);
+
+            // Get the configurations for ETA calculation
+            $eta_cfg = $this->getETAConfig();
+
 			foreach ($pids as $pid) {
+                $record_counter++;
+
 				$this->setHeartbeat();
 				$this->setProgress(++$this->pid_count);
-				 
+
+                // Get the ETA calculations
+                $eta = $this->getETA($record_counter, $record_count, $eta_cfg);
+
+                $this->setProgress($eta['progress']);
+                $this->setStatus( "Stripping Scopus ID from:  '" . $pid . "' " .
+                                          "(" . $record_counter . "/" . $record_count . ") <br />".
+                                          "(Avg " . $eta['time_per_object'] . "s per Object. " .
+                                            "Expected Finish " . $eta['expected_finish'] . ")"
+                                        );
+
 				$record = new RecordObject($pid);
 				$res = $record->stripScopusID();
 				if( $res ) {
-					$this->setStatus("Stripped scopus id from record '".$pid."'");
+					$this->setStatus("Stripped Scopus ID from record '".$pid."'");
 				} else {
-					$this->setStatus("ERROR stripping scopus id from record '".$pid."'");
+					$this->setStatus("ERROR stripping Scopus ID from record '".$pid."'");
 				}	
-				$this->markPidAsFinished($pid);			
+				$this->markPidAsFinished($pid);
 			}
-
-			$this->setStatus("Finished Bulk Strip scopus id from record");
+            
+            $this->setProgress(100);
+			$this->setStatus("Finished Bulk Strip Scopus ID from record");
 
 		}
 		$this->setState(BGP_FINISHED);

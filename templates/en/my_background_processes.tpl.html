@@ -33,12 +33,18 @@ function setDone(id)
     bgp_done[id] = 1;
 }
 
-function showBgpUpdated(id)
+function showBgpUpdated(id, values)
 {
     document.getElementById(id+'_progress').style.color = '';
     document.getElementById(id+'_status_message').style.color = '';
     document.getElementById(id+'_heartbeat').style.color = '';
     document.getElementById(id+'_state').style.color = '';
+
+    // Add css class on the Status column based on bgp state.
+    // Change the class to lower case to follow existing css class naming convention.
+    var stateClass = bgp_states[values.bgp_state];
+    stateClass = stateClass.toLowerCase();
+    document.getElementById(id+'_state').parentNode.className = 'state-'+stateClass;
 }
 
 
@@ -63,7 +69,7 @@ function showBgpValues(id, values)
     if (values.is_old > 0) {
       document.getElementById(id+'_heartbeat').className = "old_bgp";
     }
-    showBgpUpdated(id);
+    showBgpUpdated(id, values);
 }
 
 next_idx = 0;
@@ -216,8 +222,8 @@ function checkDelete(f)
         <td class="default" id="{$bgp_list[iii].bgp_id}_progress">{$bgp_list[iii].bgp_progress}</td>
         <td class="default" id="{$bgp_list[iii].bgp_id}_status_message">{$bgp_list[iii].bgp_status_message}</td>
         <td class="default" id="{$bgp_list[iii].bgp_id}_heartbeat" {if $bgp_list[iii].is_old}class="old_bgp"{/if}>{$bgp_list[iii].bgp_heartbeat}</td>
-        <td class="default" id="{$bgp_list[iii].bgp_id}_state">{assign var="bgp_state" value=$bgp_list[iii].bgp_state}
-        <td class="default"><a href="javascript:void(0);" onclick="showBgpLog('{$bgp_list[iii].bgp_id}')"><img src="{$rel_url}images/system_16.png" alt="log" border="0" /></a> 
+        <td class="default" id="{$bgp_list[iii].bgp_id}_state">{assign var="bgp_state" value=$bgp_list[iii].bgp_state}</td>
+        <td class="default"><a href="javascript:void(0);" onclick="showBgpLog('{$bgp_list[iii].bgp_id}')"><img src="{$rel_url}images/system_16.png" alt="log" border="0" /></a>
         <a href="{$rel_url}get_bgp_file.php?bgp_id={$bgp_list[iii].bgp_id}"><img src="{$rel_url}images/file.gif" alt="Get exported file" border="0"  /></a></td>
     </tr>
     <tr id="tr_log_{$bgp_list[iii].bgp_id}" style="display:none">

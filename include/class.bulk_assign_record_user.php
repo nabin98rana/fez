@@ -50,14 +50,26 @@ class Bulk_Assign_Record_User {
 		$bgp->register(serialize(compact('pids', 'assign_usr_ids', 'regen')), Auth::getUserID());
 	}
 
-	function assignUserBGP($pid, $assign_usr_id, $regen=false,$topcall=true)
+	function assignUserBGP($pid, $assign_usr_id, $regen=false,$topcall=true, $eta_cfg=null, $record_counter=0, $record_count=0)
 	{
 		$this->regen = $regen;
 		$this->bgp->setHeartbeat();
 		$this->bgp->setProgress(++$this->pid_count);
 		$dbtp =  APP_TABLE_PREFIX;
+
+        // Get the ETA calculations
+        $eta = $this->bgp->getETA($record_counter, $record_count, $eta_cfg);
+
+        $this->bgp->setProgress($eta['progress']);
+        $this->bgp->setStatus( "Assigning:  '" . $pid . "' " .
+                                  "(" . $record_counter . "/" . $record_count . ") <br />".
+                                  "(Avg " . $eta['time_per_object'] . "s per Object. " .
+                                    "Expected Finish " . $eta['expected_finish'] . ")"
+                                );
+
 		$record = new RecordObject($pid);
 		$record->updateFezMD_User("usr_id", $assign_usr_id);
+
 		History::addHistory($pid, null, "", "", true, "Assigned Record to User ".User::getFullName($assign_usr_id)." (".$assign_usr_id.")");
 		$this->bgp->setStatus("Finished Bulk Assign Record to User for ".$record->getTitle());
 	}

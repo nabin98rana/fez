@@ -52,10 +52,30 @@ class BackgroundProcess_Bulk_Strip_Isi_Loc extends BackgroundProcess
 		 */
 		if (!empty($pids) && is_array($pids)) {
 
+            $this->setStatus("Stripping isi_loc from ". count($pids) ." Records");
+
+            $record_counter = 0;
+            $record_count = count($pids);
+
+            // Get the configurations for ETA calculation
+            $eta_cfg = $this->getETAConfig();
+
 			foreach ($pids as $pid) {
+                $record_counter++;
+
 				$this->setHeartbeat();
 				$this->setProgress(++$this->pid_count);
-				 
+
+                // Get the ETA calculations
+                $eta = $this->getETA($record_counter, $record_count, $eta_cfg);
+
+                $this->setProgress($eta['progress']);
+                $this->setStatus( "Stripping isi_loc from:  '" . $pid . "' " .
+                                          "(" . $record_counter . "/" . $record_count . ") <br />".
+                                          "(Avg " . $eta['time_per_object'] . "s per Object. " .
+                                            "Expected Finish " . $eta['expected_finish'] . ")"
+                                        );
+
 				$record = new RecordObject($pid);
 				$res = $record->stripIsiLoc();
 				if( $res ) {
@@ -63,9 +83,10 @@ class BackgroundProcess_Bulk_Strip_Isi_Loc extends BackgroundProcess
 				} else {
 					$this->setStatus("ERROR stripping isi_loc from record '".$pid."'");
 				}	
-				$this->markPidAsFinished($pid);			
+                $this->markPidAsFinished($pid);
 			}
 
+            $this->setProgress(100);
 			$this->setStatus("Finished Bulk Strip isi_loc from record");
 
 		}
