@@ -1129,7 +1129,7 @@ class Fedora_API {
 	 * @param string $pid The persistant identifier of the object
 	 * @return array $dsIDListArray The list of datastreams in an array.
 	 */
-	function callListDatastreamsLite($pid, $refresh=false) 
+	function callListDatastreamsLite($pid, $refresh=false, $current_tries = 0)
 	{
 		$log = FezLog::get();
 		
@@ -1147,16 +1147,31 @@ class Fedora_API {
 				return $dsIDListArray;
 			}
 			$getString = APP_BASE_FEDORA_APIA_DOMAIN."/listDatastreams/".$pid."?xml=true";
-			$ch = curl_init($getString);
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-			if (APP_HTTPS_CURL_CHECK_CERT == "OFF" && APP_FEDORA_APIA_PROTOCOL_TYPE == 'https://')  {
-				curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, 0);
-				curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, 0);
-			}
-			$results = curl_exec($ch);
-			$info = curl_getinfo($ch);
-			curl_close ($ch);
-			$xml = $results;
+//			$ch = curl_init($getString);
+//			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+//			if (APP_HTTPS_CURL_CHECK_CERT == "OFF" && APP_FEDORA_APIA_PROTOCOL_TYPE == 'https://')  {
+//				curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, 0);
+//				curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, 0);
+//			}
+//			$results = curl_exec($ch);
+//			$info = curl_getinfo($ch);
+//			curl_close ($ch);
+//			$xml = $results;
+            list($xml, $info) = Misc::processURL($getString);
+            if ($xml == '' || $xml == false) {
+                $current_tries++;
+                $fedoraError = "Error when calling ".__FUNCTION__." :".print_r($info,true)."\n\n \n\n FOR THE $current_tries time REQUEST: $pid "."\n\n RESPONSE: \n\n ".$xml;
+                $log->err(array($fedoraError, __FILE__,__LINE__));
+                if ($current_tries < 5) {
+                  sleep(5); // sleep for a bit so the object can get unlocked before trying again
+                  return Fedora_API::callListDatastreamsLite($pid, $refresh, $current_tries);
+                } else {
+                  return false;
+                }
+            }
+
+
+
 			$dom = @DomDocument::loadXML($xml);
 			if (!$dom) {
 				$log->err(array("Couldn't parse datastream XML",$info,$xml));
@@ -1356,7 +1371,7 @@ class Fedora_API {
 	 * @param string $asofDateTime Optional Gets a specified version at a datetime stamp
 	 * @return array $dsIDListArray The datastream returned in an array
 	 */
-	function callGetDatastreamDisseminationLite($pid, $dsID, $asofDateTime="") 
+	function callGetDatastreamDisseminationLite($pid, $dsID, $asofDateTime="", $current_tries = 0)
 	{
 		
 		$log = FezLog::get();
@@ -1374,6 +1389,18 @@ class Fedora_API {
 			$urldata = APP_FEDORA_GET_URL."/".$pid."/".$dsID."/".$asofDateTime;
 		}
 		list($dsIDListArray['stream'],$info) = Misc::processURL($urldata);
+
+        if ($dsIDListArray['stream'] == '' || $dsIDListArray['stream'] == false) {
+            $current_tries++;
+            $fedoraError = "Error when calling ".__FUNCTION__." :".print_r($info,true)."\n\n \n\n FOR THE $current_tries time REQUEST: $pid $dsID "."\n\n RESPONSE: \n\n ".$dsIDListArray['stream'];
+            $log->err(array($fedoraError, __FILE__,__LINE__));
+            if ($current_tries < 5) {
+              sleep(5); // sleep for a bit so the object can get unlocked before trying again
+              return Fedora_API::callGetDatastreamDisseminationLite($pid, $dsID, $asofDateTime, $current_tries);
+            } else {
+              return false;
+            }
+        }
 
     if ($asofDateTime != "") {
       $config = array(
@@ -1406,8 +1433,9 @@ class Fedora_API {
 	 * @param boolean $getxml Get as xml
 	 * @return array $resultlist The requested of datastream in an array.
 	 */
-	function callGetDatastreamContents($pid, $dsID, $getraw = false, $filehandle = null) 
+	function callGetDatastreamContents($pid, $dsID, $getraw = false, $filehandle = null, $current_tries = 0)
 	{
+        $log = FezLog::get();
 		$resultlist = array();
 		$dsExists = Fedora_API::datastreamExists($pid, $dsID);
 		if ($dsExists === true) {
@@ -1419,6 +1447,20 @@ class Fedora_API {
 				return $ret;
 			} else {
 				list($blob,$info) = Misc::processURL($filename);
+
+                if ($blob == '' || $blob == false) {
+                    $current_tries++;
+                    $fedoraError = "Error when calling ".__FUNCTION__." :".print_r($info,true)."\n\n \n\n FOR THE $current_tries time REQUEST: $pid $dsID "."\n\n RESPONSE: \n\n ".$blob;
+                    $log->err(array($fedoraError, __FILE__,__LINE__));
+                    if ($current_tries < 5) {
+                      sleep(5); // sleep for a bit so the object can get unlocked before trying again
+                      return Fedora_API::callGetDatastreamContents($pid, $dsID, $getraw, $filehandle, $current_tries);
+                    } else {
+                      return false;
+                    }
+                }
+
+
 			}
 			// check if this is even XML, it might be binary, in which case we'll just return it.
 			if ($info['content_type'] != 'text/xml' || $getraw) {
