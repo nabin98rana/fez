@@ -511,20 +511,6 @@ class DSResource
             
             $this->deleteResource($revData['hash']);
         }
-        
-        //Get rid of the metadata for this resource if have deleted the last rev or if we are deleting all revs.
-        /*if($revCount == 1 || $revs === 'ALL')
-        {
-            try
-            {
-                $sql = "DELETE FROM " . APP_TABLE_PREFIX . "file_meta WHERE id = :metaid";
-                $this->db->query($sql, array(':metaid' => $revData['metaid']));
-            }
-            catch(Exception $e)
-            {
-                $this->log->err($e->getMessage());
-            }
-        }*/
     }
     
     /**
@@ -541,9 +527,6 @@ class DSResource
         {
             try
             {
-                /*$sql = "UPDATE " . APP_TABLE_PREFIX . "file_attachments att, " . APP_TABLE_PREFIX 
-                     . "file_meta met SET filename = :newFileName WHERE att.metaid = met.id AND "
-                     . "att.filename = :oldFileName AND met.pid = :pid";*/
                 $sql = "UPDATE " . APP_TABLE_PREFIX . "file_attachments SET filename = :newFileName WHERE "
                      . "filename = :oldFileName AND pid = :pid";
                 $res = $this->db->query($sql, array(':newFileName' => $newName, 
