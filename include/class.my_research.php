@@ -1115,14 +1115,14 @@ class MyResearch
         if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) {
             $stmt
                 .= "
-					(user_name ILIKE '%" . $username . "%'
-					OR CONCAT_WS(' ', aut_fname, aut_lname) ILIKE '%" . $username . "%')
+					(user_name ILIKE " . $db->quote("%$username%") . "
+					OR CONCAT_WS(' ', aut_fname, aut_lname) ILIKE " . $db->quote("%$username%") . ")
 					AND user_name != ''";
         } else {
             $stmt
                 .= "
-					(user_name LIKE '%" . $username . "%'
-					OR CONCAT_WS(' ', aut_fname, aut_lname) LIKE '%" . $username . "%')
+					(user_name LIKE " . $db->quote("%$username%") . "
+					OR CONCAT_WS(' ', aut_fname, aut_lname) LIKE " . $db->quote("%$username%") . ")
 					AND user_name != ''";
         }
         $stmt
