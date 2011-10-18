@@ -221,7 +221,7 @@
 	<td class="default_white" style="background: {$heading_color}; padding: 3px;" colspan="2">
 		<img style="vertical-align: middle" src="{$rel_url}images/edit_32.gif" alt="" /><b>{$wfs_title|escape}</b>
 		{if $isEditor == 1}
-			<input type="button" name="simple_toggle" value="Show All Fields" onclick="javascript:toggleCreateMode(); this.disabled = true;" class="button" />
+			<input type="button" maxlength="55"  name="simple_toggle" value="Show All Fields" onclick="javascript:toggleCreateMode(); this.disabled = true;" class="button" />
 		{/if}
 	</td>
 </tr>
@@ -959,13 +959,13 @@
 	  					    {assign var="field_name" value="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"][]"}
 	  					    {assign var="field_id" value="xsd_display_fields_"|cat:$xsdmf.xsdmf_id|cat:"_0"}
 	
-							<select id="{$field_id}" multiple="multiple" size="8" class="default" name="{$field_name}">
+							<select id="{$field_id}" style="max-width:400px" multiple="multiple" size="8" class="default" name="{$field_name}">
 							  {html_options options=$xsdmf.selected_option}
 							</select>
 							{include file="error_icon.tpl.html" field=$field_name}
 						  </td>
 							<td align="left" style="vertical-align: 0;">
-							<select id="{$field_id_helper}" multiple="multiple" size="8"  class="default" name="{$field_name_helper}">
+							<select id="{$field_id_helper}" style="max-width:400px" multiple="multiple" size="8"  class="default" name="{$field_name_helper}">
 							  {html_options options=$xsdmf.field_options}
 							</select>
 							</td>
