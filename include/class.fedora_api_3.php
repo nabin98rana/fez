@@ -961,10 +961,21 @@ class Fedora_API {
 			 if ($results) {
 			        $info = curl_getinfo($ch);
 					if ($info['http_code'] != '200' && $info['http_code'] != '201') {
-			         	$log->err(array(print_r($results, true).print_r($params, true).curl_error($ch), $info,__FILE__,__LINE__));
-						curl_close($ch);
-//						exit;
-						return false;
+                        // If it is a "PID is currently being modified by another thread" 409 error then wait 5 seconds and try again..
+                        if ($info['http_code'] == '409') {
+                            sleep(5);
+                            $results = curl_exec($ch);
+                            $info = curl_getinfo($ch);
+                            if ($info['http_code'] != '200' && $info['http_code'] != '201') {
+                                $log->err(array(print_r($results, true).print_r($params, true).curl_error($ch), $info,__FILE__,__LINE__));
+                                curl_close($ch);
+                                return false;
+                            }
+                        } else {
+                            $log->err(array(print_r($results, true).print_r($params, true).curl_error($ch), $info,__FILE__,__LINE__));
+       						curl_close($ch);
+       						return false;
+                        }
 					}
           if (file_exists($tempFile)) {
             unlink($tempFile);
