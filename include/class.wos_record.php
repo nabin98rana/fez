@@ -369,7 +369,7 @@ class WosRecItem
       $this->primaryLangCode = $primaryLang->getAttribute('code');
     }
     
-    $authors[] = $node->getElementsByTagName("primaryauthor")->item(0)->nodeValue;
+    $authors[] = Misc::smart_ucwords($node->getElementsByTagName("primaryauthor")->item(0)->nodeValue, 2);
     $author = $node->getElementsByTagName("author");
     foreach ($author as $a) {
       $atemp = $a->nodeValue;
@@ -539,7 +539,8 @@ class WosRecItem
 
     if (count($this->author_ids) > 0) {
       $aut_details = Author::getDetails($this->author_ids[0]);
-      $history .= " via Researcher ID download of ".$aut_details['aut_display_name']." (".$aut_details['aut_researcher_id']." - ".$aut_details['aut_id'].")";
+      $history .= " via Researcher ID download of ".$aut_details['aut_display_name']." (".
+                   $aut_details['aut_researcher_id']." - ".$aut_details['aut_id']." - ".$aut_details['aut_org_username'].")";
     }
     // MODS
       
@@ -672,7 +673,7 @@ class WosRecItem
         $search_keys, $values, true, $history
     );
 
-    // If this update came from a RID download, put this in the RID collection
+    // If this update came from a RID download, put this in the RID collection as long as it ONLY exists in the WoS collection right now
     if ($this->collections[0] == RID_DL_COLLECTION) {
         $isMemberOf = Record::getSearchKeyIndexValue($pid, "isMemberOf", false);
         if (!in_array(RID_DL_COLLECTION, $isMemberOf)) { //if it doesn't currently live in the RID collection, add it as a parent
@@ -693,13 +694,6 @@ class WosRecItem
                 }
 
             }
-        }
-    } else { //Add it to the wos collection (or whatever $this->collections[0] is currently set to
-        $res = $record->updateRELSEXT("rel:isMemberOf", $this->collections[0], false);
-        if($res >= 1) {
-            $log->debug("Copied '".$pid."' into Collection ".$this->collections[0]);
-        } else {
-            $log->err("Copy of '".$pid."' into Collection ".$this->collections[0]." Failed");
         }
     }
 

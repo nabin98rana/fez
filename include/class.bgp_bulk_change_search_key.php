@@ -53,7 +53,6 @@ class BackgroundProcess_Bulk_Change_Search_Key extends BackgroundProcess
 			$pids = $this->getPidsFromSearchBGP($options);
 			$this->setStatus("Found ".count($pids). " records");
 		}
-		$history = "change it's $sek_title to ";
 		/*
 		 * Changes pids search keys to value
 		 */

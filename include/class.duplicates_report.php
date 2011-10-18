@@ -1345,8 +1345,30 @@ class DuplicatesReport {
 
 	function shortWordsFilter($a)
 	{
-		return strlen($a) > 3;
+		return (strlen($a) > 3);
 	}
+
+  
+  function authorTokenise($array_of_strings)
+  {
+      $array_of_strings = Misc::array_flatten($array_of_strings, '', true);
+
+    if (!is_array($array_of_strings)) {
+        $tokens = explode(' ',(preg_replace("/[^a-zA-Z0-9 ]/", "", $array_of_strings)));
+      } else {
+        $tokens = explode(' ',(preg_replace("/[^a-zA-Z0-9 ]/", "", implode(' ', $array_of_strings))));
+      }
+      // get rid of anything three chars or less - initials and stuff
+      $tokens = array_filter($tokens, array($this,'authorShortWordsFilter'));
+      return array_values($tokens);
+
+}
+
+function authorShortWordsFilter($a)
+{
+  return (strlen($a) >= 3 || (strlen($a) > 1 && $a != strtoupper($a)));
+}
+
 
 	function getListing($page, $page_size, $show_resolved = true)
 	{

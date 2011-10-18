@@ -319,6 +319,15 @@
               </tr>	
               <tr>
                 <td style="width: 120px" class="default cell-colour">
+                  <b>Email: </b>
+                </td>
+                <td style="background: {$light_color}; width: 80%">
+                  <input type="text" name="email" size="40" class="default" value="{$info.aut_email}" />
+                  {include file="error_icon.tpl.html" field="email"}
+                </td>
+              </tr>				  
+              <tr>
+                <td style="width: 120px" class="default cell-colour">
                   <b>CV Link: </b>
                 </td>
                 <td style="background: {$light_color}; width: 80%">
@@ -400,6 +409,15 @@
               </tr>
               <tr>
                 <td style="width: 120px" class="default cell-colour">
+                  <b>People Australia ID: </b>
+                </td>
+                <td style="background: {$light_color}; width: 80%">
+                  <input type="text" name="people_australia_id" size="40" class="default" value="{$info.aut_people_australia_id}" />
+                  {include file="error_icon.tpl.html" field="people_australia_id"}
+                </td>
+              </tr>			  
+              <tr>
+                <td style="width: 120px" class="default cell-colour">
                   <b>My Pubs URL extension: </b><br />lowercase, a-z and underscores only
                 </td>
                 <td style="background: {$light_color}; width: 80%">
@@ -407,6 +425,15 @@
                   {include file="error_icon.tpl.html" field="mypub_url"}
                 </td>
               </tr>
+              <tr>
+                <td style="width: 120px" class="default cell-colour">
+                  <b>Description: </b>
+                </td>
+                <td style="background: {$light_color}; width: 80%">
+				  <textarea name="description" cols="70" rows="10" class="default">{$info.aut_description}</textarea>
+                  {include file="error_icon.tpl.html" field="description"}
+                </td>
+              </tr>	
               <tr>
                 <td colspan="2" style="background: {$cell_color}; text-align: center">
                   {if $smarty.get.cat == 'edit'}

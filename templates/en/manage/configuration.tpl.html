@@ -574,6 +574,15 @@ function restoreDefaultColours(el)
 			  {include file="error_icon.tpl.html" field="app_herdc_collection"}
 			</td>
   		  </tr>
+
+          <tr>
+            <th>HERDC Trial Collection</th>
+            <td>
+              <input type="text" name="app_herdc_trial_collection" value="{$config_settings.app_herdc_trial_collection|escape:"html"}" size="100" />
+              <br />List of comma separated ' quote enclosed pids which are used to contain the confirmed HERDC pids for each year.
+              {include file="error_icon.tpl.html" field="app_herdc_trial_collection"}
+            </td>
+          </tr>
   		  <tr>
 		    <th>WOS Collections</th>
 			<td>
@@ -689,6 +698,15 @@ function restoreDefaultColours(el)
               {include file="error_icon.tpl.html" field="app_bg_poll_int"}
             </td>
           </tr>
+  		  <!--tr>
+		    <th>Portfolios collection</th>
+			<td>
+			  <input type="text" name="app_portfolios_collection" value="{$config_settings.app_portfolios_collection|escape:"html"}" size="30" />
+			  <br />Children collections of the collection entered above will be considered portfolios.
+			  {include file="error_icon.tpl.html" field="app_portfolios_collection"}
+			</td>
+  		  </tr-->
+  		  <tr>
   		  </tbody>
 		</table>
 		</div>
@@ -876,6 +894,23 @@ function restoreDefaultColours(el)
 			  {include file="error_icon.tpl.html" field="app_fedora_apia_direct"}
 			</td>
 		  </tr>
+          	<tr>
+		    <th>Direct APIA XSendFile X-Header-Accel (experimental)</th>
+			<td>
+			  <select name="app_fedora_sendfile_direct">
+			    <option value="ON"{if $config_settings.app_fedora_sendfile_direct == "ON"} selected="selected"{/if}>On</option>
+				<option value="OFF"{if $config_settings.app_fedora_sendfile_direct == "OFF"} selected="selected"{/if}>Off</option>
+			  </select>
+			  {include file="error_icon.tpl.html" field="app_fedora_sendfile_direct"}
+			</td>
+		  </tr>
+          <tr>
+            <th>Direct APIA Access Fedora Data Path (experimental)</th>
+            <td>
+              <input type="text" name="app_fedora_path_direct" value="{$config_settings.app_fedora_path_direct|escape:"html"}" size="50" />
+              {include file="error_icon.tpl.html" field="app_fedora_path_direct"}
+            </td>
+          </tr>
 		  <tr>
 		    <th>Display Fedora Checksums</th>
 			<td>
@@ -1476,11 +1511,26 @@ function restoreDefaultColours(el)
 			  {include file="error_icon.tpl.html" field="ldap_port"}
 			</td>
 		  </tr>
+          <tr>
+            <th>Staff LDAP Group</th>
+            <td>
+              <input type="text" name="ldap_staff_group" value="{$config_settings.ldap_staff_group|escape:"html"}" size="50" />
+              <br />match what you have in your ldap or active directory for the group that contains all your staff (Only required for AD/LDAP attribute -> shibboleth mapping if you stop using shibboleth after using it in FezACML a  while and want to maintain the rules)
+              {include file="error_icon.tpl.html" field="ldap_staff_group"}
+            </td>
+          </tr>
+
+          <tr>
+            <th>Student LDAP Group</th>
+            <td>
+              <input type="text" name="ldap_student_group" value="{$config_settings.ldap_student_group|escape:"html"}" size="50" />
+              <br />match what you have in your ldap or active directory for the group that contains all your Students (Only required for AD/LDAP attribute -> shibboleth mapping if you stop using shibboleth after using it in FezACML a  while and want to maintain the rules)
+              {include file="error_icon.tpl.html" field="ldap_student_group"}
+            </td>
+          </tr>
 		 </tbody>
 		</table>
 		</div>
-
-
 
 		<div id="eprints" style="display: none;">
 		<table width="100%" class="admin-edit">

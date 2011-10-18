@@ -46,6 +46,7 @@ include_once(APP_INC_PATH . "class.error_handler.php");
 include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.validation.php");
 include_once(APP_INC_PATH . "class.date.php");
+include_once(APP_INC_PATH . "class.author.php");
 include_once(APP_INC_PATH . "class.wok_queue.php");
 include_once(APP_INC_PATH . "class.record_object.php");
 include_once(APP_INC_PATH . "class.record_general.php");
@@ -147,13 +148,13 @@ class ResearcherID
     } else if (! ($researchers_id_type == 'researcherIDs' || $researchers_id_type == 'employeeIDs')) {
       $log->err(
           array('Second parameter for downloadRequest() requires either "researcherIDs" or "employeeIDs"'.
-          ', given "'.$researchers_type.'"', __FILE__, __LINE__)
+          ', given "'.$researcher_id_type.'"', __FILE__, __LINE__)
       );
       return false;
     } else if (! ($researcher_id_type == 'researcherID' || $researcher_id_type == 'employeeID')) {
       $log->err(
           array('Third parameter for downloadRequest() requires either "researcherID" or "employeeID"'.
-          ', given "'.$researchers_type.'"', __FILE__, __LINE__)
+          ', given "'.$researcher_id_type.'"', __FILE__, __LINE__)
       );
       return false;
     }
@@ -247,6 +248,7 @@ class ResearcherID
     $tpl = new Template_API();
     $tpl_file = "researcher_profile_upload.tpl.html";
     $tpl->setTemplate($tpl_file);
+    $alt_email = trim($alt_email);
     if (! empty($alt_email)) {
       $tpl->assign("rid_alt_email", $alt_email);
     }
@@ -415,49 +417,46 @@ class ResearcherID
         $from = $structure->headers['from'];
         $cc = $structure->headers['cc'];
         $subject = $structure->headers['subject'];
-        $body = $structure->body;
+        $body = $structure->parts[0]->body;
 
         if ($subject == 'ResearcherID Batch Processing Status') {
           // Processing - don't need to do anything with these
         } else if ($subject == 'ResearcherID Batch Processing Status (completed)') {
-          // Completed
-          $attachments = Mime_Helper::getAttachments($full_message);
-          if (count($attachments) > 0) {
+          //Researcher ID update 1.5 (July 17th 2011) now has the report in a URL link instead of an attachment - CK
+          $urlPattern = '/computer\.(.*)For easier/'; //TODO: change this regex to match something like http://ul.researcherid/blah which should be less volatile - CK
+          $uniBody = str_replace("\n", "", $body); // make the body one line so it can be preg 
+          preg_match($urlPattern, $uniBody, $urlMatches);
+          $url = trim($urlMatches[1]);
+          $urlData = Misc::processURL($url);
+          $urlContent = $urlData[0];
+          if ($urlContent) {
+            $xml_report = new SimpleXMLElement($urlContent);
+            // Process profile list
+            if ($xml_report->profileList) {
 
-            $attachment_filename = $attachments[0]['filename'];
-            $attachment_filetype = $attachments[0]['filetype'];
-            $attachment_blob = $attachments[0]['blob'];
-
-            if ($attachment_blob) {
-              $xml_report = new SimpleXMLElement($attachment_blob);
-               
-              // Process profile list
-              if ($xml_report->profileList) {
-
-                $profiles = $xml_report->profileList->{'successfully-uploaded'}->{'researcher-profile'};
-                foreach ($profiles as $profile) {
-                  Author::setResearcherIdByRidProfile($profile);
-                }
-
-                $profiles = $xml_report->profileList->{'existing-researchers'}->{'researcher-profile'};
-                foreach ($profiles as $profile) {
-                  Author::setResearcherIdByOrgUsername((string)$profile->employeeID, (string)$profile->researcherID);
-                }
-
-                $profiles = $xml_report->profileList->{'failed-to-upload'}->{'researcher-profile'};
-                foreach ($profiles as $profile) {
-                  if (! (empty($profile->employeeID) || empty($profile->researcherID)) ) {
-                    Author::setResearcherIdByOrgUsername((string)$profile->employeeID, (string)$profile->researcherID);
-                  } else {
-                    Author::setResearcherIdByOrgUsername(
-                        (string)$profile->employeeID, 'ERR: '.(string)$profile->{'error-desc'}
-                    );
-                  }
-                }
-              } else if ($xml_report->publicationList) {
-                // Process publication list
-                $publications = $xml_report->publicationList->{'successfully-uploaded'}->{'researcher-profile'};
+              $profiles = $xml_report->profileList->{'successfully-uploaded'}->{'researcher-profile'};
+              foreach ($profiles as $profile) {
+                Author::setResearcherIdByRidProfile($profile);
               }
+
+              $profiles = $xml_report->profileList->{'existing-researchers'}->{'researcher-profile'};
+              foreach ($profiles as $profile) {
+                Author::setResearcherIdByOrgUsername((string)$profile->employeeID, (string)$profile->researcherID);
+              }
+
+              $profiles = $xml_report->profileList->{'failed-to-upload'}->{'researcher-profile'};
+              foreach ($profiles as $profile) {
+                if (! (empty($profile->employeeID) || empty($profile->researcherID)) ) {
+                  Author::setResearcherIdByOrgUsername((string)$profile->employeeID, (string)$profile->researcherID);
+                } else {
+                  Author::setResearcherIdByOrgUsername(
+                      (string)$profile->employeeID, 'ERR: '.(string)$profile->{'error-desc'}
+                  );
+                }
+              }
+            } else if ($xml_report->publicationList) {
+              // Process publication list
+              $publications = $xml_report->publicationList->{'successfully-uploaded'}->{'researcher-profile'};
             }
           }
         } else {
@@ -670,24 +669,42 @@ class ResearcherID
     $log = FezLog::get();
     $db = DB_API::get();
 
-    $publications = @file_get_contents($url);
-    if (! $publications) {
+    //$publications = file_get_contents($url);
+    $urlData = Misc::processURL($url);
+    $publications = $urlData[0];
+
+    if (!$publications) {
+      $log->err("wasn't able to pull down RID url $url:".print_r($urlData, true));
       return false;
     }
     
     $xml_publications = new SimpleXMLElement($publications);
-    $records = $xml_publications->publicationList->{'researcher-publications'}->records->record;
-    $researcherid = $xml_publications->publicationList->{'researcher-publications'}->researcherID;
-    $author_id = Author::getIDByResearcherID($researcherid);
+    foreach ($xml_publications->publicationList->{'researcher-publications'} as $rp) {
+      $researcherid = (string)$rp->researcherID;
+      $author_id = null;
+      $author_id = Author::getIDByResearcherID($researcherid);
 
-    foreach ($records as $record) {
-      ResearcherID::addPublication($record, $author_id, $researcherid);
+      // Clear the temp password.
+      // An attempt to download (regardless of the number of records downloaded)
+      // indicates that the researcher has logged in to ResearcherID and completed the registration process,
+      // which requires the temp password be changed.
+      if ($author_id != null) {
+        Author::setRIDPassword($researcherid, '');
+      }
+
+      if ($rp->records->count() > 0 && $author_id != null) {
+        foreach ($rp->records->record as $record) {
+          ResearcherID::addPublication($record, $author_id, $researcherid);
+        }
+      } else {
+        $aut_details = Author::getDetails($author_id);
+//        $message = "FOUND no records for this RID download for ".$aut_details['aut_display_name']." with author id $author_id with Researcher ID ".$aut_details['aut_display_name']." <br />\n".print_r($publications,true);
+        $message = "FOUND no records for this RID download for ".$aut_details['aut_display_name']." with author id $author_id with Researcher ID ".$aut_details['aut_researcher_id']." <br />\n";
+        $log->warn($message);
+        echo $message;
+      }
     }
-    
-    // Finally clear the temp password - a successful download indicates the researcher has
-    // logged in to ResearcherID and completed the registration process, which requires the
-    // temp password be changed 
-    Author::setRIDPassword($researcherid, ''); 
+
     return true;
   }
   
@@ -711,7 +728,7 @@ class ResearcherID
     if (Fedora_API::objectExists($collection)) {
       $aut = @preg_split('/:/', $record->{'accession-num'});
       // Download from WOS collection only
-      if (count($aut) > 1 && $aut[0] == 'WOS') {
+      if (count($aut) > 1 && ($aut[0] == 'WOS' || $aut[0] == 'ISI')) {
         $ut = $aut[1];
         WokQueue::get()->add($ut, $author_id);
       }
@@ -934,7 +951,7 @@ class ResearcherID
         }
           
         if ( is_array($record['rek_isi_loc']) ) {
-          $record['rek_isi_loc'] = $record['rek_isi_loc'];
+          $record['rek_isi_loc'] = $record['rek_isi_loc'][0];
         }
                 
         // Replace double quotes with double double quotes

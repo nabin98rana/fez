@@ -457,6 +457,34 @@ class Search_Key
         return $res;
     }
 
+    /**
+     * Method used to get the cardinality of a specific search key by the title.
+     *
+     * @access  public
+     * @param   integer $sek_title The search key title
+     * @return  string The cardinality of the search key
+     */
+    function getCardinality($sek_title)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $stmt = "SELECT
+                     sek_cardinality
+                 FROM
+                    " . APP_TABLE_PREFIX . "search_key
+                 WHERE
+                    sek_title=" . $db->quote($sek_title);
+        try {
+            $res = $db->fetchOne($stmt);
+        }
+        catch (Exception $ex) {
+            $log->err($ex);
+            return '';
+        }
+        return $res;
+    }
+    
     function getRelationshipByDBName($db_name)
     {
         $log = FezLog::get();

@@ -28,7 +28,18 @@ class RecordGeneral
   Record::status_published => 'Published'
   );
   var $title;
+  protected $_bgp;
 
+  /**
+   * Links this instance to a corresponding background process
+   *
+   * @param BackgroundProcess Object Instance $bgp
+   */
+  public function setBGP(&$bgp)
+  {
+    $this->_bgp = &$bgp;
+  }
+  
   /**
    * RecordGeneral
    * If instantiated with a pid, then this object is linked with the record with the pid, otherwise we are inserting
@@ -321,7 +332,7 @@ class RecordGeneral
    */
   function canViewVersions($redirect=false)
   {
-    if(APP_VERSION_UPLOADS_AND_LINKS != "ON") return false;
+//    if(APP_VERSION_UPLOADS_AND_LINKS != "ON") return false; // turned off only showing version button when file and link versioning was on so metadata versioning could still be shown
     return $this->checkAuth($this->versionsViewer_roles, $redirect);
   }
 
@@ -490,21 +501,18 @@ class RecordGeneral
   {
       $log = FezLog::get();
       $db = DB_API::get();
-      // remove the solr suffix
-
-			
 			
       $stmt = "SELECT xsdsel_title as datastreamname, x3.xsdmf_static_text as datastreamdesc
 			FROM 
-			 fez_xsd_display_matchfields x1
-			INNER JOIN fez_search_key ON x1.xsdmf_sek_id = sek_id AND sek_title = ".$db->quote($sek_title)."
-			INNER JOIN fez_xsd_relationship ON xsdrel_xdis_id = x1.xsdmf_xdis_id
-			INNER JOIN fez_xsd_display_matchfields x2 ON x2.xsdmf_id = xsdrel_xsdmf_id
-			INNER JOIN fez_xsd_loop_subelement ON x2.xsdmf_xsdsel_id = xsdsel_id
-			INNER JOIN fez_record_search_key ON rek_display_type = x2.xsdmf_xdis_id
-			INNER JOIN  fez_xsd_display_matchfields x3 ON x3.xsdmf_xsdsel_id = xsdsel_id AND x3.xsdmf_element = '!datastream!datastreamVersion!LABEL'
+			" . APP_TABLE_PREFIX . "xsd_display_matchfields x1
+			INNER JOIN " . APP_TABLE_PREFIX . "search_key ON x1.xsdmf_sek_id = sek_id AND sek_title = ".$db->quote($sek_title)."
+			INNER JOIN " . APP_TABLE_PREFIX . "xsd_relationship ON xsdrel_xdis_id = x1.xsdmf_xdis_id
+			INNER JOIN " . APP_TABLE_PREFIX . "xsd_display_matchfields x2 ON x2.xsdmf_id = xsdrel_xsdmf_id
+			INNER JOIN " . APP_TABLE_PREFIX . "xsd_loop_subelement ON x2.xsdmf_xsdsel_id = xsdsel_id
+			INNER JOIN " . APP_TABLE_PREFIX . "record_search_key ON rek_display_type = x2.xsdmf_xdis_id
+			INNER JOIN " . APP_TABLE_PREFIX . "xsd_display_matchfields x3 ON x3.xsdmf_xsdsel_id = xsdsel_id AND x3.xsdmf_element = '!datastream!datastreamVersion!LABEL'
 			WHERE rek_pid = ".$db->quote($this->pid);
-
+      
       try {
           $res = $db->fetchRow($stmt);
       }
@@ -1041,12 +1049,16 @@ class RecordGeneral
       if ($aut_details['aut_org_username']) {        
         if ($known) {
           // Last name match first, if we have $authors[$i]['name'] in the format LName, F
-          $name_parts = explode(',', $authors[$i]['name']);          
+          $name_parts = explode(',', $authors[$i]['name']);
           $percent = $this->matchAuthorNameByLev($name_parts[0], $aut_details['aut_lname'], $percent_1);
           if ($percent == 1) {
             $exact_match_count++;
             $match_index = $i;
             $authors[$i]['match'] = $percent;
+          } else {
+            if( $this->_bgp ) {
+              $this->_bgp->setStatus("FAILED to match ".$name_parts[0]." against Manage Authors known last name: ".$aut_details['aut_lname']);
+            }
           }
         }
         // No exact match above found        
@@ -1057,6 +1069,12 @@ class RecordGeneral
             $match_index = $i;
             $authors[$i]['match'] = $percent;
           } else {
+
+            if( $this->_bgp ) {
+              $this->_bgp->setStatus("FAILED to match by lev distance (".$percent." percent) ".$name_parts[0]." against Manager Authors display name words: ".implode("|",$aut_details['aut_display_name']));
+            }
+
+
             $authors[$i]['match'] = $percent;
             // Attempt to match on other names for this author we know about
             foreach ($aut_alt_names as $aut_alt_name => $count) {
@@ -1088,6 +1106,9 @@ class RecordGeneral
     } else {
       // Multiple matches found
       if ($known == TRUE) {
+        if( $this->_bgp ) {
+          $this->_bgp->setStatus("FOUND TOO MANY (".$exact_match_count.") matches (so won't save any of them) for this author name: ".implode("|",$aut_details['aut_display_name']));
+        }
         return array(FALSE, 'Multiple');
       }
     }
@@ -1108,6 +1129,9 @@ class RecordGeneral
       }
     } else {
       // Too many authors to perform step 2
+      if( $this->_bgp ) {
+        $this->_bgp->setStatus("FOUND TOO MANY CO-AUTHORS (".$authors_count.") so can't use co-authored logic on author name: ".implode("|",$aut_details['aut_display_name']));
+      }
     }
 
     // Step 3: Less than 10 authors on the pub
@@ -1313,7 +1337,7 @@ class RecordGeneral
 
     if ($newXML != "") {
       Fedora_API::callModifyDatastreamByValue(
-          $this->pid, "MODS", "A", "Metadata Object Description Schema", $newXML, "text/xml", "inherit"
+          $this->pid, "MODS", "A", "Metadata Object Description Schema", $newXML, "text/xml", true
       );
       History::addHistory($this->pid, null, "", "", TRUE, $message);
       Record::setIndexMatchingFields($this->pid);
@@ -2159,6 +2183,7 @@ file_put_contents('/var/www/fez/tmp/fedoraOut.txt', "\n"
     }
     $pid = $this->pid;
     $new_pid = Fedora_API::getNextPID();
+    $new_xml = "";
     // need to get hold of a copy of the fedora XML, and substitute the PIDs in it then ingest it.
     $xml_str = Fedora_API::getObjectXMLByPID($pid);
     $xml_str = str_replace($pid, $new_pid, $xml_str);  // change to new pid
@@ -2172,9 +2197,18 @@ file_put_contents('/var/www/fez/tmp/fedoraOut.txt', "\n"
     foreach ($nodes as $node) {
       $node->parentNode->removeChild($node);
     }
+
+    if (APP_FEDORA_VERSION == "3") { // Fedora 3 doesn't have the VERSION attribute so remove it or it will cause an error
+      $new_xml = $doc->saveXML();
+      $nodes = $xpath->query('/foxml:digitalObject');
+      foreach ($nodes as $node) {
+        $node->removeAttribute('VERSION');
+      }
+    }
     $new_xml = $doc->saveXML();
-    if (APP_FEDORA_VERSION == "3.2.1") {
-      Fedora_API::callIngestObject($new_xml, $pid);
+
+    if (APP_FEDORA_VERSION == "3") {
+      Fedora_API::callIngestObject($new_xml, $new_pid);
     } else {
       Fedora_API::callIngestObject($new_xml);
     }

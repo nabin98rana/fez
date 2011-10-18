@@ -852,7 +852,7 @@ class Fedora_API {
 		         return true;
 		 } else {
 //		         $log->err(array(print_r($results, true).print_r(curl_error($ch), true).print_r(curl_getinfo($ch), true),__FILE__,__LINE__).$getString.print_r(debug_backtrace(),true));
-		         $log->err(array(print_r($results, true).print_r(curl_error($ch), true).print_r(curl_getinfo($ch), true),__FILE__,__LINE__).$getString.$tempFile.$xmlContent);
+		         $log->err(print_r(array(print_r($results, true).print_r(curl_error($ch), true).print_r(curl_getinfo($ch), true),__FILE__,__LINE__), true).$getString.$tempFile.$xmlContent.", dsID was $dsID, dsIDName was $dsIDName");
 //				exit;
 		         curl_close ($ch);
 		         return false;
@@ -863,6 +863,7 @@ class Fedora_API {
 
 		function callModifyDatastream ($pid, $dsID, $dsLocation, $dsLabel, $dsState, $mimetype, $versionable='false', $xmlContent="") 
 		{
+      $tempFile = "";
 			if ($mimetype == "") {
 				$mimetype = "text/xml";
 			}
@@ -915,16 +916,29 @@ class Fedora_API {
 															"logMessage" => "Modified Datastream"
 				
 				));
+      } elseif ($dsLocation != "") {
+        curl_setopt($ch, CURLOPT_POSTFIELDS, array("file" => "@".$dsLocation.";type=".$mimetype,
+                              "dsLabel" => urlencode($dsLabel),
+                              "versionable" => $versionable,
+                              "mimeType" => $mimetype,
+                              "formatURI" => $formatURI,
+//															"controlGroup" => $controlGroup,
+                              "dsState" => "A",
+                              "logMessage" => "Modified Datastream"
+        ));
+        $log->err("sending this as a file => got a location of ".$dsLocation);
 			} elseif ($xmlContent != "") {
-				$xmlContent = Fedora_API::tidyXML($xmlContent);
+//				$xmlContent = Fedora_API::tidyXML($xmlContent);
 				$tempFile = APP_TEMP_DIR.str_replace(":", "_", $pid)."_".$dsID.".xml";
 				$fp = fopen($tempFile, "w");
 				if (fwrite($fp, $xmlContent) === FALSE) {
-				        echo "Cannot write to file ($tempFile)";
+				        $err = "Cannot write to file ($tempFile)";
+                $log->err(array($err, __FILE__,__LINE__));
 				        exit;
 				}
-				fclose($fp); 
-				curl_setopt($ch, CURLOPT_POSTFIELDS, array("file" => "@".$tempFile.";type=".$mimetype,
+				fclose($fp);
+
+        $params = array("file" => "@".$tempFile.";type=".$mimetype,
 															"dsLabel" => urlencode($dsLabel),
 															"versionable" => $versionable,
 															"mimeType" => $mimetype,
@@ -932,18 +946,10 @@ class Fedora_API {
 //															"controlGroup" => $controlGroup,
 															"dsState" => "A",
 															"logMessage" => "Modified Datastream"
-				));
-			} elseif ($dsLocation != "") {
-				curl_setopt($ch, CURLOPT_POSTFIELDS, array("file" => "@".$dsLocation.";type=".$mimetype,
-															"dsLabel" => urlencode($dsLabel),
-															"versionable" => $versionable,
-															"mimeType" => $mimetype,
-															"formatURI" => $formatURI,
-//															"controlGroup" => $controlGroup,
-															"dsState" => "A",
-															"logMessage" => "Modified Datastream"
-				));
-				$log->err("sending this as a file => got a location of ".$dsLocation);
+				);
+
+
+				curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
 			}
 
 			 if (APP_HTTPS_CURL_CHECK_CERT == "OFF" && APP_FEDORA_APIA_PROTOCOL_TYPE == 'https://')  {
@@ -955,16 +961,19 @@ class Fedora_API {
 			 if ($results) {
 			        $info = curl_getinfo($ch);
 					if ($info['http_code'] != '200' && $info['http_code'] != '201') {
-			         	$log->err(array(curl_error($ch), $info,__FILE__,__LINE__));
+			         	$log->err(array(print_r($results, true).print_r($params, true).curl_error($ch), $info,__FILE__,__LINE__));
 						curl_close($ch);
-						exit;
+//						exit;
 						return false;
 					}
-			         curl_close ($ch);
-			         return true;
+          if (file_exists($tempFile)) {
+            unlink($tempFile);
+          }
+			    curl_close ($ch);
+			    return true;
 			 } else {
 			         $info = curl_getinfo($ch);
-			         $log->err(array(curl_error($ch), $info,__FILE__,__LINE__));
+			         $log->err(array($tempFile." ".curl_error($ch), $info,__FILE__,__LINE__));
 			         curl_close ($ch);
 			         return false;
 			 }
@@ -1120,7 +1129,7 @@ class Fedora_API {
 	 * @param string $pid The persistant identifier of the object
 	 * @return array $dsIDListArray The list of datastreams in an array.
 	 */
-	function callListDatastreamsLite($pid, $refresh=false) 
+	function callListDatastreamsLite($pid, $refresh=false, $current_tries = 0)
 	{
 		$log = FezLog::get();
 		
@@ -1138,16 +1147,31 @@ class Fedora_API {
 				return $dsIDListArray;
 			}
 			$getString = APP_BASE_FEDORA_APIA_DOMAIN."/listDatastreams/".$pid."?xml=true";
-			$ch = curl_init($getString);
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-			if (APP_HTTPS_CURL_CHECK_CERT == "OFF" && APP_FEDORA_APIA_PROTOCOL_TYPE == 'https://')  {
-				curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, 0);
-				curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, 0);
-			}
-			$results = curl_exec($ch);
-			$info = curl_getinfo($ch);
-			curl_close ($ch);
-			$xml = $results;
+//			$ch = curl_init($getString);
+//			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+//			if (APP_HTTPS_CURL_CHECK_CERT == "OFF" && APP_FEDORA_APIA_PROTOCOL_TYPE == 'https://')  {
+//				curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, 0);
+//				curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, 0);
+//			}
+//			$results = curl_exec($ch);
+//			$info = curl_getinfo($ch);
+//			curl_close ($ch);
+//			$xml = $results;
+            list($xml, $info) = Misc::processURL($getString);
+            if ($xml == '' || $xml == false) {
+                $current_tries++;
+                $fedoraError = "Error when calling ".__FUNCTION__." :".print_r($info,true)."\n\n \n\n FOR THE $current_tries time REQUEST: $pid "."\n\n RESPONSE: \n\n ".$xml;
+                $log->err(array($fedoraError, __FILE__,__LINE__));
+                if ($current_tries < 5) {
+                  sleep(5); // sleep for a bit so the object can get unlocked before trying again
+                  return Fedora_API::callListDatastreamsLite($pid, $refresh, $current_tries);
+                } else {
+                  return false;
+                }
+            }
+
+
+
 			$dom = @DomDocument::loadXML($xml);
 			if (!$dom) {
 				$log->err(array("Couldn't parse datastream XML",$info,$xml));
@@ -1243,10 +1267,11 @@ class Fedora_API {
 	 * @param string $dsID The ID of the datastream
 	 * @return array $dsIDListArray The requested of datastream in an array.
 	 */
-	function callGetDatastream($pid, $dsID) 
+	function callGetDatastream($pid, $dsID, $createdDT=NULL)
 	{
-	    
-	    $dsIDListArray = Fedora_API::callGetDatastreamDisseminationLite($pid, $dsID);
+//		$parms=array('pid' => $pid, 'dsID' => $dsID);
+    $parms=array('pid' => $pid, 'dsID' => $dsID, 'asOfDateTime' => $createdDT);
+		$dsIDListArray = Fedora_API::openSoapCall('getDatastream', $parms);
 		return $dsIDListArray;
 	}
 
@@ -1346,7 +1371,7 @@ class Fedora_API {
 	 * @param string $asofDateTime Optional Gets a specified version at a datetime stamp
 	 * @return array $dsIDListArray The datastream returned in an array
 	 */
-	function callGetDatastreamDisseminationLite($pid, $dsID, $asofDateTime="") 
+	function callGetDatastreamDisseminationLite($pid, $dsID, $asofDateTime="", $current_tries = 0)
 	{
 		
 		$log = FezLog::get();
@@ -1364,6 +1389,18 @@ class Fedora_API {
 			$urldata = APP_FEDORA_GET_URL."/".$pid."/".$dsID."/".$asofDateTime;
 		}
 		list($dsIDListArray['stream'],$info) = Misc::processURL($urldata);
+
+        if ($dsIDListArray['stream'] == '' || $dsIDListArray['stream'] == false) {
+            $current_tries++;
+            $fedoraError = "Error when calling ".__FUNCTION__." :".print_r($info,true)."\n\n \n\n FOR THE $current_tries time REQUEST: $pid $dsID "."\n\n RESPONSE: \n\n ".$dsIDListArray['stream'];
+            $log->err(array($fedoraError, __FILE__,__LINE__));
+            if ($current_tries < 5) {
+              sleep(5); // sleep for a bit so the object can get unlocked before trying again
+              return Fedora_API::callGetDatastreamDisseminationLite($pid, $dsID, $asofDateTime, $current_tries);
+            } else {
+              return false;
+            }
+        }
 
     if ($asofDateTime != "") {
       $config = array(
@@ -1396,8 +1433,9 @@ class Fedora_API {
 	 * @param boolean $getxml Get as xml
 	 * @return array $resultlist The requested of datastream in an array.
 	 */
-	function callGetDatastreamContents($pid, $dsID, $getraw = false, $filehandle = null) 
+	function callGetDatastreamContents($pid, $dsID, $getraw = false, $filehandle = null, $current_tries = 0)
 	{
+        $log = FezLog::get();
 		$resultlist = array();
 		$dsExists = Fedora_API::datastreamExists($pid, $dsID);
 		if ($dsExists === true) {
@@ -1409,6 +1447,20 @@ class Fedora_API {
 				return $ret;
 			} else {
 				list($blob,$info) = Misc::processURL($filename);
+
+                if ($blob == '' || $blob == false) {
+                    $current_tries++;
+                    $fedoraError = "Error when calling ".__FUNCTION__." :".print_r($info,true)."\n\n \n\n FOR THE $current_tries time REQUEST: $pid $dsID "."\n\n RESPONSE: \n\n ".$blob;
+                    $log->err(array($fedoraError, __FILE__,__LINE__));
+                    if ($current_tries < 5) {
+                      sleep(5); // sleep for a bit so the object can get unlocked before trying again
+                      return Fedora_API::callGetDatastreamContents($pid, $dsID, $getraw, $filehandle, $current_tries);
+                    } else {
+                      return false;
+                    }
+                }
+
+
 			}
 			// check if this is even XML, it might be binary, in which case we'll just return it.
 			if ($info['content_type'] != 'text/xml' || $getraw) {
@@ -1698,17 +1750,14 @@ class Fedora_API {
 	 * @param array $parms The parameters
 	 * @return array $result
 	 */
-	function openSoapCall ($call, $parms, $debug_error=true) 
+	function openSoapCall ($call, $parms, $debug_error=true, $current_tries=0)
 	{
 		$log = FezLog::get();
 		
 	    $setDateTimeTo = array('getDatastream');
 	    
 	    if(!array_key_exists($parms['asOfDateTime']) && in_array($call, $setDateTimeTo))
-	    {
-	        $parms['asOfDateTime'] = NULL;
-	    }
-		
+
 		/********************************************
 		 * This is a primary function called by all of
 		 * the preceding functions.
@@ -1737,9 +1786,16 @@ class Fedora_API {
 				$result = $result[0];
 			} catch (SoapFault $fault) { 
 //				$fedoraError = "Error when calling ".$call." :".$fault->faultstring;
-				$fedoraError = "Error when calling ".$call." :".$fault->faultstring."\n\n REQUEST: \n\n".$client->__getLastRequest()."\n\n RESPONSE: \n\n ".$client->__getLastResponse();
+        $current_tries++;
+				$fedoraError = "Error when calling ".$call." :".$fault->getMessage()."\n\n \n\n FOR THE $current_tries time REQUEST: \n\n".$client->__getLastRequest()."\n\n RESPONSE: \n\n ".$client->__getLastResponse();
 				$log->err(array($fedoraError, __FILE__,__LINE__));
-				return false;
+        // If it's an object locked exception.. some other thread is trying to modify it, so wait and try again as long as it hasn't been tried at least 4 times already
+        if (is_numeric(strpos($fault->getMessage(), "fedora.server.errors.ObjectLockedException")) && $current_tries < 5) {
+          sleep(5); // sleep for a bit so the object can get unlocked before trying again
+          return Fedora_API::openSoapCall($call, $parms, $debug_error, $current_tries);
+        } else {
+          return false;
+        }
 			}	
 		return $result;
 	}
@@ -1752,7 +1808,7 @@ class Fedora_API {
 	 * @param array $parms The parameters
 	 * @return array $result
 	 */
-	function openSoapCallAccess ($call, $parms) 
+	function openSoapCallAccess ($call, $parms, $current_tries=0)
 	{
 		$log = FezLog::get();
 		
@@ -1777,12 +1833,17 @@ class Fedora_API {
 			$result = $client->__soapCall($call, array('parameters' => $parms));
 			$result = array_values(Misc::obj2array($result));
 			$result = $result[0];
-		} catch (SoapFault $fault) { 
-			$fedoraError = "Error when calling ".$call." :".$fault->faultstring."\n\n REQUEST: \n\n".$client->__getLastRequest()."\n\n RESPONSE: \n\n ".$client->__getLastResponse();
-			$log->err(array($fedoraError, __FILE__,__LINE__));
-//			$client->__getLastRequest();
-//		    $client->__getLastResponse();
-			return false;
+		} catch (SoapFault $fault) {
+      $current_tries++;
+			$fedoraError = "Error when calling ".$call." :".$fault->getMessage()."\n\n FOR THE $current_tries time  \n\n REQUEST: \n\n".$client->__getLastRequest()."\n\n RESPONSE: \n\n ".$client->__getLastResponse();
+      $log->err(array($fedoraError, __FILE__,__LINE__));
+      // If it's an object locked exception.. some other thread is trying to modify it, so wait and try again as long as it hasn't been tried at least 4 times already
+      if (is_numeric(strpos($fault->getMessage(), "fedora.server.errors.ObjectLockedException")) && $current_tries < 5) {
+        sleep(5); // sleep for a bit so the object can get unlocked before trying again
+        return Fedora_API::openSoapCallAccess($call, $parms, $current_tries);
+      } else {
+        return false;
+      }
 		}
     return $result;
 	}

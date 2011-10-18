@@ -367,9 +367,9 @@ class XSD_Display
 			$params = &$_POST;
 		}
 		if (@$params["xdis_enabled"]) {
-			$xdis_enabled = TRUE;
+			$xdis_enabled = 1;
 		} else {
-			$xdis_enabled = FALSE;
+			$xdis_enabled = 0;
 		}
 
 		$stmt = "UPDATE

@@ -415,6 +415,9 @@ class Author
       $rid = " aut_researcher_id=  ". $db->quote($_POST["researcher_id"]) . ",";
     }
     
+	//strip html tags from $_POST["description"] except for <b><i> etc
+	$tags = '<b><i><sup><sub><em><strong><u><br>';
+	$stripped_description = strip_tags($_POST["description"], $tags);	
     
     $stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "author
@@ -425,11 +428,14 @@ class Author
                     aut_lname=" . $db->quote($_POST["lname"]) . ",
                     aut_display_name=" . $db->quote($_POST["dname"]) . ",
                     aut_position=" . $db->quote($_POST["position"]) . ",
+					aut_email=" . $db->quote($_POST["email"]) . ",
                     aut_cv_link=" . $db->quote($_POST["cv_link"]) . ",
                     aut_homepage_link=" . $db->quote($_POST["homepage_link"]) . ",
                     aut_ref_num=" . $db->quote($_POST["aut_ref_num"]) . ",
                     aut_scopus_id=" . $db->quote($_POST["scopus_id"]).",
+					aut_people_australia_id=" . $db->quote($_POST["people_australia_id"]).",
                     aut_mypub_url=" . $db->quote($_POST["mypub_url"]).",
+					aut_description=" . $db->quote($stripped_description) . ",						
                     aut_update_date=" . $db->quote(Date_API::getCurrentDateGMT());
     if (trim($_POST["org_staff_id"] !== "")) {
       $stmt .= ",aut_org_staff_id=" . $db->quote($_POST["org_staff_id"]) . " ";
@@ -531,6 +537,9 @@ class Author
     if ($_POST["position"] !== "") {
       $insert .= ", aut_position ";
     }
+	if ($_POST["email"] !== "") {
+      $insert .= ", aut_email ";
+    }	
     if ($_POST["cv_link"] !== "") {
       $insert .= ", aut_cv_link ";
     }
@@ -546,9 +555,15 @@ class Author
     if ($_POST["scopus_id"] !== "") {
       $insert .= ", aut_scopus_id ";
     }
+    if ($_POST["people_australia_id"] !== "") {
+      $insert .= ", aut_people_australia_id ";
+    }	
     if ($_POST["mypub_url"] !== "") {
       $insert .= ", aut_mypub_url ";
     }
+	if ($_POST["description"] !== "") {
+      $insert .= ", aut_description ";
+    }	
 
     $values = ") VALUES (
                     " . $db->quote($_POST["title"]) . ",
@@ -575,6 +590,9 @@ class Author
     if ($_POST["position"] !== "") {
       $values .= ", " . $db->quote($_POST["position"]);
     }
+    if ($_POST["email"] !== "") {
+      $values .= ", " . $db->quote($_POST["email"]);
+    }	
     if ($_POST["cv_link"] !== "") {
       $values .= ", " . $db->quote($_POST["cv_link"]);
     }
@@ -590,9 +608,16 @@ class Author
     if ($_POST["scopus_id"] !== "") {
       $values .= ", " . $db->quote($_POST["scopus_id"]);
     }
+    if ($_POST["people_australia_id"] !== "") {
+      $values .= ", " . $db->quote($_POST["people_australia_id"]);
+    }	
     if ($_POST["mypub_url"] !== "") {
         $values .= ", " . $db->quote($_POST["mypub_url"]);
     }
+    if ($_POST["description"] !== "") {
+	  $stripped_description = strip_tags($_POST["description"], $tags); //strip HTML tags 
+      $values .= ", " . $db->quote($stripped_description);
+    }	
 
     $values .= ")";
 
@@ -1011,7 +1036,44 @@ class Author
     
     return $res;
   }
-  
+
+    /**
+   * Method used to get an associative array of author ID and ResearcherID
+   * of all authors with a ResearcherID who are current staff
+   *
+   * @access  public
+   * @return  array The list of authors
+   */
+  function getAllCurrentStaffWithResearcherId()
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $stmt = "SELECT
+                    aut_id,
+                    aut_researcher_id
+                 FROM
+                    fez_author
+                 INNER JOIN hr_position_vw ON USER_NAME = aut_org_username
+                 WHERE
+                    (DT_TO >= NOW() OR DT_TO = '0000-00-00')
+                    AND aut_researcher_id IS NOT NULL
+                    AND aut_researcher_id != ''
+                    AND aut_researcher_id NOT LIKE 'ERR:%'
+                    AND aut_researcher_id != '-1'
+                    GROUP BY aut_id, aut_researcher_id";
+    try {
+      $res = $db->fetchPairs($stmt);
+    }
+    catch(Exception $ex) {
+      $log->err($ex);
+      return '';
+    }
+
+    return $res;
+  }
+
+
 /**
    * Method used to get an associative array of author ID and title
    * of all authors available in the system.

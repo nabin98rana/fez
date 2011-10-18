@@ -1,12 +1,11 @@
 <?php
 
-include('../config.inc.php');
-include_once('../include/class.db_api.php');
-include_once('../include/class.googlemap.php');
-include_once('../include/class.geocode_cities.php');
-include_once('../include/class.geocode_location_cache.php');
-include_once('../include/class.geocode_regions.php');
-
+include_once dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'config.inc.php';
+include_once APP_INC_PATH.'class.db_api.php';
+include_once APP_INC_PATH.'class.googlemap.php';
+include_once APP_INC_PATH.'class.geocode_cities.php';
+include_once APP_INC_PATH.'class.geocode_location_cache.php';
+include_once APP_INC_PATH.'class.geocode_regions.php';
 
 $log = FezLog::get();
 

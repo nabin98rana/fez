@@ -129,9 +129,43 @@ try {
 } catch (Exception $ex) {
 	echo "No constraint to remove.\n";
 }
-echo "ok!\n";
+echo "ok!\n\n";
 
-echo "Done.\n\n";
+// 1.8 Add joint primary keys to shadow tables
+echo "* Adding joint primary key to fez_record_search_key__shadow";
+$stmt = "TRUNCATE TABLE fez_record_search_key__shadow;";
+try {
+	$db->exec($stmt);
+} catch (Exception $ex) {
+	echo " - ERROR - Could not truncate fez_record_search_key__shadow.\n";
+}
+$stmt = "ALTER TABLE fez_record_search_key__shadow DROP PRIMARY KEY, ADD PRIMARY KEY (rek_pid, rek_stamp);";
+try {
+	$db->exec($stmt);
+} catch (Exception $ex) {
+	echo " - ERROR - Could not add joint primary key to fez_record_search_key__shadow.\n";
+}
+echo "\n";
+
+$searchKeys = Search_Key::getList();
+foreach ($searchKeys as $sk) {
+	if ($sk['sek_relationship'] == '1') {
+		$stmt = "TRUNCATE TABLE fez_record_search_key_" . $sk['sek_title_db'] . "__shadow;";
+		try {
+			$db->exec($stmt);
+		} catch (Exception $ex) {
+			echo " - ERROR - Could not truncate " . $sk['sek_title_db']. "\n";
+		}
+		echo "* Adding joint primary key to fez_record_search_key_" . $sk['sek_title_db'] . "__shadow";
+		$stmt = "ALTER TABLE fez_record_search_key_" . $sk['sek_title_db'] . "__shadow ADD UNIQUE KEY (rek_" . $sk['sek_title_db'] . "_pid, rek_" . $sk['sek_title_db'] . "_stamp);";
+		try {
+			$db->exec($stmt);
+		} catch (Exception $ex) {
+			echo " - FAILED\n";
+		}
+		echo "\n";
+	}
+}
 
 // Other steps as necessary.
 

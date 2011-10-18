@@ -97,7 +97,6 @@ if (!empty($pid) && !empty($dsID)) {
         $tpl->displayTemplate();
         exit;
 	}
-	
     // Retrieve the selected version date from the request. 
     // This will be null unless a version date has been
     // selected by the user.
@@ -158,7 +157,7 @@ if (!empty($pid) && !empty($dsID)) {
 		$not_exists = true;
 	}
 	
-	
+
 	if ($not_exists == false) {
 		$ctype = $info['content_type'];
 		
@@ -270,7 +269,7 @@ if (!empty($pid) && !empty($dsID)) {
             $dsID = explode('.pdf', $dsID);
             $dsID = $dsID[0];
             
-            $resourcePath = BR_IMG_DIR . $pid . '/' . $dsID;
+            $resourcePath = APP_PATH.BR_IMG_DIR . $pid . '/' . $dsID;
             $protocol = ($_SERVER['HTTPS']) ? 'https://' : 'http://';
             $host = $protocol . $_SERVER['HTTP_HOST'];
             $urlPath = str_replace($_SERVER['DOCUMENT_ROOT'], '', BR_IMG_DIR);
@@ -296,7 +295,6 @@ if (!empty($pid) && !empty($dsID)) {
             exit;
 
          } elseif($bookpage == true) {
-             
              //$_SERVER['REQUEST_URI'] = "/pidimages/UQ_5403/../../../Arianrhod_Chapte/Arianrhod_Chapte-0002.jpg?bookpage=true";
              $uri = $_SERVER['REQUEST_URI'];
              
@@ -318,7 +316,7 @@ if (!empty($pid) && !empty($dsID)) {
                  $pid = str_replace(':','_',$pid);
              }
              
-             $imageFile = BR_IMG_DIR . $pid . '/' . $resource . '/' . $image;
+             $imageFile = APP_PATH.BR_IMG_DIR . $pid . '/' . $resource . '/' . $image;
              
              if(is_file($imageFile))
              {
@@ -417,10 +415,19 @@ if (!empty($pid) && !empty($dsID)) {
     		header('Pragma: private');
     		header('Cache-control: private, must-revalidate');
 		
+
+    if (APP_FEDORA_SENDFILE_DIRECT == "ON") {
+      Statistics::addBuffer($pid, $dsID);
+      $fda = new Fedora_Direct_Access();
+      $dsVersionID = $fda->getMaxDatastreamVersion($pid, $dsID);
+      $fda->getDatastreamManagedContent($pid, $dsID, $dsVersionID);
+    } else {
 		    Misc::processURL($urldata, true);
 		}
+      Statistics::addBuffer($pid, $dsID);
+    }
 		// Add view to statistics buffer
-		Statistics::addBuffer($pid, $dsID);				
+
 		exit;
 	}
 }

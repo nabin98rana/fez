@@ -138,7 +138,7 @@ function correctionRequired(pid)
 			    </tr>
 		{/if}
 	
-		<tr class="{if $flagged_claimed[$pid].type == 'D'}claimed-not-my-pub{elseif $flagged_claimed[$pid].type == 'C'}claimed-correction-required{elseif $flagged_possible[$pid].type == 'C' && $flagged_possible[$pid].correction != ''}claimed-correction-required{elseif $list[i].rek_status != '2'}unpublished-pub{/if}">
+		<tr class="{if $flagged_claimed[$pid].type == 'D'}claimed-not-my-pub{elseif $flagged_claimed[$pid].type == 'C'}claimed-correction-required{elseif $flagged_possible[$pid].type == 'C' && $flagged_possible[$pid].correction != ''}claimed-correction-required{elseif $flagged_claimed[$pid].type == 'U' && $flagged_claimed[$pid].correction != ''}claimed-duplication{elseif $list[i].rek_status != '2'}unpublished-pub{/if}">
 			<td style="width: 100%;">  
 			{if $list[i].rek_status != 2} (waiting on an administrator for approval to be published) {/if}
                 {if $isAdministrator}
@@ -236,6 +236,14 @@ function correctionRequired(pid)
 							User <span style="font-weight: bold">{$flagged_claimed[$pid].user}</span> has indicated that this record may have data problems. A job has already been logged with the {$app_name} team.
 						{/if}
 					</div>
+                {elseif $flagged_claimed[$pid].type == 'U'}
+                    <div class="research-record-note">
+                        {if $flagged_claimed[$pid].user == $actual_user}
+                            You have indicated that this record may be a duplicate of another pre-existing record. A job has been logged with the {$app_name} team.
+                        {else}
+                            User <span style="font-weight: bold">{$flagged_claimed[$pid].user}</span> has indicated that this record may be a duplicate of another pre-existing record. A job has already been logged with the {$app_name} team.
+                        {/if}
+                    </div>
 				{elseif $flagged_possible[$pid].type == 'C' && $flagged_possible[$pid].correction != ''}
 					<div class="research-record-note">
 						{if $flagged_possible[$pid].user == $actual_user}

@@ -39,6 +39,7 @@
  * @author Andrew Martlew <a.martlew@library.uq.edu.au>
  *
  */
+include_once(APP_INC_PATH . "class.wok_session.php");
 
 class WokService
 {
@@ -64,7 +65,35 @@ class WokService
     }
     $options = array();
     $this->client = new Zend_Soap_Client($this->authEndpoint . '?wsdl', $options);
-    $this->sessionId = $this->authenticate(WOK_USERNAME, WOK_PASSWORD);
+    // Try and reuse an existing cookie
+    $wokSession = WokSession::get();
+    if ($wokSession != '') {
+//      echo "Reusing COOKIE! ".$wokSession."\n";
+      $this->sessionId = $wokSession;
+      $this->client->setCookie(WOK_COOKIE_NAME, $this->sessionId);
+      $this->ready = TRUE;
+      $this->sessionId = "\"{$this->sessionId}\""; // cursed @ symbol, can't encode else the service
+                                                   // fails to recognise the session
+      $this->client->setOptions($options);
+      $this->client->setWsdl($this->searchEndpoint.'?wsdl');
+
+      // now test the old session/cookie is still active
+      if ($this->retrieveById(array('1234')) == false) {
+//        echo "current value of ".$wokSession." is expired so need to get a new one\n";
+        $this->sessionId = $this->authenticate(WOK_USERNAME, WOK_PASSWORD);
+        $this->client->setCookie(WOK_COOKIE_NAME, $this->sessionId);
+        WokSession::insert($this->sessionId);
+      } else {
+        return;
+      }
+    } else {
+//      echo "Not reusing cookie :( \n";
+      $this->sessionId = $this->authenticate(WOK_USERNAME, WOK_PASSWORD);
+      $this->client->setCookie(WOK_COOKIE_NAME, $this->sessionId);
+//      echo $this->sessionId;
+      WokSession::insert($this->sessionId);
+    }
+    
     if ($this->sessionId) {
       $this->ready = TRUE;
       $this->sessionId = "\"{$this->sessionId}\""; // cursed @ symbol, can't encode else the service
@@ -231,7 +260,7 @@ class WokService
   {
     try {
       // Make SOAP request 
-      $this->client->setCookie(WOK_COOKIE_NAME, $this->sessionId); 
+      $this->client->setCookie(WOK_COOKIE_NAME, $this->sessionId);
       $this->client->closeSession();
     }
     catch(SoapFault $ex) {

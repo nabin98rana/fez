@@ -1,0 +1,1 @@
+ALTER TABLE %TABLE_PREFIX%author ADD COLUMN aut_description TEXT;

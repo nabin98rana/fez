@@ -33,7 +33,7 @@
 // Loops through all records in eSpace, and inserts the ScopusID by 
 // searching the Scopus CitedBy Retrieve on DOI
 
-include_once('../config.inc.php');
+include_once dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'config.inc.php';
 include_once(APP_INC_PATH . 'class.scopus.php');
 include_once(APP_INC_PATH . "class.record.php");
 

@@ -20,11 +20,9 @@
             <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/users.php'}class="focus" {/if}href="{$rel_url}manage/users.php">Users</a></li>
             <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/groups.php'}class="focus" {/if}href="{$rel_url}manage/groups.php">Groups</a></li>
             <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/authors.php'}class="focus" {/if} href="{$rel_url}manage/authors.php">Authors</a></li>
-            <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/journals.php'}class="focus" {/if} href="{$rel_url}manage/journals.php">Journals</a></li>
             <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/statuses.php'}class="focus" {/if}href="{$rel_url}manage/statuses.php">Statuses</a></li>
             <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/sessions.php'}class="focus" {/if}href="{$rel_url}manage/sessions.php">Sessions</a></li>
             <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/languages.php'}class="focus" {/if}href="{$rel_url}manage/languages.php">Languages</a></li>
-            <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/conferences.php'}class="focus" {/if}href="{$rel_url}manage/conferences.php">Conferences</a></li>
             <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/orgstructure.php'}class="focus" {/if}href="{$rel_url}manage/orgstructure.php">Organisational Structure</a></li>
             {if $APP_MATCHING_TOOLS == 'ON'}
               <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/matching.php'}class="focus" {/if} href="{$rel_url}manage/matching.php">J/C Matching</a></li>
@@ -44,6 +42,8 @@
           {if $isSuperAdministrator}
             <div class="admin-side-nav-title">Configuration</div>
             <ul class="admin-side-nav">
+              <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/journals.php'}class="focus" {/if} href="{$rel_url}manage/journals.php">Journals</a></li>
+              <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/conferences.php'}class="focus" {/if}href="{$rel_url}manage/conferences.php">Conferences</a></li>
               <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/doctypexsds.php'}class="focus" {/if}href="{$rel_url}manage/doctypexsds.php">Document Type XSDs</a></li>
               <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/citations.php'}class="focus" {/if}href="{$rel_url}manage/citations.php">Citations Views</a></li>
               <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/workflows.php'}class="focus" {/if}href="{$rel_url}manage/workflows.php">Workflow Templates</a></li>

@@ -3,7 +3,7 @@
 <!--
 function claimPID(pid)
 {
-	document.getElementById('pid').value = pid;
+	document.getElementById('claim-pid').value = pid;
 	document.forms['possibleForm'].submit();
 }
 
@@ -21,9 +21,10 @@ function hideBulk()
     frm = document.getElementById('possibleForm');
 	count = 0;
 	pids = [];
-	for (i = 0; i < frm.pid.length; i++) {
-		if (frm.pid[i].checked) {
-			pids.push(frm.pid[i].value);
+
+	for (i = 0; i < frm.bulk_pid.length; i++) {
+		if (frm.bulk_pid[i].checked) {
+			pids.push(frm.bulk_pid[i].value);
 			count++;
 		}
 	}
@@ -97,9 +98,10 @@ function hideBulk()
 
 			<table {if ($facets)}width="70%"{else}width="100%"{/if} id="research-record-listing">
 				<tr>
+                    <th>&nbsp;
+                    </th>
 			        <th>
 			        These publications may be authored by you. Your surname or one of the variants of your name that we know about is listed as an author of this publication.<br /><br />
-			        
 			        You can use the refine feature at the left to find publications more likely to be yours, based on co-authors, keywords etc.
 			        </th>
 					<th style="text-align: center; padding: 2px;">
@@ -134,8 +136,15 @@ function hideBulk()
 		          </th>
 			        <th></th>
 			    </tr>
+                <tr>
+                      <td colspan="8">
+                          <input type="button" class="possible-hide" value="None of the below ticked publications are mine" onclick="javascript:hideBulk();" />
+                      </td>
+                  </tr>
+
 		{/if}
 		<tr class="{if $flagged_possible[$pid].type == 'C'}possible-my-pub{elseif $flagged_possible[$pid].type == 'H'}possible-hide{elseif $list[i].rek_status != '2'}unpublished-pub{/if}">
+            <td style="width: 10px;"><input type="checkbox" id="bulk_pid" name="bulk_pid" value="{$list[i].rek_pid}" /><input type="hidden" id="pid" name="pid" value="{$list[i].rek_pid}" /></td>
 			<td style="width: 100%;">
 			{if $list[i].rek_status != 2} (waiting on an administrator for approval to be published) {/if}
                 {if $isAdministrator}
@@ -250,10 +259,15 @@ function hideBulk()
 		</tr>
 	
 		{if $smarty.section.i.last}
+        <tr>
+  			<td colspan="8">
+  				<input type="button" class="possible-hide" value="None of the above ticked publications are mine" onclick="javascript:hideBulk();" />
+  			</td>
+  		</tr>
 			</table>
 
 			<div>
-				<input type="hidden" id="pid" name="pid" value="" />
+                <input type="hidden" id="claim-pid" name="claim-pid" value="" />
 				<input type="hidden" name="action" value="claim" />
 			</div>
 		{/if}
@@ -272,7 +286,7 @@ function hideBulk()
 
 <form action="{$rel_url}my_research_possible.php" method="post" id="hide">	
 	<div>
-		<input type="hidden" id="hide-pid" name="pid" value="" />
+		<input type="hidden" id="hide-pid" name="hide-pid" value="" />
 		<input type="hidden" name="action" value="hide" />
 	</div>
 </form>

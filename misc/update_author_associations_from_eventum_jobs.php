@@ -34,7 +34,7 @@ set_time_limit(0);
 ini_set("display_errors", 1);
 error_reporting(1);
 
-include_once('../config.inc.php');
+include_once dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'config.inc.php';
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.my_research.php");
 

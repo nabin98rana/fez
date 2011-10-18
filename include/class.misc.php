@@ -254,7 +254,7 @@ class Misc
    * @param string $url
    * @param bool $passthru - if true, don't return the retreived content, just echo it
    */
-  function processURL($url, $passthru=false, $filehandle=null, $post = null, $contenttype = null, $timeout = null) 
+  function processURL($url, $passthru=false, $filehandle=null, $post = null, $contenttype = null, $timeout = 45)
   {
     $log = FezLog::get();
     

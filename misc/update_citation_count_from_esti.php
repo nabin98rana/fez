@@ -30,7 +30,7 @@
 // | Authors: Andrew Martlew <a.martlew@library.uq.edu.au>                |
 // +----------------------------------------------------------------------+
 
-include_once('../config.inc.php');
+include_once dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'config.inc.php';
 include_once(APP_INC_PATH . 'class.esti_search_service.php');
 include_once(APP_INC_PATH . "class.record.php");
 
@@ -40,6 +40,7 @@ $sleep = 1; 	// Number of seconds to wait for between successive ESTI Search Ser
 $filter = array();
 $filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
 $filter["searchKey".Search_Key::getID("Object Type")] = 3; // records only
+$filter["manualFilter"] = "isi_loc_t_s:[* TO *]"; //only records that have an isi loc
 
 $listing = Record::getListing(array(), array(9,10), 0, $max, 'Created Date', false, false, $filter);
 

@@ -47,7 +47,20 @@ $href = $_REQUEST['href'];
 $wfl_title = $_REQUEST['wfl_title'];
 $wft_type = $_REQUEST['wft_type'];
 
-if ($href) {
+$isAdministrator = Auth::isAdministrator();
+
+if ($isAdministrator && $wft_type == "Create") {
+  if (Misc::isValidPid($pid)) {
+      $record = new RecordObject($pid);
+      if ($record->isCommunity()) {
+          $redirect = APP_RELATIVE_URL . "community/" . $pid;
+      } elseif ($record->isCollection()) {
+          $redirect = APP_RELATIVE_URL . "collection/" . $pid;
+      } else {
+          $redirect = APP_RELATIVE_URL . "view/" . $pid;
+      }
+  }
+} elseif ($href) {
     $redirect = APP_RELATIVE_URL . substr($_REQUEST['href'], strlen(APP_RELATIVE_URL));
 } else {
     if ($wft_type != 'Delete') {
@@ -60,10 +73,12 @@ if ($href) {
             } else {
                 $redirect = APP_RELATIVE_URL . "view/" . $pid;
             }
-        }
+        } else { 
+			$redirect = APP_RELATIVE_URL . "list.php";
+		}
     } else {
         // Take a stab at a parent URL.
-        $parents_list = unserialize($_REQUEST['parents_list']);
+        $parents_list = unserialize(stripslashes($_REQUEST['parents_list']));
         foreach ($parents_list as &$item) {
             if (Misc::isValidPid($item)) {
                 $precord = new RecordObject($item);

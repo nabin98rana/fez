@@ -2269,6 +2269,7 @@ a.author_id_link:hover {
 .unpublished-pub { background: #f6cbbe; }
 .claimed-not-my-pub { background: #ffe2e2; }
 .claimed-correction-required { background: #fffeeb; }
+.claimed-duplication { background: #e4cbf2; }
 .possible-my-pub { background: #d6ffe0; }
 .possible-hide { background: #eaeaea; }
 
