@@ -1143,34 +1143,43 @@ class Record
           }
         }
         
+        $xsdDetails = XSD_HTML_Match::getDetailsByXSDMF_ID($sek_value['xsdmf_id']);
+        $searchKeyDetails = Search_Key::getDetails($xsdDetails['xsdmf_sek_id']);
+
         // do final check for cardinality before trying to insert/update an array of values in one to many tables
         if (is_array($sek_value['xsdmf_value'])) {
-          $xsdDetails = XSD_HTML_Match::getDetailsByXSDMF_ID($sek_value['xsdmf_id']);
-          $searchKeyDetails = Search_Key::getDetails($xsdDetails['xsdmf_sek_id']);
           if ($searchKeyDetails['sek_cardinality'] == 0) {
             $log->err(
                 "The cardinality of this value is 1-1 but it is in the 1-M data and contains multiple ".
-                "values. We cannot insert/update pid {$pid} for the {$sek_table} table with data: " . 
+                "values. We cannot insert/update pid {$pid} for the {$sek_table} table with data: " .
                 print_r($sek_value, true)
             );
             $ret = false;
             continue;
           }
         }
-        
+
         if ($notEmpty) { // only write values to tables if the value is not empty
-          
+
           $cardinalityCol = "";
           if (is_array($sek_value['xsdmf_value'])) {
             $cardinalityCol = ",rek_".$sek_table."_order";
           }
-          
+
           $table = APP_TABLE_PREFIX . "record_search_key_" . $sek_table;
           if ($shadow) {
             $table .= "__shadow";
           }
 
-          $stmt = "INSERT INTO " . $table . " (rek_" . $sek_table . "_pid, rek_" . $sek_table . "_xsdmf_id, rek_" . $sek_table . $cardinalityCol;
+          // Run REPLACE INTO when cardinality is 0 and we are using MySQL as db connection type
+          // Otherwise use INSERT INTO
+          if ($searchKeyDetails['sek_cardinality'] == 0 && is_numeric(strpos(APP_SQL_DBTYPE, "mysql")) ) {
+            $stmt = "REPLACE INTO ". $table;
+          }else {
+            $stmt = "INSERT INTO " . $table;
+          }
+          $stmt .= " (rek_" . $sek_table . "_pid, rek_" . $sek_table . "_xsdmf_id, rek_" . $sek_table . $cardinalityCol;
+
           if ($shadow) {
             $stmt .= ", rek_" . $sek_table . "_stamp";
           }
