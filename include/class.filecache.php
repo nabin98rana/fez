@@ -65,8 +65,8 @@ class fileCache {
             $pieces = explode("<!--sectionnextprevstart-->", $htmlContent);
             $part1 = $pieces[0];
             $part2 = '';
-            list($prev, $next, $go_next, $go_prev) = RecordView::getNextPrevNavigation($this->pid);
-            //die(print_r($this->getPrevPage($this->pid)));
+            list($prev, $next) = RecordView::getNextPrevNavigation($this->pid);
+
             if (!empty($pieces[1])) {
                 $pieces = explode("<!--sectionnextprevend-->", $pieces[1]);
                 $part2 = $pieces[1];

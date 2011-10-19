@@ -384,8 +384,6 @@ class RecordView {
 
         $prev = null;  // the next item in the list
         $next = null;  // the previous item in the list
-        $go_next = null;  // whether we need to page down
-        $go_prev = null;  // whether we need to page up
         if (!is_null($list_idx)) {
 
         	if ($list_idx > 0) {
@@ -398,9 +396,6 @@ class RecordView {
                 );
             } else {
                 $prev = recordView::getPrevPage($pid);
-                if (!empty($prev)) {
-                    $go_prev = true;
-                }
             }
 
             if ($list_idx < count($list)-1) {
@@ -413,12 +408,9 @@ class RecordView {
                 );
             } else {
                 $next = recordView::getNextPage($pid);
-                if (!empty($next)) {
-                    $go_next = true;
-                }
             }
         }
-    return array($prev, $next, $go_next, $go_prev);
+    return array($prev, $next);
     }
 
 }
