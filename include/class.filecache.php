@@ -1,6 +1,8 @@
 <?php
 
 include_once(APP_INC_PATH . "class.custom_view.php");
+include_once(APP_INC_PATH . "class.record_view.php");
+
 
 class fileCache {
 
@@ -45,7 +47,6 @@ class fileCache {
 			$rep = array("<!--fez:statsAbs-->$views<!--/fez:statsAbs-->", "<!--fez:statsDownloads-->$dls<!--/fez:statsDownloads-->");
 
 			$htmlContent = preg_replace($pat, $rep, $htmlContent);
-			 
 			$datastreams = Fedora_API::callGetDatastreams($this->pid, $requestedVersionDate, 'A');
 			$datastreams = Misc::cleanDatastreamListLite($datastreams, $this->pid);
 
@@ -59,16 +60,43 @@ class fileCache {
 				}
 				$htmlContent = preg_replace($pat, $rep, $htmlContent);
 			}
-			 
-			 
+
+            //Replace the navigation bar with appropriate next and prev
+            $pieces = explode("<!--sectionnextprevstart-->", $htmlContent);
+            $part1 = $pieces[0];
+            $part2 = '';
+            list($prev, $next, $go_next, $go_prev) = RecordView::getNextPrevNavigation($this->pid);
+            //die(print_r($this->getPrevPage($this->pid)));
+            if (!empty($pieces[1])) {
+                $pieces = explode("<!--sectionnextprevend-->", $pieces[1]);
+                $part2 = $pieces[1];
+
+                $navigationBar = '<!--sectionnnextprevstart-->';
+
+                if ($prev['rek_pid'] || $next['rek_pid']){
+                    $navigationBar .= '<tr><th>Browse Collection:</th><td>';
+                }
+
+                if ($prev['rek_pid']) {
+                    $navigationBar .= '<a href="/view/'.$prev['rek_pid'].'">Prev: <i>'.$prev['rek_title'].'</i></a>';
+                    if ($next['rek_pid']) {
+                        $navigationBar .= '<br />';
+                    }
+                }
+                if ($next['rek_pid']) {
+                    $navigationBar .= '<a href="/view/'.$next['rek_pid'].'">Next: <i>'.$next['rek_title'].'</i></a>';
+                }
+            }
+            $navigationBar .= '</td></tr><!--sectionnextprevend-->';
+            $part2 = $navigationBar.$part2;
+
+            $htmlContent = $part1.$part2;
 //			$htmlContent = preg_replace($pat, $rep, $htmlContent);
 			 
 			echo $htmlContent;
 			exit();
 		}
-	  
 		ob_start();
-	  
 	}
 
 	/**

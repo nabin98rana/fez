@@ -156,7 +156,10 @@ function loadPreview(pid,datastreamID, alt, origami)
 	</tr>
 {/if}
 
+{* These two section headers are used by the filecache class to replace navigation bars *}
+<!--sectionnextprevstart-->
 {if $prev || $next}
+
 	<tr>
 		<th>
 			Browse Collection:
@@ -167,7 +170,7 @@ function loadPreview(pid,datastreamID, alt, origami)
 		</td>
 	</tr>
 {/if}
-
+<!--sectionnextprevend-->
 {if $viewingPreviousVersion}
 	<tr>
 		<th>
