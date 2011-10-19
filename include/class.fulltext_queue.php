@@ -100,8 +100,9 @@ class FulltextQueue
 	public function add($pid) 
 	{
 		$log = FezLog::get();
-		
-		if (!$this->pids[$pid]) {
+
+		//if not in queue and record exists
+		if ((!$this->pids[$pid]) && (Record::getIfRecordExists($pid))) {
 			$this->pids[$pid] = FulltextQueue::ACTION_INSERT;
 			$log->debug("FulltextQueue::add($pid)");
 		}

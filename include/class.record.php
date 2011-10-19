@@ -1653,6 +1653,40 @@ class Record
     return $res;
   }
 
+   /**
+   * Get if  pid exists
+   *
+   * @param string $pid  the pid to get to see if it exists
+   *
+   * @return true/false
+   * @access public
+   */
+  function getIfRecordExists($pid)
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    if ($pid == '') {
+      return false;
+    }
+	
+    $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
+    $where = "rek_pid = ".$db->quote($pid);
+    $stmt =  "SELECT rek_pid " .
+                "FROM {$dbtp}record_search_key " .
+                "WHERE $where";
+
+    try {
+      $res = $db->fetchOne($stmt);
+    }
+    catch(Exception $ex) {
+      $log->err($ex);
+      return false;
+    }
+    return !empty($res['rek_pid']);
+  }
+
+  
   /**
    * Method used to get the default record XDIS_ID
    *
