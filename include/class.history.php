@@ -339,7 +339,7 @@ class History
 
 		// First add it to the Fez database, then refresh the Fedora datastream
 		History::add($pid, $event_usr_id, $event_date, $wfl_id, $detail, $outcome, $outcomeDetail);
-		if ($refreshDatastream == true) {
+		if ($refreshDatastream == true && APP_FEDORA_BYPASS != 'ON') {
 			// First check if a FezHistory datastream exists
 			$dsExists = Fedora_API::datastreamExists($pid, $dsIDName, true);
 			$newXML = "";

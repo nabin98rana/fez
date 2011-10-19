@@ -42,7 +42,7 @@ error_reporting(E_ERROR | E_WARNING);
 set_time_limit(0);
 date_default_timezone_set("Australia/Brisbane");
 
-// Set defaults if not specified in config.inc.phpƒ
+// Set defaults if not specified in config.inc.php
 if (!defined("APP_INC_PATH")) {
   define("APP_INC_PATH", APP_PATH . "include/");
 }

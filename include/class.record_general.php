@@ -2008,11 +2008,6 @@ class RecordGeneral
         $xdis_id = $opts['xdis_id'];
     }
     
-    /*$dbg = var_export($xdis_id, true);
-file_put_contents('/var/www/fez/tmp/fedoraOut.txt', "\n"
-    .__METHOD__." | ".__FILE__." | ".__LINE__." | ".date('y:m:d G:i:s')." >>>> "
-    .$dbg."\n", FILE_APPEND);*/
-    
     $display = new XSD_DisplayObject($xdis_id);
     $xsdmf_array = $display->getXSDMF_Values($pid, null, true);
     
@@ -2069,15 +2064,6 @@ file_put_contents('/var/www/fez/tmp/fedoraOut.txt', "\n"
         }
       }
     }
-    
-    /*$xsd_display_fields = RecordGeneral::setDisplayFields($searchKeyData);
-    
-    $data = var_export($xsd_display_fields,true);
-    file_put_contents('/var/www/fez/tmp/fedoraOut.txt', "\n".__METHOD__." | ".__FILE__." | ".__LINE__." >>>> ".$data, FILE_APPEND);
-    */
-    /*$data = var_export($searchKeyData,true);
-    file_put_contents('/var/www/fez/tmp/fedoraOut.txt', "\n".__METHOD__." | ".__FILE__." | ".__LINE__." >>>> ".$data, FILE_APPEND);
-    */
     
     Record::removeIndexRecord($pid, false); // clean out the SQL index, but do not remove from Solr, 
                                                 // the solr entry will get updated in updateSearchKeys
@@ -2253,9 +2239,6 @@ file_put_contents('/var/www/fez/tmp/fedoraOut.txt', "\n"
             $proc->importStyleSheet($xsl_dom);
             $transformResult = $proc->transformToXML($dc_dom);
             $transformResult = self::clearMODSIdentifiers($transformResult);
-            file_put_contents('/var/www/fez/tmp/fedoraOut.txt', "\n"
-    .__METHOD__." | ".__FILE__." | ".__LINE__." >>>> "
-    .$new_pid, FILE_APPEND);
             Fedora_API::getUploadLocation(
                 $new_pid, "MODS", $transformResult, "Metadata Object Description Schema", 
                 "text/xml", "X", "MODS", 'true'

@@ -639,24 +639,6 @@ class Fedora_API {
 	 */
 	function callAddDatastream ($pid, $dsID, $dsLocation, $dsLabel, $dsState, $mimetype, $controlGroup='M',$versionable='false', $xmlContent="") 
 	{
-	    /*$data = var_export(debug_backtrace(),true);
-        file_put_contents('/var/www/fez/tmp/fedoraOut.txt', "\n"
-            .__METHOD__." | ".__FILE__." | ".__LINE__." >>>> "
-            .$data, FILE_APPEND);*/
-	    /*if(APP_FEDORA_BYPASS == 'ON')
-	    {*/
-    	    /*$filesData = $_FILES['xsd_display_fields']['size'];
-    		$filesDataKeys = array_keys($filesData);
-    		$filesDataSize = $filesData[$filesDataKeys[0]][0];*/
-    		/*$meta = array('mimetype' => $mimeType, 
-    			'controlgroup' => $controlGroup, 
-    			'state' => 'A', 
-    		    'size' => '1234',
-    			'pid' => $pid);
-    		$dsr = new DSResource(APP_DSTREE_PATH, $dsLocation, $meta);
-    		$dsr->save();
-    		return;
-	    }*/
 	    
 	    if ($mimetype == "") {
 			$mimetype = "text/xml";

@@ -1339,8 +1339,17 @@ class XSD_DisplayObject
 		// Find datastreams that may be used by this display
 		$datastreamTitles = $this->getDatastreamTitles();
 
-		// need the full get datastreams to get the controlGroup etc
-		$datastreams = Fedora_API::callGetDatastreams($pid);
+	    if(APP_FEDORA_BYPASS == 'ON')
+		{
+    		$dob = new DigitalObject();
+    		$datastreams = $dob->getDatastreams(array('pid' => $pid));
+		}
+		else 
+		{
+    		// need the full get datastreams to get the controlGroup etc
+    		$datastreams = Fedora_API::callGetDatastreams($pid);
+		}
+		
 		if (empty($datastreams)) {
 			$log->err(array("The PID ".$pid." doesn't appear to be in the fedora repository - perhaps it was not ingested correctly.  " .
                         "Please let the Fez admin know so that the Fez index can be repaired.",__FILE__,__LINE__));

@@ -177,7 +177,7 @@ if (!empty($pid) && $record->checkExists()) {
 		Auth::redirect(APP_RELATIVE_URL . "select_xdis.php?return=view_form&pid=".$pid.$extra_redirect, false);
 	}
 
-	$custom_view_pid = $_GET['custom_view_pid'];
+	$custom_view_pid = (isset($_GET['custom_view_pid'])) ? $_GET['custom_view_pid'] : null;
 
 	if (!empty($custom_view_pid)) {
 		$parents = Record::getParentsAll($pid);

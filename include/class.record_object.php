@@ -110,12 +110,7 @@ class RecordObject extends RecordGeneral
 	    {
 	        $alphaKey = Search_Key::getDetailsByXSDMF_ID($dfk);
 	        $alphaParams[$alphaKey['sek_title']] = $dfv;
-	        /*$DBGalphaKey = var_export($alphaKey,true);
-	        file_put_contents('/var/www/fez/tmp/fedoraOut.txt', $DBGalphaKey."\n\n", FILE_APPEND);*/
 	    }
-	    
-	    /*$dbg = var_export($alphaParams,true);
-	    file_put_contents('/var/www/fez/tmp/fedoraOut.txt', $dbg."\n####\n", FILE_APPEND);*/
 	    
 	    return $alphaParams;
 	}
@@ -371,11 +366,6 @@ class RecordObject extends RecordGeneral
         
         $this->fedoraInsertUpdate(array(), array(), $fauxPost);
         InternalNotes::recordNote($this->pid, $fauxPost['internal_notes']);
-        
-        /*$dbg = var_export($fauxPost,true);
-        file_put_contents('/var/www/fez/tmp/fedoraOut.txt', "\n"
-            .__METHOD__." | ".__FILE__." | ".__LINE__." | ".date('y:m:d G:i:s')." >>>> "
-            .$dbg."\n", FILE_APPEND);*/
 	}
 
 	function getIngestTrigger($mimetype)
