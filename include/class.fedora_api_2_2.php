@@ -1454,7 +1454,6 @@ class Fedora_API {
 	{
 		$log = FezLog::get();
 		
-
 		/********************************************
 		 * This is a primary function called by all of
 		 * the preceding functions.

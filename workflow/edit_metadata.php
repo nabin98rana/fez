@@ -61,8 +61,14 @@ if (empty($wfstatus)) {
     exit;
 }
 
+//Generate a version
+if(APP_FEDORA_BYPASS == 'ON')
+{
+    Zend_Registry::set('version', date('Y-m-d H:i:s'));    
+}
+
 // if we have uploaded files using the flash uploader, then generate $_FILES array entries for them
-if (isset($_POST['uploader_files_uploaded']))
+if (isset($_POST['uploader_files_uploaded']) && APP_FEDORA_BYPASS != 'ON')
 {
 	$tmpFilesArray = Uploader::generateFilesArray($wfstatus->id, $_POST['uploader_files_uploaded']);
 	if (count($tmpFilesArray)) {
@@ -167,7 +173,7 @@ if ($access_ok) {
             Record::updateAdminDatastream($pid, $xdis_id);
         }
     }
-
+    
     if (!is_numeric($xdis_id)) { // if still can't find the xdisplay id then ask for it
         Auth::redirect(APP_RELATIVE_URL . "select_xdis.php?return=update_form&pid=".$pid.$extra_redirect, false);
     }

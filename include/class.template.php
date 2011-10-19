@@ -86,7 +86,7 @@ class Template_API
 		$this->smarty->compile_dir = $compile_path;
 		$this->smarty->config_dir = '';
 
-		$custom_view_pid = $_GET['custom_view_pid'];
+		$custom_view_pid = (isset($_GET['custom_view_pid'])) ? $_GET['custom_view_pid'] : null;
 		if (!empty($custom_view_pid)) {
 			$customView = Custom_View::getCommCview($custom_view_pid);
 			if($customView) {
@@ -252,7 +252,7 @@ class Template_API
 		$canMasquerade = Masquerade::canUserMasquerade($username);
 		$this->assign("canMasquerade", $canMasquerade);
 		
-		$custom_view_pid = $_GET['custom_view_pid'];
+		$custom_view_pid = (isset($_GET['custom_view_pid'])) ? $_GET['custom_view_pid'] : null;
 		if (!empty($custom_view_pid)) {
 			$customView = Custom_View::getCommCview($custom_view_pid);
 			if ($customView) {

@@ -1779,6 +1779,9 @@ class Fedora_API {
 	{
 		$log = FezLog::get();
 		
+	    $setDateTimeTo = array('getDatastream');
+	    
+	    if(!array_key_exists($parms['asOfDateTime']) && in_array($call, $setDateTimeTo))
 
 		/********************************************
 		 * This is a primary function called by all of

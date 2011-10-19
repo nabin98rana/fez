@@ -855,92 +855,95 @@ class Misc
    */
   function cleanDatastreamListLite($dsList, $pid) 
   {
-    $original_dsList = $dsList;
-    $return = array();
-    foreach ($dsList as $key => $ds) {
-      // The following ID's should be removed
-      if (
-          (is_numeric(strpos($ds['ID'], "thumbnail_")))
-          || (is_numeric(strpos($ds['ID'], "MODS")))
-          || (is_numeric(strpos($ds['ID'], "web_")))
-          || (is_numeric(strpos($ds['ID'], "preview_")))
-          || (is_numeric(strpos($ds['ID'], "presmd_")))
-          || (is_numeric(strpos($ds['ID'], "stream_")))
-          || (is_numeric(strpos($ds['ID'], "FezACML_")))
-          || (is_numeric(strpos($ds['ID'], "FezComments"))) 
-      ) {
-        continue;
-      }
-
-      // now try and find a thumbnail datastream of this datastream
-      $thumbnail = "thumbnail_".substr($ds['ID'], 0, strrpos($ds['ID'], ".") + 1)."jpg";
-      $ds['thumbnail'] = 0;
-      foreach ($original_dsList as $o_key => $o_ds) {
-        if ($thumbnail == $o_ds['ID']) {  // found the thumbnail datastream so save it against the record
-          $ds['thumbnail'] = $thumbnail;
-        }
-      }
-      // now try and find a stream datastream of this datastream as long as the datastream is a video or audio 
-      // (streamable datastream), not an image
-      $stream = "stream_".substr($ds['ID'], 0, strrpos($ds['ID'], ".") + 1)."flv";
-      $ds['stream'] = 0;
-      if (!is_numeric(strpos($ds['MIMEType'], 'image'))) {
-        foreach ($original_dsList as $o_key => $o_ds) {
-          if ($stream == $o_ds['ID']) {  // found the stream datastream so save it against the record
-            $ds['stream'] = $stream;
+    /*if(!APP_FEDORA_BYPASS =='ON')
+    {*/
+        $original_dsList = $dsList;
+        $return = array();
+        foreach ($dsList as $key => $ds) {
+          // The following ID's should be removed
+          if (
+              (is_numeric(strpos($ds['ID'], "thumbnail_")))
+              || (is_numeric(strpos($ds['ID'], "MODS")))
+              || (is_numeric(strpos($ds['ID'], "web_")))
+              || (is_numeric(strpos($ds['ID'], "preview_")))
+              || (is_numeric(strpos($ds['ID'], "presmd_")))
+              || (is_numeric(strpos($ds['ID'], "stream_")))
+              || (is_numeric(strpos($ds['ID'], "FezACML_")))
+              || (is_numeric(strpos($ds['ID'], "FezComments"))) 
+          ) {
+            continue;
           }
-        }
-      }
-      // now try and find a web datastream of this datastream
-      $web = "web_".substr($ds['ID'], 0, strrpos($ds['ID'], ".") + 1)."jpg";
-      $ds['web'] = 0;
-      foreach ($original_dsList as $o_key => $o_ds) {
-        if ($web == $o_ds['ID']) {  // found the web datastream so save it against the record
-          $ds['web'] = $web;
-        }
-      }
-      // now try and find a preview datastream of this datastream
-      $preview = "preview_".substr($ds['ID'], 0, strrpos($ds['ID'], ".") + 1)."jpg";
-      $ds['preview'] = 0;
-      foreach ($original_dsList as $o_key => $o_ds) {
-        if ($preview == $o_ds['ID']) {  // found the preview datastream so save it against the record
-          $ds['preview'] = $preview;
-        }
-      }
-
-
-      // now try and find a preservation metadata datastream of this datastream
-      $presmd = "presmd_".substr($ds['ID'], 0, strrpos($ds['ID'], ".") + 1)."xml";
-      $ds['presmd'] = 0;
-      foreach ($original_dsList as $o_key => $o_ds) {
-        if ($presmd == $o_ds['ID']) {  // found the presmd datastream so save it against the record
-          $ds['presmd'] = $presmd;
-        }
-      }
-      // now try and find a FezACML metadata datastream of this datastream
-      $fezacml = FezACML::getFezACMLDSName($ds['ID']);
-      $ds['fezacml'] = 0;
-      foreach ($original_dsList as $o_key => $o_ds) {
-        if ($fezacml == $o_ds['ID']) {  // found the fezacml datastream so save it against the record
-          $ds['fezacml_roles'] = Auth::getAuthorisationGroups($pid, $ds['ID']);
-        }
-      }
-      //roles for previewing images
-      $acceptable_roles = array("Viewer", "Community_Admin", "Editor", "Creator", "Annotator");
-      $ds['canPreview'] = false;
-      if (is_array($ds['fezacml_roles'])) {
-        foreach ($acceptable_roles as $role) {
-          if (in_array($role, $ds['fezacml_roles'])) {
+    
+          // now try and find a thumbnail datastream of this datastream
+          $thumbnail = "thumbnail_".substr($ds['ID'], 0, strrpos($ds['ID'], ".") + 1)."jpg";
+          $ds['thumbnail'] = 0;
+          foreach ($original_dsList as $o_key => $o_ds) {
+            if ($thumbnail == $o_ds['ID']) {  // found the thumbnail datastream so save it against the record
+              $ds['thumbnail'] = $thumbnail;
+            }
+          }
+          // now try and find a stream datastream of this datastream as long as the datastream is a video or audio 
+          // (streamable datastream), not an image
+          $stream = "stream_".substr($ds['ID'], 0, strrpos($ds['ID'], ".") + 1)."flv";
+          $ds['stream'] = 0;
+          if (!is_numeric(strpos($ds['MIMEType'], 'image'))) {
+            foreach ($original_dsList as $o_key => $o_ds) {
+              if ($stream == $o_ds['ID']) {  // found the stream datastream so save it against the record
+                $ds['stream'] = $stream;
+              }
+            }
+          }
+          // now try and find a web datastream of this datastream
+          $web = "web_".substr($ds['ID'], 0, strrpos($ds['ID'], ".") + 1)."jpg";
+          $ds['web'] = 0;
+          foreach ($original_dsList as $o_key => $o_ds) {
+            if ($web == $o_ds['ID']) {  // found the web datastream so save it against the record
+              $ds['web'] = $web;
+            }
+          }
+          // now try and find a preview datastream of this datastream
+          $preview = "preview_".substr($ds['ID'], 0, strrpos($ds['ID'], ".") + 1)."jpg";
+          $ds['preview'] = 0;
+          foreach ($original_dsList as $o_key => $o_ds) {
+            if ($preview == $o_ds['ID']) {  // found the preview datastream so save it against the record
+              $ds['preview'] = $preview;
+            }
+          }
+    
+    
+          // now try and find a preservation metadata datastream of this datastream
+          $presmd = "presmd_".substr($ds['ID'], 0, strrpos($ds['ID'], ".") + 1)."xml";
+          $ds['presmd'] = 0;
+          foreach ($original_dsList as $o_key => $o_ds) {
+            if ($presmd == $o_ds['ID']) {  // found the presmd datastream so save it against the record
+              $ds['presmd'] = $presmd;
+            }
+          }
+          // now try and find a FezACML metadata datastream of this datastream
+          $fezacml = FezACML::getFezACMLDSName($ds['ID']);
+          $ds['fezacml'] = 0;
+          foreach ($original_dsList as $o_key => $o_ds) {
+            if ($fezacml == $o_ds['ID']) {  // found the fezacml datastream so save it against the record
+              $ds['fezacml_roles'] = Auth::getAuthorisationGroups($pid, $ds['ID']);
+            }
+          }
+          //roles for previewing images
+          $acceptable_roles = array("Viewer", "Community_Admin", "Editor", "Creator", "Annotator");
+          $ds['canPreview'] = false;
+          if (is_array($ds['fezacml_roles'])) {
+            foreach ($acceptable_roles as $role) {
+              if (in_array($role, $ds['fezacml_roles'])) {
+                $ds['canPreview'] = true;
+              }
+            }
+          } else {
             $ds['canPreview'] = true;
           }
+          $return[$key] = $ds;
         }
-      } else {
-        $ds['canPreview'] = true;
-      }
-      $return[$key] = $ds;
-    }
-    $return = array_values($return);
-    return $return;
+        $return = array_values($return);
+        return $return;
+    //}
   }
 
   function addDeletedDatastreams( $datastreams,$pid,$requestedVersionDate )
@@ -4015,7 +4018,18 @@ class Misc
     }
     return @$errs[$e];
   }
-
+  
+  function MySQLDate($dateArray)
+  {
+      $dteSql = array();
+      $dteSql[] = $dateArray['Year'];
+      $dteSql[] = (isset($dateArray['Month'])) ? str_pad($dateArray['Month'], 2, '0', STR_PAD_LEFT) : '00';
+      $dteSql[] = (isset($dateArray['Day'])) ? str_pad($dateArray['Day'], 2, '0', STR_PAD_LEFT) : '00';
+      $dteSql = implode('-', $dteSql) . ' 00:00:00';
+      
+      return $dteSql;
+  }
+  
   function MySQLTZ($s)
   {
     $tz = new Date_TimeZone($s);

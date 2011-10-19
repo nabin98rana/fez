@@ -44,15 +44,47 @@ include_once(APP_INC_PATH . "class.db_api.php");
 include_once(APP_INC_PATH . "class.workflow_trigger.php");
 include_once(APP_INC_PATH . "class.background_process_list.php");
 include_once(APP_INC_PATH . "class.fulltext_queue.php");
+include_once(APP_INC_PATH . 'class.digitalobject.php');
+include_once(APP_INC_PATH . "class.dsresource.php");
 
 Auth::checkAuthentication(APP_SESSION, 'index.php?err=5', true);
 
 $tpl = new Template_API();
 $tpl->setTemplate("popup.tpl.html");
 
+$log = FezLog::get();
+
 $isAdministrator = Auth::isAdministrator(); 
 $usr_id = Auth::getUserID();
-$cat = @$_REQUEST["cat"];
+
+//Perform some input validation.
+
+if(array_key_exists('cat', $_REQUEST) && 
+    !$cat = Fez_Validate::run('Fez_Validate_Simpleparam', $_REQUEST["cat"]))
+{
+    exit;
+}
+
+if(array_key_exists('dsID', $_GET) && 
+    !$dsID = Fez_Validate::run('Fez_Validate_Filename', $_GET["dsID"]))
+{
+    exit;
+}
+
+if(array_key_exists('pid', $_GET) && 
+    !$pid = Fez_Validate::run('Fez_Validate_Pid', $_GET['pid']))
+{
+    exit;
+}
+
+if(APP_FEDORA_BYPASS == 'ON')
+{
+    $now = date('Y-m-d H:i:s');
+    $dsr = new DSResource();
+    $dsr->load($dsID, $pid);
+    $do = new DigitalObject();
+    $dbgRec = new RecordObject($_GET['pid']);
+}
 
 switch ($cat) 
 {	
@@ -68,8 +100,8 @@ switch ($cat)
         }
     case 'purge_datastream':
         {
-            $dsID = $_GET["dsID"];
-            $pid = $_GET["pid"];
+            /*$dsID = $_GET["dsID"];
+            $pid = $_GET["pid"];*/
 			$record = new RecordObject($pid);
 			if ($record->canEdit()) {
 	            $res = Fedora_API::callPurgeDatastream($pid, $dsID);
@@ -107,41 +139,48 @@ switch ($cat)
         }
     case 'delete_datastream':
         {
-            $dsID = $_GET["dsID"];
-            $pid = $_GET["pid"];		
-			$record = new RecordObject($pid);
-			if ($record->canEdit()) {
-	            $res = Fedora_API::deleteDatastream($pid, $dsID);
-	            $stream = "stream_".str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))).".flv";
-	            $thumbnail = "thumbnail_".str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))).".jpg";
-	            $web = "web_".str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))).".jpg";
-	            $preview = "preview_".str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))).".jpg";
-	            $FezACML_DS = "FezACML_".str_replace(" ", "_", $dsID).".xml";
-	            $PresMD_DS = "presmd_".str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))).".xml";
-	            if (Fedora_API::datastreamExists($pid, $stream)) {
-	                Fedora_API::deleteDatastream($pid, $stream);
-	            }
-	            if (Fedora_API::datastreamExists($pid, $thumbnail)) {
-	                Fedora_API::deleteDatastream($pid, $thumbnail);
-	            }
-	            if (Fedora_API::datastreamExists($pid, $preview)) {
-	                Fedora_API::deleteDatastream($pid, $preview);
-				}
-	            if (Fedora_API::datastreamExists($pid, $web)) {
-	                Fedora_API::deleteDatastream($pid, $web);
-				}
-	            if (Fedora_API::datastreamExists($pid, $FezACML_DS)) {
-	                Fedora_API::deleteDatastream($pid, $FezACML_DS);
-				}
-	            if (Fedora_API::datastreamExists($pid, $PresMD_DS)) {
-	                Fedora_API::deleteDatastream($pid, $PresMD_DS);
-				}
-				Record::setIndexMatchingFields($pid);
-	            if (count($res) == 1) { $res = 1; } else { $res = -1; }
-	            $tpl->assign("delete_datastream_result", $res);
-			} else {
-				$tpl->assign("delete_datastream_result", -1);
-			}
+            if(APP_FEDORA_BYPASS == 'ON')
+            {
+                $dbgRec->forceInsertUpdate(array('removeFiles' => array($dsID)));
+            }
+            else 
+            {
+                /*$dsID = $_GET["dsID"];
+                $pid = $_GET["pid"];*/	
+    			$record = new RecordObject($pid);
+    			if ($record->canEdit()) {
+    	            $res = Fedora_API::deleteDatastream($pid, $dsID);
+    	            $stream = "stream_".str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))).".flv";
+    	            $thumbnail = "thumbnail_".str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))).".jpg";
+    	            $web = "web_".str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))).".jpg";
+    	            $preview = "preview_".str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))).".jpg";
+    	            $FezACML_DS = "FezACML_".str_replace(" ", "_", $dsID).".xml";
+    	            $PresMD_DS = "presmd_".str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))).".xml";
+    	            if (Fedora_API::datastreamExists($pid, $stream)) {
+    	                Fedora_API::deleteDatastream($pid, $stream);
+    	            }
+    	            if (Fedora_API::datastreamExists($pid, $thumbnail)) {
+    	                Fedora_API::deleteDatastream($pid, $thumbnail);
+    	            }
+    	            if (Fedora_API::datastreamExists($pid, $preview)) {
+    	                Fedora_API::deleteDatastream($pid, $preview);
+    				}
+    	            if (Fedora_API::datastreamExists($pid, $web)) {
+    	                Fedora_API::deleteDatastream($pid, $web);
+    				}
+    	            if (Fedora_API::datastreamExists($pid, $FezACML_DS)) {
+    	                Fedora_API::deleteDatastream($pid, $FezACML_DS);
+    				}
+    	            if (Fedora_API::datastreamExists($pid, $PresMD_DS)) {
+    	                Fedora_API::deleteDatastream($pid, $PresMD_DS);
+    				}
+    				Record::setIndexMatchingFields($pid);
+    	            if (count($res) == 1) { $res = 1; } else { $res = -1; }
+    	            $tpl->assign("delete_datastream_result", $res);
+    			} else {
+    				$tpl->assign("delete_datastream_result", -1);
+    			}
+            }
             break;
         }
     case 'update_form':

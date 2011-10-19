@@ -738,9 +738,9 @@ class XSD_Display
 	 * @param   integer $xdis_id The XSD ID to search by.
 	 * @return  array $res The title
 	 */
-	function getTitle($xdis_id)
+	function getTitle($xdis_id=null)
 	{
-		$log = FezLog::get();
+	    $log = FezLog::get();
 		$db = DB_API::get();
 		
 		if(empty($xdis_id) || !is_numeric($xdis_id)) {
@@ -1130,7 +1130,7 @@ class XSD_DisplayObject
 	 */
 	function getXSDMF_Values($pid, $createdDT=null, $skipIndex = false)
 	{
-
+        
 		$log = FezLog::get();
 		$this->getXSD_HTML_Match();
 		
@@ -1145,7 +1145,8 @@ class XSD_DisplayObject
 			$current_row = 0;
 			$max = 1;
 			$order_by = "Title";
-			$return = Record::getListing($options, array(9,10), $current_row, $max, $order_by, false, false, $filter);
+			//$return = Record::getListing($options, array(9,10), $current_row, $max, $order_by, false, false, $filter);
+			$return = Record::getListing($options, array(9,10), $current_row, $max, $order_by, false, false, $filter, 'AND', false, false, false, APP_SOLR_FACET_LIMIT, APP_SOLR_FACET_MINCOUNT, false, $createdDT);
 		}
 		if (APP_XSDMF_INDEX_SWITCH == "ON" && count($return['list']) > 0 && $skipIndex != true && count($this->specify_list) == 0) {
 			$return = $return['list'][0];
@@ -1269,6 +1270,7 @@ class XSD_DisplayObject
 			return $this->xsdmf_array[$pid];
 
 		}
+		
 		exit;
 
 	}
@@ -1337,8 +1339,17 @@ class XSD_DisplayObject
 		// Find datastreams that may be used by this display
 		$datastreamTitles = $this->getDatastreamTitles();
 
-		// need the full get datastreams to get the controlGroup etc
-		$datastreams = Fedora_API::callGetDatastreams($pid);
+	    if(APP_FEDORA_BYPASS == 'ON')
+		{
+    		$dob = new DigitalObject();
+    		$datastreams = $dob->getDatastreams(array('pid' => $pid));
+		}
+		else 
+		{
+    		// need the full get datastreams to get the controlGroup etc
+    		$datastreams = Fedora_API::callGetDatastreams($pid);
+		}
+		
 		if (empty($datastreams)) {
 			$log->err(array("The PID ".$pid." doesn't appear to be in the fedora repository - perhaps it was not ingested correctly.  " .
                         "Please let the Fez admin know so that the Fez index can be repaired.",__FILE__,__LINE__));

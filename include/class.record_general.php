@@ -108,7 +108,16 @@ class RecordGeneral
             return null;
           }
         } else {
-          $xdis_id = XSD_HTML_Match::getDisplayType($this->pid);
+          if(APP_FEDORA_BYPASS == 'ON')
+          {
+              $xdis_id = Record::getSearchKeyIndexValue($this->pid,'Display Type');
+              $xdis_key = array_keys($xdis_id);
+              $xdis_id = $xdis_key[0];
+          }
+          else 
+          {
+              $xdis_id = XSD_HTML_Match::getDisplayType($this->pid);
+          }
         }
         if (isset($xdis_id)) {
           $this->xdis_id = $xdis_id;
@@ -1595,6 +1604,10 @@ class RecordGeneral
 
   function getDocumentType()
   {
+    /*if(!$this->display)
+    {
+        $this->getXmlDisplayIdUseIndex();
+    }*/
     $this->getDisplay();
     return $this->display->getTitle();
   }
@@ -1609,6 +1622,7 @@ class RecordGeneral
    */
   function getDetails($dsID = "", $xdis_id = "")
   {
+    
     $log = FezLog::get();
     $db = DB_API::get();
 
@@ -1974,20 +1988,29 @@ class RecordGeneral
   {
     return Fedora_API::callGetDatastreamContents($this->pid, $dsID, false, $filehandle);
   }
-
-  function setIndexMatchingFields()
+  
+  function setIndexMatchingFields($opts=null)
   {
     $log = FezLog::get();
-
-    // careful what you do with the record object - don't want to use the index while reindexing
-    $pid = $this->pid;
-    $xdis_id = $this->getXmlDisplayId();
-    if (!is_numeric($xdis_id)) {
-      $xdis_id = XSD_Display::getXDIS_IDByTitle('Generic Document');
+    
+    if(is_null($opts))
+    {
+        // careful what you do with the record object - don't want to use the index while reindexing
+        $pid = $this->pid;
+        $xdis_id = $this->getXmlDisplayId();
+        if (!is_numeric($xdis_id)) {
+          $xdis_id = XSD_Display::getXDIS_IDByTitle('Generic Document');
+        }
     }
+    else 
+    {
+        $pid = $opts['pid'];
+        $xdis_id = $opts['xdis_id'];
+    }
+    
     $display = new XSD_DisplayObject($xdis_id);
     $xsdmf_array = $display->getXSDMF_Values($pid, null, true);
-
+    
     $searchKeyData = array();
 
     foreach ($xsdmf_array as $xsdmf_id => $xsdmf_value) {
@@ -2041,15 +2064,82 @@ class RecordGeneral
         }
       }
     }
-
+    
     Record::removeIndexRecord($pid, false); // clean out the SQL index, but do not remove from Solr, 
-                                            // the solr entry will get updated in updateSearchKeys
+                                                // the solr entry will get updated in updateSearchKeys
+                                                
     Record::updateSearchKeys($pid, $searchKeyData);
     if (APP_FEDORA_BYPASS == 'ON') {
       Record::updateSearchKeys($pid, $searchKeyData, true); // Update shadow tables
     }
 
-
+  }
+  
+  //To delete ??
+  function getXSDMFByTitle($pid, $xdis_id)
+  {
+      $db = DB_API::get();
+      
+      $sql = "SELECT mf.xsdmf_id FROM fez_xsd_display_matchfields mf, fez_search_key sk, fez_record_search_key rsk" 
+            . " WHERE sk.sek_id = mf.xsdmf_sek_id AND mf.xsdmf_id = rsk.rek_display_type_xsdmf_id "
+            . "AND sk.sek_title = 'Display Type' "
+            . "AND rsk.rek_pid = :pid"
+            . "AND rsk.rek_display_type = :disp";
+      $row = $db->fetchRow($sql, array(':pid' => $pid, ':disp' => $xdis_id));
+      
+      return $row["xsdmf_id"];
+  }
+  
+  /**
+   * Convert xsd_display_fields array in the POST array 
+   * to an array suitable for insertion or update of a record.
+   * @param <array> $xsdFields
+   */
+  function setDisplayFields($xsdFields)
+  {
+      $db = DB_API::get();
+      $log = FezLog::get();
+      $xsdmf_ids = array_keys($xsdFields);
+      
+      $sekFields = array();
+      
+      try
+      {
+          $sql = "SELECT mf.xsdmf_id, TRIM(LOWER(REPLACE(sk.sek_title,\" \",\"_\"))) AS sek_title, "
+          . "sk.sek_relationship, sk.sek_cardinality FROM " . APP_TABLE_PREFIX . "search_key sk, " 
+          . APP_TABLE_PREFIX . "xsd_display_matchfields mf WHERE sk.sek_id = "
+          . "mf.xsdmf_sek_id AND mf.xsdmf_id IN (?)";
+          
+          $query = str_replace('?', substr(str_repeat('?, ', count($xsdmf_ids)), 0, -2), $sql);
+          
+          $stmt = $db->query($query, $xsdmf_ids);
+          $fields = $stmt->fetchAll();
+      }
+      catch(Exception $e)
+      {
+          $log->err($e->getMessage());
+      }
+      
+      foreach($fields as $field)
+      {
+          if(is_array($xsdFields[$field['xsdmf_id']]) && isset($xsdFields[$field['xsdmf_id']]['Year']))
+          {
+              $xsdFields[$field['xsdmf_id']] = Misc::MySQLDate($xsdFields[$field['xsdmf_id']]);
+          }
+          
+          //1 - 1 relationship values should not have array values.
+          if($field['sek_cardinality'] == '0' && is_array($xsdFields[$field['xsdmf_id']]))
+          {
+              $valueKeys = array_keys($xsdFields[$field['xsdmf_id']]); //Not all keys are numeric.
+              $xsdFields[$field['xsdmf_id']] = $xsdFields[$field['xsdmf_id']][$valueKeys[0]];
+          }
+          
+          $sekFields[$field['sek_relationship']][$field['sek_title']] = array(
+          	'xsdmf_id' => $field['xsdmf_id'], 
+          	'xsdmf_value' => $xsdFields[$field['xsdmf_id']]);
+      }
+      
+      return $sekFields;
   }
 
   /**
