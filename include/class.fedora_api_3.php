@@ -757,6 +757,9 @@ class Fedora_API {
 		if ($mimetype == "") {
 			$mimetype = "text/xml";
 		}
+        if (is_numeric(strpos($mimetype, " "))) {
+            $mimetype = substr($mimetype, 0, strpos($mimetype, " "));
+        }
 		$dsIDOld = $dsID;
 		if (is_numeric(strpos($dsID, chr(92)))) {
 			$dsID = substr($dsID, strrpos($dsID, chr(92))+1);
@@ -769,7 +772,11 @@ class Fedora_API {
 			$dsIDName = substr($dsIDName, strrpos($dsIDName, "/")+1);
 		}
 
-		$versionable = $versionable === true ? 'true' : $versionable === false ? 'false' : $versionable;
+//		$versionable = $versionable === true ? 'true' : $versionable === false ? 'false' : $versionable;
+        if ($versionable != 'true' && $versionable != 'false') {
+            $versionable = 'false';
+        }
+
         $log = FezLog::get();
 		$getString = APP_SIMPLE_FEDORA_APIM_DOMAIN."/objects/".$pid."/datastreams/".$dsIDName."?dsLabel=".urlencode($dsLabel)."&versionable=".$versionable."&mimeType=".$mimetype.
 			          "&controlGroup=".$controlGroup."&dsState=A&logMessage=Added%20Datastream";
@@ -786,7 +793,7 @@ class Fedora_API {
 			curl_setopt($ch, CURLOPT_POSTFIELDS, array("dsLocation" => $dsLocation, 
 														"dsLabel" => urlencode($dsLabel),
 														"versionable" => $versionable,
-														"mimeType" => $mimeType,
+														"mimeType" => $mimetype,
 														"controlGroup" => $controlGroup,
 														"dsState" => "A", 
 														"logMessage" => "Added Link"
@@ -812,7 +819,7 @@ class Fedora_API {
 			curl_setopt($ch, CURLOPT_POSTFIELDS, array("file[]" => "@".$tempFile.";type=".$mimetype, 
 											"dsLabel" => urlencode($dsLabel),
 											"versionable" => $versionable,
-											"mimeType" => $mimeType,
+											"mimeType" => $mimetype,
 											"controlGroup" => $controlGroup,
 											"dsState" => "A",
 											"logMessage" => "Added Datastream"
@@ -867,6 +874,10 @@ class Fedora_API {
 			if ($mimetype == "") {
 				$mimetype = "text/xml";
 			}
+            if (is_numeric(strpos($mimetype, " "))) {
+                $mimetype = substr($mimetype, 0, strpos($mimetype, " "));
+            }
+
 			$dsIDOld = $dsID;
 			if (is_numeric(strpos($dsID, chr(92)))) {
 				$dsID = substr($dsID, strrpos($dsID, chr(92))+1);
@@ -875,12 +886,15 @@ class Fedora_API {
 				}
 			}
 //echo "OMG WHAT THE? ".$dsLocation; print_r(debug_backtrace()); exit;
-			$versionable = $versionable === true ? 'true' : $versionable === false ? 'false' : 'false';
+//			$versionable = $versionable === true ? 'true' : $versionable === false ? 'false' : 'false';
+            if ($versionable != 'true' && $versionable != 'false') {
+                $versionable = 'false';
+            }
 	        $log = FezLog::get();
 //			$getString = APP_SIMPLE_FEDORA_APIM_DOMAIN."/objects/".$pid."/datastreams/".$dsID."?dsLabel=".urlencode($dsLabel)."&mimeType=".$mimeType."&formatURI="
 //				          .$formatURI."&dsState=A&logMessage=".urlencode("Modified Datastream");
 
-			$getString = APP_SIMPLE_FEDORA_APIM_DOMAIN."/objects/".$pid."/datastreams/".$dsID;
+			$getString = APP_SIMPLE_FEDORA_APIM_DOMAIN."/objects/".$pid."/datastreams/".$dsID."?versionable=".$versionable;
 
 			$ch = curl_init($getString);
 //			curl_setopt($ch, CURLOPT_PUT, true);
@@ -1640,8 +1654,8 @@ class Fedora_API {
 	       'MIMEType'      => $mimetype, 
 	       'formatURI'     => 'unknown', 
 	       'dsLocation'    => $dsLocation,
-         'checksumType'  => 'MD5',
-         'checksum'      => md5($dsLocation),
+         'checksumType'  => 'DISABLED',
+         'checksum'      => null,
 	       'logMessage'    => $logmsg, 
 	       'force'         => true
 		);
