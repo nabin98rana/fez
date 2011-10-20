@@ -606,59 +606,8 @@ if (!empty($pid) && $record->checkExists()) {
 		// Add view to statistics buffer
 		Statistics::addBuffer($pid);
         
-        // Get the current listing 
-        $list = $_SESSION['list'];
-        $list_info = $_SESSION['list_info'];
-        $view_page = $_SESSION['view_page'];
-
-        // find current position in list
-        $list_idx = null;
-		if (is_array($list)) {
-			foreach ($list as $key => $item) {
-				if ($item == $pid) {
-					$list_idx = $key;
-					break;
-				}
-			}
-		}
-		
-        $prev = null;  // the next item in the list
-        $next = null;  // the previous item in the list
-        $go_next = null;  // whether we need to page down
-        $go_prev = null;  // whether we need to page up
-        if (!is_null($list_idx)) {
-            
-        	if ($list_idx > 0) {
-                $prev_pid = $list[$list_idx-1];
-                $prev_pid_data = Record::getDetailsLite($prev_pid);
-                $prev_pid_data = $prev_pid_data[0];
-                $prev = array(
-                    'rek_pid'   =>  $prev_pid,
-                    'rek_title' =>  $prev_pid_data['rek_title'],
-                );
-            } else {
-                $prev = getPrevPage($pid);
-                if (!empty($prev)) {
-                    $go_prev = true;
-                }
-            }
-            
-            if ($list_idx < count($list)-1) {
-                $next_pid = $list[$list_idx+1];
-                $next_pid_data = Record::getDetailsLite($next_pid);
-                $next_pid_data = $next_pid_data[0];
-                $next = array(
-                    'rek_pid'   =>  $next_pid,
-                    'rek_title' =>  $next_pid_data['rek_title'],
-                );
-            } else {
-                $next = getNextPage($pid);
-                if (!empty($next)) {
-                    $go_next = true;
-                }
-            }
-        }
-        $tpl->assign(compact('prev','next','go_next','go_prev'));
+        list($prev, $next) = RecordView::getNextPrevNavigation($pid);
+        $tpl->assign(compact('prev','next'));
 		
 		// determine if there are workflows currently working on this pid and let the user know if there are
 		$outstandingStatus = '';
@@ -703,58 +652,6 @@ foreach($datastreams as $ds)
     }
 }
 $tpl->assign('pageCounts',$pageCounts);
-
-function getNextPage($currentPid)
-{
-    $params = $_SESSION['list_params'];
-    $last_page = $_SESSION['last_page'];
-    $view_page = $_SESSION['view_page'];
-    if ($view_page < $last_page) {
-        $params['pager_row'] = $view_page + 1;
-        $params['form_name'] = $_SESSION['script_name'];
-        $res = Lister::getList($params, false);
-        $res['list_params'] = $params;
-        
-		foreach ($res['list'] as $record) {
-		    $pids[] = $record['rek_pid'];
-		}
-		
-		array_unshift($pids, $currentPid);
-		
-		$_SESSION['list'] = $pids;
-		$_SESSION['list_params'] = $params;
-		$_SESSION['last_page'] = $res['list_info']['last_page'];
-		$_SESSION['view_page'] = $res['list_info']['current_page'];
-        
-        return $res['list'][0];
-    }
-    return array();
-}
-function getPrevPage($currentPid)
-{
-    $params = $_SESSION['list_params'];
-    $view_page = $_SESSION['view_page'];
-    if ($view_page > 0) {
-        $params['pager_row'] = $view_page - 1;
-        $params['form_name'] = $_SESSION['script_name'];
-        $res = Lister::getList($params, false);
-        $res['list_params'] = $params;
-        
-        foreach ($res['list'] as $record) {
-            $pids[] = $record['rek_pid'];
-        }
-        
-        $_SESSION['list'] = $pids;
-        $_SESSION['list_params'] = $params;
-        $_SESSION['last_page'] = $res['list_info']['last_page'];
-        $_SESSION['view_page'] = $res['list_info']['current_page'];
-        
-        // The current pid will be the last element on the array
-        // so use -2 to get the previous pid
-        return $res['list'][count($res['list'])-2];
-    }
-    return array();
-}
 
 /**
  * Sets a list on the Smarty template containing unique datastream timestamps. 
