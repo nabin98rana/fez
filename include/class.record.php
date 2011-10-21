@@ -3818,9 +3818,25 @@ class Record
 //      $pattern = '/(?!'.'!'.implode("|!", $solr_titles).')(?<!'.implode("|", $solr_titles).')(\+|-|&&|\|\||!|\{|}|\[|]|\^|"|~|\*|\?|:|\\\)/';
       $replace = '\\\$1';
       $escapedInput = preg_replace($pattern, $replace, $escapedInput);
-			// $pattern = '/(?!
-      // $escapedInput = preg_replace($pattern, $replace, $escapedInput);
 
+
+      //This loop checks to see if there is a opening unescaped [ and then checks to see if there is a unescaped closing one.
+      //And unescapes it if it is not
+      //If the string has multiple [ or ] it may fail. It only assumes there is one range per search string
+      $posOpeningSquareBractet = strpos($escapedInput, '[');
+      if (is_numeric($posOpeningSquareBractet)) {
+        if ($escapedInput[$posOpeningSquareBractet-1] != '\\') {
+            for ($i=$posOpeningSquareBractet+1; $i < strlen($escapedInput); $i++) {
+                if ($escapedInput[$i] == ']') {
+                    if ($escapedInput[$i-1] == '\\') {
+                        $escapedInput[$i-1]  = '';
+                    }
+                    $i = strlen($escapedInput);
+                }
+
+            }
+        }
+    }
       // match where there is only only value after the search key, not inside brackets or in double quotes (do that one later) to simplify this code
       $skPattern = '/('.implode("|", $solr_titles).')(?:|:\(|:)"([^"\)\(]+)"\)/';
       $lookups = array();

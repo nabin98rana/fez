@@ -591,6 +591,30 @@ function restoreDefaultColours(el)
 			  {include file="error_icon.tpl.html" field="app_wos_collections"}
 			</td>
   		  </tr>
+          <tr>
+          <th>ERA Non-Traditional Works - Portfolios Collection</th>
+    			<td>
+    			  <input type="text" name="app_portfolios_collection" value="{$config_settings.app_portfolios_collection|escape:"html"}" size="100" />
+    			  <br />List of comma separated ' quote enclosed pids.
+    			  {include file="error_icon.tpl.html" field="app_portfolios_collection"}
+    			</td>
+          </tr>
+          <tr>
+          <th>ERA Non-Traditional Research Outputs Individual Collection</th>
+    			<td>
+    			  <input type="text" name="app_individual_nto_collection" value="{$config_settings.app_individual_nto_collection|escape:"html"}" size="100" />
+    			  <br />List of comma separated ' quote enclosed pids.
+    			  {include file="error_icon.tpl.html" field="app_individual_nto_collection"}
+    			</td>
+      		  </tr>
+          <tr>
+    		<th>Era Whitelist Collection</th>
+    			<td>
+    			  <input type="text" name="app_era_whitelist_collection" value="{$config_settings.app_era_whitelist_collection|escape:"html"}" size="100" />
+    			  <br />List of comma separated ' quote enclosed pids.
+    			  {include file="error_icon.tpl.html" field="app_era_whitelist_collection"}
+    			</td>
+      		  </tr>
   		  <tr>
 		    <th>My Research Publications Module</th>
 			<td>
