@@ -23,6 +23,42 @@ class RecordObject extends RecordGeneral
 	{
 		RecordGeneral::RecordGeneral($pid, $createdDT);
 	}
+	
+	/**
+	 * Enter deleted pids and their children into 
+	 * the tombstone table.
+	 * @param <string> $pid
+	 */
+	function tombstone($pid)
+	{
+	    $db = DB_API::get();
+	    $relatives = $this->getParents();
+	    $dte = date('Y-m-d H:i:s');
+	    
+	    $sql = "INSERT INTO " . APP_TABLE_PREFIX . "tombstone " 
+	        . "(tom_pid_main, tom_pid_rel, tom_delete_ts) VALUES ";
+	        
+	    $bindings = array();
+	    
+	    if(count($relatives) > 0)
+	    {
+    	    for($i=0;$i<count($relatives);$i++)
+    	    {
+    	        $sql .= "(:mainpid$i, :childpid$i, '$dte'),";
+    	        $bindings[":childpid$i"] = $relatives[$i];
+    	        $bindings[":mainpid$i"] = $pid;
+    	    }
+    	    
+    	    $sql = substr_replace($sql, '', strlen($sbj)-1);
+	    }
+	    else 
+	    {
+	        $sql .= "(:mainpid, null, '$dte')";
+	        $bindings[':mainpid'] = $pid;
+	    }
+	    
+	    $db->query($sql, $bindings);
+	}
 
 	/**
 	 * getXmlDisplayId

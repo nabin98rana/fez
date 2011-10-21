@@ -112,8 +112,6 @@ if (($pid != -1) && (!empty($pid) || $pid == -2)) {
     
 	$tpl->assign("pid", $pid);
 	
-	$dbg = (Fedora_API::objectExists($pid) == $pid);
-	
 	$obExists = (APP_FEDORA_BYPASS == 'ON') 
 	        ? (Fedora_API::objectExists($pid) == $pid) 
 	        : (Fedora_API::objectExists($pid) == 1);

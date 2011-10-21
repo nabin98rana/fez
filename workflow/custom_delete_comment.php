@@ -65,6 +65,7 @@ if ($access_ok) {
 	
 		// save the history item to the workflow (to be included in next step)
 		// add a history item for the delete comment
+		$record->tombstone($pid);
 		$historyDetail = $_POST['historyDetail'];
 		if (!$historyDetail) {
 			$historyDetail = '';
