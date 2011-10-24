@@ -261,6 +261,10 @@ class Template_API
 				$this->assign('cv_pid',   $custom_view_pid);
 			}
 		}
+		else 
+		{
+		    $customView = null;
+		}
 		
 		if (preg_match('/\/manage\/.*/', $_SERVER['REQUEST_URI'])) {
 			$this->assign('admin_area', true);
@@ -300,8 +304,8 @@ class Template_API
 		$this->assign("APP_HERDC_SUPPORT", APP_HERDC_SUPPORT);
 		$this->assign("SID", SID);
 		$this->assign("SHIB_SWITCH", SHIB_SWITCH);
-		$this->assign("SHIB_DIRECT_LOGIN", SHIB_DIRECT_LOGIN);
-		if (is_array($customView)) {
+		$this->assign("SHIB_DIRECT_LOGIN", SHIB_DIRECT_LOGIN); 
+		if($customView && is_array($customView)) {
 			$this->assign("APP_HOSTNAME", $customView['cvcom_hostname']);
 		} else {
 			$this->assign("APP_HOSTNAME", APP_HOSTNAME);

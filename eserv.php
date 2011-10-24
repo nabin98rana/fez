@@ -269,7 +269,7 @@ if (!empty($pid) && !empty($dsID)) {
             $dsID = explode('.pdf', $dsID);
             $dsID = $dsID[0];
             
-            $resourcePath = APP_PATH.BR_IMG_DIR . $pid . '/' . $dsID;
+            $resourcePath = BR_IMG_DIR . $pid . '/' . $dsID;
             $protocol = ($_SERVER['HTTPS']) ? 'https://' : 'http://';
             $host = $protocol . $_SERVER['HTTP_HOST'];
             $urlPath = str_replace($_SERVER['DOCUMENT_ROOT'], '', BR_IMG_DIR);
@@ -316,7 +316,7 @@ if (!empty($pid) && !empty($dsID)) {
                  $pid = str_replace(':','_',$pid);
              }
              
-             $imageFile = APP_PATH.BR_IMG_DIR . $pid . '/' . $resource . '/' . $image;
+             $imageFile = BR_IMG_DIR . $pid . '/' . $resource . '/' . $image;
              
              if(is_file($imageFile))
              {
