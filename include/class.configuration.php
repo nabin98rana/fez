@@ -105,6 +105,10 @@ class Configuration
         exit;
       }
     }
+    else 
+    {
+        $customView = null;
+    }
 
     // Assemble compound variables
     define("APP_CYCLE_COLORS", "#" . APP_CYCLE_COLOR_ONE . "," . "#" . APP_CYCLE_COLOR_TWO);
