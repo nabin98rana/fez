@@ -1402,9 +1402,9 @@ class Auth
 	function isValidSession(&$session) 
 	{
 
-		if (isset($GLOBALS["private_key"]) && ((empty($session["username"])) || (empty($session["hash"]))
+		if ((empty($session["username"])) || (empty($session["hash"]))
 		|| ($session["hash"] != md5($GLOBALS["private_key"] . md5($session["login_time"])
-		. $session["username"])))
+		. $session["username"]))
 		) {
 //		|| ($session['ipaddress'] != @$_SERVER['REMOTE_ADDR'])) {
 			return false;
@@ -1452,7 +1452,7 @@ class Auth
 		$ses["email"] = $email;
 		$ses["ipaddress"] = $ipaddress;
 		$ses["login_time"] = $time;
-		$ses["hash"] = (isset($GLOBALS['private_key'])) ? md5($GLOBALS["private_key"] . md5($time) . $username) : null;
+		$ses["hash"] = md5($GLOBALS["private_key"] . md5($time) . $username);
 		$ses["autologin"] = $autologin;
 	}
 

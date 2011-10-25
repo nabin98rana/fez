@@ -33,7 +33,7 @@ class RecordObject extends RecordGeneral
 	{
 	    $db = DB_API::get();
 	    $relatives = $this->getParents();
-	    $dte = date('Y-m-d H:i:s');
+	    $dte = gmdate('Y-m-d H:i:s');
 	    
 	    $sql = "INSERT INTO " . APP_TABLE_PREFIX . "tombstone " 
 	        . "(tom_pid_main, tom_pid_rel, tom_delete_ts) VALUES ";
