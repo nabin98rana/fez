@@ -272,45 +272,50 @@
 					</td>
 				</tr>
 
-	{if $xsd_display_fields[i].xsdmf_html_input == 'file_input' && $xsd_display_fields[i].xsdmf_enabled == 1}
-		{if $smarty.const.APP_ENABLE_FLASH_UPLOADER_SWITCH == 'ON'}
-			<tr id="flash_file_uploader_rows" style="display:none">
-				<th><strong>File upload</strong></th>
-				<td>
-					<div id="uploader_file_table_container" style="display:none;">
-						<b>The following files are queued for upload. Upload will commence when this form is submitted.</b>
-						<table id="uploader_file_table">
-							<thead>
-								<tr>
-									<th>Name</th>
-									<th>Size</th>
-									<th>Progress</th>
-									<th>&nbsp;</th>
-								</tr>
-							</thead>
-							<tbody id="uploader_file_details">
-							</tbody>
-						</table>
-					</div>
-				
-					<div id="uploaderElements" style="display:inline;">
-						<div id="uploaderContainer">
-							<span id="uploaderSelectLink" style="position: absolute; z-index: 2;"></span>
-							<input id="uploaderUploadButton" type="button" value="Select Files" style="z-index:1" class="button" />
-						</div>
-					</div>
-		
-					<script type="text/javascript">
-						dojo.addOnLoad( function() {ldelim}
-							swfuploaderLoad({$xsd_display_fields[i].xsdmf_multiple_limit}, '{$rel_url}', {ldelim} workflowId : {$id}, xsdmf_id : '{$xsd_display_fields[i].xsdmf_id}'{rdelim});
-						{rdelim});
-					</script>
-		
-				</td>
-			</tr>
-		{/if}
-		
-		<tbody id="original_file_uploader_rows">
+            
+        {* Start outputting the inputs based on their type *}
+
+        {* Flash Uploader *}
+        {if $xsd_display_fields[i].xsdmf_html_input == 'file_input' && $xsd_display_fields[i].xsdmf_enabled == 1}
+
+            {if $smarty.const.APP_ENABLE_FLASH_UPLOADER_SWITCH == 'ON'}
+                <tr id="flash_file_uploader_rows" style="display:none">
+                    <th><strong>File upload</strong></th>
+                    <td>
+                        <div id="uploader_file_table_container" style="display:none;">
+                            <b>The following files are queued for upload. Upload will commence when this form is submitted.</b>
+                            <table id="uploader_file_table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Size</th>
+                                        <th>Progress</th>
+                                        <th>&nbsp;</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="uploader_file_details">
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div id="uploaderElements" style="display:inline;">
+                            <div id="uploaderContainer">
+                                <span id="uploaderSelectLink" style="position: absolute; z-index: 2;"></span>
+                                <input id="uploaderUploadButton" type="button" value="Select Files" style="z-index:1" class="button" />
+                            </div>
+                        </div>
+
+                        <script type="text/javascript">
+                            dojo.addOnLoad( function() {ldelim}
+                                swfuploaderLoad({$xsd_display_fields[i].xsdmf_multiple_limit}, '{$rel_url}', {ldelim} workflowId : {$id}, xsdmf_id : '{$xsd_display_fields[i].xsdmf_id}'{rdelim});
+                            {rdelim});
+                        </script>
+
+                    </td>
+                </tr>
+            {/if}
+
+            <tbody id="original_file_uploader_rows">
 			{if $xsd_display_fields[i].xsdmf_multiple == 1}
 				{section name="z" loop=$xsd_display_fields[i].multiple_array}
 					{assign var="loop_num" value=$smarty.section.z.index}
@@ -337,7 +342,8 @@
 					</tr>
 			{/if}
 		</tbody>
-		
+
+        {* Checkbox *}
 		{elseif $xsd_display_fields[i].xsdmf_html_input == 'checkbox' && $xsd_display_fields[i].xsdmf_enabled == 1}
 			{if $xsd_display_fields[i].xsdmf_multiple == 1}
 				{section name="z" loop=$xsd_display_fields[i].multiple_array}
@@ -368,7 +374,9 @@
 						{/if}
 					 </td>
 					</tr>
-			{/if}				
+			{/if}
+
+        {* Rich Text *}
 		{elseif $xsd_display_fields[i].xsdmf_html_input == 'rich_text' && $xsd_display_fields[i].xsdmf_enabled == 1}
 				{if $xsd_display_fields[i].xsdmf_multiple == 1}
 					{section name="z" loop=$xsd_display_fields[i].multiple_array}
@@ -416,6 +424,8 @@
 						 </td>
 						</tr>
 				{/if}
+
+        {* Depositor org *}
 		{elseif ($xsd_display_fields[i].xsdmf_html_input == 'depositor_org') }
 			{assign var="xsdmf" value=$xsd_display_fields[i]}
 			<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" {if ($isEditor != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && $xsd_display_fields[i].xsdmf_required != 1) || $xsd_display_fields[i].xsdmf_invisible == 1}style="display:none"{/if}>
@@ -444,6 +454,8 @@
 			  </td>
 	  		{include file='workflow/compare_records_helpers/get_right_column.tpl.html' input_field_name=$field_name}
 			 </tr>
+
+        {* Static *}
 		{elseif ($xsd_display_fields[i].xsdmf_html_input == 'static' && $xsd_display_fields[i].xsdmf_show_in_view == 1 && $xsd_display_fields[i].xsdmf_static_text != '') && $xsd_display_fields[i].xsdmf_enabled == 1}
 			{assign var="image_name" value=$app_path|cat:"images/"|cat:$xsd_display_fields[i].xsdmf_image_location} 
 			{assign var="image_file_string" value=""}
@@ -456,7 +468,9 @@
 						{/if}
 					  </th>
 					</tr>
-		{elseif ($xsd_display_fields[i].xsdmf_html_input == 'xsd_loop_subelement' && $xsd_display_fields[i].xsdmf_show_in_view == 1) && $xsd_display_fields[i].xsdmf_enabled == 1}
+
+        {* xsd_loop_subelement *}
+        {elseif ($xsd_display_fields[i].xsdmf_html_input == 'xsd_loop_subelement' && $xsd_display_fields[i].xsdmf_show_in_view == 1) && $xsd_display_fields[i].xsdmf_enabled == 1}
 			{assign var="image_name" value=$app_path|cat:"images/"|cat:$xsd_display_fields[i].xsdmf_image_location} 
 			{assign var="image_file_string" value=""}
 			{fetch file=$image_name assign="image_file_string"} 
@@ -468,8 +482,11 @@
 						{/if}
 					  </td>
 					</tr>
-	
+
+        {* author_suggestor *}
 		{elseif $xsd_display_fields[i].xsdmf_html_input == 'author_suggestor' && $xsd_display_fields[i].xsdmf_enabled == 1}
+
+        {* author_selector *}
 		{elseif $xsd_display_fields[i].xsdmf_html_input == 'author_selector' && $xsd_display_fields[i].xsdmf_enabled == 1}
 			{assign var="field_name" value="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}						
 		    {assign var="field_id" value="xsd_display_fields_"|cat:$xsd_display_fields[i].xsdmf_id|cat:"_0"}
@@ -486,6 +503,8 @@
 				{include file="error_icon.tpl.html" field=$field_name}
 			  </td>
 			</tr>
+
+        {* Text *}
 	    {elseif $xsd_display_fields[i].xsdmf_html_input == 'text' && $xsd_display_fields[i].xsdmf_enabled == 1}
 			{if $xsd_display_fields[i].xsdmf_multiple == 1}
 					{assign var="xsdmf" value=$xsd_display_fields[i]}
@@ -754,6 +773,8 @@
 	
 		
 			{/if}
+
+        {* TextArea *}
 	    {elseif $xsd_display_fields[i].xsdmf_html_input == 'textarea' && $xsd_display_fields[i].xsdmf_enabled == 1}
 			{if $xsd_display_fields[i].xsdmf_multiple == 1}
 				{section name="z" loop=$xsd_display_fields[i].multiple_array}
@@ -898,6 +919,8 @@
 					 </td>
 					</tr>
 			{/if}
+
+        {* Hidden *}
 	    {elseif $xsd_display_fields[i].xsdmf_html_input == 'hidden' && $xsd_display_fields[i].xsdmf_enabled == 1}
 			{if $xsd_display_fields[i].xsdmf_multiple == 1}
 				{section name="z" loop=$xsd_display_fields[i].multiple_array}
@@ -921,6 +944,8 @@
 					 </td>
 					</tr>
 			{/if}
+
+        {* org_selector *}
 	    {elseif ($xsd_display_fields[i].xsdmf_html_input == 'org_selector') && $xsd_display_fields[i].xsdmf_enabled == 1}
 			{assign var="field_name" value="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}							
 			{if $xsd_display_fields[i].xsdmf_html_input == 'multiple'}
@@ -984,6 +1009,8 @@
 				  {include file='workflow/compare_records_helpers/get_right_column.tpl.html' input_field_name=$field_name}
 						 </tr>
 				{/if}
+
+        {* combo *}
 	    {elseif ($xsd_display_fields[i].xsdmf_html_input == 'multiple' or $xsd_display_fields[i].xsdmf_html_input == 'combo') && $xsd_display_fields[i].xsdmf_enabled == 1}
 			{assign var="field_name" value="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}							
 			{if $xsd_display_fields[i].xsdmf_html_input == 'multiple'}
@@ -1031,6 +1058,8 @@
 					 </td>
 					</tr>
 			{/if}
+
+        {* Date *}
 		{elseif $xsd_display_fields[i].xsdmf_html_input == 'date' && $xsd_display_fields[i].xsdmf_enabled == 1}
 			<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" {if ($isEditor != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && $xsd_display_fields[i].xsdmf_required != 1) || $xsd_display_fields[i].xsdmf_invisible == 1}style="display:none"{/if}>
 				<th>
@@ -1056,7 +1085,8 @@
 					{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}
 				</td>
 			</tr>
-	
+
+        {* contvocab_selector *}
 		{elseif $xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector' && $xsd_display_fields[i].xsdmf_enabled == 1}
 				<tr id="tr_list_{$list[i].xsdmf_id}_0" valign="top" {if ($isEditor != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && $xsd_display_fields[i].xsdmf_required != 1) || $xsd_display_fields[i].xsdmf_invisible == 1 || ($xsd_display_fields[i].cvo_hide == 1 && $xsd_display_fields[i].xsdmf_cvo_min_level == 3 && !$isAdmin)}style="display:none"{/if}>
 				  <th>
@@ -1089,6 +1119,8 @@
 				 </td>
 				</tr>				
 				{/if}
+
+        {* contvocab *}
 	    {elseif $xsd_display_fields[i].xsdmf_html_input == 'contvocab' && $xsd_display_fields[i].xsdmf_enabled == 1}
 	
 				<tr id="tr_list_{$list[i].xsdmf_id}_0" valign="top" {if ($isEditor != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && $xsd_display_fields[i].xsdmf_required != 1) || $xsd_display_fields[i].xsdmf_invisible == 1}style="display:none"{/if}>

@@ -9,3 +9,6 @@ Your item will be referred to a {$application_name} editor for approval.
 Regards,
 
 Manager - {$application_name}
+
+{* Include the full metadata *}
+{ include file="workflow/full_thesis_metadata.tpl.txt" }
