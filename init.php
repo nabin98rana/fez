@@ -37,12 +37,11 @@ ini_set('allow_url_fopen', 0);
 ini_set("display_errors", 1);
 //error_reporting(1);
 //error_reporting(E_ALL | E_STRICT); //Use this to show all errs. E_ERROR used by default because otherwise PHP4 style code in this code base causes Strict Standards warnings.
-//error_reporting(E_ALL);
 error_reporting(E_ERROR);
 set_time_limit(0);
 date_default_timezone_set("Australia/Brisbane");
 
-// Set defaults if not specified in config.inc.phpƒ
+// Set defaults if not specified in config.inc.php
 if (!defined("APP_INC_PATH")) {
   define("APP_INC_PATH", APP_PATH . "include/");
 }

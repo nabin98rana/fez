@@ -1069,7 +1069,7 @@
 				<td>
 					{assign var="temp_xsdmf_id" value=$xsd_display_fields[i].xsdmf_id}
 					{if $xsd_display_fields[i].xsdmf_date_type == 0}
-						{html_select_date time="0000-00-00" reverse_years=true month_empty='' year_empty='' day_empty='' field_array="xsd_display_fields[$temp_xsdmf_id]" prefix="" start_year="$app_earliest_input_year" end_year="+1" all_extra='class="default"'}
+						{html_select_date time="0000-00-00" reverse_years=true month_empty='' year_empty='' day_empty='' field_array="xsd_display_fields[$temp_xsdmf_id]" prefix="" start_year="$app_earliest_input_year" end_year="+2" all_extra='class="default"'}
 						{literal}
 							<script type="text/javascript">
 								<!--
@@ -1080,7 +1080,7 @@
 							</script>
 						{/literal}&nbsp;&nbsp;
 					{else}
-						{html_select_date time="0000-00-00" reverse_years=true display_days=false display_months=false year_empty='' field_array="xsd_display_fields[$temp_xsdmf_id]" prefix="" start_year="$app_earliest_input_year" end_year="+1" all_extra='class="default" onchange="javascript:checkDateFilterType(this.form, this);"'}
+						{html_select_date time="0000-00-00" reverse_years=true display_days=false display_months=false year_empty='' field_array="xsd_display_fields[$temp_xsdmf_id]" prefix="" start_year="$app_earliest_input_year" end_year="+2" all_extra='class="default" onchange="javascript:checkDateFilterType(this.form, this);"'}
 					{/if}
 					{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}
 				</td>

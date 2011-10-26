@@ -86,7 +86,7 @@ class Template_API
 		$this->smarty->compile_dir = $compile_path;
 		$this->smarty->config_dir = '';
 
-		$custom_view_pid = $_GET['custom_view_pid'];
+		$custom_view_pid = (isset($_GET['custom_view_pid'])) ? $_GET['custom_view_pid'] : null;
 		if (!empty($custom_view_pid)) {
 			$customView = Custom_View::getCommCview($custom_view_pid);
 			if($customView) {
@@ -252,7 +252,7 @@ class Template_API
 		$canMasquerade = Masquerade::canUserMasquerade($username);
 		$this->assign("canMasquerade", $canMasquerade);
 		
-		$custom_view_pid = $_GET['custom_view_pid'];
+		$custom_view_pid = (isset($_GET['custom_view_pid'])) ? $_GET['custom_view_pid'] : null;
 		if (!empty($custom_view_pid)) {
 			$customView = Custom_View::getCommCview($custom_view_pid);
 			if ($customView) {
@@ -260,6 +260,10 @@ class Template_API
 				$this->assign('cv_id',   $customView['cview_id']);
 				$this->assign('cv_pid',   $custom_view_pid);
 			}
+		}
+		else 
+		{
+		    $customView = null;
 		}
 		
 		if (preg_match('/\/manage\/.*/', $_SERVER['REQUEST_URI'])) {
@@ -300,8 +304,8 @@ class Template_API
 		$this->assign("APP_HERDC_SUPPORT", APP_HERDC_SUPPORT);
 		$this->assign("SID", SID);
 		$this->assign("SHIB_SWITCH", SHIB_SWITCH);
-		$this->assign("SHIB_DIRECT_LOGIN", SHIB_DIRECT_LOGIN);
-		if (is_array($customView)) {
+		$this->assign("SHIB_DIRECT_LOGIN", SHIB_DIRECT_LOGIN); 
+		if($customView && is_array($customView)) {
 			$this->assign("APP_HOSTNAME", $customView['cvcom_hostname']);
 		} else {
 			$this->assign("APP_HOSTNAME", APP_HOSTNAME);

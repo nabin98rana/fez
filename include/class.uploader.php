@@ -57,7 +57,7 @@ class Uploader
 	 **/
 	public function generateFilesArray($wflId, $xsdmfId)
 	{
-		$uploadDir = self::getUploadedFilePath($wflId);
+	    $uploadDir = self::getUploadedFilePath($wflId);
 		$returnArray = array();
 		
 		// if the directory doesn't exist, return an empty array
@@ -91,6 +91,7 @@ class Uploader
 				$counter++;
 			}
 		}
+		
 		return $returnArray;
 	}
 } // END class Uploader

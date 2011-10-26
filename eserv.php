@@ -72,8 +72,24 @@ if ( (is_numeric(strpos($pid, ".."))) || (Misc::isPid($pid) != true) || (is_nume
 $acceptable_roles = array("Viewer", "Community_Admin", "Editor", "Creator", "Annotator");
 
 if (!empty($pid) && !empty($dsID)) {
-
-	if( Record::isDeleted($pid) ) {
+    
+    if(APP_FEDORA_BYPASS == 'ON')
+    {
+        if(!$bookpage)//Test for existence of bookpage further down. 
+        {
+            $dsr = new DSResource();
+    		$dsr->load($dsID, $pid);
+    		$hash = $dsr->getHash();
+    		$dsMeta = $dsr->getMeta();
+    		$isDeleted = ($dsr->resourceExists()) ? false : true;
+        }
+    }
+    else
+    {
+        $isDeleted = Record::isDeleted($pid);
+    }
+    
+	if($isDeleted) {
 		header("HTTP/1.0 404 Not Found");
 		header("Status: 404 Not Found");
 		$tpl = new Template_API();
@@ -113,18 +129,34 @@ if (!empty($pid) && !empty($dsID)) {
 	$is_video = 0;
 	$is_image = 0;
 	$info = array();
-	$exif_array = Exiftool::getDetails($pid, $dsID);
-	if (!is_numeric($exif_array['exif_file_size']) || $requestedVersionDate != "") {
-		$getURL = APP_FEDORA_GET_URL."/".$pid."/".$dsID.$requestedVersionDate;
-		list($data,$info) = Misc::processURL_info($getURL);
-	} else {
-		$info['content_type'] = $exif_array['exif_mime_type'];
-		$info['download_content_length'] = $exif_array['exif_file_size'];
+	
+	if(APP_FEDORA_BYPASS != 'ON')
+	{
+	    $exif_array = Exiftool::getDetails($pid, $dsID);
 	}
-
-	if( $info['download_content_length'] == 0 && $bookpage != true ) { //if trying to get the book page then ignore this check
+	
+	if(APP_FEDORA_BYPASS == 'ON')
+	{
+    	$info['content_type'] = $dsMeta['mimetype'];
+        $info['download_content_length'] = $dsMeta['size'];
+	}
+	else 
+	{
+	    if (!is_numeric($exif_array['exif_file_size']) || $requestedVersionDate != "") {
+    		$getURL = APP_FEDORA_GET_URL."/".$pid."/".$dsID.$requestedVersionDate;
+    		list($data,$info) = Misc::processURL_info($getURL);
+    	} else {
+    		$info['content_type'] = $exif_array['exif_mime_type'];
+    		$info['download_content_length'] = $exif_array['exif_file_size'];
+    	}
+	}
+	
+	if(APP_FEDORA_BYPASS != 'ON')
+	{
+	    if( $info['download_content_length'] == 0 )
 		$not_exists = true;
-  }
+	}
+	
 
 	if ($not_exists == false) {
 		$ctype = $info['content_type'];
@@ -175,16 +207,18 @@ if (!empty($pid) && !empty($dsID)) {
 				exit;
 	  		}
 		}
-		
+		//TODO change for video handling non-Fedora style
 		if (($stream == 1 && $is_video == 1) && (is_numeric(strpos($ctype, "flv")))) {
 			
 			$urldata = APP_FEDORA_GET_URL."/".$pid."/".$dsID.$requestedVersionDate;
-			$file = $urldata;
+			$file = (APP_FEDORA_BYPASS == 'ON') ? $dsr->getResourcePath($hash['rawHash']) : $urldata;
 			$seekat = $_GET["pos"];
 			if ($seekat == '') { // if seekat isn't defined, set it to -1, the default for stream_get_contents(), else stream won't get contents
 				$seekat = -1;
 			}
-	        $size = Misc::remote_filesize($urldata);
+			
+	        $size = (APP_FEDORA_BYPASS == 'ON') ? $dsMeta['size'] : Misc::remote_filesize($urldata);
+	         
 			# content headers
 			header("Content-Type: video/x-flv");
 			header("Content-Disposition: attachment; filename=\"" . $dsID . "\"");
@@ -196,16 +230,26 @@ if (!empty($pid) && !empty($dsID)) {
 	    		//print(pack('N', 9 ));
 				print(pack('N', 0 ));  // Total size of previous tag, or 0 for this first tag
 		    }
-			if (APP_FEDORA_APIA_DIRECT == "ON") {
-	            $fda = new Fedora_Direct_Access();
-				$dsVersionID = $fda->getMaxDatastreamVersion($pid, $dsID);
-				$fda->getDatastreamManagedContentStream($pid, $dsID, $dsVersionID, $seekat);
-			} else {
-				$fh = fopen($file, "rb");
-				//$buffer = 512;  not needed?
-			  	echo stream_get_contents($fh, $size, $seekat);
-				fclose($fh);
-			}
+		    
+		    if(APP_FEDORA_BYPASS == 'ON')
+		    {
+		        $fh = fopen($file, "rb");
+		        echo stream_get_contents($fh, $size, $seekat);
+		        fclose($fh);
+		    }
+		    else 
+		    {
+    			if (APP_FEDORA_APIA_DIRECT == "ON") {
+    	            $fda = new Fedora_Direct_Access();
+    				$dsVersionID = $fda->getMaxDatastreamVersion($pid, $dsID);
+    				$fda->getDatastreamManagedContentStream($pid, $dsID, $dsVersionID, $seekat);
+    			} else {
+    				$fh = fopen($file, "rb");
+    				//$buffer = 512;  not needed?
+    			  	echo stream_get_contents($fh, $size, $seekat);
+    				fclose($fh);
+    			}
+		    }
 			// Add view to statistics buffer
 			Statistics::addBuffer($pid, $dsID);							
 		    exit;
@@ -225,7 +269,7 @@ if (!empty($pid) && !empty($dsID)) {
             $dsID = explode('.pdf', $dsID);
             $dsID = $dsID[0];
             
-            $resourcePath = APP_PATH.BR_IMG_DIR . $pid . '/' . $dsID;
+            $resourcePath = BR_IMG_DIR . $pid . '/' . $dsID;
             $protocol = ($_SERVER['HTTPS']) ? 'https://' : 'http://';
             $host = $protocol . $_SERVER['HTTP_HOST'];
             $urlPath = str_replace($_SERVER['DOCUMENT_ROOT'], '', BR_IMG_DIR);
@@ -272,7 +316,7 @@ if (!empty($pid) && !empty($dsID)) {
                  $pid = str_replace(':','_',$pid);
              }
              
-             $imageFile = APP_PATH.BR_IMG_DIR . $pid . '/' . $resource . '/' . $image;
+             $imageFile = BR_IMG_DIR . $pid . '/' . $resource . '/' . $image;
              
              if(is_file($imageFile))
              {
@@ -321,34 +365,56 @@ if (!empty($pid) && !empty($dsID)) {
 			exit;
 		}
 		
-		// this should stop them dang haxors (forces the http on the front for starters)
-		$urldata = APP_FEDORA_GET_URL."/".$pid."/".$dsID.$requestedVersionDate;
-		$urlpath = $urldata;
-	    if (!empty($header)) {
-	    	//echo $header; exit;
-	        header($header);
-	    } elseif (!empty($info['content_type'])) {
-	        header("Content-type: {$info['content_type']}");
-	    } else {
-	        header("Content-type: text/html");
-	    }
-
-	    // PDF? > 7MB? Firefox? Force download.
-	    if (is_numeric(strpos($ctype, "pdf")) && $info['download_content_length'] > 7000000 && Misc::is_firefox()) {
-	    	//header('Content-Type: application/download');
-	    	header("Content-Type: application/force-download");
-	    }
-
-	    header('Content-Disposition: filename="'.substr($urldata, (strrpos($urldata, '/')+1) ).'"');
-		if (!empty($info['download_content_length'])) {
-			header("Content-length: ".$info['download_content_length']);
-		}
-		header('Pragma: private');
-		header('Cache-control: private, must-revalidate');
-		
 		/*
 		 * Send file to user
 		 */
+		if(APP_FEDORA_BYPASS == 'ON')
+		{
+		    $header = (isset($dsMeta['mimetype'])) ? $dsMeta['mimetype'] : 'text/html';
+		    
+		    header("Content-Type: $header");
+		    
+		    if($dsMeta['mimetype'] == 'application/pdf' 
+		        && $dsMeta['size'] > 7000000 
+		        && Misc::is_firefox())
+		    {
+		        header("Content-Type: application/force-download");
+		    }
+		    
+            header('Content-Disposition: filename="' . $hash['hashFile'] . '"');		    
+		    header('Pragma: private');
+    		header('Cache-control: private, must-revalidate');
+		    
+		    echo $dsr->getDSData($hash['rawHash']);
+		}
+		else
+		{
+		
+    		// this should stop them dang haxors (forces the http on the front for starters)
+    		$urldata = APP_FEDORA_GET_URL."/".$pid."/".$dsID.$requestedVersionDate; 
+    		$urlpath = $urldata;
+    	    if (!empty($header)) {
+    	    	//echo $header; exit;
+    	        header($header);
+    	    } elseif (!empty($info['content_type'])) {
+    	        header("Content-type: {$info['content_type']}");
+    	    } else {
+    	        header("Content-type: text/html");
+    	    }
+    	    
+    	    // PDF? > 7MB? Firefox? Force download.
+    	    if (is_numeric(strpos($ctype, "pdf")) && $info['download_content_length'] > 7000000 && Misc::is_firefox()) {
+    	    	//header('Content-Type: application/download');
+    	    	header("Content-Type: application/force-download");
+    	    }
+    	    
+    	    header('Content-Disposition: filename="'.substr($urldata, (strrpos($urldata, '/')+1) ).'"');
+    		if (!empty($info['download_content_length'])) {
+    			header("Content-length: ".$info['download_content_length']);
+    		}
+    		header('Pragma: private');
+    		header('Cache-control: private, must-revalidate');
+		
 
     if (APP_FEDORA_SENDFILE_DIRECT == "ON") {
       Statistics::addBuffer($pid, $dsID);
@@ -356,7 +422,8 @@ if (!empty($pid) && !empty($dsID)) {
       $dsVersionID = $fda->getMaxDatastreamVersion($pid, $dsID);
       $fda->getDatastreamManagedContent($pid, $dsID, $dsVersionID);
     } else {
-		  Misc::processURL($urldata, true);
+		    Misc::processURL($urldata, true);
+		}
       Statistics::addBuffer($pid, $dsID);
     }
 		// Add view to statistics buffer

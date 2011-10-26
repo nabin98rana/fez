@@ -48,11 +48,13 @@ include_once(APP_INC_PATH . "class.origami.php");
 include_once(APP_PEAR_PATH . "Date.php");
 include_once(APP_INC_PATH . "class.bookreaderimplementation.php");
 include_once(APP_INC_PATH . "class.author_affiliations.php");
+include_once(APP_INC_PATH . "class.xsd_display.php");
 //include_once(APP_INC_PATH . 'najax_objects/class.background_process_list.php');
 
 $username = Auth::getUsername();
 $isAdministrator = Auth::isAdministrator(); 
 $isSuperAdministrator = User::isUserSuperAdministrator($username);
+//$dob = new DigitalObject();
 $tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 
 if ($isAdministrator) {
@@ -97,13 +99,14 @@ if (!empty($pid)) {
     // Retrieve the selected version date from the request. 
     // This will be null unless a version date has been
     // selected by the user.
-    $requestedVersionDate = $_REQUEST['version_date'];
+    $requestedVersionDate = (isset($_REQUEST['version_date']) 
+        && $_REQUEST['version_date'] > 0) 
+            ? $_REQUEST['version_date'] : null;
+    
  	$record = new RecordObject($pid, $requestedVersionDate);
 }
-
-
+    
 if (!empty($pid) && $record->checkExists()) {
-
 
 	$canViewVersions = $record->canViewVersions(false);
 	//$canRevertVersions = $record->canRevertVersions(false);
@@ -143,7 +146,16 @@ if (!empty($pid) && $record->checkExists()) {
 		}
 	}
 	
-	$xdis_id = $record->getXmlDisplayId($useVersions);
+	if(APP_FEDORA_BYPASS == 'ON')
+	{
+	    $xdis_id = Record::getSearchKeyIndexValue($pid,'Display Type');
+        $xdis_key = array_keys($xdis_id);
+        $xdis_id = $xdis_key[0];
+	}
+	else
+	{
+	    $xdis_id = $record->getXmlDisplayId($useVersions);
+	}
 	$tpl->assign("xdis_id", $xdis_id);
 	$xdis_title = XSD_Display::getTitle($xdis_id);	
     $tpl->assign("xdis_title", $xdis_title);
@@ -165,7 +177,7 @@ if (!empty($pid) && $record->checkExists()) {
 		Auth::redirect(APP_RELATIVE_URL . "select_xdis.php?return=view_form&pid=".$pid.$extra_redirect, false);
 	}
 
-	$custom_view_pid = $_GET['custom_view_pid'];
+	$custom_view_pid = (isset($_GET['custom_view_pid'])) ? $_GET['custom_view_pid'] : null;
 
 	if (!empty($custom_view_pid)) {
 		$parents = Record::getParentsAll($pid);
@@ -226,7 +238,6 @@ if (!empty($pid) && $record->checkExists()) {
 		$record->getDisplay();
 		//$display = new XSD_DisplayObject($xdis_id);
 		$xsd_display_fields = $record->display->getMatchFieldsList(array("FezACML"), array());  // XSD_DisplayObject
-		
 
 		$tpl->assign("sta_id", $record->getPublishedStatus()); 
 		
@@ -421,12 +432,30 @@ if (!empty($pid) && $record->checkExists()) {
 		$linkCount = 0;
 		$fileCount = 0;
 		
-		$datastreams = Fedora_API::callGetDatastreams($pid, $requestedVersionDate, 'A');
-
+		if(APP_FEDORA_BYPASS == 'ON')
+		{
+    		//This retrieves the datastreams
+    		//Metadata is retrieved by XSD_DisplayObject::getXSDMF_Values
+		    $dob = new DigitalObject();
+		    $params = array('pid' => $pid);
+		    
+		    if($requestedVersionDate)
+		    {
+		        $params['rev'] = $requestedVersionDate;
+		    }
+		    
+    		$datastreams = $dob->getDatastreams($params);
+		}
+		else
+		{
+		    $datastreams = Fedora_API::callGetDatastreams($pid, $requestedVersionDate, 'A');
+		}
+		
         // Extact and generate list of timestamps for the datastreams of the record
         generateTimestamps($pid, $datastreams, $requestedVersionDate, $tpl);
 
-		if( $requestedVersionDate != null ){
+        //Make this method call pull from the db.
+		if( $requestedVersionDate != null && APP_FEDORA_BYPASS != 'ON'){
 			$datastreams = Misc::addDeletedDatastreams($datastreams,$pid,$requestedVersionDate);
 		}
 
@@ -436,103 +465,106 @@ if (!empty($pid) && $record->checkExists()) {
 //Error_Handler::logError("view2.php datastreams (after cleanDatastreamListLite)=__SEE_NEXT__", __FILE__,__LINE__);
 //Error_Handler::logError($datastreams, __FILE__,__LINE__);
 		
-		foreach ($datastreams as $ds_key => $ds) {
-
-			
-		    if ($datastreams[$ds_key]['controlGroup'] == 'R') {
-				$linkCount++;				
-			}
-			
-			if ($datastreams[$ds_key]['controlGroup'] == 'R' && $datastreams[$ds_key]['ID'] != 'DOI') {
-				$datastreams[$ds_key]['location'] = trim($datastreams[$ds_key]['location']);
-				
-				// Check for APP_LINK_PREFIX and add if not already there add it to a special ezyproxy link for it
-				if (APP_LINK_PREFIX != "") {
-					if (!is_numeric(strpos($datastreams[$ds_key]['location'], APP_LINK_PREFIX))) {
-						$datastreams[$ds_key]['prefix_location'] = APP_LINK_PREFIX.$datastreams[$ds_key]['location'];
-						$datastreams[$ds_key]['location'] = str_replace(APP_LINK_PREFIX, "", $datastreams[$ds_key]['location']);
-					} else {
-						$datastreams[$ds_key]['prefix_location'] = "";
-					}
-				} else {
-					$datastreams[$ds_key]['prefix_location'] = "";
-				}
-				
-			} elseif ($datastreams[$ds_key]['controlGroup'] == 'M') {
-				
-			    $fileCount++;
-				$datastreams[$ds_key]['exif'] = Exiftool::getDetails($pid, $datastreams[$ds_key]['ID']);			
-				if (APP_EXIFTOOL_SWITCH != "ON" || !is_numeric($datastreams[$ds_key]['exif']['exif_file_size'])) { //if Exiftool isn't on then get the datastream info from JHOVE (which is a lot slower than EXIFTOOL)
-	                if (is_numeric(strrpos($datastreams[$ds_key]['ID'], "."))) {
-					    $Jhove_DS_ID = "presmd_".substr($datastreams[$ds_key]['ID'], 0, strrpos($datastreams[$ds_key]['ID'], ".")).".xml";
-	                } else {
-	                    $Jhove_DS_ID = "presmd_".$datastreams[$ds_key]['ID'].".xml";
-	                }
-                
-					foreach ($datastreamsAll as $dsa) {
-				    
-						if ($dsa['ID'] == $Jhove_DS_ID) {
-							$Jhove_XML = Fedora_API::callGetDatastreamDissemination($pid, $Jhove_DS_ID);
-						
-							if(!empty($Jhove_XML['stream'])) {
-	    						$jhoveHelp = new Jhove_Helper($Jhove_XML['stream']);
+		if($datastreams)
+		{
+    		foreach ($datastreams as $ds_key => $ds) {
+    
+    			
+    		    if ($datastreams[$ds_key]['controlGroup'] == 'R') {
+    				$linkCount++;				
+    			}
+    			
+    			if ($datastreams[$ds_key]['controlGroup'] == 'R' && $datastreams[$ds_key]['ID'] != 'DOI') {
+    				$datastreams[$ds_key]['location'] = trim($datastreams[$ds_key]['location']);
+    				
+    				// Check for APP_LINK_PREFIX and add if not already there add it to a special ezyproxy link for it
+    				if (APP_LINK_PREFIX != "") {
+    					if (!is_numeric(strpos($datastreams[$ds_key]['location'], APP_LINK_PREFIX))) {
+    						$datastreams[$ds_key]['prefix_location'] = APP_LINK_PREFIX.$datastreams[$ds_key]['location'];
+    						$datastreams[$ds_key]['location'] = str_replace(APP_LINK_PREFIX, "", $datastreams[$ds_key]['location']);
+    					} else {
+    						$datastreams[$ds_key]['prefix_location'] = "";
+    					}
+    				} else {
+    					$datastreams[$ds_key]['prefix_location'] = "";
+    				}
+    				
+    			} elseif ($datastreams[$ds_key]['controlGroup'] == 'M') {
+    				
+    			    $fileCount++;
+    				$datastreams[$ds_key]['exif'] = Exiftool::getDetails($pid, $datastreams[$ds_key]['ID']);			
+    				if (APP_EXIFTOOL_SWITCH != "ON" || !is_numeric($datastreams[$ds_key]['exif']['exif_file_size'])) { //if Exiftool isn't on then get the datastream info from JHOVE (which is a lot slower than EXIFTOOL)
+    	                if (is_numeric(strrpos($datastreams[$ds_key]['ID'], "."))) {
+    					    $Jhove_DS_ID = "presmd_".substr($datastreams[$ds_key]['ID'], 0, strrpos($datastreams[$ds_key]['ID'], ".")).".xml";
+    	                } else {
+    	                    $Jhove_DS_ID = "presmd_".$datastreams[$ds_key]['ID'].".xml";
+    	                }
+                    
+    					foreach ($datastreamsAll as $dsa) {
+    				    
+    						if ($dsa['ID'] == $Jhove_DS_ID) {
+    							$Jhove_XML = Fedora_API::callGetDatastreamDissemination($pid, $Jhove_DS_ID);
     						
-	    						$fileSize = $jhoveHelp->extractFileSize();
-	    						$datastreams[$ds_key]['archival_size'] =  Misc::size_hum_read($fileSize);
-	    						$datastreams[$ds_key]['archival_size_raw'] = $fileSize;
-    						
-	    						$spatialMetrics = $jhoveHelp->extractSpatialMetrics();
-    						
-	    						if( is_numeric($spatialMetrics[0]) && $spatialMetrics[0] > 0 ) {
-	                                $tpl->assign("img_width", $spatialMetrics[0]);
-	    						}
-    						  
-	    						if( is_numeric($spatialMetrics[1]) && $spatialMetrics[1] > 0 ) {
-	                                $tpl->assign("img_height", $spatialMetrics[1]);
-	    						}
-    						
-	    						unset($jhoveHelp);
-	    						unset($Jhove_XML);
-							}
-						}
-					} 
-				}	else {
-					$datastreams[$ds_key]['MIMEType'] =  $datastreams[$ds_key]['exif']['exif_mime_type'];
-					$datastreams[$ds_key]['archival_size'] =  $datastreams[$ds_key]['exif']['exif_file_size_human'];
-					$datastreams[$ds_key]['archival_size_raw'] = $datastreams[$ds_key]['exif']['exif_file_size'];
-					$tpl->assign("img_height",  $datastreams[$ds_key]['exif']['exif_image_height']);
-					$tpl->assign("img_width", $datastreams[$ds_key]['exif']['exif_image_width']);
-				}
-				$origami_switch = "OFF";
-				if (APP_ORIGAMI_SWITCH == "ON" && ($datastreams[$ds_key]['MIMEType'] == 'image/jpeg' || 
-		             $datastreams[$ds_key]['MIMEType'] == 'image/tiff' || 
-		             $datastreams[$ds_key]['MIMEType'] == 'image/tif' || 
-		             $datastreams[$ds_key]['MIMEType'] == 'image/jpg')) {
-					 $origami_path = Origami::getTitleHome() . Origami::getTitleLocation($pid, $datastreams[$ds_key]['ID']);
-					 if (is_dir($origami_path)) {
-						$origami_switch = "ON";
-					 } 	        
-				}
-				$datastreams[$ds_key]['origami_switch'] = $origami_switch;
-				
-				$datastreams[$ds_key]['FezACML'] = Auth::getAuthorisationGroups($pid, $datastreams[$ds_key]['ID']);
-				$datastreams[$ds_key]['downloads'] = Statistics::getStatsByDatastream($pid, $ds['ID']);	
-				$datastreams[$ds_key]['base64ID'] = base64_encode($ds['ID']); 		
-
-				if (APP_FEDORA_DISPLAY_CHECKSUMS == "ON") {
-					$datastreams[$ds_key]['checksumType'] = $ds['checksumType'];   
-					$datastreams[$ds_key]['checksum'] = $ds['checksum'];   
-					$tpl->assign("display_checksums", "ON");
-				}
-
-				Auth::getAuthorisation($datastreams[$ds_key]);
-			}
-			
-            if ($datastreams[$ds_key]['controlGroup'] == 'R' && $datastreams[$ds_key]['ID'] == 'DOI') {
-                $datastreams[$ds_key]['location'] = trim($datastreams[$ds_key]['location']);
-                $tpl->assign('doi', $datastreams[$ds_key]);
-            }
-		} 
+    							if(!empty($Jhove_XML['stream'])) {
+    	    						$jhoveHelp = new Jhove_Helper($Jhove_XML['stream']);
+        						
+    	    						$fileSize = $jhoveHelp->extractFileSize();
+    	    						$datastreams[$ds_key]['archival_size'] =  Misc::size_hum_read($fileSize);
+    	    						$datastreams[$ds_key]['archival_size_raw'] = $fileSize;
+        						
+    	    						$spatialMetrics = $jhoveHelp->extractSpatialMetrics();
+        						
+    	    						if( is_numeric($spatialMetrics[0]) && $spatialMetrics[0] > 0 ) {
+    	                                $tpl->assign("img_width", $spatialMetrics[0]);
+    	    						}
+        						  
+    	    						if( is_numeric($spatialMetrics[1]) && $spatialMetrics[1] > 0 ) {
+    	                                $tpl->assign("img_height", $spatialMetrics[1]);
+    	    						}
+        						
+    	    						unset($jhoveHelp);
+    	    						unset($Jhove_XML);
+    							}
+    						}
+    					} 
+    				}	else {
+    					$datastreams[$ds_key]['MIMEType'] =  $datastreams[$ds_key]['exif']['exif_mime_type'];
+    					$datastreams[$ds_key]['archival_size'] =  $datastreams[$ds_key]['exif']['exif_file_size_human'];
+    					$datastreams[$ds_key]['archival_size_raw'] = $datastreams[$ds_key]['exif']['exif_file_size'];
+    					$tpl->assign("img_height",  $datastreams[$ds_key]['exif']['exif_image_height']);
+    					$tpl->assign("img_width", $datastreams[$ds_key]['exif']['exif_image_width']);
+    				}
+    				$origami_switch = "OFF";
+    				if (APP_ORIGAMI_SWITCH == "ON" && ($datastreams[$ds_key]['MIMEType'] == 'image/jpeg' || 
+    		             $datastreams[$ds_key]['MIMEType'] == 'image/tiff' || 
+    		             $datastreams[$ds_key]['MIMEType'] == 'image/tif' || 
+    		             $datastreams[$ds_key]['MIMEType'] == 'image/jpg')) {
+    					 $origami_path = Origami::getTitleHome() . Origami::getTitleLocation($pid, $datastreams[$ds_key]['ID']);
+    					 if (is_dir($origami_path)) {
+    						$origami_switch = "ON";
+    					 } 	        
+    				}
+    				$datastreams[$ds_key]['origami_switch'] = $origami_switch;
+    				
+    				$datastreams[$ds_key]['FezACML'] = Auth::getAuthorisationGroups($pid, $datastreams[$ds_key]['ID']);
+    				$datastreams[$ds_key]['downloads'] = Statistics::getStatsByDatastream($pid, $ds['ID']);	
+    				$datastreams[$ds_key]['base64ID'] = base64_encode($ds['ID']); 		
+    
+    				if (APP_FEDORA_DISPLAY_CHECKSUMS == "ON") {
+    					$datastreams[$ds_key]['checksumType'] = $ds['checksumType'];   
+    					$datastreams[$ds_key]['checksum'] = $ds['checksum'];   
+    					$tpl->assign("display_checksums", "ON");
+    				}
+    
+    				Auth::getAuthorisation($datastreams[$ds_key]);
+    			}
+    			
+                if ($datastreams[$ds_key]['controlGroup'] == 'R' && $datastreams[$ds_key]['ID'] == 'DOI') {
+                    $datastreams[$ds_key]['location'] = trim($datastreams[$ds_key]['location']);
+                    $tpl->assign('doi', $datastreams[$ds_key]);
+                }
+    		}
+	    } 
 		
 		
 		$tpl->assign("datastreams", $datastreams);
@@ -606,59 +638,8 @@ if (!empty($pid) && $record->checkExists()) {
 		// Add view to statistics buffer
 		Statistics::addBuffer($pid);
         
-        // Get the current listing 
-        $list = $_SESSION['list'];
-        $list_info = $_SESSION['list_info'];
-        $view_page = $_SESSION['view_page'];
-
-        // find current position in list
-        $list_idx = null;
-		if (is_array($list)) {
-			foreach ($list as $key => $item) {
-				if ($item == $pid) {
-					$list_idx = $key;
-					break;
-				}
-			}
-		}
-		
-        $prev = null;  // the next item in the list
-        $next = null;  // the previous item in the list
-        $go_next = null;  // whether we need to page down
-        $go_prev = null;  // whether we need to page up
-        if (!is_null($list_idx)) {
-            
-        	if ($list_idx > 0) {
-                $prev_pid = $list[$list_idx-1];
-                $prev_pid_data = Record::getDetailsLite($prev_pid);
-                $prev_pid_data = $prev_pid_data[0];
-                $prev = array(
-                    'rek_pid'   =>  $prev_pid,
-                    'rek_title' =>  $prev_pid_data['rek_title'],
-                );
-            } else {
-                $prev = getPrevPage($pid);
-                if (!empty($prev)) {
-                    $go_prev = true;
-                }
-            }
-            
-            if ($list_idx < count($list)-1) {
-                $next_pid = $list[$list_idx+1];
-                $next_pid_data = Record::getDetailsLite($next_pid);
-                $next_pid_data = $next_pid_data[0];
-                $next = array(
-                    'rek_pid'   =>  $next_pid,
-                    'rek_title' =>  $next_pid_data['rek_title'],
-                );
-            } else {
-                $next = getNextPage($pid);
-                if (!empty($next)) {
-                    $go_next = true;
-                }
-            }
-        }
-        $tpl->assign(compact('prev','next','go_next','go_prev'));
+        list($prev, $next) = RecordView::getNextPrevNavigation($pid);
+        $tpl->assign(compact('prev','next'));
 		
 		// determine if there are workflows currently working on this pid and let the user know if there are
 		$outstandingStatus = '';
@@ -689,72 +670,23 @@ $tpl->assign('usercomments', $uc->comments);
 $pageCounts = array();
 
 //Find the pdf stream
-foreach($datastreams as $ds)
+if($datastreams)
 {
-    if($ds['MIMEType'] == 'application/pdf')
+    foreach($datastreams as $ds)
     {
-        //Check that it has been converted to images
-        //and let the template know.
-        $resource = explode('.pdf', $ds['ID']);
-        $pidFs = str_replace(':','_',$pid);
-        $resourcePath = APP_PATH.BR_IMG_DIR . $pidFs . '/' . $resource[0];
-        $bri = new bookReaderImplementation($resourcePath);
-        $pageCounts[$resource[0] . '.pdf'] = $bri->countPages(); //Page count check for the template
+        if($ds['MIMEType'] == 'application/pdf')
+        {
+            //Check that it has been converted to images
+            //and let the template know.
+            $resource = explode('.pdf', $ds['ID']);
+            $pidFs = str_replace(':','_',$pid);
+            $resourcePath = BR_IMG_DIR . $pidFs . '/' . $resource[0];
+            $bri = new bookReaderImplementation($resourcePath);
+            $pageCounts[$resource[0] . '.pdf'] = $bri->countPages(); //Page count check for the template
+        }
     }
 }
 $tpl->assign('pageCounts',$pageCounts);
-
-function getNextPage($currentPid)
-{
-    $params = $_SESSION['list_params'];
-    $last_page = $_SESSION['last_page'];
-    $view_page = $_SESSION['view_page'];
-    if ($view_page < $last_page) {
-        $params['pager_row'] = $view_page + 1;
-        $params['form_name'] = $_SESSION['script_name'];
-        $res = Lister::getList($params, false);
-        $res['list_params'] = $params;
-        
-		foreach ($res['list'] as $record) {
-		    $pids[] = $record['rek_pid'];
-		}
-		
-		array_unshift($pids, $currentPid);
-		
-		$_SESSION['list'] = $pids;
-		$_SESSION['list_params'] = $params;
-		$_SESSION['last_page'] = $res['list_info']['last_page'];
-		$_SESSION['view_page'] = $res['list_info']['current_page'];
-        
-        return $res['list'][0];
-    }
-    return array();
-}
-function getPrevPage($currentPid)
-{
-    $params = $_SESSION['list_params'];
-    $view_page = $_SESSION['view_page'];
-    if ($view_page > 0) {
-        $params['pager_row'] = $view_page - 1;
-        $params['form_name'] = $_SESSION['script_name'];
-        $res = Lister::getList($params, false);
-        $res['list_params'] = $params;
-        
-        foreach ($res['list'] as $record) {
-            $pids[] = $record['rek_pid'];
-        }
-        
-        $_SESSION['list'] = $pids;
-        $_SESSION['list_params'] = $params;
-        $_SESSION['last_page'] = $res['list_info']['last_page'];
-        $_SESSION['view_page'] = $res['list_info']['current_page'];
-        
-        // The current pid will be the last element on the array
-        // so use -2 to get the previous pid
-        return $res['list'][count($res['list'])-2];
-    }
-    return array();
-}
 
 /**
  * Sets a list on the Smarty template containing unique datastream timestamps. 
@@ -785,34 +717,47 @@ function getPrevPage($currentPid)
  * @param $tpl Smarty template
  */
 function generateTimestamps($pid, $datastreams, $requestedVersionDate, $tpl) {
-
+    
     $createdDates = array();
-
-    // Retrieve all versions of all datastreams
-    foreach ($datastreams as $datastream) {
-		//probably only need to check the dates of the FezMD datastream. This should reduce calls to Fedora and improve performance - CK added 17/7/2009. 
-		if ($datastream['ID'] == 'FezMD') {
-	        $parms = array('pid' => $pid, 'dsID' => $datastream['ID']); 
-
-	        $datastreamVersions = Fedora_API::openSoapCall('getDatastreamHistory', $parms);
-
-	        // Extract created dates from datastream versions 
-	        foreach ($datastreamVersions as $key => $var) {
-
-	            // If a datastream contains multiple versions, Fedora bundles them in an array, however doesn't
-	            // do if a datastream only has a single version.
-
-	            // If the datastream is an array, retrieve value keyed under createDate
-	            if (is_array($var)) {
-	                $createdDates[] = $var['createDate'];
-	            } 
-
-	            // If the datastream isn't an array, retrieve the createDate value 
-	            else if ($key === 'createDate') {
-	                $createdDates[] = $var;
-	            } 
-	        }
-		}
+    
+    if(APP_FEDORA_BYPASS == 'ON')
+    {
+        $dob = new DigitalObject();
+        $versions = $dob->listVersions($pid);
+        
+        foreach($versions as $version)
+        {
+            $createdDates[] = $version['createDate'];
+        }
+    }
+    else 
+    {
+        // Retrieve all versions of all datastreams
+        foreach ($datastreams as $datastream) {
+    		//probably only need to check the dates of the FezMD datastream. This should reduce calls to Fedora and improve performance - CK added 17/7/2009. 
+    		if ($datastream['ID'] == 'FezMD') {
+    	        $parms = array('pid' => $pid, 'dsID' => $datastream['ID']); 
+               
+    	        $datastreamVersions = Fedora_API::openSoapCall('getDatastreamHistory', $parms);
+    
+    	        // Extract created dates from datastream versions 
+    	        foreach ($datastreamVersions as $key => $var) {
+    
+    	            // If a datastream contains multiple versions, Fedora bundles them in an array, however doesn't
+    	            // do if a datastream only has a single version.
+    
+    	            // If the datastream is an array, retrieve value keyed under createDate
+    	            if (is_array($var)) {
+    	                $createdDates[] = $var['createDate'];
+    	            } 
+    
+    	            // If the datastream isn't an array, retrieve the createDate value 
+    	            else if ($key === 'createDate') {
+    	                $createdDates[] = $var;
+    	            } 
+    	        }
+    		}
+        }
     }
 
     // Remove duplicate datestamps from array

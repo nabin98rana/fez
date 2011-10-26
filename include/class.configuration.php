@@ -96,7 +96,7 @@ class Configuration
       @define(strtoupper($name), $value);
     }
 
-    $custom_view_pid = $_GET['custom_view_pid'];
+    $custom_view_pid = (isset($_GET['custom_view_pid'])) ? $_GET['custom_view_pid'] : null;
     if (!empty($custom_view_pid)) {
       $customView = Custom_View::getCommCview($custom_view_pid);			
       if (! $customView) {
@@ -104,6 +104,10 @@ class Configuration
         include_once(APP_PATH . "offline.php");
         exit;
       }
+    }
+    else 
+    {
+        $customView = null;
     }
 
     // Assemble compound variables
