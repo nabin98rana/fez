@@ -52,6 +52,7 @@ class Default_Data
 
 		$defaultData['app_hostname']                        = $_SERVER['SERVER_NAME'];      // This should be OK.
 		$defaultData['webserver_log_statistics']            = "OFF";
+        $defaultData['app_development_env']             = "OFF";
 		if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) {
 			// Windows
 			$defaultData['webserver_log_dir']               = "C:/PROGRA~1/APACHE~1/Apache2.2/logs/";

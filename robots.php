@@ -41,7 +41,14 @@ $hostname = Statistics::gethostbyaddr_with_cache($ip);
 if (Statistics::isRobot($ip) != 1) {
 	Statistics::addRobot($ip, $hostname);
 }
+
 header("Content-type: text/plain");
-echo file_get_contents("robots.txt");
+
+// Get the robots indexing rules based on our web server environment
+if (APP_DEVELOPMENT_ENV == "ON"){
+    echo file_get_contents("robots_dev.txt");
+}else {
+    echo file_get_contents("robots.txt");
+}
 
 FezLog::get()->close();

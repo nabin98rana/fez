@@ -722,6 +722,17 @@ function restoreDefaultColours(el)
               {include file="error_icon.tpl.html" field="app_bg_poll_int"}
             </td>
           </tr>
+          <tr>
+          <th>Development Environment</th>
+          <td>
+                <select name="app_development_env">
+                    <option value="ON"{if $config_settings.app_development_env == "ON"} selected="selected"{/if}>On</option>
+                    <option value="OFF"{if $config_settings.app_development_env == "OFF"} selected="selected"{/if}>Off</option>
+                </select>
+                <br />
+                {include file="error_icon.tpl.html" field="app_bg_poll_int"}
+          </td>
+        </tr>
   		  <!--tr>
 		    <th>Portfolios collection</th>
 			<td>
