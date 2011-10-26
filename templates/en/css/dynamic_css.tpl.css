@@ -1943,6 +1943,11 @@ div.hr hr {
     border-bottom: 1px solid #[[$smarty.const.APP_CELL_COLOR]];
 }
 
+div.sfa-thesis-header{
+    font-weight: bold;
+    margin: 15px 0px 10px;
+}
+
 #outstandingWorkflowsDiv {
 	display:block;
 	border:1px dashed blue;
