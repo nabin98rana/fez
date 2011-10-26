@@ -34,7 +34,6 @@
 //
 
 include_once(APP_INC_PATH . "class.author.php");
-include_once(APP_INC_PATH . "class.lister.php");
 include_once(APP_INC_PATH . "class.workflow.php");
 include_once(APP_INC_PATH . "class.jhove.php");
 include_once(APP_INC_PATH . "class.workflow_trigger.php");

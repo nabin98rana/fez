@@ -47,6 +47,7 @@ include_once(APP_INC_PATH . "class.xsd_relationship.php");
 include_once(APP_INC_PATH . "class.fedora_api.php");
 include_once(APP_INC_PATH . "class.filecache.php");
 include_once(APP_INC_PATH . "class.bookreaderimplementation.php");
+include_once(APP_INC_PATH . "class.lister.php");
 
 $auth = new Auth();
 $auth->checkForBasicAuthRequest('view');
