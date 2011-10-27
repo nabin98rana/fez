@@ -1,0 +1,30 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Confirmation of Student Thesis Submission For Approval</title>
+    </head>
+
+    <body>
+
+        <p>Dear {$name},</p>
+
+        <p>This is an automated message from the {$application_name} service.</p>
+
+        <p>
+            Thank you for submitting your thesis to {$application_name}. <br />
+
+            Your item will be referred to a {$application_name} editor for approval.
+        </p>
+
+
+        <p>
+            Regards, <br />
+    
+            Manager - {$application_name}
+        </p>
+
+        {* Include the full metadata *}
+        {include file="workflow/full_thesis_metadata.tpl.html"}
+    </body>
+</html>

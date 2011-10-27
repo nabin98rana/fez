@@ -1,0 +1,36 @@
+The following are the thesis details that have been submitted:
+
+{* Submission details *}
+Submitted Details:
+---------------
+{foreach from=$display_data key=key item=data}
+    {* Other details except uploaded files *}
+    {if $key != "files"}
+
+        {$data.xsdmf_title|escape:'htmlall'} :
+        {foreach from=$data.value item=value}
+            {$value}
+
+        {foreachelse}
+            {$data.value}
+
+        {/foreach}
+    {/if}
+{foreachelse}
+    No details could be found.
+{/foreach}
+
+
+
+{* Uploaded Files *}
+Uploaded Files:
+--------------
+{foreach from=$display_data.files key=key item=file}
+
+        {$key+1}.) {$file.filename}
+        Description: {$file.label}
+        MIMEType: {$file.MIMEType}
+        Size: {$file.archival_size}
+{/foreach}
+
+

@@ -1,0 +1,3 @@
+# Deny indexing from all bots
+User-agent: *
+Disallow: /
