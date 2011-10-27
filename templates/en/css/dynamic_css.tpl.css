@@ -2326,3 +2326,41 @@ a.author_id_link:hover {
     width:40px;
     display:block;
 }
+
+#regAuthAffil{
+    border-collapse: collapse; 
+    padding: 5px; 
+    margin: 0;
+}
+
+#regAuthAffil .affilName{
+    width:220px;
+}
+
+#regAuthAffil .affilOrg{
+    width:220px;
+}
+
+#regAuthAffil .affilPerc{
+    width:70px;
+}
+
+#regAuthAffil .affilPos{
+    width:200px;
+}
+
+#regAuthAffil .affilDteFrom{
+    width:100px;
+}
+
+#regAuthAffil .affilDteTo{
+    width:100px;
+}
+
+#regAuthAffil .affilFte{
+    width:25px;
+}
+
+#regAuthAffil .affilEd{
+    width:25px;
+}

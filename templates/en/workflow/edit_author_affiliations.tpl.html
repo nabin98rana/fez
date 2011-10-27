@@ -91,13 +91,35 @@ function submitSuggestedAffiliation(authorID, orgID, iteration) {
 	<div style="border: solid 1px green; padding: 10px; margin: 10px; width: 800;">
 
 	{section name='ii' loop=$list}
-	{if $smarty.section.ii.first}<h3>Registered author affiliations</h3><table class="default" style="border-collapse: collapse; padding: 5px; margin: 0;">{/if}
+	{if $smarty.section.ii.first}
+	<h3>Registered author affiliations</h3>
+	<table id="regAuthAffil" class="default">
+	<tr>
+           <th class="affilName">Name</th>
+           <th class="affilOrg">Organisational Unit</th>
+           <th class="affilPerc">Percentage Affiliation</th>
+           {if 'fte'|array_key_exists:$list[ii]}
+               <th class="affilPos">Position Title</th>
+               <th class="affilDteFrom">Date From</th>
+               <th class="affilDteTo">Date To</th>
+               <th class="affilFte">FTE</th>
+           {/if}
+           <th class="affilEd">&nbsp;</th>
+           <th class="affilEd">&nbsp;</th>
+      </tr>
+	{/if}
       <tr bgcolor="{cycle values="$cycle_colours"}">
-        <td width="200">{$list[ii].author_name}</td>
-        <td width="550">{$list[ii].org_title}</td>
-		<td width="65">{$list[ii].af_percent_affiliation}%</td>
-        <td width="30"><a href="{$smarty.server.PHP_SELF}?id={$wf_id}&action=edit&af_id={$list[ii].af_id}" title="Edit this affiliation">Edit</a></td>
-        <td width="30"><a href="{$smarty.server.PHP_SELF}?id={$wf_id}&action=delete&af_id={$list[ii].af_id}" title="Remove this affiliation">Remove</a></td>
+        <td>{$list[ii].author_name}</td>
+        <td>{$list[ii].org_title}</td>
+		<td>{$list[ii].af_percent_affiliation}%</td>
+		{if 'fte'|array_key_exists:$list[ii]}
+		    <td>{$list[ii].pos_title}</td>
+		    <td>{$list[ii].dt_from}</td>
+		    <td>{$list[ii].dt_to}</td>
+            <td>{$list[ii].fte}</td>
+        {/if}
+        <td><a href="{$smarty.server.PHP_SELF}?id={$wf_id}&action=edit&af_id={$list[ii].af_id}" title="Edit this affiliation">Edit</a></td>
+        <td><a href="{$smarty.server.PHP_SELF}?id={$wf_id}&action=delete&af_id={$list[ii].af_id}" title="Remove this affiliation">Remove</a></td>
       </tr>
       {if $smarty.section.ii.last}</table>{/if}
     {sectionelse}

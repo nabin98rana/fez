@@ -59,13 +59,44 @@ class AuthorAffiliations
 
 		// Add text versions of the author and school
 		foreach ($res as $key => $item) {
+		    
 			$res[$key]['author_name'] = Author::getFullname($item['af_author_id']);
 			$res[$key]['org_title'] = Org_Structure::getTitle($item['af_org_id']);
 			$res[$key]['af_percent_affiliation'] = $item['af_percent_affiliation'] / 1000;
 			$res[$key]['error_desc'] = "Percentages for each author must add to 100%";
 			$res[$key]['error'] = "percentage";
+			
+			$hrData = AuthorAffiliations::getHrData($item['af_author_id']);
+			
+			if($hrData)
+			{
+			    $res[$key]['pos_title'] = $hrData[0]['POS_TITLE'];
+			    $res[$key]['dt_from'] = $hrData[0]['DT_FROM'];
+			    $res[$key]['dt_to'] = $hrData[0]['DT_TO'];
+			    $res[$key]['fte'] = $hrData[0]['FTE'];
+			}
 		}
 		return $res;
+	}
+	
+	function getHrData($authorId)
+	{
+	    $db = DB_API::get();
+	    $log = FezLog::get();
+	    
+	    $sql = "SELECT POS_TITLE, DT_FROM, DT_TO, FTE FROM hr_position_vw hr INNER JOIN "
+	        . APP_TABLE_PREFIX . "author au ON hr.WAMIKEY = au.aut_org_staff_id "
+	        . "WHERE au.aut_id = :autid";
+	    
+	    try 
+	    {
+    	    $stmt = $db->query($sql, array(':autid' => $authorId));
+    	    return $stmt->fetchAll();
+	    }
+	    catch(Exception $e)
+	    {
+	        $log->err($ex->getMessage());
+	    }
 	}
 
 
