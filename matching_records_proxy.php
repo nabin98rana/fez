@@ -100,7 +100,6 @@ class MatchingRecords
 
             if ( defined('WOK_PASSWORD') && WOK_PASSWORD != '') {
 
-                sleep(WOK_SECONDS_BETWEEN_CALLS);
                 $wok_ws = new WokService(FALSE);
                 $response = $wok_ws->search("WOS", $query, $editions, $timeSpan, $depth, "en", $num_recs);
                 $records = @simplexml_load_string($response->return->records);
