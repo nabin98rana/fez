@@ -97,17 +97,21 @@ class MatchingRecords
 			$num_recs = 3;
             $timeSpan = '';
 
-//            if (defined('WOK_PASSWORD') && WOK_PASSWORD != '') { //still need to pop things back onto the wok queue if they fail if this goes into production
-//                $wok_ws = new WokService(FALSE);
-//                $response = $wok_ws->search("WOS", $query, $editions, $timeSpan, $depth, "en", $num_recs);
-//                $result = $response->return;
-//            } else { //try and use ESTI service if TR WS Premium not setup
-                $result = EstiSearchService::searchRetrieve('WOS', $query, $depth, $editions, $sort, $first_rec, $num_recs);
-//            }
 
-    		
-			$records = @simplexml_load_string($result['records']);	
-			
+            if ( defined('WOK_PASSWORD') && WOK_PASSWORD != '') {
+
+                sleep(WOK_SECONDS_BETWEEN_CALLS);
+                $wok_ws = new WokService(FALSE);
+                $response = $wok_ws->search("WOS", $query, $editions, $timeSpan, $depth, "en", $num_recs);
+                $records = @simplexml_load_string($response->return->records);
+
+            } else { //try and use ESTI service if TR WS Premium not setup
+
+                $result = EstiSearchService::searchRetrieve('WOS', $query, $depth, $editions, $sort, $first_rec, $num_recs);
+                $records = @simplexml_load_string($result['records']);
+
+            }
+
 			if($records) {
 				foreach($records->REC as $record) {
 					$mods = Misc::convertEstiRecordToMods($record);
