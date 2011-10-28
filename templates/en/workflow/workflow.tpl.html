@@ -94,7 +94,9 @@
 					<thead>
 						<tr>
 							<th colspan="2">
-								<h1>{$wfl_title|escape} - {$wfs_title|escape}</h1>
+                                {if $wfl_title}
+								    <h1>{$wfl_title|escape} - {$wfs_title|escape}</h1>
+                                {/if}
 								{if $wfs_description}
 									<div class="wfl_description">
 										{$wfs_description}

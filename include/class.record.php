@@ -2092,13 +2092,12 @@ class Record
 
       // make sure the sort by is setup well
     if (!is_numeric(strpos($sort_by, "searchKey"))) {
+        $sort_by_id = Search_Key::getID($sort_by);
         $cardinality = Search_Key::getCardinality($sort_by);
-        if (($sort_by_id != "") && ($cardinality != '1') ) {
-  		    $sort_by_id = Search_Key::getID($sort_by);
-        } else {
+        if (($sort_by_id == "") || ($cardinality == '1')) {
             $sort_by_id = Search_Key::getID("Title");
         }
-  	    $sort_by = "searchKey".$sort_by_id;
+        $sort_by = "searchKey".$sort_by_id;
     }
 
     $start = $current_page * $page_rows;

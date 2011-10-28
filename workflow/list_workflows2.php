@@ -107,6 +107,7 @@ if (is_array($doctypes)) {
 
 $tpl->assign('wfl_list', $wfl_list);
 $tpl->assign('xdis_list', $xdis_list);
+$tpl->assign('wfl_title', 'Workflows Available');
 
 if (($pid != -1) && (!empty($pid) || $pid == -2)) {
     
