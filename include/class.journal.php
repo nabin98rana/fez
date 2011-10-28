@@ -61,7 +61,7 @@ class Journal
                  FROM
                     " . APP_TABLE_PREFIX . "journal
                  WHERE
-                    jnl_journal_id = ".$db->quote($jnl_id, 'INTEGER');
+                    jnl_id = ".$db->quote($jnl_id, 'INTEGER');
 		try {
 			$res = $db->fetchOne($stmt);
 		}
@@ -103,7 +103,7 @@ class Journal
                     " . APP_TABLE_PREFIX . "journal
 				" . $where_stmt . "
                  ORDER BY
-                 	jnl_journal_name ASC
+                 	jnl_era_id ASC, jnl_era_year ASC, jnl_journal_name ASC
 				 LIMIT ".$db->quote($max, 'INTEGER')." OFFSET ".$db->quote($start, 'INTEGER');
 
 		try {
@@ -176,7 +176,7 @@ class Journal
                  FROM
                     " . APP_TABLE_PREFIX . "journal
                  WHERE
-                    jnl_journal_id = ".$db->quote($jnl_id, 'INTEGER');
+                    jnl_id = ".$db->quote($jnl_id, 'INTEGER');
 		try {
 			$res = $db->fetchRow($stmt);
 		}
@@ -213,7 +213,7 @@ class Journal
                  FROM
                     " . APP_TABLE_PREFIX . "journal_issns
                  WHERE
-                    jnl_journal_id = ".$db->quote($jnl_id, 'INTEGER')."
+                    jnl_id = ".$db->quote($jnl_id, 'INTEGER')."
                  ORDER BY
                  	jnl_issn_order ASC";
 		try {
@@ -252,7 +252,7 @@ class Journal
                     jnl_era_id = " . $db->quote($_POST["era_id"]) . ",
                     jnl_updated_date = " . $db->quote(Date_API::getCurrentDateGMT()) ."
                  WHERE
-                    jnl_journal_id = " . $db->quote($_POST["id"], 'INTEGER');
+                    jnl_id = " . $db->quote($_POST["id"], 'INTEGER');
 		try {
 			$db->exec($stmt);
 		}
@@ -265,7 +265,7 @@ class Journal
 		$stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "journal_issns
                  WHERE
-                    jnl_journal_id = " . $db->quote($_POST["id"], 'INTEGER');
+                    jnl_id = " . $db->quote($_POST["id"], 'INTEGER');
 		try {
 			$db->query($stmt);
 		}
@@ -280,7 +280,7 @@ class Journal
 				$stmt = "INSERT INTO
 							" . APP_TABLE_PREFIX . "journal_issns
 							(
-								jnl_journal_id,
+								jnl_id,
 								jnl_issn,
 								jnl_issn_order
 							) VALUES ";
@@ -373,7 +373,7 @@ class Journal
 		$stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "journal
                  WHERE
-                    jnl_journal_id IN (" . Misc::arrayToSQLBindStr($_POST["items"]) . ")";
+                    jnl_id IN (" . Misc::arrayToSQLBindStr($_POST["items"]) . ")";
 		try {
 			$db->query($stmt, $_POST['items']);
 		}
@@ -386,7 +386,7 @@ class Journal
 		$stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "journal_issns
                  WHERE
-                    jnl_journal_id IN (" . Misc::arrayToSQLBindStr($_POST["items"]) . ")";
+                    jnl_id IN (" . Misc::arrayToSQLBindStr($_POST["items"]) . ")";
 		try {
 			$db->query($stmt, $_POST['items']);
 		}
@@ -410,13 +410,15 @@ class Journal
 		
 		$stmt = "
 			SELECT
+			    jnl_id as matching_id,
+			    jnl_era_year,
 				jnl_era_id AS eraid,
 				jnl_rank AS rank,
 				jnl_journal_name AS title
 			FROM
 				" . APP_TABLE_PREFIX . "journal
 			ORDER BY
-				jnl_journal_name ASC;
+				jnl_era_id ASC, jnl_era_year ASC, jnl_journal_name ASC;
 		";
 		
 		try {

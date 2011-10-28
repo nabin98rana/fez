@@ -27,12 +27,12 @@ function blacklistConfirmNew()
 function save()
 {
 	if (document.getElementById('status_manual').checked &&
-		document.getElementById('eraid').value == '') {
+		document.getElementById('matching_id').value == '') {
 		window.alert("You must specify the mapping from the drop-down list.");
 		return false;
 	}
 	if (document.getElementById('status_auto').checked &&
-		document.getElementById('eraid').value == '') {
+		document.getElementById('matching_id').value == '') {
 		window.alert("Please select a mapping from the drop-down list. Note that this may be overriden during future automatic mapping.");
 		return false;
 	}
@@ -43,7 +43,7 @@ function save()
 function add()
 {
 	if (document.getElementById('status_manual').checked &&
-		document.getElementById('eraid').value == '') {
+		document.getElementById('matching_id').value == '') {
 		window.alert("You must specify the mapping from the drop-down list.");
 		return false;
 	}
@@ -121,10 +121,10 @@ function setPage(new_page)
 					<p>This record is <b>black-listed</b>. It will be excluded from automatic matching.</p>
 				{/if}
 				
-				<select name="eraid" id="eraid">
+				<select name="matching_id" id="matching_id">
 					<option value="">Please select the {if $match_type == 'C'}conference{elseif $match_type == 'J'}journal{/if} this PID maps to ...</option>
 					{section name="i" loop=$list}
-						<option value="{$list[i].eraid}"{if $mapping.eraid == $list[i].eraid} selected="selected"{/if}>{$list[i].title|truncate:125:"...":true} &nbsp; (Rank {$list[i].rank})</option>
+						<option value="{$list[i].matching_id}"{if $mapping.matching_id == $list[i].matching_id} selected="selected"{/if}>{$list[i].title|truncate:125:"...":true} &nbsp; (Rank {$list[i].rank})</option>
 					{/section}
 				</select>
 				
@@ -170,10 +170,10 @@ function setPage(new_page)
 						<p>This record is <b>black-listed</b>. It will be excluded from automatic matching.</p>
 					{/if}
 					
-					<select name="eraid" id="eraid">
+					<select name="matching_id" id="matching_id">
 						<option value="">Please select the {if $match_type == 'C'}conference{elseif $match_type == 'J'}journal{/if} this PID maps to ...</option>
 						{section name="i" loop=$list}
-							<option value="{$list[i].eraid}">{$list[i].title|truncate:125:"...":true} &nbsp; (Rank {$list[i].rank})</option>
+							<option value="{$list[i].matching_id}">{$list[i].title|truncate:125:"...":true} &nbsp; (Rank {$list[i].rank})</option>
 						{/section}
 					</select>
 					
@@ -232,6 +232,7 @@ function setPage(new_page)
 		<table style="width: 100%" cellpadding="2" cellspacing="2">
 			<tr>
 				<td class="default cell-colour"><b>PID</b></td>
+                <td class="default cell-colour"><b>ERA Year</b></td>
 				<td class="default cell-colour" style="padding-top: 4px"><img src="{$rel_url}images/journal_ranking_16.png" alt="Ranked Journal Match" title="Ranked Journal Match" /> <b>Journal Match</b></td>
 				<td class="default cell-colour" style="padding-top: 4px"><img src="{$rel_url}images/conference_ranking_16.png" alt="Ranked Conference Match" title="Ranked Conference Match" /> <b>Conference Match</b></td>
 			</tr>
@@ -241,6 +242,9 @@ function setPage(new_page)
 					<td>
 						<a href="{$rel_url}view/{$matches[j].pid}" title="{$matches[j].record_title}">{$matches[j].pid}</a>
 					</td>
+                    <td>
+   						{if $matches[j].jnl_era_year}{$matches[j].jnl_era_year}{else}{$matches[j].cnf_era_year}{/if}
+               		</td>
 					<td>
 						<a href="{$smarty.server.PHP_SELF}?type=J&amp;action=edit&amp;pid={$matches[j].pid}" title="{$matches[j].journal_name}">{if $matches[j].journal_match_status == 'B'}N/A{else}{$matches[j].journal_era_id}{/if}</a>
 						&nbsp;
