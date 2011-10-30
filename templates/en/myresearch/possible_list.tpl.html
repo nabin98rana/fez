@@ -104,16 +104,20 @@ function hideBulk()
 			        These publications may be authored by you. Your surname or one of the variants of your name that we know about is listed as an author of this publication.<br /><br />
 			        You can use the refine feature at the left to find publications more likely to be yours, based on co-authors, keywords etc.
 			        </th>
-					<th style="text-align: center; padding: 2px;">
-						{if $list_info.total_rows > 0}
-							<img src="{$rel_url}images/journal_ranking_16.png" title="Ranked Journal List Ranking" alt="Ranked Journal List Ranking" />
-						{/if}
-					</th>
-					<th style="text-align: center; padding: 2px;">
-						{if $list_info.total_rows > 0}
-							<img src="{$rel_url}images/conference_ranking_16.png" title="Ranked Conference List Ranking" alt="Ranked Conference List Ranking" />
-						{/if}
-					</th>
+                    <th style="text-align: center; padding: 2px;">
+        			{if $list_info.total_rows > 0}
+        				<img src="{$rel_url}images/journal_listed_16.png" title="ERA 2012 Journal Listed" alt="ERA 2012 Journal Listed" />
+        			{/if}
+                    <th style="text-align: center; padding: 2px;">
+        			{if $list_info.total_rows > 0}
+        				<img src="{$rel_url}images/journal_ranking_16.png" title="ERA 2010 Ranking" alt="ERA 2010 Ranked Journal List Ranking" />
+        			{/if}
+        			</th>
+        			<th style="text-align: center; padding: 2px;">
+        				{if $list_info.total_rows > 0}
+        					<img src="{$rel_url}images/conference_ranking_16.png" title="ERA 2010 Ranked Conference List Ranking" alt="ERA 2010 Ranked Conference List Ranking" />
+        				{/if}
+        			</th>
 					<th style="text-align: center; padding: 2px;">
 						{if $list_info.total_rows > 0}
 							<img src="{$rel_url}images/herdc_code_16.png" title="HERDC Code" alt="HERDC Code" />
@@ -137,7 +141,7 @@ function hideBulk()
 			        <th></th>
 			    </tr>
                 <tr>
-                      <td colspan="8">
+                      <td colspan="9">
                           <input type="button" class="possible-hide" value="None of the below ticked publications are mine" onclick="javascript:hideBulk();" />
                       </td>
                   </tr>
@@ -166,13 +170,14 @@ function hideBulk()
 						{if $list[i].rek_display_type_lookup == "Book" || $list[i].rek_display_type_lookup == "Book Chapter"}
 							<strong>Edition:</strong> {$list[i].rek_edition|escape:"html"}<br />
 							<strong>ISBN:</strong> {$list[i].rek_isbn|escape:"html"}<br />
-						{elseif $list[i].rek_display_type_lookup == "Journal Article"}
-							{if $list[i].rj_rank} <strong>ERA Rank:</strong> {$list[i].rj_rank|escape:"html"} ({$list[i].rj_title|escape:"html"})<br />{/if}
-							{if $list[i].rek_refereed == '0'} <strong>Refereed:</strong> No<br /> {/if}
-							{if $list[i].rek_refereed == '1'} <strong>Refereed:</strong> Yes<br /> {/if}
-							<strong>ISSN:</strong> {$list[i].rek_issn|escape:"html"}<br />
-						{elseif $list[i].rek_display_type_lookup == "Conference Paper"}
-							{if $list[i].rc_rank}<strong>ERA Rank:</strong> {$list[i].rc_rank|escape:"html"} ({$list[i].rc_title|escape:"html"})<br />{/if}
+                        {elseif $list[i].rek_display_type_lookup == "Journal Article"}
+                            <strong>ERA 2012 Journal Listed :</strong> {if $list[i].rj_2012_title} Yes{else}No {/if}<br />
+                            {if $list[i].rj_2010_rank} <strong>ERA 2010 Rank:</strong> {$list[i].rj_2010_rank|escape:"html"} ({$list[i].rj_2010_title|escape:"html"})<br />{/if}
+                            {if $list[i].rek_refereed == '0'} <strong>Refereed:</strong> No<br /> {/if}
+                            {if $list[i].rek_refereed == '1'} <strong>Refereed:</strong> Yes<br /> {/if}
+                            <strong>ISSN:</strong> {$list[i].rek_issn|escape:"html"}<br />
+                        {elseif $list[i].rek_display_type_lookup == "Conference Paper"}
+                            {if $list[i].rc_2010_rank}<strong>ERA 2010 Rank:</strong> {$list[i].rc_2010_rank|escape:"html"} ({$list[i].rc_2010_title|escape:"html"})<br />{/if}
 							{if $list[i].rek_refereed == '0'} <strong>Refereed:</strong> No<br /> {/if}
 							{if $list[i].rek_refereed == '1'} <strong>Refereed:</strong> Yes<br /> {/if}
 						{/if}
@@ -192,13 +197,15 @@ function hideBulk()
 				{/if}
 			</td>
 			
-			<td style="vertical-align: middle; text-align: center;">
-				{if $list[i].rj_rank}<a href="#" title="{$list[i].rj_title}">{$list[i].rj_rank}</a>{else}<a href="#" title="This publication is outside the ERA window (pre-2003) and/or not identified as being in a 2010 ERA Ranked Journal.">-</a>{/if}
-			</td>
-			
-			<td style="vertical-align: middle; text-align: center;">
-				{if $list[i].rc_rank}<a href="#" title="{$list[i].rc_title}">{$list[i].rc_rank}</a>{else}<a href="#" title="This is outside the ERA window (pre-2003) and/or not identified as being in a 2010 ERA Ranked Conference.">-</a>{/if}
-			</td>
+            <td style="vertical-align: middle; text-align: center; border-top:1px dashed #be87e9;">
+      			{if $list[i].rj_2012_title}<a href="#" title="{$list[i].rj_2012_title}">Y</a>{else}<a href="#" title="This publication is outside the ERA 2012 window (pre-2004) and/or not identified as being in a 2012 ERA Listed Journal.">-</a>{/if}
+      		</td>
+            <td style="vertical-align: middle; text-align: center; border-top:1px dashed #be87e9;">
+                {if $list[i].rj_2010_rank}<a href="#" title="{$list[i].rj_2010_title}">{$list[i].rj_2010_rank}</a>{else}<a href="#" title="This publication is outside the ERA 2010 window (pre-2003) and/or not identified as being in a 2010 ERA Ranked Journal.">-</a>{/if}
+            </td>
+            <td style="vertical-align: middle; text-align: center; border-top:1px dashed #be87e9;">
+                {if $list[i].rc_2010_rank}<a href="#" title="{$list[i].rc_2010_title}">{$list[i].rc_2010_rank}</a>{else}<a href="#" title="This is outside the ERA 2010 window (pre-2003) and/or not identified as being in a 2010 ERA Ranked Conference.">-</a>{/if}
+            </td>
 			
 			<td style="vertical-align: middle; text-align: center;">
 				{if $list[i].rek_herdc_code_lookup != ''}
@@ -260,7 +267,7 @@ function hideBulk()
 	
 		{if $smarty.section.i.last}
         <tr>
-  			<td colspan="8">
+  			<td colspan="9">
   				<input type="button" class="possible-hide" value="None of the above ticked publications are mine" onclick="javascript:hideBulk();" />
   			</td>
   		</tr>

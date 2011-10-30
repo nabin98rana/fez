@@ -123,7 +123,7 @@ class RCL
 		";
 		
 		if (TEST) {
-			$stmt .= " LIMIT 50";
+			$stmt .= " LIMIT 1";
 		}
 		
 		try {
@@ -157,7 +157,7 @@ class RCL
 
 		$stmt = "
 			SELECT
-				cnf_era_id AS eraid,
+				cnf_id,
 				cnf_conference_name AS title
 			FROM
 				" . APP_TABLE_PREFIX . "conference
@@ -175,7 +175,7 @@ class RCL
 		
 		if (count($result) > 0) {
 			foreach ($result as $key => $row) {
-				$rankedConferences[$row['eraid']] = $row['title'];
+				$rankedConferences[$row['cnf_id']] = $row['title'];
 			}
 		}
 		
@@ -196,11 +196,11 @@ class RCL
 
 		$stmt = "
 			SELECT
-				eraid,
+				cnf_id,
 				acronym
 			FROM (
 				SELECT
-					cnf_era_id AS eraid,
+					cnf_id,
 					cnf_acronym AS acronym,
 					COUNT(cnf_acronym) AS acronym_count
 				FROM
@@ -225,7 +225,7 @@ class RCL
 		
 		if (count($result) > 0) {
 			foreach ($result as $key => $row) {
-				$rankedConferencesAcronyms[$row['eraid']] = $row['acronym'];
+				$rankedConferencesAcronyms[$row['cnf_id']] = $row['acronym'];
 			}
 		}
 		
@@ -315,7 +315,8 @@ class RCL
 				/* Test for exact string match */
 				if ($sourceVal == $targetVal) {
 					//echo "T";
-					$matches[$sourceKey] = $targetKey;
+//					$matches[$sourceKey] = $targetKey;
+                    $matches[] = array('pid' => $sourceKey, 'matching_id' => $targetKey);
 				}				
 			}
 		}
@@ -340,7 +341,8 @@ class RCL
 				/* Test for exact string match */
 				if ($sourceVal == $targetVal) {
 					//echo "T";
-					$matches[$sourceKey] = $targetKey;
+//					$matches[$sourceKey] = $targetKey;
+                    $matches[] = array('pid' => $sourceKey, 'matching_id' => $targetKey);
 				}				
 			}
 		}
@@ -387,7 +389,8 @@ class RCL
 							if (array_key_exists($sourceKey, $matches)) {
 								//echo "~DOUBLE MATCH~"; // This is probably bad news.
 							} else {
-								$matches[$sourceKey] = $targetKey;
+//								$matches[$sourceKey] = $targetKey;
+                                $matches[] = array('pid' => $sourceKey, 'matching_id' => $targetKey);
 								//echo "A";
 								//echo $sourceVal . " ?~~~? " . $targetVal . "\n\n";
 							}
@@ -410,9 +413,9 @@ class RCL
 		
 		echo "Running insertion queries on eSpace database ... ";
 		
-		foreach ($matches as $pid => $eraid) {
+		foreach ($matches as $match) {
 			
-			$stmt = "INSERT INTO " . APP_TABLE_PREFIX . "matched_conferences (mtc_pid, mtc_eraid, mtc_status) VALUES ('" . $pid . "', '" . $eraid . "', 'A') ON DUPLICATE KEY UPDATE mtc_pid = mtc_pid;";
+			$stmt = "INSERT INTO " . APP_TABLE_PREFIX . "matched_conferences (mtc_pid, mtc_cnf_id, mtc_status) VALUES ('" . $match['pid'] . "', '" . $match['matching_id'] . "', 'A') ON DUPLICATE KEY UPDATE mtc_pid = mtc_pid, mtc_cnf_id = mtc_cnf_id;";
 			
 			try {
 				$db->exec($stmt);

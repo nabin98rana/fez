@@ -432,6 +432,11 @@ class MyResearch
 
             }
         }
+        // If this record is in the APP_HERDC_TRIAL_COLLECTION and it has been claimed by a new author,
+        // then change the eSpace followup flag to 'followup' and change the email to indicate this
+
+
+
 
         if ($sendEmail) {
             Eventum::lodgeJob($subject, $body, $userEmail);
@@ -1115,13 +1120,13 @@ class MyResearch
         if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) {
             $stmt
                 .= "
-					(user_name ILIKE " . $db->quote("%$username%") . "
+					(aut_org_username ILIKE " . $db->quote("%$username%") . "
 					OR CONCAT_WS(' ', aut_fname, aut_lname) ILIKE " . $db->quote("%$username%") . ")
 					AND user_name != ''";
         } else {
             $stmt
                 .= "
-					(user_name LIKE " . $db->quote("%$username%") . "
+					(aut_org_username LIKE " . $db->quote("%$username%") . "
 					OR CONCAT_WS(' ', aut_fname, aut_lname) LIKE " . $db->quote("%$username%") . ")
 					AND user_name != ''";
         }
@@ -1132,7 +1137,6 @@ class MyResearch
 					aut_lname ASC,
 					aut_fname ASC;
 		";
-
         try {
             $res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
         }
