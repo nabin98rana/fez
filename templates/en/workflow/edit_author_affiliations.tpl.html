@@ -60,7 +60,10 @@ function submitSuggestedAffiliation(authorID, orgID, iteration) {
 		<!--td width="150" bgcolor="red">ORG ID: {$affiliation_suggestions[jj].org_id}</td-->
 		<!--td width="150" bgcolor="red">WAMIKEY: {$affiliation_suggestions[jj].wamikey}</td-->
 		<!--td width="150" bgcolor="red">AOU: {$affiliation_suggestions[jj].aou}</td-->
-		<td width="550">{$affiliation_suggestions[jj].org_title}</td>
+		<td width="350">{$affiliation_suggestions[jj].org_title}</td>
+		{if 'fte'|array_key_exists:$affiliation_suggestions[jj]}
+           <td width="250">{$affiliation_suggestions[jj].pos_title}</td>
+        {/if}
 		<td width="80"><input type="text" id="percentage-{$smarty.section.jj.iteration}" value="{$affiliation_suggestions[jj].percentage}" size="6" class="default" />%</td>
 		<td width=""><input type="button" onclick="javasacript:submitSuggestedAffiliation({$affiliation_suggestions[jj].aut_id}, {$affiliation_suggestions[jj].org_id}, {$smarty.section.jj.iteration});" value="Use this affiliation" class="button" /><br />
 		</td>

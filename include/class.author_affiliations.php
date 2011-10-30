@@ -42,13 +42,18 @@ class AuthorAffiliations
 		$log = FezLog::get();
 		$db = DB_API::get();
 
-		$stmt = "SELECT af.* FROM ". APP_TABLE_PREFIX ."author_affiliation af " .
-			"INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id ON rek_author_id_pid = af_pid " .
-			"AND af_author_id = rek_author_id " .
-			"WHERE af_pid = ".$db->quote($pid)." " .
-			"AND af_status = " . $db->quote($status, 'INTEGER') . " " .
-			"ORDER BY af_author_id";
-
+		$stmt = "SELECT POS_TITLE, DT_FROM, DT_TO, FTE, af_id, af_pid, af_author_id, af_status, "
+                    ."af_org_id, af_percent_affiliation "
+                    ."FROM fez_author_affiliation af "
+                    ."INNER JOIN fez_record_search_key_author_id "
+                   . "ON rek_author_id_pid = af_pid "
+                    ."INNER JOIN fez_author INNER JOIN hr_position_vw "
+                   . "ON WAMIKEY = aut_org_staff_id "
+                   . "AND af_author_id = rek_author_id "
+                   . "WHERE af_pid = ".$db->quote($pid)
+                   . " AND af_status = ".$db->quote($status, 'INTEGER')
+                   . " GROUP BY af_author_id"
+                   . " ORDER BY af_author_id";
 		try {
 			$res = $db->fetchAll($stmt);
 		}
@@ -65,38 +70,12 @@ class AuthorAffiliations
 			$res[$key]['af_percent_affiliation'] = $item['af_percent_affiliation'] / 1000;
 			$res[$key]['error_desc'] = "Percentages for each author must add to 100%";
 			$res[$key]['error'] = "percentage";
-			
-			$hrData = AuthorAffiliations::getHrData($item['af_author_id']);
-			
-			if($hrData)
-			{
-			    $res[$key]['pos_title'] = $hrData[0]['POS_TITLE'];
-			    $res[$key]['dt_from'] = $hrData[0]['DT_FROM'];
-			    $res[$key]['dt_to'] = $hrData[0]['DT_TO'];
-			    $res[$key]['fte'] = $hrData[0]['FTE'];
-			}
+			$res[$key]['pos_title'] = $item['POS_TITLE'];
+			$res[$key]['dt_from'] = $item['DT_FROM'];
+			$res[$key]['dt_to'] = $item['DT_TO'];
+			$res[$key]['fte'] = $item['FTE'];
 		}
 		return $res;
-	}
-	
-	function getHrData($authorId)
-	{
-	    $db = DB_API::get();
-	    $log = FezLog::get();
-	    
-	    $sql = "SELECT POS_TITLE, DT_FROM, DT_TO, FTE FROM hr_position_vw hr INNER JOIN "
-	        . APP_TABLE_PREFIX . "author au ON hr.WAMIKEY = au.aut_org_staff_id "
-	        . "WHERE au.aut_id = :autid";
-	    
-	    try 
-	    {
-    	    $stmt = $db->query($sql, array(':autid' => $authorId));
-    	    return $stmt->fetchAll();
-	    }
-	    catch(Exception $e)
-	    {
-	        $log->err($ex->getMessage());
-	    }
 	}
 
 
@@ -311,7 +290,9 @@ class AuthorAffiliations
 
 		 */
 
-		$stmt = "SELECT aut_display_name AS name, t1.aut_id AS aut_id, wamikey AS wamikey, fte AS fte, aou AS aou, status AS status, payroll_flag AS payroll_flag, award AS award, org_title AS org_title, org_id AS org_id " .
+		$stmt = "SELECT aut_display_name AS name, t1.aut_id AS aut_id, wamikey AS wamikey, ".
+				"pos_title, fte AS fte, aou AS aou, status AS status, payroll_flag AS payroll_flag, ".
+				"award AS award, org_title AS org_title, org_id AS org_id " .
 				"FROM " . APP_TABLE_PREFIX . "author AS t1 " .
 				"INNER JOIN hr_position_vw " .
 				"ON aut_org_staff_id = wamikey " .
