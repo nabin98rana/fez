@@ -532,7 +532,7 @@ class Record
     
     $stmt = "
       SELECT
-        mtj_cnf_id AS matching_id,
+        mtj_jnl_id AS matching_id,
         mtj_status AS status
       FROM
         " . APP_TABLE_PREFIX . "matched_journals

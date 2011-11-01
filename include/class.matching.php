@@ -205,7 +205,7 @@ class matching
 		$stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "matched_" . $table . "
                  SET
-                    " . $prefix . $suffix. " = " . $db->quote($matching_id) . ",
+                    " . $prefix . $suffix. " = " . $db->quote($matching_id, 'INTEGER') . ",
                     " . $prefix . "_status = " . $db->quote($status) . "
                  WHERE
                     " . $prefix . "_pid = " . $db->quote($pid) . ";";
@@ -254,11 +254,11 @@ class matching
 		$stmt = "INSERT INTO " . APP_TABLE_PREFIX . "matched_" . $table . "
 				(
 				" . $prefix . "_pid,
-				" . $prefix . $suffix . "
+				" . $prefix . $suffix . ",
 				" . $prefix . "_status
 				) VALUES (
 				" . $db->quote($pid) . ",
-				" . $db->quote($matching_id) . ",
+				" . $db->quote($matching_id, 'INTEGER') . ",
 				" . $db->quote($status) . "
 				);";
 		

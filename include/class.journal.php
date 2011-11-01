@@ -411,14 +411,14 @@ class Journal
 		$stmt = "
 			SELECT
 			    jnl_id as matching_id,
-			    jnl_era_year,
+			    jnl_era_year AS year,
 				jnl_era_id AS eraid,
 				jnl_rank AS rank,
 				jnl_journal_name AS title
 			FROM
 				" . APP_TABLE_PREFIX . "journal
 			ORDER BY
-				jnl_era_id ASC, jnl_era_year ASC, jnl_journal_name ASC;
+				jnl_journal_name ASC, jnl_era_year ASC;
 		";
 		
 		try {
