@@ -42,18 +42,20 @@ class AuthorAffiliations
 		$log = FezLog::get();
 		$db = DB_API::get();
 
-		$stmt = "SELECT POS_TITLE, DT_FROM, DT_TO, FTE, af_id, af_pid, af_author_id, af_status, "
-                    ."af_org_id, af_percent_affiliation "
-                    ."FROM fez_author_affiliation af "
-                    ."INNER JOIN fez_record_search_key_author_id "
-                   . "ON rek_author_id_pid = af_pid "
-                    ."INNER JOIN fez_author INNER JOIN hr_position_vw "
-                   . "ON WAMIKEY = aut_org_staff_id "
-                   . "AND af_author_id = rek_author_id "
-                   . "WHERE af_pid = ".$db->quote($pid)
-                   . " AND af_status = ".$db->quote($status, 'INTEGER')
-                   . " GROUP BY af_author_id"
-                   . " ORDER BY af_author_id";
+		$stmt = "SELECT POS_TITLE, DT_FROM, DT_TO, FTE, af_id, af_pid, af_author_id, af_status, ".
+                "af_org_id, af_percent_affiliation ".
+                "FROM fez_author AS t1 ".
+                "INNER JOIN hr_position_vw ".
+                "ON aut_org_staff_id = wamikey ".
+                "INNER JOIN fez_author_affiliation ".
+                "ON af_author_id = aut_id ".
+                "LEFT JOIN fez_org_structure ".
+                "ON aou = org_extdb_id ".
+                "WHERE af_pid = ". $db->quote($pid).
+                " AND af_status = ". $db->quote($status, 'INTEGER').
+                " GROUP BY af_author_id".
+                " ORDER BY af_author_id";
+		
 		try {
 			$res = $db->fetchAll($stmt);
 		}
@@ -291,7 +293,7 @@ class AuthorAffiliations
 		 */
 
 		$stmt = "SELECT aut_display_name AS name, t1.aut_id AS aut_id, wamikey AS wamikey, ".
-				"pos_title, fte AS fte, aou AS aou, status AS status, payroll_flag AS payroll_flag, ".
+				"pos_title, dt_from, dt_to, fte AS fte, aou AS aou, status AS status, payroll_flag AS payroll_flag, ".
 				"award AS award, org_title AS org_title, org_id AS org_id " .
 				"FROM " . APP_TABLE_PREFIX . "author AS t1 " .
 				"INNER JOIN hr_position_vw " .
