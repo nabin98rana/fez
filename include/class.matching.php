@@ -45,6 +45,10 @@ class matching
 		$stmtSelect = "
 			SELECT
 				pid,
+				jnl_era_year,
+				cnf_era_year,
+				jnl_id,
+				cnf_id,
 				rek_title AS record_title,
 				jnl_era_id AS journal_era_id,
 				jnl_journal_name AS journal_name,
@@ -67,9 +71,9 @@ class matching
 					" . APP_TABLE_PREFIX . "matched_conferences) AS Q0
 			LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key ON Q0.pid = " . APP_TABLE_PREFIX . "record_search_key.rek_pid
 			LEFT JOIN " . APP_TABLE_PREFIX . "matched_journals ON Q0.pid = " . APP_TABLE_PREFIX . "matched_journals.mtj_pid
-			LEFT JOIN " . APP_TABLE_PREFIX . "journal ON " . APP_TABLE_PREFIX . "matched_journals.mtj_eraid = " . APP_TABLE_PREFIX . "journal.jnl_era_id
+			LEFT JOIN " . APP_TABLE_PREFIX . "journal ON " . APP_TABLE_PREFIX . "matched_journals.mtj_jnl_id = " . APP_TABLE_PREFIX . "journal.jnl_id
 			LEFT JOIN " . APP_TABLE_PREFIX . "matched_conferences ON Q0.pid = " . APP_TABLE_PREFIX . "matched_conferences.mtc_pid
-			LEFT JOIN " . APP_TABLE_PREFIX . "conference ON " . APP_TABLE_PREFIX . "matched_conferences.mtc_eraid = " . APP_TABLE_PREFIX . "conference.cnf_era_id
+			LEFT JOIN " . APP_TABLE_PREFIX . "conference ON " . APP_TABLE_PREFIX . "matched_conferences.mtc_cnf_id = " . APP_TABLE_PREFIX . "conference.cnf_id
 		";
 		
 		
@@ -181,15 +185,17 @@ class matching
 		
 		$type = $_POST['type'];
 		$pid = $_POST['pid'];
-		$eraid = $_POST['eraid'];
+		$matching_id = $_POST['matching_id'];
 		$status = $_POST['status'];
 		
 		if ($type == 'J') {
 			$table = "journals";
 			$prefix = "mtj";
+            $suffix = "_jnl_id";
 		} elseif ($type == 'C') {
 			$table = "conferences";
 			$prefix = "mtc";
+            $suffix = "_cnf_id";
 		}
 		
 		if ($status == 'B') {
@@ -199,7 +205,7 @@ class matching
 		$stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "matched_" . $table . "
                  SET
-                    " . $prefix . "_eraid = " . $db->quote($eraid) . ",
+                    " . $prefix . $suffix. " = " . $db->quote($matching_id, 'INTEGER') . ",
                     " . $prefix . "_status = " . $db->quote($status) . "
                  WHERE
                     " . $prefix . "_pid = " . $db->quote($pid) . ";";
@@ -228,15 +234,17 @@ class matching
 		
 		$type = $_POST['type'];
 		$pid = $_POST['pid'];
-		$eraid = $_POST['eraid'];
+		$matching_id = $_POST['matching_id'];
 		$status = $_POST['status'];
-		
+		$suffix = "";
 		if ($type == 'J') {
 			$table = "journals";
 			$prefix = "mtj";
+            $suffix = "_jnl_id";
 		} elseif ($type == 'C') {
 			$table = "conferences";
 			$prefix = "mtc";
+            $suffix = "_cnf_id";
 		}
 		
 		if ($status == 'B') {
@@ -246,11 +254,11 @@ class matching
 		$stmt = "INSERT INTO " . APP_TABLE_PREFIX . "matched_" . $table . "
 				(
 				" . $prefix . "_pid,
-				" . $prefix . "_eraid,
+				" . $prefix . $suffix . ",
 				" . $prefix . "_status
 				) VALUES (
 				" . $db->quote($pid) . ",
-				" . $db->quote($eraid) . ",
+				" . $db->quote($matching_id, 'INTEGER') . ",
 				" . $db->quote($status) . "
 				);";
 		
