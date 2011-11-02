@@ -2989,7 +2989,7 @@ class Record
     }
         
     // Record in history
-    Record::insertThomsonCitationCount($pid, $count, $isi_loc);
+    Record::insertThomsonCitationCount($isi_loc, $count);
 
     if ( APP_SOLR_INDEXER == "ON" ) {
       FulltextQueue::singleton()->add($pid);							
@@ -3015,21 +3015,37 @@ class Record
     
     $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
     $prev_count;
-    
-    // Get the previous count
-    $stmt = "SELECT
-                    tc_count
-                 FROM
-                    " . $dbtp . "thomson_citations
-                 WHERE
-                    tc_pid = ".$db->quote($pid)."
-                 ORDER BY tc_id DESC";
-    
-    try {
-      $res = $db->fetchOne($stmt);
-    }
-    catch(Exception $ex) {
-      $log->err($ex);		
+
+      // Get the isi_loc
+      $stmt = "SELECT
+                      rek_isi_loc
+                   FROM
+                      " . $dbtp . "record_search_key_isi_loc
+                   WHERE
+                      rek_isi_loc_pid = ".$db->quote($pid);
+      try {
+        $res = $db->fetchOne($stmt);
+      }
+      catch(Exception $ex) {
+        $log->err($ex);
+      }
+      $isi_loc = $res;
+    if (!empty($isi_loc)) {
+        // Get the previous count
+        $stmt = "SELECT
+                        tc_count
+                     FROM
+                        " . $dbtp . "thomson_citations
+                     WHERE
+                        tc_isi_loc = ".$db->quote($isi_loc)."
+                     ORDER BY tc_id DESC";
+
+        try {
+          $res = $db->fetchOne($stmt);
+        }
+        catch(Exception $ex) {
+          $log->err($ex);
+        }
     }
     $prev_count = $res;
                 
@@ -3059,7 +3075,7 @@ class Record
    * @param $count The count to insert 
    * @return bool True if the insert was successful else false
    */
-  private static function insertThomsonCitationCount($pid, $count, $isi_loc) 
+  private static function insertThomsonCitationCount($isi_loc, $count)
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -3068,9 +3084,9 @@ class Record
     
     $stmt = "INSERT INTO
                     " . $dbtp . "thomson_citations
-                 (tc_id, tc_pid, tc_count, tc_last_checked, tc_created, tc_isi_loc)
+                 (tc_id, tc_count, tc_last_checked, tc_created, tc_isi_loc)
                  VALUES
-                 (NULL, ".$db->quote($pid).", ".$db->quote($count).", '".time()."', '".time()."', ".
+                 (NULL, ".$db->quote($count).", '".time()."', '".time()."', ".
                 $db->quote($isi_loc).")";
     
     try {
@@ -3133,11 +3149,13 @@ class Record
     $stmt = "SELECT
           tc_last_checked,tc_created,tc_count
          FROM
-               " . $dbtp . "thomson_citations		         
+               " . $dbtp . "thomson_citations
+                INNER JOIN " . $dbtp . "record_search_key_isi_loc
+                 ON " . $dbtp . "thomson_citations.tc_isi_loc = " . $dbtp . "record_search_key_isi_loc.rek_isi_loc
                  WHERE
-                    tc_pid = ".$db->quote($pid)."
+                    rek_isi_loc_pid = ".$db->quote($pid)."
                  ORDER BY tc_created ".$order."
-                 $limit";        
+                 $limit";
     try {
       $res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
     }
@@ -3166,13 +3184,15 @@ class Record
     $order = ($order == 'ASC') ? 'ASC' : 'DESC';
     
     $stmt = "SELECT
-          sc_last_checked,sc_created,sc_count
+         sc_last_checked, sc_created, sc_count
          FROM
                " . $dbtp . "scopus_citations
+                 INNER JOIN " . $dbtp . "record_search_key_scopus_id
+                 ON " . $dbtp . "scopus_citations.sc_eid = " . $dbtp . "record_search_key_scopus_id.rek_scopus_id
                  WHERE
-                    sc_pid = ".$db->quote($pid)."
+                    rek_scopus_id_pid = ".$db->quote($pid)."
                  ORDER BY sc_created ".$order."
-                 $limit";        
+                 $limit";
     try {
       $res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
     }
@@ -3191,7 +3211,7 @@ class Record
    * @param $count The count to update with 
    * @return bool True if the update was successful else false
    */
-  public static function updateScopusCitationCount($pid, $count, $eid) 
+  public static function updateScopusCitationCount($pid, $count, $eid)
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -3203,7 +3223,7 @@ class Record
              SET
                rek_scopus_citation_count = ".$db->quote($count)."
              WHERE
-                rek_pid = ".$db->quote($pid);
+                rek_pid= ".$db->quote($pid);
     try {
       $db->query($stmt);
     }
@@ -3213,7 +3233,7 @@ class Record
     }
         
     // Record in history
-    Record::insertScopusCitationCount($pid, $count, $eid);
+    Record::insertScopusCitationCount($eid, $count);
 
     if ( APP_SOLR_INDEXER == "ON" ) {
       FulltextQueue::singleton()->add($pid);							
@@ -3233,7 +3253,7 @@ class Record
    * @param $count The count to insert 
    * @return bool True if the insert was successful else false
    */
-  private static function insertScopusCitationCount($pid, $count, $eid)
+  private static function insertScopusCitationCount($eid,$count)
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -3242,9 +3262,9 @@ class Record
     
     $stmt = "INSERT INTO
                     " . $dbtp . "scopus_citations
-                 (sc_id, sc_pid, sc_count, sc_last_checked, sc_created, sc_eid)
+                 (sc_id, sc_count, sc_last_checked, sc_created, sc_eid)
                  VALUES
-                 (NULL, ".$db->quote($pid).", ".$db->quote($count).", '".time()."', '".time()."', ".
+                 (NULL, ".$db->quote($count).", '".time()."', '".time()."', ".
                 $db->quote($eid).")";
     
     try {
@@ -3264,31 +3284,46 @@ class Record
    * @param $pid The PID to update the citation count for
    * @return bool True if the update was successful else false
    */
-  public static function updateScopusCitationCountFromHistory($pid) 
+  public static function updateScopusCitationCountFromHistory($pid)
   {
     $log = FezLog::get();
     $db = DB_API::get();
     
     $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
     $prev_count;
-    
-    // Get the previous count
-    $stmt = "SELECT
-                    sc_count
-                 FROM
-                    " . $dbtp . "scopus_citations
-                 WHERE
-                    sc_pid = ".$db->quote($pid)."
-                 ORDER BY sc_id DESC";
-    
-    try {
-      $res = $db->fetchOne($stmt);
-    }
-    catch(Exception $ex) {
-      $log->err($ex);		
+
+      // Get the eid
+      $stmt = "SELECT
+                      rek_scopus_id
+                   FROM
+                      " . $dbtp . "record_search_key_scopus_id
+                   WHERE
+                      rek_scopus_id_pid = ".$db->quote($pid);
+      try {
+        $res = $db->fetchOne($stmt);
+      }
+      catch(Exception $ex) {
+        $log->err($ex);
+      }
+      $eid = $res;
+    if (!empty($eid)) {
+        // Get the previous count
+        $stmt = "SELECT
+                        sc_count
+                     FROM
+                        " . $dbtp . "scopus_citations
+                     WHERE
+                        sc_eid = ".$db->quote($eid)."
+                     ORDER BY sc_id DESC";
+
+        try {
+          $res = $db->fetchOne($stmt);
+        }
+        catch(Exception $ex) {
+          $log->err($ex);
+        }
     }
     $prev_count = $res;
-                
     // If there is a previous count in the history
     if (! empty($prev_count)) {
       $stmt = "UPDATE
