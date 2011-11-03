@@ -624,7 +624,7 @@ class Record
     
     $stmt = "
       SELECT
-        mtc_cnf_id as as matching_id,
+        mtc_cnf_id AS matching_id,
         mtc_status AS status
       FROM
         " . APP_TABLE_PREFIX . "matched_conferences
