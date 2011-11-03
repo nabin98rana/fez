@@ -179,9 +179,6 @@ class RecordView {
 						if (APP_MY_RESEARCH_MODULE == 'ON') {
 							$rjinfo = Record::getRankedJournalInfo($this->record->pid);
                             if (is_array($rjinfo)) {
-                                if ($rjinfo['rj_2010_rank'] == '') {
-                                    $rjinfo['rj_2010_rank'] = "N/R";
-                                }
                                 if ($rjinfo['rj_2012_title'] != '') {
                                     $rjl .= "&nbsp; (<a href='#' title='ERA 2012 Listed Journal: ".$rjinfo['rj_2012_title']."'>ERA 2012 Listed</a>)";
                                 }
@@ -206,9 +203,6 @@ class RecordView {
 						if (APP_MY_RESEARCH_MODULE == 'ON') {
 							$rcinfo = Record::getRankedConferenceInfo($this->record->pid);
                             if (is_array($rcinfo)) {
-                                if ($rcinfo['rc_2010_rank'] == '') {
-                                    $rcinfo['rc_2010_rank'] = "N/R";
-                                }
                                 if ($rcinfo['rc_2012_title'] != '') {
                                     $rcl .= "&nbsp; (<a href='#' title='ERA 2012 Listed Conference: ".$rcinfo['rc_2012_title']."'>ERA 2012 Listed</a>)";
                                 }
