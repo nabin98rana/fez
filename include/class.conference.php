@@ -312,7 +312,7 @@ class Conference
 		$stmt = "
 			SELECT
 			    cnf_id as matching_id,
-			    cnf_era_year,
+			    cnf_era_year AS year,
 				cnf_era_id AS eraid,
 				cnf_rank AS rank,
 				cnf_conference_name AS title

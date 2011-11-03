@@ -60,13 +60,32 @@ $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign("type", "change_search_key_form");
 $tpl->assign("type_name", "Select Search Key");
 
+$tpl->assign("jquery", true);
+$tpl->assign("jqueryUI", true);
+
+
 $wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
 
 $wfstatus->setTemplateVars($tpl);
 $cat = $_REQUEST['cat'];
+
 if ($cat == 'submit') {
-    $wfstatus->sek_value = $_REQUEST['sek_value'];
+
+    $sek_value = $raw_value = $_REQUEST['sek_value'];
+
+    // Prepare array data in Date format
+    if (is_array($raw_value)){
+
+        if (isset($raw_value['Year']) && isset($raw_value['Month']) && isset($raw_value['Day'])){
+            $sek_value = $raw_value['Year'] . "-" . $raw_value['Month'] . "-" . $raw_value['Day'];
+        }else{
+            $sek_value = implode("", $raw_value);
+        }
+    }
+
+    $wfstatus->sek_value = $sek_value;
     $wfstatus->sek_id = $_REQUEST['sek_id'];
+
 }
 $wfstatus->checkStateChange();
 

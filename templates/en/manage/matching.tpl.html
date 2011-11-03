@@ -124,7 +124,7 @@ function setPage(new_page)
 				<select name="matching_id" id="matching_id">
 					<option value="">Please select the {if $match_type == 'C'}conference{elseif $match_type == 'J'}journal{/if} this PID maps to ...</option>
 					{section name="i" loop=$list}
-						<option value="{$list[i].matching_id}"{if $mapping.matching_id == $list[i].matching_id} selected="selected"{/if}>{$list[i].title|truncate:125:"...":true} &nbsp; (Rank {$list[i].rank})</option>
+						<option value="{$list[i].matching_id}"{if $mapping.matching_id == $list[i].matching_id} selected="selected"{/if}>{$list[i].title|truncate:125:"...":true} &nbsp; ({$list[i].year}) &nbsp; {if $list[i].year == 2010}(Rank {$list[i].rank}){/if}</option>
 					{/section}
 				</select>
 				
@@ -173,7 +173,7 @@ function setPage(new_page)
 					<select name="matching_id" id="matching_id">
 						<option value="">Please select the {if $match_type == 'C'}conference{elseif $match_type == 'J'}journal{/if} this PID maps to ...</option>
 						{section name="i" loop=$list}
-							<option value="{$list[i].matching_id}">{$list[i].title|truncate:125:"...":true} &nbsp; (Rank {$list[i].rank})</option>
+							<option value="{$list[i].matching_id}">{$list[i].title|truncate:125:"...":true} &nbsp; ({$list[i].year}) &nbsp; {if $list[i].year == 2010}(Rank {$list[i].rank}){/if}</option>
 						{/section}
 					</select>
 					
