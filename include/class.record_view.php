@@ -178,13 +178,14 @@ class RecordView {
 						$rjl = "";
 						if (APP_MY_RESEARCH_MODULE == 'ON') {
 							$rjinfo = Record::getRankedJournalInfo($this->record->pid);
-							if (is_array($rjinfo)) {
-								if ($rjinfo['rank'] == '') {
-									$rjinfo['rank'] = "N/R";
-								}
-								$rjl = "&nbsp;&nbsp;&nbsp; (<a href='#' title='ERA 2010 Ranked Journal: ".$rjinfo['title'].", ranked ".$rjinfo['rank']."'>ERA Rank ".$rjinfo['rank']."</a>)";
-							}
-						}
+                            if (is_array($rjinfo)) {
+                                if ($rjinfo['rj_2012_title'] != '') {
+                                    $rjl .= "&nbsp; (<a href='#' title='ERA 2012 Listed Journal: ".$rjinfo['rj_2012_title']."'>ERA 2012 Listed</a>)";
+                                }
+                                if ($rjinfo['rj_2010_rank'] != '') {
+                                    $rjl .= "&nbsp;&nbsp;&nbsp; (<a href='#' title='ERA 2010 Ranked Journal: ".$rjinfo['rj_2010_title'].", ranked ".$rjinfo['rj_2010_rank']."'>ERA 2010 Rank ".$rjinfo['rj_2010_rank']."</a>)";
+                                }
+                            }						}
 						if (is_array($details[$dis_field['xsdmf_id']])) {
 							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
 								$details[$dis_field['xsdmf_id']][$ckey] = "<a class='silent_link' href=".'"'.APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B".$dis_field['xsdmf_sek_id']."%5D=".urlencode($details[$dis_field['xsdmf_id']][$ckey]).'"'.">".$details[$dis_field['xsdmf_id']][$ckey]."</a>".$rjl;
@@ -201,12 +202,14 @@ class RecordView {
 						$rcl = "";
 						if (APP_MY_RESEARCH_MODULE == 'ON') {
 							$rcinfo = Record::getRankedConferenceInfo($this->record->pid);
-							if (is_array($rcinfo)) {
-								if ($rcinfo['rank'] == '') {
-									$rcinfo['rank'] = "N/R";
-								}
-								$rcl = "&nbsp;&nbsp;&nbsp; (<a href='#' title='ERA 2010 Ranked Conference: ".$rcinfo['title'].", ranked ".$rcinfo['rank']."'>ERA Rank ".$rcinfo['rank']."</a>)";
-							}
+                            if (is_array($rcinfo)) {
+                                if ($rcinfo['rc_2012_title'] != '') {
+                                    $rcl .= "&nbsp; (<a href='#' title='ERA 2012 Listed Conference: ".$rcinfo['rc_2012_title']."'>ERA 2012 Listed</a>)";
+                                }
+                                if ($rcinfo['rc_2010_rank'] != '') {
+                                    $rcl .= "&nbsp;&nbsp;&nbsp; (<a href='#' title='ERA 2010 Ranked Journal: ".$rcinfo['rc_2010_title'].", ranked ".$rcinfo['rc_2010_rank']."'>ERA 2010 Rank ".$rcinfo['rc_2010_rank']."</a>)";
+                                }
+                            }
 						}
 						if (is_array($details[$dis_field['xsdmf_id']])) {
 							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {

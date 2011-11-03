@@ -74,19 +74,24 @@ class RJL
 		echo "Total number of candidate records: " . sizeof($master) . "\n";
 		echo "Number of ranked journals: " . sizeof($rankedJournals) . "\n";
 		echo "Number of ranked ISSNs: " . sizeof($normalisedRankedJournalISSNs) . "\n";
-		
+		ob_flush();
 		/* Look for ISSN matches */
 		RJL::lookForMatchesByISSN($normalisedCandidateISSNs, $normalisedRankedJournalISSNs, $matchesI);
 		echo "Number of ISSN matches: " . sizeof($matchesI) . "\n";
-
+        ob_flush();
 		/* Look for title matches (string normalisation and comparison) */
+/*        echo " ranks j s\n";
+        print_r($normalisedRankedJournals);
+        echo " candidate j s\n";
+        print_r($normalisedCandidateJournals);
+*/
 		RJL::lookForMatchesByStringComparison($normalisedCandidateJournals, $normalisedRankedJournals, $matchesT, "T");
 		echo "Number of normalised string matches (journal): " . sizeof($matchesT) . "\n";
-
+        ob_flush();
 		/* Look for conference matches (string normalisation and comparison) */
 		RJL::lookForMatchesByStringComparison($normalisedCandidateConferences, $normalisedRankedJournals, $matchesC, "C");
 		echo "Number of normalised string matches (conference): " . sizeof($matchesC) . "\n";
-
+        ob_flush();
 		/* Look for similar title matches (uses normalised strings for comparison) */
 		/*RJL::lookForMatchesBySimilarStrings($normalisedCandidateJournals, $normalisedRankedJournals, $matchesS);
 		echo "Number of similar string matches: " . sizeof($matchesS) . "\n";
@@ -95,11 +100,11 @@ class RJL
 		/* Look for manual matches */
 		RJL::lookForManualMatches($normalisedCandidateJournals, $manualMatches, $matchesM);
 		echo "Number of manual matches: " . sizeof($matchesM) . "\n";
-		
+        ob_flush();
 		/* Assemble list of all matches */
 		$matches = array_merge($matchesT, $matchesI, $matchesM, $matchesC, $matchesS);
 		echo "Total number of matches: " . sizeof($matches) . "\n";
-
+        ob_flush();
 		/* Subtract matches from list before printing unmatched */
 		/*
 		$unmatched = $normalisedCandidateJournals;
@@ -107,13 +112,15 @@ class RJL
 		RJL::subtractMatchesFromCandidates(&$unmatched, $matchesS);
 		RJL::subtractMatchesFromCandidates(&$unmatched, $matchesT);
 		RJL::subtractMatchesFromCandidates(&$unmatched, $matchesM);
-
+*/
 		echo "Number of ISSN matches: " . sizeof($matchesI) . "\n";
+        ob_flush();
 		echo "Number of journal title matches: " . sizeof($matchesT) . "\n";
 		echo "Number of conference title matches: " . sizeof($matchesC) . "\n";
 		echo "Number of manual matches: " . sizeof($matchesM) . "\n";
 		echo "Total number of matches: " . sizeof($matches) . "\n";
-		
+        ob_flush();
+/*
 		// PRINT UNMATCHED JOURNALS (SPECIAL CASE)
 		// Remove the title matches from the original candidate journal list
 		$nonMatchingJournals = array_diff($coreJournals, RJL::keyMasterList($matchesT));
@@ -135,7 +142,8 @@ class RJL
 		
 		/* Subtract from any match results those PIDs that are either black-listed, or manually mapped */
 		$matches = array_diff_key($matches, matching::getMatchingExceptions("J"));
-		
+		echo " About to run inserts \n";
+        ob_flush();
 		/* Insert all the found matches */
 		RJL::runInserts($matches);
 		
@@ -309,7 +317,7 @@ class RJL
 
 		$stmt = "
 			SELECT
-				jnl_era_id AS eraid,
+				jnl_id AS jnl_id,
 				jnl_journal_name AS title
 			FROM
 				" . APP_TABLE_PREFIX . "journal
@@ -327,7 +335,7 @@ class RJL
 		
 		if (count($result) > 0) {
 			foreach ($result as $key => $row) {
-		    	$rankedJournals[$row['eraid']] = $row['title'];
+		    	$rankedJournals[$row['jnl_id']] = $row['title'];
 		    }
 		}
 		
@@ -372,16 +380,16 @@ class RJL
 
 		$stmt = "
 			SELECT
-				jnl_issn AS issn,
-				" . APP_TABLE_PREFIX . "journal.jnl_era_id AS eraid
+				jni_issn AS issn,
+				" . APP_TABLE_PREFIX . "journal.jnl_id
 			FROM
 				" . APP_TABLE_PREFIX . "journal,
 				" . APP_TABLE_PREFIX . "journal_issns
 			WHERE
-				" . APP_TABLE_PREFIX . "journal.jnl_era_id = " . APP_TABLE_PREFIX . "journal_issns.jnl_journal_id
+				" . APP_TABLE_PREFIX . "journal.jnl_id = " . APP_TABLE_PREFIX . "journal_issns.jni_jnl_id
 			ORDER BY
-				jnl_issn ASC,
-				jnl_issn_order ASC;
+				jni_issn ASC,
+				jni_issn_order ASC;
 		";
 		
 		try {
@@ -395,7 +403,7 @@ class RJL
 		if (count($result) > 0) {
 			foreach ($result as $key => $row) {
 		    	$issn = RJL::normaliseISSN($row['issn']);
-		    	$rankedJournalISSNs[$issn] = $row['eraid'];
+		    	$rankedJournalISSNs[$issn] = $row['jnl_id'];
 		    }
 		}
 		
@@ -492,7 +500,8 @@ class RJL
 			}
 
 			if ($earliestMatchPosition < 999999) {
-				$matches[$sourceKey] = $earliestMatch;
+                $matches[] = array('pid' => $sourceKey, 'matching_id' => $earliestMatch);
+//				$matches[$sourceKey] = $earliestMatch;
 			}
 		}
 		
@@ -506,7 +515,7 @@ class RJL
 	function lookForMatchesByStringComparison($check, $against, &$matches, $type)
 	{
 		echo "Running normalised string match ... ";
-		
+        ob_flush();
 		/* Step through each source item */
 		foreach ($check as $sourceKey => $sourceVal) {
 
@@ -515,11 +524,11 @@ class RJL
 				/* Test for exact string match */
 				if ($sourceVal == $targetVal) {
 					//echo $type;
-					$matches[$sourceKey] = $targetKey;	
+//					$matches[$sourceKey] = $targetKey;
+					$matches[] = array('pid' => $sourceKey, 'matching_id' => $targetKey);
 				}
 			}
 		}
-		
 		echo " done.\n";
 		
 		return;
@@ -540,7 +549,8 @@ class RJL
 					//echo "Similarity = " . $similarity . "%\n\n"; // LKDB
 					
 					//echo "S";
-					$matches[$sourceKey] = $targetKey;
+//					$matches[$sourceKey] = $targetKey;
+                    $matches[] = array('pid' => $sourceKey, 'matching_id' => $targetKey);
 				}
 			}
 		}
@@ -577,7 +587,8 @@ class RJL
 				/* Test for exact string match */
 				if ($sourceVal == $targetVal) {
 					//echo "M";
-					$matches[$sourceKey] = $targetKey;
+//					$matches[$sourceKey] = $targetKey;
+                    $matches[] = array('pid' => $sourceKey, 'matching_id' => $sourceKey);
 				}				
 			}
 		}
@@ -608,9 +619,10 @@ class RJL
 		
 		echo "Running insertion queries on eSpace database ... ";
 		
-		foreach ($matches as $pid => $eraid) {
-			$stmt = "INSERT INTO " . APP_TABLE_PREFIX . "matched_journals (mtj_pid, mtj_eraid, mtj_status) VALUES ('" . $pid . "', '" . $eraid . "', 'A') ON DUPLICATE KEY UPDATE mtj_eraid = '" . $eraid . "';";
-			
+		foreach ($matches as $match) {
+			$stmt = "INSERT INTO " . APP_TABLE_PREFIX . "matched_journals (mtj_pid, mtj_jnl_id, mtj_status) VALUES ('" . $match['pid'] . "', '" . $match['matching_id'] . "', 'A') ON DUPLICATE KEY UPDATE mtj_jnl_id = '" . $match['matching_id'] . "';";
+//			echo $stmt."\n";
+            ob_flush();
 			try {
 				$db->exec($stmt);
 			}

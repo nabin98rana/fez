@@ -61,7 +61,7 @@ class Conference
                  FROM
                     " . APP_TABLE_PREFIX . "conference
                  WHERE
-                    cnf_conference_id = ".$db->quote($cnf_id, 'INTEGER');
+                    cnf_id = ".$db->quote($cnf_id, 'INTEGER');
 		try {
 			$res = $db->fetchOne($stmt);
 		}
@@ -176,7 +176,7 @@ class Conference
                  FROM
                     " . APP_TABLE_PREFIX . "conference
                  WHERE
-                    cnf_conference_id = ".$db->quote($cnf_id, 'INTEGER');
+                    cnf_id = ".$db->quote($cnf_id, 'INTEGER');
 		try {
 			$res = $db->fetchRow($stmt);
 		}
@@ -214,7 +214,7 @@ class Conference
                     cnf_rank = " . $db->quote($_POST["rank"]) . ",
                     cnf_updated_date = " . $db->quote(Date_API::getCurrentDateGMT()) ."
                  WHERE
-                    cnf_conference_id = " . $db->quote($_POST["id"], 'INTEGER');
+                    cnf_id = " . $db->quote($_POST["id"], 'INTEGER');
 		try {
 			$db->exec($stmt);
 		}
@@ -287,7 +287,7 @@ class Conference
 		$stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "conference
                  WHERE
-                    cnf_conference_id IN (" . Misc::arrayToSQLBindStr($_POST["items"]) . ")";
+                    cnf_id IN (" . Misc::arrayToSQLBindStr($_POST["items"]) . ")";
 		try {
 			$db->query($stmt, $_POST['items']);
 		}
@@ -311,6 +311,8 @@ class Conference
 		
 		$stmt = "
 			SELECT
+			    cnf_id as matching_id,
+			    cnf_era_year AS year,
 				cnf_era_id AS eraid,
 				cnf_rank AS rank,
 				cnf_conference_name AS title
