@@ -110,7 +110,7 @@ if(is_numeric($confirmation->record->depositor)) {
     $view_record_url_text = "\n\n  <a href='".$view_record_url."' alt='".$view_record_url."'>Click here to view the Thesis</a>";
     $mail->setTextBody(stripslashes($email_txt) . $view_record_url_text);
     $view_record_url_html = "<p> <a href='".$view_record_url."' alt='View Thesis'>Click here to view the Thesis</a> </p> ";
-    $mail->setHTMLBody(stripslashes($email_txt) . $view_record_url_html);
+    $mail->setHTMLBody(stripslashes($email_html) . $view_record_url_html);
 
     $thesis_office_email = "lib-sbs-lodge@library.uq.edu.au";
     $mail->send($from, $thesis_office_email, $subject, false);
