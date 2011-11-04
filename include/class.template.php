@@ -279,6 +279,9 @@ class Template_API
 		$this->assign("app_setup_file", APP_SETUP_FILE);
 		$this->assign('app_analytics_switch', APP_ANALYTICS_SWITCH);
 		$this->assign('app_analytics_id', APP_ANALYTICS_ID);
+        $this->assign('app_piwik_switch', APP_PIWIK_SWITCH);
+        $this->assign('app_piwik_id', APP_PIWIK_ID);
+        $this->assign('app_piwik_location', APP_PIWIK_LOCATION);
 
 		$this->assign("ldap_switch", LDAP_SWITCH);
 		$this->assign("application_version", APP_VERSION);

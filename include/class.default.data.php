@@ -210,6 +210,9 @@ class Default_Data
 		$defaultData['app_fedora_apia_direct']              = "OFF";
 		$defaultData['app_analytics_id']              		= "";
 		$defaultData['app_analytics_switch']              	= "OFF";
+        $defaultData['app_piwik_id']              		    = "";
+        $defaultData['app_piwik_location']              	= "";
+      	$defaultData['app_piwik_switch']              	    = "OFF";
 		$defaultData['app_author_suggest_mode']             = "1";
 		$defaultData['app_herdc_support']                   = "OFF";
 		$defaultData['app_solr_indexer']              		= "OFF";
