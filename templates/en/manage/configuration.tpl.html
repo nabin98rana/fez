@@ -481,6 +481,18 @@ function restoreDefaultColours(el)
 			  {include file="error_icon.tpl.html" field="app_analytics_id"}
 			</td>
 		  </tr>
+          <tr>
+            <th>Piwik Analytics</th>
+            <td>
+              <input type="radio" name="app_piwik_switch" value="ON" {if $config_settings.app_piwik_switch == "ON"}checked="checked"{/if}/> Enabled &nbsp;
+              <input type="radio" name="app_piwik_switch" value="OFF" {if $config_settings.app_piwik_switch == "OFF"}checked="checked"{/if}/> Disabled  &nbsp; &nbsp;
+              ID: <input type="text" name="app_piwik_id" value="{$config_settings.app_piwik_id|escape:"html"}" size="3" />
+              Format: <strong><i>#</i></strong><br />
+              Location: <input type="text" name="app_piwik_location" value="{$config_settings.app_piwik_location|escape:"html"}" size="40" />
+              <strong><i>Do not use http:// or https:// in the URL</i></strong><br />
+              {include file="error_icon.tpl.html" field="app_analytics_id"}
+            </td>
+          </tr>
 		  <tr>
 		    <th>Google Maps API Key</th>
 			<td>

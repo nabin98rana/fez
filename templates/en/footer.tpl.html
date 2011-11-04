@@ -6,12 +6,31 @@
       _gaq.push(['_setAccount', "UA-{$app_analytics_id}"]);
       _gaq.push(['_trackPageview']);
       _gaq.push(['_trackPageLoadTime']);
-      (function() {
-        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-      })();
+      {literal}
+          (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+          })();
+      {/literal}
     </script>
+{/if}
+
+{if $app_piwik_switch == "ON"}
+    <!-- Piwik -->
+    <script type="text/javascript">
+    var pkBaseURL = (("https:" == document.location.protocol) ? "https://{$app_piwik_location}" : "http://{$app_piwik_location}");
+    document.write(unescape("%3Cscript src='" + pkBaseURL + "piwik.js' type='text/javascript'%3E%3C/script%3E"));
+    </script><script type="text/javascript">
+    {literal}
+        try {
+        var piwikTracker = Piwik.getTracker(pkBaseURL + "piwik.php", {$app_piwik_id});
+        piwikTracker.trackPageView();
+        piwikTracker.enableLinkTracking();
+        } catch( err ) {}
+    {/literal}
+    </script><noscript><p><img src="{$app_piwik_location}/piwik.php?idsite=1" style="border:0" alt="" /></p></noscript>
+    <!-- End Piwik Tracking Code -->
 {/if}
 
 </body>
