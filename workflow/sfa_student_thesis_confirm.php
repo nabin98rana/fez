@@ -99,8 +99,8 @@ if(is_numeric($confirmation->record->depositor)) {
 
 	$subject = '['.APP_NAME.'] - Your submission has been completed';
 	$from = APP_EMAIL_SYSTEM_FROM_ADDRESS;
+
 	$to = $usrDetails['usr_email'];
-	$mail->setTextBody(stripslashes($email_txt)."\n\n <br/></br /> <a href='".$view_record_url."'>Click here to view the Thesis</a>");
 	$mail->send($from, $to, $subject, false);
 }
 

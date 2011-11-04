@@ -102,11 +102,9 @@ if(is_numeric($confirmation->record->depositor)) {
 
     // Send email to user
 	$to = $usrDetails['usr_email'];
-	$mail->setTextBody(stripslashes($email_txt));
 	$mail->send($from, $to, $subject, false);
 
     // Send another email to lib-sbs-lodge@library.uq.edu.au
-    $mail->setTextBody(stripslashes($email_txt)."\n\n <br/></br /> <a href='".$view_record_url."'>Click here to view the Thesis</a>");
     $thesis_office_email = "lib-sbs-lodge@library.uq.edu.au";
     $mail->send($from, $thesis_office_email, $subject, false);
 }

@@ -6,6 +6,8 @@ Thank you for submitting your thesis to {$application_name}.
 
 Your item will be referred to a {$application_name} editor for approval. 
 
+<a href="{$view_record_url}" alt="{$view_record_url}">Click here to view the Thesis</a>
+
 Regards,
 
 Manager - {$application_name}
