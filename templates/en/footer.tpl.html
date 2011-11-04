@@ -22,14 +22,12 @@
     var pkBaseURL = (("https:" == document.location.protocol) ? "https://{$app_piwik_location}" : "http://{$app_piwik_location}");
     document.write(unescape("%3Cscript src='" + pkBaseURL + "piwik.js' type='text/javascript'%3E%3C/script%3E"));
     </script><script type="text/javascript">
-    {literal}
-        try {
+        try {ldelim}
         var piwikTracker = Piwik.getTracker(pkBaseURL + "piwik.php", {$app_piwik_id});
         piwikTracker.trackPageView();
         piwikTracker.enableLinkTracking();
-        } catch( err ) {}
-    {/literal}
-    </script><noscript><p><img src="{$app_piwik_location}/piwik.php?idsite=1" style="border:0" alt="" /></p></noscript>
+        {rdelim} catch( err ) {ldelim}{rdelim}
+    </script><noscript><p><img src="{$app_piwik_location}/piwik.php?idsite={$app_piwik_id}" style="border:0" alt="" /></p></noscript>
     <!-- End Piwik Tracking Code -->
 {/if}
 
