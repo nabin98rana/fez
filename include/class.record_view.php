@@ -179,13 +179,13 @@ class RecordView {
 						if (APP_MY_RESEARCH_MODULE == 'ON') {
 							$rjinfo = Record::getRankedJournalInfo($this->record->pid);
                             if (is_array($rjinfo)) {
-                                if ($rjinfo['rj_2010_rank'] == '') {
+                                if (array_key_exists('rj_2010_rank', $rjinfo) && $rjinfo['rj_2010_rank'] == '') {
                                     $rjinfo['rj_2010_rank'] = "N/R";
                                 }
-                                if ($rjinfo['rj_2012_title'] != '') {
+                                if (array_key_exists('rj_2012_title', $rjinfo)) {
                                     $rjl .= "&nbsp; (<a href='#' title='ERA 2012 Listed Journal: ".$rjinfo['rj_2012_title']."'>ERA 2012 Listed</a>)";
                                 }
-                                if ($rjinfo['rj_2010_rank'] != '') {
+                                if (array_key_exists('rj_2010_rank', $rjinfo)) {
                                     $rjl .= "&nbsp;&nbsp;&nbsp; (<a href='#' title='ERA 2010 Ranked Journal: ".$rjinfo['rj_2010_title'].", ranked ".$rjinfo['rj_2010_rank']."'>ERA 2010 Rank ".$rjinfo['rj_2010_rank']."</a>)";
                                 }
                             }						}
@@ -206,13 +206,13 @@ class RecordView {
 						if (APP_MY_RESEARCH_MODULE == 'ON') {
 							$rcinfo = Record::getRankedConferenceInfo($this->record->pid);
                             if (is_array($rcinfo)) {
-                                if ($rcinfo['rc_2010_rank'] == '') {
+                                if (array_key_exists('rc_2010_rank', $rcinfo) && $rcinfo['rc_2010_rank'] == '') {
                                     $rcinfo['rc_2010_rank'] = "N/R";
                                 }
-                                if ($rcinfo['rc_2012_title'] != '') {
+                                if (array_key_exists('rc_2012_title', $rcinfo)) {
                                     $rcl .= "&nbsp; (<a href='#' title='ERA 2012 Listed Conference: ".$rcinfo['rc_2012_title']."'>ERA 2012 Listed</a>)";
                                 }
-                                if ($rcinfo['rc_2010_rank'] != '') {
+                                if (array_key_exists('rc_2010_rank', $rcinfo)) {
                                     $rcl .= "&nbsp;&nbsp;&nbsp; (<a href='#' title='ERA 2010 Ranked Journal: ".$rcinfo['rc_2010_title'].", ranked ".$rcinfo['rc_2010_rank']."'>ERA 2010 Rank ".$rcinfo['rc_2010_rank']."</a>)";
                                 }
                             }

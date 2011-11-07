@@ -97,11 +97,24 @@ if(is_numeric($confirmation->record->depositor)) {
 	$mail->setTextBody(stripslashes($email_txt));
 	$mail->setHTMLBody(stripslashes($email_html));
 
-	$subject = '['.APP_NAME.'] - Your submission has been completed';
-	$from = APP_EMAIL_SYSTEM_FROM_ADDRESS;
-	$to = $usrDetails['usr_email'];
-	$mail->setTextBody(stripslashes($email_txt)."\n\n <br/></br /> <a href='".$view_record_url."'>Click here to view the Thesis</a>");
-	$mail->send($from, $to, $subject, false);
+    // Send email to user
+    $subject = '['.APP_NAME.'] - Your submission has been completed';
+    $from = APP_EMAIL_SYSTEM_FROM_ADDRESS;
+    $to = $usrDetails['usr_email'];
+    $mail->send($from, $to, $subject, false);
+
+
+    // Send email to the thesis office
+
+    // Include the URL to view thesis
+    $view_record_url_text = "\n\n  <a href='".$view_record_url."' alt='".$view_record_url."'>Click here to view the Thesis</a>";
+    $mail->setTextBody(stripslashes($email_txt) . $view_record_url_text);
+    $view_record_url_html = "<p> <a href='".$view_record_url."' alt='View Thesis'>Click here to view the Thesis</a> </p> ";
+    $mail->setHTMLBody(stripslashes($email_html) . $view_record_url_html);
+
+    $thesis_office_email = "libtheses@library.uq.edu.au";
+    $mail->send($from, $thesis_office_email, $subject, false);
+
 }
 
 // Display Submission confirmation

@@ -121,6 +121,11 @@ class Fez_Workflow_Sfa_Confirm{
 
         // Array container of the filtered fields
         $the_chosen_ones = array();
+        $the_chosen_ones[] =""; 
+
+        // Add PID on the display data
+        $pid = array("xsdmf_title" => "PID", "value" => $this->pid);
+        $the_chosen_ones[] =$pid;
 
         foreach ($xsd_display_fields as $key => $field){
 
