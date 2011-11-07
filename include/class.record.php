@@ -3878,7 +3878,8 @@ class Record
                     $flagInBrackets = true;
                 }
                 if (($flagInBrackets == true) && ($escapedInput[$i] == '\\')) {
-                    $escapedInput[$i]  = '';
+                    $escapedInput = substr($escapedInput,0,$i).substr($escapedInput, $i+1);
+                    $i--;
                 }
                 if ($escapedInput[$i] == ']') {
                     $flagInBrackets = false;
