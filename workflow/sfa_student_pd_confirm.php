@@ -51,13 +51,21 @@ if (empty($wfstatus)) {
 // Get PID
 $pid = $wfstatus->pid;
 
+// Email Settings
+$subject = '['.APP_NAME.'] - Your professional doctorate thesis upload has been completed';
+$thesis_office_email = "lib-sbs-lodge@library.uq.edu.au";
+
+// Set background process for sending email confirmation
+$bgp = new Fez_BackgroundProcess_Sfa_ConfirmEmail();
+$bgp->register(serialize(compact('pid', 'subject', 'thesis_office_email')), Auth::getUserID());
+
+
 // Utilising Fez_Workflow_Sfa_Confirm class to produce a clean metadata that we can use on the template
 // Instantiate Confirm class
 $confirmation = new Fez_Workflow_Sfa_Confirm($pid);
 
 // Get display data to be used by smarty template
 $display_data = $confirmation->getDisplayData();
-
 
 // Assigns the URL for viewing the thesis' record
 $view_record_url = $confirmation->getViewURL();
@@ -67,54 +75,6 @@ $record_title = $confirmation->getRecordTitle();
 
 $usrDetails = User::getDetailsByID($confirmation->record->depositor);
 
-
-// Submission confirmation email
-if(is_numeric($confirmation->record->depositor)) {
-
-    // Plain text email content
-	$tplEmail = new Template_API();
-	$tplEmail->setTemplate('workflow/emails/sfa_student_thesis_confirm.tpl.txt');
-	$tplEmail->assign('application_name', APP_NAME);
-	$tplEmail->assign('title', $record_title);
-	$tplEmail->assign('name', $usrDetails['usr_full_name']);
-	$tplEmail->assign('view_record_url', $view_record_url);
-    $tplEmail->assign("display_data", $display_data);
-
-	$email_txt = $tplEmail->getTemplateContents();
-
-    // HTML based email content
-	$tplEmailHTML = new Template_API();
-	$tplEmailHTML->setTemplate('workflow/emails/sfa_student_thesis_confirm.tpl.html');
-	$tplEmailHTML->assign('application_name', APP_NAME);
-	$tplEmailHTML->assign('title', $record_title);
-	$tplEmailHTML->assign('name', $usrDetails['usr_full_name']);
-	$tplEmailHTML->assign('view_record_url', $view_record_url);
-    $tplEmailHTML->assign("display_data", $display_data);
-
-	$email_html = $tplEmailHTML->getTemplateContents();
-
-	$mail = new Mail_API;
-	$mail->setTextBody(stripslashes($email_txt));
-	$mail->setHTMLBody(stripslashes($email_html));
-
-	$subject = '['.APP_NAME.'] - Your professional doctorate thesis upload has been completed';
-	$from = APP_EMAIL_SYSTEM_FROM_ADDRESS;
-
-    // Send email to user
-	$to = $usrDetails['usr_email'];
-	$mail->send($from, $to, $subject, false);
-
-    // Send email to the thesis office
-
-    // Include the URL to view thesis
-    $view_record_url_text = "\n\n  <a href='".$view_record_url."' alt='".$view_record_url."'>Click here to view the Thesis</a>";
-    $mail->setTextBody(stripslashes($email_txt) . $view_record_url_text);
-    $view_record_url_html = "<p> <a href='".$view_record_url."' alt='View Thesis'>Click here to view the Thesis</a> </p> ";
-    $mail->setHTMLBody(stripslashes($email_html) . $view_record_url_html);
-
-    $thesis_office_email = "lib-sbs-lodge@library.uq.edu.au";
-    $mail->send($from, $thesis_office_email, $subject, false);
-}
 
 // Display Submission confirmation
 $tpl = new Template_API();
@@ -130,4 +90,5 @@ $tpl->assign("display_data", $display_data);
 $tpl->displayTemplate();
 
 // This is a special ending workflow state -> so end the workflow manually rather than goto the redirect screen (to prevent users clicking back the browser and causing all sorts of trouble)
+
 $wfstatus->theend(false);

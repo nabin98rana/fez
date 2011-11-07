@@ -62,6 +62,10 @@ class Fez_BackgroundProcess_Sfa_ConfirmEmail extends BackgroundProcess{
      */
     public function run()
     {
+        $pid = '';
+        $subject = '';
+        $thesis_office_email = '';
+
         $this->setState(BGP_RUNNING);
         extract(unserialize($this->inputs));
 
@@ -88,7 +92,7 @@ class Fez_BackgroundProcess_Sfa_ConfirmEmail extends BackgroundProcess{
 
         // Submission confirmation email
         if(is_numeric($this->confirmation->record->depositor)) {
-            $this->_sendEmail();
+            $this->_sendEmail($subject, $thesis_office_email);
         }
 
         // @debug Temporary logging for monitoring the attached files
@@ -101,9 +105,8 @@ class Fez_BackgroundProcess_Sfa_ConfirmEmail extends BackgroundProcess{
      * Prepares email templates and send emails to user and thesis office
      * @return void
      */
-    protected function _sendEmail()
+    protected function _sendEmail($subject = 'Your submission has been completed', $thesis_office_email = '')
     {
-
         // Plain text email content
         $tplEmail = new Template_API();
         $tplEmail->setTemplate('workflow/emails/sfa_student_thesis_confirm.tpl.txt');
@@ -134,22 +137,20 @@ class Fez_BackgroundProcess_Sfa_ConfirmEmail extends BackgroundProcess{
         $mail->setHTMLBody(stripslashes($email_html));
 
         // Send email to user
-        $subject = '['.APP_NAME.'] - Your submission has been completed';
         $from = APP_EMAIL_SYSTEM_FROM_ADDRESS;
         $to = $this->usrDetails['usr_email'];
         $mail->send($from, $to, $subject, false);
 
 
         // Send email to the thesis office
+        if (!empty($thesis_office_email)){
+            // Include the URL to view thesis
+            $view_record_url_text = "\n\n  <a href='".$this->view_record_url."' alt='".$this->view_record_url."'>Click here to view the Thesis</a>";
+            $mail->setTextBody(stripslashes($email_txt) . $view_record_url_text);
+            $view_record_url_html = "<p> <a href='".$this->view_record_url."' alt='View Thesis'>Click here to view the Thesis</a> </p> ";
+            $mail->setHTMLBody(stripslashes($email_html) . $view_record_url_html);
 
-        // Include the URL to view thesis
-        $view_record_url_text = "\n\n  <a href='".$this->view_record_url."' alt='".$this->view_record_url."'>Click here to view the Thesis</a>";
-        $mail->setTextBody(stripslashes($email_txt) . $view_record_url_text);
-        $view_record_url_html = "<p> <a href='".$this->view_record_url."' alt='View Thesis'>Click here to view the Thesis</a> </p> ";
-        $mail->setHTMLBody(stripslashes($email_html) . $view_record_url_html);
-
-        $thesis_office_email = "libtheses@library.uq.edu.au";
-        $mail->send($from, $thesis_office_email, $subject, false);
-
+            $mail->send($from, $thesis_office_email, $subject, false);
+        }
     }
 }
