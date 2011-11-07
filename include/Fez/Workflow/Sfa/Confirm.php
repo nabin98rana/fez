@@ -121,7 +121,6 @@ class Fez_Workflow_Sfa_Confirm{
 
         // Array container of the filtered fields
         $the_chosen_ones = array();
-        $the_chosen_ones[] =""; 
 
         // Add PID on the display data
         $pid = array("xsdmf_title" => "PID", "value" => $this->pid);
@@ -173,7 +172,7 @@ class Fez_Workflow_Sfa_Confirm{
             }
 
             // Get the value
-            $field['value'] = $this->getDisplayValue($field);
+            $field['value'] = $this->_getDisplayValue($field);
 
             // 8) Empty Static html_input filtering
             // Filter out any static fields that do not have any value
@@ -184,9 +183,6 @@ class Fez_Workflow_Sfa_Confirm{
             // If a field survives until this stage, it is the chosen one.
             $the_chosen_ones[] = $field;
         }
-
-        // Get attached files
-        $the_chosen_ones['files'] = $this->_getAttachmentFiles();
 
         // Return the filtered fields
         return $the_chosen_ones;
@@ -199,7 +195,7 @@ class Fez_Workflow_Sfa_Confirm{
      * @param $field
      * @return array|bool|string
      */
-    protected function getDisplayValue( $field )
+    protected function _getDisplayValue( $field )
     {
         $value = $this->submitted_values[$field['xsdmf_id']];
         $display_value = '';
@@ -337,7 +333,7 @@ class Fez_Workflow_Sfa_Confirm{
      * Retrieves files associated with a PID
      * @return void
      */
-    protected function _getAttachmentFiles()
+    public function getAttachedFiles()
     {
         $datastreams = $this->_getFilesViaFedoraDatastreams();
         $output = array();
@@ -392,6 +388,12 @@ class Fez_Workflow_Sfa_Confirm{
 
         $datastreamsAll = $datastreams;
 		$datastreams = Misc::cleanDatastreamListLite($datastreams, $this->pid);
+
+        // @debug Temporary logging for monitoring the attached files
+        $log = FezLog::get();
+        $log->warn("Thesis Files. PID=" . $this->pid .  ". DataStreamsAll= " . sizeof($datastreamsAll));
+        $log->warn("Thesis Files. PID=" . $this->pid .  ". DataStreamsClean= " . sizeof($datastreams));
+
 
         $linkCount = 0;
         $fileCount = 0;

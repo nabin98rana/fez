@@ -4,18 +4,14 @@ The following are the thesis details that have been submitted:
 Submitted Details:
 ---------------
 {foreach from=$display_data key=key item=data}
-    {* Other details except uploaded files *}
-    {if $key != "files"}
+    {$data.xsdmf_title|escape:'htmlall'} :
+    {foreach from=$data.value item=value}
+        {$value}
 
-        {$data.xsdmf_title|escape:'htmlall'} :
-        {foreach from=$data.value item=value}
-            {$value}
+    {foreachelse}
+        {$data.value}
 
-        {foreachelse}
-            {$data.value}
-
-        {/foreach}
-    {/if}
+    {/foreach}
 {foreachelse}
     No details could be found.
 {/foreach}
@@ -23,14 +19,14 @@ Submitted Details:
 
 
 {* Uploaded Files *}
+{if $attached_files|@sizeof > 0}
 Uploaded Files:
 --------------
-{foreach from=$display_data.files key=key item=file}
+{foreach from=$attached_files key=key item=file}
 
         {$key+1}.) {$file.filename}
         Description: {$file.label}
         MIMEType: {$file.MIMEType}
         Size: {$file.archival_size}
 {/foreach}
-
-
+{/if}
