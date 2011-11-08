@@ -338,12 +338,18 @@ class Fez_Workflow_Sfa_Confirm{
         $datastreams = $this->_getFilesViaFedoraDatastreams();
         $output = array();
 
+        // @debug Temporary logging for monitoring the attached files
+        $log = FezLog::get();
+        $log->warn("Thesis Files. getAttachedFiles(). PID=" . $this->pid .  ". Returned_DataStreams= " . sizeof($datastreams));
+        $log->warn("Thesis Files. getAttachedFiles(). Returned_DataStreams_Details= " . print_r($datastreams,1));
+
         // Allow the following file types: PDF, Image and Word Doc.
         // The reason we are using the search value as array key is because searching on array keys has faster performance than searching on the array values.
         // Ref: http://ilia.ws/archives/12-PHP-Optimization-Tricks.html
         $accepted_file_types = array("application/pdf" => true, "image/png" => true, "application/x-zip" =>true, "application/zip" =>true);
 
         $c=0;
+
 
         foreach ($datastreams as $datastream){
 
@@ -391,8 +397,8 @@ class Fez_Workflow_Sfa_Confirm{
 
         // @debug Temporary logging for monitoring the attached files
         $log = FezLog::get();
-        $log->warn("Thesis Files. PID=" . $this->pid .  ". DataStreamsAll= " . sizeof($datastreamsAll));
-        $log->warn("Thesis Files. PID=" . $this->pid .  ". DataStreamsClean= " . sizeof($datastreams));
+        $log->warn("Thesis Files. _getFilesViaFedoraDatastreams(). PID=" . $this->pid .  ". DataStreamsAll= " . sizeof($datastreamsAll));
+        $log->warn("Thesis Files. _getFilesViaFedoraDatastreams(). PID=" . $this->pid .  ". DataStreamsClean= " . sizeof($datastreams));
 
 
         $linkCount = 0;
