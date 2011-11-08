@@ -66,15 +66,18 @@ class Fez_BackgroundProcess_Sfa_ConfirmEmail extends BackgroundProcess{
         $subject = '';
         $thesis_office_email = '';
 
+        // Set BGP status to running
         $this->setState(BGP_RUNNING);
+
+        // Get inputs
         extract(unserialize($this->inputs));
+
+        // Before we getting the display data, give Fedora a bit of time to create the object, specially the Datastream(s) of the binary content for attached files
+        sleep(20);
 
         // Utilising Fez_Workflow_Sfa_Confirm class to produce a clean metadata that we can use on the template
         // Instantiate Confirm class
         $this->confirmation = new Fez_Workflow_Sfa_Confirm($pid);
-
-        // Before we getting the display data, give Fedora a bit of time to create the object, specially the Datastream(s) of the binary content for attached files
-        sleep(20);
 
         // Get display data to be used by smarty template
         $this->display_data = $this->confirmation->getDisplayData();
@@ -94,6 +97,10 @@ class Fez_BackgroundProcess_Sfa_ConfirmEmail extends BackgroundProcess{
         if(is_numeric($this->confirmation->record->depositor)) {
             $this->_sendEmail($subject, $thesis_office_email);
         }
+
+        $this->setStatus("PID: ". $pid . ". <br />" . chr(10)." Email subject: ". $subject );
+        // Set BGP status to finished
+        $this->setState(BGP_FINISHED);
 
         // @debug Temporary logging for monitoring the attached files
         $log = FezLog::get();
