@@ -3,28 +3,25 @@
 </div>
 
 {* Submission details *}
-<table id="view-metadata">
+<table id="view-metadata" cellpadding="5">
     <tr>
         <th class="default_white" colspan="10" style="background: {$heading_color}; text-align: left; ">
             <b>Submitted Details</b>
         </th>
     </tr>
-    {foreach from=$display_data key=key item=data}
-        {* Other details except uploaded files *}
-        {if $key != "files"}
-            <tr>
-                <th>{$data.xsdmf_title|escape:'htmlall'}</th>
-                <td>
-                    {foreach from=$data.value item=value}
-                        {$value}
-                        <br>
-                    {foreachelse}
-                        {$data.value}
-                    {/foreach}
-                </td>
-            </tr>
-        {/if}
 
+    {foreach from=$display_data key=key item=data}
+        <tr valign="top">
+            <th align="right">{$data.xsdmf_title|escape:'htmlall'}: </th>
+            <td align="left">
+                {foreach from=$data.value item=value}
+                    {$value}
+                    <br>
+                {foreachelse}
+                    {$data.value}
+                {/foreach}
+            </td>
+        </tr>
     {foreachelse}
 
         <tr>
@@ -37,6 +34,7 @@
 </table>
 
 {* Uploaded Files *}
+{if $attached_files|@sizeof > 0}
 <table id="view-attachments">
     <tr>
         <th class="default_white" colspan="10">
@@ -49,7 +47,7 @@
         <td colspan="2">MIMEType</td>
         <td>Size</td>
     </tr>
-    {foreach from=$display_data.files item=file}
+    {foreach from=$attached_files key=key item=file}
         <tr>
             <td colspan="3" width="150">{$file.filename}</td>
             <td>{$file.label}</td>
@@ -58,5 +56,6 @@
         </tr>
     {/foreach}
 </table>
+{/if}
 
 

@@ -60,6 +60,18 @@ dojo.require("dojo.rpc.JsonService");
     <script type="text/javascript" src="{$rel_url}js/jquery/i18n/grid.locale-en.js"></script>
     <script type="text/javascript" src="{$rel_url}js/jquery/jquery.jqGrid.src.js"></script>
 {/if}
+
+{*  Load jQuery library  *}
+{if $jquery == true}
+    <script type="text/javascript" src="{$rel_url}js/jquery/jquery-1.6.4.min.js"></script>
+{/if}
+
+{*   Load jQuery UI library *}
+{if $jqueryUI == true}
+    <link rel="stylesheet" type="text/css" media="screen" href="{$rel_url}css/jquery/fez/jquery-ui-1.8.16.custom.css" />
+    <script type="text/javascript" src="{$rel_url}js/jquery/jquery-ui-1.8.13.custom.min.js"></script>
+{/if}
+
 {if $cv_css != ""}
 	<link rel="stylesheet" href="css/{$cv_css}" type="text/css" />
 {/if}

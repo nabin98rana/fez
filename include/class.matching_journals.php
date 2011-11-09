@@ -380,7 +380,8 @@ class RJL
 
 		$stmt = "
 			SELECT
-				jni_issn AS issn,
+				jni_issn,
+				jni_id,
 				" . APP_TABLE_PREFIX . "journal.jnl_id
 			FROM
 				" . APP_TABLE_PREFIX . "journal,
@@ -402,8 +403,9 @@ class RJL
 		
 		if (count($result) > 0) {
 			foreach ($result as $key => $row) {
-		    	$issn = RJL::normaliseISSN($row['issn']);
-		    	$rankedJournalISSNs[$issn] = $row['jnl_id'];
+                $issn = RJL::normaliseISSN($row['jni_issn']);
+                $rankedJournalISSNs[$row['jni_id']]['jni_issn'] = $issn;
+                $rankedJournalISSNs[$row['jni_id']]['jnl_id'] = $row['jnl_id'];
 		    }
 		}
 		
@@ -485,23 +487,10 @@ class RJL
 			/* Attempt to match it against each target item */
 			foreach ($against as $targetKey => $targetVal) {
 				/* Look for the target strng inside the source */
-				
-				if (substr_count($sourceVal, $targetKey) > 0) {
-					$pos = strpos($sourceVal, $targetKey);
-
-					/* Store the earliest occuring match */					
-					if ($pos < $earliestMatchPosition) {
-						$earliestMatch = $targetVal;
-						$earliestMatchPosition = $pos;
-					}
-					
+				if (substr_count($sourceVal, $targetVal['jni_issn']) > 0) {
+                    $matches[] = array('pid' => $sourceKey, 'matching_id' => $earliestMatch);
 					//echo "I";
 				}
-			}
-
-			if ($earliestMatchPosition < 999999) {
-                $matches[] = array('pid' => $sourceKey, 'matching_id' => $earliestMatch);
-//				$matches[$sourceKey] = $earliestMatch;
 			}
 		}
 		
@@ -617,7 +606,7 @@ class RJL
 		$log = FezLog::get();
 		$db = DB_API::get();
 		
-		echo "Running insertion queries on eSpace database ... ";
+		echo "Running ".count($matches)." insertion queries on eSpace database ... ";
 		
 		foreach ($matches as $match) {
 			$stmt = "INSERT INTO " . APP_TABLE_PREFIX . "matched_journals (mtj_pid, mtj_jnl_id, mtj_status) VALUES ('" . $match['pid'] . "', '" . $match['matching_id'] . "', 'A') ON DUPLICATE KEY UPDATE mtj_jnl_id = '" . $match['matching_id'] . "';";

@@ -33,6 +33,7 @@
 //
 //
 
+
 include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
@@ -50,6 +51,13 @@ include_once(APP_INC_PATH . "class.xsd_relationship.php");
 include_once(APP_INC_PATH . "class.workflow_status.php");
 include_once(APP_INC_PATH . "class.org_structure.php");
 include_once(APP_INC_PATH . "class.uploader.php");
+
+// Temporary solution for SWFUpload not working on HTTPS environment
+if ( $_SERVER["SERVER_PORT"] == 443)  {
+   header ("HTTP 302 Redirect");
+   header ("Location: http://".APP_HOSTNAME.APP_RELATIVE_URL."workflow/enter_metadata.php"."?".$_SERVER['QUERY_STRING']);
+}
+
 
 Auth::checkAuthentication(APP_SESSION);
 $wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session

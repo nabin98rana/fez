@@ -808,7 +808,7 @@
 	                    {/if}
 					  </th>
 					  <td>
-					  	{if $xsd_display_fields[i].sek_title == 'Title' && $xdis_title == 'Journal Article' && $smarty.const.APP_USE_ARTICLE_TITLE_SEARCH == 'ON'}
+					  	{if $xsd_display_fields[i].sek_title == 'Title' && ( $xdis_title == 'Journal Article' || $xdis_title == 'Conference Paper') && $smarty.const.APP_USE_ARTICLE_TITLE_SEARCH == 'ON'}
 						  	
 							{literal}
 		                    <script type="text/javascript">
@@ -855,8 +855,9 @@
 		                    			var container_id_wos = '{/literal}{$xsd_display_fields[i].xsdmf_id}_0_container{literal}_wos';
 		                    			dojo.byId(container_id_wos).innerHTML = '<h3 style="text-decoration:underline; color: #333333">Searching ISI Web of Science<sup>&#174;</sup> for matching records</h3><img src="{/literal}{$rel_url}{literal}images/rel_interstitial_loading.gif" alt="" />';
 	
-										var search_wos = server.search_wos(val, 'Journal Article');
-		                    		
+										//var search_wos = server.search_wos(val, 'Journal Article');
+										 var search_wos = server.search_wos(val, '{/literal}{$xdis_title}{literal}');
+
 										search_wos.addCallback( function(msg) {
 				                    		search_in_progress_wos = 0;	
 				                    		var container_id_wos = '{/literal}{$xsd_display_fields[i].xsdmf_id}_0_container{literal}_wos';
