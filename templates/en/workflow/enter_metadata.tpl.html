@@ -808,7 +808,7 @@
 	                    {/if}
 					  </th>
 					  <td>
-					  	{if $xsd_display_fields[i].sek_title == 'Title' && $xdis_title == 'Journal Article' && $smarty.const.APP_USE_ARTICLE_TITLE_SEARCH == 'ON'}
+					  	{if $xsd_display_fields[i].sek_title == 'Title' && ( $xdis_title == 'Journal Article' || $xdis_title == 'Conference Paper') && $smarty.const.APP_USE_ARTICLE_TITLE_SEARCH == 'ON'}
 						  	
 							{literal}
 		                    <script type="text/javascript">

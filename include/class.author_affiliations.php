@@ -41,20 +41,13 @@ class AuthorAffiliations
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-
-		$stmt = "SELECT POS_TITLE, DT_FROM, DT_TO, FTE, af_id, af_pid, af_author_id, af_status, ".
-                "af_org_id, af_percent_affiliation ".
-                "FROM fez_author AS t1 ".
-                "INNER JOIN hr_position_vw ".
-                "ON aut_org_staff_id = wamikey ".
-                "INNER JOIN fez_author_affiliation ".
-                "ON af_author_id = aut_id ".
-                "LEFT JOIN fez_org_structure ".
-                "ON aou = org_extdb_id ".
-                "WHERE af_pid = ". $db->quote($pid).
-                " AND af_status = ". $db->quote($status, 'INTEGER').
-                " GROUP BY af_author_id".
-                " ORDER BY af_author_id";
+		
+		$stmt = "SELECT af.* FROM ". APP_TABLE_PREFIX ."author_affiliation af " .
+			"INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id ON rek_author_id_pid = af_pid " .
+			"AND af_author_id = rek_author_id " .
+			"WHERE af_pid = ".$db->quote($pid)." " .
+			"AND af_status = " . $db->quote($status, 'INTEGER') . " " .
+			"ORDER BY af_author_id";
 		
 		try {
 			$res = $db->fetchAll($stmt);

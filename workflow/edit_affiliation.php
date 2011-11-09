@@ -84,9 +84,19 @@ if ($access_ok) {
 	}
 
 	$suggestseans = array();
+	$autOrgUnitCount = array();
 	foreach ($author_ids as $key => $author_id) {
 		$affiliationData = AuthorAffiliations::getPresetAffiliations($author_id);
-		foreach ($affiliationData as $affiliationRecord) {
+		foreach ($affiliationData as $affiliationRecord) 
+		{
+		    if(array_key_exists($affiliationRecord['org_id'], $autOrgUnitCount))
+		    {
+		        $autOrgUnitCount[$affiliationRecord['org_id']] = $autOrgUnitCount[$affiliationRecord['org_id']] + 1;
+		    }
+		    else 
+		    {
+		        $autOrgUnitCount[$affiliationRecord['org_id']] = 1;
+		    }
 			array_push($suggestseans, $affiliationRecord);
 		}
 	}
@@ -106,7 +116,8 @@ if ($access_ok) {
 		$tpl->assign('current', $list_keyed[$_REQUEST['af_id']]);
 		$tpl->assign('action', 'edit');
 	}
-
+	
+    $tpl->assign('autOrgUnitCount', $autOrgUnitCount);
 	$tpl->assign(compact('list','authors','author_ids','wf_id', 'problem_list'));
 	
 } else {

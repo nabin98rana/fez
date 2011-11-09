@@ -2338,34 +2338,41 @@ a.author_id_link:hover {
     margin: 0;
 }
 
-#regAuthAffil .affilName{
-    width:220px;
-}
-
 #regAuthAffil .affilOrg{
-    width:220px;
+    width:420px;
 }
 
 #regAuthAffil .affilPerc{
-    width:70px;
-}
-
-#regAuthAffil .affilPos{
-    width:200px;
-}
-
-#regAuthAffil .affilDteFrom{
     width:100px;
-}
-
-#regAuthAffil .affilDteTo{
-    width:100px;
-}
-
-#regAuthAffil .affilFte{
-    width:25px;
 }
 
 #regAuthAffil .affilEd{
     width:25px;
 }
+
+
+/* "Bulk Change Search Key Value" form */
+#loading_sek_value{
+    background: url('/images/icons/loading.gif') left top no-repeat;
+    padding-left: 20px;
+    margin: 10px 3px 0px;
+    height: 19px;
+    display: none;
+}
+
+#sek_value_wrapper{
+    float:left;
+    display: none;
+}
+
+#sek_value_wrapper .sek_value_fields{
+    margin: 0px;
+    float: left;
+}
+
+#tr_search_key_value img.ui-datepicker-trigger{
+    padding: 7px 0 0 5px;
+    cursor: pointer;
+    float: left;
+}
+/* End of: "Bulk Change Search Key Value" form */
