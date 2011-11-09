@@ -356,13 +356,13 @@ class Fez_Workflow_Sfa_Confirm{
 
         foreach ($datastreams as $datastream){
 
-            // Ignore datasteam that does not have M controlgroup AND not set as Lister
-            if ($datastream['controlGroup'] !== "M" || $datastream['isLister'] != 1){
+            // Ignore datastream that does not have M controlgroup
+            if ($datastream['controlGroup'] !== "M"){
                 continue;
             }
 
-            // Filename
-            if ($datastream['isViewer'] ==1 && isset($accepted_file_types[$datastream['MIMEType']]) ){
+            // Filter the accepted file types
+            if ( isset($accepted_file_types[$datastream['MIMEType']]) ){
                 $output[$c]['filename'] =$datastream['ID'];
             }
 
