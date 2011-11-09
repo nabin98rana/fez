@@ -19,7 +19,7 @@
 {if $app_piwik_switch == "ON"}
     <!-- Piwik -->
     <script type="text/javascript">
-    var pkBaseURL = (("https:" == document.location.protocol) ? "https://{$app_piwik_location}" : "http://{$app_piwik_location}");
+    var pkBaseURL = (("https:" == document.location.protocol) ? "https://{$app_piwik_location}/" : "http://{$app_piwik_location}/");
     document.write(unescape("%3Cscript src='" + pkBaseURL + "piwik.js' type='text/javascript'%3E%3C/script%3E"));
     </script><script type="text/javascript">
         try {ldelim}
@@ -27,7 +27,7 @@
         piwikTracker.trackPageView();
         piwikTracker.enableLinkTracking();
         {rdelim} catch( err ) {ldelim}{rdelim}
-    </script><noscript><p><img src="{$app_piwik_location}/piwik.php?idsite={$app_piwik_id}" style="border:0" alt="" /></p></noscript>
+    </script><noscript><p><img src="http://{$app_piwik_location}/piwik.php?idsite={$app_piwik_id}" style="border:0" alt="" /></p></noscript>
     <!-- End Piwik Tracking Code -->
 {/if}
 
