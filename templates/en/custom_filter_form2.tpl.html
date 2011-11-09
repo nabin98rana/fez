@@ -78,7 +78,7 @@ if (element{/literal}{$search_keys[i].sek_id}{literal} != null) {
   
     
     <tr>
-        <th class="search_heading">{if $search_keys[i].sek_alt_title}{$search_keys[i].sek_alt_title}{else}{$search_keys[i].sek_title}{/if}
+        <th class="search_heading">{if $search_keys[i].sek_alt_title}{$search_keys[i].sek_alt_title}{else}{$search_keys[i].sek_title}{/if}{if $search_keys[i].sek_desc}<br /><sub>{$search_keys[i].sek_desc}<sub>{/if}
         {if $search_keys[i].sek_html_input == 'date'}
         <input type="hidden" value="{$last_key.filter_enabled|default:0}" name="search_keys[{$search_keys[i].sek_id}][filter_enabled]" />
         <input {if $last_key.filter_enabled == 1}checked{/if} type="checkbox" name="filter[search_keys[{$search_keys[i].sek_id}]]"  id="filter[search_keys[{$search_keys[i].sek_id}]]" value="yes" onClick="javascript:toggleDateFields(this.form, 'search_keys[{$search_keys[i].sek_id}]');">
