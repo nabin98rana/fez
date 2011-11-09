@@ -2286,6 +2286,8 @@ a.author_id_link:hover {
 .claimed-duplication { background: #e4cbf2; }
 .possible-my-pub { background: #d6ffe0; }
 .possible-hide { background: #eaeaea; }
+.float-left { float:left; }
+.float-right{ float:right; }
 
 .upo-staff td {
     padding: 2px 2px 2px 4px;
