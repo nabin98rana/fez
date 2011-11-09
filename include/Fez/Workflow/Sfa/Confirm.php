@@ -200,6 +200,8 @@ class Fez_Workflow_Sfa_Confirm{
         $value = $this->submitted_values[$field['xsdmf_id']];
         $display_value = '';
 
+        $allow_tags = "<b><i><u><sup><sub><br><p><span><font>";
+
         switch($field['xsdmf_html_input']){
             case 'depositor_org':
                 $display_value = $this->_getDepositorOrgValue($value);
@@ -208,7 +210,8 @@ class Fez_Workflow_Sfa_Confirm{
                 $display_value = $this->_getDualMultipleValue($value);
                 break;
             default:
-                $display_value = $value;
+                // Strip tags from value other than permitted ones
+                $display_value = strip_tags($value, $allow_tags);
         }
         return $display_value;
     }

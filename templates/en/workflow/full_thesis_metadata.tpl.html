@@ -3,7 +3,7 @@
 </div>
 
 {* Submission details *}
-<table id="view-metadata">
+<table id="view-metadata" cellpadding="5">
     <tr>
         <th class="default_white" colspan="10" style="background: {$heading_color}; text-align: left; ">
             <b>Submitted Details</b>
@@ -11,9 +11,9 @@
     </tr>
 
     {foreach from=$display_data key=key item=data}
-        <tr>
-            <th>{$data.xsdmf_title|escape:'htmlall'}</th>
-            <td>
+        <tr valign="top">
+            <th align="right">{$data.xsdmf_title|escape:'htmlall'}: </th>
+            <td align="left">
                 {foreach from=$data.value item=value}
                     {$value}
                     <br>
