@@ -161,4 +161,44 @@ if(typeof(NajaxBackgroundProcessList) !== 'undefined')
 	<!--[if IE 7]><link rel="stylesheet" href="{$rel_url}css/ie7bugs.css" media="screen" type="text/css" /><![endif]-->
 	<!--[if IE 8]><link rel="stylesheet" href="{$rel_url}css/ie8bugs.css" media="screen" type="text/css" /><![endif]-->
 
+{if $app_analytics_switch == "ON"}
+        <script type="text/javascript">
+          var _gaq = _gaq || [];
+          _gaq.push(['_setAccount', "UA-{$app_analytics_id}"]);
+          _gaq.push(['_trackPageview']);
+          _gaq.push(['_trackPageLoadTime']);
+          {literal}
+              (function() {
+                var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+                ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+              })();
+          {/literal}
+        </script>
+{/if}
+
+{if $app_piwik_switch == "ON"}
+    <!-- Piwik -->
+    <script type="text/javascript">
+    var _paq = _paq || [];
+    (function(){ldelim}
+        var u=(("https:" == document.location.protocol) ? "https://{$app_piwik_location}/" : "http://{$app_piwik_location}/");
+        _paq.push(['setSiteId', {$app_piwik_id}]);
+        _paq.push(['setTrackerUrl', u+'piwik.php']);
+        _paq.push(['trackPageView']);
+        _paq.push(['enableLinkTracking']);
+            var d=document,
+                g=d.createElement('script'),
+                s=d.getElementsByTagName('script')[0];
+                g.type='text/javascript';
+                g.defer=true;
+                g.async=true;
+                g.src=u+'piwik.js';
+                s.parentNode.insertBefore(g,s);
+
+    {rdelim} )();
+    </script>
+    <!-- End Piwik Code -->
+{/if}
+
 </head>
