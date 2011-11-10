@@ -1,3 +1,9 @@
+{* URL to View Thesis page *}
+{if $view_record_url}
+    <a href="{$view_record_url}" alt="Click here to view the Thesis">{$view_record_url}</a>
+{/if}
+
+
 The following are the thesis details that have been submitted:
 
 {* Submission details *}

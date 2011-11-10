@@ -67,9 +67,6 @@ $confirmation = new Fez_Workflow_Sfa_Confirm($pid);
 // Get display data to be used by smarty template
 $display_data = $confirmation->getDisplayData();
 
-// Assigns the URL for viewing the thesis' record
-$view_record_url = $confirmation->getViewURL();
-
 // Assigns the record title
 $record_title = $confirmation->getRecordTitle();
 
@@ -81,10 +78,8 @@ $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign("type", 'sfa_student_thesis_confirm');
 $tpl->assign('application_name', APP_NAME);
-$tpl->assign('view_record_url', $view_record_url);
 $tpl->assign('record_title', $record_title);
 $tpl->assign('title', $record_title);
-$tpl->assign('name', $usrDetails['usr_full_name']);
 $tpl->assign("display_data", $display_data);
 
 $tpl->displayTemplate();
