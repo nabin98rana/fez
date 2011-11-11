@@ -83,14 +83,14 @@ class RJL
 		ob_flush();
 
     /* Look for manual matches first because it should be authoritative over any dupe pid/year era id combos */
-        RJL::lookForManualMatches($normalisedCandidateJournals, $manualMatches, $matchesM);
-        echo "Number of manual matches: " . sizeof($matchesM) . "\n";
+        RJL::lookForManualMatches($normalisedCandidateJournals, $manualMatches, $matches);
+        echo "Number after manual matches: " . sizeof($matches) . "\n";
           ob_flush();
 
 
 		/* Look for ISSN matches */
-		RJL::lookForMatchesByISSN($normalisedCandidateISSNs, $normalisedRankedJournalISSNs, $matchesI);
-		echo "Number of ISSN matches: " . sizeof($matchesI) . "\n";
+		RJL::lookForMatchesByISSN($normalisedCandidateISSNs, $normalisedRankedJournalISSNs, $matches);
+		echo "Number after ISSN matches: " . sizeof($matches) . "\n";
         ob_flush();
 		/* Look for title matches (string normalisation and comparison) */
 /*        echo " ranks j s\n";
@@ -98,12 +98,12 @@ class RJL
         echo " candidate j s\n";
         print_r($normalisedCandidateJournals);
 */
-		RJL::lookForMatchesByStringComparison($normalisedCandidateJournals, $normalisedRankedJournals, $matchesT, "T");
-		echo "Number of normalised string matches (journal): " . sizeof($matchesT) . "\n";
+		RJL::lookForMatchesByStringComparison($normalisedCandidateJournals, $normalisedRankedJournals, $matches, "T");
+		echo "Number after normalised string matches (journal): " . sizeof($matches) . "\n";
         ob_flush();
 		/* Look for conference matches (string normalisation and comparison) */
-		RJL::lookForMatchesByStringComparison($normalisedCandidateConferences, $normalisedRankedJournals, $matchesC, "C");
-		echo "Number of normalised string matches (conference): " . sizeof($matchesC) . "\n";
+		RJL::lookForMatchesByStringComparison($normalisedCandidateConferences, $normalisedRankedJournals, $matches, "C");
+		echo "Number after normalised string matches (conference): " . sizeof($matches) . "\n";
         ob_flush();
 		/* Look for similar title matches (uses normalised strings for comparison) */
 		/*RJL::lookForMatchesBySimilarStrings($normalisedCandidateJournals, $normalisedRankedJournals, $matchesS);
@@ -111,7 +111,7 @@ class RJL
 		*/
 		
 		/* Assemble list of all matches */
-		$matches = array_merge($matchesT, $matchesI, $matchesM, $matchesC, $matchesS);
+//		$matches = array_merge($matchesT, $matchesI, $matchesM, $matchesC, $matchesS);
 		echo "Total number of matches: " . sizeof($matches) . "\n";
         ob_flush();
 		/* Subtract matches from list before printing unmatched */
