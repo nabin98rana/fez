@@ -252,13 +252,26 @@ if ($access_ok) {
                 if (is_array($tempArray)) {
                     $xsd_display_fields[$dis_key]["selected_option"] = array();
                     foreach ($tempArray as $cv_key => $cv_value) {
-                        $xsd_display_fields[$dis_key]["selected_option"][$cv_value] = Record::getTitleFromIndex($cv_value);
+                        if (($dis_field["xsdmf_smarty_variable"] != "") && ($dis_field["xsdmf_smarty_variable"] != '$collection_list') && (!empty($cv_value))) {
+                            $smartyFunction = $dis_field["xsdmf_smarty_variable"];
+                            $smartyFunction = str_replace("()", "('".$cv_value."')", $smartyFunction);
+                            eval("\$xsd_display_fields[\$dis_key][\"selected_option\"] += " . $smartyFunction . ";");
+                        } else {
+                            $xsd_display_fields[$dis_key]["selected_option"][$cv_value] = Record::getTitleFromIndex($cv_value);
+                        }
                     }
-                } elseif  (trim($xsd_display_fields[$dis_key]["selected_option"]) != "") {
+                } else {
                     $tempValue = $xsd_display_fields[$dis_key]["selected_option"];
                     $xsd_display_fields[$dis_key]["selected_option"] = array();
-                    $xsd_display_fields[$dis_key]["selected_option"][$tempValue] = Record::getTitleFromIndex($tempValue);
-            	}    
+                    if (($dis_field["xsdmf_smarty_variable"] != "") && (!empty($tempValue)) && ($dis_field["xsdmf_smarty_variable"] != '$collection_list')) {
+                        $smartyFunction = $dis_field["xsdmf_smarty_variable"];
+                        $smartyFunction = str_replace("()", "('".$tempValue."')", $smartyFunction);
+                        eval("\$result = " . $smartyFunction . ";");
+                        $xsd_display_fields[$dis_key]["selected_option"]= $result;
+                    } else {
+                        $xsd_display_fields[$dis_key]["selected_option"][$tempValue] = Record::getTitleFromIndex($tempValue);
+                    }
+            	}
 			}
 
 			if (($dis_field["xsdmf_html_input"] == 'contvocab')
