@@ -17,8 +17,7 @@
 							{assign var="field_id_helper" value="xsd_display_fields_helper_"|cat:$xsdmf.xsdmf_id|cat:"_0"}
 	  					    {assign var="field_name" value="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"][]"}
 	  					    {assign var="field_id" value="xsd_display_fields_"|cat:$xsdmf.xsdmf_id|cat:"_0"}
-
-							<select id="{$field_id}" multiple size="8" style="max-width:400px" class="default" name="{$field_name}">
+							<select id="{$field_id}" multiple size="6" style="max-width:400px" class="default" name="{$field_name}">
 								{if is_array($details[$temp_fld_id])}{html_options options=$details[$temp_fld_id]}{/if}
 							</select>
 							{include file="error_icon.tpl.html" field=$field_name}
@@ -32,7 +31,7 @@
 		        		    {/if}
 						  </td>
 							<td align="left" style="vertical-align: 0;">
-							<select id="{$field_id_helper}" multiple size="8" style="max-width:400px" class="default" name="{$field_name_helper}">
+							<select id="{$field_id_helper}" multiple size="6" style="max-width:400px" class="default" name="{$field_name_helper}">
 							  {html_options options=$xsdmf.field_options}
 							</select>
 							</td>

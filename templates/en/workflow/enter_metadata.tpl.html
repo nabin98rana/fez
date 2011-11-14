@@ -985,13 +985,13 @@
 	  					    {assign var="field_name" value="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"][]"}
 	  					    {assign var="field_id" value="xsd_display_fields_"|cat:$xsdmf.xsdmf_id|cat:"_0"}
 	
-							<select id="{$field_id}" style="max-width:400px" multiple="multiple" size="8" class="default" name="{$field_name}">
+							<select id="{$field_id}" style="max-width:400px" multiple="multiple" size="6" class="default" name="{$field_name}">
 							  {html_options options=$xsdmf.selected_option}
 							</select>
 							{include file="error_icon.tpl.html" field=$field_name}
 						  </td>
 							<td align="left" style="vertical-align: 0;">
-							<select id="{$field_id_helper}" style="max-width:400px" multiple="multiple" size="8"  class="default" name="{$field_name_helper}">
+							<select id="{$field_id_helper}" style="max-width:400px" multiple="multiple" size="6"  class="default" name="{$field_name_helper}">
 							  {html_options options=$xsdmf.field_options}
 							</select>
 							</td>

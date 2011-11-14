@@ -38,7 +38,7 @@
  * of the application.
  *
  * @version 1.0
- * @author João Prado Maia <jpm@mysql.com>
+ * @author Joï¿½o Prado Maia <jpm@mysql.com>
  */
 
 // this will eventually be used to support more than one language
@@ -79,12 +79,13 @@ class Language
 	
 	/**
      * Method used to get an associative array of the 3 char lang code (eg eng) and
-     * full details of a language code
+     * full details of a language code.
+     * Returns a single pair if $single is set to the the required lng_alpha3_bibliographic value
      *
      * @access  public
      * @return  array The list of languages
      */
-    function getAssocList()
+    function getAssocList($single = false)
     {
             $log = FezLog::get();
             $db = DB_API::get();
@@ -96,9 +97,12 @@ class Language
 						} else {
 							$stmt .= " CONCAT(lng_alpha3_bibliographic, ' (', lng_english_name, ')') as name ";							
 						}
-						$stmt .= "
+			$stmt .= "
              FROM
-                " . APP_TABLE_PREFIX . "language
+                " . APP_TABLE_PREFIX . "language";
+            $stmt .= $single ? " WHERE lng_alpha3_bibliographic = ". $db->quote($single) : "";
+
+            $stmt .= "
              ORDER BY
                 lng_alpha3_bibliographic ASC";
             try {
