@@ -1168,6 +1168,14 @@ td.search_multi_input {
     padding:0.5em;
 }
 
+table.search_fields img.ui-datepicker-trigger{
+    cursor: pointer;
+}
+
+.end_date_wrapper{
+    margin-top:15px;
+}
+
 .paging-box {
 	clear:both;
 	position: relative;
