@@ -31,6 +31,7 @@
 // +----------------------------------------------------------------------+
 include_once(APP_INC_PATH . "class.auth.php");
 define("TEST",   		 			false); // limit to 250 records only if TRUE
+define("TEST_WHERE",				''); // Adds this condition to the where statement for eg testing single pids
 define("SIMILARITY_THRESHOLD",		80);    // These similarity functions aren't currently invoked
 define("WINDOW_START",				'2005-01-01 00:00:00');
 
@@ -194,9 +195,9 @@ class RJL
 			SELECT
 				rek_pid AS record_pid,
 				rek_journal_name AS journal_title
-			FROM
+			FROM ".TEST_WHERE."
 				" . APP_TABLE_PREFIX . "record_search_key, " . APP_TABLE_PREFIX . "record_search_key_journal_name, " . APP_TABLE_PREFIX . "xsd_display
-			WHERE
+			WHERE ".TEST_WHERE."
 				" . APP_TABLE_PREFIX . "record_search_key_journal_name.rek_journal_name_pid = " . APP_TABLE_PREFIX . "record_search_key.rek_pid
 				AND rek_display_type = xdis_id
 				AND " . APP_TABLE_PREFIX . "record_search_key.rek_date >= '" . WINDOW_START . "'
@@ -244,7 +245,7 @@ class RJL
 				rek_issn AS issn
 			FROM
 				" . APP_TABLE_PREFIX . "record_search_key, " . APP_TABLE_PREFIX . "record_search_key_issn, " . APP_TABLE_PREFIX . "xsd_display
-			WHERE
+			WHERE ".TEST_WHERE."
 				" . APP_TABLE_PREFIX . "record_search_key_issn.rek_issn_pid = " . APP_TABLE_PREFIX . "record_search_key.rek_pid
 				AND rek_display_type = xdis_id
 				AND " . APP_TABLE_PREFIX . "record_search_key.rek_date >= '" . WINDOW_START . "'
@@ -290,7 +291,7 @@ class RJL
 			SELECT
 				rek_pid AS record_pid,
 				rek_proceedings_title AS conference_name
-			FROM
+			FROM ".TEST_WHERE."
 				" . APP_TABLE_PREFIX . "record_search_key, " . APP_TABLE_PREFIX . "record_search_key_proceedings_title, " . APP_TABLE_PREFIX . "xsd_display
 			WHERE
 				" . APP_TABLE_PREFIX . "record_search_key_proceedings_title.rek_proceedings_title_pid = " . APP_TABLE_PREFIX . "record_search_key.rek_pid
@@ -794,7 +795,9 @@ class RJL
 		
 		foreach ($matches as $match) {
 			$stmt = "INSERT INTO " . APP_TABLE_PREFIX . "matched_journals (mtj_pid, mtj_jnl_id, mtj_status) VALUES ('" . $match['pid'] . "', '" . $match['matching_id'] . "', 'A') ON DUPLICATE KEY UPDATE mtj_jnl_id = '" . $match['matching_id'] . "';";
-//			echo $stmt."\n";
+            if (TEST_WHERE != '') {
+    			echo $stmt."\n";
+            }
             ob_flush();
 			try {
 				$db->exec($stmt);
