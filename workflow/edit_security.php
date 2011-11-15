@@ -176,14 +176,17 @@ foreach ($xsd_display_fields  as $dis_field) {
 
 				}
 			} elseif ($dis_field["xsdmf_html_input"] == 'dual_multiple') {
+                //todo: track back what is placing extra spaces in $cv_value/$tempValue for datastreams with inherent from parent unticked (Ie unparent security on pdf)
                  $tempArray = $details[$dis_field["xsdmf_id"]];
                  if (is_array($tempArray)) {
                      $details[$dis_field["xsdmf_id"]] = array();
                      foreach ($tempArray as $cv_key => $cv_value) {
+                         $cv_value = trim($cv_value);
                          $details[$dis_field["xsdmf_id"]][$cv_value] = $dis_field['field_options'][$cv_value];
                      }
                  } elseif  (trim($details[$dis_field["xsdmf_id"]]) != "") {
                      $tempValue = $details[$dis_field["xsdmf_id"]];
+                     $tempValue = trim($tempValue);
                      $details[$dis_field["xsdmf_id"]] = array();
                      $details[$dis_field["xsdmf_id"]][$tempValue] = $dis_field['field_options'][$tempValue];
                  }
