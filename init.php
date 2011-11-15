@@ -19,7 +19,7 @@
 // | but WITHOUT ANY WARRANTY; without even the implied warranty of       |
 // | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        |
 // | GNU General Public License for more details.                         |
-// |                                                                      |
+// |                                                                      |x
 // | You should have received a copy of the GNU General Public License    |
 // | along with this program; if not, write to:                           |
 // |                                                                      |
@@ -37,6 +37,7 @@ ini_set('allow_url_fopen', 0);
 ini_set("display_errors", 1);
 //error_reporting(1);
 //error_reporting(E_ALL | E_STRICT); //Use this to show all errs. E_ERROR used by default because otherwise PHP4 style code in this code base causes Strict Standards warnings.
+//error_reporting(E_ALL);
 error_reporting(E_ERROR);
 set_time_limit(0);
 date_default_timezone_set("Australia/Brisbane");
@@ -122,7 +123,9 @@ if (APP_LOGGING_ENABLED == "true") {
   }
   $file_log = new Zend_Log();
   $file_log->setEventItem('timestamp', date('m-d-Y H:i:s', time()));
-  $file_log->setEventItem('visitorIp', $_SERVER['REMOTE_ADDR']);
+  if (array_key_exists('REMOTE_ADDR', $_SERVER)) {
+    $file_log->setEventItem('visitorIp', $_SERVER['REMOTE_ADDR']);
+  }
   $file_writer = new Zend_Log_Writer_Stream($log_file);
   $file_writer->addFilter($level);
   $file_formatter = new Zend_Log_Formatter_Simple(
