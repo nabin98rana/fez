@@ -1168,6 +1168,14 @@ td.search_multi_input {
     padding:0.5em;
 }
 
+table.search_fields img.ui-datepicker-trigger{
+    cursor: pointer;
+}
+
+.end_date_wrapper{
+    margin-top:15px;
+}
+
 .paging-box {
 	clear:both;
 	position: relative;
@@ -2286,6 +2294,8 @@ a.author_id_link:hover {
 .claimed-duplication { background: #e4cbf2; }
 .possible-my-pub { background: #d6ffe0; }
 .possible-hide { background: #eaeaea; }
+.float-left { float:left; }
+.float-right{ float:right; }
 
 .upo-staff td {
     padding: 2px 2px 2px 4px;

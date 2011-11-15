@@ -65,6 +65,7 @@ class Fez_BackgroundProcess_Sfa_ConfirmEmail extends BackgroundProcess{
         $pid = '';
         $subject = '';
         $thesis_office_email = '';
+        $log = FezLog::get();
 
         // Set BGP status to running
         $this->setState(BGP_RUNNING);
@@ -95,69 +96,83 @@ class Fez_BackgroundProcess_Sfa_ConfirmEmail extends BackgroundProcess{
 
         // Submission confirmation email
         if(is_numeric($this->confirmation->record->depositor)) {
-            $this->_sendEmail($subject, $thesis_office_email);
+
+            // Send email to user / student
+            $recipient_student = array("name" => $this->usrDetails['usr_full_name'], "email" => $this->usrDetails['usr_email']);
+            if ( !$this->_sendEmail($recipient_student, $subject) ){
+                $log->warn("Failed to send Thesis SFA email to student. PID = ".$pid.". Recipient = " . print_r($recipient_student,1) );
+            }
+
+            // Send email to thesis office
+            $recipient_office = array("name" => $this->usrDetails['usr_full_name'], "email" => $thesis_office_email);
+            if ( !$this->_sendEmail($recipient_office, $subject, true) ){
+                $log->warn("Failed to send Thesis SFA email to thesis office. PID = ".$pid.". Recipient = " . print_r($recipient_office,1) );
+            }
         }
 
-        $this->setStatus("PID: ". $pid . ". <br />" . chr(10)." Email subject: ". $subject );
         // Set BGP status to finished
+        $this->setStatus("PID: ". $pid . ". <br />" . chr(10)." Email subject: ". $subject );
         $this->setState(BGP_FINISHED);
 
-        // @debug Temporary logging for monitoring the attached files
-        $log = FezLog::get();
-        $log->warn("Thesis Files. PID=" . $pid .  ". Total files = " . sizeof($this->attached_files));
     }
 
 
     /**
-     * Prepares email templates and send emails to user and thesis office
-     * @return void
+     * Prepares email templates and send email to specified recipient 
+     * @param array $recipient
+     * @param string $subject
+     * @param bool $show_url
+     * @return bool
      */
-    protected function _sendEmail($subject = 'Your submission has been completed', $thesis_office_email = '')
+    protected function _sendEmail($recipient = array(), $subject = "Your submission has been completed", $show_url = false)
     {
+        if ( !isset($recipient["email"]) || empty($recipient["email"]) ){
+            return false;
+        }
+
         // Plain text email content
         $tplEmail = new Template_API();
         $tplEmail->setTemplate('workflow/emails/sfa_student_thesis_confirm.tpl.txt');
         $tplEmail->assign('application_name', APP_NAME);
         $tplEmail->assign('title', $this->record_title);
-        $tplEmail->assign('name', $this->usrDetails['usr_full_name']);
-        $tplEmail->assign('view_record_url', $this->view_record_url);
         $tplEmail->assign("display_data", $this->display_data);
         $tplEmail->assign("attached_files", $this->attached_files);
+        if ( isset($recipient["name"]) ){
+            $tplEmail->assign("name", $recipient["name"]);
+        }
+        if ( $show_url === true ){
+            $tplEmail->assign("view_record_url", $this->view_record_url);
+        }
 
         $email_txt = $tplEmail->getTemplateContents();
+
 
         // HTML based email content
         $tplEmailHTML = new Template_API();
         $tplEmailHTML->setTemplate('workflow/emails/sfa_student_thesis_confirm.tpl.html');
         $tplEmailHTML->assign('application_name', APP_NAME);
         $tplEmailHTML->assign('title', $this->record_title);
-        $tplEmailHTML->assign('name', $this->usrDetails['usr_full_name']);
-        $tplEmailHTML->assign('view_record_url', $this->view_record_url);
         $tplEmailHTML->assign("display_data", $this->display_data);
         $tplEmailHTML->assign("attached_files", $this->attached_files);
+        if (isset($recipient["name"])){
+            $tplEmailHTML->assign("name", $recipient["name"]);
+        }
+        if ( $show_url === true ){
+            $tplEmailHTML->assign("view_record_url", $this->view_record_url);
+        }
 
         $email_html = $tplEmailHTML->getTemplateContents();
 
-
+        // Send email to the queue
         $mail = new Mail_API;
         $mail->setTextBody(stripslashes($email_txt));
         $mail->setHTMLBody(stripslashes($email_html));
 
-        // Send email to user
         $from = APP_EMAIL_SYSTEM_FROM_ADDRESS;
-        $to = $this->usrDetails['usr_email'];
+        $to = $recipient["email"];
         $mail->send($from, $to, $subject, false);
 
-
-        // Send email to the thesis office
-        if (!empty($thesis_office_email)){
-            // Include the URL to view thesis
-            $view_record_url_text = "\n\n  <a href='".$this->view_record_url."' alt='".$this->view_record_url."'>Click here to view the Thesis</a>";
-            $mail->setTextBody(stripslashes($email_txt) . $view_record_url_text);
-            $view_record_url_html = "<p> <a href='".$this->view_record_url."' alt='View Thesis'>Click here to view the Thesis</a> </p> ";
-            $mail->setHTMLBody(stripslashes($email_html) . $view_record_url_html);
-
-            $mail->send($from, $thesis_office_email, $subject, false);
-        }
+        return true;
     }
+
 }

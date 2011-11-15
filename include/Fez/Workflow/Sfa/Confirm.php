@@ -42,6 +42,9 @@ class Fez_Workflow_Sfa_Confirm{
     // A record object for the pid of the current workflow
     public $record = null;
 
+    // User authority to edit the record
+    public $can_edit_record = false;
+
     // The PID used by the current workflow we are working on
     public $pid = null;
 
@@ -82,6 +85,7 @@ class Fez_Workflow_Sfa_Confirm{
         $record->getDisplay();
 
         $this->record = $record;
+        $this->can_edit_record = $this->record->canEdit();
     }
 
 
@@ -171,10 +175,15 @@ class Fez_Workflow_Sfa_Confirm{
                 continue;
             }
 
+            // 8) 'xsdmf_show_simple_create' filtering. Based on enter_metadata form
+            if ($this->can_edit_record !== true && $field['xsdmf_show_simple_create'] == 0){
+                continue;
+            }
+
             // Get the value
             $field['value'] = $this->_getDisplayValue($field);
 
-            // 8) Empty Static html_input filtering
+            // 9) Empty Static html_input filtering
             // Filter out any static fields that do not have any value
             if ( $field['xsdmf_html_input'] == 'static' && empty($field['value']) ) {
                 continue;
@@ -199,7 +208,6 @@ class Fez_Workflow_Sfa_Confirm{
     {
         $value = $this->submitted_values[$field['xsdmf_id']];
         $display_value = '';
-
         $allow_tags = "<b><i><u><sup><sub><br><p><span><font>";
 
         switch($field['xsdmf_html_input']){
@@ -210,9 +218,14 @@ class Fez_Workflow_Sfa_Confirm{
                 $display_value = $this->_getDualMultipleValue($value);
                 break;
             default:
-                // Strip tags from value other than permitted ones
-                $display_value = strip_tags($value, $allow_tags);
+                $display_value = $value;
         }
+
+        // Strip tags from value other than permitted ones
+        if (is_string($display_value)){
+            $display_value = strip_tags($display_value, $allow_tags);
+        }
+
         return $display_value;
     }
 
@@ -356,13 +369,13 @@ class Fez_Workflow_Sfa_Confirm{
 
         foreach ($datastreams as $datastream){
 
-            // Ignore datasteam that does not have M controlgroup AND not set as Lister
-            if ($datastream['controlGroup'] !== "M" || $datastream['isLister'] != 1){
+            // Ignore datastream that does not have M controlgroup
+            if ($datastream['controlGroup'] !== "M"){
                 continue;
             }
 
-            // Filename
-            if ($datastream['isViewer'] ==1 && isset($accepted_file_types[$datastream['MIMEType']]) ){
+            // Filter the accepted file types
+            if ( isset($accepted_file_types[$datastream['MIMEType']]) ){
                 $output[$c]['filename'] =$datastream['ID'];
             }
 

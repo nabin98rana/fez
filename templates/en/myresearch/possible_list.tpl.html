@@ -42,6 +42,23 @@ function hideBulk()
 	return;
 }
 
+function checkAll()
+{
+    frm = document.getElementById('possibleForm');
+	count = 0;
+	pids = [];
+    tickValue = document.getElementById('untickTop').value == "Tick All Below";
+	for (i = 0; i < frm.bulk_pid.length; i++) {
+		frm.bulk_pid[i].checked = tickValue;
+	}
+    if (tickValue) {
+        document.getElementById('untickTop').value = "Untick All Below";
+        document.getElementById('untickBottom').value = "Untick All Above";
+    } else {
+        document.getElementById('untickTop').value = "Tick All Below";
+        document.getElementById('untickBottom').value = "Tick All Above";
+    }
+}
 //-->
 </script>
 {/literal}
@@ -141,11 +158,11 @@ function hideBulk()
 			        <th></th>
 			    </tr>
                 <tr>
-                      <td colspan="9">
-                          <input type="button" class="possible-hide" value="None of the below ticked publications are mine" onclick="javascript:hideBulk();" />
-                      </td>
-                  </tr>
-
+                    <td colspan="10">
+                        <input type="button" class="possible-hide float-left" value="Tick All Below" id="untickTop" onclick="javascript:checkAll();" />
+                        <input type="button"  class="possible-hide float-right" value="None of the below ticked publications are mine" onclick="javascript:hideBulk();" />
+                  </td>
+                </tr>
 		{/if}
 		<tr class="{if $flagged_possible[$pid].type == 'C'}possible-my-pub{elseif $flagged_possible[$pid].type == 'H'}possible-hide{elseif $list[i].rek_status != '2'}unpublished-pub{/if}">
             <td style="width: 10px;"><input type="checkbox" id="bulk_pid" name="bulk_pid" value="{$list[i].rek_pid}" /><input type="hidden" id="pid" name="pid" value="{$list[i].rek_pid}" /></td>
@@ -267,8 +284,9 @@ function hideBulk()
 	
 		{if $smarty.section.i.last}
         <tr>
-  			<td colspan="9">
-  				<input type="button" class="possible-hide" value="None of the above ticked publications are mine" onclick="javascript:hideBulk();" />
+  			<td colspan="10">
+                <input type="button" class="possible-hide float-left"" id="untickBottom" value="Tick All Above" onclick="javascript:checkAll();" />
+  				<input type="button" class="possible-hide float-right" value="None of the above ticked publications are mine" onclick="javascript:hideBulk();" />
   			</td>
   		</tr>
 			</table>

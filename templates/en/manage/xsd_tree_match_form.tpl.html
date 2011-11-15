@@ -1030,7 +1030,8 @@
 
               {if $info.xsdmf_html_input == 'combo' 
                     || $info.xsdmf_html_input == 'multiple' 
-                        || $info.xsdmf_html_input == 'tree'}
+                        || $info.xsdmf_html_input == 'tree'
+                            || $info.xsdmf_html_input == 'dual_multiple'}
                  {assign var="selectingfield" value=true}
               {else}
                  {assign var="selectingfield" value=false}

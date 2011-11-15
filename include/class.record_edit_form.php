@@ -364,13 +364,30 @@
                             if (is_array($tempArray)) {
                                 $details[$dis_field["xsdmf_id"]] = array();
                                 foreach ($tempArray as $cv_key => $cv_value) {
-                                    $details[$dis_field["xsdmf_id"]][$cv_value] = Record::getTitleFromIndex($cv_value);
+                                    if (!empty($dis_field["xsdmf_smarty_variable"]) && ($dis_field["xsdmf_smarty_variable"] != '$collection_list') && (!empty($cv_value))) {
+                                        $smartyFunction = $dis_field["xsdmf_smarty_variable"];
+                                        $smartyFunction = str_replace("()", "('".$cv_value."')", $smartyFunction);
+                                        eval("\$details[\$dis_field[\"xsdmf_id\"]] += " . $smartyFunction . ";");
+                                    } else {
+                                        $tempValue = Record::getTitleFromIndex($cv_value);
+                                        $details[$dis_field["xsdmf_id"]][$cv_value] = $tempValue ?  $tempValue : $cv_value;
+                                    }
+                                }
+                            }  elseif  (!empty($dis_field["xsdmf_smarty_variable"]) && ($dis_field["xsdmf_smarty_variable"] != '$collection_list')) {
+                                $tempValue = $tempArray;
+                                $xsd_display_fields[$dis_key]["selected_option"] = array();
+                                if (!empty($dis_field["xsdmf_smarty_variable"]) && (!empty($tempValue))) {
+                                    $smartyFunction = $dis_field["xsdmf_smarty_variable"];
+                                    $smartyFunction = str_replace("()", "('".$tempValue."')", $smartyFunction);
+                                    eval("\$result = " . $smartyFunction . ";");
+                                    $details[$dis_field["xsdmf_id"]] = array();
+                                    $details[$dis_field["xsdmf_id"]][$tempValue] = $result[$tempValue];
                                 }
                             } elseif  (trim($details[$dis_field["xsdmf_id"]]) != "") {
                                 $tempValue = $details[$dis_field["xsdmf_id"]];
                                 $details[$dis_field["xsdmf_id"]] = array();
                                 $details[$dis_field["xsdmf_id"]][$tempValue] = Record::getTitleFromIndex($tempValue);
-                            }    
+                            }
  
 						} elseif ($dis_field["xsdmf_html_input"] == 'customvocab_suggest') {
 							$lookupFunction = $dis_field["sek_lookup_function"];
