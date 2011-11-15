@@ -392,7 +392,7 @@ class RJL
 		array("jnl_id" => "21691", "title"  => "langmuir", "jnl_era_year" => 2012),
 		array("jnl_id" => "7059", "title"  => "journal of experimental biology", "jnl_era_year" => 2010),
 		array("jnl_id" => "22137", "title"  => "journal of experimental biology", "jnl_era_year" => 2012),
-		array("jnl_id" => "2616", "title"  => "journal of physical chemistry b", "jnl_era_year" => 2010)
+		array("jnl_id" => "2616", "title"  => "journal of physical chemistry b", "jnl_era_year" => 2010),
 		array("jnl_id" => "21680", "title"  => "journal of physical chemistry b", "jnl_era_year" => 2012)
 		);
 		echo "done.\n";
