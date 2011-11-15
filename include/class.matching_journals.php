@@ -32,7 +32,7 @@
 include_once(APP_INC_PATH . "class.auth.php");
 define("TEST",   		 			false); // limit to 250 records only if TRUE
 define("SIMILARITY_THRESHOLD",		80);    // These similarity functions aren't currently invoked
-define("WINDOW_START",				'2003-01-01 00:00:00');
+define("WINDOW_START",				'2005-01-01 00:00:00');
 
 class RJL
 {
@@ -370,18 +370,30 @@ class RJL
 	{
 		echo "Retrieving list of manual matches ... ";
 		$manualMatches = array(
-		array("jnl_id" => "1017", "title"  => "physical review a", "jnl_era_year" => 2010),
-		array("jnl_id" =>"1131", "title"  => "physical review b", "jnl_era_year" => 2010),
-		array("jnl_id" =>"40222", "title"  => "british medical journal", "jnl_era_year" => 2010),
-		array("jnl_id" =>"9242", "title"  => "media international australia", "jnl_era_year" => 2010),
-		array("jnl_id" =>"18714", "title"  => "arena magazine", "jnl_era_year" => 2010),
-		array("jnl_id" =>"15305", "title"  => "cochrane database of systematic reviews", "jnl_era_year" => 2010),
-		array("jnl_id" =>"2110", "title"  => "proceedings of the national academy of sciences of the united states of america", "jnl_era_year" => 2010),
-		array("jnl_id" =>"15320", "title"  => "lancet", "jnl_era_year" => 2010),
-		array("jnl_id" =>"4674", "title"  => "environmental science and technology", "jnl_era_year" => 2010),
-		array("jnl_id" =>"1479", "title"  => "langmuir", "jnl_era_year" => 2010),
-		array("jnl_id" =>"2090", "title"  => "journal of experimental biology", "jnl_era_year" => 2010),
-		array("jnl_id" =>"1467", "title"  => "journal of physical chemistry b", "jnl_era_year" => 2010)
+		array("jnl_id" => "108", "title"  => "physical review a", "jnl_era_year" => 2010),
+		array("jnl_id" => "21332", "title"  => "physical review a", "jnl_era_year" => 2012),
+		array("jnl_id" => "757", "title"  => "physical review b", "jnl_era_year" => 2010),
+		array("jnl_id" => "21432", "title"  => "physical review b", "jnl_era_year" => 2012),
+		array("jnl_id" => "13933", "title"  => "british medical journal", "jnl_era_year" => 2010),
+		array("jnl_id" => "39113", "title"  => "british medical journal", "jnl_era_year" => 2012),
+		array("jnl_id" => "20157", "title"  => "media international australia", "jnl_era_year" => 2010),
+		array("jnl_id" => "27279", "title"  => "media international australia", "jnl_era_year" => 2012),
+		array("jnl_id" => "5615", "title"  => "arena magazine", "jnl_era_year" => 2010),
+		array("jnl_id" => "32629", "title"  => "arena magazine", "jnl_era_year" => 2012),
+		array("jnl_id" => "3083", "title"  => "cochrane database of systematic reviews", "jnl_era_year" => 2010),
+		array("jnl_id" => "30396", "title"  => "cochrane database of systematic reviews", "jnl_era_year" => 2012),
+		array("jnl_id" => "7153", "title"  => "proceedings of the national academy of sciences of the united states of america", "jnl_era_year" => 2010),
+		array("jnl_id" => "22152", "title"  => "proceedings of the national academy of sciences of the united states of america", "jnl_era_year" => 2012),
+		array("jnl_id" => "3100", "title"  => "lancet", "jnl_era_year" => 2010),
+		array("jnl_id" => "30411", "title"  => "lancet", "jnl_era_year" => 2012),
+		array("jnl_id" => "16667", "title"  => "environmental science and technology", "jnl_era_year" => 2010),
+		array("jnl_id" => "24080", "title"  => "environmental science and technology", "jnl_era_year" => 2012),
+		array("jnl_id" => "2724", "title"  => "langmuir", "jnl_era_year" => 2010),
+		array("jnl_id" => "21691", "title"  => "langmuir", "jnl_era_year" => 2012),
+		array("jnl_id" => "7059", "title"  => "journal of experimental biology", "jnl_era_year" => 2010),
+		array("jnl_id" => "22137", "title"  => "journal of experimental biology", "jnl_era_year" => 2012),
+		array("jnl_id" => "2616", "title"  => "journal of physical chemistry b", "jnl_era_year" => 2010)
+		array("jnl_id" => "21680", "title"  => "journal of physical chemistry b", "jnl_era_year" => 2012)
 		);
 		echo "done.\n";
 		
