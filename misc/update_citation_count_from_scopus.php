@@ -33,6 +33,7 @@
 include_once dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'config.inc.php';
 include_once(APP_INC_PATH . 'class.scopus.php');
 include_once(APP_INC_PATH . "class.record.php");
+include_once(APP_INC_PATH . "class.fulltext_queue.php");
 
 $max = 100; 	// Max number of primary key IDs to send with each service request call
 $sleep = 1; 	// Number of seconds to wait for between successive service calls 
@@ -80,7 +81,9 @@ for($i=0; $i<((int)$listing['info']['total_pages']+1); $i++) {
 			}
 			Record::updateScopusCitationCount($pid, $count, $eid);
 		}
-		
+        if ( APP_SOLR_INDEXER == "ON" ) {
+          FulltextQueue::singleton()->commit();
+        }
 		sleep($sleep); // Wait before using the service again		
 	}
 }
