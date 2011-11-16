@@ -68,9 +68,8 @@ function validateAccount(f)
 	  <table style="width: 100%; background: white;">
 		<tr style="background: {$heading_color};">
 
-          <td class="default_white" colspan="2">
+          <td class="default_white" colspan="2" height="20px">
             <b>User Details</b>
-            {include file="help_link.tpl.html" topic="preferences"}
           </td>
         </tr>
         {if $update_name_result}
@@ -235,9 +234,8 @@ function validateAccount(f)
 		</div>
       <table style="width: 100%; background: white;">
         <tr style="background: {$heading_color};">
-          <td class="default_white" colspan="2">
+          <td class="default_white" colspan="2" height="20px">
             <b>Account Preferences</b>
-            {include file="help_link.tpl.html" topic="preferences"}
           </td>
         </tr>
 
@@ -285,7 +283,7 @@ function validateAccount(f)
 				<option label="Yes" value="yes" {if $user_prefs.remember_search_params == 'yes'}selected="selected"{/if}>Yes</option>
             </select>
 			  <br />
-			  <span style="font-size: 10px;">Remember your search parameters each time you go to the search form.</span>
+			  <span style="font-size: 10px;">Remember your search parameters each time you go to the advanced search form.</span>
           </td>
         </tr>
         <tr>
@@ -306,9 +304,8 @@ function validateAccount(f)
     <td>
       <table style="background: #FFFFFF; width: 100%;" cellspacing="1" cellpadding="2">
         <tr style="background: {$heading_color};">
-          <td class="default_white" colspan="2">
+          <td class="default_white" colspan="2" height="20px">
             <b>Shibboleth Attributes</b>
-            {include file="help_link.tpl.html" topic="preferences"}
           </td>
         </tr>
 		{section name="i" loop=$shibAttribs}
