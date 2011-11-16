@@ -29,18 +29,20 @@ class RecordObject extends RecordGeneral
 	 * the tombstone table.
 	 * @param <string> $pid
 	 */
-	function tombstone($pid)
+	function tombstone($pid, $rel_pid)
 	{
 	    $db = DB_API::get();
-	    $relatives = $this->getParents();
+	    //$relatives = $this->getParents();
 	    $dte = gmdate('Y-m-d H:i:s');
 	    
 	    $sql = "INSERT INTO " . APP_TABLE_PREFIX . "tombstone " 
-	        . "(tom_pid_main, tom_pid_rel, tom_delete_ts) VALUES ";
+	        . "(tom_pid_main, tom_pid_rel, tom_delete_ts) VALUES "
+	        . "(:mainpid, :relpid, '$dte')";
 	        
-	    $bindings = array();
+	    $bindings = array(':mainpid' => $pid,
+	                        ':relpid' => $rel_pid);
 	    
-	    if(count($relatives) > 0)
+	    /*if(count($relatives) > 0)
 	    {
     	    for($i=0;$i<count($relatives);$i++)
     	    {
@@ -55,7 +57,7 @@ class RecordObject extends RecordGeneral
 	    {
 	        $sql .= "(:mainpid, null, '$dte')";
 	        $bindings[':mainpid'] = $pid;
-	    }
+	    }*/
 	    
 	    $db->query($sql, $bindings);
 	}

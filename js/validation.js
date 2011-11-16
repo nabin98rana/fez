@@ -158,6 +158,27 @@ function hasOneSelected(f, field_name)
     return false;
 }
 
+/**
+ * Check if a select field has an option with value selected.
+ * Return false when there is no option selected or selected value is empty, otherwise return true.
+ * @param f
+ * @param field_name
+ */
+function hasOneSelectedValue( f, field_name )
+{
+    for (var i = 0; i < f.elements.length; i++) {
+        if (f.elements[i].name == field_name) {
+            var multi = f.elements[i];
+            for (var y = 0; y < multi.options.length; y++) {
+                if (multi.options[y].selected && multi.options[y].value!="") {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
 function hasSelected(field, value)
 {
     return field.options[field.selectedIndex].value == value;

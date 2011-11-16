@@ -29,15 +29,21 @@
 // +----------------------------------------------------------------------+
 // | Authors: Lachlan Kuhn <l.kuhn@library.uq.edu.au>                     |
 // +----------------------------------------------------------------------+
-
+include_once(APP_INC_PATH . "class.auth.php");
 define("TEST",   		 			false); // limit to 250 records only if TRUE
 define("SIMILARITY_THRESHOLD",		80);    // These similarity functions aren't currently invoked
 define("WINDOW_START",				'2003-01-01 00:00:00');
 
 class RJL
 {
+    var $dupeList = "";
+    var $previousCount = 0;
+    var $runType = "0";
+
 	function matchAll()
 	{
+        $userDetails = User::getDetailsByID(APP_SYSTEM_USER_ID);
+        Auth::createLoginSession($userDetails['usr_username'], $userDetails['usr_full_name'], $userDetails['usr_email'], '');
 		echo "======================================\n";
 		echo "RJL Matching Utility\n";
 		echo date('d/m/Y H:i:s') . "\n";
@@ -75,9 +81,16 @@ class RJL
 		echo "Number of ranked journals: " . sizeof($rankedJournals) . "\n";
 		echo "Number of ranked ISSNs: " . sizeof($normalisedRankedJournalISSNs) . "\n";
 		ob_flush();
+
+    /* Look for manual matches first because it should be authoritative over any dupe pid/year era id combos */
+        RJL::lookForManualMatches($normalisedCandidateJournals, $manualMatches, $matches);
+        echo "Number after manual matches: " . sizeof($matches) . "\n";
+          ob_flush();
+
+
 		/* Look for ISSN matches */
-		RJL::lookForMatchesByISSN($normalisedCandidateISSNs, $normalisedRankedJournalISSNs, $matchesI);
-		echo "Number of ISSN matches: " . sizeof($matchesI) . "\n";
+		RJL::lookForMatchesByISSN($normalisedCandidateISSNs, $normalisedRankedJournalISSNs, $matches);
+		echo "Number after ISSN matches: " . sizeof($matches) . "\n";
         ob_flush();
 		/* Look for title matches (string normalisation and comparison) */
 /*        echo " ranks j s\n";
@@ -85,24 +98,20 @@ class RJL
         echo " candidate j s\n";
         print_r($normalisedCandidateJournals);
 */
-		RJL::lookForMatchesByStringComparison($normalisedCandidateJournals, $normalisedRankedJournals, $matchesT, "T");
-		echo "Number of normalised string matches (journal): " . sizeof($matchesT) . "\n";
+		RJL::lookForMatchesByStringComparison($normalisedCandidateJournals, $normalisedRankedJournals, $matches, "T");
+		echo "Number after normalised string matches (journal): " . sizeof($matches) . "\n";
         ob_flush();
 		/* Look for conference matches (string normalisation and comparison) */
-		RJL::lookForMatchesByStringComparison($normalisedCandidateConferences, $normalisedRankedJournals, $matchesC, "C");
-		echo "Number of normalised string matches (conference): " . sizeof($matchesC) . "\n";
+		RJL::lookForMatchesByStringComparison($normalisedCandidateConferences, $normalisedRankedJournals, $matches, "C");
+		echo "Number after normalised string matches (conference): " . sizeof($matches) . "\n";
         ob_flush();
 		/* Look for similar title matches (uses normalised strings for comparison) */
 		/*RJL::lookForMatchesBySimilarStrings($normalisedCandidateJournals, $normalisedRankedJournals, $matchesS);
 		echo "Number of similar string matches: " . sizeof($matchesS) . "\n";
 		*/
 		
-		/* Look for manual matches */
-		RJL::lookForManualMatches($normalisedCandidateJournals, $manualMatches, $matchesM);
-		echo "Number of manual matches: " . sizeof($matchesM) . "\n";
-        ob_flush();
 		/* Assemble list of all matches */
-		$matches = array_merge($matchesT, $matchesI, $matchesM, $matchesC, $matchesS);
+//		$matches = array_merge($matchesT, $matchesI, $matchesM, $matchesC, $matchesS);
 		echo "Total number of matches: " . sizeof($matches) . "\n";
         ob_flush();
 		/* Subtract matches from list before printing unmatched */
@@ -120,6 +129,8 @@ class RJL
 		echo "Number of manual matches: " . sizeof($matchesM) . "\n";
 		echo "Total number of matches: " . sizeof($matches) . "\n";
         ob_flush();
+        echo "Dupe list:\n\n".$this->dupeList."\n";
+
 /*
 		// PRINT UNMATCHED JOURNALS (SPECIAL CASE)
 		// Remove the title matches from the original candidate journal list
@@ -139,14 +150,22 @@ class RJL
 		$nonMatchingConferences = array_diff($nonMatchingConferences, RJL::keyMasterList($matchesC)); // Next remove the manual matches
 		echo "Number of non-matching conferences after manual match subtraction: " . sizeof($nonMatchingConferences) . "\n";
 		*/
-		
+
+        // Email the dupes list to the espace admin email address
+        $mail = new Mail_API;
+       	$mail->setTextBody(stripslashes($this->dupeList));
+       	$subject = '['.APP_NAME.'] - Duplicate Journal Matches found, please resolve manually using manual matching';
+       	$from = APP_EMAIL_SYSTEM_FROM_ADDRESS;
+       	$to = APP_ADMIN_EMAIL;
+       	$mail->send($from, $to, $subject, false);
+
+
 		/* Subtract from any match results those PIDs that are either black-listed, or manually mapped */
 		$matches = array_diff_key($matches, matching::getMatchingExceptions("J"));
 		echo " About to run inserts \n";
         ob_flush();
 		/* Insert all the found matches */
 		RJL::runInserts($matches);
-		
 		return;
 	}
 	
@@ -318,7 +337,8 @@ class RJL
 		$stmt = "
 			SELECT
 				jnl_id AS jnl_id,
-				jnl_journal_name AS title
+				jnl_journal_name AS title,
+				jnl_era_year
 			FROM
 				" . APP_TABLE_PREFIX . "journal
 			ORDER BY
@@ -333,12 +353,12 @@ class RJL
 			return '';
 		}
 		
-		if (count($result) > 0) {
-			foreach ($result as $key => $row) {
-		    	$rankedJournals[$row['jnl_id']] = $row['title'];
-		    }
-		}
-		
+//		if (count($result) > 0) {
+//			foreach ($result as $row) {
+//		    	$rankedJournals[$row['jnl_id']] = $row['title'];
+//		    }
+//		}
+		$rankedJournals = $result;
 		echo "done.\n";
 		
 		return $rankedJournals;
@@ -350,18 +370,18 @@ class RJL
 	{
 		echo "Retrieving list of manual matches ... ";
 		$manualMatches = array(
-			"1017" => "physical review a",
-			"1131" => "physical review b",
-			"40222" => "british medical journal",
-			"9242" => "media international australia",
-			"18714" => "arena magazine",
-			"15305" => "cochrane database of systematic reviews",
-			"2110" => "proceedings of the national academy of sciences of the united states of america",
-			"15320" => "lancet",
-			"4674" => "environmental science and technology",
-			"1479" => "langmuir",
-			"2090" => "journal of experimental biology",
-			"1467" => "journal of physical chemistry b"
+		array("jnl_id" => "1017", "title"  => "physical review a", "jnl_era_year" => 2010),
+		array("jnl_id" =>"1131", "title"  => "physical review b", "jnl_era_year" => 2010),
+		array("jnl_id" =>"40222", "title"  => "british medical journal", "jnl_era_year" => 2010),
+		array("jnl_id" =>"9242", "title"  => "media international australia", "jnl_era_year" => 2010),
+		array("jnl_id" =>"18714", "title"  => "arena magazine", "jnl_era_year" => 2010),
+		array("jnl_id" =>"15305", "title"  => "cochrane database of systematic reviews", "jnl_era_year" => 2010),
+		array("jnl_id" =>"2110", "title"  => "proceedings of the national academy of sciences of the united states of america", "jnl_era_year" => 2010),
+		array("jnl_id" =>"15320", "title"  => "lancet", "jnl_era_year" => 2010),
+		array("jnl_id" =>"4674", "title"  => "environmental science and technology", "jnl_era_year" => 2010),
+		array("jnl_id" =>"1479", "title"  => "langmuir", "jnl_era_year" => 2010),
+		array("jnl_id" =>"2090", "title"  => "journal of experimental biology", "jnl_era_year" => 2010),
+		array("jnl_id" =>"1467", "title"  => "journal of physical chemistry b", "jnl_era_year" => 2010)
 		);
 		echo "done.\n";
 		
@@ -380,8 +400,10 @@ class RJL
 
 		$stmt = "
 			SELECT
-				jni_issn AS issn,
-				" . APP_TABLE_PREFIX . "journal.jnl_id
+				jni_issn,
+				jni_id,
+				jnl_era_year,
+				jnl_id
 			FROM
 				" . APP_TABLE_PREFIX . "journal,
 				" . APP_TABLE_PREFIX . "journal_issns
@@ -402,8 +424,10 @@ class RJL
 		
 		if (count($result) > 0) {
 			foreach ($result as $key => $row) {
-		    	$issn = RJL::normaliseISSN($row['issn']);
-		    	$rankedJournalISSNs[$issn] = $row['jnl_id'];
+                $issn = RJL::normaliseISSN($row['jni_issn']);
+                $rankedJournalISSNs[$row['jni_id']]['jni_issn'] = $issn;
+                $rankedJournalISSNs[$row['jni_id']]['jnl_id'] = $row['jnl_id'];
+                $rankedJournalISSNs[$row['jni_id']]['jnl_era_year'] = $row['jnl_era_year'];
 		    }
 		}
 		
@@ -417,7 +441,7 @@ class RJL
 	function normaliseListOfTitles($titles)
 	{
 		foreach ($titles as &$title) {
-			$title = RJL::normaliseTitle($title);
+			$title['title'] = RJL::normaliseTitle($title['title']);
 		}
 		
 		return $titles;
@@ -473,35 +497,55 @@ class RJL
 	
 	function lookForMatchesByISSN($check, $against, &$matches)
 	{
-		echo "Running ISSN match ... ";
-		
+		echo "Running ISSN match ... \n";
+        $bgp = new BackgroundProcess();
+        $bgp->register(array(), Auth::getUserID());
+        $eta_cfg = $bgp->getETAConfig();
 		/* Step through each source item */
+        $counter = 0;
+        $this->previousCount = 0;
+        $record_count = count($check);
 		foreach ($check as $sourceKey => $sourceVal) {
-			
+			$counter++;
 			/* Reset match position and value */
 			$earliestMatch = '';
 			$earliestMatchPosition = 999999;
-			
-			/* Attempt to match it against each target item */
-			foreach ($against as $targetKey => $targetVal) {
-				/* Look for the target strng inside the source */
-				
-				if (substr_count($sourceVal, $targetKey) > 0) {
-					$pos = strpos($sourceVal, $targetKey);
+            // Get the ETA calculations
+            if (($this->runType == "1" || $counter == 10) && $counter % 10 == 0 || $counter == $record_count) {
+                $eta = $bgp->getETA($counter, $record_count, $eta_cfg);
 
-					/* Store the earliest occuring match */					
-					if ($pos < $earliestMatchPosition) {
-						$earliestMatch = $targetVal;
-						$earliestMatchPosition = $pos;
-					}
-					
+                $msg = "(" . $counter . "/" . $record_count . ") ".
+                     "(Avg " . $eta['time_per_object'] . "s per Object. " .
+                     "Expected Finish " . $eta['expected_finish'] . ")";
+                if ($this->previousCount != 0) {
+                    for($x = 0; $x<$this->previousCount; $x++) {
+                        echo "\x08"; //echo a backspace
+                    }
+                }
+                echo $msg;
+                $this->previousCount = strlen($msg);
+
+                ob_flush();
+            }
+			/* Attempt to match it against each target item */
+			foreach ($against as $targetVal) {
+				/* Look for the target strng inside the source */
+				if (substr_count($sourceVal, $targetVal['jni_issn']) > 0) { //haystack, needle
+                    $existsAlready = false;
+                    foreach ($matches as $match) {
+                        if ($match['year'] == $targetVal['jnl_era_year'] && $match['pid'] == $sourceKey) {
+                            $existsAlready = true;
+                            $this->dupeList .= "Found ".$sourceKey." matched more than once on journal ISSN.\n ".
+                                "PID Journal name: ".$sourceVal."\n".
+                                "Existing Match jnl_id: ".$match['matching_id']." - Year: ".$match['year']."\n".
+                                "New Candidate Match: ".$targetVal['jnl_id']." - Year: ".$targetVal['jnl_era_year']."\n\n";
+                        }
+                    }
+                    if ($existsAlready !== true) {
+                        $matches[] = array('pid' => $sourceKey, 'matching_id' => $targetVal['jnl_id'], 'year' => $targetVal['jnl_era_year']);
+                    }
 					//echo "I";
 				}
-			}
-
-			if ($earliestMatchPosition < 999999) {
-                $matches[] = array('pid' => $sourceKey, 'matching_id' => $earliestMatch);
-//				$matches[$sourceKey] = $earliestMatch;
 			}
 		}
 		
@@ -515,20 +559,62 @@ class RJL
 	function lookForMatchesByStringComparison($check, $against, &$matches, $type)
 	{
 		echo "Running normalised string match ... ";
+        $bgp = new BackgroundProcess();
+        $bgp->register(array(), Auth::getUserID());
+        $eta_cfg = $bgp->getETAConfig();
+		/* Step through each source item */
+        $counter = 0;
+        $record_count = count($check);
+        $this->previousCount = 0;
         ob_flush();
 		/* Step through each source item */
 		foreach ($check as $sourceKey => $sourceVal) {
+            $counter++;
+            // Get the ETA calculations
+            if (($this->runType == "1" || $counter == 10) && $counter % 10 == 0 || $counter == $record_count) {
+                $eta = $bgp->getETA($counter, $record_count, $eta_cfg);
+
+                $msg = "(" . $counter . "/" . $record_count . ") ".
+                     "(Avg " . $eta['time_per_object'] . "s per Object. " .
+                     "Expected Finish " . $eta['expected_finish'] . ")";
+                if ($this->previousCount != 0) {
+                    for($x = 0; $x<$this->previousCount; $x++) {
+                        echo "\x08"; //echo a backspace
+                    }
+                }
+                echo $msg;
+                $this->previousCount = strlen($msg);
+
+                ob_flush();
+            }
 
 			/* Attempt to match it against each target item */
-			foreach ($against as $targetKey => $targetVal) {
+			foreach ($against as $targetVal) {
 				/* Test for exact string match */
-				if ($sourceVal == $targetVal) {
+				if ($sourceVal == $targetVal['title']) {
 					//echo $type;
 //					$matches[$sourceKey] = $targetKey;
-					$matches[] = array('pid' => $sourceKey, 'matching_id' => $targetKey);
+                    $existsAlready = false;
+                    foreach ($matches as $match) {
+                        if ($match['year'] == $targetVal['jnl_era_year'] && $match['pid'] == $sourceKey) {
+                            $existsAlready = true;
+                            $this->dupeList .= "Found ".$sourceKey." matched more than once on a journal name.\n ".
+                                "PID Journal name: ".$sourceVal."\n".
+                                "Existing Match jnl_id: ".$match['matching_id']." - Year: ".$match['year']."\n".
+                                "New Candidate Match: ".$targetVal['jnl_id']." - Year: ".$targetVal['jnl_era_year']."\n\n";
+                        }
+                    }
+                    if ($existsAlready !== true) {
+                        $matches[] = array('pid' => $sourceKey, 'matching_id' => $targetVal['jnl_id'], 'year' => $targetVal['jnl_era_year']);
+                    }
+
+
+
+//					$matches[] = array('pid' => $sourceKey, 'matching_id' => $targetKey);
 				}
 			}
 		}
+        $bgp->setState(2);
 		echo " done.\n";
 		
 		return;
@@ -539,22 +625,64 @@ class RJL
 	function lookForMatchesBySimilarStrings($check, $against, &$matches)
 	{
 		echo "Running similar strings match ... ";
-		
+
+        $bgp = new BackgroundProcess();
+        $bgp->register(array(), Auth::getUserID());
+        $eta_cfg = $bgp->getETAConfig();
+		/* Step through each source item */
+        $counter = 0;
+        $record_count = count($check);
+        $this->previousCount = 0;
 		/* Step through each source item */
 		foreach ($check as $sourceKey => $sourceVal) {
+            $counter++;
+            // Get the ETA calculations
+            if (($this->runType == "1" || $counter == 10) && $counter % 10 == 0 || $counter == $record_count) {
+                $eta = $bgp->getETA($counter, $record_count, $eta_cfg);
+
+                $msg = "(" . $counter . "/" . $record_count . ") ".
+                     "(Avg " . $eta['time_per_object'] . "s per Object. " .
+                     "Expected Finish " . $eta['expected_finish'] . ")";
+                if ($this->previousCount != 0) {
+                    for($x = 0; $x<$this->previousCount; $x++) {
+                        echo "\x08"; //echo a backspace
+                    }
+                }
+                echo $msg;
+                $this->previousCount = strlen($msg);
+
+                ob_flush();
+            }
 			foreach ($against as $targetKey => $targetVal) {
-				similar_text($sourceVal, $targetVal, $similarity);
+				similar_text($sourceVal, $targetVal['title'], $similarity);
 				if ($similarity > SIMILARITY_THRESHOLD && $similarity != 100) {
+
+
+                    $existsAlready = false;
+                    foreach ($matches as $match) {
+                        if ($match['year'] == $targetVal['jnl_era_year'] && $match['pid'] == $sourceKey) {
+                            $existsAlready = true;
+                            $this->dupeList .= "Found ".$sourceKey." matched more than once on a similar journal name.\n ".
+                                "PID Journal name: ".$sourceVal."\n".
+                                "Existing Match jnl_id: ".$match['matching_id']." - Year: ".$match['year']."\n".
+                                "New Candidate Match: ".$targetVal['jnl_id']." - Year: ".$targetVal['jnl_era_year']."\n\n";
+                        }
+                    }
+                    if ($existsAlready !== true) {
+                        $matches[] = array('pid' => $sourceKey, 'matching_id' => $targetVal['jnl_id'], 'year' => $targetVal['jnl_era_year']);
+                    }
+
+
 					//echo $sourceVal . " :: " . $targetVal . "\n"; // LKDB
 					//echo "Similarity = " . $similarity . "%\n\n"; // LKDB
 					
 					//echo "S";
 //					$matches[$sourceKey] = $targetKey;
-                    $matches[] = array('pid' => $sourceKey, 'matching_id' => $targetKey);
+//                    $matches[] = array('pid' => $sourceKey, 'matching_id' => $targetKey);
 				}
 			}
 		}
-		
+        $bgp->setState(2);
 		echo " done.\n";
 		
 		return;
@@ -579,20 +707,53 @@ class RJL
 	
 	function lookForManualMatches($check, $manualMatches, &$matches)
 	{
-		echo "Checking un-matched journals for manual matches... ";
-		
+		echo "Checking un-matched journals for manual matches... \n";
+        $bgp = new BackgroundProcess();
+        $bgp->register(array(), Auth::getUserID());
+        $eta_cfg = $bgp->getETAConfig();
+		/* Step through each source item */
+        $counter = 0;
+        $record_count = count($check);
+        $this->previousCount = 0;
 		foreach ($check as $sourceKey => $sourceVal) {
+            $counter++;
+            if (($this->runType == "1" || $counter == 10) && $counter % 10 == 0 || $counter == $record_count) {
+                $eta = $bgp->getETA($counter, $record_count, $eta_cfg);
+                $msg = "(" . $counter . "/" . $record_count . ") ".
+                     "(Avg " . $eta['time_per_object'] . "s per Object. " .
+                     "Expected Finish " . $eta['expected_finish'] . ")";
+                ob_flush();
+                if ($this->previousCount != 0) {
+                    for($x = 0; $x<$this->previousCount; $x++) {
+                        echo "\x08"; //echo a backspace
+                    }
+                }
+                echo $msg;
+                $this->previousCount = strlen($msg);
+
+                ob_flush();
+
+            }
 			/* Attempt to match it against each target item */
-			foreach ($manualMatches as $targetKey => $targetVal) {
+			foreach ($manualMatches as $targetVal) {
 				/* Test for exact string match */
-				if ($sourceVal == $targetVal) {
+				if ($sourceVal == $targetVal['title']) {
 					//echo "M";
 //					$matches[$sourceKey] = $targetKey;
-                    $matches[] = array('pid' => $sourceKey, 'matching_id' => $sourceKey);
+                    $existsAlready = false;
+                    foreach ($matches as $match) {
+                        if ($match['year'] == $targetVal['jnl_era_year'] && $match['pid'] == $sourceKey && $match['matching_id'] == $targetVal['jnl_id']) {
+                            $existsAlready = true;
+                        }
+                    }
+                    if ($existsAlready !== true) {
+                        $matches[] = array('pid' => $sourceKey, 'matching_id' => $targetVal['jnl_id'], 'year' => $targetVal['jnl_era_year']);
+                    }
+//                    $matches[] = array('pid' => $sourceKey, 'matching_id' => $sourceKey);
 				}				
 			}
 		}
-		
+		$bgp->setState(2);
 		echo " done!\n";
 		
 		return;
@@ -617,7 +778,7 @@ class RJL
 		$log = FezLog::get();
 		$db = DB_API::get();
 		
-		echo "Running insertion queries on eSpace database ... ";
+		echo "Running ".count($matches)." insertion queries on eSpace database ... ";
 		
 		foreach ($matches as $match) {
 			$stmt = "INSERT INTO " . APP_TABLE_PREFIX . "matched_journals (mtj_pid, mtj_jnl_id, mtj_status) VALUES ('" . $match['pid'] . "', '" . $match['matching_id'] . "', 'A') ON DUPLICATE KEY UPDATE mtj_jnl_id = '" . $match['matching_id'] . "';";

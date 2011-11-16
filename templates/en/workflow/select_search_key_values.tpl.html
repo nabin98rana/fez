@@ -1,0 +1,27 @@
+{if $field_type=="select_date"}
+
+    {* HTML select date plugin, to produce a formatted select date input *}
+    {html_select_date
+        reverse_years=$reverse_years
+        display_days=$display_days
+        display_months=$display_months
+        time=$full_date
+        month_empty=""
+        year_empty=""
+        day_empty=""
+        prefix = ""
+        field_array="$input_name"
+        start_year="$start_year"
+        end_year="$end_year"
+        all_extra=""
+    }
+
+{else}
+
+    {* Default select drop down input *}
+    {html_options
+        options = $options
+        name = $input_name
+    }
+
+{/if}

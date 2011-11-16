@@ -34,7 +34,10 @@ include_once dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'config.inc.php';
 include_once(APP_INC_PATH . "class.matching.php");
 include_once(APP_INC_PATH . "class.matching_journals.php");
 
+$runType = strtolower($argv[1]);
+
 $matcheroo = new RJL();
+$matcheroo->runType = $runType;
 $matcheroo->matchAll();
 
 echo "RJL matching done!\n";

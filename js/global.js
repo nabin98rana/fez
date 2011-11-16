@@ -813,4 +813,19 @@ function swapDropDownValues(dropDownOne, DropDownTwo)
     DropDownTwo.options[DropDownTwo.selectedIndex].text = tmpDropDownText;
     DropDownTwo.options[DropDownTwo.selectedIndex].value = tmpDropDownVal;
 }
+
+/**
+ * Dynamically load a javascript file
+ * @param filename
+ */
+function loadJsFile(filename)
+{
+    var file_include = document.createElement('script');
+    file_include.setAttribute("type","text/javascript");
+    file_include.setAttribute("src", filename);
+
+    document.getElementsByTagName("head")[0].appendChild(file_include);
+}
+
+
 //-->

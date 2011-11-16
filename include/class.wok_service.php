@@ -124,7 +124,6 @@ class WokService
   public function search($databaseID = "WOS", $userQuery, $editions='', $timeSpan=array(), $symbolicTimeSpan="1week", $queryLanguage="en", $count)
   {
 
-    $editions = array("collection" => $databaseID, "edition" => "SCI");
     $search = array(
                'queryParameters' =>
                     array(
