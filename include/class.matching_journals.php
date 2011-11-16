@@ -30,6 +30,7 @@
 // | Authors: Lachlan Kuhn <l.kuhn@library.uq.edu.au>                     |
 // +----------------------------------------------------------------------+
 include_once(APP_INC_PATH . "class.auth.php");
+include_once(APP_INC_PATH . "class.mail.php");
 define("TEST",   		 			false); // limit to 250 records only if TRUE
 define("TEST_WHERE",				''); // Adds this condition to the where statement for eg testing single pids
 define("SIMILARITY_THRESHOLD",		80);    // These similarity functions aren't currently invoked
@@ -546,7 +547,7 @@ class RJL
 				if (substr_count($sourceVal, $targetVal['jni_issn']) > 0) { //haystack, needle
                     $existsAlready = false;
                     foreach ($matches as $match) {
-                        if ($match['year'] == $targetVal['jnl_era_year'] && $match['pid'] == $sourceKey) {
+                        if ($match['year'] == $targetVal['jnl_era_year'] && $match['pid'] == $sourceKey && $match['matching_id'] != $targetVal['jnl_id']) {
                             $existsAlready = true;
                             $this->dupeList .= "Found ".$sourceKey." matched more than once on journal ISSN.\n ".
                                 "PID Journal name: ".$sourceVal."\n".
@@ -609,7 +610,7 @@ class RJL
 //					$matches[$sourceKey] = $targetKey;
                     $existsAlready = false;
                     foreach ($matches as $match) {
-                        if ($match['year'] == $targetVal['jnl_era_year'] && $match['pid'] == $sourceKey) {
+                        if ($match['year'] == $targetVal['jnl_era_year'] && $match['pid'] == $sourceKey && $match['matching_id'] != $targetVal['jnl_id']) {
                             $existsAlready = true;
                             $this->dupeList .= "Found ".$sourceKey." matched more than once on a journal name.\n ".
                                 "PID Journal name: ".$sourceVal."\n".
@@ -673,7 +674,7 @@ class RJL
 
                     $existsAlready = false;
                     foreach ($matches as $match) {
-                        if ($match['year'] == $targetVal['jnl_era_year'] && $match['pid'] == $sourceKey) {
+                        if ($match['year'] == $targetVal['jnl_era_year'] && $match['pid'] == $sourceKey && $match['matching_id'] != $targetVal['jnl_id']) {
                             $existsAlready = true;
                             $this->dupeList .= "Found ".$sourceKey." matched more than once on a similar journal name.\n ".
                                 "PID Journal name: ".$sourceVal."\n".
