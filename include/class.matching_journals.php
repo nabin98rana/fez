@@ -154,12 +154,14 @@ class RJL
 		*/
 
         // Email the dupes list to the espace admin email address
-        $mail = new Mail_API;
-       	$mail->setTextBody(stripslashes($this->dupeList));
-       	$subject = '['.APP_NAME.'] - Duplicate Journal Matches found, please resolve manually using manual matching';
-       	$from = APP_EMAIL_SYSTEM_FROM_ADDRESS;
-       	$to = APP_ADMIN_EMAIL;
-       	$mail->send($from, $to, $subject, false);
+        if ($this->dupeList != '') {
+            $mail = new Mail_API;
+            $mail->setTextBody(stripslashes($this->dupeList));
+            $subject = '['.APP_NAME.'] - Duplicate Journal Matches found, please resolve manually using manual matching';
+            $from = APP_EMAIL_SYSTEM_FROM_ADDRESS;
+            $to = APP_ADMIN_EMAIL;
+            $mail->send($from, $to, $subject, false);
+        }
 
 
 		/* Subtract from any match results those PIDs that are either black-listed, or manually mapped */
