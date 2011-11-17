@@ -443,7 +443,7 @@ class MyResearch
             $subject = str_replace("Claimed Publication ::", "Claimed Publication :: Completed HERDC author change :: ", $subject);
         }
         if ($sendEmail) {
-            Eventum::lodgeJob($subject, $body, "");
+            Eventum::lodgeJob($subject, $body, $userEmail);
         }
 
         return;
