@@ -600,7 +600,7 @@ class Record
 		";
 	
 		try {
-			$res = $db->fetchRow($stmt, Zend_Db::FETCH_ASSOC);
+			$res = $db->fetchAll($stmt, Zend_Db::FETCH_ASSOC);
 		} catch(Exception $ex) {
 			$log->err($ex);
 			return "";
