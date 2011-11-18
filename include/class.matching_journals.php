@@ -202,7 +202,7 @@ class RJL
 			SELECT
 				rek_pid AS record_pid,
 				rek_journal_name AS journal_title
-			FROM ".TEST_WHERE."
+			FROM
 				" . APP_TABLE_PREFIX . "record_search_key, " . APP_TABLE_PREFIX . "record_search_key_journal_name, " . APP_TABLE_PREFIX . "xsd_display
 			WHERE ".TEST_WHERE."
 				" . APP_TABLE_PREFIX . "record_search_key_journal_name.rek_journal_name_pid = " . APP_TABLE_PREFIX . "record_search_key.rek_pid
@@ -298,9 +298,9 @@ class RJL
 			SELECT
 				rek_pid AS record_pid,
 				rek_proceedings_title AS conference_name
-			FROM ".TEST_WHERE."
+			FROM
 				" . APP_TABLE_PREFIX . "record_search_key, " . APP_TABLE_PREFIX . "record_search_key_proceedings_title, " . APP_TABLE_PREFIX . "xsd_display
-			WHERE
+			WHERE ".TEST_WHERE."
 				" . APP_TABLE_PREFIX . "record_search_key_proceedings_title.rek_proceedings_title_pid = " . APP_TABLE_PREFIX . "record_search_key.rek_pid
 				AND rek_display_type = xdis_id
 				AND " . APP_TABLE_PREFIX . "record_search_key.rek_date >= '" . WINDOW_START . "'
