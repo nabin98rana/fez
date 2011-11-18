@@ -14,7 +14,8 @@
 			  <input type="text" id="front_search" name="search_keys[0]" size="40" onkeyup="javascript: selectSearchSuggestor(this.form, 'front_search')" />
 			  <div id="loading1" style="display:none;">Loading...</div>
 			  <input type="submit" value="Search" />
-			  <a href="#" onclick="javascript:alert( 'Search Title, Abstract, Keywords:\n\n Enter a phrase.  Objects where any field contains the phrase will be returned.\n This is a case-insensitive search, and you may use the * or ? wildcards.\n\n Examples:\n\n li*y\n finds objects that start with li and end with y\n\n b?ts\n finds words that start with b followed by any letter and then ts.  e.g. bits, bats, byts')">Help</a><br />Use <a href="{$rel_url}adv_search.php"><b>Advanced Search</b></a> to search by multiple criteria<br />&nbsp;
+			  <a href="#" onclick="javascript:alert('Search all fields\n\nSelect search on the navigation bar above for advanced options \n\nFor advanced users most Solr search terms are available in this search.\n\nSome examples are-\n\n  date_year:[2001 TO 2003]\n\n  updated_date:[NOW/DAY-3DAY TO *]\n\n  !ismemberof:xx:237156 AND !ismemberof:xx:247259 AND herdc_code:(&#34;C1&#34;) AND date_year:(2011) AND institutional_status:(&#34;xx&#34;) AND updated_date:[NOW/DAY-10DAY TO *]\n\nSee Solr for more options')">Help</a>
+              <br />Use <a href="{$rel_url}adv_search.php"><b>Advanced Search</b></a> to search by multiple criteria<br />&nbsp;
 			</div>
 		</form>	  
 	  </div>
