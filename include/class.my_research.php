@@ -434,8 +434,8 @@ class MyResearch
         }
         // If this record is in the APP_HERDC_TRIAL_COLLECTION and it has been claimed by a new author,
         // then change the eSpace followup flag to 'followup' and change the email to indicate this
-
-        if (in_array(APP_HERDC_TRIAL_COLLECTION, $isMemberOf)) {
+        $herdc_trial_collection = trim(APP_HERDC_TRIAL_COLLECTION, "'");
+        if (in_array($herdc_trial_collection, $isMemberOf)) {
             $record = new RecordGeneral($pid);
             $search_keys = array("Follow up Flags");
             $values = array(Controlled_Vocab::getID("Follow-up"));
