@@ -183,7 +183,7 @@ class Fedora_Direct_Access {
 		
 		try {
 			if (APP_FEDORA_VERSION == "3") {
-				$stmt = "SELECT objectState FROM doRegistry WHERE doPID = ?";
+				$stmt = "SELECT state FROM doFields WHERE pid = ?";
 			} else {
 				$stmt = "SELECT dostate FROM dObj WHERE dopid = ?";
 			}
@@ -195,7 +195,9 @@ class Fedora_Direct_Access {
 			return '';
 		}
 		
-		if ($res == "D") {
+		$delFlag = (APP_FEDORA_VERSION == "3") ? "d" : "D";
+		
+		if ($res == $delFlag) {
 			$xml = true;
 		} else {
 			$xml = false;

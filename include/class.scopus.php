@@ -110,7 +110,7 @@ class Scopus
 	/**
 	 * Retrieve cited by count information for a list of articles
 	 *
-	 * @param string $input_keys	
+	 * @param array $input_keys
 	 * @return SimpleXMLElement The object containing records found in Scopus matching the input key(s) specified 
 	 */
 	public static function getCitedByCount($input_keys) 

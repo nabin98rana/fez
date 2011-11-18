@@ -1,22 +1,61 @@
-
 <script type="text/javascript">
 <!--
+
+{* Register NAjax function(s) *}
 {$najax_register}
+
+
 {literal}
 var coll_load_state = 0;
 
+/**
+ * Show loading icon and hide sek_value element
+ */
 function showLoading()
 {
-    document.body.style.cursor = 'wait';
-    document.getElementById('loading').style.display = 'block';
-};
+    $("#loading_sek_value").stop(true, true);
+    $("#sek_value_wrapper").stop(true, true);
 
+    $("#sek_value_wrapper").fadeOut(700, function(){
+        $("#loading_sek_value").fadeIn(700);
+    });
+
+    document.body.style.cursor = 'wait';
+}
+
+/**
+ * Hide loading icon and show sek_value element
+ */
 function hideLoading()
 {
-    document.body.style.cursor = '';
-    document.getElementById('loading').style.display = 'none';
-};
+    $("#sek_value_wrapper").stop(true, true);
+    $("#loading_sek_value").stop(true, true);
 
+    $("#loading_sek_value").fadeOut(700, function(){
+        $("#sek_value_wrapper").fadeIn(700);
+    });
+
+    document.body.style.cursor = '';
+}
+
+/**
+ * Insert the value from datepicker to the date drop downs
+ * @param dateText  Display text produced by datepicker
+ * @param inst   Datepicker instance
+ */
+function appendDatePickerToDateDropdown(dateText, inst)
+{
+    $('select[name="sek_value[Day]"]').val(inst.selectedDay);
+    $('select[name="sek_value[Year]"]').val(inst.selectedYear);
+
+    // Javascript date month value is ranged from 0 - 11. The value is 0 for January, and so on.
+    // So we are adding 1 for the display month drop down
+    var display_month = inst.selectedMonth + 1;
+
+    // Assigning the value using selectedIndex instead of the input value,
+    //   due to the drop down values produced by Smarty's html_select_date plugin
+    $('select[name="sek_value[Month]"]').prop('selectedIndex', display_month);
+}
 
 function selectSearchKey(f, field_name)
 {
@@ -24,37 +63,102 @@ function selectSearchKey(f, field_name)
     if (coll_load_state > 0) {
         return false;
     }
+
+    if ( !f || typeof(f) == 'undefined'){
+        return false;
+    }
+
     var field = getFormElement(f, field_name);
     var selections = getSelectedItems(field);
 
-    if (selections.length > 0) {
-        coll_load_state++;
-        document.getElementById('tr_search_key_value').style.display = '';
-        showLoading();
-        var obj = new SelectSearchKey();
-        obj.onGetCollectionsError = function() {
-            removeAllOptions(f, 'search_key_value');
-            hideLoading();
-            coll_load_state--;
-        }
-        obj.setTimeout(10000);
-        obj.getSearchKeyOptions(selections[0].value, function(search_keys_list) {
-                removeAllOptions(f, 'sek_value');
-                addOptions(f, 'sek_value', search_keys_list);
-                hideLoading();
-                coll_load_state--;
-                });
+    if (selections.length <= 0) {
+        return false;
     }
+    
+    coll_load_state++;
+
+    showLoading();
+
+    var obj = new SelectSearchKey();
+
+    obj.onGetCollectionsError = function() {
+        hideLoading();
+        coll_load_state--;
+    }
+
+    obj.setTimeout(10000);
+
+    // Get sek_value input field(s) via NAjax call
+    obj.getSearchKeyOptions(selections[0].value, function(sek_value_options) {
+
+        $("#sek_value_wrapper .sek_value_fields").html(sek_value_options.html);
+
+        // Prepare a Date picker when required
+        // Instantiate date picker when it is not already has, otherwise display the trigger
+        if (sek_value_options.date_type == 'full_date') {
+
+            if ( $( "input#datepicker" ).hasClass("hasDatepicker") ) {
+                $( "input#datepicker" ).next("img.ui-datepicker-trigger").css('display','block');
+
+            } else {
+                $(function() {
+                    $( "#datepicker" ).datepicker({
+                        showOn: "button",
+                        buttonImage: "/images/dynCalendar.gif",
+                        buttonImageOnly: true,
+                        onSelect: function(dateText, inst) {
+                            appendDatePickerToDateDropdown(dateText, inst);
+                        }
+                    });
+                });
+            }
+        }else {
+            if ( $( "input#datepicker" ).hasClass("hasDatepicker") ) {
+                $( "input#datepicker" ).next().css('display','none');
+            }
+        }
+
+        hideLoading();
+        coll_load_state--;
+    });
 }
 
+
+/**
+ * Validate "Change Sek Value" form
+ * @param f  Form object
+ */
 function validateForm(f)
 {
+    // Validate sek_id field
     if (!hasOneSelected(f, 'sek_id')) {
         errors[errors.length] = new Option('Search Key','sek_id');
     }
-    if (!hasOneSelected(f, 'sek_value')) {
-        errors[errors.length] = new Option('Search Key Value','sek_value');
+
+    // Validate sek_value field(s)
+    // Loop through the form elements that have name prefix "sek_value".
+    // sek_value field(s) are required to have value entered/selected,
+    // so we are checking with hasOneSelectedValue() function from validation.js
+    var el = null;
+    var sek_value_field = "";
+    for (var i = 0; i < f.elements.length; i++) {
+        var field_name = f.elements[i].name;
+
+        // str.search returns the position of the match, or returns -1 if no match found.
+        if ( field_name.search('sek_value') == -1 ){
+            continue;
+        }
+
+        if ( !hasOneSelectedValue(f, field_name) ) {
+            sek_value_field = field_name.replace("sek_value", "");
+            errors[errors.length] = new Option('Search Key Value '+ sek_value_field, field_name);
+        }
     }
+
+    if (errors.length == 0 && $('select[name="sek_value"]').val() == "") {
+        $('select[name="sek_value"]').val();
+    }
+
 }
 
 {/literal}
@@ -62,37 +166,43 @@ function validateForm(f)
 </script>
 
 <table width="100%">
-<input type="hidden" name="cat" value="submit">
-<tr>
-  <td class="contentheader" colspan="2">
-    <b><img align="absmiddle" src="{$rel_url}images/search_32.png" border="0">Select Search Key to replace, and it's new value</b>
-  </td>
-</tr>
+    <input type="hidden" name="cat" value="submit">
 
-<tr >
-  <td width="100" bgcolor="{$cell_color}" class="default">
-    <b>Search Key</b>
-  </td>
-  <td width="75%" bgcolor="{$light_color}">
-    <select class="default" name="sek_id" onChange="javascript: selectSearchKey(this.form, 'sek_id')" >
-        <option value="">(select a search key)</option>
-      {html_options options=$search_keys_list selected=$search_keys_list_selected }
-    </select>
-  </td>
-</tr>
-<tr style="display:none;" id="tr_search_key_value">
-  <td bgcolor="{$cell_color}" class="default">
-    <b>Search Key Replacement Value</b>
-  </td>
-  <td bgcolor="{$light_color}">
-    <div id="loading" style="display:none;">Loading...</div>
-    <select class="default" name="sek_value" >
-    </select>
-  </td>
-</tr>
-    
-<script type="text/javascript"><!--
-selectSearchKey(getForm('wfl_form1'), 'sek_id');
-// --></script>
+    <tr>
+        <td class="contentheader" colspan="2">
+            <b><img align="absmiddle" src="{$rel_url}images/search_32.png" border="0">Select Search Key to replace, and it's new value</b>
+        </td>
+    </tr>
+
+    <tr>
+        <td width="100" bgcolor="{$cell_color}" class="default">
+            <b>Search Key *</b>
+        </td>
+        <td width="75%" bgcolor="{$light_color}">
+            <select class="default" name="sek_id" onChange="javascript: selectSearchKey(this.form, 'sek_id');" >
+                <option value="">(select a search key)</option>
+                {html_options options=$search_keys_list selected=$search_keys_list_selected }
+            </select>
+        </td>
+    </tr>
+
+    <!-- <tr style="display:none;" id="tr_search_key_value" valign="top"> -->
+    <tr id="tr_search_key_value" valign="top">
+        <td bgcolor="{$cell_color}" class="default">
+            <b>Search Key Replacement Value *</b>
+        </td>
+        <td bgcolor="{$light_color}">
+            <div id="loading_sek_value">Loading...</div>
+            <div id="sek_value_wrapper">
+                <div class="sek_value_fields"></div>
+                <input type="hidden" id="datepicker" name="datepicker" value="" />
+            </div>
+
+        </td>
+    </tr>
+
+    <script type="text/javascript"><!--
+        selectSearchKey(getForm('wfl_form1'), 'sek_id');
+    // --></script>
 
 </table>

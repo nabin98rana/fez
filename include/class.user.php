@@ -1254,11 +1254,7 @@ class User
 	 */
 	function GetUserLDAPDetails($username, $password)  
 	{
-		$success;
-		$ldap_conn;
-		$ldap_result;
-		$ldap_info;
-		$ldap_infoadmin;
+
 		$userdetails = array();
 		$success = 'true';
 		$filter = "(samaccountname=".$username.")";
