@@ -215,6 +215,14 @@ class Exiftool
 		if (array_key_exists('file_size', $info)) {
 			$info['file_size_human'] = Misc::size_hum_read($info['file_size']);
 		}
+
+        //if creation date is before 1972 or after today plus a year we'll assume it is incorrect and set it to null
+        if (array_key_exists('create_date', $info)) {
+      			if ((strtotime($info['create_date']) > strtotime("now")+365*24*3600) || (strtotime($info['create_date']) < strtotime("1/1/1972")))
+                  {
+                      $info['create_date'] = NULL;
+                  }
+      	}
 		return $info;
 	}
 	

@@ -22,11 +22,13 @@
 include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
 include_once(APP_INC_PATH . "class.queue.php");
 include_once(APP_INC_PATH . "class.bgp_wok.php");
+include_once(APP_INC_PATH . "class.eventum.php");
 include_once(APP_INC_PATH . "class.date.php");
 include_once(APP_INC_PATH . "class.wok_service.php");
 include_once(APP_INC_PATH . "class.wos_record.php");
 include_once(APP_INC_PATH . "class.org_structure.php");
 include_once(APP_INC_PATH . "class.matching_conferences.php");
+include_once(APP_INC_PATH . "class.mail.php");
 
 class WokQueue extends Queue
 {
@@ -414,6 +416,22 @@ class WokQueue extends Queue
         $record->setBGP($this->_bgp);
         foreach ($aut_ids as $author_id) {
           $record->matchAuthor($author_id, TRUE, TRUE); // TODO: enable this when required
+            // If this record is in the APP_HERDC_TRIAL_COLLECTION and it has been claimed by a new author,
+            // then change the eSpace followup flag to 'followup' and change the email to indicate this
+          $isMemberOf = Record::getSearchKeyIndexValue($pid, "isMemberOf", false);
+          $herdc_trial_collection = trim(APP_HERDC_TRIAL_COLLECTION, "'");
+          if (in_array($herdc_trial_collection, $isMemberOf)) {
+            $search_keys = array("Follow up Flags");
+            $values = array(Controlled_Vocab::getID("Follow-up"));
+            $record->addSearchKeyValueList($search_keys, $values, true);
+            $autDetails = Author::getDetails($author_id);
+            $subject = "ResearcherID Completed HERDC author change :: ".$pid." :: ".$autDetails['aut_org_username'];
+            $body = "Automatically assigned this pid ".$pid." to the HERDC TRIAL COLLECTION ".APP_HERDC_TRIAL_COLLECTION." for RID download of author ".
+                $autDetails['aut_display_name']." with username ".$autDetails['aut_org_username'];
+            $userEmail = "";
+            Eventum::lodgeJob($subject, $body, "");
+          }
+
         }
         $record->setIndexMatchingFields();
       }

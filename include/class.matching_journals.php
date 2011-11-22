@@ -41,6 +41,8 @@ class RJL
     var $dupeList = "";
     var $previousCount = 0;
     var $runType = "0";
+    var $userManualMatches = array();
+    var $userManualMatchCount = 0;
 
 	function matchAll()
 	{
@@ -63,7 +65,8 @@ class RJL
 		$rankedJournals = RJL::getRankedJournals();
 		$rankedJournalISSNs = RJL::getISSNsRJL();
 		$manualMatches = RJL::getManualMatches();
-		
+		$this->userManualMatches = RJL::getUserManualMatches();
+
 		/* Perform normalisation */
 		$normalisedCandidateJournals = RJL::normaliseListOfTitles($candidateJournals);
 		$normalisedCandidateISSNs = RJL::normaliseListOfISSNs($candidateISSNs);
@@ -130,6 +133,7 @@ class RJL
 		echo "Number of conference title matches: " . sizeof($matchesC) . "\n";
 		echo "Number of manual matches: " . sizeof($matchesM) . "\n";
 		echo "Total number of matches: " . sizeof($matches) . "\n";
+		echo "Total number of user matches excluded: " . $this->userManualMatchCount . "\n";
         ob_flush();
         echo "Dupe list:\n\n".$this->dupeList."\n";
 
@@ -198,7 +202,7 @@ class RJL
 			SELECT
 				rek_pid AS record_pid,
 				rek_journal_name AS journal_title
-			FROM ".TEST_WHERE."
+			FROM
 				" . APP_TABLE_PREFIX . "record_search_key, " . APP_TABLE_PREFIX . "record_search_key_journal_name, " . APP_TABLE_PREFIX . "xsd_display
 			WHERE ".TEST_WHERE."
 				" . APP_TABLE_PREFIX . "record_search_key_journal_name.rek_journal_name_pid = " . APP_TABLE_PREFIX . "record_search_key.rek_pid
@@ -294,9 +298,9 @@ class RJL
 			SELECT
 				rek_pid AS record_pid,
 				rek_proceedings_title AS conference_name
-			FROM ".TEST_WHERE."
+			FROM
 				" . APP_TABLE_PREFIX . "record_search_key, " . APP_TABLE_PREFIX . "record_search_key_proceedings_title, " . APP_TABLE_PREFIX . "xsd_display
-			WHERE
+			WHERE ".TEST_WHERE."
 				" . APP_TABLE_PREFIX . "record_search_key_proceedings_title.rek_proceedings_title_pid = " . APP_TABLE_PREFIX . "record_search_key.rek_pid
 				AND rek_display_type = xdis_id
 				AND " . APP_TABLE_PREFIX . "record_search_key.rek_date >= '" . WINDOW_START . "'
@@ -368,8 +372,40 @@ class RJL
 		return $rankedJournals;
 	}
 	
-	
-	
+
+    function getUserManualMatches()
+   	{
+   		$log = FezLog::get();
+   		$db = DB_API::get();
+
+   		echo "Running query to get the existing user manual matches list ... ";
+   		$rankedJournals = array();
+
+   		$stmt = "
+   			SELECT
+   				jnl_id,
+   				mtj_pid,
+   				jnl_era_year
+   			FROM
+   				" . APP_TABLE_PREFIX . "journal INNER JOIN
+   				" . APP_TABLE_PREFIX . "matched_journals ON jnl_id = mtj_jnl_id
+   	        WHERE mtj_status = 'M'
+   		";
+
+   		try {
+   			$result = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+   		}
+   		catch(Exception $ex) {
+   			$log->err($ex);
+   			return '';
+   		}
+
+   		echo "done.\n";
+
+   		return $result;
+   	}
+
+
 	function getManualMatches()
 	{
 		echo "Retrieving list of manual matches ... ";
@@ -548,13 +584,24 @@ class RJL
 				/* Look for the target strng inside the source */
 				if (substr_count($sourceVal, $targetVal['jni_issn']) > 0) { //haystack, needle
                     $existsAlready = false;
-                    foreach ($matches as $match) {
-                        if ($match['year'] == $targetVal['jnl_era_year'] && $match['pid'] == $sourceKey && $match['matching_id'] != $targetVal['jnl_id']) {
+                    foreach ($this->userManualMatches as $userMatch) {
+                        if ($userMatch['jnl_era_year'] == $targetVal['jnl_era_year'] && $userMatch['mtj_pid'] == $sourceKey) {
                             $existsAlready = true;
-                            $this->dupeList .= "Found ".$sourceKey." matched more than once on journal ISSN.\n ".
-                                "PID Journal name: ".$sourceVal."\n".
-                                "Existing Match jnl_id: ".$match['matching_id']." - Year: ".$match['year']."\n".
-                                "New Candidate Match: ".$targetVal['jnl_id']." - Year: ".$targetVal['jnl_era_year']."\n\n";
+                            $this->userManualMatchCount++;
+                        }
+                    }
+                    if ($existsAlready !== true) {
+                        foreach ($matches as $match) {
+                            if ($match['year'] == $targetVal['jnl_era_year'] && $match['pid'] == $sourceKey && $match['matching_id'] == $targetVal['jnl_id']) {
+                                $existsAlready = true;
+                            }
+                            if ($match['year'] == $targetVal['jnl_era_year'] && $match['pid'] == $sourceKey && $match['matching_id'] != $targetVal['jnl_id']) {
+                                $existsAlready = true;
+                                $this->dupeList .= "Found ".$sourceKey." matched more than once on journal ISSN.\n ".
+                                    "PID Journal name: ".$sourceVal."\n".
+                                    "Existing Match jnl_id: ".$match['matching_id']." - Year: ".$match['year']."\n".
+                                    "New Candidate Match: ".$targetVal['jnl_id']." - Year: ".$targetVal['jnl_era_year']."\n\n";
+                            }
                         }
                     }
                     if ($existsAlready !== true) {
@@ -611,13 +658,24 @@ class RJL
 					//echo $type;
 //					$matches[$sourceKey] = $targetKey;
                     $existsAlready = false;
-                    foreach ($matches as $match) {
-                        if ($match['year'] == $targetVal['jnl_era_year'] && $match['pid'] == $sourceKey && $match['matching_id'] != $targetVal['jnl_id']) {
+                    foreach ($this->userManualMatches as $userMatch) {
+                        if ($userMatch['jnl_era_year'] == $targetVal['jnl_era_year'] && $userMatch['mtj_pid'] == $sourceKey) {
                             $existsAlready = true;
-                            $this->dupeList .= "Found ".$sourceKey." matched more than once on a journal name.\n ".
-                                "PID Journal name: ".$sourceVal."\n".
-                                "Existing Match jnl_id: ".$match['matching_id']." - Year: ".$match['year']."\n".
-                                "New Candidate Match: ".$targetVal['jnl_id']." - Year: ".$targetVal['jnl_era_year']."\n\n";
+                            $this->userManualMatchCount++;
+                        }
+                    }
+                    if ($existsAlready !== true) {
+                        foreach ($matches as $match) {
+                            if ($match['year'] == $targetVal['jnl_era_year'] && $match['pid'] == $sourceKey && $match['matching_id'] == $targetVal['jnl_id']) {
+                                $existsAlready = true;
+                            }
+                            if ($match['year'] == $targetVal['jnl_era_year'] && $match['pid'] == $sourceKey && $match['matching_id'] != $targetVal['jnl_id']) {
+                                $existsAlready = true;
+                                $this->dupeList .= "Found ".$sourceKey." matched more than once on a journal name.\n ".
+                                    "PID Journal name: ".$sourceVal."\n".
+                                    "Existing Match jnl_id: ".$match['matching_id']." - Year: ".$match['year']."\n".
+                                    "New Candidate Match: ".$targetVal['jnl_id']." - Year: ".$targetVal['jnl_era_year']."\n\n";
+                            }
                         }
                     }
                     if ($existsAlready !== true) {
@@ -675,13 +733,24 @@ class RJL
 
 
                     $existsAlready = false;
-                    foreach ($matches as $match) {
-                        if ($match['year'] == $targetVal['jnl_era_year'] && $match['pid'] == $sourceKey && $match['matching_id'] != $targetVal['jnl_id']) {
+                    foreach ($this->userManualMatches as $userMatch) {
+                        if ($userMatch['jnl_era_year'] == $targetVal['jnl_era_year'] && $userMatch['mtj_pid'] == $sourceKey) {
                             $existsAlready = true;
-                            $this->dupeList .= "Found ".$sourceKey." matched more than once on a similar journal name.\n ".
-                                "PID Journal name: ".$sourceVal."\n".
-                                "Existing Match jnl_id: ".$match['matching_id']." - Year: ".$match['year']."\n".
-                                "New Candidate Match: ".$targetVal['jnl_id']." - Year: ".$targetVal['jnl_era_year']."\n\n";
+                            $this->userManualMatchCount++;
+                        }
+                    }
+                    if ($existsAlready !== true) {
+                        foreach ($matches as $match) {
+                            if ($match['year'] == $targetVal['jnl_era_year'] && $match['pid'] == $sourceKey && $match['matching_id'] == $targetVal['jnl_id']) {
+                                $existsAlready = true;
+                            }
+                            if ($match['year'] == $targetVal['jnl_era_year'] && $match['pid'] == $sourceKey && $match['matching_id'] != $targetVal['jnl_id']) {
+                                $existsAlready = true;
+                                $this->dupeList .= "Found ".$sourceKey." matched more than once on a similar journal name.\n ".
+                                    "PID Journal name: ".$sourceVal."\n".
+                                    "Existing Match jnl_id: ".$match['matching_id']." - Year: ".$match['year']."\n".
+                                    "New Candidate Match: ".$targetVal['jnl_id']." - Year: ".$targetVal['jnl_era_year']."\n\n";
+                            }
                         }
                     }
                     if ($existsAlready !== true) {
@@ -757,9 +826,16 @@ class RJL
 					//echo "M";
 //					$matches[$sourceKey] = $targetKey;
                     $existsAlready = false;
-                    foreach ($matches as $match) {
-                        if ($match['year'] == $targetVal['jnl_era_year'] && $match['pid'] == $sourceKey && $match['matching_id'] == $targetVal['jnl_id']) {
+                    foreach ($this->userManualMatches as $userMatch) {
+                        if ($userMatch['jnl_era_year'] == $targetVal['jnl_era_year'] && $userMatch['mtj_pid'] == $sourceKey) {
                             $existsAlready = true;
+                        }
+                    }
+                    if ($existsAlready !== true) {
+                        foreach ($matches as $match) {
+                            if ($match['year'] == $targetVal['jnl_era_year'] && $match['pid'] == $sourceKey && $match['matching_id'] == $targetVal['jnl_id']) {
+                                $existsAlready = true;
+                            }
                         }
                     }
                     if ($existsAlready !== true) {
