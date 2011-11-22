@@ -39,7 +39,8 @@ include_once(APP_INC_PATH . "class.record.php");
 $query = 'OG=(Univ Queensland)';
 $depth = '4week';
 $timeSpan = array();
-$editions = '';
+$databaseID = "WOS";
+$editions = array("collection" => $databaseID, "edition" => "SCI");
 $sort = '';
 $first_rec = 1;
 $num_recs = WOK_BATCH_SIZE;
@@ -50,7 +51,7 @@ $wok_ws = new WokService(FALSE);
 
 // Do an initial sleep just in something else ran just before this..
 sleep(WOK_SECONDS_BETWEEN_CALLS);
-$response = $wok_ws->search("WOS", $query, $editions, $timeSpan, $depth, "en", $num_recs);
+$response = $wok_ws->search($databaseID, $query, $editions, $timeSpan, $depth, "en", $num_recs);
 $queryId = $response->return->queryID;
 $records_found = $response->return->recordsFound;
 

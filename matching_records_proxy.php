@@ -87,6 +87,7 @@ class MatchingRecords
 
         // Specify the Document Type & Database Edition on the search query parameter
         // API doc for Database Editions: http://science.thomsonreuters.com/tutorials/wsp_docs/soap/Guide/
+        $edition = "SCI";
         switch($dt) {
             case 'Journal Article':
                 $doc_type = '@';
