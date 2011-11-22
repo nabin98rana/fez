@@ -35,6 +35,7 @@ include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.author.php");
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.eventum.php");
+include_once(APP_INC_PATH . "class.mail.php");
 
 /**
  * MyResearch

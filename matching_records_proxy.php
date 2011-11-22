@@ -104,14 +104,14 @@ class MatchingRecords
 
             // Title query param
             $query = 'TI=("'.$title.'")';
-
-            if(APP_ARTICLE_SEARCH_WOS_ADDRESS != '' ) {
-
-                // Specify the Organisation query param for Journal Article only
-                if ( $doc_type == '@' ){
-                    $query .= ' AND OG=('.APP_ARTICLE_SEARCH_WOS_ADDRESS.') ';
-                }
-            }
+// Requested by eSpace team to not restrict the search by org unit anymore
+//            if(APP_ARTICLE_SEARCH_WOS_ADDRESS != '' ) {
+//
+//                // Specify the Organisation query param for Journal Article only
+//                if ( $doc_type == '@' ){
+//                    $query .= ' AND OG=('.APP_ARTICLE_SEARCH_WOS_ADDRESS.') ';
+//                }
+//            }
 
             // Doc type query param
             if ( !empty($doc_type) ){

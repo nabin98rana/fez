@@ -28,6 +28,7 @@ include_once(APP_INC_PATH . "class.wok_service.php");
 include_once(APP_INC_PATH . "class.wos_record.php");
 include_once(APP_INC_PATH . "class.org_structure.php");
 include_once(APP_INC_PATH . "class.matching_conferences.php");
+include_once(APP_INC_PATH . "class.mail.php");
 
 class WokQueue extends Queue
 {
