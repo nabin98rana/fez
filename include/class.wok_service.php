@@ -121,10 +121,11 @@ class WokService
    * @param int $count The number of results to return in the initial resultset you get back from the initial query
    * @return SimpleXMLElement The object containing records found in WoS matching the search query specified.
    */
-  public function search($databaseID = "WOS", $userQuery, $editions='', $timeSpan=array(), $symbolicTimeSpan="1week", $queryLanguage="en", $count)
+  public function search($databaseID = "WOS", $userQuery, $editions=array(), $timeSpan=array(), $symbolicTimeSpan="1week", $queryLanguage="en", $count)
   {
-
-    $editions = array("collection" => $databaseID, "edition" => "SCI");
+    if (count($editions) == 0) {
+        $editions = array("collection" => $databaseID, "edition" => "SCI");
+    }
     $search = array(
                'queryParameters' =>
                     array(

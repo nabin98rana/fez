@@ -61,6 +61,16 @@ class MatchingRecords
 {
     /**
      * Return search result
+     * For searching on WOK Web Service the following query parameters are used:
+     *   - Journal Article
+     *      params: editions = array("collection" => "WOS", "edition" => "SCI"
+     *                   TI = {Requested_Title}, OG = {Uni of QLD}, "DT" = "@"
+     *   - Conference Paper
+     *      params: editions = array("collection" => "WOS", "edition" => "ISTP"
+     *                   TI = {Requested_Title}
+     *                   (No OG & DT specify)
+     *
+     * WOK API: http://science.thomsonreuters.com/tutorials/wsp_docs/soap/Guide/
      *
      * @param  string $title The title to search on
      * @param  string $dt Document Type
@@ -74,22 +84,41 @@ class MatchingRecords
     	$matches = array();
     	
     	$doc_type = false;
-    	switch($dt) {
-    		case 'Journal Article':    			
-    			$doc_type = '@';
-    			break;
-    		default:
-    			$doc_type = false;
-    	}
-    	
-    	if($doc_type) {
-    		$query = '';
-    		if(APP_ARTICLE_SEARCH_WOS_ADDRESS != '') {
-	        	$query = 'OG=('.APP_ARTICLE_SEARCH_WOS_ADDRESS.') AND DT=('.$doc_type.') AND TI=('.$title.')';	
-    		}
-	        else {
-	        	$query = 'DT=('.$doc_type.') AND TI=('.$title.')';
-	        }
+
+        // Specify the Document Type & Database Edition on the search query parameter
+        // API doc for Database Editions: http://science.thomsonreuters.com/tutorials/wsp_docs/soap/Guide/
+        $edition = "SCI";
+        switch($dt) {
+            case 'Journal Article':
+                $doc_type = '@';
+                $edition = "SCI";
+                break;
+            case 'Conference Paper':
+                $doc_type = "";
+                $edition = "ISTP";
+                break;
+            default:
+                $doc_type = false;
+        }
+
+        if($doc_type !== false) {
+
+            // Title query param
+            $query = 'TI=("'.$title.'")';
+// Requested by eSpace team to not restrict the search by org unit anymore
+//            if(APP_ARTICLE_SEARCH_WOS_ADDRESS != '' ) {
+//
+//                // Specify the Organisation query param for Journal Article only
+//                if ( $doc_type == '@' ){
+//                    $query .= ' AND OG=('.APP_ARTICLE_SEARCH_WOS_ADDRESS.') ';
+//                }
+//            }
+
+            // Doc type query param
+            if ( !empty($doc_type) ){
+                $query .= ' AND DT=('.$doc_type.')';
+            }
+
 	        $depth = ''; // All subscribed years
 			$editions = '';
 			$sort = 'Relevance';
@@ -100,8 +129,11 @@ class MatchingRecords
 
             if ( defined('WOK_PASSWORD') && WOK_PASSWORD != '') {
 
+                $databaseID = "WOS";
+                $editions = array("collection" => $databaseID, "edition" => $edition);
+
                 $wok_ws = new WokService(FALSE);
-                $response = $wok_ws->search("WOS", $query, $editions, $timeSpan, $depth, "en", $num_recs);
+                $response = $wok_ws->search($databaseID, $query, $editions, $timeSpan, $depth, "en", $num_recs);
                 $records = @simplexml_load_string($response->return->records);
 
             } else { //try and use ESTI service if TR WS Premium not setup

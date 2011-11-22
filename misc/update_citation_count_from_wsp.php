@@ -35,6 +35,7 @@ include_once(APP_INC_PATH . 'class.esti_search_service.php');
 include_once(APP_INC_PATH . 'class.wok_service.php');
 include_once(APP_INC_PATH . 'class.wok_queue.php');
 include_once(APP_INC_PATH . "class.record.php");
+include_once(APP_INC_PATH . "class.fulltext_queue.php");
 
 $max = 100; 		// Max number of primary key IDs to send with each ESTI Search Service request call
 $sleep = 1; 	// Number of seconds to wait for between successive ESTI Search Service calls 
@@ -88,6 +89,9 @@ for($i=0; $i<((int)$listing['info']['total_pages']+1); $i++) {
 				}
 			}
 		}
+    if ( APP_SOLR_INDEXER == "ON" ) {
+      FulltextQueue::singleton()->commit();
+    }
     sleep(WOK_SECONDS_BETWEEN_CALLS); // to work within TR minimum throttling requirements 
 	}
 }

@@ -35,6 +35,7 @@ include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.author.php");
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.eventum.php");
+include_once(APP_INC_PATH . "class.mail.php");
 
 /**
  * MyResearch
@@ -434,10 +435,15 @@ class MyResearch
         }
         // If this record is in the APP_HERDC_TRIAL_COLLECTION and it has been claimed by a new author,
         // then change the eSpace followup flag to 'followup' and change the email to indicate this
-
-
-
-
+        $herdc_trial_collection = trim(APP_HERDC_TRIAL_COLLECTION, "'");
+        if (in_array($herdc_trial_collection, $isMemberOf)) {
+            $record = new RecordGeneral($pid);
+            $search_keys = array("Follow up Flags");
+            $values = array(Controlled_Vocab::getID("Follow-up"));
+            $record->addSearchKeyValueList($search_keys, $values, true);
+            $subject = str_replace("Claimed Publication ::", "Claimed Publication :: Completed HERDC author change :: ", $subject);
+            $sendEmail = true; //make sure the email is sent even if author id matching was automatic as this will need a followup
+        }
         if ($sendEmail) {
             Eventum::lodgeJob($subject, $body, $userEmail);
         }

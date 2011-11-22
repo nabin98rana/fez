@@ -33,6 +33,7 @@
 include_once dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'config.inc.php';
 include_once(APP_INC_PATH . 'class.scopus.php');
 include_once(APP_INC_PATH . "class.record.php");
+include_once(APP_INC_PATH . "class.fulltext_queue.php");
 
 $max = 100; 	// Max number of primary key IDs to send with each service request call
 $sleep = 1; 	// Number of seconds to wait for between successive service calls 
@@ -66,9 +67,16 @@ for($i=0; $i<((int)$listing['info']['total_pages']+1); $i++) {
 	 		}
 	 	}
 	}
-	
 	if(count($input_keys) > 0) {
 		$result = Scopus::getCitedByCount($input_keys);
+        //first check that all the pids came back in the response, otherwise set that eid/pid to 0
+        foreach ($input_keys as $input_pid => $input_array) {
+            if (is_array($result) && !array_key_exists($input_pid, $result)) {
+                //can't find this pid in the response so set this eid to 0
+//                echo "SETTING ZERO cause not found ".$input_pid." for eid ".$input_array['eid']."\n";
+                Record::updateScopusCitationCount($input_pid, 0, $input_array['eid']);
+            }
+        }
 		foreach($result as $pid => $link_data) {
 			$eid = $link_data['eid']; 
 			if (is_numeric($link_data['citedByCount'])) {
@@ -76,8 +84,12 @@ for($i=0; $i<((int)$listing['info']['total_pages']+1); $i++) {
 			} else {
 				$count = 0;
 			}
+//            echo "DID FIND ".$input_pid." for eid ".$input_array['eid']." with count ".$linked_data['citedByCount']."\n";
 			Record::updateScopusCitationCount($pid, $count, $eid);
 		}
+        if ( APP_SOLR_INDEXER == "ON" ) {
+          FulltextQueue::singleton()->commit();
+        }
 		sleep($sleep); // Wait before using the service again		
 	}
 }

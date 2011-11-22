@@ -1320,9 +1320,10 @@ class Fedora_API {
 		if (is_array($rs)) {
 			foreach ($rs as $row) {
 				if ($pattern != false) {
+                    $ds_matches = array();
 					if (isset($row['dsid']) && preg_match($pattern, $row['dsid'], $ds_matches)) {
+                        $dsExists = true;
 						return $ds_matches[0];
-						$dsExists = true;
 					}
 				} else {
 					if (isset($row['dsid']) && strtolower($row['dsid']) == strtolower($dsID)) {

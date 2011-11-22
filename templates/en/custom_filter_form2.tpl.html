@@ -1,367 +1,477 @@
-{literal}
 <script type="text/javascript">
 <!--
+{literal}
+/**
+ * Insert the value from datepicker to the date drop downs
+ * @param dateText  Display text produced by datepicker
+ * @param inst   Datepicker instance
+ */
+function appendDatePickerToDateDropdown(dateText, inst)
+{
+    // Get the name of the datepicker input
+    var input_name =inst.input[0].name;
+    // Get the string that we need to indentify the select name
+    input_name = input_name.replace("datepicker","");
+
+    // Assign the selected value to the drop down
+    $('select[name="search_keys'+input_name+'[Day]"]').val(inst.selectedDay);
+    $('select[name="search_keys'+input_name+'[Year]"]').val(inst.selectedYear);
+
+    // Assigning the value using selectedIndex instead of the input value,
+    //   due to the drop down values produced by Smarty's html_select_date plugin
+    $('select[name="search_keys'+input_name+'[Month]"]').prop('selectedIndex', inst.selectedMonth);
+}
+
+/**
+ * Clear search key values
+ * @param f Form element
+ */
 function clearFilters(f) {
-{/literal}
-var element0 = getPageElement('search_keys[0]');
-{literal}
-if (element0 != null) {
-    element0.value = '';
-}
-{/literal}
-{section name="i" loop=$search_keys}
-{if $search_keys[i].sek_html_input == 'text' ||  $search_keys[i].sek_html_input == 'textarea'}
-var element{$search_keys[i].sek_id} = getPageElement('search_keys[{$search_keys[i].sek_id}]');
-{literal}
-if (element{/literal}{$search_keys[i].sek_id}{literal} != null) {
-    element{/literal}{$search_keys[i].sek_id}{literal}.value = '';
-}
-{/literal}
-{elseif $search_keys[i].sek_html_input == 'date'}
-    // now for the fields that are only available through the advanced search page
-    setHiddenFieldValue(f, 'search_keys[{$search_keys[i].sek_id}][start][Year]', '');
-    setHiddenFieldValue(f, 'search_keys[{$search_keys[i].sek_id}][start][Month]', '');
-    setHiddenFieldValue(f, 'search_keys[{$search_keys[i].sek_id}][start][Day]', '');
-    setHiddenFieldValue(f, 'search_keys[{$search_keys[i].sek_id}][end][Year]', '');
-    setHiddenFieldValue(f, 'search_keys[{$search_keys[i].sek_id}][end][Month]', '');
-    setHiddenFieldValue(f, 'search_keys[{$search_keys[i].sek_id}][end][Day]', '');
-    setHiddenFieldValue(f, 'search_keys[{$search_keys[i].sek_id}][filter_type]', '');
-    setHiddenFieldValue(f, 'search_keys[{$search_keys[i].sek_id}][filter_enabled]', '');
-//    setHiddenFieldValue(f, 'filter[search_keys[{$search_keys[i].sek_id}]]', '');
-var element{$search_keys[i].sek_id} = getPageElement('filter[search_keys[{$search_keys[i].sek_id}]]');
-element{$search_keys[i].sek_id}.checked = '';
-{elseif $search_keys[i].sek_html_input == 'contvocab' or $search_keys[i].sek_html_input == 'allcontvocab'}
-    removeAllOptions(f, 'search_keys[{$search_keys[i].sek_id}][]');
-{elseif $search_keys[i].sek_html_input == 'checkbox'}
-var element{$search_keys[i].sek_id} = getPageElement('search_keys[{$search_keys[i].sek_id}]');
-{literal}
-if (element{/literal}{$search_keys[i].sek_id}{literal} != null) {
-    element{/literal}{$search_keys[i].sek_id}{literal}.checked = '';
-}
-{/literal}
-{elseif $search_keys[i].sek_html_input == 'multiple' or $search_keys[i].sek_html_input == 'combo'}
-var element{$search_keys[i].sek_id} = getPageElement('search_keys[{$search_keys[i].sek_id}]');
-{literal}
-if (element{/literal}{$search_keys[i].sek_id}{literal} != null) {
-    clearSelectedOptions(element{/literal}{$search_keys[i].sek_id}{literal});
-}
-{/literal}
-{/if}
-{/section}
+
+    var element0 = getPageElement('search_keys[0]');
+    if (element0 != null) {
+        element0.value = '';
+    }
+
+    // Clear checked checkboxes
+    var checked = $('input:checked');
+    for(i=0; i<=checked.length; i++){
+        $(checked[i]).attr("checked", false);
+    }
+
+    {/literal}
+
+    {section name="i" loop=$search_keys}
+
+        {* Clear the value for textarea *}
+        {if $search_keys[i].sek_html_input == 'textarea'}
+            $("textarea[name='search_keys[{$search_keys[i].sek_id}]']").val("");
+
+        {* Clear the value for text input *}
+        {elseif $search_keys[i].sek_html_input == 'text'}
+            $("input[name='search_keys[{$search_keys[i].sek_id}]']").val("");
+
+            {if $search_keys[i].sek_data_type == 'int'}
+                $("input[name='search_keys[{$search_keys[i].sek_id}]_name']").val("");
+            {/if}
+
+        {* Clear selected date values *}
+        {elseif $search_keys[i].sek_html_input == 'date'}
+            {* Reset checked date enable checkbox *}
+            $('input[name="search_keys[{$search_keys[i].sek_id}][filter_enabled]"]').val(0);
+            $('input[name="search_keys[{$search_keys[i].sek_id}][filter_enabled]"]').attr("checked", false);
+
+            {* Reset value & disable filter type *}
+            $('select[name="search_keys[{$search_keys[i].sek_id}][filter_type]"]').val(0);
+            $('select[name="search_keys[{$search_keys[i].sek_id}][filter_type]"]').attr("disabled", true);
+
+            {* Reset date values *}
+            $('select[name="search_keys[{$search_keys[i].sek_id}][start][Year]"]').val("2001");
+            $('select[name="search_keys[{$search_keys[i].sek_id}][start][Month]"]').val("1");
+            $('select[name="search_keys[{$search_keys[i].sek_id}][start][Day]"]').val("1");
+            $('select[name="search_keys[{$search_keys[i].sek_id}][end][Year]"]').val("2001");
+            $('select[name="search_keys[{$search_keys[i].sek_id}][end][Month]"]').val("1");
+            $('select[name="search_keys[{$search_keys[i].sek_id}][end][Day]"]').val("1");
+
+            {* Disable date select drop downs *}
+            $('select[name="search_keys[{$search_keys[i].sek_id}][start][Year]"]').attr("disabled", true);
+            $('select[name="search_keys[{$search_keys[i].sek_id}][start][Month]"]').attr("disabled", true);
+            $('select[name="search_keys[{$search_keys[i].sek_id}][start][Day]"]').attr("disabled", true);
+            $('select[name="search_keys[{$search_keys[i].sek_id}][end][Year]"]').attr("disabled", true);
+            $('select[name="search_keys[{$search_keys[i].sek_id}][end][Month]"]').attr("disabled", true);
+            $('select[name="search_keys[{$search_keys[i].sek_id}][end][Day]"]').attr("disabled", true);
+
+        {* Remove the select options *}
+        {elseif $search_keys[i].sek_html_input == 'contvocab' or $search_keys[i].sek_html_input == 'allcontvocab'}
+                removeAllOptions(f, 'search_keys[{$search_keys[i].sek_id}][]');
+
+        {* Clear selected options on select drop down *}
+        {elseif $search_keys[i].sek_html_input == 'multiple' or $search_keys[i].sek_html_input == 'combo'}
+            var element{$search_keys[i].sek_id} = getPageElement('search_keys[{$search_keys[i].sek_id}]');
+            {literal}
+            if (element{/literal}{$search_keys[i].sek_id}{literal} != null) {
+                clearSelectedOptions(element{/literal}{$search_keys[i].sek_id}{literal});
+            }
+            {/literal}
+        {/if}
+    {/section}
 }
 //-->
 </script>
 
-<!--div class="outline"-->
 
 <div id="custom_filter_form1">
 
-<h1>Advanced Search</h1> 
+    <h1>Advanced Search</h1>
 
-<div class="text-center">
-<input name="search_button"  type="submit" value="Search" class="button" />
-<input type="button" value="Clear Form" onclick="javascript:clearFilters(this.form);" class="button" />
-</div>
-<br />
-<table class="search_fields">
+    <div class="text-center">
+        <input name="search_button"  type="submit" value="Search" class="button" />
+        <input type="button" value="Clear Form" onclick="javascript:clearFilters(this.form);" class="button" />
+    </div>
 
-    <tr>
-        <th class="search_heading">{if $smarty.const.APP_SOLR_SWITCH == 'ON'}All Fields{else}Title, Abstract, Keywords{/if}</th>
-        <td class="search_multi_input text-center">contains</td>
-        <td class="search_multi_input text-left"><input id="search_keys[0]" type="text" name="search_keys[0]" size="30" maxlength="255" value="{$options.searchKey0|escape:'html'}" /></td>
-    </tr>
-	
-  {* Do little items first, then buly items *}
-{section name="i" loop=$search_keys}
-  {assign var="search_key_name" value='searchKey'|cat:$search_keys[i].sek_id}
-  {assign var="last_key" value=$options.$search_key_name}
-  
-    
-    <tr>
-        <th class="search_heading">{if $search_keys[i].sek_alt_title}{$search_keys[i].sek_alt_title}{else}{$search_keys[i].sek_title}{/if}{if $search_keys[i].sek_desc}<br /><sub>{$search_keys[i].sek_desc}<sub>{/if}
-        {if $search_keys[i].sek_html_input == 'date'}
-        <input type="hidden" value="{$last_key.filter_enabled|default:0}" name="search_keys[{$search_keys[i].sek_id}][filter_enabled]" />
-        <input {if $last_key.filter_enabled == 1}checked{/if} type="checkbox" name="filter[search_keys[{$search_keys[i].sek_id}]]"  id="filter[search_keys[{$search_keys[i].sek_id}]]" value="yes" onClick="javascript:toggleDateFields(this.form, 'search_keys[{$search_keys[i].sek_id}]');">
-        {/if}
-        </th>
-        <td class="search_multi_input text-center">
-        {if $search_keys[i].sek_html_input == 'combo'}
-        equals
-        {elseif $search_keys[i].sek_html_input == 'date'}
-        <select name="search_keys[{$search_keys[i].sek_id}][filter_type]" id="search_keys[{$search_keys[i].sek_id}][filter_type]" onchange="javascript:checkDateFilterType(this.form, this);">
-            <option {if $last_key.filter_type == "greater"}selected{/if} value="greater">After</option>
-            <option {if $last_key.filter_type == "less"}selected{/if} value="less">Before</option>
-            <option {if $last_key.filter_type == "between"}selected{/if} value="between">Between</option>
-        </select>
-        {elseif $search_keys[i].sek_html_input == 'multiple'}
-            {if $search_keys[i].sek_relationship == 1 }
-            <select name="search_keys[{$search_keys[i].sek_id}][multiple_type]" id="search_keys[{$search_keys[i].sek_id}][multiple_type]">
-            <option {if $last_key.multiple_type == "any"}selected{/if} value="any">Any Of</option>
-            <option {if $last_key.multiple_type == "all"}selected{/if} value="all">All of</option>
-            {else}
-            is any of
-            <input type="hidden" name="search_keys[{$search_keys[i].sek_id}][multiple_type]" id="search_keys[{$search_keys[i].sek_id}][multiple_type]" value="any" />
-            {/if}
-        </select>
-        {else}
-        contains
-        {/if}
-        </td>
-        <td class="search_multi_input text-left">
-        {if $search_keys[i].sek_html_input == 'text'}
-            
-            {if $search_keys[i].sek_data_type == 'int'}
-            	<input id="search_keys[{$search_keys[i].sek_id}]_name" type="text" name="search_keys[{$search_keys[i].sek_id}]_name" maxlength="255" size="30" />
-            	<input id="search_keys[{$search_keys[i].sek_id}]" type="hidden" name="search_keys[{$search_keys[i].sek_id}]" />
-            {else}
-            	<input id="search_keys[{$search_keys[i].sek_id}]" type="text" name="search_keys[{$search_keys[i].sek_id}]" maxlength="255" size="30" value="{$last_key|escape:'html'}" />
-            {/if}
-            
-            {if $search_keys[i].sek_suggest_function != ""}
-       				<div id="generalsuggest" style="width:25em;position:relative;z-index:{math equation="2000 - x - y" y=0 x=$smarty.section.i.index};">
-					  <div id="{$search_keys[i].sek_id}_container"></div>
-					</div>
-					{literal}
-                    <script type="text/javascript">
-					<!--
-                    // Instantiate first JS Array DataSource
-                    var myServer{/literal}{$search_keys[i].sek_id}{literal} = "{/literal}{$rel_url}{literal}suggest_proxy.php";
-                    var mySchema{/literal}{$search_keys[i].sek_id}{literal} = ["Result","name"];
-                    var myDataSource{/literal}{$search_keys[i].sek_id}{literal} = new YAHOO.widget.DS_XHR(myServer{/literal}{$search_keys[i].sek_id}{literal}, mySchema{/literal}{$search_keys[i].sek_id}{literal});
+    <br />
 
-                    {/literal}{if $search_keys[i].sek_data_type == 'int'}{literal}               
-                    	var myHiddenField{/literal}{$search_keys[i].sek_id}{literal} = YAHOO.util.Dom.get('{/literal}search_keys[{$search_keys[i].sek_id}]{literal}');
-                    	var myTextField{/literal}{$search_keys[i].sek_id}{literal} = YAHOO.util.Dom.get('{/literal}search_keys[{$search_keys[i].sek_id}]{literal}_name');
-                    	YAHOO.util.Event.addListener(myTextField{/literal}{$search_keys[i].sek_id}{literal}, "blur", myTextField{/literal}{$search_keys[i].sek_id}{literal}ClickEvent, this, true);
-                    	function isInt(x) {
-                    		var y=parseInt(x);
-                    		if (isNaN(y)) return false;
-                    		return x==y && x.toString()==y.toString();
-                    	} 
-                    	function myTextField{/literal}{$search_keys[i].sek_id}{literal}ClickEvent() {
-							if(isInt(myTextField{/literal}{$search_keys[i].sek_id}{literal}.value)) {
-                    			myHiddenField{/literal}{$search_keys[i].sek_id}{literal}.value = myTextField{/literal}{$search_keys[i].sek_id}{literal}.value;
-							}
-                    	}
-                    {/literal}{else}{literal}
-                    	var myTextField{/literal}{$search_keys[i].sek_id}{literal} = YAHOO.util.Dom.get('{/literal}search_keys[{$search_keys[i].sek_id}]{literal}');
-                    {/literal}{/if}{literal}
-                        
-					myDataSource{/literal}{$search_keys[i].sek_id}{literal}.scriptQueryAppend = "sek_id={/literal}{$search_keys[i].sek_id}{literal}";
+    <table class="search_fields">
 
-                    // Instantiate first AutoComplete
-                    this.oAutoComp{/literal}{$search_keys[i].sek_id}{literal} = new YAHOO.widget.AutoComplete(myTextField{/literal}{$search_keys[i].sek_id}{literal},'{/literal}{$search_keys[i].sek_id}_container{literal}', myDataSource{/literal}{$search_keys[i].sek_id}{literal});
-                    this.oAutoComp{/literal}{$search_keys[i].sek_id}{literal}.maxResultsDisplayed = 10;
-                    this.oAutoComp{/literal}{$search_keys[i].sek_id}{literal}.formatResult = function(oResultItem, sQuery) {
-                    	{/literal}{if $search_keys[i].sek_data_type == 'int'}{literal}
-                        	return oResultItem[1].name + ' (' + oResultItem[1].id + ')';
-                        {/literal}{else}{literal}
-                        	return oResultItem[1].name;
-                        {/literal}{/if}{literal}
-                    };
+        {* All Fields input  *}
+        <tr>
+            <th class="search_heading">
+                {if $smarty.const.APP_SOLR_SWITCH == 'ON'}All Fields{else}Title, Abstract, Keywords{/if}
+            </th>
+            <td class="search_multi_input text-center">contains</td>
+            <td class="search_multi_input text-left">
+                <input id="search_keys[0]" type="text" name="search_keys[0]" size="30" maxlength="255" value="{$options.searchKey0|escape:'html'}" />
+            </td>
+        </tr>
 
-                    this.oAutoComp{/literal}{$search_keys[i].sek_id}{literal}.registerControls(document.getElementById(myTextField{/literal}{$search_keys[i].sek_id}{literal}));
+        {* Loop through the search keys and render input form according to each key's input type *}
+        {section name="i" loop=$search_keys}
 
-                    this.oAutoComp{/literal}{$search_keys[i].sek_id}{literal}.textboxFocusEvent.subscribe(function(){
-                        var sInputValue = YAHOO.util.Dom.get('myTextField{/literal}{$search_keys[i].sek_id}{literal}').value;
-                        if(sInputValue.length === 0) {
-                            var oSelf = this;
-                            setTimeout(function(){oSelf.sendQuery(sInputValue);},0);
-                        }
-                    });
+            {assign var="search_key_name" value='searchKey'|cat:$search_keys[i].sek_id}
+            {assign var="last_key" value=$options.$search_key_name}
 
-                    {/literal}{if $search_keys[i].sek_data_type == 'int'}{literal}
-                    	this.oAutoComp{/literal}{$search_keys[i].sek_id}{literal}.itemSelectEvent.subscribe(function(sType, aArgs) {
-                            var myAC = aArgs[0]; // reference back to the AC instance
-                            var elLI = aArgs[1]; // reference to the selected LI element
-                            var oData = aArgs[2][1]; // object literal of selected item's result data
-                            myHiddenField{/literal}{$search_keys[i].sek_id}{literal}.value = oData.id;
-                            myTextField{/literal}{$search_keys[i].sek_id}{literal}.value = oData.id;
+
+            <tr>
+                {* Search Key title *}
+                <th class="search_heading">{if $search_keys[i].sek_alt_title}{$search_keys[i].sek_alt_title}{else}{$search_keys[i].sek_title}{/if}{if $search_keys[i].sek_desc}<br /><sub>{$search_keys[i].sek_desc}<sub>{/if}
+                    {if $search_keys[i].sek_html_input == 'date'}
+                    <input type="hidden" value="{$last_key.filter_enabled|default:0}" name="search_keys[{$search_keys[i].sek_id}][filter_enabled]" />
+                    <input {if $last_key.filter_enabled == 1}checked{/if} type="checkbox" name="filter[search_keys[{$search_keys[i].sek_id}]]"  id="filter[search_keys[{$search_keys[i].sek_id}]]" value="yes" onClick="javascript:toggleDateFields(this.form, 'search_keys[{$search_keys[i].sek_id}]');">
+                    {/if}
+                </th>
+
+                {* Search Key text *}
+                <td class="search_multi_input text-center">
+
+                    {if $search_keys[i].sek_html_input == 'combo'}
+                        equals
+
+                    {elseif $search_keys[i].sek_html_input == 'date'}
+                        <select name="search_keys[{$search_keys[i].sek_id}][filter_type]" id="search_keys[{$search_keys[i].sek_id}][filter_type]" onchange="javascript:checkDateFilterType(this.form, this);">
+                            <option {if $last_key.filter_type == "greater"}selected{/if} value="greater">After</option>
+                            <option {if $last_key.filter_type == "less"}selected{/if} value="less">Before</option>
+                            <option {if $last_key.filter_type == "between"}selected{/if} value="between">Between</option>
+                        </select>
+
+                    {elseif $search_keys[i].sek_html_input == 'multiple'}
+
+                        {if $search_keys[i].sek_relationship == 1 }
+                            <select name="search_keys[{$search_keys[i].sek_id}][multiple_type]" id="search_keys[{$search_keys[i].sek_id}][multiple_type]">
+                                <option {if $last_key.multiple_type == "any"}selected{/if} value="any">Any Of</option>
+                                <option {if $last_key.multiple_type == "all"}selected{/if} value="all">All of</option>
+                        {else}
+                                is any of
+                                <input type="hidden" name="search_keys[{$search_keys[i].sek_id}][multiple_type]" id="search_keys[{$search_keys[i].sek_id}][multiple_type]" value="any" />
+                        {/if}
+                        </select>
+
+                    {else}
+                        contains
+                    {/if}
+                </td>
+
+                {* Search Key input *}
+                <td class="search_multi_input text-left">
+
+                    {* Text input *}
+                    {if $search_keys[i].sek_html_input == 'text'}
+
+                        {if $search_keys[i].sek_data_type == 'int'}
+                            <input id="search_keys[{$search_keys[i].sek_id}]_name" type="text" name="search_keys[{$search_keys[i].sek_id}]_name" maxlength="255" size="30" value="{$last_key|escape:'html'}" />
+                            <input id="search_keys[{$search_keys[i].sek_id}]" type="hidden" name="search_keys[{$search_keys[i].sek_id}]" value="{$last_key|escape:'html'}" />
+                        {else}
+                            <input id="search_keys[{$search_keys[i].sek_id}]" type="text" name="search_keys[{$search_keys[i].sek_id}]" maxlength="255" size="30" value="{$last_key|escape:'html'}" />
+                        {/if}
+
+                        {if $search_keys[i].sek_suggest_function != ""}
+                            <div id="generalsuggest" style="width:25em;position:relative;z-index:{math equation="2000 - x - y" y=0 x=$smarty.section.i.index};">
+                                <div id="{$search_keys[i].sek_id}_container"></div>
+                            </div>
+
+                            {literal}
+                            <script type="text/javascript">
+                            <!--
+                            // Instantiate first JS Array DataSource
+                            var myServer{/literal}{$search_keys[i].sek_id}{literal} = "{/literal}{$rel_url}{literal}suggest_proxy.php";
+                            var mySchema{/literal}{$search_keys[i].sek_id}{literal} = ["Result","name"];
+                            var myDataSource{/literal}{$search_keys[i].sek_id}{literal} = new YAHOO.widget.DS_XHR(myServer{/literal}{$search_keys[i].sek_id}{literal}, mySchema{/literal}{$search_keys[i].sek_id}{literal});
+
+                            {/literal}{if $search_keys[i].sek_data_type == 'int'}{literal}
+                                var myHiddenField{/literal}{$search_keys[i].sek_id}{literal} = YAHOO.util.Dom.get('{/literal}search_keys[{$search_keys[i].sek_id}]{literal}');
+                                var myTextField{/literal}{$search_keys[i].sek_id}{literal} = YAHOO.util.Dom.get('{/literal}search_keys[{$search_keys[i].sek_id}]{literal}_name');
+                                YAHOO.util.Event.addListener(myTextField{/literal}{$search_keys[i].sek_id}{literal}, "blur", myTextField{/literal}{$search_keys[i].sek_id}{literal}ClickEvent, this, true);
+                                function isInt(x) {
+                                    var y=parseInt(x);
+                                    if (isNaN(y)) return false;
+                                    return x==y && x.toString()==y.toString();
+                                }
+                                function myTextField{/literal}{$search_keys[i].sek_id}{literal}ClickEvent() {
+                                    if(isInt(myTextField{/literal}{$search_keys[i].sek_id}{literal}.value)) {
+                                        myHiddenField{/literal}{$search_keys[i].sek_id}{literal}.value = myTextField{/literal}{$search_keys[i].sek_id}{literal}.value;
+                                    }
+                                }
+                            {/literal}{else}{literal}
+                                var myTextField{/literal}{$search_keys[i].sek_id}{literal} = YAHOO.util.Dom.get('{/literal}search_keys[{$search_keys[i].sek_id}]{literal}');
+                            {/literal}{/if}{literal}
+
+                            myDataSource{/literal}{$search_keys[i].sek_id}{literal}.scriptQueryAppend = "sek_id={/literal}{$search_keys[i].sek_id}{literal}";
+
+                            // Instantiate first AutoComplete
+                            this.oAutoComp{/literal}{$search_keys[i].sek_id}{literal} = new YAHOO.widget.AutoComplete(myTextField{/literal}{$search_keys[i].sek_id}{literal},'{/literal}{$search_keys[i].sek_id}_container{literal}', myDataSource{/literal}{$search_keys[i].sek_id}{literal});
+                            this.oAutoComp{/literal}{$search_keys[i].sek_id}{literal}.maxResultsDisplayed = 10;
+                            this.oAutoComp{/literal}{$search_keys[i].sek_id}{literal}.formatResult = function(oResultItem, sQuery) {
+                                {/literal}{if $search_keys[i].sek_data_type == 'int'}{literal}
+                                    return oResultItem[1].name + ' (' + oResultItem[1].id + ')';
+                                {/literal}{else}{literal}
+                                    return oResultItem[1].name;
+                                {/literal}{/if}{literal}
+                            };
+
+                            this.oAutoComp{/literal}{$search_keys[i].sek_id}{literal}.registerControls(document.getElementById(myTextField{/literal}{$search_keys[i].sek_id}{literal}));
+
+                            this.oAutoComp{/literal}{$search_keys[i].sek_id}{literal}.textboxFocusEvent.subscribe(function(){
+                                var sInputValue = YAHOO.util.Dom.get('myTextField{/literal}{$search_keys[i].sek_id}{literal}').value;
+                                if(sInputValue.length === 0) {
+                                    var oSelf = this;
+                                    setTimeout(function(){oSelf.sendQuery(sInputValue);},0);
+                                }
+                            });
+
+                            {/literal}{if $search_keys[i].sek_data_type == 'int'}{literal}
+                                this.oAutoComp{/literal}{$search_keys[i].sek_id}{literal}.itemSelectEvent.subscribe(function(sType, aArgs) {
+                                    var myAC = aArgs[0]; // reference back to the AC instance
+                                    var elLI = aArgs[1]; // reference to the selected LI element
+                                    var oData = aArgs[2][1]; // object literal of selected item's result data
+                                    myHiddenField{/literal}{$search_keys[i].sek_id}{literal}.value = oData.id;
+                                    myTextField{/literal}{$search_keys[i].sek_id}{literal}.value = oData.id;
+                                });
+                            {/literal}{/if}{literal}
+                            //-->
+                            </script>
+                            <style type="text/css">
+                            #{/literal}{$search_keys[i].xsdmf_id}{literal}_container .yui-ac-content {
+                                max-height:11em;
+                                /* height: 150px; */
+                                height: 1px;
+                                width: 450px;
+                                overflow:auto;
+                                overflow-x:hidden; /* scrolling */
+                                _height:11em; /* ie6 */
+                                z-index:9071;
+                            }
+                            </style>
+                            {/literal}
+                        {/if}
+
+                    {* Combo input *}
+                    {elseif $search_keys[i].sek_html_input == 'combo'}
+                      <select id="search_keys[{$search_keys[i].sek_id}]" {if $search_keys[i].sek_html_input == 'multiple'}multiple size="8"{/if} name="search_keys[{$search_keys[i].sek_id}]{if $search_keys[i].sek_html_input == 'multiple'}[]{/if}">
+                        {html_options options=$search_keys[i].field_options selected=$last_key|escape:'html'}
+                      </select>
+
+                    {* Textarea input *}
+                    {elseif $search_keys[i].sek_html_input == 'textarea'}
+                      <textarea id="search_keys[{$search_keys[i].sek_id}]" name="search_keys[{$search_keys[i].sek_id}]" rows="10" cols="60" value="{$last_key|escape:'html'}"></textarea>
+
+                    {* Vocab input *}
+                    {elseif $search_keys[i].sek_html_input == 'allcontvocab' or $search_keys[i].sek_html_input == 'contvocab'}
+                        <div id="tr_list_{$search_keys[i].sek_id}" valign="top" class="quick_search_item">
+                            <select id="search_keys_{$search_keys[i].sek_id}" multiple size="5" name="search_keys[{$search_keys[i].sek_id}][]">
+                                {html_options options=$search_keys[i].field_options}
+                            </select>
+                            <input type="button" class="button" value="Add New" onclick="javascript:small_window('cv_selector.php?cvo_id={$search_keys[i].cv_ids[z]}&amp;parent_id={$search_keys[i].parent_id}&amp;form=custom_filter_form&amp;element=search_keys_{$search_keys[i].sek_id}');" />
+                            <input type="button" class="button" value="Remove Selected" onclick="javascript:deleteSelectedItemsFromList(search_keys_{$search_keys[i].sek_id});" />
+
+                            {literal}
+                            <script type="text/javascript">
+                                $(function() {
+                                   // Initially, select all options loaded from the session
+                                   $("select[name='search_keys[{/literal}{$search_keys[i].sek_id}{literal}][]'] option").prop("selected",true);
+                                });
+                            </script>
+                            {/literal}
+                        </div>
+
+                    {* Date input *}
+                    {elseif $search_keys[i].sek_html_input == 'date'}
+                        {assign var="temp_sek_id" value=$search_keys[i].sek_id}
+                        {assign var="custom" value=$options.$temp_sek_id}
+
+                        {html_select_date field_array="search_keys[$temp_sek_id][start]" prefix="" start_year="-10" end_year="+10" time=$last_key.start_date}
+
+                        {assign var="datepicker_input" value=datepicker[$temp_sek_id][start]}
+                        <input type="hidden" name="{$datepicker_input}" value="" />
+
+                        {* Instantiate datepicker for start date field *}
+                        {literal}
+                        <script type="text/javascript">
+                        <!--
+                        $(function() {
+                            $('input[name="{/literal}{$datepicker_input}{literal}"]').datepicker({
+                                showOn: "button",
+                                buttonImage: "/images/dynCalendar.gif",
+                                buttonImageOnly: true,
+                                onSelect: function(dateText, inst) {
+                                    appendDatePickerToDateDropdown(dateText, inst);
+                                }
+                            });
                         });
-                    {/literal}{/if}{literal}
-                  	//-->
-                    </script>
-                    <style type="text/css">
-                    #{/literal}{$search_keys[i].xsdmf_id}{literal}_container .yui-ac-content {
-                        max-height:11em;
-                        /* height: 150px; */
-                        height: 1px; 
-                        width: 450px;
-                        overflow:auto;
-                        overflow-x:hidden; /* scrolling */
-                        _height:11em; /* ie6 */
-                        z-index:9071;
-					}					
-                    </style>					
-                    {/literal}
-			{/if}
-						
-						
-        {elseif $search_keys[i].sek_html_input == 'combo'}
-          <select id="search_keys[{$search_keys[i].sek_id}]" {if $search_keys[i].sek_html_input == 'multiple'}multiple size="8"{/if} name="search_keys[{$search_keys[i].sek_id}]{if $search_keys[i].sek_html_input == 'multiple'}[]{/if}">
-            {html_options options=$search_keys[i].field_options selected=$last_key|escape:'html'}
-          </select>
-        {elseif $search_keys[i].sek_html_input == 'textarea'}
-          <textarea id="search_keys[{$search_keys[i].sek_id}]" name="search_keys[{$search_keys[i].sek_id}]" rows="10" cols="60" value="{$last_key|escape:'html'}"></textarea>
-        {elseif $search_keys[i].sek_html_input == 'allcontvocab' or $search_keys[i].sek_html_input == 'contvocab'}
-        	<div id="tr_list_{$search_keys[i].sek_id}" valign="top" class="quick_search_item">
-        		<select id="search_keys_{$search_keys[i].sek_id}" multiple size="5" name="search_keys[{$search_keys[i].sek_id}][]">
-          		{html_options options=$search_keys[i].field_options}
-        		</select>
-        		<input type="button" class="button" value="Add New" onclick="javascript:small_window('cv_selector.php?cvo_id={$search_keys[i].cv_ids[z]}&amp;parent_id={$search_keys[i].parent_id}&amp;form=custom_filter_form&amp;element=search_keys_{$search_keys[i].sek_id}');" />
-        		<input type="button" class="button" value="Remove Selected" onclick="javascript:deleteSelectedItemsFromList(search_keys_{$search_keys[i].sek_id});" />
-        	</div>	
-        {elseif $search_keys[i].sek_html_input == 'date'}
-        
-              {assign var="temp_sek_id" value=$search_keys[i].sek_id}
+                        //-->
+                        </script>{/literal}
 
-              {assign var="custom" value=$options.$temp_sek_id}
-              
-              {html_select_date field_array="search_keys[$temp_sek_id][start]" prefix="" start_year="-10" end_year="+10" time=$start_date}
-			 <script type="text/javascript" src="{$rel_url}js/dynCalendar.js"></script>
-            {literal}
-              <script type="text/javascript">
-              <!--
-              tCalendar_search_keys{/literal}{$search_keys[i].sek_id}{literal} = new dynCalendar('tCalendar_search_keys{/literal}{$search_keys[i].sek_id}{literal}', 'calendarCallback_search_keys{/literal}{$search_keys[i].sek_id}{literal}', '{/literal}{$rel_url}{literal}images/');
-              tCalendar_search_keys{/literal}{$search_keys[i].sek_id}{literal}.setMonthCombo(false);
-              tCalendar_search_keys{/literal}{$search_keys[i].sek_id}{literal}.setYearCombo(false);
-              //-->
-              </script>{/literal}&nbsp;&nbsp;
+                        &nbsp;&nbsp;
 
-			<div id="tr_search_keys[{$temp_sek_id}]">
-              <span>{$search_keys[i].sek_title}: <i>(End date)</i></span><br />
-              {html_select_date field_array="search_keys[$temp_sek_id][end]" prefix="" start_year="-10" end_year="+10" time=$end_date}
-              {literal}
-              <script type="text/javascript">
-              <!--
-              tCalendar_search_keys_end{/literal}{$search_keys[i].sek_id}{literal} = new dynCalendar('tCalendar_search_keys_end{/literal}{$search_keys[i].sek_id}{literal}', 'calendarCallback_search_keys_end{/literal}{$search_keys[i].sek_id}{literal}', '{/literal}{$rel_url}{literal}images/');
-              tCalendar_search_keys_end{/literal}{$search_keys[i].sek_id}{literal}.setMonthCombo(false);
-              tCalendar_search_keys_end{/literal}{$search_keys[i].sek_id}{literal}.setYearCombo(false);
-              //-->
-              </script>
-              {/literal}
-			</div>
-        
-        {elseif $search_keys[i].sek_html_input == 'multiple'}
-          
-              {if $search_keys[i].field_options_count < 10}
-                {foreach name=field_options_check item=option key=option_key from=$search_keys[i].field_options}
-                    <input name="search_keys[{$search_keys[i].sek_id}][]" type="checkbox" value="{$option_key}" {if $last_key != ''}{if $option_key|in_array:$last_key}checked{/if}{/if}>{$option}<br />
-                {/foreach}
-              {else}
-              <select id="search_keys[{$search_keys[i].sek_id}]" {if $search_keys[i].sek_html_input == 'multiple'}multiple size="8"{/if} name="search_keys[{$search_keys[i].sek_id}]{if $search_keys[i].sek_html_input == 'multiple'}[]{/if}">
-                {html_options options=$search_keys[i].field_options selected=$last_key}
-              </select>
-              {/if}
-        {elseif $search_keys[i].sek_html_input == 'checkbox'}
-            <input name="search_keys[{$search_keys[i].sek_id}]" type="checkbox" value="1" {if $last_key.sek_id == 1}checked{/if}>
-        {/if}
-      
-      {assign var="search_key_id" value=$search_keys[i].sek_id}
-      
-      {if $search_keys[i].sek_html_input == 'multiple'}
-        {assign var="search_key_sufix" value="[]"}
-      {else}
-        {assign var="search_key_sufix" value=""}
-      {/if}
-      {include file="error_icon.tpl.html" field="search_keys[$search_key_id]$search_key_sufix"}
-      </div>
-          
-  </td>
-    </tr>
-  
-    {/section}
-    
-    <tr>
-        <th class="search_heading text-center" colspan="3">
-        Choose operator to combine search criteria fields:
-        <select name="operator">
-            <option value=" AND " {if $options.operator == ' AND '}selected{/if}> AND </option>
-            <option value=" OR " {if $options.operator == ' OR '}selected{/if}> OR </option>
-        </select>
-        </td>
-    </tr>
+                        <div id="tr_search_keys[{$temp_sek_id}]" class="end_date_wrapper">
+                            <span>{$search_keys[i].sek_title}: <i>(End date)</i></span><br />
+                            {html_select_date field_array="search_keys[$temp_sek_id][end]" prefix="" start_year="-10" end_year="+10" time=$last_key.end_date}
 
+                            {assign var="datepicker_input" value=datepicker[$temp_sek_id][end]}
+                            <input type="hidden" name="{$datepicker_input}" value="" />
 
-</table>
+                            {* Instantiate datepicker for end date field *}
+                            {literal}
+                            <script type="text/javascript">
+                            <!--
+                            $(function() {
+                                $('input[name="{/literal}{$datepicker_input}{literal}"]').datepicker({
+                                    showOn: "button",
+                                    buttonImage: "/images/dynCalendar.gif",
+                                    buttonImageOnly: true,
+                                    onSelect: function(dateText, inst) {
+                                        appendDatePickerToDateDropdown(dateText, inst);
+                                    }
+                                });
+                            });
+                            //-->
+                            </script>{/literal}
+                        </div>
+
+                    {* Multiple input *}
+                    {elseif $search_keys[i].sek_html_input == 'multiple'}
+
+                          {if $search_keys[i].field_options_count < 10}
+                            {foreach name=field_options_check item=option key=option_key from=$search_keys[i].field_options}
+                                <input name="search_keys[{$search_keys[i].sek_id}][]" type="checkbox" value="{$option_key}" {if $last_key != ''}{if $option_key|in_array:$last_key}checked{/if}{/if}>{$option}<br />
+                            {/foreach}
+                          {else}
+                          <select id="search_keys[{$search_keys[i].sek_id}]" {if $search_keys[i].sek_html_input == 'multiple'}multiple size="8"{/if} name="search_keys[{$search_keys[i].sek_id}]{if $search_keys[i].sek_html_input == 'multiple'}[]{/if}">
+                            {html_options options=$search_keys[i].field_options selected=$last_key}
+                          </select>
+                          {/if}
+
+                    {* Checkbox input *}
+                    {elseif $search_keys[i].sek_html_input == 'checkbox'}
+                        <input name="search_keys[{$search_keys[i].sek_id}]" type="checkbox" value="1" {if $last_key.sek_id == 1}checked{/if}>
+                    {/if}
+
+                    {assign var="search_key_id" value=$search_keys[i].sek_id}
+
+                    {if $search_keys[i].sek_html_input == 'multiple'}
+                        {assign var="search_key_sufix" value="[]"}
+                    {else}
+                        {assign var="search_key_sufix" value=""}
+                    {/if}
+
+                    {include file="error_icon.tpl.html" field="search_keys[$search_key_id]$search_key_sufix"}
+                        
+                </td>
+            </tr>
+
+        {/section}
+
+        <tr>
+            <td class="search_heading text-center" colspan="3">
+                Choose operator to combine search criteria fields:
+                <select name="operator">
+                    <option value=" AND " {if $options.operator == ' AND '}selected{/if}> AND </option>
+                    <option value=" OR " {if $options.operator == ' OR '}selected{/if}> OR </option>
+                </select>
+            </td>
+        </tr>
+
+    </table>
 </div>
 
 
 <div class="quick_search_hide"> </div>
 <div class="text-center">
-<input name="search_button"  type="submit" value="Search" class="button" />
-<input type="button" value="Clear Form" onclick="javascript:clearFilters(this.form);" class="button" />
+    <input name="search_button"  type="submit" value="Search" class="button" />
+    <input type="button" value="Clear Form" onclick="javascript:clearFilters(this.form);" class="button" />
 </div>
 
-
-<!--/div-->
 <br />
 
-{literal}
+
 <script type="text/javascript">
 <!--
 
-var f = document.getElementById('custom_filter_form');
+    {literal}
+    var f = document.getElementById('custom_filter_form');
+    var date_fields = new Array();
+    {/literal}
 
-var date_fields = new Array();
-{/literal}
-{assign var="custom_elements_to_hide" value=""}
-{section name="i" loop=$search_keys}
+    {assign var="custom_elements_to_hide" value=""}
+    {section name="i" loop=$search_keys}
 
-{if $search_keys[i].sek_html_input == 'date'}
-{literal}
-function calendarCallback_search_keys{/literal}{$search_keys[i].sek_id}{literal}(day, month, year) { 
-	selectDateField('search_keys[{/literal}{$search_keys[i].sek_id}{literal}][start]', day, month, year); 
-}
-function calendarCallback_search_keys_end{/literal}{$search_keys[i].sek_id}{literal}(day, month, year) { 
-	selectDateField('search_keys[{/literal}{$search_keys[i].sek_id}{literal}][end]', day, month, year); 
-}
-{/literal}
-{assign var="temp_sek_id" value=$search_keys[i].sek_id}
-{assign var="search_key_name" value='searchKey'|cat:$search_keys[i].sek_id}
-{assign var ="last_key" value=$options.$search_key_name}  
-date_fields[date_fields.length] = new Option('search_keys[{$temp_sek_id}][start]', '{$last_key.start_date}');
-date_fields[date_fields.length] = new Option('search_keys[{$temp_sek_id}][end]', '{$last_key.end_date}');
-{if $custom_elements_to_hide != ""}
-{assign var="custom_elements_to_hide" value=$custom_elements_to_hide,'search_keys[$temp_sek_id]'}
-{else}
-{assign var="custom_elements_to_hide" value=$custom_elements_to_hide'search_keys[$temp_sek_id]'}
-{/if}
-{/if}
-{/section}
+        {if $search_keys[i].sek_html_input == 'date'}
+            {literal}
+            // Comment out: No longer use dynCalendar
+            // function calendarCallback_search_keys{/literal}{$search_keys[i].sek_id}{literal}(day, month, year) {
+            //     selectDateField('search_keys[{/literal}{$search_keys[i].sek_id}{literal}][start]', day, month, year);
+            // }
+            // function calendarCallback_search_keys_end{/literal}{$search_keys[i].sek_id}{literal}(day, month, year) {
+            //     selectDateField('search_keys[{/literal}{$search_keys[i].sek_id}{literal}][end]', day, month, year);
+            // }
+            {/literal}
 
-var elements_to_hide = new Array({$custom_elements_to_hide});
-{literal}
-for (var i = 0; i < elements_to_hide.length; i++) {
-    toggleVisibility(elements_to_hide[i]);
-    toggleDateFields(f, elements_to_hide[i]);
-    var filter_type = getFormElement(f, elements_to_hide[i] + '[filter_type]');
-    checkDateFilterType(f, filter_type);
-}
+            {assign var="temp_sek_id" value=$search_keys[i].sek_id}
+            {assign var="search_key_name" value='searchKey'|cat:$search_keys[i].sek_id}
+            {assign var ="last_key" value=$options.$search_key_name}
+        
+            // date_fields[date_fields.length] = new Option('search_keys[{$temp_sek_id}][start]', '{$last_key.start_date}');
+            // date_fields[date_fields.length] = new Option('search_keys[{$temp_sek_id}][end]', '{$last_key.end_date}');
 
-for (var i = 0; i < date_fields.length; i++) {
-    if (!isWhitespace(date_fields[i].value)) {
-        selectDateOptions(date_fields[i].text, date_fields[i].value);
+            {if $custom_elements_to_hide != ""}
+                {assign var="custom_elements_to_hide" value=$custom_elements_to_hide,'search_keys[$temp_sek_id]'}
+            {else}
+                {assign var="custom_elements_to_hide" value=$custom_elements_to_hide'search_keys[$temp_sek_id]'}
+            {/if}
+        {/if}
+    {/section}
+
+    var elements_to_hide = new Array({$custom_elements_to_hide});
+    {literal}
+    for (var i = 0; i < elements_to_hide.length; i++) {
+        toggleVisibility(elements_to_hide[i]);
+        toggleDateFields(f, elements_to_hide[i]);
+        var filter_type = getFormElement(f, elements_to_hide[i] + '[filter_type]');
+        checkDateFilterType(f, filter_type);
     }
-}
 
-function validateSearchForm() {
-{/literal}
-{section name="i" loop=$search_keys}
-// The controlled vocabulary selector should select all the fields in the multiple combo box so that they will
-// be included in the form submission.
-{if $search_keys[i].sek_html_input == 'allcontvocab' or $search_keys[i].sek_html_input == 'contvocab'}
-	var field = document.custom_filter_form.search_keys_{$search_keys[i].sek_id};
-	{literal}
-    for (var y = 0; y < field.options.length; y++) {
-        field.options[y].selected = true;
+    // Comment out, there is no need for javascript to assign the selected value since it is already handled by smarty on server side
+    // for (var i = 0; i < date_fields.length; i++) {
+    //    if (!isWhitespace(date_fields[i].value)) {
+    //        selectDateOptions(date_fields[i].text, date_fields[i].value);
+    //    }
+    //}
+
+    function validateSearchForm() {
+        {/literal}
+        // The controlled vocabulary selector should select all the fields in the multiple combo box so that they will
+        // be included in the form submission.
+        {section name="i" loop=$search_keys}
+            {if $search_keys[i].sek_html_input == 'allcontvocab' or $search_keys[i].sek_html_input == 'contvocab'}
+                var field = document.custom_filter_form.search_keys_{$search_keys[i].sek_id};
+                {literal}
+                for (var y = 0; y < field.options.length; y++) {
+                    field.options[y].selected = true;
+                }
+                {/literal}
+            {/if}
+        {/section}
+            return true;
+        {literal}
     }
-	{/literal}
-{/if}	
-{/section}
-	return true;
-{literal}
-}
-{/literal}	 
+    {/literal}
 //-->
 </script>
