@@ -1656,7 +1656,7 @@ class Fedora_API {
 	       'formatURI'     => 'unknown', 
 	       'dsLocation'    => $dsLocation,
          'checksumType'  => 'DISABLED',
-         'checksum'      => null,
+         'checksum'      => 'none',
 	       'logMessage'    => $logmsg, 
 	       'force'         => true
 		);

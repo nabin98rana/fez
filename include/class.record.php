@@ -5137,11 +5137,9 @@ class Record
     
     Fedora_API::callModifyDatastreamByReference(
         $pid, $dsID, $newLabel, $currentDetails['location'], 
-        $currentDetails['MIMEtype'], $currentDetails['versionable']
+        $currentDetails['MIMEType'], $currentDetails['versionable']
     );
   }
-  
-
 
 
   /**
