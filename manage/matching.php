@@ -74,7 +74,11 @@ if ($isAdministrator) {
 
     $type = Misc::GETorPOST('type');
     $action = Misc::GETorPOST('action');
-    
+
+    if ($action == 'save') {
+        Matching::save();
+    }
+
     if ($action == 'edit') {
         $recordDetails = Record::getDetailsLite(Misc::GETorPOST('pid'));
         $pid = $recordDetails[0]['rek_pid'];
@@ -91,8 +95,7 @@ if ($isAdministrator) {
         $tpl->assign("citation", $recordDetails[0]['rek_citation']);
         $tpl->assign("show", "edit-screen");
         
-    } elseif ($action == 'save') {
-        Matching::save();
+
         
     } elseif ($action == 'new') {
         $message = '';

@@ -26,17 +26,55 @@ function blacklistConfirmNew()
 
 function save()
 {
+    if (!document.getElementById('status_auto').checked && !document.getElementById('status_manual').checked && !document.getElementById('status_blacklist').checked) {
+        window.alert("You must specify the type of mapping, auto or manual or blacklist.");
+        return false;
+
+    }
+
 	if (document.getElementById('status_manual').checked &&
-		document.getElementById('matching_id').value == '') {
+		document.getElementById('matching_id').length == 0) {
 		window.alert("You must specify the mapping from the drop-down list.");
 		return false;
 	}
+    if (document.getElementById('matching_id').length > 2) {
+        window.alert("You must specify only up to two matches per pid, not "+document.getElementById('matching_id').length+".");
+      	return false;
+    }
+
 	if (document.getElementById('status_auto').checked &&
-		document.getElementById('matching_id').value == '') {
+		document.getElementById('matching_id').length == 0) {
 		window.alert("Please select a mapping from the drop-down list. Note that this may be overriden during future automatic mapping.");
 		return false;
 	}
-	
+    var field = document.getElementById('matching_id');
+    var found_2010 = false;
+    var found_2012 = false;
+    for (var y = 0; y < field.options.length; y++) {
+        var re = new RegExp('\((201[0|2])\)');
+        var m = re.exec(field.options[y].text);
+          if (m == null) {
+            window.alert("A match without a year found. Please report this to the system administrator.");
+            return false;
+          } else {
+            if (m[0] == 2010) {
+                if (found_2010 != true) {
+                    found_2010 = true;
+                } else {
+                    window.alert("Found two mappings to the 2010 list. You can only have one mapping per year.");
+                    return false;
+                }
+            } else if (m[0] == 2012) {
+                if (found_2012 != true) {
+                    found_2012 = true;
+                } else {
+                    window.alert("Found two mappings to the 2012 list. You can only have one mapping per year.");
+                    return false;
+                }
+            }
+          }
+       field.options[y].selected = true;
+    }
 	document.forms['mappings'].submit();
 }
 
@@ -121,13 +159,35 @@ function setPage(new_page)
 					<p>This record is <b>black-listed</b>. It will be excluded from automatic matching.</p>
 				{/if}
 				
-				<select name="matching_id" id="matching_id">
-					<option value="">Please select the {if $match_type == 'C'}conference{elseif $match_type == 'J'}journal{/if} this PID maps to ...</option>
-					{section name="i" loop=$list}
-						<option value="{$list[i].matching_id}"{if $mapping.matching_id == $list[i].matching_id} selected="selected"{/if}>{$list[i].title|truncate:125:"...":true} &nbsp; ({$list[i].year}) &nbsp; {if $list[i].year == 2010}(Rank {$list[i].rank}){/if}</option>
-					{/section}
-				</select>
-				
+                <table>
+                    <tr>
+                      <td align="left" width="5%">
+                        {assign var="field_name_helper" value="xsd_display_fields_helper["|cat:$xsdmf.xsdmf_id|cat:"][]"}
+                        {assign var="field_id_helper" value="xsd_display_fields_helper_"|cat:$xsdmf.xsdmf_id|cat:"_0"}
+                        {assign var="field_name" value="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"][]"}
+                        {assign var="field_id" value="xsd_display_fields_"|cat:$xsdmf.xsdmf_id|cat:"_0"}
+                        <select id="matching_id" multiple size="20" style="max-width:400px" class="default" name="matching_id">
+                            {if is_array($mapping)}{html_options options=$mapping}{/if}
+                        </select>
+                        {include file="error_icon.tpl.html" field=mapping_id}
+                      </td>
+                        <td align="left" style="vertical-align: 0;">
+                        <select id="matching_id_helper" multiple size="20" style="max-width:400px" class="default" name="matching_id_helper">
+                            {section name="i" loop=$list}
+                                <option value="{$list[i].matching_id}">{$list[i].title|truncate:125:"...":true} &nbsp; ({$list[i].year}) &nbsp; {if $list[i].year == 2010}(Rank {$list[i].rank}){/if}</option>
+                            {/section}
+                        </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="button" name="remove_left" value="Remove selected from left" onClick="javascript:deleteSelectedItemsFromList(this.form.matching_id);" />
+                        </td>
+                        <td>
+                            <input type="button" name="copy_left" value="Copy selected to left" onClick="javascript:addToParentList(this.form.matching_id_helper, this.form.matching_id);" />
+                        </td>
+                    </tr>
+                </table>
 				<br /><br />
 				
 				<input type="radio" name="status" value="A" {if $mapping.status == 'A'}checked="checked"{/if} id="status_auto" onclick="javascript:autoConfirm();" /> Auto<br />
@@ -170,13 +230,35 @@ function setPage(new_page)
 						<p>This record is <b>black-listed</b>. It will be excluded from automatic matching.</p>
 					{/if}
 					
-					<select name="matching_id" id="matching_id">
-						<option value="">Please select the {if $match_type == 'C'}conference{elseif $match_type == 'J'}journal{/if} this PID maps to ...</option>
-						{section name="i" loop=$list}
-							<option value="{$list[i].matching_id}">{$list[i].title|truncate:125:"...":true} &nbsp; ({$list[i].year}) &nbsp; {if $list[i].year == 2010}(Rank {$list[i].rank}){/if}</option>
-						{/section}
-					</select>
-					
+                    <table>
+                        <tr>
+                          <td align="left" width="5%">
+                            {assign var="field_name_helper" value="xsd_display_fields_helper["|cat:$xsdmf.xsdmf_id|cat:"][]"}
+                            {assign var="field_id_helper" value="xsd_display_fields_helper_"|cat:$xsdmf.xsdmf_id|cat:"_0"}
+                            {assign var="field_name" value="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"][]"}
+                            {assign var="field_id" value="xsd_display_fields_"|cat:$xsdmf.xsdmf_id|cat:"_0"}
+                            <select id="matching_id" multiple size="20" style="max-width:400px" class="default" name="matching_id">
+                            </select>
+                            {include file="error_icon.tpl.html" field=mapping_id}
+                          </td>
+                            <td align="left" style="vertical-align: 0;">
+                            <select id="matching_id_helper" multiple size="20" style="max-width:400px" class="default" name="matching_id_helper">
+                                {section name="i" loop=$list}
+                                    <option value="{$list[i].matching_id}">{$list[i].title|truncate:125:"...":true} &nbsp; ({$list[i].year}) &nbsp; {if $list[i].year == 2010}(Rank {$list[i].rank}){/if}</option>
+                                {/section}
+                            </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <input type="button" name="remove_left" value="Remove selected from left" onClick="javascript:deleteSelectedItemsFromList(this.form.matching_id);" />
+                            </td>
+                            <td>
+                                <input type="button" name="copy_left" value="Copy selected to left" onClick="javascript:addToParentList(this.form.matching_id_helper, this.form.matching_id);" />
+                            </td>
+                        </tr>
+                    </table>
+
 					<br /><br />
 					
 					<h2>Type</h2>
