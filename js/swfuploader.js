@@ -10,17 +10,29 @@ var uploaderLastWorkflowButtonClicked;
 // global containing the ids for each of the workflow buttons (to be disabled when the upload happens)
 var buttonIds;
 
+// required file uploader fields
+var required_xsd_display_fields_fileupload = new Array();
+
+
 // ==============================
 // Load the swfuploader component
 // ==============================
 function swfuploaderLoad(maxNumberFiles, baseUrl, postParams) {
-	
+
 	// check if we have the correct version of flash for the uploader
 	var uploaderHasReqestedVersion = DetectFlashVer(9, 0, 45);
-	
+    xsdmfId = postParams.xsdmf_id;
+
 	if (!uploaderHasReqestedVersion) {
 		// if not, remove the flash tbody section
 		removeTbodySection('flash_file_uploader_rows');
+
+        // Add uploader field to validation checking
+        if (postParams.required == 1) {
+            xsd_display_fields[xsd_display_fields.length] = new Option("xsd_display_fields["+xsdmfId+"][]", "File Upload");
+            required_xsd_display_fields[required_xsd_display_fields.length] = new Option("xsd_display_fields["+xsdmfId+"][]", "fileupload");
+        }
+
 	} else {
 		// remove the original tbody rows
 		removeTbodySection('original_file_uploader_rows');
@@ -84,8 +96,18 @@ function swfuploaderLoad(maxNumberFiles, baseUrl, postParams) {
 			debug: false
 		});
 	
-		xsdmfId = postParams.xsdmf_id;
-		
+        // Add uploader field to validation checking
+        if (postParams.required == 1) {
+
+            // For file queue checking
+            xsd_display_fields[xsd_display_fields.length] = new Option('uploader_files_uploaded', 'File Upload');
+//            required_xsd_display_fields[required_xsd_display_fields.length] = new Option('xsd_display_fields["uploader_files_uploaded"]', 'fileupload');
+            required_xsd_display_fields[required_xsd_display_fields.length] = new Option('uploader_files_uploaded', 'fileupload');
+
+            // For completed file upload checking
+            required_xsd_display_fields_fileupload[required_xsd_display_fields_fileupload.length] = new Option('uploader_files_uploaded', 'File Upload');
+        }
+
 		// add event listeners to the form submit buttons
 		uploaderAddEventListeners();
 	}
@@ -185,7 +207,11 @@ function swfuploaderUploadComplete(fileObject) {
 		filenameElement.name = 'uploader_files_uploaded';
 		filenameElement.value = xsdmfId;
 		workflowForm.appendChild(filenameElement);
-	}	
+	}
+
+    if (required_xsd_display_fields_fileupload.length > 0){
+        return checkUploadedFiles(document.getElementById('wfl_form1'), required_xsd_display_fields_fileupload);
+    }
 }
 
 // ========================
@@ -345,6 +371,25 @@ function uploaderDisableWorkflowButtons() {
 			dojo.byId(buttonIds[i]).disabled = true;
 		}
 	}
+}
+
+
+// ============================
+// enable the workflow buttons
+// ============================
+function uploaderEnableWorkflowButtons() {
+	if (undefined !== buttonIds && null !== buttonIds) {
+		for (var i in buttonIds) {
+			dojo.byId(buttonIds[i]).disabled = false;
+		}
+	}
+}
+
+function enableAddMoreButton(){
+    // disable the add more button
+    dojo.byId('uploaderUploadButton').enabled = true;
+    swfuploader.setButtonDisabled(false);
+    swfuploader.setButtonCursor(SWFUpload.CURSOR.HAND);
 }
 
 // ==========================================================================

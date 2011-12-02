@@ -288,24 +288,43 @@ function startsWith(s, substr)
     }
 }
 
-function errorDetails(f, field_name, show)
+function errorDetailsIcon(f, field_name, show)
 {
-    var field = getFormElement(f, field_name);
     var icon = getPageElement('error_icon_' + field_name);
+
 	if (icon == null) {
         return false;
     }
     if (show) {
-        field.style.backgroundColor = '#FF9999';
         icon.style.visibility = 'visible';
         icon.width = 14;
         icon.height = 14;
     } else {
-        field.style.backgroundColor = '#FFFFFF';
         icon.style.visibility = 'hidden';
         icon.width = 1;
         icon.height = 1;
     }
+}
+
+
+function errorDetailsField(f, field_name, show)
+{
+    var field = getFormElement(f, field_name);
+	if (field == false) {
+        return false;
+    }
+    if (show) {
+        field.style.backgroundColor = '#FF9999';
+    } else {
+        field.style.backgroundColor = '#FFFFFF';
+    }
+}
+
+
+function errorDetails(f, field_name, show)
+{
+    errorDetailsIcon(f, field_name, show);
+    errorDetailsField(f, field_name, show)
 }
 
 function getFieldTitle(titles_array, field_name)
@@ -398,8 +417,7 @@ function xsdmfValidateLength(field, value, maxLength, title, name) {
 function checkRequiredFields(f, required_fields)
 {
     for (var i = 0; i < required_fields.length; i++) {
-
-		var field = getFormElement(f, required_fields[i].text);		
+		var field = getFormElement(f, required_fields[i].text);
 		if (required_fields[i].value == 'combo') {
             if (getSelectedOption(f, field.name) == '-1') {
                 errors[errors.length] = new Option(getFieldTitle(xsd_display_fields,required_fields[i].text), required_fields[i].text);
@@ -420,7 +438,66 @@ function checkRequiredFields(f, required_fields)
 			if (isWhitespace(field.value)) {
                 errors[errors.length] = new Option(getFieldTitle(xsd_display_fields,required_fields[i].text), required_fields[i].text);
             }
+
+        // Initial file validation: check if there is file(s) on the queue
+		} else if (required_fields[i].value == 'fileupload') {
+            if (typeof(swfuploader) != 'undefined'){
+                var stats = swfuploader.getStats();
+                if (stats.files_queued == 0 &&
+                    (existsUploadedFields(document.getElementById('wfl_form1'), required_xsd_display_fields_fileupload) == false) ){
+                    document.getElementById('uploaderUploadButton').style.backgroundColor = '#FF9999';
+                    errors[errors.length] = new Option(getFieldTitle(xsd_display_fields,required_fields[i].text), required_fields[i].text);
+                }
+            } else {
+                // We only required min one field, so checking on the first field is sufficient
+                var field = document.getElementsByName(required_fields[i].text)[0];
+                if (isWhitespace(field.value)) {
+                    errors[errors.length] = new Option(getFieldTitle(xsd_display_fields,required_fields[i].text), required_fields[i].text);
+                }
+            }
         }
+    }
+}
+
+function existsUploadedFields(f, required_fields)
+{
+    var output = false;
+    for (var i = 0; i < required_fields.length; i++) {
+        var field = getFormElement(f, required_fields[i].text);
+        if (!isWhitespace(field.value)) {
+            output = true;
+        }
+    }
+    return output;
+}
+
+
+function checkUploadedFiles(f, required_fields)
+{
+    errors = new Array();
+    for (var i = 0; i < required_fields.length; i++) {
+        var field = getFormElement(f, required_fields[i].text);
+        if (isWhitespace(field.value)) {
+            errors[errors.length] = new Option(required_fields[i].value);
+        }
+    }
+
+    if (errors.length > 0) {
+        var fields = '';
+        for (var i = 0; i < errors.length; i++) {
+            fields += '- ' + errors[i].value + "\n";
+        }
+
+        // enable buttons that previously disabled by submit action
+        enableWorkflowButtons(f);
+        uploaderEnableWorkflowButtons();
+        enableAddMoreButton();
+
+        // show alert box with the missing uploaded file(s)
+        alert("The files failed to be uploaded for the following fields: \n\n" + fields + "\nPlease try again.");
+        return false;
+    } else {
+        return true;
     }
 }
 
@@ -465,6 +542,10 @@ function checkErrorCondition(form_name, field_name)
 
 function selectField(f, field_name)
 {
+    if (field_name == 'uploader_files_uploaded'){
+        errorDetails(f, field_name, true);
+    }
+
     for (var i = 0; i < f.elements.length; i++) {
 		if (f.elements[i].name == field_name) {
 			if ((f.elements[i].type != 'hidden') && (field_name.indexOf("[]") == -1))  {
