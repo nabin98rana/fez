@@ -35,7 +35,9 @@
  include_once(APP_INC_PATH . "class.community.php");
  include_once(APP_INC_PATH . "class.search_key.php");
  require_once(APP_INC_PATH . "najax_classes.php");
- 
+ require_once(APP_INC_PATH . "class.wok.php");
+ require_once(APP_INC_PATH . "class.scopus.php");
+
  class RecordEditForm 
  {
     var $details;
