@@ -1,0 +1,46 @@
+CREATE TABLE `fez_wok_doctypes` (
+  `wdt_id` int(11) NOT NULL AUTO_INCREMENT,
+  `wdt_code` char(2) DEFAULT NULL,
+  `wdt_description` varchar(255) DEFAULT NULL,
+  `wdt_created_date` datetime DEFAULT NULL,
+  `wdt_updated_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`wdt_id`)
+);
+
+INSERT INTO `fez_wok_doctypes`
+(wdt_code, wdt_description, wdt_created_date)
+VALUES
+('@', '	Article', NOW()),
+('A', 'Review of Book, Film, TV, video, software, performance, music et', NOW()),
+('7', 'Article', NOW()),
+('I', 'Other (News item, press release, note, obituary, other not liste', NOW()),
+('B', 'Review of Book, Film, TV, video, software, performance, music et', NOW()),
+('K', 'Article', NOW()),
+('C', 'Correction/erratum', NOW()),
+('Z', 'Review of Book, Film, TV, video, software, performance, music et', NOW()),
+('0', 'Review of Book, Film, TV, video, software, performance, music et', NOW()),
+('D', 'Discussion (responses, round table/panel discussions, Q&amp;A, reply', NOW()),
+('E', 'Editorial', NOW()),
+('X', 'Other (News item, press release, note, obituary, other not liste', NOW()),
+('O', 'Creative output (poetry, musical score, fiction or prose, NOW())', NOW()),
+('F', 'Review of Book, Film, TV, video, software, performance, music et', NOW()),
+('8', 'Review of Book, Film, TV, video, software, performance, music et', NOW()),
+('L', 'Letter', NOW()),
+('J', 'Review of Book, Film, TV, video, software, performance, music et', NOW()),
+('S', 'Creative output (poetry, musical score, fiction or prose, NOW())', NOW()),
+('G', 'Review of Book, Film, TV, video, software, performance, music et', NOW()),
+('5', 'Other (News item, press release, note, obituary, other not liste', NOW()),
+('N', 'Other (News item, press release, note, obituary, other not liste', NOW()),
+('Y', 'Creative output (poetry, musical score, fiction or prose, NOW())', NOW()),
+('H', 'Review of Book, Film, TV, video, software, performance, music et', NOW()),
+('6', 'Other (News item, press release, note, obituary, other not liste', NOW()),
+('R', 'Review of research - research literature review (NOT book review', NOW()),
+('Q', 'Other (News item, press release, note, obituary, other not liste', NOW()),
+('9', 'Review of Book, Film, TV, video, software, performance, music et', NOW()),
+('V', 'Review of Book, Film, TV, video, software, performance, music et', NOW()),
+('T', 'Review of Book, Film, TV, video, software, performance, music et', NOW()),
+('MC', 'Published Abstract', NOW()),
+('M', 'Published Abstract', NOW()),
+('$', 'Fully Published Paper', NOW()),
+('P', 'Fully Published Paper', NOW()),
+('U', 'Fully Published Paper', NOW());
