@@ -903,7 +903,6 @@ class RJL
                        " . APP_TABLE_PREFIX . "matched_journals
                     WHERE
                        mtj_pid = ?";
-           echo $stmt;
    		try {
    			$db->query($stmt, $pid);
    		}
