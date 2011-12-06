@@ -76,7 +76,7 @@ if ($isAdministrator) {
     $action = Misc::GETorPOST('action');
 
     if ($action == 'save') {
-        Matching::save();
+        Matching::add();
     }
 
     if ($action == 'edit') {
