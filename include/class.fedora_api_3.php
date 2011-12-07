@@ -942,7 +942,7 @@ class Fedora_API {
         ));
         $log->err("sending this as a file => got a location of ".$dsLocation);
 			} elseif ($xmlContent != "") {
-//				$xmlContent = Fedora_API::tidyXML($xmlContent);
+				$xmlContent = Fedora_API::tidyXML($xmlContent);
 				$tempFile = APP_TEMP_DIR.str_replace(":", "_", $pid)."_".$dsID.".xml";
 				$fp = fopen($tempFile, "w");
 				if (fwrite($fp, $xmlContent) === FALSE) {
@@ -991,9 +991,9 @@ class Fedora_API {
        						return false;
                         }
 					}
-          if (file_exists($tempFile)) {
-            unlink($tempFile);
-          }
+                    if (file_exists($tempFile)) {
+                      unlink($tempFile);
+                    }
 			    curl_close ($ch);
 			    return true;
 			 } else {
