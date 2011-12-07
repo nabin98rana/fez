@@ -30,6 +30,9 @@
 // | Authors: Lachlan Kuhn <l.kuhn@library.uq.edu.au>                     |
 // +----------------------------------------------------------------------+
 
+include_once(APP_INC_PATH . "class.matching_journals.php");
+include_once(APP_INC_PATH . "class.matching_conferences.php");
+
 class matching
 {
 	/**
@@ -222,8 +225,7 @@ class matching
 		exit;
 	}
 	
-	
-	
+
 	/**
 	 * Add a brand new mapping.
 	 */
@@ -241,35 +243,39 @@ class matching
 			$table = "journals";
 			$prefix = "mtj";
             $suffix = "_jnl_id";
+            RJL::removeMatchByPID($pid);
 		} elseif ($type == 'C') {
 			$table = "conferences";
 			$prefix = "mtc";
             $suffix = "_cnf_id";
+            RCL::removeMatchByPID($pid);
 		}
 		
 		if ($status == 'B') {
 			$eraid = 'N/A';
 		}
-		
-		$stmt = "INSERT INTO " . APP_TABLE_PREFIX . "matched_" . $table . "
-				(
-				" . $prefix . "_pid,
-				" . $prefix . $suffix . ",
-				" . $prefix . "_status
-				) VALUES (
-				" . $db->quote($pid) . ",
-				" . $db->quote($matching_id, 'INTEGER') . ",
-				" . $db->quote($status) . "
-				);";
-		
-		try {
-			$db->exec($stmt);
-		}
-		catch(Exception $ex) {
-			$log->err($ex);
-			return -1;
-		}
-		
+
+		foreach ($matching_id as $mid) {
+            $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "matched_" . $table . "
+                    (
+                    " . $prefix . "_pid,
+                    " . $prefix . $suffix . ",
+                    " . $prefix . "_status
+                    ) VALUES (
+                    " . $db->quote($pid) . ",
+                    " . $db->quote($mid, 'INTEGER') . ",
+                    " . $db->quote($status) . "
+                    );";
+
+            try {
+                $db->exec($stmt);
+            }
+            catch(Exception $ex) {
+                $log->err($ex);
+                return -1;
+            }
+        }
+
 		header("Location: http://" . APP_HOSTNAME . "/manage/matching.php");
 		exit;
 	}

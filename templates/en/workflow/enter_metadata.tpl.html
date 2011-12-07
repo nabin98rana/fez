@@ -238,8 +238,9 @@
 								<!--
 								{if $xsd_display_fields[i].xsdmf_html_input == 'date'}
 									xsd_display_fields[xsd_display_fields.length] = new Option('xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][Year]', '{$xsd_display_fields[i].xsdmf_title}');
-								{else}
-									xsd_display_fields[xsd_display_fields.length] = new Option('xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]{if $xsd_display_fields[i].xsdmf_html_input == 'multiple' 
+
+							    {elseif $xsd_display_fields[i].xsdmf_html_input != 'file_input'}
+									xsd_display_fields[xsd_display_fields.length] = new Option('xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]{if $xsd_display_fields[i].xsdmf_html_input == 'multiple'
 									|| $xsd_display_fields[i].xsdmf_html_input == 'dual_multiple' 
 									|| $xsd_display_fields[i].xsdmf_html_input == 'contvocab' 
 									|| $xsd_display_fields[i].xsdmf_html_input == 'allcontvocab' 
@@ -249,8 +250,9 @@
 								
 								{if $xsd_display_fields[i].xsdmf_html_input == 'date'}
 									required_xsd_display_fields[required_xsd_display_fields.length] = new Option('xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][Year]', 'whitespace' );
-								{else}
-									required_xsd_display_fields[required_xsd_display_fields.length] = new Option('xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]{if $xsd_display_fields[i].xsdmf_html_input == 'multiple' 
+
+                                {elseif $xsd_display_fields[i].xsdmf_html_input != 'file_input'}
+									required_xsd_display_fields[required_xsd_display_fields.length] = new Option('xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]{if $xsd_display_fields[i].xsdmf_html_input == 'multiple'
 									|| $xsd_display_fields[i].xsdmf_html_input == 'dual_multiple' 
 									|| $xsd_display_fields[i].xsdmf_html_input == 'contvocab' 
 									|| $xsd_display_fields[i].xsdmf_html_input == 'allcontvocab' 
@@ -280,8 +282,11 @@
 
             {if $smarty.const.APP_ENABLE_FLASH_UPLOADER_SWITCH == 'ON'}
                 <tr id="flash_file_uploader_rows" style="display:none">
-                    <th><strong>File upload</strong></th>
+                    <th><strong>File upload {if $xsd_display_fields[i].xsdmf_required == 1} * {/if} </strong></th>
                     <td>
+
+                        {include file="error_icon.tpl.html" field="uploader_files_uploaded"}
+
                         <div id="uploader_file_table_container" style="display:none;">
                             <b>The following files are queued for upload. Upload will commence when this form is submitted.</b>
                             <table id="uploader_file_table">
@@ -307,7 +312,7 @@
 
                         <script type="text/javascript">
                             dojo.addOnLoad( function() {ldelim}
-                                swfuploaderLoad({$xsd_display_fields[i].xsdmf_multiple_limit}, '{$rel_url}', {ldelim} workflowId : {$id}, xsdmf_id : '{$xsd_display_fields[i].xsdmf_id}'{rdelim});
+                                swfuploaderLoad({$xsd_display_fields[i].xsdmf_multiple_limit}, '{$rel_url}', {ldelim} workflowId : {$id}, xsdmf_id : '{$xsd_display_fields[i].xsdmf_id}', required : '{$xsd_display_fields[i].xsdmf_required == 1}'{rdelim});
                             {rdelim});
                         </script>
 
@@ -316,32 +321,38 @@
             {/if}
 
             <tbody id="original_file_uploader_rows">
-			{if $xsd_display_fields[i].xsdmf_multiple == 1}
-				{section name="z" loop=$xsd_display_fields[i].multiple_array}
-					{assign var="loop_num" value=$smarty.section.z.index}
-					<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" {if $loop_num != 0 || ($isEditor != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && $xsd_display_fields[i].xsdmf_required != 1) || $xsd_display_fields[i].xsdmf_invisible == 1}style="display:none"{/if}>
-						<th>
-							<b>{$xsd_display_fields[i].xsdmf_title} {math equation="x + 1" x=$loop_num}</b>{if $loop_num == 0}{if $xsd_display_fields[i].xsdmf_required == 1} * {/if}<br /><i>(More {$xsd_display_fields[i].xsdmf_title} input boxes will appear as you type)</i>{/if}
-						</th>
-						<td>
-							<input type="hidden" name="MAX_FILE_SIZE" value="{$phpini_upload_max_filesize}" />
-							<input class="default" type="file" id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]" onkeyup="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onchange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" maxlength="255" size="50" />
-							{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"][]"}
-						</td>
-					</tr>
-				{/section}
-			{else}
-					<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" {if ($isEditor != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && $xsd_display_fields[i].xsdmf_required != 1) || $xsd_display_fields[i].xsdmf_invisible == 1}style="display:none"{/if}>
-					  <th>
-						<b>{$xsd_display_fields[i].xsdmf_title}{if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b>
-					  </th>
-					  <td>
-						<input class="default" type="file" id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]"  maxlength="255" size="50" />
-						{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}
-					 </td>
-					</tr>
-			{/if}
-		</tbody>
+                {if $xsd_display_fields[i].xsdmf_multiple == 1}
+                    {section name="z" loop=$xsd_display_fields[i].multiple_array}
+                        {assign var="loop_num" value=$smarty.section.z.index}
+                        <tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}"
+                                {if $loop_num != 0 || ($isEditor != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && $xsd_display_fields[i].xsdmf_required != 1) || $xsd_display_fields[i].xsdmf_invisible == 1}style="display:none"{/if}
+                        >
+                            <th>
+                                <b>{$xsd_display_fields[i].xsdmf_title} {math equation="x + 1" x=$loop_num}</b>
+                                        {if $loop_num == 0}{if $xsd_display_fields[i].xsdmf_required == 1} * {/if}
+                                            <br />
+                                            <i>(More {$xsd_display_fields[i].xsdmf_title} input boxes will appear as you type)</i>
+                                        {/if}
+                            </th>
+                            <td>
+                                <input type="hidden" name="MAX_FILE_SIZE" value="{$phpini_upload_max_filesize}" />
+                                <input class="default" type="file" id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]" onkeyup="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onchange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" maxlength="255" size="50" />
+                                {include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"][]"}
+                            </td>
+                        </tr>
+                    {/section}
+                {else}
+                        <tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" {if ($isEditor != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && $xsd_display_fields[i].xsdmf_required != 1) || $xsd_display_fields[i].xsdmf_invisible == 1}style="display:none"{/if}>
+                          <th>
+                            <b>{$xsd_display_fields[i].xsdmf_title}{if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b>
+                          </th>
+                          <td>
+                            <input class="default" type="file" id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]"  maxlength="255" size="50" />
+                            {include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}
+                         </td>
+                        </tr>
+                {/if}
+            </tbody>
 
         {* Checkbox *}
 		{elseif $xsd_display_fields[i].xsdmf_html_input == 'checkbox' && $xsd_display_fields[i].xsdmf_enabled == 1}

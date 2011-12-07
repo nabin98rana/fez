@@ -645,7 +645,8 @@ class WosRecItem
       "Conference Dates" => $this->confDate,
       "Conference Location" => $this->confLocCity . ' ' . $this->confLocState,
       "Conference Name" => $this->confTitle,
-      "Journal Name" => $this->sourceTitle
+      "Journal Name" => $this->sourceTitle,
+      "WoK Doc Type" => $this->docTypeCode
     );
   /// exception for conf papers that the subtype goes into genre type
   if ($xdis_title == "Conference Paper") {

@@ -894,4 +894,25 @@ class RJL
 		return;
 	}
 
+    function removeMatchByPID($pid)
+   	{
+   		$log = FezLog::get();
+   		$db = DB_API::get();
+
+   		$stmt = "DELETE FROM
+                       " . APP_TABLE_PREFIX . "matched_journals
+                    WHERE
+                       mtj_pid = ?";
+   		try {
+   			$db->query($stmt, $pid);
+   		}
+   		catch(Exception $ex) {
+   			$log->err($ex);
+   			return false;
+   		}
+   		return true;
+   	}
+
+
+
 }

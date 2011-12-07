@@ -190,4 +190,47 @@ class Scopus
 			}
 		}
 	}
+
+
+    /**
+     * Returns a list of Scopus document types
+     * @return array|string
+     */
+    public function getAssocDocTypes()
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        static $returns;
+
+        if (!empty($returns)) {
+          return $returns;
+        }
+
+        $stmt = "SELECT
+                        sdt_code, concat_ws(' - ',   sdt_code, sdt_description) as doctype
+                     FROM
+                        " . APP_TABLE_PREFIX . "scopus_doctypes
+                     ORDER BY
+                        sdt_description";
+
+        try {
+            $res = $db->fetchPairs($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return '';
+        }
+
+        if ($GLOBALS['app_cache']) {
+            // make sure the static memory var doesnt grow too large and cause a fatal out of memory error
+            if (!is_array($returns) || count($returns) > 10) {
+                $returns = array();
+            }
+            $returns = $res;
+        }
+        return $res;
+
+    }
+
 }

@@ -42,6 +42,8 @@ include_once(APP_INC_PATH . "class.status.php");
 include_once(APP_INC_PATH . "class.object_type.php");
 include_once(APP_INC_PATH . "class.controlled_vocab.php");
 include_once(APP_INC_PATH . "class.template.php");
+include_once(APP_INC_PATH . "class.scopus.php");
+include_once(APP_INC_PATH . "class.wok.php");
 
 $tpl = new Template_API();
 $tpl->assign("yui_autosuggest", '1');
@@ -53,7 +55,10 @@ $list = Search_Key::getAdvSearchList();
 $sta_list = Status::getAssocList();
 $ret_list = Object_Type::getAssocList();
 $xdis_list = XSD_Display::getAssocListDocTypes();
+$scopus_doctypes = Scopus::getAssocDocTypes();
+$wok_doctypes = Wok::getAssocDocTypes();
 
+    
 $options = Pager::saveSearchParams(array(), 'adv_search');
 
 foreach ($list as $list_key => $list_field) {
@@ -88,6 +93,8 @@ foreach ($list as $list_key => $list_field) {
 		}
 	} 
 }
+//    echo "<pre>". print_r($list,1) ."</pre>";
+//    exit;
 
 $tpl->assign("options", $options);
 $tpl->assign("search_keys", $list);

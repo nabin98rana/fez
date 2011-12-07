@@ -532,16 +532,23 @@ class Record
     
     $stmt = "
       SELECT
-        mtj_jnl_id AS matching_id,
-        mtj_status AS status
+        mtj_jnl_id AS matching_id, ";
+
+      if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
+         $stmt .= " ' (' || jnl_era_year || ')' || jnl_journal_name  AS title";
+      } else {
+         $stmt .= " CONCAT(' (',  jnl_era_year, ') ',jnl_journal_name) AS title";
+      }
+      $stmt .= "
       FROM
-        " . APP_TABLE_PREFIX . "matched_journals
+        " . APP_TABLE_PREFIX . "matched_journals LEFT JOIN
+        " . APP_TABLE_PREFIX . "journal ON jnl_id = mtj_jnl_id
       WHERE
         mtj_pid = " . $db->quote($pid) . ";
     ";
-    
+
     try {
-      $res = $db->fetchRow($stmt, Zend_Db::FETCH_ASSOC);
+      $res = $db->fetchPairs($stmt);
     } catch(Exception $ex) {
       $log->err($ex);
       return "";
@@ -624,16 +631,23 @@ class Record
     
     $stmt = "
       SELECT
-        mtc_cnf_id AS matching_id,
-        mtc_status AS status
+        mtc_cnf_id AS matching_id, ";
+
+      if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
+        $stmt .= " cnf_conference_name || ' (' || cnf_era_year || ')' AS title";
+      } else {
+        $stmt .= " CONCAT(cnf_journal_name, ' (',  cnf_era_year, ')') AS title";
+      }
+      $stmt .= "
       FROM
-        " . APP_TABLE_PREFIX . "matched_conferences
+          " . APP_TABLE_PREFIX . "matched_conferences LEFT JOIN
+          " . APP_TABLE_PREFIX . "conference ON mtc_cnf_id = cnf_id
       WHERE
         mtc_pid = " . $db->quote($pid) . ";
     ";
   
     try {
-      $res = $db->fetchAll($stmt, Zend_Db::FETCH_ASSOC);
+      $res = $db->fetchPairs($stmt);
     } catch(Exception $ex) {
       $log->err($ex);
       return "";
