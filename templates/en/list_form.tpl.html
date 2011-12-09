@@ -205,7 +205,7 @@
             	<img src="{$rel_url}images/scopus_logo_small.gif" title="Scopus Citation Count" alt="Scopus Citation Count" />            
             {/if}
             </td>
-			{if $isUser}
+			{if $isUser && ($useGoogleCitationCounts == 'ON')}
             <td align="center">
             {if $list_info.total_rows > 0 && ($list_type !== 'collection_list' && $list_type !== 'community_list')}
             	<img src="{$rel_url}images/favicon_googlescholar.png" title="Google Scholar Citation Count" alt="Google Scholar Citation Count" />            
@@ -389,7 +389,7 @@
             	&nbsp;
             {/if}			
 		  </td>		
-		  {if $isUser}
+		  {if $isUser && ($useGoogleCitationCounts == 'ON')}
 	       <td align="left"{if $icon}{else} colspan="2"{/if} valign="middle" style="border-top:1px dashed #be87e9; width: 100%;">
             {if $list[i].rek_gs_citation_count != ""}
             	<a href="{$list[i].rek_gs_cited_by_link|escape:"html"}" title="Cited {$list[i].rek_gs_citation_count} times in Google Scholar">{$list[i].rek_gs_citation_count}</a>

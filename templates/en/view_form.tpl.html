@@ -580,7 +580,7 @@ function loadPreview(pid,datastreamID, alt, origami)
 					{if $citationsThomson != '' && ($citationsScopus != '' || ($isUser && $citationsGoogle != ''))}<br />{/if}
 					{if $citationsScopus != ''}<img src="{$rel_url}images/scopus_logo_small.gif" style="vertical-align: text-top;" alt="Scopus Citation Count" title="Scopus Citation Count"/> Cited <a href="{$rel_url}scopus_citation_count_history_{$pid}">{$citationsScopus}</a> times in <a href="http://www.scopus.com/">Scopus</a>{/if}
 					{if $isUser && ($citationsScopus != '')}<br />{/if}
-					{if $isUser}
+					{if $isUser && ($useGoogleCitationCounts == "ON")}
 						{if $citationsGoogle != ''}<img src="{$rel_url}images/favicon_googlescholar.png" style="vertial-align: text-top;" alt="Google Scholar Citation Count" title="Google Scholar Citation Count" /> Cited <a href="{$citationsGoogleLink}">{$citationsGoogle}</a> times in <a href="http://scholar.google.com/">Google Scholar</a>{/if}
 					{/if}
 					</td>

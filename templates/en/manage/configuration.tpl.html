@@ -503,6 +503,16 @@ function restoreDefaultColours(el)
 			</td>
 		  </tr>
 		  <tr>
+		    <th>Google Citation Counts</th>
+			<td>
+			  <select name="app_use_google_citation_counts">
+			    <option value="ON"{if $config_settings.app_use_google_citation_counts == "ON"} selected="selected"{/if}>On</option>
+				<option value="OFF"{if $config_settings.app_use_google_citation_counts == "OFF"} selected="selected"{/if}>Off</option>
+			  </select>
+			<br />Whether you want to display Google Scholar Citation Counts in List and Record views
+			</td>
+		  </tr>			  
+		  <tr>
 		    <th>Flash File Uploader</th>
 			<td>
 			  <select name="app_enable_flash_uploader_switch">

@@ -308,6 +308,7 @@ class Template_API
 		$this->assign("SID", SID);
 		$this->assign("SHIB_SWITCH", SHIB_SWITCH);
 		$this->assign("SHIB_DIRECT_LOGIN", SHIB_DIRECT_LOGIN); 
+		$this->assign("useGoogleCitationCounts", APP_USE_GOOGLE_CITATION_COUNTS);	
 		if($customView && is_array($customView)) {
 			$this->assign("APP_HOSTNAME", $customView['cvcom_hostname']);
 		} else {

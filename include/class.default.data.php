@@ -262,6 +262,7 @@ class Default_Data
 		$defaultData['rid_ul_service_email_append_note']    = "";				
 		$defaultData['app_google_map_key']					= "";
 		$defaultData['app_use_google_map_switch']			= "OFF";
+		$defaultData['app_use_google_citation_counts']		= "OFF";
 		$defaultData['app_use_article_title_search']		= "OFF";		
 		$defaultData['app_article_add_to_collection']		= "";
 		$defaultData['app_article_search_wos_address']		= "";

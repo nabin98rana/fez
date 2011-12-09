@@ -1,0 +1,1 @@
+insert ignore into %TABLE_PREFIX%config (config_name, config_module, config_value) values ('app_use_google_citation_counts','core','OFF');
