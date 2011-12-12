@@ -233,4 +233,31 @@ class Scopus
 
     }
 
+    /**
+     * Returns the description of a Scopus doc type code.
+     *
+     * @param int $sdt_code Scopus Doc Type code
+     * @return string The description of a Scopus Doc Type code
+     */
+    public function getTitle($sdt_code)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $stmt = "SELECT
+                    sdt_description
+                 FROM
+                    " . APP_TABLE_PREFIX . "scopus_doctypes
+                 WHERE
+                    sdt_code=".$db->quote($sdt_code, 'STRING');
+        try {
+            $res = $db->fetchOne($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return '';
+        }
+        return $res;
+    }
+
 }

@@ -83,4 +83,30 @@ class Wok {
         return $res;
     }
 
+    /**
+     * Returns the description of a WoK doc type code.
+     *
+     * @param int $wdt_code WoK Doc Type code
+     * @return string The description of a Wok Doc Type code
+     */
+    public function getTitle($wdt_code)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $stmt = "SELECT
+                    wdt_description
+                 FROM
+                    " . APP_TABLE_PREFIX . "wok_doctypes
+                 WHERE
+                    wdt_code=".$db->quote($wdt_code, 'STRING');
+        try {
+            $res = $db->fetchOne($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return '';
+        }
+        return $res;
+    }
 }
