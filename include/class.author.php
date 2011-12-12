@@ -1888,4 +1888,39 @@ class Author
     NAJAX_Client::mapMethods($this, array('getFullname','getDisplayName' ));
     NAJAX_Client::publicMethods($this, array('getFullname','getDisplayName'));
   }
+  
+/**
+   * Method used to grab 1st author/contributor_id for a record
+   *
+   * CONCAT operator used to ensure authors are given preference
+   */
+  function getFirstAuthorIDinFez($pid)
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+    
+	$stmt = "SELECT rek_author_id, CONCAT('a',rek_author_id_order) as rek_author_id_order
+		FROM " . APP_TABLE_PREFIX . "record_search_key_author_id 
+		WHERE rek_author_id_pid = '" . $pid . "' AND rek_author_id > 0
+		
+		UNION 
+		
+		SELECT rek_contributor_id, CONCAT('c',rek_contributor_id_order)
+		FROM " . APP_TABLE_PREFIX . "record_search_key_contributor_id 
+		WHERE rek_contributor_id_pid = '" . $pid . "' AND rek_contributor_id > 0
+		
+		ORDER BY rek_author_id_order";
+				
+    try {
+      $res = $db->fetchOne($stmt);
+	  $log->err($res);
+    }
+    catch(Exception $ex) {
+      $log->err($ex);
+      return false;
+    }
+    
+    return $res;
+  }  
+  
 }
