@@ -2304,14 +2304,22 @@ class Record
     }
     $sek_details = Search_Key::getList(false);
     $cache_eval = array();
-    
+    $param = '';
+
     foreach ($sek_details as $sekKey => $sekData) {
       $sek_sql_title = Search_Key::makeSQLTableName($sekData['sek_title']);
       if ($sekData['sek_relationship'] == 0) { //already have the data, just need to do any required lookups for 1-1
         if ($sekData['sek_lookup_function'] != "") {
           for ($i = 0; $i < count($result); $i++) {
             if ($result[$i]['rek_'.$sek_sql_title]) {
-              $func = $sekData['sek_lookup_function'].'('.$result[$i]['rek_'.$sek_sql_title].');';
+
+              $param = $result[$i]['rek_'.$sek_sql_title];
+              // Wrap param in single quote, if the value is a string
+              if (!empty($param) && gettype($param)=='string'){
+                $param = "'". $param ."'";
+              }
+
+              $func = $sekData['sek_lookup_function'].'('. $param .');';
               if (array_key_exists($func, $cache_eval)) {
                 $result[$i]["rek_".$sek_sql_title."_lookup"] = $cache_eval[$func];
               } else {
