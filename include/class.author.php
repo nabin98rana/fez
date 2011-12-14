@@ -1893,6 +1893,7 @@ class Author
    * Method used to grab 1st author/contributor_id for a record
    *
    * CONCAT operator used to ensure authors are given preference
+   * fetchAll instead of fetchOne used to improve usability of function
    */
   function getFirstAuthorIDinFez($pid)
   {
@@ -1912,7 +1913,7 @@ class Author
 		ORDER BY rek_author_id_order";
 				
     try {
-      $res = $db->fetchOne($stmt);
+      $res = $db->fetchAll($stmt);
 	  $log->err($res);
     }
     catch(Exception $ex) {
