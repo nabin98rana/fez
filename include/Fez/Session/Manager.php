@@ -40,14 +40,30 @@ class Fez_Session_Manager implements Zend_Session_SaveHandler_Interface
 			return '';
 		}
 	}
- 
+        
+        /**
+         * Insert new / update existing session data on the designated sessions db table.
+         * 
+         * @param String $id Session ID
+         * @param String $sessionData Session Data
+         * @return Boolean  
+         */
 	public function write($id, $sessionData)
 	{
+                // Prepare the value of User ID 
 		$userID = Auth::getUserID();
 		if ($userID == '') {
 			$userID = null;
 		}
-		
+
+                // Do nothing when its session data AND user ID values are empty/null, 
+                // as the record becomes useless and may create clogging on database server. 
+                // In theory, there should be value on $sessionData when user is logged in, 
+                // we apply condition checking on both variable just to avoid distruption on session data for logged in users. 
+                if (empty($sessionData) && (empty($userID) || is_null($userID)) ){
+                    return;     // Adios sayonara
+                }
+                
 		$data = array
 		(
 			'session_data' => $sessionData,
@@ -56,12 +72,13 @@ class Fez_Session_Manager implements Zend_Session_SaveHandler_Interface
 			'user_id' => $userID
 		);
 
+                // session ID is regenerated, so set $thisIsOldSession to false, so we insert new row
 		if ($this->thisIsOldSession && $this->originalSessionId != $id)
 		{
-			// session ID is regenerated, so set $thisIsOldSession to false, so we insert new row
 			$this->thisIsOldSession = false;
 		}
  
+                // Update existing session record
 		if ($this->thisIsOldSession)
 		{
 			$this->sessionData->update
@@ -70,9 +87,10 @@ class Fez_Session_Manager implements Zend_Session_SaveHandler_Interface
 				$this->sessionData->getAdapter()->quoteInto('session_id = ?', $id)
 			);
 		}
+                // Insert new session record
 		else
 		{
-			//no such session, create new one
+                        //no such session, create new one
 			$data['session_id'] = $id;
 			$data['created'] = date('Y-m-d H:i:s');
 			
