@@ -429,7 +429,7 @@ class WokQueue extends Queue
             $body = "Automatically assigned this pid ".$pid." to the HERDC TRIAL COLLECTION ".APP_HERDC_TRIAL_COLLECTION." for RID download of author ".
                 $autDetails['aut_display_name']." with username ".$autDetails['aut_org_username'];
             $userEmail = "";
-            Eventum::lodgeJob($subject, $body, "");
+            Eventum::lodgeJob($subject, $body, "system@espace.library.uq.edu.au");
           }
 
         }
