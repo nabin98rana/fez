@@ -354,6 +354,13 @@ function toggleHideSecondaryLogin()
                Shibboleth can't find a username in the IDP attributes
             {elseif $smarty.get.err == 30}
                You cannot masquerade as a super administrator.
+               
+            {* Username not found error. 
+               It is used ONLY when Disable Password Checking feature is ON. 
+               Otherwise, use error number 3 or 4 above. *}   
+            {elseif $smarty.get.err == 32}
+               Error: The username could not be found in the system.
+               
             {/if}
             </b>
           </td>

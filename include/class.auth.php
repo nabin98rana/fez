@@ -1910,183 +1910,204 @@ class Auth
 	 * @param   string $password The password of the user (in ldap)
 	 * @return  boolean true if the user successfully binds to the LDAP server
 	 */
-	function LoginAuthenticatedUser($username, $password, $shib_login = false, $masquerade = false) 
-	{
-		$log = FezLog::get();
+	function LoginAuthenticatedUser($username, $password, $shib_login = false, $masquerade = false)
+    {
+        $log = FezLog::get();
 
-		global $auth_bgp_session, $auth_isBGP;
-		if ($auth_isBGP) {
-			$session =& $auth_bgp_session;
-		} else {
-			$session =& $_SESSION;
-		}
-		$alreadyLoggedIn = false;
-		if (!empty($session["login_time"]) && $masquerade == false) {
-			$alreadyLoggedIn = true;
+        // Flag on whether to load LDAP User Details. True by default. 
+        // Value will be changed depending on the Disable Password Checking setting and Masquerading
+        $getLDAPDetails = true;
+
+        global $auth_bgp_session, $auth_isBGP;
+        if ($auth_isBGP) {
+            $session =& $auth_bgp_session;
+        } else {
+            $session =& $_SESSION;
+        }
+        $alreadyLoggedIn = false;
+        if (!empty($session["login_time"]) && $masquerade == false) {
+            $alreadyLoggedIn = true;
             return 0;
-		} else {
-			$alreadyLoggedIn = false;
-		}
-		
-		if ($masquerade) {
-			$masqueradingUsername = $session['username'];
-			$session = null;
-			Masquerade::setMasquerader($session, $masqueradingUsername);
-		}
+        } else {
+            $alreadyLoggedIn = false;
+        }
 
-		if ($shib_login == true && (@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'] == "" && $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'] == "")) {
-			return 24;
-		}
+        if ($masquerade) {
+            $masqueradingUsername = $session['username'];
+            $session = null;
+            Masquerade::setMasquerader($session, $masqueradingUsername);
+        }
 
-		if ($shib_login == true) { 
-			// Get the username from eduPerson Targeted ID. If empty then they are (really) anonymous
-			if ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'] != "") {
-				$username = $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'];
+        if ($shib_login == true && (@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'] == "" && $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'] == "")) {
+            return 24;
+        }
 
-				// if user has a principal name already in fez add their shibboleth username,
-				// but otherwise their username is their epTid
-				if ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'] != "") {
-					$principal_prefix = substr($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'], 0, strpos($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'], "@"));
+        if ($shib_login == true) {
+            // Get the username from eduPerson Targeted ID. If empty then they are (really) anonymous
+            if ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'] != "") {
+                $username = $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'];
 
-					if ($principal_prefix != '' ) {
-						if (Auth::userExists($username)) {
-							User::updateUsername($principal_prefix, $username);
-						}
-							
-						$username = $principal_prefix;
-						// this is mainly to cater for having login available for both shib and ldap/ad
-						if (Auth::userExists($principal_prefix)) {
-							User::updateShibUsername($principal_prefix, $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID']);
-						}
-					}
-				}
-			} elseif ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'] != "") { // if no eptid then try using EP principalname - this should be rare
-				$principal_prefix = substr($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'], 0, strpos($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'], "@"));
-				if (Auth::userExists($principal_prefix)) {
-					$username = $principal_prefix;
-				} else {
-					$username = $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'];
-				}
-			} else {
-				// if trying to login via shib and can't find a username in the IDP
-				// attribs then return false to make redirect to login page with message
-				return 23;
-			}
-		}
+                // if user has a principal name already in fez add their shibboleth username,
+                // but otherwise their username is their epTid
+                if ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'] != "") {
+                    $principal_prefix = substr($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'], 0, strpos($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'], "@"));
 
-		// If the user isn't a registered fez user, get their details elsewhere (The AD/LDAP)
-		// as they must have logged in with LDAP or Shibboleth
+                    if ($principal_prefix != '') {
+                        if (Auth::userExists($username)) {
+                            User::updateUsername($principal_prefix, $username);
+                        }
 
-		if (!Auth::userExists($username)) {
-			if ($shib_login == true) {
-				$session['isInAD'] = false;
-				$session['isInDB'] = false;
-				$session['isInFederation'] = true;
-
-				if ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Person-commonName'] != "") {
-					$fullname =	$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Person-commonName'];
-				} elseif ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'] != "") {
-					$fullname =	$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'];
-				} elseif ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'] != "") {
-					$fullname =	$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'];
-				} elseif ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-Nickname'] != "") {
-					$fullname =	$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-Nickname'];
-				} else {
-					$fullname = "Anonymous User";
-				}
-				if ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Person-mail'] != "") {
-					$email = $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Person-mail'];
-				} else {
-					$email = "";
-				}
-
-				if ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'] != "") {
-					$shib_username = $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'];
-				} else {
-					$shib_username = $username;
-				}
-
-				$distinguishedname = "";
-				// Create the user in Fez
-				User::insertFromShibLogin($username, $fullname, $email, $shib_username);
-				$usr_id = User::getUserIDByUsername($username);
-				User::updateShibAttribs($usr_id);
-			} else {
-				$session['isInAD'] = true;
-				$session['isInDB'] = false;
-				$session['isInFederation'] = false;
-
-				$userDetails = User::GetUserLDAPDetails($username, $password);
-
-				$fullname = $userDetails['displayname'];
-				$email = $userDetails['email'];
-				$distinguishedname = $userDetails['distinguishedname'];
-				Auth::GetUsersLDAPGroups($username, $password);
-				// Create the user in Fez
-				User::insertFromLDAPLogin();
-        $usr_id = User::getUserIDByUsername($username);
-        $userDetails = User::GetUserLDAPDetails($username, $password);
-         //Overwrite shib attributes wiht those from ldap/ad
-        User::updateShibAttribs($usr_id);
-			}
-			$usr_id = User::getUserIDByUsername($username);
-		} else { // if it is a registered Fez user then get their details from the fez user table
-			$session['isInDB'] = true;
-			$userDetails = User::getDetails($username);
-      $usr_id = User::getUserIDByUsername($username);
-			if (!Auth::isActiveUser($username)) {
-				return 7;
-			}
-			if ($shib_login == true) {
-				$session['isInFederation'] = true;
-			} else {
-				$session['isInFederation'] = false;
-				if ($userDetails['usr_ldap_authentication'] == 1) {
-					if (!$auth_isBGP) {
-            if (!$masquerade) { // only try and get ldap details if not masquerading, as ldap wont bind with a masq
-              Auth::GetUsersLDAPGroups($userDetails['usr_username'], $password);
-              $userDetails = User::GetUserLDAPDetails($username, $password);
-              $distinguishedname = @$userDetails['distinguishedname'];
-              $userDetails = User::getDetails($username);
-              //Overwrite shib attributes wiht those from ldap/ad
-              User::updateShibAttribs($usr_id);
+                        $username = $principal_prefix;
+                        // this is mainly to cater for having login available for both shib and ldap/ad
+                        if (Auth::userExists($principal_prefix)) {
+                            User::updateShibUsername($principal_prefix, $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID']);
+                        }
+                    }
+                }
+            } elseif ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'] != "") { // if no eptid then try using EP principalname - this should be rare
+                $principal_prefix = substr($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'], 0, strpos($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'], "@"));
+                if (Auth::userExists($principal_prefix)) {
+                    $username = $principal_prefix;
+                } else {
+                    $username = $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'];
+                }
+            } else {
+                // if trying to login via shib and can't find a username in the IDP
+                // attribs then return false to make redirect to login page with message
+                return 23;
             }
-					} else {
-						$distinguishedname = '';
-					}
-					$session['isInAD'] = true;
-				}  else {
-					$distinguishedname = '';
-					$session['isInAD'] = false;
-				}
-			}
-			$fullname = $userDetails['usr_full_name'];
-			$email = $userDetails['usr_email'];
-			if ($alreadyLoggedIn !== true) {
-				User::updateLoginDetails($usr_id); //incremement login count and last login date
-				if ($shib_login == true) {
-					User::updateShibLoginDetails($usr_id); //incremement login count for shib logins for this user
+        }
 
-					// Save attribs incase we need them when shib server goes down
-					// Added config var check for this
-					if (SHIB_CACHE_ATTRIBS != 'OFF') {
-						User::updateShibAttribs($usr_id);
-					}
-				}
-				else {
-					User::loadShibAttribs($usr_id);
-				}
-			}
+        // If the user isn't a registered fez user, get their details elsewhere (The AD/LDAP)
+        // as they must have logged in with LDAP or Shibboleth
 
-			// get internal fez groups
-			Auth::GetUsersInternalGroups($usr_id);
-		}
+        if (!Auth::userExists($username)) {
+            if ($shib_login == true) {
+                $session['isInAD'] = false;
+                $session['isInDB'] = false;
+                $session['isInFederation'] = true;
 
-		Auth::createLoginSession($username, $fullname, $email, $distinguishedname, @$_POST["remember_login"]);
-		// pre process authorisation rules matches for this user
-		Auth::setAuthRulesUsers();
-		return 0;
-	}
+                if ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Person-commonName'] != "") {
+                    $fullname = $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Person-commonName'];
+                } elseif ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'] != "") {
+                    $fullname = $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'];
+                } elseif ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'] != "") {
+                    $fullname = $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'];
+                } elseif ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-Nickname'] != "") {
+                    $fullname = $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-Nickname'];
+                } else {
+                    $fullname = "Anonymous User";
+                }
+                if ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Person-mail'] != "") {
+                    $email = $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Person-mail'];
+                } else {
+                    $email = "";
+                }
+
+                if ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'] != "") {
+                    $shib_username = $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'];
+                } else {
+                    $shib_username = $username;
+                }
+
+                $distinguishedname = "";
+                // Create the user in Fez
+                User::insertFromShibLogin($username, $fullname, $email, $shib_username);
+                $usr_id = User::getUserIDByUsername($username);
+                User::updateShibAttribs($usr_id);
+            } else {
+                $session['isInAD'] = true;
+                $session['isInDB'] = false;
+                $session['isInFederation'] = false;
+
+                $userDetails = User::GetUserLDAPDetails($username, $password);
+                
+                // Login failed, get out of here.
+                if ($userDetails === false){
+                    return 32;
+                }
+
+                $fullname = $userDetails['displayname'];
+                $email = $userDetails['email'];
+                $distinguishedname = $userDetails['distinguishedname'];
+                Auth::GetUsersLDAPGroups($username, $password);
+                // Create the user in Fez
+                User::insertFromLDAPLogin();
+                $usr_id = User::getUserIDByUsername($username);
+                
+                // @TOFIX: Investigate why GetUserLDAPDetails() method is called the 2nd time in this else condition.
+                $userDetails = User::GetUserLDAPDetails($username, $password);
+                //Overwrite shib attributes wiht those from ldap/ad
+                User::updateShibAttribs($usr_id);
+            }
+            $usr_id = User::getUserIDByUsername($username);
+            
+        // User Exists
+        } else { // if it is a registered Fez user then get their details from the fez user table
+            $session['isInDB'] = true;
+            $userDetails = User::getDetails($username);
+            $usr_id = User::getUserIDByUsername($username);
+            if (!Auth::isActiveUser($username)) {
+                return 7;
+            }
+            if ($shib_login == true) {
+                $session['isInFederation'] = true;
+            } else {
+                $session['isInFederation'] = false;
+                if ($userDetails['usr_ldap_authentication'] == 1) {
+                    if (!$auth_isBGP) {
+                        
+                        // Escape loading LDAP User details when one of these conditions is met, as the LDAP server won't bind without valid password.
+                        // - Disable Password Checking is on & available for this IP
+                        //   APP_DISABLE_PASSWORD_CHECKING (String). Value: "true" or "false"
+                        // - User is masquerading as another user
+                        if ( (APP_DISABLE_PASSWORD_CHECKING == "true" && $_SERVER['REMOTE_ADDR'] == APP_DISABLE_PASSWORD_IP) || ($masquerade) ) {
+                            $getLDAPDetails = false;
+                        }
+                            
+                        if ($getLDAPDetails) { 
+                            Auth::GetUsersLDAPGroups($userDetails['usr_username'], $password);
+                            $userDetails = User::GetUserLDAPDetails($username, $password);
+                            $distinguishedname = @$userDetails['distinguishedname'];
+                            $userDetails = User::getDetails($username);
+                            //Overwrite shib attributes wiht those from ldap/ad
+                            User::updateShibAttribs($usr_id);
+                        }
+                    } else {
+                        $distinguishedname = '';
+                    }
+                    $session['isInAD'] = true;
+                } else {
+                    $distinguishedname = '';
+                    $session['isInAD'] = false;
+                }
+            }
+            $fullname = $userDetails['usr_full_name'];
+            $email = $userDetails['usr_email'];
+            if ($alreadyLoggedIn !== true) {
+                User::updateLoginDetails($usr_id); //incremement login count and last login date
+                if ($shib_login == true) {
+                    User::updateShibLoginDetails($usr_id); //incremement login count for shib logins for this user
+
+                    // Save attribs incase we need them when shib server goes down
+                    // Added config var check for this
+                    if (SHIB_CACHE_ATTRIBS != 'OFF') {
+                        User::updateShibAttribs($usr_id);
+                    }
+                } else {
+                    User::loadShibAttribs($usr_id);
+                }
+            }
+
+            // get internal fez groups
+            Auth::GetUsersInternalGroups($usr_id);
+        }
+
+        Auth::createLoginSession($username, $fullname, $email, $distinguishedname, @$_POST["remember_login"]);
+        // pre process authorisation rules matches for this user
+        Auth::setAuthRulesUsers();
+        return 0;
+    }
 
 	/**
 	 * Gets the internal Fez system groups the user belongs to.

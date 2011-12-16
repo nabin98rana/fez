@@ -1252,69 +1252,77 @@ class User
 	 * @param $password The LDAP password
 	 * @return array $userdetails An array of the user LDAP details
 	 */
-	function GetUserLDAPDetails($username, $password)  
-	{
+	function GetUserLDAPDetails($username, $password)
+    {
 
-		$userdetails = array();
-		$success = 'true';
-		$filter = "(samaccountname=".$username.")";
-		$ldap_conn = ldap_connect(LDAP_SERVER, LDAP_PORT);
-		ldap_set_option($ldap_conn, LDAP_OPT_PROTOCOL_VERSION, 3);
-		ldap_set_option($ldap_conn, LDAP_OPT_REFERRALS, 0);
-		$ldap_bind = ldap_bind($ldap_conn, LDAP_PREFIX."\\".$username, $password);
-		if ($ldap_bind) {
-			$ldap_result = ldap_search($ldap_conn, LDAP_ROOT_DN, $filter);
-			// retrieve all the entries from the search result
-			$ii=0;
-			if( $ldap_result ) {
-				$info = ldap_get_entries( $ldap_conn, $ldap_result );
-//        print_r($info); exit;
-				for ($i=0; $ii<$info[$i]["count"]; $ii++) {
-					$data = $info[$i][$ii];
-					for( $j=0; $j<$info[$i][$data]["count"]; $j++ ) {
-						if( $data == "mail" ) {
-							$userdetails['email'] = $info[$i][$data][$j];
-						}
-						if( $data == "displayname" ) {
-							$userdetails['displayname'] = $info[$i][$data][$j];
-						}
-						if( $data == "distinguishedname" ) {
-							$userdetails['distinguishedname'] = $info[$i][$data][$j];
-              $_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryOrgUnitDN'] = $userdetails['distinguishedname'].", ".LDAP_ORGANISATION;
-              $_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgUnitDN'] = $userdetails['distinguishedname'].", ".LDAP_ORGANISATION;
-						}
-            if( $data == "userprincipalname" ) {
-              $userdetails['userprincipalname'] = $info[$i][$data][$j];
-              $_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'] = $userdetails['userprincipalname'];
+        $userdetails = array();
+        $success = 'true';
+        $filter = "(samaccountname=" . $username . ")";
+        $ldap_conn = ldap_connect(LDAP_SERVER, LDAP_PORT);
+        ldap_set_option($ldap_conn, LDAP_OPT_PROTOCOL_VERSION, 3);
+        ldap_set_option($ldap_conn, LDAP_OPT_REFERRALS, 0);
+        $ldap_bind = ldap_bind($ldap_conn, LDAP_PREFIX . "\\" . $username, $password);
+        if ($ldap_bind) {
+            $ldap_result = ldap_search($ldap_conn, LDAP_ROOT_DN, $filter);
+            // retrieve all the entries from the search result
+            $ii = 0;
+            if ($ldap_result) {
+                $info = ldap_get_entries($ldap_conn, $ldap_result);
+                for ($i = 0; $ii < $info[$i]["count"]; $ii++) {
+                    $data = $info[$i][$ii];
+                    for ($j = 0; $j < $info[$i][$data]["count"]; $j++) {
+                        if ($data == "mail") {
+                            $userdetails['email'] = $info[$i][$data][$j];
+                        }
+                        if ($data == "displayname") {
+                            $userdetails['displayname'] = $info[$i][$data][$j];
+                        }
+                        if ($data == "distinguishedname") {
+                            $userdetails['distinguishedname'] = $info[$i][$data][$j];
+                            $_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryOrgUnitDN'] = $userdetails['distinguishedname'] . ", " . LDAP_ORGANISATION;
+                            $_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgUnitDN'] = $userdetails['distinguishedname'] . ", " . LDAP_ORGANISATION;
+                        }
+                        if ($data == "userprincipalname") {
+                            $userdetails['userprincipalname'] = $info[$i][$data][$j];
+                            $_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'] = $userdetails['userprincipalname'];
+                        }
+                    }
+                }
             }
-
-					}
-				}
-			}
-      if (is_array($_SESSION[APP_LDAP_GROUPS_SESSION])) {
-        $home_idp_suffix = substr($userdetails['userprincipalname'], strrpos($userdetails['userprincipalname'], "@")+1);
-        foreach ($_SESSION[APP_LDAP_GROUPS_SESSION] as $group) {
-          if ($group == LDAP_STAFF_GROUP) { //eg CN=uqStaff,OU=Managed Groups,DC=uq,DC=edu,DC=au
-            $_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-UnscopedAffiliation'] = 'staff';
-            $_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryAffiliation'] = 'staff';
-            $_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-ScopedAffiliation'] = 'staff@'.$home_idp_suffix;
-          }
-          if ($group == LDAP_STUDENT_GROUP) {
-            $_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-UnscopedAffiliation'] = 'student';
-            $_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryAffiliation'] = 'student';
-            $_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-ScopedAffiliation'] = 'student@'.$home_idp_suffix;
-          }
+            if (is_array($_SESSION[APP_LDAP_GROUPS_SESSION])) {
+                $home_idp_suffix = substr($userdetails['userprincipalname'], strrpos($userdetails['userprincipalname'], "@") + 1);
+                foreach ($_SESSION[APP_LDAP_GROUPS_SESSION] as $group) {
+                    if ($group == LDAP_STAFF_GROUP) { //eg CN=uqStaff,OU=Managed Groups,DC=uq,DC=edu,DC=au
+                        $_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-UnscopedAffiliation'] = 'staff';
+                        $_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryAffiliation'] = 'staff';
+                        $_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-ScopedAffiliation'] = 'staff@' . $home_idp_suffix;
+                    }
+                    if ($group == LDAP_STUDENT_GROUP) {
+                        $_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-UnscopedAffiliation'] = 'student';
+                        $_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryAffiliation'] = 'student';
+                        $_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-ScopedAffiliation'] = 'student@' . $home_idp_suffix;
+                    }
+                }
+            }
+            $_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgDN'] = LDAP_ORGANISATION;
+            
+        // LDAP is not binding. Get out of here, soon.
+        } else {
+            // Gracefully handle LDAP binding error, close ldap connection and returns false 
+            ldap_close($ldap_conn);
+            return false;
         }
-      }
-      $_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgDN'] = LDAP_ORGANISATION;
-		} else {
-			echo ldap_error( $ldap_conn );
-			exit;
-		}
 
-		ldap_close( $ldap_conn );
-		return $userdetails;
-	}
+        ldap_close($ldap_conn);
+        
+        // Check the size of $userDetails, do not return empty $userDetails, 
+        // as it is resulting in login status with empty user.
+        if (sizeof($userdetails) == 0){
+            return false;
+        }
+        
+        return $userdetails;
+    }
 
 
 	/**
