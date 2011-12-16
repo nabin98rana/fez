@@ -98,7 +98,7 @@ class Journal
 		$start = $current_row * $max;
 
 		$stmt = "SELECT
-					*
+					SQL_CALC_FOUND_ROWS  *
                  FROM
                     " . APP_TABLE_PREFIX . "journal
 				" . $where_stmt . "

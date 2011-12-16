@@ -98,7 +98,7 @@ class Conference
 		$start = $current_row * $max;
 
 		$stmt = "SELECT
-					*
+					SQL_CALC_FOUND_ROWS *
                  FROM
                     " . APP_TABLE_PREFIX . "conference
 				" . $where_stmt . "
@@ -130,7 +130,7 @@ class Conference
 			$log->err($ex);
 			return '';
 		}
-
+        
 		if (($start + $max) < $total_rows) {
 			$total_rows_limit = $start + $max;
 		} else {
