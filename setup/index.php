@@ -189,7 +189,7 @@ function testBaseConfigValues() {
         return "The specified path does not exist.";
     }
     // Attempt database connection with the supplied credentials.
-    if ($dbtype == 'pdo_mysql' and !function_exists(mysql_connect)) {
+    if ($dbtype == 'pdo_mysql' and !function_exists('mysql_connect')) {
         return "The MySQL PHP extension is not installed. Please correct the problem and refresh this page.";
     }
     $conn = @mysql_connect($_POST['app_sql_dbhost'], $_POST['app_sql_dbuser'], $_POST['app_sql_dbpass']);
