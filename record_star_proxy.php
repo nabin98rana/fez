@@ -102,4 +102,43 @@ class RecordStarProxy
 			return 'false';
 		}
 	}
+
+    /**
+   	 * Stars the specified search for the current user
+   	 *
+   	 * @param  string $searchLocation of the search we wish to star
+   	 * @return string
+   	 */
+   	public function starSearch($searchLocation, $description) //, $alias, $email
+   	{
+   		$log = FezLog::get();
+   		$db = DB_API::get();
+
+   		if (Favourites::starSearch($searchLocation, $description)) {
+   			return 'true';
+   		} else {
+   			return 'false';
+   		}
+   	}
+
+
+
+   	/**
+   	 * Un-stars the specified searchLocation for the current user
+   	 *
+   	 * @param  string $searchLocation of the record we wish to un-star
+   	 *
+   	 * @return string
+   	 */
+   	public function unstarSearch($searchLocation)
+   	{
+   		$log = FezLog::get();
+   		$db = DB_API::get();
+
+   		if (Favourites::unstarSearch($searchLocation)) {
+   			return 'true';
+   		} else {
+   			return 'false';
+   		}
+   	}
 }

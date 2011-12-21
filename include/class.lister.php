@@ -1056,6 +1056,9 @@ class Lister
         $tpl->assign('sort_order', $options["sort_order"]);
         $tpl->assign("list", $list);
         $tpl->assign("list_info", $list_info);
+
+        $url = (!empty($_SERVER['HTTPS'])) ? "https://".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'] : "http://".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+        $tpl->assign("search_favourited", Favourites::isStarredSearch($url));
         
         // Hack to get SCRIPT_URL without querystrings.
         // Usually we could get this info from $_SERVER['SCRIPT_URL'], but can't since 
@@ -1152,13 +1155,17 @@ class Lister
             $params['author_id'] = $authorDetails['aut_id'];
 			Lister::getList($params, true);
             return true;
-		}
+        }
+
+        //Lets see if it's a saved search and also merge with get parameters (Since user might reorder saved search)
+        $searchAlias = Favourites::getSearchAliasURL($uri);
+        if ($searchAlias) {
+                //Puts the saved get values into a array
+                parse_str(parse_url($searchAlias, PHP_URL_QUERY), $savedParams);
+                $mergedSearchParams = array_merge($savedParams, $params);
+      			Lister::getList($mergedSearchParams, true);
+                return true;
+      	}
         return false;
 	}
-
 }
-
-
-
-
-?>
