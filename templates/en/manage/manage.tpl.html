@@ -37,6 +37,7 @@
               <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/masquerade.php'}class="focus" {/if}href="{$rel_url}manage/masquerade.php">Masquerade</a></li>
             {/if}
             <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/index_new.php'}class="focus" {/if}href="{$rel_url}manage/index_new.php">Index Objects</a></li>
+              <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/era_affiliation.php'}class="focus" {/if}href="{$rel_url}manage/era_affiliation.php">ERA Affiliations</a></li>
           </ul>
 
           {if $isSuperAdministrator}

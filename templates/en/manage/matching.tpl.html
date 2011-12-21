@@ -166,13 +166,13 @@ function setPage(new_page)
                         {assign var="field_id_helper" value="xsd_display_fields_helper_"|cat:$xsdmf.xsdmf_id|cat:"_0"}
                         {assign var="field_name" value="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"][]"}
                         {assign var="field_id" value="xsd_display_fields_"|cat:$xsdmf.xsdmf_id|cat:"_0"}
-                        <select id="matching_id" multiple size="20" style="max-width:400px" class="default" name="matching_id[]">
+                        <select id="matching_id" multiple size="20" class="default" name="matching_id[]">
                             {if is_array($mapping)}{html_options options=$mapping}{/if}
                         </select>
                         {include file="error_icon.tpl.html" field=mapping_id}
                       </td>
                         <td align="left" style="vertical-align: 0;">
-                        <select id="matching_id_helper" multiple size="20" style="max-width:400px" class="default" name="matching_id_helper">
+                        <select id="matching_id_helper" multiple size="20" style="max-width:600px" class="default" name="matching_id_helper">
                             {section name="i" loop=$list}
                                 <option value="{$list[i].matching_id}">{$list[i].title|truncate:125:"...":true} &nbsp; ({$list[i].year}) &nbsp; {if $list[i].year == 2010}(Rank {$list[i].rank}){/if}</option>
                             {/section}
@@ -237,12 +237,12 @@ function setPage(new_page)
                             {assign var="field_id_helper" value="xsd_display_fields_helper_"|cat:$xsdmf.xsdmf_id|cat:"_0"}
                             {assign var="field_name" value="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"][]"}
                             {assign var="field_id" value="xsd_display_fields_"|cat:$xsdmf.xsdmf_id|cat:"_0"}
-                            <select id="matching_id" multiple size="20" style="max-width:400px" class="default" name="matching_id[]">
+                            <select id="matching_id" multiple size="20" class="default" name="matching_id[]">
                             </select>
                             {include file="error_icon.tpl.html" field=mapping_id}
                           </td>
                             <td align="left" style="vertical-align: 0;">
-                            <select id="matching_id_helper" multiple size="20" style="max-width:400px" class="default" name="matching_id_helper">
+                            <select id="matching_id_helper" multiple size="20" style="max-width:600px" class="default" name="matching_id_helper">
                                 {section name="i" loop=$list}
                                     <option value="{$list[i].matching_id}">{$list[i].title|truncate:125:"...":true} &nbsp; ({$list[i].year}) &nbsp; {if $list[i].year == 2010}(Rank {$list[i].rank}){/if}</option>
                                 {/section}
