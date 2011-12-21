@@ -1,0 +1,83 @@
+<link rel="stylesheet" href="{$rel_url}css/autocomplete.css" type="text/css" />
+<script type="text/javascript" src="{$rel_url}js/yahoo/utilities.js"></script>
+<script type="text/javascript" src="{$rel_url}js/yahoo/autocomplete.js"></script>
+
+<script type="text/javascript">
+{literal}
+$(document).ready(function(){
+    $('#aae_status_id_lookup_none').change(function()
+    {
+        console.log('fdfddfdf');
+       alert('Value change to ');
+    });
+});
+
+{/literal}
+</script>
+<tr><td>
+<a href="/view/{$authors[0].pid}">{$authors[0].pid}</a> - {$title}
+<div class="outline">
+<div class="admin-header">Edit ERA Author Affiliations</div>
+  <div class="default admin-content">
+  <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
+	<tr>
+	  <td>
+		<table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+
+		<div class="error">{$error_message}</div>
+        <input type="hidden" name="action" value="save"/>
+        <input type="hidden" name="id" value="{$wf_id}"/>
+          <tr>
+              <td width="140" bgcolor="{$cell_color}" class="default">
+           			  <b>Author&nbsp;Name:</b>
+           	  </td>
+              <td width="140" bgcolor="{$cell_color}" class="default">
+           			  <b>Affiliation Status:</b>
+           	  </td>
+              <td width="140" bgcolor="{$cell_color}" class="default">
+                  <b>Alliliation Comment:</b>
+              </td>
+              <td width="140" bgcolor="{$cell_color}" class="default">
+                     <b>PID Affiliation Process Complete:</b>
+              </td>
+          </tr>
+        {foreach name=current_authors item=author from=$authors}
+		  <tr>
+            <input type="hidden" name="aae_id[{$smarty.foreach.current_authors.iteration}]" value="{$author.aae_id}"/>
+            <input type="hidden" name="staff_id[{$smarty.foreach.current_authors.iteration}]" value="{$author.staff_id}"/>
+			<td bgcolor="{$light_color}" colspan="1">
+                {$author.aut_display_name}
+			</td>
+            <td bgcolor="{$light_color}" colspan="1">
+                <select id="aae_status_id_lookup_{$smarty.foreach.current_authors.iteration}" name="aae_status_id_lookup[{$smarty.foreach.current_authors.iteration}]">
+                  <option value="99">Please Select Below</option>
+                    {foreach from=$era_affiliation_list key=k item=v}
+                        <option value="{$k}"{if ($author.aae_status_id_lookup!="") && ($author.aae_status_id_lookup == $k)} selected{/if}>{$v}</option>
+                    {/foreach}
+                </select>
+            </td>
+            <td bgcolor="{$light_color}" colspan="1">
+              <input type="textfield" name="af_era_comment[{$smarty.foreach.current_authors.iteration}][" value="{$author.aae_comment}"  size="60"/>
+            </td>
+            <td bgcolor="{$light_color}" colspan="1" align="center">
+              {$author.aae_is_pid_request_complete}
+            </td>
+          </tr>
+        {/foreach}
+        <tr>
+            <td width="140" bgcolor="{$light_color}" class="default"></td>
+            <td bgcolor="{$light_color}" colspan="3">
+              <br />
+              <input type="submit" name="save" value="Save" class="button" />
+              <br /><br />
+            </td>
+        </tr>
+		</table>
+	  </td>
+	</tr>
+  </table>
+
+  </div>
+</div>
+
+</td></tr>
