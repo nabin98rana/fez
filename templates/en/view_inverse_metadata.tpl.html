@@ -1,47 +1,54 @@
 <table id="view-metadata">
-    {section name="i" loop=$xsd_display_fields}
-        {if $xsd_display_fields[i].xsdmf_show_in_view == 0 and 
-          in_array($xsd_display_fields[i].xsdmf_title, array('ISI LOC', 'Scopus ID', 'Refereed?', 'eSpace Follow-up Flags', 'IMU Follow-up Flags', 'HERDC Notes'))}
-            {assign var="temp_fld_id" value=$xsd_display_fields[i].xsdmf_id}
-            {assign var="attached_temp_fld_id" value=$xsd_display_fields[i].xsdmf_attached_xsdmf_id}
-            {if $xsd_display_fields[i].xsdmf_show_in_view == 0}
-                {if $xsd_display_fields[i].xsdmf_data_type == 'date'}
-                    <tr>
-                        <th>{$xsd_display_fields[i].xsdmf_title|escape:'htmlall'}
-                            {if $debug == 1}
-                                {$xsd_display_fields[i].xsdmf_order|escape:'htmlall'}
-                            {/if}
-                        </th>
-                        <td>
-                            {if $xsd_display_fields[i].xsdmf_html_input == 'date'}
-                                {$details[$temp_fld_id]|escape:'htmlall'}
-                            {else}
-                                {if $details[$attached_temp_fld_id] == 0}
-                                    {$details[$temp_fld_id]|date_format:"%A, %B %e, %Y"|escape:'htmlall'}
-                                {else}
-                                    {$details[$temp_fld_id]|escape:'htmlall'}
-                                {/if}
-                            {/if}
-                        </td>
-                    </tr>
-                {else}
-                    <tr>
-                        <th>{$xsd_display_fields[i].xsdmf_title|escape:'htmlall'}
-                            {if $debug == 1}
-                                {$xsd_display_fields[i].xsdmf_order|escape:'htmlall'}
-                            {/if}
-                        </th>
-                        <td>
-                            {if $xsd_display_fields[i].xsdmf_title == 'Handle'}
-                                <a href="{$xsd_display_fields[i].xsdmf_value_prefix|escape:'url'}{$details[$temp_fld_id]|escape:'url'}">{$xsd_display_fields[i].xsdmf_value_prefix|escape:'htmlall'}{$details[$temp_fld_id]|escape:'htmlall'}</a>
-                            {else}
-                                {$xsd_display_fields[i].xsdmf_value_prefix}{$details[$temp_fld_id]}
-                            {/if}
-                        </td>
-                    </tr>
-                {/if}
-            {/if}
+
+    {* $spyglassFields is returned by RecordGeneral::getSpyglassHoverFields() method.
+       $spyglassFields contains the fields & theirs formatted values expected to be displayed on Spyglass Hover.
+
+       We moved the back-end logic of filtering the fields from this template to the PHP,
+       in order to separate the front-end presentation from the back-end decision making. *}
+    {section name="i" loop=$spyglassFields}
+
+        {assign var="temp_fld_id" value=$spyglassFields[i].xsdmf_id}
+        {assign var="attached_temp_fld_id" value=$spyglassFields[i].xsdmf_attached_xsdmf_id}
+
+        {* Date fields display *}
+        {if $spyglassFields[i].xsdmf_data_type == 'date'}
+            <tr>
+                <th>{$spyglassFields[i].xsdmf_title|escape:'htmlall'}
+                    {if $debug == 1}
+                        {$spyglassFields[i].xsdmf_order|escape:'htmlall'}
+                    {/if}
+                </th>
+                <td>
+                    {if $spyglassFields[i].xsdmf_html_input == 'date'}
+                        {$spyglassFields[i].value|escape:'htmlall'}
+                    {else}
+                        {if $details[$attached_temp_fld_id] == 0}
+                            {$spyglassFields[i].value|date_format:"%A, %B %e, %Y"|escape:'htmlall'}
+                        {else}
+                            {$spyglassFields[i].value|escape:'htmlall'}
+                        {/if}
+                    {/if}
+                </td>
+            </tr>
+
+        {* Other type of fields display *}
+        {else}
+            <tr>
+                <th>{$spyglassFields[i].xsdmf_title|escape:'htmlall'}
+                    {if $debug == 1}
+                           {$spyglassFields[i].xsdmf_order|escape:'htmlall'}
+                    {/if}
+                </th>
+                <td>
+                    {if $spyglassFields[i].xsdmf_title == 'Handle'}
+                        <a href="{$spyglassFields[i].xsdmf_value_prefix|escape:'url'}{$spyglassFields[i].value|escape:'url'}">{$spyglassFields[i].xsdmf_value_prefix|escape:'htmlall'}{$spyglassFields[i].value|escape:'htmlall'}</a>
+                    {else}
+                        {$spyglassFields[i].xsdmf_value_prefix}{$spyglassFields[i].value}
+                    {/if}
+                </td>
+            </tr>
         {/if}
+
     {sectionelse}
         <tr>
             <td>

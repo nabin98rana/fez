@@ -25,8 +25,20 @@
 
       <table cellspacing="1" cellpadding="0" id="edit_metadata_form_table" style="background: white; width: 100%">
         <tr>
-          <td class="default_white" style="background: {$heading_color}" colspan="10">
-            <img style="vertical-align: middle" alt="" src="{$rel_url}images/edit_32.gif" /><b>Edit {$xdis_title} Record</b>
+          <td class="default_white" style="background:{$heading_color}" colspan="10">
+            {if $fedora_get_view != "0"}
+                <a class="form_note" title="Click to open this PID in Fedora (admin access only)" href="{$spyglasshref}" onclick="{$spyglassclick}" >
+            {/if}
+            <img style="vertical-align: middle" alt="" src="{$rel_url}images/edit_32.gif" />
+            {if $fedora_get_view != "0"}
+                {if $isAdministrator}
+                    <span class="form_note">
+                        {include file='view_inverse_metadata.tpl.html'}
+                    </span>
+                {/if}
+                </a>
+            {/if}
+            <b>Edit {$xdis_title} Record</b>
           </td>
         </tr>
         {section name="i" loop=$xsd_display_fields}

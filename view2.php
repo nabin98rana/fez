@@ -687,6 +687,12 @@ if($datastreams)
 }
 $tpl->assign('pageCounts',$pageCounts);
 
+// Get fields to be displayed on Spyglass hover. 
+// @usage: view_inverse_metadata.tpl.html
+$spyglassFields = RecordGeneral::getSpyglassHoverFields($xsd_display_fields, $details);
+$tpl->assign('spyglassFields', $spyglassFields);
+
+
 /**
  * Sets a list on the Smarty template containing unique datastream timestamps. 
  *
