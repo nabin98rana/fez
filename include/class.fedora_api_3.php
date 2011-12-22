@@ -1326,7 +1326,7 @@ class Fedora_API {
 						return $ds_matches[0];
 					}
 				} else {
-					if (isset($row['dsid']) && strtolower($row['dsid']) == strtolower($dsID)) {
+					if (isset($row['dsid']) && ($row['dsid'] == $dsID)) {
 						$dsExists = true;
 					}
 				}
