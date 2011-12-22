@@ -1,0 +1,76 @@
+{include file="header.tpl.html" extra_title="Search Favourites"}
+{include file="navigation.tpl.html"}
+            <form method="post">
+            <table style="width: 100%" cellspacing="0" cellpadding="0">
+                <tr><td><br /></td></tr>
+                <tr>
+                    <td colspan="2" class="default">
+                      <h2>Saved Searches - Beta</h2>
+                    </td>
+                </tr>
+              <tr>
+                  <td  style="background: {$cell_color}; text-align: center">
+                    <input name="submit" type="submit" value="Save" class="button" />
+                  </td>
+              </tr>
+              <tr>
+                <td colspan="2">
+                  <table style="width: 100%" cellpadding="10" cellspacing="10">
+                    <tr>
+                        <td class="default cell-colour"><b>Delete</b></td>
+                        <td class="default cell-colour"><b>Title</b></td>
+                        <td class="default cell-colour"><b>Alaised Link</b></td>
+                        <td class="default cell-colour"><b>Real Link</b></td>
+                        <td class="default cell-colour"><b>Alais</b></td>
+                        <td class="default cell-colour"><b>Email Me</b></td>
+                        <td class="default cell-colour"></td>
+                    </tr>
+                    {section name="i" loop=$list}
+                    {cycle values=$cycle assign="row_color"}
+                    <tr>
+                      <td style="width: 4px; text-align: center; white-space: nowrap; background: {$row_color}">
+                         <input type="checkbox" name="items[]" value="{$list[i].fvs_id}" />
+                      </td>
+                        <td style="background: {$row_color}" class="default">
+                            <input name="description[{$list[i].fvs_id}]" type="text" value = "{$list[i].fvs_description}">
+                        </td>
+                        {if ($list[i].fvs_alias)}
+                            <td style="background: {$row_color}" class="default"><a href="{$rel_url}{$list[i].fvs_alias}">
+                            {$list[i].fvs_alias}</a></td>
+                        {else}
+                            <td style="background: {$row_color}" class="default">None</td>
+                        {/if}
+                      <td style="background: {$row_color}" class="default"><a href="{$list[i].fvs_search_parameters}">
+                            Link</a></td>
+                      <td style="background: {$row_color}" class="default">
+                          <input name="alias[{$list[i].fvs_id}]" type="text" value = "{$list[i].fvs_alias}">
+                      </td>
+                      <td style="background: {$row_color}" class="default">
+                          <select name="emailme[{$list[i].fvs_id}]">
+                              <option value="1" {if ($list[i].fvs_email_me)}selected{/if}>Yes</option>
+                              <option value="0" {if (!$list[i].fvs_email_me)}selected{/if}>No</option>
+                          </select>
+                      </td>
+                    <td style="background: {$row_color}" class="default">
+                        {assign var="row_id" value=$list[i].fvs_id}
+                        {if ($issues[$row_id].issue == "taken" )}
+                            Alias "{$issues[$row_id].alias}" Taken
+
+                        {/if}
+                    </td>
+                    </tr>
+
+                    {sectionelse}
+                    <tr>
+                      <td colspan="14" style="background: {$light_color}; text-align: center" class="default">
+                        No saved searches could be found. Searches can be favourited on the search page
+                      </td>
+                    </tr>
+                    {/section}
+                  </table>
+                </td>
+              </tr>
+            </table>
+            </form>
+{include file="app_info.tpl.html"}
+{include file="footer.tpl.html"}

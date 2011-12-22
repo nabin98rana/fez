@@ -1,19 +1,23 @@
 {if $hide_list_heading != "true"}
   <div id="criteria-box">
     <h1>
-    {if $browse_type == 'browse_favourites'}      
-      <img src="{$rel_url}images/star_32.png" alt="" class="page_master_icon" />   
-    {elseif $list_type == 'all_records_list' || $list_type == 'collection_records_list'}
-      <img src="{$rel_url}images/record_32.jpg" alt="" class="page_master_icon" />		
-    {elseif $list_type == 'community_list'}
-      <img src="{$rel_url}images/community_32.jpg" alt="" class="page_master_icon" />
-    {elseif $list_type == 'collection_list'}
-      <img src="{$rel_url}images/collection_32.jpg" alt="" class="page_master_icon" />
-    {elseif $browse_type == 'browse_author'}			
-      <a href="{$rel_url}list/author/"><img title="Browse by all authors" alt="Browse by all authors" src="{$rel_url}images/browse_32.jpg" class="page_master_icon" /></a>
-    {/if}
-    {$list_heading}</h1>
-  
+        {if $browse_type == 'browse_favourites'}
+          <img src="{$rel_url}images/star_32.png" alt="" class="page_master_icon" />
+        {elseif $list_type == 'all_records_list' || $list_type == 'collection_records_list'}
+          <img src="{$rel_url}images/record_32.jpg" alt="" class="page_master_icon" />
+        {elseif $list_type == 'community_list'}
+          <img src="{$rel_url}images/community_32.jpg" alt="" class="page_master_icon" />
+        {elseif $list_type == 'collection_list'}
+          <img src="{$rel_url}images/collection_32.jpg" alt="" class="page_master_icon" />
+        {elseif $browse_type == 'browse_author'}
+          <a href="{$rel_url}list/author/"><img title="Browse by all authors" alt="Browse by all authors" src="{$rel_url}images/browse_32.jpg" class="page_master_icon" /></a>
+        {/if}
+        {$list_heading}
+        {if ($isUser && !$browse_type &&$list_type == "all_records_list" ) }
+            {$browse_type}
+              &nbsp;&nbsp;&nbsp;&nbsp; <img src="{$rel_url}images/star_22{if !$search_favourited}_grey{/if}.png" alt="Favourite this search" title="Favourite this search" id="star_search" onclick="javascript:starSearchToggle();"/>
+        {/if}
+    </h1>
   {if $list_type == 'collection_records_list'}
     {if $parents}
     <div id="parent-list"><b>Parents:</b> 
@@ -27,7 +31,6 @@
     </div>
     {/if}
   {/if}
-  
   </div>
 {/if}
 

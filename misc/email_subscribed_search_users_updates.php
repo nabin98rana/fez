@@ -99,7 +99,7 @@ function emailUser($link, $userEmail ) {
     $body = "There have been updates to the search you have saved and requested updates on. Please click here to see any updated records since your last alert\n\n";
     $body .= $link;
     $body .= "\n\nPlease click here to unsubscribe to updates and to manage them\n";
-    $body .= "https://".APP_HOSTNAME."/login.php\n";
+    $body .= "https://".APP_HOSTNAME."/search_favourites.php\n";
 
     $mail = new Mail_API;
     $subject = "Search update alert";

@@ -353,6 +353,7 @@ class Favourites
         foreach($_POST['alias'] as $key => $value) {
             $alias = $_POST['alias'][$key];
             $emailMe = $_POST['emailme'][$key];
+            $description = $_POST['description'][$key];
             $rowId = $key;
             if ((!empty($alias)) && (Favourites::isSearchAliasTaken($alias, $rowId))) {
                 $issues[$rowId]['issue'] = 'taken';
@@ -368,7 +369,8 @@ class Favourites
                             " . APP_TABLE_PREFIX . "favourites_search
                         SET
                             fvs_alias = " . $db->quote($alias) .",
-                            fvs_email_me = " . $db->quote($emailMe) .
+                            fvs_email_me = " . $db->quote($emailMe) .",
+                            fvs_description = " . $db->quote($description) .
                             $startEmailing ."
                         WHERE
                            fvs_id = " . $db->quote($key) ."
