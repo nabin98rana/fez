@@ -81,18 +81,20 @@ class Scopus
 		}
 
 		$stmt = "
-            SELECT uq_pid, sco_eid FROM
-            era_2012_eid_returned_results_all a
-            INNER JOIN fez_record_search_key ON rek_pid = uq_pid
-            INNER JOIN fez_record_search_key_ismemberof ON rek_pid = rek_ismemberof_pid
-            LEFT JOIN fez_record_search_key_scopus_id ON uq_pid = rek_scopus_id_pid AND rek_scopus_id = sco_eid
-            WHERE
-            sco_matched_on = 'ivp'
-            AND PREG_REPLACE('/[^a-z]/', '', LOWER(sco_title)) = PREG_REPLACE('/[^a-z]/', '', LOWER(uq_title))
-            AND sco_status = 'Successfully Matched'
-            AND rek_ismemberof NOT IN ('UQ:244548')
-            AND rek_scopus_id IS NULL
-            GROUP BY rek_pid
+SELECT uq_pid, sco_eid FROM
+era_2012_eid_returned_results_all a
+INNER JOIN fez_record_search_key ON rek_pid = uq_pid
+INNER JOIN fez_record_search_key_ismemberof ON rek_pid = rek_ismemberof_pid
+LEFT JOIN fez_record_search_key_scopus_id ON uq_pid = rek_scopus_id_pid AND rek_scopus_id = sco_eid
+LEFT JOIN fez_xsd_display ON xdis_id = rek_display_type
+WHERE
+sco_matched_on = 'title'
+AND sco_status = 'Successfully Matched'
+AND ((rek_genre_type = 'Fully Published Paper' AND xdis_title = 'Conference Paper') OR xdis_title != 'Conference Paper')
+AND rek_ismemberof NOT IN ('UQ:244548')
+AND (sco_start_page = uq_start_page OR sco_end_page = uq_end_page)
+AND rek_scopus_id IS NULL
+GROUP BY rek_pid
 		".$limit;
 		
 		try {
