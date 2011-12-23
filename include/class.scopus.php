@@ -81,16 +81,18 @@ class Scopus
 		}
 
 		$stmt = "
-					SELECT
-						uq_pid, sco_eid
-					FROM
-						era_eid_returned_results_third
-					INNER JOIN ".APP_TABLE_PREFIX."record_search_key ON uq_pid = rek_pid
-					LEFT JOIN ".APP_TABLE_PREFIX."record_search_key_scopus_id ON rek_scopus_id_pid = uq_pid
-					LEFT JOIN era_eid_manual_checked ON man_pid = uq_pid
-					WHERE sco_eid != '' AND sco_status = 'Successfully Tagged' AND rek_scopus_id_pid IS NULL AND (man_eid = sco_eid OR man_eid IS NULL)
-					ORDER BY
-						uq_pid ASC
+            SELECT uq_pid, sco_eid FROM
+            era_2012_eid_returned_results_all a
+            INNER JOIN fez_record_search_key ON rek_pid = uq_pid
+            INNER JOIN fez_record_search_key_ismemberof ON rek_pid = rek_ismemberof_pid
+            LEFT JOIN fez_record_search_key_scopus_id ON uq_pid = rek_scopus_id_pid AND rek_scopus_id = sco_eid
+            WHERE
+            sco_matched_on = 'ivp'
+            AND PREG_REPLACE('/[^a-z]/', '', LOWER(sco_title)) = PREG_REPLACE('/[^a-z]/', '', LOWER(uq_title))
+            AND sco_status = 'Successfully Matched'
+            AND rek_ismemberof NOT IN ('UQ:244548')
+            AND rek_scopus_id IS NULL
+            GROUP BY rek_pid
 		".$limit;
 		
 		try {
