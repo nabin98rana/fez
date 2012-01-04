@@ -1,125 +1,133 @@
 <!-- File Input -->
 
 {if $smarty.const.APP_ENABLE_FLASH_UPLOADER_SWITCH == 'ON'}
-<tbody id="flash_file_uploader_rows" style="display:none">
-<tr>
-	<td width="200" bgcolor="{$cell_color}" class="default" valign="top"><strong>File upload</strong></td>
-	<td bgcolor="{$value_color}" class="default">
+    <tbody id="flash_file_uploader_rows" style="display:none">
+        <tr>
+            <td width="200" bgcolor="{$cell_color}" class="default" valign="top"><strong>File upload{if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</strong></td>
+            <td bgcolor="{$value_color}" class="default">
+                
+                {include file="error_icon.tpl.html" field="uploader_files_uploaded"}
+                
+                <div id="uploader_file_table_container" style="display:none;">
+                    <b>The following files are queued for upload. Upload will commence when this form is submitted.</b>
+                    <table id="uploader_file_table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Size</th>
+                                <th>Progress</th>
+                                <th>&nbsp;</th>
+                            </tr>
+                        </thead>
+                        <tbody id="uploader_file_details">
+                        </tbody>
+                    </table>
+                </div>
 
-		<div id="uploader_file_table_container" style="display:none;">
-			<b>The following files are queued for upload. Upload will commence when this form is submitted.</b>
-			<table id="uploader_file_table">
-				<thead>
-					<tr>
-						<th>Name</th>
-						<th>Size</th>
-						<th>Progress</th>
-						<th>&nbsp;</th>
-					</tr>
-				</thead>
-				<tbody id="uploader_file_details">
-				</tbody>
-			</table>
-		</div>
+                <div id="uploaderElements" style="display:inline;">
+                    <div id="uploaderContainer">
+                        <span id="uploaderSelectLink" style="position: absolute; z-index: 2;"></span>
+                        <input id="uploaderUploadButton" type="button" value="Select Files" style="z-index:1;" />
+                    </div>
+                </div>
 
-		<div id="uploaderElements" style="display:inline;">
-			<div id="uploaderContainer">
-				<span id="uploaderSelectLink" style="position: absolute; z-index: 2;"></span>
-				<input id="uploaderUploadButton" type="button" value="Select Files" style="z-index:1;" />
-			</div>
-		</div>
-
-		<script type="text/javascript">
+                <script type="text/javascript">
 			dojo.addOnLoad( function() {ldelim}
-				swfuploaderLoad({$xsdmf.xsdmf_multiple_limit}, '{$rel_url}', {ldelim} workflowId : {$id}, xsdmf_id : '{$xsdmf.xsdmf_id}'{rdelim});
-			{rdelim});
-		</script>
-	</td>
-	{include file='workflow/compare_records_helpers/get_right_column.tpl.html input_field_name="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"][]"}
-</tr>
-</tbody>
+				swfuploaderLoad({$xsdmf.xsdmf_multiple_limit}, '{$rel_url}', {ldelim} workflowId : {$id}, xsdmf_id : '{$xsdmf.xsdmf_id}', required : '{$xsd_display_fields[i].xsdmf_required == 1}'{rdelim});
+                    {rdelim});
+                </script>
+            </td>
+            {include file='workflow/compare_records_helpers/get_right_column.tpl.html input_field_name="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"][]"}
+        </tr>
+    </tbody>
 {/if}
 <tbody id="original_file_uploader_rows">
-{if $xsdmf.xsdmf_multiple == 1}
-{section name="z" loop=$xsdmf.multiple_array}
-{assign var="loop_num" value=$smarty.section.z.index}
-			<tr id="tr_xsd_display_fields_{$xsdmf.xsdmf_id}_{$loop_num}" {if $loop_num != 0 || $xsdmf.xsdmf_invisible == 1}style="display:none"{/if}>
-				<td width="200" bgcolor="{$cell_color}" class="default">
-					<b>{$xsdmf.xsdmf_title} {math equation='x + 1' x=$loop_num}</b>{if $xsdmf.xsdmf_required == 1} * {/if}<br />{if $loop_num == 0}<i>(More {$xsdmf.xsdmf_title} input boxes will appear as you type)</i>{/if}
-				</td>
-				<td bgcolor="{$value_color}">
-					<input type="hidden" name="MAX_FILE_SIZE" value="{$phpini_upload_max_filesize}" />
-					<input class="default" type="file" id="xsd_display_fields_{$xsdmf.xsdmf_id}_{$loop_num}" 
-					  name="xsd_display_fields[{$xsdmf.xsdmf_id}][]" 
-					  	onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsdmf.xsdmf_id}', 'edit_metadata_form_table');" 
-					  	onChange="javascript:unhideRow('xsd_display_fields_{$xsdmf.xsdmf_id}', 'edit_metadata_form_table');" 
-					  	maxlength="255" size="50">
-					{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"][]"}
-					{if $xsdmf.xsdmf_attached_xsdmf_id != ""}
-						{section name="a" loop=$xsd_display_fields}
-							{assign var="temp_attached_xsdmf_id" value=$xsd_display_fields[a].xsdmf_id}
-							{if $temp_attached_xsdmf_id == $xsdmf.xsdmf_attached_xsdmf_id}
-								{if $xsd_display_fields[a].xsdmf_html_input == 'text'}
-									<br /> 
-									<span class="default"><b>{$xsd_display_fields[a].xsdmf_title}:</b></span>
-									{assign var="attached_field_id" value="xsd_display_fields_"|cat:$temp_attached_xsdmf_id|cat:"_"|cat:$loop_num}
-									<input class="default" type="text" id="{$attached_field_id}" name="xsd_display_fields[{$xsd_display_fields[a].xsdmf_id}][]" value="{$details[$temp_fld_id][z]}"  maxlength="255" size="50">
-								{elseif $xsd_display_fields[a].xsdmf_html_input == 'checkbox'}
-									<input class="default" type="checkbox" id="xsd_display_fields_{$xsd_display_fields[a].xsdmf_id}_{$loop_num}" 
-										name="xsd_display_fields[{$xsd_display_fields[a].xsdmf_id}][]" {if $details[$temp_fld_id][z] =='on'}checked{/if} 
-										onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[a].xsdmf_id}', 'edit_metadata_form_table');" 
-										onChange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[a].xsdmf_id}', 'edit_metadata_form_table');">
-									{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[a].xsdmf_id|cat:"][]"}
-									{if $xsd_display_fields[a].xsdmf_long_description != ""}
-										<span class="default">{$xsd_display_fields[a].xsdmf_long_description}</span>
-									{/if}
-								{/if}
-							{/if}
-						{/section}
-					{/if}
-					{if $xsd_display_fields[i].xsdmf_required == 1}
-        		    <script language="JavaScript">
-			        <!--
-        		    xsd_display_fields[xsd_display_fields.length] = new Option('xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]{if $xsd_display_fields[i].xsdmf_html_input == 'multiple' || $xsd_display_fields[i].xsdmf_html_input == 'contvocab' || $xsd_display_fields[i].xsdmf_html_input == 'allcontvocab' || $xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector' || $xsd_display_fields[i].xsdmf_multiple == 1}[]{/if}', '{$xsd_display_fields[i].xsdmf_title}');
-		            required_xsd_display_fields[required_xsd_display_fields.length] = new Option('xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]{if $xsd_display_fields[i].xsdmf_html_input == 'multiple'|| $xsd_display_fields[i].xsdmf_html_input == 'contvocab' || $xsd_display_fields[i].xsdmf_html_input == 'allcontvocab' || $xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector' || $xsd_display_fields[i].xsdmf_multiple == 1}[]{/if}', {if $xsd_display_fields[i].xsdmf_html_input == 'multiple' || $xsd_display_fields[i].xsdmf_html_input == 'contvocab' || $xsd_display_fields[i].xsdmf_html_input == 'allcontvocab' || $xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector'}'multiple'{elseif $xsd_display_fields[i].xsdmf_html_input == 'checkbox'}'checkbox'{elseif $xsd_display_fields[i].xsdmf_html_input == 'combo' || $xsd_display_fields[i].xsdmf_html_input == 'author_selector'}'combo'{else}'whitespace'{/if});
-        		    //-->
-		            </script>
-        		    {/if}
-
-				</td>
-				{include file='workflow/compare_records_helpers/get_right_column.tpl.html input_field_name="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"][]"}
-			</tr>
-{/section}
-{else}
-		<tr id="tr_xsd_display_fields_{$xsdmf.xsdmf_id}_0" {if $xsdmf.xsdmf_invisible == 1}style="display:none;"{/if}>
-			<td width="200" bgcolor="{$cell_color}" class="default">
-				<b>{$xsdmf.xsdmf_title}{if $xsdmf.xsdmf_required == 1} * {/if}</b>
-			</td>
-			<td bgcolor="{$value_color}">
-				<input class="default" type="file" id="xsd_display_fields_{$xsdmf.xsdmf_id}_0" 
-					name="xsd_display_fields[{$xsdmf.xsdmf_id}]"  maxlength="255" size="50">
-					{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"}
-				{if $xsdmf.xsdmf_attached_xsdmf_id != ""}
-					{section name="a" loop=$xsd_display_fields}
-						{assign var="temp_attached_xsdmf_id" value=$xsd_display_fields[a].xsdmf_id}
-						{if $xsd_display_fields[a].xsdmf_html_input == 'text' AND $temp_attached_xsdmf_id == $xsdmf.xsdmf_attached_xsdmf_id}
-							<br />
-							<span class="default"><b>{$xsd_display_fields[a].xsdmf_title}:</b></span>
-							{assign var="attached_field_id" value="xsd_display_fields_"|cat:$temp_attached_xsdmf_id|cat:"_"|cat:$loop_num}
-							<input class="default" type="text" id="{$attached_field_id}" name="xsd_display_fields[{$xsd_display_fields[a].xsdmf_id}][]" value="{$details[$temp_fld_id][z]}" onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsdmf.xsdmf_id}', 'choicexsd_display_fields_{$xsdmf.xsdmf_id}');" onChange="javascript:unhideRow('xsd_display_fields_{$xsdmf.xsdmf_id}', 'choicexsd_display_fields_{$xsdmf.xsdmf_id}');" maxlength="255" size="50">
-						{/if}
-					{/section}
-				{/if}
-					{if $xsd_display_fields[i].xsdmf_required == 1}
-        		    <script language="JavaScript">
-			        <!--
-        		    xsd_display_fields[xsd_display_fields.length] = new Option('xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]{if $xsd_display_fields[i].xsdmf_html_input == 'multiple' || $xsd_display_fields[i].xsdmf_html_input == 'contvocab' || $xsd_display_fields[i].xsdmf_html_input == 'allcontvocab' || $xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector' || $xsd_display_fields[i].xsdmf_multiple == 1}[]{/if}', '{$xsd_display_fields[i].xsdmf_title}');
-		            required_xsd_display_fields[required_xsd_display_fields.length] = new Option('xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]{if $xsd_display_fields[i].xsdmf_html_input == 'multiple'|| $xsd_display_fields[i].xsdmf_html_input == 'contvocab' || $xsd_display_fields[i].xsdmf_html_input == 'allcontvocab' || $xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector' || $xsd_display_fields[i].xsdmf_multiple == 1}[]{/if}', {if $xsd_display_fields[i].xsdmf_html_input == 'multiple' || $xsd_display_fields[i].xsdmf_html_input == 'contvocab' || $xsd_display_fields[i].xsdmf_html_input == 'allcontvocab' || $xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector'}'multiple'{elseif $xsd_display_fields[i].xsdmf_html_input == 'checkbox'}'checkbox'{elseif $xsd_display_fields[i].xsdmf_html_input == 'combo' || $xsd_display_fields[i].xsdmf_html_input == 'author_selector'}'combo'{else}'whitespace'{/if});
-        		    //-->
-		            </script>
-        		    {/if}
-			 </td>
-			{include file='workflow/compare_records_helpers/get_right_column.tpl.html input_field_name="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"}
-		</tr>
-{/if}
+    {if $xsdmf.xsdmf_multiple == 1}
+        {section name="z" loop=$xsdmf.multiple_array}
+            {assign var="loop_num" value=$smarty.section.z.index}
+            <tr id="tr_xsd_display_fields_{$xsdmf.xsdmf_id}_{$loop_num}" {if $loop_num != 0 || $xsdmf.xsdmf_invisible == 1}style="display:none"{/if}>
+                <td width="200" bgcolor="{$cell_color}" class="default">
+                    <b>{$xsdmf.xsdmf_title} {math equation='x + 1' x=$loop_num}</b>{if $xsdmf.xsdmf_required == 1} * {/if}<br />{if $loop_num == 0}<i>(More {$xsdmf.xsdmf_title} input boxes will appear as you type)</i>{/if}
+                </td>
+                <td bgcolor="{$value_color}">
+                    <input type="hidden" name="MAX_FILE_SIZE" value="{$phpini_upload_max_filesize}" />
+                    <input class="default" type="file" id="xsd_display_fields_{$xsdmf.xsdmf_id}_{$loop_num}" 
+                           name="xsd_display_fields[{$xsdmf.xsdmf_id}][]" 
+                           onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsdmf.xsdmf_id}', 'edit_metadata_form_table');" 
+                           onChange="javascript:unhideRow('xsd_display_fields_{$xsdmf.xsdmf_id}', 'edit_metadata_form_table');" 
+                           maxlength="255" size="50">
+                    {include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"][]"}
+                    {if $xsdmf.xsdmf_attached_xsdmf_id != ""}
+                        {section name="a" loop=$xsd_display_fields}
+                            {assign var="temp_attached_xsdmf_id" value=$xsd_display_fields[a].xsdmf_id}
+                            {if $temp_attached_xsdmf_id == $xsdmf.xsdmf_attached_xsdmf_id}
+                                {if $xsd_display_fields[a].xsdmf_html_input == 'text'}
+                                    <br /> 
+                                    <span class="default"><b>{$xsd_display_fields[a].xsdmf_title}:</b></span>
+                                    {assign var="attached_field_id" value="xsd_display_fields_"|cat:$temp_attached_xsdmf_id|cat:"_"|cat:$loop_num}
+                                    <input class="default" type="text" id="{$attached_field_id}" name="xsd_display_fields[{$xsd_display_fields[a].xsdmf_id}][]" value="{$details[$temp_fld_id][z]}"  maxlength="255" size="50">
+                                {elseif $xsd_display_fields[a].xsdmf_html_input == 'checkbox'}
+                                    <input class="default" type="checkbox" id="xsd_display_fields_{$xsd_display_fields[a].xsdmf_id}_{$loop_num}" 
+                                           name="xsd_display_fields[{$xsd_display_fields[a].xsdmf_id}][]" {if $details[$temp_fld_id][z] =='on'}checked{/if} 
+                                           onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[a].xsdmf_id}', 'edit_metadata_form_table');" 
+                                           onChange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[a].xsdmf_id}', 'edit_metadata_form_table');">
+                                    {include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[a].xsdmf_id|cat:"][]"}
+                                    {if $xsd_display_fields[a].xsdmf_long_description != ""}
+                                        <span class="default">{$xsd_display_fields[a].xsdmf_long_description}</span>
+                                    {/if}
+                                {/if}
+                            {/if}
+                        {/section}
+                    {/if}
+                    
+                    {* Comment this out, as file upload required flag is handled on swfuploader.js
+                    {if $xsd_display_fields[i].xsdmf_required == 1}
+                        <script language="JavaScript">
+                            <!--
+                        xsd_display_fields[xsd_display_fields.length] = new Option('xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]{if $xsd_display_fields[i].xsdmf_html_input == 'multiple' || $xsd_display_fields[i].xsdmf_html_input == 'contvocab' || $xsd_display_fields[i].xsdmf_html_input == 'allcontvocab' || $xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector' || $xsd_display_fields[i].xsdmf_multiple == 1}[]{/if}', '{$xsd_display_fields[i].xsdmf_title}');
+                        required_xsd_display_fields[required_xsd_display_fields.length] = new Option('xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]{if $xsd_display_fields[i].xsdmf_html_input == 'multiple'|| $xsd_display_fields[i].xsdmf_html_input == 'contvocab' || $xsd_display_fields[i].xsdmf_html_input == 'allcontvocab' || $xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector' || $xsd_display_fields[i].xsdmf_multiple == 1}[]{/if}', {if $xsd_display_fields[i].xsdmf_html_input == 'multiple' || $xsd_display_fields[i].xsdmf_html_input == 'contvocab' || $xsd_display_fields[i].xsdmf_html_input == 'allcontvocab' || $xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector'}'multiple'{elseif $xsd_display_fields[i].xsdmf_html_input == 'checkbox'}'checkbox'{elseif $xsd_display_fields[i].xsdmf_html_input == 'combo' || $xsd_display_fields[i].xsdmf_html_input == 'author_selector'}'combo'{else}'whitespace'{/if});
+                        //-->
+                        </script>
+                    {/if}
+                    *}
+                </td>
+                {include file='workflow/compare_records_helpers/get_right_column.tpl.html input_field_name="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"][]"}
+            </tr>
+        {/section}
+    {else}
+        <tr id="tr_xsd_display_fields_{$xsdmf.xsdmf_id}_0" {if $xsdmf.xsdmf_invisible == 1}style="display:none;"{/if}>
+            <td width="200" bgcolor="{$cell_color}" class="default">
+                <b>{$xsdmf.xsdmf_title}{if $xsdmf.xsdmf_required == 1} * {/if}</b>
+            </td>
+            <td bgcolor="{$value_color}">
+                <input class="default" type="file" id="xsd_display_fields_{$xsdmf.xsdmf_id}_0" 
+                       name="xsd_display_fields[{$xsdmf.xsdmf_id}]"  maxlength="255" size="50">
+                {include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"}
+                {if $xsdmf.xsdmf_attached_xsdmf_id != ""}
+                    {section name="a" loop=$xsd_display_fields}
+                        {assign var="temp_attached_xsdmf_id" value=$xsd_display_fields[a].xsdmf_id}
+                        {if $xsd_display_fields[a].xsdmf_html_input == 'text' AND $temp_attached_xsdmf_id == $xsdmf.xsdmf_attached_xsdmf_id}
+                            <br />
+                            <span class="default"><b>{$xsd_display_fields[a].xsdmf_title}:</b></span>
+                            {assign var="attached_field_id" value="xsd_display_fields_"|cat:$temp_attached_xsdmf_id|cat:"_"|cat:$loop_num}
+                            <input class="default" type="text" id="{$attached_field_id}" name="xsd_display_fields[{$xsd_display_fields[a].xsdmf_id}][]" value="{$details[$temp_fld_id][z]}" onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsdmf.xsdmf_id}', 'choicexsd_display_fields_{$xsdmf.xsdmf_id}');" onChange="javascript:unhideRow('xsd_display_fields_{$xsdmf.xsdmf_id}', 'choicexsd_display_fields_{$xsdmf.xsdmf_id}');" maxlength="255" size="50">
+                        {/if}
+                    {/section}
+                {/if}
+                
+                {* Comment this out, as file upload required flag is handled on swfuploader.js
+                {if $xsd_display_fields[i].xsdmf_required == 1}
+                    <script language="JavaScript">
+                        <!--
+                    xsd_display_fields[xsd_display_fields.length] = new Option('xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]{if $xsd_display_fields[i].xsdmf_html_input == 'multiple' || $xsd_display_fields[i].xsdmf_html_input == 'contvocab' || $xsd_display_fields[i].xsdmf_html_input == 'allcontvocab' || $xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector' || $xsd_display_fields[i].xsdmf_multiple == 1}[]{/if}', '{$xsd_display_fields[i].xsdmf_title}');
+                    required_xsd_display_fields[required_xsd_display_fields.length] = new Option('xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]{if $xsd_display_fields[i].xsdmf_html_input == 'multiple'|| $xsd_display_fields[i].xsdmf_html_input == 'contvocab' || $xsd_display_fields[i].xsdmf_html_input == 'allcontvocab' || $xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector' || $xsd_display_fields[i].xsdmf_multiple == 1}[]{/if}', {if $xsd_display_fields[i].xsdmf_html_input == 'multiple' || $xsd_display_fields[i].xsdmf_html_input == 'contvocab' || $xsd_display_fields[i].xsdmf_html_input == 'allcontvocab' || $xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector'}'multiple'{elseif $xsd_display_fields[i].xsdmf_html_input == 'checkbox'}'checkbox'{elseif $xsd_display_fields[i].xsdmf_html_input == 'combo' || $xsd_display_fields[i].xsdmf_html_input == 'author_selector'}'combo'{else}'whitespace'{/if});
+                    //-->
+                    </script>
+                {/if}
+                *}
+                
+            </td>
+            {include file='workflow/compare_records_helpers/get_right_column.tpl.html input_field_name="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"}
+        </tr>
+    {/if}
 </tbody>

@@ -2416,4 +2416,62 @@ class RecordGeneral
     return RecordLock::getOwner($this->pid) > 0 ? true : false;
   }
 
+    /**
+     * A static method that returns an array of fields that are to be displayed on the Spyglass hover next to publication title.
+     * The conditions rules for Spyglass Fields:
+     * - The XSD field should have setting "Show In View Details" = OFF
+     * - The XSD field's title should match the expected fields specified on $searchFields.
+     *
+     * How to add more fields to the spyglass hover:
+     * - Insert the field's title on $searchFields array in an expected display order.
+     *
+     * Example of usage:
+     * <code>
+     * <?php
+     *  RecordGeneral::getSpyglassHoverFields($xsd_display_fields);
+     * ?>
+     * </code>
+     *
+     * Example usage on template rendering: view_inverse_metadata.tpl.html
+     *
+     * @param Array $xsd_display_fields An array of XSD display fields.
+     * @return Array $showFields An array of filtered XSD fields to be displayed on spyglass hover.
+     */
+    public function getSpyglassHoverFields($xsd_display_fields = array(), $details = array())
+    {
+
+        // List of display fields title in ORDER.
+        $searchFields = array('ISI LOC', 'Scopus ID', 'Scopus Doc Type', 'WoK Doc Type', 'Refereed?', 'HERDC Notes', 'eSpace Follow-up Flags', 'IMU Follow-up Flags');
+
+        $spyglassFields = array();
+
+        foreach ($xsd_display_fields as $field) {
+            // Check if this XSD field match our search fields
+            $matchedIndex = array_search($field['xsdmf_title'], $searchFields);
+
+            if ($field['xsdmf_show_in_view'] == 0 && $matchedIndex !== false) {
+                $spyglassFields[$matchedIndex] = $field;
+
+                // Assign field's value, if any
+                $spyglassFields[$matchedIndex]['value'] = RecordGeneral::getSpyglassHoverValue($field, $details);
+            }
+        }
+        return $spyglassFields;
+    }
+
+    /**
+     * Returns the value for an XSD field for Spyglass hover display.
+     *
+     * @param Array $field XSD field array
+     * @param Array $details Record details
+     * @return String Value of the XSD field or empty if not found.
+     */
+    public function getSpyglassHoverValue($field = array(), $details = array())
+    {
+        $value = '';
+        if (isset($details[$field['xsdmf_id']])) {
+            $value = $details[$field['xsdmf_id']];
+        }
+        return $value;
+    }
 }

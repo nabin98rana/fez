@@ -50,7 +50,7 @@ function trim(inputString) {
    // Removes leading and trailing spaces from the passed string. Also removes
    // consecutive spaces and replaces it with one space. If something besides
    // a string is passed in (null, custom object, etc.) then return the input.
-   if (typeof inputString != "string") { return inputString; }
+   if (typeof inputString != "string") {return inputString;}
    var retValue = inputString;
    var ch = retValue.substring(0, 1);
    while (ch == " ") { // Check for spaces at the beginning of the string
@@ -417,30 +417,30 @@ function xsdmfValidateLength(field, value, maxLength, title, name) {
 function checkRequiredFields(f, required_fields)
 {
     for (var i = 0; i < required_fields.length; i++) {
-		var field = getFormElement(f, required_fields[i].text);
-		if (required_fields[i].value == 'combo') {
+        var field = getFormElement(f, required_fields[i].text);
+        if (required_fields[i].value == 'combo') {
             if (getSelectedOption(f, field.name) == '-1') {
                 errors[errors.length] = new Option(getFieldTitle(xsd_display_fields,required_fields[i].text), required_fields[i].text);
             }
         } else if (required_fields[i].value == 'multiple') {
             if (!hasOneSelected(f, field.name)) {
                 errors[errors.length] = new Option(getFieldTitle(xsd_display_fields,required_fields[i].text), required_fields[i].text);
-			}
+            }
         } else if (required_fields[i].value == 'checkbox') {
             if (!hasOnlyOneChecked(f, field.name)) {
                 errors[errors.length] = new Option(getFieldTitle(xsd_display_fields,required_fields[i].text), required_fields[i].text);
             }
         } else if (required_fields[i].value == 'date') {
-			if (isWhitespace(field.value)) {
+            if (isWhitespace(field.value)) {
                 errors[errors.length] = new Option(getFieldTitle(xsd_display_fields,required_fields[i].text), required_fields[i].text);
             }
-		} else if (required_fields[i].value == 'whitespace') {
-			if (isWhitespace(field.value)) {
+        } else if (required_fields[i].value == 'whitespace') {
+            if (isWhitespace(field.value)) {
                 errors[errors.length] = new Option(getFieldTitle(xsd_display_fields,required_fields[i].text), required_fields[i].text);
             }
 
         // Initial file validation: check if there is file(s) on the queue
-		} else if (required_fields[i].value == 'fileupload') {
+        } else if (required_fields[i].value == 'fileupload') {
             if (typeof(swfuploader) != 'undefined'){
                 var stats = swfuploader.getStats();
                 if (stats.files_queued == 0 &&
@@ -459,6 +459,14 @@ function checkRequiredFields(f, required_fields)
     }
 }
 
+/**
+ * Check the existence of an input field that stores a flag of file upload completion.
+ * This input is instantiated on swfuploader.js file.
+ * 
+ * @param f. Form object where we want to search the input field.
+ * @param required_fields. An array containing the fieldname and the field's validation title.
+ * @return Boolean. True when field exists and contain any value.
+ */
 function existsUploadedFields(f, required_fields)
 {
     var output = false;
@@ -562,7 +570,7 @@ function selectField(f, field_name)
 				//var oldF = (f.elements[i].onchange);
 				//f.elements[i].onchange = function () { oldF(); newF();};
 			} else {
-				f.elements[i].onchange = function () { newF();};				
+				f.elements[i].onchange = function () {newF();};				
 			}
 			if (f.elements[i].select) {
                 f.elements[i].select();

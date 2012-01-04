@@ -59,6 +59,7 @@ if ( $_SERVER["SERVER_PORT"] == 443)  {
 }
 
 Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']."?".$_SERVER['QUERY_STRING']);
+$isAdministrator = Auth::isAdministrator();  
 
 $wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
 if (empty($wfstatus)) {
@@ -95,6 +96,18 @@ if (strtolower($_SERVER['HTTPS']) == 'on' || $_SERVER['SERVER_PORT'] == 443 || s
 }
 
 $pid = $wfstatus->pid;
+
+// Determine if we are allow to display a link to Fedora Object Profile View
+if ($isAdministrator) {
+	if (APP_FEDORA_SETUP == 'sslall' || APP_FEDORA_SETUP == 'sslapim') {
+		$get_url = APP_FEDORA_APIM_PROTOCOL_TYPE.APP_FEDORA_SSL_LOCATION."/get"."/".$pid;
+	} else {
+		$get_url = APP_FEDORA_APIM_PROTOCOL_TYPE.APP_FEDORA_LOCATION."/get"."/".$pid;	
+	}
+	$tpl->assign("fedora_get_view", $get_url);	
+} else {
+	$tpl->assign("fedora_get_view", 0);	
+}
 
 // Determine if we are in a HERDC group.
 $username = Auth::getUsername();
@@ -193,4 +206,3 @@ if ($access_ok) {
 
 $tpl->displayTemplate();
 
-?>

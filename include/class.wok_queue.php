@@ -492,4 +492,23 @@ class WokQueue extends Queue
     return true;
   }
 
+  public function deleteAllAutIds() {
+
+      $log = FezLog::get();
+      $db = DB_API::get();
+
+
+      // Delete rows
+      $sql = "DELETE FROM ".$this->_dbtp."queue_aut ";
+      try {
+        $db->query($sql);
+      }
+      catch(Exception $ex) {
+        $log->err($ex);
+        return null;
+      }
+      return true;
+    }
+
+
 }

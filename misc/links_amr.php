@@ -32,6 +32,7 @@
 
 include_once dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'config.inc.php';
 include_once(APP_INC_PATH . "class.record.php");
+include_once(APP_INC_PATH . "class.wok_queue.php");
 include_once(APP_INC_PATH . 'class.links_amr_queue.php');
 
 $filter = array();
@@ -58,6 +59,11 @@ $filter["manualFilter"] = " -isi_loc_t_s:[* TO *] AND ";
 $laq = LinksAmrQueue::get();
 $max = 50;
 $listing = Record::getListing(array(), array(9,10), 0, $max, 'Created Date', false, false, $filter);
+
+//Clean out any remaining Researcher ID - UT to Author id (aut_id) relationships before proceeding or it will treat these like RID downloads
+$queue = WokQueue::get();
+$queue->deleteAllAutIds();
+
 
 for ($i=0; $i<((int)$listing['info']['total_pages']+1); $i++) {  
   // Skip first loop - we have called getListing once already

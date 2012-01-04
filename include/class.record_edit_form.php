@@ -136,6 +136,13 @@
         $tpl->registerNajax( NAJAX_Client::register('SelectOrgStructure', 'edit_metadata.php')."\n"
                         .NAJAX_Client::register('Suggestor', 'edit_metadata.php'));
         
+        // Get the fields to be displayed on Spyglass hover. @see view_inverse_metadata.tpl.html
+        // Get the spyglass values from RecordView->getDetails(), which returns already formatted values for complex fields such as combo, controllvocab, etc.
+        $record_view = new RecordView($record);
+        $viewDetails = $record_view->getDetails();
+        $spyglassFields = RecordGeneral::getSpyglassHoverFields($xsdmf_to_use, $viewDetails);
+        $tpl->assign('spyglassFields', $spyglassFields);
+
 		$isAdministrator = User::isUserAdministrator(Auth::getUsername());
              
 		$show_delete = false;
