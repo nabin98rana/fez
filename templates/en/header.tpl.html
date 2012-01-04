@@ -5,6 +5,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <title>{if $extra_title != ""}{$extra_title} - {/if}{$application_title}</title>
 <link rel="Bookmark" href="{$rel_url}favicon.ico" />
+<link rel="search" type="application/opensearchdescription+xml" href="{$app_base_url}opensearch.xml.php" title="Search {$application_title}" />
 <link rel="stylesheet" href="{$rel_url}css/dynamic_css.php" type="text/css" />
 <script type="text/javascript" src="{$rel_url}js/dojo/dojo.js"></script>
 {if $setup}
@@ -51,7 +52,7 @@ dojo.require("dojo.rpc.JsonService");
 <script type="text/javascript" src="{$rel_url}js/swfuploader.js"></script>
 <link type="text/css" href="{$rel_url}css/flash_uploader.css" rel="stylesheet" media="all" />
 {/if}
-{if $template_mode == 10}
+{if (($template_mode == 10) || ($isAdministrator))}
     <link rel="stylesheet" type="text/css" media="screen" href="{$rel_url}css/jquery/redmond/jquery-ui-1.8.13.custom.css" />
     <link rel="stylesheet" type="text/css" media="screen" href="{$rel_url}css/jquery/ui.jqgrid.css" />
     <link rel="stylesheet" type="text/css" media="screen" href="{$rel_url}css/jquery/ui.multiselect.css" />
@@ -200,5 +201,4 @@ if(typeof(NajaxBackgroundProcessList) !== 'undefined')
     </script>
     <!-- End Piwik Code -->
 {/if}
-
 </head>
