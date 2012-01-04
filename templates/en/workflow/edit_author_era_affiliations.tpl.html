@@ -4,15 +4,13 @@
 
 <script type="text/javascript">
 {literal}
-$(document).ready(function(){
-    $('#aae_status_id_lookup_none').change(function()
-    {
-        console.log('fdfddfdf');
-       alert('Value change to ');
-    });
-});
+function validateForm(f)
+{
 
+}
 {/literal}
+
+
 </script>
 <tr><td>
 <a href="/view/{$authors[0].pid}">{$authors[0].pid}</a> - {$title}
@@ -26,6 +24,7 @@ $(document).ready(function(){
 
 		<div class="error">{$error_message}</div>
         <input type="hidden" name="action" value="save"/>
+        <input type="hidden" name="cat" value="save_era_aa"/>
         <input type="hidden" name="id" value="{$wf_id}"/>
           <tr>
               <td width="140" bgcolor="{$cell_color}" class="default">
@@ -50,7 +49,6 @@ $(document).ready(function(){
 			</td>
             <td bgcolor="{$light_color}" colspan="1">
                 <select id="aae_status_id_lookup_{$smarty.foreach.current_authors.iteration}" name="aae_status_id_lookup[{$smarty.foreach.current_authors.iteration}]">
-                  <option value="99">Please Select Below</option>
                     {foreach from=$era_affiliation_list key=k item=v}
                         <option value="{$k}"{if ($author.aae_status_id_lookup!="") && ($author.aae_status_id_lookup == $k)} selected{/if}>{$v}</option>
                     {/foreach}
@@ -64,13 +62,8 @@ $(document).ready(function(){
             </td>
           </tr>
         {/foreach}
-        <tr>
-            <td width="140" bgcolor="{$light_color}" class="default"></td>
-            <td bgcolor="{$light_color}" colspan="3">
-              <br />
-              <input type="submit" name="save" value="Save" class="button" />
-              <br /><br />
-            </td>
+         <tr>
+            <td width="140" bgcolor="{$cell_color}" colspan="4" class="default">&nbsp;</td>
         </tr>
 		</table>
 	  </td>

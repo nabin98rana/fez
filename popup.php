@@ -46,6 +46,7 @@ include_once(APP_INC_PATH . "class.background_process_list.php");
 include_once(APP_INC_PATH . "class.fulltext_queue.php");
 include_once(APP_INC_PATH . 'class.digitalobject.php');
 include_once(APP_INC_PATH . "class.dsresource.php");
+include_once(APP_INC_PATH . "class.author_era_affiliations.php");
 
 Auth::checkAuthentication(APP_SESSION, 'index.php?err=5', true);
 
@@ -339,6 +340,21 @@ switch ($cat)
             $tpl->assign("generic_type",'records');
             break;
         }
+
+    case 'save_era_aa':
+    {
+        $wfstatus = WorkflowStatusStatic::getSession($id); // restores WorkflowStatus object from the session
+        $pid = $wfstatus->pid;
+        $saveResult = author_era_affiliations::save($_POST['aae_id'], $pid, $_POST['aae_status_id_lookup'], $_POST['af_era_comment'], $_POST['staff_id']);
+  		//if ($saveResult != -1) {
+  		//	Auth::redirect(APP_BASE_URL.'workflow/edit_era_affiliation.php?id='.$wf_id);
+  		//} else {
+        //      $tpl->assign("error_message", "Error on save of author affiliation");
+  		//}
+        $tpl->assign('update_form_result', $saveResult);
+        $wfstatus->checkStateChange(true);
+        break;
+    }
 }
 
 $tpl->assign("current_user_prefs", Prefs::get($usr_id));

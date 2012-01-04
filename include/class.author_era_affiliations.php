@@ -150,7 +150,9 @@ class author_era_affiliations
                        uq_assoc_status_id,
    					   uq_assoc_status_name
                     FROM
-                        __era_ro_uq_asc_stat";
+                        __era_ro_uq_asc_stat
+                    WHERE uq_assoc_status_id != '0'
+                        ";
    		try {
    			$res = $db->fetchPairs($stmt);
    		}

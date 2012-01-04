@@ -177,6 +177,7 @@ foreach ($xsd_display_fields  as $dis_field) {
 				}
 			} elseif ($dis_field["xsdmf_html_input"] == 'dual_multiple') {
                 //todo: track back what is placing extra spaces in $cv_value/$tempValue for datastreams with inherent from parent unticked (Ie unparent security on pdf)
+                // A.B. 7/12/2011 This should be fixed but will leave here since old data might still have issues. Will be fixed post Fedora anyway
                  $tempArray = $details[$dis_field["xsdmf_id"]];
                  if (is_array($tempArray)) {
                      $details[$dis_field["xsdmf_id"]] = array();

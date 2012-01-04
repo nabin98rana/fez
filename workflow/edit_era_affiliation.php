@@ -35,7 +35,6 @@
 include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
-include_once(APP_INC_PATH . "class.author_affiliations.php");
 include_once(APP_INC_PATH . "class.author_era_affiliations.php");
 
 Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']."?".$_SERVER['QUERY_STRING']);
@@ -59,35 +58,23 @@ $record = new RecordObject($pid);
 
 $access_ok = $record->canEdit();
 if ($access_ok) {
-	
-	if ($_POST['action'] == 'save') {
-		$saveResult = author_era_affiliations::save($_POST['aae_id'], $pid, $_POST['aae_status_id_lookup'], $_POST['af_era_comment'], $_POST['staff_id']);
-		if ($saveResult != -1) {
-			Auth::redirect(APP_BASE_URL.'workflow/edit_era_affiliation.php?id='.$wf_id);
-		} else {
-            $tpl->assign("error_message", "Error on save of author affiliation");
-		}
-	}
-	
+
 	// get list of authors for this pid
 	$authors = author_era_affiliations::getAuthorsAll($pid);//Misc::array_flatten($record->getFieldValueBySearchKey('Author'),'',true);
 
     $tpl->assign('era_affiliation_list', author_era_affiliations::getAssocListEraAffiliation());
 	$tpl->assign("cycle_colours", "#" . APP_CYCLE_COLOR_TWO . ",#FFFFFF");
 
-	//if ($_REQUEST['action'] == 'edit') {
-	//	$tpl->assign('action', 'edit');
-	//}
-
 	$tpl->assign('authors',$authors);
     $tpl->assign('wf_id',$wf_id);
     $title = Record::getTitleFromIndex($authors[0]['pid']);
     $tpl->assign('title', $title);
 
-	
 } else {
     $tpl->assign("show_not_allowed_msg", true);
 }
+
+$tpl->assign("submit_to_popup", true);
 
 $tpl->displayTemplate();
 
