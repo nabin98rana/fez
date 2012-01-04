@@ -822,7 +822,7 @@ class RJL
 			/* Attempt to match it against each target item */
 			foreach ($manualMatches as $targetVal) {
 				/* Test for exact string match */
-				if ($sourceVal == $targetVal['title']) {
+				if (strtolower($sourceVal) == $targetVal['title']) {
 					//echo "M";
 //					$matches[$sourceKey] = $targetKey;
                     $existsAlready = false;
