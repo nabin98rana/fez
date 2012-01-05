@@ -41,7 +41,7 @@ include_once(APP_INC_PATH . "class.favourites.php");
 $tpl = new Template_API();
 $tpl->setTemplate("search_favourites.tpl.html");
 
-Auth::checkAuthentication(APP_SESSION);
+Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']);
 
 $tpl->assign("type", "search_favourites");
 

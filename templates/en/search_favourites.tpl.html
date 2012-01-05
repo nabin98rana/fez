@@ -10,26 +10,28 @@
                 </tr>
               <tr>
                   <td  style="background: {$cell_color}; text-align: center">
+                    <br />
                     <input name="submit" type="submit" value="Save" class="button" />
+                    <br /><br />
                   </td>
               </tr>
               <tr>
                 <td colspan="2">
-                  <table style="width: 100%" cellpadding="10" cellspacing="10">
+                  <table style="width: 100%" cellpadding="10px" cellspacing="10px">
                     <tr>
-                        <td class="default cell-colour"><b>Delete</b></td>
-                        <td class="default cell-colour"><b>Title</b></td>
+                        <td class="default cell-colour"><b>&nbsp;Real Link</b></td>
+                        <td class="default cell-colour"><b>Description</b></td>
                         <td class="default cell-colour"><b>Alaised Link</b></td>
-                        <td class="default cell-colour"><b>Real Link</b></td>
                         <td class="default cell-colour"><b>Alais</b></td>
                         <td class="default cell-colour"><b>Email Me</b></td>
+                        <td class="default cell-colour"><b>Delete</b></td>
                         <td class="default cell-colour"></td>
                     </tr>
                     {section name="i" loop=$list}
                     {cycle values=$cycle assign="row_color"}
                     <tr>
-                      <td style="width: 4px; text-align: center; white-space: nowrap; background: {$row_color}">
-                         <input type="checkbox" name="items[]" value="{$list[i].fvs_id}" />
+                      <td style="background: {$row_color}" class="default"><a href="{$list[i].fvs_search_parameters}">
+                          &nbsp;Link</a>
                       </td>
                         <td style="background: {$row_color}" class="default">
                             <input name="description[{$list[i].fvs_id}]" type="text" value = "{$list[i].fvs_description}">
@@ -40,8 +42,7 @@
                         {else}
                             <td style="background: {$row_color}" class="default">None</td>
                         {/if}
-                      <td style="background: {$row_color}" class="default"><a href="{$list[i].fvs_search_parameters}">
-                            Link</a></td>
+
                       <td style="background: {$row_color}" class="default">
                           <input name="alias[{$list[i].fvs_id}]" type="text" value = "{$list[i].fvs_alias}">
                       </td>
@@ -51,22 +52,32 @@
                               <option value="0" {if (!$list[i].fvs_email_me)}selected{/if}>No</option>
                           </select>
                       </td>
-                    <td style="background: {$row_color}" class="default">
+                      <td style="width: 4px; text-align: center; white-space: nowrap; background: {$row_color}">
+                           <input type="checkbox" name="items[]" value="{$list[i].fvs_id}" />
+                      </td>
+                      <td style="background: {$row_color}" class="default">
                         {assign var="row_id" value=$list[i].fvs_id}
                         {if ($issues[$row_id].issue == "taken" )}
                             Alias "{$issues[$row_id].alias}" Taken
 
                         {/if}
-                    </td>
+                      </td>
                     </tr>
 
                     {sectionelse}
                     <tr>
                       <td colspan="14" style="background: {$light_color}; text-align: center" class="default">
-                        No saved searches could be found. Searches can be favourited on the search page
+                       <br/><br/><br/> No saved searches could be found. Searches can be favourited on the search page<br/><br/><br/>
                       </td>
                     </tr>
                     {/section}
+                    <tr>
+                      <td  style="background: {$cell_color}; text-align: center" colspan="7">
+                        <br />
+                        <input name="submit" type="submit" value="Save" class="button" />
+                        <br /><br />
+                      </td>
+                    </tr>
                   </table>
                 </td>
               </tr>
