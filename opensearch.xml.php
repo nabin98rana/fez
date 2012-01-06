@@ -28,45 +28,15 @@
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
 // | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
-// |          Aaron Brown <a.brown@library.uq.edu.au>                     |
+// |          Matthew Smith <m.smith@library.uq.edu.au>,                  |
+// |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>                     |
 // +----------------------------------------------------------------------+
 //
 //
-
 include_once("config.inc.php");
-include_once(APP_INC_PATH . "class.template.php");
-include_once(APP_INC_PATH . "class.db_api.php");
-include_once(APP_INC_PATH . "class.favourites.php");
 
 $tpl = new Template_API();
-$tpl->setTemplate("search_favourites.tpl.html");
-
-Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']);
-
-$tpl->assign("type", "search_favourites");
-
-$isUser = Auth::getUsername();
-$tpl->assign("isUser", $isUser);
-
-
-
-if ($isUser) {
-    if (@count($_POST) > 0) {
-        if (@count($_POST["items"]) > 0) {
-            Favourites::removeSearchFavourites();
-        }
-        $issues = Favourites::saveSearchFavourites();
-    }
-    //$issues['34']['issue']="taken";
-    //$issues['34']['alias']="stuff";
-    $favourite_list = Favourites::getStarredSearches();
-    $tpl->assign("list", $favourite_list);
-    $tpl->assign("issues", $issues);
-    $tpl->assign("active_nav", "saved_search");
-} else {
-    $tpl->assign("show_not_allowed_msg", true);
-}
+$tpl->assign('hostName', APP_HOSTNAME);
+$tpl->setTemplate("opensearch.tpl.html");
 
 $tpl->displayTemplate();
-
-?>

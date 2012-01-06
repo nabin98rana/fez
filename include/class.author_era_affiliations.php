@@ -103,7 +103,7 @@ class author_era_affiliations
                 aae_pid=".$db->quote($pid).",
                 aae_status_id_lookup=".$db->quote($aae_status_id_lookup[$i], 'INTEGER').",
                 aae_comment=".$db->quote($aae_comment[$i]).",
-                aae_staff_id=".$db->quote($staff_id[$i], 'INTEGER'). ",
+                aae_staff_id=".$db->quote($staff_id[$i]). ",
                 aae_is_request_complete=".$db->quote($thisCompleteYesNo);
             if (!empty($aae_id[$i])) {
                $stmt .= " WHERE aae_id=".$db->quote($aae_id[$i], 'INTEGER')."";

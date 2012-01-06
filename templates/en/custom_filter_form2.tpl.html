@@ -120,7 +120,7 @@ function clearFilters(f) {
             </th>
             <td class="search_multi_input text-center">contains</td>
             <td class="search_multi_input text-left">
-                <input id="search_keys[0]" type="text" name="search_keys[0]" size="30" maxlength="255" value="{$options.searchKey0|escape:'html'}" />
+                <input id="search_keys[0]" type="text" name="search_keys[0]" size="40" maxlength="255" value="{$options.searchKey0|escape:'html'}" />
             </td>
         </tr>
 
@@ -177,10 +177,10 @@ function clearFilters(f) {
                     {if $search_keys[i].sek_html_input == 'text'}
 
                         {if $search_keys[i].sek_data_type == 'int'}
-                            <input id="search_keys[{$search_keys[i].sek_id}]_name" type="text" name="search_keys[{$search_keys[i].sek_id}]_name" maxlength="255" size="30" value="{$last_key|escape:'html'}" />
+                            <input id="search_keys[{$search_keys[i].sek_id}]_name" type="text" name="search_keys[{$search_keys[i].sek_id}]_name" maxlength="255" size="40" value="{$last_key|escape:'html'}" />
                             <input id="search_keys[{$search_keys[i].sek_id}]" type="hidden" name="search_keys[{$search_keys[i].sek_id}]" value="{$last_key|escape:'html'}" />
                         {else}
-                            <input id="search_keys[{$search_keys[i].sek_id}]" type="text" name="search_keys[{$search_keys[i].sek_id}]" maxlength="255" size="30" value="{$last_key|escape:'html'}" />
+                            <input id="search_keys[{$search_keys[i].sek_id}]" type="text" name="search_keys[{$search_keys[i].sek_id}]" maxlength="255" size="40" value="{$last_key|escape:'html'}" />
                         {/if}
 
                         {if $search_keys[i].sek_suggest_function != ""}
