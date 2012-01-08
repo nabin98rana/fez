@@ -32,7 +32,7 @@
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.mail.php");
 define("TEST",   		 			false); // limit to 250 records only if TRUE
-define("TEST_WHERE",				''); // Adds this condition to the where statement for eg testing single pids
+define("TEST_WHERE",				""); // Adds this condition to the where statement for eg testing single pids
 define("SIMILARITY_THRESHOLD",		80);    // These similarity functions aren't currently invoked
 define("WINDOW_START",				'2005-01-01 00:00:00');
 
@@ -489,16 +489,41 @@ class RJL
 	}
 	
 
-	
+	/**
+     * Normalises titles within an array of records.
+     * 
+     * $titles parameter can be either a one-level or multidimensional array.
+     * If it is a multidimensional array, the title value should be specified under a key called 'title'.
+     * Sample of expected array format:
+     * 1. array( 
+     *      ['UQ:12345'] => 'UQ Testing Journal Name', ['UQ:56789'] => 'Second Testing Journal Name'
+     *    )
+     * 2. array(
+     *      [0] => array( 
+     *                  ['title'] => 'UQ Testing Journal Name', 
+     *                  ['jnl_id'] => 987 
+     *             ),
+     *      [1] => array( 
+     *                  ['title'] => 'Second Testing Journal Name', 
+     *                  ['jnl_id'] => 654 
+     *             )
+     *    )
+     * 
+     * @param array $titles An array of records with title on each record.
+     * @return array An array of records with normalised titles. 
+     */
 	function normaliseListOfTitles($titles)
 	{
 		foreach ($titles as &$title) {
+            if (is_string($title)) {
+                $title = RJL::normaliseTitle($title);
+            } elseif (isset($title['title']) && is_string($title['title'])) {
 			$title['title'] = RJL::normaliseTitle($title['title']);
 		}
+        }
 		
 		return $titles;
 	}
-	
 	
 	
 	function normaliseListOfISSNs($issns)
