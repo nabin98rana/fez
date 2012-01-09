@@ -479,7 +479,10 @@ class Lister
 					$filter["searchKey".Search_Key::getID("Pid")][] = 'INVALID_PID';
 				}
 			}
-			
+
+            //If favourites then search options should not be used to restrict the results only order so set searchKey parameter to empty
+            $options['searchKey0'] = '';
+
 			$list = Record::$getFunction($options, $approved_roles=array("Lister"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter);
             $list_info = $list["info"];
             $list = $list["list"];
