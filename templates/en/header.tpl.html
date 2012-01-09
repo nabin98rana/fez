@@ -51,7 +51,7 @@ dojo.require("dojo.rpc.JsonService");
 <script type="text/javascript" src="{$rel_url}js/swfuploader.js"></script>
 <link type="text/css" href="{$rel_url}css/flash_uploader.css" rel="stylesheet" media="all" />
 {/if}
-{if $template_mode == 10}
+{if (($template_mode == 10) || ($isAdministrator))}
     <link rel="stylesheet" type="text/css" media="screen" href="{$rel_url}css/jquery/redmond/jquery-ui-1.8.13.custom.css" />
     <link rel="stylesheet" type="text/css" media="screen" href="{$rel_url}css/jquery/ui.jqgrid.css" />
     <link rel="stylesheet" type="text/css" media="screen" href="{$rel_url}css/jquery/ui.multiselect.css" />
