@@ -2386,3 +2386,127 @@ a.author_id_link:hover {
     float: left;
 }
 /* End of: "Bulk Change Search Key Value" form */
+
+
+
+/**
+ * Admin GUI for ResearcherID Download Request Jobs
+ * CSS Style of RID Jobs listing on Admin GUI, URL/manage/rid_jobs.php
+ * Used by this file: rid_jobs.tpl.html
+ */
+ 
+H2.adminListHeader{
+    padding: 15px 5px 5px;
+}
+
+/* Sort & Search Form. We use #content to overwrite css style from #content div. */
+#content .adminListSortForm,
+#content .adminListSearchForm {
+    width: 45%; 
+    float: left; 
+    display: block; 
+    overflow:auto; 
+    background: #F6F6F6; 
+    padding: 1px 0 6px;
+    margin: 0px;
+}
+
+    #content .adminListSearchForm{
+        margin:0 5px; 
+        float: right;
+    }
+    
+    .adminListSearchForm .button,
+    .adminListSortForm .button{
+        font-size: 11px; 
+        cursor: pointer; 
+        background: #D4D4D4; 
+        color: #494949; 
+        margin: 0 5px;
+    }
+    .adminListSearchForm LABEL{
+        padding: 5px 5px 5px 10px; 
+        font-weight: bold;
+    }
+
+    .adminListSortForm LABEL{
+        padding: 5px; 
+        font-weight: bold;
+    }
+    .adminListSearchText{
+        margin: 10px;
+    }
+    .adminListSearchVal{
+        height: 16px;
+    }
+    
+/* Listing table */    
+table.adminManageList{
+    width: 100%;
+}
+    table.adminManageList TR.rowHeader{
+        cursor: pointer;
+    }
+    table.adminManageList TR.hoverOn{
+        background: #FFFFE6 !important;
+    }
+    table.adminManageList TH{
+        text-align: left;
+        padding: 5px 3px;
+    }
+    table.adminManageList TD{
+        padding: 3px;
+    }
+
+        /* Faux Toggle buttons*/
+        table.adminManageList SPAN.toggleShowBtn,
+        table.adminManageList SPAN.toggleHideBtn{
+            color: #1E88CE;
+            background-image: url('/images/sprite_arrows.png');
+            background-repeat: no-repeat;
+            padding-left: 15px;
+        }
+
+        table.adminManageList SPAN.toggleShowBtn{
+            display: block;
+            background-position: 2px -113px;
+        }
+            table.adminManageList TR.toggleOn SPAN.toggleShowBtn{
+                display: none;
+            }
+
+        table.adminManageList SPAN.toggleHideBtn{
+            display: none;
+            background-position: 0 -169px;
+        }
+            table.adminManageList TR.toggleOn SPAN.toggleHideBtn{
+                display: block;
+            }
+
+            
+/* End of: Admin GUI for ResearcherID Download Request Jobs */
+
+
+/**
+ * General sprite arrows CSS.
+ * This is the CSS style for sprite arrows PNG, /images/sprite_arrows.png
+ * Can be used anywhere on the site, by either applying the same CSS class or CSS style specified below.
+ */
+.sprite_arrows {
+    background-image: url('/images/sprite_arrows.png');
+}
+.sprite-down_arrow{ 
+    background-position: 0 0; width: 9px; height: 7px; 
+} 
+.sprite-left_arrow{ 
+    background-position: 0 -57px; width: 6px; height: 9px; 
+} 
+.sprite-right_arrow{ 
+    background-position: 0 -116px; width: 6px; height: 9px; 
+} 
+.sprite-up_arrow{ 
+    background-position: 0 -175px; width: 9px; height: 6px; 
+} 
+
+/* End: General sprite arrows. */        
+

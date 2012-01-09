@@ -1922,6 +1922,55 @@ class Author
     }
     
     return $res;
-  }  
-  
+  }
+
+    /**
+     * Returns ResearcherID Registration record(s) for a specific Author.
+     * When $getOne parameter is true, the method returns the first record of SQL query.
+     * Otherwise, the method returns all records from the SQL query.
+     * 
+     * @param int $aut_id Author ID.
+     * @param boolean $getOne A flag to indicate whether to return a single record. True to return one record, false otherwise.
+     * @return array|boolean Array of record(s) or False when error encounter during mysql query.  
+     */
+    public function getRIDRegistrationResponse($aut_id = 0, $getOne = true)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $stmt = "SELECT *
+                FROM " . APP_TABLE_PREFIX . "rid_registrations 
+                WHERE rre_aut_id = " . $db->quote($aut_id, 'INTEGER') . "
+                ORDER BY rre_created_date DESC ";
+        
+        try {
+            if ($getOne){
+                $res = $db->fetchRow($stmt);
+            } else {
+                $res = $db->fetchAll($stmt);
+            }
+            $log->err($res);
+        }
+        catch (Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+        
+        
+        // Get formatted datetime fields with user's preferred timezone. 
+        $timezone = Date_API::getPreferredTimezone();
+        foreach ($res as $key => $row) {
+            if (is_array($row)){
+                $res[$key]["rre_created_date_formatted"]    = Date_API::getFormattedDate($res[$key]["rre_created_date"], $timezone);
+                $res[$key]["rre_updated_date_formatted"]    = Date_API::getFormattedDate($res[$key]["rre_updated_date"], $timezone);
+            }else {
+                $res["rre_created_date_formatted"]    = Date_API::getFormattedDate($res["rre_created_date"], $timezone);
+                $res["rre_updated_date_formatted"]    = Date_API::getFormattedDate($res["rre_updated_date"], $timezone);
+                break;
+            }
+        }
+        
+        return $res;
+    }
+    
 }

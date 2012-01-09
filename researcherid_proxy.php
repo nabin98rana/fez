@@ -47,18 +47,30 @@ if (!($isAdministrator || $isSuperAdministrator)) {
 	exit;
 }
 
+// Docs: http://framework.zend.com/manual/1.11/en/zend.json.server.html
 $server = new Zend_Json_Server();
+
+// Indicate what functionality is available
 $server->setClass('ResearcherIDProxy');
 
-if ('GET' == $_SERVER['REQUEST_METHOD']) {    
+if ('GET' == $_SERVER['REQUEST_METHOD']) {
+    
+  // Indicate the URL endpoint, and the JSON-RPC version used:
   $server->setTarget($_SERVER["SCRIPT_NAME"])
          ->setEnvelope(Zend_Json_Server_Smd::ENV_JSONRPC_2);
+  
+  // Grab the SMD. SMD = Service Mapping Description, a JSON schema that defines how a client can interact with a particular web service
   $smd = $server->getServiceMap();
+  
+  // Set Dojo compatibility:
   $smd->setDojoCompatible(true);
+  
+  // Return the SMD to the client
   header('Content-Type: application/json');
   echo $smd;
   return;
 }
+// Handle the request
 $server->handle();
 
 class ResearcherIDProxy

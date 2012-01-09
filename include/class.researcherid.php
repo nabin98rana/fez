@@ -224,78 +224,80 @@ class ResearcherID
   }
 
 
-  /**
-   * Method used to perform a ResearcherID profile upload.
-   *
-   * @access  public
-   * @param   array  $aut_id The author ID to upload a profile for
-   * @param   string  $alt_email An alternate email address to use in the registration process
-   * @return  string The job ticket number if the request is successful, otherwise false.
-   */
-  public static function profileUpload($aut_id, $alt_email = '')
-  {
-    $log = FezLog::get();
-    $db = DB_API::get();
+    /**
+     * Method used to perform a ResearcherID profile upload.
+     *
+     * @access  public
+     * @param   array  $aut_id The author ID to upload a profile for
+     * @param   string  $alt_email An alternate email address to use in the registration process
+     * @return  string The job ticket number if the request is successful, otherwise false.
+     */
+    public static function profileUpload($aut_id, $alt_email = '')
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
 
-    $ticket_number = null;
+        $ticket_number = null;
 
-    $list = Author::getListByAutIDList(0, 1, 'aut_lname', array($aut_id));    
-    if (! (is_array($list) && array_key_exists('list', $list) && is_array($list['list']))) {
-      $log->err('Author not found');
-      return false;
+        $list = Author::getListByAutIDList(0, 1, 'aut_lname', array($aut_id));
+        if (!(is_array($list) && array_key_exists('list', $list) && is_array($list['list']))) {
+            $log->err('Author not found');
+            return false;
+        }
+
+        $tpl = new Template_API();
+        $tpl_file = "researcher_profile_upload.tpl.html";
+        $tpl->setTemplate($tpl_file);
+        $alt_email = trim($alt_email);
+        if (!empty($alt_email)) {
+            $tpl->assign("rid_alt_email", $alt_email);
+        }
+        $tpl->assign("list", $list['list'][0]);
+        $tpl->assign("app_admin_email", RID_UL_SERVICE_USERNAME);
+        $tpl->assign("org_name", APP_ORG_NAME);
+        $tpl->assign("email_append_note", RID_UL_SERVICE_EMAIL_APPEND_NOTE);
+        $request_data = $tpl->getTemplateContents();
+
+        $xml_request_data = new DOMDocument();
+        $xml_request_data->loadXML($request_data);
+        
+        // Validate against schema
+        if (!@$xml_request_data->schemaValidate(RID_UL_SERVICE_PROFILES_XSD)) {
+            // Not valid
+            $log->err(array('XML request data does not validate against schema.', __FILE__, __LINE__, $request_data));
+            return false;
+        } else {
+            $tpl = new Template_API();
+            $tpl_file = "researcher_upload_request.tpl.html";
+            $tpl->setTemplate($tpl_file);
+            $tpl->assign("type", 'Profile');
+            $tpl->assign("username", RID_UL_SERVICE_USERNAME);
+            $tpl->assign("password", RID_UL_SERVICE_PASSWORD);
+            $tpl->assign("request_data", $request_data);
+            $request = $tpl->getTemplateContents();
+
+            $xml_api_data_request = new DOMDocument();
+            $xml_api_data_request->loadXML($request);
+
+            // Do the service request
+            $response_document = new DOMDocument();
+            $response_document = ResearcherID::doServiceRequest($xml_api_data_request->saveXML());
+
+            if (!$response_document) {
+                return false;
+            } else {
+                // Save xml data ($response_document) as blob on database fez_rid_registrations.rre_response 
+                ResearcherID::saveProfileUploadResponse($aut_id, $response_document);
+                return true;
+            }
+        }
+
+        if (is_null($ticket_number) || empty($ticket_number)) {
+            $log->err('Failed to get a ticket number.', __FILE__, __LINE__);
+            return false;
+        }
     }
-
-    $tpl = new Template_API();
-    $tpl_file = "researcher_profile_upload.tpl.html";
-    $tpl->setTemplate($tpl_file);
-    $alt_email = trim($alt_email);
-    if (! empty($alt_email)) {
-      $tpl->assign("rid_alt_email", $alt_email);
-    }
-    $tpl->assign("list", $list['list'][0]);
-    $tpl->assign("app_admin_email", RID_UL_SERVICE_USERNAME);
-    $tpl->assign("org_name", APP_ORG_NAME);
-    $tpl->assign("email_append_note", RID_UL_SERVICE_EMAIL_APPEND_NOTE);
-    $request_data = $tpl->getTemplateContents();
     
-    $xml_request_data = new DOMDocument();
-    $xml_request_data->loadXML($request_data);
-
-    // Validate against schema
-    if (! @$xml_request_data->schemaValidate(RID_UL_SERVICE_PROFILES_XSD)) {
-      // Not valid
-      $log->err(array('XML request data does not validate against schema.', __FILE__, __LINE__, $request_data));
-      return false;
-    } else {
-      $tpl = new Template_API();
-      $tpl_file = "researcher_upload_request.tpl.html";
-      $tpl->setTemplate($tpl_file);
-      $tpl->assign("type", 'Profile');
-      $tpl->assign("username", RID_UL_SERVICE_USERNAME);
-      $tpl->assign("password", RID_UL_SERVICE_PASSWORD);
-      $tpl->assign("request_data", $request_data);
-      $request = $tpl->getTemplateContents();
-
-      $xml_api_data_request = new DOMDocument();
-      $xml_api_data_request->loadXML($request);
-
-      // Do the service request
-      $response_document = new DOMDocument();
-      $response_document = ResearcherID::doServiceRequest($xml_api_data_request->saveXML());
-
-      if (! $response_document) {
-        return false;
-      } else {
-        return true;
-      }
-    }
-     
-    if (is_null($ticket_number) || empty($ticket_number)) {
-      $log->err('Failed to get a ticket number.', __FILE__, __LINE__);
-      return false;
-    }
-  }
-
   /**
    * Method used to perform a ResearcherID profile upload.
    *
@@ -379,7 +381,7 @@ class ResearcherID
     $dir = RID_UL_SERVICE_ROUTED_EMAIL_PATH;
     $processed_dir = $dir . 'processed/';
     $emails = ResearcherID::getRoutedEmails($dir);
-
+    
     // Create a processed directory if one doesn't already exist
     if (! is_dir($processed_dir)) {
       // create it..
@@ -392,7 +394,8 @@ class ResearcherID
     if ($emails) {
       foreach ($emails as $email) {
         $full_message = file_get_contents($dir . '/' . $email);
-         
+        $email_date = date('Y-m-d H:i:s', filemtime($dir . '/' . $email));
+        
         // join the Content-Type line (for easier parsing?)
         if (preg_match('/^boundary=/m', $full_message)) {
           $pattern = "#(Content-Type: multipart/.+); ?\r?\n(boundary=.*)$#im";
@@ -418,7 +421,7 @@ class ResearcherID
         $cc = $structure->headers['cc'];
         $subject = $structure->headers['subject'];
         $body = $structure->parts[0]->body;
-
+        
         if ($subject == 'ResearcherID Batch Processing Status') {
           // Processing - don't need to do anything with these
         } else if ($subject == 'ResearcherID Batch Processing Status (completed)') {
@@ -429,6 +432,10 @@ class ResearcherID
           $url = trim($urlMatches[1]);
           $urlData = Misc::processURL($url);
           $urlContent = $urlData[0];
+          
+          // Save XML content of the URL on the Status Report email
+          ResearcherID::saveUploadStatusReport($urlContent, $url, $email, $email_date);
+          
           if ($urlContent) {
             $xml_report = new SimpleXMLElement($urlContent);
             // Process profile list
@@ -469,7 +476,7 @@ class ResearcherID
       return true;
     }
   }
-
+  
   /**
    * Method used to check on the status of all ResearcherID download request jobs currently not 'DONE'
    *
@@ -848,7 +855,345 @@ class ResearcherID
     return true;
   }
 
+  
+    /**
+     * Saves the response received from ResearcherID Profile Upload service request.
+     * Data saved on this method are: Author ID, XML response, timestamp of insert query.
+     * 
+     * @param int $aut_id Author ID
+     * @param DOMDocument $response_document XML response of RID the web service request.
+     * @return boolean True when query is successful, otherwise returns False. 
+     */
+    public function saveProfileUploadResponse($aut_id = 0, $response_document = null)
+    {
+        if (is_null($response_document) || empty($response_document)) {
+            return false;
+        }
+        
+        $log = FezLog::get();
+        $db = DB_API::get();
 
+        
+        $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "rid_registrations 
+                    (rre_aut_id, rre_response, rre_created_date, rre_updated_date) 
+                 VALUES 
+                    (". $db->quote($aut_id, 'INT') .", ". 
+                        $db->quote($response_document, 'STRING')  . ", ".
+                        $db->quote(Date_API::getCurrentDateGMT()) . ", ".
+                        $db->quote(Date_API::getCurrentDateGMT()) . 
+                    ")";
+        
+        try {
+          $res = $db->query($stmt);
+        }
+        catch(Exception $ex) {
+          $log->err($ex);
+          return false;
+        }
+        
+        return true;
+    }
+    
+    
+    /**
+     * Saves the details of an email of ResearcherID Upload Status Report. 
+     * Data saved on this method are: XML content, URL to the XML content, filename of the saved email, and timestamp of the email file.
+     * 
+     * @param XML string $response_content XML content of the response
+     * @param string $response_url URL to the XML content
+     * @param string $email_filename Filename of the saved email
+     * @param date   $email_file_date Timestamp of the email file
+     * @return boolean True when query is successful, otherwise returns False. 
+     */
+    public function saveUploadStatusReport($response_content = null, $response_url = null, $email_filename = null, $email_file_date = null)
+    {
+        
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        
+        $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "rid_profile_uploads 
+                    (rpu_email_filename, rpu_email_file_date, rpu_response_url, rpu_response, rpu_created_date, rpu_updated_date) 
+                 VALUES 
+                    (". $db->quote($email_filename, 'STRING') .", ". 
+                        $db->quote($email_file_date, 'DATE') . ", ".
+                        $db->quote($response_url, 'STRING') .", ".
+                        $db->quote($response_content, 'BLOB') .", ".
+                        $db->quote(Date_API::getCurrentDateGMT()) . ", ".
+                        $db->quote(Date_API::getCurrentDateGMT()) . 
+                    ")";
+                
+        try {
+          $res = $db->query($stmt);
+        }
+        catch(Exception $ex) {
+          $log->err($ex);
+          return false;
+        }
+        
+        return true;
+    }
+    
+  
+    /**
+     * Retrieves Profile & Publication links from XML responses of RID Download Requests.
+     * 
+     * @param array $jobs Array of download requests jobs 
+     * @return array Array of jobs with profile & publication links 
+     */
+    public static function getLinksFromLastResponse($jobs)
+    {
+        if (!is_array($jobs)) {
+            return false;
+        }
+
+        foreach ($jobs as $key => $job) {
+            if (empty($job['rij_lastresponse']) || is_null($job['rij_lastresponse'])) {
+                continue;
+            }
+    
+            // Load XML from rij_lastresponse
+            $response = DOMDocument::loadXML($job['rij_lastresponse']);
+
+            // Get the XML Node with Response attribute
+            $xpath = new DOMXPath($response);
+            $xpath->registerNamespace('rid', 'http://www.isinet.com/xrpc41');
+            $query = "/rid:response/rid:fn[@name='AuthorResearch.getDownloadStatus']/rid:map/rid:val[@name='Response']";
+            $elements = $xpath->query($query);
+
+            if (is_null($elements)) {
+                continue;
+            }
+            
+            foreach ($elements as $element) {
+                $nodes = $element->childNodes;
+                foreach ($nodes as $node) {
+                  $download_response = $node->nodeValue;
+                }
+            }
+            
+            if (is_null($download_response) || empty($download_response)){
+                continue;
+            }
+            
+            // Load XML from the Response which is in string CDATA format,
+            // and get the URLs contain in the response XML
+            $xml_dl_response = new SimpleXMLElement($download_response);
+            foreach ($xml_dl_response->outputfile as $output_file) {
+                $type = $output_file->attributes()->type;
+                $url = $output_file->url;
+                $result = false;
+
+                switch($type) {
+                  case 'profile':
+                      $jobs[$key]['profilelink'] = $url->saveXML();
+                      break;
+                  case 'publication':
+                      $jobs[$key]['publicationslink'] = $url->saveXML();
+                      break;
+                }
+            }
+        }
+        return $jobs;
+    }
+    
+    
+    /**
+     * Method used to get ResearcherID download request jobs from database, 
+     * with sort by & record filtering set by parameter, if any
+     * 
+     * @param int $current_row Current page
+     * @param int $max Maximum number of records per page
+     * @param array $sort Array of sort by and sort order
+     * @param array $search Array of search key & value
+     * @return array|string Array of records or empty string when db error occur.
+     */
+    public static function getJobs($current_row = 0, $max = 25, $sort = null, $search = null)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $where_stmt = "";
+        if (!is_null($search) && isset($search['key']) && isset($search['val'])) {
+            $where_stmt .= " WHERE " . $db->quoteIdentifier($search['key']) . " = " . $db->quote($search['val'], 'STRING') . " ";
+        }
+
+        $sort_stmt = "";
+        if (!is_null($sort)) {
+            $sort_stmt .= " ORDER BY " . $db->quoteIdentifier($sort['by']) . " " . ( stristr($sort['order'], 'DESC') ? 'DESC' : 'ASC') . " ";
+        }
+
+        $start = $current_row * $max;
+
+        $stmt = "SELECT
+                SQL_CALC_FOUND_ROWS  *
+             FROM
+                " . APP_TABLE_PREFIX . "rid_jobs
+            " . $where_stmt . "
+            " . $sort_stmt . "
+             LIMIT " . $db->quote($max, 'INTEGER') . " OFFSET " . $db->quote($start, 'INTEGER');
+
+        try {
+            $res = $db->fetchAll($stmt);
+        }
+        catch (Exception $ex) {
+            $log->err($ex);
+            return '';
+        }
+
+        if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
+            $stmt = "SELECT COUNT(*)
+                 FROM
+                    " . APP_TABLE_PREFIX . "rid_jobs
+                " . $where_stmt;
+        } else {
+            $stmt = 'SELECT FOUND_ROWS()';
+        }
+
+        try {
+            $total_rows = $db->fetchOne($stmt);
+        }
+        catch (Exception $ex) {
+            $log->err($ex);
+            return '';
+        }
+
+        // Paging variables
+        if (($start + $max) < $total_rows) {
+            $total_rows_limit = $start + $max;
+        } else {
+            $total_rows_limit = $total_rows;
+        }
+        $total_pages = ceil($total_rows / $max);
+        $last_page = $total_pages - 1;
+
+
+        // Retrieve links from lastResponse XML
+        $res = ResearcherID::getLinksFromLastResponse($res);
+
+        // Convert value of datetime/timestamp fields with user's preferred timezone. 
+        // Note: datetime/timestamp fields are saved on GMT timezone.
+        $timezone = Date_API::getPreferredTimezone();
+        foreach ($res as $key => $row) {
+            $res[$key]["rij_lastcheck_formatted"] = Date_API::getFormattedDate($res[$key]["rij_lastcheck"], $timezone);
+            $res[$key]["rij_timestarted_formatted"] = Date_API::getFormattedDate($res[$key]["rij_timestarted"], $timezone);
+            $res[$key]["rij_timefinished_formatted"] = Date_API::getFormattedDate($res[$key]["rij_timefinished"], $timezone);
+        }
+
+        // Format return output
+        $output = array(
+            "list" => $res,
+            "list_info" => array(
+                "current_page" => $current_row,
+                "start_offset" => $start,
+                "end_offset" => $total_rows_limit,
+                "total_rows" => $total_rows,
+                "total_pages" => $total_pages,
+                "prev_page" => ($current_row == 0) ? "-1" : ($current_row - 1),
+                "next_page" => ($current_row == $last_page) ? "-1" : ($current_row + 1),
+                "last_page" => $last_page
+            )
+        );
+
+        return $output;
+    }
+    
+    
+    /**
+     * Method used to get ResearcherID profile uploads responses.
+     * 
+     * @param int $current_row Current page
+     * @param int $max Maximum number of records per page
+     * @param array $sort Array of sort by and sort order
+     * @param array $search Array of search key & value
+     * @return array|string Array of records or empty string when db error occur.
+     */
+    public static function getProfileUploads($current_row = 0, $max = 25, $sort = null, $search = null)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $where_stmt = "";
+        if (!is_null($search) && isset($search['key']) && isset($search['val'])) {
+            $where_stmt .= " WHERE " . $db->quoteIdentifier($search['key']) . " = " . $db->quote($search['val'], 'STRING') . " ";
+        }
+
+        $sort_stmt = "";
+        if (!is_null($sort)) {
+            $sort_stmt .= " ORDER BY " . $db->quoteIdentifier($sort['by']) . " " . ( stristr($sort['order'], 'DESC') ? 'DESC' : 'ASC') . " ";
+        }
+
+        $start = $current_row * $max;
+
+        $stmt = "SELECT
+                SQL_CALC_FOUND_ROWS  *
+             FROM
+                " . APP_TABLE_PREFIX . "rid_profile_uploads
+            " . $where_stmt . "
+            " . $sort_stmt . "
+             LIMIT " . $db->quote($max, 'INTEGER') . " OFFSET " . $db->quote($start, 'INTEGER');
+
+        try {
+            $res = $db->fetchAll($stmt);
+        }
+        catch (Exception $ex) {
+            $log->err($ex);
+            return '';
+        }
+
+        if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
+            $stmt = "SELECT COUNT(*)
+                 FROM
+                    " . APP_TABLE_PREFIX . "rid_profile_uploads
+                " . $where_stmt;
+        } else {
+            $stmt = 'SELECT FOUND_ROWS()';
+        }
+
+        try {
+            $total_rows = $db->fetchOne($stmt);
+        }
+        catch (Exception $ex) {
+            $log->err($ex);
+            return '';
+        }
+
+        // Paging variables
+        if (($start + $max) < $total_rows) {
+            $total_rows_limit = $start + $max;
+        } else {
+            $total_rows_limit = $total_rows;
+        }
+        $total_pages = ceil($total_rows / $max);
+        $last_page = $total_pages - 1;
+
+        // Get formatted date value for datetime/timestamp fields with user's preferred timezone. 
+        // Note: datetime/timestamp fields are saved on GMT timezone.
+        $timezone = Date_API::getPreferredTimezone();
+        foreach ($res as $key => $row) {
+            $res[$key]["rpu_created_date_formatted"] = Date_API::getFormattedDate($res[$key]["rpu_created_date"], $timezone);
+            $res[$key]["rpu_updated_date_formatted"] = Date_API::getFormattedDate($res[$key]["rpu_updated_date"], $timezone);
+        }
+
+        // Format return output
+        $output = array(
+            "list" => $res,
+            "list_info" => array(
+                "current_page" => $current_row,
+                "start_offset" => $start,
+                "end_offset" => $total_rows_limit,
+                "total_rows" => $total_rows,
+                "total_pages" => $total_pages,
+                "prev_page" => ($current_row == 0) ? "-1" : ($current_row - 1),
+                "next_page" => ($current_row == $last_page) ? "-1" : ($current_row + 1),
+                "last_page" => $last_page
+            )
+        );
+
+        return $output;
+    }
+
+    
   /**
    * Method used to perform a service request
    *
