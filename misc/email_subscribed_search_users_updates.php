@@ -82,9 +82,8 @@ function main()
        if ($search[list_info][total_rows] > 0) {
            //echo $parsed_url." has ".$search[list_info][total_rows];
           // Favourites::updateRecentItemDateSearch($alert[fvs_id]);
-           print_r($params);
            $link = $parsed_url['host'].$parsed_url['path']."?".http_build_query( $params );
-           emailUser($link, $alert[usr_email]);
+           emailUser($link, $alert[usr_email], $alert[fvs_description] );
        }
 	}
 
@@ -93,10 +92,11 @@ function main()
 	exit;
 }
 
-function emailUser($link, $userEmail ) {
+function emailUser($link, $userEmail, $description="" ) {
     // Send the email.
     //$usrDetails = User::getDetails($username);
     $body = "There have been updates to the search you have saved and requested updates on. Please click here to see any updated records since your last alert\n\n";
+    $body .= $description."-\n";
     $body .= $link;
     $body .= "\n\nPlease click here to unsubscribe to updates and to manage them\n";
     $body .= "https://".APP_HOSTNAME."/search_favourites.php\n";

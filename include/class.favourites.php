@@ -429,7 +429,7 @@ class Favourites
     {
         $log = FezLog::get();
       	$db = DB_API::get();
-        $stmt = "SELECT fvs_id, fvs_search_parameters, fvs_username, fvs_most_recent_item_date, fvs_alias, usr_email
+        $stmt = "SELECT fvs_id, fvs_search_parameters, fvs_username, fvs_description, fvs_most_recent_item_date, fvs_alias, usr_email
                  FROM " . APP_TABLE_PREFIX . "favourites_search
                  INNER JOIN " . APP_TABLE_PREFIX . "user
                  ON usr_username = fvs_username
