@@ -170,6 +170,29 @@ class RJL
 
 		/* Subtract from any match results those PIDs that are either black-listed, or manually mapped */
 		$matches = array_diff_key($matches, matching::getMatchingExceptions("J"));
+        
+        
+        /* Find match results that linked to duplicate Journals and replace it with replacement Journal 
+         * The replacement value are:
+         * 
+         *          ERAID JNL_ID Title
+           Search = 44512 41029  Allergy and Clinical Immunology International
+           Replace= 15451 30537  Allergy and Clinical Immunology International: journal of the World Allergy Organization
+	
+           Search = 15844 30828  British Journal of Urology (BJU) International
+           Replace= 15843 30827  BJU International
+	
+           Search = 16520 31371  Journal of National Cancer Institute
+           Replace= 16434 31298  Journal of the National Cancer Institute
+         */
+        $dupeJournalSearchJNLID = array( '41029', '30828', '31371'); 
+        $dupeJournalReplaceJNLID = array('30537', '30827', '31298'); 
+        foreach ($matches as $key => $match){
+            if (in_array($match['matching_id'], $dupeJournalSearchJNLID) === true ){
+                $matches[$key]['matching_id'] = str_replace($dupeJournalSearchJNLID, $dupeJournalReplaceJNLID, $match['matching_id']);
+            }
+        }
+        
 		echo " About to run inserts \n";
         ob_flush();
 		/* Insert all the found matches */
