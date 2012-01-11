@@ -318,7 +318,7 @@ class RCL
 					//echo "T";
 //					$matches[$sourceKey] = $targetKey;
           foreach ($matches as $match) {
-            if ($match['pid'] == $sourceKey && $match['matching_id'] == $targetKey) {
+            if ($match['pid'] == $sourceKey) {
                 $existsAlready = true;
             }
           }
@@ -351,7 +351,7 @@ class RCL
 					//echo "T";
 //					$matches[$sourceKey] = $targetKey;
           foreach ($matches as $match) {
-            if ($match['pid'] == $sourceKey && $match['matching_id'] == $targetKey) {
+            if ($match['pid'] == $sourceKey) {
                 $existsAlready = true;
             }
           }
