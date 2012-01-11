@@ -32,8 +32,8 @@
 
 define("TEST", false); // Limit to 50 records only if TRUE
 define("TEST_WHERE_MC",				""); // Adds this condition to the where statement for eg testing single pids
-define("WINDOW_START",				'2003-01-01 00:00:00');
-define("WINDOW_END",				'2099-01-01 00:00:00');
+define("WINDOW_START_MC",				'2005-01-01 00:00:00');
+define("WINDOW_END_MC",				'2099-01-01 00:00:00');
 
 class RCL
 {
@@ -117,8 +117,8 @@ class RCL
 			WHERE ".TEST_WHERE_MC."
 				" . APP_TABLE_PREFIX . "record_search_key_conference_name.rek_conference_name_pid = " . APP_TABLE_PREFIX . "record_search_key.rek_pid
 				AND rek_status = 2
-				AND " . APP_TABLE_PREFIX . "record_search_key.rek_date > '" . WINDOW_START . "'
-				AND " . APP_TABLE_PREFIX . "record_search_key.rek_date < '" . WINDOW_END . "'
+				AND " . APP_TABLE_PREFIX . "record_search_key.rek_date >= '" . WINDOW_START_MC . "'
+				AND " . APP_TABLE_PREFIX . "record_search_key.rek_date < '" . WINDOW_END_MC . "'
 			ORDER BY
 				conference_name ASC;
 		";
