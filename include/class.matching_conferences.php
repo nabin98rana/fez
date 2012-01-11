@@ -306,7 +306,7 @@ class RCL
 	function lookForMatchesByStringComparison($check, $against, &$matches)
 	{
 		echo "Running normalised string match ... ";
-		
+		$existsAlready = false;
 		/* Step through each source item */
 		foreach ($check as $sourceKey => $sourceVal) {
 
@@ -317,7 +317,14 @@ class RCL
 				if ($sourceVal == $targetVal) {
 					//echo "T";
 //					$matches[$sourceKey] = $targetKey;
-                    $matches[] = array('pid' => $sourceKey, 'matching_id' => $targetKey);
+          foreach ($matches as $match) {
+            if ($match['pid'] == $sourceKey && $match['matching_id'] == $targetVal) {
+                $existsAlready = true;
+            }
+          }
+          if ($existsAlready !== true) {
+            $matches[] = array('pid' => $sourceKey, 'matching_id' => $targetKey);
+          }
 				}				
 			}
 		}
@@ -332,7 +339,7 @@ class RCL
 	function lookForMatchesByStringCrush($check, $against, &$matches)
 	{
 		echo "Running normalised string match ... ";
-		
+		$existsAlready = false;
 		/* Step through each source item */
 		foreach ($check as $sourceKey => $sourceVal) {
 
@@ -343,7 +350,14 @@ class RCL
 				if ($sourceVal == $targetVal) {
 					//echo "T";
 //					$matches[$sourceKey] = $targetKey;
-                    $matches[] = array('pid' => $sourceKey, 'matching_id' => $targetKey);
+          foreach ($matches as $match) {
+            if ($match['pid'] == $sourceKey && $match['matching_id'] == $targetVal) {
+                $existsAlready = true;
+            }
+          }
+          if ($existsAlready !== true) {
+            $matches[] = array('pid' => $sourceKey, 'matching_id' => $targetKey);
+          }
 				}				
 			}
 		}
