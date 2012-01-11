@@ -1,94 +1,113 @@
 <body id="bodyElement">
 
-<!--START: For Accessibility -->
-<p><a href="#title" class="skip" accesskey="2">skip nav</a></p>
-<!--END: For Accessibility -->
+    <!--START: For Accessibility -->
+    <p><a href="#title" class="skip" accesskey="2">skip nav</a></p>
+    <!--END: For Accessibility -->
 
-<!--START: Header -->
-	<div id="header">
-		<div id="header-inner">
+    <!--START: Header -->
+    <div id="header">
+        <div id="header-inner">
 
-			<h1><a name="link-to-your-institition"></a>{*<a href="http://www.uq.edu.au/" title="Home" accesskey="1">The University of Queensland</a>*}</h1>
-			<h2><a href="{$rel_url}">{$app_name}</a></h2>
+            <h1><a name="link-to-your-institition"></a>{*<a href="http://www.uq.edu.au/" title="Home" accesskey="1">The University of Queensland</a>*}</h1>
+            <h2><a href="{$rel_url}">{$app_name}</a></h2>
 
-			<div id="mininav">
-			 <ul>
-				<li><a href="http://link1.com/" accesskey="3">Offsite&nbsp;Link&nbsp;1</a></li>
-				<li><a href="http://link2.com/" accesskey="4">Offsite&nbsp;Link&nbsp;2</a></li>
-				<li><a href="http://link3.com/" accesskey="5">Offsite&nbsp;Link&nbsp;3</a></li>
-				<li><a href="http://link4.com/" accesskey="6">Offsite&nbsp;Link&nbsp;4</a></li>
-				{* UQ specific links
-				<li><a href="http://www.uq.edu.au/" accesskey="3">UQ Home</a></li>
-				<li><a href="http://www.uq.edu.au/contacts/" accesskey="3">Contacts</a></li>
-				<li><a href="http://www.uq.edu.au/study/" accesskey="4">Study</a></li>
-				<li><a href="http://www.uq.edu.au/maps/" accesskey="5">Maps</a></li>
-				<li><a href="http://www.uq.edu.au/news/" accesskey="6">News</a></li>
-				<li><a href="http://www.uq.edu.au/events/" accesskey="7">Events</a></li>
-				<li><a href="http://www.library.uq.edu.au/" accesskey="8">Library</a></li>
-				<li><a href="http://my.uq.edu.au/" accesskey="9">my.UQ</a></li>*}
-			 </ul>
-			<div class="clear">&nbsp;</div>
-			</div>
+            <div id="mininav">
+                <ul>
+                    <li><a href="http://link1.com/" accesskey="3">Offsite&nbsp;Link&nbsp;1</a></li>
+                    <li><a href="http://link2.com/" accesskey="4">Offsite&nbsp;Link&nbsp;2</a></li>
+                    <li><a href="http://link3.com/" accesskey="5">Offsite&nbsp;Link&nbsp;3</a></li>
+                    <li><a href="http://link4.com/" accesskey="6">Offsite&nbsp;Link&nbsp;4</a></li>
+                    {* UQ specific links
+                    <li><a href="http://www.uq.edu.au/" accesskey="3">UQ Home</a></li>
+                    <li><a href="http://www.uq.edu.au/contacts/" accesskey="3">Contacts</a></li>
+                    <li><a href="http://www.uq.edu.au/study/" accesskey="4">Study</a></li>
+                    <li><a href="http://www.uq.edu.au/maps/" accesskey="5">Maps</a></li>
+                    <li><a href="http://www.uq.edu.au/news/" accesskey="6">News</a></li>
+                    <li><a href="http://www.uq.edu.au/events/" accesskey="7">Events</a></li>
+                    <li><a href="http://www.library.uq.edu.au/" accesskey="8">Library</a></li>
+                    <li><a href="http://my.uq.edu.au/" accesskey="9">my.UQ</a></li>*}
+                </ul>
+                <div class="clear">&nbsp;</div>
+            </div>
 
-			<div id="search">
-			<form id="searchbox" method="get" action="{$rel_url}list/">
-			<fieldset>
-			<label for="search-entry">Search Entry</label>
-                {literal}
-				<input id="search-entry" size="15" type="text" value="Search repository..." name="search_keys[0]" class="s" onfocus="if (this.value == 'Search repository...') {this.value = '';}" onblur="if (this.value == '') {this.value = 'Search repository...';}" tabindex="1" />
-                {/literal}
-				<input name="submit" value="" class="submit" title="Search UQ" type="submit" />
-				<input type="hidden" name="cat" value="quick_filter" />
-				<input type="hidden" name="sort_by" value="searchKey0" />
-			</fieldset>
-			</form>
-			</div>
-			
-			<div class="clear">&nbsp;</div>
-			
-			{if $isUser}
-			  <div id="logged-in">You are logged in as <b>{$current_full_name}</b></div>
-			{/if}			
-			
-		</div>
-	</div>
+            <div id="search">
+                <form id="searchbox" method="get" action="{$rel_url}list/">
+                    <fieldset>
+                        <label for="search-entry">Search Entry</label>
+                        {literal}
+                            <input id="search-entry" size="15" type="text" value="Search repository..." name="search_keys[0]" class="s" onfocus="if (this.value == 'Search repository...') {this.value = '';}" onblur="if (this.value == '') {this.value = 'Search repository...';}" tabindex="1" />
+                        {/literal}
+                        <input name="submit" value="" class="submit" title="Search UQ" type="submit" />
+                        <input type="hidden" name="cat" value="quick_filter" />
+                        <input type="hidden" name="sort_by" value="searchKey0" />
+                    </fieldset>
+                </form>
+            </div>
 
-	<div id="topnav">
-		<div id="topnav-inner">
-			<ul>
-				<li{if $active_nav == 'home'} id="nav-focus"{/if}><a href="{$rel_url}">Home</a></li>
-				<li{if $active_nav == 'list'} id="nav-focus"{/if}><a href="{$rel_url}list/">Browse</a></li>
-				<li{if $active_nav == 'search'} id="nav-focus"{/if}><a href="{$rel_url}adv_search.php">Search</a></li>
-				<li{if $active_nav == 'help'} id="nav-focus"{/if}><a title="Browse the Frequently Asked Questions section" href="{$rel_url}faq">FAQs</a></li>
-				<li{if $active_nav == 'about'} id="nav-focus"{/if}><a href="{$rel_url}about">About</a></li>
-				{if $isUser}
-				  <li{if $active_nav == 'preferences'} id="nav-focus"{/if}><a href="{$rel_url}preferences.php">Prefs</a></li>
-				  {if $isAuthor == 1}<li{if $active_nav == 'mypubs'} id="nav-focus"{/if}><a href="{$rel_url}{$myPubURL}">My Pubs</a></li>{/if}
-				  <li{if $active_nav == 'my_fez'} id="nav-focus"{/if}><a href="{$rel_url}my_fez{if $useClassic == 1}_traditional{/if}.php">My {$app_name}</a></li>
-				  {if $isAdministrator}
-				  	<li{if $active_nav == 'admin'} id="nav-focus"{/if}><a href="{$rel_url}manage/">Admin</a></li>
-				  {/if}  
-				  <li><a href="{$rel_url}logout.php">Logout</a></li>
-				  {if $isAdministrator}
-				  	<li{if $active_nav == 'favourites'} id="nav-focus"{/if}><a href="{$rel_url}favourites"><img src="{$rel_url}images/star_16.png" width="16" height="16" alt="View starred records" /></a></li>
-                    <li{if $active_nav == 'saved_search'} id="nav-focus"{/if}><a href="{$rel_url}search_favourites.php"><img src="{$rel_url}images/saved_search.png" width="16" height="16" alt="View saved search" /></a></li>
-				  	<li id="bgps">
-				  	 <span id="bgpsReceptacle">&nbsp;</span>
-				  	 <a href="#" id="bgpsstat"><img src="/images/icons/bgps_load.gif" alt="" /></a>
-				  	 <a id="bgpsCount" href="/my_processes.php">(0)</a>
-				  	</li>
-				  {/if}
-				{else}
-				  <li{if $active_nav == 'login'} id="nav-focus"{/if}><a href="{$rel_url}login.php?url={$uri_encoded}">Login</a></li>
-				{/if}
-			</ul>
-			<div class="clear">&nbsp;</div>
-		</div>
-	</div>
-<!--END: Header -->
+            <div class="clear">&nbsp;</div>
 
-<div id="content-holder">
-	
-	<div id="content" class="{if !$admin_area}content-restrict{else}admin-wrapper{/if}">
-	  
-	  <div id="flash_message_div" class="flash_message" style="display:none;"></div>
+            {if $isUser}
+                <div id="logged-in">
+                    {* Logout Button *}
+                    <a href="{$rel_url}logout.php" class="logout-btn"><span class="login-btn-text">LOGOUT</span><span class="login-btn-right"></span></a>
+
+                    {* Logged-in message *}
+                    <span class="logged-in-msg">You are logged in as <b>{$current_full_name}</b></span>
+
+                </div>
+            {else}
+                <div id="logged-in">
+                    {* Login Button *}
+                    <a href="{$rel_url}login.php?url={$uri_encoded}" class="login-btn"><span class="login-btn-text">LOGIN</span><span class="login-btn-right"></span></a>
+                    
+                    {* Login message *}
+                    <span class="logged-in-msg">UQ Staff and Students only</span>
+                </div>
+            {/if}			
+
+        </div>
+    </div>
+
+    <div id="topnav">
+        <div id="topnav-inner">
+            <ul>
+                <li{if $active_nav == 'home'} id="nav-focus"{/if}><a href="{$rel_url}">Home</a></li>
+                <li{if $active_nav == 'list'} id="nav-focus"{/if}><a href="{$rel_url}list/">Browse</a></li>
+                <li{if $active_nav == 'search'} id="nav-focus"{/if}><a href="{$rel_url}adv_search.php">Search</a></li>
+                <li{if $active_nav == 'help'} id="nav-focus"{/if}><a title="Browse the Frequently Asked Questions section" href="{$rel_url}faq">FAQs</a></li>
+                <li{if $active_nav == 'about'} id="nav-focus"{/if}><a href="{$rel_url}about">About</a></li>
+
+                {if $isUser}
+                    <li{if $active_nav == 'preferences'} id="nav-focus"{/if}><a href="{$rel_url}preferences.php">Prefs</a></li>
+
+                    {if $isAuthor == 1}
+                        <li{if $active_nav == 'mypubs'} id="nav-focus"{/if}><a href="{$rel_url}{$myPubURL}">My Pubs</a></li>
+                    {/if}
+
+                    <li{if $active_nav == 'my_fez'} id="nav-focus"{/if}><a href="{$rel_url}my_fez{if $useClassic == 1}_traditional{/if}.php">My {$app_name}</a></li>
+
+                    {if $isAdministrator}
+                        <li{if $active_nav == 'admin'} id="nav-focus"{/if}><a href="{$rel_url}manage/">Admin</a></li>
+                        <li{if $active_nav == 'favourites'} id="nav-focus"{/if}>
+                            <a href="{$rel_url}favourites"><img src="{$rel_url}images/star_16.png" width="16" height="16" alt="View starred records" /></a>
+                        </li>
+                        <li id="bgps">
+                            <span id="bgpsReceptacle">&nbsp;</span>
+                            <a href="#" id="bgpsstat"><img src="/images/icons/bgps_load.gif" alt="" /></a>
+                            <a id="bgpsCount" href="/my_processes.php">(0)</a>
+                        </li>
+                    {/if}
+
+                {/if}
+
+            </ul>
+            <div class="clear">&nbsp;</div>
+        </div>
+    </div>
+    <!--END: Header -->
+
+    <div id="content-holder">
+
+        <div id="content" class="{if !$admin_area}content-restrict{else}admin-wrapper{/if}">
+
+            <div id="flash_message_div" class="flash_message" style="display:none;"></div>
