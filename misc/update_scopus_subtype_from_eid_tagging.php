@@ -58,6 +58,7 @@ ini_set("display_errors", 1);
 include_once dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'config.inc.php';
 include_once(APP_INC_PATH . "class.record.php");
 
+//This only runs on PIDs without current doc types see query above it check for any pids have differing doc types
 $query = "  SELECT rek_pid, sco_eid, sco_doc_type, rek_scopus_doc_type,sdt_code
             FROM era_2012_eid_returned_results_all JOIN fez_record_search_key_scopus_id
             ON sco_eid = rek_scopus_id AND uq_pid = rek_scopus_id_pid
@@ -65,7 +66,8 @@ $query = "  SELECT rek_pid, sco_eid, sco_doc_type, rek_scopus_doc_type,sdt_code
             ON uq_pid = rek_pid
             JOIN fez_scopus_doctypes
             ON  sco_doc_type = sdt_description
-            WHERE sco_status='Successfully Matched'";
+            WHERE sco_status='Successfully Matched'
+            AND ((rek_scopus_doc_type IS NULL) OR (rek_scopus_doc_type='')) ";
 
 $db = DB_API::get();
 $log = FezLog::get();
@@ -83,11 +85,7 @@ foreach ($res as $row) {
     $i++;
     $pid = $row['rek_pid'];
     $record = new RecordGeneral($pid);
-    $search_keys = array('scopus doc type');
+    $search_keys = array('Scopus Doc Type');
     $values = array($row['sdt_code']);
     $record->addSearchKeyValueList($search_keys, $values, true,"Added from ERA data");
-    if ($i == 100)
-    {
-        break;
-    }
 }
