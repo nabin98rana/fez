@@ -20,10 +20,10 @@
                   <table style="width: 100%" cellpadding="10px" cellspacing="10px">
                     <tr>
                         <td class="default cell-colour"><b>&nbsp;Real Link</b></td>
-                        <td class="default cell-colour"><b>Description</b></td>
-                        <td class="default cell-colour"><b>Alaised Link</b></td>
-                        <td class="default cell-colour"><b>Alais</b></td>
-                        <td class="default cell-colour"><b>Email Me</b></td>
+                        <td class="default cell-colour"><b>Description (Click to edit)</b></td>
+                        <td class="default cell-colour"><b>Aliased Link</b></td>
+                        <td class="default cell-colour"><b>Alias (Click to edit)</b></td>
+                        <td class="default cell-colour"><b>Email me when search results update</b></td>
                         <td class="default cell-colour"><b>Delete</b></td>
                         <td class="default cell-colour"></td>
                     </tr>
@@ -34,7 +34,8 @@
                           &nbsp;Link</a>
                       </td>
                         <td style="background: {$row_color}" class="default">
-                            <input name="description[{$list[i].fvs_id}]" type="text" value = "{$list[i].fvs_description}">
+                            <input name="description[{$list[i].fvs_id}]" id="description[{$list[i].fvs_id}]" type="text" value = "{$list[i].fvs_description}"
+                                   style="background-color:#eeeeee" onclick="document.getElementById('description[{$list[i].fvs_id}]').style.background='#ffffff';">
                         </td>
                         {if ($list[i].fvs_alias)}
                             <td style="background: {$row_color}" class="default"><a href="{$rel_url}{$list[i].fvs_alias}">
@@ -44,7 +45,8 @@
                         {/if}
 
                       <td style="background: {$row_color}" class="default">
-                          <input name="alias[{$list[i].fvs_id}]" type="text" value = "{$list[i].fvs_alias}">
+                          <input name="alias[{$list[i].fvs_id}]" type="text" value = "{$list[i].fvs_alias}" id = "alias[{$list[i].fvs_id}]"
+                                 style="background-color:#eeeeee" onclick="document.getElementById('alias[{$list[i].fvs_id}]').style.background='#ffffff';">
                       </td>
                       <td style="background: {$row_color}" class="default">
                           <select name="emailme[{$list[i].fvs_id}]">
