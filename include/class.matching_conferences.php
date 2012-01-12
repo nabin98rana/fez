@@ -31,8 +31,9 @@
 // +----------------------------------------------------------------------+
 
 define("TEST", false); // Limit to 50 records only if TRUE
-define("WINDOW_START",				'2003-01-01 00:00:00');
-define("WINDOW_END",				'2099-01-01 00:00:00');
+define("TEST_WHERE_MC",				""); // Adds this condition to the where statement for eg testing single pids
+define("WINDOW_START_MC",				'2005-01-01 00:00:00');
+define("WINDOW_END_MC",				'2099-01-01 00:00:00');
 
 class RCL
 {
@@ -113,11 +114,11 @@ class RCL
 				rek_conference_name AS conference_name
 			FROM
 				" . APP_TABLE_PREFIX . "record_search_key, " . APP_TABLE_PREFIX . "record_search_key_conference_name
-			WHERE
+			WHERE ".TEST_WHERE_MC."
 				" . APP_TABLE_PREFIX . "record_search_key_conference_name.rek_conference_name_pid = " . APP_TABLE_PREFIX . "record_search_key.rek_pid
 				AND rek_status = 2
-				AND " . APP_TABLE_PREFIX . "record_search_key.rek_date > '" . WINDOW_START . "'
-				AND " . APP_TABLE_PREFIX . "record_search_key.rek_date < '" . WINDOW_END . "'
+				AND " . APP_TABLE_PREFIX . "record_search_key.rek_date >= '" . WINDOW_START_MC . "'
+				AND " . APP_TABLE_PREFIX . "record_search_key.rek_date < '" . WINDOW_END_MC . "'
 			ORDER BY
 				conference_name ASC;
 		";
@@ -305,7 +306,7 @@ class RCL
 	function lookForMatchesByStringComparison($check, $against, &$matches)
 	{
 		echo "Running normalised string match ... ";
-		
+		$existsAlready = false;
 		/* Step through each source item */
 		foreach ($check as $sourceKey => $sourceVal) {
 
@@ -316,7 +317,14 @@ class RCL
 				if ($sourceVal == $targetVal) {
 					//echo "T";
 //					$matches[$sourceKey] = $targetKey;
-                    $matches[] = array('pid' => $sourceKey, 'matching_id' => $targetKey);
+          foreach ($matches as $match) {
+            if ($match['pid'] == $sourceKey) {
+                $existsAlready = true;
+            }
+          }
+          if ($existsAlready !== true) {
+            $matches[] = array('pid' => $sourceKey, 'matching_id' => $targetKey);
+          }
 				}				
 			}
 		}
@@ -331,7 +339,7 @@ class RCL
 	function lookForMatchesByStringCrush($check, $against, &$matches)
 	{
 		echo "Running normalised string match ... ";
-		
+		$existsAlready = false;
 		/* Step through each source item */
 		foreach ($check as $sourceKey => $sourceVal) {
 
@@ -342,7 +350,14 @@ class RCL
 				if ($sourceVal == $targetVal) {
 					//echo "T";
 //					$matches[$sourceKey] = $targetKey;
-                    $matches[] = array('pid' => $sourceKey, 'matching_id' => $targetKey);
+          foreach ($matches as $match) {
+            if ($match['pid'] == $sourceKey) {
+                $existsAlready = true;
+            }
+          }
+          if ($existsAlready !== true) {
+            $matches[] = array('pid' => $sourceKey, 'matching_id' => $targetKey);
+          }
 				}				
 			}
 		}
@@ -414,7 +429,7 @@ class RCL
 		echo "Running insertion queries on eSpace database ... ";
 		
 		foreach ($matches as $match) {
-			
+			RCL::removeMatchByPID($match['pid']);
 			$stmt = "INSERT INTO " . APP_TABLE_PREFIX . "matched_conferences (mtc_pid, mtc_cnf_id, mtc_status) VALUES ('" . $match['pid'] . "', '" . $match['matching_id'] . "', 'A') ON DUPLICATE KEY UPDATE mtc_pid = mtc_pid, mtc_cnf_id = mtc_cnf_id;";
 			
 			try {

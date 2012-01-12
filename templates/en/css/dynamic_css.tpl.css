@@ -92,8 +92,9 @@ div#wordmark { display: none; visibility: hidden; }
 	display: block;
 }
 
+/* Login css on page header */
 #logged-in {
-	margin-top: -5px;
+	margin-top: -10px;  /* -5px; */
 	margin-right: 30px;
 	font-family: Helvetica, "Trebuchet MS", sans-serif;
 	font-size: 12px;
@@ -105,6 +106,62 @@ div#wordmark { display: none; visibility: hidden; }
 	color: rgb(223, 223, 223);
 }
 
+.logged-in-msg{
+    padding: 5px 0px 2px;
+    display: block;
+    float: right;
+}
+
+/* Login button */
+.logout-btn,
+.login-btn{
+    background: transparent url('/images/btn-login.png') 0 0 no-repeat;
+    padding-left:8px;
+    height: 22px;
+    display: block;
+    float: right;
+    margin: 0 0 0 10px;
+}
+
+    SPAN.login-btn-text{
+        background: #000;
+        padding: 6px 15px 4px;
+        height: 12px;
+        display: block;
+        float: left;
+        font-weight: bold;
+        font-size: 11px;
+    }
+
+    .logout-btn SPAN.login-btn-text{
+        padding: 6px 5px 4px;
+    }
+
+    SPAN.login-btn-right{
+        background: transparent url('/images/btn-login.png') 0 -144px no-repeat;
+        width: 8px;
+        height: 22px;
+        float: left;
+    }
+
+    
+/* Hover state for the Login button */
+.login-btn:hover,
+.logout-btn:hover{
+    background-position: 0 -72px;
+}
+
+    .login-btn:hover SPAN.login-btn-text,
+    .logout-btn:hover SPAN.login-btn-text{
+        background: #89b315;
+    }
+
+    .login-btn:hover SPAN.login-btn-right,
+    .logout-btn:hover SPAN.login-btn-right{
+        background-position: 0 -216px;
+    }
+        
+        
 #mininav { margin: 0pt; padding: 10px 20px 8px 0; color: rgb(255, 255, 255); font-size: 9px; font-family: Helvetica,"Trebuchet MS",sans-serif; font-weight: lighter; float: right; }
 #mininav ul { margin: 0pt; padding: 5px 0 0 15px; list-style-type: none; list-style-image: none; list-style-position: outside; letter-spacing: 1px; }
 #mininav ul li { margin: 0pt 0.8em 0pt 0pt; padding: 0pt; float: left; display: inline; }
@@ -2386,3 +2443,127 @@ a.author_id_link:hover {
     float: left;
 }
 /* End of: "Bulk Change Search Key Value" form */
+
+
+
+/**
+ * Admin GUI for ResearcherID Download Request Jobs
+ * CSS Style of RID Jobs listing on Admin GUI, URL/manage/rid_jobs.php
+ * Used by this file: rid_jobs.tpl.html
+ */
+ 
+H2.adminListHeader{
+    padding: 15px 5px 5px;
+}
+
+/* Sort & Search Form. We use #content to overwrite css style from #content div. */
+#content .adminListSortForm,
+#content .adminListSearchForm {
+    width: 45%; 
+    float: left; 
+    display: block; 
+    overflow:auto; 
+    background: #F6F6F6; 
+    padding: 1px 0 6px;
+    margin: 0px;
+}
+
+    #content .adminListSearchForm{
+        margin:0 5px; 
+        float: right;
+    }
+    
+    .adminListSearchForm .button,
+    .adminListSortForm .button{
+        font-size: 11px; 
+        cursor: pointer; 
+        background: #D4D4D4; 
+        color: #494949; 
+        margin: 0 5px;
+    }
+    .adminListSearchForm LABEL{
+        padding: 5px 5px 5px 10px; 
+        font-weight: bold;
+    }
+
+    .adminListSortForm LABEL{
+        padding: 5px; 
+        font-weight: bold;
+    }
+    .adminListSearchText{
+        margin: 10px;
+    }
+    .adminListSearchVal{
+        height: 16px;
+    }
+    
+/* Listing table */    
+table.adminManageList{
+    width: 100%;
+}
+    table.adminManageList TR.rowHeader{
+        cursor: pointer;
+    }
+    table.adminManageList TR.hoverOn{
+        background: #FFFFE6 !important;
+    }
+    table.adminManageList TH{
+        text-align: left;
+        padding: 5px 3px;
+    }
+    table.adminManageList TD{
+        padding: 3px;
+    }
+
+        /* Faux Toggle buttons*/
+        table.adminManageList SPAN.toggleShowBtn,
+        table.adminManageList SPAN.toggleHideBtn{
+            color: #1E88CE;
+            background-image: url('/images/sprite_arrows.png');
+            background-repeat: no-repeat;
+            padding-left: 15px;
+        }
+
+        table.adminManageList SPAN.toggleShowBtn{
+            display: block;
+            background-position: 2px -113px;
+        }
+            table.adminManageList TR.toggleOn SPAN.toggleShowBtn{
+                display: none;
+            }
+
+        table.adminManageList SPAN.toggleHideBtn{
+            display: none;
+            background-position: 0 -169px;
+        }
+            table.adminManageList TR.toggleOn SPAN.toggleHideBtn{
+                display: block;
+            }
+
+            
+/* End of: Admin GUI for ResearcherID Download Request Jobs */
+
+
+/**
+ * General sprite arrows CSS.
+ * This is the CSS style for sprite arrows PNG, /images/sprite_arrows.png
+ * Can be used anywhere on the site, by either applying the same CSS class or CSS style specified below.
+ */
+.sprite_arrows {
+    background-image: url('/images/sprite_arrows.png');
+}
+.sprite-down_arrow{ 
+    background-position: 0 0; width: 9px; height: 7px; 
+} 
+.sprite-left_arrow{ 
+    background-position: 0 -57px; width: 6px; height: 9px; 
+} 
+.sprite-right_arrow{ 
+    background-position: 0 -116px; width: 6px; height: 9px; 
+} 
+.sprite-up_arrow{ 
+    background-position: 0 -175px; width: 9px; height: 6px; 
+} 
+
+/* End: General sprite arrows. */        
+

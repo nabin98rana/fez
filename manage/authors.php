@@ -81,6 +81,7 @@ if ($isAdministrator) {
     }
     if (@$_GET["cat"] == "edit") {
         $tpl->assign("info", Author::getDetails($_GET["id"]));
+        $tpl->assign("rid_registration", Author::getRIDRegistrationResponse($_GET["id"]));
     }
 	if (@$_GET["cat"] == "search") {
 		$filter = Pager::getParam('search_filter',$params);

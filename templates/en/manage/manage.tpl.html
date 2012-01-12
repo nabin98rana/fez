@@ -38,6 +38,8 @@
             {/if}
             <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/index_new.php'}class="focus" {/if}href="{$rel_url}manage/index_new.php">Index Objects</a></li>
               <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/era_affiliation.php'}class="focus" {/if}href="{$rel_url}manage/era_affiliation.php">ERA Affiliations</a></li>
+            <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/rid_jobs.php'}class="focus" {/if}href="{$rel_url}manage/rid_jobs.php">RID Download Requests Jobs</a></li>
+            <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/rid_profile_uploads.php'}class="focus" {/if}href="{$rel_url}manage/rid_profile_uploads.php">RID Profile Uploads</a></li>
           </ul>
 
           {if $isSuperAdministrator}
