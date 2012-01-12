@@ -429,7 +429,7 @@ class RCL
 		echo "Running insertion queries on eSpace database ... ";
 		
 		foreach ($matches as $match) {
-			
+			RCL::removeMatchByPID($match['pid']);
 			$stmt = "INSERT INTO " . APP_TABLE_PREFIX . "matched_conferences (mtc_pid, mtc_cnf_id, mtc_status) VALUES ('" . $match['pid'] . "', '" . $match['matching_id'] . "', 'A') ON DUPLICATE KEY UPDATE mtc_pid = mtc_pid, mtc_cnf_id = mtc_cnf_id;";
 			
 			try {

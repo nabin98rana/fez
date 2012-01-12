@@ -921,6 +921,9 @@ class RJL
 		echo "Running ".count($matches)." insertion queries on eSpace database ... ";
 		
 		foreach ($matches as $match) {
+      // clear out any existing matches for this match year/pid combo
+      RJL::removeMatchByPIDYear($match['pid'], $match['year']);
+
 			$stmt = "INSERT INTO " . APP_TABLE_PREFIX . "matched_journals (mtj_pid, mtj_jnl_id, mtj_status) VALUES ('" . $match['pid'] . "', '" . $match['matching_id'] . "', 'A') ON DUPLICATE KEY UPDATE mtj_jnl_id = '" . $match['matching_id'] . "';";
             if (TEST_WHERE != '') {
     			echo $stmt."\n";
@@ -941,6 +944,54 @@ class RJL
 		
 		return;
 	}
+
+  function getJournalIDsByPIDYear($pid, $year) {
+      $log = FezLog::get();
+  		$db = DB_API::get();
+
+  		$stmt = "
+  			SELECT
+  				jnl_id
+  			FROM
+  				" . APP_TABLE_PREFIX . "journal INNER JOIN
+  				" . APP_TABLE_PREFIX . "journal ON jnl_id = mtj_jnl_id
+  			WHERE jnl_era_year = ".$year." AND mtj_pid = '".$pid."'
+  		";
+
+  		try {
+  			$result = $db->fetchCol($stmt);
+  		}
+  		catch(Exception $ex) {
+  			$log->err($ex);
+  			return array();
+  		}
+
+  		return $result;
+  }
+
+  function removeMatchByPIDYear($pid, $year)
+ 	{
+ 		$log = FezLog::get();
+ 		$db = DB_API::get();
+
+    $existingIDs = RJL::getJournalIDsByPIDYear($pid, $year);
+    if (count($existingIDs) == 0) {
+      return true;
+    }
+
+ 		$stmt = "DELETE FROM
+                     " . APP_TABLE_PREFIX . "matched_journals
+                  WHERE
+                     mtj_pid = ? AND mtj_jnl_id IN ('".implode("','", $existingIDs)."')";
+ 		try {
+ 			$db->query($stmt, $pid);
+ 		}
+ 		catch(Exception $ex) {
+ 			$log->err($ex);
+ 			return false;
+ 		}
+ 		return true;
+ 	}
 
     function removeMatchByPID($pid)
    	{
