@@ -954,7 +954,7 @@ class RJL
   				jnl_id
   			FROM
   				" . APP_TABLE_PREFIX . "journal INNER JOIN
-  				" . APP_TABLE_PREFIX . "journal ON jnl_id = mtj_jnl_id
+  				" . APP_TABLE_PREFIX . "matched_journals ON jnl_id = mtj_jnl_id
   			WHERE jnl_era_year = ".$year." AND mtj_pid = '".$pid."'
   		";
 
