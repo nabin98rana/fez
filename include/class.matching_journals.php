@@ -795,13 +795,18 @@ class RJL
                             if ($match['year'] == $targetVal['jnl_era_year'] && $match['pid'] == $sourceKey && $match['matching_id'] != $targetVal['jnl_id']) {
                                 $existsAlready = true;
                                 $this->dupeList .= "Found ".$sourceKey." matched more than once on a similar journal name.\n ".
+                                    "Similarity: ".$similarity."%\n".
                                     "PID Journal name: ".$sourceVal."\n".
                                     "Existing Match jnl_id: ".$match['matching_id']." - Year: ".$match['year']."\n".
-                                    "New Candidate Match: ".$targetVal['jnl_id']." - Year: ".$targetVal['jnl_era_year']."\n\n";
+                                    "New Candidate Match: ".$targetVal['title']." ".$targetVal['jnl_id']." - Year: ".$targetVal['jnl_era_year']."\n\n";
                             }
                         }
                     }
                     if ($existsAlready !== true) {
+                      echo "Adding SIMILAR title match:".
+                      "Similarity: ".$similarity."%\n".
+                      "PID Journal name: ".$sourceVal."\n".
+                      "New Candidate Match: ".$targetVal['title']." ".$targetVal['jnl_id']." - Year: ".$targetVal['jnl_era_year']."\n\n";
                         $matches[] = array('pid' => $sourceKey, 'matching_id' => $targetVal['jnl_id'], 'year' => $targetVal['jnl_era_year']);
                     }
 
