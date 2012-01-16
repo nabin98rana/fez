@@ -745,6 +745,7 @@ class Lister
             $list = $list["list"];
 
 			$otherDisplayTypes = array();
+			$otherDisplaySubTypes = array();
             $use_faceting = false; //faceting is only required for the full author search
             $simple = false; //need the extra details for the actual results
             $citationCache = false; //need the extra details for the actual results
@@ -785,16 +786,25 @@ class Lister
 
 				$ja_xdis_id = XSD_Display::getXDIS_IDByTitleVersion("Journal Article", $xdis_version);
 				if (is_numeric($ja_xdis_id)) {
-					array_push($otherDisplayTypes, $ja_xdis_id);
-			 		$filter["searchKey".Search_Key::getID("Display Type")] = $ja_xdis_id; // enforce display type X only
-			 		$jaList = Record::getListing($options, array(9,10), $current_row, $max, $sort_by, $simple, $citationCache, $filter, $operator, $use_faceting, $use_highlighting);
+                    
+                    // Comment out: Do not exclude Journal Articles from Other Listing, because we need the erratum records
+//                    array_push($otherDisplayTypes, $ja_xdis_id);
+                    // Grab erratum subtype under Journal Article
+                    $otherDisplaySubTypes[] = "(display_type_i :". $ja_xdis_id ." AND !subtype_t : \"Correction/erratum\")";
+                    
+                    $filterJA = $filter;
+                    $filterJA["searchKey".Search_Key::getID("Display Type")] = $ja_xdis_id; // enforce display type X only
+                    // Filter OUT Correction/erratum records
+                    $filterJA["manualFilter"] .= " AND -(subtype_t:\"Correction/erratum\")";
+                    
+                    $jaList = Record::getListing($options, array(9,10), $current_row, $max, $sort_by, $simple, $citationCache, $filterJA, $operator, $use_faceting, $use_highlighting);
 			        $jaListInfo = $jaList["info"];
 		            $jaList = $jaList["list"];
 				} else {
 			        $jaListInfo = array();
 		            $jaList = array();
 				}
-
+                
 				$cp_xdis_id = XSD_Display::getXDIS_IDByTitleVersion("Conference Paper", $xdis_version);
 				if (is_numeric($cp_xdis_id)) {
 					array_push($otherDisplayTypes, $cp_xdis_id);
@@ -818,11 +828,27 @@ class Lister
 			        $ciListInfo = array();
 		            $ciList = array();
 				}
-				//Other displays
-		 		$filter["manualFilter"] .= $operator." !display_type_i:(".implode(" OR ", $otherDisplayTypes).")"; // enforce display type X only
-	//			echo $filter["manualFilter"];
+                
+                // Other displays
+                // Records that meet the following criteria:
+                // - Records that are not under Display Types loaded above, except Journal Article
+                // - Records that are Journal Article with subtype Correction/erratum
 				unset($filter["searchKey".Search_Key::getID("Display Type")]);
-		 		$otherList = Record::getListing($options, array(9,10), $current_row, $max, $sort_by, $simple, $citationCache, $filter, $operator, $use_faceting, $use_highlighting);
+                $filterOther = $filter;
+
+                // Note the NOT operator "!". 
+                // The purpose is to get SOLR to return records that do not meet the search terms
+                $filterOther["manualFilter"] .= " !(";
+                
+                // Enforce certain Display Types only
+                $filterOther["manualFilter"] .= "display_type_i:(".implode(" OR ", $otherDisplayTypes).")";
+                
+                // Include Journal Article with subtype Correction/erratum records
+                $filterOther["manualFilter"] .= " OR " . implode($otherDisplaySubTypes);
+                
+                $filterOther["manualFilter"] .= ")";
+                
+                $otherList = Record::getListing($options, array(9,10), $current_row, $max, $sort_by, $simple, $citationCache, $filterOther, $operator, $use_faceting, $use_highlighting);
 		        $otherListInfo = $otherList["info"];
 	            $otherList = $otherList["list"];
 
