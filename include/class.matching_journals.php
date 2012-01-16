@@ -111,9 +111,9 @@ class RJL
 		echo "Number after normalised string matches (conference): " . sizeof($matches) . "\n";
         ob_flush();
 		/* Look for similar title matches (uses normalised strings for comparison) */
-		/*RJL::lookForMatchesBySimilarStrings($normalisedCandidateJournals, $normalisedRankedJournals, $matchesS);
+//		RJL::lookForMatchesBySimilarStrings($normalisedCandidateJournals, $normalisedRankedJournals, $matchesS);
+//		RJL::runNearMatchInserts($matchesS);
 		echo "Number of similar string matches: " . sizeof($matchesS) . "\n";
-		*/
 		
 		/* Assemble list of all matches */
 //		$matches = array_merge($matchesT, $matchesI, $matchesM, $matchesC, $matchesS);
@@ -748,6 +748,7 @@ class RJL
 	{
 		echo "Running similar strings match ... ";
 
+
         $bgp = new BackgroundProcess();
         $bgp->register(array(), Auth::getUserID());
         $eta_cfg = $bgp->getETAConfig();
@@ -803,11 +804,12 @@ class RJL
                         }
                     }
                     if ($existsAlready !== true) {
-                      echo "Adding SIMILAR title match:".
-                      "Similarity: ".$similarity."%\n".
-                      "PID Journal name: ".$sourceVal."\n".
-                      "New Candidate Match: ".$targetVal['title']." ".$targetVal['jnl_id']." - Year: ".$targetVal['jnl_era_year']."\n\n";
-                        $matches[] = array('pid' => $sourceKey, 'matching_id' => $targetVal['jnl_id'], 'year' => $targetVal['jnl_era_year']);
+//                        $csv[] = '"'.$sourceKey.'",'.'"'.$pid.'",';
+//                      echo "Adding SIMILAR title match:".
+//                      "Similarity: ".$similarity."%\n".
+//                      "PID Journal name: ".$sourceVal."\n".
+//                      "New Candidate Match: ".$targetVal['title']." ".$targetVal['jnl_id']." - Year: ".$targetVal['jnl_era_year']."\n\n";
+                        $matches[] = array('pid' => $sourceKey, 'matching_id' => $targetVal['jnl_id'], 'year' => $targetVal['jnl_era_year'], 'rek_journal_name' => $sourceVal, 'jnl_journal_name' => $targetVal['title'], 'similarity' => $similarity);
                     }
 
 
@@ -820,9 +822,8 @@ class RJL
 				}
 			}
 		}
-        $bgp->setState(2);
+    $bgp->setState(2);
 		echo " done.\n";
-		
 		return;
 	}
 	
@@ -916,7 +917,37 @@ class RJL
 		return $clean;
 	}
 	
-	
+  function runNearMatchInserts($matches)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		echo "Running ".count($matches)."  near match insertion queries on eSpace database ... ";
+    // clear out any existing matches
+    RJL::removeNearMatches();
+
+		foreach ($matches as $match) {
+			$stmt = "INSERT INTO " . APP_TABLE_PREFIX . "near_matched_journals (nmj_pid, nmj_jnl_id, nmj_jnl_journal_name, nmj_rek_journal_name, nmj_similarity, nmj_created_date) VALUES ('" . $match['pid'] . "', '" . $match['matching_id'] . "', '" . $match['jnl_journal_name']. "', '" . $match['rek_journal_name']. "', '" . $match['similarity'] . "', NOW())";
+            if (TEST_WHERE != '') {
+    			echo $stmt."\n";
+            }
+            ob_flush();
+			try {
+				$db->exec($stmt);
+			}
+			catch(Exception $ex) {
+				$log->err($ex);
+				die('There was a problem with the query ' . $stmt);
+			}
+
+			//echo $stmt . "\n"; // This will tell us what's actually going to be run.
+		}
+
+		echo "done.\n";
+
+		return;
+	}
+
 	
 	function runInserts($matches)
 	{
@@ -1016,6 +1047,23 @@ class RJL
    		}
    		return true;
    	}
+
+  function removeNearMatches()
+ 	{
+ 		$log = FezLog::get();
+ 		$db = DB_API::get();
+
+ 		$stmt = "TRUNCATE
+                     " . APP_TABLE_PREFIX . "near_matched_journals";
+ 		try {
+ 			$db->query($stmt);
+ 		}
+ 		catch(Exception $ex) {
+ 			$log->err($ex);
+ 			return false;
+ 		}
+ 		return true;
+ 	}
 
 
 
