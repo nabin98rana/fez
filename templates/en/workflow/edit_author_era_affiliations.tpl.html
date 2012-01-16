@@ -6,16 +6,14 @@
 {literal}
 function validateForm(f)
 {
-
 }
 {/literal}
-
-
 </script>
-<tr><td>
-<a href="/view/{$authors[0].pid}">{$authors[0].pid}</a> - {$title}
+<tr><td><br />
+<a href="/view/{$authors[0].pid}" target="_blank">{$authors[0].pid}</a> - {$title}
 <div class="outline">
-<div class="admin-header">Edit ERA Author Affiliations</div>
+<div class="admin-header">Edit ERA Author Affiliations<br />
+</div>
   <div class="default admin-content">
   <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
 	<tr>
@@ -39,6 +37,10 @@ function validateForm(f)
               <td width="140" bgcolor="{$cell_color}" class="default">
                      <b>PID Affiliation Process Complete:</b>
               </td>
+              <td bgcolor="{$cell_color}" class="default">
+              &nbsp;
+              </td>
+
           </tr>
         {foreach name=current_authors item=author from=$authors}
 		  <tr>
@@ -60,11 +62,15 @@ function validateForm(f)
             <td bgcolor="{$light_color}" colspan="1" align="center">
               {$author.aae_is_pid_request_complete}
             </td>
+            <td bgcolor="{$cell_color}">&nbsp;</td>
           </tr>
         {/foreach}
          <tr>
-            <td width="140" bgcolor="{$cell_color}" colspan="4" class="default">&nbsp;</td>
+            <td width="140" bgcolor="{$cell_color}" colspan="5" class="default">&nbsp;</td>
         </tr>
+        <tr bgcolor="{$light_color}"><td colspan="4" > <br /><b>HERDC Notes:</b> {$herdc_notes}</td><td bgcolor="{$cell_color}">&nbsp;</td></tr>
+            <tr><td colspan="4" bgcolor="{$cell_color}">&nbsp;</td>
+                <td bgcolor="{$cell_color}">&nbsp;</td></tr>
 		</table>
 	  </td>
 	</tr>
@@ -74,3 +80,4 @@ function validateForm(f)
 </div>
 
 </td></tr>
+
