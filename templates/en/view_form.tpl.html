@@ -598,8 +598,10 @@ function loadPreview(pid,datastreamID, alt, origami)
 				  <th>Created:</th>
 				  <td>{$created_date} 
 				  {if $depositor != ""} by <a href="{$rel_url}list/depositor/{$depositor_id}/">{$depositor}</a> 
-				  {if $depositor_org != ""} on behalf of {$depositor_org}{/if}{/if} &nbsp;-&nbsp; 
-				  <a title="view the full history of changes on this object" href="javascript:void(null);" onclick="javascript:openHistory('{$pid}');">Detailed History</a>
+				  {if $depositor_org != ""} on behalf of {$depositor_org}{/if}{/if} 
+				  {if ($isEditor || $isAdministrator)}
+						&nbsp;-&nbsp; <a title="view the full history of changes on this object" href="javascript:void(null);" onclick="javascript:openHistory('{$pid}');">Detailed History</a>
+				  {/if}
 				  </td>
 				</tr>
 				
