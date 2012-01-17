@@ -70,6 +70,8 @@ if ($access_ok) {
     $title = Record::getTitleFromIndex($authors[0]['pid']);
     $tpl->assign('title', $title);
 
+    $pidDetails = Record::getDetailsLite($pid);
+    $tpl->assign('herdc_notes', $pidDetails[0]['rek_herdc_notes']);
 } else {
     $tpl->assign("show_not_allowed_msg", true);
 }
