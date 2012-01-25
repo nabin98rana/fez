@@ -76,7 +76,17 @@ if ($isAdministrator) {
     $options = Pager::saveSearchParams($params);
  	$sort = Pager::getParam('sort_by',$params);
     $tpl->assign("sort_by", Pager::getParam('sort_by',$params));
-    $sort.= Pager::getParam('sort_order',$params) ? " ".Pager::getParam('sort_order',$params) : "";
+
+    $sortOrder = Pager::getParam('sort_order',$params);
+    if ($sortOrder) {
+        if ($sort == 'request_priority, aut_display_name') {
+            $sort = 'request_priority '.$sortOrder.', aut_display_name ASC';
+        } else {
+            $sort.= " ".$sortOrder;
+        }
+    }
+
+
  	$tpl->assign("sort_order", Pager::getParam('sort_order',$params));
     if (!empty($sort)) {
         $affiliationsList = author_era_affiliations::getList($pagerRow, $rows, $sort, $hideComplete, $search);
@@ -92,11 +102,12 @@ if ($isAdministrator) {
     $sort_by_list = array(
         "pid" => 'PID',
         "request_priority" => 'Request Priority',
+        "request_priority, aut_display_name" => 'Request Priority, Author',
         "creator_priority" => 'Creator Priority',
         "staff_id" => 'Staff Id',
         "uq_assoc_status_name" => 'Status',
         "aut_display_name" => 'Author Name',
-        "aae_is_pid_request_complete, pid" => 'Is complete'
+        "aae_is_pid_request_complete" => 'Is complete'
     );
     $tpl->assign("sort_by_list", $sort_by_list);
 

@@ -30,6 +30,30 @@
     					window.location.href = page_url + "?" + replaceParam(window.location.href, 'pagerRow', new_page);
     				}
 
+                    function resizePager2(f)
+                    {
+                        var pagesize = f.page_size2.options[f.page_size2.selectedIndex].value;
+                        window.location.href = page_url + "?" + replaceParam(window.location.href, 'rows', pagesize);
+                    }
+
+                    function goPage2(f, new_page)
+                    {
+                        if ((new_page > last_page+1) || (new_page <= 0) ||
+                                (new_page == current_page+1) || (!isNumberOnly(new_page))) {
+                            f.page2.value = current_page+1;
+                            return false;
+                        }
+                        setPage(new_page-1);
+                    }
+                    function setPage2(new_page)
+                    {
+                        if ((new_page > last_page) || (new_page < 0) ||
+                                (new_page == current_page)) {
+                            return false;
+                        }
+                        window.location.href = page_url + "?" + replaceParam(window.location.href, 'pagerRow', new_page);
+                    }
+
                     function setHide()
               	    {
               				window.location.href = page_url + "?" + replaceParam(window.location.href, 'hideComplete',document.getElementById('hide_complete').checked);
@@ -69,7 +93,10 @@
                         <select class="default" name="search_on">
                       		   <option value="aut_display_name" {if $search_on == "aut_display_name"}selected="selected"{/if}>Author Name</option>
                       		   <option value="pid" {if $search_on == "pid"}selected="selected"{/if}>PID</option>
-                                 <option value="staff_id" {if $search_on == "staff_id"}selected="selected"{/if}>Staff ID</option>
+                               <option value="staff_id" {if $search_on == "staff_id"}selected="selected"{/if}>Staff ID</option>
+                               <option value="uq_assoc_status_name" {if $search_on == "uq_assoc_status_name"}selected="selected"{/if}>Status</option>
+                               <option value="request_priority" {if $search_on == "request_priority"}selected="selected"{/if}>Request Priority</option>
+
                         </select>
                         <input type="text" id="search_value" name= "search_value">
                         <input type="submit" value="Search / Clear Search">
@@ -84,7 +111,36 @@
                    Total Rows - {$list_info.total_rows}
                 </td>
               </tr>
-
+              <tr style="background: {$cell_color}">
+                    <td colspan="11">
+                      <table style="width: 100%" cellspacing="0" cellpadding="0">
+                        <tr>
+                          <td style="width: 40%; text-align: center; white-space: nowrap">
+                            <input name="first" type="button" value="|&lt;" class="shortcut button" onclick="javascript:setPage2(0);" />
+                            <input name="previous" type="button" value="&lt;&lt;" class="shortcut button" onclick="javascript:setPage2({$list_info.prev_page});" />
+                            <input type="text" name="page2" size="3" maxlength="3" value="{math equation="x + 1" x=$list_info.current_page}" style="background: {$cell_color};" class="paging_input" onkeypress="javascript:return checkPageField(event);" />
+                            <input name="go" type="button" value="Go" class="shortcut button" onclick="javascript:goPage2(this.form, this.form.page2.value);" />
+                            <input name="next" type="button" value="&gt;&gt;" class="shortcut button" onclick="javascript:setPage2({$list_info.next_page});" />
+                            <input name="last" type="button" value="&gt;|" class="shortcut button" onclick="javascript:setPage2({$list_info.last_page});" />
+                          </td>
+                          <td style="white-space: nowrap">
+                            <span class="default_white">Rows per Page:</span>
+                            <select name="page_size2" class="default" onchange="javascript:resizePager2(this.form);">
+                              <option value="2" {if $rows == 2}selected="selected"{/if}>2</option>
+                              <option value="25" {if $rows == 25}selected="selected"{/if}>25</option>
+                              <option value="50" {if $rows == 50}selected="selected"{/if}>50</option>
+                              <option value="100" {if $rows == 100}selected="selected"{/if}>100</option>
+                              <option value="200" {if $rows == 200}selected="selected"{/if}>200</option>
+                              <option value="2000" {if $rows == 2000}selected="selected"{/if}>2000</option>
+                              <option value="6000" {if $rows == 6000}selected="selected"{/if}>6000</option>
+                            </select>
+                            <input type="button" value="Set" class="shortcut button" onclick="javascript:resizePager2(this.form);" />
+                          </td>
+                        </tr>
+                        </table>
+                    </td>
+                   </tr>
+                <tr><td style="background: {$light_color}" colspan="2">&nbsp;</td></tr>
               <tr>
                 <td colspan="2">
                   <table style="width: 100%" cellpadding="1" cellspacing="1">
@@ -109,7 +165,7 @@
                         <td style="background: {$row_color}" class="default">&nbsp;{$list[i].uq_assoc_status_name}</td>
                         <td style="background: {$row_color}" class="default">&nbsp;{$list[i].aut_display_name}</td>
                         <td style="background: {$row_color}" class="default">&nbsp;{$list[i].staff_id}</td>
-                      <td style="background: {$row_color}" class="default">&nbsp;{if $list[i].aae_is_pid_request_complete}{$list[i].aae_is_pid_request_complete}{else}N{/if} </td>
+                        <td style="background: {$row_color}" class="default">&nbsp;{if $list[i].aae_is_pid_request_complete}{$list[i].aae_is_pid_request_complete}{else}N{/if} </td>
                     </tr>
 
                     {sectionelse}
@@ -135,19 +191,18 @@
                                 <span class="default_white">Rows per Page:</span>
                                 <select name="page_size" class="default" onchange="javascript:resizePager(this.form);">
                                   <option value="2" {if $rows == 2}selected="selected"{/if}>2</option>
-                                  <option value="5" {if $orows == 5}selected="selected"{/if}>5</option>
-                                  <option value="10" {if $rows == 10}selected="selected"{/if}>10</option>
                                   <option value="25" {if $rows == 25}selected="selected"{/if}>25</option>
                                   <option value="50" {if $rows == 50}selected="selected"{/if}>50</option>
                                   <option value="100" {if $rows == 100}selected="selected"{/if}>100</option>
                                   <option value="200" {if $rows == 200}selected="selected"{/if}>200</option>
                                   <option value="2000" {if $rows == 2000}selected="selected"{/if}>2000</option>
+                                  <option value="6000" {if $rows == 6000}selected="selected"{/if}>6000</option>
                                 </select>
                                 <input type="button" value="Set" class="shortcut button" onclick="javascript:resizePager(this.form);" />
                               </td>
                             </tr>
-                  </table>
-                </td>
-              </tr>
+                            </table>
+                        </td>
+                       </tr>
             </form>
 </div>
