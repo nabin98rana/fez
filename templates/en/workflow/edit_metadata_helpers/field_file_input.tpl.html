@@ -33,8 +33,21 @@
 
                 <script type="text/javascript">
 			dojo.addOnLoad( function() {ldelim}
-				swfuploaderLoad({$xsdmf.xsdmf_multiple_limit}, '{$rel_url}', {ldelim} workflowId : {$id}, xsdmf_id : '{$xsdmf.xsdmf_id}', required : '{$xsd_display_fields[i].xsdmf_required == 1}'{rdelim});
-                    {rdelim});
+                                {* File upload validation. 
+                                   Turn off validation for Administrator, otherwise follow the setting from XSD field. *}
+                                {if $isAdmin == 1}
+                                    var required_fileupload = 0;
+                                {else}
+                                    var required_fileupload = {$xsd_display_fields[i].xsdmf_required};
+                                {/if}
+                        
+				swfuploaderLoad({$xsdmf.xsdmf_multiple_limit}, 
+                                                '{$rel_url}', 
+                                                {ldelim} workflowId : {$id}, 
+                                                         xsdmf_id : '{$xsdmf.xsdmf_id}', 
+                                                         required : required_fileupload
+                                                {rdelim});
+                                {rdelim});
                 </script>
             </td>
             {include file='workflow/compare_records_helpers/get_right_column.tpl.html input_field_name="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"][]"}
