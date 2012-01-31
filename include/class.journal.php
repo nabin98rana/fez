@@ -432,4 +432,61 @@ class Journal
 		return $res;
 	}
 
+  /**
+ 	 * Get the complete list of journals.
+ 	 */
+ 	function getJournalISSNsByYear($year = 2012)
+ 	{
+ 		$log = FezLog::get();
+ 		$db = DB_API::get();
+
+ 		$stmt = "
+ 			SELECT
+ 			    a.jni_jnl_id,
+ 			    a.jni_issn
+ 			FROM
+ 				" . APP_TABLE_PREFIX . "journal_issns a INNER JOIN
+ 				" . APP_TABLE_PREFIX . "journal on jnl_id = a.jni_jnl_id LEFT JOIN
+ 				" . APP_TABLE_PREFIX . "journal_issns_complete b on a.jni_jnl_id = b.jni_jnl_id
+ 			WHERE
+ 			  b.jni_jnl_id is null
+ 		and		jnl_era_year = ".$year." order by a.jni_jnl_id desc ";
+ 		try {
+ 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+ 		}
+ 		catch(Exception $ex) {
+ 			$log->err($ex);
+ 			return '';
+ 		}
+
+ 		return $res;
+ 	}
+
+
+  function insertISSNComplete($jni_jnl_id, $issn)
+ 	{
+ 		$log = FezLog::get();
+ 		$db = DB_API::get();
+
+ 		$stmt = "INSERT IGNORE INTO
+                     " . APP_TABLE_PREFIX . "journal_issns_complete
+                   (
+                     jni_jnl_id,
+ 					jni_issn
+ 				  ) VALUES (
+                     " . $jni_jnl_id . ",
+ 					'" . $issn . "'
+                    )";
+//echo $stmt."\n";
+ 		try {
+ 			$db->exec($stmt);
+ 		}
+ 		catch(Exception $ex) {
+ 			$log->err($ex);
+ 			return -1;
+ 		}
+ 		return 1;
+ 	}
+
+
 }
