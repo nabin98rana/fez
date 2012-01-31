@@ -30,7 +30,7 @@ Bgps.prototype.bgpsStats = function()
     var countReceptacle = document.getElementById('bgpsCount');
     var statIcn = document.createElement('img');
     var popup = document.getElementById('bgpsPopup');
-    statIcn.setAttribute('src', '/images/icons/' + stats.hgImg);
+    statIcn.setAttribute('src', rel_url + 'images/icons/' + stats.hgImg);
     statIcn.setAttribute('style', 'margin-top:0;');
     statIcn.setAttribute('alt', 'Background processes running');
     if(elStat && countReceptacle)
