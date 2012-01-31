@@ -43,6 +43,7 @@ class RJL
     var $runType = "0";
     var $userManualMatches = array();
     var $userManualMatchCount = 0;
+    var $unMatched = "0";
 
 	function matchAll()
 	{
@@ -226,10 +227,21 @@ class RJL
 				rek_pid AS record_pid,
 				rek_journal_name AS journal_title
 			FROM
-				" . APP_TABLE_PREFIX . "record_search_key, " . APP_TABLE_PREFIX . "record_search_key_journal_name, " . APP_TABLE_PREFIX . "xsd_display
-			WHERE ".TEST_WHERE."
+				" . APP_TABLE_PREFIX . "record_search_key, " . APP_TABLE_PREFIX . "record_search_key_journal_name, " . APP_TABLE_PREFIX . "xsd_display ";
+
+    if ($this->unMatched == true) {
+      $stmt .= " LEFT JOIN " . APP_TABLE_PREFIX . "matched_journals ON rek_pid = mtj_pid ";
+    }
+
+		$stmt .= "	WHERE ".TEST_WHERE."
 				" . APP_TABLE_PREFIX . "record_search_key_journal_name.rek_journal_name_pid = " . APP_TABLE_PREFIX . "record_search_key.rek_pid
-				AND rek_display_type = xdis_id
+				AND rek_display_type = xdis_id ";
+
+    if ($this->unMatched == true) {
+          $stmt .= " AND mtj_pid IS NULL";
+    }
+
+    $stmt .= "
 				AND " . APP_TABLE_PREFIX . "record_search_key.rek_date >= '" . WINDOW_START . "'
 				AND xdis_title IN ('Conference Paper', 'Conference Item', 'Journal Article', 'RQF 2006 Journal Article', 'RQF 2006 Conference Paper', 'RQF 2007 Journal Article', 'RQF 2007 Conference Paper', 'Online Journal Article')
 			ORDER BY
@@ -259,8 +271,6 @@ class RJL
 		return $candidateJournals;
 	}
 	
-	
-	
 	function getCandidateISSNs()
 	{
 		$log = FezLog::get();
@@ -274,10 +284,21 @@ class RJL
 				rek_pid AS record_pid,
 				rek_issn AS issn
 			FROM
-				" . APP_TABLE_PREFIX . "record_search_key, " . APP_TABLE_PREFIX . "record_search_key_issn, " . APP_TABLE_PREFIX . "xsd_display
-			WHERE ".TEST_WHERE."
+				" . APP_TABLE_PREFIX . "record_search_key, " . APP_TABLE_PREFIX . "record_search_key_issn, " . APP_TABLE_PREFIX . "xsd_display ";
+
+      if ($this->unMatched == true) {
+        $stmt .= " LEFT JOIN " . APP_TABLE_PREFIX . "matched_journals ON rek_pid = mtj_pid ";
+      }
+
+      $stmt .= "	WHERE ".TEST_WHERE."
 				" . APP_TABLE_PREFIX . "record_search_key_issn.rek_issn_pid = " . APP_TABLE_PREFIX . "record_search_key.rek_pid
-				AND rek_display_type = xdis_id
+				AND rek_display_type = xdis_id ";
+
+      if ($this->unMatched == true) {
+            $stmt .= " AND mtj_pid IS NULL";
+      }
+
+      $stmt .= "
 				AND " . APP_TABLE_PREFIX . "record_search_key.rek_date >= '" . WINDOW_START . "'
 				AND xdis_title IN ('Conference Paper', 'Conference Item', 'Journal Article', 'RQF 2006 Journal Article', 'RQF 2006 Conference Paper', 'RQF 2007 Journal Article', 'RQF 2007 Conference Paper', 'Online Journal Article')
 			ORDER BY
@@ -322,10 +343,21 @@ class RJL
 				rek_pid AS record_pid,
 				rek_proceedings_title AS conference_name
 			FROM
-				" . APP_TABLE_PREFIX . "record_search_key, " . APP_TABLE_PREFIX . "record_search_key_proceedings_title, " . APP_TABLE_PREFIX . "xsd_display
-			WHERE ".TEST_WHERE."
+				" . APP_TABLE_PREFIX . "record_search_key, " . APP_TABLE_PREFIX . "record_search_key_proceedings_title, " . APP_TABLE_PREFIX . "xsd_display ";
+
+      if ($this->unMatched == true) {
+        $stmt .= " LEFT JOIN " . APP_TABLE_PREFIX . "matched_journals ON rek_pid = mtj_pid ";
+      }
+
+      $stmt .= "	WHERE ".TEST_WHERE."
 				" . APP_TABLE_PREFIX . "record_search_key_proceedings_title.rek_proceedings_title_pid = " . APP_TABLE_PREFIX . "record_search_key.rek_pid
-				AND rek_display_type = xdis_id
+				AND rek_display_type = xdis_id ";
+
+      if ($this->unMatched == true) {
+            $stmt .= " AND mtj_pid IS NULL";
+      }
+
+      $stmt .= "
 				AND " . APP_TABLE_PREFIX . "record_search_key.rek_date >= '" . WINDOW_START . "'
 				AND xdis_title IN ('Conference Paper', 'Conference Item', 'Journal Article', 'RQF 2006 Journal Article', 'RQF 2006 Conference Paper', 'RQF 2007 Journal Article', 'RQF 2007 Conference Paper')
 			ORDER BY
@@ -481,9 +513,9 @@ class RJL
 				jnl_id
 			FROM
 				" . APP_TABLE_PREFIX . "journal,
-				" . APP_TABLE_PREFIX . "journal_issns
+				" . APP_TABLE_PREFIX . "journal_issns_complete
 			WHERE
-				" . APP_TABLE_PREFIX . "journal.jnl_id = " . APP_TABLE_PREFIX . "journal_issns.jni_jnl_id
+				" . APP_TABLE_PREFIX . "journal.jnl_id = " . APP_TABLE_PREFIX . "journal_issns_complete.jni_jnl_id
 			ORDER BY
 				jni_issn ASC,
 				jni_issn_order ASC;
