@@ -227,22 +227,22 @@ class RJL
 				rek_pid AS record_pid,
 				rek_journal_name AS journal_title
 			FROM
-				" . APP_TABLE_PREFIX . "record_search_key, " . APP_TABLE_PREFIX . "record_search_key_journal_name, " . APP_TABLE_PREFIX . "xsd_display ";
+				" . APP_TABLE_PREFIX . "record_search_key INNER JOIN
+				" . APP_TABLE_PREFIX . "record_search_key_journal_name ON rek_pid = rek_journal_name_pid INNER JOIN
+				" . APP_TABLE_PREFIX . "xsd_display ON rek_display_type = xdis_id ";
 
     if ($this->unMatched == true) {
       $stmt .= " LEFT JOIN " . APP_TABLE_PREFIX . "matched_journals ON rek_pid = mtj_pid ";
     }
 
-		$stmt .= "	WHERE ".TEST_WHERE."
-				" . APP_TABLE_PREFIX . "record_search_key_journal_name.rek_journal_name_pid = " . APP_TABLE_PREFIX . "record_search_key.rek_pid
-				AND rek_display_type = xdis_id ";
+		$stmt .= "	WHERE ".TEST_WHERE." rek_display_type = xdis_id ";
 
     if ($this->unMatched == true) {
           $stmt .= " AND mtj_pid IS NULL";
     }
 
     $stmt .= "
-				AND " . APP_TABLE_PREFIX . "record_search_key.rek_date >= '" . WINDOW_START . "'
+				AND rek_date >= '" . WINDOW_START . "'
 				AND xdis_title IN ('Conference Paper', 'Conference Item', 'Journal Article', 'RQF 2006 Journal Article', 'RQF 2006 Conference Paper', 'RQF 2007 Journal Article', 'RQF 2007 Conference Paper', 'Online Journal Article')
 			ORDER BY
 				journal_title ASC
@@ -284,22 +284,22 @@ class RJL
 				rek_pid AS record_pid,
 				rek_issn AS issn
 			FROM
-				" . APP_TABLE_PREFIX . "record_search_key, " . APP_TABLE_PREFIX . "record_search_key_issn, " . APP_TABLE_PREFIX . "xsd_display ";
+				" . APP_TABLE_PREFIX . "record_search_key INNER JOIN
+				" . APP_TABLE_PREFIX . "record_search_key_issn ON rek_pid = rek_issn_pid INNER JOIN
+				" . APP_TABLE_PREFIX . "xsd_display ON rek_display_type = xdis_id ";
 
       if ($this->unMatched == true) {
         $stmt .= " LEFT JOIN " . APP_TABLE_PREFIX . "matched_journals ON rek_pid = mtj_pid ";
       }
 
-      $stmt .= "	WHERE ".TEST_WHERE."
-				" . APP_TABLE_PREFIX . "record_search_key_issn.rek_issn_pid = " . APP_TABLE_PREFIX . "record_search_key.rek_pid
-				AND rek_display_type = xdis_id ";
+      $stmt .= "	WHERE ".TEST_WHERE." rek_display_type = xdis_id ";
 
       if ($this->unMatched == true) {
             $stmt .= " AND mtj_pid IS NULL";
       }
 
       $stmt .= "
-				AND " . APP_TABLE_PREFIX . "record_search_key.rek_date >= '" . WINDOW_START . "'
+				AND rek_date >= '" . WINDOW_START . "'
 				AND xdis_title IN ('Conference Paper', 'Conference Item', 'Journal Article', 'RQF 2006 Journal Article', 'RQF 2006 Conference Paper', 'RQF 2007 Journal Article', 'RQF 2007 Conference Paper', 'Online Journal Article')
 			ORDER BY
 				issn ASC
@@ -308,7 +308,7 @@ class RJL
 		if (TEST) {
 			$stmt .= " LIMIT 250;";
 		}
-		
+
 		try {
 			$result = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
@@ -343,15 +343,15 @@ class RJL
 				rek_pid AS record_pid,
 				rek_proceedings_title AS conference_name
 			FROM
-				" . APP_TABLE_PREFIX . "record_search_key, " . APP_TABLE_PREFIX . "record_search_key_proceedings_title, " . APP_TABLE_PREFIX . "xsd_display ";
+				" . APP_TABLE_PREFIX . "record_search_key INNER JOIN
+				" . APP_TABLE_PREFIX . "record_search_key_proceedings_title ON rek_pid = rek_proceedings_title_pid INNER JOIN
+				" . APP_TABLE_PREFIX . "xsd_display ON rek_display_type = xdis_id ";
 
       if ($this->unMatched == true) {
         $stmt .= " LEFT JOIN " . APP_TABLE_PREFIX . "matched_journals ON rek_pid = mtj_pid ";
       }
 
-      $stmt .= "	WHERE ".TEST_WHERE."
-				" . APP_TABLE_PREFIX . "record_search_key_proceedings_title.rek_proceedings_title_pid = " . APP_TABLE_PREFIX . "record_search_key.rek_pid
-				AND rek_display_type = xdis_id ";
+      $stmt .= "	WHERE ".TEST_WHERE." rek_display_type = xdis_id ";
 
       if ($this->unMatched == true) {
             $stmt .= " AND mtj_pid IS NULL";
@@ -363,7 +363,7 @@ class RJL
 			ORDER BY
 				conference_name ASC
 		";
-		
+
 		if (TEST) {
 			$stmt .= " LIMIT 250;";
 		}
