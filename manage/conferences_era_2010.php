@@ -46,7 +46,7 @@ $tpl->setTemplate("manage/index.tpl.html");
 
 Auth::checkAuthentication(APP_SESSION);
 
-$tpl->assign("type", "conferences");
+$tpl->assign("type", "conferences_era_2010");
 
 $isUser = Auth::getUsername();
 $isAdministrator = User::isUserAdministrator($isUser);

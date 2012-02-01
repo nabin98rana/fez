@@ -163,11 +163,43 @@ class author_era_affiliations
    		return $res;
    	}
 
+    //this returns the xsdmf_id for the HERDC note gived the xdis_id when then is used to
+    //find the is anchor for a page link
+    function returnHERDCLink($xdis_id)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $xdis_list = XSD_Relationship::getListByXDIS($xdis_id);
+        array_push($xdis_list, array("0" => $xdis_id));
+        $xdis_str = Misc::sql_array_to_string($xdis_list);
+
+        $stmt = "SELECT
+                        xsdmf_id
+                     FROM
+                        " . APP_TABLE_PREFIX . "xsd_display_matchfields
+                     WHERE
+                         xsdmf_title = 'herdc notes' AND xsdmf_xdis_id in (".$xdis_str.") ";
+        try {
+            $res = $db->fetchOne($stmt);
+        }
+
+        catch(Exception $ex) {
+            $log->err($ex);
+            return '';
+        }
+        return $res;
+    }
     function getList($current_row = 0, $max = 2, $order_by = 'aae_pid', $filter=false, $search=false)
    	{
         $log = FezLog::get();
         $db = DB_API::get();
 
+        if ($order_by == 'aae_is_pid_request_complete')
+        {
+            $order_by = '-aae_is_pid_request_complete';
+
+        }
         $where = ($filter == false) ? "WHERE 1 " : "WHERE (aae_is_pid_request_complete != 'Y' OR aae_is_pid_request_complete IS NULL) " ;
         if (!empty($search['value']))
            {

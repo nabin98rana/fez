@@ -10,6 +10,9 @@ function validateForm(f)
 {/literal}
 </script>
 <tr><td><br />
+<a href="/workflow/update.php?pid={$authors[0].pid}&cat=select_workflow&xdis_id={$xdis_id}&wft_id=289&href={$smarty.server.REQUEST_URI}">
+    <img src="/images/edit.gif" /></a>
+&nbsp;
 <a href="/view/{$authors[0].pid}" target="_blank">{$authors[0].pid}</a> - {$title}
 <div class="outline">
 <div class="admin-header">Edit ERA Author Affiliations<br />
@@ -68,9 +71,29 @@ function validateForm(f)
          <tr>
             <td width="140" bgcolor="{$cell_color}" colspan="5" class="default">&nbsp;</td>
         </tr>
-        <tr bgcolor="{$light_color}"><td colspan="4" > <br /><b>HERDC Notes:</b> {$herdc_notes}</td><td bgcolor="{$cell_color}">&nbsp;</td></tr>
+        <tr bgcolor="{$light_color}"><td colspan="4" > <br />
+            <a href="/workflow/update.php?pid={$authors[0].pid}&cat=select_workflow&xdis_id={$xdis_id}&wft_id=289&href={$smarty.server.REQUEST_URI}#tr_xsd_display_fields_{$hLink}_0">
+            <img src="/images/edit.gif" /></a>
+            &nbsp;
+            <b>HERDC Notes:</b> {$herdc_notes}</td><td bgcolor="{$cell_color}">&nbsp;</td></tr>
+            {if $links}
+            <tr><td><br /><b>Links:</b></td></tr>
+            {section name=i loop=$links}
+                <tr bgcolor="{$light_color}"><td colspan="4" >
+
+                {$links[i].label} <a href="{$links[i].location}" onclick="javascript:window.open('{$links[i].location|escape:'html'}'); return false;">
+                {$links[i].location}</a>
+                    <br />
+            {/section}
+                    <br /><br /></td></tr>
+
+            {/if}
+
             <tr><td colspan="4" bgcolor="{$cell_color}">&nbsp;</td>
                 <td bgcolor="{$cell_color}">&nbsp;</td></tr>
+        <tr>
+
+        </tr>
 		</table>
 	  </td>
 	</tr>

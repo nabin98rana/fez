@@ -28,25 +28,25 @@
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
 // | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
-// |          Aaron Brown <a.brown@library.uq.edu.au>                     |
+// |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>                     |
 // +----------------------------------------------------------------------+
 //
 //
 set_time_limit(0);
 include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
-include_once(APP_INC_PATH . "class.author_era_affiliations.php");
+include_once(APP_INC_PATH . "class.auth.php");
+include_once(APP_INC_PATH . "class.conference.php");
 include_once(APP_INC_PATH . "class.db_api.php");
 include_once(APP_INC_PATH . "class.pager.php");
 
 $tpl = new Template_API();
-$tpl->assign("era_affiliation", 1);
+$tpl->assign("conferences_form", 1); 
 $tpl->setTemplate("manage/index.tpl.html");
 
 Auth::checkAuthentication(APP_SESSION);
 
-$tpl->assign("type", "era_affiliation");
-$tpl->assign("active_nav", "admin");
+$tpl->assign("type", "conferences_id");
 
 $isUser = Auth::getUsername();
 $isAdministrator = User::isUserAdministrator($isUser);
@@ -54,62 +54,39 @@ $isSuperAdministrator = User::isUserSuperAdministrator($isUser);
 $tpl->assign("isUser", $isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
 $tpl->assign("isSuperAdministrator", $isSuperAdministrator);
+$tpl->assign("active_nav", "admin");
 
-if ($isAdministrator) {
-    $hideComplete = Pager::getParam('hideComplete',$params)=='true';
-    $tpl->assign("hideComplete", $hideComplete);
+$pagerRow = Pager::getParam('pagerRow',$params);
+if (empty($pagerRow)) {
+	$pagerRow = 0;
+}
+$rows = Pager::getParam('rows',$params);
+if (empty($rows)) {
+	$rows = APP_DEFAULT_PAGER_SIZE;
+}
+$options = Pager::saveSearchParams($params);
+$tpl->assign("options", $options);
 
-    $search['on'] = Pager::getParam('search_on');
-    $search['value'] = Pager::getParam('search_value');
-    $tpl->assign("search_on", $search['on']);
-    $tpl->assign("search_value", $search['value']);
-
-    $pagerRow = Pager::getParam('pagerRow');
-    if (empty($pagerRow)) {
-        $pagerRow = 0;
+if ($isSuperAdministrator) {
+    if (@$_POST["cat"] == "new") {
+        $tpl->assign("result", ConferenceId::insert());
+    } elseif (@$_POST["cat"] == "update") {
+        $tpl->assign("result", ConferenceId::update());
+    } elseif (@$_POST["cat"] == "delete") {
+        ConferenceId::remove();
     }
-    $rows = Pager::getParam('rows',$params);
-    if (empty($rows)) {
-        $rows = APP_DEFAULT_PAGER_SIZE;
+    if (@$_GET["cat"] == "edit") {
+        $tpl->assign("info", ConferenceId::getDetails($_GET["id"]));
     }
-    $tpl->assign("rows", $rows);
-    $options = Pager::saveSearchParams($params);
- 	$sort = Pager::getParam('sort_by',$params);
-    $tpl->assign("sort_by", Pager::getParam('sort_by',$params));
-
-    $sortOrder = Pager::getParam('sort_order',$params);
-    if ($sortOrder) {
-        if ($sort == 'request_priority, aut_display_name') {
-            $sort = 'request_priority '.$sortOrder.', aut_display_name ASC';
-        } else {
-            $sort.= " ".$sortOrder;
-        }
-    }
-
-
- 	$tpl->assign("sort_order", Pager::getParam('sort_order',$params));
-    if (!empty($sort)) {
-        $affiliationsList = author_era_affiliations::getList($pagerRow, $rows, $sort, $hideComplete, $search);
-
- 	} else {
-          $affiliationsList = author_era_affiliations::getList($pagerRow, $rows);
- 	}
-    $tpl->assign("list",$affiliationsList['list']);
-    $tpl->assign("list_info", $affiliationsList['list_info']);
-
-
-
-    $sort_by_list = array(
-        "pid" => 'PID',
-        "request_priority" => 'Request Priority',
-        "request_priority, aut_display_name" => 'Request Priority, Author',
-        "creator_priority" => 'Creator Priority',
-        "staff_id" => 'Staff Id',
-        "uq_assoc_status_name" => 'Status',
-        "aut_display_name" => 'Author Name',
-        "aae_is_pid_request_complete" => 'Is complete'
-    );
-    $tpl->assign("sort_by_list", $sort_by_list);
+	if (@$_GET["cat"] == "search") {
+		$filter = Pager::getParam('search_filter',$params);
+		$tpl->assign("search_filter", $filter);
+		$conference_list = ConferenceId::getList($pagerRow, $rows, 'cfi_conference_name', $filter);
+	} else {
+		$conference_list = ConferenceId::getList($pagerRow, $rows);
+	}
+    $tpl->assign("list", $conference_list['list']);
+    $tpl->assign("list_info", $conference_list['list_info']);
 
 } else {
     $tpl->assign("show_not_allowed_msg", true);

@@ -36,6 +36,7 @@ include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.author_era_affiliations.php");
+include_once(APP_INC_PATH . "class.record.php");
 
 Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']."?".$_SERVER['QUERY_STRING']);
 
@@ -69,6 +70,38 @@ if ($access_ok) {
     $tpl->assign('wf_id',$wf_id);
     $title = Record::getTitleFromIndex($authors[0]['pid']);
     $tpl->assign('title', $title);
+
+    $pidDetails = Record::getDetailsLite($pid);
+    $tpl->assign('herdc_notes', $pidDetails[0]['rek_herdc_notes']);
+
+    $xdis_id = $record->getXmlDisplayId();
+    $tpl->assign('xdis_id', $xdis_id);
+
+    $datastreams = Fedora_API::callGetDatastreams($pid, null , 'A');
+    $datastreamLinks = array();
+    foreach ($datastreams as $ds_key => $ds) {
+        if (!empty($datastreams[$ds_key]['location'])) {
+            $datastreams[$ds_key]['location'] = trim($datastreams[$ds_key]['location']);
+            /*// Check for APP_LINK_PREFIX and add if not already there add it to a special ezyproxy link for it
+                        if (APP_LINK_PREFIX != "") {
+                            if (!is_numeric(strpos($datastreams[$ds_key]['location'], APP_LINK_PREFIX))) {
+                                $datastreams[$ds_key]['prefix_location'] = APP_LINK_PREFIX.$datastreams[$ds_key]['location'];
+                                $datastreams[$ds_key]['location'] = str_replace(APP_LINK_PREFIX, "", $datastreams[$ds_key]['location']);
+                            } else {
+                                $datastreams[$ds_key]['prefix_location'] = "";
+                            }
+                        } else {
+                            $datastreams[$ds_key]['prefix_location'] = "";
+                        } */
+            array_push($datastreamLinks,$datastreams[$ds_key]);
+
+        }
+    }
+    $tpl->assign('links', $datastreamLinks);
+
+    //Find link to HERDC edit
+    $tpl->assign('hLink', author_era_affiliations::returnHERDCLink($xdis_id));
+
 
 } else {
     $tpl->assign("show_not_allowed_msg", true);
