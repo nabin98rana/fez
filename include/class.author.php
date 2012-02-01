@@ -574,7 +574,7 @@ class Author
     if ($_POST["dname"] !== "") {
       $values .= ", " . $db->quote(trim($_POST["dname"]));
     } else {
-      $values .= ", " . $db->quote(trim($_POST["fname"]) . ' ' . $trim(_POST["lname"]));
+      $values .= ", " . $db->quote(trim($_POST["fname"]) . ' ' . trim($_POST["lname"]));
     }
 
     if (trim($_POST["org_staff_id"] !== "")) {
