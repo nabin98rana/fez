@@ -392,30 +392,27 @@ class Author
   {
     $log = FezLog::get();
     $db = DB_API::get();
-    foreach ($_POST as $pkey => $pvalue) {
-      $_POST[$pkey] = trim($pvalue);
-    }
 
     if (Validation::isWhitespace($_POST["lname"])) {
       return -2;
     }
     
     if (trim($_POST["org_staff_id"] !== "")) {
-      if (author::getIDByOrgStaffID($_POST["org_staff_id"], $_POST["id"])) {
+      if (author::getIDByOrgStaffID(trim($_POST["org_staff_id"]), $_POST["id"])) {
         return -3;
       }
     }
     
     if (trim($_POST["org_username"] !== "")) {
-      if (author::getIDByUsername($_POST["org_username"], $_POST["id"])) {
+      if (author::getIDByUsername(trim($_POST["org_username"]), $_POST["id"])) {
         return -4;
       }
     }
     
     $rid = "";
     // RIDs are always 11 chars
-    if (strlen($_POST["researcher_id"]) == 11 || strlen($_POST["researcher_id"]) == 0) {
-      $rid = " aut_researcher_id=  ". $db->quote($_POST["researcher_id"]) . ",";
+    if (strlen(trim($_POST["researcher_id"])) == 11 || strlen(trim($_POST["researcher_id"])) == 0) {
+      $rid = " aut_researcher_id=  ". $db->quote(trim($_POST["researcher_id"])) . ",";
     }
     
 	//strip html tags from $_POST["description"] except for <b><i> etc
@@ -425,28 +422,28 @@ class Author
     $stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "author
                  SET
-                    aut_title=" . $db->quote($_POST["title"]) . ", ".$rid."
-                    aut_fname=" . $db->quote($_POST["fname"]) . ",
-                    aut_mname=" . $db->quote($_POST["mname"]) . ",
-                    aut_lname=" . $db->quote($_POST["lname"]) . ",
-                    aut_display_name=" . $db->quote($_POST["dname"]) . ",
-                    aut_position=" . $db->quote($_POST["position"]) . ",
-					aut_email=" . $db->quote($_POST["email"]) . ",
-                    aut_cv_link=" . $db->quote($_POST["cv_link"]) . ",
-                    aut_homepage_link=" . $db->quote($_POST["homepage_link"]) . ",
-                    aut_ref_num=" . $db->quote($_POST["aut_ref_num"]) . ",
-                    aut_scopus_id=" . $db->quote($_POST["scopus_id"]).",
-					aut_people_australia_id=" . $db->quote($_POST["people_australia_id"]).",
-                    aut_mypub_url=" . $db->quote($_POST["mypub_url"]).",
+                    aut_title=" . $db->quote(trim($_POST["title"])) . ", ".$rid."
+                    aut_fname=" . $db->quote(trim($_POST["fname"])) . ",
+                    aut_mname=" . $db->quote(trim($_POST["mname"])) . ",
+                    aut_lname=" . $db->quote(trim($_POST["lname"])) . ",
+                    aut_display_name=" . $db->quote(trim($_POST["dname"])) . ",
+                    aut_position=" . $db->quote(trim($_POST["position"])) . ",
+					aut_email=" . $db->quote(trim($_POST["email"])) . ",
+                    aut_cv_link=" . $db->quote(trim($_POST["cv_link"])) . ",
+                    aut_homepage_link=" . $db->quote(trim($_POST["homepage_link"])) . ",
+                    aut_ref_num=" . $db->quote(trim($_POST["aut_ref_num"])) . ",
+                    aut_scopus_id=" . $db->quote(trim($_POST["scopus_id"])).",
+					aut_people_australia_id=" . $db->quote(trim($_POST["people_australia_id"])).",
+                    aut_mypub_url=" . $db->quote(trim($_POST["mypub_url"])).",
 					aut_description=" . $db->quote($stripped_description) . ",						
                     aut_update_date=" . $db->quote(Date_API::getCurrentDateGMT());
     if (trim($_POST["org_staff_id"] !== "")) {
-      $stmt .= ",aut_org_staff_id=" . $db->quote($_POST["org_staff_id"]) . " ";
+      $stmt .= ",aut_org_staff_id=" . $db->quote(trim($_POST["org_staff_id"])) . " ";
     } else {
       $stmt .= ",aut_org_staff_id=null ";
     }
     if (trim($_POST["org_username"] !== "")) {
-      $stmt .= ",aut_org_username=" . $db->quote($_POST["org_username"]) . " ";
+      $stmt .= ",aut_org_username=" . $db->quote(trim($_POST["org_username"])) . " ";
     } else {
       $stmt .= ",aut_org_username=null ";
     }

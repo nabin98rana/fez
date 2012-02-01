@@ -864,9 +864,6 @@ class User
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-    foreach ($_POST as $pkey => $pvalue) {
-      $_POST[$pkey] = trim($pvalue);
-    }
 
 		// system account should not be updateable
 		/*        if ($_POST["id"] == APP_SYSTEM_USER_ID) {
@@ -896,16 +893,16 @@ class User
 		$stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "user
                  SET
-                    usr_username=" . $db->quote($_POST["username"]) . ",
-                    usr_full_name=" . $db->quote($_POST["full_name"]) . ",
-                    usr_email=" . $db->quote($_POST["email"]) . ",
+                    usr_username=" . $db->quote(trim($_POST["username"])) . ",
+                    usr_full_name=" . $db->quote(trim($_POST["full_name"])) . ",
+                    usr_email=" . $db->quote(trim($_POST["email"])) . ",
                     usr_administrator=" . $usr_administrator . ",
                     " . $superAdminUpdateStatement . "
                     usr_ldap_authentication=" . $ldap_authentication;
 
 		if ((!empty($_POST["password"])) && (($_POST["change_password"]))) {
 			$stmt .= ",
-                    usr_password=" . $db->quote(md5($_POST["password"]));
+                    usr_password=" . $db->quote(md5(trim($_POST["password"])));
 		}
 		$stmt .= "
                  WHERE
@@ -963,9 +960,6 @@ class User
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-    foreach ($_POST as $pkey => $pvalue) {
-      $_POST[$pkey] = trim($pvalue);
-    }
 
 		if (@$_POST["administrator"]) {
 			$usr_administrator = 'TRUE';
@@ -1004,15 +998,15 @@ class User
 		$stmt .= "
                  ) VALUES (
                     " . $db->quote(Date_API::getCurrentDateGMT()) . ",
-                    " . $db->quote($_POST["full_name"]) . ",
-                    " . $db->quote($_POST["email"]) . ",
+                    " . $db->quote(trim($_POST["full_name"])) . ",
+                    " . $db->quote(trim($_POST["email"])) . ",
                     " . $usr_administrator . ",
                     " . $usr_super_administrator . ",
                     " . $ldap_authentication . ",
                     " . $db->quote($prefs) . ",
-                    " . $db->quote($_POST["username"]);
+                    " . $db->quote(trim($_POST["username"]));
 		if (!empty($_POST["password"]))  {
-			$stmt .= "," . $db->quote(md5($_POST["password"]));
+			$stmt .= "," . $db->quote(md5(trim($_POST["password"])));
 		}
 		$stmt .= " )";
 		try {
