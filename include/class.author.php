@@ -500,20 +500,17 @@ class Author
     $log = FezLog::get();
     $db = DB_API::get();
 
-    if (Validation::isWhitespace($_POST["lname"])) {
+    if (Validation::isWhitespace(trim($_POST["lname"]))) {
       return -2;
     }
-    foreach ($_POST as $pkey => $pvalue) {
-      $_POST[$pkey] = trim($pvalue);
-    }
     if (trim($_POST["org_staff_id"] !== "")) {
-      if (author::getIDByOrgStaffID($_POST["org_staff_id"])) {
+      if (author::getIDByOrgStaffID(trim($_POST["org_staff_id"]))) {
         return -3;
       }
     }
     
     if (trim($_POST["org_username"] !== "")) {
-      if (author::getIDByUsername($_POST["org_username"])) {
+      if (author::getIDByUsername(trim($_POST["org_username"]))) {
         return -4;
       }
     }
@@ -568,56 +565,56 @@ class Author
     }	
 
     $values = ") VALUES (
-                    " . $db->quote($_POST["title"]) . ",
-          " . $db->quote($_POST["fname"]) . ",
-          " . $db->quote($_POST["lname"]) . ",
+                    " . $db->quote(trim($_POST["title"])) . ",
+          " . $db->quote(trim($_POST["fname"])) . ",
+          " . $db->quote(trim($_POST["lname"])) . ",
                     " . $db->quote(Date_API::getCurrentDateGMT()) . "
                   ";
 
     if ($_POST["dname"] !== "") {
-      $values .= ", " . $db->quote($_POST["dname"]);
+      $values .= ", " . $db->quote(trim($_POST["dname"]));
     } else {
-      $values .= ", " . $db->quote($_POST["fname"] . ' ' . $_POST["lname"]);
+      $values .= ", " . $db->quote(trim($_POST["fname"]) . ' ' . $trim(_POST["lname"]));
     }
 
     if (trim($_POST["org_staff_id"] !== "")) {
-      $values .= ", " . $db->quote($_POST["org_staff_id"]);
+      $values .= ", " . $db->quote(trim($_POST["org_staff_id"]));
     }
     if (trim($_POST["org_username"] !== "")) {
-      $values .= ", " . $db->quote($_POST["org_username"]);
+      $values .= ", " . $db->quote(trim($_POST["org_username"]));
     }
     if ($_POST["mname"] !== "") {
-      $values .= ", " . $db->quote($_POST["mname"]);
+      $values .= ", " . $db->quote(trim($_POST["mname"]));
     }
     if ($_POST["position"] !== "") {
-      $values .= ", " . $db->quote($_POST["position"]);
+      $values .= ", " . $db->quote(trim($_POST["position"]));
     }
     if ($_POST["email"] !== "") {
-      $values .= ", " . $db->quote($_POST["email"]);
+      $values .= ", " . $db->quote(trim($_POST["email"]));
     }	
     if ($_POST["cv_link"] !== "") {
-      $values .= ", " . $db->quote($_POST["cv_link"]);
+      $values .= ", " . $db->quote(trim($_POST["cv_link"]));
     }
     if ($_POST["homepage_link"] !== "") {
-      $values .= ", " . $db->quote($_POST["homepage_link"]);
+      $values .= ", " . $db->quote(trim($_POST["homepage_link"]));
     }
     if ($_POST["aut_ref_num"] !== "") {
-      $values .= ", " . $db->quote($_POST["aut_ref_num"]);
+      $values .= ", " . $db->quote(trim($_POST["aut_ref_num"]));
     }
     if ($_POST["researcher_id"] !== "") {
-      $values .= ", " . $db->quote($_POST["researcher_id"]);
+      $values .= ", " . $db->quote(trim($_POST["researcher_id"]));
     }
     if ($_POST["scopus_id"] !== "") {
-      $values .= ", " . $db->quote($_POST["scopus_id"]);
+      $values .= ", " . $db->quote(trim($_POST["scopus_id"]));
     }
     if ($_POST["people_australia_id"] !== "") {
-      $values .= ", " . $db->quote($_POST["people_australia_id"]);
+      $values .= ", " . $db->quote(trim($_POST["people_australia_id"]));
     }	
     if ($_POST["mypub_url"] !== "") {
-        $values .= ", " . $db->quote($_POST["mypub_url"]);
+        $values .= ", " . $db->quote(trim($_POST["mypub_url"]));
     }
     if ($_POST["description"] !== "") {
-	  $stripped_description = strip_tags($_POST["description"], $tags); //strip HTML tags 
+	  $stripped_description = strip_tags(trim($_POST["description"]), $tags); //strip HTML tags
       $values .= ", " . $db->quote($stripped_description);
     }	
 
