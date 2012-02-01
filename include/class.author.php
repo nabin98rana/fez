@@ -392,6 +392,9 @@ class Author
   {
     $log = FezLog::get();
     $db = DB_API::get();
+    foreach ($_POST as $pkey => $pvalue) {
+      $_POST[$pkey] = trim($pvalue);
+    }
 
     if (Validation::isWhitespace($_POST["lname"])) {
       return -2;
@@ -503,7 +506,9 @@ class Author
     if (Validation::isWhitespace($_POST["lname"])) {
       return -2;
     }
-    
+    foreach ($_POST as $pkey => $pvalue) {
+      $_POST[$pkey] = trim($pvalue);
+    }
     if (trim($_POST["org_staff_id"] !== "")) {
       if (author::getIDByOrgStaffID($_POST["org_staff_id"])) {
         return -3;

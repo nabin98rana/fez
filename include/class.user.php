@@ -864,7 +864,10 @@ class User
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+    foreach ($_POST as $pkey => $pvalue) {
+      $_POST[$pkey] = trim($pvalue);
+    }
+
 		// system account should not be updateable
 		/*        if ($_POST["id"] == APP_SYSTEM_USER_ID) {
 		 return 1;
@@ -960,7 +963,10 @@ class User
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+    foreach ($_POST as $pkey => $pvalue) {
+      $_POST[$pkey] = trim($pvalue);
+    }
+
 		if (@$_POST["administrator"]) {
 			$usr_administrator = 'TRUE';
 		} else {
