@@ -142,7 +142,13 @@ function correctionRequired(pid)
 			    </tr>
 		{/if}
 	
-		<tr class="{if $flagged_claimed[$pid].type == 'D'}claimed-not-my-pub{elseif $flagged_claimed[$pid].type == 'C'}claimed-correction-required{elseif $flagged_possible[$pid].type == 'C' && $flagged_possible[$pid].correction != ''}claimed-correction-required{elseif $flagged_claimed[$pid].type == 'U' && $flagged_claimed[$pid].correction != ''}claimed-duplication{elseif $list[i].rek_status != '2'}unpublished-pub{/if}">
+		<tr class="
+		{if $list[i].rek_status != '2'}unpublished-pub
+		{elseif $flagged_claimed[$pid].type == 'C'}claimed-correction-required
+		{elseif $flagged_possible[$pid].type == 'C' && $flagged_possible[$pid].correction != ''}claimed-correction-required
+		{elseif $flagged_claimed[$pid].type == 'U' && $flagged_claimed[$pid].correction != ''}claimed-duplication
+		{elseif $flagged_claimed[$pid].type == 'D'}claimed-not-my-pub{/if}">
+
 			<td style="width: 100%;">  
 			{if $list[i].rek_status != 2} (waiting on an administrator for approval to be published) {/if}
                 {if $isAdministrator}

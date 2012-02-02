@@ -37,17 +37,17 @@ set_time_limit(0);
 include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
-include_once(APP_INC_PATH . "class.conference.php");
+include_once(APP_INC_PATH . "class.publisher.php");
 include_once(APP_INC_PATH . "class.db_api.php");
 include_once(APP_INC_PATH . "class.pager.php");
 
 $tpl = new Template_API();
-$tpl->assign("conferences_form", 1); 
+$tpl->assign("publishers_form", 1);
 $tpl->setTemplate("manage/index.tpl.html");
 
 Auth::checkAuthentication(APP_SESSION);
 
-$tpl->assign("type", "conferences_id");
+$tpl->assign("type", "publishers");
 
 $isUser = Auth::getUsername();
 $isAdministrator = User::isUserAdministrator($isUser);
@@ -70,24 +70,24 @@ $tpl->assign("options", $options);
 
 if ($isSuperAdministrator) {
     if (@$_POST["cat"] == "new") {
-        $tpl->assign("result", ConferenceId::insert());
+        $tpl->assign("result", Publisher::insert());
     } elseif (@$_POST["cat"] == "update") {
-        $tpl->assign("result", ConferenceId::update());
+        $tpl->assign("result", Publisher::update());
     } elseif (@$_POST["cat"] == "delete") {
-        ConferenceId::remove();
+        Publisher::remove();
     }
     if (@$_GET["cat"] == "edit") {
-        $tpl->assign("info", ConferenceId::getDetails($_GET["id"]));
+        $tpl->assign("info", Publisher::getDetails($_GET["id"]));
     }
 	if (@$_GET["cat"] == "search") {
 		$filter = Pager::getParam('search_filter',$params);
 		$tpl->assign("search_filter", $filter);
-		$conference_list = ConferenceId::getList($pagerRow, $rows, 'cfi_conference_name', $filter);
+		$publisher_list = Publisher::getList($pagerRow, $rows, 'pub_name', $filter);
 	} else {
-		$conference_list = ConferenceId::getList($pagerRow, $rows);
+		$publisher_list = Publisher::getList($pagerRow, $rows);
 	}
-    $tpl->assign("list", $conference_list['list']);
-    $tpl->assign("list_info", $conference_list['list_info']);
+    $tpl->assign("list", $publisher_list['list']);
+    $tpl->assign("list_info", $publisher_list['list_info']);
 
 } else {
     $tpl->assign("show_not_allowed_msg", true);

@@ -29,6 +29,7 @@
 // +----------------------------------------------------------------------+
 // | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
 // |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>                     |
+// |          Aaron Brown  <a.brown@library.uq.edu.au>                    |
 // +----------------------------------------------------------------------+
 //
 //
