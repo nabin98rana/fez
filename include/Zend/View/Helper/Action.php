@@ -15,8 +15,8 @@
  * @category   Zend
  * @package    Zend_View
  * @subpackage Helper
- * @copyright  Copyright (c) 2005-2009 Zend Technologies USA Inc. (http://www.zend.com)
- * @version    $Id: Action.php 18951 2009-11-12 16:26:19Z alexander $
+ * @copyright  Copyright (c) 2005-2011 Zend Technologies USA Inc. (http://www.zend.com)
+ * @version    $Id: Action.php 23775 2011-03-01 17:25:24Z ralph $
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
  */
 
@@ -28,7 +28,7 @@ require_once 'Zend/View/Helper/Abstract.php';
  *
  * @package    Zend_View
  * @subpackage Helper
- * @copyright  Copyright (c) 2005-2009 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright  Copyright (c) 2005-2011 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
  */
 class Zend_View_Helper_Action extends Zend_View_Helper_Abstract
@@ -66,7 +66,9 @@ class Zend_View_Helper_Action extends Zend_View_Helper_Abstract
         $modules = $front->getControllerDirectory();
         if (empty($modules)) {
             require_once 'Zend/View/Exception.php';
-            throw new Zend_View_Exception('Action helper depends on valid front controller instance');
+            $e = new Zend_View_Exception('Action helper depends on valid front controller instance');
+            $e->setView($this->view);
+            throw $e;
         }
 
         $request  = $front->getRequest();
@@ -74,7 +76,9 @@ class Zend_View_Helper_Action extends Zend_View_Helper_Abstract
 
         if (empty($request) || empty($response)) {
             require_once 'Zend/View/Exception.php';
-            throw new Zend_View_Exception('Action view helper requires both a registered request and response object in the front controller instance');
+            $e = new Zend_View_Exception('Action view helper requires both a registered request and response object in the front controller instance');
+            $e->setView($this->view);
+            throw $e;
         }
 
         $this->request       = clone $request;

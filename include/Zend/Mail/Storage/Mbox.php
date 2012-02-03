@@ -15,9 +15,9 @@
  * @category   Zend
  * @package    Zend_Mail
  * @subpackage Storage
- * @copyright  Copyright (c) 2005-2009 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright  Copyright (c) 2005-2011 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
- * @version    $Id: Mbox.php 18951 2009-11-12 16:26:19Z alexander $
+ * @version    $Id: Mbox.php 23775 2011-03-01 17:25:24Z ralph $
  */
 
 
@@ -42,7 +42,7 @@ require_once 'Zend/Mail/Message/File.php';
  * @category   Zend
  * @package    Zend_Mail
  * @subpackage Storage
- * @copyright  Copyright (c) 2005-2009 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright  Copyright (c) 2005-2011 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
  */
 class Zend_Mail_Storage_Mbox extends Zend_Mail_Storage_Abstract
@@ -216,7 +216,7 @@ class Zend_Mail_Storage_Mbox extends Zend_Mail_Storage_Abstract
      * Supported parameters are:
      *   - filename filename of mbox file
      *
-     * @param  $params array mail reader specific parameters
+     * @param array $params mail reader specific parameters
      * @throws Zend_Mail_Storage_Exception
      */
     public function __construct($params)

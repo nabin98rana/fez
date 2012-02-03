@@ -14,9 +14,9 @@
  *
  * @category  Zend
  * @package   Zend_Config
- * @copyright Copyright (c) 2005-2009 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright  Copyright (c) 2005-2011 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd     New BSD License
- * @version   $Id: Xml.php 17267 2009-07-29 02:13:18Z yoshida@zend.co.jp $
+ * @version   $Id: Xml.php 24045 2011-05-23 12:45:11Z rob $
  */
 
 /**
@@ -29,7 +29,7 @@ require_once 'Zend/Config.php';
  *
  * @category  Zend
  * @package   Zend_Config
- * @copyright Copyright (c) 2005-2009 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright  Copyright (c) 2005-2011 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd     New BSD License
  */
 class Zend_Config_Xml extends Zend_Config
@@ -40,7 +40,7 @@ class Zend_Config_Xml extends Zend_Config
     const XML_NAMESPACE = 'http://framework.zend.com/xml/zend-config-xml/1.0/';
 
     /**
-     * Wether to skip extends or not
+     * Whether to skip extends or not
      *
      * @var boolean
      */
@@ -58,10 +58,20 @@ class Zend_Config_Xml extends Zend_Config
      *
      * Note that the keys in $section will override any keys of the same
      * name in the sections that have been included via "extends".
+     * 
+     * The $options parameter may be provided as either a boolean or an array.
+     * If provided as a boolean, this sets the $allowModifications option of
+     * Zend_Config. If provided as an array, there are two configuration
+     * directives that may be set. For example:
      *
-     * @param  string  $xml     XML file or string to process
-     * @param  mixed   $section Section to process
-     * @param  boolean $options Whether modifiacations are allowed at runtime
+     * $options = array(
+     *     'allowModifications' => false,
+     *     'skipExtends'        => false
+     *      );
+     *
+     * @param  string        $xml     XML file or string to process
+     * @param  mixed         $section Section to process
+     * @param  array|boolean $options 
      * @throws Zend_Config_Exception When xml is not set or cannot be loaded
      * @throws Zend_Config_Exception When section $sectionName cannot be found in $xml
      */
@@ -282,34 +292,5 @@ class Zend_Config_Xml extends Zend_Config
         }
 
         return $config;
-    }
-
-    /**
-     * Merge two arrays recursively, overwriting keys of the same name
-     * in $firstArray with the value in $secondArray.
-     *
-     * @param  mixed $firstArray  First array
-     * @param  mixed $secondArray Second array to merge into first array
-     * @return array
-     */
-    protected function _arrayMergeRecursive($firstArray, $secondArray)
-    {
-        if (is_array($firstArray) && is_array($secondArray)) {
-            foreach ($secondArray as $key => $value) {
-                if (isset($firstArray[$key])) {
-                    $firstArray[$key] = $this->_arrayMergeRecursive($firstArray[$key], $value);
-                } else {
-                    if($key === 0) {
-                        $firstArray= array(0=>$this->_arrayMergeRecursive($firstArray, $value));
-                    } else {
-                        $firstArray[$key] = $value;
-                    }
-                }
-            }
-        } else {
-            $firstArray = $secondArray;
-        }
-
-        return $firstArray;
     }
 }

@@ -15,17 +15,29 @@
  * @category   Zend
  * @package    Zend_Test
  * @subpackage PHPUnit
- * @copyright  Copyright (c) 2005-2009 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright  Copyright (c) 2005-2011 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
- * @version    $Id: Truncate.php 19106 2009-11-20 17:15:30Z beberlei $
+ * @version    $Id: Truncate.php 23775 2011-03-01 17:25:24Z ralph $
  */
 
+/**
+ * @see PHPUnit_Extensions_Database_Operation_IDatabaseOperation
+ */
 require_once "PHPUnit/Extensions/Database/Operation/IDatabaseOperation.php";
 
+/**
+ * @see PHPUnit_Extensions_Database_DB_IDatabaseConnection
+ */
 require_once "PHPUnit/Extensions/Database/DB/IDatabaseConnection.php";
 
+/**
+ * @see PHPUnit_Extensions_Database_DataSet_IDataSet
+ */
 require_once "PHPUnit/Extensions/Database/DataSet/IDataSet.php";
 
+/**
+ * @see PHPUnit_Extensions_Database_Operation_Exception
+ */
 require_once "PHPUnit/Extensions/Database/Operation/Exception.php";
 
 /**
@@ -40,7 +52,7 @@ require_once "Zend/Test/PHPUnit/Db/Connection.php";
  * @category   Zend
  * @package    Zend_Test
  * @subpackage PHPUnit
- * @copyright  Copyright (c) 2005-2009 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright  Copyright (c) 2005-2011 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
  */
 class Zend_Test_PHPUnit_Db_Operation_Truncate implements PHPUnit_Extensions_Database_Operation_IDatabaseOperation
@@ -77,7 +89,7 @@ class Zend_Test_PHPUnit_Db_Operation_Truncate implements PHPUnit_Extensions_Data
      */
     protected function _truncate(Zend_Db_Adapter_Abstract $db, $tableName)
     {
-        $tableName = $db->quoteIdentifier($tableName);
+        $tableName = $db->quoteIdentifier($tableName, true);
         if($db instanceof Zend_Db_Adapter_Pdo_Sqlite) {
             $db->query('DELETE FROM '.$tableName);
         } else if($db instanceof Zend_Db_Adapter_Db2) {
