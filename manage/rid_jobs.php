@@ -78,6 +78,7 @@ $search_keys_list = array(
                         ""              => "",
                         "rij_ticketno"  => "Ticket No.",
                         "rij_status"    => "Status",
+                        "rid"           => "RID on XML Content",
                         "rij_count"     => "Count"
                     );
 $tpl->assign('search_keys_list', $search_keys_list);

@@ -15,14 +15,14 @@
  * @category   Zend
  * @package    Zend_Captcha
  * @subpackage Adapter
- * @copyright  Copyright (c) 2005-2009 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright  Copyright (c) 2005-2011 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
  */
 
-/** Zend_Captcha_Base */
+/** @see Zend_Captcha_Base */
 require_once 'Zend/Captcha/Base.php';
 
-/** Zend_Service_ReCaptcha */
+/** @see Zend_Service_ReCaptcha */
 require_once 'Zend/Service/ReCaptcha.php';
 
 /**
@@ -35,9 +35,9 @@ require_once 'Zend/Service/ReCaptcha.php';
  * @category   Zend
  * @package    Zend_Captcha
  * @subpackage Adapter
- * @copyright  Copyright (c) 2005-2009 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright  Copyright (c) 2005-2011 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
- * @version    $Id: ReCaptcha.php 18166 2009-09-17 13:28:35Z padraic $
+ * @version    $Id: ReCaptcha.php 24242 2011-07-14 13:44:06Z matthew $
  */
 class Zend_Captcha_ReCaptcha extends Zend_Captcha_Base
 {
@@ -72,7 +72,6 @@ class Zend_Captcha_ReCaptcha extends Zend_Captcha_Base
 
     /**#@+
      * Error codes
-     * @const string
      */
     const MISSING_VALUE = 'missingValue';
     const ERR_CAPTCHA   = 'errCaptcha';
@@ -262,6 +261,20 @@ class Zend_Captcha_ReCaptcha extends Zend_Captcha_Base
      */
     public function render(Zend_View_Interface $view = null, $element = null)
     {
-        return $this->getService()->getHTML();
+        $name = null;
+        if ($element instanceof Zend_Form_Element) {
+            $name = $element->getBelongsTo();
+        }
+        return $this->getService()->getHTML($name);
+    }
+
+    /**
+     * Get captcha decorator
+     *
+     * @return string
+     */
+    public function getDecorator()
+    {
+        return "Captcha_ReCaptcha";
     }
 }

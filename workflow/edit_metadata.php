@@ -89,6 +89,8 @@ $tpl->assign("type", "edit_metadata");
 $link_self = $_SERVER['PHP_SELF'].'?'.http_build_query(array('id' => $wfstatus->id));
 $tpl->assign('link_self', $link_self);
 
+$tpl->assign("isAdmin", $isAdministrator);
+
 if (strtolower($_SERVER['HTTPS']) == 'on' || $_SERVER['SERVER_PORT'] == 443 || strtolower(substr($_SERVER['SCRIPT_URI'], 0, 5)) == 'https') {
 	$tpl->assign('http_protocol', 'https');
 } else {

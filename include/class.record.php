@@ -4956,7 +4956,8 @@ class Record
   function markAsDeleted($pid)
   {
     // tell fedora that the object is deleted.
-    Fedora_API::callModifyObject($pid, 'D', null);
+	$label = Record::getSearchKeyIndexValue($pid, "title", false);  // Get title of record. Sending a null label to callModifyObject deletes the object label in Fedora 3, which is used to display the title in the 'Undelete Fedora Objects' page
+    Fedora_API::callModifyObject($pid, 'D', $label);
 
     // delete it from the Fez index.
     Record::removeIndexRecord($pid);

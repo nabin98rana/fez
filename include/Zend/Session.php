@@ -15,9 +15,9 @@
  *
  * @category   Zend
  * @package    Zend_Session
- * @copyright  Copyright (c) 2005-2009 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright  Copyright (c) 2005-2011 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
- * @version    $Id: Session.php 18951 2009-11-12 16:26:19Z alexander $
+ * @version    $Id: Session.php 24196 2011-07-05 15:58:11Z matthew $
  * @since      Preview Release 0.2
  */
 
@@ -43,7 +43,7 @@ require_once 'Zend/Session/SaveHandler/Interface.php';
  *
  * @category   Zend
  * @package    Zend_Session
- * @copyright  Copyright (c) 2005-2009 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright  Copyright (c) 2005-2011 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
  */
 class Zend_Session extends Zend_Session_Abstract
@@ -308,24 +308,13 @@ class Zend_Session extends Zend_Session_Abstract
                 "() before any output has been sent to the browser; output started in {$filename}/{$linenum}");
         }
 
-        if (self::$_sessionStarted && self::$_regenerateIdState <= 0) {
+        if ( !self::$_sessionStarted ) {
+            self::$_regenerateIdState = -1;
+        } else {
             if (!self::$_unitTestEnabled) {
                 session_regenerate_id(true);
             }
             self::$_regenerateIdState = 1;
-        } else {
-            /**
-             * @todo If we can detect that this requester had no session previously,
-             *       then why regenerate the id before the session has started?
-             *       Feedback wanted for:
-             //
-            if (isset($_COOKIE[session_name()]) || (!use only cookies && isset($_REQUEST[session_name()]))) {
-                self::$_regenerateIdState = 1;
-            } else {
-                self::$_regenerateIdState = -1;
-            }
-            //*/
-            self::$_regenerateIdState = -1;
         }
     }
 
@@ -335,7 +324,7 @@ class Zend_Session extends Zend_Session_Abstract
      * seconds is specified, then this defaults to self::$_rememberMeSeconds.  Due to clock errors on end users' systems,
      * large values are recommended to avoid undesirable expiration of session cookies.
      *
-     * @param $seconds integer - OPTIONAL specifies TTL for cookie in seconds from present time
+     * @param int $seconds OPTIONAL specifies TTL for cookie in seconds from present time
      * @return void
      */
     public static function rememberMe($seconds = null)
@@ -528,11 +517,12 @@ class Zend_Session extends Zend_Session_Abstract
                 // Expire Namespace by Time (ENT)
                 if (isset($namespace_metadata['ENT']) && ($namespace_metadata['ENT'] > 0) && (time() > $namespace_metadata['ENT']) ) {
                     unset($_SESSION[$namespace]);
-                    unset($_SESSION['__ZF'][$namespace]['ENT']);
+                    unset($_SESSION['__ZF'][$namespace]);
                 }
 
-                // Expire Namespace by Global Hop (ENGH)
-                if (isset($namespace_metadata['ENGH']) && $namespace_metadata['ENGH'] >= 1) {
+                // Expire Namespace by Global Hop (ENGH) if it wasnt expired above
+                if (isset($_SESSION['__ZF'][$namespace]) && isset($namespace_metadata['ENGH']) && $namespace_metadata['ENGH'] >= 1) {
+
                     $_SESSION['__ZF'][$namespace]['ENGH']--;
 
                     if ($_SESSION['__ZF'][$namespace]['ENGH'] === 0) {
@@ -540,7 +530,7 @@ class Zend_Session extends Zend_Session_Abstract
                             parent::$_expiringData[$namespace] = $_SESSION[$namespace];
                             unset($_SESSION[$namespace]);
                         }
-                        unset($_SESSION['__ZF'][$namespace]['ENGH']);
+                        unset($_SESSION['__ZF'][$namespace]);
                     }
                 }
 
@@ -550,11 +540,10 @@ class Zend_Session extends Zend_Session_Abstract
                         if (time() > $time) {
                             unset($_SESSION[$namespace][$variable]);
                             unset($_SESSION['__ZF'][$namespace]['ENVT'][$variable]);
-
-                            if (empty($_SESSION['__ZF'][$namespace]['ENVT'])) {
-                                unset($_SESSION['__ZF'][$namespace]['ENVT']);
-                            }
                         }
+                    }
+                    if (empty($_SESSION['__ZF'][$namespace]['ENVT'])) {
+                        unset($_SESSION['__ZF'][$namespace]['ENVT']);
                     }
                 }
 
@@ -571,11 +560,14 @@ class Zend_Session extends Zend_Session_Abstract
                             unset($_SESSION['__ZF'][$namespace]['ENVGH'][$variable]);
                         }
                     }
+                    if (empty($_SESSION['__ZF'][$namespace]['ENVGH'])) {
+                        unset($_SESSION['__ZF'][$namespace]['ENVGH']);
+                    }
                 }
-            }
 
-            if (isset($namespace) && empty($_SESSION['__ZF'][$namespace])) {
-                unset($_SESSION['__ZF'][$namespace]);
+                if (isset($namespace) && empty($_SESSION['__ZF'][$namespace])) {
+                    unset($_SESSION['__ZF'][$namespace]);
+                }
             }
         }
 

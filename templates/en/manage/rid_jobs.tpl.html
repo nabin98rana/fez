@@ -72,7 +72,11 @@
             {if $search_key}
                 <div class="adminListSearchText">
                     Search on <b>{$search_keys_list.$search_key}</b> : "{$search_val}". 
-                    Returns {$list_info.total_rows} record{if $list_info.total_rows > 1}s{/if}. 
+                    {if $list_info.total_rows}
+                        Returns {$list_info.total_rows} record{if $list_info.total_rows > 1}s{/if}. 
+                    {else}
+                        No records found.
+                    {/if}
                 </div>
             {/if}
         </div>
@@ -128,20 +132,40 @@
                 <tr class="rowDetails" style="display: none; background: {$row_color};">
                     <td colspan="10">
                         <p>
+                            <h4>Last Response XML</h4>
+                            <textarea cols="100%" rows="25" readonly="readonly">{$list[i].rij_lastresponse}</textarea>
+                        </p>
+                        <p>
+                            <h4>Download Request XML</h4>
+                            <textarea cols="100%" rows="25" readonly="readonly">{$list[i].rij_downloadrequest}</textarea>
+                        </p>
+                        <p>
                             <h4>Profile Link (returned from the last response XML)</h4>
                             {if $list[i].profilelink} {$list[i].profilelink} {else} Link not found {/if}
+                        </p>
+                        <p>
+                            <h4>Profile XML Content</h4>
+                            {if $list[i].rij_response_profilexml}
+                                <textarea cols="100%" rows="25" readonly="readonly">{$list[i].rij_response_profilexml}</textarea>
+                            {elseif $list[i].rij_time_xmlcleaned}
+                                XML content has been cleaned on {$list[i].rij_time_xmlcleaned_formatted}
+                            {else}
+                                No XML content was stored.
+                            {/if}
                         </p>
                         <p>
                             <h4>Publications Link (returned from the last response XML)</h4>
                             {if $list[i].publicationslink} {$list[i].publicationslink} {else} Link not found {/if}
                         </p>
                         <p>
-                            <h4>Last Response XML</h4>
-                            <textarea cols="100%" rows="25">{$list[i].rij_lastresponse}</textarea>
-                        </p>
-                        <p>
-                            <h4>Download Request XML</h4>
-                            <textarea cols="100%" rows="25">{$list[i].rij_downloadrequest}</textarea>
+                            <h4>Publications XML Content</h4>
+                            {if $list[i].rij_response_publicationsxml}
+                                <textarea cols="100%" rows="25" readonly="readonly">{$list[i].rij_response_publicationsxml}</textarea>
+                            {elseif $list[i].rij_time_xmlcleaned}
+                                XML content has been cleaned on {$list[i].rij_time_xmlcleaned_formatted}
+                            {else}
+                                No XML content was stored.
+                            {/if}
                         </p>
                     </td>
                 </tr>

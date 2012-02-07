@@ -404,7 +404,19 @@ class DSResource
                 {
                     $this->storeDSReference();
                     return true;
+                } 
+                else 
+                {
+                    $error = error_get_last();
+                    $this->log->err("copy function failed on DSResource->save method. Error message: " . $error['message'] . ".");
+                    return false;
                 }
+            } 
+            else 
+            {
+                $error = error_get_last();
+                $this->log->err("mkdir function failed on DSResource->save method. Error message: " . $error['message'] . ".");
+                return false;
             }
         }
         elseif($this->resourceExists($this->hash['rawHash']))

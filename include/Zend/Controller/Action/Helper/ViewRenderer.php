@@ -15,9 +15,9 @@
  * @category   Zend
  * @package    Zend_Controller
  * @subpackage Zend_Controller_Action_Helper
- * @copyright  Copyright (c) 2005-2009 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright  Copyright (c) 2005-2011 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
- * @version    $Id: ViewRenderer.php 16541 2009-07-07 06:59:03Z bkarwin $
+ * @version    $Id: ViewRenderer.php 24282 2011-07-28 18:59:26Z matthew $
  */
 
 /**
@@ -68,7 +68,7 @@ require_once 'Zend/View.php';
  * @uses       Zend_Controller_Action_Helper_Abstract
  * @package    Zend_Controller
  * @subpackage Zend_Controller_Action_Helper
- * @copyright  Copyright (c) 2005-2009 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright  Copyright (c) 2005-2011 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
  */
 class Zend_Controller_Action_Helper_ViewRenderer extends Zend_Controller_Action_Helper_Abstract
@@ -83,12 +83,6 @@ class Zend_Controller_Action_Helper_ViewRenderer extends Zend_Controller_Action_
      * @var array
      */
     protected $_delimiters;
-
-    /**
-     * Front controller instance
-     * @var Zend_Controller_Front
-     */
-    protected $_frontController;
 
     /**
      * @var Zend_Filter_Inflector
@@ -252,7 +246,7 @@ class Zend_Controller_Action_Helper_ViewRenderer extends Zend_Controller_Action_
              * @see Zend_Controller_Action_Exception
              */
             require_once 'Zend/Controller/Action/Exception.php';
-            throw new Zend_Controller_Action_Exception('ViewRenderer cannot locate module directory');
+            throw new Zend_Controller_Action_Exception('ViewRenderer cannot locate module directory for module "' . $module . '"');
         }
         $this->_moduleDir = dirname($moduleDir);
         return $this->_moduleDir;
@@ -387,7 +381,7 @@ class Zend_Controller_Action_Helper_ViewRenderer extends Zend_Controller_Action_
         $inflector = $this->getInflector();
         $this->_setInflectorTarget($this->getViewBasePathSpec());
 
-        $dispatcher = $this->_frontController->getDispatcher();
+        $dispatcher = $this->getFrontController()->getDispatcher();
         $request = $this->getRequest();
 
         $parts = array(
@@ -632,6 +626,9 @@ class Zend_Controller_Action_Helper_ViewRenderer extends Zend_Controller_Action_
         } elseif (null !== $action) {
             $vars['action'] = $action;
         }
+        
+        $replacePattern = array('/[^a-z0-9]+$/i', '/^[^a-z0-9]+/i');
+        $vars['action'] = preg_replace($replacePattern, '', $vars['action']);
 
         $inflector = $this->getInflector();
         if ($this->getNoController() || $this->getNeverController()) {
@@ -843,7 +840,7 @@ class Zend_Controller_Action_Helper_ViewRenderer extends Zend_Controller_Action_
     {
         $inflector  = $this->getInflector();
         $request    = $this->getRequest();
-        $dispatcher = $this->_frontController->getDispatcher();
+        $dispatcher = $this->getFrontController()->getDispatcher();
         $module     = $dispatcher->formatModuleName($request->getModuleName());
         $controller = $request->getControllerName();
         $action     = $dispatcher->formatActionName($request->getActionName());

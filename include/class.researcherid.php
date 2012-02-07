@@ -576,8 +576,10 @@ class ResearcherID
       }
       if ($job_status) {
         if ($job_status == 'DONE') {
-          if (ResearcherID::processDownloadResponse($response_document)) {
-            return ResearcherID::updateJobStatus($ticket_number, $job_status, $response_document->saveXML());
+          $responseXML = ResearcherID::processDownloadResponse($response_document);
+            
+          if ($responseXML !== false) {
+            return ResearcherID::updateJobStatus($ticket_number, $job_status, $response_document->saveXML(), $responseXML);
           } else {            
             return false;
           }
@@ -634,16 +636,30 @@ class ResearcherID
 
         switch($type) {
           case 'profile':
-            $result = ResearcherID::processDownloadedProfiles($url);
-              break;
+//            $result = ResearcherID::processDownloadedProfiles($url);
+            $profileXML = ResearcherID::processDownloadedProfiles($url);
+            $profileLink = $url;  
+            break;
           case 'publication':
-            $result = ResearcherID::processDownloadedPublications($url);
-              break;
+//            $result = ResearcherID::processDownloadedPublications($url);
+            $publicationsXML = ResearcherID::processDownloadedPublications($url);
+            $publicationsLink = $url;
+            break;
         }
+        
+        if ($publicationsXML !== false && $profileXML !== false){
+            $result = true;
+        }
+        
         $return = (! $return) ? false: $result; // ignore result if we have already had a previous fail
         // which will ensure this job is processed again
       }
     }
+    
+    if ($return === true){
+        $return = array('profileXML' => $profileXML, 'profileLink' => $profileLink, 'publicationsXML' => $publicationsXML, 'publicationsLink' => $publicationsLink);
+    }
+    
     return $return;
   }
 
@@ -659,9 +675,14 @@ class ResearcherID
     $log = FezLog::get();
     $db = DB_API::get();
 
-    // Not implemented
-     
-    return true;
+    $urlData = Misc::processURL($url);
+    $profile = $urlData[0];
+    if (!$profile) {
+      $log->err("wasn't able to pull down RID Profile url $url:".print_r($urlData, true));
+      return false;
+    }
+    
+    return $profile;
   }
 
   /**
@@ -712,7 +733,7 @@ class ResearcherID
       }
     }
 
-    return true;
+    return $publications;
   }
   
   /**
@@ -792,13 +813,62 @@ class ResearcherID
 
 
   /**
+   * Method used to update XML content of an existing job. 
+   * it is used for existing DONE jobs that do not have XML content saved, due to updates on updateJobStatus() method.
+   *
+   * @access  public
+   * @param   string $ticket_number The ticket number of the job to update
+   * @return  boolean
+   */
+  public static function updateJobResponseXML($ticket_number, $responseXML = array())
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $stmtUpdate = array();
+    
+    if (isset($responseXML['profileLink'])){
+        $stmtUpdate[] = "rij_response_profilelink = " . $db->quote($responseXML['profileLink']);
+    }
+    if (isset($responseXML['profileXML'])){
+        $stmtUpdate[] = "rij_response_profilexml = " . $db->quote($responseXML['profileXML']);
+    }
+    if (isset($responseXML['publicationsLink'])){
+        $stmtUpdate[] = "rij_response_publicationslink = " . $db->quote($responseXML['publicationsLink']);
+    }
+    if (isset($responseXML['publicationsXML'])){
+        $stmtUpdate[] = "rij_response_publicationsxml = " . $db->quote($responseXML['publicationsXML']);
+    }
+    
+    if (sizeof($stmtUpdate)==0 ){
+        return false;
+    }
+    
+    $stmt = " UPDATE
+                    " . APP_TABLE_PREFIX . "rid_jobs
+              SET 
+                    " . implode(", ", $stmtUpdate) . 
+            " WHERE 
+                     rij_ticketno = " . $db->quote($ticket_number);
+    try {
+      $db->exec($stmt);
+    }
+    catch(Exception $ex) {
+      $log->err($ex);
+      return false;
+    }
+
+    return true;
+  }
+  
+  /**
    * Method used to update an existing job.
    *
    * @access  public
    * @param   string $ticket_number The ticket number of the job to update
    * @return  boolean
    */
-  private static function updateJobStatus($ticket_number, $job_status, $response)
+  private static function updateJobStatus($ticket_number, $job_status, $response, $responseXML = array())
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -814,9 +884,23 @@ class ResearcherID
                      rij_status = " . $db->quote($job_status) . ",
                      rij_count = (SELECT rij_count FROM (SELECT * FROM " . APP_TABLE_PREFIX . 
                      "rid_jobs) AS x WHERE rij_ticketno = " . $db->quote($ticket_number) . ")+1 ".",
-                     rij_lastresponse =  ". $db->quote($response) . 
-    $finished . "
-                    WHERE 
+                     rij_lastresponse =  ". $db->quote($response) .   
+                     $finished . " ";
+    
+    if (isset($responseXML['profileLink'])){
+        $stmt .= ", rij_response_profilelink = " . $db->quote($responseXML['profileLink']);
+    }
+    if (isset($responseXML['profileXML'])){
+        $stmt .= ", rij_response_profilexml = " . $db->quote($responseXML['profileXML']);
+    }
+    if (isset($responseXML['publicationsLink'])){
+        $stmt .= ", rij_response_publicationslink = " . $db->quote($responseXML['publicationsLink']);
+    }
+    if (isset($responseXML['publicationsXML'])){
+        $stmt .= ", rij_response_publicationsxml = " . $db->quote($responseXML['publicationsXML']);
+    }
+    
+    $stmt .= " WHERE 
                      rij_ticketno = " . $db->quote($ticket_number);
     try {
       $db->exec($stmt);
@@ -951,16 +1035,16 @@ class ResearcherID
             if (empty($job['rij_lastresponse']) || is_null($job['rij_lastresponse'])) {
                 continue;
             }
-    
+            
             // Load XML from rij_lastresponse
             $response = DOMDocument::loadXML($job['rij_lastresponse']);
-
+            
             // Get the XML Node with Response attribute
             $xpath = new DOMXPath($response);
             $xpath->registerNamespace('rid', 'http://www.isinet.com/xrpc41');
             $query = "/rid:response/rid:fn[@name='AuthorResearch.getDownloadStatus']/rid:map/rid:val[@name='Response']";
             $elements = $xpath->query($query);
-
+            
             if (is_null($elements)) {
                 continue;
             }
@@ -996,6 +1080,95 @@ class ResearcherID
         }
         return $jobs;
     }
+
+    
+    /**
+     * Delete the Profile & Publications XML Content from RID jobs that are older than a specific period of time.
+     * 
+     * @return boolean True when query is successful, false otherwise.
+     */
+    public static function cleanJobsXMLContent()
+    {
+        $db = DB_API::get();
+        
+        // Time range = 14 days ago
+        $timerange = date('Y-m-d', mktime(0, 0, 0, date('m'), date('d')-14, date('Y')));
+        $search = array('key'=>'clean_rid_jobs', 'val' => $timerange);
+        
+        $sort = array('by' => 'rij_timefinished', 'order' => 'desc');
+        $max = 500; // This number should be reasonable large 
+
+        // Get the records that have xml content AND older than 2 weeks
+        $jobs = ResearcherID::getJobs(0, $max, $sort, $search);
+        
+        // Save date on GMT timezone
+        $timecleaned = Date_API::getCurrentDateGMT();
+        
+        $clean_stmt = "";
+        
+        foreach ($jobs['list'] as $job){
+            if (!isset($job['rij_id']) || empty($job['rij_id'])){
+                continue;
+            }
+            // Query to empty XML content
+            $clean_stmt[] = "UPDATE " . APP_TABLE_PREFIX . "rid_jobs 
+                                SET rij_response_profilexml = '', 
+                                    rij_response_publicationsxml = '',
+                                    rij_time_xmlcleaned = ". $db->quote($timecleaned, 'DATE') ."
+                                WHERE rij_id = ". $db->quote($job['rij_id'], 'INTEGER').";";
+        }
+        
+        $stmt = implode(" ", $clean_stmt);
+        
+        try {
+            $db->exec($stmt);
+        }
+        catch (Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+        return true;
+    }
+
+
+    /**
+     * Generate the WHERE statement for get RID Jobs query.
+     * 
+     * @param array $search The search key & value pairs.
+     * @return array Generated WHERE statement 
+     */
+    private static function buildJobsQueryFilter($search = null)
+    {
+        $db = DB_API::get();
+        
+        $where_stmt = array();
+        if (is_null($search) || !isset($search['key']) || !isset($search['val'])) {
+            return $where_stmt;
+        }
+        
+        switch ($search['key']){
+            // Special filtering: filter based on Profile & Publications XML content.
+            case 'rid':
+                $where_stmt[] = "( 
+                                 rij_response_profilexml LIKE '%<researcherID>". $search['val'] ."%'".
+                                 " OR ".
+                                 " rij_response_publicationsxml LIKE '%<researcherID>". $search['val'] ."%'".
+                                ")";
+
+                break;
+            
+            // Special filtering: filter jobs that store Profile & Publications response XML and older than a specific period of time.
+            case 'clean_rid_jobs':
+                $where_stmt[] = " rij_timefinished >= ". $db->quote($search['val'], 'DATE') ." AND 
+                                  ( rij_response_profilexml IS NOT NULL OR 
+                                    rij_response_publicationsxml IS NOT NULL
+                                  )"; 
+                break;
+            default:
+                $where_stmt[] = $db->quoteIdentifier($search['key']) . " = " . $db->quote($search['val'], 'STRING') . " ";
+        }
+        return $where_stmt;
+    }
     
     
     /**
@@ -1012,26 +1185,32 @@ class ResearcherID
     {
         $log = FezLog::get();
         $db = DB_API::get();
+        
+        // Where statement
+        $where_operator = " AND ";
+        $where_stmt = ResearcherID::buildJobsQueryFilter($search);
 
-        $where_stmt = "";
-        if (!is_null($search) && isset($search['key']) && isset($search['val'])) {
-            $where_stmt .= " WHERE " . $db->quoteIdentifier($search['key']) . " = " . $db->quote($search['val'], 'STRING') . " ";
-        }
-
+        // Sort statement
         $sort_stmt = "";
         if (!is_null($sort)) {
             $sort_stmt .= " ORDER BY " . $db->quoteIdentifier($sort['by']) . " " . ( stristr($sort['order'], 'DESC') ? 'DESC' : 'ASC') . " ";
         }
 
+        // Limit offset
         $start = $current_row * $max;
 
+        // The query statement
         $stmt = "SELECT
-                SQL_CALC_FOUND_ROWS  *
-             FROM
-                " . APP_TABLE_PREFIX . "rid_jobs
-            " . $where_stmt . "
-            " . $sort_stmt . "
-             LIMIT " . $db->quote($max, 'INTEGER') . " OFFSET " . $db->quote($start, 'INTEGER');
+                    SQL_CALC_FOUND_ROWS  *
+                 FROM
+                    " . APP_TABLE_PREFIX . "rid_jobs ";
+        
+        if ( is_array($where_stmt) && sizeof($where_stmt)>0 ){
+            $stmt .= " WHERE " . implode($where_operator, $where_stmt);
+        }
+        
+        $stmt .= " " . $sort_stmt . "
+                 LIMIT " . $db->quote($max, 'INTEGER') . " OFFSET " . $db->quote($start, 'INTEGER');
 
         try {
             $res = $db->fetchAll($stmt);
@@ -1078,6 +1257,7 @@ class ResearcherID
             $res[$key]["rij_lastcheck_formatted"] = Date_API::getFormattedDate($res[$key]["rij_lastcheck"], $timezone);
             $res[$key]["rij_timestarted_formatted"] = Date_API::getFormattedDate($res[$key]["rij_timestarted"], $timezone);
             $res[$key]["rij_timefinished_formatted"] = Date_API::getFormattedDate($res[$key]["rij_timefinished"], $timezone);
+            $res[$key]["rij_time_xmlcleaned_formatted"] = Date_API::getFormattedDate($res[$key]["rij_time_xmlcleaned"], $timezone);
         }
 
         // Format return output
@@ -1394,4 +1574,7 @@ class ResearcherID
       return $res;
     }
   }
+  
+  
+  
 }

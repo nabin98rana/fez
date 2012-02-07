@@ -15,9 +15,9 @@
  * @category   Zend
  * @package    Zend_Db
  * @subpackage Adapter
- * @copyright  Copyright (c) 2005-2009 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright  Copyright (c) 2005-2011 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
- * @version    $Id: Db2.php 18951 2009-11-12 16:26:19Z alexander $
+ * @version    $Id: Db2.php 23775 2011-03-01 17:25:24Z ralph $
  *
  */
 
@@ -39,7 +39,7 @@ require_once 'Zend/Db/Statement/Db2.php';
 
 /**
  * @package    Zend_Db
- * @copyright  Copyright (c) 2005-2009 Zend Technologies Inc. (http://www.zend.com)
+ * @copyright  Copyright (c) 2005-2011 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
  */
 
@@ -66,7 +66,7 @@ class Zend_Db_Adapter_Db2 extends Zend_Db_Adapter_Abstract
         'dbname'       => null,
         'username'     => null,
         'password'     => null,
-        'host'         => '127.0.0.1',
+        'host'         => 'localhost',
         'port'         => '50000',
         'protocol'     => 'TCPIP',
         'persistent'   => false,
@@ -154,7 +154,15 @@ class Zend_Db_Adapter_Db2 extends Zend_Db_Adapter_Abstract
             $this->_config['driver_options']['DB2_ATTR_CASE'] = $caseAttrMap[$this->_config['options'][Zend_Db::CASE_FOLDING]];
         }
 
-        if ($this->_config['host'] !== '127.0.0.1' && !$this->_isI5) {
+        if ($this->_isI5 && isset($this->_config['driver_options']['i5_naming'])) {
+            if ($this->_config['driver_options']['i5_naming']) {
+                $this->_config['driver_options']['i5_naming'] = DB2_I5_NAMING_ON;
+            } else {
+                $this->_config['driver_options']['i5_naming'] = DB2_I5_NAMING_OFF;
+            }
+        }
+
+        if ($this->_config['host'] !== 'localhost' && !$this->_isI5) {
             // if the host isn't localhost, use extended connection params
             $dbname = 'DRIVER={IBM DB2 ODBC DRIVER}' .
                      ';DATABASE=' . $this->_config['dbname'] .
@@ -411,7 +419,7 @@ class Zend_Db_Adapter_Db2 extends Zend_Db_Adapter_Abstract
                        AND C.TABLE_NAME = k.TABLE_NAME
                        AND C.COLUMN_NAME = k.COLUMN_NAME)
                 WHERE "
-                 . $this->quoteInto('UPPER(C.TABLE_NAME) = UPPER(?)', $tableName);
+                . $this->quoteInto('UPPER(C.TABLE_NAME) = UPPER(?)', $tableName);
 
             if ($schemaName) {
                 $sql .= $this->quoteInto(' AND UPPER(C.TABLE_SCHEMA) = UPPER(?)', $schemaName);

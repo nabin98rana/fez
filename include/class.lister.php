@@ -190,8 +190,6 @@ class Lister
 			$dynamicParams = '';
 			$excludeForHtmlOutput = array(
 	            'pager_row',
-	            'browse',
-	            'value',
 				'rows'
 	        );
 			$dynamicParams = Misc::query_string_encode($params, $excludeForHtmlOutput);

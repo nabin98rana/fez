@@ -13,13 +13,16 @@
  * to license@zend.com so we can send you a copy immediately.
  *
  * @category   Zend
- * @package    Test
+ * @package    Zend_Test
  * @subpackage PHPUnit
- * @copyright  Copyright (c) 2005-2009 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright  Copyright (c) 2005-2011 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
- * @version    $Id: DbStatement.php 18951 2009-11-12 16:26:19Z alexander $
+ * @version    $Id: DbStatement.php 23953 2011-05-03 05:47:39Z ralph $
  */
 
+/**
+ * @see Zend_Db_Statement_Interface
+ */
 require_once "Zend/Db/Statement/Interface.php";
 
 /**
@@ -28,7 +31,7 @@ require_once "Zend/Db/Statement/Interface.php";
  * @category   Zend
  * @package    Zend_Test
  * @subpackage PHPUnit
- * @copyright  Copyright (c) 2005-2009 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright  Copyright (c) 2005-2011 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
  */
 class Zend_Test_DbStatement implements Zend_Db_Statement_Interface

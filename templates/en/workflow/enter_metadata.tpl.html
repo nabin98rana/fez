@@ -312,7 +312,22 @@
 
                         <script type="text/javascript">
                             dojo.addOnLoad( function() {ldelim}
-                                swfuploaderLoad({$xsd_display_fields[i].xsdmf_multiple_limit}, '{$rel_url}', {ldelim} workflowId : {$id}, xsdmf_id : '{$xsd_display_fields[i].xsdmf_id}', required : '{$xsd_display_fields[i].xsdmf_required == 1}'{rdelim});
+                                {* File upload validation. 
+                                   Turn off validation for Administrator, otherwise follow the setting from XSD field. *}
+                                {if $isAdmin == 1}
+                                    var required_fileupload = 0;
+                                {else}
+                                    var required_fileupload = {$xsd_display_fields[i].xsdmf_required};
+                                {/if}
+                                    
+                                swfuploaderLoad({$xsd_display_fields[i].xsdmf_multiple_limit}, 
+                                                '{$rel_url}', 
+                                                {ldelim} 
+                                                    workflowId : {$id}, 
+                                                    xsdmf_id : '{$xsd_display_fields[i].xsdmf_id}', 
+                                                    required : required_fileupload
+                                                {rdelim}
+                                               );
                             {rdelim});
                         </script>
 
