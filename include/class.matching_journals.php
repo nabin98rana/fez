@@ -513,9 +513,9 @@ class RJL
 				jnl_id
 			FROM
 				" . APP_TABLE_PREFIX . "journal,
-				" . APP_TABLE_PREFIX . "journal_issns_complete
+				" . APP_TABLE_PREFIX . "journal_issns
 			WHERE
-				" . APP_TABLE_PREFIX . "journal.jnl_id = " . APP_TABLE_PREFIX . "journal_issns_complete.jni_jnl_id
+				jnl_id = jni_jnl_id
 			ORDER BY
 				jni_issn ASC,
 				jni_issn_order ASC;
