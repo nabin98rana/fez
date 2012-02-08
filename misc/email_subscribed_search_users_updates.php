@@ -97,7 +97,7 @@ function emailUser($link, $userEmail, $description="" ) {
     //$usrDetails = User::getDetails($username);
     $body = "There have been updates to the search you have saved and requested updates on. Please click here to see any updated records since your last alert\n\n";
     $body .= $description."-\n";
-    $body .= $link;
+    $body .= "http://".$link;
     $body .= "\n\nPlease click here to unsubscribe to updates and to manage them\n";
     $body .= "https://".APP_HOSTNAME."/search_favourites.php\n";
 

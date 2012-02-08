@@ -42,14 +42,6 @@ class author_era_affiliations
    		$log = FezLog::get();
    		$db = DB_API::get();
 
-        $stmt = "SELECT * FROM ". APP_TABLE_PREFIX ."record_search_key_author_id ".
-            "LEFT JOIN ". APP_TABLE_PREFIX ."author_affiliation_era ".
-            "ON aae_staff_id = rek_author_id ".
-            "AND aae_pid = rek_author_id_pid ".
-            "LEFT JOIN ". APP_TABLE_PREFIX ."author ".
-            "ON rek_author_id = aut_id ".
-            "WHERE rek_author_id_pid = ".$db->quote($pid);
-
         $stmt = "SELECT * FROM __era_ro_uq_asc_req ".
                "LEFT JOIN ". APP_TABLE_PREFIX ."author ".
                "ON aut_org_staff_id = staff_id ".
@@ -72,6 +64,10 @@ class author_era_affiliations
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
+
+        if (empty($pid)) {
+            return -1;
+        }
 
         $complete = TRUE;
         $completeIsUq = FALSE;
@@ -190,6 +186,7 @@ class author_era_affiliations
         }
         return $res;
     }
+
     function getList($current_row = 0, $max = 2, $order_by = 'aae_pid', $filter=false, $search=false)
    	{
         $log = FezLog::get();
