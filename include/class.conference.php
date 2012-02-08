@@ -38,7 +38,7 @@ include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.validation.php");
 include_once(APP_INC_PATH . "class.date.php");
 
-
+//Class Conference is for era 2010 conferences
 class Conference
 {
 	/**
@@ -335,6 +335,8 @@ class Conference
 	}
 
 }
+
+//Class ConferenceID is for finding/creating unique id for conferences
 class ConferenceId
 {
     /**
@@ -622,4 +624,60 @@ class ConferenceId
         return $res;
     }
 
+    /**
+     * Method used to find suggested conference names for the suggestor
+     *
+     * @access  public
+     * @param   string $query The conference ID
+     * @return  boolean
+     */
+    function suggest($term)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $stmt = "SELECT
+                    cfi_id as id, cfi_conference_name as name, concat(cfi_conference_name, ' (', cfi_id,')')  as long_name
+                 FROM
+                    " . APP_TABLE_PREFIX . "conference_id
+                 WHERE
+                    cfi_conference_name like ".$db->quote("%".$term."%")."
+                 OR
+                    cfi_id like ".$db->quote("%".$term."%")."
+                 LIMIT 10";
+        try {
+            $res = $db->fetchAll($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+
+        return $res;
+    }
+    function getDisplayName($cfi_id)
+    {
+      $log = FezLog::get();
+      $db = DB_API::get();
+
+      if (empty($cfi_id) || !is_numeric($cfi_id)) {
+        return "";
+      }
+
+      $stmt = "SELECT
+                      cfi_id, cfi_conference_name, concat(cfi_conference_name, ' (', cfi_id,')')  as cfi_name
+                   FROM
+                      " . APP_TABLE_PREFIX . "conference_id
+                      WHERE
+                      cfi_id=".$db->quote($cfi_id, 'INTEGER');
+
+      try {
+        $res = $db->fetchRow($stmt);
+      }
+      catch(Exception $ex) {
+        $log->err($ex);
+        return '';
+      }
+      return $res;
+    }
 }

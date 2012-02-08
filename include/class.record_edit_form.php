@@ -37,6 +37,7 @@
  require_once(APP_INC_PATH . "najax_classes.php");
  require_once(APP_INC_PATH . "class.wok.php");
  require_once(APP_INC_PATH . "class.scopus.php");
+ require_once(APP_INC_PATH . "class.publisher.php");
 
  class RecordEditForm 
  {
@@ -467,7 +468,60 @@
 						}
 
 					} 
-                } elseif ($dis_field['xsdmf_html_input'] == "xsdmf_id_ref") {
+                } elseif ($dis_field["xsdmf_html_input"] == 'publisher_suggestor') { // fix publisher id drop down combo if attached
+                					if (is_array($details[$dis_field['xsdmf_id']])) {
+                						$temp_publisher_id = $details[$dis_field['xsdmf_id']];
+                						if (!is_array($details[$dis_field['xsdmf_id']."_publisher_details"])) {
+                							$details[$dis_field['xsdmf_id']."_publisher_details"] = array();
+                						}
+                					    foreach ($temp_publisher_id as $ckey => $cdata) {
+                					        if (!empty($cdata)) {
+                					            $details[$dis_field['xsdmf_id']."_publisher_details"][] = Publisher::getDisplayName($cdata);
+                					        } else {
+                								$details[$dis_field['xsdmf_id']."_publisher_details"][] = array();
+                							}
+                					    }
+                					} else {
+                						$temp_publisher_id = $details[$dis_field['xsdmf_id']];
+
+                						if (!is_array($details[$dis_field['xsdmf_id']."_publisher_details"])) {
+                							$details[$dis_field['xsdmf_id']."_publisher_details"] = array();
+                						}
+                						if (is_numeric($temp_publisher_id) && $temp_publisher_id != 0) {
+                					    	$details[$dis_field['xsdmf_id']."_publisher_details"][] = Publisher::getDisplayName($temp_publisher_id);
+                						} else {
+                							$details[$dis_field['xsdmf_id']."_publisher_details"][] = array();
+                						}
+
+                					}
+                } elseif ($dis_field["xsdmf_html_input"] == 'conference_suggestor') { // fix conference id drop down combo if attached
+                    					if (is_array($details[$dis_field['xsdmf_id']])) {
+                    						$temp_conference_id = $details[$dis_field['xsdmf_id']];
+                    						if (!is_array($details[$dis_field['xsdmf_id']."_conference_details"])) {
+                    							$details[$dis_field['xsdmf_id']."_conference_details"] = array();
+                    						}
+                    					    foreach ($temp_conference_id as $ckey => $cdata) {
+                    					        if (!empty($cdata)) {
+                    					            $details[$dis_field['xsdmf_id']."_conference_details"][] = ConferenceId::getDisplayName($cdata);
+                    					        } else {
+                    								$details[$dis_field['xsdmf_id']."_conference_details"][] = array();
+                    							}
+                    					    }
+                    					} else {
+                    						$temp_conference_id = $details[$dis_field['xsdmf_id']];
+
+                    						if (!is_array($details[$dis_field['xsdmf_id']."_conference_details"])) {
+                    							$details[$dis_field['xsdmf_id']."_conference_details"] = array();
+                    						}
+                    						if (is_numeric($temp_conference_id) && $temp_conference_id != 0) {
+                    					    	$details[$dis_field['xsdmf_id']."_conference_details"][] = ConferenceId::getDisplayName($temp_conference_id);
+                    						} else {
+                    							$details[$dis_field['xsdmf_id']."_conference_details"][] = array();
+                    						}
+
+                    					}
+                                    }
+                elseif ($dis_field['xsdmf_html_input'] == "xsdmf_id_ref") {
                     $xsdmf_details_ref = XSD_HTML_Match::getDetailsByXSDMF_ID($dis_field['xsdmf_id_ref']);
                     $xsdmf_id_ref = $xsdmf_details_ref['xsdmf_id'];
                     if (($xsdmf_details_ref['xsdmf_html_input'] == 'contvocab') || ($xsdmf_details_ref['xsdmf_html_input'] == 'contvocab_selector')) {

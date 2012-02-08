@@ -1,6 +1,8 @@
-var required_xsd_display_fields = new Array(); 
-var xsd_display_fields = new Array(); 
+var required_xsd_display_fields = new Array();
+var xsd_display_fields = new Array();
 var myDataSourceAuthor = new YAHOO.widget.DS_XHR(rel_url+"author_suggest_proxy.php", ["Result","name"]);
+var myDataSourceConference = new YAHOO.widget.DS_XHR(rel_url+"conference_suggest_proxy.php", ["Result","name"]);
+var myDataSourcePublisher = new YAHOO.widget.DS_XHR(rel_url+"publisher_suggest_proxy.php", ["Result","name"]);
 
 // Instantiate first JS Array DataSource
 var myServer = rel_url+"suggest_proxy.php";
@@ -90,25 +92,25 @@ function createTextBox(xsdmf_id, loop_num, name, limit, axsdmf_id, aname, attach
     var textboxID = "xsd_display_fields_" +xsdmf_id+ "_" + loop_num;
     prevElem = document.getElementById(trID);
     currElem = document.getElementById(textboxID);
-    
+
     if(currElem.value == "")
         return;
-    
+
     var row = document.createElement("tr");
     var td1 = document.createElement("td");
     var td2 = document.createElement("td");
     var textbox = document.createElement("input");
     var bold = document.createElement("b");
-    
+
     if(loop_num == limit) {
         currElem.onkeyup = null;
         currElem.onfocus = null;
         currElem.onchange = null;
         return;
     }
-    
+
     loop_num++;
-    
+
     /*
      * Create our up and down images
      * for swapping textbox content
@@ -117,18 +119,18 @@ function createTextBox(xsdmf_id, loop_num, name, limit, axsdmf_id, aname, attach
     uparrow.src = rel_url+"images/uparrow.png";
     uparrow.style.cursor = "pointer";
     uparrow.onclick = function () {swapTextBox('xsd_display_fields_'+xsdmf_id, axsdmf_id, loop_num, -1)};
-    
+
     var downarrow=document.createElement('img');
     downarrow.src = rel_url+"images/downarrow.png";
     downarrow.id = "xsd_display_fields_"+xsdmf_id+"_"+loop_num+"_arrow";
     downarrow.style.cursor = "pointer";
     downarrow.style.display = "none";
-    downarrow.onclick = function () {swapTextBox('xsd_display_fields_'+xsdmf_id, axsdmf_id, loop_num, 1)}; 
-    
+    downarrow.onclick = function () {swapTextBox('xsd_display_fields_'+xsdmf_id, axsdmf_id, loop_num, 1)};
+
     row.setAttribute("id", "tr_xsd_display_fields_" + xsdmf_id + "_" +loop_num);
     row.className = "default";
     td1.setAttribute("bgColor",cell_color);
-    
+
     textbox.id = "xsd_display_fields_"+xsdmf_id+"_"+loop_num;
     textbox.type = "text";
     textbox.name = "xsd_display_fields["+xsdmf_id+"]["+loop_num+"]";
@@ -138,11 +140,11 @@ function createTextBox(xsdmf_id, loop_num, name, limit, axsdmf_id, aname, attach
     } else {
         td2.className = "default text-input-odd";
     }
-    
+
     textbox.onkeyup = function () {createTextBox(xsdmf_id,loop_num,name,limit,axsdmf_id,aname, attachSuggest)};
     textbox.onchange = function () {createTextBox(xsdmf_id,loop_num,name,limit,axsdmf_id,aname, attachSuggest)};
     textbox.onfocus = function () {createTextBox(xsdmf_id,loop_num,name,limit,axsdmf_id,aname, attachSuggest)};
-    
+
     bold.appendChild(document.createTextNode(name +" "+ (loop_num+1)));
     td1.appendChild(bold);
     td1.appendChild(uparrow);
@@ -150,26 +152,28 @@ function createTextBox(xsdmf_id, loop_num, name, limit, axsdmf_id, aname, attach
     row.appendChild(td1);
     row.appendChild(td2);
     td2.appendChild(textbox);
-    
+
     insertAfter(row, prevElem);
-    
+
     if(axsdmf_id != '') {
        createAuthorSuggest(td2, xsdmf_id, axsdmf_id, aname, loop_num);
+       createConferenceSuggest(td2, xsdmf_id, axsdmf_id, aname, loop_num);
+       createPublisherSuggest(td2, xsdmf_id, axsdmf_id, aname, loop_num);
     }
-    
+
     if(attachSuggest == 1) {
         createGeneralSuggest(td2, xsdmf_id, '', loop_num);
     }
-    
+
     /*
-     * Now we've created our new textbox, find the textbox row 
+     * Now we've created our new textbox, find the textbox row
      * above and unhide its down arrow
      */
     var show_arrow = document.getElementById('xsd_display_fields_' + xsdmf_id + '_' + (loop_num-1)+'_arrow');
     if (show_arrow != null) {
         show_arrow.style.display = 'inline';
     }
-    
+
     currElem.onkeyup = null;
     currElem.onfocus = null;
     currElem.onchange = null;
@@ -185,41 +189,41 @@ function createAuthorSuggest(td, xsdmf_id, axsdmf_id, name, loop_num) {
     var td1 = document.createElement("td");
     var td2 = document.createElement("td");
     var bold = document.createElement("b");
-    
+
     // selectbox to hold the author id
     var select = document.createElement("select");
     select.id = "xsd_display_fields_"+axsdmf_id+"_"+loop_num;
     select.name = "xsd_display_fields_"+axsdmf_id+"_"+loop_num;
-    
+
     var option = document.createElement("option");
     option.value = "0";
     option.text = "(none)";
-    
+
     try {
       select.add(option, null); // standards compliant; doesn't work in IE
     }
     catch(ex) {
       select.add(option, 0); // IE only
     }
-    
+
     var div1 = document.createElement("div");
     div1.id = "authorsuggest";
     div1.style.width = "15em";
     div1.style.height = "2em";
     div1.style.position = "relative";
-    
+
     // The div container that shows the results
     var div2 = document.createElement("div");
     div2.id = "xsd_display_fields_"+axsdmf_id+"_"+loop_num+"_container";
-    
+
     // The textbox the user searches in
     var input = document.createElement("input");
     input.type = "text";
     input.id = "xsd_display_fields_"+axsdmf_id+"_"+loop_num+"_lookup";
-    
+
     div2.appendChild(input);
     div1.appendChild(div2);
-    
+
     bold.appendChild(document.createTextNode(name + ": "));
     td1.appendChild(bold);
     td1.appendChild(select);
@@ -229,8 +233,124 @@ function createAuthorSuggest(td, xsdmf_id, axsdmf_id, name, loop_num) {
     tbody.appendChild(row);
     table.appendChild(tbody);
     td.appendChild(table);
-    
+
     attachYuiAuthorSuggest(axsdmf_id, xsdmf_id, loop_num);
+}
+
+/*
+ * Create YUI conference suggest control textboxes
+ */
+function createConferenceSuggest(td, xsdmf_id, axsdmf_id, name, loop_num) {
+    var table = document.createElement("table");
+    var tbody = document.createElement("tbody");
+    var row = document.createElement("tr");
+    var td1 = document.createElement("td");
+    var td2 = document.createElement("td");
+    var bold = document.createElement("b");
+
+    // selectbox to hold the conference id
+    var select = document.createElement("select");
+    select.id = "xsd_display_fields_"+axsdmf_id+"_"+loop_num;
+    select.name = "xsd_display_fields_"+axsdmf_id+"_"+loop_num;
+
+    var option = document.createElement("option");
+    option.value = "0";
+    option.text = "(none)";
+
+    try {
+      select.add(option, null); // standards compliant; doesn't work in IE
+    }
+    catch(ex) {
+      select.add(option, 0); // IE only
+    }
+
+    var div1 = document.createElement("div");
+    div1.id = "conferencesuggest";
+    div1.style.width = "15em";
+    div1.style.height = "2em";
+    div1.style.position = "relative";
+
+    // The div container that shows the results
+    var div2 = document.createElement("div");
+    div2.id = "xsd_display_fields_"+axsdmf_id+"_"+loop_num+"_container";
+
+    // The textbox the user searches in
+    var input = document.createElement("input");
+    input.type = "text";
+    input.id = "xsd_display_fields_"+axsdmf_id+"_"+loop_num+"_lookup";
+
+    div2.appendChild(input);
+    div1.appendChild(div2);
+
+    bold.appendChild(document.createTextNode(name + ": "));
+    td1.appendChild(bold);
+    td1.appendChild(select);
+    td2.appendChild(div1);
+    row.appendChild(td1);
+    row.appendChild(td2);
+    tbody.appendChild(row);
+    table.appendChild(tbody);
+    td.appendChild(table);
+
+    attachYuiConferenceSuggest(axsdmf_id, xsdmf_id, loop_num);
+}
+
+/*
+ * Create YUI publisher suggest control textboxes
+ */
+function createPublisherSuggest(td, xsdmf_id, axsdmf_id, name, loop_num) {
+    var table = document.createElement("table");
+    var tbody = document.createElement("tbody");
+    var row = document.createElement("tr");
+    var td1 = document.createElement("td");
+    var td2 = document.createElement("td");
+    var bold = document.createElement("b");
+
+    // selectbox to hold the publisher id
+    var select = document.createElement("select");
+    select.id = "xsd_display_fields_"+axsdmf_id+"_"+loop_num;
+    select.name = "xsd_display_fields_"+axsdmf_id+"_"+loop_num;
+
+    var option = document.createElement("option");
+    option.value = "0";
+    option.text = "(none)";
+
+    try {
+      select.add(option, null); // standards compliant; doesn't work in IE
+    }
+    catch(ex) {
+      select.add(option, 0); // IE only
+    }
+
+    var div1 = document.createElement("div");
+    div1.id = "publishersuggest";
+    div1.style.width = "15em";
+    div1.style.height = "2em";
+    div1.style.position = "relative";
+
+    // The div container that shows the results
+    var div2 = document.createElement("div");
+    div2.id = "xsd_display_fields_"+axsdmf_id+"_"+loop_num+"_container";
+
+    // The textbox the user searches in
+    var input = document.createElement("input");
+    input.type = "text";
+    input.id = "xsd_display_fields_"+axsdmf_id+"_"+loop_num+"_lookup";
+
+    div2.appendChild(input);
+    div1.appendChild(div2);
+
+    bold.appendChild(document.createTextNode(name + ": "));
+    td1.appendChild(bold);
+    td1.appendChild(select);
+    td2.appendChild(div1);
+    row.appendChild(td1);
+    row.appendChild(td2);
+    tbody.appendChild(row);
+    table.appendChild(tbody);
+    td.appendChild(table);
+
+    attachYuiPublisherSuggest(axsdmf_id, xsdmf_id, loop_num);
 }
 
 function createCustomVocabSuggest(xsdmf_id, axsdmf_id, name, loop_num, limit) {
@@ -240,7 +360,7 @@ function createCustomVocabSuggest(xsdmf_id, axsdmf_id, name, loop_num, limit) {
     var textboxID = "xsd_display_fields_" +xsdmf_id+ "_" + loop_num;
     prevElem = document.getElementById(trID);
     currElem = document.getElementById(textboxID);
-    
+
     if(currElem.value == "")
         return;
 
@@ -251,16 +371,16 @@ function createCustomVocabSuggest(xsdmf_id, axsdmf_id, name, loop_num, limit) {
     var td2 = document.createElement("td");
     var textbox = document.createElement("input");
     var bold = document.createElement("b");
-    
+
     if(loop_num == limit) {
         currElem.onkeyup = null;
         currElem.onfocus = null;
         currElem.onchange = null;
         return;
     }
-    
+
     loop_num++;
-    
+
     /*
      * Create our up and down images
      * for swapping textbox content
@@ -269,7 +389,7 @@ function createCustomVocabSuggest(xsdmf_id, axsdmf_id, name, loop_num, limit) {
     uparrow.src = rel_url+"images/uparrow.png";
     uparrow.style.cursor = "pointer";
     uparrow.onclick = function () {swapDropDowns("xsd_display_fields_"+xsdmf_id+"_"+loop_num, "xsd_display_fields_"+xsdmf_id+"_"+(loop_num-1))};
-    
+
     var downarrow=document.createElement('img');
     downarrow.src = rel_url+"images/downarrow.png";
     downarrow.id = "xsd_display_fields_"+xsdmf_id+"_"+loop_num+"_arrow";
@@ -277,8 +397,8 @@ function createCustomVocabSuggest(xsdmf_id, axsdmf_id, name, loop_num, limit) {
     downarrow.style.display = "none";
 
 
-    downarrow.onclick = function () {swapDropDowns("xsd_display_fields_"+xsdmf_id+"_"+loop_num, "xsd_display_fields_"+xsdmf_id+"_"+(loop_num+1))}; 
-    
+    downarrow.onclick = function () {swapDropDowns("xsd_display_fields_"+xsdmf_id+"_"+loop_num, "xsd_display_fields_"+xsdmf_id+"_"+(loop_num+1))};
+
     row.setAttribute("id", "tr_xsd_display_fields_" + xsdmf_id + "_" +loop_num);
     row.className = "default";
     td1.setAttribute("bgColor",cell_color);
@@ -288,11 +408,11 @@ function createCustomVocabSuggest(xsdmf_id, axsdmf_id, name, loop_num, limit) {
     var select = document.createElement("select");
     select.id = "xsd_display_fields_"+axsdmf_id+"_"+loop_num;
     select.name = "xsd_display_fields["+axsdmf_id+"]["+loop_num+"]";
-    
+
     var option = document.createElement("option");
     option.value = "";
     option.text = "(none)";
-    
+
     try {
       select.add(option, null); // standards compliant; doesn't work in IE
     }
@@ -312,7 +432,7 @@ function createCustomVocabSuggest(xsdmf_id, axsdmf_id, name, loop_num, limit) {
     div1.style.height = "2em";
     div1.style.position = "relative";
 	div1.style.cssFloat = "left";
-    
+
     // The div container that shows the results
     var div2 = document.createElement("div");
     div2.id = "xsd_display_fields_"+axsdmf_id+"_"+loop_num+"_container";
@@ -322,12 +442,12 @@ function createCustomVocabSuggest(xsdmf_id, axsdmf_id, name, loop_num, limit) {
     var input = document.createElement("input");
     input.type = "text";
     input.id = "xsd_display_fields_"+axsdmf_id+"_"+loop_num+"_lookup";
-    
+
     div2.appendChild(input);
     div1.appendChild(div2);
     td1.appendChild(uparrow);
     td1.appendChild(downarrow);
-    
+
     bold.appendChild(document.createTextNode(name + ": "));
     td1.appendChild(bold);
     td2.appendChild(select);
@@ -345,7 +465,7 @@ function createCustomVocabSuggest(xsdmf_id, axsdmf_id, name, loop_num, limit) {
 
 
 /*
-	 * Now we've created our new textbox, find the textbox row 
+	 * Now we've created our new textbox, find the textbox row
 	 * above and unhide its down arrow
 	 */
 	var show_arrow = document.getElementById('xsd_display_fields_' + xsdmf_id + '_' + (loop_num-1)+'_arrow');
@@ -366,13 +486,13 @@ function createGeneralSuggest(td, xsdmf_id, to_fill_xsdmf_id, loop_num) {
     div1.style.width = "15em";
     div1.style.height = "2em";
     div1.style.position = "relative";
-    
+
     var div2 = document.createElement("div");
     div2.id = xsdmf_id+"_"+loop_num+"_container";
-    
+
     div1.appendChild(div2);
     td.appendChild(div1);
-   
+
     attachYuiGeneralSuggest(xsdmf_id, to_fill_xsdmf_id, loop_num);
 }
 
@@ -384,10 +504,26 @@ function formatAuthorRes(oResultItem, sQuery) {
     return oResultItem[1].name + usernameTxt;
 }
 
-function attachYuiAuthorSuggest(axsdmf_id, xsdmf_id, loop_num) 
+function formatConferenceRes(oResultItem, sQuery) {
+    var idTxt = "";
+    if( oResultItem[1].id != "" && oResultItem[1].id != null ) {
+            idTxt = ' (' +  oResultItem[1].id + ')'
+    }
+    return oResultItem[1].name + idTxt;
+}
+
+function formatPublisherRes(oResultItem, sQuery) {
+    var idTxt = "";
+    if( oResultItem[1].id != "" && oResultItem[1].id != null ) {
+            idTxt = ' (' +  oResultItem[1].id + ')'
+    }
+    return oResultItem[1].name + idTxt;
+}
+
+function attachYuiAuthorSuggest(axsdmf_id, xsdmf_id, loop_num)
 {
     autocomp = new YAHOO.widget.AutoComplete("xsd_display_fields_"+axsdmf_id+"_"+loop_num+"_lookup","xsd_display_fields_"+axsdmf_id+"_"+loop_num+"_container", myDataSourceAuthor);
-    autocomp.maxResultsDisplayed = 60; 
+    autocomp.maxResultsDisplayed = 60;
     autocomp.formatResult = formatAuthorRes;
     autocomp.registerControls(document.getElementById("xsd_display_fields_"+xsdmf_id+"_"+loop_num), document.getElementById("xsd_display_fields_"+axsdmf_id+"_"+loop_num));
     autocomp.textboxFocusEvent.subscribe(function(){
@@ -399,7 +535,37 @@ function attachYuiAuthorSuggest(axsdmf_id, xsdmf_id, loop_num)
     });
 }
 
-function attachYuiGeneralSuggest(xsdmf_id, to_fill_xsdmf_id, loop_num) 
+function attachYuiConferenceSuggest(axsdmf_id, xsdmf_id, loop_num)
+{
+    autocomp = new YAHOO.widget.AutoComplete("xsd_display_fields_"+axsdmf_id+"_"+loop_num+"_lookup","xsd_display_fields_"+axsdmf_id+"_"+loop_num+"_container", myDataSourceConference);
+    autocomp.maxResultsDisplayed = 60;
+    autocomp.formatResult = formatConferenceRes;
+    autocomp.registerControls(document.getElementById("xsd_display_fields_"+xsdmf_id+"_"+loop_num), document.getElementById("xsd_display_fields_"+axsdmf_id+"_"+loop_num));
+    autocomp.textboxFocusEvent.subscribe(function(){
+        var sInputValue = YAHOO.util.Dom.get("xsd_display_fields_"+axsdmf_id+"_"+loop_num+"_lookup").value;
+        if(sInputValue.length === 0) {
+            var oSelf = this;
+            setTimeout(function(){oSelf.sendQuery(sInputValue);},0);
+        }
+    });
+}
+
+function attachYuiPublisherSuggest(axsdmf_id, xsdmf_id, loop_num)
+{
+    autocomp = new YAHOO.widget.AutoComplete("xsd_display_fields_"+axsdmf_id+"_"+loop_num+"_lookup","xsd_display_fields_"+axsdmf_id+"_"+loop_num+"_container", myDataSourcePublisher);
+    autocomp.maxResultsDisplayed = 60;
+    autocomp.formatResult = formatPublisherRes;
+    autocomp.registerControls(document.getElementById("xsd_display_fields_"+xsdmf_id+"_"+loop_num), document.getElementById("xsd_display_fields_"+axsdmf_id+"_"+loop_num));
+    autocomp.textboxFocusEvent.subscribe(function(){
+        var sInputValue = YAHOO.util.Dom.get("xsd_display_fields_"+axsdmf_id+"_"+loop_num+"_lookup").value;
+        if(sInputValue.length === 0) {
+            var oSelf = this;
+            setTimeout(function(){oSelf.sendQuery(sInputValue);},0);
+        }
+    });
+}
+
+function attachYuiGeneralSuggest(xsdmf_id, to_fill_xsdmf_id, loop_num)
 {
     var myDataSource = new YAHOO.widget.DS_XHR(myServer, mySchema);
     myDataSource.scriptQueryAppend = "xsdmf_id=" +xsdmf_id;
@@ -467,11 +633,11 @@ function editFilename(pid, filename, counter) {
 		alertMsg = alertMsg+' - under 45 characters,\n';
 		alertMsg = alertMsg+' - with only one file extension (one period (.) character) and \n';
 		alertMsg = alertMsg+' - starting with a letter. Eg "s12345678_phd_thesis.pdf"';
-		
+
 		alert(alertMsg);
 		return;
 	}
-	
+
 	// and if all checks work out, then update the filename
 	// and set an hidden form element so that the filename can be updated in the database
 	var filenameSpan = pid+'_'+counter+'_filename';

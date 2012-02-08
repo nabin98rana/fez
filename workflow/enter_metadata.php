@@ -208,9 +208,10 @@ if ($access_ok) {
 					}
 				}
 			}
-			if ($dis_field["xsdmf_html_input"] == 'author_suggestor') {
-
+			if (($dis_field["xsdmf_html_input"] == 'author_suggestor') || ($dis_field["xsdmf_html_input"] == 'publisher_suggestor') || ($dis_field["xsdmf_html_input"] == 'conference_suggestor')) {
 				foreach ($xsd_display_fields as $dis_key2 => $dis_field2) {
+                    //Author is multiple selectors conference and publisher is not. This is hard coded since suggestors only work on multiples so Conference and Publisher are multiples limit 1
+                    $xsd_display_fields[$dis_key]["suggestor"] = ($dis_field["xsdmf_html_input"] == 'author_suggestor') ? 2 : 1;
 					if ($dis_field2['xsdmf_id'] == $dis_field['xsdmf_asuggest_xsdmf_id']) {
 						$suggestor_count = $dis_field2['xsdmf_multiple_limit'];
 					}
