@@ -28,71 +28,19 @@
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
 // | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
-// |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>                     |
-// |          Aaron Brown  <a.brown@library.uq.edu.au>                    |
+// |          Aaron Brown <a.brown@library.uq.edu.au>                   |
 // +----------------------------------------------------------------------+
 //
-//
-set_time_limit(0);
-include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
-include_once(APP_INC_PATH . "class.template.php");
-include_once(APP_INC_PATH . "class.auth.php");
+
+include_once("config.inc.php");
+include_once(APP_INC_PATH . "class.misc.php");
+include_once(APP_INC_PATH . "class.setup.php");
 include_once(APP_INC_PATH . "class.publisher.php");
-include_once(APP_INC_PATH . "class.db_api.php");
-include_once(APP_INC_PATH . "class.pager.php");
 
-$tpl = new Template_API();
-$tpl->assign("publishers_form", 1);
-$tpl->setTemplate("manage/index.tpl.html");
+$suggestions = Publisher::suggest($_GET['query'], true);
 
-Auth::checkAuthentication(APP_SESSION);
+$suggestions = array(
+    'Result'    =>  $suggestions
+);
 
-$tpl->assign("type", "publishers");
-
-$isUser = Auth::getUsername();
-$isAdministrator = User::isUserAdministrator($isUser);
-$isSuperAdministrator = User::isUserSuperAdministrator($isUser);
-$tpl->assign("isUser", $isUser);
-$tpl->assign("isAdministrator", $isAdministrator);
-$tpl->assign("isSuperAdministrator", $isSuperAdministrator);
-$tpl->assign("active_nav", "admin");
-
-$pagerRow = Pager::getParam('pagerRow',$params);
-if (empty($pagerRow)) {
-	$pagerRow = 0;
-}
-$rows = Pager::getParam('rows',$params);
-if (empty($rows)) {
-	$rows = APP_DEFAULT_PAGER_SIZE;
-}
-$options = Pager::saveSearchParams($params);
-$tpl->assign("options", $options);
-
-if ($isAdministrator) {
-    if (@$_POST["cat"] == "new") {
-        $tpl->assign("result", Publisher::insert());
-    } elseif (@$_POST["cat"] == "update") {
-        $tpl->assign("result", Publisher::update());
-    } elseif (@$_POST["cat"] == "delete") {
-        Publisher::remove();
-    }
-    if (@$_GET["cat"] == "edit") {
-        $tpl->assign("info", Publisher::getDetails($_GET["id"]));
-    }
-	if (@$_GET["cat"] == "search") {
-		$filter = Pager::getParam('search_filter',$params);
-		$tpl->assign("search_filter", $filter);
-		$publisher_list = Publisher::getList($pagerRow, $rows, 'pub_name', $filter);
-	} else {
-		$publisher_list = Publisher::getList($pagerRow, $rows);
-	}
-    $tpl->assign("list", $publisher_list['list']);
-    $tpl->assign("list_info", $publisher_list['list_info']);
-
-} else {
-    $tpl->assign("show_not_allowed_msg", true);
-}
-
-$tpl->displayTemplate();
-
-?>
+echo json_encode($suggestions);

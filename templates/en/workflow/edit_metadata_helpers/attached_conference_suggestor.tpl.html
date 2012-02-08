@@ -1,0 +1,42 @@
+<br />
+<table>
+   <tr>
+       <td>
+           <span class="default"><b>{$attached_xsdmf.xsdmf_title}:</b></span>
+            {assign var="attached_field_id" value="xsd_display_fields_"|cat:$attached_xsdmf_id|cat:"_"|cat:$loop_num}
+            <select class="default" id="{$attached_field_id}" name="{$attached_field_id}">
+               <option value="0">(none)</option>
+				{assign var="conference_details" value=$attached_xsdmf_id|cat:"_conference_details"}
+               {if ($details[$conference_details][$loop_num] != "" && $details[$conference_details][$loop_num] != 0)}
+            	   {if is_array($details[$conference_details])}
+            		 {if $details[$conference_details][$loop_num].cfi_id != ""}
+            		   {assign var="conference_id" value=$details[$conference_details][$loop_num]}
+            		   <option value="{$conference_id.cfi_id}" selected>{$conference_id.cfi_conference_name} ({$conference_id.cfi_id})</option>
+            		  {/if}
+            	   {/if}
+            	{/if}
+            </select>
+    	</td>
+    	<td>
+            <!-- Google suggest style selection -->
+            {* IE HACK: We want the suggest dropdown to be on top of any other auto-suggest controls which appear below it *}
+            {* smarty.section.i.index is used incase this suggest control is used by more than 1 element ie. conference and Editor *}
+			<div id="conferencesuggest" style="width:25em;height:2em;position:relative;z-index:{math equation="2000 - x - y" y=$loop_num x=$smarty.section.i.index};">
+			  <div id="{$attached_field_id}_container" style="position:absolute;top:1.6em;"></div>
+            	<input size="51" id="{$attached_field_id}_lookup" type="text">
+            </div>
+        </td>
+    </tr>
+</table>
+{literal}
+<script type="text/javascript">
+attachYuiConferenceSuggest({/literal}{$attached_xsdmf_id}, {$xsd_display_fields[i].xsdmf_id}, {$loop_num}{literal});
+</script>
+{/literal}
+
+{if $attached_xsdmf.xsdmf_attached_xsdmf_id != ""}
+	{assign var="attached_xsdmf_id" value=$attached_xsdmf.xsdmf_attached_xsdmf_id}
+	{section name='aas' loop=$xsd_display_fields}{if $xsd_display_fields[aas].xsdmf_id == $attached_xsdmf_id}{assign var="attached_xsdmf" value=$xsd_display_fields[aas]}{/if}{/section}
+	{assign var="attached_field_name" value="xsd_display_fields_"|cat:$attached_xsdmf_id|cat:"_"|cat:$loop_num}
+	{include file='workflow/edit_metadata_helpers/attached_'|cat:$attached_xsdmf.xsdmf_html_input|cat:'.tpl.html'}
+{/if}

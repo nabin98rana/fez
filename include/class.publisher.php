@@ -336,7 +336,7 @@ class Publisher
         $db = DB_API::get();
 
         $stmt = "SELECT
-                    pub_id as id, pub_name, concat(pub_name,' (',  pub_id, ')')  as name
+                    pub_id as id, pub_name as name, concat(pub_name,' (',  pub_id, ')')  as long_name
                  FROM
                     " . APP_TABLE_PREFIX . "publisher
                  WHERE
