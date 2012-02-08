@@ -172,6 +172,7 @@ class Default_Data
 		$defaultData['app_admin_email']                     = "admin@yourdomain.com";
 		$defaultData['app_org_name']                        = "University of Fez";
 		$defaultData['app_short_org_name']                  = "UF";
+		$defaultData['app_org_address_postal']              = "";   // Empty default		
 		$defaultData['app_pid_namespace']                   = "";   // Empty default
 		$defaultData['app_url']                             = "http://yourdomain.com/fez-location/";
 		//$defaultData['app_relative_url']                    = "";                         // From setup form.

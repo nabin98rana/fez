@@ -85,6 +85,14 @@ if ($metadataPrefix == "pa") {
 	}
 }
 
+// For ANDS feeds, filter to only show Data Collection objects - will move this from hardcoded to admin menu at some stage
+if ($metadataPrefix == "rif") {
+	$data_collection_xdis_id = XSD_Display::getXDIS_IDByTitle("Data Collection");
+	if (is_numeric($data_collection_xdis_id)) {
+		$filter["searchKey".Search_Key::getID("Display Type")][] = $data_collection_xdis_id;
+	}
+}
+
 /*$test = base64_decode("Jm1ldGFkYXRhUHJlZml4PW9haV9kYw=="); 
 $test = ltrim($test, "&");
 $test = Misc::parse_str_ext($test);
@@ -257,7 +265,7 @@ if (!empty($verb)) {
 					}
 				}				
 				if ($metadataPrefix != "") {
-					if (($metadataPrefix == "oai_dc") || ($metadataPrefix == "pa")) {
+					if (($metadataPrefix == "oai_dc") || ($metadataPrefix == "pa") || ($metadataPrefix == "rif")) {
 						if ($identifier != "") {
 //							if (preg_match("/^oai:[a-zA-Z][a-zA-Z0-9\-]*(\.[a-zA-Z][a-zA-Z0-9\-]+)+:[a-zA-Z0-9\-_\.!~\*'\(\);\/\?:\@\&=\+\$,\%]+$/", $originalIdentifier)) {
 							if (preg_match("/^oai\:.+\:.+\:.+$/", $originalIdentifier)) {
@@ -309,7 +317,7 @@ if (!empty($verb)) {
 					break;
 				}
 				if ($metadataPrefix != "") {
-					if (($metadataPrefix == "oai_dc") || ($metadataPrefix == "pa")) {
+					if (($metadataPrefix == "oai_dc") || ($metadataPrefix == "pa") || ($metadataPrefix == "rif")) {
 						if (!empty($set)) {					
 							if ((!Controlled_Vocab::exists($set) && $setType == "contvocab")) {	
 								$errors["code"][] = "badArgument";
@@ -387,7 +395,7 @@ if (!empty($verb)) {
 					break;
 				}				
 				if ($metadataPrefix != "") {
-					if (($metadataPrefix == "oai_dc") || ($metadataPrefix == "pa")) {
+					if (($metadataPrefix == "oai_dc") || ($metadataPrefix == "pa") || ($metadataPrefix == "rif")) {
 						if (!empty($set)) {					
 							if ((!Controlled_Vocab::exists($set) && $setType == "contvocab")) {	
 								$errors["code"][] = "badArgument";

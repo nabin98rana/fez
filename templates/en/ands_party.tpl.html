@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<registryObjects xmlns="http://ands.org.au/standards/rif-cs/registryObjects" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://ands.org.au/standards/rif-cs/registryObjects http://services.ands.org.au/documentation/rifcs/schema/registryObjects.xsd">
+  {section name="i" loop=$list}
+	<registryObject xmlns="http://ands.org.au/standards/rif-cs/registryObjects" group="{$org_name}">
+		<key>{$app_hostname|regex_replace:"/(\w+).(.+)/":"\\2/\\1"}/author/{$list[i].aut_id|escape:"html"}</key>
+		<originatingSource>{$app_hostname|regex_replace:"/(\w+).(.+)/":"www.\\2/\\1"}/</originatingSource>
+		<party type="person">
+	{*bh	<party type="person" dateModified="{$list[i].aut_update_date|escape:"html"|date_format:"%Y-%m-%dT%H:%M:%SZ"}">		*}
+			{strip}
+			<name type="primary">
+				{if $list[i].aut_title}
+					<namePart type="title">{$list[i].aut_title|escape:"html"}</namePart>
+				{/if}
+				{if $list[i].aut_lname}
+					<namePart type="family">{$list[i].aut_lname|escape:"html"}</namePart>
+				{/if}
+				{if $list[i].aut_fname}
+				<namePart type="given">{$list[i].aut_fname|escape:"html"}</namePart>
+				{/if}
+			</name>	
+			<location>
+				<address>
+					{if $list[i].aut_email}
+						<electronic type="email">
+							<value>{$list[i].aut_email|escape:"html"}</value>
+						</electronic>
+					{/if}
+					{if $list[i].aut_homepage_link} 
+						<electronic type="uri">
+							<value>{$list[i].aut_homepage_link|escape:"html"}</value>
+						</electronic>
+					{/if}					
+					<physical type="postalAddress">
+						<addressPart type="text">{$org_name}, {$org_address_postal}</addressPart>
+					</physical>					
+				</address>
+			</location>
+			
+
+			
+			<relatedInfo type="website">
+				<identifier type="uri">{$app_base_url}list/author_id/{$list[i].aut_id|escape:"html"}</identifier>
+				<title>Browse by AuthorID - {$list[i].aut_lname|escape:"html"}, {$list[i].aut_fname|escape:"html"}</title>
+				<notes>List of {$list[i].aut_fname|escape:"html"} {$list[i].aut_lname|escape:"html"}'s work in {$app_name}</notes>
+			</relatedInfo>
+			
+			<identifier type="local">{$app_hostname|regex_replace:"/(\w+).(.+)/":"\\2/\\1"}/author/{$list[i].aut_id|escape:"html"}</identifier>			
+					
+			{if $list[i].aut_scopus_id} 
+				<identifier type="uri">http://www.scopus.com/authid/detail.url?authorId={$list[i].aut_scopus_id|escape:"html"}</identifier>
+			{/if}
+			
+			{if $list[i].aut_people_australia_id} 
+				<identifier type="AU-ANL:PEAU">http://nla.gov.au/nla.party-{$list[i].aut_people_australia_id|escape:"html"}</identifier>
+			{/if}
+
+			{if $list[i].aut_researcher_id} 
+				<identifier type="uri">http://www.researcherid.com/rid/{$list[i].aut_researcher_id|escape:"html"}</identifier>
+			{/if}
+
+			{if $list[i].aut_description} 
+				<description type="brief">{$list[i].aut_description|escape:"html"|strip_tags}</description>
+			{/if}
+
+			{if $list[i].rek_fields_of_research}
+			      {if !is_array($list[i].rek_fields_of_research)}
+				  <subject type="anzsrc-for">{$list[i].rek_fields_of_research|escape:"html"|strtok:" "}</subject>
+			      {else}
+				  {assign var="loop_fields_of_research" value=$list[i].rek_fields_of_research}
+				  {section name="s" loop=$loop_fields_of_research}
+				      <subject type="anzsrc-for">{$list[i].rek_fields_of_research[s]|escape:"html"|strtok:" "}</subject>
+				  {/section}
+			      {/if}
+			{/if}		
+			{/strip}			
+		</party>
+	</registryObject>
+  {/section}
+</registryObjects>
+
