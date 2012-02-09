@@ -50,6 +50,7 @@ include_once(APP_INC_PATH . "class.author.php");
 include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.collection.php");
+include_once(APP_INC_PATH . "class.conference.php");
 include_once(APP_INC_PATH . "class.date.php");
 include_once(APP_INC_PATH . "class.pager.php");
 include_once(APP_INC_PATH . "class.object_type.php");
