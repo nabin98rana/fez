@@ -39,7 +39,7 @@ $unMatched = strtolower($argv[2]);
 
 $matcheroo = new RJL();
 $matcheroo->runType = $runType;
-if ($unMatched = '1') {
+if ($unMatched == '1') {
   $matcheroo->unMatched = false;
 } else {
   $matcheroo->unMatched = true;
