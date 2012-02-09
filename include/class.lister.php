@@ -161,7 +161,12 @@ class Lister
 
 		$username = Auth::getUsername();
 		$isAdministrator = User::isUserAdministrator($username);
-		
+
+        if ($isAdministrator == true) {
+            $tpl->assign("jquery", true);
+            $tpl->assign("jqueryUI", true);
+        }
+
 		if (($tpl_idx != 0 && $tpl_idx != 10 && $tpl_index != 4) || $isAdministrator == true) {
 			$citationCache = false;
 		} else {
