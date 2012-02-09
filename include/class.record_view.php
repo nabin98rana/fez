@@ -213,7 +213,7 @@ class RecordView {
                                     $rcl .= "&nbsp; (<a href='#' title='ERA 2012 Listed Conference: ".$rcinfo['rc_2012_title']."'>ERA 2012 Listed</a>)";
                                 }
                                 if (array_key_exists('rc_2010_rank', $rcinfo)) {
-                                    $rcl .= "&nbsp;&nbsp;&nbsp; (<a href='#' title='ERA 2010 Ranked Journal: ".$rcinfo['rc_2010_title'].", ranked ".$rcinfo['rc_2010_rank']."'>ERA 2010 Rank ".$rcinfo['rc_2010_rank']."</a>)";
+                                    $rcl .= "&nbsp;&nbsp;&nbsp; (<a href='#' title='ERA 2010 Ranked Conference: ".$rcinfo['rc_2010_title'].", ranked ".$rcinfo['rc_2010_rank']."'>ERA 2010 Rank ".$rcinfo['rc_2010_rank']."</a>)";
                                 }
                             }
 						}
