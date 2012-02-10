@@ -2567,3 +2567,23 @@ table.adminManageList{
 
 /* End: General sprite arrows. */        
 
+
+/**
+ * Translated title / Language fields trigger.
+ * CSS style for elements that are related to Translated / Language fields trigger.
+ * Use by: Enter & Edit Metadata forms
+ *         - templates/en/workflow/edit_metadata_helpers/field_dual_multiple_language.tpl.html
+ *         - templates/en/workflow/enter_metadata_helpers/field_dual_multiple_language.tpl.html
+ */
+#translated_hint {
+    height:30px; 
+    width:auto; 
+    display:none; 
+    padding: 3px 5px;
+}
+
+.gotoTranslated{
+    text-decoration: underline;
+    cursor: pointer;
+}
+/* End: Translated title / Language fields trigger. */

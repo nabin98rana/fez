@@ -739,7 +739,11 @@
 			{else}
 			
 	                <!-- single -->
-			        <tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" {if ($isEditor != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && $xsd_display_fields[i].xsdmf_required != 1) || $xsd_display_fields[i].xsdmf_invisible == 1}style="display:none"{/if} valign="top">
+                            <tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" 
+                                {if ($isEditor != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && $xsd_display_fields[i].xsdmf_required != 1) || $xsd_display_fields[i].xsdmf_invisible == 1}style="display:none"{/if} 
+                                valign="top"
+                                class="{if ($xsd_display_fields[i].xsdmf_title|strstr:"Translated")}translated_field{/if}"
+                                >
 			          <th>
 				    <b>{$xsd_display_fields[i].xsdmf_title} 
 	                                  {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b>
@@ -754,13 +758,11 @@
 	                                    class="default" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]"  
 	                                    size="50" value="{if $xsd_display_fields[i].xsdmf_dynamic_text != ""}{assign var='temp_dynamic_var' value=$xsd_display_fields[i].xsdmf_dynamic_text}{eval var=$temp_dynamic_var}{else}{$xsd_display_fields[i].xsdmf_static_text}{/if}"
 	                                    {if $xsd_display_fields[i].xsdmf_validation_maxlength != null && $xsd_display_fields[i].xsdmf_validation_maxlength > 0}maxlength="{$xsd_display_fields[i].xsdmf_validation_maxlength}"{/if} />
-			           {include file="error_icon.tpl.html" 
-	                                       field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}
+	                                    {include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}
 	
-	                                   {if $xsd_display_fields[i].xsdmf_long_description != ""}
-	                                    <div class="default">{$xsd_display_fields[i].xsdmf_long_description}</div>
-	
-	                                   {/if}
+	                                    {if $xsd_display_fields[i].xsdmf_long_description != ""}
+                                                <div class="default">{$xsd_display_fields[i].xsdmf_long_description}</div>
+	                                    {/if}
 										{if $xsd_display_fields[i].sek_suggest_function != ""}
 				        				<div id="generalsuggest" style="width:25em;position:relative;z-index:{math equation="2000 - x - y" y=0 x=$smarty.section.i.index};">
 										  <div id="{$xsd_display_fields[i].xsdmf_id}_0_container" style="z-index:9999"></div>
@@ -1011,9 +1013,17 @@
 						{include file="error_icon.tpl.html" field=$field_name}
 					 </td>
 					</tr>						
-	    	{elseif ($xsd_display_fields[i].xsdmf_html_input == 'dual_multiple') && $xsd_display_fields[i].xsdmf_enabled == 1}
-				{assign var="xsdmf" value=$xsd_display_fields[i]}
-	        		{if $xsdmf.xsdmf_enabled == 1}
+          {* Dual Multiple Combo Box *}
+	    {elseif ($xsd_display_fields[i].xsdmf_html_input == 'dual_multiple') && $xsd_display_fields[i].xsdmf_enabled == 1}
+			{assign var="xsdmf" value=$xsd_display_fields[i]}
+	       		{if $xsdmf.xsdmf_enabled == 1}
+                    
+                            {* Special input for Language with JavaScript trigger *}
+                            {if $xsdmf.xsdmf_element == "!language"} 
+                                {include file="workflow/enter_metadata_helpers/field_dual_multiple_language.tpl.html"}
+
+                            {* Default Dual Multi Combo *}    
+                            {else}
 						<tr id="tr_xsd_display_fields_{$xsdmf.xsdmf_id}_0" {if ($isEditor != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && ($xsd_display_fields[i].xsdmf_required != 1 || $xsd_display_fields[i].selected_option != '')) || $xsd_display_fields[i].xsdmf_invisible == 1}style="display:none"{/if}>
 						  <th>
 							<b>{$xsdmf.xsdmf_title} {if $xsdmf.xsdmf_required == 1} * {/if}</b>
@@ -1055,7 +1065,8 @@
 						  </td>
 				  {include file='workflow/compare_records_helpers/get_right_column.tpl.html' input_field_name=$field_name}
 						 </tr>
-				{/if}
+                            {/if}
+	       		{/if}
 
         {* combo *}
 	    {elseif ($xsd_display_fields[i].xsdmf_html_input == 'multiple' or $xsd_display_fields[i].xsdmf_html_input == 'combo') && $xsd_display_fields[i].xsdmf_enabled == 1}

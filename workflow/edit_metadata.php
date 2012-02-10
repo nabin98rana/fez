@@ -86,6 +86,8 @@ if (isset($_POST['uploader_files_uploaded']) && APP_FEDORA_BYPASS != 'ON')
 $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign("type", "edit_metadata");
+$tpl->assign('jquery', true);
+
 $link_self = $_SERVER['PHP_SELF'].'?'.http_build_query(array('id' => $wfstatus->id));
 $tpl->assign('link_self', $link_self);
 
