@@ -742,7 +742,9 @@
                             <tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" 
                                 {if ($isEditor != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && $xsd_display_fields[i].xsdmf_required != 1) || $xsd_display_fields[i].xsdmf_invisible == 1}style="display:none"{/if} 
                                 valign="top"
-                                class="{if ($xsd_display_fields[i].xsdmf_title|strstr:"Translated")}translated_field{/if}"
+                                class="{if ($xsd_display_fields[i].xsdmf_title|stristr:"translated" || 
+                                            $xsd_display_fields[i].xsdmf_title|stristr:"roman script" || 
+                                            $xsd_display_fields[i].xsdmf_title|stristr:"native script")}translated_field{/if}"
                                 >
 			          <th>
 				    <b>{$xsd_display_fields[i].xsdmf_title} 

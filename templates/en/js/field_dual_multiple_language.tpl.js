@@ -21,7 +21,7 @@
                 // Show translated hint   
                 if(showHint){
                     var hint = '<span class="gotoTranslated" onclick="scrollToField(\'' + translated_fields[0].id + '\')"> ' +
-                                'Click here to scroll to Translated title field.' + 
+                                'Click here to scroll to Title fields.' + 
                            '</span>';
                     $("#translated_hint").html(hint);
                     $("#translated_hint").fadeIn();

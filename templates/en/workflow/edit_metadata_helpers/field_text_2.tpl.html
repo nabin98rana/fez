@@ -1,5 +1,7 @@
 <tr id="tr_xsd_display_fields_{$xsdmf.xsdmf_id}_{$loop_num}" {if $xsdmf.xsdmf_invisible == 1}style="display:none"{/if}
-    class="{if ($xsdmf.xsdmf_title|strstr:"Translated")}translated_field{/if}"
+    class="{if ($xsdmf.xsdmf_title|stristr:"translated" || 
+                $xsdmf.xsdmf_title|stristr:"roman script" || 
+                $xsdmf.xsdmf_title|stristr:"native script")}translated_field{/if}"
     >
      <td width="200" bgcolor="{$cell_color}" class="default" valign="top">
 		<b>{$xsdmf.xsdmf_title}{if $xsdmf.xsdmf_multiple == 1} {math equation="x + 1" x=$loop_num}{/if}</b>
