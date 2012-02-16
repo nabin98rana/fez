@@ -3865,31 +3865,47 @@ class Record
 
         // negative look ahead and behind for search keys starting withing ! and the solr chars
         // Espace any solr chars NOT before a search key (with or without a !),
-      $pattern = '/(?!'.'!'.implode("|!", $solr_titles).'|'.
-                 implode("|!", $solr_titles).":".'|!'.
-                 implode(':\(|!', $solr_titles).':\('.'|!'.
-                 implode(':"|!', $solr_titles).':"'.'|'.
-
-                 implode(':\[|', $solr_titles).':\['.'|!'.
-                 implode(':\[|!', $solr_titles).':\['.'|'.
-
-
-                 implode(':\(|!', $solr_titles).':\("'.
-                 ')(?<!'.implode("|", $solr_titles).'|'.
-                 implode(":|", $solr_titles).":".'|'.
-                 implode(':\(|', $solr_titles).':\('.'|'.
-
-                 implode(':\[|', $solr_titles).':\['.'|\*|'.
-                 // implode(':\[|!', $solr_titles).':\['.'|'.
-
-
-
-                 implode(':"|', $solr_titles).':"'.'|'.
-                 implode(':\(|', $solr_titles).':\("'.
-                 ')(\+|-|&&|\|\||!|\{|}|\[|]|\^|"|~|\*|\?|:|\\\)(?!\))(?!\])/';
+//      $pattern = '/(?!'.'!'.implode("|!", $solr_titles).'|'.
+//                 implode("|!", $solr_titles).":".'|!'.
+//                 implode(':\(|!', $solr_titles).':\('.'|!'.
+//                 implode(':"|!', $solr_titles).':"'.'|'.
+//
+//                 implode(':\[|', $solr_titles).':\['.'|!'.
+//                 implode(':\[|!', $solr_titles).':\['.'|'.
+//
+//
+//                 implode(':\(|!', $solr_titles).':\("'.
+//                 ')(?<!'.implode("|", $solr_titles).'|'.
+//                 implode(":|", $solr_titles).":".'|'.
+//                 implode(':\(|', $solr_titles).':\('.'|'.
+//
+//                 implode(':\[|', $solr_titles).':\['.'|\*|'.
+//                 // implode(':\[|!', $solr_titles).':\['.'|'.
+//
+//
+//
+//                 implode(':"|', $solr_titles).':"'.'|'.
+//                 implode(':\(|', $solr_titles).':\("'.
+//                 ')(\+|-|&&|\|\||!|\{|}|\[|]|\^|"|~|\*|\?|:|\\\)(?!\))(?!\])/';
 //      $pattern = '/(?!'.'!'.implode("|!", $solr_titles).')(?<!'.implode("|", $solr_titles).')(\+|-|&&|\|\||!|\{|}|\[|]|\^|"|~|\*|\?|:|\\\)/';
       $replace = '\\\$1';
+      // REFACTOR of the solr input cleaning so that it first escapes everything, then removes escapes for search key patterns
+      // The REFACTOR makes the regex MUCH smaller so it doesn't get close to hitting the regex length link limit and show perform better too. Also easier to read!
+      $pattern ='/(\+|-|&&|\|\||!|\{|}|\[|]|\^|"|~|\*|\?|:|\\\)(?!\))(?!\])/';
+      //first escape everything
       $escapedInput = preg_replace($pattern, $replace, $escapedInput);
+
+      $pattern2 = '/\\\?(!)?('.implode("|", $solr_titles).')(\\\)/';
+      $replace2 = '$1$2';
+      //then remove escapes in first parse
+      $escapedInput2 = preg_replace($pattern2, $replace2, $escapedInput);
+
+      $pattern3 = '/('.implode("|", $solr_titles).')(:|\*|:\[|:\()\\\/';
+
+      $replace3 = '$1$2';
+      // then remove escapes in third parse
+      $escapedInput = preg_replace($pattern3, $replace3, $escapedInput2);
+
 
 
       //This loop checks to see if there is a opening unescaped [ and then unescapes everything in the brackets
