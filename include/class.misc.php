@@ -175,7 +175,7 @@ class Misc
     return preg_replace('#<br\s*?/?>#i', "", $string);
   }
 
-  function addToWhere($sql, $newString, $operator = 'and') 
+  function addToWhere($sql, $newString, $operator = 'and')
   {
     if ((trim($newString) != "") && (!empty($newString))) {
       if (is_numeric(stripos($sql, "WHERE"))) {
@@ -195,7 +195,7 @@ class Misc
     return $sql;
   }
 
-  function parse_str_ext($toparse) 
+  function parse_str_ext($toparse)
   {
     $returnarray = array();
     $keyvaluepairs = preg_split("/&/", $toparse);
@@ -243,7 +243,7 @@ class Misc
       //Calculate the new size based on the chosen ratio
       $nx=intval($x*$r);
       $ny=intval($y*$r);
-    }    
+    }
 
     //Return the results
     return array($nx,$ny);
@@ -257,7 +257,7 @@ class Misc
   function processURL($url, $passthru=false, $filehandle=null, $post = null, $contenttype = null, $timeout = 45)
   {
     $log = FezLog::get();
-    
+
     if (empty($url)) {
       return "";
     }
@@ -269,24 +269,24 @@ class Misc
       curl_setopt($ch, CURLOPT_FILE, $filehandle);
       curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
       curl_setopt($ch, CURLOPT_BUFFERSIZE, 64000);
-      
+
     } else {
       if (!$passthru) {
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
       }
     }
-    
+
     if ($post != null) {
       curl_setopt($ch, CURLOPT_POST, 1);
        curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
     }
-    
+
     if ($timeout != null) {
       curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
-    } 
+    }
     //$contenttype = "image/jpeg2";
     if ($contenttype != null) {
-      curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: ".$contenttype));			
+      curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: ".$contenttype));
     }
 
     if (APP_HTTPS_CURL_CHECK_CERT == "OFF" && APP_FEDORA_APIA_PROTOCOL_TYPE == 'https://') {
@@ -315,7 +315,7 @@ class Misc
     return substr($pid, strpos($pid, ":")+1);
   }
 
-  function namespacePID($pid) 
+  function namespacePID($pid)
   {
     return substr($pid, 0, strpos($pid, ":"));
   }
@@ -343,9 +343,9 @@ class Misc
   function processURL_info($url)
   {
     $log = FezLog::get();
-    
-    if (empty($url)) { 
-      return ""; 
+
+    if (empty($url)) {
+      return "";
     }
     $url=str_replace('&amp;', '&', $url);
     $ch=curl_init();
@@ -402,12 +402,12 @@ class Misc
     // clean the output buffer and return to previous
     // buffer settings
     ob_end_clean();
-     
+
     // gets you the numeric value from the Content-Length
     // field in the http header
     $regex = '/Content-Length:\s([0-9].+?)\s/';
     $count = preg_match($regex, $head, $matches);
-     
+
     // if there was a Content-Length field, its value
     // will now be in $matches[1]
     if (isset($matches[1])) {
@@ -415,7 +415,7 @@ class Misc
     } else {
       $size = 'unknown';
     }
-     
+
     return $size;
   }
 
@@ -442,8 +442,8 @@ class Misc
     }
     return substr($size, 0, strpos($size, '.')+3).$iec[$i];
   }
-   
-  function array_merge_preserve($arr1,$arr2) 
+
+  function array_merge_preserve($arr1,$arr2)
   {
     if (!is_array($arr1)) {
       $arr1 = array();
@@ -474,7 +474,7 @@ class Misc
   function getFileURL($uri,$user='',$pw='')
   {
     $log = FezLog::get();
-    
+
     // start output buffering
     //	   ob_start();
     // initialize curl with given uri
@@ -506,8 +506,8 @@ class Misc
     // clean the output buffer and return to previous
     // buffer settings
     //   ob_end_clean();
-     
-     
+
+
     return $content;
   }
 
@@ -519,7 +519,7 @@ class Misc
    * @param   array $arr2 The second array to merge
    * @return  array $ret The merged array with new keys
    */
-  function array_merge_values($arr1,$arr2) 
+  function array_merge_values($arr1,$arr2)
   {
     $newarray = array();
     foreach ($arr1 as $val) {
@@ -596,7 +596,7 @@ class Misc
    * @param   string $constant
    * @return  array $array
    */
-  function const_array($constant) 
+  function const_array($constant)
   {
      $array = explode(",", $constant);
      return $array;
@@ -612,7 +612,7 @@ class Misc
    * @param   boolean $matchWholeWords
    * @return  array $return
    */
-  function array_clean($input, $delete = false, $caseSensitive = false, $matchWholeWords = false) 
+  function array_clean($input, $delete = false, $caseSensitive = false, $matchWholeWords = false)
   {
     $return = array();
     foreach ($input as $aryKey => $aryData) {
@@ -649,7 +649,7 @@ class Misc
    * @param   boolean $matchWholeWords
    * @return  array $return
    */
-  function array_clean_key ($input, $delete = false, $caseSensitive = false, $matchWholeWords = false) 
+  function array_clean_key ($input, $delete = false, $caseSensitive = false, $matchWholeWords = false)
   {
     $return = array();
     foreach ($input as $aryKey => $aryData) {
@@ -704,8 +704,8 @@ class Misc
   function limitListResults($input, $start, $end)
   {
     $return = array();
-    if (!is_array($input)) { 
-      return array(); 
+    if (!is_array($input)) {
+      return array();
     }
     foreach ($input as $aryKey => $aryData) {
       if (($aryKey >= $start) && ($aryKey < $end)) {
@@ -723,7 +723,7 @@ class Misc
    * @param   array $dsList
    * @return  array $return
    */
-  function cleanDatastreamList($dsList) 
+  function cleanDatastreamList($dsList)
   {
     $original_dsList = $dsList;
     $return = array();
@@ -731,10 +731,10 @@ class Misc
       $pid = $key;
       $keep = true;
       if (
-          (is_numeric(strpos($ds['ID'], "thumbnail_"))) || 
-          (is_numeric(strpos($ds['ID'], "web_"))) || 
-          (is_numeric(strpos($ds['ID'], "preview_"))) || 
-          (is_numeric(strpos($ds['ID'], "presmd_"))) || 
+          (is_numeric(strpos($ds['ID'], "thumbnail_"))) ||
+          (is_numeric(strpos($ds['ID'], "web_"))) ||
+          (is_numeric(strpos($ds['ID'], "preview_"))) ||
+          (is_numeric(strpos($ds['ID'], "presmd_"))) ||
           (is_numeric(strpos($ds['ID'], "FezACML_")))
       ) {
         $keep = false;
@@ -831,13 +831,13 @@ class Misc
     return $return;
   }
 
-  function isAllowedDatastream($dsID) 
+  function isAllowedDatastream($dsID)
   {
     if (
-        (is_numeric(strpos($dsID, "thumbnail_"))) || 
-        (is_numeric(strpos($dsID, "web_"))) || 
-        (is_numeric(strpos($dsID, "preview_"))) || 
-        (is_numeric(strpos($dsID, "presmd_"))) || 
+        (is_numeric(strpos($dsID, "thumbnail_"))) ||
+        (is_numeric(strpos($dsID, "web_"))) ||
+        (is_numeric(strpos($dsID, "preview_"))) ||
+        (is_numeric(strpos($dsID, "presmd_"))) ||
         (is_numeric(strpos($dsID, "FezACML_")))
     ) {
       return false;
@@ -853,7 +853,7 @@ class Misc
    * @param   array $dsList
    * @return  array $return
    */
-  function cleanDatastreamListLite($dsList, $pid) 
+  function cleanDatastreamListLite($dsList, $pid)
   {
     /*if(!APP_FEDORA_BYPASS =='ON')
     {*/
@@ -869,11 +869,11 @@ class Misc
               || (is_numeric(strpos($ds['ID'], "presmd_")))
               || (is_numeric(strpos($ds['ID'], "stream_")))
               || (is_numeric(strpos($ds['ID'], "FezACML_")))
-              || (is_numeric(strpos($ds['ID'], "FezComments"))) 
+              || (is_numeric(strpos($ds['ID'], "FezComments")))
           ) {
             continue;
           }
-    
+
           // now try and find a thumbnail datastream of this datastream
           $thumbnail = "thumbnail_".substr($ds['ID'], 0, strrpos($ds['ID'], ".") + 1)."jpg";
           $ds['thumbnail'] = 0;
@@ -882,7 +882,7 @@ class Misc
               $ds['thumbnail'] = $thumbnail;
             }
           }
-          // now try and find a stream datastream of this datastream as long as the datastream is a video or audio 
+          // now try and find a stream datastream of this datastream as long as the datastream is a video or audio
           // (streamable datastream), not an image
           $stream = "stream_".substr($ds['ID'], 0, strrpos($ds['ID'], ".") + 1)."flv";
           $ds['stream'] = 0;
@@ -909,8 +909,8 @@ class Misc
               $ds['preview'] = $preview;
             }
           }
-    
-    
+
+
           // now try and find a preservation metadata datastream of this datastream
           $presmd = "presmd_".substr($ds['ID'], 0, strrpos($ds['ID'], ".") + 1)."xml";
           $ds['presmd'] = 0;
@@ -975,7 +975,7 @@ class Misc
 
     foreach ( $deleted_datastreams as $datastream ) {
       $dsID = $datastream['ID'];
-        
+
       // find all audit items related to this datastream
       $found = false;
       $include = false;
@@ -990,10 +990,10 @@ class Misc
           $include = true;
         }
       }
-        
+
       if ( !found ) {
         $log->err(array("Warning: Couldn't find delete audit record for deleted datastream $dsID", __FILE__,__LINE__));
-      }        
+      }
       if ( $include ) {
         array_push($return, $datastream);
       }
@@ -1007,7 +1007,7 @@ class Misc
    * Method used to format a filesize in bytes to the appropriate string,
    * showing 'Kb' and 'Mb'.
    *
-   * Developer Note: This will be used once the Fedora 2.0 managed content datastream filesize bug is 
+   * Developer Note: This will be used once the Fedora 2.0 managed content datastream filesize bug is
    * fixed (probably in Fedora 2.1)
    *
    * @access  public
@@ -1081,7 +1081,7 @@ class Misc
   {
     $log = FezLog::get();
     $db = DB_API::get();
-    
+
     $boolean = array();
     $pieces = explode(" ", $value);
     for ($i = 0; $i < count($pieces); $i++) {
@@ -1132,7 +1132,7 @@ class Misc
       return sprintf("%02dh %02dm", $hours, $mins);
     }
   }
-  
+
   /**
    * Method used to get a list of HTTP status codes and their meanings.
    *
@@ -1204,7 +1204,7 @@ class Misc
       "510" => "Not Extended (RFC 2774)"
     );
   }
-  
+
   function httpStatusCodeColourise($code)
   {
     // This could be done better with classes.
@@ -1224,7 +1224,7 @@ class Misc
    * @param   string $f The file name and path
    * @return  string The formatted time
    */
-  function mime_content_type($f) 
+  function mime_content_type($f)
   {
     $ret = '';
     if (stristr(PHP_OS, 'win') && (!stristr(PHP_OS, 'darwin'))) {
@@ -1289,12 +1289,12 @@ class Misc
   function activateLinks($text, $class = "link")
   {
     $text = preg_replace(
-        "'(\w+)://([\w\+\-\@\=\?\.\%\/\:\&\;]+)(\.)?'", 
+        "'(\w+)://([\w\+\-\@\=\?\.\%\/\:\&\;]+)(\.)?'",
         "<a title=\"open \\1://\\2 in a new window\" class=\"".$class.
         "\" href=\"\\1://\\2\" target=\"_\\2\">\\1://\\2</a>", $text
     );
     $text = preg_replace(
-        "'(\s+)www.([\w\+\-\@\=\?\.\%\/\:\&\;]+)(\.\s|\s)'", 
+        "'(\s+)www.([\w\+\-\@\=\?\.\%\/\:\&\;]+)(\.\s|\s)'",
         "\\1<a title=\"open http://www.\\2 in a new window\" class=\"".$class.
         "\" href=\"http://www.\\2\" target=\"_\\2\">www.\\2</a>\\3", $text
     );
@@ -1323,7 +1323,7 @@ class Misc
    * @param   integer $timeout The http session timeout
    * @return  string The formatted time
    */
-  function get_content_type($url,$follow_location = TRUE,$timeout = 5) 
+  function get_content_type($url,$follow_location = TRUE,$timeout = 5)
   {
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, $follow_location);
@@ -1420,13 +1420,13 @@ class Misc
   function getDatastreamXMLHeaders($datastreamTitles, $xmlString, $existingDatastreams = array())
   {
     $log = FezLog::get();
-    
+
     $return = array();
     $next_link = Misc::getNextLink($existingDatastreams);
-    // For items which repeat, (like ID (ID and versionID)) make the searchable part uppercase and 
+    // For items which repeat, (like ID (ID and versionID)) make the searchable part uppercase and
     // the name difference lowercase
-    $searchvars = array("ID", "CONTROL_GROUP", "STATE", "VERSIONABLE", "versionID", "LABEL", "MIMETYPE"); 
-    
+    $searchvars = array("ID", "CONTROL_GROUP", "STATE", "VERSIONABLE", "versionID", "LABEL", "MIMETYPE");
+
     foreach ($datastreamTitles as $dsTitle) {
       //		$IDPos = stripos($xmlString, 'id="'.$dsTitle['xsdsel_title'].'"'); // stripos is a php5 function
       $IDPos = stripos($xmlString, 'id="'.$dsTitle['xsdsel_title'].''); // stripos is a php5 function
@@ -1460,15 +1460,15 @@ class Misc
           $label_res = array();
           $file_res = XSD_Loop_Subelement::getXSDMFInputType($dsTitle['xsdsel_id'], 'file_input');
           // true for exclude file and link, only want the file and link labels
-          $label_res = XSD_Loop_Subelement::getXSDMFInputType($dsTitle['xsdsel_id'], 'text', true); 
+          $label_res = XSD_Loop_Subelement::getXSDMFInputType($dsTitle['xsdsel_id'], 'text', true);
           if (count($file_res) == 1) {
             if (is_array($_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']])) {
               foreach ($_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']] as $key => $data) {
                 if (trim($_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']][$key]) != "") {
-                  $return[$dsTitle['xsdsel_title'].$key]['CONTROL_GROUP'] = 
+                  $return[$dsTitle['xsdsel_title'].$key]['CONTROL_GROUP'] =
                       $return[$dsTitle['xsdsel_title']]['CONTROL_GROUP'];
                   $return[$dsTitle['xsdsel_title'].$key]['STATE'] = $return[$dsTitle['xsdsel_title']]['STATE'];
-                  $return[$dsTitle['xsdsel_title'].$key]['VERSIONABLE'] = 
+                  $return[$dsTitle['xsdsel_title'].$key]['VERSIONABLE'] =
                       $return[$dsTitle['xsdsel_title']]['VERSIONABLE'];
                   $return[$dsTitle['xsdsel_title'].$key]['ID'] = str_replace(
                       " ", "_", $_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']][$key]
@@ -1477,26 +1477,26 @@ class Misc
                   if (is_numeric(strpos($return[$dsTitle['xsdsel_title'].$key]['ID'], "."))) {
                     $filename_ext = strtolower(
                         substr(
-                            $return[$dsTitle['xsdsel_title'].$key]['ID'], 
+                            $return[$dsTitle['xsdsel_title'].$key]['ID'],
                             (strrpos($return[$dsTitle['xsdsel_title'].$key]['ID'], ".") + 1)
                         )
                     );
-                    $return[$dsTitle['xsdsel_title'].$key]['ID'] = 
+                    $return[$dsTitle['xsdsel_title'].$key]['ID'] =
                         substr(
-                            $return[$dsTitle['xsdsel_title'].$key]['ID'], 0, 
+                            $return[$dsTitle['xsdsel_title'].$key]['ID'], 0,
                             strrpos($return[$dsTitle['xsdsel_title'].$key]['ID'], ".") + 1
                         ).$filename_ext;
                   }
-                  $return[$dsTitle['xsdsel_title'].$key]['versionID'] = 
+                  $return[$dsTitle['xsdsel_title'].$key]['versionID'] =
                       $return[$dsTitle['xsdsel_title'].$key]['ID'].".0";
                   if (trim($_POST['xsd_display_fields'][$label_res[0]['xsdmf_id']][$key]) != "") {
-                    $return[$dsTitle['xsdsel_title'].$key]['LABEL'] = 
+                    $return[$dsTitle['xsdsel_title'].$key]['LABEL'] =
                         $_POST['xsd_display_fields'][$label_res[0]['xsdmf_id']][$key];
                   } else {
-                    $return[$dsTitle['xsdsel_title'].$key]['LABEL'] = 
+                    $return[$dsTitle['xsdsel_title'].$key]['LABEL'] =
                         $_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']][$key];
                   }
-                  
+
                   $error = $_FILES['xsd_display_fields']['error'][$file_res[0]['xsdmf_id']][$key];
                   $errorText = "";
                   switch ($error) {
@@ -1523,12 +1523,12 @@ class Misc
                     // MT: 2010-01-04 - changed to use the name generated above (to lowercase the file extension)
                     $dsIDName = Foxml::makeNCName($return[$dsTitle['xsdsel_title'].$key]['ID']);
                     $temp_store = APP_TEMP_DIR.$dsIDName;
-                    
+
                     // check if this file was uploaded by the flash uploader
                     if ($_FILES['xsd_display_fields']['tmp_name'][$file_res[0]['xsdmf_id']][$key] == 'ALREADYMOVED') {
                       // if so, rename (move) the file into the new location
                       rename(
-                          $_FILES['xsd_display_fields']['new_file_location'][$file_res[0]['xsdmf_id']][$key], 
+                          $_FILES['xsd_display_fields']['new_file_location'][$file_res[0]['xsdmf_id']][$key],
                           $temp_store
                       );
                     } else {
@@ -1551,21 +1551,21 @@ class Misc
               if (is_numeric(strpos($return[$dsTitle['xsdsel_title']]['ID'], "."))) {
                 $filename_ext = strtolower(
                     substr(
-                        $return[$dsTitle['xsdsel_title']]['ID'], 
+                        $return[$dsTitle['xsdsel_title']]['ID'],
                         (strrpos($return[$dsTitle['xsdsel_title']]['ID'], ".") + 1)
                     )
                 );
                 $return[$dsTitle['xsdsel_title']]['ID'] = substr(
-                    $return[$dsTitle['xsdsel_title']]['ID'], 0, 
+                    $return[$dsTitle['xsdsel_title']]['ID'], 0,
                     strrpos($return[$dsTitle['xsdsel_title']]['ID'], ".") + 1
                 ).$filename_ext;
               }
               $return[$dsTitle['xsdsel_title']]['versionID'] = $return[$dsTitle['xsdsel_title']]['ID'].".0";
               if ($_POST['xsd_display_fields'][$label_res[0]['xsdmf_id']] != "") {
-                $return[$dsTitle['xsdsel_title'].$key]['LABEL'] = 
+                $return[$dsTitle['xsdsel_title'].$key]['LABEL'] =
                     $_POST['xsd_display_fields'][$label_res[0]['xsdmf_id']];
               } else {
-                $return[$dsTitle['xsdsel_title']]['LABEL'] = 
+                $return[$dsTitle['xsdsel_title']]['LABEL'] =
                     $_FILES['xsd_display_fields']['name'][$file_res[0]['xsdmf_id']];
               }
               $error = $_FILES['xsd_display_fields']['error'][$file_res[0]['xsdmf_id']];
@@ -1594,7 +1594,7 @@ class Misc
                 // MT: 2010-01-04 - changed to use the name generated above (to lowercase the file extension)
                 $dsIDName = Foxml::makeNCName($return[$dsTitle['xsdsel_title'].$key]['ID']);
                 $temp_store = APP_TEMP_DIR.$dsIDName;
-                
+
                 // check if this file was uploaded by the flash uploader
                 if ($_FILES['xsd_display_fields']['tmp_name'][$file_res[0]['xsdmf_id']] == 'ALREADYMOVED') {
                   // if so, rename (move) the file into the new location
@@ -1615,10 +1615,10 @@ class Misc
               foreach ($_POST['xsd_display_fields'][$label_res[0]['xsdmf_id']] as $key => $data) {
                 // fixed it so that it requires the url, not the description
                 if ($_POST['xsd_display_fields'][$label_res[0]['xsdsel_attribute_loop_xsdmf_id']][$key] != "") {
-                  $return[$dsTitle['xsdsel_title'].$key]['CONTROL_GROUP'] = 
+                  $return[$dsTitle['xsdsel_title'].$key]['CONTROL_GROUP'] =
                       $return[$dsTitle['xsdsel_title']]['CONTROL_GROUP'];
                   $return[$dsTitle['xsdsel_title'].$key]['STATE'] = $return[$dsTitle['xsdsel_title']]['STATE'];
-                  $return[$dsTitle['xsdsel_title'].$key]['VERSIONABLE'] = 
+                  $return[$dsTitle['xsdsel_title'].$key]['VERSIONABLE'] =
                       $return[$dsTitle['xsdsel_title']]['VERSIONABLE'];
                   $return[$dsTitle['xsdsel_title'].$key]['ID'] = "link_".$next_link;
                   $next_link++;
@@ -1626,7 +1626,7 @@ class Misc
                       $key]['ID'].".0";
                   // NOW check the desc/label
                   if ($_POST['xsd_display_fields'][$label_res[0]['xsdmf_id']][$key] != "") {
-                    $return[$dsTitle['xsdsel_title'].$key]['LABEL'] = 
+                    $return[$dsTitle['xsdsel_title'].$key]['LABEL'] =
                         $_POST['xsd_display_fields'][$label_res[0]['xsdmf_id']][$key];
                   } else { // if it wasnt saved then just use the default
                     $return[$dsTitle['xsdsel_title'].$key]['LABEL'] = "Link";
@@ -1643,7 +1643,7 @@ class Misc
               $next_link++;
               $return[$dsTitle['xsdsel_title']]['versionID'] = $return[$dsTitle['xsdsel_title']]['ID'].".0";
               if (@$_POST['xsd_display_fields'][$label_res[0]['xsdmf_id']] != "") {
-                $return[$dsTitle['xsdsel_title']]['LABEL'] = 
+                $return[$dsTitle['xsdsel_title']]['LABEL'] =
                     $_POST['xsd_display_fields'][$label_res[0]['xsdmf_id']][$key];
               } else {
                 $return[$dsTitle['xsdsel_title']]['LABEL'] = "Link";
@@ -1654,7 +1654,7 @@ class Misc
           }
         }
       }
-    }    
+    }
     return $return;
   }
 
@@ -1672,7 +1672,7 @@ class Misc
   function processLinkVersioning($pid,$datastreamXMLHeaders,$datastreamXMLContent,$existingDatastreams)
   {
     $log = FezLog::get();
-    
+
     $return = array();
 
     // find all the existing links
@@ -1682,7 +1682,7 @@ class Misc
     foreach ($existingDatastreams as $dseKey => $dse) {
       if ( $dse['controlGroup'] != "R" ) {
         continue;
-      }        
+      }
       $existingLinks[$i]=$dse;
       $foundLinks[$i]=false;
       $i++;
@@ -1694,7 +1694,7 @@ class Misc
         $return[$dsKey] = $dsTitle;
         continue;
       }
-        
+
       // adjust the location the same way it is done
       // when links are created in Record::insertXML()
       $new_location = trim($datastreamXMLContent[$dsKey]);
@@ -1720,7 +1720,7 @@ class Misc
         // result -> OLD datastream is deleted; NEW creates a new datastream
         //
         // This allows tracking of changes to URLs over time.
-          
+
         if ( $new_label != $dse['label'] ) {
           continue;
         }
@@ -1736,7 +1736,7 @@ class Misc
         $found = true;
         break;
       }
-        
+
       if ( !$found ) {
         $return[$dsKey] = $dsTitle;
       }
@@ -1760,7 +1760,7 @@ class Misc
    * @param   array $existingDatastreams
    * @return  integer $max_link The next link available
    */
-  function getNextLink($existingDatastreams) 
+  function getNextLink($existingDatastreams)
   {
     $max_link = 0;
     $new_max_link = 0;
@@ -1787,14 +1787,14 @@ class Misc
    * @param   array $existingDatastreams
    * @return  integer 1 on success, 0 on failure
    */
-  function purgeExistingLinks($pid, $existingDatastreams) 
+  function purgeExistingLinks($pid, $existingDatastreams)
   {
     $max_link = 0;
     $new_max_link = 0;
 
     foreach ($existingDatastreams as $eds) {
       $link_pos = strpos($eds['ID'], "link_");
-        
+
       if (is_numeric($link_pos)) { // if found a link datatream
         $res = Fedora_API::callPurgeDatastream($pid, $eds['ID']);
         /*$new_max_link = substr($eds['ID'], ($link_pos+5)); // get its number
@@ -1837,10 +1837,10 @@ class Misc
    * @param   string $xmlString The FOXML object xml string
    * @return  array $return
    */
-  function getDatastreamXMLContent($datastreamTitles, $xmlString) 
+  function getDatastreamXMLContent($datastreamTitles, $xmlString)
   {
     $log = FezLog::get();
-    
+
     $return = array();
     //		echo $xmlString;
     //		print_r($datastreamTitles);
@@ -1870,7 +1870,7 @@ class Misc
   }
 
   /**
-   * Removes the Non-XML content datastreams of the given titles in the xml string. These will be added after 
+   * Removes the Non-XML content datastreams of the given titles in the xml string. These will be added after
    * initial ingest of basic object.
    *
    * @access  public
@@ -1878,10 +1878,10 @@ class Misc
    * @param   string $xmlString The FOXML object xml string
    * @return  array $return
    */
-  function removeNonXMLDatastreams($datastreamTitles, $xmlString) 
+  function removeNonXMLDatastreams($datastreamTitles, $xmlString)
   {
     $log = FezLog::get();
-    
+
     $return = $xmlString;
     foreach ($datastreamTitles as $title => $data) {
       $IDPos = stripos($xmlString, 'id="'.$title.'"'); // stripos is a php5 function
@@ -1891,18 +1891,18 @@ class Misc
         $searchScopeEnd = strpos($xmlString, "</foxml:datastream>", $IDPos);
         // Get the cut down datastream XML to search for binary content
         $searchXMLString = substr($xmlString, 0, ($searchScopeEnd));
-        // get the first opening binaryContent tag position in the xml after ds title, but 
+        // get the first opening binaryContent tag position in the xml after ds title, but
         // before a /datastream (close tag)
-        $binaryPos = strpos($searchXMLString, '<foxml:binaryContent>', $IDPos); 
+        $binaryPos = strpos($searchXMLString, '<foxml:binaryContent>', $IDPos);
         // check for contentLocation as well as this is now being added after ingest
         if (!is_numeric($binaryPos)) {
-          // get the first opening contentLocation tag position in the xml after ds title, but 
-          // before a /datastream (close tag) 
-          $binaryPos = strpos($searchXMLString, '<foxml:contentLocation>', $IDPos); 
+          // get the first opening contentLocation tag position in the xml after ds title, but
+          // before a /datastream (close tag)
+          $binaryPos = strpos($searchXMLString, '<foxml:contentLocation>', $IDPos);
         }
         if (is_numeric($binaryPos)) { // if you find binaryContent after this tag
           // the space is essential or it will pick '<foxml:datastreamVersion
-          $XMLContentStartPos = strrpos(substr($xmlString, 0, $binaryPos), '<foxml:datastream '); 
+          $XMLContentStartPos = strrpos(substr($xmlString, 0, $binaryPos), '<foxml:datastream ');
           $XMLContentEndPos = strpos($xmlString, '</foxml:datastream>', $XMLContentStartPos) + 19;
           if (is_numeric($XMLContentStartPos) && is_numeric($XMLContentEndPos)) {
             $tempXML = substr($xmlString, $XMLContentStartPos, ($XMLContentEndPos-$XMLContentStartPos));
@@ -1921,7 +1921,7 @@ class Misc
    * This is mainly used by batch import now to handle entire FOXML xml objects, as XSD_Display::processXSDMF handles
    * datastream XML to array conversions.
    *
-   * Developer Note: This is a recursive function that traverses through the XML elements and attributes using a 
+   * Developer Note: This is a recursive function that traverses through the XML elements and attributes using a
    * DOM Document (PHP5).
    *
    * @access  public
@@ -1930,16 +1930,16 @@ class Misc
    * @param   string $top_element_name The top element in the XML hierarchy to search for first
    * @param   string $element_prefix eg OAI_DC:, FOXML: etc
    * @param   array $xsdmf_array	The XSD matching field array passed by reference
-   * @param   integer $xdis_id The XSD Display ID of the object, or current child XSD Display ID of the XSD reference 
+   * @param   integer $xdis_id The XSD Display ID of the object, or current child XSD Display ID of the XSD reference
    *                           in a recursive traversal
    * @param   string $parentContent The front hierarchy of the array element passed by a parent XML element
-   * @param   string $parentKey If the parent is not unique it may need to pass its unique key to its child elements 
+   * @param   string $parentKey If the parent is not unique it may need to pass its unique key to its child elements
    *                            traversals so the correct XSDMF_ID is found
    * @return  void (Uses $array and $xsdmf_array passed as reference recursively)
    */
   function dom_xml_to_simple_array(
       $domnode, &$array, $top_element_name, $element_prefix, &$xsdmf_array, $xdis_id, $parentContent="", $parent_key=""
-  ) 
+  )
   {
     $array_ptr = &$array;
     $xsdmf_ptr = &$xsdmf_array;
@@ -1956,7 +1956,7 @@ class Misc
         $array_ptr = &$array[$clean_nodeName];
         $array_ptr = $domnode->nodeValue;
       } else if (
-          (strtolower($domnode->nodeName) != "xsd:annotation") && 
+          (strtolower($domnode->nodeName) != "xsd:annotation") &&
           (strtolower($domnode->nodeName) != "xsd:documentation")
       ) {
         // all other conditions (except desc's)
@@ -1972,7 +1972,7 @@ class Misc
             }
             if ($parent_key != "") { // if there are passed parent keys then use them in the search
               // try to match on a sel key
-              $xsdmf_id = XSD_HTML_Match::getXSDMF_IDByKeyXDIS_ID($new_element, $domobj->nodeValue, $xdis_str); 
+              $xsdmf_id = XSD_HTML_Match::getXSDMF_IDByKeyXDIS_ID($new_element, $domobj->nodeValue, $xdis_str);
             } else {
               // try to match on a sel key
               $xsdmf_id = XSD_HTML_Match::getXSDMF_IDByKeyXDIS_ID($new_element, $domobj->nodeValue, $xdis_str);
@@ -2017,18 +2017,18 @@ class Misc
             }
             $array_ptr[$while_count][$new_element] = $domobj->nodeValue;
           } // end foreach
-        } 
-        // replaced the else statement below because even if it has attributes we want it to check the basic 
+        }
+        // replaced the else statement below because even if it has attributes we want it to check the basic
         // element especially for xsd loop sublelement elements
-        // If we still havent got the xsdmf_id then it either doesnt have one or the element doesnt have attributes, 
+        // If we still havent got the xsdmf_id then it either doesnt have one or the element doesnt have attributes,
         // so try to find it without the attributes
         if ((is_numeric(strpos(substr($parentContent, 0, 1), "!"))) || ($parentContent == "")) {
-          // @@@ CK - 25/8/2005 - unless it is the below with the parent content, FezACML doesnt show properly 
+          // @@@ CK - 25/8/2005 - unless it is the below with the parent content, FezACML doesnt show properly
           // because it needs the !role!rule etc so any changes to this need to be tested with the FezACML etc
           // @@@ CK 31/5/2005 - Added ! to the front of the string if not there already
-          $new_element = $parentContent."!".$clean_nodeName; 
+          $new_element = $parentContent."!".$clean_nodeName;
         } else {
-          // @@@ CK - 25/8/2005 - unless it is the below with the parent content, FezACML doesnt show properley 
+          // @@@ CK - 25/8/2005 - unless it is the below with the parent content, FezACML doesnt show properley
           // because it needs the !role!rule etc so any changes to this need to be tested with the FezACML etc
           // @@@ CK 31/5/2005 - Added ! to the front of the string
           $new_element = "!".$parentContent."!".$clean_nodeName;
@@ -2088,12 +2088,12 @@ class Misc
         // if the current field is a loop sublelement then get its child sel_ids and pass them down in a for loop
         // FOR very first element we don't want to carry that parentContent down to the children, for the rest we do
         if (
-            (strpos($domnode->nodeName, $element_prefix.":".$top_element_name) === 0) || 
+            (strpos($domnode->nodeName, $element_prefix.":".$top_element_name) === 0) ||
             (strpos($domnode->nodeName, $top_element_name) === 0)
         ) {
           $newParentContent = "";
           Misc::dom_xml_to_simple_array(
-              $domnode, $array_ptr, $top_element_name, $element_prefix, $xsdmf_ptr, $xdis_id, 
+              $domnode, $array_ptr, $top_element_name, $element_prefix, $xsdmf_ptr, $xdis_id,
               $newParentContent, $parent_key
           );
         } else {
@@ -2107,7 +2107,7 @@ class Misc
             );
           }
           Misc::dom_xml_to_simple_array(
-              $domnode, $array_ptr, $top_element_name, $element_prefix, $xsdmf_ptr, 
+              $domnode, $array_ptr, $top_element_name, $element_prefix, $xsdmf_ptr,
               $xdis_id, $newParentContent, $parent_key
           );
         }
@@ -2123,10 +2123,10 @@ class Misc
    * @param array $callbackdata Used to store data that will be available to sub nodes but not to siblings.
    * The callback function should return changes to this data for use by child node callbacks.
    */
-  function XML_Walk($domnode, $callbackobject, $callbackmethod, $callbackdata, $rootnode) 
+  function XML_Walk($domnode, $callbackobject, $callbackmethod, $callbackdata, $rootnode)
   {
     $log = FezLog::get();
-    
+
     if (is_null($domnode)) {
       return;
     }
@@ -2155,7 +2155,7 @@ class Misc
    * @param   string $element_name
    * @return  array $element_name
    */
-  function strip_element_name($element_name) 
+  function strip_element_name($element_name)
   {
     if ( is_numeric(strpos($element_name, "dc:")) ) {
       return $element_name;
@@ -2174,7 +2174,7 @@ class Misc
    * @param $array The array to be put in the query
    * @return string escaped mysql query element ready to be used like this WHERE x IN ($string)
    */
-  function array_to_sql_string($array) 
+  function array_to_sql_string($array)
   {
     foreach ($array as &$item) {
       $item = "'".mysql_escape_string($item)."'";
@@ -2187,7 +2187,7 @@ class Misc
    * @param $array The array to be put in the query
    * @return string escaped mysql query element ready to be used like this WHERE x IN ($string)
    */
-  function array_to_sql($array) 
+  function array_to_sql($array)
   {
     foreach ($array as &$item) {
       $item = mysql_escape_string($item);
@@ -2223,13 +2223,13 @@ class Misc
    * @param   string $parentContent
    * @return  void
    */
-  function dom_xsd_to_simple_array($domnode, &$array, $parentContent="") 
+  function dom_xsd_to_simple_array($domnode, &$array, $parentContent="")
   {
     $array_ptr = &$array;
     $domnode = $domnode->firstChild;
     while (!is_null($domnode)) {
       if (
-          (strtolower($domnode->nodeName) != "xsd:annotation") && 
+          (strtolower($domnode->nodeName) != "xsd:annotation") &&
           (strtolower($domnode->nodeName) != "xsd:documentation")
       ) {
         if ($domnode->hasAttributes() ) {
@@ -2269,7 +2269,7 @@ class Misc
    * @param   string $element_name
    * @return  DomNode $item or false if not found
    */
-  function getElementByNameValue($domnode, $elementname) 
+  function getElementByNameValue($domnode, $elementname)
   {
     foreach ($domnode->getElementsByTagname("element") as $item ) {
       foreach ($item->attributes as $attrib ) {
@@ -2291,7 +2291,7 @@ class Misc
    * @param   string $element_name
    * @return  DomNode $item or false if not found
    */
-  function getXMLObjectByTypeNameValue($domnode, $type, $elementname) 
+  function getXMLObjectByTypeNameValue($domnode, $type, $elementname)
   {
     $result = $domnode->getElementsByTagname($type);
     foreach ($result as $item ) {
@@ -2326,7 +2326,7 @@ class Misc
    * @param   array $xsd_extra_ns_prefixes
    * @return  DomNode $item or false if not found
    */
-  function getSchemaAttributes($domnode, $top_element_name="", $element_prefix="", $xsd_extra_ns_prefixes=array()) 
+  function getSchemaAttributes($domnode, $top_element_name="", $element_prefix="", $xsd_extra_ns_prefixes=array())
   {
     $res = "";
     $nsURI = '';
@@ -2379,7 +2379,7 @@ class Misc
   /**
    * Creates a referenced array out of an XSD object with the xml heirarchy expressed with ! separators
    *
-   * Developer Note: This is a recursive function that traverses through the XML elements and attributes 
+   * Developer Note: This is a recursive function that traverses through the XML elements and attributes
    * using a DOM Document (PHP5).
    *
    * @access  public
@@ -2397,7 +2397,7 @@ class Misc
   function dom_xsd_to_referenced_array(
       $domnode, $topelement, &$array, $parentnodename="", $searchtype="",
       $superdomnode=null, $supertopelement="", $parentContent="", $refCount = array()
-  ) 
+  )
   {
     $array_ptr = &$array;
     $standard_types = array("int", "string", "dateTime", "float", "anyURI", "base64Binary", "NMTOKEN", "lang");
@@ -2434,14 +2434,14 @@ class Misc
           }
           foreach ($current_types as $type) {
             Misc::dom_xsd_to_referenced_array(
-                $currentnode, $type, $array_ptr, $current_name, "complexType", $superdomnode, 
+                $currentnode, $type, $array_ptr, $current_name, "complexType", $superdomnode,
                 $supertopelement, $parentContent, $refCount
             );
           }
           if ($currentnode->hasChildNodes() ) {
             foreach ($currentnode->childNodes as $childnode) {
               Misc::dom_xsd_to_referenced_array(
-                  $childnode, '', $array_ptr, $current_name, "", $superdomnode, 
+                  $childnode, '', $array_ptr, $current_name, "", $superdomnode,
                   $supertopelement, $parentContent, $refCount
               );
             }
@@ -2483,15 +2483,15 @@ class Misc
           if ($currentnode->hasChildNodes() ) {
             foreach ($currentnode->childNodes as $childnode) {
               Misc::dom_xsd_to_referenced_array(
-                  $childnode, "", $array_ptr, $parentnodename, "", $superdomnode, 
+                  $childnode, "", $array_ptr, $parentnodename, "", $superdomnode,
                   $supertopelement, $parentContent, $refCount
               );
             }
           }
         } else if (
-            ($shortnodename == "extension") || ($shortnodename == "any") || ($shortnodename == "anyAttribute") || 
+            ($shortnodename == "extension") || ($shortnodename == "any") || ($shortnodename == "anyAttribute") ||
             ($shortnodename == "restriction") || ($shortnodename == "group") || ($shortnodename == "complexContent") ||
-            ($shortnodename == "simpleContent") || ($shortnodename == "attributeGroup") || 
+            ($shortnodename == "simpleContent") || ($shortnodename == "attributeGroup") ||
             ($shortnodename == "attribute") || ($shortnodename == "enumeration")
         ) {
           if (($shortnodename == "attribute") || ($shortnodename == "extension")) {
@@ -2533,7 +2533,7 @@ class Misc
               }
               foreach ($current_refs as $ref) {
                 Misc::dom_xsd_to_referenced_array(
-                    $currentnode, $ref, $array_ptr, $current_name, $nextSearch, $superdomnode, 
+                    $currentnode, $ref, $array_ptr, $current_name, $nextSearch, $superdomnode,
                     $supertopelement, $parentContent, $refCount
                 );
               }
@@ -2549,7 +2549,7 @@ class Misc
             }
           }
           // added group and choice (also to above) to this if to test mods - ck
-          if (($shortnodename == "attributeGroup") || ($shortnodename == "group")) { 
+          if (($shortnodename == "attributeGroup") || ($shortnodename == "group")) {
             $attributes = $currentnode->attributes;
             foreach ($attributes as $index => $attrib) {
               if ($attrib->nodeName == "ref") {
@@ -2563,30 +2563,30 @@ class Misc
             }
 
             foreach ($current_refs as $ref) {
-              // Flag the ref for child parses so that it only recursives the same ref group once 
+              // Flag the ref for child parses so that it only recursives the same ref group once
               // (or it could go in an endless recursive loop) - CK added 13/9/2006
               if (array_key_exists($ref, $refCount)) {
                 if ($refCount[$ref] == 1) { //
                   $refCount[$ref] = 2;
                   Misc::dom_xsd_to_referenced_array(
-                      $currentnode, $ref, $array_ptr, $current_name, $shortnodename, $superdomnode, 
+                      $currentnode, $ref, $array_ptr, $current_name, $shortnodename, $superdomnode,
                       $supertopelement, $parentContent, $refCount
                   );
                 }
               } else {
                 $refCount[$ref] = 1;
                 Misc::dom_xsd_to_referenced_array(
-                    $currentnode, $ref, $array_ptr, $current_name, $shortnodename, 
+                    $currentnode, $ref, $array_ptr, $current_name, $shortnodename,
                     $superdomnode, $supertopelement, $parentContent, $refCount
                 );
               }
             }
           }
-            
+
           if ($currentnode->hasChildNodes() ) {
             foreach ($currentnode->childNodes as $childnode) {
               Misc::dom_xsd_to_referenced_array(
-                  $childnode, '', $array_ptr, $current_name, "", $superdomnode, 
+                  $childnode, '', $array_ptr, $current_name, "", $superdomnode,
                   $supertopelement, $parentContent, $refCount
               );
             }
@@ -2623,7 +2623,7 @@ class Misc
           }
           foreach ($current_refs as $ref) {
             Misc::dom_xsd_to_referenced_array(
-                $currentnode, $ref, $array_ptr, $current_name, "", $superdomnode, 
+                $currentnode, $ref, $array_ptr, $current_name, "", $superdomnode,
                 $supertopelement, $parentContent, $refCount
             );
           }
@@ -2636,7 +2636,7 @@ class Misc
           if ($currentnode->hasChildNodes() ) {
             foreach ($currentnode->childNodes as $childnode) {
               Misc::dom_xsd_to_referenced_array(
-                  $childnode, '', $array_ptr, $current_name, "", $superdomnode, 
+                  $childnode, '', $array_ptr, $current_name, "", $superdomnode,
                   $supertopelement, $parentContent, $refCount
               );
             }
@@ -2664,20 +2664,20 @@ class Misc
           }
           foreach ($current_refs as $ref) {
             Misc::dom_xsd_to_referenced_array(
-                $currentnode, $ref, $array_ptr, $current_name, "", $superdomnode, 
+                $currentnode, $ref, $array_ptr, $current_name, "", $superdomnode,
                 $supertopelement, $parentContent, $refCount
             );
           }
           foreach ($current_types as $type) {
             Misc::dom_xsd_to_referenced_array(
-                $currentnode, $type, $array_ptr, $current_name, "complexType", $superdomnode, 
+                $currentnode, $type, $array_ptr, $current_name, "complexType", $superdomnode,
                 $supertopelement, $parentContent, $refCount
             );
           }
           if ($currentnode->hasChildNodes() ) {
             foreach ($currentnode->childNodes as $childnode) {
               Misc::dom_xsd_to_referenced_array(
-                  $childnode, '', $array_ptr, $current_name, "", $superdomnode, 
+                  $childnode, '', $array_ptr, $current_name, "", $superdomnode,
                   $supertopelement, $parentContent, $refCount
               );
             }
@@ -2702,7 +2702,7 @@ class Misc
   function dom_xsd_to_flat_array(
       $domnode, $topelement, &$array, $parentnodename="", $searchtype="",
       $superdomnode=null, $supertopelement="", $parentContent="", $refCount = array()
-  ) 
+  )
   {
     $array_ptr = &$array;
     $standard_types = array("int", "string", "dateTime", "float", "anyURI", "base64Binary", "NMTOKEN", "lang");
@@ -2739,14 +2739,14 @@ class Misc
           }
           foreach ($current_types as $type) {
             Misc::dom_xsd_to_flat_array(
-                $currentnode, $type, $array_ptr, $current_name, "complexType", $superdomnode, 
+                $currentnode, $type, $array_ptr, $current_name, "complexType", $superdomnode,
                 $supertopelement, $parentContent, $refCount
             );
           }
           if ($currentnode->hasChildNodes() ) {
             foreach ($currentnode->childNodes as $childnode) {
               Misc::dom_xsd_to_flat_array(
-                  $childnode, '', $array_ptr, $current_name, "", $superdomnode, 
+                  $childnode, '', $array_ptr, $current_name, "", $superdomnode,
                   $supertopelement, $parentContent, $refCount
               );
             }
@@ -2767,7 +2767,7 @@ class Misc
           $currentnode = $domnode;
         }
         // Check if there is a ":" in the string if there is then snn is after the :
-        if (is_numeric(strpos($currentnode->nodeName, ":"))) { 
+        if (is_numeric(strpos($currentnode->nodeName, ":"))) {
           $shortnodename = substr($currentnode->nodeName, (strpos($currentnode->nodeName, ":") + 1));
         } else {
           $shortnodename = $currentnode->nodeName;
@@ -2786,13 +2786,13 @@ class Misc
           if ($currentnode->hasChildNodes() ) {
             foreach ($currentnode->childNodes as $childnode) {
               Misc::dom_xsd_to_flat_array(
-                  $childnode, "", $array_ptr, $parentnodename, "", $superdomnode, 
+                  $childnode, "", $array_ptr, $parentnodename, "", $superdomnode,
                   $supertopelement, $parentContent, $refCount
               );
             }
           }
         } else if (
-            ($shortnodename == "extension") || ($shortnodename == "any") || ($shortnodename == "anyAttribute") || 
+            ($shortnodename == "extension") || ($shortnodename == "any") || ($shortnodename == "anyAttribute") ||
             ($shortnodename == "restriction") || ($shortnodename == "group") || ($shortnodename == "complexContent") ||
             ($shortnodename == "simpleContent") || ($shortnodename == "attributeGroup") ||
             ($shortnodename == "attribute") || ($shortnodename == "enumeration")
@@ -2837,7 +2837,7 @@ class Misc
               }
               foreach ($current_refs as $ref) {
                 Misc::dom_xsd_to_flat_array(
-                    $currentnode, $ref, $array_ptr, $current_name, $nextSearch, $superdomnode, 
+                    $currentnode, $ref, $array_ptr, $current_name, $nextSearch, $superdomnode,
                     $supertopelement, $parentContent, $refCount
                 );
               }
@@ -2869,30 +2869,30 @@ class Misc
             }
 
             foreach ($current_refs as $ref) {
-              // Flag the ref for child parses so that it only recursives the same ref group once (or it could go 
+              // Flag the ref for child parses so that it only recursives the same ref group once (or it could go
               // in an endless recursive loop) - CK added 13/9/2006
               if (array_key_exists($ref, $refCount)) {
                 if ($refCount[$ref] == 1) { //
                   $refCount[$ref] = 2;
                   Misc::dom_xsd_to_flat_array(
-                      $currentnode, $ref, $array_ptr, $current_name, $shortnodename, $superdomnode,  
+                      $currentnode, $ref, $array_ptr, $current_name, $shortnodename, $superdomnode,
                       $supertopelement, $parentContent, $refCount
                   );
                 }
               } else {
                 $refCount[$ref] = 1;
                 Misc::dom_xsd_to_flat_array(
-                    $currentnode, $ref, $array_ptr, $current_name, $shortnodename, $superdomnode, 
+                    $currentnode, $ref, $array_ptr, $current_name, $shortnodename, $superdomnode,
                     $supertopelement, $parentContent, $refCount
                 );
               }
             }
           }
-            
+
           if ($currentnode->hasChildNodes() ) {
             foreach ($currentnode->childNodes as $childnode) {
               Misc::dom_xsd_to_flat_array(
-                  $childnode, '', $array_ptr, $current_name, "", $superdomnode, 
+                  $childnode, '', $array_ptr, $current_name, "", $superdomnode,
                   $supertopelement, $parentContent, $refCount
               );
             }
@@ -2930,20 +2930,20 @@ class Misc
           }
           foreach ($current_refs as $ref) {
             Misc::dom_xsd_to_flat_array(
-                $currentnode, $ref, $array_ptr, $current_name, "", $superdomnode, 
+                $currentnode, $ref, $array_ptr, $current_name, "", $superdomnode,
                 $supertopelement, $parentContent, $refCount
             );
           }
           foreach ($current_types as $type) {
             Misc::dom_xsd_to_flat_array(
-                $currentnode, $type, $array_ptr, $current_name, "complexType", $superdomnode, 
+                $currentnode, $type, $array_ptr, $current_name, "complexType", $superdomnode,
                 $supertopelement, $parentContent, $refCount
             );
           }
           if ($currentnode->hasChildNodes() ) {
             foreach ($currentnode->childNodes as $childnode) {
               Misc::dom_xsd_to_flat_array(
-                  $childnode, '', $array_ptr, $current_name, "", $superdomnode, 
+                  $childnode, '', $array_ptr, $current_name, "", $superdomnode,
                   $supertopelement, $parentContent, $refCount
               );
             }
@@ -2971,20 +2971,20 @@ class Misc
           }
           foreach ($current_refs as $ref) {
             Misc::dom_xsd_to_flat_array(
-                $currentnode, $ref, $array_ptr, $current_name, "", $superdomnode, 
+                $currentnode, $ref, $array_ptr, $current_name, "", $superdomnode,
                 $supertopelement, $parentContent, $refCount
             );
           }
           foreach ($current_types as $type) {
             Misc::dom_xsd_to_flat_array(
-                $currentnode, $type, $array_ptr, $current_name, "complexType", $superdomnode, 
+                $currentnode, $type, $array_ptr, $current_name, "complexType", $superdomnode,
                 $supertopelement, $parentContent, $refCount
             );
           }
           if ($currentnode->hasChildNodes() ) {
             foreach ($currentnode->childNodes as $childnode) {
               Misc::dom_xsd_to_flat_array(
-                  $childnode, '', $array_ptr, $current_name, "", $superdomnode, 
+                  $childnode, '', $array_ptr, $current_name, "", $superdomnode,
                   $supertopelement, $parentContent, $refCount
               );
             }
@@ -3016,7 +3016,7 @@ class Misc
    * @param   array $haystack
    * @return  boolean
    */
-  function in_multi_array($needle, $haystack) 
+  function in_multi_array($needle, $haystack)
   {
     $in_multi_array = false;
     if (in_array($needle, $haystack)) {
@@ -3042,7 +3042,7 @@ class Misc
    * @param   array $haystack
    * @return  boolean
    */
-  function array_flatten(&$a,$pref='', $ignore_keys = false) 
+  function array_flatten(&$a,$pref='', $ignore_keys = false)
   {
     $ret=array();
     if (!is_array($a)) {
@@ -3143,7 +3143,7 @@ class Misc
 
 
   /**
-   * Method used to create an array to be used in an Javascript DTree (dynamic tree) for XSD HTML 
+   * Method used to create an array to be used in an Javascript DTree (dynamic tree) for XSD HTML
    * to Matching Form elements.
    *
    * Developer Note: This is a recursive function passing variables by reference.
@@ -3158,7 +3158,7 @@ class Misc
    */
   function array_to_dtree(
       $a, $xdis_id=0, $element_match_list=array(), $counter=0, $parent_counter=-1, &$open_array = array()
-  ) 
+  )
   {
     $match_form_url = APP_BASE_URL."manage/xsd_tree_match_form.php?xdis_id=".$xdis_id."&xml_element=";
     $ret = array();
@@ -3191,7 +3191,7 @@ class Misc
                 } else {
                   // only make the title red if there is only one xsdmf for this element.
                   // Otherwise it is misleading because it suggests that all of the sublooping elements
-                  // are disabled when it's probably only one. The hover note shows the disabled thing per 
+                  // are disabled when it's probably only one. The hover note shows the disabled thing per
                   // sublooping element.
                   if (count($element_match_list[$ehref]) == 1
                   && $element_match_list[$ehref][0]['xsdmf_enabled'] == 0
@@ -3249,6 +3249,20 @@ class Misc
                             '<b>Author Suggestor:</b> '.$ematch['xsdmf_title'].'<br/>Loop: '.$ematch['xsdsel_title'].
                             '<br/>Order: '.$ematch['xsdmf_order'].'<br/>XSDMF ID: '.$ematch['xsdmf_id'].
                             '</span><img src="'.APP_RELATIVE_URL.'images/author_suggestor_16.png" />';
+                          break;
+                      case "publisher_suggestor":
+                          $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.
+                              $ematch["xsdmf_xsdsel_id"].'" class="form_note"> <span class="form_note">'.$disabled_msg.
+                              '<b>Author Suggestor:</b> '.$ematch['xsdmf_title'].'<br/>Loop: '.$ematch['xsdsel_title'].
+                              '<br/>Order: '.$ematch['xsdmf_order'].'<br/>XSDMF ID: '.$ematch['xsdmf_id'].
+                              '</span><img src="'.APP_RELATIVE_URL.'images/author_suggestor_16.png" />';
+                          break;
+                      case "conference_suggestor":
+                        $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.
+                                $ematch["xsdmf_xsdsel_id"].'" class="form_note"> <span class="form_note">'.$disabled_msg.
+                                '<b>Author Suggestor:</b> '.$ematch['xsdmf_title'].'<br/>Loop: '.$ematch['xsdsel_title'].
+                                '<br/>Order: '.$ematch['xsdmf_order'].'<br/>XSDMF ID: '.$ematch['xsdmf_id'].
+                                '</span><img src="'.APP_RELATIVE_URL.'images/author_suggestor_16.png" />';
                           break;
                       case "static":
                         $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.
@@ -3347,7 +3361,7 @@ class Misc
                             '<b>Open Access Suggestor:</b> '.$ematch['xsdmf_title'].'<br/>Loop: '.
                             $ematch['xsdsel_title'].'<br/>Order: '.$ematch['xsdmf_order'].'<br/>XSDMF ID: '.
                             $ematch['xsdmf_id'].'</span><img src="'.APP_RELATIVE_URL.
-                            'images/open_access_suggest_16.png" />';										   
+                            'images/open_access_suggest_16.png" />';
                           break;
                       default:
                           break;
@@ -3378,7 +3392,7 @@ class Misc
         }
       } else {
         if (
-            ($i != '#text') && ($i != '#comment') && ($i != 'fez_nodetype') && ($i != 'fez_hyperlink') && 
+            ($i != '#text') && ($i != '#comment') && ($i != 'fez_nodetype') && ($i != 'fez_hyperlink') &&
             (!(is_array($i['fez_hyperlink'])))
         ) {
           if (!empty($j['fez_nodetype'])) {
@@ -3404,7 +3418,7 @@ class Misc
 
   function findNodeTypes(
       $a, $xdis_id=0, $element_match_list=array(), $counter=0, $parent_counter=-1, &$open_array = array()
-  ) 
+  )
   {
     $match_form_url = APP_BASE_URL."manage/xsd_tree_match_form.php?xdis_id=".$xdis_id."&xml_element=";
     $ret = array();
@@ -3436,7 +3450,7 @@ class Misc
                 } else {
                   // only make the title red if there is only one xsdmf for this element.
                   // Otherwise it is misleading because it suggests that all of the sublooping elements
-                  // are disabled when it's probably only one. The hover note shows the disabled thing per 
+                  // are disabled when it's probably only one. The hover note shows the disabled thing per
                   // sublooping element.
                   if (
                     count($element_match_list[$ehref]) == 1
@@ -3497,6 +3511,20 @@ class Misc
                             '<br/>Order: '.$ematch['xsdmf_order'].'<br/>XSDMF ID: '.$ematch['xsdmf_id'].
                             '</span><img src="'.APP_RELATIVE_URL.'images/author_suggestor_16.png" />';
                           break;
+                      case "publisher_suggestor":
+                          $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.
+                              $ematch["xsdmf_xsdsel_id"].'" class="form_note"> <span class="form_note">'.$disabled_msg.
+                              '<b>Author Suggestor:</b> '.$ematch['xsdmf_title'].'<br/>Loop: '.$ematch['xsdsel_title'].
+                              '<br/>Order: '.$ematch['xsdmf_order'].'<br/>XSDMF ID: '.$ematch['xsdmf_id'].
+                              '</span><img src="'.APP_RELATIVE_URL.'images/author_suggestor_16.png" />';
+                            break;
+                      case "conference_suggestor":
+                            $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.
+                                $ematch["xsdmf_xsdsel_id"].'" class="form_note"> <span class="form_note">'.$disabled_msg.
+                                '<b>Author Suggestor:</b> '.$ematch['xsdmf_title'].'<br/>Loop: '.$ematch['xsdsel_title'].
+                                '<br/>Order: '.$ematch['xsdmf_order'].'<br/>XSDMF ID: '.$ematch['xsdmf_id'].
+                                '</span><img src="'.APP_RELATIVE_URL.'images/author_suggestor_16.png" />';
+                              break;
                       case "static":
                         $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.
                             $ematch["xsdmf_xsdsel_id"].'" class="form_note"> <span class="form_note">'.$disabled_msg.
@@ -3617,7 +3645,7 @@ class Misc
         }
       } else {
         if (
-            ($i != '#text') && ($i != '#comment') && ($i != 'fez_nodetype') && ($i != 'fez_hyperlink') && 
+            ($i != '#text') && ($i != '#comment') && ($i != 'fez_nodetype') && ($i != 'fez_hyperlink') &&
             (!(is_array($i['fez_hyperlink'])))
         ) {
           if (!empty($j['fez_nodetype'])) {
@@ -3650,7 +3678,7 @@ class Misc
    * @param   string $x
    * @return  boolean
    */
-  function isInt ($x) 
+  function isInt ($x)
   {
     return (is_numeric($x) ? intval(0+$x) == $x : false);
   }
@@ -3777,7 +3805,7 @@ class Misc
   {
     $log = FezLog::get();
     $db = DB_API::get();
-    
+
     if (is_array($a)) {
       $b = $a;
       foreach ($a as $key => $value) {
@@ -3810,7 +3838,7 @@ class Misc
    * @param   array $a
    * @return  array
    */
-  function stripOneElementArrays($a) 
+  function stripOneElementArrays($a)
   {
     if (is_array($a)) {
       $k = array_keys($a);
@@ -3949,10 +3977,10 @@ class Misc
   {
     $log = FezLog::get();
     $db = DB_API::get();
-    
+
     $params = array(print_r($table, true),print_r($fields, true),print_r($map, true),print_r($restrict, true));
     $log->debug(array(print_r($params, true), __FILE__, __LINE__));
-    
+
     $wrote = array();
     foreach ($map as $xvalue => $dbvalue) {
       if ($dbvalue != $xvalue) {
@@ -3968,7 +3996,7 @@ class Misc
           }
           catch(Exception $ex) {
             $log->err($ex);
-          }					
+          }
           $wrote[$field][] = $dbvalue;
         }
       }
@@ -4007,7 +4035,7 @@ class Misc
     $errs = array(
         0=>"There is no error, the file uploaded with success",
         1=>"The uploaded file was too big", // "The uploaded file exceeds the upload_max_filesize directive in php.ini"
-        2=>"The uploaded file was too big", // "The uploaded file exceeds the MAX_FILE_SIZE directive that was 
+        2=>"The uploaded file was too big", // "The uploaded file exceeds the MAX_FILE_SIZE directive that was
                                             //  specified in the HTML form",
         3=>"The uploaded file was only partially uploaded",
         4=>"No file was uploaded",
@@ -4018,7 +4046,7 @@ class Misc
     }
     return @$errs[$e];
   }
-  
+
   function MySQLDate($dateArray)
   {
       $dteSql = array();
@@ -4026,10 +4054,10 @@ class Misc
       $dteSql[] = (isset($dateArray['Month'])) ? str_pad($dateArray['Month'], 2, '0', STR_PAD_LEFT) : '00';
       $dteSql[] = (isset($dateArray['Day'])) ? str_pad($dateArray['Day'], 2, '0', STR_PAD_LEFT) : '00';
       $dteSql = implode('-', $dteSql) . ' 00:00:00';
-      
+
       return $dteSql;
   }
-  
+
   function MySQLTZ($s)
   {
     $tz = new Date_TimeZone($s);
@@ -4105,7 +4133,7 @@ class Misc
       $var_2 = $V * ( 1 - $S * ( $var_h - $var_i ) );
       $var_3 = $V * ( 1 - $S * ( 1 - ( $var_h - $var_i ) ) );
       if ( $var_i == 0 ) {
-        $var_r = $V; $var_g = $var_3 ; $var_b = $var_1; 
+        $var_r = $V; $var_g = $var_3 ; $var_b = $var_1;
       } else if ( $var_i == 1 ) {
         $var_r = $var_2 ; $var_g = $V     ; $var_b = $var_1;
       } else {
@@ -4131,7 +4159,7 @@ class Misc
    *
    * @param   string      The path to the ZIP-file.
    * @param   string      The path where the zipfile should be unpacked, if false the directory of the zip-file is used
-   * @param   boolean     Indicates if the files will be unpacked in a directory with the name of the 
+   * @param   boolean     Indicates if the files will be unpacked in a directory with the name of the
    *                      zip-file (true) or not (false) (only if the destination directory is set to false!)
    * @param   boolean     Overwrite existing files (true) or not (false)
    *
@@ -4144,7 +4172,7 @@ class Misc
       if (!is_resource(zip_open($src_file))) {
         $src_file=dirname($_SERVER['SCRIPT_FILENAME'])."/".$src_file;
       }
-       
+
       if (is_resource($zip = zip_open($src_file))) {
         $splitter = ($create_zip_name_dir === true) ? "." : "/";
         if ($dest_dir === false) {
@@ -4174,7 +4202,7 @@ class Misc
             if ($overwrite === true || $overwrite === false && !is_file($file_name)) {
               // Get the content of the zip entry
               $fstream = zip_entry_read($zip_entry, zip_entry_filesize($zip_entry));
-               
+
               if (!is_dir($file_name)) {
                 file_put_contents($file_name, $fstream);
               }
@@ -4202,11 +4230,11 @@ class Misc
     } else {
       if (version_compare(phpversion(), "5.2.0", "<")) {
         $infoVersion="(use PHP 5.2.0 or later)";
-      }       
+      }
       echo "You need to install/enable the php_zip.dll extension $infoVersion";
     }
   }
-  
+
   /**
   * checks for user agent whether this is firefox or not
   * @param void
@@ -4225,7 +4253,7 @@ class Misc
       return true;
     }
     return false;
-  }	
+  }
 
   function create_dirs($path)
   {
@@ -4233,7 +4261,7 @@ class Misc
       $directory_path = "";
       $directories = explode("/", $path);
       array_pop($directories);
-      
+
       foreach ($directories as $directory) {
         $directory_path .= $directory."/";
         if (!is_dir($directory_path)) {
@@ -4301,33 +4329,33 @@ class Misc
     }
     return $variable;
   }
-  
+
   function redirect($url, $die = true)
   {
     $log = FezLog::get();
     $db = DB_API::get();
     FezLog::get()->close();
-    
+
     header('Location: ' . $url);
     if ($die) {
       exit;
     }
   }
-  
+
   /**
    * OpenURL() constructs an NISO Z39.88 compliant ContextObject for use in OpenURL links and COinS.  It returns
-   * the proper query string, which you must embed in a <span></span> thus:   * 
+   * the proper query string, which you must embed in a <span></span> thus:   *
    * <span class="Z3988" title="<?php print OpenURL($Document, $People) ?>">Content of your choice goes here</span>
-   * 
-   * This span will work with Zotero. You can also use the output of OpenURL() to link to your library's 
+   *
+   * This span will work with Zotero. You can also use the output of OpenURL() to link to your library's
    * OpenURL resolver, thus:
-   * <a href="http://www.lib.utexas.edu:9003/sfx_local?<?php print OpenURL($Document, $People); ?>" 
+   * <a href="http://www.lib.utexas.edu:9003/sfx_local?<?php print OpenURL($Document, $People); ?>"
    *    title="Search for a copy of this document in UT's libraries">Find it at UT!</a>
-   * 
+   *
    * Replace "http://www.lib.utexas.edu:9003/sfx_local?" with the correct resolver for your library.
-   * 
+   *
    * OpenURL() takes two arguments.
-   * 
+   *
    * $Document - a document object, having an array (fields) with the following properties:
    * $row["DocType"]
    *   1 = Article
@@ -4337,14 +4365,14 @@ class Misc
    *   5 = Unpublished PhD thesis
    *
    * $row["DocTitle"] - Title of the document.
-   * $row["JournalTitle"] - Title of the journal/magazine the article was published in, or false if 
+   * $row["JournalTitle"] - Title of the journal/magazine the article was published in, or false if
    *                        this is not an article.
-   * 
+   *
    * $row["BookTitle"] - Title of the book in which this item was published, or false if this is not a book item.
    *
-   * $row["Volume"] - The volume of the journal this article was published in as an integer, or false if this is not 
+   * $row["Volume"] - The volume of the journal this article was published in as an integer, or false if this is not
    *                  an article.  Optional.
-   * $row["JournalIssue"] - The issue of the journal this article was published in as an integer, or false if this is 
+   * $row["JournalIssue"] - The issue of the journal this article was published in as an integer, or false if this is
    *                        not an article.  Optional.
    * $row["JournalSeason"] Optional.
    *   The season of the journal this article was published in, as a string, where:
@@ -4353,14 +4381,14 @@ class Misc
    *     Fall
    *     Winter
    *     false = not applicable
-   * $row["JournalQuarter"] - The quarter of the journal this article was published in as an integer between 
+   * $row["JournalQuarter"] - The quarter of the journal this article was published in as an integer between
    *                          1 and 4, or false. Optional.
    * $row["ISSN"] - The volume of the journal this article was published in, or false.  Optional.
-   * 
+   *
    * $row["BookPublisher"] - The publisher of the book, or false. Optional.
    * $row["PubPlace"] - The publication place, or false.  Optional.
    * $row["ISBN"] - The ISBN of the book.  Optional but highly recommended.
-   * 
+   *
    * $row["StartPage"] - Start page for the article or item, or false if this is a complete book.
    * $row["EndPage"] - End page for the article or item, or false if this is a complete book.
    *
@@ -4385,20 +4413,20 @@ class Misc
     }
     if ($DocType  == "Book") {
       $URL .= "&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook";
-    }   
+    }
     // An ID for your application.  Replace yoursite.com and specify a name for your application.
-    $URL .= "&amp;rfr_id=info%3Asid%2F".APP_HOSTNAME."%3A".APP_NAME;   
+    $URL .= "&amp;rfr_id=info%3Asid%2F".APP_HOSTNAME."%3A".APP_NAME;
     // Document Genre
     $URL .= "&amp;rft.genre=".str_replace(" ", "", strtolower($DocType));
     // Document Title
-    $URL .= "&amp;rft.atitle=".urlencode($row["rek_title"]);    
+    $URL .= "&amp;rft.atitle=".urlencode($row["rek_title"]);
     // Publication Title
     if ($DocType == "Journal Article") {
       $URL .= "&amp;rft.jtitle=".urlencode($row["rek_journal_name"]);
     }
     if ($DocType == "Book Chapter") {
       $URL .= "&amp;rft.btitle=".urlencode($row["rek_book_title"]);
-    }   
+    }
     // Volume, Issue, Season, Quarter, and ISSN (for journals)
     if ($DocType == "Journal Article") {
       if ($row["rek_volume"]) {
@@ -4410,33 +4438,33 @@ class Misc
       if ($row["rek_issn"]) {
         $URL .= "&amp;rft.quarter=".urlencode($row["rek_issn"]);
       }
-    }   
+    }
     // Publisher, Publication Place, and ISBN (for books)
     if ($DocType == "Book") {
       $URL .= "&amp;rft.pub=".urlencode($row["rek_publisher"]);
       $URL .= "&amp;rft.place=".urlencode($row["rek_place_of_publication"]);
       $URL .= "&amp;rft.isbn=".urlencode($row["rek_isbn"]);
-    }   
+    }
     if ($row["rek_start_page"]) {
-      $URL .= "&amp;rft.spage=".urlencode($row["rek_start_page"]); 
+      $URL .= "&amp;rft.spage=".urlencode($row["rek_start_page"]);
     }
     if ($row["rek_end_page"]) {
       $URL .= "&amp;rft.epage=".urlencode($row["rek_end_page"]);
-    }   
+    }
     // Publication year.
-    $URL .= "&amp;rft.date=".date("Y", strtotime($row["rek_date"]));   
+    $URL .= "&amp;rft.date=".date("Y", strtotime($row["rek_date"]));
     // Authors
     $i = 0;
     while ($row["rek_author"][$i]) {
       $URL .= "&amp;rft.au=".urlencode($row["rek_author"][$i]);
       $i++;
-    }   
+    }
     return $URL;
   }
-  
+
   /**
    * Generates a password
-   * 
+   *
    * @param $num_alpha The number of alpha characters to include in the password
    * @param $num_numeric The number of numerals to include
    * @param $num_symbols The number of symbols to include
@@ -4445,32 +4473,32 @@ class Misc
   public static function generatePassword($num_alpha = 8, $num_numeric = 0, $num_symbols=0)
   {
     $list_alpha = 'bcdfghjkmnpqrstvwxyzBCFGHJKMNPQRSTVWXYZ';
-    $list_numeric = '0123456789';	  	
+    $list_numeric = '0123456789';
     $list_symbols = '!@#$%^*()~`{}[]|\&_';
-    
+
     return str_shuffle(
         substr(str_shuffle($list_alpha), 0, $num_alpha) .
         substr(str_shuffle($list_numeric), 0, $num_numeric) .
         substr(str_shuffle($list_symbols), 0, $num_symbols)
     );
   }
-  
+
   /**
    * Adds the record to Fedora
-   * 
+   *
    * @param $record The WoS record to add to Fedora
    * @param $author_id (OPTIONAL) The author id of one of the authors on the records
-   * 
+   *
    * @return bool True if succeeded otherwise false
    */
-  public static function convertEstiRecordToMods($record, $author_id = false) 
+  public static function convertEstiRecordToMods($record, $author_id = false)
   {
     $log = FezLog::get();
-      
+
     // Get the ESTI document type to eSpace type and eSpace sub-type mappings
     $doc_type_mappings = Thomson_Doctype_Mappings::getList('ESTI');
     foreach ($doc_type_mappings as $mapping) {
-      $doc_type_mapping[$mapping['tdm_doctype']] = array($mapping['xdis_title'], $mapping['tdm_subtype']); 
+      $doc_type_mapping[$mapping['tdm_doctype']] = array($mapping['xdis_title'], $mapping['tdm_subtype']);
     }
 
     $doc_type = $record->item->doctype->attributes()->code;
@@ -4479,7 +4507,7 @@ class Misc
       $log->err('Unsupported doc type when converting ESTI record to MODS:'.$doc_type);
       return false;
     }
-    
+
     $date_issued = '';
     if (@$record->item->attributes()->coverdate) {
       preg_match('/(\d{4})(\d{2})/', $record->item->attributes()->coverdate, $matches);
@@ -4495,27 +4523,27 @@ class Misc
         }
       }
     }
-    
+
     $_record = $record->item;
     unset($record);
     $record = $_record;
     unset($_record);
-    
+
     $item_title = htmlspecialchars($record->item_title, ENT_QUOTES);
     $source_title = htmlspecialchars($record->source_title, ENT_QUOTES);
-    
+
     $author_lname = '';
     $authors_matching_count = 0;
     $authors_matching_index = 0;
-    
+
     if ($author_id) {
-      $author_lname = strtolower(Author::getLastname($author_id));	
+      $author_lname = strtolower(Author::getLastname($author_id));
     }
-  
+
     // MODS
     $mods = array();
     $mods['titleInfo']['title'] = $item_title;
-    
+
     $mods['name'][0]['id'] = '0';
     $mods['name'][0]['authority'] = APP_ORG_NAME;
     $mods['name'][0]['namePart_personal'] = $record->authors->primaryauthor;
@@ -4523,13 +4551,13 @@ class Misc
 
     // Attempt to match on last name
     if (
-        (!empty($author_lname)) && 
+        (!empty($author_lname)) &&
         preg_match('/^'.$author_lname.'/', strtolower($mods['name'][0]['namePart_personal']))
     ) {
       $authors_matching_count++;
       $authors_matching_index = 0;
     }
-   
+
     $i = 1;
     foreach ($record->authors->author as $author) {
       $mods['name'][$i]['id'] = '0';
@@ -4538,7 +4566,7 @@ class Misc
       $mods['name'][$i]['role']['roleTerm_text'] = 'author';
       // Attempt to match on last name
       if (
-          (!empty($author_lname)) && 
+          (!empty($author_lname)) &&
           preg_match('/^'.$author_lname.'/', strtolower($mods['name'][$i]['namePart_personal']))
       ) {
          $authors_matching_count++;
@@ -4549,16 +4577,16 @@ class Misc
     if ($authors_matching_count == 1) {
       $mods['name'][$authors_matching_index]['id'] = $author_id;
     }
-    
+
     $i = 0;
-    if (count($record->keywords->keyword) > 0) {		    
+    if (count($record->keywords->keyword) > 0) {
       foreach ($record->keywords->keyword as $keyword) {
         $mods['subject'][$i]['authority'] = 'keyword';
         $mods['subject'][$i]['topic'] = $keyword;
         $i++;
       }
-    }   
-    if (count($record->keywords_plus->keyword) > 0) {		 
+    }
+    if (count($record->keywords_plus->keyword) > 0) {
       foreach ($record->keywords_plus->keyword as $keyword) {
         $mods['subject'][$i]['authority'] = 'keyword';
         $mods['subject'][$i]['topic'] = $keyword;
@@ -4570,19 +4598,19 @@ class Misc
     $mods['language'] = Language::resolveWoSLanguage($record->languages->primarylang);
     $mods['genre'] = $doc_type_mapping[$doc_type][0];
     $mods['genre_type'] = $doc_type_mapping[$doc_type][1];
-        
+
     if ($doc_type == 'MC' || $doc_type == 'M') {
       // Conference item
       $mods['originInfo']['dateIssued'] = $date_issued;
       $mods['relatedItem']['titleInfo']['title'] = $record->source_title;
       $mods['relatedItem']['originInfo']['dateOther'] = $record->conferences->conference->conf_date;
-      $mods['relatedItem']['originInfo']['place']['placeTerm'] =  
-          $record->conferences->conference->conf_location->conf_city . ' ' . 
+      $mods['relatedItem']['originInfo']['place']['placeTerm'] =
+          $record->conferences->conference->conf_location->conf_city . ' ' .
           $record->conferences->conference->conf_location->conf_state;
-      
+
       $mods['relatedItem']['name'][0]['namePart_type'] = 'conference';
       $mods['relatedItem']['name'][0]['namePart'] = $record->conferences->conference->conf_title;
-      preg_match('/\(([^\)]+)\):/', $record->bib_id, $matches);    	
+      preg_match('/\(([^\)]+)\):/', $record->bib_id, $matches);
       if (count($matches) == 2) {
         $mods['relatedItem']['part']['detail_issue']['number'] = $matches[1];
       }
@@ -4592,21 +4620,21 @@ class Misc
         if (count($pages) == 2) {
           $mods['relatedItem']['part']['extent_page']['start'] = $pages[0];
           $mods['relatedItem']['part']['extent_page']['end'] = $pages[1];
-          $mods['relatedItem']['part']['extent_page']['total'] = $pages[1] - $pages[0];	    		
+          $mods['relatedItem']['part']['extent_page']['total'] = $pages[1] - $pages[0];
         }
       }
     } else if ($doc_type == '$' || $doc_type == 'P' || $doc_type == 'U') {
       // Conference paper
       $mods['originInfo']['publisher'] = $record->book_desc->bk_publisher;
-      $mods['originInfo']['dateIssued'] = $date_issued;			
+      $mods['originInfo']['dateIssued'] = $date_issued;
       $mods['relatedItem']['titleInfo']['title'] = $record->source_title;
       $mods['relatedItem']['name'][0]['namePart_type'] = 'conference';
       $mods['relatedItem']['name'][0]['namePart'] = $record->conferences->conference->conf_title;
-      $mods['relatedItem']['originInfo']['place']['placeTerm'] =  
-          $record->conferences->conference->conf_location->conf_city . ' ' . 
+      $mods['relatedItem']['originInfo']['place']['placeTerm'] =
+          $record->conferences->conference->conf_location->conf_city . ' ' .
           $record->conferences->conference->conf_location->conf_state;
       $mods['relatedItem']['originInfo']['dateOther'] = $record->conferences->conference->conf_date;
-      preg_match('/\(([^\)]+)\):/', $record->bib_id, $matches);    	
+      preg_match('/\(([^\)]+)\):/', $record->bib_id, $matches);
       if (count($matches) == 2) {
         $mods['relatedItem']['part']['detail_issue']['number'] = $matches[1];
       }
@@ -4616,15 +4644,15 @@ class Misc
         if (count($pages) == 2) {
           $mods['relatedItem']['part']['extent_page']['start'] = $pages[0];
           $mods['relatedItem']['part']['extent_page']['end'] = $pages[1];
-          $mods['relatedItem']['part']['extent_page']['total'] = $pages[1] - $pages[0];	    		
+          $mods['relatedItem']['part']['extent_page']['total'] = $pages[1] - $pages[0];
         }
       }
-    } else {			
+    } else {
       // Journal Article
       $mods['relatedItem']['originInfo']['dateIssued'] = $date_issued;
       $mods['relatedItem']['name'][0]['namePart_type'] = 'journal';
       $mods['relatedItem']['name'][0]['namePart'] = $source_title;
-      preg_match('/\(([^\)]+)\):/', $record->bib_id, $matches);    	
+      preg_match('/\(([^\)]+)\):/', $record->bib_id, $matches);
       if (count($matches) == 2) {
         $mods['relatedItem']['part']['detail_issue']['number'] = $matches[1];
       }
@@ -4639,33 +4667,33 @@ class Misc
     }
     return $mods;
   }
-  
+
   /**
    * Converts as ESTI record to a links array for inserting into foxml
-   * 
+   *
    * @param $record The WoS record to add to Fedora
-   * 
+   *
    * @return array
    */
-  public static function convertEstiRecordToLinks($record) 
+  public static function convertEstiRecordToLinks($record)
   {
     $log = FezLog::get();
-    
+
     $links = array();
-    if (@$record->item->article_nos->article_no) {      
+    if (@$record->item->article_nos->article_no) {
       // Currently extract DOI links only
       $doi = $record->item->article_nos->article_no;
       $doi = "$doi";
       preg_match('/^DOI (\d{2})\.(\d{4})\/(.*)$/', $doi, $matches);
       if (count($matches) == 4) {
         $links[0]['url'] = 'http://dx.doi.org/' . $matches[1] . '.' . $matches[2] . '/' .$matches[3];
-        // 2010-04-07 MT: default to link_1 because this is currently only called by functions that 
+        // 2010-04-07 MT: default to link_1 because this is currently only called by functions that
         // deal with new records
         $links[0]['id'] = 'link_1';
         $links[0]['created'] = date('c');
-        $links[0]['name'] = 'Link to Full Text (DOI)'; 
+        $links[0]['name'] = 'Link to Full Text (DOI)';
       }
-    }		
+    }
     return $links;
   }
 
@@ -4680,15 +4708,15 @@ class Misc
     $workflowsCount = WorkflowStatusStatic::getCountForPid($pid);
     $bgpsCount = BackgroundProcessPids::getCountForPid($pid);
     $fulltextQueueDetails = FulltextQueue::getDetailsForPid($pid);
-    
+
     // if we don't need to do anything, return empty string to calling function
     if ($workflowsCount == 0 && $bgpsCount == 0 && count($fulltextQueueDetails) == 0)
       return "";
-    
+
     $outputString = "There";
     $outputStarted = false;
-    
-    $workflowsString = '';	
+
+    $workflowsString = '';
     if ($workflowsCount) {
       $plural = $workflowsCount == 1 ? '' : 's';
       $wfPrefix = $workflowsCount == 1 ? 'is' : 'are';
@@ -4696,7 +4724,7 @@ class Misc
       $outputString .= " {$wfPrefix} <strong>{$workflowsString}</strong>";
       $outputStarted = true;
     }
-    
+
     $bgpsString = '';
     if ($bgpsCount) {
       $plural = $bgpsCount == 1 ? '' : 'es';
@@ -4717,12 +4745,12 @@ class Misc
     $countFulltextQueue = count($fulltextQueueDetails);
     if ($countFulltextQueue) {
       if ($countFulltextQueue == 1) {
-        $operation = $fulltextQueueDetails[0]['operation'] == FulltextQueue::ACTION_INSERT ? 
+        $operation = $fulltextQueueDetails[0]['operation'] == FulltextQueue::ACTION_INSERT ?
             'insertion into' : 'deletion from';
       } else {
         $operation = 'insertion into and deletion from';
       }
-      
+
       $ftqString = "This item is queued for <strong>{$operation}</strong> SOLR.";
       if ($outputStarted) {
         $outputString .= " {$ftqString}";
@@ -4730,7 +4758,7 @@ class Misc
         // replace the whold string
         $outputString = $ftqString;
       }
-      
+
     }
 
     return $outputString;
