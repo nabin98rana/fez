@@ -49,6 +49,7 @@ include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.fedora_api.php");
 include_once(APP_INC_PATH . "class.date.php");
 include_once(APP_INC_PATH . "class.masquerade.php");
+include_once(APP_INC_PATH . "class.auth_no_fedora_datastreams.php");
 
 global $NonRestrictedRoles;
 $NonRestrictedRoles = array("Viewer","Lister","Comment_Viewer");
@@ -128,6 +129,7 @@ class Auth
 		// if the current session is still valid, then renew the expiration
 		Auth::createLoginSession($ses['username'], $ses['fullname'], $ses['email'], $ses['distinguishedname'], $ses['autologin'], $ses['acting_username']);
 	}
+
 
 
 	/**
@@ -771,10 +773,11 @@ class Auth
 		$userPIDAuthGroups = $NonRestrictedRoles;
 		$usingDS = false;
 		$acmlBase = false;
+ 		if ($dsID != "") {
 
-		if ($dsID != "") {
-			$usingDS = true;
-			$acmlBase = Record::getACML($pid, $dsID);
+        $usingDS = true;
+        $acmlBase = Record::getACML($pid, $dsID);
+
 		}
 
 		// if no FezACML exists for a datastream then it must inherit from the pid object
@@ -793,21 +796,21 @@ class Auth
 
 			$ACMLArray[0] = $acmlBase;
 
+
 			// Check if it inherits security
-			$xpath = new DOMXPath($acmlBase);
-			$anyRuleSearch = $xpath->query('/FezACML/rule/role/*[string-length(normalize-space()) > 0]');
-			if ($anyRuleSearch->length == 0) {
+                $xpath = new DOMXPath($acmlBase);
+                $anyRuleSearch = $xpath->query('/FezACML/rule/role/*[string-length(normalize-space()) > 0]');
+                if ($anyRuleSearch->length == 0) {
 
-				$inherit = true;
+                    $inherit = true;
 
-			} else {
-				$inheritSearch = $xpath->query('/FezACML[inherit_security="on" or inherit_security=""]');
+                } else {
+                    $inheritSearch = $xpath->query('/FezACML[inherit_security="on" or inherit_security=""]');
 
-				if( $inheritSearch->length > 0 ) {
-					$inherit = true;
-				}
-			}
-
+                    if( $inheritSearch->length > 0 ) {
+                        $inherit = true;
+                    }
+                }
 			if ($inherit == true) { // if need to inherit, check if at dsID level or not first and then
 
         if ($dsID != '' && $acmlBase != false) {
@@ -2621,5 +2624,432 @@ class Auth
 		
 		return;
 	}
+}
 
+class AuthNoFedora {
+
+    //delete a security permission given parameters if found
+    function deleteRoleSecurityPermissions($pid, $role, $arg_id, $inherited = '0') {
+        //todo check user has permissions
+
+        $log = FezLog::get();
+      	$db = DB_API::get();
+
+        if ( $inherited == '0') {
+        $stmt = "DELETE FROM ". APP_TABLE_PREFIX . "auth_index2_not_inherited
+                    WHERE authii_pid = ".$db->quote($pid). "AND
+                    authii_role = ". $db->quote($role). " AND
+                    authii_arg_id = ".$db->quote($arg_id);
+        } else {
+        $stmt = "DELETE FROM ". APP_TABLE_PREFIX . "auth_index2
+                    WHERE authi_pid = ".$db->quote($pid). "AND
+                    authi_role = ". $db->quote($role). " AND
+                    authi_arg_id = ".$db->quote($arg_id);
+        }
+
+        try {
+        	$res = $db->fetchAll($stmt);
+        }
+        catch(Exception $ex) {
+        	$log->err($ex);
+        	return array();
+        }
+    }
+
+    function addRoleSecurityPermissions($pid, $role, $arg_id, $inherited = '0') {
+        $log = FezLog::get();
+      	$db = DB_API::get();
+
+        if ( $inherited == '0') {
+            $stmt = "INSERT INTO ". APP_TABLE_PREFIX . "auth_index2_not_inherited (authii_pid, authii_role, authii_arg_id)
+                    VALUES (". $db->quote($pid).",".$db->quote($role).",".$db->quote($arg_id).")";
+        } else {
+            $stmt = "INSERT INTO ". APP_TABLE_PREFIX . "auth_index2 (authi_pid, authi_role, authi_arg_id)
+                    VALUES (". $db->quote($pid).",".$db->quote($role).",".$db->quote($arg_id). ")";
+        }
+
+        try {
+        	$res = $db->fetchAll($stmt);
+        }
+        catch(Exception $ex) {
+        	$log->err($ex);
+        	return array();
+        }
+    }
+
+    //Find all information for the security changing screen
+    function getSecurityPermissionsDisplay($pid) {
+        $log = FezLog::get();
+      	$db = DB_API::get();
+
+        $stmt = "SELECT *, 0 as inherited FROM ". APP_TABLE_PREFIX . "auth_index2_not_inherited
+            LEFT JOIN ". APP_TABLE_PREFIX . "auth_roles
+            ON authii_role = aro_id
+            LEFT JOIN ". APP_TABLE_PREFIX . "auth_rule_group_rules
+            ON argr_arg_id = authii_arg_id
+            LEFT JOIN ". APP_TABLE_PREFIX . "auth_rules
+            ON ar_id = argr_ar_id
+            LEFT JOIN ". APP_TABLE_PREFIX . "group
+            ON ar_value = grp_id
+            LEFT JOIN ". APP_TABLE_PREFIX . "user
+            ON ar_value = usr_id
+            WHERE authii_pid = ".$db->quote($pid);
+        try {
+        	$res = $db->fetchAll($stmt);
+        }
+        catch(Exception $ex) {
+        	$log->err($ex);
+        	return array();
+        }
+
+        $stmt = "SELECT *, 1 as inherited FROM ". APP_TABLE_PREFIX . "auth_index2
+            LEFT JOIN ". APP_TABLE_PREFIX . "auth_roles
+            ON authi_role = aro_id
+            LEFT JOIN ". APP_TABLE_PREFIX . "auth_rule_group_rules
+            ON argr_arg_id = authi_arg_id
+            LEFT JOIN ". APP_TABLE_PREFIX . "auth_rules
+            ON ar_id = argr_ar_id
+            LEFT JOIN ". APP_TABLE_PREFIX . "group
+            ON ar_value = grp_id
+            LEFT JOIN ". APP_TABLE_PREFIX . "user
+            ON ar_value = usr_id
+            WHERE authi_pid = ".$db->quote($pid);
+        try {
+        	$res2 = $db->fetchAll($stmt);
+        }
+        catch(Exception $ex) {
+        	$log->err($ex);
+        	return array();
+        }
+
+        $results = $res;
+        foreach ($res2 as $row2) {
+            $unique = true;
+            foreach ($res as $row) {
+                if (($row[authii_role] == $row2[authi_role]) && ($row[ar_id] == $row2[ar_id])){
+                    $unique = false;
+                }
+            }
+            if ($unique) {
+                $results[] = $row2;
+            }
+        }
+        $res = $results;
+
+        $row=array();
+        for ($i=0; $i<count($res); $i++)
+        {
+            //Breaks the rule up ie. !rule!role!AD_User -> AD_User
+            $pieces = explode("!", $res[$i]['ar_rule']);
+            $res[$i]['ar_rule_value'] = (count($pieces) == 4) ? $pieces[3] : $res[$i]['ar_rule'];
+
+            //Finds names for the groups and users is applicable
+            if($res[$i]['ar_rule_value'] == "Fez_Group")
+            {
+                $res[$i]['ar_value_value']=$res[$i]['grp_title'];
+            } elseif ($res[$i]['ar_rule_value'] == "Fez_User") {
+                $res[$i]['ar_value_value']= $res[$i]['usr_full_name'];
+            } else
+            {
+                $res[$i]['ar_value_value'] = $res[$i]['ar_value'];
+            }
+            //unique row id for security table
+            $res[$i]['row'] = $res[$i]['authii_role'].",".$res[$i]['ar_id'];
+        }
+
+        return $res;
+    }
+
+    //Does the object inherit permissions from parent
+    function isInherited($pid) {
+        $log = FezLog::get();
+      	$db = DB_API::get();
+
+        $stmt = "SELECT rek_security_inherited
+                FROM ". APP_TABLE_PREFIX . "record_search_key
+                WHERE rek_pid = ".$db->quote($pid);
+
+        try {
+      			$res = $db->fetchOne($stmt);
+      		}
+        catch(Exception $ex) {
+            $log->err($ex);
+            return array();
+        }
+
+        return $res;
+    }
+
+        //Does the object inherit permissions from parent
+    function isWatermarked($pid, $dsID='') {
+        $log = FezLog::get();
+      	$db = DB_API::get();
+
+        $stmt = "SELECT watermark
+                FROM ". APP_TABLE_PREFIX . "file_attachments
+                WHERE pid = ".$db->quote($pid)."
+                AND filename = ".$db->quote($dsID);
+
+        try {
+      			$res = $db->fetchOne($stmt);
+      		}
+        catch(Exception $ex) {
+            $log->err($ex);
+            return array();
+        }
+
+        return $res;
+    }
+        //Does the object inherit permissions from parent
+    function isCopyrighted($pid) {
+        $log = FezLog::get();
+      	$db = DB_API::get();
+
+        $stmt = "SELECT copyright
+                FROM ". APP_TABLE_PREFIX . "file_attachments
+                WHERE pid = ".$db->quote($pid)."
+                AND filename = ".$db->quote($dsID);
+
+        try {
+      			$res = $db->fetchOne($stmt);
+      		}
+        catch(Exception $ex) {
+            $log->err($ex);
+            return array();
+        }
+
+        return $res;
+    }
+
+        //set inherit permissions
+    function setInherited($pid) {
+        $log = FezLog::get();
+      	$db = DB_API::get();
+
+        $stmt = "UPDATE ". APP_TABLE_PREFIX . "record_search_key
+                SET rek_security_inherited = '1'
+                WHERE rek_pid = ".$db->quote($pid);
+
+        try {
+      			$res = $db->exec($stmt);
+      		}
+        catch(Exception $ex) {
+            $log->err($ex);
+            return array();
+        }
+
+        AuthNoFedora::recalculatePermissions($pid);
+        return $res;
+    }
+
+    function deleteInherited($pid) {
+            $log = FezLog::get();
+            $db = DB_API::get();
+
+            $stmt = "UPDATE ". APP_TABLE_PREFIX . "record_search_key
+                    SET rek_security_inherited = '0'
+                    WHERE rek_pid = ".$db->quote($pid);
+
+            try {
+                    $res = $db->exec($stmt);
+                }
+            catch(Exception $ex) {
+                $log->err($ex);
+                return array();
+            }
+
+            AuthNoFedora::recalculatePermissions($pid);
+            return $res;
+        }
+
+    function getAllGroupTypes()
+    {
+        return array('AD_Group' => 'AD_Group',
+                    'in_AD' => 'in_AD',
+                    'in_Fez' => 'in_Fez',
+                    'AD_User' => 'AD_User',
+                    'AD_DistinguishedName' => 'AD_DistinguishedName',
+                    'eduPersonTargetedID'  => 'eduPersonTargetedID',
+                    'eduPersonAffiliation'  => 'eduPersonAffiliation',
+                    'eduPersonScopedAffiliation'  => 'eduPersonScopedAffiliation',
+                    'eduPersonPrimaryAffiliation'  => 'eduPersonPrimaryAffiliation',
+                    'eduPersonPrincipalName'  => 'eduPersonPrincipalName',
+                    'eduPersonOrgUnitDN'  => 'eduPersonOrgUnitDN',
+                    'eduPersonOrgDN' => 'eduPersonOrgDN',
+                    'eduPersonPrimaryOrgUnitDN' => 'eduPersonPrimaryOrgUnitDN',
+                    'Fez_Group' => 'Fez_Group',
+                    'Fez_User' => 'Fez_User'
+                 );
+
+    }
+
+    function getAllSecurityPermissions($pid) {
+        $log = FezLog::get();
+      	$db = DB_API::get();
+
+        $stmt = "SELECT authi_role, argr_ar_id FROM ". APP_TABLE_PREFIX . "auth_index2
+            LEFT JOIN ". APP_TABLE_PREFIX . "auth_rule_group_rules
+            ON argr_arg_id = authi_arg_id
+            WHERE authi_pid = ".$db->quote($pid);
+        try {
+        	$res = $db->fetchAll($stmt);
+        }
+        catch(Exception $ex) {
+        	$log->err($ex);
+        	return array();
+        }
+
+         return $res;
+    }
+
+    function getNonInheritedSecurityPermissions($pid, $role=null) {
+        $log = FezLog::get();
+      	$db = DB_API::get();
+
+        if (empty($role)) {
+            $stmt = "SELECT authii_role, argr_ar_id FROM ". APP_TABLE_PREFIX . "auth_index2_not_inherited
+                LEFT JOIN ". APP_TABLE_PREFIX . "auth_rule_group_rules
+                ON argr_arg_id = authii_arg_id
+                WHERE authii_pid = ".$db->quote($pid);
+        } else {
+            $stmt = "SELECT authii_role, argr_ar_id FROM ". APP_TABLE_PREFIX . "auth_index2_not_inherited
+                LEFT JOIN ". APP_TABLE_PREFIX . "auth_rule_group_rules
+                ON argr_arg_id = authii_arg_id
+                WHERE authii_pid = ".$db->quote($pid)."
+                AND authii_role = ".$db->quote($role);
+        }
+        try {
+        	$res = $db->fetchAll($stmt);
+        }
+        catch(Exception $ex) {
+        	$log->err($ex);
+        	return array();
+        }
+
+         return $res;
+    }
+
+    function getParentsACML($pid) {
+        $parentPermissions = array();
+
+        if (AuthNoFedora::isInherited($pid)){
+            $parentPids = Record::getParents($pid);
+            foreach($parentPids as $parentPid) {
+                $tempParentPermissions = AuthNoFedora::getAllSecurityPermissions($parentPid);
+                $parentPermissions = array_merge($parentPermissions, $tempParentPermissions);
+            }
+        }
+        return $parentPermissions;
+    }
+
+    //This assumes parent or non inherited data might be changed
+    function recalculatePermissions($pid)
+    {
+        //Todo child permissions
+        //$pidPermisisons = AuthNoFedora::getAllSecurityPermissions($pid);
+        $pidParentPermisisons = AuthNoFedora::getParentsACML($pid);
+        $pidNonInheritedPermisisons = AuthNoFedora::getNonInheritedSecurityPermissions($pid);
+        $pidCaculatedPermissions = array_merge($pidParentPermisisons,$pidNonInheritedPermisisons);
+        //$temp = array_diff($pidCaculatedPermissions, $pidPermisisons);
+
+        foreach($pidCaculatedPermissions as $pidCaculatedPermission) {
+            if ($pidCaculatedPermission[authi_role]) {
+                $newGroups[$pidCaculatedPermission[authi_role]][] = $pidCaculatedPermission[argr_ar_id];
+            } else{
+                $newGroups[$pidCaculatedPermission[authii_role]][] = $pidCaculatedPermission[argr_ar_id];
+            }
+        }
+
+       // foreach($pidPermissions as $pidPermission) {
+        //    $oldGroups[$pidPermission[authi_role]][] = $pidPermission[argr_ar_id];
+       // }
+
+        //if ($newGroups !=  $oldGroups) {
+
+            AuthNoFedora::deletePermissions($pid);
+            foreach ($newGroups as $role => $newGroup) {
+                $arg_id = AuthRules::getOrCreateRuleGroupArIds($newGroup);
+                AuthNoFedora::addRoleSecurityPermissions($pid, $role, $arg_id, '1');
+            }
+
+        //AuthNoFedoraDatastreams::recalculateDatastreamPermissions($pid);
+       // }
+        //$inheritedPermissions = array_diff($pidParentPermisisons, $pidPermisisons);
+        //AuthNoFedora::addRoleSecurityPermissions($pid, $inheritedPermissions, 1);
+    }
+
+    function deletePermissions($pid, $inherited = '1', $role=null)
+    {
+        $log = FezLog::get();
+      	$db = DB_API::get();
+
+        if (empty($role)){
+            if ( $inherited == '0') {
+                $stmt = "DELETE FROM ". APP_TABLE_PREFIX . "auth_index2_not_inherited
+                            WHERE authii_pid = ".$db->quote($pid);
+            } else {
+                $stmt = "DELETE FROM ". APP_TABLE_PREFIX . "auth_index2
+                            WHERE authi_pid = ".$db->quote($pid);
+            }
+        } else
+        {
+            if ( $inherited == '0') {
+                $stmt = "DELETE FROM ". APP_TABLE_PREFIX . "auth_index2_not_inherited
+                            WHERE authii_pid = ".$db->quote($pid)." AND authii_role = ".$db->quote($role);
+            } else {
+                $stmt = "DELETE FROM ". APP_TABLE_PREFIX . "auth_index2
+                            WHERE authi_pid = ".$db->quote($pid)." AND authi_role = ".$db->quote($role);
+            }
+        }
+
+        try {
+        	$res = $db->fetchAll($stmt);
+        }
+        catch(Exception $ex) {
+        	$log->err($ex);
+        	return array();
+        }
+    }
+
+    function addSecurityPermissions($pid, $role, $ar_id) {
+        $log = FezLog::get();
+      	$db = DB_API::get();
+
+        $pidNonInheritedPermisisons = AuthNoFedora::getNonInheritedSecurityPermissions($pid, $role);
+        $oldGroups[$pidPermission[authi_role]][] = $pidPermission[argr_ar_id];
+        $new = array(array('authi_role' => $role, 'argr_ar_id' => $ar_id ));
+        $pidNewPermissions = array_merge($new,$pidNonInheritedPermisisons);
+        foreach($pidNewPermissions as $pidNewPermission) {
+            $newGroup[] = $pidNewPermission[argr_ar_id];
+        }
+
+        AuthNoFedora::deletePermissions($pid, '0', $role);
+        $arg_id = AuthRules::getOrCreateRuleGroupArIds($newGroup);
+        AuthNoFedora::addRoleSecurityPermissions($pid, $role, $arg_id, '0');
+
+        //Added non inherited permissions now need to recalculate global permisisons
+        AuthNoFedora::recalculatePermissions($pid);
+    }
+
+    function deleteSecurityPermissions($pid, $role, $ar_id) {
+        $log = FezLog::get();
+      	$db = DB_API::get();
+
+        $pidNonInheritedPermisisons = AuthNoFedora::getNonInheritedSecurityPermissions($pid, $role);
+
+        $newGroup = array();
+        foreach($pidNonInheritedPermisisons as $pidNonInheritedPermisison) {
+            if ($pidNonInheritedPermisison[argr_ar_id] != $ar_id) {
+                $newGroup[] = $pidNonInheritedPermisison[argr_ar_id];
+            }
+        }
+
+        AuthNoFedora::deletePermissions($pid, 0, $role);
+        $arg_id = AuthRules::getOrCreateRuleGroupArIds($newGroup);
+        if ($arg_id) {
+            AuthNoFedora::addRoleSecurityPermissions($pid, $role, $arg_id, '0');
+        }
+        //Added non inherited permissions now need to recalculate global permisisons
+        AuthNoFedora::recalculatePermissions($pid);
+    }
 }

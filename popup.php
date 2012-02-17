@@ -200,15 +200,16 @@ switch ($cat)
             $wfstatus = WorkflowStatusStatic::getSession($id); // restores WorkflowStatus object from the session
             $pid = $wfstatus->pid;
             $dsID = $wfstatus->dsID;
+
 			if ($dsID != "") {
-	            $res = Record::editDatastreamSecurity($pid, $dsID);			
-			} else { 
+	            $res = Record::editDatastreamSecurity($pid, $dsID);
+             } else {
 	            $res = Record::update($pid, array(""), array("FezACML"));
 			}
             $tpl->assign("update_form_result", $res);
             $wfstatus->checkStateChange(true);
             break;
-        }		
+        }
     case 'purge_object':
         {
 			if ($isAdministrator) {
@@ -355,6 +356,46 @@ switch ($cat)
         $wfstatus->checkStateChange(true);
         break;
     }
+
+    case 'update_security_fedora_bypass':
+        {
+            $id = $_REQUEST['id'];
+            $toDeletes = $_REQUEST['items'];
+            $role = $_REQUEST['role'];
+            $groupsType = $_REQUEST['groups_type'];
+            $group = $_REQUEST['group'];
+            $did = $_REQUEST['did'];
+            $wfstatus = WorkflowStatusStatic::getSession($id); // restores WorkflowStatus object from the session
+            $pid = $wfstatus->pid;
+            //$dsID = $wfstatus->dsID;
+
+			if ($did != "") {
+                if(is_array($toDeletes)){
+                    foreach((array)$toDeletes as $toDelete) {
+                        $toDeleteinfo = explode(",", $toDelete);
+                        AuthNoFedoraDatastreams::deleteSecurityPermissions($did, $toDeleteinfo[0] , $toDeleteinfo[1]);
+                    }
+                }
+                if(!empty($group)){
+                    $arId = AuthRules::getOrCreateRule("!rule!role!".$groupsType, $group);
+                    AuthNoFedoraDatastreams::addSecurityPermissions($did, $role, $arId);
+                }
+			} else {
+                if(is_array($toDeletes)){
+                    foreach((array)$toDeletes as $toDelete) {
+                        $toDeleteinfo = explode(",", $toDelete);
+                        AuthNoFedora::deleteSecurityPermissions($pid, $toDeleteinfo[0] , $toDeleteinfo[1]);
+                    }
+                }
+                if(!empty($group)){
+                    $arId = AuthRules::getOrCreateRule("!rule!role!".$groupsType, $group);
+                    AuthNoFedora::addSecurityPermissions($pid, $role, $arId);
+                }
+			}
+            $tpl->assign("update_form_result", $res);
+            $wfstatus->checkStateChange(true);
+            break;
+        }
 }
 
 $tpl->assign("current_user_prefs", Prefs::get($usr_id));

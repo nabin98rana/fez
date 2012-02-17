@@ -171,20 +171,18 @@ class DigitalObject
         
         return array('insert' => $insert, 'binding' => $binding);
     }
-    
+
     /**
-     * Return all metadata for a PID
+     * Return all data for a PID
      * @param <string> $pid
      */
     public function get($pid)
     {
-        list($pidns, $pidint) = explode(':', $pid);
-        
         try
         {
-            $sql = "SELECT * FROM " . APP_TABLE_PREFIX . "digital_object WHERE"
-                . " pidns = :pidns AND pidint = :pidint";
-            $stmt = $this->db->query($sql, array(':pidns' => $pidns, ':pidint' => $pidint));
+            $sql = "SELECT * FROM " . APP_TABLE_PREFIX . "record_search_key WHERE"
+                . " rek_pid = :pid";
+            $stmt = $this->db->query($sql, array(':pid' => $pid));
             return $stmt->fetch();
         }
         catch(Exception $e)
@@ -192,7 +190,9 @@ class DigitalObject
             $this->log->err($e->getMessage());
         }
     }
-    
+
+
+
     /**
      * Load metadata into the object
      * @param <string> $pid
