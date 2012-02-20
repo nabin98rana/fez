@@ -37,6 +37,9 @@ define("WINDOW_END_MC",				'2099-01-01 00:00:00');
 
 class RCL
 {
+  var $unMatched = "0";
+  var $runType = "0";
+
 	function matchAll()
 	{
 		echo "======================================\n";
@@ -117,12 +120,31 @@ class RCL
 			WHERE ".TEST_WHERE_MC."
 				" . APP_TABLE_PREFIX . "record_search_key_conference_name.rek_conference_name_pid = " . APP_TABLE_PREFIX . "record_search_key.rek_pid
 				AND rek_status = 2
-				AND " . APP_TABLE_PREFIX . "record_search_key.rek_date >= '" . WINDOW_START_MC . "'
-				AND " . APP_TABLE_PREFIX . "record_search_key.rek_date < '" . WINDOW_END_MC . "'
+				AND rek_date >= '" . WINDOW_START_MC . "'
+				AND rek_date < '" . WINDOW_END_MC . "'
 			ORDER BY
 				conference_name ASC;
 		";
-		
+    if ($this->unMatched == true) {
+
+      $stmt = "
+      SELECT
+      rek_pid AS record_pid,
+			rek_conference_name AS conference_name
+      FROM " . APP_TABLE_PREFIX . "record_search_key INNER JOIN
+      " . APP_TABLE_PREFIX . "record_search_key_conference_name ON rek_pid = rek_conference_name_pid INNER JOIN
+      " . APP_TABLE_PREFIX . "xsd_display ON rek_display_type = xdis_id
+      LEFT JOIN " . APP_TABLE_PREFIX . "matched_conferences ON rek_pid = mtc_pid
+      WHERE rek_status = 2 AND mtc_pid IS NULL AND ".TEST_WHERE_MC."
+      rek_date >= '" . WINDOW_START_MC . "'
+			AND rek_date < '" . WINDOW_END_MC . "'
+      AND xdis_title IN ('Conference Paper', 'Conference Item', 'Journal Article', 'RQF 2006 Journal Article', 'RQF 2006 Conference Paper', 'RQF 2007 Journal Article', 'RQF 2007 Conference Paper', 'Online Journal Article')
+      GROUP BY rek_pid, rek_conference_name
+      ORDER BY rek_conference_name
+      ";
+    }
+
+    ob_flush();
 		if (TEST) {
 			$stmt .= " LIMIT 1";
 		}
