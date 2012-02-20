@@ -459,7 +459,8 @@ class Reindex
 
 		foreach ($fedoraList as $detail) {
 			//if ($detail['objectstate'] != 'A') { //check if in the index and delete if in there
-			if ($detail['dostate'] != 'A') { //check if in the index and delete if in there
+			$detail['dostate'] = strtolower($detail['dostate']);
+			if ($detail['dostate'] != 'a') { //check if in the index and delete if in there
 				if (Reindex::inIndex($detail['pid']) == true) {
 					$this->bgp->setStatus("Removing from Index Because Fedora State not 'A':  '".$detail['pid']."' ".$detail['title']. " (".$reindex_record_counter."/".$record_count.") (Avg ".$time_per_object."s per Object, Expected Finish ".$expected_finish.")");
 					Record::removeIndexRecord($detail['pid']);
