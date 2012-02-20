@@ -178,7 +178,7 @@ class AuthNoFedoraDatastreams {
         return $res;
     }
         //Does the object inherit permissions from parent
-    function isCopyrighted($did, $dsID='') {
+    function isCopyrighted($did) {
         $log = FezLog::get();
       	$db = DB_API::get();
 
@@ -198,13 +198,13 @@ class AuthNoFedoraDatastreams {
     }
 
         //set inherit permissions
-    function setInherited($did, $dsID='') {
+    function setInherited($did) {
         $log = FezLog::get();
       	$db = DB_API::get();
 
-        $stmt = "UPDATE ". APP_TABLE_PREFIX . "record_search_key
-                SET rek_security_inherited = '1'
-                WHERE rek_did = ".$db->quote($did);
+        $stmt = "UPDATE ". APP_TABLE_PREFIX . "file_attachments
+                SET inherit_security = '1'
+                WHERE did = ".$db->quote($did);
 
         try {
       			$res = $db->exec($stmt);
@@ -218,13 +218,13 @@ class AuthNoFedoraDatastreams {
         return $res;
     }
 
-    function deleteInherited($did, $dSID='') {
+    function deleteInherited($did) {
             $log = FezLog::get();
             $db = DB_API::get();
 
-            $stmt = "UPDATE ". APP_TABLE_PREFIX . "record_search_key
-                    SET rek_security_inherited = '0'
-                    WHERE rek_did = ".$db->quote($did);
+            $stmt = "UPDATE ". APP_TABLE_PREFIX . "file_attachments
+                    SET inherit_security = '0'
+                    WHERE did = ".$db->quote($did);
 
             try {
                     $res = $db->exec($stmt);
@@ -237,7 +237,84 @@ class AuthNoFedoraDatastreams {
             AuthNoFedoraDatastreams::recalculatePermissions($did);
             return $res;
         }
+    function setCopyright($did) {
+        $log = FezLog::get();
+      	$db = DB_API::get();
 
+        $stmt = "UPDATE ". APP_TABLE_PREFIX . "file_attachments
+                SET copyright = '1'
+                WHERE did = ".$db->quote($did);
+
+        try {
+      			$res = $db->exec($stmt);
+      		}
+        catch(Exception $ex) {
+            $log->err($ex);
+            return array();
+        }
+
+        AuthNoFedoraDatastreams::recalculatePermissions($did);
+        return $res;
+    }
+
+    function deleteCopyright($did) {
+            $log = FezLog::get();
+            $db = DB_API::get();
+
+            $stmt = "UPDATE ". APP_TABLE_PREFIX . "file_attachments
+                    SET copyright = '0'
+                    WHERE did = ".$db->quote($did);
+
+            try {
+                    $res = $db->exec($stmt);
+                }
+            catch(Exception $ex) {
+                $log->err($ex);
+                return array();
+            }
+
+            AuthNoFedoraDatastreams::recalculatePermissions($did);
+            return $res;
+        }
+    function setWatermark($did) {
+        $log = FezLog::get();
+      	$db = DB_API::get();
+
+        $stmt = "UPDATE ". APP_TABLE_PREFIX . "file_attachments
+                SET watermark = '1'
+                WHERE did = ".$db->quote($did);
+
+        try {
+      			$res = $db->exec($stmt);
+      		}
+        catch(Exception $ex) {
+            $log->err($ex);
+            return array();
+        }
+
+        AuthNoFedoraDatastreams::recalculatePermissions($did);
+        return $res;
+    }
+
+    function deleteWatermark($did) {
+            $log = FezLog::get();
+            $db = DB_API::get();
+
+            $stmt = "UPDATE ". APP_TABLE_PREFIX . "file_attachments
+                    SET watermark = '0'
+                    WHERE did = ".$db->quote($did);
+
+            try {
+                    $res = $db->exec($stmt);
+                }
+            catch(Exception $ex) {
+                $log->err($ex);
+                return array();
+            }
+
+            AuthNoFedoraDatastreams::recalculatePermissions($did);
+            return $res;
+        }
     function getAllGroupTypes()
     {
         return array('AD_Group' => 'AD_Group',
@@ -469,5 +546,28 @@ class AuthNoFedoraDatastreams {
         }
         //Added non inherited permissions now need to recalculate global permisisons
         AuthNoFedoraDatastreams::recalculatePermissions($did);
+    }
+
+    function getAllSecurityPermissionsDescriptions($did) {
+        $log = FezLog::get();
+      	$db = DB_API::get();
+
+        $stmt = "SELECT ar_rule, aro_role, ar_value FROM ". APP_TABLE_PREFIX . "auth_datastream_index2
+            LEFT JOIN ". APP_TABLE_PREFIX . "auth_roles
+            ON authdi_role = aro_id
+            LEFT JOIN ". APP_TABLE_PREFIX . "auth_rule_group_rules
+            ON argr_arg_id = authdi_arg_id
+            LEFT JOIN ". APP_TABLE_PREFIX . "auth_rules
+            ON ar_id = argr_ar_id
+            WHERE authdi_pid = ".$db->quote($did);
+        try {
+        	$res = $db->fetchAll($stmt);
+        }
+        catch(Exception $ex) {
+        	$log->err($ex);
+        	return array();
+        }
+
+         return $res;
     }
 }

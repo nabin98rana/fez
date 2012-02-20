@@ -369,7 +369,24 @@ switch ($cat)
             $pid = $wfstatus->pid;
             //$dsID = $wfstatus->dsID;
 
+
 			if ($did != "") {
+                if($_REQUEST['inherit']) {
+                    AuthNoFedoraDatastreams::setInherited($did);
+                } else {
+                    AuthNoFedoraDatastreams::deleteInherited($did);
+                }
+                if($_REQUEST['copyright']) {
+                    AuthNoFedoraDatastreams::setCopyright($did);
+                } else {
+                    AuthNoFedoraDatastreams::deleteCopyright($did);
+                }
+                if($_REQUEST['watermark']) {
+                    AuthNoFedoraDatastreams::setWatermark($did);
+                } else {
+                    AuthNoFedoraDatastreams::deleteWatermark($did);
+                }
+
                 if(is_array($toDeletes)){
                     foreach((array)$toDeletes as $toDelete) {
                         $toDeleteinfo = explode(",", $toDelete);
@@ -381,6 +398,11 @@ switch ($cat)
                     AuthNoFedoraDatastreams::addSecurityPermissions($did, $role, $arId);
                 }
 			} else {
+                if($_REQUEST['inherit']) {
+                    AuthNoFedora::setInherited($pid);
+                } else {
+                    AuthNoFedora::deleteInherited($pid);
+                }
                 if(is_array($toDeletes)){
                     foreach((array)$toDeletes as $toDelete) {
                         $toDeleteinfo = explode(",", $toDelete);

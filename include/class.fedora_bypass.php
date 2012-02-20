@@ -1040,12 +1040,19 @@ class Fedora_API {
 	{
 		if(APP_FEDORA_BYPASS == 'ON')
 		{
-		    $do = new DigitalObject();
-		    $pidMeta = $do->get($pid);
-		    if($pidMeta)
-		    {
-		        return $pidMeta['pidns'] . ":" . $pidMeta['pidint'];
-		    }
+            $log = FezLog::get();
+          	$db = DB_API::get();
+            $stmt = "SELECT rek_pid
+                    FROM ". APP_TABLE_PREFIX . "record_search_key
+                    WHERE rek_pid = ".$db->quote($pid);
+            try {
+          			$res = $db->fetchOne($stmt);
+          		}
+            catch(Exception $ex) {
+                $log->err($ex);
+                return array();
+            }
+            return $res;
 		}
 		else 
 		{

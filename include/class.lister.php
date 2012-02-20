@@ -103,7 +103,7 @@ class Lister
         }
         $params = $allowed;
         
-        if($params) //In case someone launches a search with no params
+        if($params['search_keys']) //In case someone launches a search with no params
         {
             foreach($params['search_keys'] as $paramk => $paramv)
             {

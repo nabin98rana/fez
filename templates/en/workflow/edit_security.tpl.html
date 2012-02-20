@@ -96,10 +96,10 @@
                  <input type="submit" name="submit" value="Add" />
             </td>
             </tr>
-            <tr><td>Inherit permissions</td><td><input type="checkbox" name="Inherit" value="{$inherits_security}" {if ($inherits_security)} checked="checked" {/if} /></td></tr>
+            <tr><td>Inherit permissions</td><td><input type="checkbox" name="inherit" value="1" {if ($inherits_security)} checked="checked" {/if} /></td></tr>
             {if ($did)}
-                <tr><td>Watermarked</td><td><input type="checkbox" name="Watermarked" value="{$watermark}" {if ($watermark)} checked="checked" {/if} /></td></tr>
-                <tr><td>Copyright</td><td><input type="checkbox" name="Copyright" value="{$copyright}" {if ($copyright)} checked="checked" {/if} /></td></tr>
+                <tr><td>Watermarked</td><td><input type="checkbox" name="watermark" value="{$watermark}" {if ($watermark)} checked="checked" {/if} /></td></tr>
+                <tr><td>Copyright</td><td><input type="checkbox" name="copyright" value="{$copyright}" {if ($copyright)} checked="checked" {/if} /></td></tr>
             {/if}
             <tr><td>&nbsp;</td></tr>
             <tr>
