@@ -143,9 +143,9 @@ class AuthNoFedoraDatastreams {
       	$db = DB_API::get();
 
 
-        $stmt =  "SELECT inherit_security
+        $stmt =  "SELECT fat_security_inherited
                             FROM ". APP_TABLE_PREFIX . "file_attachments
-                            WHERE did = ".$db->quote($did);
+                            WHERE fat_did = ".$db->quote($did);
 
         try {
       			$res = $db->fetchOne($stmt);
@@ -163,9 +163,9 @@ class AuthNoFedoraDatastreams {
         $log = FezLog::get();
       	$db = DB_API::get();
 
-        $stmt = "SELECT watermark
+        $stmt = "SELECT fat_watermark
                 FROM ". APP_TABLE_PREFIX . "file_attachments
-                WHERE did = ".$db->quote($did);
+                WHERE fat_did = ".$db->quote($did);
 
         try {
       			$res = $db->fetchOne($stmt);
@@ -182,9 +182,9 @@ class AuthNoFedoraDatastreams {
         $log = FezLog::get();
       	$db = DB_API::get();
 
-        $stmt = "SELECT copyright
+        $stmt = "SELECT fat_copyright
                 FROM ". APP_TABLE_PREFIX . "file_attachments
-                WHERE did = ".$db->quote($did);
+                WHERE fat_did = ".$db->quote($did);
 
         try {
       			$res = $db->fetchOne($stmt);
@@ -203,8 +203,8 @@ class AuthNoFedoraDatastreams {
       	$db = DB_API::get();
 
         $stmt = "UPDATE ". APP_TABLE_PREFIX . "file_attachments
-                SET inherit_security = '1'
-                WHERE did = ".$db->quote($did);
+                SET fat_security_inherited = '1'
+                WHERE fat_did = ".$db->quote($did);
 
         try {
       			$res = $db->exec($stmt);
@@ -223,8 +223,8 @@ class AuthNoFedoraDatastreams {
             $db = DB_API::get();
 
             $stmt = "UPDATE ". APP_TABLE_PREFIX . "file_attachments
-                    SET inherit_security = '0'
-                    WHERE did = ".$db->quote($did);
+                    SET fat_security_inherited = '0'
+                    WHERE fat_did = ".$db->quote($did);
 
             try {
                     $res = $db->exec($stmt);
@@ -242,8 +242,8 @@ class AuthNoFedoraDatastreams {
       	$db = DB_API::get();
 
         $stmt = "UPDATE ". APP_TABLE_PREFIX . "file_attachments
-                SET copyright = '1'
-                WHERE did = ".$db->quote($did);
+                SET fat_copyright = '1'
+                WHERE fat_did = ".$db->quote($did);
 
         try {
       			$res = $db->exec($stmt);
@@ -262,8 +262,8 @@ class AuthNoFedoraDatastreams {
             $db = DB_API::get();
 
             $stmt = "UPDATE ". APP_TABLE_PREFIX . "file_attachments
-                    SET copyright = '0'
-                    WHERE did = ".$db->quote($did);
+                    SET fat_copyright = '0'
+                    WHERE fat_did = ".$db->quote($did);
 
             try {
                     $res = $db->exec($stmt);
@@ -281,8 +281,8 @@ class AuthNoFedoraDatastreams {
       	$db = DB_API::get();
 
         $stmt = "UPDATE ". APP_TABLE_PREFIX . "file_attachments
-                SET watermark = '1'
-                WHERE did = ".$db->quote($did);
+                SET fat_watermark = '1'
+                WHERE fat_did = ".$db->quote($did);
 
         try {
       			$res = $db->exec($stmt);
@@ -301,8 +301,8 @@ class AuthNoFedoraDatastreams {
             $db = DB_API::get();
 
             $stmt = "UPDATE ". APP_TABLE_PREFIX . "file_attachments
-                    SET watermark = '0'
-                    WHERE did = ".$db->quote($did);
+                    SET fat_watermark = '0'
+                    WHERE fat_did = ".$db->quote($did);
 
             try {
                     $res = $db->exec($stmt);
@@ -386,9 +386,9 @@ class AuthNoFedoraDatastreams {
         $log = FezLog::get();
       	$db = DB_API::get();
 
-        $stmt = "SELECT pid
+        $stmt = "SELECT fat_pid
                 FROM ". APP_TABLE_PREFIX . "file_attachments
-                WHERE did = ".$db->quote($did);
+                WHERE fat_did = ".$db->quote($did);
 
         try {
       			$res = $db->fetchOne($stmt);
@@ -405,10 +405,10 @@ class AuthNoFedoraDatastreams {
         $log = FezLog::get();
       	$db = DB_API::get();
 
-        $stmt = "SELECT did
+        $stmt = "SELECT fat_did
                 FROM ". APP_TABLE_PREFIX . "file_attachments
-                WHERE pid = ".$db->quote($pid)." AND
-                filename = ".$db->quote($dsID);
+                WHERE fat_pid = ".$db->quote($pid)." AND
+                fat_filename = ".$db->quote($dsID);
 
         try {
       			$res = $db->fetchOne($stmt);
@@ -443,11 +443,9 @@ class AuthNoFedoraDatastreams {
     //This assumes parent or non inherited data might be changed
     function recalculatePermissions($did)
     {
-        //$didPermisisons = AuthNoFedoraDatastreamsDatastream::getAllSecurityPermissions($did);
         $didParentPermisisons = AuthNoFedoraDatastreams::getParentsACML($did);
         $didNonInheritedPermisisons = AuthNoFedoraDatastreams::getNonInheritedSecurityPermissions($did);
         $didCaculatedPermissions = array_merge($didParentPermisisons,$didNonInheritedPermisisons);
-        //$temp = array_diff($didCaculatedPermissions, $didPermisisons);
 
         foreach($didCaculatedPermissions as $didCaculatedPermission) {
             if ($didCaculatedPermission[authi_role]) {
@@ -457,20 +455,12 @@ class AuthNoFedoraDatastreams {
             }
         }
 
-       // foreach($didPermissions as $didPermission) {
-        //    $oldGroups[$didPermission[authdi_role]][] = $didPermission[argr_ar_id];
-       // }
-
-        //if ($newGroups !=  $oldGroups) {
 
             AuthNoFedoraDatastreams::deletePermissions($did);
             foreach ($newGroups as $role => $newGroup) {
                 $arg_id = AuthRules::getOrCreateRuleGroupArIds($newGroup);
                 AuthNoFedoraDatastreams::addRoleSecurityPermissions($did, $role, $arg_id, '1');
             }
-       // }
-        //$inheritedPermissions = array_diff($didParentPermisisons, $didPermisisons);
-        //AuthNoFedoraDatastreams::addRoleSecurityPermissions($did, $inheritedPermissions, 1);
     }
 
     function deletePermissions($did, $inherited = '1', $role=null)

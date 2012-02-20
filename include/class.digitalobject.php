@@ -190,9 +190,7 @@ class DigitalObject
             $this->log->err($e->getMessage());
         }
     }
-
-
-
+    
     /**
      * Load metadata into the object
      * @param <string> $pid
@@ -218,10 +216,10 @@ class DigitalObject
             try 
             {
                 $sql = "INSERT INTO " . APP_TABLE_PREFIX . "file_attachments__shadow "
-                        . "(hash, filename, version, state, size, pid, mimetype, controlgroup) "
-                        . "SELECT hash, filename, :now AS version, state, size, pid, mimetype, " 
-                        . "controlgroup FROM " . APP_TABLE_PREFIX 
-                        . "file_attachments WHERE pid = :pid";
+                        . "(fat_hash, fat_filename, fat_version, fat_state, fat_size, fat_pid, fat_mimetype, fat_controlgroup) "
+                        . "SELECT fat_hash, fat_filename, :now AS version, fat_state, fat_size,fat_pid, fat_mimetype, "
+                        . "fat_controlgroup FROM " . APP_TABLE_PREFIX
+                        . "file_attachments WHERE fat_pid = :pid";
                         
                 $this->db->query($sql, array(':now' => $timestamp, 
                 						':pid' => $this->pidData['pid']));

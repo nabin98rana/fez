@@ -963,8 +963,8 @@ class Fedora_API {
 		    
 		    if(APP_FEDORA_BYPASS == 'ON')
 		    {
-    		    $sql = "SELECT filename, mimetype, version FROM " 
-    		        . APP_TABLE_PREFIX . "file_attachments WHERE pid = :pid GROUP BY filename";
+    		    $sql = "SELECT fat_filename, fat_mimetype, fat_version FROM "
+    		        . APP_TABLE_PREFIX . "file_attachments WHERE fat_pid = :pid GROUP BY fat_filename";
     		    
     		    try 
     		    {
@@ -979,9 +979,9 @@ class Fedora_API {
     		    $resultlist = array();
     		    foreach($rows as $row)
     		    {
-    		        $resultlist[] = array('dsid' => $row['filename'], 
-    		        	'label' => $row['filename'], 
-    		        	'mimeType' => $row['mimetype']);
+    		        $resultlist[] = array('dsid' => $row['fat_filename'],
+    		        	'label' => $row['fat_filename'],
+    		        	'mimeType' => $row['fat_mimetype']);
     		    }
 		    }
 		    else 

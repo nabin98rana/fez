@@ -1,0 +1,2 @@
+ALTER TABLE %TABLE_PREFIX%file_attachments ADD COLUMN rek_deleted tinyint(4) NULL AFTER rek_wok_doc_type; 
+ALTER TABLE %TABLE_PREFIX%file_attachments ADD COLUMN rek_security_inherited tinyint(4) NULL AFTER rek_deleted; 
