@@ -177,6 +177,7 @@ class RJL
         
         
         /* Find match results that linked to duplicate Journals and replace it with replacement Journal 
+         * Query to get the JNL_ID: SELECT jnl_id FROM {TABLE_PREFIX}journal WHERE jnl_era_id = {ERA_ID}
          * The replacement value are:
          * 
          *          ERAID JNL_ID Title
@@ -188,9 +189,13 @@ class RJL
 	
            Search = 16520 31371  Journal of National Cancer Institute
            Replace= 16434 31298  Journal of the National Cancer Institute
+         
+           Search = 45090 41506  Electronic Journal of Combinatorics
+           Replace= 138   20810  Journal of Combinatorics (year 2012)
+         * 
          */
-        $dupeJournalSearchJNLID = array( '41029', '30828', '31371'); 
-        $dupeJournalReplaceJNLID = array('30537', '30827', '31298'); 
+        $dupeJournalSearchJNLID = array( '41029', '30828', '31371', '41506'); 
+        $dupeJournalReplaceJNLID = array('30537', '30827', '31298', '20810'); 
         foreach ($matches as $key => $match){
             if (in_array($match['matching_id'], $dupeJournalSearchJNLID) === true ){
                 $matches[$key]['matching_id'] = str_replace($dupeJournalSearchJNLID, $dupeJournalReplaceJNLID, $match['matching_id']);
