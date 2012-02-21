@@ -170,7 +170,7 @@ class DSResource
         {
             $this->log->err($e->getMessage());
         }
-        return ($row['hash'] && is_file($resource)) ? true : false;
+        return ($row['fat_hash'] && is_file($resource)) ? true : false;
     }
     
     /**
@@ -186,8 +186,8 @@ class DSResource
             if($revision == 'HEAD')
             {
                 //TODO Rework this query. No longer need MAX as the versions are in the shadow table.
-                $sql = "SELECT fat_did, fat_metaid, fat_hash, fat_size, fat_filename, fat_mimetype, fat_controlgroup, "
-                . "fat_pid, fat_state, fat_version FROM " . APP_TABLE_PREFIX . "file_attachments "
+                $sql = "SELECT fat_did as id, fat_metaid as metaid, fat_hash as hash, fat_size as size, fat_filename as filename, fat_mimetype as mimetype,
+                fat_controlgroup as controlgroup, fat_pid as pid, fat_state as state, fat_version as version FROM " . APP_TABLE_PREFIX . "file_attachments "
                 . "WHERE fat_filename = :dsfilename "
                 . "AND fat_pid = :pid AND fat_state = 'A' AND fat_version = (SELECT MAX(fat_VERSION) FROM "
                 . APP_TABLE_PREFIX . "file_attachments WHERE " 
@@ -198,7 +198,8 @@ class DSResource
             }
             else 
             {
-                $sql = "SELECT fat_did, fat_metaid, fat_hash, fat_size, fat_filename, fat_mimetype, fat_controlgroup, fat_pid, fat_state, fat_version FROM "
+                $sql = "SELECT fat_did as id, fat_metaid as metaid, fat_hash as hash, fat_size as size,
+                       fat_filename as filename, fat_mimetype as mimetype, fat_controlgroup as controlgroup, fat_pid as pid, fat_state as state, fat_version as version FROM "
                     . APP_TABLE_PREFIX . "file_attachments__shadow WHERE "
                     . "fat_state = 'A' AND fat_filename = :dsfilename "
                     . "AND fat_version = :version AND fat_pid = :pid";
@@ -224,7 +225,7 @@ class DSResource
     {
         try
         {
-            $sql = "SELECT fat_did, fat_hash, fat_filename, fat_pid, fat_version FROM "
+            $sql = "SELECT fat_did as id, fat_hash as hash, fat_filename as filename, fat_pid as pid, fat_version as version FROM "
                 . APP_TABLE_PREFIX . "file_attachments WHERE " 
                 . "fat_filename = :dsfilename AND fat_pid = :pid ORDER BY fat_version DESC";
             $stmt = $this->db->query($sql, array(':dsfilename' => $fileName, ':pid' => $pid));
@@ -271,7 +272,7 @@ class DSResource
         
         try
         {
-        $sql = "SELECT{$distinct} fat_did, fat_hash, fat_filename, fat_pid FROM "  . APP_TABLE_PREFIX
+        $sql = "SELECT{$distinct} fat_did as id, fat_hash as hash, fat_filename as filename, fat_pid as pid FROM "  . APP_TABLE_PREFIX
             . "file_attachments WHERE " 
             . "fat_pid = :pid GROUP BY fat_filename";
         $stmt = $this->db->query($sql, array(':pid' => $pid));
@@ -357,7 +358,7 @@ class DSResource
         //now that we no longer have a seperate meta table?
         try
         {
-            $sql = "SELECT fat_metaid from " . APP_TABLE_PREFIX
+            $sql = "SELECT fat_metaid as metaid from " . APP_TABLE_PREFIX
                 . "file_attachments fa INNER JOIN " . APP_TABLE_PREFIX . "file_meta fm "
                 . "ON fm.id = fa.fat_metaid "
                 ."WHERE fat_filename = :filename AND fat_pid = :pid";
