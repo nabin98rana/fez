@@ -186,7 +186,7 @@ class DSResource
             if($revision == 'HEAD')
             {
                 //TODO Rework this query. No longer need MAX as the versions are in the shadow table.
-                $sql = "SELECT fat_id, fat_metaid, fat_hash, fat_size, fat_filename, fat_mimetype, fat_controlgroup, "
+                $sql = "SELECT fat_did, fat_metaid, fat_hash, fat_size, fat_filename, fat_mimetype, fat_controlgroup, "
                 . "fat_pid, fat_state, fat_version FROM " . APP_TABLE_PREFIX . "file_attachments "
                 . "WHERE fat_filename = :dsfilename "
                 . "AND fat_pid = :pid AND fat_state = 'A' AND fat_version = (SELECT MAX(fat_VERSION) FROM "
@@ -198,7 +198,7 @@ class DSResource
             }
             else 
             {
-                $sql = "SELECT fat_id, fat_metaid, fat_hash, fat_size, fat_filename, fat_mimetype, fat_controlgroup, fat_pid, fat_state, fat_version FROM "
+                $sql = "SELECT fat_did, fat_metaid, fat_hash, fat_size, fat_filename, fat_mimetype, fat_controlgroup, fat_pid, fat_state, fat_version FROM "
                     . APP_TABLE_PREFIX . "file_attachments__shadow WHERE "
                     . "fat_state = 'A' AND fat_filename = :dsfilename "
                     . "AND fat_version = :version AND fat_pid = :pid";
@@ -224,7 +224,7 @@ class DSResource
     {
         try
         {
-            $sql = "SELECT fat_id, fat_hash, fat_filename, fat_pid, fat_version FROM "
+            $sql = "SELECT fat_did, fat_hash, fat_filename, fat_pid, fat_version FROM "
                 . APP_TABLE_PREFIX . "file_attachments WHERE " 
                 . "fat_filename = :dsfilename AND fat_pid = :pid ORDER BY fat_version DESC";
             $stmt = $this->db->query($sql, array(':dsfilename' => $fileName, ':pid' => $pid));
@@ -271,7 +271,7 @@ class DSResource
         
         try
         {
-        $sql = "SELECT{$distinct} fat_id, fat_hash, fat_filename, fat_pid FROM "  . APP_TABLE_PREFIX
+        $sql = "SELECT{$distinct} fat_did, fat_hash, fat_filename, fat_pid FROM "  . APP_TABLE_PREFIX
             . "file_attachments WHERE " 
             . "fat_pid = :pid GROUP BY fat_filename";
         $stmt = $this->db->query($sql, array(':pid' => $pid));
@@ -513,7 +513,7 @@ class DSResource
             //Get rid of only one rev.
             try
             {
-                $sql = "DELETE FROM " . APP_TABLE_PREFIX . "file_attachments WHERE fat_id = :id";
+                $sql = "DELETE FROM " . APP_TABLE_PREFIX . "file_attachments WHERE fat_did = :id";
                 $this->db->query($sql, array(':id' => $revData['id']));
             }
             catch(Exception $e)
