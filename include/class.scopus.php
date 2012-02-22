@@ -49,8 +49,8 @@ class Scopus
 {
 // Production Addresses
 
-	const WSDL = 'http://services.elsevier.com/EWSXAbstractsMetadataWebSvc/XAbstractsMetadataServiceV8/WEB-INF/wsdl/absmet_service_v8.wsdl';
-	const ENDPOINT = 'http://services.elsevier.com/EWSXAbstractsMetadataWebSvc/XAbstractsMetadataServiceV8';
+	const WSDL = 'http://cdc310-services.elsevier.com/EWSXAbstractsMetadataWebSvc/services/XAbstractsMetadataServiceV8/META-INF/absmet_service_v8.wsdl';
+	const ENDPOINT = 'http://cdc310-services.elsevier.com/EWSXAbstractsMetadataWebSvc/services/XAbstractsMetadataServiceV8';
 
 // Development addresses	
 //	const WSDL = 'http://cdc315-services.elsevier.com/EWSXAbstractsMetadataWebSvc/XAbstractsMetadataServiceV8/WEB-INF/wsdl/absmet_service_v8.wsdl';
