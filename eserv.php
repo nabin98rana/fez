@@ -165,6 +165,9 @@ if (!empty($pid) && !empty($dsID)) {
 			if (substr($dsID, -4) == ".flv") {
 				$ctype = "video/x-flv";
 			}
+            if (substr($dsID, -5) == ".webm") {
+                $ctype = "video/webm";
+            }
 		}
 		
 		if (is_numeric(strpos($ctype, "video"))) {
