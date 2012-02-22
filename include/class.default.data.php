@@ -107,6 +107,7 @@ class Default_Data
 			    $defaultData['app_geoip_path']              = "/usr/share/GeoIP/";
 			    $defaultData['app_dot_exec']                = "/usr/bin/dot";
 			    $defaultData['app_php_exec']                = "/usr/bin/php";
+			    $defaultData['app_jhove_dir']               = "/usr/bin/";
 			}
 
 		}   // Can add some other defaults here for other common OS setups
