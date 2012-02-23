@@ -37,7 +37,7 @@ include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.setup.php");
 include_once(APP_INC_PATH . "class.controlled_vocab.php");
 
-$suggestions = Controlled_Vocab::suggest($_GET['query'], true);
+$suggestions = Controlled_Vocab::suggest($_GET['query'], $_GET['parent_id']);
 
 $suggestions = array(
     'Result'    =>  $suggestions

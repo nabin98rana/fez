@@ -99,6 +99,7 @@ Search by ID or Subject title here:
     var myServer = "{/literal}{$rel_url}{literal}cv_id_proxy.php";
     var mySchema = ["Result","cvo_id"];
     var myDataSource = new YAHOO.widget.DS_XHR(myServer, mySchema);
+    myDataSource.scriptQueryAppend = "parent_id={/literal}{$parent_id}{literal}";
     
     // Instantiate first AutoComplete
     this.oAutoComp = new YAHOO.widget.AutoComplete('cv_lookup','cv_container', myDataSource);

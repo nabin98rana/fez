@@ -92,7 +92,7 @@ if (!is_numeric($cvo_id)) {
 }
 
 if (is_numeric($parent_id)) {
-	$cv_tree = Controlled_Vocab::renderCVtree(Controlled_Vocab::buildCVtree($parent_id));
+	$cv_tree = Controlled_Vocab::renderCVtree(Controlled_Vocab::buildCVtree($parent_id, true));
 } else {
 	$cv_tree = Controlled_Vocab::renderCVtree(Controlled_Vocab::buildCVtree());
 }
@@ -105,5 +105,6 @@ $tpl->assign("xsdmf_cvo_min_level", $xsdmf_cvo_min_level);
 $tpl->assign("form", $form);
 $tpl->assign("element", $element);
 $tpl->assign("cv_tree", $cv_tree);
+$tpl->assign("parent_id", $parent_id);
 
 $tpl->displayTemplate();
