@@ -78,6 +78,7 @@ include_once(APP_INC_PATH . "class.record_general.php");
 include_once(APP_INC_PATH . "class.validation.php");
 include_once(APP_INC_PATH . "class.links_amr_queue.php");
 include_once(APP_INC_PATH . "class.internal_notes.php");
+include_once(APP_INC_PATH . "class.shadow.php");
 
 define('SK_JOIN', 0);
 define('SK_LEFT_JOIN', 1);
@@ -982,7 +983,7 @@ class Record
    * @param   bool $remove_solr should this record be also removed from solr (defaults to true)
    * @return  void
    */
-  function removeIndexRecord($pid, $remove_solr=true)
+  function removeIndexRecord($pid, $remove_solr=true, $shadow = false, $date='')
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -997,6 +998,9 @@ class Record
       // if is a 1-M needs its own delete sql, otherwise if a 0 (1-1) the core delete will do it
       if ($sval['sek_relationship'] == 1) {
         $sekTable = Search_Key::makeSQLTableName($sval['sek_title']);
+        if ($shadow) {
+            shadow::copySearchKeyToShadow($pid, $date, $sekTable);
+        }
         $stmt = "DELETE FROM
                         " . APP_TABLE_PREFIX . "record_search_key_".$sekTable."
              WHERE rek_".$sekTable."_pid = " . $db->quote($pid);
@@ -1008,7 +1012,9 @@ class Record
         }
       }
     }
-
+    if ($shadow) {
+        shadow::copyRecordToShadow($pid, $date);
+    }
     $stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "record_search_key
          WHERE rek_pid = " . $db->quote($pid);
@@ -4970,14 +4976,15 @@ class Record
     return false;
   }
 
-  function markAsDeleted($pid)
+  function markAsDeleted($pid, $date ='')
   {
-    // tell fedora that the object is deleted.
-	$label = Record::getSearchKeyIndexValue($pid, "title", false);  // Get title of record. Sending a null label to callModifyObject deletes the object label in Fedora 3, which is used to display the title in the 'Undelete Fedora Objects' page
-    Fedora_API::callModifyObject($pid, 'D', $label);
-
+    if(APP_FEDORA_BYPASS != 'ON') {
+        // tell fedora that the object is deleted.
+	    $label = Record::getSearchKeyIndexValue($pid, "title", false);  // Get title of record. Sending a null label to callModifyObject deletes the object label in Fedora 3, which is used to display the title in the 'Undelete Fedora Objects' page
+        Fedora_API::callModifyObject($pid, 'D', $label);
+    }
     // delete it from the Fez index.
-    Record::removeIndexRecord($pid);
+    Record::removeIndexRecord($pid, true, true, $date);
   }
 
   function markAsActive($pid, $do_index = true)

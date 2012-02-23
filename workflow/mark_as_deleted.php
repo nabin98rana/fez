@@ -35,17 +35,19 @@
 // restores WorkflowStatus object from the session
 $wfstatus = &WorkflowStatusStatic::getSession(); 
 
-Record::markAsDeleted($this->pid);
+$date = Date_API::getCurrentDateGMT(true);
+
+Record::markAsDeleted($this->pid, $date);
 // need to add history here because the status object 
 // doesn't like to add history to a deleted object
 $historyComment = $wfstatus->getVar('historyDetail');
 if ($historyComment) {
   History::addHistory(
       $this->pid, $this->wfl_details['wfl_id'],
-      '', '', true, '', $historyComment
+      '', '', true, '', $historyComment, $date
   );
 } else {
-  History::addHistory($this->pid, $this->wfl_details['wfl_id'], '', '', true);
+  History::addHistory($this->pid, $this->wfl_details['wfl_id'], '', '', true, '', '', $date);
 }
 
 $cache = new fileCache($this->pid, 'pid='.$this->pid);
