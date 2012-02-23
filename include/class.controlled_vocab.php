@@ -1077,10 +1077,11 @@ class Controlled_Vocab
 	 * Method used to assemble the CV tree in YUI treeview form, as an array.
 	 *
 	 * @access  public
-	 * @param   none
+	 * @param   $parentID get a one level based on the parent
+     * @param   $allLevels get all levels based on the parent
 	 * @return  array The JavaScript tree creation statements
 	 */
-	function buildCVtree($parentID) 
+	function buildCVtree($parentID, $allLevels)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -1108,10 +1109,15 @@ class Controlled_Vocab
 
 		$where = '';
 		if (is_numeric($parentID)) {
-			$where = "WHERE cvr_parent_cvo_id = " . $db->quote($parentID) . " " . 
-					 "OR cvo_id = " . $db->quote($parentID) . " ";
-			;
-		}
+            if (!$allLevels) {
+                $where = "WHERE cvr_parent_cvo_id = " . $db->quote($parentID) . " " .
+                         "OR cvo_id = " . $db->quote($parentID) . " ";
+            } else
+            {
+                $children = implode(",", Controlled_Vocab::getAllChildren($parentID));
+                $where = "WHERE cvo_id IN (".$children.") ";
+            }
+        }
 		
 		if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
 			$stmt = "SELECT cvo_id, cvo_title, cvo_hide, cvo_title || ' ' || cvo_desc as cvo_title_extended, cvr_parent_cvo_id as cvo_parent_id ";
@@ -1161,8 +1167,42 @@ class Controlled_Vocab
 		return $cvTree;
 	}
 
+    /**
+   	 * Recussive function to find all children of CVO.
+   	 *
+   	 * @access  public
+   	 * @param   $cvo to start at
+   	 * @return  array children
+   	 */
+    function getAllChildren($cvo_id, $includeParent='true')
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+        $stmt = " SELECT cvr_child_cvo_id
+                  FROM " . APP_TABLE_PREFIX . "controlled_vocab
+                  INNER JOIN " . APP_TABLE_PREFIX . "controlled_vocab_relationship
+                  ON cvo_id = cvr_parent_cvo_id
+                  WHERE cvo_id = ".$db->quote($cvo_id);
+        try {
+      			$res = $db->fetchCol($stmt);
+      		}
+        catch(Exception $ex) {
+            $log->err($ex);
+            return '';
+        }
+        $children = $res;
+        if ($includeParent) {
+            $children[] = $cvo_id;
+        }
+        foreach ($res as $child) {
+            $children = array_merge($children, Controlled_Vocab::getAllChildren($child));
+        }
 
-	function suggest($value) 
+        return $children;
+
+    }
+
+	function suggest($value, $parent_id)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -1170,7 +1210,12 @@ class Controlled_Vocab
 		$dbtp = APP_TABLE_PREFIX;
 		$stmt = " SELECT cvo_id, cvo_title
                   FROM " . APP_TABLE_PREFIX . "controlled_vocab
-                  WHERE cvo_hide != 1 AND cvo_external_id LIKE ".$db->quote("%$value%")." OR cvo_title LIKE ".$db->quote("%$value%"); //, cvo_title
+                  WHERE (cvo_hide != 1 AND cvo_external_id LIKE ".$db->quote("%$value%")." OR cvo_title LIKE ".$db->quote("%$value%").")"; //, cvo_title
+        if (is_numeric($parent_id)){
+            $children = implode(",", Controlled_Vocab::getAllChildren($parent_id, false));
+            $stmt .=  " AND cvo_id IN (".$children.") ";
+        }
+
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
