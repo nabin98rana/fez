@@ -395,15 +395,53 @@ class RecordGeneral
    */
   function setStatusId($sta_id)
   {
+        if (APP_FEDORA_BYPASS == 'ON') {
+
+            $searchKeyData = array();
+            $details = Record::getDetailsLite($this->pid);
+            
+            // $searchKeyData[0] for 1-to-1 search keys
+            $searchKeyData[0]['status'] = array('xsdmf_id' => $details[0]['rek_status_xsdmf_id'], 'xsdmf_value' => $sta_id);
+            $searchKeyData[0]['updated_date'] = array('xsdmf_id' => $details[0]['rek_updated_date_xsdmf_id'], 'xsdmf_value' => Date_API::getFedoraFormattedDateUTC());
+            
+            // Update the search keys for this PID with new value
+            Record::updateSearchKeys($this->pid, $searchKeyData);
+            
+            Record::updateSearchKeysShadow($this->pid);
+            
+        } else {
+            
+            // Update the XML for FezMD datastream, 
+            // which contains the record status ID and other status flags 
+            // - for list of fields see $this->setFezMD_Datastream() function comment
     $this->setFezMD_Datastream('sta_id', $sta_id);
+            
+            // Get a list of related XSD DisplayObjects for this record - based on record's XSD DisplayObject
     $this->getDisplay();
+            /* Sample results:
+             * XSD_DisplayObject Object
+                (
+                    [xdis_id] => 174
+                    [xsd_html_match] => XSD_HTML_MatchObject Object
+                        (
+                            [xdis_str] => 207,172,84,16,111,174
+                        )
+
+                    [exclude_list] => 
+                    [specify_list] => 
+                )
+             */
+            
+            // Update Index of XSDMF fields from the record XSD Display
     $this->setIndexMatchingFields();
+        }
     return 1;
   }
 
   /**
    * setFezMD_Datastream
-   * Used to associate a display for this record
+   * Used to associate a display for this record.
+   * Store new XML for FezMD datastream, with the new value specified by $key and $value parameters
    *
    * @access  public
    * @param  $key
@@ -413,6 +451,32 @@ class RecordGeneral
   function setFezMD_Datastream($key, $value)
   {
     $items = Fedora_API::callGetDatastreamContents($this->pid, 'FezMD');
+    /* Value of $item on Fedora version: */
+    /*
+        ITEMS = Array
+        (
+            [xdis_id]   => Array ( [0] => 174 )
+            [sta_id]    => Array ( [0] => 4 )
+            [ret_id]    => Array ( [0] => 3 )
+            [usr_id]    => Array ( [0] => 1142 )
+            [grp_id]    => Array ( [0] => )
+            [copyright] => Array ( [0] => on )
+            [created_date]          => Array ( [0] => 2012-02-20T05:16:27Z )
+            [updated_date]          => Array ( [0] => 2012-02-20T05:16:27Z )
+            [depositor]             => Array ( [0] => 1142 )
+            [depositor_affiliation] => Array ( [0] => 786 )
+            [additional_notes]      => Array ( [0] => )
+            [refereed]              => Array ( [0] => off )
+            [reference_text]        => Array ( [0] => )
+            [follow_up]             => Array ( [0] => )
+            [follow_up_imu]         => Array ( [0] => )
+            [scopus_doc_type]       => Array ( [0] => )
+            [wok_doc_type]          => Array ( [0] =>  )
+            [herdc_status]          => Array ( [0] => 453220 )
+            [institutional_status]  => Array ( [0] => 453225 )
+        )
+     */
+    
     $newXML = '<FezMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">';
     $foundElement = false;
     foreach ($items as $xkey => $xdata) {
@@ -429,7 +493,52 @@ class RecordGeneral
       $newXML .= "<".$key.">".$value."</".$key.">";
     }
     $newXML .= "</FezMD>";
+
+    
+    /*
+     * Value of $newXML on Fedora version:
+     *  
+     NEWXML   
+       <FezMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+            <xdis_id>174</xdis_id>
+            <sta_id>2</sta_id>
+            <ret_id>3</ret_id>
+            <usr_id>1142</usr_id>
+            <copyright>on</copyright>
+            <created_date>2012-02-20T04:50:57Z</created_date>
+            <updated_date>2012-02-20T04:50:57Z</updated_date>
+            <depositor>1142</depositor>
+            <depositor_affiliation>786</depositor_affiliation>
+            <refereed>off</refereed>
+            <herdc_status>453220</herdc_status>
+            <institutional_status>453225</institutional_status>
+       </FezMD>
+     *
+     */
+    
+    /**
+     * On FEDORA BYPASS version, the value should be stored on database as follows:
+     
+       <FezMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+            <xdis_id>174</xdis_id>                              ==  fez_record_search_key.rek_display_type
+            <sta_id>2</sta_id>                                  ==  fez_record_search_key.rek_status
+            <ret_id>3</ret_id>                                  ==  fez_record_search_key.object_type
+            <usr_id>1142</usr_id>                               ==  ... 
+            <copyright>on</copyright>                           ==  fez_record_search_key.rek_copyright
+            <created_date>2012-02-20T04:50:57Z</created_date>   ==  fez_record_search_key.rek_created_date
+            <updated_date>2012-02-20T04:50:57Z</updated_date>   ==  fez_record_search_key.rek_updated_date
+            <depositor>1142</depositor>                         ==  fez_record_search_key.rek_depositor
+            <depositor_affiliation>786</depositor_affiliation>  ==  fez_record_search_key.rek_depositor_affiliation
+            <refereed>off</refereed>                            ==  fez_record_search_key.rek_created_date
+            <herdc_status>453220</herdc_status>                 ==  fez_record_search_key_herdc_status.rek_herdc_status
+            <institutional_status>453225</institutional_status> ==  fez_record_search_key_institutional_status.rek_institutional_status
+       </FezMD>
+     */
+    
     //Error_handler::logError($newXML,__FILE__,__LINE__);
+    
+    
+    // Update the XML Datastream with $newXML
     if ($newXML != "") {
       Fedora_API::callModifyDatastreamByValue(
           $this->pid, "FezMD", "A", "Fez extension metadata", $newXML, "text/xml", "inherit"
