@@ -1089,16 +1089,173 @@ class Record
     return $pid;
   }
 
+  
+  /**
+     * Returns the timestamp to be used on Shadow table(s) operations.
+     * When Fedora Bypass is turned on, utilise the timestamp registered on Zend Register from earlier process.
+     * 
+     * @param string | boolean $proposedTimestamp The timestamp desired by the calling function/method
+     * @return string 
+     */
+    public static function setSearchKeyTimestamp($proposedTimestamp = false)
+    {
+        if (!empty($proposedTimestamp)) {
+            $timestamp = $proposedTimestamp;
+        } else {
+            // Use earlier registered 'Version' variable to achieve uniform timestamp across all search keys updates.
+            if (APP_FEDORA_BYPASS == "ON") {
+                if (!Zend_Registry::isRegistered('version')) {
+                    Zend_Registry::set('version', date('Y-m-d H:i:s'));
+                }
+                $timestamp = Zend_Registry::get('version');
+            } else {
+                $timestamp = date('Y-m-d H:i:s');
+            }
+        }
+        return $timestamp;
+    }
 
+  /**
+     * Update the search key values on Shadow tables, 
+     * by doing snapshot of the search key(s) on main table(s) and adding timestamp for version control. 
+     * Snapshot covers the search key with / without individual search key shadow table.
+     * 
+     * @param string $pid Targetted PID
+     * @param array $sekData Array of search key names & values pair
+     * @return boolean The result of the update. True if successful, false otherwise.
+     * 
+     * @todo:
+     *  - Add Boolean param on whether to snapshot all search keys for a PID.
+     *  - Add Array param on the search key(s) to be snapshot, if snapshot is on specific search key(s).
+     *  - Compare the proposed value with the value on the database. 
+     *    - If value is the same, only update the timestamp
+     *    - If value is different, insert new row on shadow table(s).
+     */
+    public function updateSearchKeysShadow($pid, $all = true, $searchkeys = array())
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        /* Snapshot Search Key with One to One Cardinality */
+        $fields = array();
+        $values = array();
+
+        $stmtSelect = "SELECT * FROM fez_record_search_key WHERE rek_pid = " . $db->quote($pid, STRING);
+        try {
+            $oneToOneSearchKey = $db->fetchRow($stmtSelect);
+        }
+        catch (Exception $ex) {
+            $log->err($ex);
+            $oneToOneSearchKey = array();
+        }
+
+        foreach ($oneToOneSearchKey as $key => $value) {
+            $fields[] = $key;
+            $values[] = $db->quote($value);
+        }
+
+        // Timestamp
+        $fields[] = "rek_stamp";
+        if (!Zend_Registry::isRegistered('version')) {
+            Zend_Registry::set('version', date('Y-m-d H:i:s'));
+        }
+        $values[] = $db->quote(Record::setSearchKeyTimestamp());
+
+        $stmtInsert = "INSERT INTO fez_record_search_key__shadow (" . implode(",", $fields) . ") " .
+                " VALUES (" . implode(",", $values) . ")";
+        try {
+            $db->query($stmtInsert);
+        }
+        catch (Exception $ex) {
+            $log->err($ex);
+        }
+        /* End of: One to One Cardinality */
+
+
+
+        /* Snapshot Search Key with One to Many Cardinality */
+        $searchKeys = Search_Key::getList(false);
+
+        $searchKeysTables = array();
+        foreach ($searchKeys as $sek) {
+            if ($sek['sek_relationship'] == 1 && (!empty($sek['sek_title_db']) || !is_null($sek['sek_title_db']))) {
+                $searchKeysTables[] = $sek['sek_title_db'];
+            }
+        }
+
+        // Build the query for individual search key tables
+        $stmtsSelect = array();
+        foreach ($searchKeysTables as $skTable) {
+            $oneToManySearchkey = array();
+            $fields = array();
+            $values = array();
+            $stmtInsert = "";
+
+            $tableName = APP_TABLE_PREFIX . "record_search_key_" . $skTable;
+
+            $stmtSelect = "SELECT * FROM " . $tableName . " WHERE rek_" . $skTable . "_pid = " . $db->quote($pid);
+            $stmtsSelect[] = $stmtSelect;
+
+            try {
+                $oneToManySearchkey = $db->fetchRow($stmtSelect);
+            }
+            catch (Exception $ex) {
+                $log->err($ex);
+                $oneToManySearchkey = array();
+            }
+
+            // Ignore if no row returned.
+            if (!is_array($oneToManySearchkey) || sizeof($oneToManySearchkey) <= 0) {
+                continue;
+            }
+
+            foreach ($oneToManySearchkey as $key => $value) {
+                $fields[] = $key;
+                $values[] = $db->quote($value);
+            }
+
+            // Timestamp
+            $fields[] = "rek_stamp";
+            $values[] = $db->quote(Record::setSearchKeyTimestamp());
+
+            // Insert snapshot to shadow table
+            $stmtInsert = "INSERT INTO " . $tableName . "__shadow (" . implode(",", $fields) . ") " .
+                    " VALUES (" . implode(",", $values) . ")";
+
+            try {
+                $db->query($stmtInsert);
+            }
+            catch (Exception $ex) {
+                $log->err($ex);
+            }
+        }
+
+        /* End of: One to Many Cardinality */
+    }
+  
+  
+  /**
+   * Updates a PID's search keys values. 
+   * When specified, update the search key shadow table.
+   * 
+   * @param string $pid Targetted PID
+   * @param array $sekData Array of search key names & values pair. 
+   * The format value for $sekData = array( 
+   *                                       [0] => Array of 1-to-1 search keys 
+   *                                       [1] => Array of 1-to-Many search keys 
+   *                                 )
+   * @param boolean $shadow Indication on whether to update shadow table.
+   * @param boolean $updateTS Record update timestamp
+   * @return boolean The result of the update. True if successful, false otherwise.
+   */
   function updateSearchKeys($pid, $sekData, $shadow = false, $updateTS = false)
-
-
   {
     $log = FezLog::get();
     $db = DB_API::get();
     
     $ret = true;
-    $now = ($updateTS) ? $updateTS : date('Y-m-d H:i:s'); // Database friendly datetime, for use in all shadow operations below.
+    // Get the timestamp to be used for shadow tables.
+    $now = Record::setSearchKeyTimestamp($updateTS);
 
     /*
      *  Update 1-to-1 search keys
@@ -1356,12 +1513,9 @@ class Record
     // Load up the record, extract the bits we need to determine the provisional HERDC code.
     $record = new RecordGeneral($pid);
     $docType = $record->getDocumentType();
-    $subType = $record->getFieldValueBySearchKey("Subtype");
-    $subType = $subType[0];
-    $genreType = $record->getFieldValueBySearchKey("Genre Type");
-    $genreType = $genreType[0];
-    $existingHERDCcode = $record->getFieldValueBySearchKey("HERDC code");
-    $existingHERDCcode = $existingHERDCcode[0];
+    $subType = Record::getSearchKeyIndexValue($pid, "Subtype");
+    $genreType = Record::getSearchKeyIndexValue($pid, "Genre Type");
+    $existingHERDCcode = Record::getSearchKeyIndexValue($pid, "HERDC code");
     $provHERDCcode = "";
     
     // Bail out if we already have a HERDC code
