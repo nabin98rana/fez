@@ -1,7 +1,8 @@
 CREATE TABLE %TABLE_PREFIX%auth_datastream_index2 (
   authdi_did varchar(64) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
   authdi_role int(11) unsigned NOT NULL DEFAULT '0',
-  authdi_arg_id int(11) unsigned NOT NULL DEFAULT '0'
+  authdi_arg_id int(11) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`authdi_did`,`authdi_role`,`authdi_arg_id`)
 ) 
 
 CREATE TABLE %TABLE_PREFIX%auth_datastream_index2_not_inherited (
