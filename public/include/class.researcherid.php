@@ -430,7 +430,7 @@ class ResearcherID
           $uniBody = str_replace("\n", "", $body); // make the body one line so it can be preg 
           preg_match($urlPattern, $uniBody, $urlMatches);
           $url = trim($urlMatches[1]);
-          $urlData = Misc::processURL($url);
+          $urlData = Misc::processURL($url, false, null, null, null, 600);
           $urlContent = $urlData[0];
           
           // Save XML content of the URL on the Status Report email
@@ -675,7 +675,7 @@ class ResearcherID
     $log = FezLog::get();
     $db = DB_API::get();
 
-    $urlData = Misc::processURL($url);
+    $urlData = Misc::processURL($url, false, null, null, null, 600);
     $profile = $urlData[0];
     if (!$profile) {
       $log->err("wasn't able to pull down RID Profile url $url:".print_r($urlData, true));
@@ -698,7 +698,7 @@ class ResearcherID
     $db = DB_API::get();
 
     //$publications = file_get_contents($url);
-    $urlData = Misc::processURL($url);
+    $urlData = Misc::processURL($url, false, null, null, null, 600);
     $publications = $urlData[0];
 
     if (!$publications) {

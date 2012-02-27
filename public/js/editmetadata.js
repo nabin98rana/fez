@@ -157,8 +157,6 @@ function createTextBox(xsdmf_id, loop_num, name, limit, axsdmf_id, aname, attach
 
     if(axsdmf_id != '') {
        createAuthorSuggest(td2, xsdmf_id, axsdmf_id, aname, loop_num);
-       createConferenceSuggest(td2, xsdmf_id, axsdmf_id, aname, loop_num);
-       createPublisherSuggest(td2, xsdmf_id, axsdmf_id, aname, loop_num);
     }
 
     if(attachSuggest == 1) {

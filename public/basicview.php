@@ -41,7 +41,14 @@ if ((($_SERVER["SERVER_PORT"] != 443) && (APP_HTTPS == "ON"))) { //should be ssl
 	header ("Location: https://".APP_HOSTNAME.APP_RELATIVE_URL."basicview.php"."?".$_SERVER['QUERY_STRING']);
 	exit;        		
 }
-
+if (!Auth::isValidSession($session)) { // if user not already logged in
+  $record = new RecordObject($_GET['pid']);
+  $canView = $record->canView();
+  if ($canView) {
+    header ("Location: https://".APP_HOSTNAME.APP_RELATIVE_URL."view/".$_GET['pid']);
+    exit;
+  }
+}
 
 if (!isset($_SERVER['PHP_AUTH_USER'])) {
     header('WWW-Authenticate: Basic realm="'.APP_HOSTNAME.'"');

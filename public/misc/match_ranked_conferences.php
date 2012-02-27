@@ -33,8 +33,17 @@
 include_once dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'config.inc.php';
 include_once(APP_INC_PATH . "class.matching.php");
 include_once(APP_INC_PATH . "class.matching_conferences.php");
+$runType = strtolower($argv[1]);
+$unMatched = strtolower($argv[2]);
+
 
 $matcheroo = new RCL();
+$matcheroo->runType = $runType;
+if ($unMatched == '1') {
+  $matcheroo->unMatched = false;
+} else {
+  $matcheroo->unMatched = true;
+}
 $matcheroo->matchAll();
 
 echo "RCL matching done!\n";

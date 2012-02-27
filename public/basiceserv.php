@@ -41,8 +41,19 @@ if ((($_SERVER["SERVER_PORT"] != 443) && (APP_HTTPS == "ON"))) { //should be ssl
 	header ("Location: https://".APP_HOSTNAME.APP_RELATIVE_URL."basiceserv.php"."?".$_SERVER['QUERY_STRING']);
 	exit;        		
 }
-
-
+$pid = $_GET['pid'];
+if (!Auth::isValidSession($session)) { // if user not already logged in
+  $acceptable_roles = array("Viewer", "Community_Admin", "Editor", "Creator", "Annotator");
+  $status = Record::getSearchKeyIndexValue($pid, "Status", false);
+  if ($status != Status::getID("Published")) {
+    $acceptable_roles = array("Community_Admin", "Editor", "Creator");
+  }
+  // Check if you even need authorisation for this - if not then just redirect to the eserv url without doing basic auth login
+  if (Auth::checkAuthorisation($_GET['pid'], $_GET['dsid'], $acceptable_roles, $_SERVER['REQUEST_URI'], null, $ALLOW_SECURITY_REDIRECT) == true) {
+    header ("Location: https://".APP_HOSTNAME.APP_RELATIVE_URL."eserv/".$_GET['pid']."/".$_GET['dsid']);
+    exit;
+  }
+}
 if (!isset($_SERVER['PHP_AUTH_USER'])) {
     header('WWW-Authenticate: Basic realm="'.APP_HOSTNAME.'"');
     header('HTTP/1.0 401 Unauthorized');

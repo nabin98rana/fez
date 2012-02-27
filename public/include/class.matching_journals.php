@@ -61,8 +61,11 @@ class RJL
 		$matches = array();  // All matches
 		
 		$candidateJournals = RJL::getCandidateJournals();
+
 		$candidateISSNs = RJL::getCandidateISSNs();
-		$candidateConferences = RJL::getCandidateConfs();		
+
+		$candidateConferences = RJL::getCandidateConfs();
+
 		$rankedJournals = RJL::getRankedJournals();
 		$rankedJournalISSNs = RJL::getISSNsRJL();
 		$manualMatches = RJL::getManualMatches();
@@ -174,6 +177,7 @@ class RJL
         
         
         /* Find match results that linked to duplicate Journals and replace it with replacement Journal 
+         * Query to get the JNL_ID: SELECT jnl_id FROM {TABLE_PREFIX}journal WHERE jnl_era_id = {ERA_ID}
          * The replacement value are:
          * 
          *          ERAID JNL_ID Title
@@ -185,9 +189,13 @@ class RJL
 	
            Search = 16520 31371  Journal of National Cancer Institute
            Replace= 16434 31298  Journal of the National Cancer Institute
+         
+           Search = 45090 41506  Electronic Journal of Combinatorics
+           Replace= 138   20810  Journal of Combinatorics (year 2012)
+         * 
          */
-        $dupeJournalSearchJNLID = array( '41029', '30828', '31371'); 
-        $dupeJournalReplaceJNLID = array('30537', '30827', '31298'); 
+        $dupeJournalSearchJNLID = array( '41029', '30828', '31371', '41506'); 
+        $dupeJournalReplaceJNLID = array('30537', '30827', '31298', '20810'); 
         foreach ($matches as $key => $match){
             if (in_array($match['matching_id'], $dupeJournalSearchJNLID) === true ){
                 $matches[$key]['matching_id'] = str_replace($dupeJournalSearchJNLID, $dupeJournalReplaceJNLID, $match['matching_id']);
@@ -231,15 +239,9 @@ class RJL
 				" . APP_TABLE_PREFIX . "record_search_key_journal_name ON rek_pid = rek_journal_name_pid INNER JOIN
 				" . APP_TABLE_PREFIX . "xsd_display ON rek_display_type = xdis_id ";
 
-    if ($this->unMatched == true) {
-      $stmt .= " LEFT JOIN " . APP_TABLE_PREFIX . "matched_journals ON rek_pid = mtj_pid ";
-    }
 
 		$stmt .= "	WHERE ".TEST_WHERE." rek_display_type = xdis_id ";
 
-    if ($this->unMatched == true) {
-          $stmt .= " AND mtj_pid IS NULL";
-    }
 
     $stmt .= "
 				AND rek_date >= '" . WINDOW_START . "'
@@ -247,11 +249,43 @@ class RJL
 			ORDER BY
 				journal_title ASC
 		";
-		
+
+    if ($this->unMatched == true) {
+
+      $stmt = "
+      SELECT
+			rek_pid AS record_pid,
+		  rek_journal_name AS journal_title
+      FROM " . APP_TABLE_PREFIX . "record_search_key INNER JOIN
+      " . APP_TABLE_PREFIX . "record_search_key_journal_name ON rek_pid = rek_journal_name_pid INNER JOIN
+      " . APP_TABLE_PREFIX . "xsd_display ON rek_display_type = xdis_id
+      LEFT JOIN " . APP_TABLE_PREFIX . "matched_journals ON rek_pid = mtj_pid
+      WHERE mtj_pid IS NULL AND ".TEST_WHERE."
+      rek_date >= '" . WINDOW_START . "'
+      AND xdis_title IN ('Conference Paper', 'Conference Item', 'Journal Article', 'RQF 2006 Journal Article', 'RQF 2006 Conference Paper', 'RQF 2007 Journal Article', 'RQF 2007 Conference Paper', 'Online Journal Article')
+      GROUP BY rek_pid, rek_journal_name
+      UNION
+      SELECT
+			rek_pid AS record_pid,
+		  rek_journal_name AS journal_title
+      FROM " . APP_TABLE_PREFIX . "record_search_key INNER JOIN
+      " . APP_TABLE_PREFIX . "record_search_key_journal_name ON rek_pid = rek_journal_name_pid INNER JOIN
+      " . APP_TABLE_PREFIX . "xsd_display ON rek_display_type = xdis_id
+      LEFT JOIN " . APP_TABLE_PREFIX . "matched_journals
+      ON mtj_pid = rek_pid
+      WHERE mtj_jnl_id IS NOT NULL AND ".TEST_WHERE."
+      rek_date >= '" . WINDOW_START . "'
+      AND xdis_title IN ('Conference Paper', 'Conference Item', 'Journal Article', 'RQF 2006 Journal Article', 'RQF 2006 Conference Paper', 'RQF 2007 Journal Article', 'RQF 2007 Conference Paper', 'Online Journal Article')
+      GROUP BY rek_pid, rek_journal_name
+      HAVING COUNT(rek_pid) = 1
+      ";
+
+
+    }
+
 		if (TEST) {
 			$stmt .= " LIMIT 250;";
 		}
-		
 		try {
 			$result = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
@@ -288,15 +322,8 @@ class RJL
 				" . APP_TABLE_PREFIX . "record_search_key_issn ON rek_pid = rek_issn_pid INNER JOIN
 				" . APP_TABLE_PREFIX . "xsd_display ON rek_display_type = xdis_id ";
 
-      if ($this->unMatched == true) {
-        $stmt .= " LEFT JOIN " . APP_TABLE_PREFIX . "matched_journals ON rek_pid = mtj_pid ";
-      }
-
       $stmt .= "	WHERE ".TEST_WHERE." rek_display_type = xdis_id ";
 
-      if ($this->unMatched == true) {
-            $stmt .= " AND mtj_pid IS NULL";
-      }
 
       $stmt .= "
 				AND rek_date >= '" . WINDOW_START . "'
@@ -304,7 +331,33 @@ class RJL
 			ORDER BY
 				issn ASC
 		";
-		
+    if ($this->unMatched == true) {
+      $stmt = "
+      SELECT rek_pid AS record_pid, rek_issn AS issn
+      FROM " . APP_TABLE_PREFIX . "record_search_key INNER JOIN
+      " . APP_TABLE_PREFIX . "record_search_key_issn ON rek_pid = rek_issn_pid INNER JOIN
+      " . APP_TABLE_PREFIX . "xsd_display ON rek_display_type = xdis_id
+      LEFT JOIN " . APP_TABLE_PREFIX . "matched_journals ON rek_pid = mtj_pid
+      WHERE mtj_pid IS NULL AND ".TEST_WHERE."
+      rek_date >= '" . WINDOW_START . "'
+      AND xdis_title IN ('Conference Paper', 'Conference Item', 'Journal Article', 'RQF 2006 Journal Article', 'RQF 2006 Conference Paper', 'RQF 2007 Journal Article', 'RQF 2007 Conference Paper', 'Online Journal Article')
+      GROUP BY rek_pid, rek_issn
+      UNION
+      SELECT rek_pid AS record_pid, rek_issn AS issn
+      FROM " . APP_TABLE_PREFIX . "record_search_key INNER JOIN
+      " . APP_TABLE_PREFIX . "record_search_key_issn ON rek_pid = rek_issn_pid INNER JOIN
+      " . APP_TABLE_PREFIX . "xsd_display ON rek_display_type = xdis_id
+      LEFT JOIN " . APP_TABLE_PREFIX . "matched_journals
+      ON mtj_pid = rek_pid
+      WHERE mtj_jnl_id IS NOT NULL AND ".TEST_WHERE."
+      rek_date >= '" . WINDOW_START . "'
+      AND xdis_title IN ('Conference Paper', 'Conference Item', 'Journal Article', 'RQF 2006 Journal Article', 'RQF 2006 Conference Paper', 'RQF 2007 Journal Article', 'RQF 2007 Conference Paper', 'Online Journal Article')
+      GROUP BY rek_pid, rek_issn
+      HAVING COUNT(rek_pid) = 1
+      ";
+
+    }
+
 		if (TEST) {
 			$stmt .= " LIMIT 250;";
 		}
@@ -347,15 +400,8 @@ class RJL
 				" . APP_TABLE_PREFIX . "record_search_key_proceedings_title ON rek_pid = rek_proceedings_title_pid INNER JOIN
 				" . APP_TABLE_PREFIX . "xsd_display ON rek_display_type = xdis_id ";
 
-      if ($this->unMatched == true) {
-        $stmt .= " LEFT JOIN " . APP_TABLE_PREFIX . "matched_journals ON rek_pid = mtj_pid ";
-      }
 
       $stmt .= "	WHERE ".TEST_WHERE." rek_display_type = xdis_id ";
-
-      if ($this->unMatched == true) {
-            $stmt .= " AND mtj_pid IS NULL";
-      }
 
       $stmt .= "
 				AND " . APP_TABLE_PREFIX . "record_search_key.rek_date >= '" . WINDOW_START . "'
@@ -364,10 +410,41 @@ class RJL
 				conference_name ASC
 		";
 
+    if ($this->unMatched == true) {
+
+      $stmt = "
+      SELECT
+      rek_pid AS record_pid,
+      rek_proceedings_title AS conference_name
+      FROM " . APP_TABLE_PREFIX . "record_search_key INNER JOIN
+      " . APP_TABLE_PREFIX . "record_search_key_proceedings_title ON rek_pid = rek_proceedings_title_pid INNER JOIN
+      " . APP_TABLE_PREFIX . "xsd_display ON rek_display_type = xdis_id
+      LEFT JOIN " . APP_TABLE_PREFIX . "matched_journals ON rek_pid = mtj_pid
+      WHERE mtj_pid IS NULL AND ".TEST_WHERE."
+      rek_date >= '" . WINDOW_START . "'
+      AND xdis_title IN ('Conference Paper', 'Conference Item', 'Journal Article', 'RQF 2006 Journal Article', 'RQF 2006 Conference Paper', 'RQF 2007 Journal Article', 'RQF 2007 Conference Paper', 'Online Journal Article')
+      GROUP BY rek_pid, rek_proceedings_title
+      UNION
+      SELECT
+      rek_pid AS record_pid,
+      rek_proceedings_title AS conference_name
+      FROM " . APP_TABLE_PREFIX . "record_search_key INNER JOIN
+      " . APP_TABLE_PREFIX . "record_search_key_proceedings_title ON rek_pid = rek_proceedings_title_pid INNER JOIN
+      " . APP_TABLE_PREFIX . "xsd_display ON rek_display_type = xdis_id
+      LEFT JOIN " . APP_TABLE_PREFIX . "matched_journals
+      ON mtj_pid = rek_pid
+      WHERE mtj_jnl_id IS NOT NULL AND ".TEST_WHERE."
+      rek_date >= '" . WINDOW_START . "'
+      AND xdis_title IN ('Conference Paper', 'Conference Item', 'Journal Article', 'RQF 2006 Journal Article', 'RQF 2006 Conference Paper', 'RQF 2007 Journal Article', 'RQF 2007 Conference Paper', 'Online Journal Article')
+      GROUP BY rek_pid, rek_proceedings_title
+      HAVING COUNT(rek_pid) = 1
+      ";
+    }
+//echo $stmt;
 		if (TEST) {
 			$stmt .= " LIMIT 250;";
 		}
-		
+		echo $stmt;
 		try {
 			$result = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
@@ -375,15 +452,15 @@ class RJL
 			$log->err($ex);
 			return '';
 		}
-		
+    echo "COUNT: ".count($result);
 		if (count($result) > 0) {
 			foreach ($result as $key => $row) {
 				$candidateConferences[$row['record_pid']] = $row['conference_name'];
 			}
 		}
-		
+
 		echo "done.\n";
-		
+echo "COUNT: ".count($candidateConferences);
 		return $candidateConferences;
 	}
 	

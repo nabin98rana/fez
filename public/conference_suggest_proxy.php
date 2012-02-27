@@ -37,7 +37,7 @@ include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.setup.php");
 include_once(APP_INC_PATH . "class.conference.php");
 
-$suggestions = ConferenceId::suggest($_GET['query'], true);
+$suggestions = ConferenceId::suggest($_GET['query']);
 
 $suggestions = array(
     'Result'    =>  $suggestions

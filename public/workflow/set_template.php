@@ -104,7 +104,7 @@ if ($access_ok) {
     $xdis_collection_list = XSD_Display::getAssocListCollectionDocTypes(); // @@@ CK - 13/1/06 added for communities to be able to select their collection child document types/xdisplays
     $xdis_list = XSD_Display::getAssocListDocTypes();
     $community_list = Community::getAssocList();
-    $collection_list = Collection::getEditListAssoc(); 
+    $collection_list = Collection::getEditListAssoc();
     $jtaskData = "";
     $maxG = 0;
     $xsd_display_fields = XSD_HTML_Match::getListByDisplay($xdis_id, array("FezACML"), array(""));  // XSD_DisplayObject
@@ -139,7 +139,7 @@ if ($access_ok) {
                     }
                 }
             }
-            if ($dis_field["xsdmf_html_input"] == 'author_suggestor') {
+            if (($dis_field["xsdmf_html_input"] == 'author_suggestor') || ($dis_field["xsdmf_html_input"] == 'conference_suggestor') || ($dis_field["xsdmf_html_input"] == 'publisher_suggestor')) {
 
                 foreach ($xsd_display_fields as $dis_key2 => $dis_field2) {
                     if ($dis_field2['xsdmf_id'] == $dis_field['xsdmf_asuggest_xsdmf_id']) {
@@ -151,13 +151,28 @@ if ($access_ok) {
                     $suggestor_count = 1;
                 }
                 for ($x=1;$x<=$suggestor_count;$x++) {
-                 $tpl->headerscript .= "window.oTextbox_xsd_display_fields_{$dis_field['xsdmf_id']}_".$x."_lookup
-                        = new AutoSuggestControl(document.wfl_form1, 'xsd_display_fields_{$dis_field['xsdmf_id']}_".$x."', document.getElementById('xsd_display_fields_{$dis_field['xsdmf_asuggest_xsdmf_id']}_".$x."'), document.getElementById('xsd_display_fields_{$dis_field['xsdmf_id']}_".$x."_lookup'),
-                                new StateSuggestions('Author','suggest',false,
-                                    'class.author.php'), 'authorSuggestorCallback');
-                        ";
+                    if ($dis_field["xsdmf_html_input"] == 'author_suggestor') {
+                     $tpl->headerscript .= "window.oTextbox_xsd_display_fields_{$dis_field['xsdmf_id']}_".$x."_lookup
+                            = new AutoSuggestControl(document.wfl_form1, 'xsd_display_fields_{$dis_field['xsdmf_id']}_".$x."', document.getElementById('xsd_display_fields_{$dis_field['xsdmf_asuggest_xsdmf_id']}_".$x."'), document.getElementById('xsd_display_fields_{$dis_field['xsdmf_id']}_".$x."_lookup'),
+                                    new StateSuggestions('Author','suggest',false,
+                                        'class.author.php'), 'authorSuggestorCallback');
+                            ";
+                    } elseif ($dis_field["xsdmf_html_input"] == 'conference_suggestor') {
+                        $tpl->headerscript .= "window.oTextbox_xsd_display_fields_{$dis_field['xsdmf_id']}_".$x."_lookup
+                               = new AutoSuggestControl(document.wfl_form1, 'xsd_display_fields_{$dis_field['xsdmf_id']}_".$x."', document.getElementById('xsd_display_fields_{$dis_field['xsdmf_asuggest_xsdmf_id']}_".$x."'), document.getElementById('xsd_display_fields_{$dis_field['xsdmf_id']}_".$x."_lookup'),
+                                       new StateSuggestions('Conference','suggest',false,
+                                           'class.conference.php'), 'conferenceSuggestorCallback');
+                               ";
+                    } elseif ($dis_field["xsdmf_html_input"] == 'publisher_suggestor') {
+                        $tpl->headerscript .= "window.oTextbox_xsd_display_fields_{$dis_field['xsdmf_id']}_".$x."_lookup
+                               = new AutoSuggestControl(document.wfl_form1, 'xsd_display_fields_{$dis_field['xsdmf_id']}_".$x."', document.getElementById('xsd_display_fields_{$dis_field['xsdmf_asuggest_xsdmf_id']}_".$x."'), document.getElementById('xsd_display_fields_{$dis_field['xsdmf_id']}_".$x."_lookup'),
+                                       new StateSuggestions('Publisher','suggest',false,
+                                           'class.publisher.php'), 'publisherSuggestorCallback');
+                               ";
+                    }
                 }
             }
+
             if ($dis_field["xsdmf_html_input"] == 'combo' || $dis_field["xsdmf_html_input"] == 'multiple' || $dis_field["xsdmf_html_input"] == 'dual_multiple') {
                 if (!empty($dis_field["xsdmf_smarty_variable"]) && $dis_field["xsdmf_smarty_variable"] != "none") {
                     eval("\$xsd_display_fields[\$dis_key]['field_options'] = " . $dis_field["xsdmf_smarty_variable"] . ";");
@@ -204,7 +219,7 @@ if ($access_ok) {
                     $tempValue = $xsd_display_fields[$dis_key]["selected_option"];
                     $xsd_display_fields[$dis_key]["selected_option"] = array();
                     $xsd_display_fields[$dis_key]["selected_option"][$tempValue] = Record::getTitleFromIndex($tempValue);
-            	}    
+            	}
 			}
             if (($dis_field["xsdmf_html_input"] == 'contvocab')
                     || ($dis_field["xsdmf_html_input"] == 'contvocab_selector')) {
