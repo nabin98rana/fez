@@ -1,44 +1,161 @@
 {literal}
-    <script>
-        $(function() {
-            $('#groups_type').change(function () {
+<script language="JavaScript">
+<!--
+function purgeDatastream(ds_id)
+{
+    if (!confirm('This action will permanently delete the selected datastream.')) {
+        return false;
+    } else {
+        var features = 'width=420,height=200,top=30,left=30,resizable=yes,scrollbars=yes,toolbar=no,location=no,menubar=no,status=no';
+        var popupWin = window.open('{/literal}{$rel_url}{literal}popup.php?cat=purge_datastream&pid={/literal}{$pid}{literal}&ds_id=' + ds_id, '_popup', features);
+        popupWin.focus();
+    }
+}
+//-->
+</script>
+{/literal}
 
-                group_type = $('#groups_type').val();
-                $('#in_ad').hide();
-                $('#internal_group_list').hide();
-                $('#internal_user_list').hide();
-                $('#group_free_text').hide();
-                $('#in_ad').attr('name', '');
-                $('#internal_group_list').attr('name', '');
-                $('#internal_user_list').attr('name', '');
-                $('#group_free_text').attr('name', '');
-                if (group_type == "Fez_Group")  {
-                    $('#internal_group_list').show();
-                    $('#internal_group_list').attr('name', 'group');
-                } else if (group_type == "Fez_User"){
-                    $('#internal_user_list').show();
-                    $('#internal_user_list').attr('name', 'group');
-                } else if (group_type == "in_AD"){
-                    $('#in_ad').show();
-                    $('#in_ad').attr('name', 'group');
-                } else {
-                    $('#group_free_text').show();
-                    $('#group_free_text').attr('name', 'group');
 
-                }
-            })
-            .change();
-        });
-    </script>
+{if $new_record_id != "" and $smarty.post.report_stays != "yes"}
+<table width="500" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
+  <tr>
+    <td>
+      <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+        <tr>
+          <td class="default">
+            <b>Thank you, the new record was created successfully. Please choose
+            from one of the options below:</b>
+            <ul>
+              <li><a href="view/{$new_record_id}" class="link">Open the Record Details Page</a></li>
+              <li><a href="list.php" class="link">Open the Record Listing Page</a></li>
+              {if $app_setup.support_email == 'enabled' and $current_role > $roles.viewer}
+              <li><a href="emails.php" class="link">Open the Emails Listing Page</a></li>
+              {/if}
+              <li><a href="new.php" class="link">Report a New Record</a></li>
+            </ul>
+            <b>Otherwise, you will be automatically redirected to the Record Details Page in 5 seconds.</b>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+{literal}
+<script language="JavaScript">
+<!--
+setTimeout('openDetailPage()', 5000);
+function openDetailPage()
+{
+{/literal}
+    window.location.href = 'view/{$new_record_id}';
+{literal}
+}
+//-->
+</script>
+
+{/literal}
+{/if}
+{literal}
+
+
+<script language="JavaScript">
+<!--
+var required_xsd_display_fields = new Array();
+var xsd_display_fields = new Array();
+function validateForm() {
+{/literal}
+{section name="i" loop=$xsd_display_fields}
+{if ($xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector' || $xsd_display_fields[i].xsdmf_html_input == 'dual_multiple') && $xsd_display_fields[i].xsdmf_enabled == 1}
+
+{literal}
+	var field = document.getElementById('wfl_form1').xsd_display_fields_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}_0;
+    for (var y = 0; y < field.options.length; y++) {
+        field.options[y].selected = true;
+    }
+{/literal}
+{/if}
+{/section}
+{literal}
+checkRequiredFields(document.getElementById('wfl_form1'), required_xsd_display_fields);
+}
+
+
+
+{/literal}
+{section name="i" loop=$xsd_display_fields}
+{if $xsd_display_fields[i].xsdmf_html_input == 'date'}
+{literal}
+function calendarCallback_xsd_display_fields{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}(day, month, year) { selectDateField('xsd_display_fields[{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}]', day, month, year); }
+function calendarCallback_xsd_display_fields_end{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}(day, month, year) { selectDateField('xsd_display_fields_end[{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}]', day, month, year); }
+{/literal}
+{/if}
+{/section}
+{literal}
+
+
+function toggleDateFields(f, field_name)
+{
+    var checkbox = getFormElement(f, 'filter[' + field_name + ']');
+    var filter_type = getFormElement(f, field_name + '[filter_type]');
+    var month_field = getFormElement(f, field_name + '[Month]');
+    var day_field = getFormElement(f, field_name + '[Day]');
+    var year_field = getFormElement(f, field_name + '[Year]');
+    var month_end_field = getFormElement(f, field_name + '_end[Month]');
+    var day_end_field = getFormElement(f, field_name + '_end[Day]');
+    var year_end_field = getFormElement(f, field_name + '_end[Year]');
+    if (checkbox.checked) {
+        var bool = false;
+    } else {
+        var bool = true;
+    }
+    filter_type.disabled = bool;
+    month_field.disabled = bool;
+    day_field.disabled = bool;
+    year_field.disabled = bool;
+    month_end_field.disabled = bool;
+    day_end_field.disabled = bool;
+    year_end_field.disabled = bool;
+}
+function checkDateFilterType(f, type_field)
+{
+    var option = getSelectedOption(f, type_field.name);
+    var element_name = type_field.name.substring(0, type_field.name.indexOf('['));
+    var element = getPageElement(element_name + 1);
+    if ((option == 'between') && (!isElementVisible(element))) {
+        toggleVisibility(element_name, false);
+    } else if ((option != 'between') && (isElementVisible(element))) {
+        toggleVisibility(element_name, false);
+    }
+}
+function selectDateOptions(field_prefix, date_str)
+{
+    if (date_str.length != 10) {
+        return false;
+    } else {
+        var year = date_str.substring(0, date_str.indexOf('-'));
+        var month = date_str.substring(date_str.indexOf('-')+1, date_str.lastIndexOf('-'));
+        var day = date_str.substring(date_str.lastIndexOf('-')+1);
+        selectDateField(field_prefix, day, month, year);
+    }
+}
+function selectDateField(field_name, day, month, year)
+{
+    selectOption(this.document.getElementById('wfl_form1'), field_name + '[Day]', day);
+    selectOption(this.document.getElementById('wfl_form1'), field_name + '[Month]', month);
+    selectOption(this.document.getElementById('wfl_form1'), field_name + '[Year]', year);
+}
+//-->
+</script>
 {/literal}
 
 <table width="99%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
+
 
 <input type="hidden" name="cat" value="update_security">
 <input type="hidden" name="xdis_id" value="{$xdis_id}">
 <input type="hidden" name="sta_id" value="{$sta_id}">
 <input type="hidden" name="pid" value="{$pid}">
-<input type="hidden" name="did" value="{$did}">
+<input type="hidden" name="dsID" value="{$dsID}">
 <input type="hidden" name="id" value="{$id}">
 {section name="i" loop=$xsd_display_fields}
 	{if $xsd_display_fields[i].xsdmf_title == 'state'}
@@ -47,111 +164,337 @@
 {/section}
    <tr>
     <td>
-        <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
-
-      		<div class="error">{$error_message}</div>
-              <input type="hidden" name="action" value="save"/>
-              <input type="hidden" name="cat" value="update_security_fedora_bypass"/>
-              <input type="hidden" name="id" value="{$id}"/>
-
-            <tr>
-                <td bgcolor="{$light_color}" colspan="1">
-                    <select id="role" name="role">
-                        {foreach from=$possible_roles key=k item=v}
-                            <option value="{$k}">{$v}</option>
-                        {/foreach}
-                    </select>
-                </td>
-
-                <td bgcolor="{$light_color}" colspan="1">
-                    <select class="groups_type" id="groups_type" name="groups_type">
-                        {foreach from=$group_types key=k item=v}
-                            <option value="{$k}">{$v}</option>
-                        {/foreach}
-                    </select>
-                </td>
-                <td bgcolor="{$light_color}" colspan="1">
-
-                    <select id="in_ad"  style="display: none;">
-                        <option value="on">on</option>
-                        <option value="off">off</option>
-                    </select>
-
-                    <input type="text" size="50" id="group_free_text" name ="group"  />
-                    <select id="internal_group_list"  style="display: none;">
-                        {foreach from=$internal_group_list key=k item=v}
-                            <option value="{$k}">{$v}</option>
-                        {/foreach}
-                    </select>
-                    <select id="internal_user_list"  style="display: none;">
-                        {foreach from=$internal_user_list key=k item=v}
-                            <option value="{$k}">{$v}</option>
-                        {/foreach}
-                    </select>
-                </td>
-                <td bgcolor="{$light_color}" colspan="3"></td>
-            </tr>
-            <tr>
-                <td style="width: 4px; text-align: center; white-space: nowrap; background: {$row_color}" colspan='4'>
-                 <input type="submit" name="submit" value="Add" />
-            </td>
-            </tr>
-            <tr><td>Inherit permissions</td><td><input type="checkbox" name="inherit" value="1" {if ($inherits_security)} checked="checked" {/if} /></td></tr>
-            {if ($did)}
-                <tr><td>Watermarked</td><td><input type="checkbox" name="watermark" value="{$watermark}" {if ($watermark)} checked="checked" {/if} /></td></tr>
-                <tr><td>Copyright</td><td><input type="checkbox" name="copyright" value="{$copyright}" {if ($copyright)} checked="checked" {/if} /></td></tr>
+      <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="0" border="0">
+        <tr>
+          <td class="default_white" bgcolor="{$heading_color}">
+            &nbsp;<img align="absmiddle" src="{$rel_url}images/security.gif"><b>Edit {$xdis_title} Security for {$pid_title} {if $dsID != ""} Datastream {$dsID}{/if}</b>
+          </td>
+        </tr>
+        {section name="i" loop=$xsd_display_fields}
+		{assign var="temp_fld_id" value=$xsd_display_fields[i].xsdmf_id}
+		{if ($xsd_display_fields[i].xsdmf_html_input != 'xsdmf_id_ref' and $xsd_display_fields[i].xsdmf_html_input != 'xsd_ref' and $xsd_display_fields[i].xsdmf_html_input != '')}
+		  {if ((($xsd_display_fields[i].xsdmf_html_input == 'static' && $xsd_display_fields[i].xsdmf_show_in_view == 1 && $xsd_display_fields[i].xsdmf_static_text != '') && ($xsd_display_fields[i].xsdmf_show_in_view == 1)) || ($xsd_display_fields[i].xsdmf_html_input != 'static'))}
+			  {if ((($xsd_display_fields[i].xsdmf_html_input == 'xsd_loop_subelement') && ($xsd_display_fields[i].xsdmf_show_in_view == 1)) || ($xsd_display_fields[i].xsdmf_html_input != 'xsd_loop_subelement')) && $xsd_display_fields[i].xsdmf_enabled == 1}
+        <tr><td colspan="2">
+	<table id="choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}" border="0" cellpadding="2" cellspacing="0" width="100%">
+            {if $xsd_display_fields[i].xsdmf_required == 1 && $xsd_display_fields[i].xsdmf_enabled == 1}
+            <script language="JavaScript">
+            <!--
+            xsd_display_fields[xsd_display_fields.length] = new Option('xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]{if $xsd_display_fields[i].xsdmf_html_input == 'multiple' || $xsd_display_fields[i].xsdmf_html_input == 'contvocab' || $xsd_display_fields[i].xsdmf_html_input == 'allcontvocab' || $xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector' || $xsd_display_fields[i].xsdmf_multiple == 1}[]{/if}', '{$xsd_display_fields[i].xsdmf_title}');
+            required_xsd_display_fields[required_xsd_display_fields.length] = new Option('xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]{if $xsd_display_fields[i].xsdmf_html_input == 'multiple'|| $xsd_display_fields[i].xsdmf_html_input == 'contvocab' || $xsd_display_fields[i].xsdmf_html_input == 'allcontvocab' || $xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector' || $xsd_display_fields[i].xsdmf_multiple == 1}[]{/if}', {if $xsd_display_fields[i].xsdmf_html_input == 'multiple' || $xsd_display_fields[i].xsdmf_html_input == 'contvocab' || $xsd_display_fields[i].xsdmf_html_input == 'allcontvocab' || $xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector'}'multiple'{elseif $xsd_display_fields[i].xsdmf_html_input == 'checkbox'}'checkbox'{elseif $xsd_display_fields[i].xsdmf_html_input == 'combo'}'combo'{else}'whitespace'{/if});
+            //-->
+            </script>
             {/if}
-            <tr><td>&nbsp;</td></tr>
-            <tr>
-                <td width="140" bgcolor="{$cell_color}" class="default">
-             			  <b>Permission:</b>
-             	  </td>
-                <td width="140" bgcolor="{$cell_color}" class="default">
-             			  <b>Apply to type</b>
-             	  </td>
-                <td width="140" bgcolor="{$cell_color}" class="default">
-                    <b>Group/User:</b>
-                </td>
-                <td width="140" bgcolor="{$cell_color}" class="default">
-                       <b>Inherited:</b>
-                </td>
-                <td width="140" bgcolor="{$cell_color}" class="default">
-                       <b>Remove:</b>
-                </td>
-                <td bgcolor="{$cell_color}" class="default">
-                &nbsp;
-                </td>
 
-            </tr>
+            {if $xsd_display_fields[i].xsdmf_html_input == 'file_input' && $xsd_display_fields[i].xsdmf_enabled == 1}
+				{if $xsd_display_fields[i].xsdmf_multiple == 1}
+					{section name="z" loop=$xsd_display_fields[i].multiple_array}
+						{assign var="loop_num" value=$smarty.section.z.index}
+						<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" {if $loop_num != 0}style="display:none"{/if}>
+						  <td width="200" bgcolor="{$cell_color}" class="default">
+							<b>{$xsd_display_fields[i].xsdmf_title} {math equation="x + 1" x=$loop_num}</b>{if $xsd_display_fields[i].xsdmf_required == 1} * {/if}<br />{if $loop_num == 0}<i>(More {$xsd_display_fields[i].xsdmf_title} input boxes will appear as you type)</i>{/if}
+						  </td>
+						  <td bgcolor="{$value_color}">
+						<input class="default" type="file" id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]" onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onChange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" maxlength="255" size="50">
+						 </td>
+						</tr>
+					{/section}
+				{else}
+						<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0">
+						  <td width="200" bgcolor="{$cell_color}" class="default">
+							<b>{$xsd_display_fields[i].xsdmf_title}{if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b>
+						  </td>
+						  <td bgcolor="{$value_color}">
+						<input class="default" type="file" id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]"  maxlength="255" size="50">
+						 </td>
+						</tr>
+				{/if}
+            {elseif $xsd_display_fields[i].xsdmf_html_input == 'checkbox' && $xsd_display_fields[i].xsdmf_enabled == 1}
+				{if $xsd_display_fields[i].xsdmf_multiple == 1}
+					{section name="z" loop=$xsd_display_fields[i].multiple_array}
+						{assign var="loop_num" value=$smarty.section.z.index}
+						<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" {if $loop_num != 0}style="display:none"{/if} valign="top">
+						  <td width="200" bgcolor="{$cell_color}" class="default">
+							<b>{$xsd_display_fields[i].xsdmf_title} {math equation="x + 1" x=$loop_num}</b>{if $xsd_display_fields[i].xsdmf_required == 1} * {/if}<br />{if $loop_num == 0}<i>(More {$xsd_display_fields[i].xsdmf_title} input boxes will appear as you type)</i>{/if}
+						  </td>
+						  <td bgcolor="{$value_color}">
+						<input class="default" type="checkbox" {$xsd_display_fields[i].xsdmf_cso_value} id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}"
+                               name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]"
+                               {if $details[$temp_fld_id][z] =='on' || ($FezACML_exists == 0 && $xsd_display_fields[i].xsdmf_cso_value == 'checked')}checked{/if}
+                               onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');"
+                               onChange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');">
+							{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"][]"}
+							{if $xsd_display_fields[i].xsdmf_long_description != ""}
+								<span class="default">{$xsd_display_fields[i].xsdmf_long_description}</span>
+							{/if}
 
-              {foreach name=current item=security_permission from=$current_security_permissions}
-                  <tr>
-                      <input type="hidden" name="" value=""/>
-                    <td bgcolor="{$light_color}" colspan="1">
-                          {$security_permission.aro_role}
-                    </td>
-                    <td bgcolor="{$light_color}" colspan="1">
-                                   {$security_permission.ar_rule_value}
-                    </td>
-                    <td bgcolor="{$light_color}" colspan="1">
-                                   {$security_permission.ar_value_value}
-                    </td>
-                    <td bgcolor="{$light_color}" colspan="1">
-                                   {if (!$security_permission.inherited)}N{else}Y{/if}
-                    </td>
-                    <td style="width: 4px; text-align: center; white-space: nowrap;" bgcolor="{$light_color}">
-                        {if (!$security_permission.inherited)}<input type="checkbox" name="items[]" value="{$security_permission.row}" />{/if}
-                    </td>
-                  </tr>
-              {/foreach}
-               <tr>
-                  <td width="140" bgcolor="{$cell_color}" colspan="5" class="default">&nbsp;</td>
-              </tr>
+						 </td>
+						</tr>
+					{/section}
+				{else}
+						<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" valign="top">
+						  <td width="200" bgcolor="{$cell_color}" class="default">
+							<b>{$xsd_display_fields[i].xsdmf_title}{if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b>
+						  </td>
+						  <td bgcolor="{$value_color}">
 
+						<input class="default" type="checkbox" id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]"
+                               {if $details[$temp_fld_id] == 'on' || ($FezACML_exists == 0 && $xsd_display_fields[i].xsdmf_cso_value == 'checked')}checked{/if}>
+						{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}
+							{if $xsd_display_fields[i].xsdmf_long_description != ""}
+								<span class="default">{$xsd_display_fields[i].xsdmf_long_description}</span>
+							{/if}
+
+						 </td>
+						</tr>
+				{/if}
+			{elseif ($xsd_display_fields[i].xsdmf_html_input == 'static' && $xsd_display_fields[i].xsdmf_show_in_view == 1 && $xsd_display_fields[i].xsdmf_static_text != '')}
+				{assign var="image_name" value=$fez_root_dir|cat:"images/"|cat:$xsd_display_fields[i].xsdmf_image_location}
+				{assign var="image_file_string" value=""}
+				{fetch file=$image_name assign="image_file_string"}
+						<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0">
+						  <td bgcolor="{$heading_color}" class="default_white" colspan="2" nowrap>
+							{if $image_file_string != ""}<img align="absmiddle" src="{$rel_url}images/{$xsd_display_fields[i].xsdmf_image_location}"> {/if}<b>{$xsd_display_fields[i].xsdmf_static_text}</b>
+							{if $xsd_display_fields[i].xsdmf_description != ""}
+								&nbsp;<i>{$xsd_display_fields[i].xsdmf_description|escape:"html"}</i>
+							{/if}
+						  </td>
+						</tr>
+			{elseif ($xsd_display_fields[i].xsdmf_html_input == 'xsd_loop_subelement' && $xsd_display_fields[i].xsdmf_show_in_view == 1)}
+				{assign var="image_name" value=$fez_root_dir|cat:"images/"|cat:$xsd_display_fields[i].xsdmf_image_location}
+				{assign var="image_file_string" value=""}
+				{fetch file=$image_name assign="image_file_string"}
+						<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0">
+						  <td bgcolor="{$cell_color}" class="default" colspan="2" nowrap>
+							{if $image_file_string != ""}<img align="absmiddle" src="{$rel_url}images/{$xsd_display_fields[i].xsdmf_image_location}"> {/if}<b>{$xsd_display_fields[i].xsdmf_title}</b>
+							{if $xsd_display_fields[i].xsdmf_description != ""}
+								&nbsp;<i>{$xsd_display_fields[i].xsdmf_description|escape:"html"}</i>
+							{/if}
+						  </td>
+						</tr>
+
+            {elseif $xsd_display_fields[i].xsdmf_html_input == 'text' && $xsd_display_fields[i].xsdmf_enabled == 1}
+				{if $xsd_display_fields[i].xsdmf_multiple == 1}
+					{assign var="show_num" value=0}
+					{assign var="check_num" value=0}
+					{section name="z" loop=$xsd_display_fields[i].multiple_array}
+						{assign var="loop_num" value=$smarty.section.z.index}
+						{if $show_num != 0}
+							{assign var="check_num" value=$show_num-1}
+						{/if}
+						<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" {if $details[$temp_fld_id][$loop_num] == '' && $details[$temp_fld_id][$check_num] == '' && $show_num != 0}style="display:none"{/if}>
+						  <td width="200" bgcolor="{$cell_color}" class="default">
+							<b>{$xsd_display_fields[i].xsdmf_title} {math equation="x + 1" x=$loop_num} </b>{if $xsd_display_fields[i].xsdmf_required == 1 && $loop_num == 0} * {/if}<br />{if $loop_num == 0}<i>(More {$xsd_display_fields[i].xsdmf_title} input boxes will appear as they are used up)</i>{/if}
+						  </td>
+						  <td bgcolor="{$value_color}">
+					    {assign var="field_id" value="xsd_display_fields_"|cat:$xsd_display_fields[i].xsdmf_id|cat:"_"|cat:$loop_num}
+						<input class="default" type="text" id="{$field_id}" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]" value="{$details[$temp_fld_id][z]}" onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onChange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" maxlength="255" size="50">
+						{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"][]"}
+							{if $xsd_display_fields[i].xsdmf_description != ""}
+								&nbsp;<span class="default"><i>{$xsd_display_fields[i].xsdmf_description|escape:"html"}</i></span>
+							{/if}
+						 </td>
+						</tr>
+						{assign var="show_num" value=$show_num+1}
+					{/section}
+				{else}
+						<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0">
+						  <td width="200" bgcolor="{$cell_color}" class="default">
+							<b>{$xsd_display_fields[i].xsdmf_title} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b>
+						  </td>
+						  <td bgcolor="{$value_color}">
+					    {assign var="field_id" value="xsd_display_fields_"|cat:$xsd_display_fields[i].xsdmf_id|cat:"_0"}
+						<input class="default" type="text" id="{$field_id}" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]" value="{$details[$temp_fld_id]}"  maxlength="255" size="50">
+						{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}
+						  </td>
+						 </tr>
+				{/if}
+            {elseif $xsd_display_fields[i].xsdmf_html_input == 'textarea' && $xsd_display_fields[i].xsdmf_enabled == 1}
+						<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0">
+						  <td width="200" bgcolor="{$cell_color}" class="default" valign="top">
+							<b>{$xsd_display_fields[i].xsdmf_title} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b>
+						  </td>
+						  <td bgcolor="{$value_color}">
+				            <textarea class="default" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]" rows="10" cols="60">{$details[$temp_fld_id]}</textarea>
+							{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}
+						  </td>
+						 </tr>
+            {elseif $xsd_display_fields[i].xsdmf_html_input == 'hidden' && $xsd_display_fields[i].xsdmf_enabled == 1}
+				{if $xsd_display_fields[i].xsdmf_multiple == 1}
+					{section name="z" loop=$xsd_display_fields[i].multiple_array}
+						{assign var="loop_num" value=$smarty.section.z.index}
+						<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" style="display:none">
+						  <td width="200" bgcolor="{$cell_color}" class="default">
+							<b>{$xsd_display_fields[i].xsdmf_title} {math equation="x + 1" x=$loop_num} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b><br />
+						  </td>
+						  <td bgcolor="{$light_color}">
+				            <input type="hidden" id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]" value="{$details[$temp_fld_id][z]}"/>
+						 </td>
+						</tr>
+					{/section}
+				{else}
+						<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" style="display:none">
+						  <td width="200" bgcolor="{$cell_color}" class="default">
+							<b>{$xsd_display_fields[i].xsdmf_title} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b>
+						  </td>
+						  <td bgcolor="{$light_color}">
+				            <input type="hidden" id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]"  value="{$details[$temp_fld_id]}"/>
+						 </td>
+						</tr>
+				{/if}
+
+
+            {elseif ($xsd_display_fields[i].xsdmf_html_input == 'dual_multiple')  && $xsd_display_fields[i].xsdmf_enabled == 1}
+				{assign var="xsdmf" value=$xsd_display_fields[i]}
+				<tr id="tr_xsd_display_fields_{$xsdmf.xsdmf_id}_0" {if $xsdmf.xsdmf_invisible == 1}style="display:none;"{/if}>
+					  <td width="200" bgcolor="{$cell_color}" class="default" valign="top">
+						<b>{$xsdmf.xsdmf_title} {if $xsdmf.xsdmf_required == 1} * {/if}</b>
+					  </td>
+					  <td bgcolor="{$value_color}">
+					<table>
+					<tr>
+					  <td align="left" width="5%" class="default">Set {$xsdmf.xsdmf_title}</td>
+						<td align="left" class="default">Selectable Options</td>
+					</tr>
+					<tr>
+					  <td align="left" width="5%">
+						{assign var="field_name_helper" value="xsd_display_fields_helper["|cat:$xsdmf.xsdmf_id|cat:"][]"}
+						{assign var="field_id_helper" value="xsd_display_fields_helper_"|cat:$xsdmf.xsdmf_id|cat:"_0"}
+  					    {assign var="field_name" value="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"][]"}
+  					    {assign var="field_id" value="xsd_display_fields_"|cat:$xsdmf.xsdmf_id|cat:"_0"}
+
+						<select id="{$field_id}" multiple size="8" style="max-width:400px" class="default" name="{$field_name}">
+						  {if is_array($details[$temp_fld_id])}{html_options options=$details[$temp_fld_id]}{/if}
+						</select>
+						{include file="error_icon.tpl.html" field=$field_name}
+						{if $xsdmf.xsdmf_required == 1}
+	        		    <script type="text/javascript">
+				        <!--
+	        		    xsd_display_fields[xsd_display_fields.length] = new Option('xsd_display_fields[{$xsdmf.xsdmf_id}][]', '{$xsdmf.xsdmf_title}');
+			            required_xsd_display_fields[required_xsd_display_fields.length] = new Option('xsd_display_fields[{$xsdmf.xsdmf_id}][]', 'multiple');
+	        		    //-->
+			            </script>
+	        		    {/if}
+					  </td>
+						<td align="left" style="vertical-align: 0;">
+						<select id="{$field_id_helper}" style="max-width:400px" multiple size="8" class="default" name="{$field_name_helper}">
+						  {html_options options=$xsdmf.field_options}
+						</select>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<input type="button" name="remove_left" value="Remove selected from left" onClick="javascript:deleteSelectedItemsFromList(this.form.{$field_id});" />
+						</td>
+						<td>
+							<input type="button" name="copy_left" value="Copy selected to left" onClick="javascript:addToParentList(this.form.{$field_id_helper}, this.form.{$field_id});" />
+						</td>
+					</tr>
+					</table>
+					  </td>
+				</tr>
+            {elseif ($xsd_display_fields[i].xsdmf_html_input == 'multiple' or $xsd_display_fields[i].xsdmf_html_input == 'combo')  && $xsd_display_fields[i].xsdmf_enabled == 1}
+						<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0">
+						  <td width="200" bgcolor="{$cell_color}" class="default" valign="top">
+							<b>{$xsd_display_fields[i].xsdmf_title} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b>
+						  </td>
+						  <td bgcolor="{$value_color}">
+	  					    {assign var="field_name" value="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}
+							{if $xsd_display_fields[i].xsdmf_html_input == 'multiple'}
+								{assign var="field_name" value=$field_name|cat:"[]"}
+							{/if}
+							<select {if $xsd_display_fields[i].xsdmf_html_input == 'multiple'}multiple size="8"{/if} class="default" name="{$field_name}">
+							  {if $xsd_display_fields[i].xsdmf_html_input != 'multiple'}<option value="-1">Please choose an option</option>{/if}
+							  {html_options options=$xsd_display_fields[i].field_options selected=$details[$temp_fld_id]}
+							</select>
+							{include file="error_icon.tpl.html" field=$field_name}
+						  </td>
+						 </tr>
+            {elseif $xsd_display_fields[i].xsdmf_html_input == 'date' && $xsd_display_fields[i].xsdmf_enabled == 1}
               <tr>
+				  <td width="200" bgcolor="{$cell_color}" class="default">
+					<b>{$xsd_display_fields[i].xsdmf_title} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b>
+				  </td>
+                <td nowrap bgcolor="{$value_color}">
+                  {assign var="temp_xsdmf_id" value=$xsd_display_fields[i].xsdmf_id}
+					{* Convert reminder date to format usable by html_select_date *}
+					{if $details[$temp_fld_id] == ''}
+						{assign var="full_date" value='0000-00-00'}
+						{assign var="full_start_year" value=$smarty.now|date_format:"%Y"}
+					{else}
+						{assign var="full_date" value=$details[$temp_fld_id]}
+						{* Set the start year to be whatever the current reminder date is *}
+						{if $full_date|substr:"0":"4" < $smarty.now|date_format:"%Y"}
+							{assign var="full_start_year" value=$full_date|substr:"0":"4"}
+						{else}
+							{assign var="full_start_year" value=$smarty.now|date_format:"%Y"}
+						{/if}
+					{/if}
 
+                  {html_select_date time=$full_date month_empty='' year_empty='' day_empty='' field_array="xsd_display_fields[$temp_xsdmf_id]" prefix="" start_year="-50" end_year="+0" all_extra='class="default" onChange="javascript:checkDateFilterType(this.form, this);"'}
+				<script language="JavaScript" type="text/javascript" src="{$rel_url}js/dynCalendar.js"></script>
+                                  {literal}
+                  <script language="JavaScript" type="text/javascript">
+                  <!--
+                  tCalendar_xsd_display_fields{/literal}{$xsd_display_fields[i].xsdmf_id}{literal} = new dynCalendar('tCalendar_xsd_display_fields{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}', 'calendarCallback_xsd_display_fields{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}', '{/literal}{$rel_url}{literal}images/');
+                  tCalendar_xsd_display_fields{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}.setMonthCombo(false);
+                  tCalendar_xsd_display_fields{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}.setYearCombo(false);
+                  //-->
+                  </script>{/literal}&nbsp;&nbsp;
+                </td>
               </tr>
-      		</table>
+            {elseif $xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector' && $xsd_display_fields[i].xsdmf_enabled == 1}
+
+					<tr id="tr_list_{$list[i].xsdmf_id}_0" valign="top">
+					  <td width="200" bgcolor="{$cell_color}" class="default">
+						<b>{$xsd_display_fields[i].xsdmf_title} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b>
+					  </td>
+					  <td bgcolor="{$value_color}">
+					   {assign var="field_name" value="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"][]"}
+						<select id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" multiple size="10" class="default" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]">
+							{if $details[$temp_fld_id]}
+							  {html_options options=$details[$temp_fld_id]}
+							 {/if}
+						</select>
+						{include file="error_icon.tpl.html" field=$field_name}
+						<input class="default" type=button value="Add New" onclick = "javascript:small_window('{$rel_url}cv_selector.php?cvo_id=1&form=wfl_form1&element=xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0');">
+						<input class="default" type=button value="Remove Selected" onclick =" javascript:deleteSelectedItemsFromList(xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0);">
+					 </td>
+					</tr>
+            {elseif $xsd_display_fields[i].xsdmf_html_input == 'contvocab'  && $xsd_display_fields[i].xsdmf_enabled == 1}
+
+					<tr id="tr_list_{$list[i].xsdmf_id}_0" valign="top">
+					  <td width="200" bgcolor="{$cell_color}" class="default">
+						<b>{$xsd_display_fields[i].xsdmf_title} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b>
+					  </td>
+					  <td bgcolor="{$value_color}">
+						<select id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" multiple size="15" class="default" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]">
+							  {html_options options=$xsd_display_fields[i].field_options selected=$details[$temp_fld_id]}
+						</select>
+					 </td>
+					</tr>
+
+            {/if}
+            {assign var="custom_field_id" value=$xsd_display_fields[i].xsdmf_id}
+
+            {if $xsd_display_fields[i].xsdmf_html_input == 'multiple'}
+              {assign var="custom_field_sufix" value="[]"}
+            {else}
+              {assign var="custom_field_sufix" value=""}
+            {/if}
+			</table>
+		</td></tr>
+				{/if}
+			{/if}
+		{/if}
+        {/section}
+		  <tr>
+			<td class="default" colspan="3">&nbsp;</td>
+		  </tr>
+		    </table>
+		  </td>
+		</tr>
+</table>
 </td>
 </tr>
 </table>
