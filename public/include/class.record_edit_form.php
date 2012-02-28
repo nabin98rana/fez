@@ -95,7 +95,7 @@
     
         $tpl->assign("xdis_id", $record->getXmlDisplayId());
         
-        $details = $record->getDetails();
+        $details = $record->getDetails();   // RecordGeneral -> getDetails();
         $this->fixDetails($details);
         $this->details = $details;
 
