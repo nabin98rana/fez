@@ -31,7 +31,7 @@
 // +----------------------------------------------------------------------+
 ini_set("display_errors", 1); // LKDB - tmp (was 1)
 
-include_once('../config.inc.php');
+include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.wok_service.php");
 include_once(APP_INC_PATH . "class.wos_record.php");
