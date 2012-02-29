@@ -41,14 +41,19 @@ class Functional_Base extends PHPUnit_Extensions_SeleniumTestCase
 //    $this->_config = Zend_Registry::get('config');
     
     // Is this destructive or non-destructive test?
-    $this->_destructive = ($this->_config->testing->destructive == 1) ? TRUE : FALSE;
+    // @todo: config
+//    $this->_destructive = ($this->_config->testing->destructive == 1) ? TRUE : FALSE;
+    $this->_destructive = FALSE;
   }
    
   
   protected function setUp()
   {
     $this->setBrowser(self::$browsers[0]["browser"]);
-    $this->setBrowserUrl($this->_config->testing->url);
+    // @todo
+//    $this->setBrowserUrl($this->_config->testing->url);
+    $this->setBrowserUrl("http://bypass.beacon.library.uq.edu.au/");
+    
     $this->setTimeout(self::DEFAULT_TIMEOUT);
   }
 
