@@ -2,7 +2,7 @@
 
 
 include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
-require("/var/www/fez/include/class.xsd_html_match.php");
+include_once APP_INC_PATH.'class.xsd_html_match.php';
 
 // Looks like a regular fully-formed date.
 
