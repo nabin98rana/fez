@@ -38,8 +38,6 @@ glob:.project
 glob:.project/*
 glob:pidindex
 glob:.settings
-glob:tests
-glob:tests/*
 glob:tmp/*
 glob:tmp
 glob:pidsources
