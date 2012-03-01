@@ -51,13 +51,13 @@ $filter["searchKey".Search_Key::getID("Created Date")] = array();
 $filter["searchKey".Search_Key::getID("Created Date")]["filter_type"] = "greater";
 $filter["searchKey".Search_Key::getID("Created Date")]["filter_enabled"] = 1;
 $filter["searchKey".Search_Key::getID("Created Date")]["start_date"] = 
-    Date_API::getFedoraFormattedDateUTC(strtotime("-3 months"));
+    Date_API::getFedoraFormattedDateUTC(strtotime("-36 months"));
 // .. without a UT ..
 $filter["manualFilter"] = " -isi_loc_t_s:[* TO *] AND ";
 // ..and optionally enforce published records only
 //$filter["searchKey".Search_Key::getID("Status")] = 2;
 $laq = LinksAmrQueue::get();
-$max = 50;
+$max = 10;
 $listing = Record::getListing(array(), array(9,10), 0, $max, 'Created Date', false, false, $filter);
 
 //Clean out any remaining Researcher ID - UT to Author id (aut_id) relationships before proceeding or it will treat these like RID downloads
@@ -65,11 +65,11 @@ $queue = WokQueue::get();
 $queue->deleteAllAutIds();
 
 
-for ($i=0; $i<((int)$listing['info']['total_pages']+1); $i++) {  
+for ($i=0; $i<((int)$listing['info']['total_pages']); $i++) {
   // Skip first loop - we have called getListing once already
   if ($i>0) {
     $listing = Record::getListing(
-        array(), array(9,10), $listing['info']['next_page'], $max, 'Created Date', false, false, $filter
+        array(), array(9,10), ($i), $max, 'Created Date', false, false, $filter
     );
   }
   
