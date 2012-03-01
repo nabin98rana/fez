@@ -2971,7 +2971,6 @@ class AuthNoFedora {
     //This assumes parent or non inherited data might be changed
     function recalculatePermissions($pid)
     {
-        //Todo child permissions
         $pidParentPermisisons = AuthNoFedora::getParentsACML($pid);
         $pidNonInheritedPermisisons = AuthNoFedora::getNonInheritedSecurityPermissions($pid);
         $pidCaculatedPermissions = array_merge($pidParentPermisisons,$pidNonInheritedPermisisons);
@@ -2993,6 +2992,16 @@ class AuthNoFedora {
         foreach($childPids as $child) {
             if (AuthNoFedora::isInherited($pid)) {
                 AuthNoFedora::recalculatePermissions($child);
+            }
+        }
+
+        //datastream children
+        $record = new RecordGeneral($pid);
+        $datastreams = $record->getDatastreams();
+        foreach($datastreams as $datastream) {
+            $did = AuthNoFedoraDatastreams::getDid($pid, $datastream[ID]);
+            if (AuthNoFedoraDatastreams::isInherited($did)) {
+                AuthNoFedoraDatastreams::recalculatePermissions($did);
             }
         }
 

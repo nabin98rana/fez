@@ -332,8 +332,8 @@ class DSResource
             if(!$row)
             {
                 $sql = "INSERT INTO " . APP_TABLE_PREFIX . "file_attachments "
-                    ."(fat_hash, fat_filename, fat_version, fat_pid, fat_size, fat_mimetype) VALUES "
-                    ."(:dshash, :dsfilename, :version, :pid, :size, :mimetype)";
+                    ."(fat_hash, fat_filename, fat_version, fat_pid, fat_size, fat_mimetype, fat_security_inherited) VALUES "
+                    ."(:dshash, :dsfilename, :version, :pid, :size, :mimetype, '1')";
                     
                 $this->db->query($sql, array(':dshash' => $this->hash['rawHash'], 
                 	':dsfilename' => $this->hash['hashFile'],
