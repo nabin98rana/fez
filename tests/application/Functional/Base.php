@@ -12,10 +12,7 @@ class Functional_Base extends PHPUnit_Extensions_SeleniumTestCase
   public static $browsers = array(
     array(
         'browser' => '*firefox'
-    ) //,
-    /*array(
-         'browser' => '*googlechrome'
-    ),*/
+    )
   );
 
   /**
@@ -50,10 +47,12 @@ class Functional_Base extends PHPUnit_Extensions_SeleniumTestCase
   protected function setUp()
   {
     $this->setBrowser(self::$browsers[0]["browser"]);
+    
     // @todo
 //    $this->setBrowserUrl($this->_config->testing->url);
     $this->setBrowserUrl("http://bypass.beacon.library.uq.edu.au/");
     
+//    $this->setBrowserUrl("http://".APP_HOSTNAME);
     $this->setTimeout(self::DEFAULT_TIMEOUT);
   }
 

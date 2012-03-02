@@ -2,19 +2,6 @@
 
 chdir(dirname(__FILE__));
 
-// We want all errors 
-error_reporting(E_ALL ^ E_NOTICE);
-
-// Set up include paths
-set_include_path(
-    '.'.PATH_SEPARATOR.
-    './../../library'. PATH_SEPARATOR .
-    get_include_path()
-);
-
-// Include Zend Autoloader
-require_once ('Zend/Loader/Autoloader.php');
-Zend_Loader_Autoloader::getInstance()->setFallbackAutoloader(true);
 
 
 // Setting up configuration.
@@ -28,7 +15,24 @@ Zend_Registry::set('config', $config);
 // Create more graceful method to include config files and/or configuration for test, 
 // probably share the same config file with the actual web application
 // utilise Zend_Registry like Libstats
-include_once ('config.inc.php'); 
+
+// Use standalone tests' config file
+//include_once ('../config_test.inc.php'); 
+
+// Use application's config file
+// $_SERVER['DOCUMENT_ROOT'] will be nice, but dooh can't use it on command line tests
+include_once ('../../public/config.inc.php'); 
+
+
+
+// We want all errors 
+error_reporting(E_ALL ^ E_NOTICE);
+
+// Set up include paths
+set_include_path(
+    '/usr/share/pear/'. PATH_SEPARATOR .
+    get_include_path()
+);
 
 
 // setup the application logger
