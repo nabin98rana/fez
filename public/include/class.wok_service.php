@@ -107,6 +107,31 @@ class WokService
     }
   }
 
+  
+  /**
+   * Clean user query from invalid characters that may cause error on SOAP call.
+   * 
+   * @param string $userQuery
+   * @return string Cleaned user query string.
+   */
+  protected function _cleanUserQuery($userQuery = null){
+      if (empty($userQuery) && is_null($userQuery)){
+          return "";
+      }
+      
+      // Clean user query string from Ms Word special characters 
+      $userQuery = Fez_Misc::convertMsWordSpecialCharacters($userQuery);
+      
+      // Escape " double quote from user entered query, 
+      // as we are using double quote to wrap the query string sent to SOAP
+      $search  = "\"";
+      $replace = "";
+      $userQuery = str_replace($search, $replace, $userQuery);
+      
+      return $userQuery;
+  }
+  
+  
   /**
    * Performs a search of records from an ISI Web of Knowledge, Web Service Premium.
    *
@@ -126,6 +151,10 @@ class WokService
     if (count($editions) == 0) {
         $editions = array("collection" => $databaseID, "edition" => "SCI");
     }
+    
+    // Clean user query from invalid characters
+    $userQuery = $this->_cleanUserQuery($userQuery);
+    
     $search = array(
                'queryParameters' =>
                     array(
