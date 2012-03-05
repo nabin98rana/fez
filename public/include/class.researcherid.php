@@ -477,36 +477,90 @@ class ResearcherID
     }
   }
   
-  /**
-   * Method used to check on the status of all ResearcherID download request jobs currently not 'DONE'
-   *
-   * @access  public
-   * @param   string $ticket_number The job ticket number of an existing download request job.
-   * @return  string The current status of the job.
-   */
-  public static function checkAllJobsStatus()
-  {
-    $log = FezLog::get();
-    $db = DB_API::get();
+    /**
+     * Method used to check on the status of all ResearcherID download request jobs 
+     * currently are not 'DONE' and not 'EXPIRED'.
+     *
+     * @access  public
+     * @param   string $ticket_number The job ticket number of an existing download request job.
+     * @return  string The current status of the job.
+     */
+    public static function checkAllJobsStatus()
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
 
-    $stmt = "SELECT
-                    rij_ticketno
+        $stmt = "SELECT
+                    rij_ticketno, rij_id, rij_timestarted
                  FROM
                     " . APP_TABLE_PREFIX . "rid_jobs
                  WHERE
-                    rij_status <> 'DONE'";
-    try {
-      $res = $db->fetchAll($stmt);
-    }
-    catch(Exception $ex) {
-      $log->err($ex);
-      return false;
-    }
-    foreach ($res as $r) {
-      ResearcherID::checkJobStatus($r['rij_ticketno']);
-    }
-  }
+                    rij_status NOT IN ('DONE', 'EXPIRED')";
+        try {
+            $res = $db->fetchAll($stmt);
+        }
+        catch (Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
 
+        // For each non-expired rid job, check the download status from ResearcherID web service.
+        // If job has expired, change the job status expired and ignore checking it with ResearcherID.
+        foreach ($res as $r) {
+            if (!ResearcherID::isJobExpired($r['rij_timestarted'])) {
+                ResearcherID::checkJobStatus($r['rij_ticketno']);
+            } else {
+                ResearcherID::setJobToExpired($r);
+            }
+        }
+    }
+
+    
+    /**
+     * Indicates whether a job has/has not expired.
+     * 
+     * @param array $job A rid_jobs record
+     * @return boolean True if job has been expired, false otherwise. 
+     */
+    protected static function isJobExpired($timeStarted)
+    {
+        $duration = 48 * 60 * 60; // 48 hours
+        $expiredtime = date('Y-m-d H:i:s', strtotime($timeStarted) + $duration);
+        
+        if (date('Y-m-d H:i:s') >= $expiredtime) {
+            return true;
+        }
+        return false;
+    }
+  
+    
+    /**
+     * Sets expiry on a RID Job, 
+     * so it will be excluded from status checking to ResearcherID.
+     * 
+     * @param array $job A rid_job record
+     * @return boolean True when db record successfully updated, false otherwise. 
+     */
+    protected static function setJobToExpired($job)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $stmt = "UPDATE " . APP_TABLE_PREFIX . "rid_jobs " .
+                " SET rij_status = 'EXPIRED' " .
+                " WHERE rij_id = " . $db->quote($job['rij_id'], 'INTEGER');
+        
+        try {
+            $db->exec($stmt);
+        }
+        catch (Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+        return true;
+    }
+    
+  
   /**
    * Method used to get a list of routed email file names
    *
