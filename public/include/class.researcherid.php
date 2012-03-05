@@ -1254,10 +1254,7 @@ class ResearcherID
         // Note: datetime/timestamp fields are saved on GMT timezone.
         $timezone = Date_API::getPreferredTimezone();
         foreach ($res as $key => $row) {
-            $res[$key]["rij_lastcheck_formatted"] = Date_API::getFormattedDate($res[$key]["rij_lastcheck"], $timezone);
-            $res[$key]["rij_timestarted_formatted"] = Date_API::getFormattedDate($res[$key]["rij_timestarted"], $timezone);
-            $res[$key]["rij_timefinished_formatted"] = Date_API::getFormattedDate($res[$key]["rij_timefinished"], $timezone);
-            $res[$key]["rij_time_xmlcleaned_formatted"] = Date_API::getFormattedDate($res[$key]["rij_time_xmlcleaned"], $timezone);
+            $res[$key] = ResearcherID::setJobFormattedDates($res[$key], $timezone);
         }
 
         // Format return output
@@ -1277,6 +1274,37 @@ class ResearcherID
 
         return $output;
     }
+    
+    
+    /**
+     * Formats datetime/timestamp value of a RID Job with user's preferred timezone. 
+     * 
+     * @param array $job A rid_job record
+     * @param string $timezone
+     * @return array An array of formatted datetime/timestamp. 
+     */
+    protected static function setJobFormattedDates($job, $timezone)
+    {
+        $job["rij_lastcheck_formatted"] = "";
+        $job["rij_timestarted_formatted"] = "";
+        $job["rij_timefinished_formatted"] = "";
+        $job["rij_time_xmlcleaned_formatted"] = "";
+
+        if (!empty($job["rij_lastcheck"])){
+            $job["rij_lastcheck_formatted"] = Date_API::getFormattedDate($job["rij_lastcheck"], $timezone);
+        }
+        if (!empty($job["rij_timestarted"])){
+            $job["rij_timestarted_formatted"] = Date_API::getFormattedDate($job["rij_timestarted"], $timezone);
+        }
+        if (!empty($job["rij_timefinished"])){
+            $job["rij_timefinished_formatted"] = Date_API::getFormattedDate($job["rij_timefinished"], $timezone);
+        }
+        if (!empty($job["rij_time_xmlcleaned"])){
+            $job["rij_time_xmlcleaned_formatted"] = Date_API::getFormattedDate($job["rij_time_xmlcleaned"], $timezone);
+        }
+        return $job;
+    }
+    
     
     
     /**
