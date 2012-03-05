@@ -65,11 +65,11 @@ $queue = WokQueue::get();
 $queue->deleteAllAutIds();
 
 
-for ($i=0; $i<((int)$listing['info']['total_pages']+1); $i++) {  
+for ($i=0; $i<((int)$listing['info']['total_pages']); $i++) {
   // Skip first loop - we have called getListing once already
   if ($i>0) {
     $listing = Record::getListing(
-        array(), array(9,10), $listing['info']['next_page'], $max, 'Created Date', false, false, $filter
+        array(), array(9,10), ($i), $max, 'Created Date', false, false, $filter
     );
   }
   

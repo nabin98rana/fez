@@ -1197,7 +1197,7 @@ class Controlled_Vocab
             $log->err($ex);
             return '';
         }
-        $res;
+        $children = $res;
         if ($includeParents) {
             $children  = array_merge($res, $parents);
         }
@@ -1215,8 +1215,7 @@ class Controlled_Vocab
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-			 
-		$dbtp = APP_TABLE_PREFIX;
+
 		$stmt = " SELECT cvo_id, cvo_title
                   FROM " . APP_TABLE_PREFIX . "controlled_vocab
                   WHERE (cvo_hide != 1 AND cvo_external_id LIKE ".$db->quote("%$value%")." OR cvo_title LIKE ".$db->quote("%$value%").")"; //, cvo_title
