@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------+
 // | Fez - Digital Repository System                                      |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 2005, 2006, 2007 The University of Queensland,         |
+// | Copyright (c) 2005, 2006 The University of Queensland,               |
 // | Australian Partnership for Sustainable Repositories,                 |
 // | eScholarship Project                                                 |
 // |                                                                      |
@@ -29,7 +29,8 @@
 // +----------------------------------------------------------------------+
 
 /**
- * This is a base class for Fez Selenium Test cases, extends PHPUnit Selenium extension class.
+ * Template configurations for tests environment.
+ * Copy this file to tests/ directory, named it config_test.inc.php.
  * 
  * @version 1.0, 2012-03-05
  * @package Tests
@@ -37,66 +38,15 @@
  * @license http://www.gnu.org/licenses/gpl.html GPL License
  * @copyright (c) 2012 The University of Queensland
  */
-class Functional_Base extends PHPUnit_Extensions_SeleniumTestCase 
-{
-    /**
-     * Default time out for wait* methods
-     */
-    const DEFAULT_TIMEOUT = 30000;
 
-    /**
-     * @var array browsers Type of browsers used on the test
-     */
-    public static $browsers = array(
-        array(
-            'browser' => '*firefox'
-        )
-    );
+/**
+ * @var boolean TEST_DESTRUCTIVE
+ * Indication whether test allows to alter the database.
+ */
+define("TEST_DESTRUCTIVE", false);
 
-    /**
-     * @var bool Indication on whether the test will be altering the database. 
-     */
-    protected $_destructive;
-
-    /**
-     * Class constructor
-     * @param string $name The name of a test case 
-     * @param array $data Data set of a test case 
-     * @param string $dataName 
-     * @param array $browser Type of browsers uses on test case
-     */
-    public function __construct($name = NULL, array $data = array(), $dataName = '', array $browser = array())
-    {
-        parent::__construct($name, $data, $dataName, $browser);
-
-        $this->_destructive = TEST_DESTRUCTIVE;
-    }
-
-    /**
-     * setUp method for test case. 
-     * Set up the browser, browser URL and timeout for a test case,
-     */
-    protected function setUp()
-    {
-        $this->setBrowser(self::$browsers[0]["browser"]);
-
-        $this->setBrowserUrl(TEST_URL);
-
-        $this->setTimeout(self::DEFAULT_TIMEOUT);
-    }
-
-//  /**
-//   * Logs in a user who belongs to the specified role
-//   *
-//   * @param string $role The name of the role the user should belong to
-//   */
-//  protected function login($role)
-//  {
-//    $this->open("/");
-//    $max = (time() + 86400);
-//    $this->createCookie(
-//        "{$this->_config->testing->cookie_name}=$role",
-//        "path=/,max_age=$max,domain={$this->_config->testing->cookie_domain}"
-//    );
-//  }
-}
+/**
+ * @var string TEST_URL
+ * URL where test is conducted.
+ */
+define("TEST_URL", "YOUR_TEST_URL_HERE");
