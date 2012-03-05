@@ -2,6 +2,7 @@ syntax: glob
 
 error_handler.log
 config.inc.php
+config_test.inc.php
 test.php
 .hgignore.swp
 phpinfo.php
