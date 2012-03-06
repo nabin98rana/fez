@@ -1554,6 +1554,7 @@ class Record
   {
     static $acml_cache;
     $ds_pattern = false;
+    $ds_search = 'FezACML';
     if ($dsID != "") {
       if (isset($acml_cache['ds'][$dsID][$pid])) {
         return $acml_cache['ds'][$dsID][$pid];
@@ -1561,10 +1562,9 @@ class Record
         $dsIDCore = preg_replace("/(web_|preview_|thumbnail_|stream_)/", "", $dsID);
         $dsIDCore = substr($dsIDCore, 0, strrpos($dsIDCore, "."));
         $ds_pattern = '/^FezACML_'.$dsIDCore.'(.*)\.xml$/';
-        //$ds_search = 'FezACML_'.$dsID.'.xml';
+        $ds_search = 'FezACML_'.$dsID.'.xml';
       }
     } else {
-      $ds_search = 'FezACML';
       if (isset($acml_cache['pid'][$pid])) {
         return $acml_cache['pid'][$pid];
       }

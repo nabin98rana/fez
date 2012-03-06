@@ -362,7 +362,8 @@ if (!empty($pid) && $record->checkExists()) {
 				}
 			}
 		}
-
+        $depositor_org = '';
+        $depositor_org_id = '';
 		// get the created / updated and depositor info
 		foreach ($xsd_display_fields as $dis_key => $dis_field) {
 

@@ -951,7 +951,7 @@ public static function multi_implode($glue, $pieces)
           //roles for previewing images
           $acceptable_roles = array("Viewer", "Community_Admin", "Editor", "Creator", "Annotator");
           $ds['canPreview'] = false;
-          if (is_array($ds['fezacml_roles'])) {
+          if (array_key_exists('fezacml_roles', $ds) && is_array($ds['fezacml_roles'])) {
             foreach ($acceptable_roles as $role) {
               if (in_array($role, $ds['fezacml_roles'])) {
                 $ds['canPreview'] = true;

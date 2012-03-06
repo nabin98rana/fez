@@ -387,8 +387,8 @@ class RecordView {
     {
         // Get the current listing
         $list = $_SESSION['list'];
-        $list_info = $_SESSION['list_info'];
-        $view_page = $_SESSION['view_page'];
+//        $list_info = $_SESSION['list_info'];
+//        $view_page = $_SESSION['view_page'];
 
         // find current position in list
         $list_idx = null;
