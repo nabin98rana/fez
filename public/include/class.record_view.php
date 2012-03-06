@@ -304,7 +304,7 @@ class RecordView {
                 if ($dis_field['xsdmf_html_input'] == 'combo' && !empty($dis_field['sek_lookup_function'])) {
                     // Let's make sure the lookup's class & method exist
                     $obj = explode("::", $dis_field['sek_lookup_function']);
-                    if (isset($obj[0]) && isset($obj[1]) && method_exists($obj[0], $obj[1])) {
+                    if (array_key_exists($dis_field['xsdmf_id'], $details) && isset($obj[0]) && isset($obj[1]) && method_exists($obj[0], $obj[1])) {
                         $result = eval("return " . $dis_field['sek_lookup_function'] . "('" . $details[$dis_field['xsdmf_id']] . "');");
                         $details[$dis_field['xsdmf_id']] = $details[$dis_field['xsdmf_id']] . " - " . $result;
                     }

@@ -752,7 +752,7 @@ function generateTimestamps($pid, $datastreams, $requestedVersionDate, $tpl) {
     	            // do if a datastream only has a single version.
     
     	            // If the datastream is an array, retrieve value keyed under createDate
-    	            if (is_array($var)) {
+    	            if (is_array($var) && array_key_exists('createDate', $var)) {
     	                $createdDates[] = $var['createDate'];
     	            } 
     
@@ -826,7 +826,10 @@ function generateTimestamps($pid, $datastreams, $requestedVersionDate, $tpl) {
     $tpl->assign('created_dates_list', $createdDatesForDisplay);
 
     // Retrieve the full/filtered option from the request and repopulate it on the template
-    $versionViewType = $_REQUEST['version_view_type'];
+    $versionViewType = false;
+    if (array_key_exists('version_view_type', $_REQUEST)) {
+        $versionViewType = $_REQUEST['version_view_type'];
+    }
     $tpl->assign("version_view_type", $versionViewType);
 }
 
