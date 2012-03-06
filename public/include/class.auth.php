@@ -771,6 +771,7 @@ class Auth
 		$userPIDAuthGroups = $NonRestrictedRoles;
 		$usingDS = false;
 		$acmlBase = false;
+        $overridetmp = array();
 
 		if ($dsID != "") {
 			$usingDS = true;
@@ -1008,7 +1009,7 @@ class Auth
 
 				// If all groups rules were empty $overridetmp for this role will be true
 				// Therefore we want this rule to be enabled for this user
-				if($overridetmp[$role] == true && $inherit == false) {
+				if(array_key_exists($role, $overridetmp) && $overridetmp[$role] == true && $inherit == false) {
 					$overrideAuth[$role] = true;
 				}
 
@@ -1030,10 +1031,10 @@ class Auth
 		if (in_array('Editor', $userPIDAuthGroups) && !in_array('Archival_Viewer', $userPIDAuthGroups)) {
 			array_push($userPIDAuthGroups, "Archival_Viewer");
 		}
-		if ((in_array('Editor', $userPIDAuthGroups) && !in_array('Viewer', $userPIDAuthGroups)) || $overrideAuth['Viewer'] == true) {
+		if ((in_array('Editor', $userPIDAuthGroups) && !in_array('Viewer', $userPIDAuthGroups)) || (array_key_exists('Viewer', $overrideAuth) && $overrideAuth['Viewer'] == true)) {
 			array_push($userPIDAuthGroups, "Viewer");
 		}
-		if ((in_array('Viewer', $userPIDAuthGroups) && !in_array('Lister', $userPIDAuthGroups)) || $overrideAuth['Lister'] == true) {
+		if ((in_array('Viewer', $userPIDAuthGroups) && !in_array('Lister', $userPIDAuthGroups)) || (array_key_exists('Lister', $overrideAuth) && $overrideAuth['Lister'] == true)) {
 			array_push($userPIDAuthGroups, "Lister");
 		}
 		if ($datastreamQuickAuth != false) {
@@ -2565,6 +2566,9 @@ class Auth
 	 */
 	function getBasicAuthIPs()
 	{
+        if (!defined('APP_BASIC_AUTH_IP')) {
+            return '';
+        }
 		$ips = explode(';', APP_BASIC_AUTH_IP);
 		foreach ($ips as &$ip) {
 			$ip = trim($ip);

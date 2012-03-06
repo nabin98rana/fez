@@ -85,7 +85,7 @@ class Template_API
 		$this->smarty->template_dir = APP_PATH . "templates/" . APP_CURRENT_LANG;
 		$this->smarty->compile_dir = $compile_path;
 		$this->smarty->config_dir = '';
-
+        $this->smarty->custom_view_dir = '';
 		$custom_view_pid = (isset($_GET['custom_view_pid'])) ? $_GET['custom_view_pid'] : null;
 		if (!empty($custom_view_pid)) {
 			$customView = Custom_View::getCommCview($custom_view_pid);
@@ -109,7 +109,12 @@ class Template_API
 	function setTemplate($tpl_name)
 	{
 		$_curr_path = $this->smarty->template_dir;
-		$_fullpath = $_curr_path . "/". $this->smarty->custom_view_dir. "/" .  $tpl_name;
+        if (isset($this->smarty->custom_view_dir)) {
+            $_fullpath = $_curr_path . "/". $this->smarty->custom_view_dir. "/" .  $tpl_name;
+        } else {
+            $_fullpath = $_curr_path . "/".  $tpl_name;
+        }
+
 		if (file_exists($_fullpath) && is_file($_fullpath)) {
 			$tpl_name = $_fullpath;
 		}
@@ -304,11 +309,19 @@ class Template_API
 		$this->assign("app_earliest_input_year", APP_EARLIEST_INPUT_YEAR);
 		$this->assign("SELF_REGISTRATION", SELF_REGISTRATION);
 		$this->assign("WEBSERVER_LOG_STATISTICS", WEBSERVER_LOG_STATISTICS);
-		$this->assign("APP_HERDC_SUPPORT", APP_HERDC_SUPPORT);
+        if (defined('APP_HERDC_SUPPORT')) {
+            $this->assign("APP_HERDC_SUPPORT", APP_HERDC_SUPPORT);
+        } else {
+            $this->assign("APP_HERDC_SUPPORT", "OFF");
+        }
 		$this->assign("SID", SID);
 		$this->assign("SHIB_SWITCH", SHIB_SWITCH);
-		$this->assign("SHIB_DIRECT_LOGIN", SHIB_DIRECT_LOGIN); 
-		$this->assign("useGoogleCitationCounts", APP_USE_GOOGLE_CITATION_COUNTS);	
+		$this->assign("SHIB_DIRECT_LOGIN", SHIB_DIRECT_LOGIN);
+        if (defined('APP_USE_GOOGLE_CITATION_COUNTS')) {
+            $this->assign("useGoogleCitationCounts", APP_USE_GOOGLE_CITATION_COUNTS);
+        } else {
+            $this->assign("useGoogleCitationCounts", 'OFF');
+        }
 		if($customView && is_array($customView)) {
 			$this->assign("APP_HOSTNAME", $customView['cvcom_hostname']);
 		} else {

@@ -96,17 +96,17 @@ class InternalNotes
       $log->err($ex);
       return false;
     }
-    
-    $t = array();
-    for ($i = 0; $i < count($res); $i++) {
-      $t[$res[$i]["ain_pid"]] =  $res[$i]["ain_detail"];
-    }
+    if (count($res) > 0) {
+        $t = array();
+        for ($i = 0; $i < count($res); $i++) {
+          $t[$res[$i]["ain_pid"]] =  $res[$i]["ain_detail"];
+        }
 
-    // now populate the $result variable again
-    for ($i = 0; $i < count($result); $i++) {
-      $result[$i]["rek_internal_notes"] = $t[$result[$i]["rek_pid"]];
+        // now populate the $result variable again
+        for ($i = 0; $i < count($result); $i++) {
+          $result[$i]["rek_internal_notes"] = $t[$result[$i]["rek_pid"]];
+        }
     }
-
 //    return $res;
   }
 

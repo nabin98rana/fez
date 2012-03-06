@@ -53,7 +53,7 @@ include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.group.php");
 include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "class.setup.php");
-//include_once(APP_INC_PATH . "private_key.php");
+include_once(APP_INC_PATH . "private_key.php");
 
 // definition of roles
 // @@@ - CK - Added Power User so WSS can alter other collections stuff without being an administrator

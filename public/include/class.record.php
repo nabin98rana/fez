@@ -466,13 +466,13 @@ class Record
     }
     for ($i = 0; $i < count($result); $i++) {
 			$pid = $result[$i]['rek_pid'];
-			if (is_array($ht[$pid])) {
+			if (array_key_exists($pid, $ht) && is_array($ht[$pid])) {
         $result[$i] = array_merge($result[$i], $ht[$pid]);
 			}
-			if (is_array($rjt[$pid])) {
+			if (array_key_exists($pid, $rjt) && is_array($rjt[$pid])) {
         $result[$i] = array_merge($result[$i], $rjt[$pid]);
 			}
-			if (is_array($rct[$pid])) {
+			if (array_key_exists($pid, $rct) && is_array($rct[$pid])) {
         $result[$i] = array_merge($result[$i], $rct[$pid]);
 			}
       if ($aut_id) {
@@ -2175,7 +2175,7 @@ class Record
 //        if ($res[$key]['rek_display_type_lookup'] != "") {
 //          $res[$key]['rek_coin'] = Misc::OpenURL($rec);
 //        }
-        if ($res[$key]['thumbnail'][0] != "") {
+        if (array_key_exists('thumbnail', $res[$key]) && $res[$key]['thumbnail'][0] != "") {
           $thumb_counter++;
         }
         $res[$key]['isLister'] = true;
@@ -2243,53 +2243,57 @@ class Record
       $t = array();
       $p = array();
       for ($i = 0; $i < count($res); $i++) {
-        if (!is_array($t[$res[$i]["rek_".$sek_sql_title."_pid"]])) {
+        if (!array_key_exists($res[$i]["rek_".$sek_sql_title."_pid"], $t)) {
           $t[$res[$i]["rek_".$sek_sql_title."_pid"]] = array();
         }
         $t[$res[$i]["rek_".$sek_sql_title."_pid"]][] =  $res[$i]["rek_".$sek_sql_title];
       }
       // now populate the $result variable again
       for ($i = 0; $i < count($result); $i++) {
-        if (!is_array($result[$i]["rek_".$sek_sql_title])) {
+        if (!array_key_exists("rek_".$sek_sql_title, $result[$i])) {
           $result[$i]["rek_".$sek_sql_title] = array();
         }
-        $result[$i]["rek_".$sek_sql_title] = $t[$result[$i]["rek_pid"]];
+        if (array_key_exists($result[$i]["rek_pid"], $t)) {
+            $result[$i]["rek_".$sek_sql_title] = $t[$result[$i]["rek_pid"]];
+        }
       }
     }
 
     for ($i = 0; $i < count($result); $i++) {
-      for ($x = 0; $x < count($result[$i]['rek_file_attachment_name']); $x++) {
-        if (is_numeric(strpos($result[$i]['rek_file_attachment_name'][$x], "thumbnail_"))) {
-          if (!is_array(@$result[$i]['thumbnail'])) {
-            $result[$i]['thumbnail'] = array();
-          }
-          array_push($result[$i]['thumbnail'], $result[$i]['rek_file_attachment_name'][$x]);
-          if (APP_EXIFTOOL_SWITCH == 'ON') {
-            $exif_details = Exiftool::getDetails($result[$i]['rek_pid'], $result[$i]['rek_file_attachment_name'][$x]);
-            if (count($exif_details) != 0) {
-              if (!is_array(@$result[$i]['thumbnail_width'])) {
-                $result[$i]['thumbnail_width'] = array();
+      if (array_key_exists('rek_file_attachment_name', $result[$i])) {
+          for ($x = 0; $x < count($result[$i]['rek_file_attachment_name']); $x++) {
+            if (is_numeric(strpos($result[$i]['rek_file_attachment_name'][$x], "thumbnail_"))) {
+              if (!is_array(@$result[$i]['thumbnail'])) {
+                $result[$i]['thumbnail'] = array();
               }
-              if (!is_array(@$result[$i]['thumbnail_height'])) {
-                $result[$i]['thumbnail_height'] = array();
+              array_push($result[$i]['thumbnail'], $result[$i]['rek_file_attachment_name'][$x]);
+              if (APP_EXIFTOOL_SWITCH == 'ON') {
+                $exif_details = Exiftool::getDetails($result[$i]['rek_pid'], $result[$i]['rek_file_attachment_name'][$x]);
+                if (count($exif_details) != 0) {
+                  if (!is_array(@$result[$i]['thumbnail_width'])) {
+                    $result[$i]['thumbnail_width'] = array();
+                  }
+                  if (!is_array(@$result[$i]['thumbnail_height'])) {
+                    $result[$i]['thumbnail_height'] = array();
+                  }
+                  array_push($result[$i]['thumbnail_width'], $exif_details['exif_image_width']);
+                  array_push($result[$i]['thumbnail_height'], $exif_details['exif_image_height']);
+                }
               }
-              array_push($result[$i]['thumbnail_width'], $exif_details['exif_image_width']);
-              array_push($result[$i]['thumbnail_height'], $exif_details['exif_image_height']);
+            }
+            if (is_numeric(strpos($result[$i]['rek_file_attachment_name'][$x], "stream_"))) {
+              if (!is_array(@$result[$i]['stream'])) {
+                $result[$i]['stream'] = array();
+              }
+              array_push($result[$i]['stream'], $result[$i]['rek_file_attachment_name'][$x]);
+            }
+            if (is_numeric(strpos($result[$i]['rek_file_attachment_name'][$x], "web_"))) {
+              if (!is_array(@$result[$i]['web_image'])) {
+                  $result[$i]['web_image'] = array();
+              }
+              array_push($result[$i]['web_image'], $result[$i]['rek_file_attachment_name'][$x]);
             }
           }
-        }
-        if (is_numeric(strpos($result[$i]['rek_file_attachment_name'][$x], "stream_"))) {
-          if (!is_array(@$result[$i]['stream'])) {
-            $result[$i]['stream'] = array();
-          }
-          array_push($result[$i]['stream'], $result[$i]['rek_file_attachment_name'][$x]);
-        }
-        if (is_numeric(strpos($result[$i]['rek_file_attachment_name'][$x], "web_"))) {
-          if (!is_array(@$result[$i]['web_image'])) {
-              $result[$i]['web_image'] = array();
-          }
-          array_push($result[$i]['web_image'], $result[$i]['rek_file_attachment_name'][$x]);
-        }
       }
     }
   }
@@ -2312,7 +2316,7 @@ class Record
       if ($sekData['sek_relationship'] == 0) { //already have the data, just need to do any required lookups for 1-1
         if ($sekData['sek_lookup_function'] != "") {
           for ($i = 0; $i < count($result); $i++) {
-            if ($result[$i]['rek_'.$sek_sql_title]) {
+            if (array_key_exists('rek_'.$sek_sql_title, $result[$i])) {
 
               $param = $result[$i]['rek_'.$sek_sql_title];
               // Wrap param in single quote, if the value is a string
@@ -2344,45 +2348,49 @@ class Record
         $t = array();
         $p = array();
         for ($i = 0; $i < count($res); $i++) {
-          if (!is_array($t[$res[$i]["rek_".$sek_sql_title."_pid"]]) && ($sekData['sek_cardinality'] == 1)) {
-            $t[$res[$i]["rek_".$sek_sql_title."_pid"]] = array();
-          }
-          if (!is_array($p[$res[$i]["rek_".$sek_sql_title."_pid"]]) && ($sekData['sek_cardinality'] == 1)) {
-            $p[$res[$i]["rek_".$sek_sql_title."_pid"]] = array();
-          }
+          if (array_key_exists("rek_".$sek_sql_title."_pid", $res[$i])) {
+              if (array_key_exists("rek_".$sek_sql_title."_pid", $res[$i]) && !array_key_exists($res[$i]["rek_".$sek_sql_title."_pid"], $t) && ($sekData['sek_cardinality'] == 1)) {
+                $t[$res[$i]["rek_".$sek_sql_title."_pid"]] = array();
+              }
+              if (array_key_exists("rek_".$sek_sql_title."_pid", $res[$i]) && !array_key_exists($res[$i]["rek_".$sek_sql_title."_pid"], $p) && ($sekData['sek_cardinality'] == 1)) {
+                $p[$res[$i]["rek_".$sek_sql_title."_pid"]] = array();
+              }
 
-          if ($sekData['sek_lookup_function'] != "") {
-            $func = $sekData['sek_lookup_function']."('".$res[$i]['rek_'.$sek_sql_title]."');";
-            
-            if (array_key_exists($func, $cache_eval)) {
-              $res[$i]["rek_".$sek_sql_title."_lookup"] = $cache_eval[$func];
-            } else {
-              eval('$res[$i]["rek_'.$sek_sql_title.'_lookup"] = '.$func);
-              $cache_eval[$func] = $res[$i]["rek_".$sek_sql_title."_lookup"];	
-            }
-            
-            if ($sekData['sek_cardinality'] == 1) {
-              $p[$res[$i]["rek_pid"]]["rek_".$sek_sql_title."_lookup"][] =  $res[$i]["rek_".$sek_sql_title."_lookup"];
-            } else {
-              $p[$res[$i]["rek_pid"]]["rek_".$sek_sql_title."_lookup"] =  $res[$i]["rek_".$sek_sql_title."_lookup"];
-            }
-          }
-          if ($sekData['sek_cardinality'] == 1) {
-            $t[$res[$i]["rek_".$sek_sql_title."_pid"]][] =  $res[$i]["rek_".$sek_sql_title];
-          } else {
-            $t[$res[$i]["rek_".$sek_sql_title."_pid"]] =  $res[$i]["rek_".$sek_sql_title];
+              if ($sekData['sek_lookup_function'] != "") {
+                $func = $sekData['sek_lookup_function']."('".$res[$i]['rek_'.$sek_sql_title]."');";
+
+                if (array_key_exists($func, $cache_eval)) {
+                  $res[$i]["rek_".$sek_sql_title."_lookup"] = $cache_eval[$func];
+                } else {
+                  eval('$res[$i]["rek_'.$sek_sql_title.'_lookup"] = '.$func);
+                  $cache_eval[$func] = $res[$i]["rek_".$sek_sql_title."_lookup"];
+                }
+
+                if ($sekData['sek_cardinality'] == 1) {
+                  $p[$res[$i]["rek_pid"]]["rek_".$sek_sql_title."_lookup"][] =  $res[$i]["rek_".$sek_sql_title."_lookup"];
+                } else {
+                  $p[$res[$i]["rek_pid"]]["rek_".$sek_sql_title."_lookup"] =  $res[$i]["rek_".$sek_sql_title."_lookup"];
+                }
+              }
+              if ($sekData['sek_cardinality'] == 1) {
+                $t[$res[$i]["rek_".$sek_sql_title."_pid"]][] =  $res[$i]["rek_".$sek_sql_title];
+              } else {
+                $t[$res[$i]["rek_".$sek_sql_title."_pid"]] =  $res[$i]["rek_".$sek_sql_title];
+              }
           }
         }
         // now populate the $result variable again
         for ($i = 0; $i < count($result); $i++) {
-          if (!is_array($result[$i]["rek_".$sek_sql_title]) && ($sekData['sek_cardinality'] == 1)) {
-            $result[$i]["rek_".$sek_sql_title] = array();
-          }
-          if (!$result[$i]["rek_".$sek_sql_title]) {
-            $result[$i]["rek_".$sek_sql_title] = $t[$result[$i]["rek_pid"]];
-          }
-          if ($sekData['sek_lookup_function'] != "") {
-            $result[$i]["rek_".$sek_sql_title."_lookup"] = $p[$result[$i]["rek_pid"]]["rek_".$sek_sql_title."_lookup"];
+          if (array_key_exists("rek_".$sek_sql_title, $result[$i])) {
+              if (!is_array($result[$i]["rek_".$sek_sql_title]) && ($sekData['sek_cardinality'] == 1)) {
+                $result[$i]["rek_".$sek_sql_title] = array();
+              }
+              if (!$result[$i]["rek_".$sek_sql_title]) {
+                $result[$i]["rek_".$sek_sql_title] = $t[$result[$i]["rek_pid"]];
+              }
+              if ($sekData['sek_lookup_function'] != "" && array_key_exists($result[$i]["rek_pid"], $p)) {
+                $result[$i]["rek_".$sek_sql_title."_lookup"] = $p[$result[$i]["rek_pid"]]["rek_".$sek_sql_title."_lookup"];
+              }
           }
         }
       }
@@ -2547,25 +2555,39 @@ class Record
       
     $tmp = array();
     for ($i = 0; $i < count($res); $i++) {
+      if (!array_key_exists($res[$i]["rek_pid"], $tmp)) {
+          $tmp[$res[$i]["rek_pid"]] = array();
+          $tmp[$res[$i]["rek_pid"]]["authi_role"] = array();
+          $tmp[$res[$i]["rek_pid"]]["wfl_id"] = array();
+          $tmp[$res[$i]["rek_pid"]]["wft_id"] = array();
+          $tmp[$res[$i]["rek_pid"]]["wfl_title"] = array();
+          $tmp[$res[$i]["rek_pid"]]["wft_icon"] = array();
+      }
 
-      if (@!in_array($res[$i]["authi_role"], $tmp[$res[$i]["rek_pid"]]["authi_role"])) {
+      if (!array_key_exists("authi_role", $res[$i])) {
+        $tmp[$res[$i]["rek_pid"]]["authi_role"][] = null;
+      } elseif (!in_array($res[$i]["authi_role"], $tmp[$res[$i]["rek_pid"]]["authi_role"])) {
         $tmp[$res[$i]["rek_pid"]]["authi_role"][] = $res[$i]["authi_role"];
       }
-
-      if (@!in_array($res[$i]["wfl_id"], $tmp[$res[$i]["rek_pid"]]["wfl_id"])) {
+      if (!array_key_exists("wfl_id", $res[$i])) {
+        $tmp[$res[$i]["rek_pid"]]["wfl_id"][] = null;
+      } elseif (!in_array($res[$i]["wfl_id"], $tmp[$res[$i]["rek_pid"]]["wfl_id"])) {
         $tmp[$res[$i]["rek_pid"]]["wfl_id"][] = $res[$i]["wfl_id"];
       }
-
-      if (@!in_array($res[$i]["wft_id"], $tmp[$res[$i]["rek_pid"]]["wft_id"])) {
-        $tmp[$res[$i]["rek_pid"]]["wft_id"][] = $res[$i]["wft_id"];
+      if (!array_key_exists("wft_id", $res[$i])) {
+        $tmp[$res[$i]["rek_pid"]]["wft_id"][] = null;
+      } elseif (!in_array($res[$i]["wft_id"], $tmp[$res[$i]["rek_pid"]]["wft_id"])) {
+          $tmp[$res[$i]["rek_pid"]]["wft_id"][] = $res[$i]["wft_id"];
       }
-
-      if (@!in_array($res[$i]["wfl_title"], $tmp[$res[$i]["rek_pid"]]["wfl_title"])) {
+      if (!array_key_exists("wfl_title", $res[$i])) {
+        $tmp[$res[$i]["rek_pid"]]["wfl_title"][] = null;
+      } elseif (!in_array($res[$i]["wfl_title"], $tmp[$res[$i]["rek_pid"]]["wfl_title"])) {
         $tmp[$res[$i]["rek_pid"]]["wfl_title"][] = $res[$i]["wfl_title"];
       }
-
-      if (@!in_array($res[$i]["wft_icon"], $tmp[$res[$i]["rek_pid"]]["wft_icon"])) {
-        $tmp[$res[$i]["rek_pid"]]["wft_icon"][] = $res[$i]["wft_icon"];
+      if (!array_key_exists("wft_icon", $res[$i])) {
+        $tmp[$res[$i]["rek_pid"]]["wft_icon"][] = null;
+      } elseif (!in_array($res[$i]["wft_icon"], $tmp[$res[$i]["rek_pid"]]["wft_icon"])) {
+          $tmp[$res[$i]["rek_pid"]]["wft_icon"][] = $res[$i]["wft_icon"];
       }
     }
       
@@ -3846,7 +3868,7 @@ class Record
      * Fulltext SQL (Special Case)
      */
     // this will have to replaced with lots of union select joins like eventum
-    if ($searchKeys["0"]  && trim($searchKeys["0"]) != "") {
+    if (array_key_exists("0", $searchKeys)  && trim($searchKeys["0"]) != "") {
       $escapedInput = $searchKeys["0"];
       $searchKey_join[SK_KEY_ID] = 1;
       $searchKey_join[SK_SEARCH_TXT] .= "All Fields:\"".trim(htmlspecialchars($searchKeys["0"]))."\", ";
@@ -3929,7 +3951,7 @@ class Record
       $skPattern = '/('.implode("|", $solr_titles).')(?:|:\(|:)"([^"\)\(]+)"\)/';
       $lookups = array();
       preg_match_all($skPattern, $escapedInput, $lookups);
-      for ($i=0, $j=count($lookups); $i<$j; ++$i) {
+      for ($i=0, $j=count($lookups[0]); $i<$j; ++$i) {
           $sek = new Search_Key();
           $sekDetails = $sek->getDetailsBySolrName($lookups[1][$i]);
           $temp_value = "";
@@ -4007,7 +4029,7 @@ class Record
             }
 
             if ($sekdet['sek_data_type'] == "int") {
-              if ($searchValue[0] != "any") {
+              if ($searchValue['value'] != "any") {
                 if ( $multiple_type == 'all' ) {
                   $searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":(" . 
                       Record::escapeSolr(implode(" AND ", $searchValue)).")";

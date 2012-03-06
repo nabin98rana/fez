@@ -86,6 +86,7 @@ class Lister
             'rows'          =>  'numeric',
             'pager_row'     =>  'numeric',
             'sort'          =>  'string',
+            'letter'        =>  'string',
             'sort_by'       =>  'string',
             'search_keys'   =>  'array',
             'order_by'      =>  'string',
@@ -96,9 +97,13 @@ class Lister
             'form_name'     =>  'string',
         );
 
-        foreach ($args as $getName => $getType) {            
-            if( Misc::sanity_check($params[$getName], $getType) !== false ) {
-                $allowed[$getName] = $params[$getName];
+        foreach ($args as $getName => $getType) {
+            if (array_key_exists($getName, $params)) {
+                if( Misc::sanity_check($params[$getName], $getType) !== false ) {
+                    $allowed[$getName] = $params[$getName];
+                }
+            } else {
+                $allowed[$getName] = '';
             }
         }
         $params = $allowed;
@@ -246,8 +251,7 @@ class Lister
 
         $options['tpl_idx'] = $tpl_idx;     
         $tpl->assign("options", $options);
-        
-        $terms          = $params['terms'];
+
         $cat            = $params['cat'];
         $browse         = $params['browse'];
         $letter         = $params['letter'];
@@ -261,6 +265,7 @@ class Lister
 			$pid = $community_pid;
 			$browse_mode = "community";
 		} else {
+            $pid = '';
 			$browse_mode = "list";
 		}
 		$tpl->assign("pid", $pid);

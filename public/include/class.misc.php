@@ -54,6 +54,27 @@ include_once('HTML/AJAX/JSON.php');
 class Misc
 {
 
+public static function multi_implode($glue, $pieces)
+ {
+     $string='';
+
+     if(is_array($pieces))
+     {
+         reset($pieces);
+         while(list($key,$value)=each($pieces))
+         {
+             $string.=$glue.Misc::multi_implode($glue, $value);
+         }
+     }
+     else
+     {
+         return $pieces;
+     }
+
+     return trim($string, $glue);
+ }
+
+
  public static function smart_ucwords($string, $upper_all_length = false) {
 
      $delimiters = array(
