@@ -154,7 +154,7 @@
 
  <target name="selenium" description="Run selenium tests with PHPUnit">
   <exec executable="phpunit" failonerror="false">
-   <arg line="--log-junit ${basedir}/logs/selenium.xml --verbose ${basedir}/../tests/application/AllTests.php" />
+   <arg line="--log-junit ${basedir}/logs/selenium.xml --bootstrap=${basedir}/../tests/application/bootstrap.php --verbose ${basedir}/../tests/application/AllTests.php" />
    <arg path="${srcdir}" />
   </exec>
  </target>
