@@ -91,7 +91,6 @@ class UserComments
 	 */
 	function UserComments($thepid) 
 	{
-		$this->prefix = "" . APP_DEFAULT_DB . "." . APP_TABLE_PREFIX;
 		$this->getUserComments($thepid);
 	}
 

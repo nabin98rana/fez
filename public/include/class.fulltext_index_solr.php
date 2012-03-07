@@ -335,7 +335,7 @@ class FulltextIndex_Solr extends FulltextIndex {
 			$query = $this->prepareAdvancedQuery($searchKey_join, $filter_join, $approved_roles);
 			// Solr search params
 			$params = array();
-
+            $facets = array();
 			if( $use_highlighting ) {
 				// hit highlighting
 				$params['hl'] = 'true';
@@ -411,7 +411,7 @@ class FulltextIndex_Solr extends FulltextIndex {
 								$cache_db_names[$sek_id] = $sek_rel;	
 							}
 							if ($sek_rel == '1' && !is_array($field)) {
-								if (!is_array($docs[$i][$sek_id])) {
+								if (!array_key_exists($sek_id, $docs[$i])) {
 									$docs[$i][$sek_id] = array();
 								}
 								$docs[$i][$sek_id][] = $field;
@@ -476,6 +476,7 @@ class FulltextIndex_Solr extends FulltextIndex {
 									 * Convert (if possible) values into text representation
 									 * Depositor id=1 becomes 'Adminstrator'
 									 */
+                                    $tmpArr = array();
 									foreach ($facetData->$solr_name as $value => $numInFacet) {
 
 										$id = $value;
@@ -489,7 +490,7 @@ class FulltextIndex_Solr extends FulltextIndex {
 										);
 									}
 
-									if($tmpArr) {
+									if(count($tmpArr) > 0) {
 										$facets[$sval['sek_id']] = array(
                                             'sek_title'     =>  $sval['sek_title'],
   																					'sek_alt_title'     =>  $sval['sek_alt_title'],
@@ -518,6 +519,9 @@ class FulltextIndex_Solr extends FulltextIndex {
 						if (isset($snippet->content)) {
 							foreach ($snippet->content as $part) {
 								$part = trim(str_ireplace(chr(12), ' | ', $part));
+                                if (!array_key_exists($pid, $snips)) {
+                                    $snips[$pid] = '';
+                                }
 								$snips[$pid] .= $part;
 							}
 						}

@@ -86,6 +86,7 @@ class Lister
             'rows'          =>  'numeric',
             'pager_row'     =>  'numeric',
             'sort'          =>  'string',
+            'letter'        =>  'string',
             'sort_by'       =>  'string',
             'search_keys'   =>  'array',
             'order_by'      =>  'string',
@@ -96,9 +97,13 @@ class Lister
             'form_name'     =>  'string',
         );
 
-        foreach ($args as $getName => $getType) {            
-            if( Misc::sanity_check($params[$getName], $getType) !== false ) {
-                $allowed[$getName] = $params[$getName];
+        foreach ($args as $getName => $getType) {
+            if (array_key_exists($getName, $params)) {
+                if( Misc::sanity_check($params[$getName], $getType) !== false ) {
+                    $allowed[$getName] = $params[$getName];
+                }
+            } else {
+                $allowed[$getName] = '';
             }
         }
         $params = $allowed;
@@ -115,7 +120,8 @@ class Lister
         }
         
 		$custom_view_pid = $params['custom_view_pid'];
-
+        $facets = array();
+        $snips = array();
 //		$filter["searchKey".Search_Key::getID("isMemberOf")];
 
 
@@ -167,7 +173,7 @@ class Lister
             $tpl->assign("jqueryUI", true);
         }
 
-		if (($tpl_idx != 0 && $tpl_idx != 10 && $tpl_index != 4) || $isAdministrator == true) {
+		if (($tpl_idx != 0 && $tpl_idx != 10 && $tpl_idx != 4) || $isAdministrator == true) {
 			$citationCache = false;
 		} else {
 			$citationCache = true;
@@ -246,8 +252,7 @@ class Lister
 
         $options['tpl_idx'] = $tpl_idx;     
         $tpl->assign("options", $options);
-        
-        $terms          = $params['terms'];
+
         $cat            = $params['cat'];
         $browse         = $params['browse'];
         $letter         = $params['letter'];
@@ -261,6 +266,7 @@ class Lister
 			$pid = $community_pid;
 			$browse_mode = "community";
 		} else {
+            $pid = '';
 			$browse_mode = "list";
 		}
 		$tpl->assign("pid", $pid);
@@ -1133,7 +1139,7 @@ class Lister
         }
 		// If most results have thumbnails and there is no template set in the querystring than force the image gallery template
 		if (!is_numeric($params['tpl'])) {
-			if (is_numeric($list_info['thumb_ratio'])) {
+			if (array_key_exists('thumb_ratio', $list_info) && is_numeric($list_info['thumb_ratio'])) {
 				if ($list_info['thumb_ratio'] > 0.5) {
 					$tpl_idx = 6;
 				}
@@ -1153,11 +1159,11 @@ class Lister
     
     function getValue($params, $varName) {
         
-        if(isset($params[$varName])) {
+        if(isset($params[$varName]) && !empty($params[$varName])) {
             
             return $params[$varName];
             
-        } elseif(isset($params['value'])) {
+        } elseif(isset($params['value']) && !empty($params['value'])) {
             
             return $params['value'];
             

@@ -1096,17 +1096,20 @@ class XSD_HTML_Match
 					$res[$i]["field_options"] = array();
 					$res[$i]["field_options_value_only"] = array();
 
-					$mfoEntries = $mfoResult[$res[$i]['xsdmf_id']];
-					
-					// check if this field has any options
-					if (count($mfoEntries) > 0) {
-						for ($n=0; $n<count($mfoEntries); $n++) {
-							$res[$i]["field_options"][$mfoEntries[$n][0]] = $mfoEntries[$n][1];
-						}
-						// this could be further optimized, but is just called in very few cases
-						$res[$i]["field_options_value_only"] = XSD_HTML_Match::getOptionsValueOnly($res[$i]["xsdmf_id"]);
-								
-					}
+
+                    if (array_key_exists($res[$i]['xsdmf_id'], $mfoResult)) {
+                        $mfoEntries = $mfoResult[$res[$i]['xsdmf_id']];
+
+                        // check if this field has any options
+                        if (count($mfoEntries) > 0) {
+                            for ($n=0; $n<count($mfoEntries); $n++) {
+                                $res[$i]["field_options"][$mfoEntries[$n][0]] = $mfoEntries[$n][1];
+                            }
+                            // this could be further optimized, but is just called in very few cases
+                            $res[$i]["field_options_value_only"] = XSD_HTML_Match::getOptionsValueOnly($res[$i]["xsdmf_id"]);
+
+                        }
+                    }
 				}
 
 				return $res;
@@ -3885,7 +3888,7 @@ class XSD_HTML_MatchObject {
 		}
 
 		// stop this global array growing too large.
-		if (count($GLOBALS['match_cols']) > 10) {
+		if (!array_key_exists('match_cols', $GLOBALS) || count($GLOBALS['match_cols']) > 10) {
 			$GLOBALS['match_cols'] = array();
 		}
 		// do query to get all the match cols for this display set

@@ -145,7 +145,7 @@ class FezLog
   				$args[] = $arg;
 		}
 		
-		$this->debug($function['class'].$function['type'].$function['function'].'('.implode(', ', $args).') - '.
+		$this->debug($function['class'].$function['type'].$function['function'].'('.Misc::multi_implode(', ', $args).') - '.
 					$function['file'].'('.$function['line'].')');
 	}
 		
@@ -158,8 +158,8 @@ class FezLog
 			$this->_response->sendHeaders();
     	}
     }
-    
-    public function getLogElapsedTime() 
+
+    public function getLogElapsedTime()
     {
     	return $this->_stopwatch->elapsed();
     }

@@ -2043,7 +2043,7 @@ class RecordGeneral
             // Looks like a regular fully-formed date.
             $xsdmf_value = strtotime($xsdmf_value);
             //$xsdmf_value = date('Y-m-d T', $xsdmf_value);
-            $xsdmf_value = date('Y-m-d', $xsdmf_value);
+            $xsdmf_value = date('Y-m-d H:i:s', $xsdmf_value);
 
             if (
                 $xsdmf_value == "0000-01-01 00:00:00" || $xsdmf_value == "0000-00-00 00:00:00" || 

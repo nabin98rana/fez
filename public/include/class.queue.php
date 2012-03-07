@@ -109,7 +109,7 @@ abstract class Queue
       $acquire_lock = true;
       $log->debug(
           "Queue::triggerUpdate got lockValue=".$lock_value.", pid=".$pid.
-          " with ".$stmt." and ".print_r($res, true)
+          " with ".$sql." and ".print_r($res, true)
       );
 
       if ($lock_value > 0 && !empty($pid) && is_numeric($pid)) {       

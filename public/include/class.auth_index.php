@@ -368,10 +368,10 @@ class AuthIndex
 				
 				return array();
 			}
-			$return = Auth::getIndexAuthCascade(array(array('rek_pid ' => $rek_pid, 'authi_role' => $res)));
+			$return = Auth::getIndexAuthCascade(array(array('rek_pid ' => $pid, 'authi_role' => $res)));
 			$return = $return[0];			
 		} else {
-			$return = Auth::getIndexAuthCascade(array(array('rek_pid ' => $rek_pid)));
+			$return = Auth::getIndexAuthCascade(array(array('rek_pid ' => $pid)));
 			$return = $return[0];
 		}
 		

@@ -146,7 +146,7 @@ if (Auth::hasValidSession(APP_SESSION)) {
         }
         Auth::redirect(APP_RELATIVE_URL . "list.php" . $extra);
     } else {
-        $tpl->assign("username", $session["username"]);
+        $tpl->assign("username", $_SESSION["username"]);
     }
 } else {
 

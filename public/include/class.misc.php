@@ -54,6 +54,27 @@ include_once('HTML/AJAX/JSON.php');
 class Misc
 {
 
+public static function multi_implode($glue, $pieces)
+ {
+     $string='';
+
+     if(is_array($pieces))
+     {
+         reset($pieces);
+         while(list($key,$value)=each($pieces))
+         {
+             $string.=$glue.Misc::multi_implode($glue, $value);
+         }
+     }
+     else
+     {
+         return $pieces;
+     }
+
+     return trim($string, $glue);
+ }
+
+
  public static function smart_ucwords($string, $upper_all_length = false) {
 
      $delimiters = array(
@@ -930,7 +951,7 @@ class Misc
           //roles for previewing images
           $acceptable_roles = array("Viewer", "Community_Admin", "Editor", "Creator", "Annotator");
           $ds['canPreview'] = false;
-          if (is_array($ds['fezacml_roles'])) {
+          if (array_key_exists('fezacml_roles', $ds) && is_array($ds['fezacml_roles'])) {
             foreach ($acceptable_roles as $role) {
               if (in_array($role, $ds['fezacml_roles'])) {
                 $ds['canPreview'] = true;

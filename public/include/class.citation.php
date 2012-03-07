@@ -384,7 +384,8 @@ class Citation
 		preg_match_all('/\{(.*?)\}/',$template,$matches,PREG_PATTERN_ORDER);
 		$xsdmf_list = Misc::keyArray($xsd_display_fields, 'xsdmf_id');
 		foreach ($matches[1] as $key => $match) {
-			list($xsdmf_id,$prefix,$suffix,$option) = explode('|',$match);
+            //can't always guarantee there will be suffix and prefixes so add array of nulls will avoid php notices
+			list($xsdmf_id,$prefix,$suffix,$option) = explode('|',$match) + Array( null, null, null, null);
 			if (is_numeric($xsdmf_id)) {
 				$value = Citation::formatValue($details[$xsdmf_id], '', array(), $xsdmf_list[$xsdmf_id], $option, $type);
 				if (!empty($value) && !is_null($value)) {
