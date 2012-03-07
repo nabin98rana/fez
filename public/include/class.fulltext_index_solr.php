@@ -335,7 +335,7 @@ class FulltextIndex_Solr extends FulltextIndex {
 			$query = $this->prepareAdvancedQuery($searchKey_join, $filter_join, $approved_roles);
 			// Solr search params
 			$params = array();
-
+            $facets = array();
 			if( $use_highlighting ) {
 				// hit highlighting
 				$params['hl'] = 'true';

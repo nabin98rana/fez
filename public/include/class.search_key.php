@@ -62,7 +62,11 @@ class Search_Key
                 $new_options[$key] = $value;
             }
         }
-        $new_options["searchKey_count"] = $options["searchKey_count"];
+        if (array_key_exists('searchKey_count', $options)) {
+            $new_options["searchKey_count"] = $options["searchKey_count"];
+        } else {
+            $new_options["searchKey_count"] = 0;
+        }
         return $new_options;
     }
 

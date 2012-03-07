@@ -206,7 +206,7 @@ class Pager
 			 * If no search keys were submitted
 			 * retrieve from cookie
 			 */
-			if (empty($searchKeyArray) && is_array($searchKeys)) {
+			if (empty($searchKeyArray) && defined('searchKeys')) {
 				$searchKeyArray = array();
 				$from_cookie = true;
 
