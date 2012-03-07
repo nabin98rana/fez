@@ -48,6 +48,7 @@ class Framework_FunctionalTests
     {
         $suite = new PHPUnit_Framework_TestSuite('Fez Framework Functional');
         $suite->addTestSuite('Functional_HomepageTest');
+        $suite->addTestSuite('Functional_LoginTest');
 
         return $suite;
     }

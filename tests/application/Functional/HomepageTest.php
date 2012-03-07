@@ -45,8 +45,7 @@ class Functional_HomepageTest extends Functional_Base
      */
     public function testGotoHomepage()
     {
-        $this->open("/");
-        $this->verifyTextPresent("Welcome to " . APP_ORG_NAME . "'s institutional digital repository");
+        $homepage = new Page_Home($this);
     }
 
     
@@ -57,7 +56,23 @@ class Functional_HomepageTest extends Functional_Base
     {
         $homePage = new Page_Home($this);
         $loginPage = $homePage->clickLogin();
-        $loginPage->verifyLoginForm();
     }
 
+    /**
+     * Test the News section
+     */
+    public function testNews()
+    {
+        $homePage = new Page_Home($this);
+        $homePage->clickNews();
+    }
+    
+    /**
+     * Test the Recently Popular section
+     */
+    public function testRecentlyPopular()
+    {
+        $homePage = new Page_Home($this);
+        $homePage->clickRecentlyPopular();
+    }
 }

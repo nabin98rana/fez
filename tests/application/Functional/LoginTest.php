@@ -29,85 +29,39 @@
 // +----------------------------------------------------------------------+
 
 /**
- * Serves as an interface of the Homepage for our Selenium test cases, 
- * provides interactions within the page. 
- * 
- * @version 1.0, 2012-03-05
- * @package Tests
- * @author Elvi Shu <e.shu@library.uq.edu.au>
+ * Selenium Test cases for Login functionalities
+ *
+ * @version 1.0, 2012-03-07
+ * @author Elvi Shu <e.shu at library.uq.edu.au>
  * @license http://www.gnu.org/licenses/gpl.html GPL License
  * @copyright (c) 2012 The University of Queensland
  */
-class Page_Home extends Page_Base
+class Functional_LoginTest extends Functional_Base
 {
     /**
-     * Class constructor.
-     * Ensures the homepage is loaded on the browser.
-     * 
-     * @param PHPUnit_Extensions_SeleniumTestCase $selenium 
+     * Test loading Login page. 
+     * The Login page object verifies mandatory elements that a Login page should have.
      */
-    public function __construct($selenium)
+    public function testGotoLogin()
     {
-        $this->_selenium = $selenium;
-        $this->_page_title = "Home - " . APP_NAME;
-        $this->_page_url = "/";
-        
-        $this->verifyPageByTitle();
-    }
-
-    
-    /**
-     * Click on the Login link on the Homepage.
-     * @return Page_Login 
-     */
-    public function clickLogin()
-    {
-        $this->_selenium->click("css=a.login-btn");
-        $this->_selenium->waitForPageToLoad(self::DEFAULT_TIMEOUT);
-        return new Page_Login($this->_selenium);
+        $login = new Page_Login($this);
     }
     
     /**
-     * Click on the News section on Homepage.
-     * @todo: Find/create a DOM identifier to verify this test
+     * Test login form.
      */
-    public function clickNews()
+    public function testLogin()
     {
-        $this->_selenium->click("link=News");
-        // $this->_selenium->waitForElementPresent("");
-    }
-
-    /**
-     * Click on Recently Added link on the homepage.
-     * @todo: Find/create a DOM identifier to verify this test
-     */
-    public function clickRecentlyAdded()
-    {
-        $this->_selenium->click("link=Recently Added");
-        // atm we don't have any identifier to test the content of News
-        // $this->_selenium->waitForElementPresent("");
-    }
-
-    
-    /**
-     * Click on Recently Popular link on the homepage.
-     */
-    public function clickRecentlyPopular()
-    {
-        $this->_selenium->click("link=Recently Popular");
-        $this->_selenium->waitForTextPresent("Most Downloaded in the Last Week:");
+        $login = new Page_Login($this);
+        $login->verifyLogin();
     }
     
-    
     /**
-     * Click on Tags link on the homepage.
-     * @todo: Find/create a DOM identifier to verify this test
+     * Test the logout link.
      */
-    public function clickTags()
-    {
-        $this->_selenium->click("link=Tags");
-        // atm we don't have any identifier to test the content of News
-        // $this->_selenium->waitForElementPresent("");
+    public function testLogout(){
+        $login = new Page_Login($this);
+        $login->verifyLogout();
     }
-
+    
 }

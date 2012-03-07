@@ -42,8 +42,55 @@ class Page_Login extends Page_Base
 {
 
     /**
+     * @var string username used on this test.
+     * By default we are using a test Admin login credentials.
+     */
+    protected $_username = TEST_ADMIN_USER;
+    /**
+     * @var string password used on this test. 
+     * By default we are using a test Admin login credentials.
+     */
+    protected $_password = TEST_ADMIN_PASSWORD;
+    
+    /**
+     * @var string Login button element 
+     */
+    protected $_login_button   = "css=.login-btn";
+    
+    /**
+     * @var string Log Out button element 
+     */
+    protected $_logout_button  = "css=.logout-btn";
+    
+    /**
+     * @var string Username Input element
+     */
+    protected $_username_input = "css=input#username";
+    
+    /**
+     * @var string Password Input element
+     */
+    protected $_password_input = "css=input#passwd";
+    
+    /**
+     * @var string Submit login form element 
+     */
+    protected $_submit_login   = "css=form#login_form input[name='Submit']";
+    
+    /**
+     * @var string Wrapper element for the logged in message  
+     */
+    protected $_loggedin_element = "css=.logged-in-msg";
+    
+    /**
+     * @var string Logged in message 
+     */
+    protected $_loggedin_text = "You are logged in as";
+    
+    
+    /**
      * Class constructor.
-     * Ensures Login page is loaded on the browser.
+     * Verifies mandatory elements that a Login page should have.
      * 
      * @param PHPUnit_Extensions_SeleniumTestCase $selenium 
      */
@@ -51,11 +98,10 @@ class Page_Login extends Page_Base
     {
         $this->_selenium = $selenium;
         $this->_page_title = "Login - " . APP_NAME;
+        $this->_page_url = "/login.php";
         
-        // Open login page, if we are not there already.
-        if ($this->_selenium->getTitle() != $this->_page_title) {
-            $this->_selenium->open("/login.php");
-        }
+        $this->verifyPageByTitle();
+        $this->verifyLoginForm();
     }
 
     /**
@@ -63,6 +109,68 @@ class Page_Login extends Page_Base
      */
     public function verifyLoginForm()
     {
-        $this->_selenium->verifyElementPresent("id=login_form");
+        // Is there any username, password & login button on a Login Form?
+        $this->_selenium->verifyElementPresent($this->_username_input);
+        $this->_selenium->verifyElementPresent($this->_password_input);
+        $this->_selenium->verifyElementPresent($this->_submit_login);
     }
+    
+    
+    /**
+     * Verify login functionality for all type of users.
+     * Make sure valid username/password are available.
+     * We are verifying the login text, as the page loaded after user login can be vary
+     * Verifying the page loaded after user login can be done for user-specific login test.
+     * 
+     * @param string $username
+     * @param string $password
+     * @return boolean False when there is no username & password
+     */
+    public function verifyLogin($username="", $password="")
+    {
+        $this->_login($username, $password);
+        $this->_selenium->waitForText($this->_loggedin_element, $this->_loggedin_text);
+    }
+
+    
+    /**
+     * Login
+     * @param string $username
+     * @param string $password
+     * @return boolean 
+     */
+    protected function _login($username = "", $password = "")
+    {
+        // Assign username & password
+        if (!empty($username)){
+            $this->_username = $username;
+        }
+        if (!empty($password)){
+            $this->_password = $password;
+        }
+        
+        // get lost without username/password
+        if (empty($this->_username) && empty($this->_password)){
+            return false;
+        }
+        
+        $this->_selenium->type($this->_username_input, $this->_username);
+        $this->_selenium->type($this->_password_input, $this->_password);
+        $this->_selenium->clickAndWait($this->_submit_login);
+        
+        return true;
+    }
+    
+    
+    /**
+     * Verifies log out functionality
+     */
+    public function verifyLogout()
+    {
+        $this->_login();
+        $this->_selenium->waitForElementPresent($this->_logout_button);
+        $this->_selenium->clickAndWait($this->_logout_button);
+        $this->_selenium->waitForElementPresent($this->_login_button);
+    }
+    
 }

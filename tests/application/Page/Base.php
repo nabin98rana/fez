@@ -53,11 +53,27 @@ class Page_Base
      * @var string Title of test page
      */
     protected $_page_title;
+
+    /**
+     * @var string URL of test page 
+     */
+    protected $_page_url;
     
     /**
      * Class constructor
      */
     public function __construct()
     {
+    }
+    
+    /**
+     * Confirms that we are on the right page by verifying the page title.
+     */
+    public function verifyPageByTitle()
+    {
+        // Open requested page, if we are not there already.
+        if ($this->_selenium->getTitle() != $this->_page_title) {
+            $this->_selenium->open($this->_page_url);
+        }
     }
 }
