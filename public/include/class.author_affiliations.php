@@ -298,7 +298,7 @@ class AuthorAffiliations
 				"OR org_extdb_name = 'rrtd')";
 
 		try {
-			$res = $db->fetchAll($stmt, array($ahs_id));
+			$res = $db->fetchAll($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err($ex);

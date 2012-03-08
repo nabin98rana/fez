@@ -474,7 +474,7 @@ class Lister
 			/* Only the starred records */
 			if (count($starredPids) > 0) {
 				if (APP_SOLR_SWITCH == 'ON') {
-					$filter["manualFilter"] .= "(pid_t:('".str_replace(':', '\:', implode("' OR '", $starredPids))."'))";
+					$filter["manualFilter"] = "(pid_t:('".str_replace(':', '\:', implode("' OR '", $starredPids))."'))";
 				} else {
 					$filter["searchKey".Search_Key::getID("Pid")]['override_op'] = 'OR';
 					foreach ($starredPids as $starredPid) {
@@ -483,7 +483,7 @@ class Lister
 				}
 			} else {
 				if (APP_SOLR_SWITCH == 'ON') {
-					$filter["manualFilter"] .= "(pid_t:('INVALID_PID'))";
+					$filter["manualFilter"] = "(pid_t:('INVALID_PID'))";
 				} else {
 					$filter["searchKey".Search_Key::getID("Pid")][] = 'INVALID_PID';
 				}
