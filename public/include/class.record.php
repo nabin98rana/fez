@@ -4183,7 +4183,7 @@ class Record
           $sekdet = Search_Key::getDetails($sek_id);
           if ( !empty($sekdet['sek_id']) ) {
             $sort_suffix = Record::getSolrSuffix($sekdet, 1);
-            if ($options["sort_order"] == "1") {
+            if (array_key_exists('sort_order', $options) && $options['sort_order'] == '1') {
               $searchKey_join[SK_SORT_ORDER] .= $sekdet['sek_title_db'].$sort_suffix." desc ";
             } else {
               $searchKey_join[SK_SORT_ORDER] .= $sekdet['sek_title_db'].$sort_suffix." asc ";
