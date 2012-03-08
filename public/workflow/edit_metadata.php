@@ -93,7 +93,8 @@ $tpl->assign('link_self', $link_self);
 
 $tpl->assign("isAdmin", $isAdministrator);
 
-if (strtolower($_SERVER['HTTPS']) == 'on' || $_SERVER['SERVER_PORT'] == 443 || strtolower(substr($_SERVER['SCRIPT_URI'], 0, 5)) == 'https') {
+if ((array_key_exists('HTTPS', $_SERVER) && strtolower($_SERVER['HTTPS'])) == 'on'
+    || $_SERVER['SERVER_PORT'] == 443 || (array_key_exists('SCRIPT_URI', $_SERVER) && strtolower(substr($_SERVER['SCRIPT_URI'], 0, 5)) == 'https')) {
 	$tpl->assign('http_protocol', 'https');
 } else {
 	$tpl->assign('http_protocol', 'http');

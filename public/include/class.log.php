@@ -77,7 +77,9 @@ class FezLog
 		$log = Zend_Registry::get('fezlog');
 		if($log->log_trace) {
 			$trace = debug_backtrace();
-			$log->debug_method($trace[1]['class'].$trace[1]['type'].$trace[1]['function'], $end = false);
+            if (array_key_exists('class', $trace[1])) {
+                $log->debug_method($trace[1]['class'].$trace[1]['type'].$trace[1]['function'], $end = false);
+            }
 		}
 		return $log;
 	}
