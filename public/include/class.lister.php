@@ -997,7 +997,7 @@ class Lister
 			
 			$spell = new spellcheck(APP_DEFAULT_LANG);
 			
-			if( $spell )
+			if( $spell && array_key_exists('search_keys', $params) && is_array($params['search_keys']))
 			{
 			    $spell_suggest = $spell->query_suggest($params['search_keys'][0]);
 			    
@@ -1022,7 +1022,11 @@ class Lister
 
         	// KJ@ETH
         	$tpl->assign("major_function", "search");
-			$tpl->assign("q", htmlspecialchars($params['search_keys'][0]));
+            $q = "";
+            if (array_key_exists('search_keys', $params) && is_array($params['search_keys'])) {
+                $q = htmlspecialchars($params['search_keys'][0]);
+            }
+			$tpl->assign("q", $q);
         	
         	$tpl->assign("list_heading", "Search Results ($terms)");        	 
         	$tpl->assign("list_type", "all_records_list");

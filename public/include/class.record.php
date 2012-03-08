@@ -4173,7 +4173,7 @@ class Record
 
       $sek_id = str_replace("searchKey", "", $sort_by);
       if ($sek_id != '') {
-        if ($sek_id == '0' && (trim($searchKeys[0]) != "")) {
+        if ($sek_id == '0' && (array_key_exists(0, $searchKeys) && trim($searchKeys[0]) != "")) {
           if ($options["sort_order"] == 0) {
             $searchKey_join[SK_SORT_ORDER] .= " score asc ";
           } else {
