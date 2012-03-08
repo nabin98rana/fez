@@ -66,8 +66,8 @@ $options = Pager::saveSearchParams($params);
 
 
 if ($isAdministrator) {
-    $filter_pid = $_GET['pid_filter'];
-    $filter_code = $_GET['code_filter'];
+    $filter_pid = Misc::GETorPOST('pid_filter');
+    $filter_code = Misc::GETorPOST('code_filter');
 	$report = LinkCheck::getLinkReport($pagerRow, $rows, $filter_pid, $filter_code);
 	$codes = Misc::httpStatusCodes();
 	$codeColours = array();

@@ -78,7 +78,8 @@ class LinkCheck
 		$db = DB_API::get();
 		
 		$start = $current_row * $max;
-		
+        $stmtWhere = "";
+
 		$stmtSelect = "
 					SELECT
 						rek_link_pid AS pid,

@@ -49,7 +49,7 @@ $parent_id = @$_POST["parent_id"] ? $_POST["parent_id"] : @$_GET["parent_id"];
 //$parents = Org_Structure::getParentAssocListFullDisplay($parent_id);
 	$org_id = $parent_id;
 	$max_breadcrumb = "";
-	$newcrum = "";
+	$newcrumb = "";
 	if (!empty($org_id)) {
 		$breadcrumb = Org_Structure::getParentAssocListFullDisplay($org_id);
 		$breadcrumb = Misc::array_merge_preserve($breadcrumb, Org_Structure::getAssocListByID($org_id));
