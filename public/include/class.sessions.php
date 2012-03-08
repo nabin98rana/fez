@@ -85,7 +85,7 @@ class Sessions {
 			$userIDs[] = $row['user_id'];
 			$userDetails = User::getDetailsByID($row['user_id']);
 			$row['fullname'] = $userDetails['usr_full_name'];
-			$row['username'] = $userDetails['username'];
+			$row['username'] = $userDetails['usr_username'];
 		}
 
 		// Get distinct users
