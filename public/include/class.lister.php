@@ -417,7 +417,7 @@ class Lister
 	                $tpl->assign("isCreator", $isCreator);
 	                $isEditor = @$userPIDAuthGroups['isEditor'] == 1;
 	                $tpl->assign("isEditor", $isEditor);
-	                $tpl->assign("xdis_id", $xdis_id);	
+//	                $tpl->assign("xdis_id", $xdis_id);
 	                //$community_details = Community::getDetails($community_pid);
 	                $community_title = Record::getSearchKeyIndexValue($community_pid, "Title");
                 
