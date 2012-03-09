@@ -82,7 +82,7 @@ class Functional_Base extends PHPUnit_Extensions_SeleniumTestCase
 
         $this->setBrowserUrl(TEST_URL);
 
-        $this->setTimeout(self::DEFAULT_TIMEOUT);
+//        $this->setTimeout(self::DEFAULT_TIMEOUT);
     }
 
 //  /**
