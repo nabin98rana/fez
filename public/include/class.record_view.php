@@ -385,6 +385,9 @@ class RecordView {
 
     function getNextPrevNavigation($pid)
     {
+        if (!array_key_exists('list', $_SESSION)) {
+            return false;
+        }
         // Get the current listing
         $list = $_SESSION['list'];
 //        $list_info = $_SESSION['list_info'];
