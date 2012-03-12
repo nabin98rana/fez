@@ -110,7 +110,9 @@ class Fez_Misc {
             "ε", // epsilon
             "ζ", // zeta
             "η", // eta
-            "φ"  // phi
+            "φ", // phi
+            
+            "á"  // á
         );
         return $characters;
     }
@@ -159,7 +161,9 @@ class Fez_Misc {
             "e",    // epsilon
             "zd",   // zeta
             "i",    // eta
-            "phi"   // phi
+            "phi",  // phi
+            
+            "a"     // á
             
         );
 
