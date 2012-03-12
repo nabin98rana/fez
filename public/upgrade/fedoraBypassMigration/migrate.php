@@ -315,24 +315,28 @@ class MigrateFromFedoraToDatabase
     public function createDigitalObjectTables()
     {
         
-        // Run this script: upgrade2012022100.sql
-        // Creates file_attachments table and its shadow table.
-        $file = "upgrade/sql_scripts/upgrade2012022100.sql";
-        $this->_upgradeHelper->parse_mysql_dump($file);
-        
-        
         // Run this script: upgrade2012031200.sql
         // Creates digital object table.
         $file = "upgrade/sql_scripts/upgrade2012031200.sql";
         $this->_upgradeHelper->parse_mysql_dump($file);
         
-        try{
-            $this->_db->exec(implode(' ', $stmt));
-            return true;
-        } catch(Exception $e) {
-            echo "<br> Failed creating Digital Object tables. Stmt = ". $stmt . " Ex: " . $ex;
-        }
-        return false;
+        // Run this script: upgrade2012022100.sql
+        // Creates file_attachments table and its shadow table.
+        $file = "upgrade/sql_scripts/upgrade2012022100.sql";
+        $this->_upgradeHelper->parse_mysql_dump($file);
+        
+        // Run this script: upgrade2012022101.sql
+        // Alter file_attachments table, add a file to indicate whether security is inherited column for the datastreams.
+        $file = "upgrade/sql_scripts/upgrade2012022101.sql";
+        $this->_upgradeHelper->parse_mysql_dump($file);
+        
+//        try{
+//            $this->_db->exec(implode(' ', $stmt));
+//            return true;
+//        } catch(Exception $e) {
+//            echo "<br> Failed creating Digital Object tables. Stmt = ". $stmt . " Ex: " . $ex;
+//        }
+//        return false;
     }
     
     
@@ -402,6 +406,7 @@ class MigrateFromFedoraToDatabase
     /**
      * Creates search key shadow table with matching schema with the original sk table.
      * Adds timestamp column on the shadow table record versioning.
+     * @todo: Update to use CREATE TABLE IF NOT EXISTS instead.
      * 
      * @param string $originalTable Name of the original search key table.
      * @return boolean True when shadow table successfully created 
@@ -415,6 +420,7 @@ class MigrateFromFedoraToDatabase
         $shadowTable = $originalTable . $this->_shadowTableSuffix;
         
         // Creates table duplicate from original sk table
+        // @todo: Update to use CREATE TABLE IF NOT EXISTS instead.
         if ( !$this->_isTableExists($shadowTable) ){
             
             $stmt = "CREATE TABLE ". $shadowTable ." LIKE ". $originalTable;
