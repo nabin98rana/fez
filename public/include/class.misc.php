@@ -58,6 +58,10 @@ public static function multi_implode($glue, $pieces)
  {
      $string='';
 
+     if (is_object($pieces)){
+         return str_replace(chr(10), "", var_export($pieces, true));
+     }
+     
      if(is_array($pieces))
      {
          reset($pieces);

@@ -147,8 +147,12 @@ class FezLog
   				$args[] = $arg;
 		}
 		
-		$this->debug($function['class'].$function['type'].$function['function'].'('.Misc::multi_implode(', ', $args).') - '.
-					$function['file'].'('.$function['line'].')');
+        $message = $function['class'] . $function['type'] .
+                   $function['function'] . '(' . Misc::multi_implode(', ', $args) . ')' .
+                   ' - ' .
+                   $function['file'] . '(' . $function['line'] . ')';
+
+		$this->debug($message);
 	}
 		
     public function close() 
