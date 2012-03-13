@@ -37,6 +37,7 @@ include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.db_api.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.user.php");
+include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.workflow_trigger.php");
 include_once(APP_INC_PATH . "class.community.php");
@@ -54,21 +55,24 @@ $tpl->assign("isUser", $isUser);
 $isAdministrator = User::isUserAdministrator($isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
 $tpl->assign("showTriggerEdit", true);
-
-$xdis_id = $_REQUEST['xdis_id'];
-$pid = $_REQUEST['pid'];
-$dsID = $_REQUEST["dsID"];
-$href= $_REQUEST['href'];
+$xdis_id = Misc::GETorPOST('xdis_id');
+$pid = Misc::GETorPOST('pid');
+$dsID = Misc::GETorPOST('dsID');
+$href= Misc::GETorPOST('href');
 $tpl->assign("href", $href);
-$cat = $_REQUEST['cat'];
+$cat = Misc::GETorPOST('cat');
+
+if (!defined('pids')) {
+    $pids = null;
+}
 
 if ($cat == 'select_workflow') {
-    $wft_id = $_REQUEST["wft_id"];
+    $wft_id = Misc::GETorPOST('wft_id');
 
 	if (is_numeric($wft_id)) {
 		$wfl_id = WorkflowTrigger::getWorkflowID($wft_id);
 		if (is_numeric($wfl_id)) {
-			if (!empty($pids) || $trigger_type == 'Bulk Change Search') {
+			if ((defined('pids') && !empty($pids)) || (defined('trigger_type') && $trigger_type == 'Bulk Change Search')) {
 		        if (Workflow::userCanTrigger($wfl_id,$user_id)) {
 	    			Workflow::start($wft_id, $pid, $xdis_id, $href, $dsID, $pids);				
 				} else {

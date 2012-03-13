@@ -611,9 +611,9 @@ class Foxml
 													// There are no mappings for the base sublooping element.
 													// Need to just make a container element and check the attributes
 													if (!is_numeric(strpos($i, ":"))) {
-														$xmlObj .= "\n".$tagIndent."<".$element_prefix.$i.$full_attached_attribute;
+														$xmlObj .= "\n".$tagIndent."<".$element_prefix.$i;
 													} else {
-														$xmlObj .= "\n".$tagIndent."<".$i.$full_attached_attribute;
+														$xmlObj .= "\n".$tagIndent."<".$i;
 													}
 													Foxml::array_to_xml_instance($j, $xmlObj, $element_prefix, "attributes", $tagIndent, $sel_record['xsdsel_id'], $xdis_id, $pid, $top_xdis_id, $x, $indexArray, $file_downloads, $created_date, $updated_date, $depositor, $assign_usr_id, $assign_grp_id);
 													if ($xsdmf_details['xsdmf_valueintag'] == 1) {

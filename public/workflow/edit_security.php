@@ -97,7 +97,8 @@ $record = new RecordObject($pid);
 $record->getDisplay();
 
 $xdis_id = $record->getXmlDisplayId();
-
+$pid_title = $record->getTitle();
+$sta_id = $record->getPublishedStatus();
 $xdis_title = XSD_Display::getTitle($xdis_id);
 $tpl->assign("xdis_title", $xdis_title);
 $tpl->assign("extra_title", "Edit Security for ".$pid_title." (".$xdis_title.")");
@@ -131,7 +132,7 @@ if ($dsID != "") {
 	$details = $record->getDetails("", $FezACML_xdis_id);
 }
 
-$sta_id = $record->getPublishedStatus();
+
 if (!$sta_id) {
     $sta_id = 1;
 }

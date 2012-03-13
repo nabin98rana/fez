@@ -908,7 +908,7 @@ class Auth
 						} elseif(($group_value == "" || $group_value == "off")
 						&& ($role == "Viewer" || $role == "Lister")) {
 
-							if($overridetmp[$role] !== false) {
+							if(array_key_exists($role, $overridetmp) && $overridetmp[$role] !== false) {
 								$overridetmp[$role] = true;
 							}
 

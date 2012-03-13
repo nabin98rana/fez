@@ -463,7 +463,7 @@
 					} elseif (array_key_exists($dis_field['xsdmf_id'], $details)) {
 						$temp_author_id = $details[$dis_field['xsdmf_id']];
 
-						if (!is_array($details[$dis_field['xsdmf_id']."_author_details"])) {
+						if (array_key_exists($dis_field['xsdmf_id']."_author_details", $details) && !is_array($details[$dis_field['xsdmf_id']."_author_details"])) {
 							$details[$dis_field['xsdmf_id']."_author_details"] = array();
 						}
 						if (is_numeric($temp_author_id) && $temp_author_id != 0) {

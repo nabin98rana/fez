@@ -110,26 +110,28 @@ foreach ($search_keys as $skey => $svalue) {
 	}
 }
 
-$pager_row  = $_GET['pager_row'];
-$rows       = $options['rows'];
-
+$pager_row  = Misc::GETorPOST('pager_row');
+$rows = 50;
+if (array_key_exists('rows', $options)) {
+    $rows       = $options['rows'];
+}
 
 if (empty($pager_row))  $pager_row = 0;
 if (empty($rows))       $rows = APP_DEFAULT_PAGER_SIZE;
 
 $urlDataOrderBy = array(
-    'cat'           =>  $_GET['cat'],
-    'search_keys'   =>  $_GET['search_keys'],
+    'cat'           =>  Misc::GETorPOST('cat'),
+    'search_keys'   =>  Misc::GETorPOST('search_keys'),
     'rows'          =>  $rows,
     'pager_row'     =>  $pager_row,
 );
 $urlnoSort = Misc::query_string_encode($urlDataOrderBy);
 
 $urlData = array(
-    'cat'           =>  $_GET['cat'],
-    'search_keys'   =>  $_GET['search_keys'],
-    'sort_by'       =>  $_GET['sort_by'],
-    'sort_order'    =>  $_GET['sort_order'],
+    'cat'           =>  Misc::GETorPOST('cat'),
+    'search_keys'   =>  Misc::GETorPOST('search_keys'),
+    'sort_by'       =>  Misc::GETorPOST('sort_by'),
+    'sort_order'    =>  Misc::GETorPOST('sort_order'),
 );
 $urlnoOrder = Misc::query_string_encode($urlData);
 
@@ -139,18 +141,19 @@ $bulk_search_workflows = WorkflowTrigger::getAssocListByTrigger("-1", WorkflowTr
  
 // if search button was just pressed and all fields search 
 // has something in it then sort by relevance enforced
-if ($_REQUEST["search_button"] == "Search" && trim($options["searchKey0"]) != "") {
+$search_button = Misc::GETorPOST('search_button');
+if ($search_button == 'Search' && trim($options["searchKey0"]) != "") {
 	$options["sort_by"] = "searchKey0";
 }
 
-if ($options["searchKey0"] != "" && ($_REQUEST["sort_by"] == "" || $options["sort_by"] == "searchKey0")) {
+if (array_key_exists('searchKey0', $options) && $options["searchKey0"] != "" && ($_REQUEST["sort_by"] == "" || $options["sort_by"] == "searchKey0")) {
 	$options["sort_order"] = 1;
-} elseif (!is_numeric($options["sort_order"])) {
+} elseif (!array_key_exists('sort_order', $options) || !is_numeric($options["sort_order"])) {
 	$options["sort_order"] = 0;	
 }
 
 $assigned_items = Record::getListing($options, array("Editor", "Approver"), $pager_row, $rows, $sort_by);
-
+//print_r($assigned_items);
 Record::getParentsByPids($assigned_items['list']);
 $username = Auth::getUsername();
 if (APP_MY_RESEARCH_MODULE == "ON" && MyResearch::getHRorgUnit($username) != "") {
@@ -175,5 +178,5 @@ $tpl->assign('my_assigned_items_list',  $assigned_items['list']);
 $tpl->assign('items_info',              $assigned_items['info']);
 $tpl->assign('isApprover',              $_SESSION['auth_is_approver']);
 $tpl->assign("active_nav", 				"my_fez");
-
+//       print_r($assigned_items['list']);
 $tpl->displayTemplate();

@@ -2042,6 +2042,7 @@ class RecordGeneral
             }
             // Looks like a regular fully-formed date.
             $xsdmf_value = strtotime($xsdmf_value);
+            $utc_date = Date_API::getSimpleDateUTC();
             //$xsdmf_value = date('Y-m-d T', $xsdmf_value);
             $xsdmf_value = date('Y-m-d H:i:s', $xsdmf_value);
 

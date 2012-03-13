@@ -3804,9 +3804,15 @@ public static function multi_implode($glue, $pieces)
    * @param   string $key
    * @return  POST or GET var
    */
-  function GETorPOST($key)
+  public static function GETorPOST($key)
   {
-    return @$_GET[$key] ? @$_GET[$key] : @$_POST[$key];
+      $return = null;
+      if (array_key_exists($key, $_GET)) {
+        $return = $_GET[$key];
+      } elseif (array_key_exists($key, $_POST)) {
+        $return = $_POST[$key];
+      }
+      return $return;
   }
 
   /**

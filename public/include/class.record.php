@@ -2592,7 +2592,7 @@ class Record
     }
       
     for ($i = 0; $i < count($result); $i++) {
-      if ($tmp[$result[$i]["rek_pid"]]) {
+      if (array_key_exists($result[$i]["rek_pid"], $tmp) && $tmp[$result[$i]["rek_pid"]]) {
         $result[$i] = array_merge($result[$i], $tmp[$result[$i]["rek_pid"]]);
       }
     }
@@ -2607,7 +2607,7 @@ class Record
 
     $pids = array();
     for ($i = 0; $i < count($result); $i++) {
-      if ($result[$i]["rek_object_type"] != "3") {
+      if (array_key_exists('rek_object_type', $result[$i]) && $result[$i]["rek_object_type"] != "3") {
         $pids[] = $result[$i]["rek_pid"];
       }
     }
@@ -2643,7 +2643,9 @@ class Record
 
     // now populate the $result variable again
     for ($i = 0; $i < count($result); $i++) {
-      $result[$i]["rek_ismemberof_count"] = $t[$result[$i]["rek_pid"]];
+      if (array_key_exists($result[$i]["rek_pid"], $t)) {
+        $result[$i]["rek_ismemberof_count"] = $t[$result[$i]["rek_pid"]];
+      }
     }
   }
 
@@ -2766,16 +2768,21 @@ class Record
   
     // now populate the $result variable again
     for ($i = 0; $i < count($result); $i++) {
-      $temp  = $result[$i]["rek_ismemberof"];
-      if (is_array($temp)) {
-        $result[$i]["rek_ismemberof"] = array("rek_pid" =>  $temp);
-  
-        foreach ($temp as $tpid) {
-          $result[$i]["rek_ismemberof"]["rek_title"][] = $t[$tpid];
-        }
-      } else {
-        $result[$i]["rek_ismemberof"] = array("rek_pid" => array($temp));
-        $result[$i]["rek_ismemberof"]["rek_title"][] = $t[$temp];
+      if (array_key_exists('rek_ismemberof', $result[$i])) {
+          $temp  = $result[$i]["rek_ismemberof"];
+
+          if (is_array($temp)) {
+            $result[$i]["rek_ismemberof"] = array("rek_pid" =>  $temp);
+
+            foreach ($temp as $tpid) {
+              if (array_key_exists($tpid, $t)) {
+                $result[$i]["rek_ismemberof"]["rek_title"][] = $t[$tpid];
+              }
+            }
+          } else {
+            $result[$i]["rek_ismemberof"] = array("rek_pid" => array($temp));
+            $result[$i]["rek_ismemberof"]["rek_title"][] = $t[$temp];
+          }
       }
     }
   }

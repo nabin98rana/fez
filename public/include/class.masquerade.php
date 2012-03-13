@@ -87,7 +87,11 @@ class Masquerade
 	*/
 	function getMasquerader($session)
 	{
-		return $session['masquerader'];
+        $return = null;
+        if (array_key_exists('masquerader', $session)) {
+            $return = $session['masquerader'];
+        }
+		return $return;
 	}
 
 }

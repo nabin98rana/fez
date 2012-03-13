@@ -1053,7 +1053,7 @@ class Collection
     $returnList = array();
 
     foreach ($list as $element) {
-      if (is_numeric($element['rek_ismemberof_count'])) {
+      if (array_key_exists('rek_ismemberof_count', $element) && is_numeric($element['rek_ismemberof_count'])) {
         $returnList[$element['rek_pid']] = $element['rek_title']." (".$element['rek_ismemberof_count'].")";
       } else {
         $returnList[$element['rek_pid']] = $element['rek_title'];
