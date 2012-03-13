@@ -270,6 +270,7 @@ class RecordObject extends RecordGeneral
                     		'pid' => $this->pid);
                     	$dsr = new DSResource(APP_DSTREE_PATH, $resourceDataLocation, $meta);
                     	$dsr->save();
+                        Workflow::processIngestTrigger($this->pid, Foxml::makeNCName($dsr->returnFilename()), $mimeDataType);
             		}
             	}
             }
@@ -298,8 +299,7 @@ class RecordObject extends RecordGeneral
                 $digObj->snapshotResources($now);
 
             }
-            if ($newPid || (isset($_POST['removeFiles']) || isset($_POST['editedFilenames'])
-                            		    || isset($_POST['uploader_files_uploaded']))) {
+            if ($newPid || isset($_POST['removeFiles']) || isset($_POST['uploader_files_uploaded'])) {
                 AuthNoFedora::recalculatePermissions($this->pid);
             }
 		}

@@ -212,7 +212,7 @@ class Auth
 		}
 	}
 
-	function getRoleIDByTitle($title) 
+	function getRoleIDByTitle($title)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -2680,6 +2680,24 @@ class AuthNoFedora {
         }
     }
 
+    function addRoleSecurityPermissionsShadow($pid, $role, $arg_id, $date) {
+        $log = FezLog::get();
+      	$db = DB_API::get();
+
+
+        $stmt = "INSERT INTO ". APP_TABLE_PREFIX . "auth_index2_not_inherited__shadow (authii_pid, authii_role, authii_arg_id, authii_edition_stamp)
+                VALUES (". $db->quote($pid).",".$db->quote($role).",".$db->quote($arg_id).",".$db->quote($date).")";
+
+
+        try {
+        	$res = $db->fetchAll($stmt);
+        }
+        catch(Exception $ex) {
+        	$log->err($ex);
+        	return array();
+        }
+    }
+
     //Find all information for the security changing screen
     function getSecurityPermissionsDisplay($pid) {
         $log = FezLog::get();
@@ -2825,12 +2843,12 @@ class AuthNoFedora {
     }
 
         //set inherit permissions
-    function setInherited($pid) {
+    function setInherited($pid, $inherited=1) {
         $log = FezLog::get();
       	$db = DB_API::get();
 
         $stmt = "UPDATE ". APP_TABLE_PREFIX . "record_search_key
-                SET rek_security_inherited = '1'
+                SET rek_security_inherited = ' .$db->quote($inherited).'
                 WHERE rek_pid = ".$db->quote($pid);
 
         try {

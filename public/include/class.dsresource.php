@@ -333,14 +333,15 @@ class DSResource
             {
                 $sql = "INSERT INTO " . APP_TABLE_PREFIX . "file_attachments "
                     ."(fat_hash, fat_filename, fat_version, fat_pid, fat_size, fat_mimetype, fat_security_inherited) VALUES "
-                    ."(:dshash, :dsfilename, :version, :pid, :size, :mimetype, '1')";
+                    ."(:dshash, :dsfilename, :version, :pid, :size, :mimetype, :security_inherited)";
                     
                 $this->db->query($sql, array(':dshash' => $this->hash['rawHash'], 
                 	':dsfilename' => $this->hash['hashFile'],
                     ':size' => $this->meta['size'],
                     ':version' => $now,
                     ':mimetype' => $this->meta['mimetype'],
-                    ':pid' => $this->meta['pid']));
+                    ':pid' => $this->meta['pid'],
+                    ':security_inherited' => $this->meta['security_inherited']));
             }
         }
         catch(Exception $e)
@@ -573,4 +574,31 @@ class DSResource
             return $res;
         }
     }
+
+    function returnFilename() {
+        return $this->hash[hashFile];
+    }
+
+    function returnPath() {
+        return $this->dsTreePath.$this->hash[hashPath];
+    }
+
+    function addStream($streaming) {
+        $log = FezLog::get();
+      	$db = DB_API::get();
+        $stmt = "UPDATE " . APP_TABLE_PREFIX . "file_attachments
+                 SET fat_streaming_hash = ".$db->quote($streaming)."
+                 WHERE fat_filename = ".$db->quote($this->hash['hashFile'])."
+                 AND fat_pid = ".$db->quote($this->meta['pid']);
+
+        try {
+      			$res = $db->exec($stmt);
+      		}
+        catch(Exception $ex) {
+            $log->err($ex);
+            return array();
+        }
+        return $res;
+    }
+
 }
