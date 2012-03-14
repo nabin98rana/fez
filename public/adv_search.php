@@ -64,7 +64,9 @@ $options = Pager::saveSearchParams(array(), 'adv_search');
 foreach ($list as $list_key => $list_field) {
 	if ($list_field["sek_html_input"] == 'combo' || $list_field["sek_html_input"] == 'multiple' || $list_field["sek_html_input"] == 'dual_multiple') {
 		if (!empty($list_field["sek_smarty_variable"]) && $list_field["sek_smarty_variable"] != "none") {
-			eval("\$list[\$list_key]['field_options'] = " . $list_field["sek_smarty_variable"] . ";");
+            if (defined($list_field["sek_smarty_variable"])) {
+			    eval("\$list[\$list_key]['field_options'] = " . $list_field["sek_smarty_variable"] . ";");
+            }
 			if ($list_field["sek_html_input"] == 'combo') {
 				$list[$list_key]['field_options'] = array("" => "any") + $list[$list_key]['field_options'];
 			}
@@ -73,7 +75,7 @@ foreach ($list as $list_key => $list_field) {
 	}
 	if ($list_field["sek_html_input"] == 'contvocab') {
 		$temp_value = "";
-		if (is_array($options["searchKey".$list_field['sek_id']])) {		
+		if (array_key_exists("searchKey".$list_field['sek_id'], $options) && is_array($options["searchKey".$list_field['sek_id']])) {
 			foreach ($options["searchKey".$list_field['sek_id']] as $option) {
 				eval("\$temp_value = ".$list_field["sek_lookup_function"]."(".$option.");");		
 				$list[$list_key]["field_options"][$option] = $temp_value;
@@ -84,7 +86,7 @@ foreach ($list as $list_key => $list_field) {
 	}
 	if ($list_field["sek_html_input"] == 'allcontvocab') {
 		$temp_value = "";
-		if (is_array($options["searchKey".$list_field['sek_id']])) {
+		if (array_key_exists("searchKey".$list_field['sek_id'], $options) && is_array($options["searchKey".$list_field['sek_id']])) {
 			foreach ($options["searchKey".$list_field['sek_id']] as $option) {
 				eval("\$temp_value = ".$list_field["sek_lookup_function"]."(".$option.");");		
 				$list[$list_key]["field_options"][$option] = $temp_value;

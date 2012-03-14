@@ -50,7 +50,7 @@ class FulltextQueue
 
 
 	// constructor is private: use getInstance for access
-	private function __construct($indexDirectory) 
+	private function __construct()
 	{
 		$this->pids = array();
 	}
@@ -76,7 +76,7 @@ class FulltextQueue
 		$log = FezLog::get();
 		
 		if (!is_object(self::$instance)) {
-			self::$instance = new FulltextQueue($indexPath);
+			self::$instance = new FulltextQueue();
 			$log->debug('self::instance not an object, storing reference to database handler');
 			// keep reference to database handler - this is needed
 			// for destruction time!
@@ -102,7 +102,7 @@ class FulltextQueue
 		$log = FezLog::get();
 
 		//if not in queue and record exists
-		if ((!$this->pids[$pid]) && (Record::getIfRecordExists($pid))) {
+		if (!array_key_exists($pid, $this->pids) && (Record::getIfRecordExists($pid))) {
 			$this->pids[$pid] = FulltextQueue::ACTION_INSERT;
 			$log->debug("FulltextQueue::add($pid)");
 		}

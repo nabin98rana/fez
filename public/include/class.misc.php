@@ -2483,9 +2483,11 @@ public static function multi_implode($glue, $pieces)
       case XML_TEXT_NODE:
           break;
       case XML_ELEMENT_NODE:
-        $currentnode = new DomDocument;
         if ($topelement <> '') {
           $currentnode = Misc::getXMLObjectByTypeNameValue($superdomnode, $searchtype, $topelement);
+          if (!$currentnode) {
+              return;
+          }
         } else {
           $currentnode = $domnode;
         }

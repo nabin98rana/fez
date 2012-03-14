@@ -100,7 +100,7 @@ if (!empty($pid) && !empty($dsID)) {
     // Retrieve the selected version date from the request. 
     // This will be null unless a version date has been
     // selected by the user.
-    $requestedVersionDate = $_REQUEST['version_date'];
+    $requestedVersionDate = Misc::GETorPOST('version_date');
     if( isset($requestedVersionDate) && $requestedVersionDate != NULL ){
 	    $record = new RecordObject($pid);
     	if( !$record->canViewVersions()){

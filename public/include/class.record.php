@@ -1308,7 +1308,7 @@ class Record
       }
     }
 
-    if (!defined(PROVISIONAL_CODE_UPDATE_FROM_SCRIPT) || PROVISIONAL_CODE_UPDATE_FROM_SCRIPT === false) {
+    if (!defined('PROVISIONAL_CODE_UPDATE_FROM_SCRIPT') || PROVISIONAL_CODE_UPDATE_FROM_SCRIPT === false) {
       Record::applyProvisionalCode($pid);
     }
     Citation::updateCitationCache($pid, "", $shadow);
@@ -1351,11 +1351,27 @@ class Record
     $record = new RecordGeneral($pid);
     $docType = $record->getDocumentType();
     $subType = $record->getFieldValueBySearchKey("Subtype");
-    $subType = $subType[0];
+
+    if (array_key_exists(0, $subType)) {
+        $subType = $subType[0];
+    } else {
+        $subType = null;
+    }
+
     $genreType = $record->getFieldValueBySearchKey("Genre Type");
-    $genreType = $genreType[0];
+    if (isset($genreType) && array_key_exists(0, $genreType)) {
+      $genreType = $genreType[0];
+    } else {
+      $genreType = null;
+    }
+
     $existingHERDCcode = $record->getFieldValueBySearchKey("HERDC code");
-    $existingHERDCcode = $existingHERDCcode[0];
+    if (isset($existingHERDCcode) && array_key_exists(0, $existingHERDCcode)) {
+        $existingHERDCcode = $existingHERDCcode[0];
+    } else {
+        $existingHERDCcode = null;
+    }
+
     $provHERDCcode = "";
     
     // Bail out if we already have a HERDC code
@@ -2316,7 +2332,7 @@ class Record
       if ($sekData['sek_relationship'] == 0) { //already have the data, just need to do any required lookups for 1-1
         if ($sekData['sek_lookup_function'] != "") {
           for ($i = 0; $i < count($result); $i++) {
-            if (array_key_exists('rek_'.$sek_sql_title, $result[$i])) {
+            if (array_key_exists('rek_'.$sek_sql_title, $result[$i]) && !empty($result[$i]['rek_'.$sek_sql_title])) {
 
               $param = $result[$i]['rek_'.$sek_sql_title];
               // Wrap param in single quote, if the value is a string
@@ -2367,9 +2383,13 @@ class Record
                 }
 
                 if ($sekData['sek_cardinality'] == 1) {
-                  $p[$res[$i]["rek_pid"]]["rek_".$sek_sql_title."_lookup"][] =  $res[$i]["rek_".$sek_sql_title."_lookup"];
+                    if (array_key_exists('rek_pid', $res[$i]) && array_key_exists("rek_".$sek_sql_title."_lookup", $res[$i])) {
+                      $p[$res[$i]["rek_pid"]]["rek_".$sek_sql_title."_lookup"][] =  $res[$i]["rek_".$sek_sql_title."_lookup"];
+                    }
                 } else {
-                  $p[$res[$i]["rek_pid"]]["rek_".$sek_sql_title."_lookup"] =  $res[$i]["rek_".$sek_sql_title."_lookup"];
+                    if (array_key_exists('rek_pid', $res[$i]) && array_key_exists("rek_".$sek_sql_title."_lookup", $res[$i])) {
+                        $p[$res[$i]["rek_pid"]]["rek_".$sek_sql_title."_lookup"] =  $res[$i]["rek_".$sek_sql_title."_lookup"];
+                    }
                 }
               }
               if ($sekData['sek_cardinality'] == 1) {
@@ -3506,7 +3526,7 @@ class Record
      * Fulltext SQL (Special Case)
      */
     // this will have to replaced with lots of union select joins like eventum
-    if ($searchKeys["0"]  && trim($searchKeys["0"]) != "") {
+    if (array_key_exists('0', $searchKeys) && trim($searchKeys['0']) != '') {
       $joinType = " INNER JOIN ";
       if ( $operatorToUse == 'OR' ) {
         $joinType = " LEFT JOIN ";
@@ -3778,6 +3798,9 @@ class Record
     if (!empty($sort_by)) {
       //  && $tableJoinID != 1
       $sek_id = str_replace("searchKey", "", $sort_by);
+      if (!is_numeric($sek_id)) {  // in case the text version of the search key was passed in get the ID
+          $sek_id = Search_Key::getID($sek_id);
+      }
       if ($sek_id != '') {
         if ($sek_id == '0' && (trim($searchKeys[0]) != "")) {
           if ($options["sort_order"] == 0) {
@@ -3798,7 +3821,7 @@ class Record
               $searchKey_join[SK_SORT_ORDER] .= "r".$searchKey_join[SK_KEY_ID];
             }
 
-            if ($options["sort_order"] == "1") {
+            if (array_key_exists('sort_order', $options) && $options["sort_order"] == "1") {
               $searchKey_join[SK_SORT_ORDER] .= ".rek_".$sekdet['sek_title_db']." DESC, ";
             } else {
               $searchKey_join[SK_SORT_ORDER] .= ".rek_".$sekdet['sek_title_db']." ASC, ";

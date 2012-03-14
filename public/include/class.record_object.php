@@ -1,5 +1,6 @@
 <?php
 include_once(APP_INC_PATH.'class.record_general.php');
+include_once(APP_INC_PATH.'class.record_general.php');
 include_once(APP_INC_PATH . 'class.digitalobject.php');
 /**
  * RecordObject
@@ -343,7 +344,6 @@ class RecordObject extends RecordGeneral
     		$xmlObj = Foxml::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "", $indexArray, 0, $this->created_date, $this->updated_date, $this->depositor, $this->assign_usr_id, $this->assign_grp_id);
     
     		$xmlObj .= "</".$xsd_element_prefix.$xsd_top_element_name.">";
-    
     		$datastreamTitles = $display->getDatastreamTitles($exclude_list, $specify_list);
     		Record::insertXML($pid, compact('datastreamTitles', 'exclude_list', 'specify_list', 'xmlObj', 'indexArray', 'existingDatastreams', 'xdis_id'), $ingestObject);
     		$this->clearDetails();  // force the details to be refreshed from fedora.

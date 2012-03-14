@@ -1686,7 +1686,7 @@ class RecordGeneral
       $res = array();
 
       foreach ($this->display->xsd_html_match->getMatchCols() as $xsdmf ) {
-        if ($xsdmf['xsdmf_sek_id'] == $sek_id) {
+        if ($xsdmf['xsdmf_sek_id'] == $sek_id && array_key_exists($xsdmf['xsdmf_id'], $this->details)) {
           $res[] = $this->details[$xsdmf['xsdmf_id']];
         }
       }

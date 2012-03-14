@@ -339,7 +339,7 @@ class Citation
 		 * Loop through xsdmf_id's
 		 */
 		foreach ($matches[1] as $key => $match) {
-			list($xsdmf_id,$prefix,$suffix,$option) = explode('|',$match);
+			list($xsdmf_id,$prefix,$suffix,$option) = explode('|',$match) + array(null, null, null, null);
 
 			if (is_numeric($xsdmf_id)) {
 				$xsdmf_details = Search_Key::getAllDetailsByXSDMF_ID($xsdmf_id);
