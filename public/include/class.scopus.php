@@ -129,11 +129,11 @@ GROUP BY rek_pid
 	public static function getCitedByCount($input_keys) 
 	{		
 		$log = FezLog::get();
-		$input_keys = array('UQ:6002' => array('eid' => '2-s2.0-0020818831'),
-            'UQ:6003' => array('eid' => '2-s2.0-0020818835'),
-            'UQ:6004' => array('eid' => '2-s2.0-0020818837'),
-            'UQ:6005' => array('eid' => '2-s2.0-0346778587')
-        );
+//		$input_keys = array('UQ:6002' => array('eid' => '2-s2.0-0020818831'),
+//            'UQ:6003' => array('eid' => '2-s2.0-0020818835'),
+//            'UQ:6004' => array('eid' => '2-s2.0-0020818837'),
+//            'UQ:6005' => array('eid' => '2-s2.0-0346778587')
+//        );
 		$client = new soapclient_internal(self::ENDPOINT, false);
         $client->soap_defencoding = 'UTF-8';
 		
@@ -168,10 +168,10 @@ GROUP BY rek_pid
 		
 		$result = $client->call('getCitedByCount', $params, null, null, $headers, null, false, false);
 //		$result = $client->call('getCitedByCount', $params, null, null, $headers, null, 'document', 'encoded');
-        $x = $client->response;
-        $y = $client->document;
-        $z = $client->request;
-        $z1 = $client->requestHeaders;
+//        $x = $client->response;
+//        $y = $client->document;
+//        $z = $client->request;
+//        $z1 = $client->requestHeaders;
 
 		if ($client->fault) {
 			$log->err('Fault occurred while retrieving records from Scopus: '.$client->fault, __FILE__, __LINE__);
