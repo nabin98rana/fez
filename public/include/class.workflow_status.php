@@ -430,6 +430,12 @@ class WorkflowStatus
       }
     }
     $this->clearSession();
+    
+    // Return true if script executed from command line.
+    if (php_sapi_name() == 'cli'){
+        return true;
+    }
+
     if (($wft_type != 'Ingest') && ($redirect == true)) {
       header("Location: ".APP_RELATIVE_URL."workflow/end.php?".$querystr);
       exit;
