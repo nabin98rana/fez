@@ -155,7 +155,9 @@ if ($aliasResult == false) {
 
     if (Auth::userExists($username)) { // if the user is registered as a Fez user
         $prefs = Prefs::get(Auth::getUserID());
-        $front_page = $prefs['front_page'];
+        if (array_key_exists('front_page', $prefs)) {
+            $front_page = $prefs['front_page'];
+        }
     } else {
         $front_page = Pager::getParam("front_page");
     }
