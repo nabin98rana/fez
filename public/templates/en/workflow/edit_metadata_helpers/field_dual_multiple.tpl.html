@@ -4,7 +4,9 @@
 
     {* Default Dual Multi Combo *}    
 {else}
-    <tr id="tr_xsd_display_fields_{$xsdmf.xsdmf_id}_0" {if $xsdmf.xsdmf_invisible == 1}style="display:none;"{/if}>
+    <tr id="tr_xsd_display_fields_{$xsdmf.xsdmf_id}_0" {if $xsdmf.xsdmf_invisible == 1}style="display:none;"{/if}
+        class="{if ($xsdmf.xsdmf_title|stristr:"language of")}translated_field{/if}"
+    >
         <td width="200" bgcolor="{$cell_color}" class="default" valign="top">
             <b>{$xsdmf.xsdmf_title} {if $xsdmf.xsdmf_required == 1} * {/if}</b>
             {if $xsdmf.xsdmf_description != "" && $loop_num == 0}

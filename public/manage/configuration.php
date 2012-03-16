@@ -58,8 +58,8 @@ $tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 if (!$isSuperAdministrator) {
     $tpl->assign("show_not_allowed_msg", true);
 }
-
-if ($_POST["action"] == "save") {
+$action = Misc::GETorPOST('action');
+if ($action == "save") {
     $tpl->assign("action", "save");
     $saveAttempt = Configuration::saveConf();
     $tpl->assign("save_errors", $saveAttempt);

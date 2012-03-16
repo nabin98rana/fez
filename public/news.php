@@ -41,7 +41,7 @@ include_once(APP_INC_PATH . "class.news.php");
 $tpl = new Template_API();
 
 // Select the template, depending on query string parameter
-($_GET['show'] == 'rss') ? $tpl->setTemplate("news_rss.tpl.html") : $tpl->setTemplate("news.tpl.html");
+(array_key_exists('show', $_GET) && $_GET['show'] == 'rss') ? $tpl->setTemplate("news_rss.tpl.html") : $tpl->setTemplate("news.tpl.html");
 
 $username = Auth::getUsername();
 $tpl->assign("isUser", $username);

@@ -2,6 +2,7 @@ syntax: glob
 
 error_handler.log
 config.inc.php
+config_test.inc.php
 test.php
 .hgignore.swp
 phpinfo.php
@@ -38,8 +39,6 @@ glob:.project
 glob:.project/*
 glob:pidindex
 glob:.settings
-glob:tests
-glob:tests/*
 glob:tmp/*
 glob:tmp
 glob:pidsources

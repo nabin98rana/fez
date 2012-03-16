@@ -659,7 +659,7 @@ class nusoap_base {
 		$ns_string .= " xmlns:".$k."=\"".$v."\"";
 	}
 	if($encodingStyle) {
-		$ns_string = " SOAP-ENV:encodingStyle=\"".$encodingStyle."\"".$ns_string."";
+//		$ns_string = " SOAP-ENV:encodingStyle=\"".$encodingStyle."\"".$ns_string."";
 	}
 
 	// serialize headers
@@ -3402,7 +3402,8 @@ class soap_server extends nusoap_base {
 						if (preg_match('/^(ISO-8859-1|US-ASCII|UTF-8)$/i', $enc)) {
 							$this->xml_encoding = strtoupper($enc);
 						} else {
-							$this->xml_encoding = 'US-ASCII';
+							$this->xml_encoding = 'UTF-8';
+//							$this->xml_encoding = 'US-ASCII';
 						}
 					} else {
 						// should be US-ASCII for HTTP 1.0 or ISO-8859-1 for HTTP 1.1
@@ -6882,7 +6883,8 @@ class soapclient_internal extends nusoap_base  {
 			if(preg_match('/^(ISO-8859-1|US-ASCII|UTF-8)$/i',$enc)){
 				$this->xml_encoding = strtoupper($enc);
 			} else {
-				$this->xml_encoding = 'US-ASCII';
+				$this->xml_encoding = 'UTF-8';
+//				$this->xml_encoding = 'US-ASCII';
 			}
 		} else {
 			// should be US-ASCII for HTTP 1.0 or ISO-8859-1 for HTTP 1.1

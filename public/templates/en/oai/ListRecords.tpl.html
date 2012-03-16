@@ -123,11 +123,11 @@
 		{/if}
 		{if $list[i].rek_rights}
 			{if !is_array($list[i].rek_rights)}
-	        	<dc:rights>{$loop_rights|escape:"html"}</dc:rights>
+	        	<dc:rights>{$list[i].rek_rights|escape:"html"}</dc:rights>
 			{else}
 		        {assign var="loop_rights" value=$list[i].rek_rights}
 				{section name="s" loop=$loop_rights}
-			        <dc:rights>{$loop_rights[s]|escape:"html"}</dc:rights>
+			        <dc:rights>{$list[i].rek_rights[s]|escape:"html"}</dc:rights>
 				{/section}
 			{/if}
 		{/if}

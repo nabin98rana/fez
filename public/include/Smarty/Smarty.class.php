@@ -560,7 +560,7 @@ class Smarty
      * @var string
      */
     var $_cache_including = false;
-
+    var $custom_view_dir = null;
     /**#@-*/
     /**
      * The class constructor.

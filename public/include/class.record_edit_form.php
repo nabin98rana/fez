@@ -95,7 +95,7 @@
     
         $tpl->assign("xdis_id", $record->getXmlDisplayId());
         
-        $details = $record->getDetails();
+        $details = $record->getDetails();   // RecordGeneral -> getDetails();
         $this->fixDetails($details);
         $this->details = $details;
 
@@ -285,9 +285,11 @@
 	                             ."; \$xsd_display_fields[\$dis_key]['field_options'] = \$temp;");
 												} else {
 	                        $this->setDynamicVar($dis_field["xsdmf_smarty_variable"]);
-	                        eval("global ".$dis_field['xsdmf_smarty_variable']
-	                        	."; \$xsd_display_fields[\$dis_key]['selected_option'] = " 
-	                        	. $dis_field["xsdmf_dynamic_selected_option"] . ";");													
+                            if (defined($dis_field["xsdmf_dynamic_selected_option"])) {
+                                eval("global ".$dis_field['xsdmf_smarty_variable']
+                                    ."; \$xsd_display_fields[\$dis_key]['selected_option'] = "
+                                    . $dis_field["xsdmf_dynamic_selected_option"] . ";");
+                            }
 												}
                     }
         
@@ -335,18 +337,21 @@
             if ($dis_field["xsdmf_enabled"] == 1) {
                 
             	if ($dis_field["xsdmf_html_input"] == 'text' || $dis_field["xsdmf_html_input"] == 'textarea' || $dis_field["xsdmf_html_input"] == 'hidden') {
-                    if (is_array($details[$dis_field['xsdmf_id']])) {
+                    if (array_key_exists($dis_field['xsdmf_id'], $details) && is_array($details[$dis_field['xsdmf_id']])) {
                         foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
                             $details[$dis_field['xsdmf_id']][$ckey] = preg_replace('/\s\s+/', ' ', trim($cdata));
                         }
-                    } else {
+                    } elseif (array_key_exists($dis_field['xsdmf_id'], $details)) {
                         $details[$dis_field['xsdmf_id']] = preg_replace('/\s\s+/', ' ', trim($details[$dis_field['xsdmf_id']]));
                     }               
                 }
                 
 				// for the depositor org affilation control, check if it is empty then suggest a default if possible
                 if ($dis_field["xsdmf_html_input"] == 'depositor_org') {
-					$tempValue = $details[$dis_field["xsdmf_id"]];
+                    $tempValue = "";
+                    if (array_key_exists($dis_field["xsdmf_id"], $details)) {
+					    $tempValue = $details[$dis_field["xsdmf_id"]];
+                    }
 					if ($tempValue == "") {
 						$username = Auth::getUsername();
 						$details[$dis_field["xsdmf_id"]] = Org_Structure::getDefaultOrgIDByUsername($username);
@@ -443,9 +448,9 @@
                     }
 
 				} elseif ($dis_field["xsdmf_html_input"] == 'author_suggestor') { // fix author id drop down combo if attached
-					if (is_array($details[$dis_field['xsdmf_id']])) {
+                    if (array_key_exists($dis_field['xsdmf_id'], $details) && is_array($details[$dis_field['xsdmf_id']])) {
 						$temp_author_id = $details[$dis_field['xsdmf_id']];
-						if (!is_array($details[$dis_field['xsdmf_id']."_author_details"])) {
+						if (!array_key_exists($dis_field['xsdmf_id']."_author_details", $details)) {
 							$details[$dis_field['xsdmf_id']."_author_details"] = array();
 						}
 					    foreach ($temp_author_id as $ckey => $cdata) {
@@ -455,10 +460,10 @@
 								$details[$dis_field['xsdmf_id']."_author_details"][] = array();
 							}
 					    }
-					} else {
+					} elseif (array_key_exists($dis_field['xsdmf_id'], $details)) {
 						$temp_author_id = $details[$dis_field['xsdmf_id']];
 
-						if (!is_array($details[$dis_field['xsdmf_id']."_author_details"])) {
+						if (array_key_exists($dis_field['xsdmf_id']."_author_details", $details) && !is_array($details[$dis_field['xsdmf_id']."_author_details"])) {
 							$details[$dis_field['xsdmf_id']."_author_details"] = array();
 						}
 						if (is_numeric($temp_author_id) && $temp_author_id != 0) {
@@ -548,8 +553,13 @@
                     }                   
     
                 
-                } elseif (($dis_field["xsdmf_multiple"] == 1) && (!@is_array($details[$dis_field["xsdmf_id"]])) ){ // makes the 'is_multiple' tagged display fields into arrays if they are not already so smarty renders them correctly
-                    $details[$dis_field["xsdmf_id"]] = array($details[$dis_field["xsdmf_id"]]);
+                } elseif (($dis_field["xsdmf_multiple"] == 1) && (!array_key_exists($dis_field["xsdmf_id"], $details) || !is_array($details[$dis_field["xsdmf_id"]])) ){ // makes the 'is_multiple' tagged display fields into arrays if they are not already so smarty renders them correctly
+                    if (!array_key_exists($dis_field["xsdmf_id"], $details)) {
+                        $details[$dis_field["xsdmf_id"]] = array();
+                    }   else {
+                        $details[$dis_field["xsdmf_id"]] = array($details[$dis_field["xsdmf_id"]]);
+                    }
+
                 }
             }
             

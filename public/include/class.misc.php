@@ -54,6 +54,31 @@ include_once('HTML/AJAX/JSON.php');
 class Misc
 {
 
+public static function multi_implode($glue, $pieces)
+ {
+     $string='';
+
+     if (is_object($pieces)){
+         return str_replace(chr(10), "", var_export($pieces, true));
+     }
+     
+     if(is_array($pieces))
+     {
+         reset($pieces);
+         while(list($key,$value)=each($pieces))
+         {
+             $string.=$glue.Misc::multi_implode($glue, $value);
+         }
+     }
+     else
+     {
+         return $pieces;
+     }
+
+     return trim($string, $glue);
+ }
+
+
  public static function smart_ucwords($string, $upper_all_length = false) {
 
      $delimiters = array(
@@ -930,7 +955,7 @@ class Misc
           //roles for previewing images
           $acceptable_roles = array("Viewer", "Community_Admin", "Editor", "Creator", "Annotator");
           $ds['canPreview'] = false;
-          if (is_array($ds['fezacml_roles'])) {
+          if (array_key_exists('fezacml_roles', $ds) && is_array($ds['fezacml_roles'])) {
             foreach ($acceptable_roles as $role) {
               if (in_array($role, $ds['fezacml_roles'])) {
                 $ds['canPreview'] = true;
@@ -2458,9 +2483,11 @@ class Misc
       case XML_TEXT_NODE:
           break;
       case XML_ELEMENT_NODE:
-        $currentnode = new DomDocument;
         if ($topelement <> '') {
           $currentnode = Misc::getXMLObjectByTypeNameValue($superdomnode, $searchtype, $topelement);
+          if (!$currentnode) {
+              return;
+          }
         } else {
           $currentnode = $domnode;
         }
@@ -3779,9 +3806,15 @@ class Misc
    * @param   string $key
    * @return  POST or GET var
    */
-  function GETorPOST($key)
+  public static function GETorPOST($key)
   {
-    return @$_GET[$key] ? @$_GET[$key] : @$_POST[$key];
+      $return = null;
+      if (array_key_exists($key, $_GET)) {
+        $return = $_GET[$key];
+      } elseif (array_key_exists($key, $_POST)) {
+        $return = $_POST[$key];
+      }
+      return $return;
   }
 
   /**

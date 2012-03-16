@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="fez" default="jenkins">
+ <property name="srcdir" value="${basedir}/../public/" />
+ <property name="phpextensions" value="php" />
+
+ <target name="jenkins" depends="clean,prepare" />
+ 
+ <target name="clean" description="Cleanup build artifacts">
+  <delete dir="${basedir}/logs"/>
+  <delete dir="${basedir}/../generatedJUnitFiles"/>
+ </target>
+
+ <target name="prepare" depends="clean"
+         description="Prepare for build">
+  <mkdir dir="${basedir}/logs"/>
+  <mkdir dir="${basedir}/../generatedJUnitFiles"/>
+ </target>
+
+ <target name="selenium" description="Run selenium tests with PHPUnit">
+  <exec executable="phpunit" failonerror="false">
+   <arg line="--log-junit ${basedir}/logs/selenium.xml --bootstrap=${basedir}/../tests/application/bootstrap.php --verbose ${basedir}/../tests/application/AllTests.php" />
+   <arg path="${srcdir}" />
+  </exec>
+ </target>
+
+</project>
+

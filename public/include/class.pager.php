@@ -206,7 +206,7 @@ class Pager
 			 * If no search keys were submitted
 			 * retrieve from cookie
 			 */
-			if (empty($searchKeyArray) && is_array($searchKeys)) {
+			if (empty($searchKeyArray) && defined('searchKeys')) {
 				$searchKeyArray = array();
 				$from_cookie = true;
 
@@ -292,11 +292,13 @@ class Pager
 
 		if ($operator) {
 			$cookie['operator'] = $operator;
-		}
+		} else {
+            $cookie['operator'] = '';
+        }
 
 
 
-		if( empty($hide_closed) && !($existing_cookie['hide_closed'] == 1 || $existing_cookie['hide_closed'] === 0) ) {
+		if( empty($hide_closed) && (array_key_exists('hide_closed', $existing_cookie)) && !($existing_cookie['hide_closed'] == 1 || $existing_cookie['hide_closed'] === 0) ) {
 			$hide_closed = $existing_cookie['hide_closed'];
 		}
 

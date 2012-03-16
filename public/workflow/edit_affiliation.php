@@ -59,7 +59,7 @@ $record = new RecordObject($pid);
 $access_ok = $record->canEdit();
 if ($access_ok) {
 	
-	if ($_POST['action'] == 'save') {
+	if (array_key_exists('action', $_POST) && $_POST['action'] == 'save') {
 		$saveResult = AuthorAffiliations::save($_POST['af_id'], $pid, $_POST['af_author_id'], $_POST['af_percent_affiliation'], $_POST['af_org_id']);
 		$validateResult = AuthorAffiliations::validateAffiliations($pid);
 		if ($saveResult != -1) {
@@ -67,7 +67,7 @@ if ($access_ok) {
 		} else {
             $tpl->assign("error_message", "Error on save of author affiliation");
 		}
-	} elseif ($_REQUEST['action'] == 'delete') {
+	} elseif (array_key_exists('action', $_REQUEST) && $_REQUEST['action'] == 'delete') {
 		AuthorAffiliations::remove($_REQUEST['af_id']);
 		$validateResult = AuthorAffiliations::validateAffiliations($pid);
 	}
@@ -112,7 +112,7 @@ if ($access_ok) {
 	$list_keyed = Misc::keyArray($listAll, 'af_id');
 	$tpl->assign('orgs', Org_Structure::getAssocListHR());
 
-	if ($_REQUEST['action'] == 'edit') {
+	if (array_key_exists('action', $_REQUEST) && $_REQUEST['action'] == 'edit') {
 		$tpl->assign('current', $list_keyed[$_REQUEST['af_id']]);
 		$tpl->assign('action', 'edit');
 	}

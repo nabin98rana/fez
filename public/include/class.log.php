@@ -77,7 +77,9 @@ class FezLog
 		$log = Zend_Registry::get('fezlog');
 		if($log->log_trace) {
 			$trace = debug_backtrace();
-			$log->debug_method($trace[1]['class'].$trace[1]['type'].$trace[1]['function'], $end = false);
+            if (array_key_exists(1, $trace) && array_key_exists('class', $trace[1])) {
+                $log->debug_method($trace[1]['class'].$trace[1]['type'].$trace[1]['function'], $end = false);
+            }
 		}
 		return $log;
 	}
@@ -145,8 +147,12 @@ class FezLog
   				$args[] = $arg;
 		}
 		
-		$this->debug($function['class'].$function['type'].$function['function'].'('.implode(', ', $args).') - '.
-					$function['file'].'('.$function['line'].')');
+        $message = $function['class'] . $function['type'] .
+                   $function['function'] . '(' . Misc::multi_implode(', ', $args) . ')' .
+                   ' - ' .
+                   $function['file'] . '(' . $function['line'] . ')';
+
+		$this->debug($message);
 	}
 		
     public function close() 
@@ -158,8 +164,8 @@ class FezLog
 			$this->_response->sendHeaders();
     	}
     }
-    
-    public function getLogElapsedTime() 
+
+    public function getLogElapsedTime()
     {
     	return $this->_stopwatch->elapsed();
     }

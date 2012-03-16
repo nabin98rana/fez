@@ -1,139 +1,355 @@
-{* $list|print_r *}
-
+{*For codes see list below *}
+{* $list|@print_r *}
 {section name="i" loop=$list}
-Record {counter} of {$list|@count}
+{* Record {counter} of {$list|@count} *}
 {if $list[i].rek_display_type_lookup eq 'Journal Article'}
 {foreach from=$list[i].rek_author item=author}
+
 %A {$author}
 {/foreach} 
 {foreach from=$list[i].rek_journal_name item=journal}
+
 %B {$journal}
 {/foreach} 
+
 %D {$list[i].rek_date}
-%G {$list[i].rek_language[0]}
+
+%G {if is_array($list[i].rek_language[0])}{$list[i].rek_language[0]}{else}{$list[i].rek_language}{/if}
 {foreach from=$list[i].rek_journal_name item=journal}
+
 %J {$journal}
 {/foreach} 
 {foreach from=$list[i].rek_keywords item=keyword}
+
 %K {$keyword}
 {/foreach}
+
 %M {$list[i].rek_pid}
 {foreach from=$list[i].rek_issue_number item=issue}
+
 %N {$issue}
 {/foreach}
+
 %0 {$list[i].rek_display_type_lookup}
-%P {$list[i].rek_start_page[0]}-{$list[i].rek_end_page[0]}
+
+%P {if is_array($list[i].rek_start_page[0])}{$list[i].rek_start_page[0]}{else}{$list[i].rek_start_page}{/if}-{if is_array($list[i].rek_end_page[0])}{$list[i].rek_end_page[0]}{else}{$list[i].rek_end_page}{/if}
+
 %T {$list[i].rek_title}
-%V {$list[i].rek_volume_number[0]} 
+
+%V {if is_array($list[i].rek_volume_number[0])}{$list[i].rek_volume_number[0]}{else}{$list[i].rek_volume_number}{/if}
+
 %X {$list[i].rek_description}
-%Y {$list[i].rek_notes[0]}
-%Z {$list[i].rek_publisher[0]}
+
+%Y {if is_array($list[i].rek_notes[0])}{$list[i].rek_notes[0]}{else}{$list[i].rek_notes}{/if}
+
+%Z {if is_array($list[i].rek_publisher[0])}{$list[i].rek_publisher[0]}{else}{$list[i].rek_publisher}{/if}
 {foreach from=$list[i].rek_identifier item=identifier}
+
 %@ {$identifier}
 {/foreach}
-%1 {$list[i].rek_place_of_publication[0]}
+
+%1 {if is_array($list[i].rek_place_of_publication[0])}{$list[i].rek_place_of_publication[0]}{else}{$list[i].rek_place_of_publication}{/if}
 
 {elseif $list[i].rek_display_type_lookup eq 'Book'}
 {foreach from=$list[i].rek_author item=author}
+
 %A {$author}
 {/foreach} 
-%B {$list[i].rek_series[0]}
-%C {$list[i].rek_place_of_publication[0]}
+
+%B {if is_array($list[i].rek_series[0])}{$list[i].rek_series[0]}{else}{$list[i].rek_series}{/if}
+
+%C {if is_array($list[i].rek_place_of_publication[0])}{$list[i].rek_place_of_publication[0]}{else}{$list[i].rek_place_of_publication}{/if}
+
 %D {$list[i].rek_date}
-%G {$list[i].rek_language[0]}
-%I {$list[i].rek_publisher[0]}
-%J {$list[i].rek_notes[0]}
+
+%G {if is_array($list[i].rek_language[0])}{$list[i].rek_language[0]}{else}{$list[i].rek_language}{/if}
+
+%I {if is_array($list[i].rek_publisher[0])}{$list[i].rek_publisher[0]}{else}{$list[i].rek_publisher}{/if}
+
+%J {if is_array($list[i].rek_notes[0])}{$list[i].rek_notes[0]}{else}{$list[i].rek_notes}{/if}
 {foreach from=$list[i].rek_keywords item=keyword}
+
 %K {$keyword}
 {/foreach}
+
 %M {$list[i].rek_pid}
 {foreach from=$list[i].rek_alternative_title item=alt_title}
+
 %O {$alt_title}
 {/foreach}
-%P {$list[i].rek_end_page[0]}
+
+%P {if is_array($list[i].rek_end_page[0])}{$list[i].rek_end_page[0]}{else}{$list[i].rek_end_page}{/if}
+
 %T {$list[i].rek_title}
+
 %X {$list[i].rek_description}
-%7 {$list[i].rek_edition[0]}
+
+%7 {if is_array($list[i].rek_edition[0])}{$list[i].rek_edition[0]}{else}{$list[i].rek_edition}{/if}
 {foreach from=$list[i].rek_identifier item=identifier}
+
 %@ {$identifier}
 {/foreach}
 
 {elseif $list[i].rek_display_type_lookup eq 'Book Chapter'}
 {foreach from=$list[i].rek_author item=author}
+
 %A {$author}
 {/foreach} 
-%B {$list[i].rek_book_title[0]}
-%C {$list[i].rek_place_of_publication[0]}
+
+%B {if is_array($list[i].rek_book_title[0])}{$list[i].rek_book_title[0]}{else}{$list[i].rek_book_title}{/if}
+
+%C {if is_array($list[i].rek_place_of_publication[0])}{$list[i].rek_place_of_publication[0]}{else}{$list[i].rek_place_of_publication}{/if}
+
 %D {$list[i].rek_date}
-%G {$list[i].rek_language[0]}
-%I {$list[i].rek_publisher[0]}
-%J {$list[i].rek_notes[0]}
+
+%G {if is_array($list[i].rek_language[0])}{$list[i].rek_language[0]}{else}{$list[i].rek_language}{/if}
+
+%I {if is_array($list[i].rek_publisher[0])}{$list[i].rek_publisher[0]}{else}{$list[i].rek_publisher}{/if}
+
+%J {if is_array($list[i].rek_notes[0])}{$list[i].rek_notes[0]}{else}{$list[i].rek_notes}{/if}
 {foreach from=$list[i].rek_keywords item=keyword}
+
 %K {$keyword}
 {/foreach}
+
 %M {$list[i].rek_pid}
+
 %0 {$list[i].rek_display_type_lookup}
-%P {$list[i].rek_start_page[0]}-{$list[i].rek_end_page[0]}
-%S {$list[i].rek_series[0]}
+
+%P {if is_array($list[i].rek_start_page[0])}{$list[i].rek_start_page[0]}{else}{$list[i].rek_start_page}{/if}-{if is_array($list[i].rek_end_page[0])}{$list[i].rek_end_page[0]}{else}{$list[i].rek_end_page}{/if}
+
+%S {if is_array($list[i].rek_series[0])}{$list[i].rek_series[0]}{else}{$list[i].rek_series}{/if}
+
 %T {$list[i].rek_title}
+
 %X {$list[i].rek_description}
-%7 {$list[i].rek_edition[0]}
+
+%7 {if is_array($list[i].rek_edition[0])}{$list[i].rek_edition[0]}{else}{$list[i].rek_edition}{/if}
 {foreach from=$list[i].rek_identifier item=identifier}
+
 %@ {$identifier}
 {/foreach}
 
 {elseif $list[i].rek_display_type_lookup eq 'Thesis'}
+
 {foreach from=$list[i].rek_author item=author}
 %A {$author}
 {/foreach} 
-%C {$list[i].rek_place_of_publication[0]}
+
+%C {if is_array($list[i].rek_place_of_publication[0])}{$list[i].rek_place_of_publication[0]}{else}{$list[i].rek_place_of_publication}{/if}
+
 %D {$list[i].rek_date}
-%G {$list[i].rek_language[0]}
-%I {$list[i].rek_org_name[0]}
-%B {$list[i].rek_org_unit_name[0]}
-%E {$list[i].rek_notes[0]}
+
+%G {if is_array($list[i].rek_language[0])}{$list[i].rek_language[0]}{else}{$list[i].rek_language}{/if}
+
+%I {if is_array($list[i].rek_org_name[0])}{$list[i].rek_org_name[0]}{else}{$list[i].rek_org_name}{/if}
+
+%B {if is_array($list[i].rek_org_unit_name[0])}{$list[i].rek_org_unit_name[0]}{else}{$list[i].rek_org_unit_name}{/if}
+
+%E {if is_array($list[i].rek_notes[0])}{$list[i].rek_notes[0]}{else}{$list[i].rek_notes}{/if}
 {foreach from=$list[i].rek_keywords item=keyword}
+
 %K {$keyword}
 {/foreach}
+
 %M {$list[i].rek_pid}
+
 %0 {$list[i].rek_display_type_lookup}
+
 %T {$list[i].rek_title}
+
 %X {$list[i].rek_description}
 
 {elseif $list[i].rek_display_type_lookup eq 'Conference Paper'}
 {foreach from=$list[i].rek_author item=author}
+
 %A {$author}
 {/foreach} 
-%B {$list[i].rek_conference_name[0]}
-%C {$list[i].rek_conference_location[0]}
+
+%B {if is_array($list[i].rek_conference_name[0])}{$list[i].rek_conference_name[0]}{else}{$list[i].rek_conference_name}{/if}
+
+%C {if is_array($list[i].rek_conference_location[0])}{$list[i].rek_conference_location[0]}{else}{$list[i].rek_conference_location}{/if}
+
 %D {$list[i].rek_date}
-%E {$list[i].rek_notes[0]}
-%G {$list[i].rek_language[0]}
-%I {$list[i].rek_org_name[0]}
+
+%E {if is_array($list[i].rek_notes[0])}{$list[i].rek_notes[0]}{else}{$list[i].rek_notes}{/if}
+
+%G {if is_array($list[i].rek_language[0])}{$list[i].rek_language[0]}{else}{$list[i].rek_language}{/if}
+
+%I {if is_array($list[i].rek_org_name[0])}{$list[i].rek_org_name[0]}{else}{$list[i].rek_org_name}{/if}
 {foreach from=$list[i].rek_keywords item=keyword}
+
 %K {$keyword}
 {/foreach}
+
 %M {$list[i].rek_pid}
+
 %0 {$list[i].rek_display_type_lookup}
+
 %T {$list[i].rek_title}
+
 %X {$list[i].rek_description}
 
 {elseif $list[i].rek_display_type_lookup eq 'Conference Proceedings'}
+
 %B {$list[i].rek_title}
-%C {$list[i].rek_conference_location[0]}
+
+%C {if is_array($list[i].rek_conference_location[0])}{$list[i].rek_conference_location[0]}{else}{$list[i].rek_conference_location}{/if}
+
 %D {$list[i].rek_date}
 {foreach from=$list[i].rek_author item=author}
+
 %E {$author}
 {/foreach} 
-%G {$list[i].rek_language[0]}
-%I {$list[i].rek_publisher[0]}
-%J {$list[i].rek_notes[0]}
+
+%G {if is_array($list[i].rek_language[0])}{$list[i].rek_language[0]}{else}{$list[i].rek_language}{/if}
+
+%I {if is_array($list[i].rek_publisher[0])}{$list[i].rek_publisher[0]}{else}{$list[i].rek_publisher}{/if}
+
+%J {if is_array($list[i].rek_notes[0])}{$list[i].rek_notes[0]}{else}{$list[i].rek_notes}{/if}
 {foreach from=$list[i].rek_keywords item=keyword}
+
 %K {$keyword}
 {/foreach}
+
 %M {$list[i].rek_pid}
+
 %0 {$list[i].rek_display_type_lookup}
+
 %T {$list[i].rek_title}
-%X {$list[i].rek_description}  
+
+%X {$list[i].rek_description}
 {/if}
 {/section}  
+
+
+{*
+http://www.cardiff.ac.uk/insrv/educationandtraining/guides/endnote/endnote_codes.html
+%0 Generic
+%0 Artwork
+%0 Audiovisual Material
+%0 Bill
+%0 Book
+%0 Book Section
+%0 Case
+%0 Chart or Table
+%0 Classical Work
+%0 Computer Program
+%0 Conference Paper
+%0 Conference Proceedings
+%0 Edited Book
+%0 Equation
+%0 Electronic Article
+%0 Electronic Book
+%0 Electronic Source
+%0 Figure
+%0 Film or Broadcast
+%0 Government Document
+%0 Hearing
+%0 Journal Article
+%0 Legal Rule/Regulation
+%0 Magazine Article
+%0 Manuscript
+%0 Map
+%0 Newspaper Article
+%0 Online Database
+%0 Online Multimedia
+%0 Patent
+%0 Personal Communication
+%0 Report
+%0 Statute
+%0 Thesis
+%0 Unpublished Work
+%0 Unused 1
+%0 Unused 2
+%0 Unused 3
+%0 Generic
+%0 Artwork
+%0 Audiovisual Material
+%0 Bill
+%0 Book
+%0 Book Section
+%0 Case
+%0 Chart or Table
+%0 Classical Work
+%0 Computer Program
+%0 Conference Paper
+%0 Conference Proceedings
+%0 Edited Book
+%0 Equation
+%0 Electronic Article
+%0 Electronic Book
+%0 Electronic Source
+%0 Figure
+%0 Film or Broadcast
+%0 Government Document
+%0 Hearing
+%0 Journal Article
+%0 Legal Rule/Regulation
+%0 Magazine Article
+%0 Manuscript
+%0 Map
+%0 Newspaper Article
+%0 Online Database
+%0 Online Multimedia
+%0 Patent
+%0 Personal Communication
+%0 Report
+%0 Statute
+%0 Thesis
+%0 Unpublished Work
+%0 Unused 1
+%0 Unused 2
+%0 Unused 3 
+%A Author
+%B Secondary Title (of a Book or Conference Name)
+%C Place Published
+%D Year 
+%E Editor /Secondary Author
+%F Label
+%G Language
+%H Translated Author
+%I Publisher
+%J Secondary Title (Journal Name)
+%K Keywords
+%L Call Number
+%M Accession Number
+%N Number (Issue)
+%P Pages 
+%Q Translated Title
+%R Electronic Resource Number
+%S Tertiary Title
+%T Title
+%U URL
+%V Volume
+%W Database Provider
+%X Abstract
+%Y Tertiary Author
+%Z Notes
+%0 Reference Type
+%1 Custom 1
+%2 Custom 2
+%3 Custom 3
+%4 Custom 4
+%6 Number of Volumes
+%7 Edition
+%8 Date
+%9 Type of Work
+%? Subsidiary Author
+%@ ISBN/ISSN
+%! Short Title
+%# Custom 5
+%$ Custom 6
+%] Custom 7
+%& Section
+%( Original Publication
+%) Reprint Edition
+%* Reviewed Item
+%+ Author Address
+%^ Caption
+%> Link to PDF
+%< Research Notes
+%[ Access Date
+%= Last Modified Date
+%~ Name of Database
+*}

@@ -62,7 +62,11 @@ class Search_Key
                 $new_options[$key] = $value;
             }
         }
-        $new_options["searchKey_count"] = $options["searchKey_count"];
+        if (array_key_exists('searchKey_count', $options)) {
+            $new_options["searchKey_count"] = $options["searchKey_count"];
+        } else {
+            $new_options["searchKey_count"] = 0;
+        }
         return $new_options;
     }
 
@@ -831,7 +835,7 @@ class Search_Key
         $log = FezLog::get();
 
         $return = array();
-        if (!empty($sek_smarty_variable)) {
+        if (isset($sek_smarty_variable) && defined($sek_smarty_variable)) {
             $log->debug("\$return = " . $sek_smarty_variable . ";");
             eval("\$return = " . $sek_smarty_variable . ";");
             $log->debug("returned from eval'd \$return = " . $sek_smarty_variable . ";");
@@ -1640,7 +1644,9 @@ class Search_Key
                    "     `$column_prefix` $column_type default NULL, \n" .
                    "     PRIMARY KEY (`{$column_prefix}_id`), \n" .
                    "     $key_type `$column_prefix` (`$column_prefix`), \n" .
-                   "     KEY `{$column_prefix}_pid` (`{$column_prefix}_pid`) \n";
+                   "     KEY `{$column_prefix}_pid` (`{$column_prefix}_pid`)";
+            $sql.= ($shadow) ? "\n" : ",\n     UNIQUE KEY `unique_constraint_pid_order` (`{$column_prefix}_pid`, `{$column_prefix}_order`) \n";
+
             if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
                 $query_end = ") ENGINE=InnoDB DEFAULT CHARSET=utf8";
             } else { //otherwise just use the defaults of the non-mysql database

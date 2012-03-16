@@ -111,8 +111,13 @@ class Foxml
 						$full_attached_attribute = ' '.$attached_xsd_element.'="'.$attached_value.'"';
 					}
 				}
-				$xsd_element_only = substr($prefix_xsd_element, strrpos($prefix_xsd_element, "!"));
-				if ($xsdmf_details['xsdmf_element'] != $prefix_xsd_element) { // If the attribute to add is not connected to the current element, search for last instance of the element and manually insert the attribute there
+                $xsd_element_only = "";
+                if (defined('prefix_xsd_element')) {
+                    $xsd_element_only = substr($prefix_xsd_element, strrpos($prefix_xsd_element, "!"));
+                }
+
+
+				if (!defined('prefix_xsd_element') || $xsdmf_details['xsdmf_element'] != $prefix_xsd_element) { // If the attribute to add is not connected to the current element, search for last instance of the element and manually insert the attribute there
 					if (trim($xsd_element_only != "") && trim($full_attached_attribute) != "") {
 						FOXML::addAttributeToParent($xmlObj, $xsd_element_only, $full_attached_attribute);
 					}
@@ -182,7 +187,7 @@ class Foxml
 								$full_attached_attribute = ' '.$attached_xsd_element.'="'.$attached_value.'"';
 							}
 						}
-						if ($xsdmf_details['xsdmf_element'] != $prefix_xsd_element) { // if the attribute doesn't belong on this element then clear it
+						if (!defined('prefix_xsd_element') || $xsdmf_details['xsdmf_element'] != $prefix_xsd_element) { // if the attribute doesn't belong on this element then clear it
 							$full_attached_attribute = "";
 						}
 						if (!empty($multiple_element)) {
@@ -266,7 +271,11 @@ class Foxml
 		} elseif ($xsdmf_details['xsdmf_fez_variable'] == "xdis_id") {
 			$attrib_value = $top_xdis_id;
 		} elseif ($xsdmf_details['xsdmf_fez_variable'] == "assigned_usr_id") {
-			$attrib_value = $assign_usr_id[0];
+            if (array_key_exists(0, $assign_usr_id)) {
+                $attrib_value = $assign_usr_id[0];
+            } else {
+                $attrib_value = '';
+            }
 		} elseif ($xsdmf_details['xsdmf_fez_variable'] == "assigned_grp_id") {
 			$attrib_value = $assign_grp_id;
 		} elseif ($xsdmf_details['xsdmf_smarty_variable'] != "") {
@@ -326,7 +335,7 @@ class Foxml
 					} else {
 					$attrib_value .= "</".$i.">\n";
 					} */
-				if ((($xsdmf_details['xsdmf_cvo_save_type'] == 1) && empty($xsdmf_details_ref)) || (($xsdmf_details_ref['xsdmf_cvo_save_type'] == 1) && !empty($xsdmf_details_ref))) {
+				if ((array_key_exists('xsdmf_cvo_save_type', $xsdmf_details) && ($xsdmf_details['xsdmf_cvo_save_type'] == 1) && empty($xsdmf_details_ref)) || ( array_key_exists('xsdmf_cvo_save_type', $xsdmf_details_ref) && ($xsdmf_details_ref['xsdmf_cvo_save_type'] == 1) && !empty($xsdmf_details_ref))) {
 					$cv_title = Controlled_Vocab::getTitle($_POST['xsd_display_fields'][$xsdmf_id][$attrib_loop_index]);
 					$attrib_value = $cv_title;
 					$attrib_value = Misc::addPrefix($attrib_value,$xsdmf_details['xsdmf_value_prefix']);
@@ -530,9 +539,9 @@ class Foxml
 											}
 										}
 									} elseif ($xsdmf_details_ref['xsdmf_html_input'] == 'contvocab' || $xsdmf_details_ref['xsdmf_html_input'] == 'contvocab_selector') {
-										Foxml::handleMultipleInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_details_ref['xsdmf_id'], $xsdmf_details_ref, $xsdmf_details, $attrib_loop_index, $xsdmf_details_ref['xsdmf_element_prefix'], $i, $xmlObj, $tagIndent);
+										Foxml::handleMultipleInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_details_ref['xsdmf_id'], $xsdmf_details_ref, $xsdmf_details, $attrib_loop_index, $xsdmf_details_ref['xsdmf_enforced_prefix'], $i, $xmlObj, $tagIndent);
 									} elseif ($xsdmf_details_ref['xsdmf_html_input'] == 'multiple'  || $xsdmf_details_ref['xsdmf_html_input'] == 'dual_multiple' || $xsdmf_details_ref['xsdmf_html_input'] == 'customvocab_suggest') {
-										Foxml::handleMultipleInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_details_ref['xsdmf_id'], $xsdmf_details_ref,  $xsdmf_details, $attrib_loop_index, $xsdmf_details_ref['xsdmf_element_prefix'], $i, $xmlObj, $tagIndent);
+										Foxml::handleMultipleInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_details_ref['xsdmf_id'], $xsdmf_details_ref,  $xsdmf_details, $attrib_loop_index, $xsdmf_details_ref['xsdmf_enforced_prefix'], $i, $xmlObj, $tagIndent);
 									} elseif ($xsdmf_details_ref['xsdmf_html_input'] == 'text' || $xsdmf_details_ref['xsdmf_html_input'] == 'rich_text' || $xsdmf_details_ref['xsdmf_html_input'] == 'textarea'  || $xsdmf_details_ref['xsdmf_html_input'] == 'hidden') {
 										Foxml::handleTextInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details, $xsdmf_details_ref, $attrib_loop_index, $element_prefix, $i, $xmlObj, $tagIndent);
 									if ($xsdmf_details_ref['xsdmf_element'] = '!objectProperties!property!VALUE') { //Due to a limitation in Fedora, Object labels cannot be greater than 255 chars or they will cause an ingest exception
@@ -611,9 +620,9 @@ class Foxml
 													// There are no mappings for the base sublooping element.
 													// Need to just make a container element and check the attributes
 													if (!is_numeric(strpos($i, ":"))) {
-														$xmlObj .= "\n".$tagIndent."<".$element_prefix.$i.$full_attached_attribute;
+														$xmlObj .= "\n".$tagIndent."<".$element_prefix.$i;
 													} else {
-														$xmlObj .= "\n".$tagIndent."<".$i.$full_attached_attribute;
+														$xmlObj .= "\n".$tagIndent."<".$i;
 													}
 													Foxml::array_to_xml_instance($j, $xmlObj, $element_prefix, "attributes", $tagIndent, $sel_record['xsdsel_id'], $xdis_id, $pid, $top_xdis_id, $x, $indexArray, $file_downloads, $created_date, $updated_date, $depositor, $assign_usr_id, $assign_grp_id);
 													if ($xsdmf_details['xsdmf_valueintag'] == 1) {
@@ -662,7 +671,7 @@ class Foxml
 										$xmlObj .= $xml_schema;
 									}
 									Foxml::array_to_xml_instance($array_ptr, $xmlObj, $element_prefix,
-										"attributes", $tagIndent, $sel_record['xsdrel_xdis_id'], $xdis_id, 
+										"attributes", $tagIndent, null, $xdis_id,
 									$pid,$top_xdis_id, $attrib_loop_index, $indexArray, $file_downloads,
 									$created_date, $updated_date, $depositor, $assign_usr_id,
 									$assign_grp_id);
@@ -754,13 +763,17 @@ class Foxml
 				if ($xsdmf_details['xsdmf_smarty_variable'] == "" && $xsdmf_details['xsdmf_use_parent_option_list'] == 0) {
 					$attrib_value = XSD_HTML_Match::getOptionValueByMFO_ID(@$_POST['xsd_display_fields'][$xsdmf_id]);
 				} elseif ($xsdmf_details['xsdmf_use_parent_option_list'] == 1) {
-					$attrib_value = $_POST['xsd_display_fields'][$xsdmf_id];
-				} else {
-					$attrib_value = $_POST['xsd_display_fields'][$xsdmf_id];
+                    if (isset($_POST['xsd_display_fields'][$xsdmf_id])) {
+                        $attrib_value = $_POST['xsd_display_fields'][$xsdmf_id];
+                    }
+                } else {
+                    if (isset($_POST['xsd_display_fields'][$xsdmf_id])) {
+                        $attrib_value = $_POST['xsd_display_fields'][$xsdmf_id];
+                    }
 				}
 				array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], $attrib_value));
 			} elseif ($xsdmf_details['xsdmf_html_input'] == 'checkbox') {
-				$checkbox_value = Misc::checkBox($_POST['xsd_display_fields'][$xsdmf_id]);
+				$checkbox_value = Misc::checkBox(Misc::GETorPOST($xsdmf_id,  $_POST['xsd_display_fields']));
 				if ($checkbox_value == 1) {
 					$attrib_value = "on";
 				} else {
@@ -786,7 +799,7 @@ class Foxml
 					} elseif ($xsdmf_details['xsdmf_use_parent_option_list'] == 1) {
 						/*										$parent_option_xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_details['xsdmf_parent_option_xsdmf_id']);
 						 if ($parent_option_xsdmf_details['xsdmf_html_input'] == 'text') {
-						 $attrib_value = $_POST['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']];
+						 $attrib_value = $_POST['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']];//
 						 } */
 						$attrib_value = $_POST['xsd_display_fields'][$xsdmf_details['xsdmf_id_ref']];
 					}
@@ -868,10 +881,10 @@ class Foxml
 
 			} elseif ($xsdmf_details['xsdmf_html_input'] == 'text' || $xsdmf_details['xsdmf_html_input'] == 'rich_text' || $xsdmf_details['xsdmf_html_input'] == 'textarea' || $xsdmf_details['xsdmf_html_input'] == 'hidden') {
 				//                                $xsdmf_details_ref = array();
-				Foxml::handleTextInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details, $xsdmf_details_ref, $attrib_loop_index, $element_prefix, $i, $xmlObj, $tagIndent);
+				Foxml::handleTextInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_id, $xsdmf_details, null, $attrib_loop_index, $element_prefix, $i, $xmlObj, $tagIndent);
 			} else { // not necessary in this side
 				if ($xsdmf_details['xsdmf_multiple'] == 1) {
-					Foxml::handleMultipleInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_details['xsdmf_id'], $xsdmf_details, $xsdmf_details, $attrib_loop_index, $xsdmf_details['element_prefix'], $i, $xmlObj, $tagIndent);
+					Foxml::handleMultipleInstance($attrib_value, $indexArray, $pid, $parent_sel_id, $xdis_id, $xsdmf_details['xsdmf_id'], $xsdmf_details, $xsdmf_details, $attrib_loop_index, $element_prefix, $i, $xmlObj, $tagIndent);
 				} else {
 					$attrib_value = Misc::addPrefix(@$_POST['xsd_display_fields'][$xsdmf_id], $xsdmf_details['xsdmf_value_prefix']);
 					array_push($indexArray, array($pid, $xsdmf_details['xsdmf_indexed'], $xsdmf_id, $xdis_id, $parent_sel_id, $xsdmf_details['xsdmf_data_type'], @$_POST['xsd_display_fields'][$xsdmf_id]));

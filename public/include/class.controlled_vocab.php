@@ -1174,15 +1174,22 @@ class Controlled_Vocab
    	 * @param   $cvo to start at
    	 * @return  array children
    	 */
-    function getAllChildren($cvo_id, $includeParent='true')
+    function getAllChildren($cvo_ids, $includeParents='true')
     {
+        $parents = $cvo_ids;
+        if (is_numeric($cvo_ids)) {
+            $parents = array($cvo_ids);
+        }
+
+        $parentsList = implode(",", $parents);
+
         $log = FezLog::get();
         $db = DB_API::get();
         $stmt = " SELECT cvr_child_cvo_id
                   FROM " . APP_TABLE_PREFIX . "controlled_vocab
                   INNER JOIN " . APP_TABLE_PREFIX . "controlled_vocab_relationship
                   ON cvo_id = cvr_parent_cvo_id
-                  WHERE cvo_id = ".$db->quote($cvo_id);
+                  WHERE cvo_id IN (".$parentsList.")";
         try {
       			$res = $db->fetchCol($stmt);
       		}
@@ -1191,23 +1198,24 @@ class Controlled_Vocab
             return '';
         }
         $children = $res;
-        if ($includeParent) {
-            $children[] = $cvo_id;
+        if ($includeParents) {
+            $children  = array_merge($res, $parents);
         }
-        foreach ($res as $child) {
-            $children = array_merge($children, Controlled_Vocab::getAllChildren($child));
+        if (!empty($res)) {
+            $childrensChildren = Controlled_Vocab::getAllChildren($res);
+            if (is_array($childrensChildren)) {
+                $children = array_merge($children, $childrensChildren);
+            }
         }
 
         return $children;
 
     }
-
 	function suggest($value, $parent_id)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-			 
-		$dbtp = APP_TABLE_PREFIX;
+
 		$stmt = " SELECT cvo_id, cvo_title
                   FROM " . APP_TABLE_PREFIX . "controlled_vocab
                   WHERE (cvo_hide != 1 AND cvo_external_id LIKE ".$db->quote("%$value%")." OR cvo_title LIKE ".$db->quote("%$value%").")"; //, cvo_title

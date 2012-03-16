@@ -37,12 +37,13 @@ include_once("config.inc.php");
 include_once(APP_INC_PATH . "class.lister.php");
 
 $res = Lister::getList($_GET, true);
+$pids = array();
 if (is_array($res['list'])) {
 	foreach ($res['list'] as $record) {
-		$pids[] = $record['rek_pid'];
+        if (array_key_exists('rek_pid', $record)) {
+		    $pids[] = $record['rek_pid'];
+        }
 	}
-} else {
-	$pids = array();
 }
 /*
  * We want to save this data for view pages, so when can create

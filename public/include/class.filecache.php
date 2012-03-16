@@ -47,7 +47,7 @@ class fileCache {
 			$rep = array("<!--fez:statsAbs-->$views<!--/fez:statsAbs-->", "<!--fez:statsDownloads-->$dls<!--/fez:statsDownloads-->");
 
 			$htmlContent = preg_replace($pat, $rep, $htmlContent);
-			$datastreams = Fedora_API::callGetDatastreams($this->pid, $requestedVersionDate, 'A');
+			$datastreams = Fedora_API::callGetDatastreams($this->pid);
 			$datastreams = Misc::cleanDatastreamListLite($datastreams, $this->pid);
 
 			foreach ($datastreams as $ds) {

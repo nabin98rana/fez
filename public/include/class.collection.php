@@ -482,6 +482,7 @@ class Collection
              LIMIT ".$db->quote($max, 'INTEGER')." OFFSET ".$db->quote($start, 'INTEGER');
 
     try {
+        echo $stmt;
       $res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
       $total_rows = $db->fetchOne($countStmt);
        
@@ -562,7 +563,8 @@ class Collection
       $max = 9999999;
     }
     $start = $current_row * $max;
-    $sekdet = Search_Key::getDetailsByTitle($sort_by);
+//    $sekdet = Search_Key::getDetailsByTitle($sort_by);
+    $sekdet = Search_Key::getDetailsByTitle($searchKey);
     $data_type = $sekdet['xsdmf_data_type'];
     $sekdet = Search_Key::getBasicDetailsByTitle($searchKey);
     $middleStmt = "";
@@ -703,6 +705,12 @@ class Collection
     }
     $printable_page = $current_row + 1;
 
+    if (($start + $max) < $total_rows) {
+        $total_rows_limit = $start + $max;
+    } else {
+        $total_rows_limit = $total_rows;
+    }
+    $hidden_rows = 0;
     return array(
                 "list" => $return,
                 "info" => array(
@@ -1045,7 +1053,7 @@ class Collection
     $returnList = array();
 
     foreach ($list as $element) {
-      if (is_numeric($element['rek_ismemberof_count'])) {
+      if (array_key_exists('rek_ismemberof_count', $element) && is_numeric($element['rek_ismemberof_count'])) {
         $returnList[$element['rek_pid']] = $element['rek_title']." (".$element['rek_ismemberof_count'].")";
       } else {
         $returnList[$element['rek_pid']] = $element['rek_title'];

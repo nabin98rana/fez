@@ -104,7 +104,7 @@ if (!empty($pid)) {
     
  	$record = new RecordObject($pid, $requestedVersionDate);
 }
-    
+
 if (!empty($pid) && $record->checkExists()) {
 
 	$canViewVersions = $record->canViewVersions(false);
@@ -362,7 +362,8 @@ if (!empty($pid) && $record->checkExists()) {
 				}
 			}
 		}
-
+        $depositor_org = '';
+        $depositor_org_id = '';
 		// get the created / updated and depositor info
 		foreach ($xsd_display_fields as $dis_key => $dis_field) {
 
@@ -646,51 +647,52 @@ if (!empty($pid) && $record->checkExists()) {
 			$outstandingStatus = Misc::generateOutstandingStatusString($pid);
 		}
 		$tpl->assign('outstandingStatus', $outstandingStatus);
-		
+        $pageCounts = array();
+        //Find the pdf stream
+        if ($datastreams)
+        {
+            foreach($datastreams as $ds)
+            {
+                if($ds['MIMEType'] == 'application/pdf')
+                {
+                    //Check that it has been converted to images
+                    //and let the template know.
+                    $resource = explode('.pdf', $ds['ID']);
+                    $pidFs = str_replace(':','_',$pid);
+                    $resourcePath = BR_IMG_DIR . $pidFs . '/' . $resource[0];
+                    $bri = new bookReaderImplementation($resourcePath);
+                    $pageCounts[$resource[0] . '.pdf'] = $bri->countPages(); //Page count check for the template
+                }
+            }
+        }
+        $tpl->assign('pageCounts',$pageCounts);
 
-	}
+// Get fields to be displayed on Spyglass hover.
+// @usage: view_inverse_metadata.tpl.html
+        $spyglassFields = RecordGeneral::getSpyglassHoverFields($xsd_display_fields, $details);
+        $tpl->assign('spyglassFields', $spyglassFields);
+
+        // display user comments, if any
+        $uc = new UserComments($pid);
+
+// Users must be logged in to submit comments
+        if(!empty($username))
+        {
+            $tpl->assign('addusercomment', true);
+        }
+        $tpl->assign('displayusercomments', true);
+        $tpl->assign('usercomments', $uc->comments);
+
+    }
 } else {
     $tpl->assign('not_exists', true);
 //	$tpl->assign("show_not_allowed_msg", true);
 	$savePage = false;
 }
 
-// display user comments, if any
-$uc = new UserComments($pid);
 
-// Users must be logged in to submit comments
-if(!empty($username))
-{
-    $tpl->assign('addusercomment', true);
-}
-$tpl->assign('displayusercomments', true);
-$tpl->assign('usercomments', $uc->comments);
 
-$pageCounts = array();
 
-//Find the pdf stream
-if($datastreams)
-{
-    foreach($datastreams as $ds)
-    {
-        if($ds['MIMEType'] == 'application/pdf')
-        {
-            //Check that it has been converted to images
-            //and let the template know.
-            $resource = explode('.pdf', $ds['ID']);
-            $pidFs = str_replace(':','_',$pid);
-            $resourcePath = BR_IMG_DIR . $pidFs . '/' . $resource[0];
-            $bri = new bookReaderImplementation($resourcePath);
-            $pageCounts[$resource[0] . '.pdf'] = $bri->countPages(); //Page count check for the template
-        }
-    }
-}
-$tpl->assign('pageCounts',$pageCounts);
-
-// Get fields to be displayed on Spyglass hover. 
-// @usage: view_inverse_metadata.tpl.html
-$spyglassFields = RecordGeneral::getSpyglassHoverFields($xsd_display_fields, $details);
-$tpl->assign('spyglassFields', $spyglassFields);
 
 
 /**
@@ -752,7 +754,7 @@ function generateTimestamps($pid, $datastreams, $requestedVersionDate, $tpl) {
     	            // do if a datastream only has a single version.
     
     	            // If the datastream is an array, retrieve value keyed under createDate
-    	            if (is_array($var)) {
+    	            if (is_array($var) && array_key_exists('createDate', $var)) {
     	                $createdDates[] = $var['createDate'];
     	            } 
     
@@ -826,7 +828,10 @@ function generateTimestamps($pid, $datastreams, $requestedVersionDate, $tpl) {
     $tpl->assign('created_dates_list', $createdDatesForDisplay);
 
     // Retrieve the full/filtered option from the request and repopulate it on the template
-    $versionViewType = $_REQUEST['version_view_type'];
+    $versionViewType = false;
+    if (array_key_exists('version_view_type', $_REQUEST)) {
+        $versionViewType = $_REQUEST['version_view_type'];
+    }
     $tpl->assign("version_view_type", $versionViewType);
 }
 

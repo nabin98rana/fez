@@ -1791,7 +1791,7 @@ class RecordGeneral
       $res = array();
 
       foreach ($this->display->xsd_html_match->getMatchCols() as $xsdmf ) {
-        if ($xsdmf['xsdmf_sek_id'] == $sek_id) {
+        if ($xsdmf['xsdmf_sek_id'] == $sek_id && array_key_exists($xsdmf['xsdmf_id'], $this->details)) {
           $res[] = $this->details[$xsdmf['xsdmf_id']];
         }
       }
@@ -2144,8 +2144,9 @@ class RecordGeneral
             }
             // Looks like a regular fully-formed date.
             $xsdmf_value = strtotime($xsdmf_value);
+            $utc_date = Date_API::getSimpleDateUTC();
             //$xsdmf_value = date('Y-m-d T', $xsdmf_value);
-            $xsdmf_value = date('Y-m-d', $xsdmf_value);
+            $xsdmf_value = date('Y-m-d H:i:s', $xsdmf_value);
 
             if (
                 $xsdmf_value == "0000-01-01 00:00:00" || $xsdmf_value == "0000-00-00 00:00:00" || 

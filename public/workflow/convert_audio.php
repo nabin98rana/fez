@@ -81,7 +81,7 @@ if (!file_exists($filepath)) {
     $getString = APP_BASE_URL."webservices/wfb.ffmpeg_audio.php?file="
         .urlencode($filename);
 //	echo $getString;
-	Misc::ProcessURL($getString);
+	Misc::ProcessURL($getString, false, null, null, null, 600);
 	
     if (!empty($new_file)) {
         if (Fedora_API::datastreamExists($pid, $new_file)) {

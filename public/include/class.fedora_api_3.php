@@ -956,7 +956,7 @@ class Fedora_API {
 															"dsLabel" => urlencode($dsLabel),
 															"versionable" => $versionable,
 															"mimeType" => $mimetype,
-															"formatURI" => $formatURI,
+															"formatURI" => null,
 //															"controlGroup" => $controlGroup,
 															"dsState" => "A",
 															"logMessage" => "Modified Datastream"

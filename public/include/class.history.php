@@ -261,7 +261,11 @@ class History
 		$session = &$_SESSION;
 		$masquerader = Masquerade::getMasquerader($session);
 		$masquerader = User::getDetails($masquerader);
-		$masqueraderID = $masquerader['usr_id'];
+        $masqueraderID = null;
+        if (array_key_exists('usr_id', $masquerader)) {
+            $masqueraderID = $masquerader['usr_id'];
+        }
+
 		
 		$l_wfl_id = (is_null($wfl_id)) ? 'NULL' : $wfl_id;
 		$hide = ($hide == true) ? "true" : "false";
@@ -317,7 +321,10 @@ class History
 		$session = &$_SESSION;
 		$masquerader = Masquerade::getMasquerader($session);
 		$masquerader = User::getDetails($masquerader);
-		$masqueraderName = $masquerader['usr_full_name'];
+        $masqueraderName = null;
+        if (array_key_exists('usr_full_name', $masquerader)) {
+            $masqueraderName = $masquerader['usr_full_name'];
+        }
 		
 		$dsIDName = "PremisEvent";
 		$event_usr_id = Auth::getUserID();

@@ -711,7 +711,7 @@ class Auth
 		$isAdministrator = Auth::isAdministrator();
 		foreach ($indexArray as $indexKey => $indexRecord) {
 
-			if ($indexRecord["authi_role"]) {
+			if (array_key_exists('authi_role', $indexRecord)) {
 				$editor_matches = array_intersect(explode(',',APP_EDITOR_ROLE_IDS), $indexRecord["authi_role"]);
 				$creator_matches = array_intersect(explode(',',APP_CREATOR_ROLE_IDS), $indexRecord["authi_role"]);
 				$approver_matches = array_intersect(explode(',',APP_APPROVER_ROLE_IDS), $indexRecord["authi_role"]);
@@ -2571,6 +2571,9 @@ class Auth
 	 */
 	function getBasicAuthIPs()
 	{
+        if (!defined('APP_BASIC_AUTH_IP')) {
+            return '';
+        }
 		$ips = explode(';', APP_BASIC_AUTH_IP);
 		foreach ($ips as &$ip) {
 			$ip = trim($ip);

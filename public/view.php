@@ -55,12 +55,16 @@ $auth->checkForBasicAuthRequest('view');
 $tpl = new Template_API();
 $tpl->setTemplate("view.tpl.html");
 $pid = @$_REQUEST["pid"];
+$flushCache = false;
+if (array_key_exists('flushcache', $_GET) && $_GET['flushcache'] == true) {
+    $flushCache = true;
+}
 
 $show_tombstone = true;  // tell view2.php to show the tombstone if the record has a deleted fedora status
 $savePage = true;
 
 $logged_in = Auth::isValidSession($_SESSION);
-$cache = new fileCache($pid, $_SERVER['QUERY_STRING'], $_GET['flushcache']);
+$cache = new fileCache($pid, $_SERVER['QUERY_STRING'], $flushCache);
 
 if(!$logged_in && APP_FILECACHE == "ON") {
 	$cache->checkForCacheFile();

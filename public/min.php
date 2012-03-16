@@ -38,7 +38,7 @@ if ($min_allowDebugFlag && isset($_GET['debug'])) {
     $min_serveOptions['debug'] = true;
 }
 
-if ($min_errorLogger) {
+if (defined('min_errorLogger')) {
     require_once 'Minify/Logger.php';
     if (true === $min_errorLogger) {
         require_once 'FirePHP.php';

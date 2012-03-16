@@ -339,7 +339,7 @@ class Citation
 		 * Loop through xsdmf_id's
 		 */
 		foreach ($matches[1] as $key => $match) {
-			list($xsdmf_id,$prefix,$suffix,$option) = explode('|',$match);
+			list($xsdmf_id,$prefix,$suffix,$option) = explode('|',$match) + array(null, null, null, null);
 
 			if (is_numeric($xsdmf_id)) {
 				$xsdmf_details = Search_Key::getAllDetailsByXSDMF_ID($xsdmf_id);
@@ -384,9 +384,21 @@ class Citation
 		preg_match_all('/\{(.*?)\}/',$template,$matches,PREG_PATTERN_ORDER);
 		$xsdmf_list = Misc::keyArray($xsd_display_fields, 'xsdmf_id');
 		foreach ($matches[1] as $key => $match) {
-			list($xsdmf_id,$prefix,$suffix,$option) = explode('|',$match);
+            //can't always guarantee there will be suffix and prefixes so add array of nulls will avoid php notices
+			list($xsdmf_id,$prefix,$suffix,$option) = explode('|',$match) + Array( null, null, null, null);
 			if (is_numeric($xsdmf_id)) {
-				$value = Citation::formatValue($details[$xsdmf_id], '', array(), $xsdmf_list[$xsdmf_id], $option, $type);
+                $detailValue = '';
+                if (array_key_exists($xsdmf_id, $details)) {
+                    $detailValue = $details[$xsdmf_id];
+                }
+                $xsdmf_listValue = '';
+                if (array_key_exists($xsdmf_id, $xsdmf_list)) {
+                    $xsdmf_listValue = $xsdmf_list[$xsdmf_id];
+                }
+                $value = '';
+                if (!empty($detailValue) && !empty($xsdmf_listValue)) {
+                    $value = Citation::formatValue($detailValue, '', array(), $xsdmf_listValue, $option, $type);
+                }
 				if (!empty($value) && !is_null($value)) {
 					$value = $prefix.$value.$suffix;
 				}

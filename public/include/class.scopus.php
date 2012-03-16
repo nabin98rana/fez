@@ -49,17 +49,24 @@ class Scopus
 {
 // Production Addresses
 
-	const WSDL = 'http://services.elsevier.com/EWSXAbstractsMetadataWebSvc/XAbstractsMetadataServiceV8/WEB-INF/wsdl/absmet_service_v8.wsdl';
-	const ENDPOINT = 'http://services.elsevier.com/EWSXAbstractsMetadataWebSvc/XAbstractsMetadataServiceV8';
+	const WSDL = 'http://services.elsevier.com/EWSXAbstractsMetadataWebSvc/XAbstractsMetadataServiceV10/WEB-INF/wsdl/absmet_service_v10.wsdl';
+	const ENDPOINT = 'http://services.elsevier.com/EWSXAbstractsMetadataWebSvc/XAbstractsMetadataServiceV10';
 
 //New Tomcat addresses to go live March 17 2012
-// const WSDL = 'http://cdc310-services.elsevier.com/EWSXAbstractsMetadataWebSvc/services/XAbstractsMetadataServiceV8/META-INF/absmet_service_v8.wsdl';
-// const ENDPOINT = 'http://cdc310-services.elsevier.com/EWSXAbstractsMetadataWebSvc/XAbstractsMetadataServiceV8
+//    const WSDL = 'http://services.elsevier.com/EWSXAbstractsMetadataWebSvc/XAbstractsMetadataServiceV10/WEB-INF/wsdl/absmet_service_v10.wsdl';
+//    const ENDPOINT = 'http://services.elsevier.com/EWSXAbstractsMetadataWebSvc/XAbstractsMetadataServiceV10';
+// const WSDL = 'http://cdc310-services.elsevier.com/EWSXAbstractsMetadataWebSvc/services/XAbstractsMetadataServiceV10/META-INF/absmet_service_v10.wsdl';
+// const ENDPOINT = 'http://cdc310-services.elsevier.com/EWSXAbstractsMetadataWebSvc/XAbstractsMetadataServiceV10
 
 // Development addresses	
+//	const WSDL = 'http://cdc315-services.elsevier.com/EWSXAbstractsMetadataWebSvc/XAbstractsMetadataServiceV10/WEB-INF/wsdl/absmet_service_v10.wsdl';
+//	const ENDPOINT = 'http://cdc315-services.elsevier.com/EWSXAbstractsMetadataWebSvc/XAbstractsMetadataServiceV10';
+//	const WSDL = 'http://cdc310-services.elsevier.com/EWSXAbstractsMetadataWebSvc/XAbstractsMetadataServiceV10/WEB-INF/wsdl/absmet_service_v10.wsdl';
+//	const ENDPOINT = 'http://cdc310-services.elsevier.com/EWSXAbstractsMetadataWebSvc/XAbstractsMetadataServiceV10';
+// old V8
 //	const WSDL = 'http://cdc315-services.elsevier.com/EWSXAbstractsMetadataWebSvc/XAbstractsMetadataServiceV8/WEB-INF/wsdl/absmet_service_v8.wsdl';
 //	const ENDPOINT = 'http://cdc315-services.elsevier.com/EWSXAbstractsMetadataWebSvc/XAbstractsMetadataServiceV8';
-	
+
 	function __construct()
 	{
 				
@@ -124,9 +131,13 @@ GROUP BY rek_pid
 	public static function getCitedByCount($input_keys) 
 	{		
 		$log = FezLog::get();
-		
+//		$input_keys = array('UQ:6002' => array('eid' => '2-s2.0-0020818831'),
+//            'UQ:6003' => array('eid' => '2-s2.0-0020818835'),
+//            'UQ:6004' => array('eid' => '2-s2.0-0020818837'),
+//            'UQ:6005' => array('eid' => '2-s2.0-0346778587')
+//        );
 		$client = new soapclient_internal(self::ENDPOINT, false);
-		$client->soap_defencoding = 'US-ASCII';
+        $client->soap_defencoding = 'UTF-8';
 		
 		$err = $client->getError();
 		if ($err) {
@@ -143,7 +154,7 @@ GROUP BY rek_pid
 						<LogLevel xmlns="">Default</LogLevel>
 					</EASIReq>';
 		
-		$params = '<getCitedByCount xmlns="http://webservices.elsevier.com/schemas/metadata/abstracts/types/v8">
+		$params = '<getCitedByCount xmlns="http://webservices.elsevier.com/schemas/metadata/abstracts/types/v10">
 					<getCitedByCountReqPayload>
 					 <dataResponseStyle>MESSAGE</dataResponseStyle>
 					 <absMetSource>all</absMetSource>
@@ -157,8 +168,13 @@ GROUP BY rek_pid
 		}
 		$params .= '</getCitedByCountReqPayload></getCitedByCount>';
 		
-		$result = $client->call('getCitedByCount', $params, null, null, $headers, null, 'document', 'encoded');
-		
+		$result = $client->call('getCitedByCount', $params, null, null, $headers, null, false, false);
+//		$result = $client->call('getCitedByCount', $params, null, null, $headers, null, 'document', 'encoded');
+//        $x = $client->response;
+//        $y = $client->document;
+//        $z = $client->request;
+//        $z1 = $client->requestHeaders;
+
 		if ($client->fault) {
 			$log->err('Fault occurred while retrieving records from Scopus: '.$client->fault, __FILE__, __LINE__);
 			return false;

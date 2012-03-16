@@ -49,7 +49,7 @@ $isUser = Auth::getUsername();
 $tpl->assign("isUser", $isUser);
 
 
-
+$issues = array();
 if ($isUser) {
     if (@count($_POST) > 0) {
         if (@count($_POST["items"]) > 0) {
