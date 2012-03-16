@@ -42,19 +42,38 @@
  * 1. $ sudo su OR sudo bash  
  *    (This depends on the Doc Root and PHP CLI permission on your server)
  * 2. $ cd DOCUMENT_ROOT/upgrade/fedoraBypassMigration
- * 3. $ ./migrate.php 
+ * 3. $ ./migrate.php -h -- config=/var/www/migration.beacon.library.uq.edu.au/public/config.inc.php autoMapXSDFields=1 
  */
 
-include_once("../../config.inc.php");
+$configFile = "../../config.inc.php";
+
+foreach ($argv as $arg){
+    $arg = explode("=", $arg);
+    if (!array_key_exists(0, $arg) || !array_key_exists(1, $arg)){
+        continue;
+    }
+
+    switch ($arg[0]){
+        case 'config':
+            $configFile = $arg[1];
+            break;
+    }
+}
+
+if (empty($configFile)){
+    echo "Forgotten to specify config file?";
+    exit;
+}
+
+include_once($configFile);
+
 include_once("MigrateFromFedoraToDatabase.php");
+
 
 // Run migration functionalities
 // Do it! and cross your fingers. 
 // Don't forget to thank your parents (see: rm_fedora.php).
-$migrate = new MigrateFromFedoraToDatabase();
-
-
-//$migrate->startMigration();
+$migrate = new MigrateFromFedoraToDatabase($argv);
 
 
 

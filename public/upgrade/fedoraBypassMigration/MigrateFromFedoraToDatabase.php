@@ -47,28 +47,36 @@
  * @example ./migrate.php Example class usage
  */
 include_once(APP_INC_PATH . "class.upgrade.php");
+include_once(APP_INC_PATH. 'class.bgp_index_object.php');
+include_once(APP_INC_PATH. 'class.reindex.php');
 
+
+        
 class MigrateFromFedoraToDatabase
 {
     
     protected $_log = null;
     protected $_db  = null;
     protected $_shadowTableSuffix = "__shadow";
-    protected $_upgradeHelper = null;
-
+    protected $_upgradeHelper     = null;
+    
+    protected $_config = null;
     
     
-    public function __construct()
+    public function __construct($config = array())
     {
+        $this->_config = new stdClass();
         $this->_log = FezLog::get();
         $this->_db = DB_API::get();
         $this->_upgradeHelper = new upgrade();
+        
+        $this->_parseConfig($config);
         
         // Message/warning about the checklist required before running the migration script.
         $this->preMigration();
         
         // Updating the structure of Fedora-less
-        $this->stepOneMigration();
+//        $this->stepOneMigration();
         
         // Content migration
         $this->stepTwoMigration();
@@ -77,22 +85,62 @@ class MigrateFromFedoraToDatabase
         $this->stepThreeMigration();
     }
 
-
     
+    /**
+     * Parse class configuration param.
+     * @param array $config
+     * @return boolean
+     */
+    protected function _parseConfig($config = array())
+    {
+        if (!is_array($config)){  
+            // Get lost
+            return false;
+        }
+        
+        foreach ($config as $cfg){
+            $cfg = explode("=", $cfg);
+            if (!array_key_exists(0, $cfg) || !array_key_exists(1, $cfg)){
+                continue;
+            }
+
+            $key   = $cfg[0];
+            $value = $cfg[1];
+            
+            switch ($key){
+                case 'autoMapXSDFields':
+                    $this->_config->$key = (bool)$value;
+                    break;
+            }
+        }
+    }
+    
+    
+    /**
+     * This step is to inform/warn/scare web administrator on what they are about to do.
+     */
     public function preMigration()
     {
-        echo "<br /> Before running this migration script, please make sure you have gone through the following checklist:
-                <ul>
-                    <li> Merged fedora_bypass branch to the trunk. </li>
-                    <li> Mapped all the XSD fields to the search keys accordingly. Refer to mapXSDFieldToSearchKey method for sample query </li>
-                    <li>  </li>
-                </ul>
-             ";
-        exit;
-        
-        // Mysql to map enabled xSD fields with a search key
-        // For eSpace, the following method is what we need to map our unlinked XSD fields
-        $this->mapXSDFieldToSearchKey();
+        echo chr(10) . "<br /> Before running this migration script, 
+            please make sure you have gone through the following checklist. 
+            There is no way to revert the system once this script executed, 
+            so make sure you have backup system to rollback to in the case of migration failure.
+            <ul>
+                <li> Merged fedora_bypass branch to the trunk. </li>
+                <li> BACKUP your DATABASE, and extra BACKUP for rollback.</li>
+                <li> Did we mention BACKUP? </li>
+                <li> Mapped all the XSD fields to the search keys accordingly. 
+                     Refer to mapXSDFieldToSearchKey method for sample query </li>
+                <li> ... </li>
+            </ul>
+         ";
+
+        // Executes mapXSDFields methods, when specified. 
+        // This is considering that the sk on mapping methods match your system.
+        // This method is created to support UQ eSpace Fez.
+        if (property_exists($this->_config, 'autoMapXSDFields') && $this->_config->autoMapXSDFields === true) {
+            $this->mapXSDFieldToSearchKey();
+        }
     }
     
     
@@ -104,7 +152,7 @@ class MigrateFromFedoraToDatabase
         
         // Create shadow tables for search keys
         $this->createSearchKeyShadowTables();
-        
+         
         // Create Digital Object tables
         $this->createDigitalObjectTables();
         
@@ -115,20 +163,30 @@ class MigrateFromFedoraToDatabase
     
     
     /**
-     * Second roung of migration, migrates existing content.
+     * Second round of migration, migrates existing content.
+     * We could separate this into two steps:
+     * 1. on all PIDS & managedContent, without outage.
+     * 2. on updated PIDs / managedContents, after the #1 step.
      */
     public function stepTwoMigration()
     {
         // Migrate all records from Fedora
-        $this->migrateAllPIDsData();
+        $this->migratePIDs();
         
-        // Datastream (attached files) migration ->  misc/migrate_fedora_managedcontent_to_fezCAS.php
+        // Datastream (attached files) migration 
         $this->migrateManagedContent();
     }
     
     
+    /**
+     * Third round of migration, at this stage we should have the records copied/migrated.
+     * This stage we are doing touching up on the records, such as:
+     * - Security 
+     * - ....
+     */
     public function stepThreeMigration()
     {
+        // Security for PIDs
         include_once("../../misc/migrate_security_recalculate.php");
     }
     
@@ -139,7 +197,7 @@ class MigrateFromFedoraToDatabase
      */
     public function mapXSDFieldToSearchKey()
     {
-        
+     
         $this->_mapSubjectField();
         
         // @todo: need to find out what search key should we map the Q Index code field.
@@ -186,25 +244,33 @@ class MigrateFromFedoraToDatabase
 
     protected function _mapSubjectField()
     {
-        /*
-        -- Query to find Subject Controlled Vocab  XSD fields that do not have search keys --
-        SELECT xdis_title, fez_xsd_display_matchfields.* 
-        FROM fez_xsd_display_matchfields
-        LEFT JOIN fez_xsd_display ON xsdmf_xdis_id = xdis_id
-        WHERE xsdmf_title LIKE "%subject%"
-        AND xsdmf_html_input = 'contvocab_selector';
-        */
+        // Check if Subject XSD fields have been mapped
+        $stmt = "SELECT COUNT(xsdmf_id) as howmany 
+                 FROM ". APP_TABLE_PREFIX ."xsd_display_matchfields
+                 LEFT JOIN ". APP_TABLE_PREFIX ."xsd_display ON xsdmf_xdis_id = xdis_id
+                 WHERE xsdmf_title LIKE '%subject%'
+                    AND xsdmf_html_input = 'contvocab_selector'
+                    AND (xsdmf_sek_id IS NULL OR xsdmf_sek_id = '');";
         
-        $stmt = " UPDATE ". APP_TABLE_PREFIX ."xsd_display_matchfields
-                    SET xsdmf_sek_id = (SELECT sek_id FROM ". APP_TABLE_PREFIX ."search_key WHERE sek_title = 'Subject')
-                    WHERE xsdmf_title LIKE '%subject%'
-                    AND xsdmf_html_input = 'contvocab_selector';";
+        $unmappedFields  = $this->_db->fetchRow($stmt);
+
         
-        try {
-            $this->_db->exec($stmt);
-        } catch (Exception $ex) {
-            echo "<br />Failed to map XSD field. Here is why: ". $stmt . " <br />" . $ex .".\n";
-            return false;
+        // Run update query for unmapped Subject fields
+        if (array_key_exists('howmany', $unmappedFields) && $unmappedFields['howmany'] > 0){
+            
+            $stmt = "UPDATE ". APP_TABLE_PREFIX ."xsd_display_matchfields
+                     SET xsdmf_sek_id = (SELECT sek_id FROM ". APP_TABLE_PREFIX ."search_key WHERE sek_title = 'Subject')
+                     WHERE xsdmf_title LIKE '%subject%'
+                        AND xsdmf_html_input = 'contvocab_selector'
+                        AND (xsdmf_sek_id IS NULL OR xsdmf_sek_id = '');";
+
+            try {
+                $this->_db->exec($stmt);
+                echo chr(10) . "<br /> Successfully mapped subject " . print_r($unmappedFields, 1);
+            } catch (Exception $ex) {
+                echo "<br />Failed to map XSD field. Here is why: ". $stmt . " <br />" . $ex .".\n";
+                return false;
+            }
         }
         return true;
     }
@@ -241,8 +307,13 @@ class MigrateFromFedoraToDatabase
     
     
     /**
-     * Run Fedora managed content migration script.
+     * Run Fedora managed content migration script & security for the attached files.
      * @todo: update misc/migrate_fedora_managedcontent_to_fezCAS.php to return, instead of exit at the end of the script.
+     * 
+     * @todo:
+     * To speed up this process, specially for system that already running CAS system, 
+     * we going to do a checksum, compare the new md5 with "existing" md5 if any.
+     * 
      */
     public function migrateManagedContent()
     {
@@ -251,16 +322,77 @@ class MigrateFromFedoraToDatabase
     
     
     /**
-     * Call bulk 'reindex' workflow on all PIDS
+     * Call bulk 'reindex' workflow on all PIDS.
+     * We could runs this function before the outage.
+     * eSpace has around 165K records, so here we are, running it in phases.
      */
-    public function migrateAllPIDsData()
+    public function migratePIDs()
     {
-        // Call reindex 
+        $stmt = "SELECT COUNT(rek_pid) FROM " . APP_TABLE_PREFIX . "record_search_key
+                 ORDER BY rek_pid DESC ";
+        
+        try{
+            $totalPids = $this->_db->fetchCol($stmt);
+        }catch (Exception $e){
+            echo chr(10) . "<br /> Failed to retrieve total pids. Query: " . $stmt;
+            return false;
+        }
+        
+        $limit = 10;  // how many pids per process
+        $loop  = 2;  // how many times we want to loop
+        for($i = 0; $start < $totalPids && $i < $loop; $i++){
+            if ($i == 0){
+                $start = $i;
+            }
+            $this->_reindexPids($start, $limit); 
+            $start += $limit;
+        }
+        
+    }
+
+    /**
+     * Run Reindex workflow on an array of pids
+     * @return boolean 
+     */
+    protected function _reindexPids($start, $limit)
+    {
+        $wft_id  = 277;  // hack: Reindex workflow trigger ID
+        $pid     = "";
+        $xdis_id = "";
+        $href    = "";
+        $dsID    = "";
+        
+        // Test PID for reindex
+        /*
+        $pids    = array("UQ:87692");
+        Workflow::start($wft_id, $pid, $xdis_id, $href, $dsID, $pids);
+        */
+        
+        $stmt = "SELECT rek_pid 
+                 FROM " . APP_TABLE_PREFIX . "record_search_key
+                 ORDER BY rek_pid DESC 
+                 LIMIT ". $start .", ". $limit .";";
+        
+        try{
+            $pids = $this->_db->fetchCol($stmt);
+        }catch (Exception $e){
+            echo chr(10) . "<br /> Failed to retrieve pids. Query: " . $stmt;
+            return false;
+        }
+
+        
+        if ( sizeof($pids) > 0 ){
+            Workflow::start($wft_id, $pid, $xdis_id, $href, $dsID, $pids);
+            
+            echo chr(10) . "<br /> BGP of Reindexing the PIDS has been triggered. 
+                 See the progress at http://" . APP_HOSTNAME . "/my_processes.php";
+        }
+        return true;
     }
     
     
     /**
-     * 
+     * Recalculate security.
      */
     public function recalculateSecurity()
     {
@@ -310,7 +442,7 @@ class MigrateFromFedoraToDatabase
     /**
      * Upgrade table schema for all datastream permissions and pid non inherited permissions
      */
-    public function runDunnoSQL()
+    public function updateForDatastreamPermission()
     {
         $file = "upgrade/sql_scripts/upgrade2012021700.sql";
         
@@ -443,34 +575,34 @@ class MigrateFromFedoraToDatabase
             
             echo "<br />Table ". $shadowTable ." has been created.\n";
             
+        
+            // Add stamp column to new shadow table
+            echo "<br />Adding stamp column to the new shadow table ... ";
+
+            $tableDescribe = $this->_db->describeTable($shadowTable);
+            $columnName = "rek_" . (!empty($sekTitleDb) ? $sekTitleDb . "_" : "" ) . "stamp";
+
+            if ( !array_key_exists("rek_stamp", $tableDescribe) ) {
+
+                $stmt = "ALTER TABLE ". $shadowTable ." ADD COLUMN ". $columnName ." DATETIME;";
+
+                try {
+                    $this->_db->exec($stmt);
+                } catch (Exception $ex) {
+                    echo "<br />Alter table failed. Because of: ". $stmt . " <br />" . $ex;
+                    return false;
+                }
+
+                echo "<br />Table ". $shadowTable ." has been altered.\n";
+
+            } else {
+                echo "<br />We have the stamp! Move on...";
+            }
+
         }else {
             echo "<br />Table ". $shadowTable ." already exists somewhere in the universe, let's move on...\n";
         }
 
-        
-        // Add stamp column to new shadow table
-        echo "<br />Adding stamp column to the new shadow table ... ";
-        
-        $tableDescribe = $this->_db->describeTable($shadowTable);
-        $columnName = "rek_" . (!empty($sekTitleDb) ? $sekTitleDb . "_" : "" ) . "stamp";
-        
-        if ( !array_key_exists("rek_stamp", $tableDescribe) ) {
-            
-            $stmt = "ALTER TABLE ". $shadowTable ." ADD COLUMN ". $columnName ." DATETIME;";
-            
-            try {
-                $this->_db->exec($stmt);
-            } catch (Exception $ex) {
-                echo "<br />Alter table failed. Because of: ". $stmt . " <br />" . $ex;
-                return false;
-            }
-            
-            echo "<br />Table ". $shadowTable ." has been altered.\n";
-
-        } else {
-            echo "<br />We have the stamp! Move on...";
-        }
-               
         return true;
     }
 
@@ -478,17 +610,23 @@ class MigrateFromFedoraToDatabase
     protected function _removeUniqueConstraintsCore()
     {
         // Core search key shadow table
-        echo "* Removing unique constraint from fez_record_search_key__shadow ... ";
+        echo chr(10) . "<br />" . "Removing unique constraint from fez_record_search_key__shadow ... ";
         
         $tableName = APP_TABLE_PREFIX . "record_search_key" . $this->_shadowTableSuffix;
-        $stmt = "DROP INDEX unique_constraint ON ". $tableName .";";
-        try {
-            $this->_db->exec($stmt);
-        } catch (Exception $ex) {
-            echo "No constraint to remove.\n";
+        
+        $stmt = "SHOW INDEX FROM ". $tableName ." WHERE Non_unique = 0";
+        $uniqueIndex = $this->_db->fetchRow($stmt);
+        
+        if (is_array($uniqueIndex) && sizeof($uniqueIndex)>0){
+            $stmt = "DROP INDEX unique_constraint ON ". $tableName .";";
+            try {
+                $this->_db->exec($stmt);
+            } catch (Exception $ex) {
+                echo chr(10) . " <br /> No constraint to remove. " . $stmt ;
+            }
+            echo "ok!\n";
         }
-        echo "ok!\n";
-
+        
         
         // We are removing primary key on shadow because PID is serving as primary key on the core search key table.
         echo "* Removing primary key constraint from fez_record_search_key__shadow ... ";
@@ -496,7 +634,7 @@ class MigrateFromFedoraToDatabase
         try {
             $this->_db->exec($stmt);
         } catch (Exception $ex) {
-            echo "<br />No constraint to remove " . $ex;
+            echo "<br />No constraint to remove " .$stmt . " - Exception=" . $ex;
             return false;
         }
         echo "ok!\n\n";
