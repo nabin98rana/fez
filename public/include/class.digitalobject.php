@@ -286,4 +286,21 @@ class DigitalObject
             $this->log->err($e->getMessage());
         }
     }
+
+    public function isPublished($pid)
+    {
+        try
+        {
+            $sql = "SELECT rek_status FROM " . APP_TABLE_PREFIX . "record_search_key WHERE"
+                . " rek_pid = :pid";
+            $stmt = $this->db->query($sql, array(':pid' => $pid));
+            return $stmt->fetchColumn();
+        }
+        catch(Exception $e)
+        {
+            $this->log->err($e->getMessage());
+        }
+
+    }
+
 }
