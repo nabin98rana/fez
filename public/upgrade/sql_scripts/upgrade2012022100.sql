@@ -1,4 +1,4 @@
-CREATE TABLE %TABLE_PREFIX%file_attachments (
+CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%file_attachments (
   fat_did int(11) NOT NULL AUTO_INCREMENT,
   fat_hash varchar(50) NOT NULL,
   fat_filename varchar(200) NOT NULL,
@@ -14,9 +14,9 @@ CREATE TABLE %TABLE_PREFIX%file_attachments (
   fat_watermark char(1) DEFAULT NULL,
   fat_security_inherited char(1) DEFAULT NULL,
   PRIMARY KEY (fat_did)
-) 
+);
 
-CREATE TABLE %TABLE_PREFIX%file_attachments_shadow (
+CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%file_attachments_shadow (
   fat_did int(11) NOT NULL AUTO_INCREMENT,
   fat_hash varchar(50) NOT NULL,
   fat_filename varchar(200) NOT NULL,
@@ -33,4 +33,4 @@ CREATE TABLE %TABLE_PREFIX%file_attachments_shadow (
   fat_security_inherited char(1) DEFAULT NULL,
   fat_stamp datetime DEFAULT NULL,
   PRIMARY KEY (fat_did)
-) 
+);
