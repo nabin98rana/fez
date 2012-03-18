@@ -351,18 +351,23 @@ class RecordGeneral
 
   function getPublishedStatus($astext = false)
   {
+    if(APP_FEDORA_BYPASS == 'ON') {
+        $do = new DigitalObject;
+        return $do->isPublished($this->pid);
 
-    $this->getDisplay();
-    $this->display->getXSD_HTML_Match();
-    $this->getDetails();
-    //$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElement("!sta_id", $this->xdis_id);
-    $xsdmf_id = $this->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!sta_id');
-    $status = $this->details[$xsdmf_id];
-
-    if (!$astext) {
-      return $status;
     } else {
-      return $this->status_array[$status];
+        $this->getDisplay();
+        $this->display->getXSD_HTML_Match();
+        $this->getDetails();
+        //$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElement("!sta_id", $this->xdis_id);
+        $xsdmf_id = $this->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!sta_id');
+        $status = $this->details[$xsdmf_id];
+
+        if (!$astext) {
+          return $status;
+        } else {
+          return $this->status_array[$status];
+        }
     }
   }
 
