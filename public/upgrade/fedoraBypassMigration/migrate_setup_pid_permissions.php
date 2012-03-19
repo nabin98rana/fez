@@ -36,7 +36,7 @@
  *
  * This is a one-off migration script as part of Fedora-less project.
  */
-include_once dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'config.inc.php';
+include_once dirname(dirname(dirname(__FILE__))) . DIRECTORY_SEPARATOR . 'config.inc.php';
 include_once(APP_INC_PATH . "class.db_api.php");
 include_once(APP_INC_PATH . "class.dsresource.php");
 include_once(APP_INC_PATH . "class.auth.php");
@@ -54,10 +54,10 @@ try {
     echo "Failed to retrieve pid data. Error: " . $ex;
 }
 
-$i=0;
+
 $dsID = 'FezACML';
 foreach ($res as $pid) {
-    //$pid =  'UQ:67393';
+    $pid =  'UQ:67393';
     $acml = Record::getACML($pid);
     $security_inherited = inheritesPermissions($acml);
     if ($security_inherited) {
@@ -89,6 +89,7 @@ foreach ($res as $pid) {
     }
 
     echo 'Done: '.$pid.'<br />';
+    exit();
 }
 
 function inheritesPermissions ($acml) {
@@ -109,8 +110,9 @@ function inheritesPermissions ($acml) {
 
 function addDatastreamSecurity($acml, $pid, $date = false) {
     if (!empty($acml)) {
-        AuthNoFedora::deletePermissions($pid, 0);
-
+        if (!$date) {
+            AuthNoFedora::deletePermissions($pid, 0);
+        }
         // loop through the ACML docs found for the current pid or in the ancestry
         $xpath = new DOMXPath($acml);
         $roleNodes = $xpath->query('/FezACML/rule/role');
