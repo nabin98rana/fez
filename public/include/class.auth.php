@@ -2675,7 +2675,7 @@ class AuthNoFedora {
         }
 
         try {
-        	$res = $db->fetchAll($stmt);
+        	$res = $db->exec($stmt);
         }
         catch(Exception $ex) {
         	$log->err($ex);
@@ -2851,7 +2851,7 @@ class AuthNoFedora {
       	$db = DB_API::get();
 
         $stmt = "UPDATE ". APP_TABLE_PREFIX . "record_search_key
-                SET rek_security_inherited = ' .$db->quote($inherited).'
+                SET rek_security_inherited = " .$db->quote($inherited)."
                 WHERE rek_pid = ".$db->quote($pid);
 
         try {
@@ -3053,7 +3053,7 @@ class AuthNoFedora {
         }
 
         try {
-        	$res = $db->fetchAll($stmt);
+        	$res = $db->exec($stmt);
         }
         catch(Exception $ex) {
         	$log->err($ex);
