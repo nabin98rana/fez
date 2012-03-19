@@ -122,12 +122,6 @@ class WokService
       // Clean user query string from Ms Word special characters 
       $userQuery = Fez_Misc::convertMsWordSpecialCharacters($userQuery);
       
-      // Escape " double quote from user entered query, 
-      // as we are using double quote to wrap the query string sent to SOAP
-      $search  = "\"";
-      $replace = "";
-      $userQuery = str_replace($search, $replace, $userQuery);
-      
       return $userQuery;
   }
   
