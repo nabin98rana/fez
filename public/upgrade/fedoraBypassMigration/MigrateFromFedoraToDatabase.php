@@ -79,10 +79,13 @@ class MigrateFromFedoraToDatabase
 //        $this->stepOneMigration();
         
         // Content migration
-        $this->stepTwoMigration();
+//        $this->stepTwoMigration();
         
         // Security recalculation
         $this->stepThreeMigration();
+        
+        // Post Migration message 
+        $this->postMigration();
     }
 
     
@@ -140,9 +143,31 @@ class MigrateFromFedoraToDatabase
         // This method is created to support UQ eSpace Fez.
         if (property_exists($this->_config, 'autoMapXSDFields') && $this->_config->autoMapXSDFields === true) {
             $this->mapXSDFieldToSearchKey();
+            $this->addSearchKeys();
         }
     }
     
+    
+    /*
+     * At this stage, the Fez system has completed all the migration process, 
+     * and ready to switch off Fedora completely.
+     * 
+     */
+    public function postMigration()
+    {
+        echo chr(10) . 
+           "<br /> Congratulations! You have completed all the migration steps.
+            <br /> Your Fez system is now ready to function without Fedora.
+            <br /> Below are the configurations required to turn off Fedora: 
+            <ul>
+                <li> Admin -> Fedora Setting -> Set 'Bypass Fedora' to ON. </li>
+                <li> Admin -> Fedora Setting -> Set 'Use Index for getting data rather than querying xml datastreams' to ON. </li>
+                <li> Admin -> Fedora Setting -> Remove Fedora's credentials.</li>
+                <li> Stop Fedora application on Tomcat service</li>
+            </ul>
+         ";
+    }
+
     
     /**
      * First round of migration, updating database schema.
@@ -155,6 +180,9 @@ class MigrateFromFedoraToDatabase
          
         // Create Digital Object tables
         $this->createDigitalObjectTables();
+        
+        // Upgrade table schema for all datastream permissions and pid non inherited permissions
+        $this->updateForDatastreamPermission();
         
         // Sets the maximum PID on PID index table.
         $this->setMaximumPID();
@@ -181,15 +209,28 @@ class MigrateFromFedoraToDatabase
     /**
      * Third round of migration, at this stage we should have the records copied/migrated.
      * This stage we are doing touching up on the records, such as:
-     * - Security 
+     * - Security recalculation
      * - ....
      */
     public function stepThreeMigration()
     {
         // Security for PIDs
-        include_once("../../misc/migrate_security_recalculate.php");
+        include_once("./migrate_setup_pid_permissions.php");
     }
     
+    
+    /**
+     * This is the last step of migration
+     * moving the following files:
+        // mp3 -> flv
+        // book -> jpg, used by bookreader
+     * These files are auto generated when a PID is created, we need a way to be able to read/convert these files without Fedora.
+     * Ref: eserv.php
+     */
+    public function stepLASTMigration()
+    {
+        
+    }
     
     /**
      * This method automatically map XSD fields that we can manually find. 
@@ -277,6 +318,38 @@ class MigrateFromFedoraToDatabase
 
     
     /**
+     * Adds search key columns / tables, which data have not been recorded in database.
+     * This method is specific for eSpace.
+     * Manual process may required to fit your Fez application.
+     */
+    public function addSearchKeys(){
+        $this->_addSearchKeysCopyright();
+    }
+    
+    
+    /**
+     * Add search key for 'copyright' field on core search key table. 
+     * We don't need to add it on shadow table, 
+     *    as _createOneShadow() method takes care of sk table duplication.
+     * 
+     * @return boolean 
+     */
+    protected function _addSearchKeysCopyright()
+    {
+        $stmt = "ALTER TABLE ". APP_TABLE_PREFIX ."record_search_key 
+                    ADD rek_copyright TINYINT(2) NULL,
+                    ADD rek_copyright_xsdmf_id INT(11) NULL;";
+        
+        try{
+            $this->_db->exec($stmt);
+        } catch (Exception $e) {
+            echo "<br /> Failed to add search key 'copyright'";
+            return false;
+        }
+    }
+    
+    
+    /**
      * Returns an array of unmapped XSD fields.
      * @return array | boolean 
      */
@@ -317,6 +390,8 @@ class MigrateFromFedoraToDatabase
      */
     public function migrateManagedContent()
     {
+        echo chr(10) . "<br /> Start migrating Fedora ManagedContent to Fez CAS system....";
+        echo chr(10) . "<br /> This may take a while depending on the size of datastreams on dir /opt/fedora/fedora_3_5/data/datastreams";
         include ("../../misc/migrate_fedora_managedcontent_to_fezCAS.php");
     }
     
@@ -338,7 +413,7 @@ class MigrateFromFedoraToDatabase
             return false;
         }
         
-        $limit = 10;  // how many pids per process
+        $limit = 1;  // how many pids per process
         $loop  = 2;  // how many times we want to loop
         for($i = 0; $start < $totalPids && $i < $loop; $i++){
             if ($i == 0){
@@ -348,6 +423,9 @@ class MigrateFromFedoraToDatabase
             $start += $limit;
         }
         
+        echo chr(10) . "<br /> Ok, we have done the reindex for ". ($loop * $limit) . "PIDs";
+        
+        return true;
     }
 
     /**
@@ -444,9 +522,15 @@ class MigrateFromFedoraToDatabase
      */
     public function updateForDatastreamPermission()
     {
-        $file = "upgrade/sql_scripts/upgrade2012021700.sql";
-        
-        $this->_upgradeHelper->parse_mysql_dump($file);
+        $file = APP_PATH . "/upgrade/sql_scripts/upgrade2012021700.sql";
+        try{
+            $this->_upgradeHelper->parse_mysql_dump($file);
+            echo chr(10) . "<br />Successfuly created permissions table";
+        } catch(Exception $e) {
+            echo "<br> Failed updating datastream tables. file = ". $file . " Ex: " . $ex;
+            return false;
+        }
+        return true;
     }
     
 
@@ -458,26 +542,39 @@ class MigrateFromFedoraToDatabase
         
         // Run this script: upgrade2012031200.sql
         // Creates digital object table.
-        $file = "upgrade/sql_scripts/upgrade2012031200.sql";
-        $this->_upgradeHelper->parse_mysql_dump($file);
+        $file = APP_PATH . "/upgrade/sql_scripts/upgrade2012031200.sql";
+        try{
+            $this->_upgradeHelper->parse_mysql_dump($file);
+            echo chr(10) . "<br />Successfuly created Digital Object table";
+        } catch(Exception $e) {
+            echo "<br> Failed creating Digital Object tables. file = ". $file . " Ex: " . $ex;
+            return false;
+        }
+        
         
         // Run this script: upgrade2012022100.sql
         // Creates file_attachments table and its shadow table.
-        $file = "upgrade/sql_scripts/upgrade2012022100.sql";
-        $this->_upgradeHelper->parse_mysql_dump($file);
+        $file = APP_PATH . "/upgrade/sql_scripts/upgrade2012022100.sql";
+        try{
+            $this->_upgradeHelper->parse_mysql_dump($file);
+            echo chr(10) . "<br />Successfuly created File attachment  table";
+        } catch(Exception $e) {
+            echo "<br> Failed creating File attachment tables. file = ". $file . " Ex: " . $ex;
+            return false;
+        }
+        
         
         // Run this script: upgrade2012022101.sql
         // Alter file_attachments table, add a file to indicate whether security is inherited column for the datastreams.
-        $file = "upgrade/sql_scripts/upgrade2012022101.sql";
-        $this->_upgradeHelper->parse_mysql_dump($file);
-        
-//        try{
-//            $this->_db->exec(implode(' ', $stmt));
-//            return true;
-//        } catch(Exception $e) {
-//            echo "<br> Failed creating Digital Object tables. Stmt = ". $stmt . " Ex: " . $ex;
-//        }
-//        return false;
+        $file = APP_PATH . "/upgrade/sql_scripts/upgrade2012022101.sql";
+        try{
+            $this->_upgradeHelper->parse_mysql_dump($file);
+            echo chr(10) . "<br />Successfuly updating File attachment table";
+        } catch(Exception $e) {
+            echo "<br> Failed updating file attachment tables. file = ". $file . " Ex: " . $ex;
+            return false;
+        }
+        return true;
     }
     
     
