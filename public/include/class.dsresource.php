@@ -272,7 +272,7 @@ class DSResource
         
         try
         {
-        $sql = "SELECT{$distinct} fat_did as id, fat_hash as hash, fat_filename as filename, fat_pid as pid FROM "  . APP_TABLE_PREFIX
+        $sql = "SELECT{$distinct} fat_did as id, fat_hash as hash, fat_filename as filename, fat_pid as pid, fat_mimetype as mimetype, fat_size as size FROM "  . APP_TABLE_PREFIX
             . "file_attachments WHERE " 
             . "fat_pid = :pid GROUP BY fat_filename";
         $stmt = $this->db->query($sql, array(':pid' => $pid));
@@ -332,8 +332,8 @@ class DSResource
             if(!$row)
             {
                 $sql = "INSERT INTO " . APP_TABLE_PREFIX . "file_attachments "
-                    ."(fat_hash, fat_filename, fat_version, fat_pid, fat_size, fat_mimetype, fat_security_inherited) VALUES "
-                    ."(:dshash, :dsfilename, :version, :pid, :size, :mimetype, :security_inherited)";
+                    ."(fat_hash, fat_filename, fat_version, fat_pid, fat_size, fat_mimetype, fat_security_inherited, fat_label) VALUES "
+                    ."(:dshash, :dsfilename, :version, :pid, :size, :mimetype, :security_inherited, :label)";
                     
                 $this->db->query($sql, array(':dshash' => $this->hash['rawHash'], 
                 	':dsfilename' => $this->hash['hashFile'],
@@ -341,7 +341,8 @@ class DSResource
                     ':version' => $now,
                     ':mimetype' => $this->meta['mimetype'],
                     ':pid' => $this->meta['pid'],
-                    ':security_inherited' => $this->meta['security_inherited']));
+                    ':security_inherited' => $this->meta['security_inherited'],
+                    ':label' => $this->meta['label']));
             }
         }
         catch(Exception $e)
