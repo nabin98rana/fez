@@ -637,7 +637,7 @@ class Record
       if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
         $stmt .= " cnf_conference_name || ' (' || cnf_era_year || ')' AS title";
       } else {
-        $stmt .= " CONCAT(cnf_journal_name, ' (',  cnf_era_year, ')') AS title";
+        $stmt .= " CONCAT(cnf_conference_name, ' (',  cnf_era_year, ')') AS title";
       }
       $stmt .= "
       FROM
