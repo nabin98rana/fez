@@ -284,9 +284,11 @@ class Configuration
     // For each config variable we know about, update it with the value from the form.
     foreach ($originalSettings as $key => $value) {
       try {
-        $stmt = "UPDATE " . APP_TABLE_PREFIX . "config SET config_value = " . $db->quote($_POST[$key]) . 
-                " WHERE config_name = " . $db->quote($key) . " AND config_module = 'core'";
-        $db->exec($stmt);
+        if (array_key_exists($key, $_POST)) {
+            $stmt = "UPDATE " . APP_TABLE_PREFIX . "config SET config_value = " . $db->quote($_POST[$key]) .
+                    " WHERE config_name = " . $db->quote($key) . " AND config_module = 'core'";
+            $db->exec($stmt);
+        }
       }
       catch(Exception $ex) {				
         array_push($problemUpdates, $key);

@@ -103,8 +103,12 @@ class MatchingRecords
 
         if($doc_type !== false) {
 
+            // Escape characters used for wrapping title on search query
+            $title = $this->_escapeSearchTitle($title);
+            
             // Title query param
             $query = 'TI=("'.$title.'")';
+            
 // Requested by eSpace team to not restrict the search by org unit anymore
 //            if(APP_ARTICLE_SEARCH_WOS_ADDRESS != '' ) {
 //
@@ -254,4 +258,26 @@ class MatchingRecords
 		}
 		return $pid;
     }
+    
+    /**
+     * Clean user query from invalid characters that may cause error on SOAP call.
+     * 
+     * @param string $userQuery
+     * @return string Cleaned user query string.
+     */
+    protected function _escapeSearchTitle($userQuery = null)
+    {
+        if (empty($userQuery) && is_null($userQuery)) {
+            return "";
+        }
+
+        // Escape " double quote from user entered query, 
+        // as we are using double quote to wrap the query string sent to SOAP
+        $search = "\"";
+        $replace = "";
+        $userQuery = str_replace($search, $replace, $userQuery);
+
+        return $userQuery;
+    }
+      
 }
