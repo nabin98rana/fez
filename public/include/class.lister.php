@@ -188,7 +188,7 @@ class Lister
 			header("Content-Description: PHP Generated XLS Data");
 		}  elseif ($tpl_idx == 7) {  //heaphey - added for endnote
 			header("Content-type: application/vnd.endnote");
-			header("Content-Disposition: attachment; filename=endnote.txt");
+			header("Content-Disposition: attachment; filename=endnote.enw");
 			header("Content-Description: PHP Generated Endnote Data");
 		}   elseif ($tpl_idx == 9) {  //heaphey - added for word
 			header("Content-type: application/vnd.ms-word");
