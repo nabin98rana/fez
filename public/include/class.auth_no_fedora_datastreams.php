@@ -5,7 +5,7 @@ include_once(APP_INC_PATH . "class.record.php");
 
 class AuthNoFedoraDatastreams {
 
-    //delete a security permission given parameters if found
+    //delete a security permission given parameters
     function deleteRoleSecurityPermissions($did, $role, $arg_id, $inherited = '0') {
         //todo check user has permissions
 
@@ -25,7 +25,7 @@ class AuthNoFedoraDatastreams {
         }
 
         try {
-        	$res = $db->fetchAll($stmt);
+        	$res = $db->exec($stmt);
         }
         catch(Exception $ex) {
         	$log->err($ex);
@@ -46,7 +46,7 @@ class AuthNoFedoraDatastreams {
         }
 
         try {
-        	$res = $db->fetchAll($stmt);
+        	$res = $db->exec($stmt);
         }
         catch(Exception $ex) {
         	$log->err($ex);
@@ -135,6 +135,22 @@ class AuthNoFedoraDatastreams {
         }
 
         return $res;
+    }
+
+    //Returns exclude or inherit or include depending on whether datastream inherits or not an has it's own permissions
+    function getPermissionsStructure($did) {
+        $isInherited = AuthNoFedoraDatastreams::isInherited($did);
+        $nonInheritPermisions = AuthNoFedoraDatastreams::getNonInheritedSecurityPermissions($did);
+        $hasIndividualPermisisons = !empty($nonInheritPermisions);
+        if ($isInherited && !$hasIndividualPermisisons) {
+            $datastreamStructure = 'inherit';
+        } elseif ($isInherited && $hasIndividualPermisisons) {
+            $datastreamStructure = 'include';
+        } else {
+            $datastreamStructure = 'exclude';
+        }
+        return $datastreamStructure;
+
     }
 
     //Does the object inherit permissions from parent
