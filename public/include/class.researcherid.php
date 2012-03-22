@@ -283,13 +283,30 @@ class ResearcherID
             $response_document = new DOMDocument();
             $response_document = ResearcherID::doServiceRequest($xml_api_data_request->saveXML());
 
-            if (!$response_document) {
-                return false;
-            } else {
-                // Save xml data ($response_document) as blob on database fez_rid_registrations.rre_response 
-                ResearcherID::saveProfileUploadResponse($aut_id, $response_document);
-                return true;
+            
+            if (empty($response_document) || 
+                (is_object($response_document) && get_class($response_document)=="DOMDocument" 
+                 && !$response_document->hasChildNodes()) 
+               ){
+
+                if ($response_document === false){
+                    $response = "There is an error occur on the request. Please try again.";
+                }else {
+                    $response = "No response received from Researcher ID.";
+                }
+                
+                // Email author about the error
+                if (!ResearcherID::_notifyErrorToAuthor($list['list'][0], $response) ){
+                    $log->err('Failed to send notification email to author on Researcher ID Registration.');
+                }
+                
+            }else {
+                $response = $response_document->saveXML();
             }
+            
+            // Save xml data ($response_document) as blob on database fez_rid_registrations.rre_response 
+            ResearcherID::saveProfileUploadResponse($aut_id, $response);
+            return true;
         }
 
         if (is_null($ticket_number) || empty($ticket_number)) {
@@ -297,6 +314,32 @@ class ResearcherID
             return false;
         }
     }
+    
+    
+    /**
+     * Send email to Author when there is an error with the RID profile upload.
+     * @return boolean 
+     */
+    protected function _notifyErrorToAuthor($author = null, $error = null)
+    {
+        if (!is_array($author) || sizeof($author)==0){
+            return false;
+        }
+        $emailBody = "There is an error with your author Researcher ID registration on eSpace. Please try again.";
+        
+        // Send email to the queue
+        $mail = new Mail_API;
+        $mail->setTextBody(stripslashes($emailBody));
+
+        $subject = "There is an error with your author Researcher ID registration.";
+        $from = APP_EMAIL_SYSTEM_FROM_ADDRESS;
+        $to = $author["aut_email"];
+        $mail->send($from, $to, $subject, false);
+
+        return true;        
+    }
+    
+    
     
   /**
    * Method used to perform a ResearcherID profile upload.
@@ -1472,7 +1515,7 @@ class ResearcherID
     $header[] = "Content-type: text/xml";
     $ch = curl_init(RID_DL_SERVICE_URL);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 300);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 480);
     curl_setopt($ch, CURLOPT_NOBODY, 1);
     curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
     curl_setopt($ch, CURLOPT_POST, 1);
