@@ -2654,7 +2654,7 @@ class AuthNoFedora {
         }
 
         try {
-        	$res = $db->fetchAll($stmt);
+        	$res = $db->exec($stmt);
         }
         catch(Exception $ex) {
         	$log->err($ex);
