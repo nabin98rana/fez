@@ -50,7 +50,9 @@ include_once(APP_INC_PATH . "class.bookreaderimplementation.php");
 include_once(APP_INC_PATH . "class.lister.php");
 
 $auth = new Auth();
-$auth->checkForBasicAuthRequest('view');
+//commented out because we are now not forcing basic auth redirect
+//unless a non-logged in account doesn't have view privileges
+//$auth->checkForBasicAuthRequest('view');
 
 $tpl = new Template_API();
 $tpl->setTemplate("view.tpl.html");

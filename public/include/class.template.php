@@ -215,7 +215,7 @@ class Template_API
 		$db = DB_API::get();
 		
 		// determine the correct CSS file to use
-		if (preg_match('/MSIE ([0-9].[0-9]{1,2})/', $_SERVER["HTTP_USER_AGENT"], $log_version)) {
+		if (array_key_exists('HTTP_USER_AGENT', $_SERVER) && preg_match('/MSIE ([0-9].[0-9]{1,2})/', $_SERVER["HTTP_USER_AGENT"], $log_version)) {
 			$user_agent = 'ie';
 		} else {
 			$user_agent = 'other';
@@ -290,8 +290,12 @@ class Template_API
 
 		$this->assign("ldap_switch", LDAP_SWITCH);
 		$this->assign("application_version", APP_VERSION);
-
-
+        $ipPool = Auth::getBasicAuthIPs();
+        $isBasicAuthIP = false;
+        if (defined('APP_BASIC_AUTH_IP') && (in_array($_SERVER['REMOTE_ADDR'], $ipPool))) {
+            $isBasicAuthIP = true;
+        }
+        $this->assign("is_basic_auth_ip", $isBasicAuthIP);
 		if (is_array($customView)) {
 			$this->assign("application_title", $cv_title);
 		} else {
