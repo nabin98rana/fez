@@ -2587,3 +2587,19 @@ table.adminManageList{
     cursor: pointer;
 }
 /* End: Translated title / Language fields trigger. */
+
+
+/**
+ * Administration Author management CSS.
+ * Usage: templates/en/manage/authors.tpl.html
+ */
+.rid-author-success{
+    color: #0c0;
+    font-weight: bold;
+}
+
+.rid-author-notsuccess{
+    color: #c00;
+    font-weight: bold;
+}
+/* End: Administration Author management CSS. */

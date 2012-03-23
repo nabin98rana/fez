@@ -1957,12 +1957,15 @@ class Author
         
         
         // Get formatted datetime fields with user's preferred timezone. 
+        // Get success status of RID response.
         $timezone = Date_API::getPreferredTimezone();
         foreach ($res as $key => $row) {
             if (is_array($row)){
+                $res[$key]["success_response"] = Author::_isSuccessRIDRegistrationResponse($res[$key]);
                 $res[$key]["rre_created_date_formatted"]    = Date_API::getFormattedDate($res[$key]["rre_created_date"], $timezone);
                 $res[$key]["rre_updated_date_formatted"]    = Date_API::getFormattedDate($res[$key]["rre_updated_date"], $timezone);
             }else {
+                $res["success_response"] = Author::_isSuccessRIDRegistrationResponse($res);
                 $res["rre_created_date_formatted"]    = Date_API::getFormattedDate($res["rre_created_date"], $timezone);
                 $res["rre_updated_date_formatted"]    = Date_API::getFormattedDate($res["rre_updated_date"], $timezone);
                 break;
@@ -1972,4 +1975,17 @@ class Author
         return $res;
     }
     
+    
+    /**
+     * String match the response received from ReseacherID service and find a match for success string pattern.
+     * @param array $record
+     * @return boolean True when success = 1, otherwise returns false. 
+     */
+    protected function _isSuccessRIDRegistrationResponse($record = array())
+    {
+        if (isset($record["rre_response"]) && strstr($record["rre_response"], "[success] => 1")){
+            return true;
+        }
+        return false;
+    }
 }

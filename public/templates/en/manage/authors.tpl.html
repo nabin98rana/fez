@@ -433,6 +433,12 @@
                   {if $rid_registration.rre_created_date_formatted} 
                   Created on {$rid_registration.rre_created_date_formatted}
                   {/if}
+                  {if $rid_registration.success_response} 
+                      <span class="rid-author-success">Request is successful</span> 
+                  {else}
+                      <span class="rid-author-notsuccess">Request is unsuccessful</span> 
+                  {/if}
+                  
                 </td>
                 <td style="background: {$light_color}; width: 80%">
                   <textarea name="rid_registration_display" cols="70" rows="10" class="default" readonly="readonly">{$rid_registration.rre_response}</textarea>
