@@ -144,7 +144,6 @@ if (isset($_POST['editedFilenames']) && is_array($_POST['editedFilenames'])) {
 	foreach($_POST['editedFilenames'] as $counter => $fileDetails) {
 		Record::renameDatastream($fileDetails['pid'], $fileDetails['originalFilename'], $fileDetails['newFilename']);
 	}
-    $record->setIndexMatchingFields();
 }
 
 
