@@ -431,12 +431,14 @@
                 <td style="width: 120px" class="default cell-colour">
                   <b>Latest RID registration response: </b> <br />
                   {if $rid_registration.rre_created_date_formatted} 
-                  Created on {$rid_registration.rre_created_date_formatted}
+                      Created on {$rid_registration.rre_created_date_formatted}
                   {/if}
-                  {if $rid_registration.success_response} 
-                      <span class="rid-author-success">Request is successful</span> 
-                  {else}
-                      <span class="rid-author-notsuccess">Request is unsuccessful</span> 
+                  {if $rid_registration.rre_response}
+                      {if $rid_registration.success_response === true} 
+                          <span class="rid-author-success">Request is successful</span> 
+                      {else}
+                          <span class="rid-author-notsuccess">Request is unsuccessful</span> 
+                      {/if}
                   {/if}
                   
                 </td>
