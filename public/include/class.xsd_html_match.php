@@ -2728,6 +2728,29 @@ class XSD_HTML_Match
 			}
 		}
 
+        function getOneDetailsBySEL_XSDMF_ID($xsdmf_id)
+		{
+			$log = FezLog::get();
+			$db = DB_API::get();
+
+			$stmt = "SELECT
+		                    *
+		                 FROM
+		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields INNER JOIN
+		                    " . APP_TABLE_PREFIX . "xsd_loop_subelement ON xsdsel_indicator_xsdmf_id = xsdmf_id
+		                 WHERE
+		                    xsdsel_xsdmf_id = ".$db->quote($xsdmf_id, 'INTEGER');
+
+			try {
+				$res = $db->fetchRow($stmt);
+			}
+			catch(Exception $ex) {
+				$log->err($ex);
+				return false;
+			}
+            return $res;
+		}
+
 		function getXSDMF_IDByElementSEL_Title($xsdmf_element, $xsdsel_title, $xdis_id)
 		{
 			$log = FezLog::get();

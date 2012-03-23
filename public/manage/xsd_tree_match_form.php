@@ -199,6 +199,20 @@ $tpl->assign("controlled_vocab_list", Controlled_Vocab::getAssocList());
 		if ((is_numeric($xsdsel_id_edit)) && ($_GET['xsdsel_cat'] == "edit")) {
 			$anchor = "#xsd_loop_subelement_form";
 			$xsd_loop_subelement_details = XSD_Loop_Subelement::getDetails($xsdsel_id_edit); // changed to xsdsel_id_edit for loops on loops - CK
+            $other_xsdmf_details = XSD_HTML_Match::getOneDetailsBySEL_XSDMF_ID($info_array['xsdmf_id']);
+            $guess_xsdsel_indicator_xsdmf_id = 0;
+            $guess_xsdsel_indicator_value = '';
+            if ($other_xsdmf_details !== false) {
+                $guess_xsdsel_indicator_xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElementSEL_Title($other_xsdmf_details['xsdmf_element'], $xsd_loop_subelement_details['xsdsel_title'], $xdis_id);
+                $guess_details = XSD_HTML_Match::getDetailsByXSDMF_ID($guess_xsdsel_indicator_xsdmf_id);
+                if (array_key_exists('xsdmf_static_text', $guess_details) && $guess_details['xsdmf_static_text'] != '') {
+                    $guess_xsdsel_indicator_value = $guess_details['xsdmf_static_text'];
+                } else {
+                    $guess_xsdsel_indicator_value = $xsd_loop_subelement_details['xsdsel_title'];
+                }
+            }
+            $tpl->assign("guess_xsdsel_indicator_value", $guess_xsdsel_indicator_value);
+            $tpl->assign("guess_xsdsel_indicator_xsdmf_id", $guess_xsdsel_indicator_xsdmf_id);
 			$tpl->assign("xsd_loop_subelement_details", $xsd_loop_subelement_details);
 		}
 		$xsdmf_id_ref_list = XSD_HTML_Match::getListAssoc();

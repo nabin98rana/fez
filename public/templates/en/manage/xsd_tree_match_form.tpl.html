@@ -519,10 +519,10 @@
 				{
 					document.body.style.cursor = '';
 					document.getElementById('loading6').style.display = 'none';
-				}				
+				}
 
 
-				var obj = new SelectXSDDisplay();				
+				var obj = new SelectXSDDisplay();
 				function selectXSDDisplay(f, field_name, child_field_name, select_value)
 				{
 					if (dt_load_array[child_field_name] > 0) {
@@ -1603,6 +1603,7 @@
 									{else}
 									  {assign var="indicator_xdis_id" value=$xsd_loop_subelement_details.xsdsel_indicator_xdis_id}
 									{/if}
+                                    <input type="button" class="button" value="Guess" onclick="javascript:selectOption(this.form, 'xsdsel_indicator_xdis_id', {$loop_mf_xdis_id}); selectXSDDisplay(this.form, 'xsdsel_indicator_xdis_id', 'xsdsel_indicator_xsdmf_id', {if $guess_xsdsel_indicator_xsdmf_id}{$guess_xsdsel_indicator_xsdmf_id}{else}0{/if}); this.form.xsdsel_indicator_value.value = '{$guess_xsdsel_indicator_value}'; this.form.xsdsel_indicator_value.focus(); this.form.xsdsel_indicator_value.select(); " />
 									<select class="default" name="xsdsel_indicator_xdis_id" onChange="javascript: selectXSDDisplay(this.form, 'xsdsel_indicator_xdis_id', 'xsdsel_indicator_xsdmf_id', {if $xsd_loop_subelement_details.xsdsel_indicator_xsdmf_id}{$xsd_loop_subelement_details.xsdsel_indicator_xsdmf_id}{else}0{/if}); ">
 									  <option value="0">Indicator Off</option>
 									 {html_options options=$xsd_displays selected=$indicator_xdis_id}
