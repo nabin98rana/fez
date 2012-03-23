@@ -280,7 +280,7 @@ class ResearcherID
         $xml_api_data_request = new DOMDocument();
         $xml_api_data_request->loadXML($request);
 
-        $response = ResearcherID::_callServiceRequest($xml_api_data_request->saveXML());
+        $response = ResearcherID::_callServiceRequest($xml_api_data_request);
         $responseAll = print_r($response,1);
 
         // Email user of any error occurence
@@ -1525,10 +1525,10 @@ class ResearcherID
      * Method used to perform request to Researcher ID web service using cURL.
      * This is a similar method from the doServiceRequest with debugging information.
      * 
-     * @param string $post_fields Data to POST to the service
+     * @param string $xmlData Data to POST to the service
      * @return array An array containing full information of the transfer and success status.
      */
-    private static function _callServiceRequest($post_fields)
+    private static function _callServiceRequest($xmlData)
     {
         $log = FezLog::get();
         $db = DB_API::get();
@@ -1546,14 +1546,24 @@ class ResearcherID
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
         }
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $post_fields);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $xmlData->saveXML());
 
 
         // Gather return data: success status, response of the transfer, info of the transfer and cURL error number
-        $result['success']   = 1;
-        $result['response']  = curl_exec($ch);
-        $result['curl_info'] = curl_getinfo($ch);
-        $result['curl_error']= curl_errno($ch);
+        $result['success']      = 1;
+        $result['response']     = curl_exec($ch);
+        $result['curl_info']    = curl_getinfo($ch);
+        $result['curl_error']   = curl_errno($ch);
+        
+        // Hide password
+        $items = $xmlData->getElementsByTagName("val");
+        foreach ($items as $item){
+            $name = $item->getAttribute('name');
+            if ($name == 'Password'){
+                $item->nodeValue = "{password_was_here}";
+            }
+        }
+        $result['requestdata_to_rid'] = $xmlData->saveXML();
         
         // Check if the HTTP code started with 4 or 5, which indicates error.
         $pattern = "/^4|^5/";
