@@ -129,6 +129,8 @@ class BatchAdd
 				if (is_file($temp_store)) {
 					unlink($temp_store);
 				}
+                $record = new RecordObject($pid);
+                $record->setIndexMatchingFields();
 
 			}
 		} else {
