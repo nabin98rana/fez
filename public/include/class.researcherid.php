@@ -266,74 +266,56 @@ class ResearcherID
             // Not valid
             $log->err(array('XML request data does not validate against schema.', __FILE__, __LINE__, $request_data));
             return false;
-        } else {
-            $tpl = new Template_API();
-            $tpl_file = "researcher_upload_request.tpl.html";
-            $tpl->setTemplate($tpl_file);
-            $tpl->assign("type", 'Profile');
-            $tpl->assign("username", RID_UL_SERVICE_USERNAME);
-            $tpl->assign("password", RID_UL_SERVICE_PASSWORD);
-            $tpl->assign("request_data", $request_data);
-            $request = $tpl->getTemplateContents();
-
-            $xml_api_data_request = new DOMDocument();
-            $xml_api_data_request->loadXML($request);
-
-            // Do the service request
-            $response_document = new DOMDocument();
-            $response_document = ResearcherID::doServiceRequest($xml_api_data_request->saveXML());
-
-            
-            if (empty($response_document) || 
-                (is_object($response_document) && get_class($response_document)=="DOMDocument" 
-                 && !$response_document->hasChildNodes()) 
-               ){
-
-                if ($response_document === false){
-                    $response = "There is an error occur on the request. Please try again.";
-                }else {
-                    $response = "No response received from Researcher ID.";
-                }
-                
-                // Email author about the error
-                if (!ResearcherID::_notifyErrorToAuthor($list['list'][0], $response) ){
-                    $log->err('Failed to send notification email to author on Researcher ID Registration.');
-                }
-                
-            }else {
-                $response = $response_document->saveXML();
-            }
-            
-            // Save xml data ($response_document) as blob on database fez_rid_registrations.rre_response 
-            ResearcherID::saveProfileUploadResponse($aut_id, $response);
-            return true;
         }
+        
+        $tpl = new Template_API();
+        $tpl_file = "researcher_upload_request.tpl.html";
+        $tpl->setTemplate($tpl_file);
+        $tpl->assign("type", 'Profile');
+        $tpl->assign("username", RID_UL_SERVICE_USERNAME);
+        $tpl->assign("password", RID_UL_SERVICE_PASSWORD);
+        $tpl->assign("request_data", $request_data);
+        $request = $tpl->getTemplateContents();
 
-        if (is_null($ticket_number) || empty($ticket_number)) {
-            $log->err('Failed to get a ticket number.', __FILE__, __LINE__);
-            return false;
+        $xml_api_data_request = new DOMDocument();
+        $xml_api_data_request->loadXML($request);
+
+        $response = ResearcherID::_callServiceRequest($xml_api_data_request->saveXML());
+        $responseAll = print_r($response,1);
+
+        // Email user of any error occurence
+        if (!$response['success']){
+            ResearcherID::_notifyErrorToUser($responseAll, $list['list'][0]);
         }
+        
+        // Save all response to the database TABLE_PREFIXrid_registrations.rre_response 
+        ResearcherID::saveProfileUploadResponse($aut_id, $responseAll);
+        return true;
     }
     
     
     /**
      * Send email to Author when there is an error with the RID profile upload.
-     * @return boolean 
+     * 
+     * @param string $response Response of web service request.
+     * @param array $author An array of author details.
+     * @return boolean Always return true.
      */
-    protected function _notifyErrorToAuthor($author = null, $error = null)
+    protected function _notifyErrorToUser($response = null, $author = null)
     {
-        if (!is_array($author) || sizeof($author)==0){
-            return false;
-        }
-        $emailBody = "There is an error with your author Researcher ID registration on eSpace. Please try again.";
+        $emailBody = "There is an error occurred on your Author Registration to Researcher ID. <br />" . chr(10) .
+                     "Author: " . $author['aut_fname'] . " " . $author['aut_lname'] . "<br />" . chr(10) .
+                     "The response is: " . $response;
         
         // Send email to the queue
         $mail = new Mail_API;
         $mail->setTextBody(stripslashes($emailBody));
 
-        $subject = "There is an error with your author Researcher ID registration.";
+        $subject = "There is an error occurred on your Author Registration to Researcher ID.";
         $from = APP_EMAIL_SYSTEM_FROM_ADDRESS;
-        $to = $author["aut_email"];
+        
+        $to = Auth::getUserEmail();
+        
         $mail->send($from, $to, $subject, false);
 
         return true;        
@@ -1515,7 +1497,7 @@ class ResearcherID
     $header[] = "Content-type: text/xml";
     $ch = curl_init(RID_DL_SERVICE_URL);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 480);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 300);
     curl_setopt($ch, CURLOPT_NOBODY, 1);
     curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
     curl_setopt($ch, CURLOPT_POST, 1);
@@ -1539,6 +1521,57 @@ class ResearcherID
   }
 
 
+    /**
+     * Method used to perform request to Researcher ID web service using cURL.
+     * This is a similar method from the doServiceRequest with debugging information.
+     * 
+     * @param string $post_fields Data to POST to the service
+     * @return array An array containing full information of the transfer and success status.
+     */
+    private static function _callServiceRequest($post_fields)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+        $result = array();
+
+        // Do the service request
+        $header[] = "Content-type: text/xml";
+        $ch = curl_init(RID_DL_SERVICE_URL);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 300);
+        curl_setopt($ch, CURLOPT_NOBODY, 1);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        if (APP_HTTPS_CURL_CHECK_CERT == 'OFF') {
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+        }
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $post_fields);
+
+
+        // Gather return data: success status, response of the transfer, info of the transfer and cURL error number
+        $result['success']   = 1;
+        $result['response']  = curl_exec($ch);
+        $result['curl_info'] = curl_getinfo($ch);
+        $result['curl_error']= curl_errno($ch);
+        
+        // Check if the HTTP code started with 4 or 5, which indicates error.
+        $pattern = "/^4|^5/";
+        $errorHttpCode = preg_match($pattern, $result['curl_info']['http_code']);
+        
+        // Set failed status condition
+        if (empty($result['response']) || $result['curl_error'] || $errorHttpCode == 1 ){
+            $result['success'] = 0;
+            $log->err('There is an error occurred on Researcher ID service request. The response is: ' . print_r($result,1));
+        }
+
+        // Close cURL session
+        curl_close($ch);
+        
+        return $result;
+    }
+
+  
   /**
    * Method used to get the list of records publicly available in the
    * system.
