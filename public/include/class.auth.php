@@ -896,7 +896,7 @@ class Auth
 				 * for this pid.
 				 */
 //				if($groupNodes->length == 0 && ($role == "Viewer" || $role == "Lister") && $inherit == false) {
-				if($groupNodes->length == 0 && ($role == "Viewer" || $role == "Lister")) {
+				if ($role == "Viewer" || $role == "Lister") {
 					$overridetmp[$role] = true;
 				}
 
