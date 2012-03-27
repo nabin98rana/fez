@@ -55,9 +55,9 @@ $NonRestrictedRoles = array("Viewer","Lister","Comment_Viewer");
 global $NonRestrictedRoleIDs;
 $NonRestrictedRoleIDs = array(10,9,5);
 global $defaultRoles;
-$defaultRoles = array("Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor");
+$defaultRoles = array("Editor", "Creator", "Lister", "Viewer", "Approver", "Community Administrator", "Annotator", "Comment_Viewer", "Commentor", "Archival_Format_Viewer");
 global $defaultRoleIDs;
-$defaultRoleIDs = array(8, 7, 5, 9, 2, 6, 1, 5, 4);
+$defaultRoleIDs = array(8, 7, 5, 9, 2, 6, 1, 5, 4, 3);
 
 global $auth_isBGP;
 global $auth_bgp_session;
@@ -702,7 +702,7 @@ class Auth
 		$indexArray['isApprover'] = (!empty($approver_matches) || $indexArray['isCommunityAdministrator'] == true);
 		$indexArray['isEditor'] = (!empty($editor_matches) || $indexArray['isCommunityAdministrator'] == true);
 		$indexArray['isCreator'] = (!empty($creator_matches) || $indexArray['isCommunityAdministrator'] == true);
-		$indexArray['isArchivalViewer'] = (in_array('Archival_Viewer', $userPIDAuthGroups) || ($indexArray['isEditor'] == true));
+		$indexArray['isArchivalViewer'] = (in_array('Archival_Format_Viewer', $userPIDAuthGroups) || ($indexArray['isEditor'] == true));
 		$indexArray['isViewer'] = (in_array('Viewer', $userPIDAuthGroups) || ($indexArray['isEditor'] == true));
 		$indexArray['isLister'] = (in_array('Lister', $userPIDAuthGroups) || ($indexArray['isViewer'] == true));
 
@@ -1037,8 +1037,8 @@ class Auth
 		if (in_array('Community_Administrator', $userPIDAuthGroups) && !in_array('Approver', $userPIDAuthGroups)) {
 			array_push($userPIDAuthGroups, "Approver");
 		}
-		if (in_array('Editor', $userPIDAuthGroups) && !in_array('Archival_Viewer', $userPIDAuthGroups)) {
-			array_push($userPIDAuthGroups, "Archival_Viewer");
+		if (in_array('Editor', $userPIDAuthGroups) && !in_array('Archival_Format_Viewer', $userPIDAuthGroups)) {
+			array_push($userPIDAuthGroups, "Archival_Format_Viewer");
 		}
 		if ((in_array('Editor', $userPIDAuthGroups) && !in_array('Viewer', $userPIDAuthGroups)) || (array_key_exists('Viewer', $overrideAuth) && $overrideAuth['Viewer'] == true)) {
 			array_push($userPIDAuthGroups, "Viewer");
