@@ -49,9 +49,11 @@ include_once(APP_INC_PATH . "class.filecache.php");
 include_once(APP_INC_PATH . "class.bookreaderimplementation.php");
 include_once(APP_INC_PATH . "class.lister.php");
 
-$auth = new Auth();
-//commented out because we are now not forcing basic auth redirect
-//unless a non-logged in account doesn't have view privileges
+// Commented out basic auth request as Nginx web app server doesnt pass basic auth request username/password
+// to fastcgi, so having to send SEER ARC webapp directly to basicview.php and basiceserv.php for basic auth to work
+// Therefore this IP check and redirect is now no longer needed, and in fact causes problems especially now we are not logging
+// in users unless the PDF/view page is secure thanks to Interact
+//$auth = new Auth();
 //$auth->checkForBasicAuthRequest('view');
 
 $tpl = new Template_API();

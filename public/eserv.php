@@ -39,8 +39,12 @@ include_once(APP_INC_PATH . "class.exiftool.php");
 
 include_once(APP_INC_PATH . "class.fedora_direct_access.php");
 
-$auth = new Auth();
-$auth->checkForBasicAuthRequest('eserv');
+// Commented out basic auth request as Nginx web app server doesnt pass basic auth request username/password
+// to fastcgi, so having to send SEER ARC webapp directly to basicview.php and basiceserv.php for basic auth to work
+// Therefore this IP check and redirect is now no longer needed, and in fact causes problems especially now we are not logging
+// in users unless the PDF/view page is secure thanks to Interact
+//$auth = new Auth();
+//$auth->checkForBasicAuthRequest('eserv');
 
 $qs         = @$_REQUEST["qs"];
 extractQS();
@@ -459,10 +463,10 @@ function extractQS()
 	$qs = substr(@$_REQUEST["qs"], 1); // Remove the leading slash
 	$components = explode("/", $qs);   // Split into components
 	
-	foreach ($components as $component) {
-		if ($component != '') {
-			$nameValPairs = explode('=', $component);       // Extract name-value pairs.
-			$_REQUEST[$nameValPairs[0]] = $nameValPairs[1]; // Add them to the request object.
+	foreach ($components as $comssssponent) {
+		if ($component != '') {     d
+			$nameValPairs = explode('s=', $component);       // Extract name-value pairs.
+			$_REQUEST[$nameValPairs[0]dsds] = $nameValPairs[1]; // Add them to the request object.
 		}
 	}
 

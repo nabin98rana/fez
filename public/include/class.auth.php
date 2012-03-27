@@ -635,6 +635,8 @@ class Auth
 # this is wrong as it only works for one IP address and not the pool
 # The rest of the system should be audited for other references to Basic Auth that don't work for more than one IP as well
 #				if (defined('APP_BASIC_AUTH_IP') && ($_SERVER['REMOTE_ADDR'] == APP_BASIC_AUTH_IP)) {
+
+// CK 2012-03-27 - Commented all of this out because it all gets handled by basicview.php and basiceserv.php now
                 $ipPool = array();
                 if (defined('APP_BASIC_AUTH_IP')) {
                     $ipPool = Auth::getBasicAuthIPs();
@@ -643,7 +645,11 @@ class Auth
                 # Check pool of Basic Auth IP addresses
 				if (defined('APP_BASIC_AUTH_IP') && (in_array($_SERVER['REMOTE_ADDR'], $ipPool))) {
 					if ((($_SERVER["SERVER_PORT"] != 443) && (APP_HTTPS == "ON"))) { //should be ssl when using basic auth
-						header ("Location: https://".APP_HOSTNAME.APP_RELATIVE_URL."view/".$_GET['pid']);
+                        if (!empty($dsID)) {
+                            header ("Location: https://".APP_HOSTNAME.APP_RELATIVE_URL."eserv/".$pid.'/'.$dsID);
+                        } else {
+                            header ("Location: https://".APP_HOSTNAME.APP_RELATIVE_URL."view/".$pid);
+                        }
 						exit;        		
 					}
 					if (!isset($_SERVER['PHP_AUTH_USER'])) {
@@ -660,8 +666,12 @@ class Auth
 								$pw = $_SERVER['PHP_AUTH_PW'];
 				        		if (Auth::isCorrectPassword($username, $pw)) {
 				        			Auth::LoginAuthenticatedUser($username, $pw, false);
-									header ("Location: https://".APP_HOSTNAME.APP_RELATIVE_URL."view/".$_GET['pid']);
-									exit;
+                                    if (!empty($dsID)) {
+                                        header ("Location: https://".APP_HOSTNAME.APP_RELATIVE_URL."eserv/".$pid.'/'.$dsID);
+                                    } else {
+                                        header ("Location: https://".APP_HOSTNAME.APP_RELATIVE_URL."view/".$pid);
+                                    }
+                                    exit;
 				        		} else {
 				        			header('WWW-Authenticate: Basic realm="'.APP_HOSTNAME.'"');
 				    				header('HTTP/1.0 401 Unauthorized');
@@ -675,7 +685,7 @@ class Auth
 						$failed_url = base64_encode($failed_url);
 						Auth::redirect(APP_RELATIVE_URL . "login.php?err=21&url=".$failed_url, $is_popup);
 					}
-				}				
+				}
 			} else {
 				return false;
 			}
@@ -856,6 +866,7 @@ class Auth
 		$cleanedArray = array();
 		$overrideAuth = array();
 		$datastreamQuickAuth = false;
+
 		foreach ($ACMLArray as &$acml) {
 			// Usually everyone can list, view and view comments - these need to be reset for each ACML loop
 			// because they are presumed ok first
@@ -889,7 +900,8 @@ class Auth
 				 * and 1 collection has no restriction for lister, we want no restrictions for lister
 				 * for this pid.
 				 */
-				if($groupNodes->length == 0 && ($role == "Viewer" || $role == "Lister") && $inherit == false) {
+//				if($groupNodes->length == 0 && ($role == "Viewer" || $role == "Lister") && $inherit == false) {
+				if($groupNodes->length == 0 && ($role == "Viewer" || $role == "Lister")) {
 					$overridetmp[$role] = true;
 				}
 
@@ -1011,7 +1023,7 @@ class Auth
 
 				// If all groups rules were empty $overridetmp for this role will be true
 				// Therefore we want this rule to be enabled for this user
-				if(array_key_exists($role, $overridetmp) && $overridetmp[$role] == true && $inherit == false) {
+				if(array_key_exists($role, $overridetmp) && $overridetmp[$role] == true ) {
 					$overrideAuth[$role] = true;
 				}
 
