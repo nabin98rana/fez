@@ -88,7 +88,8 @@
                     <th class="cell-colour">Email Filename</th>
                     <th class="cell-colour">Email File Date</th>
                     <th class="cell-colour">Record Created Date</th>
-                    <th class="cell-colour">Record Last Updated</th>
+                    <th class="cell-colour">Related Author</th>
+                    <th class="cell-colour">Response Status</th>
                     <th class="cell-colour">Response URL</th>
                     <th class="cell-colour">XML Response</th>
                 </tr>
@@ -101,7 +102,8 @@
                     <td class="default">{$list[i].rpu_email_filename}</td>
                     <td class="default">{$list[i].rpu_email_file_date|date_format:'%d %b %Y %H:%I:%S'}</td>
                     <td class="default">{$list[i].rpu_created_date_formatted}</td>
-                    <td class="default">{$list[i].rpu_updated_date_formatted}</td>
+                    <td class="default">{$list[i].rpu_aut_org_username}</td>
+                    <td class="default">{$list[i].rpu_response_status}</td>
                     <td class="default">
                         <span class="toggleShowBtn">Show</span>
                         <span class="toggleHideBtn">Hide</span>
@@ -114,12 +116,37 @@
                 <tr class="rowDetails" style="display: none; background: {$row_color};">
                     <td colspan="10">
                         <p>
-                            <h4>Response URL</h4>
-                            {if $list[i].rpu_response_url} {$list[i].rpu_response_url} {else} URL not found {/if}
+                            <h4>Record Last Updated: </h4>
+                            {$list[i].rpu_updated_date_formatted}
                         </p>
                         <p>
-                            <h4>XML Response</h4>
-                            <textarea cols="100%" rows="25">{$list[i].rpu_response}</textarea>
+                            <h4>Response URL: </h4>
+                            <div class="rowDetailsNote">
+                                The link provided on RID email which contains RID response to our Author Profile Upload request. 
+                            </div>
+                            {if $list[i].rpu_response_url} 
+                                <a href ="{$list[i].rpu_response_url}" target=_blank> {$list[i].rpu_response_url} </a>
+                            {else} 
+                                There is no URL found on RID email.
+                            {/if}
+                        </p>
+                        <p>
+                            <h4>XML Response: </h4>
+                            <div class="rowDetailsNote">The content retrieved from the Response URL. </div>
+                            {if $list[i].rpu_response}
+                                <textarea cols="100%" rows="25">{$list[i].rpu_response}</textarea>
+                            {else}
+                                There is no response found.
+                            {/if}
+                        </p>
+                        <p>
+                            <h4>cURL Info: </h4>
+                            <div class="rowDetailsNote">Info of the cURL transfer used when retrieving the XML Response. </div>
+                            {if $list[i].rpu_response_info}
+                                <textarea cols="100%" rows="25">{$list[i].rpu_response_info}</textarea>
+                            {else}
+                                There is no cURL info found.
+                            {/if}
                         </p>
                     </td>
                 </tr>

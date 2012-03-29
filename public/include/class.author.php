@@ -1988,4 +1988,36 @@ class Author
         }
         return false;
     }
+
+    
+    /**
+     * Check if a requested author has a ResearcherID.
+     * 
+     * @param string $aut_org_username Author username
+     * @return boolean True if the requested author has ResearcherID, false otherwise.
+     */
+    public static function hasResearcherID($aut_org_username = null)
+    {
+        if (empty($aut_org_username)){
+            return false;
+        }
+        
+        $db  = DB_API::get();
+        $log = FezLog::get();
+        
+        $stmt = "SELECT * FROM ". APP_TABLE_PREFIX ."author
+                 WHERE aut_org_username = " . $db->quote($aut_org_username, 'STRING') . "
+                      AND aut_researcher_id IS NOT NULL 
+                      AND aut_researcher_id != '' 
+                      AND aut_researcher_id NOT LIKE 'ERR:%'
+                      AND aut_researcher_id != '-1';";
+        $rid = $db->fetchRow($stmt);
+        
+        // fetchOne() returns False when there is no result. 
+        // Hey, empty() function works for checking false on PHP 5.3
+        if (!empty($rid)){
+            return true;
+        }
+        return false;
+    }
 }

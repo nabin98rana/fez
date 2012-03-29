@@ -2540,7 +2540,12 @@ table.adminManageList{
                 display: block;
             }
 
-            
+        table.adminManageList .rowDetailsNote{
+            color: #555555;
+            font-style: italic;
+            margin-bottom: 1px !important; /* overwrites css on #content div */
+        }
+        
 /* End of: Admin GUI for ResearcherID Download Request Jobs */
 
 

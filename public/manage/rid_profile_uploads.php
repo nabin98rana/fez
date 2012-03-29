@@ -65,7 +65,10 @@ if (!$isAdministrator) {
 // Values for sort_by drop down
 $sort_by_list = array(
                     "rpu_email_filename"  => "Email Filename",
-                    "rpu_email_file_date" => "Email File Date"
+                    "rpu_email_file_date" => "Email File Date",
+                    "rpu_created_date"    => "Record Created Date",
+                    "rpu_aut_org_username"=> "Related Author", 
+                    "rpu_response_status" => "Response Status" 
                 );
 $tpl->assign('sort_by_list', $sort_by_list);
 
@@ -73,7 +76,7 @@ $tpl->assign('sort_by_list', $sort_by_list);
 $search_keys_list = array(
                         ""                    => "",
                         "rpu_email_filename"  => "Email Filename",
-                        "rpu_email_file_date" => "Email File Date"
+                        "rpu_aut_org_username"=> "Related Author"
                     );
 $tpl->assign('search_keys_list', $search_keys_list);
 

@@ -279,7 +279,7 @@ public static function multi_implode($glue, $pieces)
    * @param string $url
    * @param bool $passthru - if true, don't return the retreived content, just echo it
    */
-  function processURL($url, $passthru=false, $filehandle=null, $post = null, $contenttype = null, $timeout = 45)
+  function processURL($url, $passthru=false, $filehandle=null, $post = null, $contenttype = null, $timeout = 45, $debug = false)
   {
     $log = FezLog::get();
 
@@ -319,16 +319,42 @@ public static function multi_implode($glue, $pieces)
       curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
     }
 
-    $data = curl_exec($ch);
-    if ($data) {
-      $info = curl_getinfo($ch);
-      curl_close($ch);
-    } else {
-      $info = array();
-      $log->err(array(curl_error($ch)." ".$url,__FILE__,__LINE__));
-      curl_close($ch);
+    if ($debug === true){
+        
+        // Gather return data: success status, response of the transfer, info of the transfer and cURL error number
+        $result                 = array();
+        $result['success']      = 1;
+        $result['response']     = curl_exec($ch);
+        $result['curl_info']    = curl_getinfo($ch);
+        $result['curl_error']   = curl_errno($ch);
+        
+        // Check if the HTTP code started with 4 or 5, which indicates error.
+        $pattern = "/^4|^5/";
+        $errorHttpCode = preg_match($pattern, $result['curl_info']['http_code']);
+        
+        // Set failed status condition
+        if (empty($result['response']) || $result['curl_error'] || $errorHttpCode == 1 ){
+            $result['success'] = 0;
+            $log->err('There is an error occurred on process URL . The response is: ' . print_r($result,1));
+        }
+
+        // Close cURL session
+        curl_close($ch);
+        
+        return $result;
+        
+    }else {
+        $data = curl_exec($ch);
+        if ($data) {
+          $info = curl_getinfo($ch);
+          curl_close($ch);
+        } else {
+          $info = array();
+          $log->err(array(curl_error($ch)." ".$url,__FILE__,__LINE__));
+          curl_close($ch);
+        }
+        return array($data,$info);
     }
-    return array($data,$info);
   }
 
 
