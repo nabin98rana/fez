@@ -553,17 +553,27 @@
 					  {section name='aa' loop=$xsd_display_fields}{if $xsd_display_fields[aa].xsdmf_id == $attached_xsdmf_id}{assign var="attached_xsdmf" value=$xsd_display_fields[aa]}{/if}{/section}
 					{/if}
 
-					<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" {if $loop_num != 0 || ($isEditor != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && $xsd_display_fields[i].xsdmf_required != 1) || $xsd_display_fields[i].xsdmf_invisible == 1}style="display:none"{/if} valign="top">
+					<tr  valign="top">
 					  <th>
-						<b>{$xsd_display_fields[i].xsdmf_title} {if ($xsdmf.xsdmf_multiple_limit > 1)}{math equation="x + 1" x=$loop_num}{/if} {if $xsd_display_fields[i].xsdmf_required == 1 && $loop_num == 0} * {/if}</b>
-						<img id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}_arrow" src="{$rel_url}images/downarrow.png" onclick="javascript:swapTextBox('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}','{$xsd_display_fields[i].xsdmf_attached_xsdmf_id}','{$loop_num}', 1);" style="cursor: pointer;{if $details[$temp_fld_id][$loop_num] == ''}display: none;{/if}" alt="" />{if $loop_num != 0 }<img src="{$rel_url}images/uparrow.png" onclick="javascript:swapTextBox('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}','{$xsd_display_fields[i].xsdmf_attached_xsdmf_id}','{$loop_num}', -1);" style="cursor: pointer" alt="" />{/if}
-						{if (($loop_num) == 0) && ($xsdmf.xsdmf_multiple_limit > 1)}
-						{if $xsd_display_fields[i].xsdmf_description != ""}
-	                      <br/><i>{$xsd_display_fields[i].xsdmf_description|escape:"html"}</i>
-	                    {/if}
-	                    <br />
-						<i>(More {$xsd_display_fields[i].xsdmf_title} input boxes will appear as you type)</i>
+						<b>{$xsd_display_fields[i].xsdmf_title}(s) {if $xsd_display_fields[i].xsdmf_required == 1 && $loop_num == 0} * {/if}</b>
+						{if $loop_num == 0}
+                                                    {if $xsd_display_fields[i].xsdmf_description != ""}
+                                                        <br/><i>{$xsd_display_fields[i].xsdmf_description|escape:"html"}</i>
+                                                    {/if}
+                                                    <br />
+                                                    <i>(More {$xsd_display_fields[i].xsdmf_title} input boxes will appear as you type)</i>
 						{/if}
+					  </th>
+                                        </tr>
+                                        
+					<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" {if $loop_num != 0 || 
+                                            ($isEditor != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && $xsd_display_fields[i].xsdmf_required != 1) || 
+                                            $xsd_display_fields[i].xsdmf_invisible == 1}style="display:none"{/if} valign="top">
+					  <th>
+						<b>{$xsd_display_fields[i].xsdmf_title} 
+                                                    {if ($xsdmf.xsdmf_multiple_limit > 1)}{math equation="x + 1" x=$loop_num}{/if} 
+                                                </b>
+						<img id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}_arrow" src="{$rel_url}images/downarrow.png" onclick="javascript:swapTextBox('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}','{$xsd_display_fields[i].xsdmf_attached_xsdmf_id}','{$loop_num}', 1);" style="cursor: pointer;{if $details[$temp_fld_id][$loop_num] == ''}display: none;{/if}" alt="" />{if $loop_num != 0 }<img src="{$rel_url}images/uparrow.png" onclick="javascript:swapTextBox('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}','{$xsd_display_fields[i].xsdmf_attached_xsdmf_id}','{$loop_num}', -1);" style="cursor: pointer" alt="" />{/if}
 					  </th>
 					  <td>
 					<input class="default" type="text" id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]{if ($xsdmf.xsdmf_multiple_limit > 1)}[]{/if}" onkeyup="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onfocus="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onchange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" size="50" value="{if $loop_num == 0}{if $xsd_display_fields[i].xsdmf_dynamic_text != ""}{assign var='temp_dynamic_var' value=$xsd_display_fields[i].xsdmf_dynamic_text}{eval var=$temp_dynamic_var}{else}{$xsd_display_fields[i].xsdmf_static_text}{/if}{/if}" {if $xsd_display_fields[i].xsdmf_validation_maxlength != null && $xsd_display_fields[i].xsdmf_validation_maxlength > 0}maxlength="{$xsd_display_fields[i].xsdmf_validation_maxlength}"{/if} />

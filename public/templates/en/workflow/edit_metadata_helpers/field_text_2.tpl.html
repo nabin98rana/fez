@@ -1,18 +1,26 @@
+{if $xsdmf.xsdmf_multiple == 1 && $loop_num ==0}
+<tr valign="top">
+    <th>
+        <b>{$xsdmf.xsdmf_title}(s) {if $xsdmf.xsdmf_required == 1} * {/if}</b>
+        {if $xsdmf.xsdmf_description != ""}
+            <br/><i>{$xsdmf.xsdmf_description|escape:"html"}</i>
+        {/if}
+        <br />
+        <i>(More {$xsdmf.xsdmf_title} input boxes will appear as you type)</i>
+    </th>
+    <td class="default" bgcolor="{$cell_color}" ></td>
+</tr>
+{/if}
 <tr id="tr_xsd_display_fields_{$xsdmf.xsdmf_id}_{$loop_num}" {if $xsdmf.xsdmf_invisible == 1}style="display:none"{/if}
     class="{if ($xsdmf.xsdmf_title|stristr:"translated" || 
                 $xsdmf.xsdmf_title|stristr:"roman script" || 
                 $xsdmf.xsdmf_title|stristr:"native script")}translated_field{/if}"
     >
-     <td width="200" bgcolor="{$cell_color}" class="default" valign="top">
-		<b>{$xsdmf.xsdmf_title}{if $xsdmf.xsdmf_multiple == 1} {math equation="x + 1" x=$loop_num}{/if}</b>
-		{if $xsdmf.xsdmf_multiple == 1}<img id="xsd_display_fields_{$xsdmf.xsdmf_id}_{$loop_num}_arrow" src="{$rel_url}images/downarrow.png" onclick="javascript:swapTextBox('xsd_display_fields_{$xsdmf.xsdmf_id}','{$xsdmf.xsdmf_attached_xsdmf_id}','{$loop_num}', 1);" style="cursor: pointer;{if $details[$temp_fld_id][$loop_num] == ''}display: none;{/if}" />{if $loop_num != 0 }<img src="{$rel_url}images/uparrow.png" onclick="javascript:swapTextBox('xsd_display_fields_{$xsdmf.xsdmf_id}','{$xsdmf.xsdmf_attached_xsdmf_id}','{$loop_num}', -1);" style="cursor: pointer" />{/if}{/if}
-		{if $xsdmf.xsdmf_required == 1 && $loop_num == 0} * {/if}
-		{if $xsdmf.xsdmf_description != "" && $loop_num == 0}
-			<br /><i>{$xsdmf.xsdmf_description}</i>
-		{/if}				
-		{if $xsdmf.xsdmf_multiple == 1 && $loop_num == 0}<br /><i>(More {$xsdmf.xsdmf_title} input boxes will appear as they are used up)</i>{/if}
-	</td>
-	<td class="{if $loop_num % 2 == 0}text-input-even{else}text-input-odd{/if}">
+    <td width="200" bgcolor="{$cell_color}" class="default" valign="top">
+        <b>{$xsdmf.xsdmf_title}{if $xsdmf.xsdmf_multiple == 1} {math equation="x + 1" x=$loop_num}{/if}</b>
+        {if $xsdmf.xsdmf_multiple == 1}<img id="xsd_display_fields_{$xsdmf.xsdmf_id}_{$loop_num}_arrow" src="{$rel_url}images/downarrow.png" onclick="javascript:swapTextBox('xsd_display_fields_{$xsdmf.xsdmf_id}','{$xsdmf.xsdmf_attached_xsdmf_id}','{$loop_num}', 1);" style="cursor: pointer;{if $details[$temp_fld_id][$loop_num] == ''}display: none;{/if}" />{if $loop_num != 0 }<img src="{$rel_url}images/uparrow.png" onclick="javascript:swapTextBox('xsd_display_fields_{$xsdmf.xsdmf_id}','{$xsdmf.xsdmf_attached_xsdmf_id}','{$loop_num}', -1);" style="cursor: pointer" />{/if}{/if}
+    </td>
+    <td class="{if $loop_num % 2 == 0}text-input-even{else}text-input-odd{/if}">
 		{if $xsdmf.xsdmf_attached_xsdmf_id != ""}
 		  {assign var="attached_xsdmf_id" value=$xsdmf.xsdmf_attached_xsdmf_id}
 		  {section name='aa' loop=$xsd_display_fields}{if $xsd_display_fields[aa].xsdmf_id == $attached_xsdmf_id}{assign var="attached_xsdmf" value=$xsd_display_fields[aa]}{/if}{/section}
@@ -56,7 +64,7 @@
 	//-->
 	</script>
 	{/if}
-	</td>
+    </td>
 {if $xsdmf.xsdmf_multiple == 1}
   {include file='workflow/compare_records_helpers/get_right_column.tpl.html input_field_name="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"|cat:$squares
 	  attached_field_name=$attached_field_name attached_xsdmf=$attached_xsdmf }
