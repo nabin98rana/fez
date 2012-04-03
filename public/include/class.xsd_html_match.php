@@ -1673,7 +1673,38 @@ class XSD_HTML_Match
 			$log = FezLog::get();
 			$db = DB_API::get();
 
+            $xsdmf_id = $insertArray['xsdmf_id'];
 			$insertArray['xsdmf_xdis_id'] = $xdis_id;
+            
+            // Delete existing record. 
+            if (!empty($xsdmf_id)){
+                
+                $stmt = "SELECT xsdmf_xdis_id FROM " . APP_TABLE_PREFIX . "xsd_display_matchfields ".
+                        " WHERE xsdmf_id = " . $db->quote($xsdmf_id);
+                $xsdmf_xdis_id = $db->fetchOne($stmt);
+                
+                if (!empty($xsdmf_xdis_id)){
+                    if ($xsdmf_xdis_id == $xdis_id){
+                        // Delete existing record with same xsdmf_id and xdis_id. We want to overwrite the record.
+                        $stmt = "DELETE FROM " . APP_TABLE_PREFIX . "xsd_display_matchfields ".
+                                " WHERE xsdmf_id = " . $db->quote($xsdmf_id);
+                        try {
+                            $db->exec($stmt);
+                        }
+                        catch(Exception $ex) {
+                            $log->err($ex);
+                            return -1;
+                        }
+
+                    }else {
+                        // Delete xsdmf_id insert value, let it assigned with auto increment value. 
+                        // The xsdmf_id from XML is already used by other xdis_id. 
+                        $xsdmf_id = $insertArray['xsdmf_id'] = "";
+                    }
+                }
+            }
+
+            // Insert the XSMDF details
 			$stmt = "INSERT INTO
 		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields
 		                 ( ";
