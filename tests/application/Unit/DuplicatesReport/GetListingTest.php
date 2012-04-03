@@ -9,13 +9,15 @@
  */
  
  
-require_once('unit_test_setup.php');
+//require_once('unit_test_setup.php');
 
 require_once(APP_INC_PATH.'class.duplicates_report.php');
  
-class DuplicatesReportGetListingTest extends PHPUnit_Framework_TestCase
+class Unit_DuplicatesReport_GetListingTest extends PHPUnit_Framework_TestCase
 {
     protected $fixture;
+    protected $reportShort;
+    protected $reportLong;
     
     protected function setUp()
     {

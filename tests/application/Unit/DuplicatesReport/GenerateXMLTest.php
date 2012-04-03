@@ -9,11 +9,11 @@
  */
  
  
-require_once('unit_test_setup.php');
+//require_once('unit_test_setup.php');
 
 require_once(APP_INC_PATH.'class.duplicates_report.php');
  
-class DuplicatesReportGenerateXMLTest extends PHPUnit_Framework_TestCase
+class Unit_DuplicatesReport_GenerateXMLTest extends PHPUnit_Framework_TestCase
 {
     protected $fixture;
     
@@ -78,28 +78,6 @@ class DuplicatesReportGenerateXMLTest extends PHPUnit_Framework_TestCase
         $this->assertTrue(!empty($dom));
     }    
     
-    public function testGenerateXMLString()
-    {
-        $res = $this->fixture->generateXML($this->report);
-        $this->assertEquals('<?xml version="1.0"?>'."\n"
-                .'<DuplicatesReport>'
-                  .'<duplicatesReportItem pid="UQ:4" title="Title UQ:4">'
-                    .'<duplicateItem pid="UQ:5" probability="0.7"/>'
-                    .'<duplicateItem pid="UQ:7" probability="0.7"/>'
-                    .'<duplicateItem pid="UQ:6" probability="0.7"/>'
-                  .'</duplicatesReportItem>'
-                  .'<duplicatesReportItem pid="UQ:3" title="Title UQ:3">'
-                    .'<duplicateItem pid="UQ:5" probability="0.7"/>'
-                    .'<duplicateItem pid="UQ:7" probability="0.7"/>'
-                    .'<duplicateItem pid="UQ:6" probability="0.7"/>'
-                  .'</duplicatesReportItem>'
-                  .'<duplicatesReportItem pid="UQ:2" title="Title UQ:2">'
-                    .'<duplicateItem pid="UQ:5" probability="0.7"/>'
-                    .'<duplicateItem pid="UQ:7" probability="0.7"/>'
-                    .'<duplicateItem pid="UQ:8" probability="0.8"/>'
-                  .'</duplicatesReportItem>'
-                .'</DuplicatesReport>'."\n", 
-                $res);
-    }
+
 }
 ?>

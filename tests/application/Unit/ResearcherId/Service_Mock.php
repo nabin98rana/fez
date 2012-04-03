@@ -41,7 +41,8 @@
  * @author Andrew Martlew <a.martlew@library.uq.edu.au>
  *
  */
-require_once '../../config.inc.php';
+//require_once '../../config.inc.php';
+include_once(dirname(dirname(dirname(dirname(dirname(dirname(__FILE__)))))).DIRECTORY_SEPARATOR."configs".DIRECTORY_SEPARATOR."config.inc.php");
 
 class ResearcherId_Service_Mock
 {
@@ -59,12 +60,26 @@ class ResearcherId_Service_Mock
     foreach ($functions as $function) {
       switch ($function) {
         case 'AuthorResearch.downloadRIDData':
-          $responseXml = file_get_contents('download-rid-data-output.xml');
-          $responseXml = new SimpleXMLElement($responseXml);  
-          break;
+
+            $tpl = new Template_API();
+            $tpl_file = dirname(__FILE__).DIRECTORY_SEPARATOR.'download-rid-data-output.xml';
+            $tpl->setTemplate($tpl_file);
+            $responseXml = $tpl->getTemplateContents();
+
+//            $responseXml = file_get_contents(dirname(__FILE__).DIRECTORY_SEPARATOR.'download-rid-data-output.xml');
+            $responseXml = new SimpleXMLElement($responseXml);
+            break;
         case 'AuthorResearch.getDownloadStatus':
-          $responseXml = file_get_contents('get-download-status-output.xml');
-          $responseXml = new SimpleXMLElement($responseXml);  
+
+          $tpl = new Template_API();
+          $tpl_file = dirname(__FILE__).DIRECTORY_SEPARATOR.'get-download-status-output.xml';
+          $tpl->setTemplate($tpl_file);
+          $responseXml = $tpl->getTemplateContents();
+
+
+//          $responseXml = file_get_contents(dirname(__FILE__).DIRECTORY_SEPARATOR.'get-download-status-output.xml');
+
+          $responseXml = new SimpleXMLElement($responseXml);
           break;
       }
     }    
@@ -85,7 +100,7 @@ class ResearcherId_Service_Mock
     foreach ($functions as $function) {
       switch ($function) {
         case 'AuthorResearch.uploadRIDData':
-          $responseXml = file_get_contents('upload-rid-data-output.xml');
+          $responseXml = file_get_contents(dirname(__FILE__).DIRECTORY_SEPARATOR.'upload-rid-data-output.xml');
           $responseXml = new SimpleXMLElement($responseXml);  
           break;
       }

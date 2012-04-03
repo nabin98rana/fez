@@ -8,11 +8,11 @@
  * 
  */
  
-require_once('unit_test_setup.php');
+//require_once('unit_test_setup.php');
 
 require_once(APP_INC_PATH.'class.record_lock.php');
  
-class RecordLockGetLockTest extends PHPUnit_Framework_TestCase
+class Unit_RecordLock_GetLockTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
@@ -22,8 +22,8 @@ class RecordLockGetLockTest extends PHPUnit_Framework_TestCase
 
     public function tearDown()
     {
-        RecordLock::releaseLock('Test:123');
-        RecordLock::releaseLock('Test:321');
+       RecordLock::releaseLock('Test:123');
+       RecordLock::releaseLock('Test:321');
     }
 
     public function testGetLockNullPid()

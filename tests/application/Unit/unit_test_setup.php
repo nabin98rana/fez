@@ -11,8 +11,9 @@
 define('APP_UNIT_TESTING', true);
 // Where is config.inc?
 
-require_once('../config.inc.php');
-require_once('../init.php');
+require_once('../../configs/config.inc.php');
+//require_once('../../public/init.php');
 define(APP_TEST_PATH, APP_PATH.'/test/');
-require_once APP_PEAR_PATH.'PHPUnit/Framework.php';
+//echo "HERE".APP_TEST_PATH."\n\n";
+//require_once APP_PEAR_PATH.'PHPUnit/Framework.php';
 require_once APP_TEST_PATH.'test_common.php';

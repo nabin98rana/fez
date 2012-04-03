@@ -8,11 +8,11 @@
  * 
  */
  
- require_once('unit_test_setup.php');
+// require_once('unit_test_setup.php');
 
 require_once(APP_INC_PATH.'class.duplicates_report.php');
  
-class DuplicatesReportMergeRearrangedSetsTest extends PHPUnit_Framework_TestCase
+class Unit_DuplicatesReport_MergeRearrangedSetsTest extends PHPUnit_Framework_TestCase
 {
     protected $report;
     
@@ -81,7 +81,24 @@ class DuplicatesReportMergeRearrangedSetsTest extends PHPUnit_Framework_TestCase
     {
         $rearranged_report = $this->fixture->rearrangeSets($this->report);
         $final_groups = $this->fixture->mergeRearrangedSets($rearranged_report);
-        $this->assertEquals(array('UQ:5','UQ:6','UQ:7'), array_keys($final_groups['UQ:3']['list']));
+        $expected =  Array (
+            0 => Array (
+                'pid' => 'UQ:5',
+                'probability' => '0.7',
+                'title' => 'Title UQ:5'
+            ),
+            1 => Array (
+                'pid' => 'UQ:6',
+                'probability' => '0.7',
+                'title' => 'Title UQ:6'
+            ),
+            2 => Array (
+                'pid' => 'UQ:7',
+                'probability' => '0.7',
+                'title' => 'Title UQ:7'
+            )
+        );
+        $this->assertEquals($expected, $final_groups['UQ:3']['list']);
     }    
     
 }

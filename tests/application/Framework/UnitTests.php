@@ -34,7 +34,7 @@
  * @version 1.0, 2012-03-05
  * @package Tests
  * @author Elvi Shu <e.shu@library.uq.edu.au>
- * @license http://www.gnu.org/licenses/gpl.html GPL License
+ * @license http://www.gnu.org/licenses/gpl.html GPL License x
  * @copyright (c) 2012 The University of Queensland
  */
 class Framework_UnitTests 
@@ -50,7 +50,14 @@ class Framework_UnitTests
     {
         $suite = new PHPUnit_Framework_TestSuite('Fez Framework Unit');
         // @todo: Setup Unit tests, if any
-        // $suite->addTestSuite('Unit_FezTest');
+         $suite->addTestSuite('Unit_WorkflowStatusTest');
+         if (APP_RECORD_LOCKING != 'OFF') {
+            $suite->addTestSuite('Unit_RecordLockTests');
+         }
+         $suite->addTestSuite('Unit_DuplicatesReportTests');
+         $suite->addTestSuite('Unit_ResearcherIdTests');
+//         $suite->addTestSuite('Unit_FezTest');
+//         $suite->addTestSuite('Unit_FezTest');
 
         return $suite;
     }

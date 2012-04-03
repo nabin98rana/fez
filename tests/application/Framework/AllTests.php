@@ -47,9 +47,9 @@ class Framework_AllTests
     public static function suite()
     {
         $suite = new PHPUnit_Framework_TestSuite('Fez Framework');
-
+//                      echo "jhrm";
         $suite->addTest(Framework_UnitTests::suite());
-        $suite->addTest(Framework_FunctionalTests::suite());
+//        $suite->addTest(Framework_FunctionalTests::suite());
 
         return $suite;
     }

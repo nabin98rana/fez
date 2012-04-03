@@ -8,11 +8,11 @@
  * 
  */
  
-require_once('unit_test_setup.php');
+//require_once('unit_test_setup.php');
 
 require_once(APP_INC_PATH.'class.record_lock.php');
  
-class RecordLockGetListTest extends PHPUnit_Framework_TestCase
+class Unit_RecordLock_GetListTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {

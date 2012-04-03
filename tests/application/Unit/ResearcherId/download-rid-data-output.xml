@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response xmlns="http://www.isinet.com/xrpc41" src="app.id=API Demo">
+    <fn name="Session.createSession" rc="OK">
+        <val>4Ak3nEGbamhad@6lJhO</val>
+    </fn>
+    <fn name="Session.getProductSession" rc="OK">
+        <map>
+            <val name="SID">4Ak3nEGbamhad@6lJhO</val>
+            <val name="EIDS_URL"/>
+            <val name="ServerURL">http://estipub.isiknowledge.com/esti/xrpc</val>
+            <val name="ServerID">GlobalESTI</val>
+            <val name="ProductName">Researcher ID</val>
+            <val name="ReportingID">4Ak3nEGbamhad@6lJhO_RID</val>
+            <val name="EIDSType">No Document Delivery</val>
+            <val name="ProductURL">http://www.researcherid.com</val>
+            <val name="ServerVersion">4.3</val>
+            <val name="ProductVersion">1.0</val>
+        </map>
+    </fn>
+    <fn name="AuthorResearch.downloadRIDData" rc="OK">
+        <val>3AhPfJGaDFjmh97g6PA-689</val>
+    </fn>
+</response>

@@ -6,19 +6,22 @@
  * This code is licensed under the GPL, see
  * http://www.gnu.org/copyleft/gpl.html
  * 
- */
-
-require_once('unit_test_setup.php');
-
+// */
+//echo "\n\nbefore\n\n"; echo get_include_path();
+//require_once('unit_test_setup.php');
+//echo "\n\nafter\n\n"; echo get_include_path();
 
 
 require_once(APP_INC_PATH.'class.workflow_status.php');
  
-class WorkflowStatusTest extends PHPUnit_Framework_TestCase
+class Unit_WorkflowStatusTest extends PHPUnit_Framework_TestCase
 {
     protected $fixture;
     protected $list;
     protected $found_item;
+    protected $pid = 'UQ:5000';
+    protected $wft_id = 289;
+    protected $xdis_id = 179;
     
     protected function setUp()
     {
@@ -26,7 +29,7 @@ class WorkflowStatusTest extends PHPUnit_Framework_TestCase
         $auth_isBGP = true;
         // the password is not used.  The auth system won't be able to access any AD info
         Auth::LoginAuthenticatedUser('admin', 'blah');    
-        $this->fixture = new WorkflowStatus;
+        $this->fixture = new WorkflowStatus($this->pid, $this->wft_id, $this->xdis_id);
         $this->list = WorkflowStatusStatic::getList();
         $this->found_item = null;
         foreach ($this->list as $item) {
@@ -40,7 +43,9 @@ class WorkflowStatusTest extends PHPUnit_Framework_TestCase
 
     protected function tearDown()
     {
-        $this->fixture->clearSession();
+        if (is_object($this->fixture)) {
+            $this->fixture->clearSession();
+        }
     }
 
     

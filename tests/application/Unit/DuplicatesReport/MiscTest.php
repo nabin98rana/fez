@@ -9,11 +9,11 @@
  */
  
  
-require_once('unit_test_setup.php');
+//require_once('unit_test_setup.php');
 
 require_once(APP_INC_PATH.'class.duplicates_report.php');
  
-class DuplicatesReportMiscTest extends PHPUnit_Framework_TestCase
+class Unit_DuplicatesReport_MiscTest extends PHPUnit_Framework_TestCase
 {
     protected $fixture;
     
@@ -58,20 +58,20 @@ class DuplicatesReportMiscTest extends PHPUnit_Framework_TestCase
 
     public function testSimilarPidsQueryNonExists()
     {
-        $res = $this->fixture->similarPidsQuery('UQ:1','asdfasd5484893093848fdasd');
+        $res = $this->fixture->similarTitlesQuery('UQ:1','asdfasd5484893093848fdasd');
         $this->assertEquals(array(), $res);
     }
     
     public function testSimilarPidsQueryFindsPID()
     {
-        $res = $this->fixture->similarPidsQuery('UQ:1','wave');
+        $res = $this->fixture->similarTitlesQuery('UQ:1','wave');
         $this->assertTrue(strpos($res[0]['pid'],':') > 0);
     }
     
     public function testSimilarPidsQueryFindsRelevance()
     {
-        $res = $this->fixture->similarPidsQuery('UQ:1','wave');
-        $this->assertTrue(is_numeric($res[0]['Relevance']) && $res[0]['Relevance'] > 0);
+        $res = $this->fixture->similarTitlesQuery('UQ:1','wave');
+        $this->assertTrue(is_numeric($res[0]['relevance']) && $res[0]['relevance'] > 0);
     }
     
     

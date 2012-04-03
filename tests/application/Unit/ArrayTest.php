@@ -8,7 +8,7 @@
  * 
  */
  
-require_once 'PHPUnit/Framework.php';
+require_once 'phpunit/Framework.php';
  
 class ArrayTest extends PHPUnit_Framework_TestCase
 {

@@ -8,11 +8,11 @@
  * 
  */
  
- require_once('unit_test_setup.php');
+// require_once('unit_test_setup.php');
 
 require_once(APP_INC_PATH.'class.duplicates_report.php');
  
-class DuplicatesReportRearrangeSetsTest extends PHPUnit_Framework_TestCase
+class Unit_DuplicatesReport_RearrangeSetsTest extends PHPUnit_Framework_TestCase
 {
     protected $report;
     
@@ -79,11 +79,28 @@ class DuplicatesReportRearrangeSetsTest extends PHPUnit_Framework_TestCase
         $list_pids = array();
         foreach ($rearranged_report as $group) {
             if ($group['pid'] == 'UQ:4') {
-                $list_pids = array_keys($group['list']);
+                $list_pids = array_values($group['list']);
                 break;
             }
         }
-        $this->assertEquals(array('UQ:5','UQ:6','UQ:7'), $list_pids);
+
+        $expected =  Array (
+                         0 => Array (
+                             'pid' => 'UQ:5',
+                             'probability' => '0.7',
+                             'title' => 'Title UQ:5'
+                         ),
+                         1 => Array (
+                            'pid' => 'UQ:6',
+                            'title' => 'Title UQ:6'
+                         ),
+                         2 => Array (
+                            'pid' => 'UQ:7',
+                            'probability' => '0.7',
+                            'title' => 'Title UQ:7',
+                         )
+                     );
+        $this->assertEquals($expected, $list_pids);
     }
     
     public function testRearrangeSetsDupListPids2()

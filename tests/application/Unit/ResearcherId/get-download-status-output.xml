@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response xmlns="http://www.isinet.com/xrpc41" src="app.id=API Demo">
+    <fn name="AuthorResearch.getDownloadStatus" rc="OK">
+        <map>
+            <val name="Ticket">3AhPfJGaDFjmh97g6PA-689</val>
+            <val name="Status">DONE</val>
+            <val name="Response"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<download-response>
+    <outputfile type="profile">
+        <status>success</status>
+        <error-message>Output file is generated with validation errors.</error-message>
+        <url>http://{$APP_HOSTNAME}/tests/application/Unit/ResearcherId/profiles-download-response.xml</url>
+    </outputfile>
+    <outputfile type="publication">
+        <status>success</status>
+        <error-message/>
+        <url>http://{$APP_HOSTNAME}/tests/application/Unit/ResearcherId/publications-download-response.xml</url>
+    </outputfile>
+</download-response>
+]]></val>
+            <val name="Started">2012-03-30 04:03:52.0</val>
+            <val name="Completed">2012-03-30 06:12:30.0</val>
+        </map>
+    </fn>
+</response>

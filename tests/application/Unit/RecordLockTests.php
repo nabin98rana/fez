@@ -8,22 +8,22 @@
  * 
  */
  
-require_once('unit_test_setup.php');
+//require_once('unit_test_setup.php');
  
 if (!defined('PHPUnit_MAIN_METHOD')) {
     define('PHPUnit_MAIN_METHOD', 'RecordLockTests::main');
 }
  
-require_once APP_PEAR_PATH.'PHPUnit/TextUI/TestRunner.php';
+//require_once APP_PEAR_PATH.'PHPUnit/TextUI/TestRunner.php';
  
-require_once APP_TEST_PATH.'record_lock/RecordLockGetLockTest.php';
-require_once APP_TEST_PATH.'record_lock/RecordLockReleaseLockTest.php';
-require_once APP_TEST_PATH.'record_lock/RecordLockGetListTest.php';
-require_once APP_TEST_PATH.'record_lock/RecordLockGetOwnerTest.php';
+//require_once APP_TEST_PATH.'record_lock/RecordLockGetLockTest.php';
+//require_once APP_TEST_PATH.'record_lock/RecordLockReleaseLockTest.php';
+//require_once APP_TEST_PATH.'record_lock/RecordLockGetListTest.php';
+//require_once APP_TEST_PATH.'record_lock/RecordLockGetOwnerTest.php';
 
 
 
-class RecordLockTests
+class Unit_RecordLockTests
 {
     public static function main()
     {
@@ -34,10 +34,10 @@ class RecordLockTests
     {
         $suite = new PHPUnit_Framework_TestSuite('RecordLockTests Suite');
  
-        $suite->addTestSuite('RecordLockGetLockTest');
-        $suite->addTestSuite('RecordLockReleaseLockTest');
-        $suite->addTestSuite('RecordLockGetOwnerTest');
-        $suite->addTestSuite('RecordLockGetListTest');
+        $suite->addTestSuite('Unit_RecordLock_GetLockTest');
+        $suite->addTestSuite('Unit_RecordLock_ReleaseLockTest');
+        $suite->addTestSuite('Unit_RecordLock_GetOwnerTest');
+        $suite->addTestSuite('Unit_RecordLock_GetListTest');
         
         // ...
  

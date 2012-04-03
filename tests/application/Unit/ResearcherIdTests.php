@@ -1,21 +1,9 @@
 <?php
-define(
-    'RID_DL_SERVICE_URL', 
-    'http://master.library.uq.edu.au/test/'.
-    'researcherid/ResearcherId_Service_Mock.php?'.
-    'method=download'
-);
-define(
-    '_RID_UL_SERVICE_URL', 
-    'http://master.library.uq.edu.au/test/'.
-    'researcherid/ResearcherId_Service_Mock.php?'.
-    'method=upload'
-);
 
-require_once APP_PATH . 'init.php';
+//require_once APP_PATH . 'init.php';
 require_once APP_INC_PATH . 'class.researcherid.php';
 
-class TestResearcherId extends PHPUnit_Framework_TestCase
+class Unit_ResearcherIdTests extends PHPUnit_Framework_TestCase
 {
   protected $_ticketNo;
   protected $_isiLoc;
@@ -48,15 +36,17 @@ class TestResearcherId extends PHPUnit_Framework_TestCase
   {
     $return = ResearcherID::downloadRequest(
         array($this->_rid), 'researcherIDs', 'researcherID'
-    );    
+    );
     $this->assertEquals(TRUE, $return);
   }
   
   public function testGetDownloadStatus()
-  {    
-    $return = ResearcherID::checkJobStatus($this->_ticketNo); 
-    $pid = Record::getPIDByIsiLoc($this->_isiLoc); 
-    $return = (! $pid) ? false : $return;
+  {
+//      echo RID_DL_SERVICE_URL."\n";
+//      echo RID_UL_SERVICE_URL."\n";
+    $return = ResearcherID::checkJobStatus($this->_ticketNo);
+////    $pid = Record::getPIDByIsiLoc($this->_isiLoc);
+////    $return = (! $pid) ? false : $return;
     $this->assertEquals(TRUE, $return);
   }
 }
