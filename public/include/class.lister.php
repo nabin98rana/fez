@@ -467,7 +467,7 @@ class Lister
         	//unset($tpls[5]);
         
         } elseif ($browse == "favourites") {
-            
+            $filter = array();
 			$filter["searchKey".Search_key::getID("Object Type")] = 3;
 			$starredPids = Favourites::getStarred();
 
