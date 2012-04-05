@@ -63,11 +63,14 @@ class Fez_Session_Manager implements Zend_Session_SaveHandler_Interface
                 if (empty($sessionData) && (empty($userID) || is_null($userID)) ){
                     return;     // Adios sayonara
                 }
-                
+        $remoteAddr = null;
+        if (array_key_exists('REMOTE_ADDR', $_SERVER)) {
+            $remoteAddr = $_SERVER['REMOTE_ADDR'];
+        }
 		$data = array
 		(
 			'session_data' => $sessionData,
-			'session_ip' => $_SERVER['REMOTE_ADDR'],
+			'session_ip' => $remoteAddr,
 			'updated' => date('Y-m-d H:i:s'),
 			'user_id' => $userID
 		);

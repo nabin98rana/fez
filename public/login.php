@@ -103,10 +103,11 @@ function getLoginHostName($string){
 function parseSSO($string, $IDProviders, $redirectCookieName){
 	
 	// Remove redirect statement
-	$IDPurl = eregi_replace($redirectCookieName, '', $string);
-	
+//	$IDPurl = eregi_replace($redirectCookieName, '', $string);
+	$IDPurl = preg_replace($redirectCookieName, '', $string);
+
 	// Remove slashes
-	$IDPurl = ereg_replace('/', '', $IDPurl);
+	$IDPurl = preg_replace('\/', '', $IDPurl);
 	
 	// Do we still have something
 	if ($IDPurl != ''){
