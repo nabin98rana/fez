@@ -45,7 +45,7 @@ error_reporting(1);
 
 
 // Get PIDs' Exif data from database table.
-$stmt = "SELECT * FROM " . APP_TABLE_PREFIX . "exif ORDER BY exif_pid";
+$stmt = "SELECT * FROM " . APP_TABLE_PREFIX . "exif ORDER BY exif_pid ";  //where exif_pid = 'UQ:21033'
 try {
     $pid_exifs = $db->fetchAll($stmt);
 } catch (Exception $ex) {
@@ -61,6 +61,7 @@ Zend_Registry::set('version', date('Y-m-d H:i:s'));
 // Start looping the pid datastream and save to Fez CAS system.
 $migrationErrors = array();
 $migrationSuccessCount = 0;
+
 foreach ($pid_exifs as $exif) {
 
     // Ignore records without PID and DSID
@@ -77,13 +78,16 @@ foreach ($pid_exifs as $exif) {
     //does record inherity security from parent
     $acml = Record::getACML($exif['exif_pid'], $exif['exif_dsid']);
     $security_inherited = inheritesPermissions($acml);
+    $datastreamData = Fedora_API::callGetDatastream($exif['exif_pid'], $exif['exif_dsid']);
+    $label = $datastreamData['label'];
 
     $meta = array('mimetype' => $exif['exif_mime_type'],
         'controlgroup' => 'M',
         'state' => 'A',
         'size' => $exif['exif_file_size'],
         'pid' => $exif['exif_pid'],
-        'security_inherited' =>  $security_inherited);
+        'security_inherited' =>  $security_inherited,
+        'label' => $label);
 
     $dsresource = new DSResource(null, $fedoraFilePath, $meta);
     
