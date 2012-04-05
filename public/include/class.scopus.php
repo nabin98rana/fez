@@ -177,7 +177,7 @@ GROUP BY rek_pid
 
 		if ($client->fault) {
             $err = $client->getError();
-			$log->err('Fault occurred while retrieving records from Scopus: '.$err.' '.$client->fault."\n\n".$client->request."\n\n".$client->response, __FILE__, __LINE__);
+			$log->err('Fault occurred while retrieving records from Scopus:\n'.$err.' '.$client->fault."\n\nREQUEST:\n".$client->request."\n\nREQUEST HEADERS\n".$client->requestHeaders."\n\nRESPONSE:\n".$client->response, __FILE__, __LINE__);
 			return false;
 		} else {
 			$err = $client->getError();
