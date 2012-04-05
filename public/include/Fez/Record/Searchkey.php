@@ -96,9 +96,10 @@ class Fez_Record_Searchkey
      *
      * @param string $pid
      * @param array $sekData An array of search keys title & value pairs. 
-     * $sekData[0] is for 1-to-1 search keys
-     * $sekData[1] is for 1-to-many search keys
-     * 
+     * The format value for $sekData = array( 
+     *                                       [0] => Array of 1-to-1 search keys 
+     *                                       [1] => Array of 1-to-Many search keys 
+     *                                 )
      * @return boolean
      */
     public function updateRecord($pid = null, $sekData = array())
@@ -108,19 +109,44 @@ class Fez_Record_Searchkey
         $this->_setPid($pid);
 
         // Save 1-to-1 search key
-        if (!$this->_updateOneToOneRecord($sekData[0])){
-            return false;
-        }
+        $oneToOne = $this->_updateOneToOneRecord($sekData[0]);
             
-
         // Save 1-to-many search key
-        if (!$this->_updateOneToManyRecord($sekData[1])){
+        $oneToMany = $this->_updateOneToManyRecord($sekData[1]);
+                
+        // Returns false when both updates failed.
+        if (!$oneToOne && !$oneToMany){
             return false;
         }
         
+        $this->_updateRecordCitation();
         return true;
     }
 
+    
+    
+    protected function _updateRecordCitation()
+    {
+        if (!defined('PROVISIONAL_CODE_UPDATE_FROM_SCRIPT') || PROVISIONAL_CODE_UPDATE_FROM_SCRIPT === false) {
+            Record::applyProvisionalCode($this->_pid);
+        }
+        
+//        $options = array();
+//        $options["searchKey".Search_Key::getID("Pid")] = $this->_pid;
+//        $list = Record::getListingForCitation($options, array("Lister"));
+//        $list = $list["list"];
+//        $list = Citation::renderIndexCitations($list, 'APA', false, true);
+//        $citation = $list[0]['rek_citation'];
+
+        Citation::updateCitationCache($this->_pid);
+        Statistics::updateSummaryStatsOnPid($this->_pid);
+        Google_Scholar::updateCitationCache($this->_pid);
+        Record::updateThomsonCitationCountFromHistory($this->_pid);
+        Record::updateScopusCitationCountFromHistory($this->_pid);        
+        
+        return true;
+    }
+    
     
     /**
      * Updates 1-to-1 record search keys with value specified by the $data parameter &
@@ -140,6 +166,11 @@ class Fez_Record_Searchkey
      */
     protected function _updateOneToOneRecord($data = array())
     {
+        
+        if (!is_array($data) || sizeof($data) <= 0){
+            return false;
+        }
+        
         $table = APP_TABLE_PREFIX . "record_search_key";
         $tableShadow = $table . "__shadow";
 
@@ -190,7 +221,7 @@ class Fez_Record_Searchkey
      */
     protected function _updateOneToManyRecord($data = array())
     {
-        if (!is_array($data)) {
+        if (!is_array($data) || sizeof($data) <=0 ) {
             return false;
         }
 

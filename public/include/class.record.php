@@ -1140,7 +1140,8 @@ class Record
         $fields = array();
         $values = array();
 
-        $stmtSelect = "SELECT * FROM fez_record_search_key WHERE rek_pid = " . $db->quote($pid, STRING);
+        $stmtSelect = "SELECT * FROM " . APP_TABLE_PREFIX . "record_search_key ".
+                      " WHERE rek_pid = " . $db->quote($pid, STRING);
         try {
             $oneToOneSearchKey = $db->fetchRow($stmtSelect);
         }
@@ -1161,7 +1162,7 @@ class Record
         }
         $values[] = $db->quote(Record::setSearchKeyTimestamp());
 
-        $stmtInsert = "INSERT INTO fez_record_search_key__shadow (" . implode(",", $fields) . ") " .
+        $stmtInsert = "INSERT INTO " . APP_TABLE_PREFIX . "record_search_key__shadow (" . implode(",", $fields) . ") " .
                 " VALUES (" . implode(",", $values) . ")";
         try {
             $db->query($stmtInsert);
@@ -1215,7 +1216,7 @@ class Record
             }
 
             // Timestamp
-            $fields[] = "rek_stamp";
+            $fields[] = "rek_" . $skTable . "_stamp";
             $values[] = $db->quote(Record::setSearchKeyTimestamp());
 
             // Insert snapshot to shadow table
