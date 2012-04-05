@@ -52,6 +52,21 @@ include_once(APP_INC_PATH . "class.status.php");
 
 class Author
 {
+    
+    protected $_log = null;
+    protected $_db  = null;
+    
+    /**
+     * Class constructor. 
+     * Set local FezLog & DB_API objects.
+     */
+    public function __construct()
+    {
+        $this->_log = FezLog::get();
+        $this->_db  = DB_API::get();
+    }
+    
+    
   /**
    * Method used to check whether a author exists or not.
    *
@@ -1971,5 +1986,33 @@ class Author
         
         return $res;
     }
+
     
+    /**
+     * Returns author(s) of a PID 
+     *
+     * @param string $pid 
+     * @return array An array of authors records
+     */
+    public function getAuthorsByPID($pid, $loadAuthorId = false)
+    {
+        $authors = array();
+
+        $stmt = "SELECT rek_author_pid, rek_author, autid.rek_author_id, rek_author_order, rek_author_xsdmf_id, rek_author_id_xsdmf_id " . 
+                " FROM " . APP_TABLE_PREFIX . "record_search_key_author AS aut" .
+                " LEFT JOIN fez_record_search_key_author_id AS autid" .
+                " ON (rek_author_pid = rek_author_id_pid AND rek_author_order = rek_author_id_order) " .
+                " WHERE rek_author_pid = ? " .
+                " ORDER BY rek_author_order ASC";
+
+        try {
+            $authors = $this->_db->fetchAll($stmt, $pid);
+        }
+        catch (Exception $ex) {
+            $this->_log->err($ex);
+        }
+
+        return $authors;
+    }
+
 }
