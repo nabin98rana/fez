@@ -39,6 +39,13 @@ $dsInfo = $this->dsInfo;
 $dsIDName = $dsInfo['ID'];
 $filename=$dsIDName;
 
+if (APP_FEDORA_BYPASS == 'ON'){
+    $dsr = new DSResource();
+    $dsr->load($filename, $pid);
+    $hash = $dsr->getHash();
+    $filename = $dsr->getResourcePath($hash['rawHash']);
+}
+
 // Added a check to see if the file is coming from a batch import location, therefore don't try to check if it is in the temp directory - which is only really for form uploads
 if ((is_numeric(strpos($filename, "/"))) || (is_numeric(strpos($filename, "\\")))) {
 	$filepath = $filename;
@@ -80,10 +87,20 @@ if (!file_exists($filepath)) {
         if (Fedora_API::datastreamExists($pid, $new_file)) {
             Fedora_API::callPurgeDatastream($pid, $new_file);
         }
+        $newFileName = $new_file;
         $delete_file = APP_TEMP_DIR.$new_file;
         $new_file = APP_TEMP_DIR.$new_file;
         if (file_exists($new_file)) {
-            Fedora_API::getUploadLocationByLocalRef($pid, $new_file, $new_file, $new_file, 'video/x-flv', 'M');
+            if (APP_FEDORA_BYPASS != 'ON'){
+                Fedora_API::getUploadLocationByLocalRef($pid, $new_file, $new_file, $new_file, 'video/x-flv', 'M');
+            } else {
+                $temp = $dsr->returnPath().$newFileName;
+                if (!copy($delete_file, $dsr->returnPath().$newFileName)) {
+                    Error_Handler::logError("FLV not copied $dsr->returnPath().$newFileName<br/>\n", __FILE__,__LINE__);
+                } else {
+                    $dsr->addStream($newFileName);
+                }
+            }
             if (is_file($new_file)) {
                 $deleteCommand = APP_DELETE_CMD." ".$delete_file;
                 exec($deleteCommand);

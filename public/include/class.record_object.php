@@ -217,9 +217,12 @@ class RecordObject extends RecordGeneral
     		);
     		
     		$this->xdis_id = $_POST['xdis_id'];
-    		
-    		$this->pid = ($this->pid) ? $this->pid : $digObj->save($digObjData);
-    		
+
+            if (empty($this->pid)) {
+                $this->pid = $digObj->save($digObjData);
+                $newPid = true;
+            }
+
     		$this->created_date = $createUpdateDate;
     	    $this->updated_date = $createUpdateDate;
     		$this->depositor = Auth::getUserID();
@@ -268,6 +271,7 @@ class RecordObject extends RecordGeneral
                     		'pid' => $this->pid);
                     	$dsr = new DSResource(APP_DSTREE_PATH, $resourceDataLocation, $meta);
                     	$dsr->save();
+                        Workflow::processIngestTrigger($this->pid, Foxml::makeNCName($dsr->returnFilename()), $mimeDataType);
             		}
             	}
             }
@@ -294,8 +298,11 @@ class RecordObject extends RecordGeneral
             {
                 $digObj->load($this->pid);
                 $digObj->snapshotResources($now);
+
             }
-    		
+            if ($newPid || isset($_POST['removeFiles']) || isset($_POST['uploader_files_uploaded'])) {
+                AuthNoFedora::recalculatePermissions($this->pid);
+            }
 		}
 		else 
 		{
