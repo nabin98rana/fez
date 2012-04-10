@@ -115,7 +115,7 @@ class Fez_Record_Searchkey
         $oneToMany = $this->_updateOneToManyRecord($sekData[1]);
                 
         // Returns false when both updates failed.
-        if (!$oneToOne && !$oneToMany){
+        if (!$oneToOne && !$oneToMany['oneSuccess']){
             return false;
         }
         
@@ -256,10 +256,12 @@ class Fez_Record_Searchkey
      */
     protected function _updateOneToManyRecord($data = array())
     {
+        $result = array('oneSuccess' => false);
+        
         if (!is_array($data) || sizeof($data) <=0 ) {
-            return false;
+            return $result;
         }
-
+        
         foreach ($data as $sekTitle => $value) {
             $table = APP_TABLE_PREFIX . "record_search_key_" . $sekTitle;
             $tableShadow = $table . "__shadow";
@@ -290,16 +292,19 @@ class Fez_Record_Searchkey
                 $this->_db->exec($stmtDeleteOld);
                 $this->_db->exec($stmtInsertNew);
                 $this->_db->commit();
-
-                return true;
+                
+                $result['oneSuccess'] = true;
+                $result[$sekTitle] = true;
             }
             catch (Exception $ex) {
                 $this->_db->rollBack();
                 $this->_log->err($ex);
+                
+                $result[$sekTitle] = false;
             }
         }
 
-        return false;
+        return $result;
     }
     
 

@@ -29,6 +29,8 @@ class RecordGeneral
   );
   var $title;
   protected $_bgp;
+  protected $_log = null;
+  
 
   /**
    * Links this instance to a corresponding background process
@@ -62,6 +64,8 @@ class RecordGeneral
     $this->approver_roles = explode(',', APP_APPROVER_ROLES);
     $this->versionsViewer_roles = explode(',', APP_VIEW_VERSIONS_ROLES);
     //        $this->versionsReverter_roles = explode(',',APP_REVERT_VERSIONS_ROLES);
+    
+    $this->_log = FezLog::get();
   }
 
   function getPid()
@@ -1093,11 +1097,7 @@ class RecordGeneral
      * Replaces authors stored on search keys with authors returned from ISI Web of Knowledge.
      * Here are the processes:
      * 1. Parse authors from $records XML 
-     * 2. Delete all exisitng authors on author search keys 
-     *    Fez_Record_Searchkey class takes care of the following:
-     *     2a. Backup authors to shadow sek table
-     *     2b. Delete authors on main sek table
-     *     2c. Insert new authors on main sek table
+     * 2. Replace PID authors, by calling _replaceAuthorsOnFedoraBypass() method 
      * 3. Update PID History.
      * 
      * @param DOMDocument $record The XML of record details returned by ISI Web of Knowledge
@@ -1105,33 +1105,14 @@ class RecordGeneral
      */
     protected function _replaceAuthorsFromEstiOnFedoraBypass($record = null)
     {
-        $log = FezLog::get();
-
         $authors = array();
         $authors[] = $record->item->authors->primaryauthor;
         foreach ($record->item->authors->author as $author) {
             $authors[] = $author;
         }
         
-        if (sizeof($authors) == 0){
-            $log->err("There is no author returned by IS Web of Knowledge.");
-            return false;
-        }
-        
-        // $searchKeyData[0] = 1-to-1 search keys
-        // $searchKeyData[1] = 1-to-many search keys
-        $searchKeyData = array( 0 => array(), 1 => array());
-        
-        $details = Record::getDetailsLite($this->pid);
-        $xsdmfIdForAuthor   = XSD_HTML_Match::getXSDMFIDBySearchKeyTitleXDIS_ID('Author', $details[0]['rek_display_type']);
-
-        // Set record search key values
-        $searchKeyData[1]['author']['xsdmf_id']    = $xsdmfIdForAuthor;
-        $searchKeyData[1]['author']['xsdmf_value'] = $authors;
-        
-        // Update record search key
-        $recordSearchKey = new Fez_Record_Searchkey();
-        if (!$recordSearchKey->updateRecord($this->pid, $searchKeyData)){
+        $replaceResult = $this->_replaceAuthorsOnFedoraBypass($authors);
+        if (!$replaceResult){
             return false;
         }
         
@@ -1142,6 +1123,55 @@ class RecordGeneral
         return true;
     }
 
+  
+    /**
+     * Replaces PID's authors search key with the value specified by param $authors.
+     * Here are the processes involved:
+     * 1. Build the searchkey data for Fez_Record_Searchkey
+     * 2. Call Fez_Record_Searchkey, which responsibel for the following core processes:
+     *     2a. Backup authors to shadow sek table
+     *     2b. Delete authors on main sek table
+     *     2c. Insert new authors on main sek table
+     * 
+     * @example Called by replaceAuthors() & _replaceAuthorsFromEstiOnFedoraBypass() methods.
+     * @param array $authors
+     * @return boolean 
+     */
+    protected function _replaceAuthorsOnFedoraBypass($authors = array(), $authorsIds = array())
+    {
+        
+        if (sizeof($authors) == 0){
+            $this->_log->err("There is no replacement authors specified.");
+            return false;
+        }
+        
+        // $searchKeyData[0] = 1-to-1 search keys
+        // $searchKeyData[1] = 1-to-many search keys
+        $searchKeyData = array( 0 => array(), 1 => array());
+        
+        $details = Record::getDetailsLite($this->pid);
+        
+        // Set record search key values for Authors
+        $xsdmfIdForAuthor   = XSD_HTML_Match::getXSDMFIDBySearchKeyTitleXDIS_ID('Author', $details[0]['rek_display_type']);
+        $searchKeyData[1]['author']['xsdmf_id']    = $xsdmfIdForAuthor;
+        $searchKeyData[1]['author']['xsdmf_value'] = $authors;
+
+        // Set record search key values for Author ID. This is optional.
+        if (is_array($authorsIds) && sizeof($authorsIds) > 0 ){
+            $xsdmfIdForAuthorId   = XSD_HTML_Match::getXSDMFIDBySearchKeyTitleXDIS_ID('Author ID', $details[0]['rek_display_type']);
+            $searchKeyData[1]['author_id']['xsdmf_id']    = $xsdmfIdForAuthorId;
+            $searchKeyData[1]['author_id']['xsdmf_value'] = $authorsIds;
+        }
+        
+        // Update record search key
+        $recordSearchKey = new Fez_Record_Searchkey();
+        if (!$recordSearchKey->updateRecord($this->pid, $searchKeyData)){
+            return false;
+        }        
+        
+        return true;
+    }
+    
     
   /**
    * Attempt to match $aut_id with an author on $this->pid. This is a multi-step process in order
@@ -1225,12 +1255,12 @@ class RecordGeneral
     for ($i = 0; $i < $authors_count; $i++) {
       $authors[$i]['match'] = FALSE;
       $percent = 0;      
-      if ($aut_details['aut_org_username']) {        
+      if ($aut_details['aut_org_username']) {     
         if ($known) {
           // Last name match first, if we have $authors[$i]['name'] in the format LName, F
           $name_parts = explode(',', $authors[$i]['name']);
           $percent = $this->matchAuthorNameByLev($name_parts[0], $aut_details['aut_lname'], $percent_1);
-          if ($percent == 1) {
+          if ($percent == 1) { 
             $exact_match_count++;
             $match_index = $i;
             $authors[$i]['match'] = $percent;
@@ -1243,7 +1273,7 @@ class RecordGeneral
         // No exact match above found        
         if ($percent < 1) {
           $percent = $this->matchAuthorNameByLev($authors[$i]['name'], $aut_details['aut_display_name'], $percent_1);      
-          if ($percent == 1) {
+          if ($percent == 1) { 
             $exact_match_count++;
             $match_index = $i;
             $authors[$i]['match'] = $percent;
@@ -1258,7 +1288,7 @@ class RecordGeneral
             // Attempt to match on other names for this author we know about
             foreach ($aut_alt_names as $aut_alt_name => $count) {
               $percent = $this->matchAuthorNameByLev($authors[$i]['name'], $aut_alt_name, $percent_1);
-              if ($percent == 1) {
+              if ($percent == 1) { 
                 $exact_match_count++;
                 $match_index = $i;
                 break;
@@ -1269,7 +1299,7 @@ class RecordGeneral
         }
       }
     }
-
+    
     if ($exact_match_count == 1) {
       // One match found
       $rule1 = TRUE;
@@ -1459,72 +1489,89 @@ class RecordGeneral
     return $res;
   }
 
-  /**
-   * Replaces authors on a record
-   *
-   * @param array  $authors The list of authors to replace authors on this pub with
-   * @param string $message A message about why the authors were replaced
-   *
-   * @return bool  TRUE if replaced OK. FALSE if not replaced.
-   *
-   * @access public
-   */
-  function replaceAuthors($authors_list, $message)
-  {
-    $log = FezLog::get();
+  
+    /**
+     * Replaces authors on a record
+     *
+     * @param array  $authors The list of authors to replace authors on this pub with
+     * @param string $message A message about why the authors were replaced
+     *
+     * @return bool  TRUE if replaced OK. FALSE if not replaced.
+     *
+     * @access public
+     */
+    function replaceAuthors($authors_list, $message)
+    {
+        if (APP_FEDORA_BYPASS == "ON"){
+            $authors = array();
+            $authorsIds = array();
+            foreach ($authors_list as $author){
+                $authors[]    = $author['name'];
+                $authorsIds[] = $author['aut_id'];
+            }
+            if (!$this->_replaceAuthorsOnFedoraBypass($authors, $authorsIds)){
+                return false;
+            }
+            
+            History::addHistory($this->pid, null, "", "", TRUE, $message);
+            return true;
+            
+        } else {
+            $log = FezLog::get();
 
-    $newXML = "";
+            $newXML = "";
 
-    $xmlString = Fedora_API::callGetDatastreamContents($this->pid, 'MODS', TRUE);
-    $doc = DOMDocument::loadXML($xmlString);
-    $xpath = new DOMXPath($doc);
+            $xmlString = Fedora_API::callGetDatastreamContents($this->pid, 'MODS', TRUE);
+            $doc = DOMDocument::loadXML($xmlString);
+            $xpath = new DOMXPath($doc);
 
-    $field_node_list = $xpath->query("/mods:mods/mods:name");
-    $count = $field_node_list->length;
-    if ($count > 0) {
-      for ($i = 0; $i < $count; $i++) {
-        $collection_node = $field_node_list->item($i);
-        $parent_node = $collection_node->parentNode;
-        $parent_node->removeChild($collection_node);
-      }
+            $field_node_list = $xpath->query("/mods:mods/mods:name");
+            $count = $field_node_list->length;
+            if ($count > 0) {
+                for ($i = 0; $i < $count; $i++) {
+                    $collection_node = $field_node_list->item($i);
+                    $parent_node = $collection_node->parentNode;
+                    $parent_node->removeChild($collection_node);
+                }
+            }
+
+            $mods = '<mods:name ID="%d" authority="%s">
+                   <mods:namePart type="personal">%s</mods:namePart>
+                   <mods:role>
+                     <mods:roleTerm type="text">%s</mods:roleTerm>
+                   </mods:role>
+                 </mods:name>';
+            $authors = '<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">';
+            foreach ($authors_list as $author) {
+                $authors .= sprintf($mods, $author['aut_id'], APP_ORG_NAME, $author['name'], 'author');
+            }
+            $authors .= '</mods:mods>';
+
+            $authors_doc = new DOMDocument;
+            $authors_doc->loadXML($authors);
+            $author_nodes = $authors_doc->getElementsByTagName("name");
+
+            $count = $author_nodes->length;
+            if ($count > 0) {
+                for ($i = 0; $i < $count; $i++) {
+                    $node = $doc->importNode($author_nodes->item($i), TRUE);
+                    $doc->documentElement->appendChild($node);
+                }
+            }
+            $newXML = $doc->SaveXML();
+
+            if ($newXML != "") {
+                Fedora_API::callModifyDatastreamByValue(
+                        $this->pid, "MODS", "A", "Metadata Object Description Schema", $newXML, "text/xml", true
+                );
+                History::addHistory($this->pid, null, "", "", TRUE, $message);
+                Record::setIndexMatchingFields($this->pid);
+                return TRUE;
+            } else {
+                return FALSE;
+            }
+        }
     }
-
-    $mods = '<mods:name ID="%d" authority="%s">
-               <mods:namePart type="personal">%s</mods:namePart>
-               <mods:role>
-                 <mods:roleTerm type="text">%s</mods:roleTerm>
-               </mods:role>
-             </mods:name>';
-    $authors = '<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">';
-    foreach ($authors_list as $author) {
-      $authors .= sprintf($mods, $author['aut_id'], APP_ORG_NAME, $author['name'], 'author');
-    }
-    $authors .= '</mods:mods>';
-
-    $authors_doc = new DOMDocument;
-    $authors_doc->loadXML($authors);
-    $author_nodes = $authors_doc->getElementsByTagName("name");
-
-    $count = $author_nodes->length;
-    if ($count > 0) {
-      for ($i = 0; $i < $count; $i++) {
-        $node = $doc->importNode($author_nodes->item($i), TRUE);
-        $doc->documentElement->appendChild($node);
-      }
-    }
-    $newXML = $doc->SaveXML();
-
-    if ($newXML != "") {
-      Fedora_API::callModifyDatastreamByValue(
-          $this->pid, "MODS", "A", "Metadata Object Description Schema", $newXML, "text/xml", true
-      );
-      History::addHistory($this->pid, null, "", "", TRUE, $message);
-      Record::setIndexMatchingFields($this->pid);
-      return TRUE;
-    } else {
-      return FALSE;
-    }
-  }
 
 
   /**
