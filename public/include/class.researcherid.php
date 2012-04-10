@@ -194,8 +194,9 @@ class ResearcherID
 
       // Do the service request
       $response_document = new DOMDocument();
+      $x = $xml_api_data_request->saveXML();
       $response_document = ResearcherID::doServiceRequest($xml_api_data_request->saveXML());
-
+      $y = $response_document->saveXML();
       if ($response_document) {
         // Get job ticket number from response
         $xpath = new DOMXPath($response_document);
@@ -420,7 +421,7 @@ class ResearcherID
         if (!is_array($emails)) {
             return false;
         }
-        
+
         foreach ($emails as $email) {
             $full_message = file_get_contents($dir . '/' . $email);
             $email_date = date('Y-m-d H:i:s', filemtime($dir . '/' . $email));
@@ -452,10 +453,10 @@ class ResearcherID
             $body = $structure->parts[0]->body;
 
             if ($subject == 'ResearcherID Batch Processing Status (completed)') {
-                
+
                 //Researcher ID update 1.5 (July 17th 2011) now has the report in a URL link instead of an attachment - CK
                 $urlPattern = '/computer\.(.*)For easier/'; //TODO: change this regex to match something like http://ul.researcherid/blah which should be less volatile - CK
-                $uniBody = str_replace("\n", "", $body); // make the body one line so it can be preg 
+                $uniBody = str_replace("\n", "", $body); // make the body one line so it can be preg
                 preg_match($urlPattern, $uniBody, $urlMatches);
                 $url = trim($urlMatches[1]);
 
@@ -469,31 +470,31 @@ class ResearcherID
                               "rpu_response_info"  => print_r($result,1)
                              );
                 $savedReportId = ResearcherID::saveProfileUploadReport($data);
-                
+
                 if ($result['success'] !== 1 || empty($result['response'])){
-                    // Unsuccessful response : 
+                    // Unsuccessful response :
                     // Do not move this email to "processed" directory, so we can re-process again.
-                    // Continue with next email. 
+                    // Continue with next email.
                     continue;
                 }
 
                 // Parse content of the URL - good response will be in XML format
                 // Ok, we are using '@' sign to silent the PHP Warning in the case the string is not valid XML.
-                $xml_report = @simplexml_load_string($result['response']);  
+                $xml_report = @simplexml_load_string($result['response']);
 
                 if (!isset($xml_report->profileList) && !isset($xml_report->publicationList)) {
                     // Invalid XML response :
                     // Do not move this email to "processed" directory, so we can re-process again.
-                    // Continue with next email. 
+                    // Continue with next email.
                     continue;
                 }
-                
+
                 // Process profile list
                 if (isset($xml_report->profileList)) {
                     ResearcherID::saveAuthorResearcherID($xml_report->profileList);
                     ResearcherID::saveProfileUploadStatusAndAuthor($xml_report->profileList, $savedReportId);
-                } 
-                
+                }
+
                 // Process publication list
                 // There is no further processing on this based on existing codebase
                 if (isset($xml_report->publicationList)) {
@@ -520,7 +521,7 @@ class ResearcherID
         return true;
     }
 
-    
+
     /**
      * Method used to check on the status of all ResearcherID download request jobs 
      * currently are not 'DONE' and not 'EXPIRED'.
@@ -710,7 +711,7 @@ class ResearcherID
 
     $xpath = new DOMXPath($response_document);
     $xpath->registerNamespace('rid', 'http://www.isinet.com/xrpc41');
-    $download_response;
+    $download_response = '';
     $return = true;
 
     $query = "/rid:response/rid:fn[@name='AuthorResearch.getDownloadStatus']/rid:map/rid:val[@name='Response']";
@@ -725,11 +726,9 @@ class ResearcherID
     }
     if ($download_response) {
       $xml_dl_response = new SimpleXMLElement($download_response);
-       
       foreach ($xml_dl_response->outputfile as $output_file) {
-
-        $type = $output_file->attributes()->type;
-        $url = $output_file->url;
+        $type = (string)$output_file->attributes()->type;
+        $url = (string)$output_file->url;
         $result = false;
 
         switch($type) {
@@ -799,12 +798,23 @@ class ResearcherID
     $urlData = Misc::processURL($url, false, null, null, null, 600);
     $publications = $urlData[0];
 
-    if (!$publications) {
+    if (!$publications || $urlData[1]['http_code'] != 200) {
       $log->err("wasn't able to pull down RID url $url:".print_r($urlData, true));
       return false;
     }
-    
+//    $config = array(
+//      'indent'        => true,
+//      'input-xml'     => true,
+//      'output-xml'    => true,
+//      'wrap'          => 0
+//    );
+//    $tidy = new tidy;
+//    $tidy->parseString($publications, $config, 'utf8');
+//    $tidy->cleanRepair();
+//    $publications = $tidy;
+
     $xml_publications = new SimpleXMLElement($publications);
+
     foreach ($xml_publications->publicationList->{'researcher-publications'} as $rp) {
       $researcherid = (string)$rp->researcherID;
       $author_id = null;
@@ -1078,13 +1088,13 @@ class ResearcherID
     
     
     /**
-     * Saves email content of the ResearcherID Upload Status Report and 
+     * Saves email content of the ResearcherID Upload Status Report and
      * the content retrieved from the URL provided on the email.
      * Updates the record when id exists, otherwise inserts as a new record.
      * 
      * @param array $data An array of the data to be saved on to rid_profile_uploads table
      * @param int $id Primary key of a rid_profile_uploads record
-     * 
+     *
      * @return boolean True when query is successful, otherwise returns False. 
      */
     public function saveProfileUploadReport($data = array(), $id = null)
@@ -1092,19 +1102,19 @@ class ResearcherID
         if (!is_array($data) && !is_object($data)){
             return false;
         }
-        
+
         if (!empty($id)){
             return ResearcherID::_updateProfileUploadReport($data, $id);
-            
+
         } else {
             return ResearcherID::_insertProfileUploadReport($data);
         }
     }
 
-    
+
     /**
      * Inserts a new Profile Upload record.
-     * 
+     *
      * @param array $data
      * @return boolean | int Returns MySQL last saved ID when insert query is successful.
      */
@@ -1112,7 +1122,7 @@ class ResearcherID
     {
         $log = FezLog::get();
         $db = DB_API::get();
-        
+
         $values = array();
         $fields = array();
         foreach ($data as $key => $value){
@@ -1143,7 +1153,7 @@ class ResearcherID
         $values[] = $db->quote(Date_API::getCurrentDateGMT());
 
         $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "rid_profile_uploads ".
-                " (" . implode(",", $fields) . ") ". 
+                " (" . implode(",", $fields) . ") ".
                 " VALUES (". implode(",", $values) . "); ";
 
         try {
@@ -1152,18 +1162,18 @@ class ResearcherID
         }
         catch(Exception $ex) {
             $log->err($ex);
-        }        
+        }
         return false;
     }
 
 
     /**
      * Updates a Profile Upload record as specified by $id
-     * 
-     * @param array $data 
+     *
+     * @param array $data
      * @param int $id Primary key of a rid_profile_uploads record
-     * 
-     * @return boolean 
+     *
+     * @return boolean
      */
     protected static function _updateProfileUploadReport($data = array(), $id = null)
     {
@@ -1173,7 +1183,7 @@ class ResearcherID
         
         $db  = DB_API::get();
         $log = FezLog::get();
-        
+
         $values = array();
         foreach ($data as $key => $value){
             switch ($key){
@@ -1197,7 +1207,7 @@ class ResearcherID
         $values[] = "rpu_updated_date = " . $db->quote(Date_API::getCurrentDateGMT());
 
         $stmt = "UPDATE " . APP_TABLE_PREFIX . "rid_profile_uploads ".
-                " SET " . implode(",", $values) . 
+                " SET " . implode(",", $values) .
                 " WHERE rpu_id = " . $db->quote($id, "INTEGER");
 
         try {
@@ -1210,12 +1220,12 @@ class ResearcherID
         return false;
     }
 
-    
+
     /**
      * Retrieves ResearcherID or error message from the XML response and saves it to related Author record.
-     * 
+     *
      * @param SimpleXMLElement $profileList XML response from RID Profile Upload
-     * @return boolean 
+     * @return boolean
      */
     public static function saveAuthorResearcherID($profileList = null)
     {
@@ -1242,20 +1252,20 @@ class ResearcherID
                 // For error_code 9: "Profile is already under Registration",
                 // make sure there have not been any successful response (with ResearcherID) save in the past.
                 // If ResearcherID exists, do not overwrite it with this error.
-                if ($errorCode != 9 || 
+                if ($errorCode != 9 ||
                     ($errorCode == 9 && !Author::hasResearcherID($employeeID))){
                     Author::setResearcherIdByOrgUsername($employeeID, $errorDesc);
                 }
             }
         }
-       
+
         return true;
     }
 
-    
+
     /**
      * Retrieves status(es) & author(s) username from the XML response and saves them onto RID Profile Upload table.
-     * 
+     *
      * @param SimpleXMLElement $profileList XML response from RID Profile Upload
      * @param int $reportId
      * @return boolean
@@ -1265,9 +1275,9 @@ class ResearcherID
 
         $author = array();
         $status = array();
-        
+
         $types = ResearcherID::_getProfileUploadSummaryTypes();
-        
+
         foreach ($types as $type){
             $result = ResearcherID::_getProfileUploadResult($profileList, $type);
             if ($result){
@@ -1275,41 +1285,41 @@ class ResearcherID
                 $author[] = $result['author'];
             }
         }
-        
+
         $data = array("rpu_aut_org_username" => implode(", ", $author),
                       "rpu_response_status"  => implode(", ", $status)
                      );
         ResearcherID::saveProfileUploadReport($data, $reportId);
-        
+
         return true;
     }
-    
-    
+
+
     /**
      * Returns the author and status related to each type of summary report.
      * Returns false when there is no summary report for requested type.
-     * 
+     *
      * Note: the RID XML response is formatted to accommodate multiple authors at one request,
      * that is why the $profiles are in array.
-     * Atm on Fez, we are sending one author profile upload at a time. 
+     * Atm on Fez, we are sending one author profile upload at a time.
      * This method accommodates responses for single and/or multiple authors request.
-     * 
+     *
      * @param SimpleXMLElement $profileList XML content from RID
      * @param string $type Type of summary
-     * Values are: 'successfully-uploaded' | 'failed-to-upload' | 'existing-researchers' 
-     * @return boolean | array  
+     * Values are: 'successfully-uploaded' | 'failed-to-upload' | 'existing-researchers'
+     * @return boolean | array
      */
     protected static function _getProfileUploadResult($profileList = null, $type = 'successfully-uploaded')
     {
-        
-        // no report on this type 
+
+        // no report on this type
         if ($profileList->{'upload-summary'}->$type == 0){
             return false;
         }
-        
+
         // Get author profiles
         $profiles = $profileList->$type->{'researcher-profile'};
-        
+
         foreach ($profiles as $profile) {
             if (isset($profile->employeeID) && !empty($profile->employeeID)){
                 $authors[]  = $profile->employeeID;
@@ -1317,19 +1327,19 @@ class ResearcherID
         }
         $author = implode(",", $authors);
 
-        $status = str_replace("-", " ", ucfirst($type)); 
+        $status = str_replace("-", " ", ucfirst($type));
         if (sizeof($authors) > 1){
             $status .= ": " . implode(",", $authors);
         }
-        
+
         $result = array('status' => $status, 'author' => $author);
         return $result;
     }
 
-    
+
     /**
      * Returns an array of summary types expected from Profile Upload report.
-     * @return array  
+     * @return array
      */
     protected static function _getProfileUploadSummaryTypes()
     {
