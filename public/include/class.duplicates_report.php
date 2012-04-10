@@ -268,6 +268,9 @@ class DuplicatesReport {
 	{
 		if (empty($this->xml_dom)) {
 			$filename = $this->getReportFilename();
+            if (empty($filename) || !file_exists($filename)) {
+                return false;
+            }
 			$xml = file_get_contents($filename);
 			//$xml = Fedora_API::callGetDatastreamContents($this->pid, 'DuplicatesReport', true);
 			if (is_null($xml) || !is_string($xml) || empty($xml)) {
@@ -445,7 +448,7 @@ class DuplicatesReport {
 			$params['fq'] = 'object_type_i:3 AND !pid_t:'.$index->solr->escape($pid).$pp_solr_filter;
 			//Fez Solr schema.xml has the default search to be an AND based search, while dedupe similar titles query needs to be an OR based search
 			// so it doesn't exclude similar titles
-			$title =  ereg_replace(" +", " ", $title);
+			$title =  preg_replace("/ +/", " ", $title);
 			$title = $index->solr->escape($title);
 			$title = $index->solr->escapeBooleans($title);
 			$titleOr = implode(" OR ", explode(" ", $title));
@@ -1401,7 +1404,7 @@ function authorShortWordsFilter($a)
 				}
 
 
-				list($max_score,$resolved,$isi_match, $dups_count, $merge_result) = $this->getDupsStats($left_pid, $xpath, $itemNode);
+				list($max_score,$resolved,$isi_match, $dups_count, $merge_result) = $this->getDupsStats($left_pid, $xpath, $itemNode, $ii);
 				if ($resolved) {
 					$resolved_count++;
 				} else {
@@ -1437,11 +1440,12 @@ function authorShortWordsFilter($a)
 		return compact('listing','list_meta');
 	}
 
-	function getDupsStats($left_pid, $xpath, $itemNode)
+	function getDupsStats($left_pid, $xpath, $itemNode, $ii)
 	{
 		$max_score = 0;
 		//        $dups_list = $xpath->query('duplicateItem', $itemNode);
-		$dups_list = $xpath->query("/DuplicatesReport/duplicatesReportItem[@pid='".$left_pid."']/duplicateItem");
+//		$dups_list = $xpath->query("/DuplicatesReport/duplicatesReportItem[@pid='".$left_pid."']/duplicateItem");
+		$dups_list = $xpath->query("/DuplicatesReport/duplicatesReportItem[".($ii+1)."]/duplicateItem");
 		$resolved = true;
 		$base_isi_loc = $itemNode->getAttribute('isi_loc');
 		//$base_isi_loc = '';
@@ -1513,31 +1517,56 @@ function authorShortWordsFilter($a)
 						'/DuplicatesReport/duplicatesReportItem[@pid=\''.$pid.'\']');
 		if ($nodelist->length > 0) {
 			$node = $nodelist->item(0);
+            $ii = 0;
 			for ($node = $node->$axis; !empty($node) && !$done; $node = $node->$axis) {
 				if ($node->nodeType == XML_ELEMENT_NODE) {
 					$pid = $node->getAttribute('pid');
 					if (!$show_resolved) {
-						list($max_score,$resolved,$isi_match,$merge_result) = $this->getDupsStats($pid, $xpath, $node);
+						list($max_score,$resolved,$isi_match,$merge_result) = $this->getDupsStats($pid, $xpath, $node, $ii);
 					}
 					if ($show_resolved || !$resolved) {
 						$done = true;
 						$res = $pid;
 					}
+                    $ii++;
 				}
 			}
 		}
 		return $res;
 	}
 
-	function getItemDetails($pid)
+	function getItemDetails($pid, $xml='')
 	{
+        if ($xml != '') {
+            if (is_string($xml)) {
+                $config = array(
+                    'indent'        => true,
+                    'input-xml'     => true,
+                    'output-xml'    => true,
+                    'wrap'          => 0
+                );
+                $tidy = new tidy;
+                $tidy->parseString($xml, $config, 'utf8');
+                $tidy->cleanRepair();
+                $xml = $tidy;
+//                $this->setXML_DOM(new DOMDocument($xml));
+                $this->setXML_DOM(DOMDocument::loadXML($xml));
+            } else {
+                return array();
+            }
+        }
+        if (!isset($pid) || $pid == '') {
+            return array();
+        }
 		$report_dom = $this->getXML_DOM();
 		if (empty($report_dom)) {
 			return array();
 		}
 		$xpath = new DOMXPath($report_dom);
-
-		$items = $xpath->query('/DuplicatesReport/duplicatesReportItem[@pid=\''.$pid.'\']/duplicateItem');
+        $x = $report_dom->saveXML();
+//		$items = $xpath->query('/DuplicatesReport/duplicatesReportItem[@pid=\''.$pid.'\']/duplicateItem');
+        $query = '/DuplicatesReport/duplicatesReportItem[@pid=\''.$pid.'\']/duplicateItem';
+		$items = $xpath->query($query);
 		$listing = array();
 		foreach ($items as $item) {
 			$listing_item = array();
@@ -1555,6 +1584,7 @@ function authorShortWordsFilter($a)
 			//            $listing[] = $listing_item;
 
 		}
+        $list_meta = array();
 		$listing = array_values($listing);
 		$res = array(
         	'listing' => $listing,
