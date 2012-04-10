@@ -270,8 +270,14 @@ class Template_API
 		{
 		    $customView = null;
 		}
-		
-		if (preg_match('/\/manage\/.*/', $_SERVER['REQUEST_URI'])) {
+        $uri_encoded = '';
+        $request_uri = '';
+        if (array_key_exists('REQUEST_URI', $_SERVER)) {
+            $request_uri = $_SERVER['REQUEST_URI'];
+            $uri_encoded = base64_encode($_SERVER['REQUEST_URI']);
+        }
+
+        if (preg_match('/\/manage\/.*/', $request_uri)) {
 			$this->assign('admin_area', true);
 		}
 
@@ -308,7 +314,7 @@ class Template_API
 		$this->assign("app_base_url", APP_BASE_URL);
 		$this->assign("app_url", APP_URL);
 		$this->assign("rel_url", APP_RELATIVE_URL);
-		$this->assign("uri_encoded", base64_encode($_SERVER['REQUEST_URI']));
+		$this->assign("uri_encoded", $uri_encoded);
 		$this->assign("lang", APP_CURRENT_LANG);
 		$this->assign("app_earliest_input_year", APP_EARLIEST_INPUT_YEAR);
 		$this->assign("SELF_REGISTRATION", SELF_REGISTRATION);
@@ -385,9 +391,11 @@ class Template_API
 		));
 		$this->assign('phpini_upload_max_filesize', Misc::convertSize(ini_get('upload_max_filesize')));
     if ($username) {
-      $this->registerNajax(NAJAX_Client::register('Session', APP_RELATIVE_URL.'ajax.php'));
-      $this->onload("getFlashMessage();");
-
+      // don't show ajax flash message if one of the basic auth / ARC IPs
+      if (!defined('APP_BASIC_AUTH_IP') || (!in_array($_SERVER['REMOTE_ADDR'], $ipPool))) {
+          $this->registerNajax(NAJAX_Client::register('Session', APP_RELATIVE_URL.'ajax.php'));
+          $this->onload("getFlashMessage();");
+      }
       $this->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));
       $this->assign('najax_register', $this->najax_register);
      }
