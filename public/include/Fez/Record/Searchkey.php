@@ -120,30 +120,65 @@ class Fez_Record_Searchkey
         }
         
         $this->_updateRecordCitation();
+        $this->_updateSolrIndex();
+        $this->_updateLinksAMR();
         return true;
     }
 
     
+    /**
+     * Adds PID on the Links AMR service queuefor updating 'ISI Loc' search key.
+     * Only sends to the queue when PID doesn't already have an ISI Loc.
+     * 
+     * @return boolean 
+     */
+    protected function _updateLinksAMR()
+    {
+        if (APP_AUTO_LINKSAMR_UPLOAD != "ON") {
+            return true;
+        }
+        
+        $isi_loc = Record::getSearchKeyIndexValue($this->_pid, "ISI Loc", false);
+        if (empty($isi_loc)) {
+            LinksAmrQueue::get()->add($this->_pid);
+        }
+        return true;
+    }
     
+    
+    /**
+     * Update SOLR index caches.
+     * 
+     * @return boolean 
+     */
+    protected function _updateSolrIndex()
+    {
+        if( APP_SOLR_INDEXER != "ON" ) {
+            return true;
+        }
+        
+        $this->_log->debug("Fez_Record_Searchkey->update() adding " . $this->_pid . " to SOLR Queue");
+        FulltextQueue::singleton()->add($this->_pid);
+        FulltextQueue::singleton()->commit();
+        return true;
+    }
+    
+    /**
+     * Updates citation caches.
+     * @return boolean 
+     */
     protected function _updateRecordCitation()
     {
         if (!defined('PROVISIONAL_CODE_UPDATE_FROM_SCRIPT') || PROVISIONAL_CODE_UPDATE_FROM_SCRIPT === false) {
             Record::applyProvisionalCode($this->_pid);
         }
         
-//        $options = array();
-//        $options["searchKey".Search_Key::getID("Pid")] = $this->_pid;
-//        $list = Record::getListingForCitation($options, array("Lister"));
-//        $list = $list["list"];
-//        $list = Citation::renderIndexCitations($list, 'APA', false, true);
-//        $citation = $list[0]['rek_citation'];
-
         Citation::updateCitationCache($this->_pid);
         Statistics::updateSummaryStatsOnPid($this->_pid);
         Google_Scholar::updateCitationCache($this->_pid);
         Record::updateThomsonCitationCountFromHistory($this->_pid);
         Record::updateScopusCitationCountFromHistory($this->_pid);        
-        
+
         return true;
     }
     

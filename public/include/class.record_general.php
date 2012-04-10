@@ -983,97 +983,166 @@ class RecordGeneral
     return false;
   }
 
-  /**
-   * Replaces authors in a record using the authors in ESTI
-   *
-   * @return bool  TRUE if replaced OK. FALSE if not replaced.
-   *
-   * @access public
-   */
-  function replaceAuthorsFromEsti()
-  {
-    $log = FezLog::get();
+  
+    /**
+     * Replaces authors in a record using the authors in ESTI
+     *
+     * @example Example usage of this function is on class.bgp_bulk_update_authors_from_esti.php
+     * @return bool  TRUE if replaced OK. FALSE if not replaced.
+     *
+     * @access public
+     */
+    public function replaceAuthorsFromEsti()
+    {
+        $log = FezLog::get();
 
-    $newXML = "";
+        $newXML = "";
 
-    $ut = Record::getIsiLocFromIndex($this->pid);
-    if (is_array($ut)) {
-      $ut = $ut[0];
+        // Get the value of ISI_LOC search key for this PID
+        $ut = Record::getIsiLocFromIndex($this->pid);
+        if (is_array($ut)) {
+            $ut = $ut[0];
+        }
+        if (empty($ut)) {
+            $log->err("There is no ISI Loc stored for PID:" . $this->pid .".");
+            return false;
+        }
+
+        // Get record details from ISI Web of Knowledge resource
+        $records_xml = EstiSearchService::retrieve($ut);
+
+        // Parse XML returned by ISI Web of Knowledge resource
+        $record = null;
+        if ($records_xml) {
+            foreach ($records_xml->REC as $_record) {
+                $record = $_record;
+            }
+        }
+
+        if (!$record) {
+            $log->err("There is no response returned by IS Web of Knowledge.");
+            return false;
+        }
+
+
+        if (APP_FEDORA_BYPASS == "ON"){
+            
+            return $this->_replaceAuthorsFromEstiOnFedoraBypass($record);
+            
+        } else {
+        
+            $xmlString = Fedora_API::callGetDatastreamContents($this->pid, 'MODS', true);
+            $doc = DOMDocument::loadXML($xmlString);
+            $xpath = new DOMXPath($doc);
+
+            $field_node_list = $xpath->query("/mods:mods/mods:name");
+            $count = $field_node_list->length;
+            if ($count > 0) {
+                for ($i = 0; $i < $count; $i++) {
+                    $collection_node = $field_node_list->item($i);
+                    $parent_node = $collection_node->parentNode;
+                    $parent_node->removeChild($collection_node);
+                }
+            }
+
+            $mods = '
+                    <mods:name ID="%s" authority="%s">
+                        <mods:namePart type="personal">%s</mods:namePart>
+                        <mods:role>
+                            <mods:roleTerm type="text">%s</mods:roleTerm>
+                        </mods:role>
+                    </mods:name>
+            ';
+
+            $authors = '<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">';
+            $authors .= sprintf($mods, '0', APP_ORG_NAME, $record->item->authors->primaryauthor, 'author');
+            foreach ($record->item->authors->author as $author) {
+                $authors .= sprintf($mods, '0', APP_ORG_NAME, $author, 'author');
+            }
+            $authors .= '</mods:mods>';
+
+            $authors_doc = new DOMDocument;
+            $authors_doc->loadXML($authors);
+            $author_nodes = $authors_doc->getElementsByTagName("name");
+
+            $count = $author_nodes->length;
+            if ($count > 0) {
+                for ($i = 0; $i < $count; $i++) {
+                    $node = $doc->importNode($author_nodes->item($i), true);
+                    $doc->documentElement->appendChild($node);
+                }
+            }
+
+            $newXML = $doc->SaveXML();
+
+            if ($newXML != "") {
+                Fedora_API::callModifyDatastreamByValue(
+                        $this->pid, "MODS", "A", "Metadata Object Description Schema", $newXML, "text/xml", "inherit"
+                );
+                $historyDetail = "Authors were replaced using ESTI";
+                History::addHistory($this->pid, null, "", "", true, $historyDetail);
+                Record::setIndexMatchingFields($this->pid);
+                return true;
+            }
+            return false;
+        }
+    }
+    
+    
+    /**
+     * Replaces authors stored on search keys with authors returned from ISI Web of Knowledge.
+     * Here are the processes:
+     * 1. Parse authors from $records XML 
+     * 2. Delete all exisitng authors on author search keys 
+     *    Fez_Record_Searchkey class takes care of the following:
+     *     2a. Backup authors to shadow sek table
+     *     2b. Delete authors on main sek table
+     *     2c. Insert new authors on main sek table
+     * 3. Update PID History.
+     * 
+     * @param DOMDocument $record The XML of record details returned by ISI Web of Knowledge
+     * @return boolean
+     */
+    protected function _replaceAuthorsFromEstiOnFedoraBypass($record = null)
+    {
+        $log = FezLog::get();
+
+        $authors = array();
+        $authors[] = $record->item->authors->primaryauthor;
+        foreach ($record->item->authors->author as $author) {
+            $authors[] = $author;
+        }
+        
+        if (sizeof($authors) == 0){
+            $log->err("There is no author returned by IS Web of Knowledge.");
+            return false;
+        }
+        
+        // $searchKeyData[0] = 1-to-1 search keys
+        // $searchKeyData[1] = 1-to-many search keys
+        $searchKeyData = array( 0 => array(), 1 => array());
+        
+        $details = Record::getDetailsLite($this->pid);
+        $xsdmfIdForAuthor   = XSD_HTML_Match::getXSDMFIDBySearchKeyTitleXDIS_ID('Author', $details[0]['rek_display_type']);
+
+        // Set record search key values
+        $searchKeyData[1]['author']['xsdmf_id']    = $xsdmfIdForAuthor;
+        $searchKeyData[1]['author']['xsdmf_value'] = $authors;
+        
+        // Update record search key
+        $recordSearchKey = new Fez_Record_Searchkey();
+        if (!$recordSearchKey->updateRecord($this->pid, $searchKeyData)){
+            return false;
+        }
+        
+        // Update PID's history
+        $historyDetail = " Authors were replaced using ESTI";
+        History::addHistory($this->pid, null, date('Y-m-d H:i:s'), "", true, $historyDetail, "");
+        
+        return true;
     }
 
-    if (empty($ut)) {
-      return false;
-    }
-
-    $records_xml = EstiSearchService::retrieve($ut);
-
-    $record = null;
-    if ($records_xml) {
-      foreach ($records_xml->REC as $_record) {
-        $record = $_record;
-      }
-    }
-
-    if (! $record) {
-      return false;
-    }
-
-    $xmlString = Fedora_API::callGetDatastreamContents($this->pid, 'MODS', true);
-    $doc = DOMDocument::loadXML($xmlString);
-    $xpath = new DOMXPath($doc);
-
-    $field_node_list = $xpath->query("/mods:mods/mods:name");
-    $count = $field_node_list->length;
-    if ($count > 0) {
-      for ($i = 0; $i < $count; $i++) {
-        $collection_node   = $field_node_list->item($i);
-        $parent_node       = $collection_node->parentNode;
-        $parent_node->removeChild($collection_node);
-      }
-    }
-
-    $mods = '
-				<mods:name ID="%s" authority="%s">
-		        	<mods:namePart type="personal">%s</mods:namePart>
-		            <mods:role>
-		            	<mods:roleTerm type="text">%s</mods:roleTerm>
-		            </mods:role>
-		        </mods:name>
-		';
-
-    $authors = '<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">';
-    $authors .= sprintf($mods, '0', APP_ORG_NAME, $record->item->authors->primaryauthor, 'author');
-    foreach ($record->item->authors->author as $author) {
-      $authors .= sprintf($mods, '0', APP_ORG_NAME, $author, 'author');
-    }
-    $authors .= '</mods:mods>';
-
-    $authors_doc = new DOMDocument;
-    $authors_doc->loadXML($authors);
-    $author_nodes = $authors_doc->getElementsByTagName("name");
-
-    $count = $author_nodes->length;
-    if ($count > 0) {
-      for ($i = 0; $i < $count; $i++) {
-        $node = $doc->importNode($author_nodes->item($i), true);
-        $doc->documentElement->appendChild($node);
-      }
-    }
-
-    $newXML = $doc->SaveXML();
-
-    if ($newXML != "") {
-      Fedora_API::callModifyDatastreamByValue(
-          $this->pid, "MODS", "A", "Metadata Object Description Schema", $newXML, "text/xml", "inherit"
-      );
-      $historyDetail = "Authors were replaced using ESTI";
-      History::addHistory($this->pid, null, "", "", true, $historyDetail);
-      Record::setIndexMatchingFields($this->pid);
-      return true;
-    }
-    return false;
-  }
-
+    
   /**
    * Attempt to match $aut_id with an author on $this->pid. This is a multi-step process in order
    * to establish a percentage value of how likely this author is on this pub (probablistic matching)
