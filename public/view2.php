@@ -193,7 +193,7 @@ if (!empty($pid) && $record->checkExists()) {
 	
 	$canEdit = false;
 	$canView = true;
-	
+
 	$canEdit = $record->canEdit(false);
     if ($canEdit == true) {
 		$canView = true;
@@ -327,6 +327,11 @@ if (!empty($pid) && $record->checkExists()) {
 							foreach($details[$xsdmfId] as $data) {
 								if (trim($data) != '') {
 									if ($metaDataDetails['type'] == 'date') {
+                                        if (is_numeric($data) && strlen($data) == 4) {
+                                            // It appears we've just been fed a year. We'll pad this,
+                                            // so it can be added to the index.
+                                            $data = $data . "-01-01 00:00:00";
+                                        }
 										if ($fieldName == 'citation_date') {
 											$data = date('Y/m/d', strtotime($data)); // google wants this format for the date
 										} else {
@@ -343,11 +348,18 @@ if (!empty($pid) && $record->checkExists()) {
 							}
 						} else {
 							if ($metaDataDetails['type'] == 'date') {
-								if ($fieldName == 'citation_date') {
-									$data = date('Y/m/d', strtotime($details[$xsdmfId])); // google wants this format for the date
-								} else {
-									$data = date('Y-m-d', strtotime($details[$xsdmfId])); // everyone else
-								}
+                                if (trim($data) != '') {
+                                    if (is_numeric($details[$xsdmfId]) && strlen($details[$xsdmfId]) == 4) {
+                                        // It appears we've just been fed a year. We'll pad this,
+                                        // so it can be added to the index.
+                                        $details[$xsdmfId] = $details[$xsdmfId] . "-01-01 00:00:00";
+                                    }
+                                    if ($fieldName == 'citation_date') {
+                                        $data = date('Y/m/d', strtotime($details[$xsdmfId])); // google wants this format for the date
+                                    } else {
+                                        $data = date('Y-m-d', strtotime($details[$xsdmfId])); // everyone else
+                                    }
+                                }
 							} else {
 								$data = $details[$xsdmfId];
 							}
