@@ -56,7 +56,10 @@ if (!defined("APP_DB_USE_PROFILER")) {
   define("APP_DB_USE_PROFILER", false);
 }
 
-set_include_path(APP_PEAR_PATH . PATH_SEPARATOR . APP_INC_PATH);
+//set_include_path(APP_PEAR_PATH . PATH_SEPARATOR . APP_INC_PATH);
+
+set_include_path(APP_PEAR_PATH . PATH_SEPARATOR . APP_INC_PATH.
+    get_include_path());
 
 // set up the Zend loader
 
@@ -116,7 +119,7 @@ if (APP_LOGGING_ENABLED == "true") {
       }
     }
   }
-
+//    @define('APP_BASIC_AUTH_IP', "202.158.222.208; 202.158.222.209; 202.158.222.240; 130.102.44.21");
   $level = intval(APP_LOG_LEVEL);
   if ( (!$level) || $level > 7) {
     $level = 0; // Zend_log::EMERG
