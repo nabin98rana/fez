@@ -1308,7 +1308,8 @@ class Record
       }
     }
 
-    if (!defined('PROVISIONAL_CODE_UPDATE_FROM_SCRIPT') || PROVISIONAL_CODE_UPDATE_FROM_SCRIPT === false) {
+    if (defined('APP_HERDC_SUPPORT') && APP_HERDC_SUPPORT == 'ON' &&
+        (!defined('PROVISIONAL_CODE_UPDATE_FROM_SCRIPT') || PROVISIONAL_CODE_UPDATE_FROM_SCRIPT === false)) {
       Record::applyProvisionalCode($pid);
     }
     Citation::updateCitationCache($pid, "", $shadow);
