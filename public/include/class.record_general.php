@@ -638,66 +638,129 @@ class RecordGeneral
 
   }
 
+  
+    /**
+     * Builds array of Search Keys Data, which used for inserting/updating a PID record search keys.
+     * 
+     * @todo: move this to more related class or new class
+     * @param array $sekTitles
+     * @param array $values 
+     */
+    protected function _buildRecordSearchKeyData($sekTitles = array(), $values = array())
+    {
+        // $searchKeyData[0] = 1-to-1 search keys, $searchKeyData[1] = 1-to-many search keys
+        $searchKeyData = array(0 => array(), 1 => array());
+        $details = Record::getDetailsLite($this->pid);
 
-  function addSearchKeyValueList(
-      $search_keys=array(), $values=array(), 
-      $removeCurrent=true, $history="was added based on Links AMR Service data"
-  )
-  {
-		$datastreams = array();
-		$search_keys_added = array();
-		foreach ($search_keys as $s => $sk) {
-			$dsDetails = $this->getDatastreamNameDesc($sk);
-			$datastreamName = $dsDetails['datastreamname'];
-			$datastreamDesc = $dsDetails['datastreamdesc'];
-			if (!array_key_exists($datastreamName, $datastreams)) {
-	    		$datastreams[$datastreamName] = Fedora_API::callGetDatastreamContents($this->pid, $datastreamName, true);
-			}
-	    if (is_array($datastreams[$datastreamName]) || $datastreams[$datastreamName] == "") {
-	       echo "\n**** PID ".$this->pid." without a ".$datastreamName.
-	            " datastream was found, this will need content model changing first **** \n";
-	    }
-	    $doc = DOMDocument::loadXML($datastreams[$datastreamName]);
-      $tempdoc = $this->addSearchKeyValue($doc, $sk, $values[$s], $removeCurrent);
-      if ($tempdoc !== false) {
-        if (!empty($values[$s])) {
-          $search_keys_added[$sk] = $values[$s];
+        foreach ($sekTitles as $key => $sekTitle) {
+            $xsdmfId = XSD_HTML_Match::getXSDMFIDBySearchKeyTitleXDIS_ID($sekTitle, $details[0]['rek_display_type']);
+            
+            // This PID has no relationship with this search key, continue to the next search key.
+            if (empty($xsdmfId)){
+                continue;
+            }
+            
+            $sekDetails = Search_Key::getDetailsByTitle($sekTitle);
+            $relationship = $sekDetails['sek_relationship'];
+            $sekTitleDb = $sekDetails['sek_title_db'];
+            
+            $searchKeyData[$relationship][$sekTitleDb]['xsdmf_id']    = $xsdmfId;
+            $searchKeyData[$relationship][$sekTitleDb]['xsdmf_value'] = $values[$key];
         }
-        $datastreams[$datastreamName] = $tempdoc->saveXML();;
-      }
+        return $searchKeyData;
+    }
+
+    
+    /**
+     * Updates the value of specific search key(s) for current PID 
+     * 
+     * The processes for Fedora-based system are: 
+     *  1. Updates the PID XML document (Fedora datastream)
+     *  2. Add history to the PID
+     *  3. Reindex the PID (this also rewrites all record search keys with the new XML Doc saved on #1).
+     * 
+     * The processes for Fedora-less system are:
+     *  1. Call Fez_Record_Searchkey->updateRecord()
+     *     Which updates the requested search key, adds history to the PID, reindex solr.
+     * 
+     * @param array $search_keys Titles of Search keys
+     * @param array $values Values of Search keys
+     * @param boolean $removeCurrent Flag on whether to remove current value
+     * @param string $history Message on the PID history
+     * @return string 
+     */
+    function addSearchKeyValueList(
+    $search_keys=array(), $values=array(), $removeCurrent=true, $history="was added based on Links AMR Service data")
+    {
+        
+        if (APP_FEDORA_BYPASS == "ON"){
+            // Build SearchkeyData array
+            $searchKeyData = $this->_buildRecordSearchKeyData($search_keys, $values);
+            
+            // Build history message
+            $historyMsg = "Updated PID '". $this->pid ."' search key values.";
+            
+            $recordSearchKey = new Fez_Record_Searchkey();
+            $result = $recordSearchKey->updateRecord($this->pid, $searchKeyData, $historyMsg);
+            
+            return $result;
+            
+        } else {
+        
+            $datastreams = array();
+            $search_keys_added = array();
+            foreach ($search_keys as $s => $sk) {
+                $dsDetails = $this->getDatastreamNameDesc($sk);
+                $datastreamName = $dsDetails['datastreamname'];
+                $datastreamDesc = $dsDetails['datastreamdesc'];
+                if (!array_key_exists($datastreamName, $datastreams)) {
+                    $datastreams[$datastreamName] = Fedora_API::callGetDatastreamContents($this->pid, $datastreamName, true);
+                }
+                if (is_array($datastreams[$datastreamName]) || $datastreams[$datastreamName] == "") {
+                    echo "\n**** PID " . $this->pid . " without a " . $datastreamName .
+                    " datastream was found, this will need content model changing first **** \n";
+                }
+                $doc = DOMDocument::loadXML($datastreams[$datastreamName]);
+                $tempdoc = $this->addSearchKeyValue($doc, $sk, $values[$s], $removeCurrent);
+                if ($tempdoc !== false) {
+                    if (!empty($values[$s])) {
+                        $search_keys_added[$sk] = $values[$s];
+                    }
+                    $datastreams[$datastreamName] = $tempdoc->saveXML();
+                }
+            }
+
+            if (count($search_keys_added) > 0) {
+                foreach ($datastreams as $datastreamName => $newXML) {
+                    if ($newXML != "") {
+                        $dsExists = Fedora_API::datastreamExists($this->pid, $datastreamName);
+                        if ($dsExists !== true) {
+                            Fedora_API::getUploadLocation($this->pid, $datastreamName, $newXML, $datastreamDesc, "text/xml", "X", null, "true");
+                        } else {
+                            Fedora_API::callModifyDatastreamByValue(
+                                    $this->pid, $datastreamName, "A", $datastreamDesc, $newXML, "text/xml", "inherit"
+                            );
+                        }
+                    }
+                }
+                $historyDetail = "";
+                foreach ($search_keys_added as $hkey => $hval) {
+                    if ($historyDetail != "") {
+                        $historyDetail .= ", ";
+                    }
+                    $historyDetail .= $hkey . ": " . $hval;
+                }
+                $historyDetail .= " " . $history;
+                History::addHistory($this->pid, null, "", "", true, $historyDetail);
+                $this->setIndexMatchingFields();
+                return 1;
+            }
+            return -1;
+        }
     }
     
-    if (count($search_keys_added) > 0) {
-			foreach ($datastreams as $datastreamName => $newXML) {
-				if ($newXML != "") {
-					$dsExists = Fedora_API::datastreamExists($this->pid, $datastreamName);
-					if ($dsExists !== true) {
-						Fedora_API::getUploadLocation($this->pid, $datastreamName, $newXML, $datastreamDesc,
-								"text/xml", "X",null,"true");
-					} else {
-			      Fedora_API::callModifyDatastreamByValue(
-			          $this->pid, $datastreamName, "A", $datastreamDesc, $newXML, "text/xml", "inherit"
-			      );
-					}	
-				}
-			}
-      $historyDetail = "";
-      foreach ($search_keys_added as $hkey => $hval) {
-        if ($historyDetail != "") {
-          $historyDetail .= ", ";
-        }
-        $historyDetail .= $hkey.": ".$hval;
-      }
-      $historyDetail .= " " . $history;
-      History::addHistory($this->pid, null, "", "", true, $historyDetail);
-      $this->setIndexMatchingFields();
-      return 1;
-    }
-    return -1;
 
-  }
-
-	function buildXMLWithXPATH($xpath_query, $value, $lookup_value, $recurseLevel) {
+    function buildXMLWithXPATH($xpath_query, $value, $lookup_value, $recurseLevel) {
 	    $xpath = new DOMXPath($this->doc);
 			// echo "\n IN WITH THIS: ".$this->doc->saveXML();
 			// ob_flush();
@@ -786,63 +849,73 @@ class RecordGeneral
 			return true;
 	}
 
-  // Experimental function - like a swiss army knife for adding abitrary values to datastreams
-  function addSearchKeyValue($doc, $sek_title, $value, $removeCurrent = true)
-  {
-    $newXML = "";
-    $xdis_id = $this->getXmlDisplayId();
-    $xpath_query = XSD_HTML_Match::getXPATHBySearchKeyTitleXDIS_ID($sek_title, $xdis_id);
-		$sekDetails = Search_Key::getDetailsByTitle($sek_title);
-		$sekID = $sekDetails['sek_id'];
-		$lookup_value = "";
-		if ($sekDetails['sek_lookup_function'] != "")  {
-			eval("\$lookup_value = ".$sekDetails["sek_lookup_function"]."(".$value.");");
-		} 
+    /**
+     * For adding abitrary values to datastreams on Fedora.
+     * This method is used on Fedora-based Fez system only.  
+     * 
+     * @example Called by $this->addSearchKeyValueList()
+     * @param DOMDocument $doc
+     * @param string $sek_title
+     * @param string $value
+     * @param boolean $removeCurrent
+     * @return mixed 
+     */
+    function addSearchKeyValue($doc, $sek_title, $value, $removeCurrent = true)
+    {
+        $newXML = "";
+        $xdis_id = $this->getXmlDisplayId();
+        $xpath_query = XSD_HTML_Match::getXPATHBySearchKeyTitleXDIS_ID($sek_title, $xdis_id);
+        $sekDetails = Search_Key::getDetailsByTitle($sek_title);
+        $sekID = $sekDetails['sek_id'];
+        $lookup_value = "";
+        if ($sekDetails['sek_lookup_function'] != "") {
+            eval("\$lookup_value = " . $sekDetails["sek_lookup_function"] . "(" . $value . ");");
+        }
 
-    if (empty($value)) {
-      return false;
+        if (empty($value)) {
+            return false;
+        }
+        if (!$xpath_query) {
+            echo "\n**** PID " . $this->pid . " has no search key " . $sek_title .
+            " so it will need content model changing first **** \n";
+            return false;
+        }
+        $xpath = new DOMXPath($doc);
+        $fieldNodeList = $xpath->query($xpath_query);
+        $element = substr($xpath_query, (strrpos($xpath_query, "/") + 1));
+        $attributeStartPos = strpos($element, "[");
+        $attributeEndPos = strpos($element, "]") + 1;
+        $attribute = "";
+        if (is_numeric($attributeStartPos) && is_numeric($attributeEndPos)) {
+            $attribute = substr($element, $attributeStartPos, ($attributeEndPos - $attributeStartPos));
+            $element = substr($element, 0, $attributeStartPos);
+        }
+        if ($removeCurrent && (substr($element, 0, 1) != "@")) {
+            foreach ($fieldNodeList as $fieldNode) { // first delete all the isMemberOfs
+                $parentNode = $fieldNode->parentNode;
+                $parentNode->removeChild($fieldNode);
+            }
+        }
+
+        $this->doc = $doc;
+        $xsdmf_id = XSD_HTML_Match::getXSDMFIDBySearchKeyTitleXDIS_ID($sek_title, $xdis_id);
+        $xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
+
+        if ($xsdmf_details['xsdmf_html_input'] == 'xsdmf_id_ref') {
+            $xsdmf_ref_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_details['xsdmf_id_ref']);
+            $this->buildXMLWithXPATH($xsdmf_ref_details['xsdmf_xpath'], $lookup_value, $lookup_value, 1);
+            $xmlString = $this->doc->saveXML();
+            $xmlString = str_replace('<mods:topic></mods:topic>', '', $xmlString); // BEGONE, FOUL EMPTY ELEMENT
+            $xmlString = str_replace('<mods:topic/>', '', $xmlString); // AND YE!
+            $this->doc = DOMDocument::loadXML($xmlString);
+        }
+
+        $this->buildXMLWithXPATH($xpath_query, $value, $lookup_value, 1);
+        $xmlString = $this->doc->saveXML();
+        $this->doc = DOMDocument::loadXML($xmlString);
+
+        return $this->doc;
     }
-    if (!$xpath_query) {
-      echo "\n**** PID ".$this->pid." has no search key ".$sek_title.
-           " so it will need content model changing first **** \n";
-      return false;
-    }
-    $xpath = new DOMXPath($doc);
-    $fieldNodeList = $xpath->query($xpath_query);
-    $element = substr($xpath_query, (strrpos($xpath_query, "/") + 1));
-    $attributeStartPos = strpos($element, "[");
-    $attributeEndPos = strpos($element, "]") + 1;
-    $attribute = "";
-    if (is_numeric($attributeStartPos) && is_numeric($attributeEndPos)) {
-      $attribute = substr($element, $attributeStartPos, ($attributeEndPos - $attributeStartPos));
-      $element = substr($element, 0, $attributeStartPos);
-    }
-    if ( $removeCurrent && (substr($element, 0, 1) != "@") ) {
-      foreach ($fieldNodeList as $fieldNode) { // first delete all the isMemberOfs
-        $parentNode = $fieldNode->parentNode;
-        $parentNode->removeChild($fieldNode);
-      }
-    }
-    
-		$this->doc = $doc;
-		$xsdmf_id = XSD_HTML_Match::getXSDMFIDBySearchKeyTitleXDIS_ID($sek_title, $xdis_id);
-		$xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
-		
-		if ($xsdmf_details['xsdmf_html_input'] == 'xsdmf_id_ref') {
-			$xsdmf_ref_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_details['xsdmf_id_ref']);
-			$this->buildXMLWithXPATH($xsdmf_ref_details['xsdmf_xpath'], $lookup_value, $lookup_value, 1);
-			$xmlString = $this->doc->saveXML();
-			$xmlString = str_replace('<mods:topic></mods:topic>', '', $xmlString); // BEGONE, FOUL EMPTY ELEMENT
-			$xmlString = str_replace('<mods:topic/>', '', $xmlString); // AND YE!
-			$this->doc = DOMDocument::loadXML($xmlString);
-		}
-		
-		$this->buildXMLWithXPATH($xpath_query, $value, $lookup_value, 1);
-	    $xmlString = $this->doc->saveXML();
-	    $this->doc = DOMDocument::loadXML($xmlString);
-	    
-	    return $this->doc;
-  }
 
 
 

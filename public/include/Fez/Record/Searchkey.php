@@ -90,17 +90,26 @@ class Fez_Record_Searchkey
         $this->_pid = $pid;
     }
 
+    
+    /**
+     * Returns PID
+     * @return string 
+     */
+    public function getPid()
+    {
+        return $this->_pid;
+    }
+    
+    
     /**
      * Returns the version used on this PID Search Key process.
      * @return datetime
      */
     public function getVersion()
     {
-        if (empty($this->_version)){
-	    $this->_setVersion();
-	}
         return $this->_version;
     }
+    
     
     /**
      * Updates requested record search key of a PID.
@@ -113,7 +122,7 @@ class Fez_Record_Searchkey
      *                                 )
      * @return boolean
      */
-    public function updateRecord($pid = null, $sekData = array())
+    public function updateRecord($pid = null, $sekData = array(), $historyMsg = false)
     {
 
         // Set PID
@@ -130,12 +139,33 @@ class Fez_Record_Searchkey
             return false;
         }
         
+        if ($historyMsg){
+            $this->_updateHistory($historyMsg);
+        }
         $this->_updateRecordCitation();
         $this->_updateSolrIndex();
+        $this->_cleanCache();
         $this->_updateLinksAMR();
         return true;
     }
 
+    
+    /**
+     * @todo: Add related workflow, bgp bulk, and other relevant info on $historyDetailExtra
+     * 
+     * @param string $msg
+     * @return boolean 
+     */
+    protected function _updateHistory($message)
+    {
+        $extraMsg = null;
+        
+        // addHistory($pid, $wfl_id=null, $outcome="", $outcomeDetail="", $refreshDatastream=false, $historyDetail="", $historyDetailExtra=null, $event_date = false)
+        History::addHistory($this->_pid, null, "", "", true, $message, $extraMsg);
+        
+        return true;
+    }
+    
     
     /**
      * Adds PID on the Links AMR service queuefor updating 'ISI Loc' search key.
@@ -158,6 +188,23 @@ class Fez_Record_Searchkey
     
     
     /**
+     * Cleans the cache file related to current PID.
+     * 
+     * @return boolean 
+     */
+    protected function _cleanCache()
+    {
+        if (APP_FILECACHE != "ON" ) {
+            return true;
+        }
+        
+        $cache = new fileCache($this->_pid, 'pid=' . $this->_pid);
+        $cache->poisonCache();
+        return true;
+    }
+    
+    
+    /**
      * Update SOLR index caches.
      * 
      * @return boolean 
@@ -173,6 +220,7 @@ class Fez_Record_Searchkey
         FulltextQueue::singleton()->commit();
         return true;
     }
+    
     
     /**
      * Updates citation caches.
