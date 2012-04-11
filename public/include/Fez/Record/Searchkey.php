@@ -90,6 +90,17 @@ class Fez_Record_Searchkey
         $this->_pid = $pid;
     }
 
+    /**
+     * Returns the version used on this PID Search Key process.
+     * @return datetime
+     */
+    public function getVersion()
+    {
+        if (empty($this->_version)){
+	    $this->_setVersion();
+	}
+        return $this->_version;
+    }
     
     /**
      * Updates requested record search key of a PID.
