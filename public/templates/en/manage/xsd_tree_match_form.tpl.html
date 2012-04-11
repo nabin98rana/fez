@@ -772,7 +772,8 @@
               <tr>
                 <td colspan="2" bgcolor="{$cell_color}" align="center">
                   {if $form_cat == 'edit'}
-                  <input class="button" type="submit" value="Update XSD Element to HTML Element Match">
+                  <input class="button" type="submit" name="update" value="Update XSD Element to HTML Element Match">
+                  <input class="button" type="submit" name="update_children" value="Update Match and Refresh Child Match XPATHs">
                   {else}
                   <input class="button" type="submit" value="Create XSD Element to HTML Element Match">
                   {/if}
@@ -1342,7 +1343,8 @@
               <tr>
                 <td colspan="2" bgcolor="{$cell_color}" align="center">
                   {if $form_cat == 'edit'}
-                  <input class="button" type="submit" value="Update XSD Element to HTML Element Match">
+                  <input class="button" type="submit" name="update" value="Update XSD Element to HTML Element Match">
+                  <input class="button" type="submit" name="update_children" value="Update Match and Refresh Child Match XPATHs">
                   {else}
                   <input class="button" type="submit" value="Create XSD Element to HTML Element Match">
                   {/if}

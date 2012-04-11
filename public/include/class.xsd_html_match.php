@@ -351,7 +351,7 @@ class XSD_HTML_Match
 		}
 
 
-  function refreshXPATH($xsdmf_id = null)
+  function refreshXPATH($xsdmf_id = null, $traverse = true, $update_children=false)
   {
     $xpath = "";
     $parentRefreshs = array();
@@ -396,7 +396,7 @@ class XSD_HTML_Match
       if (is_numeric($lrow['xsdmf_xsdsel_id'])) {
         if ($lrow['xsdsel_type'] == "attributeloop" || $lrow['xsdsel_type'] == "hardset") {
           /*[local-name()='mods' and namespace-uri()='http://www.loc.gov/mods/v3']/*[local-name()='abstract' and namespace-uri()='http://www.loc.gov/mods/v3'][1] */
-          if (is_numeric($lrow['xsdsel_indicator_xsdmf_id'])) {
+          if (is_numeric($lrow['xsdsel_indicator_xsdmf_id']) && is_numeric($lrow['xsdsel_indicator_xdis_id']) && ($lrow['xsdsel_indicator_xdis_id'] >= 1)) {
             //					echo " HERE = ".$lrow['xsdsel_indicator_xsdmf_id']."<";
             $indicator_details = XSD_HTML_Match::getAllDetailsByXSDMF_ID($lrow['xsdsel_indicator_xsdmf_id']);
             //print_r($indicator_details);
@@ -495,19 +495,30 @@ class XSD_HTML_Match
       XSD_HTML_Match::updateXPathByXSDMF_ID($lrow['xsdmf_id'], $xpath);
     }
 
-    foreach ($parentRefreshs as $parent_xsdmf_id) {
-      XSD_HTML_Match::refreshXPATH($parent_xsdmf_id);
+    if ($traverse == true) {
+        foreach ($parentRefreshs as $parent_xsdmf_id) {
+          XSD_HTML_Match::refreshXPATH($parent_xsdmf_id, false);
+        }
     }
-
 
     foreach ($xpath_ns_fixes as $xpath_replace => $xpath_search) {
       $fixes = XSD_HTML_Match::getXPATHTails($xpath_search[0], $xpath_search[1]);
       foreach ($fixes as $fix_row) {
         $xpath_replace_save = str_replace($xpath_search[0], $xpath_replace, $fix_row['xsdmf_xpath']);
         XSD_HTML_Match::updateXPathByXSDMF_ID($fix_row['xsdmf_id'], $xpath_replace_save);
+
       }
     }
 
+      //Also refresh any children eg if you changed sublooping element indicators then they will all need to refresh to get the @name='x'
+      if ($update_children == true) {
+          $children = XSD_HTML_Match::getXPATHTails($xpath, $lrow['xsdmf_xdis_id']);
+          foreach ($children as $child) {
+              if ($traverse == true && $child['xsdmf_id'] != $xsdmf_id) {
+                  XSD_HTML_Match::refreshXPATH($child['xsdmf_id'], false);
+              }
+          }
+      }
   }
 
 		function isAttribute($xsdmf_element, $xdis_id)
@@ -1673,38 +1684,7 @@ class XSD_HTML_Match
 			$log = FezLog::get();
 			$db = DB_API::get();
 
-            $xsdmf_id = $insertArray['xsdmf_id'];
 			$insertArray['xsdmf_xdis_id'] = $xdis_id;
-            
-            // Delete existing record. 
-            if (!empty($xsdmf_id)){
-                
-                $stmt = "SELECT xsdmf_xdis_id FROM " . APP_TABLE_PREFIX . "xsd_display_matchfields ".
-                        " WHERE xsdmf_id = " . $db->quote($xsdmf_id);
-                $xsdmf_xdis_id = $db->fetchOne($stmt);
-                
-                if (!empty($xsdmf_xdis_id)){
-                    if ($xsdmf_xdis_id == $xdis_id){
-                        // Delete existing record with same xsdmf_id and xdis_id. We want to overwrite the record.
-                        $stmt = "DELETE FROM " . APP_TABLE_PREFIX . "xsd_display_matchfields ".
-                                " WHERE xsdmf_id = " . $db->quote($xsdmf_id);
-                        try {
-                            $db->exec($stmt);
-                        }
-                        catch(Exception $ex) {
-                            $log->err($ex);
-                            return -1;
-                        }
-
-                    }else {
-                        // Delete xsdmf_id insert value, let it assigned with auto increment value. 
-                        // The xsdmf_id from XML is already used by other xdis_id. 
-                        $xsdmf_id = $insertArray['xsdmf_id'] = "";
-                    }
-                }
-            }
-
-            // Insert the XSMDF details
 			$stmt = "INSERT INTO
 		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields
 		                 ( ";
@@ -1981,7 +1961,7 @@ class XSD_HTML_Match
 		 * @return  integer 1 if the insert worked, -1 otherwise
 		 */
 		//	function update($xdis_id, $xml_element)
-		function update($xsdmf_id)
+		function update($xsdmf_id, $update_children = false)
 		{
 			$log = FezLog::get();
 			$db = DB_API::get();
@@ -2212,7 +2192,7 @@ class XSD_HTML_Match
 				$log->err($ex);
 				return -1;
 			}
-			XSD_HTML_Match::refreshXPATH($_POST['xsdmf_id']);
+			XSD_HTML_Match::refreshXPATH($_POST['xsdmf_id'], true, $update_children);
 			// update the custom field options, if any
 			if (($_POST["field_type"] == "combo") || ($_POST["field_type"] == "multiple")) {
 				$stmt = "SELECT mfo_id

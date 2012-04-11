@@ -94,7 +94,12 @@ $tpl->assign("controlled_vocab_list", Controlled_Vocab::getAssocList());
 			$tpl->assign("result", XSD_HTML_Match::insert($xdis_id, $xml_element));
 		} elseif ($form_cat == "update") {
 //			$tpl->assign("result", XSD_HTML_Match::update($xdis_id, $xml_element));
-			$tpl->assign("result", XSD_HTML_Match::update($xsdmf_id));
+            if (isset($_POST['update_children'])) {
+                $tpl->assign("result", XSD_HTML_Match::update($xsdmf_id, true));
+            } else {
+                $tpl->assign("result", XSD_HTML_Match::update($xsdmf_id));
+            }
+
 		} elseif ($form_cat == "delete") { // is this actually used? no I don't think so - CK - yes it is 3/8/06 CK
 //			$tpl->assign("result", XSD_HTML_Match::remove($xdis_id, $xml_element));
 			$tpl->assign("result", XSD_HTML_Match::remove($xsdmf_id));
