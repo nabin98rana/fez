@@ -1,0 +1,35 @@
+Dear Unit Publication Officer/s,,
+
+
+We are currently processing the following book record in UQ eSpace: {$pidUrl}. 
+This publication includes author(s)/co-author(s) affiliated with your unit.
+
+In order for the record to be considered for HERDC we require some additional evidence.
+Please provide a copy of pages from the book as follows:
+   - Title page
+   - Title verso (publisher information, ISBN, copyright information, etc., usually on reverse side of title page) 
+   - Table of contents 
+   - Preface 
+   - Introduction 
+   - First chapter, if no Introduction is included 
+   - Author bylines/bio information
+
+If this book is a 2nd or subsequent edition, we also require all of the above for the immediately previous edition.
+
+
+Please note that if any of the authors being claimed do not have a published affiliation with UQ anywhere in the book, 
+we also require an author-signed author affiliation form (or claim email detailing the publication and eSpace PID number from the author), plus supporting staff database evidence.  
+This can be provided along with the publication evidence listed above. 
+
+
+Options for sending requested evidence to UQ eSpace:
+   - Scan and attach to return email 
+   - Copy and post/deliver to UQ eSpace, Level 6, Duhig Building, St. Lucia campus, St. Lucia  Qld  4072 
+   - Post/deliver book itself and include return address 
+     (we will scan the evidence and return the book as soon as possible)
+
+
+If you are unable to provide any of the above, please let us know by return email as soon as possible.
+
+
+Kind regards,
