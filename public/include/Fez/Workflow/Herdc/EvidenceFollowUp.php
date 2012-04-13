@@ -43,8 +43,9 @@ class Fez_Workflow_Herdc_EvidenceFollowUp
     protected $_userDetails = array();
     protected $_emailTemplate = "workflow/emails/herdc_evidence_followup.tpl.html";
     protected $_subjectPrefix = "Evidence follow-up";  
-    
-    
+    protected $_espaceEventumTeamId = 36;
+
+
     /**
      * Class constructor
      * @param string $pid 
@@ -95,9 +96,8 @@ class Fez_Workflow_Herdc_EvidenceFollowUp
                         'https://helpdesk.library.uq.edu.au/' .
                         'list.php?' .
                         'keywords=' . $this->_buildEventumSearchKeyword() .
-                        '&projects=all&rows=25&sort_by=iss_id&sort_order=desc&hide_closed=1' .
-//                        '&created_date[filter_enabled]=0&updated_date[filter_enabled]=0&first_response_date[filter_enabled]=0' .
-//                        '&last_response_date[filter_enabled]=0&closed_date[filter_enabled]=0' .
+                        '&projects=' . $this->_espaceEventumTeamId . 
+                        '&rows=25&sort_by=iss_id&sort_order=desc&hide_closed=1' .
                         '" ' .
                     'title="' . $title . '"' .
                 '>' .
