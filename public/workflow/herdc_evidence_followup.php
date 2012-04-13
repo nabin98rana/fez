@@ -42,3 +42,8 @@
  */
 $followup = new Fez_Workflow_Herdc_EvidenceFollowUp($this->pid);
 $followup->lodge();
+
+// Add Eventum link to this PID's workflow history details
+$eventumLink = $followup->getEventumLink();
+
+$this->assign('outcome_details', $eventumLink);

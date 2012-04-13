@@ -42,6 +42,7 @@ class Fez_Workflow_Herdc_EvidenceFollowUp
     protected $_pid = null;
     protected $_userDetails = array();
     protected $_emailTemplate = "workflow/emails/herdc_evidence_followup.tpl.html";
+    protected $_subjectPrefix = "Evidence follow-up";  
     
     
     /**
@@ -81,7 +82,32 @@ class Fez_Workflow_Herdc_EvidenceFollowUp
         return true;        
     }
 
+    
+    /**
+     * Returns link to Eventum search for this HERDC Evidence follow-up.
+     * @return string 
+     */
+    public function getEventumLink()
+    {
+        $title = "Search for this PID Evidence follow-up in Eventum";
+        
+        $link = '<a href="' .
+                        'https://helpdesk.library.uq.edu.au/' .
+                        'list.php?' .
+                        'keywords=' . $this->_buildEventumSearchKeyword() .
+                        '&projects=all&rows=25&sort_by=iss_id&sort_order=desc&hide_closed=1' .
+//                        '&created_date[filter_enabled]=0&updated_date[filter_enabled]=0&first_response_date[filter_enabled]=0' .
+//                        '&last_response_date[filter_enabled]=0&closed_date[filter_enabled]=0' .
+                        '" ' .
+                    'title="' . $title . '"' .
+                '>' .
+                $title .
+                '</a>';
 
+        return $link;
+    }
+
+    
     /**
      * Lodges an Eventum job
      * @return boolean 
@@ -126,8 +152,12 @@ class Fez_Workflow_Herdc_EvidenceFollowUp
         $publishedDate = Record::getSearchKeyIndexValue($this->_pid, "Date", true);
         $publishedDate = strftime("%Y", strtotime($publishedDate));
 
-        $subject = "Evidence follow-up :: " . $this->_pid . " :: " . $publishedDate . " :: " . $orgUnit .
-                   " :: Requested by " . $this->_userDetails['usr_full_name'];
+        $subject = $this->_subjectPrefix . " :: " . 
+                   $this->_pid . " :: " . 
+                   $publishedDate . " :: " . 
+                   $orgUnit . " :: ".
+                   "Requested by " . $this->_userDetails['usr_full_name'];
+        
         return $subject;
     }
     
@@ -169,6 +199,25 @@ class Fez_Workflow_Herdc_EvidenceFollowUp
         return $emailContent;
     }
     
+    
+    /**
+     * Returns search keyword for this evidence follow-up on Eventum.
+     * 
+     * @param boolean $urlencode
+     * @return string 
+     */
+    protected function _buildEventumSearchKeyword($urlencode = true)
+    {
+        // Wrap keyword around double quotes '"' to get more refined search results on Eventum.
+        $keyword = '"' . $this->_subjectPrefix . " :: " .  $this->_pid . '"';
+        
+        if ($urlencode){
+            $keyword = urlencode($keyword);
+        }
+        
+        return $keyword;
+    }
+
     
     /**
      * Adds PID history.
