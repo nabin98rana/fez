@@ -989,7 +989,12 @@ class Record
     $db = DB_API::get();
 
     if (empty($pid)) {
-      return -1;
+        return -1;
+    }
+
+    if ($shadow) {
+        Zend_Registry::set('version', $date);
+        $recordSearchkeyShadow = new Fez_Record_SearchkeyShadow($pid);
     }
 
     // get list of the Related 1-M search keys, delete those first, then delete the 1-1 core table entries
@@ -999,7 +1004,7 @@ class Record
       if ($sval['sek_relationship'] == 1) {
         $sekTable = Search_Key::makeSQLTableName($sval['sek_title']);
         if ($shadow) {
-            shadow::copySearchKeyToShadow($pid, $date, $sekTable);
+            $recordSearchkeyShadow->copySearchKeyToShadow($sekTable);
         }
         $stmt = "DELETE FROM
                         " . APP_TABLE_PREFIX . "record_search_key_".$sekTable."
@@ -1012,8 +1017,9 @@ class Record
         }
       }
     }
+
     if ($shadow) {
-        shadow::copyRecordToShadow($pid, $date);
+        $recordSearchkeyShadow->copyRecordSearchKeyToShadow();
     }
     $stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "record_search_key
@@ -3629,6 +3635,94 @@ class Record
 
   }
 
+function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $sek_details="")
+{
+    $log = FezLog::get();
+    $db = DB_API::get();
+    $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
+
+    if (!is_array($sek_details)) {
+        $sek_details = Search_Key::getBasicDetailsByTitle($searchKeyTitle);
+    }
+    $sek_title = Search_Key::makeSQLTableName($sek_details['sek_title']);
+    if (empty($sek_title)) {
+        $log->err("No search key found: '{$sek_details['sek_title']}'");
+        return false;
+    }
+
+    if ($sek_details['sek_relationship'] == 1) { //1-M so will return an array
+        $log->debug('1-M will return array');
+
+        $stmt = "SELECT
+                rek_".$sek_title."_stamp
+             FROM
+                " . $dbtp . "record_search_key_".$sek_title."__shadow
+             WHERE
+                rek_".$sek_title."_pid = ".$db->quote($pid)."
+             ORDER BY rek_".$sek_title."_stamp DESC";
+        try {
+            $res = $db->fetchOne($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+
+        $stamp = $res;
+
+        $stmt = "SELECT
+                rek_".$sek_title."
+             FROM
+                " . $dbtp . "record_search_key_".$sek_title."__shadow
+             WHERE
+                rek_".$sek_title."_pid = ".$db->quote($pid)."
+             AND rek_".$sek_title."_stamp = ".$stamp;
+        try {
+            $res = $db->fetchCol($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+
+        if ($getLookup == true && $sek_details['sek_lookup_function'] != "") {
+            $temp = array();
+            foreach ($res as $rkey => $rdata) {
+                eval("\$temp_value = ".$sek_details["sek_lookup_function"]."(".$rdata.");");
+                $temp[$rdata] = $temp_value;
+            }
+            $res = $temp;
+        }
+        return $res;
+
+    } else { //1-1 so will return single value
+//			$log->debug('1-1 will return single value');
+        $stmt = "SELECT
+                rek_".$sek_title."
+             FROM
+                " . $dbtp . "record_search_key__shadow
+             WHERE
+                rek_pid = ".$db->quote($pid)."
+             ORDER BY rek_stamp DESC" ;
+//			$log->debug($stmt);
+        try {
+            $res = $db->fetchOne($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+
+        if ($getLookup == true && $sek_details['sek_lookup_function'] != "") {
+            $temp = array();
+            eval("\$temp_value = ".$sek_details["sek_lookup_function"]."(".$res.");");
+            $temp[$res] = $temp_value;
+            $res = $temp;
+        }
+        return $res;
+    }
+
+}
 
   function buildSearchKeyJoins($options, $sort_by, $operator, $filter)
   {
@@ -5155,16 +5249,48 @@ class Record
 
   function isDeleted($pid)
   {
-
     if (APP_FEDORA_APIA_DIRECT == "ON") {
       $fda = new Fedora_Direct_Access();
       return $fda->isDeleted($pid);
     }
-    $res = Fedora_API::searchQuery('pid='.$pid, array('pid', 'state'));
-    if ($res[0]['state'] == 'D') {
-      return true;
+
+    if(APP_FEDORA_BYPASS == 'ON') {
+        $log = FezLog::get();
+        $db = DB_API::get();
+        $stmt = "SELECT rek_pid
+                 FROM " . APP_TABLE_PREFIX . "record_search_key
+                 WHERE rek_pid = " . $db->quote($pid);
+
+        try {
+            $res = $db->fetchOne($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+        if ($res == $pid) {
+            return false;
+        }
+        $stmt = "SELECT rek_pid
+                 FROM " . APP_TABLE_PREFIX . "record_search_key__shadow
+                 WHERE rek_pid = " . $db->quote($pid);
+
+        try {
+            $res = $db->fetchOne($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+        return ($res == $pid);
+
+    }  else {
+        $res = Fedora_API::searchQuery('pid='.$pid, array('pid', 'state'));
+        if ($res[0]['state'] == 'D') {
+          return true;
+        }
+        return false;
     }
-    return false;
   }
 
   function markAsDeleted($pid, $date ='')
