@@ -11,6 +11,11 @@
 {if $setup}
 <link rel="stylesheet" href="../css/setup.css" type="text/css" />
 {/if}
+{if $pid}
+<link rel="alternate" href="{$app_base_url}oembed.php?url={$app_base_url}view/{$pid}&amp;format=json" type="application/json+oembed" title="{$title}" />
+<link rel="alternate" href="{$app_base_url}oembed.php?url={$app_base_url}view/{$pid}&amp;format=xml" type="application/xml+oembed" title="{$title}" />
+
+{/if}
 {if $list}
 <link rel="alternate" href="{$PAGE_URL}?{if $url_wo_tpl != ''}{$url_wo_tpl}&amp;{/if}tpl=2" type="application/rss+xml" title="{$title}" id="gallery" />
 {/if}
