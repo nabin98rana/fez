@@ -1,7 +1,7 @@
-Dear Unit Publication Officer/s,,
+Dear Unit Publication Officer/s,
 
 
-We are currently processing the following book record in UQ eSpace: {$pidUrl}. 
+We are currently processing the following book record in UQ eSpace: {$pidUrl} 
 This publication includes author(s)/co-author(s) affiliated with your unit.
 
 In order for the record to be considered for HERDC we require some additional evidence.
