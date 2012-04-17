@@ -649,14 +649,16 @@ class Lister
             } else {
                 
             	if ($browse == "author_id") {
-	                $list = Collection::listByAuthor($pager_row, $rows, $sort_by, $letter);
+//	                $list = Collection::listByAuthor($pager_row, $rows, $sort_by, $letter);
+                    $list = array();
 	                $list_info = $list["info"];
 	                $list = $list["list"];
 					
 	                $tpl->assign("browse_heading", "Browse By ".APP_NAME." Author ID");
 				    $tpl->assign("list_heading", "Browse By ".APP_NAME." Author ID");
             	} else {
-	                $list = Collection::listByAttribute($pager_row, $rows, "Author", $sort_by, $letter);
+//	                $list = Collection::listByAttribute($pager_row, $rows, "Author", $sort_by, $letter);
+                    $list = array();
 	                $list_info = $list["info"];
 	                $list = $list["list"];
 					
