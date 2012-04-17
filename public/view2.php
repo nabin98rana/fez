@@ -767,13 +767,13 @@ function generateTimestamps($pid, $datastreams, $requestedVersionDate, $tpl) {
     
     if(APP_FEDORA_BYPASS == 'ON')
     {
-        $dob = new DigitalObject();
-        $versions = $dob->listVersions($pid);
+        $rec = new Fez_Record_SearchkeyShadow($pid);
+        $createdDates = $rec->returnVersionDates();
         
-        foreach($versions as $version)
+        /*foreach($versions as $version)
         {
             $createdDates[] = $version['createDate'];
-        }
+        }*/
     }
     else 
     {

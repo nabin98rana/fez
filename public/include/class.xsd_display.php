@@ -1133,7 +1133,13 @@ class XSD_DisplayObject
         
 		$log = FezLog::get();
 		$this->getXSD_HTML_Match();
-		
+
+        if(APP_FEDORA_BYPASS == 'ON')
+        {
+            $rec = new Fez_Record_SearchkeyShadow($pid);
+            $versionDate = $createdDT ? $createdDT : 'now' ;
+            return $rec->returnRecordVersion($versionDate);
+        }
 		//print_r($this->specify_list); echo count($this->specify_list); if ($skipIndex != true) { echo "hai"; }
 		if (APP_XSDMF_INDEX_SWITCH == "ON" && $skipIndex != true && count($this->specify_list) == 0) { //echo "MAAA";
 			// AN Attempt at seeing what performance would be like by getting all details from the index rather than from fedora, now commented out for future experimentation

@@ -157,5 +157,93 @@ class Fez_Record_SearchkeyShadow
         return $res;
     }
 
+    /**
+     * Returns a Records shadow version at a certain date.
+     *
+     *
+     * @param $date, version at this date
+     */
+    public function returnRecordVersion($date='')
+    {
+        $pid = $this->_pid;
+        $searchKeys = Search_Key::getList(false);
+
+        foreach ($searchKeys as $sekDetails) {
+            $title = $sekDetails["sek_title"];
+            if ($date == 'now') {
+                $value = Record::getSearchKeyIndexValue($pid, $title, false, $sekDetails, $date);
+            } else {
+                $value = Record::getSearchKeyIndexValueShadow($pid, $title, false, $sekDetails, $date);
+            }
+            if ( !empty($value) ) {
+                $fieldValue[$title] = $value;
+            }
+        }
+
+        foreach ($fieldValue as $sek_title => $value) {
+            $xdis_list = XSD_Relationship::getColListByXDIS($fieldValue['Display Type']);
+            array_push($xdis_list, $fieldValue['Display Type']);
+            $xdis_str = implode(", ", $xdis_list);
+            $xsdmf_array =  XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID($sek_title), $xdis_str);
+            foreach ($xsdmf_array as $xsdmf_id) {
+                $shadowRecord[$xsdmf_id] = $value;
+            }
+        }
+        return $shadowRecord;
+    }
+
+    /**
+     * Returns a list of all versions.
+     */
+    public function returnVersionDates()
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+        $pid = $this->_pid;
+        $searchKeys = Search_Key::getList(false);
+        $datesArray = array();
+
+        foreach ($searchKeys as $sekDetails) {
+            if ($sekDetails['sek_relationship'] == 1) {
+                $sek_title_db = $sekDetails['sek_title_db'];
+                $stmt = "SELECT
+                    rek_".$sek_title_db."_stamp
+                 FROM
+                    " . APP_TABLE_PREFIX . "record_search_key_".$sek_title_db."__shadow
+                 WHERE
+                    rek_".$sek_title_db."_pid = ".$db->quote($pid)."
+                 ORDER BY rek_".$sek_title_db."_stamp DESC";
+                try {
+                    $res = $db->fetchCol($stmt);
+                }
+                catch(Exception $ex) {
+                    $log->err($ex);
+                    //return false;
+                }
+                $datesArray = array_merge($datesArray, $res);
+            }
+        }
+
+        $stmt = "SELECT
+                rek_stamp
+             FROM
+                " . APP_TABLE_PREFIX . "record_search_key__shadow
+             WHERE
+                rek_pid = ".$db->quote($pid)."
+             ORDER BY rek_stamp DESC" ;
+        try {
+            $res = $db->fetchCol($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+
+        $datesArray = array_merge($datesArray, $res);
+
+        return array_unique($datesArray);
+    }
 }
+
+
 

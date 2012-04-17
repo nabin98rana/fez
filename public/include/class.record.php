@@ -3635,11 +3635,12 @@ class Record
 
   }
 
-function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $sek_details="")
+//param $previousToDate will return the version previous
+function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $sek_details='', $previousToDate='')
 {
     $log = FezLog::get();
     $db = DB_API::get();
-    $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
+
 
     if (!is_array($sek_details)) {
         $sek_details = Search_Key::getBasicDetailsByTitle($searchKeyTitle);
@@ -3651,14 +3652,16 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
     }
 
     if ($sek_details['sek_relationship'] == 1) { //1-M so will return an array
+        $dateOfVersion = ($previousToDate) ? " AND rek_".$sek_title."_stamp <= ".$db->quote($previousToDate) : "";
+        $order = ($sek_details['sek_cardinality'] == 1) ? " ORDER BY rek_".$sek_title."_order" : '';
         $log->debug('1-M will return array');
-
         $stmt = "SELECT
                 rek_".$sek_title."_stamp
              FROM
-                " . $dbtp . "record_search_key_".$sek_title."__shadow
+                " . APP_TABLE_PREFIX . "record_search_key_".$sek_title."__shadow
              WHERE
-                rek_".$sek_title."_pid = ".$db->quote($pid)."
+                rek_".$sek_title."_pid = ".$db->quote($pid).
+                $dateOfVersion . "
              ORDER BY rek_".$sek_title."_stamp DESC";
         try {
             $res = $db->fetchOne($stmt);
@@ -3673,10 +3676,11 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
         $stmt = "SELECT
                 rek_".$sek_title."
              FROM
-                " . $dbtp . "record_search_key_".$sek_title."__shadow
+                " . APP_TABLE_PREFIX . "record_search_key_".$sek_title."__shadow
              WHERE
                 rek_".$sek_title."_pid = ".$db->quote($pid)."
-             AND rek_".$sek_title."_stamp = ".$stamp;
+             AND rek_".$sek_title."_stamp = ".$db->quote($stamp).
+             $order;
         try {
             $res = $db->fetchCol($stmt);
         }
@@ -3696,15 +3700,16 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
         return $res;
 
     } else { //1-1 so will return single value
-//			$log->debug('1-1 will return single value');
+        $dateOfVersion = ($previousToDate) ? " AND rek_stamp <= ".$db->quote($previousToDate) : "";
+
         $stmt = "SELECT
                 rek_".$sek_title."
              FROM
-                " . $dbtp . "record_search_key__shadow
+                " . APP_TABLE_PREFIX . "record_search_key__shadow
              WHERE
-                rek_pid = ".$db->quote($pid)."
+                rek_pid = ".$db->quote($pid).
+                $dateOfVersion. "
              ORDER BY rek_stamp DESC" ;
-//			$log->debug($stmt);
         try {
             $res = $db->fetchOne($stmt);
         }

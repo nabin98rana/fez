@@ -115,6 +115,12 @@ class RecordGeneral
           if(APP_FEDORA_BYPASS == 'ON')
           {
               $xdis_id = Record::getSearchKeyIndexValue($this->pid,'Display Type');
+
+              //if none then it must be deleted so get shadow version
+              $value = implode('', $xdis_id);
+              if (empty($value)) {
+                  $xdis_id = Record::getSearchKeyIndexValueShadow($this->pid,'Display Type');
+              }
               $xdis_key = array_keys($xdis_id);
               $xdis_id = $xdis_key[0];
           }
