@@ -36,7 +36,7 @@
  * 
  * This is a one-off migration script as part of Fedora-less project.
  */
-include_once dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'config.inc.php';
+include_once dirname(dirname(dirname(__FILE__))) . DIRECTORY_SEPARATOR . 'config.inc.php';
 include_once(APP_INC_PATH . "class.db_api.php");
 include_once(APP_INC_PATH . "class.dsresource.php");
 include_once(APP_INC_PATH . "class.auth.php");
@@ -45,81 +45,82 @@ error_reporting(1);
 
 
 // Get PIDs' Exif data from database table.
-$stmt = "SELECT * FROM " . APP_TABLE_PREFIX . "exif ORDER BY exif_pid ";  //where exif_pid = 'UQ:21033'
+/*$stmt = "SELECT * FROM " . APP_TABLE_PREFIX . "exif where exif_pid = 'UQ:3718' ORDER BY exif_pid ";  //where exif_pid = 'UQ:21033'
 try {
     $pid_exifs = $db->fetchAll($stmt);
 } catch (Exception $ex) {
     $log->err($ex);
     echo "Failed to retrieve exif data. Error: " . $ex;
-}
+} */
 
+$fedoraPids = Fedora_Direct_Access::fetchAllFedoraPIDs('','');
+//$fedoraPids = array('UQ:67458');
 
-// Set datastream version based on current time. 
-// This variable is used by DSResource class to apply version on the datastream.
-Zend_Registry::set('version', date('Y-m-d H:i:s'));
+foreach ($fedoraPids as $pid) {
+    $datastreams = Fedora_API::callGetDatastreams($pid, '', 'A');
+    $datastreams = Misc::cleanDatastreamListLite($datastreams, $pid);
+    foreach ($datastreams as $datastream) {
+        if ($datastream['controlGroup'] == 'M') {
 
-// Start looping the pid datastream and save to Fez CAS system.
-$migrationErrors = array();
-$migrationSuccessCount = 0;
+            // Set datastream version based on current time.
+            // This variable is used by DSResource class to apply version on the datastream.
+            Zend_Registry::set('version', date('Y-m-d H:i:s'));
 
-foreach ($pid_exifs as $exif) {
+            // Start looping the pid datastream and save to Fez CAS system.
+            $migrationErrors = array();
+            $migrationSuccessCount = 0;
 
-    // Ignore records without PID and DSID
-    if (empty($exif['exif_pid']) || empty($exif['exif_dsid'])) {
-        $migrationErrors[$exif['exif_id']]['error'] = 'EMPTY PID or DSID ';
-        $migrationErrors[$exif['exif_id']]['exif'] = $exif;
-        continue;
-    }
+             // Store the hash of the file using DSResource class.
+             $fedoraFilePath = APP_FEDORA_GET_URL . "/" . $pid . "/" . $datastream['ID'];
 
+            //does record inherity security from parent
+            $acml = Record::getACML($pid, $datastream['ID']);
+            $security_inherited = inheritesPermissions($acml);
+            $datastreamData = Fedora_API::callGetDatastream($pid, $datastream['ID']);
+            $label = $datastreamData['label'];
 
-    // Store the hash of the file using DSResource class.
-    $fedoraFilePath = APP_FEDORA_GET_URL . "/" . $exif['exif_pid'] . "/" . $exif['exif_dsid'];
+            $meta = array('mimetype' => $datastream['MIMEType'],
+                'controlgroup' => 'M',
+                'state' => 'A',
+                'size' => $datastream['size'],
+                'pid' => $pid,
+                'security_inherited' =>  $security_inherited,
+                'label' => $label);
 
-    //does record inherity security from parent
-    $acml = Record::getACML($exif['exif_pid'], $exif['exif_dsid']);
-    $security_inherited = inheritesPermissions($acml);
-    $datastreamData = Fedora_API::callGetDatastream($exif['exif_pid'], $exif['exif_dsid']);
-    $label = $datastreamData['label'];
+            $dsresource = new DSResource(null, $fedoraFilePath, $meta);
 
-    $meta = array('mimetype' => $exif['exif_mime_type'],
-        'controlgroup' => 'M',
-        'state' => 'A',
-        'size' => $exif['exif_file_size'],
-        'pid' => $exif['exif_pid'],
-        'security_inherited' =>  $security_inherited,
-        'label' => $label);
+            // A quick checking on the file's hash data before we proceed to save.
+            $fileHash = $dsresource->getHash();
+            if (empty($fileHash['rawHash'])){
+                $migrationErrors[$datastream['ID']]['error'] = "INVALID HASH data. " . $fedoraFilePath;
+                $migrationErrors[$datastream['ID']]['exif'] = $exif;
+                continue;
+            }
 
-    $dsresource = new DSResource(null, $fedoraFilePath, $meta);
-    
-    // A quick checking on the file's hash data before we proceed to save.
-    $fileHash = $dsresource->getHash();
-    if (empty($fileHash['rawHash'])){
-        $migrationErrors[$exif['exif_id']]['error'] = "INVALID HASH data. " . $fedoraFilePath;
-        $migrationErrors[$exif['exif_id']]['exif'] = $exif;
-        continue;
-    }
-    
-    // Save datastream
-    $result = $dsresource->save();
+            // Save datastream
+            $result = $dsresource->save();
 
-    // Log save status
-    if (!$result) {
-        $migrationErrors[$exif['exif_id']]['error'] = " UNABLE TO SAVE ";
-        $migrationErrors[$exif['exif_id']]['exif'] = $exif;
-    } else {
-        $migrationSuccessCount++;
-    }
+            // Log save status
+            if (!$result) {
+                $migrationErrors[$datastream['ID']]['error'] = " UNABLE TO SAVE ";
+                $migrationErrors[$datastream['ID']]['exif'] = $exif;
+            } else {
+                $migrationSuccessCount++;
+            }
 
-    //Setup security on Datastream
-    $acmlBase = Record::getACML($exif['exif_pid'], $exif['exif_dsid']);
-    if (!$acmlBase ) {
-        $did = AuthNoFedoraDatastreams::getDid($exif['exif_pid'], $exif['exif_dsid']);
-        AuthNoFedoraDatastreams::recalculatePermissions($did);
-    } else
-    {
-        addDatastreamSecurity($acml, $exif['exif_pid'], $exif['exif_dsid']);
-        $did = AuthNoFedoraDatastreams::getDid($pid, $dsID);
-        echo $did ." ".$exif['exif_pid']." ".$exif['exif_dsid']."<br/>";
+            //Setup security on Datastream
+            $acmlBase = Record::getACML($pid, $datastream['ID']);
+            if (!$acmlBase ) {
+                $did = AuthNoFedoraDatastreams::getDid($pid, $datastream['ID']);
+                AuthNoFedoraDatastreams::recalculatePermissions($did);
+                echo $did ." ".$pid." ".$datastream['ID']."<br/>";
+            } else
+            {
+                addDatastreamSecurity($acml, $pid, $datastream['ID']);
+                $did = AuthNoFedoraDatastreams::getDid($pid, $dsID);
+                echo $did ." ".$pid." ".$datastream['ID']."<br/>";
+            }
+        }
     }
 }
 
