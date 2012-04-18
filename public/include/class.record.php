@@ -3590,7 +3590,7 @@ class Record
                  WHERE
                     rek_".$sek_title."_pid = ".$db->quote($pid);
       try {
-        $res = $db->fetchCol($stmt);
+          $res = ($sek_details['sek_cardinality'] == 1) ? $db->fetchCol($stmt) : $db->fetchOne($stmt);
       }
       catch(Exception $ex) {
         $log->err($ex);
@@ -3682,7 +3682,7 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
              AND rek_".$sek_title."_stamp = ".$db->quote($stamp).
              $order;
         try {
-            $res = $db->fetchCol($stmt);
+            $res = ($sek_details['sek_cardinality'] == 1) ? $db->fetchCol($stmt) : $db->fetchOne($stmt);
         }
         catch(Exception $ex) {
             $log->err($ex);
