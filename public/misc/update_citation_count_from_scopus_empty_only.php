@@ -38,6 +38,9 @@ include_once(APP_INC_PATH . "class.fulltext_queue.php");
 $max = 100; 	// Max number of primary key IDs to send with each service request call
 $sleep = 1; 	// Number of seconds to wait for between successive service calls 
 
+// scopus id regex
+$regex = "/2-s2\.0-[0-9]{10,11}/";
+
 $filter = array();
 $filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
 $filter["searchKey".Search_Key::getID("Object Type")] = 3; // records only
@@ -56,13 +59,13 @@ for($i=0; $i<((int)$listing['info']['total_pages']+1); $i++) {
 		$listing = Record::getListing(array(), array(9,10), $listing['info']['next_page'], $max, 'Created Date', false, false, $filter);
 	}
 	$input_keys = array();
-	
 	if (is_array($listing['list'])) {
 	 	for($j=0; $j<count($listing['list']); $j++) {
 	 		$record = $listing['list'][$j];
 	 		$key = $record['rek_pid'];
 	 		$eid = $record['rek_scopus_id'];	// We store the EID as the Scopus ID
-	 		if(! empty($eid)) {
+
+	 		if(! empty($eid) && preg_match($regex, $eid)) {
 	 			$input_keys[$key] = array('eid' => $eid);
 	 		}
 	 	}
