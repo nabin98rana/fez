@@ -48,6 +48,7 @@ class Fez_Record_Searchkey
     protected $_db = null;
     protected $_pid = null;
     protected $_version = null;
+    protected $_shadow = null;
 
     /**
      * Class constructor.
@@ -64,8 +65,19 @@ class Fez_Record_Searchkey
         $this->_setPid($pid);
 
         $this->_setVersion();
+        
+        $this->_setShadow();
     }
 
+    /**
+     * Instantiate Fez_Record_SearchkeyShadow object
+     */
+    protected function _setShadow()
+    {
+        $this->_shadow = new Fez_Record_SearchkeyShadow($this->_pid);
+        
+    }
+    
     /**
      * Set the version timestamp to be used on Shadow table(s) operations.
      * Utilise the version registered on Zend Register from earlier process.
@@ -79,15 +91,16 @@ class Fez_Record_Searchkey
     }
 
     /**
-     * Set the PID for this process
+     * Set the PID for this process.
      * @param string $pid
      */
     protected function _setPid($pid = null)
     {
-        if (empty($pid)) {
-            return false;
+        if (!empty($pid)){
+            $this->_pid = $pid;
+        } else if (empty($this->_pid)){
+            $this->_pid = Fedora_API::getNextPID();
         }
-        $this->_pid = $pid;
     }
 
     
@@ -110,6 +123,44 @@ class Fez_Record_Searchkey
         return $this->_version;
     }
     
+    
+    /**
+     * Updates requested record search key of a PID.
+     *
+     * @param string $pid
+     * @param array $sekData An array of search keys title & value pairs. 
+     * The format value for $sekData = array( 
+     *                                       [0] => Array of 1-to-1 search keys 
+     *                                       [1] => Array of 1-to-Many search keys 
+     *                                 )
+     * @return boolean
+     */
+    public function insertRecord($sekData = array(), $historyMsg = false, $citationData = array())
+    {
+        // Set PID
+        $this->_setPid();
+        
+        // Save 1-to-1 search key
+        $oneToOne = $this->_insertOneToOneRecord($sekData[0]);
+            
+        // Save 1-to-many search key
+        $oneToMany = $this->_insertOneToManyRecord($sekData[1]);
+                
+        // Returns false when both updates failed.
+        if (!$oneToOne && !$oneToMany['oneSuccess']){
+            return false;
+        }
+        
+        if ($historyMsg){
+            $this->_updateHistory($historyMsg);
+        }
+        $this->_insertRecordCitation($citationData);
+        $this->_updateSolrIndex();
+        $this->_updateLinksAMR();
+        
+        return true;
+    }
+
     
     /**
      * Updates requested record search key of a PID.
@@ -149,6 +200,126 @@ class Fez_Record_Searchkey
         return true;
     }
 
+    
+    /**
+     * Builds array of Search Keys Data, which used for inserting/updating a PID record search keys.
+     * 
+     * @param array $sekTitles
+     * @param array $values 
+     */
+    public function buildSearchKeyDataByDisplayType($sekData = array(), $displayType = 0)
+    {
+        // $searchKeyData[0] = 1-to-1 search keys, $searchKeyData[1] = 1-to-many search keys
+        $searchKeyData = array(0 => array(), 1 => array());
+
+        foreach ($sekData as $title => $value) {
+            $xsdmfId = XSD_HTML_Match::getXSDMFIDBySearchKeyTitleXDIS_ID($title, $displayType);
+            
+            // This search key has no relation to request Display Type, continue to the next search key.
+            if (empty($xsdmfId)){
+                continue;
+            }
+            
+            $sekDetails = Search_Key::getDetailsByTitle($title);
+            $relationship = $sekDetails['sek_relationship'];
+            $sekTitleDb = $sekDetails['sek_title_db'];
+            
+            $searchKeyData[$relationship][$sekTitleDb]['xsdmf_id']    = $xsdmfId;
+            $searchKeyData[$relationship][$sekTitleDb]['xsdmf_value'] = $value;
+        }
+        return $searchKeyData;
+    }
+
+    
+    /**
+     * Inserts 1-to-1 record search keys with value specified by the $data parameter &
+     * automatically create current version data to Shadow table.
+     * 
+     * It loops through each of the 1-to-1 search keys from $data parameter, and
+     * for each search key, it executes the following database update: 
+     *      a. Insert new details to Main sek table
+     *      b. Insert this version to Shadow table
+     * Once db->commit() is successful for the above queries, continue with next search key.
+     * 
+     * @param array $data An array of 1-to-1 search key name & value pairs
+     * @return boolean True when all queries has been successfully executed. 
+     */
+    protected function _insertOneToOneRecord($data = array())
+    {
+        
+        if (!is_array($data) || sizeof($data) <= 0){
+            return false;
+        }
+        
+        // Insert new record to main table
+        $stmtInsertNew = $this->_buildOneToOneInsertQuery($data);
+        
+        try {
+            $this->_db->exec($stmtInsertNew);
+        } catch (Exception $ex) {
+            $this->_log->err($ex);
+            return false;
+        }
+        
+        // Copy to Shadow
+        if (!$this->_shadow->copyRecordSearchKeyToShadow()){
+            return false;
+        }
+        
+        return true;
+    }
+    
+
+    /**
+     * Inserts 1-to-many search keys with value specified by the $data parameter.
+     * 
+     * It loops through each of the 1-to-many search keys on the parameters,
+     * for each search key, execute the following database update: 
+     *      a. Insert new details to Main sek table
+     *      b. Insert this version to Shadow table
+     * Once db->commit() is successful for the above queries, continue with next search key.
+     * 
+     * @param array $data An array of 1-to-many search key values
+     * @return boolean True when all queries has been successfully executed. 
+     */
+    protected function _insertOneToManyRecord($data = array())
+    {
+        $result = array('oneSuccess' => false);
+        
+        if (!is_array($data) || sizeof($data) <=0 ) {
+            return $result;
+        }
+        
+        foreach ($data as $sekTitle => $value) {
+            $result[$sekTitle] = false;
+            
+            // Verify sk value
+            if (!$this->_verifyOneToManyData($value, $sekTitle)){
+                continue;
+            }
+
+            // Insert new record to main sek table
+            $stmtInsertNew = $this->_buildOneToManyInsertQuery($sekTitle, $value);
+            try {
+                $this->_db->exec($stmtInsertNew);
+            } catch (Exception $ex) {
+                $this->_log->err($ex);
+                // Ignore the rest of processing if Insert query failed.
+                continue;
+            }
+            
+            if (!$this->_shadow->copySearchKeyToShadow($sekTitle)){
+                continue;
+            }
+            
+            // Everything should be running fine upto this point, flag oneSuccess to True.
+            $result['oneSuccess'] = true;
+            $result[$sekTitle]    = true;
+        }
+
+        return $result;
+    }
+    
     
     /**
      * @todo: Add related workflow, bgp bulk, and other relevant info on $historyDetailExtra
@@ -233,10 +404,48 @@ class Fez_Record_Searchkey
         }
         
         Citation::updateCitationCache($this->_pid);
-        Statistics::updateSummaryStatsOnPid($this->_pid);
-        Google_Scholar::updateCitationCache($this->_pid);
-        Record::updateThomsonCitationCountFromHistory($this->_pid);
-        Record::updateScopusCitationCountFromHistory($this->_pid);        
+        // We don't need to update the following. Each citation will get updated when related script is executed (mostly via cron job)
+//        Statistics::updateSummaryStatsOnPid($this->_pid);
+//        Google_Scholar::updateCitationCache($this->_pid);
+//        Record::updateThomsonCitationCountFromHistory($this->_pid);
+//        Record::updateScopusCitationCountFromHistory($this->_pid);        
+
+        return true;
+    }
+    
+    
+    /**
+     * Inserts citations for newly created PID.
+     * 
+     * @return boolean 
+     */
+    protected function _insertRecordCitation($citationData = array())
+    {
+        if (!defined('PROVISIONAL_CODE_UPDATE_FROM_SCRIPT') || PROVISIONAL_CODE_UPDATE_FROM_SCRIPT === false) {
+            Record::applyProvisionalCode($this->_pid);
+        }
+        
+        // Renders citation cache (used on SOLR search)
+        Citation::updateCitationCache($this->_pid);
+        
+        if (array_key_exists('googleScholar', $citationData) && !empty($citationData['googleScholar'])){
+            Record::updateGoogleScholarCitationCount($this->_pid, 
+                                                      $citationData['googleScholar']['count'], 
+                                                      $citationData['googleScholar']['link']);
+            Google_Scholar::insertGoogleScholarCitationCount($this->_pid, 
+                                                      $citationData['googleScholar']['count'], 
+                                                      $citationData['googleScholar']['link']);
+        }
+        
+        if (array_key_exists('scopus', $citationData) && !empty($citationData['scopus'])){
+            $eid = Record::getSearchKeyIndexValue($this->_pid, "Scopus ID", false);
+            Record::updateScopusCitationCount($this->_pid, $citationData['scopus'], $eid);
+        }
+        
+        if (array_key_exists('thomson', $citationData) && !empty($citationData['thomson'])){
+            $isiloc = Record::getSearchKeyIndexValue($this->_pid, "ISI LOC", false);
+            Record::updateThomsonCitationCount($this->_pid, $citationData['thomson'], $isiloc);
+        }
 
         return true;
     }
@@ -280,7 +489,7 @@ class Fez_Record_Searchkey
                 " WHERE rek_pid = " . $this->_db->quote($this->_pid, 'STRING');
 
         // Query to insert new record to main table
-        $stmtInsertNew = $this->_buildOneToOneInsertQuery($data);
+        $stmtInsertNew = $this->_buildOneToOneUpdateQuery($data);
 
         // Begin DB transaction explicitly. We want to be able to rollback if any of these queries failed.
         $this->_db->beginTransaction();
@@ -428,7 +637,7 @@ class Fez_Record_Searchkey
      * @param array $data Search keys data to be inserted.
      * @return string Query statement
      */
-    protected function _buildOneToOneInsertQuery($data = array())
+    protected function _buildOneToOneUpdateQuery($data = array())
     {
         $table = APP_TABLE_PREFIX . "record_search_key";
         $current = null;
@@ -476,9 +685,48 @@ class Fez_Record_Searchkey
 
                 $stmtFields[] = $fieldname;
                 $stmtValues[] = $this->_db->quote($valueArray['xsdmf_value']);
-                $stmtFields[] = $fieldname . "_xsmdf_id";
+                $stmtFields[] = $fieldname . "_xsdmf_id";
                 $stmtValues[] = $valueArray['xsdmf_id'];
             }
+        }
+
+        // Build the query statement
+        $stmt = "INSERT INTO " . $table .
+                " (" . implode(",", $stmtFields) . ")" .
+                " VALUES (" . implode(",", $stmtValues) . ");";
+
+        return $stmt;
+    }
+    
+    
+    /**
+     * Builds INSERT query for a NEW PID's 1-to-1 search keys.
+     * 
+     * @param array $data Search keys data to be inserted.
+     * @return string Query statement
+     */
+    protected function _buildOneToOneInsertQuery($data = array())
+    {
+        $table = APP_TABLE_PREFIX . "record_search_key";
+        
+        $current = null;
+        $stmt = "";
+
+        $stmtFields = array();
+        $stmtValues = array();
+        
+        // Set PID
+        $stmtFields[] = 'rek_pid';
+        $stmtValues[] = $this->_db->quote($this->_pid);
+
+        // Set the query fields & values
+        foreach ($data as $field => $valueArray) {
+            $fieldname = "rek_" . $field;
+
+            $stmtFields[] = $fieldname;
+            $stmtValues[] = $this->_db->quote($valueArray['xsdmf_value']);
+            $stmtFields[] = $fieldname . "_xsdmf_id";
+            $stmtValues[] = $valueArray['xsdmf_id'];
         }
 
         // Build the query statement
@@ -504,7 +752,6 @@ class Fez_Record_Searchkey
         $currentData = null;
 
         $table = APP_TABLE_PREFIX . "record_search_key_" . $sekTitle;
-        $tableShadow = $table . "__shadow";
         $pidColumn = "rek_" . $sekTitle . "_pid";
         $cardinalityColumn = "rek_" . $sekTitle . "_order";
 
@@ -522,9 +769,8 @@ class Fez_Record_Searchkey
         }
         
         // Set the query values
+        $cardinalityVal = 1;
         if (is_array($value['xsdmf_value'])) {
-
-            $cardinalityVal = 1;
             foreach ($value['xsdmf_value'] as $val) {
                 $values = array($this->_db->quote($this->_pid), 
                                 $this->_db->quote($value['xsdmf_id'], 'INTEGER'),
@@ -541,6 +787,10 @@ class Fez_Record_Searchkey
             $values = array($this->_db->quote($this->_pid), 
                             $this->_db->quote($value['xsdmf_id'], 'INTEGER'),
                             $this->_db->quote($value['xsdmf_value']));
+            
+            if ($sekCardinality == 1){
+                $values[] = $cardinalityVal;
+            }
             $stmtValues[] = "(" . implode(",", $values) . ")";
         }
         
