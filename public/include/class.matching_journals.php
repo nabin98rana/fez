@@ -126,10 +126,10 @@ class RJL
 		/* Subtract matches from list before printing unmatched */
 		/*
 		$unmatched = $normalisedCandidateJournals;
-		RJL::subtractMatchesFromCandidates(&$unmatched, $matchesI);
-		RJL::subtractMatchesFromCandidates(&$unmatched, $matchesS);
-		RJL::subtractMatchesFromCandidates(&$unmatched, $matchesT);
-		RJL::subtractMatchesFromCandidates(&$unmatched, $matchesM);
+		RJL::subtractMatchesFromCandidates($unmatched, $matchesI);
+		RJL::subtractMatchesFromCandidates($unmatched, $matchesS);
+		RJL::subtractMatchesFromCandidates($unmatched, $matchesT);
+		RJL::subtractMatchesFromCandidates($unmatched, $matchesM);
 */
 		echo "Number of ISSN matches: " . sizeof($matchesI) . "\n";
         ob_flush();

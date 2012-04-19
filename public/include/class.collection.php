@@ -256,7 +256,7 @@ class Collection
       if (is_numeric($data)) {
         $parent_count += $data;
       }
-      Collection::fillTree(&$res, $treeIDs, $key, $data);
+      Collection::fillTree($res, $treeIDs, $key, $data);
     }
     if (is_numeric($parent_id)) {
       $res[$parent_id] = $parent_count;
@@ -289,7 +289,7 @@ class Collection
           } else {
             $res[$tkey] = $data;
           }
-          Collection::fillTree(&$res, $tdata, $key, $data);
+          Collection::fillTree($res, $tdata, $key, $data);
         }
       }
     }

@@ -1090,7 +1090,7 @@ class XSD_DisplayObject
 		}
 		$xml_schema = Misc::getSchemaAttributes($xsd, $xsd_top_element_name, $xsd_element_prefix, $xsd_extra_ns_prefixes); // for the namespace uris etc
 		$array_ptr = array();
-		Misc::dom_xsd_to_referenced_array($xsd, $xsd_top_element_name, &$array_ptr, "", "", $xsd);
+		Misc::dom_xsd_to_referenced_array($xsd, $xsd_top_element_name, $array_ptr, "", "", $xsd);
 		return array($array_ptr,$xsd_element_prefix, $xsd_top_element_name, $xml_schema);
 	}
 

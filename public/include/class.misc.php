@@ -863,7 +863,7 @@ public static function multi_implode($glue, $pieces)
             $return[$key]['security'] = "inherit";
             $parentsACMLs = array();
           }
-          Auth::getIndexParentACMLMemberList(&$parentsACMLs, $key, $row['isMemberOf']);
+          Auth::getIndexParentACMLMemberList($parentsACMLs, $key, $row['isMemberOf']);
           $return[$key]['FezACML'] = $parentsACMLs;
 
         }

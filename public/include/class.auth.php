@@ -379,7 +379,7 @@ class Auth
 		}
 
 		foreach ($parents as $parent) {
-			Auth::getIndexParentACMLMember(&$array, $parent);
+			Auth::getIndexParentACMLMember($array, $parent);
 		}
 	}
 
@@ -542,13 +542,13 @@ class Auth
 				if ($inherit == true) { // if need to inherit
 					$superParents = Record::getParents($parent);
 					if ($superParents != false) {
-						Auth::getParentACMLs(&$ACMLArray, $superParents);
+						Auth::getParentACMLs($ACMLArray, $superParents);
 					}
 				}
 			} else { // if no ACML found then assume inherit
 				$superParents = Record::getParents($parent);
 				if ($superParents != false) {
-					Auth::getParentACMLs(&$ACMLArray, $superParents);
+					Auth::getParentACMLs($ACMLArray, $superParents);
 				}
 			}
 		}
@@ -796,7 +796,7 @@ class Auth
 		// so go to parents straight away (inherit presumed)
 		if ($acmlBase == false) {
 			$parents = Record::getParents($pid);
-			Auth::getParentACMLs(&$ACMLArray, $parents);
+			Auth::getParentACMLs($ACMLArray, $parents);
 		} else { // otherwise found something so use that and check if need to inherit
 
 			$ACMLArray[0] = $acmlBase;
@@ -828,12 +828,12 @@ class Auth
 				// if already at PID level just get parent pids and add them
 				if (($dsID == "") || ($usingDS == false)) {
 					$parents = Record::getParents($pid);
-					Auth::getParentACMLs(&$ACMLArray, $parents);
+					Auth::getParentACMLs($ACMLArray, $parents);
 				} else { // otherwise get the pid object first and check whether to inherit
 					$acmlBase = Record::getACML($pid);
 					if ($acmlBase == false) { // if pid level doesnt exist go higher
 						$parents = Record::getParents($pid);
-						Auth::getParentACMLs(&$ACMLArray, $parents);
+						Auth::getParentACMLs($ACMLArray, $parents);
 					} else { // otherwise found pid level so add to ACMLArray and check whether to inherit or not
             $userPIDAuthGroups["security"] = "include";
 						array_push($ACMLArray, $acmlBase);
@@ -848,7 +848,7 @@ class Auth
 						}
 						if ($inherit == true) {
 							$parents = Record::getParents($pid);
-							Auth::getParentACMLs(&$ACMLArray, $parents);
+							Auth::getParentACMLs($ACMLArray, $parents);
 						}
 					}
 				}
@@ -1147,7 +1147,7 @@ class Auth
 		 */
 		if ($acmlBase == false) {
 			$parents = Record::getParents($pid);
-			Auth::getParentACMLs(&$ACMLArray, $parents);
+			Auth::getParentACMLs($ACMLArray, $parents);
 
 			/*
 			 * otherwise found something so use that and check if need to inherit
@@ -1182,7 +1182,7 @@ class Auth
 				 */
 				if (($dsID == "") || ($usingDS == false)) {
 					$parents = Record::getParents($pid);
-					Auth::getParentACMLs(&$ACMLArray, $parents);
+					Auth::getParentACMLs($ACMLArray, $parents);
 
 					/*
 					 * Otherwise get the pid object first and check whether to inherit
@@ -1194,7 +1194,7 @@ class Auth
 					// if pid level doesnt exist go higher
 					if ($acmlBase == false) {
 						$parents = Record::getParents($pid);
-						Auth::getParentACMLs(&$ACMLArray, $parents);
+						Auth::getParentACMLs($ACMLArray, $parents);
 
 						/*
 						 * Otherwise found pid level so add to ACMLArray and
@@ -1210,7 +1210,7 @@ class Auth
 							
 						if( $inheritSearch->length > 0 ) {
 							$parents = Record::getParents($pid);
-							Auth::getParentACMLs(&$ACMLArray, $parents);
+							Auth::getParentACMLs($ACMLArray, $parents);
 						}
 							
 					}
@@ -1252,7 +1252,7 @@ class Auth
                                 "rule"    => "override", 
                                 "value"   => "true"
                                 );
-                                Auth::addRuleArray(&$auth_groups, $role, $rule_array);
+                                Auth::addRuleArray($auth_groups, $role, $rule_array);
 
 					}
 
@@ -1269,7 +1269,7 @@ class Auth
 		                        "rule"    => "!rule!role!".$group_type, 
 		                        "value"   => $group_value
 						);
-						Auth::addRuleArray(&$auth_groups, $role, $rule_array);
+						Auth::addRuleArray($auth_groups, $role, $rule_array);
 							
 					}
 				}

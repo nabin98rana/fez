@@ -559,7 +559,7 @@ class XSD_HTML_Match
 			$xsd->loadXML($xsd_str);
 			$array_ptr = array();
 			$temp = array();
-			Misc::dom_xsd_to_flat_array($xsd, $top_element_name, &$array_ptr, "", "", $xsd);
+			Misc::dom_xsd_to_flat_array($xsd, $top_element_name, $array_ptr, "", "", $xsd);
 			$xsd_array[$xsd_id] = $array_ptr;
 			return $array_ptr;
 

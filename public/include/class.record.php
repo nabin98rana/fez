@@ -249,7 +249,7 @@ class Record
         }
         array_push($shownPids, $dev['rek_pid']);
         if (is_array($dev['children'])) {
-          Record::generateDerivationTree($pid, $dev['children'], &$dTree, &$shownPids);
+          Record::generateDerivationTree($pid, $dev['children'], $dTree, $shownPids);
         }
       }
     }

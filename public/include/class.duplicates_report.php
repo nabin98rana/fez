@@ -671,7 +671,7 @@ class DuplicatesReport {
 			// Just want to find the basic xsdmf_ids for the title, date and user and set them to something useful
 			$params['xsd_display_fields'] = $base_det;
 			$ref = new RecordEditForm();
-			$ref->fixParams(&$params, $base_record);
+			$ref->fixParams($params, $base_record);
 
 			$base_record->fedoraInsertUpdate(array("FezACML"), array(""),$params);
 			 
