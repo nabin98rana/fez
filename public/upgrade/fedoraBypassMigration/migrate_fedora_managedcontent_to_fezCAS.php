@@ -42,7 +42,7 @@ include_once(APP_INC_PATH . "class.dsresource.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.auth_no_fedora_datastreams.php");
 error_reporting(1);
-
+set_time_limit(0);
 
 // Get PIDs' Exif data from database table.
 /*$stmt = "SELECT * FROM " . APP_TABLE_PREFIX . "exif where exif_pid = 'UQ:3718' ORDER BY exif_pid ";  //where exif_pid = 'UQ:21033'
@@ -57,8 +57,9 @@ $fedoraPids = Fedora_Direct_Access::fetchAllFedoraPIDs('','');
 //$fedoraPids = array('UQ:67458');
 
 foreach ($fedoraPids as $pid) {
-    $datastreams = Fedora_API::callGetDatastreams($pid, '', 'A');
-    $datastreams = Misc::cleanDatastreamListLite($datastreams, $pid);
+    $pid = $pid['pid'];
+    $datastreams = Fedora_API::callGetDatastreams($pid);
+    //$datastreams = Misc::cleanDatastreamListLite($datastreams, $pid);
     foreach ($datastreams as $datastream) {
         if ($datastream['controlGroup'] == 'M') {
 
