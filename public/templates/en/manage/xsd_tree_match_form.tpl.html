@@ -1327,6 +1327,39 @@
                   <br /><span class="small_default">(The maximum number of characters allowed for this field.)</span>
                 </td>
               </tr>
+
+
+              <tr id="validation_custom_regex_tr">
+              <td width="120" bgcolor="{$cell_color}" class="default">
+                  <b>Custom Validation Regex:</b>
+              </td>
+              <td bgcolor="{$light_color}">
+                  <table bgcolor="{$dark_color}" cellspacing="0" cellpadding="0" border="0">
+                      <tr>
+                          <td bgcolor="{$light_color}">
+                              <textarea name="validation_regex" rows="20" cols="60" class="default" value="{$info.xsdmf_validation_regex}">{$info.xsdmf_validation_regex}</textarea>
+                              <br /><span class="small_default">(If you set a custom validation regex it will override validation type and validation max length)</span>
+                          </td>
+                      </tr>
+                  </table>
+              </td>
+              </tr>
+              <tr id="validation_custom_regex_tr">
+                  <td width="120" bgcolor="{$cell_color}" class="default">
+                      <b>Custom Validation Failure Message:</b>
+                  </td>
+                  <td bgcolor="{$light_color}">
+                      <table bgcolor="{$dark_color}" cellspacing="0" cellpadding="0" border="0">
+                          <tr>
+                              <td bgcolor="{$light_color}">
+                                  <textarea name="validation_message" rows="20" cols="60" class="default" value="{$info.xsdmf_validation_regex}">{$info.xsdmf_validation_message}</textarea>
+                                  <br /><span class="small_default">(Only used when a custom validation regex is specified)</span>
+                              </td>
+                          </tr>
+                      </table>
+                  </td>
+              </tr>
+
               <tr id="date_type_tr" style="display:none">
                 <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Date Type: </b>

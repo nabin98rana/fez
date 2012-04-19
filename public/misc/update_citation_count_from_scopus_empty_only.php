@@ -39,7 +39,7 @@ $max = 100; 	// Max number of primary key IDs to send with each service request 
 $sleep = 1; 	// Number of seconds to wait for between successive service calls 
 
 // scopus id regex
-$regex = "/2-s2\.0-[0-9]{10,11}/";
+$regex = "/^2-s2\.0-[0-9]{10,11}/";
 
 $filter = array();
 $filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only

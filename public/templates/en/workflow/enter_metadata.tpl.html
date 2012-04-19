@@ -77,6 +77,22 @@
 		        field.options[y].selected = true;
 		    }
 		{/literal}
+        {elseif ($xsd_display_fields[i].xsdmf_html_input == 'text' || $xsd_display_fields[i].xsdmf_html_input == 'textarea'
+                || ($isAdministrator == "1" && $xsd_display_fields[i].xsdmf_html_input == 'hidden'))
+        && $xsd_display_fields[i].xsdmf_validation_regex != ''}
+        var field = document.getElementById('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0');
+        var regexp = {$xsd_display_fields[i].xsdmf_validation_regex};
+        {literal}
+        if(field != null && !regexp.test(field.value) && field.value != '') {
+            {/literal}
+                {if ($xsd_display_fields[i].xsdmf_validation_message != '')}
+                    errors[errors.length] = new Option('{$xsd_display_fields[i].xsdmf_title}'+' ({$xsd_display_fields[i].xsdmf_validation_message})', field.name);
+                    {else}
+                    errors[errors.length] = new Option('{$xsd_display_fields[i].xsdmf_title}'+' (not in valid format)', field.name);}
+                {/if}
+                    {literal}
+                }
+                {/literal}
 		{elseif $xsd_display_fields[i].xsdmf_enabled == 1 
 				&& $xsd_display_fields[i].xsdmf_html_input == 'text'
 				&& $xsd_display_fields[i].xsdmf_validation_type != '' 
