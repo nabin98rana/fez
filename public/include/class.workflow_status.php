@@ -585,14 +585,13 @@ class WorkflowStatus
         }
       }
     }
-// Commented out as we don't want the save button showing anymore for create form.
-// If it is to be there then it should be added manually in the edit workflow template as a real state (like in the default edit workflows)
-//    if ($this->wfs_details['wfs_end'] == 1) {
-//      $button_list[999999][] = array(
-//                    'wfs_id' => -1,
-//                    'wfs_title' => $this->wfl_details['wfl_end_button_label']
-//      );
-//    }
+
+    if ($this->wfs_details['wfs_end'] == 1) {
+      $button_list[999999][] = array(
+                    'wfs_id' => -1,
+                    'wfs_title' => $this->wfl_details['wfl_end_button_label']
+      );
+    }
 
     // sort the button list to give priority to display order items
     ksort($button_list, SORT_NUMERIC);
