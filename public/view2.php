@@ -328,15 +328,14 @@ if (!empty($pid) && $record->checkExists()) {
 								if (trim($data) != '') {
 									if ($metaDataDetails['type'] == 'date') {
                                         if (is_numeric($data) && strlen($data) == 4) {
-                                            // It appears we've just been fed a year. We'll pad this,
-                                            // so it can be added to the index.
-                                            $data = $data . "-01-01 00:00:00";
+                                            // Don't pad years - this makes google scholar angry
+                                        } else {
+                                            if ($fieldName == 'citation_date') {
+                                                $data = date('Y/m/d', strtotime($data)); // google wants this format for the date
+                                            } else {
+                                                $data = date('Y-m-d', strtotime($data)); // everyone else
+                                            }
                                         }
-										if ($fieldName == 'citation_date') {
-											$data = date('Y/m/d', strtotime($data)); // google wants this format for the date
-										} else {
-											$data = date('Y-m-d', strtotime($data)); // everyone else
-										}
 									}
 									// use the lookup function if one is specified
 									if ($metaDataDetails['lookup'] != '') {
@@ -350,14 +349,14 @@ if (!empty($pid) && $record->checkExists()) {
 							if ($metaDataDetails['type'] == 'date') {
                                 if (trim($data) != '') {
                                     if (is_numeric($details[$xsdmfId]) && strlen($details[$xsdmfId]) == 4) {
-                                        // It appears we've just been fed a year. We'll pad this,
-                                        // so it can be added to the index.
-                                        $details[$xsdmfId] = $details[$xsdmfId] . "-01-01 00:00:00";
-                                    }
-                                    if ($fieldName == 'citation_date') {
-                                        $data = date('Y/m/d', strtotime($details[$xsdmfId])); // google wants this format for the date
+                                        // Don't pad years - this makes google scholar angry
+                                        $data = $details[$xsdmfId];
                                     } else {
-                                        $data = date('Y-m-d', strtotime($details[$xsdmfId])); // everyone else
+                                        if ($fieldName == 'citation_date') {
+                                            $data = date('Y/m/d', strtotime($details[$xsdmfId])); // google wants this format for the date
+                                        } else {
+                                            $data = date('Y-m-d', strtotime($details[$xsdmfId])); // everyone else
+                                        }
                                     }
                                 }
 							} else {
