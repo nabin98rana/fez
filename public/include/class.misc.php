@@ -4548,9 +4548,11 @@ public static function multi_implode($glue, $pieces)
   /**
    * Adds the record to Fedora
    *
+   * @example MatchingRecords->add() on matching_records_proxy.php
+   * @package fedora
    * @param $record The WoS record to add to Fedora
    * @param $author_id (OPTIONAL) The author id of one of the authors on the records
-   *
+   * 
    * @return bool True if succeeded otherwise false
    */
   public static function convertEstiRecordToMods($record, $author_id = false)
@@ -4606,6 +4608,7 @@ public static function multi_implode($glue, $pieces)
     $mods = array();
     $mods['titleInfo']['title'] = $item_title;
 
+    // Authors
     $mods['name'][0]['id'] = '0';
     $mods['name'][0]['authority'] = APP_ORG_NAME;
     $mods['name'][0]['namePart_personal'] = $record->authors->primaryauthor;
@@ -4636,6 +4639,8 @@ public static function multi_implode($glue, $pieces)
       }
       $i++;
     }
+    
+    // Assign Author ID if we found a match
     if ($authors_matching_count == 1) {
       $mods['name'][$authors_matching_index]['id'] = $author_id;
     }
