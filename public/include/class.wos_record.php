@@ -269,6 +269,13 @@ class WosRecItem
    * @var bool
    */
   private $_loaded = FALSE;
+  
+  /**
+   * Publisher
+   *
+   * @var string
+   */
+  private $publisher = null;
     
   /**
    * Constructs a new object 
@@ -356,7 +363,7 @@ class WosRecItem
     
     $this->setBibIssueYVM($node);
     $this->setDateIssued($node);
-      
+    
     $docType = $node->getElementsByTagName("doctype")->item(0);
     if ($docType) {
       $this->docType = $docType->nodeValue;
@@ -392,6 +399,12 @@ class WosRecItem
     }
     if (is_array($keywords) && count($keywords) > 0) {
       $this->keywords = $keywords;
+    }
+    
+    if (isset($node->getElementsByTagName("bk_publisher")->item(0)->nodeValue)){
+        $this->publisher = $node->getElementsByTagName("bk_publisher")->item(0)->nodeValue;
+    }else if (isset($node->getElementsByTagName("publisher")->item(0)->nodeValue)){
+        $this->publisher = $node->getElementsByTagName("publisher")->item(0)->nodeValue;
     }
     
     $firstConf = $node->getElementsByTagName("conference")->item(0);
@@ -478,6 +491,15 @@ class WosRecItem
       if ($bibVol) {
         $this->bibIssueNum = $bibVol->getAttribute('issue');
         //$this->bibIssueVol = $bibIssue->getAttribute('volume'); //Already gotten from bib_issue element - same value
+      
+      }else {
+          
+        // If bib_vol node does not exists, retrieve it from bib_id node
+        $temp_bib_id = $node->getElementsByTagName("bib_id")->item(0);
+        preg_match('/\(([^\)]+)\):/', $temp_bib_id, $matches);
+        if (count($matches) == 2) {
+            $this->bibIssueNum = $matches[1];
+        }
       }
     }    
   }
@@ -537,6 +559,7 @@ class WosRecItem
         $sekData['Keywords']        = $this->keywords;
         $sekData['ISBN']            = $this->isbn;
         $sekData['ISSN']            = $this->issn;
+        $sekData['Publisher']       = $this->publisher;
         
         $sekData['Issue Number']    = $this->bibIssueNum;
         $sekData['Volume Number']   = $this->bibIssueVol;
@@ -555,6 +578,7 @@ class WosRecItem
         $sekData['Created Date']    = $recordSearchKey->getVersion();
         $sekData['Updated Date']    = $recordSearchKey->getVersion();
 
+        // Custom search keys based on Document Type
         if ($xdis_title == 'Conference Paper') {
             $sekData['Proceedings Title'] = $this->sourceTitle;
             $sekData['Conference Name']   = $this->confTitle;
@@ -577,7 +601,7 @@ class WosRecItem
      * 
      * @return string $pid
      */
-    protected function _saveFedoraBypass()
+    protected function _saveFedoraBypass($history = null)
     {
         $log = FezLog::get();
 
@@ -600,14 +624,16 @@ class WosRecItem
         // Instantiate Record Sek class
         $recordSearchKey = new Fez_Record_Searchkey();
         
-        // History message
-        $history = 'Imported from WoK Web Services Premium';
-        if (count($this->author_ids) > 0) {
-            $aut_details = Author::getDetails($this->author_ids[0]);
-            $history .= " via Researcher ID download of " . $aut_details['aut_display_name'] . " (" .
-                    $aut_details['aut_researcher_id'] . " - " . $aut_details['aut_id'] . " - " . $aut_details['aut_org_username'] . ")";
+        if (empty($history)){
+            // History message
+            $history = 'Imported from WoK Web Services Premium';
+            if (count($this->author_ids) > 0) {
+                $aut_details = Author::getDetails($this->author_ids[0]);
+                $history .= " via Researcher ID download of " . $aut_details['aut_display_name'] . " (" .
+                        $aut_details['aut_researcher_id'] . " - " . $aut_details['aut_id'] . " - " . $aut_details['aut_org_username'] . ")";
+            }
         }
-
+        
         // Citation Data
         $citationData = array('thomson' => $this->timesCited);
         
@@ -629,14 +655,14 @@ class WosRecItem
     /**
      * Stores to a new record in Fez
      */
-    public function save()
+    public function save($history = null)
     {
         $pid = null;
         
         if (APP_FEDORA_BYPASS == 'ON') {
 
             // save WOS data to Record Search Keys
-            $pid = $this->_saveFedoraBypass();
+            $pid = $this->_saveFedoraBypass($history);
             
         } else {
 
@@ -662,12 +688,14 @@ class WosRecItem
             $xdis_subtype = $dTMap[$this->docTypeCode][1];
             $xdis_id = $dTMap[$this->docTypeCode][2];
 
-            $history = 'Imported from WoK Web Services Premium';
+            if (empty($history)){
+                $history = 'Imported from WoK Web Services Premium';
 
-            if (count($this->author_ids) > 0) {
-                $aut_details = Author::getDetails($this->author_ids[0]);
-                $history .= " via Researcher ID download of " . $aut_details['aut_display_name'] . " (" .
-                        $aut_details['aut_researcher_id'] . " - " . $aut_details['aut_id'] . " - " . $aut_details['aut_org_username'] . ")";
+                if (count($this->author_ids) > 0) {
+                    $aut_details = Author::getDetails($this->author_ids[0]);
+                    $history .= " via Researcher ID download of " . $aut_details['aut_display_name'] . " (" .
+                            $aut_details['aut_researcher_id'] . " - " . $aut_details['aut_id'] . " - " . $aut_details['aut_org_username'] . ")";
+                }
             }
             // MODS
 
@@ -705,7 +733,7 @@ class WosRecItem
             $mods['relatedItem']['part']['extent_page']['end'] = $this->bibPageEnd;
             $mods['relatedItem']['part']['extent_page']['total'] = $this->bibPageCount;
             if ($xdis_title == 'Conference Paper') {
-                $mods['originInfo']['dateIssued'] = $this->date_issued;
+                    $mods['originInfo']['dateIssued'] = $this->date_issued;
                 $mods['relatedItem']['titleInfo']['title'] = $this->sourceTitle;
                 $mods['relatedItem']['name'][0]['namePart_type'] = 'conference';
                 $mods['relatedItem']['name'][0]['namePart'] = $this->confTitle;
