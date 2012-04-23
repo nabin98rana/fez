@@ -1134,14 +1134,16 @@ class XSD_DisplayObject
 		$log = FezLog::get();
 		$this->getXSD_HTML_Match();
 
-        if(APP_FEDORA_BYPASS == 'ON')
+        if(APP_FEDORA_BYPASS == 'ON' && $createdDT != null)
+//        if(APP_FEDORA_BYPASS == 'ON')
         {
             $rec = new Fez_Record_SearchkeyShadow($pid);
             $versionDate = $createdDT ? $createdDT : 'now' ;
             return $rec->returnRecordVersion($versionDate);
         }
 		//print_r($this->specify_list); echo count($this->specify_list); if ($skipIndex != true) { echo "hai"; }
-		if (APP_XSDMF_INDEX_SWITCH == "ON" && $skipIndex != true && count($this->specify_list) == 0) { //echo "MAAA";
+
+		if (APP_FEDORA_BYPASS == "ON" && $skipIndex != true && count($this->specify_list) == 0) { //echo "MAAA";
 			// AN Attempt at seeing what performance would be like by getting all details from the index rather than from fedora, now commented out for future experimentation
 			$return = array();
 			$options = array();
@@ -1152,9 +1154,9 @@ class XSD_DisplayObject
 			$max = 1;
 			$order_by = "Title";
 			//$return = Record::getListing($options, array(9,10), $current_row, $max, $order_by, false, false, $filter);
-			$return = Record::getListing($options, array(9,10), $current_row, $max, $order_by, false, false, $filter, 'AND', false, false, false, APP_SOLR_FACET_LIMIT, APP_SOLR_FACET_MINCOUNT, false, $createdDT);
+			$return = Record::getListing($options, array(9,10), $current_row, $max, $order_by, false, false, $filter, 'AND', false, false, false, APP_SOLR_FACET_LIMIT, APP_SOLR_FACET_MINCOUNT, false, $createdDT, true);
 		}
-		if (APP_XSDMF_INDEX_SWITCH == "ON" && count($return['list']) > 0 && $skipIndex != true && count($this->specify_list) == 0) {
+		if (APP_FEDORA_BYPASS == "ON" && count($return['list']) > 0 && $skipIndex != true && count($this->specify_list) == 0) {
 			$return = $return['list'][0];
 			foreach ($return as $sek_id => $value) {
 				// test sek id to xsdmf id later

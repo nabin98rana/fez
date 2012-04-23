@@ -1965,13 +1965,13 @@ class Record
       $options, $approved_roles=array(9,10), $current_page=0,$page_rows="ALL", $sort_by="Title", 
       $getSimple=false, $citationCache=false, $filter=array(), $operator='AND', $use_faceting = false, 
       $use_highlighting = false, $doExactMatch = false, $facet_limit = APP_SOLR_FACET_LIMIT, 
-      $facet_mincount = APP_SOLR_FACET_MINCOUNT, $getAuthorMatching = false, $versionDate=null
+      $facet_mincount = APP_SOLR_FACET_MINCOUNT, $getAuthorMatching = false, $versionDate=null, $forceLocal = false
   )
   {
     $log = FezLog::get();
     $db = DB_API::get();
 
-    if (APP_SOLR_SWITCH == "ON" ) {
+    if (APP_SOLR_SWITCH == "ON" && $forceLocal == false) {
       return Record::getSearchListing(
           $options, $approved_roles, $current_page, $page_rows, $sort_by, $getSimple, 
           $citationCache, $filter, $operator, $use_faceting, $use_highlighting, $doExactMatch, 
@@ -2061,7 +2061,7 @@ class Record
       catch(Exception $ex) {
         $log->err($ex." stmt = $stmt, page_rows = $page_rows, start = $start");
       }
-      
+
       try {
         $res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
       }
@@ -2552,7 +2552,7 @@ class Record
         }
         // now populate the $result variable again
         for ($i = 0; $i < count($result); $i++) {
-          if (array_key_exists("rek_".$sek_sql_title, $result[$i])) {
+//          if (array_key_exists("rek_".$sek_sql_title, $result[$i])) {
               if (!is_array($result[$i]["rek_".$sek_sql_title]) && ($sekData['sek_cardinality'] == 1)) {
                 $result[$i]["rek_".$sek_sql_title] = array();
               }
@@ -2563,7 +2563,7 @@ class Record
                 $result[$i]["rek_".$sek_sql_title."_lookup"] = $p[$result[$i]["rek_pid"]]["rek_".$sek_sql_title."_lookup"];
               }
           }
-        }
+//        }
       }
     }
   }
