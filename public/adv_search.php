@@ -64,7 +64,7 @@ $options = Pager::saveSearchParams(array(), 'adv_search');
 foreach ($list as $list_key => $list_field) {
 	if ($list_field["sek_html_input"] == 'combo' || $list_field["sek_html_input"] == 'multiple' || $list_field["sek_html_input"] == 'dual_multiple') {
 		if (!empty($list_field["sek_smarty_variable"]) && $list_field["sek_smarty_variable"] != "none") {
-            if (defined($list_field["sek_smarty_variable"])) {
+            if (isset($list_field["sek_smarty_variable"])) {
 			    eval("\$list[\$list_key]['field_options'] = " . $list_field["sek_smarty_variable"] . ";");
             }
 			if ($list_field["sek_html_input"] == 'combo') {
