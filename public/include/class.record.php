@@ -3582,13 +3582,15 @@ class Record
     }
 
     if ($sek_details['sek_relationship'] == 1) { //1-M so will return an array
+      $order = ($sek_details['sek_cardinality'] == 1) ? " ORDER BY rek_".$sek_title."_order" : '';
       $log->debug('1-M will return array');
       $stmt = "SELECT
                     rek_".$sek_title."
                  FROM
                     " . $dbtp . "record_search_key_".$sek_title."
                  WHERE
-                    rek_".$sek_title."_pid = ".$db->quote($pid);
+                    rek_".$sek_title."_pid = ".$db->quote($pid).
+                  $order;
       try {
           $res = ($sek_details['sek_cardinality'] == 1) ? $db->fetchCol($stmt) : $db->fetchOne($stmt);
       }
