@@ -2370,7 +2370,7 @@ class RecordGeneral
     
     Record::removeIndexRecord($pid, false); // clean out the SQL index, but do not remove from Solr, 
                                                 // the solr entry will get updated in updateSearchKeys
-                                                
+
     Record::updateSearchKeys($pid, $searchKeyData);
     if (APP_FEDORA_BYPASS == 'ON') {
       Record::updateSearchKeys($pid, $searchKeyData, true); // Update shadow tables
@@ -2408,7 +2408,7 @@ class RecordGeneral
       
       try
       {
-          $sql = "SELECT mf.xsdmf_id, TRIM(LOWER(REPLACE(sk.sek_title,\" \",\"_\"))) AS sek_title, "
+          $sql = "SELECT mf.xsdmf_id, mf.xsdmf_html_input, xsdmf_smarty_variable, xsdmf_use_parent_option_list, TRIM(LOWER(REPLACE(sk.sek_title,\" \",\"_\"))) AS sek_title, "
           . "sk.sek_relationship, sk.sek_cardinality FROM " . APP_TABLE_PREFIX . "search_key sk, " 
           . APP_TABLE_PREFIX . "xsd_display_matchfields mf WHERE sk.sek_id = "
           . "mf.xsdmf_sek_id AND mf.xsdmf_id IN (?)";
@@ -2429,8 +2429,19 @@ class RecordGeneral
           {
               $xsdFields[$field['xsdmf_id']] = Misc::MySQLDate($xsdFields[$field['xsdmf_id']]);
           }
-          
-          //1 - 1 relationship values should not have array values.
+
+          // We don't store the multiple option list id value, but the full value
+          if (($field['xsdmf_html_input'] == 'combo') && ($field['xsdmf_smarty_variable'] == "" && $field['xsdmf_use_parent_option_list'] == 0)) {
+              if (is_array($xsdFields[$field['xsdmf_id']])) {
+                  foreach ($xsdFields[$field['xsdmf_id']] as $xf_key => $xf) {
+                      $xsdFields[$field['xsdmf_id']][$xf_key] = XSD_HTML_Match::getOptionValueByMFO_ID($xf);
+                  }
+              } else {
+                $xsdFields[$field['xsdmf_id']] = XSD_HTML_Match::getOptionValueByMFO_ID($xsdFields[$field['xsdmf_id']]);
+              }
+          }
+
+              //1 - 1 relationship values should not have array values.
           if($field['sek_cardinality'] == '0' && is_array($xsdFields[$field['xsdmf_id']]))
           {
               $valueKeys = array_keys($xsdFields[$field['xsdmf_id']]); //Not all keys are numeric.
