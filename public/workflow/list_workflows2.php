@@ -62,7 +62,7 @@ $href= Misc::GETorPOST('href');
 $tpl->assign("href", $href);
 $cat = Misc::GETorPOST('cat');
 
-if (!defined('pids')) {
+if (!isset($pids)) {
     $pids = null;
 }
 
@@ -72,7 +72,7 @@ if ($cat == 'select_workflow') {
 	if (is_numeric($wft_id)) {
 		$wfl_id = WorkflowTrigger::getWorkflowID($wft_id);
 		if (is_numeric($wfl_id)) {
-			if ((defined('pids') && !empty($pids)) || (defined('trigger_type') && $trigger_type == 'Bulk Change Search')) {
+			if ((isset($pids) && !empty($pids)) || (isset($trigger_type) && $trigger_type == 'Bulk Change Search')) {
 		        if (Workflow::userCanTrigger($wfl_id,$user_id)) {
 	    			Workflow::start($wft_id, $pid, $xdis_id, $href, $dsID, $pids);				
 				} else {
