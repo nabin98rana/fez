@@ -112,12 +112,12 @@ class Foxml
 					}
 				}
                 $xsd_element_only = "";
-                if (defined('prefix_xsd_element')) {
+                if (isset($prefix_xsd_element)) {
                     $xsd_element_only = substr($prefix_xsd_element, strrpos($prefix_xsd_element, "!"));
                 }
 
 
-				if (!defined('prefix_xsd_element') || $xsdmf_details['xsdmf_element'] != $prefix_xsd_element) { // If the attribute to add is not connected to the current element, search for last instance of the element and manually insert the attribute there
+				if (!isset($prefix_xsd_element) || $xsdmf_details['xsdmf_element'] != $prefix_xsd_element) { // If the attribute to add is not connected to the current element, search for last instance of the element and manually insert the attribute there
 					if (trim($xsd_element_only != "") && trim($full_attached_attribute) != "") {
 						FOXML::addAttributeToParent($xmlObj, $xsd_element_only, $full_attached_attribute);
 					}
@@ -187,7 +187,7 @@ class Foxml
 								$full_attached_attribute = ' '.$attached_xsd_element.'="'.$attached_value.'"';
 							}
 						}
-						if (!defined('prefix_xsd_element') || $xsdmf_details['xsdmf_element'] != $prefix_xsd_element) { // if the attribute doesn't belong on this element then clear it
+						if (!isset($prefix_xsd_element) || $xsdmf_details['xsdmf_element'] != $prefix_xsd_element) { // if the attribute doesn't belong on this element then clear it
 							$full_attached_attribute = "";
 						}
 						if (!empty($multiple_element)) {
