@@ -2425,6 +2425,15 @@ class RecordGeneral
       
       foreach($fields as $field)
       {
+          // if its multiple cardinality field and there are empty values, nuke them so they don't insert null rows
+          if($field['sek_cardinality'] == '1' && is_array($xsdFields[$field['xsdmf_id']])) {
+              foreach ($xsdFields[$field['xsdmf_id']] as $xf_key => $xf) {
+                  if ($xf == '' || empty($xf)) {
+                      unset($xsdFields[$field['xsdmf_id']][$xf_key]);
+                  }
+              }
+          }
+
           if(is_array($xsdFields[$field['xsdmf_id']]) && isset($xsdFields[$field['xsdmf_id']]['Year']))
           {
               $xsdFields[$field['xsdmf_id']] = Misc::MySQLDate($xsdFields[$field['xsdmf_id']]);
