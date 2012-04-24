@@ -4112,10 +4112,17 @@ public static function multi_implode($glue, $pieces)
   function MySQLDate($dateArray)
   {
       $dteSql = array();
-      $dteSql[] = $dateArray['Year'];
+      $dteSql[] = (isset($dateArray['Year']) && isnumeric($dateArray['Year'])) ? $dateArray['Year']: '0000';
       $dteSql[] = (isset($dateArray['Month'])) ? str_pad($dateArray['Month'], 2, '0', STR_PAD_LEFT) : '00';
       $dteSql[] = (isset($dateArray['Day'])) ? str_pad($dateArray['Day'], 2, '0', STR_PAD_LEFT) : '00';
       $dteSql = implode('-', $dteSql) . ' 00:00:00';
+
+      if (
+          $dteSql == "0000-01-01 00:00:00" || $dteSql == "0000-00-00 00:00:00" ||
+          $dteSql == "0-01-01 00:00:00"
+      ) {
+          $dteSql = null;
+      }
 
       return $dteSql;
   }
