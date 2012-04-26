@@ -336,16 +336,35 @@ class MigrateFromFedoraToDatabase
      */
     protected function _addSearchKeysCopyright()
     {
-        $stmt = "ALTER TABLE ". APP_TABLE_PREFIX ."record_search_key 
-                    ADD rek_copyright TINYINT(2) NULL,
+        // Add Search Key table
+        $stmtAddSearchKey = "INSERT INTO ". APP_TABLE_PREFIX ."search_key 
+                (`sek_id`, `sek_namespace`, `sek_incr_id`, `sek_title`, `sek_alt_title`, `sek_desc`, `sek_adv_visible`, 
+                 `sek_simple_used`, `sek_myfez_visible`, `sek_order`, `sek_html_input`, `sek_fez_variable`, 
+                 `sek_smarty_variable`, `sek_cvo_id`, `sek_lookup_function`, `sek_data_type`, `sek_relationship`, 
+                 `sek_meta_header`, `sek_cardinality`, `sek_suggest_function`, `sek_faceting`, `sek_derived_function`, 
+                 `sek_lookup_id_function`, `sek_bulkchange`)
+                VALUES
+                ('core_92', 'UQ', 92, 'Copyright', '', '', 0, 0, 0, 999, 'checkbox', 'none', '', NULL, '', 'int', 0, 
+                '', 0, '', 0, '', '', 0);";
+        
+        $stmtAddRecordSearchKeyColumn = "ALTER TABLE ". APP_TABLE_PREFIX ."record_search_key 
+                    ADD rek_copyright INT(11) NULL,
                     ADD rek_copyright_xsdmf_id INT(11) NULL;";
         
-        try{
-            $this->_db->exec($stmt);
-        } catch (Exception $e) {
-            echo "<br /> Failed to add search key 'copyright'";
-            return false;
+        $this->_db->beginTransaction();
+        try {
+            $this->_db->exec($stmtAddSearchKey);
+            $this->_db->exec($stmtAddRecordSearchKeyColumn);
+            $this->_db->commit();
+
+            echo "<br /> Search key 'copyright' added to search_key table & the main record_search_key table.";
+            return true;
         }
+        catch (Exception $ex) {
+            $this->_db->rollBack();
+            echo "<br /> Failed to add search key 'copyright'. Error: ". $ex;
+        }
+        return false;
     }
     
     
