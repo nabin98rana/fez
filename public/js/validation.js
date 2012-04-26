@@ -342,7 +342,7 @@ function checkRequiredFieldsExt(f, required_fields, required_fields_titles)
 
 		var field = getFormElement(f, required_fields[i].text);		
 		if (required_fields[i].value == 'combo') {
-            if (getSelectedOption(f, field.name) == '-1') {
+            if ((getSelectedOption(f, field.name) == '-1') || (getSelectedOption(f, field.name) == '') ) {
                 errors[errors.length] = new Option(getFieldTitle(required_fields_titles,required_fields[i].text), required_fields[i].text);
             }
         } else if (required_fields[i].value == 'multiple') {
@@ -370,7 +370,7 @@ function checkRequiredCustomFields(f, required_fields)
     for (var i = 0; i < required_fields.length; i++) {
         var field = getFormElement(f, required_fields[i].text);
         if (required_fields[i].value == 'combo') {
-            if (getSelectedOption(f, field.name) == '-1') {
+            if ((getSelectedOption(f, field.name) == '-1') || (getSelectedOption(f, field.name) == '')) {
                 errors[errors.length] = new Option(getFieldTitle(custom_fields,required_fields[i].text), required_fields[i].text);
             }
         } else if (required_fields[i].value == 'multiple') {
@@ -419,7 +419,7 @@ function checkRequiredFields(f, required_fields)
     for (var i = 0; i < required_fields.length; i++) {
         var field = getFormElement(f, required_fields[i].text);
         if (required_fields[i].value == 'combo') {
-            if (getSelectedOption(f, field.name) == '-1') {
+            if ((getSelectedOption(f, field.name) == '-1') || (getSelectedOption(f, field.name) == '')) {
                 errors[errors.length] = new Option(getFieldTitle(xsd_display_fields,required_fields[i].text), required_fields[i].text);
             }
         } else if (required_fields[i].value == 'multiple') {
@@ -514,7 +514,7 @@ function checkRequiredInstantCustomFields(f, required_fields)
     for (var i = 0; i < required_fields.length; i++) {
         var field = getFormElement(f, required_fields[i].text);
         if (required_fields[i].value == 'combo') {
-            if (getSelectedOption(f, field.name) == '-1') {
+            if ((getSelectedOption(f, field.name) == '-1') || (getSelectedOption(f, field.name) == '')) {
                 errors[errors.length] = new Option(getFieldTitle(instant_custom_fields,required_fields[i].text), required_fields[i].text);
             }
         } else if (required_fields[i].value == 'multiple') {
