@@ -184,9 +184,19 @@ class RecordObject extends RecordGeneral
 		    }
 		    
 		    $now = Zend_Registry::get('version');
-    		
-    		$xsd_display_fields = RecordGeneral::setDisplayFields($_POST['xsd_display_fields']);
-    		
+
+            $xdisDisplayFields = $_POST['xsd_display_fields'];
+
+            //Load in all attached xsd display fields
+            foreach ($_POST as $key => $value) {
+                if ((strpos($key, 'xsd_display_fields') !== false) && ($key != 'xsd_display_fields') && !empty($value)) {
+                    $xsdDisplayFieldsElementKeys = explode('_', $key);
+                    $xdisDisplayFields[$xsdDisplayFieldsElementKeys[3]][$xsdDisplayFieldsElementKeys[4]] = $value;
+                }
+            }
+    		$xsd_display_fields = RecordGeneral::setDisplayFields($xdisDisplayFields);
+
+
             $xdis_list = XSD_Relationship::getListByXDIS($_POST['xdis_id']);
             array_push($xdis_list, array("0" => $_POST['xdis_id']));
             $xdis_str = Misc::sql_array_to_string($xdis_list);
