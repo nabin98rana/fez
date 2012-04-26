@@ -1712,10 +1712,39 @@ class Record
    * Method used to get the FezACML datastream XML content of the record
    *
    * @access  public
+   * @package fedora
    * @param   string $pid The persistent identifier of the object
    * @param   string $dsID (optional) The datastream ID
    * @param   string $createdDT (optional) Fedora timestamp of version to retrieve
    * @return  domdocument $xmldoc A Dom Document of the XML or false if not found
+   * 
+   * 
+   * @uses
+   *   - FezACML->getUsersByRolePidAssoc();
+   *       called by workflow/edit_user_view.php
+   *       used by "Manage Thesis Assessor Access" workflow.
+   * 
+   *   - #migrate_fedora_managedcontent_to_fezCAS.php
+   *     Since this is migrating from Fedora system, we can ignore it.
+   * 
+   *   - #Auth->getAuthorisationGroups();
+   *      These 3 calls are from Fedora codebase, so this can be ignored.
+   * 
+   *   - #Auth->getAuth();
+   *     3 calls from this method.
+   *     Auth->getAuth is called by AuthIndex->setIndexAuthBGP(), 
+   *       called by BackgroundProcess_Index_Auth->run(),
+   *       called by AuthIndex->setIndexAuth(),
+   *       called by workflow/regenerate_auth_index.php
+   *       used by "Regenerate Auth Index" workflow
+   *         Workflow description: 
+   *         "Regenerates the Auth Index for a selected Object or for the whole repository if no record is selected.  
+   *         This does not make changes to the fedora repository."
+   *     Since this is method is traced to workflow that only used on Fedora system, we can ignore this.
+   * 
+   *   - #Auth->getParentACMLs();
+   *     The calls that need attention are from Auth->getAuth(); (can ignored, see above point).
+   * 
    */
   function getACML($pid, $dsID="", $createdDT=null)
   {
@@ -1784,6 +1813,9 @@ class Record
    * @param   string $xdis_id  The XSD Display ID of the object
    * @param   string $createdDT (optional) Fedora timestamp of version to retrieve
    * @return  array $xsdmf_array The details for the XML object against its XSD Matching Field IDs
+   * @uses Search found no results on the usage of this method.
+   *   Most record details calls are referring to RecordObject->getDetails();
+   * 
    */
   function getDetails($pid, $xdis_id, $createdDT=null)
   {
@@ -4627,6 +4659,7 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
    * Inserts an object into Fedora using values in an array to build the Fedora XML
    *
    * @access  public
+   * @package fedora
    * @param   array $array The mods datastream array
    * @param 	string $rels_parent_pid The parent pid of the object
    * @param 	string $history (OPTIONAL) The history to add to the the object's Premis Event log
@@ -4635,6 +4668,10 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
    * @param	array $premis (OPTIONAL) The premis datastream array
    * @return  void
    * @see foxml.tpl.html
+   * @uses
+   *   - WosRecItem->save(). On the Fedora version of save function
+   *   - MatchingRecords->add(). On the Fedora version of add function
+   * 
    */
   public static function insertFromArray(
       $mods, $rels_parent_pid, $version, $history = '', $times_cited = '', 
@@ -4741,9 +4778,13 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
    * Inserts an object template into Fedora. Used in workflows.
    *
    * @access  public
-   * @param   string $pid The persistant identifier of the object
-   * @param   array $dsarray The array of datastreams
-   * @return  void
+   * @package ...
+   * @param string $pid The persistant identifier of the object
+   * @param int $xdis_id
+   * @param string $title
+   * @param array $dsarray The array of datastreams
+   * @return void
+   * @uses BatchImport->insert()
    */
   function insertFromTemplate($pid, $xdis_id, $title, $dsarray)
   {
@@ -4759,11 +4800,18 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
    * Inserts an object xml into Fedora. Used in workflows.
    *
    * @access  public
+   * @package fedora
    * @param   string $pid The persistant identifier of the object
    * @param   array $dsarray The array of datastreams
+   *          $dsarray array:
+   *            'datastreamTitles' => Array of datastream titles used for proposed import record.
+   *            'xmlObj'           => String of XML
+   *            'indexArray'       => Empty Array 
+   *            'xdis_id'          => Int XSDisplay ID - from $_POST["xdis_id"]
    * @param   boolean $ingestObject Should we insert as a new object into fedora (false if updating an
    *                                exisitng object).
    * @return  void
+   * @uses Record::insertFromTemplate()
    */
   function insertXML($pid, $dsarray, $ingestObject)
   {
@@ -5015,6 +5063,13 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
   }
 
   
+  /**
+   * @package fedora
+   * @param string $pid
+   * @param string $dsID 
+   * @uses AuthIndex->setIndexAuthBGP()
+   *   This method is traced to "Regenerate Auth Index" workflow which is only used on Fedora system.
+   */
   function checkQuickAuthFezACML($pid, $dsID)
   {
     $xmlObjNum = Record::getDatastreamQuickAuthTemplate($pid);
@@ -5139,8 +5194,14 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
     }
   }
 
+  /**
+   * @package fedora & fedora_bypass
+   * @param string $pid
+   * @param string $dsIDName 
+   */
   function generatePresmd($pid, $dsIDName)
   {
+    if ( APP_FEDORA_BYPASS != "ON"){
     //Jhove
     $ncName = Foxml::makeNCName($dsIDName);
     $presmd_check = Workflow::checkForPresMD($ncName);
@@ -5159,8 +5220,9 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
         unlink(APP_TEMP_DIR.basename($presmd_check));
       }
     }
+    }
+    
     //ExifTool
-
     Exiftool::saveExif($pid, $dsIDName);
   }
 
@@ -5172,7 +5234,9 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
    * to the Fez premis_event table, so that the underlying object may be re-built from Fez.
    *
    * @access  public
+   * @package fedora
    * @param   $pid    The PID of the Fedora object we are processing.
+   * @uses Reindex->indexFezFedoraObjects()
    */
   function propagateExistingPremisDatastreamToFez($pid)
   {
@@ -5311,16 +5375,29 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
     Record::removeIndexRecord($pid, true, true, $date);
   }
 
+  
+  /**
+   * Marks a record as undeleted.
+   * 
+   * @todo fedora_bypass version of undelete
+   * @package fedora & fedora_bypass
+   * @param string $pid
+   * @param boolean $do_index 
+   */
   function markAsActive($pid, $do_index = true)
   {
-    // tell fedora that the object is active.
-    Fedora_API::callModifyObject($pid, 'A', null);
+    if ( APP_FEDORA_BYPASS == "ON") {
+      // @todo fedora_bypass version of undelete
+        
+    } else {
+      // tell fedora that the object is active.
+      Fedora_API::callModifyObject($pid, 'A', null);
 
-    if ($do_index) {
-      // add it to the Fez index.
-      Record::setIndexMatchingFields($pid);
+      if ($do_index) {
+        // add it to the Fez index.
+        Record::setIndexMatchingFields($pid);
+      }
     }
-
   }
   
   /**
@@ -5673,6 +5750,17 @@ function getSpeculativeHERDCcode($pid)
     }
 }
 
+/**
+ * This function is NOT part of Record class, might be code typo. 
+ * It is also not being called by any function.
+ * The closest we can find is: 
+ * BackgroundProcess_Bulk_Add_Handles->run() call a non-existing function RecordObject->addHandle();
+ * Conclusion, looks like this function is part of unfinished experiment.
+ * 
+ * @package unused. See function description.
+ * @param string $pid
+ * @return boolean 
+ */
 function addHandle($pid)
 {
   // set testrun to true if you don't want changes written to Fedora 
