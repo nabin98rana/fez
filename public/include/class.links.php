@@ -27,63 +27,47 @@
 // | 59 Temple Place - Suite 330                                          |
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
-// | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
-// |          Matthew Smith <m.smith@library.uq.edu.au>                   |
+// | Authors: Aaron Brown <a.brown@library.uq.edu.au>                     |
 // +----------------------------------------------------------------------+
 //
 //
-class Jhove_Helper
+include_once(APP_INC_PATH . "class.error_handler.php");
+
+
+class Links
 {
-	var $xmlDoc;
-	var $xpath;
 
-	function __construct($xmlObj) 
-	{
-		$this->xmlDoc = new DomDocument();
-		$this->xmlDoc->preserveWhiteSpace = false;
-		$this->xmlDoc->loadXML($xmlObj);
+   /**
+ 	 * Get the complete list of links.
+ 	 */
+ 	function getLinks($pid)
+ 	{
+         if (empty($pid)) {
+             return false;
+         }
+ 		$log = FezLog::get();
+ 		$db = DB_API::get();
 
-		$this->xpath = new DOMXPath($this->xmlDoc);
-	}
+ 		$stmt = "
+ 			SELECT
+ 			    rek_link, rek_link_description
+ 			FROM
+ 				" . APP_TABLE_PREFIX . "record_search_key_link INNER JOIN
+ 				" . APP_TABLE_PREFIX . "record_search_key_link_description
+ 		    ON rek_link_order = rek_link_description_order
+ 			WHERE
+ 			  rek_link_pid = ".$db->quote($pid)."
+ 			AND rek_link_description_pid = ".$db->quote($pid);
+ 		try {
+ 			$res = $db->fetchAll($stmt);
+ 		}
+ 		catch(Exception $ex) {
+ 			$log->err($ex);
+ 			return '';
+ 		}
 
+ 		return $res;
+ 	}
 
-	function extractFileSize() 
-	{ 
-		$this->xpath->registerNamespace('a', 'http://hul.harvard.edu/ois/xml/ns/jhove');
-		$recordNodes = $this->xpath->query('//a:jhove/a:repInfo/a:size');
-		foreach ($recordNodes as $file_field) {
-			if (!isset($fileSize)) {
-				$fileSize = $file_field->nodeValue;
-			}
-		}
-	  
-		return $fileSize;
-	}
-	 
-	 
-	function extractSpatialMetrics() 
-	{
-		$width = 0;
-		$height = 0;
-
-		$this->xpath->registerNamespace('mix', 'http://www.loc.gov/mix/');
-		$recordNodes = $this->xpath->query('//mix:ImageWidth');
-		foreach ($recordNodes as $file_field) {
-			if ($width == "") {
-				$width = $file_field->nodeValue;
-				break;
-			}
-		}
-	  
-		$recordNodes = $this->xpath->query('//mix:ImageLength');
-		foreach ($recordNodes as $file_field) {
-			if ($height == "") {
-				$height = $file_field->nodeValue;
-				break;
-			}
-		}
-
-		return array($width, $height);
-	}
 
 }

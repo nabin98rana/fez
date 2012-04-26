@@ -720,10 +720,10 @@ class WorkflowStatusStatic
     if (!$obj->change_on_refresh && !empty($wfs_id)) {
       $obj->setState($wfs_id);
     }
-    if (array_key_exists('custom_view_pid', $_GET)) {
+    if (!array_key_exists('custom_view_pid', $_GET)) {
       $_GET['custom_view_pid'] = $obj->custom_view_pid;
     }
-    if (array_key_exists('custom_view_pid', $_REQUEST)) {
+    if (!array_key_exists('custom_view_pid', $_REQUEST)) {
       $_REQUEST['custom_view_pid'] = $obj->custom_view_pid;
     }
 

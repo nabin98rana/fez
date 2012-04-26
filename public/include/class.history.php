@@ -316,7 +316,7 @@ class History
 	 * @access  public
 	 * @return  void
 	 */
-	function addHistory($pid, $wfl_id=null, $outcome="", $outcomeDetail="", $refreshDatastream=false, $historyDetail="", $historyDetailExtra=null) 
+	function addHistory($pid, $wfl_id=null, $outcome="", $outcomeDetail="", $refreshDatastream=false, $historyDetail="", $historyDetailExtra=null, $event_date = false)
 	{
 		$session = &$_SESSION;
 		$masquerader = Masquerade::getMasquerader($session);
@@ -332,8 +332,9 @@ class History
 			$event_usr_id = APP_SYSTEM_USER_ID;
 		}
 		$event_usr_full_name = User::getFullName($event_usr_id);
-		$event_date = Date_API::getCurrentDateGMT(true); //date("Y-m-d H:i:s.u");
-		
+        if (!$event_date) {
+		    $event_date = Date_API::getCurrentDateGMT(true); //date("Y-m-d H:i:s.u");
+        }
 		$wfl_title = (is_null($wfl_id)) ? $historyDetail : Workflow::getTitle($wfl_id);
 		if ($masqueraderName != '') {
 			$detail = $wfl_title. " by " . $masqueraderName . ", masquerading as " . $event_usr_full_name;

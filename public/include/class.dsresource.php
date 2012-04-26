@@ -162,7 +162,7 @@ class DSResource
         
         try 
         {
-            $sql = "SELECT hash FROM " . APP_TABLE_PREFIX . "file_attachments WHERE hash = :hash";
+            $sql = "SELECT fat_hash FROM " . APP_TABLE_PREFIX . "file_attachments WHERE fat_hash = :hash";
             $stmt = $this->db->query($sql, array(':hash' => $hash));
             $row = $stmt->fetch();
         }
@@ -170,7 +170,7 @@ class DSResource
         {
             $this->log->err($e->getMessage());
         }
-        return ($row['hash'] && is_file($resource)) ? true : false;
+        return ($row['fat_hash'] && is_file($resource)) ? true : false;
     }
     
     /**
@@ -186,22 +186,23 @@ class DSResource
             if($revision == 'HEAD')
             {
                 //TODO Rework this query. No longer need MAX as the versions are in the shadow table.
-                $sql = "SELECT id, metaid, hash, size, filename, mimetype, controlgroup, "
-                . "pid, state, version FROM " . APP_TABLE_PREFIX . "file_attachments " 
-                . "WHERE filename = :dsfilename "
-                . "AND pid = :pid AND state = 'A' AND version = (SELECT MAX(VERSION) FROM " 
+                $sql = "SELECT fat_did as id, fat_metaid as metaid, fat_hash as hash, fat_size as size, fat_filename as filename, fat_mimetype as mimetype,
+                fat_controlgroup as controlgroup, fat_pid as pid, fat_state as state, fat_version as version FROM " . APP_TABLE_PREFIX . "file_attachments "
+                . "WHERE fat_filename = :dsfilename "
+                . "AND fat_pid = :pid AND fat_state = 'A' AND fat_version = (SELECT MAX(fat_VERSION) FROM "
                 . APP_TABLE_PREFIX . "file_attachments WHERE " 
-                . "filename = :ifilename AND pid = :ipid)";
+                . "fat_filename = :ifilename AND fat_pid = :ipid)";
                 
                 $stmt = $this->db->query($sql, array(':dsfilename' => $fileName, ':pid' => $pid,
                                             ':ifilename' => $fileName, ':ipid' => $pid));
             }
             else 
             {
-                $sql = "SELECT id, metaid, hash, size, filename, mimetype, controlgroup, pid, state, version FROM " 
+                $sql = "SELECT fat_did as id, fat_metaid as metaid, fat_hash as hash, fat_size as size,
+                       fat_filename as filename, fat_mimetype as mimetype, fat_controlgroup as controlgroup, fat_pid as pid, fat_state as state, fat_version as version FROM "
                     . APP_TABLE_PREFIX . "file_attachments__shadow WHERE "
-                    . "state = 'A' AND filename = :dsfilename "
-                    . "AND version = :version AND pid = :pid";
+                    . "fat_state = 'A' AND fat_filename = :dsfilename "
+                    . "AND fat_version = :version AND fat_pid = :pid";
                 $stmt = $this->db->query($sql, array(':dsfilename' => $fileName, 
                 	':version' => $revision, ':pid' => $pid));
             }
@@ -224,9 +225,9 @@ class DSResource
     {
         try
         {
-            $sql = "SELECT id, hash, filename, pid, version FROM "  
+            $sql = "SELECT fat_did as id, fat_hash as hash, fat_filename as filename, fat_pid as pid, fat_version as version FROM "
                 . APP_TABLE_PREFIX . "file_attachments WHERE " 
-                . "filename = :dsfilename AND pid = :pid ORDER BY version DESC";
+                . "fat_filename = :dsfilename AND fat_pid = :pid ORDER BY fat_version DESC";
             $stmt = $this->db->query($sql, array(':dsfilename' => $fileName, ':pid' => $pid));
             $rows = $stmt->fetchAll();
         }
@@ -248,7 +249,7 @@ class DSResource
         try
         {
             $sql = "SELECT count(*) as count FROM " . APP_TABLE_PREFIX . "file_attachments "
-            . "WHERE filename = :filename AND pid = :pid";
+            . "WHERE fat_filename = :filename AND fat_pid = :pid";
             $stmt = $this->db->query($sql, array(':filename' => $filename, ':pid' => $pid));
             $row = $stmt->fetch();
         }
@@ -271,9 +272,9 @@ class DSResource
         
         try
         {
-        $sql = "SELECT{$distinct} id, hash, filename, pid FROM "  . APP_TABLE_PREFIX 
+        $sql = "SELECT{$distinct} fat_did as id, fat_hash as hash, fat_filename as filename, fat_pid as pid, fat_mimetype as mimetype, fat_size as size FROM "  . APP_TABLE_PREFIX
             . "file_attachments WHERE " 
-            . "pid = :pid GROUP BY filename";
+            . "fat_pid = :pid GROUP BY fat_filename";
         $stmt = $this->db->query($sql, array(':pid' => $pid));
         $rows = $stmt->fetchAll();
         }
@@ -318,9 +319,9 @@ class DSResource
         try
         {
             //does a record with this file name and hash already exist?
-            $sql = "SELECT hash FROM " . APP_TABLE_PREFIX . "file_attachments "
-                . "WHERE hash = :dshash AND pid = :pid "
-                . "AND version = :version";
+            $sql = "SELECT fat_hash FROM " . APP_TABLE_PREFIX . "file_attachments "
+                . "WHERE fat_hash = :dshash AND fat_pid = :pid "
+                . "AND fat_version = :version";
             
             $stmt = $this->db->query($sql, array(
             	':dshash' => $this->hash['rawHash'], 
@@ -331,15 +332,17 @@ class DSResource
             if(!$row)
             {
                 $sql = "INSERT INTO " . APP_TABLE_PREFIX . "file_attachments "
-                    ."(hash, filename, version, pid, size, mimetype) VALUES "
-                    ."(:dshash, :dsfilename, :version, :pid, :size, :mimetype)";
+                    ."(fat_hash, fat_filename, fat_version, fat_pid, fat_size, fat_mimetype, fat_security_inherited, fat_label) VALUES "
+                    ."(:dshash, :dsfilename, :version, :pid, :size, :mimetype, :security_inherited, :label)";
                     
                 $this->db->query($sql, array(':dshash' => $this->hash['rawHash'], 
                 	':dsfilename' => $this->hash['hashFile'],
                     ':size' => $this->meta['size'],
                     ':version' => $now,
                     ':mimetype' => $this->meta['mimetype'],
-                    ':pid' => $this->meta['pid']));
+                    ':pid' => $this->meta['pid'],
+                    ':security_inherited' => $this->meta['security_inherited'],
+                    ':label' => $this->meta['label']));
             }
         }
         catch(Exception $e)
@@ -357,10 +360,10 @@ class DSResource
         //now that we no longer have a seperate meta table?
         try
         {
-            $sql = "SELECT metaid from " . APP_TABLE_PREFIX 
+            $sql = "SELECT fat_metaid as metaid from " . APP_TABLE_PREFIX
                 . "file_attachments fa INNER JOIN " . APP_TABLE_PREFIX . "file_meta fm "
-                . "ON fm.id = fa.metaid "
-                ."WHERE filename = :filename AND pid = :pid";
+                . "ON fm.id = fa.fat_metaid "
+                ."WHERE fat_filename = :filename AND fat_pid = :pid";
             $stmt = $this->db->query($sql, array(':filename' => $this->hash['hashFile'], 
                                                 ':pid' => $data['pid']));
             $row = $stmt->fetch();
@@ -463,8 +466,8 @@ class DSResource
     {
         $datastream = $this->getDSRev($this->hash['hashFile'], $this->meta['pid']);
         
-        $sql = "UPDATE " . APP_TABLE_PREFIX . "file_attachments SET state = 'D' "
-            . "WHERE version = :version AND filename = :filename AND pid = :pid";
+        $sql = "UPDATE " . APP_TABLE_PREFIX . "file_attachments SET fat_state = 'D' "
+            . "WHERE fat_version = :version AND fat_filename = :filename AND fat_pid = :pid";
             
         $this->db->query($sql, array(':version' => $datastream['version'],
                                     ':filename' => $datastream['filename'],
@@ -493,7 +496,7 @@ class DSResource
             {
                 //Get rid of everything in the *_file_attachments table for this resource.
                 $sql = "DELETE FROM " . APP_TABLE_PREFIX . "file_attachments WHERE "
-                . "filename = :filename AND metaid = :metaid";
+                . "fat_filename = :filename AND fat_metaid = :metaid";
                 $this->db->query($sql, array(':filename' => $this->hash['hashFile'], 
                 							':metaid' => $revData['metaid']));
             }
@@ -513,7 +516,7 @@ class DSResource
             //Get rid of only one rev.
             try
             {
-                $sql = "DELETE FROM " . APP_TABLE_PREFIX . "file_attachments WHERE id = :id";
+                $sql = "DELETE FROM " . APP_TABLE_PREFIX . "file_attachments WHERE fat_did = :id";
                 $this->db->query($sql, array(':id' => $revData['id']));
             }
             catch(Exception $e)
@@ -556,8 +559,8 @@ class DSResource
                 /*$sql = "UPDATE " . APP_TABLE_PREFIX . "file_attachments att, " . APP_TABLE_PREFIX 
                      . "file_meta met SET filename = :newFileName WHERE att.metaid = met.id AND "
                      . "att.filename = :oldFileName AND met.pid = :pid";*/
-                $sql = "UPDATE " . APP_TABLE_PREFIX . "file_attachments SET filename = :newFileName WHERE "
-                     . "filename = :oldFileName AND pid = :pid";
+                $sql = "UPDATE " . APP_TABLE_PREFIX . "file_attachments SET fat_filename = :newFileName WHERE "
+                     . "fat_filename = :oldFileName AND fat_pid = :pid";
                 $res = $this->db->query($sql, array(':newFileName' => $newName, 
              	    ':oldFileName' => $oldName, 
              	    ':pid' => $pid));
@@ -572,4 +575,31 @@ class DSResource
             return $res;
         }
     }
+
+    function returnFilename() {
+        return $this->hash[hashFile];
+    }
+
+    function returnPath() {
+        return $this->dsTreePath.$this->hash[hashPath];
+    }
+
+    function addStream($streaming) {
+        $log = FezLog::get();
+      	$db = DB_API::get();
+        $stmt = "UPDATE " . APP_TABLE_PREFIX . "file_attachments
+                 SET fat_streaming_hash = ".$db->quote($streaming)."
+                 WHERE fat_filename = ".$db->quote($this->hash['hashFile'])."
+                 AND fat_pid = ".$db->quote($this->meta['pid']);
+
+        try {
+      			$res = $db->exec($stmt);
+      		}
+        catch(Exception $ex) {
+            $log->err($ex);
+            return array();
+        }
+        return $res;
+    }
+
 }
