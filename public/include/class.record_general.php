@@ -2426,10 +2426,13 @@ class RecordGeneral
       foreach($fields as $field)
       {
           // if its multiple cardinality field and there are empty values, nuke them so they don't insert null rows
+          // but only end values since null values are sometimes used for padding
           if($field['sek_cardinality'] == '1' && is_array($xsdFields[$field['xsdmf_id']])) {
-              foreach ($xsdFields[$field['xsdmf_id']] as $xf_key => $xf) {
+              foreach (array_reverse($xsdFields[$field['xsdmf_id']]) as $xf_key => $xf) {
                   if ($xf == '' || empty($xf)) {
                       unset($xsdFields[$field['xsdmf_id']][$xf_key]);
+                  } else {
+                        break;
                   }
               }
           }

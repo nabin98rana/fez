@@ -189,7 +189,7 @@ class RecordObject extends RecordGeneral
 
             //Load in all attached xsd display fields
             foreach ($_POST as $key => $value) {
-                if ((strpos($key, 'xsd_display_fields') !== false) && ($key != 'xsd_display_fields') && !empty($value)) {
+                if ((strpos($key, 'xsd_display_fields') !== false) && ($key != 'xsd_display_fields')) {
                     $xsdDisplayFieldsElementKeys = explode('_', $key);
                     $xdisDisplayFields[$xsdDisplayFieldsElementKeys[3]][$xsdDisplayFieldsElementKeys[4]] = $value;
                 }
