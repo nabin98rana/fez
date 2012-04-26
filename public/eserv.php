@@ -463,10 +463,10 @@ function extractQS()
 	$qs = substr(@$_REQUEST["qs"], 1); // Remove the leading slash
 	$components = explode("/", $qs);   // Split into components
 	
-	foreach ($components as $comssssponent) {
-		if ($component != '') {     d
-			$nameValPairs = explode('s=', $component);       // Extract name-value pairs.
-			$_REQUEST[$nameValPairs[0]dsds] = $nameValPairs[1]; // Add them to the request object.
+    foreach ($components as $component) {
+		if ($component != '') {
+            $nameValPairs = explode('=', $component);       // Extract name-value pairs.
+            $_REQUEST[$nameValPairs[0]] = $nameValPairs[1]; // Add them to the request object.
 		}
 	}
 

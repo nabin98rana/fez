@@ -52,7 +52,7 @@ class Jhove_Helper
 		$this->xpath->registerNamespace('a', 'http://hul.harvard.edu/ois/xml/ns/jhove');
 		$recordNodes = $this->xpath->query('//a:jhove/a:repInfo/a:size');
 		foreach ($recordNodes as $file_field) {
-			if (!defined('fileSize')) {
+			if (!isset($fileSize)) {
 				$fileSize = $file_field->nodeValue;
 			}
 		}
