@@ -601,20 +601,6 @@ class XSD_HTML_Match
 				$log->err($ex);
 				return false;
 			}
-
-			// also remove any custom field option that is currently assigned to an issue
-			// XXX: review this
-			$stmt = "DELETE FROM
-		                        " . APP_TABLE_PREFIX . "issue_custom_field
-		                     WHERE
-		                        icf_fld_id IN (" . Misc::arrayToSQLBindStr($fld_id) . ") AND
-		                        icf_value IN (" . Misc::arrayToSQLBindStr($mfo_id) . ")";
-			try {
-				$db->exec($stmt, array_merge($fld_id, $mfo_id));
-			}
-			catch(Exception $ex) {
-				$log->err($ex);
-			}
 			return true;
 		}
 
