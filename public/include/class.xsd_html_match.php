@@ -1544,6 +1544,8 @@ class XSD_HTML_Match
 		                    " . $db->quote($_POST["order"]) . ",
 		                    " . $db->quote($_POST["validation_types"]) . ",
 		                    " . $db->quote($_POST["validation_maxlength"], 'INTEGER') . ",
+		                    " . $db->quote($_POST["validation_regex"]) . ",
+		                    " . $db->quote($_POST["validation_message"]) . ",
 		                    " . $enabled . ",
 		                    " . $indexed . ",
 		                    " . $required . ",
