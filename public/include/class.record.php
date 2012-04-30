@@ -1269,57 +1269,58 @@ class Record
      */
     $stmt[] = 'rek_pid';
     $valuesIns[] = $db->quote($pid);
-    foreach ($sekData[0] as $sek_column => $sek_value) {
-      $stmt[] = "rek_{$sek_column}, rek_{$sek_column}_xsdmf_id";
+    if (is_array($sekData[0])) {
+        foreach ($sekData[0] as $sek_column => $sek_value) {
+          $stmt[] = "rek_{$sek_column}, rek_{$sek_column}_xsdmf_id";
 
-      if ($sek_value['xsdmf_value'] == 'NULL') {
-        $xsdmf_value = $sek_value['xsdmf_value'];
-      } else {
-        $sek_value['xsdmf_value'] = (is_array($sek_value['xsdmf_value']) && array_key_exists('Year', $sek_value['xsdmf_value']))
-            ? $sek_value['xsdmf_value']['Year'] : $sek_value['xsdmf_value'];
-        $xsdmf_value = $db->quote(trim($sek_value['xsdmf_value']));
-      }
+          if ($sek_value['xsdmf_value'] == 'NULL') {
+            $xsdmf_value = $sek_value['xsdmf_value'];
+          } else {
+            $sek_value['xsdmf_value'] = (is_array($sek_value['xsdmf_value']) && array_key_exists('Year', $sek_value['xsdmf_value']))
+                ? $sek_value['xsdmf_value']['Year'] : $sek_value['xsdmf_value'];
+            $xsdmf_value = $db->quote(trim($sek_value['xsdmf_value']));
+          }
 
-      $valuesIns[] = "$xsdmf_value, {$sek_value['xsdmf_id']}";
-      $valuesUpd[] = "rek_{$sek_column} = $xsdmf_value, rek_{$sek_column}_xsdmf_id = {$sek_value['xsdmf_id']}";
-    }
+          $valuesIns[] = "$xsdmf_value, {$sek_value['xsdmf_id']}";
+          $valuesUpd[] = "rek_{$sek_column} = $xsdmf_value, rek_{$sek_column}_xsdmf_id = {$sek_value['xsdmf_id']}";
+        }
 
-    $table = APP_TABLE_PREFIX . "record_search_key";
-    if ($shadow) {
-      $table .= "__shadow";
-    }
-      
-    $stmtIns = "INSERT INTO " . $table . " (" . implode(",", $stmt);
-    if ($shadow) {
-      $stmtIns .= ", rek_stamp";
-    }
-    $stmtIns .= ") ";
-    $stmtIns .= " VALUES (" . implode(",", $valuesIns);
-    if ($shadow) {
-      $stmtIns .= ", " . $db->quote($now);
-    }
-    $stmtIns .= ")"; 
-		$db->beginTransaction();      
-    if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
-      $stmt = $stmtIns ." ON DUPLICATE KEY UPDATE " . implode(",", $valuesUpd);
-    } else {
-      if (!$shadow) {
-        $stmt = "DELETE FROM " . $table . "WHERE rek_pid = " . $db->quote($pid);
-        $db->exec($stmt);
-      }
-			$stmt = $stmtIns;
-    }
-    
-    try {
-      $db->exec($stmt);
-			$db->commit();
-    }
-    catch(Exception $ex) {
-			$db->rollBack();
-      $log->err($ex);
-      $ret = false;
-    }
+        $table = APP_TABLE_PREFIX . "record_search_key";
+        if ($shadow) {
+          $table .= "__shadow";
+        }
 
+        $stmtIns = "INSERT INTO " . $table . " (" . implode(",", $stmt);
+        if ($shadow) {
+          $stmtIns .= ", rek_stamp";
+        }
+        $stmtIns .= ") ";
+        $stmtIns .= " VALUES (" . implode(",", $valuesIns);
+        if ($shadow) {
+          $stmtIns .= ", " . $db->quote($now);
+        }
+        $stmtIns .= ")";
+            $db->beginTransaction();
+        if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
+          $stmt = $stmtIns ." ON DUPLICATE KEY UPDATE " . implode(",", $valuesUpd);
+        } else {
+          if (!$shadow) {
+            $stmt = "DELETE FROM " . $table . "WHERE rek_pid = " . $db->quote($pid);
+            $db->exec($stmt);
+          }
+                $stmt = $stmtIns;
+        }
+
+        try {
+          $db->exec($stmt);
+                $db->commit();
+        }
+        catch(Exception $ex) {
+                $db->rollBack();
+          $log->err($ex);
+          $ret = false;
+        }
+    }
     /*
      *  Update 1-to-Many search keys
      */
