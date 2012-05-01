@@ -5389,8 +5389,8 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
   function markAsActive($pid, $do_index = true)
   {
     if ( APP_FEDORA_BYPASS == "ON") {
-      // @todo fedora_bypass version of undelete
-        
+        $rec = new Fez_Record_SearchkeyShadow($pid);
+        $rec->undeleteRecord();
     } else {
       // tell fedora that the object is active.
       Fedora_API::callModifyObject($pid, 'A', null);

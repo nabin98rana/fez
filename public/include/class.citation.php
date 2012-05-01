@@ -231,7 +231,6 @@ class Citation
 	 */
 	function renderCitation($xdis_id, $details, $xsd_display_fields, $type='APA')
 	{
-		$dbtp =  APP_TABLE_PREFIX;
 		$det = Citation::getDetails($xdis_id, $type);
 		$result = $det['cit_template'];
 		if (empty($result)) {

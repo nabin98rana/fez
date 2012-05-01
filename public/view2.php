@@ -121,11 +121,11 @@ if (!empty($pid) && $record->checkExists()) {
 	}
 	$title = Record::getSearchKeyIndexValue($pid, "title", false);
 	if ($title !== false) {
-		$tpl->assign("extra_title", $title);	
+		$tpl->assign("extra_title", $title);
 	} else {
 		$tpl->assign("extra_title", "Record #".$pid." Details");
 	}
-    
+
 	$tpl->assign("pid", $pid);
 	$deleted = false;
 	if (@$show_tombstone) {
@@ -148,7 +148,7 @@ if (!empty($pid) && $record->checkExists()) {
 	
 	if(APP_FEDORA_BYPASS == 'ON')
 	{
-	    $xdis_id = Record::getSearchKeyIndexValue($pid,'Display Type');
+	    $xdis_id = ($deleted) ? Record::getSearchKeyIndexValueShadow($pid,'Display Type') : Record::getSearchKeyIndexValue($pid,'Display Type');
         $xdis_key = array_keys($xdis_id);
         $xdis_id = $xdis_key[0];
 	}

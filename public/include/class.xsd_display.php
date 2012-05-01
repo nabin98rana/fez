@@ -1134,8 +1134,7 @@ class XSD_DisplayObject
 		$log = FezLog::get();
 		$this->getXSD_HTML_Match();
 
-        if(APP_FEDORA_BYPASS == 'ON' && $createdDT != null)
-//        if(APP_FEDORA_BYPASS == 'ON')
+        if((APP_FEDORA_BYPASS == 'ON' && $createdDT != null) || (APP_FEDORA_BYPASS == 'ON' && Record::isDeleted($pid)))
         {
             $rec = new Fez_Record_SearchkeyShadow($pid);
             $versionDate = $createdDT ? $createdDT : 'now' ;

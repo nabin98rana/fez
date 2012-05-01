@@ -158,21 +158,26 @@ class Fez_Record_SearchkeyShadow
     }
 
     /**
-     * Returns a Records shadow version at a certain date.
+     * Returns a Records at a certain date.
      *
+     *  Will return last known version if deleted.
      *
      * @param $date, version at this date
      */
-    public function returnRecordVersion($date='')
+    public function returnRecordVersion($date='now')
     {
         $pid = $this->_pid;
         $searchKeys = Search_Key::getList(false);
 
         foreach ($searchKeys as $sekDetails) {
             $title = $sekDetails["sek_title"];
+            $value = false;
             if ($date == 'now') {
-                $value = Record::getSearchKeyIndexValue($pid, $title, false, $sekDetails, $date);
-            } else {
+                $value = Record::getSearchKeyIndexValue($pid, $title, false, $sekDetails);
+            }
+
+            if (!$value) {
+                $date = Date_API::getCurrentDateGMT();
                 $value = Record::getSearchKeyIndexValueShadow($pid, $title, false, $sekDetails, $date);
             }
             if ( !empty($value) ) {
@@ -242,6 +247,29 @@ class Fez_Record_SearchkeyShadow
         $datesArray = array_merge($datesArray, $res);
 
         return array_unique($datesArray);
+    }
+
+    /**
+     *
+     */
+    public function undeleteRecord()
+    {
+        if (!Record::isDeleted($this->_pid)) {
+            return false;
+        }
+        $lastVersion = $this->returnRecordVersion();
+        foreach ($lastVersion as $xsdmf_id => $searchKeys) {
+            $xsdDetails = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
+            $sekDetails = Search_Key::getDetails($xsdDetails['xsdmf_sek_id']);
+            if (is_numeric($sekDetails['sek_relationship'])){
+                $searchKeyData[$sekDetails['sek_relationship']][$sekDetails['sek_title_db']] = array(
+                    "xsdmf_id" => $xsdmf_id,
+                    "xsdmf_value" => $searchKeys,
+                );
+            }
+        }
+        Record::updateSearchKeys($this->_pid, $searchKeyData);
+        return $searchKeyData;
     }
 }
 
