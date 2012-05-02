@@ -3237,4 +3237,40 @@ class AuthNoFedora {
 
         return $userPIDAuthGroups;
     }
+
+    //Convert role to id IE $role 'viewer' returns '10'
+    function getRoleToRoleId($role) {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $stmt = "SELECT aro_id FROM ". APP_TABLE_PREFIX . "auth_roles
+            WHERE aro_role = ".$db->quote($role);
+        try {
+            $res = $db->fetchOne($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+
+        return $res;
+    }
+
+    //Giving auth_rule id return the 'rule' and 'value' ie 189 -> !rule!role!Fez_Group, Thesis Supervisors
+    function getAuthRuleValue($arId) {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $stmt = "SELECT ar_rule, ar_value FROM ". APP_TABLE_PREFIX . "auth_rules
+            WHERE ar_id = ".$db->quote($arId);
+        try {
+            $res = $db->fetchRow($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+
+        return $res;
+    }
 }
