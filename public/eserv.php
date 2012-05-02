@@ -47,6 +47,7 @@ include_once(APP_INC_PATH . "class.fedora_direct_access.php");
 //$auth->checkForBasicAuthRequest('eserv');
 
 $qs         = @$_REQUEST["qs"];
+
 extractQS();
 
 $stream     = @$_REQUEST["stream"];
@@ -465,7 +466,7 @@ function extractQS()
 	
     foreach ($components as $component) {
 		if ($component != '') {
-            $nameValPairs = explode('s=', $component);       // Extract name-value pairs.
+            $nameValPairs = explode('=', $component);       // Extract name-value pairs.
             $_REQUEST[$nameValPairs[0]] = $nameValPairs[1]; // Add them to the request object.
 		}
 	}
