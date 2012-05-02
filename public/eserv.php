@@ -465,7 +465,7 @@ function extractQS()
 	
     foreach ($components as $component) {
 		if ($component != '') {
-            $nameValPairs = explode('=', $component);       // Extract name-value pairs.
+            $nameValPairs = explode('s=', $component);       // Extract name-value pairs.
             $_REQUEST[$nameValPairs[0]] = $nameValPairs[1]; // Add them to the request object.
 		}
 	}
