@@ -1081,7 +1081,7 @@ class Controlled_Vocab
      * @param   $allLevels get all levels based on the parent
 	 * @return  array The JavaScript tree creation statements
 	 */
-	function buildCVtree($parentID, $allLevels)
+	function buildCVtree($parentID = false, $allLevels = false)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
