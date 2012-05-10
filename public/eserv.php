@@ -64,7 +64,7 @@ $SHOW_STATUS = @($SHOW_STATUS_PARM == "true") ? true : false;
 $ALLOW_SECURITY_REDIRECT = @$SHOW_STATUS ? false : true; 
 
 $not_exists = false;
-if ( (is_numeric(strpos($pid, ".."))) || (Misc::isPid($pid) != true) || (is_numeric(strpos($pid, "/"))) || (is_numeric(strpos($pid, "/"))) || (is_numeric(strpos($dsID, "..")))) {
+if ( (is_numeric(strpos($pid, ".."))) || (Misc::isPid($pid) != true) || (is_numeric(strpos($pid, "/"))) || (is_numeric(strpos($pid, "/"))) || (is_numeric(strpos($dsID, ".."))) || (is_numeric(strpos($dsID, "/")))) {
 	header("HTTP/1.0 404 Not Found");
 	header("Status: 404 Not Found");
 	$tpl = new Template_API();
@@ -87,9 +87,7 @@ if (!empty($pid) && !empty($dsID)) {
     		$dsMeta = $dsr->getMeta();
     		$isDeleted = ($dsr->resourceExists()) ? false : true;
         }
-    }
-    else
-    {
+    } else {
         $isDeleted = Record::isDeleted($pid);
     }
     
