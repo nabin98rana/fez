@@ -855,7 +855,9 @@ class Fedora_API {
 		 if ($results) {
 		         //$info = curl_getinfo($ch);
 		         curl_close ($ch);
+             if (!empty($tempFile)) {
 						 unlink($tempFile);
+             }
 		         return true;
 		 } else {
 //		         $log->err(array(print_r($results, true).print_r(curl_error($ch), true).print_r(curl_getinfo($ch), true),__FILE__,__LINE__).$getString.print_r(debug_backtrace(),true));
