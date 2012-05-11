@@ -89,7 +89,7 @@ if (!file_exists($filepath)) {
                 exec($deleteCommand);
             }
         } else {
-            Error_Handler::logError("File not created $new_file<br/>\n", __FILE__,__LINE__);
+            Error_Handler::logError("File not created $new_file using url $getString <br/>\n", __FILE__,__LINE__);
         }
     }
 }

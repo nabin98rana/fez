@@ -75,20 +75,20 @@ class fileCache {
 
                 if ($prev['rek_pid'] || $next['rek_pid']){
                     $navigationBar .= '<tr><th>Browse Collection:</th><td>';
-                }
-
-                if ($prev['rek_pid']) {
-                    $navigationBar .= '<a href="/view/'.$prev['rek_pid'].'">Prev: <i>'.$prev['rek_title'].'</i></a>';
-                    if ($next['rek_pid']) {
-                        $navigationBar .= '<br />';
+                    if ($prev['rek_pid']) {
+                        $navigationBar .= '<a href="/view/'.$prev['rek_pid'].'">Prev: <i>'.$prev['rek_title'].'</i></a>';
+                        if ($next['rek_pid']) {
+                            $navigationBar .= '<br />';
+                        }
                     }
+                    if ($next['rek_pid']) {
+                        $navigationBar .= '<a href="/view/'.$next['rek_pid'].'">Next: <i>'.$next['rek_title'].'</i></a>';
+                    }
+                    $navigationBar .= '</td></tr>';
                 }
-                if ($next['rek_pid']) {
-                    $navigationBar .= '<a href="/view/'.$next['rek_pid'].'">Next: <i>'.$next['rek_title'].'</i></a>';
-                }
+                $navigationBar .= '<!--sectionnextprevend-->';
+                $part2 = $navigationBar.$part2;
             }
-            $navigationBar .= '</td></tr><!--sectionnextprevend-->';
-            $part2 = $navigationBar.$part2;
 
             $htmlContent = $part1.$part2;
 //			$htmlContent = preg_replace($pat, $rep, $htmlContent);

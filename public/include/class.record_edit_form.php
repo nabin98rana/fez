@@ -280,13 +280,13 @@
 												}
                     }
                     if (!empty($dis_field["xsdmf_dynamic_selected_option"]) && $dis_field["xsdmf_dynamic_selected_option"] != "none") {
-												if (is_numeric(strpos($dis_field["xsdmf_smarty_variable"], "::"))) {
-													eval("\$temp = ".$dis_field['xsdmf_smarty_variable']
-	                             ."; \$xsd_display_fields[\$dis_key]['field_options'] = \$temp;");
+												if (is_numeric(strpos($dis_field["xsdmf_dynamic_selected_option"], "::"))) {
+													eval("\$temp = ".$dis_field['xsdmf_dynamic_selected_option']
+	                             ."; \$xsd_display_fields[\$dis_key]['selected_option'] = \$temp;");
 												} else {
-	                        $this->setDynamicVar($dis_field["xsdmf_smarty_variable"]);
+	                        $this->setDynamicVar($dis_field["xsdmf_dynamic_selected_option"]);
                             if (isset($dis_field["xsdmf_dynamic_selected_option"])) {
-                                eval("global ".$dis_field['xsdmf_smarty_variable']
+                                eval("global ".$dis_field['xsdmf_dynamic_selected_option']
                                     ."; \$xsd_display_fields[\$dis_key]['selected_option'] = "
                                     . $dis_field["xsdmf_dynamic_selected_option"] . ";");
                             }

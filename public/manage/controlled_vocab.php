@@ -44,6 +44,7 @@ $tpl->setTemplate("manage/index.tpl.html");
 
 Auth::checkAuthentication(APP_SESSION);
 
+$tpl->assign("extra_title", "Manage Controlled Vocabularies");
 $tpl->assign("type", "controlled_vocab");
 $tpl->assign("active_nav", "admin");
 $parent_id = @$_POST["parent_id"] ? $_POST["parent_id"] : @$_GET["parent_id"];	

@@ -601,20 +601,6 @@ class XSD_HTML_Match
 				$log->err($ex);
 				return false;
 			}
-
-			// also remove any custom field option that is currently assigned to an issue
-			// XXX: review this
-			$stmt = "DELETE FROM
-		                        " . APP_TABLE_PREFIX . "issue_custom_field
-		                     WHERE
-		                        icf_fld_id IN (" . Misc::arrayToSQLBindStr($fld_id) . ") AND
-		                        icf_value IN (" . Misc::arrayToSQLBindStr($mfo_id) . ")";
-			try {
-				$db->exec($stmt, array_merge($fld_id, $mfo_id));
-			}
-			catch(Exception $ex) {
-				$log->err($ex);
-			}
 			return true;
 		}
 
@@ -1441,8 +1427,8 @@ class XSD_HTML_Match
 		                    xsdmf_order,
 		                    xsdmf_validation_type,
 		                    xsdmf_validation_maxlength,
-                           'xsdmf_validation_regex',
-                           'xsdmf_validation_message',
+                            xsdmf_validation_regex,
+                            xsdmf_validation_message,
 		                    xsdmf_enabled,
 		                    xsdmf_indexed,
 		                    xsdmf_required,
@@ -1558,6 +1544,8 @@ class XSD_HTML_Match
 		                    " . $db->quote($_POST["order"]) . ",
 		                    " . $db->quote($_POST["validation_types"]) . ",
 		                    " . $db->quote($_POST["validation_maxlength"], 'INTEGER') . ",
+		                    " . $db->quote($_POST["validation_regex"]) . ",
+		                    " . $db->quote($_POST["validation_message"]) . ",
 		                    " . $enabled . ",
 		                    " . $indexed . ",
 		                    " . $required . ",

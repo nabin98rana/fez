@@ -137,7 +137,7 @@ class Controlled_Vocab
                  (
                     cvo_title,
                     cvo_desc";
-		if (is_numeric($_POST["cvo_external_id"])) {
+		if (is_numeric($_POST["cvo_external_id"]) or !empty($_POST["cvo_external_id"])) {
 			$stmt .= ", cvo_external_id";
 		}
 		if (is_numeric($_POST["cvo_hide"])) {
@@ -148,7 +148,7 @@ class Controlled_Vocab
                  ) VALUES (
                     " . $db->quote($_POST["cvo_title"]) . ",
                     " . $db->quote($_POST["cvo_desc"]);
-		if (is_numeric($_POST["cvo_external_id"])) {
+		if (is_numeric($_POST["cvo_external_id"]) or !empty($_POST["cvo_external_id"])) {
 			$stmt .= "," . $db->quote(trim($_POST["cvo_external_id"]));
 		}
 		if (is_numeric($_POST["cvo_hide"])) {

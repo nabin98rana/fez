@@ -585,7 +585,6 @@ class WorkflowStatus
         }
       }
     }
-
     if ($this->wfs_details['wfs_end'] == 1) {
       $button_list[999999][] = array(
                     'wfs_id' => -1,
