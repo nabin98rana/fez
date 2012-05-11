@@ -264,28 +264,6 @@ class DigitalObject
         
         return $datastreams;
     }
-    
-    /**
-     * Retrieve a list of all versions of a PID
-     * @param <string> $pid
-     */
-    public function listVersions($pid=null)
-    {
-        $pid = (!$pid) ? $this->pid : $pid;
-        
-        try 
-        {
-            $sql = "SELECT rek_pid, rek_stamp as createDate FROM " 
-            . APP_TABLE_PREFIX . "record_search_key__shadow "
-            . "WHERE rek_pid = :pid ORDER BY rek_stamp DESC";
-            $stmt = $this->db->query($sql, array(':pid' => $pid));
-            return $stmt->fetchAll();
-        }
-        catch(Exception $e)
-        {
-            $this->log->err($e->getMessage());
-        }
-    }
 
     public function isPublished($pid)
     {

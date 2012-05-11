@@ -54,7 +54,7 @@ try {
 } */
 
 $fedoraPids = Fedora_Direct_Access::fetchAllFedoraPIDs('','');
-//$fedoraPids = array('UQ:67458');
+//$fedoraPids[] = array('pid' => 'UQ:17552');
 
 foreach ($fedoraPids as $pid) {
     $pid = $pid['pid'];

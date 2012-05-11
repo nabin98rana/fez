@@ -754,7 +754,7 @@ class Auth
 	{
 
         if(APP_FEDORA_BYPASS == 'ON') {
-            $userPIDAuthGroups = AuthNoFedora::getAuthorisationGroups($pid, $dsID="") ;
+            $userPIDAuthGroups = AuthNoFedora::getAuthorisationGroups($pid, $dsID) ;
         } else {
             $log = FezLog::get();
 
@@ -2643,7 +2643,8 @@ class Auth
 class AuthNoFedora {
 
     //delete a security permission given parameters if found
-    function deleteRoleSecurityPermissions($pid, $role, $arg_id, $inherited = '0') {
+    public function deleteRoleSecurityPermissions($pid, $role, $arg_id, $inherited = '0')
+    {
         //todo check user has permissions
 
         $log = FezLog::get();
@@ -2670,7 +2671,8 @@ class AuthNoFedora {
         }
     }
 
-    function addRoleSecurityPermissions($pid, $role, $arg_id, $inherited = '0') {
+    public function addRoleSecurityPermissions($pid, $role, $arg_id, $inherited = '0')
+    {
         $log = FezLog::get();
       	$db = DB_API::get();
 
@@ -2691,7 +2693,8 @@ class AuthNoFedora {
         }
     }
 
-    function addRoleSecurityPermissionsShadow($pid, $role, $arg_id, $date) {
+    public function addRoleSecurityPermissionsShadow($pid, $role, $arg_id, $date)
+    {
         $log = FezLog::get();
       	$db = DB_API::get();
 
@@ -2710,7 +2713,8 @@ class AuthNoFedora {
     }
 
     //Find all information for the security changing screen
-    function getSecurityPermissionsDisplay($pid) {
+    public function getSecurityPermissionsDisplay($pid)
+    {
         $log = FezLog::get();
       	$db = DB_API::get();
 
@@ -2793,7 +2797,8 @@ class AuthNoFedora {
     }
 
     //Does the object inherit permissions from parent
-    function isInherited($pid) {
+    public function isInherited($pid)
+    {
         $log = FezLog::get();
       	$db = DB_API::get();
 
@@ -2813,7 +2818,8 @@ class AuthNoFedora {
     }
 
 
-    function isWatermarked($pid, $dsID='') {
+    public function isWatermarked($pid, $dsID='')
+    {
         $log = FezLog::get();
       	$db = DB_API::get();
 
@@ -2833,7 +2839,8 @@ class AuthNoFedora {
         return $res;
     }
 
-    function isCopyrighted($pid) {
+    public function isCopyrighted($pid)
+    {
         $log = FezLog::get();
       	$db = DB_API::get();
 
@@ -2854,7 +2861,8 @@ class AuthNoFedora {
     }
 
         //set inherit permissions
-    function setInherited($pid, $inherited=1) {
+    public function setInherited($pid, $inherited=1)
+    {
         $log = FezLog::get();
       	$db = DB_API::get();
 
@@ -2874,7 +2882,8 @@ class AuthNoFedora {
         return $res;
     }
 
-    function deleteInherited($pid) {
+    public function deleteInherited($pid)
+    {
             $log = FezLog::get();
             $db = DB_API::get();
 
@@ -2894,7 +2903,7 @@ class AuthNoFedora {
             return $res;
         }
 
-    function getAllGroupTypes()
+    public function getAllGroupTypes()
     {
         return array('AD_Group' => 'AD_Group',
                     'in_AD' => 'in_AD',
@@ -2915,7 +2924,8 @@ class AuthNoFedora {
 
     }
 
-    function getAllSecurityPermissions($pid) {
+    public function getAllSecurityPermissions($pid)
+    {
         $log = FezLog::get();
       	$db = DB_API::get();
 
@@ -2934,7 +2944,8 @@ class AuthNoFedora {
          return $res;
     }
 
-    function getAllSecurityPermissionsDescriptions($pid) {
+    public function getAllSecurityPermissionsDescriptions($pid)
+    {
         $log = FezLog::get();
       	$db = DB_API::get();
 
@@ -2957,7 +2968,8 @@ class AuthNoFedora {
          return $res;
     }
 
-    function getNonInheritedSecurityPermissions($pid, $role=null) {
+    public function getNonInheritedSecurityPermissions($pid, $role=null)
+    {
         $log = FezLog::get();
       	$db = DB_API::get();
 
@@ -2984,7 +2996,8 @@ class AuthNoFedora {
          return $res;
     }
 
-    function getParentsACML($pid) {
+    public function getParentsACML($pid)
+    {
         $parentPermissions = array();
 
         if (AuthNoFedora::isInherited($pid)){
@@ -2998,7 +3011,7 @@ class AuthNoFedora {
     }
 
     //This assumes parent or non inherited data might be changed
-    function recalculatePermissions($pid)
+    public function recalculatePermissions($pid)
     {
         $pidParentPermisisons = AuthNoFedora::getParentsACML($pid);
         $pidNonInheritedPermisisons = AuthNoFedora::getNonInheritedSecurityPermissions($pid);
@@ -3036,7 +3049,7 @@ class AuthNoFedora {
 
     }
 
-    function deletePermissions($pid, $inherited = '1', $role=null)
+    public function deletePermissions($pid, $inherited = '1', $role=null)
     {
         $log = FezLog::get();
       	$db = DB_API::get();
@@ -3069,7 +3082,8 @@ class AuthNoFedora {
         }
     }
 
-    function addSecurityPermissions($pid, $role, $ar_id) {
+    public function addSecurityPermissions($pid, $role, $ar_id)
+    {
         $log = FezLog::get();
       	$db = DB_API::get();
 
@@ -3089,7 +3103,8 @@ class AuthNoFedora {
         AuthNoFedora::recalculatePermissions($pid);
     }
 
-    function deleteSecurityPermissions($pid, $role, $ar_id) {
+    public function deleteSecurityPermissions($pid, $role, $ar_id)
+    {
         $log = FezLog::get();
       	$db = DB_API::get();
 
@@ -3110,7 +3125,9 @@ class AuthNoFedora {
         //Added non inherited permissions now need to recalculate global permisisons
         AuthNoFedora::recalculatePermissions($pid);
     }
-    function getAuthorisationGroups($pid, $dsID = '') {
+
+    public function getAuthorisationGroups($pid, $dsID = '')
+    {
         $log = FezLog::get();
 
         global $auth_isBGP, $auth_bgp_session;
@@ -3239,7 +3256,8 @@ class AuthNoFedora {
     }
 
     //Convert role to id IE $role 'viewer' returns '10'
-    function getRoleToRoleId($role) {
+    public function getRoleToRoleId($role)
+    {
         $log = FezLog::get();
         $db = DB_API::get();
 
@@ -3257,7 +3275,8 @@ class AuthNoFedora {
     }
 
     //Giving auth_rule id return the 'rule' and 'value' ie 189 -> !rule!role!Fez_Group, Thesis Supervisors
-    function getAuthRuleValue($arId) {
+    public function getAuthRuleValue($arId)
+    {
         $log = FezLog::get();
         $db = DB_API::get();
 
