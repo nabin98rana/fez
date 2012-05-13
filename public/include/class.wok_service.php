@@ -143,9 +143,20 @@ class WokService
   public function search($databaseID = "WOS", $userQuery, $editions=array(), $timeSpan=array(), $symbolicTimeSpan="1week", $queryLanguage="en", $count)
   {
     if (count($editions) == 0) {
-        $editions = array("collection" => $databaseID, "edition" => "SCI");
+        $editions = array();
+        $editions[] = array("collection" => $databaseID, "edition" => "SCI");
+        $editions[] = array("collection" => $databaseID, "edition" => "SSCI");
+        $editions[] = array("collection" => $databaseID, "edition" => "AHCI");
+        $editions[] = array("collection" => $databaseID, "edition" => "ISTP");
+        $editions[] = array("collection" => $databaseID, "edition" => "ISSHP");
+        //Chemistry formulas
+        //$editions[] = array("collection" => $databaseID, "edition" => "IC");
+        //$editions[] = array("collection" => $databaseID, "edition" => "CCR");
+        //Not implemented 2012-05-10
+        //$editions[] = array("collection" => $databaseID, "edition" => "BSCI");
+        //$editions[] = array("collection" => $databaseID, "edition" => "BHCI");
     }
-    
+
     // Clean user query from invalid characters
     $userQuery = $this->_cleanUserQuery($userQuery);
     

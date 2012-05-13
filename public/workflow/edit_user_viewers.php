@@ -65,6 +65,8 @@ if (@$_POST["cat"] == "update") {
 	$user_list = FezACML::getUsersByRolePidAssoc($pid, "Viewer");
 	$tpl->assign("fezacml_user_viewers", $user_list);
 	$tpl->assign("user_options", $group_users);
+    $title = Record::getTitleFromIndex($pid);
+    $tpl->assign("title", $title);
     $tpl->assign("pid", $pid);
 	$tpl->displayTemplate();
 }

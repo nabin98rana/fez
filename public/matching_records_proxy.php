@@ -67,14 +67,7 @@ class MatchingRecords
 {
     /**
      * Return search result
-     * For searching on WOK Web Service the following query parameters are used:
-     *   - Journal Article
-     *      params: editions = array("collection" => "WOS", "edition" => "SCI"
-     *                   TI = {Requested_Title}, OG = {Uni of QLD}, "DT" = "@"
-     *   - Conference Paper
-     *      params: editions = array("collection" => "WOS", "edition" => "ISTP"
-     *                   TI = {Requested_Title}
-     *                   (No OG & DT specify)
+     * For searching on WOK Web Service
      *
      * WOK API: http://science.thomsonreuters.com/tutorials/wsp_docs/soap/Guide/
      *
@@ -88,20 +81,20 @@ class MatchingRecords
 		$db = DB_API::get();
 		
     	$matches = array();
-    	
-    	$doc_type = false;
 
         // Specify the Document Type & Database Edition on the search query parameter
         // API doc for Database Editions: http://science.thomsonreuters.com/tutorials/wsp_docs/soap/Guide/
-        $edition = "SCI";
+        //$edition = "SCI";
         switch($dt) {
             case 'Journal Article':
-                $doc_type = '@';
-                $edition = "SCI";
+                //$doc_type = '@';
+                //$edition = "SCI";
+                $doc_type = '';
                 break;
             case 'Conference Paper':
-                $doc_type = "";
-                $edition = "ISTP";
+                //$doc_type = "";
+                //$edition = "ISTP";
+                $doc_type = '';
                 break;
             default:
                 $doc_type = false;
@@ -140,8 +133,8 @@ class MatchingRecords
             if ( defined('WOK_PASSWORD') && WOK_PASSWORD != '') {
 
                 $databaseID = "WOS";
-                $editions = array("collection" => $databaseID, "edition" => $edition);
-
+                //$editions = array("collection" => $databaseID, "edition" => $edition);
+                $editions = array();
                 $wok_ws = new WokService(FALSE);
                 $response = $wok_ws->search($databaseID, $query, $editions, $timeSpan, $depth, "en", $num_recs);
                 $records = @simplexml_load_string($response->return->records);

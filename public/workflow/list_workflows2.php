@@ -123,9 +123,9 @@ if (($pid != -1) && (!empty($pid) || $pid == -2)) {
      * If this is a proper pid ie. demo:1232 make sure it exists
      */
     if($pid != -1 && $pid != -2 && $obExists) {
-	    
-    	$record = new RecordObject($pid);
-	    
+       	$record = new RecordObject($pid);
+        $tpl->assign("title", $record->getTitle());
+
 	    if ($record->canEdit()) {
 	        $tpl->assign("isEditor", 1);
 	        $xdis_id = $record->getXmlDisplayId();
@@ -194,8 +194,6 @@ if (empty($workflows)) {
 	} else {
 		$message = "Workflow trigger must be numeric";
 	}
-
-
 }
 
 $tpl->assign('message', $message);

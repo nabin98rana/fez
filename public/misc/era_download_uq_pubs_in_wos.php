@@ -40,7 +40,9 @@ $query = 'OG=(Univ Queensland)';
 $depth = '4week';
 $timeSpan = array();
 $databaseID = "WOS";
-$editions = array("collection" => $databaseID, "edition" => "SCI");
+
+//Edition set to "" should default to all
+$editions = array();
 $sort = '';
 $first_rec = 1;
 $num_recs = WOK_BATCH_SIZE;
