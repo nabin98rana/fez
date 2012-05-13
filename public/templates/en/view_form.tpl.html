@@ -255,9 +255,7 @@ function loadPreview(pid,datastreamID, alt, origami)
 													{assign var="ds_show" value=$datastreams[d].web}
 												{/if}
 											{/if}
-											
-											<a onclick="javascript:window.open('{$rel_url}eserv/{$pid}/{$ds_show}{if $viewingPreviousVersion}/version_date={$versionDate}{/if}'); return false;" href="{$rel_url}eserv/{$pid}/{$ds_show}{if $viewingPreviousVersion}/version_date={$versionDate}{/if}">
-
+                                                <a onclick="javascript:window.open('{$rel_url}eserv/{$pid}/{$ds_show}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}'); return false;" href="{$rel_url}eserv/{$pid}/{$ds_show}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}">
 										{/if}
 										{assign var="show_preview_pane" value="1"}
 										{if $datastreams[d].thumbnail != "0"}
@@ -297,7 +295,7 @@ function loadPreview(pid,datastreamID, alt, origami)
 
                                 {else}
                                     {if $datastreams[d].isViewer == 1 || $isAdministrator}
-                                        <a onclick="javascript:window.open('{$rel_url}eserv/{$pid}/{$ds_show}{if $viewingPreviousVersion}/version_date={$versionDate}{/if}'); return false;" href="{$rel_url}eserv/{$pid}/{$ds_show}{if $viewingPreviousVersion}/version_date={$versionDate}{/if}">
+                                            <a onclick="javascript:window.open('{$rel_url}eserv/{$pid}/{$ds_show}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}'); return false;" href="{$rel_url}eserv/{$pid}/{$ds_show}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}">
                                     {/if}
 
                                     {$datastreams[d].ID}
@@ -313,11 +311,11 @@ function loadPreview(pid,datastreamID, alt, origami)
 								<td style="text-align: right">		
 									{* Stream icon *}
 									{if ($datastreams[d].canPreview || $isAdministrator) && $datastreams[d].stream != "0" && $ds_show_extra != ''}
-										<a onclick="javascript:window.open('{$rel_url}eserv/{$pid}/{$ds_show_extra}{if $viewingPreviousVersion}/version_date={$versionDate}{/if}'); return false;" href="{$rel_url}eserv/{$pid}/{$ds_show_extra}{if $viewingPreviousVersion}/version_date={$versionDate}{/if}"><img src="{$rel_url}images/stream_22.png" alt="Stream this item to your browser" title="Stream this item to your browser" width="22" height="22" /></a>
+                                            <a onclick="javascript:window.open('{$rel_url}eserv/{$pid}/{$ds_show_extra}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}'); return false;" href="{$rel_url}eserv/{$pid}/{$ds_show_extra}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}"><img src="{$rel_url}images/stream_22.png" alt="Stream this item to your browser" title="Stream this item to your browser" width="22" height="22" /></a>
 									{/if}
 									{* Archival icon *}
 									{if ($datastreams[d].isArchivalViewer == 1 || $isAdministrator) && $datastreams[d].thumbnail != "0"}
-										<a onclick="javascript:window.open('{$rel_url}eserv/{$pid}/{$datastreams[d].ID}{if $viewingPreviousVersion}/version_date={$versionDate}{/if}'); return false;" href="{$rel_url}eserv/{$pid}/{$datastreams[d].ID}{if $viewingPreviousVersion}/version_date={$versionDate}{/if}"><img alt="Archival version" title="Archival version" src="{$rel_url}images/archival_22.gif" /></a> 
+                                            <a onclick="javascript:window.open('{$rel_url}eserv/{$pid}/{$datastreams[d].ID}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}'); return false;" href="{$rel_url}eserv/{$pid}/{$datastreams[d].ID}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}"><img alt="Archival version" title="Archival version" src="{$rel_url}images/archival_22.gif" /></a>
 									{/if}
 									{* Origami icon *}
 									{if $datastreams[d].isViewer == 1 || $isAdministrator}
@@ -326,12 +324,12 @@ function loadPreview(pid,datastreamID, alt, origami)
 												$datastreams[d].MIMEType == 'image/tiff' || 
 												$datastreams[d].MIMEType == 'image/tif' || 
 												$datastreams[d].MIMEType == 'image/jpg')}
-											<a onclick="javascript:window.open('{$rel_url}eserv/{$pid}/{$datastreams[d].ID}/oi=1{if $viewingPreviousVersion}/version_date={$versionDate}{/if}'); return false;" href="{$rel_url}eserv/{$pid}/{$datastreams[d].ID}/oi=1{if $viewingPreviousVersion}/version_date={$versionDate}{/if}"><img alt="Origami viewer" title="Origami viewer" src="{$rel_url}images/view_22.png" /></a>
+                                                <a onclick="javascript:window.open('{$rel_url}eserv/{$pid}/{$datastreams[d].ID}?oi=1{if $viewingPreviousVersion}&version_date={$versionDate}{/if}'); return false;" href="{$rel_url}eserv/{$pid}/{$datastreams[d].ID}?oi=1{if $viewingPreviousVersion}&version_date={$versionDate}{/if}"><img alt="Origami viewer" title="Origami viewer" src="{$rel_url}images/view_22.png" /></a>
 										{/if}
 									{/if}
 									{* XML metadata icon *}
 									{if $datastreams[d].presmd != "0" && ($isAdministrator)}
-										<a onclick="javascript:window.open('{$rel_url}eserv/{$pid}/{$datastreams[d].presmd}{if $viewingPreviousVersion}/version_date={$versionDate}{/if}'); return false;" href="{$rel_url}eserv/{$pid}/{$datastreams[d].presmd}{if $viewingPreviousVersion}/version_date={$versionDate}{/if}"><img alt="Preservation metadata" title="Preservation metadata" src="{$rel_url}images/presmd_22.gif" /></a> 
+                                            <a onclick="javascript:window.open('{$rel_url}eserv/{$pid}/{$datastreams[d].presmd}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}'); return false;" href="{$rel_url}eserv/{$pid}/{$datastreams[d].presmd}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}"><img alt="Preservation metadata" title="Preservation metadata" src="{$rel_url}images/presmd_22.gif" /></a>
 									{/if}
 								</td>
 								

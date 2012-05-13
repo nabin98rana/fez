@@ -127,6 +127,7 @@ if (($pid != -1) && (!empty($pid) || $pid == -2)) {
     if($pid != -1 && $pid != -2 && $obExists) {
 	    
     	$record = new RecordObject($pid);
+        $tpl->assign("title", $record->getTitle());
 	    
 	    if ($record->canEdit()) {
 	        $tpl->assign("isEditor", 1);
