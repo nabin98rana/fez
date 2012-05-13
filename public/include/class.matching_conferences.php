@@ -30,6 +30,8 @@
 // | Authors: Lachlan Kuhn <l.kuhn@library.uq.edu.au>                     |
 // +----------------------------------------------------------------------+
 
+include_once(APP_INC_PATH . "class.filecache.php");
+
 define("TEST", false); // Limit to 50 records only if TRUE
 define("TEST_WHERE_MC",				""); // Adds this condition to the where statement for eg testing single pids
 define("WINDOW_START_MC",				'2005-01-01 00:00:00');
@@ -461,8 +463,14 @@ class RCL
 				$log->err($ex);
 				die('There was a problem with the query ' . $stmt);
 			}
-			
-			//echo $stmt . "\n";
+
+            if( APP_FILECACHE == "ON" ) {
+                $cache = new fileCache($match['pid'], 'pid='.$match['pid']);
+                $cache->poisonCache();
+
+            }
+
+            //echo $stmt . "\n";
 		}
 		
 		echo "done.\n";
