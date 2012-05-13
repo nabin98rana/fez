@@ -269,6 +269,13 @@ class WosRecItem
    * @var bool
    */
   private $_loaded = FALSE;
+  
+  /**
+   * Publisher
+   *
+   * @var string
+   */
+  private $publisher = null;
     
   /**
    * Constructs a new object 
@@ -356,7 +363,7 @@ class WosRecItem
     
     $this->setBibIssueYVM($node);
     $this->setDateIssued($node);
-      
+    
     $docType = $node->getElementsByTagName("doctype")->item(0);
     if ($docType) {
       $this->docType = $docType->nodeValue;
@@ -392,6 +399,12 @@ class WosRecItem
     }
     if (is_array($keywords) && count($keywords) > 0) {
       $this->keywords = $keywords;
+    }
+    
+    if (isset($node->getElementsByTagName("bk_publisher")->item(0)->nodeValue)){
+        $this->publisher = $node->getElementsByTagName("bk_publisher")->item(0)->nodeValue;
+    }else if (isset($node->getElementsByTagName("publisher")->item(0)->nodeValue)){
+        $this->publisher = $node->getElementsByTagName("publisher")->item(0)->nodeValue;
     }
     
     $firstConf = $node->getElementsByTagName("conference")->item(0);
@@ -478,6 +491,15 @@ class WosRecItem
       if ($bibVol) {
         $this->bibIssueNum = $bibVol->getAttribute('issue');
         //$this->bibIssueVol = $bibIssue->getAttribute('volume'); //Already gotten from bib_issue element - same value
+      
+      }else {
+          
+        // If bib_vol node does not exists, retrieve it from bib_id node
+        $temp_bib_id = $node->getElementsByTagName("bib_id")->item(0);
+        preg_match('/\(([^\)]+)\):/', $temp_bib_id, $matches);
+        if (count($matches) == 2) {
+            $this->bibIssueNum = $matches[1];
+        }
       }
     }    
   }
@@ -511,101 +533,236 @@ class WosRecItem
 
   }
 
-  /**
-   * Stores to a new record in Fez
-   */
-  public function save()
-  {
-    $log = FezLog::get();
-    
-    if (! $this->_loaded) {
-      $log->err('WoS record must be loaded before saving');
-      return FALSE;
-    }
-    // List of doc types we support saving
-    $dTMap = Thomson_Doctype_Mappings::getList('ESTI');
-    foreach ($dTMap as $map) {
-      $dTMap[$map['tdm_doctype']] = array($map['xdis_title'], $map['tdm_subtype'], $map['tdm_xdis_id']); 
-    }    
-    if (! array_key_exists($this->docTypeCode, $dTMap)) {
-      $log->err('Unsupported doc type: '.$this->docTypeCode);
-      return FALSE;
-    }    
-    $xdis_title = $dTMap[$this->docTypeCode][0];
-    $xdis_subtype = $dTMap[$this->docTypeCode][1];
-    $xdis_id = $dTMap[$this->docTypeCode][2];
+    /**
+     * Returns an array of Search key's title & value pair, built from WOS record items.
+     * 
+     * @param array $dTMap
+     * @param Fez_Record_Searchkey $recordSearchKey
+     * @return array  
+     */
+    protected function _getSekData($dTMap, $recordSearchKey)
+    {
+        $xdis_title = $dTMap[$this->docTypeCode][0];
+        $xdis_subtype = $dTMap[$this->docTypeCode][1];
+        $xdis_id = $dTMap[$this->docTypeCode][2];
+        
+        // Build Search key data 
+        $sekData = array();
 
-    $history = 'Imported from WoK Web Services Premium';
+        $sekData['Display Type']    = $xdis_id;
+        $sekData['Genre']           = $xdis_title;
+        $sekData['Genre Type']      = $xdis_subtype;
+        
+        $sekData['Title']           = $this->itemTitle;
+        $sekData['Author']          = $this->authors;
+        $sekData['ISI LOC']         = $this->ut;
+        $sekData['Keywords']        = $this->keywords;
+        $sekData['ISBN']            = $this->isbn;
+        $sekData['ISSN']            = $this->issn;
+        $sekData['Publisher']       = $this->publisher;
+        
+        $sekData['Issue Number']    = $this->bibIssueNum;
+        $sekData['Volume Number']   = $this->bibIssueVol;
+        $sekData['Start Page']      = $this->bibPageBegin;
+        $sekData['End Page']        = $this->bibPageEnd;
+        $sekData['Total Pages']     = $this->bibPageCount;
+        
+        // Published date. We only need to save the Year.
+        $sekData['Date']            = Misc::MySQLDate(array("Year" => date("Y", strtotime($this->date_issued))));
+        
+        $sekData['Language']        = Language::resolveWoSLanguage($this->primaryLang);
+        $sekData['Status']          = Status::getID("Published");
+        $sekData['Object Type']     = Object_Type::getID("Record");
+        $sekData['Depositor']       = Auth::getUserID();
+        $sekData['isMemberOf']      = $this->collections[0];
+        $sekData['Created Date']    = $recordSearchKey->getVersion();
+        $sekData['Updated Date']    = $recordSearchKey->getVersion();
 
-    if (count($this->author_ids) > 0) {
-      $aut_details = Author::getDetails($this->author_ids[0]);
-      $history .= " via Researcher ID download of ".$aut_details['aut_display_name']." (".
-                   $aut_details['aut_researcher_id']." - ".$aut_details['aut_id']." - ".$aut_details['aut_org_username'].")";
-    }
-    // MODS
-      
-    $mods = array();
-    $mods['titleInfo']['title'] = $this->itemTitle;
-    if (count($this->authors) > 0) {
-      $mods['name'][0]['id'] = '0';
-      $mods['name'][0]['authority'] = APP_ORG_NAME;
-      $mods['name'][0]['namePart_personal'] = $this->authors[0];
-      $mods['name'][0]['role']['roleTerm_text'] = 'author';
-      if (count($this->authors) > 1) {
-        for ($i=1; $i<count($this->authors); $i++) {
-          $mods['name'][$i]['id'] = '0';
-          $mods['name'][$i]['authority'] = APP_ORG_NAME;
-          $mods['name'][$i]['namePart_personal'] = $this->authors[$i];
-          $mods['name'][$i]['role']['roleTerm_text'] = 'author';
+        // Custom search keys based on Document Type
+        if ($xdis_title == 'Conference Paper') {
+            $sekData['Proceedings Title'] = $this->sourceTitle;
+            $sekData['Conference Name']   = $this->confTitle;
+            $sekData['Conference Dates']  = $this->confDate;
+            $sekData['Conference Location']  = $this->confLocCity . ' ' . $this->confLocState;
+        } else if ($xdis_title == 'Journal Article') {
+            $sekData['Journal Name'] = $this->sourceTitle;
         }
-      }
+        
+        // DOI link
+        $doi = $this->getDoi();
+        $sekData['Link'] = 'http://dx.doi.org/' . $doi;
+        
+        return $sekData;
     }
-    if (count($this->keywords) > 0) {        
-      for ($i=0; $i<count($this->keywords); $i++) {
-        $mods['subject'][$i]['authority'] = 'keyword';
-        $mods['subject'][$i]['topic'] = $this->keywords[$i];
-      }
-    }
-    $mods['identifier_isi_loc'] = $this->ut;
-    $mods['identifier_isbn'] = $this->isbn;
-    $mods['identifier_issn'] = $this->issn;
-    $mods['language'] = Language::resolveWoSLanguage($this->primaryLang);
-    $mods['genre'] = $xdis_title;
-    $mods['genre_type'] = $xdis_subtype;
-    $mods['relatedItem']['part']['detail_issue']['number'] = $this->bibIssueNum;
-    $mods['relatedItem']['part']['detail_volume']['number'] = $this->bibIssueVol;
-    $mods['relatedItem']['part']['extent_page']['start'] = $this->bibPageBegin;
-    $mods['relatedItem']['part']['extent_page']['end'] = $this->bibPageEnd;
-    $mods['relatedItem']['part']['extent_page']['total'] = $this->bibPageCount;        
-    if ($xdis_title == 'Conference Paper') {
-      $mods['originInfo']['dateIssued'] = $this->date_issued;
-      $mods['relatedItem']['titleInfo']['title'] = $this->sourceTitle;
-      $mods['relatedItem']['name'][0]['namePart_type'] = 'conference';
-      $mods['relatedItem']['name'][0]['namePart'] = $this->confTitle;
-      $mods['relatedItem']['originInfo']['place']['placeTerm'] =  $this->confLocCity . ' ' . $this->confLocState;
-      $mods['relatedItem']['originInfo']['dateOther'] = $this->confDate;  
-    } else if ($xdis_title == 'Journal Article') {
-      $mods['relatedItem']['originInfo']['dateIssued'] = $this->date_issued;
-      $mods['relatedItem']['name'][0]['namePart_type'] = 'journal';
-      $mods['relatedItem']['name'][0]['namePart'] = $this->sourceTitle;
-    }
-    // Links
-    $links = array();
-    $doi = $this->getDoi();
-    if ($doi) {    
-      $links[0]['url'] = 'http://dx.doi.org/' . $doi;
-      $links[0]['id'] = 'link_1';
-      $links[0]['created'] = date('c');
-      $links[0]['name'] = 'Link to Full Text (DOI)';
-    }
-    $rec = new Record();
-    $pid = $rec->insertFromArray($mods, $this->collections[0], "MODS 1.0", $history, 0, $links, array());
-    if (is_numeric($this->timesCited)) {
-       Record::updateThomsonCitationCount($pid, $this->timesCited, $this->ut);
-    }
-    return $pid;
-  }
   
+    
+    /**
+     * Saves WOS record items to Record Search Key 
+     * 
+     * @return string $pid
+     */
+    protected function _saveFedoraBypass($history = null)
+    {
+        $log = FezLog::get();
+
+        if (!$this->_loaded) {
+            $log->err('WoS record must be loaded before saving');
+            return FALSE;
+        }
+        
+        // List of doc types we support saving
+        $dTMap = Thomson_Doctype_Mappings::getList('ESTI');
+        foreach ($dTMap as $map) {
+            $dTMap[$map['tdm_doctype']] = array($map['xdis_title'], $map['tdm_subtype'], $map['tdm_xdis_id']);
+        }
+        if (!array_key_exists($this->docTypeCode, $dTMap)) {
+            $log->err('Unsupported doc type: ' . $this->docTypeCode);
+            return FALSE;
+        }
+        $xdis_id = $dTMap[$this->docTypeCode][2];
+
+        // Instantiate Record Sek class
+        $recordSearchKey = new Fez_Record_Searchkey();
+        
+        if (empty($history)){
+            // History message
+            $history = 'Imported from WoK Web Services Premium';
+            if (count($this->author_ids) > 0) {
+                $aut_details = Author::getDetails($this->author_ids[0]);
+                $history .= " via Researcher ID download of " . $aut_details['aut_display_name'] . " (" .
+                        $aut_details['aut_researcher_id'] . " - " . $aut_details['aut_id'] . " - " . $aut_details['aut_org_username'] . ")";
+            }
+        }
+        
+        // Citation Data
+        $citationData = array('thomson' => $this->timesCited);
+        
+        // Search key Data 
+        $sekData = $this->_getSekData($dTMap, $recordSearchKey);
+        $sekData = $recordSearchKey->buildSearchKeyDataByDisplayType($sekData, $xdis_id);
+        
+        // Save Record
+        $result = $recordSearchKey->insertRecord($sekData, $history, $citationData);
+        
+        if (!$result){
+            return false;
+        }
+        
+        return $recordSearchKey->getPid();
+    }
+
+    
+    /**
+     * Stores to a new record in Fez
+     */
+    public function save($history = null)
+    {
+        $pid = null;
+        
+        if (APP_FEDORA_BYPASS == 'ON') {
+
+            // save WOS data to Record Search Keys
+            $pid = $this->_saveFedoraBypass($history);
+            
+        } else {
+
+
+            $log = FezLog::get();
+
+            if (!$this->_loaded) {
+                $log->err('WoS record must be loaded before saving');
+                return FALSE;
+            }
+            // List of doc types we support saving
+            $dTMap = Thomson_Doctype_Mappings::getList('ESTI');
+            foreach ($dTMap as $map) {
+                $dTMap[$map['tdm_doctype']] = array($map['xdis_title'], $map['tdm_subtype'], $map['tdm_xdis_id']);
+            }
+            if (!array_key_exists($this->docTypeCode, $dTMap)) {
+                $log->err('Unsupported doc type: ' . $this->docTypeCode);
+                return FALSE;
+            }
+            
+            
+            $xdis_title = $dTMap[$this->docTypeCode][0];
+            $xdis_subtype = $dTMap[$this->docTypeCode][1];
+            $xdis_id = $dTMap[$this->docTypeCode][2];
+
+            if (empty($history)){
+                $history = 'Imported from WoK Web Services Premium';
+
+                if (count($this->author_ids) > 0) {
+                    $aut_details = Author::getDetails($this->author_ids[0]);
+                    $history .= " via Researcher ID download of " . $aut_details['aut_display_name'] . " (" .
+                            $aut_details['aut_researcher_id'] . " - " . $aut_details['aut_id'] . " - " . $aut_details['aut_org_username'] . ")";
+                }
+            }
+            // MODS
+
+            $mods = array();
+            $mods['titleInfo']['title'] = $this->itemTitle;
+            if (count($this->authors) > 0) {
+                $mods['name'][0]['id'] = '0';
+                $mods['name'][0]['authority'] = APP_ORG_NAME;
+                $mods['name'][0]['namePart_personal'] = $this->authors[0];
+                $mods['name'][0]['role']['roleTerm_text'] = 'author';
+                if (count($this->authors) > 1) {
+                    for ($i = 1; $i < count($this->authors); $i++) {
+                        $mods['name'][$i]['id'] = '0';
+                        $mods['name'][$i]['authority'] = APP_ORG_NAME;
+                        $mods['name'][$i]['namePart_personal'] = $this->authors[$i];
+                        $mods['name'][$i]['role']['roleTerm_text'] = 'author';
+                    }
+                }
+            }
+            if (count($this->keywords) > 0) {
+                for ($i = 0; $i < count($this->keywords); $i++) {
+                    $mods['subject'][$i]['authority'] = 'keyword';
+                    $mods['subject'][$i]['topic'] = $this->keywords[$i];
+                }
+            }
+            $mods['identifier_isi_loc'] = $this->ut;
+            $mods['identifier_isbn'] = $this->isbn;
+            $mods['identifier_issn'] = $this->issn;
+            $mods['language'] = Language::resolveWoSLanguage($this->primaryLang);
+            $mods['genre'] = $xdis_title;
+            $mods['genre_type'] = $xdis_subtype;
+            $mods['relatedItem']['part']['detail_issue']['number'] = $this->bibIssueNum;
+            $mods['relatedItem']['part']['detail_volume']['number'] = $this->bibIssueVol;
+            $mods['relatedItem']['part']['extent_page']['start'] = $this->bibPageBegin;
+            $mods['relatedItem']['part']['extent_page']['end'] = $this->bibPageEnd;
+            $mods['relatedItem']['part']['extent_page']['total'] = $this->bibPageCount;
+            if ($xdis_title == 'Conference Paper') {
+                    $mods['originInfo']['dateIssued'] = $this->date_issued;
+                $mods['relatedItem']['titleInfo']['title'] = $this->sourceTitle;
+                $mods['relatedItem']['name'][0]['namePart_type'] = 'conference';
+                $mods['relatedItem']['name'][0]['namePart'] = $this->confTitle;
+                $mods['relatedItem']['originInfo']['place']['placeTerm'] = $this->confLocCity . ' ' . $this->confLocState;
+                $mods['relatedItem']['originInfo']['dateOther'] = $this->confDate;
+            } else if ($xdis_title == 'Journal Article') {
+                $mods['relatedItem']['originInfo']['dateIssued'] = $this->date_issued;
+                $mods['relatedItem']['name'][0]['namePart_type'] = 'journal';
+                $mods['relatedItem']['name'][0]['namePart'] = $this->sourceTitle;
+            }
+            // Links
+            $links = array();
+            $doi = $this->getDoi();
+            if ($doi) {
+                $links[0]['url'] = 'http://dx.doi.org/' . $doi;
+                $links[0]['id'] = 'link_1';
+                $links[0]['created'] = date('c');
+                $links[0]['name'] = 'Link to Full Text (DOI)';
+            }
+            $rec = new Record();
+            $pid = $rec->insertFromArray($mods, $this->collections[0], "MODS 1.0", $history, 0, $links, array());
+            if (is_numeric($this->timesCited)) {
+                Record::updateThomsonCitationCount($pid, $this->timesCited, $this->ut);
+            }
+        }
+        return $pid;
+    }
+  
+    
   /**
    * Update an existing record with additional bib data from WoK
    */

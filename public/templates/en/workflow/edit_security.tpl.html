@@ -23,7 +23,7 @@ function purgeDatastream(ds_id)
       <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
         <tr>
           <td class="default">
-            <b>Thank you, the new record was created successfully. Please choose 
+            <b>Thank you, the new record was created successfully. Please choose
             from one of the options below:</b>
             <ul>
               <li><a href="view/{$new_record_id}" class="link">Open the Record Details Page</a></li>
@@ -249,21 +249,21 @@ function selectDateField(field_name, day, month, year)
 						</tr>
 				{/if}
 			{elseif ($xsd_display_fields[i].xsdmf_html_input == 'static' && $xsd_display_fields[i].xsdmf_show_in_view == 1 && $xsd_display_fields[i].xsdmf_static_text != '')}
-				{assign var="image_name" value=$fez_root_dir|cat:"images/"|cat:$xsd_display_fields[i].xsdmf_image_location} 
+				{assign var="image_name" value=$fez_root_dir|cat:"images/"|cat:$xsd_display_fields[i].xsdmf_image_location}
 				{assign var="image_file_string" value=""}
-				{fetch file=$image_name assign="image_file_string"} 
+				{fetch file=$image_name assign="image_file_string"}
 						<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0">
 						  <td bgcolor="{$heading_color}" class="default_white" colspan="2" nowrap>
-							{if $image_file_string != ""}<img align="absmiddle" src="{$rel_url}images/{$xsd_display_fields[i].xsdmf_image_location}"> {/if}<b>{$xsd_display_fields[i].xsdmf_static_text}</b> 
+							{if $image_file_string != ""}<img align="absmiddle" src="{$rel_url}images/{$xsd_display_fields[i].xsdmf_image_location}"> {/if}<b>{$xsd_display_fields[i].xsdmf_static_text}</b>
 							{if $xsd_display_fields[i].xsdmf_description != ""}
 								&nbsp;<i>{$xsd_display_fields[i].xsdmf_description|escape:"html"}</i>
 							{/if}
 						  </td>
 						</tr>
 			{elseif ($xsd_display_fields[i].xsdmf_html_input == 'xsd_loop_subelement' && $xsd_display_fields[i].xsdmf_show_in_view == 1)}
-				{assign var="image_name" value=$fez_root_dir|cat:"images/"|cat:$xsd_display_fields[i].xsdmf_image_location} 
+				{assign var="image_name" value=$fez_root_dir|cat:"images/"|cat:$xsd_display_fields[i].xsdmf_image_location}
 				{assign var="image_file_string" value=""}
-				{fetch file=$image_name assign="image_file_string"} 
+				{fetch file=$image_name assign="image_file_string"}
 						<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0">
 						  <td bgcolor="{$cell_color}" class="default" colspan="2" nowrap>
 							{if $image_file_string != ""}<img align="absmiddle" src="{$rel_url}images/{$xsd_display_fields[i].xsdmf_image_location}"> {/if}<b>{$xsd_display_fields[i].xsdmf_title}</b>
@@ -276,7 +276,7 @@ function selectDateField(field_name, day, month, year)
             {elseif $xsd_display_fields[i].xsdmf_html_input == 'text' && $xsd_display_fields[i].xsdmf_enabled == 1}
 				{if $xsd_display_fields[i].xsdmf_multiple == 1}
 					{assign var="show_num" value=0}
-					{assign var="check_num" value=0}						
+					{assign var="check_num" value=0}
 					{section name="z" loop=$xsd_display_fields[i].multiple_array}
 						{assign var="loop_num" value=$smarty.section.z.index}
 						{if $show_num != 0}
@@ -387,7 +387,7 @@ function selectDateField(field_name, day, month, year)
 							<input type="button" name="remove_left" value="Remove selected from left" onClick="javascript:deleteSelectedItemsFromList(this.form.{$field_id});" />
 						</td>
 						<td>
-							<input type="button" name="copy_left" value="Copy selected to left" onClick="javascript:addToParentList(this.form.{$field_id_helper}, this.form.{$field_id});" />							
+							<input type="button" name="copy_left" value="Copy selected to left" onClick="javascript:addToParentList(this.form.{$field_id_helper}, this.form.{$field_id});" />
 						</td>
 					</tr>
 					</table>
@@ -399,7 +399,7 @@ function selectDateField(field_name, day, month, year)
 							<b>{$xsd_display_fields[i].xsdmf_title} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b>
 						  </td>
 						  <td bgcolor="{$value_color}">
-	  					    {assign var="field_name" value="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}							
+	  					    {assign var="field_name" value="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}
 							{if $xsd_display_fields[i].xsdmf_html_input == 'multiple'}
 								{assign var="field_name" value=$field_name|cat:"[]"}
 							{/if}
@@ -440,7 +440,7 @@ function selectDateField(field_name, day, month, year)
                   tCalendar_xsd_display_fields{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}.setMonthCombo(false);
                   tCalendar_xsd_display_fields{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}.setYearCombo(false);
                   //-->
-                  </script>{/literal}&nbsp;&nbsp;				
+                  </script>{/literal}&nbsp;&nbsp;
                 </td>
               </tr>
             {elseif $xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector' && $xsd_display_fields[i].xsdmf_enabled == 1}
@@ -460,7 +460,7 @@ function selectDateField(field_name, day, month, year)
 						<input class="default" type=button value="Add New" onclick = "javascript:small_window('{$rel_url}cv_selector.php?cvo_id=1&form=wfl_form1&element=xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0');">
 						<input class="default" type=button value="Remove Selected" onclick =" javascript:deleteSelectedItemsFromList(xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0);">
 					 </td>
-					</tr>						  			  
+					</tr>
             {elseif $xsd_display_fields[i].xsdmf_html_input == 'contvocab'  && $xsd_display_fields[i].xsdmf_enabled == 1}
 
 					<tr id="tr_list_{$list[i].xsdmf_id}_0" valign="top">
@@ -472,7 +472,7 @@ function selectDateField(field_name, day, month, year)
 							  {html_options options=$xsd_display_fields[i].field_options selected=$details[$temp_fld_id]}
 						</select>
 					 </td>
-					</tr>				
+					</tr>
 
             {/if}
             {assign var="custom_field_id" value=$xsd_display_fields[i].xsdmf_id}
@@ -493,7 +493,7 @@ function selectDateField(field_name, day, month, year)
 		  </tr>
 		    </table>
 		  </td>
-		</tr>			
+		</tr>
 </table>
 </td>
 </tr>

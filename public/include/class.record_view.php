@@ -86,7 +86,7 @@ class RecordView {
 						}
 					}
 				}
-				if ($dis_field['xsdmf_data_type'] == "date") {
+				if ($dis_field['xsdmf_data_type'] == 'date' || $dis_field['xsdmf_html_input'] == 'date') {
 					if (!empty($details[$dis_field['xsdmf_id']])) {
 						if (is_array($details[$dis_field['xsdmf_id']])) {
 							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
@@ -94,11 +94,22 @@ class RecordView {
 							}
 						} else {
 							//$tempDate = new Date($details[$dis_field['xsdmf_id']]);
+
 							//						$tempDate->format
-							if (@$details[$dis_field['xsdmf_attached_xsdmf_id']] == 1) {
+                            $month = substr($details[$dis_field['xsdmf_id']], 5, 2);
+                            $day = substr($details[$dis_field['xsdmf_id']], 8, 2);
+
+							if ($dis_field['xsdmf_date_type'] == 1) {
 								$details[$dis_field['xsdmf_id']] = substr($details[$dis_field['xsdmf_id']], 0, 4);
-							} elseif (@$details[$dis_field['xsdmf_attached_xsdmf_id']] == 2) {
-								$details[$dis_field['xsdmf_id']] = substr($details[$dis_field['xsdmf_id']], 0, 7);
+							} elseif ($dis_field['xsdmf_date_type'] == 0) {
+                                if ($month != '00' && $day != '00') {
+                                    $details[$dis_field['xsdmf_id']] = substr($details[$dis_field['xsdmf_id']], 0, 10);
+                                } elseif ($month != '00') {
+                                    $details[$dis_field['xsdmf_id']] = substr($details[$dis_field['xsdmf_id']], 0, 7);
+                                } else {
+                                    $details[$dis_field['xsdmf_id']] = substr($details[$dis_field['xsdmf_id']], 0, 4);
+                                }
+
 							}
 						}
 					}

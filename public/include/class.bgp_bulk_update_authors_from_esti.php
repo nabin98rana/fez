@@ -81,9 +81,11 @@ class BackgroundProcess_Bulk_Update_Authors_From_Esti extends BackgroundProcess
 				 
 				$record = new RecordObject($pid);
 				$res = $record->replaceAuthorsFromEsti();
-				
+                
 				if( $res ) {
-					$record->markAsActive(true);
+                    if (APP_FEDORA_BYPASS != "ON"){
+                        $record->markAsActive(true);
+                    }
 					$this->setStatus("Updated authors in record '".$pid."'");
 				} else {
 					$this->setStatus("ERROR updating authors in record '".$pid."'");

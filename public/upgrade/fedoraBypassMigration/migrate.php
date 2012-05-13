@@ -1,5 +1,6 @@
+#!/usr/bin/php
 <?php
-/* vim: set expandtab tabstop=4 shiftwidth=4: */
+
 // +----------------------------------------------------------------------+
 // | Fez - Digital Repository System                                      |
 // +----------------------------------------------------------------------+
@@ -27,28 +28,52 @@
 // | 59 Temple Place - Suite 330                                          |
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
-// | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
-// |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>,                    |
-// |          Rhys Palmer <r.rpalmer@library.uq.edu.au>                   |
-// +----------------------------------------------------------------------+
 
-// restores WorkflowStatus object from the session
-$wfstatus = &WorkflowStatusStatic::getSession(); 
+/**
+ * This script calls Fedora bypass migration in stages.
+ * It can be called via command line -- see the first line before php tag. 
+ * 
+ * @version 1.0, 2012-03-08
+ * @author Elvi Shu <e.shu at library.uq.edu.au>
+ * @license http://www.gnu.org/licenses/gpl.html GPL License
+ * @copyright (c) 2012 The University of Queensland
+ * 
+ * @example Command line. To run this script on command line, type in the following:
+ * 1. $ sudo su OR sudo bash  
+ *    (This depends on the Doc Root and PHP CLI permission on your server)
+ * 2. $ cd DOCUMENT_ROOT/upgrade/fedoraBypassMigration
+ * 3. $ ./migrate.php -h -- config=/var/www/migration.beacon.library.uq.edu.au/public/config.inc.php autoMapXSDFields=1 
+ */
 
-$date = Date_API::getCurrentDateGMT(true);
+$configFile = "../../config.inc.php";
 
-Record::markAsDeleted($this->pid, $date);
-// need to add history here because the status object 
-// doesn't like to add history to a deleted object
-$historyComment = $wfstatus->getVar('historyDetail');
-if ($historyComment) {
-  History::addHistory(
-      $this->pid, $this->wfl_details['wfl_id'],
-      '', '', true, '', $historyComment, $date
-  );
-} else {
-  History::addHistory($this->pid, $this->wfl_details['wfl_id'], '', '', true, '', '', $date);
+foreach ($argv as $arg){
+    $arg = explode("=", $arg);
+    if (!array_key_exists(0, $arg) || !array_key_exists(1, $arg)){
+        continue;
+    }
+
+    switch ($arg[0]){
+        case 'config':
+            $configFile = $arg[1];
+            break;
+    }
 }
 
-$cache = new fileCache($this->pid, 'pid='.$this->pid);
-$cache->poisonCache();
+if (empty($configFile)){
+    echo "Forgotten to specify config file?";
+    exit;
+}
+
+include_once($configFile);
+
+include_once("MigrateFromFedoraToDatabase.php");
+
+
+// Run migration functionalities
+// Do it! and cross your fingers. 
+// Don't forget to thank your parents (see: rm_fedora.php).
+$migrate = new MigrateFromFedoraToDatabase($argv);
+
+
+
