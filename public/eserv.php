@@ -61,10 +61,13 @@ $bookreaderui    = @$_REQUEST["ui"];
 
 $SHOW_STATUS_PARM = @$_REQUEST["status"];
 $SHOW_STATUS = @($SHOW_STATUS_PARM == "true") ? true : false; 
-$ALLOW_SECURITY_REDIRECT = @$SHOW_STATUS ? false : true; 
+$ALLOW_SECURITY_REDIRECT = @$SHOW_STATUS ? false : true;
 
+//$pid and $dsID should not contain ~<>=?*'
+$pattern ='/\~|<|>|=|\?|\*|\\' . "'" . '/';
 $not_exists = false;
-if ( (is_numeric(strpos($pid, ".."))) || (Misc::isPid($pid) != true) || (is_numeric(strpos($pid, "/"))) || (is_numeric(strpos($pid, "/"))) || (is_numeric(strpos($dsID, ".."))) || ((is_numeric(strpos($dsID, "/"))) && (!$bookpage)) ) {
+if ( (is_numeric(strpos($pid, ".."))) || (Misc::isPid($pid) != true) || (is_numeric(strpos($pid, "/")))
+    || (is_numeric(strpos($dsID, ".."))) || ((is_numeric(strpos($dsID, "/"))) && (!$bookpage)) || (preg_match($pattern, $dsID.$pid))) {
 	header("HTTP/1.0 404 Not Found");
 	header("Status: 404 Not Found");
 	$tpl = new Template_API();
