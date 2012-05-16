@@ -1419,6 +1419,7 @@ class ResearcherID
     public static function cleanJobsXMLContent()
     {
         $db = DB_API::get();
+        $log = FezLog::get();
         
         // Time range = 14 days ago
         $timerange = date('Y-m-d', mktime(0, 0, 0, date('m'), date('d')-14, date('Y')));
