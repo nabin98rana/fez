@@ -696,6 +696,7 @@ if (!empty($pid) && $record->checkExists()) {
 
     }
 } else {
+    header("Status: 404 Not Found");
     $tpl->assign('not_exists', true);
 //	$tpl->assign("show_not_allowed_msg", true);
 	$savePage = false;

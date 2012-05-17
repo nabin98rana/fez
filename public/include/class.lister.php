@@ -393,6 +393,7 @@ class Lister
 	                $tpl->assign("show_not_allowed_msg", true);
 	            }
 	        } else {
+                header("Status: 404 Not Found");
 				$tpl->assign('not_exists', true);
 	        }
 
@@ -449,6 +450,7 @@ class Lister
 	                $tpl->assign("show_not_allowed_msg", true);
 	            }
             } else {
+                header("Status: 404 Not Found");
     			$tpl->assign('not_exists', true);
             }
             
