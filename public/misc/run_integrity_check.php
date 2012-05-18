@@ -397,7 +397,6 @@ function doSolrSearch($query) {
 	$solr = new Apache_Solr_Service($solrHost, $solrPort, $solrPath);
 	
 	$params['fl'] = 'id';
-	$params['version'] = Apache_Solr_Service::SOLR_VERSION;
 	$params['wt'] = Apache_Solr_Service::SOLR_WRITER;
 	$params['json.nl'] = $solr->getNamedListTreatment();
 	$params['q'] = $query;
@@ -413,19 +412,19 @@ function doSolrSearch($query) {
 	
 	$url = "http://{$solrHost}:{$solrPort}{$solr->getPath()}select?{$queryString}";
 	
-	$raw_response = Misc::processURL($url, null, null, null, null, 600);
+    $curlResponse = new Apache_Solr_HttpTransport_Curl;
+    $raw_response = $curlResponse->performGetRequest($url);
 	
-	if(! $raw_response[0]) {
+    if($raw_response->getStatusCode() != 200) {
 		$log->err('No response from solr.. trying again.');			
 		unset($raw_response);
 		sleep(1);
-		$raw_response = Misc::processURL($url, null, null, null, null, 600);
-		if(! $raw_response[0]) {
+        $raw_response = $curlResponse->performGetRequest($url);
+        if($raw_response->getStatusCode() != 200) {
 			throw new Exception(print_r($raw_response[1], true));
 		}			
 	}
-	$response = new Apache_Solr_Response($raw_response[0], null, true, true);
-
+    $response = new Apache_Solr_Response($raw_response, null, true);
 	return $response;
 }
 
