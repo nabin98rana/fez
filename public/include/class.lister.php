@@ -1082,12 +1082,14 @@ class Lister
         
         /* Star muxing time */
         $stars = Favourites::getStarred();
+        if (is_array($list)) {
         foreach ($list as &$record) {
         	foreach ($stars as $star) {
         		if ($record['rek_pid'] == $star) {
         			$record['starred'] = true;
         		}
         	}
+            }
         }
         
         $tpl->assign('facets', $facets);
