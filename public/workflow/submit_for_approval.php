@@ -37,7 +37,9 @@
 $this->getRecordObject();
 $sta_id = Status::getID("Submitted for Approval");
 $this->rec_obj->setStatusId($sta_id);
-$this->rec_obj->updateFezMD_User("usr_id", '');
+if (APP_FEDORA_BYPASS != "ON") {
+    $this->rec_obj->updateFezMD_User("usr_id", '');
+}
 $this->rec_obj->releaseLock();
 $historyExtra = $this->getHistoryDetail();
 History::addHistory($this->rec_obj->getPid(), null, '', '', true, 'Submitted for Approval', $historyExtra);
