@@ -44,7 +44,7 @@ $xsdmf_id = $_GET['xsdmf_id'];
 $sek_id = $_GET['sek_id'];
 $use_xsdmf_id = false;
 
-if ((!empty($xsdmf_id)) && is_numeric($xsdmf_id)) {	
+if ((!empty($xsdmf_id)) && is_numeric($xsdmf_id)) {
 	$use_xsdmf_id = true;
 	$sek_suggest_function = XSD_HTML_Match::getSmartyVarByXSDMF_ID($xsdmf_id);
         if (! $sek_suggest_function) {
@@ -60,6 +60,7 @@ if(! $sek_suggest_function) {
 
 $suggestions = array();
 $query = Misc::escapeString($_GET['query']);
+$query = preg_replace("/[^a-zA-Z0-9 ]/", "", $query);
 if ($sek_suggest_function == "Search_Key::suggestSearchKeyIndexValue") {
 	if($use_xsdmf_id) {
 		$sek_details = Search_Key::getDetailsByXSDMF_ID($xsdmf_id);
@@ -67,7 +68,7 @@ if ($sek_suggest_function == "Search_Key::suggestSearchKeyIndexValue") {
 	else {
 		$sek_details = Search_Key::getDetails($sek_id);
 	}
-	
+
 	eval('$suggestions = '.$sek_suggest_function.'($sek_details, "'.$query.'", true);');
 } else {
 	eval('$suggestions = '.$sek_suggest_function.'("'.$query.'", true);');
