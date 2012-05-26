@@ -45,6 +45,7 @@ $tpl->setTemplate("manage/index.tpl.html");
 
 Auth::checkAuthentication(APP_SESSION);
 
+$tpl->assign("extra_title", "Import Workflows");
 $tpl->assign("type", "import_workflows");
 $isUser = Auth::getUsername();
 $isAdministrator = User::isUserAdministrator($isUser);

@@ -176,7 +176,6 @@ class MyResearch
             $sort_by_list = array(
                 "searchKey0"                                              => "Search Relevance",
                 "searchKey" . Search_Key::getID("Title")                  => 'Title',
-                "searchKey" . Search_Key::getID("Description")            => 'Description',
                 "searchKey" . Search_Key::getID("File Downloads")         => 'File Downloads',
                 "searchKey" . Search_Key::getID("Date")                   => 'Published Date',
                 "searchKey" . Search_Key::getID("Created Date")           => 'Created Date',

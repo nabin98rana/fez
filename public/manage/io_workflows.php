@@ -42,6 +42,7 @@ $tpl->setTemplate("manage/index.tpl.html");
 
 Auth::checkAuthentication(APP_SESSION);
 
+$tpl->assign("extra_title", "Import/Export Workflows");
 $tpl->assign("type", "io_workflows");
 $tpl->assign("active_nav", "admin");
 $isUser = Auth::getUsername();

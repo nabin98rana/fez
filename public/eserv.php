@@ -47,7 +47,6 @@ include_once(APP_INC_PATH . "class.fedora_direct_access.php");
 //$auth->checkForBasicAuthRequest('eserv');
 
 $qs         = @$_REQUEST["qs"];
-
 extractQS();
 
 $stream     = @$_REQUEST["stream"];
@@ -64,8 +63,11 @@ $SHOW_STATUS_PARM = @$_REQUEST["status"];
 $SHOW_STATUS = @($SHOW_STATUS_PARM == "true") ? true : false; 
 $ALLOW_SECURITY_REDIRECT = @$SHOW_STATUS ? false : true; 
 
+//$pid and $dsID should not contain ~<>=?*'
+$pattern ='/\~|<|>|=|\?|\*|\\' . "'" . '/';
 $not_exists = false;
-if ( (is_numeric(strpos($pid, ".."))) || (Misc::isPid($pid) != true) || (is_numeric(strpos($pid, "/"))) || (is_numeric(strpos($pid, "/"))) || (is_numeric(strpos($dsID, ".."))) || (is_numeric(strpos($dsID, "/")))) {
+if ( (is_numeric(strpos($pid, ".."))) || (Misc::isPid($pid) != true) || (is_numeric(strpos($pid, "/")))
+    || (is_numeric(strpos($dsID, ".."))) || ((is_numeric(strpos($dsID, "/"))) && (!$bookpage)) || (preg_match($pattern, $dsID.$pid))) {
 	header("HTTP/1.0 404 Not Found");
 	header("Status: 404 Not Found");
 	$tpl = new Template_API();
@@ -88,9 +90,7 @@ if (!empty($pid) && !empty($dsID)) {
     		$dsMeta = $dsr->getMeta();
     		$isDeleted = ($dsr->resourceExists()) ? false : true;
         }
-    }
-    else
-    {
+    } else {
         $isDeleted = Record::isDeleted($pid);
     }
     
@@ -147,7 +147,7 @@ if (!empty($pid) && !empty($dsID)) {
 	}
 	else 
 	{
-	    if (!is_numeric($exif_array['exif_file_size']) || $requestedVersionDate != "") {
+	    if ( (!is_numeric($exif_array['exif_file_size']) || $requestedVersionDate != "") && (!$bookpage) ) {
     		$getURL = APP_FEDORA_GET_URL."/".$pid."/".$dsID.$requestedVersionDate;
     		list($data,$info) = Misc::processURL_info($getURL);
     	} else {
@@ -202,19 +202,22 @@ if (!empty($pid) && !empty($dsID)) {
 			$acceptable_roles = array("Community_Admin", "Editor", "Creator");
 		}
 
-		if (Auth::checkAuthorisation($pid, $dsID, $acceptable_roles, $_SERVER['REQUEST_URI'], null, $ALLOW_SECURITY_REDIRECT) != true) {
-	  		if( $SHOW_STATUS ){
-				header("HTTP/1.0 403 Forbidden");
-				exit;
-			} else {
-	      		include_once(APP_INC_PATH . "class.template.php");
-				$tpl = new Template_API();
-				$tpl->setTemplate("view.tpl.html");
-				$tpl->assign("show_not_allowed_msg", true);
-				$tpl->displayTemplate();
-				exit;
-	  		}
-		}
+        //todo Can't check bookpage security currently will need to be looked at.
+        if (!$bookpage) {
+			if (Auth::checkAuthorisation($pid, $dsID, $acceptable_roles, $_SERVER['REQUEST_URI'], null, $ALLOW_SECURITY_REDIRECT) != true) {
+		  		if( $SHOW_STATUS ){
+					header("HTTP/1.0 403 Forbidden");
+					exit;
+				} else {
+		      		include_once(APP_INC_PATH . "class.template.php");
+					$tpl = new Template_API();
+					$tpl->setTemplate("view.tpl.html");
+					$tpl->assign("show_not_allowed_msg", true);
+					$tpl->displayTemplate();
+					exit;
+		  		}
+			}
+        }
 		//TODO change for video handling non-Fedora style
 		if (($stream == 1 && $is_video == 1) && (is_numeric(strpos($ctype, "flv")))) {
 			

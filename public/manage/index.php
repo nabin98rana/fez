@@ -47,6 +47,7 @@ $tpl->setTemplate("manage/index.tpl.html");
 Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']);
 AuthRules::truncateUserGroupCache();
 
+$tpl->assign("extra_title", "Administration");
 $tpl->assign("type", "main");
 $tpl->assign("active_nav", "admin");
 $isUser = Auth::getUsername();

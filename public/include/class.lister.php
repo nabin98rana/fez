@@ -393,6 +393,7 @@ class Lister
 	                $tpl->assign("show_not_allowed_msg", true);
 	            }
 	        } else {
+                header("Status: 404 Not Found");
 				$tpl->assign('not_exists', true);
 	        }
 
@@ -449,6 +450,7 @@ class Lister
 	                $tpl->assign("show_not_allowed_msg", true);
 	            }
             } else {
+                header("Status: 404 Not Found");
     			$tpl->assign('not_exists', true);
             }
             
@@ -1080,12 +1082,14 @@ class Lister
         
         /* Star muxing time */
         $stars = Favourites::getStarred();
+        if (is_array($list)) {
         foreach ($list as &$record) {
         	foreach ($stars as $star) {
         		if ($record['rek_pid'] == $star) {
         			$record['starred'] = true;
         		}
         	}
+            }
         }
         
         $tpl->assign('facets', $facets);

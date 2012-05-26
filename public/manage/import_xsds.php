@@ -45,6 +45,7 @@ $tpl->setTemplate("manage/index.tpl.html");
 
 Auth::checkAuthentication(APP_SESSION);
 
+$tpl->assign("extra_title", "Import XSDs");
 $tpl->assign("type", "import_xsds");
 $tpl->assign("active_nav", "admin");
 $isUser = Auth::getUsername();

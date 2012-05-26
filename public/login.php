@@ -104,10 +104,10 @@ function parseSSO($string, $IDProviders, $redirectCookieName){
 	
 	// Remove redirect statement
 //	$IDPurl = eregi_replace($redirectCookieName, '', $string);
-	$IDPurl = preg_replace($redirectCookieName, '', $string);
+	$IDPurl = str_ireplace($redirectCookieName, '', $string);
 
 	// Remove slashes
-	$IDPurl = preg_replace('\/', '', $IDPurl);
+	$IDPurl = preg_replace('/\//', '', $IDPurl);
 	
 	// Do we still have something
 	if ($IDPurl != ''){
@@ -280,7 +280,7 @@ if (SHIB_SWITCH == "ON" && SHIB_VERSION == "1") {
 		}
 		
 		// Redirect if resource gives a hint and forces a refresh
-		elseif ($hintedIDP != '-' && eregi($redirectCookieName, $_SERVER['PATH_INFO'])){
+		elseif ($hintedIDP != '-' && stristr($_SERVER['PATH_INFO'], $redirectCookieName)){
 			header(
 				'Location: '.$IDProviders[$hintedIDP]['SSO'].
 				'?'.$_SERVER['argv'][0]
@@ -292,7 +292,7 @@ if (SHIB_SWITCH == "ON" && SHIB_VERSION == "1") {
 	elseif((!$_REQUEST['shire'] && $_REQUEST['target']) || ($_REQUEST['shire'] && !$_REQUEST['target'])){
 		
 		$invalidstring = urldecode($_SERVER['QUERY_STRING']);
-		$invalidstring = eregi_replace('&',"&\n",$invalidstring);
+		$invalidstring = preg_replace('/&/i',"&\n",$invalidstring);
 		if ($invalidstring == '')
 			$invalidstring = 'no_arguments';
 		$message = 'arguments_missing' . '<pre><code>'.$invalidstring.'</code></pre></p>
