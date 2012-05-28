@@ -156,7 +156,7 @@ class WokService
         //$editions[] = array("collection" => $databaseID, "edition" => "BSCI");
         //$editions[] = array("collection" => $databaseID, "edition" => "BHCI");
     }
-    
+
     // Clean user query from invalid characters
     $userQuery = $this->_cleanUserQuery($userQuery);
     

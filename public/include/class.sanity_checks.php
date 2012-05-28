@@ -102,8 +102,10 @@ class SanityChecks
         $results = array_merge($results, SanityChecks::backgroundProcess());
         $results = array_merge($results, SanityChecks::dot());
         $results = array_merge($results, SanityChecks::tidy());
-        $results = array_merge($results, SanityChecks::fedora());
-        $results = array_merge($results, SanityChecks::fedoraDirect());
+        if (APP_FEDORA_BYPASS != "ON"){
+            $results = array_merge($results, SanityChecks::fedora());
+            $results = array_merge($results, SanityChecks::fedoraDirect());
+        }
         $results = array_merge($results, SanityChecks::sql());
         $results = array_merge($results, SanityChecks::pdftotext());
         $results = array_merge($results, SanityChecks::stats());

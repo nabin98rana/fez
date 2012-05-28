@@ -171,20 +171,18 @@ class DigitalObject
         
         return array('insert' => $insert, 'binding' => $binding);
     }
-    
+
     /**
-     * Return all metadata for a PID
+     * Return all data for a PID
      * @param <string> $pid
      */
     public function get($pid)
     {
-        list($pidns, $pidint) = explode(':', $pid);
-        
         try
         {
-            $sql = "SELECT * FROM " . APP_TABLE_PREFIX . "digital_object WHERE"
-                . " pidns = :pidns AND pidint = :pidint";
-            $stmt = $this->db->query($sql, array(':pidns' => $pidns, ':pidint' => $pidint));
+            $sql = "SELECT * FROM " . APP_TABLE_PREFIX . "record_search_key WHERE"
+                . " rek_pid = :pid";
+            $stmt = $this->db->query($sql, array(':pid' => $pid));
             return $stmt->fetch();
         }
         catch(Exception $e)
@@ -218,10 +216,10 @@ class DigitalObject
             try 
             {
                 $sql = "INSERT INTO " . APP_TABLE_PREFIX . "file_attachments__shadow "
-                        . "(hash, filename, version, state, size, pid, mimetype, controlgroup) "
-                        . "SELECT hash, filename, :now AS version, state, size, pid, mimetype, " 
-                        . "controlgroup FROM " . APP_TABLE_PREFIX 
-                        . "file_attachments WHERE pid = :pid";
+                        . "(fat_hash, fat_filename, fat_version, fat_state, fat_size, fat_pid, fat_mimetype, fat_controlgroup) "
+                        . "SELECT fat_hash, fat_filename, :now AS version, fat_state, fat_size,fat_pid, fat_mimetype, "
+                        . "fat_controlgroup FROM " . APP_TABLE_PREFIX
+                        . "file_attachments WHERE fat_pid = :pid";
                         
                 $this->db->query($sql, array(':now' => $timestamp, 
                 						':pid' => $this->pidData['pid']));
@@ -266,26 +264,21 @@ class DigitalObject
         
         return $datastreams;
     }
-    
-    /**
-     * Retrieve a list of all versions of a PID
-     * @param <string> $pid
-     */
-    public function listVersions($pid=null)
+
+    public function isPublished($pid)
     {
-        $pid = (!$pid) ? $this->pid : $pid;
-        
-        try 
+        try
         {
-            $sql = "SELECT rek_pid, rek_stamp as createDate FROM " 
-            . APP_TABLE_PREFIX . "record_search_key__shadow "
-            . "WHERE rek_pid = :pid ORDER BY rek_stamp DESC";
+            $sql = "SELECT rek_status FROM " . APP_TABLE_PREFIX . "record_search_key WHERE"
+                . " rek_pid = :pid";
             $stmt = $this->db->query($sql, array(':pid' => $pid));
-            return $stmt->fetchAll();
+            return $stmt->fetchColumn();
         }
         catch(Exception $e)
         {
             $this->log->err($e->getMessage());
         }
+
     }
+
 }

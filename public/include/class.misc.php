@@ -4112,10 +4112,17 @@ public static function multi_implode($glue, $pieces)
   function MySQLDate($dateArray)
   {
       $dteSql = array();
-      $dteSql[] = $dateArray['Year'];
+      $dteSql[] = (isset($dateArray['Year']) && is_numeric($dateArray['Year'])) ? $dateArray['Year']: '0000';
       $dteSql[] = (isset($dateArray['Month'])) ? str_pad($dateArray['Month'], 2, '0', STR_PAD_LEFT) : '00';
       $dteSql[] = (isset($dateArray['Day'])) ? str_pad($dateArray['Day'], 2, '0', STR_PAD_LEFT) : '00';
       $dteSql = implode('-', $dteSql) . ' 00:00:00';
+
+      if (
+          $dteSql == "0000-01-01 00:00:00" || $dteSql == "0000-00-00 00:00:00" ||
+          $dteSql == "0-01-01 00:00:00"
+      ) {
+          $dteSql = null;
+      }
 
       return $dteSql;
   }
@@ -4548,9 +4555,11 @@ public static function multi_implode($glue, $pieces)
   /**
    * Adds the record to Fedora
    *
+   * @example MatchingRecords->add() on matching_records_proxy.php
+   * @package fedora
    * @param $record The WoS record to add to Fedora
    * @param $author_id (OPTIONAL) The author id of one of the authors on the records
-   *
+   * 
    * @return bool True if succeeded otherwise false
    */
   public static function convertEstiRecordToMods($record, $author_id = false)
@@ -4606,6 +4615,7 @@ public static function multi_implode($glue, $pieces)
     $mods = array();
     $mods['titleInfo']['title'] = $item_title;
 
+    // Authors
     $mods['name'][0]['id'] = '0';
     $mods['name'][0]['authority'] = APP_ORG_NAME;
     $mods['name'][0]['namePart_personal'] = $record->authors->primaryauthor;
@@ -4636,6 +4646,8 @@ public static function multi_implode($glue, $pieces)
       }
       $i++;
     }
+    
+    // Assign Author ID if we found a match
     if ($authors_matching_count == 1) {
       $mods['name'][$authors_matching_index]['id'] = $author_id;
     }
