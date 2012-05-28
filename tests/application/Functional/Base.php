@@ -72,6 +72,17 @@ class Functional_Base extends PHPUnit_Extensions_SeleniumTestCase
         $this->_destructive = TEST_DESTRUCTIVE;
     }
 
+
+    /**
+     * Hopefully closes down all the browser windows successfully
+     *
+     * @see PHPUnit_Framework_TestCase::tearDown()
+     */
+
+    public function tearDown() {
+        parent::tearDown();
+    }
+
     /**
      * setUp method for test case. 
      * Set up the browser, browser URL and timeout for a test case,
