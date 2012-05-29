@@ -77,7 +77,7 @@ function questionDelete(questionID)
 
   <h2>Edit Questions For Category [[[X]]]</h2>
 
-  {foreach item=i from=$questions name=questions}
+  {foreach item=i from=$questions|smarty:nodefaults name=questions}
   
     <a href="{$smarty.server.PHP_SELF}?cat=question-edit&amp;id={$i.id}">{$i.question}</a><br /><br />
   
@@ -160,7 +160,7 @@ function questionDelete(questionID)
         <td colspan="2">
           <table style="width: 100%" cellpadding="1" cellspacing="1">
           
-            {foreach item=i from=$questions name=questions}
+            {foreach item=i from=$questions|smarty:nodefaults name=questions}
             
               {cycle values=$cycle assign="row_color"}
               
@@ -196,7 +196,7 @@ function questionDelete(questionID)
         </td>
         <td style="background: {$light_color}">
           <select name="category">
-            {foreach item=i from=$categories name=categories}
+            {foreach item=i from=$categories|smarty:nodefaults name=categories}
               <option value="{$i.category_id}"{if $i.category_id == $question.faq_group || $i.category_id == $cat_id} selected="selected"{/if}>{$i.category_name}</option>
             {/foreach}
           </select>
@@ -275,7 +275,7 @@ function questionDelete(questionID)
       <td colspan="2">
         <table style="width: 100%" cellpadding="1" cellspacing="1">
         
-          {foreach item=i from=$categories name=categories}
+          {foreach item=i from=$categories|smarty:nodefaults name=categories}
           
             {cycle values=$cycle assign="row_color"}
             

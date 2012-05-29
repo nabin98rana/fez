@@ -40,7 +40,7 @@
 
 {elseif $mode == 'page-list'}
 
-  {if $msg != ''}<div>{$msg}</div>{/if}
+  {if $msg != ''}<div>{$msg|smarty:nodefaults}</div>{/if}
 
   <h2>Select a page to edit:</h2>
 
@@ -48,7 +48,7 @@
     <tr>
       <td colspan="2">
         <table style="width: 100%" cellpadding="1" cellspacing="1">
-          {foreach item=i from=$pages name=pages}
+          {foreach item=i from=$pages|smarty:nodefaults name=pages}
             {cycle values=$cycle assign="row_color"}
             <tr>
               <td style="background: {$row_color}" class="default">{$i.title}</td>

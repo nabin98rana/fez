@@ -17,7 +17,7 @@ window.onload = function() {
   <form id="login_form" method="post" action="{$rel_url}">
     <div>
       <input type="hidden" name="cat" value="login" />
-      <input type="hidden" name="url" value="{$smarty.get.url|escape:"html"}" />
+      <input type="hidden" name="url" value="{$smarty.get.url}" />
       <input type="hidden" name="masquerade" value="1" />
       <input type="hidden" name="passwd" value="non-empty-dummy-password" />
       <input class="default" type="text" id="username" name="username" size="30" />

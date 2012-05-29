@@ -38,9 +38,9 @@
 		  <b>XSD Display:</b></td>
 		<td style="background: {$light_color}" class="default">
 		  <select name="tdm_xdis_id" onchange="displaySubtypes(this.options[this.selectedIndex].value);">
-      {foreach from=$xsd_disp_list item=xsd_disp}
-			 <option value="{$xsd_disp.xdis_id|escape:"html"}">
-			   {$xsd_disp.xdis_title|escape:"html"}
+      {foreach from=$xsd_disp_list|smarty:nodefaults item=xsd_disp}
+			 <option value="{$xsd_disp.xdis_id}">
+			   {$xsd_disp.xdis_title}
 			 </option>
 			{/foreach}
 		  </select>
@@ -92,11 +92,11 @@ function checkDelete(f)
 
 var subTypes = new Array();
 {/literal}
-{foreach from=$xsd_disp_list item=xsd_disp}
-  {foreach from=$xsd_disp.subtypes key=mfo_id item=mfo_value}
+{foreach from=$xsd_disp_list|smarty:nodefaults item=xsd_disp}
+  {foreach from=$xsd_disp.subtypes|smarty:nodefaults key=mfo_id item=mfo_value}
     subType = new Object();
-    subType.id = {$xsd_disp.xdis_id|escape:"html"};
-    subType.value = "{$mfo_value|escape:"html"}";
+    subType.id = {$xsd_disp.xdis_id};
+    subType.value = "{$mfo_value}";
     subTypes.push(subType);
   {/foreach}
 {/foreach}
@@ -119,7 +119,7 @@ function displaySubtypes(xdis_id)
 		frmCtnr.style.visibility = "visible";
 	}
 }
-displaySubtypes({/literal}{$xsd_disp_list[0].xdis_id|escape:"html"}{literal});
+displaySubtypes({/literal}{$xsd_disp_list[0].xdis_id}{literal});
 //-->
 </script>
 {/literal}
@@ -149,16 +149,16 @@ displaySubtypes({/literal}{$xsd_disp_list[0].xdis_id|escape:"html"}{literal});
 			{section name="i" loop=$list} {cycle values=$cycle assign="row_color"}
 			<tr>
 				<td style="width: 4px; white-space: nowrap; background: {$row_color}">
-				  <input type="checkbox" name="items[]" value="{$list[i].tdm_id|escape:"html"}"
+				  <input type="checkbox" name="items[]" value="{$list[i].tdm_id}"
 				    {if $smarty.section.i.total== 0}disabled="disabled" {/if} /></td>
 				<td style="background: {$row_color}" class="default">
-				  &nbsp;{$list[i].xdis_title|escape:"html"}</td>
+				  &nbsp;{$list[i].xdis_title}</td>
 				<td style="background: {$row_color}" class="default">
-          &nbsp;{$list[i].tdm_subtype|escape:"html"}</td>
+          &nbsp;{$list[i].tdm_subtype}</td>
 				<td style="background: {$row_color}" class="default">
-				  &nbsp;{$list[i].tdm_doctype|escape:"html"}</td>
+				  &nbsp;{$list[i].tdm_doctype}</td>
 				<td style="background: {$row_color}" class="default">
-          &nbsp;{$list[i].tdm_service|escape:"html"}</td>
+          &nbsp;{$list[i].tdm_service}</td>
 			</tr>
 			{sectionelse}
 			<tr>

@@ -140,7 +140,7 @@ function restoreDefaultColours(el)
     <form id="run_stats" onsubmit="javascript:return checkFormSubmission(this, 'validateForm');" method="post" action="{$smarty.server.PHP_SELF}">
 		<div>
 			<input type="hidden" name="action" value="save" />
-			<input type="hidden" name="datamodel_version" value="{$config_settings.datamodel_version|escape:"html"}" />
+			<input type="hidden" name="datamodel_version" value="{$config_settings.datamodel_version}" />
 		</div>
 
 		<div id="general" style="display: none;">
@@ -156,14 +156,14 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Application name</th>
 			<td>
-			  <input type="text" name="app_name" value="{$config_settings.app_name|escape:"html"}" size="30" />
+			  <input type="text" name="app_name" value="{$config_settings.app_name}" size="30" />
 			  {include file="error_icon.tpl.html" field="app_name"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Admin email</th>
 			<td>
-			  <input type="text" name="app_admin_email" value="{$config_settings.app_admin_email|escape:"html"}" size="30" />
+			  <input type="text" name="app_admin_email" value="{$config_settings.app_admin_email}" size="30" />
 			  <br />Used in the OAI identify verb and page footer.
 			  {include file="error_icon.tpl.html" field="app_admin_email"}
 			</td>
@@ -171,42 +171,42 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Organisation name</th>
 			<td>
-			  <input type="text" name="app_org_name" value="{$config_settings.app_org_name|escape:"html"}" size="30" />
+			  <input type="text" name="app_org_name" value="{$config_settings.app_org_name}" size="30" />
 			  {include file="error_icon.tpl.html" field="app_org_name"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Short org. name</th>
 			<td>
-			  <input type="text" name="app_short_org_name" value="{$config_settings.app_short_org_name|escape:"html"}" size="15" />
+			  <input type="text" name="app_short_org_name" value="{$config_settings.app_short_org_name}" size="15" />
 			  {include file="error_icon.tpl.html" field="app_short_org_name"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Organisation postal address</th>
 			<td>
-			  <input type="text" name="app_org_address_postal" value="{$config_settings.app_org_address_postal|escape:"html"}" size="50" />
+			  <input type="text" name="app_org_address_postal" value="{$config_settings.app_org_address_postal}" size="50" />
 			  {include file="error_icon.tpl.html" field="app_org_address_postal"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Application URL</th>
 			<td>
-			  <input type="text" name="app_url" value="{$config_settings.app_url|escape:"html"}" size="50" />
+			  <input type="text" name="app_url" value="{$config_settings.app_url}" size="50" />
 			  {include file="error_icon.tpl.html" field="app_url"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Hostname</th>
 			<td>
-			  <input type="text" name="app_hostname" value="{$config_settings.app_hostname|escape:"html"}" size="30" />
+			  <input type="text" name="app_hostname" value="{$config_settings.app_hostname}" size="30" />
 			  {include file="error_icon.tpl.html" field="app_hostname"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Relative URL</th>
 			<td>
-			  <input type="text" name="app_relative_url" value="{$config_settings.app_relative_url|escape:"html"}" size="30" />
+			  <input type="text" name="app_relative_url" value="{$config_settings.app_relative_url}" size="30" />
 			  {include file="error_icon.tpl.html" field="app_relative_url"}
 			</td>
 		  </tr>
@@ -308,7 +308,7 @@ function restoreDefaultColours(el)
           <tr>
 		    <th>Smarty Template Cache Path</th>
 			<td>
-			  <input type="text" name="app_template_compile_path" value="{$config_settings.app_template_compile_path|escape:"html"}" size="50" />
+			  <input type="text" name="app_template_compile_path" value="{$config_settings.app_template_compile_path}" size="50" />
 			  <br />The path of the directory to store smarty compiled files. The default is in templates_c under the app root. Please ensure the web server has write access to this directory.
 			  {include file="error_icon.tpl.html" field="app_template_compile_path"}
 			</td>
@@ -316,7 +316,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Network interfaces bound to server</th>
 			<td>
-			  <input type="text" name="app_network_interfaces" value="{$config_settings.app_network_interfaces|escape:"html"}" size="40" />
+			  <input type="text" name="app_network_interfaces" value="{$config_settings.app_network_interfaces}" size="40" />
 			  <br />Enter the names of the network interfaces bound to the server you want to use, enclosed in quotation marks and separated by commas, e.g. "eth0", "eth0:0", "eth0:1", "eth0:2"
 			  {include file="error_icon.tpl.html" field="app_network_interfaces"}
 			</td>
@@ -324,7 +324,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Link prefix</th>
 			<td>
-			  <input type="text" name="app_link_prefix" value="{$config_settings.app_link_prefix|escape:"html"}" size="40" />
+			  <input type="text" name="app_link_prefix" value="{$config_settings.app_link_prefix}" size="40" />
 			  <br />If you want to prepend the way all Fez Link datastreams display with a prefix then put it in this field. Fez will check first to see if the prefix is already there before adding it. Useful for ezproxying of external database resources, e.g. http://ezproxy.library.yourorg.edu/url=
 			  {include file="error_icon.tpl.html" field="app_link_prefix"}
 			</td>
@@ -373,7 +373,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Log location</th>
 			<td>
-			  <input type="text" name="app_log_location" value="{$config_settings.app_log_location|escape:"html"}" size="40" />
+			  <input type="text" name="app_log_location" value="{$config_settings.app_log_location}" size="40" />
 			  <br />You may want to change this to be below the document root, or at least make it non-readable by Apache. You may also optionally include 
 			  the placeholder text <b>%&lt;format&gt;%</b> which will be replaced with the generated date in the format specified.
 			  <br />For example: <b>/var/log/fez/fez-%Ymd%.log</b> will output log files to the directory /var/log/fez/ 
@@ -405,7 +405,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>SMTP server</th>
 			<td>
-			  <input type="text" name="app_email_smtp" value="{$config_settings.app_email_smtp|escape:"html"}" size="30" />
+			  <input type="text" name="app_email_smtp" value="{$config_settings.app_email_smtp}" size="30" />
 			  <br />The mail server through which Fez should send email alerts, e.g. mail.yourhost.com
 			  {include file="error_icon.tpl.html" field="app_email_smtp"}
 			</td>
@@ -413,7 +413,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>System email from address</th>
 			<td>
-			  <input type="text" name="app_email_system_from_address" value="{$config_settings.app_email_system_from_address|escape:"html"}" size="30" />
+			  <input type="text" name="app_email_system_from_address" value="{$config_settings.app_email_system_from_address}" size="30" />
 			  <br />All Fez system notifications will appear to come from this address. Use a real account if for some reason you wish to collect replies.
 			  {include file="error_icon.tpl.html" field="app_email_system_from_address"}
 			</td>
@@ -433,7 +433,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Default pager size</th>
 			<td>
-			  <input type="text" name="app_default_pager_size" value="{$config_settings.app_default_pager_size|escape:"html"}" size="30" />
+			  <input type="text" name="app_default_pager_size" value="{$config_settings.app_default_pager_size}" size="30" />
 			  <br />Please enter a numerical value.
 			  {include file="error_icon.tpl.html" field="app_default_pager_size"}
 			</td>
@@ -441,7 +441,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Default refresh rate</th>
 			<td>
-			  <input type="text" name="app_default_refresh_rate" value="{$config_settings.app_default_refresh_rate|escape:"html"}" size="30" />
+			  <input type="text" name="app_default_refresh_rate" value="{$config_settings.app_default_refresh_rate}" size="30" />
 			  <br />Enter a numerical value, in minutes.
 			  {include file="error_icon.tpl.html" field="app_default_refresh_rate"}
 			</td>
@@ -449,7 +449,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Earliest Input Year</th>
 			<td>
-			  <input type="text" name="app_earliest_input_year" value="{$config_settings.app_earliest_input_year|escape:"html"}" size="4" />
+			  <input type="text" name="app_earliest_input_year" value="{$config_settings.app_earliest_input_year}" size="4" />
 			  <br />The earliest year to appear in date drop-downs. Enter a 4-digit year.
 			  {include file="error_icon.tpl.html" field="app_earliest_input_year"}
 			</td>
@@ -457,7 +457,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Cookie / session name</th>
 			<td>
-			  <input type="text" name="app_cookie" value="{$config_settings.app_cookie|escape:"html"}" size="20" />
+			  <input type="text" name="app_cookie" value="{$config_settings.app_cookie}" size="20" />
 			  <br />This should be a short, lower-case name with no spaces.<br /><b>Note:</b> If you alter this value, you will be logged out of Fez.
 			  {include file="error_icon.tpl.html" field="app_cookie"}
 			</td>
@@ -465,7 +465,7 @@ function restoreDefaultColours(el)
 		  <tr>
 			<th>Session timeout</th>
 			<td>
-			  <input type="text" name="app_session_timeout" value="{$config_settings.app_session_timeout|escape:"html"}" size="5" />
+			  <input type="text" name="app_session_timeout" value="{$config_settings.app_session_timeout}" size="5" />
 			  <br />Length of time an unattended session can exist before automatic timeout, in seconds.
 			  {include file="error_icon.tpl.html" field="app_session_timeout"}
 			</td>
@@ -473,7 +473,7 @@ function restoreDefaultColours(el)
 		  <tr>
 			<th>User Group Cache Table Expiry</th>
 			<td>
-			  <input type="text" name="app_user_group_cache_expiry" value="{$config_settings.app_user_group_cache_expiry|escape:"html"}" size="5" />
+			  <input type="text" name="app_user_group_cache_expiry" value="{$config_settings.app_user_group_cache_expiry}" size="5" />
 			  <br />Time after which the user group cache table will be truncated, in days.
 			  {include file="error_icon.tpl.html" field="app_user_group_cache_expiry"}
 			</td>
@@ -483,7 +483,7 @@ function restoreDefaultColours(el)
 			<td>
 			  <input type="radio" name="app_analytics_switch" value="ON" {if $config_settings.app_analytics_switch == "ON"}checked="checked"{/if}/> Enabled &nbsp; 
 			  <input type="radio" name="app_analytics_switch" value="OFF" {if $config_settings.app_analytics_switch == "OFF"}checked="checked"{/if}/> Disabled  &nbsp; &nbsp;		   
-			  <input type="text" name="app_analytics_id" value="{$config_settings.app_analytics_id|escape:"html"}" size="20" />
+			  <input type="text" name="app_analytics_id" value="{$config_settings.app_analytics_id}" size="20" />
 			  Format: <strong><i>xxxxxx-x</i></strong><br />
 			  {include file="error_icon.tpl.html" field="app_analytics_id"}
 			</td>
@@ -493,9 +493,9 @@ function restoreDefaultColours(el)
             <td>
               <input type="radio" name="app_piwik_switch" value="ON" {if $config_settings.app_piwik_switch == "ON"}checked="checked"{/if}/> Enabled &nbsp;
               <input type="radio" name="app_piwik_switch" value="OFF" {if $config_settings.app_piwik_switch == "OFF"}checked="checked"{/if}/> Disabled  &nbsp; &nbsp;
-              ID: <input type="text" name="app_piwik_id" value="{$config_settings.app_piwik_id|escape:"html"}" size="3" />
+              ID: <input type="text" name="app_piwik_id" value="{$config_settings.app_piwik_id}" size="3" />
               Format: <strong><i>#</i></strong><br />
-              Location: <input type="text" name="app_piwik_location" value="{$config_settings.app_piwik_location|escape:"html"}" size="40" />
+              Location: <input type="text" name="app_piwik_location" value="{$config_settings.app_piwik_location}" size="40" />
               <strong><i>Do not use http:// or https:// in the URL</i></strong><br />
               {include file="error_icon.tpl.html" field="app_analytics_id"}
             </td>
@@ -505,7 +505,7 @@ function restoreDefaultColours(el)
 			<td>
 			  <input type="radio" name="app_use_google_map_switch" value="ON" {if $config_settings.app_use_google_map_switch == "ON"}checked="checked"{/if}/> Enabled &nbsp;
 			  <input type="radio" name="app_use_google_map_switch" value="OFF" {if $config_settings.app_use_google_map_switch == "OFF"}checked="checked"{/if}/> Disabled  &nbsp; &nbsp;
-			  <input type="text" name="app_google_map_key" value="{$config_settings.app_google_map_key|escape:"html"}" size="60" />
+			  <input type="text" name="app_google_map_key" value="{$config_settings.app_google_map_key}" size="60" />
 			  {include file="error_icon.tpl.html" field="app_google_maps_key"}
 			</td>
 		  </tr>
@@ -555,8 +555,8 @@ function restoreDefaultColours(el)
 			    <option value="OFF"{if $config_settings.app_use_article_title_search == "OFF"} selected="selected"{/if}>Off</option>
 				<option value="ON"{if $config_settings.app_use_article_title_search == "ON"} selected="selected"{/if}>On</option>
 			  </select>
-			  &nbsp; Collection : <input type="text" name="app_article_add_to_collection" value="{$config_settings.app_article_add_to_collection|escape:"html"}" size="20" />
-			  &nbsp; OG=(<input type="text" name="app_article_search_wos_address" value="{$config_settings.app_article_search_wos_address|escape:"html"}" size="20" />)
+			  &nbsp; Collection : <input type="text" name="app_article_add_to_collection" value="{$config_settings.app_article_add_to_collection}" size="20" />
+			  &nbsp; OG=(<input type="text" name="app_article_search_wos_address" value="{$config_settings.app_article_search_wos_address}" size="20" />)
 			  {include file="error_icon.tpl.html" field="app_article_add_to_collection"} {include file="error_icon.tpl.html" field="app_article_search_wos_address"}
 			  <br />If 'ON', will search matching articles in both ISI Web of Science<sup>&#174;</sup> and the repository based on Article Title when creating a new record.
 			  The collection should be set to the PID of the parent collection new articles will be added to. OG is optional, and is used in the WoS search query to filter on address.
@@ -598,7 +598,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>HERDC Collections</th>
 			<td>
-			  <input type="text" name="app_herdc_collections" value="{$config_settings.app_herdc_collections|escape:"html"}" size="100" />
+			  <input type="text" name="app_herdc_collections" value="{$config_settings.app_herdc_collections}" size="100" />
 			  <br />List of comma separated ' quote enclosed pids which are used to contain the confirmed HERDC pids for each year.
 			  {include file="error_icon.tpl.html" field="app_herdc_collection"}
 			</td>
@@ -607,7 +607,7 @@ function restoreDefaultColours(el)
           <tr>
             <th>HERDC Trial Collection</th>
             <td>
-              <input type="text" name="app_herdc_trial_collection" value="{$config_settings.app_herdc_trial_collection|escape:"html"}" size="100" />
+              <input type="text" name="app_herdc_trial_collection" value="{$config_settings.app_herdc_trial_collection}" size="100" />
               <br />List of comma separated ' quote enclosed pids which are used to contain the confirmed HERDC pids for each year.
               {include file="error_icon.tpl.html" field="app_herdc_trial_collection"}
             </td>
@@ -615,7 +615,7 @@ function restoreDefaultColours(el)
   		  <tr>
 		    <th>WOS Collections</th>
 			<td>
-			  <input type="text" name="app_wos_collections" value="{$config_settings.app_wos_collections|escape:"html"}" size="100" />
+			  <input type="text" name="app_wos_collections" value="{$config_settings.app_wos_collections}" size="100" />
 			  <br />List of comma separated ' quote enclosed pids which are used to contain the Web of Science imported records.
 			  {include file="error_icon.tpl.html" field="app_wos_collections"}
 			</td>
@@ -623,7 +623,7 @@ function restoreDefaultColours(el)
           <tr>
           <th>ERA Non-Traditional Works - Portfolios Collection</th>
     			<td>
-    			  <input type="text" name="app_portfolios_collection" value="{$config_settings.app_portfolios_collection|escape:"html"}" size="100" />
+    			  <input type="text" name="app_portfolios_collection" value="{$config_settings.app_portfolios_collection}" size="100" />
     			  <br />List of comma separated ' quote enclosed pids.
     			  {include file="error_icon.tpl.html" field="app_portfolios_collection"}
     			</td>
@@ -631,7 +631,7 @@ function restoreDefaultColours(el)
           <tr>
           <th>ERA Non-Traditional Research Outputs Individual Collection</th>
     			<td>
-    			  <input type="text" name="app_individual_nto_collection" value="{$config_settings.app_individual_nto_collection|escape:"html"}" size="100" />
+    			  <input type="text" name="app_individual_nto_collection" value="{$config_settings.app_individual_nto_collection}" size="100" />
     			  <br />List of comma separated ' quote enclosed pids.
     			  {include file="error_icon.tpl.html" field="app_individual_nto_collection"}
     			</td>
@@ -639,7 +639,7 @@ function restoreDefaultColours(el)
           <tr>
     		<th>Era Whitelist Collection</th>
     			<td>
-    			  <input type="text" name="app_era_whitelist_collection" value="{$config_settings.app_era_whitelist_collection|escape:"html"}" size="100" />
+    			  <input type="text" name="app_era_whitelist_collection" value="{$config_settings.app_era_whitelist_collection}" size="100" />
     			  <br />List of comma separated ' quote enclosed pids.
     			  {include file="error_icon.tpl.html" field="app_era_whitelist_collection"}
     			</td>
@@ -658,7 +658,7 @@ function restoreDefaultColours(el)
   		  <tr>
 		    <th>My Research: New Records Collection</th>
 			<td>
-			  <input type="text" name="app_my_research_new_items_collection" value="{$config_settings.app_my_research_new_items_collection|escape:"html"}" size="10" />
+			  <input type="text" name="app_my_research_new_items_collection" value="{$config_settings.app_my_research_new_items_collection}" size="10" />
 			  <br />Enter a PID (optional). New records added through the My Research module will be automatically added to this collection.
 			  {include file="error_icon.tpl.html" field="app_my_research_new_items_collection"}
 			</td>
@@ -666,7 +666,7 @@ function restoreDefaultColours(el)
   		  <tr>
 		    <th>My Research: UPO Group Name</th>
 			<td>
-			  <input type="text" name="app_my_research_upo_group" value="{$config_settings.app_my_research_upo_group|escape:"html"}" size="30" />
+			  <input type="text" name="app_my_research_upo_group" value="{$config_settings.app_my_research_upo_group}" size="30" />
 			  <br />Enter the exact name of the group for the 'Unit Publication Officers' users.
 			  {include file="error_icon.tpl.html" field="app_my_research_upo_group"}
 			</td>
@@ -674,7 +674,7 @@ function restoreDefaultColours(el)
   		  <tr>
 		    <th>My Research: Use Classic UQ eSpace Group Names</th>
 			<td>
-			  <input type="text" name="app_my_research_use_classic_groups" value="{$config_settings.app_my_research_use_classic_groups|escape:"html"}" size="30" />
+			  <input type="text" name="app_my_research_use_classic_groups" value="{$config_settings.app_my_research_use_classic_groups}" size="30" />
 			  <br />Enter the exact names of the fez groups you wish to be redirected to the classic UQ eSpace group when the My Research module is enabled. Adminsitrators automatically get sent there. Quoted with single quotes and comma separated. Eg 'thesisoffice', 'SBS Theses'
 			  {include file="error_icon.tpl.html" field="app_my_research_use_classic_groups"}
 			</td>
@@ -691,7 +691,7 @@ function restoreDefaultColours(el)
   		  <tr>
 		    <th>Eventum New Job Email Address</th>
 			<td>
-			  <input type="text" name="app_eventum_new_job_email_address" value="{$config_settings.app_eventum_new_job_email_address|escape:"html"}" size="30" />
+			  <input type="text" name="app_eventum_new_job_email_address" value="{$config_settings.app_eventum_new_job_email_address}" size="30" />
 			  <br />Emails about new jobs will be sent to this email address.
 			  {include file="error_icon.tpl.html" field="app_eventum_new_job_email_address"}
 			</td>
@@ -699,28 +699,28 @@ function restoreDefaultColours(el)
   		  <tr>
 		    <th>Eventum database host</th>
 			<td>
-			  <input type="text" name="app_eventum_database_host" value="{$config_settings.app_eventum_database_host|escape:"html"}" size="30" />
+			  <input type="text" name="app_eventum_database_host" value="{$config_settings.app_eventum_database_host}" size="30" />
 			  {include file="error_icon.tpl.html" field="app_eventum_database_host"}
 			</td>
   		  </tr>
   		  <tr>
 		    <th>Eventum database name</th>
 			<td>
-			  <input type="text" name="app_eventum_database_name" value="{$config_settings.app_eventum_database_name|escape:"html"}" size="30" />
+			  <input type="text" name="app_eventum_database_name" value="{$config_settings.app_eventum_database_name}" size="30" />
 			  {include file="error_icon.tpl.html" field="app_eventum_database_name"}
 			</td>
   		  </tr>
   		  <tr>
 		    <th>Eventum database user</th>
 			<td>
-			  <input type="text" name="app_eventum_database_user" value="{$config_settings.app_eventum_database_user|escape:"html"}" size="30" />
+			  <input type="text" name="app_eventum_database_user" value="{$config_settings.app_eventum_database_user}" size="30" />
 			  {include file="error_icon.tpl.html" field="app_eventum_database_user"}
 			</td>
   		  </tr>
   		  <tr>
 		    <th>Eventum database password</th>
 			<td>
-			  <input type="text" name="app_eventum_database_pass" value="{$config_settings.app_eventum_database_pass|escape:"html"}" size="30" />
+			  <input type="text" name="app_eventum_database_pass" value="{$config_settings.app_eventum_database_pass}" size="30" />
 			  {include file="error_icon.tpl.html" field="app_eventum_database_pass"}
 			</td>
   		  </tr>
@@ -738,7 +738,7 @@ function restoreDefaultColours(el)
         <tr>
 		    <th>Masquering Users Group</th>
 			<td>
-			  <input type="text" name="app_wheel_group" value="{$config_settings.app_wheel_group|escape:"html"}" size="30" />
+			  <input type="text" name="app_wheel_group" value="{$config_settings.app_wheel_group}" size="30" />
 			  <br />Users placed in the spcified group will have access to masquerade functionality (i.e. they will be able to log in as any user).
 			  {include file="error_icon.tpl.html" field="app_wheel_group"}
 			</td>
@@ -746,7 +746,7 @@ function restoreDefaultColours(el)
   		  <tr>
             <th>Background Process Poll Interval</th>
             <td>
-              <input type="text" name="app_bg_poll_int" value="{$config_settings.app_bg_poll_int|escape:"html"}" size="30" />
+              <input type="text" name="app_bg_poll_int" value="{$config_settings.app_bg_poll_int}" size="30" />
               <br />The interval at which the AJAX background process display in the main menu polls for new data.
               {include file="error_icon.tpl.html" field="app_bg_poll_int"}
             </td>
@@ -765,7 +765,7 @@ function restoreDefaultColours(el)
   		  <!--tr>
 		    <th>Portfolios collection</th>
 			<td>
-			  <input type="text" name="app_portfolios_collection" value="{$config_settings.app_portfolios_collection|escape:"html"}" size="30" />
+			  <input type="text" name="app_portfolios_collection" value="{$config_settings.app_portfolios_collection}" size="30" />
 			  <br />Children collections of the collection entered above will be considered portfolios.
 			  {include file="error_icon.tpl.html" field="app_portfolios_collection"}
 			</td>
@@ -811,7 +811,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Location</th>
 			<td>
-			  <input type="text" name="app_fedora_location" value="{$config_settings.app_fedora_location|escape:"html"}" size="50" />
+			  <input type="text" name="app_fedora_location" value="{$config_settings.app_fedora_location}" size="50" />
 			  <br />The location of your Fedora server, without the &quot;http://&quot; component. Port is usually 8080.
 			  <br />e.g. localhost:8080/fedora
 			  {include file="error_icon.tpl.html" field="app_fedora_location"}
@@ -820,7 +820,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>SSL location</th>
 			<td>
-			  <input type="text" name="app_fedora_ssl_location" value="{$config_settings.app_fedora_ssl_location|escape:"html"}" size="50" />
+			  <input type="text" name="app_fedora_ssl_location" value="{$config_settings.app_fedora_ssl_location}" size="50" />
 			  <br />The location of your Fedora SSL server, without the &quot;https://&quot; component. Port is usually 8443.
 			  {include file="error_icon.tpl.html" field="app_fedora_ssl_location"}
 			</td>
@@ -839,7 +839,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>PID namespace</th>
 			<td>
-			  <input type="text" name="app_pid_namespace" value="{$config_settings.app_pid_namespace|escape:"html"}" size="20" />
+			  <input type="text" name="app_pid_namespace" value="{$config_settings.app_pid_namespace}" size="20" />
 			  <br />Must be the same as your Fedora fedora.fcfg &quot;namespace&quot; variable.
 			  {include file="error_icon.tpl.html" field="app_pid_namespace"}
 			</td>
@@ -847,21 +847,21 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Username</th>
 			<td>
-			  <input type="text" name="app_fedora_username" value="{$config_settings.app_fedora_username|escape:"html"}" size="20" />
+			  <input type="text" name="app_fedora_username" value="{$config_settings.app_fedora_username}" size="20" />
 			  {include file="error_icon.tpl.html" field="app_fedora_username"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Password</th>
 			<td>
-			  <input type="password" name="app_fedora_pwd" value="{$config_settings.app_fedora_pwd|escape:"html"}" size="20" />
+			  <input type="password" name="app_fedora_pwd" value="{$config_settings.app_fedora_pwd}" size="20" />
 			  {include file="error_icon.tpl.html" field="app_fedora_pwd"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Server hostname</th>
 			<td>
-			  <input type="text" name="fedora_db_host" value="{$config_settings.fedora_db_host|escape:"html"}" size="20" />
+			  <input type="text" name="fedora_db_host" value="{$config_settings.fedora_db_host}" size="20" />
 			  {include file="error_icon.tpl.html" field="fedora_db_host"}
 			</td>
 		  </tr>
@@ -888,7 +888,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Database port</th>
 			<td>
-			  <input type="text" name="fedora_db_port" value="{$config_settings.fedora_db_port|escape:"html"}" size="5" />
+			  <input type="text" name="fedora_db_port" value="{$config_settings.fedora_db_port}" size="5" />
 			  <br />Usually 3306 for MySQL, 5432 for PostgreSQL.
 			  {include file="error_icon.tpl.html" field="fedora_db_port"}
 			</td>
@@ -896,21 +896,21 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Database name</th>
 			<td>
-			  <input type="text" name="fedora_db_database_name" value="{$config_settings.fedora_db_database_name|escape:"html"}" size="20" />
+			  <input type="text" name="fedora_db_database_name" value="{$config_settings.fedora_db_database_name}" size="20" />
 			  {include file="error_icon.tpl.html" field="fedora_db_database_name"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Database username</th>
 			<td>
-			  <input type="text" name="fedora_db_username" value="{$config_settings.fedora_db_username|escape:"html"}" size="20" />
+			  <input type="text" name="fedora_db_username" value="{$config_settings.fedora_db_username}" size="20" />
 			  {include file="error_icon.tpl.html" field="fedora_db_username"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Database password</th>
 			<td>
-			  <input type="password" name="fedora_db_passwd" value="{$config_settings.fedora_db_passwd|escape:"html"}" size="20" />
+			  <input type="password" name="fedora_db_passwd" value="{$config_settings.fedora_db_passwd}" size="20" />
 			  {include file="error_icon.tpl.html" field="fedora_db_passwd"}
 			</td>
 		  </tr>
@@ -971,7 +971,7 @@ function restoreDefaultColours(el)
           <tr>
             <th>Direct APIA Access Fedora Data Path (experimental)</th>
             <td>
-              <input type="text" name="app_fedora_path_direct" value="{$config_settings.app_fedora_path_direct|escape:"html"}" size="50" />
+              <input type="text" name="app_fedora_path_direct" value="{$config_settings.app_fedora_path_direct}" size="50" />
               {include file="error_icon.tpl.html" field="app_fedora_path_direct"}
             </td>
           </tr>
@@ -1005,7 +1005,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>SAN import directory</th>
 			<td>
-			  <input type="text" name="app_san_import_dir" value="{$config_settings.app_san_import_dir|escape:"html"}" size="40" />
+			  <input type="text" name="app_san_import_dir" value="{$config_settings.app_san_import_dir}" size="40" />
 			  <br />e.g. /fez/incoming/ or C:/fez/incoming/
 			  {include file="error_icon.tpl.html" field="app_san_import_dir"}
 			</td>
@@ -1013,7 +1013,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Duplicate reports directory</th>
 			<td>
-			  <input type="text" name="app_duplicates_reports_location" value="{$config_settings.app_duplicates_reports_location|escape:"html"}" size="40" />
+			  <input type="text" name="app_duplicates_reports_location" value="{$config_settings.app_duplicates_reports_location}" size="40" />
 			  <br />You may need to create this directory if it does not exist
 			  {include file="error_icon.tpl.html" field="app_duplicates_reports_location"}
 			</td>
@@ -1021,14 +1021,14 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Temp directory</th>
 			<td>
-			  <input type="text" name="app_temp_dir" value="{$config_settings.app_temp_dir|escape:"html"}" size="40" />
+			  <input type="text" name="app_temp_dir" value="{$config_settings.app_temp_dir}" size="40" />
 			  {include file="error_icon.tpl.html" field="app_temp_dir"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>FFMPEG command</th>
 			<td>
-			  <input type="text" name="app_ffmpeg_cmd" value="{$config_settings.app_ffmpeg_cmd|escape:"html"}" size="40" /> 
+			  <input type="text" name="app_ffmpeg_cmd" value="{$config_settings.app_ffmpeg_cmd}" size="40" />
 			  <br />This is part of FFMPEG Video Encoder tool 
 			  {include file="error_icon.tpl.html" field="app_ffmpeg_cmd"}
 			</td>
@@ -1036,7 +1036,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>yamdi command</th>
 			<td>
-			  <input type="text" name="app_ffmpeg_yamdi_cmd" value="{$config_settings.app_ffmpeg_yamdi_cmd|escape:"html"}" size="40" /> 
+			  <input type="text" name="app_ffmpeg_yamdi_cmd" value="{$config_settings.app_ffmpeg_yamdi_cmd}" size="40" />
 			  <br />This injects metadata into the flash video files
 			  {include file="error_icon.tpl.html" field="app_ffmpeg_yamdi_cmd"}
 			</td>
@@ -1044,7 +1044,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Convert command</th>
 			<td>
-			  <input type="text" name="app_convert_cmd" value="{$config_settings.app_convert_cmd|escape:"html"}" size="40" /> 
+			  <input type="text" name="app_convert_cmd" value="{$config_settings.app_convert_cmd}" size="40" />
 			  <!--a href="#" onclick="javascript:runSanityCheck('app_convert_cmd');"><img src="{$rel_url}images/sanity_check_16.png" title="Run sanity check for this value" width="18" height="18" border="0" alt="" /></a-->
 			  <br />This is part of ImageMagick 
 			  {include file="error_icon.tpl.html" field="app_convert_cmd"}
@@ -1053,7 +1053,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Composite command</th>
 			<td>
-			  <input type="text" name="app_composite_cmd" value="{$config_settings.app_composite_cmd|escape:"html"}" size="40" />
+			  <input type="text" name="app_composite_cmd" value="{$config_settings.app_composite_cmd}" size="40" />
 			  <br />This is part of ImageMagick 
 			  {include file="error_icon.tpl.html" field="app_composite_cmd"}
 			</td>
@@ -1061,7 +1061,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Identify command</th>
 			<td>
-			  <input type="text" name="app_identify_cmd" value="{$config_settings.app_identify_cmd|escape:"html"}" size="40" />
+			  <input type="text" name="app_identify_cmd" value="{$config_settings.app_identify_cmd}" size="40" />
 			  <br />This is part of ImageMagick 
 			  {include file="error_icon.tpl.html" field="app_identify_cmd"}
 			</td>
@@ -1069,63 +1069,63 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>JHOVE directory</th>
 			<td>
-			  <input type="text" name="app_jhove_dir" value="{$config_settings.app_jhove_dir|escape:"html"}" size="40" />
+			  <input type="text" name="app_jhove_dir" value="{$config_settings.app_jhove_dir}" size="40" />
 			  {include file="error_icon.tpl.html" field="app_jhove_dir"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Graphviz DOT executable location</th>
 			<td>
-			  <input type="text" name="app_dot_exec" value="{$config_settings.app_dot_exec|escape:"html"}" size="40" />
+			  <input type="text" name="app_dot_exec" value="{$config_settings.app_dot_exec}" size="40" />
 			  {include file="error_icon.tpl.html" field="app_dot_exec"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>PHP executable location</th>
 			<td>
-			  <input type="text" name="app_php_exec" value="{$config_settings.app_php_exec|escape:"html"}" size="40" />
+			  <input type="text" name="app_php_exec" value="{$config_settings.app_php_exec}" size="40" />
 			  {include file="error_icon.tpl.html" field="app_php_exec"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>PDF-to-Text executable location</th>
 			<td>
-			  <input type="text" name="app_pdftotext_exec" value="{$config_settings.app_pdftotext_exec|escape:"html"}" size="40" />
+			  <input type="text" name="app_pdftotext_exec" value="{$config_settings.app_pdftotext_exec}" size="40" />
 			  {include file="error_icon.tpl.html" field="app_pdftotext_exec"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Ghostscript executable location</th>
 			<td>
-			  <input type="text" name="ghostscript_pth" value="{$config_settings.ghostscript_pth|escape:"html"}" size="40" />
+			  <input type="text" name="ghostscript_pth" value="{$config_settings.ghostscript_pth}" size="40" />
 			  {include file="error_icon.tpl.html" field="ghostscript_pth"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Python executable location</th>
 			<td>
-			  <input type="text" name="app_py_exec" value="{$config_settings.app_py_exec|escape:"html"}" size="40" />
+			  <input type="text" name="app_py_exec" value="{$config_settings.app_py_exec}" size="40" />
 			  {include file="error_icon.tpl.html" field="app_py_exec"}
 			</td>
 		  </tr>
 		  <tr>
 	    <th>File Cache location</th>
 	    <td>
-	      <input type="text" name="app_filecache_dir" value="{$config_settings.app_filecache_dir|escape:"html"}" size="40" />
+	      <input type="text" name="app_filecache_dir" value="{$config_settings.app_filecache_dir}" size="40" />
 	      {include file="error_icon.tpl.html" field="app_filecache_dir"}
 	    </td>
 	  </tr>
          <tr>
              <th>Bookreader root image directory</th>
             <td>
-                <input type="text" name="br_img_dir" value="{$config_settings.br_img_dir|escape:"html"}" size="40" />
+                <input type="text" name="br_img_dir" value="{$config_settings.br_img_dir}" size="40" />
                 {include file="error_icon.tpl.html" field="br_img_dir"}
             </td>
          </tr>
          <tr>
             <th>Datastream file storage directory</th>
             <td>
-              <input type="text" name="app_dstree_path" value="{$config_settings.app_dstree_path|escape:"html"}" size="40" />
+              <input type="text" name="app_dstree_path" value="{$config_settings.app_dstree_path}" size="40" />
               {include file="error_icon.tpl.html" field="app_duplicates_reports_location"}
             </td>
           </tr>
@@ -1153,91 +1153,91 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Cell colour</th>
 			<td>
-			  <input type="text" class="color" name="app_cell_color" value="{$config_settings.app_cell_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_cell_color')" /><div id="app_cell_color" style="background-color: #{$config_settings.app_cell_color}; height: 10px; width: 85px;"></div>
+			  <input type="text" class="color" name="app_cell_color" value="{$config_settings.app_cell_color}" size="10" onkeyup="javascript:updatePreviewColour('app_cell_color')" /><div id="app_cell_color" style="background-color: #{$config_settings.app_cell_color}; height: 10px; width: 85px;"></div>
 			  {include file="error_icon.tpl.html" field="app_cell_color"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Value colour</th>
 			<td>
-			  <input type="text" class="color" name="app_value_color" value="{$config_settings.app_value_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_value_color')"/><div id="app_value_color" style="background-color: #{$config_settings.app_value_color}; height: 10px; width: 85px;"></div>
+			  <input type="text" class="color" name="app_value_color" value="{$config_settings.app_value_color}" size="10" onkeyup="javascript:updatePreviewColour('app_value_color')"/><div id="app_value_color" style="background-color: #{$config_settings.app_value_color}; height: 10px; width: 85px;"></div>
 			  {include file="error_icon.tpl.html" field="app_value_color"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Advanced cell colour</th>
 			<td>
-			  <input type="text" class="color" name="app_adv_color_dark" value="{$config_settings.app_adv_color_dark|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_adv_color_dark')" /><div id="app_adv_color_dark" style="background-color: #{$config_settings.app_adv_color_dark}; height: 10px; width: 85px;"></div>
+			  <input type="text" class="color" name="app_adv_color_dark" value="{$config_settings.app_adv_color_dark}" size="10" onkeyup="javascript:updatePreviewColour('app_adv_color_dark')" /><div id="app_adv_color_dark" style="background-color: #{$config_settings.app_adv_color_dark}; height: 10px; width: 85px;"></div>
 			  {include file="error_icon.tpl.html" field="app_adv_color_dark"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Advanced value colour</th>
 			<td>
-			  <input type="text" class="color" name="app_adv_color_light" value="{$config_settings.app_adv_color_light|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_adv_color_light')"/><div id="app_adv_color_light" style="background-color: #{$config_settings.app_adv_color_light}; height: 10px; width: 85px;"></div>
+			  <input type="text" class="color" name="app_adv_color_light" value="{$config_settings.app_adv_color_light}" size="10" onkeyup="javascript:updatePreviewColour('app_adv_color_light')"/><div id="app_adv_color_light" style="background-color: #{$config_settings.app_adv_color_light}; height: 10px; width: 85px;"></div>
 			  {include file="error_icon.tpl.html" field="app_adv_color_light"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Light colour</th>
 			<td>
-			  <input type="text" class="color" name="app_light_color" value="{$config_settings.app_light_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColourColour('app_light_color')"/><div id="app_light_color" style="background-color: #{$config_settings.app_light_color}; height: 10px; width: 85px;"></div>
+			  <input type="text" class="color" name="app_light_color" value="{$config_settings.app_light_color}" size="10" onkeyup="javascript:updatePreviewColourColour('app_light_color')"/><div id="app_light_color" style="background-color: #{$config_settings.app_light_color}; height: 10px; width: 85px;"></div>
 			  {include file="error_icon.tpl.html" field="app_light_color"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Selected colour</th>
 			<td>
-			  <input type="text" class="color" name="app_selected_color" value="{$config_settings.app_selected_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_selected_color')"/><div id="app_selected_color" style="background-color: #{$config_settings.app_selected_color}; height: 10px; width: 85px;"></div>
+			  <input type="text" class="color" name="app_selected_color" value="{$config_settings.app_selected_color}" size="10" onkeyup="javascript:updatePreviewColour('app_selected_color')"/><div id="app_selected_color" style="background-color: #{$config_settings.app_selected_color}; height: 10px; width: 85px;"></div>
 			  {include file="error_icon.tpl.html" field="app_selected_color"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Middle colour</th>
 			<td>
-			  <input type="text" class="color" name="app_middle_color" value="{$config_settings.app_middle_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_middle_color')"/><div id="app_middle_color" style="background-color: #{$config_settings.app_middle_color}; height: 10px; width: 85px;"></div>
+			  <input type="text" class="color" name="app_middle_color" value="{$config_settings.app_middle_color}" size="10" onkeyup="javascript:updatePreviewColour('app_middle_color')"/><div id="app_middle_color" style="background-color: #{$config_settings.app_middle_color}; height: 10px; width: 85px;"></div>
 			  {include file="error_icon.tpl.html" field="app_middle_color"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Dark colour</th>
 			<td>
-			  <input type="text" class="color" name="app_dark_color" value="{$config_settings.app_dark_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_dark_color')"/><div id="app_dark_color" style="background-color: #{$config_settings.app_dark_color}; height: 10px; width: 85px;"></div>
+			  <input type="text" class="color" name="app_dark_color" value="{$config_settings.app_dark_color}" size="10" onkeyup="javascript:updatePreviewColour('app_dark_color')"/><div id="app_dark_color" style="background-color: #{$config_settings.app_dark_color}; height: 10px; width: 85px;"></div>
 			  {include file="error_icon.tpl.html" field="app_dark_color"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Heading colour</th>
 			<td>
-			  <input type="text" class="color" name="app_heading_color" value="{$config_settings.app_heading_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_heading_color')"/><div id="app_heading_color" style="background-color: #{$config_settings.app_heading_color}; height: 10px; width: 85px;"></div>
+			  <input type="text" class="color" name="app_heading_color" value="{$config_settings.app_heading_color}" size="10" onkeyup="javascript:updatePreviewColour('app_heading_color')"/><div id="app_heading_color" style="background-color: #{$config_settings.app_heading_color}; height: 10px; width: 85px;"></div>
 			  {include file="error_icon.tpl.html" field="app_heading_color"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Cycle colour #1</th>
 			<td>
-			  <input type="text" class="color" name="app_cycle_color_one" value="{$config_settings.app_cycle_color_one|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_cycle_color_one')"/><div id="app_cycle_color_one" style="background-color: #{$config_settings.app_cycle_color_one}; height: 10px; width: 85px;"></div>
+			  <input type="text" class="color" name="app_cycle_color_one" value="{$config_settings.app_cycle_color_one}" size="10" onkeyup="javascript:updatePreviewColour('app_cycle_color_one')"/><div id="app_cycle_color_one" style="background-color: #{$config_settings.app_cycle_color_one}; height: 10px; width: 85px;"></div>
 			  {include file="error_icon.tpl.html" field="app_cycle_color_one"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Cycle colour #2</th>
 			<td>
-			  <input type="text" class="color" name="app_cycle_color_two" value="{$config_settings.app_cycle_color_two|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_cycle_color_two')"/><div id="app_cycle_color_two" style="background-color: #{$config_settings.app_cycle_color_two}; height: 10px; width: 85px;"></div>
+			  <input type="text" class="color" name="app_cycle_color_two" value="{$config_settings.app_cycle_color_two}" size="10" onkeyup="javascript:updatePreviewColour('app_cycle_color_two')"/><div id="app_cycle_color_two" style="background-color: #{$config_settings.app_cycle_color_two}; height: 10px; width: 85px;"></div>
 			  {include file="error_icon.tpl.html" field="app_cycle_color_two"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Internal colour</th>
 			<td>
-			  <input type="text" class="color" name="app_internal_color" value="{$config_settings.app_internal_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_internal_color')"/><div id="app_internal_color" style="background-color: #{$config_settings.app_internal_color}; height: 10px; width: 85px;"></div>
+			  <input type="text" class="color" name="app_internal_color" value="{$config_settings.app_internal_color}" size="10" onkeyup="javascript:updatePreviewColour('app_internal_color')"/><div id="app_internal_color" style="background-color: #{$config_settings.app_internal_color}; height: 10px; width: 85px;"></div>
 			  {include file="error_icon.tpl.html" field="app_internal_color"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Highlight colour</th>
 			<td>
-			  <input type="text" class="color" name="app_highlight_color" value="{$config_settings.app_highlight_color|escape:"html"}" size="10" onkeyup="javascript:updatePreviewColour('app_highlight_color')"/><div id="app_highlight_color" style="background-color: #{$config_settings.app_highlight_color}; height: 10px; width: 85px;"></div>
+			  <input type="text" class="color" name="app_highlight_color" value="{$config_settings.app_highlight_color}" size="10" onkeyup="javascript:updatePreviewColour('app_highlight_color')"/><div id="app_highlight_color" style="background-color: #{$config_settings.app_highlight_color}; height: 10px; width: 85px;"></div>
 			  {include file="error_icon.tpl.html" field="app_highlight_color"}
 			</td>
 		  </tr>
@@ -1245,28 +1245,28 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Default FFMPEG Flash Video Width</th>
 			<td>
-			  <input type="text" name="app_ffmpeg_default_width" value="{$config_settings.app_ffmpeg_default_width|escape:"html"}" size="10" />
+			  <input type="text" name="app_ffmpeg_default_width" value="{$config_settings.app_ffmpeg_default_width}" size="10" />
 			  {include file="error_icon.tpl.html" field="app_ffmpeg_default_width"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Default FFMPEG Flash Video Height</th>
 			<td>
-			  <input type="text" name="app_ffmpeg_default_height" value="{$config_settings.app_ffmpeg_default_height|escape:"html"}" size="10" />
+			  <input type="text" name="app_ffmpeg_default_height" value="{$config_settings.app_ffmpeg_default_height}" size="10" />
 			  {include file="error_icon.tpl.html" field="app_ffmpeg_default_height"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Default FFMPEG Video Thumbnail/Screenshot Start Position (time - default 5 seconds = 00:00:05)</th>
 			<td>
-			  <input type="text" name="app_ffmpeg_default_thumb_pos" value="{$config_settings.app_ffmpeg_default_thumb_pos|escape:"html"}" size="10" />
+			  <input type="text" name="app_ffmpeg_default_thumb_pos" value="{$config_settings.app_ffmpeg_default_thumb_pos}" size="10" />
 			  {include file="error_icon.tpl.html" field="app_ffmpeg_default_thumb_pos"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Thumbnail quality (default 70)</th>
 			<td>
-			  <input type="text" name="app_thumbnail_quality" value="{$config_settings.app_thumbnail_quality|escape:"html"}" size=
+			  <input type="text" name="app_thumbnail_quality" value="{$config_settings.app_thumbnail_quality}" size=
 "10" />
 			  {include file="error_icon.tpl.html" field="app_thumbnail_quality"}
 			</td>
@@ -1274,42 +1274,42 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Thumbnail max width</th>
 			<td>
-			  <input type="text" name="app_thumbnail_width" value="{$config_settings.app_thumbnail_width|escape:"html"}" size="10" />
+			  <input type="text" name="app_thumbnail_width" value="{$config_settings.app_thumbnail_width}" size="10" />
 			  {include file="error_icon.tpl.html" field="app_thumbnail_width"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Thumbnail max height</th>
 			<td>
-			  <input type="text" name="app_thumbnail_height" value="{$config_settings.app_thumbnail_height|escape:"html"}" size="10" />
+			  <input type="text" name="app_thumbnail_height" value="{$config_settings.app_thumbnail_height}" size="10" />
 			  {include file="error_icon.tpl.html" field="app_thumbnail_height"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Preview quality (default 80)</th>
 			<td>
-			  <input type="text" name="app_image_preview_quality" value="{$config_settings.app_image_preview_quality|escape:"html"}" size="10" />
+			  <input type="text" name="app_image_preview_quality" value="{$config_settings.app_image_preview_quality}" size="10" />
 			  {include file="error_icon.tpl.html" field="app_image_preview_quality"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Preview max width</th>
 			<td>
-			  <input type="text" name="app_image_preview_max_width" value="{$config_settings.app_image_preview_max_width|escape:"html"}" size="10" />
+			  <input type="text" name="app_image_preview_max_width" value="{$config_settings.app_image_preview_max_width}" size="10" />
 			  {include file="error_icon.tpl.html" field="app_image_preview_max_width"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Preview max height</th>
 			<td>
-			  <input type="text" name="app_image_preview_max_height" value="{$config_settings.app_image_preview_max_height|escape:"html"}" size="10" />
+			  <input type="text" name="app_image_preview_max_height" value="{$config_settings.app_image_preview_max_height}" size="10" />
 			  {include file="error_icon.tpl.html" field="app_image_preview_max_height"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Web image quality (default 80)</th>
 			<td>
-			  <input type="text" name="app_image_web_quality" value="{$config_settings.app_image_web_quality|escape:"html"
+			  <input type="text" name="app_image_web_quality" value="{$config_settings.app_image_web_quality
 }" size="10" />
 			  {include file="error_icon.tpl.html" field="app_image_web_quality"}
 			</td>
@@ -1317,21 +1317,21 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Web image max width</th>
 			<td>
-			  <input type="text" name="app_image_web_max_width" value="{$config_settings.app_image_web_max_width|escape:"html"}" size="10" />
+			  <input type="text" name="app_image_web_max_width" value="{$config_settings.app_image_web_max_width}" size="10" />
 			  {include file="error_icon.tpl.html" field="app_image_web_max_width"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Web image max height</th>
 			<td>
-			  <input type="text" name="app_image_web_max_height" value="{$config_settings.app_image_web_max_height|escape:"html"}" size="10" />
+			  <input type="text" name="app_image_web_max_height" value="{$config_settings.app_image_web_max_height}" size="10" />
 			  {include file="error_icon.tpl.html" field="app_image_web_max_height"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Watermark image</th>
 			<td>
-			  <input type="text" name="app_watermark" value="{$config_settings.app_watermark|escape:"html"}" size="20" />
+			  <input type="text" name="app_watermark" value="{$config_settings.app_watermark}" size="20" />
 			  <br />The image to be used for watermarking of copyright images.<br />Place the image in the 'images' directory.
 			  {include file="error_icon.tpl.html" field="app_watermark"}
 			</td>
@@ -1362,7 +1362,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Log directory</th>
 			<td>
-			  <input type="text" name="webserver_log_dir" value="{$config_settings.webserver_log_dir|escape:"html"}" size="50" />
+			  <input type="text" name="webserver_log_dir" value="{$config_settings.webserver_log_dir}" size="50" />
 			  <br />You must include a trailing slash.
 			  {include file="error_icon.tpl.html" field="webserver_log_dir"}
 			</td>
@@ -1370,14 +1370,14 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Log file</th>
 			<td>
-			  <input type="text" name="webserver_log_file" value="{$config_settings.webserver_log_file|escape:"html"}" size="50" />
+			  <input type="text" name="webserver_log_file" value="{$config_settings.webserver_log_file}" size="50" />
 			  {include file="error_icon.tpl.html" field="webserver_log_file"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>GEOIP path</th>
 			<td>
-			  <input type="text" name="app_geoip_path" value="{$config_settings.app_geoip_path|escape:"html"}" size="50" />
+			  <input type="text" name="app_geoip_path" value="{$config_settings.app_geoip_path}" size="50" />
 			  <br />You must include a trailing slash.
 			  {include file="error_icon.tpl.html" field="app_geoip_path"}
 			</td>
@@ -1385,7 +1385,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Max number of stats to process per gather stats from buffer run (if too many php may run out of memory, leave empty for no limit, default 50000)</th>
 			<td>
-			  <input type="text" name="webserver_log_stat_cron_limit" value="{$config_settings.webserver_log_stat_cron_limit|escape:"html"}" size="50" />
+			  <input type="text" name="webserver_log_stat_cron_limit" value="{$config_settings.webserver_log_stat_cron_limit}" size="50" />
 			  {include file="error_icon.tpl.html" field="webserver_log_stat_cron_limit"}
 			</td>
 		  </tr>
@@ -1435,7 +1435,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Federation name</th>
 			<td>
-			  <input type="text" name="shib_federation_name" value="{$config_settings.shib_federation_name|escape:"html"}" size="50" />
+			  <input type="text" name="shib_federation_name" value="{$config_settings.shib_federation_name}" size="50" />
 			  <br />Change this to the name of your Shibboleth Federation, e.g. <i>Inqueue, InCommon, MAMS Testbed Federation</i>.
 			</td>
 		  </tr>
@@ -1452,42 +1452,42 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Federation</th>
 			<td>
-			  <input type="text" name="shib_federation" value="{$config_settings.shib_federation|escape:"html"}" size="50" />
+			  <input type="text" name="shib_federation" value="{$config_settings.shib_federation}" size="50" />
 			  <br />Change this to the base URN of your federation, e.g. <i>Inqueue or InCommon</i>.
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Home SP</th>
 			<td>
-			  <input type="text" name="shib_home_sp" value="{$config_settings.shib_home_sp|escape:"html"}" size="70" />
+			  <input type="text" name="shib_home_sp" value="{$config_settings.shib_home_sp}" size="70" />
 			  <br />Change this to the URN of your Fez service provider, if different.
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Home IDP</th>
 			<td>
-			  <input type="text" name="shib_home_idp" value="{$config_settings.shib_home_idp|escape:"html"}" size="70" />
+			  <input type="text" name="shib_home_idp" value="{$config_settings.shib_home_idp}" size="70" />
 			  <br />Change this to the URN of your home institution's IDP.
 			</td>
 		  </tr>
 		  <tr>
 		    <th>WAYF metadata location</th>
 			<td>
-			  <input type="text" name="shib_wayf_metadata_location" value="{$config_settings.shib_wayf_metadata_location|escape:"html"}" size="70" />
+			  <input type="text" name="shib_wayf_metadata_location" value="{$config_settings.shib_wayf_metadata_location}" size="70" />
 			  <br />Change this to path location of the WAYF metadata XML file. You can update this with a cronjob / schedulated task. Your WAYF drop-down list will fill from this XML file.
 			</td>
 		  </tr>
 		  <tr>
 		    <th>WAYF/DS URL</th>
 			<td>
-			  <input type="text" name="shib_wayf_url" value="{$config_settings.shib_wayf_url|escape:"html"}" size="50" />
+			  <input type="text" name="shib_wayf_url" value="{$config_settings.shib_wayf_url}" size="50" />
 			  <br />Location of the federation WAYF (where are you from) or DS (discovery service) eg https://ds.test.aaf.edu.au/discovery/DS
 			</td>
 		  </tr>
 		  <tr>
 		    <th>WAYF/DS Javascript location</th>
 			<td>
-			  <input type="text" name="shib_wayf_js" value="{$config_settings.shib_wayf_js|escape:"html"}" size="50" />
+			  <input type="text" name="shib_wayf_js" value="{$config_settings.shib_wayf_js}" size="50" />
 			  <br />Location of the federation WAYF (where are you from) or DS (discovery service) javascript file to include.
 			  <br />It can (preferably) be a locally crontab/wget copy eg /js/embedded_wayf.js 
 			</td>
@@ -1495,7 +1495,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Non Javascript url location (non SimpleSAMLPHP only)</th>
 			<td>
-			  <input type="text" name="shib_nonjs_url" value="{$config_settings.shib_nonjs_url|escape:"html"}" size="50" />
+			  <input type="text" name="shib_nonjs_url" value="{$config_settings.shib_nonjs_url}" size="50" />
 			  <br />Link to show if the user has javascript turn off
 			  <br />eg /Shibboleth.sso/DS?target=https://manager.aaf.edu.au/rr/
 			</td>
@@ -1538,7 +1538,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Organisation</th>
 			<td>
-			  <input type="text" name="ldap_organisation" value="{$config_settings.ldap_organisation|escape:"html"}" size="50" />
+			  <input type="text" name="ldap_organisation" value="{$config_settings.ldap_organisation}" size="50" />
 			  <br />e.g. o=The University of Fez, c=AU
 			  {include file="error_icon.tpl.html" field="ldap_organisation"}
 			</td>
@@ -1546,7 +1546,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Root DN</th>
 			<td>
-			  <input type="text" name="ldap_root_dn" value="{$config_settings.ldap_root_dn|escape:"html"}" size="50" />
+			  <input type="text" name="ldap_root_dn" value="{$config_settings.ldap_root_dn}" size="50" />
 			  <br />e.g. DC=uq,DC=edu,DC=au
 			  {include file="error_icon.tpl.html" field="ldap_root_dn"}
 			</td>
@@ -1554,7 +1554,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Prefix</th>
 			<td>
-			  <input type="text" name="ldap_prefix" value="{$config_settings.ldap_prefix|escape:"html"}" size="50" />
+			  <input type="text" name="ldap_prefix" value="{$config_settings.ldap_prefix}" size="50" />
 			  <br />e.g. UQ
 			  {include file="error_icon.tpl.html" field="ldap_prefix"}
 			</td>
@@ -1562,7 +1562,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Server</th>
 			<td>
-			  <input type="text" name="ldap_server" value="{$config_settings.ldap_server|escape:"html"}" size="50" />
+			  <input type="text" name="ldap_server" value="{$config_settings.ldap_server}" size="50" />
 			  <br />e.g. yourldapserver.yourdomain.edu
 			  {include file="error_icon.tpl.html" field="ldap_server"}
 			</td>
@@ -1570,7 +1570,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Port</th>
 			<td>
-			  <input type="text" name="ldap_port" value="{$config_settings.ldap_port|escape:"html"}" size="50" />
+			  <input type="text" name="ldap_port" value="{$config_settings.ldap_port}" size="50" />
 			  <br />Usually 389
 			  {include file="error_icon.tpl.html" field="ldap_port"}
 			</td>
@@ -1578,7 +1578,7 @@ function restoreDefaultColours(el)
           <tr>
             <th>Staff LDAP Group</th>
             <td>
-              <input type="text" name="ldap_staff_group" value="{$config_settings.ldap_staff_group|escape:"html"}" size="50" />
+              <input type="text" name="ldap_staff_group" value="{$config_settings.ldap_staff_group}" size="50" />
               <br />match what you have in your ldap or active directory for the group that contains all your staff (Only required for AD/LDAP attribute -> shibboleth mapping if you stop using shibboleth after using it in FezACML a  while and want to maintain the rules)
               {include file="error_icon.tpl.html" field="ldap_staff_group"}
             </td>
@@ -1587,7 +1587,7 @@ function restoreDefaultColours(el)
           <tr>
             <th>Student LDAP Group</th>
             <td>
-              <input type="text" name="ldap_student_group" value="{$config_settings.ldap_student_group|escape:"html"}" size="50" />
+              <input type="text" name="ldap_student_group" value="{$config_settings.ldap_student_group}" size="50" />
               <br />match what you have in your ldap or active directory for the group that contains all your Students (Only required for AD/LDAP attribute -> shibboleth mapping if you stop using shibboleth after using it in FezACML a  while and want to maintain the rules)
               {include file="error_icon.tpl.html" field="ldap_student_group"}
             </td>
@@ -1609,7 +1609,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>OAI Provider</th>
 			<td>
-			  <input type="text" name="eprints_oai" value="{$config_settings.eprints_oai|escape:"html"}" size="100" />
+			  <input type="text" name="eprints_oai" value="{$config_settings.eprints_oai}" size="100" />
 			  <br />Change this to your ePrints OAI service provider for batch importing of ePrints records
 			  {include file="error_icon.tpl.html" field="eprints_oai"}
 			</td>
@@ -1617,7 +1617,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>ePrints username</th>
 			<td>
-			  <input type="text" name="eprints_username" value="{$config_settings.eprints_username|escape:"html"}" size="20" />
+			  <input type="text" name="eprints_username" value="{$config_settings.eprints_username}" size="20" />
 			  <br />ePrints requires basic authentication for the download of secured PDFs and files
 			  {include file="error_icon.tpl.html" field="eprints_username"}
 			</td>
@@ -1625,14 +1625,14 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>ePrints password</th>
 			<td>
-			  <input type="password" name="eprints_passwd" value="{$config_settings.eprints_passwd|escape:"html"}" size="20" />
+			  <input type="password" name="eprints_passwd" value="{$config_settings.eprints_passwd}" size="20" />
 			  {include file="error_icon.tpl.html" field="eprints_passwd"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Subject authority</th>
 			<td>
-			  <input type="text" name="eprints_subject_authority" value="{$config_settings.eprints_subject_authority|escape:"html"}" size="20" />
+			  <input type="text" name="eprints_subject_authority" value="{$config_settings.eprints_subject_authority}" size="20" />
 			  <br />For use when your ePrints IR uses a controlled vocabulary, e.g. Australian ASRC use 'asrc'. Otherwise leave blank.
 			  {include file="error_icon.tpl.html" field="eprints_subject_authority"}
 			</td>
@@ -1640,7 +1640,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Database host</th>
 			<td>
-			  <input type="text" name="eprints_db_host" value="{$config_settings.eprints_db_host|escape:"html"}" size="20" />
+			  <input type="text" name="eprints_db_host" value="{$config_settings.eprints_db_host}" size="20" />
 			  <br />Used to get things that are not in the ePrints export XML that really should be for migration purposes.
 			  {include file="error_icon.tpl.html" field="eprints_db_host"}
 			</td>
@@ -1648,7 +1648,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Database type</th>
 			<td>
-			  <input type="text" name="eprints_db_type" value="{$config_settings.eprints_db_type|escape:"html"}" size="20" />
+			  <input type="text" name="eprints_db_type" value="{$config_settings.eprints_db_type}" size="20" />
 			  <br />Generally 'pdo_mysql' although other will probably work as long as they are support by Zend DB.
 			  {include file="error_icon.tpl.html" field="eprints_db_type"}
 			</td>
@@ -1656,21 +1656,21 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Database name</th>
 			<td>
-			  <input type="text" name="eprints_db_database_name" value="{$config_settings.eprints_db_database_name|escape:"html"}" size="20" />
+			  <input type="text" name="eprints_db_database_name" value="{$config_settings.eprints_db_database_name}" size="20" />
 			  {include file="error_icon.tpl.html" field="eprints_db_database_name"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Database username</th>
 			<td>
-			  <input type="text" name="eprints_db_username" value="{$config_settings.eprints_db_username|escape:"html"}" size="20" />
+			  <input type="text" name="eprints_db_username" value="{$config_settings.eprints_db_username}" size="20" />
 			  {include file="error_icon.tpl.html" field="eprints_db_username"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Database password</th>
 			<td>
-			  <input type="password" name="eprints_db_passwd" value="{$config_settings.eprints_db_passwd|escape:"html"}" size="20" />
+			  <input type="password" name="eprints_db_passwd" value="{$config_settings.eprints_db_passwd}" size="20" />
 			  {include file="error_icon.tpl.html" field="eprints_db_passwd"}
 			</td>
 		  </tr>
@@ -1728,14 +1728,14 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Solr Host</th>
 			<td>
-			  <input type="text" name="app_solr_host" value="{$config_settings.app_solr_host|escape:"html"}" size="50" />
+			  <input type="text" name="app_solr_host" value="{$config_settings.app_solr_host}" size="50" />
 			  {include file="error_icon.tpl.html" field="app_solr_host"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Solr Slave Replicant Host (not required)</th>
 			<td>
-			  <input type="text" name="app_solr_slave_host" value="{$config_settings.app_solr_slave_host|escape:"html"}" size="50" />
+			  <input type="text" name="app_solr_slave_host" value="{$config_settings.app_solr_slave_host}" size="50" />
 			  {include file="error_icon.tpl.html" field="app_solr_slave_host"}
 			</td>
 		  </tr>
@@ -1749,35 +1749,35 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Solr Port</th>
 			<td>
-			  <input type="text" name="app_solr_port" value="{$config_settings.app_solr_port|escape:"html"}" size="50" />
+			  <input type="text" name="app_solr_port" value="{$config_settings.app_solr_port}" size="50" />
 			  {include file="error_icon.tpl.html" field="app_solr_port"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Solr Path</th>
 			<td>
-			  <input type="text" name="app_solr_path" value="{$config_settings.app_solr_path|escape:"html"}" size="50" />
+			  <input type="text" name="app_solr_path" value="{$config_settings.app_solr_path}" size="50" />
 			  {include file="error_icon.tpl.html" field="app_solr_path"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Solr Commit Limit (the maximum number of objects to queue in a solr batch before sending to solr. Lower if you have having PHP out of memory issues - default is 100)</th>
 			<td>
-			  <input type="text" name="app_solr_commit_limit" value="{$config_settings.app_solr_commit_limit|escape:"html"}" size="50" />
+			  <input type="text" name="app_solr_commit_limit" value="{$config_settings.app_solr_commit_limit}" size="50" />
 			  {include file="error_icon.tpl.html" field="app_solr_commit_limit"}
 			</td>
 		  </tr>
 		  <tr>
 			<th>Facet limit (default is 5)</th>
 			<td>
-				<input type="text" name="app_solr_facet_limit" value="{$config_settings.app_solr_facet_limit|escape:"html"}" size="4" />
+				<input type="text" name="app_solr_facet_limit" value="{$config_settings.app_solr_facet_limit}" size="4" />
 				{include file="error_icon.tpl.html" field="app_solr_facet_limit"}
 			</td>
 		  </tr>
 		  <tr>
 			<th>Facet minimum count (default is 2)</th>
 			<td>
-				<input type="text" name="app_solr_facet_mincount" value="{$config_settings.app_solr_facet_mincount|escape:"html"}" size="4" />
+				<input type="text" name="app_solr_facet_mincount" value="{$config_settings.app_solr_facet_mincount}" size="4" />
 				{include file="error_icon.tpl.html" field="app_solr_facet_mincount"}
 			</td>
 		  </tr>
@@ -1807,7 +1807,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Path To Origami</th>
 			<td>
-			  <input type="text" name="app_origami_path" value="{$config_settings.app_origami_path|escape:"html"}" size="50" />
+			  <input type="text" name="app_origami_path" value="{$config_settings.app_origami_path}" size="50" />
 			  {include file="error_icon.tpl.html" field="app_origami_path"}
 			</td>
 		  </tr>
@@ -1837,7 +1837,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Path To Exiftool executable (eg /usr/bin/exiftool)</th>
 			<td>
-			  <input type="text" name="app_exiftool_cmd" value="{$config_settings.app_exiftool_cmd|escape:"html"}" size="50" />
+			  <input type="text" name="app_exiftool_cmd" value="{$config_settings.app_exiftool_cmd}" size="50" />
 			  {include file="error_icon.tpl.html" field="app_exiftool_cmd"}
 			</td>
 		  </tr>
@@ -1867,7 +1867,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>JAHDL Path</th>
 			<td>
-			  <input type="text" name="app_jahdl_dir" value="{$config_settings.app_jahdl_dir|escape:"html"}" size="50" />
+			  <input type="text" name="app_jahdl_dir" value="{$config_settings.app_jahdl_dir}" size="50" />
 			  <br />You must include a trailing slash.
 			  {include file="error_icon.tpl.html" field="app_jahdl_dir"}
 			</td>
@@ -1875,28 +1875,28 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Handle admin private key file</th>
 			<td>
-			  <input type="text" name="handle_admpriv_key_file" value="{$config_settings.handle_admpriv_key_file|escape:"html"}" size="50" />
+			  <input type="text" name="handle_admpriv_key_file" value="{$config_settings.handle_admpriv_key_file}" size="50" />
 			  {include file="error_icon.tpl.html" field="handle_admpriv_key_file"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Handle admin private key passphrase</th>
 			<td>
-			  <input type="text" name="handle_admpriv_key_passphrase" value="{$config_settings.handle_admpriv_key_passphrase|escape:"html"}" size="50" />
+			  <input type="text" name="handle_admpriv_key_passphrase" value="{$config_settings.handle_admpriv_key_passphrase}" size="50" />
 			  {include file="error_icon.tpl.html" field="handle_admpriv_key_passphrase"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Handle naming authority prefix</th>
 			<td>
-			  <input type="text" name="handle_naming_authority_prefix" value="{$config_settings.handle_naming_authority_prefix|escape:"html"}" size="50" />
+			  <input type="text" name="handle_naming_authority_prefix" value="{$config_settings.handle_naming_authority_prefix}" size="50" />
 			  {include file="error_icon.tpl.html" field="handle_naming_authority_prefix"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Handle naming authority prefix derivative</th>
 			<td>
-			  <input type="text" name="handle_na_prefix_derivative" value="{$config_settings.handle_na_prefix_derivative|escape:"html"}" size="50" />
+			  <input type="text" name="handle_na_prefix_derivative" value="{$config_settings.handle_na_prefix_derivative}" size="50" />
 			  <br />Can be a real handle derivative (i.e. &quot;.01&quot;) or a pseudo-derivative (i.e. &quot;/01&quot;).
 			  {include file="error_icon.tpl.html" field="handle_na_prefix_derivative"}
 			</td>
@@ -1904,7 +1904,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Handle resolver URL</th>
 			<td>
-			  <input type="text" name="handle_resolver_url" value="{$config_settings.handle_resolver_url|escape:"html"}" size="50" />
+			  <input type="text" name="handle_resolver_url" value="{$config_settings.handle_resolver_url}" size="50" />
 			  {include file="error_icon.tpl.html" field="handle_resolver_url"}
 			</td>
 		  </tr>
@@ -1951,7 +1951,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Interval Between Fedora Versions</th>
 			<td>
-			  <input type="text" name="app_version_time_interval" value="{$config_settings.app_version_time_interval|escape:"html"}" size="10" /> (seconds)
+			  <input type="text" name="app_version_time_interval" value="{$config_settings.app_version_time_interval}" size="10" /> (seconds)
 			  {include file="error_icon.tpl.html" field="app_version_time_interval"}
 			</td>
 		  </tr>
@@ -2003,7 +2003,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Username</th>
 			<td>
-			  <input type="text" name="rid_dl_service_username" value="{$config_settings.rid_dl_service_username|escape:"html"}" size="20" />
+			  <input type="text" name="rid_dl_service_username" value="{$config_settings.rid_dl_service_username}" size="20" />
 			  <br />The username you use to authenticate to the ResearcherID web service.
 			  {include file="error_icon.tpl.html" field="rid_dl_service_username"}
 			</td>
@@ -2011,7 +2011,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Password</th>
 			<td>
-			  <input type="password" name="rid_dl_service_password" value="{$config_settings.rid_dl_service_password|escape:"html"}" size="20" />
+			  <input type="password" name="rid_dl_service_password" value="{$config_settings.rid_dl_service_password}" size="20" />
 			  <br />The password you use to authenticate to the ResearcherID web service.
 			  {include file="error_icon.tpl.html" field="rid_dl_service_password"}
 			</td>
@@ -2019,7 +2019,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Web Service URL</th>
 			<td>
-			  <input type="text" name="rid_dl_service_url" value="{$config_settings.rid_dl_service_url|escape:"html"}" size="50" />
+			  <input type="text" name="rid_dl_service_url" value="{$config_settings.rid_dl_service_url}" size="50" />
 			  <br />The URL of the ResearcherID batch download web service.
 			  {include file="error_icon.tpl.html" field="rid_dl_service_url"}
 			</td>
@@ -2027,7 +2027,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Download Request XSD</th>
 			<td>
-			  <input type="text" name="rid_dl_service_request_xsd" value="{$config_settings.rid_dl_service_request_xsd|escape:"html"}" size="50" />
+			  <input type="text" name="rid_dl_service_request_xsd" value="{$config_settings.rid_dl_service_request_xsd}" size="50" />
 			  <br />Local file name and path of the supplied XML schema document for validating the request for data.
 			  {include file="error_icon.tpl.html" field="rid_dl_service_request_xsd"}
 			</td>
@@ -2035,7 +2035,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Download Response XSD</th>
 			<td>
-			  <input type="text" name="rid_dl_service_response_xsd" value="{$config_settings.rid_dl_service_response_xsd|escape:"html"}" size="50" />
+			  <input type="text" name="rid_dl_service_response_xsd" value="{$config_settings.rid_dl_service_response_xsd}" size="50" />
 			  <br />Local file name and path of the supplied XML schema document for validating the response to the request for data.
 			  {include file="error_icon.tpl.html" field="rid_dl_service_response_xsd"}
 			</td>
@@ -2043,7 +2043,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Collection</th>
 			<td>
-			  <input type="text" name="rid_dl_collection" value="{$config_settings.rid_dl_collection|escape:"html"}" size="10" />
+			  <input type="text" name="rid_dl_collection" value="{$config_settings.rid_dl_collection}" size="10" />
 			  <br />Set this to the PID of the collection the downloaded publications will be added to.
 			  {include file="error_icon.tpl.html" field="rid_dl_collection"}
 			</td>
@@ -2062,7 +2062,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Username</th>
 			<td>
-			  <input type="text" name="rid_ul_service_username" value="{$config_settings.rid_ul_service_username|escape:"html"}" size="20" />
+			  <input type="text" name="rid_ul_service_username" value="{$config_settings.rid_ul_service_username}" size="20" />
 			  <br />The username you use to authenticate to the ResearcherID web service.
 			  {include file="error_icon.tpl.html" field="rid_ul_service_username"}
 			</td>
@@ -2070,7 +2070,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Password</th>
 			<td>
-			  <input type="password" name="rid_ul_service_password" value="{$config_settings.rid_ul_service_password|escape:"html"}" size="20" />
+			  <input type="password" name="rid_ul_service_password" value="{$config_settings.rid_ul_service_password}" size="20" />
 			  <br />The password you use to authenticate to the ResearcherID web service.
 			  {include file="error_icon.tpl.html" field="rid_ul_service_password"}
 			</td>
@@ -2078,7 +2078,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Web Service URL</th>
 			<td>
-			  <input type="text" name="rid_ul_service_url" value="{$config_settings.rid_ul_service_url|escape:"html"}" size="50" />
+			  <input type="text" name="rid_ul_service_url" value="{$config_settings.rid_ul_service_url}" size="50" />
 			  <br />The URL of the ResearcherID batch upload web service.
 			  {include file="error_icon.tpl.html" field="rid_ul_service_url"}
 			</td>
@@ -2086,7 +2086,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Upload Profiles XSD</th>
 			<td>
-			  <input type="text" name="rid_ul_service_profiles_xsd" value="{$config_settings.rid_ul_service_profiles_xsd|escape:"html"}" size="50" />
+			  <input type="text" name="rid_ul_service_profiles_xsd" value="{$config_settings.rid_ul_service_profiles_xsd}" size="50" />
 			  <br />Local file name and path of the supplied XML schema document for validating the profiles list.
 			  {include file="error_icon.tpl.html" field="rid_ul_service_profiles_xsd"}
 			</td>
@@ -2094,7 +2094,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Upload Publications XSD</th>
 			<td>
-			  <input type="text" name="rid_ul_service_publications_xsd" value="{$config_settings.rid_ul_service_publications_xsd|escape:"html"}" size="50" />
+			  <input type="text" name="rid_ul_service_publications_xsd" value="{$config_settings.rid_ul_service_publications_xsd}" size="50" />
 			  <br />Local file name and path of the supplied XML schema document for validating the publications list.
 			  {include file="error_icon.tpl.html" field="rid_ul_service_publications_xsd"}
 			</td>
@@ -2102,7 +2102,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Upload Emails Path</th>
 			<td>
-			  <input type="text" name="rid_ul_service_routed_email_path" value="{$config_settings.rid_ul_service_routed_email_path|escape:"html"}" size="50" />
+			  <input type="text" name="rid_ul_service_routed_email_path" value="{$config_settings.rid_ul_service_routed_email_path}" size="50" />
 			  <br />The upload service sends its report via email. This is the path the email server stores emails sent by the ResearcherID service.
 			  {include file="error_icon.tpl.html" field="rid_ul_service_routed_email_path"}
 			</td>
@@ -2124,7 +2124,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Web service base URL</th>
 			<td>
-			  <input type="text" name="wok_ws_base_url" value="{$config_settings.wok_ws_base_url|escape:"html"}" size="100" />
+			  <input type="text" name="wok_ws_base_url" value="{$config_settings.wok_ws_base_url}" size="100" />
 			  <br />The URL of the Web of Knowledge web service.
 			  {include file="error_icon.tpl.html" field="wok_ws_base_url"}
 			</td>
@@ -2132,35 +2132,35 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Database ID</th>
 			<td>
-			  <input type="text" name="wok_database_id" value="{$config_settings.wok_database_id|escape:"html"}" size="10" />
+			  <input type="text" name="wok_database_id" value="{$config_settings.wok_database_id}" size="10" />
 			  {include file="error_icon.tpl.html" field="wok_database_id"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Cookie name</th>
 			<td>
-			  <input type="text" name="wok_cookie_name" value="{$config_settings.wok_cookie_name|escape:"html"}" size="10" />
+			  <input type="text" name="wok_cookie_name" value="{$config_settings.wok_cookie_name}" size="10" />
 			  {include file="error_icon.tpl.html" field="wok_cookie_name"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Username</th>
 			<td>
-			  <input type="text" name="wok_username" value="{$config_settings.wok_username|escape:"html"}" size="20" />
+			  <input type="text" name="wok_username" value="{$config_settings.wok_username}" size="20" />
 			  {include file="error_icon.tpl.html" field="wok_username"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Password</th>
 			<td>
-			  <input type="password" name="wok_password" value="{$config_settings.wok_password|escape:"html"}" size="20" />
+			  <input type="password" name="wok_password" value="{$config_settings.wok_password}" size="20" />
 			  {include file="error_icon.tpl.html" field="wok_password"}
 			</td>
 		  </tr>
 		  <tr>
 		    <th>Batch size</th>
 			<td>
-			  <input type="text" name="wok_batch_size" value="{$config_settings.wok_batch_size|escape:"html"}" size="5" />
+			  <input type="text" name="wok_batch_size" value="{$config_settings.wok_batch_size}" size="5" />
 			  <br />Enter a number.<br /><b>IMPORTANT:</b> Changing the batch size may be violation of the WoS license. Do not change this value unless you are authorised to do so by Thomson Reuters.
 			  {include file="error_icon.tpl.html" field="wok_batch_size"}
 			</td>
@@ -2168,7 +2168,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Seconds between calls</th>
 			<td>
-			  <input type="text" name="wok_seconds_between_calls" value="{$config_settings.wok_seconds_between_calls|escape:"html"}" size="5" />
+			  <input type="text" name="wok_seconds_between_calls" value="{$config_settings.wok_seconds_between_calls}" size="5" />
 			  <br />Please enter the delay between calls, in seconds.<br /><b>IMPORTANT:</b> Calling the WoS web service more frequently than the negotiated value may be violation of the WoS license. Do not change this value unless you are authorised to do so by Thomson Reuters.
 			  {include file="error_icon.tpl.html" field="wok_seconds_between_calls"}
 			</td>
@@ -2190,7 +2190,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		    <th>Consumer Name</th>
 			<td>
-			  <input type="text" name="app_scopus_consumer_name" value="{$config_settings.app_scopus_consumer_name|escape:"html"}" size="100" />
+			  <input type="text" name="app_scopus_consumer_name" value="{$config_settings.app_scopus_consumer_name}" size="100" />
 			  <br />The Consumer Name your institution has agreed to with the the Scopus web service (Name and IP restricted).
 			  {include file="error_icon.tpl.html" field="app_scopus_consumer_name"}
 			</td>
