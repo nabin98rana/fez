@@ -65,7 +65,7 @@
                 <b>Query (what the workflow will use for an array of pids):</b><br />Only one column (pid), no ending ;
               </td>
                 <td style="background: {$light_color}">
-                	<textarea name="ahs_query" cols="70" rows="15" class="default">{$info.ahs_query|escape:"html"}</textarea>
+                	<textarea name="ahs_query" cols="70" rows="15" class="default">{$info.ahs_query}</textarea>
                 	{include file="error_icon.tpl.html" field="ahs_query"}
                 </td>
               </tr>
@@ -74,7 +74,7 @@
                 <b>Count Query (to be used to get the max rows affected/page count):</b><br />Only one column (count of pid), no ending ;
               </td>
                 <td style="background: {$light_color}">
-                	<textarea name="ahs_query_count" cols="70" rows="15" class="default">{$info.ahs_query_count|escape:"html"}</textarea>
+                	<textarea name="ahs_query_count" cols="70" rows="15" class="default">{$info.ahs_query_count}</textarea>
                 	{include file="error_icon.tpl.html" field="ahs_query_count"}
                 </td>
               </tr>
@@ -83,7 +83,7 @@
                 <b>Show Query (what will be shown in a preview of results affected):</b><br />two columns first 'as pid', second 'as title', no ending ;
               </td>
                 <td style="background: {$light_color}">
-                	<textarea name="ahs_query_show" cols="70" rows="15" class="default">{$info.ahs_query_show|escape:"html"}</textarea>
+                	<textarea name="ahs_query_show" cols="70" rows="15" class="default">{$info.ahs_query_show}</textarea>
                 	{include file="error_icon.tpl.html" field="ahs_query_show"}
                 </td>
               </tr>

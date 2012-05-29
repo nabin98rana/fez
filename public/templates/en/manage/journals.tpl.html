@@ -64,7 +64,7 @@
             <div>
               {if $smarty.get.cat == 'edit'}
                 <input type="hidden" name="cat" value="update" />
-                <input type="hidden" name="id" id="id" value="{$smarty.get.id|escape:"html"}" />
+                <input type="hidden" name="id" id="id" value="{$smarty.get.id}" />
               {else}
                 <input type="hidden" name="cat" value="new" />
               {/if}
@@ -157,7 +157,7 @@
           <form id="journal_search_form" method="get" action="{$smarty.server.PHP_SELF}">              
           <div>
             <input type="hidden" name="cat" value="search" />
-            <input type="hidden" name="id" value="{$smarty.get.id|escape:"html"}" />
+            <input type="hidden" name="id" value="{$smarty.get.id}" />
           </div>
 
             <table style="width: 100%" cellspacing="0" cellpadding="0">

@@ -97,7 +97,7 @@
                   <b>Title:</b>
                 </td>
                 <td style="background: {$light_color}">
-                  <input type="text" name="title" size="40" class="default" value="{$info.nws_title|escape:"html"}" />
+                  <input type="text" name="title" size="40" class="default" value="{$info.nws_title}" />
                   {include file="error_icon.tpl.html" field="title"}
                 </td>
               </tr>
@@ -106,7 +106,7 @@
                   <b>Message:</b><br/> (Note that you can use HTML syntax here eg for links, line breaks)
                 </td>
                 <td style="background: {$light_color}">
-                  <textarea name="message" cols="70" rows="10" class="default">{$info.nws_message|escape:"html"}</textarea>
+                  <textarea name="message" cols="70" rows="10" class="default">{$info.nws_message}</textarea>
                   {include file="error_icon.tpl.html" field="message"}
                 </td>
               </tr>
@@ -173,10 +173,10 @@
                         &nbsp;<a class="link" href="{$smarty.server.PHP_SELF}?cat=edit&amp;id={$list[i].nws_id}" title="update this entry">{$list[i].nws_title}</a>
                       </td>
                       <td style="width: 15%; background: {$row_color}" class="default">
-                        &nbsp;{if ($list[i].nws_status == 'active')}<span class="enabled">{else}<span class="disabled">{/if}{$list[i].nws_status|escape:"html"}</span>
+                        &nbsp;{if ($list[i].nws_status == 'active')}<span class="enabled">{else}<span class="disabled">{/if}{$list[i].nws_status}</span>
                       </td>
                       <td style="width: 15%; background: {$row_color}" class="default">
-                        &nbsp;{$list[i].usr_full_name|escape:"html"}
+                        &nbsp;{$list[i].usr_full_name}
                       </td>
                       <td style="width: 15%; background: {$row_color}" class="default">
                         &nbsp;{$list[i].nws_created_date}

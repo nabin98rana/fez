@@ -4,7 +4,7 @@
             <div>
               {if $smarty.get.cat == 'edit'}
                 <input type="hidden" name="cat" value="update" />
-                <input type="hidden" name="id" id="id" value="{$smarty.get.id|escape:"html"}" />
+                <input type="hidden" name="id" id="id" value="{$smarty.get.id}" />
               {else}
                 <input type="hidden" name="cat" value="new" />
               {/if}

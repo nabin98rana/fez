@@ -108,6 +108,11 @@ class Template_API
 	 */
 	function setTemplate($tpl_name)
 	{
+
+        if($tpl_name == "manage/index.tpl.html") {
+            $this->smarty->default_modifiers = array('escape:"html"');
+        }
+
 		$_curr_path = $this->smarty->template_dir;
         if (isset($this->smarty->custom_view_dir)) {
             $_fullpath = $_curr_path . "/". $this->smarty->custom_view_dir. "/" .  $tpl_name;

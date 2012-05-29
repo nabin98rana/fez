@@ -118,7 +118,7 @@ if ((@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'] != "" || @$_S
 	}
 	
 	if (!Auth::isCorrectPassword($_POST["username"], $_POST["passwd"])) {
-		Auth::redirect(APP_RELATIVE_URL . "login.php?err=3&username=" . $_POST["username"]);
+        Auth::redirect(APP_RELATIVE_URL . "login.php?err=3&username=" . $_POST["username"].'&url='.base64_encode($_POST["url"]));
 	}
 	
     $loginres = Auth::LoginAuthenticatedUser($_POST["username"], $_POST["passwd"], false, $masquerade);

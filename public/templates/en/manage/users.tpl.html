@@ -299,7 +299,7 @@
                   var active_users = new Array();
                   {section name="i" loop=$list}
                   {if $list[i].usr_status == 'active'}
-                  active_users[{$smarty.section.i.index}] = '{$list[i].usr_email|escape:"html"}';
+                  active_users[{$smarty.section.i.index}] = '{$list[i].usr_email}';
                   {/if}
                   {/section}
                   var page_url = '{$smarty.server.PHP_SELF}';

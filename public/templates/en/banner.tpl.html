@@ -52,7 +52,7 @@
                     <a href="{$rel_url}logout.php" class="logout-btn"><span class="login-btn-text">LOGOUT</span><span class="login-btn-right"></span></a>
 
                     {* Logged-in message *}
-                    <span class="logged-in-msg">You are logged in as <b>{$current_full_name}</b></span>
+                    <span class="logged-in-msg">You are logged in as <b>{$current_full_name|escape:'html'}</b></span>
 
                 </div>
             {else}

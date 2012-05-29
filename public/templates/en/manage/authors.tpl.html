@@ -98,7 +98,7 @@
                       return false;
                     }
 
-                    var aut_id = '{/literal}{$smarty.get.id|escape:"html"}{literal}';
+                    var aut_id = '{/literal}{$smarty.get.id}{literal}';
                     var rid_alt_email = dojo.byId(rid_register_alt_email).value;
                                                             
                     dojo.byId(rid_container_id).innerHTML = 'Registering, please wait..';
@@ -147,7 +147,7 @@
                         return false;
                       }
                       var aut_rid_id = '{/literal}{$info.aut_researcher_id}{literal}';
-                      var aut_id = '{/literal}{$smarty.get.id|escape:"html"}{literal}';
+                      var aut_id = '{/literal}{$smarty.get.id}{literal}';
                       dojo.byId(rid_container_id).innerHTML = aut_rid_id + ' - Starting upload, please wait..';
                       var rid_u = rid_server.upload(aut_id);
                        
@@ -193,7 +193,7 @@
             <div>
               {if $smarty.get.cat == 'edit'}
                 <input type="hidden" name="cat" value="update" />
-                <input type="hidden" name="id" id="id" value="{$smarty.get.id|escape:"html"}" />
+                <input type="hidden" name="id" id="id" value="{$smarty.get.id}" />
               {else}
                 <input type="hidden" name="cat" value="new" />
               {/if}
@@ -474,7 +474,7 @@
           <form id="author_search_form" method="get" action="{$smarty.server.PHP_SELF}">              
           <div>
             <input type="hidden" name="cat" value="search" />
-            <input type="hidden" name="id" value="{$smarty.get.id|escape:"html"}" />
+            <input type="hidden" name="id" value="{$smarty.get.id}" />
           </div>
 
             <table style="width: 100%" cellspacing="0" cellpadding="0">

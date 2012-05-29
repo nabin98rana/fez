@@ -59,7 +59,7 @@
 		                  {if $subject_breadcrumb[b].org_image_filename != ""}
 						    <img style="vertical-align: middle;" src="{$rel_url}images/{$subject_breadcrumb[b].org_image_filename}" alt="" />
 						  {/if}
-                          {if $max_subject_breadcrumb != $smarty.section.b.index}<a href='orgstructure.php?parent_id={$subject_breadcrumb[b].org_id}'>{/if}{$subject_breadcrumb[b].org_title|escape:"html"}{if $max_subject_breadcrumb != $smarty.section.b.index}</a>{/if}
+                          {if $max_subject_breadcrumb != $smarty.section.b.index}<a href='orgstructure.php?parent_id={$subject_breadcrumb[b].org_id}'>{/if}{$subject_breadcrumb[b].org_title}{if $max_subject_breadcrumb != $smarty.section.b.index}</a>{/if}
  						  {assign var="org_id" value=$subject_breadcrumb[b].org_id}
 						  {if $subject_count[$org_id]}({$subject_count[$org_id]}){else}{/if}{if $max_subject_breadcrumb != $smarty.section.b.index}->{else}:{/if}					
 					  {/section}
