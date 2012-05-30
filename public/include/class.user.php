@@ -655,7 +655,7 @@ class User
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-    $full_name = preg_replace("/[^a-zA-Z0-9 ]/", "", $_POST["full_name"]);
+        $full_name = preg_replace("/[^a-zA-Z0-9 ,.'-]/", "", $_POST["full_name"]);
 
       $stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "user
