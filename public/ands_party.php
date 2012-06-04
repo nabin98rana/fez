@@ -40,7 +40,7 @@ include_once(APP_INC_PATH . "class.db_api.php");
 
 //initialise and set template file
 $tpl = new Template_API();
-$tpl_file = "ands_party.tpl.html";	
+$tpl_file = "ands_party.tpl.html";
 $tpl->setTemplate($tpl_file);
 
 $data_collection_xdis_id = XSD_Display::getXDIS_IDByTitle("Data Collection");
@@ -54,10 +54,10 @@ $db = DB_API::get();
 $stmt = "SELECT aut_id,
 				aut_lname,
 				aut_mname,
-				aut_fname, 
-				aut_title, 
-				aut_org_username, 
-				aut_homepage_link, 
+				aut_fname,
+				aut_title,
+				aut_org_username,
+				aut_homepage_link,
 				aut_scopus_id,
 				aut_people_australia_id,
 				aut_researcher_id,
@@ -70,17 +70,17 @@ $stmt = "SELECT aut_id,
 
 			UNION
 
-		SELECT aut_id, 
-				aut_lname, 
-				aut_mname, 
-				aut_fname, 
-				aut_title, 
-				aut_org_username, 
-				aut_homepage_link, 
+		SELECT aut_id,
+				aut_lname,
+				aut_mname,
+				aut_fname,
+				aut_title,
+				aut_org_username,
+				aut_homepage_link,
 				aut_scopus_id,
 				aut_people_australia_id,
 				aut_researcher_id,
-				aut_description,	
+				aut_description,
 				aut_update_date
 		FROM " . APP_TABLE_PREFIX . "author as t1
 		LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_contributor_id as t6 on t6.rek_contributor_id = t1.aut_id
@@ -88,7 +88,7 @@ $stmt = "SELECT aut_id,
 		WHERE t7.rek_display_type=" . $data_collection_xdis_id . "
 
 		ORDER BY aut_id";
-	
+
 try {
 		$result = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 }
@@ -100,51 +100,48 @@ catch(Exception $ex) {
 $list = $result;
 
 //grab FOR codes for all authorIDs that have a Data Collection record
-$stmt2 = "SELECT DISTINCT rek_author_id AS aut_id, rek_fields_of_research 
+$stmt2 = "SELECT DISTINCT rek_author_id AS aut_id, rek_fields_of_research
 			FROM " . APP_TABLE_PREFIX . "record_search_key_fields_of_research, " . APP_TABLE_PREFIX . "record_search_key_author_id
 			WHERE rek_fields_of_research_pid = rek_author_id_pid AND
 				rek_author_id > 0 AND
-				rek_fields_of_research_pid IN(SELECT DISTINCT rek_pid 
-				FROM " . APP_TABLE_PREFIX . "record_search_key, " . APP_TABLE_PREFIX . "record_search_key_author_id 
+				rek_fields_of_research_pid IN(SELECT DISTINCT rek_pid
+				FROM " . APP_TABLE_PREFIX . "record_search_key, " . APP_TABLE_PREFIX . "record_search_key_author_id
 				WHERE rek_author_id_pid = rek_pid
-				AND rek_display_type= " . $data_collection_xdis_id . ") 
+				AND rek_display_type= " . $data_collection_xdis_id . ")
 			ORDER BY rek_author_id, rek_fields_of_research";
-			
+
 try {
 		$result2 = $db->fetchAll($stmt2, array(), Zend_Db::FETCH_ASSOC);
 }
 catch(Exception $ex) {
 	$log->err($ex);
 	return array();
-}	
+}
 
-$list2 = $result2;		
+$list2 = $result2;
 
 //merge $list2 into $list
 $k = 0;
-for ($i=0;$i<count($list);$i++) { 
+for ($i=0;$i<count($list);$i++) {
 $new = 0; //initialise for each new author
-	for ($j=0;$j<count($list2);$j++) { 
+	for ($j=0;$j<count($list2);$j++) {
 		if ($list[$i]['aut_id'] == $list2[$j]['aut_id']) {
 			if ($new == $list2[$j]['aut_id']) {
 				$k++;
 				$list[$i]['rek_fields_of_research'][$k] = trim($list2[$j]['rek_fields_of_research']);
 				$new = 0;
 			}
-			else {	
+			else {
 				$list[$i]['rek_fields_of_research'][0] = trim($list2[$j]['rek_fields_of_research']);
 				$k = 0;
 				$new = $list[$i]['aut_id'];
-			}	
+			}
 		}
-	}		
-}	
-	
+	}
+}
+
 $tpl->assign("list", $list);
 $tpl->assign("app_hostname", APP_HOSTNAME);
 
 header("Content-type: text/xml");
 $tpl->displayTemplate();
-
-//close connection
-mysql_close($conn);
