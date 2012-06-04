@@ -116,7 +116,8 @@ if ($access_ok) {
 		$tpl->assign('current', $list_keyed[$_REQUEST['af_id']]);
 		$tpl->assign('action', 'edit');
 	}
-	
+    $tpl->assign("title", $record->getTitle());
+    $tpl->assign('pid', $pid);
     $tpl->assign('autOrgUnitCount', $autOrgUnitCount);
 	$tpl->assign(compact('list','authors','author_ids','wf_id', 'problem_list'));
 	
