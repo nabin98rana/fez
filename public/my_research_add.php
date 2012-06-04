@@ -77,7 +77,7 @@ $tpl->assign("childXDisplayOptions", Record::getSearchKeyIndexValue(APP_MY_RESEA
 $tpl->assign("acting_user", $actingUserArray);
 $tpl->assign("actual_user", $username);
 
-if (MyResearch::getHRorgUnit($username) == "") {
+if (MyResearch::getHRorgUnit($username) == "" && !$isUPO) {
 	$tpl->assign("non_hr", true); // This will cause a bail-out in template land
 }
 
