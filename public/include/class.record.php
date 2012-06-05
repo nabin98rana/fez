@@ -78,6 +78,7 @@ include_once(APP_INC_PATH . "class.record_general.php");
 include_once(APP_INC_PATH . "class.validation.php");
 include_once(APP_INC_PATH . "class.links_amr_queue.php");
 include_once(APP_INC_PATH . "class.internal_notes.php");
+include_once(APP_INC_PATH . "class.shadow.php");
 
 define('SK_JOIN', 0);
 define('SK_LEFT_JOIN', 1);
@@ -982,13 +983,18 @@ class Record
    * @param   bool $remove_solr should this record be also removed from solr (defaults to true)
    * @return  void
    */
-  function removeIndexRecord($pid, $remove_solr=true)
+  function removeIndexRecord($pid, $remove_solr=true, $shadow = false, $date='')
   {
     $log = FezLog::get();
     $db = DB_API::get();
 
     if (empty($pid)) {
-      return -1;
+        return -1;
+    }
+
+    if ($shadow) {
+        Zend_Registry::set('version', $date);
+        $recordSearchkeyShadow = new Fez_Record_SearchkeyShadow($pid);
     }
 
     // get list of the Related 1-M search keys, delete those first, then delete the 1-1 core table entries
@@ -997,6 +1003,9 @@ class Record
       // if is a 1-M needs its own delete sql, otherwise if a 0 (1-1) the core delete will do it
       if ($sval['sek_relationship'] == 1) {
         $sekTable = Search_Key::makeSQLTableName($sval['sek_title']);
+        if ($shadow) {
+            $recordSearchkeyShadow->copySearchKeyToShadow($sekTable);
+        }
         $stmt = "DELETE FROM
                         " . APP_TABLE_PREFIX . "record_search_key_".$sekTable."
              WHERE rek_".$sekTable."_pid = " . $db->quote($pid);
@@ -1009,6 +1018,9 @@ class Record
       }
     }
 
+    if ($shadow) {
+        $recordSearchkeyShadow->copyRecordSearchKeyToShadow();
+    }
     $stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "record_search_key
          WHERE rek_pid = " . $db->quote($pid);
@@ -1083,73 +1095,232 @@ class Record
     return $pid;
   }
 
+  
+  /**
+     * Returns the timestamp to be used on Shadow table(s) operations.
+     * When Fedora Bypass is turned on, utilise the timestamp registered on Zend Register from earlier process.
+     * 
+     * @param string | boolean $proposedTimestamp The timestamp desired by the calling function/method
+     * @return string 
+     */
+    public static function setSearchKeyTimestamp($proposedTimestamp = false)
+    {
+        if (!empty($proposedTimestamp)) {
+            $timestamp = $proposedTimestamp;
+        } else {
+            // Use earlier registered 'Version' variable to achieve uniform timestamp across all search keys updates.
+            if (APP_FEDORA_BYPASS == "ON") {
+                if (!Zend_Registry::isRegistered('version')) {
+                    Zend_Registry::set('version', date('Y-m-d H:i:s'));
+                }
+                $timestamp = Zend_Registry::get('version');
+            } else {
+                $timestamp = date('Y-m-d H:i:s');
+            }
+        }
+        return $timestamp;
+    }
 
+  /**
+     * Update the search key values on Shadow tables, 
+     * by doing snapshot of the search key(s) on main table(s) and adding timestamp for version control. 
+     * Snapshot covers the search key with / without individual search key shadow table.
+     * 
+     * @param string $pid Targetted PID
+     * @param array $sekData Array of search key names & values pair
+     * @return boolean The result of the update. True if successful, false otherwise.
+     * 
+     * @todo:
+     *  - Add Boolean param on whether to snapshot all search keys for a PID.
+     *  - Add Array param on the search key(s) to be snapshot, if snapshot is on specific search key(s).
+     *  - Compare the proposed value with the value on the database. 
+     *    - If value is the same, only update the timestamp
+     *    - If value is different, insert new row on shadow table(s).
+     */
+    public function updateSearchKeysShadow($pid, $all = true, $searchkeys = array())
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        /* Snapshot Search Key with One to One Cardinality */
+        $fields = array();
+        $values = array();
+
+        $stmtSelect = "SELECT * FROM " . APP_TABLE_PREFIX . "record_search_key ".
+                      " WHERE rek_pid = " . $db->quote($pid, STRING);
+        try {
+            $oneToOneSearchKey = $db->fetchRow($stmtSelect);
+        }
+        catch (Exception $ex) {
+            $log->err($ex);
+            $oneToOneSearchKey = array();
+        }
+
+        foreach ($oneToOneSearchKey as $key => $value) {
+            $fields[] = $key;
+            $values[] = $db->quote($value);
+        }
+
+        // Timestamp
+        $fields[] = "rek_stamp";
+        if (!Zend_Registry::isRegistered('version')) {
+            Zend_Registry::set('version', date('Y-m-d H:i:s'));
+        }
+        $values[] = $db->quote(Record::setSearchKeyTimestamp());
+
+        $stmtInsert = "INSERT INTO " . APP_TABLE_PREFIX . "record_search_key__shadow (" . implode(",", $fields) . ") " .
+                " VALUES (" . implode(",", $values) . ")";
+        try {
+            $db->query($stmtInsert);
+        }
+        catch (Exception $ex) {
+            $log->err($ex);
+        }
+        /* End of: One to One Cardinality */
+
+
+
+        /* Snapshot Search Key with One to Many Cardinality */
+        $searchKeys = Search_Key::getList(false);
+
+        $searchKeysTables = array();
+        foreach ($searchKeys as $sek) {
+            if ($sek['sek_relationship'] == 1 && (!empty($sek['sek_title_db']) || !is_null($sek['sek_title_db']))) {
+                $searchKeysTables[] = $sek['sek_title_db'];
+            }
+        }
+
+        // Build the query for individual search key tables
+        $stmtsSelect = array();
+        foreach ($searchKeysTables as $skTable) {
+            $oneToManySearchkey = array();
+            $fields = array();
+            $values = array();
+            $stmtInsert = "";
+
+            $tableName = APP_TABLE_PREFIX . "record_search_key_" . $skTable;
+
+            $stmtSelect = "SELECT * FROM " . $tableName . " WHERE rek_" . $skTable . "_pid = " . $db->quote($pid);
+            $stmtsSelect[] = $stmtSelect;
+
+            try {
+                $oneToManySearchkey = $db->fetchRow($stmtSelect);
+            }
+            catch (Exception $ex) {
+                $log->err($ex);
+                $oneToManySearchkey = array();
+            }
+
+            // Ignore if no row returned.
+            if (!is_array($oneToManySearchkey) || sizeof($oneToManySearchkey) <= 0) {
+                continue;
+            }
+
+            foreach ($oneToManySearchkey as $key => $value) {
+                $fields[] = $key;
+                $values[] = $db->quote($value);
+            }
+
+            // Timestamp
+            $fields[] = "rek_" . $skTable . "_stamp";
+            $values[] = $db->quote(Record::setSearchKeyTimestamp());
+
+            // Insert snapshot to shadow table
+            $stmtInsert = "INSERT INTO " . $tableName . "__shadow (" . implode(",", $fields) . ") " .
+                    " VALUES (" . implode(",", $values) . ")";
+
+            try {
+                $db->query($stmtInsert);
+            }
+            catch (Exception $ex) {
+                $log->err($ex);
+            }
+        }
+
+        /* End of: One to Many Cardinality */
+    }
+  
+  
+  /**
+   * Updates a PID's search keys values. 
+   * When specified, update the search key shadow table.
+   * 
+   * @param string $pid Targetted PID
+   * @param array $sekData Array of search key names & values pair. 
+   * The format value for $sekData = array( 
+   *                                       [0] => Array of 1-to-1 search keys 
+   *                                       [1] => Array of 1-to-Many search keys 
+   *                                 )
+   * @param boolean $shadow Indication on whether to update shadow table.
+   * @param boolean $updateTS Record update timestamp
+   * @return boolean The result of the update. True if successful, false otherwise.
+   */
   function updateSearchKeys($pid, $sekData, $shadow = false, $updateTS = false)
-
-
   {
     $log = FezLog::get();
     $db = DB_API::get();
     
     $ret = true;
-    $now = ($updateTS) ? $updateTS : date('Y-m-d H:i:s'); // Database friendly datetime, for use in all shadow operations below.
+    // Get the timestamp to be used for shadow tables.
+    $now = Record::setSearchKeyTimestamp($updateTS);
 
     /*
      *  Update 1-to-1 search keys
      */
     $stmt[] = 'rek_pid';
     $valuesIns[] = $db->quote($pid);
-    foreach ($sekData[0] as $sek_column => $sek_value) {
-      $stmt[] = "rek_{$sek_column}, rek_{$sek_column}_xsdmf_id";
+    if (is_array($sekData[0])) {
+        foreach ($sekData[0] as $sek_column => $sek_value) {
+          $stmt[] = "rek_{$sek_column}, rek_{$sek_column}_xsdmf_id";
 
-      if ($sek_value['xsdmf_value'] == 'NULL') {
-        $xsdmf_value = $sek_value['xsdmf_value'];
-      } else {
-        $sek_value['xsdmf_value'] = (is_array($sek_value['xsdmf_value']) && array_key_exists('Year', $sek_value['xsdmf_value']))
-            ? $sek_value['xsdmf_value']['Year'] : $sek_value['xsdmf_value'];
-        $xsdmf_value = $db->quote(trim($sek_value['xsdmf_value']));
-      }
+          if ($sek_value['xsdmf_value'] == 'NULL') {
+            $xsdmf_value = $sek_value['xsdmf_value'];
+          } else {
+            $sek_value['xsdmf_value'] = (is_array($sek_value['xsdmf_value']) && array_key_exists('Year', $sek_value['xsdmf_value']))
+                ? $sek_value['xsdmf_value']['Year'] : $sek_value['xsdmf_value'];
+            $xsdmf_value = $db->quote(trim($sek_value['xsdmf_value']));
+          }
 
-      $valuesIns[] = "$xsdmf_value, {$sek_value['xsdmf_id']}";
-      $valuesUpd[] = "rek_{$sek_column} = $xsdmf_value, rek_{$sek_column}_xsdmf_id = {$sek_value['xsdmf_id']}";
-    }
+          $valuesIns[] = "$xsdmf_value, {$sek_value['xsdmf_id']}";
+          $valuesUpd[] = "rek_{$sek_column} = $xsdmf_value, rek_{$sek_column}_xsdmf_id = {$sek_value['xsdmf_id']}";
+        }
 
-    $table = APP_TABLE_PREFIX . "record_search_key";
-    if ($shadow) {
-      $table .= "__shadow";
-    }
-      
-    $stmtIns = "INSERT INTO " . $table . " (" . implode(",", $stmt);
-    if ($shadow) {
-      $stmtIns .= ", rek_stamp";
-    }
-    $stmtIns .= ") ";
-    $stmtIns .= " VALUES (" . implode(",", $valuesIns);
-    if ($shadow) {
-      $stmtIns .= ", " . $db->quote($now);
-    }
-    $stmtIns .= ")"; 
-		$db->beginTransaction();      
-    if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
-      $stmt = $stmtIns ." ON DUPLICATE KEY UPDATE " . implode(",", $valuesUpd);
-    } else {
-      if (!$shadow) {
-        $stmt = "DELETE FROM " . $table . "WHERE rek_pid = " . $db->quote($pid);
-        $db->exec($stmt);
-      }
-			$stmt = $stmtIns;
-    }
-    
-    try {
-      $db->exec($stmt);
-			$db->commit();
-    }
-    catch(Exception $ex) {
-			$db->rollBack();
-      $log->err($ex);
-      $ret = false;
-    }
+        $table = APP_TABLE_PREFIX . "record_search_key";
+        if ($shadow) {
+          $table .= "__shadow";
+        }
 
+        $stmtIns = "INSERT INTO " . $table . " (" . implode(",", $stmt);
+        if ($shadow) {
+          $stmtIns .= ", rek_stamp";
+        }
+        $stmtIns .= ") ";
+        $stmtIns .= " VALUES (" . implode(",", $valuesIns);
+        if ($shadow) {
+          $stmtIns .= ", " . $db->quote($now);
+        }
+        $stmtIns .= ")";
+            $db->beginTransaction();
+        if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
+          $stmt = $stmtIns ." ON DUPLICATE KEY UPDATE " . implode(",", $valuesUpd);
+        } else {
+          if (!$shadow) {
+            $stmt = "DELETE FROM " . $table . "WHERE rek_pid = " . $db->quote($pid);
+            $db->exec($stmt);
+          }
+                $stmt = $stmtIns;
+        }
+
+        try {
+          $db->exec($stmt);
+                $db->commit();
+        }
+        catch(Exception $ex) {
+                $db->rollBack();
+          $log->err($ex);
+          $ret = false;
+        }
+    }
     /*
      *  Update 1-to-Many search keys
      */
@@ -1351,28 +1522,9 @@ class Record
     // Load up the record, extract the bits we need to determine the provisional HERDC code.
     $record = new RecordGeneral($pid);
     $docType = $record->getDocumentType();
-    $subType = $record->getFieldValueBySearchKey("Subtype");
-
-    if (array_key_exists(0, $subType)) {
-        $subType = $subType[0];
-    } else {
-        $subType = null;
-    }
-
-    $genreType = $record->getFieldValueBySearchKey("Genre Type");
-    if (isset($genreType) && array_key_exists(0, $genreType)) {
-      $genreType = $genreType[0];
-    } else {
-      $genreType = null;
-    }
-
-    $existingHERDCcode = $record->getFieldValueBySearchKey("HERDC code");
-    if (isset($existingHERDCcode) && array_key_exists(0, $existingHERDCcode)) {
-        $existingHERDCcode = $existingHERDCcode[0];
-    } else {
-        $existingHERDCcode = null;
-    }
-
+    $subType = Record::getSearchKeyIndexValue($pid, "Subtype");
+    $genreType = Record::getSearchKeyIndexValue($pid, "Genre Type");
+    $existingHERDCcode = Record::getSearchKeyIndexValue($pid, "HERDC code");
     $provHERDCcode = "";
     
     // Bail out if we already have a HERDC code
@@ -1562,10 +1714,39 @@ class Record
    * Method used to get the FezACML datastream XML content of the record
    *
    * @access  public
+   * @package fedora
    * @param   string $pid The persistent identifier of the object
    * @param   string $dsID (optional) The datastream ID
    * @param   string $createdDT (optional) Fedora timestamp of version to retrieve
    * @return  domdocument $xmldoc A Dom Document of the XML or false if not found
+   * 
+   * 
+   * @uses
+   *   - FezACML->getUsersByRolePidAssoc();
+   *       called by workflow/edit_user_view.php
+   *       used by "Manage Thesis Assessor Access" workflow.
+   * 
+   *   - #migrate_fedora_managedcontent_to_fezCAS.php
+   *     Since this is migrating from Fedora system, we can ignore it.
+   * 
+   *   - #Auth->getAuthorisationGroups();
+   *      These 3 calls are from Fedora codebase, so this can be ignored.
+   * 
+   *   - #Auth->getAuth();
+   *     3 calls from this method.
+   *     Auth->getAuth is called by AuthIndex->setIndexAuthBGP(), 
+   *       called by BackgroundProcess_Index_Auth->run(),
+   *       called by AuthIndex->setIndexAuth(),
+   *       called by workflow/regenerate_auth_index.php
+   *       used by "Regenerate Auth Index" workflow
+   *         Workflow description: 
+   *         "Regenerates the Auth Index for a selected Object or for the whole repository if no record is selected.  
+   *         This does not make changes to the fedora repository."
+   *     Since this is method is traced to workflow that only used on Fedora system, we can ignore this.
+   * 
+   *   - #Auth->getParentACMLs();
+   *     The calls that need attention are from Auth->getAuth(); (can ignored, see above point).
+   * 
    */
   function getACML($pid, $dsID="", $createdDT=null)
   {
@@ -1634,6 +1815,9 @@ class Record
    * @param   string $xdis_id  The XSD Display ID of the object
    * @param   string $createdDT (optional) Fedora timestamp of version to retrieve
    * @return  array $xsdmf_array The details for the XML object against its XSD Matching Field IDs
+   * @uses Search found no results on the usage of this method.
+   *   Most record details calls are referring to RecordObject->getDetails();
+   * 
    */
   function getDetails($pid, $xdis_id, $createdDT=null)
   {
@@ -1815,13 +1999,13 @@ class Record
       $options, $approved_roles=array(9,10), $current_page=0,$page_rows="ALL", $sort_by="Title", 
       $getSimple=false, $citationCache=false, $filter=array(), $operator='AND', $use_faceting = false, 
       $use_highlighting = false, $doExactMatch = false, $facet_limit = APP_SOLR_FACET_LIMIT, 
-      $facet_mincount = APP_SOLR_FACET_MINCOUNT, $getAuthorMatching = false, $versionDate=null
+      $facet_mincount = APP_SOLR_FACET_MINCOUNT, $getAuthorMatching = false, $versionDate=null, $forceLocal = false
   )
   {
     $log = FezLog::get();
     $db = DB_API::get();
 
-    if (APP_SOLR_SWITCH == "ON" ) {
+    if (APP_SOLR_SWITCH == "ON" && $forceLocal == false) {
       return Record::getSearchListing(
           $options, $approved_roles, $current_page, $page_rows, $sort_by, $getSimple, 
           $citationCache, $filter, $operator, $use_faceting, $use_highlighting, $doExactMatch, 
@@ -1911,7 +2095,7 @@ class Record
       catch(Exception $ex) {
         $log->err($ex." stmt = $stmt, page_rows = $page_rows, start = $start");
       }
-      
+
       try {
         $res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
       }
@@ -2402,7 +2586,7 @@ class Record
         }
         // now populate the $result variable again
         for ($i = 0; $i < count($result); $i++) {
-          if (array_key_exists("rek_".$sek_sql_title, $result[$i])) {
+//          if (array_key_exists("rek_".$sek_sql_title, $result[$i])) {
               if (!is_array($result[$i]["rek_".$sek_sql_title]) && ($sekData['sek_cardinality'] == 1)) {
                 $result[$i]["rek_".$sek_sql_title] = array();
               }
@@ -2413,7 +2597,7 @@ class Record
                 $result[$i]["rek_".$sek_sql_title."_lookup"] = $p[$result[$i]["rek_pid"]]["rek_".$sek_sql_title."_lookup"];
               }
           }
-        }
+//        }
       }
     }
   }
@@ -3432,15 +3616,17 @@ class Record
     }
 
     if ($sek_details['sek_relationship'] == 1) { //1-M so will return an array
+      $order = ($sek_details['sek_cardinality'] == 1) ? " ORDER BY rek_".$sek_title."_order" : '';
       $log->debug('1-M will return array');
       $stmt = "SELECT
                     rek_".$sek_title."
                  FROM
                     " . $dbtp . "record_search_key_".$sek_title."
                  WHERE
-                    rek_".$sek_title."_pid = ".$db->quote($pid);
+                    rek_".$sek_title."_pid = ".$db->quote($pid).
+                  $order;
       try {
-        $res = $db->fetchCol($stmt);
+          $res = ($sek_details['sek_cardinality'] == 1) ? $db->fetchCol($stmt) : $db->fetchOne($stmt);
       }
       catch(Exception $ex) {
         $log->err($ex);
@@ -3485,6 +3671,99 @@ class Record
 
   }
 
+//param $previousToDate will return the version previous
+function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $sek_details='', $previousToDate='')
+{
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+
+    if (!is_array($sek_details)) {
+        $sek_details = Search_Key::getBasicDetailsByTitle($searchKeyTitle);
+    }
+    $sek_title = Search_Key::makeSQLTableName($sek_details['sek_title']);
+    if (empty($sek_title)) {
+        $log->err("No search key found: '{$sek_details['sek_title']}'");
+        return false;
+    }
+
+    if ($sek_details['sek_relationship'] == 1) { //1-M so will return an array
+        $dateOfVersion = ($previousToDate) ? " AND rek_".$sek_title."_stamp <= ".$db->quote($previousToDate) : "";
+        $order = ($sek_details['sek_cardinality'] == 1) ? " ORDER BY rek_".$sek_title."_order" : '';
+        $log->debug('1-M will return array');
+        $stmt = "SELECT
+                rek_".$sek_title."_stamp
+             FROM
+                " . APP_TABLE_PREFIX . "record_search_key_".$sek_title."__shadow
+             WHERE
+                rek_".$sek_title."_pid = ".$db->quote($pid).
+                $dateOfVersion . "
+             ORDER BY rek_".$sek_title."_stamp DESC";
+        try {
+            $res = $db->fetchOne($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+
+        $stamp = $res;
+
+        $stmt = "SELECT
+                rek_".$sek_title."
+             FROM
+                " . APP_TABLE_PREFIX . "record_search_key_".$sek_title."__shadow
+             WHERE
+                rek_".$sek_title."_pid = ".$db->quote($pid)."
+             AND rek_".$sek_title."_stamp = ".$db->quote($stamp).
+             $order;
+        try {
+            $res = ($sek_details['sek_cardinality'] == 1) ? $db->fetchCol($stmt) : $db->fetchOne($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+
+        if ($getLookup == true && $sek_details['sek_lookup_function'] != "") {
+            $temp = array();
+            foreach ($res as $rkey => $rdata) {
+                eval("\$temp_value = ".$sek_details["sek_lookup_function"]."(".$rdata.");");
+                $temp[$rdata] = $temp_value;
+            }
+            $res = $temp;
+        }
+        return $res;
+
+    } else { //1-1 so will return single value
+        $dateOfVersion = ($previousToDate) ? " AND rek_stamp <= ".$db->quote($previousToDate) : "";
+
+        $stmt = "SELECT
+                rek_".$sek_title."
+             FROM
+                " . APP_TABLE_PREFIX . "record_search_key__shadow
+             WHERE
+                rek_pid = ".$db->quote($pid).
+                $dateOfVersion. "
+             ORDER BY rek_stamp DESC" ;
+        try {
+            $res = $db->fetchOne($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+
+        if ($getLookup == true && $sek_details['sek_lookup_function'] != "") {
+            $temp = array();
+            eval("\$temp_value = ".$sek_details["sek_lookup_function"]."(".$res.");");
+            $temp[$res] = $temp_value;
+            $res = $temp;
+        }
+        return $res;
+    }
+
+}
 
   function buildSearchKeyJoins($options, $sort_by, $operator, $filter)
   {
@@ -4382,6 +4661,7 @@ class Record
    * Inserts an object into Fedora using values in an array to build the Fedora XML
    *
    * @access  public
+   * @package fedora
    * @param   array $array The mods datastream array
    * @param 	string $rels_parent_pid The parent pid of the object
    * @param 	string $history (OPTIONAL) The history to add to the the object's Premis Event log
@@ -4390,6 +4670,10 @@ class Record
    * @param	array $premis (OPTIONAL) The premis datastream array
    * @return  void
    * @see foxml.tpl.html
+   * @uses
+   *   - WosRecItem->save(). On the Fedora version of save function
+   *   - MatchingRecords->add(). On the Fedora version of add function
+   * 
    */
   public static function insertFromArray(
       $mods, $rels_parent_pid, $version, $history = '', $times_cited = '', 
@@ -4496,9 +4780,13 @@ class Record
    * Inserts an object template into Fedora. Used in workflows.
    *
    * @access  public
-   * @param   string $pid The persistant identifier of the object
-   * @param   array $dsarray The array of datastreams
-   * @return  void
+   * @package ...
+   * @param string $pid The persistant identifier of the object
+   * @param int $xdis_id
+   * @param string $title
+   * @param array $dsarray The array of datastreams
+   * @return void
+   * @uses BatchImport->insert()
    */
   function insertFromTemplate($pid, $xdis_id, $title, $dsarray)
   {
@@ -4514,11 +4802,18 @@ class Record
    * Inserts an object xml into Fedora. Used in workflows.
    *
    * @access  public
+   * @package fedora
    * @param   string $pid The persistant identifier of the object
    * @param   array $dsarray The array of datastreams
+   *          $dsarray array:
+   *            'datastreamTitles' => Array of datastream titles used for proposed import record.
+   *            'xmlObj'           => String of XML
+   *            'indexArray'       => Empty Array 
+   *            'xdis_id'          => Int XSDisplay ID - from $_POST["xdis_id"]
    * @param   boolean $ingestObject Should we insert as a new object into fedora (false if updating an
    *                                exisitng object).
    * @return  void
+   * @uses Record::insertFromTemplate()
    */
   function insertXML($pid, $dsarray, $ingestObject)
   {
@@ -4770,6 +5065,13 @@ class Record
   }
 
   
+  /**
+   * @package fedora
+   * @param string $pid
+   * @param string $dsID 
+   * @uses AuthIndex->setIndexAuthBGP()
+   *   This method is traced to "Regenerate Auth Index" workflow which is only used on Fedora system.
+   */
   function checkQuickAuthFezACML($pid, $dsID)
   {
     $xmlObjNum = Record::getDatastreamQuickAuthTemplate($pid);
@@ -4894,8 +5196,14 @@ class Record
     }
   }
 
+  /**
+   * @package fedora & fedora_bypass
+   * @param string $pid
+   * @param string $dsIDName 
+   */
   function generatePresmd($pid, $dsIDName)
   {
+    if ( APP_FEDORA_BYPASS != "ON"){
     //Jhove
     $ncName = Foxml::makeNCName($dsIDName);
     $presmd_check = Workflow::checkForPresMD($ncName);
@@ -4914,8 +5222,9 @@ class Record
         unlink(APP_TEMP_DIR.basename($presmd_check));
       }
     }
+    }
+    
     //ExifTool
-
     Exiftool::saveExif($pid, $dsIDName);
   }
 
@@ -4927,7 +5236,9 @@ class Record
    * to the Fez premis_event table, so that the underlying object may be re-built from Fez.
    *
    * @access  public
+   * @package fedora
    * @param   $pid    The PID of the Fedora object we are processing.
+   * @uses Reindex->indexFezFedoraObjects()
    */
   function propagateExistingPremisDatastreamToFez($pid)
   {
@@ -5011,38 +5322,84 @@ class Record
 
   function isDeleted($pid)
   {
-
     if (APP_FEDORA_APIA_DIRECT == "ON") {
       $fda = new Fedora_Direct_Access();
       return $fda->isDeleted($pid);
     }
-    $res = Fedora_API::searchQuery('pid='.$pid, array('pid', 'state'));
-    if ($res[0]['state'] == 'D') {
-      return true;
+
+    if(APP_FEDORA_BYPASS == 'ON') {
+        $log = FezLog::get();
+        $db = DB_API::get();
+        $stmt = "SELECT rek_pid
+                 FROM " . APP_TABLE_PREFIX . "record_search_key
+                 WHERE rek_pid = " . $db->quote($pid);
+
+        try {
+            $res = $db->fetchOne($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+        if ($res == $pid) {
+            return false;
+        }
+        $stmt = "SELECT rek_pid
+                 FROM " . APP_TABLE_PREFIX . "record_search_key__shadow
+                 WHERE rek_pid = " . $db->quote($pid);
+
+        try {
+            $res = $db->fetchOne($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+        return ($res == $pid);
+
+    }  else {
+        $res = Fedora_API::searchQuery('pid='.$pid, array('pid', 'state'));
+        if ($res[0]['state'] == 'D') {
+          return true;
+        }
+        return false;
     }
-    return false;
   }
 
-  function markAsDeleted($pid)
+  function markAsDeleted($pid, $date ='')
   {
-    // tell fedora that the object is deleted.
-	$label = Record::getSearchKeyIndexValue($pid, "title", false);  // Get title of record. Sending a null label to callModifyObject deletes the object label in Fedora 3, which is used to display the title in the 'Undelete Fedora Objects' page
-    Fedora_API::callModifyObject($pid, 'D', $label);
-
+    if(APP_FEDORA_BYPASS != 'ON') {
+        // tell fedora that the object is deleted.
+	    $label = Record::getSearchKeyIndexValue($pid, "title", false);  // Get title of record. Sending a null label to callModifyObject deletes the object label in Fedora 3, which is used to display the title in the 'Undelete Fedora Objects' page
+        Fedora_API::callModifyObject($pid, 'D', $label);
+    }
     // delete it from the Fez index.
-    Record::removeIndexRecord($pid);
+    Record::removeIndexRecord($pid, true, true, $date);
   }
 
+  
+  /**
+   * Marks a record as undeleted.
+   * 
+   * @todo fedora_bypass version of undelete
+   * @package fedora & fedora_bypass
+   * @param string $pid
+   * @param boolean $do_index 
+   */
   function markAsActive($pid, $do_index = true)
   {
-    // tell fedora that the object is active.
-    Fedora_API::callModifyObject($pid, 'A', null);
+    if ( APP_FEDORA_BYPASS == "ON") {
+        $rec = new Fez_Record_SearchkeyShadow($pid);
+        $rec->undeleteRecord();
+    } else {
+      // tell fedora that the object is active.
+      Fedora_API::callModifyObject($pid, 'A', null);
 
-    if ($do_index) {
-      // add it to the Fez index.
-      Record::setIndexMatchingFields($pid);
+      if ($do_index) {
+        // add it to the Fez index.
+        Record::setIndexMatchingFields($pid);
+      }
     }
-
   }
   
   /**
@@ -5395,6 +5752,17 @@ function getSpeculativeHERDCcode($pid)
     }
 }
 
+/**
+ * This function is NOT part of Record class, might be code typo. 
+ * It is also not being called by any function.
+ * The closest we can find is: 
+ * BackgroundProcess_Bulk_Add_Handles->run() call a non-existing function RecordObject->addHandle();
+ * Conclusion, looks like this function is part of unfinished experiment.
+ * 
+ * @package unused. See function description.
+ * @param string $pid
+ * @return boolean 
+ */
 function addHandle($pid)
 {
   // set testrun to true if you don't want changes written to Fedora 

@@ -36,6 +36,7 @@ include_once(APP_INC_PATH . 'class.esti_search_service.php');
 include_once(APP_INC_PATH . 'class.links_amr_service.php');
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . 'class.wok_service.php');
+include_once(APP_INC_PATH . 'class.wos_record.php');
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.user.php");
 
@@ -57,6 +58,11 @@ if ('GET' == $_SERVER['REQUEST_METHOD']) {
 $server->handle();
 
 
+/**
+ * Class to handle records matching via WOK Web Service.
+ * 
+ * @package fedora & fedora_bypass
+ */
 class MatchingRecords
 {
     /**
@@ -75,7 +81,7 @@ class MatchingRecords
 		$db = DB_API::get();
 		
     	$matches = array();
-    	
+
         // Specify the Document Type & Database Edition on the search query parameter
         // API doc for Database Editions: http://science.thomsonreuters.com/tutorials/wsp_docs/soap/Guide/
         //$edition = "SCI";
@@ -223,11 +229,14 @@ class MatchingRecords
     		return '';
     	}
     }
-    
+
     /**
+     * Saves publication found on ISI WOS.
      * 
-     * @param $ut
-     * @return string
+     * @example enter_metadata.tpl.html -> Triggerred by "Add" button on Matching Records results on Journal Article titles.
+     * @package fedora & fedora_bypass
+     * @param string $ut 
+     * @return string PID of the newly added record
      */
     public function add($ut) 
     {
@@ -236,22 +245,30 @@ class MatchingRecords
 
 		$pid = '';
 		$collection = APP_ARTICLE_ADD_TO_COLLECTION;
-				
+        
 		if(Fedora_API::objectExists($collection)) {
+            
+            // Retrieve record from Wok web service
 	    	$records = EstiSearchService::retrieve($ut);
-			
+            
 			if($records) {
-				foreach($records->REC as $_record) {
-					
-					$mods = Misc::convertEstiRecordToMods($_record);
-					$times_cited = $_record->attributes()->timescited;
-	    			$pid = Record::insertFromArray($mods, $collection, 'MODS 1.0', 'Imported from WoS', $times_cited);
-				}
+                
+                if (APP_FEDORA_BYPASS == "ON"){
+                    
+                    $pid = $this->_addFedoraBypass($records);
+                    
+                } else {
+                    foreach($records->REC as $_record) {
+                        $mods = Misc::convertEstiRecordToMods($_record);
+                        $times_cited = $_record->attributes()->timescited;
+                        $pid = Record::insertFromArray($mods, $collection, 'MODS 1.0', 'Imported from WoS', $times_cited);
+                    }
+                }
 			}
 		}
 		return $pid;
     }
-    
+
     /**
      * Clean user query from invalid characters that may cause error on SOAP call.
      * 
@@ -273,4 +290,50 @@ class MatchingRecords
         return $userQuery;
     }
       
+    
+    /**
+     * Add a record retrieved from WOK Web Service to local database.
+     * It parses XML elements retrieved from WOK and saves it to record search keys as a new PID.
+     * 
+     * @package fedora_bypass
+     * @param SimpleXMLElement $records
+     * @return string PID of the newly saved record
+     */
+    protected function _addFedoraBypass($records)
+    {
+        // Param $record should only contain one publication.
+        // However we set $pid as array just in case, and implode the pid as string on the return.
+        $pid = array();
+        
+        // Revert SimpleXML object to string, then load it as DOMDocument, as expected by WosRecItem.
+        $xml = $records->asXML();
+        $doc = new DOMDocument();
+        $doc->loadXML($xml);
+        $xmlRecords = $doc->getElementsByTagName('REC');
+
+        foreach ($xmlRecords as $_record){
+            // Instantiate WosRecItem object with our DOMElement $_record
+            $rec = new WosRecItem($_record);
+
+            // Get collections
+            $wos_collection = trim(APP_WOS_COLLECTIONS, "'");
+            if (!defined('APP_WOS_COLLECTIONS') || trim(APP_WOS_COLLECTIONS) == "") {
+                $rec->collections = array(RID_DL_COLLECTION);
+            } else {
+                if ($aut_ids) {
+                    $rec->collections = array(RID_DL_COLLECTION);
+                } else {
+                    $rec->collections = array($wos_collection);
+                }
+            }        
+
+            $history = "Imported from WoS";
+            
+            // Save WosRecItem 
+            $pid[] = $rec->save($history);
+        }
+        
+        $pid = implode(",", $pid);
+        return $pid;
+    }
 }

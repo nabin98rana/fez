@@ -44,6 +44,31 @@
 
 class AuthRules 
 {
+    function getOrCreateRuleGroupArIds($ArIdGroup,$clearcache=false)
+    {
+        $db = DB_API::get();
+        $log = FezLog::get();
+
+        $ArIdGroupList = implode(",", array_filter($ArIdGroup));
+
+        if (empty($ArIdGroupList)) {
+            return false;
+        }
+
+        $dbtp = APP_TABLE_PREFIX;
+        $stmt="SELECT ar_rule as rule, ar_value as value
+               FROM ".$dbtp."auth_rules
+               WHERE ar_id IN (".$ArIdGroupList.")";
+        try {
+  			$res = $db->fetchAll($stmt);
+  		}
+  		catch(Exception $ex) {
+  			$log->err($ex);
+  			$res = null;
+  		}
+        return AuthRules::getOrCreateRuleGroup($res,$clearcache);
+    }
+
     function getOrCreateRuleGroup($group,$clearcache=false) 
     {
     	$log = FezLog::get();

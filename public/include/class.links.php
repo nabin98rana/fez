@@ -27,20 +27,47 @@
 // | 59 Temple Place - Suite 330                                          |
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
-// | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
-// |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>,                    |
-// |          Rhys Palmer <r.palmer@library.uq.edu.au>                    |
+// | Authors: Aaron Brown <a.brown@library.uq.edu.au>                     |
 // +----------------------------------------------------------------------+
+//
+//
+include_once(APP_INC_PATH . "class.error_handler.php");
 
 
-// set sta_id=2 for published
-$this->getRecordObject();
-$sta_id = Status::getID("Submitted for Approval");
-$this->rec_obj->setStatusId($sta_id);
-if (APP_FEDORA_BYPASS != "ON") {
-    $this->rec_obj->updateFezMD_User("usr_id", '');
+class Links
+{
+
+   /**
+ 	 * Get the complete list of links.
+ 	 */
+ 	function getLinks($pid)
+ 	{
+         if (empty($pid)) {
+             return false;
+         }
+ 		$log = FezLog::get();
+ 		$db = DB_API::get();
+
+ 		$stmt = "
+ 			SELECT
+ 			    rek_link, rek_link_description
+ 			FROM
+ 				" . APP_TABLE_PREFIX . "record_search_key_link INNER JOIN
+ 				" . APP_TABLE_PREFIX . "record_search_key_link_description
+ 		    ON rek_link_order = rek_link_description_order
+ 			WHERE
+ 			  rek_link_pid = ".$db->quote($pid)."
+ 			AND rek_link_description_pid = ".$db->quote($pid);
+ 		try {
+ 			$res = $db->fetchAll($stmt);
+ 		}
+ 		catch(Exception $ex) {
+ 			$log->err($ex);
+ 			return '';
+ 		}
+
+ 		return $res;
+ 	}
+
+
 }
-$this->rec_obj->releaseLock();
-$historyExtra = $this->getHistoryDetail();
-History::addHistory($this->rec_obj->getPid(), null, '', '', true, 'Submitted for Approval', $historyExtra);
-?>

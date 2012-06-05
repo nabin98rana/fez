@@ -117,18 +117,15 @@ if (($pid != -1) && (!empty($pid) || $pid == -2)) {
     
 	$tpl->assign("pid", $pid);
 	
-	$obExists = (APP_FEDORA_BYPASS == 'ON') 
-	        ? (Fedora_API::objectExists($pid) == $pid) 
-	        : (Fedora_API::objectExists($pid) == 1);
+	$obExists = Fedora_API::objectExists($pid);
     
     /*
      * If this is a proper pid ie. demo:1232 make sure it exists
      */
     if($pid != -1 && $pid != -2 && $obExists) {
-	    
-    	$record = new RecordObject($pid);
+       	$record = new RecordObject($pid);
         $tpl->assign("title", $record->getTitle());
-	    
+
 	    if ($record->canEdit()) {
 	        $tpl->assign("isEditor", 1);
 	        $xdis_id = $record->getXmlDisplayId();
@@ -197,8 +194,6 @@ if (empty($workflows)) {
 	} else {
 		$message = "Workflow trigger must be numeric";
 	}
-
-
 }
 
 $tpl->assign('message', $message);

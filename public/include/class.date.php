@@ -41,7 +41,7 @@
  * pages.
  *
  * @version 1.0
- * @author João Prado Maia <jpm@mysql.com>
+ * @author Joï¿½o Prado Maia <jpm@mysql.com>
  */
 
 // this line needed to make sure PEAR knows all Fez dates are stored as UTC (GMT).
@@ -245,16 +245,21 @@ class Date_API
 	 * @access  public
 	 * @param   string $timestamp The date timestamp to be formatted
 	 * @param   string $timezone The timezone name
+     * @param   boolean $dateIsUTC We assume the entered time is UTC else assume it's local
 	 * @return  string
 	 */
-	function getFormattedDate($timestamp, $timezone = FALSE)
+	function getFormattedDate($timestamp, $timezone = FALSE, $dateIsUTC = TRUE)
 	{
 		if ($timezone === FALSE) {
 			$timezone = Date_API::getPreferredTimezone();
 		}
 		$date = new Date($timestamp);
 		// now convert to another timezone and return the date
-		$date->convertTZById($timezone);
+		if ($dateIsUTC) {
+            $date->convertTZById($timezone);
+        }  else {
+            $date->setTZbyID($timezone);
+        }
 		return $date->format('%a, %d %b %Y, %H:%M:%S ') . $date->tz->getShortName();
 	}
 

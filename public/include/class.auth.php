@@ -49,6 +49,7 @@ include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.fedora_api.php");
 include_once(APP_INC_PATH . "class.date.php");
 include_once(APP_INC_PATH . "class.masquerade.php");
+include_once(APP_INC_PATH . "class.auth_no_fedora_datastreams.php");
 
 global $NonRestrictedRoles;
 $NonRestrictedRoles = array("Viewer","Lister","Comment_Viewer");
@@ -210,7 +211,7 @@ class Auth
 		}
 	}
 
-	function getRoleIDByTitle($title) 
+	function getRoleIDByTitle($title)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -666,7 +667,7 @@ class Auth
                                     } else {
                                         header ("Location: https://".APP_HOSTNAME.APP_RELATIVE_URL."view/".$pid);
                                     }
-                                    exit;
+									exit;
 				        		} else {
 				        			header('WWW-Authenticate: Basic realm="'.APP_HOSTNAME.'"');
 				    				header('HTTP/1.0 401 Unauthorized');
@@ -680,7 +681,7 @@ class Auth
 						$failed_url = base64_encode($failed_url);
 						Auth::redirect(APP_RELATIVE_URL . "login.php?err=21&url=".$failed_url, $is_popup);
 					}
-				}
+				}				
 			} else {
 				return false;
 			}
@@ -751,348 +752,351 @@ class Auth
 	 */
 	function getAuthorisationGroups($pid, $dsID="") 
 	{
-		$log = FezLog::get();
 
-		global $auth_isBGP, $auth_bgp_session;
-		if ($auth_isBGP) {
-			$session =& $auth_bgp_session;
-		} else {
-			session_name(APP_SESSION);
-			@session_start();
-			$session =& $_SESSION;
-		}
-		static $roles_cache;
-		$inherit = false;
-		if ($dsID != "") {
-			if (isset($roles_cache[$pid][$dsID])) {
-				return $roles_cache[$pid][$dsID];
-			}
-		} else {
-			if (isset($roles_cache[$pid])) {
-				return $roles_cache[$pid];
-			}
-		}
-		$userPIDAuthGroups = array();
-		// Usually everyone can list, view and view comments
-		global $NonRestrictedRoles;
-		$userPIDAuthGroups = $NonRestrictedRoles;
-		$usingDS = false;
-		$acmlBase = false;
-        $overridetmp = array();
-
-		if ($dsID != "") {
-			$usingDS = true;
-			$acmlBase = Record::getACML($pid, $dsID);
-		}
-
-		// if no FezACML exists for a datastream then it must inherit from the pid object
-		if ($acmlBase == false) {
-			$usingDS = false;
-			$acmlBase = Record::getACML($pid);
-		}
-		$ACMLArray = array();
-
-		// no FezACML was found for DS or PID object
-		// so go to parents straight away (inherit presumed)
-		if ($acmlBase == false) {
-			$parents = Record::getParents($pid);
-			Auth::getParentACMLs($ACMLArray, $parents);
-		} else { // otherwise found something so use that and check if need to inherit
-
-			$ACMLArray[0] = $acmlBase;
-
-			// Check if it inherits security
-			$xpath = new DOMXPath($acmlBase);
-			$anyRuleSearch = $xpath->query('/FezACML/rule/role/*[string-length(normalize-space()) > 0]');
-			if ($anyRuleSearch->length == 0) {
-
-				$inherit = true;
-
-			} else {
-				$inheritSearch = $xpath->query('/FezACML[inherit_security="on" or inherit_security=""]');
-
-				if( $inheritSearch->length > 0 ) {
-					$inherit = true;
-				}
-			}
-
-			if ($inherit == true) { // if need to inherit, check if at dsID level or not first and then
-
-        if ($dsID != '' && $acmlBase != false) {
-          $userPIDAuthGroups["security"] = "include";
+        if(APP_FEDORA_BYPASS == 'ON') {
+            $userPIDAuthGroups = AuthNoFedora::getAuthorisationGroups($pid, $dsID) ;
         } else {
-          $userPIDAuthGroups["security"] = "inherit";
-        }
+            $log = FezLog::get();
+
+            global $auth_isBGP, $auth_bgp_session;
+            if ($auth_isBGP) {
+                $session =& $auth_bgp_session;
+            } else {
+                session_name(APP_SESSION);
+                @session_start();
+                $session =& $_SESSION;
+            }
+            static $roles_cache;
+            $inherit = false;
+            if ($dsID != "") {
+                if (isset($roles_cache[$pid][$dsID])) {
+                    return $roles_cache[$pid][$dsID];
+                }
+            } else {
+                if (isset($roles_cache[$pid])) {
+                    return $roles_cache[$pid];
+                }
+            }
+            $userPIDAuthGroups = array();
+            // Usually everyone can list, view and view comments
+            global $NonRestrictedRoles;
+            $userPIDAuthGroups = $NonRestrictedRoles;
+            $usingDS = false;
+            $acmlBase = false;
+            $overridetmp = array();
+
+            if ($dsID != "") {
+                $usingDS = true;
+                $acmlBase = Record::getACML($pid, $dsID);
+            }
+
+            // if no FezACML exists for a datastream then it must inherit from the pid object
+            if ($acmlBase == false) {
+                $usingDS = false;
+                $acmlBase = Record::getACML($pid);
+            }
+            $ACMLArray = array();
+
+            // no FezACML was found for DS or PID object
+            // so go to parents straight away (inherit presumed)
+            if ($acmlBase == false) {
+                $parents = Record::getParents($pid);
+		Auth::getParentACMLs($ACMLArray, $parents);
+            } else { // otherwise found something so use that and check if need to inherit
+
+                $ACMLArray[0] = $acmlBase;
+
+                // Check if it inherits security
+                    $xpath = new DOMXPath($acmlBase);
+                    $anyRuleSearch = $xpath->query('/FezACML/rule/role/*[string-length(normalize-space()) > 0]');
+                    if ($anyRuleSearch->length == 0) {
+
+                        $inherit = true;
+
+                    } else {
+                        $inheritSearch = $xpath->query('/FezACML[inherit_security="on" or inherit_security=""]');
+
+                        if( $inheritSearch->length > 0 ) {
+                            $inherit = true;
+                        }
+                    }
+
+                if ($inherit == true) { // if need to inherit, check if at dsID level or not first and then
+
+            if ($dsID != '' && $acmlBase != false) {
+              $userPIDAuthGroups["security"] = "include";
+            } else {
+              $userPIDAuthGroups["security"] = "inherit";
+            }
 
 
-				// if already at PID level just get parent pids and add them
-				if (($dsID == "") || ($usingDS == false)) {
-					$parents = Record::getParents($pid);
-					Auth::getParentACMLs($ACMLArray, $parents);
-				} else { // otherwise get the pid object first and check whether to inherit
-					$acmlBase = Record::getACML($pid);
-					if ($acmlBase == false) { // if pid level doesnt exist go higher
-						$parents = Record::getParents($pid);
-						Auth::getParentACMLs($ACMLArray, $parents);
-					} else { // otherwise found pid level so add to ACMLArray and check whether to inherit or not
-            $userPIDAuthGroups["security"] = "include";
-						array_push($ACMLArray, $acmlBase);
-						// If found an ACML then check if it inherits security
-						$inherit = false;
-						$xpath = new DOMXPath($acmlBase);
-						$inheritSearch = $xpath->query('/FezACML/inherit_security');
-						foreach ($inheritSearch as $inheritRow) {
-							if ($inheritRow->nodeValue == "on") {
-								$inherit = true;
-							}
-						}
-						if ($inherit == true) {
-							$parents = Record::getParents($pid);
-							Auth::getParentACMLs($ACMLArray, $parents);
-						}
-					}
-				}
-			} else {
-				$userPIDAuthGroups["security"] = "exclude";
-			}
-		}
+                    // if already at PID level just get parent pids and add them
+                    if (($dsID == "") || ($usingDS == false)) {
+                        $parents = Record::getParents($pid);
+			Auth::getParentACMLs($ACMLArray, $parents);
+                    } else { // otherwise get the pid object first and check whether to inherit
+                        $acmlBase = Record::getACML($pid);
+                        if ($acmlBase == false) { // if pid level doesnt exist go higher
+                            $parents = Record::getParents($pid);
+	                    Auth::getParentACMLs($ACMLArray, $parents);
+                        } else { // otherwise found pid level so add to ACMLArray and check whether to inherit or not
+                $userPIDAuthGroups["security"] = "include";
+                            array_push($ACMLArray, $acmlBase);
+                            // If found an ACML then check if it inherits security
+                            $inherit = false;
+                            $xpath = new DOMXPath($acmlBase);
+                            $inheritSearch = $xpath->query('/FezACML/inherit_security');
+                            foreach ($inheritSearch as $inheritRow) {
+                                if ($inheritRow->nodeValue == "on") {
+                                    $inherit = true;
+                                }
+                            }
+                            if ($inherit == true) {
+                                $parents = Record::getParents($pid);
+				Auth::getParentACMLs($ACMLArray, $parents);
+                            }
+                        }
+                    }
+                } else {
+                    $userPIDAuthGroups["security"] = "exclude";
+                }
+            }
 
-		// loop through the ACML docs found for the current pid or in the ancestry
-		$cleanedArray = array();
-		$overrideAuth = array();
-		$datastreamQuickAuth = false;
+            // loop through the ACML docs found for the current pid or in the ancestry
+            $cleanedArray = array();
+            $overrideAuth = array();
+            $datastreamQuickAuth = false;
 
-		foreach ($ACMLArray as &$acml) {
-			// Usually everyone can list, view and view comments - these need to be reset for each ACML loop
-			// because they are presumed ok first
-			//$userPIDAuthGroups = Misc::array_merge_values($userPIDAuthGroups, $NonRestrictedRoles);
-			// Use XPath to find all the roles that have groups set and loop through them
-			$xpath = new DOMXPath($acml);
-			$roleNodes = $xpath->query('/FezACML/rule/role');
-			$inheritSearch = $xpath->query('/FezACML[inherit_security="on"]');
-			$inherit = false;
-			if( $inheritSearch->length > 0 ) {
-				$inherit = true;
-			}
+            foreach ($ACMLArray as &$acml) {
+                // Usually everyone can list, view and view comments - these need to be reset for each ACML loop
+                // because they are presumed ok first
+                //$userPIDAuthGroups = Misc::array_merge_values($userPIDAuthGroups, $NonRestrictedRoles);
+                // Use XPath to find all the roles that have groups set and loop through them
+                $xpath = new DOMXPath($acml);
+                $roleNodes = $xpath->query('/FezACML/rule/role');
+                $inheritSearch = $xpath->query('/FezACML[inherit_security="on"]');
+                $inherit = false;
+                if( $inheritSearch->length > 0 ) {
+                    $inherit = true;
+                }
 
-			$datastreamSearch = $xpath->query('/FezACML/datastream_quickauth_template[.>0]');
-			if( $datastreamSearch->length > 0 ) {
-				foreach ($datastreamSearch as $dsSearchNode) {
-					if ($datastreamQuickAuth == false) {
-						$datastreamQuickAuth = $dsSearchNode->nodeValue;
-					}
-				}
-			}
-            
-			foreach ($roleNodes as $roleNode) {
-				$role = $roleNode->getAttribute('name');
-				// Use XPath to get the sub groups that have values
-				$groupNodes = $xpath->query('./*[string-length(normalize-space()) > 0]', $roleNode);
+                $datastreamSearch = $xpath->query('/FezACML/datastream_quickauth_template[.>0]');
+                if( $datastreamSearch->length > 0 ) {
+                    foreach ($datastreamSearch as $dsSearchNode) {
+                        if ($datastreamQuickAuth == false) {
+                            $datastreamQuickAuth = $dsSearchNode->nodeValue;
+                        }
+                    }
+                }
 
-				/*
-				 * Empty rules override non-empty rules. Example:
-				 * If a pid belongs to 2 collections, 1 collection has lister restricted to fez users
-				 * and 1 collection has no restriction for lister, we want no restrictions for lister
-				 * for this pid.
-				 */
-//				if($groupNodes->length == 0 && ($role == "Viewer" || $role == "Lister") && $inherit == false) {
-				if ($role == "Viewer" || $role == "Lister") {
-					$overridetmp[$role] = true;
-				}
+                foreach ($roleNodes as $roleNode) {
+                    $role = $roleNode->getAttribute('name');
+                    // Use XPath to get the sub groups that have values
+                    $groupNodes = $xpath->query('./*[string-length(normalize-space()) > 0]', $roleNode);
 
-				foreach ($groupNodes as $groupNode) {
-					$group_type = $groupNode->nodeName;
-					$group_values = explode(',', $groupNode->nodeValue);
-					foreach ($group_values as $group_value) {
+                    /*
+                     * Empty rules override non-empty rules. Example:
+                     * If a pid belongs to 2 collections, 1 collection has lister restricted to fez users
+                     * and 1 collection has no restriction for lister, we want no restrictions for lister
+                     * for this pid.
+                     */
+//				    if($groupNodes->length == 0 && ($role == "Viewer" || $role == "Lister") && $inherit == false) {
+				    if ($role == "Viewer" || $role == "Lister") {
+                        $overridetmp[$role] = true;
+                    }
 
-						$group_value = trim($group_value, ' ');
-							
-						// if the role is in the ACML with a non 'off' value
-						// and not empty value then it is restricted so remove it
-						if ($group_value != "off" && $group_value != "" && in_array($role, $userPIDAuthGroups) && in_array($role, $NonRestrictedRoles) && (@$cleanedArray[$role] != true)) {
-							$userPIDAuthGroups = Misc::array_clean($userPIDAuthGroups, $role, false, true);
-							$cleanedArray[$role] = true;
-							$overridetmp[$role] = false;
+                    foreach ($groupNodes as $groupNode) {
+                        $group_type = $groupNode->nodeName;
+                        $group_values = explode(',', $groupNode->nodeValue);
+                        foreach ($group_values as $group_value) {
 
-						} elseif(($group_value == "" || $group_value == "off")
-						&& ($role == "Viewer" || $role == "Lister")) {
+                            $group_value = trim($group_value, ' ');
+
+                            // if the role is in the ACML with a non 'off' value
+                            // and not empty value then it is restricted so remove it
+                            if ($group_value != "off" && $group_value != "" && in_array($role, $userPIDAuthGroups) && in_array($role, $NonRestrictedRoles) && (@$cleanedArray[$role] != true)) {
+                                $userPIDAuthGroups = Misc::array_clean($userPIDAuthGroups, $role, false, true);
+                                $cleanedArray[$role] = true;
+                                $overridetmp[$role] = false;
+
+                            } elseif(($group_value == "" || $group_value == "off")
+                            && ($role == "Viewer" || $role == "Lister")) {
 
 							if(array_key_exists($role, $overridetmp) && $overridetmp[$role] !== false) {
-								$overridetmp[$role] = true;
-							}
+                                    $overridetmp[$role] = true;
+                                }
 
-						} elseif( $group_value != "off" && $group_value != "" ) {
-							$overridetmp[$role] = false;
-						}
-							
-						// @@@ CK - if the role has already been
-						// found then don't check for it again
-						if (!in_array($role, $userPIDAuthGroups)) {
-							switch ($group_type) {
-								case 'AD_Group':
-									if (@in_array($group_value, $session[APP_LDAP_GROUPS_SESSION])) {
-										array_push($userPIDAuthGroups, $role);
-									}
-									break;
-								case 'in_AD':
-									if (($group_value == 'on') && Auth::isValidSession($session)
-									&& Auth::isInAD()) {
-										array_push($userPIDAuthGroups, $role);
-									}
-									break;
-								case 'in_Fez':
-									if (($group_value == 'on') && Auth::isValidSession($session)
-									&& Auth::isInDB()) {
-										array_push($userPIDAuthGroups, $role);
-									}
-									break;
-								case 'AD_User':
-									if (Auth::isValidSession($session)
-									&& $group_value == Auth::getUsername()) {
-										array_push($userPIDAuthGroups, $role);
-									}
-									break;
-								case 'AD_DistinguishedName':
-									if (is_numeric(strpos(@$session['distinguishedname'], $group_value))) {
-										array_push($userPIDAuthGroups, $role);
-									}
-									break;
-								case 'eduPersonTargetedID':
-									if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'], $group_value))) {
-										array_push($userPIDAuthGroups, $role);
-									}
-									break;
-								case 'eduPersonAffiliation':
-									if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-UnscopedAffiliation'], $group_value))) {
-										array_push($userPIDAuthGroups, $role);
-									}
-									break;
-								case 'eduPersonScopedAffiliation':
-									if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-ScopedAffiliation'], $group_value))) {
-										array_push($userPIDAuthGroups, $role);
-									}
-									break;
-								case 'eduPersonPrimaryAffiliation':
-									if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryAffiliation'], $group_value))) {
-										array_push($userPIDAuthGroups, $role);
-									}
-									break;
-								case 'eduPersonPrincipalName':
-									if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'], $group_value))) {
-										array_push($userPIDAuthGroups, $role);
-									}
-									break;
-								case 'eduPersonOrgUnitDN':
-									if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgUnitDN'], $group_value))) {
-										array_push($userPIDAuthGroups, $role);
-									}
-									break;
-								case 'eduPersonOrgDN':
-									if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgDN'], $group_value))) {
-										array_push($userPIDAuthGroups, $role);
-									}
-									break;
-								case 'eduPersonPrimaryOrgUnitDN':
-									if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryOrgUnitDN'], $group_value))) {
-										array_push($userPIDAuthGroups, $role);
-									}
-									break;
+                            } elseif( $group_value != "off" && $group_value != "" ) {
+                                $overridetmp[$role] = false;
+                            }
 
-								case 'Fez_Group':
-									if (@in_array($group_value, $session[APP_INTERNAL_GROUPS_SESSION])) {
-										array_push($userPIDAuthGroups, $role);
-									}
-									break;
+                            // @@@ CK - if the role has already been
+                            // found then don't check for it again
+                            if (!in_array($role, $userPIDAuthGroups)) {
+                                switch ($group_type) {
+                                    case 'AD_Group':
+                                        if (@in_array($group_value, $session[APP_LDAP_GROUPS_SESSION])) {
+                                            array_push($userPIDAuthGroups, $role);
+                                        }
+                                        break;
+                                    case 'in_AD':
+                                        if (($group_value == 'on') && Auth::isValidSession($session)
+                                        && Auth::isInAD()) {
+                                            array_push($userPIDAuthGroups, $role);
+                                        }
+                                        break;
+                                    case 'in_Fez':
+                                        if (($group_value == 'on') && Auth::isValidSession($session)
+                                        && Auth::isInDB()) {
+                                            array_push($userPIDAuthGroups, $role);
+                                        }
+                                        break;
+                                    case 'AD_User':
+                                        if (Auth::isValidSession($session)
+                                        && $group_value == Auth::getUsername()) {
+                                            array_push($userPIDAuthGroups, $role);
+                                        }
+                                        break;
+                                    case 'AD_DistinguishedName':
+                                        if (is_numeric(strpos(@$session['distinguishedname'], $group_value))) {
+                                            array_push($userPIDAuthGroups, $role);
+                                        }
+                                        break;
+                                    case 'eduPersonTargetedID':
+                                        if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'], $group_value))) {
+                                            array_push($userPIDAuthGroups, $role);
+                                        }
+                                        break;
+                                    case 'eduPersonAffiliation':
+                                        if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-UnscopedAffiliation'], $group_value))) {
+                                            array_push($userPIDAuthGroups, $role);
+                                        }
+                                        break;
+                                    case 'eduPersonScopedAffiliation':
+                                        if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-ScopedAffiliation'], $group_value))) {
+                                            array_push($userPIDAuthGroups, $role);
+                                        }
+                                        break;
+                                    case 'eduPersonPrimaryAffiliation':
+                                        if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryAffiliation'], $group_value))) {
+                                            array_push($userPIDAuthGroups, $role);
+                                        }
+                                        break;
+                                    case 'eduPersonPrincipalName':
+                                        if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'], $group_value))) {
+                                            array_push($userPIDAuthGroups, $role);
+                                        }
+                                        break;
+                                    case 'eduPersonOrgUnitDN':
+                                        if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgUnitDN'], $group_value))) {
+                                            array_push($userPIDAuthGroups, $role);
+                                        }
+                                        break;
+                                    case 'eduPersonOrgDN':
+                                        if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgDN'], $group_value))) {
+                                            array_push($userPIDAuthGroups, $role);
+                                        }
+                                        break;
+                                    case 'eduPersonPrimaryOrgUnitDN':
+                                        if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryOrgUnitDN'], $group_value))) {
+                                            array_push($userPIDAuthGroups, $role);
+                                        }
+                                        break;
 
-								case 'Fez_User':
-									if (Auth::isValidSession($session) && $group_value == Auth::getUserID()) {
-										array_push($userPIDAuthGroups, $role);
-									}
-									break;
-								default:
-									break;
-							}
-						}
-					}
-				}
+                                    case 'Fez_Group':
+                                        if (@in_array($group_value, $session[APP_INTERNAL_GROUPS_SESSION])) {
+                                            array_push($userPIDAuthGroups, $role);
+                                        }
+                                        break;
 
-				// If all groups rules were empty $overridetmp for this role will be true
-				// Therefore we want this rule to be enabled for this user
+                                    case 'Fez_User':
+                                        if (Auth::isValidSession($session) && $group_value == Auth::getUserID()) {
+                                            array_push($userPIDAuthGroups, $role);
+                                        }
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
+                        }
+                    }
+
+                    // If all groups rules were empty $overridetmp for this role will be true
+                    // Therefore we want this rule to be enabled for this user
 				if(array_key_exists($role, $overridetmp) && $overridetmp[$role] == true ) {
-					$overrideAuth[$role] = true;
-				}
+                        $overrideAuth[$role] = true;
+                    }
 
-				$overridetmp = array();
-			}
-		}
+                    $overridetmp = array();
+                }
+            }
 
+        }
 
-
-		if (in_array('Community_Administrator', $userPIDAuthGroups) && !in_array('Editor', $userPIDAuthGroups)) {
-			array_push($userPIDAuthGroups, "Editor");
-		}
-		if (in_array('Community_Administrator', $userPIDAuthGroups) && !in_array('Creator', $userPIDAuthGroups)) {
-			array_push($userPIDAuthGroups, "Creator");
-		}
-		if (in_array('Community_Administrator', $userPIDAuthGroups) && !in_array('Approver', $userPIDAuthGroups)) {
-			array_push($userPIDAuthGroups, "Approver");
-		}
+        if (in_array('Community_Administrator', $userPIDAuthGroups) && !in_array('Editor', $userPIDAuthGroups)) {
+            array_push($userPIDAuthGroups, "Editor");
+        }
+        if (in_array('Community_Administrator', $userPIDAuthGroups) && !in_array('Creator', $userPIDAuthGroups)) {
+            array_push($userPIDAuthGroups, "Creator");
+        }
+        if (in_array('Community_Administrator', $userPIDAuthGroups) && !in_array('Approver', $userPIDAuthGroups)) {
+            array_push($userPIDAuthGroups, "Approver");
+        }
 		if (in_array('Editor', $userPIDAuthGroups) && !in_array('Archival_Format_Viewer', $userPIDAuthGroups)) {
 			array_push($userPIDAuthGroups, "Archival_Format_Viewer");
-		}
+        }
 		if ((in_array('Editor', $userPIDAuthGroups) && !in_array('Viewer', $userPIDAuthGroups)) || (array_key_exists('Viewer', $overrideAuth) && $overrideAuth['Viewer'] == true)) {
-			array_push($userPIDAuthGroups, "Viewer");
-		}
+            array_push($userPIDAuthGroups, "Viewer");
+        }
 		if ((in_array('Viewer', $userPIDAuthGroups) && !in_array('Lister', $userPIDAuthGroups)) || (array_key_exists('Lister', $overrideAuth) && $overrideAuth['Lister'] == true)) {
-			array_push($userPIDAuthGroups, "Lister");
-		}
-		if ($datastreamQuickAuth != false) {
-			$userPIDAuthGroups["datastreamQuickAuth"] = $datastreamQuickAuth;
-		} else {
-			$userPIDAuthGroups["datastreamQuickAuth"] = false;
-		}
+            array_push($userPIDAuthGroups, "Lister");
+        }
+        if ($datastreamQuickAuth != false) {
+            $userPIDAuthGroups["datastreamQuickAuth"] = $datastreamQuickAuth;
+        } else {
+            $userPIDAuthGroups["datastreamQuickAuth"] = false;
+        }
 
-		/*
-		 * Special Auth Case (This isn't set via the interface)
-		 * If a user has creator rights, the pid isn't 'submitted for approval'
-		 * and the user is assigned to this pid, then they can edit it
-		 */
-		if(!in_array("Editor", $userPIDAuthGroups)) {
-			if(in_array("Creator", $userPIDAuthGroups)) {
-				$status = Record::getSearchKeyIndexValue($pid, "Status", false);
-				$assigned_user_ids = Record::getSearchKeyIndexValue($pid, "Assigned User ID", false);
+        /*
+         * Special Auth Case (This isn't set via the interface)
+         * If a user has creator rights, the pid isn't 'submitted for approval'
+         * and the user is assigned to this pid, then they can edit it
+         */
+        if(!in_array("Editor", $userPIDAuthGroups)) {
+            if(in_array("Creator", $userPIDAuthGroups)) {
+                $status = Record::getSearchKeyIndexValue($pid, "Status", false);
+                $assigned_user_ids = Record::getSearchKeyIndexValue($pid, "Assigned User ID", false);
 
-				if(in_array(Auth::getUserID(), $assigned_user_ids) && $status != Status::getID("Submitted for Approval") && $status != Status::getID("Published")) {
-					array_push($userPIDAuthGroups, "Editor");
-				}
-			}
-		}
+                if(in_array(Auth::getUserID(), $assigned_user_ids) && $status != Status::getID("Submitted for Approval") && $status != Status::getID("Published")) {
+                    array_push($userPIDAuthGroups, "Editor");
+                }
+            }
+        }
 
-		/*
-		 * Special Auth Case (This isn't set via the interface)
-		 * If a user has approver rights, the pid isn't 'published'
-		 * then they can delete it (get community admin rights)
-		 */
-		if(!in_array("Community_Administrator", $userPIDAuthGroups)) {
-			if(in_array("Approver", $userPIDAuthGroups)) {
-				$status = Record::getSearchKeyIndexValue($pid, "Status", false);
-				if($status != Status::getID("Published")) {
-					array_push($userPIDAuthGroups, "Community_Administrator");
-				}
-			}
-		}
+        /*
+         * Special Auth Case (This isn't set via the interface)
+         * If a user has approver rights, the pid isn't 'published'
+         * then they can delete it (get community admin rights)
+         */
+        if(!in_array("Community_Administrator", $userPIDAuthGroups)) {
+            if(in_array("Approver", $userPIDAuthGroups)) {
+                $status = Record::getSearchKeyIndexValue($pid, "Status", false);
+                if($status != Status::getID("Published")) {
+                    array_push($userPIDAuthGroups, "Community_Administrator");
+                }
+            }
+        }
 
-		if ($GLOBALS['app_cache']) {
-			if (!is_array($roles_cache) || count($roles_cache) > 10) { //make sure the static memory var doesnt grow too large and cause a fatal out of memory error
-				$roles_cache = array();
-			}
-			if ($dsID != "") {
-				$roles_cache[$pid][$dsID] = $userPIDAuthGroups;
-			} else {
-				$roles_cache[$pid] = $userPIDAuthGroups;
-			}
-		}
-
+        if ($GLOBALS['app_cache']) {
+            if (!is_array($roles_cache) || count($roles_cache) > 10) { //make sure the static memory var doesnt grow too large and cause a fatal out of memory error
+                $roles_cache = array();
+            }
+            if ($dsID != "") {
+                $roles_cache[$pid][$dsID] = $userPIDAuthGroups;
+            } else {
+                $roles_cache[$pid] = $userPIDAuthGroups;
+            }
+        }
 		return $userPIDAuthGroups;
 	}
 
@@ -2634,5 +2638,658 @@ class Auth
 		
 		return;
 	}
+}
 
+class AuthNoFedora {
+
+    //delete a security permission given parameters if found
+    public function deleteRoleSecurityPermissions($pid, $role, $arg_id, $inherited = '0')
+    {
+        //todo check user has permissions
+
+        $log = FezLog::get();
+      	$db = DB_API::get();
+
+        if ( $inherited == '0') {
+        $stmt = "DELETE FROM ". APP_TABLE_PREFIX . "auth_index2_not_inherited
+                    WHERE authii_pid = ".$db->quote($pid). "AND
+                    authii_role = ". $db->quote($role). " AND
+                    authii_arg_id = ".$db->quote($arg_id);
+        } else {
+        $stmt = "DELETE FROM ". APP_TABLE_PREFIX . "auth_index2
+                    WHERE authi_pid = ".$db->quote($pid). "AND
+                    authi_role = ". $db->quote($role). " AND
+                    authi_arg_id = ".$db->quote($arg_id);
+        }
+
+        try {
+        	$res = $db->exec($stmt);
+        }
+        catch(Exception $ex) {
+        	$log->err($ex);
+        	return array();
+        }
+    }
+
+    public function addRoleSecurityPermissions($pid, $role, $arg_id, $inherited = '0')
+    {
+        $log = FezLog::get();
+      	$db = DB_API::get();
+
+        if ( $inherited == '0') {
+            $stmt = "INSERT INTO ". APP_TABLE_PREFIX . "auth_index2_not_inherited (authii_pid, authii_role, authii_arg_id)
+                    VALUES (". $db->quote($pid).",".$db->quote($role).",".$db->quote($arg_id).")";
+        } else {
+            $stmt = "INSERT INTO ". APP_TABLE_PREFIX . "auth_index2 (authi_pid, authi_role, authi_arg_id)
+                    VALUES (". $db->quote($pid).",".$db->quote($role).",".$db->quote($arg_id). ")";
+        }
+
+        try {
+        	$res = $db->exec($stmt);
+        }
+        catch(Exception $ex) {
+        	$log->err($ex);
+        	return array();
+        }
+    }
+
+    public function addRoleSecurityPermissionsShadow($pid, $role, $arg_id, $date)
+    {
+        $log = FezLog::get();
+      	$db = DB_API::get();
+
+
+        $stmt = "INSERT INTO ". APP_TABLE_PREFIX . "auth_index2_not_inherited__shadow (authii_pid, authii_role, authii_arg_id, authii_edition_stamp)
+                VALUES (". $db->quote($pid).",".$db->quote($role).",".$db->quote($arg_id).",".$db->quote($date).")";
+
+
+        try {
+        	$res = $db->fetchAll($stmt);
+        }
+        catch(Exception $ex) {
+        	$log->err($ex);
+        	return array();
+        }
+    }
+
+    //Find all information for the security changing screen
+    public function getSecurityPermissionsDisplay($pid)
+    {
+        $log = FezLog::get();
+      	$db = DB_API::get();
+
+        $stmt = "SELECT *, 0 as inherited FROM ". APP_TABLE_PREFIX . "auth_index2_not_inherited
+            LEFT JOIN ". APP_TABLE_PREFIX . "auth_roles
+            ON authii_role = aro_id
+            LEFT JOIN ". APP_TABLE_PREFIX . "auth_rule_group_rules
+            ON argr_arg_id = authii_arg_id
+            LEFT JOIN ". APP_TABLE_PREFIX . "auth_rules
+            ON ar_id = argr_ar_id
+            LEFT JOIN ". APP_TABLE_PREFIX . "group
+            ON ar_value = grp_id
+            LEFT JOIN ". APP_TABLE_PREFIX . "user
+            ON ar_value = usr_id
+            WHERE authii_pid = ".$db->quote($pid);
+        try {
+        	$res = $db->fetchAll($stmt);
+        }
+        catch(Exception $ex) {
+        	$log->err($ex);
+        	return array();
+        }
+
+        $stmt = "SELECT *, 1 as inherited FROM ". APP_TABLE_PREFIX . "auth_index2
+            LEFT JOIN ". APP_TABLE_PREFIX . "auth_roles
+            ON authi_role = aro_id
+            LEFT JOIN ". APP_TABLE_PREFIX . "auth_rule_group_rules
+            ON argr_arg_id = authi_arg_id
+            LEFT JOIN ". APP_TABLE_PREFIX . "auth_rules
+            ON ar_id = argr_ar_id
+            LEFT JOIN ". APP_TABLE_PREFIX . "group
+            ON ar_value = grp_id
+            LEFT JOIN ". APP_TABLE_PREFIX . "user
+            ON ar_value = usr_id
+            WHERE authi_pid = ".$db->quote($pid);
+        try {
+        	$res2 = $db->fetchAll($stmt);
+        }
+        catch(Exception $ex) {
+        	$log->err($ex);
+        	return array();
+        }
+
+        $results = $res;
+        foreach ($res2 as $row2) {
+            $unique = true;
+            foreach ($res as $row) {
+                if (($row[authii_role] == $row2[authi_role]) && ($row[ar_id] == $row2[ar_id])){
+                    $unique = false;
+                }
+            }
+            if ($unique) {
+                $results[] = $row2;
+            }
+        }
+        $res = $results;
+
+        $row=array();
+        for ($i=0; $i<count($res); $i++)
+        {
+            //Breaks the rule up ie. !rule!role!AD_User -> AD_User
+            $pieces = explode("!", $res[$i]['ar_rule']);
+            $res[$i]['ar_rule_value'] = (count($pieces) == 4) ? $pieces[3] : $res[$i]['ar_rule'];
+
+            //Finds names for the groups and users is applicable
+            if($res[$i]['ar_rule_value'] == "Fez_Group")
+            {
+                $res[$i]['ar_value_value']=$res[$i]['grp_title'];
+            } elseif ($res[$i]['ar_rule_value'] == "Fez_User") {
+                $res[$i]['ar_value_value']= $res[$i]['usr_full_name'];
+            } else
+            {
+                $res[$i]['ar_value_value'] = $res[$i]['ar_value'];
+            }
+            //unique row id for security table
+            $res[$i]['row'] = $res[$i]['authii_role'].",".$res[$i]['ar_id'];
+        }
+
+        return $res;
+    }
+
+    //Does the object inherit permissions from parent
+    public function isInherited($pid)
+    {
+        $log = FezLog::get();
+      	$db = DB_API::get();
+
+        $stmt = "SELECT rek_security_inherited
+                FROM ". APP_TABLE_PREFIX . "record_search_key
+                WHERE rek_pid = ".$db->quote($pid);
+
+        try {
+      			$res = $db->fetchOne($stmt);
+      		}
+        catch(Exception $ex) {
+            $log->err($ex);
+            return array();
+        }
+
+        return $res;
+    }
+
+
+    public function isWatermarked($pid, $dsID='')
+    {
+        $log = FezLog::get();
+      	$db = DB_API::get();
+
+        $stmt = "SELECT watermark
+                FROM ". APP_TABLE_PREFIX . "file_attachments
+                WHERE pid = ".$db->quote($pid)."
+                AND filename = ".$db->quote($dsID);
+
+        try {
+      			$res = $db->fetchOne($stmt);
+      		}
+        catch(Exception $ex) {
+            $log->err($ex);
+            return array();
+        }
+
+        return $res;
+    }
+
+    public function isCopyrighted($pid)
+    {
+        $log = FezLog::get();
+      	$db = DB_API::get();
+
+        $stmt = "SELECT copyright
+                FROM ". APP_TABLE_PREFIX . "file_attachments
+                WHERE pid = ".$db->quote($pid)."
+                AND filename = ".$db->quote($dsID);
+
+        try {
+      			$res = $db->fetchOne($stmt);
+      		}
+        catch(Exception $ex) {
+            $log->err($ex);
+            return array();
+        }
+
+        return $res;
+    }
+
+        //set inherit permissions
+    public function setInherited($pid, $inherited=1)
+    {
+        $log = FezLog::get();
+      	$db = DB_API::get();
+
+        $stmt = "UPDATE ". APP_TABLE_PREFIX . "record_search_key
+                SET rek_security_inherited = " .$db->quote($inherited)."
+                WHERE rek_pid = ".$db->quote($pid);
+
+        try {
+      			$res = $db->exec($stmt);
+      		}
+        catch(Exception $ex) {
+            $log->err($ex);
+            return array();
+        }
+
+        AuthNoFedora::recalculatePermissions($pid);
+        return $res;
+    }
+
+    public function deleteInherited($pid)
+    {
+            $log = FezLog::get();
+            $db = DB_API::get();
+
+            $stmt = "UPDATE ". APP_TABLE_PREFIX . "record_search_key
+                    SET rek_security_inherited = '0'
+                    WHERE rek_pid = ".$db->quote($pid);
+
+            try {
+                    $res = $db->exec($stmt);
+                }
+            catch(Exception $ex) {
+                $log->err($ex);
+                return array();
+            }
+
+            AuthNoFedora::recalculatePermissions($pid);
+            return $res;
+        }
+
+    public function getAllGroupTypes()
+    {
+        return array('AD_Group' => 'AD_Group',
+                    'in_AD' => 'in_AD',
+                    'in_Fez' => 'in_Fez',
+                    'AD_User' => 'AD_User',
+                    'AD_DistinguishedName' => 'AD_DistinguishedName',
+                    'eduPersonTargetedID'  => 'eduPersonTargetedID',
+                    'eduPersonAffiliation'  => 'eduPersonAffiliation',
+                    'eduPersonScopedAffiliation'  => 'eduPersonScopedAffiliation',
+                    'eduPersonPrimaryAffiliation'  => 'eduPersonPrimaryAffiliation',
+                    'eduPersonPrincipalName'  => 'eduPersonPrincipalName',
+                    'eduPersonOrgUnitDN'  => 'eduPersonOrgUnitDN',
+                    'eduPersonOrgDN' => 'eduPersonOrgDN',
+                    'eduPersonPrimaryOrgUnitDN' => 'eduPersonPrimaryOrgUnitDN',
+                    'Fez_Group' => 'Fez_Group',
+                    'Fez_User' => 'Fez_User'
+                 );
+
+    }
+
+    public function getAllSecurityPermissions($pid)
+    {
+        $log = FezLog::get();
+      	$db = DB_API::get();
+
+        $stmt = "SELECT authi_role, argr_ar_id FROM ". APP_TABLE_PREFIX . "auth_index2
+            LEFT JOIN ". APP_TABLE_PREFIX . "auth_rule_group_rules
+            ON argr_arg_id = authi_arg_id
+            WHERE authi_pid = ".$db->quote($pid);
+        try {
+        	$res = $db->fetchAll($stmt);
+        }
+        catch(Exception $ex) {
+        	$log->err($ex);
+        	return array();
+        }
+
+         return $res;
+    }
+
+    public function getAllSecurityPermissionsDescriptions($pid)
+    {
+        $log = FezLog::get();
+      	$db = DB_API::get();
+
+        $stmt = "SELECT ar_rule, aro_role, ar_value FROM ". APP_TABLE_PREFIX . "auth_index2
+            LEFT JOIN ". APP_TABLE_PREFIX . "auth_roles
+            ON authi_role = aro_id
+            LEFT JOIN ". APP_TABLE_PREFIX . "auth_rule_group_rules
+            ON argr_arg_id = authi_arg_id
+            LEFT JOIN ". APP_TABLE_PREFIX . "auth_rules
+            ON ar_id = argr_ar_id
+            WHERE authi_pid = ".$db->quote($pid);
+        try {
+        	$res = $db->fetchAll($stmt);
+        }
+        catch(Exception $ex) {
+        	$log->err($ex);
+        	return array();
+        }
+
+         return $res;
+    }
+
+    public function getNonInheritedSecurityPermissions($pid, $role=null)
+    {
+        $log = FezLog::get();
+      	$db = DB_API::get();
+
+        if (empty($role)) {
+            $stmt = "SELECT authii_role, argr_ar_id FROM ". APP_TABLE_PREFIX . "auth_index2_not_inherited
+                LEFT JOIN ". APP_TABLE_PREFIX . "auth_rule_group_rules
+                ON argr_arg_id = authii_arg_id
+                WHERE authii_pid = ".$db->quote($pid);
+        } else {
+            $stmt = "SELECT authii_role, argr_ar_id FROM ". APP_TABLE_PREFIX . "auth_index2_not_inherited
+                LEFT JOIN ". APP_TABLE_PREFIX . "auth_rule_group_rules
+                ON argr_arg_id = authii_arg_id
+                WHERE authii_pid = ".$db->quote($pid)."
+                AND authii_role = ".$db->quote($role);
+        }
+        try {
+        	$res = $db->fetchAll($stmt);
+        }
+        catch(Exception $ex) {
+        	$log->err($ex);
+        	return array();
+        }
+
+         return $res;
+    }
+
+    public function getParentsACML($pid)
+    {
+        $parentPermissions = array();
+
+        if (AuthNoFedora::isInherited($pid)){
+            $parentPids = Record::getParents($pid);
+            foreach($parentPids as $parentPid) {
+                $tempParentPermissions = AuthNoFedora::getAllSecurityPermissions($parentPid);
+                $parentPermissions = array_merge($parentPermissions, $tempParentPermissions);
+            }
+        }
+        return $parentPermissions;
+    }
+
+    //This assumes parent or non inherited data might be changed
+    public function recalculatePermissions($pid)
+    {
+        $pidParentPermisisons = AuthNoFedora::getParentsACML($pid);
+        $pidNonInheritedPermisisons = AuthNoFedora::getNonInheritedSecurityPermissions($pid);
+        $pidCaculatedPermissions = array_merge($pidParentPermisisons,$pidNonInheritedPermisisons);
+
+        foreach($pidCaculatedPermissions as $pidCaculatedPermission) {
+            if ($pidCaculatedPermission[authi_role]) {
+                $newGroups[$pidCaculatedPermission[authi_role]][] = $pidCaculatedPermission[argr_ar_id];
+            } else{
+                $newGroups[$pidCaculatedPermission[authii_role]][] = $pidCaculatedPermission[argr_ar_id];
+            }
+        }
+        AuthNoFedora::deletePermissions($pid);
+        foreach ($newGroups as $role => $newGroup) {
+            $arg_id = AuthRules::getOrCreateRuleGroupArIds($newGroup);
+            AuthNoFedora::addRoleSecurityPermissions($pid, $role, $arg_id, '1');
+        }
+        $record = new RecordObject($pid);
+        $childPids = $record->getChildrenPids();
+        foreach($childPids as $child) {
+            if (AuthNoFedora::isInherited($pid)) {
+                AuthNoFedora::recalculatePermissions($child);
+            }
+        }
+
+        //datastream children
+        $record = new RecordGeneral($pid);
+        $datastreams = $record->getDatastreams();
+        foreach($datastreams as $datastream) {
+            $did = AuthNoFedoraDatastreams::getDid($pid, $datastream[ID]);
+            if (AuthNoFedoraDatastreams::isInherited($did)) {
+                AuthNoFedoraDatastreams::recalculatePermissions($did);
+            }
+        }
+
+    }
+
+    public function deletePermissions($pid, $inherited = '1', $role=null)
+    {
+        $log = FezLog::get();
+      	$db = DB_API::get();
+
+        if (empty($role)){
+            if ( $inherited == '0') {
+                $stmt = "DELETE FROM ". APP_TABLE_PREFIX . "auth_index2_not_inherited
+                            WHERE authii_pid = ".$db->quote($pid);
+            } else {
+                $stmt = "DELETE FROM ". APP_TABLE_PREFIX . "auth_index2
+                            WHERE authi_pid = ".$db->quote($pid);
+            }
+        } else
+        {
+            if ( $inherited == '0') {
+                $stmt = "DELETE FROM ". APP_TABLE_PREFIX . "auth_index2_not_inherited
+                            WHERE authii_pid = ".$db->quote($pid)." AND authii_role = ".$db->quote($role);
+            } else {
+                $stmt = "DELETE FROM ". APP_TABLE_PREFIX . "auth_index2
+                            WHERE authi_pid = ".$db->quote($pid)." AND authi_role = ".$db->quote($role);
+            }
+        }
+
+        try {
+        	$res = $db->exec($stmt);
+        }
+        catch(Exception $ex) {
+        	$log->err($ex);
+        	return array();
+        }
+    }
+
+    public function addSecurityPermissions($pid, $role, $ar_id)
+    {
+        $log = FezLog::get();
+      	$db = DB_API::get();
+
+        $pidNonInheritedPermisisons = AuthNoFedora::getNonInheritedSecurityPermissions($pid, $role);
+        $oldGroups[$pidPermission[authi_role]][] = $pidPermission[argr_ar_id];
+        $new = array(array('authi_role' => $role, 'argr_ar_id' => $ar_id ));
+        $pidNewPermissions = array_merge($new,$pidNonInheritedPermisisons);
+        foreach($pidNewPermissions as $pidNewPermission) {
+            $newGroup[] = $pidNewPermission[argr_ar_id];
+        }
+
+        AuthNoFedora::deletePermissions($pid, '0', $role);
+        $arg_id = AuthRules::getOrCreateRuleGroupArIds($newGroup);
+        AuthNoFedora::addRoleSecurityPermissions($pid, $role, $arg_id, '0');
+
+        //Added non inherited permissions now need to recalculate global permisisons
+        AuthNoFedora::recalculatePermissions($pid);
+    }
+
+    public function deleteSecurityPermissions($pid, $role, $ar_id)
+    {
+        $log = FezLog::get();
+      	$db = DB_API::get();
+
+        $pidNonInheritedPermisisons = AuthNoFedora::getNonInheritedSecurityPermissions($pid, $role);
+
+        $newGroup = array();
+        foreach($pidNonInheritedPermisisons as $pidNonInheritedPermisison) {
+            if ($pidNonInheritedPermisison[argr_ar_id] != $ar_id) {
+                $newGroup[] = $pidNonInheritedPermisison[argr_ar_id];
+            }
+        }
+
+        AuthNoFedora::deletePermissions($pid, 0, $role);
+        $arg_id = AuthRules::getOrCreateRuleGroupArIds($newGroup);
+        if ($arg_id) {
+            AuthNoFedora::addRoleSecurityPermissions($pid, $role, $arg_id, '0');
+        }
+        //Added non inherited permissions now need to recalculate global permisisons
+        AuthNoFedora::recalculatePermissions($pid);
+    }
+
+    public function getAuthorisationGroups($pid, $dsID = '')
+    {
+        $log = FezLog::get();
+
+        global $auth_isBGP, $auth_bgp_session;
+        if ($auth_isBGP) {
+            $session =& $auth_bgp_session;
+        } else {
+            session_name(APP_SESSION);
+            @session_start();
+            $session =& $_SESSION;
+        }
+        static $roles_cache;
+        $inherit = false;
+        if ($dsID != "") {
+            if (isset($roles_cache[$pid][$dsID])) {
+                return $roles_cache[$pid][$dsID];
+            }
+        } else {
+            if (isset($roles_cache[$pid])) {
+                return $roles_cache[$pid];
+            }
+        }
+        $userPIDAuthGroups = array();
+        // Usually everyone can list, view and view comments
+        global $NonRestrictedRoles;
+        $userPIDAuthGroups = $NonRestrictedRoles;
+
+        if (!empty($dsID)) {
+            $did = AuthNoFedoraDatastreams::getDid($pid, $dsID);
+            $permissions = AuthNoFedoraDatastreams::getAllSecurityPermissionsDescriptions($did);
+        } else {
+            $permissions = AuthNoFedora::getAllSecurityPermissionsDescriptions($pid);
+            //authi_role, usr_username, grp_title, aro_role, ar_value
+        }
+        foreach($permissions as $permission) {
+            if (!in_array($permission[aro_role], $userPIDAuthGroups)) {
+                switch ($permission[ar_rule]) {
+                    case '!rule!role!AD_Group':
+                        if (@in_array($permission[ar_value], $session[APP_LDAP_GROUPS_SESSION])) {
+                            array_push($userPIDAuthGroups, $permission[aro_role]);
+                        }
+                        break;
+                    case '!rule!role!in_AD':
+                        if (($permission[ar_value] == 'on') && Auth::isValidSession($session)
+                        && Auth::isInAD()) {
+                            array_push($userPIDAuthGroups, $permission[aro_role]);
+                        }
+                        break;
+                    case '!rule!role!in_Fez':
+                        if (($permission[ar_value] == 'on') && Auth::isValidSession($session)
+                        && Auth::isInDB()) {
+                            array_push($userPIDAuthGroups, $permission[aro_role]);
+                        }
+                        break;
+                    case '!rule!role!AD_User':
+                        if (Auth::isValidSession($session)
+                        && $permission[ar_value] == Auth::getUsername()) {
+                            array_push($userPIDAuthGroups, $permission[aro_role]);
+                        }
+                        break;
+                    case '!rule!role!AD_DistinguishedName':
+                        if (is_numeric(strpos(@$session['distinguishedname'], $permission[ar_value]))) {
+                            array_push($userPIDAuthGroups, $permission[aro_role]);
+                        }
+                        break;
+                    case '!rule!role!eduPersonTargetedID':
+                        if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'], $permission[ar_value]))) {
+                            array_push($userPIDAuthGroups, $permission[aro_role]);
+                        }
+                        break;
+                    case '!rule!role!eduPersonAffiliation':
+                        if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-UnscopedAffiliation'], $permission[ar_value]))) {
+                            array_push($userPIDAuthGroups, $permission[aro_role]);
+                        }
+                        break;
+                    case '!rule!role!eduPersonScopedAffiliation':
+                        if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-ScopedAffiliation'], $permission[ar_value]))) {
+                            array_push($userPIDAuthGroups, $permission[aro_role]);
+                        }
+                        break;
+                    case '!rule!role!eduPersonPrimaryAffiliation':
+                        if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryAffiliation'], $permission[ar_value]))) {
+                            array_push($userPIDAuthGroups, $permission[aro_role]);
+                        }
+                        break;
+                    case '!rule!role!eduPersonPrincipalName':
+                        if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'], $permission[ar_value]))) {
+                            array_push($userPIDAuthGroups, $permission[aro_role]);
+                        }
+                        break;
+                    case '!rule!role!eduPersonOrgUnitDN':
+                        if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgUnitDN'], $permission[ar_value]))) {
+                            array_push($userPIDAuthGroups, $permission[aro_role]);
+                        }
+                        break;
+                    case 'eduPersonOrgDN':
+                        if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgDN'], $permission[ar_value]))) {
+                            array_push($userPIDAuthGroups, $permission[aro_role]);
+                        }
+                        break;
+                    case '!rule!role!eduPersonPrimaryOrgUnitDN':
+                        if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryOrgUnitDN'], $permission[ar_value]))) {
+                            array_push($userPIDAuthGroups, $permission[aro_role]);
+                        }
+                        break;
+
+                    case '!rule!role!Fez_Group':
+                        if (@in_array($permission[grp_title], $session[APP_INTERNAL_GROUPS_SESSION])) {
+                            array_push($userPIDAuthGroups, $permission[aro_role]);
+                        }
+                        break;
+
+                    case '!rule!role!Fez_User':
+                        $temp = Auth::getUserID();
+                        if (Auth::isValidSession($session) && $permission[ar_value] == Auth::getUserID()) {
+                            array_push($userPIDAuthGroups, $permission[aro_role]);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+
+        return $userPIDAuthGroups;
+    }
+
+    //Convert role to id IE $role 'viewer' returns '10'
+    public function getRoleToRoleId($role)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $stmt = "SELECT aro_id FROM ". APP_TABLE_PREFIX . "auth_roles
+            WHERE aro_role = ".$db->quote($role);
+        try {
+            $res = $db->fetchOne($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+
+        return $res;
+    }
+
+    //Giving auth_rule id return the 'rule' and 'value' ie 189 -> !rule!role!Fez_Group, Thesis Supervisors
+    public function getAuthRuleValue($arId)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $stmt = "SELECT ar_rule, ar_value FROM ". APP_TABLE_PREFIX . "auth_rules
+            WHERE ar_id = ".$db->quote($arId);
+        try {
+            $res = $db->fetchRow($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+
+        return $res;
+    }
 }
