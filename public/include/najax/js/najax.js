@@ -492,11 +492,8 @@ najax.call = function(obj, method, callArguments)
 
 	try {
 
-		xmlHttp.setRequestHeader('Content-Length', requestBody.length);
-
 		xmlHttp.setRequestHeader('Content-Type', 'text/plain; charset=UTF-8');
 
-		xmlHttp.setRequestHeader('Accept-Charset', 'UTF-8');
 
 	} catch (e) {}
 
@@ -779,11 +776,7 @@ najax.dispatchEvents = function()
 
 	try {
 
-		xmlHttp.setRequestHeader('Content-Length', requestBody.length);
-
 		xmlHttp.setRequestHeader('Content-Type', 'text/plain; charset=UTF-8');
-
-		xmlHttp.setRequestHeader('Accept-Charset', 'UTF-8');
 
 	} catch (e) {}
 
@@ -944,11 +937,9 @@ najax.postEvent = function(obj, eventArguments)
 
 	try {
 
-		xmlHttp.setRequestHeader('Content-Length', requestBody.length);
 
 		xmlHttp.setRequestHeader('Content-Type', 'text/plain; charset=UTF-8');
 
-		xmlHttp.setRequestHeader('Accept-Charset', 'UTF-8');
 
 	} catch (e) {}
 

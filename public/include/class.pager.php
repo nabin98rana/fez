@@ -123,6 +123,9 @@ class Pager
 		//  $order_by_dir = Pager::getParam('order_by_dir',$params);
 		$sort_order = Pager::getParam('sort_order',$params);
 		$rows = Pager::getParam('rows',$params);
+        if (empty($rows)) {
+            $rows = APP_DEFAULT_PAGER_SIZE;
+        }
 		$keywords = Pager::getParam('keywords', $params);
 		$reset = Pager::getParam('reset',$params);
     $hide_closed = Pager::getParam('hide_closed',$params);

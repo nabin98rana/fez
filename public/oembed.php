@@ -36,13 +36,14 @@
  * This lets us return the citation HTML as OEmbed code.
  * See documentation at http://oembed.com/
  */
-
+                   echo "hai";
 include_once dirname(__FILE__).'/config.inc.php';
 
-$url       = $_GET['url'];
-$maxwidth  = $_GET['maxwidth'];
-$maxheight = $_GET['maxheight'];
-$format    = $_GET['format'];
+$filter = new Zend_Filter_Alpha();
+$format    = $filter->filter($_GET['format']);
+$filter = new Zend_Filter_Int();
+$maxwidth  = $filter->filter($_GET['maxwidth']);
+$maxheight = $filter->filter($_GET['maxheight']);
 
 function oembed_notfound() {
     header('HTTP/1.0 404 Not Found');
