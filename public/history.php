@@ -36,13 +36,22 @@ include_once(APP_INC_PATH . "class.db_api.php");
 
 $tpl = new Template_API();
 $tpl->setTemplate("history.tpl.html");
-$pid = $_GET["pid"];
-$record = new RecordGeneral($pid);
-if (!$record->checkExists()) {
-	$tpl->assign("exists", 0);
+
+$isUser = Auth::getUsername();
+
+//Three displays exists, dosn't exist and not logged in
+if (!$isUser) {
+    $tpl->assign("exists", 2);
 } else {
+    $pid = $_GET["pid"];
+    $record = new RecordGeneral($pid);
+    if (!$record->checkExists()) {
+	$tpl->assign("exists", 0);
+    } else {
 	$tpl->assign("exists", 1);
 	$tpl->assign("pid", $pid);
 	$tpl->assign("changes", History::getListing($_GET["pid"]));	
+    }
+
 }
 $tpl->displayTemplate();
