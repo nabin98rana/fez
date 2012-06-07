@@ -187,14 +187,29 @@ class RecordObject extends RecordGeneral
 
             $xdisDisplayFields = $_POST['xsd_display_fields'];
 
+            $last = "";
             //Load in all attached xsd display fields
+            //Except the final one if it's empty since it is the empty field reserved for "new item" if a multiple field
+            //Previous empty values may be needed to space out between values
             foreach ($_POST as $key => $value) {
                 if ((strpos($key, 'xsd_display_fields') !== false) && ($key != 'xsd_display_fields')) {
                     $xsdDisplayFieldsElementKeys = explode('_', $key);
+                    if (!empty($last) && $xsdDisplayFieldsElementKeys[3] != $last) {
+                       if (empty($lastValue)) {
+                           unset($xdisDisplayFields[$last][$lastKey]);
+                       }
+                    }
                     $xdisDisplayFields[$xsdDisplayFieldsElementKeys[3]][$xsdDisplayFieldsElementKeys[4]] = $value;
+                    $lastValue = $value;
+                    $last = $xsdDisplayFieldsElementKeys[3];
+                    $lastKey = $xsdDisplayFieldsElementKeys[4];
                 }
             }
-    		$xsd_display_fields = RecordGeneral::setDisplayFields($xdisDisplayFields);
+            if (empty($lastValue)) {
+                unset($xdisDisplayFields[$last][$lastKey]);
+            }
+
+            $xsd_display_fields = RecordGeneral::setDisplayFields($xdisDisplayFields);
 
 
             $xdis_list = XSD_Relationship::getListByXDIS($_POST['xdis_id']);
