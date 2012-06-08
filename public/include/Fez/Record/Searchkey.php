@@ -277,7 +277,7 @@ class Fez_Record_Searchkey
         }
 
         if (!empty($clone_attached_datastreams)) {
-            //
+            $sekData[1]['file_attachment_name']['xsdmf_value'] = null;
         }
         $recordSearchKey = new Fez_Record_Searchkey();
         $result = $recordSearchKey->insertRecord($sekData);
