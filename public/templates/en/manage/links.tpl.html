@@ -68,7 +68,7 @@ function setPage(new_page)
         {/if}
       </td>
       <td class="link-status-{$code_colours[$status]}">
-        <a href="{$report[i].url}" onclick="javascript:window.open('{$report[i].url}'); return false;">{$report[i].url|escape:'htmlall'}</a>
+        <a href="{$report[i].url}" onclick="javascript:window.open('{$report[i].url}'); return false;">{$report[i].url}</a>
       </td>
       <td class="link-status-{$code_colours[$status]}">
         <a href="#" title="{$codes[$status]}">{$report[i].url_status}</a>
