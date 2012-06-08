@@ -102,7 +102,7 @@
                   <b>Description:</b>
                 </td>
                 <td style="background: {$light_color}">
-                  <textarea name="cvo_desc" cols="50" rows="3" class="default">{$info.cvo_desc|escape:html}</textarea>
+                  <textarea name="cvo_desc" cols="50" rows="3" class="default">{$info.cvo_desc}</textarea>
                   {include file="error_icon.tpl.html" field="cvo_desc"}
                 </td>
               </tr>
@@ -176,7 +176,7 @@
                         &nbsp;<a href="controlled_vocab.php?parent_id={$parent_id}&amp;cat=edit&amp;id={$list[i].cvo_id}">{$list[i].cvo_title}</a>
                       </td>
                       <td style="" class="default">
-                        &nbsp;{$list[i].cvo_desc|escape:html}
+                        &nbsp;{$list[i].cvo_desc}
                       </td>
                       <td style="" class="default">
                         &nbsp;{$list[i].cvo_image_filename}

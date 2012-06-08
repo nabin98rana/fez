@@ -423,7 +423,7 @@ function restoreDefaultColours(el)
 			<td>
 			  <select name="app_default_user_timezone">
 			    {section name=zone loop=$timezones}
-			    <option{if $config_settings.app_default_user_timezone == $timezones[zone]} selected="selected"{/if}>{$timezones[zone]|escape:html}</option>
+			    <option{if $config_settings.app_default_user_timezone == $timezones[zone]} selected="selected"{/if}>{$timezones[zone]}</option>
 				{/section}
 			  </select>
 			  {include file="lookup_field.tpl.html" lookup_field_name="search" lookup_field_target="app_default_user_timezone"}
