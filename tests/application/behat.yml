@@ -1,0 +1,20 @@
+# behat.yml
+default:
+  context:
+    parameters:
+      debug:
+        screenshot_dir: /usr/local/sahi/userdata/logs/screens
+        screen_id: :99
+#      browser: safari
+  extensions:
+    Behat\MinkExtension\Extension:
+      base_url:  'http://bypass.hazchem.library.uq.edu.au'
+      goutte:    ~
+#      sahi:    ~
+#      sahi:
+#         host: sanity.library.uq.edu.au
+#         host: uqckorte.vpn.uq.edu.au
+#         port: 9999
+#        host: 130.102.44.21
+#        port: 9999
+      selenium2: ~
