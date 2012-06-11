@@ -230,7 +230,59 @@ class Fez_Record_Searchkey
         return $searchKeyData;
     }
 
-    
+    /**
+     * Builds array of Search Keys Data, which used for inserting/updating a PID record search keys.
+     *
+     * @param array $xsdmfId
+     * @param array $values
+     */
+    public function buildSearchKeyDataByXSDMFID($sekData = array(), $displayType = 0)
+    {
+        // $searchKeyData[0] = 1-to-1 search keys, $searchKeyData[1] = 1-to-many search keys
+        $searchKeyData = array(0 => array(), 1 => array());
+
+        foreach ($sekData as $xsdmfId => $value) {
+            if (empty($xsdmfId)){
+                continue;
+            }
+            $xsdDetails = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmfId);
+            $sekDetails = Search_Key::getDetails($xsdDetails['xsdmf_sek_id']);
+            $relationship = $sekDetails['sek_relationship'];
+            $sekTitleDb = $sekDetails['sek_title_db'];
+
+            if(!empty($sekTitleDb)) {
+                $searchKeyData[$relationship][$sekTitleDb]['xsdmf_id']    = $xsdmfId;
+                $searchKeyData[$relationship][$sekTitleDb]['xsdmf_value'] = $value;
+            }
+        }
+        return $searchKeyData;
+    }
+
+    public function cloneRecord($pid, $new_xdis_id = null, $is_succession = false, $clone_attached_datastreams=false, $collection_pid=null)
+    {
+        //$new_pid = Fedora_API::getNextPID();
+        $record = new RecordObject($pid);
+        $record->getDisplay();
+        $details = $record->getDetails();
+        $sekData = Fez_Record_Searchkey::buildSearchKeyDataByXSDMFID($details);
+        if ($is_succession) {
+            $sekData[1]['isderivationof']['xsdmf_value'] = $pid;
+        }
+        if (!empty($collection_pid)) {
+            $sekData[1]['ismemberof']['xsdmf_value'] = array($collection_pid);
+        }
+
+        if (!empty($new_xdis_id)) {
+            $sekData[0]['display_type']['xsdmf_value'] = $new_xdis_id;
+        }
+
+        if (!empty($clone_attached_datastreams)) {
+            $sekData[1]['file_attachment_name']['xsdmf_value'] = null;
+        }
+        $recordSearchKey = new Fez_Record_Searchkey();
+        $result = $recordSearchKey->insertRecord($sekData);
+        return $recordSearchKey->_pid;
+    }
     /**
      * Inserts 1-to-1 record search keys with value specified by the $data parameter &
      * automatically create current version data to Shadow table.
