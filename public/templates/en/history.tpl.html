@@ -45,8 +45,10 @@
 	  </tr>
 	</table>
   
-  {else}
+  {elseif $exists == 0}
 	<p>The requested object does not exist.</p>
+  {else}
+      <p>Please login to view history</p>
   {/if}
 
   </div>

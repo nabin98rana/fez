@@ -50,7 +50,6 @@ function setPage(new_page)
     Search by status code: <input type="text" name="code_filter" value="{$filter_code}" size="3" />
     <input type="submit" value="Apply filter" />
   </div>
-</form>
 
 <table style="width: 100%" cellpadding="1" cellspacing="1">
   <tr>
@@ -68,7 +67,7 @@ function setPage(new_page)
         {/if}
       </td>
       <td class="link-status-{$code_colours[$status]}">
-        <a href="{$report[i].url}" onclick="javascript:window.open('{$report[i].url}'); return false;">{$report[i].url|escape:'htmlall'}</a>
+        <a href="{$report[i].url}" onclick="javascript:window.open('{$report[i].url}'); return false;">{$report[i].url}</a>
       </td>
       <td class="link-status-{$code_colours[$status]}">
         <a href="#" title="{$codes[$status]}">{$report[i].url_status}</a>
@@ -113,8 +112,8 @@ function setPage(new_page)
         </tr>
       </table>
     </td>
-  </tr> 
-  
-</table>
+  </tr>
 
+</table>
+</form>
 </div>
