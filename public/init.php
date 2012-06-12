@@ -38,7 +38,8 @@ ini_set("display_errors", 1);
 //error_reporting(1);
 //error_reporting(E_ALL | E_STRICT); //Use this to show all errs. E_ERROR used by default because otherwise PHP4 style code in this code base causes Strict Standards warnings.
 //error_reporting(E_ALL);
-error_reporting(E_ERROR);
+//error_reporting(E_ERROR);
+error_reporting(E_ALL & ~E_NOTICE & ~E_STRICT);
 set_time_limit(0);
 date_default_timezone_set("Australia/Brisbane");
 
@@ -154,7 +155,7 @@ if (APP_LOGGING_ENABLED == "true") {
   array('log'=>$null_log, 'type' => 'file')
   ), false);
 }
- 
+
 $sess = new Fez_Session_Manager();
 Zend_Session::setOptions(
     array(
@@ -184,7 +185,7 @@ try {
 }
 catch (Exception $ex) {
   // We don't want to bail out if Fedora details haven't been entered yet.
-  // This is perfectly legitimate for a brand new installation! However, 
+  // This is perfectly legitimate for a brand new installation! However,
   // we need to at least make the user aware of the situation.
   $fedoraConnectivity = 0;
 }
@@ -203,13 +204,13 @@ if (isset($_GET)) {
   $HTTP_COOKIE_VARS = $_COOKIE;
 }
 
-// Set this string to true if you have given php.ini at least 256M to use. 
-// It will improve performance by storing some Fedora and SQL queries in 
+// Set this string to true if you have given php.ini at least 256M to use.
+// It will improve performance by storing some Fedora and SQL queries in
 // PHP memory rather than fetch them twice or more during a single page load.
-// This gets hardset to false globally for indexing and reindexing in 
+// This gets hardset to false globally for indexing and reindexing in
 // background processes as this won't scale over 500M with over 10,000 objects
 // otherwise (you will get PHP fatal memory error for example).
-$GLOBALS['app_cache'] = true; 
+$GLOBALS['app_cache'] = true;
 
 try {
   $frontendOptions = array('lifetime' => NULL, // cache lifetime is forever

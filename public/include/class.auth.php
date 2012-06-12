@@ -74,13 +74,13 @@ class Auth
 	 * @access  public
 	 * @return  array The Record listing information
 	 */
-	function getHomeIDPCookie() 
+	function getHomeIDPCookie()
 	{
 		return @unserialize(base64_decode($_COOKIE[APP_SHIB_HOME_IDP_COOKIE]));
 	}
 
 
-	function setHomeIDPCookie($home_idp) 
+	function setHomeIDPCookie($home_idp)
 	{
 		$encoded = base64_encode(serialize($home_idp));
 		@setcookie(APP_SHIB_HOME_IDP_COOKIE, $encoded, APP_SHIB_HOME_IDP_COOKIE_EXPIRE);
@@ -97,12 +97,12 @@ class Auth
 	 * @param   boolean $is_popup Flag to tell the function if the current page is a popup window or not
 	 * @return  void
 	 */
-	function checkAuthentication($session_name, $failed_url = NULL, $is_popup = false) 
+	function checkAuthentication($session_name, $failed_url = NULL, $is_popup = false)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
-		
+
+
 		global $auth_isBGP, $auth_bgp_session;
 
 		if ($auth_isBGP) {
@@ -137,11 +137,11 @@ class Auth
 	 * @access  public
 	 * @return  array The list of FezACML roles
 	 */
-	function getAllRoleIDs() 
+	function getAllRoleIDs()
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 
 		$stmt = "SELECT aro_id, aro_role FROM ". APP_TABLE_PREFIX . "auth_roles ";
 
@@ -166,11 +166,11 @@ class Auth
 	 * @access  public
 	 * @return  array The list of FezACML roles
 	 */
-	function getAssocRoleIDs() 
+	function getAssocRoleIDs()
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 
 		$stmt = "SELECT aro_id, aro_role FROM ". APP_TABLE_PREFIX . "auth_roles where aro_id != 0";
 		try {
@@ -183,17 +183,17 @@ class Auth
 		return $res;
 	}
 
-	function convertTextRolesToIDS($aro_roles = array()) 
+	function convertTextRolesToIDS($aro_roles = array())
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 
 		if (is_array($aro_roles)) {
 			if (count($aro_roles) > 0) {
 				$stmt = "SELECT aro_id, aro_role
-		                  FROM ". APP_TABLE_PREFIX . "auth_roles 
-		                  WHERE aro_role in (".Misc::arrayToSQLBindStr($aro_roles).") 
+		                  FROM ". APP_TABLE_PREFIX . "auth_roles
+		                  WHERE aro_role in (".Misc::arrayToSQLBindStr($aro_roles).")
 		                        AND aro_id != 0";
 				try {
 					$res = $db->fetchPairs($stmt, $aro_roles);
@@ -215,7 +215,7 @@ class Auth
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 
 		$stmt = "SELECT aro_id FROM " . APP_TABLE_PREFIX . "auth_roles where aro_role = ?";
 		try {
@@ -228,11 +228,11 @@ class Auth
 		return $res;
 	}
 
-	function getRoleTitleByID($aro_id) 
+	function getRoleTitleByID($aro_id)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 
 		if (!is_numeric($aro_id)) {
 			return false;
@@ -254,7 +254,7 @@ class Auth
 	 * @access  public
 	 * @return  array The list of FezACML roles
 	 */
-	function getAllRoles() 
+	function getAllRoles()
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -286,7 +286,7 @@ class Auth
 	 * @param   string $pid The persistant identifier of the object
 	 * @return  void (returns array by reference).
 	 */
-	function getIndexParentACMLs(&$array, $pid) 
+	function getIndexParentACMLs(&$array, $pid)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -311,7 +311,7 @@ class Auth
 			}
 
 			$stmt = "SELECT
-						* 
+						*
 					 FROM
 						" . APP_TABLE_PREFIX . "record_matching_field r1
 						inner join " . APP_TABLE_PREFIX . "xsd_display_matchfields x1 on (r1.rek_xsdmf_id = x1.xsdmf_id)
@@ -321,7 +321,7 @@ class Auth
 						left join " . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (x1.xsdmf_xsdsel_id = s1.xsdsel_id)
 					 WHERE
 						r1.rek_pid in (".Misc::arrayToSQLBindStr($res).") and (r1.rek_dsid IS NULL or r1.rek_dsid = '')
-						"; 
+						";
 
 			$securityfields = Auth::getAllRoles();
 
@@ -371,7 +371,7 @@ class Auth
 	 * @param   array $parents The array of parent PIDS to loop over
 	 * @return  false if an array of parents is not set in the parameter, returns array by reference.
 	 */
-	function getIndexParentACMLMemberList(&$array, $pid, $parents) 
+	function getIndexParentACMLMemberList(&$array, $pid, $parents)
 	{
 		$log = FezLog::get();
 
@@ -396,7 +396,7 @@ class Auth
 	 * @param   string $pid The persistant identifier of the object
 	 * @return  void (returns array by reference).
 	 */
-	function getIndexParentACMLMember(&$array, $pid) 
+	function getIndexParentACMLMember(&$array, $pid)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -417,7 +417,7 @@ class Auth
 
 		} else {
 			$stmt = "SELECT
-						* 
+						*
 					 FROM
 						" . APP_TABLE_PREFIX . "record_matching_field r1
 						inner join " . APP_TABLE_PREFIX . "xsd_display_matchfields x1 on (r1.rek_xsdmf_id = x1.xsdmf_id)
@@ -508,7 +508,7 @@ class Auth
 	 * @param   array $parents The array of parent PIDS to loop over
 	 * @return  void (returns array by reference).
 	 */
-	function getParentACMLs(&$array, $parents) 
+	function getParentACMLs(&$array, $parents)
 	{
 		$log = FezLog::get();
 
@@ -522,7 +522,7 @@ class Auth
 			$parentACML = Record::getACML($parent);
 
 			if ($parentACML != false) {
-					
+
 				array_push($ACMLArray, $parentACML);
 
 				// Check if it inherits security
@@ -561,10 +561,10 @@ class Auth
 	 * Checks if the current user is the administrator.
 	 * @returns boolean true if access is ok.
 	 */
-	function isAdministrator() 
+	function isAdministrator()
 	{
 		$log = FezLog::get();
-			
+
 		global $auth_isBGP, $auth_bgp_session;
 		if ($auth_isBGP) {
 			$session =& $auth_bgp_session;
@@ -575,8 +575,8 @@ class Auth
 		}
 
 		$answer = false;
-		if (Auth::isValidSession($session)) {		
-			if (!isset($session['isAdministrator'])) {				
+		if (Auth::isValidSession($session)) {
+			if (!isset($session['isAdministrator'])) {
 				$session['isAdministrator'] = User::isUserAdministrator(Auth::getUsername());
 			}
 			$answer = $session['isAdministrator']?true:false;
@@ -596,7 +596,7 @@ class Auth
 	 * @param   boolean $userPIDAuthGroups OPTIONAL (default is true) whether to redirect to the login page or not.
 	 * @returns boolean true if access is ok.
 	 */
-	function checkAuthorisation($pid, $dsID, $acceptable_roles, $failed_url, $userPIDAuthGroups=null, $redirect=true) 
+	function checkAuthorisation($pid, $dsID, $acceptable_roles, $failed_url, $userPIDAuthGroups=null, $redirect=true)
 	{
 		$log = FezLog::get();
 
@@ -646,7 +646,7 @@ class Auth
                         } else {
                             header ("Location: https://".APP_HOSTNAME.APP_RELATIVE_URL."view/".$pid);
                         }
-						exit;        		
+						exit;
 					}
 					if (!isset($_SERVER['PHP_AUTH_USER'])) {
 					    header('WWW-Authenticate: Basic realm="'.APP_HOSTNAME.'"');
@@ -681,7 +681,7 @@ class Auth
 						$failed_url = base64_encode($failed_url);
 						Auth::redirect(APP_RELATIVE_URL . "login.php?err=21&url=".$failed_url, $is_popup);
 					}
-				}				
+				}
 			} else {
 				return false;
 			}
@@ -690,7 +690,7 @@ class Auth
 		}
 	}
 
-	function getAuthorisation(&$indexArray) 
+	function getAuthorisation(&$indexArray)
 	{
 		$log = FezLog::get();
 
@@ -710,7 +710,7 @@ class Auth
 		return $indexArray;
 	}
 
-	function getIndexAuthCascade($indexArray) 
+	function getIndexAuthCascade($indexArray)
 	{
 		$log = FezLog::get();
 
@@ -750,7 +750,7 @@ class Auth
 	 * @param   string $dsID (optional) The datastream ID
 	 * @returns array $userPIDAuthGroups The authorisation groups (roles) the user belongs to against this object.
 	 */
-	function getAuthorisationGroups($pid, $dsID="") 
+	function getAuthorisationGroups($pid, $dsID="")
 	{
 
         if(APP_FEDORA_BYPASS == 'ON') {
@@ -768,6 +768,7 @@ class Auth
             }
             static $roles_cache;
             $inherit = false;
+            $overrideAuth = array();
             if ($dsID != "") {
                 if (isset($roles_cache[$pid][$dsID])) {
                     return $roles_cache[$pid][$dsID];
@@ -1111,12 +1112,12 @@ class Auth
 	 * @param   string $dsID (optional) The datastream ID
 	 * @returns array $userPIDAuthGroups The authorisation groups (roles) the user belongs to against this object.
 	 */
-	function getAuth($pid, $dsID="") 
+	function getAuth($pid, $dsID="")
 	{
 		$log = FezLog::get();
-			
+
 		static $roles_cache;
-			
+
 		if ($dsID != "") {
 			if (isset($roles_cache[$pid][$dsID])) {
 				return $roles_cache[$pid][$dsID];
@@ -1126,25 +1127,25 @@ class Auth
 				return $roles_cache[$pid];
 			}
 		}
-			
+
 		$auth_groups = array();
 		$ACMLArray = array();
-			
+
 		$usingDS = false;
 		$acmlBase = false;
 		$inherit = false;
-			
+
 		if ($dsID != "") {
 			$usingDS = true;
 			$acmlBase = Record::getACML($pid, $dsID);
 		}
-			
+
 		// if no FezACML exists for a datastream then it must inherit from the pid object
 		if ($acmlBase == false) {
 			$usingDS = false;
 			$acmlBase = Record::getACML($pid);
 		}
-			
+
 		/*
 		 * No FezACML was found for DS or PID object
 		 * so go to parents straight away (inherit presumed)
@@ -1166,7 +1167,7 @@ class Auth
 			if ($anyRuleSearch->length == 0) {
 
 				$inherit = true;
-					
+
 			} else {
 
 				$inheritSearch = $xpath->query('/FezACML[inherit_security="on" or inherit_security=""]');
@@ -1180,7 +1181,7 @@ class Auth
 			 * If need to inherit, check if at dsID level or not first and then
 			 */
 			if ($inherit == true) {
-					
+
 				/*
 				 * If already at PID level just get parent pids and add them
 				 */
@@ -1207,23 +1208,23 @@ class Auth
 					} else {
 
 						array_push($ACMLArray, $acmlBase);
-							
+
 						// If found an ACML then check if it inherits security
 						$xpath = new DOMXPath($acmlBase);
 						$inheritSearch = $xpath->query('/FezACML[inherit_security="on" or inherit_security=""]');
-							
+
 						if( $inheritSearch->length > 0 ) {
 							$parents = Record::getParents($pid);
 							Auth::getParentACMLs($ACMLArray, $parents);
 						}
-							
+
 					}
 				}
-					
+
 			}
 		}
-			
-			
+
+
 		// loop through the ACML docs found for the current pid or in the ancestry
 		foreach ($ACMLArray as &$acml) {
 
@@ -1239,7 +1240,7 @@ class Auth
 
 			foreach ($roleNodes as $roleNode) {
 				$role = $roleNode->getAttribute('name');
-					
+
 				// Use XPath to get the sub groups that have values
 				// Note: off can be considered as empty
 				$groupNodes = $xpath->query('./*[string-length(normalize-space()) > 0 and text() != "off"]', $roleNode);
@@ -1253,7 +1254,7 @@ class Auth
 					if(($role == 'Lister' || $role == 'Viewer') && $inherit == false) {
 
 						$rule_array = array(
-                                "rule"    => "override", 
+                                "rule"    => "override",
                                 "value"   => "true"
                                 );
                                 Auth::addRuleArray($auth_groups, $role, $rule_array);
@@ -1262,7 +1263,7 @@ class Auth
 
 					continue;
 				}
-					
+
 				foreach ($groupNodes as $groupNode) {
 					$group_type = $groupNode->nodeName;
 					$group_values = explode(',', $groupNode->nodeValue);
@@ -1270,16 +1271,16 @@ class Auth
 
 						$group_value = trim($group_value, ' ');
 						$rule_array = array(
-		                        "rule"    => "!rule!role!".$group_type, 
+		                        "rule"    => "!rule!role!".$group_type,
 		                        "value"   => $group_value
 						);
 						Auth::addRuleArray($auth_groups, $role, $rule_array);
-							
+
 					}
 				}
 			}
 		}
-			
+
 		if ($GLOBALS['app_cache']) {
 			if (!is_array($roles_cache) || count($roles_cache) > 10) { //make sure the static memory var doesnt grow too large and cause a fatal out of memory error
 				$roles_cache = array();
@@ -1294,7 +1295,7 @@ class Auth
 		return $auth_groups;
 	}
 
-	function addRuleArray(&$auth_groups, $role, $ruleArray = array()) 
+	function addRuleArray(&$auth_groups, $role, $ruleArray = array())
 	{
 		if (!is_array($auth_groups[$role])) {
 			$auth_groups[$role] = array();
@@ -1311,7 +1312,7 @@ class Auth
 	 * a user is logged in.
 	 * @return array of strings - each string is a role name that this user has on at least one pid int he system
 	 */
-	function getAllIndexAuthorisationGroups($user_id) 
+	function getAllIndexAuthorisationGroups($user_id)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -1324,7 +1325,7 @@ class Auth
                         "ON authi_arg_id=argr_arg_id " .
                 "INNER JOIN " . APP_TABLE_PREFIX . "auth_roles " .
                         "ON authi_role=aro_id ";
-			
+
 		try {
 			$res = $db->fetchCol($stmt);
 		}
@@ -1335,7 +1336,7 @@ class Auth
 		return $res;
 	}
 
-	function isUserApprover($user_id) 
+	function isUserApprover($user_id)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -1373,8 +1374,8 @@ class Auth
 	 * @param   string $session_name The name of the session to check for
 	 * @return  boolean
 	 */
-	function hasSessionSupport($session_name) 
-	{			
+	function hasSessionSupport($session_name)
+	{
 		if (@!in_array($session_name, array_keys($_SESSION))) {
 			return false;
 		} else {
@@ -1390,8 +1391,8 @@ class Auth
 	 * @param   string $session_name The name of the session to check for
 	 * @return  boolean
 	 */
-	function hasValidSession($session_name) 
-	{			
+	function hasValidSession($session_name)
+	{
 		global $auth_isBGP, $auth_bgp_session;
 		if ($auth_isBGP) {
 			$session =& $auth_bgp_session;
@@ -1413,7 +1414,7 @@ class Auth
 	 * @param   array $session The unserialized contents of the session
 	 * @return  boolean
 	 */
-	function isValidSession(&$session) 
+	function isValidSession(&$session)
 	{
 
 		if ((empty($session["username"])) || (empty($session["hash"]))
@@ -1443,8 +1444,8 @@ class Auth
 	 * @param   integer $autologin Flag to indicate whether this user should be automatically logged in or not
 	 * @return  void
 	 */
-	function createLoginSession($username, $fullname,  $email, $distinguishedname, $autologin = 0, $actingUsername = '') 
-	{			
+	function createLoginSession($username, $fullname,  $email, $distinguishedname, $autologin = 0, $actingUsername = '')
+	{
 		global $auth_bgp_session, $auth_isBGP;
 
 		if ($auth_isBGP) {
@@ -1452,11 +1453,11 @@ class Auth
 		} else {
 			$ses =& $_SESSION;
 		}
-		
+
 		if ($actingUsername == '') {
 			$actingUsername = $username;
 		}
-		
+
 		$ipaddress = @$_SERVER['REMOTE_ADDR'];
 		$time = time();
 		$ses["username"] = $username;
@@ -1480,8 +1481,8 @@ class Auth
 	 * @param   boolean $is_popup Whether the current window is a popup or not
 	 * @return  void
 	 */
-	function redirect($new_url, $is_popup = false) 
-	{			
+	function redirect($new_url, $is_popup = false)
+	{
 		if ($is_popup) {
 			$html = '<script type="text/javascript">
                      <!--
@@ -1505,8 +1506,8 @@ class Auth
 	 * @param   string $session_name The name of the session that needs to be deleted
 	 * @return  void
 	 */
-	function removeSession($session_name) 
-	{			
+	function removeSession($session_name)
+	{
 		// Initialize the session.
 		// If you are using session_name("something"), don't forget it now!
 		session_name($session_name);
@@ -1529,7 +1530,7 @@ class Auth
 	 * @param   string $email The email address to check for
 	 * @return  boolean
 	 */
-	function userExists($username) 
+	function userExists($username)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -1538,7 +1539,7 @@ class Auth
 			return false;
 		} else {
 			$stmt = "SELECT usr_id
-                    FROM " . APP_TABLE_PREFIX . "user 
+                    FROM " . APP_TABLE_PREFIX . "user
                     WHERE usr_username=?";
 			try {
 				$res = $db->fetchOne($stmt, array($username));
@@ -1564,11 +1565,11 @@ class Auth
 	 * @param   string $password The password of the user to check for
 	 * @return  boolean
 	 */
-	function isCorrectPassword($username, $password) 
+	function isCorrectPassword($username, $password)
 	{
 		$log = FezLog::get();
 
-		if ((APP_DISABLE_PASSWORD_CHECKING == "true" && $_SERVER['REMOTE_ADDR'] == APP_DISABLE_PASSWORD_IP) || 
+		if ((APP_DISABLE_PASSWORD_CHECKING == "true" && $_SERVER['REMOTE_ADDR'] == APP_DISABLE_PASSWORD_IP) ||
 			(Masquerade::canUserMasquerade(Auth::getUsername()) && Auth::userExists($_POST["username"]))) {
 			return true;
 		} else {
@@ -1604,7 +1605,7 @@ class Auth
 	 * @param   string $username The username to be checked
 	 * @return  boolean
 	 */
-	function isActiveUser($username) 
+	function isActiveUser($username)
 	{
 		$status = User::getStatusByUsername($username);
 		if ($status != 'active') {
@@ -1620,7 +1621,7 @@ class Auth
 	 * @access  public
 	 * @return  integer The ID of the user
 	 */
-	function getUserID() 
+	function getUserID()
 	{
 		global $auth_bgp_session, $auth_isBGP;
 		static $usr_id;
@@ -1652,7 +1653,7 @@ class Auth
 	 * @access  public
 	 * @return  integer The ID of the user
 	 */
-	function getUsername() 
+	function getUsername()
 	{
 		global $auth_bgp_session, $auth_isBGP;
 		if ($auth_isBGP) {
@@ -1668,14 +1669,14 @@ class Auth
 			return $session['username'];
 		}
 	}
-	
+
 	/**
 	 * Gets the current acting username.
 	 *
 	 * @access  public
 	 * @return  string The username of the user
 	 */
-	function getActingUsername() 
+	function getActingUsername()
 	{
 		global $auth_bgp_session, $auth_isBGP;
 		if ($auth_isBGP) {
@@ -1691,30 +1692,30 @@ class Auth
 			return $session['acting_username'];
 		}
 	}
-	
+
 	/**
 	 * Update the current acting username.
 	 *
 	 * @access  public
 	 */
-	function setActingUsername($username) 
+	function setActingUsername($username)
 	{
 		if ($username == '') {
 			return;
 		}
-		
+
 		Auth::setSession('acting_username', $username);
-		
+
 		return;
 	}
-	
+
 	/**
 	 * Gets the current user ID.
 	 *
 	 * @access  public
 	 * @return  integer The ID of the user
 	 */
-	function getUserFullName() 
+	function getUserFullName()
 	{
 		global $auth_bgp_session, $auth_isBGP;
 		if ($auth_isBGP) {
@@ -1736,7 +1737,7 @@ class Auth
 	 * @access  public
 	 * @return  integer The ID of the user
 	 */
-	function getUserEmail() 
+	function getUserEmail()
 	{
 		global $auth_bgp_session, $auth_isBGP;
 		if ($auth_isBGP) {
@@ -1759,10 +1760,10 @@ class Auth
 	 * @param   string $password The password of the user (in ldap)
 	 * @return  array $usersgroups, plus saves them to the LDAP groups session variable
 	 */
-	function GetUsersLDAPGroups($username, $password)  
+	function GetUsersLDAPGroups($username, $password)
 	{
 		$log = FezLog::get();
-		
+
 		global $auth_bgp_session, $auth_isBGP;
 		if ($auth_isBGP) {
 			$session =& $auth_bgp_session;
@@ -1824,10 +1825,10 @@ class Auth
 	 * @param   string $p_password The password of the user (in ldap)
 	 * @return  boolean true if the user successfully binds to the LDAP server
 	 */
-	function ldap_authenticate($p_user_id, $p_password) 
+	function ldap_authenticate($p_user_id, $p_password)
 	{
 		$log = FezLog::get();
-		
+
 		if ((APP_DISABLE_PASSWORD_CHECKING == "true") && ($_SERVER['REMOTE_ADDR'] == APP_DISABLE_PASSWORD_IP)) {
 			return true; // switch this on and comment the rest out for debugging/development
 		} else {
@@ -1855,10 +1856,10 @@ class Auth
 	 * @access  public
 	 * @return  array
 	 */
-	function getIDPList() 
+	function getIDPList()
 	{
 		$log = FezLog::get();
-		
+
 		if (is_file(SHIB_WAYF_METADATA_LOCATION) == true) {
 			$sourceXML = fopen(SHIB_WAYF_METADATA_LOCATION, "r");
 			$sourceXMLRead = '';
@@ -1928,7 +1929,7 @@ class Auth
     {
         $log = FezLog::get();
 
-        // Flag on whether to load LDAP User Details. True by default. 
+        // Flag on whether to load LDAP User Details. True by default.
         // Value will be changed depending on the Disable Password Checking setting and Masquerading
         $getLDAPDetails = true;
 
@@ -2035,7 +2036,7 @@ class Auth
                 $session['isInFederation'] = false;
 
                 $userDetails = User::GetUserLDAPDetails($username, $password);
-                
+
                 // Login failed, get out of here.
                 if ($userDetails === false){
                     return 32;
@@ -2048,14 +2049,14 @@ class Auth
                 // Create the user in Fez
                 User::insertFromLDAPLogin();
                 $usr_id = User::getUserIDByUsername($username);
-                
+
                 // @TOFIX: Investigate why GetUserLDAPDetails() method is called the 2nd time in this else condition.
                 $userDetails = User::GetUserLDAPDetails($username, $password);
                 //Overwrite shib attributes wiht those from ldap/ad
                 User::updateShibAttribs($usr_id);
             }
             $usr_id = User::getUserIDByUsername($username);
-            
+
         // User Exists
         } else { // if it is a registered Fez user then get their details from the fez user table
             $session['isInDB'] = true;
@@ -2070,7 +2071,7 @@ class Auth
                 $session['isInFederation'] = false;
                 if ($userDetails['usr_ldap_authentication'] == 1) {
                     if (!$auth_isBGP) {
-                        
+
                         // Escape loading LDAP User details when one of these conditions is met, as the LDAP server won't bind without valid password.
                         // - Disable Password Checking is on & available for this IP
                         //   APP_DISABLE_PASSWORD_CHECKING (String). Value: "true" or "false"
@@ -2078,8 +2079,8 @@ class Auth
                         if ( (APP_DISABLE_PASSWORD_CHECKING == "true" && $_SERVER['REMOTE_ADDR'] == APP_DISABLE_PASSWORD_IP) || ($masquerade) ) {
                             $getLDAPDetails = false;
                         }
-                            
-                        if ($getLDAPDetails) { 
+
+                        if ($getLDAPDetails) {
                             Auth::GetUsersLDAPGroups($userDetails['usr_username'], $password);
                             $userDetails = User::GetUserLDAPDetails($username, $password);
                             $distinguishedname = @$userDetails['distinguishedname'];
@@ -2130,10 +2131,10 @@ class Auth
 	 * @param   string $usr_id The Fez internal user id of the user
 	 * @return  void Sets the internal groups session to the found internal groups
 	 */
-	function GetUsersInternalGroups($usr_id) 
+	function GetUsersInternalGroups($usr_id)
 	{
 		$log = FezLog::get();
-		
+
 		global $auth_bgp_session, $auth_isBGP;
 		if ($auth_isBGP) {
 			$session =& $auth_bgp_session;
@@ -2150,9 +2151,9 @@ class Auth
 	 * @access  public
 	 * @return  void Sets the internal shib attributes session to the found shib attributes
 	 */
-	function GetShibAttributes() 
+	function GetShibAttributes()
 	{
-		$headers = array(); 
+		$headers = array();
 		session_name(APP_SESSION);
 		@session_start();
 		if (SHIB_VERSION == "2") {
@@ -2160,18 +2161,18 @@ class Auth
 		} elseif (SHIB_VERSION == "1") { //Shib 2 puts things in $_SERVER, not in the apache request headers..
 			//Shib 2.x also calls things different ids, so here is a mapping.
 			$shibboleth2_ids = array(
-				"eppn" => "Shib-EP-PrincipalName", 
-				"targeted-id" => "Shib-EP-TargetedID", 
-				"affiliation" => "Shib-EP-ScopedAffiliation", 
-				"unscoped-affiliation" => "Shib-EP-UnscopedAffiliation", 
-				"entitlement" => "Shib-EP-Entitlement", 
-				"assurance" => "Shib-EP-Assurance", 
-				"library-number" => "Shib-EP-LibraryNumber", 
-				"student-number" => "Shib-EP-StudentNumber", 
-				"primary-orgunit-dn" => "Shib-EP-PrimaryOrgUnitDN", 
-				"org-dn" => "Shib-EP-OrgUnitDN", 
-				"cn" => "Shib-Person-commonName", 
-				"mail" => "Shib-Person-mail", 
+				"eppn" => "Shib-EP-PrincipalName",
+				"targeted-id" => "Shib-EP-TargetedID",
+				"affiliation" => "Shib-EP-ScopedAffiliation",
+				"unscoped-affiliation" => "Shib-EP-UnscopedAffiliation",
+				"entitlement" => "Shib-EP-Entitlement",
+				"assurance" => "Shib-EP-Assurance",
+				"library-number" => "Shib-EP-LibraryNumber",
+				"student-number" => "Shib-EP-StudentNumber",
+				"primary-orgunit-dn" => "Shib-EP-PrimaryOrgUnitDN",
+				"org-dn" => "Shib-EP-OrgUnitDN",
+				"cn" => "Shib-Person-commonName",
+				"mail" => "Shib-Person-mail",
 				"primary-affilation"  => "Shib-EP-PrimaryAffiliation");
 			foreach($shibboleth2_ids as $key => $value) {
 				if ($_SERVER[$key] != "") {
@@ -2182,21 +2183,21 @@ class Auth
 			//Shib 2.x also calls things different ids, so here is a mapping.
 			$auth = new SimpleSAML_Auth_Simple('default-sp');
 			$attrs = $auth->getAttributes();
-			
+
 			//shoudl probably just make a oid2fez.php rather than do this here.
 			$shibboleth2_ids = array(
 				"eduPersonPrincipalName" => "Shib-EP-PrincipalName",
 				"eduPersonTargetedID" => "Shib-EP-TargetedID",
 				"eduPersonScopedAffiliation" => "Shib-EP-ScopedAffiliation",
-				"eduPersonAffiliation" => "Shib-EP-UnscopedAffiliation", 
+				"eduPersonAffiliation" => "Shib-EP-UnscopedAffiliation",
 				"entitlement" => "Shib-EP-Entitlement",
-				"assurance" => "Shib-EP-Assurance", 
-				"urn:oid:1.3.6.1.4.1.5158.100.1" => "Shib-EP-LibraryNumber", 
-				"student-number" => "Shib-EP-StudentNumber", 
-				"eduPersonPrimaryOrgUnitDN" => "Shib-EP-PrimaryOrgUnitDN", 
-				"eduPersonOrgUnitDN" => "Shib-EP-OrgUnitDN", 
-				"cn" => "Shib-Person-commonName", 
-				"mail" => "Shib-Person-mail", 
+				"assurance" => "Shib-EP-Assurance",
+				"urn:oid:1.3.6.1.4.1.5158.100.1" => "Shib-EP-LibraryNumber",
+				"student-number" => "Shib-EP-StudentNumber",
+				"eduPersonPrimaryOrgUnitDN" => "Shib-EP-PrimaryOrgUnitDN",
+				"eduPersonOrgUnitDN" => "Shib-EP-OrgUnitDN",
+				"cn" => "Shib-Person-commonName",
+				"mail" => "Shib-Person-mail",
 				"eduPersonPrimaryAffiliation"  => "Shib-EP-PrimaryAffiliation");
 			foreach($shibboleth2_ids as $key => $value) {
 				if ($attrs[$key][0] != "") {
@@ -2213,7 +2214,7 @@ class Auth
 	 * @access  public
 	 * @return  boolean true if in the AD/LDAP, false otherwise.
 	 */
-	function isInAD() 
+	function isInAD()
 	{
 		global $auth_bgp_session, $auth_isBGP;
 		if ($auth_isBGP) {
@@ -2246,7 +2247,7 @@ class Auth
 	 * @access  public
 	 * @return  boolean true if in the Shibboleth system, false otherwise.
 	 */
-	function isInFederation() 
+	function isInFederation()
 	{
 		global $auth_bgp_session, $auth_isBGP;
 		if ($auth_isBGP) {
@@ -2263,7 +2264,7 @@ class Auth
 	 * @access  public
 	 * @return  array $defaultRoles
 	 */
-	function getDefaultRoles() 
+	function getDefaultRoles()
 	{
 		global $defaultRoles;
 		return $defaultRoles;
@@ -2276,20 +2277,20 @@ class Auth
 	 * @param integer $role_id
 	 * @return array $defaultRoles
 	 */
-	function getDefaultRoleName($role_id) 
+	function getDefaultRoleName($role_id)
 	{
 		global $defaultRoles;
 		return $defaultRoles[$role_id];
 	}
 
-	function getUserAuthRuleGroups($usr_id) 
+	function getUserAuthRuleGroups($usr_id)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
 
 		$dbtp = APP_TABLE_PREFIX;
 		$stmt = "SELECT argu_arg_id
-		         FROM ".$dbtp."auth_rule_group_users 
+		         FROM ".$dbtp."auth_rule_group_users
 		         WHERE argu_usr_id = ".$db->quote($usr_id, 'INTEGER');
 		try {
 			$res = $db->fetchCol($stmt);
@@ -2303,7 +2304,7 @@ class Auth
 
 
 	//Same as above but only returns groups that are set against pids
-	function getUserAuthRuleGroupsInUse($usr_id) 
+	function getUserAuthRuleGroupsInUse($usr_id)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -2325,7 +2326,7 @@ class Auth
 	}
 
 	//Same as above but only returns groups that are set against pids for a specific role
-	function getUserRoleAuthRuleGroupsInUse($usr_id, $role) 
+	function getUserRoleAuthRuleGroupsInUse($usr_id, $role)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -2353,7 +2354,7 @@ class Auth
 
 
 	//Same as above but only returns groups that are set against pids for the lister role only using the lister only table
-	function getUserListerAuthRuleGroupsInUse($usr_id) 
+	function getUserListerAuthRuleGroupsInUse($usr_id)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -2377,7 +2378,7 @@ class Auth
 
 
 
-	function setAuthRulesUsers() 
+	function setAuthRulesUsers()
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -2385,18 +2386,18 @@ class Auth
 
 		if (!$auth_isBGP) {
 			$ses = &Auth::getSession();
-				
-				
-				
+
+
+
 			//$fez_groups_sql = Misc::arrayToSQL(@$ses[APP_INTERNAL_GROUPS_SESSION]);
 			//$ldap_groups_sql = Misc::arrayToSQL(@$ses[APP_LDAP_GROUPS_SESSION]);
-				
+
 			$fez_groups = @$ses[APP_INTERNAL_GROUPS_SESSION];
 			$ldap_groups = @$ses[APP_LDAP_GROUPS_SESSION];
 
 			$dbtp =  APP_TABLE_PREFIX;
 			$usr_id = Auth::getUserID();
-			
+
 
 //                        $log->err("user id for set auth rules is ".$usr_id);
 
@@ -2410,21 +2411,21 @@ class Auth
 			}
 // remove the below join so the query would run fast again. The join was meant to improve performance by limiting the set but doesnt really.
 //                INNER JOIN ".$dbtp."auth_index2 ON argr_arg_id=authi_arg_id
-				
+
 			// test and insert matching rules for this user
 			$authStmt = "
                 INSERT INTO ".$dbtp."auth_rule_group_users (argu_arg_id, argu_usr_id)
-                SELECT distinct argr_arg_id, ".$db->quote($usr_id, 'INTEGER')." 
+                SELECT distinct argr_arg_id, ".$db->quote($usr_id, 'INTEGER')."
                 FROM ".$dbtp."auth_rule_group_rules
                 INNER JOIN ".$dbtp."auth_rules ON argr_ar_id=ar_id
 
-                AND 
+                AND
                 (
-                    (ar_rule='public_list' AND ar_value='1') 
-                OR  (ar_rule = '!rule!role!Fez_User' AND ar_value='".$usr_id."') 
+                    (ar_rule='public_list' AND ar_value='1')
+                OR  (ar_rule = '!rule!role!Fez_User' AND ar_value='".$usr_id."')
                 OR (ar_rule = '!rule!role!AD_User' AND ar_value=".$db->quote(Auth::getUsername()).") ";
 			$bindParams = array();
-				
+
 			if (count($fez_groups) > 0) {
 				$authStmt .="
                     OR (ar_rule = '!rule!role!Fez_Group' AND ar_value IN (".Misc::arrayToSQLBindStr($fez_groups).") ) ";
@@ -2437,58 +2438,58 @@ class Auth
 			}
 			if (!empty($ses['distinguishedname'])) {
 				$authStmt .= "
-                    OR (ar_rule = '!rule!role!AD_DistinguishedName' 
+                    OR (ar_rule = '!rule!role!AD_DistinguishedName'
                             AND INSTR(".$db->quote($ses['distinguishedname']).", ar_value) > 0
                        ) ";
 			}
 
 			if (!empty($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'])) {
 				$authStmt .= "
-                    OR (ar_rule = '!rule!role!eduPersonTargetedID' 
+                    OR (ar_rule = '!rule!role!eduPersonTargetedID'
                             AND INSTR(".$db->quote($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID']).", ar_value) > 0
                        ) ";
 			}
 			if (!empty($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-UnscopedAffiliation'])) {
 				$authStmt .= "
-                    OR (ar_rule = '!rule!role!eduPersonAffiliation' 
-                            AND INSTR(".$db->quote($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-UnscopedAffiliation']).", 
+                    OR (ar_rule = '!rule!role!eduPersonAffiliation'
+                            AND INSTR(".$db->quote($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-UnscopedAffiliation']).",
                                 ar_value) > 0
                        ) ";
 			}
 			if (!empty($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-ScopedAffiliation'])) {
 				$authStmt .= "
-                    OR (ar_rule = '!rule!role!eduPersonScopedAffiliation' 
-                            AND INSTR(".$db->quote($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-ScopedAffiliation']).", 
+                    OR (ar_rule = '!rule!role!eduPersonScopedAffiliation'
+                            AND INSTR(".$db->quote($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-ScopedAffiliation']).",
                                 ar_value) > 0
                        ) ";
 			}
 			if (!empty($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryAffiliation'])) {
 				$authStmt .= "
-                    OR (ar_rule = '!rule!role!eduPersonPrimaryAffiliation' 
+                    OR (ar_rule = '!rule!role!eduPersonPrimaryAffiliation'
                             AND INSTR(".$db->quote($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryAffiliation']).", ar_value) > 0
                        ) ";
 			}
 			if (!empty($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'])) {
 				$authStmt .= "
-                    OR (ar_rule = '!rule!role!eduPersonPrincipalName' 
+                    OR (ar_rule = '!rule!role!eduPersonPrincipalName'
                             AND INSTR(".$db->quote($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName']).", ar_value) > 0
                        ) ";
 			}
 			if (!empty($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgDN'])) {
 				$authStmt .= "
-                    OR (ar_rule = '!rule!role!eduPersonOrgDN' 
+                    OR (ar_rule = '!rule!role!eduPersonOrgDN'
                             AND INSTR(".$db->quote($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgDN']).", ar_value) > 0
                        ) ";
 			}
 			if (!empty($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgUnitDN'])) {
 				$authStmt .= "
-                    OR (ar_rule = '!rule!role!eduPersonOrgUnitDN' 
+                    OR (ar_rule = '!rule!role!eduPersonOrgUnitDN'
                             AND INSTR(".$db->quote($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgUnitDN']).", ar_value) > 0
                        ) ";
 			}
 			if (!empty($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryOrgUnitDN'])) {
 				$authStmt .= "
-                    OR (ar_rule = '!rule!role!eduPersonPrimaryOrgUnitDN' 
+                    OR (ar_rule = '!rule!role!eduPersonPrimaryOrgUnitDN'
                             AND INSTR(".$db->quote($ses[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryOrgUnitDN']).", ar_value) > 0
                        ) ";
 			}
@@ -2511,7 +2512,7 @@ class Auth
 				$log->err($ex);
 				return -1;
 			}
-				
+
 			Auth::setSession('auth_index_user_rule_groups', Auth::getUserAuthRuleGroups($usr_id));
 			Auth::setSession('auth_index_highest_rule_group', AuthIndex::highestRuleGroup());
 			Auth::setSession('auth_is_approver', Auth::isUserApprover($usr_id));
@@ -2573,7 +2574,7 @@ class Auth
 			$_SESSION[$key] = $value;
 		}
 	}
-	
+
 	/**
 	 * Splits APP_BASIC_AUTH_IP value into an array of individual IPs.
 	 */
@@ -2588,8 +2589,8 @@ class Auth
 		}
 		return $ips;
 	}
-	
-	
+
+
 	/**
 	 * Determine if we need to redirect the user to the Baic Authentication URL,
 	 * and pass them on to their requested document.
@@ -2605,24 +2606,24 @@ class Auth
 			}
 		}
 	}
-	
-	
-	
+
+
+
 	/**
 	 * Logs the current user out of Fez.
 	 */
 	function logout()
 	{
 		////////////////////////////////////////////////////////////////////////////////
-		// IMPORTANT! everytime you destroy a cookie and you are using 
-		// save_session_handler (database storage for sessions for 
+		// IMPORTANT! everytime you destroy a cookie and you are using
+		// save_session_handler (database storage for sessions for
 		// instance) then you need to reset the save_session_hanlder
 		// See the unresolved php bug for details http://bugs.php.net/bug.php?id=32330
 		////////////////////////////////////////////////////////////////////////////////
 		foreach($_SESSION as $k => $v) {
 			unset($_SESSION[$k]);
 		}
-		
+
 		if (SHIB_VERSION != "3" && SHIB_SWITCH == "ON") {
 			if (isset($_COOKIE['_saml_idp'])) {
 				setcookie(session_name(), '', time()-42000, '/');
@@ -2633,9 +2634,9 @@ class Auth
 				}
 			}
 		}
-		
+
 		Zend_Session::destroy();
-		
+
 		return;
 	}
 }
