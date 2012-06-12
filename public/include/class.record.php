@@ -78,7 +78,6 @@ include_once(APP_INC_PATH . "class.record_general.php");
 include_once(APP_INC_PATH . "class.validation.php");
 include_once(APP_INC_PATH . "class.links_amr_queue.php");
 include_once(APP_INC_PATH . "class.internal_notes.php");
-include_once(APP_INC_PATH . "class.shadow.php");
 
 define('SK_JOIN', 0);
 define('SK_LEFT_JOIN', 1);
