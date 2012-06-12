@@ -390,7 +390,7 @@
                 <td colspan="2">
                 <img src="{$rel_url}webservices/graphviz.php?dot={$encoded_dot}" 
                 alt="graphviz output" usemap="{$map_name}" style="border: none;"/>
-                {$cmapx}
+                {$cmapx|smarty:nodefaults}
                 </td>
               </tr>  
              </table>
