@@ -1046,10 +1046,10 @@ class Auth
 		if (in_array('Editor', $userPIDAuthGroups) && !in_array('Archival_Format_Viewer', $userPIDAuthGroups)) {
 			array_push($userPIDAuthGroups, "Archival_Format_Viewer");
         }
-		if ((in_array('Editor', $userPIDAuthGroups) && !in_array('Viewer', $userPIDAuthGroups)) || (array_key_exists('Viewer', $overrideAuth) && $overrideAuth['Viewer'] == true)) {
+		if ((in_array('Editor', $userPIDAuthGroups) && !in_array('Viewer', $userPIDAuthGroups)) || (isset($overrideAuth['Viewer']) && $overrideAuth['Viewer'] == true)) {
             array_push($userPIDAuthGroups, "Viewer");
         }
-		if ((in_array('Viewer', $userPIDAuthGroups) && !in_array('Lister', $userPIDAuthGroups)) || (array_key_exists('Lister', $overrideAuth) && $overrideAuth['Lister'] == true)) {
+		if ((in_array('Viewer', $userPIDAuthGroups) && !in_array('Lister', $userPIDAuthGroups)) || (isset($overrideAuth['Lister']) && $overrideAuth['Lister'] == true)) {
             array_push($userPIDAuthGroups, "Lister");
         }
         if ($datastreamQuickAuth != false) {
