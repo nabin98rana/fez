@@ -1217,8 +1217,10 @@ class Record
             }
 
             foreach ($oneToManySearchkey as $key => $value) {
-                $fields[] = $key;
-                $values[] = $db->quote($value);
+                if ($key != 'rek_'.$skTable.'_id') {
+                    $fields[] = $key;
+                    $values[] = $db->quote($value);
+                }
             }
 
             // Timestamp
@@ -4223,7 +4225,14 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
       $replace = '\\\$1';
       // REFACTOR of the solr input cleaning so that it first escapes everything, then removes escapes for search key patterns
       // The REFACTOR makes the regex MUCH smaller so it doesn't get close to hitting the regex length link limit and show perform better too. Also easier to read!
-      $pattern ='/(\+|-|&&|\|\||!|\{|}|\[|]|\^|"|~|\*|\?|:|\\\)(?!\))(?!\])/';
+
+      // Solr doesn't like unclosed brackets so if brackets don't match assume an simple search entering only part of a title etc so escape
+      if (substr_count($escapedInput, '(') == substr_count($escapedInput, ')')) {
+          $pattern ='/(\+|-|&&|\|\||!|\{|}|\[|]|\^|"|~|\*|\?|:|\\\)(?!\))(?!\])/';
+      }else {
+          $pattern ='/(\+|-|&&|\(|\)|\|\||!|\{|}|\[|]|\^|"|~|\*|\?|:|\\\)(?!\))(?!\])/';
+      }
+
       //first escape everything
       $escapedInput = preg_replace($pattern, $replace, $escapedInput);
 
