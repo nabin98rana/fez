@@ -86,7 +86,9 @@ require_once('class.soap_server.php');*/
 // class variable emulation
 // cf. http://www.webkreator.com/php/techniques/php-static-class-variables.html
 //$GLOBALS['_transient']['static']['nusoap_base']->globalDebugLevel = 9;
-$GLOBALS['_transient']['static']['nusoap_base']->globalDebugLevel = 0;
+if (isset($GLOBALS['_transient']['static']['nusoap_base'])) {
+  $GLOBALS['_transient']['static']['nusoap_base']->globalDebugLevel = 0;
+}
 
 /**
 *
@@ -3350,7 +3352,7 @@ class soap_server extends nusoap_base {
 	*
 	* @access   private
 	*/
-	function parse_http_headers() 
+	function parse_http_headers()
 	{
 		$this->request = '';
 		$this->SOAPAction = '';
@@ -6864,14 +6866,14 @@ class soapclient_internal extends nusoap_base  {
 	* @access   private
 	*/
     function parseResponse($headers, $data) {
-		
+
     	if(strstr($headers['content-type'], 'multipart/related')) {
-    		// MIME encoded XML?    		
+    		// MIME encoded XML?
     		$xml_start = strpos($data, '<?xml');
-    		$xml_end   = strrpos($data, '>');    		
+    		$xml_end   = strrpos($data, '>');
     		$data = substr($data, $xml_start, $xml_end - $xml_start + 1);
     	}
-    	
+
     	$this->debug('Entering parseResponse() for data of length ' . strlen($data) . ' and type ' . $headers['content-type']);
 		if (!strstr($headers['content-type'], 'text/xml')) {
 			$this->setError('Response not of type text/xml');
