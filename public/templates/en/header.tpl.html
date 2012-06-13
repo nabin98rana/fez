@@ -88,13 +88,13 @@ dojo.require("dojo.rpc.JsonService");
 <meta http-equiv="Refresh" content="{$refresh_rate};URL={$app_base_url}{$refresh_page}" />
 {/if}
 {if $isUser}
-{$najax_header}
+{$najax_header|smarty:nodefaults}
 {/if}
 {$meta_head}
 	<script type="text/javascript">
 	<!--
     {if $isUser}
-	{$najax_register}
+	{$najax_register|smarty:nodefaults}
     {/if}
 	{* Change the window.onload if we're using dojo so that this doesn't overwrite our flash uploader callback *}
 	{if $header_include_flash_uploader_files == 1 && $smarty.const.APP_ENABLE_FLASH_UPLOADER_SWITCH == 'ON'}

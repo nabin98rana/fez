@@ -457,6 +457,9 @@ $tpl = new Template_API();
 $tpl->setTemplate("view.tpl.html");
 $tpl->assign("pid", $pid);
 $tpl->assign("not_exists", $not_exists);
+if ($not_exists) {
+    header("Status: 404 Not Found");
+}
 //$tpl->assign("show_not_allowed_msg", true);  // prefer non_exists message
 $tpl->displayTemplate();
 
