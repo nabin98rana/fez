@@ -3,12 +3,12 @@ default:
   context:
     parameters:
       debug:
-        screenshot_dir: /usr/local/sahi/userdata/logs/screens
+        screenshot_dir: /home/xuqabro13
         screen_id: :99
 #      browser: safari
   extensions:
     Behat\MinkExtension\Extension:
-      base_url:  'http://bypass.hazchem.library.uq.edu.au'
+      base_url:  'http://siren.library.uq.edu.au'
       goutte:    ~
 #      sahi:    ~
 #      sahi:
