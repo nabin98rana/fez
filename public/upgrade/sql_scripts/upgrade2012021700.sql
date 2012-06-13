@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%auth_datastream_index2 (
   authdi_role int(11) unsigned NOT NULL DEFAULT '0',
   authdi_arg_id int(11) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (authdi_did,authdi_role,authdi_arg_id)
-); 
+);
 
 CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%auth_datastream_index2_not_inherited (
   authdii_did varchar(64) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%auth_index2_not_inherited__shadow (
   KEY authii_pid_arg_id (authii_pid,authii_arg_id),
   KEY authii_pid (authii_pid),
   KEY authii_arg_id (authii_arg_id)
-)
+);
 
 CREATE TABLE %TABLE_PREFIX%auth_datastream_index2_not_inherited__shadow (
   authdii_did varchar(64) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
@@ -53,4 +53,4 @@ CREATE TABLE %TABLE_PREFIX%auth_datastream_index2_not_inherited__shadow (
   KEY authii_pid_arg_id (authdii_did,authdii_arg_id),
   KEY authii_pid (authdii_did),
   KEY authii_arg_id (authdii_arg_id)
-)
+);
