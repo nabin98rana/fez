@@ -33,11 +33,11 @@
             <div id="search">
                 <form id="searchbox" method="get" action="{$rel_url}list/">
                     <fieldset>
-                        <label for="search-entry">Search Entry</label>
+                        <label for="search_entry">Search Entry</label>
                         {literal}
-                            <input id="search-entry" size="15" type="text" value="Search repository..." name="search_keys[0]" class="s" onfocus="if (this.value == 'Search repository...') {this.value = '';}" onblur="if (this.value == '') {this.value = 'Search repository...';}" tabindex="1" />
+                            <input id="search_entry" size="15" type="text" name="search_keys[0]" class="s" tabindex="1" />
                         {/literal}
-                        <input name="submit" value="" class="submit" title="Search UQ" type="submit" />
+                        <input id="search_entry_submit" name="submit" value="" class="submit" title="{$app_name}" type="submit" />
                         <input type="hidden" name="cat" value="quick_filter" />
                         <input type="hidden" name="sort_by" value="searchKey0" />
                     </fieldset>
@@ -49,7 +49,7 @@
             {if $isUser}
                 <div id="logged-in">
                     {* Logout Button *}
-                    <a href="{$rel_url}logout.php" class="logout-btn"><span class="login-btn-text">LOGOUT</span><span class="login-btn-right"></span></a>
+                    <a href="{$rel_url}logout.php" class="logout-btn" id="Logout"><span class="login-btn-text">LOGOUT</span><span class="login-btn-right"></span></a>
 
                     {* Logged-in message *}
                     <span class="logged-in-msg">You are logged in as <b>{$current_full_name|escape:'html'}</b></span>
@@ -59,11 +59,11 @@
                 <div id="logged-in">
                     {* Login Button *}
                     <a href="{$rel_url}login.php?url={$uri_encoded}" class="login-btn"><span class="login-btn-text">LOGIN</span><span class="login-btn-right"></span></a>
-                    
+
                     {* Login message *}
                     <span class="logged-in-msg">UQ Staff and Students only</span>
                 </div>
-            {/if}			
+            {/if}
 
         </div>
     </div>
@@ -71,25 +71,25 @@
     <div id="topnav">
         <div id="topnav-inner">
             <ul>
-                <li{if $active_nav == 'home'} id="nav-focus"{/if}><a href="{$rel_url}">Home</a></li>
-                <li{if $active_nav == 'list'} id="nav-focus"{/if}><a href="{$rel_url}list/">Browse</a></li>
-                <li{if $active_nav == 'search'} id="nav-focus"{/if}><a href="{$rel_url}adv_search.php">Search</a></li>
-                <li{if $active_nav == 'help'} id="nav-focus"{/if}><a title="Browse the Frequently Asked Questions section" href="{$rel_url}faq">FAQs</a></li>
-                <li{if $active_nav == 'about'} id="nav-focus"{/if}><a href="{$rel_url}about">About / Contact</a></li>
+                <li{if $active_nav == 'home'} id="nav-focus"{/if}><a id="Home" href="{$rel_url}">Home</a></li>
+                <li{if $active_nav == 'list'} id="nav-focus"{/if}><a id="Browse" href="{$rel_url}list/">Browse</a></li>
+                <li{if $active_nav == 'search'} id="nav-focus"{/if}><a id="Advanced Search" href="{$rel_url}adv_search.php">Search</a></li>
+                <li{if $active_nav == 'help'} id="nav-focus"{/if}><a id="FAQs" title="Browse the Frequently Asked Questions section" href="{$rel_url}faq">FAQs</a></li>
+                <li{if $active_nav == 'about'} id="nav-focus"{/if}><a id="About" href="{$rel_url}about">About / Contact</a></li>
 
                 {if $isUser}
-                    <li{if $active_nav == 'preferences'} id="nav-focus"{/if}><a href="{$rel_url}preferences.php">Prefs</a></li>
+                    <li{if $active_nav == 'preferences'} id="nav-focus"{/if}><a id="Prefs" href="{$rel_url}preferences.php">Prefs</a></li>
 
                     {if $isAuthor == 1}
-                        <li{if $active_nav == 'mypubs'} id="nav-focus"{/if}><a href="{$rel_url}{$myPubURL}">My Pubs</a></li>
+                        <li{if $active_nav == 'mypubs'} id="nav-focus"{/if}><a id="My Pubs" href="{$rel_url}{$myPubURL}">My Pubs</a></li>
                     {/if}
 
                     <li{if $active_nav == 'my_fez'} id="nav-focus"{/if}><a href="{$rel_url}my_fez{if $useClassic == 1}_traditional{/if}.php">My {$app_name}</a></li>
 
                     {if $isAdministrator}
-                        <li{if $active_nav == 'admin'} id="nav-focus"{/if}><a href="{$rel_url}manage/">Admin</a></li>
+                        <li{if $active_nav == 'admin'} id="nav-focus"{/if}><a id="Admin" href="{$rel_url}manage/">Admin</a></li>
                         <li{if $active_nav == 'favourites'} id="nav-focus"{/if}>
-                            <a href="{$rel_url}favourites"><img src="{$rel_url}images/star_16.png" width="16" height="16" alt="View starred records" /></a>
+                            <a id="Favourites" href="{$rel_url}favourites"><img src="{$rel_url}images/star_16.png" width="16" height="16" alt="View starred records" /></a>
                         </li>
                         <li{if $active_nav == 'saved_search'} id="nav-focus"{/if}><a href="{$rel_url}search_favourites.php"><img src="{$rel_url}images/saved_search.png" width="16" height="16" alt="View saved search" /></a></li>
                         <li id="bgps">

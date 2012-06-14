@@ -42,6 +42,15 @@ class FeatureContext extends MinkContext
   private $screenId;
 
   /**
+   * If this current step is a modal step
+   *
+   * @var string
+   */
+  private $isModal;
+
+
+
+  /**
      * Initializes context.
      * Every scenario gets it's own context object.
      *
@@ -50,6 +59,7 @@ class FeatureContext extends MinkContext
     public function __construct(array $parameters)
     {
         // Initialize your context here
+      $this->isModal = false;
       $behatchDir = str_replace("/features/bootstrap/notifiers", "",__DIR__);
       $this->screenshotDir = isset($parameters["debug"]['screenshot_dir']) ? $parameters["debug"]['screenshot_dir'] : $behatchDir;
       $this->screenId = isset($parameters["debug"]['screen_id']) ? $parameters["debug"]['screen_id'] : ":0";
@@ -73,6 +83,7 @@ class FeatureContext extends MinkContext
     public function iLoginAsAdministrator()
     {
           $this->visit("/login.php");
+//      $this->getSession()->wait(2000, "dojo.byId('search_entry')");
           $this->fillField("username", "admin_test");
           $this->fillField("passwd", "omgMINKROCKS");
           $this->pressButton("Login");
@@ -103,6 +114,29 @@ class FeatureContext extends MinkContext
   }
 
   /**
+   * Disable waiting checks while doing steps involving modals
+   *
+   * @Then /^(?:|I )turn off waiting checks$/
+   */
+  public function turnOffWaitingChecks()
+  {
+    $this->isModal = true;
+    return;
+  }
+
+  /**
+   * Enable waiting checks while doing steps not involving modals
+   *
+   * @Then /^(?:|I )turn on waiting checks$/
+   */
+  public function turnOnWaitingChecks()
+  {
+    $this->isModal = false;
+    return;
+  }
+
+
+  /**
    * Pauses the scenario until the user presses a key. Useful when debugging a scenario.
    *
    * @Then /^(?:|I )put a breakpoint$/
@@ -127,6 +161,27 @@ class FeatureContext extends MinkContext
     $this->saveScreenshot($imageFilename);
   }
 
+  /**
+   * Checks that an element that should be on every page exists and waits for it, or 10 seconds before proceeding
+   *
+   * @AfterStep
+   */
+  public function waitForSearchEntryBoxToAppear(StepEvent $event)
+  {
+    // Check this isn't a modal popup
+//    $popupText = $this->assertPopupMessage('');
+//    if (!$this->getSession()->getDriver()->wdSession->getAlert()) {
+      if (!$this->isModal) {
+//        echo "apparently i am NOT modal";
+//      $stepTitle = $event->getStep()->getTitle()
+//      if ($event->getStep()->getTitle()
+        $this->getSession()->wait(10000, "dojo.byId('search_entry')");
+      }
+//      $this->isModal = false;
+//    }
+//    $this->getSession()->wait(10000, "$('search_entry').length > 0");
+  }
+
 
   /**
    * Save a screenshot when failing
@@ -136,7 +191,8 @@ class FeatureContext extends MinkContext
    */
   public function failScreenshots(StepEvent $event)
   {
-    if (!($this->getSession()->getDriver() instanceof Behat\Mink\Driver\GoutteDriver)) {
+    if (!($this->getSession()->getDriver() instanceof Behat\Mink\Driver\GoutteDriver) &&
+      !($this->getSession()->getDriver() instanceof Behat\Mink\Driver\ZombieDriver)) {
       if($event->getResult() == StepEvent::FAILED)
       {
         $scenarioName = str_replace(" ", "_", $event->getStep()->getParent()->getTitle());
@@ -191,5 +247,58 @@ class FeatureContext extends MinkContext
     }
   }
 
+
+
+  /**
+   * @when /^(?:|I )confirm the popup$/
+   */
+  public function confirmPopup()
+  {
+    $this->getSession()->getDriver()->wdSession->accept_alert();
+  }
+
+  /**
+   * @when /^(?:|I )cancel the popup$/
+   */
+  public function cancelPopup()
+  {
+    $this->getSession()->getDriver()->wdSession->dismiss_alert();
+  }
+
+  /**
+   * @When /^(?:|I )should see "([^"]*)" in popup$/
+   *
+   * @param string $message
+   *
+   * @return bool
+   */
+  public function assertPopupMessage($message)
+  {
+    return $message == $this->getSession()->getDriver()->wdSession->getAlert_text();
+
+  }
+
+  /**
+   * @When /^(?:|I )fill "([^"]*)" in popup$/
+   *
+   * @param string $test
+   */
+  public function setPopupText($test)
+  {
+    $this->getSession()->getDriver()->wdSession->postAlert_text($test);
+  }
+
+  /**
+   * @When /^I go to the "([^"]+)" page$/
+   */
+  public function iGoToThePage($page)
+  {
+    $pageObjName = 'Page_' . str_replace(' ', '', $page);
+    if (class_exists($pageObjName)) {
+      $page = new $pageObjName($this);
+    } else {
+      throw new exception('Page not found');
+    }
+  }
 
 }

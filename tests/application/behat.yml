@@ -3,18 +3,22 @@ default:
   context:
     parameters:
       debug:
-        screenshot_dir: /usr/local/sahi/userdata/logs/screens
+        screenshot_dir: /tmp/
         screen_id: :99
 #      browser: safari
   extensions:
     Behat\MinkExtension\Extension:
       base_url:  'http://bypass.hazchem.library.uq.edu.au'
-      goutte:    ~
-#      sahi:    ~
+      default_session: selenium2
+      javascript_session: selenium2
+      selenium2:
+#        wd_host: 'http://130.102.44.21:4444/wd/hub'
+#        browser: firefox
+#      default_session: sahi
+#      javascript_session: sahi
 #      sahi:
-#         host: sanity.library.uq.edu.au
-#         host: uqckorte.vpn.uq.edu.au
-#         port: 9999
 #        host: 130.102.44.21
 #        port: 9999
-      selenium2: ~
+#         host: uqckorte.vpn.uq.edu.au
+#         port: 9999
+
