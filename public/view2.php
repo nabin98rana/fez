@@ -684,6 +684,14 @@ if (!empty($pid) && $record->checkExists()) {
 			$googleCitationsLink = Record::getSearchKeyIndexValue($pid, "GS Cited By Link", false);
 			$tpl->assign("citationsGoogleLink", $googleCitationsLink);
 		}
+		
+		// Thomson and Scopus IDs. Grab 1st ID only
+		$ThomsonCitationsID = Record::getSearchKeyIndexValue($pid, "ISI LOC", false);
+		$ScopusCitationsID = Record::getSearchKeyIndexValue($pid, "Scopus ID", false);
+		$ThomsonCitationsID = $ThomsonCitationsID[0] == '' ? 0 : $ThomsonCitationsID[0]; 
+		$ScopusCitationsID = $ScopusCitationsID[0] == '' ? 0 : $ScopusCitationsID[0];
+		$tpl->assign("ThomsonID", $ThomsonCitationsID);
+		$tpl->assign("ScopusID", $ScopusCitationsID);		
 
 		// Add view to statistics buffer
 		Statistics::addBuffer($pid);
