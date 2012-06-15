@@ -5017,6 +5017,10 @@ class Record
       return $fda->isDeleted($pid);
     }
     $res = Fedora_API::searchQuery('pid='.$pid, array('pid', 'state'));
+    if ( empty($res) ) {
+      //Due to issues with uppercase and lower case pids being treated differently in fedora, we will check again
+      $res = Fedora_API::searchQuery('pid='.strtoupper($pid), array('pid', 'state'));
+    }
     if ($res[0]['state'] == 'D') {
       return true;
     }

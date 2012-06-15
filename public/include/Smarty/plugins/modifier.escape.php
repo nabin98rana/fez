@@ -22,6 +22,9 @@
  */
 function smarty_modifier_escape($string, $esc_type = 'html')
 {
+    if ( is_object( $string ) || is_array( $string ) ) {
+        return $string;
+    }
   switch ($esc_type) {
     case 'html':
       return htmlspecialchars($string, ENT_QUOTES);

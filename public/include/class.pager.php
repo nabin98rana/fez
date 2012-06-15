@@ -301,7 +301,7 @@ class Pager
 
 
 
-		if( empty($hide_closed) && (array_key_exists('hide_closed', $existing_cookie)) && !($existing_cookie['hide_closed'] == 1 || $existing_cookie['hide_closed'] === 0) ) {
+		if( empty($hide_closed) && !empty($existing_cookie) && (array_key_exists('hide_closed', $existing_cookie)) && !($existing_cookie['hide_closed'] == 1 || $existing_cookie['hide_closed'] === 0) ) {
 			$hide_closed = $existing_cookie['hide_closed'];
 		}
 
