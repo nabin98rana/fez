@@ -6,7 +6,7 @@
 <title>{if $extra_title != ""}{$extra_title} - {/if}{$application_title}</title>
 <link rel="Bookmark" href="{$rel_url}favicon.ico" />
 <link rel="search" type="application/opensearchdescription+xml" href="{$app_base_url}opensearch.xml.php" title="Search {$application_title}" />
-<link rel="stylesheet" href="{$rel_url}css/dynamic_css.php" type="text/css" />
+{if $offline == "true"}<link rel="stylesheet" href="{$rel_url}templates/en/css/maintenance.css" type="text/css" />{else}<link rel="stylesheet" href="{$rel_url}css/dynamic_css.php" type="text/css" />{/if}
 <script type="text/javascript" src="{$rel_url}js/dojo/dojo.js"></script>
 {if $setup}
 <link rel="stylesheet" href="../css/setup.css" type="text/css" />
@@ -117,7 +117,7 @@ dojo.require("dojo.rpc.JsonService");
 		  }
 		}
 	}
-	
+
 {/literal}
 {if $header_include_flash_uploader_files == 1 && $smarty.const.APP_ENABLE_FLASH_UPLOADER_SWITCH == 'ON'}
 );
@@ -125,7 +125,7 @@ dojo.require("dojo.rpc.JsonService");
 rel_url = '{$rel_url}';
 cell_color = '{$cell_color}';
 value_color = '{$value_color}';
-	
+
 {if $include_stats_map == 1 && APP_USE_GOOGLE_MAP_SWITCH == 'ON'}
 {include file="stats_map.javascript_include.tpl.html"}
 {/if}
