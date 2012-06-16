@@ -175,7 +175,7 @@ class FeatureContext extends MinkContext
 //        echo "apparently i am NOT modal";
 //      $stepTitle = $event->getStep()->getTitle()
 //      if ($event->getStep()->getTitle()
-        $this->getSession()->wait(10000, "dojo.byId('search_entry')");
+        $this->getSession()->wait(10000, "dojo.byId('powered-by')");
       }
 //      $this->isModal = false;
 //    }

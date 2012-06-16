@@ -10,8 +10,7 @@ Feature: Security
 #    Given I login as administrator
 #    Then I should see "You are logged in as Admin Test User"
 
-
-  @destructive
+  @destructive @now
   Scenario: Create a community, collection, set the collection to viewable by admins only
     Given I login as administrator
     And I follow "Browse"
@@ -27,6 +26,7 @@ Feature: Security
     And I fill in "Keyword(s) 1" with "automated testing"
     And I press "Publish"
     And I follow "Security Test Community"
+#    And put a breakpoint
     And I follow "Edit Security for Selected Collection"
     #10 is the viewer role.. if you choose "Viewer" instead it stupidly selects Archival_FormatViewer so have to use the number value
     And I select "10" from "role"
@@ -39,7 +39,9 @@ Feature: Security
     Given I am on "/"
     And I fill in "Search Entry" with "title:(\"Security Test Collection\")"
     And I press "search_entry_submit"
+#    And put a breakpoint
     Then I should see "(0 results found)"
+#    And put a breakpoint
 
    @destructive
    Scenario: Create a Community as an administrator and see it as a non-logged in user

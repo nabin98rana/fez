@@ -11,8 +11,10 @@ default:
       base_url:  'http://bypass.hazchem.library.uq.edu.au'
       default_session: selenium2
       javascript_session: selenium2
-      selenium2:
+      selenium2: ~
+#      selenium2:
 #        wd_host: 'http://130.102.44.21:4444/wd/hub'
+#        browser: chrome
 #        browser: firefox
 #      default_session: sahi
 #      javascript_session: sahi

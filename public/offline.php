@@ -36,7 +36,8 @@ include_once("config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
 
 $tpl = new Template_API();
-$tpl->setTemplate("offline.tpl.html");
+
+$tpl->setTemplate("maintenance.tpl.html");
 
 $tpl->assign("error_type", $error_type);
 
