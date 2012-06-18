@@ -2,15 +2,15 @@
 {include file="navigation.tpl.html"}
 
 <div style="padding: 10px; margin-right:auto; margin-left:auto; width:800px;">
-	<h1 class="public"><img src="images/rid_22.png" alt="Thomson Reuters Citation Count History" />		
-	Thomson Reuters Citation Count History for <a href="{$rel_url}view/{$pid|escape:"html"}">{$title|escape:"html"}</a></h1> 
+	<h1 class="public"><img src="images/rid_22.png" alt="TR Web of Science Citation Count History" />		
+	TR Web of Science Citation Count History for <a href="{$rel_url}view/{$pid|escape:"html"}">{$title|escape:"html"}</a></h1> 
 	
 	<p><br /></p>
 	
 	{if $ming_loaded}	
 	<p id="citation_history_graph">
 		<img src="{$rel_url}rid_citation_count_history_{$pid|escape:"html"}_graph.png" 
-		     alt="Thomson Reuters Citation Count History Graph" /></p>
+		     alt="TR Web of Science Citation Count History Graph" /></p>
 	<script type="text/javascript">
 	<!--
 		var s1 = new SWFObject("{$rel_url}rid_citation_count_history_{$pid|escape:"html"}_graph.swf","single","780","300","7");		
@@ -23,10 +23,12 @@
 			id="svg" 
 			width="780" 
 			height=300"><img src="{$rel_url}rid_citation_count_history_{$pid|escape:"html"}_graph.png" 
-							 alt="Thomson Reuters Citation Count History Graph" /></object>
+							 alt="TR Web of Science Citation Count History Graph" /></object>
 	{/if}
 
-	<div style="padding-top:20px" class="citation_marketing">Citation counts provided by <a href="http://www.researcherid.com/">Thomson Reuters Researcher ID</a></div>	
+	<div style="padding-top:20px" class="citation_marketing">Citation counts provided by <a href="http://www.wokinfo.com/">TR Web of Science</a></div>	
+	
+	<p style="font-size: 0.9em; margin: 50px 0 -50px 0;" >This data is extracted from the Web of Science and reproduced under a licence from Thomson Reuters.  You may not copy or re-distribute this data in whole or in part without the written consent of the Science business of Thomson Reuters.</p>
 	
 </div>
 

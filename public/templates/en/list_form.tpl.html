@@ -279,7 +279,7 @@
             </td>
             <td align="center">
             {if $list_info.total_rows > 0 && ($list_type !== 'collection_list' && $list_type !== 'community_list')}
-            	<img src="{$rel_url}images/rid_16.png" title="Thomson Reuters Citation Count" alt="Thomson Reuters Citation Count" />            
+            	<img src="{$rel_url}images/thomson_16.gif" title="TR Web of Science Citation Count" alt="TR Web of Science Citation Count" />              
             {/if}
             </td>
             <td align="center">
@@ -457,7 +457,7 @@
 	       {/if}
 	       <td align="left" valign="middle" style="border-top:1px dashed #be87e9; width: 100%;">
             {if $list[i].rek_thomson_citation_count != ""}
-            	<a href="{$rel_url}rid_citation_count_history_{$list[i].rek_pid|escape:"html"}" title="Cited {$list[i].rek_thomson_citation_count} times in Thomson Reuters Researcher ID">{$list[i].rek_thomson_citation_count}</a>
+            	<a href="{$rel_url}rid_citation_count_history_{$list[i].rek_pid|escape:"html"}" title="Cited {$list[i].rek_thomson_citation_count} times in TR Web of Science">{$list[i].rek_thomson_citation_count}</a>
             {elseif $list[i].rek_thomson_citation_count == 0}
                {$list[i].rek_thomson_citation_count}
             {else}

@@ -297,6 +297,7 @@ class Default_Data
 		$defaultData['wok_seconds_between_calls']           = "300";
 		$defaultData['app_bg_poll_int']                     = "20";
 		$defaultData['app_scopus_consumer_name']            = "YOUR AGREED CONSUMER NAME";
+		$defaultData['app_scopus_partner_id   ']            = "";   // Empty default		
 		$defaultData['app_fedora_bypass']                   = "OFF";
         $defaultData['ldap_staff_group']                   = "uqStaff";
         $defaultData['ldap_student_group']                 = "uqStudents";
