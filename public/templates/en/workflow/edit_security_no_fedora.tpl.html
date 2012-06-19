@@ -96,7 +96,9 @@
                  <input type="submit" name="submit" value="Add" />
             </td>
             </tr>
-            <tr><td>Inherit permissions</td><td><input type="checkbox" name="inherit" value="1" {if ($inherits_security)} checked="checked" {/if} /></td></tr>
+            {if ($record_type != 'Community')}
+                <tr><td>Inherit permissions</td><td><input type="checkbox" name="inherit" value="1" {if ($inherits_security)} checked="checked" {/if} /></td></tr>
+            {/if}
             {if ($did)}
                 <tr><td>Watermarked</td><td><input type="checkbox" name="watermark" value="{$watermark}" {if ($watermark)} checked="checked" {/if} /></td></tr>
                 <tr><td>Copyright</td><td><input type="checkbox" name="copyright" value="{$copyright}" {if ($copyright)} checked="checked" {/if} /></td></tr>
@@ -145,7 +147,7 @@
                   </tr>
               {/foreach}
                <tr>
-                  <td width="140" bgcolor="{$cell_color}" colspan="5" class="default">&nbsp;</td>
+                  <td width="140" bgcolor="{$cell_color}" colspan="6" class="default">&nbsp;</td>
               </tr>
 
               <tr>

@@ -111,6 +111,13 @@ if (APP_FEDORA_BYPASS == 'ON') {
 
         $tpl->assign("row", serialize($row));
         $tpl->assign("extra_title", "Edit Security for ".$pid_title);
+        if ($record->isCollection()) {
+            $tpl->assign('record_type', 'Collection');
+        } elseif ($record->isCommunity()) {
+            $tpl->assign('record_type', 'Community');
+        } else {
+            $tpl->assign('record_type', 'Record');
+        }
     } else {
         $tpl->assign("show_not_allowed_msg", true);
     }
