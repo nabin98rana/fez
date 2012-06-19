@@ -853,12 +853,12 @@ class Fedora_API {
 		
 		 $results = curl_exec($ch);
 		 if ($results) {
-		         //$info = curl_getinfo($ch);
-		         curl_close ($ch);
+		     //$info = curl_getinfo($ch);
+		     curl_close ($ch);
              if (!empty($tempFile)) {
-						 unlink($tempFile);
+                 unlink($tempFile);
              }
-		         return true;
+		     return true;
 		 } else {
 //		         $log->err(array(print_r($results, true).print_r(curl_error($ch), true).print_r(curl_getinfo($ch), true),__FILE__,__LINE__).$getString.print_r(debug_backtrace(),true));
 		         $log->err(print_r(array(print_r($results, true).print_r(curl_error($ch), true).print_r(curl_getinfo($ch), true),__FILE__,__LINE__), true).$getString.$tempFile.$xmlContent.", dsID was $dsID, dsIDName was $dsIDName");

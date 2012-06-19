@@ -1,0 +1,159 @@
+{literal}
+    <script>
+        $(function() {
+            $('#groups_type').change(function () {
+
+                group_type = $('#groups_type').val();
+                $('#in_ad').hide();
+                $('#internal_group_list').hide();
+                $('#internal_user_list').hide();
+                $('#group_free_text').hide();
+                $('#in_ad').attr('name', '');
+                $('#internal_group_list').attr('name', '');
+                $('#internal_user_list').attr('name', '');
+                $('#group_free_text').attr('name', '');
+                if (group_type == "Fez_Group")  {
+                    $('#internal_group_list').show();
+                    $('#internal_group_list').attr('name', 'group');
+                } else if (group_type == "Fez_User"){
+                    $('#internal_user_list').show();
+                    $('#internal_user_list').attr('name', 'group');
+                } else if (group_type == "in_AD"){
+                    $('#in_ad').show();
+                    $('#in_ad').attr('name', 'group');
+                } else {
+                    $('#group_free_text').show();
+                    $('#group_free_text').attr('name', 'group');
+
+                }
+            })
+            .change();
+        });
+    </script>
+{/literal}
+
+<table width="99%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
+
+<input type="hidden" name="cat" value="update_security">
+<input type="hidden" name="xdis_id" value="{$xdis_id}">
+<input type="hidden" name="sta_id" value="{$sta_id}">
+<input type="hidden" name="pid" value="{$pid}">
+<input type="hidden" name="did" value="{$did}">
+<input type="hidden" name="id" value="{$id}">
+{section name="i" loop=$xsd_display_fields}
+	{if $xsd_display_fields[i].xsdmf_title == 'state'}
+<input type="hidden" name="state" value="{$xsd_display_fields[i].xsdmf_static_text}">
+	{/if}
+{/section}
+   <tr>
+    <td>
+        <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
+
+      		<div class="error">{$error_message}</div>
+              <input type="hidden" name="action" value="save"/>
+              <input type="hidden" name="cat" value="update_security_fedora_bypass"/>
+              <input type="hidden" name="id" value="{$id}"/>
+
+            <tr>
+                <td bgcolor="{$light_color}" colspan="1">
+                    <select id="role" name="role">
+                        {foreach from=$possible_roles key=k item=v}
+                            <option value="{$k}">{$v}</option>
+                        {/foreach}
+                    </select>
+                </td>
+
+                <td bgcolor="{$light_color}" colspan="1">
+                    <select class="groups_type" id="groups_type" name="groups_type">
+                        {foreach from=$group_types key=k item=v}
+                            <option value="{$k}">{$v}</option>
+                        {/foreach}
+                    </select>
+                </td>
+                <td bgcolor="{$light_color}" colspan="1">
+
+                    <select id="in_ad"  style="display: none;">
+                        <option value="on">on</option>
+                        <option value="off">off</option>
+                    </select>
+
+                    <input type="text" size="50" id="group_free_text" name ="group"  />
+                    <select id="internal_group_list"  style="display: none;">
+                        {foreach from=$internal_group_list key=k item=v}
+                            <option value="{$k}">{$v}</option>
+                        {/foreach}
+                    </select>
+                    <select id="internal_user_list"  style="display: none;">
+                        {foreach from=$internal_user_list key=k item=v}
+                            <option value="{$k}">{$v}</option>
+                        {/foreach}
+                    </select>
+                </td>
+                <td bgcolor="{$light_color}" colspan="3"></td>
+            </tr>
+            <tr>
+                <td style="width: 4px; text-align: center; white-space: nowrap; background: {$row_color}" colspan='4'>
+                 <input type="submit" name="submit" value="Add" />
+            </td>
+            </tr>
+            {if ($record_type != 'Community')}
+                <tr><td>Inherit permissions</td><td><input type="checkbox" name="inherit" value="1" {if ($inherits_security)} checked="checked" {/if} /></td></tr>
+            {/if}
+            {if ($did)}
+                <tr><td>Watermarked</td><td><input type="checkbox" name="watermark" value="{$watermark}" {if ($watermark)} checked="checked" {/if} /></td></tr>
+                <tr><td>Copyright</td><td><input type="checkbox" name="copyright" value="{$copyright}" {if ($copyright)} checked="checked" {/if} /></td></tr>
+            {/if}
+            <tr><td>&nbsp;</td></tr>
+            <tr>
+                <td width="140" bgcolor="{$cell_color}" class="default">
+             			  <b>Permission:</b>
+             	  </td>
+                <td width="140" bgcolor="{$cell_color}" class="default">
+             			  <b>Apply to type</b>
+             	  </td>
+                <td width="140" bgcolor="{$cell_color}" class="default">
+                    <b>Group/User:</b>
+                </td>
+                <td width="140" bgcolor="{$cell_color}" class="default">
+                       <b>Inherited:</b>
+                </td>
+                <td width="140" bgcolor="{$cell_color}" class="default">
+                       <b>Remove:</b>
+                </td>
+                <td bgcolor="{$cell_color}" class="default">
+                &nbsp;
+                </td>
+
+            </tr>
+
+              {foreach name=current item=security_permission from=$current_security_permissions}
+                  <tr>
+                      <input type="hidden" name="" value=""/>
+                    <td bgcolor="{$light_color}" colspan="1">
+                          {$security_permission.aro_role}
+                    </td>
+                    <td bgcolor="{$light_color}" colspan="1">
+                                   {$security_permission.ar_rule_value}
+                    </td>
+                    <td bgcolor="{$light_color}" colspan="1">
+                                   {$security_permission.ar_value_value}
+                    </td>
+                    <td bgcolor="{$light_color}" colspan="1">
+                                   {if (!$security_permission.inherited)}N{else}Y{/if}
+                    </td>
+                    <td style="width: 4px; text-align: center; white-space: nowrap;" bgcolor="{$light_color}">
+                        {if (!$security_permission.inherited)}<input type="checkbox" name="items[]" value="{$security_permission.row}" />{/if}
+                    </td>
+                  </tr>
+              {/foreach}
+               <tr>
+                  <td width="140" bgcolor="{$cell_color}" colspan="6" class="default">&nbsp;</td>
+              </tr>
+
+              <tr>
+
+              </tr>
+      		</table>
+</td>
+</tr>
+</table>

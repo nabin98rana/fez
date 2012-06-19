@@ -15,7 +15,7 @@
   <input type="hidden" name="xdis_id" value="" />
 </div>
 
-<div class="default" > 
+<div class="default" >
 
 <p class="news-heading">Copy this html to your web page for a dynamically created list of this search</p>
 
@@ -27,7 +27,7 @@
 {if $isUser}
 
 	{if $list_type == 'community_list' && $isAdministrator}
-	<a target="_top" title="Create a new community" href="{$rel_url}workflow/new.php?pid=-1&amp;xdis_id={$xdis_id}&amp;href={$smarty.server.REQUEST_URI|escape:'url'}"><img src="{$rel_url}images/folder_new.gif" align="top" border="0" alt="" /> <b>Create New Community</b></a> 
+	<a target="_top" title="Create New Community" href="{$rel_url}workflow/new.php?pid=-1&amp;xdis_id={$xdis_id}&amp;href={$smarty.server.REQUEST_URI|escape:'url'}"><img src="{$rel_url}images/folder_new.gif" align="top" border="0" alt="" /> <b>Create New Community</b></a>
 	{elseif $list_type == 'collection_list' && ($isAdministrator || $isCreator)}
 		{if $childXDisplayOptions != 0}
 		<img src="{$rel_url}images/folder_new.gif" align="top" border="0" alt="" />
@@ -38,7 +38,7 @@
 		</select>
 		<input type="button" value="Create" onClick="javascript:createRecord(this.form, this.form.xdis_id_top)" />
 		{/if}
-	{elseif ($list_type == 'collection_records_list' && ($isAdministrator || $isCreator)) && $browse_type == ""}			
+	{elseif ($list_type == 'collection_records_list' && ($isAdministrator || $isCreator)) && $browse_type == ""}
 		{if $childXDisplayOptions != 0}
 		<img src="{$rel_url}images/folder_new.gif" align="top" border="0" alt="" />
 		<input type="hidden" name="collection_pid" value="{$collection_pid}" />
@@ -55,8 +55,8 @@
 
 {include file="list_browse_type.tpl.html"}
 
-{if ($browse_heading == "") ||  ($browse_type != "" && ($author != "" || $author_id != "")) || ($browse_type != "" & $depositor != "") || ($browse_type != "" && $year != "") || ($browse_type != "" && $parent_id != "" && $max_subject_breadcrumb != 0)} 
-        
+{if ($browse_heading == "") ||  ($browse_type != "" && ($author != "" || $author_id != "")) || ($browse_type != "" & $depositor != "") || ($browse_type != "" && $year != "") || ($browse_type != "" && $parent_id != "" && $max_subject_breadcrumb != 0)}
+
 	{if $spell_suggest != ""}
 	<table width="100%" cellpadding="10" cellspacing="0" class="listrecord">
 
@@ -65,14 +65,14 @@
 	  	</tr>
 	</table>
 	{/if}
-		
+
 	{if $facets && $list_type != 'collection_records_list' && $list_type != 'collection_list' && $list_type != 'community_list'}
     <div class="facet">
 
     <div class="facetheader">
     <h2>Refine</h2>
     </div>
-    
+
     <ul>
     {foreach from=$facets key=sek_id item=items}
 {if $items.sek_alt_title == ""}
@@ -89,10 +89,10 @@
 
     {/foreach}
     </ul>
-    
+
     </div>
     {/if}
-		
+
 <div style="padding:20px;">
 	<table {if $facets  && $list_type != 'collection_records_list' && $list_type != 'collection_list' && $list_type != 'community_list'}width="70%"{else}width="100%"{/if} cellpadding="10" cellspacing="0" class="listrecord">
 		<script type="text/javascript" src="{$app_base_url}display-dynamic-list.php?{$dynamicParams}&form=tablecells"></script> <noscript>JavaScript must be enabled in your browser for this feature to work</noscript>

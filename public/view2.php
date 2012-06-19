@@ -48,6 +48,7 @@ include_once(APP_PEAR_PATH . "Date.php");
 include_once(APP_INC_PATH . "class.bookreaderimplementation.php");
 include_once(APP_INC_PATH . "class.author_affiliations.php");
 include_once(APP_INC_PATH . "class.xsd_display.php");
+include_once(APP_INC_PATH . "class.links.php");
 //include_once(APP_INC_PATH . 'najax_objects/class.background_process_list.php');
 
 $username = Auth::getUsername();
@@ -120,11 +121,11 @@ if (!empty($pid) && $record->checkExists()) {
 	}
 	$title = Record::getSearchKeyIndexValue($pid, "title", false);
 	if ($title !== false) {
-		$tpl->assign("extra_title", $title);	
+		$tpl->assign("extra_title", $title);
 	} else {
 		$tpl->assign("extra_title", "Record #".$pid." Details");
 	}
-    
+
 	$tpl->assign("pid", $pid);
 	$deleted = false;
 	if (@$show_tombstone) {
@@ -147,7 +148,7 @@ if (!empty($pid) && $record->checkExists()) {
 	
 	if(APP_FEDORA_BYPASS == 'ON')
 	{
-	    $xdis_id = Record::getSearchKeyIndexValue($pid,'Display Type');
+	    $xdis_id = ($deleted) ? Record::getSearchKeyIndexValueShadow($pid,'Display Type') : Record::getSearchKeyIndexValue($pid,'Display Type');
         $xdis_key = array_keys($xdis_id);
         $xdis_id = $xdis_key[0];
 	}
@@ -380,13 +381,14 @@ if (!empty($pid) && $record->checkExists()) {
 
 			if ($dis_field['xsdmf_enabled'] == 1) {
 				if ($dis_field['xsdmf_element'] == "!created_date") {
+                    $dateIsUTC = (APP_FEDORA_BYPASS == 'ON') ? FALSE : TRUE;
 					if (!empty($details[$dis_field['xsdmf_id']])) {
 						if (is_array($details[$dis_field['xsdmf_id']])) {
 							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {		
-								$created_date = Date_API::getFormattedDate($cdata);
+								$created_date = Date_API::getFormattedDate($cdata, FALSE, $dateIsUTC);
 							}
 						} else {
-							$created_date = Date_API::getFormattedDate($details[$dis_field['xsdmf_id']]);
+							$created_date = Date_API::getFormattedDate($details[$dis_field['xsdmf_id']], FALSE, $dateIsUTC);
 						}
 					}
 				}
@@ -475,29 +477,62 @@ if (!empty($pid) && $record->checkExists()) {
 
 //Error_Handler::logError("view2.php datastreams (after cleanDatastreamListLite)=__SEE_NEXT__", __FILE__,__LINE__);
 //Error_Handler::logError($datastreams, __FILE__,__LINE__);
-		
-		if($datastreams)
+
+        //if fedora bypass is on need to get from mysql else it datastreams as down below
+        if (APP_FEDORA_BYPASS == 'ON') {
+            $links = Links::getLinks($pid);
+            foreach ($links as &$link) {
+                $linkCount++;
+                $link['rek_link'] = trim($link['rek_link']);
+                if (APP_LINK_PREFIX != "") {
+                    if (!is_numeric(strpos($link['rek_link'], APP_LINK_PREFIX))) {
+                        $link['prefix_location'] = APP_LINK_PREFIX.$link['rek_link'];
+                        $link['rek_link'] = str_replace(APP_LINK_PREFIX, "", $link['rek_link']);
+                    } else {
+                        $link['prefix_location'] = "";
+                    }
+                } else {
+                    $link['prefix_location'] = "";
+                }
+            }
+
+            $dob = new DSResource();
+            $streams = $dob->listStreams($pid);
+            foreach ($streams as &$stream) {
+                $stream = array_merge($stream, Exiftool::getDetails($pid, $stream['filename']));
+                $stream['downloads'] = Statistics::getStatsByDatastream($pid, $stream['filename']);
+                $stream['base64ID'] = base64_encode($stream['filename']);
+                $stream['label'] = 'not yet done';
+                $fileCount++;
+            }
+
+
+    }
+
+		if($datastreams && (APP_FEDORA_BYPASS != 'ON'))
 		{
+            $links = array();
     		foreach ($datastreams as $ds_key => $ds) {
-    
-    			
+
     		    if ($datastreams[$ds_key]['controlGroup'] == 'R') {
     				$linkCount++;				
     			}
     			
-    			if ($datastreams[$ds_key]['controlGroup'] == 'R' && $datastreams[$ds_key]['ID'] != 'DOI') {
-    				$datastreams[$ds_key]['location'] = trim($datastreams[$ds_key]['location']);
+    			if ( ($datastreams[$ds_key]['controlGroup'] == 'R') && ($datastreams[$ds_key]['ID'] != 'DOI')  ) {
+
+                    $links[$linkCount-1]['rek_link'] = trim($datastreams[$ds_key]['location']);
+                    $links[$linkCount-1]['rek_link_description'] = $datastreams[$ds_key]['label'];
     				
     				// Check for APP_LINK_PREFIX and add if not already there add it to a special ezyproxy link for it
     				if (APP_LINK_PREFIX != "") {
-    					if (!is_numeric(strpos($datastreams[$ds_key]['location'], APP_LINK_PREFIX))) {
-    						$datastreams[$ds_key]['prefix_location'] = APP_LINK_PREFIX.$datastreams[$ds_key]['location'];
-    						$datastreams[$ds_key]['location'] = str_replace(APP_LINK_PREFIX, "", $datastreams[$ds_key]['location']);
+    					if (!is_numeric(strpos($links[$linkCount-1], APP_LINK_PREFIX))) {
+                            $links[$linkCount-1]['prefix_location'] = APP_LINK_PREFIX.$links[$linkCount-1]['rek_link'];
+                            $links[$linkCount-1]['rek_link'] = str_replace(APP_LINK_PREFIX, "", $links[$linkCount-1]['rek_link']);
     					} else {
-    						$datastreams[$ds_key]['prefix_location'] = "";
+                            $links[$linkCount-1]['prefix_location'] = "";
     					}
     				} else {
-    					$datastreams[$ds_key]['prefix_location'] = "";
+                        $links[$linkCount-1]['prefix_location'] = "";
     				}
     				
     			} elseif ($datastreams[$ds_key]['controlGroup'] == 'M') {
@@ -571,7 +606,8 @@ if (!empty($pid) && $record->checkExists()) {
     			}
     			
                 if ($datastreams[$ds_key]['controlGroup'] == 'R' && $datastreams[$ds_key]['ID'] == 'DOI') {
-                    $datastreams[$ds_key]['location'] = trim($datastreams[$ds_key]['location']);
+                    $links[$linkCount-1]['rek_link'] = trim($datastreams[$ds_key]['location']);
+
                     $tpl->assign('doi', $datastreams[$ds_key]);
                 }
     		}
@@ -616,6 +652,7 @@ if (!empty($pid) && $record->checkExists()) {
 		
 		$tpl->assign("origami", APP_ORIGAMI_SWITCH);
 		$tpl->assign("linkCount", $linkCount);
+        $tpl->assign("links", $links);
 		$tpl->assign("hasVersions", $hasVersions);
 		$tpl->assign("fileCount", $fileCount);
 		$tpl->assign("derivationTree", $derivationTree);
@@ -627,6 +664,8 @@ if (!empty($pid) && $record->checkExists()) {
 		$tpl->assign("details", $details);
 		$tpl->assign("APP_SHORT_ORG_NAME", APP_SHORT_ORG_NAME);
         $tpl->assign('title', $record->getTitle());
+        $tpl->assign('fedora_bypass',APP_FEDORA_BYPASS == 'ON');
+        $tpl->assign("streams", $streams);
 
 		$tpl->assign("statsAbstract", Statistics::getStatsByAbstractView($pid));				
 		$tpl->assign("statsFiles", Statistics::getStatsByAllFileDownloads($pid));				
@@ -749,13 +788,13 @@ function generateTimestamps($pid, $datastreams, $requestedVersionDate, $tpl) {
     
     if(APP_FEDORA_BYPASS == 'ON')
     {
-        $dob = new DigitalObject();
-        $versions = $dob->listVersions($pid);
+        $rec = new Fez_Record_SearchkeyShadow($pid);
+        $createdDates = $rec->returnVersionDates();
         
-        foreach($versions as $version)
+        /*foreach($versions as $version)
         {
             $createdDates[] = $version['createDate'];
-        }
+        }*/
     }
     else 
     {

@@ -61,7 +61,7 @@ $bookreaderui    = @$_REQUEST["ui"];
 
 $SHOW_STATUS_PARM = @$_REQUEST["status"];
 $SHOW_STATUS = @($SHOW_STATUS_PARM == "true") ? true : false; 
-$ALLOW_SECURITY_REDIRECT = @$SHOW_STATUS ? false : true; 
+$ALLOW_SECURITY_REDIRECT = @$SHOW_STATUS ? false : true;
 
 //$pid and $dsID should not contain ~<>=?*'
 $pattern ='/\~|<|>|=|\?|\*|\\' . "'" . '/';
@@ -82,7 +82,7 @@ if (!empty($pid) && !empty($dsID)) {
     
     if(APP_FEDORA_BYPASS == 'ON')
     {
-        if(!$bookpage)//Test for existence of bookpage further down. 
+        if(!$bookpage)//Test for existence of bookpage further down.
         {
             $dsr = new DSResource();
     		$dsr->load($dsID, $pid);
@@ -469,7 +469,7 @@ function extractQS()
 {
 	$qs = substr(@$_REQUEST["qs"], 1); // Remove the leading slash
 	$components = explode("/", $qs);   // Split into components
-	
+
     foreach ($components as $component) {
 		if ($component != '') {
             $nameValPairs = explode('=', $component);       // Extract name-value pairs.

@@ -15,7 +15,7 @@
 {if $isUser}
   <div class="create-box">
 	{if $list_type == 'community_list' && $isAdministrator}
-	<a target="_top" title="Create a new community" href="{$rel_url}workflow/new.php?pid=-1&amp;xdis_id={$xdis_id}&amp;href={$smarty.server.REQUEST_URI|escape:'url'}"><img src="{$rel_url}images/folder_new.gif" style="align: top;" alt="" /> <b>Create New Community</b></a> 
+	<a target="_top" title="Create New Community" href="{$rel_url}workflow/new.php?pid=-1&amp;xdis_id={$xdis_id}&amp;href={$smarty.server.REQUEST_URI|escape:'url'}"><img src="{$rel_url}images/folder_new.gif" style="align: top;" alt="" /> <b>Create New Community</b></a>
 	{elseif $list_type == 'collection_list' && ($isAdministrator || $isCreator)}
 		{if $childXDisplayOptions != 0}
 		<img src="{$rel_url}images/folder_new.gif" style="align: top;" alt="" />
@@ -25,7 +25,7 @@
 		</select>
 		<input type="button" value="Create" onclick="javascript:createRecord(this.form, this.form.xdis_id_top)" class="button" />
 		{/if}
-	{elseif ($list_type == 'collection_records_list' && ($isAdministrator || $isCreator)) && $browse_type == ""}			
+	{elseif ($list_type == 'collection_records_list' && ($isAdministrator || $isCreator)) && $browse_type == ""}
 		{if $childXDisplayOptions != 0}
 		<img src="{$rel_url}images/folder_new.gif" style="align: top;" alt="" />
 		<input type="hidden" name="collection_pid" value="{$collection_pid}" />
@@ -36,22 +36,22 @@
 		{/if}
 	{/if}
   </div>
-{/if}	
+{/if}
 
     {include file="list_browse_type.tpl.html"}
 
-    {if ($browse_heading == "") ||  ($browse_type != "" && ($author != "" || $author_id != "")) || ($browse_type != "" & $depositor != "") || ($browse_type != "" & $year != "") || ($browse_type != "" && $parent_id != "" && $max_subject_breadcrumb != 0)} 
+    {if ($browse_heading == "") ||  ($browse_type != "" && ($author != "" || $author_id != "")) || ($browse_type != "" & $depositor != "") || ($browse_type != "" & $year != "") || ($browse_type != "" && $parent_id != "" && $max_subject_breadcrumb != 0)}
 	{assign var="cols" value=5}
     <div{if $isUser} style="margin-top: 30px; clear: both;"{/if}>
 	<table style="width: 100%;" cellpadding="10" cellspacing="0">
 	  	<tr align="left">
         {section name="i" loop=$list}
-		
+
         {if (($list[i].isLister==1 || $isAdministrator) && $list_type != 'browse_subjects_list')}
 	   		{if $list[i].rek_object_type == 1}
                 {assign var="href_view" value="community/"|cat:$list[i].rek_pid|escape:"html"}
                 {assign var="icon" value=$rel_url|cat:"images/community.jpg" }
-                {if ($list[i].isEditor==1 || $isAdministrator)} 
+                {if ($list[i].isEditor==1 || $isAdministrator)}
                         {assign var="showEdit" value=true}
                 {else}
                         {assign var="showEdit" value=false}
@@ -59,7 +59,7 @@
            {elseif $list[i].rek_object_type == 2}
                 {assign var="href_view" value="collection/"|cat:$list[i].rek_pid|escape:"html"}
                 {assign var="icon" value=$rel_url|cat:"images/collection.jpg" }
-                {if $isUser && ($list[i].isEditor==1 || $isAdministrator)}  
+                {if $isUser && ($list[i].isEditor==1 || $isAdministrator)}
                         {assign var="showEdit" value=true}
                 {else}
                         {assign var="showEdit" value=false}
@@ -75,19 +75,19 @@
 				{else}
 	                {assign var="icon" value=$rel_url|cat:"images/record.jpg" }
 				{/if}
-                {if $isUser } 
+                {if $isUser }
                         {assign var="showEdit" value=true}
                 {else}
                         {assign var="showEdit" value=false}
                 {/if}
            {/if}
 
-		  {if ($isAdministrator)}  		  
+		  {if ($isAdministrator)}
               <td style="width: 10px;">
 	              <input type="checkbox" name="pids[]" value="{$list[i].rek_pid}" />
               </td>
           {/if}
-          
+
           {if $icon != ""}
           <td style="width: {$smarty.const.APP_THUMBNAIL_WIDTH}; vertical-align: top;">
                 {if $href_view}<a href='{$rel_url}{$href_view}' title='{$list[i].rek_title|escape:"html"}'>{/if}<img {if ($icon_width != "" && $icon_height != "")}width="{$icon_width}" height="{$icon_height}"{/if} style="vertical-align: top;" src="{$icon}" alt="{$list[i].rek_title|escape:"html"}" />{if $href_view}
@@ -111,7 +111,7 @@
 		                </tr>
 		        {/if}
         {/if}
-        
+
         {sectionelse}
 		<tr>
 		  <td>
@@ -119,13 +119,13 @@
           </td>
         </tr>
         {/section}
-        
+
     </table>
 	</div>
 	{/if}
-	
+
   <br />
-        
+
   {if $isAdministrator && $list_info.total_rows > 0}
 	  <div class="result-box clearfix" style="width: 980px; margin-top: 20px;">
 		  <div class="clearfix sub-box">
@@ -141,7 +141,7 @@
 		  </div>
 	  </div>
   {/if}
-  
+
   {include file="paging_control.tpl.html" field="paginat0r"}
 
 </form>

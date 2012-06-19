@@ -184,9 +184,34 @@ class RecordObject extends RecordGeneral
 		    }
 		    
 		    $now = Zend_Registry::get('version');
-    		
-    		$xsd_display_fields = RecordGeneral::setDisplayFields($_POST['xsd_display_fields']);
-    		
+
+            $xdisDisplayFields = $_POST['xsd_display_fields'];
+
+            $last = "";
+            //Load in all attached xsd display fields
+            //Except the final one if it's empty since it is the empty field reserved for "new item" if a multiple field
+            //Previous empty values may be needed to space out between values
+            foreach ($_POST as $key => $value) {
+                if ((strpos($key, 'xsd_display_fields') !== false) && ($key != 'xsd_display_fields')) {
+                    $xsdDisplayFieldsElementKeys = explode('_', $key);
+                    if (!empty($last) && $xsdDisplayFieldsElementKeys[3] != $last) {
+                       if (empty($lastValue)) {
+                           unset($xdisDisplayFields[$last][$lastKey]);
+                       }
+                    }
+                    $xdisDisplayFields[$xsdDisplayFieldsElementKeys[3]][$xsdDisplayFieldsElementKeys[4]] = $value;
+                    $lastValue = $value;
+                    $last = $xsdDisplayFieldsElementKeys[3];
+                    $lastKey = $xsdDisplayFieldsElementKeys[4];
+                }
+            }
+            if (empty($lastValue)) {
+                unset($xdisDisplayFields[$last][$lastKey]);
+            }
+
+            $xsd_display_fields = RecordGeneral::setDisplayFields($xdisDisplayFields);
+
+
             $xdis_list = XSD_Relationship::getListByXDIS($_POST['xdis_id']);
             array_push($xdis_list, array("0" => $_POST['xdis_id']));
             $xdis_str = Misc::sql_array_to_string($xdis_list);
@@ -217,9 +242,12 @@ class RecordObject extends RecordGeneral
     		);
     		
     		$this->xdis_id = $_POST['xdis_id'];
-    		
-    		$this->pid = ($this->pid) ? $this->pid : $digObj->save($digObjData);
-    		
+
+            if (empty($this->pid)) {
+                $this->pid = $digObj->save($digObjData);
+                $newPid = true;
+            }
+
     		$this->created_date = $createUpdateDate;
     	    $this->updated_date = $createUpdateDate;
     		$this->depositor = Auth::getUserID();
@@ -268,6 +296,7 @@ class RecordObject extends RecordGeneral
                     		'pid' => $this->pid);
                     	$dsr = new DSResource(APP_DSTREE_PATH, $resourceDataLocation, $meta);
                     	$dsr->save();
+                        Workflow::processIngestTrigger($this->pid, Foxml::makeNCName($dsr->returnFilename()), $mimeDataType);
             		}
             	}
             }
@@ -294,8 +323,11 @@ class RecordObject extends RecordGeneral
             {
                 $digObj->load($this->pid);
                 $digObj->snapshotResources($now);
+
             }
-    		
+            if ($newPid || isset($_POST['removeFiles']) || isset($_POST['uploader_files_uploaded'])) {
+                AuthNoFedora::recalculatePermissions($this->pid);
+            }
 		}
 		else 
 		{

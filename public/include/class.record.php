@@ -135,7 +135,7 @@ class Record
     $title = Record::getSearchKeyIndexValue($pid, "title", false);
     return $title;
   }
-  
+
   function getIsiLocFromIndex($pid)
   {
     return Record::getSearchKeyIndexValue($pid, "ISI LOC", false);
@@ -240,8 +240,8 @@ class Record
         if ($dev['pid'] != $pid) {
           $xdis_title = XSD_Display::getTitle($dev['rek_display_type']);
           $dTree .= '<li>';
-          $dTree .= '<a href="' . APP_RELATIVE_URL . 'view/' . $dev['rek_pid'] . '">' . 
-                    $dev['rek_title'] . '</a> <i>' . $xdis_title . '</i> (deposited ' . 
+          $dTree .= '<a href="' . APP_RELATIVE_URL . 'view/' . $dev['rek_pid'] . '">' .
+                    $dev['rek_title'] . '</a> <i>' . $xdis_title . '</i> (deposited ' .
                     Date_API::getFormattedSimpleDate($dev['rek_created_date']) . ')';
           $dTree .= '</li>';
         } else {
@@ -254,21 +254,21 @@ class Record
       }
     }
   }
-  
-  
+
+
   function wrapDerivationTree(&$dTree)
   {
     $dTree = "<ul>" . $dTree . "</ul>";
   }
-  
-  
+
+
   /**
    * Method used to get all of the parents of a given record available in the
    * system.
    *
    * @access  public
    * @param   string $pid The persistant identifier
-   * @param   string $searchKey The search key - defaults to isMemberOf, but can be isDerivationOf 
+   * @param   string $searchKey The search key - defaults to isMemberOf, but can be isDerivationOf
    *                            or any other similar setup RELS-EXT element
    * @return  array The list
    */
@@ -302,7 +302,7 @@ class Record
     $details = array_reverse($details);
     if ($GLOBALS['app_cache']) {
       // make sure the static memory var doesnt grow too large and cause a fatal out of memory error
-      if (!is_array($returns) || count($returns) > 10) { 
+      if (!is_array($returns) || count($returns) > 10) {
         $returns = array();
       }
       $returns[$pid][$searchKey] = $details;
@@ -316,7 +316,7 @@ class Record
    *
    * @access  public
    * @param   string $pid The persistant identifier
-   * @param   string $searchKey The search key - defaults to isMemberOf, but can be isDerivationOf 
+   * @param   string $searchKey The search key - defaults to isMemberOf, but can be isDerivationOf
    *                            or any other similar setup RELS-EXT element
    * @return  array The list
    */
@@ -394,7 +394,7 @@ class Record
     }
     return $details;
   }
-	
+
    /**
 	* Method used to return the core metadata for a record that affects the Q-index calculation.
 	*
@@ -404,19 +404,19 @@ class Record
 	*/
 	function getQindexMeta($pid)
 	{
-	
+
 	$rj = Record::getRankedJournalInfo($pid);
 	$rc = Record::getRankedConferenceInfo($pid);
 	$hc = Record::getHERDCcode($pid);
-	
+
 	return array(	'rj' => $rj,
 					'rc' => $rc,
 					'hc' => $hc	);
 	}
 
   function getResearchDetailsbyPIDS($result, $getAuthorMatching = false, $versionDate=null)
-  {		
-    
+  {
+
     $pids = array();
     for ($i = 0; $i < count($result); $i++) {
       $pids[] = $result[$i]["rek_pid"];
@@ -477,23 +477,23 @@ class Record
 			}
       if ($aut_id) {
         $record = new RecordObject($result[$i]["rek_pid"], $versionDate);
-        // Bump relevance using matchAuthor 
+        // Bump relevance using matchAuthor
         $match_res = $record->matchAuthor($aut_id, FALSE, FALSE, 1, FALSE);
-        
+
         if (is_array($match_res) && ($match_res[1] >= 0.70)) {
           $result[$i]["Relevance"] *= (1 + $match_res[1]);
-          $result[$i]["Relevance_Boosted"] = 1; 
+          $result[$i]["Relevance_Boosted"] = 1;
         }
       }
 		}
 		return $result;
 	}
-	
+
 	function getRankedJournalInfo($pid)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "
 			SELECT
 				jnl_rank AS rank,
@@ -514,7 +514,7 @@ class Record
 			$log->err($ex);
 			return "";
 		}
-		
+
 		if (count($res) == 0) {
 			return "";
 		}
@@ -525,12 +525,12 @@ class Record
         }
 		return $return;
 	}
-  
+
   function getRankedJournal($pid)
   {
     $log = FezLog::get();
     $db = DB_API::get();
-    
+
     $stmt = "
       SELECT
         mtj_jnl_id AS matching_id, ";
@@ -554,15 +554,15 @@ class Record
       $log->err($ex);
       return "";
     }
-    
+
     return $res;
   }
-  
+
 	function getRankedJournalInfoByPIDs($pids)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "
 			SELECT
 				mtj_pid as pid,
@@ -583,15 +583,15 @@ class Record
 			$log->err($ex);
 			return "";
 		}
-		
+
 		return $res;
 	}
-	
+
 	function getRankedConferenceInfo($pid)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "
 			SELECT
 				cnf_rank AS rank,
@@ -606,14 +606,14 @@ class Record
 
 	        ORDER BY cnf_era_year DESC;
 		";
-	
+
 		try {
 			$res = $db->fetchAll($stmt, Zend_Db::FETCH_ASSOC);
 		} catch(Exception $ex) {
 			$log->err($ex);
 			return "";
 		}
-		
+
 		if (count($res) == 0) {
 			return "";
 		}
@@ -624,12 +624,12 @@ class Record
         }
 		return $return;
 	}
-  
+
   function getRankedConference($pid)
   {
     $log = FezLog::get();
     $db = DB_API::get();
-    
+
     $stmt = "
       SELECT
         mtc_cnf_id AS matching_id, ";
@@ -646,22 +646,22 @@ class Record
       WHERE
         mtc_pid = " . $db->quote($pid) . ";
     ";
-  
+
     try {
       $res = $db->fetchPairs($stmt);
     } catch(Exception $ex) {
       $log->err($ex);
       return "";
     }
-    
+
     return $res;
   }
-  
+
 	function getRankedConferenceInfoByPIDs($pids)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "
 			SELECT
 				mtc_pid as pid,
@@ -675,17 +675,17 @@ class Record
 				mtc_cnf_id = cnf_id
 				AND mtc_pid in (".Misc::arrayToSQLBindStr($pids).")
 		";
-	
+
 		try {
 			$res = $db->fetchAll($stmt, $pids, Zend_Db::FETCH_ASSOC);
 		} catch(Exception $ex) {
 			$log->err($ex);
 			return "";
 		}
-		
+
 		return $res;
 	}
-	
+
 	function getHERDCcode($pid)
 	{
 		$log = FezLog::get();
@@ -696,32 +696,32 @@ class Record
         *
       FROM
       (
-        SELECT 
+        SELECT
           rek_herdc_code_pid,
-          cvo_title AS herdc_code, 
-          cvo_desc AS herdc_code_description 
-        FROM 
-          " . APP_TABLE_PREFIX . "record_search_key_herdc_code, 
-          " . APP_TABLE_PREFIX . "controlled_vocab, 
-          " . APP_TABLE_PREFIX . "controlled_vocab_relationship 
-        WHERE 
-          rek_herdc_code = cvo_id 
-          AND cvr_child_cvo_id = cvo_id 
-          AND cvr_parent_cvo_id = '450000' 
+          cvo_title AS herdc_code,
+          cvo_desc AS herdc_code_description
+        FROM
+          " . APP_TABLE_PREFIX . "record_search_key_herdc_code,
+          " . APP_TABLE_PREFIX . "controlled_vocab,
+          " . APP_TABLE_PREFIX . "controlled_vocab_relationship
+        WHERE
+          rek_herdc_code = cvo_id
+          AND cvr_child_cvo_id = cvo_id
+          AND cvr_parent_cvo_id = '450000'
           AND rek_herdc_code_pid = " . $db->quote($pid) . "
-      ) q1 LEFT JOIN 
+      ) q1 LEFT JOIN
       (
-        SELECT 
+        SELECT
           rek_herdc_status_pid,
-          cvo_title AS herdc_status 
+          cvo_title AS herdc_status
         FROM
           " . APP_TABLE_PREFIX . "record_search_key_herdc_status,
-          " . APP_TABLE_PREFIX . "controlled_vocab, 
-          " . APP_TABLE_PREFIX . "controlled_vocab_relationship 
-        WHERE 
-          rek_herdc_status = cvo_id 
-          AND cvr_child_cvo_id = cvo_id 
-          AND cvr_parent_cvo_id = '453219' 
+          " . APP_TABLE_PREFIX . "controlled_vocab,
+          " . APP_TABLE_PREFIX . "controlled_vocab_relationship
+        WHERE
+          rek_herdc_status = cvo_id
+          AND cvr_child_cvo_id = cvo_id
+          AND cvr_parent_cvo_id = '453219'
           AND rek_herdc_status_pid = " . $db->quote($pid) . "
 
       ) q2 ON q1.rek_herdc_code_pid = q2.rek_herdc_status_pid;";
@@ -732,7 +732,7 @@ class Record
 			$log->err($ex);
 			return "";
 		}
-		
+
 		if (count($res) == 0) {
 			return "";
 		}
@@ -745,18 +745,18 @@ class Record
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "
 			SELECT
 				rek_herdc_code_pid as pid,
 				cvo_title AS herdc_code,
 				cvo_desc AS herdc_code_description
 			FROM
-				" . APP_TABLE_PREFIX . "record_search_key_herdc_code 
-				INNER JOIN " . APP_TABLE_PREFIX . "controlled_vocab ON rek_herdc_code = cvo_id 
-				INNER JOIN " . APP_TABLE_PREFIX . "controlled_vocab_relationship ON cvr_child_cvo_id = cvo_id AND cvr_parent_cvo_id = '450000' 
+				" . APP_TABLE_PREFIX . "record_search_key_herdc_code
+				INNER JOIN " . APP_TABLE_PREFIX . "controlled_vocab ON rek_herdc_code = cvo_id
+				INNER JOIN " . APP_TABLE_PREFIX . "controlled_vocab_relationship ON cvr_child_cvo_id = cvo_id AND cvr_parent_cvo_id = '450000'
 			WHERE
-				rek_herdc_code_pid in (".Misc::arrayToSQLBindStr($pids).") 
+				rek_herdc_code_pid in (".Misc::arrayToSQLBindStr($pids).")
 		";
 
 		try {
@@ -765,10 +765,10 @@ class Record
 			$log->err($ex);
 			return "";
 		}
-		
+
 		return $res;
 	}
-  
+
   /**
    * Determines if a given PID is in one of the nominates W.O.S. collections.
    */
@@ -776,7 +776,7 @@ class Record
   {
     $log = FezLog::get();
     $db = DB_API::get();
-    
+
     if (!defined('APP_WOS_COLLECTIONS') || trim(APP_WOS_COLLECTIONS) == "") {
       return 0;
     }
@@ -785,7 +785,7 @@ class Record
             FROM " . APP_TABLE_PREFIX . "record_search_key_ismemberof
             WHERE rek_ismemberof_pid = " . $db->quote($pid) . "
             AND rek_ismemberof IN (" . APP_WOS_COLLECTIONS . ");";
-    
+
    try {
       $res = $db->fetchRow($stmt, $pids, Zend_Db::FETCH_ASSOC);
     } catch(Exception $ex) {
@@ -806,7 +806,7 @@ class Record
   function update($pid, $exclude_list=array(), $specify_list=array())
   {
     $log = FezLog::get();
-    
+
     $record = new RecordObject($pid);
     $ret = $record->fedoraInsertUpdate($exclude_list, $specify_list);
 
@@ -845,7 +845,7 @@ class Record
     $header .= Misc::getSchemaSubAttributes($array_ptr, $xsd_top_element_name, $xdis_id, $pid);
     $header .= ">\n";
     $xmlObj = Foxml::array_to_xml_instance(
-        $array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "", 
+        $array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "",
         $indexArray, '', '', '', '', '', ''
     );
     $xmlObj .= "</".$xsd_element_prefix.$xsd_top_element_name.">\n";
@@ -913,19 +913,19 @@ class Record
     $db = DB_API::get();
 
     if ($sekTable == "") {
-      return false; 
+      return false;
     }
 
     $stmt = "select distinct r1.rek_".$sekTable."_pid from " . APP_TABLE_PREFIX . "record_search_key_".$sekTable." r1
-      where 
-      r1.rek_".$sekTable."_xsdmf_id not in 
+      where
+      r1.rek_".$sekTable."_xsdmf_id not in
       (
       select mf2.xsdmf_id
-      from " . APP_TABLE_PREFIX . "record_search_key 
+      from " . APP_TABLE_PREFIX . "record_search_key
       inner join " . APP_TABLE_PREFIX . "xsd_display_matchfields as mf1 on rek_display_type = mf1.xsdmf_xdis_id
-      inner join " . APP_TABLE_PREFIX . 
+      inner join " . APP_TABLE_PREFIX .
         "xsd_relationship on xsdrel_xsdmf_id = mf1.xsdmf_id and mf1.xsdmf_html_input = 'xsd_ref'
-      inner join " . APP_TABLE_PREFIX . "record_search_key_".$sekTable." r2 on rek_pid = r2.rek_".$sekTable."_pid  
+      inner join " . APP_TABLE_PREFIX . "record_search_key_".$sekTable." r2 on rek_pid = r2.rek_".$sekTable."_pid
       inner join " . APP_TABLE_PREFIX. "xsd_display_matchfields mf2 on xsdrel_xdis_id = mf2.xsdmf_xdis_id and r2.rek_".
       $sekTable."_xsdmf_id = mf2.xsdmf_id
       where rek_pid = r1.rek_".$sekTable."_pid
@@ -944,14 +944,14 @@ class Record
 
 
   /**
-   * Method used to clean search key index (and solr if enabled) of any index rows where an object's display 
+   * Method used to clean search key index (and solr if enabled) of any index rows where an object's display
    * type was changed while a bug was in the reindex code that didnt handle display
-   * types changing properly. An alternative is to just run a fez full reindex, but this method (called 
+   * types changing properly. An alternative is to just run a fez full reindex, but this method (called
    * from misc/fix_converted_index.php) is quicker.
    *
    * @access  public
    * @param   string $pid      The pid to match on
-   * @param   string $sekTable The search key table name	 
+   * @param   string $sekTable The search key table name
    * @return  boolean true on success, false on failure suffix
    */
   function cleanIndexSearchKey($pid, $sekTable)
@@ -982,13 +982,18 @@ class Record
    * @param   bool $remove_solr should this record be also removed from solr (defaults to true)
    * @return  void
    */
-  function removeIndexRecord($pid, $remove_solr=true)
+  function removeIndexRecord($pid, $remove_solr=true, $shadow = false, $date='')
   {
     $log = FezLog::get();
     $db = DB_API::get();
 
     if (empty($pid)) {
-      return -1;
+        return -1;
+    }
+
+    if ($shadow) {
+        Zend_Registry::set('version', $date);
+        $recordSearchkeyShadow = new Fez_Record_SearchkeyShadow($pid);
     }
 
     // get list of the Related 1-M search keys, delete those first, then delete the 1-1 core table entries
@@ -997,6 +1002,9 @@ class Record
       // if is a 1-M needs its own delete sql, otherwise if a 0 (1-1) the core delete will do it
       if ($sval['sek_relationship'] == 1) {
         $sekTable = Search_Key::makeSQLTableName($sval['sek_title']);
+        if ($shadow) {
+            $recordSearchkeyShadow->copySearchKeyToShadow($sekTable);
+        }
         $stmt = "DELETE FROM
                         " . APP_TABLE_PREFIX . "record_search_key_".$sekTable."
              WHERE rek_".$sekTable."_pid = " . $db->quote($pid);
@@ -1009,6 +1017,9 @@ class Record
       }
     }
 
+    if ($shadow) {
+        $recordSearchkeyShadow->copyRecordSearchKeyToShadow();
+    }
     $stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "record_search_key
          WHERE rek_pid = " . $db->quote($pid);
@@ -1084,97 +1095,258 @@ class Record
   }
 
 
+  /**
+     * Returns the timestamp to be used on Shadow table(s) operations.
+     * When Fedora Bypass is turned on, utilise the timestamp registered on Zend Register from earlier process.
+     *
+     * @param string | boolean $proposedTimestamp The timestamp desired by the calling function/method
+     * @return string
+     */
+    public static function setSearchKeyTimestamp($proposedTimestamp = false)
+    {
+        if (!empty($proposedTimestamp)) {
+            $timestamp = $proposedTimestamp;
+        } else {
+            // Use earlier registered 'Version' variable to achieve uniform timestamp across all search keys updates.
+            if (APP_FEDORA_BYPASS == "ON") {
+                if (!Zend_Registry::isRegistered('version')) {
+                    Zend_Registry::set('version', date('Y-m-d H:i:s'));
+                }
+                $timestamp = Zend_Registry::get('version');
+            } else {
+                $timestamp = date('Y-m-d H:i:s');
+            }
+        }
+        return $timestamp;
+    }
+
+  /**
+     * Update the search key values on Shadow tables,
+     * by doing snapshot of the search key(s) on main table(s) and adding timestamp for version control.
+     * Snapshot covers the search key with / without individual search key shadow table.
+     *
+     * @param string $pid Targetted PID
+     * @param array $sekData Array of search key names & values pair
+     * @return boolean The result of the update. True if successful, false otherwise.
+     *
+     * @todo:
+     *  - Add Boolean param on whether to snapshot all search keys for a PID.
+     *  - Add Array param on the search key(s) to be snapshot, if snapshot is on specific search key(s).
+     *  - Compare the proposed value with the value on the database.
+     *    - If value is the same, only update the timestamp
+     *    - If value is different, insert new row on shadow table(s).
+     */
+    public function updateSearchKeysShadow($pid, $all = true, $searchkeys = array())
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        /* Snapshot Search Key with One to One Cardinality */
+        $fields = array();
+        $values = array();
+
+        $stmtSelect = "SELECT * FROM " . APP_TABLE_PREFIX . "record_search_key ".
+                      " WHERE rek_pid = " . $db->quote($pid, STRING);
+        try {
+            $oneToOneSearchKey = $db->fetchRow($stmtSelect);
+        }
+        catch (Exception $ex) {
+            $log->err($ex);
+            $oneToOneSearchKey = array();
+        }
+
+        foreach ($oneToOneSearchKey as $key => $value) {
+            $fields[] = $key;
+            $values[] = $db->quote($value);
+        }
+
+        // Timestamp
+        $fields[] = "rek_stamp";
+        if (!Zend_Registry::isRegistered('version')) {
+            Zend_Registry::set('version', date('Y-m-d H:i:s'));
+        }
+        $values[] = $db->quote(Record::setSearchKeyTimestamp());
+
+        $stmtInsert = "INSERT INTO " . APP_TABLE_PREFIX . "record_search_key__shadow (" . implode(",", $fields) . ") " .
+                " VALUES (" . implode(",", $values) . ")";
+        try {
+            $db->query($stmtInsert);
+        }
+        catch (Exception $ex) {
+            $log->err($ex);
+        }
+        /* End of: One to One Cardinality */
+
+
+
+        /* Snapshot Search Key with One to Many Cardinality */
+        $searchKeys = Search_Key::getList(false);
+
+        $searchKeysTables = array();
+        foreach ($searchKeys as $sek) {
+            if ($sek['sek_relationship'] == 1 && (!empty($sek['sek_title_db']) || !is_null($sek['sek_title_db']))) {
+                $searchKeysTables[] = $sek['sek_title_db'];
+            }
+        }
+
+        // Build the query for individual search key tables
+        $stmtsSelect = array();
+        foreach ($searchKeysTables as $skTable) {
+            $oneToManySearchkey = array();
+            $fields = array();
+            $values = array();
+            $stmtInsert = "";
+
+            $tableName = APP_TABLE_PREFIX . "record_search_key_" . $skTable;
+
+            $stmtSelect = "SELECT * FROM " . $tableName . " WHERE rek_" . $skTable . "_pid = " . $db->quote($pid);
+            $stmtsSelect[] = $stmtSelect;
+
+            try {
+                $oneToManySearchkey = $db->fetchRow($stmtSelect);
+            }
+            catch (Exception $ex) {
+                $log->err($ex);
+                $oneToManySearchkey = array();
+            }
+
+            // Ignore if no row returned.
+            if (!is_array($oneToManySearchkey) || sizeof($oneToManySearchkey) <= 0) {
+                continue;
+            }
+
+            foreach ($oneToManySearchkey as $key => $value) {
+                if ($key != 'rek_'.$skTable.'_id') {
+                    $fields[] = $key;
+                    $values[] = $db->quote($value);
+                }
+            }
+
+            // Timestamp
+            $fields[] = "rek_" . $skTable . "_stamp";
+            $values[] = $db->quote(Record::setSearchKeyTimestamp());
+
+            // Insert snapshot to shadow table
+            $stmtInsert = "INSERT INTO " . $tableName . "__shadow (" . implode(",", $fields) . ") " .
+                    " VALUES (" . implode(",", $values) . ")";
+
+            try {
+                $db->query($stmtInsert);
+            }
+            catch (Exception $ex) {
+                $log->err($ex);
+            }
+        }
+
+        /* End of: One to Many Cardinality */
+    }
+
+
+  /**
+   * Updates a PID's search keys values.
+   * When specified, update the search key shadow table.
+   *
+   * @param string $pid Targetted PID
+   * @param array $sekData Array of search key names & values pair.
+   * The format value for $sekData = array(
+   *                                       [0] => Array of 1-to-1 search keys
+   *                                       [1] => Array of 1-to-Many search keys
+   *                                 )
+   * @param boolean $shadow Indication on whether to update shadow table.
+   * @param boolean $updateTS Record update timestamp
+   * @return boolean The result of the update. True if successful, false otherwise.
+   */
   function updateSearchKeys($pid, $sekData, $shadow = false, $updateTS = false)
-
-
   {
     $log = FezLog::get();
     $db = DB_API::get();
-    
+
     $ret = true;
-    $now = ($updateTS) ? $updateTS : date('Y-m-d H:i:s'); // Database friendly datetime, for use in all shadow operations below.
+    // Get the timestamp to be used for shadow tables.
+    $now = Record::setSearchKeyTimestamp($updateTS);
 
     /*
      *  Update 1-to-1 search keys
      */
     $stmt[] = 'rek_pid';
     $valuesIns[] = $db->quote($pid);
-    foreach ($sekData[0] as $sek_column => $sek_value) {
-      $stmt[] = "rek_{$sek_column}, rek_{$sek_column}_xsdmf_id";
+    if (is_array($sekData[0])) {
+        foreach ($sekData[0] as $sek_column => $sek_value) {
+          $stmt[] = "rek_{$sek_column}, rek_{$sek_column}_xsdmf_id";
 
-      if ($sek_value['xsdmf_value'] == 'NULL') {
-        $xsdmf_value = $sek_value['xsdmf_value'];
-      } else {
-        $sek_value['xsdmf_value'] = (is_array($sek_value['xsdmf_value']) && array_key_exists('Year', $sek_value['xsdmf_value']))
-            ? $sek_value['xsdmf_value']['Year'] : $sek_value['xsdmf_value'];
-        $xsdmf_value = $db->quote(trim($sek_value['xsdmf_value']));
-      }
+          if ($sek_value['xsdmf_value'] == 'NULL') {
+            $xsdmf_value = $sek_value['xsdmf_value'];
+          } else {
+            $sek_value['xsdmf_value'] = (is_array($sek_value['xsdmf_value']) && array_key_exists('Year', $sek_value['xsdmf_value']))
+                ? $sek_value['xsdmf_value']['Year'] : $sek_value['xsdmf_value'];
+            $xsdmf_value = $db->quote(trim($sek_value['xsdmf_value']));
+          }
 
-      $valuesIns[] = "$xsdmf_value, {$sek_value['xsdmf_id']}";
-      $valuesUpd[] = "rek_{$sek_column} = $xsdmf_value, rek_{$sek_column}_xsdmf_id = {$sek_value['xsdmf_id']}";
-    }
+          $valuesIns[] = "$xsdmf_value, {$sek_value['xsdmf_id']}";
+          $valuesUpd[] = "rek_{$sek_column} = $xsdmf_value, rek_{$sek_column}_xsdmf_id = {$sek_value['xsdmf_id']}";
+        }
 
-    $table = APP_TABLE_PREFIX . "record_search_key";
-    if ($shadow) {
-      $table .= "__shadow";
-    }
-      
-    $stmtIns = "INSERT INTO " . $table . " (" . implode(",", $stmt);
-    if ($shadow) {
-      $stmtIns .= ", rek_stamp";
-    }
-    $stmtIns .= ") ";
-    $stmtIns .= " VALUES (" . implode(",", $valuesIns);
-    if ($shadow) {
-      $stmtIns .= ", " . $db->quote($now);
-    }
-    $stmtIns .= ")"; 
-		$db->beginTransaction();      
-    if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
-      $stmt = $stmtIns ." ON DUPLICATE KEY UPDATE " . implode(",", $valuesUpd);
-    } else {
-      if (!$shadow) {
-        $stmt = "DELETE FROM " . $table . "WHERE rek_pid = " . $db->quote($pid);
-        $db->exec($stmt);
-      }
-			$stmt = $stmtIns;
-    }
-    
-    try {
-      $db->exec($stmt);
-			$db->commit();
-    }
-    catch(Exception $ex) {
-			$db->rollBack();
-      $log->err($ex);
-      $ret = false;
-    }
+        $table = APP_TABLE_PREFIX . "record_search_key";
+        if ($shadow) {
+          $table .= "__shadow";
+        }
 
+        $stmtIns = "INSERT INTO " . $table . " (" . implode(",", $stmt);
+        if ($shadow) {
+          $stmtIns .= ", rek_stamp";
+        }
+        $stmtIns .= ") ";
+        $stmtIns .= " VALUES (" . implode(",", $valuesIns);
+        if ($shadow) {
+          $stmtIns .= ", " . $db->quote($now);
+        }
+        $stmtIns .= ")";
+            $db->beginTransaction();
+        if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
+          $stmt = $stmtIns ." ON DUPLICATE KEY UPDATE " . implode(",", $valuesUpd);
+        } else {
+          if (!$shadow) {
+            $stmt = "DELETE FROM " . $table . "WHERE rek_pid = " . $db->quote($pid);
+            $db->exec($stmt);
+          }
+                $stmt = $stmtIns;
+        }
+
+        try {
+          $db->exec($stmt);
+                $db->commit();
+        }
+        catch(Exception $ex) {
+                $db->rollBack();
+          $log->err($ex);
+          $ret = false;
+        }
+    }
     /*
      *  Update 1-to-Many search keys
      */
     foreach ($sekData[1] as $sek_table => $sek_value) {
 
       $stmt = "";
-      $sekValTest = (is_array($sek_value['xsdmf_value'])) 
-          ? strtoupper(implode('', $sek_value['xsdmf_value'])) 
+      $sekValTest = (is_array($sek_value['xsdmf_value']))
+          ? strtoupper(implode('', $sek_value['xsdmf_value']))
           : $sek_value['xsdmf_value'];
       if (
-          !empty($sek_value['xsdmf_value']) && !is_null($sek_value['xsdmf_value']) 
+          !empty($sek_value['xsdmf_value']) && !is_null($sek_value['xsdmf_value'])
           && ($sekValTest != "NULL")
       ) {
-          
-        // Added this notEmpty check to look for empty arrays.  Stops fez from writing empty keyword 
+
+        // Added this notEmpty check to look for empty arrays.  Stops fez from writing empty keyword
         // values to fez_record_search_key_keywords table.  -  heaphey
         $notEmpty = 1;  // start assuming that value is not empty
         if (is_array($sek_value['xsdmf_value'])) {
           $stringvalue = implode("", $sek_value['xsdmf_value']);
-          if (strlen($stringvalue) == 0) {  
+          if (strlen($stringvalue) == 0) {
             $notEmpty = 0;  // this value is an array and it is empty
             //Error_Handler::logError($sek_value['xsdmf_value']);
           }
         }
-        
+
         $xsdDetails = XSD_HTML_Match::getDetailsByXSDMF_ID($sek_value['xsdmf_id']);
         $searchKeyDetails = Search_Key::getDetails($xsdDetails['xsdmf_sek_id']);
 
@@ -1199,7 +1371,7 @@ class Record
           }
 
           $table = APP_TABLE_PREFIX . "record_search_key_" . $sek_table;
-          
+
           if ($shadow) {
             $table .= "__shadow";
           }
@@ -1217,9 +1389,9 @@ class Record
             $stmt .= ", rek_" . $sek_table . "_stamp";
           }
           $stmt .= ") VALUES ";
-          
+
           if (is_array($sek_value['xsdmf_value'])) {
-            
+
             $cardinalityVal = 1;
             foreach ($sek_value['xsdmf_value'] as $value ) {
               $val = "(" . $db->quote($pid) . "," . $db->quote($sek_value['xsdmf_id'], 'INTEGER') . "," . $db->quote($value) . ", $cardinalityVal";
@@ -1232,7 +1404,7 @@ class Record
             }
             $stmt .= implode(",", $stmtVars);
             unset($stmtVars);
-          
+
           } else {
             $stmt .= "(" . $db->quote($pid) . "," . $db->quote($sek_value['xsdmf_id'], 'INTEGER') . "," . $db->quote($sek_value['xsdmf_value']);
             if ($shadow) {
@@ -1240,7 +1412,7 @@ class Record
             }
             $stmt .= ")";
           }
-          
+
           try {
             $db->exec($stmt);
           }
@@ -1251,11 +1423,11 @@ class Record
         }
       }
     }
-    
+
     /*
      *	Update Derived search keys
      */
-    
+
     $derivedSearchKeys = Search_Key::getDerivedList();
     foreach ($derivedSearchKeys as $sekId) {
       $sekDetails = Search_Key::getDetails($sekId);
@@ -1270,19 +1442,19 @@ class Record
           $table .= "__shadow";
         }
 
-        $stmt = "INSERT INTO " . $table . 
+        $stmt = "INSERT INTO " . $table .
             " (rek_{$sekTable}_pid, rek_{$sekTable}) VALUES ";
 
         eval("\$derivedValue = $deriveFunction(\$pid);");
 
         // only run the sql if there are derived values to be put into the database
         if (is_array($derivedValue) || trim($derivedValue) != '') {
-          
+
           // deal with an array of derived values
           if (is_array($derivedValue) && count($derivedValue) && $sekDetails['sek_cardinality'] == 1) {
             $sek_table = $sekDetails['sek_title_db'];
             $cardinalityCol = ",rek_".$sek_table."_order";
-    
+
             $cardinalityVal = 1;
             $stmtVars = array();
             foreach ($derivedValue as $value) {
@@ -1291,12 +1463,12 @@ class Record
             }
             $stmt .= implode(",", $stmtVars);
             unset($stmtVars);
-            
+
           } elseif (trim($derivedValue) != '') {
             // deal with a single derived value
             $stmt .= "(".$db->quote($pid).",".$db->quote($derivedValue).")";
           }
-        
+
           try {
             $db->exec($stmt);
           }
@@ -1304,7 +1476,7 @@ class Record
             $log->err($ex);
             $ret = false;
           }
-        }				
+        }
       }
     }
 
@@ -1317,7 +1489,7 @@ class Record
     Google_Scholar::updateCitationCache($pid);
     Record::updateThomsonCitationCountFromHistory($pid);
     Record::updateScopusCitationCountFromHistory($pid);
-    
+
     //
     // KJ: update fulltext index
     //
@@ -1331,7 +1503,7 @@ class Record
       $cache = new fileCache($pid, 'pid='.$pid);
       $cache->poisonCache();
     }
-    
+
     // Add the updated record for Links AMR processing
     if (APP_AUTO_LINKSAMR_UPLOAD == "ON") {
       $isi_loc = Record::getSearchKeyIndexValue($pid, "ISI Loc", false);
@@ -1340,46 +1512,27 @@ class Record
         LinksAmrQueue::get()->add($pid);
       }
     }
-       
+
     return $ret;
   }
-  
-  
-  
+
+
+
   function applyProvisionalCode($pid)
   {
     // Load up the record, extract the bits we need to determine the provisional HERDC code.
     $record = new RecordGeneral($pid);
     $docType = $record->getDocumentType();
-    $subType = $record->getFieldValueBySearchKey("Subtype");
-
-    if (array_key_exists(0, $subType)) {
-        $subType = $subType[0];
-    } else {
-        $subType = null;
-    }
-
-    $genreType = $record->getFieldValueBySearchKey("Genre Type");
-    if (isset($genreType) && array_key_exists(0, $genreType)) {
-      $genreType = $genreType[0];
-    } else {
-      $genreType = null;
-    }
-
-    $existingHERDCcode = $record->getFieldValueBySearchKey("HERDC code");
-    if (isset($existingHERDCcode) && array_key_exists(0, $existingHERDCcode)) {
-        $existingHERDCcode = $existingHERDCcode[0];
-    } else {
-        $existingHERDCcode = null;
-    }
-
+    $subType = Record::getSearchKeyIndexValue($pid, "Subtype");
+    $genreType = Record::getSearchKeyIndexValue($pid, "Genre Type");
+    $existingHERDCcode = Record::getSearchKeyIndexValue($pid, "HERDC code");
     $provHERDCcode = "";
-    
+
     // Bail out if we already have a HERDC code
     if (!is_null($existingHERDCcode) && $existingHERDCcode != '' && $existingHERDCcode != -1) {
       return;
     }
-    
+
     //////////////////////////////////////////////////////////////////////////////
     // This is a fairly linear translation of MG's business rules. I have not   //
     // attempted to optimise them in any way. Leaving them in this form makes   //
@@ -1399,7 +1552,7 @@ class Record
       } elseif ($genreType == "Published Abstract") {
         $provHERDCcode = "EX";
       }
-      
+
     } elseif ($docType == "Book") {
       if ($subType == "Anthologies") {
         $provHERDCcode = "AX";
@@ -1424,7 +1577,7 @@ class Record
       } elseif ($subType == "Textbooks") {
         $provHERDCcode = "AX";
       }
-      
+
     } elseif ($docType == "Book Chapter") {
       if ($subType == "Chapter in a textbook, anthology, reference book") {
         $provHERDCcode = "BX";
@@ -1447,7 +1600,7 @@ class Record
       } elseif ($subType == "Scholarly introduction to an edited work") {
         $provHERDCcode = "BX";
       }
-    
+
     } elseif ($docType == "Journal Article") {
       if ($subType == "Article") {
         $provHERDCcode = "C1";
@@ -1472,7 +1625,7 @@ class Record
       } elseif ($subType == "Review of research - research literature review (NOT book review") {
         $provHERDCcode = "C1";
       }
-      
+
     } elseif ($docType == "Online Journal Article") {
       if ($subType == "Article") {
         $provHERDCcode = "C1";
@@ -1495,17 +1648,17 @@ class Record
       } elseif ($subType == "Review of research - research literature review (NOT book review") {
         $provHERDCcode = "C1";
       }
-      
+
     }
-    
+
     if ($provHERDCcode != '') {
 
       $history = "was set based on Provisional HERDC assignment rules";
-      
+
       // HERDC code
       $provCode = Controlled_Vocab::getID($provHERDCcode);
       $record->addSearchKeyValueList(array("HERDC code"), array($provCode), true, $history);
-      
+
       // HERDC status
       $provisional = Controlled_Vocab::getID('Provisional Code');
       $record->addSearchKeyValueList(array("HERDC Status"), array($provisional), true, $history);
@@ -1514,7 +1667,7 @@ class Record
       $unknown = Controlled_Vocab::getID('Unknown');
       $record->addSearchKeyValueList(array("Institutional Status"), array($unknown), true, $history);
     }
-    
+
     return;
   }
 
@@ -1562,10 +1715,39 @@ class Record
    * Method used to get the FezACML datastream XML content of the record
    *
    * @access  public
+   * @package fedora
    * @param   string $pid The persistent identifier of the object
    * @param   string $dsID (optional) The datastream ID
    * @param   string $createdDT (optional) Fedora timestamp of version to retrieve
    * @return  domdocument $xmldoc A Dom Document of the XML or false if not found
+   *
+   *
+   * @uses
+   *   - FezACML->getUsersByRolePidAssoc();
+   *       called by workflow/edit_user_view.php
+   *       used by "Manage Thesis Assessor Access" workflow.
+   *
+   *   - #migrate_fedora_managedcontent_to_fezCAS.php
+   *     Since this is migrating from Fedora system, we can ignore it.
+   *
+   *   - #Auth->getAuthorisationGroups();
+   *      These 3 calls are from Fedora codebase, so this can be ignored.
+   *
+   *   - #Auth->getAuth();
+   *     3 calls from this method.
+   *     Auth->getAuth is called by AuthIndex->setIndexAuthBGP(),
+   *       called by BackgroundProcess_Index_Auth->run(),
+   *       called by AuthIndex->setIndexAuth(),
+   *       called by workflow/regenerate_auth_index.php
+   *       used by "Regenerate Auth Index" workflow
+   *         Workflow description:
+   *         "Regenerates the Auth Index for a selected Object or for the whole repository if no record is selected.
+   *         This does not make changes to the fedora repository."
+   *     Since this is method is traced to workflow that only used on Fedora system, we can ignore this.
+   *
+   *   - #Auth->getParentACMLs();
+   *     The calls that need attention are from Auth->getAuth(); (can ignored, see above point).
+   *
    */
   function getACML($pid, $dsID="", $createdDT=null)
   {
@@ -1634,11 +1816,14 @@ class Record
    * @param   string $xdis_id  The XSD Display ID of the object
    * @param   string $createdDT (optional) Fedora timestamp of version to retrieve
    * @return  array $xsdmf_array The details for the XML object against its XSD Matching Field IDs
+   * @uses Search found no results on the usage of this method.
+   *   Most record details calls are referring to RecordObject->getDetails();
+   *
    */
   function getDetails($pid, $xdis_id, $createdDT=null)
   {
     $log = FezLog::get();
-    
+
     // Get the Datastreams.
     $datastreamTitles = XSD_Loop_Subelement::getDatastreamTitles($xdis_id);
     foreach ($datastreamTitles as $dsValue) {
@@ -1728,7 +1913,7 @@ class Record
     if ($pid == '') {
       return false;
     }
-	
+
     $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
     $where = "rek_pid = ".$db->quote($pid);
     $stmt =  "SELECT rek_pid " .
@@ -1745,7 +1930,7 @@ class Record
     return !empty($res['rek_pid']);
   }
 
-  
+
   /**
    * Method used to get the default record XDIS_ID
    *
@@ -1757,7 +1942,7 @@ class Record
    */
   function getRecordXDIS_ID()
   {
-    // will make this more dynamic later. (probably feed from a mysql table which can be 
+    // will make this more dynamic later. (probably feed from a mysql table which can be
     // configured in the gui admin interface).
     // this isn't realy used much anymore
     $xdis_id = 5;
@@ -1794,7 +1979,7 @@ class Record
 
     try {
       $res = $db->fetchAssoc($stmt); //DB_FETCHMODE_FLIPPED
-      $log->info($res);	
+      $log->info($res);
     }
     catch(Exception $ex) {
       $log->err($ex);
@@ -1812,19 +1997,19 @@ class Record
    * @return array $res2 The index details of records associated with the search params
    */
   function getListing(
-      $options, $approved_roles=array(9,10), $current_page=0,$page_rows="ALL", $sort_by="Title", 
-      $getSimple=false, $citationCache=false, $filter=array(), $operator='AND', $use_faceting = false, 
-      $use_highlighting = false, $doExactMatch = false, $facet_limit = APP_SOLR_FACET_LIMIT, 
-      $facet_mincount = APP_SOLR_FACET_MINCOUNT, $getAuthorMatching = false, $versionDate=null
+      $options, $approved_roles=array(9,10), $current_page=0,$page_rows="ALL", $sort_by="Title",
+      $getSimple=false, $citationCache=false, $filter=array(), $operator='AND', $use_faceting = false,
+      $use_highlighting = false, $doExactMatch = false, $facet_limit = APP_SOLR_FACET_LIMIT,
+      $facet_mincount = APP_SOLR_FACET_MINCOUNT, $getAuthorMatching = false, $versionDate=null, $forceLocal = false
   )
   {
     $log = FezLog::get();
     $db = DB_API::get();
 
-    if (APP_SOLR_SWITCH == "ON" ) {
+    if (APP_SOLR_SWITCH == "ON" && $forceLocal == false) {
       return Record::getSearchListing(
-          $options, $approved_roles, $current_page, $page_rows, $sort_by, $getSimple, 
-          $citationCache, $filter, $operator, $use_faceting, $use_highlighting, $doExactMatch, 
+          $options, $approved_roles, $current_page, $page_rows, $sort_by, $getSimple,
+          $citationCache, $filter, $operator, $use_faceting, $use_highlighting, $doExactMatch,
           $facet_limit, $facet_mincount, $getAuthorMatching
       );
     } else {
@@ -1863,30 +2048,30 @@ class Record
 
     $authArray = Collection::getAuthIndexStmt($approved_roles, "r1.rek_pid");
     $authStmt = $authArray['authStmt'];
-    
+
     if(!is_null($versionDate))
     {
         $stmt = " FROM {$dbtp}record_search_key__shadow AS r1 ";
     }
-    else 
+    else
     {
         $stmt = " FROM {$dbtp}record_search_key AS r1 ";
     }
-    
+
     $stmt .= $searchKey_join[SK_JOIN].$searchKey_join[SK_LEFT_JOIN].$authStmt." ";
-    
+
     if(!is_null($versionDate))
     {
-        $searchKey_join[SK_WHERE] = str_replace(')', 
-        		" AND rek_stamp = '$versionDate' )", 
+        $searchKey_join[SK_WHERE] = str_replace(')',
+        		" AND rek_stamp = '$versionDate' )",
                 $searchKey_join[SK_WHERE]);
     }
-    
+
     $stmt .= $searchKey_join[SK_WHERE];
 
-    // If the DB is mysql then you can use SQL_NUM_ROWS, even with a limit and get better performance, otherwise you 
+    // If the DB is mysql then you can use SQL_NUM_ROWS, even with a limit and get better performance, otherwise you
     // need to do a seperate query to get the total count
-    if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) { 
+    if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
       $total_rows = 1;
       $stmt =  "SELECT ".APP_SQL_CACHE." SQL_CALC_FOUND_ROWS DISTINCT r1.* ".$searchKey_join[SK_FULLTEXT_REL].
           " ".$stmt.$searchKey_join[SK_GROUP_BY];
@@ -1902,7 +2087,7 @@ class Record
       $stmt =  "SELECT ".APP_SQL_CACHE." r1.* ".$searchKey_join[SK_FULLTEXT_REL]." ".$stmt.$searchKey_join[SK_GROUP_BY];
       $stmt .= " ORDER BY ".$searchKey_join[SK_SORT_ORDER]." r".$searchKey_join[SK_KEY_ID].".rek_pid DESC ";
     }
-    
+
     $usr_id = Auth::getUserID();
     if ($total_rows > 0) {
       try {
@@ -1911,7 +2096,7 @@ class Record
       catch(Exception $ex) {
         $log->err($ex." stmt = $stmt, page_rows = $page_rows, start = $start");
       }
-      
+
       try {
         $res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
       }
@@ -1978,7 +2163,7 @@ class Record
         $total_pages++;
       }
     }
-    
+
     $search_info = rtrim($searchKey_join[SK_SEARCH_TXT], ', ');
     if ($searchKey_join[SK_WHERE] == "") {
       $noOrder = 1;
@@ -2002,7 +2187,7 @@ class Record
     $printable_page = $current_page + 1;
     $info = compact(
         'total_rows', 'page_rows', 'current_row', 'current_last_row', 'current_page', 'total_pages',
-        'next_page', 'prev_page', 'last_page', 'noOrder', 'search_info', 'start_range', 'end_range', 
+        'next_page', 'prev_page', 'last_page', 'noOrder', 'search_info', 'start_range', 'end_range',
         'printable_page', 'thumb_ratio'
     );
     return compact('info', 'list');
@@ -2123,13 +2308,13 @@ class Record
    * @return array $res2 The index details of records associated with the search params
    */
   function getSearchListing(
-      $options, $approved_roles=array(9,10), $current_page=0, $page_rows="ALL", 
-      $sort_by="", $getSimple=false, $citationCache=false, $filter=array(), $operator="AND", 
-      $use_faceting = false, $use_highlighting = false, $doExactMatch = false, $facet_limit = APP_SOLR_FACET_LIMIT, 
+      $options, $approved_roles=array(9,10), $current_page=0, $page_rows="ALL",
+      $sort_by="", $getSimple=false, $citationCache=false, $filter=array(), $operator="AND",
+      $use_faceting = false, $use_highlighting = false, $doExactMatch = false, $facet_limit = APP_SOLR_FACET_LIMIT,
       $facet_mincount = APP_SOLR_FACET_MINCOUNT, $getAuthorMatching = false
   )
   {
-    
+
     $log = FezLog::get();
 
     // paging preparation
@@ -2155,7 +2340,7 @@ class Record
     $index = new FulltextIndex_Solr(true);
 
     $res = $index->searchAdvancedQuery(
-        $searchKey_join, $filter_join, $approved_roles, $start, $page_rows, $use_faceting, 
+        $searchKey_join, $filter_join, $approved_roles, $start, $page_rows, $use_faceting,
         $use_highlighting, $facet_limit, $facet_mincount
     );
     $total_rows = $res['total_rows'];
@@ -2316,7 +2501,7 @@ class Record
   }
 
   function getSearchKeysByPIDS(&$result, $forceGetExtra = false)
-  {		
+  {
     $pids = array();
     for ($i = 0; $i < count($result); $i++) {
       $pids[] = $result[$i]["rek_pid"];
@@ -2346,8 +2531,8 @@ class Record
                 $result[$i]["rek_".$sek_sql_title."_lookup"] = $cache_eval[$func];
               } else {
                 eval('$result[$i]["rek_'.$sek_sql_title.'_lookup"] = '.$func);
-                $cache_eval[$func] = $result[$i]["rek_".$sek_sql_title."_lookup"];	
-              }              
+                $cache_eval[$func] = $result[$i]["rek_".$sek_sql_title."_lookup"];
+              }
             } else {
               $result[$i]['rek_'.$sek_sql_title.'_lookup'] = "";
             }
@@ -2402,7 +2587,7 @@ class Record
         }
         // now populate the $result variable again
         for ($i = 0; $i < count($result); $i++) {
-          if (array_key_exists("rek_".$sek_sql_title, $result[$i])) {
+//          if (array_key_exists("rek_".$sek_sql_title, $result[$i])) {
               if (!is_array($result[$i]["rek_".$sek_sql_title]) && ($sekData['sek_cardinality'] == 1)) {
                 $result[$i]["rek_".$sek_sql_title] = array();
               }
@@ -2413,7 +2598,7 @@ class Record
                 $result[$i]["rek_".$sek_sql_title."_lookup"] = $p[$result[$i]["rek_pid"]]["rek_".$sek_sql_title."_lookup"];
               }
           }
-        }
+//        }
       }
     }
   }
@@ -2468,7 +2653,7 @@ class Record
       return array();
     }
 
-    
+
     $dbtp =  APP_TABLE_PREFIX;
     $stmt = "SELECT
           rek_pid,
@@ -2488,11 +2673,11 @@ class Record
     // now populate the $result variable again
     $sek_sql_title = "ismemberof_title";
     for ($i = 0; $i < count($result); $i++) {
-      
+
       if (!is_array($result[$i]["rek_".$sek_sql_title])) {
         $result[$i]["rek_".$sek_sql_title] = array();
       }
-      
+
       if (!is_array($result[$i]["rek_ismemberof"]) && !empty($result[$i]["rek_ismemberof"])) {
         if (!in_array($res[$result[$i]["rek_ismemberof"]], $result[$i]["rek_".$sek_sql_title])) {
           $result[$i]["rek_".$sek_sql_title][] = $res[$result[$i]["rek_ismemberof"]];
@@ -2525,26 +2710,26 @@ class Record
       $log->debug('Not an administrator');
       // TODO: OR rek_assigned_group_id IN (2,3))
       $stmt = "SELECT rek_pid, authi_pid, authi_role, wfl_id, wfl_title, wft_id, wft_icon, wft_order
-                   FROM ".$dbtp."record_search_key 
-                   INNER JOIN ".$dbtp."auth_index2 ON rek_pid = authi_pid 
+                   FROM ".$dbtp."record_search_key
+                   INNER JOIN ".$dbtp."auth_index2 ON rek_pid = authi_pid
                    INNER JOIN ".$dbtp."auth_rule_group_users ON authi_arg_id = argu_arg_id and argu_usr_id = ".
-                   $db->quote($usr_id, 'INTEGER')." 
-                   LEFT JOIN ".$dbtp."record_search_key_assigned_user_id ON rek_pid = rek_assigned_user_id_pid 
+                   $db->quote($usr_id, 'INTEGER')."
+                   LEFT JOIN ".$dbtp."record_search_key_assigned_user_id ON rek_pid = rek_assigned_user_id_pid
                    LEFT JOIN ".$dbtp."workflow_roles ON authi_role = wfr_aro_id OR (authi_role = 7 AND wfr_aro_id = 8 ".
                    "AND rek_status != 2 AND (rek_assigned_user_id IN (".$db->quote($usr_id, 'INTEGER').") ) )
-                   LEFT JOIN ".$dbtp."workflow ON wfr_wfl_id = wfl_id 
-                   LEFT JOIN ".$dbtp."workflow_trigger ON wfl_id = wft_wfl_id 
+                   LEFT JOIN ".$dbtp."workflow ON wfr_wfl_id = wfl_id
+                   LEFT JOIN ".$dbtp."workflow_trigger ON wfl_id = wft_wfl_id
                                       AND (wft_pid = '-1' or wft_pid = authi_pid)
-                                    AND (wft_xdis_id = -1 or wft_xdis_id = rek_display_type) 
+                                    AND (wft_xdis_id = -1 or wft_xdis_id = rek_display_type)
                                     AND (wft_ret_id = 0 or wft_ret_id = rek_object_type)
            WHERE rek_pid IN ('".$pids."') and (wft_options = 1 or wfl_id IS NULL)
                   ORDER BY wft_order ASC ";
 
-    } else if (!is_numeric($usr_id)) { // no workflows for a non-logged in person - 
+    } else if (!is_numeric($usr_id)) { // no workflows for a non-logged in person -
                                        // but may get lister and/or viewer roles
       $log->debug('Not logged in');
       $stmt = "SELECT rek_pid, authi_pid, authi_role
-                    FROM {$dbtp}record_search_key 
+                    FROM {$dbtp}record_search_key
                      INNER JOIN ".$dbtp."auth_index2 ON rek_pid = authi_pid
              INNER JOIN ".$dbtp."auth_rule_group_rules on authi_arg_id = argr_arg_id
                      INNER JOIN ".$dbtp."auth_rules ON ar_rule='public_list' AND ar_value='1' AND argr_ar_id=ar_id
@@ -2564,7 +2749,7 @@ class Record
     }
 
     try {
-      $res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);			
+      $res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
     }
     catch(Exception $ex) {
       $log->err($ex);
@@ -2573,7 +2758,7 @@ class Record
     if (count($res) == 0) {
       return;
     }
-      
+
     $tmp = array();
     for ($i = 0; $i < count($res); $i++) {
       if (!array_key_exists($res[$i]["rek_pid"], $tmp)) {
@@ -2611,7 +2796,7 @@ class Record
           $tmp[$res[$i]["rek_pid"]]["wft_icon"][] = $res[$i]["wft_icon"];
       }
     }
-      
+
     for ($i = 0; $i < count($result); $i++) {
       if (array_key_exists($result[$i]["rek_pid"], $tmp) && $tmp[$result[$i]["rek_pid"]]) {
         $result[$i] = array_merge($result[$i], $tmp[$result[$i]["rek_pid"]]);
@@ -2646,9 +2831,9 @@ class Record
                   " . $dbtp . "record_search_key_ismemberof as r2 inner join
                   " . $dbtp . "record_search_key as r1 ON rek_pid = rek_ismemberof_pid and rek_status = 2
                   $authStmt
-              WHERE 
+              WHERE
                   rek_ismemberof IN (".Misc::arrayToSQLBindStr($pids).")
-              GROUP BY 
+              GROUP BY
                   rek_ismemberof ";
     try {
       $res = $db->fetchAll($stmt, $pids, Zend_Db::FETCH_ASSOC);
@@ -2664,7 +2849,7 @@ class Record
 
     // now populate the $result variable again
     for ($i = 0; $i < count($result); $i++) {
-      if (array_key_exists($result[$i]["rek_pid"], $t)) {
+      if (isset($t[$result[$i]["rek_pid"]])) {
         $result[$i]["rek_ismemberof_count"] = $t[$result[$i]["rek_pid"]];
       }
     }
@@ -2781,12 +2966,12 @@ class Record
       $log->err($ex);
       return false;
     }
-  
+
     $t = array();
     for ($i = 0; $i < count($res); $i++) {
       $t[$res[$i]["rek_pid"]] =  $res[$i]["rek_title"];
     }
-  
+
     // now populate the $result variable again
     for ($i = 0; $i < count($result); $i++) {
       if (array_key_exists('rek_ismemberof', $result[$i])) {
@@ -2862,27 +3047,27 @@ class Record
       return 0;
     }
   }
-  
+
   /**
    * Method returns the PID given the ISI Loc
-   * 
+   *
    * @param $isi_loc The ISI Loc to search on
    * @return string The found PID
    */
-  public static function getPIDByIsiLoc($isi_loc) 
+  public static function getPIDByIsiLoc($isi_loc)
   {
     $log = FezLog::get();
     $db = DB_API::get();
-    
+
     $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
-    
+
     $stmt = "SELECT
                 rek_isi_loc_pid
              FROM
                 " . $dbtp . "record_search_key_isi_loc
              WHERE
                 rek_isi_loc = ".$db->quote($isi_loc). " ORDER BY rek_isi_loc_id ASC ";
-    
+
     try {
       $res = $db->fetchOne($stmt);
     }
@@ -2892,22 +3077,22 @@ class Record
     }
     return $res;
   }
-  
+
   /**
    * Method updates the Google Scholar citation count
-   * 
+   *
    * @param $pid The PID to update the citation count for
    * @param $count The count to update with
    * @param $link The link to update with
    * @return bool True if the update was successful else false
    */
-  public static function updateGoogleScholarCitationCount($pid, $count, $link) 
+  public static function updateGoogleScholarCitationCount($pid, $count, $link)
   {
     $log = FezLog::get();
     $db = DB_API::get();
-    
+
     $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
-    
+
     $stmt = "UPDATE
                 " . $dbtp . "record_search_key
              SET
@@ -2922,9 +3107,9 @@ class Record
       $log->err($ex);
       return false;
     }
-  
+
     if ( APP_SOLR_INDEXER == "ON" ) {
-      FulltextQueue::singleton()->add($pid);							
+      FulltextQueue::singleton()->add($pid);
     }
     if (APP_FILECACHE == "ON") {
       $cache = new fileCache($pid, 'pid='.$pid);
@@ -2934,20 +3119,20 @@ class Record
 
     return true;
   }
-  
-  
+
+
   /**
    * Method updates the Index with the Thomson citation count from the existing data
-   *  
+   *
    * @param $pid The PID to update the citation count for
    * @return bool True if the update was successful else false
    */
 
   public static function updateThomsonCitationCountIndex($pid)
-  {    
+  {
     $log = FezLog::get();
     $db = DB_API::get();
-    
+
     $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
 
     // Get the current index count
@@ -2963,25 +3148,25 @@ class Record
       $index_count = $res;
     }
     catch(Exception $ex) {
-      $log->err($ex);		
+      $log->err($ex);
     }
-    
+
     // Get the count from the existing datastore
-    $stmt = "SELECT 
+    $stmt = "SELECT
           tc_count
          FROM
                   " . $dbtp . "thomson_citations
                WHERE
                   tc_pid = ?";
-      
+
     try {
       $res = $db->fetchOne($stmt, array($pid));
       $count = $res;
     }
     catch(Exception $ex) {
-      $log->err($ex);		
+      $log->err($ex);
     }
-    
+
     if (is_numeric($count) && ($count != $index_count)) {
       // If the count has changed, or there is no previous count, update the count
       $stmt = "UPDATE
@@ -2997,27 +3182,27 @@ class Record
         $log->err($ex);
         return false;
       }
-      
+
       return true;
     } else {
       return true;
     }
   }
-  
+
   /**
    * Updates the Google Scholar citation count for a record using the last
    * known count from the history table
    * @param $pid The PID to update the citation count for
    * @return bool True if the update was successful else false
    */
-  public static function updateGoogleScholarCitationCountFromHistory($pid) 
+  public static function updateGoogleScholarCitationCountFromHistory($pid)
   {
     $log = FezLog::get();
     $db = DB_API::get();
-    
+
     $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
     $prev_count;
-    
+
     // Get the previous count
     $stmt = "SELECT
                     rek_thomson_citation_count
@@ -3029,23 +3214,23 @@ class Record
       $res = $db->fetchOne($stmt);
     }
     catch(Exception $ex) {
-      $log->err($ex);		
+      $log->err($ex);
     }
-    $prev_count = $res;		
+    $prev_count = $res;
   }
 
   /**
    * Method updates the Thomson citation count
-   *  
+   *
    * @param $pid The PID to update the citation count for
-   * @param $count The count to update with 
+   * @param $count The count to update with
    * @return bool True if the update was successful else false
    */
-  public static function updateThomsonCitationCount($pid, $count, $isi_loc) 
+  public static function updateThomsonCitationCount($pid, $count, $isi_loc)
   {
     $log = FezLog::get();
     $db = DB_API::get();
-    
+
     $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
     $stmt = "UPDATE
                 " . $dbtp . "record_search_key
@@ -3060,12 +3245,12 @@ class Record
       $log->err($ex);
       return false;
     }
-        
+
     // Record in history
     Record::insertThomsonCitationCount($isi_loc, $count);
 
     if ( APP_SOLR_INDEXER == "ON" ) {
-      FulltextQueue::singleton()->add($pid);							
+      FulltextQueue::singleton()->add($pid);
     }
     if (APP_FILECACHE == "ON") {
       $cache = new fileCache($pid, 'pid='.$pid);
@@ -3074,18 +3259,18 @@ class Record
 
     return true;
   }
-  
+
   /**
    * Updates the Thomson citation count for a record using the last
    * known count from the history table
    * @param $pid The PID to update the citation count for
    * @return bool True if the update was successful else false
    */
-  public static function updateThomsonCitationCountFromHistory($pid) 
+  public static function updateThomsonCitationCountFromHistory($pid)
   {
     $log = FezLog::get();
     $db = DB_API::get();
-    
+
     $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
     $prev_count;
 
@@ -3121,7 +3306,7 @@ class Record
         }
     }
     $prev_count = $res;
-                
+
     // If there is a previous count in the history
     if (! empty($prev_count)) {
       $stmt = "UPDATE
@@ -3140,28 +3325,28 @@ class Record
     }
     return true;
   }
-  
+
   /**
    * Method inserts a new Thomson citation count entry
-   * 
+   *
    * @param $pid The PID to insert the citation count for
-   * @param $count The count to insert 
+   * @param $count The count to insert
    * @return bool True if the insert was successful else false
    */
   private static function insertThomsonCitationCount($isi_loc, $count)
   {
     $log = FezLog::get();
     $db = DB_API::get();
-    
+
     $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
-    
+
     $stmt = "INSERT INTO
                     " . $dbtp . "thomson_citations
                  (tc_id, tc_count, tc_last_checked, tc_created, tc_isi_loc)
                  VALUES
                  (NULL, ".$db->quote($count).", '".time()."', '".time()."', ".
                 $db->quote($isi_loc).")";
-    
+
     try {
       $db->query($stmt);
     }
@@ -3169,24 +3354,24 @@ class Record
       $log->err($ex);
       return false;
     }
-    
+
     return true;
   }
-  
+
   /**
    * Method updates the last time a Thomson citation count was checked
-   * 
+   *
    * @param $pid The PID to update the last checked date for
    * @param $count The count to update with
    * @return bool True if the update was successful else false
    */
-  private static function updateThomsonCitationLastChecked($tc_id) 
+  private static function updateThomsonCitationLastChecked($tc_id)
   {
     $log = FezLog::get();
     $db = DB_API::get();
-    
+
     $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
-    
+
     $stmt = "UPDATE
                " . $dbtp . "thomson_citations
              SET
@@ -3202,23 +3387,23 @@ class Record
     }
     return true;
   }
-  
+
     /**
    * Returns Thomson citation count history for a pid
-   * 
-   * @param $pid The PID to get the citation count history for 
-   * @return array The citation count history 
+   *
+   * @param $pid The PID to get the citation count history for
+   * @return array The citation count history
    */
-  public static function getThomsonCitationCountHistory($pid, $limit = false, $order = 'ASC') 
+  public static function getThomsonCitationCountHistory($pid, $limit = false, $order = 'ASC')
   {
     $log = FezLog::get();
     $db = DB_API::get();
-    
+
     $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
-    
+
     $limit = ($limit) ? 'LIMIT '.$limit:null;
     $order = ($order == 'ASC') ? 'ASC' : 'DESC';
-    
+
     $stmt = "SELECT
           tc_last_checked,tc_created,tc_count
          FROM
@@ -3242,20 +3427,20 @@ class Record
 
     /**
    * Returns Scopus citation count history for a pid
-   * 
-   * @param $pid The PID to get the citation count history for 
-   * @return array The citation count history 
+   *
+   * @param $pid The PID to get the citation count history for
+   * @return array The citation count history
    */
-  public static function getScopusCitationCountHistory($pid, $limit = false, $order = 'ASC') 
+  public static function getScopusCitationCountHistory($pid, $limit = false, $order = 'ASC')
   {
     $log = FezLog::get();
     $db = DB_API::get();
-    
+
     $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
-    
+
     $limit = ($limit) ? 'LIMIT '.$limit:null;
     $order = ($order == 'ASC') ? 'ASC' : 'DESC';
-    
+
     $stmt = "SELECT
          sc_last_checked, sc_created, sc_count
          FROM
@@ -3276,21 +3461,21 @@ class Record
     return $res;
   }
 
-  
+
   /**
    * Method updates the Scopus citation count
-   *  
+   *
    * @param $pid The PID to update the citation count for
-   * @param $count The count to update with 
+   * @param $count The count to update with
    * @return bool True if the update was successful else false
    */
   public static function updateScopusCitationCount($pid, $count, $eid)
   {
     $log = FezLog::get();
     $db = DB_API::get();
-    
+
     $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
-    
+
     $stmt = "UPDATE
                 " . $dbtp . "record_search_key
              SET
@@ -3304,12 +3489,12 @@ class Record
       $log->err($ex);
       return false;
     }
-        
+
     // Record in history
     Record::insertScopusCitationCount($eid, $count);
 
     if ( APP_SOLR_INDEXER == "ON" ) {
-      FulltextQueue::singleton()->add($pid);							
+      FulltextQueue::singleton()->add($pid);
     }
     if (APP_FILECACHE == "ON") {
       $cache = new fileCache($pid, 'pid='.$pid);
@@ -3318,28 +3503,28 @@ class Record
 
     return true;
   }
-  
+
   /**
    * Method inserts a new Scopus citation count entry
-   * 
+   *
    * @param $pid The PID to insert the citation count for
-   * @param $count The count to insert 
+   * @param $count The count to insert
    * @return bool True if the insert was successful else false
    */
   private static function insertScopusCitationCount($eid,$count)
   {
     $log = FezLog::get();
     $db = DB_API::get();
-    
+
     $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
-    
+
     $stmt = "INSERT INTO
                     " . $dbtp . "scopus_citations
                  (sc_id, sc_count, sc_last_checked, sc_created, sc_eid)
                  VALUES
                  (NULL, ".$db->quote($count).", '".time()."', '".time()."', ".
                 $db->quote($eid).")";
-    
+
     try {
       $db->query($stmt);
     }
@@ -3347,10 +3532,10 @@ class Record
       $log->err($ex);
       return false;
     }
-    
+
         return true;
   }
-  
+
   /**
    * Updates the Scopus citation count for a record using the last
    * known count from the history table
@@ -3361,7 +3546,7 @@ class Record
   {
     $log = FezLog::get();
     $db = DB_API::get();
-    
+
     $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
     $prev_count;
 
@@ -3432,15 +3617,17 @@ class Record
     }
 
     if ($sek_details['sek_relationship'] == 1) { //1-M so will return an array
+      $order = ($sek_details['sek_cardinality'] == 1) ? " ORDER BY rek_".$sek_title."_order" : '';
       $log->debug('1-M will return array');
       $stmt = "SELECT
                     rek_".$sek_title."
                  FROM
                     " . $dbtp . "record_search_key_".$sek_title."
                  WHERE
-                    rek_".$sek_title."_pid = ".$db->quote($pid);
+                    rek_".$sek_title."_pid = ".$db->quote($pid).
+                  $order;
       try {
-        $res = $db->fetchCol($stmt);
+          $res = ($sek_details['sek_cardinality'] == 1) ? $db->fetchCol($stmt) : $db->fetchOne($stmt);
       }
       catch(Exception $ex) {
         $log->err($ex);
@@ -3456,7 +3643,7 @@ class Record
         $res = $temp;
       }
       return $res;
-       
+
     } else { //1-1 so will return single value
 //			$log->debug('1-1 will return single value');
       $stmt = "SELECT
@@ -3473,7 +3660,7 @@ class Record
         $log->err($ex);
         return false;
       }
-       
+
       if ($getLookup == true && $sek_details['sek_lookup_function'] != "") {
         $temp = array();
         eval("\$temp_value = ".$sek_details["sek_lookup_function"]."(".$res.");");
@@ -3485,6 +3672,99 @@ class Record
 
   }
 
+//param $previousToDate will return the version previous
+function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $sek_details='', $previousToDate='')
+{
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+
+    if (!is_array($sek_details)) {
+        $sek_details = Search_Key::getBasicDetailsByTitle($searchKeyTitle);
+    }
+    $sek_title = Search_Key::makeSQLTableName($sek_details['sek_title']);
+    if (empty($sek_title)) {
+        $log->err("No search key found: '{$sek_details['sek_title']}'");
+        return false;
+    }
+
+    if ($sek_details['sek_relationship'] == 1) { //1-M so will return an array
+        $dateOfVersion = ($previousToDate) ? " AND rek_".$sek_title."_stamp <= ".$db->quote($previousToDate) : "";
+        $order = ($sek_details['sek_cardinality'] == 1) ? " ORDER BY rek_".$sek_title."_order" : '';
+        $log->debug('1-M will return array');
+        $stmt = "SELECT
+                rek_".$sek_title."_stamp
+             FROM
+                " . APP_TABLE_PREFIX . "record_search_key_".$sek_title."__shadow
+             WHERE
+                rek_".$sek_title."_pid = ".$db->quote($pid).
+                $dateOfVersion . "
+             ORDER BY rek_".$sek_title."_stamp DESC";
+        try {
+            $res = $db->fetchOne($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+
+        $stamp = $res;
+
+        $stmt = "SELECT
+                rek_".$sek_title."
+             FROM
+                " . APP_TABLE_PREFIX . "record_search_key_".$sek_title."__shadow
+             WHERE
+                rek_".$sek_title."_pid = ".$db->quote($pid)."
+             AND rek_".$sek_title."_stamp = ".$db->quote($stamp).
+             $order;
+        try {
+            $res = ($sek_details['sek_cardinality'] == 1) ? $db->fetchCol($stmt) : $db->fetchOne($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+
+        if ($getLookup == true && $sek_details['sek_lookup_function'] != "") {
+            $temp = array();
+            foreach ($res as $rkey => $rdata) {
+                eval("\$temp_value = ".$sek_details["sek_lookup_function"]."(".$rdata.");");
+                $temp[$rdata] = $temp_value;
+            }
+            $res = $temp;
+        }
+        return $res;
+
+    } else { //1-1 so will return single value
+        $dateOfVersion = ($previousToDate) ? " AND rek_stamp <= ".$db->quote($previousToDate) : "";
+
+        $stmt = "SELECT
+                rek_".$sek_title."
+             FROM
+                " . APP_TABLE_PREFIX . "record_search_key__shadow
+             WHERE
+                rek_pid = ".$db->quote($pid).
+                $dateOfVersion. "
+             ORDER BY rek_stamp DESC" ;
+        try {
+            $res = $db->fetchOne($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+
+        if ($getLookup == true && $sek_details['sek_lookup_function'] != "") {
+            $temp = array();
+            eval("\$temp_value = ".$sek_details["sek_lookup_function"]."(".$res.");");
+            $temp[$res] = $temp_value;
+            $res = $temp;
+        }
+        return $res;
+    }
+
+}
 
   function buildSearchKeyJoins($options, $sort_by, $operator, $filter)
   {
@@ -3498,7 +3778,7 @@ class Record
     $searchKey_join[SK_SORT_ORDER] = ""; // initialise the return sql searchKey Order/Sort by join string
     $searchKey_join[SK_KEY_ID] = 1; // initialise the first join searchKey ID
     $searchKey_join[SK_MAX_COUNT] = 0; // initialise the max count of extra searchKey field joins
-    $searchKey_join[SK_FULLTEXT_REL] = ""; // initialise the return sql term relevance matching when fulltext 
+    $searchKey_join[SK_FULLTEXT_REL] = ""; // initialise the return sql term relevance matching when fulltext
                                            // indexing is used
     $searchKey_join[SK_SEARCH_TXT] = ""; // initialise the search info string
     $searchKey_join[SK_GROUP_BY] = ""; // initialise the group by string
@@ -3518,7 +3798,7 @@ class Record
     $joinType = "";
     $x = 0;
     $sortRestriction = "";
-    $dbtp =  APP_TABLE_PREFIX; // Database and table prefix 
+    $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
                                // only mysql supports db prefixing, so will remove it - no reason not to
 
     $operatorToUse = trim($operator);
@@ -3666,7 +3946,7 @@ class Record
           if ($sekdet['sek_data_type'] == "int") {
 
             if ( $multiple_type == 'all' ) {
-              $searchKey_join["sk_where_$operatorToUse"][] = "$sqlColumnName = " . 
+              $searchKey_join["sk_where_$operatorToUse"][] = "$sqlColumnName = " .
                   implode(" AND $sqlColumnName = ", $searchValue);
             } else {
               $searchKey_join["sk_where_$operatorToUse"][] = "$sqlColumnName IN (".
@@ -3709,7 +3989,7 @@ class Record
             }
           } else {
             if ( $multiple_type == 'all' ) {
-              $searchKey_join["sk_where_$operatorToUse"][] = "$sqlColumnName = '" . 
+              $searchKey_join["sk_where_$operatorToUse"][] = "$sqlColumnName = '" .
                   implode("' AND $sqlColumnName = '", $searchValue) . "'";
             } else {
               $searchKey_join["sk_where_$operatorToUse"][] = "$sqlColumnName IN ('".implode("','", $searchValue)."')";
@@ -3734,8 +4014,8 @@ class Record
 
             if ($sekdet['sek_relationship'] == 1) {
               $tmpSql .= "OR NOT EXISTS
-                          (SELECT * 
-                           FROM {$dbtp}record_search_key_".$sekdet['sek_title_db']." AS sr 
+                          (SELECT *
+                           FROM {$dbtp}record_search_key_".$sekdet['sek_title_db']." AS sr
                            WHERE sr.rek_".$sekdet['sek_title_db']."_pid = r{$joinID}.rek_pid))";
             } else {
               $tmpSql .= "OR ($sqlColumnName IS NULL OR $sqlColumnName = ''))";
@@ -3868,7 +4148,7 @@ class Record
     $searchKey_join[SK_SORT_ORDER] = ""; // initialise the return sql searchKey Order/Sort by join string
     $searchKey_join[SK_KEY_ID] = 1; // initialise the first join searchKey ID
     $searchKey_join[SK_MAX_COUNT] = 0; // initialise the max count of extra searchKey field joins
-    $searchKey_join[SK_FULLTEXT_REL] = ""; // initialise the return sql term relevance matching when fulltext 
+    $searchKey_join[SK_FULLTEXT_REL] = ""; // initialise the return sql term relevance matching when fulltext
                                            // indexing is used
     $searchKey_join[SK_SEARCH_TXT] = ""; // initialise the search info string
     $searchKey_join[SK_GROUP_BY] = ""; // initialise the group by string
@@ -3885,13 +4165,13 @@ class Record
         $searchKey_join[SK_WHERE] .= " ".$value." ";
       }
     }
-    
+
     $joinType = "";
     $x = 0;
     $sortRestriction = "";
-    // Database and table prefix 
+    // Database and table prefix
     // only mysql supports db prefixing, so will remove it - no reason not to
-    $dbtp =  APP_TABLE_PREFIX; 
+    $dbtp =  APP_TABLE_PREFIX;
 
     $operatorToUse = trim($operator);
 
@@ -3910,7 +4190,7 @@ class Record
       foreach ($solr_titles_temp as $skey => $svalue) {
 				if (is_numeric(strpos($svalue, "_dt"))) {
 					$solr_titles[$skey."_year"] = $skey."_year_t";
-				} 
+				}
       }
       foreach ($solr_titles as $skey => $svalue) {
         $escapedInput = str_replace($skey.":", $svalue.":", $escapedInput);
@@ -3944,7 +4224,14 @@ class Record
       $replace = '\\\$1';
       // REFACTOR of the solr input cleaning so that it first escapes everything, then removes escapes for search key patterns
       // The REFACTOR makes the regex MUCH smaller so it doesn't get close to hitting the regex length link limit and show perform better too. Also easier to read!
-      $pattern ='/(\+|-|&&|\|\||!|\{|}|\[|]|\^|"|~|\*|\?|:|\\\)(?!\))(?!\])/';
+
+      // Solr doesn't like unclosed brackets so if brackets don't match assume an simple search entering only part of a title etc so escape
+      if (substr_count($escapedInput, '(') == substr_count($escapedInput, ')')) {
+          $pattern ='/(\+|-|&&|\|\||!|\{|}|\[|]|\^|"|~|\*|\?|:|\\\)(?!\))(?!\])/';
+      }else {
+          $pattern ='/(\+|-|&&|\(|\)|\|\||!|\{|}|\[|]|\^|"|~|\*|\?|:|\\\)(?!\))(?!\])/';
+      }
+
       //first escape everything
       $escapedInput = preg_replace($pattern, $replace, $escapedInput);
 
@@ -4062,7 +4349,7 @@ class Record
             if ($sekdet['sek_data_type'] == "int") {
               if ($searchValue['value'] != "any") {
                 if ( $multiple_type == 'all' ) {
-                  $searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":(" . 
+                  $searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":(" .
                       Record::escapeSolr(implode(" AND ", $searchValue)).")";
                 } else {
                   $searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":(".
@@ -4106,7 +4393,7 @@ class Record
               }
             } else {
               if ( $multiple_type == 'all' ) {
-                $searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.": " . 
+                $searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.": " .
                     implode(" AND ".$sqlColumnName."_ms:", Record::escapeSolr($searchValue)) . "";
               } else {
                 $searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":(".
@@ -4156,7 +4443,7 @@ class Record
                 $searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":(".
                     Record::escapeSolr($searchValue).") ";
               } else {
-                // surround the exact match with quotes specifically (quotes need to go outside escapeSolr 
+                // surround the exact match with quotes specifically (quotes need to go outside escapeSolr
                 // call as we don't want them escaped)
                 if ($doExactMatch && strtolower($sekdet['sek_title']) == 'author') {
                   $searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":(\"".
@@ -4367,8 +4654,8 @@ class Record
     $xmlObj .= ">\n";
 
     $xmlObj = Foxml::array_to_xml_instance(
-        $array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, 
-        $xdis_id, "", $indexArray, 0, $created_date, $updated_date, 
+        $array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid,
+        $xdis_id, "", $indexArray, 0, $created_date, $updated_date,
         Auth::getUserID(), array(Auth::getUserID())
     );
     $xmlObj .= "</".$xsd_element_prefix.$xsd_top_element_name.">";
@@ -4377,27 +4664,32 @@ class Record
     $datastreamTitles = $display->getDatastreamTitles();
     return compact('datastreamTitles', 'xmlObj', 'indexArray', 'xdis_id');
   }
-  
+
   /**
    * Inserts an object into Fedora using values in an array to build the Fedora XML
    *
    * @access  public
+   * @package fedora
    * @param   array $array The mods datastream array
    * @param 	string $rels_parent_pid The parent pid of the object
    * @param 	string $history (OPTIONAL) The history to add to the the object's Premis Event log
-   * @param 	string $times_cited (OPTIONAL) The times cited 
+   * @param 	string $times_cited (OPTIONAL) The times cited
    * @param	array $links (OPTIONAL) The links datastream array
    * @param	array $premis (OPTIONAL) The premis datastream array
    * @return  void
    * @see foxml.tpl.html
+   * @uses
+   *   - WosRecItem->save(). On the Fedora version of save function
+   *   - MatchingRecords->add(). On the Fedora version of add function
+   *
    */
   public static function insertFromArray(
-      $mods, $rels_parent_pid, $version, $history = '', $times_cited = '', 
+      $mods, $rels_parent_pid, $version, $history = '', $times_cited = '',
       $links = array(), $premis= array()
   )
   {
     $log = FezLog::get();
-    
+
     if (! @$mods['genre']) {
       $log->err('A genre is required');
       return false;
@@ -4406,15 +4698,15 @@ class Record
       $log->err('A title is required');
       return false;
     }
-        
+
     $pid = Fedora_API::getNextPID();
-    
+
     // Dublin Core
     $dc = array();
     $dc['title'] = $mods['titleInfo']['title'];
-    
+
     $title = substr(htmlspecialchars($dc['title']), 0, 255);
-    
+
     // FezMD
     $xdis_id = XSD_Display::getXDIS_IDByTitleVersion($mods['genre'], $version);
     if ($xdis_id == '') {
@@ -4427,29 +4719,29 @@ class Record
     $fezmd['created_date'] = Date_API::getFedoraFormattedDateUTC();;
     $fezmd['updated_date'] = $fezmd['created_date'];
     $fezmd['depositor'] = Auth::getUserID();
-          
+
     // RELS-EXT
     $rels = array();
     $rels['parent_pid'] = $rels_parent_pid;
-  
+
     $tpl = new Template_API();
     $tpl_file = 'foxml.tpl.html';
     $tpl->setTemplate($tpl_file);
-    
+
     $tpl->assign("pid", $pid);
     $tpl->assign("title",	$title);
     $tpl->assign("mods", $mods);
     $tpl->assign("dc", $dc);
     $tpl->assign("fezmd",	$fezmd);
     $tpl->assign("rels", $rels);
-    
+
     if (count($links) > 0) {
       $tpl->assign("links",	$links);
     }
     if (count($premis) > 0) {
       $tpl->assign("premis",	$premis);
     }
-    
+
     $foxml = $tpl->getTemplateContents();
     $config = array(
               'indent'        => true,
@@ -4466,7 +4758,7 @@ class Record
     }
 
     $xml_request_data = new DOMDocument();
-   
+
     if (!$xml_request_data->loadXML($foxml)) {
       $log->err(array("Could not load the smarty made XML into a DOM object, aborting Ingest!: \n".$foxml, __FILE__,__LINE__));
       return false;
@@ -4474,9 +4766,9 @@ class Record
       if (APP_FEDORA_VERSION == "3") {
         $result = Fedora_API::callIngestObject($foxml, $pid);
       } else {
-        $result = Fedora_API::callIngestObject($foxml);			
+        $result = Fedora_API::callIngestObject($foxml);
       }
-              
+
       if ($result) {
         Record::setIndexMatchingFields($pid);
         //Citation::updateCitationCache($pid, "");
@@ -4487,8 +4779,8 @@ class Record
           History::addHistory($pid, null, "", "", true, $history);
         }
       }
-    }	
-    
+    }
+
     return $pid;
   }
 
@@ -4496,9 +4788,13 @@ class Record
    * Inserts an object template into Fedora. Used in workflows.
    *
    * @access  public
-   * @param   string $pid The persistant identifier of the object
-   * @param   array $dsarray The array of datastreams
-   * @return  void
+   * @package ...
+   * @param string $pid The persistant identifier of the object
+   * @param int $xdis_id
+   * @param string $title
+   * @param array $dsarray The array of datastreams
+   * @return void
+   * @uses BatchImport->insert()
    */
   function insertFromTemplate($pid, $xdis_id, $title, $dsarray)
   {
@@ -4514,11 +4810,18 @@ class Record
    * Inserts an object xml into Fedora. Used in workflows.
    *
    * @access  public
+   * @package fedora
    * @param   string $pid The persistant identifier of the object
    * @param   array $dsarray The array of datastreams
+   *          $dsarray array:
+   *            'datastreamTitles' => Array of datastream titles used for proposed import record.
+   *            'xmlObj'           => String of XML
+   *            'indexArray'       => Empty Array
+   *            'xdis_id'          => Int XSDisplay ID - from $_POST["xdis_id"]
    * @param   boolean $ingestObject Should we insert as a new object into fedora (false if updating an
    *                                exisitng object).
    * @return  void
+   * @uses Record::insertFromTemplate()
    */
   function insertXML($pid, $dsarray, $ingestObject)
   {
@@ -4567,7 +4870,7 @@ class Record
       if (APP_FEDORA_VERSION == "3") {
         $result = Fedora_API::callIngestObject($xmlObj, $pid);
       } else {
-        $result = Fedora_API::callIngestObject($xmlObj);				
+        $result = Fedora_API::callIngestObject($xmlObj);
       }
 
       if (is_array($result)) {
@@ -4690,15 +4993,15 @@ class Record
           } else if ( $new_add ) {
             Fedora_API::callAddDatastream(
                 $pid, $datastreamID, $location,
-                $dsTitle['LABEL'], $dsTitle['STATE'], $dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP'], 
+                $dsTitle['LABEL'], $dsTitle['STATE'], $dsTitle['MIMETYPE'], $dsTitle['CONTROL_GROUP'],
                 $versionable
             );
           } else {
             $log->err(array("Unable to add datastream.  Missing add type.", __FILE__,__LINE__));
           }
-        } else if ($mod) {          
-          //First check 
-          if ( $mod_ByValue ) {            
+        } else if ($mod) {
+          //First check
+          if ( $mod_ByValue ) {
             $currentXML = Fedora_API::callGetDatastreamContents($pid, $datastreamID, true);
             if (!defined('APP_NO_TIDY') || !APP_NO_TIDY) {
               $config = array(
@@ -4730,7 +5033,7 @@ class Record
                   $cleanXML, $dsTitle['MIMETYPE'], $versionable
               );
             }
-            
+
           } else if ( $mod_ByRef ) {
             Fedora_API::callModifyDatastreamByReference(
                 $pid, $datastreamID, $dsTitle['LABEL'],
@@ -4769,7 +5072,14 @@ class Record
     Record::setIndexMatchingFields($pid);
   }
 
-  
+
+  /**
+   * @package fedora
+   * @param string $pid
+   * @param string $dsID
+   * @uses AuthIndex->setIndexAuthBGP()
+   *   This method is traced to "Regenerate Auth Index" workflow which is only used on Fedora system.
+   */
   function checkQuickAuthFezACML($pid, $dsID)
   {
     $xmlObjNum = Record::getDatastreamQuickAuthTemplate($pid);
@@ -4786,7 +5096,7 @@ class Record
           );
         } else {
           Fedora_API::getUploadLocation(
-              $pid, $FezACML_dsID, $xmlObj, "FezACML security for datastream - ".$dsID, 
+              $pid, $FezACML_dsID, $xmlObj, "FezACML security for datastream - ".$dsID,
               "text/xml", "X", null, "true"
           );
         }
@@ -4797,9 +5107,9 @@ class Record
   /**
    * getDatastreamQuickAuthTemplate
    * Find out if the current user can view this record
-   * 
+   *
    * @access  public
-   * @return  integer : the quick auth template ID primary key for the fez_auth_quick_template table from the FezACML 
+   * @return  integer : the quick auth template ID primary key for the fez_auth_quick_template table from the FezACML
    */
   function getDatastreamQuickAuthTemplate($pid)
   {
@@ -4810,7 +5120,7 @@ class Record
     //      $userPIDAuthGroups['datastreamQuickAuth']." ");
     return $userPIDAuthGroups['datastreamQuickAuth'];
   }
-    
+
   function insertRecentRecords($pids)
   {
     $log = FezLog::get();
@@ -4837,7 +5147,7 @@ class Record
       $log->err($ex);
     }
 
-    
+
   }
 
   function deleteRecentRecords()
@@ -4894,8 +5204,14 @@ class Record
     }
   }
 
+  /**
+   * @package fedora & fedora_bypass
+   * @param string $pid
+   * @param string $dsIDName
+   */
   function generatePresmd($pid, $dsIDName)
   {
+    if ( APP_FEDORA_BYPASS != "ON"){
     //Jhove
     $ncName = Foxml::makeNCName($dsIDName);
     $presmd_check = Workflow::checkForPresMD($ncName);
@@ -4914,8 +5230,9 @@ class Record
         unlink(APP_TEMP_DIR.basename($presmd_check));
       }
     }
-    //ExifTool
+    }
 
+    //ExifTool
     Exiftool::saveExif($pid, $dsIDName);
   }
 
@@ -4927,7 +5244,9 @@ class Record
    * to the Fez premis_event table, so that the underlying object may be re-built from Fez.
    *
    * @access  public
+   * @package fedora
    * @param   $pid    The PID of the Fedora object we are processing.
+   * @uses Reindex->indexFezFedoraObjects()
    */
   function propagateExistingPremisDatastreamToFez($pid)
   {
@@ -5011,57 +5330,103 @@ class Record
 
   function isDeleted($pid)
   {
-
     if (APP_FEDORA_APIA_DIRECT == "ON") {
       $fda = new Fedora_Direct_Access();
       return $fda->isDeleted($pid);
     }
-    $res = Fedora_API::searchQuery('pid='.$pid, array('pid', 'state'));
+
+    if(APP_FEDORA_BYPASS == 'ON') {
+        $log = FezLog::get();
+        $db = DB_API::get();
+        $stmt = "SELECT rek_pid
+                 FROM " . APP_TABLE_PREFIX . "record_search_key
+                 WHERE rek_pid = " . $db->quote($pid);
+
+        try {
+            $res = $db->fetchOne($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+        if ($res == $pid) {
+            return false;
+        }
+        $stmt = "SELECT rek_pid
+                 FROM " . APP_TABLE_PREFIX . "record_search_key__shadow
+                 WHERE rek_pid = " . $db->quote($pid);
+
+        try {
+            $res = $db->fetchOne($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+        return ($res == $pid);
+
+    }  else {
+        $res = Fedora_API::searchQuery('pid='.$pid, array('pid', 'state'));
     if ( empty($res) ) {
       //Due to issues with uppercase and lower case pids being treated differently in fedora, we will check again
       $res = Fedora_API::searchQuery('pid='.strtoupper($pid), array('pid', 'state'));
     }
-    if ($res[0]['state'] == 'D') {
-      return true;
+        if ($res[0]['state'] == 'D') {
+          return true;
+        }
+        return false;
     }
-    return false;
   }
 
-  function markAsDeleted($pid)
+  function markAsDeleted($pid, $date ='')
   {
-    // tell fedora that the object is deleted.
-	$label = Record::getSearchKeyIndexValue($pid, "title", false);  // Get title of record. Sending a null label to callModifyObject deletes the object label in Fedora 3, which is used to display the title in the 'Undelete Fedora Objects' page
-    Fedora_API::callModifyObject($pid, 'D', $label);
-
+    if(APP_FEDORA_BYPASS != 'ON') {
+        // tell fedora that the object is deleted.
+	    $label = Record::getSearchKeyIndexValue($pid, "title", false);  // Get title of record. Sending a null label to callModifyObject deletes the object label in Fedora 3, which is used to display the title in the 'Undelete Fedora Objects' page
+        Fedora_API::callModifyObject($pid, 'D', $label);
+    }
     // delete it from the Fez index.
-    Record::removeIndexRecord($pid);
+    Record::removeIndexRecord($pid, true, true, $date);
   }
 
+
+  /**
+   * Marks a record as undeleted.
+   *
+   * @todo fedora_bypass version of undelete
+   * @package fedora & fedora_bypass
+   * @param string $pid
+   * @param boolean $do_index
+   */
   function markAsActive($pid, $do_index = true)
   {
-    // tell fedora that the object is active.
-    Fedora_API::callModifyObject($pid, 'A', null);
+    if ( APP_FEDORA_BYPASS == "ON") {
+        $rec = new Fez_Record_SearchkeyShadow($pid);
+        $rec->undeleteRecord();
+    } else {
+      // tell fedora that the object is active.
+      Fedora_API::callModifyObject($pid, 'A', null);
 
-    if ($do_index) {
-      // add it to the Fez index.
-      Record::setIndexMatchingFields($pid);
+      if ($do_index) {
+        // add it to the Fez index.
+        Record::setIndexMatchingFields($pid);
+      }
     }
-
   }
-  
+
   /**
    * Renames a datastream
    *
    * @param string $pid
    * @param string $oldName
    * @param string $newName
-   * @param string $historyDescription 
+   * @param string $historyDescription
    * @return void
    **/
   public function renameDatastream($pid, $oldName, $newName, $historyDescription = '')
   {
     $log = FezLog::get();
-    
+
     if(APP_FEDORA_BYPASS == 'ON')
     {
         $dsr = new DSResource(APP_DSTREE_PATH);
@@ -5072,28 +5437,28 @@ class Record
             {
               $historyDescription = "Renamed the {$oldName} datastream to {$newName}";
             }
-            History::addHistory($pid, null, "", "", true, $historyDescription, null); 
+            History::addHistory($pid, null, "", "", true, $historyDescription, null);
         }
         else
         {
             $log->err("Could not rename {$oldName} to {$newName} in {$pid}");
-        }   
-        
+        }
+
         return $res;
     }
     else
     {
         $ncOldName = Foxml::makeNCName($oldName);
         $ncNewName = Foxml::makeNCName($newName);
-        
+
         if ($ncOldName == $ncNewName) {
           $log->info("Renaming datastreams failed because both the old name and the new name are the same");
           return;
         }
-        
+
         // 1. Get the details to the old datastream
         $oldDatastream = Fedora_API::callGetDatastream($pid, $ncOldName);
-        
+
         // if we have no details, ignore this rename
         if (!count($oldDatastream)) {
           $log->err(
@@ -5102,39 +5467,39 @@ class Record
           );
           return false;
         }
-    
+
         // do actual rename
         $renameResult = self::renameDatastreamInternal($pid, $oldDatastream, $ncNewName);
         if (!$renameResult) {
           $log->err("Could not rename {$oldName} to {$newName} in {$pid}");
           return;
         }
-        
-        
-        // if we are renaming a file, 
+
+
+        // if we are renaming a file,
         if ($oldDatastream['controlGroup'] == 'M') {
-          
+
           // then rename the presmd as well, start by generating the presmd filenames
           if (is_numeric(strrpos($oldName, '.'))) {
             $oldPresmdName = 'presmd_'.Foxml::makeNCName(substr($oldName, 0, strrpos($oldName, '.'))).'.xml';
           } else {
             $oldPresmdName = 'presmd_'.$ncOldName.'.xml';
           }
-    
+
           if (is_numeric(strrpos($newName, '.'))) {
             $newPresmdName = 'presmd_'.Foxml::makeNCName(substr($newName, 0, strrpos($newName, '.'))).'.xml';
           } else {
             $newPresmdName = 'presmd_'.$ncNewName.'.xml';
           }
-    
+
           if (Fedora_API::datastreamExists($pid, $oldPresmdName)) {
             $presmdDs = Fedora_API::callGetDatastream($pid, $oldPresmdName);
             self::renameDatastreamInternal($pid, $presmdDs, $newPresmdName);
           }
-    
+
           // move exif values if they exist
           Exiftool::renameFile($pid, $oldName, $newName);
-        
+
           // copy any of the generated datastreams that exist as part of this
           $prefixes = array('thumbnail_', 'web_', 'preview_', 'FezACML_');
           foreach ($prefixes as $prefix) {
@@ -5144,23 +5509,23 @@ class Record
               $oldSubDatastreamName .= ".xml";
               $newSubDatastreamName .= ".xml";
             }
-    
+
             if (Fedora_API::datastreamExists($pid, "{$oldSubDatastreamName}")) {
               $subDs = Fedora_API::callGetDatastream($pid, "{$oldSubDatastreamName}");
               self::renameDatastreamInternal($pid, $subDs, $newSubDatastreamName);
               Exiftool::renameFile($pid, "{$oldSubDatastreamName}", "{$newSubDatastreamName}");
-            }					
+            }
           }
-    
+
           // change download stats
           Statistics::moveFileStats($pid, $oldName, $pid, $newName);
         }
     }
-    
+
     // add history event about renaming file (from what to what, who and maybe why)
-    
+
   }
-  
+
   /**
    * Internal function to do actual renaming of datastream
    *
@@ -5177,28 +5542,28 @@ class Record
       $log->err("Could not rename datastream '{$ds['ID']}' to '{$newName}' in {$pid} because it doesn't exist");
       return false;
     }
-    
+
     /*// get the details
     $result = false;
     switch ($ds['controlGroup']) {
-      case 'M': 
+      case 'M':
       case 'X':
         $value = Fedora_API::callGetDatastreamContents($pid, $ds['ID'], true);
         $result = Fedora_API::getUploadLocation(
-            $pid, $newName, $value, $ds['label'], 
+            $pid, $newName, $value, $ds['label'],
             $ds['MIMEType'], $ds['controlGroup'], null, $ds['versionable']
         );
           break;
       case 'R':
         Fedora_API::callAddDatastream(
-            $pid, $newName, $ds['location'], $ds['label'], $ds['state'], $ds['MIMEType'], 
+            $pid, $newName, $ds['location'], $ds['label'], $ds['state'], $ds['MIMEType'],
             $ds['controlGroup'], $ds['versionable']
         );
         $result = Fedora_API::datastreamExists($pid, $newName, true);
           break;
     }
-    
-    if (!$result) { 
+
+    if (!$result) {
       $log->err(
           "Could not rename datastream '{$ds['ID']}' to '{$newName}' ".
           "in {$pid} because we couldn't add the new datastream first ".
@@ -5206,7 +5571,7 @@ class Record
       );
       return $result;
     }
-    
+
     // we've successfully added the new datastream, so purge the previous one
     $result = Fedora_API::callPurgeDatastream($pid, $ds['ID']);
 
@@ -5219,7 +5584,7 @@ class Record
 
     return $result;*/
   }
-  
+
   /**
    * Update the label associated with a datastream
    *
@@ -5231,9 +5596,9 @@ class Record
   public function updateDatastreamLabel($pid, $dsID, $newLabel)
   {
     $currentDetails = Fedora_API::callGetDatastream($pid, $dsID);
-    
+
     Fedora_API::callModifyDatastreamByReference(
-        $pid, $dsID, $newLabel, $currentDetails['location'], 
+        $pid, $dsID, $newLabel, $currentDetails['location'],
         $currentDetails['MIMEType'], $currentDetails['versionable']
     );
   }
@@ -5248,7 +5613,7 @@ class Record
   {
     $log = FezLog::get();
     $db = DB_API::get();
-    
+
     $stmt = "
       SELECT
         COUNT(*) AS record_count
@@ -5281,14 +5646,14 @@ class Record
 function getSpeculativeHERDCcode($pid)
 {
   $status = Record::getIntERActStatus($pid); // Get the IntERAct status.
-  
+
   // Get the content type (and possibly subtype) of the record in question.
   $record = New RecordGeneral($pid);
   $docType = $record->getDocumentType();
   $subType = Record::getSearchKeyIndexValue($pid, "Subtype");
-  
+
   $herdcCode = ""; // Default
-  
+
   /////////////////////////////////////////////////////////////////////
   // BUSINESS RULES
   /////////////////////////////////////////////////////////////////////
@@ -5296,7 +5661,7 @@ function getSpeculativeHERDCcode($pid)
   // "ERA smart matching rules (for existing pubs without HERDC codes)"
   /////////////////////////////////////////////////////////////////////
   if ($docType == "Conference Paper") {
-    
+
     if ($status == "Y") {
       $herdcCode = "E1";
     } elseif ($status == "N") {
@@ -5304,10 +5669,10 @@ function getSpeculativeHERDCcode($pid)
     } elseif ($status == "X") {
       $herdcCode = "EX";
     }
-    
-  } elseif (($docType == "Journal Article" && 
-              ($subType == "Review of research - research literature review (NOT book review" || 
-               $subType == "Article")) || 
+
+  } elseif (($docType == "Journal Article" &&
+              ($subType == "Review of research - research literature review (NOT book review" ||
+               $subType == "Article")) ||
              $docType == "Online Journal Article") {
 
     if ($status == "Y") {
@@ -5317,7 +5682,7 @@ function getSpeculativeHERDCcode($pid)
     } elseif ($status == "X") {
       $herdcCode = "C1";
     }
-    
+
   } elseif ($docType == "Book" && $subType == "Non-fiction") {
 
     if ($status == "Y") {
@@ -5327,7 +5692,7 @@ function getSpeculativeHERDCcode($pid)
     } elseif ($status == "X") {
       $herdcCode = "AX";
     }
-    
+
   } elseif ($docType == "Book Chapter" && $subType == "Non-fiction") {
 
     if ($status == "Y") {
@@ -5337,35 +5702,35 @@ function getSpeculativeHERDCcode($pid)
     } elseif ($status == "X") {
       $herdcCode = "BX";
     }
-    
+
   } else {
-    
-    // For everything else in eSpace, published 2003 onwards, WITHOUT a HERDC code, and 
+
+    // For everything else in eSpace, published 2003 onwards, WITHOUT a HERDC code, and
     // NOT in the smart matching list of publications that were compared to ERA data:
 
     // If Document Type = Journal Article and Subtype NOT (Article or Review of Research) then Confirmed CX
-    if ($docType == "Journal Article" && 
+    if ($docType == "Journal Article" &&
         $subType != "Article" &&
         $subType != "Review of research - research literature review (NOT book review") {
-    
+
           $herdcCode = "CX";
 
-    // If Document Type = Book and Subtype NOT non-Fiction then Confirmed AX    
+    // If Document Type = Book and Subtype NOT non-Fiction then Confirmed AX
     } elseif ($docType == "Book" &&
               $subType != "Non-fiction") {
-    
+
           $herdcCode = "AX";
 
-    // If Document Type = Book Chapter and Subtype NOT non-Fiction then Confirmed BX      
+    // If Document Type = Book Chapter and Subtype NOT non-Fiction then Confirmed BX
     } elseif ($docType == "Book Chapter" &&
               $subType != "Non-fiction") {
-    
+
           $herdcCode = "BX";
-      
+
     }
   }
-  
-  // This return value will eventually be extended into an array capable of housing 
+
+  // This return value will eventually be extended into an array capable of housing
   // additional information such as whether the code is confirmed or provisional.
   return $herdcCode;
 }
@@ -5399,13 +5764,24 @@ function getSpeculativeHERDCcode($pid)
     }
 }
 
+/**
+ * This function is NOT part of Record class, might be code typo.
+ * It is also not being called by any function.
+ * The closest we can find is:
+ * BackgroundProcess_Bulk_Add_Handles->run() call a non-existing function RecordObject->addHandle();
+ * Conclusion, looks like this function is part of unfinished experiment.
+ *
+ * @package unused. See function description.
+ * @param string $pid
+ * @return boolean
+ */
 function addHandle($pid)
 {
-  // set testrun to true if you don't want changes written to Fedora 
+  // set testrun to true if you don't want changes written to Fedora
   $testrun = false;
   $success = false;  // set to true when handle is written to Fedora
   $count2 = 0;
-  
+
   // get mods datastream
   $newXML = '';
   $xmlString = Fedora_API::callGetDatastreamContents($pid, 'MODS', true);
@@ -5415,16 +5791,16 @@ function addHandle($pid)
   $fieldNodeList = $xpath->query("/mods:mods/mods:identifier[@type='hdl']");
 
   $count = 0;
-    foreach ($fieldNodeList as $node) {  // count 
+    foreach ($fieldNodeList as $node) {  // count
       $count++;
     }
-    
+
   if ($count == 0) {  // there isn't an empty handle tag - add one
     //Error_Handler::logChange('No handle tag');  // output to error_handler.log for inspection
-    
+
     //  for xslt transform
     $xslString = "<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\"
-    version=\"1.0\"  
+    version=\"1.0\"
     xmlns:mods=\"http://www.loc.gov/mods/v3\"
     exclude-result-prefixes=\"mods\">
     <xsl:output method=\"xml\"/>
@@ -5451,31 +5827,31 @@ function addHandle($pid)
 
     $xsl = DOMDocument::loadXML($xslString);
 
-    // Configure the transformer to add handle tag 
+    // Configure the transformer to add handle tag
     $proc = new XSLTProcessor;
     $proc->importStyleSheet($xsl); // attach the xsl rules
     $xmlString = $proc->transformToXML($doc);
-    
+
     // reload xml string with new empty handle tag
     $doc = DOMDocument::loadXML($xmlString);
     $xpath = new DOMXPath($doc);
     $xpath->registerNamespace("mods", "http://www.loc.gov/mods/v3"); // must register namespace if one exists
     $fieldNodeList = $xpath->query("/mods:mods/mods:identifier[@type='hdl']");
-    
-    
+
+
     foreach ($fieldNodeList as $node) {  // count the number of identifier@type=hdl tags  (should now be 1)
       $count2++;
     }
   }  // added empty handle tag
-  
+
   // insert handle value if there is an empty handle tag
-  if ($count != 0 || $count2 != 0) {  
-  
+  if ($count != 0 || $count2 != 0) {
+
     $oldHandle = $fieldNodeList->item(0)->nodeValue;  // get the handle value from MODS if one exists
     // no handle
     if ($oldHandle == '') {
 
-      if ( substr(HANDLE_NA_PREFIX_DERIVATIVE, 0, 1) == "/") {       
+      if ( substr(HANDLE_NA_PREFIX_DERIVATIVE, 0, 1) == "/") {
         // when the derivative prefix from the site config screen starts with a "/" we do not want to
         // treat it as part of the handle prefix
         $pseudoPrefix = HANDLE_NA_PREFIX_DERIVATIVE;
@@ -5486,24 +5862,24 @@ function addHandle($pid)
       }
 
       $newHandle = HANDLE_NAMING_AUTHORITY_PREFIX . $derivativePrefix . $pseudoPrefix . '/' . $pid;
-    
+
       $fieldNodeList->item(0)->nodeValue = $newHandle;
       //Error_Handler::logChange("$pid	$oldHandle	$newHandle	+++");
-    
+
       if ($testrun === false) {
         $newXML = $doc->SaveXML();  // put results in newXML to be written to Fedora
       } else {
         // output to error_handler.log for inspection
-        Error_Handler::logChangeMODS($doc->SaveXML());  
+        Error_Handler::logChangeMODS($doc->SaveXML());
       }
-    
+
       if ($newXML != "") {
         Fedora_API::callModifyDatastreamByValue(
-            $this->pid, "MODS", "A", 
-            "Metadata Object Description Schema", 
+            $this->pid, "MODS", "A",
+            "Metadata Object Description Schema",
             $newXML, "text/xml", "inherit"
         );
-    
+
         //specify what to put in premis record
         $historyDetail = "Add handle to MODS datastream";
         History::addHistory($this->pid, null, "", "", true, $historyDetail);
@@ -5516,13 +5892,13 @@ function addHandle($pid)
 
         if ($newHandle != $oldHandle) {
           $handleRequestor->changeHandle(
-              $oldHandle, 
-              $newHandle, "http://" . APP_HOSTNAME . 
+              $oldHandle,
+              $newHandle, "http://" . APP_HOSTNAME .
               APP_RELATIVE_URL . "view/" . $pid
           );
           $handleRequestor->processHandleRequests();
         }
-        
+
         $success = true;  // have written handle to fedora
       }
 
@@ -5531,6 +5907,6 @@ function addHandle($pid)
       //Error_Handler::logChange("$pid	$oldHandle	---");
     }
   }  // end if count != 0 OR count2 != 0
-  
+
   return $success;
 }

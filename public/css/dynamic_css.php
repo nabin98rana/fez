@@ -5,9 +5,9 @@ include_once(APP_INC_PATH.'class.template.php');
 /**********************************************************************
  *                                NOTE
  * Most of the dynamic content is related to colour scheme and relative
- * URL's. This content will rarely change, however if it does 
- * dynamic_css.tpl.css will need to be changed and SAVED so that the last 
- * modified timestemp is changed and the webserver will tell users to 
+ * URL's. This content will rarely change, however if it does
+ * dynamic_css.tpl.css will need to be changed and SAVED so that the last
+ * modified timestemp is changed and the webserver will tell users to
  * download a new copy of this file.
  ***********************************************************************/
 

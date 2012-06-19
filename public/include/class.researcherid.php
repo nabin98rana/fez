@@ -1480,13 +1480,26 @@ class ResearcherID
             // Special filtering: filter based on Profile & Publications XML content.
             case 'rid':
                 $where_stmt[] = "( 
-                                 rij_response_profilexml LIKE '%<researcherID>". $search['val'] ."%'".
+                                 rij_response_profilexml LIKE ".$db->quote('%<researcherID>'. $search['val'] .'%').
                                  " OR ".
-                                 " rij_response_publicationsxml LIKE '%<researcherID>". $search['val'] ."%'".
+                                 " rij_response_publicationsxml LIKE ".$db->quote('%<researcherID>'. $search['val'] .'%').
                                 ")";
 
                 break;
-            
+
+            // Special filtering: filter based on XML content.
+            case 'xml':
+                $where_stmt[] = "(
+                                 rij_downloadrequest LIKE ".$db->quote('%'.$search['val'].'%').
+                    " OR ".
+                    " rij_lastresponse LIKE ".$db->quote('%'.$search['val'].'%').
+                    " OR ".
+                    " rij_response_profilexml LIKE ".$db->quote('%'.$search['val'].'%').
+                    " OR ".
+                    " rij_response_publicationsxml LIKE ".$db->quote('%'.$search['val'].'%').
+                    ")";
+
+                break;
             // Special filtering: filter jobs that store Profile & Publications response XML and older than a specific period of time.
             case 'clean_rid_jobs':
                 $where_stmt[] = " rij_timefinished >= ". $db->quote($search['val'], 'DATE') ." AND 

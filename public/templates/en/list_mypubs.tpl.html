@@ -17,10 +17,10 @@
   <input type="hidden" name="xdis_id" value="" />
 </div>
 
-{if $isUser}  
+{if $isUser}
 	{if $list_type == 'community_list' && $isAdministrator}
 	<div class="create-box">
-		<a target="_top" title="Create a new community" href="{$rel_url}workflow/new.php?pid=-1&amp;xdis_id={$xdis_id}&amp;href={$smarty.server.REQUEST_URI|escape:'url'}"><img src="{$rel_url}images/folder_new.gif" align="top" alt="" /> <b>Create New Community</b></a>
+		<a target="_top" title="Create New Community" href="{$rel_url}workflow/new.php?pid=-1&amp;xdis_id={$xdis_id}&amp;href={$smarty.server.REQUEST_URI|escape:'url'}"><img src="{$rel_url}images/folder_new.gif" align="top" alt="" /> <b>Create New Community</b></a>
 	</div> <br /><br />&nbsp;
 	{elseif $list_type == 'collection_list' && ($isAdministrator || $isCreator)}
 	<div class="create-box">
@@ -34,7 +34,7 @@
 		{/if}
 	</div><br /><br />&nbsp;
 	{elseif ($list_type == 'collection_records_list' && ($isAdministrator || $isCreator)) && $browse_type == ""}
-	<div class="create-box">			
+	<div class="create-box">
 		{if $childXDisplayOptions != 0}
 		<img src="{$rel_url}images/folder_new.gif" align="top" alt="" />
 		<input type="hidden" name="collection_pid" value="{$collection_pid}" />
@@ -44,12 +44,12 @@
 		<input type="button" value="Create" onClick="javascript:createRecord(this.form, this.form.xdis_id_top)" />
 		{/if}
 	</div><br /><br />&nbsp;
-	{/if}  
+	{/if}
 {/if}
 
 {include file="list_browse_type.tpl.html"}
 {if ($browse_heading == "") ||  ($browse_type != "" && ($author != "" || $author_id != "")) || ($browse_type != "" & $depositor != "") || ($browse_type != "" && $year != "") || ($browse_type != "" && $parent_id != "" && $max_subject_breadcrumb != 0)}
-        
+
 	{if $spell_suggest != ""}
 	<table width="100%" cellpadding="10" cellspacing="0" class="listrecord">
 	  	<tr>
@@ -57,13 +57,13 @@
 	  	</tr>
 	</table>
 	{/if}
-		
+
 	{if $facets && $list_type != 'collection_records_list' && $list_type != 'collection_list' && $list_type != 'community_list'}
     <div class="facet">
     <div class="facetheader">
     <h2>Refine</h2>
     </div>
-    
+
     <ul>
     {foreach from=$facets key=sek_id item=items}
 	{if $items.sek_alt_title == ""}
@@ -79,14 +79,14 @@
         <li>&nbsp;</li>
     {/foreach}
     </ul>
-    
+
     </div>
     {/if}
 <div style="padding:20px;">
 	<table {if $facets  && $list_type != 'collection_records_list' && $list_type != 'collection_list' && $list_type != 'community_list'}width="70%"{else}width="100%"{/if} cellpadding="10" cellspacing="0" class="listrecord">
         <tr>
             <td colspan="{if ($isAdministrator)}3{else}2{/if}">&nbsp;</td>
-            {if $showEdit || $isAdministrator}		
+            {if $showEdit || $isAdministrator}
                 <td align="right">&nbsp;</td>
             {/if}
             {if $smarty.get.cat =='Search' || $smarty.get.cat == 'all_fields' || $smarty.get.cat == 'quick_filter'}
@@ -151,7 +151,7 @@
 	   		{if $list[i].rek_object_type == 1}
                 {assign var="href_view" value="community/"|cat:$list[i].rek_pid|escape:"html"}
                 {assign var="icon" value=$rel_url|cat:"images/community.jpg" }
-                {if ($list[i].isEditor==1 || $isAdministrator)} 
+                {if ($list[i].isEditor==1 || $isAdministrator)}
                         {assign var="showEdit" value=true}
                 {else}
                         {assign var="showEdit" value=false}
@@ -159,7 +159,7 @@
            {elseif $list[i].rek_object_type == 2}
                 {assign var="href_view" value="collection/"|cat:$list[i].rek_pid|escape:"html"}
                 {assign var="icon" value=$rel_url|cat:"images/collection.jpg" }
-                {if $isUser && ($list[i].isEditor==1 || $isAdministrator)}  
+                {if $isUser && ($list[i].isEditor==1 || $isAdministrator)}
                         {assign var="showEdit" value=true}
                 {else}
                         {assign var="showEdit" value=false}
@@ -170,7 +170,7 @@
                 {else}
                   {assign var="href_view" value=""}
                 {/if}
-                
+
 				{if $list[i].thumbnail.0 != "" && $list[i].isViewer==1}
 	                {assign var="icon" value=$eserv_url|cat:$list[i].rek_pid|cat:"/"|cat:$list[i].thumbnail.0}
 	        		{assign var="icon_height" value=$list[i].thumbnail_height.0}
@@ -178,8 +178,8 @@
 				{else}
 	                {assign var="icon" value=""}
 				{/if}
-				
-                {if $isUser } 
+
+                {if $isUser }
                     {assign var="showEdit" value=true}
                 {else}
                     {assign var="showEdit" value=false}
@@ -187,7 +187,7 @@
            {/if}
 
 		  <tr>
-		  {if ($isAdministrator)}  		  
+		  {if ($isAdministrator)}
               <td valign="middle" style="border-top: 1px dashed #be87e9; width: 10px; padding: 10px">
 	              <input type="checkbox" name="pids[]" value="{$list[i].rek_pid}" />
               </td>
@@ -198,14 +198,14 @@
                 {if $href_view}<a href='{$rel_url}{$href_view}' >{/if}<img {if ($icon_width != "" && $icon_height != "")}width={$icon_width} height={$icon_height}{/if} valign='top' align='right' src="{$icon}" alt="" />{if $href_view}</a>{/if}
 		  </td>
 		  {/if}
-				  
+
 		  <td align="left"{if $icon}{else} colspan="2"{/if} valign="middle" style="border-top:1px dashed #be87e9; width: 100%;">
             {if $list[i].rek_citation != ""}
             {$list[i].rek_citation}
             {else}
             {if $href_view}<a href='{$rel_url}{$href_view}' title='{$list[i].rek_title}'>{/if}{$list[i].rek_title|escape:"html"}{if $href_view}</a>{/if}
             {/if}
-			
+
             {if $list[i].rek_object_type != 3}
                 {if $list[i].rek_ismemberof_count != ""}({$list[i].rek_ismemberof_count}){/if}
             {/if}
@@ -230,24 +230,24 @@
 	            {else}
 			      {assign var="wf_icon" value=$list[i].wft_icon[w]}
 			    {/if}
-                            
+
 			    {if $list[i].wft_type_id[w] == 6}
                   {assign var='wf_url' value=$rel_url|cat:'workflow/export.php'}
                 {else}
                   {assign var='wf_url' value=$rel_url|cat:'workflow/update.php'}
    			    {/if}
-			     <a href="{$wf_url}?pid={$list[i].rek_pid|escape:"html"}&amp;cat=select_workflow&amp;xdis_id={$list[i].rek_display_type}&amp;wft_id={$list[i].wft_id[w]}&amp;href={$smarty.server.REQUEST_URI|escape:'url'}"{if $list[i].wft_icon[w] == 'images/delete.gif'} onclick="return confirmDelete();"{/if}><img alt="{$list[i].wfl_title[w]}" title="{$list[i].wfl_title[w]}" src="{$rel_url}{$wf_icon}" /></a> 
+			     <a href="{$wf_url}?pid={$list[i].rek_pid|escape:"html"}&amp;cat=select_workflow&amp;xdis_id={$list[i].rek_display_type}&amp;wft_id={$list[i].wft_id[w]}&amp;href={$smarty.server.REQUEST_URI|escape:'url'}"{if $list[i].wft_icon[w] == 'images/delete.gif'} onclick="return confirmDelete();"{/if}><img alt="{$list[i].wfl_title[w]}" title="{$list[i].wfl_title[w]}" src="{$rel_url}{$wf_icon}" /></a>
 				{/if}
 			  {/section}
-		          
-                <a href="{$rel_url}workflow/list_workflows2.php?pid={$list[i].rek_pid|escape}"><img src="{$rel_url}images/options_16.png" alt="More options" title="More options" width="16" height="16" /></a> 
+
+                <a href="{$rel_url}workflow/list_workflows2.php?pid={$list[i].rek_pid|escape}"><img src="{$rel_url}images/options_16.png" alt="More options" title="More options" width="16" height="16" /></a>
 			</td>
            {/if}
 
 				{if $smarty.get.cat =='Search' || $smarty.get.cat == 'all_fields' || $smarty.get.cat == 'quick_filter'}
 					<td align="center" valign="middle" style="border-top:1px dashed #be87e9; width: 10px; white-space: nowrap;">&nbsp;{if $list[i].Relevance}{$list[i].Relevance|@number_format:2}{/if}</td>
 				{/if}
-				
+
 				{if $list[i].rek_object_type == 3}
 					<td align="center" valign="middle" style="border-top:1px dashed #be87e9; width: 10px; white-space: nowrap;">{if $list[i].rek_views}{$list[i].rek_views|escape:"html"}{else}&nbsp;{/if}</td>
 					<td align="center" valign="middle" style="border-top:1px dashed #be87e9; width: 10px; white-space: nowrap;">{if $list[i].rek_file_downloads}<a class="author_link" title="View detailed statistics for this object" href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].rek_pid}">{$list[i].rek_file_downloads|escape:"html"}</a>{else}&nbsp;{/if}</td>
@@ -263,7 +263,7 @@
 				<td style="vertical-align: middle; text-align: center; border-top:1px dashed #be87e9;">
 					{if $list[i].rc_2010_rank}<a href="#" title="{$list[i].rc_2010_title}">{$list[i].rc_2010_rank}</a>{else}<a href="#" title="This is outside the ERA 2010 window (pre-2003) and/or not identified as being in a 2010 ERA Ranked Conference.">-</a>{/if}
 				</td>
-	
+
 				<td style="vertical-align: middle; text-align: center; border-top:1px dashed #be87e9;">
 					{if $list[i].rek_herdc_code_lookup != ''}
 						<a href="#" title="{if $list[i].rek_herdc_status_lookup == 'Provisional Code'}PROVISIONAL {elseif $list[i].rek_herdc_status_lookup == 'Confirmed Code'}CONFIRMED {/if}{$list[i].rek_herdc_code_lookup|escape:"html"}">{$list[i].rek_herdc_code_lookup|escape:"html"}{if $list[i].rek_herdc_status_lookup == 'Provisional Code'}P{elseif $list[i].rek_herdc_status_lookup == 'Confirmed Code'}&#10003;{/if}</a>
@@ -271,7 +271,7 @@
 						-
 					{/if}
 				</td>
-	
+
 				<td style="vertical-align: middle; text-align: center; border-top:1px dashed #be87e9;">
 					{if $list[i].rek_thomson_citation_count != ""}
 						<a href="{$rel_url}rid_citation_count_history_{$list[i].rek_pid|escape:"html"}" title="Cited {$list[i].rek_thomson_citation_count} times in Thomson Reuters Researcher ID">{$list[i].rek_thomson_citation_count}</a>
@@ -279,7 +279,7 @@
 						{$list[i].rek_thomson_citation_count}
 					{/if}
 				</td>
-	
+
 				<td style="vertical-align: middle; text-align: center; border-top:1px dashed #be87e9;">
 					{if $list[i].rek_scopus_citation_count != ""}
 						<a href="{$rel_url}scopus_citation_count_history_{$list[i].rek_pid|escape:"html"}" class="form_note"> <span class="form_note">Cited {$list[i].rek_scopus_citation_count} times in Scopus</span>{$list[i].rek_scopus_citation_count}</a>
@@ -289,9 +289,9 @@
 				</td>
 
 			</tr>
-	       
+
         {/if}
-	   
+
        {sectionelse}
        {/section}
        {/section}

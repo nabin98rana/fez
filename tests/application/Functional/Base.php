@@ -30,14 +30,14 @@
 
 /**
  * This is a base class for Fez Selenium Test cases, extends PHPUnit Selenium extension class.
- * 
+ *
  * @version 1.0, 2012-03-05
  * @package Tests
  * @author Elvi Shu <e.shu@library.uq.edu.au>
  * @license http://www.gnu.org/licenses/gpl.html GPL License
  * @copyright (c) 2012 The University of Queensland
  */
-class Functional_Base extends PHPUnit_Extensions_SeleniumTestCase 
+class Functional_Base extends PHPUnit_Extensions_SeleniumTestCase
 {
     /**
      * Default time out for wait* methods
@@ -54,15 +54,15 @@ class Functional_Base extends PHPUnit_Extensions_SeleniumTestCase
     );
 
     /**
-     * @var bool Indication on whether the test will be altering the database. 
+     * @var bool Indication on whether the test will be altering the database.
      */
     protected $_destructive;
 
     /**
      * Class constructor
-     * @param string $name The name of a test case 
-     * @param array $data Data set of a test case 
-     * @param string $dataName 
+     * @param string $name The name of a test case
+     * @param array $data Data set of a test case
+     * @param string $dataName
      * @param array $browser Type of browsers uses on test case
      */
     public function __construct($name = NULL, array $data = array(), $dataName = '', array $browser = array())
@@ -84,7 +84,7 @@ class Functional_Base extends PHPUnit_Extensions_SeleniumTestCase
     }
 
     /**
-     * setUp method for test case. 
+     * setUp method for test case.
      * Set up the browser, browser URL and timeout for a test case,
      */
     protected function setUp()
