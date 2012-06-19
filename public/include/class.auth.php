@@ -3025,11 +3025,35 @@ class AuthNoFedora {
                 $newGroups[$pidCaculatedPermission[authii_role]][] = $pidCaculatedPermission[argr_ar_id];
             }
         }
+
+
+        $listerId = Auth::getRoleIDByTitle('Lister');
+        $viewerId = Auth::getRoleIDByTitle('Viewer');
+
         AuthNoFedora::deletePermissions($pid);
         foreach ($newGroups as $role => $newGroup) {
             $arg_id = AuthRules::getOrCreateRuleGroupArIds($newGroup);
             AuthNoFedora::addRoleSecurityPermissions($pid, $role, $arg_id, '1');
+            if ($role == $listerId) {
+                AuthNoFedora::addListerPermissions($pid, $arg_id);
+                $listerDone = true;
+            }
+            if ($role == $viewerId) {
+                $viewerDone = true;
+            }
         }
+
+        //If no lister is set then it is open to all
+        if (empty($listerDone)) {
+            $ar_id = AuthRules::getOrCreateRule('public_list', 1);
+            $arg_id = AuthRules::getOrCreateRuleGroupArIds(array($ar_id));
+            AuthNoFedora::addRoleSecurityPermissions($pid, $listerId, $arg_id, '1');
+            AuthNoFedora::addListerPermissions($pid, $arg_id);
+        }
+        if ( empty($viewerDone) && empty($listerDone) ) {
+            AuthNoFedora::addRoleSecurityPermissions($pid, $viewerId, $arg_id, '1');
+        }
+
         $record = new RecordObject($pid);
         $childPids = $record->getChildrenPids();
         foreach($childPids as $child) {
@@ -3048,6 +3072,27 @@ class AuthNoFedora {
             }
         }
 
+        //assume solr need updating
+        //Perhaps not
+        /*if (APP_SOLR_INDEXER == "ON") {
+            FulltextQueue::singleton()->add($pid);
+            FulltextQueue::singleton()->commit();
+        }*/
+
+    }
+
+    public function addListerPermissions($pid, $authi_arg_id)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+        $stmt = "REPLACE INTO ". APP_TABLE_PREFIX . "auth_index2_lister  (authi_pid, authi_arg_id) VALUES (".$db->quote($pid).", ".$db->quote($authi_arg_id).")";
+        try {
+            $res = $db->exec($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
     }
 
     public function deletePermissions($pid, $inherited = '1', $role=null)
