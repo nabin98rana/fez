@@ -125,7 +125,7 @@
 
 		return;
 	}
-
+    {/literal} {if $isAdministrator}{literal}
     $(function() {
     		var search_description = $( "#search_description" ),
     			allFields = $( [] ).add( search_description ),
@@ -154,11 +154,21 @@
     			}
     		});
 
+            $('#search_description_dialog_form').submit(function (e) {
+                e.preventDefault();
+                var bValid = true;
+                allFields.removeClass( "ui-state-error" );
+                if ( bValid ) {
+                    addStarSearch(search_description.val());
+                    $('#dialog-form').dialog( "close" );
+                }
+        });
     	});
+    {/literal} {/if}
 	-->
 	</script> 
 
-{/literal}
+
 
 {include file="js/list.tpl.js"}
 <script type="text/javascript" src="{$rel_url}js/listpage.js"></script>
@@ -168,7 +178,7 @@
 {if $isAdministrator}
     <div id="dialog-form" title="Favourite this search" style="font-size:.8em">
         <p class="validateTips"></p>
-        <form>
+        <form id="search_description_dialog_form">
             <label for="search_description">Saved Search Description</label>
             <input type="text" name="search_description" id="search_description" class="text ui-widget-content ui-corner-all" size="40" /><br />
         </form>
