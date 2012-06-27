@@ -14,8 +14,7 @@ class Fez_Validate_Pid extends Zend_Validate_Abstract
     {
         $this->_setValue($value);
         
-        if(!preg_match("/^[A-Z]{2,4}\:[0-9]+$/", $value))
-        {
+        if(!preg_match("/^[a-zA-Z]{2,60}\:[0-9]+$/", $value)) {
             $this->_error();
             return false;
         }
