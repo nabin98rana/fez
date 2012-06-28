@@ -53,6 +53,7 @@ error_reporting(E_ALL & !E_NOTICE);
 if ((php_sapi_name()==="cli")) {
     set_time_limit(0);
     echo "Script started: " . date('Y-m-d H:i:s') . "\n";
+    echo "--------------------------\n";
 
     $db = DB_API::get();
     $log = FezLog::get();
