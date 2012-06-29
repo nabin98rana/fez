@@ -301,4 +301,18 @@ class FeatureContext extends MinkContext
     }
   }
 
+    /**
+     * @Then /^should see valid JSON$/
+     */
+    public function shouldSeeValidJSON()
+    {
+        $json = $this->getSession()->getPage()->getContent();
+        print_r(json_decode($json));
+
+        $data = json_decode($json);
+        if ($data===null) {
+            throw new Exception("Response was not JSON" );
+        };
+    }
+
 }
