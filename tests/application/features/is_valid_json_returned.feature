@@ -1,5 +1,5 @@
 # features/is_valid_json_returned.feature
-#Need to be run using goutte
+# Needs to be run using goutte
 Feature: Check that valid json is being returned
 
   Scenario: Check JSON is valid
