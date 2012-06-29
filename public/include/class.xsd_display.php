@@ -65,7 +65,7 @@ class XSD_Display
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		if (empty($params)) {
 			$params = $_POST;
 		}
@@ -81,7 +81,7 @@ class XSD_Display
 			$log->err($ex);
 			return false;
 		}
-	
+
 		// also remove any xsdmf's, sels and relationships that are connected to this display
 		$stmt = "DELETE FROM
                         " . APP_TABLE_PREFIX . "xsd_loop_subelement
@@ -105,7 +105,7 @@ class XSD_Display
 		catch(Exception $ex) {
 			$log->err($ex);
 		}
-		
+
 		// remove any related entries in fez_xsd_display_match
 		$stmt = "DELETE FROM
                         " . APP_TABLE_PREFIX . "xsd_display_attach
@@ -141,7 +141,7 @@ class XSD_Display
 		catch(Exception $ex) {
 			$log->err($ex);
 		}
-		
+
 		foreach ($params["items"] as $item) {
 			Citation::deleteAllTypes($item);
 		}
@@ -159,7 +159,7 @@ class XSD_Display
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$master_res = XSD_Display::getDetails($xdis_id);
 
 		$stmt = "INSERT INTO
@@ -182,7 +182,7 @@ class XSD_Display
 			$log->err($ex);
 			return -1;
 		}
-		
+
 		$new_xdis_id = $db->lastInsertId(APP_TABLE_PREFIX . "xsd_display", "xdis_id");
 		// get a list of all the non-sel-child elements (where xsdmf_xsdsel_id = null)
 		$xsdmf_res = XSD_HTML_Match::getNonSELChildListByDisplay($xdis_id);
@@ -190,21 +190,17 @@ class XSD_Display
 			// insert the record
 			$current_xsdmf_id = $xsdmf_row['xsdmf_id'];
 			$xsdmf_row['xsdmf_id'] = "";
-			XSD_HTML_Match::insertFromArray($new_xdis_id, $xsdmf_row);
-			// get the new xsdmf_id
-			$new_xsdmf_id = $db->lastInsertId(APP_TABLE_PREFIX . "xsd_display_matchfields", "xsdmf_id");
+      $new_xsdmf_id = XSD_HTML_Match::insertFromArray($new_xdis_id, $xsdmf_row);
 			// get the sels for the current row
 			$xsd_sel_res = XSD_Loop_Subelement::getSimpleListByXSDMF($current_xsdmf_id);
 			// is the xsdmf a parent in the xsd_loop_subelement table? if so then create a clone entry for its sel entry
 			if (count($xsd_sel_res) > 0) {
 				foreach ($xsd_sel_res as $xsd_sel_row) {
-					XSD_Loop_Subelement::insertFromArray($new_xsdmf_id, $xsd_sel_row);
-					$new_sel_id = $db->lastInsertId(APP_TABLE_PREFIX . "xsd_loop_subelement", "xsdsel_id");
+          $new_sel_id = XSD_Loop_Subelement::insertFromArray($new_xsdmf_id, $xsd_sel_row);
 					$child_xsdmf_sel_res = XSD_HTML_Match::getSELChildListByDisplay($xdis_id, $xsd_sel_row['xsdsel_id']);
 					// does the clone parent SEL record have any child sel elements? if so then insert clones for those too
 					foreach ($child_xsdmf_sel_res as $child_xsdmf_sel_row) {
-						XSD_HTML_Match::insertFromArraySEL($new_xdis_id, $new_sel_id, $child_xsdmf_sel_row);
-						$new_child_xsdmf_id = $db->lastInsertId(APP_TABLE_PREFIX . "xsd_display_matchfields", "xsdmf_id");
+            $new_child_xsdmf_id = XSD_HTML_Match::insertFromArraySEL($new_xdis_id, $new_sel_id, $child_xsdmf_sel_row);
 						// do any of the children have xsd relationships? if so then insert them
 						$xsdrel_res = XSD_Relationship::getSimpleListByXSDMF($child_xsdmf_sel_row['xsdmf_id']);
 						foreach ($xsdrel_res as $xsdrel_row) {
@@ -298,7 +294,7 @@ class XSD_Display
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		if (empty($params)) {
 			$params = &$_POST;
 		}
@@ -333,8 +329,8 @@ class XSD_Display
 		$bind[] = $params["xdis_version"];
 		$bind[] = $xdis_enabled;
 		$bind[] = $params["xdis_object_type"];
-		
-		try {						
+
+		try {
 			$db->query($stmt, $bind);
 		}
 		catch(Exception $ex) {
@@ -361,7 +357,7 @@ class XSD_Display
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		if (empty($params)) {
 
 			$params = &$_POST;
@@ -374,7 +370,7 @@ class XSD_Display
 
 		$stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "xsd_display
-                 SET 
+                 SET
                     xdis_title = " . $db->quote($params["xdis_title"]) . ",
                     xdis_version = " . $db->quote($params["xdis_version"]) . ",
 					xdis_enabled = " . $xdis_enabled . ",
@@ -404,7 +400,7 @@ class XSD_Display
 		$log = FezLog::get();
 		$db = DB_API::get();
 		$xsd_id = str_replace("'", "", $xsd_id);
-		
+
 		$stmt = "SELECT
                     *
                  FROM
@@ -434,14 +430,14 @@ class XSD_Display
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     xdis_id, ";
 
 		if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
 			$stmt .= " concat(xdis_title, ' Version ', xdis_version) as xdis_desc ";
 		} else {
-			$stmt .= " (xdis_title || ' Version ' || xdis_version) as xdis_desc ";			
+			$stmt .= " (xdis_title || ' Version ' || xdis_version) as xdis_desc ";
 		}
 		$stmt .= "
                  FROM
@@ -470,18 +466,18 @@ class XSD_Display
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     xdis_id, ";
 
 		if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
 			$stmt .= " concat(xdis_title, ' Version ', xdis_version) as xdis_desc ";
 		} else {
-			$stmt .= " (xdis_title || ' Version ' || xdis_version) as xdis_desc ";			
+			$stmt .= " (xdis_title || ' Version ' || xdis_version) as xdis_desc ";
 		}
 		$stmt .= "
                  FROM
-                    " . APP_TABLE_PREFIX . "xsd_display 
+                    " . APP_TABLE_PREFIX . "xsd_display
 				 WHERE xdis_object_type = 2	and xdis_enabled = TRUE
                  ORDER BY
                     xdis_title, xdis_version ASC";
@@ -507,19 +503,19 @@ class XSD_Display
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     xdis_id, ";
 
 		if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
 			$stmt .= " concat(xdis_title, ' Version ', xdis_version) as xdis_desc ";
 		} else {
-			$stmt .= " (xdis_title || ' Version ' || xdis_version) as xdis_desc ";			
+			$stmt .= " (xdis_title || ' Version ' || xdis_version) as xdis_desc ";
 		}
 		$stmt .= "
                  FROM
-                    " . APP_TABLE_PREFIX . "xsd_display 
-				 WHERE xdis_object_type = ".$db->quote($ret_id, 'INTEGER')."			 
+                    " . APP_TABLE_PREFIX . "xsd_display
+				 WHERE xdis_object_type = ".$db->quote($ret_id, 'INTEGER')."
                  ORDER BY
                     xdis_title, xdis_version ASC";
 		try {
@@ -543,14 +539,14 @@ class XSD_Display
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     xdis_id, ";
 
 		if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
 			$stmt .= " concat(xdis_title, ' Version ', xdis_version) as xdis_desc ";
 		} else {
-			$stmt .= " (xdis_title || ' Version ' || xdis_version) as xdis_desc ";			
+			$stmt .= " (xdis_title || ' Version ' || xdis_version) as xdis_desc ";
 		}
 		$stmt .= "
                  FROM
@@ -579,14 +575,14 @@ class XSD_Display
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     xdis_id, ";
 
 		if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
 			$stmt .= " concat(xdis_title, ' Version ', xdis_version) as xdis_desc ";
 		} else {
-			$stmt .= " (xdis_title || ' Version ' || xdis_version) as xdis_desc ";			
+			$stmt .= " (xdis_title || ' Version ' || xdis_version) as xdis_desc ";
 		}
 		$stmt .= "
                  FROM
@@ -615,7 +611,7 @@ class XSD_Display
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     xdis_xsd_id
                  FROM
@@ -643,7 +639,7 @@ class XSD_Display
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		static $returns;
 
 		if (isset($returns[$xdis_title])) {
@@ -662,7 +658,7 @@ class XSD_Display
 			$log->err($ex);
 			return '';
 		}
-		
+
 		if ($GLOBALS['app_cache']) {
 			$returns[$xdis_title] = $res;
 		}
@@ -681,9 +677,9 @@ class XSD_Display
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
-                   d1.xdis_id 
+                   d1.xdis_id
                  FROM
                     " . APP_TABLE_PREFIX . "xsd_display d1,
                     " . APP_TABLE_PREFIX . "xsd_relationship r1,
@@ -713,7 +709,7 @@ class XSD_Display
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                    xdis_id
                  FROM
@@ -742,11 +738,11 @@ class XSD_Display
 	{
 	    $log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		if(empty($xdis_id) || !is_numeric($xdis_id)) {
 			return "";
 		}
-		 
+
 		$stmt = "SELECT
                    xdis_title
                  FROM
@@ -760,7 +756,7 @@ class XSD_Display
 			$log->err($ex);
 			return '';
 		}
-		
+
 		return $res;
 	}
 
@@ -775,7 +771,7 @@ class XSD_Display
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                    xdis_id
                  FROM
@@ -804,7 +800,7 @@ class XSD_Display
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                    xdis_id
                  FROM
@@ -831,7 +827,7 @@ class XSD_Display
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     max(xdis_id)
                  FROM
@@ -857,7 +853,7 @@ class XSD_Display
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     *
                  FROM
@@ -878,12 +874,12 @@ class XSD_Display
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     *
                  FROM
                     " . APP_TABLE_PREFIX . "xsd_display left join
-                    " . APP_TABLE_PREFIX . "xsd on xdis_xsd_id = xsd_id 
+                    " . APP_TABLE_PREFIX . "xsd on xdis_xsd_id = xsd_id
                  WHERE
                     xdis_id=".$db->quote($xdis_id, 'INTEGER');
 		try {
@@ -951,7 +947,7 @@ class XSD_Display
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$xpath = new DOMXPath($xdoc->ownerDocument);
 		$xdisplays = $xpath->query('display', $xdoc);
 		foreach ($xdisplays as $xdis) {
@@ -1024,7 +1020,7 @@ class XSD_DisplayObject
 	function XSD_DisplayObject($xdis_id)
 	{
 		$log = FezLog::get();
-		
+
 		$this->xdis_id = $xdis_id;
 	}
 
@@ -1038,7 +1034,7 @@ class XSD_DisplayObject
 	function refresh()
 	{
 		$log = FezLog::get();
-		
+
 		$this->retrieved_mf = false;
 		$this->xsdmf_array = array();
 	}
@@ -1055,7 +1051,7 @@ class XSD_DisplayObject
 	function getMatchFieldsList($exclude_list=array(), $specify_list=array())
 	{
 		$log = FezLog::get();
-		
+
 		$this->exclude_list = $exclude_list;
 		$this->specify_list = $specify_list;
 		$res = XSD_HTML_Match::getListByDisplay($this->xdis_id, $exclude_list, $specify_list);
@@ -1072,7 +1068,7 @@ class XSD_DisplayObject
 	function getXsdAsReferencedArray()
 	{
 		$log = FezLog::get();
-		
+
 		$xdis_id = $this->xdis_id;
 		$xsd_id = XSD_Display::getParentXSDID($xdis_id);
 		$xsd_details = Doc_Type_XSD::getDetails($xsd_id);
@@ -1097,7 +1093,7 @@ class XSD_DisplayObject
 	function getXSD()
 	{
 		$log = FezLog::get();
-		
+
 		if (!$this->xsd_id) {
 			$this->xsd_id = XSD_Display::getParentXSDID($this->xdis_id);
 			$this->xsd_details = Doc_Type_XSD::getDetails($this->xsd_id);
@@ -1115,7 +1111,7 @@ class XSD_DisplayObject
 	function getDatastreamTitles($exclude_list=array(), $specify_list=array())
 	{
 		$log = FezLog::get();
-		
+
 		return XSD_Loop_Subelement::getDatastreamTitles($this->xdis_id,$exclude_list, $specify_list);
 	}
 
@@ -1130,10 +1126,10 @@ class XSD_DisplayObject
 	 */
 	function getXSDMF_Values($pid, $createdDT=null, $skipIndex = false)
 	{
-        
+
 		$log = FezLog::get();
 		$this->getXSD_HTML_Match();
-		
+
 		//print_r($this->specify_list); echo count($this->specify_list); if ($skipIndex != true) { echo "hai"; }
 		if (APP_XSDMF_INDEX_SWITCH == "ON" && $skipIndex != true && count($this->specify_list) == 0) { //echo "MAAA";
 			// AN Attempt at seeing what performance would be like by getting all details from the index rather than from fedora, now commented out for future experimentation
@@ -1175,9 +1171,9 @@ class XSD_DisplayObject
 				$this->xsdmf_current = &$this->xsdmf_array[$pid];
 				//print_r($this->exclude_list); echo "HERE";
 				$this->xsdmf_array[$pid] = XSD_HTML_Match::getDetailsByXPATH($pid, $this->xdis_id, $this->exclude_list, $this->specify_list, $createdDT);
-				
-				// Now get the Non-XML stuff.. this could be cleaned up 
-				
+
+				// Now get the Non-XML stuff.. this could be cleaned up
+
 				$this->xsdmf_current = &$this->xsdmf_array[$pid];
 				// Find datastreams that may be used by this display
 				$datastreamTitles = $this->getDatastreamTitles();
@@ -1262,7 +1258,7 @@ class XSD_DisplayObject
 						}
 
 					}
-				
+
 				}
 			} else {
 				$this->processXSDMF($pid, $createdDT);
@@ -1270,7 +1266,7 @@ class XSD_DisplayObject
 			return $this->xsdmf_array[$pid];
 
 		}
-		
+
 		exit;
 
 	}
@@ -1279,7 +1275,7 @@ class XSD_DisplayObject
 	function getXSDMF_Values_Datastream($pid, $dsID, $createdDT=null)
 	{
 		$log = FezLog::get();
-		
+
 
 		if (!isset($this->xsdmf_array[$pid])) {
 			$this->xsdmf_array[$pid] = array();
@@ -1327,7 +1323,7 @@ class XSD_DisplayObject
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		if (isset($this->xsdmf_array[$pid])) {
 			return;
 		}
@@ -1344,18 +1340,18 @@ class XSD_DisplayObject
     		$dob = new DigitalObject();
     		$datastreams = $dob->getDatastreams(array('pid' => $pid));
 		}
-		else 
+		else
 		{
     		// need the full get datastreams to get the controlGroup etc
     		$datastreams = Fedora_API::callGetDatastreams($pid);
 		}
-		
+
 		if (empty($datastreams)) {
 			$log->err(array("The PID ".$pid." doesn't appear to be in the fedora repository - perhaps it was not ingested correctly.  " .
                         "Please let the Fez admin know so that the Fez index can be repaired.",__FILE__,__LINE__));
 			return;
 		}
-		 
+
 		foreach ($datastreams as $ds_value) {
 			// get the matchfields for the FezACML of the datastream if any exists
 			if (isset($ds_value['controlGroup']) && $ds_value['controlGroup'] == 'M') {
@@ -1376,7 +1372,7 @@ class XSD_DisplayObject
 				}
 			}
 		}
-			
+
 		foreach ($datastreamTitles as $dsValue) {
 			// first check if the XSD Display datastream is a template
 			// for a link as these are handled differently
@@ -1395,7 +1391,7 @@ class XSD_DisplayObject
 						$this->xsdmf_current[$xsdmf_id] = $value;
 					}
 				}
-					
+
 			} elseif ($dsValue['xsdsel_title'] == "Link") {
 
 				$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElementSEL_Title("!datastream!datastreamVersion!contentLocation", "Link", $this->xdis_id);
@@ -1412,7 +1408,7 @@ class XSD_DisplayObject
 						array_push($this->xsdmf_current[$xsdmf_id], $value);
 					}
 				}
-					
+
 				$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElementSEL_Title("!datastream!datastreamVersion!LABEL", "Link", $this->xdis_id);
 				foreach ($datastreams as $ds) {
 					if (isset($ds['controlGroup']) && $ds['controlGroup'] == 'R' && is_numeric(strpos($ds['ID'], 'link_'))) {
@@ -1428,7 +1424,7 @@ class XSD_DisplayObject
 				}
 
 			} else {
-				 
+
 				// find out if this record has the xml based datastream
 				if (Fedora_API::datastreamExistsInArray($datastreams, $dsValue['xsdsel_title'])) {
 					$DSResultArray = Fedora_API::callGetDatastreamDissemination($pid, $dsValue['xsdsel_title'], $createdDT);
@@ -1454,7 +1450,7 @@ class XSD_DisplayObject
 	function processXSDMFDatastream($xmlDatastream, $xsdmf_xdis_id)
 	{
 		$log = FezLog::get();
-		
+
 		$xsd_id = XSD_Display::getParentXSDID($xsdmf_xdis_id);
 		$xsd_details = Doc_Type_XSD::getDetails($xsd_id);
 		$temp_xdis_str = $this->xsd_html_match->xdis_str;
@@ -1470,8 +1466,8 @@ class XSD_DisplayObject
 		$xmlnode = new DomDocument();
 		@$xmlnode->loadXML($xmlDatastream);
 		$cbdata = array(
-	        'parentContent' => '', 
-	        'parent_key'    => '', 
+	        'parentContent' => '',
+	        'parent_key'    => '',
 	        'xdis_id'       => $xsdmf_xdis_id
 		);
 		$this->mfcb_rootdone = false;
@@ -1499,7 +1495,7 @@ class XSD_DisplayObject
 	function matchFieldsCallback($domNode, $cbdata, $context=NULL, $rootNode)
 	{
 		$log = FezLog::get();
-		
+
 		$clean_nodeName = Misc::strip_element_name($domNode->nodeName);
 		$xsdmf_ptr = &$this->xsdmf_current; // stores results
 		$xsdmf_id = NULL;
@@ -1536,7 +1532,7 @@ class XSD_DisplayObject
 											$indicator_xpath = ".".substr($indicator_xpath, $currentNodePos + $currentNodeLength);
 											$xpath = new DOMXPath($rootNode);
 											$xpath->registerNamespace("mods", "http://www.loc.gov/mods/v3");
-												
+
 											$indicatorNodes = $xpath->query($indicator_xpath, $domNode);
 											if ($indicatorNodes->length > 0) {
 												$indicatorValue = $indicatorNodes->item(0)->nodeValue; //should only ever be one search result in the array
@@ -1651,7 +1647,7 @@ class XSD_DisplayObject
 								}
 							}
 						}
-							
+
 						if (empty($xsdmf_id)) {
 							// if still can't find it, try it further up the tree -
 							// eg for MODS name|ID looked for in name|namePart
@@ -1740,21 +1736,21 @@ class XSD_DisplayObject
 	function getTitle()
 	{
 		$log = FezLog::get();
-		
+
 		return XSD_Display::getTitle($this->xdis_id);
 	}
 
 	function getXSDMFDetailsByElement($xsdmf_element)
 	{
 		$log = FezLog::get();
-		
+
 		$this->getXSD_HTML_Match();
 		return $this->xsd_html_match->getDetailsByElement($xsdmf_element);
 	}
 	function getXSDMFDetailsByXSDMF_ID($xsdmf_id)
 	{
 		$log = FezLog::get();
-		
+
 		$this->getXSD_HTML_Match();
 		return $this->xsd_html_match->getDetailsByXSDMF_ID($xsdmf_id);
 	}

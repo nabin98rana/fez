@@ -177,7 +177,7 @@ class XSD_HTML_Match
 				 FROM " . APP_TABLE_PREFIX . "xsd_display_matchfields m1
 				 INNER JOIN  " . APP_TABLE_PREFIX . "xsd_relationship ON xsdrel_xsdmf_id = m1.xsdmf_id
 				 INNER JOIN " . APP_TABLE_PREFIX . "xsd_display ON xdis_id = m1.xsdmf_xdis_id
-				 INNER JOIN " . APP_TABLE_PREFIX . "xsd_display_matchfields m2 ON m2.xsdmf_xdis_id = xsdrel_xdis_id 
+				 INNER JOIN " . APP_TABLE_PREFIX . "xsd_display_matchfields m2 ON m2.xsdmf_xdis_id = xsdrel_xdis_id
 				 INNER JOIN " . APP_TABLE_PREFIX . "search_key ON sek_id = m2.xsdmf_sek_id
  				 WHERE sek_title = ".$db->quote($sek_title)." AND m1.xsdmf_xdis_id = ".$db->quote($xdis_id, 'INTEGER')."
 				 GROUP BY m2.xsdmf_xpath ";
@@ -195,7 +195,7 @@ class XSD_HTML_Match
 				return $res;
 			}
 		}
-		
+
 		function getXSDMFIDBySearchKeyTitleXDIS_ID($sek_title, $xdis_id)
 		{
 			$log = FezLog::get();
@@ -205,7 +205,7 @@ class XSD_HTML_Match
 				 FROM " . APP_TABLE_PREFIX . "xsd_display_matchfields m1
 				 INNER JOIN  " . APP_TABLE_PREFIX . "xsd_relationship ON xsdrel_xsdmf_id = m1.xsdmf_id
 				 INNER JOIN " . APP_TABLE_PREFIX . "xsd_display ON xdis_id = m1.xsdmf_xdis_id
-				 INNER JOIN " . APP_TABLE_PREFIX . "xsd_display_matchfields m2 ON m2.xsdmf_xdis_id = xsdrel_xdis_id 
+				 INNER JOIN " . APP_TABLE_PREFIX . "xsd_display_matchfields m2 ON m2.xsdmf_xdis_id = xsdrel_xdis_id
 				 INNER JOIN " . APP_TABLE_PREFIX . "search_key ON sek_id = m2.xsdmf_sek_id
  				 WHERE sek_title = ".$db->quote($sek_title)." AND m1.xsdmf_xdis_id = ".$db->quote($xdis_id, 'INTEGER')."
 				 GROUP BY m2.xsdmf_xpath ";
@@ -222,7 +222,7 @@ class XSD_HTML_Match
 				return $res;
 			}
 		}
-		
+
 		function getDetailsByXPATH($pid, $xdis_id, $exclude_list=array(), $specify_list=array(), $createdDT = null)
 		{
 			$log = FezLog::get();
@@ -339,7 +339,7 @@ class XSD_HTML_Match
 			$xmlString = Fedora_API::callGetDatastreamContents($pid, "FezMD", true);
 			if(!$xmlString)
 				return null;
-				 
+
 			$doc = DOMDocument::loadXML($xmlString);
 			$xpath = new DOMXPath($doc);
 			$fieldNodeList = $xpath->query("/FezMD/xdis_id");
@@ -695,8 +695,8 @@ class XSD_HTML_Match
 		                    xsdmf_order,
 		                    xsdmf_validation_type,
 		                    xsdmf_validation_maxlength,
-                           'xsdmf_validation_regex',
-                           'xsdmf_validation_message',
+                        xsdmf_validation_regex,
+                        xsdmf_validation_message,
 		                    xsdmf_enabled,
 		                    xsdmf_indexed,
 		                    xsdmf_show_in_view,
@@ -724,7 +724,7 @@ class XSD_HTML_Match
 							xsdsel_order
 		                 FROM
 		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields left join
-		                    " . APP_TABLE_PREFIX . "controlled_vocab on xsdmf_cvo_id = cvo_id left join			
+		                    " . APP_TABLE_PREFIX . "controlled_vocab on xsdmf_cvo_id = cvo_id left join
 		                    " . APP_TABLE_PREFIX . "xsd_loop_subelement on (xsdsel_id = xsdmf_xsdsel_id)
 		                 WHERE
 		                   xsdmf_xdis_id=".$db->quote($xdis_id, 'INTEGER')." AND xsdmf_enabled=1";
@@ -793,12 +793,12 @@ class XSD_HTML_Match
 			} else {
 					$stmt = "SELECT xsdmf_id, IFNULL(('(' || xsdmf_id || ') (' || xsdsel_title || ') ' || xsdmf_element), ('(' || xsdmf_id || ') ' || xsdmf_element)) as xsdmf_presentation ";
 			}
-		
+
 			$stmt .= "
-						 FROM 
+						 FROM
 							" . APP_TABLE_PREFIX . "xsd_display_matchfields as m1 left join
 							" . APP_TABLE_PREFIX . "xsd_loop_subelement as s1 on s1.xsdsel_id = m1.xsdmf_xsdsel_id
-			 			 WHERE xsdmf_xdis_id = " . $db->quote($xdis_id, 'INTEGER') . " 
+			 			 WHERE xsdmf_xdis_id = " . $db->quote($xdis_id, 'INTEGER') . "
 						 ORDER BY xsdsel_title";
 
 			try {
@@ -825,7 +825,7 @@ class XSD_HTML_Match
 		{
 			$log = FezLog::get();
 			$db = DB_API::get();
-		
+
 			$exclude_str = implode("', '", $exclude_list);
 			$specify_str = implode("', '", $specify_list);
 
@@ -854,7 +854,7 @@ class XSD_HTML_Match
 		                    xsdmf_element,
 		                    xsdmf_title,
 		                    xsdmf_description,
-		                    xsdmf_long_description,					
+		                    xsdmf_long_description,
 		                    xsdmf_html_input,
 		                    xsdmf_order,
                             xsdmf_validation_type,
@@ -874,7 +874,7 @@ class XSD_HTML_Match
 							xsdmf_fez_variable,
 							xsdmf_enforced_prefix,
 							xsdmf_is_key,
-							xsdmf_required,					
+							xsdmf_required,
 							xsdmf_data_type,
 							xsdmf_key_match,
 							xsdmf_parent_key_match,
@@ -886,14 +886,14 @@ class XSD_HTML_Match
 		                    xsdmf_id_ref,
 		                    xsdmf_id_ref_save_type,
 							xsdsel_order,
-							xsdmf_attached_xsdmf_id,					
+							xsdmf_attached_xsdmf_id,
 							xsdmf_cvo_id,
 							xsdmf_cvo_min_level,
 							xsdmf_cvo_save_type,
 							xsdmf_cso_value,
 							xsdmf_citation_browse,
 							xsdmf_citation,
-							xsdmf_citation_bold,					
+							xsdmf_citation_bold,
 							xsdmf_citation_italics,
 							xsdmf_citation_brackets,
 							xsdmf_citation_order,
@@ -1072,8 +1072,8 @@ class XSD_HTML_Match
 				}
 				$stmt = "SELECT mfo_fld_id, mfo_id, mfo_value ".
 					"FROM ".APP_TABLE_PREFIX."xsd_display_mf_option ".
-					"WHERE mfo_fld_id IN (".Misc::arrayToSQLBindStr($ids).") ORDER BY	mfo_fld_id, mfo_value ASC";				
-	
+					"WHERE mfo_fld_id IN (".Misc::arrayToSQLBindStr($ids).") ORDER BY	mfo_fld_id, mfo_value ASC";
+
 				// last parameter of getAssoc $group=true: pushes values for the same key (mfo_fld_id)
 				// into an array
 
@@ -1084,7 +1084,7 @@ class XSD_HTML_Match
 					$log->err($ex);
 					return array();
 				}
-				
+
 				// Hacky bug fix
 				$_mfoResult = array();
 				for($i = 0; $i < count($mfoResult); $i++) {
@@ -1092,9 +1092,9 @@ class XSD_HTML_Match
 				}
 				unset($mfoResult);
 				$mfoResult = $_mfoResult;
-				
-				
-				// iterate over match field list: only get value(s) if there are any options at all					
+
+
+				// iterate over match field list: only get value(s) if there are any options at all
 				for ($i = 0; $i < count($res); $i++) {
 					$res[$i]["field_options"] = array();
 					$res[$i]["field_options_value_only"] = array();
@@ -1422,7 +1422,7 @@ class XSD_HTML_Match
 		                    xsdmf_element,
 		                    xsdmf_title,
 		                    xsdmf_description,
-		                    xsdmf_long_description,					
+		                    xsdmf_long_description,
 		                    xsdmf_html_input,
 		                    xsdmf_order,
 		                    xsdmf_validation_type,
@@ -1539,7 +1539,7 @@ class XSD_HTML_Match
 		                    ".$db->quote($xml_element).",
 		                    " . $db->quote($_POST["title"]) . ",
 		                    " . $db->quote($_POST["description"]) . ",
-		                    " . $db->quote($_POST["long_description"]) . ",					
+		                    " . $db->quote($_POST["long_description"]) . ",
 		                    " . $db->quote($_POST["field_type"]) . ",
 		                    " . $db->quote($_POST["order"]) . ",
 		                    " . $db->quote($_POST["validation_types"]) . ",
@@ -1648,7 +1648,7 @@ class XSD_HTML_Match
 				$stmt .= ", " . $db->quote($_POST["xsdsel_id"], 'INTEGER');
 			}
 			$stmt .= ")";
-				
+
 			try {
 				$db->exec($stmt);
 			}
@@ -1656,7 +1656,7 @@ class XSD_HTML_Match
 				$log->err($ex);
 				return -1;
 			}
-				
+
 			$new_id = $db->lastInsertId(APP_TABLE_PREFIX . "xsd_display_matchfields", "xsdmf_id");
 			XSD_HTML_Match::refreshXPATH($new_id);
 			if (($_POST["field_type"] == 'combo') || ($_POST["field_type"] == 'multiple')) {
@@ -1726,7 +1726,7 @@ class XSD_HTML_Match
 		{
 			$log = FezLog::get();
 			$db = DB_API::get();
-				
+
 			$inserts = "xsdmf_xdis_id,
 					xsdmf_element,
 					xsdmf_title,
@@ -1734,8 +1734,8 @@ class XSD_HTML_Match
 					xsdmf_html_input,
 					xsdmf_validation_type,
 					xsdmf_validation_maxlength,
-                   'xsdmf_validation_regex',
-                   'xsdmf_validation_message',
+                   xsdmf_validation_regex,
+                   xsdmf_validation_message,
 					xsdmf_parent_key_match,
 					xsdmf_key_match,
 					";
@@ -1940,7 +1940,7 @@ class XSD_HTML_Match
 
 			$stmt = "INSERT INTO " . APP_TABLE_PREFIX . "xsd_display_matchfields
 		                 (" . $inserts . ") VALUES (" . $values . ")";
-				
+
 			try {
 				$db->exec($stmt);
 			}
@@ -1948,10 +1948,10 @@ class XSD_HTML_Match
 				$log->err($ex);
 				return -1;
 			}
-				
+
 			$xsdmf_id = $db->lastInsertId(APP_TABLE_PREFIX . "xsd_display_matchfields", "xsdmf_id");
 			XSD_HTML_Match::refreshXPATH($xsdmf_id);
-			return 1;
+			return $xsdmf_id;
 		}
 
 		/**
@@ -1965,7 +1965,7 @@ class XSD_HTML_Match
 		{
 			$log = FezLog::get();
 			$db = DB_API::get();
-				
+
 			if (!is_numeric($xsdmf_id)) {
 				return false;
 			}
@@ -2067,7 +2067,7 @@ class XSD_HTML_Match
 			 */
 			$stmt = "UPDATE
 		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields
-		                 SET 
+		                 SET
 		                    xsdmf_title = " . $db->quote($_POST["title"]) . ",
 		                    xsdmf_description = " . $db->quote($_POST["description"]) . ",
 		                    xsdmf_long_description = " . $db->quote($_POST["long_description"]) . ",
@@ -2077,8 +2077,8 @@ class XSD_HTML_Match
 		                    xsdmf_validation_regex = " . $db->quote($_POST["validation_regex"]) . ",
 		                    xsdmf_validation_message = " . $db->quote($_POST["validation_message"]) . ",
 		                    xsdmf_order = " . $db->quote($_POST["order"], 'INTEGER') . ",
-		                    xsdmf_date_type = " . $db->quote($_POST["xsdmf_date_type"], 'INTEGER') . ",					
-		                    xsdmf_cvo_id = " . $db->quote($_POST["xsdmf_cvo_id"], 'INTEGER') . ",					
+		                    xsdmf_date_type = " . $db->quote($_POST["xsdmf_date_type"], 'INTEGER') . ",
+		                    xsdmf_cvo_id = " . $db->quote($_POST["xsdmf_cvo_id"], 'INTEGER') . ",
 		                    xsdmf_use_org_to_fill = " . $xsdmf_use_org_to_fill . ",
 		                    xsdmf_use_parent_option_list = " . $xsdmf_use_parent_option_list . ",
 		                    xsdmf_required = " . $required . ",
@@ -2306,7 +2306,7 @@ class XSD_HTML_Match
 		{
 			$log = FezLog::get();
 			$db = DB_API::get();
-				
+
 			$stmt = "SELECT
 		                    xsdmf_id
 		                 FROM
@@ -2369,7 +2369,7 @@ class XSD_HTML_Match
 		{
 			$log = FezLog::get();
 			$db = DB_API::get();
-				
+
 			$stmt = "UPDATE
 		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields
 		                 SET xsdmf_id_ref = ".$db->quote($new_xsdmf_id_ref, 'INTEGER').",
@@ -2419,7 +2419,7 @@ class XSD_HTML_Match
 		{
 			$log = FezLog::get();
 			$db = DB_API::get();
-				
+
 			$stmt = "UPDATE
 		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields
 		                 SET xsdmf_asuggest_xsdmf_id = ".$db->quote($new_xsdmf_id, 'INTEGER').",
@@ -2477,7 +2477,7 @@ class XSD_HTML_Match
 		{
 			$log = FezLog::get();
 			$db = DB_API::get();
-			
+
 			$stmt = "UPDATE
 		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields
 		                 SET xsdmf_parent_option_child_xsdmf_id = ".$db->quote($new_xsdmf_id, 'INTEGER').",
@@ -2506,8 +2506,8 @@ class XSD_HTML_Match
 		{
 			$log = FezLog::get();
 			$db = DB_API::get();
-			
-			
+
+
 			$stmt = "UPDATE
 		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields
 		                 SET xsdmf_attached_xsdmf_id = ".$db->quote($new_xsdmf_id, 'INTEGER')."
@@ -2542,7 +2542,7 @@ class XSD_HTML_Match
 		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields
 		                 WHERE
 		                     xsdmf_element = ".$db->quote($xsdmf_element)." and xsdmf_xdis_id in (".$xdis_str.") and (xsdmf_is_key = FALSE || xsdmf_is_key is null)";
-				
+
 			try {
 				$res = $db->fetchAll($stmt);
 			}
@@ -2607,7 +2607,7 @@ class XSD_HTML_Match
 		{
 			$log = FezLog::get();
 			$db = DB_API::get();
-			
+
 			$stmt = "SELECT
 		                    xsdmf_id
 		                 FROM
@@ -2650,7 +2650,7 @@ class XSD_HTML_Match
 		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields
 		                 WHERE
 		                    ".$db->quote($xsdmf_element)." = xsdmf_element and xsdmf_xdis_id in (".$xdis_str.") and xsdmf_parent_key_match = ".$db->quote($parent_key);
-			
+
 			try {
 				$res = $db->fetchAll($stmt);
 			}
@@ -2681,7 +2681,7 @@ class XSD_HTML_Match
 		{
 			$log = FezLog::get();
 			$db = DB_API::get();
-				
+
 			if (!is_array($xsdsel_ids)) {
 				return false;
 			}
@@ -2885,7 +2885,7 @@ class XSD_HTML_Match
 		{
 			$log = FezLog::get();
 			$db = DB_API::get();
-			
+
 			static $returns;
 			if (!$sek_title) {
 				return array();
@@ -2897,7 +2897,7 @@ class XSD_HTML_Match
 	                   xsdmf_id
 	                FROM
 	                   " . APP_TABLE_PREFIX . "xsd_display_matchfields x1
-					INNER JOIN " . APP_TABLE_PREFIX . "search_key AS s1  	
+					INNER JOIN " . APP_TABLE_PREFIX . "search_key AS s1
 	                ON
 	                   x1.xsdmf_sek_id = s1.sek_id and s1.sek_title = ".$db->quote($sek_title);
 				try {
@@ -2929,7 +2929,7 @@ class XSD_HTML_Match
 		{
 			$log = FezLog::get();
 			$db = DB_API::get();
-				
+
 			static $returns;
 			if (empty($sek_id)) {
 				return array();
@@ -2942,7 +2942,7 @@ class XSD_HTML_Match
 	                FROM
 	                   " . APP_TABLE_PREFIX . "xsd_display_matchfields x1
 					WHERE
-	                   x1.xsdmf_sek_id = ".$db->quote($sek_id);		
+	                   x1.xsdmf_sek_id = ".$db->quote($sek_id);
 				try {
 					$res = $db->fetchCol($stmt);
 				}
@@ -2965,7 +2965,7 @@ class XSD_HTML_Match
 		{
 			$log = FezLog::get();
 			$db = DB_API::get();
-				
+
 			if (empty($sek_id)) {
 				return array();
 			}
@@ -3004,7 +3004,7 @@ class XSD_HTML_Match
 		{
 			$log = FezLog::get();
 			$db = DB_API::get();
-				
+
 			$stmt = "SELECT
 		                    xsdmf_id, xsdmf_element
 		                 FROM
@@ -3025,7 +3025,7 @@ class XSD_HTML_Match
 		{
 			$log = FezLog::get();
 			$db = DB_API::get();
-				
+
 			$stmt = "SELECT
 		                    *
 		                 FROM
@@ -3048,7 +3048,7 @@ class XSD_HTML_Match
 		{
 			$log = FezLog::get();
 			$db = DB_API::get();
-				
+
 			$stmt = "SELECT
 		                    *
 		                 FROM
@@ -3126,7 +3126,7 @@ class XSD_HTML_Match
 		                 FROM
 		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields INNER JOIN
 		                    " . APP_TABLE_PREFIX . "search_key on xsdmf_sek_id = sek_id
-		                    
+
 		                 WHERE
 		                    xsdmf_id IN (" . $xsdmf_str .")";
 			try {
@@ -3184,7 +3184,7 @@ class XSD_HTML_Match
 		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields left join
 		                    " . APP_TABLE_PREFIX . "xsd_loop_subelement on (xsdmf_xsdsel_id = xsdsel_id) left join
 							" . APP_TABLE_PREFIX . "xsd_display on (xsdmf_xdis_id = xdis_id) left join
-							" . APP_TABLE_PREFIX . "xsd on (xdis_xsd_id = xsd_id) 
+							" . APP_TABLE_PREFIX . "xsd on (xdis_xsd_id = xsd_id)
 		                 WHERE
 		                    xsdmf_id=" . $db->quote($xsdmf_id, 'INTEGER');
 			try {
@@ -3215,7 +3215,7 @@ class XSD_HTML_Match
 		{
 			$log = FezLog::get();
 			$db = DB_API::get();
-				
+
 			$stmt = "SELECT
 		                   xsdmf_xdis_id
 		                 FROM
@@ -3274,7 +3274,7 @@ class XSD_HTML_Match
 		{
 			$log = FezLog::get();
 			$db = DB_API::get();
-				
+
 			$stmt = "SELECT
 		                    *
 		                 FROM
@@ -3282,7 +3282,7 @@ class XSD_HTML_Match
 		                    " . APP_TABLE_PREFIX . "xsd_loop_subelement on (xsdmf_xsdsel_id = xsdsel_id)
 		                 WHERE
 		                    xsdmf_element=".$db->quote($xml_element)." AND xsdmf_xsdsel_id = ".$db->quote($xsdsel_id, 'INTEGER')." AND xsdmf_xdis_id=" . $db->quote($xdis_id, 'INTEGER');
-				
+
 			try {
 				$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
 			}
@@ -3290,7 +3290,7 @@ class XSD_HTML_Match
 				$log->err($ex);
 				return '';
 			}
-				
+
 			if (is_array($res)) {
 				$options = XSD_HTML_Match::getOptions($res['xsdmf_id']);
 				foreach ($options as $mfo_id => $mfo_value) {
@@ -3311,7 +3311,7 @@ class XSD_HTML_Match
 		{
 			$log = FezLog::get();
 			$db = DB_API::get();
-				
+
 			$stmt = "SELECT
 		                    xdis_xsd_id
 		                 FROM
@@ -3339,13 +3339,13 @@ class XSD_HTML_Match
 		{
 			$log = FezLog::get();
 			$db = DB_API::get();
-				
+
 			$stmt = "SELECT count(*) as
 		                    attach_count
 		                 FROM
 		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields
 		                 WHERE
-		                    xsdmf_attached_xsdmf_id=".$db->quote($xsdmf_id, 'INTEGER')." and xsdmf_id not in 
+		                    xsdmf_attached_xsdmf_id=".$db->quote($xsdmf_id, 'INTEGER')." and xsdmf_id not in
 							(select distinct ifnull(xsdmf_attached_xsdmf_id, 0)
 		        			   from " . APP_TABLE_PREFIX . "xsd_display_matchfields where xsdmf_id = ".$db->quote($xsdmf_id, 'INTEGER').");";
 			try {
@@ -3366,7 +3366,7 @@ class XSD_HTML_Match
 		{
 			$log = FezLog::get();
 			$db = DB_API::get();
-				
+
 			$stmt = "SELECT *
 		                 FROM " . APP_TABLE_PREFIX . "xsd_display_attach
 		                 WHERE att_parent_xsdmf_id = ".$db->quote($xsdmf_id, 'INTEGER');
@@ -3385,7 +3385,7 @@ class XSD_HTML_Match
 		{
 			$log = FezLog::get();
 			$db = DB_API::get();
-				
+
 			$stmt = "INSERT INTO " . APP_TABLE_PREFIX . "xsd_display_attach" .
 					"(att_parent_xsdmf_id, att_child_xsdmf_id, att_order)" .
 					"VALUES" .
@@ -3430,10 +3430,10 @@ class XSD_HTML_Match
 									WHERE
 										mfo_fld_id IN (".Misc::arrayToSQLBindStr($fld_id).")
 									ORDER BY
-										mfo_value ASC";				
+										mfo_value ASC";
 					try {
 						$res = $db->fetchPairs($stmt, $fld_id, Zend_DB::FETCH_BOTH);
-					} 
+					}
 					catch(Exception $ex) {
 						$log->err($ex);
 						return array();
@@ -3479,7 +3479,7 @@ class XSD_HTML_Match
 		{
 			$log = FezLog::get();
 			$db = DB_API::get();
-				
+
 			$stmt = "SELECT
 		                    mfo_value, mfo_value
 		                 FROM
@@ -3495,12 +3495,12 @@ class XSD_HTML_Match
 				$log->err($ex);
 				return '';
 			}
-				
-			$res2 = array ();			
+
+			$res2 = array ();
 			foreach ($res as $key => $value) {
-				$res2[utf8_encode($key)] = $value;				
+				$res2[utf8_encode($key)] = $value;
 			}
-			
+
 			return $res2;
 		}
 
@@ -3545,7 +3545,7 @@ class XSD_HTML_Match
 		{
 			$log = FezLog::get();
 			$db = DB_API::get();
-				
+
 			$stmt = "SELECT
 		                    xsdmf_element
 		                 FROM
@@ -3577,7 +3577,7 @@ class XSD_HTML_Match
 		{
 			$log = FezLog::get();
 			$db = DB_API::get();
-				
+
 			$stmt = "SELECT
 		                    xsdmf_id, xsdmf_element, xsdmf_title, xsdmf_id_ref, xsdmf_html_input, xsdmf_enabled, xsdmf_invisible, xsdmf_show_simple_create, xsdmf_order, xsdmf_dynamic_text, xsdmf_static_text, xsdmf_xsdsel_id, xsdsel_title
 		                 FROM
@@ -3611,7 +3611,7 @@ class XSD_HTML_Match
 		{
 			$log = FezLog::get();
 			$db = DB_API::get();
-				
+
 			$xsd_list = Misc::array_flatten($xsd_array);
 			$xsd_list = implode("', '", $xsd_list);
 			$sel_list = XSD_HTML_Match::getSubloopingElementsByXDIS_ID($xdis_id);
@@ -3640,7 +3640,7 @@ class XSD_HTML_Match
 		{
 			$log = FezLog::get();
 			$db = DB_API::get();
-				
+
 			if (!is_numeric($xdis_id)) {
 				return array(0);
 			}
@@ -3649,7 +3649,7 @@ class XSD_HTML_Match
                                      " . APP_TABLE_PREFIX . "xsd_loop_subelement s2 left join
                                      " . APP_TABLE_PREFIX . "xsd_display_matchfields x2 on (x2.xsdmf_xsdsel_id = s2.xsdsel_id)
                                   WHERE x2.xsdmf_xdis_id = ".$db->quote($xdis_id,'INTEGER');
-				
+
 			try {
 				$res = $db->fetchCol($stmt);
 			}
@@ -3671,7 +3671,7 @@ class XSD_HTML_Match
 		{
 			$log = FezLog::get();
 			$db = DB_API::get();
-		
+
 			$xsd_list = Misc::array_flatten($xsd_array);
 			$xsd_list = implode("', '", $xsd_list);
 			$sel_list = XSD_HTML_Match::getSubloopingElementsByXDIS_ID($xdis_id);
@@ -3800,7 +3800,7 @@ class XSD_HTML_Match
 		{
 			$log = FezLog::get();
 			$db = DB_API::get();
-				
+
 			if (empty ($maps['xsdmf_map'])) {
 				return;
 			}
@@ -3850,7 +3850,7 @@ class XSD_HTML_Match
 						}
 						$stmt = rtrim($stmt, ', ');
 						$stmt .= " WHERE att_parent_xsdmf_id=".$db->quote($xsdmf_id, 'INTEGER');
-						
+
 						try {
 							$res = $db->exec($stmt);
 						}
@@ -3940,7 +3940,7 @@ class XSD_HTML_MatchObject {
 			                    " . APP_TABLE_PREFIX . "xsd_display_matchfields m1 left join
 								" . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (m1.xsdmf_id = s1.xsdsel_xsdmf_id) left join
 								" . APP_TABLE_PREFIX . "xsd_display d1 on (m1.xsdmf_xdis_id = d1.xdis_id)  left join
-								" . APP_TABLE_PREFIX . "xsd x1 on (d1.xdis_xsd_id = x1.xsd_id) left join 
+								" . APP_TABLE_PREFIX . "xsd x1 on (d1.xdis_xsd_id = x1.xsd_id) left join
 								" . APP_TABLE_PREFIX . "xsd_display_matchfields m2 on (m2.xsdmf_id = s1.xsdsel_indicator_xsdmf_id)
 			                WHERE
 			                    m1.xsdmf_xdis_id in (".$this->xdis_str.")";
@@ -3980,7 +3980,7 @@ class XSD_HTML_MatchObject {
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$mc = $this->getMatchCols();
 		foreach ($mc as $xsdmf) {
 //			echo $xsdmf['xsdmf_element'];
@@ -4016,11 +4016,11 @@ class XSD_HTML_MatchObject {
 		}
 
 		$stmt = "SELECT
-		                   m1.xsdmf_element, 
-		                   m1.xsdmf_id,  
-		                   m1.xsdmf_is_key, 
-		                   m1.xsdmf_key_match, 
-		                   m1.xsdmf_parent_key_match, 
+		                   m1.xsdmf_element,
+		                   m1.xsdmf_id,
+		                   m1.xsdmf_is_key,
+		                   m1.xsdmf_key_match,
+		                   m1.xsdmf_parent_key_match,
 		                   m1.xsdmf_xsdsel_id,
 		                   m1.xsdmf_value_prefix,
 						   m1.xsdmf_html_input,
@@ -4034,7 +4034,7 @@ class XSD_HTML_MatchObject {
 		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields m1 left join
 							" . APP_TABLE_PREFIX . "xsd_loop_subelement s1 on (m1.xsdmf_id = s1.xsdsel_xsdmf_id) left join
 							" . APP_TABLE_PREFIX . "xsd_display d1 on (m1.xsdmf_xdis_id = d1.xdis_id)  left join
-							" . APP_TABLE_PREFIX . "xsd x1 on (d1.xdis_xsd_id = x1.xsd_id) left join 
+							" . APP_TABLE_PREFIX . "xsd x1 on (d1.xdis_xsd_id = x1.xsd_id) left join
 							" . APP_TABLE_PREFIX . "xsd_display_matchfields m2 on (m2.xsdmf_id = s1.xsdsel_indicator_xsdmf_id)
 		                WHERE
 		                    m1.xsdmf_xdis_id in (".$xdis_str.") and m1.xsdmf_element = ".$db->quote($xsdmf_element);
@@ -4172,7 +4172,7 @@ class XSD_HTML_MatchObject {
 		                FROM
 		                    " . APP_TABLE_PREFIX . "xsd_display_matchfields m1
 		                WHERE
-		                    m1.xsdmf_xdis_id in (".$xdis_str.") 
+		                    m1.xsdmf_xdis_id in (".$xdis_str.")
 							AND m1.xsdmf_element = ".$db->quote($loop_base_element)."
 							AND m1.xsdmf_xsdsel_id IS NULL
 							";
