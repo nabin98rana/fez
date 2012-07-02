@@ -19,7 +19,7 @@ use Behat\MinkExtension\Context\MinkContext;
 //   require_once 'PHPUnit/Framework/Assert/Functions.php';
 //
 
-require_once 'login_helper.php';
+require_once 'LoginHelper.php';
 
 
 
