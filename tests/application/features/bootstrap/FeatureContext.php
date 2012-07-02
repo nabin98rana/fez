@@ -19,6 +19,8 @@ use Behat\MinkExtension\Context\MinkContext;
 //   require_once 'PHPUnit/Framework/Assert/Functions.php';
 //
 
+require_once 'login_helper.php';
+
 
 
 /**
@@ -78,32 +80,6 @@ class FeatureContext extends MinkContext
 //
 
     /**
-     * @Given /^I login as administrator$/
-     */
-    public function iLoginAsAdministrator()
-    {
-          $this->visit("/login.php");
-//      $this->getSession()->wait(2000, "dojo.byId('search_entry')");
-          $this->fillField("username", "admin_test");
-          $this->fillField("passwd", "");
-          $this->pressButton("Login");
-          $this->visit("/");
-
-    }
-
-    /**
-     * @Given /^I login as UPO$/
-     */
-    public function iLoginAsUPO()
-    {
-        $this->visit("/login.php");
-        $this->fillField("username", "upo_test");
-        $this->pressButton("Login");
-        $this->visit("/");
-
-    }
-
-    /**
      * @Given /^I click "([^"]*)"$/
      */
     public function iClick($field) {
@@ -145,7 +121,24 @@ class FeatureContext extends MinkContext
         return;
     }
 
+    /**
+     * @Given /^I login as administrator$/
+     */
+    public function iLoginAsAdministrator()
+    {
+        $lh = new loginHelper;
+        $lh->iLoginAsAdmin($this);
 
+    }
+    /**
+     * @Given /^I login as UPO$/
+     */
+    public function iLoginAsUPO()
+    {
+        $lh = new loginHelper;
+        $lh->iLoginAsUPO($this);
+    }
+    
   /**
    * Disable waiting checks while doing steps involving modals
    *
@@ -340,8 +333,6 @@ class FeatureContext extends MinkContext
     public function shouldSeeValidJSON()
     {
         $json = $this->getSession()->getPage()->getContent();
-        print_r(json_decode($json));
-
         $data = json_decode($json);
         if ($data===null) {
             throw new Exception("Response was not JSON" );
@@ -352,10 +343,7 @@ class FeatureContext extends MinkContext
      * @Then /^I should see button "([^"]*)"$/
      */
     public function iShouldSeeButton($buttonName) {
-        //$page = $session->getPage();
-        //$page = $mink->getSession('sahi')->getPage();
         $fieldElements = $this->getSession()->getPage()->findButton($buttonName, array('field', 'id|name|value|label'));
-        //print_r($fieldElements);
         if ($fieldElements===null) {
             throw new Exception("Button not found" );
         };
