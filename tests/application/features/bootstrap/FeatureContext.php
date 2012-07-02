@@ -114,6 +114,18 @@ class FeatureContext extends MinkContext
   }
 
   /**
+     * Wait a specified number of seconds
+     *
+     * @Then /^(?:|I )wait for "([^"]*)" seconds$/
+     */
+    public function waitForSeconds($secs)
+    {
+        sleep($secs);
+        return;
+    }
+
+
+  /**
    * Disable waiting checks while doing steps involving modals
    *
    * @Then /^(?:|I )turn off waiting checks$/

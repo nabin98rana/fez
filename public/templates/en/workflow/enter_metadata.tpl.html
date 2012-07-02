@@ -406,7 +406,7 @@
 			{else}
 					<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" {if ($isEditor != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && $xsd_display_fields[i].xsdmf_required != 1) || $xsd_display_fields[i].xsdmf_invisible == 1}style="display:none"{/if} valign="top">
 					  <th>
-						<b>{$xsd_display_fields[i].xsdmf_title}{if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b>
+						<b><label for="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0">{$xsd_display_fields[i].xsdmf_title}{if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</label></b>
 					  </th>
 					  <td>
 					<input class="default" type="checkbox" id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]" {if $xsd_display_fields[i].xsdmf_cso_value == 'checked'}checked="checked"{/if} />
@@ -772,8 +772,8 @@
                                             $xsd_display_fields[i].xsdmf_title|stristr:"native script")}translated_field{/if}"
                                 >
 			          <th>
-				    <b>{$xsd_display_fields[i].xsdmf_title}
-	                                  {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b>
+				    <b><label for="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0">{$xsd_display_fields[i].xsdmf_title}
+	                                  {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</label></b>
 	                                  {if $xsd_display_fields[i].xsdmf_description != ""}
 	                                    <br/><i>{$xsd_display_fields[i].xsdmf_description|escape:"html"}</i>
 	                                  {/if}
@@ -1151,7 +1151,7 @@
 		{elseif $xsd_display_fields[i].xsdmf_html_input == 'date' && $xsd_display_fields[i].xsdmf_enabled == 1}
 			<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" {if ($isEditor != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && $xsd_display_fields[i].xsdmf_required != 1) || $xsd_display_fields[i].xsdmf_invisible == 1}style="display:none"{/if}>
 				<th>
-					<b><label for="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0">{$xsd_display_fields[i].xsdmf_title}</label> {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b><br />
+					<b><label for="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][Year]">{$xsd_display_fields[i].xsdmf_title}</label> {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b><br />
 					<i>{$xsd_display_fields[i].xsdmf_description}</i>
 				</th>
 				<td>

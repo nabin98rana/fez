@@ -12,7 +12,7 @@
 
 <tr id="tr_xsd_display_fields_{$xsdmf.xsdmf_id}_0" {if ($isEditor != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && ($xsd_display_fields[i].xsdmf_required != 1 || $xsd_display_fields[i].selected_option != '')) || $xsd_display_fields[i].xsdmf_invisible == 1}style="display:none"{/if}>
     <th>
-        <b>{$xsdmf.xsdmf_title} {if $xsdmf.xsdmf_required == 1} * {/if}</b>
+        <b><label for="xsd_display_fields_helper_{$xsd_display_fields[i].xsdmf_id}_0">{$xsdmf.xsdmf_title}</label> {if $xsdmf.xsdmf_required == 1} * {/if}</b>
     </th>
     <td>
         <table>
