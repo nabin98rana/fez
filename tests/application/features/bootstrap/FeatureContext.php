@@ -85,13 +85,34 @@ class FeatureContext extends MinkContext
           $this->visit("/login.php");
 //      $this->getSession()->wait(2000, "dojo.byId('search_entry')");
           $this->fillField("username", "admin_test");
-          $this->fillField("passwd", "omgMINKROCKS");
+          $this->fillField("passwd", "");
           $this->pressButton("Login");
           $this->visit("/");
 
     }
 
+    /**
+     * @Given /^I login as UPO$/
+     */
+    public function iLoginAsUPO()
+    {
+        $this->visit("/login.php");
+        $this->fillField("username", "upo_test");
+        $this->pressButton("Login");
+        $this->visit("/");
 
+    }
+
+    /**
+     * @Given /^I click "([^"]*)"$/
+     */
+    public function iClick($field) {
+        $element = $this->getSession()->getPage()->findField($field);
+        if (null === $element) {
+            throw new exception($field." not found");
+        }
+        $element->click();
+    }
 
 //$hooks->afterStep('', function($event) {
 //  $environment = $event->getEnvironment();
@@ -324,6 +345,19 @@ class FeatureContext extends MinkContext
         $data = json_decode($json);
         if ($data===null) {
             throw new Exception("Response was not JSON" );
+        };
+    }
+
+    /**
+     * @Then /^I should see button "([^"]*)"$/
+     */
+    public function iShouldSeeButton($buttonName) {
+        //$page = $session->getPage();
+        //$page = $mink->getSession('sahi')->getPage();
+        $fieldElements = $this->getSession()->getPage()->findButton($buttonName, array('field', 'id|name|value|label'));
+        //print_r($fieldElements);
+        if ($fieldElements===null) {
+            throw new Exception("Button not found" );
         };
     }
 

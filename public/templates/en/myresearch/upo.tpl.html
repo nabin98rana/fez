@@ -82,7 +82,7 @@ function clearSearchInput()
 			{foreach from=$authors key=k item=v}
 				<tr class="{cycle values="upo-staff-even,upo-staff-odd"}{if $v.username == $acting_user.aut_org_username} upo-staff-active{/if}">
 					<td>
-						<input type="radio" name="username" value="{$v.username}" onclick="javascript:userSelect('{$v.username}');" {if $v.username == $acting_user.aut_org_username}checked="checked"{/if} />
+						<input type="radio" name="username" id="{$v.username}"  value="{$v.username}" onclick="javascript:userSelect('{$v.username}');" {if $v.username == $acting_user.aut_org_username}checked="checked"{/if} />
 					</td>
 					<td>
 						{$v.last_name}, {$v.first_name}
