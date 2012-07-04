@@ -27,4 +27,18 @@ class loginHelper {
     $page->visit("/");
 
     }
+
+    /**
+     * @Given /^I login as super administrator$/
+     */
+    static function iLoginAsSuperAdministrator($page)
+    {
+        $page->visit("/login.php");
+        $page->fillField("username", "superadmin_test");
+        $page->fillField("passwd", "");
+        $page->pressButton("Login");
+        $page->visit("/");
+
+    }
+
 }

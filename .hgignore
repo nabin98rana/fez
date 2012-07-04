@@ -53,5 +53,5 @@ apc.php
 glob:init.php
 .idea
 \.tmtags
-\fez\tests\application\features\bootstrap\LoginHelper.php
+tests\application\features\bootstrap\LoginHelper.php
 
