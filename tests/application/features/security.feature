@@ -1,5 +1,5 @@
 # features/security.feature
-#@javascript
+@javascript
 Feature: Security
   In order to secure a pid
   As a website user
@@ -76,6 +76,7 @@ Feature: Security
     When I follow "Home"
   # wait for solr to catch up its indexing
     And I wait for a bit
+    And I wait for a bit
     And I fill in "Search Entry" with "title:(\"Security Test Collection\")"
     And I press "search_entry_submit"
     Then I should see "(0 results found)"
@@ -104,6 +105,7 @@ Scenario: Delete Security Test Communitys
   And I turn on waiting checks
   When I follow "Home"
   # wait for solr to catch up its indexing
+  And I wait for a bit
   And I wait for a bit
   And I fill in "Search Entry" with "title:(\"Security Test Community\")"
   And I press "search_entry_submit"

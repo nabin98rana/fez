@@ -41,7 +41,8 @@ include_once(APP_INC_PATH . "class.xsd_html_match.php");
 $sek_suggest_function = false;
 $filter = new Zend_Filter_Int();
 $xsdmf_id = $filter->filter($_GET['xsdmf_id']);
-$sek_id = $filter->filter($_GET['sek_id']);
+
+$sek_id = preg_replace("/[^a-zA-Z0-9_]/", "", $_GET['sek_id']);   $
 $use_xsdmf_id = false;
 
 if ((!empty($xsdmf_id)) && is_numeric($xsdmf_id)) {
@@ -55,6 +56,7 @@ else if (! empty($sek_id)) {
 	$sek_suggest_function = Search_Key::getSuggestFunctionBySek_ID($sek_id);
 }
 if(! $sek_suggest_function) {
+	echo json_encode(array('Result'=>false));
 	return false;
 }
 

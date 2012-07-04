@@ -8,19 +8,17 @@ default:
 #      browser: safari
   extensions:
     Behat\MinkExtension\Extension:
-      base_url:  'http://bypass.hazchem.library.uq.edu.au'
+      base_url:  'http://fez.hazchem.library.uq.edu.au'
       default_session: selenium2
       javascript_session: selenium2
-      selenium2: ~
-#      selenium2:
-#        wd_host: 'http://130.102.44.21:4444/wd/hub'
+#      selenium2: ~
+      goutte: ~
+      selenium2:
+#        wd_host: 'http://yourseleniumip:4444/wd/hub'
 #        browser: chrome
 #        browser: firefox
-#      default_session: sahi
+      default_session: goutte
 #      javascript_session: sahi
 #      sahi:
-#        host: 130.102.44.21
+#        host: your sahi ip
 #        port: 9999
-#         host: uqckorte.vpn.uq.edu.au
-#         port: 9999
-

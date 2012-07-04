@@ -36,7 +36,6 @@
  * This lets us return the citation HTML as OEmbed code.
  * See documentation at http://oembed.com/
  */
-                   echo "hai";
 include_once dirname(__FILE__).'/config.inc.php';
 
 $filter = new Zend_Filter_Alpha();
@@ -45,9 +44,15 @@ $filter = new Zend_Filter_Int();
 $maxwidth  = $filter->filter($_GET['maxwidth']);
 $maxheight = $filter->filter($_GET['maxheight']);
 
-function oembed_notfound() {
+function oembed_notfound($format='') {
     header('HTTP/1.0 404 Not Found');
-    echo "404";
+    if ($format == 'json') {
+      header('Content-type: application/json');
+      echo json_encode(array('Success: false', 'Message: "404 pid or url not found"'));
+    } else {
+      echo '404 pid or url not found';
+    }
+
     exit;
 }
 
@@ -61,12 +66,12 @@ if (empty($format)) {
     $format = 'json';
 }
 if (empty($url)) {
-    oembed_notfound();
+    oembed_notfound($format);
 }
 
 preg_match('/'.APP_PID_NAMESPACE.':[0-9]+/', $url, $match);
 if (empty($match)) {
-    oembed_notfound();
+    oembed_notfound($format);
 }
 $pid = $match[0];
 
@@ -75,7 +80,7 @@ $skpid = Search_Key::getID('Pid');
 $options["searchKey$skpid"] = $pid;
 $list = Record::getListing($options, array("Lister"), 0, 1, "Title", true);
 if (empty($list) or count($list['list']) < 1) {
-    oembed_notfound();
+    oembed_notfound($format);
 }
 $item = $list['list'][0];
 
@@ -124,11 +129,11 @@ if ($format == 'xml') {
     header('Content-type: text/xml');
     echo $oembed->asXML();
 } else {
-    header('Content-type: application/json');
     $json = json_encode($oembed);
     if (json_last_error()) {
-        oembed_notfound();
+        oembed_notfound($format);
     }
+    header('Content-type: application/json');
     echo $json;
 }
 
