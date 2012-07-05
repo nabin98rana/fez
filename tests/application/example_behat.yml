@@ -1,0 +1,24 @@
+# behat.yml
+default:
+  context:
+    parameters:
+      debug:
+        screenshot_dir: /tmp/
+        screen_id: :99
+#      browser: safari
+  extensions:
+    Behat\MinkExtension\Extension:
+      base_url:  'http://yourfezhostname'
+      default_session: selenium2
+      javascript_session: selenium2
+#      selenium2: ~
+      goutte: ~
+      selenium2:
+        wd_host: 'http://yourselenium2ip:4444/wd/hub'
+        browser: chrome
+#        browser: firefox
+      default_session: goutte
+#      javascript_session: sahi
+#      sahi:
+#        host: yoursahiip
+#        port: 9999
