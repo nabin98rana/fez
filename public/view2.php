@@ -432,7 +432,7 @@ if (!empty($pid) && $record->checkExists()) {
     //Direct link to solr for super admins
     if(( APP_SOLR_SWITCH == "ON") && ($isSuperAdministrator))
     {
-        $tpl->assign("link_to_solr","http:\\\\".APP_SOLR_HOST .":". APP_SOLR_PORT."".APP_SOLR_PATH."select/?q=pid_t:%22".$pid."%22");
+        $tpl->assign("link_to_solr","http://".APP_SOLR_HOST .":". APP_SOLR_PORT."".APP_SOLR_PATH."select/?q=pid_t:%22".$pid."%22");
     }
 
 	// If we have a Journal Article of a Conference Paper, we want to display the sub-type information.
