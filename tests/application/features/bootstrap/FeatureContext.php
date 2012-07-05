@@ -395,9 +395,7 @@ class FeatureContext extends MinkContext
    */
   public function iSelectTheTestOrgUnit()
   {
-//    $this->iClick('org_unit_id');
     $this->selectOption('org_unit_id', TEST_ORG_UNIT_NAME);
-//    $this->i
   }
 
   /**
