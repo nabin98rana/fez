@@ -7,14 +7,14 @@ Scenario: I login as admin and set a pids security to only view for a certain gr
   And I follow "Lachlan's Index Test Collection"
   And I select "Journal Article" from "xdis_id_top"
   And I press "Create"
-  And I fill in "Title" with "Security Test Journal Title"
+  And I fill in "Title" with "Security Test Journal Title2012"
   And I fill in "Journal name" with "Security Test Journal name"
   And I fill in "Author 1" with "Security Test Author name"
   And I select "Article" from "Sub-type"
   And I check "Copyright Agreement"
   #this is problemmatic getting a generic label
   And I select "2010" from "xsd_display_fields[6386][Year]"
-  And I press "Save"
+  And I press "Publish"
   And I wait for "5" seconds
   And I follow "More options"
   And I follow "Edit Security for Select Record"
@@ -27,13 +27,16 @@ Scenario: I login as admin and set a pids security to only view for a certain gr
   And I press "Save"
   And I follow "Logout"
   Given I am on "/"
-  And I fill in "Search Entry" with "UQ:87654"
+  And I fill in "Search Entry" with "title:(\"Security Test Journal Title2012\")"
   And I press "search_entry_submit"
   Then I should not see "No records could be found"
   When I follow "Click to view Journal Article"
-  And put a breakpoint
   Then I should see "Login to"
-  And put a breakpoint
+  Given I login as UPO
+  And I fill in "Search Entry" with "title:(\"Security Test Journal Title2012\")"
+  And I press "search_entry_submit"
+  When I follow "Click to view Journal Article"
+  Then I should see "Security Test Journal Title2012"
 
 
 

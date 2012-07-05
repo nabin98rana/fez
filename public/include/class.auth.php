@@ -3205,11 +3205,15 @@ class AuthNoFedora {
             $permissions = AuthNoFedoraDatastreams::getAllSecurityPermissionsDescriptions($did);
         } else {
             $permissions = AuthNoFedora::getAllSecurityPermissionsDescriptions($pid);
-            //authi_role, usr_username, grp_title, aro_role, ar_value
         }
         foreach($permissions as $permission) {
-            if (!in_array($permission[aro_role], $userPIDAuthGroups)) {
+            if (in_array($permission[aro_role], $userPIDAuthGroups)) {
+                $userPIDAuthGroups = array_diff($userPIDAuthGroups, array($permission[aro_role]));
+            }
                 switch ($permission[ar_rule]) {
+                    case 'public_list':
+                            array_push($userPIDAuthGroups, $permission[aro_role]);
+                        break;
                     case '!rule!role!AD_Group':
                         if (@in_array($permission[ar_value], $session[APP_LDAP_GROUPS_SESSION])) {
                             array_push($userPIDAuthGroups, $permission[aro_role]);
@@ -3280,7 +3284,7 @@ class AuthNoFedora {
                         break;
 
                     case '!rule!role!Fez_Group':
-                        if (@in_array($permission[grp_title], $session[APP_INTERNAL_GROUPS_SESSION])) {
+                        if (@in_array($permission[ar_value], $session[APP_INTERNAL_GROUPS_SESSION])) {
                             array_push($userPIDAuthGroups, $permission[aro_role]);
                         }
                         break;
@@ -3294,7 +3298,6 @@ class AuthNoFedora {
                     default:
                         break;
                 }
-            }
         }
 
 
