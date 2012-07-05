@@ -3072,12 +3072,11 @@ class AuthNoFedora {
             }
         }
 
-        //assume solr need updating
-        //Perhaps not
-        /*if (APP_SOLR_INDEXER == "ON") {
+        //assume solr need updating for new lister permissions
+        if (APP_SOLR_INDEXER == "ON") {
             FulltextQueue::singleton()->add($pid);
             FulltextQueue::singleton()->commit();
-        }*/
+        }
 
     }
 
