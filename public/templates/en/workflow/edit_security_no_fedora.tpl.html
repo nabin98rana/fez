@@ -141,8 +141,9 @@
                     <td bgcolor="{$light_color}" colspan="1">
                                    {if (!$security_permission.inherited)}N{else}Y{/if}
                     </td>
-                    <td style="width: 4px; text-align: center; white-space: nowrap;" bgcolor="{$light_color}">
+                    <td style=" text-align: center; white-space: nowrap;" bgcolor="{$light_color}" >
                         {if (!$security_permission.inherited)}<input type="checkbox" name="items[]" value="{$security_permission.row}" />{/if}
+                        {if (!$inherits_security) & ($security_permission.inherited) } Set alternate {$security_permission.aro_role}<br /> permissions to remove{/if}
                     </td>
                   </tr>
               {/foreach}
