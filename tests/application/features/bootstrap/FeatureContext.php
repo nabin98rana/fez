@@ -22,6 +22,16 @@ use Behat\MinkExtension\Context\MinkContext;
 require_once 'LoginHelper.php';
 
 
+/**
+ * @var string An example Journal Article publication pid in the system you can perform non-destructive tests on
+ */
+define("TEST_JOURNAL_ARTICLE_PID", "UQ:9444");
+
+/**
+ * @var string An example collection pid in the system you can perform non-destructive tests on
+ */
+define("TEST_COLLECTION_PID", "UQ:9761");
+
 
 /**
  * Features context.
@@ -127,7 +137,7 @@ class FeatureContext extends MinkContext
     public function iLoginAsAdministrator()
     {
         $lh = new loginHelper;
-        $lh->iLoginAsAdmin($this);
+        $lh->iLoginAsAdministrator($this);
 
     }
     /**
@@ -138,7 +148,7 @@ class FeatureContext extends MinkContext
         $lh = new loginHelper;
         $lh->iLoginAsUPO($this);
     }
-    
+
   /**
    * Disable waiting checks while doing steps involving modals
    *
@@ -197,12 +207,16 @@ class FeatureContext extends MinkContext
     // Check this isn't a modal popup
 //    $popupText = $this->assertPopupMessage('');
 //    if (!$this->getSession()->getDriver()->wdSession->getAlert()) {
+    if (!($this->getSession()->getDriver() instanceof Behat\Mink\Driver\GoutteDriver) &&
+      !($this->getSession()->getDriver() instanceof Behat\Mink\Driver\ZombieDriver)) {
+
       if (!$this->isModal) {
 //        echo "apparently i am NOT modal";
 //      $stepTitle = $event->getStep()->getTitle()
 //      if ($event->getStep()->getTitle()
         $this->getSession()->wait(10000, "dojo.byId('powered-by')");
       }
+    }
 //      $this->isModal = false;
 //    }
 //    $this->getSession()->wait(10000, "$('search_entry').length > 0");
@@ -347,6 +361,22 @@ class FeatureContext extends MinkContext
         if ($fieldElements===null) {
             throw new Exception("Button not found" );
         };
+    }
+
+    /**
+     * @Given /^I go to the test journal article view page$/
+     */
+    public function iGoToTheTestArticleViewPage()
+    {
+      $this->visit("/view/".TEST_JOURNAL_ARTICLE_PID);
+    }
+
+    /**
+     * @Given /^I go to the test collection list page$/
+     */
+    public function iGoToTheTestCollectionListPage()
+    {
+      $this->visit("/collection/".TEST_COLLECTION_PID);
     }
 
 }

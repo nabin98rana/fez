@@ -78,7 +78,7 @@ echo json_encode($grid);
 class GridProxy
 {
 
-	public function get($sidx = '', $sord='asc', $rows, $page)
+	public function get($sidx = '', $sord='asc', $rows=50, $page=0)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();

@@ -603,6 +603,7 @@ function loadPreview(pid,datastreamID, alt, origami)
 				  {/if}
 				  </td>
 				</tr>
+                {if ($link_to_solr)}<tr><th>Solr:</th><td><a href="{$link_to_solr}">{$pid}</a></td></tr> {/if}
 				
 			  </table>
 			</td>

@@ -1,5 +1,5 @@
 # features/security.feature
-#@javascript
+@javascript
 Feature: Security
   In order to secure a pid
   As a website user
@@ -10,21 +10,25 @@ Feature: Security
 #    Given I login as administrator
 #    Then I should see "You are logged in as Admin Test User"
 
-  @destructive @now
+  @destructive @bypass @now
   Scenario: Create a community, collection, set the collection to viewable by admins only
     Given I login as administrator
     And I follow "Browse"
     And I follow "Create New Community"
     And I fill in "Name" with "Security Test Community"
     And I select "Fedora Collection Display Version Dublin Core 1.0" from "XSD Display Document Types"
-    And I fill in "Keyword(s) 1" with "automated testing"
+    And I fill in "Keyword 1" with "automated testing"
     And I press "Publish"
+#    And I put a breakpoint
+    And I wait for a bit
     And I press "Create"
     And I fill in "Title" with "Security Test Collection"
     And I select "Journal Article Version MODS 1.0" from "XSD Display Document Types"
     And I select "Security Test Community" from "Member of Communities"
-    And I fill in "Keyword(s) 1" with "automated testing"
+    And I fill in "Keyword 1" with "automated testing"
     And I press "Publish"
+    And I wait for a bit
+    And I wait for a bit
     And I follow "Security Test Community"
 #    And put a breakpoint
     And I follow "Edit Security for Selected Collection"
@@ -50,7 +54,7 @@ Feature: Security
      And I follow "Create New Community"
      And I fill in "Name" with "Security Test Community"
      And I select "Fedora Collection Display Version Dublin Core 1.0" from "XSD Display Document Types"
-     And I fill in "Keyword(s) 1" with "automated testing"
+     And I fill in "Keyword 1" with "automated testing"
      And I press "Publish"
      And I follow "Logout"
      When I follow "Home"
@@ -75,6 +79,7 @@ Feature: Security
     And I turn on waiting checks
     When I follow "Home"
   # wait for solr to catch up its indexing
+    And I wait for a bit
     And I wait for a bit
     And I fill in "Search Entry" with "title:(\"Security Test Collection\")"
     And I press "search_entry_submit"
@@ -104,6 +109,7 @@ Scenario: Delete Security Test Communitys
   And I turn on waiting checks
   When I follow "Home"
   # wait for solr to catch up its indexing
+  And I wait for a bit
   And I wait for a bit
   And I fill in "Search Entry" with "title:(\"Security Test Community\")"
   And I press "search_entry_submit"

@@ -39,7 +39,7 @@ include_once APP_INC_PATH . "class.auth.php";
 // bounce if not logged in
 
 $username = Auth::getUsername();
-if (empty($username)) 
+if (empty($username))
 {
     $errorurl = "" . APP_BASE_URL . "list.php";
     header("Location: $errorurl");

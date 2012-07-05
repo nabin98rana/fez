@@ -1,5 +1,5 @@
 # features/search.feature
-@mink:sahi
+@javascript
 Feature: Search
   In order to see a word definition
   As a website user

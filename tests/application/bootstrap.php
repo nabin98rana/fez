@@ -3,13 +3,14 @@
 chdir(dirname(__FILE__));
 
 // Include tests' configuration file
+echo "hai";
 include_once ('../config_test.inc.php');
 
 // @TODO: uncomment config include to perform Unit Tests
 // Include application's configuration file, which calls bootstrap for the application.
-//include_once ('../../public/config.inc.php'); 
+//include_once ('../../public/config.inc.php');
 
-// We want to throw all errors 
+// We want to throw all errors
 error_reporting(E_ALL ^ E_NOTICE);
 
 // Set up include paths

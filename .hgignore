@@ -9,6 +9,8 @@ phpinfo.php
 libckvm_fez.tmproj
 ._*
 *.orig
+behat.yml
+LoginHelper.php
 Thumbs.db
 .DS_Store
 
@@ -54,4 +56,3 @@ glob:init.php
 .idea
 \.tmtags
 tests\application\features\bootstrap\LoginHelper.php
-
