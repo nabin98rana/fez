@@ -32,6 +32,16 @@ define("TEST_JOURNAL_ARTICLE_PID", "UQ:9444");
  */
 define("TEST_COLLECTION_PID", "UQ:9761");
 
+/**
+ * @var string An example org unit name so you can test on it
+ */
+define("TEST_ORG_UNIT_NAME", "Mathematics");
+
+/**
+ * @var string An example person in the above TEST_ORG_UNIT_NAME so you can test on it
+ */
+define("TEST_ORG_UNIT_NAME_USERNAME", "maebilli");
+
 
 /**
  * Features context.
@@ -378,5 +388,31 @@ class FeatureContext extends MinkContext
     {
       $this->visit("/collection/".TEST_COLLECTION_PID);
     }
+
+
+  /**
+   * @Given /^I select the test org unit$/
+   */
+  public function iSelectTheTestOrgUnit()
+  {
+//    $this->iClick('org_unit_id');
+    $this->selectOption('org_unit_id', TEST_ORG_UNIT_NAME);
+//    $this->i
+  }
+
+  /**
+   * @Given /^I select the test org unit username$/
+   */
+  public function iSelectTheTestOrgUnitUsername()
+  {
+    $this->iClick(TEST_ORG_UNIT_NAME_USERNAME);
+  }
+
+  /**
+   * @Then /^I should see the test org unit username message$/
+   */
+  public function iShouldSeeTheTestOrgUnitUsernameMessage() {
+    $this->assertPageContainsText("Currently acting as: ".TEST_ORG_UNIT_NAME_USERNAME);
+  }
 
 }
