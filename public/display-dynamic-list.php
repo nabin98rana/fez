@@ -18,12 +18,12 @@ foreach($list['list'] as $index => $listItem) {
 	//$citation = str_replace('href="', 'href="'.APP_BASE_URL, $listItem['rek_citation']);
 	$citation = str_replace('href="', 'href="http://'.APP_HOSTNAME, $listItem['rek_citation']);   //works if fez not in root directory - heaphey
 	$citation = str_replace("'", "\'", $citation);
-	$citation = str_replace("\n", " ", $citation);
+	$citation = str_replace("\r", " ", str_replace("\n", " ", $citation));
 	$list['list'][$index]['rek_citation'] = $citation;
 }
 
 // we're outputting javascript, let the browser know
-header("Content-type: text/javascript");
+header("Content-type: text/javascript; charset=UTF-8");
 
 // and output the details
 $tpl = new Template_API();

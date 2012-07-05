@@ -575,9 +575,13 @@ function loadPreview(pid,datastreamID, alt, origami)
 				<tr>
 					<th style="vertical-align:text-top;">Citation counts:</th>
 					<td>
-					{if $citationsThomson != ''}<img src="{$rel_url}images/thomson_16.gif" style="vertical-align: text-top;" alt="TR Web of Science Citation Count" title="TR Web of Science Citation Count"/>&nbsp; Cited <a href="{$rel_url}rid_citation_count_history_{$pid}">{$citationsThomson}</a> times in <a href="http://gateway.isiknowledge.com/gateway/Gateway.cgi?GWVersion=2&SrcApp=resolve1&DestLinkType=CitingArticles&DestApp=WOS_CPL&KeyUT={$ThomsonID}&SrcAuth={$WOK_USERNAME}">TR Web of Science</a>{/if}
+					{if $citationsThomson != ''}<img src="{$rel_url}images/thomson_16.gif" style="vertical-align: text-top;" alt="TR Web of Science Citation Count" title="TR Web of Science Citation Count"/>&nbsp; Cited <a href="{$rel_url}rid_citation_count_history_{$pid}">{$citationsThomson}</a> times in
+                            <a href="http://gateway.isiknowledge.com/gateway/Gateway.cgi?GWVersion=2&SrcApp=resolve1&DestLinkType=CitingArticles&DestApp=WOS_CPL&KeyUT={$ThomsonID}&SrcAuth={$WOK_USERNAME}" rel="nofollow">Thomson Reuters Web of Science</a>
+                    {/if}
 					{if $citationsThomson != '' && ($citationsScopus != '' || ($isUser && $citationsGoogle != ''))}<br />{/if}
-					{if $citationsScopus != ''}<img src="{$rel_url}images/scopus_logo_small.gif" style="vertical-align: text-top;" alt="Scopus Citation Count" title="Scopus Citation Count"/> Cited <a href="{$rel_url}scopus_citation_count_history_{$pid}">{$citationsScopus}</a> times in <a href="http://www.scopus.com/scopus/inward/citedby.url?sortField=date&rel=3.0.0&eid={$ScopusID}&partnerID={$APP_SCOPUS_PARTNER_ID}">Scopus</a>{/if}
+					{if $citationsScopus != ''}<img src="{$rel_url}images/scopus_logo_small.gif" style="vertical-align: text-top;" alt="Scopus Citation Count" title="Scopus Citation Count"/> Cited <a href="{$rel_url}scopus_citation_count_history_{$pid}">{$citationsScopus}</a> times in
+                            <a href="http://www.scopus.com/results/citedbyresults.url?sort=plf-f&cite={$ScopusID}&src=s&sot=cite&sdt=a" rel="nofollow">Scopus</a>
+                    {/if}
 					{if $isUser && ($citationsScopus != '')}<br />{/if}
 					{if $isUser && ($useGoogleCitationCounts == "ON")}
 						{if $citationsGoogle != ''}<img src="{$rel_url}images/favicon_googlescholar.png" style="vertial-align: text-top;" alt="Google Scholar Citation Count" title="Google Scholar Citation Count" /> Cited <a href="{$citationsGoogleLink}">{$citationsGoogle}</a> times in <a href="http://scholar.google.com/">Google Scholar</a>{/if}
