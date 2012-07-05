@@ -10,7 +10,7 @@ Feature: Security
 #    Given I login as administrator
 #    Then I should see "You are logged in as Admin Test User"
 
-  @destructive @now
+  @destructive @bypass @now
   Scenario: Create a community, collection, set the collection to viewable by admins only
     Given I login as administrator
     And I follow "Browse"
@@ -19,12 +19,16 @@ Feature: Security
     And I select "Fedora Collection Display Version Dublin Core 1.0" from "XSD Display Document Types"
     And I fill in "Keyword 1" with "automated testing"
     And I press "Publish"
+#    And I put a breakpoint
+    And I wait for a bit
     And I press "Create"
-    And I fill in "Name" with "Security Test Collection"
+    And I fill in "Title" with "Security Test Collection"
     And I select "Journal Article Version MODS 1.0" from "XSD Display Document Types"
     And I select "Security Test Community" from "Member of Communities"
     And I fill in "Keyword 1" with "automated testing"
     And I press "Publish"
+    And I wait for a bit
+    And I wait for a bit
     And I follow "Security Test Community"
 #    And put a breakpoint
     And I follow "Edit Security for Selected Collection"
