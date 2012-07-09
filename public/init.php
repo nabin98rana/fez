@@ -66,7 +66,11 @@ set_include_path(APP_PEAR_PATH . PATH_SEPARATOR . APP_INC_PATH.
 
 require_once(APP_INC_PATH.'Zend/Loader/Autoloader.php');
 
-$autoloader = Zend_Loader_Autoloader::getInstance()->setFallbackAutoloader(true);
+//$autoloader = Zend_Loader_Autoloader::getInstance()->setFallbackAutoloader(true);
+$autoloader = Zend_Loader_Autoloader::getInstance();
+$autoloader->registerNamespace('Fez');
+//spl_autoload_register(array('Zend_Loader_Autoloader', 'autoload'));
+//$autoloader = Zend_Loader_Autoloader::getInstance();
 $autoloader->pushAutoloader(array('ezcBase', 'autoload'), 'ezc');
 // or its not! // below is now called in _autoload.php in a Fez specific SimpleSAMLPHP install fork
 $autoloader->pushAutoloader('SimpleSAML_autoload', 'SimpleSAML');

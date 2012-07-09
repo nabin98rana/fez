@@ -1621,7 +1621,7 @@ class Auth
 	 * @access  public
 	 * @return  integer The ID of the user
 	 */
-	function getUserID()
+	static function getUserID()
 	{
 		global $auth_bgp_session, $auth_isBGP;
 		static $usr_id;
