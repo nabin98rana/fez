@@ -41,7 +41,10 @@
   PRIMARY KEY (`oai_id`)
 )
 
-sudo php open_access_find_items.php > /var/log/open_access_find_items.tmp
+sudo php open_access_find_items.php > /var/log/open_access_find_items.log
+
+ie. finding Theses that are open access
+SELECT oai_pid, oai_dsid, oai_document_type FROM fez_open_access_items WHERE oai_document_type = 'thesis' AND oai_dsid LIKE '%.pdf' GROUP BY oai_pid
 
 */
 

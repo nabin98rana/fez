@@ -376,6 +376,27 @@ class FeatureContext extends MinkContext
     }
 
     /**
+     * @Then /^I should see text "([^"]*)" in code$/
+     */
+    public function iShouldSeeTextInCode($text) {
+        $pageContent = $this->getSession()->getPage()->getContent();
+        $pos = strpos($pageContent, $text);
+        if ($pos===false) {
+            throw new Exception("Text not found in code" );
+        };
+    }
+
+    /**
+     * @Then /^I should not see text "([^"]*)" in code$/
+     */
+    public function iShouldNotSeeTextInCode($text) {
+        $pageContent = $this->getSession()->getPage()->getContent();
+        $pos = strpos($pageContent, $text);
+        if ($pos!==false) {
+            throw new Exception("Text found in code" );
+        };
+    }
+    /**
      * @Given /^I go to the test journal article view page$/
      */
     public function iGoToTheTestArticleViewPage()

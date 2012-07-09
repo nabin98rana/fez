@@ -5,7 +5,7 @@ We are currently processing the following conference paper record in UQ eSpace: 
 This publication includes author(s)/co-author(s) affiliated with your unit.
 
 In order for the record to be considered for HERDC we require some additional evidence.  
-Please provide a copy of pages from the book as follows:
+Please provide a copy of pages from the proceeedings as follows:
    - Title page
    - Title verso 
      (publisher information, ISBN (if there is one), copyright information, editors and convenors, etc., usually on reverse side of title page) 

@@ -286,9 +286,15 @@
 												} else {
 	                        $this->setDynamicVar($dis_field["xsdmf_dynamic_selected_option"]);
                             if (isset($dis_field["xsdmf_dynamic_selected_option"])) {
-                                eval("global ".$dis_field['xsdmf_dynamic_selected_option']
-                                    ."; \$xsd_display_fields[\$dis_key]['selected_option'] = "
-                                    . $dis_field["xsdmf_dynamic_selected_option"] . ";");
+                                if ($dis_field['xsdmf_dynamic_selected_option'][0] == "$") {
+                                    eval("global ".$dis_field['xsdmf_dynamic_selected_option']
+                                        ."; \$xsd_display_fields[\$dis_key]['selected_option'] = "
+                                        . $dis_field["xsdmf_dynamic_selected_option"] . ";");
+                                } else {
+                                    eval(" \$xsd_display_fields[\$dis_key]['selected_option'] = "
+                                        . $dis_field["xsdmf_dynamic_selected_option"] . ";");
+                                }
+
                             }
 												}
                     }
