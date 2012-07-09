@@ -1,7 +1,6 @@
 @javascript
 Feature: Test UPO abilities
 
-  @wip
   Scenario:
     Given I login as UPO
     And I am on "/my_upo_tools.php"

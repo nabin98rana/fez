@@ -33,10 +33,12 @@ Feature: Security
 #    And put a breakpoint
     And I follow "Edit Security for Selected Collection"
     #10 is the viewer role.. if you choose "Viewer" instead it stupidly selects Archival_FormatViewer so have to use the number value
-    And I select "10" from "role"
-    And I select "Fez_Group" from "groups_type"
-    And I select "Masqueraders" from "internal_group_list"
-    And I press "Add"
+    And I choose the "Masqueraders" group for the "Viewer" role
+      And put a breakpoint
+#    And I select "10" from "role"
+#    And I select "Fez_Group" from "groups_type"
+#    And I select "Masqueraders" from "internal_group_list"
+#    And I press "Add"
     And I press "Save Changes"
     And I follow "Logout"
     When I follow "Home"
@@ -47,7 +49,7 @@ Feature: Security
     Then I should see "(0 results found)"
 #    And put a breakpoint
 
-   @destructive
+   @destructive @core
    Scenario: Create a Community as an administrator and see it as a non-logged in user
      Given I login as administrator
      And I follow "Browse"
@@ -65,7 +67,7 @@ Feature: Security
      Then I should see "(1 results found)"
 
 
-  @destructive
+  @destructive @core
   Scenario: Delete Security Test Collections
     Given I login as administrator
     And I fill in "Search Entry" with "title:(\"Security Test Collection\")"
@@ -95,7 +97,7 @@ Feature: Security
 #  Then I should see "(0 results found)"
 
 
-  @destructive
+  @destructive @core
 Scenario: Delete Security Test Communitys
   Given I login as administrator
   And I fill in "Search Entry" with "title:(\"Security Test Community\")"

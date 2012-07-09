@@ -20,6 +20,8 @@ use Behat\MinkExtension\Context\MinkContext;
 //
 
 require_once 'LoginHelper.php';
+require_once ('../../public/config.inc.php');
+require_once(APP_INC_PATH . 'class.auth.php');
 
 
 /**
@@ -411,6 +413,25 @@ class FeatureContext extends MinkContext
    */
   public function iShouldSeeTheTestOrgUnitUsernameMessage() {
     $this->assertPageContainsText("Currently acting as: ".TEST_ORG_UNIT_NAME_USERNAME);
+  }
+
+
+  /**
+   * @Given /^I choose the "([^"]*)" group for the "([^"]*)" role$/
+   */
+  public function iChooseTheGroupForTheRole($group, $role)
+  {
+//    $roleId = Auth::getRoleIDByTitle($role);
+    if (APP_FEDORA_BYPASS == 'ON') {
+      //    And I select "10" from "role"
+//      $this->selectOption('role', $roleId);
+      $this->selectOption('groups_type', 'Fez_Group');
+      $this->selectOption('internal_group_list', $group);
+      $this->iClick('Add');
+    } else {
+      $this->selectOption($role.' Fez Group', $group);
+    }
+
   }
 
 }

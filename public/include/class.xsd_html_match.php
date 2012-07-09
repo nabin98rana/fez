@@ -886,6 +886,7 @@ class XSD_HTML_Match
 		                    xsdmf_id_ref,
 		                    xsdmf_id_ref_save_type,
 							xsdsel_order,
+							xsdsel_title,
 							xsdmf_attached_xsdmf_id,
 							xsdmf_cvo_id,
 							xsdmf_cvo_min_level,
