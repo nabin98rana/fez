@@ -429,7 +429,8 @@ class FeatureContext extends MinkContext
       $this->selectOption('internal_group_list', $group);
       $this->iClick('Add');
     } else {
-      $this->selectOption($role.' Fez Group', $group);
+      $this->selectOption($role.' Fez Group helper', $group);
+      $this->pressButton($role.' Fez Group copy left');
     }
 
   }

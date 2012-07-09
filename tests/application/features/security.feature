@@ -34,7 +34,6 @@ Feature: Security
     And I follow "Edit Security for Selected Collection"
     #10 is the viewer role.. if you choose "Viewer" instead it stupidly selects Archival_FormatViewer so have to use the number value
     And I choose the "Masqueraders" group for the "Viewer" role
-      And put a breakpoint
 #    And I select "10" from "role"
 #    And I select "Fez_Group" from "groups_type"
 #    And I select "Masqueraders" from "internal_group_list"
@@ -61,6 +60,8 @@ Feature: Security
      And I follow "Logout"
      When I follow "Home"
      And I fill in "Search Entry" with "title:(\"Security Test Community\")"
+   # wait for solr to catch up its indexing
+     And I wait for a bit
      And I wait for a bit
      And I press "search_entry_submit"
 #     And I put a breakpoint

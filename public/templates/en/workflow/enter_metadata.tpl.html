@@ -425,7 +425,7 @@
 						{assign var="loop_num" value=$smarty.section.z.index}
 						<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" {if $loop_num != 0 || ($isEditor != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && $xsd_display_fields[i].xsdmf_required != 1) || $xsd_display_fields[i].xsdmf_invisible == 1}style="display:none"{/if} valign="top">
 						  <th>
-							<b>{$xsd_display_fields[i].xsdmf_title} {math equation="x + 1" x=$loop_num}</b>{if $xsd_display_fields[i].xsdmf_required == 1} * {/if}
+							<b><label for="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}">{$xsd_display_fields[i].xsdmf_title}</label> {math equation="x + 1" x=$loop_num}</b>{if $xsd_display_fields[i].xsdmf_required == 1} * {/if}
 							{if $loop_num == 0}
 							{if $xsd_display_fields[i].xsdmf_description != ""}
 	                          <br /><i>{$xsd_display_fields[i].xsdmf_description|escape:"html"}</i>
@@ -449,7 +449,7 @@
 				{else}
 						<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" {if ($isEditor != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && $xsd_display_fields[i].xsdmf_required != 1) || $xsd_display_fields[i].xsdmf_invisible == 1}style="display:none"{/if} valign="top">
 						  <th>
-							<b>{$xsd_display_fields[i].xsdmf_title}{if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b>
+							<b><label for="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0">{$xsd_display_fields[i].xsdmf_title}</label>{if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b>
 							{if $xsd_display_fields[i].xsdmf_description != ""}
 	                          <br/><i>{$xsd_display_fields[i].xsdmf_description|escape:"html"}</i>
 	                        {/if}
@@ -472,7 +472,7 @@
 			{assign var="xsdmf" value=$xsd_display_fields[i]}
 			<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" {if ($isEditor != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && $xsd_display_fields[i].xsdmf_required != 1) || $xsd_display_fields[i].xsdmf_invisible == 1}style="display:none"{/if}>
 			  <th>
-				<b>{$xsdmf.xsdmf_title} {if $xsdmf.xsdmf_required == 1} * {/if}</b>
+				<b><label for="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0">{$xsd_display_fields[i].xsdmf_title}</label> {if $xsdmf.xsdmf_required == 1} * {/if}</b>
 				{if $xsdmf.xsdmf_description != ""}<br />{$xsdmf.xsdmf_description}{/if}
 			  </th>
 			  <td style="background: {if $default_depositor_org_id == 1}yellow{/if}">
@@ -540,7 +540,7 @@
 		    {assign var="field_id" value="xsd_display_fields_"|cat:$xsd_display_fields[i].xsdmf_id|cat:"_0"}
 			<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" {if ($isEditor != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && $xsd_display_fields[i].xsdmf_required != 1) || $xsd_display_fields[i].xsdmf_invisible == 1}style="display:none"{/if}>
 			  <th>
-				<b>{$xsd_display_fields[i].xsdmf_title} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b>
+				<b><label for="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0">{$xsd_display_fields[i].xsdmf_title}</label> {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b>
 			  </th>
 			  <td>
 				<select class="default" id="{$field_id}" name="{$field_name}">

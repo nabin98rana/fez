@@ -284,7 +284,7 @@ function selectDateField(field_name, day, month, year)
 						{/if}
 						<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" {if $details[$temp_fld_id][$loop_num] == '' && $details[$temp_fld_id][$check_num] == '' && $show_num != 0}style="display:none"{/if}>
 						  <td width="200" bgcolor="{$cell_color}" class="default">
-							<b>{$xsd_display_fields[i].xsdmf_title} {math equation="x + 1" x=$loop_num} </b>{if $xsd_display_fields[i].xsdmf_required == 1 && $loop_num == 0} * {/if}<br />{if $loop_num == 0}<i>(More {$xsd_display_fields[i].xsdmf_title} input boxes will appear as they are used up)</i>{/if}
+							<b><label for="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}">{$xsd_display_fields[i].xsdmf_title} {math equation="x + 1" x=$loop_num}</label>  </b>{if $xsd_display_fields[i].xsdmf_required == 1 && $loop_num == 0} * {/if}<br />{if $loop_num == 0}<i>(More {$xsd_display_fields[i].xsdmf_title} input boxes will appear as they are used up)</i>{/if}
 						  </td>
 						  <td bgcolor="{$value_color}">
 					    {assign var="field_id" value="xsd_display_fields_"|cat:$xsd_display_fields[i].xsdmf_id|cat:"_"|cat:$loop_num}
@@ -377,7 +377,7 @@ function selectDateField(field_name, day, month, year)
 	        		    {/if}
 					  </td>
 						<td align="left" style="vertical-align: 0;">
-						<select title="{$xsd_display_fields[i].xsdsel_title} {$xsd_display_fields[i].xsdmf_title} helper" id="{$field_id_helper}" style="max-width:400px" multiple size="8" class="default" name="{$field_name_helper}">
+						<select name="{$xsd_display_fields[i].xsdsel_title} {$xsd_display_fields[i].xsdmf_title} helper" id="{$field_id_helper}" style="max-width:400px" multiple size="8" class="default" name="{$field_name_helper}">
 						  {html_options options=$xsdmf.field_options}
 						</select>
 						</td>
