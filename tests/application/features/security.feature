@@ -32,17 +32,14 @@ Feature: Security
     And I follow "Security Test Community"
 #    And put a breakpoint
     And I follow "Edit Security for Selected Collection"
-    #10 is the viewer role.. if you choose "Viewer" instead it stupidly selects Archival_FormatViewer so have to use the number value
-    And I choose the "Masqueraders" group for the "Viewer" role
-#    And I select "10" from "role"
-#    And I select "Fez_Group" from "groups_type"
-#    And I select "Masqueraders" from "internal_group_list"
-#    And I press "Add"
+    And I choose the "Masqueraders" group for the "Lister" role
     And I press "Save Changes"
     And I follow "Logout"
     When I follow "Home"
     Given I am on "/"
     And I fill in "Search Entry" with "title:(\"Security Test Collection\")"
+    And I wait for a bit
+    And I wait for a bit
     And I press "search_entry_submit"
 #    And put a breakpoint
     Then I should see "(0 results found)"

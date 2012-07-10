@@ -442,10 +442,11 @@ class FeatureContext extends MinkContext
    */
   public function iChooseTheGroupForTheRole($group, $role)
   {
-//    $roleId = Auth::getRoleIDByTitle($role);
+
     if (APP_FEDORA_BYPASS == 'ON') {
       //    And I select "10" from "role"
-//      $this->selectOption('role', $roleId);
+      $roleId = Auth::getRoleIDByTitle($role);
+      $this->selectOption('role', $roleId);
       $this->selectOption('groups_type', 'Fez_Group');
       $this->selectOption('internal_group_list', $group);
       $this->pressButton('Add');
