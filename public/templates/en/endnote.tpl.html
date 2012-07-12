@@ -1,8 +1,6 @@
 {*For codes see list below *}
-{* There seems to be a known bug where Conference Papers won't import as Conference Papers *}
 {section name="i" loop=$list}
 {* Record {counter} of {$list|@count} *}
-
 {if $list[i].rek_display_type_lookup eq 'Journal Article'}
 {if ($list[i].rek_display_type_lookup)}
 %0 {$list[i].rek_display_type_lookup}
@@ -33,33 +31,36 @@
 {/foreach}
 {if ($list[i].rek_start_page)}
 %P {$list[i].rek_start_page}-{$list[i].rek_end_page}
-
 {/if}
 {if ($list[i].rek_title)}
 %T {$list[i].rek_title}
 {/if}
 {if ($list[i].rek_volume_number)}
 %V {$list[i].rek_volume_number}
-
 {/if}
 {if ($list[i].rek_description)}
 %X {$list[i].rek_description}
 {/if}
 {if ($list[i].rek_notes)}
 %Z {$list[i].rek_notes}
-
 {/if}
 {if ($list[i].rek_publisher)}
-%I {$list[i].rek_publisher[0]}
-
+%I {$list[i].rek_publisher}
 {/if}
-{foreach from=$list[i].rek_identifier item=identifier}
-%@ {$identifier}
-{/foreach}
+{if ($list[i].rek_isbn)}
+%@ {$list[i].rek_isbn}
+{/if}
 {if ($list[i].rek_place_of_publication)}
-%1 {$list[i].rek_place_of_publication}
-
+%C {$list[i].rek_place_of_publication}
 {/if}
+{foreach from=$list[i].rek_link item=link}
+{if ($link|stristr:"doi")}
+%R  {$link|parse_url:5}
+{/if}
+{/foreach}
+%U {$smarty.const.APP_BASE_URL}view/{$list[i].rek_pid}
+%~ {$app_name}
+
 {elseif $list[i].rek_display_type_lookup eq 'Book'}
 {if ($list[i].rek_display_type_lookup)}
 %0 {$list[i].rek_display_type_lookup}
@@ -67,28 +68,26 @@
 {foreach from=$list[i].rek_author item=author}
 %A {$author}
 {/foreach}
+{foreach from=$list[i].rek_contributor item=editor}
+%E {$editor}
+{/foreach}
 {if ($list[i].rek_series)}
 %B {$list[i].rek_series}
-
 {/if}
 {if ($list[i].rek_place_of_publication)}
 %C {$list[i].rek_place_of_publication}
-
 {/if}
 {if ($list[i].rek_date)}
 %D {$list[i].rek_date}
 {/if}
 {if ($list[i].rek_language)}
 %G {$list[i].rek_language[0]}
-
 {/if}
 {if ($list[i].rek_publisher)}
-%I {$list[i].rek_publisher[0]}
-
+%I {$list[i].rek_publisher}
 {/if}
 {if ($list[i].rek_notes)}
 %Z {$list[i].rek_notes}
-
 {/if}
 {foreach from=$list[i].rek_keywords item=keyword}
 %K {$keyword}
@@ -101,7 +100,6 @@
 {/foreach}
 {if ($list[i].rek_end_page)}
 %P {$list[i].rek_end_page}
-
 {/if}
 {if ($list[i].rek_title)}
 %T {$list[i].rek_title}
@@ -111,40 +109,45 @@
 {/if}
 {if ($list[i].rek_edition)}
 %7 {$list[i].rek_edition}
-
 {/if}
-{foreach from=$list[i].rek_identifier item=identifier}
-%@ {$identifier}
+{if ($list[i].rek_isbn)}
+%@ {$list[i].rek_isbn}
+{/if}
+{foreach from=$list[i].rek_link item=link}
+{if ($link|stristr:"doi")}
+%R  {$link|parse_url:5}
+{/if}
 {/foreach}
+%U {$smarty.const.APP_BASE_URL}view/{$list[i].rek_pid}
+%~ {$app_name}
+
 {elseif $list[i].rek_display_type_lookup eq 'Book Chapter'}
 {if ($list[i].rek_display_type_lookup)}
-%0 {$list[i].rek_display_type_lookup}
+%0 Book Section
 {/if}
 {foreach from=$list[i].rek_author item=author}
 %A {$author}
 {/foreach}
+{foreach from=$list[i].rek_contributor item=editor}
+%E {$editor}
+{/foreach}
 {if ($list[i].rek_book_title)}
 %B {$list[i].rek_book_title}
-
 {/if}
 {if ($list[i].rek_place_of_publication)}
 %C {$list[i].rek_place_of_publication}
-
 {/if}
 {if ($list[i].rek_date)}
 %D {$list[i].rek_date}
 {/if}
 {if ($list[i].rek_language)}
 %G {$list[i].rek_language[0]}
-
 {/if}
 {if ($list[i].rek_publisher)}
-%I {$list[i].rek_publisher[0]}
-
+%I {$list[i].rek_publisher}
 {/if}
 {if ($list[i].rek_notes)}
 %Z {$list[i].rek_notes}
-
 {/if}
 {foreach from=$list[i].rek_keywords item=keyword}
 %K {$keyword}
@@ -153,12 +156,10 @@
 %M {$list[i].rek_pid}
 {/if}
 {if ($list[i].rek_start_page)}
-%P {$list[i].rek_start_page-{$list[i].rek_end_page}
-
+%P {$list[i].rek_start_page}-{$list[i].rek_end_page}
 {/if}
 {if ($list[i].rek_series)}
 %S {$list[i].rek_series}
-
 {/if}
 {if ($list[i].rek_title)}
 %T {$list[i].rek_title}
@@ -168,11 +169,18 @@
 {/if}
 {if ($list[i].rek_edition)}
 %7 {$list[i].rek_edition}
-
 {/if}
-{foreach from=$list[i].rek_identifier item=identifier}
-%@ {$identifier}
+{if ($list[i].rek_isbn)}
+%@ {$list[i].rek_isbn}
+{/if}
+{foreach from=$list[i].rek_link item=link}
+{if ($link|stristr:"doi")}
+%R  {$link|parse_url:5}
+{/if}
 {/foreach}
+%U {$smarty.const.APP_BASE_URL}view/{$list[i].rek_pid}
+%~ {$app_name}
+
 {elseif $list[i].rek_display_type_lookup eq 'Thesis'}
 {if ($list[i].rek_display_type_lookup)}
 %0 {$list[i].rek_display_type_lookup}
@@ -182,26 +190,21 @@
 {/foreach}
 {if ($list[i].rek_place_of_publication)}
 %C {$list[i].rek_place_of_publication}
-
 {/if}
 {if ($list[i].rek_date)}
 %D {$list[i].rek_date}
 {/if}
 {if ($list[i].rek_language)}
 %G {$list[i].rek_language[0]}
-
 {/if}
 {if ($list[i].rek_org_name)}
 %I {$list[i].rek_org_name}
-
 {/if}
 {if ($list[i].rek_org_unit_name)}
 %B {$list[i].rek_org_unit_name}
-
 {/if}
 {if ($list[i].rek_notes)}
 %Z {$list[i].rek_notes}
-
 {/if}
 {foreach from=$list[i].rek_keywords item=keyword}
 %K {$keyword}
@@ -215,35 +218,47 @@
 {if ($list[i].rek_description)}
 %X {$list[i].rek_description}
 {/if}
+{if ($list[i].rek_genre_type)}
+%9 {$list[i].rek_genre_type}
+{/if}
+{foreach from=$list[i].rek_link item=link}
+{if ($link|stristr:"doi")}
+%R  {$link|parse_url:5}
+{/if}
+{/foreach}
+%U {$smarty.const.APP_BASE_URL}view/{$list[i].rek_pid}
+%~ {$app_name}
+
 {elseif $list[i].rek_display_type_lookup eq 'Conference Paper'}
 {if ($list[i].rek_display_type_lookup)}
-%0 Conference Proceedings
+%0 {$list[i].rek_display_type_lookup}
 {/if}
 {foreach from=$list[i].rek_author item=author}
 %A {$author}
 {/foreach}
+{foreach from=$list[i].rek_contributor item=editor}
+%E {$editor}
+{/foreach}
 {if ($list[i].rek_conference_name)}
 %B {$list[i].rek_conference_name}
-
 {/if}
 {if ($list[i].rek_conference_location)}
 %C {$list[i].rek_conference_location}
-
 {/if}
 {if ($list[i].rek_date)}
 %D {$list[i].rek_date}
 {/if}
 {if ($list[i].rek_notes)}
 %Z {$list[i].rek_notes}
-
 {/if}
 {if ($list[i].rek_language)}
 %G {$list[i].rek_language[0]}
-
+{/if}
+{if ($list[i].rek_start_page)}
+%P {$list[i].rek_start_page}-{$list[i].rek_end_page}
 {/if}
 {if ($list[i].rek_org_name)}
 %I {$list[i].rek_org_name}
-
 {/if}
 {foreach from=$list[i].rek_keywords item=keyword}
 %K {$keyword}
@@ -257,17 +272,26 @@
 {if ($list[i].rek_description)}
 %X {$list[i].rek_description}
 {/if}
+{foreach from=$list[i].rek_link item=link}
+{if ($link|stristr:"doi")}
+%R  {$link|parse_url:5}
+{/if}
+{/foreach}
+%U {$smarty.const.APP_BASE_URL}view/{$list[i].rek_pid}
+%~ {$app_name}
+
 {elseif $list[i].rek_display_type_lookup eq 'Conference Proceedings'}
 {if ($list[i].rek_display_type_lookup)}
 %0 {$list[i].rek_display_type_lookup}
 {/if}
 {if ($list[i].rek_title)}
 %B {$list[i].rek_title}
-
 {/if}
 {if ($list[i].rek_conference_location)}
 %C {$list[i].rek_conference_location}
-
+{/if}
+{if ($list[i].rek_isbn)}
+%@ {$list[i].rek_isbn}
 {/if}
 {if ($list[i].rek_date)}
 %D {$list[i].rek_date}
@@ -277,15 +301,12 @@
 {/foreach}
 {if ($list[i].rek_language)}
 %G {$list[i].rek_language[0]}
-
 {/if}
 {if ($list[i].rek_publisher)}
-%I {$list[i].rek_publisher[0]}
-
+%I {$list[i].rek_publisher}
 {/if}
 {if ($list[i].rek_notes)}
 %Z {$list[i].rek_notes}
-
 {/if}
 {foreach from=$list[i].rek_keywords item=keyword}
 %K {$keyword}
@@ -299,8 +320,15 @@
 {if ($list[i].rek_description)}
 %X {$list[i].rek_description}
 {/if}
+{foreach from=$list[i].rek_link item=link}
+{if ($link|stristr:"doi")}
+%R  {$link|parse_url:5}
 {/if}
+{/foreach}
+%U {$smarty.const.APP_BASE_URL}view/{$list[i].rek_pid}
+%~ {$app_name}
 
+{/if}
 {/section}
 
 {*
@@ -346,7 +374,7 @@ http://www.cardiff.ac.uk/insrv/educationandtraining/guides/endnote/endnote_codes
 %A Author
 %B Secondary Title (of a Book or Conference Name)
 %C Place Published
-%D Year 
+%D Year
 %E Editor /Secondary Author
 %F Label
 %G Language
@@ -357,7 +385,7 @@ http://www.cardiff.ac.uk/insrv/educationandtraining/guides/endnote/endnote_codes
 %L Call Number
 %M Accession Number
 %N Number (Issue)
-%P Pages 
+%P Pages
 %Q Translated Title
 %R Electronic Resource Number
 %S Tertiary Title
@@ -369,7 +397,7 @@ http://www.cardiff.ac.uk/insrv/educationandtraining/guides/endnote/endnote_codes
 %Y Tertiary Author
 %Z Notes
 %0 Reference Type
-%1 Custom 1
+ Custom 1
 %2 Custom 2
 %3 Custom 3
 %4 Custom 4
