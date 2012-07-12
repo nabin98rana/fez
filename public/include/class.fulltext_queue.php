@@ -33,7 +33,7 @@ include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
 include_once(APP_INC_PATH . "class.bgp_fulltext_index.php");
 include_once(APP_INC_PATH . "class.logger.php");
 
-class FulltextQueue 
+class FulltextQueue
 {
 	// disable this to allow multiple indexer processes
 	const USE_LOCKING = true;
@@ -54,8 +54,8 @@ class FulltextQueue
 	{
 		$this->pids = array();
 	}
-	
-	public function __destruct() 
+
+	public function __destruct()
 	{
 		// $command = APP_PHP_EXEC." \"".APP_PATH."misc/process_fulltext_queue.php\"";
 		// if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Server
@@ -70,11 +70,11 @@ class FulltextQueue
 	 *
 	 * @return instance of class FulltextQueue
 	 */
-	public static function singleton() 
+	public static function singleton()
 	{
 		$db = DB_API::get();
 		$log = FezLog::get();
-		
+
 		if (!is_object(self::$instance)) {
 			self::$instance = new FulltextQueue();
 			$log->debug('self::instance not an object, storing reference to database handler');
@@ -82,7 +82,7 @@ class FulltextQueue
 			// for destruction time!
 			self::$instance->db_api = $db;
 		}
-			
+
 		return self::$instance;
 	}
 
@@ -97,7 +97,7 @@ class FulltextQueue
 	 *
 	 * @param String $pid pid of the object in the fez index
 	 */
-	public function add($pid) 
+	public function add($pid)
 	{
 		$log = FezLog::get();
 
@@ -111,10 +111,10 @@ class FulltextQueue
 	/**
 	 * @see description for add()
 	 */
-	public function remove($pid) 
+	public function remove($pid)
 	{
 		$log = FezLog::get();
-		
+
 		if (!$this->pids[$pid]) {
 			$this->pids[$pid] = FulltextQueue::ACTION_DELETE;
 		}
@@ -124,18 +124,18 @@ class FulltextQueue
 	 * Starts the background process which will process the queue.
 	 *
 	 */
-	private static function createUpdateProcess() 
+	private static function createUpdateProcess()
 	{
 		$log = FezLog::get();
-		
+
 		$bgp = new BackgroundProcess_Fulltext_Index();
 		$bgp->register(serialize(array()), APP_SYSTEM_USER_ID); // todo: maybe take something other than admin
 	}
-		
-	public static function getProcessInfo($pid='') 
+
+	public static function getProcessInfo($pid='')
 	{
 		$log = FezLog::get();
-		
+
 		if (empty($pid)) {
 			return array(
 			     'pid'   =>  getmypid(),
@@ -159,17 +159,62 @@ class FulltextQueue
 		}
 	}
 
-	public function	triggerUpdate() 
+  public function isFinishedProcessing() {
+
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    //First see if there is anything left in it
+    $size = FulltextQueue::size();
+    if ($size > 0) {
+      return false;
+    }
+
+    $stmt = "SELECT ftl_value, ftl_pid FROM ".APP_TABLE_PREFIX."fulltext_locks ".
+      "WHERE ftl_name=".$db->quote(self::LOCK_NAME_FULLTEXT_INDEX);
+
+
+    $res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
+
+    $process_id = $res['ftl_pid'];
+    $lockValue = $res['ftl_value'];
+    $acquireLock = true;
+    $log->debug("FulltextIndex::triggerUpdate got lockValue=".$lockValue.", pid=".$process_id." with ".$stmt." and ".print_r($res, true));
+
+    //If the background process hasn't kicked off yet report back as false because we can't ps check for it yet
+    if ($process_id == -2) {
+      return false;
+    }
+
+    if ($lockValue > 0 && !empty($process_id) && is_numeric($process_id)) {
+
+      // check if process is still running or if this is an invalid lock
+      $psinfo = self::getProcessInfo($process_id);
+
+      // TODO: unix, windows, ...
+      $log->debug(array("psinfo", $psinfo));
+
+      if (!empty($psinfo)) {
+        // override existing lock
+        $acquireLock = false;
+        $log->debug("overriding existing lock ".$psinfo);
+      }
+    }
+    return $acquireLock;
+
+  }
+
+	public function	triggerUpdate()
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		if (!self::USE_LOCKING) {
 			$log->debug("not using locking - starting background process directly");
 			$this->createUpdateProcess();
 			return;
 		}
-			
+
 		/**
 		 * CHECK PROCESS MUTEX
 		 * 1. Check lock state
@@ -180,7 +225,7 @@ class FulltextQueue
 		 * 6. Run process
 		 *
 		 */
-			
+
 		// start transaction
 		//$GLOBALS["db_api"]->dbh->autoCommit(false);
 
@@ -190,17 +235,17 @@ class FulltextQueue
 
 		$stmt = "SELECT ftl_value, ftl_pid FROM ".APP_TABLE_PREFIX."fulltext_locks ".
 					"WHERE ftl_name=".$db->quote(self::LOCK_NAME_FULLTEXT_INDEX);
-		
+
 		try {
 			$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
-		
+
 			$process_id = $res['ftl_pid'];
 			$lockValue = $res['ftl_value'];
 			$acquireLock = true;
 			$log->debug("FulltextIndex::triggerUpdate got lockValue=".$lockValue.", pid=".$process_id." with ".$stmt." and ".print_r($res, true));
-			
+
 			if ($lockValue > 0 && !empty($process_id) && is_numeric($process_id)) {
-				
+
 				// check if process is still running or if this is an invalid lock
 				$psinfo = self::getProcessInfo($process_id);
 
@@ -213,7 +258,7 @@ class FulltextQueue
 					$log->debug("overriding existing lock ".$psinfo);
 				}
 			}
-					
+
 			// worst case: a background process is started, but the queue already
 			// empty at this point (very fast indexer)
 			if ($acquireLock) {
@@ -221,21 +266,21 @@ class FulltextQueue
 				$log->debug("FulltextIndex::triggerUpdate acquire lock");
 
 				// delete (postgresql) / use INSERT instead of REPLACE below
-				
+
 					$sql = "DELETE FROM ".APP_TABLE_PREFIX."fulltext_locks WHERE ftl_name='";
 					$sql .= self::LOCK_NAME_FULLTEXT_INDEX."'";
 					$db->query($sql);
-					
+
 				$invalidProcessId = -2;
 				$stmt  = "INSERT INTO ".APP_TABLE_PREFIX."fulltext_locks (ftl_name,ftl_value,ftl_pid) ";
 				$stmt .= " VALUES ('".self::LOCK_NAME_FULLTEXT_INDEX."', 1, $invalidProcessId) ";
-			
+
 				$ok = true;
 				$db->query($stmt);
 				// If all succeed, commit the transaction and all changes
 			    // are committed at once.
 			    $db->commit();
-			
+
 			} else {
 				$ok = false;
 				$log->debug("FulltextIndex::triggerUpdate lock already taken by another process");
@@ -246,14 +291,14 @@ class FulltextQueue
 			$log->err($ex);
 			$ok = false;
 		}
-				
+
 			if (! $ok) {
 				// setting lock failed because another process was faster
 				//Logger::debug("FulltextQueue::triggerUpdate - lock value has been taken");
 				$log->debug("FulltextQueue::triggerUpdate - lock value has been taken");
-				
+
 			} else {
-					
+
 				// create new background update process
 				//Logger::debug("FulltextQueue::triggerUpdate create new background process!");
 				$log->debug("FulltextQueue::triggerUpdate create new background process!");
@@ -268,20 +313,20 @@ class FulltextQueue
 	 *
 	 * @return unknown
 	 */
-	public function commit() 
+	public function commit()
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		//Logger::debug("FulltextQueue::commit() commit results to database");
 		$log->debug("FulltextQueue::commit() commit results to database");
-				
+
 		if (!$this->pids || count($this->pids) == 0) {
 			$log->debug("FulltextQueue::commit() Nothing found to commit (pidcount=0)");
 			return;
 		}
 		//Logger::debug(Logger::str_r($this->pids));
-			
+
 		$pidList = array();
 		$actionList = array();
 
@@ -300,7 +345,7 @@ class FulltextQueue
       } else {
         $stmt = "REPLACE INTO ".APP_TABLE_PREFIX."fulltext_queue (ftq_pid,ftq_op) VALUES (".
         $db->quote($pid).", ".$db->quote($action).")";
-      }      
+      }
 			try {
 				$db->query($stmt);
         if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
@@ -316,20 +361,20 @@ class FulltextQueue
 			}
 			unset($this->pids[$pid]);
 		}
-			
+
 		// reset cached pids
 		$this->pids = array();
-		$this->triggerUpdate();	
+		$this->triggerUpdate();
 		return true;
 	}
-	
-	
+
+
 	/**
 	 * Cleans up the queue and removes redundant objects (I,I / D,D / D,I / I,D).
 	 * Not implemented yet.
 	 *
 	 */
-	function cleanup() 
+	function cleanup()
 	{
 		return true;
 	}
@@ -343,19 +388,19 @@ class FulltextQueue
 	 * @return null, if queue is empty or if there is an error
 	 *
 	 */
-	public function pop() 
+	public function pop()
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		// start transaction
 		//$GLOBALS['db_api']->dbh->autoCommit(false);
-			
+
 		// fetch first row
 		$stmt  = "SELECT * FROM ".APP_TABLE_PREFIX."fulltext_queue ";
 		$stmt .= "ORDER BY ftq_key ASC "; //maybe this needs to be commented out like RP did because of hte below? doubt it surely.. CK
 		$stmt = $db->limit($stmt, 1, 0);
-		
+
 		try {
 			$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
@@ -368,11 +413,11 @@ class FulltextQueue
 			$log->debug("FulltextQueue::pop() Queue is empty.");
 			return null;
 		}
-			
+
 		// delete row
 		$stmt =  "DELETE FROM ".APP_TABLE_PREFIX."fulltext_queue ";
 		$stmt .= "WHERE ftq_key=".$db->quote($res['ftq_key'], 'INTEGER');
-		
+
 		try {
 			$db->query($stmt);
 		}
@@ -380,18 +425,18 @@ class FulltextQueue
 			$log->err($ex);
 			return null;
 		}
-			
+
 		$log->debug("FulltextQueue::pop() success! ".Logger::str_r($res));
 		return $res;
 	}
 
-	public function size() 
+	public function size()
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
 
 		$stmt  = "SELECT count(*) FROM ".APP_TABLE_PREFIX."fulltext_queue ";
-		
+
 		try {
 			$res = $db->fetchOne($stmt);
 		}
@@ -402,7 +447,7 @@ class FulltextQueue
 		return $res;
 	}
 
-	public function popChunk($singleColumns) 
+	public function popChunk($singleColumns)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -410,7 +455,7 @@ class FulltextQueue
 		global $bench;
 
 		$pids = array();
-			
+
 		// fetch first row
 		if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) { //pgsql
 			$stmt  = "SELECT ftq_key, sk.rek_pid, ( '\"' ";
@@ -429,7 +474,7 @@ class FulltextQueue
 				} else {
 					$stmt .= " || IFNULL(REPLACE(TEXT(sk.".$column['name'] ."), TEXT '\"', TEXT '\"\"'),'') || '\",\"' ";
 				}
-			
+
 			} else {
 				if($column['type'] == FulltextIndex::FIELD_TYPE_DATE ) {
 					$stmt .= ",IFNULL(DATE_FORMAT(sk.".$column['name'] .",'%Y-%m-%dT%H:%i:%sZ'),'') ";
@@ -437,17 +482,17 @@ class FulltextQueue
 					$stmt .= ",IFNULL(DATE_FORMAT(sk.".$column['name'] .",'%Y'),'') ";
 				} else {
 					$stmt .= ",IFNULL(REPLACE(sk.".$column['name'] .",'\"','\"\"'),'') ";
-				}		
-			}	 
+				}
+			}
 		}
-		if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) { //pgsql	
+		if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) { //pgsql
 			$stmt = rtrim($stmt, " || '\",\"' ");
 			$stmt = str_replace("SELECT ftq_key, sk.rek_pid, ( ,", "SELECT ftq_key, sk.rek_pid, ( ", $stmt);
 		} else {
 			$stmt .= ")";
 		}
-		
-		
+
+
 		// MT 20100317 - modified order by clause from pid ASC to key DESC so that we have a last-in-first-out order on the queue
 		$stmt .= ") as row FROM ".APP_TABLE_PREFIX."fulltext_queue
 			             INNER JOIN ".APP_TABLE_PREFIX."record_search_key as sk ON rek_pid = ftq_pid
@@ -461,7 +506,7 @@ class FulltextQueue
 			$log->err($ex);
 			return false;
 		}
-			
+
 		if (count($res) == 0) {
 			$log->debug("FulltextQueue::pop() Queue is empty.");
 			return false;
@@ -470,11 +515,11 @@ class FulltextQueue
 		foreach ( $res as $row ) {
 			$keys[] = $row['ftq_key'];
 		}
-						
+
 		// delete chunk from queue
 		$stmt =  "DELETE FROM ".APP_TABLE_PREFIX."fulltext_queue ";
 		$stmt .= "WHERE ftq_key IN (".Misc::arrayToSQLBindStr($keys).")";
-		
+
 		try {
 			$db->query($stmt, $keys);
 		}
@@ -485,15 +530,15 @@ class FulltextQueue
 		return $res;
 	}
 
-	function popDeleteChunk() 
+	function popDeleteChunk()
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "  SELECT *
-		              FROM ".APP_TABLE_PREFIX."fulltext_queue 
+		              FROM ".APP_TABLE_PREFIX."fulltext_queue
 		              WHERE ftq_op = ".$db->quote(FulltextQueue::ACTION_DELETE);
-		
+
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
@@ -512,7 +557,7 @@ class FulltextQueue
 			$keys[] = $row['ftq_key'];
 			$pids[] = $row['ftq_pid'];
 		}
-			
+
 		// delete chunk from queue
 		$stmt =  "DELETE FROM ".APP_TABLE_PREFIX."fulltext_queue ";
 		$stmt .= "WHERE ftq_key IN (".Misc::arrayToSQLBindStr($keys).")";
@@ -522,10 +567,10 @@ class FulltextQueue
 		catch(Exception $ex) {
 			$log->err($ex);
 		}
-			
+
 		return $pids;
 	}
-	
+
 	/**
 	 * Gets a count of the number of times this pid has been queued in the full text queue
 	 *
@@ -536,7 +581,7 @@ class FulltextQueue
 		$log = FezLog::get();
 		$db = DB_API::get();
 		$prefix = APP_TABLE_PREFIX;
-		
+
 		$q = "SELECT ftq_key AS ftqId, ftq_pid AS pid, ftq_op AS operation FROM {$prefix}fulltext_queue WHERE ftq_pid = ?";
 		$details = $db->fetchAll($q, $pid);
 		return $details;

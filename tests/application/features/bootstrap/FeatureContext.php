@@ -22,6 +22,7 @@ use Behat\MinkExtension\Context\MinkContext;
 require_once 'LoginHelper.php';
 require_once ('../../public/config.inc.php');
 require_once(APP_INC_PATH . 'class.auth.php');
+require_once(APP_INC_PATH . 'class.fulltext_queue.php');
 
 
 /**
@@ -131,6 +132,29 @@ class FeatureContext extends MinkContext
 
     return;
   }
+
+
+
+  /**
+   * Wait until the solr queue is empty and the solr processing has finished
+   *
+   * @Then /^(?:|I )wait for solr$/
+   */
+  public function waitForSolr()
+  {
+    if (APP_SOLR_INDEXER == "ON") {
+      for ($x = 0; $x<30; $x++) {
+        $finished = FulltextQueue::isFinishedProcessing();
+        if ($finished == true) {
+          return;
+        }
+        sleep(1);
+      }
+    }
+    return;
+  }
+
+
 
   /**
      * Wait a specified number of seconds
