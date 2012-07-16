@@ -66,7 +66,7 @@ class ResearcherID
   }
 
   /**
-   * Checks whether it is safe or not to run the check rid downlod/process 
+   * Checks whether it is safe or not to run the check rid downlod/process
    * download script.
    *
    * @return  boolean
@@ -76,20 +76,20 @@ class ResearcherID
     $safe_to_run = false;
     $pid = ResearcherID::getProcessID();
     $pid_file = ResearcherID::getProcessFilename();
-    
+
     // Check for the process file, and also check that it has not been
-    // orphaned by a previous script crash - this is based on the  
+    // orphaned by a previous script crash - this is based on the
     // assumption that if it was last modified over 24 hours ago the
-    // previous script probably died 
-    if ($pid && (filemtime($pid_file) >= (time() - 86400))) {      
-      $safe_to_run = false;    
+    // previous script probably died
+    if ($pid && (filemtime($pid_file) >= (time() - 86400))) {
+      $safe_to_run = false;
     } else {
       // create the pid file and say it's safe to run
       $fp = @fopen($pid_file, 'w');
       @fwrite($fp, getmypid());
       @fclose($fp);
       $safe_to_run = true;
-    }    
+    }
     return $safe_to_run;
   }
 
@@ -97,15 +97,15 @@ class ResearcherID
    * Returns the process ID of the script from a file
    *
    * @param $pid_file The file containing the process ID
-   * 
+   *
    * @return  integer The process ID of the script
    */
   public static function getProcessID()
   {
     $pid = false;
     $pid_file = ResearcherID::getProcessFilename();
-    
-    if (@file_exists($pid_file)) {      
+
+    if (@file_exists($pid_file)) {
       $pid = trim(implode('', file($pid_file)));
     }
     return $pid;
@@ -125,11 +125,11 @@ class ResearcherID
    * Method used to request a ResearcherID download.
    *
    * @access  public
-   * @param   array  $ids              An array of employee/researcher IDs to 
+   * @param   array  $ids              An array of employee/researcher IDs to
    *                                   request data for.
-   * @param   string $researchers_type The type of IDs being used. May be one of 
+   * @param   string $researchers_type The type of IDs being used. May be one of
    *                                   either 'researcherIDs' or 'employeeIDs'.
-   * @return  string                   The job ticket number if the request is 
+   * @return  string                   The job ticket number if the request is
    *                                   successful, otherwise false.
    */
   public static function downloadRequest($ids, $researchers_id_type, $researcher_id_type)
@@ -262,14 +262,14 @@ class ResearcherID
 
         $xml_request_data = new DOMDocument();
         $xml_request_data->loadXML($request_data);
-        
+
         // Validate against schema
         if (!@$xml_request_data->schemaValidate(RID_UL_SERVICE_PROFILES_XSD)) {
             // Not valid
             $log->err(array('XML request data does not validate against schema.', __FILE__, __LINE__, $request_data));
             return false;
         }
-        
+
         $tpl = new Template_API();
         $tpl_file = "researcher_upload_request.tpl.html";
         $tpl->setTemplate($tpl_file);
@@ -289,16 +289,16 @@ class ResearcherID
         if (!$response['success']){
             ResearcherID::_notifyErrorToUser($responseAll, $list['list'][0]);
         }
-        
-        // Save all response to the database TABLE_PREFIXrid_registrations.rre_response 
+
+        // Save all response to the database TABLE_PREFIXrid_registrations.rre_response
         ResearcherID::saveProfileUploadResponse($aut_id, $responseAll);
         return true;
     }
-    
-    
+
+
     /**
      * Send email to Author when there is an error with the RID profile upload.
-     * 
+     *
      * @param string $response Response of web service request.
      * @param array $author An array of author details.
      * @return boolean Always return true.
@@ -308,23 +308,23 @@ class ResearcherID
         $emailBody = "There is an error occurred on your Author Registration to Researcher ID. <br />" . chr(10) .
                      "Author: " . $author['aut_fname'] . " " . $author['aut_lname'] . "<br />" . chr(10) .
                      "The response is: " . $response;
-        
+
         // Send email to the queue
         $mail = new Mail_API;
         $mail->setTextBody(stripslashes($emailBody));
 
         $subject = "There is an error occurred on your Author Registration to Researcher ID.";
         $from = APP_EMAIL_SYSTEM_FROM_ADDRESS;
-        
+
         $to = Auth::getUserEmail();
-        
+
         $mail->send($from, $to, $subject, false);
 
-        return true;        
+        return true;
     }
-    
-    
-    
+
+
+
   /**
    * Method used to perform a ResearcherID profile upload.
    *
@@ -345,7 +345,7 @@ class ResearcherID
 
     foreach ($ids as $id) {
       $list = ResearcherID::listAllRecordsByAuthorID($id, '', 'Created Date', array(), true);
-       
+
       if (count($list['list']) > 0) {
         $tpl = new Template_API();
         $tpl_file = "researcher_publications_upload.tpl.html";
@@ -380,7 +380,7 @@ class ResearcherID
           // Do the service request
           $response_document = new DOMDocument();
           $response_document = ResearcherID::doServiceRequest($xml_api_data_request->saveXML());
-          
+
           if (! $response_document) {
             return false;
           } else {
@@ -523,7 +523,7 @@ class ResearcherID
 
 
     /**
-     * Method used to check on the status of all ResearcherID download request jobs 
+     * Method used to check on the status of all ResearcherID download request jobs
      * currently are not 'DONE' and not 'EXPIRED'.
      *
      * @access  public
@@ -560,31 +560,31 @@ class ResearcherID
         }
     }
 
-    
+
     /**
      * Indicates whether a job has/has not expired.
-     * 
+     *
      * @param array $job A rid_jobs record
-     * @return boolean True if job has been expired, false otherwise. 
+     * @return boolean True if job has been expired, false otherwise.
      */
     protected static function isJobExpired($timeStarted)
     {
         $duration = 48 * 60 * 60; // 48 hours
         $expiredtime = date('Y-m-d H:i:s', strtotime($timeStarted) + $duration);
-        
+
         if (date('Y-m-d H:i:s') >= $expiredtime) {
             return true;
         }
         return false;
     }
-  
-    
+
+
     /**
-     * Sets expiry on a RID Job, 
+     * Sets expiry on a RID Job,
      * so it will be excluded from status checking to ResearcherID.
-     * 
+     *
      * @param array $job A rid_job record
-     * @return boolean True when db record successfully updated, false otherwise. 
+     * @return boolean True when db record successfully updated, false otherwise.
      */
     protected static function setJobToExpired($job)
     {
@@ -594,7 +594,7 @@ class ResearcherID
         $stmt = "UPDATE " . APP_TABLE_PREFIX . "rid_jobs " .
                 " SET rij_status = 'EXPIRED' " .
                 " WHERE rij_id = " . $db->quote($job['rij_id'], 'INTEGER');
-        
+
         try {
             $db->exec($stmt);
         }
@@ -604,8 +604,8 @@ class ResearcherID
         }
         return true;
     }
-    
-  
+
+
   /**
    * Method used to get a list of routed email file names
    *
@@ -618,7 +618,7 @@ class ResearcherID
     $db = DB_API::get();
 
     $emails = array();
-     
+
     if ($handle = opendir($dir)) {
       while (false !== ($file = readdir($handle))) {
         if (! (is_dir($dir.$file) || $file == '.' ||  $file == '..') )
@@ -676,14 +676,14 @@ class ResearcherID
       if ($job_status) {
         if ($job_status == 'DONE') {
           $responseXML = ResearcherID::processDownloadResponse($response_document);
-            
+
           if ($responseXML !== false) {
             return ResearcherID::updateJobStatus($ticket_number, $job_status, $response_document->saveXML(), $responseXML);
-          } else {            
+          } else {
             return false;
           }
         } else {
-          return ResearcherID::updateJobStatus($ticket_number, $job_status, $response_document->saveXML());          
+          return ResearcherID::updateJobStatus($ticket_number, $job_status, $response_document->saveXML());
         }
 
       } else {
@@ -735,7 +735,7 @@ class ResearcherID
           case 'profile':
 //            $result = ResearcherID::processDownloadedProfiles($url);
             $profileXML = ResearcherID::processDownloadedProfiles($url);
-            $profileLink = $url;  
+            $profileLink = $url;
             break;
           case 'publication':
 //            $result = ResearcherID::processDownloadedPublications($url);
@@ -743,20 +743,20 @@ class ResearcherID
             $publicationsLink = $url;
             break;
         }
-        
+
         if ($publicationsXML !== false && $profileXML !== false){
             $result = true;
         }
-        
+
         $return = (! $return) ? false: $result; // ignore result if we have already had a previous fail
         // which will ensure this job is processed again
       }
     }
-    
+
     if ($return === true){
         $return = array('profileXML' => $profileXML, 'profileLink' => $profileLink, 'publicationsXML' => $publicationsXML, 'publicationsLink' => $publicationsLink);
     }
-    
+
     return $return;
   }
 
@@ -778,7 +778,7 @@ class ResearcherID
       $log->err("wasn't able to pull down RID Profile url $url:".print_r($urlData, true));
       return false;
     }
-    
+
     return $profile;
   }
 
@@ -830,7 +830,10 @@ class ResearcherID
 
       if ($rp->records->count() > 0 && $author_id != null) {
         foreach ($rp->records->record as $record) {
-          ResearcherID::addPublication($record, $author_id, $researcherid);
+          // Only add the publication if it is not a suggested publication - so only add confirmed pubs
+          if (!isset($record->{'suggested-status'})) {
+            ResearcherID::addPublication($record, $author_id, $researcherid);
+          }
         }
       } else {
         $aut_details = Author::getDetails($author_id);
@@ -843,24 +846,24 @@ class ResearcherID
 
     return $publications;
   }
-  
+
   /**
    * Adds a downloaded publication to the repository
    *
    * @param The $record
-   * @param int $author_id 
-   * @param string $researcherid Optionally specify which ResearcherID account the pub was downloaded from 
+   * @param int $author_id
+   * @param string $researcherid Optionally specify which ResearcherID account the pub was downloaded from
    * @return bool
    */
   private static function addPublication($record, $author_id = false, $researcherid = false)
   {
     $log = FezLog::get();
     $db = DB_API::get();
-    
+
 //    return TRUE; // TODO: disabled until wok queue finalised
 
     $collection = RID_DL_COLLECTION;
-    
+
     if (Fedora_API::objectExists($collection)) {
       $aut = @preg_split('/:/', $record->{'accession-num'});
       // Download from WOS collection only
@@ -895,7 +898,7 @@ class ResearcherID
                     rij_status,
                     rij_count,
                     rij_downloadrequest,
-                    rij_lastresponse,                    
+                    rij_lastresponse,
                     rij_timestarted,
                     rij_timefinished
                  ) VALUES (
@@ -907,7 +910,7 @@ class ResearcherID
                     " . $db->quote($request) . ",
                     " . $db->quote($response) . ",
                     " . $db->quote(Date_API::getCurrentDateGMT()) . ",
-                    null                    
+                    null
                  )";
     try {
       $db->exec($stmt);
@@ -921,7 +924,7 @@ class ResearcherID
 
 
   /**
-   * Method used to update XML content of an existing job. 
+   * Method used to update XML content of an existing job.
    * it is used for existing DONE jobs that do not have XML content saved, due to updates on updateJobStatus() method.
    *
    * @access  public
@@ -934,7 +937,7 @@ class ResearcherID
     $db = DB_API::get();
 
     $stmtUpdate = array();
-    
+
     if (isset($responseXML['profileLink'])){
         $stmtUpdate[] = "rij_response_profilelink = " . $db->quote($responseXML['profileLink']);
     }
@@ -947,16 +950,16 @@ class ResearcherID
     if (isset($responseXML['publicationsXML'])){
         $stmtUpdate[] = "rij_response_publicationsxml = " . $db->quote($responseXML['publicationsXML']);
     }
-    
+
     if (sizeof($stmtUpdate)==0 ){
         return false;
     }
-    
+
     $stmt = " UPDATE
                     " . APP_TABLE_PREFIX . "rid_jobs
-              SET 
-                    " . implode(", ", $stmtUpdate) . 
-            " WHERE 
+              SET
+                    " . implode(", ", $stmtUpdate) .
+            " WHERE
                      rij_ticketno = " . $db->quote($ticket_number);
     try {
       $db->exec($stmt);
@@ -968,7 +971,7 @@ class ResearcherID
 
     return true;
   }
-  
+
   /**
    * Method used to update an existing job.
    *
@@ -987,14 +990,14 @@ class ResearcherID
     }
     $stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "rid_jobs
-                    SET 
+                    SET
                      rij_lastcheck = " . $db->quote(Date_API::getCurrentDateGMT()) . ",
                      rij_status = " . $db->quote($job_status) . ",
-                     rij_count = (SELECT rij_count FROM (SELECT * FROM " . APP_TABLE_PREFIX . 
+                     rij_count = (SELECT rij_count FROM (SELECT * FROM " . APP_TABLE_PREFIX .
                      "rid_jobs) AS x WHERE rij_ticketno = " . $db->quote($ticket_number) . ")+1 ".",
-                     rij_lastresponse =  ". $db->quote($response) .   
+                     rij_lastresponse =  ". $db->quote($response) .
                      $finished . " ";
-    
+
     if (isset($responseXML['profileLink'])){
         $stmt .= ", rij_response_profilelink = " . $db->quote($responseXML['profileLink']);
     }
@@ -1007,8 +1010,8 @@ class ResearcherID
     if (isset($responseXML['publicationsXML'])){
         $stmt .= ", rij_response_publicationsxml = " . $db->quote($responseXML['publicationsXML']);
     }
-    
-    $stmt .= " WHERE 
+
+    $stmt .= " WHERE
                      rij_ticketno = " . $db->quote($ticket_number);
     try {
       $db->exec($stmt);
@@ -1020,7 +1023,7 @@ class ResearcherID
 
     return true;
   }
-  
+
   /**
    * Method used to remove an existing job.
    *
@@ -1032,8 +1035,8 @@ class ResearcherID
   {
     $log = FezLog::get();
     $db = DB_API::get();
-    
-    $stmt = "DELETE FROM " . APP_TABLE_PREFIX . 
+
+    $stmt = "DELETE FROM " . APP_TABLE_PREFIX .
               "rid_jobs WHERE rij_ticketno = ".
               $db->quote($ticket_number);
     try {
@@ -1047,34 +1050,34 @@ class ResearcherID
     return true;
   }
 
-  
+
     /**
      * Saves the response received from ResearcherID Profile Upload service request.
      * Data saved on this method are: Author ID, XML response, timestamp of insert query.
-     * 
+     *
      * @param int $aut_id Author ID
      * @param DOMDocument $response_document XML response of RID the web service request.
-     * @return boolean True when query is successful, otherwise returns False. 
+     * @return boolean True when query is successful, otherwise returns False.
      */
     public function saveProfileUploadResponse($aut_id = 0, $response_document = null)
     {
         if (is_null($response_document) || empty($response_document)) {
             return false;
         }
-        
+
         $log = FezLog::get();
         $db = DB_API::get();
 
-        
-        $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "rid_registrations 
-                    (rre_aut_id, rre_response, rre_created_date, rre_updated_date) 
-                 VALUES 
-                    (". $db->quote($aut_id, 'INT') .", ". 
+
+        $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "rid_registrations
+                    (rre_aut_id, rre_response, rre_created_date, rre_updated_date)
+                 VALUES
+                    (". $db->quote($aut_id, 'INT') .", ".
                         $db->quote($response_document, 'STRING')  . ", ".
                         $db->quote(Date_API::getCurrentDateGMT()) . ", ".
-                        $db->quote(Date_API::getCurrentDateGMT()) . 
+                        $db->quote(Date_API::getCurrentDateGMT()) .
                     ")";
-        
+
         try {
           $res = $db->query($stmt);
         }
@@ -1082,20 +1085,20 @@ class ResearcherID
           $log->err($ex);
           return false;
         }
-        
+
         return true;
     }
-    
-    
+
+
     /**
      * Saves email content of the ResearcherID Upload Status Report and
      * the content retrieved from the URL provided on the email.
      * Updates the record when id exists, otherwise inserts as a new record.
-     * 
+     *
      * @param array $data An array of the data to be saved on to rid_profile_uploads table
      * @param int $id Primary key of a rid_profile_uploads record
      *
-     * @return boolean True when query is successful, otherwise returns False. 
+     * @return boolean True when query is successful, otherwise returns False.
      */
     public function saveProfileUploadReport($data = array(), $id = null)
     {
@@ -1180,7 +1183,7 @@ class ResearcherID
         if (empty($id)){
             return false;
         }
-        
+
         $db  = DB_API::get();
         $log = FezLog::get();
 
@@ -1346,13 +1349,13 @@ class ResearcherID
         $types = array('successfully-uploaded', 'failed-to-upload', 'existing-researchers');
         return $types;
     }
-    
-  
+
+
     /**
      * Retrieves Profile & Publication links from XML responses of RID Download Requests.
-     * 
-     * @param array $jobs Array of download requests jobs 
-     * @return array Array of jobs with profile & publication links 
+     *
+     * @param array $jobs Array of download requests jobs
+     * @return array Array of jobs with profile & publication links
      */
     public static function getLinksFromLastResponse($jobs)
     {
@@ -1364,31 +1367,31 @@ class ResearcherID
             if (empty($job['rij_lastresponse']) || is_null($job['rij_lastresponse'])) {
                 continue;
             }
-            
+
             // Load XML from rij_lastresponse
             $response = DOMDocument::loadXML($job['rij_lastresponse']);
-            
+
             // Get the XML Node with Response attribute
             $xpath = new DOMXPath($response);
             $xpath->registerNamespace('rid', 'http://www.isinet.com/xrpc41');
             $query = "/rid:response/rid:fn[@name='AuthorResearch.getDownloadStatus']/rid:map/rid:val[@name='Response']";
             $elements = $xpath->query($query);
-            
+
             if (is_null($elements)) {
                 continue;
             }
-            
+
             foreach ($elements as $element) {
                 $nodes = $element->childNodes;
                 foreach ($nodes as $node) {
                   $download_response = $node->nodeValue;
                 }
             }
-            
+
             if (is_null($download_response) || empty($download_response)){
                 continue;
             }
-            
+
             // Load XML from the Response which is in string CDATA format,
             // and get the URLs contain in the response XML
             $xml_dl_response = new SimpleXMLElement($download_response);
@@ -1410,46 +1413,46 @@ class ResearcherID
         return $jobs;
     }
 
-    
+
     /**
      * Delete the Profile & Publications XML Content from RID jobs that are older than a specific period of time.
-     * 
+     *
      * @return boolean True when query is successful, false otherwise.
      */
     public static function cleanJobsXMLContent()
     {
         $db = DB_API::get();
         $log = FezLog::get();
-        
+
         // Time range = 14 days ago
         $timerange = date('Y-m-d', mktime(0, 0, 0, date('m'), date('d')-14, date('Y')));
         $search = array('key'=>'clean_rid_jobs', 'val' => $timerange);
-        
+
         $sort = array('by' => 'rij_timefinished', 'order' => 'desc');
-        $max = 500; // This number should be reasonable large 
+        $max = 500; // This number should be reasonable large
 
         // Get the records that have xml content AND older than 2 weeks
         $jobs = ResearcherID::getJobs(0, $max, $sort, $search);
-        
+
         // Save date on GMT timezone
         $timecleaned = Date_API::getCurrentDateGMT();
-        
+
         $clean_stmt = "";
-        
+
         foreach ($jobs['list'] as $job){
             if (!isset($job['rij_id']) || empty($job['rij_id'])){
                 continue;
             }
             // Query to empty XML content
-            $clean_stmt[] = "UPDATE " . APP_TABLE_PREFIX . "rid_jobs 
-                                SET rij_response_profilexml = '', 
+            $clean_stmt[] = "UPDATE " . APP_TABLE_PREFIX . "rid_jobs
+                                SET rij_response_profilexml = '',
                                     rij_response_publicationsxml = '',
                                     rij_time_xmlcleaned = ". $db->quote($timecleaned, 'DATE') ."
                                 WHERE rij_id = ". $db->quote($job['rij_id'], 'INTEGER').";";
         }
-        
+
         $stmt = implode(" ", $clean_stmt);
-        
+
         try {
             $db->exec($stmt);
         }
@@ -1463,23 +1466,23 @@ class ResearcherID
 
     /**
      * Generate the WHERE statement for get RID Jobs query.
-     * 
+     *
      * @param array $search The search key & value pairs.
-     * @return array Generated WHERE statement 
+     * @return array Generated WHERE statement
      */
     private static function buildJobsQueryFilter($search = null)
     {
         $db = DB_API::get();
-        
+
         $where_stmt = array();
         if (is_null($search) || !isset($search['key']) || !isset($search['val'])) {
             return $where_stmt;
         }
-        
+
         switch ($search['key']){
             // Special filtering: filter based on Profile & Publications XML content.
             case 'rid':
-                $where_stmt[] = "( 
+                $where_stmt[] = "(
                                  rij_response_profilexml LIKE ".$db->quote('%<researcherID>'. $search['val'] .'%').
                                  " OR ".
                                  " rij_response_publicationsxml LIKE ".$db->quote('%<researcherID>'. $search['val'] .'%').
@@ -1502,22 +1505,22 @@ class ResearcherID
                 break;
             // Special filtering: filter jobs that store Profile & Publications response XML and older than a specific period of time.
             case 'clean_rid_jobs':
-                $where_stmt[] = " rij_timefinished >= ". $db->quote($search['val'], 'DATE') ." AND 
-                                  ( rij_response_profilexml IS NOT NULL OR 
+                $where_stmt[] = " rij_timefinished >= ". $db->quote($search['val'], 'DATE') ." AND
+                                  ( rij_response_profilexml IS NOT NULL OR
                                     rij_response_publicationsxml IS NOT NULL
-                                  )"; 
+                                  )";
                 break;
             default:
                 $where_stmt[] = $db->quoteIdentifier($search['key']) . " = " . $db->quote($search['val'], 'STRING') . " ";
         }
         return $where_stmt;
     }
-    
-    
+
+
     /**
-     * Method used to get ResearcherID download request jobs from database, 
+     * Method used to get ResearcherID download request jobs from database,
      * with sort by & record filtering set by parameter, if any
-     * 
+     *
      * @param int $current_row Current page
      * @param int $max Maximum number of records per page
      * @param array $sort Array of sort by and sort order
@@ -1528,7 +1531,7 @@ class ResearcherID
     {
         $log = FezLog::get();
         $db = DB_API::get();
-        
+
         // Where statement
         $where_operator = " AND ";
         $where_stmt = ResearcherID::buildJobsQueryFilter($search);
@@ -1547,11 +1550,11 @@ class ResearcherID
                     SQL_CALC_FOUND_ROWS  *
                  FROM
                     " . APP_TABLE_PREFIX . "rid_jobs ";
-        
+
         if ( is_array($where_stmt) && sizeof($where_stmt)>0 ){
             $stmt .= " WHERE " . implode($where_operator, $where_stmt);
         }
-        
+
         $stmt .= " " . $sort_stmt . "
                  LIMIT " . $db->quote($max, 'INTEGER') . " OFFSET " . $db->quote($start, 'INTEGER');
 
@@ -1593,7 +1596,7 @@ class ResearcherID
         // Retrieve links from lastResponse XML
         $res = ResearcherID::getLinksFromLastResponse($res);
 
-        // Convert value of datetime/timestamp fields with user's preferred timezone. 
+        // Convert value of datetime/timestamp fields with user's preferred timezone.
         // Note: datetime/timestamp fields are saved on GMT timezone.
         $timezone = Date_API::getPreferredTimezone();
         foreach ($res as $key => $row) {
@@ -1617,14 +1620,14 @@ class ResearcherID
 
         return $output;
     }
-    
-    
+
+
     /**
-     * Formats datetime/timestamp value of a RID Job with user's preferred timezone. 
-     * 
+     * Formats datetime/timestamp value of a RID Job with user's preferred timezone.
+     *
      * @param array $job A rid_job record
      * @param string $timezone
-     * @return array An array of formatted datetime/timestamp. 
+     * @return array An array of formatted datetime/timestamp.
      */
     protected static function setJobFormattedDates($job, $timezone)
     {
@@ -1647,12 +1650,12 @@ class ResearcherID
         }
         return $job;
     }
-    
-    
-    
+
+
+
     /**
      * Method used to get ResearcherID profile uploads responses.
-     * 
+     *
      * @param int $current_row Current page
      * @param int $max Maximum number of records per page
      * @param array $sort Array of sort by and sort order
@@ -1718,7 +1721,7 @@ class ResearcherID
         $total_pages = ceil($total_rows / $max);
         $last_page = $total_pages - 1;
 
-        // Get formatted date value for datetime/timestamp fields with user's preferred timezone. 
+        // Get formatted date value for datetime/timestamp fields with user's preferred timezone.
         // Note: datetime/timestamp fields are saved on GMT timezone.
         $timezone = Date_API::getPreferredTimezone();
         foreach ($res as $key => $row) {
@@ -1744,7 +1747,7 @@ class ResearcherID
         return $output;
     }
 
-    
+
   /**
    * Method used to perform a service request
    *
@@ -1788,7 +1791,7 @@ class ResearcherID
     /**
      * Method used to perform request to Researcher ID web service using cURL.
      * This is a similar method from the doServiceRequest with debugging information.
-     * 
+     *
      * @param string $xmlData Data to POST to the service
      * @return array An array containing full information of the transfer and success status.
      */
@@ -1818,7 +1821,7 @@ class ResearcherID
         $result['response']     = curl_exec($ch);
         $result['curl_info']    = curl_getinfo($ch);
         $result['curl_error']   = curl_errno($ch);
-        
+
         // Hide password
         $items = $xmlData->getElementsByTagName("val");
         foreach ($items as $item){
@@ -1828,11 +1831,11 @@ class ResearcherID
             }
         }
         $result['requestdata_to_rid'] = $xmlData->saveXML();
-        
+
         // Check if the HTTP code started with 4 or 5, which indicates error.
         $pattern = "/^4|^5/";
         $errorHttpCode = preg_match($pattern, $result['curl_info']['http_code']);
-        
+
         // Set failed status condition
         if (empty($result['response']) || $result['curl_error'] || $errorHttpCode == 1 ){
             $result['success'] = 0;
@@ -1841,11 +1844,11 @@ class ResearcherID
 
         // Close cURL session
         curl_close($ch);
-        
+
         return $result;
     }
 
-  
+
   /**
    * Method used to get the list of records publicly available in the
    * system.
@@ -1887,13 +1890,13 @@ class ResearcherID
     if ($requireIsiLoc) {
       $filter["manualFilter"] = " (isi_loc_t_s:[* TO *]) "; // require Isi Loc
     }
-    
+
     $listing = Record::getListing($options, array(9, 10), $current_row, $max, $order_by, false, false, $filter);
-      
+
     if (is_array($listing['list'])) {
       for ($i=0; $i<count($listing['list']); $i++) {
         $record = $listing['list'][$i];
-          
+
         // Get the ref-type based on this record's display type
         /*if ( !empty($record['rek_display_type']) ) {
           $record['rek_ref_type'] = ResearcherID::getDocTypeByDisplayType($record['rek_display_type']);
@@ -1906,16 +1909,16 @@ class ResearcherID
         } else {
           $record['rek_ref_type'] = '';
         }
-          
+
         if ( is_array($record['rek_isi_loc']) ) {
           $record['rek_isi_loc'] = $record['rek_isi_loc'][0];
         }
-                
+
         // Replace double quotes with double double quotes
         if ( !empty($record['rek_title']) ) {
           $record['rek_title'] = str_replace('"', '""', $record['rek_title']);
         }
-          
+
         // Set the secondary title from the book title if one exists
         if ( !empty($record['rek_book_title']) ) {
           $record['rek_secondary_title'] = $record['rek_book_title'];
@@ -1935,22 +1938,22 @@ class ResearcherID
         if ( !empty($record['rek_secondary_title']) ) {
           $record['rek_secondary_title'] = str_replace('"', '""', $record['rek_secondary_title']);
         }
-          
+
         // Get the Digital Object Identifier (DOI) for the publication if one exists in rek_link
         if ( is_array($record['rek_link']) ) {
-          for ($j=0; $j<count($record['rek_link']); $j++) {              
+          for ($j=0; $j<count($record['rek_link']); $j++) {
             if (preg_match('/^http:\/\/dx\.doi\.org\/(.*)$/i', $record['rek_link'][$j], $matches)) {
               $record['rek_electronic_resource_num'] = $matches[1];
             }
           }
         }
-          
+
         // Set end page to be the start page, if only start page exists
         if ((!empty($list['rek_start_page'])) && empty($list['rek_end_page'])) {
           $list['rek_end_page'] = $list['rek_start_page'];
 //          unset($list['rek_start_page']);
         }
-          
+
         // Get the author details where an rek_author_id array is specified
         if (is_array($record['rek_author_id'])) {
           $record['rek_author_id_details'] = array();
@@ -1958,7 +1961,7 @@ class ResearcherID
             $record['rek_author_id_details'][] = Author::getDetails($record['rek_author_id'][$j]);
           }
         }
-          
+
         // We need at least one author and a title and the ref type
         if ( (! (is_array($record['rek_author_id_details'])
             && is_array($record['rek_author'])))
@@ -2006,7 +2009,7 @@ class ResearcherID
       return $res;
     }
   }
-  
-  
-  
+
+
+
 }
