@@ -166,9 +166,6 @@ class FulltextQueue
 
     //First see if there is anything left in it
     $size = FulltextQueue::size();
-    if ($size > 0) {
-      return false;
-    }
 
     $stmt = "SELECT ftl_value, ftl_pid FROM ".APP_TABLE_PREFIX."fulltext_locks ".
       "WHERE ftl_name=".$db->quote(self::LOCK_NAME_FULLTEXT_INDEX);
@@ -199,6 +196,9 @@ class FulltextQueue
         $acquireLock = false;
         $log->debug("overriding existing lock ".$psinfo);
       }
+    } elseif ($size > 0) { // if there is no running process and there is stuff in the queue, trigger an update
+      $acquireLock = false;
+      FulltextQueue::triggerUpdate();
     }
     return $acquireLock;
 

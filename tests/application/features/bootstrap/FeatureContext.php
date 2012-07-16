@@ -134,11 +134,53 @@ class FeatureContext extends MinkContext
   }
 
 
+  /**
+   * Wait until the solr queue is empty and the solr processing has finished
+   *
+   * @AfterStep
+   *
+   */
+  public function waitForSolrAfter()
+  {
+    if (APP_SOLR_INDEXER == "ON") {
+      for ($x = 0; $x<30; $x++) {
+        $finished = FulltextQueue::isFinishedProcessing();
+        if ($finished == true) {
+          return;
+        }
+        sleep(1);
+      }
+    }
+    return;
+  }
+
+  /**
+   * Wait until the solr queue is empty and the solr processing has finished
+   *
+   * @BeforeStep
+   *
+   */
+  public function waitForSolrBefore()
+  {
+    if (APP_SOLR_INDEXER == "ON") {
+      for ($x = 0; $x<30; $x++) {
+        $finished = FulltextQueue::isFinishedProcessing();
+        if ($finished == true) {
+          return;
+        }
+        sleep(1);
+      }
+    }
+    return;
+  }
+
+
 
   /**
    * Wait until the solr queue is empty and the solr processing has finished
    *
    * @Then /^(?:|I )wait for solr$/
+   *
    */
   public function waitForSolr()
   {
