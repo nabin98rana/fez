@@ -55,7 +55,7 @@
 {/if}
 {foreach from=$list[i].rek_link item=link}
 {if ($link|stristr:"doi")}
-%R  {$link|parse_url:5}
+%R {$smarty.const.APP_LINK_PREFIX|str_replace:"":$link|parse_url:5}
 {/if}
 {/foreach}
 %U {$smarty.const.APP_BASE_URL}view/{$list[i].rek_pid}
@@ -115,7 +115,7 @@
 {/if}
 {foreach from=$list[i].rek_link item=link}
 {if ($link|stristr:"doi")}
-%R  {$link|parse_url:5}
+%R {$smarty.const.APP_LINK_PREFIX|str_replace:"":$link|parse_url:5}
 {/if}
 {/foreach}
 %U {$smarty.const.APP_BASE_URL}view/{$list[i].rek_pid}
@@ -175,7 +175,7 @@
 {/if}
 {foreach from=$list[i].rek_link item=link}
 {if ($link|stristr:"doi")}
-%R  {$link|parse_url:5}
+%R {$smarty.const.APP_LINK_PREFIX|str_replace:"":$link|parse_url:5}
 {/if}
 {/foreach}
 %U {$smarty.const.APP_BASE_URL}view/{$list[i].rek_pid}
@@ -223,7 +223,7 @@
 {/if}
 {foreach from=$list[i].rek_link item=link}
 {if ($link|stristr:"doi")}
-%R  {$link|parse_url:5}
+%R {$smarty.const.APP_LINK_PREFIX|str_replace:"":$link|parse_url:5}
 {/if}
 {/foreach}
 %U {$smarty.const.APP_BASE_URL}view/{$list[i].rek_pid}
@@ -274,7 +274,7 @@
 {/if}
 {foreach from=$list[i].rek_link item=link}
 {if ($link|stristr:"doi")}
-%R  {$link|parse_url:5}
+%R {$smarty.const.APP_LINK_PREFIX|str_replace:"":$link|parse_url:5}
 {/if}
 {/foreach}
 %U {$smarty.const.APP_BASE_URL}view/{$list[i].rek_pid}
@@ -322,7 +322,7 @@
 {/if}
 {foreach from=$list[i].rek_link item=link}
 {if ($link|stristr:"doi")}
-%R  {$link|parse_url:5}
+%R {$smarty.const.APP_LINK_PREFIX|str_replace:"":$link|parse_url:5}
 {/if}
 {/foreach}
 %U {$smarty.const.APP_BASE_URL}view/{$list[i].rek_pid}
@@ -397,7 +397,7 @@ http://www.cardiff.ac.uk/insrv/educationandtraining/guides/endnote/endnote_codes
 %Y Tertiary Author
 %Z Notes
 %0 Reference Type
- Custom 1
+%1 Custom 1
 %2 Custom 2
 %3 Custom 3
 %4 Custom 4
