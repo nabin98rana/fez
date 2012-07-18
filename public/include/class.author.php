@@ -1037,8 +1037,7 @@ class Author
                     " . APP_TABLE_PREFIX . "author
                  WHERE
                     aut_researcher_id IS NOT NULL 
-                      AND aut_researcher_id != '' 
-                      AND aut_researcher_id NOT LIKE 'ERR:%'
+                      AND aut_researcher_id != ''
                       AND aut_researcher_id != '-1';";
     try {
       $res = $db->fetchPairs($stmt);
@@ -1073,7 +1072,6 @@ class Author
                     (DT_TO >= NOW() OR DT_TO = '0000-00-00')
                     AND aut_researcher_id IS NOT NULL
                     AND aut_researcher_id != ''
-                    AND aut_researcher_id NOT LIKE 'ERR:%'
                     AND aut_researcher_id != '-1'
                     GROUP BY aut_id, aut_researcher_id";
     try {
@@ -2023,8 +2021,7 @@ class Author
         $stmt = "SELECT * FROM ". APP_TABLE_PREFIX ."author
                  WHERE aut_org_username = " . $db->quote($aut_org_username, 'STRING') . "
                       AND aut_researcher_id IS NOT NULL 
-                      AND aut_researcher_id != '' 
-                      AND aut_researcher_id NOT LIKE 'ERR:%'
+                      AND aut_researcher_id != ''
                       AND aut_researcher_id != '-1';";
         $rid = $db->fetchRow($stmt);
         

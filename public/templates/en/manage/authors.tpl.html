@@ -376,16 +376,11 @@
 		                    </table>
 	                    {/if}
                   		
-                  	{elseif $info.aut_researcher_id == '-1' || strstr($info.aut_researcher_id, 'ERR:')}
-                  		{if strstr($info.aut_researcher_id, 'ERR:')}
-	                  		<input type="text" name="researcher_id" size="12" class="default" value="" />
-	                  		&nbsp;{$info.aut_researcher_id}
-	                  	{else}	                  	
+                  	{elseif $info.aut_researcher_id == '-1'}
 	                  	  <input type="text" name="researcher_id" size="12" class="default" value="" />
 	                  		&nbsp;Profile is under Registration Process.
                         &nbsp;<input class="button" type="submit" value="Re-send registration" id="register_researcherid_profile" />
 	                  		&nbsp;Email address (optional): <input type="text" id="register_researcherid_alt_email" size="30" class="default" value="" />
-	                  	{/if}
 	                {else}
 	                  <input type="text" name="researcher_id" size="12" class="default" value="{$info.aut_researcher_id}" />
 	                	<input class="button" type="submit" value="Download Publications" id="download_from_researcherid" />

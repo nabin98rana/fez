@@ -1246,19 +1246,6 @@ class ResearcherID
         foreach ($profiles as $profile) {
             if (!(empty($profile->employeeID) || empty($profile->researcherID))) {
                 Author::setResearcherIdByOrgUsername((string) $profile->employeeID, (string) $profile->researcherID);
-            } else {
-
-                $employeeID= (string) $profile->employeeID;
-                $errorCode = (string) $profile->{'error-code'};
-                $errorDesc = 'ERR: ' . (string) $profile->{'error-desc'};
-
-                // For error_code 9: "Profile is already under Registration",
-                // make sure there have not been any successful response (with ResearcherID) save in the past.
-                // If ResearcherID exists, do not overwrite it with this error.
-                if ($errorCode != 9 ||
-                    ($errorCode == 9 && !Author::hasResearcherID($employeeID))){
-                    Author::setResearcherIdByOrgUsername($employeeID, $errorDesc);
-                }
             }
         }
 
