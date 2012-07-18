@@ -140,21 +140,21 @@ class WokService
    * @param int $count The number of results to return in the initial resultset you get back from the initial query
    * @return SimpleXMLElement The object containing records found in WoS matching the search query specified.
    */
-  public function search($databaseID = "WOS", $userQuery, $editions=array(), $timeSpan=array(), $symbolicTimeSpan="1week", $queryLanguage="en", $count)
+  public function search($databaseId = "WOS", $userQuery, $editions=array(), $timeSpan=array(), $symbolicTimeSpan="1week", $queryLanguage="en", $count)
   {
     if (count($editions) == 0) {
         $editions = array();
-        $editions[] = array("collection" => $databaseID, "edition" => "SCI");
-        $editions[] = array("collection" => $databaseID, "edition" => "SSCI");
-        $editions[] = array("collection" => $databaseID, "edition" => "AHCI");
-        $editions[] = array("collection" => $databaseID, "edition" => "ISTP");
-        $editions[] = array("collection" => $databaseID, "edition" => "ISSHP");
+        $editions[] = array("collection" => $databaseId, "edition" => "SCI");
+        $editions[] = array("collection" => $databaseId, "edition" => "SSCI");
+        $editions[] = array("collection" => $databaseId, "edition" => "AHCI");
+        $editions[] = array("collection" => $databaseId, "edition" => "ISTP");
+        $editions[] = array("collection" => $databaseId, "edition" => "ISSHP");
         //Chemistry formulas
-        //$editions[] = array("collection" => $databaseID, "edition" => "IC");
-        //$editions[] = array("collection" => $databaseID, "edition" => "CCR");
+        //$editions[] = array("collection" => $databaseId, "edition" => "IC");
+        //$editions[] = array("collection" => $databaseId, "edition" => "CCR");
         //Not implemented 2012-05-10
-        //$editions[] = array("collection" => $databaseID, "edition" => "BSCI");
-        //$editions[] = array("collection" => $databaseID, "edition" => "BHCI");
+        //$editions[] = array("collection" => $databaseId, "edition" => "BSCI");
+        //$editions[] = array("collection" => $databaseId, "edition" => "BHCI");
     }
 
     // Clean user query from invalid characters
@@ -163,7 +163,7 @@ class WokService
     $search = array(
                'queryParameters' =>
                     array(
-                      'databaseID' => $databaseID,
+                      'databaseId' => $databaseId,
                       'userQuery' => $userQuery,
                       'editions' => $editions,
 //                      'timeSpan' => $timeSpan,
@@ -239,8 +239,8 @@ class WokService
   {
     $retrieve = array(
       'databaseId' => $database_id,
+      'uid' => $uids,
       'queryLanguage' => $query_lang,
-      'uids' => $uids,
       'retrieveParameters' => array(
           'firstRecord' => '1',
           'count' => count($uids)

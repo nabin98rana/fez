@@ -3636,10 +3636,12 @@ class Record
 
       if ($getLookup == true && $sek_details['sek_lookup_function'] != "") {
         $temp = array();
-        foreach ($res as $rkey => $rdata) {
-          eval("\$temp_value = ".$sek_details["sek_lookup_function"]."(".$rdata.");");
-          $temp[$rdata] = $temp_value;
-        }
+          if(!empty($res)) {
+            foreach ($res as $rkey => $rdata) {
+              eval("\$temp_value = ".$sek_details["sek_lookup_function"]."(".$rdata.");");
+              $temp[$rdata] = $temp_value;
+            }
+          }
         $res = $temp;
       }
       return $res;

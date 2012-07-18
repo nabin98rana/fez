@@ -7,35 +7,34 @@
 			- displaying first {$max_results}.</p>{/if}
 		</td></tr>
 	{/if}
-	
+
 	<tr><td valign="top" style="color: #333333; font-weight:bold;">{math equation="index + 1" index=$smarty.section.i.index}.</td>
 	<td valign="top" style="color: #333333">
-	<a href="javascript:void(null)" style="text-decoration:none;">{$matches[i].titleInfo.title}</a><br />
-	
+    <a href="javascript:void(null)" style="text-decoration:none;">{$matches[i]->title}</a><br />
 	Author(s): 
-	{section name="j" loop=$matches[i].name}
-		{$matches[i].name[j].namePart_personal}{if ! $smarty.section.j.last}, {/if}
+	{section name="j" loop=$matches[i]->authors}
+		{$matches[i]->authors[j]}{if ! $smarty.section.j.last}, {/if}
 	{/section}<br />
 
-	{if $matches[i].relatedItem.name.0.namePart != ''}
-		Source:<b>{$matches[i].relatedItem.name.0.namePart}</b>   
+	{if $matches[i]->sourceTitle != ''}
+		Source:<b>{$matches[i]->sourceTitle}</b>
 	{/if}	
-	{if $matches[i].relatedItem.part.detail_volume.number != ''}
-		Volume:<b>{$matches[i].relatedItem.part.detail_volume.number}</b>
+	{if $matches[i]->volume_number != ''}
+		Volume:<b>{$matches[i]->volume_number}</b>
 	{/if}
-	{if $matches[i].relatedItem.part.detail_issue.number != ''}
-		Issue:<b>{$matches[i].relatedItem.part.detail_issue.number}</b>
+	{if $matches[i]->issue_number != ''}
+		Issue:<b>{$matches[i]->issue_number}</b>
 	{/if}
-	{if $matches[i].relatedItem.part.extent_page.start != '' && $matches[i].relatedItem.part.extent_page.end != ''}
-		Pages:<b>{$matches[i].relatedItem.part.extent_page.start}-{$matches[i].relatedItem.part.extent_page.end}</b>
+	{if $matches[i]->page_start != '' && $matches[i]->page_end != ''}
+		Pages:<b>{$matches[i]->page_start}-{$matches[i]->page_end}</b>
 	{/if}
-	{if $matches[i].relatedItem.originInfo.dateIssued != ''}
-		Published:<b>{$matches[i].relatedItem.originInfo.dateIssued}</b><br />
+	{if $matches[i]->dateIssued != ''}
+		Published:<b>{$matches[i]->dateIssued}</b><br />
 	{/if}
-	{if $matches[i].record_exists}
-		Record already in repository (<a href="{$rel_url}view/{$matches[i].pid}">View</a>)
+	{if $matches[i]->record_exists}
+		Record already in repository (<a href="{$rel_url}view/{$matches[i]->pid}">View</a>)
 	{else}	
-		<a href="javascript:add_pub('{$matches[i].identifier_isi_loc}')" style="border:0">
+		<a href="javascript:add_pub('{$matches[i]->isi_loc}')" style="border:0">
 			<img src="{$rel_url}images/add.gif" id="pub_add" height="16" width="33" alt="Add record" alt="Add record" style="border:0" /></a>
 	{/if}
 	</td></tr>

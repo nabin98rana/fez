@@ -69,7 +69,6 @@ for($i=0; $i<((int)$listing['info']['total_pages']+1); $i++) {
 //	print_r($uts);
 	if(!empty($uts)) {
 //		$records_xml = EstiSearchService::retrieve($primary_keys);
-
     $records_xml = $wok_ws->retrieveById($uts);
 
 //    $response = $wok_ws->search("WOS", $query, $editions, $timeSpan, $depth, "en", $num_recs);
@@ -81,13 +80,13 @@ for($i=0; $i<((int)$listing['info']['total_pages']+1); $i++) {
     if ($records_xml) {
       $records = simplexml_load_string($records_xml);
 		  foreach($records->REC as $record) {
-				if($record->item) {
-					$pid = Record::getPIDByIsiLoc($record->item->ut);
-//          echo "updating $pid with ut".$record->item->ut." with count of ".$record->attributes()->timescited."\n";
-          ob_flush();
-					Record::updateThomsonCitationCount($pid, $record->attributes()->timescited, $record->item->ut);
-				}
-			}
+            if($record->UID) {
+                $pid = Record::getPIDByIsiLoc($record->UID);
+            //          echo "updating $pid with ut".$record->item->ut." with count of ".$record->attributes()->timescited."\n";
+                ob_flush();
+                Record::updateThomsonCitationCount($pid, $record->dynamic_data->citation_related->tc_list->silo_tc->attributes()->local_count, $record->UID);
+            }
+		  }
 		}
     if ( APP_SOLR_INDEXER == "ON" ) {
       FulltextQueue::singleton()->commit();

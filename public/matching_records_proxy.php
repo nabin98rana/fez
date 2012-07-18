@@ -137,37 +137,22 @@ class MatchingRecords
                 $editions = array();
                 $wok_ws = new WokService(FALSE);
                 $response = $wok_ws->search($databaseID, $query, $editions, $timeSpan, $depth, "en", $num_recs);
-                $records = @simplexml_load_string($response->return->records);
+                $records = new DomDocument();
+                $records->loadXML($response->return->records);
+                $recordsNodes = $records->getElementsByTagName('REC');
+                if($records) {
+                    foreach($recordsNodes as $record) {
+                        $xmlRecords = new WosRecItem();
+                        $xmlRecords->load($record);
+                        $matches[] = $xmlRecords->returnDataEnterForm();
 
-            } else { //try and use ESTI service if TR WS Premium not setup
+                    }
 
-                $result = EstiSearchService::searchRetrieve('WOS', $query, $depth, $editions, $sort, $first_rec, $num_recs);
-                $records = @simplexml_load_string($result['records']);
-
+                }
             }
-
-			if($records) {
-				foreach($records->REC as $record) {
-					$mods = Misc::convertEstiRecordToMods($record);
-					
-					if($mods) {
-						// Check if exists
-						$pid = Record::getPIDByIsiLoc($mods['identifier_isi_loc']);
-						if($pid) {
-							$mods['record_exists'] = 1;
-							$mods['pid'] = $pid;
-						}
-						// Fix author name
-						for($i=0; $i < count($mods['name']); $i++) {
-							$mods['name'][$i]['namePart_personal'] = str_replace(',', '', $mods['name'][$i]['namePart_personal']);
-						}
-						$matches[] = $mods;
-					}
-				}
-			}
     	}
 
-    	if($matches > 0) {
+    	if(count($matches) > 0) {
 			$tpl = new Template_API();
 			$tpl->setTemplate("workflow/edit_metadata_helpers/matching_records_results.tpl.html");
 			$tpl->assign('matches', $matches);
@@ -247,23 +232,44 @@ class MatchingRecords
 		$collection = APP_ARTICLE_ADD_TO_COLLECTION;
         
 		if(Fedora_API::objectExists($collection)) {
-            
+
             // Retrieve record from Wok web service
-	    	$records = EstiSearchService::retrieve($ut);
-            
+	    	//$records = EstiSearchService::retrieve($ut);
+            $wok_ws = new WokService(FALSE);
+            $records = $wok_ws->retrieveById($ut);
+
 			if($records) {
-                
-                if (APP_FEDORA_BYPASS == "ON"){
-                    
-                    $pid = $this->_addFedoraBypass($records);
-                    
-                } else {
-                    foreach($records->REC as $_record) {
-                        $mods = Misc::convertEstiRecordToMods($_record);
-                        $times_cited = $_record->attributes()->timescited;
-                        $pid = Record::insertFromArray($mods, $collection, 'MODS 1.0', 'Imported from WoS', $times_cited);
+                //$pid = $this->_addFedoraBypass($records);
+                // Param $record should only contain one publication.
+                // However we set $pid as array just in case, and implode the pid as string on the return.
+                $pid = array();
+                $doc = new DOMDocument();
+                $doc->loadXML($records);
+                $xmlRecords = $doc->getElementsByTagName('REC');
+
+                foreach ($xmlRecords as $_record){
+                    // Instantiate WosRecItem object with our DOMElement $_record
+                    $rec = new WosRecItem($_record);
+
+                    // Get collections
+                    $wos_collection = trim(APP_WOS_COLLECTIONS, "'");
+                    if (!defined('APP_WOS_COLLECTIONS') || trim(APP_WOS_COLLECTIONS) == "") {
+                        $rec->collections = array(RID_DL_COLLECTION);
+                    } else {
+                        if ($aut_ids) {
+                            $rec->collections = array(RID_DL_COLLECTION);
+                        } else {
+                            $rec->collections = array($wos_collection);
+                        }
                     }
+
+                    $history = "Imported from WoS";
+
+                    // Save WosRecItem
+                    $pid[] = $rec->save($history);
                 }
+
+                $pid = implode(",", $pid);
 			}
 		}
 		return $pid;
@@ -288,52 +294,5 @@ class MatchingRecords
         $userQuery = str_replace($search, $replace, $userQuery);
 
         return $userQuery;
-    }
-      
-    
-    /**
-     * Add a record retrieved from WOK Web Service to local database.
-     * It parses XML elements retrieved from WOK and saves it to record search keys as a new PID.
-     * 
-     * @package fedora_bypass
-     * @param SimpleXMLElement $records
-     * @return string PID of the newly saved record
-     */
-    protected function _addFedoraBypass($records)
-    {
-        // Param $record should only contain one publication.
-        // However we set $pid as array just in case, and implode the pid as string on the return.
-        $pid = array();
-        
-        // Revert SimpleXML object to string, then load it as DOMDocument, as expected by WosRecItem.
-        $xml = $records->asXML();
-        $doc = new DOMDocument();
-        $doc->loadXML($xml);
-        $xmlRecords = $doc->getElementsByTagName('REC');
-
-        foreach ($xmlRecords as $_record){
-            // Instantiate WosRecItem object with our DOMElement $_record
-            $rec = new WosRecItem($_record);
-
-            // Get collections
-            $wos_collection = trim(APP_WOS_COLLECTIONS, "'");
-            if (!defined('APP_WOS_COLLECTIONS') || trim(APP_WOS_COLLECTIONS) == "") {
-                $rec->collections = array(RID_DL_COLLECTION);
-            } else {
-                if ($aut_ids) {
-                    $rec->collections = array(RID_DL_COLLECTION);
-                } else {
-                    $rec->collections = array($wos_collection);
-                }
-            }        
-
-            $history = "Imported from WoS";
-            
-            // Save WosRecItem 
-            $pid[] = $rec->save($history);
-        }
-        
-        $pid = implode(",", $pid);
-        return $pid;
     }
 }

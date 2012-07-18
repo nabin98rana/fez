@@ -328,13 +328,36 @@ class WosRecItem
    */
   public function load($node)
   {
-    $this->timesCited = $node->getAttribute('timescited');
-    $this->abstract = $node->getElementsByTagName("abstract")->item(0)->nodeValue;
-    $this->ut = $node->getElementsByTagName("ut")->item(0)->nodeValue;
-    $this->issn = $node->getElementsByTagName("issn")->item(0)->nodeValue;
-    $this->sourceTitle = $node->getElementsByTagName("source_title")->item(0)->nodeValue;
-    $this->sourceAbbrev = $node->getElementsByTagName("source_abbrev")->item(0)->nodeValue;
-    $this->itemTitle = $node->getElementsByTagName("item_title")->item(0)->nodeValue;
+    $siloTc = $node->getElementsByTagName("silo_tc")->item(0);
+    $this->timesCited = $siloTc->getAttribute('local_count');
+    $this->abstract = $node->getElementsByTagName("abstract_text")->item(0)->nodeValue;
+    $this->ut = $node->getElementsByTagName("UID")->item(0)->nodeValue;
+    $elements = $node->getElementsByTagName("identifier");
+    foreach($elements as $element) {
+         if ($element->getAttribute('type') == "issn") {
+             $this->issn = $element->getAttribute('value');
+         }
+         if ($element->getAttribute('type') == "doi") {
+                $articleNos[] = $element->getAttribute('value');
+         }
+    }
+    if (is_array($articleNos) && count($articleNos) > 0) {
+      $this->articleNos = $articleNos;
+    }
+
+    $elements = $node->getElementsByTagName("title");
+    foreach($elements as $element) {
+      if ($element->getAttribute('type') == "source")  {
+          $this->sourceTitle = $element->nodeValue;
+      }
+      if ($element->getAttribute('type') == "item") {
+          $this->itemTitle = $element->nodeValue;
+      }
+      if ($element->getAttribute('type') == "source_abbrev") {
+          $this->sourceAbbrev = $element->nodeValue;
+      }
+    }
+
     $this->bibId = $node->getElementsByTagName("bib_id")->item(0)->nodeValue;
 
     if ($this->itemTitle == strtoupper($this->itemTitle)) {
@@ -345,68 +368,57 @@ class WosRecItem
         $this->sourceTitle = Misc::smart_ucwords($this->sourceTitle);
     }
 
-    $articleNo = $node->getElementsByTagName("article_no");
-    foreach ($articleNo as $n) {
-      $articleNos[] = $n->nodeValue;
-    }
-    if (is_array($articleNos) && count($articleNos) > 0) {
-      $this->articleNos = $articleNos;
-    }
+
     
-    $bibPages = $node->getElementsByTagName("bib_pages")->item(0);
+    $bibPages = $node->getElementsByTagName("page")->item(0);
     if ($bibPages) {    
       $this->bibPages = $bibPages->nodeValue;
       $this->bibPageBegin = $bibPages->getAttribute('begin');
       $this->bibPageEnd = $bibPages->getAttribute('end');
-      $this->bibPageCount = $bibPages->getAttribute('pages');
+      $this->bibPageCount = $bibPages->getAttribute('page_count');
     }
     
     $this->setBibIssueYVM($node);
     $this->setDateIssued($node);
-    
-    $docType = $node->getElementsByTagName("doctype")->item(0);
-    if ($docType) {
-      $this->docType = $docType->nodeValue;
-      $this->docTypeCode = $docType->getAttribute('code');
-    }
-    
-    $primaryLang = $node->getElementsByTagName("primarylang")->item(0);
-    if ($primaryLang) {
-      $this->primaryLang = $primaryLang->nodeValue;
-      $this->primaryLangCode = $primaryLang->getAttribute('code');
-    }
-    
-    $authors[] = Misc::smart_ucwords($node->getElementsByTagName("primaryauthor")->item(0)->nodeValue, 2);
-    $author = $node->getElementsByTagName("author");
-    foreach ($author as $a) {
-      $atemp = $a->nodeValue;
-      if ($atemp == strtoupper($atemp)) {
-          $atemp = Misc::smart_ucwords($atemp, 2);
+
+    $this->docType = $node->getElementsByTagName("doctype")->item(0)->nodeValue;
+    $this->docTypeCode = Wok::getDoctype($this->docType );
+
+    $elements = $node->getElementsByTagName("language");
+    foreach($elements as $element) {
+      if ($element->getAttribute('type') == "primary") {
+          $this->primaryLang = $element->nodeValue;
       }
-      $authors[] = $atemp;
+    }
+
+
+    $elements = $node->getElementsByTagName("name");
+    foreach($elements as $element) {
+        $authorTemp = $element->getElementsByTagName("display_name")->item(0)->nodeValue;
+        if ($authorTemp == strtoupper($authorTemp)) {
+            $authorTemp = Misc::smart_ucwords($authorTemp, 2);
+        }
+        $authors[] = $authorTemp;
     }
     if (is_array($authors) && count($authors) > 0) {
       $this->authors = $authors;
     }
-    
-    $keyword = $node->getElementsByTagName("keyword");
-    foreach ($keyword as $k) {
-      $ktemp = $k->nodeValue;
-      if ($ktemp == strtoupper($ktemp)) {
-          $ktemp = Misc::smart_ucwords($ktemp);
+
+      $elements = $node->getElementsByTagName("keyword");
+      foreach($elements as $element) {
+          $keywordTemp = $element->nodeValue;
+          if ($keywordTemp == strtoupper($keywordTemp)) {
+              $keywordTemp = Misc::smart_ucwords($keywordTemp);
+          }
+          $keywords[] = $keywordTemp;
       }
-      $keywords[] =$ktemp;
-    }
     if (is_array($keywords) && count($keywords) > 0) {
       $this->keywords = $keywords;
     }
-    
-    if (isset($node->getElementsByTagName("bk_publisher")->item(0)->nodeValue)){
-        $this->publisher = $node->getElementsByTagName("bk_publisher")->item(0)->nodeValue;
-    }else if (isset($node->getElementsByTagName("publisher")->item(0)->nodeValue)){
-        $this->publisher = $node->getElementsByTagName("publisher")->item(0)->nodeValue;
-    }
-    
+
+    $elements = $node->getElementsByTagName("publisher")->item(0);
+    $this->publisher = $elements->getElementsByTagName("display_name")->item(0)->nodeValue;
+
     $firstConf = $node->getElementsByTagName("conference")->item(0);
     if ($firstConf) {
       $this->confDate = $firstConf->getElementsByTagName("conf_date")->item(0)->nodeValue;
@@ -429,8 +441,38 @@ class WosRecItem
     
     $this->_loaded = TRUE;
   }
-  
-  /**
+
+
+    /**
+     * Convenience function for retrieving any data to be displayed on enter form
+     * if one exists
+     *
+     *  @return string
+     */
+    public function returnDataEnterForm()
+    {
+        $matching->title = $this->itemTitle;
+        $matching->authors = $this->authors;
+        $matching->sourceTitle = $this->sourceTitle;
+        $matching->volume_number = $this->bibIssueVol;
+        $matching->issue_number = $this->bibIssueNum;
+        $matching->page_start = $this->bibPageBegin;
+        $matching->page_end = $this->bibPageEnd;
+        $matching->dateIssued = $this->date_issued;
+        $matching->isi_loc = $this->ut;
+        // Check if exists
+        $pid = Record::getPIDByIsiLoc($this->ut);
+        if($pid) {
+            $matching->record_exists = 1;
+            $matching->pid = $pid;
+        }
+        $matching->isi_loc = $this->ut;
+        return $matching;
+
+    }
+
+
+    /**
    * Convenience function for retrieving a DOI from the array of articleNos
    * if one exists
    *
@@ -471,37 +513,25 @@ class WosRecItem
    */
   public function setBibIssueYVM($node)
   {
-    $item = $node->getElementsByTagName("item")->item(0);
-    if ($item) {
-      $coverDate = $item->getAttribute('coverdate');
-      preg_match('/^(\d{4})(\d{2})/', $coverDate, $matches);
-      if (count($matches) == 3) {
-        if ($matches[2] != '00') {
-          $this->bibIssueMnth = $matches[2];
+    $pubInfo = $node->getElementsByTagName("pub_info")->item(0);
+    $coverDate = $pubInfo->getAttribute('sortdate');
+    if ($coverDate) {
+        preg_match('/^(\d{4}).(\d{2})/', $coverDate, $matches);
+        if (count($matches) == 3) {
+            if ($matches[2] != '00') {
+              $this->bibIssueMnth = $matches[2];
+            }
         }
-      }
-      
-      $bibIssue = $node->getElementsByTagName("bib_issue")->item(0);
-      if ($bibIssue) {
-        $this->bibIssueYear = $bibIssue->getAttribute('year');
-        $this->bibIssueVol = $bibIssue->getAttribute('vol');
-      }
+    }
+
+    $this->bibIssueYear = $pubInfo->getAttribute('pubyear');
+    $this->bibIssueVol = $pubInfo->getAttribute('vol');
 
       $bibVol = $node->getElementsByTagName("bib_vol")->item(0);
       if ($bibVol) {
         $this->bibIssueNum = $bibVol->getAttribute('issue');
-        //$this->bibIssueVol = $bibIssue->getAttribute('volume'); //Already gotten from bib_issue element - same value
-      
-      }else {
-          
-        // If bib_vol node does not exists, retrieve it from bib_id node
-        $temp_bib_id = $node->getElementsByTagName("bib_id")->item(0);
-        preg_match('/\(([^\)]+)\):/', $temp_bib_id, $matches);
-        if (count($matches) == 2) {
-            $this->bibIssueNum = $matches[1];
-        }
       }
-    }    
+
   }
 
   /**
@@ -512,26 +542,17 @@ class WosRecItem
    */
   public function setDateIssued($node) {
     $this->date_issued = '';
-    $item = $node->getElementsByTagName("item")->item(0);
-    if ($item) {
-      $coverDate = $item->getAttribute('coverdate');
-      preg_match('/(\d{4})(\d{2})/', $coverDate, $matches);
+      $pubInfo = $node->getElementsByTagName("pub_info")->item(0);
+      $coverDate = $pubInfo->getAttribute('sortdate');
+      preg_match('/^(\d{4}).(\d{2})/', $coverDate, $matches);
       if (count($matches) == 3) {
         if ($matches[2] == '00') {
           $this->date_issued = $matches[1];
         } else {
           $this->date_issued = $matches[1] . '-' . $matches[2];
         }
-      } else {
-        $bib_issue = $item->getElementsByTagName("bib_issue")->bib_issue(0);
-        $year = $bib_issue->getAttribute('year');
-        if ($year) {
-          $this->date_issued = $year;
-        }
       }
     }
-
-  }
 
     /**
      * Returns an array of Search key's title & value pair, built from WOS record items.
@@ -560,15 +581,24 @@ class WosRecItem
         $sekData['ISBN']            = $this->isbn;
         $sekData['ISSN']            = $this->issn;
         $sekData['Publisher']       = $this->publisher;
+
+        /// exception for conf papers that the subtype goes into genre type
+        if ($xdis_title == "Conference Paper") {
+            $sekData["Genre Type"] = $xdis_subtype;
+        } else {
+            $sekData["Subtype"] = $xdis_subtype;
+        }
+
+        //Commented out due to copyright reasons
+        //$sekData['Description']     = $this->abstract;
         
         $sekData['Issue Number']    = $this->bibIssueNum;
         $sekData['Volume Number']   = $this->bibIssueVol;
         $sekData['Start Page']      = $this->bibPageBegin;
         $sekData['End Page']        = $this->bibPageEnd;
         $sekData['Total Pages']     = $this->bibPageCount;
-        
-        // Published date. We only need to save the Year.
-        $sekData['Date']            = Misc::MySQLDate(array("Year" => date("Y", strtotime($this->date_issued))));
+
+        $sekData['Date']            = Misc::MySQLDate(array("Year" => date("Y", strtotime($this->date_issued)), "Month" => date("m", strtotime($this->date_issued))));
         
         $sekData['Language']        = Language::resolveWoSLanguage($this->primaryLang);
         $sekData['Status']          = Status::getID("Published");
@@ -647,7 +677,13 @@ class WosRecItem
         if (!$result){
             return false;
         }
-        
+
+        //assume solr need updating for new lister permissions
+        if (APP_SOLR_INDEXER == "ON") {
+            FulltextQueue::singleton()->add($recordSearchKey->getPid());
+            FulltextQueue::singleton()->commit();
+        }
+
         return $recordSearchKey->getPid();
     }
 
@@ -733,7 +769,7 @@ class WosRecItem
             $mods['relatedItem']['part']['extent_page']['end'] = $this->bibPageEnd;
             $mods['relatedItem']['part']['extent_page']['total'] = $this->bibPageCount;
             if ($xdis_title == 'Conference Paper') {
-                    $mods['originInfo']['dateIssued'] = $this->date_issued;
+                $mods['originInfo']['dateIssued'] = $this->date_issued;
                 $mods['relatedItem']['titleInfo']['title'] = $this->sourceTitle;
                 $mods['relatedItem']['name'][0]['namePart_type'] = 'conference';
                 $mods['relatedItem']['name'][0]['namePart'] = $this->confTitle;

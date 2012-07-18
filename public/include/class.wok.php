@@ -84,11 +84,11 @@ class Wok {
     }
 
     /**
-     * Returns the description of a WoK doc type code.
-     *
-     * @param int $wdt_code WoK Doc Type code
-     * @return string The description of a Wok Doc Type code
-     */
+ * Returns the description of a WoK doc type code.
+ *
+ * @param int $wdt_code WoK Doc Type code
+ * @return string The description of a Wok Doc Type code
+ */
     public function getTitle($wdt_code)
     {
         $log = FezLog::get();
@@ -100,6 +100,35 @@ class Wok {
                     " . APP_TABLE_PREFIX . "wok_doctypes
                  WHERE
                     wdt_code=".$db->quote($wdt_code, 'STRING');
+        try {
+            $res = $db->fetchOne($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return '';
+        }
+        return $res;
+    }
+
+    /**
+     * Returns the WoK doc type code given a description.
+     *
+     * @param int $wdt_code WoK Doc Type code
+     * @return string The description of a Wok Doc Type code
+     *
+     * This is not one to one so the results might be considered unknown
+     */
+    public function getDoctype($wdt_description)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $stmt = "SELECT
+                    wdt_code
+                 FROM
+                    " . APP_TABLE_PREFIX . "wok_doctypes
+                 WHERE
+                    wdt_description=".$db->quote($wdt_description, 'STRING');
         try {
             $res = $db->fetchOne($stmt);
         }
