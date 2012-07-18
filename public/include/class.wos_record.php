@@ -392,13 +392,16 @@ class WosRecItem
     }
 
 
-    $elements = $node->getElementsByTagName("name");
+    $elements = $node->getElementsByTagName("summary")->item(0);
+    $elements = $elements->getElementsByTagName("name");
     foreach($elements as $element) {
-        $authorTemp = $element->getElementsByTagName("display_name")->item(0)->nodeValue;
-        if ($authorTemp == strtoupper($authorTemp)) {
-            $authorTemp = Misc::smart_ucwords($authorTemp, 2);
+        if ($element->getAttribute('role') == "author") {
+            $authorTemp = $element->getElementsByTagName("display_name")->item(0)->nodeValue;
+            if ($authorTemp == strtoupper($authorTemp)) {
+                $authorTemp = Misc::smart_ucwords($authorTemp, 2);
+            }
+            $authors[] = $authorTemp;
         }
-        $authors[] = $authorTemp;
     }
     if (is_array($authors) && count($authors) > 0) {
       $this->authors = $authors;
