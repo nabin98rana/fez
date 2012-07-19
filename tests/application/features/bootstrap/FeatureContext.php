@@ -23,7 +23,7 @@ require_once 'LoginHelper.php';
 require_once ('../../public/config.inc.php');
 require_once(APP_INC_PATH . 'class.auth.php');
 require_once(APP_INC_PATH . 'class.fulltext_queue.php');
-
+require_once(APP_INC_PATH . 'class.wok_queue.php');
 
 /**
  * @var string An example Journal Article publication pid in the system you can perform non-destructive tests on
@@ -108,7 +108,7 @@ class FeatureContext extends MinkContext
     public function iClick($field) {
         $element = $this->getSession()->getPage()->findField($field);
         if (null === $element) {
-            throw new exception($field." not found");
+            throw new exception($field." not found in fields or links");
         }
         $element->click();
     }
@@ -442,6 +442,15 @@ class FeatureContext extends MinkContext
     }
 
     /**
+     * @Then /^I switch to window "([^"]*)"$/
+     * null returns to original window
+     * Possible works on title, by internal JavaScript "name," or by JavaScript variable. Only tested on "internal JavaScript name"
+     */
+    public function iSwitchToWindow($name) {
+        $this->getSession()->switchToWindow($name);
+    }
+
+    /**
      * @Then /^I should see text "([^"]*)" in code$/
      */
     public function iShouldSeeTextInCode($text) {
@@ -523,4 +532,12 @@ class FeatureContext extends MinkContext
 
   }
 
+    /**
+     * @Given /^I add "([^"]*)" to the WOK queue$/
+     */
+    public function iAddToTheWokQueue($item)
+    {
+        $wOKQueue = WokQueue::get();
+        $wOKQueue->add($item);
+    }
 }
