@@ -16,7 +16,6 @@ Feature: WOS imports. Check imports from wos work correctly
     Then I press "Abandon Workflow"
     And I fill in "Search Entry" with "title:(\"Influence of Malt Roasting on the Oxidative Stability of Sweet Wort\")"
     And I wait for "10" seconds
-    And I wait for solr
     And I press "search_entry_submit"
     And I follow "Influence of Malt Roasting on the Oxidative Stability of Sweet Wort"
     And I should see "Influence of Malt Roasting on the Oxidative Stability of Sweet Wort"
@@ -59,7 +58,6 @@ Scenario: Delete WOS imports
     And I am on "/"
     And I fill in "Search Entry" with "title:(\"Influence of Malt Roasting on the Oxidative Stability of Sweet Wort\")"
     And I wait for "180" seconds
-    And I wait for solr
     And I press "search_entry_submit"
     And I follow "Influence of Malt Roasting on the Oxidative Stability of Sweet Wort"
     And I should see "Influence of Malt Roasting on the Oxidative Stability of Sweet Wort"

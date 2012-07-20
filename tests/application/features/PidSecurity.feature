@@ -2,9 +2,7 @@ Feature: Pid security
 
   Scenario: I login as admin and set a pids security to only view for a certain group then all users as list it and only that group can view it
     Given I login as administrator
-    And I follow "Browse"
-    And I follow "BH test"
-    And I follow "Lachlan's Index Test Collection"
+    And I go to the test collection list page
     And I select "Journal Article" from "xdis_id_top"
     And I press "Create"
     And I fill in "Title" with "Security Test Journal Title2012"
@@ -111,7 +109,7 @@ Feature: Pid security
     Then I should see "Security Test Journal Title2012"
     Then I should not see "Workflows"
 
-  @destructive @now
+   @destructive @now
   Scenario: Delete old pids
     Given I login as administrator
     And I fill in "Search Entry" with "title:(\"Security Test Journal Title2012\")"

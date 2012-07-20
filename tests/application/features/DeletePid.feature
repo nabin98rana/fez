@@ -29,6 +29,14 @@ Feature: Test that deleted pid works correctly
     And I press "Close"
     And I switch to window ""
     And I wait for "3" seconds
+    And I follow "Logout"
+    When I move backward one page
+    And I should see "This record has been deleted."
+    And I should not see "Title"
+    And I should not see "Journal Name"
+    And I should not see "Author"
+    And I should not see "Sub-type"
+    And I should not see "Detailed History"
     And I fill in "Search Entry" with "title:(\"Security Test Name 2012\")"
     And I press "search_entry_submit"
     Then I should see "(0 results found)"
