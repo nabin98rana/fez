@@ -62,7 +62,7 @@ class Org_Structure
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		// first delete all children
 		// get all immediate children
 		$items = $_POST["items"];
@@ -79,7 +79,7 @@ class Org_Structure
                  WHERE
                     org_id IN (".Misc::arrayToSQLBindStr($all_items).")";
 		Org_Structure::deleteRelationship($all_items);
-		
+
 		try {
 			$db->query($stmt, $all_items);
 		}
@@ -97,11 +97,11 @@ class Org_Structure
 	 * @param string $items The string comma separated list of org ids to remove from parent or child relationships
 	 * @return boolean
 	 */
-	function deleteRelationship($items) 
+	function deleteRelationship($items)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "org_structure_relationship
                  WHERE
@@ -114,7 +114,7 @@ class Org_Structure
 			$log->err($ex);
 			return false;
 		}
-		
+
 		return true;
 	}
 
@@ -128,7 +128,7 @@ class Org_Structure
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "org_structure
                  (
@@ -140,7 +140,7 @@ class Org_Structure
                     " . $db->quote($_POST["org_title"]) . ",
                     " . $db->quote($_POST["org_desc"]) . ",
                     " . $db->quote($_POST["org_ext_table"]) . ",
-                    " . $db->quote($_POST["org_image_filename"]) . "										
+                    " . $db->quote($_POST["org_image_filename"]) . "
                  )";
 		try {
 			$db->exec($stmt);
@@ -149,7 +149,7 @@ class Org_Structure
 			$log->err($ex);
 			return -1;
 		}
-		
+
 		// get last db entered id
 		$new_id = $db->lastInsertId(APP_TABLE_PREFIX . "org_structure", "org_id");
 		Org_Structure::associateParent($_POST["parent_id"], $new_id);
@@ -169,7 +169,7 @@ class Org_Structure
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		// no need to associate null parent
 		if (empty($parent_id)) {
 			return -1;
@@ -180,10 +180,10 @@ class Org_Structure
                     " . APP_TABLE_PREFIX . "org_structure_relationship
                  (
                     orr_parent_org_id,
-                    orr_child_org_id					
+                    orr_child_org_id
                  ) VALUES (
                     " .$db->quote($parent_id, 'INTEGER'). ",
-                    " .$db->quote($child_id, 'INTEGER'). "					
+                    " .$db->quote($child_id, 'INTEGER'). "
                  )";
 		try {
 			$db->query($stmt);
@@ -205,16 +205,16 @@ class Org_Structure
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "org_structure
-                 SET 
+                 SET
                     org_title = " . $db->quote($_POST["org_title"]) . ",
                     org_desc = " . $db->quote($_POST["org_desc"]) . ",
                     org_ext_table = " . $db->quote($_POST["org_ext_table"]) . ",
                     org_image_filename = " . $db->quote($_POST["org_image_filename"]) . "
                  WHERE org_id = ".$db->quote($org_id, 'INTEGER');
-		
+
 		try {
 			$db->exec($stmt);
 		}
@@ -238,7 +238,7 @@ class Org_Structure
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     org_title
                  FROM
@@ -252,7 +252,7 @@ class Org_Structure
 			$log->err($ex);
 			return '';
 		}
-		
+
 		return $res;
 	}
 
@@ -268,14 +268,14 @@ class Org_Structure
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     org_id
                  FROM
                     " . APP_TABLE_PREFIX . "org_structure
                  INNER JOIN hr_position_vw ON aou = org_extdb_id
                  AND user_name = ".$db->quote($username)."
-                 WHERE (org_extdb_name = 'hr' OR org_extdb_name = 'rrtd')";
+                 WHERE (org_extdb_name = 'hr' OR org_extdb_name = 'centralorg' OR org_extdb_name = 'rrtd')";
 		try {
 			$res = $db->fetchOne($stmt);
 		}
@@ -283,7 +283,7 @@ class Org_Structure
 			$log->err($ex);
 			return '';
 		}
-		
+
 		return $res;
 	}
 
@@ -298,7 +298,7 @@ class Org_Structure
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     org_id,
 					org_title
@@ -329,14 +329,14 @@ class Org_Structure
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     org_id,
 					org_title
                  FROM
                     " . APP_TABLE_PREFIX . "org_structure
 			     WHERE org_id not in (SELECT orr_child_org_id from  " . APP_TABLE_PREFIX . "org_structure_relationship)
-				 AND (org_extdb_name = 'hr' OR org_extdb_name = 'rrtd') 
+				 AND (org_extdb_name = 'hr' OR org_extdb_name = 'centralorg' OR org_extdb_name = 'rrtd')
                  ORDER BY
                     org_title ASC";
 		try {
@@ -346,7 +346,7 @@ class Org_Structure
 			$log->err($ex);
 			return '';
 		}
-		return $res;		
+		return $res;
 	}
 
 	/**
@@ -360,7 +360,7 @@ class Org_Structure
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     org_id,
 					org_title
@@ -389,7 +389,7 @@ class Org_Structure
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		// used by the xsd match forms
 		$stmt = "SELECT
                     org_id,
@@ -413,30 +413,30 @@ class Org_Structure
 	 * @access  public
 	 * @return  array List of Org structure titles
 	 */
-	function suggest($term, $assoc = false) 
+	function suggest($term, $assoc = false)
 	{
 		$log = FezLog::get();
-		$db = DB_API::get();		
-		
+		$db = DB_API::get();
+
 		$dbtp = APP_TABLE_PREFIX;
 
 		$stmt = " SELECT org_id as id, org_title as name FROM (";
 		$stmt .= "
-			  SELECT org_id, 
+			  SELECT org_id,
 				org_title ";
 
 		if (APP_MYSQL_INNODB_FLAG == "ON" || (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql")))) {
 			$stmt .= " FROM ".$dbtp."org_structure
-				 WHERE org_title LIKE ".$db->quote($term.'%')." AND org_title NOT LIKE 'Faculty of%' AND (org_extdb_name = 'hr' OR org_extdb_name = 'rrtd') ";
+				 WHERE org_title LIKE ".$db->quote($term.'%')." AND org_title NOT LIKE 'Faculty of%' AND (org_extdb_name = 'hr' OR org_extdb_name = 'centralorg' OR org_extdb_name = 'rrtd') ";
 			$stmt .= " LIMIT 10 OFFSET 0) AS tempsuggest";
 		} else {
 			$stmt .= ",MATCH(org_title) AGAINST (".$db->quote($term).") as Relevance FROM ".$dbtp."org_structure
-		 WHERE MATCH (org_title) AGAINST (".$db->quote('*'.$term.'*')." IN BOOLEAN MODE) AND org_title NOT LIKE 'Faculty of%' AND (org_extdb_name = 'hr' OR org_extdb_name = 'rrtd') ";
+		 WHERE MATCH (org_title) AGAINST (".$db->quote('*'.$term.'*')." IN BOOLEAN MODE) AND org_title NOT LIKE 'Faculty of%' AND (org_extdb_name = 'hr' OR org_extdb_name = 'centralorg' OR org_extdb_name = 'rrtd') ";
 			$stmt .= " ORDER BY Relevance DESC, org_title LIMIT 10 OFFSET 0) AS tempsuggest";
 		}
-		
+
 		try {
-			if ($assoc) 
+			if ($assoc)
 				$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 			else
 				$res = $db->fetchPairs($stmt);
@@ -458,8 +458,8 @@ class Org_Structure
 	function getAssocListByLevel($org_level)
 	{
 		$log = FezLog::get();
-		$db = DB_API::get();		
-		
+		$db = DB_API::get();
+
 		// used by the xsd match forms
 		$stmt = "SELECT
                     org_id,
@@ -487,8 +487,8 @@ class Org_Structure
 	function getAssocListLevels()
 	{
 		$log = FezLog::get();
-		$db = DB_API::get();	
-		
+		$db = DB_API::get();
+
 		// used by the xsd match forms
 		$stmt = "SELECT
                     distinct org_ext_table,
@@ -517,8 +517,8 @@ class Org_Structure
 	function getListByID($id)
 	{
 		$log = FezLog::get();
-		$db = DB_API::get();	
-		
+		$db = DB_API::get();
+
 		$stmt = "SELECT
                     org_id,
 					org_title
@@ -546,15 +546,15 @@ class Org_Structure
 	function getListAll()
 	{
 		$log = FezLog::get();
-		$db = DB_API::get();	
-		
+		$db = DB_API::get();
+
 		$stmt = "SELECT
                     org_id,
                     org_title,
-                    org_ext_table 
+                    org_ext_table
                  FROM
                     " . APP_TABLE_PREFIX . "org_structure
-                 ORDER BY 
+                 ORDER BY
                     org_title";
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
@@ -563,12 +563,12 @@ class Org_Structure
 			$log->err($ex);
 			return '';
 		}
-		
+
 		if (empty($res)) {
 			return array();
 		} else {
 			return $res;
-		}	
+		}
 	}
 
 
@@ -583,7 +583,7 @@ class Org_Structure
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     *
                  FROM
@@ -591,7 +591,7 @@ class Org_Structure
 
 		if (is_numeric($parent_id)) {
 			$stmt .=   "," . APP_TABLE_PREFIX . "org_structure_relationship
-					     WHERE orr_parent_org_id = ".$db->quote($parent_id, 'INTEGER')." AND orr_child_org_id = org_id ";			
+					     WHERE orr_parent_org_id = ".$db->quote($parent_id, 'INTEGER')." AND orr_child_org_id = org_id ";
 		} else {
 			$stmt .= " WHERE org_id not in (SELECT orr_child_org_id from  " . APP_TABLE_PREFIX . "org_structure_relationship)";
 		}
@@ -633,19 +633,19 @@ class Org_Structure
 		if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
 			$stmt .= $db->quote($indent)." || org_title as org_title ";
 		} else {
-			$stmt .= " CONCAT(".$db->quote($indent).",org_title) as org_title ";							
+			$stmt .= " CONCAT(".$db->quote($indent).",org_title) as org_title ";
 		}
-		
+
     $stmt .= " FROM
                     " . APP_TABLE_PREFIX . "org_structure ";
 
 		if (is_numeric($parent_id)) {
 			$stmt .=   "," . APP_TABLE_PREFIX . "org_structure_relationship
-					     WHERE orr_parent_org_id = ".$db->quote($parent_id, 'INTEGER')." AND orr_child_org_id = org_id ";			
+					     WHERE orr_parent_org_id = ".$db->quote($parent_id, 'INTEGER')." AND orr_child_org_id = org_id ";
 		} else {
 			$stmt .= " WHERE org_id not in (SELECT orr_child_org_id from  " . APP_TABLE_PREFIX . "org_structure_relationship)";
 		}
-		
+
 		try {
 			$res = $db->fetchPairs($stmt);
 		}
@@ -653,7 +653,7 @@ class Org_Structure
 			$log->err($ex);
 			return '';
 		}
-		
+
 		if (empty($res)) {
 			return array();
 		} else {
@@ -692,19 +692,19 @@ class Org_Structure
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT org_id, ";
 
 		if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
 			$stmt .= $db->quote($indent)." || org_title as org_title ";
 		} else {
-			$stmt .= " CONCAT(".$db->quote($indent).",org_title) as org_title ";							
+			$stmt .= " CONCAT(".$db->quote($indent).",org_title) as org_title ";
 		}
-		
+
     $stmt .= " FROM
                     " . APP_TABLE_PREFIX . "org_structure ";
 		$stmt .=   "," . APP_TABLE_PREFIX . "org_structure_relationship
-					     WHERE orr_parent_org_id = org_id AND orr_child_org_id = ".$db->quote($child_id, 'INTEGER');			
+					     WHERE orr_parent_org_id = org_id AND orr_child_org_id = ".$db->quote($child_id, 'INTEGER');
 		$stmt .= "
                  ORDER BY
                     org_title ASC";
@@ -747,15 +747,15 @@ class Org_Structure
 	 * @param string $org_id The organisation ID
 	 * @return  array The list of authors in the given organisation ID
 	 */
-	function getAuthorsByOrgID($org_id) 
+	function getAuthorsByOrgID($org_id)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT distinct
                     aut_id, ";
 		if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
-			$stmt .= " concat_ws(TEXT(', '), TEXT(aut_lname), TEXT(aut_mname), concat_ws(TEXT(', '), TEXT(aut_fname), TEXT(aut_id))) as aut_fullname ";			
+			$stmt .= " concat_ws(TEXT(', '), TEXT(aut_lname), TEXT(aut_mname), concat_ws(TEXT(', '), TEXT(aut_fname), TEXT(aut_id))) as aut_fullname ";
 		} else {
 			$stmt .= " concat_ws(', ',   aut_lname, aut_mname, aut_fname, aut_id) as aut_fullname ";
 		}
@@ -781,14 +781,14 @@ class Org_Structure
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     org_title
 					FROM " . APP_TABLE_PREFIX . "author
 					LEFT JOIN hr_position_vw on wamikey = aut_org_staff_id
 					LEFT JOIN " . APP_TABLE_PREFIX . "org_structure on aou = org_extdb_id AND org_extdb_name = 'hr'
 					WHERE aut_org_staff_id = ".$db->quote($org_staff_id, 'INTEGER');
-		
+
 		try {
 			$res = $db->fetchCol($stmt);
 		}
@@ -832,14 +832,14 @@ class Org_Structure
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     org_id,
 					concat(".$db->quote($indent).",org_title) as org_title
                  FROM
                     " . APP_TABLE_PREFIX . "org_structure ";
 		$stmt .=   "," . APP_TABLE_PREFIX . "org_structure_relationship
-					     WHERE orr_parent_org_id = org_id AND orr_child_org_id = ".$db->quote($child_id, 'INTEGER');			
+					     WHERE orr_parent_org_id = org_id AND orr_child_org_id = ".$db->quote($child_id, 'INTEGER');
 		$stmt .= "
                  ORDER BY
                     org_title ASC";
@@ -872,7 +872,7 @@ class Org_Structure
 			}
 			$res = $newArray;
 			return $res;
-		}		
+		}
 	}
 
 	/**
@@ -882,18 +882,18 @@ class Org_Structure
 	 * @param string $parent_id
 	 * @return  array The list of organsational structures
 	 */
-	function getAllTreeIDs($parent_id=false) 
+	function getAllTreeIDs($parent_id=false)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     org_id
                  FROM
                     " . APP_TABLE_PREFIX . "org_structure ";
 		if (is_numeric($parent_id)) {
 			$stmt .=   "," . APP_TABLE_PREFIX . "org_structure_relationship
-						 WHERE orr_parent_org_id = ".$db->quote($parent_id, 'INTEGER')." AND orr_child_org_id = org_id ";			
+						 WHERE orr_parent_org_id = ".$db->quote($parent_id, 'INTEGER')." AND orr_child_org_id = org_id ";
 		} else {
 			$stmt .= " WHERE org_id not in (SELECT orr_child_org_id from  " . APP_TABLE_PREFIX . "org_structure_relationship)";
 		}
@@ -914,7 +914,7 @@ class Org_Structure
 				$newArray[$row[0]] = $row[0];
 			}
 		}
-		return $newArray;		
+		return $newArray;
 	}
 
 
@@ -929,7 +929,7 @@ class Org_Structure
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     *
                  FROM
@@ -945,7 +945,7 @@ class Org_Structure
 		}
 		return $res;
 	}
-		
+
 	/**
 	 * Method used to get a list of all known org units.
 	 *
@@ -956,7 +956,7 @@ class Org_Structure
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
 					aurion_org_id,
 					aurion_org_desc
@@ -968,23 +968,23 @@ class Org_Structure
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
-		
+
 		catch(Exception $ex) {
 			$log->err($ex);
 			return '';
 		}
-		
+
 		$return = array();
 		if (empty($res)) {
 			return array();
 		} else {
-			
+
 			foreach ($res as $row) {
 				$return[$row['aurion_org_id']] = $row['aurion_org_desc'];
 			}
 			return $return;
 		}
-		
+
 	}
-	
+
 }

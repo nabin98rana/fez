@@ -37,18 +37,18 @@ include_once(APP_INC_PATH . "class.org_structure.php");
 
 class AuthorAffiliations
 {
-	function getList($pid, $status = 1) 
+	function getList($pid, $status = 1)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT af.* FROM ". APP_TABLE_PREFIX ."author_affiliation af " .
 			"INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id ON rek_author_id_pid = af_pid " .
 			"AND af_author_id = rek_author_id " .
 			"WHERE af_pid = ".$db->quote($pid)." " .
 			"AND af_status = " . $db->quote($status, 'INTEGER') . " " .
 			"ORDER BY af_author_id";
-		
+
 		try {
 			$res = $db->fetchAll($stmt);
 		}
@@ -59,7 +59,7 @@ class AuthorAffiliations
 
 		// Add text versions of the author and school
 		foreach ($res as $key => $item) {
-		    
+
 			$res[$key]['author_name'] = Author::getFullname($item['af_author_id']);
 			$res[$key]['org_title'] = Org_Structure::getTitle($item['af_org_id']);
 			$res[$key]['af_percent_affiliation'] = $item['af_percent_affiliation'] / 1000;
@@ -74,7 +74,7 @@ class AuthorAffiliations
 	}
 
 
-	function getListAll($pid) 
+	function getListAll($pid)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -108,7 +108,7 @@ class AuthorAffiliations
 	 * @access  public
 	 * @return  array The list of affiliations.
 	 */
-	function getListAuthorSchool($af_author_id, $pid, $af_org_id) 
+	function getListAuthorSchool($af_author_id, $pid, $af_org_id)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -135,7 +135,7 @@ class AuthorAffiliations
 	 * @access  public
 	 * @return  boolean
 	 */
-	function remove($af_id) 
+	function remove($af_id)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -158,7 +158,7 @@ class AuthorAffiliations
 	}
 
 
-	function save($af_id, $pid, $af_author_id, $af_percent_affiliation, $af_org_id) 
+	function save($af_id, $pid, $af_author_id, $af_percent_affiliation, $af_org_id)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -219,7 +219,7 @@ class AuthorAffiliations
 	 * @return  int Success or otherwise of the operation
 	 */
 
-	function validateAffiliations($pid) 
+	function validateAffiliations($pid)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -264,7 +264,7 @@ class AuthorAffiliations
 	 * @access  public
 	 * @return  array The associative array of fields from the HR view
 	 */
-	function getPresetAffiliations($authorID) 
+	function getPresetAffiliations($authorID)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -295,7 +295,7 @@ class AuthorAffiliations
 				"ON aou = org_extdb_id " .
 				"WHERE aut_id = " . $db->quote($authorID, 'INTEGER') . " " .
 				"AND (org_extdb_name = 'hr' " .
-				"OR org_extdb_name = 'rrtd')";
+				"OR org_extdb_name = 'centralorg' OR org_extdb_name = 'rrtd')";
 
 		try {
 			$res = $db->fetchAll($stmt);
@@ -356,7 +356,7 @@ class AuthorAffiliations
 	 * @access  public
 	 * @return  int The total percentage (if any) assigned to this author in this school.
 	 */
-	function getExistingAuthorSchoolPercentages($authorID, $pid, $unitID) 
+	function getExistingAuthorSchoolPercentages($authorID, $pid, $unitID)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -385,7 +385,7 @@ class AuthorAffiliations
 	 * @access  public
 	 * @return  array The associative array of orphaned affiliations.
 	 */
-	function getOrphanedAffiliations($pid) 
+	function getOrphanedAffiliations($pid)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -422,7 +422,7 @@ class AuthorAffiliations
 	 * @access  public
 	 * @return  array List of organisational units
 	 */
-	function suggestOrgUnits($term, $assoc = false) 
+	function suggestOrgUnits($term, $assoc = false)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -431,7 +431,7 @@ class AuthorAffiliations
 				"FROM " . APP_TABLE_PREFIX . "org_structure " .
 				"WHERE org_title LIKE ". $db->quote('%'.$term.'%')." " .
 				"AND (org_extdb_name = 'hr' " .
-				"OR org_extdb_name = 'rrtd') " .
+				"OR org_extdb_name = 'centralorg' OR org_extdb_name = 'rrtd') " .
 				"ORDER BY org_title LIMIT 20 OFFSET 0";
 
 		try {
@@ -458,7 +458,7 @@ class AuthorAffiliations
 	 * @access  public
 	 * @return  array The associative array of PIDs and their titles.
 	 */
-	function getOrphanedAffiliationsAll() 
+	function getOrphanedAffiliationsAll()
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -488,7 +488,7 @@ class AuthorAffiliations
 	 * @access  public
 	 * @return  array The associative array of PIDs and their titles.
 	 */
-	function getBadSums() 
+	function getBadSums()
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
