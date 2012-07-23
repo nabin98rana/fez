@@ -126,8 +126,8 @@ class Fez_Workflow_Herdc_EvidenceFollowUp
         }
         $mail = new Mail_API;
         if (APP_EVENTUM_SEND_EMAILS == 'ON') {
-            $Bcc = APP_EVENTUM_NEW_JOB_EMAIL_ADDRESS;
-            $mail->addBcc($Bcc);
+            $Cc = APP_EVENTUM_NEW_JOB_EMAIL_ADDRESS;
+            $mail->addCc($Cc);
         }
         $to ='';
         foreach($this->_uposInfo as $upo)
