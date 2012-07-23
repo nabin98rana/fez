@@ -44,6 +44,7 @@ class Fez_Workflow_Herdc_EvidenceFollowUp
     protected $_emailTemplate = "workflow/emails/herdc_evidence_followup.tpl.html";
     protected $_subjectPrefix = "Evidence follow-up";  
     protected $_espaceEventumTeamId = 36;
+    protected $_uposInfo = array();
 
 
     /**
@@ -65,8 +66,11 @@ class Fez_Workflow_Herdc_EvidenceFollowUp
      * 
      * @return boolean
      */
-    public function lodge()
+    public function lodge($upoList)
     {
+        foreach($upoList as $upo){
+            $this->_uposInfo[] = User::getNameEmail($upo);
+        }
         // Lodge an Eventum job
         $lodge = $this->_lodgeEventumJob();
         
@@ -75,7 +79,6 @@ class Fez_Workflow_Herdc_EvidenceFollowUp
             $this->_log->err("HERDC Evidence follow-up failed for PID '". $this->_pid ."'.");
             return false;
         }
-        
         // Add history to the PID
         // comment out since we cannot get Eventum to return the newly created issue ID.
         // $this->_addHistory();
@@ -121,8 +124,19 @@ class Fez_Workflow_Herdc_EvidenceFollowUp
         if (empty($emailContent)){
             return false;
         }
-        
-        Eventum::lodgeJob($emailSubject, $emailContent, $emailSender);
+        $mail = new Mail_API;
+        if (APP_EVENTUM_SEND_EMAILS == 'ON') {
+            $Bcc = APP_EVENTUM_NEW_JOB_EMAIL_ADDRESS;
+            $mail->addBcc($Bcc);
+        }
+        $to ='';
+        foreach($this->_uposInfo as $upo)
+        {
+            $to = $to.$upo['usr_email'].', ';
+        }
+        // Send the email.
+        $mail->setHTMLBody($emailContent);
+        $mail->send($emailSender, $to, $emailSubject, false);
         
         return true;
     }

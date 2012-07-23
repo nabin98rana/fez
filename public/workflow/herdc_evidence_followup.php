@@ -41,7 +41,7 @@
  * @copyright (c) 2012 The University of Queensland
  */
 $followup = new Fez_Workflow_Herdc_EvidenceFollowUp($this->pid);
-$followup->lodge();
+$followup->lodge($_POST['upo_list']);
 
 // Add Eventum link to this PID's workflow history details
 $eventumLink = $followup->getEventumLink();
