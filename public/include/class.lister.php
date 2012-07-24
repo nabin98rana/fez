@@ -187,9 +187,10 @@ class Lister
 			header("Content-Disposition: attachment; filename=export.xls");
 			header("Content-Description: PHP Generated XLS Data");
 		}  elseif ($tpl_idx == 7) {  //heaphey - added for endnote
-			header("Content-type: application/vnd.endnote");
-			header("Content-Disposition: attachment; filename=endnote.enw");
-			header("Content-Description: PHP Generated Endnote Data");
+            header("Content-type: application/vnd.endnote");
+            header("Content-Disposition: attachment; filename=endnote.enw");
+            header("Content-Description: PHP Generated Endnote Data");
+
 		}   elseif ($tpl_idx == 9) {  //heaphey - added for word
 			header("Content-type: application/vnd.ms-word");
 			header("Content-Disposition: attachment; filename=word.doc");
@@ -211,7 +212,7 @@ class Lister
         if (Auth::userExists($username)) { // if the user is registered as a Fez user
             $tpl->assign("isFezUser", $username);
         }
-        
+
         $pager_row = $params['pager_row'];
         if (empty($pager_row) || $pager_row < 0) {
             $pager_row = 0;
@@ -284,7 +285,6 @@ class Lister
 		 */
         $sort_by_list = array(
             "searchKey".Search_Key::getID("Title") => 'Title',
-            "searchKey".Search_Key::getID("Description") => 'Description',
             "searchKey".Search_Key::getID("File Downloads") => 'File Downloads',
             "searchKey".Search_Key::getID("Date") => 'Date',
             "searchKey".Search_Key::getID("Created Date") => 'Created Date',
@@ -459,7 +459,6 @@ class Lister
              */
         	unset($sort_by_list["searchKey".Search_Key::getID("File Downloads")]);
         	unset($sort_by_list["searchKey".Search_Key::getID("Sequence")]);
-        	unset($sort_by_list["searchKey".Search_Key::getID("Description")]);
         	unset($sort_by_list["searchKey".Search_Key::getID("Date")]);
         	
         	/*
@@ -513,7 +512,6 @@ class Lister
             unset($sort_by_list["searchKey".Search_Key::getID("Title")]);
         	unset($sort_by_list["searchKey".Search_Key::getID("File Downloads")]);
         	unset($sort_by_list["searchKey".Search_Key::getID("Sequence")]);
-        	unset($sort_by_list["searchKey".Search_Key::getID("Description")]);
         	unset($sort_by_list["searchKey".Search_Key::getID("Date")]);
             
 			$options = array();
@@ -567,7 +565,6 @@ class Lister
                  */
             	unset($sort_by_list["searchKey".Search_Key::getID("File Downloads")]);
             	unset($sort_by_list["searchKey".Search_Key::getID("Sequence")]);
-            	unset($sort_by_list["searchKey".Search_Key::getID("Description")]);
             	unset($sort_by_list["searchKey".Search_Key::getID("Date")]);
             	
             	/*
@@ -673,7 +670,6 @@ class Lister
                  */
             	unset($sort_by_list["searchKey".Search_Key::getID("File Downloads")]);
             	unset($sort_by_list["searchKey".Search_Key::getID("Sequence")]);
-            	unset($sort_by_list["searchKey".Search_Key::getID("Description")]);
             	unset($sort_by_list["searchKey".Search_Key::getID("Date")]);
             	
             	/*
@@ -714,7 +710,6 @@ class Lister
                  */
             	unset($sort_by_list["searchKey".Search_Key::getID("File Downloads")]);
             	unset($sort_by_list["searchKey".Search_Key::getID("Sequence")]);
-            	unset($sort_by_list["searchKey".Search_Key::getID("Description")]);
             	unset($sort_by_list["searchKey".Search_Key::getID("Date")]);
             	
             	/*
@@ -937,7 +932,6 @@ class Lister
                  */
             	unset($sort_by_list["searchKey".Search_Key::getID("File Downloads")]);
             	unset($sort_by_list["searchKey".Search_Key::getID("Sequence")]);
-            	unset($sort_by_list["searchKey".Search_Key::getID("Description")]);
             	unset($sort_by_list["searchKey".Search_Key::getID("Date")]);
             	
             	/*
@@ -1053,7 +1047,6 @@ class Lister
              */
         	unset($sort_by_list["searchKey".Search_Key::getID("File Downloads")]);
         	unset($sort_by_list["searchKey".Search_Key::getID("Sequence")]);
-        	unset($sort_by_list["searchKey".Search_Key::getID("Description")]);
         	unset($sort_by_list["searchKey".Search_Key::getID("Date")]);
         	
         	/*
