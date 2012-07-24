@@ -60,14 +60,9 @@ if (empty($wfstatus)) {
     exit;
 }
 
-$upoGroupID = Group::getID(APP_MY_RESEARCH_UPO_GROUP);
-$upoList =    Group::getUserAssocList($upoGroupID);
-
-
 $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign("type", "herdc_evidence_followup_confirmation");
-$tpl->assign("upo_list", $upoList);
 
 $pid = $wfstatus->pid;
 $wf_id = $wfstatus->id;

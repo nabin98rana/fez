@@ -1,64 +1,11 @@
 <tr>
-    <td colspan="2">
+    <td>
         <div class="outline">
             <div style="font-weight: bold; font-size: 12px; text-align: center;">
                 <p></p>
-                <p>This workflow will send a HERDC evidence follow-up to selected UPOs.</p>
-                <p>Please select UPOs from the list below, copy to the right and press proceed</p>
-                <p>An email will be sent to the UPOs and also a copy will be sent to Eventum for record keeping</p>
+                <p>This workflow will create a HERDC evidence follow-up issue in Eventum for this record.</p>
+                <p>Do you wish to proceed?</p>
             </div>
         </div>
     </td>
 </tr>
-
-
-<table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
-    <tr>
-        <td colspan="3" class="default">
-            <b>Select the UPO to email from the list:</b>
-        </td>
-    </tr>
-    <tr><td>&nbsp;</td></tr>
-    <tr>
-        <td>
-            <span class="default">User List</span>
-        </td>
-        <td>
-            &nbsp;
-        </td>
-        <td>
-            <span class="default">Currently Assigned Viewers</span>
-        </td>
-    </tr>
-
-    <tr>
-        <td align="left" width="5%">
-            <input type="hidden" name="cat" value="update" />
-            <select id="user_options" multiple size="10" width="40" class="default" name="upo_email_list[]">
-                {html_options options=$upo_list}
-            </select>
-        </td>
-        <td width="5%" align="left">
-            <input type="button" name="copy_right" value="Copy selected to right ->" onClick="javascript:addToParentList(this.form.user_options, this.form.upo_list)" />
-            <br />
-            <br />
-            <input type="button" name="remove_right" value="Remove selected from right" onClick="javascript:deleteSelectedItemsFromList(this.form.upo_list)" />
-        </td>
-        <td align="left">
-            <select id="upo_list" multiple size="10" width="40" class="default" name="upo_list[]">
-
-            </select>
-        </td>
-    </tr>
-</table>
-{literal}
-<script type="text/javascript">
-    function validateForm() {
-        var field = document.forms.wfl_form1.upo_list;
-
-        for (var y = 0; y < field.options.length; y++) {
-            field.options[y].selected = true;
-        }
-    }
-</script>
-{/literal}

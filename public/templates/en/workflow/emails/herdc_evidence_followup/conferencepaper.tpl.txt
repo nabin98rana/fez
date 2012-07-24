@@ -5,16 +5,16 @@ We are currently processing the following conference paper record in UQ eSpace: 
 This publication includes author(s)/co-author(s) affiliated with your unit.
 
 In order for the record to be considered for HERDC we require some additional evidence.  
-Please provide a copy of pages from the proceeedings as follows:
-   - Title page
-   - Title verso 
+Please provide a copy of pages from the proceedings as follows:
+   1. Title page
+   2. Title verso
      (publisher information, ISBN (if there is one), copyright information, editors and convenors, etc., usually on reverse side of title page) 
-   - Table of contents 
-   - Preface 
-   - Introduction 
-   - Full copy of paper, including bylines 
-   - If no byline, page with a statement of author affiliation 
-   - Page that includes a statement of peer-review
+   3. Table of contents
+   4. Preface
+   5. Introduction
+   6. Full copy of paper, including bylines
+   7. If no byline, page with a statement of author affiliation
+   8. Page that includes a statement of peer-review
 
 If there is no statement of peer-review in the proceedings, please provide a copy of the paper peer-review assessment (many academics keep these).
 

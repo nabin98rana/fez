@@ -357,17 +357,6 @@ class Mail_API
 		$this->mime->addCc($email);
 	}
 
-    /**
-     * Method used to add an email address in the Bcc list.
-     *
-     * @access  public
-     * @param   string $email The email address to be added
-     * @return  void
-     */
-    function addBcc($email)
-    {
-        $this->mime->addBcc($email);
-    }
 
 	/**
 	 * Removes the warning message contained in a message, so that certain users

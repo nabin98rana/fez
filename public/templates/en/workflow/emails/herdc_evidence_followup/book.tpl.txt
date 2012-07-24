@@ -6,13 +6,13 @@ This publication includes author(s)/co-author(s) affiliated with your unit.
 
 In order for the record to be considered for HERDC we require some additional evidence.
 Please provide a copy of pages from the book as follows:
-   - Title page
-   - Title verso (publisher information, ISBN, copyright information, etc., usually on reverse side of title page) 
-   - Table of contents 
-   - Preface 
-   - Introduction 
-   - First chapter, if no Introduction is included 
-   - Author bylines/bio information
+   1. Title page
+   2. Title verso (publisher information, ISBN, copyright information, etc., usually on reverse side of title page)
+   3. Table of contents
+   4. Preface
+   5. Introduction
+   6. First chapter, if no Introduction is included
+   7. Author bylines/bio information
 
 If this book is a 2nd or subsequent edition, we also require all of the above for the immediately previous edition.
 
