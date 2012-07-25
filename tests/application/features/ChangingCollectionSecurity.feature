@@ -12,6 +12,7 @@ Feature: Pid security
     And I press "Create"
     And I fill in "Title" with "Test Collection Security to be changed after pid created"
     And I select "Journal Article Version MODS 1.0" from "XSD Display Document Types"
+    And I select "Test Community Security to be changed after pid created" from "Member of Communities"
     And I fill in "Keyword 1" with "automated testing"
     And I press "Publish"
     And I press "Create"
@@ -69,17 +70,22 @@ Feature: Pid security
     Then I should see "No records could be found"
 
   @destructive @purge
-  Scenario: Delete old pids
+  Scenario: Delete old Communities
     Given I login as administrator
     And I fill in "Search Entry" with "title:(\"Test Community Security to be changed after pid created\")"
     And I press "search_entry_submit"
     And I wait for "3" seconds
     And I press "Select All"
     And I turn off waiting checks
+    And I turn off waiting checks
     And I press "Delete"
     And I confirm the popup
     And I fill "automated test data cleanup" in popup
     And I confirm the popup
+
+  @destructive @purge
+  Scenario: Delete old Collections
+    Given I login as administrator
     And I fill in "Search Entry" with "title:(\"Test Collection Security to be changed after pid created\")"
     And I press "search_entry_submit"
     And I wait for "3" seconds
@@ -89,6 +95,10 @@ Feature: Pid security
     And I confirm the popup
     And I fill "automated test data cleanup" in popup
     And I confirm the popup
+
+  @destructive @purge
+  Scenario: Delete old pids
+    Given I login as administrator
     And I fill in "Search Entry" with "title:(\"Test Pid Security to be changed after pid created\")"
     And I press "search_entry_submit"
     And I wait for "3" seconds

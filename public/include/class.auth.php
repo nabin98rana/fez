@@ -922,9 +922,8 @@ class Auth
 
                             } elseif(($group_value == "" || $group_value == "off")
                             && ($role == "Viewer" || $role == "Lister")) {
-
-							if(array_key_exists($role, $overridetmp) && $overridetmp[$role] !== false) {
-                                    $overridetmp[$role] = true;
+                                if(array_key_exists($role, $overridetmp) && $overridetmp[$role] !== false) {
+                                        $overridetmp[$role] = true;
                                 }
 
                             } elseif( $group_value != "off" && $group_value != "" ) {
@@ -3057,7 +3056,7 @@ class AuthNoFedora {
         $record = new RecordObject($pid);
         $childPids = $record->getChildrenPids();
         foreach($childPids as $child) {
-            if (AuthNoFedora::isInherited($pid)) {
+            if (AuthNoFedora::isInherited($child)) {
                 AuthNoFedora::recalculatePermissions($child);
             }
         }
