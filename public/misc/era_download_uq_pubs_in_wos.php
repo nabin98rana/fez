@@ -78,8 +78,8 @@ for($i=0; $i<$pages; $i++) {
 	
 	if($records) {
 		foreach($records->REC as $record) {
-			if(@$record->item) {
-                $ut = (string) $record->item->ut;
+			if(@$record->UID) {
+                $ut = (string) $record->UID;
                 $wq->add($ut);
 //				$pid = Record::getPIDByIsiLoc($record->item->ut);
 			}

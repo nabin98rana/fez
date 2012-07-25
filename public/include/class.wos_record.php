@@ -331,7 +331,7 @@ class WosRecItem
     $siloTc = $node->getElementsByTagName("silo_tc")->item(0);
     $this->timesCited = $siloTc->getAttribute('local_count');
     $this->abstract = $node->getElementsByTagName("abstract_text")->item(0)->nodeValue;
-    $this->ut = $node->getElementsByTagName("UID")->item(0)->nodeValue;
+    $this->ut = str_ireplace("WOS:", "", $node->getElementsByTagName("UID")->item(0)->nodeValue );
     $elements = $node->getElementsByTagName("identifier");
     foreach($elements as $element) {
          if ($element->getAttribute('type') == "issn") {
@@ -649,7 +649,7 @@ class WosRecItem
             $dTMap[$map['tdm_doctype']] = array($map['xdis_title'], $map['tdm_subtype'], $map['tdm_xdis_id']);
         }
         if (!array_key_exists($this->docTypeCode, $dTMap)) {
-            $log->err('Unsupported doc type: ' . $this->docTypeCode);
+            $log->err('Unsupported doc type: ' . $this->docType.' '.$this->docTypeCode);
             return FALSE;
         }
         $xdis_id = $dTMap[$this->docTypeCode][2];
@@ -718,7 +718,7 @@ class WosRecItem
                 $dTMap[$map['tdm_doctype']] = array($map['xdis_title'], $map['tdm_subtype'], $map['tdm_xdis_id']);
             }
             if (!array_key_exists($this->docTypeCode, $dTMap)) {
-                $log->err('Unsupported doc type: ' . $this->docTypeCode);
+                $log->err('Unsupported doc type: ' . $this->docType.' '.$this->docTypeCode);
                 return FALSE;
             }
             
@@ -821,7 +821,7 @@ class WosRecItem
       $dTMap[$map['tdm_doctype']] = array($map['xdis_title'], $map['tdm_subtype'], $map['tdm_xdis_id']);
     }
     if (! array_key_exists($this->docTypeCode, $dTMap)) {
-      $log->err('Unsupported doc type: '.$this->docTypeCode);
+      $log->err('Unsupported doc type: ' . $this->docType.' '.$this->docTypeCode);
       return FALSE;
     }
     $xdis_title = $dTMap[$this->docTypeCode][0];
