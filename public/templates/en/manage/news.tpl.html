@@ -93,6 +93,17 @@
                 </td>
               </tr>
               <tr>
+                <td style="width: 140px;" class="default cell-colour">
+                    <b>Admin Users & Upo only:</b>
+                </td>
+                <td style="background: {$light_color}">
+                    <select name="admin_only" class="default">
+                        <option value="1" {if $info.nws_admin_only == true}selected="selected"{/if}>Yes</option>
+                        <option value="0" {if $info.nws_admin_only != true}selected="selected"{/if}>No</option>
+                    </select>
+                </td>
+              </tr>
+              <tr>
                 <td style="width: 140px" class="default cell-colour">
                   <b>Title:</b>
                 </td>
@@ -159,11 +170,12 @@
                     <tr>
                       <td style="width: 4px; white-space: nowrap" class="cell-colour">&nbsp;</td>
                       <td style="width: 25%" class="default cell-colour">&nbsp;<b>Title</b></td>
-                      <td style="width: 15%" class="default cell-colour">&nbsp;<b>Status</b></td>
-                      <td style="width: 15%" class="default cell-colour">&nbsp;<b>Posted By</b></td>					  
-                      <td style="width: 15%" class="default cell-colour">&nbsp;<b>Created Date</b></td>
-                      <td style="width: 15%" class="default cell-colour">&nbsp;<b>Updated Date</b></td>					  					  
-                      <td style="width: 15%" class="default cell-colour">&nbsp;<b>Published Date</b></td>					  					  
+                      <td style="width: 11%" class="default cell-colour">&nbsp;<b>Status</b></td>
+                      <td style="width: 8%" class="default cell-colour">&nbsp;<b>Admin Only</b></td>
+                      <td style="width: 14%" class="default cell-colour">&nbsp;<b>Posted By</b></td>
+                      <td style="width: 14%" class="default cell-colour">&nbsp;<b>Created Date</b></td>
+                      <td style="width: 14%" class="default cell-colour">&nbsp;<b>Updated Date</b></td>
+                      <td style="width: 14%" class="default cell-colour">&nbsp;<b>Published Date</b></td>
                     </tr>
                     {section name="i" loop=$list}
                     {cycle values=$cycle assign="row_color"}
@@ -172,31 +184,34 @@
                       <td style="width: 25%; background: {$row_color}" class="default">
                         &nbsp;<a class="link" href="{$smarty.server.PHP_SELF}?cat=edit&amp;id={$list[i].nws_id}" title="update this entry">{$list[i].nws_title}</a>
                       </td>
-                      <td style="width: 15%; background: {$row_color}" class="default">
+                      <td style="width: 11%; background: {$row_color}" class="default">
                         &nbsp;{if ($list[i].nws_status == 'active')}<span class="enabled">{else}<span class="disabled">{/if}{$list[i].nws_status}</span>
                       </td>
-                      <td style="width: 15%; background: {$row_color}" class="default">
+                      <td style="width: 8%; background: {$row_color}" class="default">
+                          &nbsp;{if ($list[i].nws_admin_only == true)}<span class="disabled">Yes</span>{else}<span class="enabled">No</span>{/if}
+                      </td>
+                      <td style="width: 14%; background: {$row_color}" class="default">
                         &nbsp;{$list[i].usr_full_name}
                       </td>
-                      <td style="width: 15%; background: {$row_color}" class="default">
+                      <td style="width: 14%; background: {$row_color}" class="default">
                         &nbsp;{$list[i].nws_created_date}
                       </td>
-                      <td style="width: 15%; background: {$row_color}" class="default">
+                      <td style="width: 14%; background: {$row_color}" class="default">
                         &nbsp;{$list[i].nws_updated_date}
                       </td>
-                      <td style="width: 15%; background: {$row_color}" class="default">
+                      <td style="width: 14%; background: {$row_color}" class="default">
                         &nbsp;{$list[i].nws_published_date}
                       </td>
                     </tr>
                     {sectionelse}
                     <tr>
-                      <td colspan="7" style="background: {$light_color}; text-align: center" class="default">
+                      <td colspan="8" style="background: {$light_color}; text-align: center" class="default">
                         No news entries could be found.
                       </td>
                     </tr>
                     {/section}
                     <tr>
-                      <td colspan="7" style="background: {$cell_color}; text-align: center">
+                      <td colspan="8" style="background: {$cell_color}; text-align: center">
                         <input type="submit" value="Delete" class="button" />
                       </td>
                     </tr>

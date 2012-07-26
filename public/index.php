@@ -185,7 +185,8 @@ if ($aliasResult == false) {
     $recCount = str_replace(" ", html_entity_decode(",&nbsp;", ENT_COMPAT, "UTF-8"), $recCount);
     $tpl->assign("record_count", $recCount);
 
-    $news = News::getList(5);       // Maximum of 5 news posts for front page.
+    $news = News::getList(5, User::isUserAdministrator($username) || User::isUserUPO($username));       // Maximum of 5 news posts for front page.
+    $news_count = count($news);
     $news_count = count($news);
     $tpl->assign("news", $news);
     $tpl->assign("isHomePage", "true");

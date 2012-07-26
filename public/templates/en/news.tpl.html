@@ -5,7 +5,7 @@
 
 {section name="i" loop=$news}
 <div class="news-item">
-  <a id="x{$news[i].nws_id}" name="x{$news[i].nws_id}"></a><div class="news-heading">{$news[i].nws_title}</div>
+  <a id="x{$news[i].nws_id}" name="x{$news[i].nws_id}"></a><div class="news-heading">{$news[i].admin_only}{$news[i].nws_title}</div>
   <div class="news-supp-info">Posted {$news[i].nws_published_date} by {if $news[i].usr_email !== ''}<a href="mailto:{$news[i].usr_email}">{/if}{$news[i].usr_full_name}{if $news[i].usr_email !== ''}</a>{/if}</div>
   <div class="news-body">{$news[i].nws_message}</div>
 </div>

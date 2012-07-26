@@ -51,7 +51,8 @@ if (Auth::userExists($username)) { // if the user is registered as a Fez user
 }
 $tpl->assign("isAdministrator", $isAdministrator);
 
-$news = News::getList();
+$allNews = User::isUserUPO($username) || $isAdministrator;
+$news = News::getList(2000, $allNews);
 $news_count = count($news);
 $tpl->assign("news", $news);
 $tpl->assign("news_count", $news_count);

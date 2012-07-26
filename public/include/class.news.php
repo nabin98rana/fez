@@ -88,6 +88,7 @@ class News
                     nws_usr_id,
                     nws_created_date,
                     nws_title,
+                    nws_admin_only,
                     nws_message,";
 		if ($_POST["status"] == "active") {
 			$stmt .= "nws_published_date,";
@@ -98,6 +99,7 @@ class News
                     " . $db->quote(Auth::getUserID(), 'INTEGER') . ",
                     " . $db->quote(Date_API::getCurrentDateGMT()) . ",
                     " . $db->quote($_POST["title"]) . ",
+                    " . $db->quote($_POST["admin_only"]) . ",
                     " . $db->quote($_POST["message"]) . ",";
 		if ($_POST["status"] == "active") {
 			$stmt .= "
@@ -166,6 +168,7 @@ class News
                  SET
                     nws_title=" . $db->quote($_POST["title"]) . ",
                     nws_message=" . $db->quote($_POST["message"]) . ",
+                    nws_admin_only=" . $db->quote($_POST["admin_only"]) . ",
                     nws_status=" . $db->quote($_POST["status"]) . ",
 					";
 		if (($_POST["status"] == "active") && ($existing_res['published_date'] != '0000-00-00 00:00:00')) {
@@ -222,17 +225,20 @@ class News
 	 * @access  public
 	 * @return  array The list of news entries
 	 */
-	function getList($maxPosts = 999999)
+	function getList($maxPosts = 999999, $isAdmin= false)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-				
+
+        $isAdminDB = $isAdmin ? "" : " AND nws_admin_only = 0 ";
+
 		$stmt = "SELECT
 					*
                  FROM
                     " . APP_TABLE_PREFIX . "news,
                     " . APP_TABLE_PREFIX . "user					
                  WHERE nws_status = 'active' and usr_id = nws_usr_id
+                 " .$isAdminDB."
                  ORDER BY
                     nws_created_date DESC
                  LIMIT " . $db->quote($maxPosts, 'INTEGER');
@@ -248,6 +254,13 @@ class News
 		$timezone = Date_API::getPreferredTimezone();
 		
 		foreach ($res as $key => $row) {
+            $res[$key]["admin_only"] = "";
+            if ($res[$key]["nws_admin_only"]) {
+                $res[$key]["admin_only"] = "<b>Admin msg: </b>";
+                if (strtotime ($res[$key]["nws_created_date"])  > strtotime ("now") - 3600*24 ){
+                    $res[$key]["admin_only"] = "<span style='color:red'>".$res[$key]["admin_only"]."</span>";  //If younger than 24 hours make red
+                }
+            }
 			$res[$key]["nws_created_date"] = Date_API::getFormattedDate($res[$key]["nws_created_date"], $timezone);
 			$res[$key]["nws_updated_date"] = Date_API::getFormattedDate($res[$key]["nws_updated_date"], $timezone);
 			$res[$key]["nws_published_date"] = Date_API::getFormattedDate($res[$key]["nws_published_date"], $timezone);
