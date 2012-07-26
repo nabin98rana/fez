@@ -288,6 +288,7 @@ class WokQueue extends Queue
     // additional bib data
     $existing_uts = array();
     foreach ($uts as $ut) {
+      $ut = str_ireplace("WOS:", "", $ut ); //If wos in queue has the prefix it will create a new record
       $pid = Record::getPIDByIsiLoc($ut);
       if ($pid) {
         $existing_uts[$ut] = $pid;

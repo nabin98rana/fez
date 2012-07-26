@@ -34,10 +34,24 @@ class loginHelper {
   static function iLoginAsSuperAdministrator($page)
   {
   $page->visit("/login.php");
-  $page->fillField("username", "");
+  $page->fillField("username", "superadmin_test");
   $page->fillField("passwd", "");
   $page->pressButton("Login");
   $page->visit("/");
 
   }
+
+  /**
+  * @Given /^I login as user no groups$/
+  */
+  static function iLoginAsUserNoGroups($page)
+  {
+  $page->visit("/login.php");
+  $page->fillField("username", "user_test");
+  $page->fillField("passwd", "");
+  $page->pressButton("Login");
+  $page->visit("/");
+
+}
+
 }

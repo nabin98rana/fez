@@ -530,7 +530,7 @@ class WosRecItem
     $this->bibIssueYear = $pubInfo->getAttribute('pubyear');
     $this->bibIssueVol = $pubInfo->getAttribute('vol');
 
-      $bibVol = $node->getElementsByTagName("bib_vol")->item(0);
+      $bibVol = $node->getElementsByTagName("pub_info")->item(0);
       if ($bibVol) {
         $this->bibIssueNum = $bibVol->getAttribute('issue');
       }
