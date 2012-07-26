@@ -53,6 +53,7 @@ Feature: Pid security
     And I follow "Test Collection Security to be changed after pid created"
     And I follow "Test Pid Security to be changed after pid created"
     And I follow "Logout"
+
     When I move backward one page
     Then I should see "You must first login to access this resource"
     When I move backward one page
@@ -77,11 +78,11 @@ Feature: Pid security
     And I wait for "3" seconds
     And I press "Select All"
     And I turn off waiting checks
-    And I turn off waiting checks
     And I press "Delete"
     And I confirm the popup
     And I fill "automated test data cleanup" in popup
     And I confirm the popup
+    And I turn on waiting checks
 
   @destructive @purge
   Scenario: Delete old Collections
@@ -95,6 +96,7 @@ Feature: Pid security
     And I confirm the popup
     And I fill "automated test data cleanup" in popup
     And I confirm the popup
+    And I turn on waiting checks
 
   @destructive @purge
   Scenario: Delete old pids
@@ -108,3 +110,4 @@ Feature: Pid security
     And I confirm the popup
     And I fill "automated test data cleanup" in popup
     And I confirm the popup
+    And I turn on waiting checks
