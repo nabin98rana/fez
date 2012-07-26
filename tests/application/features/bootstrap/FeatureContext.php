@@ -19,11 +19,26 @@ use Behat\MinkExtension\Context\MinkContext;
 //   require_once 'PHPUnit/Framework/Assert/Functions.php';
 //
 
-require_once 'LoginHelper.php';
 require_once ('../../public/config.inc.php');
+require_once 'LoginHelper.php';
+//require_once 'LinksAMRHelper.php';
+
+
 require_once(APP_INC_PATH . 'class.auth.php');
 require_once(APP_INC_PATH . 'class.fulltext_queue.php');
 require_once(APP_INC_PATH . 'class.wok_queue.php');
+
+
+require_once(APP_INC_PATH . 'class.links_amr_queue.php');
+require_once(APP_INC_PATH . 'class.eventum.php');
+require_once(APP_INC_PATH . 'class.record.php');
+
+define("TEST_LINKS_AMR_FULL_PID", "UQ:35267");
+define("TEST_LINKS_AMR_EMPTY_PID", "UQ:26148");
+
+
+define("TEST_LINKS_AMR_UT", "000177619700002");
+
 
 /**
  * @var string An example Journal Article publication pid in the system you can perform non-destructive tests on
@@ -150,8 +165,8 @@ class FeatureContext extends MinkContext
         }
         sleep(1);
       }
+      return;
     }
-    return;
   }
 
   /**
@@ -540,4 +555,38 @@ class FeatureContext extends MinkContext
         $wOKQueue = WokQueue::get();
         $wOKQueue->add($item);
     }
+
+
+
+  /**
+   * @Given /^I send a empty pid to Links AMR that will get back an existing ISI Loc pid$/
+   */
+  public function iSendAEmptyPidToLinksAmrThatWillGetBackAnExistingIsiLocPid()
+  {
+    $queue = new LinksAmrQueue();
+    $queue->sendToLinksAmr(array(TEST_LINKS_AMR_EMPTY_PID));
+  }
+
+  /**
+   * @Then /^the empty Links AMR test pid should not get the ISI Loc$/
+   */
+  public function theEmptyLinksAmrTestPidShouldNotGetTheIsiLoc()
+  {
+    $isi_loc = Record::getSearchKeyIndexValue(TEST_LINKS_AMR_EMPTY_PID, "ISI Loc");
+    if ($isi_loc != '') {
+      throw new Exception("ISI Loc isn't empty for pid");
+    }
+  }
+
+  /**
+   * @Given /^helpdesk system should have an email with the ISI Loc and pid in the subject line$/
+   */
+  public function helpdeskSystemShouldHaveAnEmailWithTheIsiLocAndPidInTheSubjectLine()
+  {
+    $issues = Eventum::getLinksIssues(TEST_LINKS_AMR_EMPTY_PID, TEST_LINKS_AMR_UT);
+    if (count($issues) == 0) {
+      throw new Exception("Can't find the helpdesk issue");
+    }
+  }
+
 }

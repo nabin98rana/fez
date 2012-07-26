@@ -25,7 +25,7 @@ Feature: Security
     And I press "search_entry_submit"
     Then I should see "(1 results found)"
 
-  @destructive @now
+  @destructive
   Scenario: Create a community, collection, set the collection to viewable by admins only
     Given I login as administrator
     And I follow "Browse"
@@ -52,7 +52,7 @@ Feature: Security
     And I press "search_entry_submit"
     Then I should see "(0 results found)"
 
-  @destructive @core @now
+  @destructive @core
   Scenario: Create a new secure lister community,
   create a collection belonging the secure community and the open community and the
   collection should still be searchable / listable to a non-logged in user due to multiple
@@ -83,7 +83,32 @@ Feature: Security
   And I press "search_entry_submit"
   Then I should see "(1 results found)"
 
-  @destructive @core @now
+
+#  @destructive
+#  Scenario: Using an open community and creating a new open collection in it, and setting the collection
+#  to have a  'Datastream FezACML Policy for datastreams' set to only UPO groups can view attached files
+#  and the record view screen is viewable but the PDFs are only accessible to UPOs
+#  Given I login as administrator
+#  And I fill in "Search Entry" with "title:(\"Security Test Community Open\")"
+#  And I press "search_entry_submit"
+#  And I follow "Security Test Community Open"
+#  And I press "Create"
+#  And I fill in "Title" with "Security Test Collection Open Records But Secure Files"
+#  And I select "Journal Article Version MODS 1.0" from "XSD Display Document Types"
+#  And I select "Security Test Community Open" from "Member of Communities"
+#  And I fill in "Keyword 1" with "automated testing"
+#  And I press "Publish"
+#  And I fill in "Search Entry" with "title:(\"Security Test Collection Open Records But Secure Files\")"
+#  And I press "search_entry_submit"
+#  And I follow "Edit Security for Selected Collection"
+#  And I choose
+
+
+
+
+
+
+@destructive @core
   Scenario: When an administrator deletes the open unsecured community then
   the child collection will start being inaccessible to logged in users as it is now
   only in the secure community
@@ -98,7 +123,7 @@ Feature: Security
   Then I should see "(0 results found)"
 
 
-  @destructive @core @purge
+@destructive @core @purge
   Scenario: Delete Security Test Collections
     Given I login as administrator
     And I fill in "Search Entry" with "title:(\"Security Test Collection\")"
