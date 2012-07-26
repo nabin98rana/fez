@@ -2,9 +2,9 @@
 /**
  * This class implements a persistent queue that tracks objects to be added
  * or removed from the enrichment queue. It is implemented with the singleton
- * pattern and will only commit the results once when the request ends or when 
+ * pattern and will only commit the results once when the request ends or when
  * an explicit commit is called.
- * 
+ *
  * <p>Usage:</p>
  * <ul>
  * <li>LinksAmrQueue::get()->add(pid)
@@ -35,16 +35,16 @@ class LinksAmrQueue extends Queue
   protected $_commit_shutdown_registered;
   // Time to wait (in seconds) between successive Links AMR service calls
   protected $_time_between_calls;
-  
+
   /**
    * Returns the singleton queue instance.
    *
    * @return instance of class LinksAmrQueue
    */
-  public static function get() 
+  public static function get()
   {
     $log = FezLog::get();
-    
+
     try {
       $instance = Zend_Registry::get('LinksAmrQueue');
     }
@@ -55,7 +55,7 @@ class LinksAmrQueue extends Queue
       $instance->_dblp = 'lnl_';
       $instance->_dbqp = 'lnq_';
       $instance->_lock = 'linksamr';
-      $instance->_use_locking = TRUE; 
+      $instance->_use_locking = TRUE;
       $instance->_batch_size = 50;
       $instance->_time_between_calls = 30;
       $instance->_commit_shutdown_registered = FALSE;
@@ -71,31 +71,31 @@ class LinksAmrQueue extends Queue
    *
    * @param String $pid pid of the object in the fez index
    * @param bool   $in_memory Use in-memory array to store PIDs before committing to DB
-   *                          TRUE use in memory array, else FALSE to send to DB immediately  
+   *                          TRUE use in memory array, else FALSE to send to DB immediately
    */
-  public function add($pid, $in_memory = TRUE) 
+  public function add($pid, $in_memory = TRUE)
   {
     $log = FezLog::get();
     $db = DB_API::get();
-    
+
     $details = Record::getDetailsLite($pid);
     if (! (is_array($details) && count($details) == 1)) {
       // Not found
       return;
-    }    
+    }
     // These are the only types we are interested in discovering using Links AMR
     if (
         ! ($details[0]['rek_display_type'] == XSD_Display::getXDIS_IDByTitleVersion('Journal Article', 'MODS 1.0') ||
            $details[0]['rek_display_type'] == XSD_Display::getXDIS_IDByTitleVersion('Conference Paper', 'MODS 1.0'))
     ) {
       return;
-    }    
+    }
     // Check not in DB queue instead of just this thread
     $sql = "SELECT ".$this->_dbqp."key FROM ".$this->_dbtp."queue ".
-           "WHERE ".$this->_dbqp."id=?";    
+           "WHERE ".$this->_dbqp."id=?";
     try {
       $res = $db->fetchOne($sql, $pid, Zend_Db::FETCH_ASSOC);
-      if (! $res) {        
+      if (! $res) {
         parent::add($pid);
         if (! $in_memory) {
           // Don't use the in memory array, commit immediately
@@ -113,14 +113,14 @@ class LinksAmrQueue extends Queue
       return;
     }
   }
-  
+
   /**
-   * Overridden remove function: Removes a document from the queue, 
+   * Overridden remove function: Removes a document from the queue,
    * both in memory and in the DB.
    *
    * @param string $id ID of the object to remove from the queue
    */
-  public function remove($id) 
+  public function remove($id)
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -139,51 +139,51 @@ class LinksAmrQueue extends Queue
       return false;
     }
   }
-  
+
   /**
    * Processes the queue.
    */
-  protected function process() 
+  protected function process()
   {
     $log = FezLog::get();
-        
+
     $bgp = new BackgroundProcess_LinksAmr();
     // TODO: maybe take something other than admin
     $bgp->register(serialize(array()), APP_SYSTEM_USER_ID);
   }
-  
+
   /**
    * Links this instance to a corresponding background process started above
    *
    * @param BackgroundProcess_LinksAmr $bgp
    */
-  public function setBGP(&$bgp) 
+  public function setBGP(&$bgp)
   {
     $this->_bgp = &$bgp;
   }
-  
+
   /**
-   * Processes the queue in the background. Retrieves an item using the pop() 
-   * function of the queue and calls the index or remove methods.   
+   * Processes the queue in the background. Retrieves an item using the pop()
+   * function of the queue and calls the index or remove methods.
    */
-  public function bgProcess() 
+  public function bgProcess()
   {
     $log = FezLog::get();
-    
+
     // Don't process the queue until we have reached the batch size
-    // This is so we at least attempt to play nicely with the 
-    // Links AMR service.    
+    // This is so we at least attempt to play nicely with the
+    // Links AMR service.
     if ($this->size() < $this->_batch_size) {
       return;
     }
-    
+
     // Mark lock with pid
     if ($this->_use_locking) {
       if (!$this->updateLock()) {
         return false;
       }
     }
-    
+
     $this->_bgp->setStatus("Links AMR queue processing started");
     $started = time();
     $count_docs = 0;
@@ -194,19 +194,19 @@ class LinksAmrQueue extends Queue
 
       if (is_array($result)) {
         extract($result, EXTR_REFS);
-        
+
         $q_op = $this->_dbqp.'op';
         $q_pid = $this->_dbqp.'id';
-        
+
         if ($$q_op == self::ACTION_ADD) {
           $pids[] = $$q_pid;
           $count_docs++;
         }
-        
+
         if ($count_docs % $this->_batch_size == 0) {
           // Batch process pids
           $this->_bgp->setStatus("sending these pids to links amr: \n".print_r($pids, true)."\n");
-          $this->sendToLinksAmr($pids);          
+          $this->sendToLinksAmr($pids);
           $pids = array(); // reset
           // Give Links AMR a bit of a rest before moving on to the next batch.
           // Also helps when the service may be unresponsive.
@@ -220,14 +220,14 @@ class LinksAmrQueue extends Queue
       unset($$q_op);
       unset($$q_pid);
     } while (!$empty);
-    
+
     if (count($pids) > 0) {
       // Process remainder of pids
       $this->sendToLinksAmr($pids);
       $pids = array(); // reset
       sleep($this->_time_between_calls); // same as above
     }
-    
+
     if ($this->_bgp) {
       $plural = $count_docs > 1 ? 's' : '';
       $this->_bgp->setStatus(
@@ -236,7 +236,7 @@ class LinksAmrQueue extends Queue
     }
     if ($this->_use_locking) {
       $this->releaseLock();
-    }    
+    }
     return $count_docs;
   }
 
@@ -245,20 +245,22 @@ class LinksAmrQueue extends Queue
    *
    * @param array $pids the array of PIDS to send
    */
-  private function sendToLinksAmr($pids)
+  function sendToLinksAmr($pids)
   {
     $log = FezLog::get();
     $details = Record::getDetailsLite($pids);
     Record::getSearchKeysByPIDS($details, true);
-   
+
     $maps = array();
     $doi_prefix = 'http://dx.doi.org/';
-    
+
     // Build the map array we'll be send to the service
-    foreach ($details as $record) {      
-      if ($record['rek_isi_loc'] != '' || !empty($record['rek_isi_loc'])) {
+    foreach ($details as $record) {
+      if (isset($record['rek_isi_loc'])) {
         // Skip if we already know the UT
-        $this->_bgp->setStatus("Already know the ISI Loc ".$record['rek_isi_loc']." for PID ".$record['rek_pid']);
+        if (isset($this->_bgp)) {
+          $this->_bgp->setStatus("Already know the ISI Loc ".$record['rek_isi_loc']." for PID ".$record['rek_pid']);
+        }
         continue;
       }
       // Data elements for identifying articles
@@ -276,8 +278,8 @@ class LinksAmrQueue extends Queue
         'first_author' => null,
         'an' => null
       );
-         
-      $map['pid'] = $record['rek_pid'];      
+
+      $map['pid'] = $record['rek_pid'];
       if ($record['rek_link'] && is_array($record['rek_link'])) {
         foreach ($record['rek_link'] as $link) {
           if (stripos($link, $doi_prefix) !== FALSE) {
@@ -292,15 +294,20 @@ class LinksAmrQueue extends Queue
           }
         }
       }
-      
+
       // Remove subtitle from journal title if one exists
       $title = $record['rek_title'];
       if (strpos($title, '-') !== FALSE) {
         $title = explode('-', $title);
-        $title = trim($title[0]);      
+        $title = trim($title[0]);
       }
       $map['atitle'] = $title;
-      $map['issn'] = $record['rek_issn'];
+      if (isset($record['rek_issn'])) {
+        $map['issn'] = $record['rek_issn'];
+      } else {
+        $map['issn'] = '';
+      }
+
       $map['year'] = date('Y', strtotime($record['rek_date']));
       // Don't send journal title if you have an ISSN // Actually this is a really bad idea to not send journal title because TR need it
 //      if (!empty($record['rek_issn'])) {
@@ -309,29 +316,29 @@ class LinksAmrQueue extends Queue
         $map['stitle'] = $record['rek_journal_name'];
 //      }
 
-      if (is_numeric($record['rek_volume_number'])) {
+      if (isset($record['rek_volume_number']) && is_numeric($record['rek_volume_number'])) {
         $map['vol'] = $record['rek_volume_number'];
       } else {
         $map['vol'] = null;
       }
-      if (is_numeric($record['rek_issue_number'])) {
+      if (isset($record['rek_issue_number']) && is_numeric($record['rek_issue_number'])) {
         $map['issue'] = $record['rek_issue_number'];
       } else {
         $map['issue'] = null;
       }
-      if (is_numeric($record['rek_start_page'])) {
+      if (isset($record['rek_start_page']) && is_numeric($record['rek_start_page'])) {
         $map['spage'] = $record['rek_start_page'];
       } else {
         $map['spage'] = null;
       }
-      
+
       $map['an'] = null; // We don't store this yet
-      // Only the first author      
+      // Only the first author
       if ($record['rek_author'] && is_array($record['rek_author'])) {
         $map['first_author'] = $record['rek_author'][0];
       }
-      
-      // Check we have the minimum required data and bib data fits one of the combinations 
+
+      // Check we have the minimum required data and bib data fits one of the combinations
       // required for unique identification
       if (
           ($map['stitle'] && $map['vol'] && $map['issue'] && $map['spage']) ||
@@ -341,49 +348,54 @@ class LinksAmrQueue extends Queue
       ) {
         $maps[] = $map;
       } else {
-          $this->_bgp->setStatus("Not enough bib data to do a safe match for PID ".$record['rek_pid'].": \n".print_r($map, true));
+          if (isset($this->_bgp)) {
+            $this->_bgp->setStatus("Not enough bib data to do a safe match for PID ".$record['rek_pid'].": \n".print_r($map, true));
+          }
       }
     }
-    
+
     if (count($maps) == 0) {
       // Nothing to send
       return;
     }
-    
+
     // Do the upload to Links AMR
     try {
       $response = LinksAmrService::retrieve($maps);
     } catch(Exception $ex) {
       $response = FALSE;
+//      print_r($ex->getMessage()); exit;
       $log->err($ex);
     }
-    
+
     // Unresponsive service, re-queue these PIDs once we've finished processing the queue
     if (!$response) {
       // Add/remove pids from the retry queue
-      $this->_bgp->setStatus("Unresponsive service so adding ".count($pids)." back on the queue");
+      if (isset($this->_bgp)) {
+        $this->_bgp->setStatus("Unresponsive service so adding ".count($pids)." back on the queue");
+      }
       foreach ($pids as $pid) {
         $this->add($pid, FALSE);
       }
       return;
     }
-    
+
     $xpath = new DOMXPath($response);
     $xpath->registerNamespace('lamr', 'http://www.isinet.com/xrpc41');
-    $query = "/lamr:response/lamr:fn[@name='LinksAMR.retrieve'][@rc='OK']/lamr:map/lamr:map";     
+    $query = "/lamr:response/lamr:fn[@name='LinksAMR.retrieve'][@rc='OK']/lamr:map/lamr:map";
     $node_list = $xpath->query($query);
-    
+
     $pid_updates = array();
     if (!is_null($node_list)) {
       foreach ($node_list as $element) {
         $pid = $element->getAttribute('name');
         $_query = $query . "[@name='$pid']/lamr:map[@name='".LinksAmrService::COLLECTION."']/lamr:val[@name='ut']";
-        $_node_list = $xpath->query($_query);   
-        if (!is_null($_node_list)) {  
+        $_node_list = $xpath->query($_query);
+        if (!is_null($_node_list)) {
           if ($_node_list->length > 0) {
             $ut = $_node_list->item(0)->nodeValue;
             if (strpos($pid, ':identifier') !== FALSE) {
-              $pid = str_replace(':identifier', '', $pid);              
+              $pid = str_replace(':identifier', '', $pid);
               // UTs found using identifiers take precedence
               $pid_updates[$pid] = $ut;
             } else if (! array_key_exists($pid, $pid_updates)) {
@@ -392,17 +404,45 @@ class LinksAmrQueue extends Queue
           }
         }
       }
-    }    
+    }
     foreach ($pid_updates as $pid => $ut) {
-      // Update record with new UT
-      if ($ut != '000084278100002') { // this UT is a known bug in Links AMR where it's "Untitled" so links amr often returns it as a match when it's really not
-        $record = new RecordGeneral($pid);
-        $search_keys = array("ISI Loc");
-        $values = array($ut);
-        $this->_bgp->setStatus("Adding Links AMR found UT Loc ".$ut." to PID ".$pid);
-        $record->addSearchKeyValueList(
+
+      //First check that we don't already have that ISI Loc on another pid, if so then email the helpdesk system and abort for this pid
+      $filter = array();
+
+      // Get records ..
+      $filter["searchKey".Search_Key::getID("Object Type")] = 3;
+      $filter["manualFilter"] = " isi_loc_t:(".$ut.") AND ";
+      $listing = Record::getListing(array(), array(9,10), 0, 50, 'Created Date', false, false, $filter);
+      // If found some records, then send this in an email to the helpdesk system
+      if ($listing['info']['total_rows'] != 0) {
+        if (APP_EVENTUM_SEND_EMAILS == 'ON') {
+          $to = APP_EVENTUM_NEW_JOB_EMAIL_ADDRESS;
+
+          $tplEmail = new Template_API();
+          $tplEmail->setTemplate('workflow/emails/links_amr_dupe_ut.tpl.txt');
+          $tplEmail->assign('list', $listing['list']);
+          $email_txt = $tplEmail->getTemplateContents();
+
+          $mail = new Mail_API;
+          $mail->setTextBody(stripslashes($email_txt));
+          $subject = '['.APP_NAME.'] - Links AMR found ISI Loc '.$ut.' for '.$pid.' that already is set to other pid(s)';
+          $from = APP_EMAIL_SYSTEM_FROM_ADDRESS;
+          $mail->send($from, $to, $subject, false);
+        }
+      } else {
+        // Update record with new UT
+        if ($ut != '000084278100002') { // this UT is a known bug in Links AMR where it's "Untitled" so links amr often returns it as a match when it's really not
+          $record = new RecordGeneral($pid);
+          $search_keys = array("ISI Loc");
+          $values = array($ut);
+          if (isset($this->_bgp)) {
+            $this->_bgp->setStatus("Adding Links AMR found UT Loc ".$ut." to PID ".$pid);
+          }
+          $record->addSearchKeyValueList(
             $search_keys, $values, true
-        );
+          );
+        }
       }
     }
   }

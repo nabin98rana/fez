@@ -2588,13 +2588,13 @@ class Record
         // now populate the $result variable again
         for ($i = 0; $i < count($result); $i++) {
 //          if (array_key_exists("rek_".$sek_sql_title, $result[$i])) {
-              if (!is_array($result[$i]["rek_".$sek_sql_title]) && ($sekData['sek_cardinality'] == 1)) {
+              if (!isset($result[$i]["rek_".$sek_sql_title]) && ($sekData['sek_cardinality'] == 1)) {
                 $result[$i]["rek_".$sek_sql_title] = array();
               }
-              if (!$result[$i]["rek_".$sek_sql_title]) {
+              if (isset($t[$result[$i]["rek_pid"]])) {
                 $result[$i]["rek_".$sek_sql_title] = $t[$result[$i]["rek_pid"]];
               }
-              if ($sekData['sek_lookup_function'] != "" && array_key_exists($result[$i]["rek_pid"], $p)) {
+              if ($sekData['sek_lookup_function'] != "" && isset($p[$result[$i]["rek_pid"]]["rek_".$sek_sql_title."_lookup"])) {
                 $result[$i]["rek_".$sek_sql_title."_lookup"] = $p[$result[$i]["rek_pid"]]["rek_".$sek_sql_title."_lookup"];
               }
           }

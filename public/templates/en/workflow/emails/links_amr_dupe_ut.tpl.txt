@@ -1,0 +1,8 @@
+Did not assign this UT Loc / ISI Loc  to the pid because we found existing pid(s) with it.
+Please manually resolve this.
+
+Existing found pid(s):
+
+{section name="i" loop=$list}
+{$list[i].rek_pid} - {$list[i].rek_title}
+{/section}

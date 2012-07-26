@@ -37,7 +37,7 @@ define('STATUS_CLOSED_AND_SYNCHED', 21);
 
 class Eventum
 {
-	/** 
+	/**
 	 * Invoking this function will cause a job to be logged in Eventum.
 	 */
 	function lodgeJob($subject, $body, $from)
@@ -59,27 +59,27 @@ class Eventum
 			die("There was a problem submitting this job to Eventum. Please contact the " . APP_NAME . " Manager.");
 		}
 		*/
-		
+
 		// Send the email.
 		$mail = new Mail_API;
 		$to = APP_EVENTUM_NEW_JOB_EMAIL_ADDRESS;
 		$mail->setTextBody(stripslashes($body));
 		$mail->send($from, $to, $subject, false);
-		
+
 		return;
 	}
-	
-	
-	
-	/** 
+
+
+
+	/**
 	 * Returns the subject lines of all closed My Research jobs in Eventum.
 	 */
 	function getAllClosedMyResearchJobs()
 	{
 		Eventum::dbSetup();
-		
+
 		global $db;
-		
+
 		$query = "
 					SELECT
 						iss_id AS ticket_id,
@@ -94,24 +94,24 @@ class Eventum
 					ORDER BY
 						iss_id DESC;
 				";
-		
+
 		$result = mysql_query($query, $db);
 
-		$return = array();		
+		$return = array();
 		while ($row = mysql_fetch_assoc($result)) {
 			$return[] = array('ticket_id' => $row['ticket_id'], 'ticket_subject' => $row['ticket_subject']);
 		}
-		
+
 		return $return;
 	}
-	
-	
-	
+
+
+
 	/**
 	 * Set up the Eventum database connection.
 	 */
 	function dbSetup() {
-	
+
 		global $db;
 		echo "Connecting to database ... ";
 		$conn = @mysql_connect(APP_EVENTUM_DATABASE_HOST, APP_EVENTUM_DATABASE_USER, APP_EVENTUM_DATABASE_PASS);
@@ -124,33 +124,65 @@ class Eventum
 		if (!$db_selected) {
 			die ("Can't use " . APP_EVENTUM_DATABASE_NAME . " : " . mysql_error());
 		}
-		
+
 		echo "done.\n";
 		$db = $conn;
-		
+
 		return;
 	}
-	
-	
+
+
 	/**
 	 * Mark a given Eventum job 'Closed and Synched'.
 	 */
 	function closeAndSynchJob($eventumID)
 	{
 		global $db;
-		
+
 		$query = "
 					UPDATE eventum_issue
 					SET iss_sta_id = " . STATUS_CLOSED_AND_SYNCHED . "
 					WHERE iss_id = '" . mysql_real_escape_string($eventumID) . "';
 				";
-		
+
 		$result = mysql_query($query, $db);
 		if (!$result) {
 			echo "There was a problem removing Eventum Job " . $eventumID . " : " . mysql_error() . "\n";
 		}
-		
+
 		return;
 	}
+
+
+  /**
+   * Returns the subject lines of all closed My Research jobs in Eventum.
+   */
+  function getLinksIssues($pid, $ut)
+  {
+    Eventum::dbSetup();
+
+    global $db;
+
+    $query = "
+					SELECT
+						iss_id AS ticket_id
+					FROM
+						eventum_issue
+					WHERE
+						iss_summary LIKE '[".APP_NAME."] - Links AMR found ISI Loc ".$ut." for ".$pid." that already is set to other pid(s)%'
+					ORDER BY
+						iss_id DESC;
+				";
+
+    $result = mysql_query($query, $db);
+
+    $return = array();
+    while ($row = mysql_fetch_assoc($result)) {
+      $return[] = array('ticket_id' => $row['ticket_id']);
+    }
+
+    return $return;
+  }
+
 
 }
