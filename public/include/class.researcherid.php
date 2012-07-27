@@ -869,7 +869,23 @@ class ResearcherID
       // Download from WOS collection only
       if (count($aut) > 1 && ($aut[0] == 'WOS' || $aut[0] == 'ISI')) {
         $ut = $aut[1];
-        WokQueue::get()->add($ut, $author_id);
+        //Only add this RID UT to the WokQueue if we don't already have a pid with this existing author id on it
+        $existing_pid = Record::getPIDByIsiLoc($ut);
+        $author_exists_already = false;
+        if ($existing_pid != '') {
+          // If the pid does exist, check if the author id is already assigned, if so skip adding this ut to the queue
+          $pid_aut_ids = Record::getSearchKeyIndexValue($existing_pid, "Author ID", false);
+          if (count($pid_aut_ids) > 0) {
+            foreach($pid_aut_ids as $pid_aut_id) {
+              if ($pid_aut_id == $author_id) {
+                $author_exists_already = true;
+              }
+            }
+          }
+        }
+        if ($author_exists_already == false) {
+          WokQueue::get()->add($ut, $author_id);
+        }
       }
       return true;
     } else {
