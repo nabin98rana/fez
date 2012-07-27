@@ -14,7 +14,11 @@ class GeocodeCities
 		$insertRecord['gcity_country_code'] = $record['country_code'];
 		$insertRecord['gcity_region_code'] = $record['region_code'];
 		$insertRecord['gcity_location_name'] = $record['location_name'];
-		$insertRecord['gcity_city'] = $record['city'];
+    if (is_null($record['city'])) {
+      $insertRecord['gcity_city'] = '';
+    } else {
+      $insertRecord['gcity_city'] = $record['city'];
+    }
 		$insertRecord['gcity_latitude'] = $record['latitude'];
 		$insertRecord['gcity_longitude'] = $record['longitude'];
 
@@ -49,7 +53,7 @@ class GeocodeCities
 		try {
 			$db->update(APP_TABLE_PREFIX . 'geocode_cities',
 				$record,
-				'gcity_country_code = ' . $db->quote($countryCode) . 
+				'gcity_country_code = ' . $db->quote($countryCode) .
 				' AND gcity_region_code = ' . $db->quote($regionCode) .
 				' AND gcity_city = ' . $db->quote($cityName));
 		}
@@ -75,7 +79,7 @@ class GeocodeCities
 
 		try {
 			$db->delete(APP_TABLE_PREFIX . 'geocode_regions',
-				'gcity_country_code = ' . $db->quote($countryCode) . 
+				'gcity_country_code = ' . $db->quote($countryCode) .
 				' AND gcity_region_code = ' . $db->quote($regionCode) .
 				' AND gcity_city = ' . $db->quote($cityName));
 		}

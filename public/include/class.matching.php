@@ -42,9 +42,9 @@ class matching
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$start = $current_row * $max;
-		
+
 		$stmtSelect = "
 			SELECT
 				pid,
@@ -60,7 +60,7 @@ class matching
 				cnf_conference_name AS conference_name,
 				mtc_status AS conference_match_status
 		";
-		
+
 		$stmtFrom = "
 			 FROM
 				(SELECT
@@ -78,18 +78,18 @@ class matching
 			LEFT JOIN " . APP_TABLE_PREFIX . "matched_conferences ON Q0.pid = " . APP_TABLE_PREFIX . "matched_conferences.mtc_pid
 			LEFT JOIN " . APP_TABLE_PREFIX . "conference ON " . APP_TABLE_PREFIX . "matched_conferences.mtc_cnf_id = " . APP_TABLE_PREFIX . "conference.cnf_id
 		";
-		
-		
+
+
 		if ($filter != '') {
 			$stmtFrom .= "WHERE Q0.pid = " . $db->quote($filter) . "";
 		}
-		
+
 		$stmtLimit = "
 			ORDER BY pid ASC
 			LIMIT " . $db->quote($max, 'INTEGER') . " OFFSET " . $db->quote($start, 'INTEGER') . ";";
-		
+
 		$stmt = $stmtSelect . $stmtFrom . $stmtLimit;
-		
+
 		try {
 			$result = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
@@ -97,7 +97,7 @@ class matching
 			$log->err($ex);
 			return '';
 		}
-		
+
 		/* Get page count stuff */
 		$stmt = "SELECT COUNT(*) " . $stmtFrom;
 		try {
@@ -113,7 +113,7 @@ class matching
 		}
 		$total_pages = ceil($total_rows / $max);
 		$last_page = $total_pages - 1;
-		
+
 		return array(
 			"list" => $result,
 			"list_info" => array(
@@ -128,9 +128,9 @@ class matching
 			)
 		);
 	}
-	
-	
-	
+
+
+
 	/**
 	 * Get a list of all PIDs that are not to be mapped.
 	 */
@@ -138,7 +138,7 @@ class matching
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		if ($type == 'J') {
 			$table = "journals";
 			$prefix = "mtj";
@@ -146,17 +146,16 @@ class matching
 			$table = "conferences";
 			$prefix = "mtc";
 		}
-		
-		$stmt = "	
+
+		$stmt = "
 			SELECT
 				" . $prefix . "_pid AS pid
 			FROM
 				fez_matched_" . $table . "
 			WHERE
 				" . $prefix . "_status != 'A'
-			;
 		";
-		
+
 		try {
 			$result = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
@@ -164,7 +163,7 @@ class matching
 			$log->err($ex);
 			return '';
 		}
-		
+
 		// Pack all the returned PIDs into an array
 		$exceptions = array();
 		if (count($result) > 0) {
@@ -172,12 +171,12 @@ class matching
 				$exceptions[$row['pid']] = '';
 			}
 		}
-		
+
 		return $exceptions;
 	}
-	
-	
-	
+
+
+
 	/**
 	 * Save an existing mapping.
 	 */
@@ -185,12 +184,12 @@ class matching
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$type = $_POST['type'];
 		$pid = $_POST['pid'];
 		$matching_id = $_POST['matching_id'];
 		$status = $_POST['status'];
-		
+
 		if ($type == 'J') {
 			$table = "journals";
 			$prefix = "mtj";
@@ -200,11 +199,11 @@ class matching
 			$prefix = "mtc";
             $suffix = "_cnf_id";
 		}
-		
+
 		if ($status == 'B') {
 			$eraid = 'N/A';
 		}
-		
+
 		$stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "matched_" . $table . "
                  SET
@@ -212,7 +211,7 @@ class matching
                     " . $prefix . "_status = " . $db->quote($status) . "
                  WHERE
                     " . $prefix . "_pid = " . $db->quote($pid) . ";";
-                    
+
 		try {
 			$db->exec($stmt);
 		}
@@ -220,11 +219,11 @@ class matching
 			$log->err($ex);
 			return -1;
 		}
-		
+
 		header("Location: http://" . APP_HOSTNAME . "/manage/matching.php");
 		exit;
 	}
-	
+
 
 	/**
 	 * Add a brand new mapping.
@@ -233,7 +232,7 @@ class matching
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$type = $_POST['type'];
 		$pid = $_POST['pid'];
 		$matching_id = $_POST['matching_id'];
@@ -250,7 +249,7 @@ class matching
             $suffix = "_cnf_id";
             RCL::removeMatchByPID($pid);
 		}
-		
+
 		if ($status == 'B') {
 			$eraid = 'N/A';
 		}
