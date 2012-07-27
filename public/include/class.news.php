@@ -256,7 +256,7 @@ class News
 		foreach ($res as $key => $row) {
             $res[$key]["admin_only"] = "";
             if ($res[$key]["nws_admin_only"]) {
-                $res[$key]["admin_only"] = "<b>Admin msg: </b>";
+                $res[$key]["admin_only"] = "<b>Admins msg: </b>";
                 if (strtotime ($res[$key]["nws_created_date"])  > strtotime ("now") - 3600*24 ){
                     $res[$key]["admin_only"] = "<span style='color:red'>".$res[$key]["admin_only"]."</span>";  //If younger than 24 hours make red
                 }
