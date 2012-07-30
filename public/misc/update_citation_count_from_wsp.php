@@ -81,10 +81,11 @@ for($i=0; $i<((int)$listing['info']['total_pages']+1); $i++) {
       $records = simplexml_load_string($records_xml);
 		  foreach($records->REC as $record) {
             if($record->UID) {
-                $pid = Record::getPIDByIsiLoc($record->UID);
+                $recordUid = str_ireplace("WOS:", "", $record->UID );
+                $pid = Record::getPIDByIsiLoc($recordUid);
             //          echo "updating $pid with ut".$record->item->ut." with count of ".$record->attributes()->timescited."\n";
                 ob_flush();
-                Record::updateThomsonCitationCount($pid, $record->dynamic_data->citation_related->tc_list->silo_tc->attributes()->local_count, $record->UID);
+                Record::updateThomsonCitationCount($pid, $record->dynamic_data->citation_related->tc_list->silo_tc->attributes()->local_count, $recordUid);
             }
 		  }
 		}
