@@ -4,5 +4,5 @@ Please manually resolve this.
 Existing found pid(s):
 
 {section name="i" loop=$list}
-{$list[i].rek_pid} - {$list[i].rek_title}
+{$list[i].rek_pid} - {$list[i].rek_title} ({$list[i].rek_date})
 {/section}

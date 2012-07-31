@@ -426,7 +426,9 @@ class LinksAmrQueue extends Queue
 
           $mail = new Mail_API;
           $mail->setTextBody(stripslashes($email_txt));
-          $subject = '['.APP_NAME.'] - Links AMR found ISI Loc '.$ut.' for '.$pid.' that already is set to other pid(s)';
+          $date = Record::getSearchKeyIndexValue($pid, "Date");
+          $year = date('Y', strtotime($date));
+          $subject = '['.APP_NAME.'] - Links AMR found ISI Loc '.$ut.' for '.$pid.' ('.$year.') that already is set to other pid(s)';
           $from = APP_EMAIL_SYSTEM_FROM_ADDRESS;
           $mail->send($from, $to, $subject, false);
         }
