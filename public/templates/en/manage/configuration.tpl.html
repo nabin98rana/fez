@@ -284,7 +284,7 @@ function restoreDefaultColours(el)
 			  </select>
 			  <input type="text" name="app_disable_password_ip" value="{$config_settings.app_disable_password_ip}" /> Allow this IP only
 			  <br />Mainly used for testing. Not recommended to set this to On.
-			  
+
 			</td>
 		  </tr>
 		  <tr>
@@ -374,10 +374,10 @@ function restoreDefaultColours(el)
 		    <th>Log location</th>
 			<td>
 			  <input type="text" name="app_log_location" value="{$config_settings.app_log_location}" size="40" />
-			  <br />You may want to change this to be below the document root, or at least make it non-readable by Apache. You may also optionally include 
+			  <br />You may want to change this to be below the document root, or at least make it non-readable by Apache. You may also optionally include
 			  the placeholder text <b>%&lt;format&gt;%</b> which will be replaced with the generated date in the format specified.
-			  <br />For example: <b>/var/log/fez/fez-%Ymd%.log</b> will output log files to the directory /var/log/fez/ 
-			  with a file name fez-20090921.log (i.e. rotated daily). For more information about date formats, please see 
+			  <br />For example: <b>/var/log/fez/fez-%Ymd%.log</b> will output log files to the directory /var/log/fez/
+			  with a file name fez-20090921.log (i.e. rotated daily). For more information about date formats, please see
 			  the PHP Manual date reference page <a href="http://www.php.net/manual/en/function.date.php" onclick="javascript: window.open('http://www.php.net/manual/en/function.date.php'); return false;">here</a>.
 			  {include file="error_icon.tpl.html" field="app_log_location"}
 			</td>
@@ -396,8 +396,8 @@ function restoreDefaultColours(el)
 					<option value="7"{if $config_settings.app_log_level|escape == "7"} selected="selected"{/if}>Debug: debug messages</option>
 
 				</select>
-			  <br />The log levels are show in descending order of importance. Setting a log level further down the list will include log messages 
-			  at higher levels, for example, setting the log level to 'Error' will include 'Critical', 'Alert' and 'Emergency' log messages, 
+			  <br />The log levels are show in descending order of importance. Setting a log level further down the list will include log messages
+			  at higher levels, for example, setting the log level to 'Error' will include 'Critical', 'Alert' and 'Emergency' log messages,
 			  but will not include 'Warning', 'Notice', 'Informational' or 'Debug' log messages.
 			  {include file="error_icon.tpl.html" field="app_log_level"}
 			</td>
@@ -477,12 +477,12 @@ function restoreDefaultColours(el)
 			  <br />Time after which the user group cache table will be truncated, in days.
 			  {include file="error_icon.tpl.html" field="app_user_group_cache_expiry"}
 			</td>
-		  </tr>		   
+		  </tr>
 		  <tr>
 		    <th>Google Analytics ID</th>
 			<td>
-			  <input type="radio" name="app_analytics_switch" value="ON" {if $config_settings.app_analytics_switch == "ON"}checked="checked"{/if}/> Enabled &nbsp; 
-			  <input type="radio" name="app_analytics_switch" value="OFF" {if $config_settings.app_analytics_switch == "OFF"}checked="checked"{/if}/> Disabled  &nbsp; &nbsp;		   
+			  <input type="radio" name="app_analytics_switch" value="ON" {if $config_settings.app_analytics_switch == "ON"}checked="checked"{/if}/> Enabled &nbsp;
+			  <input type="radio" name="app_analytics_switch" value="OFF" {if $config_settings.app_analytics_switch == "OFF"}checked="checked"{/if}/> Disabled  &nbsp; &nbsp;
 			  <input type="text" name="app_analytics_id" value="{$config_settings.app_analytics_id}" size="20" />
 			  Format: <strong><i>xxxxxx-x</i></strong><br />
 			  {include file="error_icon.tpl.html" field="app_analytics_id"}
@@ -518,7 +518,7 @@ function restoreDefaultColours(el)
 			  </select>
 			<br />Whether you want to display Google Scholar Citation Counts in List and Record views
 			</td>
-		  </tr>			  
+		  </tr>
 		  <tr>
 		    <th>Flash File Uploader</th>
 			<td>
@@ -538,7 +538,7 @@ function restoreDefaultColours(el)
 			  </select>
 			<br />If set to on, administrator users will have the option of recording internal notes about repository objects.
 			</td>
-		  </tr>		   
+		  </tr>
 		  <tr>
 		    <th>Author auto-suggest mode</th>
 			<td>
@@ -645,6 +645,14 @@ function restoreDefaultColours(el)
     			</td>
       		  </tr>
   		  <tr>
+          <th>Temporary Duplicates Collection</th>
+          <td>
+            <input type="text" name="app_temporary_duplicates_collection" value="{$config_settings.app_temporary_duplicates_collection}" size="100" />
+            <br />List of comma separated ' quote enclosed pids.
+          {include file="error_icon.tpl.html" field="app_temporary_duplicates_collection"}
+          </td>
+        </tr>
+      <tr>
 		    <th>My Research Publications Module</th>
 			<td>
 			  <select name="app_my_research_module">
@@ -1029,7 +1037,7 @@ function restoreDefaultColours(el)
 		    <th>FFMPEG command</th>
 			<td>
 			  <input type="text" name="app_ffmpeg_cmd" value="{$config_settings.app_ffmpeg_cmd}" size="40" />
-			  <br />This is part of FFMPEG Video Encoder tool 
+			  <br />This is part of FFMPEG Video Encoder tool
 			  {include file="error_icon.tpl.html" field="app_ffmpeg_cmd"}
 			</td>
 		  </tr>
@@ -1046,7 +1054,7 @@ function restoreDefaultColours(el)
 			<td>
 			  <input type="text" name="app_convert_cmd" value="{$config_settings.app_convert_cmd}" size="40" />
 			  <!--a href="#" onclick="javascript:runSanityCheck('app_convert_cmd');"><img src="{$rel_url}images/sanity_check_16.png" title="Run sanity check for this value" width="18" height="18" border="0" alt="" /></a-->
-			  <br />This is part of ImageMagick 
+			  <br />This is part of ImageMagick
 			  {include file="error_icon.tpl.html" field="app_convert_cmd"}
 			</td>
 		  </tr>
@@ -1054,7 +1062,7 @@ function restoreDefaultColours(el)
 		    <th>Composite command</th>
 			<td>
 			  <input type="text" name="app_composite_cmd" value="{$config_settings.app_composite_cmd}" size="40" />
-			  <br />This is part of ImageMagick 
+			  <br />This is part of ImageMagick
 			  {include file="error_icon.tpl.html" field="app_composite_cmd"}
 			</td>
 		  </tr>
@@ -1062,7 +1070,7 @@ function restoreDefaultColours(el)
 		    <th>Identify command</th>
 			<td>
 			  <input type="text" name="app_identify_cmd" value="{$config_settings.app_identify_cmd}" size="40" />
-			  <br />This is part of ImageMagick 
+			  <br />This is part of ImageMagick
 			  {include file="error_icon.tpl.html" field="app_identify_cmd"}
 			</td>
 		  </tr>
@@ -1355,7 +1363,7 @@ function restoreDefaultColours(el)
 		 <tbody>
 		  <tr>
 			<td colspan="2">
-			  <input type="radio" name="webserver_log_statistics" value="ON" {if $config_settings.webserver_log_statistics == "ON"}checked="checked"{/if}/> Enabled &nbsp; 
+			  <input type="radio" name="webserver_log_statistics" value="ON" {if $config_settings.webserver_log_statistics == "ON"}checked="checked"{/if}/> Enabled &nbsp;
 			  <input type="radio" name="webserver_log_statistics" value="OFF" {if $config_settings.webserver_log_statistics == "OFF"}checked="checked"{/if}/> Disabled
 			</td>
 		  </tr>
@@ -1408,7 +1416,7 @@ function restoreDefaultColours(el)
 		 <tbody>
 		  <tr>
 			<td colspan="2">
-			  <input type="radio" name="shib_switch" value="ON" {if $config_settings.shib_switch == "ON"}checked="checked"{/if}/> Enabled &nbsp; 
+			  <input type="radio" name="shib_switch" value="ON" {if $config_settings.shib_switch == "ON"}checked="checked"{/if}/> Enabled &nbsp;
 			  <input type="radio" name="shib_switch" value="OFF" {if $config_settings.shib_switch == "OFF"}checked="checked"{/if}/> Disabled
 			</td>
 		  </tr>
@@ -1489,7 +1497,7 @@ function restoreDefaultColours(el)
 			<td>
 			  <input type="text" name="shib_wayf_js" value="{$config_settings.shib_wayf_js}" size="50" />
 			  <br />Location of the federation WAYF (where are you from) or DS (discovery service) javascript file to include.
-			  <br />It can (preferably) be a locally crontab/wget copy eg /js/embedded_wayf.js 
+			  <br />It can (preferably) be a locally crontab/wget copy eg /js/embedded_wayf.js
 			</td>
 		  </tr>
 		  <tr>
@@ -1509,7 +1517,7 @@ function restoreDefaultColours(el)
 			  </select>
 			  <br />If shib attribute caching is on it will save the last attributes gotten for each use in the fez_user_shibboleth_attribs table. Useful for when/if shib goes down and LDAP is the only
 			  option as it will load the same username up with their last known attributes. Also useful for figuring out appropriate FezACML policies to apply based on attributes, and for
-			  diagnosing shibboleth authorisation problems. 
+			  diagnosing shibboleth authorisation problems.
 			</td>
 		  </tr>
 		 </tbody>
@@ -1531,7 +1539,7 @@ function restoreDefaultColours(el)
 		 <tbody>
 		  <tr>
 			<td colspan="2">
-			  <input type="radio" name="ldap_switch" value="ON" {if $config_settings.ldap_switch == "ON"}checked="checked"{/if}/> Enabled &nbsp; 
+			  <input type="radio" name="ldap_switch" value="ON" {if $config_settings.ldap_switch == "ON"}checked="checked"{/if}/> Enabled &nbsp;
 			  <input type="radio" name="ldap_switch" value="OFF" {if $config_settings.ldap_switch == "OFF"}checked="checked"{/if}/> Disabled
 			</td>
 		  </tr>
@@ -1714,14 +1722,14 @@ function restoreDefaultColours(el)
 		  <tr>
 		<th>Use Solr for Search</th>
 			<td>
-			  <input type="radio" name="app_solr_switch" value="ON" {if $config_settings.app_solr_switch == "ON"}checked="checked"{/if}/> Enabled &nbsp; 
+			  <input type="radio" name="app_solr_switch" value="ON" {if $config_settings.app_solr_switch == "ON"}checked="checked"{/if}/> Enabled &nbsp;
 			  <input type="radio" name="app_solr_switch" value="OFF" {if $config_settings.app_solr_switch == "OFF"}checked="checked"{/if}/> Disabled
 			</td>
 		  </tr>
 		  <tr>
 		<th>Solr Indexer</th>
 			<td>
-			  <input type="radio" name="app_solr_indexer" value="ON" {if $config_settings.app_solr_indexer == "ON"}checked="checked"{/if}/> On &nbsp; 
+			  <input type="radio" name="app_solr_indexer" value="ON" {if $config_settings.app_solr_indexer == "ON"}checked="checked"{/if}/> On &nbsp;
 			  <input type="radio" name="app_solr_indexer" value="OFF" {if $config_settings.app_solr_indexer == "OFF"}checked="checked"{/if}/> Off
 			</td>
 		  </tr>
@@ -1742,7 +1750,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		<th>Solr Send Public/Non-logged in Reads to Slave replicant (requires above slave host value set)</th>
 			<td>
-			  <input type="radio" name="app_solr_slave_read" value="ON" {if $config_settings.app_solr_slave_read == "ON"}checked="checked"{/if}/> On &nbsp; 
+			  <input type="radio" name="app_solr_slave_read" value="ON" {if $config_settings.app_solr_slave_read == "ON"}checked="checked"{/if}/> On &nbsp;
 			  <input type="radio" name="app_solr_slave_read" value="OFF" {if $config_settings.app_solr_slave_read == "OFF"}checked="checked"{/if}/> Off
 			</td>
 		  </tr>
@@ -1800,7 +1808,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		<th>Use Origami</th>
 			<td>
-			  <input type="radio" name="app_origami_switch" value="ON" {if $config_settings.app_origami_switch == "ON"}checked="checked"{/if}/> On &nbsp; 
+			  <input type="radio" name="app_origami_switch" value="ON" {if $config_settings.app_origami_switch == "ON"}checked="checked"{/if}/> On &nbsp;
 			  <input type="radio" name="app_origami_switch" value="OFF" {if $config_settings.app_origami_switch == "OFF"}checked="checked"{/if}/> Off
 			</td>
 		  </tr>
@@ -1830,7 +1838,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		<th>Use Exiftool</th>
 			<td>
-			  <input type="radio" name="app_exiftool_switch" value="ON" {if $config_settings.app_exiftool_switch == "ON"}checked="checked"{/if}/> On &nbsp; 
+			  <input type="radio" name="app_exiftool_switch" value="ON" {if $config_settings.app_exiftool_switch == "ON"}checked="checked"{/if}/> On &nbsp;
 			  <input type="radio" name="app_exiftool_switch" value="OFF" {if $config_settings.app_exiftool_switch == "OFF"}checked="checked"{/if}/> Off
 			</td>
 		  </tr>
@@ -1860,7 +1868,7 @@ function restoreDefaultColours(el)
 		 <tbody>
 		  <tr>
 			<td colspan="2">
-			  <input type="radio" name="app_handle" value="ON" {if $config_settings.app_handle == "ON"}checked="checked"{/if}/> Enabled &nbsp; 
+			  <input type="radio" name="app_handle" value="ON" {if $config_settings.app_handle == "ON"}checked="checked"{/if}/> Enabled &nbsp;
 			  <input type="radio" name="app_handle" value="OFF" {if $config_settings.app_handle == "OFF"}checked="checked"{/if}/> Disabled
 			</td>
 		  </tr>
@@ -1924,18 +1932,18 @@ function restoreDefaultColours(el)
 			     Fedora 2.1.1: - Implemented, but not fully tested<br />
 			     Direct Access: - Not Implemented
 			  </p>
-			  <p><b>NOTE:</b> This controls versioning of attached files and external 
+			  <p><b>NOTE:</b> This controls versioning of attached files and external
 			     links only.  XML datastreams defined in XSD Displays are controlled by
-			     the value of Versionable set in the XSD matching field.  Certain Fez 
-			     controlled datastreams ignore this field and hardcode turning Versionable 
-			     on or off.</p> 
-			  <p><b>NOTE:</b> <em>Interval Between Fedora Versions</em> is the minimum amount of time 
-			     in seconds between amalgamated versions of datastreams of a record that 
-			     are deemed to correspond to an atomic Fez operation. If this value is 
-			     set too high, the filtered list of version times may not display 
-			     legitimate edits. If the value is set too low, the filtered list may 
+			     the value of Versionable set in the XSD matching field.  Certain Fez
+			     controlled datastreams ignore this field and hardcode turning Versionable
+			     on or off.</p>
+			  <p><b>NOTE:</b> <em>Interval Between Fedora Versions</em> is the minimum amount of time
+			     in seconds between amalgamated versions of datastreams of a record that
+			     are deemed to correspond to an atomic Fez operation. If this value is
+			     set too high, the filtered list of version times may not display
+			     legitimate edits. If the value is set too low, the filtered list may
 			     include times that correspond to updates of individual datastreams.</p>
-			  <p><b>NOTE:</b> You also need to set APP_VIEW_VERSIONS_ROLES and 
+			  <p><b>NOTE:</b> You also need to set APP_VIEW_VERSIONS_ROLES and
 			     APP_VIEW_VERSIONS_ROLE_IDS in include/class.configuration.php.</p>
 			</th>
 		  </tr>
@@ -1944,7 +1952,7 @@ function restoreDefaultColours(el)
 		  <tr>
 		<th>Enable Versioning for Attached Files and External Links</th>
 			<td>
-			  <input type="radio" name="app_version_uploads_and_links" value="ON" {if $config_settings.app_version_uploads_and_links == "ON"}checked="checked"{/if}/> On &nbsp; 
+			  <input type="radio" name="app_version_uploads_and_links" value="ON" {if $config_settings.app_version_uploads_and_links == "ON"}checked="checked"{/if}/> On &nbsp;
 			  <input type="radio" name="app_version_uploads_and_links" value="OFF" {if $config_settings.app_version_uploads_and_links == "OFF"}checked="checked"{/if}/> Off
 			</td>
 		  </tr>
@@ -1984,7 +1992,7 @@ function restoreDefaultColours(el)
 			    <option value="false"{if $config_settings.rid_enabled == "false"} selected="selected"{/if}>No</option>
 				<option value="true"{if $config_settings.rid_enabled == "true"} selected="selected"{/if}>Yes</option>
 			  </select>
-			  <br />Enable ResearcherID web service features. This means you can create ResearcherID profiles and download publications from ResearcherID.  
+			  <br />Enable ResearcherID web service features. This means you can create ResearcherID profiles and download publications from ResearcherID.
 			  when managing authors.
 			  {include file="error_icon.tpl.html" field="rid_enabled"}
 			</td>
@@ -2023,7 +2031,7 @@ function restoreDefaultColours(el)
 			  <br />The URL of the ResearcherID batch download web service.
 			  {include file="error_icon.tpl.html" field="rid_dl_service_url"}
 			</td>
-		  </tr>		   
+		  </tr>
 		  <tr>
 		    <th>Download Request XSD</th>
 			<td>
@@ -2082,7 +2090,7 @@ function restoreDefaultColours(el)
 			  <br />The URL of the ResearcherID batch upload web service.
 			  {include file="error_icon.tpl.html" field="rid_ul_service_url"}
 			</td>
-		  </tr>		   
+		  </tr>
 		  <tr>
 		    <th>Upload Profiles XSD</th>
 			<td>
@@ -2110,7 +2118,7 @@ function restoreDefaultColours(el)
 		 </tbody>
 		</table>
 		</div>
-		
+
 		<div id="wok" style="display: none;">
 		<table width="100%" class="admin-edit">
 		 <thead>
@@ -2176,7 +2184,7 @@ function restoreDefaultColours(el)
 		  </tbody>
 		 </table>
 		</div>
-		
+
        <div id="scopus" style="display: none;">
 		<table width="100%" class="admin-edit">
 		 <thead>
@@ -2202,7 +2210,7 @@ function restoreDefaultColours(el)
 			  <br />The Partner ID your institution has been allocated by Scopus.
 			  {include file="error_icon.tpl.html" field="app_scopus_partner_id"}
 			</td>
-		  </tr>			  
+		  </tr>
 		  </tbody>
 		 </table>
 		</div>

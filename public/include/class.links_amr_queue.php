@@ -263,7 +263,19 @@ class LinksAmrQueue extends Queue
         }
         continue;
       }
-      // Data elements for identifying articles
+      // Skip if it is in the temporary dupes collection (will be deleted deduped manually later)
+      if (defined('APP_TEMPORARY_DUPLICATES_COLLECTION') && APP_TEMPORARY_DUPLICATES_COLLECTION != '') {
+        $collections = str_replace(':', '\:', APP_TEMPORARY_DUPLICATES_COLLECTION);
+        $isMemberOf = Record::getSearchKeyIndexValue($record['rek_pid'], "isMemberOf", false);
+        if (in_array(APP_TEMPORARY_DUPLICATES_COLLECTION, $isMemberOf)) { // if not wok updated via a rid download don't put it into the wos collection
+          if (isset($this->_bgp)) {
+            $this->_bgp->setStatus("PID ".$record['rek_pid']." is in the Temporary Duplicates collection so ignoring it for Links AMR processing");
+          }
+          continue;
+        }
+      }
+
+        // Data elements for identifying articles
       $map = array(
         'pid' => null,
         'doi' => null,
@@ -412,7 +424,13 @@ class LinksAmrQueue extends Queue
 
       // Get records ..
       $filter["searchKey".Search_Key::getID("Object Type")] = 3;
-      $filter["manualFilter"] = " isi_loc_t:(".$ut.") AND ";
+      if (defined('APP_TEMPORARY_DUPLICATES_COLLECTION') && APP_TEMPORARY_DUPLICATES_COLLECTION != '') {
+        $collections = str_replace(':', '\:', APP_TEMPORARY_DUPLICATES_COLLECTION);
+        $filter["manualFilter"] = " ismemberof_mt:(".$collections.") AND isi_loc_t:(".$ut.") AND ";
+      } else {
+        $filter["manualFilter"] = " isi_loc_t:(".$ut.") AND ";
+      }
+
       $listing = Record::getListing(array(), array(9,10), 0, 50, 'Created Date', false, false, $filter);
       // If found some records, then send this in an email to the helpdesk system
       if ($listing['info']['total_rows'] != 0) {
