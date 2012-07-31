@@ -680,9 +680,6 @@ if (!empty($pid) && $record->checkExists()) {
 		$countThomsonCitations = Record::getSearchKeyIndexValue($pid, "Thomson Citation Count", false);
 		$countScopusCitations = Record::getSearchKeyIndexValue($pid, "Scopus Citation Count", false);
 		$countGoogleCitations = Record::getSearchKeyIndexValue($pid, "GS Citation Count", false);
-		$countThomsonCitations = $countThomsonCitations == '' ? 0 : $countThomsonCitations;
-		$countScopusCitations = $countScopusCitations == '' ? 0 : $countScopusCitations;
-		$countGoogleCitations = $countGoogleCitations == '' ? 0 : $countGoogleCitations;
 		$tpl->assign("citationsThomson", $countThomsonCitations);
 		$tpl->assign("citationsScopus", $countScopusCitations);
 		$tpl->assign("citationsGoogle", $countGoogleCitations);
@@ -694,8 +691,6 @@ if (!empty($pid) && $record->checkExists()) {
 		// Thomson and Scopus IDs. Grab 1st ID only
 		$ThomsonCitationsID = Record::getSearchKeyIndexValue($pid, "ISI LOC", false);
 		$ScopusCitationsID = Record::getSearchKeyIndexValue($pid, "Scopus ID", false);
-		$ThomsonCitationsID = $ThomsonCitationsID[0] == '' ? 0 : $ThomsonCitationsID[0]; 
-		$ScopusCitationsID = $ScopusCitationsID[0] == '' ? 0 : $ScopusCitationsID[0];
 		$tpl->assign("ThomsonID", $ThomsonCitationsID);
 		$tpl->assign("ScopusID", $ScopusCitationsID);		
 
