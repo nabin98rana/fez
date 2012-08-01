@@ -20,17 +20,17 @@ function validateForm(f)
 {/literal}
 // -->
 </script>
-<div class="default">{$pid} - {$title}</div>
 <div class="fez_form">
 <input type="hidden" name="cat" value="submit" />
 
 <div class="fez_form_item">
 <label for="collection_pid" >Destination Collection</label>
 <span class="fez_form_input">
-<input type="text" id="record_search" autocomplete="off" name="record_search" size="40"
-			    value="{$collection_title}" />
-		    <span id="record_search_searching" style="display:none;" class="loading">Loading...</span>
-<input name="collection_pid" id="collection_pid" type="hidden" value="{$collection_pid}" />
+
+<select class="default" name="collection_pid" onChange="javascript: selectCommunity(this.form, 'community_pid')" >
+    <option label="" value="">Same as cloned pid</option>
+    {html_options options=$collection_list selected=$collection_list_selected }
+</select>
 </span>
 </div>
 

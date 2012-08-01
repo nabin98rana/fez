@@ -61,6 +61,7 @@ $record = new RecordGeneral($pid);
 $xdis_id = $record->getXmlDisplayId();
 
 $tpl->assign(compact('xdis_id','xdis_list'));
+$tpl->assign("title", $record->getTitle());
 
 $parents = $record->getParents();
 $collection_pid = '';
@@ -69,22 +70,12 @@ foreach ($parents as $parent) {
     $col = new RecordGeneral($parent);
     if ($col->canCreate()) {
         $collection_pid = $parent;
-        //$collection_title = $parent['title'][0]; //old way - if we really need the title we will need to look it up..
         break;
     }
 }
+
+$collection_list = Collection::getAssocList();
+$tpl->assign('collection_list', $collection_list);
 $tpl->assign(compact('collection_pid','collection_title'));
-
-$js = <<<EOT
-window.oTextbox_xsd_display_fields_6346_1_lookup
-                        = new AutoSuggestControl(document.wfl_form1, 'collection_id', null, document.getElementById('record_search'),
-                                new StateSuggestions('Collection','suggestCreateList', false,'class.collection.php'),
-                                'cloneSuggestorCallback');
-EOT;
-
-$tpl->onload($js); 
-$tpl->registerNajax(NAJAX_Client::register('Suggestor', APP_RELATIVE_URL.'ajax.php'));
-
- 
 $tpl->displayTemplate(); 
 ?>

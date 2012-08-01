@@ -187,7 +187,6 @@ if ($aliasResult == false) {
 
     $news = News::getList(5, User::isUserAdministrator($username) || User::isUserUPO($username));       // Maximum of 5 news posts for front page.
     $news_count = count($news);
-    $news_count = count($news);
     $tpl->assign("news", $news);
     $tpl->assign("isHomePage", "true");
     $tpl->assign("news_count", $news_count);

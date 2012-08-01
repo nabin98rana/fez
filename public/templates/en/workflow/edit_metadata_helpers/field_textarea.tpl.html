@@ -1,6 +1,6 @@
 <tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" {if $xsdmf.xsdmf_invisible == 1}style="display:none;"{/if}>
     <td width="200" bgcolor="{$cell_color}" class="default" valign="top">
-	   <b>{$xsd_display_fields[i].xsdmf_title} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b>
+	   <b><label for="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0">{$xsd_display_fields[i].xsdmf_title} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}<label></b>
 		{if $xsdmf.xsdmf_description != ""}
 		  <br /><i>{$xsdmf.xsdmf_description}</i>
 		{/if}
