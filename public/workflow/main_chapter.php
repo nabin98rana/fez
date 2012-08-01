@@ -75,6 +75,9 @@ if ($access_ok) {
 	$tpl->assign("cycle_colours", "#" . APP_CYCLE_COLOR_TWO . ",#FFFFFF");
 	$tpl->assign(compact('list','authors','author_ids','wf_id'));
 
+    $tpl->assign("title", $record->getTitle());
+    $tpl->assign('pid', $pid);
+
 } else {
     $tpl->assign("show_not_allowed_msg", true);
 }

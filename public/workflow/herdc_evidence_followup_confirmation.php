@@ -67,6 +67,9 @@ $tpl->assign("type", "herdc_evidence_followup_confirmation");
 $pid = $wfstatus->pid;
 $wf_id = $wfstatus->id;
 
+$record = new RecordGeneral($pid);
+$tpl->assign("title", $record->getTitle());
+$tpl->assign('pid', $pid);
 $wfstatus->setTemplateVars($tpl);
 $wfstatus->checkStateChange();
 
