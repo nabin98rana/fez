@@ -4,7 +4,7 @@
 						{assign var="loop_num" value=$xsdmf.multiple_array[z]}
 						<tr id="tr_xsd_display_fields_{$xsdmf.xsdmf_id}_{$loop_num}" {if $loop_num != 1 || $xsdmf.xsdmf_invisible == 1}style="display:none"{/if} valign="top">
 						  <td width="200" bgcolor="{$cell_color}" class="default">
-							<b>{$xsdmf.xsdmf_title} {$loop_num}</b>{if $xsdmf.xsdmf_required == 1} * {/if}
+							<b><label for="tr_xsd_display_fields_{$xsdmf.xsdmf_id}_{$loop_num}">{$xsdmf.xsdmf_title} {$loop_num}</label></b>{if $xsdmf.xsdmf_required == 1} * {/if}
 							{if $loop_num == 1}
 							{if $xsdmf.xsdmf_description != ""}
 								<br /><i>{$xsdmf.xsdmf_description}</i>
@@ -32,7 +32,7 @@
 {else}
 						<tr id="tr_xsd_display_fields_{$xsdmf.xsdmf_id}_0" valign="top" {if $xsdmf.xsdmf_invisible == 1}style="display:none;"{/if}>
 						  <td width="200" bgcolor="{$cell_color}" class="default">
-							<b>{$xsdmf.xsdmf_title}{if $xsdmf.xsdmf_required == 1} * {/if}</b>
+							<b><label for="tr_xsd_display_fields_{$xsdmf.xsdmf_id}_0">{$xsdmf.xsdmf_title}{if $xsdmf.xsdmf_required == 1} * {/if}</label></b>
 							{if $xsdmf.xsdmf_description != ""}
 								<br /><i>{$xsdmf.xsdmf_description}</i>
 							{/if}
