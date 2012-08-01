@@ -106,6 +106,7 @@ if ($access_ok) {
     $tpl->assign("filenames", $filenames);
     $tpl->assign("form_title", "Add network files to object");
     $tpl->assign("form_submit_button", "Add network files to object");
+    $tpl->assign("title", $record->getTitle());
 
     $setup = Setup::load();
 }

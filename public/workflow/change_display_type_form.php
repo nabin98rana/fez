@@ -55,8 +55,8 @@ $wfstatus->checkStateChange();
 $xdis_list = XSD_Display::getAssocListDocTypes();
 $record = new RecordGeneral($pid);
 $xdis_id = $record->getXmlDisplayId();
-
 $tpl->assign(compact('xdis_id','xdis_list'));
+$tpl->assign("title", $record->getTitle());
 
 
 

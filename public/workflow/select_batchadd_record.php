@@ -89,6 +89,7 @@ if ($access_ok) {
 	    }
 	    closedir($directory);
 	}
+    $tpl->assign("title", $record->getTitle());
     $tpl->assign("message", $message);
     $tpl->assign("filenames", $filenames);
     $tpl->assign("form_title", "Add network files to object");

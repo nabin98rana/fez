@@ -124,7 +124,9 @@ if ($pid == -1) {
 } else {
     $tpl->assign("pid", $pid);
 
+
     $record = new RecordObject($pid);
+    $tpl->assign("title", $record->getTitle());
     if ($record->canEdit()) {
         $tpl->assign("isEditor", 1);
         $xdis_id = $record->getXmlDisplayId();
