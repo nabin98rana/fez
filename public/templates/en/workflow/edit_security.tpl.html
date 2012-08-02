@@ -403,7 +403,7 @@ function selectDateField(field_name, day, month, year)
 							{if $xsd_display_fields[i].xsdmf_html_input == 'multiple'}
 								{assign var="field_name" value=$field_name|cat:"[]"}
 							{/if}
-							<select title="{$xsd_display_fields[i].xsdsel_title} {$xsd_display_fields[i].xsdmf_title}" {if $xsd_display_fields[i].xsdmf_html_input == 'multiple'}multiple size="8"{/if} class="default" name="{$field_name}">
+							<select id="{$xsd_display_fields[i].xsdmf_title}" title="{$xsd_display_fields[i].xsdsel_title} {$xsd_display_fields[i].xsdmf_title}" {if $xsd_display_fields[i].xsdmf_html_input == 'multiple'}multiple size="8"{/if} class="default" name="{$field_name}">
 							  {if $xsd_display_fields[i].xsdmf_html_input != 'multiple'}<option value="-1">Please choose an option</option>{/if}
 							  {html_options options=$xsd_display_fields[i].field_options selected=$details[$temp_fld_id]}
 							</select>

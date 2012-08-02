@@ -33,12 +33,11 @@ class loginHelper {
   */
   static function iLoginAsSuperAdministrator($page)
   {
-  $page->visit("/login.php");
-  $page->fillField("username", "superadmin_test");
-  $page->fillField("passwd", "");
-  $page->pressButton("Login");
-  $page->visit("/");
-
+    $page->visit("/login.php");
+    $page->fillField("username", "superadmin_test");
+    $page->fillField("passwd", "");
+    $page->pressButton("Login");
+    $page->visit("/");
   }
 
   /**
@@ -46,12 +45,22 @@ class loginHelper {
   */
   static function iLoginAsUserNoGroups($page)
   {
-  $page->visit("/login.php");
-  $page->fillField("username", "user_test");
-  $page->fillField("passwd", "");
-  $page->pressButton("Login");
-  $page->visit("/");
-
-}
-
+    $page->visit("/login.php");
+    $page->fillField("username", "user_test");
+    $page->fillField("passwd", "");
+    $page->pressButton("Login");
+    $page->visit("/");
+  }
+  
+  /**
+   * @Given /^I login as thesis officer$/
+   */
+  static function iLoginAsThesisOfficer($page)
+  {
+    $page->visit("/login.php");
+    $page->fillField("username", "thesisofficer_test");
+    $page->fillField("passwd", "");
+    $page->pressButton("Login");
+    $page->visit("/");
+  }
 }

@@ -131,7 +131,7 @@ function loadPreview(pid,datastreamID, alt, origami)
 			                {else}
 			                  {assign var='wf_url' value=$rel_url|cat:'workflow/update.php'}
 						    {/if}
-							<a href='{$wf_url}?pid={$pid|escape:"html"}&amp;cat=select_workflow&amp;xdis_id={$xdis_id}&amp;wft_id={$workflows[w].wft_id}&amp;href={$smarty.server.REQUEST_URI}'><img title="{$workflows[w].wfl_title}" src="{$rel_url}{$wf_icon}" alt="" /></a> 
+							<a href='{$wf_url}?pid={$pid|escape:"html"}&amp;cat=select_workflow&amp;xdis_id={$xdis_id}&amp;wft_id={$workflows[w].wft_id}&amp;href={$smarty.server.REQUEST_URI}'><img title="{$workflows[w].wfl_title}" src="{$rel_url}{$wf_icon}" alt="{$workflows[w].wfl_title}" /></a>
 						{/if}
 					  {/section}
 					  <a href="{$rel_url}workflow/list_workflows2.php?pid={$pid|escape}&amp;href={$smarty.server.REQUEST_URI|escape:'url'}"><img src="{$rel_url}images/options_16.png" alt="More options" title="More options" width="16" height="16" /></a>             

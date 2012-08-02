@@ -75,6 +75,7 @@ if ($access_ok) {
 
     $tpl->assign("xdis_id", $xdis_id);
     $tpl->assign("pid", $pid);
+    $tpl->assign("title", $record->getTitle());
     $tpl->assign("message", $message);
 }
 

@@ -242,6 +242,26 @@ class FeatureContext extends MinkContext
         $lh->iLoginAsUPO($this);
     }
 
+    /**
+     * @Given /^I login as user no groups$/
+     */
+    public function iLoginAsUserNoGroups()
+    {
+        $lh = new loginHelper;
+        $lh->iLoginAsUserNoGroups($this);
+
+    }
+
+    /**
+     * @Given /^I login as thesis officer$/
+     */
+    public function iLoginAsThesisOfficer()
+    {
+        $lh = new loginHelper;
+        $lh->iLoginAsThesisOfficer($this);
+
+    }
+
   /**
    * Disable waiting checks while doing steps involving modals
    *
@@ -489,7 +509,7 @@ class FeatureContext extends MinkContext
     /**
      * @Given /^I go to the test journal article view page$/
      */
-    public function iGoToTheTestArticleViewPage()
+    public function iGoToTheTestJournalArticleViewPage()
     {
       $this->visit("/view/".TEST_JOURNAL_ARTICLE_PID);
     }
