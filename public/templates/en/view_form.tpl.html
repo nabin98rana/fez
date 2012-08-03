@@ -576,16 +576,16 @@ function loadPreview(pid,datastreamID, alt, origami)
 					<th style="vertical-align:text-top;">Citation counts:</th>
 					<td>
 					{if $citationsThomson != ''}<img src="{$rel_url}images/thomson_16.gif" style="vertical-align: text-top;" alt="TR Web of Science Citation Count" title="TR Web of Science Citation Count"/>&nbsp; Cited <a href="{$rel_url}rid_citation_count_history_{$pid}">{$citationsThomson}</a> times in Thomson Reuters Web of Science
-                        <a href="http://gateway.isiknowledge.com/gateway/Gateway.cgi?GWVersion=2&SrcApp=resolve1&DestLinkType=FullRecord&DestApp=WOS_CPL&KeyUT={$ThomsonID}&SrcAuth={$WOK_USERNAME}" rel="nofollow">Article</a>
+                        <a href="{$app_link_prefix}http://gateway.isiknowledge.com/gateway/Gateway.cgi?GWVersion=2&SrcApp=resolve1&DestLinkType=FullRecord&DestApp=WOS_CPL&KeyUT={$ThomsonID}&SrcAuth={$WOK_USERNAME}" rel="nofollow">Article</a>
                             {if $citationsThomson != 0}
-                                | <a href="http://gateway.isiknowledge.com/gateway/Gateway.cgi?GWVersion=2&SrcApp=resolve1&DestLinkType=CitingArticles&DestApp=WOS_CPL&KeyUT={$ThomsonID}&SrcAuth={$WOK_USERNAME}" rel="nofollow">Citations</a>
+                                | <a href="{$app_link_prefix}http://gateway.isiknowledge.com/gateway/Gateway.cgi?GWVersion=2&SrcApp=resolve1&DestLinkType=CitingArticles&DestApp=WOS_CPL&KeyUT={$ThomsonID}&SrcAuth={$WOK_USERNAME}" rel="nofollow">Citations</a>
                             {/if}
                         {/if}
 					{if $citationsThomson != '' && ($citationsScopus != '' || ($isUser && $citationsGoogle != ''))}<br />{/if}
 					{if $citationsScopus != ''}<img src="{$rel_url}images/scopus_logo_small.gif" style="vertical-align: text-top;" alt="Scopus Citation Count" title="Scopus Citation Count"/> Cited <a href="{$rel_url}scopus_citation_count_history_{$pid}">{$citationsScopus}</a> times in Scopus
-                        <a href="http://www.scopus.com/record/display.url?eid={$ScopusID}&origin=inward" rel="nofollow">Article</a>
+                        <a href="{$app_link_prefix}http://www.scopus.com/record/display.url?eid={$ScopusID}&origin=inward" rel="nofollow">Article</a>
                         {if $citationsScopus != 0}
-                            | <a href="http://www.scopus.com/results/citedbyresults.url?sort=plf-f&cite={$ScopusID}&src=s&sot=cite&sdt=a" rel="nofollow">Citations</a>
+                            | <a href="{$app_link_prefix}http://www.scopus.com/results/citedbyresults.url?sort=plf-f&cite={$ScopusID}&src=s&sot=cite&sdt=a" rel="nofollow">Citations</a>
                         {/if}
                     {/if}
 					{if $isUser && ($citationsScopus != '')}<br />{/if}

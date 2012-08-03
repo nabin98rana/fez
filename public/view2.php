@@ -692,7 +692,9 @@ if (!empty($pid) && $record->checkExists()) {
 		$ThomsonCitationsID = Record::getSearchKeyIndexValue($pid, "ISI LOC", false);
 		$ScopusCitationsID = Record::getSearchKeyIndexValue($pid, "Scopus ID", false);
 		$tpl->assign("ThomsonID", $ThomsonCitationsID);
-		$tpl->assign("ScopusID", $ScopusCitationsID);		
+		$tpl->assign("ScopusID", $ScopusCitationsID);
+        $app_link_prefix = (defined('APP_LINK_PREFIX')) ? APP_LINK_PREFIX : '' ;
+        $tpl->assign("app_link_prefix",$app_link_prefix);
 
 		// Add view to statistics buffer
 		Statistics::addBuffer($pid);
