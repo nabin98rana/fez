@@ -289,8 +289,9 @@ class MatchingRecords
 
         // Escape " double quote from user entered query, 
         // as we are using double quote to wrap the query string sent to SOAP
-        $search = "\"";
-        $replace = "";
+        //Also remove some special characters http://images.webofknowledge.com/WOKRS56B5/help/WOK/hs_wildcards.html
+        $search = array("\"", "?", "*");
+        $replace = array("", "", " ");
         $userQuery = str_replace($search, $replace, $userQuery);
 
         return $userQuery;
