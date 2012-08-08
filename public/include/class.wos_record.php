@@ -334,12 +334,17 @@ class WosRecItem
     $this->ut = str_ireplace("WOS:", "", $node->getElementsByTagName("UID")->item(0)->nodeValue );
     $elements = $node->getElementsByTagName("identifier");
     foreach($elements as $element) {
-         if ($element->getAttribute('type') == "issn") {
-             $this->issn = $element->getAttribute('value');
-         }
-         if ($element->getAttribute('type') == "doi") {
-                $articleNos[] = $element->getAttribute('value');
-         }
+        if ($element->getAttribute('type') == "issn") {
+         $this->issn = $element->getAttribute('value');
+        }
+        if ($element->getAttribute('type') == "isbn") {
+            $this->isbn = $element->getAttribute('value');
+        }
+        if ($element->getAttribute('type') == "doi" || $element->getAttribute('type') == "xref_doi") {
+         //Sometimes we have xref_doi repeated after a doi
+         if (!in_array($element->getAttribute('value'), $articleNos))
+         $articleNos[] = $element->getAttribute('value');
+        }
     }
     if (is_array($articleNos) && count($articleNos) > 0) {
       $this->articleNos = $articleNos;
