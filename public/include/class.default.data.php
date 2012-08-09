@@ -305,6 +305,9 @@ class Default_Data
         $defaultData['app_fedora_sendfile_direct']         = "OFF";
         $defaultData['app_herdc_trial_collection']         = "";
 		//$defaultData['app_portfolios_collection']           = "";
+		$defaultData['app_link_resolver_base_url']          = "";
+		$defaultData['app_link_resolver_button_url']        = "";
+		$defaultData['app_link_resolver_referrer_id']       = "";		
 		
 		return $defaultData;
 	}

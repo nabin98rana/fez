@@ -426,6 +426,12 @@ function loadPreview(pid,datastreamID, alt, origami)
 	</table>
 {/if}
 
+<!-- add link resolver button only for specific doc types; rft.genre will always exist for these doc types -->
+{if $resolver_base_url != ''}
+	{if $openurl|strstr:"rft.genre"}
+		<tr><td><a href="{$openurl}" target="_blank"><img src="{$resolver_button}" alt="Connect to link resolver"></a></td></tr>
+	{/if}
+{/if}	
 
 
     {* Someone else can clean this up. I'm over it. *}

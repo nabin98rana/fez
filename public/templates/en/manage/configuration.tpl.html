@@ -770,6 +770,30 @@ function restoreDefaultColours(el)
                 {include file="error_icon.tpl.html" field="app_bg_poll_int"}
           </td>
         </tr>
+		<tr>
+            <th>Link resolver base URL</th>
+            <td>
+              <input type="text" name="app_link_resolver_base_url" value="{$config_settings.app_link_resolver_base_url}" size="50" />
+              <br />The base URL for the link resolver you wish to use, e.g. http://library.deakin.edu.au/resserv?
+              {include file="error_icon.tpl.html" field="app_link_resolver_base_url"}
+            </td>
+		</tr>	
+  		<tr>
+            <th>Link resolver button URL</th>
+            <td>
+              <input type="text" name="app_link_resolver_button_url" value="{$config_settings.app_link_resolver_button_url}" size="30" />
+              <br />The URL for the button you wish to you for your link resolver.
+              {include file="error_icon.tpl.html" field="app_link_resolver_button_url"}
+            </td>
+        </tr>	
+  		<tr>
+            <th>Link resolver referrer_id</th>
+            <td>
+              <input type="text" name="app_link_resolver_referrer_id" value="{$config_settings.app_link_resolver_referrer_id}" size="30" />
+              <br />The referrer_id to be sent in the rfr_id=info/sid field in the OpenURL.
+              {include file="error_icon.tpl.html" field="app_link_resolver_referrer_id"}
+            </td>
+        </tr>			
   		  <!--tr>
 		    <th>Portfolios collection</th>
 			<td>

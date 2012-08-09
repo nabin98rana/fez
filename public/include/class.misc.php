@@ -49,6 +49,7 @@ include_once(APP_INC_PATH . 'class.fezacml.php');
 include_once(APP_INC_PATH . "class.error_handler.php");
 include_once(APP_INC_PATH . "class.thomson_doctype_mappings.php");
 include_once(APP_INC_PATH . "class.setup.php");
+include_once(APP_INC_PATH . "class.xsd_display.php");
 include_once('HTML/AJAX/JSON.php');
 
 class Misc
@@ -4530,6 +4531,154 @@ public static function multi_implode($glue, $pieces)
     }
     return $URL;
   }
+  
+  /**
+   * OpenURL2() constructs a single NISO Z39.88 compliant ContextObject for use in OpenURL links. 
+   * http://alcme.oclc.org/openurl/servlet/OAIHandler?verb=ListRecords&metadataPrefix=oai_dc&set=Core:Metadata+Formats
+   * http://alcme.oclc.org/openurl/servlet/OAIHandler/extension?verb=GetMetadata&metadataPrefix=mtx&identifier=info:ofi/fmt:kev:mtx:book
+   * http://alcme.oclc.org/openurl/servlet/OAIHandler/extension?verb=GetMetadata&metadataPrefix=mtx&identifier=info:ofi/fmt:kev:mtx:journal
+   * http://alcme.oclc.org/openurl/servlet/OAIHandler/extension?verb=GetMetadata&metadataPrefix=mtx&identifier=info:ofi/fmt:kev:mtx:dissertation
+   */
+	function OpenURL2($pid) {
+		$log = FezLog::get();
+		// Set base URL
+		$url = APP_LINK_RESOLVER_BASE_URL;
+		// Base of the OpenURL specifying which version of the standard we're using.
+		$url .= "url_ver=Z39.88-2004";
+		// Add referrer ID
+		$url .= "&amp;rfr_id=info%3Asid%2F" . APP_LINK_RESOLVER_REFERRER_ID;
+		//get record details
+		$record = record::getDetailsLite($pid); //grab 1->1 search keys
+
+		// determine type of record, using genre field and extract genre-specific info plus titles
+		// Journal articles
+		if ($record[0]['rek_genre'] == "article") {
+			$url .= "&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal";
+			$url .= "&amp;rft.genre=article";
+			$url .= "&amp;rft.atitle=" . urlencode($record[0]['rek_title']);
+			if (isset($record[0]['rek_parent_publication'])) {
+				$url .= "&amp;rft.jtitle=" . urlencode($record[0]['rek_parent_publication']);
+			}
+		}	
+		// Books 
+		if ($record[0]['rek_genre'] == "book") {
+			$url .= "&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook";
+			$url .= "&amp;rft.genre=book";
+			$url .= "&amp;rft.btitle=" . urlencode($record[0]['rek_title']);
+		}
+		// Book chapter 
+		if ($record[0]['rek_genre'] == "book chapter") {
+			$url .= "&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook";
+			$url .= "&amp;rft.genre=bookitem";
+			$url .= "&amp;rft.atitle=" . urlencode($record[0]['rek_title']);
+		}
+		// Reports 
+		if ($record[0]['rek_genre'] == "technical report") {
+			$url .= "&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook";
+			$url .= "&amp;rft.genre=report";
+			$url .= "&amp;rft.btitle=" . urlencode($record[0]['rek_title']);
+		}
+		// Theses 
+		if ($record[0]['rek_genre'] == "thesis") {
+			$url .= "&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook";
+			$url .= "&amp;rft.genre=dissertation";
+			$url .= "&amp;rft.title=" . urlencode($record[0]['rek_title']);
+		}		
+		// Conference publications - both conferences & papers. 
+		if ($record[0]['rek_genre'] == "conference publication") {
+			$url .= "&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook";
+			//check whether conference proceedings or conference paper
+			$doctype = XSD_Display::getTitle($record[0]['rek_display_type']);
+			if (substr($doctype, 0, 16) == "Conference Paper") {    //conference paper
+				$url .= "&amp;rft.genre=proceeding";
+				$url .= "&amp;rft.atitle=" . urlencode($record[0]['rek_title']);
+				$conference_title = record::getSearchKeyIndexValue($pid, 'parent publication');
+				if (!empty($conference_title)) {
+				$url .= "&amp;rft.btitle=" . urlencode($conference_title[0]);
+				}
+			}
+			else {									// conference itself
+				$url .= "&amp;rft.genre=conference";
+				$url .= "&amp;rft.btitle=" . urlencode($record[0]['rek_title']);
+			}
+		}
+		
+		// Add these fields to all document types, if they exist
+		$date = record::getSearchKeyIndexValue($pid, 'date');
+		$url .= "&amp;rft.date=" . date("Y", strtotime($date));  
+		
+		$fields = array('issn', 'isbn');
+		foreach ($fields as $i => $value) {
+			$new[$i] = record::getSearchKeyIndexValue($pid, $fields[$i]);
+			if (!empty($new[$i][0])) {
+				$url .= "&amp;rft." . $fields[$i] . "=" . urlencode($new[$i][0]);
+			}
+		}
+		
+		$vol = record::getSearchKeyIndexValue($pid, 'volume number');
+		if (!empty($vol[0])) {
+			$url .= "&amp;rft.volume=" . urlencode($vol[0]);
+		}
+		
+		$issue = record::getSearchKeyIndexValue($pid, 'issue number');
+		if (!empty($issue[0])) {
+			$url .= "&amp;rft.issue=" . urlencode($issue[0]);
+		}
+		
+		$spage = record::getSearchKeyIndexValue($pid, 'start page');
+		if (!empty($spage[0])) {
+			$url .= "&amp;rft.spage=" . urlencode($spage[0]);
+		}
+		
+		$doi = record::getSearchKeyIndexValue($pid, 'link');
+		foreach ($doi as $j => $value) {
+			$doipresent = strpos($doi[$j], "dx.doi.org");
+			if (!($doipresent === false)) {
+				$doicode = substr($doi[$j], 18, 50);
+				$url .= "&amp;rft_id=info:doi/" . urlencode($doicode);
+			}	
+		}	
+		
+		//new query for author/contributor info as record::getSearchKeyIndexValue 
+		//returns some authors in incorrect order
+		$db = DB_API::get();
+		$stmt = "SELECT rek_author
+			FROM " . APP_TABLE_PREFIX . "record_search_key_author
+			WHERE rek_author_pid = '" . $pid . "'
+			ORDER BY rek_author_order ASC";
+	
+		try {
+			$author = $db->fetchOne($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+		}
+		if (!empty($author)) {
+			$name = explode(',', $author);
+			$url .= "&amp;rft.aulast=" . urlencode($name[0]);
+			$url .= "&amp;rft.aufirst=" . urlencode($name[1]);
+		}
+		else { 
+			$stmt2 = "SELECT rek_contributor
+				FROM " . APP_TABLE_PREFIX . "record_search_key_contributor
+				WHERE rek_contributor_pid = '" . $pid . "'
+				ORDER BY rek_contributor_order ASC";	
+			try {
+				$contributor = $db->fetchOne($stmt2);
+			}
+			catch(Exception $ex) {
+				$log->err($ex);
+			}
+			if (!empty($contributor)) {
+				$name = explode(',', $contributor);
+				$url .= "&amp;rft.aulast=" . urlencode($name[0]);
+				$url .= "&amp;rft.aufirst=" . urlencode($name[1]);
+			}	
+		}
+		
+    return $url;
+  }
+    
 
   /**
    * Generates a password

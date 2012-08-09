@@ -727,6 +727,14 @@ if (!empty($pid) && $record->checkExists()) {
             }
         }
         $tpl->assign('pageCounts',$pageCounts);
+		
+		// Generate OpenURL and assign link resolver button to template
+		$openurl = misc::OpenURL2($pid);
+		$tpl->assign('openurl', $openurl);
+		$resolver_button = APP_LINK_RESOLVER_BUTTON_URL;
+		$resolver_base_url = APP_LINK_RESOLVER_BASE_URL;
+		$tpl->assign('resolver_button', $resolver_button);
+		$tpl->assign('resolver_base_url', $resolver_base_url);		
 
 // Get fields to be displayed on Spyglass hover.
 // @usage: view_inverse_metadata.tpl.html
