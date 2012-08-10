@@ -287,7 +287,7 @@ class MyResearch
                 }
                 $options["manualFilter"] = $filter["manualFilter"];
             }
-          print_r($filter);
+
             $message = '';
             if (is_numeric($author_id)) {
                 $return = Record::getListing(
