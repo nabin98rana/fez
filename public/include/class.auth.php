@@ -112,8 +112,10 @@ class Auth
 			@session_start();
 			$ses =& $_SESSION;
 			if (empty($failed_url)) {
+                header('HTTP/1.0 401 Unauthorized');
 				$failed_url = APP_RELATIVE_URL . "login.php?err=5";
 			} else {
+                header('HTTP/1.0 401 Unauthorized');
 				$failed_url = base64_encode($failed_url);
 				$failed_url = APP_RELATIVE_URL . "login.php?err=21&url=".$failed_url;
 			}

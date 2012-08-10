@@ -425,6 +425,7 @@ if (!empty($pid) && $record->checkExists()) {
 		$record_view = new RecordView($record);	// record viewer object
 		$details = $record_view->getDetails();
 	} else {
+        header("HTTP/1.0 403 Forbidden");
 		$tpl->assign("show_not_allowed_msg", true);
 		$savePage = false;
 	}
