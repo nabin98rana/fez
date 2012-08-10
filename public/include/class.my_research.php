@@ -241,6 +241,9 @@ class MyResearch
                 // $filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
                 $filter["searchKey" . Search_key::getID("Object Type")] = 3;
                 $filter["searchKey" . Search_Key::getID("Author ID")] = $author_id;
+                if (defined('APP_MY_RESEARCH_EXCLUDE_COLLECTIONS') && APP_MY_RESEARCH_EXCLUDE_COLLECTIONS != '') {
+                  $filter["manualFilter"] = " !ismemberof_mt:('" . str_replace(':', '\:', implode("' OR '", explode(',', APP_MY_RESEARCH_EXCLUDE_COLLECTIONS))) . "')";
+                }
             } elseif ($type == "possible") {
                 $lastname = Author::getLastName($author_id);
                 $firstname = Author::getFirstname($author_id);
@@ -265,6 +268,11 @@ class MyResearch
                 $filter["searchKey" . Search_Key::getID("Author")] = $lastname;
                 $filter["manualFilter"] = "!author_id_mi:" . $author_id;
                 //$filter["manualFilter"] .= " AND (author_mws:".'"'.$lastname.'" OR author_mws:'.'"'.$lastname.$firstname.'"^4 '.$alternatives.')';
+
+                if (defined('APP_MY_RESEARCH_EXCLUDE_COLLECTIONS') && APP_MY_RESEARCH_EXCLUDE_COLLECTIONS != '') {
+                  $filter["manualFilter"] .= " AND !ismemberof_mt:('" . str_replace(':', '\:', implode("' OR '", explode(',', APP_MY_RESEARCH_EXCLUDE_COLLECTIONS))) . "')";
+                }
+
                 $filter["manualFilter"]
                     .= " AND (author_mws:" . '"' . $lastname . '" OR author_mt:' . $lastname . ' OR author_mws:' . '"'
                     . $lastname . $firstname . '"^4 ' . $alternatives . ')';
@@ -279,6 +287,7 @@ class MyResearch
                 }
                 $options["manualFilter"] = $filter["manualFilter"];
             }
+          print_r($filter);
             $message = '';
             if (is_numeric($author_id)) {
                 $return = Record::getListing(
