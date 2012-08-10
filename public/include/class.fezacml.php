@@ -71,7 +71,63 @@ class FezACML
 		return $res;
 	}
 
-	function getList() 
+    function getQuickTemplateAssocListNoFedora()
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $stmt = "SELECT
+                    qai_id,
+                    qai_title
+                 FROM
+                    " . APP_TABLE_PREFIX . "auth_quick_rules_id";
+        try {
+            $res = $db->fetchPairs($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return '';
+        }
+
+        return $res;
+    }
+
+    function getDatastreamQuickRule($pid) {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $stmt = "SELECT qrp_qac_id FROM fez_auth_quick_rules_pid WHERE qrp_pid = ".$db->quote($pid);
+
+        try {
+            $res = $db->fetchOne($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return '';
+        }
+
+        return $res;
+    }
+
+    function updateDatastreamQuickRule($pid, $rule) {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $stmt = "REPLACE INTO " . APP_TABLE_PREFIX . "auth_quick_rules_pid
+                 SET qrp_pid = ".$db->quote($pid).", qrp_qac_id = ".$db->quote($rule, 'INTEGER');
+        ;
+        try {
+            $res = $db->fetchPairs($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return '';
+        }
+
+        return $res;
+    }
+
+    function getList()
 	{
 		return array();
 	}

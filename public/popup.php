@@ -365,11 +365,14 @@ switch ($cat)
             $groupsType = $_REQUEST['groups_type'];
             $group = $_REQUEST['group'];
             $did = $_REQUEST['did'];
+            $datastream_policy = $_REQUEST['datastream_policy'];
             $wfstatus = WorkflowStatusStatic::getSession($id); // restores WorkflowStatus object from the session
             $pid = $wfstatus->pid;
             //$dsID = $wfstatus->dsID;
 
-
+            if ($datastream_policy) {
+                FezACML::updateDatastreamQuickRule($pid, $datastream_policy);
+            }
 			if ($did != "") {
                 if($_REQUEST['inherit']) {
                     AuthNoFedoraDatastreams::setInherited($did);

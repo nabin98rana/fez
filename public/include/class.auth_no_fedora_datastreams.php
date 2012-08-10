@@ -398,6 +398,41 @@ class AuthNoFedoraDatastreams {
          return $res;
     }
 
+    function getInheritedDatastreamPolicyPermissionsFromPid($pid) {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $stmt = "SELECT qac_role, argr_ar_id FROM ". APP_TABLE_PREFIX . "auth_quick_rules_pid
+            INNER JOIN ". APP_TABLE_PREFIX . "auth_quick_rules ON qrp_qac_id = qac_id
+            LEFT JOIN ". APP_TABLE_PREFIX . "auth_rule_group_rules
+            ON argr_arg_id = qac_arg_id
+            WHERE qrp_pid = ".$db->quote($pid);
+        try {
+            $res = $db->fetchAll($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return array();
+        }
+
+        return $res;
+    }
+
+    function getInheritedDatastreamPolicyPermissions($did) {
+
+        $pid = AuthNoFedoraDatastreams::getPid($did);
+        $permissions = AuthNoFedoraDatastreams::getInheritedDatastreamPolicyPermissionsFromPid($pid);
+
+        if (AuthNoFedora::isInherited($pid)){
+            $parentPids = Record::getParents($pid);
+            foreach($parentPids as $parentPid) {
+                $tempParentPermissions = AuthNoFedoraDatastreams::getInheritedDatastreamPolicyPermissionsFromPid($parentPid);
+                $permissions = array_merge($permissions, $tempParentPermissions);
+            }
+        }
+        return $permissions;
+    }
+
     function getPid($did) {
         $log = FezLog::get();
       	$db = DB_API::get();
@@ -459,24 +494,35 @@ class AuthNoFedoraDatastreams {
     //This assumes parent or non inherited data might be changed
     function recalculatePermissions($did)
     {
-        $didParentPermisisons = AuthNoFedoraDatastreams::getParentsACML($did);
-        $didNonInheritedPermisisons = AuthNoFedoraDatastreams::getNonInheritedSecurityPermissions($did);
-        $didCaculatedPermissions = array_merge($didParentPermisisons,$didNonInheritedPermisisons);
-
-        foreach($didCaculatedPermissions as $didCaculatedPermission) {
-            if ($didCaculatedPermission[authi_role]) {
-                $newGroups[$didCaculatedPermission[authi_role]][] = $didCaculatedPermission[argr_ar_id];
-            } else{
-                $newGroups[$didCaculatedPermission[authdii_role]][] = $didCaculatedPermission[argr_ar_id];
+        $datastreamPolicyPermissions = AuthNoFedoraDatastreams::getInheritedDatastreamPolicyPermissions($did);
+        if (!empty($datastreamPolicyPermissions) && AuthNoFedoraDatastreams::isInherited($did)) {
+            //If there are any datastream policies they get set and inhertance is turned off
+            AuthNoFedoraDatastreams::deleteInherited($did);
+            AuthNoFedoraDatastreams::deletePermissions($did);
+            foreach($datastreamPolicyPermissions as $permissions){
+                AuthNoFedoraDatastreams::addSecurityPermissions($did, $permissions['qac_role'], $permissions['argr_ar_id']);
+                //print_r($permissions);
             }
-        }
 
+        } else {
+            $didParentPermisisons = AuthNoFedoraDatastreams::getParentsACML($did);
+            $didNonInheritedPermisisons = AuthNoFedoraDatastreams::getNonInheritedSecurityPermissions($did);
+            $didCaculatedPermissions = array_merge($didParentPermisisons,$didNonInheritedPermisisons);
+
+            foreach($didCaculatedPermissions as $didCaculatedPermission) {
+                if ($didCaculatedPermission[authi_role]) {
+                    $newGroups[$didCaculatedPermission[authi_role]][] = $didCaculatedPermission[argr_ar_id];
+                } else{
+                    $newGroups[$didCaculatedPermission[authdii_role]][] = $didCaculatedPermission[argr_ar_id];
+                }
+            }
 
             AuthNoFedoraDatastreams::deletePermissions($did);
             foreach ($newGroups as $role => $newGroup) {
                 $arg_id = AuthRules::getOrCreateRuleGroupArIds($newGroup);
                 AuthNoFedoraDatastreams::addRoleSecurityPermissions($did, $role, $arg_id, '1');
             }
+        }
     }
 
     function deletePermissions($did, $inherited = '1', $role=null)
@@ -565,7 +611,7 @@ class AuthNoFedoraDatastreams {
             ON argr_arg_id = authdi_arg_id
             LEFT JOIN ". APP_TABLE_PREFIX . "auth_rules
             ON ar_id = argr_ar_id
-            WHERE authdi_pid = ".$db->quote($did);
+            WHERE authdi_did = ".$db->quote($did);
         try {
         	$res = $db->fetchAll($stmt);
         }

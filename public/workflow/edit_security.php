@@ -77,7 +77,7 @@ if (APP_FEDORA_BYPASS == 'ON') {
 
     $tpl->assign("pid", $pid);
     $tpl->assign("dsID", $dsID);
-
+    $tpl->assign("datastream_policy", FezACML::getQuickTemplateAssocListNoFedora());
     $record = new RecordObject($pid);
     $record->getDisplay();
 
@@ -108,15 +108,17 @@ if (APP_FEDORA_BYPASS == 'ON') {
             $tpl->assign("did", $did);
         }
 
-
+        $tpl->assign("selected_datastream_policy", FezACML::getDatastreamQuickRule($pid));
         $tpl->assign("row", serialize($row));
         $tpl->assign("extra_title", "Edit Security for ".$pid_title);
         if ($record->isCollection()) {
             $tpl->assign('record_type', 'Collection');
         } elseif ($record->isCommunity()) {
             $tpl->assign('record_type', 'Community');
-        } else {
+        } elseif (empty($dsID)) {
             $tpl->assign('record_type', 'Record');
+        } else {
+            $tpl->assign('record_type', 'Datastream');
         }
     } else {
         $tpl->assign("show_not_allowed_msg", true);
