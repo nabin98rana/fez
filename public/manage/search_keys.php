@@ -89,23 +89,23 @@ $sek_data_type_list = array(
     "date" => "Date"
 );
 $sek_relationship_list = array(
-    0 => "Core One to One (1->1)", 
-    1 => "One to Many (1->M)"
+    0 => "Core table",
+    1 => "Own table"
 );
 
 $sek_relationship_list_short = array(
-    0 => "Core table (1->1)", 
-    1 => "Own table (1->M)"
+    0 => "Core table",
+    1 => "Own table"
 );
 
 $sek_cardinality_list = array(
-    0 => "Core One to One (1->1)", 
+    0 => "One to One (1->1)",
     1 => "One to Many (1->M)"
 );
 
 $sek_cardinality_list_short = array(
-    0 => "Core table (1->1)", 
-    1 => "Own table (1->M)"
+    0 => "(1->1)",
+    1 => "(1->M)"
 );
 
 

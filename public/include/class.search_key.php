@@ -1645,7 +1645,7 @@ class Search_Key
                    "     PRIMARY KEY (`{$column_prefix}_id`), \n" .
                    "     $key_type `$column_prefix` (`$column_prefix`), \n" .
                    "     KEY `{$column_prefix}_pid` (`{$column_prefix}_pid`)";
-            $sql.= ($shadow) ? "\n" : ",\n     UNIQUE KEY `unique_constraint_pid_order` (`{$column_prefix}_pid`, `{$column_prefix}_order`) \n";
+            $sql.= ($shadow || !$cardinality) ? "\n" : ",\n     UNIQUE KEY `unique_constraint_pid_order` (`{$column_prefix}_pid`, `{$column_prefix}_order`) \n";
 
             if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
                 $query_end = ") ENGINE=InnoDB DEFAULT CHARSET=utf8";
