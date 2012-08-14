@@ -157,6 +157,7 @@
 						{if $mods.identifier_rm_prn != ''}<mods:identifier type="rm_prn">{$mods.identifier_rm_prn|escape:'html'}</mods:identifier>{/if}
 						{if $mods.identifier_isbn != ''}<mods:identifier type="isbn">{$mods.identifier_isbn|escape:'html'}</mods:identifier>{/if}
 						{if $mods.identifier_issn != ''}<mods:identifier type="issn">{$mods.identifier_issn|escape:'html'}</mods:identifier>{/if}
+                        {if $mods.identifier_doi != ''}<mods:identifier type="doi">{$mods.identifier_doi|escape:'html'}</mods:identifier>{/if}
 						{if $mods.accessCondition != ''}<mods:accessCondition>{$mods.accessCondition|escape:'html'}</mods:accessCondition>{/if}							          	
 					</mods:mods>
 				

@@ -551,6 +551,7 @@
                       <td style="" class="default">
                  		&nbsp;{assign var="sek_relationship" value=$list[i].sek_relationship}&nbsp;{$sek_relationship_list_short[$sek_relationship]|replace:' ':'&nbsp;'}
                           {assign var="sek_cardinality" value=$list[i].sek_cardinality}&nbsp;{$sek_cardinality_list_short[$sek_cardinality]|replace:' ':'&nbsp;'}
+                          {if (!$list[i].sek_relationship && $list[i].sek_cardinality)}<span class="disabled">Error</span>{/if}
                         &nbsp;
                       </td>
                       <td style="" class="default">

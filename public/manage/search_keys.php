@@ -74,10 +74,9 @@ if (@$_GET["cat"] == "edit") {
     if(!empty($_GET["id"])) {
         $details = Search_Key::getDetails($_GET["id"]);
         echo '<pre>'.Search_Key::createSQL($_GET["id"]) . '</pre>';
-        if ($details['sek_relationship'] == '1') {
-            echo '<hr />';
-            echo '<pre>'.Search_Key::createSQL($_GET["id"], true) . '</pre>';
-        };
+        echo '<hr />';
+        echo '<pre>'.Search_Key::createSQL($_GET["id"], true) . '</pre>';
+
         exit();
     }
 }

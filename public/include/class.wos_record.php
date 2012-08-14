@@ -588,6 +588,7 @@ class WosRecItem
         $sekData['Keywords']        = $this->keywords;
         $sekData['ISBN']            = $this->isbn;
         $sekData['ISSN']            = $this->issn;
+        $sekData['DOI']            = $this->articleNos[0];
         $sekData['Publisher']       = $this->publisher;
 
         /// exception for conf papers that the subtype goes into genre type
@@ -768,6 +769,7 @@ class WosRecItem
             $mods['identifier_isi_loc'] = $this->ut;
             $mods['identifier_isbn'] = $this->isbn;
             $mods['identifier_issn'] = $this->issn;
+            $mods['identifier_doi'] = $this->articleNos[0];
             $mods['language'] = Language::resolveWoSLanguage($this->primaryLang);
             $mods['genre'] = $xdis_title;
             $mods['genre_type'] = $xdis_subtype;
@@ -837,6 +839,7 @@ class WosRecItem
       "Date" => $this->date_issued,
       "ISSN" => $this->issn,
       "ISBN" => $this->isbn,
+      "DOI" => $this->articleNos[0],
       "Volume Number" => $this->bibIssueVol,
       "Start Page" => $this->bibPageBegin,
       "End Page" => $this->bibPageEnd,
