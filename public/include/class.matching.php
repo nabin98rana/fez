@@ -157,22 +157,14 @@ class matching
 		";
 
 		try {
-			$result = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+			$result = $db->fetchCol($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err($ex);
 			return '';
 		}
 
-		// Pack all the returned PIDs into an array
-		$exceptions = array();
-		if (count($result) > 0) {
-			foreach ($result as $row) {
-				$exceptions[$row['pid']] = '';
-			}
-		}
-
-		return $exceptions;
+		return $result;
 	}
 
 

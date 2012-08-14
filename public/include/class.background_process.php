@@ -205,7 +205,7 @@ class BackgroundProcess {
 		}
     $usr_id = Auth::getUserID();
 
-    $isAdministrator = Auth::isAdministrator();     
+    $isAdministrator = Auth::isAdministrator();
 
 		if ($usr_id == $res['bgp_usr_id'] || $isAdministrator == true) {
 			$headers = explode("\n", $res['bgp_headers']);
@@ -218,14 +218,14 @@ class BackgroundProcess {
 		}
 		exit;
 	}
-	
+
 	/**
 	 * Marks a pid as finished (by removing it from the table)
 	 *
 	 * @param string $pid
 	 * @return void
 	 **/
-	public function markPidAsFinished($pid) 
+	public function markPidAsFinished($pid)
 	{
 		$log = FezLog::get();
 		BackgroundProcessPids::removePid($this->bgp_id, $pid);
@@ -245,7 +245,7 @@ class BackgroundProcess {
 		$db = DB_API::get();
 
 		$this->inputs = $inputs;
-		$this->wfses_id = $wfses_id; // optional workflow session		
+		$this->wfses_id = $wfses_id; // optional workflow session
 		$dbtp =  APP_TABLE_PREFIX;
 		// keep background log files in a subdir so that they don't clutter up the /tmp dir so much
 		if (!is_dir(APP_TEMP_DIR."fezbgp")) {
@@ -263,11 +263,11 @@ class BackgroundProcess {
 			return -1;
 		}
 		$this->bgp_id = $db->lastInsertId($dbtp."background_process", "bgp_id");
-		
+
 		// insert the pids into the bgp pids table
 		$bgpPids = new BackgroundProcessPids();
 		$bgpPids->insertPids($this->bgp_id, $inputs);
-		
+
 		$this->serialize();
 		$command = APP_PHP_EXEC." \"".APP_PATH."misc/run_background_process.php\" ".$this->bgp_id." \""
 		.APP_PATH."\" > ".APP_TEMP_DIR."fezbgp/fezbgp_".$this->bgp_id.".log";

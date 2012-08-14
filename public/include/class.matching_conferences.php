@@ -47,24 +47,24 @@ class RCL
 		echo "======================================\n";
 		echo "RCL Matching Utility\n";
 		echo date('d/m/Y H:i:s') . "\n";
-		
+
 		$matches = array();
 		$candidateConferences = RCL::getCandidateConferences();
 		$rankedConferences = RCL::getRankedConferences();
 		$rankedConferencesAcronyms = RCL::getRankedConferenceAcronyms();
-		
+    $matchingExceptions = matching::getMatchingExceptions("C");
 		/* Print some information about the number of items found */
 		echo "Number of candidate conferences: " . sizeof($candidateConferences) . "\n";
 		echo "Number of ranked conferences: " . sizeof($rankedConferences) . "\n";
 		echo "Number of conference acronyms: " . sizeof($rankedConferencesAcronyms) . "\n";
-		
+
 		/* Perform normalisation */
 		$normalisedCandidateConferences = RCL::normaliseListOfTitles($candidateConferences);
 		$normalisedRankedConferences = RCL::normaliseListOfTitles($rankedConferences);
-		
+
 		// We need to do this in the order of least likely to most likely matching, so that the later,
 		// more-likely-correct matches get precedence over the new ones.
-		
+
 		/* Look for acronym matches */
 		RCL::lookForMatchesByAcronym($candidateConferences, $rankedConferencesAcronyms, $matches);
 		echo "Number of matches after acronym matching: " . sizeof($matches) . "\n";
@@ -81,39 +81,48 @@ class RCL
 
 		/* Look for manual matches */
 		//RCL::lookForManualMatches($normalisedCandidateJournals, $manualMatches, $matches); // -- this looks like it was never implemented?
-		
+
 		/* Subtract from any match results those PIDs that are either black-listed, or manually mapped */
-		$matches = array_diff_key($matches, matching::getMatchingExceptions("C"));
-		
+    $okMatches = array();
+    /* Subtract from any match results those PIDs that are either black-listed, or manually mapped */
+    foreach ($matches as $match) {
+      if (!in_array($match, $matchingExceptions)) {
+        $okMatches[] = $match;
+      }
+    }
+    $matches = $okMatches;
+    echo "Total number of OK matches (not black-listed or manually mapped): " . sizeof($matches) . "\n";
+    ob_flush();
+
 		echo "Total number of matches: " . sizeof($matches) . "\n";
 
 		RCL::runInserts($matches);
 
 		return;
 	}
-	
-	
-	
+
+
+
 	function matchOne($pid)
 	{
 		echo "Match a single PID here. Rar!";
-		
+
 		// LKDB - TODO!
-		
+
 		return;
 	}
-	
-	
-	
+
+
+
 	function getCandidateConferences()
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		echo "Running query to build candidate conference list ... ";
 		$candidateConferences = array();
-	
-		$stmt = "	
+
+		$stmt = "
 			SELECT
 				rek_pid AS record_pid,
 				rek_conference_name AS conference_name
@@ -150,7 +159,7 @@ class RCL
 		if (TEST) {
 			$stmt .= " LIMIT 1";
 		}
-		
+
 		try {
 			$result = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
@@ -158,25 +167,25 @@ class RCL
 			$log->err($ex);
 			return '';
 		}
-		
+
 		if (count($result) > 0) {
 			foreach ($result as $key => $row) {
 				$candidateConferences[$row['record_pid']] = $row['conference_name'];
 			}
 		}
-		
+
 		echo "done.\n";
-		
+
 		return $candidateConferences;
 	}
-	
-	
-	
+
+
+
 	function getRankedConferences()
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		echo "Running query to build ranked conferences list ... ";
 		$rankedConferences = array();
 
@@ -189,7 +198,7 @@ class RCL
 			ORDER BY
 				cnf_conference_name ASC;
 		";
-		
+
 		try {
 			$result = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
@@ -197,25 +206,25 @@ class RCL
 			$log->err($ex);
 			return '';
 		}
-		
+
 		if (count($result) > 0) {
 			foreach ($result as $key => $row) {
 				$rankedConferences[$row['cnf_id']] = $row['title'];
 			}
 		}
-		
+
 		echo "done.\n";
-		
+
 		return $rankedConferences;
 	}
-	
-	
-	
+
+
+
 	function getRankedConferenceAcronyms()
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		echo "Running query to build ranked conferences acronym list ... ";
 		$rankedConferencesAcronyms = array();
 
@@ -239,7 +248,7 @@ class RCL
 			ORDER BY
 				acronym ASC;
 		";
-		
+
 		try {
 			$result = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
@@ -247,31 +256,31 @@ class RCL
 			$log->err($ex);
 			return '';
 		}
-		
+
 		if (count($result) > 0) {
 			foreach ($result as $key => $row) {
 				$rankedConferencesAcronyms[$row['cnf_id']] = $row['acronym'];
 			}
 		}
-		
+
 		echo "done.\n";
-		
+
 		return $rankedConferencesAcronyms;
 	}
-	
-	
-	
+
+
+
 	function normaliseListOfTitles($titles)
 	{
 		foreach ($titles as &$title) {
 			$title = RCL::normaliseTitle($title);
 		}
-		
+
 		return $titles;
 	}
-	
-	
-	
+
+
+
 	function normaliseTitle($title)
 	{
 		$title = strtolower($title);
@@ -280,9 +289,9 @@ class RCL
 
 		return $title;
 	}
-	
-	
-	
+
+
+
 	function strip_punctuation($text)
 	{
 	    $text = preg_replace("/[:]/", " ", $text); // Replace colons with spaces
@@ -292,41 +301,41 @@ class RCL
 	    	$text = substr_replace($text, "", 0, 4); // remove any leading "the ", if one is encountered
 	    }
 	    $text = preg_replace("/\s{2,}/", " ", $text); // strip any double / induced whitespace
-	    
+
 	    return $text;
 	}
-	
-	
-	
+
+
+
 	function crushListOfTitles($titles)
 	{
 		foreach ($titles as &$title) {
 			$title = RCL::crushTitle($title);
 		}
-		
+
 		return $titles;
 	}
-	
-	
-	
+
+
+
 	function crushTitle($title)
 	{
 		/*
 		Take the first letter of each word, uppercase it.
 		*/
-		
+
 		$nuStr = "";
 		$parts = explode(" ", $title);
 		foreach ($parts as $part) {
 			$firstLetter = strtoupper(substr($part, 0, 1));
 			$nuStr .= $firstLetter . " ";
 		}
-		
+
 		return $nuStr;
 	}
-	
 
-	
+
+
 	function lookForMatchesByStringComparison($check, $against, &$matches)
 	{
 		echo "Running normalised string match ... ";
@@ -349,17 +358,17 @@ class RCL
           if ($existsAlready !== true) {
             $matches[] = array('pid' => $sourceKey, 'matching_id' => $targetKey);
           }
-				}				
+				}
 			}
 		}
-		
+
 		echo " done.\n";
-		
+
 		return;
 	}
-	
-	
-	
+
+
+
 	function lookForMatchesByStringCrush($check, $against, &$matches)
 	{
 		echo "Running normalised string match ... ";
@@ -382,30 +391,30 @@ class RCL
           if ($existsAlready !== true) {
             $matches[] = array('pid' => $sourceKey, 'matching_id' => $targetKey);
           }
-				}				
+				}
 			}
 		}
-		
+
 		echo " done.\n";
-		
+
 		return;
 	}
-	
-	
-	
+
+
+
 	function lookForMatchesByAcronym($check, $against, &$matches)
 	{
 		echo "Running acronym match ... ";
-		
+
 		/* Step through each source item */
 		foreach ($check as $sourceKey => $sourceVal) {
-			
+
 			/* Attempt to match it against each target item */
 			foreach ($against as $targetKey => $targetVal) {
-				
+
 				$targetVal = str_replace('/', '', $targetVal); // Get rid of slashes ... these cause us headaches.
 				$regexp = '/^(?:.*[^A-Za-z0-9])*(' . $targetVal . ')(?:[^A-Za-z0-9].*)*$/'; // This will look for the acronym in isolation.
-				
+
 				if (preg_match($regexp, $sourceVal)) {
 					/* Rule out any values we know we don't want to match on */
 					if (
@@ -434,28 +443,28 @@ class RCL
 								//echo $sourceVal . " ?~~~? " . $targetVal . "\n\n";
 							}
 					}
-				}				
+				}
 			}
 		}
-		
+
 		echo " done.\n";
-		
+
 		return;
 	}
-	
-	
-	
+
+
+
 	function runInserts($matches)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		echo "Running insertion queries on eSpace database ... ";
-		
+
 		foreach ($matches as $match) {
 			RCL::removeMatchByPID($match['pid']);
 			$stmt = "INSERT INTO " . APP_TABLE_PREFIX . "matched_conferences (mtc_pid, mtc_cnf_id, mtc_status) VALUES ('" . $match['pid'] . "', '" . $match['matching_id'] . "', 'A') ON DUPLICATE KEY UPDATE mtc_pid = mtc_pid, mtc_cnf_id = mtc_cnf_id;";
-			
+
 			try {
 				$db->exec($stmt);
 			}
@@ -472,9 +481,9 @@ class RCL
 
             //echo $stmt . "\n";
 		}
-		
+
 		echo "done.\n";
-		
+
 		return;
 	}
 

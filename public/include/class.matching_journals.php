@@ -53,14 +53,16 @@ class RJL
 		echo "======================================\n";
 		echo "RJL Matching Utility\n";
 		echo date('d/m/Y H:i:s') . "\n";
-		
+
 		$matchesI = array(); // ISSN matches
 		$matchesT = array(); // Journal title matches
 		$matchesC = array(); // Conference title matches
 		$matchesS = array(); // Similar title matches
 		$matchesM = array(); // Manual matches
 		$matches = array();  // All matches
-		
+
+    $matchingExceptions = matching::getMatchingExceptions("J");
+
 		$candidateJournals = RJL::getCandidateJournals();
 
 		$candidateISSNs = RJL::getCandidateISSNs();
@@ -119,7 +121,7 @@ class RJL
 //		RJL::lookForMatchesBySimilarStrings($normalisedCandidateJournals, $normalisedRankedJournals, $matchesS);
 //		RJL::runNearMatchInserts($matchesS);
 		echo "Number of similar string matches: " . sizeof($matchesS) . "\n";
-		
+
 		/* Assemble list of all matches */
 //		$matches = array_merge($matchesT, $matchesI, $matchesM, $matchesC, $matchesS);
 		echo "Total number of matches: " . sizeof($matches) . "\n";
@@ -132,11 +134,11 @@ class RJL
 		RJL::subtractMatchesFromCandidates($unmatched, $matchesT);
 		RJL::subtractMatchesFromCandidates($unmatched, $matchesM);
 */
-		echo "Number of ISSN matches: " . sizeof($matchesI) . "\n";
+//		echo "Number of ISSN matches: " . sizeof($matchesI) . "\n";
         ob_flush();
-		echo "Number of journal title matches: " . sizeof($matchesT) . "\n";
-		echo "Number of conference title matches: " . sizeof($matchesC) . "\n";
-		echo "Number of manual matches: " . sizeof($matchesM) . "\n";
+//		echo "Number of journal title matches: " . sizeof($matchesT) . "\n";
+//		echo "Number of conference title matches: " . sizeof($matchesC) . "\n";
+//		echo "Number of manual matches: " . sizeof($matchesM) . "\n";
 		echo "Total number of matches: " . sizeof($matches) . "\n";
 		echo "Total number of user matches excluded: " . $this->userManualMatchCount . "\n";
         ob_flush();
@@ -151,7 +153,7 @@ class RJL
 		echo "Number of non-matching journals after ISSN subtraction: " . sizeof($nonMatchingJournals) . "\n";
 		$nonMatchingJournals = array_diff($nonMatchingJournals, RJL::keyMasterList($matchesM)); // Next remove the manual matches
 		echo "Number of non-matching journals after manual match subtraction: " . sizeof($nonMatchingJournals) . "\n";
-		
+
 		// PRINT UNMATCHED CONFERENCES (SPECIAL CASE)
 		// Remove the title matches from the original candidate conference list
 		$nonMatchingConferences = array_diff($coreConferences, RJL::keyMasterList($matchesC));
@@ -172,66 +174,71 @@ class RJL
             $mail->send($from, $to, $subject, false);
         }
 
-
+    $okMatches = array();
 		/* Subtract from any match results those PIDs that are either black-listed, or manually mapped */
-		$matches = array_diff_key($matches, matching::getMatchingExceptions("J"));
-        
-        
-        /* Find match results that linked to duplicate Journals and replace it with replacement Journal 
+		foreach ($matches as $match) {
+      if (!in_array($match, $matchingExceptions)) {
+        $okMatches[] = $match;
+      }
+    }
+    $matches = $okMatches;
+    echo "Total number of OK matches (not black-listed or manually mapped): " . sizeof($matches) . "\n";
+    ob_flush();
+        /* Find match results that linked to duplicate Journals and replace it with replacement Journal
          * Query to get the JNL_ID: SELECT jnl_id FROM {TABLE_PREFIX}journal WHERE jnl_era_id = {ERA_ID}
          * The replacement value are:
-         * 
+         *
          *          ERAID JNL_ID Title
            Search = 44512 41029  Allergy and Clinical Immunology International
            Replace= 15451 30537  Allergy and Clinical Immunology International: journal of the World Allergy Organization
-	
+
            Search = 15844 30828  British Journal of Urology (BJU) International
            Replace= 15843 30827  BJU International
-	
+
            Search = 16520 31371  Journal of National Cancer Institute
            Replace= 16434 31298  Journal of the National Cancer Institute
-         
+
            Search = 45090 41506  Electronic Journal of Combinatorics
            Replace= 138   20810  Journal of Combinatorics (year 2012)
-         * 
+         *
          */
-        $dupeJournalSearchJNLID = array( '41029', '30828', '31371', '41506'); 
-        $dupeJournalReplaceJNLID = array('30537', '30827', '31298', '20810'); 
+        $dupeJournalSearchJNLID = array( '41029', '30828', '31371', '41506');
+        $dupeJournalReplaceJNLID = array('30537', '30827', '31298', '20810');
         foreach ($matches as $key => $match){
             if (in_array($match['matching_id'], $dupeJournalSearchJNLID) === true ){
                 $matches[$key]['matching_id'] = str_replace($dupeJournalSearchJNLID, $dupeJournalReplaceJNLID, $match['matching_id']);
             }
         }
-        
+
 		echo " About to run inserts \n";
         ob_flush();
 		/* Insert all the found matches */
 		RJL::runInserts($matches);
 		return;
 	}
-	
-	
-	
+
+
+
 	function matchOne($pid)
 	{
 		echo "Match a single PID here. Rar!";
-		
+
 		// LKDB - TODO!
-		
+
 		return;
 	}
-	
-	
-	
+
+
+
 	function getCandidateJournals()
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		echo "Running query to build candidate journals list ... ";
 		$candidateJournals = array();
-	
-		$stmt = "	
+
+		$stmt = "
 			SELECT
 				rek_pid AS record_pid,
 				rek_journal_name AS journal_title
@@ -294,26 +301,26 @@ class RJL
 			$log->err($ex);
 			return '';
 		}
-		
+
 		if (count($result) > 0) {
 			foreach ($result as $key => $row) {
 				$candidateJournals[$row['record_pid']] = $row['journal_title'];
 			}
 		}
-		
+
 		echo "done.\n";
-		
+
 		return $candidateJournals;
 	}
-	
+
 	function getCandidateISSNs()
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-	
+
 		echo "Running query to build candidate ISSNs list ... ";
 		$candidateISSNs = array();
-	
+
 		$stmt = "
 			SELECT
 				rek_pid AS record_pid,
@@ -370,29 +377,29 @@ class RJL
 			$log->err($ex);
 			return '';
 		}
-		
+
 		if (count($result) > 0) {
 			foreach ($result as $key => $row) {
 				$candidateISSNs[$row['record_pid']] = $row['issn'];
 			}
 		}
-		
+
 		echo "done.\n";
-		
+
 		return $candidateISSNs;
 	}
-	
-	
-	
+
+
+
 	function getCandidateConfs()
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		echo "Running query to build candidate conference list ... ";
 		$candidateConferences = array();
 
-		$stmt = "	
+		$stmt = "
 			SELECT
 				rek_pid AS record_pid,
 				rek_proceedings_title AS conference_name
@@ -464,14 +471,14 @@ class RJL
 echo "COUNT: ".count($candidateConferences);
 		return $candidateConferences;
 	}
-	
-	
-	
+
+
+
 	function getRankedJournals()
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-				
+
 		echo "Running query to build ranked journals list ... ";
 		$rankedJournals = array();
 
@@ -485,7 +492,7 @@ echo "COUNT: ".count($candidateConferences);
 			ORDER BY
 				jnl_journal_name ASC;
 		";
-		
+
 		try {
 			$result = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
@@ -493,7 +500,7 @@ echo "COUNT: ".count($candidateConferences);
 			$log->err($ex);
 			return '';
 		}
-		
+
 //		if (count($result) > 0) {
 //			foreach ($result as $row) {
 //		    	$rankedJournals[$row['jnl_id']] = $row['title'];
@@ -501,10 +508,10 @@ echo "COUNT: ".count($candidateConferences);
 //		}
 		$rankedJournals = $result;
 		echo "done.\n";
-		
+
 		return $rankedJournals;
 	}
-	
+
 
     function getUserManualMatches()
    	{
@@ -569,17 +576,17 @@ echo "COUNT: ".count($candidateConferences);
 		array("jnl_id" => "21680", "title"  => "journal of physical chemistry b", "jnl_era_year" => 2012)
 		);
 		echo "done.\n";
-		
+
 		return $manualMatches;
 	}
-	
-	
-	
+
+
+
 	function getISSNsRJL()
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		echo "Running query to build ranked journal ISSN list ... ";
 		$rankedJournalISSNs = array();
 
@@ -598,7 +605,7 @@ echo "COUNT: ".count($candidateConferences);
 				jni_issn ASC,
 				jni_issn_order ASC;
 		";
-		
+
 		try {
 			$result = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
@@ -606,7 +613,7 @@ echo "COUNT: ".count($candidateConferences);
 			$log->err($ex);
 			return '';
 		}
-		
+
 		if (count($result) > 0) {
 			foreach ($result as $key => $row) {
                 $issn = RJL::normaliseISSN($row['jni_issn']);
@@ -615,35 +622,35 @@ echo "COUNT: ".count($candidateConferences);
                 $rankedJournalISSNs[$row['jni_id']]['jnl_era_year'] = $row['jnl_era_year'];
 		    }
 		}
-		
+
 		echo "done.\n";
-		
+
 		return $rankedJournalISSNs;
 	}
-	
+
 
 	/**
      * Normalises titles within an array of records.
-     * 
+     *
      * $titles parameter can be either a one-level or multidimensional array.
      * If it is a multidimensional array, the title value should be specified under a key called 'title'.
      * Sample of expected array format:
-     * 1. array( 
+     * 1. array(
      *      ['UQ:12345'] => 'UQ Testing Journal Name', ['UQ:56789'] => 'Second Testing Journal Name'
      *    )
      * 2. array(
-     *      [0] => array( 
-     *                  ['title'] => 'UQ Testing Journal Name', 
-     *                  ['jnl_id'] => 987 
+     *      [0] => array(
+     *                  ['title'] => 'UQ Testing Journal Name',
+     *                  ['jnl_id'] => 987
      *             ),
-     *      [1] => array( 
-     *                  ['title'] => 'Second Testing Journal Name', 
-     *                  ['jnl_id'] => 654 
+     *      [1] => array(
+     *                  ['title'] => 'Second Testing Journal Name',
+     *                  ['jnl_id'] => 654
      *             )
      *    )
-     * 
+     *
      * @param array $titles An array of records with title on each record.
-     * @return array An array of records with normalised titles. 
+     * @return array An array of records with normalised titles.
      */
 	function normaliseListOfTitles($titles)
 	{
@@ -654,22 +661,22 @@ echo "COUNT: ".count($candidateConferences);
 			$title['title'] = RJL::normaliseTitle($title['title']);
 		}
         }
-		
+
 		return $titles;
 	}
-	
-	
+
+
 	function normaliseListOfISSNs($issns)
 	{
 		foreach ($issns as &$issn) {
 			$issn = RJL::normaliseISSN($issn);
 		}
-		
+
 		return $issns;
 	}
-	
-	
-	
+
+
+
 	function normaliseTitle($title)
 	{
 		$title = strtolower($title);
@@ -678,9 +685,9 @@ echo "COUNT: ".count($candidateConferences);
 
 		return $title;
 	}
-	
-	
-	
+
+
+
 	function strip_punctuation($text)
 	{
 	    $text = preg_replace("/[:]/", " ", $text); // Replace colons with spaces
@@ -690,21 +697,21 @@ echo "COUNT: ".count($candidateConferences);
 	    	$text = substr_replace($text, "", 0, 4); // remove any leading "the ", if one is encountered
 	    }
 	    $text = preg_replace("/\s{2,}/", " ", $text); // strip any double / induced whitespace
-	    
+
 	    return $text;
 	}
-	
-	
-	
+
+
+
 	function normaliseISSN($issn)
 	{
 		$issn = preg_replace("/[^0-9\-X]/", "", $issn);
-		
-		return $issn;		
+
+		return $issn;
 	}
-	
-	
-	
+
+
+
 	function lookForMatchesByISSN($check, $against, &$matches)
 	{
 		echo "Running ISSN match ... \n";
@@ -769,14 +776,14 @@ echo "COUNT: ".count($candidateConferences);
 				}
 			}
 		}
-		
+
 		echo " done.\n";
-		
+
 		return;
 	}
-	
-	
-	
+
+
+
 	function lookForMatchesByStringComparison($check, $against, &$matches, $type)
 	{
 		echo "Running normalised string match ... ";
@@ -848,7 +855,7 @@ echo "COUNT: ".count($candidateConferences);
 		}
         $bgp->setState(2);
 		echo " done.\n";
-		
+
 		return;
 	}
 
@@ -925,7 +932,7 @@ echo "COUNT: ".count($candidateConferences);
 
 					//echo $sourceVal . " :: " . $targetVal . "\n"; // LKDB
 					//echo "Similarity = " . $similarity . "%\n\n"; // LKDB
-					
+
 					//echo "S";
 //					$matches[$sourceKey] = $targetKey;
 //                    $matches[] = array('pid' => $sourceKey, 'matching_id' => $targetKey);
@@ -936,24 +943,24 @@ echo "COUNT: ".count($candidateConferences);
 		echo " done.\n";
 		return;
 	}
-	
-	
-	
+
+
+
 	function subtractMatchesFromCandidates(&$candidates, $matches)
 	{
 		echo "Removing matches from journal pool ... ";
-		
+
 		foreach ($matches as $matchKey => $matchVal){
 			unset($candidates[$matchKey]);
 		}
-		
+
 		echo " done.\n";
-		
+
 		return;
 	}
-	
-	
-	
+
+
+
 	function lookForManualMatches($check, $manualMatches, &$matches)
 	{
 		echo "Checking un-matched journals for manual matches... \n";
@@ -1006,27 +1013,27 @@ echo "COUNT: ".count($candidateConferences);
                         $matches[] = array('pid' => $sourceKey, 'matching_id' => $targetVal['jnl_id'], 'year' => $targetVal['jnl_era_year']);
                     }
 //                    $matches[] = array('pid' => $sourceKey, 'matching_id' => $sourceKey);
-				}				
+				}
 			}
 		}
 		$bgp->setState(2);
 		echo " done!\n";
-		
+
 		return;
 	}
-	
-	
-	
+
+
+
 	function keyMasterList($toClean)
 	{
-		$clean = array();		
+		$clean = array();
 		foreach ($toClean as $key => $val) {
 			array_push($clean, $key);
 		}
-		
+
 		return $clean;
 	}
-	
+
   function runNearMatchInserts($matches)
 	{
 		$log = FezLog::get();
@@ -1058,14 +1065,14 @@ echo "COUNT: ".count($candidateConferences);
 		return;
 	}
 
-	
+
 	function runInserts($matches)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		echo "Running ".count($matches)." insertion queries on eSpace database ... ";
-		
+
 		foreach ($matches as $match) {
       // clear out any existing matches for this match year/pid combo
       RJL::removeMatchByPIDYear($match['pid'], $match['year']);
@@ -1090,9 +1097,9 @@ echo "COUNT: ".count($candidateConferences);
 
             //echo $stmt . "\n"; // This will tell us what's actually going to be run.
 		}
-		
+
 		echo "done.\n";
-		
+
 		return;
 	}
 
