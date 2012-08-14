@@ -46,8 +46,8 @@ class BackgroundProcess {
 	var $bgp_id;
 	var $details;
 	var $inputs;
-	var $include; // set this to the include file where the subclass is declared
-	var $name; // set this to the name of the process where the subclass is declared
+	var $include = ''; // set this to the include file where the subclass is declared
+	var $name = ''; // set this to the name of the process where the subclass is declared
 	var $states = array(
 	0 => 'Undefined',
 	1 => 'Running',
@@ -254,7 +254,7 @@ class BackgroundProcess {
 
 		$utc_date = Date_API::getSimpleDateUTC();
 		$stmt = "INSERT INTO ".$dbtp."background_process (bgp_usr_id,bgp_started,bgp_name,bgp_include)
-            VALUES (".$db->quote($usr_id).", ".$db->quote($utc_date).", ".$db->quote($this->name).",".$db->quote($this->include).")";
+            VALUES (".$usr_id.", ".$db->quote($utc_date).", ".$db->quote($this->name).",".$db->quote($this->include).")";
 		try {
 			$db->exec($stmt);
 		}

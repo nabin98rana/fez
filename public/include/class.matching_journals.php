@@ -177,7 +177,7 @@ class RJL
     $okMatches = array();
 		/* Subtract from any match results those PIDs that are either black-listed, or manually mapped */
 		foreach ($matches as $match) {
-      if (!in_array($match, $matchingExceptions)) {
+      if (!in_array($match['pid'], $matchingExceptions)) {
         $okMatches[] = $match;
       }
     }
