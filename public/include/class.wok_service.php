@@ -49,7 +49,7 @@ class WokService
   private $sessionId;
   private $log;
   public $ready;
-  
+
   /**
    * Constructor
    *
@@ -58,7 +58,7 @@ class WokService
   public function __construct($lite = TRUE)
   {
     $this->log = FezLog::get();
-    $this->authEndpoint = WOK_WS_BASE_URL . 'WOKMWSAuthenticate'; 
+    $this->authEndpoint = WOK_WS_BASE_URL . 'WOKMWSAuthenticate';
     $this->searchEndpoint = WOK_WS_BASE_URL . 'WokSearch';
     if ($lite) {
       $this->searchEndpoint .= 'Lite';
@@ -93,13 +93,13 @@ class WokService
 //      echo $this->sessionId;
       WokSession::insert($this->sessionId);
     }
-    
+
     if ($this->sessionId) {
       $this->ready = TRUE;
       $this->sessionId = "\"{$this->sessionId}\""; // cursed @ symbol, can't encode else the service
                                                    // fails to recognise the session
       $this->client->setOptions($options);
-      $this->client->setWsdl($this->searchEndpoint.'?wsdl');      
+      $this->client->setWsdl($this->searchEndpoint.'?wsdl');
 //    register_shutdown_function(array($this, 'closeSession'));
 //      register_shutdown_function('$this->closeSession');
     } else {
@@ -107,10 +107,10 @@ class WokService
     }
   }
 
-  
+
   /**
    * Clean user query from invalid characters that may cause error on SOAP call.
-   * 
+   *
    * @param string $userQuery
    * @return string Cleaned user query string.
    */
@@ -118,14 +118,14 @@ class WokService
       if (empty($userQuery) && is_null($userQuery)){
           return "";
       }
-      
-      // Clean user query string from Ms Word special characters 
+
+      // Clean user query string from Ms Word special characters
       $userQuery = Fez_Misc::convertMsWordSpecialCharacters($userQuery);
-      
+
       return $userQuery;
   }
-  
-  
+
+
   /**
    * Performs a search of records from an ISI Web of Knowledge, Web Service Premium.
    *
@@ -159,7 +159,7 @@ class WokService
 
     // Clean user query from invalid characters
     $userQuery = $this->_cleanUserQuery($userQuery);
-    
+
     $search = array(
                'queryParameters' =>
                     array(
@@ -192,7 +192,7 @@ class WokService
   }
 
   /**
-   * The retrieve operation submits query returned by a previous search, citingArticles, relatedRecords, 
+   * The retrieve operation submits query returned by a previous search, citingArticles, relatedRecords,
    * or retrieveById operation.
    *
    * @param int $queryID
@@ -217,13 +217,13 @@ class WokService
     try {
       // Make SOAP request
       $this->client->setCookie(WOK_COOKIE_NAME, $this->sessionId);
-      $response = $this->client->retrieve($retrieve);      
+      $response = $this->client->retrieve($retrieve);
       return $response;
     }
     catch(SoapFault $ex) {
       $this->log->err($ex);
       return FALSE;
-    }    
+    }
   }
 
   /**
@@ -231,7 +231,7 @@ class WokService
    * The identifiers are specific to each database.
    *
    * @param array $uids Array of record identifiers. It cannot be null or contain an empty array.
-   * @param string $database_id Identifies the ISI Web of Knowledge resource that this request 
+   * @param string $database_id Identifies the ISI Web of Knowledge resource that this request
    *                            will search (default is WOS)
    * @param string $query_lang This element can take only one value: en for English.
    */
@@ -246,19 +246,22 @@ class WokService
           'count' => count($uids)
         )
     );
-    try {      
+    try {
       $this->client->setCookie(WOK_COOKIE_NAME, $this->sessionId);
       $response = $this->client->retrieveById($retrieve);
       return $response->return->records;
     }
     catch(SoapFault $ex) {
-      $this->log->err($ex);
+      //Only throw an error when the uids variable is not filled with a test data check '1234'
+      if (!in_array('1234', $uids)) {
+        $this->log->err($ex);
+      }
       return FALSE;
     }
   }
 
   /**
-   * The authenticate operation creates a session and obtains a session ID. 
+   * The authenticate operation creates a session and obtains a session ID.
    * Subsequent operations must incorporate this session ID.
    */
   private function authenticate($username, $password)
@@ -268,11 +271,11 @@ class WokService
         'password' => $password
     );
     try {
-      // Make SOAP request      
+      // Make SOAP request
       $this->client->setOptions($options);
-      $this->client->setWsdl($this->authEndpoint.'?wsdl');         
+      $this->client->setWsdl($this->authEndpoint.'?wsdl');
       $response = $this->client->authenticate();
-      
+
       // Unset these options on the client, will use cookie for remainder of session
       $options = array(
         'login' => null,
@@ -286,15 +289,15 @@ class WokService
       return FALSE;
     }
   }
-  
+
   /**
-   * The authenticate operation creates a session and obtains a session ID. 
+   * The authenticate operation creates a session and obtains a session ID.
    * Subsequent operations must incorporate this session ID.
    */
   public function closeSession()
   {
     try {
-      // Make SOAP request 
+      // Make SOAP request
       $this->client->setCookie(WOK_COOKIE_NAME, $this->sessionId);
       $this->client->closeSession();
     }
