@@ -1077,13 +1077,20 @@ echo "COUNT: ".count($candidateConferences);
       // clear out any existing matches for this match year/pid combo
       RJL::removeMatchByPIDYear($match['pid'], $match['year']);
 
-			$stmt = "INSERT INTO " . APP_TABLE_PREFIX . "matched_journals (mtj_pid, mtj_jnl_id, mtj_status) VALUES ('" . $match['pid'] . "', '" . $match['matching_id'] . "', 'A') ON DUPLICATE KEY UPDATE mtj_jnl_id = '" . $match['matching_id'] . "';";
+			$stmt = "INSERT INTO " . APP_TABLE_PREFIX . "matched_journals (mtj_pid, mtj_jnl_id, mtj_status) VALUES (?, ?, 'A') ON DUPLICATE KEY UPDATE mtj_jnl_id = ?";
             if (TEST_WHERE != '') {
     			echo $stmt."\n";
             }
             ob_flush();
+      $data = array(
+        $db->quote($match['pid']),
+        $match['matching_id'],
+        $match['matching_id']
+      );
+
 			try {
-				$db->exec($stmt);
+				$db->query($stmt, $data);
+//				$db->exec($stmt);
 			}
 			catch(Exception $ex) {
 				$log->err($ex);

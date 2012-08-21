@@ -253,11 +253,24 @@ class BackgroundProcess {
 		}
 
 		$utc_date = Date_API::getSimpleDateUTC();
-		$stmt = "INSERT INTO ".$dbtp."background_process (bgp_usr_id,bgp_started,bgp_name,bgp_include)
-            VALUES (".$usr_id.", ".$db->quote($utc_date).", ".$db->quote($this->name).",".$db->quote($this->include).")";
+//		$stmt = "INSERT INTO ".$dbtp."background_process (bgp_usr_id,bgp_started,bgp_name,bgp_include)
+//            VALUES (".$usr_id.", ".$db->quote($utc_date).", ".$db->quote($this->name).",".$db->quote($this->include).")";
+
+
+    $data = array(
+      'bgp_usr_id' => $usr_id,
+      'bgp_started' => $db->quote($utc_date),
+      'bgp_name' => $db->quote($this->name),
+      'bgp_include' => $db->quote($this->include)
+    );
+
 		try {
-			$db->exec($stmt);
-		}
+      $db->insert(APP_TABLE_PREFIX . 'background_process', $data);
+    }
+
+//		try {
+//			$db->exec($stmt);
+//		}
 		catch(Exception $ex) {
 			$log->err($ex);
 			return -1;
