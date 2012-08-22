@@ -98,7 +98,7 @@
                     {else}
                         {assign var="wf_icon" value="images/security_inherit.gif"}
                     {/if}
-                    {if $datastreams[d].isEditor == 1 || $isAdministrator}&nbsp;<a href='{$rel_url}workflow/update.php?pid={$pid|escape:"html"}&dsID={$datastreams[d].ID}&cat=select_workflow&wft_id={$datastreams[d].workflows[w].wft_id}&href={$smarty.server.REQUEST_URI}'><img title="{$datastreams[d].workflows[w].wfl_title}" align="absmiddle" src="{$rel_url}{$wf_icon}" border="0"></a>{/if}
+                    {if $datastreams[d].isEditor == 1 || $isAdministrator}&nbsp;<a href='{$rel_url}workflow/update.php?pid={$pid|escape:"html"}&dsID={$datastreams[d].ID}&cat=select_workflow&wft_id={$datastreams[d].workflows[w].wft_id}&href={$smarty.server.REQUEST_URI}'><img alt="{$datastreams[d].workflows[w].wfl_title}" title="{$datastreams[d].workflows[w].wfl_title}" align="absmiddle" src="{$rel_url}{$wf_icon}" border="0"></a>{/if}
                 {/section}
                 [ <a href="javascript:editFilename('{$pid}', '{$datastreams[d].ID}', '{$filecounter}')">Rename</a> ]
                 
