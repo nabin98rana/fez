@@ -112,16 +112,15 @@ class Auth
 			@session_start();
 			$ses =& $_SESSION;
 			if (empty($failed_url)) {
-                header('HTTP/1.0 401 Unauthorized');
 				$failed_url = APP_RELATIVE_URL . "login.php?err=5";
 			} else {
-                header('HTTP/1.0 401 Unauthorized');
 				$failed_url = base64_encode($failed_url);
 				$failed_url = APP_RELATIVE_URL . "login.php?err=21&url=".$failed_url;
 			}
 
 			//			echo $failed_url; exit;
 			if (!Auth::isValidSession($_SESSION)) {
+                header('HTTP/1.0 401 Unauthorized');
 				Auth::removeSession($session_name);
 				Auth::redirect($failed_url, $is_popup);
 			}
@@ -681,6 +680,7 @@ class Auth
 				} else {
 					if ($redirect != false) {
 						$failed_url = base64_encode($failed_url);
+                        header('HTTP/1.0 401 Unauthorized');
 						Auth::redirect(APP_RELATIVE_URL . "login.php?err=21&url=".$failed_url, $is_popup);
 					}
 				}
