@@ -297,7 +297,7 @@ function clearFilters(f) {
                         {assign var="temp_sek_id" value=$search_keys[i].sek_id}
                         {assign var="custom" value=$options.$temp_sek_id}
 
-                        {html_select_date field_array="search_keys[$temp_sek_id][start]" prefix="" start_year="-10" end_year="+10" time=$last_key.start_date}
+                        {html_select_date field_array="search_keys[$temp_sek_id][start]" prefix="" start_year="-100" end_year="+10" time=$last_key.start_date}
 
                         {assign var="datepicker_input" value=datepicker[$temp_sek_id][start]}
                         <input type="hidden" name="{$datepicker_input}" value="" />
@@ -323,7 +323,7 @@ function clearFilters(f) {
 
                         <div id="tr_search_keys[{$temp_sek_id}]" class="end_date_wrapper">
                             <span>{$search_keys[i].sek_title}: <i>(End date)</i></span><br />
-                            {html_select_date field_array="search_keys[$temp_sek_id][end]" prefix="" start_year="-10" end_year="+10" time=$last_key.end_date}
+                            {html_select_date field_array="search_keys[$temp_sek_id][end]" prefix="" start_year="-100" end_year="+10" time=$last_key.end_date}
 
                             {assign var="datepicker_input" value=datepicker[$temp_sek_id][end]}
                             <input type="hidden" name="{$datepicker_input}" value="" />
@@ -414,22 +414,9 @@ function clearFilters(f) {
     {section name="i" loop=$search_keys}
 
         {if $search_keys[i].sek_html_input == 'date'}
-            {literal}
-            // Comment out: No longer use dynCalendar
-            // function calendarCallback_search_keys{/literal}{$search_keys[i].sek_id}{literal}(day, month, year) {
-            //     selectDateField('search_keys[{/literal}{$search_keys[i].sek_id}{literal}][start]', day, month, year);
-            // }
-            // function calendarCallback_search_keys_end{/literal}{$search_keys[i].sek_id}{literal}(day, month, year) {
-            //     selectDateField('search_keys[{/literal}{$search_keys[i].sek_id}{literal}][end]', day, month, year);
-            // }
-            {/literal}
-
             {assign var="temp_sek_id" value=$search_keys[i].sek_id}
             {assign var="search_key_name" value='searchKey'|cat:$search_keys[i].sek_id}
             {assign var ="last_key" value=$options.$search_key_name}
-        
-            // date_fields[date_fields.length] = new Option('search_keys[{$temp_sek_id}][start]', '{$last_key.start_date}');
-            // date_fields[date_fields.length] = new Option('search_keys[{$temp_sek_id}][end]', '{$last_key.end_date}');
 
             {if $custom_elements_to_hide != ""}
                 {assign var="custom_elements_to_hide" value=$custom_elements_to_hide,'search_keys[$temp_sek_id]'}
@@ -448,12 +435,6 @@ function clearFilters(f) {
         checkDateFilterType(f, filter_type);
     }
 
-    // Comment out, there is no need for javascript to assign the selected value since it is already handled by smarty on server side
-    // for (var i = 0; i < date_fields.length; i++) {
-    //    if (!isWhitespace(date_fields[i].value)) {
-    //        selectDateOptions(date_fields[i].text, date_fields[i].value);
-    //    }
-    //}
 
     function validateSearchForm() {
         {/literal}
