@@ -237,6 +237,7 @@ class Default_Data
 		$defaultData['show_record_link_as_handle']          = "";
 		$defaultData['app_solr_commit_limit']               = "200";
         $defaultData['app_solr_csv_max_size']               = "50";
+        $defaultData['app_solr_index_datastreams']          = "ON";
 		$defaultData['app_solr_facet_limit']                = "5";
 		$defaultData['app_solr_facet_mincount']             = "2";
 		$defaultData['app_disable_password_ip']             = "";
