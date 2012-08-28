@@ -469,7 +469,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 			//$this->postprocessIndex($ftq_pid, $ftq_op);
 			//Logger::debug("processQueue: finished indexing mem_used=".memory_get_usage());
 
-			$countDocs += APP_SOLR_COMMIT_LIMIT;
+			$countDocs += count($chunk);
 			if ($countDocs > $this->totalDocs) {
 				$countDocs = $this->totalDocs;
 			}
@@ -672,7 +672,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err($ex);	
+			$log->err($ex);
 			$res = null;	
 		}
 		$ret = array();

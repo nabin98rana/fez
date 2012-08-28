@@ -93,6 +93,12 @@ class Configuration
     $settings = Configuration::getConfAll();
 
     foreach ($settings as $name => $value) {
+      if ($name == "app_fedora_bypass") {
+          if (($_POST[fedoraon] == 'on') || ($_SERVER["HTTP_HOST"] == 'sirenbypass.library.uq.edu.au') || ($_SERVER["HTTP_HOST"] == 'deegeelibbypass.library.uq.edu.au') || ($_SERVER["HTTP_HOST"] == 'bypass.siren.library.uq.edu.au')) {
+              $value = 'ON';
+
+          }
+      }
       @define(strtoupper($name), $value);
     }
 

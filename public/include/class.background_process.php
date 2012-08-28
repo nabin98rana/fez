@@ -261,7 +261,8 @@ class BackgroundProcess {
       'bgp_usr_id' => $usr_id,
       'bgp_started' => $utc_date,
       'bgp_name' => $this->name,
-      'bgp_include' => $this->include
+      'bgp_include' => $this->include,
+      'bgp_filename' => APP_TEMP_DIR."fezbgp/fezbgp_".$this->bgp_id.".log"
     );
 
 		try {
