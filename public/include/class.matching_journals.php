@@ -1083,7 +1083,7 @@ echo "COUNT: ".count($candidateConferences);
             }
             ob_flush();
       $data = array(
-        $db->quote($match['pid']),
+        $match['pid'],
         $match['matching_id'],
         $match['matching_id']
       );

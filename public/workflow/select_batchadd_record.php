@@ -75,6 +75,8 @@ if ($access_ok) {
     $tpl->assign("pid", $pid);
     $jtaskData = "";
     $maxG = 0;
+
+    $username = Auth::getUsername();
     //open the current directory
     $dir_loc = APP_SAN_IMPORT_DIR.$username;
     
@@ -83,7 +85,7 @@ if ($access_ok) {
 	} else {
 	    $directory = opendir($dir_loc);
 	    while (false !== ($file = readdir($directory))) { 
-	        if (!is_dir($dir_loc.$file)) {
+	        if (!is_dir($dir_loc.$file) && ($file != '..') && ($file != '.')) {
 	            $filenames[$file] = $file;
 	        }
 	    }

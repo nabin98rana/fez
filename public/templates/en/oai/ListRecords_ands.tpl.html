@@ -65,14 +65,12 @@
 
 
 
-
-
 {* start of RIF-CS-specific output *}
 	{if $metadataPrefix == "rif"}   
 		{strip}
 		<registryObject group="{$org_name}">
 			<key>http://hdl.handle.net/{$list[i].rek_handle|escape:"html"}</key>
-			<originatingSource>{$app_hostname|regex_replace:"/(\w+).(.+)/":"www.\\2/\\1"}/</originatingSource>
+			<originatingSource>{$app_hostname}/</originatingSource>
 			<collection type="{$list[i].rek_ands_collection_type|strip_tags|escape:"html"}" dateAccessioned="{$list[i].rek_created_date|escape:"html"}" dateModified="{$list[i].rek_updated_date|escape:"html"}">
 			<identifier type="handle">hdl.handle.net/{$list[i].rek_handle|escape:"html"}</identifier>
 			<name type="primary">

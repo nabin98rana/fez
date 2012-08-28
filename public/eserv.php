@@ -109,6 +109,7 @@ if (!empty($pid) && !empty($dsID)) {
     if( isset($requestedVersionDate) && $requestedVersionDate != NULL ){
 	    $record = new RecordObject($pid);
     	if( !$record->canViewVersions()){
+            header("HTTP/1.0 403 Forbidden");
 	        include_once(APP_INC_PATH . "class.template.php");
 			$tpl = new Template_API();
 			$tpl->setTemplate("view.tpl.html");
@@ -209,6 +210,7 @@ if (!empty($pid) && !empty($dsID)) {
 					header("HTTP/1.0 403 Forbidden");
 					exit;
 				} else {
+                    header("HTTP/1.0 403 Forbidden");
 		      		include_once(APP_INC_PATH . "class.template.php");
 					$tpl = new Template_API();
 					$tpl->setTemplate("view.tpl.html");

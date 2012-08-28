@@ -134,6 +134,9 @@ $tpls = array(
     'GetRecord' => array('file' => 'oai/GetRecord.tpl.html', 'title' => 'GetRecord'),                
     'Identify' => array('file' => 'oai/Identify.tpl.html', 'title' => 'Identify')    
 );
+if ($metadataPrefix == "rif") {
+    $tpls['ListRecords'] = array('file' => 'oai/ListRecords_ands.tpl.html', 'title' => 'ListRecords');
+}
 
 if (array_key_exists($verb, $tpls)) {
 	$tpl_file = $tpls[$verb]['file'];
@@ -494,5 +497,6 @@ $tpl->assign("metadataPrefix", $metadataPrefix);
 $tpl->assign("errorCount", count($errors["code"]));
 $tpl->assign("errors", $errors);
 $tpl->assign("responseDate", $responseDate);
+$tpl->assign("metadataPrefix", $metadataPrefix);
 header("Content-type: text/xml");
 $tpl->displayTemplate();

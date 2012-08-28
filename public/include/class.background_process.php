@@ -259,9 +259,9 @@ class BackgroundProcess {
 
     $data = array(
       'bgp_usr_id' => $usr_id,
-      'bgp_started' => $db->quote($utc_date),
-      'bgp_name' => $db->quote($this->name),
-      'bgp_include' => $db->quote($this->include)
+      'bgp_started' => $utc_date,
+      'bgp_name' => $this->name,
+      'bgp_include' => $this->include
     );
 
 		try {
