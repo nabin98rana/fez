@@ -105,10 +105,12 @@ if ((@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'] != "" || @$_S
 		exit;
 	}
 } elseif (count($_POST) > 0) {
-	if (Validation::isWhitespace($_POST["username"])) {
+	$userVal = new Fez_Validate_Username();
+	$noemptyVal = new Zend_Validate_NotEmpty(Zend_Validate_NotEmpty::ALL);
+	if (!$userVal->isValid($_POST['username'])) {
 		Auth::redirect(APP_RELATIVE_URL . "login.php?err=1");
 	}
-	if (Validation::isWhitespace($_POST["passwd"])) {
+	if (!$noemptyVal->isValid($_POST["passwd"])) {
 		Auth::redirect(APP_RELATIVE_URL . "login.php?err=2&username=" . $_POST["username"]);
 	}
 	// check if the password matches
