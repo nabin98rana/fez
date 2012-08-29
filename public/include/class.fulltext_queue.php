@@ -57,12 +57,7 @@ class FulltextQueue
 
 	public function __destruct()
 	{
-		// $command = APP_PHP_EXEC." \"".APP_PATH."misc/process_fulltext_queue.php\"";
-		// if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Server
-		// 	pclose(popen("start /min /b ".$command,'r'));
-		// } else {
-		// 	exec($command." 2>&1 &");
-		// }
+
 	}
 
 	/**
@@ -113,8 +108,6 @@ class FulltextQueue
 	 */
 	public function remove($pid)
 	{
-		$log = FezLog::get();
-
 		if (!$this->pids[$pid]) {
 			$this->pids[$pid] = FulltextQueue::ACTION_DELETE;
 		}
@@ -126,16 +119,12 @@ class FulltextQueue
 	 */
 	private static function createUpdateProcess()
 	{
-		$log = FezLog::get();
-
 		$bgp = new BackgroundProcess_Fulltext_Index();
 		$bgp->register(serialize(array()), APP_SYSTEM_USER_ID); // todo: maybe take something other than admin
 	}
 
 	public static function getProcessInfo($pid='')
 	{
-		$log = FezLog::get();
-
 		if (empty($pid)) {
 			return array(
 			     'pid'   =>  getmypid(),
@@ -226,10 +215,6 @@ class FulltextQueue
 		 *
 		 */
 
-		// start transaction
-		//$GLOBALS["db_api"]->dbh->autoCommit(false);
-
-		//Logger::debug("FulltextIndex::triggerUpdate");
 		// Start a transaction explicitly.
 		$db->beginTransaction();
 
@@ -302,7 +287,6 @@ class FulltextQueue
 				// create new background update process
 				//Logger::debug("FulltextQueue::triggerUpdate create new background process!");
 				$log->debug("FulltextQueue::triggerUpdate create new background process!");
-				// $update_bgp = new FulltextIndex_Update()
 				self::createUpdateProcess();
 			}
 	}
@@ -326,10 +310,6 @@ class FulltextQueue
 			return;
 		}
 		//Logger::debug(Logger::str_r($this->pids));
-
-		$pidList = array();
-		$actionList = array();
-
 		foreach ($this->pids as $pid => $action) {
 			//Logger::debug("FulltextQueue::commit() queing ". Misc::escapeString($pid).", ".Misc::escapeString($action));
       if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {

@@ -53,7 +53,6 @@ include_once(APP_INC_PATH . "class.fulltext_index_solr.php");
 include_once(APP_INC_PATH . "class.fulltext_index_solr_csv.php");
 include_once(APP_INC_PATH . "class.citation.php");
 include_once(APP_INC_PATH . "Apache/Solr/Service.php");
-//include_once(APP_INC_PATH . "class.memory.php");
 
 abstract class FulltextIndex {
 	const FIELD_TYPE_INT = 0;
@@ -256,10 +255,8 @@ abstract class FulltextIndex {
 	public function processQueue() 
 	{
 
-//		$countDocs = 0;
 		$queue = FulltextQueue::singleton();
 		$this->totalDocs = $queue->size();
-		//$this->memory_man = new memory_man();
 		if( $this->bgp ) {
 			$this->bgpDetails = $this->bgp->getDetails();
 		}
@@ -359,8 +356,6 @@ abstract class FulltextIndex {
 		}
 		if ($datatype == FulltextIndex::FIELD_TYPE_DATE) {
 			// update date format
-			$date = new Date($strValue);
-			//$strValue = $date->format('%Y%m%d T 00:00:00Z');
 			$value = Date_API::getFedoraFormattedDateUTC($value);
 		}
 
@@ -685,8 +680,6 @@ abstract class FulltextIndex {
 			// get public lister rulegroups
 			$userRuleGroups = Collection::getPublicAuthIndexGroups();
 		} else {
-/*			$ses = Auth::getSession();
-			$userRuleGroups = $ses['auth_index_user_rule_groups']; */
 			$userRuleGroups = Auth::getUserAuthRuleGroupsInUse($userID);
 		}
 		return $userRuleGroups;
@@ -738,8 +731,6 @@ abstract class FulltextIndex {
 		$qresult = $this->executeQuery($query, $options, $approved_roles, $sort_by, $start, $page_rows);
 
 		$total_rows = $qresult['total_rows'];
-		$snips = $qresult['snips'];
-
 		$log->debug(array("FulltextIndex::search found ".$total_rows." items"));
 
 		$result = array();
@@ -836,9 +827,6 @@ abstract class FulltextIndex {
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
-		//$GLOBALS['db_api']->dbh->autoCommit(true);
-		
 		$stmt = "SELECT ftc_pid as pid, ftc_dsid as dsid, ftc_content as content ".
         		"FROM ".APP_TABLE_PREFIX.FulltextIndex::FULLTEXT_TABLE_NAME." ".
         		"WHERE ftc_pid=".$db->quote($pid)." ".
@@ -925,9 +913,6 @@ abstract class FulltextIndex {
 		$fulltext = utf8_encode($fulltext);
 		
 		// start a new transaction
-		//$GLOBALS['db_api']->dbh->autoCommit(false);
-		//$this->deleteFulltextCache($pid, $dsID);
-
 		$db->beginTransaction();
 		$this->deleteFulltextCache($pid, $dsID);
 		// REPLACE: MySQL specific syntax
