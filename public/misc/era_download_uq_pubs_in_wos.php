@@ -46,10 +46,7 @@ $editions = array();
 $sort = '';
 $first_rec = 1;
 $num_recs = WOK_BATCH_SIZE;
-
 $wok_ws = new WokService(FALSE);
-
-//$result = EstiSearchService::searchRetrieve('WOS', $query, $depth, $editions, $sort, $first_rec, $num_recs);
 
 // Do an initial sleep just in something else ran just before this..
 sleep(WOK_SECONDS_BETWEEN_CALLS);
@@ -58,9 +55,6 @@ $queryId = $response->return->queryID;
 $records_found = $response->return->recordsFound;
 
 $result = $response->return->records;
-//$result = $wok_ws->retrieve($first_rec, $num_recs);
-
-//$records_found = (int)$result['recordsFound'];
 $pages = ceil(($records_found/$num_recs));
 $wq = WokQueue::get();
 for($i=0; $i<$pages; $i++) {
@@ -68,23 +62,20 @@ for($i=0; $i<$pages; $i++) {
 	$first_rec += $num_recs;
 	
 	if($i>0) {
-		//$result = EstiSearchService::searchRetrieve('WOS', $query, $depth, $editions, $sort, $first_rec, $num_recs);
         sleep(WOK_SECONDS_BETWEEN_CALLS);
         $response = $wok_ws->retrieve($queryId, $first_rec, $num_recs);
         $result = $response->return->records;
     }
-//	$records = @simplexml_load_string($result['records']);
     $records = @simplexml_load_string($result);
 	
 	if($records) {
 		foreach($records->REC as $record) {
 			if(@$record->UID) {
                 $ut = (string) $record->UID;
+                $ut = str_ireplace("WOS:", "", $ut );
                 $wq->add($ut);
-//				$pid = Record::getPIDByIsiLoc($record->item->ut);
 			}
 		}
 	}	
 }
-// Commmented the line out below 
-//$wok_ws->closeSession();
+
