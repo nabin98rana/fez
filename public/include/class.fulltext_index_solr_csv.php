@@ -376,19 +376,21 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 			/*
 			 * Add datasteam text to CSV array
 			 */
+            $content = '';
             if (APP_SOLR_CSV_MAX_SIZE == 'ON') {
                 $content = $this->getCachedContent($pids);
                 $content = preg_replace('/[^(\x20-\x7F)]*/','',$content);
-                foreach ($csv as $rek_pid => $rek_line) {
-
-                    if( !empty($content[$rek_pid]) ) {
-                        $csv[$rek_pid] .= ',"' . $content[$rek_pid] .'"';
-                    } else {
-                        $csv[$rek_pid] .= ',""';
-                    }
-
-                }
             }
+            foreach ($csv as $rek_pid => $rek_line) {
+
+                if( !empty($content[$rek_pid]) ) {
+                    $csv[$rek_pid] .= ',"' . $content[$rek_pid] .'"';
+                } else {
+                    $csv[$rek_pid] .= ',""';
+                }
+
+            }
+
 
 			$csv = implode("\n", $csv);
 			$tmpfname = tempnam(APP_PATH."solr_upload", "solrCsv");
