@@ -519,7 +519,7 @@ class FulltextQueue
 
         //We will test if the amount of cached content is to large for solr to handle if so we will remove content
         //But we will always do at least one else the queue will get stuck
-        if (APP_SOLR_CSV_MAX_SIZE == 'ON') {
+        if (APP_SOLR_INDEX_DATASTREAMS == 'ON') {
             $size = 0;
             foreach($res as $elementKey => $elementValue) {
                 $size += strlen(serialize(FulltextIndex_Solr_CSV::getCachedContent("'".$elementValue['rek_pid']."'")));
