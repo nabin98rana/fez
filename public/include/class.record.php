@@ -1760,7 +1760,7 @@ class Record
       } else {
         $dsIDCore = preg_replace("/(web_|preview_|thumbnail_|stream_)/", "", $dsID);
         $dsIDCore = substr($dsIDCore, 0, strrpos($dsIDCore, "."));
-        $ds_pattern = '/^FezACML_'.$dsIDCore.'(.*)\.xml$/';
+        $ds_pattern = '/^FezACML_'.$dsIDCore.'\.(.*)xml$/';
         $ds_search = 'FezACML_'.$dsID.'.xml';
       }
     } else {
