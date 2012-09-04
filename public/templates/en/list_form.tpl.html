@@ -421,7 +421,7 @@
                <br> {$list[i].rek_description}
             {/if}
 			{assign var="pid" value =$list[i].rek_pid}
-            {if $snips[$pid] != '' && $isAdministrator}<br /><br /><div class='snip'>...{$snips[$pid]}...</div>{/if}
+            {if $snips[$pid] != '' && $isAdministrator}<br /><br /><div class='snip' style="max-width:440px">...{$snips[$pid]}...</div>{/if}
 		  </td>
 
 			{if $list[i].isEditor==1 || $isAdministrator}
