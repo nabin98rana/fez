@@ -368,8 +368,9 @@
 		  {/if}
 
 		  <td align="left"{if $icon}{else} colspan="2"{/if} valign="middle" style="border-top:1px dashed #be87e9; width: 100%;">
-            {if $isAdministrator}
+            {if $isAdministrator || $isUPO}
 			{if $list[i].rek_display_type_lookup == "Book" || $list[i].rek_display_type_lookup == "Book Chapter" || $list[i].rek_display_type_lookup == "Journal Article" || $list[i].rek_display_type_lookup == "Conference Paper"}
+
 			<a class="form_note" href="#">
 				<span class="form_note">
 					<strong>PID:</strong> {$list[i].rek_pid}<br />

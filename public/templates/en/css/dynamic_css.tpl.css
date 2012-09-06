@@ -1604,12 +1604,12 @@ a.form_note:hover span.form_note {
     position: absolute;
     /*width: 225px;*/
     padding: 5px;
-    margin: 10px;
-		color: black;
-        z-index: 100;
-        background-color: #ffffee;
-        border: solid 1px black;
-        text-align: left;
+    margin: 0px;
+    color: black;
+    z-index: 100;
+    background-color: #ffffee;
+    border: solid 1px black;
+    text-align: left;
 }
 
 .form_note img {

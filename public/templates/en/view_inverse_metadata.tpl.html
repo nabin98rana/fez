@@ -1,5 +1,13 @@
-<table id="view-metadata">
+{literal}
+    <script type="text/javascript">
+        function copyToClipboard (text) {
+            window.prompt ("Copy to clipboard: Ctrl+C/Cmd+C, Enter", text);
+            return false;
+        }
+    </script>
+{/literal}
 
+<table id="view-metadata">
     {* $spyglassFields is returned by RecordGeneral::getSpyglassHoverFields() method.
        $spyglassFields contains the fields & theirs formatted values expected to be displayed on Spyglass Hover.
 
@@ -43,7 +51,7 @@
                     {if $spyglassFields[i].xsdmf_title == 'Handle'}
                         <a href="{$spyglassFields[i].xsdmf_value_prefix|escape:'url'}{$spyglassFields[i].value|escape:'url'}">{$spyglassFields[i].xsdmf_value_prefix|escape:'htmlall'}{$spyglassFields[i].value|escape:'htmlall'}</a>
                     {else}
-                        {$spyglassFields[i].xsdmf_value_prefix}{$spyglassFields[i].value}
+                        {$spyglassFields[i].xsdmf_value_prefix}{$spyglassFields[i].value} {if $spyglassFields[i].value} <a href="#" onclick='copyToClipboard({$spyglassFields[i].value})'>&nbsp;<img src="/images/copy.png" /></a>{/if}
                     {/if}
                 </td>
             </tr>
