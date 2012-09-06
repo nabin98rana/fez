@@ -199,7 +199,8 @@ function checkAll()
 							{if $list[i].rek_refereed == '1'} <strong>Refereed:</strong> Yes<br /> {/if}
 						{/if}
 						<strong>Thomson ISI Loc:</strong> {$list[i].rek_isi_loc|escape:"html"}<br />
-						<strong>Scopus ID:</strong> {$list[i].rek_scopus_id|escape:"html"}<br /><br />
+						<strong>Scopus ID:</strong> {$list[i].rek_scopus_id|escape:"html"}<br />
+                        <strong>Total Pages:</strong> {$list[i].rek_total_pages}<br /><br /><br />
 						<strong>HERDC Notes:</strong> {$list[i].rek_herdc_notes}<br /><br />
                         <strong>Internal Notes:</strong> {$list[i].rek_internal_notes}<br /><br />
 					</span>	
