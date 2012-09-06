@@ -308,6 +308,13 @@ class Default_Data
 		$defaultData['app_link_resolver_base_url']          = "";
 		$defaultData['app_link_resolver_button_url']        = "";
 		$defaultData['app_link_resolver_referrer_id']       = "";		
+		$defaultData['app_input_filters']					= 'Fez_Filter_Alnum, '.
+			    									'Fez_Filter_Basicstring, '.
+			    									'Fez_Filter_Basicstringarray, '.
+			    									'Fez_Filter_Datearray, '.
+			    									'Fez_Filter_Htmlpurify, '.
+			    									'Fez_Filter_Pid, '.
+			    									'Fez_Filter_Pidarray';
 		
 		return $defaultData;
 	}

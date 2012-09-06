@@ -1328,6 +1328,25 @@
                 </td>
               </tr>
 
+              <tr id="validation_custom_regex_tr">
+              <td width="120" bgcolor="{$cell_color}" class="default">
+                  <b>Filtration Class:</b>
+              </td>
+              <td bgcolor="{$light_color}">
+                  <table bgcolor="{$dark_color}" cellspacing="0" cellpadding="0" border="0">
+                      <tr>
+                          <td bgcolor="{$light_color}">
+                              <select name="filter_class">
+                                {foreach from=$filter_class item=filter}
+                                <option {if $filter == $current_filter} selected="selected" {/if}value="{$filter}">{$filter}</option>
+                                {/foreach}
+                              </select>
+                              <br /><span class="small_default">(The server-side filter class used to sanitise input from this element)</span>
+                          </td>
+                      </tr>
+                  </table>
+              </td>
+              </tr>
 
               <tr id="validation_custom_regex_tr">
               <td width="120" bgcolor="{$cell_color}" class="default">

@@ -994,6 +994,27 @@ class XSD_Display
 			Citation::import($xdis, $xdis_id, $maps);
 		}
 	}
+	
+	/**
+	* Retieve a list of available Zend and Fex filters
+	* @return array
+	*/
+	public function getFilterClasses()
+	{
+		$filterClassesRaw = explode(',', APP_INPUT_FILTERS);
+		$filterClasses = array();
+		
+		foreach($filterClassesRaw as $filterClassRaw)
+		{
+			$filterClass = trim($filterClassRaw);
+			if(@class_exists($filterClass))
+			{
+				$filterClasses[] = $filterClass;
+			}
+		}
+		
+		return $filterClasses;
+	}
 
 
 }

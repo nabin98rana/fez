@@ -252,6 +252,7 @@ class upgrade {
 	    $defaultData['app_image_web_max_height']            = 300;
 	    $defaultData['app_thumbnail_width']                 = 40;
 	    $defaultData['app_thumbnail_height']                = 30;
+	    $defaultData['app_input_filters']					= APP_INPUT_FILTERS;
 	
 	    if (!defined('FEDORA_DB_PORT')) {
 	        $defaultData['fedora_db_port']                  = "3306";
