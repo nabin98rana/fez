@@ -61,12 +61,10 @@ function loadPreview(pid,datastreamID, alt, origami)
           <td colspan="2">
 			  <table style="margin-left: 15px;">
 			  <tr>
-			  <td style="vertical-align: top; width: 10px;">{if $fedora_get_view != "0"}<a class="form_note" title="Click to open this PID in Fedora (admin access only)" href="{$spyglasshref}" onclick="{$spyglassclick}" >{/if}<img src="{$rel_url}images/record_view_32.jpg" alt="" />{if $fedora_get_view != "0"}
-			     {if $isAdministrator}
+			  <td style="vertical-align: top; width: 10px;">{if $fedora_get_view != "0"}<a class="form_note" {if $isAdministrator}title="Click to open this PID in Fedora" href="{$spyglasshref}"{else}href="#"{/if}" onclick="{$spyglassclick}" >{/if}<img src="{$rel_url}images/record_view_32.jpg" alt="" />{if $fedora_get_view != "0"}
 			     <span class="form_note">
 				    {include file='view_inverse_metadata.tpl.html'}
 				</span>
-				{/if}
 			  </a>{/if}
 			  </td>
 			  <td>
@@ -215,26 +213,30 @@ function loadPreview(pid,datastreamID, alt, origami)
 					</tr>
                 {if $fedora_bypass}
                     {section name="d" loop=$streams}
-                        {if $datastreams[d].isViewer == 1 || $isAdministrator || 1}
+                        {if $datastreams[d].isViewer == 1 || $isAdministrator }
 
-                        <td style="white-space: nowrap; width: 150px;">
+                        <!-- <td style="white-space: nowrap; width: 150px;">
                             <a target="_blank" href="{$rel_url}eserv/{$pid}/{$ds_show}?bookreader=true">
                                 <img style="float:left;clear:none;" src="/images/icons/bookreader.png" alt="Read with bookreader" /></a>
                                 <a href="{$rel_url}eserv/{$pid}/{$streams[d].filename}" ><span style="display:block; margin-top: 7px;">&nbsp;{$streams[d].filename}</span></a>
-                        </td>
-                        {/if}
+                        </td> -->
+
+                    <td colspan="3">
+                        <a href="{$rel_url}eserv/{$pid}/{$streams[d].filename}" ><span style="display:block; margin-top: 7px;">&nbsp;{$streams[d].filename}</span></a>
+                    </td>
                         <td>
                             {$streams[d].label}
                         </td>
-                        <td>
-                            {$streams[d].exif_mime_type}
+                        <td colspan="2">
+                            {$streams[d].mimetype}
                         </td>
                         <td>
-                            {$streams[d].exif_file_size_human}
+                            {$streams[d].size}
                         </td>
                         <td style="text-align: right">
                             <!--fez:ds_{$streams[d].base64ID}-->{$streams[d].downloads}<!--/fez:ds_{$streams[d].base64ID}-->
                         </td>
+                    {/if}
                     {/section}
                 {else}
                         {assign var="ds_show_onclick" value=""}
