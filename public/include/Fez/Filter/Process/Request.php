@@ -64,14 +64,14 @@ class Fez_Filter_Process_Request implements Fez_Filter_Process_ProcessInterface
         //If the filter object alrady exists, just return it.
         if(array_key_exists($filterClassName, $this->filterObjects))
         {
-            return $this->filterObjects[$filterClassName];
+        	return $this->filterObjects[$filterClassName];
         }
         else 
         {
-            //If the $className is valid create a filter object, store it and return it.
-            if(class_exists($filterClassName, false))
+        	//If the $className is valid create a filter object, store it and return it.
+            if(@class_exists($filterClassName))
             {
-                $this->filterObjects[$filterClassName] = new $filterClassName();
+            	$this->filterObjects[$filterClassName] = new $filterClassName();
                 return $this->filterObjects[$filterClassName];
             }
         }
