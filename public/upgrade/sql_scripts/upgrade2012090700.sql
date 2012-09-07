@@ -3,4 +3,4 @@ CREATE TABLE %TABLE_PREFIX%input_filter (
   ift_input_name varchar(45) NOT NULL,
   ift_filter_class varchar(45) NOT NULL,
   PRIMARY KEY (ift_id)
-) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
