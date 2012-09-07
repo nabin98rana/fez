@@ -25,7 +25,6 @@ class FulltextIndex_Solr extends FulltextIndex {
 
 	function __construct($readOnly = false) 
 	{
-//		$usr_id = Auth::getUserID();
 		$isAdministrator = Auth::isAdministrator();
 		if (defined('APP_SOLR_SLAVE_HOST') && defined('APP_SOLR_SLAVE_READ') && (APP_SOLR_SLAVE_READ == "ON") && ($readOnly == true) && $isAdministrator != true) {
 			$this->solrHost = APP_SOLR_SLAVE_HOST;
@@ -45,7 +44,6 @@ class FulltextIndex_Solr extends FulltextIndex {
 	 */
 	private function getSolr() 
 	{
-//		$solr = &new Apache_Solr_Service($this->solrHost, $this->solrPort, $this->solrPath);
 		$solr = new Apache_Solr_Service($this->solrHost, $this->solrPort, $this->solrPath);
 		return $solr;
 	}
@@ -61,19 +59,14 @@ class FulltextIndex_Solr extends FulltextIndex {
 		$log = FezLog::get();
 		
 		try {
-			//$solr = $this->getSolr();
 			//Logger::debug("Solr Ping = ".$solr->ping());
-
 			//Logger::debug("FulltextIndex::updateFulltextIndex start mem_usage=".memory_get_usage());
-
 			$doc = new Apache_Solr_Document();
 
 			// set solr id to object pid of
 			$doc->id = $pid;
 
 			foreach ($fields as $key => $value) {
-				//$fieldName = $this->getFieldName($key, $fieldTypes[$key]);
-
 				if (is_array($value) && $fieldTypes) {
 					foreach ($value as $v) {
 						//Logger::debug($key."=".$v);
@@ -90,7 +83,6 @@ class FulltextIndex_Solr extends FulltextIndex {
 			}
 
 			$this->docs[] = $doc;
-			//$solr->addDocument($doc);
 			$this->docsAdded++;
 
 			if( $this->docsAdded % 250 == 0 ) {
@@ -107,8 +99,6 @@ class FulltextIndex_Solr extends FulltextIndex {
 			//
 			$log->err(array("Could not add document $pid to Solr index. Adding $pid to end of queue."));
 			$log->err(array("Exception message was: ".$e->getMessage()));
-
-			//FulltextQueue::singleton()->add($pid);
 			$log->debug(array("$pid added to queue (again)."));
 
 		}
@@ -176,8 +166,6 @@ class FulltextIndex_Solr extends FulltextIndex {
 		$queryString = $query;
 		$filterQuery = "(_authlister_t:(" .$rulegroups . ")) AND (status_i:2)";
 
-		//var_dump($query);
-		//		echo $queryString;
 		return array(
 		  'query' => $queryString, 
           'filter'=> $filterQuery
@@ -250,7 +238,6 @@ class FulltextIndex_Solr extends FulltextIndex {
 	{
 
 		$filterQuery = "";
-		$searchQuery = "";
 
 		if ($searchKey_join[2] == "") {
 			$searchQuery = "*:*";
@@ -352,8 +339,6 @@ class FulltextIndex_Solr extends FulltextIndex {
 				if(count($sekIDs) > 0) {
 						
 					$params['facet'] = 'true';
-					// $params['facet.limit'] = APP_SOLR_FACET_LIMIT;
-					// $params['facet.mincount'] = APP_SOLR_FACET_MINCOUNT;
 					$params['facet.limit'] = $facet_limit;
 					$params['facet.mincount'] = $facet_mincount;
 						
@@ -376,7 +361,6 @@ class FulltextIndex_Solr extends FulltextIndex {
 			$queryString = $query['query'];
 			$solr_titles = Search_Key::getSolrTitles();
 			$params['fl'] = implode(",", $solr_titles).',score,citation_t';
-//			$params['fl'] = '*,score';
 
 			// sorting
 			if (empty($searchKey_join[SK_SORT_ORDER])) {
@@ -417,31 +401,13 @@ class FulltextIndex_Solr extends FulltextIndex {
 								$docs[$i][$sek_id][] = $field;
 							} else {
 								$docs[$i][$sek_id] = $field;
-							}							
-							//$docs[$i][$sek_id] = $field;
+							}
 						}
 					}
 
 					// resolve result
 					$docs[$i]['Relevance'] = $doc->score;
 					$docs[$i]['rek_views'] = $doc->views_i;
-						
-					//					foreach ($sekdet as $skey => $sval) {
-					//						$solr_suffix = Record::getSolrSuffix($sval);
-					//						$solr_name = $sval['sek_title_db'].$solr_suffix;
-					//						if ($sval['sek_relationship'] == 1) {
-					//							if (is_array($doc->$solr_name)) {
-					//								$docs[$i]["rek_".$sval['sek_title_db']] = $doc->$solr_name;
-					//							} else {
-					//								$docs[$i]["rek_".$sval['sek_title_db']] = array();
-					//								if ($doc->$solr_name != "") {
-					//									$docs[$i]["rek_".$sval['sek_title_db']][0] = $doc->$solr_name;
-					//								}
-					//							}
-					//						} else {
-					//							$docs[$i]["rek_".$sval['sek_title_db']] = $doc->$solr_name;
-					//						}
-					//					}
 					$i++;
 				}
 								
@@ -525,12 +491,6 @@ class FulltextIndex_Solr extends FulltextIndex {
 								$snips[$pid] .= $part;
 							}
 						}
-						//	            	if (isset($snippet->keywords_mt)) {
-						//	            		foreach ($snippet->content_mt as $part) {
-						//		            		$part = trim(str_ireplace(chr(12), ' | ', $part));
-						//		            		$snips[$pid] .= $part;
-						//		            	}
-						//	            	}
 					}
 				}
 
@@ -565,8 +525,6 @@ class FulltextIndex_Solr extends FulltextIndex {
 		$log = FezLog::get();
 		
 		try {
-				
-			//$solr = $this->getSolr();
 			//Logger::debug("solr ping ".$solr->ping());
 
 			// Solr search params
@@ -577,8 +535,6 @@ class FulltextIndex_Solr extends FulltextIndex {
 			$params['hl.fl'] = 'content'; //'content_mt,alternative_title_mt,author_mt,keywords_mt';
 			$params['hl.requireFieldMatch'] = 'false';
 			$params['hl.snippets'] = 3;
-			//$params['hl.formatter'] = 'gap';
-			//$params['hl.formatter'] = 'simple';
 			$params['hl.fragmenter'] = 'gap';
 			$params['hl.fragsize'] = 150;
 			$params['hl.mergeContiguous'] = "true";
@@ -589,11 +545,7 @@ class FulltextIndex_Solr extends FulltextIndex {
 			
 			$solr_titles = Search_Key::getSolrTitles();
 			$params['fl'] = implode(",", $solr_titles).',score,citation_t';
-			
-//			$params['fl'] = '*,score';
-				
-			//$sort_by = 'score';
-				
+
 			// sorting
 			if (!empty($sort_by)) {
 				$params['sort'] = $sort_by;
@@ -602,7 +554,6 @@ class FulltextIndex_Solr extends FulltextIndex {
 				} else {
 					$params['sort'] .= ' asc';
 				}
-				//var_dump($params['sort']);
 			}
 				
 				
@@ -645,12 +596,6 @@ class FulltextIndex_Solr extends FulltextIndex {
 							$snips[$pid] .= $part;
 						}
 					}
-					/*	            	if (isset($snippet->keywords_mt)) {
-					 foreach ($snippet->content_mt as $part) {
-					 $part = trim(str_ireplace(chr(12), ' | ', $part));
-					 $snips[$pid] .= $part;
-					 }
-					 } */
 				}
 				 
 			}
@@ -726,8 +671,6 @@ class FulltextIndex_Solr extends FulltextIndex {
 		$log = FezLog::get();
 		
 		try {
-
-			//$solr = $this->getSolr();
 			$this->solr->optimize(false, false);
 
 		} catch (Exception $e) {

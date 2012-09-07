@@ -26,7 +26,6 @@ class Fulltext_Tools {
 	    //$str = preg_replace('/,,/', 'xx', $str);
 
 	    $keyParts = spliti(' ', $key);
-		//print_r($keyParts);
 
     	for ($i=0; $i<count($res); $i++) {
     		$str = $res[$i]['rek_file_attachment_content'];
@@ -47,8 +46,6 @@ class Fulltext_Tools {
 		    	}
 
 		    	foreach ($keyParts as $part) {
-
-		    		//print $color;
 					$pos = stripos($str, $part);
 			    	if ($pos !== FALSE) {
 			    		$width = $extractWidth;
@@ -62,7 +59,6 @@ class Fulltext_Tools {
 			    		// clean up extract...
 			    		// mark keyword(s) with HTML
 			    		$collectedExtract .= $extract . " ";
-			    		//$collectedExtract .= " ... ";
 			       	}
 
 		    	}
@@ -99,8 +95,6 @@ class Fulltext_Tools {
     	// highlight search keys
     	$markerCount = 0;
     	if ($key > '') {
-    		//print_r($keyParts);
-
 	    	foreach ($keyParts as $part) {
 	    		$color = $markerColors[$markerCount % count($markerColors)];
 	    		$part = preg_replace('/[+|-|*|.|(|)|"|\']/', '', $part);
@@ -129,7 +123,6 @@ class Fulltext_Tools {
         $textfilename = $filename."_".rand().".txt";
 
         // convert to plain text
-        $plaintext = '';
         switch ($mimetype) {
             case 'application/pdf':
                 exec(APP_PDFTOTEXT_EXEC.' -q '.$filename.' '.$textfilename);

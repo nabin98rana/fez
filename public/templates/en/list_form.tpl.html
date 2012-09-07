@@ -368,8 +368,9 @@
 		  {/if}
 
 		  <td align="left"{if $icon}{else} colspan="2"{/if} valign="middle" style="border-top:1px dashed #be87e9; width: 100%;">
-            {if $isAdministrator}
+            {if $isAdministrator || $isUPO}
 			{if $list[i].rek_display_type_lookup == "Book" || $list[i].rek_display_type_lookup == "Book Chapter" || $list[i].rek_display_type_lookup == "Journal Article" || $list[i].rek_display_type_lookup == "Conference Paper"}
+
 			<a class="form_note" href="#">
 				<span class="form_note">
 					<strong>PID:</strong> {$list[i].rek_pid}<br />
@@ -399,7 +400,8 @@
 						{if $list[i].rek_refereed == '1'} <strong>Refereed:</strong> Yes<br /> {/if}
 					{/if}
 					<strong>Thomson ISI Loc:</strong> {$list[i].rek_isi_loc}<br />
-					<strong>Scopus ID:</strong> {$list[i].rek_scopus_id}<br /><br />
+					<strong>Scopus ID:</strong> {$list[i].rek_scopus_id}<br />
+                    <strong>Total Pages:</strong> {$list[i].rek_total_pages}<br /><br />
 					<strong>Scopus Doc Type:</strong> {$list[i].rek_scopus_doc_type}<br />
 					<strong>Wok Doc Type:</strong> {$list[i].rek_wok_doc_type}<br /><br />
 					<strong>HERDC Notes:</strong> {$list[i].rek_herdc_notes}<br /><br />
@@ -421,7 +423,7 @@
                <br> {$list[i].rek_description}
             {/if}
 			{assign var="pid" value =$list[i].rek_pid}
-            {if $snips[$pid] != '' && $isAdministrator}<br /><br /><div class='snip'>...{$snips[$pid]}...</div>{/if}
+            {if $snips[$pid] != '' && $isAdministrator}<br /><br /><div class='snip' style="max-width:420px">...{$snips[$pid]}...</div>{/if}
 		  </td>
 
 			{if $list[i].isEditor==1 || $isAdministrator}

@@ -93,9 +93,6 @@ class RecordView {
 								$details[$dis_field['xsdmf_id']][$ckey] = $details[$cdata];
 							}
 						} else {
-							//$tempDate = new Date($details[$dis_field['xsdmf_id']]);
-
-							//						$tempDate->format
                             $month = substr($details[$dis_field['xsdmf_id']], 5, 2);
                             $day = substr($details[$dis_field['xsdmf_id']], 8, 2);
 
@@ -138,13 +135,17 @@ class RecordView {
 						}
 					}
 				}
+
+                if ($dis_field['sek_title'] == "DOI") {
+                    $details[$xsd_display_fields[$dis_key]['xsdmf_id']] =
+                                "<a href='http://www.doi.org/".$details[$xsd_display_fields[$dis_key]['xsdmf_id']]."'>".$details[$xsd_display_fields[$dis_key]['xsdmf_id']]."</a>";
+                }
 				if ($dis_field['sek_title'] == "Author") {
 					if (!empty($details[$dis_field['xsdmf_id']])) {
 						if (is_array($details[$dis_field['xsdmf_id']])) {
 							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
 								$temp_xsdmf_id = $dis_field['xsdmf_attached_xsdmf_id'];
 								if ( is_array($details[$temp_xsdmf_id]) &&  (is_numeric($details[$temp_xsdmf_id][$ckey])) && ($details[$temp_xsdmf_id][$ckey] != 0)) {
-									//if ( array_key_exists($temp_xsdmf_id, $details) ) {
 									$details[$dis_field['xsdmf_id']][$ckey] = "<a title='Browse by Author ID for ".$details[$dis_field['xsdmf_id']][$ckey]."' class='author_id_link' href='".APP_BASE_URL."list/author_id/".urlencode($details[$temp_xsdmf_id][$ckey])."/'>".$details[$dis_field['xsdmf_id']][$ckey]."</a>";
 								} else {
 									$details[$dis_field['xsdmf_id']][$ckey] = "<a title='Browse by Author Name for ".$details[$dis_field['xsdmf_id']][$ckey]."' class='silent_link' href=".'"'.APP_BASE_URL."list/author/".urlencode($details[$dis_field['xsdmf_id']][$ckey])."/".'"'.">".$details[$dis_field['xsdmf_id']][$ckey]."</a>";
@@ -297,7 +298,6 @@ class RecordView {
 								$xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($dis_field["xsdmf_parent_option_child_xsdmf_id"]);
 								if ($xsdmf_details['xsdmf_smarty_variable'] != "" && ($xsdmf_details['xsdmf_html_input'] == "multiple" || $xsdmf_details['xsdmf_html_input'] == "dual_multiple")) {
 									$temp_parent_options = array();
-									$temp_parent_options_final = array();
 									eval("\$temp_parent_options = ". $xsdmf_details['xsdmf_smarty_variable'].";");
 									$xsd_display_fields[$dis_key]['field_options'] = array();
 									foreach ($parent_details[$dis_field["xsdmf_parent_option_child_xsdmf_id"]] as $parent_smarty_option) {
@@ -401,8 +401,6 @@ class RecordView {
         }
         // Get the current listing
         $list = $_SESSION['list'];
-//        $list_info = $_SESSION['list_info'];
-//        $view_page = $_SESSION['view_page'];
 
         // find current position in list
         $list_idx = null;

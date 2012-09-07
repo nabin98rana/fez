@@ -16,17 +16,10 @@ include_once(APP_INC_PATH . "Apache/Solr/Service.php");
 
 class FulltextIndex_Solr_CSV extends FulltextIndex 
 {
-
 	private $solrHost;
 	private $solrPort;
 	private $solrPath;
-	private $docsAdded = 0;
-	private $docs;
 	private $solr;
-	private $csvData;
-	private $csvHeader;
-	private $createCSV = true;
-
 	const FIELD_TYPE_INT = 0;
 	const FIELD_TYPE_DATE = 1;
 	const FIELD_TYPE_VARCHAR = 2;
@@ -45,8 +38,6 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 		$countDocs = 0;
 
 		$searchKeys = Search_Key::getList();
-		$csvHeader = "";
-
 		$authLister_t = $this->getFieldName(FulltextIndex::FIELD_NAME_AUTHLISTER, FulltextIndex::FIELD_TYPE_TEXT, false);
 		$authCreator_t = $this->getFieldName(FulltextIndex::FIELD_NAME_AUTHCREATOR, FulltextIndex::FIELD_TYPE_TEXT, false);
 		$authEditor_t = $this->getFieldName(FulltextIndex::FIELD_NAME_AUTHEDITOR, FulltextIndex::FIELD_TYPE_TEXT, false);
@@ -62,31 +53,6 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
             'sek_simple_used'   =>  1,
 		);
 		$searchKeys[] = $citationKey;
-
-		/*
-		 * Custom search key (not a registered search key)
-		 */
-		// $viewKey = array(
-		//             'sek_title'         =>  'views',
-		//             'sek_title_db'      =>  'views',
-		//             'sek_data_type'     =>  'int',
-		//             'sek_relationship'  =>  0,
-		//             'sek_simple_used'   =>  1,
-		// );
-		// $searchKeys[] = $viewKey;
-
-		/*
-		 * Custom search key (not a registered search key)
-		 */
-		// $dLKey = array(
-		//             'sek_title'         =>  'file_downloads',
-		//             'sek_title_db'      =>  'file_downloads',
-		//             'sek_data_type'     =>  'int',
-		//             'sek_relationship'  =>  0,
-		//             'sek_simple_used'   =>  1,
-		// );
-		// $searchKeys[] = $dLKey;
-
 		$roles = array(
             'Lister',
             'Creator',
@@ -104,10 +70,6 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 			/*
 			 * Only index search keys which are searchable on fez
 			 */
-			// if(  $sekDetails["sek_simple_used"] == 1 ||
-			// $sekDetails["sek_myfez_visible"] == 1 ||
-			// $sekDetails["sek_adv_visible"] == 1 || (Custom_View::searchKeyUsedCview($sekDetails["sek_id"]) == 1))
-			// {
 				$fieldType = $this->mapType($sekDetails['sek_data_type']);
 				$isMultiple = $sekDetails['sek_cardinality'] != 0;
 
@@ -118,14 +80,10 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
                         'type'  =>  $fieldType,
 						'cardinality' => $sekDetails['sek_cardinality']
 						);
-						//$sekDetails["sek_title_db"];
 					$mtColumnsHeader[] = $this->getFieldName($sekDetails["sek_title_db"],$fieldType, $isMultiple);
 					// Add year and decade to solr if its a date field so they can be faceted on
 					if ($fieldType == FulltextIndex::FIELD_TYPE_DATE) {
 						$mtColumnsHeader[] = $sekDetails["sek_title_db"]."_year_t";
-						
-						// $mtYearColumns[] = $sekDetails["sek_title_db"];
-						// $mtYearColumnsHeader[] = $sekDetails["sek_title_db"]."_year_t";
 					}
 					
 					// append an exact string for author/contributor
@@ -142,9 +100,6 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 					$singleColumnsHeader[] = $this->getFieldName($sekDetails["sek_title_db"],$fieldType, $isMultiple);
 					if ($fieldType == FulltextIndex::FIELD_TYPE_DATE) {
 						$singleColumnsHeader[] = $sekDetails["sek_title_db"]."_year_t";
-						
-						// $singleYearColumns[] = $sekDetails["sek_title_db"];
-						// $singleYearColumnsHeader[] = $sekDetails["sek_title_db"]."_year_t";
 					}
 					
 				}
@@ -163,22 +118,15 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 		 * Loop through queue and index a number of records set in APP_SOLR_COMMIT_LIMIT config var at a time into solr
 		 */
 		while( ($chunk = $queue->popChunk($singleColumns)) != false ) {
-				
 			$csv       = array();
 			$pids_arr  = array();
-			$pids      = '';
-			$spliting  = '';
-
 			$csvHeader = 'id,'.implode(',', $singleColumnsHeader) . ',' . $authLister_t . ','. $authCreator_t . ',' . $authEditor_t . ','.implode(',', $mtColumnsHeader) . ",content\n";
 				
 			foreach ( $chunk as $row ) {
 				 
 				if(empty($row['rek_pid']))
 				continue;
-				 
-				//$csv[$row['rek_pid']] = '"'.$row['rek_pid'] .'",'. preg_replace('/[^(\x20-\x7F)]*/','', $row['row']).  '"';
 				$csv[$row['rek_pid']] = '"'.$row['rek_pid'] .'",'. $row['row'].  '"';   //20110527 preg-replace removed
-				// $csv[$row['rek_pid']] = '"'.$row['rek_pid'] .'","'.$row['row'] .  '"';
 				$pids_arr[] = $row['rek_pid'];
 				 
 			}
@@ -221,7 +169,6 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 					}
 				
 					$csv[$rek_pid] .= ',' . $lister_rules .','.$creator_rules. ','. $editor_rules;
-					// $csv[$rek_pid] .= ',"' . $lister_rules .'","'.$creator_rules. '","'. $editor_rules;
 				} else {
 					$csv[$rek_pid] .= ',"","",""';
 				}
@@ -232,8 +179,6 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 			 * Add multi-valued search keys to the csv array
 			 */
 			foreach ( $mtColumns as $mtColumn ) {
-			
-				$col_name = "";
 				if ($mtColumn['type'] == FulltextIndex::FIELD_TYPE_DATE ) {
 				  if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) { 
 						$col_name = "(DATE_FORMAT(a1.rek_".$mtColumn["name"] .",'%Y-%m-%dT%H:%i:%sZ'))";
@@ -249,8 +194,6 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 				}
 
         $stmt = "    SELECT a2.rek_".$mtColumn["name"]."_pid as pid, ";
-
-				$orderByClause = '';
 				if ($mtColumn['cardinality'] == 1) {
 			  	if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) { 
 						$orderByClause = "ORDER BY a1.rek_{$mtColumn['name']}_order ASC";
@@ -293,7 +236,6 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 					} else {
 						$csv[$rek_pid] .= ',""';
 					}
-					$val = '';
 				}
 
 				// add an additional field for both author and contributor
@@ -306,11 +248,8 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 						} else {
 							$csv[$rek_pid] .= ',""';
 						}
-						$val = '';
 					}
 				}
-
-				$tmpArr = array();
 
 				if ($mtColumn['type'] == FulltextIndex::FIELD_TYPE_DATE ) {
 					$tmpArr = array();
@@ -322,8 +261,6 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 
 
           $stmt = "    SELECT a2.rek_".$mtColumn["name"]."_pid as pid, ";
-
-					$orderByClause = '';
 					if ($mtColumn['cardinality'] == 1) {
 						if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) { 
 							$orderByClause = "ORDER BY a1.rek_{$mtColumn['name']}_order ASC";
@@ -364,8 +301,6 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 						} else {
 							$csv[$rek_pid] .= ',""';
 						}
-
-						$val = '';
 					}
 				}
 
@@ -376,17 +311,21 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 			/*
 			 * Add datasteam text to CSV array
 			 */
-			$content = $this->getCachedContent($pids);
-			$content = preg_replace('/[^(\x20-\x7F)]*/','',$content);
-			foreach ($csv as $rek_pid => $rek_line) {
-				 
-				if( !empty($content[$rek_pid]) ) {
-					$csv[$rek_pid] .= ',"' . $content[$rek_pid] .'"';
-				} else {
-					$csv[$rek_pid] .= ',""';
-				}
+            $content = '';
+            if (APP_SOLR_INDEX_DATASTREAMS == 'ON') {
+                $content = $this->getCachedContent($pids);
+                $content = preg_replace('/[^(\x20-\x7F)]*/','',$content);
+            }
+            foreach ($csv as $rek_pid => $rek_line) {
 
-			}
+                if( !empty($content[$rek_pid]) ) {
+                    $csv[$rek_pid] .= ',"' . $content[$rek_pid] .'"';
+                } else {
+                    $csv[$rek_pid] .= ',""';
+                }
+
+            }
+
 
 			$csv = implode("\n", $csv);
 			$tmpfname = tempnam(APP_PATH."solr_upload", "solrCsv");
@@ -402,39 +341,24 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 			foreach ($mtColumnsHeader as $mtHeader) {
 				$postFields["f.".$mtHeader.".split"] = "true";
 				$postFields["f.".$mtHeader.".separator"] = html_entity_decode("&#09;");
-				// old get method
-				//$spliting .= "&f.$mtHeader.split=true&f.$mtHeader.separator=%09";
 			}
 			$postFields["f.content.split"] = "true";
 			$postFields["f.content.separator"] = html_entity_decode("&#09;");
-			//old get method
-//			$spliting .= "&f.content.split=true&f.content.separator=%09";
-
 			$log->debug(array("processQueue: about to send"));
 			$postFields["commit"] = "false";
 			$url = "http://".APP_SOLR_HOST.":".APP_SOLR_PORT.APP_SOLR_PATH."update/csv";
 			
 			if (APP_SOLR_HOST == APP_HOSTNAME) {
 				$postFields["stream.file"] = $tmpfname;
-				//$url = "http://".APP_SOLR_HOST.":".APP_SOLR_PORT.APP_SOLR_PATH."update/csv";
-				//old get method
-				//$url = "http://".APP_SOLR_HOST.":".APP_SOLR_PORT.APP_SOLR_PATH."update/csv?commit=true&stream.file=".$tmpfname.$spliting;
 			} else {
 				$url_loc = "http://".APP_HOSTNAME.APP_RELATIVE_URL."solr_upload/".substr($tmpfname, (strrpos($tmpfname, "/")+1));
-//				echo $url_loc."\n";
-				//old get method
-				//$url_of_stream = "http://".APP_SOLR_HOST.":".APP_SOLR_PORT.APP_SOLR_PATH."update/csv?commit=true&stream.url=".$url_loc.$spliting;
 				$postFields["stream.url"] = $url_loc;
 			}
-			//$url = "http://localhost:8080/solr/update/csv?commit=true&stream.file=".$tmpfname.$spliting;
 
 			if( $this->bgp ) {
 				$this->bgp->setStatus("Sending CSV file ".$tmpfname." to Solr");
 			}
-				
-//			$log->debug(array($url));
 
-			
 			/*
 			 * Use cURL to tell solr it has a CSV file to process
 			 */
@@ -446,9 +370,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 				unset($raw_response);
 				sleep(1);
 				$raw_response = Misc::processURL($url, null, null, $postFields, null, 30);
-				//if(! $raw_response[0]) {
 				if($raw_response[1]["http_code"] != "200") {
-					$info = array();
 					$log->err('No response from solr.. after the second attempt: '.print_r($raw_response, true));			
 					$log->debug(array($url));
 				}
@@ -464,12 +386,8 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 			if($uploaded == true) {
 				unlink($tmpfname);
 			}
-		
 
-			//$this->postprocessIndex($ftq_pid, $ftq_op);
-			//Logger::debug("processQueue: finished indexing mem_used=".memory_get_usage());
-
-			$countDocs += APP_SOLR_COMMIT_LIMIT;
+			$countDocs += count($chunk);
 			if ($countDocs > $this->totalDocs) {
 				$countDocs = $this->totalDocs;
 			}
@@ -501,15 +419,6 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 				$this->bgp->setStatus("Deleting " . count($deletePids) . " from Solr Index");
 			}
 			$this->solr->deleteByMultipleIds($deletePids);
-
-			
-			// MT: 20100319 commented out this as the function doesn't exist in the Solr Service class. 
-			// $this->solr->triggerUpdate();
-			
-/*			foreach ( $deletePids as $row) {
-				$this->removeByPid($pid);
-				//$this->removeByPid($row['ftq_pid']);
-			} */
 		} 
 		$this->solr->commit();
 		return $countDocs;
@@ -672,7 +581,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err($ex);	
+			$log->err($ex);
 			$res = null;	
 		}
 		$ret = array();

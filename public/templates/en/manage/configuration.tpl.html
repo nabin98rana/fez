@@ -1809,12 +1809,27 @@ function restoreDefaultColours(el)
 			</td>
 		  </tr>
 		  <tr>
-		    <th>Solr Commit Limit (the maximum number of objects to queue in a solr batch before sending to solr. Lower if you have having PHP out of memory issues - default is 100)</th>
+		    <th>Solr Commit Limit (the maximum number of objects to queue in a solr batch before sending to solr. Lower if you are having PHP out of memory issues - default is 200)<br /><br /></th>
 			<td>
 			  <input type="text" name="app_solr_commit_limit" value="{$config_settings.app_solr_commit_limit}" size="50" />
 			  {include file="error_icon.tpl.html" field="app_solr_commit_limit"}
 			</td>
 		  </tr>
+          <tr>
+              <th>Index datastreams?</th>
+              <td>
+                  <input type="radio" name="app_solr_index_datastreams" value="ON" {if $config_settings.app_solr_index_datastreams == "ON"}checked="checked"{/if}/> On &nbsp;
+                  <input type="radio" name="app_solr_index_datastreams" value="OFF" {if $config_settings.app_solr_index_datastreams == "OFF"}checked="checked"{/if}/> Off
+              </td>
+          </tr>
+          <tr>
+          <tr>
+              <th>Solr CSV Size Limit (In megabytes, the ~ maximum size of a solr batch in a csv file before being sending to solr. Lower if you have having PHP out of memory issues - default is 50MB)</th>
+              <td>
+                  <input type="text" name="app_solr_csv_max_size" value="{$config_settings.app_solr_csv_max_size}" size="5" />MBs Has no affect if Index datastreams off
+                  {include file="error_icon.tpl.html" field="app_solr_csv_max_size"}
+              </td>
+          </tr>
 		  <tr>
 			<th>Facet limit (default is 5)</th>
 			<td>

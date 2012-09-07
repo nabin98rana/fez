@@ -68,12 +68,9 @@ class Lister
     function getList($params, $display=true) 
     {
     	$log = FezLog::get();
-		$db = DB_API::get();
-		   
-        /*
-         * These are the only $params(ie. $_GET) vars that can be passed to this page.
-         * Strip out any that aren't in this list
-         */
+
+        //These are the only $params(ie. $_GET) vars that can be passed to this page.
+        //Strip out any that aren't in this list
         $args = array(
             'browse'        =>  'string',
             'author_id'     =>  'numeric',
@@ -122,9 +119,6 @@ class Lister
 		$custom_view_pid = $params['custom_view_pid'];
         $facets = array();
         $snips = array();
-//		$filter["searchKey".Search_Key::getID("isMemberOf")];
-
-
         $tpl = new Template_API();
 		if (is_numeric($params['tpl'])) {
         	$tpl_idx = intval($params['tpl']);
@@ -157,7 +151,6 @@ class Lister
 				}
 			}
 			$child_collections = Record::getCollectionChildrenAll($custom_view_pid);
-			$child_pids = array();
 			$filter["searchKey".Search_Key::getID("isMemberOf")]['override_op'] = 'OR';
 			$filter["searchKey".Search_Key::getID("isMemberOf")][] = $custom_view_pid;
 			foreach ($child_collections as $rek_row) {
@@ -173,7 +166,10 @@ class Lister
             $tpl->assign("jqueryUI", true);
         }
 
-		if (($tpl_idx != 0 && $tpl_idx != 10 && $tpl_idx != 4) || $isAdministrator == true) {
+        $isUPO = User::isUserUPO($username);
+        $tpl->assign("isUPO", $isUPO);
+
+		if (($tpl_idx != 0 && $tpl_idx != 10 && $tpl_idx != 4) || $isAdministrator  || $isUPO) {
 			$citationCache = false;
 		} else {
 			$citationCache = true;
@@ -199,7 +195,6 @@ class Lister
 		
 		// for the html code output, we want to output the search params, so clean them up first
 		if ($tpl_idx == 8) {
-			$dynamicParams = '';
 			$excludeForHtmlOutput = array(
 	            'pager_row',
 				'rows'
@@ -233,15 +228,6 @@ class Lister
             $_SESSION['rows'] = $rows;
         }
         
-        switch ($tpl_idx) {
-        	case 2:
-//        		$rows = "ALL"; //If an RSS feed show all the rows
-//				$pager_row = 0;
-        		break;
-        	default:
-        		break;
-        }
-        
         $cookie_key = Pager::getParam('form_name',$params);
         $options = Pager::saveSearchParams($params, $cookie_key);
 	    
@@ -256,7 +242,6 @@ class Lister
 
         $cat            = $params['cat'];
         $browse         = $params['browse'];
-        $letter         = $params['letter'];
         $collection_pid = $params['collection_pid'];
         $community_pid  = $params['community_pid'];
         
@@ -319,10 +304,7 @@ class Lister
         
         $list_info = array();
         
-        //get the bulk change workflows
-    $bulk_workflows = array();
-    $bulk_search_workflows = array();
-
+    //get the bulk change workflows
     if ($username) {
       $bulk_workflows = WorkflowTrigger::getAssocListByTrigger("-1", WorkflowTrigger::getTriggerId('Bulk Change'));
       $bulk_search_workflows = WorkflowTrigger::getAssocListByTrigger("-1", WorkflowTrigger::getTriggerId('Bulk Change Search'));       
@@ -351,7 +333,6 @@ class Lister
 	                $parents = Record::getParentsDetails($collection_pid);
 
 	                $tpl->assign("parents", $parents);
-	                $collection_xdis_id = Collection::getCollectionXDIS_ID();
 	                $userPIDAuthGroups = AuthIndex::getIndexAuthRoles($collection_pid);
 	                $isCreator = @$userPIDAuthGroups['isCreator'] == 1;
 	                $tpl->assign("isCreator", $isCreator);
@@ -363,8 +344,6 @@ class Lister
 				    $filter["searchKey".Search_Key::getID("isMemberOf")] = $collection_pid;
 			    
 	                $list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter);
-                                
-	                //$list = Collection::getListing($collection_pid, $pager_row, $rows, $sort_by);
 	                $list_info = $list["info"];
 	                $facets = @$list['facets'];
 	                $snips = @$list['snips'];
@@ -418,10 +397,6 @@ class Lister
 	                $tpl->assign("isCreator", $isCreator);
 	                $isEditor = @$userPIDAuthGroups['isEditor'] == 1;
 	                $tpl->assign("isEditor", $isEditor);
-//	                $tpl->assign("xdis_id", $xdis_id);
-	                //$community_details = Community::getDetails($community_pid);
-	                $community_title = Record::getSearchKeyIndexValue($community_pid, "Title");
-                
 	                $options = Search_Key::stripSearchKeys($options);
 
 	            	$filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
@@ -454,19 +429,11 @@ class Lister
     			$tpl->assign('not_exists', true);
             }
             
-            /*
-             * Remove these sort options when viewing a list of community
-             */
+
+            //Remove these sort options when viewing a list of community
         	unset($sort_by_list["searchKey".Search_Key::getID("File Downloads")]);
         	unset($sort_by_list["searchKey".Search_Key::getID("Sequence")]);
         	unset($sort_by_list["searchKey".Search_Key::getID("Date")]);
-        	
-        	/*
-        	 * Remove 'citation' and 'classic' display option when viewing a list of subjects
-        	 */
-        	//unset($tpls[4]);
-        	//unset($tpls[5]);
-        
         } elseif ($browse == "favourites") {
             $filter = array();
 			$filter["searchKey".Search_key::getID("Object Type")] = 3;
@@ -505,10 +472,8 @@ class Lister
             $log->debug('Latest');
             
             $sort_by_list["searchKey".Search_Key::getID("Created Date")] = 'Created Date';
-            
-            /*
-             * Remove these sort options when viewing the latest records
-             */
+
+            // Remove these sort options when viewing the latest records
             unset($sort_by_list["searchKey".Search_Key::getID("Title")]);
         	unset($sort_by_list["searchKey".Search_Key::getID("File Downloads")]);
         	unset($sort_by_list["searchKey".Search_Key::getID("Sequence")]);
@@ -559,17 +524,13 @@ class Lister
                 $list_info = $list["info"];
                 $list = $list["list"];
                 $tpl->assign("browse_heading", "Browse By Year");
-                
-                /*
-                 * Remove these sort options when viewing a list of subjects
-                 */
+
+                // Remove these sort options when viewing a list of subjects
             	unset($sort_by_list["searchKey".Search_Key::getID("File Downloads")]);
             	unset($sort_by_list["searchKey".Search_Key::getID("Sequence")]);
             	unset($sort_by_list["searchKey".Search_Key::getID("Date")]);
-            	
-            	/*
-            	 * Remove 'citation' and 'classic' display option when viewing a list of subjects
-            	 */
+
+            	// Remove 'citation' and 'classic' display option when viewing a list of subjects
             	unset($tpls[4]);
             	unset($tpls[5]);
             }
@@ -579,10 +540,7 @@ class Lister
             $log->debug('Browse by author');
             // browse by author
             if( $browse == "author") {
-                
-                if( strlen(Lister::getValue($params,'author')) == 1 ) {
-                    $letter = Lister::getValue($params,'author');
-                } else {
+                if( strlen(Lister::getValue($params,'author')) != 1 ) {
                     $author = Lister::getValue($params,'author');
                 }
             }
@@ -624,7 +582,7 @@ class Lister
             } elseif (!empty($author)) {	
 	        	$options = Search_Key::stripSearchKeys($options);
             	$filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
-				$filter["searchKey".Search_Key::getID("Author")] = $author; //
+				$filter["searchKey".Search_Key::getID("Author")] = $author;
             	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter);
                 $list_info = $list["info"];
                 $list = $list["list"];
@@ -648,7 +606,6 @@ class Lister
             } else {
                 
             	if ($browse == "author_id") {
-//	                $list = Collection::listByAuthor($pager_row, $rows, $sort_by, $letter);
                     $list = array();
 	                $list_info = $list["info"];
 	                $list = $list["list"];
@@ -656,7 +613,6 @@ class Lister
 	                $tpl->assign("browse_heading", "Browse By ".APP_NAME." Author ID");
 				    $tpl->assign("list_heading", "Browse By ".APP_NAME." Author ID");
             	} else {
-//	                $list = Collection::listByAttribute($pager_row, $rows, "Author", $sort_by, $letter);
                     $list = array();
 	                $list_info = $list["info"];
 	                $list = $list["list"];
@@ -664,17 +620,13 @@ class Lister
 	                $tpl->assign("browse_heading", "Browse By Author Name");
 				    $tpl->assign("list_heading", "Browse By Author Name");
             	}
-            	
-            	/*
-                 * Remove these sort options when viewing a list of authors
-                 */
+
+                // Remove these sort options when viewing a list of authors
             	unset($sort_by_list["searchKey".Search_Key::getID("File Downloads")]);
             	unset($sort_by_list["searchKey".Search_Key::getID("Sequence")]);
             	unset($sort_by_list["searchKey".Search_Key::getID("Date")]);
-            	
-            	/*
-            	 * Remove 'citation' display option when viewing a list of authors
-            	 */
+
+            	// Remove 'citation' display option when viewing a list of authors
             	unset($tpls[4]);
             }
             $tpl->assign("browse_type", "browse_author");
@@ -704,17 +656,13 @@ class Lister
 				
                 $tpl->assign("browse_heading", "Browse By Depositor");
 			    $tpl->assign("list_heading", "Browse By Depositor");
-			    
-			    /*
-                 * Remove these sort options when viewing a list of Depositors
-                 */
+
+                // Remove these sort options when viewing a list of Depositors
             	unset($sort_by_list["searchKey".Search_Key::getID("File Downloads")]);
             	unset($sort_by_list["searchKey".Search_Key::getID("Sequence")]);
             	unset($sort_by_list["searchKey".Search_Key::getID("Date")]);
-            	
-            	/*
-            	 * Remove 'citation' display option when viewing a list of depositors
-            	 */
+
+            	// Remove 'citation' display option when viewing a list of depositors
             	unset($tpls[4]);
             }
             $tpl->assign("browse_type", "browse_depositor");
@@ -727,10 +675,8 @@ class Lister
 			$author_id = $params['author_id'];
 			$authorDetails = Author::getDetails($author_id);
 			$operator = "AND";
-//	        $current_row = ($current_row/100);
 	 		$filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
-			$filter["searchKey".Search_key::getID("Object Type")]=3; //exclude communities and collections 
-//			$filter["searchKey".Search_key::getID("Author ID")]=$authorDetails["aut_id"]; //author id
+			$filter["searchKey".Search_key::getID("Object Type")]=3; //exclude communities and collections
 	 		$filter["manualFilter"] = " (author_id_mi:".$authorDetails["aut_id"]." OR contributor_id_mi:".$authorDetails["aut_id"].") "; // enforce display type X only
 
             if ($tpl_idx == 0) {
@@ -754,15 +700,12 @@ class Lister
 
 			$otherDisplayTypes = array();
 			$otherDisplaySubTypes = array();
-            $use_faceting = false; //faceting is only required for the full author search
             $simple = false; //need the extra details for the actual results
             $citationCache = false; //need the extra details for the actual results
 
 			if ($tpl_idx == 0) {
-				$order_dir = 'ASC';
 				$options = array();				
 				$sort_by = "searchKey".Search_Key::getID("Date");
-	//			$sort_by = Search_Key::getID("Date");
 				$options["sort_order"] = 1; // DESC date
 				$options["sort_by"] = $sort_by; // DESC date
 				$use_faceting = false;
@@ -790,7 +733,6 @@ class Lister
 			        $bcListInfo = array();
 		            $bcList = array();
 				}
-
 
 				$ja_xdis_id = XSD_Display::getXDIS_IDByTitleVersion("Journal Article", $xdis_version);
 				if (is_numeric($ja_xdis_id)) {
@@ -870,7 +812,6 @@ class Lister
 			} else {
 				$masterList = array();
 			}
-//	        $tpl = new Template_API();
 
 			if ($tpl_idx == 0) {
 				$tpl_file = "list.tpl.html";
@@ -890,9 +831,7 @@ class Lister
 				$tpl->assign("researcherID", "");
 			}
 
-//            $tpl->assign("browse_heading", $authorDetails["aut_display_name"]);
 			$tpl->assign("list_heading", "Publications by ".$authorDetails["aut_display_name"]);
-//            $tpl->assign("list_heading", "List of Subject Classifications Records");
 			$tpl->assign("list_type", "mypubs_list");
 
 			//all
@@ -902,7 +841,6 @@ class Lister
             $tpl->assign("author_id", $author_id);
 			$tpl->assign("authorDetails", $authorDetails);			
 			$tpl->assign("active_nav", "mypubs");
-//			$tpl->displayTemplate();
 			
         } elseif ($browse == "subject") {
         	$log->debug('Browse by subject');
@@ -926,17 +864,13 @@ class Lister
 				
             } else {
                 $subject_list = Controlled_Vocab::getList();
-                
-                /*
-                 * Remove these sort options when viewing a list of subjects
-                 */
+
+                // Remove these sort options when viewing a list of subjects
             	unset($sort_by_list["searchKey".Search_Key::getID("File Downloads")]);
             	unset($sort_by_list["searchKey".Search_Key::getID("Sequence")]);
             	unset($sort_by_list["searchKey".Search_Key::getID("Date")]);
-            	
-            	/*
-            	 * Remove 'citation' display option when viewing a list of subjects
-            	 */
+
+            	// Remove 'citation' display option when viewing a list of subjects
             	unset($tpls[4]);
             }
             
@@ -984,10 +918,8 @@ class Lister
 			     'override_op'   =>  'AND',
 			     'value'         =>  2,
 			);
-            
-			/*
-             * Turn these on for advanced search
-             */
+
+            // Turn these on for advanced search
 			$use_faceting = true;
 			$use_highlighting = true;
 			
@@ -1011,7 +943,6 @@ class Lister
                     array_pop($exclude);
 			    } 
 			}
-//			print_r($list);
         	$list_info = @$list["info"];
         	$terms = @$list_info['search_info'];
         	$facets = @$list['facets'];
@@ -1041,25 +972,19 @@ class Lister
             
             $tpl->assign("list_type", "community_list");
             $tpl->assign("list_heading", "List of Communities");
-            
-            /*
-             * Remove these sort options when viewing a list of communities
-             */
+
+            // Remove these sort options when viewing a list of communities
         	unset($sort_by_list["searchKey".Search_Key::getID("File Downloads")]);
         	unset($sort_by_list["searchKey".Search_Key::getID("Sequence")]);
         	unset($sort_by_list["searchKey".Search_Key::getID("Date")]);
         	
-        	/*
-        	 * Remove 'citation' and 'classic' display option when viewing a list of communities
-        	 */
+
+        	// Remove 'citation' and 'classic' display option when viewing a list of communities
         	unset($tpls[4]);
         	unset($tpls[5]);
         }
-        
-        /*
-         * We dont want to display facets that a user
-         * has already searched by
-         */
+
+        // We dont want to display facets that a user has already searched by
         if (isset($facets)) {
             foreach ($facets as $sek_id => $facetData) {
                 if (!empty($options['searchKey'.$sek_id])) {
@@ -1073,7 +998,7 @@ class Lister
         	$list = Record::getResearchDetailsbyPIDS($list);
         }
         
-        /* Star muxing time */
+        // Star muxing time
         $stars = Favourites::getStarred();
         if (is_array($list)) {
         foreach ($list as &$record) {
@@ -1163,13 +1088,9 @@ class Lister
     function getValue($params, $varName) {
         
         if(isset($params[$varName]) && !empty($params[$varName])) {
-            
             return $params[$varName];
-            
         } elseif(isset($params['value']) && !empty($params['value'])) {
-            
             return $params['value'];
-            
         }
         
         return false;
