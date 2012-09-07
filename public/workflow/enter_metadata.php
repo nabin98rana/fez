@@ -74,7 +74,7 @@ if(APP_FEDORA_BYPASS == 'ON')
 
 if($_POST)
 {
-	$filterProc = new Fez_Filter($_POST);
+	$filterProc = new Fez_Filter_Process_Request($_POST);
 	$_POST = $filterProc->process();
 }
 

@@ -74,7 +74,7 @@ class FilterTest extends PHPUnit_Framework_TestCase
     
     public function testPidarray()
     {
-        $pidFilter = new Fez_Filter_PidArray();
+        $pidFilter = new Fez_Filter_Pid();
     
         $goodPids = array('XYZ:8765', 'CN:223', 'FJFUTAASEDQWE:2');
         $filtered = false;
@@ -82,14 +82,14 @@ class FilterTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($goodPids, $filtered);
     
         $badPids = array('7654', '', 'vfg', ':', 'A:334', 'JGFH:', '23:234', 'GF:GFRE', 'TR:765A543', '#$');
-        $filtered = false;
+        $filtered = array();
         $filtered = $pidFilter->filter($badPids);
-        $this->assertEquals(false, $filtered);
+        $this->assertEquals(array(), $filtered);
     }
     
     public function testStringarray()
     {
-    	$stringArrayFilter = new Fez_Filter_BasicstringArray();
+    	$stringArrayFilter = new Fez_Filter_Basicstring();
     	
     	$goodStrings = array('Kang, MK', 'Zhang, MX', 'Liu, F', 'Funny-Name 8876', "John O'Reilly");
     	$filtered = $stringArrayFilter->filter($goodStrings);

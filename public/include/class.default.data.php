@@ -310,11 +310,21 @@ class Default_Data
 		$defaultData['app_link_resolver_referrer_id']       = "";		
 		$defaultData['app_input_filters']					= 'Fez_Filter_Alnum, '.
 			    									'Fez_Filter_Basicstring, '.
-			    									'Fez_Filter_Basicstringarray, '.
 			    									'Fez_Filter_Datearray, '.
 			    									'Fez_Filter_Htmlpurify, '.
 			    									'Fez_Filter_Pid, '.
-			    									'Fez_Filter_Pidarray';
+			    									'Zend_Filter_Alnum, ' .
+			    									'Zend_Filter_Alpha ,' .
+													'Zend_Filter_Boolean,'.
+													'Zend_Filter_Digits,'.
+													'Zend_Filter_HtmlEntities,'.
+													'Zend_Filter_Int,'.
+													'Zend_Filter_Null,'.
+													'Zend_Filter_StringToLower,'.
+													'Zend_Filter_StringToUpper,'.
+													'Zend_Filter_StringTrim,'.
+													'Zend_Filter_StripNewlines,'.
+													'Zend_Filter_StripTags,';
 		
 		return $defaultData;
 	}

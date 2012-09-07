@@ -81,7 +81,7 @@ $xml_element = @$_POST["xml_element"] ? $_POST["xml_element"] : @$_GET["xml_elem
 $xml_element_clean = str_replace("!", " -> ", $xml_element);
 $xml_element_clean = str_replace("^", " ", $xml_element_clean);
 $xml_element_clean = substr($xml_element_clean, 4);
-$filterProc = new Fez_Filter();
+$filterAdmin = new Fez_Filter_Admin_XSDMF();
 
 $tpl->assign("controlled_vocab_list", Controlled_Vocab::getAssocList());
 
@@ -89,16 +89,16 @@ $tpl->assign("controlled_vocab_list", Controlled_Vocab::getAssocList());
 		if (is_numeric(strpos(@$_POST["submit"], "Delete"))) {
 			$form_cat = "delete";
 			$tpl->assign("cat", $form_cat);
-			$filterProc->delete($xsdmf_id);
+			$filterAdmin->delete($xsdmf_id);
 		} else { 
 			$form_cat = @$_POST["form_cat"];
 		}
 	
 		if ($form_cat == "new") {
-			$filterProc->save(@$_POST['filter_class'], $xsdmf_id);
+			$filterAdmin->save(@$_POST['filter_class'], $xsdmf_id);
 			$tpl->assign("result", XSD_HTML_Match::insert($xdis_id, $xml_element));
 		} elseif ($form_cat == "update") {
-			$filterProc->save(@$_POST['filter_class'], $xsdmf_id);
+			$filterAdmin->save(@$_POST['filter_class'], $xsdmf_id);
 //			$tpl->assign("result", XSD_HTML_Match::update($xdis_id, $xml_element));
             if (isset($_POST['update_children'])) {
                 $tpl->assign("result", XSD_HTML_Match::update($xsdmf_id, true));
@@ -197,7 +197,7 @@ $tpl->assign("controlled_vocab_list", Controlled_Vocab::getAssocList());
 	$tpl->assign("checkbox_options_list", $checkbox_options_list);
 
 	if (is_array($info_array)) {
-		$currentFilter = $filterProc->inputExists($info_array['xsdmf_id']);
+		$currentFilter = $filterAdmin->inputExists($info_array['xsdmf_id']);
 		$tpl->assign('current_filter', $currentFilter);
 		
 	    $tpl->assign("form_cat", "edit");

@@ -85,7 +85,7 @@ if (isset($_POST['uploader_files_uploaded']) && APP_FEDORA_BYPASS != 'ON')
 
 if($_POST)
 {
-	$filterProc = new Fez_Filter_Process_Post($_POST);
+	$filterProc = new Fez_Filter_Process_Request($_POST);
 	$_POST = $filterProc->process();
 }
 

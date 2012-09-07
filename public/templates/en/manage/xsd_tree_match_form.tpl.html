@@ -1337,6 +1337,7 @@
                       <tr>
                           <td bgcolor="{$light_color}">
                               <select name="filter_class">
+                                <option value="" >None</option>
                                 {foreach from=$filter_class item=filter}
                                 <option {if $filter == $current_filter} selected="selected" {/if}value="{$filter}">{$filter}</option>
                                 {/foreach}
