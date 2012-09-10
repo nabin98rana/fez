@@ -28,53 +28,61 @@ class Fez_Filter_Admin_XSDMF implements Fez_Filter_AdminInterface
      * @param string $filterClass
      * @param string $inputName
      */
-    public function save($filterClass, $inputName)
+    public function save(array $filterClasses, $inputName)
     {
-    	$inputExists = $this->inputExists($inputName);
-    	$classExists = class_exists($filterClass, false);
-    	$result = false;
-    	$sql = "";
+    	$toDelete = array_diff($this->inputExists($inputName), $filterClasses);
+    	foreach($filterClasses as $filterClass)
+    	{
+	    	$inputExists = $this->inputFilterExists($inputName, $filterClass);
+	    	$classExists = class_exists($filterClass, false);
+	    	$result = false;
+	    	$sql = "";
+	    	
+	    	if($inputExists && $classExists) //update with a valid classname
+	    	{
+	    		$sql = "UPDATE " . APP_TABLE_PREFIX 
+	    			. "input_filter SET ift_filter_class = ? WHERE ift_input_name = ? AND ift_filter_class = ?";
+	    		$binding = array($filterClass, $inputName, $filterClass);
+	    		
+	    	}
+	    	elseif((!$inputExists) && $classExists) //insert a valid classname
+	    	{
+	    		$sql = "INSERT INTO " . APP_TABLE_PREFIX 
+	    			. "input_filter (ift_filter_class, ift_input_name) VALUES (?,?)";
+	    		$binding = array($filterClass, $inputName);
+	    	}
+	    	
+	    	
+	    	try 
+	    	{
+	    		$result = ($sql) ? $this->db->query($sql, $binding) : false;
+	    	}
+	    	catch(Exception $e)
+	    	{
+	    		$this->log->err($e->getMessage());
+	    	}
+    	}
     	
-    	if($inputExists && $classExists) //update with a valid classname
+    	//Delete the ones that are in the db but not in the post for this input
+    	if($toDelete)
     	{
-    		$sql = "UPDATE " . APP_TABLE_PREFIX 
-    			. "input_filter SET ift_filter_class = ? WHERE ift_input_name = ?";
-    		
-    	}
-    	elseif((!$inputExists) && $classExists) //insert a valid classname
-    	{
-    		$sql = "INSERT INTO " . APP_TABLE_PREFIX 
-    			. "input_filter (ift_filter_class, ift_input_name) VALUES (?,?)";
-    	}
-    	elseif($inputExists && (!$classExists)) //invalid or null classname passed - no longer needed
-    	{
-    		$this->delete($inputName);
-    	}
-    	
-    	try 
-    	{
-    		$result = ($sql) ? $this->db->query($sql, array($filterClass, $inputName)) : false;
-    	}
-    	catch(Exception $e)
-    	{
-    		$this->log->err($e->getMessage());
+    		foreach($toDelete as $deleteClass)
+    		{
+    			$this->delete($inputName, $deleteClass);
+    		}
     	}
     }
     
-    /**
-     * Check to see if an entry exists
-     * @param string $inputName
-     * @return mixed
-     */
-    public function inputExists($inputName)
+    public function inputFilterExists($inputName, $filterName)
     {
     	$result = false;
-    	$sql = "SELECT ift_input_name, ift_filter_class FROM " 
-    		. APP_TABLE_PREFIX . "input_filter WHERE ift_input_name = ?";
-    	
-    	try 
+    	$sql = "SELECT ift_input_name, ift_filter_class FROM "
+    	. APP_TABLE_PREFIX . "input_filter WHERE ift_input_name = ? "
+    	. "AND ift_filter_class = ?";
+    	 
+    	try
     	{
-    		$stmt = $this->db->query($sql, array($inputName));
+    		$stmt = $this->db->query($sql, array($inputName, $filterName));
     		$result = $stmt->fetch();
     		$result = $result['ift_filter_class'];
     	}
@@ -87,19 +95,57 @@ class Fez_Filter_Admin_XSDMF implements Fez_Filter_AdminInterface
     }
     
     /**
+     * Check to see if an entry exists
+     * @param string $inputName
+     * @return mixed
+     */
+    public function inputExists($inputName)
+    {
+    	$results = false;
+    	$sql = "SELECT ift_input_name, ift_filter_class FROM " 
+    		. APP_TABLE_PREFIX . "input_filter WHERE ift_input_name = ?";
+    	
+    	try 
+    	{
+    		$stmt = $this->db->query($sql, array($inputName));
+    		$resultsRaw = $stmt->fetchAll();
+    		foreach($resultsRaw as $result)
+    		{
+    			$results[] = $result['ift_filter_class'];
+    		}
+    	}
+    	catch(Exception $e)
+    	{
+    		$this->log->err($e->getMessage());
+    	}
+    	//var_dump($results);
+    	return $results;
+    }
+    
+    /**
      * Remove an entry from the database
      * @param string $inputName
      * @return mixed
      */
-    public function delete($inputName)
+    public function delete($inputName, $filterClassName=null)
     {
     	$result = false;
-    	$sql = "DELETE FROM " . APP_TABLE_PREFIX 
-    		. "input_filter WHERE ift_input_name = ?";
+    	if($filterClassName)
+    	{
+    		$sql = "DELETE FROM " . APP_TABLE_PREFIX
+    		. "input_filter WHERE ift_input_name = ? AND ift_filter_class = ?";
+    		$binding = array($inputName, $filterClassName);
+    	}
+    	else 
+    	{
+	    	$sql = "DELETE FROM " . APP_TABLE_PREFIX 
+	    		. "input_filter WHERE ift_input_name = ?";
+	    	$binding = array($inputName);
+    	}
     	
     	try 
     	{
-    		$result = $this->db->query($sql, array($inputName));
+    		$result = $this->db->query($sql, $binding);
     	}
     	catch(Exception $e)
     	{

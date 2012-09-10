@@ -13,7 +13,7 @@ interface Fez_Filter_AdminInterface
 	 * @param string $filterClass
 	 * @param string $inputName
 	 */
-	public function save($filterClass, $inputName);
+	public function save(array $filterClass, $inputName);
 	
 	/**
 	 * Remove a filter association

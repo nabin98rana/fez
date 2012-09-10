@@ -10,23 +10,26 @@
 class Fez_Filter
 {
 	/**
-	 * Creates and returns a filter instance.
+	 * Creates a filter instance and
+	 * filters supplied input. Returns
+	 * filtered input.
 	 * @param string $filterClassName
 	 */
-	public static function get($filterClassName)
+	public static function get($filterClassName, $input)
 	{
 		$log = FezLog::get();
-		$filter = false;
+		$filtered = false;
 		
 		try 
 		{
 			$filter = new $filterClassName();
+			$filtered = $filter->filter($input);
 		}
 		catch(Exception $e)
 		{
 			$log->err($e->getMessage());
 		}
 		
-		return $filter;
+		return $filtered;
 	}
 }

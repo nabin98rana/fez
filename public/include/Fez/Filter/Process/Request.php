@@ -33,7 +33,7 @@ class Fez_Filter_Process_Request implements Fez_Filter_Process_ProcessInterface
      */
     protected $log;
     
-    public function __construct(array $data)
+    public function __construct()
     {
         //Save a db object into the object
         $this->db = DB_API::get();
@@ -41,16 +41,7 @@ class Fez_Filter_Process_Request implements Fez_Filter_Process_ProcessInterface
         //Fez logger
         $this->log = FezLog::get();
         
-	    $this->data = $data;
 	    
-	    try 
-	    {
-	    	$this->getFilters();
-	    }
-	    catch(Exception $e)
-	    {
-	    	$this->log->err($e->getMessage());
-	    }
     }
     
     /**
@@ -83,15 +74,26 @@ class Fez_Filter_Process_Request implements Fez_Filter_Process_ProcessInterface
      * Perform filtration on the object's data
      * @return array
      */
-    public function process()
+    public function process(array $data)
     {
+    	$this->data = $data;
+    	 
+    	try
+    	{
+    		$this->getFilters();
+    	}
+    	catch(Exception $e)
+    	{
+    		$this->log->err($e->getMessage());
+    	}
+    	
     	foreach($this->filters as $elementToFilter => $filters)
         {
             foreach($filters as $filter)
             {
-                if($filterObj = $this->fetchFilter($filter))
+            	if($filterObj = $this->fetchFilter($filter))
                 {
-                    //Is it a regular field?
+                	//Is it a regular field?
                 	if(isset($this->data[$elementToFilter]))
                     {
                         $this->data[$elementToFilter] = 

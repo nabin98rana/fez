@@ -83,10 +83,16 @@ if (isset($_POST['uploader_files_uploaded']) && APP_FEDORA_BYPASS != 'ON')
 	}
 }
 
+$filterProc = new Fez_Filter_Process_Request();
+
 if($_POST)
 {
-	$filterProc = new Fez_Filter_Process_Request($_POST);
-	$_POST = $filterProc->process();
+	$_POST = $filterProc->process($_POST);
+}
+
+if($_GET)
+{
+	$_GET = $filterProc->process($_GET);
 }
 
 $tpl = new Template_API();

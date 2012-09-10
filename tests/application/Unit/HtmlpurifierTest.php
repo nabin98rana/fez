@@ -15,5 +15,9 @@ DAT;
 		$purifier = new Fez_Filter_Htmlpurify();
 		$purified = $purifier->filter($testdat);
 		$this->assertFalse(strstr($purified,'<script'));
+		$hasAnchor = (strstr($purified, '<a')) ? true : false;
+		$hasSpan = (strstr($purified, '<span>')) ? true : false;
+		$this->assertTrue($hasAnchor);
+		$this->assertTrue($hasSpan);
 	}
 }

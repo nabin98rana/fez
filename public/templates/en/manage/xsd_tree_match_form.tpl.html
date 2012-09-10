@@ -1330,19 +1330,26 @@
 
               <tr id="validation_custom_regex_tr">
               <td width="120" bgcolor="{$cell_color}" class="default">
-                  <b>Filtration Class:</b>
+                  <b>Filtration Classes:</b>
               </td>
               <td bgcolor="{$light_color}">
                   <table bgcolor="{$dark_color}" cellspacing="0" cellpadding="0" border="0">
                       <tr>
                           <td bgcolor="{$light_color}">
-                              <select name="filter_class">
-                                <option value="" >None</option>
+                              <table>
                                 {foreach from=$filter_class item=filter}
-                                <option {if $filter == $current_filter} selected="selected" {/if}value="{$filter}">{$filter}</option>
+                                <tr>
+                                    <td>
+                                    {$filter}&nbsp;
+                                    </td>
+                                    <td>
+                                    <input type="checkbox" name="filterclasses[]" value="{$filter}" {if in_array($filter, $current_filters)} checked="checked" {/if} />
+                                    </td>
+                                </tr>
                                 {/foreach}
-                              </select>
-                              <br /><span class="small_default">(The server-side filter class used to sanitise input from this element)</span>
+                              </table>
+                              
+                              <br /><span class="small_default">(The server-side filter classes used to sanitise input from this element)</span>
                           </td>
                       </tr>
                   </table>

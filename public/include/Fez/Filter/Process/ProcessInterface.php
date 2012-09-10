@@ -11,5 +11,5 @@ interface Fez_Filter_Process_ProcessInterface
 	/**
 	 * Run filters on the object's data
 	 */
-	public function process();
+	public function process(array $data);
 }
