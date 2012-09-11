@@ -94,7 +94,7 @@ $tpl->assign("controlled_vocab_list", Controlled_Vocab::getAssocList());
 			$form_cat = @$_POST["form_cat"];
 		}
 		
-		$filterClasses = (array_key_exists('filterclasses', $_POST) ? $_POST['filterclasses'] : array());
+		$filterClasses = (array_key_exists('filterclasses', $_POST)) ? $_POST['filterclasses'] : array();
 		if ($form_cat == "new") {
 			$filterAdmin->save($filterClasses, $xsdmf_id);
 			$tpl->assign("result", XSD_HTML_Match::insert($xdis_id, $xml_element));

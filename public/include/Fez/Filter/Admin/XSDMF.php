@@ -101,7 +101,7 @@ class Fez_Filter_Admin_XSDMF implements Fez_Filter_AdminInterface
      */
     public function inputExists($inputName)
     {
-    	$results = false;
+    	$results = array();
     	$sql = "SELECT ift_input_name, ift_filter_class FROM " 
     		. APP_TABLE_PREFIX . "input_filter WHERE ift_input_name = ?";
     	
@@ -118,7 +118,7 @@ class Fez_Filter_Admin_XSDMF implements Fez_Filter_AdminInterface
     	{
     		$this->log->err($e->getMessage());
     	}
-    	//var_dump($results);
+    	
     	return $results;
     }
     
