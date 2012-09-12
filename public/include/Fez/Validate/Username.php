@@ -32,7 +32,7 @@ class Fez_Validate_Username extends Zend_Validate_Abstract
 		}
 		
 		//Are all the chars legal?
-		$goodChars = '/[^a-zA-Z0-9@\.\-\']/';
+		$goodChars = '/[^a-zA-Z0-9@\.\_\-\']/';
 		if(preg_match($goodChars, $val))
 		{
 			$this->_error($this->_messageTemplates['msg']);
