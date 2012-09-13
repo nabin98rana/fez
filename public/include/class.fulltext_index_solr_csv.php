@@ -14,7 +14,7 @@ include_once(APP_INC_PATH . "class.fulltext_queue.php");
 include_once(APP_INC_PATH . "class.custom_view.php");
 include_once(APP_INC_PATH . "Apache/Solr/Service.php");
 
-class FulltextIndex_Solr_CSV extends FulltextIndex 
+class FulltextIndex_Solr_CSV extends FulltextIndex
 {
 	private $solrHost;
 	private $solrPort;
@@ -30,7 +30,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 	 * of the queue and calls the index or remove methods.
 	 *
 	 */
-	public function processQueue() 
+	public function processQueue()
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -47,7 +47,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 		 */
 		$citationKey = array(
             'sek_title'         =>  'citation',
-            'sek_title_db'      =>  'citation', 
+            'sek_title_db'      =>  'citation',
             'sek_data_type'     =>  'text',
             'sek_relationship'  =>  0,
             'sek_simple_used'   =>  1,
@@ -85,7 +85,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 					if ($fieldType == FulltextIndex::FIELD_TYPE_DATE) {
 						$mtColumnsHeader[] = $sekDetails["sek_title_db"]."_year_t";
 					}
-					
+
 					// append an exact string for author/contributor
 					if ($sekDetails['sek_title_db'] == 'author' || $sekDetails['sek_title_db'] == 'contributor') {
 						$mtColumnsHeader[] = "{$sekDetails['sek_title_db']}_mt_exact";
@@ -101,12 +101,12 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 					if ($fieldType == FulltextIndex::FIELD_TYPE_DATE) {
 						$singleColumnsHeader[] = $sekDetails["sek_title_db"]."_year_t";
 					}
-					
+
 				}
 //			}
 
 		}
-		
+
 		$queue = FulltextQueue::singleton();
 		$this->totalDocs = $queue->size();
 
@@ -121,43 +121,43 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 			$csv       = array();
 			$pids_arr  = array();
 			$csvHeader = 'id,'.implode(',', $singleColumnsHeader) . ',' . $authLister_t . ','. $authCreator_t . ',' . $authEditor_t . ','.implode(',', $mtColumnsHeader) . ",content\n";
-				
+
 			foreach ( $chunk as $row ) {
-				 
+
 				if(empty($row['rek_pid']))
 				continue;
 				$csv[$row['rek_pid']] = '"'.$row['rek_pid'] .'",'. $row['row'].  '"';   //20110527 preg-replace removed
 				$pids_arr[] = $row['rek_pid'];
-				 
+
 			}
-				
-			$pids = "'".implode("','", $pids_arr)."'";			
-				
+
+			$pids = "'".implode("','", $pids_arr)."'";
+
 			/*
 			 * Rebuild any empty citations so
 			 * they are cached in solr
 			 */
 			$this->preBuildCitations($pids);
-				
+
 			/*
 			 * Cache any datastreams that have text
 			 * files
 			 */
 			$this->preCacheDatastreams($pids);
-				
+
 			/*
 			 * Add the authlister rules to the csv array
 			 */
 			$rulesGroups = $this->getRuleGroupsChunk($pids, $roleIDs);
 			foreach ($csv as $rek_pid => $rek_line) {
-				 
+
 				$rules = $rulesGroups[$rek_pid];
 				if( !empty($rules) ) {
-					 
+
 					$lister_rules = '""';
 					$creator_rules = '""';
 					$editor_rules = '""';
-					 
+
 					if (!empty($rules[$roleIDs['Lister']])) {
 						$lister_rules = $rules[$roleIDs['Lister']];
 					}
@@ -167,26 +167,26 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 					if (!empty($rules[$roleIDs['Editor']])) {
 						$editor_rules = $rules[$roleIDs['Editor']];
 					}
-				
+
 					$csv[$rek_pid] .= ',' . $lister_rules .','.$creator_rules. ','. $editor_rules;
 				} else {
 					$csv[$rek_pid] .= ',"","",""';
 				}
 
 			}
-				
+
 			/*
 			 * Add multi-valued search keys to the csv array
 			 */
 			foreach ( $mtColumns as $mtColumn ) {
 				if ($mtColumn['type'] == FulltextIndex::FIELD_TYPE_DATE ) {
-				  if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) { 
+				  if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) {
 						$col_name = "(DATE_FORMAT(a1.rek_".$mtColumn["name"] .",'%Y-%m-%dT%H:%i:%sZ'))";
 					} else {
 						$col_name = "(DATE_FORMAT(a2.rek_".$mtColumn["name"] .",'%Y-%m-%dT%H:%i:%sZ'))";
 					}
 				} else {
-				  if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) { 
+				  if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) {
 						$col_name = "a1.rek_".$mtColumn["name"];
 					} else {
 						$col_name = "a2.rek_".$mtColumn["name"];
@@ -195,7 +195,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 
         $stmt = "    SELECT a2.rek_".$mtColumn["name"]."_pid as pid, ";
 				if ($mtColumn['cardinality'] == 1) {
-			  	if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) { 
+			  	if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) {
 						$orderByClause = "ORDER BY a1.rek_{$mtColumn['name']}_order ASC";
 					} else {
 						$orderByClause = "ORDER BY a2.rek_{$mtColumn['name']}_order ASC";
@@ -211,25 +211,25 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
         }
 
 							$stmt .= "
-														
-                            FROM ".APP_TABLE_PREFIX."record_search_key_".$mtColumn["name"]." a2 
+
+                            FROM ".APP_TABLE_PREFIX."record_search_key_".$mtColumn["name"]." a2
                             WHERE a2.rek_".$mtColumn["name"]."_pid IN (". $pids . ")
                             GROUP BY a2.rek_".$mtColumn["name"]."_pid";
-				
+
 				try {
 					$resultSeks = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 				}
 				catch(Exception $ex) {
 					$log->err($ex);
-				}			
+				}
 				foreach ($resultSeks as $resultSek) {
           if ($resultSek['value'] != '-1') {
 					  $tmpArr[$resultSek['pid']] = $resultSek['value'];
           }
 				}
-				 
+
 				foreach ($csv as $rek_pid => $rek_line) {
-			   
+
 					if( !empty($tmpArr[$rek_pid]) ) {
 						$val = str_replace('"', '""', $tmpArr[$rek_pid]);
 						$csv[$rek_pid] .= ',"' . $val.'"';
@@ -253,7 +253,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 
 				if ($mtColumn['type'] == FulltextIndex::FIELD_TYPE_DATE ) {
 					$tmpArr = array();
-				  if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) { 
+				  if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) {
 						$col_name = "(DATE_FORMAT(a1.rek_".$mtColumn["name"] .",'%Y'))";
 					} else {
 						$col_name = "(DATE_FORMAT(a2.rek_".$mtColumn["name"] .",'%Y'))";
@@ -262,7 +262,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 
           $stmt = "    SELECT a2.rek_".$mtColumn["name"]."_pid as pid, ";
 					if ($mtColumn['cardinality'] == 1) {
-						if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) { 
+						if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) {
 							$orderByClause = "ORDER BY a1.rek_{$mtColumn['name']}_order ASC";
 						} else {
 							$orderByClause = "ORDER BY a2.rek_{$mtColumn['name']}_order ASC";
@@ -286,7 +286,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 					}
 					catch(Exception $ex) {
 						$log->err($ex);
-					}			
+					}
 					foreach ($resultSeks as $resultSek) {
             if ($resultSek['value'] != '-1') {
 						  $tmpArr[$resultSek['pid']] = $resultSek['value'];
@@ -305,9 +305,9 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 				}
 
 				$tmpArr = array();
-				
+
 			}
-			
+
 			/*
 			 * Add datasteam text to CSV array
 			 */
@@ -334,7 +334,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 			fwrite($handle, $csvHeader);
 			fwrite($handle, $csv);
 			fclose($handle);
-			
+
 			// This is so solr has permissions to read the file
 			chmod($tmpfname, 0755);
 			$postFields = array();
@@ -345,9 +345,9 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 			$postFields["f.content.split"] = "true";
 			$postFields["f.content.separator"] = html_entity_decode("&#09;");
 			$log->debug(array("processQueue: about to send"));
-			$postFields["commit"] = "false";
+			$postFields["commit"] = "true";
 			$url = "http://".APP_SOLR_HOST.":".APP_SOLR_PORT.APP_SOLR_PATH."update/csv";
-			
+
 			if (APP_SOLR_HOST == APP_HOSTNAME) {
 				$postFields["stream.file"] = $tmpfname;
 			} else {
@@ -365,23 +365,23 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 			$raw_response = Misc::processURL($url, null, null, $postFields, null, 30);
 			$uploaded = false;
 			if($raw_response[1]["http_code"] != "200") {
-				// Caught solr napping.. try again 1 more time	
-				$log->err('No response from solr.. trying again: '.print_r($raw_response, true));			
+				// Caught solr napping.. try again 1 more time
+				$log->err('No response from solr.. trying again: '.print_r($raw_response, true));
 				unset($raw_response);
 				sleep(1);
 				$raw_response = Misc::processURL($url, null, null, $postFields, null, 30);
 				if($raw_response[1]["http_code"] != "200") {
-					$log->err('No response from solr.. after the second attempt: '.print_r($raw_response, true));			
+					$log->err('No response from solr.. after the second attempt: '.print_r($raw_response, true));
 					$log->debug(array($url));
 				}
 				else {
 					$uploaded = true;
 				}
-			}	
+			}
 			else {
 				$uploaded = true;
 			}
-			
+
 			// Dont delete csv if there is an error
 			if($uploaded == true) {
 				unlink($tmpfname);
@@ -395,31 +395,31 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 			if( $this->bgp ) {
 				$this->bgp->setStatus("Finished Solr fulltext indexing for (".$countDocs."/".$this->totalDocs." Added)");
 				$this->bgp->setProgress($countDocs);
-				
+
 				foreach ($pids_arr as $finishedPid) {
 					$this->bgp->markPidAsFinished($finishedPid);
 				}
-				
+
 			}
 
 		}
-		 
+
 		if( $this->bgp ) {
 			$this->bgp->setStatus("Processing any PIDS to delete from solr");
 		}
-		 
+
 		$deletePids = $queue->popDeleteChunk();
-        
+
 		$this->connectToSolr();
 		if( $deletePids ) {
-				
 
-				
+
+
 			if( $this->bgp ) {
 				$this->bgp->setStatus("Deleting " . count($deletePids) . " from Solr Index");
 			}
 			$this->solr->deleteByMultipleIds($deletePids);
-		} 
+		}
 		$this->solr->commit();
 		return $countDocs;
 	}
@@ -444,13 +444,13 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 
 
 	public function getFieldName($fezName, $datatype=FulltextIndex::FIELD_TYPE_TEXT,
-	$multiple=false) 
-	{			
+	$multiple=false)
+	{
 		$fezName .= '_';
 		if ($multiple) {
 			$fezName .= 'm';
 		}
-		 
+
 		switch ($datatype) {
 			case FulltextIndex::FIELD_TYPE_TEXT: $fezName .= 't'; break;
 			case FulltextIndex::FIELD_TYPE_DATE: $fezName .= 'dt'; break;
@@ -463,14 +463,14 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 		return $fezName;
 	}
 
-	private function getRuleGroupsChunk($pids, $roles) 
+	private function getRuleGroupsChunk($pids, $roles)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
 
 		$stmt =  'SELECT authi_pid, authi_role, authi_arg_id
-                  FROM '.APP_TABLE_PREFIX.'auth_index2 
-                  WHERE authi_pid IN ('.$pids.') 
+                  FROM '.APP_TABLE_PREFIX.'auth_index2
+                  WHERE authi_pid IN ('.$pids.')
                         AND authi_role IN ('.implode(',',$roles).')';
 
 		try {
@@ -488,7 +488,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 		return $ret;
 	}
 
-	private function preBuildCitations($pids) 
+	private function preBuildCitations($pids)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -497,7 +497,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
                 FROM ".APP_TABLE_PREFIX."record_search_key
                 WHERE rek_pid IN (" . $pids . ") AND
                       (rek_citation IS NULL OR rek_citation = '')";
-		
+
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
@@ -505,37 +505,37 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 			$log->err($ex);
 			return '';
 		}
-	  
+
 		$rebuildCount = count($res);
 		$rCounter = 0;
 		foreach ($res as $pidData) {
 			$rCounter++;
 			$log->debug(array("processQueue: about to pre build citation ".$pidData['rek_pid']." (".$rCounter."/".$rebuildCount.")"));
-			 
+
 			Citation::updateCitationCache($pidData['rek_pid']);
 		}
 	}
 
-	private function preCacheDatastreams($pids) 
+	private function preCacheDatastreams($pids)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		if( $this->bgp ) {
 			$this->bgp->setStatus("Caching datastreams");
 		}
 
 		$stmt = "SELECT rek_file_attachment_name_pid as rek_pid
-                FROM ".APP_TABLE_PREFIX."record_search_key_file_attachment_name 
+                FROM ".APP_TABLE_PREFIX."record_search_key_file_attachment_name
                 LEFT JOIN ".APP_TABLE_PREFIX."fulltext_cache ON rek_file_attachment_name_pid = ftc_pid AND rek_file_attachment_name = ftc_dsid
                 WHERE ftc_dsid IS NULL AND rek_file_attachment_name_pid IN (" . $pids . ") AND
                       rek_file_attachment_name LIKE '%.pdf'";
-		
+
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
-			$log->err($ex);		
+			$log->err($ex);
 		}
 
 		foreach ($res as $pidData) {
@@ -567,7 +567,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 	 * @param string $dsID
 	 * @return plaintext of datastream, null on error
 	 */
-	public function getCachedContent($pids) 
+	public function getCachedContent($pids)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -576,43 +576,43 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 		$stmt = "SELECT ftc_pid as pid, REPLACE(REPLACE(REPLACE(ftc_content, '\"','\"\"'), '\n', ' '), '\t', ' ') as content ".
         		'FROM '.APP_TABLE_PREFIX.FulltextIndex::FULLTEXT_TABLE_NAME.
         		' WHERE ftc_pid IN ('.$pids.') AND ftc_is_text_usable = TRUE';
-		
+
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
 			$log->err($ex);
-			$res = null;	
+			$res = null;
 		}
 		$ret = array();
 		foreach ($res as $row) {
-			 
+
 			if( !empty($ret[$row['pid']]) ) {
 				$ret[$row['pid']] .= "\t". $row['content'];
 			} else {
 				$ret[$row['pid']] = $row['content'];
 			}
 		}
-	  
+
 		return $ret;
 	}
 
-	protected function executeQuery($query, $options, $approved_roles, $sort_by, $start, $page_rows) 
+	protected function executeQuery($query, $options, $approved_roles, $sort_by, $start, $page_rows)
 	{
 
 	}
 
-	protected function updateFulltextIndex($pid, $fields, $fieldTypes) 
+	protected function updateFulltextIndex($pid, $fields, $fieldTypes)
 	{
-		 
+
 	}
 
-	private function connectToSolr() 
+	private function connectToSolr()
 	{
 		$this->solrHost = APP_SOLR_HOST;
 		$this->solrPort = APP_SOLR_PORT;
 		$this->solrPath = APP_SOLR_PATH;
-	  
+
 		$this->solr = new Apache_Solr_Service($this->solrHost, $this->solrPort, $this->solrPath);
 	}
 }
