@@ -121,14 +121,15 @@ class Configuration
     define("APP_JHOVE_TEMP_DIR", APP_TEMP_DIR);
     define("APP_LOCKS_PATH", APP_TEMP_DIR);
 
+    $protocol = ($_SERVER['HTTPS']) ? 'https://' : 'http://';
     if ($customView) {
-      define("APP_BASE_URL", "http://" . $customView['cvcom_hostname'] . APP_RELATIVE_URL);
+      define("APP_BASE_URL", $protocol . $customView['cvcom_hostname'] . APP_RELATIVE_URL);
       define("APP_CUSTOM_VIEW_ID", $customView['cview_id']);
       define("APP_CUSTOM_VIEW_PID", $custom_view_pid);
     } else {
       define("APP_CUSTOM_VIEW_ID", "");
       define("APP_CUSTOM_VIEW_PID", "");
-      define("APP_BASE_URL", "http://" . APP_HOSTNAME . APP_RELATIVE_URL);
+      define("APP_BASE_URL", $protocol . APP_HOSTNAME . APP_RELATIVE_URL);
     }
 
     define("APP_RQF_REALLY_AUTO_MERGE", false);
