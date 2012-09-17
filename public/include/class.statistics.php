@@ -52,9 +52,12 @@ include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.auth.php");
-include_once(APP_INC_PATH . "geoip.inc");
-include_once(APP_INC_PATH . "geoipcity.inc");
-include_once(APP_INC_PATH . "geoipregionvars.php");
+// Some servers will have geoip installed as mod_geoip in apache so this needs checking or will fatal error redeclaration
+if (!function_exists('geoip_country_code_by_name')) {
+  include_once(APP_INC_PATH . "geoip.inc");
+  include_once(APP_INC_PATH . "geoipcity.inc");
+  include_once(APP_INC_PATH . "geoipregionvars.php");
+}
 
 class Statistics
 {
@@ -67,11 +70,11 @@ class Statistics
 	 * @access  public
 	 * @return  boolean
 	 */
-	function gatherStats() 
+	function gatherStats()
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		Statistics::checkSetup();
 		$timeStarted = date('Y-m-d H:i:s');
 		$counter = 0;
@@ -191,10 +194,10 @@ class Statistics
 								stl_hostname,
 								stl_request_date,
 								stl_country_code,
-								stl_country_name,																								
+								stl_country_name,
 								stl_region,
 								stl_city,
-								stl_pid,																							
+								stl_pid,
 								stl_dsid,
                                 stl_pid_num
 							 ) VALUES (
@@ -206,11 +209,11 @@ class Statistics
 								" . $country_name . ",
 								" . $region . ",
 								" . $city . ",
-								" . $pid . ",			
+								" . $pid . ",
 								" . $dsid . ",
 								" . $pidNum . "
-							 )"; 
-						
+							 )";
+
 					try {
 						$db->exec($stmt);
 					}
@@ -222,7 +225,7 @@ class Statistics
 
 					if( APP_SOLR_INDEXER == "ON" ) {
 						$changedPids[$pid] = true;
-					}						
+					}
 				}
 			}
 		}
@@ -243,11 +246,11 @@ class Statistics
 	}
 
 
-	function clearBufferByDate($date) 
+	function clearBufferByDate($date)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "statistics_buffer
                  WHERE
@@ -264,16 +267,16 @@ class Statistics
 	}
 
 
-	function clearBufferByID($str_id) 
+	function clearBufferByID($str_id)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "statistics_buffer
                  WHERE
                     str_id <= ".$db->quote($str_id, 'INTEGER');
-		
+
 		try {
 			$db->query($stmt);
 		}
@@ -292,11 +295,11 @@ class Statistics
 	 * @access  public
 	 * @return  boolean
 	 */
-	function gatherStatsFromBuffer() 
+	function gatherStatsFromBuffer()
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		Statistics::checkSetup();
 		$timeStarted = date('Y-m-d H:i:s');
 		$counter = 0;
@@ -352,7 +355,7 @@ class Statistics
 			//					$request_date .= " ".$timematch[1]; */
 
 			$request_date = $date;
-				
+
 			$datetestB = strtotime($request_date);
 			if (($datetestB > $requestDateLatest) || ($requestDateLatest == 0)) {
 				$requestDateLatest = $datetestB;
@@ -407,10 +410,10 @@ class Statistics
 									stl_hostname,
 									stl_request_date,
 									stl_country_code,
-									stl_country_name,																								
+									stl_country_name,
 									stl_region,
 									stl_city,
-									stl_pid,																							
+									stl_pid,
 									stl_dsid,
 	                                stl_pid_num,
 									stl_usr_id
@@ -427,7 +430,7 @@ class Statistics
 									?,
 									?,
 									?
-								 )"; 
+								 )";
 				$insert_array = array($archive_name, $ip, $hostname, $request_date, $country_code, $country_name, $region, $city, $pid, $dsid, $pidNum, $usr_id);
 				try {
 					$db->query($stmt, $insert_array);
@@ -436,7 +439,7 @@ class Statistics
 					$log->err($ex);
 					return -1; //abort
 				}
-			
+
 				$counter_inserted++;
 				if (!is_array($increments[$pid])) {
 					$increments[$pid] = array();
@@ -465,7 +468,7 @@ class Statistics
 			}
 		}
 
-		// MT 2009-12-07 COMMENTED OUT update summary tables as part of the gather statistics process 
+		// MT 2009-12-07 COMMENTED OUT update summary tables as part of the gather statistics process
 		// self::updateSummaryTables(); // update the various summary tables
 		$timeFinished = date('Y-m-d H:i:s');
 		Statistics::setLogRun($requestDateLatest, $counter, $counter_inserted, $timeStarted, $timeFinished);
@@ -478,7 +481,7 @@ class Statistics
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
 						*
 	                 FROM
@@ -500,17 +503,17 @@ class Statistics
 	}
 
 
-	function setLogRun($request_date, $counter, $counter_inserted, $timeStarted, $timeFinished) 
+	function setLogRun($request_date, $counter, $counter_inserted, $timeStarted, $timeFinished)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		/*
 		 Keep track of where we are. Should avoid duplication of results
 		 if the script is run more than once on the same log file
 		 */
 		$stmt = "INSERT INTO
-				" . APP_TABLE_PREFIX . "statistics_proc (stp_latestlog, stp_lastproc, stp_count, stp_count_inserted, stp_timestarted, stp_timefinished)  
+				" . APP_TABLE_PREFIX . "statistics_proc (stp_latestlog, stp_lastproc, stp_count, stp_count_inserted, stp_timestarted, stp_timefinished)
 				values (".	$db->quote(date('Y-m-d H:i:s', $request_date)).", ".
 							$db->quote(date('Y-m-d', $request_date)).", ".
 							$db->quote($counter, 'INTEGER').", ".
@@ -526,11 +529,11 @@ class Statistics
 		}
 	}
 
-	function updateSummaryStats() 
+	function updateSummaryStats()
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "UPDATE
 				" . APP_TABLE_PREFIX . "record_search_key r1
 				SET rek_file_downloads = (
@@ -554,7 +557,7 @@ class Statistics
 	function updateSummaryTables()
 	{
 		$log = FezLog::get();
-		
+
 		$log->debug('StatisticsSummary: starting 4weeks summary');
 		Statistics::update4WeekSummaryTable();
 		$log->debug('StatisticsSummary: finishing 4weeks summary');
@@ -582,7 +585,7 @@ class Statistics
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		//		echo "Starting 4 week summary: " . date('H:i:s') . "\n";
 		$list = Collection::statsByAttribute(0, 100, "Title", 'all', 'all', '4w');
 		$list = $list["list"];
@@ -605,7 +608,7 @@ class Statistics
 			    's4w_citation'	=> $listItem['rek_citation'],
 				's4w_downloads'	=> $listItem['sort_column']
 			);
-						
+
 			try {
 				$db->insert(APP_TABLE_PREFIX . 'statistics_sum_4weeks', $data);
 			}
@@ -622,7 +625,7 @@ class Statistics
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		//		echo "Starting Authors summary: " . date('H:i:s') . "\n";
 		$list = Collection::statsByAuthorID(0, 50, "Author ID");
 		$list = $list["list"];
@@ -637,13 +640,13 @@ class Statistics
 		}
 
 		foreach ($list as $listItem)
-		{	
+		{
 			$data = array(
 			    'sau_author_id'    	=> $listItem['rek_author_id'],
 			    'sau_author_name' 	=> $listItem['record_author'],
 			    'sau_downloads'		=> $listItem['file_downloads']
 			);
-						
+
 			try {
 				$db->insert(APP_TABLE_PREFIX . 'statistics_sum_authors', $data);
 			}
@@ -658,7 +661,7 @@ class Statistics
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		//		echo "Starting Country Region summary: " . date('H:i:s') . "\n";
 
 		$query = "SELECT stl_country_name, stl_country_code, stl_region, stl_city, sum(abstract) as abstract, sum(downloads) as downloads from ( ";
@@ -666,7 +669,7 @@ class Statistics
 		$query .= "UNION ";
 		$query .= "SELECT stl_country_name, stl_country_code, stl_region, stl_city, 0 as abstract, sum(1) as downloads FROM " . APP_TABLE_PREFIX . "statistics_all WHERE stl_dsid <> '' AND stl_dsid IS NOT NULL AND stl_counter_bad = FALSE GROUP BY 4,3,2,1) AS tblA ";
 		$query .= "GROUP BY 1,2,3,4 ";
-		
+
 		try {
 			$res = $db->fetchAll($query, array(), Zend_Db::FETCH_ASSOC);
 		}
@@ -674,7 +677,7 @@ class Statistics
 			$log->err($ex);
 			return -1;
 		}
-		
+
 		$stmt = 'DELETE FROM ' . APP_TABLE_PREFIX . 'statistics_sum_countryregion';
 		try {
 			$db->query($stmt);
@@ -683,7 +686,7 @@ class Statistics
 			$log->err($ex);
 			return -1;
 		}
-		
+
 		foreach ($res as $index => $row)
 		{
 			$region = '';
@@ -740,13 +743,13 @@ class Statistics
 				'scr_count_abstract'	=> $row['abstract'],
 				'scr_count_downloads'	=> $row['downloads']
 			);
-						
+
 			try {
 				$db->insert(APP_TABLE_PREFIX . 'statistics_sum_countryregion', $data);
 			}
 			catch(Exception $ex) {
 				$log->err($ex);
-			}			
+			}
 		}
 
 		//		echo "Finishing Country Region summary: " . date('H:i:s') . "\n";
@@ -757,7 +760,7 @@ class Statistics
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		//		echo "Starting Papers Summary: " . date("H:i:s") . "\n";
 		$rows = 50;
 		$pager_row = 0;
@@ -771,7 +774,7 @@ class Statistics
 		$list = Citation::renderIndexCitations($list);
 
 		$delete = 'DELETE FROM ' . APP_TABLE_PREFIX . 'statistics_sum_papers';
-		
+
 		try {
 			$db->query($delete);
 		}
@@ -783,7 +786,7 @@ class Statistics
 		foreach ($list as $listItem)
 		{
 			$rec = array();
-				
+
 			// save
 			$data = array(
 			    'spa_pid'		=> $listItem['rek_pid'],
@@ -791,7 +794,7 @@ class Statistics
 			    'spa_citation' 	=> $listItem['rek_citation'],
 				'spa_downloads'	=> $listItem['rek_file_downloads']
 			);
-						
+
 			try {
 				$db->insert(APP_TABLE_PREFIX . 'statistics_sum_papers', $data);
 			}
@@ -806,12 +809,12 @@ class Statistics
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		//		echo "Starting Year/Month Summary: " . date('H:i:s') . "\n";
 
 		// Get the boundaries of our summarising table
 		$stmt = 'SELECT YEAR(DATE(stl_request_date)) as yr, MONTH(DATE(stl_request_date)) as mth, count(1) FROM ' . APP_TABLE_PREFIX . 'statistics_all GROUP BY 1,2';
-		
+
 		try {
 			$result = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
@@ -819,13 +822,13 @@ class Statistics
 			$log->err($ex->getMessage());
 			return -1;
 		}
-		
+
 		if (sizeof($result) == 0) {
 			return -1;
 		}
-		
+
 		$range = 'all';
-		
+
 		foreach ($result as $yearmonth)
 		{
 			$year = $yearmonth['yr'];
@@ -839,7 +842,7 @@ class Statistics
 			catch(Exception $ex) {
 				$log->err($ex);
 			}
-			
+
 			if ($checkResult != 0)
 			{
 				$currentyear = date('Y');
@@ -871,7 +874,7 @@ class Statistics
 				$log->err($ex->getMessage());
 				return -1;
 			}
-			
+
 			// and insert the new values
 			foreach ($list as $listItem)
 			{
@@ -883,7 +886,7 @@ class Statistics
 					'sym_downloads' => $listItem['rek_file_downloads'],
 					'sym_citation' 	=> $listItem['rek_citation']
 				);
-							
+
 				try {
 					$db->insert(APP_TABLE_PREFIX . 'statistics_sum_yearmonth', $data);
 				}
@@ -900,7 +903,7 @@ class Statistics
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		//		echo "Starting Year Summary: " . date('H:i:s') . "\n";
 
 		$range = 'all';
@@ -924,10 +927,10 @@ class Statistics
 				$log->err($ex);
 				return -1;
 			}
-			
+
 			// and insert the new values
 			foreach ($list as $listItem)
-			{	
+			{
 				$data = array(
 				    'syr_year'		=> $year,
 				    'syr_pid' 		=> $listItem['rek_pid'],
@@ -935,7 +938,7 @@ class Statistics
 					'syr_downloads' => $listItem['rek_file_downloads'],
 					'syr_citation' 	=> $listItem['rek_citation']
 				);
-							
+
 				try {
 					$db->insert(APP_TABLE_PREFIX . 'statistics_sum_year', $data);
 				}
@@ -953,7 +956,7 @@ class Statistics
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$pid = 'all';
 		$abstractViewsHistory = Statistics::getStatsByAbstractViewHistory($pid);
 		$downloadsHistory = Statistics::getStatsByDownloadHistory($pid);
@@ -968,17 +971,17 @@ class Statistics
 			$log->err($ex);
 			return -1;
 		}
-		
+
 		foreach ($list as $listItem)
-		{			
+		{
 			$data = array(
 			    'syf_year'		=> $listItem['year'],
 				'syf_monthnum'	=> $listItem['monthnum'],
 			    'syf_month' 	=> $listItem['month'],
 				'syf_abstracts'	=> $listItem['abstracts'],
-				'syf_downloads' => $listItem['downloads']				
+				'syf_downloads' => $listItem['downloads']
 			);
-						
+
 			try {
 				$db->insert(APP_TABLE_PREFIX . 'statistics_sum_yearmonth_figures', $data);
 			}
@@ -999,16 +1002,16 @@ class Statistics
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		list($tempVar, $newPidNumber) = explode(':', $newPid); // get the pid number
-		
+
 		$q = "UPDATE " . APP_TABLE_PREFIX . "statistics_all ";
-		$q .= "SET stl_pid = ?, stl_pid_num = ? "; 
+		$q .= "SET stl_pid = ?, stl_pid_num = ? ";
 		$q .= "WHERE stl_pid = ? AND stl_dsid IS NULL ";
-		
+
 		$log->debug("Statistics::moveAbstractStats: sql - {$q}");
 		$log->debug(print_r(array($newPid, $newPidNumber, $originalPid), true));
-		
+
 		$db->query($q, array($newPid, $newPidNumber, $originalPid));
 	}
 
@@ -1025,28 +1028,28 @@ class Statistics
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		list($tempVar, $newPidNumber) = explode(':', $newPid); // get the pid number
-		
+
 		// get the stats number first (used to update summary statistics)
 		$select = "SELECT COUNT(*) FROM " . APP_TABLE_PREFIX . "statistics_all ";
 		$select .= "WHERE stl_pid = ? AND stl_dsid = ? ";
 		$numDownloads = $db->fetchOne($select, array($originalPid, $originalFilename));
-		
+
 		$log->debug("Statistics::moveFileStats: number of downloads for {$originalPid}-{$originalFilename}: {$numDownloads}");
 
 		// move the base statistics over to the new pid/filename
 		$q = "UPDATE " . APP_TABLE_PREFIX . "statistics_all ";
 		$q .= "SET stl_pid = ?, stl_pid_num = ?, stl_dsid = ? ";
 		$q .= "WHERE stl_pid = ? AND stl_dsid = ? ";
-		
+
 		$log->debug("Statistics::moveFileStats: sql - {$q}");
 		$log->debug(print_r(array($newPid, $newPidNumber, $newFilename, $originalPid, $originalFilename), true));
-		
+
 		$db->query($q, array($newPid, $newPidNumber, $newFilename, $originalPid, $originalFilename));
-		
+
 		// self::moveSummaryStatistics($newPid, $originalPid, $numDownloads);
-		
+
 	}
 
 	// MT: 2009-12-02 Commented out for time being, note code doesn't work as currently stands
@@ -1054,17 +1057,17 @@ class Statistics
 	//  * merge summary statistics from the duplicate pid to the base pid
 	//  *
 	//  * @param string $basePid
-	//  * @param string $duplicatePid 
+	//  * @param string $duplicatePid
 	//  * @param int $numDownloads
 	//  * @return void
 	//  **/
-	// public function mergeDuplicateSummaryStatistics($basePid, $duplicatePid, $numDownloads) 
+	// public function mergeDuplicateSummaryStatistics($basePid, $duplicatePid, $numDownloads)
 	// {
 	// 	$db = DB_API::get();
 	// 	$log = FezLog::get();
-	// 
+	//
 	// 	$log->debug("merging summary statistics, moving {$numDownloads} of {$duplicatePid} stats to {$basePid}");
-	// 	
+	//
 	// 	// update any records in summary tables
 	// 	// start with 4 weeks
 	// 	$q = "SELECT COUNT(*) FROM " . APP_TABLE_PREFIX . "statistics_sum_4weeks WHERE s4w_pid = ? ";
@@ -1079,7 +1082,7 @@ class Statistics
 	// 		$q = "UPDATE " . APP_TABLE_PREFIX . "statistics_sum_4weeks SET s4w_pid = ? WHERE s4w_pid = ? ";
 	// 		$db->query($q, array($basePid, $duplicatePid));
 	// 	}
-	// 
+	//
 	// 	// papers
 	// 	$q = "SELECT COUNT(*) AS downloads FROM " . APP_TABLE_PREFIX . "statistics_sum_papers WHERE spa_pid = ? ";
 	// 	$count = $db->fetchOne($q, array($basePid));
@@ -1092,7 +1095,7 @@ class Statistics
 	// 		$q = "UPDATE " . APP_TABLE_PREFIX . "statistics_sum_papers SET spa_pid = ? WHERE spa_pid = ? ";
 	// 		$db->query($q, array($basePid, $duplicatePid));
 	// 	}
-	// 	
+	//
 	// 	// year/month
 	// 	$q = "SELECT sym_year, sym_month, SUM(sym_downloads) AS downloads FROM " . APP_TABLE_PREFIX . "statistics_sum_yearmonth WHERE sym_pid IN (?, ?) GROUP BY sym_year, sym_month ";
 	// 	$totals = $db->fetchAll($q, array($basePid, $duplicatePid));
@@ -1102,7 +1105,7 @@ class Statistics
 	// 	}
 	// 	$q = "DELETE FROM " . APP_TABLE_PREFIX . "statistics_sum_yearmonth WHERE sym_pid = ? ";
 	// 	$db->query($q, array($duplicatePid));
-	// 
+	//
 	// 	// year
 	// 	$q = "SELECT syr_year, SUM(syr_downloads) AS downloads FROM " . APP_TABLE_PREFIX . "statistics_sum_year WHERE syr_pid IN (?, ?) GROUP BY syr_year ";
 	// 	$totals = $db->fetchAll($q, array($basePid, $duplicatePid));
@@ -1118,7 +1121,7 @@ class Statistics
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		if (count($stats) == 0) { return false; }
 		foreach ($stats as $pid => $val) {
 			if (is_numeric($val['views'])) {
@@ -1127,7 +1130,7 @@ class Statistics
 							" . APP_TABLE_PREFIX . "record_search_key r1
 							SET rek_views = rek_views + ".$val['views']."
 							WHERE r1.rek_pid = ".$db->quote($pid);
-					
+
 					try {
 						$db->query($stmt);
 					}
@@ -1143,7 +1146,7 @@ class Statistics
 							" . APP_TABLE_PREFIX . "record_search_key r1
 							SET rek_file_downloads = rek_file_downloads + ".$val['downloads']."
 							WHERE r1.rek_pid = ".$db->quote($pid);
-					
+
 					try {
 						$db->query($stmt);
 					}
@@ -1156,11 +1159,11 @@ class Statistics
 		}
 	}
 
-	function updateSummaryStatsOnPid($pid) 
+	function updateSummaryStatsOnPid($pid)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "UPDATE
 				" . APP_TABLE_PREFIX . "record_search_key r1
 				SET rek_file_downloads = (
@@ -1170,7 +1173,7 @@ class Statistics
 						SELECT COUNT(*) FROM " . APP_TABLE_PREFIX . "statistics_all
 						WHERE (stl_dsid = '' OR stl_dsid IS NULL) AND stl_pid = ".$db->quote($pid)." AND stl_counter_bad = FALSE)
 				WHERE rek_pid = ".$db->quote($pid);
-		
+
 		try {
 			$db->query($stmt);
 		}
@@ -1189,9 +1192,9 @@ class Statistics
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = 'SELECT * FROM ' . APP_TABLE_PREFIX . 'statistics_sum_papers ORDER BY spa_downloads DESC';
-		
+
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
@@ -1211,9 +1214,9 @@ class Statistics
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = 'SELECT * FROM ' . APP_TABLE_PREFIX . 'statistics_sum_authors ORDER BY sau_downloads DESC';
-		
+
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
@@ -1233,7 +1236,7 @@ class Statistics
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = 'SELECT scr_country_code, scr_country_name, sum(scr_count_abstract) as abstracts, sum(scr_count_downloads) as downloads ';
 		$stmt .= 'FROM ' . APP_TABLE_PREFIX . 'statistics_sum_countryregion ';
 		$stmt .= 'GROUP BY scr_country_code, scr_country_name ';
@@ -1550,7 +1553,7 @@ class Statistics
 				$query .= "AND (gctry_latitude <= {$neLatitude} AND gctry_latitude >= {$swLatitude}) ";
 			}
 		}
-		
+
 		$query .= 'GROUP BY scr_country_code, scr_country_name, gctry_latitude, gctry_longitude ';
 		$query .= 'ORDER BY abstracts DESC';
 
@@ -1612,13 +1615,13 @@ class Statistics
 	{
 		$db = DB_API::get();
 		$log = FezLog::get();
-		
+
 		$stmt = 'SELECT scr_country_code, scr_country_name, scr_country_region, scr_city, sum(scr_count_abstract) as abstracts, sum(scr_count_downloads) as downloads ';
 		$stmt .= 'FROM ' . APP_TABLE_PREFIX . 'statistics_sum_countryregion ';
 		$stmt .= 'WHERE scr_country_name = ? ';
 		$stmt .= 'GROUP BY scr_city, scr_country_region, scr_country_name, scr_country_code ';
 		$stmt .= 'ORDER BY scr_country_name, scr_country_region, scr_city';
-		
+
 		try {
 			$res = $db->fetchAll($stmt, $country, Zend_Db::FETCH_ASSOC);
 		}
@@ -1626,7 +1629,7 @@ class Statistics
 			$log->err($ex);
 			return array();
 		}
-		
+
 		return $res;
 	}
 
@@ -1757,10 +1760,10 @@ class Statistics
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = 'SELECT s4w_pid as pid, s4w_title as title, s4w_citation as citation, s4w_downloads as downloads ';
 		$stmt .= 'FROM ' . APP_TABLE_PREFIX . 'statistics_sum_4weeks ORDER BY s4w_downloads DESC';
-		
+
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
@@ -1780,11 +1783,11 @@ class Statistics
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = 'SELECT sym_pid as pid, sym_title as title, sym_citation as citation, sym_downloads as downloads ';
 		$stmt .= 'FROM ' . APP_TABLE_PREFIX . 'statistics_sum_yearmonth WHERE sym_year = ? AND sym_month = ? ';
 		$stmt .= 'ORDER BY sym_downloads DESC';
-		
+
 		try {
 			$res = $db->fetchAll($stmt, array($year, $month), Zend_Db::FETCH_ASSOC);
 		}
@@ -1805,7 +1808,7 @@ class Statistics
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$params = array();
 		$stmt = 'SELECT syr_pid as pid, syr_title as title, syr_citation as citation, syr_downloads as downloads ';
 		$stmt .= 'FROM ' . APP_TABLE_PREFIX . 'statistics_sum_year ';
@@ -1816,7 +1819,7 @@ class Statistics
 			$params[] = 'all';
 
 		$stmt .= 'ORDER by syr_downloads DESC';
-		
+
 		try {
 			$res = $db->fetchAll($stmt, $params, Zend_Db::FETCH_ASSOC);
 		}
@@ -1824,7 +1827,7 @@ class Statistics
 			$log->err($ex);
 			return array();
 		}
-		return $res;		
+		return $res;
 	}
 
 	/**
@@ -1838,7 +1841,7 @@ class Statistics
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$params = array();
 		$stmt = 'SELECT syf_year as year, syf_monthnum as monthnum, syf_month as month, syf_abstracts as abstracts, syf_downloads as downloads ';
 		$stmt .= 'FROM ' . APP_TABLE_PREFIX . 'statistics_sum_yearmonth_figures ';
@@ -1853,7 +1856,7 @@ class Statistics
 			}
 		}
 		$stmt .= "ORDER BY 1 DESC, 2 DESC";
-		
+
 		try {
 			$res = $db->fetchAll($stmt, $params, Zend_Db::FETCH_ASSOC);
 		}
@@ -1864,14 +1867,14 @@ class Statistics
 		return $res;
 	}
 
-	function isRobot($ip) 
+	function isRobot($ip)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		// check if the ip is in the Fez robots listing so far
 		$stmt = "select count(*) from " . APP_TABLE_PREFIX . "statistics_robots where str_ip = ".$db->quote($ip);
-		
+
 		try {
 			$res = $db->fetchOne($stmt);
 		}
@@ -1879,7 +1882,7 @@ class Statistics
 			$log->err($ex);
 			return -1; //abort
 		}
-		
+
 		if (($res > 0) && (!empty($res))) {
 			$robot = 1;
 		} else {
@@ -1888,14 +1891,14 @@ class Statistics
 		return $robot;
 	}
 
-	function addRobot($ip, $hostname) 
+	function addRobot($ip, $hostname)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		// add this ip to the Fez robots listing
 		$stmt = "insert into " . APP_TABLE_PREFIX . "statistics_robots (str_ip, str_hostname, str_date_added) values ('".$ip."', '".$hostname."', now())";
-		
+
 		try {
 			$db->query($stmt);
 		}
@@ -1905,11 +1908,11 @@ class Statistics
 		}
 	}
 
-	function addBuffer($pid, $ds_id = null) 
+	function addBuffer($pid, $ds_id = null)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		//Filter out basics, but dont do robots etc until the buffer moves to the main table as checking for robots will be to costly timewise
 		// Try and find any thumbnails and preview copies of images as these should not be counted towards the file downloads for an image datastream
 		if (!is_null($ds_id)) {
@@ -1939,8 +1942,8 @@ class Statistics
 			$stmt .= ", str_usr_id";
 		}
 		$params = array($remote_address, $request_date, $pid);
-		$stmt .= ")	VALUES (?, ?, ?";	
-		if (!is_null($ds_id)) {			
+		$stmt .= ")	VALUES (?, ?, ?";
+		if (!is_null($ds_id)) {
 			$stmt .= ", ?";
 			$params[] = $ds_id;
 		}
@@ -1960,11 +1963,11 @@ class Statistics
 	}
 
 
-	function getRecentPopularItems($limit) 
+	function getRecentPopularItems($limit)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-	  
+
 		$stmt = "SELECT stl_pid, COUNT(*) as downloads
                  FROM " . APP_TABLE_PREFIX . "statistics_all
                  WHERE stl_dsid <> '' AND stl_dsid IS NOT NULL AND stl_request_date > ".$db->quote(date('Y-m-d H:i:s',strtotime("-1 week")))."
@@ -1972,22 +1975,22 @@ class Statistics
                  GROUP BY stl_pid
                  ORDER BY downloads DESC
                  LIMIT $limit";
-	  
+
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
 			$log->err($ex);
 			return false;
-		}	  
+		}
 		return $res;
 	}
 
-	function getLastestLogEntry() 
+	function getLastestLogEntry()
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		// First get the date of latest log entry
 		$stmt = "select max(stp_latestlog) from " . APP_TABLE_PREFIX . "statistics_proc";
 		try {
@@ -1997,7 +2000,7 @@ class Statistics
 			$log->err($ex);
 			return '';
 		}
-	
+
 		if ((count($res) == 1) && (!empty($res))) {
 			$latestLog = $res;
 		} else {
@@ -2006,22 +2009,22 @@ class Statistics
 		return $latestLog;
 	}
 
-	function cleanupFalseHitsBatch($limit, $offset, $min_date = false) 
+	function cleanupFalseHitsBatch($limit, $offset, $min_date = false)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT stl_id, stl_pid, stl_dsid, stl_ip, stl_request_date, stl_counter_bad
                  FROM " . APP_TABLE_PREFIX . "statistics_all ";
 		if ($min_date !== false) {
 			if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) { //eg if postgresql etc
-				$stmt .= " WHERE stl_request_date >= (TIMESTAMP ".$db->quote($min_date)." - INTERVAL '11 seconds') ";				
+				$stmt .= " WHERE stl_request_date >= (TIMESTAMP ".$db->quote($min_date)." - INTERVAL '11 seconds') ";
 			} else {
-				$stmt .= " WHERE stl_request_date >= date_sub(".$db->quote($min_date).", INTERVAL 11 SECOND) ";				
+				$stmt .= " WHERE stl_request_date >= date_sub(".$db->quote($min_date).", INTERVAL 11 SECOND) ";
 			}
 		}
 		$stmt .= " ORDER BY stl_request_date ASC LIMIT $limit OFFSET $offset";
-		
+
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
@@ -2032,22 +2035,22 @@ class Statistics
 		return $res;
 	}
 
-	function cleanupFalseHitsCount($min_date = false) 
+	function cleanupFalseHitsCount($min_date = false)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT count(*)
                  FROM " . APP_TABLE_PREFIX . "statistics_all";
 
 		if ($date_min !== false) {
 			if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) { //eg if postgresql etc
-				$stmt .= " WHERE stl_request_date >= (TIMESTAMP ".$db->quote($min_date)." - INTERVAL '11 seconds') ";				
+				$stmt .= " WHERE stl_request_date >= (TIMESTAMP ".$db->quote($min_date)." - INTERVAL '11 seconds') ";
 			} else {
-				$stmt .= " WHERE stl_request_date >= date_sub(".$db->quote($min_date).", INTERVAL 11 SECOND) ";				
+				$stmt .= " WHERE stl_request_date >= date_sub(".$db->quote($min_date).", INTERVAL 11 SECOND) ";
 			}
 		}
-		
+
 		try {
 			$res = $db->fetchOne($stmt);
 		}
@@ -2059,11 +2062,11 @@ class Statistics
 		return $res;
 	}
 
-	function getMinBadDate() 
+	function getMinBadDate()
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT MAX(stl_request_date)
                  FROM " . APP_TABLE_PREFIX . "statistics_all
  				 WHERE stl_counter_bad = TRUE";
@@ -2075,18 +2078,18 @@ class Statistics
 			$log->err($ex);
 			return false;
 		}
-		
+
 		if (is_null($res)) {
 			$res = false;
 		}
 		return $res;
 	}
 
-	function setCounterBad($stl_id) 
+	function setCounterBad($stl_id)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "UPDATE
                                 " . APP_TABLE_PREFIX . "statistics_all
                                 SET stl_counter_bad = TRUE
@@ -2100,7 +2103,7 @@ class Statistics
 		}
 	}
 
-	function stripOldHistory($history = false, $latest_request_date, $seconds_limit = 10) 
+	function stripOldHistory($history = false, $latest_request_date, $seconds_limit = 10)
 	{
 		if ($history === false) { return false; }
 		$newhistory = array();
@@ -2120,7 +2123,7 @@ class Statistics
 	}
 
 
-	function cleanupFalseHits(&$increments = array()) 
+	function cleanupFalseHits(&$increments = array())
 	{
 		$seconds_limit = 10; // 10 seconds COUNTER draft 3 recommended limit
 		$min_date = Statistics::getMinBadDate();
@@ -2176,11 +2179,11 @@ class Statistics
 	}
 
 
-	function getEarliestUserView() 
+	function getEarliestUserView()
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "select MIN(stl_request_date) as first_logged
 			 	 from " . APP_TABLE_PREFIX . "statistics_all
 				 where stl_usr_id is not null";
@@ -2200,7 +2203,7 @@ class Statistics
 		return $date;
 	}
 
-	function getStatsByDatastream($pid, $dsid) 
+	function getStatsByDatastream($pid, $dsid)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -2220,7 +2223,7 @@ class Statistics
 		$stmt = "select count(*)
 			 	 from " . APP_TABLE_PREFIX . "statistics_all
 				 where stl_pid = ? and (stl_dsid = ? or stl_dsid = ? or stl_dsid = ?) AND stl_counter_bad = FALSE";
-		
+
 		try {
 			$res = $db->fetchOne($stmt,$params);
 		}
@@ -2237,11 +2240,11 @@ class Statistics
 	}
 
 
-	function getStatsByAbstractView($pid, $year='all', $month='all', $range='all') 
+	function getStatsByAbstractView($pid, $year='all', $month='all', $range='all')
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$limit = '';
 		if ($year != 'all' && is_numeric($year)) {
 			$year = $db->quote($year);
@@ -2268,7 +2271,7 @@ class Statistics
 			$log->err($ex);
 			$res = array();
 		}
-		
+
 		if (!empty($res)) {
 			$count = $res;
 		} else {
@@ -2278,11 +2281,11 @@ class Statistics
 	}
 
 
-	function getStatsByAllFileDownloads($pid, $year='all', $month='all', $range='all') 
+	function getStatsByAllFileDownloads($pid, $year='all', $month='all', $range='all')
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$limit = "";
 		if ($year != 'all' && is_numeric($year)) {
 			$year = $db->quote($year);
@@ -2317,11 +2320,11 @@ class Statistics
 		return $count;
 	}
 
-	function getStatsByUserAbstractView($pid, $year='all', $month='all', $range='all') 
+	function getStatsByUserAbstractView($pid, $year='all', $month='all', $range='all')
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		if ($pid != 'all') {
 			$limit = "where stl_pid = ".$db->quote($pid)." and (stl_dsid = '' OR stl_dsid IS NULL)";
 		} else {
@@ -2366,11 +2369,11 @@ class Statistics
 
 
 
-	function getStatsByCountryAbstractView($pid, $year='all', $month='all', $range='all') 
+	function getStatsByCountryAbstractView($pid, $year='all', $month='all', $range='all')
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		if ($pid != 'all') {
 			$limit = "where stl_pid = ".$db->quote($pid)." and (stl_dsid = '' OR stl_dsid IS NULL)";
 		} else {
@@ -2396,7 +2399,7 @@ class Statistics
 				 ".$limit." AND stl_counter_bad = FALSE
 				 group by stl_country_name, stl_country_code
 				 order by stl_country_count desc, stl_country_name asc";
-		
+
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
@@ -2412,11 +2415,11 @@ class Statistics
 		return $count;
 	}
 
-	function getStatsByCountrySpecificAbstractView($pid, $year='all', $month='all', $range='all',$country) 
+	function getStatsByCountrySpecificAbstractView($pid, $year='all', $month='all', $range='all',$country)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		if ($pid != 'all') {
 			$limit = "where stl_pid = ".$db->quote($pid)." and (stl_dsid = '' OR stl_dsid IS NULL)";
 		} else {
@@ -2450,7 +2453,7 @@ class Statistics
 			$log->err($ex);
 			$res = array();
 		}
-		
+
 		if (!empty($res)) {
 			$count = $res;
 		} else {
@@ -2459,7 +2462,7 @@ class Statistics
 		return $count;
 	}
 
-	function getStatsByCountryAbstractsDownloads($pid, $year='all', $month='all', $range='all') 
+	function getStatsByCountryAbstractsDownloads($pid, $year='all', $month='all', $range='all')
 	{
 
 		$aa = Statistics::getStatsByCountryAbstractView($pid, $year, $month, $range);
@@ -2467,7 +2470,7 @@ class Statistics
 		return Statistics::mergeCountries($aa, $ad);
 	}
 
-	function getStatsByUserAbstractsDownloads($pid, $year='all', $month='all', $range='all') 
+	function getStatsByUserAbstractsDownloads($pid, $year='all', $month='all', $range='all')
 	{
 
 		$aa = Statistics::getStatsByUserAbstractView($pid, $year, $month, $range);
@@ -2476,12 +2479,12 @@ class Statistics
 	}
 
 
-	function getStatsByCountrySpecificAbstractsDownloads($pid, $year='all', $month='all', $range='all', $country) 
+	function getStatsByCountrySpecificAbstractsDownloads($pid, $year='all', $month='all', $range='all', $country)
 	{
 
 		$aa = Statistics::getStatsByCountrySpecificAbstractView($pid, $year, $month, $range, $country);
 		$ad = Statistics::getStatsByCountrySpecificAllFileDownloads($pid, $year, $month, $range, $country);
-			
+
 		$return = Statistics::mergeCountriesSpecific($aa, $ad);
 		foreach ($return as $key => &$ret) {
 			if ($ret['stl_country_name'] == 'Australia') {
@@ -2510,11 +2513,11 @@ class Statistics
 		return $return;
 	}
 
-	function getStatsByCountryAllFileDownloads($pid, $year='all', $month='all', $range='all') 
+	function getStatsByCountryAllFileDownloads($pid, $year='all', $month='all', $range='all')
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		if ($pid != 'all') {
 			$limit = "where stl_pid = ".$db->quote($pid)." and stl_dsid <> '' AND stl_dsid IS NOT NULL";
 		} else {
@@ -2555,11 +2558,11 @@ class Statistics
 		return $count;
 	}
 
-	function getStatsByUserDownloads($pid, $year='all', $month='all', $range='all') 
+	function getStatsByUserDownloads($pid, $year='all', $month='all', $range='all')
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		if ($pid != 'all') {
 			$limit = "where stl_pid = ".$db->quote($pid)." and stl_dsid <> '' AND stl_dsid IS NOT NULL";
 		} else {
@@ -2593,7 +2596,7 @@ class Statistics
 			$log->err($ex);
 			return '';
 		}
-	
+
 		if (!empty($res)) {
 			$count = $res;
 		} else {
@@ -2603,11 +2606,11 @@ class Statistics
 	}
 
 
-	function getStatsByCountrySpecificAllFileDownloads($pid, $year='all', $month='all', $range='all', $country) 
+	function getStatsByCountrySpecificAllFileDownloads($pid, $year='all', $month='all', $range='all', $country)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		if ($pid != 'all') {
 			$limit = "where stl_pid = ".$db->quote($pid)." and stl_dsid <> '' AND stl_dsid IS NOT NULL";
 		} else {
@@ -2641,7 +2644,7 @@ class Statistics
 			$log->err($ex);
 			return '';
 		}
-	
+
 		if (!empty($res)) {
 			$count = $res;
 		} else {
@@ -2650,11 +2653,11 @@ class Statistics
 		return $count;
 	}
 
-	function getStatsByObject($pid) 
+	function getStatsByObject($pid)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "select count(*)
 			 	 from " . APP_TABLE_PREFIX . "statistics_all
 				 where stl_pid = ".$db->quote($pid)." AND stl_counter_bad = FALSE";
@@ -2665,7 +2668,7 @@ class Statistics
 			$log->err($ex);
 			return '';
 		}
-	
+
 		if ((count($res) == 1) && (!empty($res))) {
 			$count = $res;
 		} else {
@@ -2674,11 +2677,11 @@ class Statistics
 		return $count;
 	}
 
-	function getStatsByAbstractViewHistory($pid) 
+	function getStatsByAbstractViewHistory($pid)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		if ($pid != 'all') {
 			$limit = "where stl_pid = ".$db->quote($pid)." and (stl_dsid = '' OR stl_dsid IS NULL) ";
 		} else {
@@ -2690,7 +2693,7 @@ class Statistics
 		 ".$limit." AND stl_counter_bad = FALSE
  		 group by year, month, monthnum
 		 order by year DESC, monthnum DESC";
-		
+
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
@@ -2706,11 +2709,11 @@ class Statistics
 		return $count;
 	}
 
-	function getStatsByDownloadHistory($pid) 
+	function getStatsByDownloadHistory($pid)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		if ($pid != 'all') {
 			$limit = "where stl_pid = ".$db->quote($pid)." and (stl_dsid <> '' AND stl_dsid IS NOT NULL) ";
 		} else {
@@ -2720,28 +2723,28 @@ class Statistics
 		$stmt = "select count(*) as count,month(date(stl_request_date)) as monthnum,date_format(date(stl_request_date),'%b') as month,year(date(stl_request_date)) as year
 	 	 from " . APP_TABLE_PREFIX . "statistics_all
 		 ".$limit." AND stl_counter_bad = FALSE
- 		 group by year, month, monthnum 
+ 		 group by year, month, monthnum
 		 order by year DESC, monthnum DESC";
-		
+
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
 			$log->err($ex);
 			return '';
-		}		
+		}
 		return $res;
 	}
 
 
-	function getLastLogRun() 
+	function getLastLogRun()
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		// First get the date (day) of last log run
 		$stmt = "select max(stp_lastproc) from " . APP_TABLE_PREFIX . "statistics_proc";
-		
+
 		try {
 			$res = $db->fetchOne($stmt);
 		}
@@ -2753,11 +2756,11 @@ class Statistics
 			$lastProc = $res;
 		} else {
 			$lastProc = 0;
-		}		
+		}
 		return $lastProc;
 	}
 
-	function gethostbyaddr_with_cache($a) 
+	function gethostbyaddr_with_cache($a)
 	{
 	 // Thanks to stephane at metacites dot net (10-Sep-2002 03:17) in the PHP Manual gethostbyaddr user contributed notes for this function!
 		global $dns_cache;
@@ -2849,9 +2852,9 @@ class Statistics
 				$merged[$i] = array(
 					"downloads" => $ad[$indexd]["count"],
 					"abstracts" => 0,
-					"monthnum"     => $ad[$indexd]["monthnum"], 
-					"month"     => $ad[$indexd]["month"], 
-					"year"      => $ad[$indexd]["year"]  
+					"monthnum"     => $ad[$indexd]["monthnum"],
+					"month"     => $ad[$indexd]["month"],
+					"year"      => $ad[$indexd]["year"]
 				);
 				$indexd++;
 				$dated = Statistics::datestamp($ad,$indexd);
@@ -2863,7 +2866,7 @@ class Statistics
 					"downloads" => 0,
 					"abstracts" => 0,
 					"monthnum"  => ($datei % 12) + 1,
-					"month"     => $monthname[intval($datei % 12)], 
+					"month"     => $monthname[intval($datei % 12)],
 					"year"      => intval($datei / 12)
 				);
 			}
@@ -2874,14 +2877,14 @@ class Statistics
 		return $merged;
 	}
 
-	function getMonthName($month) 
+	function getMonthName($month)
 	{
 		$monthname = array('Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec');
 		return $monthname[$month -1];
 	}
 
 
-	function comparar($a, $b) 
+	function comparar($a, $b)
 	{
 		return strnatcasecmp($a["stl_region"], $b["stl_region"]);
 	}
@@ -3064,7 +3067,7 @@ class Statistics
 	function checkSetup()
 	{
 		$failure = '';
-		
+
 		if (!is_dir(APP_GEOIP_PATH)) {
 			$failure = "Please ensure that APP_GEOIP_PATH is set to a valid directory in the config file.";
 		}
