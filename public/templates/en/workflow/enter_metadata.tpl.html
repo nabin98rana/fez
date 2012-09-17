@@ -595,9 +595,9 @@
 			        {* if $smarty.section.z.last *}
 			        <script type="text/javascript">
 			        var field = document.getElementById('xsd_display_fields_{$xsdmf.xsdmf_id}_{$loop_num}');
-			        field.onchange = {literal}function () {{/literal}createTextBox({$xsdmf.xsdmf_id},{$loop_num},'{$xsdmf.xsdmf_title}',{math equation="y-1" y=$xsdmf.xsdmf_multiple_limit},'{$xsdmf.xsdmf_attached_xsdmf_id}','{$attached_xsdmf.xsdmf_title}', {if $xsd_display_fields[i].sek_suggest_function != ""}1{else}''{/if}){literal}}{/literal};
-			        field.onfocus = {literal}function () {{/literal}createTextBox({$xsdmf.xsdmf_id},{$loop_num},'{$xsdmf.xsdmf_title}',{math equation="y-1" y=$xsdmf.xsdmf_multiple_limit},'{$xsdmf.xsdmf_attached_xsdmf_id}','{$attached_xsdmf.xsdmf_title}', {if $xsd_display_fields[i].sek_suggest_function != ""}1{else}''{/if}){literal}}{/literal};
-			        field.onkeyup = {literal}function () {{/literal}createTextBox({$xsdmf.xsdmf_id},{$loop_num},'{$xsdmf.xsdmf_title}',{math equation="y-1" y=$xsdmf.xsdmf_multiple_limit},'{$xsdmf.xsdmf_attached_xsdmf_id}','{$attached_xsdmf.xsdmf_title}', {if $xsd_display_fields[i].sek_suggest_function != ""}1{else}''{/if}){literal}}{/literal};
+			        field.onchange = {literal}function () {{/literal}createTextBox({$xsdmf.xsdmf_id},{$loop_num},'{$xsdmf.xsdmf_title}',{math equation="y-1" y=$xsdmf.xsdmf_multiple_limit},'{$xsdmf.xsdmf_attached_xsdmf_id}','{$attached_xsdmf.xsdmf_title}', {if $xsd_display_fields[i].sek_suggest_function != ""}1{else}''{/if}, {$isEditor}){literal}}{/literal};
+			        field.onfocus = {literal}function () {{/literal}createTextBox({$xsdmf.xsdmf_id},{$loop_num},'{$xsdmf.xsdmf_title}',{math equation="y-1" y=$xsdmf.xsdmf_multiple_limit},'{$xsdmf.xsdmf_attached_xsdmf_id}','{$attached_xsdmf.xsdmf_title}', {if $xsd_display_fields[i].sek_suggest_function != ""}1{else}''{/if}, {$isEditor}){literal}}{/literal};
+			        field.onkeyup = {literal}function () {{/literal}createTextBox({$xsdmf.xsdmf_id},{$loop_num},'{$xsdmf.xsdmf_title}',{math equation="y-1" y=$xsdmf.xsdmf_multiple_limit},'{$xsdmf.xsdmf_attached_xsdmf_id}','{$attached_xsdmf.xsdmf_title}', {if $xsd_display_fields[i].sek_suggest_function != ""}1{else}''{/if}, {$isEditor}){literal}}{/literal};
 			        </script>
 			        {* /if *}
 					{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"][]"}
