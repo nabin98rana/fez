@@ -168,7 +168,7 @@ function checkAll()
             <td style="width: 10px;"><input type="checkbox" id="bulk_pid" name="bulk_pid" value="{$list[i].rek_pid}" /><input type="hidden" id="pid" name="pid" value="{$list[i].rek_pid}" /></td>
 			<td style="width: 100%;">
 			{if $list[i].rek_status != 2} <b>(waiting on an administrator for approval to be published)</b> {/if}
-                {if $isAdministrator}
+                {if $isAdministrator || $isUPO}
 				{if $list[i].rek_display_type_lookup == "Book" || $list[i].rek_display_type_lookup == "Book Chapter" || $list[i].rek_display_type_lookup == "Journal Article" || $list[i].rek_display_type_lookup == "Conference Paper"}
 				<a class="form_note" href="#">
 					<span class="form_note">

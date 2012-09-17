@@ -54,16 +54,17 @@ include_once(APP_INC_PATH . "class.links.php");
 $username = Auth::getUsername();
 $isAdministrator = Auth::isAdministrator(); 
 $isSuperAdministrator = User::isUserSuperAdministrator($username);
-//$dob = new DigitalObject();
+$isUPO = User::isUserUPO($username);
+
 $tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 
-if ($isAdministrator) {
+if ($isAdministrator || $isUPO) {
 	if (APP_FEDORA_SETUP == 'sslall' || APP_FEDORA_SETUP == 'sslapim') {
 		$get_url = APP_FEDORA_APIM_PROTOCOL_TYPE.APP_FEDORA_SSL_LOCATION."/get"."/".$pid;
 	} else {
 		$get_url = APP_FEDORA_APIM_PROTOCOL_TYPE.APP_FEDORA_LOCATION."/get"."/".$pid;	
 	}
-	$tpl->assign("fedora_get_view", $get_url);	
+	$tpl->assign("fedora_get_view", 1);
 } else {
 	$tpl->assign("fedora_get_view", 0);	
 }
@@ -212,6 +213,7 @@ if (!empty($pid) && $record->checkExists()) {
         
         // check which workflows can be triggered
         $workflows1 = array();
+        $workflows1 = array();
         if (is_array($workflows)) {
             foreach ($workflows as $trigger) {
                 if (WorkflowTrigger::showInList($trigger['wft_options']) 
@@ -239,9 +241,7 @@ if (!empty($pid) && $record->checkExists()) {
 		//$display = new XSD_DisplayObject($xdis_id);
 		$xsd_display_fields = $record->display->getMatchFieldsList(array("FezACML"), array());  // XSD_DisplayObject
 
-		$tpl->assign("sta_id", $record->getPublishedStatus()); 
-		
-
+		$tpl->assign("sta_id", $record->getPublishedStatus());
 		$tpl->assign("xsd_display_fields", $xsd_display_fields);
 		$details = $record->getDetails();
 
@@ -417,8 +417,8 @@ if (!empty($pid) && $record->checkExists()) {
 							$depositor_org =  Org_Structure::getTitle($details[$dis_field['xsdmf_id']]);
 						}
 					}
-				}								
-			}
+				}
+            }
 		}
 		
         $tpl->assign('meta_head', $meta_head);		
@@ -485,6 +485,7 @@ if (!empty($pid) && $record->checkExists()) {
 //Error_Handler::logError("view2.php datastreams (after cleanDatastreamListLite)=__SEE_NEXT__", __FILE__,__LINE__);
 //Error_Handler::logError($datastreams, __FILE__,__LINE__);
 
+        $doi = Record::getSearchKeyIndexValue($pid, 'DOI');
         //if fedora bypass is on need to get from mysql else it datastreams as down below
         if (APP_FEDORA_BYPASS == 'ON') {
             $links = Links::getLinks($pid);
@@ -501,15 +502,27 @@ if (!empty($pid) && $record->checkExists()) {
                 } else {
                     $link['prefix_location'] = "";
                 }
+                if (strtoupper('http://dx.doi.org/'.$doi) == strtoupper($link['rek_link'])) {
+                    $doiInLinks = true;
+                }
+            }
+
+            if (!$doiInLinks && !empty($doi)) {
+                $linkCount++;
+                $links[$linkCount-1]['rek_link'] = 'http://dx.doi.org/'.$doi;
+                $links[$linkCount-1]['rek_link_description'] = 'Full text from publisher';
+                if (APP_LINK_PREFIX != "") {
+                    $links[$linkCount-1]['prefix_location'] = APP_LINK_PREFIX.$links[$linkCount-1]['rek_link'];
+                }
             }
 
             $dob = new DSResource();
             $streams = $dob->listStreams($pid);
             foreach ($streams as &$stream) {
-                $stream = array_merge($stream, Exiftool::getDetails($pid, $stream['filename']));
+                //$stream = array_merge($stream, Exiftool::getDetails($pid, $stream['filename']));
                 $stream['downloads'] = Statistics::getStatsByDatastream($pid, $stream['filename']);
                 $stream['base64ID'] = base64_encode($stream['filename']);
-                $stream['label'] = 'not yet done';
+                //$stream['label'] = $stream['label'];
                 $fileCount++;
             }
 
@@ -529,6 +542,11 @@ if (!empty($pid) && $record->checkExists()) {
 
                     $links[$linkCount-1]['rek_link'] = trim($datastreams[$ds_key]['location']);
                     $links[$linkCount-1]['rek_link_description'] = $datastreams[$ds_key]['label'];
+                    $links[$linkCount-1]['rek_link_description'] = $datastreams[$ds_key]['label'];
+
+                    if (strtoupper('http://dx.doi.org/'.$doi) == strtoupper($links[$linkCount-1]['rek_link'])) {
+                        $doiInLinks = true;
+                    }
     				
     				// Check for APP_LINK_PREFIX and add if not already there add it to a special ezyproxy link for it
     				if (APP_LINK_PREFIX != "") {
@@ -614,10 +632,17 @@ if (!empty($pid) && $record->checkExists()) {
     			
                 if ($datastreams[$ds_key]['controlGroup'] == 'R' && $datastreams[$ds_key]['ID'] == 'DOI') {
                     $links[$linkCount-1]['rek_link'] = trim($datastreams[$ds_key]['location']);
-
                     $tpl->assign('doi', $datastreams[$ds_key]);
                 }
     		}
+            if (!$doiInLinks && !empty($doi)) {
+                $linkCount++;
+                $links[$linkCount-1]['rek_link'] = 'http://dx.doi.org/'.$doi;
+                $links[$linkCount-1]['rek_link_description'] = 'Full text from publisher';
+                if (APP_LINK_PREFIX != "") {
+                        $links[$linkCount-1]['prefix_location'] = APP_LINK_PREFIX.$links[$linkCount-1]['rek_link'];
+                }
+            }
 	    } 
 		
 		
@@ -656,7 +681,6 @@ if (!empty($pid) && $record->checkExists()) {
 			Record::generateDerivationTree($pid, $derivations, $derivationTree);
 			Record::wrapDerivationTree($derivationTree);
 		}
-		
 		$tpl->assign("origami", APP_ORIGAMI_SWITCH);
 		$tpl->assign("linkCount", $linkCount);
         $tpl->assign("links", $links);
@@ -757,7 +781,6 @@ if (!empty($pid) && $record->checkExists()) {
 } else {
     header("Status: 404 Not Found");
     $tpl->assign('not_exists', true);
-//	$tpl->assign("show_not_allowed_msg", true);
 	$savePage = false;
 }
 

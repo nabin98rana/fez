@@ -137,8 +137,10 @@ class RecordView {
 				}
 
                 if ($dis_field['sek_title'] == "DOI") {
+                    if (!empty($details[$xsd_display_fields[$dis_key]['xsdmf_id']])) {
                     $details[$xsd_display_fields[$dis_key]['xsdmf_id']] =
-                                "<a href='http://www.doi.org/".$details[$xsd_display_fields[$dis_key]['xsdmf_id']]."'>".$details[$xsd_display_fields[$dis_key]['xsdmf_id']]."</a>";
+                                "<a href='http://dx.doi.org/".$details[$xsd_display_fields[$dis_key]['xsdmf_id']]."'>".$details[$xsd_display_fields[$dis_key]['xsdmf_id']]."</a>";
+                    }
                 }
 				if ($dis_field['sek_title'] == "Author") {
 					if (!empty($details[$dis_field['xsdmf_id']])) {
@@ -317,7 +319,11 @@ class RecordView {
                     $obj = explode("::", $dis_field['sek_lookup_function']);
                     if (array_key_exists($dis_field['xsdmf_id'], $details) && isset($obj[0]) && isset($obj[1]) && method_exists($obj[0], $obj[1])) {
                         $result = eval("return " . $dis_field['sek_lookup_function'] . "('" . $details[$dis_field['xsdmf_id']] . "');");
-                        $details[$dis_field['xsdmf_id']] = $details[$dis_field['xsdmf_id']] . " - " . $result;
+                        if ( !empty($details[$dis_field['xsdmf_id']]) || !empty($result) ) {
+                            $details[$dis_field['xsdmf_id']] = $details[$dis_field['xsdmf_id']] . " - " . $result;
+                        } else {
+                            $details[$dis_field['xsdmf_id']] = '';
+                        }
                     }
                 }
             }
