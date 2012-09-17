@@ -361,7 +361,9 @@ class Citation
 
 				if (!empty($value) && !is_null($value) && $value != "") {
 					$value = $prefix.$value.$suffix;
-				}
+				} else {
+                    $value = "";
+                }
 				//Error_Handler::logError($match);
 				$template = str_replace('{'.$match.'}', $value, $template);
 			}
