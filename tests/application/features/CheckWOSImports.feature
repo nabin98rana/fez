@@ -85,7 +85,7 @@ Scenario: Delete WOS imports
   And I fill "automated test data cleanup" in popup
   And I confirm the popup
   And I turn on waiting checks
-  When I follow "Home"
+  When I am on "/"
   And I fill in "Search Entry" with "title:(\"Influence of Malt Roasting on the Oxidative Stability of Sweet Wort\")"
   And I press "search_entry_submit"
   Then I should see "(0 results found)"

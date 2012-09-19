@@ -20,7 +20,7 @@ Feature: Security
     And I fill in "Keyword 1" with "automated testing"
     And I press "Publish"
     And I follow "Logout"
-    When I follow "Home"
+    When I am on "/"
     And I fill in "Search Entry" with "title:(\"Security Test Community\")"
     And I press "search_entry_submit"
     Then I should see "(1 results found)"
@@ -46,7 +46,6 @@ Feature: Security
     And I choose the "Masqueraders" group for the "Lister" role
     And I press "Save Changes"
     And I follow "Logout"
-    When I follow "Home"
     Given I am on "/"
     And I fill in "Search Entry" with "title:(\"Security Test Collection\")"
     And I press "search_entry_submit"
@@ -135,7 +134,7 @@ Feature: Security
     And I fill "automated test data cleanup" in popup
     And I confirm the popup
     And I turn on waiting checks
-    When I follow "Home"
+    When I am on "/"
     And I fill in "Search Entry" with "title:(\"Security Test Collection\")"
     And I press "search_entry_submit"
     Then I should see "(0 results found)"
@@ -162,7 +161,7 @@ Scenario: Delete Security Test Communitys
   And I fill "automated test data cleanup" in popup
   And I confirm the popup
   And I turn on waiting checks
-  When I follow "Home"
+  When I am on "/"
   And I fill in "Search Entry" with "title:(\"Security Test Community\")"
   And I press "search_entry_submit"
   Then I should see "(0 results found)"
