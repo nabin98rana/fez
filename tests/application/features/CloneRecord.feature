@@ -50,7 +50,6 @@ Feature: Check Clone Records works correctly
     And I should see "51"
     And I should see "68"
     And I should see "Article"
-    And I put a breakpoint
     And I should see "330105 Educational Counselling"
     And I should see "AJICT"
     And I should not see "Available Versions of this Record"

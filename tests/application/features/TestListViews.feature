@@ -1,6 +1,7 @@
 # features/TestListView.feature
 Feature: Test the different views work when in list view
 
+    @broken
   Scenario: I login as admin see that all the views in list work
     Given I login as administrator
     And I go to "/"

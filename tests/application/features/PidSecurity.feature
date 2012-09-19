@@ -1,5 +1,6 @@
 Feature: Pid security
 
+  @broken
   Scenario: I login as admin and set a pids security to only view for a certain group then all users as list it and only that group can view it
     Given I login as administrator
     And I go to the test collection list page
@@ -36,6 +37,7 @@ Feature: Pid security
     Then I should see "Security Test Journal Title2012"
     Then I should not see "Workflows"
 
+  @broken
   Scenario: I login as admin and set a pids security to only create for a certain group as check that group can create
     Given I login as administrator
     And I fill in "Search Entry" with "title:(\"Security Test Journal Title2012\")"
@@ -55,6 +57,7 @@ Feature: Pid security
     Then I should see "Security Test Journal Title2012"
     Then I should see "Workflows"
 
+  @broken
   Scenario: I login as admin and set a pids security to list for a certain group and check only that group can list
     Given I login as administrator
     And I fill in "Search Entry" with "title:(\"Security Test Journal Title2012\")"
@@ -79,6 +82,7 @@ Feature: Pid security
     Then I should see "Security Test Journal Title2012"
     Then I should see "Workflows"
 
+  @broken
   Scenario: I login as admin and remove all permissions and check non login users and UPO can view but not touch
     Given I login as administrator
     And I fill in "Search Entry" with "title:(\"Security Test Journal Title2012\")"
@@ -109,7 +113,7 @@ Feature: Pid security
     Then I should see "Security Test Journal Title2012"
     Then I should not see "Workflows"
 
-   @destructive @now
+   @destructive @now @broken
   Scenario: Delete old pids
     Given I login as administrator
     And I fill in "Search Entry" with "title:(\"Security Test Journal Title2012\")"
