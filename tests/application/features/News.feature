@@ -28,7 +28,7 @@ Feature: Check news displays correctly and Admin news displays only to the corre
     And I should see "User News Message"
 
 
-  @purge@ @distructive
+  @purge @broken @destructive
   Scenario: Delete last two news articles created
   Given I login as administrator
   And I am on "/manage/news.php"
@@ -40,5 +40,4 @@ Feature: Check news displays correctly and Admin news displays only to the corre
   And I confirm the popup
   And I check "items[]"
   And I press "Delete"
-
   And I confirm the popup
