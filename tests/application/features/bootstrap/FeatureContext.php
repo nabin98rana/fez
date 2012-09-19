@@ -342,7 +342,7 @@ class FeatureContext extends MinkContext
    *
    * @AfterStep
    */
-  public function failScreenshots(StepEvent $event)
+/*  public function failScreenshots(StepEvent $event)
   {
     if (!($this->getSession()->getDriver() instanceof Behat\Mink\Driver\GoutteDriver) &&
       !($this->getSession()->getDriver() instanceof Behat\Mink\Driver\ZombieDriver)) {
@@ -353,7 +353,7 @@ class FeatureContext extends MinkContext
       }
     }
   }
-
+  */
   /**
    * Saving the screenshot
    *
@@ -428,6 +428,7 @@ class FeatureContext extends MinkContext
   public function assertPopupMessage($message)
   {
     return $message == $this->getSession()->getDriver()->wdSession->getAlert_text();
+
 
   }
 
