@@ -567,13 +567,13 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 	 * @param string $dsID
 	 * @return plaintext of datastream, null on error
 	 */
-	public function getCachedContent($pids)
+	public function getCachedContent($pids) 
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
 		$pids = str_replace('"', "'", $pids);
 		// Remove newlines, page breaks and replace " with "" (which is how to escape for CSV files)
-		$stmt = "SELECT ftc_pid as pid, REPLACE(REPLACE(REPLACE(ftc_content, '\"','\"\"'), '\n', ' '), '\t', ' ') as content ".
+		$stmt = "SELECT ftc_pid as pid, REPLACE(REPLACE(REPLACE(ftc_content, '\"','\"\"'), '\n', ' '), '\t', ' ') as content, ftc_dsid as dsid ".
         		'FROM '.APP_TABLE_PREFIX.FulltextIndex::FULLTEXT_TABLE_NAME.
         		' WHERE ftc_pid IN ('.$pids.') AND ftc_is_text_usable = TRUE';
 
@@ -584,6 +584,15 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 			$log->err($ex);
 			$res = null;
 		}
+
+        //This assumes this function is run without anyone logged in. IE background process
+        foreach ($res as $key => $value) {
+            $userPIDAuthGroups = Auth::getAuthorisationGroups($value['pid'], $value['dsid']);
+            if (!in_array('Lister', $userPIDAuthGroups)) {
+                unset($res[$key]);
+            }
+        }
+
 		$ret = array();
 		foreach ($res as $row) {
 
