@@ -272,6 +272,16 @@ class FeatureContext extends MinkContext
 
     }
 
+    /**
+     * @Given /^I login as super administrator$/
+     */
+    public function iLoginAsSuperAdministrator()
+    {
+        $lh = new loginHelper;
+        $lh->iLoginAsSuperAdministrator($this);
+
+    }
+
   /**
    * Disable waiting checks while doing steps involving modals
    *

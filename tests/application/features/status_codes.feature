@@ -9,7 +9,7 @@ Feature: Check statuscodes are correctly working. Not found should return 404 re
     And I should see "SEARCH"
 
   Scenario: Go to a pid that does exist
-    Given I am on "/view/UQ:85110"
+    Given I go to the test journal article view page
     Then the response status code should be 200
     And I should see "HOME"
     And I should see "SEARCH"
