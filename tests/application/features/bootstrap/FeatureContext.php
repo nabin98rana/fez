@@ -12,6 +12,16 @@ use Behat\Behat\Event\SuiteEvent,
 
 use Behat\MinkExtension\Context\MinkContext;
 
+use Guzzle\Http\Client as GuzzleClient;
+$client = new \Behat\Mink\Driver\Goutte\Client();
+$gouttedriver = new \Behat\Mink\Driver\GoutteDriver(
+  $client
+);
+$client->setClient(new GuzzleClient('', array(
+  'curl.CURLOPT_SSL_VERIFYPEER' => false,
+  'curl.CURLOPT_CERTINFO'       => false
+)));
+
 //
 // Require 3rd-party libraries here:
 //
