@@ -17,7 +17,7 @@ Scenario: A user needs contact infomation
     Given I am on "/list/"
     And I should see "List of Communities"
     And I should not see "Create New Community"
-    And I should not see "0 results found"
+    And I should not see "(0 results found)"
 
   Scenario: A user wants to do an advanced search
     Given I am on "/adv_search.php"
