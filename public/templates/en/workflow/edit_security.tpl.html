@@ -215,7 +215,7 @@ function selectDateField(field_name, day, month, year)
 						{assign var="loop_num" value=$smarty.section.z.index}
 						<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" {if $loop_num != 0}style="display:none"{/if} valign="top">
 						  <td width="200" bgcolor="{$cell_color}" class="default">
-							<b>{$xsd_display_fields[i].xsdmf_title} {math equation="x + 1" x=$loop_num}</b>{if $xsd_display_fields[i].xsdmf_required == 1} * {/if}<br />{if $loop_num == 0}<i>(More {$xsd_display_fields[i].xsdmf_title} input boxes will appear as you type)</i>{/if}
+							<label for="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}"><b>{$xsd_display_fields[i].xsdmf_title} {math equation="x + 1" x=$loop_num}</b></label>{if $xsd_display_fields[i].xsdmf_required == 1} * {/if}<br />{if $loop_num == 0}<i>(More {$xsd_display_fields[i].xsdmf_title} input boxes will appear as you type)</i>{/if}
 						  </td>
 						  <td bgcolor="{$value_color}">
 						<input title="{$xsd_display_fields[i].xsdsel_title} {$xsd_display_fields[i].xsdmf_title}" class="default" type="checkbox" {$xsd_display_fields[i].xsdmf_cso_value} id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}"
@@ -234,7 +234,7 @@ function selectDateField(field_name, day, month, year)
 				{else}
 						<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" valign="top">
 						  <td width="200" bgcolor="{$cell_color}" class="default">
-							<b>{$xsd_display_fields[i].xsdmf_title}{if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b>
+							<label for="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0"><b>{$xsd_display_fields[i].xsdmf_title}{if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b></label>
 						  </td>
 						  <td bgcolor="{$value_color}">
 

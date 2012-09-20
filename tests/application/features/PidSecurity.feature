@@ -17,7 +17,7 @@ Feature: Pid security
     And I wait for "4" seconds
     And I follow "More options"
     And I follow "Edit Security for Select Record"
-    And I uncheck "inherit"
+    And I uncheck "Inherit"
     #select Viewer is selecting Archival Format Viewer for me :(
     And I select "10" from "role"
     And I select "Fez_Group" from "groups_type"
