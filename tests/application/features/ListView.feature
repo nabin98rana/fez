@@ -1,3 +1,4 @@
+@javascript
 Feature: Check list view displays the correct information entered into a pid, collection or community
 
 @now @broken

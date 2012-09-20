@@ -1,4 +1,5 @@
 # features/CheckHistory.feature
+@javascript
 Feature: Test that the history for pids is working
 
   @broken

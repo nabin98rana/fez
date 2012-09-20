@@ -1,3 +1,4 @@
+@javascript
 Feature: Check news displays correctly and Admin news displays only to the correct group
 
   @now @broken

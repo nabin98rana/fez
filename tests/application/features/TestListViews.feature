@@ -1,4 +1,5 @@
 # features/TestListView.feature
+@javascript
 Feature: Test the different views work when in list view
 
     @broken

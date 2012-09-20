@@ -1,4 +1,5 @@
 # features/smoke.feature
+@javascript
 Feature: Check that all pages still give correct output
 
 Scenario: A user needs contact infomation
