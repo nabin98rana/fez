@@ -1,4 +1,4 @@
-@javascript
+@javascript @broken
 Feature: Pid security
 
   Scenario: I login as admin and set a pids security to only view for a certain group then all users as list it and only that group can view it

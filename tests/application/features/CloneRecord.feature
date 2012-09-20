@@ -1,5 +1,5 @@
 # features/CloneRecord.feature
-@javascript
+@javascript @broken
 Feature: Check Clone Records works correctly
 
   @destructive @now

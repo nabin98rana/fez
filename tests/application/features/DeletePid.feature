@@ -1,5 +1,5 @@
 # features/DeletePid.feature
-@javascript
+@javascript @broken
 Feature: Test that deleted pid works correctly
 
   Scenario: I login as admin, create a pid, then delete it and check it is not longer accessiable
