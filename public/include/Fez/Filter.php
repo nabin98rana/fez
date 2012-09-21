@@ -15,19 +15,22 @@ class Fez_Filter
 	 * filtered input.
 	 * @param string $filterClassName
 	 */
-	public static function get($filterClassName, $input)
+	public static function run(array $filterClassNames, $input)
 	{
 		$log = FezLog::get();
 		$filtered = false;
 		
-		try 
+		foreach($filterClassNames as $filterClassName)
 		{
-			$filter = new $filterClassName();
-			$filtered = $filter->filter($input);
-		}
-		catch(Exception $e)
-		{
-			$log->err($e->getMessage());
+			try 
+			{
+				$filter = new $filterClassName();
+				$filtered = $filter->filter($input);
+			}
+			catch(Exception $e)
+			{
+				$log->err($e->getMessage());
+			}
 		}
 		
 		return $filtered;

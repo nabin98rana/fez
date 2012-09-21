@@ -100,11 +100,4 @@ class FilterTest extends PHPUnit_Framework_TestCase
     	$expected = array('7', 'anml Food', 'not s, b4d');
     	$this->assertEquals($expected, $filtered);
     }
-    
-    public function testAlpha()
-    {
-    	$zfa = new Zend_Filter_Alpha();
-    	$res = $zfa->filter('Chris Maj');
-    	var_dump($res);
-    }
 }
