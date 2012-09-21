@@ -25,7 +25,6 @@ Scenario: A user needs contact infomation
     And I should see "All Fields"
     And I should see "Title"
 
-  @broken
   Scenario: Users without logins should not see manage and other loged in pages
     Given I am on "/manage"
     Then I should see "You must first login to access this resource"
@@ -45,10 +44,9 @@ Scenario: A user needs contact infomation
     Given I am on "/my_processes.php"
     Then I should see "Login to"
     Given I am on "/favourites"
-    And I put a breakpoint
     Then I should see "Login to"
 
-  @broken
+    @bug
   Scenario: Testing Administrator view
     And I login as administrator
     And I am on "/manage"
@@ -58,9 +56,9 @@ Scenario: A user needs contact infomation
     Given I am on "/my_fez_traditional.php"
     Then I should see "Background Processes"
     And I should see "Active Work"
-    And I put a breakpoint
-    And I should not see "In Review"
-    And I should not see "Submitted for Approval"
+    #Should these be missing from the header?
+    #And I should not see "In Review"
+    #And I should not see "Submitted for Approval"
 
   Scenario: Testing Super Administrator view
     Given I login as super administrator

@@ -2,71 +2,58 @@
 # Needs to be run using goutte
 Feature: Check that valid json is being returned
 
-  @broken   
   Scenario: Check JSON is valid
     Given I am on "/publisher_suggest_proxy.php"
     Then should see valid JSON
 
-  @broken   
   Scenario: Check JSON is valid
     Given I am on "/publisher_suggest_proxy.php?query=a:4$%@})'}\%22({["
     Then should see valid JSON
 
-  @broken   
   Scenario: Check JSON is valid
     Given I am on "/org_unit_suggest_proxy.php"
     Then should see valid JSON
 
-  @broken   
   Scenario: Check JSON is valid
     Given I am on "/org_unit_suggest_proxy.php?query=a:4$%@})']\%22({["
     Then should see valid JSON
 
-  @broken   
   Scenario: Check JSON is valid
     Given I am on "/cv_id_proxy.php"
     Then should see valid JSON
 
-  @broken   
   Scenario: Check JSON is valid
     Given I am on "/cv_id_proxy.php?query=a:4$%@})']\%22({[&parent_id=a:4$%@})']\%22({["
     Then should see valid JSON
 
-  @broken   
   Scenario: Check JSON is valid
     Given I am on "/suggest_proxy.php"
     Then should see valid JSON
-  @broken   
+
   Scenario: Check JSON is valid
     Given I am on "/suggest_proxy.php?query=a:4$%@})']\%22({[&sek_id=a:4$%@})']\%22({[&xsdmf_id=a:4$%@})']\%22({["
     Then should see valid JSON
 
-  @broken   
   Scenario: Check JSON is valid
     Given I am on "/author_suggest_proxy.php"
     Then should see valid JSON
 
-  @broken   
   Scenario: Check JSON is valid
     Given I am on "/author_suggest_proxy.php?query=a:4$%@})']\%22({["
     Then should see valid JSON
 
-  @broken   
   Scenario: Check JSON is valid
     Given I am on "/author_suggest_proxy.php?query=th"
     Then should see valid JSON
 
-  @broken   
   Scenario: Check JSON is valid
     Given I am on "/ajax_pid_outstanding_events.php"
     Then should see valid JSON
 
-  @broken   
   Scenario: Check JSON is valid
     Given I am on "/ajax_pid_outstanding_events.php?pid=a:4$%@})']\%22({[&type=a:4$%@})']\%22({["
     Then should see valid JSON
 
-  @broken   
   Scenario: Check JSON is valid
     Given I am on "/ajax_pid_outstanding_events.php?pid=a:4$%@})']\%22({[&type=WORKFLOW"
     Then should see valid JSON
