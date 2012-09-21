@@ -120,6 +120,8 @@ Feature: Security
   And I follow "More options"
   And I follow "Delete Selected Record"
   And I follow "Logout"
+  When I am on "/"
+  And I wait for a bit
   And I fill in "Search Entry" with "title:(\"Security Test Collection Multiple Inheritance Open\")"
   And I press "search_entry_submit"
   Then I should see "(0 results found)"
