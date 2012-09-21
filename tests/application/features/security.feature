@@ -43,6 +43,7 @@ Feature: Security
     And I follow "Security Test Community"
     And I follow "Edit Security for Selected Collection"
     And I wait for a bit
+    And I uncheck "Inherit Security from Parent Hierarchy?"
     And I choose the "Masqueraders" group for the "Lister" role
     And I press "Save Changes"
     And I follow "Logout"
