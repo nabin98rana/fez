@@ -840,6 +840,14 @@ abstract class FulltextIndex {
 			$log->err($ex);
 			$res = null;
 		}
+
+        //This assumes this function is run without anyone logged in. IE background process
+        foreach ($res as $key => $value) {
+            $userPIDAuthGroups = Auth::getAuthorisationGroups($value['pid'], $value['dsid']);
+            if (!in_array('Lister', $userPIDAuthGroups)) {
+                unset($res[$key]);
+            }
+        }
 		return $res;
 	}
 

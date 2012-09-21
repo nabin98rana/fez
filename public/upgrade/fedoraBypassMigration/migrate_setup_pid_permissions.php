@@ -34,6 +34,8 @@
  * set up non inherited and version permisisons for all pids
  * Assumes pid computed permissions are correct in fez_auth_index2 table.
  *
+ * Quickauth templates must be the same number in both `fez_auth_quick_template` and `fez_auth_quick_rules`
+ *
  * This is a one-off migration script as part of Fedora-less project.
  */
 include_once dirname(dirname(dirname(__FILE__))) . DIRECTORY_SEPARATOR . 'config.inc.php';
@@ -66,6 +68,9 @@ foreach ($res as $pid) {
         AuthNoFedora::setInherited($pid,0);
     }
     addDatastreamSecurity($acml, $pid);
+
+    //Does the pid have a policy set for datastreams
+    addDataStreamPolicy($pid);
 
     $parms = array('pid' => $pid, 'dsID' => $dsID);
     $datastreamVersions = Fedora_API::openSoapCall('getDatastreamHistory', $parms);
@@ -153,4 +158,13 @@ function addDatastreamSecurity($acml, $pid, $date = false) {
 
         }
     }
+
+    //Given a pid find the fedora datastream policy and add it in if it exists
+    function addDataStreamPolicy($pid) {
+        $templateNumber = Record::getDatastreamQuickAuthTemplate($pid);
+        if ($templateNumber || $templateNumber === 0) {
+            FezACML::updateDatastreamQuickRule($pid,$templateNumber);
+        }
+    }
+
 }

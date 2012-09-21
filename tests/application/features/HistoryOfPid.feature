@@ -1,6 +1,8 @@
 # features/CheckHistory.feature
+@javascript
 Feature: Test that the history for pids is working
 
+  @broken
   Scenario: I login as admin, make a change and see it is in the history
     Given I login as administrator
     And I go to the test collection list page
@@ -30,7 +32,7 @@ Feature: Test that the history for pids is working
     And I should see "Published by admin test - Testing edit reason"
     And I should see "Testing edit reason in history"
 
-  @destructive @purge
+  @destructive @purge @broken
   Scenario: Delete old pids
     Given I login as administrator
     And I fill in "Search Entry" with "title:(\"Security Test Journal Title2012\")"

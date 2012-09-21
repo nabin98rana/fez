@@ -1,6 +1,7 @@
+@javascript
 Feature: Check list view displays the correct information entered into a pid, collection or community
 
-@now
+@now @broken
 Scenario: I login as admin and create communities, collections and pids and see all the information displays in lists correctly
   Given I login as administrator
   And I follow "Browse"
@@ -50,7 +51,7 @@ Scenario: I login as admin and create communities, collections and pids and see 
   Then I should see "123-987"
   Then I should see "(2010)"
 
-@destructive @purge
+@destructive @purge @broken
   Scenario: Delete old Communities
     Given I login as administrator
     And I fill in "Search Entry" with "title:(\"Test Community for list view\")"
@@ -65,7 +66,7 @@ Scenario: I login as admin and create communities, collections and pids and see 
     And I turn on waiting checks
     And I follow "Logout"
 
-  @destructive @purge
+  @destructive @purge @broken
   Scenario: Delete old Collections
     Given I login as administrator
     And I fill in "Search Entry" with "title:(\"Test Collection for list view\")"
@@ -80,7 +81,7 @@ Scenario: I login as admin and create communities, collections and pids and see 
     And I turn on waiting checks
     And I follow "Logout"
 
-  @destructive @purge
+  @destructive @purge @broken
   Scenario: Delete old pids
     Given I login as administrator
     And I fill in "Search Entry" with "title:(\"Test Pid for list view\")"

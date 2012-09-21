@@ -266,7 +266,7 @@ class MyResearch
                 //				$filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only // now been asked to show everything, and indicated the unpublished ones
                 $filter["searchKey" . Search_key::getID("Object Type")] = 3;
                 $filter["searchKey" . Search_Key::getID("Author")] = $lastname;
-                $filter["manualFilter"] = "!author_id_mi:" . $author_id;
+                $filter["manualFilter"] = " (author_id_mi:0 AND !author_id_mi:" . $author_id.") ";
                 //$filter["manualFilter"] .= " AND (author_mws:".'"'.$lastname.'" OR author_mws:'.'"'.$lastname.$firstname.'"^4 '.$alternatives.')';
 
                 if (defined('APP_MY_RESEARCH_EXCLUDE_COLLECTIONS') && APP_MY_RESEARCH_EXCLUDE_COLLECTIONS != '') {

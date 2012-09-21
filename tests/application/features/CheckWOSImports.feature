@@ -2,7 +2,7 @@
 @javascript
 Feature: WOS imports. Check imports from wos work correctly
 
-  @destructive
+  @destructive @broken
   Scenario: Use add on entry form on a known wok article and ensure it imports correctly. "Influence of Malt Roasting on the Oxidative Stability of Sweet Wort" WOS:000304837700019
     Given I login as administrator
     And I go to the test collection list page
@@ -34,7 +34,7 @@ Feature: WOS imports. Check imports from wos work correctly
     And I should see "ResearcherID Import"
     And I should see "10.1021/jf300749r"
 
-  @destructive @core @purge
+  @destructive @core @purge @broken
 Scenario: Delete WOS imports
   Given I login as administrator
   And I fill in "Search Entry" with "title:(\"Influence of Malt Roasting on the Oxidative Stability of Sweet Wort\")"
@@ -47,7 +47,7 @@ Scenario: Delete WOS imports
   And I confirm the popup
   And I turn on waiting checks
 
-  @destructive @now
+  @destructive @now @broken
   Scenario: Add to WOS queue and make sure it imports
     Given I login as administrator
     And I add "WOS:000304837700019" to the WOK queue
@@ -73,7 +73,7 @@ Scenario: Delete WOS imports
     And I should see "ResearcherID Import"
     And I should see "10.1021/jf300749r"
 
-  @destructive @core
+  @destructive @core @broken
 Scenario: Delete WOS imports
   Given I login as administrator
   And I fill in "Search Entry" with "title:(\"Influence of Malt Roasting on the Oxidative Stability of Sweet Wort\")"
@@ -85,7 +85,7 @@ Scenario: Delete WOS imports
   And I fill "automated test data cleanup" in popup
   And I confirm the popup
   And I turn on waiting checks
-  When I follow "Home"
+  When I am on "/"
   And I fill in "Search Entry" with "title:(\"Influence of Malt Roasting on the Oxidative Stability of Sweet Wort\")"
   And I press "search_entry_submit"
   Then I should see "(0 results found)"

@@ -1,7 +1,8 @@
 # features/PolicyForDatastreams.feature
+@javascript
 Feature: Check datastream policy works correctly
 
-  @destructive @now
+  @destructive @now @broken
   Scenario: Copy a known record with attachment without permisisons other than inherit to a community. Turn on a data stream policy on the community. Add another Pid. Then check both pids have the new policy.
     Given I login as administrator
     #Create test communities and collections
@@ -65,7 +66,7 @@ Feature: Check datastream policy works correctly
     And I follow "Test Title Datastream policy 2"
     And I should not see "thornhill_gillie.pdf"
 
-  @destructive @now2
+  @destructive @now2 @broken
   Scenario: I change the policy for datastreams in the Collection. This won't change above datastreams since they have recieved policies to not inherit.
     Given I login as administrator
     And I fill in "Search Entry" with "title:(\"Test Collection Datastream policy\")"
@@ -93,7 +94,7 @@ Feature: Check datastream policy works correctly
     And I should see "thornhill_gillie.pdf"
     And I follow "Logout"
 
-  @destructive @now3
+  @destructive @now3 @broken
   Scenario: I change the policy for datastreams in the Collection back to nothing. Then add a pid and change it's datastream policy. Then check Datastream follows the pid policy
     Given I login as administrator
     And I fill in "Search Entry" with "title:(\"Test Collection Datastream policy\")"
@@ -130,7 +131,7 @@ Feature: Check datastream policy works correctly
     And I follow "Test Title Datastream policy 3"
     And I should not see "thornhill_gillie.pdf"
 
-  @destructive @now4
+  @destructive @now4 @broken
   Scenario: The policy for datastreams in the Collection is nothing. Then add a pid. Then change datastream security(Keep inheritance) Then change Pid datastream policy. It should blow away any permissions
     Given I login as administrator
     #clone record 4 to the collection
@@ -176,7 +177,7 @@ Feature: Check datastream policy works correctly
 
 
 
-  @destructive @purge
+  @destructive @purge @broken
   Scenario: Delete old Communities
     Given I login as administrator
     And I fill in "Search Entry" with "title:(\"Test Community Datastream policy\")"
@@ -190,7 +191,7 @@ Feature: Check datastream policy works correctly
     And I confirm the popup
     And I turn on waiting checks
 
-  @destructive @purge
+  @destructive @purge @broken
   Scenario: Delete old Collections
     Given I login as administrator
     And I fill in "Search Entry" with "title:(\"Test Collection Datastream policy\")"
@@ -204,7 +205,7 @@ Feature: Check datastream policy works correctly
     And I confirm the popup
     And I turn on waiting checks
 
-  @destructive @purge
+  @destructive @purge @broken
   Scenario: Delete old pids
     Given I login as administrator
     And I fill in "Search Entry" with "title:(\"Test Title Datastream policy\")"

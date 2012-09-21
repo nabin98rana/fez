@@ -86,7 +86,7 @@ function insertAfter(newElement,targetElement) {
     }
 }
 
-function createTextBox(xsdmf_id, loop_num, name, limit, axsdmf_id, aname, attachSuggest) {
+function createTextBox(xsdmf_id, loop_num, name, limit, axsdmf_id, aname, attachSuggest, is_editor) {
 
     var trID = "tr_xsd_display_fields_" +xsdmf_id+ "_" + loop_num;
     var textboxID = "xsd_display_fields_" +xsdmf_id+ "_" + loop_num;
@@ -141,9 +141,9 @@ function createTextBox(xsdmf_id, loop_num, name, limit, axsdmf_id, aname, attach
         td2.className = "default text-input-odd";
     }
 
-    textbox.onkeyup = function () {createTextBox(xsdmf_id,loop_num,name,limit,axsdmf_id,aname, attachSuggest)};
-    textbox.onchange = function () {createTextBox(xsdmf_id,loop_num,name,limit,axsdmf_id,aname, attachSuggest)};
-    textbox.onfocus = function () {createTextBox(xsdmf_id,loop_num,name,limit,axsdmf_id,aname, attachSuggest)};
+    textbox.onkeyup = function () {createTextBox(xsdmf_id,loop_num,name,limit,axsdmf_id,aname, attachSuggest, is_editor)};
+    textbox.onchange = function () {createTextBox(xsdmf_id,loop_num,name,limit,axsdmf_id,aname, attachSuggest, is_editor)};
+    textbox.onfocus = function () {createTextBox(xsdmf_id,loop_num,name,limit,axsdmf_id,aname, attachSuggest, is_editor)};
 
     bold.appendChild(document.createTextNode(name +" "+ (loop_num+1)));
     td1.appendChild(bold);
@@ -155,7 +155,7 @@ function createTextBox(xsdmf_id, loop_num, name, limit, axsdmf_id, aname, attach
 
     insertAfter(row, prevElem);
 
-    if(axsdmf_id != '') {
+    if((axsdmf_id != '') && (is_editor == 1)) {
        createAuthorSuggest(td2, xsdmf_id, axsdmf_id, aname, loop_num);
     }
 

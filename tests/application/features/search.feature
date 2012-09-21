@@ -5,7 +5,7 @@ Feature: Search
   As a website user
   I need to be able to search for a word
 
-  @smoke
+  @smoke @broken
   Scenario: Searching for a pid that does exist
     Given I am on "/"
     When I fill in "front_search" with "water"
