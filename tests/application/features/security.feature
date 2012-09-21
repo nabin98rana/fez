@@ -70,6 +70,8 @@ Feature: Security
   And I wait for a bit
   And I choose the "Unit Publication Officers" group for the "Lister" role
   And I press "Save Changes"
+  And I wait for a bit
+  And I follow "Browse"
   And I follow "Security Test Community UPOs"
   And I press "Create"
   And I fill in "Title" with "Security Test Collection Multiple Inheritance Open"
