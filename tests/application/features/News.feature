@@ -1,7 +1,7 @@
 @javascript
 Feature: Check news displays correctly and Admin news displays only to the correct group
 
-  @now @broken
+  @now
   Scenario: I login as admin and create a news story and check I can see it but non admin users can't
     Given I login as administrator
     And I am on "/manage/news.php"
@@ -29,7 +29,7 @@ Feature: Check news displays correctly and Admin news displays only to the corre
     And I should see "User News Message"
 
 
-  @purge @broken @destructive
+  @purge @destructive
   Scenario: Delete last two news articles created
   Given I login as administrator
   And I am on "/manage/news.php"
