@@ -43,4 +43,4 @@ Feature: Check news displays correctly and Admin news displays only to the corre
   And I check "items[]"
   And I press "Delete"
   And I confirm the popup
-
+  And I turn on waiting checks
