@@ -45,6 +45,7 @@ Feature: Security
     And I wait for a bit
     And I uncheck "Inherit Security from Parent Hierarchy?"
     And I choose the "Masqueraders" group for the "Lister" role
+    And I choose the "Masqueraders" group for the "Viewer" role
     And I press "Save Changes"
     And I follow "Logout"
     Given I am on "/"
@@ -69,6 +70,7 @@ Feature: Security
   And I follow "Edit Security for Selected Community"
   And I wait for a bit
   And I choose the "Unit Publication Officers" group for the "Lister" role
+  And I choose the "Unit Publication Officers" group for the "Viewer" role
   And I press "Save Changes"
   And I wait for a bit
   And I follow "Browse"
