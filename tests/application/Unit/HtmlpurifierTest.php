@@ -20,4 +20,22 @@ DAT;
 		$this->assertTrue($hasAnchor);
 		$this->assertTrue($hasSpan);
 	}
+	
+	/**
+	 * Purifier is run over all fields. 
+	 * Primitives like int and boolean should be unaffected.
+	 */
+	public function testPurifyOddities()
+	{
+		$purifier = new Fez_Filter_Htmlpurify();
+		$oddities = array(1, 'UQ:34556', false, null, array('Month' => '03', 'Year' => '2009', 'Day' => '26'));
+		
+		$filtered = array();
+		foreach($oddities as $oddity)
+		{
+			$filtered[] = $purifier->filter($oddity);
+		}
+		
+		$this->assertEquals($oddities, $filtered);
+	}
 }
