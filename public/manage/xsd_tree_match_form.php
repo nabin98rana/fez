@@ -94,12 +94,11 @@ $tpl->assign("controlled_vocab_list", Controlled_Vocab::getAssocList());
 			$form_cat = @$_POST["form_cat"];
 		}
 		
-		$filterClasses = (array_key_exists('filterclasses', $_POST)) ? $_POST['filterclasses'] : array();
 		if ($form_cat == "new") {
-			$filterAdmin->save($filterClasses, $xsdmf_id);
+			$filterAdmin->save(array(@$_POST['filter_class']), $xsdmf_id);
 			$tpl->assign("result", XSD_HTML_Match::insert($xdis_id, $xml_element));
 		} elseif ($form_cat == "update") {
-			$filterAdmin->save($filterClasses, $xsdmf_id);
+			$filterAdmin->save(array(@$_POST['filter_class']), $xsdmf_id);
 //			$tpl->assign("result", XSD_HTML_Match::update($xdis_id, $xml_element));
             if (isset($_POST['update_children'])) {
                 $tpl->assign("result", XSD_HTML_Match::update($xsdmf_id, true));
@@ -198,9 +197,8 @@ $tpl->assign("controlled_vocab_list", Controlled_Vocab::getAssocList());
 	$tpl->assign("checkbox_options_list", $checkbox_options_list);
 
 	if (is_array($info_array)) {
-		$currentFilters = $filterAdmin->inputExists($info_array['xsdmf_id']);
-		$currentFilters = ($currentFilters) ? $currentFilters : array();
-		$tpl->assign('current_filters', $currentFilters);
+		$currentFilter = $filterAdmin->inputExists($info_array['xsdmf_id']);
+		$tpl->assign('current_filter', $currentFilter[0]);
 		
 	    $tpl->assign("form_cat", "edit");
 		$tpl->assign("xsdmf_id", $info_array['xsdmf_id']);

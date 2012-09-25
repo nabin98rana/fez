@@ -52,6 +52,18 @@ include_once(APP_INC_PATH . "class.xsd_html_match.php");
 include_once(APP_INC_PATH . "class.workflow_trigger.php");
 include_once(APP_INC_PATH . "class.auth_no_fedora_datastreams.php");
 
+$filterProc = new Fez_Filter_Process_Request();
+
+if($_POST)
+{
+	$_POST = $filterProc->process($_POST);
+}
+
+if($_GET)
+{
+	$_GET = $filterProc->process($_GET);
+}
+
 if (APP_FEDORA_BYPASS == 'ON') {
     Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']."?".$_SERVER['QUERY_STRING']);
 

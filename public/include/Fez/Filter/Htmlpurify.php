@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 /**
  * Filter HTML input using HTML Purifier
@@ -15,7 +15,19 @@ class Fez_Filter_Htmlpurify implements Zend_Filter_Interface
 		
 		$config = HTMLPurifier_Config::createDefault();
 		$purify = new HTMLPurifier($config);
-		$purified = $purify->purify($value);
+		
+		if(is_array($value))
+		{
+			$purified = array();
+			foreach($value as $k => $v)
+			{
+				$purified[$k] = $purify->purify($v);
+			}
+		}
+		else 
+		{
+			$purified = $purify->purify($value);
+		}
 		
 		return $purified;
 	}

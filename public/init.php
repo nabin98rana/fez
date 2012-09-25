@@ -88,6 +88,7 @@ $params = array(
   'username' => APP_SQL_DBUSER,
   'password' => APP_SQL_DBPASS,
   'dbname' => APP_SQL_DBNAME,
+  'charset' => 'utf8',
   'profiler' => array(
       'enabled'     => APP_DB_USE_PROFILER,
       'class'     => 'Zend_Db_Profiler_Firebug'

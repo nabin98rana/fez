@@ -147,6 +147,21 @@ class Fez_Filter_Process_Request implements Fez_Filter_Process_ProcessInterface
 	            								$rawFilters[$i]['ift_filter_class'];
 	        }
 	        
+	        //Things without a filter
+	        $unfiltered = array_diff($elementsToFilter, array_keys($filters));
+	        
+	        //Add Fez_Filter_Htmlpurify to anything without a filter
+	        if(is_array($unfiltered))
+	        {
+		        foreach($unfiltered as $uf)
+		        {
+		        	if(in_array($uf, $elementsToFilter))
+		        	{
+		        		$filters[$uf][] = 'Fez_Filter_Htmlpurify';
+		        	}
+		        }
+	        }
+	        
 	        $this->filters = $filters;
         }
         catch(Exception $e)
