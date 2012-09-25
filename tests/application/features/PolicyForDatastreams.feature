@@ -1,5 +1,5 @@
 # features/PolicyForDatastreams.feature
-@javascript
+@javascript @broken
 Feature: Check datastream policy works correctly
 
   @destructive @now
