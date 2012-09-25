@@ -124,9 +124,14 @@ Feature: Security
   And I fill "automated test data cleanup" in popup
   And I confirm the popup
   And I turn on waiting checks
+  When I am on "/"
+  And I fill in "Search Entry" with "title:(\"Security Test Collection Multiple Inheritance Open\")"
+  And I press "search_entry_submit"
+  And I follow "Edit Security for Selected Collection"
+  And I wait for a bit
+  And I press "Save Changes"
   And I follow "Logout"
   When I am on "/"
-  And I wait for "10" seconds
   And I fill in "Search Entry" with "title:(\"Security Test Collection Multiple Inheritance Open\")"
   And I press "search_entry_submit"
   Then I should see "(0 results found)"
