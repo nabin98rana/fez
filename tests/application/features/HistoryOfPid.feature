@@ -16,11 +16,13 @@ Feature: Test that the history for pids is working
     And I press "Submit for Approval"
     And I follow "/view/"
     And I follow "Detailed History"
+    And I turn off waiting checks
     And I switch to window "_impact"
     And I should see "Finished, Create Generic Record In Selected Collection by admin test"
     Then I should not see "Published by"
     And I press "Close"
     And I switch to window ""
+    And I turn on waiting checks
     And I follow "More options"
     And I follow "Update Selected Record - Generic"
     And I fill in "edit_reason" with "Testing edit reason in history"
