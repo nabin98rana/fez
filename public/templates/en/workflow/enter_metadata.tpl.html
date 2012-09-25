@@ -209,18 +209,15 @@
 		{/if}
 		{/section}
 		{literal}
-
 		function selectDateField(field_name, day, month, year)
 		{
 			selectOption(this.document.getElementById('wfl_form1'), field_name + '[Day]', day);
 			selectOption(this.document.getElementById('wfl_form1'), field_name + '[Month]', month);
 			selectOption(this.document.getElementById('wfl_form1'), field_name + '[Year]', year);
 		}
-
 		//-->
 		</script>
 		{/literal}
-
 		<input type="hidden" name="cat" value="report" />
 		<input type="hidden" name="custom_view_pid" value="{$custom_view_pid}" />
 		<input type="hidden" name="xdis_id" value="{$xdis_id}" />
@@ -231,8 +228,6 @@
 		<input type="hidden" name="userfullname" value="{$current_full_name}" />
 	</td>
 </tr>
-
-
 <tr>
 	<td class="default_white" style="background: {$heading_color}; padding: 3px;" colspan="2">
 		<img style="vertical-align: middle" src="{$rel_url}images/edit_32.gif" alt="" /><b>{$wfs_title|escape}</b>
@@ -241,9 +236,7 @@
 		{/if}
 	</td>
 </tr>
-
 {section name="i" loop=$xsd_display_fields}
-
 	{if ($xsd_display_fields[i].xsdmf_html_input != 'xsdmf_id_ref' and $xsd_display_fields[i].xsdmf_html_input != 'xsd_ref' and $xsd_display_fields[i].xsdmf_html_input != 'conference_suggestor' and $xsd_display_fields[i].xsdmf_html_input != 'author_suggestor' and $xsd_display_fields[i].xsdmf_html_input != 'publisher_suggestor' and $xsd_display_fields[i].xsdmf_html_input != 'dynamic' and $xsd_display_fields[i].xsdmf_html_input != '')}
 		{if ((($xsd_display_fields[i].xsdmf_html_input == 'static' && $xsd_display_fields[i].xsdmf_show_in_view == 1 && $xsd_display_fields[i].xsdmf_static_text != '') && ($xsd_display_fields[i].xsdmf_show_in_view == 1)) || ($xsd_display_fields[i].xsdmf_html_input != 'static'))}
 			{if ((($xsd_display_fields[i].xsdmf_html_input == 'xsd_loop_subelement') && ($xsd_display_fields[i].xsdmf_show_in_view == 1)) || ($xsd_display_fields[i].xsdmf_html_input != 'xsd_loop_subelement') && $xsd_display_fields[i].xsdmf_enabled == 1)}
@@ -254,7 +247,6 @@
 								<!--
 								{if $xsd_display_fields[i].xsdmf_html_input == 'date'}
 									xsd_display_fields[xsd_display_fields.length] = new Option('xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][Year]', '{$xsd_display_fields[i].xsdmf_title}');
-
 							    {elseif $xsd_display_fields[i].xsdmf_html_input != 'file_input'}
 									xsd_display_fields[xsd_display_fields.length] = new Option('xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]{if $xsd_display_fields[i].xsdmf_html_input == 'multiple'
 									|| $xsd_display_fields[i].xsdmf_html_input == 'dual_multiple'
@@ -263,7 +255,6 @@
 									|| $xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector'
 									|| $xsd_display_fields[i].xsdmf_multiple == 1}[]{/if}', '{$xsd_display_fields[i].xsdmf_title}');
 								{/if}
-
 								{if $xsd_display_fields[i].xsdmf_html_input == 'date'}
 									required_xsd_display_fields[required_xsd_display_fields.length] = new Option('xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][Year]', 'whitespace' );
 
@@ -286,23 +277,16 @@
 						{if $debug == 1}
 							{$xsd_display_fields[i].xsdmf_order}
 						{/if}
-
 					</td>
 				</tr>
-
-
         {* Start outputting the inputs based on their type *}
-
         {* Flash Uploader *}
         {if $xsd_display_fields[i].xsdmf_html_input == 'file_input' && $xsd_display_fields[i].xsdmf_enabled == 1}
-
             {if $smarty.const.APP_ENABLE_FLASH_UPLOADER_SWITCH == 'ON'}
                 <tr id="flash_file_uploader_rows" style="display:none">
                     <th><strong>File upload {if $xsd_display_fields[i].xsdmf_required == 1} * {/if} </strong></th>
                     <td>
-
                         {include file="error_icon.tpl.html" field="uploader_files_uploaded"}
-
                         <div id="uploader_file_table_container" style="display:none;">
                             <b>The following files are queued for upload. Upload will commence when this form is submitted.</b>
                             <table id="uploader_file_table">
@@ -318,14 +302,12 @@
                                 </tbody>
                             </table>
                         </div>
-
                         <div id="uploaderElements" style="display:inline;">
                             <div id="uploaderContainer">
                                 <span id="uploaderSelectLink" style="position: absolute; z-index: 2;"></span>
                                 <input id="uploaderUploadButton" type="button" value="Select Files" style="z-index:1" class="button" />
                             </div>
                         </div>
-
                         <script type="text/javascript">
                             dojo.addOnLoad( function() {ldelim}
                                 {* File upload validation.
@@ -346,11 +328,9 @@
                                                );
                             {rdelim});
                         </script>
-
                     </td>
                 </tr>
             {/if}
-
             <tbody id="original_file_uploader_rows">
                 {if $xsd_display_fields[i].xsdmf_multiple == 1}
                     {section name="z" loop=$xsd_display_fields[i].multiple_array}
@@ -384,7 +364,6 @@
                         </tr>
                 {/if}
             </tbody>
-
         {* Checkbox *}
 		{elseif $xsd_display_fields[i].xsdmf_html_input == 'checkbox' && $xsd_display_fields[i].xsdmf_enabled == 1}
 			{if $xsd_display_fields[i].xsdmf_multiple == 1}
@@ -417,7 +396,6 @@
 					 </td>
 					</tr>
 			{/if}
-
         {* Rich Text *}
 		{elseif $xsd_display_fields[i].xsdmf_html_input == 'rich_text' && $xsd_display_fields[i].xsdmf_enabled == 1}
 				{if $xsd_display_fields[i].xsdmf_multiple == 1}
@@ -466,7 +444,6 @@
 						 </td>
 						</tr>
 				{/if}
-
         {* Depositor org *}
 		{elseif ($xsd_display_fields[i].xsdmf_html_input == 'depositor_org') }
 			{assign var="xsdmf" value=$xsd_display_fields[i]}
@@ -496,7 +473,6 @@
 			  </td>
 	  		{include file='workflow/compare_records_helpers/get_right_column.tpl.html' input_field_name=$field_name}
 			 </tr>
-
         {* Static *}
 		{elseif ($xsd_display_fields[i].xsdmf_html_input == 'static' && $xsd_display_fields[i].xsdmf_show_in_view == 1 && $xsd_display_fields[i].xsdmf_static_text != '') && $xsd_display_fields[i].xsdmf_enabled == 1}
 			{assign var="image_name" value=$app_path|cat:"images/"|cat:$xsd_display_fields[i].xsdmf_image_location}
@@ -510,7 +486,6 @@
 						{/if}
 					  </th>
 					</tr>
-
         {* xsd_loop_subelement *}
         {elseif ($xsd_display_fields[i].xsdmf_html_input == 'xsd_loop_subelement' && $xsd_display_fields[i].xsdmf_show_in_view == 1) && $xsd_display_fields[i].xsdmf_enabled == 1}
 			{assign var="image_name" value=$app_path|cat:"images/"|cat:$xsd_display_fields[i].xsdmf_image_location}
@@ -524,7 +499,6 @@
 						{/if}
 					  </td>
 					</tr>
-
         {* author_suggestor *}
 		{elseif $xsd_display_fields[i].xsdmf_html_input == 'author_suggestor' && $xsd_display_fields[i].xsdmf_enabled == 1}
 
@@ -551,7 +525,6 @@
 				{include file="error_icon.tpl.html" field=$field_name}
 			  </td>
 			</tr>
-
         {* Text *}
         {*----------------------------------------------------------------------------------------------------------------------*}
 	    {elseif $xsd_display_fields[i].xsdmf_html_input == 'text' && $xsd_display_fields[i].xsdmf_enabled == 1}
@@ -568,7 +541,6 @@
 					  {assign var="attached_xsdmf_id" value=$xsdmf.xsdmf_attached_xsdmf_id}
 					  {section name='aa' loop=$xsd_display_fields}{if $xsd_display_fields[aa].xsdmf_id == $attached_xsdmf_id}{assign var="attached_xsdmf" value=$xsd_display_fields[aa]}{/if}{/section}
 					{/if}
-
 					<tr  valign="top">
 					  <th>
 						<b>{$xsd_display_fields[i].xsdmf_title}(s) {if $xsd_display_fields[i].xsdmf_required == 1 && $loop_num == 0} * {/if}</b>
@@ -581,7 +553,6 @@
 						{/if}
 					  </th>
                                         </tr>
-
 					<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" {if $loop_num != 0 ||
                                             ($isEditor != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && $xsd_display_fields[i].xsdmf_required != 1) ||
                                             $xsd_display_fields[i].xsdmf_invisible == 1}style="display:none"{/if} valign="top">
@@ -621,9 +592,7 @@
 
 	                    return oResultItem[1].name;
 	                };
-
 	                this.oAutoComp{/literal}{$xsd_display_fields[i].xsdmf_id}_{$loop_num}{literal}.registerControls(document.getElementById('xsd_display_fields_{/literal}{$xsd_display_fields[i].xsdmf_id}_{$loop_num}'){literal});
-
 	                this.oAutoComp{/literal}{$xsd_display_fields[i].xsdmf_id}_{$loop_num}{literal}.textboxFocusEvent.subscribe(function(){
 	                    var sInputValue = YAHOO.util.Dom.get('xsd_display_fields_{/literal}{$xsd_display_fields[i].xsdmf_id}_{$loop_num}{literal}').value;
 	                    if(sInputValue.length === 0) {
@@ -654,7 +623,6 @@
 							  	{if ($xsd_display_fields[a].suggestor)
                                   AND ($temp_attached_xsdmf_id == $xsd_display_fields[i].xsdmf_attached_xsdmf_id)}
 									<br />
-
 								    <table>
 								       <tr {if ($isEditor != 1 && $xsd_display_fields[a].xsdmf_show_simple_create == 0 && $xsd_display_fields[a].xsdmf_required != 1) || $xsd_display_fields[i].xsdmf_invisible == 1}style="display:none"{/if}>
 								           <td>
@@ -677,7 +645,6 @@
 	                                    </td>
 	                                    </tr>
 	                                </table>
-
 	                                {literal}
 	                                <script type="text/javascript">
 
@@ -688,14 +655,11 @@
 	                                //var myServer = "/author_suggest_proxy.php";
 	                                var mySchema = ["Result","name"];
 	                                var myDataSource = new YAHOO.widget.DS_XHR(myServer, mySchema);
-
 	                                // Instantiate first AutoComplete
 	                                this.oAutoComp{/literal}{$loop_num}{literal} = new YAHOO.widget.AutoComplete('{/literal}{$attached_field_id}_lookup','{$attached_field_id}_container{literal}', myDataSource);
 	                                this.oAutoComp{/literal}{$loop_num}{literal}.maxResultsDisplayed = 60;
 	                                this.oAutoComp{/literal}{$loop_num}{literal}.formatResult = function(oResultItem, sQuery) {
 	                                    var usernameTxt = "";
-
-
 	                                    if( oResultItem[1].username != "" && oResultItem[1].username != null )
 	                                    {
 	                                        usernameTxt = ' (' +  oResultItem[1].username + ')'
@@ -703,9 +667,7 @@
 								        idTxt = ' (' +  oResultItem[1].id + ')'
 								        return oResultItem[1].name + idTxt + usernameTxt;
 	                                };
-
 	                                this.oAutoComp{/literal}{$loop_num}{literal}.registerControls(document.getElementById('xsd_display_fields_{/literal}{$xsd_display_fields[i].xsdmf_id}_{$loop_num}'), document.getElementById('{$attached_field_id}'){literal});
-
 	                                this.oAutoComp{/literal}{$loop_num}{literal}.textboxFocusEvent.subscribe(function(){
 	                                    var sInputValue = YAHOO.util.Dom.get('{/literal}{$attached_field_id}_lookup{literal}').value;
 	                                    if(sInputValue.length === 0) {
@@ -713,20 +675,16 @@
 	                                        setTimeout(function(){oSelf.sendQuery(sInputValue);},0);
 	                                    }
 	                                });
-
 	                                this.oAutoComp{/literal}{$loop_num}{literal}.itemSelectEvent.subscribe(function(){
 	                                    javascript:unhideRow('xsd_display_fields_{/literal}{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}{literal}');
 	                                });
-
 	                                </script>
-
 	                                <style type="text/css">
 	                                #{/literal}{$attached_field_id}{literal}_container {
 									    position:absolute;
 									    top:1.6em;
 									    width:100%;
 	                                }
-
 	                                #{/literal}{$attached_field_id}{literal}_container .yui-ac-content {
 									    position:relative;
 								        max-height:11em;
@@ -738,7 +696,6 @@
 	                                    z-index:9071;
 	                                }
 	                                </style>
-
 	                                {/literal}
 									<!-- note there is some javascript in the window.load because IE cant handle it here -->
 
@@ -756,13 +713,11 @@
 								{/if}
 							{/section}
 					  {/if}
-
 					 </td>
 					</tr>
 				{* /section *}
             {*--------------------------------------------------------------------------------------*}
 			{else}
-
 	                <!-- single -->
                             <tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0"
                                 {if ($isEditor != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && $xsd_display_fields[i].xsdmf_required != 1) || $xsd_display_fields[i].xsdmf_invisible == 1}style="display:none"{/if}
@@ -839,16 +794,11 @@
 					                        z-index:9071;
 										}
 					                    </style>
-
-
 					                    {/literal}
 										{/if}
 	                                  </td>
 	                                </tr>
-
-
 			{/if}
-
         {* TextArea *}
 	    {elseif $xsd_display_fields[i].xsdmf_html_input == 'textarea' && $xsd_display_fields[i].xsdmf_enabled == 1}
 			{if $xsd_display_fields[i].xsdmf_multiple == 1}
@@ -973,12 +923,9 @@
 
 		                    {/literal}
 					  	{/if}
-
-
 					  	<table>
 					  		<tr>
 					  			<td style="vertical-align: top">
-
 			            			<textarea id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]" rows="10" cols="60" {if $xsd_display_fields[i].xsdmf_validation_maxlength != null && $xsd_display_fields[i].xsdmf_validation_maxlength > 0}maxlength="{$xsd_display_fields[i].xsdmf_validation_maxlength}" validation="required"{/if}>{if $xsd_display_fields[i].xsdmf_dynamic_text != ""}{assign var='temp_dynamic_var' value=$xsd_display_fields[i].xsdmf_dynamic_text}{eval var=$temp_dynamic_var}{else}{$xsd_display_fields[i].xsdmf_static_text}{/if}</textarea>
 						{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}
 	                          		{if $xsd_display_fields[i].xsdmf_long_description != ""}
@@ -991,11 +938,9 @@
 								</td>
 							</tr>
 						</table>
-
 					 </td>
 					</tr>
 			{/if}
-
         {* Hidden *}
 	    {elseif $xsd_display_fields[i].xsdmf_html_input == 'hidden' && $xsd_display_fields[i].xsdmf_enabled == 1}
 			{if $xsd_display_fields[i].xsdmf_multiple == 1}
@@ -1020,7 +965,6 @@
 					 </td>
 					</tr>
 			{/if}
-
         {* org_selector *}
 	    {elseif ($xsd_display_fields[i].xsdmf_html_input == 'org_selector') && $xsd_display_fields[i].xsdmf_enabled == 1}
 			{assign var="field_name" value="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}
@@ -1097,7 +1041,6 @@
 						 </tr>
                             {/if}
 	       		{/if}
-
         {* combo *}
 	    {elseif ($xsd_display_fields[i].xsdmf_html_input == 'multiple' or $xsd_display_fields[i].xsdmf_html_input == 'combo') && $xsd_display_fields[i].xsdmf_enabled == 1}
 			{assign var="field_name" value="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}
@@ -1146,7 +1089,6 @@
 					 </td>
 					</tr>
 			{/if}
-
         {* Date *}
 		{elseif $xsd_display_fields[i].xsdmf_html_input == 'date' && $xsd_display_fields[i].xsdmf_enabled == 1}
 			<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" {if ($isEditor != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && $xsd_display_fields[i].xsdmf_required != 1) || $xsd_display_fields[i].xsdmf_invisible == 1}style="display:none"{/if}>
@@ -1157,7 +1099,9 @@
 				<td>
 					{assign var="temp_xsdmf_id" value=$xsd_display_fields[i].xsdmf_id}
 					{if $xsd_display_fields[i].xsdmf_date_type == 0}
-						{html_select_date time="0000-00-00" reverse_years=true month_empty='' year_empty='' day_empty='' field_array="xsd_display_fields[$temp_xsdmf_id]" prefix="" start_year="$app_earliest_input_year" end_year="+3" all_extra='class="default"'}
+						{html_select_date time="0000-00-00" reverse_years=true month_empty='' year_empty='' day_empty='' field_array="xsd_display_fields[$temp_xsdmf_id]"
+                            prefix="" start_year="$app_earliest_input_year" end_year="+3" all_extra='class="default"'
+                            year_extra="id=xsd_display_fields[$temp_xsdmf_id][Year]" month_extra="id=xsd_display_fields[$temp_xsdmf_id][Month]" day_extra="id=xsd_display_fields[$temp_xsdmf_id][Day]"}
 						{literal}
 							<script type="text/javascript">
 								<!--
@@ -1168,12 +1112,13 @@
 							</script>
 						{/literal}&nbsp;&nbsp;
 					{else}
-						{html_select_date time="0000-00-00" reverse_years=true display_days=false display_months=false year_empty='' field_array="xsd_display_fields[$temp_xsdmf_id]" prefix="" start_year="$app_earliest_input_year" end_year="+3" all_extra='class="default" onchange="javascript:checkDateFilterType(this.form, this);"'}
+						{html_select_date time="0000-00-00" reverse_years=true display_days=false display_months=false year_empty='' field_array="xsd_display_fields[$temp_xsdmf_id]"
+                            prefix="" start_year="$app_earliest_input_year" end_year="+3" all_extra='class="default" onchange="javascript:checkDateFilterType(this.form, this);"'
+                            year_extra="id=xsd_display_fields[$temp_xsdmf_id][Year]" month_extra="id=xsd_display_fields[$temp_xsdmf_id][Month]" day_extra="id=xsd_display_fields[$temp_xsdmf_id][Day]"}
 					{/if}
 					{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}
 				</td>
 			</tr>
-
         {* contvocab_selector *}
 		{elseif $xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector' && $xsd_display_fields[i].xsdmf_enabled == 1}
 				<tr id="tr_list_{$list[i].xsdmf_id}_0" valign="top" {if ($isEditor != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && $xsd_display_fields[i].xsdmf_required != 1) || $xsd_display_fields[i].xsdmf_invisible == 1 || ($xsd_display_fields[i].cvo_hide == 1 && $xsd_display_fields[i].xsdmf_cvo_min_level == 3 && !$isAdmin)}style="display:none"{/if}>
@@ -1207,7 +1152,6 @@
 				 </td>
 				</tr>
 				{/if}
-
         {* contvocab *}
 	    {elseif $xsd_display_fields[i].xsdmf_html_input == 'contvocab' && $xsd_display_fields[i].xsdmf_enabled == 1}
 
@@ -1229,7 +1173,6 @@
 			{/if}
 		{/if}
 {/section}
-
 {section name="i" loop=$xsd_display_fields}
 	{if $xsd_display_fields[i].xsdmf_html_input == 'org_selector' && $xsd_display_fields[i].xsdmf_use_org_to_fill == 1}
 		<script type="text/javascript">
@@ -1239,7 +1182,6 @@
 		</script>
 	{/if}
 {/section}
-
 <tr>
 	<td>
 		<script type="text/javascript">init_textarea_validation();</script>
