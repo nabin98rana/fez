@@ -48,7 +48,7 @@ Feature: Security
     And I press "Save Changes"
     And I follow "Logout"
     Given I am on "/"
-    And I fill in "Search Entry" with "title:(\"Security Test Collection\")"
+    And I fill in "Search Entry" with "title:(\"Security Test Collection Masqueraders\")"
     And I press "search_entry_submit"
     Then I should see "(0 results found)"
 
