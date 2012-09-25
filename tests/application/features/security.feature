@@ -117,8 +117,13 @@ Feature: Security
   Given I login as administrator
   And I fill in "Search Entry" with "title:(\"Security Test Community Open\")"
   And I press "search_entry_submit"
-  And I follow "More options"
-  And I follow "Delete Selected Record"
+  And I press "Select All"
+  And I turn off waiting checks
+  And I press "Delete"
+  And I confirm the popup
+  And I fill "automated test data cleanup" in popup
+  And I confirm the popup
+  And I turn on waiting checks
   And I follow "Logout"
   When I am on "/"
   And I wait for "10" seconds
