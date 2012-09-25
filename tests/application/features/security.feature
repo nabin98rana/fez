@@ -121,7 +121,7 @@ Feature: Security
   And I follow "Delete Selected Record"
   And I follow "Logout"
   When I am on "/"
-  And I wait for a bit
+  And I wait for "10" seconds
   And I fill in "Search Entry" with "title:(\"Security Test Collection Multiple Inheritance Open\")"
   And I press "search_entry_submit"
   Then I should see "(0 results found)"
@@ -140,7 +140,7 @@ Feature: Security
     And I confirm the popup
     And I turn on waiting checks
     When I am on "/"
-    And I wait for a bit
+    And I wait for "10" seconds
     And I fill in "Search Entry" with "title:(\"Security Test Collection\")"
     And I press "search_entry_submit"
     Then I should see "(0 results found)"
@@ -168,7 +168,7 @@ Scenario: Delete Security Test Communitys
   And I confirm the popup
   And I turn on waiting checks
   When I am on "/"
-  And I wait for a bit
+  And I wait for "10" seconds
   And I fill in "Search Entry" with "title:(\"Security Test Community\")"
   And I press "search_entry_submit"
   Then I should see "(0 results found)"
