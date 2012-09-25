@@ -65,18 +65,17 @@ if ($isAdministrator || $isUPO) {
 		$get_url = APP_FEDORA_APIM_PROTOCOL_TYPE.APP_FEDORA_LOCATION."/get"."/".$pid;	
 	}
 	$tpl->assign("fedora_get_view", 1);
+
+    $affilliations = AuthorAffiliations::getListAll($pid);
+    $tpl->assign('affilliations', $affilliations);
+    $tpl->assign("internal_notes", InternalNotes::readNote($pid));
 } else {
 	$tpl->assign("fedora_get_view", 0);	
 }
 
 $spyglasshref = ($isSuperAdministrator) ? $get_url : '#';
 $spyglassclick = ($isSuperAdministrator) ? "javascript:window.open('$get_url'); return false;" : "";
-if($isAdministrator)
-{
-    $affilliations = AuthorAffiliations::getListAll($pid);
-    $tpl->assign('affilliations', $affilliations);
-    $tpl->assign("internal_notes", InternalNotes::readNote($pid));
-}
+
 $tpl->assign('spyglasshref', $spyglasshref);
 $tpl->assign('spyglassclick', $spyglassclick);
 
