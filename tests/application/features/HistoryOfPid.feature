@@ -1,5 +1,5 @@
 # features/CheckHistory.feature
-@javascript @broken
+@javascript
 Feature: Test that the history for pids is working
 
   Scenario: I login as admin, make a change and see it is in the history
@@ -33,6 +33,8 @@ Feature: Test that the history for pids is working
     And I should see "Finished, Create Generic Record In Selected Collection by Test Admin"
     And I should see "Published by Test Admin - Testing edit reason"
     And I should see "Testing edit reason in history"
+    And I press "Close"
+    And I switch to window ""
 
 
   @destructive @purge
@@ -46,6 +48,3 @@ Feature: Test that the history for pids is working
     And I confirm the popup
     And I fill "automated test data cleanup" in popup
     And I confirm the popup
-    #This is needed to ensure the window is ready for the next Scenario
-    And I turn on waiting checks
-    Then I should see "(0 results found)"

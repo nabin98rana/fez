@@ -43,6 +43,3 @@ Feature: Check news displays correctly and Admin news displays only to the corre
   And I check "items[]"
   And I press "Delete"
   And I confirm the popup
-  #This is needed to ensure the window is ready for the next Scenario
-  And I turn on waiting checks
-  Then I should see "Manage News"
