@@ -118,7 +118,8 @@ class Record
     $stmt = "SELECT ".APP_SQL_CACHE."
           m1.rek_".$sek_title."
          FROM
-          " . APP_TABLE_PREFIX . "record_search_key_".$sek_title." m1
+          " . APP_TABLE_PREFIX . "record_search_key_".$sek_title." m1 INNER JOIN
+          " . APP_TABLE_PREFIX . "record_search_key m2 ON m1.rek_".$sek_title." = m2.rek_pid
          WHERE m1.rek_".$sek_title."_pid = ".$db->quote($pid);
     try {
       $res = $db->fetchCol($stmt);
