@@ -41,6 +41,7 @@ Feature: Security
     And I fill in "Keyword 1" with "automated testing"
     And I press "Publish"
     And I follow "Security Test Community"
+    And I wait for "2" seconds
     And I follow "Edit Security for Selected Collection"
     And I wait for a bit
     And I uncheck "Inherit Security from Parent Hierarchy?"
@@ -67,6 +68,7 @@ Feature: Security
   And I press "Publish"
   And I fill in "Search Entry" with "title:(\"Security Test Community UPOs\")"
   And I press "search_entry_submit"
+  And I wait for "2" seconds
   And I follow "Edit Security for Selected Community"
   And I wait for a bit
   And I choose the "Unit Publication Officers" group for the "Lister" role
@@ -129,6 +131,7 @@ Feature: Security
   When I am on "/"
   And I fill in "Search Entry" with "title:(\"Security Test Collection Multiple Inheritance Open\")"
   And I press "search_entry_submit"
+  And I wait for "2" seconds
   And I follow "Edit Security for Selected Collection"
   And I wait for a bit
   And I press "Save Changes"
