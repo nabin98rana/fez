@@ -6,9 +6,9 @@ Feature: Security
   I need to be able login as an administrator and go to a web page and edit security and set security so only admins can see it
   And login as as a non-administrator and not be able to access the pid view page
 
-#  Scenario: Logging in as Administrator
-#    Given I login as administrator
-#    Then I should see "You are logged in as Admin Test User"
+  Scenario: Logging in as Administrator
+    Given I login as administrator
+    Then I should see "You are logged in as Test Admin"
 
   @destructive @core
   Scenario: Create a Community as an administrator and see it as a non-logged in user

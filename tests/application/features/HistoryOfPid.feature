@@ -18,7 +18,7 @@ Feature: Test that the history for pids is working
     And I follow "Detailed History"
     And I turn off waiting checks
     And I switch to window "_impact"
-    And I should see "Finished, Create Generic Record In Selected Collection by admin test"
+    And I should see "Finished, Create Generic Record In Selected Collection by Test Admin"
     Then I should not see "Published by"
     And I press "Close"
     And I switch to window ""
@@ -30,8 +30,8 @@ Feature: Test that the history for pids is working
     And I follow "Detailed History"
     And I turn off waiting checks
     And I switch to window "_impact"
-    And I should see "Finished, Create Generic Record In Selected Collection by admin test"
-    And I should see "Published by admin test - Testing edit reason"
+    And I should see "Finished, Create Generic Record In Selected Collection by Test Admin"
+    And I should see "Published by Test Admin - Testing edit reason"
     And I should see "Testing edit reason in history"
 
 
