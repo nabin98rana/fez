@@ -35,6 +35,7 @@ Feature: Test that the history for pids is working
     And I should see "Testing edit reason in history"
     And I press "Close"
     And I switch to window ""
+    And I turn on waiting checks
 
 
   @destructive @purge
@@ -48,3 +49,5 @@ Feature: Test that the history for pids is working
     And I confirm the popup
     And I fill "automated test data cleanup" in popup
     And I confirm the popup
+    And I turn on waiting checks
+    And I should see "No records could be found"
