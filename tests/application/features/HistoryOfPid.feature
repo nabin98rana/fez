@@ -36,6 +36,7 @@ Feature: Test that the history for pids is working
     And I press "Close"
     And I switch to window ""
     And I turn on waiting checks
+    And I go to the test collection list page
 
 
   @destructive @purge
