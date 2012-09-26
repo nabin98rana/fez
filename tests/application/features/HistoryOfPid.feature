@@ -46,3 +46,4 @@ Feature: Test that the history for pids is working
     And I confirm the popup
     And I fill "automated test data cleanup" in popup
     And I confirm the popup
+    And I turn on waiting checks
