@@ -488,6 +488,21 @@ class FulltextQueue
 		}
 
 		if (count($res) == 0) {
+            //Sometimes the queue gets deleted pids in it as inserts so we'll delete them out
+            if (APP_SOLR_COMMIT_LIMIT > 0) {
+                $stmt = "DELETE ".APP_TABLE_PREFIX."fulltext_queue
+                        FROM ".APP_TABLE_PREFIX."fulltext_queue
+                        LEFT JOIN ".APP_TABLE_PREFIX."record_search_key ON rek_pid = ftq_pid
+                        WHERE ftq_op = '".FulltextQueue::ACTION_INSERT."'
+                        AND rek_pid IS NULL";
+                try {
+                    $db->query($stmt);
+                }
+                catch(Exception $ex) {
+                    $log->err($ex);
+                }
+            }
+
 			$log->debug("FulltextQueue::pop() Queue is empty.");
 			return false;
 		}
