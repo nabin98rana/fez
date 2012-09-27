@@ -71,6 +71,7 @@ Feature: Check Clone Records works correctly
     And I confirm the popup
     And I fill "automated test data cleanup" in popup
     And I confirm the popup
+    And I turn on waiting checks
     And I go to the test journal article view page
     And I should not see "Clone Test Title Journal Article (deposited"
 

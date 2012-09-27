@@ -21,7 +21,7 @@ class Fez_Filter_Htmlpurify implements Zend_Filter_Interface
 			$purified = array();
 			foreach($value as $k => $v)
 			{
-				$purified[$k] = $purify->purify($v);
+				$purified[$k] = $this->filter($v);
 			}
 		}
 		else 
