@@ -31,12 +31,12 @@ tree.icon.minusBottom = '{$rel_url}images/dtree/minusbottom.gif';
 tree.icon.nlPlus = '{$rel_url}images/dtree/nolines_plus.gif';
 tree.icon.nlMinus = '{$rel_url}images/dtree/nolines_minus.gif';
 
-{$xsd_tree}
+{$xsd_tree|smarty:nodefaults}
 
 document.write(tree);
 
 {section name="i" loop=$xsd_tree_open}
-{$xsd_tree_open[i]}
+{$xsd_tree_open[i]|smarty:nodefaults}}
 {/section}
 
 //tree.openAll();
