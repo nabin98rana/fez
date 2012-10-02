@@ -33,7 +33,7 @@
 						<td>
 							{if $xsd_display_fields[i].xsdmf_title == 'Handle'}
 								<a href="{$xsd_display_fields[i].xsdmf_value_prefix|escape:'url'}{$details[$temp_fld_id]|escape:'url'}">{$xsd_display_fields[i].xsdmf_value_prefix|escape:'htmlall'}{$details[$temp_fld_id]|escape:'htmlall'}</a>
-              {elseif ($xsd_display_fields[i].sek_title == "Author" || $xsd_display_fields[i].sek_title == "Editor" || $xsd_display_fields[i].sek_title == "Keywords"
+              {elseif ($xsd_display_fields[i].sek_title == "Author" || $xsd_display_fields[i].sek_title == "Contributor" || $xsd_display_fields[i].sek_title == "Keywords"
               || $xsd_display_fields[i].sek_title == "DOI" || $xsd_display_fields[i].sek_title == "Subject" || $xsd_display_fields[i].sek_title == "Language"
               || $xsd_display_fields[i].sek_title == "Journal Name" || $xsd_display_fields[i].sek_title == "Proceedings Title"
               || $xsd_display_fields[i].sek_title == "Conference Name" || $xsd_display_fields[i].sek_title == "Subject"
