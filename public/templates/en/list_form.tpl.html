@@ -256,8 +256,8 @@
     {/foreach}
 	{if is_array($alternativeAuthorNamesList) && count($alternativeAuthorNamesList) > 1}
 		<li><strong>Names this author has published as</strong></li>
-		{foreach from=$alternativeAuthorNamesList item=authorLink}
-		<li class="facetarrow">{$authorLink}</li>
+		{foreach from=$alternativeAuthorNamesList|smarty:nodefaults item=authorLink}
+		<li class="facetarrow">{$authorLink|smarty:nodefaults}</li>
 		{/foreach}
 		<li>&nbsp;</li>
 	{/if}
