@@ -12,7 +12,7 @@
 
 {section name="i" loop=$list}
 
-    <p>{$list[i].rek_citation_stripped}</p>
+    <p>{$list[i].rek_citation_stripped|smarty:nodefaults}</p>
 
 {/section}
 

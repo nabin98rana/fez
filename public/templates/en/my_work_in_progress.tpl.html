@@ -7,7 +7,7 @@ Work In Progress <span class="default">(unpublished items you can edit)</span>
 </div>
 <span>
 {if $items_info.total_rows != 0}
-Showing items {math equation="x + 1" x=$items_info.current_row} 
+Showing items {math equation="x + 1" x=$items_info.current_row}
 to {$items_info.current_last_row} of {$items_info.total_rows}
 {else}
 No items found
@@ -23,7 +23,7 @@ No items found
    <table class="my_fez_table" width="100%" cellpadding="0">
      <tr>
        <th style="width: 10px;"><input type="button" value="All" onclick="javascript:toggleSelectAll(this.form, 'pids[]');" /></th>
-       
+
        {if $options.searchKeycore_8 == ""}
        <th class="default tableheader" style="white-space: nowrap;" valign="middle">
        {if $options.sort_order == "1"}
@@ -33,7 +33,7 @@ No items found
        {/if}
        </th>
        {/if}
-       
+
 		<th class="default tableheader" nowrap valign="middle">
 			{if $options.sort_by == 'searchKeycore_90'}
 	       		<a href='{$page_url_order}&sort_by=searchKeycore_91&sort_order=0' title="Click to sort by first author in {$app_name}">1st Author in Document</a>
@@ -54,7 +54,7 @@ No items found
        </th>
        <th>
         &nbsp;
-       </th>           
+       </th>
      </tr>
 
 {assign var="list" value=$my_assigned_items_list}
@@ -67,7 +67,7 @@ No items found
          {cycle values=$cycle assign="row_color"}
      <tr>
        <td style="width: 10px;" class="default"><input type="checkbox" name="pids[]" value="{$list[i].rek_pid}" /></td>
-        
+
        <td class="default">
         {section name="m" loop=$list[i].rek_ismemberof.rek_pid}
         <a title="click to open the published list of records in this collection" href="{$rel_url}collection/{$list[i].rek_ismemberof.rek_pid[m]}">{$list[i].rek_ismemberof.rek_title[m]|escape}</a><br />
@@ -86,22 +86,22 @@ No items found
 		</td>
 
        <td style="width: 100%;" class="default">
-        
+
         <a href="{$rel_url}view/{$list[i].rek_pid|escape}"><img align="absmiddle" src="{$icon}" border="0"></a>
         <a href="{$rel_url}view/{$list[i].rek_pid|escape}" class="title_link">
-          {if ($list[i].rek_citation)}{$list[i].rek_citation}{else}{$list[i].rek_title}{/if}
+          {if ($list[i].rek_citation)}{$list[i].rek_citation|smarty:nodefaults}{else}{$list[i].rek_title}{/if}
         </a>
-            
+
          (Created: {$list[i].rek_created_date|date_format:"%c"}{if $list[i].rek_updated_date <> $list[i].rek_created_date} Last Updated: {$list[i].rek_updated_date|date_format:"%c"}{/if})
-      
+
      </td>
      <td nowrap valign="middle" class="default">
-    {if $list[i].isEditor==1 || $isAdministrator}                  
+    {if $list[i].isEditor==1 || $isAdministrator}
         <a href="workflow/list_workflows2.php?pid={$list[i].rek_pid|escape}"><img src="{$rel_url}images/options_16.png" alt="More options" title="More options" border="0" width="16" height="16" /></a>
     {/if}
     {section name="w" loop=$list[i].wft_id}
        {if $list[i].wft_id[w] != ''}
-        
+
         {if $list[i].wft_icon[w] == 'images/security.gif'}
           {if $list[i].security == 'include'}
             {assign var="wf_icon" value="images/security_include.gif"}
@@ -115,17 +115,17 @@ No items found
         {else}
           {assign var="wf_icon" value=$list[i].wft_icon[w]}
         {/if}
-        
+
         {if $list[i].wft_type_id[w] == 6}
             {assign var='wf_url' value=$rel_url|cat:'workflow/export.php'}
         {else}
             {assign var='wf_url' value=$rel_url|cat:'workflow/update.php'}
         {/if}
-        <a href="{$wf_url}?pid={$list[i].rek_pid|escape:"html"}&amp;cat=select_workflow&amp;xdis_id={$list[i].rek_display_type}&amp;wft_id={$list[i].wft_id[w]}&amp;href={$smarty.server.REQUEST_URI|escape:'url'}"><img alt="{$list[i].wfl_title[w]}" title="{$list[i].wfl_title[w]}" src="{$rel_url}{$wf_icon}" border="0" /></a> 
+        <a href="{$wf_url}?pid={$list[i].rek_pid|escape:"html"}&amp;cat=select_workflow&amp;xdis_id={$list[i].rek_display_type}&amp;wft_id={$list[i].wft_id[w]}&amp;href={$smarty.server.REQUEST_URI|escape:'url'}"><img alt="{$list[i].wfl_title[w]}" title="{$list[i].wfl_title[w]}" src="{$rel_url}{$wf_icon}" border="0" /></a>
       {/if}
      {/section}
      </td>
-       
+
      </tr>
      {sectionelse}
      <tr>
@@ -136,7 +136,7 @@ No items found
      {/section}
 
      {include file="my_fez_table_footer.tpl.html"}
-     
+
      </table>
-     
+
    </form>

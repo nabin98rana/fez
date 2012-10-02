@@ -7,7 +7,7 @@ function notMine(pid)
 		document.getElementById('not-mine-pid').value = pid;
 		document.forms['notMine'].submit();
 	/*}*/
-    
+
     return;
 }
 
@@ -22,17 +22,17 @@ function notMineBulk()
 			count++;
 		}
 	}
-	
+
 	if (count == 0) {
 		window.alert('No records were marked for authorship removal.');
 		return;
 	}
-	
+
 	if (confirm('You are about to mark the ticked records as not being authored by you. Proceed?')) {
 		document.getElementById('bulk-not-mine-pids').value = pids;
 		document.forms['claimedForm'].submit();
 	}
-	
+
 	return;
 }
 
@@ -40,7 +40,7 @@ function correctionRequired(pid)
 {
 	document.getElementById('correction-pid').value = pid;
 	document.forms['correctMe'].submit();
-	
+
 	return;
 }
 
@@ -58,14 +58,14 @@ function correctionRequired(pid)
 
 <form action="{$rel_url}my_research_claimed.php" method="post" id="claimedForm">
 	{include file="paging_control_header.tpl.html" hide_list_heading="true"}
-	
-	
+
+
 	{if ($facets || $terms)}
     <div class="facet">
     <div class="facetheader">
     	<h2>Refine (10 facets)</h2>
     </div>
-    
+
 	{if $terms}
 		<div id="research-refine-filter"><b>Refine Filter:</b> {$terms} <a href="{$relurl}my_research_claimed.php?reset=1">(reset)</a></div>
 	{/if}
@@ -95,11 +95,11 @@ function correctionRequired(pid)
 
     </div>
     {/if}
-	
+
 	{section name="i" loop=$list}
-	
+
 		{assign var=pid value=$list[i].rek_pid}
-	
+
 		{if $smarty.section.i.first}
 
 			<table id="research-record-listing">
@@ -141,7 +141,7 @@ function correctionRequired(pid)
 			        <th></th>
 			    </tr>
 		{/if}
-	
+
 		<tr class="
 		{if $list[i].rek_status != '2'}unpublished-pub
 		{elseif $flagged_claimed[$pid].type == 'C'}claimed-correction-required
@@ -149,7 +149,7 @@ function correctionRequired(pid)
 		{elseif $flagged_claimed[$pid].type == 'U' && $flagged_claimed[$pid].correction != ''}claimed-duplication
 		{elseif $flagged_claimed[$pid].type == 'D'}claimed-not-my-pub{/if}">
 
-			<td style="width: 100%;">  
+			<td style="width: 100%;">
 			{if $list[i].rek_status != 2} <b>(waiting on an administrator for approval to be published)</b> {/if}
                 {if $isAdministrator || $isUPO}
 				{if $list[i].rek_display_type_lookup == "Book" || $list[i].rek_display_type_lookup == "Book Chapter" || $list[i].rek_display_type_lookup == "Journal Article" || $list[i].rek_display_type_lookup == "Conference Paper"}
@@ -186,13 +186,13 @@ function correctionRequired(pid)
                         <strong>Total Pages:</strong> {$list[i].rek_total_pages}<br /><br /><br />
 						<strong>HERDC Notes:</strong> {$list[i].rek_herdc_notes}<br /><br />
                         <strong>Internal Notes:</strong> {$list[i].rek_internal_notes}<br /><br />
-					</span>	
+					</span>
 					<img src="{$rel_url}images/views_16.png" alt="" />
 				</a>
 				{/if}
                 {/if}
 				{if $list[i].rek_citation != ""}
-					{$list[i].rek_citation}
+					{$list[i].rek_citation|smarty:nodefaults}
 				{else}
 					<a href="{$rel_url}view/{$list[i].rek_pid}" target="_blank">{$list[i].rek_title|escape:"html"}</a>
 				{/if}
@@ -216,7 +216,7 @@ function correctionRequired(pid)
 					-
 				{/if}
 			</td>
-			
+
 			<td style="vertical-align: middle; text-align: center;">
 				{if $list[i].rek_thomson_citation_count != ""}
 					<a href="{$rel_url}rid_citation_count_history_{$list[i].rek_pid|escape:"html"}" title="Cited {$list[i].rek_thomson_citation_count} times in Thomson Reuters Researcher ID">{$list[i].rek_thomson_citation_count}</a>
@@ -224,7 +224,7 @@ function correctionRequired(pid)
 					{$list[i].rek_thomson_citation_count}
 				{/if}
 			</td>
-			
+
 			<td style="vertical-align: middle; text-align: center;">
 				{if $list[i].rek_scopus_citation_count != ""}
 					<a href="{$rel_url}scopus_citation_count_history_{$list[i].rek_pid|escape:"html"}" class="form_note"> <span class="form_note">Cited {$list[i].rek_scopus_citation_count} times in Scopus</span>{$list[i].rek_scopus_citation_count}</a>
@@ -232,7 +232,7 @@ function correctionRequired(pid)
 					{$list[i].rek_scopus_citation_count}
 				{/if}
 			</td>
-			
+
 			<td>
 				{if $flagged_claimed[$pid].type == 'D'}
 					<div class="research-record-note">
@@ -267,21 +267,21 @@ function correctionRequired(pid)
 						{/if}
 					</div>
 				{/if}
-				
+
 				{*if $flagged_claimed[$pid].type != 'D'}
 					<input type="button" class="claimed-not-my-pub" value="Not mine" onclick="javascript:notMine('{$list[i].rek_pid}');" /><br />
 				{/if*}
-				
+
 				{*if $flagged_claimed[$pid].type != 'C'*}
 					<input type="button" class="claimed-correction-required" value="Fix" onclick="javascript:correctionRequired('{$list[i].rek_pid}');" />
 				{*/if*}
 			</td>
-			
+
 		</tr>
-		
+
 		{if $smarty.section.i.last}
 			</table>
-			
+
 			<div>
 				<input type="hidden" id="bulk-not-mine-pids" name="bulk-not-mine-pids" value="" />
 				<input type="hidden" name="action" value="not-mine-bulk" />
@@ -295,18 +295,18 @@ function correctionRequired(pid)
 		<p>We could not find any publications that are currently attributed to you.</p>
 		{/if}
 	{/section}
-	
+
 </form>
        	&nbsp;
-	    {include file="paging_control.tpl.html" field="paginat0r"}		
-<form action="{$rel_url}my_research_claimed.php" method="post" id="notMine">	
+	    {include file="paging_control.tpl.html" field="paginat0r"}
+<form action="{$rel_url}my_research_claimed.php" method="post" id="notMine">
 	<div>
 		<input type="hidden" id="not-mine-pid" name="pid" value="" />
 		<input type="hidden" name="action" value="not-mine" />
 	</div>
 </form>
 
-<form action="{$rel_url}my_research_claimed.php" method="post" id="correctMe">	
+<form action="{$rel_url}my_research_claimed.php" method="post" id="correctMe">
 	<div>
 		<input type="hidden" id="correction-pid" name="pid" value="" />
 		<input type="hidden" name="action" value="correction" />

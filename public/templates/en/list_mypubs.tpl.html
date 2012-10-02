@@ -201,7 +201,7 @@
 
 		  <td align="left"{if $icon}{else} colspan="2"{/if} valign="middle" style="border-top:1px dashed #be87e9; width: 100%;">
             {if $list[i].rek_citation != ""}
-            {$list[i].rek_citation}
+            {$list[i].rek_citation|smarty:nodefaults}
             {else}
             {if $href_view}<a href='{$rel_url}{$href_view}' title='{$list[i].rek_title}'>{/if}{$list[i].rek_title|escape:"html"}{if $href_view}</a>{/if}
             {/if}

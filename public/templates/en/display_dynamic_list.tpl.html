@@ -3,7 +3,7 @@
 	{foreach from=$list key=itemNumber item=items}
 		document.write('<tr class="fez-citations">');
 		document.write('<td class="fez-citations-item">');
-		document.write('{$items.rek_citation}');
+		document.write('{$items.rek_citation|smarty:nodefaults}');
 		document.write('</td>');
 		document.write('</tr>');
 	{/foreach}
@@ -11,7 +11,7 @@
 	document.write('<ul class="fez-citations">');
 	{foreach from=$list key=itemNumber item=items}
 		document.write('<li class="fez-citations-item">');
-		document.write('{$items.rek_citation}');
+		document.write('{$items.rek_citation|smarty:nodefaults}');
 		document.write('</li>');
 	{/foreach}
 	document.write('</ul>');

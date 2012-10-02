@@ -4,11 +4,11 @@
 <table id="front-page-container">
   <tr>
     <td>
-	  <div class="front-page-content-header"><img src="{$rel_url}images/search_22.jpg" alt="Search" title="Search" /> Search </div> 
+	  <div class="front-page-content-header"><img src="{$rel_url}images/search_22.jpg" alt="Search" title="Search" /> Search </div>
 	  <div class="front-page-content-detail">
 		<form method="get" action="{$rel_url}list.php">
 			<div>
-			<input type="hidden" name="cat" value="quick_filter" />		
+			<input type="hidden" name="cat" value="quick_filter" />
    (title, keywords, abstract)<br />
 			  <input type="hidden" name="sort_by" value="searchKey0" />
 			  <input type="text" id="front_search" name="search_keys[0]" size="40" onkeyup="javascript: selectSearchSuggestor(this.form, 'front_search')" />
@@ -17,13 +17,13 @@
 			  <a href="#" onclick="javascript:alert('Search all fields\n\nSelect search on the navigation bar above for advanced options \n\nFor advanced users most Solr search terms are available in this search.\n\nSome examples are-\n\n  date_year:[2001 TO 2003]\n\n  updated_date:[NOW/DAY-3DAY TO *]\n\n  !ismemberof:xx:237156 AND !ismemberof:xx:247259 AND herdc_code:(&#34;C1&#34;) AND date_year:(2011) AND institutional_status:(&#34;xx&#34;) AND updated_date:[NOW/DAY-10DAY TO *]\n\nSee Solr for more options')">Help</a>
               <br />Use <a href="{$rel_url}adv_search.php"><b>Advanced Search</b></a> to search by multiple criteria<br />&nbsp;
 			</div>
-		</form>	  
+		</form>
 	  </div>
 
 	  <div class="front-page-content-header"><img src="{$rel_url}images/browse_22.jpg" alt="Browse" title="Browse" /> Browse</div>
 	  <div class="front-page-content-detail">
 		<div>
-<a class="author_id_link" href="{$rel_url}list.php?browse=author_id" title="Browse records linked to Author IDs (won't show non-{$application_title} authors)">by {$application_title} Author ID</a> | 
+<a class="author_id_link" href="{$rel_url}list.php?browse=author_id" title="Browse records linked to Author IDs (won't show non-{$application_title} authors)">by {$application_title} Author ID</a> |
 <a href="{$rel_url}list.php?browse=author" title="Browse by Author Names (strings) as they appear in records (not author ID linked)">by Author Name</a> |
 <a href="{$rel_url}list.php?browse=subject">by Subject</a> |
 <a href="{$rel_url}list.php">by Organisational Unit</a> |
@@ -46,11 +46,11 @@
 	  <div class="front-page-content-header"><img src="{$rel_url}images/recently_added_22.png" alt="Recently Added Items" title="Recently Added Items" /> Recently Added Items</div>
 	  <div class="front-page-content-detail">
 		<ul class="front-page-list">
-	        {section name="i" loop=$list}		
+	        {section name="i" loop=$list}
 				{if $list[i].rek_object_type == 1}
 	                {assign var="href_view" value="community/"|cat:$list[i].rek_pid|escape:"html"}
 	                {assign var="icon" value="images/community.jpg" }
-	                {if ($list[i].isEditor==1 || $isAdministrator)} 
+	                {if ($list[i].isEditor==1 || $isAdministrator)}
 	                        {assign var="showEdit" value=true}
 	                {else}
 	                        {assign var="showEdit" value=false}
@@ -58,7 +58,7 @@
 	           {elseif $list[i].rek_object_type == 2}
 	                {assign var="href_view" value="collection/"|cat:$list[i].rek_pid|escape:"html"}
 	                {assign var="icon" value="images/collection.jpg" }
-	                {if $isUser && ($list[i].isEditor==1 || $isAdministrator)}  
+	                {if $isUser && ($list[i].isEditor==1 || $isAdministrator)}
 	                        {assign var="showEdit" value=true}
 	                {else}
 	                        {assign var="showEdit" value=false}
@@ -74,33 +74,33 @@
 					{else}
 		                {assign var="icon" value="images/record.jpg" }
 					{/if}
-	                {if $isUser } 
+	                {if $isUser }
 	                        {assign var="showEdit" value=true}
 	                {else}
 	                        {assign var="showEdit" value=false}
 	                {/if}
 	           {/if}
-				{if $list[i].rek_created_date} 
+				{if $list[i].rek_created_date}
 					{if ($list[i].rek_created_date|date_format:"%Y-%m-%d") != $today}
 						{if (($list[i].day_name) != $day_name && ($list[i].rek_created_date|date_format:"%Y-%m-%d") != $yesterday) || (($list[i].rek_created_date|date_format:"%Y-%m-%d") == $yesterday && $day_name != "Yesterday")}
 							{if ($list[i].day_name) == $today_day_name}
 								{assign var="day_name_pre" value=$list[i].day_name}
 								{assign var="day_name" value=$last|cat:$day_name_pre}
 							{else}
-								{if ($list[i].rek_created_date|date_format:"%Y-%m-%d") == $yesterday}								
-									{assign var="day_name" value="Yesterday"}		
+								{if ($list[i].rek_created_date|date_format:"%Y-%m-%d") == $yesterday}
+									{assign var="day_name" value="Yesterday"}
 								{else}
-									{assign var="day_name" value=$list[i].day_name}							
+									{assign var="day_name" value=$list[i].day_name}
 								{/if}
 							{/if}
-						{/if}				
+						{/if}
 					{elseif $day_name != "Today"}
 					  {assign var="day_name" value="Today"}
 					{/if}
 			{/if}
 					<li>
 					{if $list[i].rek_citation != ""}
-					{$list[i].rek_citation}
+					{$list[i].rek_citation|smarty:nodefaults}
 					{else}
 					{if $href_view}<a href='{$href_view}' >{/if}
 					{$list[i].rek_title}
@@ -127,9 +127,9 @@
 				                            {else}
 				                              {assign var='wf_url' value=$rel_url|cat:'workflow/update.php'}
 				               			    {/if}
-							<a href="{$wf_url}?pid={$list[i].rek_pid|escape:"html"}&amp;cat=select_workflow&amp;xdis_id={$list[i].rek_display_type}&amp;wft_id={$list[i].wft_id[w]}&amp;href={$smarty.server.REQUEST_URI}"{if $list[i].wft_icon[w] == 'images/delete.gif'} onclick="return confirmDelete();"{/if}><img alt="{$list[i].wfl_title[w]}" title="{$list[i].wfl_title[w]}" src="{$rel_url}{$wf_icon}" border="0" /></a> 
+							<a href="{$wf_url}?pid={$list[i].rek_pid|escape:"html"}&amp;cat=select_workflow&amp;xdis_id={$list[i].rek_display_type}&amp;wft_id={$list[i].wft_id[w]}&amp;href={$smarty.server.REQUEST_URI}"{if $list[i].wft_icon[w] == 'images/delete.gif'} onclick="return confirmDelete();"{/if}><img alt="{$list[i].wfl_title[w]}" title="{$list[i].wfl_title[w]}" src="{$rel_url}{$wf_icon}" border="0" /></a>
 							  {/section}
-				                <a href="workflow/list_workflows2.php?pid={$list[i].rek_pid|escape}"><img src="{$rel_url}images/options_16.png" alt="More options" title="More options" border="0" width="16" height="16" /></a> 
+				                <a href="workflow/list_workflows2.php?pid={$list[i].rek_pid|escape}"><img src="{$rel_url}images/options_16.png" alt="More options" title="More options" border="0" width="16" height="16" /></a>
 				           {/if}
 
 					</li>

@@ -1,0 +1,4 @@
+insert ignore into %TABLE_PREFIX%config (config_name, config_module, config_value) values ('app_input_filters','core','Zend_Filter_Alnum, Fez_Filter_Alnum, Fez_Filter_Basicstring, Fez_Filter_Datearray, Fez_Filter_Htmlpurify, Fez_Filter_Pid, Zend_Filter_Boolean,Zend_Filter_Digits,Zend_Filter_HtmlEntities,Zend_Filter_Int,Zend_Filter_Null,Zend_Filter_StringToLower,Zend_Filter_StringToUpper,Zend_Filter_StringTrim,Zend_Filter_StripNewlines,Zend_Filter_StripTags,Fez_Filter_RichTextHtmlpurify');
+INSERT INTO %TABLE_PREFIX%input_filter (ift_input_name, ift_filter_class)
+SELECT xsdmf_id, 'Fez_Filter_RichTextHtmlpurify'
+FROM %TABLE_PREFIX%xsd_display_matchfields WHERE xsdmf_html_input = 'rich_text';

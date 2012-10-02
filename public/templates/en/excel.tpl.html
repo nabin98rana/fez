@@ -19,7 +19,7 @@
     <td>{$list[i].rek_pid|escape:"html"}</td>
     <td>{$list[i].rek_title|escape:"html"}</td>
     <td>{$list[i].rek_genre|escape:"html"}</td>
-    <td>{$list[i].rek_citation_stripped|escape:"html"}</td>
+    <td>{$list[i].rek_citation_stripped|smarty:nodefaults|escape:"html"}</td>
     <td>{$list[i].rek_views|escape:"html"}</td>
     <td>{$list[i].rek_file_downloads|escape:"html"}</td>
     <td>{$list[i].rek_thomson_citation_count|escape:"html"}</td>

@@ -7,17 +7,17 @@
 <generator>Fez {$application_version}</generator>
 {section name="i" loop=$list}
 {if $list[i].rek_object_type == '1'}
-{assign var="href_view" value="community/"|cat:$list[i].rek_pid|escape:"html"}  
+{assign var="href_view" value="community/"|cat:$list[i].rek_pid|escape:"html"}
 {elseif $list[i].rek_object_type == '2'}
 {assign var="href_view" value="collection/"|cat:$list[i].rek_pid|escape:"html"}
 {else}
-{assign var="href_view" value="view/"|cat:$list[i].rek_pid|escape:"html"}	      
+{assign var="href_view" value="view/"|cat:$list[i].rek_pid|escape:"html"}
 {/if}
 <item>
 	<title>{$list[i].rek_title|escape:"html"}</title>
 
 	<pid>{$list[i].rek_pid|escape:"html"}</pid>
-        <citation><![CDATA[{$list[i].rek_citation}]]></citation>
+        <citation><![CDATA[{$list[i].rek_citation|smarty:nodefaults}]]></citation>
 	<identifier>{$app_base_url}{$href_view}</identifier>
 	<description>{$list[i].rek_description|escape:"html"}</description>
 	<genre>{$list[i].rek_genre|escape:"html"}</genre>

@@ -8,7 +8,7 @@
 
 <div>
 {if $items_info.total_rows != 0}
-Showing items {math equation="x + 1" x=$items_info.current_row|default:0} 
+Showing items {math equation="x + 1" x=$items_info.current_row|default:0}
 to {$items_info.current_last_row} of {$items_info.total_rows}
 {else}
 No items found
@@ -16,13 +16,13 @@ No items found
 </div>
 
 </form>
-<form name="assigned_records" method="post" action="{$rel_url}popup.php" target="_popup">     
+<form name="assigned_records" method="post" action="{$rel_url}popup.php" target="_popup">
 <input type="hidden" name="cat" value="delete_objects" />
 
    <table class="my_fez_table" width="100%" cellpadding="0">
      <tr>
        <th width="10"><input type="button" value="All" onclick="javascript:toggleSelectAll(this.form, 'pids[]');" class="button" /></th>
-       {if $options.searchKeycore_9 == "" || $options.searchKeycore_9 == "ALL" || $options.searchKeycore_9 == '-4'}     
+       {if $options.searchKeycore_9 == "" || $options.searchKeycore_9 == "ALL" || $options.searchKeycore_9 == '-4'}
        <th class="default tableheader" nowrap>
        {if $options.sort_order == "1"}
        <a href='{$rel_url}{$page_url_order}&sort_by=searchKeycore_9&sort_order=0'>Status{if $options.sort_by == "searchKeycore_9"}<img border="0" title="click to sort by Status Ascending" src="{$rel_url}images/sort_asc_off_16.gif" align="middle">{/if}</a>
@@ -31,7 +31,7 @@ No items found
        {/if}
        </th>
        {/if}
-       
+
        {if $options.searchKeycore_8 == ""}
        <th class="default tableheader" nowrap>
        {if $options.sort_order == "1"}
@@ -41,7 +41,7 @@ No items found
        {/if}
        </td>
        {/if}
-       
+
 		<th class="default tableheader" nowrap valign="middle">
 			{if $options.sort_by == 'searchKeycore_90'}
 	       		<a href='{$page_url_order}&sort_by=searchKeycore_91&sort_order=0' title="Click to sort by first author in {$app_name}">1st Author in Document</a>
@@ -59,7 +59,7 @@ No items found
        {else}
        <a href='{$rel_url}{$page_url_order}&sort_by=searchKeycore_2&sort_order=1'>Title{if $options.sort_by == "searchKeycore_2"}<img border="0" title="click to sort by Title Descending"  src="{$rel_url}images/sort_desc_off_16.gif" align="middle">{/if}</a>
        {/if}
-       </th>  
+       </th>
        <th>
         &nbsp;
        </th>
@@ -73,14 +73,14 @@ No items found
 		{else}
 			{assign var="icon" value="images/record.png"}
 		{/if}
-		
+
    <tr>
         <td width="10" class="default"><input type="checkbox" name="pids[]" value="{$list[i].rek_pid}" /></td>
 	    {assign var="status_id" value=$list[i].rek_status}
         {if $options.searchKeycore_9 == "" || $options.searchKeycore_9 == '-4'}
         <td class="default">{$status_list[$status_id]}</td>
-        {/if}     
-        
+        {/if}
+
 	   {if $options.searchKeycore_8 == ""}
          <td class="default">
     		{section name="m" loop=$list[i].rek_ismemberof.rek_pid}
@@ -101,16 +101,16 @@ No items found
 
         <td class="default">
             <a href="{$rel_url}view/{$list[i].rek_pid|escape}"><img align="absmiddle" src="{$icon}" border="0"></a>
-            <a href="{$rel_url}view/{$list[i].rek_pid|escape}" class="title_link">{$list[i].rek_citation}</a>
+            <a href="{$rel_url}view/{$list[i].rek_pid|escape}" class="title_link">{$list[i].rek_citation|smarty:nodefaults}</a>
             <br />(Created: {$list[i].rek_created_date|date_format:"%c"}{if $list[i].rek_updated_date <> $list[i].rek_created_date} Last Updated: {$list[i].rek_updated_date|date_format:"%c"}{/if})
        </td>
         <td nowrap valign="middle" class="default">
-        {if $list[i].isEditor==1 || $isAdministrator}		          
+        {if $list[i].isEditor==1 || $isAdministrator}
            <a href="workflow/list_workflows2.php?pid={$list[i].rek_pid|escape}"><img src="{$rel_url}images/options_16.png" alt="More options" title="More options" border="0" width="16" height="16" /></a>
 		{/if}
         {section name="w" loop=$list[i].wft_id}
 	    {if $list[i].wft_id[w] != ''}
-	    
+
 	    {if $list[i].wft_icon[w] == 'images/security.gif'}
 	      {if $list[i].security == 'include'}
 	        {assign var="wf_icon" value="images/security_include.gif"}
@@ -124,24 +124,24 @@ No items found
         {else}
 	      {assign var="wf_icon" value=$list[i].wft_icon[w]}
 	    {/if}
-	    
+
         {if $list[i].wft_type_id[w] == 6}
             {assign var='wf_url' value=$rel_url|cat:'workflow/export.php'}
         {else}
             {assign var='wf_url' value=$rel_url|cat:'workflow/update.php'}
   		{/if}
-	   <a href="{$wf_url}?pid={$list[i].rek_pid|escape:"html"}&amp;cat=select_workflow&amp;xdis_id={$list[i].rek_display_type}&amp;wft_id={$list[i].wft_id[w]}&amp;href={$smarty.server.REQUEST_URI|escape:'url'}"><img alt="{$list[i].wfl_title[w]}" title="{$list[i].wfl_title[w]}" src="{$rel_url}{$wf_icon}" border="0" /></a> 
+	   <a href="{$wf_url}?pid={$list[i].rek_pid|escape:"html"}&amp;cat=select_workflow&amp;xdis_id={$list[i].rek_display_type}&amp;wft_id={$list[i].wft_id[w]}&amp;href={$smarty.server.REQUEST_URI|escape:'url'}"><img alt="{$list[i].wfl_title[w]}" title="{$list[i].wfl_title[w]}" src="{$rel_url}{$wf_icon}" border="0" /></a>
 	  {/if}
 	  {/section}
      </td>
      <td nowrap align="center" valign="middle" class="default">
         {if $list[i].Relevance}<b>{$list[i].Relevance|@number_format:"2"}</b>{/if}
         {if $list[i].rek_object_type == '3'}
-            {if $list[i].rek_views}<br />{$list[i].rek_views|escape:"html"}&nbsp;Abstract&nbsp;View{if $list[i].rek_views > 1}s{/if}<br />{/if} 
+            {if $list[i].rek_views}<br />{$list[i].rek_views|escape:"html"}&nbsp;Abstract&nbsp;View{if $list[i].rek_views > 1}s{/if}<br />{/if}
             {if $list[i].rek_file_downloads}{$list[i].rek_file_downloads|escape:"html"}&nbsp;<a class="author_link" href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].rek_pid}">File&nbsp;Download{if $list[i].rek_file_downloads > 1}s{/if}</a>{/if}
-        {/if} 
+        {/if}
      </td>
-     
+
    </tr>
    {sectionelse}
    <tr>
@@ -150,7 +150,7 @@ No items found
      </td>
    </tr>
    {/section}
-   
+
     {include file="my_fez_table_footer.tpl.html"}
 
  </table>
