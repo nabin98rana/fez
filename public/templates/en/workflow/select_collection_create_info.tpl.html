@@ -1,6 +1,6 @@
 <script type="text/javascript">
 <!--
-{$najax_register}
+{$najax_register|smarty:nodefaults}
 {literal}
 
 var dt_load_state = 0;
@@ -21,7 +21,7 @@ function selectCommunity(f, field_name)
 {
     if (dt_load_state > 0) {
        return false;
-    } 
+    }
     var field = getFormElement(f, field_name);
     var selections = getSelectedItems(field);
 
@@ -90,6 +90,6 @@ function validateForm(f)
 </tr>
 
 </table>
-<script type="text/javascript"><!-- 
-selectCommunity(getForm('wfl_form1'), 'community_pid'); 
+<script type="text/javascript"><!--
+selectCommunity(getForm('wfl_form1'), 'community_pid');
 // --></script>

@@ -1,7 +1,7 @@
 
 <script type="text/javascript">
 <!--
-{$najax_register}
+{$najax_register|smarty:nodefaults}
 {literal}
 var coll_load_state = 0;
 
@@ -22,7 +22,7 @@ function selectCommunity(f, field_name)
 {
     if (coll_load_state > 0) {
        return false;
-    } 
+    }
     var field = getFormElement(f, field_name);
     var selections = getSelectedItems(field);
 
@@ -42,7 +42,7 @@ function selectCommunity(f, field_name)
                 addOptions(f, 'collection_pid', collections_list);
                 hideLoading();
                 coll_load_state--;
-                selectCollection(f, 'collection_pid'); 
+                selectCollection(f, 'collection_pid');
                 });
     }
 }
@@ -64,7 +64,7 @@ function selectCollection(f, field_name)
 {
     if (dt_load_state > 0) {
        return false;
-    } 
+    }
     var field = getFormElement(f, field_name);
     var selections = getSelectedItems(field);
 
@@ -133,7 +133,7 @@ function validateForm(f)
     </select>
   </td>
 </tr>
-    
+
 <tr style="display:none;" id="tr_xdis_id">
   <td bgcolor="{$cell_color}" class="default">
     <b>Document Type</b>
@@ -144,8 +144,8 @@ function validateForm(f)
     </select>
   </td>
 </tr>
-<script type="text/javascript"><!-- 
-selectCommunity(getForm('wfl_form1'), 'community_pid'); 
+<script type="text/javascript"><!--
+selectCommunity(getForm('wfl_form1'), 'community_pid');
 // --></script>
 
 

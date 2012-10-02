@@ -164,7 +164,7 @@ form.xsdmf_editor_input_form  {
 </style>
 
 <script type="text/javascript">
-{$najax_register}
+{$najax_register|smarty:nodefaults}
 </script>
 
 <div class="list_heading">
@@ -172,7 +172,7 @@ form.xsdmf_editor_input_form  {
 </div>
 
 <div class="list_numbers">
-<b>({$list_info.total_rows} results found{if $list_info.end_offset > 0}, {math equation="x + 1" x=$list_info.start_offset|default:0} - {$list_info.end_offset} shown{/if}) ({$list_info.hidden_rows} hidden)</b> 
+<b>({$list_info.total_rows} results found{if $list_info.end_offset > 0}, {math equation="x + 1" x=$list_info.start_offset|default:0} - {$list_info.end_offset} shown{/if}) ({$list_info.hidden_rows} hidden)</b>
 </div>
                    <div class="list_order">
                    <form name="order_by_form">
@@ -191,11 +191,11 @@ form.xsdmf_editor_input_form  {
 	  <div class="li_pid">{$item.pid}</div>
 	  <div class="li_title">{$item.title[0]}</div>
 	  <div class="li_description">{$item.description[0]}</div>
-	  <div class="li_submitting_author">{element_editor pid=$item.pid xpath='/NA/submitting_author' 
+	  <div class="li_submitting_author">{element_editor pid=$item.pid xpath='/NA/submitting_author'
 	  label='Submitting Author:'}</div>
-	  <div class="li_authors">{element_editor pid=$item.pid xpath='/NA/dc:creator' 
+	  <div class="li_authors">{element_editor pid=$item.pid xpath='/NA/dc:creator'
 	  label='Author:'}</div>
-	  <!-- <div class="li_authors">{*element_editor pid=$item.pid xpath='/NA/dc:creator/@authorID' 
+	  <!-- <div class="li_authors">{*element_editor pid=$item.pid xpath='/NA/dc:creator/@authorID'
 	  label='Author ID:'*}</div> -->
 	  <div class="li_clear">&nbsp;</div>
 	</div>

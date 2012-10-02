@@ -1,6 +1,6 @@
 <script type="text/javascript">
 <!--
-{$najax_register}
+{$najax_register|smarty:nodefaults}
 
 var bgp_states = new Array;
 {section name='i' loop=$bgp_states}
@@ -79,7 +79,7 @@ function updateProcesses()
     if (updateProcess_mutex++ > 0) {
         updateProcess_mutex = updateProcess_mutex - 1;
         return;
-    } 
+    }
     good_id = false;
     while (!good_id) {
         if (next_idx >= bgp_items.length) {
@@ -149,7 +149,7 @@ function showBgpLog(id)
     if (showBgpLog_mutexes[id]++ > 0) {
         showBgpLog_mutexes[id] = showBgpLog_mutexes[id] - 1;
         return;
-    } 
+    }
     showBgpLogUpdating(id);
     bgp = new NajaxBackgroundProcessList;
     bgp.onGetLogError = function () {
@@ -246,7 +246,7 @@ function checkDelete(f)
         <td class="default"><input type="button" value="All" onclick="javascript:toggleSelectAll(this.form,'items[]');" class="button"/></td>
         <td colspan="10" class="default"><input type="button" value="Delete" onclick="javascript:return checkDelete(this.form);"  class="button"/></td>
     </tr>
-    
+
 </table>
 </form>
 

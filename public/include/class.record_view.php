@@ -43,7 +43,7 @@ class RecordView {
 	}
 
 	function getDetails()
-	{	
+	{
 		$details = $this->record->getDetails();
 		$xsd_display_fields = $this->getDisplayFields();
 		foreach ($xsd_display_fields as $dis_key => $dis_field) {
@@ -61,7 +61,7 @@ class RecordView {
 							}
 						} else {
 							if ($dis_field['sek_title'] == "Subject") {
-								$details[$dis_field['xsdmf_id']] = "<a class='silent_link' href='".APP_BASE_URL."list/subject/".$details[$dis_field['xsdmf_id']]."/'>".Controlled_Vocab::getTitle($details[$dis_field['xsdmf_id']])."</a>";								
+								$details[$dis_field['xsdmf_id']] = "<a class='silent_link' href='".APP_BASE_URL."list/subject/".$details[$dis_field['xsdmf_id']]."/'>".Controlled_Vocab::getTitle($details[$dis_field['xsdmf_id']])."</a>";
 							} else {
 								$details[$dis_field['xsdmf_id']] = "<a class='silent_link' href=".'"'.APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B".$dis_field['xsdmf_sek_id']."%5D=".urlencode($details[$dis_field['xsdmf_id']]).'"'.">".Controlled_Vocab::getTitle($details[$dis_field['xsdmf_id']])."</a>";
 							}
@@ -124,6 +124,9 @@ class RecordView {
 						}
 					}
 				}
+        if ($dis_field['xsdmf_html_input'] == "rich_text") {
+          $details[$dis_field['xsdmf_id']] = strip_tags($details[$dis_field['xsdmf_id']], '<p><b><i><u><strong>');
+        }
 				if ($dis_field['xsdmf_html_input'] == "author_selector") {
 					if (!empty($details[$dis_field['xsdmf_id']])) {
 						if (is_array($details[$dis_field['xsdmf_id']])) {
@@ -139,7 +142,7 @@ class RecordView {
                 if ($dis_field['sek_title'] == "DOI") {
                     if (!empty($details[$xsd_display_fields[$dis_key]['xsdmf_id']])) {
                     $details[$xsd_display_fields[$dis_key]['xsdmf_id']] =
-                                "<a href='http://dx.doi.org/".$details[$xsd_display_fields[$dis_key]['xsdmf_id']]."'>".$details[$xsd_display_fields[$dis_key]['xsdmf_id']]."</a>";
+                                "<a href='http://dx.doi.org/".htmlspecialchars($details[$xsd_display_fields[$dis_key]['xsdmf_id']])."'>".htmlspecialchars($details[$xsd_display_fields[$dis_key]['xsdmf_id']])."</a>";
                     }
                 }
 				if ($dis_field['sek_title'] == "Author") {
@@ -150,7 +153,7 @@ class RecordView {
 								if ( is_array($details[$temp_xsdmf_id]) &&  (is_numeric($details[$temp_xsdmf_id][$ckey])) && ($details[$temp_xsdmf_id][$ckey] != 0)) {
 									$details[$dis_field['xsdmf_id']][$ckey] = "<a title='Browse by Author ID for ".$details[$dis_field['xsdmf_id']][$ckey]."' class='author_id_link' href='".APP_BASE_URL."list/author_id/".urlencode($details[$temp_xsdmf_id][$ckey])."/'>".$details[$dis_field['xsdmf_id']][$ckey]."</a>";
 								} else {
-									$details[$dis_field['xsdmf_id']][$ckey] = "<a title='Browse by Author Name for ".$details[$dis_field['xsdmf_id']][$ckey]."' class='silent_link' href=".'"'.APP_BASE_URL."list/author/".urlencode($details[$dis_field['xsdmf_id']][$ckey])."/".'"'.">".$details[$dis_field['xsdmf_id']][$ckey]."</a>";
+									$details[$dis_field['xsdmf_id']][$ckey] = "<a title='Browse by Author Name for ".$details[$dis_field['xsdmf_id']][$ckey]."' class='silent_link' href=".'"'.APP_BASE_URL."list/author/".urlencode(htmlspecialchars($details[$dis_field['xsdmf_id']][$ckey]))."/".'"'.">".htmlspecialchars($details[$dis_field['xsdmf_id']][$ckey])."</a>";
 
 								}
 							}
@@ -159,7 +162,7 @@ class RecordView {
 							if ((is_numeric($details[$temp_xsdmf_id])) && ($details[$temp_xsdmf_id] != 0)) {
 								$details[$dis_field['xsdmf_id']] = "<a title='Browse by Author ID for ".$details[$dis_field['xsdmf_id']]."' class='author_id_link' href='".APP_BASE_URL."list/author_id/".urlencode($details[$temp_xsdmf_id])."/'>".$details[$dis_field['xsdmf_id']]."</a>";
 							} else {
-								$details[$dis_field['xsdmf_id']] = "<a title='Browse by Author Name for ".$details[$dis_field['xsdmf_id']]."' class='silent_link' href=".'"'.APP_BASE_URL."list/author/".urlencode($details[$dis_field['xsdmf_id']])."/".'"'.">".$details[$dis_field['xsdmf_id']]."</a>";
+								$details[$dis_field['xsdmf_id']] = "<a title='Browse by Author Name for ".$details[$dis_field['xsdmf_id']]."' class='silent_link' href=".'"'.APP_BASE_URL."list/author/".htmlspecialchars(urlencode($details[$dis_field['xsdmf_id']]))."/".'"'.">".htmlspecialchars($details[$dis_field['xsdmf_id']])."</a>";
 							}
 						}
 					}
@@ -179,10 +182,10 @@ class RecordView {
 					if (!empty($details[$dis_field['xsdmf_id']])) {
 						if (is_array($details[$dis_field['xsdmf_id']])) {
 							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
-								$details[$dis_field['xsdmf_id']][$ckey] = "<a class='silent_link' href=".'"'.APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B0%5D=".urlencode($details[$dis_field['xsdmf_id']][$ckey]).'"'.">".$details[$dis_field['xsdmf_id']][$ckey]."</a>";
+								$details[$dis_field['xsdmf_id']][$ckey] = "<a class='silent_link' href=".'"'.APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B0%5D=".urlencode(htmlspecialchars($details[$dis_field['xsdmf_id']][$ckey])).'"'.">".htmlspecialchars($details[$dis_field['xsdmf_id']][$ckey])."</a>";
 							}
 						} else {
-							$details[$dis_field['xsdmf_id']] = "<a class='silent_link' href=".'"'.APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B0%5D=".urlencode($details[$dis_field['xsdmf_id']]).'"'.">".$details[$dis_field['xsdmf_id']]."</a>";
+							$details[$dis_field['xsdmf_id']] = "<a class='silent_link' href=".'"'.APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B0%5D=".urlencode(htmlspecialchars($details[$dis_field['xsdmf_id']])).'"'.">".htmlspecialchars($details[$dis_field['xsdmf_id']])."</a>";
 						}
 					}
 				}
@@ -205,10 +208,10 @@ class RecordView {
                             }						}
 						if (is_array($details[$dis_field['xsdmf_id']])) {
 							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
-								$details[$dis_field['xsdmf_id']][$ckey] = "<a class='silent_link' href=".'"'.APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B".$dis_field['xsdmf_sek_id']."%5D=".urlencode($details[$dis_field['xsdmf_id']][$ckey]).'"'.">".$details[$dis_field['xsdmf_id']][$ckey]."</a>".$rjl;
+								$details[$dis_field['xsdmf_id']][$ckey] = "<a class='silent_link' href=".'"'.APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B".$dis_field['xsdmf_sek_id']."%5D=".urlencode(htmlspecialchars($details[$dis_field['xsdmf_id']][$ckey])).'"'.">".htmlspecialchars($details[$dis_field['xsdmf_id']][$ckey])."</a>".$rjl;
 							}
 						} else {
-							$details[$dis_field['xsdmf_id']] = "<a class='silent_link' href=".'"'.APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B".$dis_field['xsdmf_sek_id']."%5D=".urlencode($details[$dis_field['xsdmf_id']]).'"'.">".$details[$dis_field['xsdmf_id']]."</a>".$rjl;
+							$details[$dis_field['xsdmf_id']] = "<a class='silent_link' href=".'"'.APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B".$dis_field['xsdmf_sek_id']."%5D=".urlencode(htmlspecialchars($details[$dis_field['xsdmf_id']])).'"'.">".htmlspecialchars($details[$dis_field['xsdmf_id']])."</a>".$rjl;
 						}
 					}
 				}
@@ -233,34 +236,34 @@ class RecordView {
 						}
 						if (is_array($details[$dis_field['xsdmf_id']])) {
 							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
-								$details[$dis_field['xsdmf_id']][$ckey] = "<a class='silent_link' href=".'"'.APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B".$dis_field['xsdmf_sek_id']."%5D=".urlencode($details[$dis_field['xsdmf_id']][$ckey]).'"'.">".$details[$dis_field['xsdmf_id']][$ckey]."</a>".$rcl;
+								$details[$dis_field['xsdmf_id']][$ckey] = "<a class='silent_link' href=".'"'.APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B".$dis_field['xsdmf_sek_id']."%5D=".urlencode(htmlspecialchars($details[$dis_field['xsdmf_id']][$ckey])).'"'.">".htmlspecialchars($details[$dis_field['xsdmf_id']][$ckey])."</a>".$rcl;
 							}
 						} else {
-							$details[$dis_field['xsdmf_id']] = "<a class='silent_link' href=".'"'.APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B".$dis_field['xsdmf_sek_id']."%5D=".urlencode($details[$dis_field['xsdmf_id']]).'"'.">".$details[$dis_field['xsdmf_id']]."</a>".$rcl;
+							$details[$dis_field['xsdmf_id']] = "<a class='silent_link' href=".'"'.APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B".$dis_field['xsdmf_sek_id']."%5D=".urlencode(htmlspecialchars($details[$dis_field['xsdmf_id']])).'"'.">".htmlspecialchars($details[$dis_field['xsdmf_id']])."</a>".$rcl;
 						}
 					}
 				}
-				
+
 				if ($dis_field['sek_title'] == "Subject" && (($dis_field['xsdmf_html_input'] != "contvocab_selector")) ) {
 					if (!empty($details[$dis_field['xsdmf_id']])) {
 						if (is_array($details[$dis_field['xsdmf_id']])) {
 							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
-								$details[$dis_field['xsdmf_id']][$ckey] = "<a class='silent_link' href='".APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B".$dis_field['xsdmf_sek_id']."%5D=".$details[$dis_field['xsdmf_id']][$ckey]."'>".$details[$dis_field['xsdmf_id']][$ckey]."</a>";
+								$details[$dis_field['xsdmf_id']][$ckey] = "<a class='silent_link' href='".APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B".$dis_field['xsdmf_sek_id']."%5D=".htmlspecialchars($details[$dis_field['xsdmf_id']][$ckey])."'>".htmlspecialchars($details[$dis_field['xsdmf_id']][$ckey])."</a>";
 							}
 						} else {
-							$details[$dis_field['xsdmf_id']] = "<a class='silent_link' href='".APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B".$dis_field['xsdmf_sek_id']."%5D=".$details[$dis_field['xsdmf_id']]."'>".$details[$dis_field['xsdmf_id']]."</a>";
+							$details[$dis_field['xsdmf_id']] = "<a class='silent_link' href='".APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B".$dis_field['xsdmf_sek_id']."%5D=".htmlspecialchars($details[$dis_field['xsdmf_id']])."'>".htmlspecialchars($details[$dis_field['xsdmf_id']])."</a>";
 						}
 					}
 				}
-				
+
 			   if ($dis_field['sek_title'] == "Faculty") {
 					if (!empty($details[$dis_field['xsdmf_id']])) {
 						if (is_array($details[$dis_field['xsdmf_id']])) {
 							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
-								$details[$dis_field['xsdmf_id']][$ckey] = "<a class='silent_link' href='".APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B".$dis_field['xsdmf_sek_id']."%5D=".$details[$dis_field['xsdmf_id']][$ckey]."'>".$details[$dis_field['xsdmf_id']][$ckey]."</a>";
+								$details[$dis_field['xsdmf_id']][$ckey] = "<a class='silent_link' href='".APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B".$dis_field['xsdmf_sek_id']."%5D=".htmlspecialchars($details[$dis_field['xsdmf_id']][$ckey])."'>".htmlspecialchars($details[$dis_field['xsdmf_id']][$ckey])."</a>";
 							}
 						} else {
-							$details[$dis_field['xsdmf_id']] = "<a class='silent_link' href='".APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B".$dis_field['xsdmf_sek_id']."%5D=".$details[$dis_field['xsdmf_id']]."'>".$details[$dis_field['xsdmf_id']]."</a>";
+							$details[$dis_field['xsdmf_id']] = "<a class='silent_link' href='".APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B".$dis_field['xsdmf_sek_id']."%5D=".htmlspecialchars($details[$dis_field['xsdmf_id']])."'>".htmlspecialchars($details[$dis_field['xsdmf_id']])."</a>";
 						}
 					}
 				}
@@ -269,15 +272,15 @@ class RecordView {
 					if (!empty($details[$dis_field['xsdmf_id']])) {
 						if (is_array($details[$dis_field['xsdmf_id']])) {
 							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
-								$details[$dis_field['xsdmf_id']][$ckey] = "<a class='silent_link' href='".APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B".$dis_field['xsdmf_sek_id']."%5D=".$details[$dis_field['xsdmf_id']][$ckey]."'>".$details[$dis_field['xsdmf_id']][$ckey]."</a>";
+								$details[$dis_field['xsdmf_id']][$ckey] = "<a class='silent_link' href='".APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B".$dis_field['xsdmf_sek_id']."%5D=".htmlspecialchars($details[$dis_field['xsdmf_id']][$ckey])."'>".htmlspecialchars($details[$dis_field['xsdmf_id']][$ckey])."</a>";
 							}
 						} else {
-							$details[$dis_field['xsdmf_id']] = "<a class='silent_link' href='".APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B".$dis_field['xsdmf_sek_id']."%5D=".$details[$dis_field['xsdmf_id']]."'>".$details[$dis_field['xsdmf_id']]."</a>";
+							$details[$dis_field['xsdmf_id']] = "<a class='silent_link' href='".APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B".$dis_field['xsdmf_sek_id']."%5D=".htmlspecialchars($details[$dis_field['xsdmf_id']])."'>".htmlspecialchars($details[$dis_field['xsdmf_id']])."</a>";
 						}
 					}
 				}
-				
-				
+
+
 				if ($dis_field['sek_title'] == "Language") {
 					if (!empty($details[$dis_field['xsdmf_id']])) {
 						if (is_array($details[$dis_field['xsdmf_id']])) {

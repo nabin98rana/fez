@@ -73,14 +73,14 @@ class Template_API
 		if (!defined('APP_CURRENT_LANG')) {
 			DEFINE("APP_CURRENT_LANG", "en");
 		}
-		
+
 		if ((!defined('APP_TEMPLATE_COMPILE_PATH')) || APP_TEMPLATE_COMPILE_PATH == '') {
-			$compile_path = APP_PATH . "templates_c";			
+			$compile_path = APP_PATH . "templates_c";
 		}
 		else {
 			$compile_path = APP_TEMPLATE_COMPILE_PATH;
 		}
-		
+
 		$this->smarty = new Smarty;
 		$this->smarty->template_dir = APP_PATH . "templates/" . APP_CURRENT_LANG;
 		$this->smarty->compile_dir = $compile_path;
@@ -109,11 +109,11 @@ class Template_API
 	function setTemplate($tpl_name)
 	{
 
-        if($tpl_name == "manage/index.tpl.html") {
+//        if($tpl_name == "manage/index.tpl.html") {
             $this->smarty->default_modifiers = array('escape:"html"');
-        } else {
-            $this->smarty->default_modifiers = array('escape:"javascript"');
-        }
+//        } else {
+//            $this->smarty->default_modifiers = array('escape:"javascript"');
+//        }
 
 		$_curr_path = $this->smarty->template_dir;
         if (isset($this->smarty->custom_view_dir)) {
@@ -171,7 +171,7 @@ class Template_API
 		$this->processTemplate();
 		// finally display the parsed template
 		$this->smarty->display($this->tpl_name);
-		
+
 		FezLog::get()->close();
 	}
 
@@ -222,7 +222,7 @@ class Template_API
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		// determine the correct CSS file to use
 		if (array_key_exists('HTTP_USER_AGENT', $_SERVER) && preg_match('/MSIE ([0-9].[0-9]{1,2})/', $_SERVER["HTTP_USER_AGENT"], $log_version)) {
 			$user_agent = 'ie';
@@ -265,7 +265,7 @@ class Template_API
 		$this->assign("isAdministrator", $isAdministrator);
 		$canMasquerade = Masquerade::canUserMasquerade($username);
 		$this->assign("canMasquerade", $canMasquerade);
-		
+
 		$custom_view_pid = (isset($_GET['custom_view_pid'])) ? $_GET['custom_view_pid'] : null;
 		if (!empty($custom_view_pid)) {
 			$customView = Custom_View::getCommCview($custom_view_pid);
@@ -275,7 +275,7 @@ class Template_API
 				$this->assign('cv_pid',   $custom_view_pid);
 			}
 		}
-		else 
+		else
 		{
 		    $customView = null;
 		}
@@ -315,7 +315,7 @@ class Template_API
 			$this->assign("application_title", $cv_title);
 		} else {
 			$this->assign("application_title", APP_NAME);
-				
+
 		}
 		$this->assign("app_name", APP_NAME);
 		$this->assign("org_name", APP_ORG_NAME);
@@ -360,7 +360,7 @@ class Template_API
         if (defined ("WOK_USERNAME")) {
 		    $this->assign("WOK_USERNAME", WOK_USERNAME);
         }
-		
+
 		if (count(Error_Handler::$app_errors) > 0) {
 			if ((APP_DISPLAY_ERRORS_USER == 1) && ($isAdministrator)) {
 				$this->assign('app_errors', Error_Handler::$app_errors);
@@ -414,15 +414,15 @@ class Template_API
       $this->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));
       $this->assign('najax_register', $this->najax_register);
      }
-		$this->assign('headerscript', $this->headerscript);	
+		$this->assign('headerscript', $this->headerscript);
 		$this->assign('benchmark_total', $log->getLogElapsedTime());
-		
+
 		$profiler = $db->getProfiler();
 		if($profiler) {
 			$this->assign("total_queries", $profiler->getTotalNumQueries());
 			$this->assign("total_elapsed_secs", sprintf('%0.5f', (string)round($profiler->getTotalElapsedSecs(),5)));
 		}
-		
+
 		$this->assign('generated_time', date('Y-m-d H:i:s'));
 
 	}

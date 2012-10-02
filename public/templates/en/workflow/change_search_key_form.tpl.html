@@ -2,7 +2,7 @@
 <!--
 
 {* Register NAjax function(s) *}
-{$najax_register}
+{$najax_register|smarty:nodefaults}
 
 
 {literal}
@@ -74,7 +74,7 @@ function selectSearchKey(f, field_name)
     if (selections.length <= 0) {
         return false;
     }
-    
+
     coll_load_state++;
 
     showLoading();

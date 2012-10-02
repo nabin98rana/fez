@@ -1,6 +1,6 @@
 <script type="text/javascript">
 <!--
-{$najax_register}
+{$najax_register|smarty:nodefaults}
 {literal}
 
 
@@ -11,7 +11,7 @@ function validateForm(f)
     if (!hasOneSelected(f, 'community_pid')) {
         errors[errors.length] = new Option('Community','community_pid');
     }
-    
+
 }
 
 

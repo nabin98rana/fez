@@ -90,7 +90,7 @@ dojo.require("dojo.rpc.JsonService");
 {if $isUser}
 {$najax_header|smarty:nodefaults}
 {/if}
-{$meta_head}
+{$meta_head|smarty:nodefaults}
 	<script type="text/javascript">
 	<!--
     {if $isUser}
@@ -106,7 +106,7 @@ dojo.require("dojo.rpc.JsonService");
 	{/literal}
 	{/if}
 		// do any other hacks requried by IE mostly
-		{$headerscript}
+		{$headerscript|smarty:nodefaults}
 	{literal}
 		// find any divs of class register_suggest and eval the code in them to setup their suggest widgets
 		divs = document.getElementsByName('register_suggest');

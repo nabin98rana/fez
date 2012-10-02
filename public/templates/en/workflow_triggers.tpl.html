@@ -3,7 +3,7 @@
 
               <script language="JavaScript">
               <!--
-			  {$najax_register}
+			  {$najax_register|smarty:nodefaults}
               {literal}
               var editing_option_id = -1;
               function validateForm(f)
@@ -148,21 +148,21 @@
 					document.body.style.cursor = 'wait';
 					document.getElementById('loading1').style.display = 'block';
 				}
-				
+
 				function hideLoading1()
 				{
 					document.body.style.cursor = '';
 					document.getElementById('loading1').style.display = 'none';
 				}
-				
+
 				function selectObjectXSDDisplay(f, field_name)
 				{
 					if (dt_load_state > 0) {
 					   return false;
-					} 
+					}
 					var field = getFormElement(f, field_name);
 					var selections = getSelectedItems(field);
-				
+
 					if (selections.length > 0) {
 						dt_load_state++;
 						document.getElementById('tr_wft_xdis_id').style.display = '';
@@ -246,17 +246,17 @@
                   </select>
                 </td>
               </tr>
- 
+
 				<tr>
 				<td bgcolor="{$cell_color}" class="default" nowrap>
 				  <b>Object Type:</b>
 				</td>
 				<td bgcolor="{$light_color}">
-				  <select name="wft_ret_id" class="default" 
+				  <select name="wft_ret_id" class="default"
                                   onChange="javascript: selectObjectXSDDisplay(this.form, 'wft_ret_id')">
 					{html_options options=$object_options selected=$info.wft_ret_id}
 				  </select>
-				  {include file="error_icon.tpl.html" field="wft_ret_id"}			  
+				  {include file="error_icon.tpl.html" field="wft_ret_id"}
 				</td>
 			  </tr>
 
@@ -268,7 +268,7 @@
                   <select name="wft_xdis_id" class="default">
                   </select>
                   <div class="default">'None' means that the trigger selects the document type as part of
-                  the workflow - 'None' triggers are accessed through the My_Fez page.  'Any' will match 
+                  the workflow - 'None' triggers are accessed through the My_Fez page.  'Any' will match
                   against any document type.</div>
 
                 </td>
@@ -276,7 +276,7 @@
 
               <tr>
                 <td  width="120" bgcolor="{$cell_color}" class="default" >
-                  <b>Mimetype:</b> (Ingest triggers only, leave blank to match all, seperate multiple 
+                  <b>Mimetype:</b> (Ingest triggers only, leave blank to match all, seperate multiple
                           mimetypes by spaces)
                 </td>
                 <td bgcolor="{$light_color}">
@@ -299,13 +299,13 @@
                   <b>Options:</b>
                 </td>
                 <td bgcolor="{$light_color}">
-                <input type="checkbox" {if $info.wft_options_split.show_in_list}checked{/if} 
+                <input type="checkbox" {if $info.wft_options_split.show_in_list}checked{/if}
                 name="wft_option_show_in_list"/>
                 <label for="wft_option_show_in_list" class="default">Show In Lists</label>
                 </td>
               </tr>
 
- 
+
              <tr>
                 <td colspan="2" bgcolor="{$cell_color}" align="center">
                   {if $smarty.get.cat == 'edit'}
@@ -335,7 +335,7 @@
                   //-->
                   </script>
                   {/literal}
-                    <form onSubmit="javascript:return updateForm();" 
+                    <form onSubmit="javascript:return updateForm();"
                     target="_update_record_details" method="post" action="{$rel_url}popup.php" enctype="multipart/form-data">
                     <input type="hidden" name="cat" value="list_action_{$type}">
                     <input type="hidden" name="pid" value="{$pid}">
@@ -408,8 +408,8 @@
              </table>
                     </form>
       {literal}
-<script type="text/javascript"><!-- 
-selectObjectXSDDisplay(getForm('entry_form'), 'wft_ret_id'); 
-// --></script>	  
+<script type="text/javascript"><!--
+selectObjectXSDDisplay(getForm('entry_form'), 'wft_ret_id');
+// --></script>
       {/literal}
 
