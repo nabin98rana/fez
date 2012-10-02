@@ -1550,8 +1550,12 @@ margin-bottom: 1em;
 }
 
 .snip {
-	font-family:Verdana,Arial,Helvetica,sans-serif;font-size:60%;font-style:normal;font-weight:normal;
+	font-family:Verdana,Arial,Helvetica,sans-serif;
+    font-size:60%;
+    font-style:normal;
+    font-weight:normal;
     word-wrap: break-word;
+    word-break: break-all;
 }
 
 .snip em {
