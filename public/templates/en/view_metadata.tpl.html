@@ -38,10 +38,10 @@
               || $xsd_display_fields[i].sek_title == "Journal Name" || $xsd_display_fields[i].sek_title == "Proceedings Title"
               || $xsd_display_fields[i].sek_title == "Conference Name" || $xsd_display_fields[i].sek_title == "Subject"
               || $xsd_display_fields[i].sek_title == "Faculty" || $xsd_display_fields[i].sek_title == "Org Unit Name"
-              || $xsd_display_fields[i].xsdmf_input_type == "contvocab" || $xsd_display_fields[i].xsdmf_input_type == "contvocab_selector"
+              || $xsd_display_fields[i].xsdmf_html_input == "contvocab" || $xsd_display_fields[i].xsdmf_html_input == "contvocab_selector"
               || $xsd_display_fields[i].sek_title == "xsdmf_id_ref")}
                 {$xsd_display_fields[i].xsdmf_value_prefix}{$details[$temp_fld_id]|smarty:nodefaults}
-              {elseif ($xsd_display_fields[i].xsdmf_html_input_type == "rich_text")}
+              {elseif ($xsd_display_fields[i].xsdmf_html_input == "rich_text")}
                 {$xsd_display_fields[i].xsdmf_value_prefix}{$details[$temp_fld_id]|smarty:nodefaults|escape:javascript}
 							{else}
 								{$xsd_display_fields[i].xsdmf_value_prefix}{$details[$temp_fld_id]}
