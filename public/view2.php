@@ -549,7 +549,7 @@ if (!empty($pid) && $record->checkExists()) {
     				
     				// Check for APP_LINK_PREFIX and add if not already there add it to a special ezyproxy link for it
     				if (APP_LINK_PREFIX != "") {
-    					if (!is_numeric(strpos($links[$linkCount-1], APP_LINK_PREFIX))) {
+    					if (!is_numeric(strpos($links[$linkCount-1]['rek_link'], APP_LINK_PREFIX))) {
                             $links[$linkCount-1]['prefix_location'] = APP_LINK_PREFIX.$links[$linkCount-1]['rek_link'];
                             $links[$linkCount-1]['rek_link'] = str_replace(APP_LINK_PREFIX, "", $links[$linkCount-1]['rek_link']);
     					} else {
