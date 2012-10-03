@@ -620,4 +620,13 @@ class FeatureContext extends MinkContext
     }
   }
 
+    /**
+     * @Given /^I see "([^"]*)" id or wait for "([^"]*)" seconds$/
+     */
+    public function iSeeIdOrWaitForSeconds($see, $wait)
+    {
+        echo $wait.' '."dojo.byId('$see')";
+        $this->getSession()->wait($wait*1000, "dojo.byId('$see')");
+    }
+
 }
