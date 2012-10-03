@@ -1,1 +1,1 @@
-ALTER TABLE %TABLE_PREFIX%author_affiliation ADD UNIQUE 'unique_constraint' ('af_pid', 'af_author_id', 'af_org_id');
+ALTER TABLE %TABLE_PREFIX%author_affiliation ADD UNIQUE unique_constraint (af_pid, af_author_id, af_org_id);
