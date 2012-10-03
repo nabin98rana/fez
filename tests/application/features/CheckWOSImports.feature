@@ -45,10 +45,8 @@ Scenario: Delete WOS imports
   And I confirm the popup
   And I fill "automated test data cleanup" in popup
   And I confirm the popup
-  And I turn on waiting checks
-  And I am on "/"
 
-  @destructive @now2
+  @destructive @now2 @insulated @broken
   Scenario: Add to WOS queue and make sure it imports
     Given I login as administrator
     And I turn off waiting checks
@@ -76,7 +74,7 @@ Scenario: Delete WOS imports
     And I should see "WoS Import"
     And I should see "10.1021/jf300749r"
 
-  @destructive @core @now2
+  @destructive @core @now2 @broken
 Scenario: Delete WOS imports
   Given I login as administrator
   And I fill in "Search Entry" with "title:(\"Influence of Malt Roasting on the Oxidative Stability of Sweet Wort\")"
