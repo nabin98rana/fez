@@ -75,7 +75,7 @@ class Citation
 		}
 		return $res;
 	}
-	 
+
 	/**
 	 * getDetailsAllTypes - retrieves the citatiosn table rows for all types of citations on a given display
 	 * @param integer $xdis_id - The display id that the citations are for.
@@ -217,7 +217,7 @@ class Citation
 				FulltextQueue::singleton()->commit();
 				FulltextQueue::singleton()->triggerUpdate();
 			}
-		} 
+		}
 		return true;
 	}
 
@@ -242,7 +242,7 @@ class Citation
 
 	function renderIndexCitations($list, $type='APA', $cache = true, $knownFull = false)
 	{
-		
+
 		$log = FezLog::get();
 		foreach ($list as $row => $value) {
 			$pid = $list[$row]['rek_pid'];
@@ -356,7 +356,7 @@ class Citation
 					} else {
 						$value = "";
 					}
-						
+
 				}
 
 				if (!empty($value) && !is_null($value) && $value != "") {
@@ -409,7 +409,7 @@ class Citation
 		}
 		return $template;
 	}
-	 
+
 	/**
 	 * formatValue - format a single value in the template.  e.g. if the value is a timestamp, it can be shown as
 	 * a formatted date according to the citation type.
@@ -464,7 +464,7 @@ class Citation
 		} elseif ($xsdmf['sek_title'] == "Author" || strpos($xsdmf['xsdmf_title'], 'Editor') !== false) {
 			$value = Citation::formatAuthor($value, $type);
 		}
-
+    $value = htmlspecialchars($value);
 		if (count($details) > 0) {
 			if (is_numeric($yy)) {
 				if ($xsdmf['sek_title'] == "Author") {
@@ -504,6 +504,7 @@ class Citation
 		if (empty($value)) {
 			return '';
 		}
+    $value = htmlspecialchars($value);
 		return $value;
 	}
 
