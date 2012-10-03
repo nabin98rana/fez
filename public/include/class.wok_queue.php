@@ -29,6 +29,7 @@ include_once(APP_INC_PATH . "class.wos_record.php");
 include_once(APP_INC_PATH . "class.org_structure.php");
 include_once(APP_INC_PATH . "class.matching_conferences.php");
 include_once(APP_INC_PATH . "class.mail.php");
+define("SIMILARITY_THRESHOLD", 80);
 
 class WokQueue extends Queue
 {
@@ -342,13 +343,14 @@ class WokQueue extends Queue
                   $title = Record::getSearchKeyIndexValue($existing_uts[$rec->ut], "Title", false);
                   $stripA = RCL::normaliseTitle($title);
                   $stripB = RCL::normaliseTitle($rec->itemTitle);
-                  
-                  if ($stripA != $stripB) {
+
+                  similar_text($stripA, $stripB, $percent);
+                  if ($percent < SIMILARITY_THRESHOLD) {
                       $updateOK = false;
                   } else {
                       // This record was found outside the wos and rid collections, so don't put it into them - it's good where it is now
                       $rec->collections = array();
-                      $this->_bgp->setStatus('FOUND matching UT outside RID/WoS collections matching titles ok so RUNNING updating existing PID: '.$existing_uts[$rec->ut]." for UT: ".
+                      $this->_bgp->setStatus('FOUND matching UT outside RID/WoS collections matching titles match at 80% or better so RUNNING updating existing PID: '.$existing_uts[$rec->ut]." for UT: ".
                          $rec->ut." Title match was: (Ours: \n".$stripA." - Theirs: \n".$stripB.")\nOriginal Ours: \n". $title." \nOriginal Theirs: \n".$stripB);
                   }
               }
@@ -384,6 +386,10 @@ class WokQueue extends Queue
                   }
                } else {
                   if ($this->_bgp) {
+
+                      //I'm leaving this as a error for now. Possibly should be logged in a different place
+                      $log->err('Skipped updating existing PID: '.$existing_uts[$rec->ut]." for UT: ".
+                          $rec->ut." because title didn't match well enough: Ours: ".$stripA." Theirs: ".$stripB." ST:".$percent."\n");
                     $this->_bgp->setStatus('Skipped updating existing PID: '.$existing_uts[$rec->ut]." for UT: ".
                        $rec->ut." because title didn't match well enough: (Ours: \n".$stripA."\nTheirs: \n".$stripB.")");
                   }
