@@ -341,9 +341,10 @@ class WosRecItem
             $this->isbn = $element->getAttribute('value');
         }
         if ($element->getAttribute('type') == "doi" || $element->getAttribute('type') == "xref_doi") {
-         //Sometimes we have xref_doi repeated after a doi
-         if (!in_array($element->getAttribute('value'), $articleNos))
-         $articleNos[] = $element->getAttribute('value');
+            //Sometimes we have xref_doi repeated after a doi
+            if (!in_array($element->getAttribute('value'), $articleNos)) {
+                $articleNos[] = $element->getAttribute('value');
+            }
         }
     }
     if (is_array($articleNos) && count($articleNos) > 0) {
@@ -479,25 +480,6 @@ class WosRecItem
 
     }
 
-
-    /**
-   * Convenience function for retrieving a DOI from the array of articleNos
-   * if one exists
-   *
-   *  @return string
-   */
-  public function getDoi()
-  {
-    foreach ($this->articleNos as $a) {
-      if (preg_match('/^DOI(.*)/', $a, $matches)) {
-        return trim($matches[1]);
-      }      
-    }
-    return FALSE;
-  }
-
-
-
   /**
    * Bib issue number is buried in the bib_id precomposed string
    * 
@@ -622,15 +604,13 @@ class WosRecItem
             $sekData['Proceedings Title'] = $this->sourceTitle;
             $sekData['Conference Name']   = $this->confTitle;
             $sekData['Conference Dates']  = $this->confDate;
-            $sekData['Conference Location']  = $this->confLocCity . ' ' . $this->confLocState;
+            if (!empty($this->confLocCity) || !empty($this->confLocState)) {
+                $sekData['Conference Location']  = $this->confLocCity . ' ' . $this->confLocState;
+            }
         } else if ($xdis_title == 'Journal Article') {
             $sekData['Journal Name'] = $this->sourceTitle;
         }
-        
-        // DOI link
-        $doi = $this->getDoi();
-        $sekData['Link'] = 'http://dx.doi.org/' . $doi;
-        
+
         return $sekData;
     }
   
@@ -783,22 +763,17 @@ class WosRecItem
                 $mods['relatedItem']['titleInfo']['title'] = $this->sourceTitle;
                 $mods['relatedItem']['name'][0]['namePart_type'] = 'conference';
                 $mods['relatedItem']['name'][0]['namePart'] = $this->confTitle;
-                $mods['relatedItem']['originInfo']['place']['placeTerm'] = $this->confLocCity . ' ' . $this->confLocState;
+                if (!empty($this->confLocCity) || !empty($this->confLocState)) {
+                    $mods['relatedItem']['originInfo']['place']['placeTerm'] = $this->confLocCity . ' ' . $this->confLocState;
+                }
                 $mods['relatedItem']['originInfo']['dateOther'] = $this->confDate;
             } else if ($xdis_title == 'Journal Article') {
                 $mods['relatedItem']['originInfo']['dateIssued'] = $this->date_issued;
                 $mods['relatedItem']['name'][0]['namePart_type'] = 'journal';
                 $mods['relatedItem']['name'][0]['namePart'] = $this->sourceTitle;
             }
-            // Links
+            // Links currently blank since only getting first DOI
             $links = array();
-            $doi = $this->getDoi();
-            if ($doi) {
-                $links[0]['url'] = 'http://dx.doi.org/' . $doi;
-                $links[0]['id'] = 'link_1';
-                $links[0]['created'] = date('c');
-                $links[0]['name'] = 'Link to Full Text (DOI)';
-            }
             $rec = new Record();
             $pid = $rec->insertFromArray($mods, $this->collections[0], "MODS 1.0", $history, 0, $links, array());
             if (is_numeric($this->timesCited)) {
@@ -847,11 +822,13 @@ class WosRecItem
       "Issue Number" => $this->bibIssueNum,
       "Language" => Language::resolveWoSLanguage($this->primaryLang),
       "Conference Dates" => $this->confDate,
-      "Conference Location" => $this->confLocCity . ' ' . $this->confLocState,
       "Conference Name" => $this->confTitle,
       "Journal Name" => $this->sourceTitle,
       "WoK Doc Type" => $this->docTypeCode
     );
+    if (!empty($this->confLocCity) || !empty($this->confLocState)) {
+            $searchKeyTargets['Conference Location'] = $this->confLocCity . ' ' . $this->confLocState;
+    }
   /// exception for conf papers that the subtype goes into genre type
   if ($xdis_title == "Conference Paper") {
    $searchKeyTargets["Genre Type"] = $xdis_subtype;
