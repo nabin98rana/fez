@@ -4169,15 +4169,6 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
       }
     }
 
-    $joinType = "";
-    $x = 0;
-    $sortRestriction = "";
-    // Database and table prefix
-    // only mysql supports db prefixing, so will remove it - no reason not to
-    $dbtp =  APP_TABLE_PREFIX;
-
-    $operatorToUse = trim($operator);
-
     /*
      * Fulltext SQL (Special Case)
      */
@@ -4294,10 +4285,8 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
       	$searchKey_join["sk_where_AND"][] = $escapedInput;
 			}
     }
-    /*
-     * For each search key build SQL if data was submitted
-     */
 
+    // For each search key build SQL if data was submitted
     if (is_array($searchKeys)) {
       foreach ($searchKeys as $sek_id => $searchValue ) {
 
@@ -4319,15 +4308,11 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
 
           $options["sql"] = array();
           $temp_value = "";
-          $joinID = '';
-          $sqlColumnName = '';
           $operatorToUse = trim($operator);
 
           $sqlColumnName = $sekdet['sek_title_db'];
 
-          /*
-           * Build the SQL for this particular search key
-           */
+          // Build the SQL for this particular search key
           if (is_array($searchValue)) {
 
 
@@ -4342,11 +4327,7 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
               $multiple_type = $searchValue['multiple_type'];
               unset($searchValue['multiple_type']);
 
-              /*
-               * Multiple type is always submitted for multiselect controls,
-               * so if it was the only thing in the array, nothing was actually
-               * selected - so skip this
-               */
+             // Multiple type is always submitted for multiselect controls, so if it was the only thing in the array, nothing was actually selected - so skip this
               if ( count($searchValue) == 0 ) {
                 continue;
               }
@@ -4377,7 +4358,6 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
                 $searchKey_join[SK_SEARCH_TXT] .= "\", ";
               }
             } elseif ($sekdet['sek_data_type'] == "date") {
-              //Logger::debug("HERE DATE DEBUG: ".$searchValue['start_date']);
               if (!empty($searchValue) && $searchValue['filter_enabled'] == 1) {
                 $sqlDate = '';
                 switch ($searchValue['filter_type']) {
@@ -4489,10 +4469,7 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
       }
     }
 
-    /*
-     * Only do a sort if the query has be limited in some way,
-     * otherwise it is far too slow
-     */
+    // Only do a sort if the query has be limited in some way, otherwise it is far too slow
     if (!empty($sort_by)) { //  && $tableJoinID != 1
 
       $sek_id = str_replace("searchKey", "", $sort_by);

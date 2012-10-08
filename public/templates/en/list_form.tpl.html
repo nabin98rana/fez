@@ -360,7 +360,6 @@
 	              <input type="checkbox" name="pids[]" value="{$list[i].rek_pid}" />
               </td>
           {/if}
-
 		  {if $icon != ""}
           <td align='right' style="border-top:1px dashed #be87e9; width: 1%;">
                 {if $href_view}<a href='{$rel_url}{$href_view}' >{/if}<img {if ($icon_width != "" && $icon_height != "")}width="{$icon_width}" height="{$icon_height}"{/if} style="vertical-align: top; align: right; padding-top: 5px; padding-bottom: 5px;" src="{$icon}" alt="" />{if $href_view}</a>{/if}
@@ -370,7 +369,6 @@
 		  <td align="left"{if $icon}{else} colspan="2"{/if} valign="middle" style="border-top:1px dashed #be87e9; width: 100%;">
             {if $isAdministrator || $isUPO}
 			{if $list[i].rek_display_type_lookup == "Book" || $list[i].rek_display_type_lookup == "Book Chapter" || $list[i].rek_display_type_lookup == "Journal Article" || $list[i].rek_display_type_lookup == "Conference Paper"}
-
 			<a class="form_note" href="#">
 				<span class="form_note">
 					<strong>PID:</strong> {$list[i].rek_pid}<br />
@@ -422,8 +420,19 @@
 			{if $list[i].rek_object_type == 1}
                <br> {$list[i].rek_description}
             {/if}
-			{assign var="pid" value =$list[i].rek_pid}
-            {if $snips[$pid] != '' && $isAdministrator}<br /><br /><div class='snip' style="max-width:420px">...{$snips[$pid]}...</div>{/if}
+			{assign var="pid" value=$list[i].rek_pid}
+
+            {if $snips[$pid] != '' && $isAdministrator}
+              {assign var="snip_width" value=380}
+              {if $icon != ""}
+                {if $icon_width == ""}
+                    {assign var="snip_width" value=$snip_width-$smarty.const.APP_THUMBNAIL_WIDTH}
+                {else}
+                    {assign var="snip_width" value=$snip_width-$icon_width}
+                {/if}
+              {/if}
+              <br /><br /><div class='snip' style="max-width:{$snip_width}px">...{$snips[$pid]}...</div>
+            {/if}
 		  </td>
 
 			{if $list[i].isEditor==1 || $isAdministrator}
