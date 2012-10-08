@@ -49,6 +49,7 @@ include_once(APP_INC_PATH . "class.bookreaderimplementation.php");
 include_once(APP_INC_PATH . "class.author_affiliations.php");
 include_once(APP_INC_PATH . "class.xsd_display.php");
 include_once(APP_INC_PATH . "class.links.php");
+include_once(APP_INC_PATH . 'class.sherpa_romeo.php');
 //include_once(APP_INC_PATH . 'najax_objects/class.background_process_list.php');
 
 $username = Auth::getUsername();
