@@ -14,7 +14,8 @@ CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%file_attachments (
   fat_copyright char(1) DEFAULT NULL,
   fat_watermark char(1) DEFAULT NULL,
   fat_security_inherited char(1) DEFAULT NULL,
-  PRIMARY KEY (fat_did)
+  PRIMARY KEY (fat_did),
+  KEY 'unique_pid_hash' ('fat_hash','fat_pid')
 );
 
 CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%file_attachments_shadow (
