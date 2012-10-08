@@ -205,7 +205,12 @@ class RecordView {
                                 if (array_key_exists('rj_2010_rank', $rjinfo)) {
                                     $rjl .= "&nbsp;&nbsp;&nbsp; (<a href='#' title='ERA 2010 Ranked Journal: ".$rjinfo['rj_2010_title'].", ranked ".$rjinfo['rj_2010_rank']."'>ERA 2010 Rank ".$rjinfo['rj_2010_rank']."</a>)";
                                 }
-                            }						}
+                            }
+                        }
+                        $sRdetails = SherpaRomeo::getJournalColour($this->record->pid);
+                        if (array_key_exists(colour, $sRdetails)) {
+                            $rjl .= " <span style='background-color:".$sRdetails['colour']."' id='sherpa'><a href='http://www.sherpa.ac.uk/romeo/search.php?issn=".$sRdetails['issn']."'>SHERPA/RoMEO</a></span>";
+                        }
 						if (is_array($details[$dis_field['xsdmf_id']])) {
 							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
 								$details[$dis_field['xsdmf_id']][$ckey] = "<a class='silent_link' href=".'"'.APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B".$dis_field['xsdmf_sek_id']."%5D=".urlencode(htmlspecialchars($details[$dis_field['xsdmf_id']][$ckey])).'"'.">".htmlspecialchars($details[$dis_field['xsdmf_id']][$ckey])."</a>".$rjl;

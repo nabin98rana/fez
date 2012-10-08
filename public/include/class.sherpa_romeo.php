@@ -38,9 +38,10 @@ class SherpaRomeo
         $xmlDoc = new DomDocument();
         $xmlDoc->loadXML($xml);
         $outcome = $xmlDoc->getElementsByTagName("outcome")->item(0)->nodeValue;
-        $issnReturned = $xmlDoc->getElementsByTagName("issn")->item(0)->nodeValue;
-        if ( ($outcome != 'notFound') && (empty($issn) || $issnReturned == $issn) ) {
-            $issn = $issnReturned;
+        if (empty($issn)) {
+            $issn = $xmlDoc->getElementsByTagName("issn")->item(0)->nodeValue;
+        }
+        if ($outcome != 'notFound') {
             $journal_name = $xmlDoc->getElementsByTagName("jtitle")->item(0)->nodeValue;
             $colour = $xmlDoc->getElementsByTagName("romeocolour")->item(0)->nodeValue;
         } else {
