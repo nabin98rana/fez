@@ -2,7 +2,7 @@
 @javascript
 Feature: WOS imports. Check imports from wos work correctly
 
-  @destructive @now1 @broken
+  @destructive @now1
   Scenario: Use add on entry form on a known wok article and ensure it imports correctly. "Influence of Malt Roasting on the Oxidative Stability of Sweet Wort" WOS:000304837700019
     Given I login as administrator
     And I go to the test collection list page
@@ -34,7 +34,7 @@ Feature: WOS imports. Check imports from wos work correctly
     And I should see "WoS Import"
     And I should see "10.1021/jf300749r"
 
-  @destructive @core @purge @broken
+  @destructive @core @purge
 Scenario: Delete WOS imports
   Given I login as administrator
   And I fill in "Search Entry" with "title:(\"Influence of Malt Roasting on the Oxidative Stability of Sweet Wort\")"
