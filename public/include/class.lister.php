@@ -342,8 +342,9 @@ class Lister
 
 	                $filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
 				    $filter["searchKey".Search_Key::getID("isMemberOf")] = $collection_pid;
-
-	                $list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter);
+                    $operator = array();
+                    $use_faceting = TRUE;
+	                $list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter, $operator, $use_faceting);
 	                $list_info = $list["info"];
 	                $facets = @$list['facets'];
 	                $snips = @$list['snips'];
@@ -351,7 +352,7 @@ class Lister
 
 	                $title = Record::getSearchKeyIndexValue($collection_pid, "Title");
 					$citation = Record::getCitationIndex($collection_pid);
-	                $tpl->assign("list_heading", "List of Records in ".htmlspecialchars($title));
+	                $tpl->assign("list_heading", htmlspecialchars($title));
 	                $tpl->assign("list_heading_citation", "List of Records in ".$citation);
 	                $tpl->assign("list_type", "collection_records_list");
 

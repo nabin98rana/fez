@@ -233,8 +233,7 @@
 	  	</tr>
 	</table>
 	{/if}
-
-	{if ($facets && $list_type != 'collection_records_list' && $list_type != 'collection_list' && $list_type != 'community_list') || (is_array($alternativeAuthorNamesList) && count($alternativeAuthorNamesList) > 1)}
+	{if ($facets && $list_type != 'collection_list' && $list_type != 'community_list') || (is_array($alternativeAuthorNamesList) && count($alternativeAuthorNamesList) > 1)}
     <div class="facet">
     <div class="facetheader">
     <h2>Refine</h2>
@@ -249,7 +248,14 @@
 	{/if}
         {foreach from=$items.values key=id item=valueData}
         {if $valueData.num > 0}
-        {if $id != '0'}<li class='facetarrow'><a href="?{$url_wo_rows}&amp;search_keys[{$sek_id}]={$id}">{$valueData.value}</a> ({$valueData.num})</li>{/if}
+        {if $id != '0'}<li class='facetarrow'><a href=
+            {if $list_type == 'collection_records_list'}
+                "/list/?cat=quick_filter&search_keys%5B0%5D=ismemberof%3A{$collection_pid}&amp;search_keys[{$sek_id}]={$id}"
+            {else}
+                "?{$url_wo_rows}&amp;search_keys[{$sek_id}]={$id}"
+            {/if}
+            >{$valueData.value}</a> ({$valueData.num})</li>
+        {/if}
         {/if}
         {/foreach}
         <li>&nbsp;</li>
@@ -266,7 +272,7 @@
     </div>
     {/if}
 <div style="padding:20px;">
-	<table {if ($facets  && $list_type != 'collection_records_list' && $list_type != 'collection_list' && $list_type != 'community_list') || (is_array($alternativeAuthorNamesList) && count($alternativeAuthorNamesList) > 1)}width="70%"{else}width="100%"{/if} cellpadding="10" cellspacing="0" class="listrecord">
+	<table {if ($facets && $list_type != 'collection_list' && $list_type != 'community_list') || (is_array($alternativeAuthorNamesList) && count($alternativeAuthorNamesList) > 1)}width="70%"{else}width="100%"{/if} cellpadding="10" cellspacing="0" class="listrecord">
         <tr>
             <td colspan="{if ($isAdministrator)}4{else}2{/if}">&nbsp;</td>
             {if $showEdit || $isAdministrator}
@@ -435,7 +441,7 @@
             {/if}
 		  </td>
 
-			{if $list[i].isEditor==1 || $isAdministrator}
+			{if ($list[i].isEditor==1 || $isAdministrator) && $list_type != 'collection_records_list'}
 			  <td align="left" style="border-top:1px dashed #be87e9; vertical-align: middle; white-space: nowrap;">
 			  {section name="w" loop=$list[i].wft_id}
 			    {if $list[i].wft_id[w] != ''}
