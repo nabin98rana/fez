@@ -22,8 +22,7 @@ Feature: Pid security
     And I fill in "Author 1" with "Security Test Author name"
     And I select "Article" from "Sub-type"
     And I check "Copyright Agreement"
-    #this is problemmatic getting a generic label
-    And I select "2010" from "xsd_display_fields[6386][Year]"
+    And I select "2010" from "Publication date"
     And I press "Publish"
     And I follow "Logout"
     And I fill in "Search Entry" with "title:(\"Test Community Security to be changed after pid created\")"

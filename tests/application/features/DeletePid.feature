@@ -1,5 +1,5 @@
 # features/DeletePid.feature
-@javascript @broken
+@javascript @insulated
 Feature: Test that deleted pid works correctly
 
   Scenario: I login as admin, create a pid, then delete it and check it is not longer accessiable
@@ -12,7 +12,7 @@ Feature: Test that deleted pid works correctly
     And I fill in "Author 1" with "Security Test Writer Name"
     And I select "Article" from "Sub-type"
     And I check "Copyright Agreement"
-    And I select "2010" from "xsd_display_fields[6386][Year]"
+    And I select "2010" from "Publication date"
     And I press "Publish"
     And I wait for "2" seconds
     And I follow "More options"
@@ -22,20 +22,19 @@ Feature: Test that deleted pid works correctly
     And I should see "This record has been deleted."
     And I should not see "Title"
     And I should not see "Journal Name"
-    And I should not see "Author"
     And I should not see "Sub-type"
+    And I turn off waiting checks
     And I follow "Detailed History"
     And I switch to window "_impact"
     And I should see "Testing record deletion"
     And I press "Close"
     And I switch to window ""
-    And I wait for "3" seconds
+    And I turn on waiting checks
     And I follow "Logout"
     When I move backward one page
     And I should see "This record has been deleted."
     And I should not see "Title"
     And I should not see "Journal Name"
-    And I should not see "Author"
     And I should not see "Sub-type"
     And I should not see "Detailed History"
     And I fill in "Search Entry" with "title:(\"Security Test Name 2012\")"
