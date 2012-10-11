@@ -40,7 +40,7 @@ function loadPreview(pid,datastreamID, alt, origami)
 {if ($isEditor || $isAdministrator)}
 	<div id="outstandingWorkflowsDiv" class="flash_message" {if ($outstandingStatus == '')} style="display:none"{/if}>
 
-		<div id="outstandingStatus" {if ($outstandingStatus == '')} style="display:none;"{/if}>{$outstandingStatus}</div>
+		<div id="outstandingStatus" {if ($outstandingStatus == '')} style="display:none;"{/if}>{$outstandingStatus|smarty:nodefaults}</div>
 
 		<div><a href="javascript:showOutstandingItemDetails('{$pid}');">Show Details</a> | <a id="outstandingWorkflowsLink" href="javascript:updateOutstandingDiv('{$pid}');">Check again</a><img src="{$rel_url}images/spinner.gif" id="outstandingSpinner" style="display:none;" alt="" /></div>
 		<div id="outstandingDetailsDiv" style="display:none;">
