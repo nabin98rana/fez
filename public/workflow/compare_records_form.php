@@ -36,6 +36,8 @@ include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.record_edit_form.php");
 include_once(APP_INC_PATH . "class.record_view.php");
+include_once(APP_INC_PATH . "class.sherpa_romeo.php");
+
 
 $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");

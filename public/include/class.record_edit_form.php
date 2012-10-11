@@ -38,6 +38,7 @@
  require_once(APP_INC_PATH . "class.wok.php");
  require_once(APP_INC_PATH . "class.scopus.php");
  require_once(APP_INC_PATH . "class.publisher.php");
+ include_once(APP_INC_PATH . "class.sherpa_romeo.php");
 
  class RecordEditForm
  {
