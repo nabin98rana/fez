@@ -629,4 +629,16 @@ class FeatureContext extends MinkContext
         $this->getSession()->wait($wait*1000, "dojo.byId('$see')");
     }
 
+    /**
+     * @Given /^I check there are no Javascript errors$/
+     */
+    public function iCheckThereAreNoJavascriptErrors()
+    {
+        $javascriptError = ($this->getSession()->evaluateScript("return window.jsErrors"));
+        if (!empty($javascriptError)) {
+            throw new Exception("Javascript Error: ".$javascriptError[0]);
+        }
+    }
+
+
 }
