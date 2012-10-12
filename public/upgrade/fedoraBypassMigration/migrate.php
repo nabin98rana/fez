@@ -31,21 +31,23 @@
 
 /**
  * This script calls Fedora bypass migration in stages.
- * It can be called via command line -- see the first line before php tag. 
- * 
+ * It can be called via command line -- see the first line before php tag.
+ *
  * @version 1.0, 2012-03-08
  * @author Elvi Shu <e.shu at library.uq.edu.au>
  * @license http://www.gnu.org/licenses/gpl.html GPL License
  * @copyright (c) 2012 The University of Queensland
- * 
+ *
  * @example Command line. To run this script on command line, type in the following:
- * 1. $ sudo su OR sudo bash  
+ * 1. $ sudo su OR sudo bash
  *    (This depends on the Doc Root and PHP CLI permission on your server)
  * 2. $ cd DOCUMENT_ROOT/upgrade/fedoraBypassMigration
- * 3. $ ./migrate.php -h -- config=/var/www/migration.beacon.library.uq.edu.au/public/config.inc.php autoMapXSDFields=1 
+ * 3. $ ./migrate.php -h -- config=/var/www/migration.beacon.library.uq.edu.au/public/config.inc.php autoMapXSDFields=1
  */
 
 $configFile = "../../config.inc.php";
+ini_set("display_errors", 1);
+error_reporting(E_ALL & ~E_NOTICE & ~E_STRICT);
 
 foreach ($argv as $arg){
     $arg = explode("=", $arg);
@@ -71,7 +73,7 @@ include_once("MigrateFromFedoraToDatabase.php");
 
 
 // Run migration functionalities
-// Do it! and cross your fingers. 
+// Do it! and cross your fingers.
 // Don't forget to thank your parents (see: rm_fedora.php).
 $migrate = new MigrateFromFedoraToDatabase($argv);
 
