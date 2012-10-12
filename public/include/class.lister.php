@@ -342,7 +342,7 @@ class Lister
 
 	                $filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
 				    $filter["searchKey".Search_Key::getID("isMemberOf")] = $collection_pid;
-                    $operator = array();
+                    $operator = 'AND';
                     $use_faceting = TRUE;
 	                $list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter, $operator, $use_faceting);
 	                $list_info = $list["info"];

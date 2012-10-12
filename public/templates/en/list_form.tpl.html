@@ -275,7 +275,7 @@
 	<table {if ($facets && $list_type != 'collection_list' && $list_type != 'community_list') || (is_array($alternativeAuthorNamesList) && count($alternativeAuthorNamesList) > 1)}width="70%"{else}width="100%"{/if} cellpadding="10" cellspacing="0" class="listrecord">
         <tr>
             <td colspan="{if ($isAdministrator)}4{else}2{/if}">&nbsp;</td>
-            {if $showEdit || $isAdministrator}
+            {if ($showEdit || $isAdministrator) && $list_type != 'collection_records_list'}
                 <td align="right">&nbsp;</td>
             {/if}
             {if $smarty.get.cat =='Search' || $smarty.get.cat == 'all_fields' || $smarty.get.cat == 'quick_filter'}
