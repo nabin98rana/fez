@@ -145,8 +145,8 @@
               }
               function updateForm()
               {
-                  var features = 'width=420,height=200,top=30,left=30,resizable=yes,scrollbars=yes,toolbar=no,location=no,menubar=no,status=no';
-                  var updateWin = window.open('', '_update_record_details', features);
+                  var features = 'width=420,height=200,top=30,left=30,resizable=yes,scrollbars=yes,toolbar=no,location=yes,menubar=no,status=no';
+                  var updateWin = window.open('', '_popup_window', features);
                   updateWin.focus();
                   return true;
               }
@@ -201,7 +201,7 @@
               </script>
               {/literal}
               
-              <form id="entry_form" name="entry_form" onsubmit="javascript:return validateForm(this) && updateForm();" method="post" action="{$rel_url}popup.php" enctype="multipart/form-data">
+              <form id="entry_form" name="entry_form" onsubmit="javascript:return validateForm(this) && updateForm();" method="post" action="{$rel_url}popup.php" enctype="multipart/form-data" target="_popup_window">
               <div>
                 {if $smarty.get.cat == 'edit'}
                   <input type="hidden" name="cat" value="edit_{$type}" />
