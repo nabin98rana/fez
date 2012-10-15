@@ -7,6 +7,16 @@
               var editing_option_id = -1;
               function validateForm(f)
               {return true;}
+
+              function getForm(form_name)
+              {
+                  for (var i = 0; i < document.forms.length; i++) {
+                      if (document.forms[i].name == form_name) {
+                          return document.forms[i];
+                      }
+                  }
+              }
+
               function addFieldOption(f)
               {
                   var value = f.new_value.value;
@@ -191,7 +201,7 @@
               </script>
               {/literal}
               
-              <form id="entry_form" onsubmit="javascript:return validateForm(this) && updateForm();" method="post" action="{$rel_url}popup.php" enctype="multipart/form-data">
+              <form id="entry_form" name="entry_form" onsubmit="javascript:return validateForm(this) && updateForm();" method="post" action="{$rel_url}popup.php" enctype="multipart/form-data">
               <div>
                 {if $smarty.get.cat == 'edit'}
                   <input type="hidden" name="cat" value="edit_{$type}" />

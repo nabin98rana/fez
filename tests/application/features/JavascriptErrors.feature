@@ -67,7 +67,6 @@ Feature: Test pages for javascript errors
     Then I check there are no Javascript errors
     Given I am on "/manage/groups.php"
     Then I check there are no Javascript errors
-    #@bug @broken $fez
     Given I am on "/manage/users.php"
     Then I check there are no Javascript errors
     Given I am on "/manage/authors.php"
@@ -117,7 +116,6 @@ Feature: Test pages for javascript errors
     Then I check there are no Javascript errors
     Given I am on "/manage/workflows.php"
     Then I check there are no Javascript errors
-    #@bug @broken $fez
     Given I am on "/manage/workflow_triggers.php?pid=-1"
     Then I check there are no Javascript errors
     Given I am on "/manage/controlled_vocab.php"
