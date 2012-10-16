@@ -207,7 +207,7 @@ class RecordView {
                                 }
                             }
                         }
-                        $sRdetails = SherpaRomeo::getJournalColour($this->record->pid);
+                        $sRdetails = SherpaRomeo::getJournalColourFromPid($this->record->pid);
                         if (array_key_exists(colour, $sRdetails)) {
                             $rjl .= " <span style='background-color:".$sRdetails['colour']."' id='sherpa'><a href='http://www.sherpa.ac.uk/romeo/search.php?issn=".$sRdetails['issn']."'>SHERPA/RoMEO</a></span>";
                         }
