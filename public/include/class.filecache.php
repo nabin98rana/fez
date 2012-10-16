@@ -2,6 +2,7 @@
 
 include_once(APP_INC_PATH . "class.custom_view.php");
 include_once(APP_INC_PATH . "class.record_view.php");
+include_once(APP_INC_PATH . "class.sherpa_romeo.php");
 
 
 class fileCache {

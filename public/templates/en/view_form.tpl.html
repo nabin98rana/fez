@@ -40,7 +40,7 @@ function loadPreview(pid,datastreamID, alt, origami)
 {if ($isEditor || $isAdministrator)}
 	<div id="outstandingWorkflowsDiv" class="flash_message" {if ($outstandingStatus == '')} style="display:none"{/if}>
 
-		<div id="outstandingStatus" {if ($outstandingStatus == '')} style="display:none;"{/if}>{$outstandingStatus}</div>
+		<div id="outstandingStatus" {if ($outstandingStatus == '')} style="display:none;"{/if}>{$outstandingStatus|smarty:nodefaults}</div>
 
 		<div><a href="javascript:showOutstandingItemDetails('{$pid}');">Show Details</a> | <a id="outstandingWorkflowsLink" href="javascript:updateOutstandingDiv('{$pid}');">Check again</a><img src="{$rel_url}images/spinner.gif" id="outstandingSpinner" style="display:none;" alt="" /></div>
 		<div id="outstandingDetailsDiv" style="display:none;">
@@ -70,7 +70,7 @@ function loadPreview(pid,datastreamID, alt, origami)
 			  <td>
 				  <h1>{$title}</h1>
 				  {if $citation != ""}
-					<span>{$citation}</span>
+					<span>{$citation|smarty:nodefaults}</span>
 					<br /><br />
 				  {/if}
 			  </td>
@@ -417,7 +417,7 @@ function loadPreview(pid,datastreamID, alt, origami)
 					</td>
 					<td style="background: {$light_color};">
 						<a href="{$links[d].rek_link|escape:'html'}" onclick="javascript:window.open('{$links[d].rek_link|escape:'html'}'); return false;">{$links[d].rek_link|escape:'html'|truncate:80:"..."}</a>
-						{if $links[d].rek_link != ""}
+						{if $links[d].prefix_location != ""}
 							<br />
 							<img src="{$rel_url}images/org_link_16.gif" alt="" /> <a href="{$links[d].prefix_location|escape:'html'}" onclick="window.open('{$links[d].prefix_location|escape:'html'}'); return false;">Go to link with your {$APP_SHORT_ORG_NAME} access privileges</a>
 						{/if}

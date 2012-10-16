@@ -77,7 +77,7 @@ YAHOO.widget.AutoComplete = function(elInput,elContainer,oDataSource,oConfigs) {
             }
             if(this._oContainer.style.display == "none") {
             }
-            
+
             // For skinning
             var elParent = this._oContainer.parentNode;
             var elTag = elParent.tagName.toLowerCase();
@@ -141,7 +141,7 @@ YAHOO.widget.AutoComplete = function(elInput,elContainer,oDataSource,oConfigs) {
         this.selectionEnforceEvent = new YAHOO.util.CustomEvent("selectionEnforce", this);
         this.containerCollapseEvent = new YAHOO.util.CustomEvent("containerCollapse", this);
         this.textboxBlurEvent = new YAHOO.util.CustomEvent("textboxBlur", this);
-        
+
         // Finish up
         oTextbox.setAttribute("autocomplete","off");
         YAHOO.widget.AutoComplete._nIndex++;
@@ -594,7 +594,7 @@ YAHOO.widget.AutoComplete.prototype.textboxKeyEvent = null;
 
 /**
  * Fired when the AutoComplete instance makes a query to the DataSource.
- * 
+ *
  * @event dataRequestEvent
  * @param oSelf {YAHOO.widget.AutoComplete} The AutoComplete instance.
  * @param sQuery {String} The query string.
@@ -632,7 +632,7 @@ YAHOO.widget.AutoComplete.prototype.containerExpandEvent = null;
 
 /**
  * Fired when the input field has been prefilled by the type-ahead
- * feature. 
+ * feature.
  *
  * @event typeAheadEvent
  * @param oSelf {YAHOO.widget.AutoComplete} The AutoComplete instance.
@@ -660,7 +660,7 @@ YAHOO.widget.AutoComplete.prototype.itemMouseOverEvent = null;
 YAHOO.widget.AutoComplete.prototype.itemMouseOutEvent = null;
 
 /**
- * Fired when result item has been arrowed to. 
+ * Fired when result item has been arrowed to.
  *
  * @event itemArrowToEvent
  * @param oSelf {YAHOO.widget.AutoComplete} The AutoComplete instance.
@@ -1000,7 +1000,7 @@ YAHOO.widget.AutoComplete.prototype._initContainerHelpers = function() {
  */
 YAHOO.widget.AutoComplete.prototype._initContainer = function() {
     YAHOO.util.Dom.addClass(this._oContainer, "yui-ac-container");
-    
+
     if(!this._oContainer._oContent) {
         // The oContent div helps size the iframe and shadow properly
         var oContent = document.createElement("div");
@@ -1259,7 +1259,7 @@ YAHOO.widget.AutoComplete.prototype._populateList = function(sQuery, aResults, o
             oItemi.style.display = "list-item";
             oItemi._sResultKey = oResultItemi[0];
             oItemi._oResultData = oResultItemi;
-            
+
             // Save database row ID
             if( oResultItemi[1].id != '' )
                 oItemi._dbID = oResultItemi[1].id;
@@ -1284,7 +1284,7 @@ YAHOO.widget.AutoComplete.prototype._populateList = function(sQuery, aResults, o
         // Expand the container
         var ok = oSelf.doBeforeExpandContainer(oSelf._oTextbox, oSelf._oContainer, sQuery, aResults);
         oSelf._toggleContainer(ok);
-        
+
         if(oSelf.autoHighlight) {
             // Go to the first item
             var oFirstItem = aItems[0];
@@ -1300,7 +1300,7 @@ YAHOO.widget.AutoComplete.prototype._populateList = function(sQuery, aResults, o
         oSelf._toggleContainer(false);
     }
     oSelf.dataReturnEvent.fire(oSelf, sQuery, aResults);
-    
+
 };
 
 /**
@@ -1456,7 +1456,7 @@ YAHOO.widget.AutoComplete.prototype._toggleContainer = function(bShow) {
     if(this.alwaysShowContainer && this._bContainerOpen) {
         return;
     }
-    
+
     // Clear contents of container
     if(!bShow) {
         this._oContainer._oContent.scrollTop = 0;
@@ -1650,7 +1650,7 @@ YAHOO.widget.AutoComplete.prototype._updateValue = function(oItem) {
     // move cursor to end
     var end = oTextbox.value.length;
     this._selectText(oTextbox,end,end);
-    
+
     if( this.textBoxCopy ) {
         // only change if empty
         if( this.textBoxCopy.value == '' )
@@ -1658,15 +1658,15 @@ YAHOO.widget.AutoComplete.prototype._updateValue = function(oItem) {
             this.textBoxCopy.value = oTextbox.value;
         }
     }
-    
+
     if( this.textBoxIDCopy ) {
         this.textBoxIDCopy.value = oItem._dbID;
     }
-    
+
     if( this.selectBox ) {
         this.addMulti(oTextbox.value, this.selectBox, oItem._dbID, oItem._username);
     }
-    
+
     if( this.textBoxCopy && this.textBoxCopy.onchange ) {
         this.textBoxCopy.onchange();
     }
@@ -2146,7 +2146,7 @@ YAHOO.widget.AutoComplete.prototype._onWindowUnload = function(v,oSelf) {
 
 
 YAHOO.widget.AutoComplete.prototype.registerControls = function(oTextboxCopy, oIDbox, oIDTextbox) {
-    
+
     /**
      * The textbox to fill with a copy of the selected data.
      * @scope private
@@ -2159,8 +2159,8 @@ YAHOO.widget.AutoComplete.prototype.registerControls = function(oTextboxCopy, oI
      * @scope private
      */
     this.selectBox /*:HTMLSelectBoxInputElement*/ = oIDbox;
-    
-    
+
+
     /**
      * The textbox to fill with a copy of the selected ID.
      * @scope private
@@ -2170,7 +2170,7 @@ YAHOO.widget.AutoComplete.prototype.registerControls = function(oTextboxCopy, oI
 
 
 YAHOO.widget.AutoComplete.prototype.addMulti = function (stextBoxValue, multi, dbID, username) {
-    
+
     if (stextBoxValue.length > 0) {
         options_exists = false;
         for (var i = 0; i < multi.options.length; i++) {
@@ -2179,7 +2179,7 @@ YAHOO.widget.AutoComplete.prototype.addMulti = function (stextBoxValue, multi, d
                 return;
             }
         }
-        
+
         // add the option to the multi select and select it
         multi.options.length = multi.options.length + 1;
         if (username != null) {
@@ -2189,7 +2189,8 @@ YAHOO.widget.AutoComplete.prototype.addMulti = function (stextBoxValue, multi, d
         }
         multi.options[multi.options.length-1].value = dbID;
         multi.options[multi.options.length-1].selected = true;
-		multi.onchange();
+        $(multi).trigger("change");
+
     }
 };
 
@@ -2203,11 +2204,11 @@ YAHOO.widget.AutoComplete.prototype.addMulti = function (stextBoxValue, multi, d
  * database. Supported data include local JavaScript arrays and objects and databases
  * accessible via XHR connections. Supported response formats include JavaScript arrays,
  * JSON, XML, and flat-file textual data.
- *  
+ *
  * @class DataSource
  * @constructor
  */
-YAHOO.widget.DataSource = function() { 
+YAHOO.widget.DataSource = function() {
     /* abstract class */
 };
 
@@ -2323,7 +2324,7 @@ YAHOO.widget.DataSource.prototype.toString = function() {
  * @param oParent {Object} The object instance that has requested data.
  */
 YAHOO.widget.DataSource.prototype.getResults = function(oCallbackFn, sQuery, oParent) {
-    
+
     // First look in cache
     var aResults = this._doQueryCache(oCallbackFn,sQuery,oParent);
     // Not in cache, so get results from server
@@ -2344,7 +2345,7 @@ YAHOO.widget.DataSource.prototype.getResults = function(oCallbackFn, sQuery, oPa
  * @param oParent {Object} The object instance that has requested data.
  */
 YAHOO.widget.DataSource.prototype.doQuery = function(oCallbackFn, sQuery, oParent) {
-    /* override this */ 
+    /* override this */
 };
 
 /**
@@ -2399,7 +2400,7 @@ YAHOO.widget.DataSource.prototype.cacheQueryEvent = null;
  * @param aResults {Object[]} Array of result objects.
  */
 YAHOO.widget.DataSource.prototype.getResultsEvent = null;
-    
+
 /**
  * Fired when data is retrieved from the local cache.
  *
@@ -2473,7 +2474,7 @@ YAHOO.widget.DataSource.prototype._aCache = null;
 
 /**
  * Initializes DataSource instance.
- *  
+ *
  * @method _init
  * @private
  */
@@ -2487,10 +2488,10 @@ YAHOO.widget.DataSource.prototype._init = function() {
     if(maxCacheEntries > 0 && !this._aCache) {
         this._aCache = [];
     }
-    
+
     this._sName = "instance" + YAHOO.widget.DataSource._nIndex;
     YAHOO.widget.DataSource._nIndex++;
-    
+
     this.queryEvent = new YAHOO.util.CustomEvent("query", this);
     this.cacheQueryEvent = new YAHOO.util.CustomEvent("cacheQuery", this);
     this.getResultsEvent = new YAHOO.util.CustomEvent("getResults", this);
@@ -2500,9 +2501,9 @@ YAHOO.widget.DataSource.prototype._init = function() {
 };
 
 /**
- * Adds a result object to the local cache, evicting the oldest element if the 
+ * Adds a result object to the local cache, evicting the oldest element if the
  * cache is full. Newer items will have higher indexes, the oldest item will have
- * index of 0. 
+ * index of 0.
  *
  * @method _addCacheElem
  * @param oResult {Object} Data result object, including array of results.
@@ -2514,12 +2515,12 @@ YAHOO.widget.DataSource.prototype._addCacheElem = function(oResult) {
     if(!aCache || !oResult || !oResult.query || !oResult.results) {
         return;
     }
-    
+
     // If the cache is full, make room by removing from index=0
     if(aCache.length >= this.maxCacheEntries) {
         aCache.shift();
     }
-        
+
     // Add to cache, at the end of the array
     aCache.push(oResult);
 };
@@ -2527,14 +2528,14 @@ YAHOO.widget.DataSource.prototype._addCacheElem = function(oResult) {
 /**
  * Queries the local cache for results. If query has been cached, the callback
  * function is called with the results, and the cached is refreshed so that it
- * is now the newest element.  
+ * is now the newest element.
  *
  * @method _doQueryCache
  * @param oCallbackFn {HTMLFunction} Callback function defined by oParent object to which to return results.
  * @param sQuery {String} Query string.
  * @param oParent {Object} The object instance that has requested data.
  * @return aResults {Object[]} Array of results from local cache if found, otherwise null.
- * @private 
+ * @private
  */
 YAHOO.widget.DataSource.prototype._doQueryCache = function(oCallbackFn, sQuery, oParent) {
     var aResults = [];
@@ -2543,7 +2544,7 @@ YAHOO.widget.DataSource.prototype._doQueryCache = function(oCallbackFn, sQuery, 
     var nCacheLength = (aCache) ? aCache.length : 0;
     var bMatchContains = this.queryMatchContains;
     var sOrigQuery;
-    
+
     // If cache is enabled...
     if((this.maxCacheEntries > 0) && aCache && (nCacheLength > 0)) {
         this.cacheQueryEvent.fire(this, oParent, sQuery);
@@ -2561,16 +2562,16 @@ YAHOO.widget.DataSource.prototype._doQueryCache = function(oCallbackFn, sQuery, 
             var matchKey = (!this.queryMatchCase) ?
                 encodeURIComponent(resultObj.query).toLowerCase():
                 encodeURIComponent(resultObj.query);
-            
+
             // If a cached match key exactly matches the query...
             if(matchKey == sQuery) {
                     // Stash all result objects into aResult[] and stop looping through the cache.
                     bMatchFound = true;
                     aResults = aAllResultItems;
-                    
+
                     // The matching cache element was not the most recent,
                     // so now we need to refresh the cache.
-                    if(i != nCacheLength-1) {                        
+                    if(i != nCacheLength-1) {
                         // Remove element from its original location
                         aCache.splice(i,1);
                         // Add element as newest
@@ -2583,18 +2584,18 @@ YAHOO.widget.DataSource.prototype._doQueryCache = function(oCallbackFn, sQuery, 
                 // Loop through substrings of each cached element's query property...
                 for(var j = sQuery.length-1; j >= 0 ; j--) {
                     var subQuery = sQuery.substr(0,j);
-                    
+
                     // If a substring of a cached sQuery exactly matches the query...
-                    if(matchKey == subQuery) {                    
+                    if(matchKey == subQuery) {
                         bMatchFound = true;
-                        
+
                         // Go through each cached result object to match against the query...
                         for(var k = aAllResultItems.length-1; k >= 0; k--) {
                             var aRecord = aAllResultItems[k];
                             var sKeyIndex = (this.queryMatchCase) ?
                                 encodeURIComponent(aRecord[0]).indexOf(sQuery):
                                 encodeURIComponent(aRecord[0]).toLowerCase().indexOf(sQuery);
-                            
+
                             // A STARTSWITH match is when the query is found at the beginning of the key string...
                             if((!bMatchContains && (sKeyIndex === 0)) ||
                             // A CONTAINS match is when the query is found anywhere within the key string...
@@ -2603,7 +2604,7 @@ YAHOO.widget.DataSource.prototype._doQueryCache = function(oCallbackFn, sQuery, 
                                 aResults.unshift(aRecord);
                             }
                         }
-                        
+
                         // Add the subset match result set object as the newest element to cache,
                         // and stop looping through the cache.
                         resultObj = {};
@@ -2618,7 +2619,7 @@ YAHOO.widget.DataSource.prototype._doQueryCache = function(oCallbackFn, sQuery, 
                 }
             }
         }
-        
+
         // If there was a match, send along the results.
         if(bMatchFound) {
             this.getCachedResultsEvent.fire(this, oParent, sOrigQuery, aResults);
@@ -2636,7 +2637,7 @@ YAHOO.widget.DataSource.prototype._doQueryCache = function(oCallbackFn, sQuery, 
 /**
  * Implementation of YAHOO.widget.DataSource using XML HTTP requests that return
  * query results.
- *  
+ *
  * @class DS_XHR
  * @extends YAHOO.widget.DataSource
  * @requires connection
@@ -2661,7 +2662,7 @@ YAHOO.widget.DS_XHR = function(sScriptURI, aSchema, oConfigs) {
 
     this.schema = aSchema;
     this.scriptURI = sScriptURI;
-    
+
     this._init();
 };
 
@@ -2801,7 +2802,7 @@ YAHOO.widget.DS_XHR.prototype.responseStripAfter = "\n<!-";
 /**
  * Queries the live data source defined by scriptURI for results. Results are
  * passed back to a callback function.
- *  
+ *
  * @method doQuery
  * @param oCallbackFn {HTMLFunction} Callback function defined by oParent object to which to return results.
  * @param sQuery {String} Query string.
@@ -2814,7 +2815,7 @@ YAHOO.widget.DS_XHR.prototype.doQuery = function(oCallbackFn, sQuery, oParent) {
         sUri += "&" + this.scriptQueryAppend;
     }
     var oResponse = null;
-    
+
     var oSelf = this;
     /*
      * Sets up ajax request callback
@@ -2834,7 +2835,7 @@ for(var foo in oResp) {
         if(!isXML) {
             oResp = oResp.responseText;
         }
-        else { 
+        else {
             oResp = oResp.responseXML;
         }
         if(oResp === null) {
@@ -2861,26 +2862,26 @@ for(var foo in oResp) {
         oSelf.dataErrorEvent.fire(oSelf, oParent, sQuery, YAHOO.widget.DS_XHR.ERROR_DATAXHR);
         return;
     };
-    
+
     var oCallback = {
         success:responseSuccess,
         failure:responseFailure
     };
-    
+
     if(YAHOO.lang.isNumber(this.connTimeout) && (this.connTimeout > 0)) {
         oCallback.timeout = this.connTimeout;
     }
-    
+
     if(this._oConn) {
         this.connMgr.abort(this._oConn);
     }
-    
+
     oSelf._oConn = this.connMgr.asyncRequest("GET", sUri, oCallback, null);
 };
 
 /**
  * Parses raw response data into an array of result objects. The result data key
- * is always stashed in the [0] element of each result object. 
+ * is always stashed in the [0] element of each result object.
  *
  * @method parseResponse
  * @param sQuery {String} Query string.
@@ -3087,7 +3088,7 @@ YAHOO.widget.DS_XHR.prototype.parseResponse = function(sQuery, oResponse, oParen
     else {
         return aResults;
     }
-};            
+};
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -3256,13 +3257,13 @@ YAHOO.widget.DS_ScriptNode._nPending = 0;
  */
 YAHOO.widget.DS_ScriptNode.prototype.doQuery = function(oCallbackFn, sQuery, oParent) {
     var oSelf = this;
-    
+
     // If there are no global pending requests, it is safe to purge global callback stack and global counter
     if(YAHOO.widget.DS_ScriptNode._nPending === 0) {
         YAHOO.widget.DS_ScriptNode.callbacks = [];
         YAHOO.widget.DS_ScriptNode._nId = 0;
     }
-    
+
     // ID for this request
     var id = YAHOO.widget.DS_ScriptNode._nId;
     YAHOO.widget.DS_ScriptNode._nId++;
@@ -3360,7 +3361,7 @@ YAHOO.widget.DS_ScriptNode.prototype.handleResponse = function(oResponse, oCallb
         resultObj.query = decodeURIComponent(sQuery);
         resultObj.results = aResults;
         this._addCacheElem(resultObj);
-        
+
         this.getResultsEvent.fire(this, oParent, sQuery, aResults);
     }
 
@@ -3391,7 +3392,7 @@ YAHOO.widget.DS_ScriptNode._bumpPendingDown = function() {
 /**
  * Implementation of YAHOO.widget.DataSource using a native Javascript function as
  * its live data source.
- *  
+ *
  * @class DS_JSFunction
  * @constructor
  * @extends YAHOO.widget.DataSource
@@ -3441,7 +3442,7 @@ YAHOO.widget.DS_JSFunction.prototype.dataFunction = null;
 /**
  * Queries the live data source defined by function for results. Results are
  * passed back to a callback function.
- *  
+ *
  * @method doQuery
  * @param oCallbackFn {HTMLFunction} Callback function defined by oParent object to which to return results.
  * @param sQuery {String} Query string.
@@ -3450,18 +3451,18 @@ YAHOO.widget.DS_JSFunction.prototype.dataFunction = null;
 YAHOO.widget.DS_JSFunction.prototype.doQuery = function(oCallbackFn, sQuery, oParent) {
     var oFunction = this.dataFunction;
     var aResults = [];
-    
+
     aResults = oFunction(sQuery);
     if(aResults === null) {
         this.dataErrorEvent.fire(this, oParent, sQuery, YAHOO.widget.DataSource.ERROR_DATANULL);
         return;
     }
-    
+
     var resultObj = {};
     resultObj.query = decodeURIComponent(sQuery);
     resultObj.results = aResults;
     this._addCacheElem(resultObj);
-    
+
     this.getResultsEvent.fire(this, oParent, sQuery, aResults);
     oCallbackFn(sQuery, aResults, oParent);
     return;
@@ -3579,7 +3580,7 @@ YAHOO.widget.DS_JSArray.prototype.doQuery = function(oCallbackFn, sQuery, oParen
             }
         }
     }
-    
+
     this.getResultsEvent.fire(this, oParent, sQuery, aResults);
     oCallbackFn(sQuery, aResults, oParent);
 };

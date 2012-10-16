@@ -1550,8 +1550,12 @@ margin-bottom: 1em;
 }
 
 .snip {
-	font-family:Verdana,Arial,Helvetica,sans-serif;font-size:60%;font-style:normal;font-weight:normal;
+	font-family:Verdana,Arial,Helvetica,sans-serif;
+    font-size:60%;
+    font-style:normal;
+    font-weight:normal;
     word-wrap: break-word;
+    word-break: break-all;
 }
 
 .snip em {
@@ -2029,6 +2033,11 @@ div.sfa-thesis-header{
 	padding: 5px;
 	border: 1px solid #bbb;
 }
+#sherpa a:link {color:#000000;}
+#sherpa a:visited {color:#000000;}
+#sherpa a:hover {color:#c0c2c5;}
+#sherpa a:active {color:#000000;}
+
 
 /* OBJECT HISTORY */
 

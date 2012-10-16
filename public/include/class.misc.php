@@ -63,7 +63,7 @@ public static function multi_implode($glue, $pieces)
      if (is_object($pieces)){
          return str_replace(chr(10), "", var_export($pieces, true));
      }
-     
+
      if(is_array($pieces))
      {
          reset($pieces);
@@ -322,18 +322,18 @@ public static function multi_implode($glue, $pieces)
     }
 
     if ($debug === true){
-        
+
         // Gather return data: success status, response of the transfer, info of the transfer and cURL error number
         $result                 = array();
         $result['success']      = 1;
         $result['response']     = curl_exec($ch);
         $result['curl_info']    = curl_getinfo($ch);
         $result['curl_error']   = curl_errno($ch);
-        
+
         // Check if the HTTP code started with 4 or 5, which indicates error.
         $pattern = "/^4|^5/";
         $errorHttpCode = preg_match($pattern, $result['curl_info']['http_code']);
-        
+
         // Set failed status condition
         if (empty($result['response']) || $result['curl_error'] || $errorHttpCode == 1 ){
             $result['success'] = 0;
@@ -342,9 +342,9 @@ public static function multi_implode($glue, $pieces)
 
         // Close cURL session
         curl_close($ch);
-        
+
         return $result;
-        
+
     }else {
         $data = curl_exec($ch);
         if ($data) {
@@ -3834,14 +3834,22 @@ public static function multi_implode($glue, $pieces)
    * @param   string $key
    * @return  POST or GET var
    */
-  public static function GETorPOST($key)
+  public static function GETorPOST($key, $override = array())
   {
       $return = null;
-      if (array_key_exists($key, $_GET)) {
-        $return = $_GET[$key];
-      } elseif (array_key_exists($key, $_POST)) {
-        $return = $_POST[$key];
+
+      if (count($override) > 0) {
+        if (array_key_exists($key, $override)) {
+          $return = $override[$key];
+        }
+      } else {
+        if (array_key_exists($key, $_GET)) {
+          $return = $_GET[$key];
+        } elseif (array_key_exists($key, $_POST)) {
+          $return = $_POST[$key];
+        }
       }
+
       return $return;
   }
 
@@ -4532,9 +4540,9 @@ public static function multi_implode($glue, $pieces)
     }
     return $URL;
   }
-  
+
   /**
-   * OpenURL2() constructs a single NISO Z39.88 compliant ContextObject for use in OpenURL links. 
+   * OpenURL2() constructs a single NISO Z39.88 compliant ContextObject for use in OpenURL links.
    * http://alcme.oclc.org/openurl/servlet/OAIHandler?verb=ListRecords&metadataPrefix=oai_dc&set=Core:Metadata+Formats
    * http://alcme.oclc.org/openurl/servlet/OAIHandler/extension?verb=GetMetadata&metadataPrefix=mtx&identifier=info:ofi/fmt:kev:mtx:book
    * http://alcme.oclc.org/openurl/servlet/OAIHandler/extension?verb=GetMetadata&metadataPrefix=mtx&identifier=info:ofi/fmt:kev:mtx:journal
@@ -4563,32 +4571,32 @@ public static function multi_implode($glue, $pieces)
 			if (isset($record[0]['rek_parent_publication'])) {
 				$url .= "&amp;rft.jtitle=" . urlencode($record[0]['rek_parent_publication']);
 			}
-		}	
-		// Books 
+		}
+		// Books
 		if ($record[0]['rek_genre'] == "book") {
 			$url .= "&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook";
 			$url .= "&amp;rft.genre=book";
 			$url .= "&amp;rft.btitle=" . urlencode($record[0]['rek_title']);
 		}
-		// Book chapter 
+		// Book chapter
 		if ($record[0]['rek_genre'] == "book chapter") {
 			$url .= "&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook";
 			$url .= "&amp;rft.genre=bookitem";
 			$url .= "&amp;rft.atitle=" . urlencode($record[0]['rek_title']);
 		}
-		// Reports 
+		// Reports
 		if ($record[0]['rek_genre'] == "technical report") {
 			$url .= "&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook";
 			$url .= "&amp;rft.genre=report";
 			$url .= "&amp;rft.btitle=" . urlencode($record[0]['rek_title']);
 		}
-		// Theses 
+		// Theses
 		if ($record[0]['rek_genre'] == "thesis") {
 			$url .= "&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook";
 			$url .= "&amp;rft.genre=dissertation";
 			$url .= "&amp;rft.title=" . urlencode($record[0]['rek_title']);
-		}		
-		// Conference publications - both conferences & papers. 
+		}
+		// Conference publications - both conferences & papers.
 		if ($record[0]['rek_genre'] == "conference publication") {
 			$url .= "&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook";
 			//check whether conference proceedings or conference paper
@@ -4606,11 +4614,11 @@ public static function multi_implode($glue, $pieces)
 				$url .= "&amp;rft.btitle=" . urlencode($record[0]['rek_title']);
 			}
 		}
-		
+
 		// Add these fields to all document types, if they exist
 		$date = record::getSearchKeyIndexValue($pid, 'date');
-		$url .= "&amp;rft.date=" . date("Y", strtotime($date));  
-		
+		$url .= "&amp;rft.date=" . date("Y", strtotime($date));
+
 		$fields = array('issn', 'isbn');
 		foreach ($fields as $i => $value) {
 			$new[$i] = record::getSearchKeyIndexValue($pid, $fields[$i]);
@@ -4618,39 +4626,39 @@ public static function multi_implode($glue, $pieces)
 				$url .= "&amp;rft." . $fields[$i] . "=" . urlencode($new[$i][0]);
 			}
 		}
-		
+
 		$vol = record::getSearchKeyIndexValue($pid, 'volume number');
 		if (!empty($vol[0])) {
 			$url .= "&amp;rft.volume=" . urlencode($vol[0]);
 		}
-		
+
 		$issue = record::getSearchKeyIndexValue($pid, 'issue number');
 		if (!empty($issue[0])) {
 			$url .= "&amp;rft.issue=" . urlencode($issue[0]);
 		}
-		
+
 		$spage = record::getSearchKeyIndexValue($pid, 'start page');
 		if (!empty($spage[0])) {
 			$url .= "&amp;rft.spage=" . urlencode($spage[0]);
 		}
-		
+
 		$doi = record::getSearchKeyIndexValue($pid, 'link');
 		foreach ($doi as $j => $value) {
 			$doipresent = strpos($doi[$j], "dx.doi.org");
 			if (!($doipresent === false)) {
 				$doicode = substr($doi[$j], 18, 50);
 				$url .= "&amp;rft_id=info:doi/" . urlencode($doicode);
-			}	
-		}	
-		
-		//new query for author/contributor info as record::getSearchKeyIndexValue 
+			}
+		}
+
+		//new query for author/contributor info as record::getSearchKeyIndexValue
 		//returns some authors in incorrect order
 		$db = DB_API::get();
 		$stmt = "SELECT rek_author
 			FROM " . APP_TABLE_PREFIX . "record_search_key_author
 			WHERE rek_author_pid = '" . $pid . "'
 			ORDER BY rek_author_order ASC";
-	
+
 		try {
 			$author = $db->fetchOne($stmt);
 		}
@@ -4662,11 +4670,11 @@ public static function multi_implode($glue, $pieces)
 			$url .= "&amp;rft.aulast=" . urlencode($name[0]);
 			$url .= "&amp;rft.aufirst=" . urlencode($name[1]);
 		}
-		else { 
+		else {
 			$stmt2 = "SELECT rek_contributor
 				FROM " . APP_TABLE_PREFIX . "record_search_key_contributor
 				WHERE rek_contributor_pid = '" . $pid . "'
-				ORDER BY rek_contributor_order ASC";	
+				ORDER BY rek_contributor_order ASC";
 			try {
 				$contributor = $db->fetchOne($stmt2);
 			}
@@ -4677,12 +4685,12 @@ public static function multi_implode($glue, $pieces)
 				$name = explode(',', $contributor);
 				$url .= "&amp;rft.aulast=" . urlencode($name[0]);
 				$url .= "&amp;rft.aufirst=" . urlencode($name[1]);
-			}	
+			}
 		}
-		
+
     return $url;
   }
-    
+
 
   /**
    * Generates a password
@@ -4712,7 +4720,7 @@ public static function multi_implode($glue, $pieces)
    * @package fedora
    * @param $record The WoS record to add to Fedora
    * @param $author_id (OPTIONAL) The author id of one of the authors on the records
-   * 
+   *
    * @return bool True if succeeded otherwise false
    */
   public static function convertEstiRecordToMods($record, $author_id = false)
@@ -4799,7 +4807,7 @@ public static function multi_implode($glue, $pieces)
       }
       $i++;
     }
-    
+
     // Assign Author ID if we found a match
     if ($authors_matching_count == 1) {
       $mods['name'][$authors_matching_index]['id'] = $author_id;

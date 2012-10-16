@@ -1,7 +1,7 @@
 @javascript
 Feature: Check news displays correctly and Admin news displays only to the correct group
 
-  @now
+  @now @insulated
   Scenario: I login as admin and create a news story and check I can see it but non admin users can't
     Given I login as administrator
     And I am on "/manage/news.php"

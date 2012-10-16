@@ -620,4 +620,25 @@ class FeatureContext extends MinkContext
     }
   }
 
+    /**
+     * @Given /^I see "([^"]*)" id or wait for "([^"]*)" seconds$/
+     */
+    public function iSeeIdOrWaitForSeconds($see, $wait)
+    {
+        echo $wait.' '."dojo.byId('$see')";
+        $this->getSession()->wait($wait*1000, "dojo.byId('$see')");
+    }
+
+    /**
+     * @Given /^I check there are no Javascript errors$/
+     */
+    public function iCheckThereAreNoJavascriptErrors()
+    {
+        $javascriptError = ($this->getSession()->evaluateScript("return window.jsErrors"));
+        if (!empty($javascriptError)) {
+            throw new Exception("Javascript Error: ".$javascriptError[0]);
+        }
+    }
+
+
 }

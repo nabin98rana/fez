@@ -45,12 +45,11 @@
               }
               function togglePasswordText()
               {
-                  var f = getForm('user_form');
-//				  var elementTitle = getPageElement('password');
-				  if (f.ldap_authentication.checked) {
-					  f.password.disabled = true;
+                  var f = document.getElementsByName("ldap_authentication")[0];
+				  if (f.checked) {
+                      document.getElementsByName("password")[0].disabled = true;
 				  } else {
-					  f.password.disabled = false;
+                      document.getElementsByName("password")[0].disabled = false;
 				  }
                   return true;
               }

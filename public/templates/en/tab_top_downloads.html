@@ -5,13 +5,13 @@
 			<span style="padding-left: 30px">Most Downloaded in the Last Week:<br />&nbsp;</span>
 			<ul style="list-style-type: square;">
 	{/if}
-	
+
 	<li>
-		<a href="{$rel_url}view/{$list[i].pid}">{$list[i].citation}</a>{if $list[i].downloads <> ''} &nbsp;&nbsp;&nbsp; (<a title="View detailed statistics for this object" href="{$rel_url}stat_details.php?action=show_detail&amp;pid={$list[i].pid}">{$list[i].downloads|escape:"html"} download{if $list[i].downloads > 1}s{/if}</a>){/if}
+		<a href="{$rel_url}view/{$list[i].pid}">{$list[i].citation|smarty:nodefaults}</a>{if $list[i].downloads <> ''} &nbsp;&nbsp;&nbsp; (<a title="View detailed statistics for this object" href="{$rel_url}stat_details.php?action=show_detail&amp;pid={$list[i].pid}">{$list[i].downloads|escape:"html"} download{if $list[i].downloads > 1}s{/if}</a>){/if}
 	</li>
-	
+
 	{if $smarty.section.i.last}
-			</ul>	
+			</ul>
 		<span style="padding-left: 30px"><a href="{$rel_url}stats.php?browse=top50papers">Top 50 Papers</a> | <a href="{$rel_url}stats.php?browse=top50authors">Top 50 Authors</a></span>
 
 		</div>

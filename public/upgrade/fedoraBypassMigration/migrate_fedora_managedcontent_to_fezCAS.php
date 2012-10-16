@@ -32,8 +32,8 @@
 /**
  * The purpose of this script is to
  *   migrate Fedora managed contents (ie: PDFs, images, etc) to Fez CAS system.
- * Fez CAS system is storing file content in MD5 hash format and recording the file meta data in %TABLE_PREFIX%_file_attachments table. 
- * 
+ * Fez CAS system is storing file content in MD5 hash format and recording the file meta data in %TABLE_PREFIX%_file_attachments table.
+ *
  * This is a one-off migration script as part of Fedora-less project.
  */
 include_once dirname(dirname(dirname(__FILE__))) . DIRECTORY_SEPARATOR . 'config.inc.php';
@@ -114,20 +114,20 @@ foreach ($fedoraPids as $pid) {
             if (!$acmlBase ) {
                 $did = AuthNoFedoraDatastreams::getDid($pid, $datastream['ID']);
                 AuthNoFedoraDatastreams::recalculatePermissions($did);
-                echo $did ." ".$pid." ".$datastream['ID']."<br/>";
+                echo $did ." ".$pid." ".$datastream['ID']."<br/>\n";
             } else
             {
                 addDatastreamSecurity($acml, $pid, $datastream['ID']);
                 $did = AuthNoFedoraDatastreams::getDid($pid, $dsID);
-                echo $did ." ".$pid." ".$datastream['ID']."<br/>";
+                echo $did ." ".$pid." ".$datastream['ID']."<br/>\n";
             }
         }
     }
 }
 
 // Print out migration results & any errors.
-echo "<pre>Total managed-content successfully migrated = " . $migrationSuccessCount . "</pre>";
-echo "<pre>Migration errors = " . print_r($migrationErrors, 1) . "</pre>";
+echo "<pre>Total managed-content successfully migrated = " . $migrationSuccessCount . "</pre>\n";
+echo "<pre>Migration errors = " . print_r($migrationErrors, 1) . "</pre>\n";
 exit;
 
 function inheritesPermissions ($acml) {

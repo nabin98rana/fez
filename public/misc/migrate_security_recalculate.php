@@ -1,6 +1,4 @@
-#!/usr/bin/php
 <?php
-
 // +----------------------------------------------------------------------+
 // | Fez - Digital Repository System                                      |
 // +----------------------------------------------------------------------+
@@ -28,54 +26,39 @@
 // | 59 Temple Place - Suite 330                                          |
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
+// | Author: Aaron Brown <a.brown@library.uq.edu.au>                           |
+// +----------------------------------------------------------------------+
 
 /**
- * This script calls Fedora bypass migration in stages.
- * It can be called via command line -- see the first line before php tag.
- *
- * @version 1.0, 2012-03-08
- * @author Elvi Shu <e.shu at library.uq.edu.au>
- * @license http://www.gnu.org/licenses/gpl.html GPL License
- * @copyright (c) 2012 The University of Queensland
- *
- * @example Command line. To run this script on command line, type in the following:
- * 1. $ sudo su OR sudo bash
- *    (This depends on the Doc Root and PHP CLI permission on your server)
- * 2. $ cd DOCUMENT_ROOT/upgrade/fedoraBypassMigration
- * 3. $ ./migrate.php -h -- config=/var/www/migration.beacon.library.uq.edu.au/public/config.inc.php autoMapXSDFields=1
+ * The purpose of this script is to
+ * set up permisisons for all pids and datastreams. Not inherited permissions
+ * need to be stored.
+ * 
+ * This is a one-off migration script as part of Fedora-less project.
  */
+include_once dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'config.inc.php';
+include_once(APP_INC_PATH . "class.db_api.php");
+include_once(APP_INC_PATH . "class.dsresource.php");
+include_once(APP_INC_PATH . "class.auth.php");
+include_once(APP_INC_PATH . "class.auth_no_fedora_datastreams.php");
+error_reporting(1);
 
-$configFile = "../../config.inc.php";
-ini_set("display_errors", 1);
-error_reporting(E_ALL & ~E_NOTICE & ~E_STRICT);
 
-foreach ($argv as $arg){
-    $arg = explode("=", $arg);
-    if (!array_key_exists(0, $arg) || !array_key_exists(1, $arg)){
-        continue;
-    }
+// Get all PIDs without parents. Recalculate permisisons. This will filter down to child pids and child datastreams
+$stmt = "SELECT rek_pid FROM " . APP_TABLE_PREFIX . "record_search_key
+LEFT JOIN fez_record_search_key_ismemberof
+ON rek_ismemberof_pid = rek_pid
+WHERE rek_ismemberof IS NULL";
 
-    switch ($arg[0]){
-        case 'config':
-            $configFile = $arg[1];
-            break;
-    }
+try {
+    $res = $db->fetchAll($stmt);
+} catch (Exception $ex) {
+    $log->err($ex);
+    echo "Failed to retrieve pid data. Error: " . $ex;
 }
 
-if (empty($configFile)){
-    echo "Forgotten to specify config file?";
-    exit;
+$i=0;
+foreach ($res as $pid) {
+    AuthNoFedora::recalculatePermissions($pid);
+    echo 'Done: '.$pid.'<br />';
 }
-
-include_once($configFile);
-
-include_once("MigrateFromFedoraToDatabase.php");
-
-
-// Run migration functionalities
-// Do it! and cross your fingers.
-// Don't forget to thank your parents (see: rm_fedora.php).
-$migrate = new MigrateFromFedoraToDatabase($argv);
-
-
-

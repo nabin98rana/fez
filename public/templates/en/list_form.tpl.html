@@ -233,8 +233,7 @@
 	  	</tr>
 	</table>
 	{/if}
-
-	{if ($facets && $list_type != 'collection_records_list' && $list_type != 'collection_list' && $list_type != 'community_list') || (is_array($alternativeAuthorNamesList) && count($alternativeAuthorNamesList) > 1)}
+	{if ($facets && $list_type != 'collection_list' && $list_type != 'community_list') || (is_array($alternativeAuthorNamesList) && count($alternativeAuthorNamesList) > 1)}
     <div class="facet">
     <div class="facetheader">
     <h2>Refine</h2>
@@ -249,15 +248,22 @@
 	{/if}
         {foreach from=$items.values key=id item=valueData}
         {if $valueData.num > 0}
-        {if $id != '0'}<li class='facetarrow'><a href="?{$url_wo_rows}&amp;search_keys[{$sek_id}]={$id}">{$valueData.value}</a> ({$valueData.num})</li>{/if}
+        {if $id != '0'}<li class='facetarrow'><a href=
+            {if $list_type == 'collection_records_list'}
+                "/list/?cat=quick_filter&search_keys%5B0%5D=ismemberof%3A{$collection_pid}&amp;search_keys[{$sek_id}]={$id}"
+            {else}
+                "?{$url_wo_rows}&amp;search_keys[{$sek_id}]={$id}"
+            {/if}
+            >{$valueData.value}</a> ({$valueData.num})</li>
+        {/if}
         {/if}
         {/foreach}
         <li>&nbsp;</li>
     {/foreach}
 	{if is_array($alternativeAuthorNamesList) && count($alternativeAuthorNamesList) > 1}
 		<li><strong>Names this author has published as</strong></li>
-		{foreach from=$alternativeAuthorNamesList item=authorLink}
-		<li class="facetarrow">{$authorLink}</li>
+		{foreach from=$alternativeAuthorNamesList|smarty:nodefaults item=authorLink}
+		<li class="facetarrow">{$authorLink|smarty:nodefaults}</li>
 		{/foreach}
 		<li>&nbsp;</li>
 	{/if}
@@ -266,10 +272,10 @@
     </div>
     {/if}
 <div style="padding:20px;">
-	<table {if ($facets  && $list_type != 'collection_records_list' && $list_type != 'collection_list' && $list_type != 'community_list') || (is_array($alternativeAuthorNamesList) && count($alternativeAuthorNamesList) > 1)}width="70%"{else}width="100%"{/if} cellpadding="10" cellspacing="0" class="listrecord">
+	<table {if ($facets && $list_type != 'collection_list' && $list_type != 'community_list') || (is_array($alternativeAuthorNamesList) && count($alternativeAuthorNamesList) > 1)}width="70%"{else}width="100%"{/if} cellpadding="10" cellspacing="0" class="listrecord">
         <tr>
             <td colspan="{if ($isAdministrator)}4{else}2{/if}">&nbsp;</td>
-            {if $showEdit || $isAdministrator}
+            {if ($showEdit || $isAdministrator) && $list_type != 'collection_records_list'}
                 <td align="right">&nbsp;</td>
             {/if}
             {if $smarty.get.cat =='Search' || $smarty.get.cat == 'all_fields' || $smarty.get.cat == 'quick_filter'}
@@ -360,7 +366,6 @@
 	              <input type="checkbox" name="pids[]" value="{$list[i].rek_pid}" />
               </td>
           {/if}
-
 		  {if $icon != ""}
           <td align='right' style="border-top:1px dashed #be87e9; width: 1%;">
                 {if $href_view}<a href='{$rel_url}{$href_view}' >{/if}<img {if ($icon_width != "" && $icon_height != "")}width="{$icon_width}" height="{$icon_height}"{/if} style="vertical-align: top; align: right; padding-top: 5px; padding-bottom: 5px;" src="{$icon}" alt="" />{if $href_view}</a>{/if}
@@ -370,7 +375,6 @@
 		  <td align="left"{if $icon}{else} colspan="2"{/if} valign="middle" style="border-top:1px dashed #be87e9; width: 100%;">
             {if $isAdministrator || $isUPO}
 			{if $list[i].rek_display_type_lookup == "Book" || $list[i].rek_display_type_lookup == "Book Chapter" || $list[i].rek_display_type_lookup == "Journal Article" || $list[i].rek_display_type_lookup == "Conference Paper"}
-
 			<a class="form_note" href="#">
 				<span class="form_note">
 					<strong>PID:</strong> {$list[i].rek_pid}<br />
@@ -422,11 +426,22 @@
 			{if $list[i].rek_object_type == 1}
                <br> {$list[i].rek_description}
             {/if}
-			{assign var="pid" value =$list[i].rek_pid}
-            {if $snips[$pid] != '' && $isAdministrator}<br /><br /><div class='snip' style="max-width:420px">...{$snips[$pid]}...</div>{/if}
+			{assign var="pid" value=$list[i].rek_pid}
+
+            {if $snips[$pid] != '' && $isAdministrator}
+              {assign var="snip_width" value=380}
+              {if $icon != ""}
+                {if $icon_width == ""}
+                    {assign var="snip_width" value=$snip_width-$smarty.const.APP_THUMBNAIL_WIDTH}
+                {else}
+                    {assign var="snip_width" value=$snip_width-$icon_width}
+                {/if}
+              {/if}
+              <br /><br /><div class='snip' style="max-width:{$snip_width}px">...{$snips[$pid]}...</div>
+            {/if}
 		  </td>
 
-			{if $list[i].isEditor==1 || $isAdministrator}
+			{if ($list[i].isEditor==1 || $isAdministrator) && $list_type != 'collection_records_list'}
 			  <td align="left" style="border-top:1px dashed #be87e9; vertical-align: middle; white-space: nowrap;">
 			  {section name="w" loop=$list[i].wft_id}
 			    {if $list[i].wft_id[w] != ''}

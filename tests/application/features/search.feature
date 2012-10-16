@@ -5,15 +5,15 @@ Feature: Search
   As a website user
   I need to be able to search for a word
 
-  @smoke @broken
-  Scenario: Searching for a pid that does exist
+  @smoke
+  Scenario Outline: Searching for pids
     Given I am on "/"
-    When I fill in "front_search" with "water"
+    When I fill in "front_search" with <searchterm>
     And I press "submit-button"
-    Then I should see "Effect of drinking saline water"
+    Then I should see <output>
 
-  Scenario: Searching for a pid that does NOT exist
-    Given I am on "/"
-    When I fill in "front_search" with "spaghetti monster"
-    And I press "submit-button"
-    Then I should see "(0 results found)"
+  Examples:
+  | searchterm                                                             | output               |
+  | "Water: AWA/IWA 2nd Australian young water professionals conference"   | "Fogelman"           |
+  | "spaghetti monster"                                                    | "(0 results found)"  |
+

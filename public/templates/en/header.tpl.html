@@ -4,6 +4,16 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <title>{if $extra_title != ""}{$extra_title} - {/if}{$application_title}</title>
+
+{*This is to find javascript errors and put them into a variable for testing *}
+<script type="text/javascript">
+    {literal}
+    window.jsErrors = [];
+    window.onerror = function(errorMessage) {
+        window.jsErrors[window.jsErrors.length] = errorMessage;
+    }
+    {/literal}
+</script>
 <link rel="Bookmark" href="{$rel_url}favicon.ico" />
 <link rel="search" type="application/opensearchdescription+xml" href="{$app_base_url}opensearch.xml.php" title="Search {$application_title}" />
 {if $offline == "true"}<link rel="stylesheet" href="{$rel_url}templates/en/css/maintenance.css" type="text/css" />{else}<link rel="stylesheet" href="{$rel_url}css/dynamic_css.php" type="text/css" />{/if}
