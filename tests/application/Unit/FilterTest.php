@@ -21,7 +21,7 @@ class FilterTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($goodString, $filtered);
         
         $hasBadChars = "t?<>ry, som//3@th!!n*& F(#%%)\-nny";
-        $expected = "try, som3thn F-nny";
+        $expected = "try, som3thn F()-nny";
         $filtered = $bstringFilter->filter($hasBadChars);
         $this->assertEquals($expected, $filtered);
     }
@@ -99,5 +99,23 @@ class FilterTest extends PHPUnit_Framework_TestCase
     	$filtered = $stringArrayFilter->filter($badStrings);
     	$expected = array('7', 'anml Food', 'not s, b4d');
     	$this->assertEquals($expected, $filtered);
+    }
+    
+    public function testRegex()
+    {
+    	$pattern = "/^2-s2.0-[0-9]{10,11}$/";
+    	$regexFilter = new Fez_Filter_Regex();
+    	$regexFilter->setPattern($pattern);
+        
+        $values = array('2-s2.0-0346778587', '456', 'abc', '');
+        $expected = array('2-s2.0-0346778587', null, null, '');
+        $filtered = array();
+        
+        foreach($values as $value)
+        {
+            $filtered[] = $regexFilter->filter($value);
+        }
+        
+        $this->assertEquals($expected, $filtered);
     }
 }

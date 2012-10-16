@@ -87,7 +87,7 @@ $filterProc = new Fez_Filter_Process_Request();
 
 if($_POST)
 {
-	$_POST = $filterProc->process($_POST);
+    $_POST = $filterProc->process($_POST);
 }
 
 if($_GET)

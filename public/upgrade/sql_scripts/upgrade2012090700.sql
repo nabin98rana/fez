@@ -1,4 +1,4 @@
-CREATE TABLE %TABLE_PREFIX%input_filter (
+CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%input_filter (
   ift_id int(11) NOT NULL AUTO_INCREMENT,
   ift_input_name varchar(45) NOT NULL,
   ift_filter_class varchar(45) NOT NULL,

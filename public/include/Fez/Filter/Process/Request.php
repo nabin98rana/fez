@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * Filter request items with their assigned filters
+ * @author uqcmaj
+ * @since September 2012
+ *
+ */
 class Fez_Filter_Process_Request implements Fez_Filter_Process_ProcessInterface
 {
     /**
@@ -13,6 +19,12 @@ class Fez_Filter_Process_Request implements Fez_Filter_Process_ProcessInterface
 	 * @var array
 	 */
     protected $filters = array();
+    
+    /**
+     * Regexes for elements using the regex filter
+     * @var array
+     */
+    protected $regexPatterns = array();
     
     /**
      * Database object
@@ -93,7 +105,13 @@ class Fez_Filter_Process_Request implements Fez_Filter_Process_ProcessInterface
             {
             	if($filterObj = $this->fetchFilter($filter))
                 {
-                	//Is it a regular field?
+                    //Need to set the pattern if it's the regex filter
+                    if($filter == 'Fez_Filter_Regex' && method_exists($filterObj, 'setPattern'))
+                    {
+                      $filterObj->setPattern($this->regexPatterns[$elementToFilter]);
+                    }
+                    
+                    //Is it a regular field?
                 	if(isset($this->data[$elementToFilter]))
                     {
                         $this->data[$elementToFilter] = 
@@ -131,6 +149,11 @@ class Fez_Filter_Process_Request implements Fez_Filter_Process_ProcessInterface
         }
         
         $tokens = rtrim(str_repeat('?,', count($elementsToFilter)), ',');
+        
+        $sqlRegexFilters = "SELECT xsdmf_id, xsdmf_validation_regex FROM " 
+        	. APP_TABLE_PREFIX . "xsd_display_matchfields WHERE xsdmf_id IN ($tokens) "
+        	. "AND xsdmf_validation_regex IS NOT NULL";
+        
         $sql = "SELECT ift_input_name, ift_filter_class FROM " 
             . APP_TABLE_PREFIX . "input_filter WHERE ift_input_name IN ($tokens)";
         
@@ -145,6 +168,16 @@ class Fez_Filter_Process_Request implements Fez_Filter_Process_ProcessInterface
 	        {
 	            $filters[$rawFilters[$i]['ift_input_name']][] = 
 	            								$rawFilters[$i]['ift_filter_class'];
+	        }
+	        
+	        $stmt = $this->db->query($sqlRegexFilters, $elementsToFilter);
+	        $rawFiltersRegex = $stmt->fetchAll();
+	        
+	        for($i=0;$i<count($rawFiltersRegex);$i++)
+	        {
+	        	$this->regexPatterns[$rawFiltersRegex[$i]['xsdmf_id']] = 
+	        						$rawFiltersRegex[$i]['xsdmf_validation_regex'];
+	        	$filters[$rawFiltersRegex[$i]['xsdmf_id']][] = 'Fez_Filter_Regex';
 	        }
 	        
 	        //Things without a filter
