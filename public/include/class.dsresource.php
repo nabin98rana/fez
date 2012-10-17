@@ -412,14 +412,22 @@ class DSResource
                 else 
                 {
                     $error = error_get_last();
-                    $this->log->err("copy function failed on DSResource->save method. Error message: " . $error['message'] . ".");
+                    $msg = "copy function failed on DSResource->save method. Error message: " . $error['message'] . ".";
+                    if ($echoLog == true) {
+                        echo $msg;
+                    }
+                    $this->log->err($msg);
                     return false;
                 }
             } 
             else 
             {
                 $error = error_get_last();
-                $this->log->err("mkdir function failed on DSResource->save method. Error message: " . $error['message'] . ".");
+                $msg = "mkdir function failed on DSResource->save method. Error message: " . $error['message'] . ".";
+                if ($echoLog == true) {
+                    echo $msg;
+                }
+                $this->log->err($msg);
                 return false;
             }
         }
