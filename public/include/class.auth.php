@@ -903,8 +903,8 @@ class Auth
                      * and 1 collection has no restriction for lister, we want no restrictions for lister
                      * for this pid.
                      */
-//				    if($groupNodes->length == 0 && ($role == "Viewer" || $role == "Lister") && $inherit == false) {
-				    if ($role == "Viewer" || $role == "Lister") {
+				    if(($role == "Viewer" || $role == "Lister") && (($inherit == false || $acml != $acmlBase) && $groupNodes->length == 0) ) {
+//				    if ($role == "Viewer" || $role == "Lister") {
                         $overridetmp[$role] = true;
                     }
 
@@ -923,8 +923,8 @@ class Auth
                                 $overridetmp[$role] = false;
 
                             } elseif(($group_value == "" || $group_value == "off")
-                            && ($role == "Viewer" || $role == "Lister")) {
-                                if(array_key_exists($role, $overridetmp) && $overridetmp[$role] !== false) {
+                            && ($role == "Viewer" || $role == "Lister") && ($inherit == false || $acml != $acmlBase) ) {
+                                if(!array_key_exists($role, $overridetmp) || $overridetmp[$role] !== false) {
                                         $overridetmp[$role] = true;
                                 }
 

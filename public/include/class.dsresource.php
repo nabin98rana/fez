@@ -402,7 +402,7 @@ class DSResource
         {
 
             //Maybe the file exists but we just don't have a reference to it
-            if (file_exists($this->dsTreePath . $this->hash['hashPath'].$this->hash['rawHash'])) {
+            if (is_file($this->dsTreePath . $this->hash['hashPath'].$this->hash['rawHash'])) {
                 if ($echoLog == true) {
                     echo "INFO: File exists so just storing a reference for ".$this->dsTreePath . $this->hash['hashPath'].$this->hash['rawHash']."\n";
                 }
