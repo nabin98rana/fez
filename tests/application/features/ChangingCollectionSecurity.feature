@@ -40,7 +40,12 @@ Feature: Pid security
     When I follow "Edit Security for Selected Community"
     Given I choose the "Unit Publication Officers" group for the "Lister" role
     Given I choose the "Unit Publication Officers" group for the "Viewer" role
+    And I turn off waiting checks
     And I press "Save"
+    And I switch to window ""
+    And I turn on waiting checks
+    And I see "Search Entry" id or wait for "80" seconds
+
     And I fill in "Search Entry" with "title:(\"Test Pid Security to be changed after pid created\")"
     And I press "search_entry_submit"
     Then I should not see "No records could be found"
@@ -82,9 +87,10 @@ Feature: Pid security
     And I confirm the popup
     And I fill "automated test data cleanup" in popup
     And I confirm the popup
+    And I switch to window ""
     And I turn on waiting checks
 
-  @destructive @purge
+  @destructive @purge @insulated
   Scenario: Delete old Collections
     Given I login as administrator
     And I fill in "Search Entry" with "title:(\"Test Collection Security to be changed after pid created\")"
@@ -96,6 +102,7 @@ Feature: Pid security
     And I confirm the popup
     And I fill "automated test data cleanup" in popup
     And I confirm the popup
+    And I switch to window ""
     And I turn on waiting checks
 
   @destructive @purge
@@ -110,4 +117,5 @@ Feature: Pid security
     And I confirm the popup
     And I fill "automated test data cleanup" in popup
     And I confirm the popup
+    And I switch to window ""
     And I turn on waiting checks
