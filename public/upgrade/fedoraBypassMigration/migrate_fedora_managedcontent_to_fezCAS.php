@@ -93,16 +93,18 @@ foreach ($fedoraPids as $pid) {
             // A quick checking on the file's hash data before we proceed to save.
             $fileHash = $dsresource->getHash();
             if (empty($fileHash['rawHash'])){
+                echo "ERROR: INVALID HASH data. " . $fedoraFilePath."\n";
                 $migrationErrors[$datastream['ID']]['error'] = "INVALID HASH data. " . $fedoraFilePath;
                 $migrationErrors[$datastream['ID']]['exif'] = $exif;
                 continue;
             }
 
             // Save datastream
-            $result = $dsresource->save();
+            $result = $dsresource->save(true);
 
             // Log save status
             if (!$result) {
+                echo "ERROR: "." UNABLE TO SAVE \n $pid $dsid ".$fileHash['hashPath'].$fileHash['hashFile']."\n";
                 $migrationErrors[$datastream['ID']]['error'] = " UNABLE TO SAVE ";
                 $migrationErrors[$datastream['ID']]['exif'] = $exif;
             } else {
@@ -114,12 +116,12 @@ foreach ($fedoraPids as $pid) {
             if (!$acmlBase ) {
                 $did = AuthNoFedoraDatastreams::getDid($pid, $datastream['ID']);
                 AuthNoFedoraDatastreams::recalculatePermissions($did);
-                echo $did ." ".$pid." ".$datastream['ID']."<br/>\n";
+                echo $did ." ".$pid." ".$datastream['ID']." ".$fileHash['hashPath'].$fileHash['hashFile']." (no DS ACML found) <br/>\n";
             } else
             {
                 addDatastreamSecurity($acml, $pid, $datastream['ID']);
                 $did = AuthNoFedoraDatastreams::getDid($pid, $dsID);
-                echo $did ." ".$pid." ".$datastream['ID']."<br/>\n";
+                echo $did ." ".$pid." ".$datastream['ID']." ".$fileHash['hashPath'].$fileHash['hashFile']." (found DS ACML so adding) <br/>\n";
             }
         }
     }

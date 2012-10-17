@@ -396,10 +396,11 @@ class DSResource
      * Create a directory based on the hash of the file and move the resource
      * from temp storage if the resource does not already exist.
      */
-    public function save()
+    public function save($echoLog = false)
     {
         if(!$this->resourceExists($this->hash['rawHash']))
         {
+
             if(mkdir($this->dsTreePath . $this->hash['hashPath'], 0770, true))
             {
                 if(copy($this->tmpPath, $this->dsTreePath . $this->hash['hashPath'] 
@@ -424,6 +425,13 @@ class DSResource
         }
         elseif($this->resourceExists($this->hash['rawHash']))
         {
+            if ($echoLog == true) {
+                echo $this->meta['pid']." ".$this->hash['hashFile']."already exists at ".$this->hash['hashPath'].$this->hash['rawHash']."\n";
+                $md5File = md5_file($this->hash['hashPath'].$this->hash['rawHash']);
+                if ($md5File != $this->hash['rawHash']) {
+                    echo "CRITICAL ERROR: md5file ".$md5File." does not match md5 ".$this->hash['rawHash']."\n";
+                }
+            }
             $this->storeDSReference();
             return true;
         }
