@@ -449,8 +449,8 @@ class DSResource
         elseif($this->resourceExists($this->hash['rawHash']))
         {
             if ($echoLog == true) {
-                echo $this->meta['pid']." ".$this->hash['hashFile']."already exists at ".$this->hash['hashPath'].$this->hash['rawHash']."\n";
-                $md5File = md5_file($this->hash['hashPath'].$this->hash['rawHash']);
+                echo $this->meta['pid']." ".$this->hash['hashFile']." already exists at ".$this->dsTreePath.$this->hash['hashPath'].$this->hash['rawHash']."\n";
+                $md5File = md5_file($this->dsTreePath.$this->hash['hashPath'].$this->hash['rawHash']);
                 if ($md5File != $this->hash['rawHash']) {
                     echo "CRITICAL ERROR: md5file ".$md5File." does not match md5 ".$this->hash['rawHash']."\n";
                 }
