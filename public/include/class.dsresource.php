@@ -450,11 +450,17 @@ class DSResource
         {
             if ($echoLog == true) {
                 echo $this->meta['pid']." ".$this->hash['hashFile']." already exists at ".$this->dsTreePath.$this->hash['hashPath'].$this->hash['rawHash']."\n";
-                $md5File = md5_file($this->dsTreePath.$this->hash['hashPath'].$this->hash['rawHash']);
-                if ($md5File != $this->hash['rawHash']) {
-                    echo "CRITICAL ERROR: md5file ".$md5File." does not match md5 ".$this->hash['rawHash']."\n";
-                }
             }
+            $md5File = md5_file($this->dsTreePath.$this->hash['hashPath'].$this->hash['rawHash']);
+            if ($md5File != $this->hash['rawHash']) {
+                $msg = "CRITICAL ERROR: md5file ".$md5File." does not match md5 ".$this->hash['rawHash']."\n";
+                if ($echoLog == true) {
+                    echo $msg;
+                }
+                $this->log->err($msg);
+                return false;
+            }
+
             $this->storeDSReference();
             return true;
         }

@@ -594,6 +594,18 @@ class MigrateFromFedoraToDatabase
             echo "<br> Failed updating file attachment tables. file = ". $file . " Ex: " . $ex;
             return false;
         }
+
+        // Run this script: upgrade2012081000.sql
+        // Alter file_attachments table, add a file to indicate whether security is inherited column for the datastreams.
+        $file = APP_PATH . "/upgrade/sql_scripts/upgrade2012081000.sql";
+        try{
+            $this->_upgradeHelper->parse_mysql_dump($file);
+            echo chr(10) . "<br />Successfuly updating File attachment table";
+        } catch(Exception $e) {
+            echo "<br> Failed updating file attachment tables. file = ". $file . " Ex: " . $ex;
+            return false;
+        }
+
         return true;
     }
 
