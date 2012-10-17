@@ -19,6 +19,7 @@ Feature: Pid security
     And I uncheck "Inherit"
     Given I choose the "Unit Publication Officers" group for the "Viewer" role
     And I press "Save"
+    And I switch to window ""
     And I follow "Logout"
     Given I am on "/"
     And I fill in "Search Entry" with "title:(\"Security Test Journal Title2012\")"
@@ -42,6 +43,7 @@ Feature: Pid security
     And I follow "Edit Security for Select Record"
     Given I choose the "Unit Publication Officers" group for the "Editor" role
     And I press "Save"
+    And I switch to window ""
     And I follow "Logout"
     Given I login as UPO
     And I fill in "Search Entry" with "title:(\"Security Test Journal Title2012\")"
@@ -59,6 +61,7 @@ Feature: Pid security
     And I follow "Edit Security for Select Record"
     Given I choose the "Unit Publication Officers" group for the "Lister" role
     And I press "Save"
+    And I switch to window ""
     And I follow "Logout"
     #test non logged in cannot see it
     And I fill in "Search Entry" with "title:(\"Security Test Journal Title2012\")"
