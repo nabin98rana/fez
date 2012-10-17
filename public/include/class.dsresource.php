@@ -401,35 +401,50 @@ class DSResource
         if(!$this->resourceExists($this->hash['rawHash']))
         {
 
-            if(mkdir($this->dsTreePath . $this->hash['hashPath'], 0770, true))
-            {
-                if(copy($this->tmpPath, $this->dsTreePath . $this->hash['hashPath'] 
-                    . $this->hash['rawHash']))
+            //Maybe the file exists but we just don't have a reference to it
+            if (file_exists($this->dsTreePath . $this->hash['hashPath'].$this->hash['rawHash'])) {
+                if ($echoLog == true) {
+                    echo "INFO: File exists so just storing a reference for ".$this->dsTreePath . $this->hash['hashPath'].$this->hash['rawHash']."\n";
+                }
+                $this->storeDSReference();
+                return true;
+
+            } else {
+
+
+
+                if(is_dir($this->dsTreePath . $this->hash['hashPath']) || mkdir($this->dsTreePath . $this->hash['hashPath'], 0770, true))
                 {
-                    $this->storeDSReference();
-                    return true;
-                } 
-                else 
+                    if(copy($this->tmpPath, $this->dsTreePath . $this->hash['hashPath']
+                        . $this->hash['rawHash']))
+                    {
+                        $this->storeDSReference();
+                        return true;
+                    }
+                    else
+                    {
+                        $error = error_get_last();
+                        $msg = "copy function failed on DSResource->save method. Error message: " . $error['message'] . ".";
+                        if ($echoLog == true) {
+                            echo $msg;
+                        }
+                        $this->log->err($msg);
+                        return false;
+                    }
+                }
+                else
                 {
                     $error = error_get_last();
-                    $msg = "copy function failed on DSResource->save method. Error message: " . $error['message'] . ".";
+                    $msg = "mkdir function failed on DSResource->save method. Error message: " . $error['message'] . ".";
                     if ($echoLog == true) {
                         echo $msg;
                     }
                     $this->log->err($msg);
                     return false;
                 }
-            } 
-            else 
-            {
-                $error = error_get_last();
-                $msg = "mkdir function failed on DSResource->save method. Error message: " . $error['message'] . ".";
-                if ($echoLog == true) {
-                    echo $msg;
-                }
-                $this->log->err($msg);
-                return false;
+
             }
+
         }
         elseif($this->resourceExists($this->hash['rawHash']))
         {
