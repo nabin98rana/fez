@@ -9,6 +9,9 @@ use Behat\Gherkin\Node\PyStringNode,
 use Behat\Behat\Event\SuiteEvent,
     Behat\Behat\Event\ScenarioEvent,
     Behat\Behat\Event\StepEvent;
+use Behat\Behat\Context\Step\Given,
+    Behat\Behat\Context\Step\When,
+    Behat\Behat\Context\Step\Then;
 
 use Behat\MinkExtension\Context\MinkContext;
 
@@ -338,6 +341,10 @@ class FeatureContext extends MinkContext
 //      $stepTitle = $event->getStep()->getTitle()
 //      if ($event->getStep()->getTitle()
         $this->getSession()->wait(10000, "dojo.byId('powered-by')");
+        $javascriptError = ($this->getSession()->evaluateScript("return window.jsErrors"));
+        if (!empty($javascriptError)) {
+          throw new Exception("Javascript Error: ".$javascriptError[0]);
+        }
       }
     }
 //      $this->isModal = false;
@@ -631,6 +638,8 @@ class FeatureContext extends MinkContext
 
     /**
      * @Given /^I check there are no Javascript errors$/
+     *
+     * This is currently redundant due to the fact this check is done on all non modal pages
      */
     public function iCheckThereAreNoJavascriptErrors()
     {
