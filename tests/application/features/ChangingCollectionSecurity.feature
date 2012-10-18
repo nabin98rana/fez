@@ -104,8 +104,8 @@ Feature: Pid security
     And I switch to window ""
     And I turn on waiting checks
 
-  @destructive @purge
-  Scenario: Delete old pids @insulated
+  @destructive @purge @insulated
+  Scenario: Delete old pids
     Given I login as administrator
     And I fill in "Search Entry" with "title:(\"Test Pid Security to be changed after pid created\")"
     And I press "search_entry_submit"
