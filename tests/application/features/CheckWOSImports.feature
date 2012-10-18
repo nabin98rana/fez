@@ -2,7 +2,7 @@
 @javascript
 Feature: WOS imports. Check imports from wos work correctly
 
-  @destructive @now1
+  @destructive @now1 @insulated
   Scenario: Use add on entry form on a known wok article and ensure it imports correctly. "Influence of Malt Roasting on the Oxidative Stability of Sweet Wort" WOS:000304837700019
     Given I login as administrator
     And I go to the test collection list page
