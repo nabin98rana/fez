@@ -341,10 +341,10 @@ class FeatureContext extends MinkContext
 //      $stepTitle = $event->getStep()->getTitle()
 //      if ($event->getStep()->getTitle()
         $this->getSession()->wait(10000, "dojo.byId('powered-by')");
-        $javascriptError = ($this->getSession()->evaluateScript("return window.jsErrors"));
+        /*$javascriptError = ($this->getSession()->evaluateScript("return window.jsErrors"));
         if (!empty($javascriptError)) {
           throw new Exception("Javascript Error: ".$javascriptError[0]);
-        }
+        }*/
       }
     }
 //      $this->isModal = false;

@@ -172,7 +172,7 @@ Feature: Security
 
 
   @destructive @core @purge
-Scenario: Delete Security Test Communitys
+Scenario: Delete Security Test Communities
   Given I login as administrator
   And I fill in "Search Entry" with "title:(\"Security Test Community\")"
   And I press "search_entry_submit"
