@@ -1,7 +1,7 @@
 @javascript
 Feature: Check list view displays the correct information entered into a pid, collection or community
 
-@now @broken
+@now
 Scenario: I login as admin and create communities, collections and pids and see all the information displays in lists correctly
   Given I login as administrator
   And I follow "Browse"
@@ -39,7 +39,7 @@ Scenario: I login as admin and create communities, collections and pids and see 
   And I press "search_entry_submit"
   Then I should see "Test Collection for list view"
   Then I should see "(1)"
-  #Then I should see "abstract automated testing"
+  Then I should see "automated testing"
   And I fill in "Search Entry" with "title:(\"Test Pid for list view\")"
   And I press "search_entry_submit"
   Then I should see "Test Pid for list view"
@@ -50,7 +50,7 @@ Scenario: I login as admin and create communities, collections and pids and see 
   Then I should see "123-987"
   Then I should see "(2010)"
 
-@destructive @purge @broken
+@destructive @purge @insulated
   Scenario: Delete old Communities
     Given I login as administrator
     And I fill in "Search Entry" with "title:(\"Test Community for list view\")"
@@ -65,7 +65,7 @@ Scenario: I login as admin and create communities, collections and pids and see 
     And I turn on waiting checks
     And I follow "Logout"
 
-  @destructive @purge @broken
+  @destructive @purge @insulated
   Scenario: Delete old Collections
     Given I login as administrator
     And I fill in "Search Entry" with "title:(\"Test Collection for list view\")"
@@ -80,7 +80,7 @@ Scenario: I login as admin and create communities, collections and pids and see 
     And I turn on waiting checks
     And I follow "Logout"
 
-  @destructive @purge @broken
+  @destructive @purge @insulated
   Scenario: Delete old pids
     Given I login as administrator
     And I fill in "Search Entry" with "title:(\"Test Pid for list view\")"
