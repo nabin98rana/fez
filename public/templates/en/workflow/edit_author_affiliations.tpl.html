@@ -84,7 +84,7 @@ function submitSuggestedAffiliation(authorID, orgID, iteration) {
            <td>{$affiliation_suggestions[jj].dt_to}</td>
            <td>{$affiliation_suggestions[jj].fte}</td>
         {/if}
-        {if !isset($tdCount) || $tdCount != $affiliation_suggestions[jj].org_title}
+        {if !isset($tdCount|smarty:nodefaults) || $tdCount != $affiliation_suggestions[jj].org_title}
 			<td rowspan="{$autOrgUnitCount.$org_id}" width="80">
 			     {if $autOrgUnitCount.$org_id > 1}
 			      <input type="hidden" value="100" id="percentage-{$smarty.section.jj.iteration}" />

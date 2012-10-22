@@ -133,20 +133,20 @@
                     <td colspan="10">
                         <p>
                             <h4>Last Response XML</h4>
-                            <textarea cols="100%" rows="25" readonly="readonly">{$list[i].rij_lastresponse}</textarea>
+                            <textarea cols="100%" rows="25" readonly="readonly">{$list[i].rij_lastresponse|smarty:nodefaults}</textarea>
                         </p>
                         <p>
                             <h4>Download Request XML</h4>
-                            <textarea cols="100%" rows="25" readonly="readonly">{$list[i].rij_downloadrequest}</textarea>
+                            <textarea cols="100%" rows="25" readonly="readonly">{$list[i].rij_downloadrequest|smarty:nodefaults}</textarea>
                         </p>
                         <p>
                             <h4>Profile Link (returned from the last response XML)</h4>
-                            {if $list[i].profilelink} {$list[i].profilelink} {else} Link not found {/if}
+                            {if $list[i].profilelink} {$list[i].profilelink|smarty:nodefaults} {else} Link not found {/if}
                         </p>
                         <p>
                             <h4>Profile XML Content</h4>
                             {if $list[i].rij_response_profilexml}
-                                <textarea cols="100%" rows="25" readonly="readonly">{$list[i].rij_response_profilexml}</textarea>
+                                <textarea cols="100%" rows="25" readonly="readonly">{$list[i].rij_response_profilexml|smarty:nodefaults}</textarea>
                             {elseif $list[i].rij_time_xmlcleaned}
                                 XML content has been cleaned on {$list[i].rij_time_xmlcleaned_formatted}
                             {else}
@@ -155,12 +155,12 @@
                         </p>
                         <p>
                             <h4>Publications Link (returned from the last response XML)</h4>
-                            {if $list[i].publicationslink} {$list[i].publicationslink} {else} Link not found {/if}
+                            {if $list[i].publicationslink} {$list[i].publicationslink|smarty:nodefaults} {else} Link not found {/if}
                         </p>
                         <p>
                             <h4>Publications XML Content</h4>
                             {if $list[i].rij_response_publicationsxml}
-                                <textarea cols="100%" rows="25" readonly="readonly">{$list[i].rij_response_publicationsxml}</textarea>
+                                <textarea cols="100%" rows="25" readonly="readonly">{$list[i].rij_response_publicationsxml|smarty:nodefaults}</textarea>
                             {elseif $list[i].rij_time_xmlcleaned}
                                 XML content has been cleaned on {$list[i].rij_time_xmlcleaned_formatted}
                             {else}
