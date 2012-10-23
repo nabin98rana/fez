@@ -153,15 +153,19 @@ class SherpaRomeo
     }
     /* This function will get all ISSN from the pids and fill the Sherpa Romeo table with data.
      * You will need a free API key to do more that 500 per day.
-     *
+     * $overwrite : Boolean wheather to overwrite data or not
      */
-    function getDataFromSherpaRomeo() {
+    function getDataFromSherpaRomeo($reloadAll=false) {
         $log = FezLog::get();
         $db = DB_API::get();
         $regexp = '/[0-9]{4}-[0-9]{3}[0-9X]/';
-        $stmt = "SELECT DISTINCT rek_issn FROM " . APP_TABLE_PREFIX . "record_search_key_issn
-        LEFT JOIN " . APP_TABLE_PREFIX . "journal_issns
-        ON rek_issn = jni_issn WHERE jni_issn IS NULL";
+        if ($reloadAll) {
+            $stmt = "SELECT DISTINCT rek_issn FROM " . APP_TABLE_PREFIX . "record_search_key_issn";
+        } else {
+            $stmt = "SELECT DISTINCT rek_issn FROM " . APP_TABLE_PREFIX . "record_search_key_issn
+            LEFT JOIN " . APP_TABLE_PREFIX . "journal_issns
+            ON rek_issn = jni_issn WHERE jni_issn IS NULL";
+        }
         try {
             $res = $db->fetchAll($stmt);
         }
