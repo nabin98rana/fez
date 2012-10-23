@@ -1,6 +1,6 @@
 <tr id="tr_xsd_display_fields_{$xsdmf.xsdmf_id}_0" {if $xsdmf.xsdmf_invisible == 1}style="display:none;"{/if}>
 				  <td width="200" bgcolor="{$cell_color}" class="default" valign="top">
-					<b>{$xsdmf.xsdmf_title} {if $xsdmf.xsdmf_required == 1} * {/if}</b>
+                    <b><label for="xsd_display_fields[{$xsdmf.xsdmf_id}]">{$xsdmf.xsdmf_title}</label>{if $xsd_display_fields[i].xsdmf_required == 1} *{/if}</b>
 					{if $xsdmf.xsdmf_description != "" && $loop_num == 0}
 						<br /><i>{$xsdmf.xsdmf_description}</i>
 					{/if}
@@ -10,7 +10,7 @@
 					{if $xsdmf.xsdmf_html_input == 'multiple'}
 						{assign var="field_name" value=$field_name|cat:"[]"}
 					{/if}
-					<select {if $xsdmf.xsdmf_html_input == 'multiple'}multiple size="8"{/if} class="default" name="{$field_name}">
+					<select {if $xsdmf.xsdmf_html_input == 'multiple'}multiple size="8"{/if} class="default" name="{$field_name}" id="{$field_name}">
 					  {if $xsdmf.xsdmf_html_input != 'multiple'}<option value="">Please choose an option</option>{/if}
 					  {html_options options=$xsdmf.field_options selected=$details[$temp_fld_id]}
 					</select>
