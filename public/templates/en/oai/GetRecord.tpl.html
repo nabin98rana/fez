@@ -2,7 +2,7 @@
 <?xml-stylesheet type='text/xsl' href='{$app_relative_url}oai2.xsl' ?>
 <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
 <responseDate>{$responseDate}</responseDate>
-{if $verb == "GetRecord"} 
+{if $verb == "GetRecord"}
   <request verb="{$verb}" metadataPrefix="{$metadataPrefix}" resumptionToken="{if $resumptionToken != 0}{$resumptionToken}{/if}">{$app_base_url}oai.php</request>
 {/if}
 {if $errorCount == 0}
@@ -20,7 +20,7 @@
 			{if $loop_subjects[s] != ""}
 			    <setSpec>{$app_hostname}:{$app_pid_namespace}:cvo_id:{$loop_subjects[s]}</setSpec>
 			{/if}
-			{/section}            
+			{/section}
 		{/if}
 	{/if}
 	  </header>
@@ -57,7 +57,7 @@
 					{assign var="loop_contributors" value=$list[0].rek_contributor}
 					{section name="a" loop=$loop_contributors}
 				        <dc:contributor>{$list[0].rek_contributor[a]|escape:"html"}</dc:contributor>
-					{/section}		
+					{/section}
 				{/if}
 			{/if}
 			{if $list[0].rek_subject_lookup}
@@ -70,6 +70,16 @@
 					{/section}
 				{/if}
 			{/if}
+      {if $list[0].rek_org_unit_name}
+        {if !is_array($list[0].rek_org_unit_name)}
+            <dc:subject>{$list[0].rek_org_unit_name|escape:"html"}</dc:subject>
+          {else}
+          {assign var="loop_org_unit_name" value=$list[0].rek_org_unit_name}
+          {section name="s" loop=$loop_org_unit_name}
+              <dc:subject>{$list[0].rek_org_unit_name[s]|escape:"html"}</dc:subject>
+          {/section}
+        {/if}
+      {/if}
 			{if $list[0].rek_keywords}
 				{if !is_array($list[0].rek_keywords)}
 	            	<dc:subject>{$list[0].rek_keywords|escape:"html"}</dc:subject>
@@ -117,7 +127,7 @@
 					{assign var="loop_rights" value=$list[0].rek_rights}
 					{section name="s" loop=$loop_rights}
 				        <dc:rights>{$list[0].rek_rights[s]|escape:"html"}</dc:rights>
-					{/section}	        
+					{/section}
 				{/if}
 			{/if}
 		{if $metadataPrefix == "oai_dc"}

@@ -2,7 +2,7 @@
 <?xml-stylesheet type='text/xsl' href='{$app_relative_url}oai2.xsl' ?>
 <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
 <responseDate>{$responseDate}</responseDate>
-{if $verb == "ListRecords"} 
+{if $verb == "ListRecords"}
   <request verb="{$verb}" metadataPrefix="{$metadataPrefix}" resumptionToken="{if $resumptionToken != ""}{$resumptionToken}{/if}">{$app_base_url}oai.php</request>
 {/if}
 {if $errorCount == 0}
@@ -19,7 +19,7 @@
 		{assign var="loop_parents" value=$list[i].rek_ismemberof}
 		{section name="p" loop=$loop_parents}
 		      <setSpec>oai:{$app_hostname}:{$loop_parents[p]|escape:"html"}</setSpec>
-		{/section}   
+		{/section}
 	{/if}
 {/if}
 {if $list[i].rek_subject}
@@ -31,7 +31,7 @@
 		{if $loop_subjects[s] != ""}
 		      <setSpec>{$app_hostname}:{$app_pid_namespace}:cvo_id:{$loop_subjects[s]|escape:"html"}</setSpec>
 		{/if}
-		{/section}            
+		{/section}
 	{/if}
 {/if}
     </header>
@@ -68,7 +68,7 @@
 				{assign var="loop_contributors" value=$list[i].rek_contributor}
 				{section name="a" loop=$loop_contributors}
 	        		<dc:contributor>{$list[i].rek_contributor[a]|escape:"html"}</dc:contributor>
-				{/section}		
+				{/section}
 			{/if}
 		{/if}
 		{if $list[i].rek_subject_lookup}
@@ -81,6 +81,16 @@
 				{/section}
 			{/if}
 		{/if}
+    {if $list[i].rek_org_unit_name}
+      {if !is_array($list[i].rek_org_unit_name)}
+          <dc:subject>{$list[i].rek_org_unit_name|escape:"html"}</dc:subject>
+        {else}
+        {assign var="loop_org_unit_name" value=$list[i].rek_org_unit_name}
+        {section name="s" loop=$loop_org_unit_name}
+            <dc:subject>{$list[i].rek_org_unit_name[s]|escape:"html"}</dc:subject>
+        {/section}
+      {/if}
+    {/if}
 		{if $list[i].rek_keywords}
 			{if !is_array($list[i].rek_keywords)}
 	        	<dc:subject>{$list[i].rek_keywords|escape:"html"}</dc:subject>
