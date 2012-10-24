@@ -1807,6 +1807,16 @@ dt_load_array['xsdmf_id_ref'] = 0;
           }
       }
 	  {/literal}{if $anchor != ""}document.location.href='{$anchor}';{/if}{literal}
+
+      //We will set off an onclick if the field type radio box is set since this is needed to change some of the form elements
+      var radios = document.getElementsByName('field_type');
+      for( i = 0; i < radios.length; i++ ) {
+              if (radios[i].checked == true) {
+                  if (typeof radios[i].onclick == "function") {
+                      radios[i].onclick.apply(radios[i]);
+                  }
+              }
+      }
       //-->
       </script>
       {/literal}
