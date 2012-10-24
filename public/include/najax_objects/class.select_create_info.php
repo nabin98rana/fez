@@ -34,7 +34,9 @@ class SelectCreateInfo {
 		}
         $list = array();
         foreach ($childXDisplayOptions as $key => $item) {
-            $list[] = array('text' => $item, 'value' => $key);
+            if (!empty($item)) {
+                $list[] = array('text' => $item, 'value' => $key);
+            }
         }
         return $list;
     }
