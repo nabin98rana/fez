@@ -1,0 +1,2 @@
+ALTER TABLE %TABLE_PREFIX%author ADD COLUMN aut_orcid_id VARCHAR(255);
+ALTER TABLE %TABLE_PREFIX%author ADD COLUMN aut_google_scholar_id VARCHAR(255);

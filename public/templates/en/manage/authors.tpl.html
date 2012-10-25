@@ -404,6 +404,24 @@
               </tr>
               <tr>
                 <td style="width: 120px" class="default cell-colour">
+                  <b>ORCID ID: </b>
+                </td>
+                <td style="background: {$light_color}; width: 80%">
+                  <input type="text" name="orcid_id" size="40" class="default" value="{$info.aut_orcid_id}" />
+                  {include file="error_icon.tpl.html" field="orcid_id"}
+                </td>
+              </tr>	
+              <tr>
+                <td style="width: 120px" class="default cell-colour">
+                  <b>Google Scholar ID: </b>
+                </td>
+                <td style="background: {$light_color}; width: 80%">
+                  <input type="text" name="google_scholar_id" size="40" class="default" value="{$info.aut_google_scholar_id}" />
+                  {include file="error_icon.tpl.html" field="google_scholar_id"}
+                </td>
+              </tr>				  
+              <tr>
+                <td style="width: 120px" class="default cell-colour">
                   <b>People Australia ID: </b>
                 </td>
                 <td style="background: {$light_color}; width: 80%">

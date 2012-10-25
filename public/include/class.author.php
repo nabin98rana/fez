@@ -622,6 +622,12 @@ class Author
     if ($_POST["scopus_id"] !== "") {
       $values .= ", " . $db->quote(trim($_POST["scopus_id"]));
     }
+    if ($_POST["orcid_id"] !== "") {
+      $insert .= ", aut_orcid_id ";
+    }
+    if ($_POST["google_scholar_id"] !== "") {
+      $insert .= ", aut_google_scholar_id ";
+    }	
     if ($_POST["people_australia_id"] !== "") {
       $values .= ", " . $db->quote(trim($_POST["people_australia_id"]));
     }	
