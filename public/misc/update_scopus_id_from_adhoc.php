@@ -77,7 +77,7 @@ for($i=0; $i<($total+$inc); $i=$i+$inc) {
 	 		$scopus_id = $listing[$j]['dnf_eid'];
 			$record = new RecordGeneral($pid);
 			$search_keys = array("Scopus ID");
-			$values = array($subtype);
+			$values = array($scopus_id);
 			echo "about to modify $pid with Scopus ID ".$scopus_id."\n";
 			$record->addSearchKeyValueList($search_keys, $values, true);
 	 	}
