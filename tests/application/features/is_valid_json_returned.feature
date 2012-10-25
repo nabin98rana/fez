@@ -58,22 +58,18 @@ Feature: Check that valid json is being returned
     Given I am on "/ajax_pid_outstanding_events.php?pid=a:4$%@})']\%22({[&type=WORKFLOW"
     Then should see valid JSON
 
-  @broken   
   Scenario: Check JSON is valid
     Given I am on "/ajax_pid_outstanding_events.php?pid=a:4$%@})']\%22({[&type=BACKGROUND"
     Then should see valid JSON
 
-  @broken   
   Scenario: Check JSON is valid
     Given I am on "/ajax_pid_outstanding_events.php?pid=a:4$%@})']\%22({[&type=COUNT"
     Then should see valid JSON
 
-  @broken   
   Scenario: Check JSON is valid
     Given I am on "/conference_suggest_proxy.php"
     Then should see valid JSON
 
-  @broken   
   Scenario: Check JSON is valid
     Given I am on "/conference_suggest_proxy.php?query=a:4$%@})']\%22({["
     Then should see valid JSON

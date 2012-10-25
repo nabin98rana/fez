@@ -5,10 +5,12 @@ Feature: Test pages for javascript errors
   @now1
   Scenario: I go to heaps of pages Then see if there are javascript errors present
     Given I am on "/"
-    #Given I follow "News"
     Given I follow "Recently Added"
+    Given I am on "/"
     Given I follow "Recently Popular"
+    Given I am on "/"
     Given I follow "Tags"
+    Given I am on "/"
     Given I am on "/list/"
     Given I am on "/adv_search.php"
     Given I am on "/faq"
@@ -23,9 +25,10 @@ Feature: Test pages for javascript errors
   Scenario: I go to heaps of pages Then see if there are javascript errors present as super administrator
     Given I login as super administrator
     Given I am on "/"
-    #Given I follow "News"
     Given I follow "Recently Added"
+    Given I am on "/"
     Given I follow "Recently Popular"
+    Given I am on "/"
     Given I follow "Tags"
     Given I am on "/list/"
     Given I am on "/adv_search.php"
