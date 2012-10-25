@@ -918,6 +918,7 @@ class XSD_HTML_Match
 							xsdmf_sek_id,
 							sek_title,
 							sek_suggest_function,
+							sek_comment_function,
 							sek_lookup_function,
 							sek_meta_header,
 							sek_data_type,

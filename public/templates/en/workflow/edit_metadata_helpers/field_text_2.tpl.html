@@ -39,8 +39,25 @@
 		{else}
 			name="xsd_display_fields[{$xsdmf.xsdmf_id}]" value="{$details[$temp_fld_id]|escape:"html"}" />
 		{/if}
-		
+
 		{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"|cat:$squares}
+
+        {if $xsd_display_fields[i].sek_comment_function != ""}
+        <span id="{$xsd_display_fields[i].xsdmf_id}_comment"></span>
+        <script type="text/javascript">
+            {literal}
+            $("#xsd_display_fields_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}_0").blur(function() {
+                $.ajax({
+                    url: "/comment_proxy.php",
+                    data: { query: $("#xsd_display_fields_{/literal}{$xsd_display_fields[i].xsdmf_id}_0").val(), xsd_display_fields: {$xsd_display_fields[i].xsdmf_id}{literal}},
+            }).done(function(result) {
+                $('#{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}_comment').html(result);
+            });
+            });
+            {/literal}
+        </script>
+        {/if}
+
 		{if $xsd_display_fields[i].sek_suggest_function != ""}
 	    	<div id="generalsuggest" style="width:25em;position:relative;z-index:{math equation="2000 - x - y" y=0 x=$smarty.section.i.index};">
                 <div id="{$xsdmf.xsdmf_id}_{$loop_num}_container"></div>

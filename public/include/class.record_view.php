@@ -209,19 +209,7 @@ class RecordView {
                         }
                         $sRdetails = SherpaRomeo::getJournalColourFromPid($this->record->pid);
                         if (array_key_exists(colour, $sRdetails)) {
-                            $rjl .= "&nbsp;&nbsp;&nbsp;<span style='background-color:".$sRdetails['colour']."' id='sherpa'><a href='http://www.sherpa.ac.uk/romeo/search.php?issn=".$sRdetails['issn']."'>";
-                            if ($sRdetails['colour']=='green'){
-                                $rjl .= "Can archive pre-print and post-print or publisher's version/PDF";
-                            } elseif (colour=='blue') {
-                                $rjl .= "Can archive post-print (ie final draft post-refereeing) or publisher's version/PDF";
-                            } elseif ($sRdetails['colour']=='yellow') {
-                                $rjl .= "Can archive pre-print (ie pre-refereeing)";
-                            } elseif ($sRdetails['colour']=='white') {
-                                $rjl .= "Archiving not formally supported";
-                            } elseif ($sRdetails['colour']=='grey') {
-                                $rjl .= "RoMEO ungraded journal, but more information available";
-                            }
-                            $rjl .= "</a></span>";
+                            $rjl .= "&nbsp;&nbsp;&nbsp;".SherpaRomeo::convertSherpaRomeoToLink($sRdetails);
                         }
 						if (is_array($details[$dis_field['xsdmf_id']])) {
 							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {

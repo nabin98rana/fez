@@ -188,6 +188,7 @@ class Search_Key
 					sek_lookup_function,
 					sek_lookup_id_function,
 					sek_suggest_function,
+					sek_comment_function,
 					sek_derived_function,
 					sek_smarty_variable ";
         if (is_numeric($_POST["sek_cvo_id"])) {
@@ -224,6 +225,7 @@ class Search_Key
 					" . $db->quote($_POST["sek_lookup_function"]) . ",
 					" . $db->quote($_POST["sek_lookup_id_function"]) . ",
 					" . $db->quote($_POST["sek_suggest_function"]) . ",
+					" . $db->quote($_POST["sek_comment_function"]) . ",
 					" . $db->quote($_POST["sek_derived_function"]) . ",
                     " . $db->quote($_POST["sek_smarty_variable"]);
         if (is_numeric($_POST["sek_cvo_id"])) {
@@ -374,6 +376,7 @@ class Search_Key
 					sek_lookup_function = " . $db->quote($_POST["sek_lookup_function"]) . ",
 					sek_lookup_id_function = " . $db->quote($_POST["sek_lookup_id_function"]) . ",
 					sek_suggest_function = " . $db->quote($_POST["sek_suggest_function"]) . ",
+					sek_comment_function = " . $db->quote($_POST["sek_comment_function"]) . ",
 					sek_derived_function = " . $db->quote($_POST["sek_derived_function"]) . ",
 					sek_data_type = " . $db->quote($_POST["sek_data_type"]) . ",
                     sek_fez_variable = " . $db->quote($_POST["sek_fez_variable"]);
@@ -1177,6 +1180,37 @@ class Search_Key
                     " . APP_TABLE_PREFIX . "search_key as s1
                     inner join " . APP_TABLE_PREFIX . "xsd_display_matchfields as x1
                     on xsdmf_sek_id=sek_id                    
+                 WHERE
+                    xsdmf_id=" . $db->quote($xsdmf_id, 'INTEGER');
+        try {
+            $res = $db->fetchOne($stmt);
+        }
+        catch (Exception $ex) {
+            $log->err($ex);
+            return '';
+        }
+
+        return $res;
+    }
+
+    /**
+     * Method used to get the details of a specific search key comment function from a passed XSDMF match
+     *
+     * @access  public
+     * @param   integer $xsdmf_id The xsd matching field ID
+     * @return  array The search key comment function string
+     */
+    function getCommentFunctionByXSDMF_ID($xsdmf_id)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $stmt = "SELECT
+                    s1.sek_comment_function
+                 FROM
+                    " . APP_TABLE_PREFIX . "search_key as s1
+                    inner join " . APP_TABLE_PREFIX . "xsd_display_matchfields as x1
+                    on xsdmf_sek_id=sek_id
                  WHERE
                     xsdmf_id=" . $db->quote($xsdmf_id, 'INTEGER');
         try {

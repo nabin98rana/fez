@@ -1,0 +1,1 @@
+ALTER TABLE %TABLE_PREFIX%search_key ADD COLUMN sek_comment_function VARCHAR(255) NULL AFTER sek_suggest_function; 

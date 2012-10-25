@@ -57,6 +57,68 @@ class SherpaRomeo
         return $res;
     }
 
+    /**
+     * Method used to find Sherpa Romeo details
+     *
+     * @access  public
+     * @param   string $journalName
+     * @return  boolean
+     */
+    function getJournalColourFromName($journalName)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $stmt = "SELECT srm_issn AS issn, srm_colour AS colour FROM " . APP_TABLE_PREFIX . "sherpa_romeo WHERE srm_journal_name = ".$db->quote($journalName);
+        try {
+            $res = $db->fetchRow($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+
+        return $res;
+    }
+
+    function getJournalColourFromNameComment($journalName)
+    {
+        return SherpaRomeo::convertSherpaRomeoToLink(SherpaRomeo::getJournalColourFromName($journalName));
+    }
+
+    function getJournalColourFromIssnComment($issn)
+    {
+        return SherpaRomeo::convertSherpaRomeoToLink(SherpaRomeo::getJournalColourFromIssn($issn));
+    }
+
+    function convertSherpaRomeoToLink($res)
+    {
+        if (array_key_exists(colour, $res)) {
+
+            if ($res['colour']=='green'){
+                $text = "Can archive pre-print and post-print or publisher's version/PDF";
+                $colour = '#CCEBD6';
+            } elseif (colour=='blue') {
+                $text = "Can archive post-print (ie final draft post-refereeing) or publisher's version/PDF";
+                $colour = '#D6EBFF';
+            } elseif ($res['colour']=='yellow') {
+                $text = "Can archive pre-print (ie pre-refereeing)";
+                $colour = '#FFFFCC';
+            } elseif ($res['colour']=='white') {
+                $text = "Archiving not formally supported";
+                $colour = '#FCFCFC';
+            } elseif ($res['colour']=='grey') {
+                $text = "RoMEO ungraded journal, but more information available";
+                $colour = '#CACACA';
+            }
+
+            $sROutput = "<span style='background-color:".$colour."' id='sherpa'><a href='http://www.sherpa.ac.uk/romeo/search.php?issn=".$res['issn']."'>";
+            $sROutput .= $text;
+            $sROutput .= "</a></span>";
+        }
+        return $sROutput;
+    }
+
     function saveXMLData($xml, $issn = NULL)
     {
         $log = FezLog::get();
