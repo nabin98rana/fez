@@ -27,7 +27,7 @@ function validateForm(f)
 <label for="collection_pid" >Destination Collection</label>
 <span class="fez_form_input">
 
-<select class="default" name="collection_pid" onChange="javascript: selectCommunity(this.form, 'community_pid')" >
+<select class="default" name="collection_pid">
     <option label="" value="">Same as cloned pid</option>
     {html_options options=$collection_list selected=$collection_list_selected }
 </select>

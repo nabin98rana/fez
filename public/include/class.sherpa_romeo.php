@@ -97,10 +97,10 @@ class SherpaRomeo
 
             if ($res['colour']=='green'){
                 $text = "Can archive pre-print and post-print or publisher's version/PDF";
-                $colour = '#CCEBD6';
+                $colour = '#C6D9B7';
             } elseif (colour=='blue') {
                 $text = "Can archive post-print (ie final draft post-refereeing) or publisher's version/PDF";
-                $colour = '#D6EBFF';
+                $colour = '#D1E0ED';
             } elseif ($res['colour']=='yellow') {
                 $text = "Can archive pre-print (ie pre-refereeing)";
                 $colour = '#FFFFCC';
@@ -109,7 +109,7 @@ class SherpaRomeo
                 $colour = '#FCFCFC';
             } elseif ($res['colour']=='grey') {
                 $text = "RoMEO ungraded journal, but more information available";
-                $colour = '#CACACA';
+                $colour = '#E6E6E6';
             }
 
             $sROutput = "<span style='background-color:".$colour."' id='sherpa'><a href='http://www.sherpa.ac.uk/romeo/search.php?issn=".$res['issn']."'>";
