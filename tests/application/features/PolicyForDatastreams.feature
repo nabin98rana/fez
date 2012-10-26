@@ -3,7 +3,7 @@
 @javascript
 Feature: Check datastream policy works correctly
 
-  @destructive @now4
+  @destructive @now4 @insulated
   Scenario: Setup Test Collection & Community
     Given I login as administrator
   #Create test communities and collections
