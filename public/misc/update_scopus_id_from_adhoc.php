@@ -59,7 +59,7 @@ $inc = 100;
 	ob_flush();
 for($i=0; $i<($total+$inc); $i=$i+$inc) {
 
-	$query2 = "SELECT * FROM scd_dnf_doi_match ORDER BY rek_pid ASC  LIMIT ".$inc." OFFSET ".$i;
+	$query2 = "SELECT * FROM scd_dnf_doi_match WHERE existing_scopus_id_eid IS NULL ORDER BY rek_pid ASC  LIMIT ".$inc." OFFSET ".$i;
 
 	echo $query2 ."\n";
 	ob_flush();
