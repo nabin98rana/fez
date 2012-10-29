@@ -15,7 +15,7 @@
 						  <td bgcolor="{$value_color}">
 							{assign var="fckpath" value=$rel_url|cat:"js/fckeditor/"}
 							{assign var="InstanceName" value="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"][]"}
-							{if isset($details[$temp_fld_id][$loop_num])}
+							{if isset($details[$temp_fld_id][$loop_num]|smarty:nodefaults)}
 								{assign var="FckValue" value=$details[$temp_fld_id][$loop_num]}
 							{else}
 								{assign var="FckValue" value=""}
@@ -40,7 +40,7 @@
 						  <td bgcolor="{$value_color}">
 							{assign var="fckpath" value=$rel_url|cat:"js/fckeditor/"}
 							{assign var="InstanceName" value="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"}
-							{if isset($details[$temp_fld_id])}
+							{if isset($details[$temp_fld_id]|smarty:nodefaults)}
 								{assign var="FckValue" value=$details[$temp_fld_id]}
 							{else}
 								{assign var="FckValue" value=""}

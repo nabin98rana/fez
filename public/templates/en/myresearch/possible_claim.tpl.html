@@ -59,7 +59,7 @@ function cancel()
 <p>You are claiming to be the author of this item:</p>
 
 <div id="research-solo-citation">
-	{$citation}
+	{$citation|smarty:nodefaults}
 	<div style="display: block; font-size: 80%; padding-top: 15px;">[ <a href="{$rel_url}view/{$pid}" onclick="javascript:window.open('{$rel_url}view/{$pid}'); return false;">View the full record</a> ]</div>
 </div>
 
