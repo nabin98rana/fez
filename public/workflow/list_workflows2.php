@@ -163,7 +163,7 @@ if (($pid != -1) && (!empty($pid) || $pid == -2)) {
 
 
 if (empty($workflows)) {
-    $message .= "Error: No workflows defined for $trigger_type<br/>";
+    $message .= "Error: No workflows defined for $trigger_type";
 } elseif (count($workflows) == 1) {
     // no need for user to select a workflow - just start the only one available
 	if (is_numeric($wft_id)) {

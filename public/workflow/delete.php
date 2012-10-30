@@ -159,7 +159,7 @@ if ($pid == -1) {
 
 
 if (empty($workflows)) {
-    $message .= "Error: No workflows defined for Delete<br/>";
+    $message .= "Error: No workflows defined for Delete";
 } elseif (count($workflows) == 1) {
     // no need for user to select a workflow - just start the only one available
 	$wft_id = $workflows[0]['wft_id'];

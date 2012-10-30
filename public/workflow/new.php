@@ -162,7 +162,7 @@ if ($pid == -1) {
                         'xdis_id' => $xdis_id,
                         'ret_id' => $ret_id));
         } else {
-            $message .= "Error: can't create objects into ordinary records<br/>";
+            $message .= "Error: can't create objects into ordinary records";
         }
         
     } else {
@@ -182,10 +182,9 @@ if ($pid == -1) {
 
 
 if (empty($workflows)) {
-    $message .= "Error: No workflows defined for Create. This may be because you are logging in with an account with no rights to run this workflow. For example for depositing your Thesis you may be logging in with your staff username when you should be logging in with your student username. Please logout and login with the correct user account.<br/>";
+    $message .= "Error: No workflows defined for Create. This may be because you are logging in with an account with no rights to run this workflow. For example for depositing your Thesis you may be logging in with your staff username when you should be logging in with your student username. Please logout and login with the correct user account.";
 } elseif (count($workflows) == 1) {
     // no need for user to select a workflow - just start the only one available
-//    Workflow::start($workflows[0]['wft_id'], $pid, $xdis_id, $href);
 	$wft_id = $workflows[0]['wft_id'];
 	if (is_numeric($wft_id)) {
 		$wfl_id = WorkflowTrigger::getWorkflowID($wft_id);
