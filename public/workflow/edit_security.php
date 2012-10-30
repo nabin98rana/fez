@@ -229,7 +229,14 @@ if (APP_FEDORA_BYPASS == 'ON') {
     foreach ($xsd_display_fields  as $dis_key => $dis_field) {
         if ($dis_field["xsdmf_html_input"] == 'combo' || $dis_field["xsdmf_html_input"] == 'multiple' || $dis_field["xsdmf_html_input"] == 'dual_multiple') {
             if (!empty($dis_field["xsdmf_smarty_variable"]) && $dis_field["xsdmf_smarty_variable"] != "none") {
-                eval("\$xsd_display_fields[\$dis_key]['field_options'] = " . $dis_field["xsdmf_smarty_variable"] . ";");
+
+                //user list is to big, turn off the option of adding users for now part 1/2
+                if ($dis_field["xsdmf_smarty_variable"]=='$internal_user_list') {
+                    $temp[] = "\$xsd_display_fields[".$dis_key."]['field_options'] = " . $dis_field["xsdmf_smarty_variable"] . ";";
+                    eval("\$xsd_display_fields[\$dis_key]['field_options'] = array(''=>'Disabled, please use groups');");
+                } else {
+                    eval("\$xsd_display_fields[\$dis_key]['field_options'] = " . $dis_field["xsdmf_smarty_variable"] . ";");
+                }
             }
             if (!empty($dis_field["xsdmf_dynamic_selected_option"]) && $dis_field["xsdmf_dynamic_selected_option"] != "none") {
                 eval("\$xsd_display_fields[\$dis_key]['selected_option'] = " . $dis_field["xsdmf_dynamic_selected_option"] . ";");
@@ -241,6 +248,13 @@ if (APP_FEDORA_BYPASS == 'ON') {
     }
 
     $tpl->assign("xsd_display_fields", $xsd_display_fields);
+
+   //add back in the user list for processing current users part 2/2
+        foreach($temp as $eval) {
+            eval($eval);
+        }
+
+
     $tpl->assign("xdis_id", $xdis_id);
 
     //@@@ CK - 26/4/2005 - fix the combo and multiple input box lookups
