@@ -68,8 +68,6 @@ insert into %TABLE_PREFIX%config (config_id, config_name, config_module, config_
 insert into %TABLE_PREFIX%config (config_id, config_name, config_module, config_value) values('65','app_debug_level','core',NULL);
 insert into %TABLE_PREFIX%config (config_id, config_name, config_module, config_value) values('66','app_display_error_level','core',NULL);
 insert into %TABLE_PREFIX%config (config_id, config_name, config_module, config_value) values('67','app_display_errors_user','core',NULL);
-insert into %TABLE_PREFIX%config (config_id, config_name, config_module, config_value) values('68','app_report_error_file','core',NULL);
-insert into %TABLE_PREFIX%config (config_id, config_name, config_module, config_value) values('69','app_error_log','core',NULL);
 insert into %TABLE_PREFIX%config (config_id, config_name, config_module, config_value) values('70','app_system_user_id','core',NULL);
 insert into %TABLE_PREFIX%config (config_id, config_name, config_module, config_value) values('71','app_email_system_from_address','core',NULL);
 insert into %TABLE_PREFIX%config (config_id, config_name, config_module, config_value) values('72','app_email_smtp','core',NULL);

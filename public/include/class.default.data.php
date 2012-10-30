@@ -192,8 +192,6 @@ class Default_Data
 		$defaultData['app_debug_level']                     = "2";
 		$defaultData['app_display_error_level']             = "1";
 		$defaultData['app_display_errors_user']             = "2";
-		$defaultData['app_report_error_file']               = "true";
-		$defaultData['app_error_log']                       = APP_PATH . "error_handler.log";
 		$defaultData['app_system_user_id']                  = "1";
 		$defaultData['app_email_system_from_address']       = "fez@yourdomain.com";
 		$defaultData['app_email_smtp']                      = "mail.yourdomain.com";

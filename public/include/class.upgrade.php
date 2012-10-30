@@ -218,7 +218,6 @@ class upgrade {
 	    $defaultData['app_debug_level']                     = APP_DEBUG_LEVEL;
 	    $defaultData['app_display_error_level']             = APP_DISPLAY_ERROR_LEVEL;
 	    $defaultData['app_display_errors_user']             = APP_DISPLAY_ERRORS_USER;
-	    $defaultData['app_error_log']                       = APP_ERROR_LOG;
 	    $defaultData['app_system_user_id']                  = APP_SYSTEM_USER_ID;
 	    $defaultData['app_email_system_from_address']       = APP_EMAIL_SYSTEM_FROM_ADDRESS;
 	    $defaultData['app_email_smtp']                      = APP_EMAIL_SMTP;
@@ -258,12 +257,6 @@ class upgrade {
 	        $defaultData['fedora_db_port']                  = "3306";
 	    } else {
 	        $defaultData['fedora_db_port']                  = FEDORA_DB_PORT;
-	    }
-	
-	    if (APP_REPORT_ERROR_FILE == false) {
-	        $defaultData['app_report_error_file']               = "false";
-	    } else {
-	        $defaultData['app_report_error_file']               = "true";
 	    }
 	
 	    if (SHIB_SURVEY == false || SHIB_SURVEY == "OFF") {
