@@ -98,7 +98,7 @@ class SherpaRomeo
             if ($res['colour']=='green'){
                 $text = "Can archive pre-print and post-print or publisher's version/PDF";
                 $colour = '#C6D9B7';
-            } elseif (colour=='blue') {
+            } elseif ($res['colour']=='blue') {
                 $text = "Can archive post-print (ie final draft post-refereeing) or publisher's version/PDF";
                 $colour = '#D1E0ED';
             } elseif ($res['colour']=='yellow') {
