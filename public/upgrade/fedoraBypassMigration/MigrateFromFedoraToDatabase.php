@@ -381,7 +381,7 @@ class MigrateFromFedoraToDatabase
                                 'DesignRQF2006MD Display', 'MARCXML test record');
 
         $stmt = "SELECT xdis_title, fez_xsd_display_matchfields.*
-                    FROM fez_xsd_display_matchfields
+                    FROM ". APP_TABLE_PREFIX ."xsd_display_matchfields
                     LEFT JOIN fez_xsd_display ON xsdmf_xdis_id = xdis_id
 
                     WHERE xsdmf_enabled = 1 AND xsdmf_invisible = 0

@@ -260,8 +260,8 @@ $langMapping = array(
 
 $query = "	
 			SELECT DISTINCT(rek_language_pid) AS rek_pid
-			FROM fez_record_search_key_language
-			LEFT JOIN fez_language ON rek_language = lng_alpha3_bibliographic
+			FROM ". APP_TABLE_PREFIX ."record_search_key_language
+			LEFT JOIN ". APP_TABLE_PREFIX ."language ON rek_language = lng_alpha3_bibliographic
 			WHERE lng_alpha3_bibliographic IS NULL
 			ORDER BY rek_language_pid ASC;
 		";
@@ -325,7 +325,7 @@ function getLanguagesForPID($pid)
 
 	$query = "
 				SELECT rek_language
-				FROM fez_record_search_key_language
+				FROM ". APP_TABLE_PREFIX ."record_search_key_language
 				WHERE rek_language_pid = '" . $pid . "'
 				ORDER BY rek_language_order ASC
 			";

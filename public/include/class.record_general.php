@@ -2383,7 +2383,7 @@ class RecordGeneral
   {
       $db = DB_API::get();
       
-      $sql = "SELECT mf.xsdmf_id FROM fez_xsd_display_matchfields mf, fez_search_key sk, fez_record_search_key rsk" 
+      $sql = "SELECT mf.xsdmf_id FROM ". APP_TABLE_PREFIX ."xsd_display_matchfields mf, fez_search_key sk, fez_record_search_key rsk"
             . " WHERE sk.sek_id = mf.xsdmf_sek_id AND mf.xsdmf_id = rsk.rek_display_type_xsdmf_id "
             . "AND sk.sek_title = 'Display Type' "
             . "AND rsk.rek_pid = :pid"

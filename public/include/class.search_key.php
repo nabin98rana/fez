@@ -1712,7 +1712,7 @@ class Search_Key
         $log = FezLog::get();
         $db = DB_API::get();
         $stmt  = "SELECT mfo_value, mfo_value
-                FROM fez_xsd_display_mf_option
+                FROM ". APP_TABLE_PREFIX ."xsd_display_mf_option
                 INNER JOIN ".APP_TABLE_PREFIX."xsd_display_matchfields ON mfo_fld_id = xsdmf_id
                 INNER JOIN ".APP_TABLE_PREFIX."search_key ON xsdmf_sek_id = sek_id
                 WHERE sek_title = ".$db->quote($type)."

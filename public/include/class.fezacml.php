@@ -96,7 +96,7 @@ class FezACML
         $log = FezLog::get();
         $db = DB_API::get();
 
-        $stmt = "SELECT qrp_qac_id FROM fez_auth_quick_rules_pid WHERE qrp_pid = ".$db->quote($pid);
+        $stmt = "SELECT qrp_qac_id FROM ". APP_TABLE_PREFIX ."auth_quick_rules_pid WHERE qrp_pid = ".$db->quote($pid);
 
         try {
             $res = $db->fetchOne($stmt);
