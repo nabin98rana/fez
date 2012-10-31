@@ -183,16 +183,19 @@ $fparams = array(
 )
 );
 
-try {
-  $fdb = Zend_Db::factory(FEDORA_DB_TYPE, $fparams);
-  $fdb->getConnection();
-  Zend_Registry::set('fedora_db', $fdb);
-}
-catch (Exception $ex) {
-  // We don't want to bail out if Fedora details haven't been entered yet.
-  // This is perfectly legitimate for a brand new installation! However,
-  // we need to at least make the user aware of the situation.
-  $fedoraConnectivity = 0;
+if(APP_FEDORA_BYPASS != "ON")
+{
+	try {
+	  $fdb = Zend_Db::factory(FEDORA_DB_TYPE, $fparams);
+	  $fdb->getConnection();
+	  Zend_Registry::set('fedora_db', $fdb);
+	}
+	catch (Exception $ex) {
+	  // We don't want to bail out if Fedora details haven't been entered yet.
+	  // This is perfectly legitimate for a brand new installation! However,
+	  // we need to at least make the user aware of the situation.
+	  $fedoraConnectivity = 0;
+	}
 }
 
 if (isset($_GET)) {
