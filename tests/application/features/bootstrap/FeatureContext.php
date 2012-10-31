@@ -848,7 +848,7 @@ class ZoetropeBackgroundService extends BackgroundService
       . '-vcodec libx264 -sameq ' . $this->fileDir . $this->videoFiles['mp4'];
 
     $this->startProcess($command);
-    $this->timer = new StopWatch();
+    $this->timer = new BehatStopWatch();
     $this->_initSubRipFile();
     $this->_initZoetrope($testId, $scenarioText);
   }
@@ -989,7 +989,7 @@ class ZoetropeVideoModelStep
 /**
  * Timing for generating subtitles
  */
-class StopWatch
+class BehatStopWatch
 {
   public $total;
   public $time;
