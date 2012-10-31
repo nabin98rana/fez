@@ -71,6 +71,25 @@ class FeatureContext extends MinkContext
 {
 
   /**
+   * @var string  Screen type used for current test
+   */
+  public $screen = "desktop";
+
+  /**
+   * Background screencast service to record tests
+   *
+   * @var string
+   */
+  private $screencast;
+
+  /**
+   * Whether to record failed scenarios
+   * @see behat.yml
+   * @var boolean
+   */
+  private $zoetropeEnabled;
+
+  /**
    * Screenshot directory
    *
    * @var string
@@ -83,6 +102,15 @@ class FeatureContext extends MinkContext
    * @var string
    */
   private $screenId;
+
+  /**
+   * @var array   List of screen types and their dimensions
+   */
+  protected $_screens = array(
+    'desktop' => array('width' => 1024, 'height' => 768),
+    'tablet'  => array('width' => 768,  'height' => 1024),
+    'mobile'  => array('width' => 320,  'height' => 480)
+  );
 
   /**
    * If this current step is a modal step
@@ -104,8 +132,11 @@ class FeatureContext extends MinkContext
         // Initialize your context here
       $this->isModal = false;
       $behatchDir = str_replace("/features/bootstrap/notifiers", "",__DIR__);
+      // This is relative to the doclinks URL in Jenkins
+      $this->screenshotWebDir = '../../ws/build/screenshots/';
       $this->screenshotDir = isset($parameters["debug"]['screenshot_dir']) ? $parameters["debug"]['screenshot_dir'] : $behatchDir;
       $this->screenId = isset($parameters["debug"]['screen_id']) ? $parameters["debug"]['screen_id'] : ":0";
+      $this->zoetropeEnabled = (isset($parameters["debug"]['zoetrope']) && $parameters["debug"]['zoetrope'] == 1) ? true : false;
     }
 
 //
@@ -354,10 +385,12 @@ class FeatureContext extends MinkContext
 
 
   /**
+   * @AfterStep
+   *
    * Save a screenshot when failing
    * This uses Xvfb
    *
-   * @AfterStep
+   * @param Behat\Behat\Event\StepEvent $event
    */
   public function failScreenshots(StepEvent $event)
   {
@@ -366,10 +399,15 @@ class FeatureContext extends MinkContext
       if($event->getResult() == StepEvent::FAILED)
       {
         $scenarioName = str_replace(" ", "_", $event->getStep()->getParent()->getTitle());
-        $this->saveScreenshot(sprintf("fail_%s_%s.png", time(), $scenarioName));
+        $imageName = sprintf("fail_%s_%s.png", time(), $scenarioName);
+        $this->saveScreenshot($imageName);
+        if ($this->screencast) {
+          $this->screencast->addPosterImage($imageName);
+        }
       }
     }
   }
+
 
   /**
    * Saving the screenshot
@@ -417,7 +455,76 @@ class FeatureContext extends MinkContext
     }
   }
 
+  /**
+   * @BeforeScenario
+   *
+   * @param Behat\Behat\Event\ScenarioEvent $event
+   */
+  public function startScreencast($event)
+  {
+    $scenarioTitle = $event->getScenario()->getTitle();
+    $testId = time();
 
+    // Check whether we're using a headless driver - disable screencasts if true
+    $this->screencast = false;
+    if (!($this->getSession()->getDriver() instanceof Behat\Mink\Driver\GoutteDriver) &&
+      !($this->getSession()->getDriver() instanceof Behat\Mink\Driver\ZombieDriver) &&
+      $this->zoetropeEnabled) {
+      $this->screencast = new ZoetropeBackgroundService(
+        $this->screenId, $testId, $scenarioTitle, $this->screenshotDir, $this->screenshotWebDir
+      );
+    }
+  }
+
+  /**
+   * @AfterScenario
+   *
+   * @param Behat\Behat\Event\ScenarioEvent $event
+   */
+  public function endScreencast($event)
+  {
+    if (!($this->getSession()->getDriver() instanceof Behat\Mink\Driver\GoutteDriver) &&
+      !($this->getSession()->getDriver() instanceof Behat\Mink\Driver\ZombieDriver)) {
+      // Result returns the resulting (highest) step run code so this checks to see
+      // if a failure occurred - if one hasn't delete the screencast else the screencast
+      // is kept
+      if($event->getResult() < StepEvent::FAILED) {
+        if ($this->screencast) {
+          $this->screencast->delete();
+        }
+      }
+    }
+
+    // Stop the screencast if one is active.
+    if (isset($this->screencast)) {
+      unset($this->screencast);
+    }
+  }
+
+  /**
+   * @BeforeStep
+   *
+   * @param Behat\Behat\Event\StepEvent $event
+   */
+  public function beforeStep($event)
+  {
+    $stepText = $event->getStep()->getType() . ' ' . $event->getStep()->getText();
+    if ($this->screencast) {
+      $this->screencast->addCaption($stepText);
+    }
+  }
+
+  /** @AfterStep
+   * *
+   * @param Behat\Behat\Event\StepEvent $event
+   */
+  public function afterStep($event)
+  {
+    $result = $event->getResult();
+    if ($this->screencast) {
+      $this->screencast->endCaption($result);
+    }
+  }
 
   /**
    * @when /^(?:|I )confirm the popup$/
@@ -650,4 +757,269 @@ class FeatureContext extends MinkContext
     }
 
 
+} // FeatureContext
+
+/**
+ * Generic class for just-in-time daemonized services.
+ */
+abstract class BackgroundService {
+  protected $pid_file_name;
+  protected $output_file_name;
+
+  protected function startProcess($command) {
+    // Store the output of the background service and it's pid in temporary
+    // files in the system tmp directory.
+    $directory = sys_get_temp_dir() . '/background-services';
+    @mkdir($directory);
+    $unique_file = tempnam($directory, 'background-service-');
+    $this->pid_file_name =  $unique_file . '.pid';
+    $this->output_file_name = $unique_file . '.out';
+    unlink($unique_file);
+    exec(sprintf("%s > %s 2>&1 & echo $! > %s", $command, $this->output_file_name, $this->pid_file_name));
+
+    $remaining_tries = 60;
+    while ($remaining_tries > 0 && !$this->isReady()) {
+      sleep(2);
+      --$remaining_tries;
+    }
+
+    if ($remaining_tries == 0) {
+      echo 'Background service failed:' . PHP_EOL;
+      echo $this->getOutput();
+    }
+  }
+
+  protected function isReady() {
+    return TRUE;
+  }
+
+  public function getOutput() {
+    return file_get_contents($this->output_file_name);
+  }
+
+  public function getPid() {
+    return isset($this->pid_file_name) ? file_get_contents($this->pid_file_name) : NULL;
+  }
+
+  public function __destruct() {
+    $pid = $this->getPid();
+    if (isset($pid)) {
+      exec('kill ' . $pid);
+      unlink($this->pid_file_name);
+    }
+    unlink($this->output_file_name);
+  }
 }
+
+/**
+ * Records tests using ffmpeg
+ */
+class ZoetropeBackgroundService extends BackgroundService
+{
+  private $videoFiles = array();
+  private $subtitleFile = null;
+  private $jsonFile = null;
+  private $fileDir = null;
+  private $webDir = null;
+  private $deleteOnExit = false;
+  private $captionText = null;
+  private $captionStarted = null;
+  private $captionResult = null;
+  private $captionCount = 0;
+  private $timer = null;
+  private $zModel = null;
+
+  public function __construct($screenId, $testId, $scenarioText, $dir, $webDir)
+  {
+    $this->fileDir = $dir;
+    $this->webDir = $webDir;
+    $this->videoFiles['webm'] = $testId . '.webm';
+    $this->videoFiles['mp4'] = $testId . '.mp4';
+    $this->videoFiles['ogg'] = $testId . '.ogg';
+    $this->subtitleFile = $testId . '.srt';
+    $this->jsonFile = $testId . '.json';
+
+    // -an     No audio.
+    // -y      Overwrite output files.
+    // -r      Frame rate
+    $command = 'ffmpeg -an -f x11grab -y -r 5 -s 1024x768 -i ' . $screenId . '.0+0,0 '
+      . '-vcodec libvpx -sameq ' . $this->fileDir . $this->videoFiles['webm'] . ' '
+      . '-vcodec libtheora -sameq ' . $this->fileDir . $this->videoFiles['ogg'] . ' '
+      . '-vcodec libx264 -sameq ' . $this->fileDir . $this->videoFiles['mp4'];
+
+    $this->startProcess($command);
+    $this->timer = new StopWatch();
+    $this->_initSubRipFile();
+    $this->_initZoetrope($testId, $scenarioText);
+  }
+
+  /**
+   * Creates a ZoetropeVideoModel which is stored on exit as a JSON encoded object
+   *
+   * @param string $testId
+   * @param string $scenarioText
+   */
+  private function _initZoetrope($testId, $scenarioText)
+  {
+    $this->zModel = new ZoetropeVideoModel();
+    $this->zModel->id = $testId;
+    $this->zModel->media['webm'] = $this->webDir . $this->videoFiles['webm'];
+    $this->zModel->media['mp4'] = $this->webDir . $this->videoFiles['mp4'];
+    $this->zModel->media['ogg'] = $this->webDir . $this->videoFiles['ogg'];
+    $this->zModel->subtitles = $this->webDir . $this->subtitleFile;
+    $this->zModel->poster = '';
+    $this->zModel->scenarioText = $scenarioText;
+  }
+
+  /**
+   * Creates a new WebVVT file for adding captions to
+   */
+  private function _initSubRipFile()
+  {
+    file_put_contents($this->fileDir . $this->subtitleFile, '');
+  }
+
+  /**
+   * Adds a caption to the subtitles of the running screencast
+   * @param string $text
+   * @param int $result
+   */
+  public function addCaption($text)
+  {
+    $this->captionCount++;
+    $this->captionStarted = $this->timer->elapsedAsSubripTime();
+    $this->captionText = $text;
+  }
+
+  /**
+   * Ends the caption and save the caption to the subtitles file with the timings
+   */
+  public function endCaption($result)
+  {
+    $this->captionResult = $result;
+    $elapsed = $this->timer->elapsedAsSubripTime();
+    $text =  $this->captionCount . "\n";
+    $text .= $this->captionStarted . ' --> ' . $elapsed . "\n";
+    $text .= $this->captionText . "\n\n";
+    file_put_contents($this->fileDir . $this->subtitleFile, $text, FILE_APPEND);
+
+    $vStep = new ZoetropeVideoModelStep();
+    $vStep->definition = $this->captionText;
+    $vStep->result = $this->captionResult;
+    $vStep->from = $this->captionStarted;
+    $vStep->to = $elapsed;
+    $this->zModel->steps[] = $vStep;
+  }
+
+  /**
+   * Adds a poster image to the zoetrope model
+   * @param string $image
+   */
+  public function addPosterImage($image)
+  {
+    $this->zModel->poster = $this->webDir . $image;
+  }
+
+  /**
+   * Deletes a screencast when the service has stopped
+   */
+  public function delete()
+  {
+    $this->deleteOnExit = true;
+  }
+
+  /**
+   * Saves the Zoetrope model to a file
+   */
+  private function _saveZoetropeModelToFile()
+  {
+    file_put_contents(
+      $this->fileDir . $this->jsonFile,
+      json_encode($this->zModel)
+    );
+  }
+
+  /**
+   * Kills running processes on exit
+   */
+  public function __destruct()
+  {
+    parent::__destruct();
+    sleep(3);
+
+    if ($this->deleteOnExit) {
+      $remaining_tries = 60;
+      while ($remaining_tries > 0
+        && !@unlink($this->fileDir . $this->videoFiles['webm'])
+          && !@unlink($this->fileDir . $this->videoFiles['mp4'])
+            && !@unlink($this->fileDir . $this->videoFiles['ogg'])) {
+        sleep(2);
+        --$remaining_tries;
+      }
+    } else {
+      $this->_saveZoetropeModelToFile();
+    }
+  }
+}
+
+/**
+ * Zoetrope video model which is json encoded and passed to the Zoetope app
+ */
+class ZoetropeVideoModel
+{
+  public $id = null;
+  public $media = array();
+  public $subtitles = null;
+  public $poster = null;
+  public $scenarioText = null;
+  public $steps = array();
+}
+
+/**
+ * Used in the above object which contains multiple steps
+ */
+class ZoetropeVideoModelStep
+{
+  public $definition = null;
+  public $result = null;
+  public $from = null;
+  public $to = null;
+}
+
+/**
+ * Timing for generating subtitles
+ */
+class StopWatch
+{
+  public $total;
+  public $time;
+
+  public function __construct()
+  {
+    $this->total = $this->time = microtime(true);
+  }
+
+  public function elapsed($fmt = false)
+  {
+    $elapsed = microtime(true) - $this->total;
+    return sprintf('%0.5f', (string)round($elapsed,5));
+  }
+
+  public function reset()
+  {
+    $this->total=$this->time=microtime(true);
+  }
+
+  public function elapsedAsSubripTime()
+  {
+    $elapsed = microtime(true) - $this->total;
+
+    $hours = (int)($elapsed / 3600);
+    $mins = (int)(($elapsed - ($hours * 3600)) / 60);
+    $secs = (int)$elapsed % 60;
+    $ms = (int)round(($elapsed - (int)$elapsed) * 1000);
+
+    return sprintf('%02d:%02d:%02d,%03d', $hours, $mins, $secs, $ms);
+  }
+}
+

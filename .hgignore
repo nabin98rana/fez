@@ -39,6 +39,7 @@ glob:.buildpath
 glob:.buildpath/*
 glob:dstree
 glob:dstree/*
+glob:public/tests
 glob:.project
 glob:.project/*
 glob:pidindex
