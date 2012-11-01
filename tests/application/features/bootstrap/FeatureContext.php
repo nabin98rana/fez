@@ -849,7 +849,7 @@ class ZoetropeBackgroundService extends BackgroundService
     // -y      Overwrite output files.
     // -r      Frame rate
     $command = 'ffmpeg -an -f x11grab -y -r 5 -s 1024x768 -i ' . $screenId . '.0+0,0 '
-      . '-vcodec libvpx -sameq ' . $this->fileDir . $this->videoFiles['webm'] . ' '
+      . '-vcodec libvpx -sameq -acodec libvorbis ' . $this->fileDir . $this->videoFiles['webm'] . ' '
       . '-vcodec libtheora -sameq ' . $this->fileDir . $this->videoFiles['ogg'] . ' '
       . '-vcodec libx264 -sameq ' . $this->fileDir . $this->videoFiles['mp4'];
 
