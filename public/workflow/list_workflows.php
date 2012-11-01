@@ -43,7 +43,7 @@ include_once(APP_INC_PATH . "class.community.php");
 include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "class.ad_hoc_sql.php");
 include_once(APP_INC_PATH . "class.object_type.php");
-
+ 
 if (empty($trigger_type)) {
     $trigger_type = 'New';
 }

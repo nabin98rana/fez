@@ -208,7 +208,7 @@ class RecordView {
                             }
                         }
                         $sRdetails = SherpaRomeo::getJournalColourFromPid($this->record->pid);
-                        if (array_key_exists(colour, $sRdetails)) {
+                        if (is_array($sRdetails) && array_key_exists('colour', $sRdetails)) {
                             $rjl .= "&nbsp;&nbsp;&nbsp;".SherpaRomeo::convertSherpaRomeoToLink($sRdetails);
                         }
 						if (is_array($details[$dis_field['xsdmf_id']])) {
