@@ -461,9 +461,14 @@ class FeatureContext extends MinkContext
    *
    * @param Behat\Behat\Event\ScenarioEvent $event
    */
-  public function startScreencast(ScenarioEvent $event)
+  public function startScreencast($event)
   {
-    $scenarioTitle = $event->getScenario()->getTitle();
+    if ($event instanceof \Behat\Behat\Event\OutlineExampleEvent) {
+      $scenarioTitle = $event->getName();
+    } else {
+      $scenarioTitle = $event->getScenario()->getTitle();
+    }
+
     $testId = time();
 
     // Check whether we're using a headless driver - disable screencasts if true
@@ -482,7 +487,7 @@ class FeatureContext extends MinkContext
    *
    * @param Behat\Behat\Event\ScenarioEvent $event
    */
-  public function endScreencast(ScenarioEvent $event)
+  public function endScreencast($event)
   {
     if (!($this->getSession()->getDriver() instanceof Behat\Mink\Driver\GoutteDriver) &&
       !($this->getSession()->getDriver() instanceof Behat\Mink\Driver\ZombieDriver)) {
