@@ -29,7 +29,7 @@
 // +----------------------------------------------------------------------+
 // | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
 // |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>,                    |
-// |          Rhys Palmer <r.rpalmer@library.uq.edu.au>                   |
+// |          Rhys Palmer <r.rpalmer@library.uq.edu.au>                   | 
 // +----------------------------------------------------------------------+
 
 $trigger_type = 'Update';

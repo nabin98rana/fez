@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 require_once '../../../public/config.inc.php';
 
@@ -38,4 +38,53 @@ DAT;
 		
 		$this->assertEquals($oddities, $filtered);
 	}
+	
+	public function testPurifierTitle()
+	{
+		/*$purifier = new Fez_Filter_Basicstring();
+		$db = DB_API::get();
+		$sql = "select rek_title from fez_record_search_key where rek_pid = 'UQ:17239'";
+		$stm = $db->query($sql);
+		$res = $stm->fetchColumn();
+		//var_dump($res);
+		var_dump($purifier->filter($res));
+		//print mb_detect_encoding($res);
+		$purifier = new Fez_Filter_Htmlpurify();
+		var_dump($purifier->filter("A Golden Age for Journalism? Collaborative process modelling - â€¨Tool analysis and design implications"));*/
+		
+		$regex = <<<END
+			/
+			  (
+			    (?: [\x00-\x7F]               # single-byte sequences   0xxxxxxx
+			    |   [\xC0-\xDF][\x80-\xBF]    # double-byte sequences   110xxxxx 10xxxxxx
+			    |   [\xE0-\xEF][\x80-\xBF]{2} # triple-byte sequences   1110xxxx 10xxxxxx * 2
+			    |   [\xF0-\xF7][\x80-\xBF]{3} # quadruple-byte sequence 11110xxx 10xxxxxx * 3 
+			    )+                            # ...one or more times
+			  )
+			| ( [\x80-\xBF] )                 # invalid byte in range 10000000 - 10111111
+			| ( [\xC0-\xFF] )                 # invalid byte in range 11000000 - 11111111
+			/x
+END;
+	preg_replace_callback($regex, "utf8replacer", $text);
+	}
+	
+	
+	public function utf8replacer($captures) {
+		if ($captures[1] != "") {
+			// Valid byte sequence. Return unmodified.
+			return $captures[1];
+		}
+		elseif ($captures[2] != "") {
+			// Invalid byte of the form 10xxxxxx.
+			// Encode as 11000010 10xxxxxx.
+			return "\xC2".$captures[2];
+		}
+		else {
+			// Invalid byte of the form 11xxxxxx.
+			// Encode as 11000011 10xxxxxx.
+			return "\xC3".chr(ord($captures[3])-64);
+		}
+	}
+	
+	
 }
