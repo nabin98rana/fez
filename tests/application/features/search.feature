@@ -6,7 +6,7 @@ Feature: Search
   I need to be able to search for a word
 
   @smoke
-  Scenario Outline: Searching for pids
+  Scenario: Searching for pids
     Given I am on "/"
     When I fill in "front_search" with <searchterm>
     And I press "submit-button"
