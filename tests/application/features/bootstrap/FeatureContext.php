@@ -461,7 +461,7 @@ class FeatureContext extends MinkContext
    *
    * @param Behat\Behat\Event\ScenarioEvent $event
    */
-  public function startScreencast($event)
+  public function startScreencast(ScenarioEvent $event)
   {
     $scenarioTitle = $event->getScenario()->getTitle();
     $testId = time();
@@ -482,7 +482,7 @@ class FeatureContext extends MinkContext
    *
    * @param Behat\Behat\Event\ScenarioEvent $event
    */
-  public function endScreencast($event)
+  public function endScreencast(ScenarioEvent $event)
   {
     if (!($this->getSession()->getDriver() instanceof Behat\Mink\Driver\GoutteDriver) &&
       !($this->getSession()->getDriver() instanceof Behat\Mink\Driver\ZombieDriver)) {
