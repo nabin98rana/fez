@@ -320,10 +320,7 @@ class RCL
 
 	function crushTitle($title)
 	{
-		/*
-		Take the first letter of each word, uppercase it.
-		*/
-
+		//Take the first letter of each word, uppercase it.
 		$nuStr = "";
 		$parts = explode(" ", $title);
 		foreach ($parts as $part) {
@@ -348,7 +345,6 @@ class RCL
 
 				/* Test for exact string match */
 				if ($sourceVal == $targetVal) {
-					//echo "T";
 //					$matches[$sourceKey] = $targetKey;
           foreach ($matches as $match) {
             if ($match['pid'] == $sourceKey) {
@@ -381,7 +377,6 @@ class RCL
 
 				/* Test for exact string match */
 				if ($sourceVal == $targetVal) {
-					//echo "T";
 //					$matches[$sourceKey] = $targetKey;
           foreach ($matches as $match) {
             if ($match['pid'] == $sourceKey) {
@@ -413,36 +408,40 @@ class RCL
 			foreach ($against as $targetKey => $targetVal) {
 
 				$targetVal = str_replace('/', '', $targetVal); // Get rid of slashes ... these cause us headaches.
-				$regexp = '/^(?:.*[^A-Za-z0-9])*(' . $targetVal . ')(?:[^A-Za-z0-9].*)*$/'; // This will look for the acronym in isolation.
+                //First we quickly see if it might be a match
+                  if ((strpos($sourceVal, $targetVal) !== false) &&  !empty($targetVal)) {
 
-				if (preg_match($regexp, $sourceVal)) {
-					/* Rule out any values we know we don't want to match on */
-					if (
-						$targetVal != "Complex"
-						&& $targetVal != "Group"
-						&& $targetVal != "Information Processing"
-						&& $targetVal != "Interaction"
-						&& $targetVal != "Coordination"
-						&& $targetVal != "Complexity"
-						&& $targetVal != "IV"
-						&& $targetVal != "VI"
-						&& $targetVal != "e-Science"
-						&& $targetVal != "Sensor Networks"
-						&& $targetVal != "Interact"
-						&& $targetVal != "Middleware"
-						&& $targetVal != "PRIMA"
-						&& $targetVal != "Agile"
-						&& $targetVal != "DNA"
-						) {
-							if (array_key_exists($sourceKey, $matches)) {
-								//echo "~DOUBLE MATCH~"; // This is probably bad news.
-							} else {
-//								$matches[$sourceKey] = $targetKey;
-                                $matches[] = array('pid' => $sourceKey, 'matching_id' => $targetKey);
-								//echo "A";
-								//echo $sourceVal . " ?~~~? " . $targetVal . "\n\n";
-							}
-					}
+                      //Now we check that the acronym is in isolation.
+                      $regexp1 = '/[^A-Za-z0-9](' . $targetVal . ')[^A-Za-z0-9]/';
+                      $regexp2 = '/^(' . $targetVal . ')[^A-Za-z0-9]/';
+                      $regexp3 = '/[^A-Za-z0-9](' . $targetVal . ')$/';
+                      $regexp4 = '/^(' . $targetVal . ')$/';
+                      if (preg_match($regexp1, $sourceVal) || preg_match($regexp2, $sourceVal) || preg_match($regexp3, $sourceVal) || preg_match($regexp4, $sourceVal)) {
+                        /* Rule out any values we know we don't want to match on */
+                        if (
+                            $targetVal != "Complex"
+                            && $targetVal != "Group"
+                            && $targetVal != "Information Processing"
+                            && $targetVal != "Interaction"
+                            && $targetVal != "Coordination"
+                            && $targetVal != "Complexity"
+                            && $targetVal != "IV"
+                            && $targetVal != "VI"
+                            && $targetVal != "e-Science"
+                            && $targetVal != "Sensor Networks"
+                            && $targetVal != "Interact"
+                            && $targetVal != "Middleware"
+                            && $targetVal != "PRIMA"
+                            && $targetVal != "Agile"
+                            && $targetVal != "DNA"
+                            ) {
+                                if (array_key_exists($sourceKey, $matches)) {
+                                    //echo "~DOUBLE MATCH~"; // This is probably bad news.
+                                } else {
+                                    $matches[] = array('pid' => $sourceKey, 'matching_id' => $targetKey);
+                                }
+                            }
+                      }
 				}
 			}
 		}
@@ -478,8 +477,6 @@ class RCL
                 $cache->poisonCache();
 
             }
-
-            //echo $stmt . "\n";
 		}
 
 		echo "done.\n";
