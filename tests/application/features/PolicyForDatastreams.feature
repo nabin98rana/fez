@@ -23,8 +23,7 @@ Feature: Check datastream policy works correctly
 
 
   @destructive @now
-  Scenario: Copy a known record with attachment without permisisons other than inherit to a community. Turn on a data stream policy on the community. Add another Pid. T
-  hen check both pids have the new policy.
+  Scenario: Copy a known record with attachment without permisisons other than inherit to a community. Turn on a data stream policy on the community. Add another Pid. Then check both pids have the new policy.
     Given I login as administrator
   #clone record 1 to the collection
     And I go to the test journal article view page
@@ -107,8 +106,7 @@ Feature: Check datastream policy works correctly
     And I follow "Logout"
 
   @destructive @now3
-  Scenario: I change the policy for datastreams in the Collection back to nothing. Then add a pid and change it's datastream policy. Then check Datastream follows the p
-  id policy
+  Scenario: I change the policy for datastreams in the Collection back to nothing. Then add a pid and change it's datastream policy. Then check Datastream follows the pid policy
     Given I login as administrator
     And I fill in "Search Entry" with "title:(\"Test Collection Datastream policy\")"
     And I press "search_entry_submit"
@@ -149,8 +147,7 @@ Feature: Check datastream policy works correctly
     And I should not see "thornhill_gillie.pdf"
 
   @destructive @now4
-  Scenario: The policy for datastreams in the Collection is nothing. Then add a pid. Then change datastream security(Keep inheritance) Then change Pid datastream policy
-  . It should blow away any permissions
+  Scenario: The policy for datastreams in the Collection is nothing. Then add a pid. Then change datastream security(Keep inheritance) Then change Pid datastream policy. It should blow away any permissions
     Given I login as administrator
   #clone record 4 to the collection
     And I go to the test journal article view page
