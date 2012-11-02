@@ -36,6 +36,7 @@ require_once(APP_INC_PATH . 'class.wok_queue.php');
 require_once(APP_INC_PATH . 'class.links_amr_queue.php');
 require_once(APP_INC_PATH . 'class.eventum.php');
 require_once(APP_INC_PATH . 'class.record.php');
+require_once(APP_INC_PATH . 'class.foxml.php');
 
 define("TEST_LINKS_AMR_FULL_PID", "UQ:35267");
 define("TEST_LINKS_AMR_EMPTY_PID", "UQ:26148");
@@ -399,7 +400,9 @@ class FeatureContext extends MinkContext
       !($this->getSession()->getDriver() instanceof Behat\Mink\Driver\ZombieDriver)) {
       if($event->getResult() == StepEvent::FAILED)
       {
-        $scenarioName = str_replace(" ", "_", $event->getStep()->getParent()->getTitle());
+        $sn = $event->getStep()->getParent()->getTitle();
+        $sn = Foxml::makeNCName($sn);
+        $scenarioName = str_replace(" ", "_", $sn);
         $imageName = sprintf("fail_%s_%s.png", time(), $scenarioName);
         $this->saveScreenshot($imageName);
         if ($this->screencast) {
@@ -515,7 +518,10 @@ class FeatureContext extends MinkContext
 public function afterScenario($event)
 {
   $this->getSession()->reset();
-  $this->getSession()->switchToWindow();
+  if (!($this->getSession()->getDriver() instanceof Behat\Mink\Driver\GoutteDriver) &&
+    !($this->getSession()->getDriver() instanceof Behat\Mink\Driver\ZombieDriver)) {
+      $this->getSession()->switchToWindow();
+  }
 }
 
   /**
