@@ -507,6 +507,17 @@ class FeatureContext extends MinkContext
     }
   }
 
+/**
+ * @AfterScenario
+ *
+ * @param Behat\Behat\Event\ScenarioEvent $event
+ */
+public function afterScenario($event)
+{
+  $this->getSession()->reset();
+  $this->getSession()->switchToWindow();
+}
+
   /**
    * @BeforeStep
    *
@@ -849,9 +860,11 @@ class ZoetropeBackgroundService extends BackgroundService
     // -y      Overwrite output files.
     // -r      Frame rate
     $command = 'ffmpeg -an -f x11grab -y -r 5 -s 1024x768 -i ' . $screenId . '.0+0,0 '
-      . '-vcodec libvpx -sameq -acodec libvorbis ' . $this->fileDir . $this->videoFiles['webm'] . ' '
-      . '-vcodec libtheora -sameq ' . $this->fileDir . $this->videoFiles['ogg'] . ' '
-      . '-vcodec libx264 -sameq ' . $this->fileDir . $this->videoFiles['mp4'];
+              . '-codec:v libvpx -quality good -cpu-used 0 -b:v 1200k -maxrate 1200k -bufsize 2400k -qmin 10 '
+              . '-qmax 42 -vf scale=-1:480 -threads 4 -codec:a vorbis -b:a 128k '
+              . $this->fileDir . $this->videoFiles['webm'] . ' '
+              . '-codec:v libtheora -sameq ' . $this->fileDir . $this->videoFiles['ogg'] . ' '
+              . '-codec:v libx264 -sameq ' . $this->fileDir . $this->videoFiles['mp4'];
 
     $this->startProcess($command);
     $this->timer = new BehatStopWatch();
