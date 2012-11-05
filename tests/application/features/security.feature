@@ -1,5 +1,5 @@
 # features/security.feature
-@javascript
+@javascript @smoke
 Feature: Security
   In order to secure a pid
   As a website user
