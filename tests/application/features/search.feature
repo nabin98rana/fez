@@ -15,5 +15,5 @@ Feature: Search
   Examples:
   | searchterm                                                             | output               |
   | "Water: AWA/IWA 2nd Australian young water professionals conference"   | "Fogelman"           |
-  | "spaghetti monster"                                                    | "(0 results found)"  |
+  | "spaghetti monster_invalid"                                            | "(0 results found)"  |
 
