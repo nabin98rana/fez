@@ -993,6 +993,11 @@ class ZoetropeBackgroundService extends BackgroundService
     $this->zModel->poster = $this->webDir . $image;
   }
 
+  public function addFeatureName($name)
+  {
+    $this->zModel->feature = $name;
+  }
+
   /**
    * Deletes a screencast when the service has stopped
    */
