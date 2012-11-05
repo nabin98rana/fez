@@ -41,7 +41,9 @@ Feature: Check datastream policy works correctly
     And I press "search_entry_submit"
     And I follow "Edit Security for Selected Collection"
     And I select "Only Thesis Office Approve, View, List. Printery View." from "Datastream FezACML Policy for datastreams"
+    And I turn off waiting checks
     And I press "Save Changes"
+    And I turn on waiting checks
     When I am on "/"
   #clone record 2 to the collection
     And I go to the test journal article view page
@@ -83,7 +85,9 @@ Feature: Check datastream policy works correctly
     And I press "search_entry_submit"
     And I follow "Edit Security for Selected Collection"
     And I select "Fully Embargoed (system admins only)" from "Datastream FezACML Policy for datastreams"
+    And I turn off waiting checks
     And I press "Save Changes"
+    And I turn on waiting checks
     When I am on "/"
     And I fill in "Search Entry" with "title:(\"Test Title Datastream policy 1\")"
     And I press "search_entry_submit"
@@ -114,6 +118,7 @@ Feature: Check datastream policy works correctly
     And I select "Please choose an option" from "Datastream FezACML Policy for datastreams"
     And I turn off waiting checks
     And I press "Save Changes"
+    And I turn on waiting checks
     When I am on "/"
   #clone record 3 to the collection
     And I go to the test journal article view page
@@ -132,7 +137,9 @@ Feature: Check datastream policy works correctly
     And I follow "Test Title Datastream policy 3"
     And I follow "Edit Security for Select Record"
     And I select "Only Thesis Office Approve, View, List. Printery View." from "Datastream FezACML Policy for datastreams"
+    And I turn off waiting checks
     And I press "Save Changes"
+    And I turn on waiting checks
     When I am on "/"
     And I follow "Logout"
     Given I login as thesis officer
@@ -167,7 +174,9 @@ Feature: Check datastream policy works correctly
     And I follow "Update Selected Record - Generic"
     And I follow "Edit Security for Selected Datastream"
     Given I choose the "Unit Publication Officers" group for the "Lister" role
+    And I turn off waiting checks
     And I press "Save Changes"
+    And I turn on waiting checks
     When I am on "/"
   #Set datastream policy permissions
     And I fill in "Search Entry" with "title:(\"Test Title Datastream policy 4\")"
@@ -175,7 +184,9 @@ Feature: Check datastream policy works correctly
     And I follow "Test Title Datastream policy 4"
     And I follow "Edit Security for Select Record"
     And I select "Only Thesis Office Approve, View, List. Printery View." from "Datastream FezACML Policy for datastreams"
+    And I turn off waiting checks
     And I press "Save Changes"
+    And I turn on waiting checks
     And I follow "Logout"
     Given I login as UPO
     And I fill in "Search Entry" with "title:(\"Test Title Datastream policy 4\")"
