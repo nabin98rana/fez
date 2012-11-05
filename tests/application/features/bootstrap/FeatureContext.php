@@ -122,6 +122,11 @@ class FeatureContext extends MinkContext
   private $isModal;
 
 
+  /**
+   * @var string  The Current Subcontext we are working with
+   */
+  protected $_curSubcontext = null;
+
 
   /**
      * Initializes context.
@@ -459,8 +464,50 @@ class FeatureContext extends MinkContext
     }
   }
 
+
+
   /**
-   * @BeforeScenario
+   * @BeforeFeature
+   *
+   * @param FeatureEvent $event
+   */
+  public static function setupFeature($event)
+  {
+    $feature = $event->getFeature();
+    $file = $feature->getFile();
+    preg_match('/([\w]+).feature$/', $file, $matches);
+    $GLOBALS['behat_current_feature'] = $matches[1];
+  }
+
+  /**
+  * @BeforeScenario
+  *
+  * @param Behat\Behat\Event\ScenarioEvent $event
+  *
+  * This method does the following:
+  * - Assign subcontext for current tested feature, if any
+  *
+  * Goutte driver is used at this stage.
+  * $this->getSubcontext($this->_curSubcontext)->getSession()->getDriver();
+  * It's the reason we are not setting Mink's cookie here but on Login definition.
+  * Please update it if you have better solution.
+  */
+  public function setupTest($event)
+  {
+    // Assign subcontext for current tested feature, if any.
+    if (empty($this->_curSubcontext) && $this->_curSubcontext !== 'none') {
+      if ($this->getSubcontext($GLOBALS['behat_current_feature'])) {
+        $this->_curSubcontext = $GLOBALS['behat_current_feature'];
+      } else {
+        $this->_curSubcontext = 'self';
+      }
+    }
+  }
+
+
+
+ /**
+  * @BeforeScenario
    *
    * @param Behat\Behat\Event\ScenarioEvent $event
    */
@@ -482,6 +529,7 @@ class FeatureContext extends MinkContext
       $this->screencast = new ZoetropeBackgroundService(
         $this->screenId, $testId, $scenarioTitle, $this->screenshotDir, $this->screenshotWebDir
       );
+      $this->screencast->addFeatureName($this->_curSubcontext);
     }
   }
 
