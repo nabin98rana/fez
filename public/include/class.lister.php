@@ -120,6 +120,7 @@ class Lister
         $facets = array();
         $snips = array();
         $tpl = new Template_API();
+      $tpl->assign("use_json", true);
 		if (is_numeric($params['tpl'])) {
         	$tpl_idx = intval($params['tpl']);
 		} else {
@@ -1126,7 +1127,7 @@ class Lister
         $tpl_file = $tpls[$tpl_idx]['file'];
         $tpl->setTemplate($tpl_file);
 		$tpl->assign("template_mode", $tpl_idx);
-		$tpl->assign("use_json", true);
+
         if ($display) {
             $tpl->displayTemplate();
         }
