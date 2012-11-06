@@ -207,9 +207,10 @@ class SherpaRomeo
             $log->err($ex);
             return false;
         }
+        if ($res['colour'] == 'Not found in Sherpa Romeo') {
+          return false;
+        }
 
-        if ($res['colour'] == 'Not found in Sherpa Romeo')
-            return false;
         return $res;
 
     }

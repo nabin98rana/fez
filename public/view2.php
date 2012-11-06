@@ -53,7 +53,7 @@ include_once(APP_INC_PATH . 'class.sherpa_romeo.php');
 //include_once(APP_INC_PATH . 'najax_objects/class.background_process_list.php');
 
 $username = Auth::getUsername();
-$isAdministrator = Auth::isAdministrator(); 
+$isAdministrator = Auth::isAdministrator();
 $isSuperAdministrator = User::isUserSuperAdministrator($username);
 $isUPO = User::isUserUPO($username);
 
@@ -63,7 +63,7 @@ if ($isAdministrator || $isUPO) {
 	if (APP_FEDORA_SETUP == 'sslall' || APP_FEDORA_SETUP == 'sslapim') {
 		$get_url = APP_FEDORA_APIM_PROTOCOL_TYPE.APP_FEDORA_SSL_LOCATION."/get"."/".$pid;
 	} else {
-		$get_url = APP_FEDORA_APIM_PROTOCOL_TYPE.APP_FEDORA_LOCATION."/get"."/".$pid;	
+		$get_url = APP_FEDORA_APIM_PROTOCOL_TYPE.APP_FEDORA_LOCATION."/get"."/".$pid;
 	}
 	$tpl->assign("fedora_get_view", 1);
 
@@ -71,7 +71,7 @@ if ($isAdministrator || $isUPO) {
     $tpl->assign('affilliations', $affilliations);
     $tpl->assign("internal_notes", InternalNotes::readNote($pid));
 } else {
-	$tpl->assign("fedora_get_view", 0);	
+	$tpl->assign("fedora_get_view", 0);
 }
 
 $spyglasshref = ($isSuperAdministrator) ? $get_url : '#';
@@ -91,19 +91,19 @@ $debug = @$_REQUEST['debug'];
 if ($debug == 1) {
 	$tpl->assign("debug", "1");
 } else {
-	$tpl->assign("debug", "0");	
+	$tpl->assign("debug", "0");
 }
 
 
 if (!empty($pid)) {
 
-    // Retrieve the selected version date from the request. 
+    // Retrieve the selected version date from the request.
     // This will be null unless a version date has been
     // selected by the user.
-    $requestedVersionDate = (isset($_REQUEST['version_date']) 
-        && $_REQUEST['version_date'] > 0) 
+    $requestedVersionDate = (isset($_REQUEST['version_date'])
+        && $_REQUEST['version_date'] > 0)
             ? $_REQUEST['version_date'] : null;
-    
+
  	$record = new RecordObject($pid, $requestedVersionDate);
 }
 
@@ -126,8 +126,13 @@ if (!empty($pid) && $record->checkExists()) {
 	} else {
 		$tpl->assign("extra_title", "Record #".$pid." Details");
 	}
+  $tpl->setTemplate('header.tpl.html');
+  $tpl->displayTemplate();
+  flush();
+  ob_flush();
+  $tpl->setTemplate("view.tpl.html");
 
-	$tpl->assign("pid", $pid);
+  $tpl->assign("pid", $pid);
 	$deleted = false;
 	if (@$show_tombstone) {
 
@@ -136,17 +141,17 @@ if (!empty($pid) && $record->checkExists()) {
 			$tpl->assign('show_tombstone',true);
 			$tpl->assign('deleted',true);
 			$deleted = true;
-			$history_res = History::searchOnPid($pid, 
+			$history_res = History::searchOnPid($pid,
 								array('pre_detail' => '%Marked Duplicate of %'));
 	    	if (!empty($history_res)) {
 				preg_match('/Marked Duplicate of (\S+)/', $history_res[0]['pre_detail'], $matches);
 	    		$tpl->assign('duplicate_pid',$matches[1]);
 	    		$tpl->assign('duplicate_premis',$history_res[0]);
-	    		
+
     		}
 		}
 	}
-	
+
 	if(APP_FEDORA_BYPASS == 'ON')
 	{
 	    $xdis_id = ($deleted) ? Record::getSearchKeyIndexValueShadow($pid,'Display Type') : Record::getSearchKeyIndexValue($pid,'Display Type');
@@ -158,7 +163,7 @@ if (!empty($pid) && $record->checkExists()) {
 	    $xdis_id = $record->getXmlDisplayId($useVersions);
 	}
 	$tpl->assign("xdis_id", $xdis_id);
-	$xdis_title = XSD_Display::getTitle($xdis_id);	
+	$xdis_title = XSD_Display::getTitle($xdis_id);
     $tpl->assign("xdis_title", $xdis_title);
 	if (!is_numeric($xdis_id)) {
 		$xdis_id = @$_REQUEST["xdis_id"];
@@ -166,14 +171,14 @@ if (!empty($pid) && $record->checkExists()) {
 			$record->updateAdminDatastream($xdis_id);
 		}
 	}
-	
+
 	if (APP_SOLR_SWITCH == 'ON' && $username) {
 		$details = FulltextQueue::getDetailsForPid($pid);
 		if (count($details) > 0) {
 			Session::setMessage('This record is currently in the Solr queue - changes may not appear for a few moments.');
 		}
 	}
-	
+
 	if (!is_numeric($xdis_id)) { // if still can't find the xdisplay id then ask for it
 		Auth::redirect(APP_RELATIVE_URL . "select_xdis.php?return=view_form&pid=".$pid.$extra_redirect, false);
 	}
@@ -189,10 +194,10 @@ if (!empty($pid) && $record->checkExists()) {
 			}
 		}
 		if (!$found) {
-			Auth::redirect("http://".APP_HOSTNAME . APP_RELATIVE_URL . "view/".$pid, false);			
+			Auth::redirect("http://".APP_HOSTNAME . APP_RELATIVE_URL . "view/".$pid, false);
 		}
 	}
-	
+
 	$canEdit = false;
 	$canView = true;
 
@@ -211,20 +216,20 @@ if (!empty($pid) && $record->checkExists()) {
         $workflows = array_merge(   $record->getWorkflowsByTriggerAndRET_IDAndXDIS_ID('Update', $ret_id, $xdis_id, $strict),
                                     $record->getWorkflowsByTriggerAndRET_IDAndXDIS_ID('Export', $ret_id, $xdis_id, $strict),
                                     $record->getWorkflowsByTriggerAndRET_IDAndXDIS_ID('Delete', $ret_id, $xdis_id, $strict));
-        
+
         // check which workflows can be triggered
         $workflows1 = array();
         if (is_array($workflows)) {
             foreach ($workflows as $trigger) {
-                if (WorkflowTrigger::showInList($trigger['wft_options']) 
+                if (WorkflowTrigger::showInList($trigger['wft_options'])
                         && Workflow::canTrigger($trigger['wft_wfl_id'], $pid)) {
                     $workflows1[] = $trigger;
                 }
             }
             $workflows = $workflows1;
         }
-        
-        $tpl->assign("workflows", $workflows); 
+
+        $tpl->assign("workflows", $workflows);
 		$tpl->assign("isEditor", $canEdit);
 		$tpl->assign("canViewVersions", $canViewVersions);
 //		$tpl->assign("canRevertVersions", $canRevertVersions);
@@ -236,7 +241,7 @@ if (!empty($pid) && $record->checkExists()) {
 		} else {
 			$tpl->assign("viewingPreviousVersion", false);
 		}
-		
+
 		$record->getDisplay();
 		//$display = new XSD_DisplayObject($xdis_id);
 		$xsd_display_fields = $record->display->getMatchFieldsList(array("FezACML"), array());  // XSD_DisplayObject
@@ -251,7 +256,7 @@ if (!empty($pid) && $record->checkExists()) {
         $citation_html = Citation::renderCitation($xdis_id, $details, $xsd_display_fields);
         $tpl->assign('citation', $citation_html);
 
-		$parent_relationships = array(); 
+		$parent_relationships = array();
 		foreach ($parents as $parent) {
 			$parent_rel = XSD_Relationship::getColListByXDIS($parent['rek_display_type']);
 			$parent_relationships[$parent['rek_pid']] = array();
@@ -259,7 +264,7 @@ if (!empty($pid) && $record->checkExists()) {
 				array_push($parent_relationships[$parent['rek_pid']], $prel);
 			}
 			array_push($parent_relationships[$parent['rek_pid']], $parent['rek_display_type']);
-		} 
+		}
 		// Now generate the META Tag headers
 		// lets add the dublin core schema
 		$meta_head = '<link rel="schema.DC" href="http://purl.org/DC/elements/1.0/" />'."\n";
@@ -275,7 +280,7 @@ if (!empty($pid) && $record->checkExists()) {
 
 		$combineDataFields = array('citation_authors', 'citation_keywords');
 		$fieldsOutputAlready = array();
-		
+
 		// for every metadata field
 		foreach($metaDataFields as $xsdmfId => $metaDataDetails) {
 			// if there are details
@@ -384,7 +389,7 @@ if (!empty($pid) && $record->checkExists()) {
                     $dateIsUTC = (APP_FEDORA_BYPASS == 'ON') ? FALSE : TRUE;
 					if (!empty($details[$dis_field['xsdmf_id']])) {
 						if (is_array($details[$dis_field['xsdmf_id']])) {
-							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {		
+							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
 								$created_date = Date_API::getFormattedDate($cdata, FALSE, $dateIsUTC);
 							}
 						} else {
@@ -395,8 +400,8 @@ if (!empty($pid) && $record->checkExists()) {
 				if ($dis_field['xsdmf_element'] == "!depositor") {
 					if (!empty($details[$dis_field['xsdmf_id']])) {
 						if (is_array($details[$dis_field['xsdmf_id']])) {
-							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {		
-								$depositor_id = $cdata;								
+							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
+								$depositor_id = $cdata;
 								$depositor = User::getFullName($cdata);
 							}
 						} else {
@@ -404,12 +409,12 @@ if (!empty($pid) && $record->checkExists()) {
 							$depositor = User::getFullName($details[$dis_field['xsdmf_id']]);
 						}
 					}
-				}				
+				}
 				if ($dis_field['xsdmf_element'] == "!depositor_affiliation") {
 					if (!empty($details[$dis_field['xsdmf_id']])) {
 						if (is_array($details[$dis_field['xsdmf_id']])) {
-							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {		
-								$depositor_org_id = $cdata;								
+							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
+								$depositor_org_id = $cdata;
 								$depositor_org = Org_Structure::getTitle($cdata);
 							}
 						} else {
@@ -420,8 +425,8 @@ if (!empty($pid) && $record->checkExists()) {
 				}
             }
 		}
-		
-        $tpl->assign('meta_head', $meta_head);		
+
+        $tpl->assign('meta_head', $meta_head);
 		$record_view = new RecordView($record);	// record viewer object
 		$details = $record_view->getDetails();
 	} else {
@@ -429,7 +434,7 @@ if (!empty($pid) && $record->checkExists()) {
 		$tpl->assign("show_not_allowed_msg", true);
 		$savePage = false;
 	}
-	
+
     //Direct link to solr for super admins
     if(( APP_SOLR_SWITCH == "ON") && ($isSuperAdministrator))
     {
@@ -445,32 +450,32 @@ if (!empty($pid) && $record->checkExists()) {
 		$sub_type = false;
 	}
 	$tpl->assign("sub_type", $sub_type);
-	
+
 	if (empty($details)) {
 		$tpl->assign('details', '');
 	} else {
 		$linkCount = 0;
 		$fileCount = 0;
-		
+
 		if(APP_FEDORA_BYPASS == 'ON')
 		{
     		//This retrieves the datastreams
     		//Metadata is retrieved by XSD_DisplayObject::getXSDMF_Values
 		    $dob = new DigitalObject();
 		    $params = array('pid' => $pid);
-		    
+
 		    if($requestedVersionDate)
 		    {
 		        $params['rev'] = $requestedVersionDate;
 		    }
-		    
+
     		$datastreams = $dob->getDatastreams($params);
 		}
 		else
 		{
 		    $datastreams = Fedora_API::callGetDatastreams($pid, $requestedVersionDate, 'A');
 		}
-		
+
         // Extact and generate list of timestamps for the datastreams of the record
         generateTimestamps($pid, $datastreams, $requestedVersionDate, $tpl);
 
@@ -479,7 +484,7 @@ if (!empty($pid) && $record->checkExists()) {
 			$datastreams = Misc::addDeletedDatastreams($datastreams,$pid,$requestedVersionDate);
 		}
 
-		$datastreamsAll = $datastreams;		
+		$datastreamsAll = $datastreams;
 		$datastreams = Misc::cleanDatastreamListLite($datastreams, $pid);
 
 //Error_Handler::logError("view2.php datastreams (after cleanDatastreamListLite)=__SEE_NEXT__", __FILE__,__LINE__);
@@ -535,9 +540,9 @@ if (!empty($pid) && $record->checkExists()) {
     		foreach ($datastreams as $ds_key => $ds) {
 
     		    if ($datastreams[$ds_key]['controlGroup'] == 'R') {
-    				$linkCount++;				
+    				$linkCount++;
     			}
-    			
+
     			if ( ($datastreams[$ds_key]['controlGroup'] == 'R') && ($datastreams[$ds_key]['ID'] != 'DOI')  ) {
 
                     $links[$linkCount-1]['rek_link'] = trim($datastreams[$ds_key]['location']);
@@ -547,7 +552,7 @@ if (!empty($pid) && $record->checkExists()) {
                     if (strtoupper('http://dx.doi.org/'.$doi) == strtoupper($links[$linkCount-1]['rek_link'])) {
                         $doiInLinks = true;
                     }
-    				
+
     				// Check for APP_LINK_PREFIX and add if not already there add it to a special ezyproxy link for it
     				if (APP_LINK_PREFIX != "") {
     					if (!is_numeric(strpos($links[$linkCount-1]['rek_link'], APP_LINK_PREFIX))) {
@@ -559,45 +564,45 @@ if (!empty($pid) && $record->checkExists()) {
     				} else {
                         $links[$linkCount-1]['prefix_location'] = "";
     				}
-    				
+
     			} elseif ($datastreams[$ds_key]['controlGroup'] == 'M') {
-    				
+
     			    $fileCount++;
-    				$datastreams[$ds_key]['exif'] = Exiftool::getDetails($pid, $datastreams[$ds_key]['ID']);			
+    				$datastreams[$ds_key]['exif'] = Exiftool::getDetails($pid, $datastreams[$ds_key]['ID']);
     				if (APP_EXIFTOOL_SWITCH != "ON" || !is_numeric($datastreams[$ds_key]['exif']['exif_file_size'])) { //if Exiftool isn't on then get the datastream info from JHOVE (which is a lot slower than EXIFTOOL)
     	                if (is_numeric(strrpos($datastreams[$ds_key]['ID'], "."))) {
     					    $Jhove_DS_ID = "presmd_".substr($datastreams[$ds_key]['ID'], 0, strrpos($datastreams[$ds_key]['ID'], ".")).".xml";
     	                } else {
     	                    $Jhove_DS_ID = "presmd_".$datastreams[$ds_key]['ID'].".xml";
     	                }
-                    
+
     					foreach ($datastreamsAll as $dsa) {
-    				    
+
     						if ($dsa['ID'] == $Jhove_DS_ID) {
     							$Jhove_XML = Fedora_API::callGetDatastreamDissemination($pid, $Jhove_DS_ID);
-    						
+
     							if(!empty($Jhove_XML['stream'])) {
     	    						$jhoveHelp = new Jhove_Helper($Jhove_XML['stream']);
-        						
+
     	    						$fileSize = $jhoveHelp->extractFileSize();
     	    						$datastreams[$ds_key]['archival_size'] =  Misc::size_hum_read($fileSize);
     	    						$datastreams[$ds_key]['archival_size_raw'] = $fileSize;
-        						
+
     	    						$spatialMetrics = $jhoveHelp->extractSpatialMetrics();
-        						
+
     	    						if( is_numeric($spatialMetrics[0]) && $spatialMetrics[0] > 0 ) {
     	                                $tpl->assign("img_width", $spatialMetrics[0]);
     	    						}
-        						  
+
     	    						if( is_numeric($spatialMetrics[1]) && $spatialMetrics[1] > 0 ) {
     	                                $tpl->assign("img_height", $spatialMetrics[1]);
     	    						}
-        						
+
     	    						unset($jhoveHelp);
     	    						unset($Jhove_XML);
     							}
     						}
-    					} 
+    					}
     				}	else {
     					$datastreams[$ds_key]['MIMEType'] =  $datastreams[$ds_key]['exif']['exif_mime_type'];
     					$datastreams[$ds_key]['archival_size'] =  $datastreams[$ds_key]['exif']['exif_file_size_human'];
@@ -606,30 +611,30 @@ if (!empty($pid) && $record->checkExists()) {
     					$tpl->assign("img_width", $datastreams[$ds_key]['exif']['exif_image_width']);
     				}
     				$origami_switch = "OFF";
-    				if (APP_ORIGAMI_SWITCH == "ON" && ($datastreams[$ds_key]['MIMEType'] == 'image/jpeg' || 
-    		             $datastreams[$ds_key]['MIMEType'] == 'image/tiff' || 
-    		             $datastreams[$ds_key]['MIMEType'] == 'image/tif' || 
+    				if (APP_ORIGAMI_SWITCH == "ON" && ($datastreams[$ds_key]['MIMEType'] == 'image/jpeg' ||
+    		             $datastreams[$ds_key]['MIMEType'] == 'image/tiff' ||
+    		             $datastreams[$ds_key]['MIMEType'] == 'image/tif' ||
     		             $datastreams[$ds_key]['MIMEType'] == 'image/jpg')) {
     					 $origami_path = Origami::getTitleHome() . Origami::getTitleLocation($pid, $datastreams[$ds_key]['ID']);
     					 if (is_dir($origami_path)) {
     						$origami_switch = "ON";
-    					 } 	        
+    					 }
     				}
     				$datastreams[$ds_key]['origami_switch'] = $origami_switch;
-    				
+
     				$datastreams[$ds_key]['FezACML'] = Auth::getAuthorisationGroups($pid, $datastreams[$ds_key]['ID']);
-    				$datastreams[$ds_key]['downloads'] = Statistics::getStatsByDatastream($pid, $ds['ID']);	
-    				$datastreams[$ds_key]['base64ID'] = base64_encode($ds['ID']); 		
-    
+    				$datastreams[$ds_key]['downloads'] = Statistics::getStatsByDatastream($pid, $ds['ID']);
+    				$datastreams[$ds_key]['base64ID'] = base64_encode($ds['ID']);
+
     				if (APP_FEDORA_DISPLAY_CHECKSUMS == "ON") {
-    					$datastreams[$ds_key]['checksumType'] = $ds['checksumType'];   
-    					$datastreams[$ds_key]['checksum'] = $ds['checksum'];   
+    					$datastreams[$ds_key]['checksumType'] = $ds['checksumType'];
+    					$datastreams[$ds_key]['checksum'] = $ds['checksum'];
     					$tpl->assign("display_checksums", "ON");
     				}
-    
+
     				Auth::getAuthorisation($datastreams[$ds_key]);
     			}
-    			
+
                 if ($datastreams[$ds_key]['controlGroup'] == 'R' && $datastreams[$ds_key]['ID'] == 'DOI') {
                     $links[$linkCount-1]['rek_link'] = trim($datastreams[$ds_key]['location']);
                     $tpl->assign('doi', $datastreams[$ds_key]);
@@ -643,26 +648,26 @@ if (!empty($pid) && $record->checkExists()) {
                         $links[$linkCount-1]['prefix_location'] = APP_LINK_PREFIX.$links[$linkCount-1]['rek_link'];
                 }
             }
-	    } 
-		
-		
+	    }
+
+
 		$tpl->assign("datastreams", $datastreams);
 		$tpl->assign("ds_get_path", APP_FEDORA_GET_URL."/".$pid."/");
 		$tpl->assign("parents", $parents);
-		
+
 		if (count($parents) > 1) {
 			$tpl->assign("parent_heading", "Collections:");
 		} else {
-			$tpl->assign("parent_heading", "Collection:");				
+			$tpl->assign("parent_heading", "Collection:");
 		}
-		
+
 		//what does this record succeed?
 		$hasVersions = 0;
 		$derivations = Record::getParentsAll($pid, 'isDerivationOf', true);
 		//print_r($derivations); exit;
 		if (count($derivations) == 0) {
 			$derivations[0]['rek_title'] = Record::getSearchKeyIndexValue($pid, "Title");
-			$derivations[0]['rek_pid'] = $pid;			
+			$derivations[0]['rek_pid'] = $pid;
 		} else {
 			$hasVersions = 1;
 		}
@@ -698,9 +703,9 @@ if (!empty($pid) && $record->checkExists()) {
         $tpl->assign('fedora_bypass',APP_FEDORA_BYPASS == 'ON');
         $tpl->assign("streams", $streams);
 
-		$tpl->assign("statsAbstract", Statistics::getStatsByAbstractView($pid));				
-		$tpl->assign("statsFiles", Statistics::getStatsByAllFileDownloads($pid));				
-		
+		$tpl->assign("statsAbstract", Statistics::getStatsByAbstractView($pid));
+		$tpl->assign("statsFiles", Statistics::getStatsByAllFileDownloads($pid));
+
 		// citations from thomson and scopus
 		$countThomsonCitations = Record::getSearchKeyIndexValue($pid, "Thomson Citation Count", false);
 		$countScopusCitations = Record::getSearchKeyIndexValue($pid, "Scopus Citation Count", false);
@@ -712,7 +717,7 @@ if (!empty($pid) && $record->checkExists()) {
 			$googleCitationsLink = Record::getSearchKeyIndexValue($pid, "GS Cited By Link", false);
 			$tpl->assign("citationsGoogleLink", $googleCitationsLink);
 		}
-		
+
 		// Thomson and Scopus IDs. Grab 1st ID only
 		$ThomsonCitationsID = Record::getSearchKeyIndexValue($pid, "ISI LOC", false);
 		$ScopusCitationsID = Record::getSearchKeyIndexValue($pid, "Scopus ID", false);
@@ -723,10 +728,10 @@ if (!empty($pid) && $record->checkExists()) {
 
 		// Add view to statistics buffer
 		Statistics::addBuffer($pid);
-        
+
         list($prev, $next) = RecordView::getNextPrevNavigation($pid);
         $tpl->assign(compact('prev','next'));
-		
+
 		// determine if there are workflows currently working on this pid and let the user know if there are
 		$outstandingStatus = '';
 		if ($isAdministrator) {
@@ -752,14 +757,14 @@ if (!empty($pid) && $record->checkExists()) {
             }
         }
         $tpl->assign('pageCounts',$pageCounts);
-		
+
 		// Generate OpenURL and assign link resolver button to template
 		$openurl = misc::OpenURL2($pid);
 		$tpl->assign('openurl', $openurl);
 		$resolver_button = APP_LINK_RESOLVER_BUTTON_URL;
 		$resolver_base_url = APP_LINK_RESOLVER_BASE_URL;
 		$tpl->assign('resolver_button', $resolver_button);
-		$tpl->assign('resolver_base_url', $resolver_base_url);		
+		$tpl->assign('resolver_base_url', $resolver_base_url);
 
 // Get fields to be displayed on Spyglass hover.
 // @usage: view_inverse_metadata.tpl.html
@@ -790,11 +795,11 @@ if (!empty($pid) && $record->checkExists()) {
 
 
 /**
- * Sets a list on the Smarty template containing unique datastream timestamps. 
+ * Sets a list on the Smarty template containing unique datastream timestamps.
  *
  * <p>
- * As atomic Fez operations result in non-atomic Fedora operations (for example, updating all datstreams 
- * results in different version timestamps for each), a fuzzy search is performed to identify timestamps 
+ * As atomic Fez operations result in non-atomic Fedora operations (for example, updating all datstreams
+ * results in different version timestamps for each), a fuzzy search is performed to identify timestamps
  * that are likely to belong to the same atomic operation.
  * </p>
  *
@@ -802,13 +807,13 @@ if (!empty($pid) && $record->checkExists()) {
  * The list of dates is keyed under 'created_dates_list' on the Smarty template and each entry is an array
  * containing the following data:
  * </p>
- * 
+ *
  * <ul>
  * <li><strong>fedoraDate</strong> datestamp retrieved from fedora</li>
  * <li><strong>displayDate</strong> formatted datestamp for display</li>
- * <li><strong>filtered</strong> true if the date is determined as being a component of a compound Fez 
+ * <li><strong>filtered</strong> true if the date is determined as being a component of a compound Fez
  *  operation and is therefore deemed redundant, false otherwise</li>
- * <li><strong>selected</strong> true if the current date corresponds to the version of the record being 
+ * <li><strong>selected</strong> true if the current date corresponds to the version of the record being
  * viewed</li>
  * </ul>
  *
@@ -818,44 +823,44 @@ if (!empty($pid) && $record->checkExists()) {
  * @param $tpl Smarty template
  */
 function generateTimestamps($pid, $datastreams, $requestedVersionDate, $tpl) {
-    
+
     $createdDates = array();
-    
+
     if(APP_FEDORA_BYPASS == 'ON')
     {
         $rec = new Fez_Record_SearchkeyShadow($pid);
         $createdDates = $rec->returnVersionDates();
-        
+
         /*foreach($versions as $version)
         {
             $createdDates[] = $version['createDate'];
         }*/
     }
-    else 
+    else
     {
         // Retrieve all versions of all datastreams
         foreach ($datastreams as $datastream) {
-    		//probably only need to check the dates of the FezMD datastream. This should reduce calls to Fedora and improve performance - CK added 17/7/2009. 
+    		//probably only need to check the dates of the FezMD datastream. This should reduce calls to Fedora and improve performance - CK added 17/7/2009.
     		if ($datastream['ID'] == 'FezMD') {
-    	        $parms = array('pid' => $pid, 'dsID' => $datastream['ID']); 
-               
+    	        $parms = array('pid' => $pid, 'dsID' => $datastream['ID']);
+
     	        $datastreamVersions = Fedora_API::openSoapCall('getDatastreamHistory', $parms);
-    
-    	        // Extract created dates from datastream versions 
+
+    	        // Extract created dates from datastream versions
     	        foreach ($datastreamVersions as $key => $var) {
-    
+
     	            // If a datastream contains multiple versions, Fedora bundles them in an array, however doesn't
     	            // do if a datastream only has a single version.
-    
+
     	            // If the datastream is an array, retrieve value keyed under createDate
     	            if (is_array($var) && array_key_exists('createDate', $var)) {
     	                $createdDates[] = $var['createDate'];
-    	            } 
-    
-    	            // If the datastream isn't an array, retrieve the createDate value 
+    	            }
+
+    	            // If the datastream isn't an array, retrieve the createDate value
     	            else if ($key === 'createDate') {
     	                $createdDates[] = $var;
-    	            } 
+    	            }
     	        }
     		}
         }
@@ -872,7 +877,7 @@ function generateTimestamps($pid, $datastreams, $requestedVersionDate, $tpl) {
     // Iterate through amalgamated list of datestamps, removing those that are deemed to have been created
     // too closely-together to have been a result of a user edit.
     //
-    // Once a 'phantom' version has been found, iterate through the list again until all datestamps are 
+    // Once a 'phantom' version has been found, iterate through the list again until all datestamps are
     // suitably far apart.
     do {
         $phantomVersionFound = false;
@@ -887,23 +892,23 @@ function generateTimestamps($pid, $datastreams, $requestedVersionDate, $tpl) {
             }
 
             if ($phantomVersionFound) break;
-        } 
+        }
     }
     while($phantomVersionFound);
 
 
-    // Iterate through initial list of datastream version created dates and create a list of dates for display 
+    // Iterate through initial list of datastream version created dates and create a list of dates for display
     // purposes, containing human-readable dates, the original Fedora date, whether the date has been filtered
     // or whether the date corresponds to the currently selected date.
     $createdDatesForDisplay = array();
     $timezone = Date_API::getPreferredTimezone();
-    
+
     foreach ($originalCreatedDates as $createdDate) {
 
         // Determine whether the date has been filtered out from the list or not
         $filtered = in_array($createdDate, $createdDates) ? false : true;
-        
-        // format as RFC 2822 formatted date for readibility 
+
+        // format as RFC 2822 formatted date for readibility
         $displayDate = Date_API::getFormattedDate($createdDate, $timezone);
 
         // Create the date display entry
@@ -931,7 +936,7 @@ function generateTimestamps($pid, $datastreams, $requestedVersionDate, $tpl) {
 
 /**
  * Custom date sorter for Fedora dates, used by PHP's usort()
- * 
+ *
  * <p>
  * Note: This function uses strtotime() directly on the dates, which appears to work but which may be flawed - I'm not
  * familiar with Fedora's date format or whether it's custom or a standard format.

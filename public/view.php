@@ -57,8 +57,7 @@ include_once(APP_INC_PATH . "class.sherpa_romeo.php");
 //$auth = new Auth();
 //$auth->checkForBasicAuthRequest('view');
 
-$tpl = new Template_API();
-$tpl->setTemplate("view.tpl.html");
+
 $pid = @$_REQUEST["pid"];
 $flushCache = false;
 if (array_key_exists('flushcache', $_GET) && $_GET['flushcache'] == true) {
@@ -74,9 +73,9 @@ $cache = new fileCache($pid, $_SERVER['QUERY_STRING'], $flushCache);
 if(!$logged_in && APP_FILECACHE == "ON") {
 	$cache->checkForCacheFile();
 }
+$tpl = new Template_API();
 
 include_once('view2.php');
-
 $tpl->displayTemplateRecord($pid);
 
 if(!$logged_in && APP_FILECACHE == "ON") {

@@ -231,7 +231,10 @@ class Lister
         $cookie_key = Pager::getParam('form_name',$params);
         $options = Pager::saveSearchParams($params, $cookie_key);
 
-	    $getFunction = 'getListing';
+      $tpl->setTemplate('header.tpl.html');
+
+
+      $getFunction = 'getListing';
         if( APP_SOLR_SWITCH == "ON" )
         {
             $getFunction = 'getSearchListing';
@@ -317,6 +320,13 @@ class Lister
 		}
 
         if (!empty($collection_pid)) {
+
+          $title = Record::getSearchKeyIndexValue($collection_pid, "Title");
+          $citation = Record::getCitationIndex($collection_pid);
+          $tpl->assign("list_heading", htmlspecialchars($title));
+          $tpl->assign("list_heading_citation", "List of Records in ".$citation);
+          $tpl->displayTemplate();
+          ob_flush();
         	$log->debug('List a collection');
 
             // list a collection
@@ -329,7 +339,13 @@ class Lister
 	            $tpl->assign("isLister", $canList);
 
 	            if ($canList) {
-	                $tpl->assign("xdis_id", Record::getSearchKeyIndexValue($collection_pid, "Display Type"));
+                $tpl->assign("list_type", "collection_records_list");
+
+                $tpl->displayTemplate();
+                ob_flush();
+
+
+                $tpl->assign("xdis_id", Record::getSearchKeyIndexValue($collection_pid, "Display Type"));
 	                $parents = Record::getParentsDetails($collection_pid);
 
 	                $tpl->assign("parents", $parents);
@@ -350,11 +366,6 @@ class Lister
 	                $snips = @$list['snips'];
 	                $list = $list["list"];
 
-	                $title = Record::getSearchKeyIndexValue($collection_pid, "Title");
-					$citation = Record::getCitationIndex($collection_pid);
-	                $tpl->assign("list_heading", htmlspecialchars($title));
-	                $tpl->assign("list_heading_citation", "List of Records in ".$citation);
-	                $tpl->assign("list_type", "collection_records_list");
 
 	                $tpl->assign("collection_pid", $collection_pid);
 	                $childXDisplayOptions = Record::getSearchKeyIndexValue($collection_pid, "XSD Display Option");
@@ -379,7 +390,16 @@ class Lister
 
 
         } elseif (!empty($community_pid)) {
-            $log->debug('List collections in a community');
+
+          $title = Record::getSearchKeyIndexValue($community_pid, "Title");
+          $citation = Record::getCitationIndex($community_pid);
+
+          $tpl->assign("list_heading", "List of Collections in ".htmlspecialchars($title));
+          $tpl->assign("list_heading_citation", "List of Collections in ".$citation);
+          $tpl->displayTemplate();
+          ob_flush();
+
+          $log->debug('List collections in a community');
 
 			$sort_by = "searchKey".Search_Key::getID("Title");
 
@@ -409,11 +429,6 @@ class Lister
 	                $snips = @$list['snips'];
 	                $list = $list["list"];
 
-	                $title = Record::getSearchKeyIndexValue($community_pid, "Title");
-					$citation = Record::getCitationIndex($community_pid);
-
-	                $tpl->assign("list_heading", "List of Collections in ".htmlspecialchars($title));
-	                $tpl->assign("list_heading_citation", "List of Collections in ".$citation);
 	                $tpl->assign("list_type", "collection_list");
 
 	                $childXDisplayOptions = Record::getSearchKeyIndexValue($community_pid, "XSD Display Option");
@@ -436,7 +451,11 @@ class Lister
         	unset($sort_by_list["searchKey".Search_Key::getID("Sequence")]);
         	unset($sort_by_list["searchKey".Search_Key::getID("Date")]);
         } elseif ($browse == "favourites") {
-            Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']."?".$_SERVER['QUERY_STRING']);
+          $tpl->assign("list_heading", "Starred Records");
+          $tpl->displayTemplate();
+          ob_flush();
+
+          Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']."?".$_SERVER['QUERY_STRING']);
             $filter = array();
 			$filter["searchKey".Search_key::getID("Object Type")] = 3;
 			$starredPids = Favourites::getStarred();
@@ -466,12 +485,16 @@ class Lister
             $list_info = $list["info"];
             $list = $list["list"];
             $tpl->assign("browse_type", "browse_favourites");
-            $tpl->assign("list_heading", "Starred Records");
+
             $tpl->assign("list_type", "all_records_list");
             $tpl->assign("active_nav", "favourites");
 
         } elseif ($browse == "latest") {
-            $log->debug('Latest');
+          $tpl->assign("list_heading", "Browse By Latest Additions");
+          $tpl->displayTemplate();
+          ob_flush();
+
+          $log->debug('Latest');
 
             $sort_by_list["searchKey".Search_Key::getID("Created Date")] = 'Created Date';
 
@@ -493,7 +516,7 @@ class Lister
             $list = $list["list"];
 
             $tpl->assign("browse_type", "browse_latest");
-            $tpl->assign("list_heading", "Browse By Latest Additions");
+
             $tpl->assign("today", date("Y-m-d"));
             $tpl->assign("today_day_name", date("l"));
             $tpl->assign("yesterday", date("Y-m-d", time()-86400));
@@ -501,7 +524,11 @@ class Lister
             $tpl->assign("list_type", "all_records_list");
 
         } elseif ($browse == "year") {
-            $log->debug('Browse by year');
+          $tpl->assign("list_heading", "List of Records");
+          $tpl->displayTemplate();
+          ob_flush();
+
+          $log->debug('Browse by year');
             // browse by year
             $year = Lister::getValue($params,'year');
             if (is_numeric($year)) {
@@ -520,7 +547,6 @@ class Lister
 
                 $tpl->assign("year", $year);
                 $tpl->assign("browse_heading", "Browse By Year ".htmlspecialchars($year));
-                $tpl->assign("list_heading", "List of Records");
             } else {
                 $list = Collection::listByAttribute($pager_row, $rows, "Date", $sort_by);
                 $list_info = $list["info"];
@@ -633,9 +659,16 @@ class Lister
             }
             $tpl->assign("browse_type", "browse_author");
             $tpl->assign("alphabet_list", Misc::generateAlphabetArray());
+            $tpl->displayTemplate();
+            ob_flush();
+
 
         } elseif ($browse == "depositor") {
-            $log->debug('Browse by depositor');
+          $tpl->assign("list_heading", "Browse By Depositor");
+          $tpl->displayTemplate();
+          ob_flush();
+
+          $log->debug('Browse by depositor');
             // browse by depositor
             $depositor = Lister::getValue($params,'depositor');
 			$depositor_fullname = User::getFullName($depositor);
@@ -657,7 +690,7 @@ class Lister
                 $list = $list["list"];
 
                 $tpl->assign("browse_heading", "Browse By Depositor");
-			    $tpl->assign("list_heading", "Browse By Depositor");
+
 
                 // Remove these sort options when viewing a list of Depositors
             	unset($sort_by_list["searchKey".Search_Key::getID("File Downloads")]);
@@ -670,12 +703,16 @@ class Lister
             $tpl->assign("browse_type", "browse_depositor");
 
 		} elseif ($browse == "mypubs") {
-			$log->debug('Browse MyPubs');
+      $author_id = $params['author_id'];
+      $authorDetails = Author::getDetails($author_id);
+      $tpl->assign("list_heading", "Publications by ".htmlspecialchars($authorDetails["aut_display_name"]));
+      $tpl->displayTemplate();
+      ob_flush();
+
+          $log->debug('Browse MyPubs');
 
 			$current_row = 0;
 			$max = 9999999;
-			$author_id = $params['author_id'];
-			$authorDetails = Author::getDetails($author_id);
 			$operator = "AND";
 	 		$filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
 			$filter["searchKey".Search_key::getID("Object Type")]=3; //exclude communities and collections
@@ -833,7 +870,7 @@ class Lister
 				$tpl->assign("researcherID", "");
 			}
 
-			$tpl->assign("list_heading", "Publications by ".htmlspecialchars($authorDetails["aut_display_name"]));
+
 			$tpl->assign("list_type", "mypubs_list");
 
 			//all
@@ -845,6 +882,10 @@ class Lister
 			$tpl->assign("active_nav", "mypubs");
 
         } elseif ($browse == "subject") {
+          $tpl->assign("list_heading", "List of Subject Classifications Records");
+
+          $tpl->displayTemplate();
+          ob_flush();
         	$log->debug('Browse by subject');
             // browse by subject
             $parent_id = Lister::getValue($params,'parent_id');
@@ -891,7 +932,7 @@ class Lister
             $tpl->assign("subject_list", $subject_list);
             $tpl->assign("subject_count", $subject_count);
             $tpl->assign("browse_heading", "Browse By Subject Classifications Records");
-            $tpl->assign("list_heading", "List of Subject Classifications Records");
+
             $tpl->assign("browse_type", "browse_subject");
 
         } elseif ($cat == "quick_filter") { // Advanced Search
@@ -950,8 +991,12 @@ class Lister
         	$facets = @$list['facets'];
         	$snips = @$list['snips'];
         	$list = @$list["list"];
+          $tpl->assign("list_heading", "Search Results ($terms)");
 
-        	// KJ@ETH
+          $tpl->displayTemplate();
+          ob_flush();
+
+          // KJ@ETH
         	$tpl->assign("major_function", "search");
             $q = "";
             if (array_key_exists('search_keys', $params) && is_array($params['search_keys'])) {
@@ -959,9 +1004,13 @@ class Lister
             }
 			$tpl->assign("q", $q);
 
-        	$tpl->assign("list_heading", "Search Results ($terms)");
         	$tpl->assign("list_type", "all_records_list");
         } else {
+            $tpl->assign("list_type", "community_list");
+            $tpl->assign("list_heading", "List of Communities");
+            $tpl->displayTemplate();
+            ob_flush();
+
             $log->debug('Communities');
             $xdis_id = Community::getCommunityXDIS_ID();
             $tpl->assign("xdis_id", $xdis_id);
@@ -972,8 +1021,7 @@ class Lister
             $list_info = $list["info"];
             $list = $list["list"];
 
-            $tpl->assign("list_type", "community_list");
-            $tpl->assign("list_heading", "List of Communities");
+
 
             // Remove these sort options when viewing a list of communities
         	unset($sort_by_list["searchKey".Search_Key::getID("File Downloads")]);

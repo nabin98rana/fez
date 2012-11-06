@@ -79,20 +79,20 @@ $masquerade = @$_POST["masquerade"];
 if ((@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'] != "" || @$_SERVER['Shib-Session-ID'] != "") && $masquerade == '') {
 
 // Uncomment this to see a debug output of all the shibboleth attributes in the session
-	// echo "<pre>"; 
+	// echo "<pre>";
 	// print_r($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]);
-	// echo "</pre>";  
+	// echo "</pre>";
 
 	if (Auth::LoginAuthenticatedUser("", "", true) > 0) {
     	Auth::redirect(APP_RELATIVE_URL . "login.php?err=22");
 	}
-	if (!empty($_SESSION["url"])) { 
+	if (!empty($_SESSION["url"])) {
 		$url = $_SESSION["url"];
 		$realUrl = urldecode($url);
 		$_SESSION["url"] = "";
 		$username = Auth::getUsername();
 		Zend_Session::writeClose(); // write the session data out before doing a redirect
-		if (!empty($realUrl) && $realUrl != APP_RELATIVE_URL && $realUrl != "/index.php?err=6") {		
+		if (!empty($realUrl) && $realUrl != APP_RELATIVE_URL && $realUrl != "/index.php?err=6") {
 			Auth::redirect($realUrl);
 		} else {
 			if (APP_MY_RESEARCH_MODULE == 'ON' && MyResearch::getHRorgUnit($username) != "") {
@@ -116,23 +116,23 @@ if ((@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'] != "" || @$_S
 	// check if the password matches
 	// This method can also check via LDAP
 	if ($masquerade != '' && User::isUserSuperAdministrator($_POST["username"])) {
-		Auth::redirect(APP_RELATIVE_URL . "login.php?err=30&username=" . $_POST["username"]);	
+		Auth::redirect(APP_RELATIVE_URL . "login.php?err=30&username=" . $_POST["username"]);
 	}
-	
+
 	if (!Auth::isCorrectPassword($_POST["username"], $_POST["passwd"])) {
         Auth::redirect(APP_RELATIVE_URL . "login.php?err=3&username=" . $_POST["username"].'&url='.base64_encode($_POST["url"]));
 	}
-	
+
     $loginres = Auth::LoginAuthenticatedUser($_POST["username"], $_POST["passwd"], false, $masquerade);
-    
+
     if ($loginres > 0) {
-        Auth::redirect(APP_RELATIVE_URL . "login.php?err={$loginres}&username=" . $_POST["username"]);	
+        Auth::redirect(APP_RELATIVE_URL . "login.php?err={$loginres}&username=" . $_POST["username"]);
     }
 	$username = Auth::getUsername();
 	Zend_Session::writeClose(); // write the session data out before doing a redirect
 	$realUrl = urldecode($_POST["url"]);
 	if (!empty($_POST["url"]) && $realUrl != APP_RELATIVE_URL && $realUrl != "/index.php?err=6") {
-		Auth::redirect(urldecode($_POST["url"])); 
+		Auth::redirect(urldecode($_POST["url"]));
 	} else {
 		if (APP_MY_RESEARCH_MODULE == 'ON' && MyResearch::isClassicUser($username) == 1) {
 			Auth::redirect(APP_BASE_URL."my_fez_traditional.php");
@@ -149,9 +149,18 @@ $aliasResult = Lister::checkAliasController();
 
 // Don't need to proceed with the front page if we found an alias piped to index.php eg for my pubs aliases like fez/Christiaan
 if ($aliasResult == false) {
-    
+
     $tpl = new Template_API();
+    //flush header first so browser can start rendering css/images/js quickly
+    $tpl->setTemplate('header.tpl.html');
+    $tpl->assign("isHomePage", "true");
+    $tpl->assign("active_nav", "home");
+    $tpl->assign("extra_title", "Home");
+    $tpl->displayTemplate();
+    flush();
+    ob_flush();
     //$tpl->setTemplate("maintenance.tpl.html");
+
     $front_page = "";
     $username = Auth::getUsername();
 
@@ -190,7 +199,7 @@ if ($aliasResult == false) {
     $news = News::getList(5, User::isUserAdministrator($username) || User::isUserUPO($username));       // Maximum of 5 news posts for front page.
     $news_count = count($news);
     $tpl->assign("news", $news);
-    $tpl->assign("isHomePage", "true");
+
     $tpl->assign("news_count", $news_count);
 
     $tpl->assign("autosuggest", 1);
@@ -203,7 +212,6 @@ if ($aliasResult == false) {
     $tpl->registerNajax(NAJAX_Client::register('Suggestor', 'index.php')); */
 
 
-    $tpl->assign("active_nav", "home");
     $tpl->displayTemplate();
 }
 //echo ($GLOBALS['bench']->getOutput());
