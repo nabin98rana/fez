@@ -218,6 +218,28 @@ function hasOnlyOneChecked(f, field_name)
     }
 }
 
+//This functions goes back through previous entries and looks to ensure this entry is unique.
+//It needs xsdmf_multiple and xsdmf_multiple_limit to be set.
+function isUnique(s)
+{
+    //assume the name is of the form ie xsd_display_fields_6351_numberofitem
+    var regexp = /.*_/;
+    field_name = s.match(regexp);
+    if (document.getElementById(s) != null) {
+        field_value = document.getElementById(s).value;
+    }
+    var regexp = /[0-9]*$/;
+    field_number = s.match(regexp);
+    for (var i=0;i<field_number;i++)
+    {
+        prev_field = field_name+i;
+        if ((document.getElementById(prev_field) != null) && (document.getElementById(prev_field).value == field_value) ) {
+            return false;
+        }
+    }
+    return true;
+}
+
 function isNumeric(sText)
 {
    var ValidChars = "0123456789.";
@@ -405,7 +427,11 @@ function xsdmfValidate(field, value, vtype, title, name) {
 		if (!isWhitespace(value) && !isURL(value)) {
             errors[errors.length] = new Option(title+' (needs to be in URL format eg http://www.example.com, are you missing the http:// ?)', name);
 		}
-	}
+	} else if (vtype == 'unique') {
+        if (value != '' && value != 0 && !isUnique(name)) {
+            errors[errors.length] = new Option(title+'s (needs to be unique)', name);
+        }
+    }
 }
 
 function xsdmfValidateLength(field, value, maxLength, title, name) {
