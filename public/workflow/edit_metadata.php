@@ -59,7 +59,7 @@ if ( $_SERVER["SERVER_PORT"] == 443)  {
 }
 
 Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']."?".$_SERVER['QUERY_STRING']);
-$isAdministrator = Auth::isAdministrator();  
+$isAdministrator = Auth::isAdministrator();
 
 $wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
 if (empty($wfstatus)) {
@@ -128,6 +128,7 @@ if ($isAdministrator) {
 
 // Determine if we are in a HERDC group.
 $username = Auth::getUsername();
+$isSuperAdministrator = User::isUserSuperAdministrator($username);
 Auth::GetUsersInternalGroups(Auth::getUserID());
 foreach ($_SESSION[APP_INTERNAL_GROUPS_SESSION] as $groupID) {
     $groupID = Group::getName($groupID);
@@ -149,7 +150,7 @@ if (isset($_POST['editedFileDescriptions']) && is_array($_POST['editedFileDescri
 		Record::updateDatastreamLabel($descriptionDetails['pid'], $descriptionDetails['filename'], $descriptionDetails['newLabel']);
 	}
 }
-$record = new RecordObject($pid);
+
 // if the file names have changed, record this
 // this has to be done after the descriptions, otherwise, the datastream names will have changed and the description won't know which one to apply to
 if (isset($_POST['editedFilenames']) && is_array($_POST['editedFilenames'])) {
@@ -179,7 +180,7 @@ if (!empty($collection_pid)) {
 if (!empty($community_pid)) {
 	$extra_redirect.="&community_pid=".$pid;
 }
-
+$record = new RecordObject($pid);
 
 if ($record->getLock(RecordLock::CONTEXT_WORKFLOW, $wfstatus->id) != 1) {
     // Someone else is editing this record.
@@ -199,6 +200,7 @@ $xdis_title = XSD_Display::getTitle($xdis_id);
 $tpl->assign("xdis_title", $xdis_title);
 $tpl->assign("extra_title", "Edit ".$xdis_title);
 $tpl->assign("internal_notes", InternalNotes::readNote($pid));
+$tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 
 $access_ok = $record->canEdit();
 if ($access_ok) {
