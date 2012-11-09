@@ -345,6 +345,7 @@ class Lister
 
                 $tpl->displayTemplate();
                 ob_flush();
+                flush();
 
 
                 $tpl->assign("xdis_id", Record::getSearchKeyIndexValue($collection_pid, "Display Type"));
@@ -400,6 +401,7 @@ class Lister
           $tpl->assign("list_heading_citation", "List of Collections in ".$citation);
           $tpl->displayTemplate();
           ob_flush();
+          flush();
 
           $log->debug('List collections in a community');
 
@@ -456,6 +458,7 @@ class Lister
           $tpl->assign("list_heading", "Starred Records");
           $tpl->displayTemplate();
           ob_flush();
+          flush();
 
           Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']."?".$_SERVER['QUERY_STRING']);
             $filter = array();
@@ -495,6 +498,7 @@ class Lister
           $tpl->assign("list_heading", "Browse By Latest Additions");
           $tpl->displayTemplate();
           ob_flush();
+          flush();
 
           $log->debug('Latest');
 
@@ -529,6 +533,7 @@ class Lister
           $tpl->assign("list_heading", "List of Records");
           $tpl->displayTemplate();
           ob_flush();
+          flush();
 
           $log->debug('Browse by year');
             // browse by year
@@ -663,12 +668,14 @@ class Lister
             $tpl->assign("alphabet_list", Misc::generateAlphabetArray());
             $tpl->displayTemplate();
             ob_flush();
+            flush();
 
 
         } elseif ($browse == "depositor") {
           $tpl->assign("list_heading", "Browse By Depositor");
           $tpl->displayTemplate();
           ob_flush();
+          flush();
 
           $log->debug('Browse by depositor');
             // browse by depositor
@@ -710,6 +717,7 @@ class Lister
       $tpl->assign("list_heading", "Publications by ".htmlspecialchars($authorDetails["aut_display_name"]));
       $tpl->displayTemplate();
       ob_flush();
+      flush();
 
           $log->debug('Browse MyPubs');
 
@@ -888,6 +896,7 @@ class Lister
 
           $tpl->displayTemplate();
           ob_flush();
+          flush();
         	$log->debug('Browse by subject');
             // browse by subject
             $parent_id = Lister::getValue($params,'parent_id');
@@ -938,8 +947,15 @@ class Lister
             $tpl->assign("browse_type", "browse_subject");
 
         } elseif ($cat == "quick_filter") { // Advanced Search
-			$log->debug('Advanced search');
-        	include_once(APP_INC_PATH . "class.spell.php");
+    			$log->debug('Advanced search');
+          $searchKey_join = Record::buildSearchKeyFilterSolr($options, $sort_by, $operator, false);
+          $terms = rtrim($searchKey_join[SK_SEARCH_TXT], ', ');
+          $tpl->assign("list_heading", "Search Results ($terms)");
+          $tpl->displayTemplate();
+          ob_flush();
+          flush();
+
+          include_once(APP_INC_PATH . "class.spell.php");
         	include_once(APP_INC_PATH . "class.language.php");
 
         	if (empty($sort_by)) {
@@ -993,10 +1009,7 @@ class Lister
         	$facets = @$list['facets'];
         	$snips = @$list['snips'];
         	$list = @$list["list"];
-          $tpl->assign("list_heading", "Search Results ($terms)");
 
-          $tpl->displayTemplate();
-          ob_flush();
 
           // KJ@ETH
         	$tpl->assign("major_function", "search");
@@ -1012,6 +1025,7 @@ class Lister
             $tpl->assign("list_heading", "List of Communities");
             $tpl->displayTemplate();
             ob_flush();
+            flush();
 
             $log->debug('Communities');
             $xdis_id = Community::getCommunityXDIS_ID();
