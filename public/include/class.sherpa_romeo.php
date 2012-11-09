@@ -190,7 +190,7 @@ class SherpaRomeo
                 INNER JOIN " . APP_TABLE_PREFIX . "sherpa_romeo ON srm_issn = jni_issn
 			    WHERE mtj_pid = ". $db->quote($pid)." ORDER BY jni_issn_order"; */
         $stmt = "SELECT colour, issn FROM (
-                    SELECT srm_colour AS colour, jni_issn AS issn FROM fez_record_search_key AS t2
+                    SELECT srm_colour AS colour, jni_issn AS issn FROM ". APP_TABLE_PREFIX ."record_search_key AS t2
                     INNER JOIN " . APP_TABLE_PREFIX . "matched_journals ON rek_pid = mtj_pid
                     INNER JOIN " . APP_TABLE_PREFIX . "journal_issns ON mtj_jnl_id = jni_jnl_id
                     INNER JOIN " . APP_TABLE_PREFIX . "sherpa_romeo ON srm_issn = jni_issn
@@ -223,9 +223,9 @@ class SherpaRomeo
         $db = DB_API::get();
         $regexp = '/[0-9]{4}-[0-9]{3}[0-9X]/';
         if ($reloadAll) {
-            $stmt = "SELECT DISTINCT rek_issn FROM " . APP_TABLE_PREFIX . "record_search_key_issn";
+            $stmt = "SELECT DISTINCT issn FROM (SELECT rek_issn AS issn FROM " . APP_TABLE_PREFIX . "record_search_key_issn UNION SELECT jni_issn FROM " . APP_TABLE_PREFIX . "journal_issns) AS T3";
         } else {
-            $stmt = "SELECT DISTINCT rek_issn FROM " . APP_TABLE_PREFIX . "record_search_key_issn
+            $stmt = "SELECT DISTINCT rek_issn AS issn FROM " . APP_TABLE_PREFIX . "record_search_key_issn
             LEFT JOIN " . APP_TABLE_PREFIX . "journal_issns
             ON rek_issn = jni_issn WHERE jni_issn IS NULL";
         }
@@ -239,9 +239,9 @@ class SherpaRomeo
         $sr = new SherpaRomeo();
 
         foreach ($res as $journal) {
-            preg_match_all($regexp, $journal['rek_issn'], $matches);
+            preg_match_all($regexp, $journal['issn'], $matches);
             foreach ($matches[0] as $match) {
-                if ($sr::loadXMLData($match)) {
+                if ($sr::loadXMLData($match) && !$reloadAll) {
                     continue;
                 }
                 $xml = $sr::getXMLFromSherpaRomeo($match,'issn');
@@ -249,4 +249,21 @@ class SherpaRomeo
             }
         }
     }
+
+    /* This function will save the days until embargo lifted to the Sherpa Romeo table
+     */
+    function saveEmbargoDetails($issn, $days) {
+        $log = FezLog::get();
+        $db = DB_API::get();
+        $stmt = "UPDATE " . APP_TABLE_PREFIX . "sherpa_romeo SET srm_days_embargoed = ". $db->quote($days)." where srm_issn = ". $db->quote($issn);
+        try {
+            $db->exec($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+        return true;
+    }
+
 }
