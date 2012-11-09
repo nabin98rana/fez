@@ -1,4 +1,4 @@
-@javascript
+@javascript @smoke
 Feature: Test pages for javascript errors
 #We have added Javascript tests to all pages tested so for now we just have to visit pages that do not have tests on them already
 
@@ -37,10 +37,25 @@ Feature: Test pages for javascript errors
     Given I am on "/list/?search_keys%5B0%5D=water&submit=&cat=quick_filter&sort_by=searchKey0"
     Given I am on "/login.php"
     Given I am on "news.php"
+    Given I am on "/favourites"
+    Given I am on "/search_favourites.php"
     Given I go to the test collection list page
     Given I go to the test journal article view page
-
+    Given I am on "/my_research_claimed.php"
+    Given I am on "/my_research_possible.php"
+    Given I am on "/my_research_add.php"
+    Given I am on "/my_upo_tools.php"
     #Admin independent
+    Given I am on "/my_processes.php"
+    Given I am on "/my_collections.php"
+    #@bug
+    #Given I am on "/my_created_items.php"
+    Given I am on "/my_fez_traditional.php"
+    Given I am on "/my_work_in_progress.php"
+    Given I am on "/submitted_for_approval.php"
+    Given I am on "/in_review.php"
+    Given I am on "/my_active_workflows.php"
+    Given I am on "/manage/"
     Given I am on "/manage/news.php"
     Given I am on "/manage/groups.php"
     Given I am on "/manage/users.php"
@@ -76,7 +91,24 @@ Feature: Test pages for javascript errors
     Given I am on "/manage/thomson_doctype_mappings.php"
     Given I am on "/manage/configuration.php"
     Given I am on "/manage/ad_hoc.php"
+    Given I am on "/manage/ad_hoc_workflow.php"
     Given I am on "/manage/io_workflows.php"
     Given I am on "/manage/io_xsds.php"
     Given I am on "/manage/run_webstats.php"
     Given I am on "/manage/upgrade.php"
+
+  #Mostly espace specific.
+    Given I am on "/manage/xsd_source_edit.php?cat=edit&xsd_id=28"
+    Given I am on "/uqabro13"
+  #These frames don't use dojo so we turn off waiting checks
+    Given I turn off waiting checks
+    Given I am on "/manage/top.php"
+    Then I check there are no Javascript errors
+    Given I am on "/manage/xsd_tree_start.php"
+    Then I check there are no Javascript errors
+    Given I am on "/manage/xsd_tree_start.php"
+    Then I check there are no Javascript errors
+    Given I am on "/manage/xsd_tree.php?xdis_id=178"
+    Then I check there are no Javascript errors
+    Given I am on "/manage/xsd_tree_match.php?xdis_id=178"
+    Then I check there are no Javascript errors
