@@ -128,8 +128,9 @@ if (!empty($pid) && $record->checkExists()) {
 	}
   $tpl->setTemplate('header.tpl.html');
   $tpl->displayTemplate();
-  flush();
   ob_flush();
+  flush();
+
   $tpl->setTemplate("view.tpl.html");
 
   $tpl->assign("pid", $pid);

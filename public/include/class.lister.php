@@ -328,6 +328,7 @@ class Lister
           $tpl->assign("list_heading_citation", "List of Records in ".$citation);
           $tpl->displayTemplate();
           ob_flush();
+          flush();
         	$log->debug('List a collection');
 
             // list a collection

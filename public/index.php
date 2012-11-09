@@ -157,8 +157,8 @@ if ($aliasResult == false) {
     $tpl->assign("active_nav", "home");
     $tpl->assign("extra_title", "Home");
     $tpl->displayTemplate();
-    flush();
     ob_flush();
+    flush();
     //$tpl->setTemplate("maintenance.tpl.html");
 
     $front_page = "";
