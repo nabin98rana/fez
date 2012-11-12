@@ -463,8 +463,10 @@ class Citation
 			// special case hack for editors name fix
 		} elseif ($xsdmf['sek_title'] == "Author" || strpos($xsdmf['xsdmf_title'], 'Editor') !== false) {
 			$value = Citation::formatAuthor($value, $type);
-		}
-    $value = htmlspecialchars($value);
+		} else {
+      $value = htmlspecialchars($value);
+    }
+
 		if (count($details) > 0) {
 			if (is_numeric($yy)) {
 				if ($xsdmf['sek_title'] == "Author") {
