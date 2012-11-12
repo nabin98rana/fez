@@ -341,16 +341,21 @@ class WokQueue extends Queue
               if (!in_array(RID_DL_COLLECTION, $isMemberOf) && !in_array($wos_collection, $isMemberOf)) {
                   //check the title is close before updating
                   $title = Record::getSearchKeyIndexValue($existing_uts[$rec->ut], "Title", false);
+                  $startPage = Record::getSearchKeyIndexValue($existing_uts[$rec->ut], "Start Page", false);
+                  $endPage = Record::getSearchKeyIndexValue($existing_uts[$rec->ut], "End Page", false);
+
                   $stripA = RCL::normaliseTitle($title);
                   $stripB = RCL::normaliseTitle($rec->itemTitle);
+                  $startPageWOS = $rec->bibPageBegin;
+                  $endPageWOS = $rec->bibPageEnd;
 
                   similar_text($stripA, $stripB, $percent);
-                  if ($percent < SIMILARITY_THRESHOLD) {
+                  if ($percent < SIMILARITY_THRESHOLD && (empty($startPage[0]) || empty($endPage[0]) || ($startPage[0] != $startPageWOS) ||  ($endPageWOS != $endPage[0])) ){
                       $updateOK = false;
                   } else {
                       // This record was found outside the wos and rid collections, so don't put it into them - it's good where it is now
                       $rec->collections = array();
-                      $this->_bgp->setStatus('FOUND matching UT outside RID/WoS collections matching titles match at 80% or better so RUNNING updating existing PID: '.$existing_uts[$rec->ut]." for UT: ".
+                      $this->_bgp->setStatus('FOUND matching UT outside RID/WoS collections matching titles match at 80% or better OR on start and end pages match so RUNNING updating existing PID: '.$existing_uts[$rec->ut]." for UT: ".
                          $rec->ut." Title match was: (Ours: \n".$stripA." - Theirs: \n".$stripB.")\nOriginal Ours: \n". $title." \nOriginal Theirs: \n".$stripB);
                   }
               }
@@ -389,9 +394,9 @@ class WokQueue extends Queue
 
                       //I'm leaving this as a error for now. Possibly should be logged in a different place
                       $log->err('Skipped updating existing PID: '.$existing_uts[$rec->ut]." for UT: ".
-                          $rec->ut." because title didn't match well enough: Ours: ".$stripA." Theirs: ".$stripB." ST:".$percent."\n");
+                          $rec->ut." because title didn't match well enough and start/end pages different: Ours: ".$stripA." Theirs: ".$stripB." ST:".$percent."\n");
                     $this->_bgp->setStatus('Skipped updating existing PID: '.$existing_uts[$rec->ut]." for UT: ".
-                       $rec->ut." because title didn't match well enough: (Ours: \n".$stripA."\nTheirs: \n".$stripB.")");
+                       $rec->ut." because title didn't match well enough and start/end pages different: (Ours: \n".$stripA."\nTheirs: \n".$stripB.")");
                   }
                }
 
@@ -434,7 +439,7 @@ class WokQueue extends Queue
                 $record->addSearchKeyValueList($search_keys, $values, true, " was added due to RID author ID matching");
                 $autDetails = Author::getDetails($author_id);
                 $subject = "ResearcherID Completed HERDC author change :: ".$pid." :: ".$autDetails['aut_org_username'];
-                $body = "Automatically assigned this pid ".$pid." to followup flag - followup because it is in the HERDC TRIAL COLLECTION ".APP_HERDC_TRIAL_COLLECTION." for successful author match for RID download of author ".
+                $body = "Automatically assigned this pid ".$pid." to followup flag - followup because it is in the HERDC PRE-AUDIT COLLECTION ".APP_HERDC_TRIAL_COLLECTION." for successful author match for RID download of author ".
                     $autDetails['aut_display_name']." with username ".$autDetails['aut_org_username'];
                 $userEmail = "";
                 Eventum::lodgeJob($subject, $body, APP_EMAIL_SYSTEM_FROM_ADDRESS);
