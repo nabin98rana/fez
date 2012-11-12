@@ -134,7 +134,7 @@
                             <h4>XML Response: </h4>
                             <div class="rowDetailsNote">The content retrieved from the Response URL. </div>
                             {if $list[i].rpu_response}
-                                <textarea cols="100%" rows="25">{$list[i].rpu_response}</textarea>
+                                <textarea cols="100%" rows="25">{$list[i].rpu_response|smarty:nodefaults}</textarea>
                             {else}
                                 There is no response found.
                             {/if}
@@ -143,7 +143,7 @@
                             <h4>cURL Info: </h4>
                             <div class="rowDetailsNote">Info of the cURL transfer used when retrieving the XML Response. </div>
                             {if $list[i].rpu_response_info}
-                                <textarea cols="100%" rows="25">{$list[i].rpu_response_info}</textarea>
+                                <textarea cols="100%" rows="25">{$list[i].rpu_response_info|smarty:nodefaults}</textarea>
                             {else}
                                 There is no cURL info found.
                             {/if}
