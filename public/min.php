@@ -3,7 +3,7 @@
 include_once("config.inc.php");
 
 // Prepends include_path. You could alternately do this via .htaccess or php.ini
-set_include_path( 
+set_include_path(
     APP_PATH . 'min/lib'
     . PATH_SEPARATOR . get_include_path()
 );
@@ -55,8 +55,11 @@ $pathfixup = substr( str_replace($_SERVER["DOCUMENT_ROOT"], '', APP_PATH), 1); /
 $min_serveOptions['groups'] = array(
         $file =>  array($_SERVER["DOCUMENT_ROOT"] . $_SERVER["REQUEST_URI"]), //GC
         $pathfixup . 'js/editmeta.js'   =>  array(APP_PATH . 'js/editmetadata.js'),
-        $pathfixup . 'js/common.js'     =>  array(APP_PATH . 'js/browserSniffer.js', APP_PATH .'js/global.js', APP_PATH .'js/validation.js'),
+        $pathfixup . 'js/common.js'     =>  array(APP_PATH . 'js/browserSniffer.js', APP_PATH .'js/global.js', APP_PATH .'js/validation.js',APP_PATH .'js/dojo/dojo.js'),
         $pathfixup . 'js/tabs.js'       =>  array(APP_PATH . 'js/tabcontent.js', APP_PATH .'js/ajaxtabs.js'),
+        $pathfixup . 'js/autosuggestgroup.js'       =>  array(APP_PATH . 'js/suggestions.js', APP_PATH .'js/autosuggest.js', APP_PATH .'js/autocomplete.js'),
+        $pathfixup . 'js/yuisuggestgroup.js'       =>  array(APP_PATH . 'js/yahoo/utilities.js', APP_PATH .'js/yahoo/autocomplete.js'),
+        $pathfixup . 'js/swfgroup.js'       =>  array(APP_PATH . 'js/flash_detection.js', APP_PATH .'js/swfupload/swfupload.js', APP_PATH .'js/swfupload/swfupload.queue.js', APP_PATH .'js/swfuploader.js'),
 	    $pathfixup . 'js/shib.js'       =>  $shib_source,
         );
 $min_serveOptions['maxAge'] = $max_age;

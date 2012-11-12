@@ -17,7 +17,7 @@
 <link rel="Bookmark" href="{$rel_url}favicon.ico" />
 <link rel="search" type="application/opensearchdescription+xml" href="{$app_base_url}opensearch.xml.php" title="Search {$application_title}" />
 {if $offline == "true"}<link rel="stylesheet" href="{$rel_url}templates/en/css/maintenance.css" type="text/css" />{else}<link rel="stylesheet" href="{$rel_url}css/dynamic_css.php" type="text/css" />{/if}
-<script type="text/javascript" src="{$rel_url}js/dojo/dojo.js"></script>
+<script type="text/javascript" src="{$rel_url}js/common.js"></script>
 {if $setup}
 <link rel="stylesheet" href="../css/setup.css" type="text/css" />
 {/if}
@@ -39,16 +39,12 @@ dojo.require("dojo.rpc.JsonService");
 //-->
 </script>
 {/if}
-<script type="text/javascript" src="{$rel_url}js/common.js"></script>
 {if $autosuggest == 1}
-<script type="text/javascript" src="{$rel_url}js/suggestions.js"></script>
-<script type="text/javascript" src="{$rel_url}js/autosuggest.js"></script>
-<script type="text/javascript" src="{$rel_url}js/autocomplete.js"></script>
+<script type="text/javascript" src="{$rel_url}js/autosuggestgroup.js"></script>
 {/if}
 <link rel="stylesheet" href="{$rel_url}css/autocomplete.css" type="text/css" />
 {if $yui_autosuggest == 1}
-<script type="text/javascript" src="{$rel_url}js/yahoo/utilities.js"></script>
-<script type="text/javascript" src="{$rel_url}js/yahoo/autocomplete.js"></script>
+<script type="text/javascript" src="{$rel_url}js/yuiautosuggestgroup.js"></script>
 {/if}
 {if $include_stats_map == 1 && APP_USE_GOOGLE_MAP_SWITCH == 'ON'}
 <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key={$maps_api_key}&amp;sensor=false" type="text/javascript"></script>
@@ -61,10 +57,7 @@ dojo.require("dojo.rpc.JsonService");
 {/if}
 {* Check if we're including the flash uploader and that the admins want to use this uploader *}
 {if $header_include_flash_uploader_files == 1 && $smarty.const.APP_ENABLE_FLASH_UPLOADER_SWITCH == 'ON'}
-<script type="text/javascript" src="{$rel_url}js/flash_detection.js"></script>
-<script type="text/javascript" src="{$rel_url}js/swfupload/swfupload.js"></script>
-<script type="text/javascript" src="{$rel_url}js/swfupload/swfupload.queue.js"></script>
-<script type="text/javascript" src="{$rel_url}js/swfuploader.js"></script>
+<script type="text/javascript" src="{$rel_url}js/swfgroup.js"></script>
 <link type="text/css" href="{$rel_url}css/flash_uploader.css" rel="stylesheet" media="all" />
 {/if}
 {if ($template_mode == 10)}
