@@ -112,7 +112,7 @@ class Default_Data
 
 		}   // Can add some other defaults here for other common OS setups
 
-		$defaultData['datamodel_version']                   = "2008102701";                 // Change this to last upgrade + 1
+		$defaultData['datamodel_version']                   = "2012100500";                 // Change this to last upgrade + 1
 		$defaultData['shib_switch']                         = "OFF";
 		$defaultData['shib_direct_login']                   = "OFF";
 		$defaultData['shib_federation_name']                = "Australian Access Federation";
@@ -139,7 +139,7 @@ class Default_Data
 		$defaultData['app_cell_color']                      = "E5E5E5";
 		$defaultData['app_value_color']                     = "F6F6F6";
 		$defaultData['app_adv_color_light']                 = "FFF0F0";
-		$defaultData['app_adv_color_dark']                  = "FFC1BF";		
+		$defaultData['app_adv_color_dark']                  = "FFC1BF";
 		$defaultData['app_light_color']                     = "F6F6F6";
 		$defaultData['app_selected_color']                  = "FDFFD9";
 		$defaultData['app_middle_color']                    = "E5E5E5";
@@ -173,7 +173,7 @@ class Default_Data
 		$defaultData['app_admin_email']                     = "admin@yourdomain.com";
 		$defaultData['app_org_name']                        = "University of Fez";
 		$defaultData['app_short_org_name']                  = "UF";
-		$defaultData['app_org_address_postal']              = "";   // Empty default		
+		$defaultData['app_org_address_postal']              = "";   // Empty default
 		$defaultData['app_pid_namespace']                   = "";   // Empty default
 		$defaultData['app_url']                             = "http://yourdomain.com/fez-location/";
 		//$defaultData['app_relative_url']                    = "";                         // From setup form.
@@ -204,7 +204,7 @@ class Default_Data
 		$defaultData['app_cookie']                          = "fez";
 		$defaultData['app_https_curl_check_cert']           = "OFF";
 		$defaultData['batch_import_type']                   = "MODS 1.0";
-		$defaultData['app_network_interfaces']              = "\"eth0\"";  
+		$defaultData['app_network_interfaces']              = "\"eth0\"";
 		$defaultData['app_link_prefix']                     = "";   // Empty default
 		$defaultData['app_cloud_tag']                       = "ON";
 		$defaultData['app_fedora_apia_direct']              = "OFF";
@@ -246,10 +246,10 @@ class Default_Data
 		$defaultData['app_mysql_innodb_flag']        		= "OFF";
 		$defaultData['app_xpath_switch']    	    		= "OFF";
 		$defaultData['app_xsdmf_index_switch']	    		= "OFF";
-		$defaultData['app_enable_flash_uploader_switch']	= "ON";		
+		$defaultData['app_enable_flash_uploader_switch']	= "ON";
 		$defaultData['app_logging_enabled']                 = "false";
 		$defaultData['app_log_level']                       = "3";
-		$defaultData['rid_enabled']                         = "false";		
+		$defaultData['rid_enabled']                         = "false";
 		$defaultData['rid_dl_service_username']             = "your_username_here";
 		$defaultData['rid_dl_service_password']             = "your_password_here";
 		$defaultData['rid_dl_service_url']                  = "http://rid-dl-request.isiknowledge.com/esti/xrpc";
@@ -261,11 +261,11 @@ class Default_Data
 		$defaultData['rid_ul_service_profiles_xsd']         = "/path/to/Researcher-Bulk-Profiles-schema.xsd";
 		$defaultData['rid_ul_service_publications_xsd']     = "/path/to/Researcher-Bulk-Publications-schema.xsd";
 		$defaultData['rid_ul_service_routed_email_path']    = "/path/to/upload/emails";
-		$defaultData['rid_ul_service_email_append_note']    = "";				
+		$defaultData['rid_ul_service_email_append_note']    = "";
 		$defaultData['app_google_map_key']					= "";
 		$defaultData['app_use_google_map_switch']			= "OFF";
 		$defaultData['app_use_google_citation_counts']		= "OFF";
-		$defaultData['app_use_article_title_search']		= "OFF";		
+		$defaultData['app_use_article_title_search']		= "OFF";
 		$defaultData['app_article_add_to_collection']		= "";
 		$defaultData['app_article_search_wos_address']		= "";
 		$defaultData['app_template_compile_path']			= "";
@@ -307,7 +307,7 @@ class Default_Data
 		//$defaultData['app_portfolios_collection']           = "";
 		$defaultData['app_link_resolver_base_url']          = "";
 		$defaultData['app_link_resolver_button_url']        = "";
-		$defaultData['app_link_resolver_referrer_id']       = "";		
+		$defaultData['app_link_resolver_referrer_id']       = "";
 		$defaultData['app_input_filters']					= 'Fez_Filter_Alnum, '.
 			    									'Fez_Filter_Basicstring, '.
 			    									'Fez_Filter_Datearray, '.
