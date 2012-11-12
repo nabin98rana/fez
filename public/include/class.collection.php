@@ -482,7 +482,6 @@ class Collection
              LIMIT ".$db->quote($max, 'INTEGER')." OFFSET ".$db->quote($start, 'INTEGER');
 
     try {
-        echo $stmt;
       $res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
       $total_rows = $db->fetchOne($countStmt);
        

@@ -37,6 +37,9 @@ include_once(APP_INC_PATH . "class.template.php");
 
 $tpl = new Template_API();
 
+header('HTTP/1.1 503 Service Temporarily Unavailable');
+//To set a time uncomment
+//header('Retry-After: Sat, 8 Oct 2011 18:27:00 GMT');
 $tpl->setTemplate("maintenance.tpl.html");
 
 
