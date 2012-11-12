@@ -1079,13 +1079,8 @@ class RecordGeneral
     {
         $log = FezLog::get();
 
-        $newXML = "";
-
-        // Get the value of ISI_LOC search key for this PID
         $ut = Record::getIsiLocFromIndex($this->pid);
-        if (is_array($ut)) {
-            $ut = $ut[0];
-        }
+
         if (empty($ut)) {
             $log->err("There is no ISI Loc stored for PID:" . $this->pid .".");
             return false;

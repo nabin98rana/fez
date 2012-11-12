@@ -1227,29 +1227,6 @@ class DuplicatesReport {
 		$end_page1 = Record::getSearchKeyIndexValue($record1->pid, "End Page", false);
 		$end_page2 = Record::getSearchKeyIndexValue($record2->pid, "End Page", false);
 		
-		if (is_array($start_page1) && count($start_page1) > 0) {
-			$start_page1 = $start_page1[0];
-		} else {
-			$start_page1 = false;
-		}
-
-		if (is_array($start_page2) && count($start_page2) > 0) {
-			$start_page2 = $start_page2[0];
-		} else {
-			$start_page2 = false;
-		}
-
-		if (is_array($end_page1) && count($end_page1) > 0) {
-			$end_page1 = $end_page1[0];
-		} else {
-			$end_page1 = false;
-		}
-
-		if (is_array($end_page2) && count($end_page2) > 0) {
-			$end_page2 = $end_page2[0];
-		} else {
-			$end_page2 = false;
-		}
 		
 		//If the stand and end pages match exactly put this in the dedupe report
 		if ($start_page1 == $start_page2 && $end_page1 == $end_page2 && is_numeric($start_page1) && is_numeric($end_page1)) {
@@ -1271,17 +1248,6 @@ class DuplicatesReport {
 	
 			$isbn1 = Record::getSearchKeyIndexValue($record1->pid, "ISBN", false);
 			$isbn2 = Record::getSearchKeyIndexValue($record2->pid, "ISBN", false);
-
-			if (is_array($isbn1) && count($isbn1) > 0) {
-				$isbn1 = $isbn1[0];
-			} else {
-				$isbn1 = false;
-			}
-			if (is_array($isbn2) && count($isbn2) > 0) {
-				$isbn2 = $isbn2[0];
-			} else {
-				$isbn2 = false;
-			}
 
 			if (trim($isbn1) == trim($isbn2) && strlen(trim($isbn1)) > 0) {
 				return 1;
