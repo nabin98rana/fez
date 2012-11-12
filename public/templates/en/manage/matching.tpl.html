@@ -11,7 +11,7 @@ function blacklistConfirm()
 	if (confirm("Blacklisting this match will destroy the current mapping, and exclude this record from future automatic mapping. Proceed?")) {
 		document.forms['mappings'].submit();
 	}
-	
+
 	return false;
 }
 
@@ -20,7 +20,7 @@ function blacklistConfirmNew()
 	if (confirm("Blacklisting will exclude this record from future automatic mapping. Proceed?")) {
 		document.forms['mappings'].submit();
 	}
-	
+
 	return false;
 }
 
@@ -100,7 +100,7 @@ function deleteMapping()
 
 var page_url = '{/literal}{$smarty.server.PHP_SELF}{literal}';
 var current_page = {/literal}{if $list_info.current_page != ""}{$list_info.current_page}{else}0{/if}{literal};
-var last_page = {/literal}{if $list_info.last_page != ""}{$list_info.last_page}{else}0{/if}{literal};			  
+var last_page = {/literal}{if $list_info.last_page != ""}{$list_info.last_page}{else}0{/if}{literal};
 
 function resizePager(f)
 {
@@ -140,17 +140,17 @@ function setPage(new_page)
 <div class="admin-box">
 
 	{if $show == "edit-screen"}
-	
+
 		<h1>Edit {if $match_type == 'C'}Conference{elseif $match_type == 'J'}Journal{/if} Mapping for {$pid}</h1>
-		
+
 		<div id="research-solo-citation">
-			{$citation}
+			{$citation|smarty:nodefaults}}
 			<div style="display: block; font-size: 80%; padding-top: 15px;">[ <a href="{$rel_url}view/{$pid}" onclick="javascript:window.open('{$rel_url}view/{$pid}'); return false;">View the full record</a> ]</div>
 		</div>
-		
+
 		<form method="post" action="{$smarty.server.PHP_SELF}?type={$match_type}&amp;action=save" id="mappings">
 			<div>
-				
+
 				{if $mapping.status == 'A'}
 					<p>This record is <b>auto-mapped</b> by the Journal Matching script. To override, select Manual below, and set a new value from the drop-down list.</p>
 				{elseif $mapping.status == 'M'}
@@ -158,7 +158,7 @@ function setPage(new_page)
 				{elseif $mapping.status == 'B'}
 					<p>This record is <b>black-listed</b>. It will be excluded from automatic matching.</p>
 				{/if}
-				
+
                 <table>
                     <tr>
                       <td align="left" width="5%">
@@ -189,39 +189,39 @@ function setPage(new_page)
                     </tr>
                 </table>
 				<br /><br />
-				
+
 				<input type="radio" name="status" value="A" {if $mapping.status == 'A'}checked="checked"{/if} id="status_auto" onclick="javascript:autoConfirm();" /> Auto<br />
 				<input type="radio" name="status" value="M" {if $mapping.status == 'M'}checked="checked"{/if} id="status_manual" /> Manual<br />
 				<input type="radio" name="status" value="B" {if $mapping.status == 'B'}checked="checked"{/if} id="status_blacklist" onclick="javascript:blacklistConfirm();" /> Blacklist<br />
-				
+
 				<br />
-				
+
 				<input type="hidden" name="pid" value="{$pid}" />
 				<input type="hidden" name="type" value="{$match_type}" />
 				<input type="button" value="Save" onclick="javascript:save();" />
 				{*<input type="button" value="Delete" onclick="javascript:deleteMapping();" />*}
 			</div>
 		</form>
-	
+
 	{elseif $show == "new-screen"}
-	
+
 		{if $message != ""}
-		
+
 			<h1>Error</h1>
 			<p>{$message}</p>
-			
+
 		{else}
-		
+
 			<h1>New {if $match_type == 'C'}Conference{elseif $match_type == 'J'}Journal{/if} Mapping</h1>
-		
+
 			<div id="research-solo-citation">
-				{$citation}
+				{$citation|smarty:nodefaults}}
 				<div style="display: block; font-size: 80%; padding-top: 15px;">[ <a href="{$rel_url}view/{$pid}" onclick="javascript:window.open('{$rel_url}view/{$pid}'); return false;">View the full record</a> ]</div>
 			</div>
-			
+
 			<form method="post" action="{$smarty.server.PHP_SELF}?type={$match_type}&amp;action=add" id="mappings">
 				<div>
-					
+
 					{if $mapping.status == 'A'}
 						<p>This record is <b>auto-mapped</b> by the Journal Matching script. To override, select Manual below, and set a new value from the drop-down list.</p>
 					{elseif $mapping.status == 'M'}
@@ -229,7 +229,7 @@ function setPage(new_page)
 					{elseif $mapping.status == 'B'}
 						<p>This record is <b>black-listed</b>. It will be excluded from automatic matching.</p>
 					{/if}
-					
+
                     <table>
                         <tr>
                           <td align="left" width="5%">
@@ -260,28 +260,28 @@ function setPage(new_page)
                     </table>
 
 					<br /><br />
-					
+
 					<h2>Type</h2>
-					
+
 					<input type="radio" name="status" value="M" checked="checked" id="status_manual" /> Manual<br />
 					<input type="radio" name="status" value="B" onclick="javascript:blacklistConfirmNew();"/> Blacklist<br />
-					
+
 					<br />
-					
+
 					<input type="hidden" name="pid" value="{$pid}" />
 					<input type="hidden" name="type" value="{$match_type}" />
 					<input type="button" value="Add" onclick="javascript:add();" />
 				</div>
 			</form>
-		
+
 		{/if}
-	
+
 	{else}
-		
+
 		<h1>Journal / Conference Matching</h1>
-		
+
 		<h2>Create New Mapping</h2>
-		
+
 		<form method="post" action="{$smarty.server.PHP_SELF}?action=new">
 			<div style="padding-left: 20px;">
 				<input type="radio" name="type" value="J" checked="checked" /> Journal &nbsp;
@@ -292,25 +292,25 @@ function setPage(new_page)
 				<input type="submit" value="Next" />
 			</div>
 		</form>
-		
+
 		<h2>Edit Existing Mappings</h2>
-		
-		<form id="jc_search_form" method="post" action="{$smarty.server.PHP_SELF}">              
+
+		<form id="jc_search_form" method="post" action="{$smarty.server.PHP_SELF}">
 
 			<div>
 				<input type="hidden" name="action" value="search" />
 			</div>
-		
+
 			{if $search_filter != ""}<span class="disabled">{/if}Search by PID: {if $search_filter != ""}</span>{/if}
 			<input type="text" name="search_filter" size="10" class="default" value="{$search_filter}" />
 			{include file="error_icon.tpl.html" field="search_filter"}
 			<input type="submit" value="Search" />
 			<br />
 
-		</form>   
-		
+		</form>
+
 		<form onsubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}">
-		
+
 		<table style="width: 100%" cellpadding="2" cellspacing="2">
 			<tr>
 				<td class="default cell-colour"><b>PID</b></td>
@@ -334,7 +334,7 @@ function setPage(new_page)
 						{if $matches[j].journal_match_status == 'M'}(Manual){/if}
 						{if $matches[j].journal_match_status == 'B'}(Blacklisted - not an active mapping){/if}
 					</td>
-					
+
 					<td>
 						<a href="{$smarty.server.PHP_SELF}?type=C&amp;action=edit&amp;pid={$matches[j].pid}" title="{$matches[j].conference_name}">{if $matches[j].conference_match_status == 'B'}N/A{else}{$matches[j].conference_era_id}{/if}</a>
 						&nbsp;
@@ -344,7 +344,7 @@ function setPage(new_page)
 					</td>
 				</tr>
 			{/section}
-		
+
         <tr style="background: {$cell_color}">
           <td colspan="15">
             <table style="width: 100%" cellspacing="0" cellpadding="0">
@@ -372,10 +372,10 @@ function setPage(new_page)
               </tr>
     			</table>
 		    </td>
-		  </tr>			
+		  </tr>
 
 		</table>
-		
+
 		</form>
 
 	{/if}
