@@ -1,0 +1,114 @@
+{*Use this instead of the endnote template if you perfer to use ris format*}
+{section name="i" loop=$list}
+{* Record {counter} of {$list|@count} *}
+{if $list[i].rek_display_type_lookup eq 'Journal Article'}
+TY  - JOUR
+{if ($list[i].rek_journal_name)}
+JF  - {$list[i].rek_journal_name}
+{/if}
+{elseif $list[i].rek_display_type_lookup eq 'Book'}
+TY  - BOOK
+{if $list[i].rek_alternative_title}
+J2  - {$list[i].rek_alternative_title}
+{/if}
+{if ($list[i].rek_series)}
+T2  - {$list[i].rek_series}
+{/if}
+{elseif $list[i].rek_display_type_lookup eq 'Book Chapter'}
+TY  - CHAP
+{if ($list[i].rek_book_title)}
+T2  - {$list[i].rek_book_title}
+{/if}
+{if ($list[i].rek_series)}
+T3  - {$list[i].rek_series}
+{/if}
+{elseif $list[i].rek_display_type_lookup eq 'Thesis'}
+TY  - THES
+{*{if ($list[i].rek_genre_type)}
+M3  - {$list[i].rek_genre_type}
+{/if}*}
+{if ($list[i].rek_org_unit_name)}
+T2  - {$list[i].rek_org_unit_name}
+{/if}
+{elseif $list[i].rek_display_type_lookup eq 'Conference Paper'}
+TY  - CPAPER
+{if ($list[i].rek_conference_name)}
+T2  - {$list[i].rek_conference_name}
+{/if}
+{if ($list[i].rek_conference_location)}
+CY  - {$list[i].rek_conference_location}
+{/if}
+{if ($list[i].rek_org_name)}
+PB  - {$list[i].rek_org_name}
+{/if}
+{elseif $list[i].rek_display_type_lookup eq 'Conference Proceedings'}
+TY  - CONF
+{if ($list[i].rek_title)}
+T2  - {$list[i].rek_title}
+{/if}
+{if ($list[i].rek_conference_location)}
+CY  - {$list[i].rek_conference_location}
+{/if}
+{/if}
+{if $list[i].rek_display_type_lookup eq 'Conference Proceedings' || $list[i].rek_display_type_lookup eq 'Conference Paper' || $list[i].rek_display_type_lookup eq 'Thesis'
+|| $list[i].rek_display_type_lookup eq 'Book Chapter' || $list[i].rek_display_type_lookup eq 'Book' || $list[i].rek_display_type_lookup eq 'Journal Article'}
+{foreach from=$list[i].rek_author item=author}
+AU  - {$author}
+{/foreach}
+{if ($list[i].rek_notes)}
+N1  - {$list[i].rek_notes}
+{/if}
+{if ($list[i].rek_language)}
+LA  - {$list[i].rek_language[0]}
+{/if}
+{if ($list[i].rek_date)}
+Y1  - {$list[i].rek_date|date_format:"%Y/%m/%d/"}
+{/if}
+{if ($list[i].rek_description)}
+AB  - {$list[i].rek_description}
+{/if}
+{if ($list[i].rek_doi)}
+DO  - {$list[i].rek_doi}
+{/if}
+DB  - {$app_name}
+UR  - {$smarty.const.APP_BASE_URL}view/{$list[i].rek_pid}
+{if ($list[i].rek_title)}
+TI  - {$list[i].rek_title}
+{/if}
+{if ($list[i].rek_pid)}
+AN  - {$list[i].rek_pid}
+{/if}
+{foreach from=$list[i].rek_keywords item=keyword}
+KW  - {$keyword}
+{/foreach}
+{if ($list[i].rek_volume_number)}
+VL  - {$list[i].rek_volume_number}
+{/if}
+{if ($list[i].rek_isbn)}
+SN  - {$list[i].rek_isbn}
+{/if}
+{if ($list[i].rek_edition)}
+ET  - {$list[i].rek_edition}
+{/if}
+{if ($list[i].rek_start_page)}
+SP  - {$list[i].rek_start_page}
+{/if}
+{if ($list[i].rek_end_page)}
+EP  - {$list[i].rek_end_page}
+{/if}
+{if ($list[i].rek_publisher)}
+PB  - {$list[i].rek_publisher}
+{/if}
+{if ($list[i].rek_place_of_publication)}
+CY  - {$list[i].rek_place_of_publication}
+{/if}
+{if ($list[i].rek_issue_number)}
+IS  - {$list[i].rek_issue_number}
+{/if}
+{foreach from=$list[i].rek_contributor item=editor}
+A2  - {$editor}
+{/foreach}
+ER  -
+
+{/if}
+{/section}
