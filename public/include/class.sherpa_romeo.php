@@ -245,7 +245,9 @@ class SherpaRomeo
                     continue;
                 }
                 $xml = $sr::getXMLFromSherpaRomeo($match,'issn');
-                $sr::saveXMLData($xml, $match);
+                if (!empty($xml)) {
+                    $sr::saveXMLData($xml, $match);
+                }
             }
         }
     }

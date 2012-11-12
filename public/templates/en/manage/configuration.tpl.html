@@ -121,6 +121,7 @@ function restoreDefaultColours(el)
 		  <a href="#" onclick="javascript:showSubPage('exiftool');">Exiftool Settings</a><br />
 		  <a href="#" onclick="javascript:showSubPage('handle');">Handle Settings</a><br />
 		  <a href="#" onclick="javascript:showSubPage('wok');">Web of Knowledge Settings</a><br />
+          <a href="#" onclick="javascript:showSubPage('sherpa');">SHERPA/RoMEO Settings</a><br />
 		</td>
 	    <td style="width: 200px; vertical-align: top;">
 		  <a href="#" onclick="javascript:showSubPage('webstats');">Web Statistics</a><br />
@@ -2270,7 +2271,36 @@ function restoreDefaultColours(el)
 		 </table>
 		</div>
 
-		<div id="submit" style="display: none;">
+        <div id="sherpa" style="display: none;">
+            <table width="100%" class="admin-edit">
+                <thead>
+                <tr>
+                    <th colspan="2">
+                        <h2>SHERPA/RoMEO</h2>
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <th>Web service base URL</th>
+                    <td>
+                        <input type="text" name="sherpa_romeo_url" value="{$config_settings.sherpa_romeo_url}" size="100" />
+                        <br />The URL for SHERPA/RoMEO API.
+                        {include file="error_icon.tpl.html" field="sherpa_romeo_url"}
+                    </td>
+                </tr>
+                <tr>
+                    <th>API key</th>
+                    <td>
+                        <input type="text" name="sherpa_romeo_api" value="{$config_settings.sherpa_romeo_api}" size="10" />
+                        {include file="error_icon.tpl.html" field="sherpa_romeo_api"}
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="submit" style="display: none;">
 		<br />&nbsp;&nbsp;&nbsp;<input type="submit" name="button" value="Save changes" class="submit" /> &nbsp; <input type="reset" value="Discard changes" /><br /><br />
 		</div>
 

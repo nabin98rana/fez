@@ -325,7 +325,8 @@ class Default_Data
 													'Zend_Filter_StringTrim,'.
 													'Zend_Filter_StripNewlines,'.
 													'Zend_Filter_StripTags,';
-		
+        $defaultData['sherpa_romeo_url']                = "";
+        $defaultData['sherpa_romeo_api']                = "";
 		return $defaultData;
 	}
 
