@@ -73,7 +73,6 @@ class ResearcherID
    */
   public static function isSafeToRun()
   {
-    $safe_to_run = false;
     $pid = ResearcherID::getProcessID();
     $pid_file = ResearcherID::getProcessFilename();
 
@@ -733,12 +732,10 @@ class ResearcherID
 
         switch($type) {
           case 'profile':
-//            $result = ResearcherID::processDownloadedProfiles($url);
             $profileXML = ResearcherID::processDownloadedProfiles($url);
             $profileLink = $url;
             break;
           case 'publication':
-//            $result = ResearcherID::processDownloadedPublications($url);
             $publicationsXML = ResearcherID::processDownloadedPublications($url);
             $publicationsLink = $url;
             break;
@@ -794,7 +791,6 @@ class ResearcherID
     $log = FezLog::get();
     $db = DB_API::get();
 
-    //$publications = file_get_contents($url);
     $urlData = Misc::processURL($url, false, null, null, null, 600);
     $publications = $urlData[0];
 
@@ -802,16 +798,6 @@ class ResearcherID
       $log->err("wasn't able to pull down RID url $url:".print_r($urlData, true));
       return false;
     }
-//    $config = array(
-//      'indent'        => true,
-//      'input-xml'     => true,
-//      'output-xml'    => true,
-//      'wrap'          => 0
-//    );
-//    $tidy = new tidy;
-//    $tidy->parseString($publications, $config, 'utf8');
-//    $tidy->cleanRepair();
-//    $publications = $tidy;
 
     $xml_publications = new SimpleXMLElement($publications);
 
@@ -837,7 +823,6 @@ class ResearcherID
         }
       } else {
         $aut_details = Author::getDetails($author_id);
-//        $message = "FOUND no records for this RID download for ".$aut_details['aut_display_name']." with author id $author_id with Researcher ID ".$aut_details['aut_display_name']." <br />\n".print_r($publications,true);
         $message = "FOUND no records for this RID download for ".$aut_details['aut_display_name']." with author id $author_id with Researcher ID ".$aut_details['aut_researcher_id']." <br />\n";
         $log->warn($message);
         echo $message;
@@ -1871,7 +1856,6 @@ class ResearcherID
     $log = FezLog::get();
     $db = DB_API::get();
 
-    $order_dir = 'ASC';
     $options = array();
     $max = 9999999;
     $current_row = 0;
@@ -1900,10 +1884,6 @@ class ResearcherID
       for ($i=0; $i<count($listing['list']); $i++) {
         $record = $listing['list'][$i];
 
-        // Get the ref-type based on this record's display type
-        /*if ( !empty($record['rek_display_type']) ) {
-          $record['rek_ref_type'] = ResearcherID::getDocTypeByDisplayType($record['rek_display_type']);
-        }*/
         // Journal articles
         if ($record['rek_display_type'] == 179) {
           $record['rek_ref_type'] = 17;
