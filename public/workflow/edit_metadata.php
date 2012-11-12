@@ -71,7 +71,7 @@ if (empty($wfstatus)) {
 //Generate a version
 if(APP_FEDORA_BYPASS == 'ON')
 {
-    Zend_Registry::set('version', date('Y-m-d H:i:s'));    
+    Zend_Registry::set('version', date('Y-m-d H:i:s'));
 }
 
 // if we have uploaded files using the flash uploader, then generate $_FILES array entries for them
@@ -119,11 +119,11 @@ if ($isAdministrator) {
 	if (APP_FEDORA_SETUP == 'sslall' || APP_FEDORA_SETUP == 'sslapim') {
 		$get_url = APP_FEDORA_APIM_PROTOCOL_TYPE.APP_FEDORA_SSL_LOCATION."/get"."/".$pid;
 	} else {
-		$get_url = APP_FEDORA_APIM_PROTOCOL_TYPE.APP_FEDORA_LOCATION."/get"."/".$pid;	
+		$get_url = APP_FEDORA_APIM_PROTOCOL_TYPE.APP_FEDORA_LOCATION."/get"."/".$pid;
 	}
-	$tpl->assign("fedora_get_view", $get_url);	
+	$tpl->assign("fedora_get_view", $get_url);
 } else {
-	$tpl->assign("fedora_get_view", 0);	
+	$tpl->assign("fedora_get_view", 0);
 }
 
 // Determine if we are in a HERDC group.
@@ -206,12 +206,12 @@ $access_ok = $record->canEdit();
 if ($access_ok) {
 
     if (!is_numeric($xdis_id)) {
-        $xdis_id = @$_REQUEST["xdis_id"];	
+        $xdis_id = @$_REQUEST["xdis_id"];
         if (is_numeric($xdis_id)) { // must have come from select xdis so save xdis in the FezMD
             Record::updateAdminDatastream($pid, $xdis_id);
         }
     }
-    
+
     if (!is_numeric($xdis_id)) { // if still can't find the xdisplay id then ask for it
         Auth::redirect(APP_RELATIVE_URL . "select_xdis.php?return=update_form&pid=".$pid.$extra_redirect, false);
     }

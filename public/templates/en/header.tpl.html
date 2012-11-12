@@ -18,6 +18,7 @@
 <link rel="search" type="application/opensearchdescription+xml" href="{$app_base_url}opensearch.xml.php" title="Search {$application_title}" />
 {if $offline == "true"}<link rel="stylesheet" href="{$rel_url}templates/en/css/maintenance.css" type="text/css" />{else}<link rel="stylesheet" href="{$rel_url}css/dynamic_css.php" type="text/css" />{/if}
 <script type="text/javascript" src="{$rel_url}js/common.js"></script>
+<script type="text/javascript" src="{$rel_url}js/dojo/dojo.js"></script>
 {if $setup}
 <link rel="stylesheet" href="../css/setup.css" type="text/css" />
 {/if}
@@ -34,9 +35,9 @@
 {/if}
 {if $isUser && ($authors_form || $enter_metadata || $use_json)} {* TODO: Depracate first 2 vars in due course; only use 3rd *}
 <script type="text/javascript">
-<!--
-dojo.require("dojo.rpc.JsonService");
-//-->
+    <!--
+    dojo.require("dojo.rpc.JsonService");
+    //-->
 </script>
 {/if}
 {if $autosuggest == 1}
@@ -55,6 +56,7 @@ dojo.require("dojo.rpc.JsonService");
 <script src="{$rel_url}js/maps/statsmap.js" type="text/javascript"></script>
 <link href="{$rel_url}css/statsmap.css" type="text/css" rel="stylesheet" media="all" />
 {/if}
+
 {* Check if we're including the flash uploader and that the admins want to use this uploader *}
 {if $header_include_flash_uploader_files == 1 && $smarty.const.APP_ENABLE_FLASH_UPLOADER_SWITCH == 'ON'}
 <script type="text/javascript" src="{$rel_url}js/swfgroup.js"></script>
@@ -72,17 +74,17 @@ dojo.require("dojo.rpc.JsonService");
 
 {*  Load jQuery library  *}
 {if $jquery == true}
-    <script type="text/javascript" src="{$rel_url}js/jquery/jquery-1.6.4.min.js"></script>
+<script type="text/javascript" src="{$rel_url}js/jquery/jquery-1.6.4.min.js"></script>
 {/if}
 
 {*   Load jQuery UI library *}
 {if $jqueryUI == true}
-    <link rel="stylesheet" type="text/css" media="screen" href="{$rel_url}css/jquery/fez/jquery-ui-1.8.16.custom.css" />
-    <script type="text/javascript" src="{$rel_url}js/jquery/jquery-ui-1.8.13.custom.min.js"></script>
+<link rel="stylesheet" type="text/css" media="screen" href="{$rel_url}css/jquery/fez/jquery-ui-1.8.16.custom.css" />
+<script type="text/javascript" src="{$rel_url}js/jquery/jquery-ui-1.8.13.custom.min.js"></script>
 {/if}
 
 {if $cv_css != ""}
-	<link rel="stylesheet" href="css/{$cv_css}" type="text/css" />
+<link rel="stylesheet" href="css/{$cv_css}" type="text/css" />
 {/if}
 {if $include_fckeditor}
 <script type="text/javascript" src="{$rel_url}js/fckeditor/fckeditor.js"></script>
@@ -91,49 +93,49 @@ dojo.require("dojo.rpc.JsonService");
 <meta http-equiv="Refresh" content="{$refresh_rate};URL={$app_base_url}{$refresh_page}" />
 {/if}
 {if $isUser}
-{$najax_header|smarty:nodefaults}
+  {$najax_header|smarty:nodefaults}
 {/if}
 {$meta_head|smarty:nodefaults}
-	<script type="text/javascript">
-	<!--
+<script type="text/javascript">
+    <!--
     {if $isUser}
-	{$najax_register|smarty:nodefaults}
+      {$najax_register|smarty:nodefaults}
     {/if}
-	{* Change the window.onload if we're using dojo so that this doesn't overwrite our flash uploader callback *}
-	{if $header_include_flash_uploader_files == 1 && $smarty.const.APP_ENABLE_FLASH_UPLOADER_SWITCH == 'ON'}
-	dojo.addOnLoad( function() {ldelim}
-	{*Event.observe(window, 'load', function() {ldelim} *}
-	{else}
-	{literal}
-	window.onload = function () {
-	{/literal}
-	{/if}
-		// do any other hacks requried by IE mostly
-		{$headerscript|smarty:nodefaults}
-	{literal}
-		// find any divs of class register_suggest and eval the code in them to setup their suggest widgets
-		divs = document.getElementsByName('register_suggest');
-		for (ii = 0; ii < divs.length; ii++) { // >
-		  div = divs[ii];
-		  if (div.className == 'register_suggest') {
-			eval(div.innerHTML);
-		  }
-		}
-	}
+    {* Change the window.onload if we're using dojo so that this doesn't overwrite our flash uploader callback *}
+    {if $header_include_flash_uploader_files == 1 && $smarty.const.APP_ENABLE_FLASH_UPLOADER_SWITCH == 'ON'}
+            dojo.addOnLoad( function() {ldelim}
+    {*Event.observe(window, 'load', function() {ldelim} *}
+      {else}
+      {literal}
+              window.onload = function () {
+      {/literal}
+    {/if}
+        // do any other hacks requried by IE mostly
+    {$headerscript|smarty:nodefaults}
+    {literal}
+        // find any divs of class register_suggest and eval the code in them to setup their suggest widgets
+        divs = document.getElementsByName('register_suggest');
+        for (ii = 0; ii < divs.length; ii++) { // >
+            div = divs[ii];
+            if (div.className == 'register_suggest') {
+                eval(div.innerHTML);
+            }
+        }
+    }
 
-{/literal}
-{if $header_include_flash_uploader_files == 1 && $smarty.const.APP_ENABLE_FLASH_UPLOADER_SWITCH == 'ON'}
-);
-{/if}
-rel_url = '{$rel_url}';
-cell_color = '{$cell_color}';
-value_color = '{$value_color}';
+    {/literal}
+    {if $header_include_flash_uploader_files == 1 && $smarty.const.APP_ENABLE_FLASH_UPLOADER_SWITCH == 'ON'}
+        );
+    {/if}
+        rel_url = '{$rel_url}';
+        cell_color = '{$cell_color}';
+        value_color = '{$value_color}';
 
-{if $include_stats_map == 1 && APP_USE_GOOGLE_MAP_SWITCH == 'ON'}
-{include file="stats_map.javascript_include.tpl.html"}
-{/if}
+    {if $include_stats_map == 1 && APP_USE_GOOGLE_MAP_SWITCH == 'ON'}
+    {include file="stats_map.javascript_include.tpl.html"}
+    {/if}
 
--->
+        -->
 
 </script>
 
@@ -143,52 +145,52 @@ value_color = '{$value_color}';
 
 <script type="text/javascript">
 
-var config = {ldelim}pollInt:{$app_bg_poll_int}{rdelim};
-bgProc = new Bgps(config);
+    var config = {ldelim}pollInt:{$app_bg_poll_int}{rdelim};
+    bgProc = new Bgps(config);
 
-if(typeof(NajaxBackgroundProcessList) !== 'undefined')
-{ldelim}
-    bgProc.addEvt(window, 'load', bgProc.bgpsStats);
-    bgProc.addEvt(window, 'load', bgProc.addBgClick);
-    if (/*@cc_on!@*/false)
+    if(typeof(NajaxBackgroundProcessList) !== 'undefined')
     {ldelim}
-    	bgProc.addEvt(document, 'focusin', bgProc.pollBgProcs);
-        bgProc.addEvt(document, 'focusout', bgProc.killPoll);
+        bgProc.addEvt(window, 'load', bgProc.bgpsStats);
+        bgProc.addEvt(window, 'load', bgProc.addBgClick);
+        if (/*@cc_on!@*/false)
+        {ldelim}
+            bgProc.addEvt(document, 'focusin', bgProc.pollBgProcs);
+            bgProc.addEvt(document, 'focusout', bgProc.killPoll);
+        {rdelim}
+        else
+        {ldelim}
+            bgProc.addEvt(window, 'focus', bgProc.pollBgProcs);
+            bgProc.addEvt(window, 'blur', bgProc.killPoll);
+        {rdelim}
     {rdelim}
-    else
-    {ldelim}
-    	bgProc.addEvt(window, 'focus', bgProc.pollBgProcs);
-        bgProc.addEvt(window, 'blur', bgProc.killPoll);
-    {rdelim}
-{rdelim}
 
 </script>
 
 {/if}
 
-	<!--[if IE 6]><link rel="stylesheet" href="{$rel_url}css/ie6bugs.css" media="screen" type="text/css" /><![endif]-->
-	<!--[if IE 7]><link rel="stylesheet" href="{$rel_url}css/ie7bugs.css" media="screen" type="text/css" /><![endif]-->
-	<!--[if IE 8]><link rel="stylesheet" href="{$rel_url}css/ie8bugs.css" media="screen" type="text/css" /><![endif]-->
+<!--[if IE 6]><link rel="stylesheet" href="{$rel_url}css/ie6bugs.css" media="screen" type="text/css" /><![endif]-->
+<!--[if IE 7]><link rel="stylesheet" href="{$rel_url}css/ie7bugs.css" media="screen" type="text/css" /><![endif]-->
+<!--[if IE 8]><link rel="stylesheet" href="{$rel_url}css/ie8bugs.css" media="screen" type="text/css" /><![endif]-->
 
 {if $app_analytics_switch == "ON" && $is_basic_auth_ip == false}
-        <script type="text/javascript">
-          var _gaq = _gaq || [];
-          _gaq.push(['_setAccount', "UA-{$app_analytics_id}"]);
-          _gaq.push(['_trackPageview']);
-          _gaq.push(['_trackPageLoadTime']);
-          {literal}
-              (function() {
-                var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-                ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-                var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-              })();
-          {/literal}
-        </script>
+<script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', "UA-{$app_analytics_id}"]);
+    _gaq.push(['_trackPageview']);
+    _gaq.push(['_trackPageLoadTime']);
+      {literal}
+      (function() {
+          var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+          ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+          var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+      {/literal}
+</script>
 {/if}
 
 {if $app_piwik_switch == "ON" && $is_basic_auth_ip == false}
-    <!-- Piwik -->
-    <script type="text/javascript">
+<!-- Piwik -->
+<script type="text/javascript">
     var _paq = _paq || [];
     (function(){ldelim}
         var u=(("https:" == document.location.protocol) ? "https://{$app_piwik_location}/" : "http://{$app_piwik_location}/");
@@ -196,17 +198,17 @@ if(typeof(NajaxBackgroundProcessList) !== 'undefined')
         _paq.push(['setTrackerUrl', u+'piwik.php']);
         _paq.push(['trackPageView']);
         _paq.push(['enableLinkTracking']);
-            var d=document,
+        var d=document,
                 g=d.createElement('script'),
                 s=d.getElementsByTagName('script')[0];
-                g.type='text/javascript';
-                g.defer=true;
-                g.async=true;
-                g.src=u+'piwik.js';
-                s.parentNode.insertBefore(g,s);
+        g.type='text/javascript';
+        g.defer=true;
+        g.async=true;
+        g.src=u+'piwik.js';
+        s.parentNode.insertBefore(g,s);
 
     {rdelim} )();
-    </script>
-    <!-- End Piwik Code -->
+</script>
+<!-- End Piwik Code -->
 {/if}
 </head>

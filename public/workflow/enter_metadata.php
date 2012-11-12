@@ -69,7 +69,7 @@ if (empty($wfstatus)) {
 //Generate a version
 if(APP_FEDORA_BYPASS == 'ON')
 {
-    Zend_Registry::set('version', date('Y-m-d H:i:s'));    
+    Zend_Registry::set('version', date('Y-m-d H:i:s'));
 }
 
 $filterProc = new Fez_Filter_Process_Request();
@@ -124,7 +124,7 @@ $debug = @$_REQUEST['debug'];
 if ($debug == 1) {
 	$tpl->assign("debug", "1");
 } else {
-	$tpl->assign("debug", "0");	
+	$tpl->assign("debug", "0");
 }
 $tpl->assign("extra_title", "Create New ".$xdis_title);
 if ($wfstatus->parent_pid == -1 || $wfstatus->parent_pid == -2 || !$wfstatus->parent_pid) {
@@ -138,7 +138,7 @@ if ($wfstatus->parent_pid == -1 || $wfstatus->parent_pid == -2 || !$wfstatus->pa
 }
 
 if ($access_ok) {
-	
+
     // check for post action
     if (@$_POST["cat"] == "report") {
         $res = Record::insert();
@@ -163,7 +163,7 @@ if ($access_ok) {
     $xdis_list = XSD_Display::getAssocListDocTypes();
     $xdis_collection_and_object_list = $xdis_list + $xdis_collection_list;
 
-    // LUR: get the communities and collections where the user is allowed to create collections   
+    // LUR: get the communities and collections where the user is allowed to create collections
     $communities = Community::getCreatorList(0, 1000);
 	$index=0;
 	foreach ($communities['list'] as $item) {
@@ -177,7 +177,7 @@ if ($access_ok) {
 	}
 	$community_list = array();
     $community_list = Community::getCreatorListAssoc(0, 1000);
-	
+
 	$default_depositor_org_id = -1;
 	$collection_list = array();
 	$collection_list = Collection::getCreatorListAssoc();
@@ -188,7 +188,7 @@ if ($access_ok) {
 	$xsd_display_fields = XSD_HTML_Match::getListByDisplay($xdis_id, array("FezACML"), array(""));  // XSD_DisplayObject
 
 	if (!is_numeric($wfstatus->parent_pid) && $wfstatus->parent_pid != "") {
-	  $parent_record = new RecordObject($wfstatus->parent_pid);	  
+	  $parent_record = new RecordObject($wfstatus->parent_pid);
 	  $parent_xdis_id = $parent_record->getXmlDisplayId();
 	  $parent_relationships = XSD_Relationship::getColListByXDIS($parent_xdis_id);
       array_push($parent_relationships, $parent_xdis_id);
@@ -302,11 +302,11 @@ if ($access_ok) {
 				$xsd_display_fields[$dis_key]['field_options'] = @$cvo_list['data'][$dis_field['xsdmf_cvo_id']];
 				if ($dis_field["xsdmf_html_input"] == "contvocab_selector" && $dis_field["xsdmf_cvo_min_level"] == 3) {
 					$xsd_display_fields[$dis_key]['field_options'] = Controlled_Vocab::getAssocListFullDisplay($dis_field["xsdmf_cvo_id"], '',  1,2);
-				}				
+				}
 			}
 		}
     }
-    
+
     $tpl->assign("xsd_display_fields", $xsd_display_fields);
     $tpl->assign("xdis_id", $xdis_id);
     $tpl->assign("default_depositor_org_id", $default_depositor_org_id);
@@ -316,7 +316,7 @@ if ($access_ok) {
 
 $isAdmin = Auth::isAdministrator();
 if(!$isAdmin) {
-	$isAdmin = User::isUserSuperAdministrator(Auth::getUsername());	
+	$isAdmin = User::isUserSuperAdministrator(Auth::getUsername());
 }
 
 $tpl->assign("isAdmin", $isAdmin);
