@@ -373,7 +373,7 @@ function clearFilters(f) {
                     {/if}
 
                     {include file="error_icon.tpl.html" field="search_keys[$search_key_id]$search_key_sufix"}
-                        
+
                 </td>
             </tr>
 
@@ -426,7 +426,7 @@ function clearFilters(f) {
         {/if}
     {/section}
 
-    var elements_to_hide = new Array({$custom_elements_to_hide});
+    var elements_to_hide = new Array({$custom_elements_to_hide|smarty:nodefaults});
     {literal}
     for (var i = 0; i < elements_to_hide.length; i++) {
         toggleVisibility(elements_to_hide[i]);

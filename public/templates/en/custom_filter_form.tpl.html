@@ -56,7 +56,7 @@ if (element{/literal}{$search_keys[i].sek_id}{literal} != null) {
 
 <div id="custom_filter_form1">
 <div class="default">
-<img src="images/search_32.gif" alt="Advanced Search">				
+<img src="images/search_32.gif" alt="Advanced Search">
 &nbsp;<b>Advanced Search</b> <br />
 Use as many or as few criteria as you like <br />
 </div
@@ -115,7 +115,7 @@ Use as many or as few criteria as you like <br />
 <br/>
 {section name="i" loop=$search_keys}
   {assign var="search_key_name" value='searchKey'|cat:$search_keys[i].sek_id}
-  {assign var ="last_key" value=$options.$search_key_name}  
+  {assign var ="last_key" value=$options.$search_key_name}
   {assign var="set_in_this_loop" value="0" }
   {if $search_keys[i].sek_html_input == 'textarea'}
     {assign var="set_in_this_loop" value="1" }
@@ -149,13 +149,13 @@ Use as many or as few criteria as you like <br />
 		</select>
 		<input class="default" type="button" value="Add New" onclick="javascript:small_window('cv_selector.php?cvo_id={$search_keys[i].cv_ids[z]}&amp;form=custom_filter_form&amp;element=search_keys_{$search_keys[i].sek_id}');" />
 		<input class="default" type="button" value="Remove Selected" onclick="javascript:deleteSelectedItemsFromList(search_keys_{$search_keys[i].sek_id});" />
-	</div>	
+	</div>
   {elseif $search_keys[i].sek_html_input == 'date'}
 
                   {assign var="temp_sek_id" value=$search_keys[i].sek_id}
 
                   {assign var="custom" value=$options.$temp_sek_id}
-                  <input type="hidden" value="{$last_key.filter_enabled|default:0}" 
+                  <input type="hidden" value="{$last_key.filter_enabled|default:0}"
                     name="search_keys[{$search_keys[i].sek_id}][filter_enabled]" />
                   <input {if $last_key.filter_enabled == 1}checked{/if} type="checkbox" name="filter[search_keys[{$search_keys[i].sek_id}]]"  id="filter[search_keys[{$search_keys[i].sek_id}]]" value="yes" onClick="javascript:toggleDateFields(this.form, 'search_keys[{$search_keys[i].sek_id}]');">
                   <span class="default">{$search_keys[i].sek_title}:</span><br />
@@ -208,10 +208,10 @@ Use as many or as few criteria as you like <br />
   {/if}
 {/section}
 
- 
+
 </div>
 
- 
+
 
 
 
@@ -239,16 +239,16 @@ var date_fields = new Array();
 
 {if $search_keys[i].sek_html_input == 'date'}
 {literal}
-function calendarCallback_search_keys{/literal}{$search_keys[i].sek_id}{literal}(day, month, year) { 
-	selectDateField('search_keys[{/literal}{$search_keys[i].sek_id}{literal}][start]', day, month, year); 
+function calendarCallback_search_keys{/literal}{$search_keys[i].sek_id}{literal}(day, month, year) {
+	selectDateField('search_keys[{/literal}{$search_keys[i].sek_id}{literal}][start]', day, month, year);
 }
-function calendarCallback_search_keys_end{/literal}{$search_keys[i].sek_id}{literal}(day, month, year) { 
-	selectDateField('search_keys[{/literal}{$search_keys[i].sek_id}{literal}][end]', day, month, year); 
+function calendarCallback_search_keys_end{/literal}{$search_keys[i].sek_id}{literal}(day, month, year) {
+	selectDateField('search_keys[{/literal}{$search_keys[i].sek_id}{literal}][end]', day, month, year);
 }
 {/literal}
 {assign var="temp_sek_id" value=$search_keys[i].sek_id}
 {assign var="search_key_name" value='searchKey'|cat:$search_keys[i].sek_id}
-{assign var ="last_key" value=$options.$search_key_name}  
+{assign var ="last_key" value=$options.$search_key_name}
 date_fields[date_fields.length] = new Option('search_keys[{$temp_sek_id}][start]', '{$last_key.start_date}');
 date_fields[date_fields.length] = new Option('search_keys[{$temp_sek_id}][end]', '{$last_key.end_date}');
 {if $custom_elements_to_hide != ""}
@@ -259,7 +259,7 @@ date_fields[date_fields.length] = new Option('search_keys[{$temp_sek_id}][end]',
 {/if}
 {/section}
 
-var elements_to_hide = new Array({$custom_elements_to_hide});
+var elements_to_hide = new Array({$custom_elements_to_hide|smarty:nodefaults});
 {literal}
 for (var i = 0; i < elements_to_hide.length; i++) {
     toggleVisibility(elements_to_hide[i]);
@@ -286,11 +286,11 @@ function validateSearchForm() {
         field.options[y].selected = true;
     }
 	{/literal}
-{/if}	
+{/if}
 {/section}
 	return true;
 {literal}
 }
-{/literal}	 
+{/literal}
 //-->
 </script>

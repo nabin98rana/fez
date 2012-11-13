@@ -63,7 +63,7 @@ if (element{/literal}{$search_keys[i].sek_id}{literal} != null) {
   </div>
 {section name="i" loop=$search_keys}
   {assign var="search_key_name" value='searchKey'|cat:$search_keys[i].sek_id}
-  {assign var ="last_key" value=$options.$search_key_name}  
+  {assign var ="last_key" value=$options.$search_key_name}
   <div class="{if $last_key != 'ALL' && $last_key != '' && $search_keys[i].sek_html_input != 'date' || ($search_keys[i].sek_html_input == 'date' && $last_key.filter_enabled ==1) }default-search-used{else}default{/if} quick_search_item">
   {if $search_keys[i].sek_alt_title}{$search_keys[i].sek_alt_title}{else}{$search_keys[i].sek_title}{/if}:<br/>{if $search_keys[i].sek_desc}<sub>{$search_keys[i].sek_desc}<sub><br />{/if}
   {if $search_keys[i].sek_html_input != 'text' &&  $search_keys[i].sek_html_input != 'textarea'}
@@ -81,12 +81,12 @@ if (element{/literal}{$search_keys[i].sek_id}{literal} != null) {
             {else}
             	<input id="search_keys[{$search_keys[i].sek_id}]" type="text" name="search_keys[{$search_keys[i].sek_id}]" maxlength="255" size="30" value="{$last_key|escape:'html'}" />
             {/if}
-            
+
   				{if $search_keys[i].sek_suggest_function != ""}
 	      				<div id="generalsuggest" style="width:25em;position:relative;z-index:{math equation="2000 - x - y" y=0 x=$smarty.section.i.index};">
 					  <div id="{$search_keys[i].sek_id}_container"></div>
 					</div>
-					
+
 					{literal}
                     <script type="text/javascript">
 
@@ -95,7 +95,7 @@ if (element{/literal}{$search_keys[i].sek_id}{literal} != null) {
                     var mySchema{/literal}{$search_keys[i].sek_id}{literal} = ["Result","name"];
                     var myDataSource{/literal}{$search_keys[i].sek_id}{literal} = new YAHOO.widget.DS_XHR(myServer{/literal}{$search_keys[i].sek_id}{literal}, mySchema{/literal}{$search_keys[i].sek_id}{literal});
 
-                    {/literal}{if $search_keys[i].sek_data_type == 'int'}{literal}               
+                    {/literal}{if $search_keys[i].sek_data_type == 'int'}{literal}
                     	var myHiddenField{/literal}{$search_keys[i].sek_id}{literal} = YAHOO.util.Dom.get('{/literal}search_keys[{$search_keys[i].sek_id}]{literal}');
                     	var myTextField{/literal}{$search_keys[i].sek_id}{literal} = YAHOO.util.Dom.get('{/literal}search_keys[{$search_keys[i].sek_id}]{literal}_name');
                     	YAHOO.util.Event.addListener(myTextField{/literal}{$search_keys[i].sek_id}{literal}, "blur", myTextField{/literal}{$search_keys[i].sek_id}{literal}ClickEvent, this, true);
@@ -103,16 +103,16 @@ if (element{/literal}{$search_keys[i].sek_id}{literal} != null) {
                     		var y=parseInt(x);
                     		if (isNaN(y)) return false;
                     		return x==y && x.toString()==y.toString();
-                    	} 
+                    	}
                     	function myTextField{/literal}{$search_keys[i].sek_id}{literal}ClickEvent() {
 							if(isInt(myTextField{/literal}{$search_keys[i].sek_id}{literal}.value)) {
                     			myHiddenField{/literal}{$search_keys[i].sek_id}{literal}.value = myTextField{/literal}{$search_keys[i].sek_id}{literal}.value;
 							}
-                    	}                    	
+                    	}
                     {/literal}{else}{literal}
                     	var myTextField{/literal}{$search_keys[i].sek_id}{literal} = YAHOO.util.Dom.get('{/literal}search_keys[{$search_keys[i].sek_id}]{literal}');
                     {/literal}{/if}{literal}
-                        
+
 					myDataSource{/literal}{$search_keys[i].sek_id}{literal}.scriptQueryAppend = "sek_id={/literal}{$search_keys[i].sek_id}{literal}";
 
                     // Instantiate first AutoComplete
@@ -150,22 +150,22 @@ if (element{/literal}{$search_keys[i].sek_id}{literal} != null) {
                     #{/literal}{$search_keys[i].xsdmf_id}{literal}_container .yui-ac-content {
                         max-height:11em;
                         /* height: 150px; */
-                        height: 1px; 
+                        height: 1px;
                         width: 450px;
                         overflow:auto;
                         overflow-x:hidden; /* scrolling */
                         _height:11em; /* ie6 */
                         z-index:9071;
 					}
-                    </style>					
+                    </style>
                     {/literal}
 			{/if}
-	 	
-  	
-  	
-  	
-  	
-  	
+
+
+
+
+
+
   {elseif $search_keys[i].sek_html_input == 'textarea'}
   <textarea id="search_keys[{$search_keys[i].sek_id}]" name="search_keys[{$search_keys[i].sek_id}]" rows="10" cols="60" value="{$last_key|escape:'html'}"></textarea>
   {elseif $search_keys[i].sek_html_input == 'date'}
@@ -173,7 +173,7 @@ if (element{/literal}{$search_keys[i].sek_id}{literal} != null) {
                   {assign var="temp_sek_id" value=$search_keys[i].sek_id}
 
                   {assign var="custom" value=$options.$temp_sek_id}
-                  <input type="hidden" value="{$last_key.filter_enabled|default:0|escape:'html'}" 
+                  <input type="hidden" value="{$last_key.filter_enabled|default:0|escape:'html'}"
                     name="search_keys[{$search_keys[i].sek_id}][filter_enabled]" />
                   <input {if $last_key.filter_enabled == 1}checked{/if} type="checkbox" id="filter[search_keys[{$search_keys[i].sek_id}]]" name="filter[search_keys[{$search_keys[i].sek_id}]]" value="yes" onClick="javascript:toggleDateFields(this.form, 'search_keys[{$search_keys[i].sek_id}]');">
                   <span class="default">{$search_keys[i].sek_title}:</span><br />
@@ -235,7 +235,7 @@ if (element{/literal}{$search_keys[i].sek_id}{literal} != null) {
 
 {if $user_can_edit && $bulk_search_workflows}
 <div class="quick_search_hide">
-<input type="button" value="Run Workflow &gt;" class="shortcut" 
+<input type="button" value="Run Workflow &gt;" class="shortcut"
 	onclick="javascript:workflowBulkChangeSearch(this.form, '{$rel_url}');" />
 <select name="wft_id" class="default">
     {html_options options=$bulk_search_workflows}
@@ -270,16 +270,16 @@ var date_fields = new Array();
 {section name="i" loop=$search_keys}
 {if $search_keys[i].sek_html_input == 'date'}
 {literal}
-function calendarCallback_search_keys{/literal}{$search_keys[i].sek_id}{literal}(day, month, year) { 
-	selectDateField('search_keys[{/literal}{$search_keys[i].sek_id}{literal}][start]', day, month, year); 
+function calendarCallback_search_keys{/literal}{$search_keys[i].sek_id}{literal}(day, month, year) {
+	selectDateField('search_keys[{/literal}{$search_keys[i].sek_id}{literal}][start]', day, month, year);
 }
-function calendarCallback_search_keys_end{/literal}{$search_keys[i].sek_id}{literal}(day, month, year) { 
-	selectDateField('search_keys[{/literal}{$search_keys[i].sek_id}{literal}][end]', day, month, year); 
+function calendarCallback_search_keys_end{/literal}{$search_keys[i].sek_id}{literal}(day, month, year) {
+	selectDateField('search_keys[{/literal}{$search_keys[i].sek_id}{literal}][end]', day, month, year);
 }
 {/literal}
 {assign var="temp_sek_id" value=$search_keys[i].sek_id}
 {assign var="search_key_name" value='searchKey'|cat:$search_keys[i].sek_id}
-{assign var ="last_key" value=$options.$search_key_name}  
+{assign var ="last_key" value=$options.$search_key_name}
 date_fields[date_fields.length] = new Option('search_keys[{$temp_sek_id}][start]', '{$last_key.start_date}');
 date_fields[date_fields.length] = new Option('search_keys[{$temp_sek_id}][end]', '{$last_key.end_date}');
 {if $custom_elements_to_hide != ""}
@@ -290,7 +290,7 @@ date_fields[date_fields.length] = new Option('search_keys[{$temp_sek_id}][end]',
 {/if}
 {/section}
 
-var elements_to_hide = new Array({$custom_elements_to_hide});
+var elements_to_hide = new Array({$custom_elements_to_hide|smarty:nodefaults});
 {literal}
 for (var i = 0; i < elements_to_hide.length; i++) {
     toggleVisibility(elements_to_hide[i]);
