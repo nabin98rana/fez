@@ -60,7 +60,7 @@ $bookreaderui = "full";
 $bookreaderui    = @$_REQUEST["ui"];
 
 $SHOW_STATUS_PARM = @$_REQUEST["status"];
-$SHOW_STATUS = @($SHOW_STATUS_PARM == "true") ? true : false; 
+$SHOW_STATUS = @($SHOW_STATUS_PARM == "true") ? true : false;
 $ALLOW_SECURITY_REDIRECT = @$SHOW_STATUS ? false : true;
 
 //$pid and $dsID should not contain ~<>=?*'
@@ -79,7 +79,7 @@ if ( (is_numeric(strpos($pid, ".."))) || (Misc::isPid($pid) != true) || (is_nume
 $acceptable_roles = array("Viewer", "Community_Admin", "Editor", "Creator", "Annotator");
 
 if (!empty($pid) && !empty($dsID)) {
-    
+
     if(APP_FEDORA_BYPASS == 'ON')
     {
         if(!$bookpage)//Test for existence of bookpage further down.
@@ -93,7 +93,7 @@ if (!empty($pid) && !empty($dsID)) {
     } else {
         $isDeleted = Record::isDeleted($pid);
     }
-    
+
 	if($isDeleted) {
 		header("HTTP/1.0 404 Not Found");
 		header("Status: 404 Not Found");
@@ -102,7 +102,7 @@ if (!empty($pid) && !empty($dsID)) {
         $tpl->displayTemplate();
         exit;
 	}
-    // Retrieve the selected version date from the request. 
+    // Retrieve the selected version date from the request.
     // This will be null unless a version date has been
     // selected by the user.
     $requestedVersionDate = Misc::GETorPOST('version_date');
@@ -117,11 +117,11 @@ if (!empty($pid) && !empty($dsID)) {
 			$tpl->displayTemplate();
 			exit;
     	}
-    	$requestedVersionDate = "/" . $requestedVersionDate; 
+    	$requestedVersionDate = "/" . $requestedVersionDate;
     } else {
 		$requestedVersionDate = "";
-    } 
-		
+    }
+
     $dissemination_dsID = "";
 	if (is_numeric(strpos($dsID, "archival_"))) {
 		if( !$ALLOW_SECURITY_REDIRECT ){
@@ -131,22 +131,22 @@ if (!empty($pid) && !empty($dsID)) {
 		$dsID = str_replace("archival_", "", $dsID);
 		Auth::redirect(APP_BASE_URL."eserv/".$pid."/".$dsID);
 	}
-	
+
 	$is_video = 0;
 	$is_image = 0;
 	$info = array();
-	
+
 	if(APP_FEDORA_BYPASS != 'ON')
 	{
 	    $exif_array = Exiftool::getDetails($pid, $dsID);
 	}
-	
+
 	if(APP_FEDORA_BYPASS == 'ON')
 	{
     	$info['content_type'] = $dsMeta['mimetype'];
         $info['download_content_length'] = $dsMeta['size'];
 	}
-	else 
+	else
 	{
 	    if ( (!is_numeric($exif_array['exif_file_size']) || $requestedVersionDate != "") && (!$bookpage) ) {
     		$getURL = APP_FEDORA_GET_URL."/".$pid."/".$dsID.$requestedVersionDate;
@@ -156,17 +156,17 @@ if (!empty($pid) && !empty($dsID)) {
     		$info['download_content_length'] = $exif_array['exif_file_size'];
     	}
 	}
-	
+
 	if(APP_FEDORA_BYPASS != 'ON')
 	{
 	    if( $info['download_content_length'] == 0 )
 		$not_exists = true;
 	}
-	
+
 
 	if ($not_exists == false) {
 		$ctype = $info['content_type'];
-		
+
 		if ($ctype == "application/octet-stream") {
 			if (substr($dsID, -4) == ".flv") {
 				$ctype = "video/x-flv";
@@ -175,20 +175,20 @@ if (!empty($pid) && !empty($dsID)) {
                 $ctype = "video/webm";
             }
 		}
-		
+
 		if (is_numeric(strpos($ctype, "video"))) {
 			$is_video = 1;
 		} elseif (is_numeric(strpos($ctype, "image"))) {
 			$is_image = 1;
 		}
-		
+
 		if (($is_image == 1) && (!is_numeric(strpos($dsID, "web_"))) && (!is_numeric(strpos($dsID, "preview_"))) && (!is_numeric(strpos($dsID, "thumbnail_"))) ) {
 			$acceptable_roles = array("Community_Admin", "Editor", "Creator", "Archival_Format_Viewer");
-			
+
 			if($origami == true) {
 			    $acceptable_roles[] = "Viewer";
 			}
-			
+
 			$dissemination_dsID = "web_".substr($dsID, 0, strrpos($dsID, ".") + 1)."jpg";
 		} elseif (($is_video == 1) && (!is_numeric(strpos($dsID, "stream_")) && (!is_numeric(strpos($ctype, "flv"))))) {
 			$acceptable_roles = array("Community_Admin", "Editor", "Creator", "Archival_Format_Viewer");
@@ -196,7 +196,7 @@ if (!empty($pid) && !empty($dsID)) {
 		} else {
 			$acceptable_roles = array("Viewer", "Community_Admin", "Editor", "Creator", "Annotator");
 		}
-		
+
 		//Restrict datastreams/files to the Creator role+ via eserv if the object they are in is not published
 		$status = Record::getSearchKeyIndexValue($pid, "Status", false);
 		if ($status != Status::getID("Published")) {
@@ -222,16 +222,16 @@ if (!empty($pid) && !empty($dsID)) {
         }
 		//TODO change for video handling non-Fedora style
 		if (($stream == 1 && $is_video == 1) && (is_numeric(strpos($ctype, "flv")))) {
-			
+
 			$urldata = APP_FEDORA_GET_URL."/".$pid."/".$dsID.$requestedVersionDate;
 			$file = (APP_FEDORA_BYPASS == 'ON') ? $dsr->getResourcePath($hash['rawHash']) : $urldata;
 			$seekat = $_GET["pos"];
 			if ($seekat == '') { // if seekat isn't defined, set it to -1, the default for stream_get_contents(), else stream won't get contents
 				$seekat = -1;
 			}
-			
+
 	        $size = (APP_FEDORA_BYPASS == 'ON') ? $dsMeta['size'] : Misc::remote_filesize($urldata);
-	         
+
 			# content headers
 			header("Content-Type: video/x-flv");
 			header("Content-Disposition: attachment; filename=\"" . $dsID . "\"");
@@ -243,14 +243,14 @@ if (!empty($pid) && !empty($dsID)) {
 	    		//print(pack('N', 9 ));
 				print(pack('N', 0 ));  // Total size of previous tag, or 0 for this first tag
 		    }
-		    
+
 		    if(APP_FEDORA_BYPASS == 'ON')
 		    {
 		        $fh = fopen($file, "rb");
 		        echo stream_get_contents($fh, $size, $seekat);
 		        fclose($fh);
 		    }
-		    else 
+		    else
 		    {
     			if (APP_FEDORA_APIA_DIRECT == "ON") {
     	            $fda = new Fedora_Direct_Access();
@@ -264,7 +264,7 @@ if (!empty($pid) && !empty($dsID)) {
     			}
 		    }
 			// Add view to statistics buffer
-			Statistics::addBuffer($pid, $dsID);							
+			Statistics::addBuffer($pid, $dsID);
 		    exit;
 
          } elseif( $bookreader == true ) {
@@ -281,12 +281,12 @@ if (!empty($pid) && !empty($dsID)) {
             //Resource name works whether or not the .pdf file extension is added.
             $dsID = explode('.pdf', $dsID);
             $dsID = $dsID[0];
-            
+
             $resourcePath = BR_IMG_DIR . $pid . '/' . $dsID;
             $protocol = ($_SERVER['HTTPS']) ? 'https://' : 'http://';
             $host = $protocol . $_SERVER['HTTP_HOST'];
             $urlPath = str_replace($_SERVER['DOCUMENT_ROOT'], '', BR_IMG_DIR);
-            
+
             $agent = BookReader::browserFromUserAgent($_SERVER['HTTP_USER_AGENT']);
 
             $bri = new bookReaderImplementation($resourcePath);
@@ -310,14 +310,14 @@ if (!empty($pid) && !empty($dsID)) {
          } elseif($bookpage == true) {
              //$_SERVER['REQUEST_URI'] = "/pidimages/UQ_5403/../../../Arianrhod_Chapte/Arianrhod_Chapte-0002.jpg?bookpage=true";
              $uri = $_SERVER['REQUEST_URI'];
-             
+
              //Don't try to peek into our tree.
              $filtStrings = array('..','./');
              for($s=0;$s<count($filtStrings);$s++)//In case they create a condition to subvert this the first time, we'll go again.
              {
                  $uri = str_replace($filtStrings, '', $uri);
              }
-             
+
              $uri = explode('/',$_SERVER['REQUEST_URI']);
              $image = $uri[count($uri) - 1];
              $image = explode('?',$image);
@@ -328,31 +328,31 @@ if (!empty($pid) && !empty($dsID)) {
              {
                  $pid = str_replace(':','_',$pid);
              }
-             
+
              $imageFile = BR_IMG_DIR . $pid . '/' . $resource . '/' . $image;
-             
+
              if(is_file($imageFile))
              {
                  header('Content-Type: image/jpeg');
                  echo file_get_contents($imageFile);
              }
-             
+
              exit;
 
 		} elseif( $origami == true ) {
-		    
+
 	        include_once(APP_INC_PATH . "class.template.php");
 	        include_once(APP_INC_PATH . "class.origami.php");
 
 			$tpl = new Template_API();
-			$tpl->setTemplate("flviewer.tpl.html");           
-	        
+			$tpl->setTemplate("flviewer.tpl.html");
+
 			$tpl->assign("url", Origami::getTitleLocation($pid, $dsID));
 			$tpl->displayTemplate();
 			// Add view to statistics buffer
 			Statistics::addBuffer($pid, $dsID);
 			exit;
-		    
+
 		} elseif (($is_video == 1) && (is_numeric(strpos($ctype, "flv")))) {
 
 	        include_once(APP_INC_PATH . "class.template.php");
@@ -361,7 +361,7 @@ if (!empty($pid) && !empty($dsID)) {
 			$tpl->assign("APP_BASE_URL", APP_BASE_URL);
 			$tpl->assign("eserv_url", APP_BASE_URL."eserv.php");
 			$tpl->assign("dsID", $dsID);
-			if (is_numeric($exif_array['exif_image_height']) && is_numeric($exif_array['exif_image_width'])) { 
+			if (is_numeric($exif_array['exif_image_height']) && is_numeric($exif_array['exif_image_width'])) {
 				$player_height = $exif_array['exif_image_height'];
 				$player_width = $exif_array['exif_image_width'];
 			} else {
@@ -377,34 +377,34 @@ if (!empty($pid) && !empty($dsID)) {
 			$tpl->displayTemplate();
 			exit;
 		}
-		
+
 		/*
 		 * Send file to user
 		 */
 		if(APP_FEDORA_BYPASS == 'ON')
 		{
 		    $header = (isset($dsMeta['mimetype'])) ? $dsMeta['mimetype'] : 'text/html';
-		    
+
 		    header("Content-Type: $header");
-		    
-		    if($dsMeta['mimetype'] == 'application/pdf' 
-		        && $dsMeta['size'] > 7000000 
+
+		    if($dsMeta['mimetype'] == 'application/pdf'
+		        && $dsMeta['size'] > 7000000
 		        && Misc::is_firefox())
 		    {
 		        header("Content-Type: application/force-download");
 		    }
-		    
-            header('Content-Disposition: filename="' . $hash['hashFile'] . '"');		    
+
+            header('Content-Disposition: filename="' . $hash['hashFile'] . '"');
 		    header('Pragma: private');
-    		header('Cache-control: private, must-revalidate');
-		    
+    		header('Cache-control: private, max-age=600');
+
 		    echo $dsr->getDSData($hash['rawHash']);
 		}
 		else
 		{
-		
+
     		// this should stop them dang haxors (forces the http on the front for starters)
-    		$urldata = APP_FEDORA_GET_URL."/".$pid."/".$dsID.$requestedVersionDate; 
+    		$urldata = APP_FEDORA_GET_URL."/".$pid."/".$dsID.$requestedVersionDate;
     		$urlpath = $urldata;
     	    if (!empty($header)) {
     	    	//echo $header; exit;
@@ -414,20 +414,20 @@ if (!empty($pid) && !empty($dsID)) {
     	    } else {
     	        header("Content-type: text/html");
     	    }
-    	    
+
     	    // PDF? > 7MB? Firefox? Force download.
     	    if (is_numeric(strpos($ctype, "pdf")) && $info['download_content_length'] > 7000000 && Misc::is_firefox()) {
     	    	//header('Content-Type: application/download');
     	    	header("Content-Type: application/force-download");
     	    }
-    	    
+
     	    header('Content-Disposition: filename="'.substr($urldata, (strrpos($urldata, '/')+1) ).'"');
     		if (!empty($info['download_content_length'])) {
     			header("Content-length: ".$info['download_content_length']);
     		}
     		header('Pragma: private');
-    		header('Cache-control: private, must-revalidate');
-		
+    		header('Cache-control: private, max-age=600');
+
 
     if (APP_FEDORA_SENDFILE_DIRECT == "ON") {
       Statistics::addBuffer($pid, $dsID);
@@ -452,7 +452,7 @@ if( $SHOW_STATUS && ($pid == "" || $dsID == "" || $not_exists == true )){
     $tpl->setTemplate("404.tpl.html");
     $tpl->displayTemplate();
 	exit;
-} 
+}
 
 include_once(APP_INC_PATH . "class.template.php");
 $tpl = new Template_API();
