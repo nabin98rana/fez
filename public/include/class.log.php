@@ -134,7 +134,8 @@ class FezLog
     
 	public function debug_method($name) 
 	{
-		$function = $this->_getBacktraceElemFromFuncName($name);
+        $function = array('class'=>'', 'type'=>'', 'function'=>'', 'file'=>'', 'line'=>'');
+		$function = array_merge($function, $this->_getBacktraceElemFromFuncName($name));
 		
   		if(! is_array($function['args']))
 				$function['args'] = array();
@@ -146,7 +147,7 @@ class FezLog
   			else 
   				$args[] = $arg;
 		}
-		
+
         $message = $function['class'] . $function['type'] .
                    $function['function'] . '(' . Misc::multi_implode(', ', $args) . ')' .
                    ' - ' .

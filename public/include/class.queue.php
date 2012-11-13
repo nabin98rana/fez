@@ -50,7 +50,7 @@ abstract class Queue
   public function add($id) 
   {
     $log = FezLog::get();
-    if (!$this->_ids[$id]) {
+    if (!array_key_exists($id,$this->_ids) || !$this->_ids[$id]) {
       $this->_ids[$id] = self::ACTION_ADD;
       $log->debug("Added $id to queue");
     }
