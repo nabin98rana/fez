@@ -167,6 +167,16 @@ class MatchingRecords
     		return '';
     	}
     }
+    
+    /**
+     * Just a test method for now. Need to flesh out.
+     * @param unknown_type $value
+     * @return unknown
+     */
+    public function search_scopus($value)
+    {
+    	return $value;
+    }
 
     /**
      * Return search result
