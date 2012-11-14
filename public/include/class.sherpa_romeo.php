@@ -112,7 +112,8 @@ class SherpaRomeo
                 $colour = '#E6E6E6';
             }
 
-            $sROutput = "<span style='background-color:".$colour."' id='sherpa'><a href='http://www.sherpa.ac.uk/romeo/search.php?issn=".$res['issn']."'>";
+            $text = "Check publisher's open access policy";
+            $sROutput = "<span style='background-color:".$colour."' id='sherpa'><a href='http://www.sherpa.ac.uk/romeo/search.php?issn=".$res['issn']."' target='_blank'>";
             $sROutput .= $text;
             $sROutput .= "</a></span>";
         }
