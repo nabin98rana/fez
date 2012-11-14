@@ -12,10 +12,10 @@ class Fez_Filter_Htmlpurify implements Zend_Filter_Interface
 	public function filter($value)
 	{
 		require_once APP_PATH . 'include/htmlpurifier/library/HTMLPurifier.auto.php';
-		
+
 		$config = HTMLPurifier_Config::createDefault();
 		$purify = new HTMLPurifier($config);
-		
+
 		if(is_array($value))
 		{
 			$purified = array();
@@ -24,11 +24,11 @@ class Fez_Filter_Htmlpurify implements Zend_Filter_Interface
 				$purified[$k] = $this->filter($v);
 			}
 		}
-		else 
+		else
 		{
 			$purified = $purify->purify($value);
 		}
-		
+
 		return $purified;
 	}
 }
