@@ -210,7 +210,7 @@ class bookReaderPDFConverter
             //Delete the tmp source file if there is one.
             if(strstr($this->sourceFilePath, APP_TEMP_DIR))
             {
-                :unlink($this->sourceFilePath);
+                unlink($this->sourceFilePath);
             }
         }
         else
