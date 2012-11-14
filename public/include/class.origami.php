@@ -35,7 +35,7 @@
 
 class Origami {
 
-	function getTitleLocation($pid, $dsID) 
+	function getTitleLocation($pid, $dsID)
 	{
 
 		$pidData    = explode(':', $pid);
@@ -53,7 +53,7 @@ class Origami {
 	}
 
 
-	function createTitles($pid, $filename, $mimetype) 
+	function createTitles($pid, $filename, $mimetype)
 	{
 		$log = FezLog::get();
 		/*
@@ -63,7 +63,7 @@ class Origami {
 		$mimetype == 'image/jpg' ||
 		$mimetype == 'image/tif' ||
 		$mimetype == 'image/tiff')) {
-			 
+
 			//Logger::debug($pid . " " . $filename ." didnt have correct mimetype - ". $mimetype);
 			return;
 		}
@@ -102,7 +102,9 @@ class Origami {
 			if ($return_status <> 0) {
 				$log->err(array("Origami Error: ".implode(",", $return_array).", return status = $return_status, for command $command \n", __FILE__,__LINE__));
 			}
-			unlink($tmpFile);
+      if (is_file($tmpFile)) {
+        unlink($tmpFile);
+      }
 		} else {
 			exec(Origami::getTitleAppPath() . " $tmpFile $path", $return_array, $return_status);
 			if ($return_status <> 0) {
@@ -112,7 +114,7 @@ class Origami {
 		//echo Origami::getTitleAppPath() . " $tmpFile $path\n";
 	}
 
-	function getTitleAppPath() 
+	function getTitleAppPath()
 	{
 
 		// We must cd in the origami directory because the tile_image script uses a relative path for

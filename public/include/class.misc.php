@@ -1291,7 +1291,9 @@ public static function multi_implode($glue, $pieces)
         $node = $res->item(0);
         $ret = $node->nodeValue;
       }
-      unlink($xmlfile);
+      if(is_file($xmlfile)) {
+        unlink($xmlfile);
+      }
     } else if (stristr(PHP_OS, 'solaris')) {
       $ret = mime_content_type($f);
     } else {

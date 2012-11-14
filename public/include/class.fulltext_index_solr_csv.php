@@ -383,7 +383,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 			}
 
 			// Dont delete csv if there is an error
-			if($uploaded == true) {
+			if($uploaded == true && is_file($tmpfname)) {
 				unlink($tmpfname);
 			}
 
@@ -567,7 +567,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 	 * @param string $dsID
 	 * @return plaintext of datastream, null on error
 	 */
-	public function getCachedContent($pids) 
+	public function getCachedContent($pids)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();

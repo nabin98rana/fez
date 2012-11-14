@@ -57,10 +57,10 @@ class Fedora_API {
 	 * @access  public
 	 * @return  void (Logs an error message)
 	 */
-	function checkFedoraServer() 
+	function checkFedoraServer()
 	{
 		$log = FezLog::get();
-		
+
 		$ch = curl_init(APP_BASE_FEDORA_APIA_DOMAIN."/describe");
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		if (APP_HTTPS_CURL_CHECK_CERT == "OFF" && APP_FEDORA_APIA_PROTOCOL_TYPE == 'https://')  {
@@ -110,10 +110,10 @@ class Fedora_API {
 	 * @access  public
 	 * @return  string $pid The next avaiable PID in from the Fedora PID handler
 	 */
-	function getNextPID() 
+	function getNextPID()
 	{
 		$log = FezLog::get();
-		
+
 		$pid = false;
 		$getString = APP_SIMPLE_FEDORA_APIM_DOMAIN."/objects/nextPID?format=xml";
 		$ch = curl_init($getString);
@@ -124,12 +124,12 @@ class Fedora_API {
 			curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, 0);
 		}
 
-		curl_setopt($ch, CURLOPT_USERPWD, APP_FEDORA_USERNAME.":".APP_FEDORA_PWD); 
+		curl_setopt($ch, CURLOPT_USERPWD, APP_FEDORA_USERNAME.":".APP_FEDORA_PWD);
 		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
 
-		curl_setopt($ch, CURLOPT_POSTFIELDS, array('format' => "xml")); 
+		curl_setopt($ch, CURLOPT_POSTFIELDS, array('format' => "xml"));
 		$results = curl_exec($ch);
-		
+
 		if ($results) {
 			$info = curl_getinfo($ch);
 			curl_close ($ch);
@@ -160,7 +160,7 @@ class Fedora_API {
 	 * @param string $pid The persistent identifier
 	 * @return  string $result The XML of the object
 	 */
-	function getObjectXMLByPID($pid) 
+	function getObjectXMLByPID($pid)
 	{
 		if (APP_FEDORA_APIA_DIRECT == "ON") {
 			$fda = new Fedora_Direct_Access();
@@ -194,7 +194,7 @@ class Fedora_API {
 	 * @param string $pid The persistent identifier
 	 * @return  array of audit trail
 	 */
-	function getAuditTrail($pid) 
+	function getAuditTrail($pid)
 	{
 		$auditTrail = array();
 
@@ -211,7 +211,7 @@ class Fedora_API {
 			$ID = $dsNode->getAttribute('ID');
 			if( $ID != 'AUDIT' )
 			continue;
-			 
+
 			$dvStmt = "./foxml:datastreamVersion[@ID='AUDIT.0']/foxml:xmlContent/audit:auditTrail";
 			$dv = $xpath->query($dvStmt, $dsNode);
 			foreach ($dv as $dvNode) {
@@ -285,7 +285,7 @@ class Fedora_API {
 	 * @param string $foxml The XML object itself in FOXML format
 	 * @return  void
 	 */
-	function callIngestObject($foxml, $pid="") 
+	function callIngestObject($foxml, $pid="")
 	{
                 $log = FezLog::get();
 
@@ -301,7 +301,7 @@ class Fedora_API {
 				        exit;
 				}
                 $ch = curl_init($getString);
-				curl_setopt($ch, CURLOPT_HEADER, true);  
+				curl_setopt($ch, CURLOPT_HEADER, true);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                 if (APP_HTTPS_CURL_CHECK_CERT == "OFF" && APP_FEDORA_APIA_PROTOCOL_TYPE == 'https://')  {
                         curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, 0);
@@ -310,7 +310,7 @@ class Fedora_API {
 
                 curl_setopt($ch, CURLOPT_POST, 1);
 
-//				curl_setopt($ch, CURLOPT_INFILE, $fp);  
+//				curl_setopt($ch, CURLOPT_INFILE, $fp);
 //				curl_setopt($ch, CURLOPT_INFILESIZE, strlen($foxml));
                 curl_setopt($ch, CURLOPT_POSTFIELDS, array("file" => "@".$tempFile.";type=text/xml", "format" => "info:fedora/fedora-system:FOXML-1.0"));
 
@@ -325,16 +325,18 @@ class Fedora_API {
 							return false;
 						}
                         curl_close ($ch);
-						unlink($tempFile);
+            if (is_file($tempFile)) {
+						  unlink($tempFile);
+            }
                         return true;
                 } else {
                         $log->err(array(curl_error($ch),__FILE__,__LINE__));
                         curl_close ($ch);
                         return false;
-                } 
+                }
 	}
 
-	function export($pid, $format="info:fedora/fedora-system:FOXML-1.0", $context="migrate") 
+	function export($pid, $format="info:fedora/fedora-system:FOXML-1.0", $context="migrate")
 	{
 		$parms = compact('pid','form at','context');
 		$result = Fedora_API::openSoapCall('export', $parms);
@@ -423,7 +425,7 @@ class Fedora_API {
 	 * @param array $searchTerms The list of DC and Fedora basic fields to search against.
 	 * @return  array $resultList The search results.
 	 */
-	function getListObjectsXML($searchTerms, $maxResults=2147483647, $returnfields=null) 
+	function getListObjectsXML($searchTerms, $maxResults=2147483647, $returnfields=null)
 	{
 		$searchTerms = urlencode("*".$searchTerms."*"); // encode it for url parsing
 		if (empty($returnfields)) {
@@ -476,7 +478,7 @@ class Fedora_API {
 	 * @param string $pid The persistant identifier of the object to be purged
 	 * @return  integer
 	 */
-	function callPurgeObject($pid) 
+	function callPurgeObject($pid)
 	{
 		$logmsg = 'Fedora Object Purged using Fez';
 		/*$parms=array('PID' => $pid, 'logMessage' => $logmsg, 'force' => false);
@@ -524,7 +526,7 @@ class Fedora_API {
 	 * @param boolean $versionable Whether to version control this datastream or not
 	 * @return  integer
 	 */
-	function getUploadLocation ($pid, $dsIDName, $file, $dsLabel, $mimetype='text/xml', $controlGroup='M', $dsID=NULL,$versionable='false') 
+	function getUploadLocation ($pid, $dsIDName, $file, $dsLabel, $mimetype='text/xml', $controlGroup='M', $dsID=NULL,$versionable='false')
 	{
 		$log = FezLog::get();
 		if (!is_numeric(strpos($dsIDName, "/"))) {
@@ -540,7 +542,7 @@ class Fedora_API {
 //			echo $file; exit;
 		}
 
-/*		
+/*
 		if (empty($dsIDName)) {
 			$log->err(array("Blank dsIDName",__FILE__,__LINE__));
 			return false;
@@ -595,13 +597,17 @@ class Fedora_API {
 				if ($dsExists !== true) {
 					//Call callAddDatastream
 					$dsID = Fedora_API::callAddDatastream($pid, $dsIDName, $file_full, $dsLabel, "A", $mimetype, $controlGroup, $versionable, '');
-					unlink($file_full);
+          if (is_file($file_full)) {
+            unlink($file_full);
+          }
 					return $dsID;
 				} elseif (!empty($dsIDName)) {
 					// Let fedora handle versioning
 					//Fedora_API::callModifyDatastreamByReference ($pid, $dsIDName, $dsLabel, $uploadLocation, $mimetype, $versionable);
 					Fedora_API::callModifyDatastream($pid, $dsIDName, $file_full, $dsLabel, "A", $mimetype, $versionable, '');
-					unlink($file_full);
+          if (is_file($file_full)) {
+					  unlink($file_full);
+          }
 					return $dsIDName;
 				}
 
@@ -629,7 +635,7 @@ class Fedora_API {
 	 * @param boolean $versionable Whether to version control this datastream or not
 	 * @return  integer
 	 */
-	function getUploadLocationByLocalRef ($pid, $dsIDName, $local_file_location, $dsLabel, $mimetype, $controlGroup='M', $dsID=NULL,$versionable='false') 
+	function getUploadLocationByLocalRef ($pid, $dsIDName, $local_file_location, $dsLabel, $mimetype, $controlGroup='M', $dsID=NULL,$versionable='false')
 	{
 		$log = FezLog::get();
 		/*
@@ -690,8 +696,8 @@ class Fedora_API {
 			$uploadLocation = curl_exec($ch);
 			if ($uploadLocation) { */
 //				curl_close ($ch);
-				
-				
+
+
 				if (!is_numeric(strpos($local_file_location,"/"))) {
 					$local_file_location = APP_TEMP_DIR.$local_file_location;
 				}
@@ -699,7 +705,7 @@ class Fedora_API {
 					$mimetype = Misc::mime_content_type($local_file_location);
 				}
 
-				
+
 				$local_file_location = trim(str_replace("\n", "", $local_file_location));
 				$versionable = $versionable === true ? 'true' : $versionable === false ? 'false' : $versionable;
 				$dsExists = Fedora_API::datastreamExists($pid, $dsIDName);
@@ -717,7 +723,7 @@ class Fedora_API {
 /*			} else {
 				$log->err(array(curl_error($ch),__FILE__,__LINE__));
 				curl_close ($ch);
-			} 
+			}
 		} */
 	}
 
@@ -749,10 +755,10 @@ class Fedora_API {
 	 * @param string $mimetype The mimetype of the datastream
 	 * @param string $controlGroup The control group of the datastream
 	 * @param boolean $versionable Whether to version control this datastream or not
-	 * @param boolean $xmlContent If it an X based xml content file then it uses a var rather than a file location 
+	 * @param boolean $xmlContent If it an X based xml content file then it uses a var rather than a file location
 	 * @return void
 	 */
-	function callAddDatastream ($pid, $dsID, $dsLocation, $dsLabel, $dsState, $mimetype, $controlGroup='M',$versionable='false', $xmlContent="") 
+	function callAddDatastream ($pid, $dsID, $dsLocation, $dsLabel, $dsState, $mimetype, $controlGroup='M',$versionable='false', $xmlContent="")
 	{
 		if ($mimetype == "") {
 			$mimetype = "text/xml";
@@ -790,12 +796,12 @@ class Fedora_API {
 			$ch = curl_init($getString);
  		 	curl_setopt($ch, CURLOPT_POST, 1);
 
-			curl_setopt($ch, CURLOPT_POSTFIELDS, array("dsLocation" => $dsLocation, 
+			curl_setopt($ch, CURLOPT_POSTFIELDS, array("dsLocation" => $dsLocation,
 														"dsLabel" => urlencode($dsLabel),
 														"versionable" => $versionable,
 														"mimeType" => $mimetype,
 														"controlGroup" => $controlGroup,
-														"dsState" => "A", 
+														"dsState" => "A",
 														"logMessage" => "Added Link"
 														));
 
@@ -805,7 +811,7 @@ class Fedora_API {
  		 	curl_setopt($ch, CURLOPT_POST, 1);
 			if ($controlGroup == 'X') {
 				$xmlContent = Fedora_API::tidyXML($xmlContent);
-				$tempFile = APP_TEMP_DIR.str_replace(":", "_", $pid)."_".$dsID.".xml";			
+				$tempFile = APP_TEMP_DIR.str_replace(":", "_", $pid)."_".$dsID.".xml";
 			} else {
 				$tempFile = APP_TEMP_DIR.$dsID;
 			}
@@ -816,7 +822,7 @@ class Fedora_API {
 			}
 			fclose($fp);
 //			curl_setopt($ch, CURLOPT_POSTFIELDS, array("file[]" => "@".$tempFile.";type=".$mimetype));
-			curl_setopt($ch, CURLOPT_POSTFIELDS, array("file[]" => "@".$tempFile.";type=".$mimetype, 
+			curl_setopt($ch, CURLOPT_POSTFIELDS, array("file[]" => "@".$tempFile.";type=".$mimetype,
 											"dsLabel" => urlencode($dsLabel),
 											"versionable" => $versionable,
 											"mimeType" => $mimetype,
@@ -829,20 +835,20 @@ class Fedora_API {
 			$ch = curl_init($getString);
 	 		 curl_setopt($ch, CURLOPT_POST, 1);
 //			curl_setopt($ch, CURLOPT_POSTFIELDS, array("file[]" => "@".$dsLocation.";type=".$mimetype));
-//$log->err("OMG: $dsLocation"); 
-//			curl_setopt($ch, CURLOPT_POSTFIELDS, array("file[]" => "@".$dsLocation.";type=".$mimetype, 
-			curl_setopt($ch, CURLOPT_POSTFIELDS, array("file_name" => "@".$dsLocation.";type=".$mimetype, 
-//			curl_setopt($ch, CURLOPT_POSTFIELDS, array("file_name" => "@".$dsLocation, 
+//$log->err("OMG: $dsLocation");
+//			curl_setopt($ch, CURLOPT_POSTFIELDS, array("file[]" => "@".$dsLocation.";type=".$mimetype,
+			curl_setopt($ch, CURLOPT_POSTFIELDS, array("file_name" => "@".$dsLocation.";type=".$mimetype,
+//			curl_setopt($ch, CURLOPT_POSTFIELDS, array("file_name" => "@".$dsLocation,
 														"dsLabel" => urlencode($dsLabel),
 														"versionable" => $versionable,
 														"mimeType" => $mimeType,
 														"controlGroup" => $controlGroup,
-														"dsState" => "A", 
+														"dsState" => "A",
 														"logMessage" => "Added Datastream",
 														"submit" => "UPLOAD"
 														));
 		}
-		 curl_setopt($ch, CURLOPT_USERPWD, APP_FEDORA_USERNAME.":".APP_FEDORA_PWD); 
+		 curl_setopt($ch, CURLOPT_USERPWD, APP_FEDORA_USERNAME.":".APP_FEDORA_PWD);
 
 		 curl_setopt($ch, CURLOPT_VERBOSE, 1);
 		 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -850,12 +856,12 @@ class Fedora_API {
 		         curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, 0);
 		         curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, 0);
 		 }
-		
+
 		 $results = curl_exec($ch);
 		 if ($results) {
 		     //$info = curl_getinfo($ch);
 		     curl_close ($ch);
-             if (!empty($tempFile)) {
+             if (is_file($tempFile)) {
                  unlink($tempFile);
              }
 		     return true;
@@ -870,7 +876,7 @@ class Fedora_API {
 	}
 
 
-		function callModifyDatastream ($pid, $dsID, $dsLocation, $dsLabel, $dsState, $mimetype, $versionable='false', $xmlContent="") 
+		function callModifyDatastream ($pid, $dsID, $dsLocation, $dsLabel, $dsState, $mimetype, $versionable='false', $xmlContent="")
 		{
       $tempFile = "";
 			if ($mimetype == "") {
@@ -907,7 +913,7 @@ class Fedora_API {
 
 
 
-			curl_setopt($ch, CURLOPT_USERPWD, APP_FEDORA_USERNAME.":".APP_FEDORA_PWD); 
+			curl_setopt($ch, CURLOPT_USERPWD, APP_FEDORA_USERNAME.":".APP_FEDORA_PWD);
 
 			$isLink = false;
 
@@ -930,7 +936,7 @@ class Fedora_API {
 //															"controlGroup" => $controlGroup,
 															"dsState" => "A",
 															"logMessage" => "Modified Datastream"
-				
+
 				));
       } elseif ($dsLocation != "") {
         curl_setopt($ch, CURLOPT_POSTFIELDS, array("file" => "@".$dsLocation.";type=".$mimetype,
@@ -993,7 +999,7 @@ class Fedora_API {
        						return false;
                         }
 					}
-                    if (file_exists($tempFile)) {
+                    if (is_file($tempFile)) {
                       unlink($tempFile);
                     }
 			    curl_close ($ch);
@@ -1021,7 +1027,7 @@ class Fedora_API {
 	 * @param boolean $versionable Whether to version control this datastream or not
 	 * @return void
 	 */
-	function callCreateDatastream($pid, $dsIDName, $uploadLocation, $dsLabel, $mimetype, $controlGroup='M',$versionable='false') 
+	function callCreateDatastream($pid, $dsIDName, $uploadLocation, $dsLabel, $mimetype, $controlGroup='M',$versionable='false')
 	{
 /*		$dsIDNameOld = $dsIDName;
 		if (is_numeric(strpos($dsIDName, chr(92)))) {
@@ -1032,16 +1038,16 @@ class Fedora_API {
 		}
 		$versionable = $versionable === true ? 'true' : $versionable === false ? 'false' : $versionable;
 		$parms=array(
-    	   'PID'           => $pid, 
-    	   'dsID'          => $dsIDName, 
-    	   'altIDs'        => array(), 
-    	   'dsLabel'       => $dsLabel, 
+    	   'PID'           => $pid,
+    	   'dsID'          => $dsIDName,
+    	   'altIDs'        => array(),
+    	   'dsLabel'       => $dsLabel,
 		new soapval('versionable', 'boolean', $versionable),
-    	   'MIMEType'      => $mimetype, 
-    	   'formatURI'     => 'unknown', 
-    	   'dsLocation'    => $uploadLocation, 
-    	   'controlGroup'  => $controlGroup, 
-    	   'dsState'       => 'A', 
+    	   'MIMEType'      => $mimetype,
+    	   'formatURI'     => 'unknown',
+    	   'dsLocation'    => $uploadLocation,
+    	   'controlGroup'  => $controlGroup,
+    	   'dsState'       => 'A',
     	   'logMessage'    => 'Added new datastream from Fez'
     	   );
     	   $dsID = Fedora_API::openSoapCall('addDatastream', $parms);
@@ -1057,7 +1063,7 @@ class Fedora_API {
 	 * @param string $createdDT (optional) Fedora timestamp of version to retrieve
 	 * @return array $dsIDListArray The list of datastreams in an array.
 	 */
-	function callGetDatastreams($pid, $createdDT=NULL, $dsState='A') 
+	function callGetDatastreams($pid, $createdDT=NULL, $dsState='A')
 	{
 		if (!is_numeric($pid)) {
 
@@ -1101,7 +1107,7 @@ class Fedora_API {
 			return $dsIDListArray;
 		} else {
 			return array();
-		} 
+		}
 /*		$getString = APP_BASE_FEDORA_APIM_DOMAIN."/objects/".$pid."/objectXML";
         $ch = curl_init($getString);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -1119,9 +1125,9 @@ class Fedora_API {
                 curl_close ($ch);
                 return false;
         }
-        
-*/		
-		
+
+*/
+
 	}
 
 	/**
@@ -1131,7 +1137,7 @@ class Fedora_API {
 	 * @param string $pid The persistant identifier of the object
 	 * @return array $dsIDListArray The list of datastreams in an array.
 	 */
-	function callListDatastreams($pid) 
+	function callListDatastreams($pid)
 	{
 		if (!is_numeric($pid)) {
 			if (APP_FEDORA_APIA_DIRECT == "ON") {
@@ -1159,7 +1165,7 @@ class Fedora_API {
 	function callListDatastreamsLite($pid, $refresh=false, $current_tries = 0)
 	{
 		$log = FezLog::get();
-		
+
 		static $returns;
 		if (!is_array($returns)) {
 			$returns = array();
@@ -1229,14 +1235,14 @@ class Fedora_API {
 
 
 
-	function objectExists($pid, $refresh = false) 
+	function objectExists($pid, $refresh = false)
 	{
-		
+
 		static $exists;
 		if (!empty($exists)) {
 			return $exists;
 		}
-		
+
 		if (!is_array($exists)) {
 			$exists = array();
 		}
@@ -1245,7 +1251,7 @@ class Fedora_API {
 				return $exists[$pid];
 			}
 		}
-		
+
 		if (Misc::isPid($pid) != true) {
 			$exists[$pid] = false;
 			return $exists[$pid];
@@ -1274,8 +1280,8 @@ class Fedora_API {
 			$exists[$pid] = false;
 		}
 		return $exists[$pid];
-		
-		// Old slow soap way - commented out for later removal - CK 17/7/2009 
+
+		// Old slow soap way - commented out for later removal - CK 17/7/2009
 		/*
 		$parms = array('pid' => $pid);
 		$result = Fedora_API::openSoapCall('getObjectXML', $parms, false);
@@ -1311,7 +1317,7 @@ class Fedora_API {
 	 * @param string $pattern a regex pattern to search against if given instead of ==/equivalence
 	 * @return boolean
 	 */
-	function datastreamExists ($pid, $dsID, $refresh=false, $pattern=false) 
+	function datastreamExists ($pid, $dsID, $refresh=false, $pattern=false)
 	{
 		if (Misc::isPid($pid) != true) {
 			return false;
@@ -1345,7 +1351,7 @@ class Fedora_API {
 	 * @param string $dsID The ID of the datastream to be checked
 	 * @return boolean
 	 */
-	function datastreamExistsInArray ($existing_list, $dsID) 
+	function datastreamExistsInArray ($existing_list, $dsID)
 	{
 		$dsExists = false;
 		$rs = $existing_list;
@@ -1366,13 +1372,13 @@ class Fedora_API {
 	 * @param string $asofDateTime Optional Gets a specified version at a datetime stamp
 	 * @return array $dsIDListArray The datastream returned in an array
 	 */
-	function callGetDatastreamDissemination($pid, $dsID, $asofDateTime="") 
+	function callGetDatastreamDissemination($pid, $dsID, $asofDateTime="")
 	{
 		$log = FezLog::get();
 		// Redirect all calls to the REST Version for now - CK added 17/7/2009
 		return Fedora_API::callGetDatastreamDisseminationLite($pid, $dsID, $asofDateTime);
 		/*
-		
+
 
 		if (APP_FEDORA_APIA_DIRECT == "ON") {
 			$fda = new Fedora_Direct_Access();
@@ -1401,7 +1407,7 @@ class Fedora_API {
 	 */
 	function callGetDatastreamDisseminationLite($pid, $dsID, $asofDateTime="", $current_tries = 0)
 	{
-		
+
 		$log = FezLog::get();
 		$dsIDListArray = array();
 /*		if (APP_FEDORA_APIA_DIRECT == "ON" && $asofDateTime == "") {
@@ -1521,7 +1527,7 @@ class Fedora_API {
 	 * @param array $returnfields
 	 * @return array $dsIDListArray The requested of datastream in an array.
 	 */
-	function callGetDatastreamContentsField($pid, $dsID, $returnfields, $asOfDateTime="") 
+	function callGetDatastreamContentsField($pid, $dsID, $returnfields, $asOfDateTime="")
 	{
 		static $counter;
 		if (!isset($counter)) {
@@ -1562,25 +1568,25 @@ class Fedora_API {
 	 * @param boolean $versionable Whether to version control this datastream or not
 	 * @return void
 	 */
-	function callModifyDatastreamByValue ($pid, $dsID, $state, $label, $dsContent, $mimetype='text/xml', $versionable='inherit') 
+	function callModifyDatastreamByValue ($pid, $dsID, $state, $label, $dsContent, $mimetype='text/xml', $versionable='inherit')
 	{
 //		if ($dsID == "DC") { echo "HERE"; exit; }
-		
+
 		Fedora_API::callModifyDatastream($pid, $dsID, "", $label, "A", $mimetype, $versionable, $dsContent);
-		
+
 /*		$versionable = $versionable === true ? 'true' : $versionable === false ? 'false' : $versionable;
 		if( strcasecmp($versionable,'inherit') != 0 ){
 			// if 'inherit' then versionable is not being changed
 			$logmsg = 'Update versionable';
 			$parms= array(
-		       'pid'           => $pid, 
-		       'dsID'  => $dsID, 
+		       'pid'           => $pid,
+		       'dsID'  => $dsID,
 			new soapval('versionable', 'boolean', $versionable),
-		       'logMessage'    => $logmsg, 
+		       'logMessage'    => $logmsg,
 			);
 			Fedora_API::openSoapCall('setDatastreamVersionable', $parms);
 		}
-	  
+
 		if ($mimetype == 'text/xml') {
 			$config = array(
 			  'indent'      => true,
@@ -1600,14 +1606,14 @@ class Fedora_API {
 		$dsContent = base64_encode(trim($dsContent));
 		$logmsg = 'Modifying datastream from Fez';
 		$parms= array(
-            'pid'           => $pid, 
-            'dsID'  => $dsID, 
-            'altIDs'        => array(), 
-            'dsLabel'       => $label, 
-            'MIMEType'      => $mimetype, 
-            'formatURI'     => 'unknown', 
+            'pid'           => $pid,
+            'dsID'  => $dsID,
+            'altIDs'        => array(),
+            'dsLabel'       => $label,
+            'MIMEType'      => $mimetype,
+            'formatURI'     => 'unknown',
 		new soapval("dsContent","base64Binary",$dsContent),
-            'logMessage'    => $logmsg, 
+            'logMessage'    => $logmsg,
 		new soapval('force', 'boolean', 'true')
 		);
 		//		echo "\n\n before open soap call,after tidy and base64encode for modify ".$dsID." "; echo date("l dS of F Y h:i:s A");
@@ -1631,38 +1637,38 @@ class Fedora_API {
 		// force state to 'A'; otherwise, if the dsID is the same
 		// as a DS that was deleted, then the modify will fail
 		Fedora_API::callSetDatastreamState($pid,$dsID,'A');
-		
 
-		
+
+
 		$versionable = $versionable === true ? 'true' : $versionable === false ? 'false' : $versionable;
 		if( strcasecmp($versionable,'inherit') != 0 ){
 			// if 'inherit' then versionable is not being changed
 			$logmsg = 'Update versionable';
 			$parms= array(
-		       'pid'           => $pid, 
-		       'dsID'  => $dsID, 
+		       'pid'           => $pid,
+		       'dsID'  => $dsID,
 		       'versionable'  => $versionable,
-		       'logMessage'    => $logmsg, 
+		       'logMessage'    => $logmsg,
 			);
       //			new soapval('versionable', 'boolean', $versionable),
 			Fedora_API::openSoapCall('setDatastreamVersionable', $parms);
 		}
-//		Fedora_API::callModifyDatastream($pid, $dsID, $dsLocation, $dsLabel, "A", $mimetype, $versionable);	  
+//		Fedora_API::callModifyDatastream($pid, $dsID, $dsLocation, $dsLabel, "A", $mimetype, $versionable);
 		$logmsg = 'Modifying datastream by reference';
 		$parms= array(
-	       'pid'           => $pid, 
-	       'dsID'  => $dsID, 
-	       'altIDs'        => array(), 
-	       'dsLabel'       => $dsLabel, 
-	       'MIMEType'      => $mimetype, 
-	       'formatURI'     => 'unknown', 
+	       'pid'           => $pid,
+	       'dsID'  => $dsID,
+	       'altIDs'        => array(),
+	       'dsLabel'       => $dsLabel,
+	       'MIMEType'      => $mimetype,
+	       'formatURI'     => 'unknown',
 	       'dsLocation'    => $dsLocation,
          'checksumType'  => 'DISABLED',
          'checksum'      => 'none',
-	       'logMessage'    => $logmsg, 
+	       'logMessage'    => $logmsg,
 	       'force'         => true
 		);
-		Fedora_API::openSoapCall('modifyDatastreamByReference', $parms); 
+		Fedora_API::openSoapCall('modifyDatastreamByReference', $parms);
 	}
 
 	/**
@@ -1688,7 +1694,7 @@ class Fedora_API {
 	 * @param string $dsID The ID of the datastream
 	 * @return boolean
 	 */
-	function deleteDatastream($pid, $dsID) 
+	function deleteDatastream($pid, $dsID)
 	{
 		return Fedora_API::callSetDatastreamState($pid,$dsID,'D',"Changed Datastream State to Deleted from Fez");
 	}
@@ -1703,12 +1709,12 @@ class Fedora_API {
 	 * @param string $logMessage
 	 * @return boolean
 	 */
-	function callSetDatastreamState ($pid, $dsID, $state='A', $logMessage="Changed Datastream State from Fez") 
+	function callSetDatastreamState ($pid, $dsID, $state='A', $logMessage="Changed Datastream State from Fez")
 	{
 		$parms= array(
-			'pid' => $pid, 
-			'dsID' => $dsID, 
-			'dsState' => $state, 
+			'pid' => $pid,
+			'dsID' => $dsID,
+			'dsState' => $state,
 			'logMessage' => $logMessage);
 		return Fedora_API::openSoapCall('setDatastreamState', $parms);
 	}
@@ -1724,14 +1730,14 @@ class Fedora_API {
 	 * @param boolean $force
 	 * @return boolean
 	 */
-	function callPurgeDatastream ($pid, $dsID, $startDT=NULL, $endDT=NULL, $logMessage="Purged Datastream from Fez", $force=false) 
+	function callPurgeDatastream ($pid, $dsID, $startDT=NULL, $endDT=NULL, $logMessage="Purged Datastream from Fez", $force=false)
 	{
 		$parms= array('pid' => $pid, 'dsID' => $dsID, 'startDT' => $startDT, 'endDT' => $endDT, 'logMessage' => $logMessage, 'force' => $force);
 		return Fedora_API::openSoapCall('purgeDatastream', $parms);
 	}
 
 	// This function is not used, as disseminators are not used in Fez, but it will be left in in for now
-	function callAddDisseminator ($pid, $dsID, $bDefPID, $bMechPID, $dissLabel, $key) 
+	function callAddDisseminator ($pid, $dsID, $bDefPID, $bMechPID, $dissLabel, $key)
 	{
 		//Builds a four level namespaced typed array.
 		//$dsBindings[] is used by $bindingMap,
@@ -1760,7 +1766,7 @@ class Fedora_API {
 	}
 
 	// This function is not used, as disseminators are not used in Fez, but it will be left in in for now
-	function callGetDisseminators($pid) 
+	function callGetDisseminators($pid)
 	{
 		/********************************************
 		 * This call gets a list of disseminators per
@@ -1781,17 +1787,17 @@ class Fedora_API {
 	function openSoapCall ($call, $parms, $debug_error=true, $current_tries=0)
 	{
 		$log = FezLog::get();
-		
+
 	    $setDateTimeTo = array('getDatastream');
-	    
+
 	    //if(!array_key_exists('asOfDateTime', $parms) && in_array($call, $setDateTimeTo))
-	    
+
 		/********************************************
 		 * This is a primary function called by all of
 		 * the preceding functions.
 		 * $call is the api call to the fedora api-m.
 		 ********************************************/
-//If using PHP4, or if you prefer to use nusoap over php soap you could uncomment the below and comment out the SoapClient code.		
+//If using PHP4, or if you prefer to use nusoap over php soap you could uncomment the below and comment out the SoapClient code.
 /*		if (version_compare(phpversion(), "5.0.0", "<")) {
 *//*			$client = new soapclient_internal(APP_FEDORA_MANAGEMENT_API);
 			$client->setCredentials(APP_FEDORA_USERNAME, APP_FEDORA_PWD);
@@ -1802,8 +1808,8 @@ class Fedora_API {
 				$fedoraError = "Error when calling ".$call." :".$result['faultstring'];
 				$log->err(array($fedoraError,$client->request, __FILE__,__LINE__));
 				return false;
-			}	
-			
+			}
+
 		} else { */
 //			echo APP_FEDORA_MANAGEMENT_WSDL_API;
 //			print_r($parms);
@@ -1812,7 +1818,7 @@ class Fedora_API {
 				$result = $client->__soapCall($call, array('parameters' => $parms));
 				$result = array_values(Misc::obj2array($result));
 				$result = $result[0];
-			} catch (SoapFault $fault) { 
+			} catch (SoapFault $fault) {
 //				$fedoraError = "Error when calling ".$call." :".$fault->faultstring;
         $current_tries++;
 				$fedoraError = "Error when calling ".$call." :".$fault->getMessage()."\n\n \n\n FOR THE $current_tries time REQUEST: \n\n".$client->__getLastRequest()."\n\n RESPONSE: \n\n ".$client->__getLastResponse();
@@ -1824,7 +1830,7 @@ class Fedora_API {
         } else {
           return false;
         }
-			}	
+			}
 		return $result;
 	}
 
@@ -1839,7 +1845,7 @@ class Fedora_API {
 	function openSoapCallAccess ($call, $parms, $current_tries=0)
 	{
 		$log = FezLog::get();
-		
+
 		/********************************************
 		 * This is a primary function called by all of
 		 * the preceding functions.
@@ -1883,7 +1889,7 @@ class Fedora_API {
 	 * @param array $client The soap object
 	 * @return void (Outputs debug info to screen).
 	 */
-	function debugInfo($client, $asString=false) 
+	function debugInfo($client, $asString=false)
 	{
 		$str =
             '<hr /><b>Debug Information</b><br /><br />'

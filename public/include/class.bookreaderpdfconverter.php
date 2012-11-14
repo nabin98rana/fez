@@ -41,12 +41,12 @@ class bookReaderPDFConverter
         {
             $this->sourceFilePath = $sourceFile;
         }
-        
+
         if($altFilename)
         {
             $this->sourceInfo($altFilename);
         }
-        else 
+        else
         {
             $this->sourceInfo();
         }
@@ -73,29 +73,29 @@ class bookReaderPDFConverter
     public function setPIDQueue($pid, $convMeth='pdfToJpg')
     {
         $q = array();
-        
+
         if(APP_FEDORA_BYPASS == 'ON')
         {
             $dsr = new DSResource();
             $datastreams = $dsr->listStreams($pid);
-            
+
             foreach($datastreams as $ds)
             {
                 $dsr->load($ds['filename'], $pid);
                 $hash = $dsr->getHash();
                 $meta = $dsr->getMeta();
-                
+
                 if($meta['mimetype'] == 'application/pdf')
                 {
                     $q[] = array($pid, APP_DSTREE_PATH.$hash['hashPath'].$hash['rawHash'], $convMeth, $ds['filename']);
                 }
             }
         }
-        else 
+        else
         {
             $datastreams = Fedora_API::callGetDatastreams($pid);
             $srcURL = APP_FEDORA_GET_URL."/".$pid . '/';
-            
+
             foreach($datastreams as $ds)
             {
                 if($ds['MIMEType'] == 'application/pdf')
@@ -104,7 +104,7 @@ class bookReaderPDFConverter
                 }
             }
         }
-        
+
         $this->queue = $q;
     }
 
@@ -147,7 +147,7 @@ class bookReaderPDFConverter
             $altFilename = $altFilename[0];
             $parts['filename'] = $altFilename;
         }
-        
+
         $this->sourceFileStat = $parts;
     }
 
@@ -185,7 +185,7 @@ class bookReaderPDFConverter
         {
             $dir = mkdir($this->bookreaderDataPath, 0755, true);
         }
-        
+
         return $dir;
     }
 
@@ -210,7 +210,7 @@ class bookReaderPDFConverter
             //Delete the tmp source file if there is one.
             if(strstr($this->sourceFilePath, APP_TEMP_DIR))
             {
-                unlink($this->sourceFilePath);
+                :unlink($this->sourceFilePath);
             }
         }
         else
@@ -279,7 +279,7 @@ class bookReaderPDFConverter
             $cmd = GHOSTSCRIPT_PTH . ' -q -dBATCH -dNOPAUSE -dJPEGQ=80 -sDEVICE=jpeg -r150 -sOutputFile=' .
                    $this->bookreaderDataPath . '/' . $this->sourceFileStat['filename'] . '-%04d.jpg ' .
                    realpath($this->sourceFilePath);
-               
+
             shell_exec(escapeshellcmd($cmd));
         }
         else
