@@ -127,7 +127,8 @@ if (!empty($pid) && $record->checkExists()) {
 		$tpl->assign("extra_title", "Record #".$pid." Details");
 	}
   $tpl->setTemplate('header.tpl.html');
-  $tpl->displayTemplate();
+  $header = $tpl->getTemplateContents();
+  echo $header;
   ob_flush();
   flush();
 

@@ -79,5 +79,5 @@ include_once('view2.php');
 $tpl->displayTemplateRecord($pid);
 
 if(!$logged_in && APP_FILECACHE == "ON") {
-	$cache->saveCacheFile($savePage);
+	$cache->saveCacheFile($header, $savePage);
 }
