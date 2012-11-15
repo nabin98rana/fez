@@ -21,7 +21,7 @@ function validateForm() {
         || ($isAdministrator == "1" && $xsd_display_fields[i].xsdmf_html_input == 'hidden'))
         && $xsd_display_fields[i].xsdmf_validation_regex != ''}
     var field = document.getElementById('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0');
-    var regexp = {$xsd_display_fields[i].xsdmf_validation_regex};
+    var regexp = {$xsd_display_fields[i].xsdmf_validation_regex|smarty:nodefaults};
     {literal}
     if(field != null && !regexp.test(field.value) && field.value != '') {
         {/literal}
