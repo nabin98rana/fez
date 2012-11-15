@@ -46,12 +46,9 @@ $filter["searchKey".Search_Key::getID("Object Type")] = 3; // records only
 $filter["manualFilter"] = "isi_loc_t_s:[* TO *]"; //only records that have an isi loc
 
 $wok_ws = new WokService(FALSE);
-//sleep(WOK_SECONDS_BETWEEN_CALLS);
 $listing = Record::getListing(array(), array(9,10), 0, $max, 'Created Date', false, false, $filter);
-//echo "searching...\n";
 ob_flush();
 for($i=0; $i<((int)$listing['info']['total_pages']+1); $i++) {
-//  echo "page ".$i."\n";
   ob_flush();
 	// Skip first loop - we have called getListing once already
 	if($i>0)
@@ -62,20 +59,11 @@ for($i=0; $i<((int)$listing['info']['total_pages']+1); $i++) {
 	 	for($j=0; $j<count($listing['list']); $j++) {
 	 		$ut = $listing['list'][$j]['rek_isi_loc'];
 	 		if(! empty($ut))
-//	 			$primary_keys .= $ut.' ';
         array_push($uts, $ut);
 	 	}
 	}
-//	print_r($uts);
 	if(!empty($uts)) {
-//		$records_xml = EstiSearchService::retrieve($primary_keys);
     $records_xml = $wok_ws->retrieveById($uts);
-
-//    $response = $wok_ws->search("WOS", $query, $editions, $timeSpan, $depth, "en", $num_recs);
-//    $queryId = $response->return->queryID;
-//    $records_found = $response->return->recordsFound;
-//
-//    $result = $response->return->records;
 
     if ($records_xml) {
       $records = simplexml_load_string($records_xml);
@@ -83,7 +71,6 @@ for($i=0; $i<((int)$listing['info']['total_pages']+1); $i++) {
             if($record->UID) {
                 $recordUid = str_ireplace("WOS:", "", $record->UID );
                 $pid = Record::getPIDByIsiLoc($recordUid);
-            //          echo "updating $pid with ut".$record->item->ut." with count of ".$record->attributes()->timescited."\n";
                 ob_flush();
                 Record::updateThomsonCitationCount($pid, $record->dynamic_data->citation_related->tc_list->silo_tc->attributes()->local_count, $recordUid);
             }

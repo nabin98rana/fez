@@ -68,7 +68,6 @@ class WokService
     // Try and reuse an existing cookie
     $wokSession = WokSession::get();
     if ($wokSession != '') {
-//      echo "Reusing COOKIE! ".$wokSession."\n";
       $this->sessionId = $wokSession;
       $this->client->setCookie(WOK_COOKIE_NAME, $this->sessionId);
       $this->ready = TRUE;
@@ -79,7 +78,6 @@ class WokService
 
       // now test the old session/cookie is still active
       if ($this->retrieveById(array('1234')) == false) {
-//        echo "current value of ".$wokSession." is expired so need to get a new one\n";
         $this->sessionId = $this->authenticate(WOK_USERNAME, WOK_PASSWORD);
         $this->client->setCookie(WOK_COOKIE_NAME, $this->sessionId);
         WokSession::insert($this->sessionId);
@@ -87,10 +85,8 @@ class WokService
         return;
       }
     } else {
-//      echo "Not reusing cookie :( \n";
       $this->sessionId = $this->authenticate(WOK_USERNAME, WOK_PASSWORD);
       $this->client->setCookie(WOK_COOKIE_NAME, $this->sessionId);
-//      echo $this->sessionId;
       WokSession::insert($this->sessionId);
     }
 
@@ -100,8 +96,6 @@ class WokService
                                                    // fails to recognise the session
       $this->client->setOptions($options);
       $this->client->setWsdl($this->searchEndpoint.'?wsdl');
-//    register_shutdown_function(array($this, 'closeSession'));
-//      register_shutdown_function('$this->closeSession');
     } else {
       $this->ready = FALSE;
     }
@@ -132,7 +126,7 @@ class WokService
    * @param string $databaseID Identifies the ISI Web of Knowledge resource that this request will search (default is WOS).
    * @param string $userQuery The search expression in Advanced Search format.
    * @param string $editions The editions that this search will cover. Array containing collection and edition strings as elements.
-   * @param array $timeSpan The time span that this search will cover such as 2000-2002. Using begin and end array elements.
+   * @param array $timeSpan The time span that this search will cover such as 2000-2002. Using begin and end array elements. IE $timeSpan = array('begin'=>'2012-07-01', 'end'=>'2012-10-18');
    * @param array $symbolicTimeSpan This element defines a range of load dates. Allowed values are 1week, 2week and 4week The load date is the date when a record was added to a database.
    * If symbolicTimeSpan is specified, the timeSpan parameter should be omitted, or it must be null.
    * If timeSpan and symbolicTimeSpan are both null or omitted, then the maximum publication date time span will be inferred from the editions data.
@@ -152,7 +146,6 @@ class WokService
         //Chemistry formulas
         //$editions[] = array("collection" => $databaseId, "edition" => "IC");
         //$editions[] = array("collection" => $databaseId, "edition" => "CCR");
-        //Not implemented 2012-05-10
         $editions[] = array("collection" => $databaseId, "edition" => "BSCI");
         $editions[] = array("collection" => $databaseId, "edition" => "BHCI");
     }
@@ -166,8 +159,6 @@ class WokService
                       'databaseId' => $databaseId,
                       'userQuery' => $userQuery,
                       'editions' => $editions,
-//                      'timeSpan' => $timeSpan,
-//                      'symbolicTimeSpan' => $symbolicTimeSpan,
                       'queryLanguage' => $queryLanguage
                     ),
                'retrieveParameters' =>
@@ -176,7 +167,9 @@ class WokService
                        'count' => $count
                     )
     );
-    if (!empty($symbolicTimeSpan)) {
+    if (!empty($timeSpan)) {
+        $search['queryParameters']['timeSpan'] = $timeSpan;
+    } elseif (!empty($symbolicTimeSpan)) {
         $search['queryParameters']['symbolicTimeSpan'] = $symbolicTimeSpan;
     }
     try {
