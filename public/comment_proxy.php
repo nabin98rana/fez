@@ -44,7 +44,7 @@ $sek_comment_function = Search_Key::getCommentFunctionByXSDMF_ID($xsdmf_id);
 
 $comment = false;
 
-if(strlen($_GET['query']) > 8) {
+if(strlen($_GET['query']) > 2) {
     eval('$comment = '.$sek_comment_function.'("'.$query.'");');
 }
 

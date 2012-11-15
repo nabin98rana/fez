@@ -107,7 +107,7 @@ class SherpaRomeo
             } elseif ($res['colour']=='white') {
                 $text = "Archiving not formally supported";
                 $colour = '#FCFCFC';
-            } elseif ($res['colour']=='grey') {
+            } elseif ($res['colour']=='gray') {
                 $text = "RoMEO ungraded journal, but more information available";
                 $colour = '#E6E6E6';
             }
