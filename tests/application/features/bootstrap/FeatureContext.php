@@ -407,7 +407,7 @@ class FeatureContext extends MinkContext
       {
         $sn = $event->getStep()->getParent()->getTitle();
         $sn = Foxml::makeNCName($sn);
-        $scenarioName = str_replace(" ", "_", $sn);
+        $scenarioName = preg_replace('/\s+/', '_', str_replace(" ", "_", $sn));
         $imageName = sprintf("fail_%s_%s.png", time(), $scenarioName);
         $this->saveScreenshot($imageName);
         if ($this->screencast) {
