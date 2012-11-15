@@ -178,6 +178,7 @@ Feature: Check datastream policy works correctly
     And I press "Save Changes"
     And I turn on waiting checks
     When I am on "/"
+    And I wait for "2" seconds
   #Set datastream policy permissions
     And I fill in "Search Entry" with "title:(\"Test Title Datastream policy 4\")"
     And I press "search_entry_submit"

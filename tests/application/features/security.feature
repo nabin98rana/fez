@@ -40,6 +40,7 @@ Feature: Security
     And I select "Security Test Community" from "Member of Communities"
     And I fill in "Keyword 1" with "automated testing"
     And I press "Publish"
+    And I wait for "10" seconds
     And I follow "Security Test Community"
     And I wait for "2" seconds
     And I follow "Edit Security for Selected Collection"
