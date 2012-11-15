@@ -5363,13 +5363,15 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
 
   function markAsDeleted($pid, $date ='')
   {
+    $shadow = false;
     if(APP_FEDORA_BYPASS != 'ON') {
         // tell fedora that the object is deleted.
 	    $label = Record::getSearchKeyIndexValue($pid, "title", false);  // Get title of record. Sending a null label to callModifyObject deletes the object label in Fedora 3, which is used to display the title in the 'Undelete Fedora Objects' page
         Fedora_API::callModifyObject($pid, 'D', $label);
+      $shadow = true;
     }
     // delete it from the Fez index.
-    Record::removeIndexRecord($pid, true, true, $date);
+    Record::removeIndexRecord($pid, true, $shadow, $date);
   }
 
 
