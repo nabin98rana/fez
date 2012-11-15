@@ -51,21 +51,19 @@ $wok_ws = new WokService(FALSE);
 // Do an initial sleep just in something else ran just before this..
 sleep(WOK_SECONDS_BETWEEN_CALLS);
 $response = $wok_ws->search($databaseID, $query, $editions, $timeSpan, $depth, "en", $num_recs);
-$queryId = $response->return->queryID;
+$queryId = $response->return->queryId;
 $records_found = $response->return->recordsFound;
 
 $result = $response->return->records;
 $pages = ceil(($records_found/$num_recs));
 $wq = WokQueue::get();
 for($i=0; $i<$pages; $i++) {
-	
-	$first_rec += $num_recs;
-	
 	if($i>0) {
         sleep(WOK_SECONDS_BETWEEN_CALLS);
         $response = $wok_ws->retrieve($queryId, $first_rec, $num_recs);
         $result = $response->return->records;
     }
+    $first_rec += $num_recs;
     $records = @simplexml_load_string($result);
 	
 	if($records) {
