@@ -664,7 +664,11 @@ class MigrateFromFedoraToDatabase
             $this->_removeUniqueConstraintsNonCore($shadowTable);
 
             // Add joint primary key
-            $this->_addJointPrimaryKeyNonCore($shadowTable, $sk['sek_title_db']);
+            if ($sk['sek_cardinality'] == 1) {
+              $this->_addJointPrimaryKeyMultipleNonCore($shadowTable, $sk['sek_title_db']);
+            } else {
+              $this->_addJointPrimaryKeyNonCore($shadowTable, $sk['sek_title_db']);
+            }
 
             echo "<br /> End of Shadowing " . $sk['sek_title_db'] . " table.. with a SuCCeSS!";
         }
@@ -691,46 +695,58 @@ class MigrateFromFedoraToDatabase
 
         // Creates table duplicate from original sk table
         // @todo: Update to use CREATE TABLE IF NOT EXISTS instead.
-        if ( !$this->_isTableExists($shadowTable) ){
+        if ( $this->_isTableExists($shadowTable) ){
 
-            $stmt = "CREATE TABLE ". $shadowTable ." LIKE ". $originalTable;
+            $stmt = "DROP TABLE IF EXISTS ". $shadowTable;
 
             try {
-                $this->_db->exec($stmt);
+              $this->_db->exec($stmt);
             } catch (Exception $ex) {
-                echo "<br />Table ". $shadowTable ." creation failed. Here is why: ". $stmt . " <br />" . $ex .".\n";
-                return false;
+              echo "<br />Table ". $shadowTable ." dropping failed. Here is why: ". $stmt . " <br />" . $ex .".\n";
+              return false;
             }
 
-            echo "<br />Table ". $shadowTable ." has been created.\n";
+            echo "<br />Table ". $shadowTable ." has been Dropped.\n";
+          }
+
+          $stmt = "CREATE TABLE ". $shadowTable ." LIKE ". $originalTable;
+
+          try {
+              $this->_db->exec($stmt);
+          } catch (Exception $ex) {
+              echo "<br />Table ". $shadowTable ." creation failed. Here is why: ". $stmt . " <br />" . $ex .".\n";
+              return false;
+          }
+
+          echo "<br />Table ". $shadowTable ." has been created.\n";
 
 
-            // Add stamp column to new shadow table
-            echo "<br />Adding stamp column to the new shadow table ... ";
+          // Add stamp column to new shadow table
+          echo "<br />Adding stamp column to the new shadow table ... ";
 
-            $tableDescribe = $this->_db->describeTable($shadowTable);
-            $columnName = "rek_" . (!empty($sekTitleDb) ? $sekTitleDb . "_" : "" ) . "stamp";
+          $tableDescribe = $this->_db->describeTable($shadowTable);
+          $columnName = "rek_" . (!empty($sekTitleDb) ? $sekTitleDb . "_" : "" ) . "stamp";
 
-            if ( !array_key_exists("rek_stamp", $tableDescribe) ) {
+          if ( !array_key_exists("rek_stamp", $tableDescribe) ) {
 
-                $stmt = "ALTER TABLE ". $shadowTable ." ADD COLUMN ". $columnName ." DATETIME;";
+              $stmt = "ALTER TABLE ". $shadowTable ." ADD COLUMN ". $columnName ." DATETIME;";
 
-                try {
-                    $this->_db->exec($stmt);
-                } catch (Exception $ex) {
-                    echo "<br />Alter table failed. Because of: ". $stmt . " <br />" . $ex;
-                    return false;
-                }
+              try {
+                  $this->_db->exec($stmt);
+              } catch (Exception $ex) {
+                  echo "<br />Alter table failed. Because of: ". $stmt . " <br />" . $ex;
+                  return false;
+              }
 
-                echo "<br />Table ". $shadowTable ." has been altered.\n";
+              echo "<br />Table ". $shadowTable ." has been altered.\n";
 
-            } else {
-                echo "<br />We have the stamp! Move on...";
-            }
+          } else {
+              echo "<br />We have the stamp! Move on...";
+          }
 
-        }else {
-            echo "<br />Table ". $shadowTable ." already exists somewhere in the universe, let's move on...\n";
-        }
+//        }else {
+//            echo "<br />Table ". $shadowTable ." already exists somewhere in the universe, let's move on...\n";
+//        }
 
         return true;
     }
@@ -812,7 +828,7 @@ class MigrateFromFedoraToDatabase
 
         echo " Adding joint primary key to ". $tableName;
         $stmt = "ALTER TABLE ". $tableName ."
-                 ADD UNIQUE KEY (rek_" . $sekTitleDB . "_pid, rek_" . $sekTitleDB . "_stamp);";
+                 ADD UNIQUE KEY unique_constraint (rek_" . $sekTitleDB . "_pid, rek_" . $sekTitleDB . "_stamp);";
         try {
             $this->_db->exec($stmt);
         } catch (Exception $ex) {
@@ -822,6 +838,21 @@ class MigrateFromFedoraToDatabase
         echo "\n";
     }
 
+
+    protected function _addJointPrimaryKeyMultipleNonCore($tableName, $sekTitleDB)
+    {
+
+      echo " Adding joint primary key to ". $tableName;
+      $stmt = "ALTER TABLE ". $tableName ."
+                   ADD UNIQUE KEY unique_constraint (rek_" . $sekTitleDB . "_pid, rek_" . $sekTitleDB . "_order, rek_" . $sekTitleDB . "_stamp);";
+      try {
+        $this->_db->exec($stmt);
+      } catch (Exception $ex) {
+        echo "<br />Could not add joint primary key to ". $tableName . " because: " . $ex;
+        return false;
+      }
+      echo "\n";
+    }
 
     /**
      * Check if table already exists on currently connected database.
