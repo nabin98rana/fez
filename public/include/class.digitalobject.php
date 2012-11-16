@@ -7,43 +7,43 @@ class DigitalObject
      * @var <Zend_Db>
      */
     private $db;
-    
+
     /**
      * Metadata for a digital object.
      * @var <array>
      */
     private $pidData;
-    
+
     /**
      * Logging object.
      * @var <FezLog>
      */
     private $log;
-    
+
     /**
      * The currentn PID
      * @var <string>
      */
     private $pid;
-    
+
     /**
      * A collection of this PID's loaded datastreams.
      * @var <array>
      */
     private $dataStreams;
-    
+
     /**
      * A DSResource to handle datastreams.
      * @var <DSResource>
      */
     private $dsResource;
-    
+
     /**
      * The next PID should be at least this
      * to prevent clashes with existing pids.
      */
     const PID_NO_CLASH = 200000;
-    
+
     /**
      * Set up the object.
      */
@@ -53,10 +53,10 @@ class DigitalObject
         $this->log = FezLog::get();
         $this->dsResource = new DSResource();
     }
-    
+
     /**
-     * Insert or update a digital object 
-     * and generate a PID if required. 
+     * Insert or update a digital object
+     * and generate a PID if required.
      * Updates if PID provided otherwise inserts.
      * @param <array> $objdata
      */
@@ -65,21 +65,21 @@ class DigitalObject
         if(array_key_exists('pid', $objdata))
         {
             $this->pid = $objdata['pid'];
-            
+
             list($pidns, $pidint) = explode(":", $objdata['pid']);
-            
+
             unset($objdata['pid']); //Exclude the pid from the update.
             $updateFields = $this->setUpdateFields($objdata);
-            
-            try 
+
+            try
             {
-                $sql = "UPDATE " . APP_TABLE_PREFIX . "digital_object SET " 
+                $sql = "UPDATE " . APP_TABLE_PREFIX . "digital_object SET "
                     . $updateFields['set'] . " WHERE pidns = :pidns AND pidint = :pidint";
-                    
+
                 //Bind pidint and pidns to the WHERE in the update.
                 $updateFields['binding'][':pidns'] = $pidns;
                 $updateFields['binding'][':pidint'] = $pidint;
-                
+
                 $this->db->query($sql, $updateFields['binding']);
             }
             catch(Exception $e)
@@ -91,10 +91,10 @@ class DigitalObject
         {
             //If no namespace, use the one in the config.
             $pidns = ($objdata['pidns']) ? $objdata['pidns'] : APP_PID_NAMESPACE;
-            
-            try 
+
+            try
             {
-                $sql = "SELECT MAX(pidint)+1 AS pidint FROM " . APP_TABLE_PREFIX 
+                $sql = "SELECT MAX(pidint)+1 AS pidint FROM " . APP_TABLE_PREFIX
                     . "digital_object WHERE pidns = :pidns";
                 $stmt = $this->db->query($sql, array(':pidns' => $pidns));
                 $pidint = $stmt->fetch();
@@ -103,18 +103,18 @@ class DigitalObject
             {
                 $this->log->err($e->getMessage());
             }
-            
+
             //Check to see if this the first pid for this namespace.
-            $pidint = ($pidint['pidint'] == NULL) ? 1 : $pidint['pidint']; 
+            $pidint = ($pidint['pidint'] == NULL) ? 1 : $pidint['pidint'];
             $pidint = ($pidint < self::PID_NO_CLASH) ? self::PID_NO_CLASH : $pidint;
-            
+
             $this->pid = $pidns . ":" . $pidint;
-            
+
             $objdata['pidint'] = $pidint;
             $objdata['pidns'] = $pidns;
-            
+
             $insert = $this->setInsertFields($objdata);
-            
+
             try
             {
                 $sql = "INSERT INTO " . APP_TABLE_PREFIX . "digital_object " . $insert['insert'];
@@ -125,12 +125,12 @@ class DigitalObject
                 $this->log->err($e->getMessage());
             }
         }
-        
+
         return $this->pid;
     }
-    
+
     /**
-     * Set up database fields for update. 
+     * Set up database fields for update.
      * Handles varying numbers of fields.
      * @param <array> $fields
      */
@@ -143,10 +143,10 @@ class DigitalObject
             $set .= $fieldk . " = :" . $fieldk . ",";
             $binding[':' . $fieldk] = $fieldv;
         }
-        
+
         return array('set' => $set, 'binding' => $binding);
     }
-    
+
     /**
      * Set up database fields for insert.
      * Handles varying numbers of fields.
@@ -157,18 +157,18 @@ class DigitalObject
         $fields = array();
         $tokens = array();
         $binding = array();
-        
+
         foreach($data as $datak => $datav)
         {
             $fields[] = $datak;
             $tokens[] = ':'.$datak;
             $binding[':'.$datak] = $datav;
         }
-        
+
         $tokens = '(' . implode(',', $tokens) . ')';
         $fields = '(' . implode(',', $fields) . ')';
         $insert = $fields . ' VALUES ' . $tokens;
-        
+
         return array('insert' => $insert, 'binding' => $binding);
     }
 
@@ -190,7 +190,7 @@ class DigitalObject
             $this->log->err($e->getMessage());
         }
     }
-    
+
     /**
      * Load metadata into the object
      * @param <string> $pid
@@ -201,27 +201,27 @@ class DigitalObject
         $pidData['pid'] = $pid;
         $this->pidData = $pidData;
     }
-    
+
     /**
-     * Take a snapshot of the current state of 
-     * all this PID's resources and store in the 
+     * Take a snapshot of the current state of
+     * all this PID's resources and store in the
      * shadow table
      */
     public function snapshotResources($timestamp)
     {
         $resources = $this->dsResource->listStreams($this->pidData['pid']);
-        
+
         if($resources)
         {
-            try 
+            try
             {
-                $sql = "INSERT INTO " . APP_TABLE_PREFIX . "file_attachments__shadow "
+                $sql = "INSERT IGNORE INTO " . APP_TABLE_PREFIX . "file_attachments__shadow "
                         . "(fat_hash, fat_filename, fat_version, fat_state, fat_size, fat_pid, fat_mimetype, fat_controlgroup) "
                         . "SELECT fat_hash, fat_filename, :now AS version, fat_state, fat_size,fat_pid, fat_mimetype, "
                         . "fat_controlgroup FROM " . APP_TABLE_PREFIX
                         . "file_attachments WHERE fat_pid = :pid";
-                        
-                $this->db->query($sql, array(':now' => $timestamp, 
+
+                $this->db->query($sql, array(':now' => $timestamp,
                 						':pid' => $this->pidData['pid']));
             }
             catch(Exception $e)
@@ -230,7 +230,7 @@ class DigitalObject
             }
         }
     }
-    
+
     /**
      * Get all the datastreams for a PID
      * @param <array> $params
@@ -239,9 +239,9 @@ class DigitalObject
     {
         $dsList = $this->dsResource->listStreams($params['pid']);
         $datastreams = array();
-        
-        $rev = (isset($params['rev'])) ? $params['rev'] : 'HEAD'; 
-        
+
+        $rev = (isset($params['rev'])) ? $params['rev'] : 'HEAD';
+
         foreach($dsList as $datastream)
         {
             $dsFormatted = array();
@@ -258,10 +258,10 @@ class DigitalObject
             $dsFormatted['size'] = $dsRev['size'];
             $dsFormatted['state'] = $dsRev['state'];
             $dsFormatted['location'] = '';
-            
+
             $datastreams[] = $dsFormatted;
         }
-        
+
         return $datastreams;
     }
 

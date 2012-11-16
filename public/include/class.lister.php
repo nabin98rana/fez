@@ -455,12 +455,13 @@ class Lister
         	unset($sort_by_list["searchKey".Search_Key::getID("Sequence")]);
         	unset($sort_by_list["searchKey".Search_Key::getID("Date")]);
         } elseif ($browse == "favourites") {
+          Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']."?".$_SERVER['QUERY_STRING']);
           $tpl->assign("list_heading", "Starred Records");
           $tpl->displayTemplate();
           ob_flush();
           flush();
 
-          Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']."?".$_SERVER['QUERY_STRING']);
+
             $filter = array();
 			$filter["searchKey".Search_key::getID("Object Type")] = 3;
 			$starredPids = Favourites::getStarred();
