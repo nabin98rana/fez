@@ -904,7 +904,7 @@ class ZoetropeBackgroundService extends BackgroundService
   {
     $this->fileDir = $dir;
     $this->webDir = $webDir;
-    $this->videoFiles['webm'] = $testId . '.webm';
+//    $this->videoFiles['webm'] = $testId . '.webm';
     $this->videoFiles['mp4'] = $testId . '.mp4';
 //    $this->videoFiles['ogg'] = $testId . '.ogg';
     $this->subtitleFile = $testId . '.srt';
@@ -914,9 +914,9 @@ class ZoetropeBackgroundService extends BackgroundService
     // -y      Overwrite output files.
     // -r      Frame rate
     $command = 'ffmpeg -an -f x11grab -y -r 5 -s 1024x768 -i ' . $screenId . '.0+0,0 '
-              . '-codec:v libvpx -quality good -cpu-used 0 -b:v 1200k -maxrate 1200k -bufsize 2400k -qmin 10 '
-              . '-qmax 42 -vf scale=-1:480 -threads 4 -codec:a libvorbis -b:a 128k '
-              . $this->fileDir . $this->videoFiles['webm'] . ' '
+//              . '-codec:v libvpx -quality good -cpu-used 0 -b:v 1200k -maxrate 1200k -bufsize 2400k -qmin 10 '
+//              . '-qmax 42 -vf scale=-1:480 -threads 4 -codec:a libvorbis -b:a 128k '
+//              . $this->fileDir . $this->videoFiles['webm'] . ' '
 //              . '-codec:v libtheora -sameq ' . $this->fileDir . $this->videoFiles['ogg'] . ' '
               . '-codec:v libx264 -sameq ' . $this->fileDir . $this->videoFiles['mp4'];
 
@@ -936,9 +936,9 @@ class ZoetropeBackgroundService extends BackgroundService
   {
     $this->zModel = new ZoetropeVideoModel();
     $this->zModel->id = $testId;
-    $this->zModel->media['webm'] = $this->webDir . $this->videoFiles['webm'];
+//    $this->zModel->media['webm'] = $this->webDir . $this->videoFiles['webm'];
     $this->zModel->media['mp4'] = $this->webDir . $this->videoFiles['mp4'];
-    $this->zModel->media['ogg'] = $this->webDir . $this->videoFiles['ogg'];
+//    $this->zModel->media['ogg'] = $this->webDir . $this->videoFiles['ogg'];
     $this->zModel->subtitles = $this->webDir . $this->subtitleFile;
     $this->zModel->poster = '';
     $this->zModel->scenarioText = $scenarioText;
