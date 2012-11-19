@@ -3637,12 +3637,18 @@ class Record
 
       if ($getLookup == true && $sek_details['sek_lookup_function'] != "") {
         $temp = array();
-          if(!empty($res)) {
-            foreach ($res as $rkey => $rdata) {
+        $temp_value = '';
+        if(!empty($res)) {
+          if (!is_array($res)) {
+            eval("\$temp_value = ".$sek_details["sek_lookup_function"]."(".$res.");");
+            $temp[$res] = $temp_value;
+          } else {
+            foreach ($res as $rdata) {
               eval("\$temp_value = ".$sek_details["sek_lookup_function"]."(".$rdata.");");
               $temp[$rdata] = $temp_value;
             }
           }
+        }
         $res = $temp;
       }
       return $res;
