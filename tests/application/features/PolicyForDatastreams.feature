@@ -1,6 +1,6 @@
 
 #features/PolicyForDatastreams.feature
-@javascript
+@javascript @smoke
 Feature: Check datastream policy works correctly
 
   @destructive @now4 @insulated
