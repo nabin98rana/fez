@@ -924,6 +924,17 @@ class ResearcherID
   }
 
 
+  public static function stripBadge($xml) {
+    // Load XML
+    $response = DOMDocument::loadXML($xml);
+
+    $items = $response->getElementsByTagName("researcherID-badge");
+    foreach ($items as $item){
+      $item->nodeValue = '';
+    }
+    return $response->saveXML();
+  }
+
   /**
    * Method used to update XML content of an existing job.
    * it is used for existing DONE jobs that do not have XML content saved, due to updates on updateJobStatus() method.
@@ -943,12 +954,14 @@ class ResearcherID
         $stmtUpdate[] = "rij_response_profilelink = " . $db->quote($responseXML['profileLink']);
     }
     if (isset($responseXML['profileXML'])){
+        $responseXML['profileXML'] = ResearcherID::stripBadge($responseXML['profileXML']);
         $stmtUpdate[] = "rij_response_profilexml = " . $db->quote($responseXML['profileXML']);
     }
     if (isset($responseXML['publicationsLink'])){
         $stmtUpdate[] = "rij_response_publicationslink = " . $db->quote($responseXML['publicationsLink']);
     }
     if (isset($responseXML['publicationsXML'])){
+        $responseXML['publicationsXML'] = ResearcherID::stripBadge($responseXML['publicationsXML']);
         $stmtUpdate[] = "rij_response_publicationsxml = " . $db->quote($responseXML['publicationsXML']);
     }
 
