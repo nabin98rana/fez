@@ -30,7 +30,7 @@ class RecordGeneral
   var $title;
   protected $_bgp;
   protected $_log = null;
-  
+
 
   /**
    * Links this instance to a corresponding background process
@@ -41,7 +41,7 @@ class RecordGeneral
   {
     $this->_bgp = &$bgp;
   }
-  
+
   /**
    * RecordGeneral
    * If instantiated with a pid, then this object is linked with the record with the pid, otherwise we are inserting
@@ -64,7 +64,7 @@ class RecordGeneral
     $this->approver_roles = explode(',', APP_APPROVER_ROLES);
     $this->versionsViewer_roles = explode(',', APP_VIEW_VERSIONS_ROLES);
     //        $this->versionsReverter_roles = explode(',',APP_REVERT_VERSIONS_ROLES);
-    
+
     $this->_log = FezLog::get();
   }
 
@@ -124,7 +124,7 @@ class RecordGeneral
               $xdis_key = array_keys($xdis_id);
               $xdis_id = $xdis_key[0];
           }
-          else 
+          else
           {
               $xdis_id = XSD_HTML_Match::getDisplayType($this->pid);
           }
@@ -244,7 +244,7 @@ class RecordGeneral
     if ($this->getPublishedStatus() == 2) {
       return $this->checkAuth($this->viewer_roles, $redirect);
     } else {
-      return $this->canCreate($redirect); // changed this so that creators can view the 
+      return $this->canCreate($redirect); // changed this so that creators can view the
                                           // objects even when they are not published
     }
   }
@@ -265,7 +265,7 @@ class RecordGeneral
     if ($this->getPublishedStatus() == 2) {
       return $this->checkAuth($this->lister_roles, $redirect);
     } else {
-      return $this->canCreate($redirect); // changed this so that creators can view the objects even 
+      return $this->canCreate($redirect); // changed this so that creators can view the objects even
                                           // when they are not published
     }
   }
@@ -414,23 +414,23 @@ class RecordGeneral
 
             $searchKeyData = array();
             $details = Record::getDetailsLite($this->pid);
-            
+
             // $searchKeyData[0] for 1-to-1 search keys
             $searchKeyData[0]['status'] = array('xsdmf_id' => $details[0]['rek_status_xsdmf_id'], 'xsdmf_value' => $sta_id);
             $searchKeyData[0]['updated_date'] = array('xsdmf_id' => $details[0]['rek_updated_date_xsdmf_id'], 'xsdmf_value' => Date_API::getFedoraFormattedDateUTC());
-            
+
             // Update the search keys for this PID with new value
             Record::updateSearchKeys($this->pid, $searchKeyData);
-            
+
             Record::updateSearchKeysShadow($this->pid);
-            
+
         } else {
-            
-            // Update the XML for FezMD datastream, 
-            // which contains the record status ID and other status flags 
+
+            // Update the XML for FezMD datastream,
+            // which contains the record status ID and other status flags
             // - for list of fields see $this->setFezMD_Datastream() function comment
     $this->setFezMD_Datastream('sta_id', $sta_id);
-            
+
             // Get a list of related XSD DisplayObjects for this record - based on record's XSD DisplayObject
     $this->getDisplay();
             /* Sample results:
@@ -442,11 +442,11 @@ class RecordGeneral
                             [xdis_str] => 207,172,84,16,111,174
                         )
 
-                    [exclude_list] => 
-                    [specify_list] => 
+                    [exclude_list] =>
+                    [specify_list] =>
                 )
              */
-            
+
             // Update Index of XSDMF fields from the record XSD Display
     $this->setIndexMatchingFields();
         }
@@ -491,7 +491,7 @@ class RecordGeneral
             [institutional_status]  => Array ( [0] => 453225 )
         )
      */
-    
+
     $newXML = '<FezMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">';
     $foundElement = false;
     foreach ($items as $xkey => $xdata) {
@@ -509,11 +509,11 @@ class RecordGeneral
     }
     $newXML .= "</FezMD>";
 
-    
+
     /*
      * Value of $newXML on Fedora version:
-     *  
-     NEWXML   
+     *
+     NEWXML
        <FezMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
             <xdis_id>174</xdis_id>
             <sta_id>2</sta_id>
@@ -530,15 +530,15 @@ class RecordGeneral
        </FezMD>
      *
      */
-    
+
     /**
      * On FEDORA BYPASS version, the value should be stored on database as follows:
-     
+
        <FezMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
             <xdis_id>174</xdis_id>                              ==  fez_record_search_key.rek_display_type
             <sta_id>2</sta_id>                                  ==  fez_record_search_key.rek_status
             <ret_id>3</ret_id>                                  ==  fez_record_search_key.object_type
-            <usr_id>1142</usr_id>                               ==  ... 
+            <usr_id>1142</usr_id>                               ==  ...
             <copyright>on</copyright>                           ==  fez_record_search_key.rek_copyright
             <created_date>2012-02-20T04:50:57Z</created_date>   ==  fez_record_search_key.rek_created_date
             <updated_date>2012-02-20T04:50:57Z</updated_date>   ==  fez_record_search_key.rek_updated_date
@@ -549,10 +549,10 @@ class RecordGeneral
             <institutional_status>453225</institutional_status> ==  fez_record_search_key_institutional_status.rek_institutional_status
        </FezMD>
      */
-    
+
     //Error_handler::logError($newXML,__FILE__,__LINE__);
-    
-    
+
+
     // Update the XML Datastream with $newXML
     if ($newXML != "") {
       Fedora_API::callModifyDatastreamByValue(
@@ -621,9 +621,9 @@ class RecordGeneral
   {
       $log = FezLog::get();
       $db = DB_API::get();
-			
+
       $stmt = "SELECT xsdsel_title as datastreamname, x3.xsdmf_static_text as datastreamdesc
-			FROM 
+			FROM
 			" . APP_TABLE_PREFIX . "xsd_display_matchfields x1
 			INNER JOIN " . APP_TABLE_PREFIX . "search_key ON x1.xsdmf_sek_id = sek_id AND sek_title = ".$db->quote($sek_title)."
 			INNER JOIN " . APP_TABLE_PREFIX . "xsd_relationship ON xsdrel_xdis_id = x1.xsdmf_xdis_id
@@ -632,7 +632,7 @@ class RecordGeneral
 			INNER JOIN " . APP_TABLE_PREFIX . "record_search_key ON rek_display_type = x2.xsdmf_xdis_id
 			INNER JOIN " . APP_TABLE_PREFIX . "xsd_display_matchfields x3 ON x3.xsdmf_xsdsel_id = xsdsel_id AND x3.xsdmf_element = '!datastream!datastreamVersion!LABEL'
 			WHERE rek_pid = ".$db->quote($this->pid);
-      
+
       try {
           $res = $db->fetchRow($stmt);
       }
@@ -644,13 +644,13 @@ class RecordGeneral
 
   }
 
-  
+
     /**
      * Builds array of Search Keys Data, which used for inserting/updating a PID record search keys.
-     * 
+     *
      * @todo: move this to more related class or new class
      * @param array $sekTitles
-     * @param array $values 
+     * @param array $values
      */
     protected function _buildRecordSearchKeyData($sekTitles = array(), $values = array())
     {
@@ -660,59 +660,59 @@ class RecordGeneral
 
         foreach ($sekTitles as $key => $sekTitle) {
             $xsdmfId = XSD_HTML_Match::getXSDMFIDBySearchKeyTitleXDIS_ID($sekTitle, $details[0]['rek_display_type']);
-            
+
             // This PID has no relationship with this search key, continue to the next search key.
             if (empty($xsdmfId)){
                 continue;
             }
-            
+
             $sekDetails = Search_Key::getDetailsByTitle($sekTitle);
             $relationship = $sekDetails['sek_relationship'];
             $sekTitleDb = $sekDetails['sek_title_db'];
-            
+
             $searchKeyData[$relationship][$sekTitleDb]['xsdmf_id']    = $xsdmfId;
             $searchKeyData[$relationship][$sekTitleDb]['xsdmf_value'] = $values[$key];
         }
         return $searchKeyData;
     }
 
-    
+
     /**
-     * Updates the value of specific search key(s) for current PID 
-     * 
-     * The processes for Fedora-based system are: 
+     * Updates the value of specific search key(s) for current PID
+     *
+     * The processes for Fedora-based system are:
      *  1. Updates the PID XML document (Fedora datastream)
      *  2. Add history to the PID
      *  3. Reindex the PID (this also rewrites all record search keys with the new XML Doc saved on #1).
-     * 
+     *
      * The processes for Fedora-less system are:
      *  1. Call Fez_Record_Searchkey->updateRecord()
      *     Which updates the requested search key, adds history to the PID, reindex solr.
-     * 
+     *
      * @param array $search_keys Titles of Search keys
      * @param array $values Values of Search keys
      * @param boolean $removeCurrent Flag on whether to remove current value
      * @param string $history Message on the PID history
-     * @return string 
+     * @return string
      */
     function addSearchKeyValueList(
     $search_keys=array(), $values=array(), $removeCurrent=true, $history="was added based on Links AMR Service data")
     {
-        
+
         if (APP_FEDORA_BYPASS == "ON"){
             // Build SearchkeyData array
             $searchKeyData = $this->_buildRecordSearchKeyData($search_keys, $values);
-            
+
             // Build history message
             $historyMsg = "Updated PID '". $this->pid ."' search key values.";
-            
+
             $recordSearchKey = new Fez_Record_Searchkey();
             $result = $recordSearchKey->updateRecord($this->pid, $searchKeyData, $historyMsg);
-            
+
             return $result;
-            
+
         } else {
-        
+
             $datastreams = array();
             $search_keys_added = array();
             foreach ($search_keys as $s => $sk) {
@@ -764,7 +764,7 @@ class RecordGeneral
             return -1;
         }
     }
-    
+
 
     function buildXMLWithXPATH($xpath_query, $value, $lookup_value, $recurseLevel) {
 	    $xpath = new DOMXPath($this->doc);
@@ -789,15 +789,15 @@ class RecordGeneral
 				$this->buildXMLWithXPATH($pre_xpath_query, $value, $lookup_value, ($recurseLevel+1));
 //				$parentNode = $this->buildXMLWithXPATH($pre_xpath_query, $doc, $value, $lookup_value, ($recurseLevel+1));
 	    		//check the base has now been added ok
-	
+
 					// echo "\n BACK FROM recursion and now doc is ".$this->doc->saveXML(); echo "\n";
-					
+
 					$this->doc = DOMDocument::loadXML($this->doc->saveXML());
-					
+
 					// echo "Searching it now for ".$pre_xpath_query."...\n";
 					$xpath2 = new DOMXPath($this->doc);
 					$parentNodeList = $xpath2->query($pre_xpath_query);
-					
+
 					foreach ($parentNodeList as $fieldNode) {
 						// echo "FOUND ONE !\n";
 					  $parentNode = $fieldNode;
@@ -838,11 +838,11 @@ class RecordGeneral
 						$parentNode->nodeValue = $lookup_value;
 					}
 		    } else {
-					// if this is an ID on an attribute xpath like mods:subject/@ID then put the subject lookup value into the element (recurse level 2) 
+					// if this is an ID on an attribute xpath like mods:subject/@ID then put the subject lookup value into the element (recurse level 2)
 					if ($recurseLevel == 2 && $lookup_value != "") {
 			      $newNode = $this->doc->createElement($element, $lookup_value);
 					} elseif ($recurseLevel == 1) {
-		      	$newNode = $this->doc->createElement($element, $value);					
+		      	$newNode = $this->doc->createElement($element, $value);
 					} else {
 			      $newNode = $this->doc->createElement($element);
 					}
@@ -857,14 +857,14 @@ class RecordGeneral
 
     /**
      * For adding abitrary values to datastreams on Fedora.
-     * This method is used on Fedora-based Fez system only.  
-     * 
+     * This method is used on Fedora-based Fez system only.
+     *
      * @example Called by $this->addSearchKeyValueList()
      * @param DOMDocument $doc
      * @param string $sek_title
      * @param string $value
      * @param boolean $removeCurrent
-     * @return mixed 
+     * @return mixed
      */
     function addSearchKeyValue($doc, $sek_title, $value, $removeCurrent = true)
     {
@@ -1066,7 +1066,7 @@ class RecordGeneral
     return false;
   }
 
-  
+
     /**
      * Replaces authors in a record using the authors in ESTI
      *
@@ -1104,11 +1104,11 @@ class RecordGeneral
 
 
         if (APP_FEDORA_BYPASS == "ON"){
-            
+
             return $this->_replaceAuthorsFromEstiOnFedoraBypass($record);
-            
+
         } else {
-        
+
             $xmlString = Fedora_API::callGetDatastreamContents($this->pid, 'MODS', true);
             $doc = DOMDocument::loadXML($xmlString);
             $xpath = new DOMXPath($doc);
@@ -1165,15 +1165,15 @@ class RecordGeneral
             return false;
         }
     }
-    
-    
+
+
     /**
      * Replaces authors stored on search keys with authors returned from ISI Web of Knowledge.
      * Here are the processes:
-     * 1. Parse authors from $records XML 
-     * 2. Replace PID authors, by calling _replaceAuthorsOnFedoraBypass() method 
+     * 1. Parse authors from $records XML
+     * 2. Replace PID authors, by calling _replaceAuthorsOnFedoraBypass() method
      * 3. Update PID History.
-     * 
+     *
      * @param DOMDocument $record The XML of record details returned by ISI Web of Knowledge
      * @return boolean
      */
@@ -1184,20 +1184,20 @@ class RecordGeneral
         foreach ($record->item->authors->author as $author) {
             $authors[] = $author;
         }
-        
+
         $replaceResult = $this->_replaceAuthorsOnFedoraBypass($authors);
         if (!$replaceResult){
             return false;
         }
-        
+
         // Update PID's history
         $historyDetail = " Authors were replaced using ESTI";
         History::addHistory($this->pid, null, date('Y-m-d H:i:s'), "", true, $historyDetail, "");
-        
+
         return true;
     }
 
-  
+
     /**
      * Replaces PID's authors search key with the value specified by param $authors.
      * Here are the processes involved:
@@ -1206,25 +1206,25 @@ class RecordGeneral
      *     2a. Backup authors to shadow sek table
      *     2b. Delete authors on main sek table
      *     2c. Insert new authors on main sek table
-     * 
+     *
      * @example Called by replaceAuthors() & _replaceAuthorsFromEstiOnFedoraBypass() methods.
      * @param array $authors
-     * @return boolean 
+     * @return boolean
      */
     protected function _replaceAuthorsOnFedoraBypass($authors = array(), $authorsIds = array())
     {
-        
+
         if (sizeof($authors) == 0){
             $this->_log->err("There is no replacement authors specified.");
             return false;
         }
-        
+
         // $searchKeyData[0] = 1-to-1 search keys
         // $searchKeyData[1] = 1-to-many search keys
         $searchKeyData = array( 0 => array(), 1 => array());
-        
+
         $details = Record::getDetailsLite($this->pid);
-        
+
         // Set record search key values for Authors
         $xsdmfIdForAuthor   = XSD_HTML_Match::getXSDMFIDBySearchKeyTitleXDIS_ID('Author', $details[0]['rek_display_type']);
         $searchKeyData[1]['author']['xsdmf_id']    = $xsdmfIdForAuthor;
@@ -1236,17 +1236,17 @@ class RecordGeneral
             $searchKeyData[1]['author_id']['xsdmf_id']    = $xsdmfIdForAuthorId;
             $searchKeyData[1]['author_id']['xsdmf_value'] = $authorsIds;
         }
-        
+
         // Update record search key
         $recordSearchKey = new Fez_Record_Searchkey();
         if (!$recordSearchKey->updateRecord($this->pid, $searchKeyData)){
             return false;
-        }        
-        
+        }
+
         return true;
     }
-    
-    
+
+
   /**
    * Attempt to match $aut_id with an author on $this->pid. This is a multi-step process in order
    * to establish a percentage value of how likely this author is on this pub (probablistic matching)
@@ -1290,7 +1290,7 @@ class RecordGeneral
   function matchAuthor($aut_id, $update = TRUE, $known = FALSE, $threshold = 1, $keywords = TRUE)
   {
     $log = FezLog::get();
-     
+
     $rule1 = FALSE;
     $rule2 = FALSE;
     $rule3 = FALSE;
@@ -1299,7 +1299,7 @@ class RecordGeneral
     $authors = $this->getAuthors();
     $orig_authors = $authors;
     $known_authors = array();
-     
+
     $aut_details = Author::getDetails($aut_id);
     $aut_alt_names = Author::getAlternativeNamesList($aut_id);
     $exact_match_count = 0;
@@ -1325,16 +1325,16 @@ class RecordGeneral
     }
     $authors = $unknown_authors;
     $authors_count = count($authors);
-    
+
     for ($i = 0; $i < $authors_count; $i++) {
       $authors[$i]['match'] = FALSE;
-      $percent = 0;      
-      if ($aut_details['aut_org_username']) {     
+      $percent = 0;
+      if ($aut_details['aut_org_username']) {
         if ($known) {
           // Last name match first, if we have $authors[$i]['name'] in the format LName, F
           $name_parts = explode(',', $authors[$i]['name']);
           $percent = $this->matchAuthorNameByLev($name_parts[0], $aut_details['aut_lname'], $percent_1);
-          if ($percent == 1) { 
+          if ($percent == 1) {
             $exact_match_count++;
             $match_index = $i;
             $authors[$i]['match'] = $percent;
@@ -1344,10 +1344,10 @@ class RecordGeneral
             }
           }
         }
-        // No exact match above found        
+        // No exact match above found
         if ($percent < 1) {
-          $percent = $this->matchAuthorNameByLev($authors[$i]['name'], $aut_details['aut_display_name'], $percent_1);      
-          if ($percent == 1) { 
+          $percent = $this->matchAuthorNameByLev($authors[$i]['name'], $aut_details['aut_display_name'], $percent_1);
+          if ($percent == 1) {
             $exact_match_count++;
             $match_index = $i;
             $authors[$i]['match'] = $percent;
@@ -1362,7 +1362,7 @@ class RecordGeneral
             // Attempt to match on other names for this author we know about
             foreach ($aut_alt_names as $aut_alt_name => $count) {
               $percent = $this->matchAuthorNameByLev($authors[$i]['name'], $aut_alt_name, $percent_1);
-              if ($percent == 1) { 
+              if ($percent == 1) {
                 $exact_match_count++;
                 $match_index = $i;
                 break;
@@ -1373,7 +1373,7 @@ class RecordGeneral
         }
       }
     }
-    
+
     if ($exact_match_count == 1) {
       // One match found
       $rule1 = TRUE;
@@ -1455,7 +1455,7 @@ class RecordGeneral
   {
     $log = FezLog::get();
     $db = DB_API::get();
-     
+
     $sql =  "SELECT DISTINCT a1.rek_author_id_pid ";
     if ($keywords) {
       //$sql .= ", k1.rek_keywords ";
@@ -1504,14 +1504,14 @@ class RecordGeneral
   function matchAuthorNameByLev($name, $name_to_match, &$percent)
   {
     $log = FezLog::get();
-    
+
     $rpercent = 0;
-    
+
     if ($name_to_match == $name) {
       // exact match
       $percent = 1;
       return 1;
-    } else {      
+    } else {
       // An exact match without spaces, commas or full stops
       $accept_distance = 1;
       $pattern = '/[\s,.]/';
@@ -1531,7 +1531,7 @@ class RecordGeneral
     if ($_percent > $rpercent) {
       $rpercent = $_percent;
     }
-    
+
 
     return $rpercent;
   }
@@ -1563,7 +1563,7 @@ class RecordGeneral
     return $res;
   }
 
-  
+
     /**
      * Replaces authors on a record
      *
@@ -1586,10 +1586,10 @@ class RecordGeneral
             if (!$this->_replaceAuthorsOnFedoraBypass($authors, $authorsIds)){
                 return false;
             }
-            
+
             History::addHistory($this->pid, null, "", "", TRUE, $message);
             return true;
-            
+
         } else {
             $log = FezLog::get();
 
@@ -1679,7 +1679,7 @@ class RecordGeneral
           $this->pid, "MODS", "A", "Metadata Object Description Schema", $newXML, "text/xml", "inherit"
       );
       $historyDetail = "Abstract was stripped from ESTI imported record";
-      History::addHistory($this->pid, null, "", "", true, $historyDetail);      	
+      History::addHistory($this->pid, null, "", "", true, $historyDetail);
       Record::setIndexMatchingFields($this->pid);
       return true;
     }
@@ -1798,7 +1798,7 @@ class RecordGeneral
       // is missing information like namespaces and attribute '@' thing.
       if (
           $this->setValueRecurse(
-              $value, $doc->documentElement, $steps, 
+              $value, $doc->documentElement, $steps,
               $xsd_array[$xsd_details['xsd_top_element_name']], $idx
           )
       ) {
@@ -1922,7 +1922,7 @@ class RecordGeneral
    */
   function getDetails($dsID = "", $xdis_id = "")
   {
-    
+
     $log = FezLog::get();
     $db = DB_API::get();
 
@@ -2028,7 +2028,7 @@ class RecordGeneral
         // if it has no xdis id (display id) log an error and return a null
         $log->err(
             array(
-                "Fez cannot display PID " . $this->pid . 
+                "Fez cannot display PID " . $this->pid .
                 " because it does not have a display id (FezMD/xdis_id).", __FILE__, __LINE__
             )
         );
@@ -2099,7 +2099,7 @@ class RecordGeneral
       // if it has no xdis id (display id) log an error and return a null
       $log->err(
           array(
-              "The PID ".$this->pid." does not have an display id (FezMD->xdis_id). This object is ". 
+              "The PID ".$this->pid." does not have an display id (FezMD->xdis_id). This object is ".
               "currently in an erroneous state.", __FILE__, __LINE__
           )
       );
@@ -2278,21 +2278,21 @@ class RecordGeneral
   {
     return Fedora_API::callGetDatastreams($this->pid, null, $dsState);
   }
-  
+
   function checkExists()
   {
     return Fedora_API::objectExists($this->pid);
   }
-  
+
   function getDatastreamContents($dsID, $filehandle=null)
   {
     return Fedora_API::callGetDatastreamContents($this->pid, $dsID, false, $filehandle);
   }
-  
+
   function setIndexMatchingFields($opts=null)
   {
     $log = FezLog::get();
-    
+
     if(is_null($opts))
     {
         // careful what you do with the record object - don't want to use the index while reindexing
@@ -2302,15 +2302,15 @@ class RecordGeneral
           $xdis_id = XSD_Display::getXDIS_IDByTitle('Generic Document');
         }
     }
-    else 
+    else
     {
         $pid = $opts['pid'];
         $xdis_id = $opts['xdis_id'];
     }
-    
+
     $display = new XSD_DisplayObject($xdis_id);
     $xsdmf_array = $display->getXSDMF_Values($pid, null, true);
-    
+
     $searchKeyData = array();
 
     foreach ($xsdmf_array as $xsdmf_id => $xsdmf_value) {
@@ -2344,7 +2344,7 @@ class RecordGeneral
             $xsdmf_value = date('Y-m-d H:i:s', $xsdmf_value);
 
             if (
-                $xsdmf_value == "0000-01-01 00:00:00" || $xsdmf_value == "0000-00-00 00:00:00" || 
+                $xsdmf_value == "0000-01-01 00:00:00" || $xsdmf_value == "0000-00-00 00:00:00" ||
                 $xsdmf_value == "0-01-01 00:00:00"
             ) {
               $xsdmf_value = "NULL";
@@ -2362,8 +2362,8 @@ class RecordGeneral
         }
       }
     }
-    
-    Record::removeIndexRecord($pid, false); // clean out the SQL index, but do not remove from Solr, 
+
+    Record::removeIndexRecord($pid, false); // clean out the SQL index, but do not remove from Solr,
                                                 // the solr entry will get updated in updateSearchKeys
 
     Record::updateSearchKeys($pid, $searchKeyData);
@@ -2372,24 +2372,24 @@ class RecordGeneral
     }
 
   }
-  
+
   //To delete ??
   function getXSDMFByTitle($pid, $xdis_id)
   {
       $db = DB_API::get();
-      
+
       $sql = "SELECT mf.xsdmf_id FROM ". APP_TABLE_PREFIX ."xsd_display_matchfields mf, fez_search_key sk, fez_record_search_key rsk"
             . " WHERE sk.sek_id = mf.xsdmf_sek_id AND mf.xsdmf_id = rsk.rek_display_type_xsdmf_id "
             . "AND sk.sek_title = 'Display Type' "
             . "AND rsk.rek_pid = :pid"
             . "AND rsk.rek_display_type = :disp";
       $row = $db->fetchRow($sql, array(':pid' => $pid, ':disp' => $xdis_id));
-      
+
       return $row["xsdmf_id"];
   }
-  
+
   /**
-   * Convert xsd_display_fields array in the POST array 
+   * Convert xsd_display_fields array in the POST array
    * to an array suitable for insertion or update of a record.
    * @param <array> $xsdFields
    */
@@ -2398,18 +2398,18 @@ class RecordGeneral
       $db = DB_API::get();
       $log = FezLog::get();
       $xsdmf_ids = array_keys($xsdFields);
-      
+
       $sekFields = array();
-      
+
       try
       {
           $sql = "SELECT mf.xsdmf_id, mf.xsdmf_html_input, xsdmf_smarty_variable, xsdmf_use_parent_option_list, TRIM(LOWER(REPLACE(sk.sek_title,\" \",\"_\"))) AS sek_title, "
-          . "sk.sek_relationship, sk.sek_cardinality FROM " . APP_TABLE_PREFIX . "search_key sk, " 
+          . "sk.sek_relationship, sk.sek_cardinality FROM " . APP_TABLE_PREFIX . "search_key sk, "
           . APP_TABLE_PREFIX . "xsd_display_matchfields mf WHERE sk.sek_id = "
           . "mf.xsdmf_sek_id AND mf.xsdmf_id IN (?)";
-          
+
           $query = str_replace('?', substr(str_repeat('?, ', count($xsdmf_ids)), 0, -2), $sql);
-          
+
           $stmt = $db->query($query, $xsdmf_ids);
           $fields = $stmt->fetchAll();
       }
@@ -2417,7 +2417,7 @@ class RecordGeneral
       {
           $log->err($e->getMessage());
       }
-      
+
       foreach($fields as $field)
       {
           // if its multiple cardinality field and there are empty values, nuke them so they don't insert null rows
@@ -2452,12 +2452,12 @@ class RecordGeneral
               $valueKeys = array_keys($xsdFields[$field['xsdmf_id']]); //Not all keys are numeric.
               $xsdFields[$field['xsdmf_id']] = $xsdFields[$field['xsdmf_id']][$valueKeys[0]];
           }
-          
+
           $sekFields[$field['sek_relationship']][$field['sek_title']] = array(
-          	'xsdmf_id' => $field['xsdmf_id'], 
+          	'xsdmf_id' => $field['xsdmf_id'],
           	'xsdmf_value' => $xsdFields[$field['xsdmf_id']]);
       }
-      
+
       return $sekFields;
   }
 
@@ -2643,9 +2643,8 @@ class RecordGeneral
                 );
               } else if (isset($ds_value['controlGroup']) && $ds_value['controlGroup'] == 'R'
               && $clone_attached_datastreams) {
-                $value = Fedora_API::callGetDatastreamContents($pid, $ds_value['ID'], true);
                 Fedora_API::callAddDatastream(
-                    $new_pid, $ds_value['ID'], $value, $ds_value['label'],
+                    $new_pid, $ds_value['ID'], $ds_value['location'], $ds_value['label'],
                     $ds_value['state'], $ds_value['MIMEType'], $ds_value['controlGroup'], $ds_value['versionable']
                 );
               }
