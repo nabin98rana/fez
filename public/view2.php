@@ -787,6 +787,13 @@ if (!empty($pid) && $record->checkExists()) {
     }
 } else {
     header("Status: 404 Not Found");
+    $tpl->setTemplate('header.tpl.html');
+    $header = $tpl->getTemplateContents();
+    echo $header;
+    ob_flush();
+    flush();
+
+    $tpl->setTemplate("view.tpl.html");
     $tpl->assign('not_exists', true);
 	$savePage = false;
 }
