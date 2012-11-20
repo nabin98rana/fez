@@ -94,7 +94,7 @@ class BackgroundProcessList
 
     $stmt .= "
             FROM ".$dbtp."background_process
-            WHERE bgp_status <> 2 ";
+            WHERE bgp_state <> 2 ";
     if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) { //eg if postgresql etc
       $stmt .= " AND (bgp_heartbeat >  (TIMESTAMP '".$utc_date."' - INTERVAL '10 minutes'))  ";
     } else {

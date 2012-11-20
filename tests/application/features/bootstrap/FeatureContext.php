@@ -279,16 +279,14 @@ class FeatureContext extends MinkContext
    */
   public function waitForBGPsAfter()
   {
-    if (APP_SOLR_INDEXER == "ON") {
-      for ($x = 0; $x<60; $x++) {
-        $finished = BackgroundProcessList::isFinishedProcessing();
-        if ($finished == true) {
-          return;
-        }
-        sleep(1);
+    for ($x = 0; $x<60; $x++) {
+      $finished = BackgroundProcessList::isFinishedProcessing();
+      if ($finished == true) {
+        return;
       }
-      return;
+      sleep(1);
     }
+    return;
   }
 
   /**
@@ -299,14 +297,12 @@ class FeatureContext extends MinkContext
    */
   public function waitForBGPsBefore()
   {
-    if (APP_SOLR_INDEXER == "ON") {
-      for ($x = 0; $x<60; $x++) {
-        $finished = BackgroundProcessList::isFinishedProcessing();
-        if ($finished == true) {
-          return;
-        }
-        sleep(1);
+    for ($x = 0; $x<60; $x++) {
+      $finished = BackgroundProcessList::isFinishedProcessing();
+      if ($finished == true) {
+        return;
       }
+      sleep(1);
     }
     return;
   }
