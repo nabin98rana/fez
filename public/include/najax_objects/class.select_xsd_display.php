@@ -12,7 +12,9 @@ class SelectXSDDisplay {
         $xsdmf_list = XSD_HTML_Match::getAssocList($xdis_id);
         $list = array();
         foreach($xsdmf_list as $key => $item) {
-            $list[] = array('value' => $key, 'text' => $item);
+            if (!empty($item)) {
+                $list[] = array('value' => $key, 'text' => $item);
+            }
         }
         //Error_Handler::logError($list);
         return $list; 
