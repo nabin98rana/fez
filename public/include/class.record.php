@@ -992,7 +992,7 @@ class Record
         return -1;
     }
 
-    if ($shadow) {
+    if ($shadow == true) {
         Zend_Registry::set('version', $date);
         $recordSearchkeyShadow = new Fez_Record_SearchkeyShadow($pid);
     }
@@ -1003,7 +1003,7 @@ class Record
       // if is a 1-M needs its own delete sql, otherwise if a 0 (1-1) the core delete will do it
       if ($sval['sek_relationship'] == 1) {
         $sekTable = Search_Key::makeSQLTableName($sval['sek_title']);
-        if ($shadow) {
+        if ($shadow == true) {
             $recordSearchkeyShadow->copySearchKeyToShadow($sekTable);
         }
         $stmt = "DELETE FROM
@@ -1018,7 +1018,7 @@ class Record
       }
     }
 
-    if ($shadow) {
+    if ($shadow == true) {
         $recordSearchkeyShadow->copyRecordSearchKeyToShadow();
     }
     $stmt = "DELETE FROM
@@ -5378,6 +5378,7 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
         // tell fedora that the object is deleted.
 	    $label = Record::getSearchKeyIndexValue($pid, "title", false);  // Get title of record. Sending a null label to callModifyObject deletes the object label in Fedora 3, which is used to display the title in the 'Undelete Fedora Objects' page
         Fedora_API::callModifyObject($pid, 'D', $label);
+    } else {
       $shadow = true;
     }
     // delete it from the Fez index.
