@@ -46,7 +46,7 @@ Scenario: Delete WOS imports
   And I fill "automated test data cleanup" in popup
   And I confirm the popup
 
-  @destructive @now2 @broken
+  @destructive @now2
   Scenario: Add to WOS queue and make sure it imports
     Given I am on "/"
     And I login as administrator
@@ -56,7 +56,6 @@ Scenario: Delete WOS imports
     And I am on "/"
     And I turn on waiting checks
     And I fill in "Search Entry" with "title:(\"Influence of Malt Roasting on the Oxidative Stability of Sweet Wort\")"
-    And I wait for "10" seconds
     And I press "search_entry_submit"
     And I follow "Influence of Malt Roasting on the Oxidative Stability of Sweet Wort"
     And I should see "Influence of Malt Roasting on the Oxidative Stability of Sweet Wort"
@@ -75,7 +74,7 @@ Scenario: Delete WOS imports
     And I should see "WoS Import"
     And I should see "10.1021/jf300749r"
 
-  @destructive @core @now2 @broken
+  @destructive @core @now2
 Scenario: Delete WOS imports
   Given I login as administrator
   And I fill in "Search Entry" with "title:(\"Influence of Malt Roasting on the Oxidative Stability of Sweet Wort\")"

@@ -824,6 +824,7 @@ public function afterScenario($event)
     {
         $wOKQueue = WokQueue::get();
         $wOKQueue->add($item);
+        $wOKQueue->commit();
     }
 
 
