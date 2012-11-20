@@ -44,7 +44,6 @@ define("TEST_LINKS_AMR_EMPTY_PID", "UQ:26148");
 
 define("TEST_LINKS_AMR_UT", "000177619700002");
 
-
 /**
  * @var string An example Journal Article publication pid in the system you can perform non-destructive tests on
  */
@@ -378,7 +377,7 @@ class FeatureContext extends MinkContext
 //        echo "apparently i am NOT modal";
 //      $stepTitle = $event->getStep()->getTitle()
 //      if ($event->getStep()->getTitle()
-        $this->getSession()->wait(10000, "dojo.byId('powered-by')");
+        $this->getSession()->wait(60000, "dojo.byId('powered-by')");
         $javascriptError = ($this->getSession()->evaluateScript("return window.jsErrors"));
         if (!empty($javascriptError)) {
           throw new Exception("Javascript Error: ".$javascriptError[0]);
