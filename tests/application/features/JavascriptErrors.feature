@@ -94,7 +94,6 @@ Feature: Test pages for javascript errors
     Given I am on "/manage/ad_hoc_workflow.php"
     Given I am on "/manage/io_workflows.php"
     Given I am on "/manage/io_xsds.php"
-    Given I am on "/manage/run_webstats.php"
     Given I am on "/manage/upgrade.php"
 
   #Mostly espace specific.
