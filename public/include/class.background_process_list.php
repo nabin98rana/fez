@@ -61,7 +61,7 @@ class BackgroundProcessList
 		} else {
 			$stmt .= " if (bgp_heartbeat < DATE_SUB('".$utc_date."',INTERVAL 1 DAY), 1, 0) as is_old ";
 		}
-		
+
 			$stmt .= "
             FROM ".$dbtp."background_process
             LEFT JOIN ". $dbtp ."user AS usr ON bgp_usr_id = usr.usr_id
@@ -83,6 +83,40 @@ class BackgroundProcessList
 		return $res;
 	}
 
+  function isFinishedProcessing()
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $utc_date = Date_API::getSimpleDateUTC();
+    $dbtp =  APP_TABLE_PREFIX;
+    $stmt = "SELECT bgp_id ";
+
+    $stmt .= "
+            FROM ".$dbtp."background_process
+            WHERE bgp_status <> 2 ";
+    if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) { //eg if postgresql etc
+      $stmt .= " AND (bgp_heartbeat >  (TIMESTAMP '".$utc_date."' - INTERVAL '10 minutes'))  ";
+    } else {
+      $stmt .= " AND (bgp_heartbeat > DATE_SUB('".$utc_date."',INTERVAL 10 MINUTE)) ";
+    }
+    $stmt .= "
+            ORDER BY bgp_started";
+    try {
+      $res = $db->fetchOne($stmt);
+    }
+    catch(Exception $ex) {
+      $log->err($ex);
+      return false;
+    }
+    $response = false;
+    if (is_numeric($res)) {
+      $response = true;
+    }
+    return $response;
+  }
+
+
 	function getDetails($id)
 	{
 		$log = FezLog::get();
@@ -95,7 +129,7 @@ class BackgroundProcessList
 		if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) { //eg if postgresql etc
 			$stmt .= " CASE WHEN  (bgp_heartbeat <  (TIMESTAMP '".$utc_date."' - INTERVAL '1 days')) THEN 1 ELSE 0 END AS is_old ";
 		} else {
-			$stmt .= "if (bgp_heartbeat < DATE_SUB('".$utc_date."',INTERVAL 1 DAY), 1, 0) as is_old ";			
+			$stmt .= "if (bgp_heartbeat < DATE_SUB('".$utc_date."',INTERVAL 1 DAY), 1, 0) as is_old ";
 		}
 		$stmt .= "
             FROM ".$dbtp."background_process
@@ -162,7 +196,7 @@ class BackgroundProcessList
 		$dbtp =  APP_TABLE_PREFIX;
 		$utc_date = Date_API::getSimpleDateUTC();
 		$stmt = "DELETE FROM ".$dbtp."background_process
-                WHERE 
+                WHERE
                     bgp_name IN (".$auto_delete_names.") ";
 
 		if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) { //eg if postgresql etc
@@ -188,11 +222,11 @@ class BackgroundProcessList
 			$this->delete($res);
 		}
 		$stmt = "SELECT bgp_id FROM ".$dbtp."background_process
-                WHERE 
+                WHERE
                     bgp_usr_id=".$db->quote($usr_id, 'INTEGER')."  " .
                     "AND bgp_name IN (".$auto_delete_names.") " .
                     "AND (bgp_state = '0' OR bgp_state = '2') " .
-                    "ORDER BY bgp_started ASC";		
+                    "ORDER BY bgp_started ASC";
 		try {
 			$res = $db->fetchCol($stmt);
 		}

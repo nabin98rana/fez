@@ -30,6 +30,7 @@ require_once 'LoginHelper.php';
 
 require_once(APP_INC_PATH . 'class.auth.php');
 require_once(APP_INC_PATH . 'class.fulltext_queue.php');
+require_once(APP_INC_PATH . 'class.background_process_list.php');
 require_once(APP_INC_PATH . 'class.wok_queue.php');
 
 
@@ -251,6 +252,64 @@ class FeatureContext extends MinkContext
     return;
   }
 
+
+  /**
+   * Wait until the background processes have finished
+   *
+   * @Then /^(?:|I )wait for bgps$/
+   *
+   */
+  public function waitForBGPs()
+  {
+    for ($x = 0; $x<60; $x++) {
+      $finished = BackgroundProcessList::isFinishedProcessing();
+      if ($finished == true) {
+        return;
+      }
+      sleep(1);
+    }
+    return;
+  }
+
+  /**
+   * Wait until the background processes have finished
+   *
+   * @AfterStep
+   *
+   */
+  public function waitForBGPsAfter()
+  {
+    if (APP_SOLR_INDEXER == "ON") {
+      for ($x = 0; $x<60; $x++) {
+        $finished = BackgroundProcessList::isFinishedProcessing();
+        if ($finished == true) {
+          return;
+        }
+        sleep(1);
+      }
+      return;
+    }
+  }
+
+  /**
+   * Wait until the background processes have finished
+   *
+   * @BeforeStep
+   *
+   */
+  public function waitForBGPsBefore()
+  {
+    if (APP_SOLR_INDEXER == "ON") {
+      for ($x = 0; $x<60; $x++) {
+        $finished = BackgroundProcessList::isFinishedProcessing();
+        if ($finished == true) {
+          return;
+        }
+        sleep(1);
+      }
+    }
+    return;
+  }
 
 
   /**
@@ -913,6 +972,8 @@ class ZoetropeBackgroundService extends BackgroundService
     // -y      Overwrite output files.
     // -r      Frame rate
     $command = 'ffmpeg -an -f x11grab -y -r 5 -s 1024x768 -i ' . $screenId . '.0+0,0 '
+                    . ' -quality good -cpu-used 0 -b:v 1200k -maxrate 1200k -bufsize 2400k -qmin 10 '
+              . '-qmax 42 -vf scale=-1:480 -threads 4 -b:a 128k '
 //              . '-codec:v libvpx -quality good -cpu-used 0 -b:v 1200k -maxrate 1200k -bufsize 2400k -qmin 10 '
 //              . '-qmax 42 -vf scale=-1:480 -threads 4 -codec:a libvorbis -b:a 128k '
 //              . $this->fileDir . $this->videoFiles['webm'] . ' '
