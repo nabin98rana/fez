@@ -109,9 +109,9 @@ class BackgroundProcessList
       $log->err($ex);
       return false;
     }
-    $response = false;
+    $response = true;
     if (is_numeric($res)) {
-      $response = true;
+      $response = false;
     }
     return $response;
   }
