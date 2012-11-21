@@ -342,14 +342,12 @@ class WosRecItem
         }
         if ($element->getAttribute('type') == "doi" || $element->getAttribute('type') == "xref_doi") {
             //Sometimes we have xref_doi repeated after a doi
-            if (!in_array($element->getAttribute('value'), $articleNos)) {
-                $articleNos[] = $element->getAttribute('value');
+            if (!in_array($element->getAttribute('value'), $this->articleNos)) {
+                $this->articleNos[] = $element->getAttribute('value');
             }
         }
     }
-    if (is_array($articleNos) && count($articleNos) > 0) {
-      $this->articleNos = $articleNos;
-    }
+
 
     $elements = $node->getElementsByTagName("title");
     foreach($elements as $element) {
