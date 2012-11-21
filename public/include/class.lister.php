@@ -334,14 +334,12 @@ class Lister
         $canList = $record->canList(true);
 
         $tpl->assign("isLister", $canList);
-        $tpl->displayTemplate();
-        ob_flush();
-        flush();
 
         if ($canList) {
           $tpl->assign("list_type", "collection_records_list");
-
-
+          $tpl->displayTemplate();
+          ob_flush();
+          flush();
 
           $tpl->assign("xdis_id", Record::getSearchKeyIndexValue($collection_pid, "Display Type"));
           $parents = Record::getParentsDetails($collection_pid);
@@ -363,7 +361,6 @@ class Lister
           $facets = @$list['facets'];
           $snips = @$list['snips'];
           $list = $list["list"];
-
 
           $tpl->assign("collection_pid", $collection_pid);
           $childXDisplayOptions = Record::getSearchKeyIndexValue($collection_pid, "XSD Display Option");
@@ -407,13 +404,13 @@ class Lister
       // first check the user has view rights over the collection object
       $record = new RecordObject($community_pid);
       if ($record->checkExists() && !($record->isDeleted())) {
-        $tpl->displayTemplate();
-        ob_flush();
-        flush();
 
         $canView = $record->canView(true);
         $tpl->assign("isViewer", $canView);
         if ($canView) {
+          $tpl->displayTemplate();
+          ob_flush();
+          flush();
           $tpl->assign("community_pid", $community_pid);
           $userPIDAuthGroups = AuthIndex::getIndexAuthRoles($community_pid);
           $isCreator = @$userPIDAuthGroups['isCreator'] == 1;
