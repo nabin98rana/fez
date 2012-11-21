@@ -438,7 +438,7 @@ class FeatureContext extends MinkContext
           throw new Exception("Javascript Error: ".$javascriptError[0]);
         }
           $pageContent = $this->getSession()->getPage()->getContent();
-          $pos = strpos($pageContent, '&lt;');
+          $pos = strpos($pageContent, '&lt;/') || strpos($pageContent, '/&gt;');
           if ($pos!==false) {
               echo("&lt; found in Senario: " );
               print_r($event->getStep()->getParent()->getTitle()."\n");
