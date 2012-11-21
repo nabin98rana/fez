@@ -437,6 +437,13 @@ class FeatureContext extends MinkContext
         if (!empty($javascriptError)) {
           throw new Exception("Javascript Error: ".$javascriptError[0]);
         }
+          $pageContent = $this->getSession()->getPage()->getContent();
+          $pos = strpos($pageContent, '&lt;');
+          if ($pos!==false) {
+              echo("&lt; found in Senario: " );
+              print_r($event->getStep()->getParent()->getTitle()."\n");
+              print_r($event->getStep()->getType().' '.$event->getStep()->getText()."\n");
+          };
       }
     }
 //      $this->isModal = false;
