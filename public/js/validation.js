@@ -259,6 +259,16 @@ function isNumeric(sText)
    
 }
 
+function isInteger(sText)
+{
+    var intRegex = /^\d+$/;
+    if(intRegex.test(sText)) {
+        return true;
+    }
+    return false;
+
+}
+
 function isNumberOnly(s)
 {
     var check = parseFloat(s).toString();
@@ -430,6 +440,10 @@ function xsdmfValidate(field, value, vtype, title, name) {
 	} else if (vtype == 'unique') {
         if (value != '' && value != 0 && !isUnique(name)) {
             errors[errors.length] = new Option(title+'s (needs to be unique)', name);
+        }
+	} else if (vtype == 'integer') {
+        if (value != '' && !isInteger(value)) {
+            errors[errors.length] = new Option(title+'s (needs to be integer)', name);
         }
     }
 }
