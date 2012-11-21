@@ -126,13 +126,7 @@ if (!empty($pid) && $record->checkExists()) {
 	} else {
 		$tpl->assign("extra_title", "Record #".$pid." Details");
 	}
-  $tpl->setTemplate('header.tpl.html');
-  $header = $tpl->getTemplateContents();
-  echo $header;
-  ob_flush();
-  flush();
 
-  $tpl->setTemplate("view.tpl.html");
 
   $tpl->assign("pid", $pid);
 	$deleted = false;
@@ -212,6 +206,14 @@ if (!empty($pid) && $record->checkExists()) {
 
 	$tpl->assign("isViewer", $canView);
 	if ($canView) {
+
+        $tpl->setTemplate('header.tpl.html');
+        $header = $tpl->getTemplateContents();
+        echo $header;
+        ob_flush();
+        flush();
+
+        $tpl->setTemplate("view.tpl.html");
 
         $ret_id = 3;
         $strict = false;
@@ -433,6 +435,13 @@ if (!empty($pid) && $record->checkExists()) {
 		$details = $record_view->getDetails();
 	} else {
         header("HTTP/1.0 403 Forbidden");
+    $tpl->setTemplate('header.tpl.html');
+    $header = $tpl->getTemplateContents();
+    echo $header;
+    ob_flush();
+    flush();
+
+    $tpl->setTemplate("view.tpl.html");
 		$tpl->assign("show_not_allowed_msg", true);
 		$savePage = false;
 	}
