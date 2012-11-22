@@ -65,7 +65,7 @@ if (element{/literal}{$search_keys[i].sek_id}{literal} != null) {
   {assign var="search_key_name" value='searchKey'|cat:$search_keys[i].sek_id}
   {assign var ="last_key" value=$options.$search_key_name}
   <div class="{if $last_key != 'ALL' && $last_key != '' && $search_keys[i].sek_html_input != 'date' || ($search_keys[i].sek_html_input == 'date' && $last_key.filter_enabled ==1) }default-search-used{else}default{/if} quick_search_item">
-  {if $search_keys[i].sek_alt_title}{$search_keys[i].sek_alt_title}{else}{$search_keys[i].sek_title}{/if}:<br/>{if $search_keys[i].sek_desc}<sub>{$search_keys[i].sek_desc}<sub><br />{/if}
+  <label for="search_keys[{$search_keys[i].sek_id}]">{if $search_keys[i].sek_alt_title}{$search_keys[i].sek_alt_title}{else}{$search_keys[i].sek_title}{/if}:</label><br/>{if $search_keys[i].sek_desc}<sub>{$search_keys[i].sek_desc}<sub><br />{/if}
   {if $search_keys[i].sek_html_input != 'text' &&  $search_keys[i].sek_html_input != 'textarea'}
     <script type="text/javascript">
     <!--

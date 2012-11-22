@@ -8,7 +8,7 @@ Feature: Test that deleted pid works correctly
     And I select "Journal Article" from "xdis_id_top"
     And I press "Create"
     And I fill in "Title" with "Security Test Name 2012"
-    And I fill in "Journal name" with "Security Test Publishication"
+    And I fill in "Journal name" with "Security Test Journal Publication"
     And I fill in "Author 1" with "Security Test Writer Name"
     And I select "Article" from "Sub-type"
     And I check "Copyright Agreement"
