@@ -38,16 +38,22 @@ function loadPreview(pid,datastreamID, alt, origami)
 
 {* Div to show the outstanding workflows if they exist *}
 {if ($isEditor || $isAdministrator)}
-	<div id="outstandingWorkflowsDiv" class="flash_message" {if ($outstandingStatus == '')} style="display:none"{/if}>
+{if ($outstandingStatus != '')}
+{literal}
+<script type="text/javascript">
+    var x = noty({
+        text: '{/literal}{$outstandingStatus|smarty:nodefaults}{literal}',
+        type: 'warning',
+        dismissQueue: true,
+        modal: false,
+        layout: 'topCenter',
+        timeout: 5000,
+        theme: 'defaultTheme'
+    });
 
-		<div id="outstandingStatus" {if ($outstandingStatus == '')} style="display:none;"{/if}>{$outstandingStatus|smarty:nodefaults}</div>
-
-		<div><a href="javascript:showOutstandingItemDetails('{$pid}');">Show Details</a> | <a id="outstandingWorkflowsLink" href="javascript:updateOutstandingDiv('{$pid}');">Check again</a><img src="{$rel_url}images/spinner.gif" id="outstandingSpinner" style="display:none;" alt="" /></div>
-		<div id="outstandingDetailsDiv" style="display:none;">
-			<div id="outstandingWorkflowsDetails" style="display:none;">&nbsp;</div>
-			<div id="outstandingBackgroundProcessDetails" style="display:none;">&nbsp;</div>
-		</div>
-	</div>
+</script>
+{/literal}
+{/if}
 {/if}
 
 <table style="background: {$cell_color}; width: 100%;">

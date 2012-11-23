@@ -30,8 +30,8 @@ function unhideRow(element_name, table_name)
 	var x = 0;
 	// for each row in the set of elements (with _x suffix)
 	for(row = document.getElementById('tr_' + element_name + '_' + x);
-		row != null && row != false; 
-		row = document.getElementById('tr_' + element_name + '_' +x )) 
+		row != null && row != false;
+		row = document.getElementById('tr_' + element_name + '_' +x ))
 	{
 		var rowInput = document.getElementById(element_name + '_' + x);
 
@@ -58,12 +58,12 @@ function unhideRow(element_name, table_name)
 			}
 		}
 	}
-	
+
 	// did we find a hidden one?
 	if (firstHiddenRow > 0 && emptyRowExists == 0) {
 		var show_tr = document.getElementById('tr_' + element_name + '_' + firstHiddenRow);
 		show_tr.style.display = '';
-		
+
 		var arrow = document.getElementById(element_name + '_' + (firstHiddenRow-1)+'_arrow');
 		if( arrow ) arrow.style.display = 'inline';
 	}
@@ -77,7 +77,7 @@ function str_replace(s, srch, rplc) {
   var int_before = 0;
   var int_after = 0;
 
-  while (tmp.toUpperCase().indexOf(srch.toUpperCase()) > -1) {   
+  while (tmp.toUpperCase().indexOf(srch.toUpperCase()) > -1) {
     int_before = tmp.toUpperCase().indexOf(srch.toUpperCase());
     tmp_before = tmp.substring(0, int_before);
     tmp_output = tmp_output + tmp_before;
@@ -126,7 +126,7 @@ function showComboBoxes()
     for (var i = 0; i < document.forms.length; i++) {
         for (var y = 0; y < document.forms[i].elements.length; y++) {
             if (((document.forms[i].elements[y].type == 'select-one') ||
-                 (document.forms[i].elements[y].type == 'select-multiple')) && 
+                 (document.forms[i].elements[y].type == 'select-multiple')) &&
                     (document.forms[i].elements[y].name != 'lookup') &&
                     (document.forms[i].elements[y].name != 'lookup[]')) {
                 document.forms[i].elements[y].style.visibility = 'visible';
@@ -224,7 +224,7 @@ function addToParentList(sourceList, destinationList) {
 				}
 			}
 		}
-	} 
+	}
 	var len = destinationList.length;
 	for(var i = 0; i < sourceList.options.length; i++) {
 		if ((sourceList.options[i] != null) && (sourceList.options[i].selected)) {
@@ -487,19 +487,19 @@ function toggleVisibility(title, keep_basic_filter_form, create_cookie)
 		}
     }
 
-	if (element != null) {	
+	if (element != null) {
 	    if (isElementVisible(element)) {
 	        var new_style = 'none';
-	        if (title != 'basic_filter_form' && keep_basic_filter_form != 1) { 
+	        if (title != 'basic_filter_form' && keep_basic_filter_form != 1) {
 	            var basic_element = getPageElement('basic_filter_form' + '1');
 				if (isElementVisible(basic_element)) {
 					toggleVisibility('basic_filter_form');
 				}
 			}
-        
+
 	    } else {
 	        var new_style = getDisplayStyle();
-	        if (title != 'basic_filter_form' && keep_basic_filter_form != 1) { 
+	        if (title != 'basic_filter_form' && keep_basic_filter_form != 1) {
 	            var basic_element = getPageElement('basic_filter_form' + '1');
 				if (!isElementVisible(basic_element)) {
 					toggleVisibility('basic_filter_form');
@@ -561,7 +561,7 @@ function setCookie(name, value, expires, path, domain, secure)
 {
     document.cookie = name + "=" +escape(value) +
         ( (expires) ? ";expires=" + expires.toGMTString() : "") +
-        ( (path) ? ";path=" + path : "") + 
+        ( (path) ? ";path=" + path : "") +
         ( (domain) ? ";domain=" + domain : "") +
         ( (secure) ? ";secure" : "");
 }
@@ -581,37 +581,27 @@ function openHelp(rel_url, topic)
     helpWin.focus();
 }
 
-function showFlashMessage()
-{
-	document.getElementById('flash_message_div').style.display = '';
-	setTimeout('clearFlashMessage()', 5000);
-}
-
 function getFlashMessage(id)
 {
-	wfs = new Session();
-	wfs.getMessage( function(s) {
-		if (s != null && s.length > 0) {
-			e = document.getElementById('flash_message_div');
-			if (e != null) {
-				e.innerHTML = s;
-                currentClass = e.getAttribute("class");
-                e.setAttribute("class", currentClass + " message_" + wfs.getMessageType());
-				showFlashMessage();
-			}
-		}
-	});
-}
-
-function clearFlashMessage()
-{
-	wfs = new Session();
-	wfs.clearMessage();
-	document.getElementById('flash_message_div').style.display = 'none';
+    wfs = new Session();
+    wfs.getMessage(function(s) {
+        if (s != null && s.length > 0) {
+            var x = noty({
+                text: s,
+                type: 'warning',
+                dismissQueue: true,
+                modal: false,
+                layout: 'topCenter',
+                timeout: 5000,
+                theme: 'defaultTheme'
+            });
+        }
+    });
+    wfs.clearMessage();
 }
 
 /**
- * Callback for author suggestor to handle the setting of the extra form elements.  This is 
+ * Callback for author suggestor to handle the setting of the extra form elements.  This is
  * called from autosuggest.js in the hideSuggestions method
  */
 function authorSuggestorCallback(oThis, oTarget) {
@@ -622,18 +612,18 @@ function authorSuggestorCallback(oThis, oTarget) {
 	dtList[0] = new Option;
 	dtList[0].text = "(none)";
 	dtList[0].value = "0";
-	dtList[1] = new Option;			
+	dtList[1] = new Option;
 	dtList[1].value = oTarget.getAttribute('id');
 	dtList[1].text = oTarget.firstChild.nodeValue+" ("+oTarget.getAttribute('id')+")";
 	dtList[1].selected = true;
 
 	if (oThis.textboxcopy == null) {
 		oThis.textbox.focus();
-	} else {				
+	} else {
 		oThis.textboxcopy.focus();
 		removeAllOptions(oThis.form, oThis.selectbox);
 		addOptions(oThis.form, oThis.selectbox, dtList);
-	}		
+	}
 }
 
 function cloneSuggestorCallback(oThis, oTarget) {
@@ -650,7 +640,7 @@ function setAction(f,action)
 		fe.setAttribute('name','action');
 		fe.setAttribute('type','hidden');
 		f.appendChild(fe);
-	} 
+	}
 	fe.setAttribute('value', action);
 	return true;
 }
@@ -667,7 +657,7 @@ function workflowItems(f, rel_url)
         selectField(f, 'wft_id');
         return false;
     }
-    
+
     f.cat.value = 'select_workflow';
     f.action = rel_url + 'workflow/bulk_change.php';
     f.target='';
@@ -686,7 +676,7 @@ function workflowBulkChangeSearch(f, rel_url)
     if (!confirm('This will run ' + f.wft_id.options[f.wft_id.selectedIndex].text + ' on all objects in the search result.  Are you sure?')) {
     	return false;
 	}
-	
+
     f.cat.value = 'select_workflow';
     f.action = rel_url + 'workflow/bulk_change_from_search.php';
     f.target='';
@@ -707,17 +697,17 @@ function toggleDateFields(f, field_name)
         if (month_end_field == false) {
             var pre_element_name = field_name.substring(0, field_name.indexOf('['));
             var month_end_field = getFormElement(f, pre_element_name + '[end][Month]');
-        } 
+        }
     var day_end_field = getFormElement(f, field_name + '[end][Day]');
         if (day_end_field == false) {
             var pre_element_name = field_name.substring(0, field_name.indexOf('['));
             var day_end_field = getFormElement(f, pre_element_name+'[end][Day]');
-        } 
+        }
     var year_end_field = getFormElement(f, field_name + '[end][Year]');
         if (year_end_field == false) {
             var pre_element_name = field_name.substring(0, field_name.indexOf('['));
             var year_end_field = getFormElement(f, pre_element_name+'[end][Year]');
-        } 
+        }
     if (checkbox.checked) {
         var disable = false;
     } else {
@@ -773,21 +763,21 @@ function confirmDelete() {
 function swapTextBox(textbox, xsdmf_id, loopnum, direction)
 {
     var swapLoopNumId = (parseInt(loopnum) + parseInt(direction));
-    
+
     var curTextbox = document.getElementById(textbox + '_' + loopnum);
     var swapTextbox = document.getElementById(textbox + '_' + swapLoopNumId);
-    
+
     if(curTextbox == null || swapTextbox == null)
         return;
-    
+
     var tmpValue = curTextbox.value;
-    
+
     curTextbox.value = swapTextbox.value;
     swapTextbox.value = tmpValue;
-   
+
     var curDropDown = document.getElementById('xsd_display_fields_'  + xsdmf_id + '_' + loopnum);
     var prevDropDown = document.getElementById('xsd_display_fields_' + xsdmf_id + '_' + swapLoopNumId);
-    
+
     if(curDropDown && prevDropDown)
     {
         swapDropDownValues(curDropDown, prevDropDown);
@@ -806,10 +796,10 @@ function swapDropDownValues(dropDownOne, DropDownTwo)
 {
     var tmpDropDownText = dropDownOne.options[dropDownOne.selectedIndex].text;
     var tmpDropDownVal = dropDownOne.options[dropDownOne.selectedIndex].value;
-    
+
     dropDownOne.options[dropDownOne.selectedIndex].text = DropDownTwo.options[DropDownTwo.selectedIndex].text;
     dropDownOne.options[dropDownOne.selectedIndex].value = DropDownTwo.options[DropDownTwo.selectedIndex].value;
-    
+
     DropDownTwo.options[DropDownTwo.selectedIndex].text = tmpDropDownText;
     DropDownTwo.options[DropDownTwo.selectedIndex].value = tmpDropDownVal;
 }

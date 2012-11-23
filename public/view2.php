@@ -206,7 +206,7 @@ if (!empty($pid) && $record->checkExists()) {
 
 	$tpl->assign("isViewer", $canView);
 	if ($canView) {
-
+        list($prev, $next) = RecordView::getNextPrevNavigation($pid);
         $tpl->setTemplate('header.tpl.html');
         $header = $tpl->getTemplateContents();
         echo $header;
@@ -740,7 +740,7 @@ if (!empty($pid) && $record->checkExists()) {
 		// Add view to statistics buffer
 		Statistics::addBuffer($pid);
 
-        list($prev, $next) = RecordView::getNextPrevNavigation($pid);
+
         $tpl->assign(compact('prev','next'));
 
 		// determine if there are workflows currently working on this pid and let the user know if there are

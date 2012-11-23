@@ -19,6 +19,8 @@
 {if $offline == "true"}<link rel="stylesheet" href="{$rel_url}templates/en/css/maintenance.css" type="text/css" />{else}<link rel="stylesheet" href="{$rel_url}css/dynamic_css.php" type="text/css" />{/if}
 <script type="text/javascript" src="{$rel_url}js/common.js"></script>
 <script type="text/javascript" src="{$rel_url}js/dojo/dojo.js"></script>
+
+
 {if $setup}
 <link rel="stylesheet" href="../css/setup.css" type="text/css" />
 {/if}
@@ -73,9 +75,15 @@
 {/if}
 
 {*  Load jQuery library  *}
-{if $jquery == true}
 <script type="text/javascript" src="{$rel_url}js/jquery/jquery-1.6.4.min.js"></script>
-{/if}
+
+<script type="text/javascript" src="/js/noty/jquery.noty.js"></script>
+
+<!-- layouts -->
+<script type="text/javascript" src="/js/noty/layouts/topCenter.js"></script>
+
+<!-- themes -->
+<script type="text/javascript" src="/js/noty/themes/default.js"></script>
 
 {*   Load jQuery UI library *}
 {if $jqueryUI == true}
