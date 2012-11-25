@@ -1548,7 +1548,9 @@ class ResearcherID
 
         // The query statement
         $stmt = "SELECT
-                    SQL_CALC_FOUND_ROWS  *
+                    SQL_CALC_FOUND_ROWS  rij_id, rij_ticketno, rij_lastcheck, rij_status, rij_count, rij_timestarted, rij_timefinished
+					rij_downloadrequest, rij_lastresponse, rij_response_profilelink, 'See DB, too big to show' as rij_response_profilexml,
+					rij_response_publicationslink, 'See DB, too big to show' as rij_response_publicationsxml, rij_time_xmlcleaned
                  FROM
                     " . APP_TABLE_PREFIX . "rid_jobs ";
 
@@ -1568,7 +1570,7 @@ class ResearcherID
         }
 
         if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
-            $stmt = "SELECT COUNT(*)
+            $stmt = "SELECT COUNT(rij_id)
                  FROM
                     " . APP_TABLE_PREFIX . "rid_jobs
                 " . $where_stmt;
