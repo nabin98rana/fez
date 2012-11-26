@@ -411,10 +411,10 @@ class RecordGeneral
   function setStatusId($sta_id)
   {
         if (APP_FEDORA_BYPASS == 'ON') {
-
+          $currentStatus = Record::getSearchKeyIndexValue($this->pid, "Status", false);
+          if ($currentStatus != Status::getID("Published")) {
             $searchKeyData = array();
             $details = Record::getDetailsLite($this->pid);
-
             // $searchKeyData[0] for 1-to-1 search keys
             $searchKeyData[0]['status'] = array('xsdmf_id' => $details[0]['rek_status_xsdmf_id'], 'xsdmf_value' => $sta_id);
             $searchKeyData[0]['updated_date'] = array('xsdmf_id' => $details[0]['rek_updated_date_xsdmf_id'], 'xsdmf_value' => Date_API::getFedoraFormattedDateUTC());
@@ -423,7 +423,7 @@ class RecordGeneral
             Record::updateSearchKeys($this->pid, $searchKeyData);
 
             Record::updateSearchKeysShadow($this->pid);
-
+          }
         } else {
 
             // Update the XML for FezMD datastream,

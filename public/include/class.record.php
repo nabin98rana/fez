@@ -1326,100 +1326,102 @@ class Record
     /*
      *  Update 1-to-Many search keys
      */
-    foreach ($sekData[1] as $sek_table => $sek_value) {
+    if (is_array($sekData[1])) {
+      foreach ($sekData[1] as $sek_table => $sek_value) {
 
-      $stmt = "";
-      $sekValTest = (is_array($sek_value['xsdmf_value']))
-          ? strtoupper(implode('', $sek_value['xsdmf_value']))
-          : $sek_value['xsdmf_value'];
-      if (
-          !empty($sek_value['xsdmf_value']) && !is_null($sek_value['xsdmf_value'])
-          && ($sekValTest != "NULL")
-      ) {
+        $stmt = "";
+        $sekValTest = (is_array($sek_value['xsdmf_value']))
+            ? strtoupper(implode('', $sek_value['xsdmf_value']))
+            : $sek_value['xsdmf_value'];
+        if (
+            !empty($sek_value['xsdmf_value']) && !is_null($sek_value['xsdmf_value'])
+            && ($sekValTest != "NULL")
+        ) {
 
-        // Added this notEmpty check to look for empty arrays.  Stops fez from writing empty keyword
-        // values to fez_record_search_key_keywords table.  -  heaphey
-        $notEmpty = 1;  // start assuming that value is not empty
-        if (is_array($sek_value['xsdmf_value'])) {
-          $stringvalue = implode("", $sek_value['xsdmf_value']);
-          if (strlen($stringvalue) == 0) {
-            $notEmpty = 0;  // this value is an array and it is empty
-            //Error_Handler::logError($sek_value['xsdmf_value']);
-          }
-        }
-
-        $xsdDetails = XSD_HTML_Match::getDetailsByXSDMF_ID($sek_value['xsdmf_id']);
-        $searchKeyDetails = Search_Key::getDetails($xsdDetails['xsdmf_sek_id']);
-
-        // do final check for cardinality before trying to insert/update an array of values in one to many tables
-        if (is_array($sek_value['xsdmf_value'])) {
-          if ($searchKeyDetails['sek_cardinality'] == 0) {
-            $log->err(
-                "The cardinality of this value is 1-1 but it is in the 1-M data and contains multiple ".
-                "values. We cannot insert/update pid {$pid} for the {$sek_table} table with data: " .
-                var_export($sek_value, true)
-            );
-            $ret = false;
-            continue;
-          }
-        }
-
-        if ($notEmpty) { // only write values to tables if the value is not empty
-
-          $cardinalityCol = "";
+          // Added this notEmpty check to look for empty arrays.  Stops fez from writing empty keyword
+          // values to fez_record_search_key_keywords table.  -  heaphey
+          $notEmpty = 1;  // start assuming that value is not empty
           if (is_array($sek_value['xsdmf_value'])) {
-            $cardinalityCol = ",rek_".$sek_table."_order";
-          }
-
-          $table = APP_TABLE_PREFIX . "record_search_key_" . $sek_table;
-
-          if ($shadow) {
-            $table .= "__shadow";
-          }
-
-          // Run REPLACE INTO when cardinality is 0 and we are using MySQL as db connection type
-          // Otherwise use INSERT INTO
-          if ($searchKeyDetails['sek_cardinality'] == 0 && is_numeric(strpos(APP_SQL_DBTYPE, "mysql")) ) {
-            $stmt = "REPLACE INTO ". $table;
-          }else {
-            $stmt = "INSERT INTO " . $table;
-          }
-          $stmt .= " (rek_" . $sek_table . "_pid, rek_" . $sek_table . "_xsdmf_id, rek_" . $sek_table . $cardinalityCol;
-
-          if ($shadow) {
-            $stmt .= ", rek_" . $sek_table . "_stamp";
-          }
-          $stmt .= ") VALUES ";
-
-          if (is_array($sek_value['xsdmf_value'])) {
-
-            $cardinalityVal = 1;
-            foreach ($sek_value['xsdmf_value'] as $value ) {
-              $val = "(" . $db->quote($pid) . "," . $db->quote($sek_value['xsdmf_id'], 'INTEGER') . "," . $db->quote($value) . ", $cardinalityVal";
-              if ($shadow) {
-                $val .= ", " . $db->quote($now);
-              }
-              $val .= ")";
-              $stmtVars[] = $val;
-              $cardinalityVal++;
+            $stringvalue = implode("", $sek_value['xsdmf_value']);
+            if (strlen($stringvalue) == 0) {
+              $notEmpty = 0;  // this value is an array and it is empty
+              //Error_Handler::logError($sek_value['xsdmf_value']);
             }
-            $stmt .= implode(",", $stmtVars);
-            unset($stmtVars);
+          }
 
-          } else {
-            $stmt .= "(" . $db->quote($pid) . "," . $db->quote($sek_value['xsdmf_id'], 'INTEGER') . "," . $db->quote($sek_value['xsdmf_value']);
+          $xsdDetails = XSD_HTML_Match::getDetailsByXSDMF_ID($sek_value['xsdmf_id']);
+          $searchKeyDetails = Search_Key::getDetails($xsdDetails['xsdmf_sek_id']);
+
+          // do final check for cardinality before trying to insert/update an array of values in one to many tables
+          if (is_array($sek_value['xsdmf_value'])) {
+            if ($searchKeyDetails['sek_cardinality'] == 0) {
+              $log->err(
+                  "The cardinality of this value is 1-1 but it is in the 1-M data and contains multiple ".
+                  "values. We cannot insert/update pid {$pid} for the {$sek_table} table with data: " .
+                  var_export($sek_value, true)
+              );
+              $ret = false;
+              continue;
+            }
+          }
+
+          if ($notEmpty) { // only write values to tables if the value is not empty
+
+            $cardinalityCol = "";
+            if (is_array($sek_value['xsdmf_value'])) {
+              $cardinalityCol = ",rek_".$sek_table."_order";
+            }
+
+            $table = APP_TABLE_PREFIX . "record_search_key_" . $sek_table;
+
             if ($shadow) {
-              $stmt .= ", " . $db->quote($now);
+              $table .= "__shadow";
             }
-            $stmt .= ")";
-          }
 
-          try {
-            $db->exec($stmt);
-          }
-          catch(Exception $ex) {
-            $log->err($ex);
-            $ret = false;
+            // Run REPLACE INTO when cardinality is 0 and we are using MySQL as db connection type
+            // Otherwise use INSERT INTO
+            if ($searchKeyDetails['sek_cardinality'] == 0 && is_numeric(strpos(APP_SQL_DBTYPE, "mysql")) ) {
+              $stmt = "REPLACE INTO ". $table;
+            } else {
+              $stmt = "INSERT INTO " . $table;
+            }
+            $stmt .= " (rek_" . $sek_table . "_pid, rek_" . $sek_table . "_xsdmf_id, rek_" . $sek_table . $cardinalityCol;
+
+            if ($shadow) {
+              $stmt .= ", rek_" . $sek_table . "_stamp";
+            }
+            $stmt .= ") VALUES ";
+
+            if (is_array($sek_value['xsdmf_value'])) {
+
+              $cardinalityVal = 1;
+              foreach ($sek_value['xsdmf_value'] as $value ) {
+                $val = "(" . $db->quote($pid) . "," . $db->quote($sek_value['xsdmf_id'], 'INTEGER') . "," . $db->quote($value) . ", $cardinalityVal";
+                if ($shadow) {
+                  $val .= ", " . $db->quote($now);
+                }
+                $val .= ")";
+                $stmtVars[] = $val;
+                $cardinalityVal++;
+              }
+              $stmt .= implode(",", $stmtVars);
+              unset($stmtVars);
+
+            } else {
+              $stmt .= "(" . $db->quote($pid) . "," . $db->quote($sek_value['xsdmf_id'], 'INTEGER') . "," . $db->quote($sek_value['xsdmf_value']);
+              if ($shadow) {
+                $stmt .= ", " . $db->quote($now);
+              }
+              $stmt .= ")";
+            }
+
+            try {
+              $db->exec($stmt);
+            }
+            catch(Exception $ex) {
+              $log->err($ex);
+              $ret = false;
+            }
           }
         }
       }
@@ -1443,8 +1445,16 @@ class Record
           $table .= "__shadow";
         }
 
-        $stmt = "INSERT INTO " . $table .
-            " (rek_{$sekTable}_pid, rek_{$sekTable}) VALUES ";
+        // Run REPLACE INTO when cardinality is 0 and we are using MySQL as db connection type
+        // Otherwise use INSERT INTO
+        if ($sekDetails['sek_cardinality'] == 0 && is_numeric(strpos(APP_SQL_DBTYPE, "mysql")) ) {
+          $stmt = "REPLACE INTO ". $table;
+        } else {
+          $stmt = "INSERT INTO " . $table;
+        }
+
+
+        $stmt .= " (rek_{$sekTable}_pid, rek_{$sekTable}) VALUES ";
 
         eval("\$derivedValue = $deriveFunction(\$pid);");
 
