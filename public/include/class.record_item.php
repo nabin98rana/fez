@@ -10,9 +10,42 @@
  */
 abstract class RecordItem
 {
-    protected $title;
-    
-    protected $doi;
+    protected $_collections;
+    protected $_abstract;
+    protected $_ut = null;
+    protected $_pubmedId = null;
+    protected $_scopusId = null;
+    protected $_wokCitationCount = null;
+    protected $_scopusCitationCount = null;
+    protected $_sourceAbbrev = null;
+    protected $_title = null;
+    protected $_date_issued = null;
+    protected $_articleNos = array();
+    protected $_totalPages = null;
+    protected $_startPage = null;
+    protected $_endPage = null;
+    protected $_issueDate = null;
+    protected $_issueNumber = null;
+    protected $_volume = null;
+    //protected $_docType = null;
+    //protected $_docTypeCode = null;
+    protected $_langageCode = null;
+    protected $_issn = null;
+    protected $_isbn = null;
+    protected $_conferenceDate = null;
+    protected $_conferenceTitle = null;
+    protected $_confenceLocationCity = null;
+    protected $_confenceLocationState = null;
+    protected $_authors = array();
+    protected $_author_ids = array();
+    protected $_keywords = array();
+    protected $_loaded = FALSE;
+    protected $_publisher = null;
+    protected $_doi = null;
+    protected $_xdis_id = null;
+    protected $_xdis_title = null;
+    protected $_xdis_subtype = null;
+
     
     //more fields common to all child classes
     //with cooresponding liken*() methods
