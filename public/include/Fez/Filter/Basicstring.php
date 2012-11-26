@@ -11,7 +11,7 @@ class Fez_Filter_Basicstring implements Zend_Filter_Interface
 {
 	public function filter($value)
 	{
-		$goodChars = "/[^a-zA-Z0-9\,\(\)\_\.\-\s\:\']/";
+		$goodChars = "/[^a-zA-Z0-9\,\(\)\_\?\.\-\s\:\']/";
 		$filtered = false;
 		
 		if(is_array($value))

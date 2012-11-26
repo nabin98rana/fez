@@ -855,6 +855,7 @@
 	                    	var server = null;
 	                    	var search_in_progress_wos = 0;
 	                    	var search_in_progress_repo = 0;
+	                    	var search_in_progress_scopus = 0;
 	                    	var prev_search_val = '';
 
 	                    	dojo.addOnLoad(function(){
@@ -912,7 +913,7 @@
 		                    			search_in_progress_repo = 1;
 		                      	    	var container_id_repo = '{/literal}{$xsd_display_fields[i].xsdmf_id}_0_container{literal}_repo';
 		                      	    	dojo.byId(container_id_repo).innerHTML = '<h3 style="text-decoration:underline; color: #333333">Searching repository for matching records</h3><img src="{/literal}{$rel_url}{literal}images/rel_interstitial_loading.gif" alt="" />';
-
+		                      	        val = 'I am the Scopus title search';
 			                    		var search_repo = server.search_repo(val);
 
 			                    		search_repo.addCallback( function(msg) {
@@ -926,6 +927,24 @@
 				                    			dojo.byId(container_id_repo).innerHTML = '';
 				                      	  	}
 				                    	});
+		                    		}
+		                    		
+		                    		if(search_in_progress_scopus == 0) {
+		                    			search_in_progress_scopus = 1;
+		                    			var search_scopus = server.search_scopus(val);
+		                    			
+		                    			
+		                    			search_scopus.addCallback( function(msg) {
+                                            search_in_progress_repo = 0;
+                                            var container_id_scopus = 'search_container_scopus';
+
+                                            if(msg.length > 0) {
+                                                dojo.byId(container_id_scopus).innerHTML = msg;
+                                            }
+                                            else {
+                                                dojo.byId(container_id_scopus).innerHTML = '';
+                                            }
+                                        });
 		                    		}
 								}
 
@@ -947,6 +966,7 @@
 			                    <td style="vertical-align: top">
 									<div id="{$xsd_display_fields[i].xsdmf_id}_0_container_repo" style="z-index:9999; font-size: 0.6em;"></div>
 									<div id="{$xsd_display_fields[i].xsdmf_id}_0_container_wos" style="z-index:9999; font-size: 0.6em;"></div>
+									<div id="search_container_scopus" style="z-index:9999; font-size: 0.6em;"></div>
 								</td>
 							</tr>
 						</table>
