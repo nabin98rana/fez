@@ -87,6 +87,7 @@ Feature: Security
   And I fill in "Keyword 1" with "automated testing"
   And I press "Publish"
   And I follow "Logout"
+  And I wait for "10" seconds
   And I fill in "Search Entry" with "title:(\"Security Test Collection Multiple Inheritance Open\")"
   And I press "search_entry_submit"
   Then I should see "(1 results found)"
@@ -131,7 +132,7 @@ Feature: Security
   And I confirm the popup
   And I turn on waiting checks
   When I am on "/"
-  And I wait for "2" seconds
+  And I wait for "10" seconds
   And I fill in "Search Entry" with "title:(\"Security Test Collection Multiple Inheritance Open\")"
   And I press "search_entry_submit"
   And I wait for "2" seconds
