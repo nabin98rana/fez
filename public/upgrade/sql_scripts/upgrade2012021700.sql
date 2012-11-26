@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%auth_index2_not_inherited__shadow (
   KEY authii_arg_id (authii_arg_id)
 );
 
-CREATE TABLE %TABLE_PREFIX%auth_datastream_index2_not_inherited__shadow (
+CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%auth_datastream_index2_not_inherited__shadow (
   authdii_did varchar(64) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
   authdii_role int(11) unsigned NOT NULL DEFAULT '0',
   authdii_arg_id int(11) unsigned NOT NULL DEFAULT '0',
