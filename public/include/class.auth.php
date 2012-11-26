@@ -3032,16 +3032,18 @@ class AuthNoFedora {
         $viewerId = Auth::getRoleIDByTitle('Viewer');
 
         AuthNoFedora::deletePermissions($pid);
-        foreach ($newGroups as $role => $newGroup) {
-            $arg_id = AuthRules::getOrCreateRuleGroupArIds($newGroup);
-            AuthNoFedora::addRoleSecurityPermissions($pid, $role, $arg_id, '1');
-            if ($role == $listerId) {
-                AuthNoFedora::addListerPermissions($pid, $arg_id);
-                $listerDone = true;
-            }
-            if ($role == $viewerId) {
-                $viewerDone = true;
-            }
+        if (is_array($newGroups)) {
+          foreach ($newGroups as $role => $newGroup) {
+              $arg_id = AuthRules::getOrCreateRuleGroupArIds($newGroup);
+              AuthNoFedora::addRoleSecurityPermissions($pid, $role, $arg_id, '1');
+              if ($role == $listerId) {
+                  AuthNoFedora::addListerPermissions($pid, $arg_id);
+                  $listerDone = true;
+              }
+              if ($role == $viewerId) {
+                  $viewerDone = true;
+              }
+          }
         }
 
         //If no lister is set then it is open to all
