@@ -232,7 +232,10 @@ class Lister
     $options = Pager::saveSearchParams($params, $cookie_key);
 
     if ($tpl_idx == 0 || $tpl_idx == 4 || $tpl_idx == 5 || $tpl_idx == 6 || $tpl_idx == 8 || $tpl_idx == 9) {
-    $tpl->setTemplate('header.tpl.html');
+      $tpl->setTemplate('header.tpl.html');
+    } else {
+      // prevent escaping when not using html templates
+      $tpl->smarty->default_modifiers = array();
     }
 
     $getFunction = 'getListing';

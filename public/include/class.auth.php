@@ -3068,11 +3068,13 @@ class AuthNoFedora {
         //datastream children
         $record = new RecordGeneral($pid);
         $datastreams = $record->getDatastreams();
-        foreach($datastreams as $datastream) {
-            $did = AuthNoFedoraDatastreams::getDid($pid, $datastream[ID]);
-            if (AuthNoFedoraDatastreams::isInherited($did)) {
-                AuthNoFedoraDatastreams::recalculatePermissions($did);
-            }
+        if (is_array($datastreams)) {
+          foreach($datastreams as $datastream) {
+              $did = AuthNoFedoraDatastreams::getDid($pid, $datastream[ID]);
+              if (AuthNoFedoraDatastreams::isInherited($did)) {
+                  AuthNoFedoraDatastreams::recalculatePermissions($did);
+              }
+          }
         }
 
         //assume solr need updating for new lister permissions
