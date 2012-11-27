@@ -19,6 +19,8 @@ abstract class RecordItem
     protected $_scopusCitationCount = null;
     protected $_sourceAbbrev = null;
     protected $_title = null;
+    protected $_journalTitle = null;
+    protected $_journalTitleAbbreviation = null;
     protected $_date_issued = null;
     protected $_articleNos = array();
     protected $_totalPages = null;
@@ -42,9 +44,9 @@ abstract class RecordItem
     protected $_loaded = FALSE;
     protected $_publisher = null;
     protected $_doi = null;
-    protected $_xdis_id = null;
-    protected $_xdis_title = null;
-    protected $_xdis_subtype = null;
+    protected $_xdisId = null;
+    protected $_xdisTitle = null;
+    protected $_xdisSubtype = null;
 
     
     //more fields common to all child classes
