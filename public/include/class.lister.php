@@ -1079,6 +1079,8 @@ class Lister
     }
 
     $tpl->assign('facets', $facets);
+    $zf = new Fez_Filter_RichTextHtmlpurify();
+    $snips = $zf->filter($snips);
     $tpl->assign('snips', $snips);
     $tpl->assign('rows', $rows);
     $tpl->assign('tpl_list', array_map(create_function('$a', 'return $a[\'title\'];'), $tpls));

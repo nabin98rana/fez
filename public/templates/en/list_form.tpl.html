@@ -437,7 +437,7 @@
                     {assign var="snip_width" value=$snip_width-$icon_width}
                 {/if}
               {/if}
-              <br /><br /><div class='snip' style="max-width:{$snip_width}px">...{$snips[$pid]}...</div>
+              <br /><br /><div class='snip' style="max-width:{$snip_width}px">...{$snips[$pid]|smarty:nodefaults}...</div>
             {/if}
 		  </td>
 

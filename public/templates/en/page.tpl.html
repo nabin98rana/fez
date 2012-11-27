@@ -4,7 +4,7 @@
 <h1>{$title}</h1>
 
 <div id="custom-content">
-	{$content}
+	{$content|smarty:nodefaults}
 </div>
 
 {include file="app_info.tpl.html"}

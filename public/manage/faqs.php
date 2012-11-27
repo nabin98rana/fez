@@ -54,19 +54,19 @@ $tpl->assign("active_nav", "admin");
 $tpl->assign("type", "faqs");
 
 if ($isAdministrator) {
-    
+
     if (@$_GET["cat"] == "category-edit") {
         $catInfo = FAQ::getCategoryByID(@$_GET["id"]);
         $questions = FAQ::getQuestionsForCategory(@$_GET["id"]);
         $tpl->assign("cat", $catInfo);
         $tpl->assign("questions", $questions);
         $tpl->assign("mode", 'category-edit');
-    
+
     } elseif (@$_GET["cat"] == "category-add") {
         $tpl->assign("mode", 'category-add');
-    
+
     } elseif (@$_GET["cat"] == "category-update") {
-    
+
         if (@$_POST["action"] == 'save') {
             FAQ::updateCategory();
             $tpl->assign("mode", 'cat-saved');
@@ -77,25 +77,25 @@ if ($isAdministrator) {
             FAQ::deleteCategory();
             $tpl->assign("mode", 'cat-deleted');
         }
-        
+
         $categories = FAQ::getCategoriesAll();
         $tpl->assign("categories", $categories);
-    
+
     } elseif (@$_GET["cat"] == "question-add") {
         $categories = FAQ::getCategoriesAll();
         $tpl->assign("cat_id", @$_GET["id"]);
         $tpl->assign("categories", $categories);
         $tpl->assign("mode", 'question-add');
-        
+
     } elseif (@$_GET["cat"] == "question-edit") {
         $questionInfo = FAQ::getQuestionByID(@$_GET["id"]);
         $categories = FAQ::getCategoriesAll();
         $tpl->assign("question", $questionInfo);
         $tpl->assign("categories", $categories);
         $tpl->assign("mode", 'question-edit');
-    
+
     } elseif (@$_GET["cat"] == "question-update") {
-        
+
         if (@$_POST["action"] == 'save') {
             FAQ::updateQuestion();
             $tpl->assign("msg", 'question-saved');
@@ -106,18 +106,20 @@ if ($isAdministrator) {
             FAQ::deleteQuestion();
             $tpl->assign("msg", 'question-deleted');
         }
-        
+
         $catInfo = FAQ::getCategoryByID(@$_POST["category"]);
         $questions = FAQ::getQuestionsForCategory(@$_POST["category"]);
         $tpl->assign("cat", $catInfo);
         $tpl->assign("questions", $questions);
         $tpl->assign("mode", 'category-edit');
-    
+
     } else {
-		$categories = FAQ::getCategoriesAll();
-        $tpl->assign("categories", $categories);
+  		$categories = FAQ::getCategoriesAll();
+      $zf = new Fez_Filter_RichTextHtmlpurify();
+      $categories = $zf->filter($categories);
+      $tpl->assign("categories", $categories);
 	}
-    
+
 } else {
     $tpl->assign("show_not_allowed_msg", true);
 }

@@ -290,7 +290,7 @@ function correctionRequired(pid)
 
 	{sectionelse}
 		{if $author_id_message != ''}
-		<p>{$author_id_message}</p>
+		<p>{$author_id_message|smarty:nodefaults}</p>
 		{else}
 		<p>We could not find any publications that are currently attributed to you.</p>
 		{/if}
