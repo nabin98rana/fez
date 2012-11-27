@@ -231,8 +231,9 @@ class Lister
     $cookie_key = Pager::getParam('form_name', $params);
     $options = Pager::saveSearchParams($params, $cookie_key);
 
+    if ($tpl_idx == 0 || $tpl_idx == 4 || $tpl_idx == 5 || $tpl_idx == 6 || $tpl_idx == 8 || $tpl_idx == 9) {
     $tpl->setTemplate('header.tpl.html');
-
+    }
 
     $getFunction = 'getListing';
     if (APP_SOLR_SWITCH == "ON") {
@@ -948,7 +949,11 @@ class Lister
       $searchKey_join = Record::buildSearchKeyFilterSolr($options, $sort_by, $operator, false);
       $terms = rtrim($searchKey_join[SK_SEARCH_TXT], ', ');
       $tpl->assign("list_heading", "Search Results ($terms)");
+
+      //Only have a header template on some tpl options
+      if ($tpl_idx == 0 || $tpl_idx == 4 || $tpl_idx == 5 || $tpl_idx == 6 || $tpl_idx == 8 || $tpl_idx == 9) {
       $tpl->displayTemplate();
+      }
       ob_flush();
       flush();
 
