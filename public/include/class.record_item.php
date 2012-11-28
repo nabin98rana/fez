@@ -77,8 +77,7 @@ abstract class RecordItem
     public function likenTitle()
     {
         //title comparison logic
-        $str1 = str_replace(array('\t', '\r\n', '\n', ' '), ''
-                                            , strtolower($this->title));
+        $str1 = str_replace(array('\t', '\r\n', '\n', ' '), '', strtolower($this->title));
         return $str1;
     }
     
@@ -101,45 +100,35 @@ abstract class RecordItem
         $log = FezLog::get();
 
         if (!$this->_loaded) {
-            $log->err('Record must be loaded before saving');
+            $log->err($this->_importAPI.' record must be loaded before saving');
             return FALSE;
         }
-
-        // List of doc types we support saving
-        $dTMap = Thomson_Doctype_Mappings::getList('ESTI');
-        foreach ($dTMap as $map) {
-            $dTMap[$map['tdm_doctype']] = array($map['xdis_title'], $map['tdm_subtype'], $map['tdm_xdis_id']);
-        }
-        if (!array_key_exists($this->docTypeCode, $dTMap)) {
-            $log->err('Unsupported doc type: ' . $this->docType.' '.$this->docTypeCode);
-            return FALSE;
-        }
-        $xdis_id = $dTMap[$this->docTypeCode][2];
 
         // Instantiate Record Sek class
         $recordSearchKey = new Fez_Record_Searchkey();
 
         if (empty($history)){
             // History message
-            $history = 'Imported from WoK Web Services Premium';
-            if (count($this->author_ids) > 0) {
-                $aut_details = Author::getDetails($this->author_ids[0]);
-                $history .= " via Researcher ID download of " . $aut_details['aut_display_name'] . " (" .
-                    $aut_details['aut_researcher_id'] . " - " . $aut_details['aut_id'] . " - " . $aut_details['aut_org_username'] . ")";
-            }
+            $history = 'Imported from '.$this->_importAPI;
         }
 
         // Citation Data
-        $citationData = array('thomson' => $this->timesCited);
+        if ($this->_wokCitationCount) {
+            $citationData['thomson'] = $this->_wokCitationCount;
+        }
+        if (($this->_scopusCitationCount)) {
+            $citationData['scopus'] = $this->_scopusCitationCount;
+        }
+
 
         // Search key Data
-        $sekData = $this->_getSekData($dTMap, $recordSearchKey);
-        $sekData = $recordSearchKey->buildSearchKeyDataByDisplayType($sekData, $xdis_id);
+        $sekData = $this->_getSekData($recordSearchKey);
+        $sekData = $recordSearchKey->buildSearchKeyDataByDisplayType($sekData, $this->_xdisId);
 
         // Save Record
         $result = $recordSearchKey->insertRecord($sekData, $history, $citationData);
 
-        if (!$result){
+        if (!$result) {
             return false;
         }
 
@@ -219,7 +208,7 @@ abstract class RecordItem
                 }
                 $mods['relatedItem']['originInfo']['dateOther'] = $this->_conferenceDate;
             } else if (_xdisTitle == 'Journal Article') {
-                $mods['relatedItem']['originInfo']['dateIssued'] = $this->date_issued;
+                $mods['relatedItem']['originInfo']['dateIssued'] = $this->_issueDate;
                 $mods['relatedItem']['name'][0]['namePart_type'] = 'journal';
                 $mods['relatedItem']['name'][0]['namePart'] = $this->_journalTitle;
             }
@@ -310,5 +299,71 @@ abstract class RecordItem
             Record::updateScopusCitationCount($pid, $this->_scopusCitationCount, $this->_scopusId);
         }
         return TRUE;
+    }
+
+    /**
+     * Returns an array of Search key's title & value pair, built from WOS record items.
+     *
+     * @param array $dTMap
+     * @param Fez_Record_Searchkey $recordSearchKey
+     * @return array
+     */
+    protected function _getSekData($recordSearchKey)
+    {
+        // Build Search key data
+        $sekData = array();
+
+        $sekData['Display Type']    = $this->_xdisId;
+        $sekData['Genre']           = $this->_xdisTitle;
+        $sekData['Genre Type']      = $this->_xdisSubtype;
+
+        $sekData['Title']           = $this->_title;
+        $sekData['Author']          = $this->_authors;
+        $sekData['ISI LOC']         = $this->_ut;
+        $sekData['Keywords']        = $this->_keywords;
+        $sekData['ISBN']            = $this->_isbn;
+        $sekData['ISSN']            = $this->_issn;
+        $sekData['DOI']            = $this->_doi;
+        $sekData['Publisher']       = $this->_publisher;
+
+        /// exception for conf papers that the subtype goes into genre type
+        if ($this->_xdisTitle == "Conference Paper") {
+            $sekData["Genre Type"] = $this->_xdisSubtype;
+        } else {
+            $sekData["Subtype"] = $this->_xdisSubtype;
+        }
+
+        //Commented out due to copyright reasons
+        //$sekData['Description']     = $this->abstract;
+
+        $sekData['Issue Number']    = $this->_issueNumber;
+        $sekData['Volume Number']   = $this->_issueVolume;
+        $sekData['Start Page']      = $this->_startPage;
+        $sekData['End Page']        = $this->_endPage;
+        $sekData['Total Pages']     = $this->_totalPages;
+
+        $sekData['Date']            = Misc::MySQLDate(array("Year" => date("Y", strtotime($this->_issueDate)), "Month" => date("m", strtotime($this->_issueDate))));
+
+        $sekData['Language']        = $this->_langageCode;
+        $sekData['Status']          = Status::getID("Published");
+        $sekData['Object Type']     = Object_Type::getID("Record");
+        $sekData['Depositor']       = Auth::getUserID();
+        $sekData['isMemberOf']      = $this->collections[0];
+        $sekData['Created Date']    = $recordSearchKey->getVersion();
+        $sekData['Updated Date']    = $recordSearchKey->getVersion();
+
+        // Custom search keys based on Document Type
+        if ($xdis_title == 'Conference Paper') {
+            $sekData['Proceedings Title'] = $this->_title;
+            $sekData['Conference Name']   = $this->_conferenceTitle;
+            $sekData['Conference Dates']  = $this->_conferenceDate;
+            if (!empty($this->_confenceLocationCity) || !empty($this->_confenceLocationState)) {
+                $sekData['Conference Location']  = $this->_confenceLocationCity . ' ' . $this->_confenceLocationState;
+            }
+        } else if ($xdis_title == 'Journal Article') {
+            $sekData['Journal Name'] = $this->_journalTitle;
+        }
+
+        return $sekData;
     }
 }
