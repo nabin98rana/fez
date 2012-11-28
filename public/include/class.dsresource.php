@@ -319,20 +319,20 @@ class DSResource
         try
         {
             //does a record with this file name and hash already exist?
-            $sql = "SELECT fat_hash FROM " . APP_TABLE_PREFIX . "file_attachments "
-                . "WHERE fat_hash = :dshash AND fat_pid = :pid AND fat_filename = :dsfilename "
-                . "AND fat_version = :version";
-
-            $stmt = $this->db->query($sql, array(
-            	':dshash' => $this->hash['rawHash'],
-                ':version' => $now,
-                ':pid' => $this->meta['pid'],
-                ':dsfilename' => $this->hash['hashFile']
-            ));
-            $row = $stmt->fetch();
-
-            if(!$row)
-            {
+//            $sql = "SELECT fat_hash FROM " . APP_TABLE_PREFIX . "file_attachments "
+//                . "WHERE fat_hash = :dshash AND fat_pid = :pid AND fat_filename = :dsfilename "
+//                . "AND fat_version = :version";
+//
+//            $stmt = $this->db->query($sql, array(
+//            	':dshash' => $this->hash['rawHash'],
+//                ':version' => $now,
+//                ':pid' => $this->meta['pid'],
+//                ':dsfilename' => $this->hash['hashFile']
+//            ));
+//            $row = $stmt->fetch();
+//
+//            if(!$row)
+//            {
                 $sql = "INSERT INTO " . APP_TABLE_PREFIX . "file_attachments "
                     ."(fat_hash, fat_filename, fat_version, fat_pid, fat_size, fat_mimetype, fat_security_inherited, fat_label) VALUES "
                     ."(:dshash, :dsfilename, :version, :pid, :size, :mimetype, :security_inherited, :label)";
@@ -345,7 +345,7 @@ class DSResource
                     ':pid' => $this->meta['pid'],
                     ':security_inherited' => $this->meta['security_inherited'],
                     ':label' => $this->meta['label']));
-            }
+//            }
         }
         catch(Exception $e)
         {

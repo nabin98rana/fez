@@ -76,6 +76,7 @@ Feature: Check datastream policy works correctly
     And I should not see "thornhill_gillie.pdf"
     And I fill in "Search Entry" with "title:(\"Test Title Datastream policy 2\")"
     And I press "search_entry_submit"
+    And I wait for "10" seconds
     And I follow "Test Title Datastream policy 2"
     And I should not see "thornhill_gillie.pdf"
 
