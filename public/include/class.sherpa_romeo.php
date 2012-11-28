@@ -93,7 +93,8 @@ class SherpaRomeo
 
     function convertSherpaRomeoToLink($res)
     {
-        if (array_key_exists(colour, $res)) {
+        $sROutput = '';
+        if (is_array($res) && array_key_exists('colour', $res)) {
 
             if ($res['colour']=='green'){
                 $text = "Can archive pre-print and post-print or publisher's version/PDF";
