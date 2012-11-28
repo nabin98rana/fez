@@ -93,7 +93,7 @@ class Lister
       'custom_view_pid' => 'string',
       'form_name' => 'string',
     );
-
+    $zf = new Fez_Filter_RichTextHtmlpurify();
     foreach ($args as $getName => $getType) {
       if (array_key_exists($getName, $params)) {
         if (Misc::sanity_check($params[$getName], $getType) !== false) {
@@ -1079,7 +1079,7 @@ class Lister
     }
 
     $tpl->assign('facets', $facets);
-    $zf = new Fez_Filter_RichTextHtmlpurify();
+
     $snips = $zf->filter($snips);
     $tpl->assign('snips', $snips);
     $tpl->assign('rows', $rows);
