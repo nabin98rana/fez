@@ -3,49 +3,49 @@
 class DSResource
 {
     const HASH_DEPTH = 4;
-    
+
     /**
-     * array("rawHash"=> "string", 
-     * "hashFile"=> "string", 
+     * array("rawHash"=> "string",
+     * "hashFile"=> "string",
      * "hashPath"=> "string")
      * @var <array>
      */
     protected $hash = array();
-    
+
     /**
      * Temp upload location
      * @var <string>
      */
     protected $tmpPath;
-    
+
     /**
      * The root of the CAS
      * @var <string>
      */
     protected $dsTreePath;
-    
+
     /**
-     * array('mimetype' => 'string', 
-     * 'controlgroup' => 'char', 
-     * 'state' => 'char', 
+     * array('mimetype' => 'string',
+     * 'controlgroup' => 'char',
+     * 'state' => 'char',
      * 'size' => 'int',
      * 'pid' => 'string')
      * @var <array>
      */
     protected $meta = array();
-    
+
     /**
      * Logging object.
      * @var <FezLog>
      */
     private $log;
-    
+
     /**
      * The database object.
      * @var <Zend_Db>
      */
     private $db;
-    
+
     /**
      * Set up the root of the CAS
      * @param <string> $dsTreePath
@@ -57,18 +57,18 @@ class DSResource
         $this->dsTreePath = ($dsTreePath) ? $dsTreePath : APP_DSTREE_PATH;
         $this->log = FezLog::get();
         $this->db = DB_API::get();
-        
+
         if($resourcePath)
         {
             $this->makeHash($resourcePath);
         }
-        
+
         if($meta)
         {
             $this->meta = $meta;
         }
     }
-    
+
     /**
      * Return the current hash array.
      */
@@ -76,7 +76,7 @@ class DSResource
     {
         return $this->hash;
     }
-    
+
     /**
      * Return the current meta array
      */
@@ -84,7 +84,7 @@ class DSResource
     {
         return $this->meta;
     }
-    
+
     /**
      * Aquire an md5 hash of the resource and create the path
      * in the storage to the specified depth.
@@ -93,17 +93,17 @@ class DSResource
     protected function makeHash($resourcePath)
     {
         $this->tmpPath = $resourcePath;
-        
+
         $file = explode('/', $resourcePath);
         $file = $file[count($file)-1];
         $hash['rawHash'] = md5_file($resourcePath);
-        
+
         $hash['hashFile'] = $file;
         $hash['hashPath'] = $this->createPath($hash['rawHash']);
-        
+
         $this->hash = $hash;
     }
-    
+
     /**
      * Create a path for the CAS based on the file hash
      * @param <string> $hash
@@ -111,17 +111,17 @@ class DSResource
     public function createPath($hash)
     {
         $hashPath = array();
-        
+
         for($i=0;$i<self::HASH_DEPTH;$i++)
         {
             $hashPath[] = substr($hash, $i*2, 2);
         }
-        
-        $hashPath = implode('/', $hashPath) . '/'; 
-        
+
+        $hashPath = implode('/', $hashPath) . '/';
+
         return $hashPath;
     }
-    
+
     /**
      * Populate the meta property
      * @param <array> $meta
@@ -130,27 +130,27 @@ class DSResource
     {
         $this->meta = $meta;
     }
-    
+
     /**
-     * Load a resource's reference and metadata 
+     * Load a resource's reference and metadata
      * from the DB into the object at the head revision.
      * @param <string> $hash
      */
     public function load($filename, $pid)
     {
         $row = $this->getDSRev($filename, $pid);
-        
+
         $this->hash['hashFile'] = $row['filename'];
         $this->hash['rawHash'] = $row['hash'];
         $this->hash['hashPath'] = $this->createPath($row['hash']);
-        
+
         $this->meta['mimetype'] = $row['mimetype'];
         $this->meta['controlgroup'] = $row['controlgroup'];
         $this->meta['state'] = $row['state'];
         $this->meta['size'] = $row['size'];
         $this->meta['pid'] = $row['pid'];
     }
-    
+
     /**
      * Check if the resource already exists in the CAS
      * @param <string> $hash
@@ -159,8 +159,8 @@ class DSResource
     {
         $hash = ($hash) ? $hash : $this->hash['rawHash'];
         $resource = $this->dsTreePath . $this->createPath($hash) . $hash;
-        
-        try 
+
+        try
         {
             $sql = "SELECT fat_hash FROM " . APP_TABLE_PREFIX . "file_attachments WHERE fat_hash = :hash";
             $stmt = $this->db->query($sql, array(':hash' => $hash));
@@ -172,7 +172,7 @@ class DSResource
         }
         return ($row['fat_hash'] && is_file($resource)) ? true : false;
     }
-    
+
     /**
      * Retrieve a specific version of a data stream (head by default).
      * This excludes any binary data from the CAS.
@@ -181,7 +181,7 @@ class DSResource
      */
     public function getDSRev($fileName, $pid, $revision='HEAD')
     {
-        try 
+        try
         {
             if($revision == 'HEAD')
             {
@@ -190,33 +190,33 @@ class DSResource
                 fat_controlgroup as controlgroup, fat_pid as pid, fat_state as state, fat_version as version FROM " . APP_TABLE_PREFIX . "file_attachments "
                 . "WHERE fat_filename = :dsfilename "
                 . "AND fat_pid = :pid AND fat_state = 'A' AND fat_version = (SELECT MAX(fat_VERSION) FROM "
-                . APP_TABLE_PREFIX . "file_attachments WHERE " 
+                . APP_TABLE_PREFIX . "file_attachments WHERE "
                 . "fat_filename = :ifilename AND fat_pid = :ipid)";
-                
+
                 $stmt = $this->db->query($sql, array(':dsfilename' => $fileName, ':pid' => $pid,
                                             ':ifilename' => $fileName, ':ipid' => $pid));
             }
-            else 
+            else
             {
                 $sql = "SELECT fat_did as id, fat_metaid as metaid, fat_hash as hash, fat_size as size,
                        fat_filename as filename, fat_mimetype as mimetype, fat_controlgroup as controlgroup, fat_pid as pid, fat_state as state, fat_version as version FROM "
                     . APP_TABLE_PREFIX . "file_attachments__shadow WHERE "
                     . "fat_state = 'A' AND fat_filename = :dsfilename "
                     . "AND fat_version = :version AND fat_pid = :pid";
-                $stmt = $this->db->query($sql, array(':dsfilename' => $fileName, 
+                $stmt = $this->db->query($sql, array(':dsfilename' => $fileName,
                 	':version' => $revision, ':pid' => $pid));
             }
-            
+
             $row = $stmt->fetch();
         }
         catch(Exception $e)
         {
             $this->log->err($e->getMessage());
         }
-        
+
         return $row;
     }
-    
+
     /**
      * Retrieve all versions of a file.
      * @param <string> $fileName
@@ -226,7 +226,7 @@ class DSResource
         try
         {
             $sql = "SELECT fat_did as id, fat_hash as hash, fat_filename as filename, fat_pid as pid, fat_version as version FROM "
-                . APP_TABLE_PREFIX . "file_attachments WHERE " 
+                . APP_TABLE_PREFIX . "file_attachments WHERE "
                 . "fat_filename = :dsfilename AND fat_pid = :pid ORDER BY fat_version DESC";
             $stmt = $this->db->query($sql, array(':dsfilename' => $fileName, ':pid' => $pid));
             $rows = $stmt->fetchAll();
@@ -235,10 +235,10 @@ class DSResource
         {
             $this->log->err($e->getMessage());
         }
-        
+
         return $rows;
     }
-    
+
     /**
      * Retrieve a count of all revisions of a given resource
      * @param <string> $filename
@@ -257,10 +257,10 @@ class DSResource
         {
             $this->log->err($e->getMessage());
         }
-        
+
         return (isset($row['count'])) ? $row['count'] : false;
     }
-    
+
     /**
      * List all the resources for a PID
      * @param <string> $pid
@@ -269,11 +269,11 @@ class DSResource
     {
         $rows = false;
         $distinct = ($distinct) ? ' DISTINCT' : '';
-        
+
         try
         {
         $sql = "SELECT{$distinct} fat_did as id, fat_hash as hash, fat_filename as filename, fat_pid as pid, fat_mimetype as mimetype, fat_size as size FROM "  . APP_TABLE_PREFIX
-            . "file_attachments WHERE " 
+            . "file_attachments WHERE "
             . "fat_pid = :pid GROUP BY fat_filename";
         $stmt = $this->db->query($sql, array(':pid' => $pid));
         $rows = $stmt->fetchAll();
@@ -282,10 +282,10 @@ class DSResource
         {
             $this->log->err($e->getMessage());
         }
-        
+
         return $rows;
     }
-    
+
     /**
      * Retrieve a stream's data from the CAS
      * @param <string> $hash
@@ -299,7 +299,7 @@ class DSResource
             return $fileData;
         }
     }
-    
+
     /**
      * Create a path to the resource in the CAS
      * @param <string> $hash
@@ -308,34 +308,36 @@ class DSResource
     {
         return $this->dsTreePath . $this->createPath($hash) . $hash;
     }
-    
+
     /**
      * Store the reference to a resource version in the database
      */
     protected function storeDSReference()
     {
         $now = Zend_Registry::get('version');
-        
+
         try
         {
             //does a record with this file name and hash already exist?
             $sql = "SELECT fat_hash FROM " . APP_TABLE_PREFIX . "file_attachments "
-                . "WHERE fat_hash = :dshash AND fat_pid = :pid "
+                . "WHERE fat_hash = :dshash AND fat_pid = :pid AND fat_filename = :dsfilename "
                 . "AND fat_version = :version";
-            
+
             $stmt = $this->db->query($sql, array(
-            	':dshash' => $this->hash['rawHash'], 
+            	':dshash' => $this->hash['rawHash'],
                 ':version' => $now,
-                ':pid' => $this->meta['pid']));
+                ':pid' => $this->meta['pid'],
+                ':dsfilename' => $this->hash['hashFile']
+            ));
             $row = $stmt->fetch();
-            
+
             if(!$row)
             {
                 $sql = "INSERT INTO " . APP_TABLE_PREFIX . "file_attachments "
                     ."(fat_hash, fat_filename, fat_version, fat_pid, fat_size, fat_mimetype, fat_security_inherited, fat_label) VALUES "
                     ."(:dshash, :dsfilename, :version, :pid, :size, :mimetype, :security_inherited, :label)";
-                    
-                $this->db->query($sql, array(':dshash' => $this->hash['rawHash'], 
+
+                $this->db->query($sql, array(':dshash' => $this->hash['rawHash'],
                 	':dsfilename' => $this->hash['hashFile'],
                     ':size' => $this->meta['size'],
                     ':version' => $now,
@@ -350,7 +352,7 @@ class DSResource
             $this->log->err($e->getMessage());
         }
     }
-    
+
     /**
      * Save the meta data for a given stream
      */
@@ -364,26 +366,26 @@ class DSResource
                 . "file_attachments fa INNER JOIN " . APP_TABLE_PREFIX . "file_meta fm "
                 . "ON fm.id = fa.fat_metaid "
                 ."WHERE fat_filename = :filename AND fat_pid = :pid";
-            $stmt = $this->db->query($sql, array(':filename' => $this->hash['hashFile'], 
+            $stmt = $this->db->query($sql, array(':filename' => $this->hash['hashFile'],
                                                 ':pid' => $data['pid']));
             $row = $stmt->fetch();
-            
+
             if($row && $row['metaid'] > 0)
             {
                 $metaId = $row['metaid'];
             }
             else
             {
-                $sql = "INSERT INTO " . APP_TABLE_PREFIX . "file_meta " 
-                    . "(mimetype, controlgroup, state, pid) VALUES " 
+                $sql = "INSERT INTO " . APP_TABLE_PREFIX . "file_meta "
+                    . "(mimetype, controlgroup, state, pid) VALUES "
                     . "(:mimetype, :controlgroup, :state, :pid)";
-                $this->db->query($sql, array(':mimetype' => $data['mimetype'] , 
-                	':controlgroup' => $data['controlgroup'], 
-                	':state' => $data['state'], 
+                $this->db->query($sql, array(':mimetype' => $data['mimetype'] ,
+                	':controlgroup' => $data['controlgroup'],
+                	':state' => $data['state'],
                 	':pid' => $data['pid']));
                 $metaId = $this->db->lastInsertId();
             }
-            
+
             return $metaId;
         }
         catch(Exception $e)
@@ -391,7 +393,7 @@ class DSResource
             $this->log->err($e->getMessage());
         }
     }
-    
+
     /**
      * Create a directory based on the hash of the file and move the resource
      * from temp storage if the resource does not already exist.
@@ -464,10 +466,10 @@ class DSResource
             $this->storeDSReference();
             return true;
         }
-        
+
         return false;
     }
-    
+
     /**
      * Remove a resource and its directories.
      */
@@ -491,10 +493,10 @@ class DSResource
                 }
             }
         }
-        
+
         return false;
     }
-    
+
     /**
      * Mark a datastream for a particular PID
      * as deleted.
@@ -502,15 +504,15 @@ class DSResource
     public function dereference()
     {
         $datastream = $this->getDSRev($this->hash['hashFile'], $this->meta['pid']);
-        
+
         $sql = "UPDATE " . APP_TABLE_PREFIX . "file_attachments SET fat_state = 'D' "
             . "WHERE fat_version = :version AND fat_filename = :filename AND fat_pid = :pid";
-            
+
         $this->db->query($sql, array(':version' => $datastream['version'],
                                     ':filename' => $datastream['filename'],
                                     ':pid' => $datastream['pid']));
     }
-    
+
     /**
      * Remove resource references and its on-disk data.
      * Can remove all revisions or just a single revision.
@@ -523,25 +525,25 @@ class DSResource
         $revP = ($revs == 'ALL') ? 'HEAD' : $revs;
         $revData = $this->getDSRev($this->hash['hashFile'], $this->meta['pid'], $revP);
         $revCount = $this->getDSRevCount($this->hash['hashFile'], $this->meta['pid']);
-        
+
         if($revs === 'ALL')
         {
             //These are what we need to delete off disk.
             $allRevs = $this->getDSRevs($this->hash['hashFile'], $revData['pid']);
-            
+
             try
             {
                 //Get rid of everything in the *_file_attachments table for this resource.
                 $sql = "DELETE FROM " . APP_TABLE_PREFIX . "file_attachments WHERE "
                 . "fat_filename = :filename AND fat_metaid = :metaid";
-                $this->db->query($sql, array(':filename' => $this->hash['hashFile'], 
+                $this->db->query($sql, array(':filename' => $this->hash['hashFile'],
                 							':metaid' => $revData['metaid']));
             }
             catch(Exception $e)
             {
                 $this->log->err($e->getMessage());
             }
-            
+
             //Get rid of the files off the disk one by one.
             foreach($allRevs as $rev)
             {
@@ -560,10 +562,10 @@ class DSResource
             {
                 $this->log->err($e->getMessage());
             }
-            
+
             $this->deleteResource($revData['hash']);
         }
-        
+
         //Get rid of the metadata for this resource if have deleted the last rev or if we are deleting all revs.
         /*if($revCount == 1 || $revs === 'ALL')
         {
@@ -578,7 +580,7 @@ class DSResource
             }
         }*/
     }
-    
+
     /**
      * Rename a resource filename in the DB (all versions)
      * for a given pid
@@ -593,13 +595,13 @@ class DSResource
         {
             try
             {
-                /*$sql = "UPDATE " . APP_TABLE_PREFIX . "file_attachments att, " . APP_TABLE_PREFIX 
+                /*$sql = "UPDATE " . APP_TABLE_PREFIX . "file_attachments att, " . APP_TABLE_PREFIX
                      . "file_meta met SET filename = :newFileName WHERE att.metaid = met.id AND "
                      . "att.filename = :oldFileName AND met.pid = :pid";*/
                 $sql = "UPDATE " . APP_TABLE_PREFIX . "file_attachments SET fat_filename = :newFileName WHERE "
                      . "fat_filename = :oldFileName AND fat_pid = :pid";
-                $res = $this->db->query($sql, array(':newFileName' => $newName, 
-             	    ':oldFileName' => $oldName, 
+                $res = $this->db->query($sql, array(':newFileName' => $newName,
+             	    ':oldFileName' => $oldName,
              	    ':pid' => $pid));
             }
             catch(Exception $e)
@@ -607,7 +609,7 @@ class DSResource
                 $this->log->err($e->getMessage());
             }
         }
-        else 
+        else
         {
             return $res;
         }
