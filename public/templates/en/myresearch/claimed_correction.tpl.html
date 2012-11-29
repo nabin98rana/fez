@@ -57,13 +57,19 @@ function toggleDuplicationText()
 
 function submitForm()
 {
+    if (typeof global_submitted === 'undefined') {
+        global_submitted = 0;
+    }
+    global_submitted++;
 	if ((document.getElementById('rad-fix').checked && (document.getElementById('correction').value == '' || document.getElementById('correction').value == 'Please tell us what is wrong with the record. Be specific.'))
             || (document.getElementById('rad-dupe').checked && (document.getElementById('duplication').value == '' || document.getElementById('duplication').value == 'Please tell us the PID number or URL location of the original you believe this record duplicates.'))) {
-		window.alert('You must tell us what is wrong with the record. Or what record you think this record duplicates.');
+        global_submitted--;		
+        window.alert('You must tell us what is wrong with the record. Or what record you think this record duplicates.');
 		return false;
 	}
-	
-	document.forms['correctForm'].submit();
+	if (global_submitted < 2) {
+	    document.forms['correctForm'].submit();
+    }
 	return;
 }
 
