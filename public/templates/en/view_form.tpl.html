@@ -163,7 +163,6 @@ function loadPreview(pid,datastreamID, alt, origami)
 {* These two section headers are used by the filecache class to replace navigation bars *}
 <!--sectionnextprevstart-->
 {if $prev || $next}
-
 	<tr>
 		<th>
 			Browse Collection:
@@ -585,7 +584,6 @@ function loadPreview(pid,datastreamID, alt, origami)
 		  <tr>
 			<td colspan="5">
 		      <table id="view_stats">
-{if $citationsThomson != ''  || $citationsScopus != ''  || ($isUser && $citationsGoogle != '' )}
 				<tr>
 					<th style="vertical-align:text-top;">Citation counts:</th>
 					<td>
@@ -594,21 +592,23 @@ function loadPreview(pid,datastreamID, alt, origami)
                             {if $citationsThomson != 0}
                                 | <a href="{$app_link_prefix}http://gateway.isiknowledge.com/gateway/Gateway.cgi?GWVersion=2&SrcApp=resolve1&DestLinkType=CitingArticles&DestApp=WOS_CPL&KeyUT={$ThomsonID}&SrcAuth={$WOK_USERNAME}" rel="nofollow">Citations</a>
                             {/if}
+                        <br />
                         {/if}
-					{if $citationsThomson != '' && ($citationsScopus != '' || ($isUser && $citationsGoogle != ''))}<br />{/if}
 					{if $citationsScopus != ''}<img src="{$rel_url}images/scopus_logo_small.gif" style="vertical-align: text-top;" alt="Scopus Citation Count" title="Scopus Citation Count"/> Cited <a href="{$rel_url}scopus_citation_count_history_{$pid}">{$citationsScopus}</a> times in Scopus
                         <a href="{$app_link_prefix}http://www.scopus.com/record/display.url?eid={$ScopusID}&origin=inward" rel="nofollow">Article</a>
                         {if $citationsScopus != 0}
                             | <a href="{$app_link_prefix}http://www.scopus.com/results/citedbyresults.url?sort=plf-f&cite={$ScopusID}&src=s&sot=cite&sdt=a" rel="nofollow">Citations</a>
                         {/if}
+                        <br />
                     {/if}
-					{if $isUser && ($citationsScopus != '')}<br />{/if}
 					{if $isUser && ($useGoogleCitationCounts == "ON")}
 						{if $citationsGoogle != ''}<img src="{$rel_url}images/favicon_googlescholar.png" style="vertial-align: text-top;" alt="Google Scholar Citation Count" title="Google Scholar Citation Count" /> Cited <a href="{$citationsGoogleLink}">{$citationsGoogle}</a> times in <a href="http://scholar.google.com/">Google Scholar</a>{/if}
-					{/if}
+					{else}
+                        <img src="{$rel_url}images/favicon_googlescholar.png" style="vertial-align: text-top;" alt="Google Scholar" title="Google Scholar " />
+                        <a href='http://scholar.google.com/scholar?q=intitle:"{$title}"'> Search Google Scholar</a>
+                    {/if}
 					</td>
 				</tr>
-{/if}
 {if $WEBSERVER_LOG_STATISTICS == 'ON'}
 				<tr>
 				  <th>Access Statistics:</th>
