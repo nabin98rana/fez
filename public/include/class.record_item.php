@@ -10,11 +10,15 @@
  */
 abstract class RecordItem
 {
+    /**
+     * Fields pertaining to the record
+     */
     protected $_collections;
     protected $_abstract;
     protected $_ut = null;
     protected $_pubmedId = null;
     protected $_scopusId = null;
+    protected $_wokId = null;
     protected $_wokCitationCount = null;
     protected $_scopusCitationCount = null;
     protected $_sourceAbbrev = null;
@@ -27,7 +31,8 @@ abstract class RecordItem
     protected $_issueDate = null;
     protected $_issueNumber = null;
     protected $_volume = null;
-    //protected $_docType = null;
+    protected $_docType = null;
+    protected $_docSubType = null;
     //protected $_docTypeCode = null;
     protected $_langageCode = null;
     protected $_issn = null;
@@ -45,12 +50,15 @@ abstract class RecordItem
     protected $_xdis_id = null;
     protected $_xdis_title = null;
     protected $_xdis_subtype = null;
+    
+    /**
+     * Namespaces to use with the XPath object
+     * @var array
+     */
+    protected $_namespaces = array();
 
     
-    //more fields common to all child classes
-    //with cooresponding liken*() methods
-    
-    public abstract function load($recordData);
+    public abstract function load($recordData, $nameSpaces=null);
     
     /**
      * Common xpath object used by all child classes
@@ -64,30 +72,21 @@ abstract class RecordItem
         $xmlDoc->loadXML($rawXML);
         
         $xpath = new DOMXPath($xmlDoc);
-        /*$xpath->registerNamespace('prism');
-        $xpath->registerNamespace('dc');*/
+        
+        if($this->nameSpaces)
+        {
+            foreach($nameSpaces as $name => $uri)
+            {
+                $xpath->registerNamespace($name, $uri);
+            }
+        }
         
         return $xpath;
     }
     
     /**
-     * Strip title and perform comparison
+     * Wrapper for calling other liken methods
+     * and deciding if something is the same or not.
      */
-    public function likenTitle()
-    {
-        //title comparison logic
-        $str1 = str_replace(array('\t', '\r\n', '\n', ' '), ''
-                                            , strtolower($this->title));
-        return $str1;
-    }
-    
-    /**
-     * Compare DOI
-     */
-    public function likenDoi()
-    {
-        //doi comparison logic
-    }
-    
-    //more liken methods
+    public abstract function liken();
 }

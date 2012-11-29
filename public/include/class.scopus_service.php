@@ -39,271 +39,314 @@
  * @author Andrew Martlew <a.martlew@library.uq.edu.au>
  *
  */
-include_once(APP_INC_PATH . "class.wok_session.php");
+
+//Move this  constant into the DB
+define('SCOPUS_WS_BASE_URL', 'https://api.elsevier.com/');
 
 class ScopusService
 {
-  private $searchEndpoint;
-  private $authEndpoint;
-  private $client;
-  private $sessionId;
-  private $log;
-  public $ready;
-
-  /**
-   * Constructor
-   *
-   * @param bool $lite TRUE to use lite search
-   */
-  public function __construct($lite = TRUE)
-  {
-    $this->log = FezLog::get();
-    $this->authEndpoint = WOK_WS_BASE_URL . 'WOKMWSAuthenticate';
-    $this->searchEndpoint = WOK_WS_BASE_URL . 'WokSearch';
-    if ($lite) {
-      $this->searchEndpoint .= 'Lite';
+    protected $log;
+    
+    protected $authToken;
+    
+    protected $apiKey;
+    
+    protected $db;
+    
+    protected $totalCount;//maybe don't need this
+    
+    protected $recSetStart = 0;
+    
+    const REC_SET_SIZE = 30;
+    
+    public function __construct($apiKey)
+    {
+        $this->apiKey = $apiKey;
+        $this->log = FezLog::get();
+        $this->db = DB_API::get();
+        $this->auth();
     }
-    $options = array();
-    $this->client = new Zend_Soap_Client($this->authEndpoint . '?wsdl', $options);
-    // Try and reuse an existing cookie
-    $wokSession = WokSession::get();
-    if ($wokSession != '') {
-//      echo "Reusing COOKIE! ".$wokSession."\n";
-      $this->sessionId = $wokSession;
-      $this->client->setCookie(WOK_COOKIE_NAME, $this->sessionId);
-      $this->ready = TRUE;
-      $this->sessionId = "\"{$this->sessionId}\""; // cursed @ symbol, can't encode else the service
-                                                   // fails to recognise the session
-      $this->client->setOptions($options);
-      $this->client->setWsdl($this->searchEndpoint.'?wsdl');
-
-      // now test the old session/cookie is still active
-      if ($this->retrieveById(array('1234')) == false) {
-//        echo "current value of ".$wokSession." is expired so need to get a new one\n";
-        $this->sessionId = $this->authenticate(WOK_USERNAME, WOK_PASSWORD);
-        $this->client->setCookie(WOK_COOKIE_NAME, $this->sessionId);
-        WokSession::insert($this->sessionId);
-      } else {
-        return;
-      }
-    } else {
-//      echo "Not reusing cookie :( \n";
-      $this->sessionId = $this->authenticate(WOK_USERNAME, WOK_PASSWORD);
-      $this->client->setCookie(WOK_COOKIE_NAME, $this->sessionId);
-//      echo $this->sessionId;
-      WokSession::insert($this->sessionId);
+    
+    /**
+     * Fetch the auth token
+     * @return string
+     */
+    public function getAuthToken()
+    {
+        return $this->authToken;
     }
-
-    if ($this->sessionId) {
-      $this->ready = TRUE;
-      $this->sessionId = "\"{$this->sessionId}\""; // cursed @ symbol, can't encode else the service
-                                                   // fails to recognise the session
-      $this->client->setOptions($options);
-      $this->client->setWsdl($this->searchEndpoint.'?wsdl');
-//    register_shutdown_function(array($this, 'closeSession'));
-//      register_shutdown_function('$this->closeSession');
-    } else {
-      $this->ready = FALSE;
+    
+    /**
+     * Return the cached token
+     * @return string
+     */
+    public function getSavedToken()
+    {
+        $sql = "SELECT scs_tok, unix_timestamp(ts) as ts FROM " 
+            . APP_TABLE_PREFIX . "scopus_session LIMIT 1";
+        $stmt = $this->db->query($sql);
+        $tokenData = $stmt->fetch();
+        
+        //If the token is less than two hours old return it
+        $token = ($tokenData && ((time() - $tokenData['ts']) < 7200)) 
+                ? $tokenData['scs_tok'] 
+                : false;
+        
+        return $token;
     }
-  }
-
-
-  /**
-   * Clean user query from invalid characters that may cause error on SOAP call.
-   *
-   * @param string $userQuery
-   * @return string Cleaned user query string.
-   */
-  protected function _cleanUserQuery($userQuery = null){
-      if (empty($userQuery) && is_null($userQuery)){
-          return "";
-      }
-
-      // Clean user query string from Ms Word special characters
-      $userQuery = Fez_Misc::convertMsWordSpecialCharacters($userQuery);
-
-      return $userQuery;
-  }
-
-
-  /**
-   * Performs a search of records from an ISI Web of Knowledge, Web Service Premium.
-   *
-   * @param string $databaseID Identifies the ISI Web of Knowledge resource that this request will search (default is WOS).
-   * @param string $userQuery The search expression in Advanced Search format.
-   * @param string $editions The editions that this search will cover. Array containing collection and edition strings as elements.
-   * @param array $timeSpan The time span that this search will cover such as 2000-2002. Using begin and end array elements.
-   * @param array $symbolicTimeSpan This element defines a range of load dates. Allowed values are 1week, 2week and 4week The load date is the date when a record was added to a database.
-   * If symbolicTimeSpan is specified, the timeSpan parameter should be omitted, or it must be null.
-   * If timeSpan and symbolicTimeSpan are both null or omitted, then the maximum publication date time span will be inferred from the editions data.
-   * @param string $queryLanguage This element can take only one value: en for English.
-   * @param int $count The number of results to return in the initial resultset you get back from the initial query
-   * @return SimpleXMLElement The object containing records found in WoS matching the search query specified.
-   */
-  public function search($databaseId = "WOS", $userQuery, $editions=array(), $timeSpan=array(), $symbolicTimeSpan="1week", $queryLanguage="en", $count)
-  {
-    if (count($editions) == 0) {
-        $editions = array();
-        $editions[] = array("collection" => $databaseId, "edition" => "SCI");
-        $editions[] = array("collection" => $databaseId, "edition" => "SSCI");
-        $editions[] = array("collection" => $databaseId, "edition" => "AHCI");
-        $editions[] = array("collection" => $databaseId, "edition" => "ISTP");
-        $editions[] = array("collection" => $databaseId, "edition" => "ISSHP");
-        //Chemistry formulas
-        //$editions[] = array("collection" => $databaseId, "edition" => "IC");
-        //$editions[] = array("collection" => $databaseId, "edition" => "CCR");
-        //Not implemented 2012-05-10
-        $editions[] = array("collection" => $databaseId, "edition" => "BSCI");
-        $editions[] = array("collection" => $databaseId, "edition" => "BHCI");
+    
+    /**
+     * Clear out the token table and save a new token
+     * @param string $token
+     */
+    public function saveToken($token)
+    {
+        $sqlTruncate = "TRUNCATE TABLE " . APP_TABLE_PREFIX . "scopus_session";
+        $sqlInsert = "INSERT INTO " . APP_TABLE_PREFIX . "scopus_session (scs_tok) VALUES (?)";
+        
+        try 
+        {
+            $tr = $this->db->query($sqlTruncate);
+        }
+        catch(Exception $e)
+        {
+            $this->log->err($e->getMessage());
+            //var_dump($e->getMessage() . __LINE__);
+        }
+        
+        try
+        {
+            $in = $this->db->query($sqlInsert, array($token));
+        }
+        catch(Exception $e)
+        {
+            $this->log->err($e->getMessage());
+            //var_dump($e->getMessage() . __LINE__);
+        }
+        
+        return ($tr && $in) ? true : false;
     }
-
-    // Clean user query from invalid characters
-    $userQuery = $this->_cleanUserQuery($userQuery);
-
-    $search = array(
-               'queryParameters' =>
-                    array(
-                      'databaseId' => $databaseId,
-                      'userQuery' => $userQuery,
-                      'editions' => $editions,
-//                      'timeSpan' => $timeSpan,
-//                      'symbolicTimeSpan' => $symbolicTimeSpan,
-                      'queryLanguage' => $queryLanguage
-                    ),
-               'retrieveParameters' =>
-                    array(
-                       'firstRecord' => 1,
-                       'count' => $count
-                    )
-    );
-    if (!empty($symbolicTimeSpan)) {
-        $search['queryParameters']['symbolicTimeSpan'] = $symbolicTimeSpan;
+    
+    /**
+     * Perform an authentication operation against ScopusAPI
+     */
+    public function auth()
+    {
+        $params = array(
+            'qs' => array(
+                'platform' => 'SCOPUS'
+            )
+        );
+        
+        $token = $this->getSavedToken();
+        
+        if(!$token)
+        {
+            $xpath = $this->getXPath($this->doCurl($params));
+            $tokens = $xpath->query("//authenticate-response/authtoken");
+            $token = $tokens->item(0)->nodeValue;
+            //$token = "sat_EEA77ED44740DD3FD3CF31100080796DCF1A1E79935650ED739EBDC1824F820BFDB7098C6E81075F9163B11F5B00E99EFAFFAD382AFE5090AB92524D7B996B7D23990E24911E348FA42FAAD7DC073CF36AC5CFA18BEA99FA2EFBE959A04A62AF6B9A4963D00BE5D564CD0AA389B70ABF4C0C7B21F192688371046196F0149FD2A8CFF8F47F5925A5125DC29BE0F62EB306336E6F2A298C5E6033DEC3472B4106096D71D1D1F7EB7F487E4A5464D7F7BF3227B4506127D28D";
+            $this->saveToken($token);
+            //var_dump($token . " LINE: " . __LINE__);
+        }
+        
+        $this->authToken = $token;
     }
-    try {
-      // Make SOAP request
-      $this->client->setCookie(WOK_COOKIE_NAME, $this->sessionId);
-      $response = $this->client->search($search);
-      return $response;
+    
+    /**
+     * Perform a search operation on ScopusAPI with an existing token
+     * @param array $query
+     * @return boolean
+     */
+    public function search(array $query)
+    {
+        if(!$this->authToken)
+        {
+            //Run the auth method instead of throwing an exception??
+            $this->log->err("No authtoken is set for ScopusAPI access:"
+                . __FILE__ . ":" . __LINE__);
+            return false;
+        }
+        
+        $params = array(
+            'action' => 'search',
+            'db' => 'index:SCOPUS',
+            'qs' => $query
+        );
+        
+        /*$params = array(
+            'action' => 'affiliation',
+            'db' => 'AFFILIATION_ID:60031004',
+            'qs' => array(
+                'start' => 201,
+                'count' => 401,
+                'view' => 'DOCUMENTS'
+            )
+        );*/
+        
+        $recordData = $this->doCurl($params, 'content');
+        //return file_put_contents('/var/www/fez/tests/dat/entrezFullOutOO.txt', $recordData);
+        return $recordData;
     }
-    catch(SoapFault $ex) {
-      $this->log->err($ex);
-      return FALSE;
+    
+    /**
+     * Grab the next recordset from Scopus if
+     * there is one to grab
+     * @return mixed
+     */
+    public function getNextRecordSet()
+    {
+        $query = array('query' => 'affil(University+of+Queensland)',
+                            'count' => self::REC_SET_SIZE,
+                            'start' => $this->recSetStart,
+                            'view' => 'STANDARD'
+        );
+        
+        $records = $this->search($query);
+        
+        /*if($records)
+        {
+            
+        }*/
+        
+        $this->recSetStart = $this->getNextRecStart($records);
+        
+        return $records;
     }
-  }
-
-  /**
-   * The retrieve operation submits query returned by a previous search, citingArticles, relatedRecords,
-   * or retrieveById operation.
-   *
-   * @param int $queryID
-   * @param int $first_record
-   * @param int $count
-   * @param array $fields
-   * @param array $options
-   * @param array $collection_fields
-   * @return unknown
-   */
-  public function retrieve($queryId, $first_record, $count, $fields = array(), $options = array(), $collection_fields = array())
-  {
-
-      $retrieve = array(
-        'queryId' => $queryId,
-        'retrieveParameters' => array(
-            'firstRecord' => $first_record,
-            'count' => $count
-          )
-      );
-
-    try {
-      // Make SOAP request
-      $this->client->setCookie(WOK_COOKIE_NAME, $this->sessionId);
-      $response = $this->client->retrieve($retrieve);
-      return $response;
+    
+    /**
+     * Return the starting record of the next recordset
+     * to fetch from the <link> tag provided by the 
+     * current record set.
+     * @param string $recordSet
+     * @return mixed
+     */
+    public function getNextRecStart($recordSet)
+    {
+        $xpath = $this->getXPath($recordSet);
+        $links = $xpath->query('//default:feed/default:link');
+        $nextRecStart = false;
+        
+        foreach($links as $link)
+        {
+            $ref = $link->getAttribute('ref');
+            if($ref == "next")
+            {
+                $nextLink = $link->getAttribute('href');
+                $matches = array();
+                preg_match("/start=(\d+)&/", $nextLink, $matches);
+                
+                if(array_key_exists(1, $matches))
+                {
+                    $nextRecStart = $matches[1];
+                }
+            }
+        }
+        
+        return $nextRecStart;
     }
-    catch(SoapFault $ex) {
-      $this->log->err($ex);
-      return FALSE;
+    
+    public function compare($recordSet=null)
+    {
+        $recordSet = ($recordSet) ? $recordSet : $this->getNextRecordSet();
+        //Pull out all the <entry> tags and 
+        //create a Scopus record object for
+        //each one.
+        
+        /*$xpath = $this->getXPath($recordSet);
+        $records = $xpath->query('//default:entry');*/
+        
+        $doc = new DOMDocument();
+        $doc->loadXML($recordSet);
+        $records = $doc->getElementsByTagName('entry');
+        
+        //$recordHandler = new ScopusRecItem();//this or a new object for each record?
+        //Need to flush the object properly if it's to be reused
+        
+        //get_class($records->item(0));
+        foreach($records as $record)
+        {
+            $recordHandler = new ScopusRecItem();
+            $xmlDoc = new DOMDocument();
+            $xmlDoc->appendChild($xmlDoc->importNode($record, true));
+            $recordHandler->load($xmlDoc->saveXML());
+            //var_dump($xmlDoc->saveXML());
+        }
     }
-  }
-
-  /**
-   * The retrieveById operation returns records identified by unique identifiers.
-   * The identifiers are specific to each database.
-   *
-   * @param array $uids Array of record identifiers. It cannot be null or contain an empty array.
-   * @param string $database_id Identifies the ISI Web of Knowledge resource that this request
-   *                            will search (default is WOS)
-   * @param string $query_lang This element can take only one value: en for English.
-   */
-  public function retrieveById($uids, $database_id = WOK_DATABASE_ID, $query_lang = 'en')
-  {
-    $retrieve = array(
-      'databaseId' => $database_id,
-      'uid' => $uids,
-      'queryLanguage' => $query_lang,
-      'retrieveParameters' => array(
-          'firstRecord' => '1',
-          'count' => count($uids)
-        )
-    );
-    try {
-      $this->client->setCookie(WOK_COOKIE_NAME, $this->sessionId);
-      $response = $this->client->retrieveById($retrieve);
-      return $response->return->records;
+    
+    public function checkAffiliation($recordObject)
+    {
+        $xpath = $this->getXPath($recordObject);
+        $affiliated = false;
+        $affiliations = $xpath->query('//entry/affiliation');
+    
+        foreach($affiliations as $affiliation)
+        {
+            if(preg_match('/University of Queensland|University of Qld/',
+            $affiliation->nodeValue))
+            {
+                $affiliated = true;
+            }
+        }
+    
+        return $affiliated;
     }
-    catch(SoapFault $ex) {
-      //Only throw an error when the uids variable is not filled with a test data check '1234'
-      if (!in_array('1234', $uids)) {
-        $this->log->err($ex);
-      }
-      return FALSE;
+    
+    /**
+     * Execute a cURL request on the ScopusAPI
+     * @param array $params
+     * @param string $utility
+     */
+    public function doCurl(array $params, $utility="authenticate")
+    {
+        if(!array_key_exists('qs', $params) || !is_array($params['qs']))
+        {
+            $this->log->err("Scopus query is not a parameter item or not an array:"
+                . __FILE__ . ":" . __LINE__);
+            return false;
+        }
+        
+        $uri = (preg_match('/.*\/$/', SCOPUS_WS_BASE_URL)) ? $utility : '/'.$utility;
+        $uri .= (array_key_exists('action', $params)) ? "/".$params['action'] : '';
+        $uri .= (array_key_exists('db', $params) ? "/".$params['db'] : '');
+        $uri .= '?' . http_build_query($params['qs']);
+        
+        $curlHandle = curl_init(SCOPUS_WS_BASE_URL . $uri);
+        curl_setopt($curlHandle, CURLOPT_SSL_VERIFYPEER, FALSE);
+        curl_setopt($curlHandle, CURLOPT_SSL_VERIFYHOST, FALSE);
+        curl_setopt($curlHandle, CURLOPT_HTTPHEADER, array(
+                'X-ELS-APIKey: ' . $this->apiKey,
+                'Accept: text/xml, application/atom+xml'
+        ));
+        curl_setopt($curlHandle, CURLOPT_RETURNTRANSFER, true);
+        $curlResponse = curl_exec($curlHandle);
+        
+        if(!$curlResponse)
+        {
+            $this->log->err(curl_errno($curlHandle));
+            //var_dump(curl_errno($curlHandle));
+        }
+        
+        curl_close($curlHandle);
+        return $curlResponse;
     }
-  }
-
-  /**
-   * The authenticate operation creates a session and obtains a session ID.
-   * Subsequent operations must incorporate this session ID.
-   */
-  private function authenticate($username, $password)
-  {
-    $options = array(
-        'login' => $username,
-        'password' => $password
-    );
-    try {
-      // Make SOAP request
-      $this->client->setOptions($options);
-      $this->client->setWsdl($this->authEndpoint.'?wsdl');
-      $response = $this->client->authenticate();
-
-      // Unset these options on the client, will use cookie for remainder of session
-      $options = array(
-        'login' => null,
-        'password' => null
-      );
-      $this->client->setOptions($options);
-      return $response->return;
+    
+    /**
+     * Generate an XPAth object from raw XML
+     * @param string $rawXML
+     * @return DOMXPath
+     */
+    public function getXPath($rawXML)
+    {
+        $xmlDoc = new DOMDocument();
+        $xmlDoc->preserveWhiteSpace = false;
+        $xmlDoc->loadXML($rawXML);
+        $rootNameSpace = $xmlDoc->lookupNamespaceUri($doc->namespaceURI);
+        
+        $xpath = new DOMXPath($xmlDoc);
+        $xpath->registerNamespace('default', $rootNameSpace);
+        
+        return $xpath;
     }
-    catch(SoapFault $ex) {
-      $this->log->err($ex);
-      return FALSE;
-    }
-  }
-
-  /**
-   * The authenticate operation creates a session and obtains a session ID.
-   * Subsequent operations must incorporate this session ID.
-   */
-  public function closeSession()
-  {
-    try {
-      // Make SOAP request
-      $this->client->setCookie(WOK_COOKIE_NAME, $this->sessionId);
-      $this->client->closeSession();
-    }
-    catch(SoapFault $ex) {
-      $this->log->err($ex);
-      return FALSE;
-    }
-  }
 }
+
