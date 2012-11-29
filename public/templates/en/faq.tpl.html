@@ -13,9 +13,9 @@
 {* Questions *}
 {foreach item=i from=$faqs name=faqs}
 	{if $current_cat != $i.category}
-		<h2>{$i.category}</h2>
+		<h2>{$i.category|smarty:nodefaults}</h2>
 	{/if}
-	<a href="#q{$i.id}">{$i.question}</a><br />
+	<a href="#q{$i.id}">{$i.question|smarty:nodefaults}</a><br />
 	{assign var='current_cat' value=$i.category}
 {foreachelse}
 	<p>There are currently no FAQs on file.</p>
@@ -25,8 +25,8 @@
 
 {* Answers *}
 {foreach item=i from=$faqs name=faqs}
-	<a id="q{$i.id}" name="q{$i.id}"></a><b>{$i.question}</b><br />
-	{$i.answer}<hr />
+	<a id="q{$i.id}" name="q{$i.id}"></a><b>{$i.question|smarty:nodefaults}</b><br />
+	{$i.answer|smarty:nodefaults}<hr />
 {/foreach}
 
 {if $cv_footer != ""}

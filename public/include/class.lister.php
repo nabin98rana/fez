@@ -93,7 +93,7 @@ class Lister
       'custom_view_pid' => 'string',
       'form_name' => 'string',
     );
-
+    $zf = new Fez_Filter_RichTextHtmlpurify();
     foreach ($args as $getName => $getType) {
       if (array_key_exists($getName, $params)) {
         if (Misc::sanity_check($params[$getName], $getType) !== false) {
@@ -231,8 +231,12 @@ class Lister
     $cookie_key = Pager::getParam('form_name', $params);
     $options = Pager::saveSearchParams($params, $cookie_key);
 
-    $tpl->setTemplate('header.tpl.html');
-
+    if ($tpl_idx == 0 || $tpl_idx == 4 || $tpl_idx == 5 || $tpl_idx == 6 || $tpl_idx == 8 || $tpl_idx == 9) {
+      $tpl->setTemplate('header.tpl.html');
+    } else {
+      // prevent escaping when not using html templates
+      $tpl->smarty->default_modifiers = array();
+    }
 
     $getFunction = 'getListing';
     if (APP_SOLR_SWITCH == "ON") {
@@ -337,9 +341,7 @@ class Lister
 
         if ($canList) {
           $tpl->assign("list_type", "collection_records_list");
-          $tpl->displayTemplate();
-          ob_flush();
-          flush();
+          Lister::flushHead($tpl);
 
           $tpl->assign("xdis_id", Record::getSearchKeyIndexValue($collection_pid, "Display Type"));
           $parents = Record::getParentsDetails($collection_pid);
@@ -380,9 +382,7 @@ class Lister
         }
       } else {
         header("Status: 404 Not Found");
-        $tpl->displayTemplate();
-        ob_flush();
-        flush();
+        Lister::flushHead($tpl);
 
         $tpl->assign('not_exists', true);
       }
@@ -408,9 +408,7 @@ class Lister
         $canView = $record->canView(true);
         $tpl->assign("isViewer", $canView);
         if ($canView) {
-          $tpl->displayTemplate();
-          ob_flush();
-          flush();
+          Lister::flushHead($tpl);
           $tpl->assign("community_pid", $community_pid);
           $userPIDAuthGroups = AuthIndex::getIndexAuthRoles($community_pid);
           $isCreator = @$userPIDAuthGroups['isCreator'] == 1;
@@ -455,10 +453,7 @@ class Lister
     } elseif ($browse == "favourites") {
       Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF'] . "?" . $_SERVER['QUERY_STRING']);
       $tpl->assign("list_heading", "Starred Records");
-      $tpl->displayTemplate();
-      ob_flush();
-      flush();
-
+      Lister::flushHead($tpl);
 
       $filter = array();
       $filter["searchKey" . Search_key::getID("Object Type")] = 3;
@@ -495,9 +490,7 @@ class Lister
 
     } elseif ($browse == "latest") {
       $tpl->assign("list_heading", "Browse By Latest Additions");
-      $tpl->displayTemplate();
-      ob_flush();
-      flush();
+      Lister::flushHead($tpl);
 
       $log->debug('Latest');
 
@@ -530,9 +523,7 @@ class Lister
 
     } elseif ($browse == "year") {
       $tpl->assign("list_heading", "List of Records");
-      $tpl->displayTemplate();
-      ob_flush();
-      flush();
+      Lister::flushHead($tpl);
 
       $log->debug('Browse by year');
       // browse by year
@@ -663,16 +654,11 @@ class Lister
       }
       $tpl->assign("browse_type", "browse_author");
       $tpl->assign("alphabet_list", Misc::generateAlphabetArray());
-      $tpl->displayTemplate();
-      ob_flush();
-      flush();
-
+      Lister::flushHead($tpl);
 
     } elseif ($browse == "depositor") {
       $tpl->assign("list_heading", "Browse By Depositor");
-      $tpl->displayTemplate();
-      ob_flush();
-      flush();
+      Lister::flushHead($tpl);
 
       $log->debug('Browse by depositor');
       // browse by depositor
@@ -712,9 +698,7 @@ class Lister
       $author_id = $params['author_id'];
       $authorDetails = Author::getDetails($author_id);
       $tpl->assign("list_heading", "Publications by " . htmlspecialchars($authorDetails["aut_display_name"]));
-      $tpl->displayTemplate();
-      ob_flush();
-      flush();
+      Lister::flushHead($tpl);
 
       $log->debug('Browse MyPubs');
 
@@ -891,9 +875,7 @@ class Lister
     } elseif ($browse == "subject") {
       $tpl->assign("list_heading", "List of Subject Classifications Records");
 
-      $tpl->displayTemplate();
-      ob_flush();
-      flush();
+      Lister::flushHead($tpl);
       $log->debug('Browse by subject');
       // browse by subject
       $parent_id = Lister::getValue($params, 'parent_id');
@@ -948,9 +930,9 @@ class Lister
       $searchKey_join = Record::buildSearchKeyFilterSolr($options, $sort_by, $operator, false);
       $terms = rtrim($searchKey_join[SK_SEARCH_TXT], ', ');
       $tpl->assign("list_heading", "Search Results ($terms)");
-      $tpl->displayTemplate();
-      ob_flush();
-      flush();
+
+      //Only have a header template on some tpl options
+      Lister::flushHead($tpl);
 
       include_once(APP_INC_PATH . "class.spell.php");
       include_once(APP_INC_PATH . "class.language.php");
@@ -1018,9 +1000,7 @@ class Lister
     } else {
       $tpl->assign("list_type", "community_list");
       $tpl->assign("list_heading", "List of Communities");
-      $tpl->displayTemplate();
-      ob_flush();
-      flush();
+      Lister::flushHead($tpl);
 
       $log->debug('Communities');
       $xdis_id = Community::getCommunityXDIS_ID();
@@ -1071,6 +1051,8 @@ class Lister
     }
 
     $tpl->assign('facets', $facets);
+
+    $snips = $zf->filter($snips);
     $tpl->assign('snips', $snips);
     $tpl->assign('rows', $rows);
     $tpl->assign('tpl_list', array_map(create_function('$a', 'return $a[\'title\'];'), $tpls));
@@ -1144,6 +1126,13 @@ class Lister
     return compact('list', 'list_info');
   }
 
+  private function flushHead($tpl) {
+    if (substr($tpl->tpl_name, strrpos($tpl->tpl_name, '/')+1) == 'header.tpl.html') {
+      $tpl->displayTemplate();
+      ob_flush();
+      flush();
+    }
+  }
 
   function getValue($params, $varName)
   {

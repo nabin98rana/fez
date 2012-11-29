@@ -96,7 +96,7 @@ class Template_API
 		if (!empty($tpl_name)) {
 			$this->setTemplate($tpl_name);
 		}
-
+    $this->smarty->default_modifiers = array('escape:"html"');
 	}
 
 
@@ -108,12 +108,6 @@ class Template_API
 	 */
 	function setTemplate($tpl_name)
 	{
-
-//        if($tpl_name == "manage/index.tpl.html") {
-            $this->smarty->default_modifiers = array('escape:"html"');
-//        } else {
-//            $this->smarty->default_modifiers = array('escape:"javascript"');
-//        }
 
 		$_curr_path = $this->smarty->template_dir;
         if (isset($this->smarty->custom_view_dir)) {

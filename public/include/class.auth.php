@@ -3032,16 +3032,18 @@ class AuthNoFedora {
         $viewerId = Auth::getRoleIDByTitle('Viewer');
 
         AuthNoFedora::deletePermissions($pid);
-        foreach ($newGroups as $role => $newGroup) {
-            $arg_id = AuthRules::getOrCreateRuleGroupArIds($newGroup);
-            AuthNoFedora::addRoleSecurityPermissions($pid, $role, $arg_id, '1');
-            if ($role == $listerId) {
-                AuthNoFedora::addListerPermissions($pid, $arg_id);
-                $listerDone = true;
-            }
-            if ($role == $viewerId) {
-                $viewerDone = true;
-            }
+        if (is_array($newGroups)) {
+          foreach ($newGroups as $role => $newGroup) {
+              $arg_id = AuthRules::getOrCreateRuleGroupArIds($newGroup);
+              AuthNoFedora::addRoleSecurityPermissions($pid, $role, $arg_id, '1');
+              if ($role == $listerId) {
+                  AuthNoFedora::addListerPermissions($pid, $arg_id);
+                  $listerDone = true;
+              }
+              if ($role == $viewerId) {
+                  $viewerDone = true;
+              }
+          }
         }
 
         //If no lister is set then it is open to all
@@ -3066,11 +3068,13 @@ class AuthNoFedora {
         //datastream children
         $record = new RecordGeneral($pid);
         $datastreams = $record->getDatastreams();
-        foreach($datastreams as $datastream) {
-            $did = AuthNoFedoraDatastreams::getDid($pid, $datastream[ID]);
-            if (AuthNoFedoraDatastreams::isInherited($did)) {
-                AuthNoFedoraDatastreams::recalculatePermissions($did);
-            }
+        if (is_array($datastreams)) {
+          foreach($datastreams as $datastream) {
+              $did = AuthNoFedoraDatastreams::getDid($pid, $datastream[ID]);
+              if (AuthNoFedoraDatastreams::isInherited($did)) {
+                  AuthNoFedoraDatastreams::recalculatePermissions($did);
+              }
+          }
         }
 
         //assume solr need updating for new lister permissions

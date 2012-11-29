@@ -39,6 +39,8 @@ include_once(APP_INC_PATH . "class.page.php");
 
 $pageID = @$_GET["page"];
 $page = Page::getPage($pageID);
+$zf = new Fez_Filter_RichTextHtmlpurify();
+$page = $zf->filter($page);
 $title = $page['title'];
 $content = $page['content'];
 

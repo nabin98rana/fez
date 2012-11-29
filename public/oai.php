@@ -39,6 +39,7 @@ include_once(APP_INC_PATH . "class.xsd_display.php");
 include_once(APP_INC_PATH . "class.record.php");
 
 $tpl = new Template_API();
+$tpl->smarty->default_modifiers = array();
 $verb = trim(Misc::GETorPOST('verb'));
 $metadataPrefix = trim(Misc::GETorPOST('metadataPrefix'));
 $originalIdentifier = trim(Misc::GETorPOST('identifier'));
@@ -51,10 +52,10 @@ $originalResumptionHash = (Misc::GETorPOST('resumptionToken'));
 if (is_numeric(strpos($originalSet, ":cvo_id:"))) {
 	$setType = "contvocab";
 	$set = substr($originalSet, (strrpos($originalSet, ":")+1));
-	$setObject = Null;	
+	$setObject = Null;
 } else {
 	$setType = "isMemberOf";
-	$set = str_replace("oai:".APP_HOSTNAME.":", "", $originalSet);	
+	$set = str_replace("oai:".APP_HOSTNAME.":", "", $originalSet);
 	$setObject = new RecordObject($set);
 
 }
@@ -67,7 +68,7 @@ if (!empty($custom_view_pid)) {
 	foreach ($child_collections as $rek_row) {
 		$filter["searchKey".Search_Key::getID("isMemberOf")][] = $rek_row['rek_pid'];
 	}
-} 
+}
 
 // For Picture Australia feeds filter to only show Image / Diglib Image / Photograph objects
 if ($metadataPrefix == "pa") {
@@ -93,7 +94,7 @@ if ($metadataPrefix == "rif") {
 	}
 }
 
-/*$test = base64_decode("Jm1ldGFkYXRhUHJlZml4PW9haV9kYw=="); 
+/*$test = base64_decode("Jm1ldGFkYXRhUHJlZml4PW9haV9kYw==");
 $test = ltrim($test, "&");
 $test = Misc::parse_str_ext($test);
 print_r($test);
@@ -124,15 +125,15 @@ if (empty($_GET)) {
 	$querystring = $qtemp;
 } else {
 	$querystring = Misc::parse_str_ext($_SERVER["QUERY_STRING"]);
-} 
+}
 
 $tpls = array(
     'ListRecords' => array('file' => 'oai/ListRecords.tpl.html', 'title' => 'ListRecords'),
-    'ListMetadataFormats' => array('file' => 'oai/ListMetadataFormats.tpl.html', 'title' => 'ListMetadataFormats'),    
-    'ListSets' => array('file' => 'oai/ListSets.tpl.html', 'title' => 'ListSets'),    
-    'ListIdentifiers' => array('file' => 'oai/ListIdentifiers.tpl.html', 'title' => 'ListIdentifiers'),            
-    'GetRecord' => array('file' => 'oai/GetRecord.tpl.html', 'title' => 'GetRecord'),                
-    'Identify' => array('file' => 'oai/Identify.tpl.html', 'title' => 'Identify')    
+    'ListMetadataFormats' => array('file' => 'oai/ListMetadataFormats.tpl.html', 'title' => 'ListMetadataFormats'),
+    'ListSets' => array('file' => 'oai/ListSets.tpl.html', 'title' => 'ListSets'),
+    'ListIdentifiers' => array('file' => 'oai/ListIdentifiers.tpl.html', 'title' => 'ListIdentifiers'),
+    'GetRecord' => array('file' => 'oai/GetRecord.tpl.html', 'title' => 'GetRecord'),
+    'Identify' => array('file' => 'oai/Identify.tpl.html', 'title' => 'Identify')
 );
 if ($metadataPrefix == "rif") {
     $tpls['ListRecords'] = array('file' => 'oai/ListRecords_ands.tpl.html', 'title' => 'ListRecords');
@@ -141,7 +142,7 @@ if ($metadataPrefix == "rif") {
 if (array_key_exists($verb, $tpls)) {
 	$tpl_file = $tpls[$verb]['file'];
 } else {
-	$tpl_file = $tpls["Identify"]['file'];	
+	$tpl_file = $tpls["Identify"]['file'];
 }
 $tpl->setTemplate($tpl_file);
 
@@ -155,11 +156,11 @@ if ($resumptionToken != "") {
 	$matches = preg_match("/^(\d+)\/?(.*)?$/", $resumptionToken);
 	if (!$matches) {
 		$errors["code"][] = "badResumptionToken";
-		$errors["message"][] = "Token is invalid (does not match regexp)";		
+		$errors["message"][] = "Token is invalid (does not match regexp)";
 		$errors["code"][] = "badArgument";
-		$errors["message"][] = "Token is invalid (does not match regexp)";	
-	} else {		
-		if (is_numeric(strpos($start, "/"))) { 
+		$errors["message"][] = "Token is invalid (does not match regexp)";
+	} else {
+		if (is_numeric(strpos($start, "/"))) {
 			$start = substr($start, 0, strpos($start, "/"));
 			$resumptionToken = ltrim(base64_decode(substr($resumptionToken, strrpos($resumptionToken, "/")+1)), "&");
 			$originalResumptionToken = $resumptionToken;
@@ -170,34 +171,34 @@ if ($resumptionToken != "") {
 					$resumptionToken .= "&".$rname."=".$rvalue[0];
 					eval("$".$rname."='".urldecode($rvalue[0])."';");
 				}
-			}	
+			}
 			if (!empty($set)) {
 				if (is_numeric(strpos($set, ":cvo_id:"))) {
 					$setType = "contvocab";
 					$set = substr($set, (strrpos($set, ":")+1));
-					$setObject = Null;	
+					$setObject = Null;
 				} else {
 					$setType = "isMemberOf";
-					$set = str_replace("oai:".APP_HOSTNAME.":", "", $set);	
-					$setObject = new RecordObject($set);				
-				}		
+					$set = str_replace("oai:".APP_HOSTNAME.":", "", $set);
+					$setObject = new RecordObject($set);
+				}
 			}
 		} else {
-			$start = trim($start);		
+			$start = trim($start);
 			$resumptionToken = "";
-		}				
+		}
 //		$metadataPrefix = substr($start, strrpos($start, "/")+1);
 
 	}
 //} elseif ($resumptionToken != 0) {
 //	$start = substr($start, 0, strpos($start, "/"));
-//	$start = 0;	
+//	$start = 0;
 } else {
-	$start = 0;	
-	$resumptionToken = "";	
+	$start = 0;
+	$resumptionToken = "";
 	foreach ($querystring as $rname => $rvalue) {
 		if (in_array($rname, $resumption_acceptable_vars)) {
-			$resumptionToken .= "&".$rname."=".$rvalue[0];				
+			$resumptionToken .= "&".$rname."=".$rvalue[0];
 //			eval("$".$rname."=".$rvalue.";");
 		}
 	}
@@ -216,12 +217,12 @@ if (!empty($verb)) {
 						$errors["code"][] = "badArgument";
 						$errors["message"][] = "Illegal argument: ".$qname;
 					}
-				}	
+				}
 				if ($identifier != "") {
 // old regex was too prohibitive on pid namespaces
 //					if (preg_match("/^oai:[a-zA-Z][a-zA-Z0-9\-]*(\.[a-zA-Z][a-zA-Z0-9\-]+)+:[a-zA-Z0-9\-_\.!~\*'\(\);\/\?:\@\&=\+\$,\%]+$/", $originalIdentifier)) {
 					if (preg_match("/^oai\:.+\:.+\:.+$/", $originalIdentifier)) {
-						
+
 //					if (preg_match("/^oai:(.*:[a-zA-Z0-9\-_\.!~\*'\(\);\/\?:\@\&=\+\$,\%])+$/", $originalIdentifier)) {
 
 						// then check the record exists
@@ -230,43 +231,43 @@ if (!empty($verb)) {
 						if (count($list) < 1) {
 							$errors["code"][] = "idDoesNotExist";
 							$errors["message"][] = "ID: ".$identifier." does not exist in this archive";
-						}											
+						}
 					} else {
 						$errors["code"][] = "badArgument";
-						$errors["message"][] = "identifier does not match regexp: ".$originalIdentifier;							
-					}					
+						$errors["message"][] = "identifier does not match regexp: ".$originalIdentifier;
+					}
 				}
 				// nothing needs to be done here as all only have standard oai_dc  and picture australia (pa) at the moment statically set in the smarty template, MODS later perhaps.
-				break;		
+				break;
 			case "ListSets":
 				foreach ($querystring as $qname => $qvalue) {
 					if (!in_array($qname, $list_sets_acceptable_vars) || ($OriginalResumptionToken != "" && $qname == "metadataPrefix")) {
 						$errors["code"][] = "badArgument";
 						$errors["message"][] = "Illegal argument: ".$qname;
 					}
-				}	
-			
-				// Need to list all collections and controlled vocabularies			
+				}
+
+				// Need to list all collections and controlled vocabularies
 				if (!empty($metadataPrefix)) {
-					
+
 				}
 				if (count($errors) > 0) {
 					break;
 				}
 				$list = OAI::ListSets($start, $rows, $order_by, $from, $until);
 				$list_info = $list["info"];
-				$list = $list["list"];		
+				$list = $list["list"];
 				$tpl->assign("list", $list);
-				$tpl->assign("list_count", count($list));					
+				$tpl->assign("list_count", count($list));
 				$tpl->assign("resumptionToken", $resumptionToken);
-				break;		
+				break;
 			case "GetRecord":
 				foreach ($querystring as $qname => $qvalue) {
 					if (!in_array($qname, $get_record_acceptable_vars)) {
 						$errors["code"][] = "badArgument";
 						$errors["message"][] = "Illegal argument: ".$qname;
 					}
-				}				
+				}
 				if ($metadataPrefix != "") {
 					if (($metadataPrefix == "oai_dc") || ($metadataPrefix == "pa") || ($metadataPrefix == "rif")) {
 						if ($identifier != "") {
@@ -276,36 +277,36 @@ if (!empty($verb)) {
 								$list_info = $list["info"];
 								$list = $list["list"];
 								$tpl->assign("list", $list);
-								$tpl->assign("list_count", count($list));					
+								$tpl->assign("list_count", count($list));
 								$tpl->assign("resumptionToken", $resumptionToken);
 								if (count($list) < 1) {
 									$errors["code"][] = "idDoesNotExist";
 									$errors["message"][] = "ID: ".$identifier." does not exist in this archive (at least at your security level).";
-								}							
+								}
 							} else {
 								$errors["code"][] = "badArgument";
-								$errors["message"][] = "identifier does not match regexp: ".$originalIdentifier;							
+								$errors["message"][] = "identifier does not match regexp: ".$originalIdentifier;
 							}
 						} else {
 							$errors["code"][] = "badArgument";
-							$errors["message"][] = "Missing required argument: identifier";				
+							$errors["message"][] = "Missing required argument: identifier";
 						}
 					} else {
 						$errors["code"][] = "cannotDisseminateFormat";
-						$errors["message"][] = "Record not available as metadata type: ".$metadataPrefix;									
+						$errors["message"][] = "Record not available as metadata type: ".$metadataPrefix;
 					}
 				} else {
 					$errors["code"][] = "badArgument";
-					$errors["message"][] = "Missing required argument: metadataPrefix";				
-				}			
-				break;					
+					$errors["message"][] = "Missing required argument: metadataPrefix";
+				}
+				break;
 			case "Identify":
 				foreach ($querystring as $qname => $qvalue) {
 					if (!in_array($qname, $identify_acceptable_vars)) {
 						$errors["code"][] = "badArgument";
 						$errors["message"][] = "Illegal argument: ".$qname;
 					}
-				}	
+				}
 
 				// nothing needs to be done here
 				break;
@@ -315,14 +316,14 @@ if (!empty($verb)) {
 						$errors["code"][] = "badArgument";
 						$errors["message"][] = "Illegal argument: ".$qname;
 					}
-				}	
+				}
 				if (count($errors) > 0) {
 					break;
 				}
 				if ($metadataPrefix != "") {
 					if (($metadataPrefix == "oai_dc") || ($metadataPrefix == "pa") || ($metadataPrefix == "rif")) {
-						if (!empty($set)) {					
-							if ((!Controlled_Vocab::exists($set) && $setType == "contvocab")) {	
+						if (!empty($set)) {
+							if ((!Controlled_Vocab::exists($set) && $setType == "contvocab")) {
 								$errors["code"][] = "badArgument";
 								$errors["message"][] = "Invalid set parameter; unknown key (".$set.")";
 								break;
@@ -330,12 +331,12 @@ if (!empty($verb)) {
 								if (empty($setObject)) {
 									$errors["code"][] = "badArgument";
 									$errors["message"][] = "Invalid set parameter; unknown key (".$set.")";
-									break;									
-								} elseif (!$setObject->checkExists() || !$setObject->isCollection()) { 
+									break;
+								} elseif (!$setObject->checkExists() || !$setObject->isCollection()) {
 									$errors["code"][] = "badArgument";
 									$errors["message"][] = "Invalid set parameter; unknown key (".$set.")";
 									break;
-								}																
+								}
 							}
 						}
 						if (!empty($from)) {
@@ -347,8 +348,8 @@ if (!empty($verb)) {
 							}
 							$from_in_time_format = true;
 							if (!preg_match("/^(\d\d\d\d)-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d(\.\d+)?)Z?$/", $from)) { //check if its in time format to make sure both are in the same format
-								$from_in_time_format = false;								
-							} 
+								$from_in_time_format = false;
+							}
 						}
 						if (!empty($until)) {
 							//24/11/2008  bh made TIME part of string optional
@@ -359,48 +360,48 @@ if (!empty($verb)) {
 							}
 							$until_in_time_format = true;
 							if (!preg_match("/^(\d\d\d\d)-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d(\.\d+)?)Z?$/", $until)) { //check if its in time format to make sure both are in the same format
-								$until_in_time_format = false;								
+								$until_in_time_format = false;
 							}
-							
+
 							if ((($from_in_time_format == true && $until_in_time_format == false) || ($from_in_time_format == false && $until_in_time_format == true)) && (!empty($from)) ) {
 								$errors["code"][] = "badArgument";
 								$errors["message"][] = "The request has different granularities for the from and until parameters.";
 							}
 						}
-						// probably first need to check that the set exists if not empty					
+						// probably first need to check that the set exists if not empty
 						$list = OAI::ListRecords($set, $identifier, $start, $rows, $order_by, $from, $until, $setType, $filter);
 						$list_info = $list["info"];
-						$list = $list["list"];		
+						$list = $list["list"];
 						$tpl->assign("list", $list);
-						$tpl->assign("list_count", count($list));					
+						$tpl->assign("list_count", count($list));
 						$tpl->assign("resumptionToken", $resumptionToken);
 						if (count($list) == 0) {
 							$errors["code"][] = "noRecordsMatch";
 							$errors["message"][] = "No published items match (at least at your security level).";
-						}												
+						}
 					} else {
 						$errors["code"][] = "cannotDisseminateFormat";
-						$errors["message"][] = "Record not available as metadata type: ".$metadataPrefix;									
+						$errors["message"][] = "Record not available as metadata type: ".$metadataPrefix;
 					}
 				} else {
 					$errors["code"][] = "badArgument";
-					$errors["message"][] = "Missing required argument: metadataPrefix";				
-				}			
-				break;					
+					$errors["message"][] = "Missing required argument: metadataPrefix";
+				}
+				break;
 			case "ListRecords":
 				foreach ($querystring as $qname => $qvalue) {
 					if (!in_array($qname, $list_records_acceptable_vars) || ($originalResumptionToken != "" && $qname == "metadataPrefix")) {
 						$errors["code"][] = "badArgument";
 						$errors["message"][] = "Illegal argument: ".$qname;
 					}
-				}	
+				}
 				if (count($errors) > 0) {
 					break;
-				}				
+				}
 				if ($metadataPrefix != "") {
 					if (($metadataPrefix == "oai_dc") || ($metadataPrefix == "pa") || ($metadataPrefix == "rif")) {
-						if (!empty($set)) {					
-							if ((!Controlled_Vocab::exists($set) && $setType == "contvocab")) {	
+						if (!empty($set)) {
+							if ((!Controlled_Vocab::exists($set) && $setType == "contvocab")) {
 								$errors["code"][] = "badArgument";
 								$errors["message"][] = "Invalid set parameter; unknown key (".$set.")";
 								break;
@@ -408,17 +409,17 @@ if (!empty($verb)) {
 								if (empty($setObject)) {
 									$errors["code"][] = "badArgument";
 									$errors["message"][] = "Invalid set parameter; unknown key (".$set.")";
-									break;									
-								} elseif (!$setObject->checkExists() || !$setObject->isCollection()) { 
+									break;
+								} elseif (!$setObject->checkExists() || !$setObject->isCollection()) {
 									$errors["code"][] = "badArgument";
 									$errors["message"][] = "Invalid set parameter; unknown key (".$set.")";
 									break;
-								}																
+								}
 							}
 						}
 						if (!empty($from)) {
 							//24/11/2008  bh made TIME part of string optional
-							//if (!preg_match("/^(\d\d\d\d)-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d(\.\d+)?)Z?$/", $from)) { 
+							//if (!preg_match("/^(\d\d\d\d)-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d(\.\d+)?)Z?$/", $from)) {
 							if (!preg_match("/^(\d\d\d\d)-(\d\d)-(\d\d)(T(\d\d):(\d\d):(\d\d(\.\d+)?)Z?)?$/", $from)) {
 								$errors["code"][] = "badArgument";
 								$errors["message"][] = "not valid datetime: ".$from;
@@ -426,52 +427,52 @@ if (!empty($verb)) {
 							$from_in_time_format = true;
 							if (!preg_match("/^(\d\d\d\d)-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d(\.\d+)?)Z?$/", $from)) { //check if its in time format to make sure both are in the same format
 								$from_in_time_format = false;
-							} 
-						} 
+							}
+						}
 						if (!empty($until)) {
 							//24/11/2008  bh made TIME part of string optional
-							//if (!preg_match("/^(\d\d\d\d)-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d(\.\d+)?)Z?$/", $until)) {	
+							//if (!preg_match("/^(\d\d\d\d)-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d(\.\d+)?)Z?$/", $until)) {
 							if (!preg_match("/^(\d\d\d\d)-(\d\d)-(\d\d)(T(\d\d):(\d\d):(\d\d(\.\d+)?)Z?)?$/", $until)) {
 								$errors["code"][] = "badArgument";
 								$errors["message"][] = "not valid datetime: ".$until;
 							}
 							$until_in_time_format = true;
 							if (!preg_match("/^(\d\d\d\d)-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d(\.\d+)?)Z?$/", $until)) { //check if its in time format to make sure both are in the same format
-								$until_in_time_format = false;								
+								$until_in_time_format = false;
 							}
 							if ((($from_in_time_format == true && $until_in_time_format == false) || ($from_in_time_format == false && $until_in_time_format == true)) && (!empty($from)) ) {
 								$errors["code"][] = "badArgument";
 								$errors["message"][] = "The request has different granularities for the from and until parameters.";
 							}
-						}					
+						}
 						// probably first need to check that the set exists if not empty
 						$list = OAI::ListRecords($set, $identifier, $start, $rows, $order_by, $from, $until, $setType, $filter);
 						$list_info = $list["info"];
-						$list = $list["list"];		
+						$list = $list["list"];
 						$tpl->assign("list", $list);
-						$tpl->assign("list_count", count($list));					
+						$tpl->assign("list_count", count($list));
 						$tpl->assign("resumptionToken", $resumptionToken);
 						if (count($list) == 0) {
 							$errors["code"][] = "noRecordsMatch";
 							$errors["message"][] = "No published items match (at least at your security level).";
-						}																	
+						}
 					} else {
 						$errors["code"][] = "cannotDisseminateFormat";
-						$errors["message"][] = "Record not available as metadata type: ".$metadataPrefix;									
+						$errors["message"][] = "Record not available as metadata type: ".$metadataPrefix;
 					}
 				} else {
 					$errors["code"][] = "badArgument";
-					$errors["message"][] = "Missing required argument: metadataPrefix";				
+					$errors["message"][] = "Missing required argument: metadataPrefix";
 				}
-				break;		
+				break;
 			default:
 				$errors = array();
 				$errors["code"][] = "badVerb";
 				$errors["message"][] = "Unknown verb: '".$verb."'";
 				break;
-			
+
 		}
-	
+
 } else {
 	$errors = array();
 	$errors["code"][] = "badVerb";
@@ -481,8 +482,8 @@ if (count($errors) == 0) {
 	foreach ($querystring as $qname => $qvalue) {
 		if (count($qvalue) > 1) {
 			$errors["code"][] = "badArgument";
-			$errors["message"][] = "Repeated argument: ".$qname;							
-		} 
+			$errors["message"][] = "Repeated argument: ".$qname;
+		}
 	}
 }
 $tpl->assign("start", $start);
