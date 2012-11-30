@@ -293,7 +293,8 @@ class RecordObject extends RecordGeneral
                     		'pid' => $this->pid);
                     	$dsr = new DSResource(APP_DSTREE_PATH, $resourceDataLocation, $meta);
                     	$dsr->save();
-                        Workflow::processIngestTrigger($this->pid, Foxml::makeNCName($dsr->returnFilename()), $mimeDataType);
+                      Record::generatePresmd($this->pid, $dsr->returnFilename());
+                      Workflow::processIngestTrigger($this->pid, Foxml::makeNCName($dsr->returnFilename()), $mimeDataType);
             		}
             	}
             }
@@ -325,9 +326,7 @@ class RecordObject extends RecordGeneral
             if ($newPid || isset($_POST['removeFiles']) || isset($_POST['uploader_files_uploaded'])) {
                 AuthNoFedora::recalculatePermissions($this->pid);
             }
-		}
-		else
-		{
+		}	else {
     		// If pid is null then we need to ingest the object as well
     		// otherwise we are updating an existing object
     		$ingestObject = false;
@@ -339,7 +338,6 @@ class RecordObject extends RecordGeneral
     			$this->updated_date = $this->created_date;
     			$this->depositor = Auth::getUserID();
     			$this->assign_usr_id = array(Auth::getUserID());
-    			$existingDatastreams = array();
     		} else {
     			$existingDatastreams = Fedora_API::callGetDatastreams($this->pid);
     			if (APP_VERSION_UPLOADS_AND_LINKS != "ON" && !in_array("FezACML", $specify_list)) {

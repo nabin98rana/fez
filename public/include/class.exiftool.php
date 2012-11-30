@@ -39,7 +39,7 @@ class Exiftool
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		if (!is_array($exif_array)) {
 			return -1;
 		}
@@ -62,7 +62,7 @@ class Exiftool
 					exif_make,
 					exif_file_type,
 					exif_play_duration,
-					exif_all  
+					exif_all
 					";
 
 		$values = ") VALUES (
@@ -114,7 +114,7 @@ class Exiftool
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		if ($pid == "" || $dsID == "") {
 			return false;
 		}
@@ -138,14 +138,14 @@ class Exiftool
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     * FROM
                     " . APP_TABLE_PREFIX . "exif
                  WHERE
                     exif_pid = " . $db->quote($pid) . "
 					AND exif_dsid = " . $db->quote($dsID);
-		
+
 		try {
 			$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
@@ -160,7 +160,7 @@ class Exiftool
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     exif_pid FROM
                     " . APP_TABLE_PREFIX . "exif
@@ -173,7 +173,7 @@ class Exiftool
 			$log->err($ex);
 			return '';
 		}
-		
+
 		if ($res == $pid) {
 			return true;
 		} else {
@@ -184,8 +184,11 @@ class Exiftool
 
 
 
-	function saveExif($pid, $dsID) 
+	function saveExif($pid, $dsID, $location = null)
 	{
+    if (!is_null($location)) {
+
+    }
 		if (APP_EXIFTOOL_SWITCH == "ON") {
 			$exif_array = Exiftool::extractMetadata(APP_TEMP_DIR.$dsID);
 			if (!is_array($exif_array)) {
@@ -203,7 +206,7 @@ class Exiftool
 	/**
 	 * Returns the exiftool information as an array - credit goes to the Drupal MAQUM module for this function
 	 */
-	function extractMetadata($path) 
+	function extractMetadata($path)
 	{
 		$temp = shell_exec(APP_EXIFTOOL_CMD . ' -n --list '.escapeshellarg($path));
 		$info['exif_all'] = $temp;
@@ -225,7 +228,7 @@ class Exiftool
       	}
 		return $info;
 	}
-	
+
 	/**
 	 * renames a datastream id in the exif data if it exists
 	 *
@@ -234,16 +237,16 @@ class Exiftool
 	 * @param string $newDsID
 	 * @return void
 	 **/
-	public function renameFile($pid, $oldDsID, $newDsID) 
+	public function renameFile($pid, $oldDsID, $newDsID)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$details = self::getDetails($pid, $oldDsID);
 		if ($details != '') {
 			$sql = "UPDATE " . APP_TABLE_PREFIX . "exif SET exif_dsid = ? WHERE exif_pid = ? AND exif_dsid = ? ";
 			$db->query($sql, array($newDsID, $pid, $oldDsID));
-		}		
+		}
 	}
 
 }
