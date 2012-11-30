@@ -53,14 +53,21 @@ try {
     echo "Failed to retrieve exif data. Error: " . $ex;
 } */
 
-$fedoraPids = Fedora_Direct_Access::fetchAllFedoraPIDs('','');
+$fedoraPids = Fedora_Direct_Access::fetchAllFedoraPIDs('','', true);
 //$fedoraPids[] = array('pid' => 'UQ:17552');
-
+$totalPids = count($fedoraPids);
+$counter = 0;
 foreach ($fedoraPids as $pid) {
     $pid = $pid['pid'];
+    $counter++;
     $datastreams = Fedora_API::callGetDatastreams($pid);
     //$datastreams = Misc::cleanDatastreamListLite($datastreams, $pid);
+    if (count($datastreams) > 0) {
+      echo "\nDoing PID $counter/$totalPids ($pid)";
+    }
+
     foreach ($datastreams as $datastream) {
+
         if ($datastream['controlGroup'] == 'M') {
 
             // Set datastream version based on current time.
@@ -105,6 +112,7 @@ foreach ($fedoraPids as $pid) {
             // Log save status
             if (!$result) {
                 echo "ERROR: "." UNABLE TO SAVE $pid $dsid ".APP_DSTREE_PATH.$fileHash['hashPath'].$fileHash['rawHash']."\n";
+                ob_flush();
                 $migrationErrors[$datastream['ID']]['error'] = " UNABLE TO SAVE ";
                 $migrationErrors[$datastream['ID']]['exif'] = $exif;
             } else {
@@ -117,11 +125,13 @@ foreach ($fedoraPids as $pid) {
                 $did = AuthNoFedoraDatastreams::getDid($pid, $datastream['ID']);
                 AuthNoFedoraDatastreams::recalculatePermissions($did);
                 echo $did ." ".$pid." ".$datastream['ID']." ".APP_DSTREE_PATH.$fileHash['hashPath'].$fileHash['rawHash']." (no DS ACML found) <br/>\n";
+                ob_flush();
             } else
             {
                 addDatastreamSecurity($acml, $pid, $datastream['ID']);
                 $did = AuthNoFedoraDatastreams::getDid($pid, $dsID);
                 echo $did ." ".$pid." ".$datastream['ID']." ".APP_DSTREE_PATH.$fileHash['hashPath'].$fileHash['rawHash']." (found DS ACML so adding) <br/>\n";
+                ob_flush();
             }
         }
     }
@@ -130,12 +140,13 @@ foreach ($fedoraPids as $pid) {
 // Print out migration results & any errors.
 echo "<pre>Total managed-content successfully migrated = " . $migrationSuccessCount . "</pre>\n";
 echo "<pre>Migration errors = " . print_r($migrationErrors, 1) . "</pre>\n";
+ob_flush();
 exit;
 
 function inheritesPermissions ($acml) {
 
     if ($acml == false) {
-        //if no acml then defualt is inherit
+        //if no acml then default is inherit
         $inherit = true;
     } else {
         $xpath = new DOMXPath($acml);

@@ -47,8 +47,11 @@
 
 $configFile = "../../config.inc.php";
 ini_set("display_errors", 1);
+ini_set('implicit_flush', 1);
+//ob_implicit_flush(true);
 error_reporting(E_ALL & ~E_NOTICE & ~E_STRICT);
-
+ob_end_flush();
+echo "here we go!..\n";
 foreach ($argv as $arg){
     $arg = explode("=", $arg);
     if (!array_key_exists(0, $arg) || !array_key_exists(1, $arg)){

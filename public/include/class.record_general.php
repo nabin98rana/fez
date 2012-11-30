@@ -31,6 +31,10 @@ class RecordGeneral
   protected $_bgp;
   protected $_log = null;
 
+  function __construct()
+  {
+  }
+
 
   /**
    * Links this instance to a corresponding background process
@@ -1909,7 +1913,8 @@ class RecordGeneral
         $this->getXmlDisplayIdUseIndex();
     }*/
     $this->getDisplay();
-    return $this->display->getTitle();
+    return XSD_Display::getTitle($this->xdis_id);
+//    return $this->display->getTitle();
   }
 
   /**
@@ -2732,6 +2737,9 @@ class RecordGeneral
     return RecordLock::getOwner($this->pid);
   }
 
+  /**
+   * @return bool
+   */
   function isLocked()
   {
     return RecordLock::getOwner($this->pid) > 0 ? true : false;

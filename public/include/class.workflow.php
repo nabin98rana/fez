@@ -59,7 +59,7 @@ class Workflow
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$items = @implode(", ", $_POST["items"]);
 		$stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "workflow
@@ -88,7 +88,7 @@ class Workflow
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		if (empty($params)) {
 			$params = &$_POST;
 		}
@@ -108,7 +108,7 @@ class Workflow
 			$log->err($ex);
 			return -1;
 		}
-		
+
 		$new_wfl_id = $db->lastInsertId(APP_TABLE_PREFIX . "workflow", "wfl_id");
 		// add the auth role associations!
 		for ($i = 0; $i < count($params["wfl_roles"]); $i++) {
@@ -136,7 +136,7 @@ class Workflow
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "workflow_roles
                  (
@@ -172,13 +172,13 @@ class Workflow
 		}
 		$stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "workflow
-                 SET 
+                 SET
                     wfl_title = " . $db->quote($params["wfl_title"]) . ",
                     wfl_version = " . $db->quote($params["wfl_version"]) . ",
                     wfl_description = " . $db->quote($params["wfl_description"]) . ",
                     wfl_end_button_label = " . $db->quote($params["wfl_end_button_label"]) . "
                  WHERE wfl_id = ".$db->quote($wfl_id, 'INTEGER');
-		
+
 		try {
 			$db->exec($stmt);
 		}
@@ -186,21 +186,21 @@ class Workflow
 			$log->err($ex);
 			return -1;
 		}
-		
+
 		// update the auth role associations now
 		$stmt = "DELETE FROM
                         " . APP_TABLE_PREFIX . "workflow_roles
                      WHERE
                         wfr_wfl_id=" . $db->quote($wfl_id, 'INTEGER');
-		
+
 		try {
 			$db->query($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err($ex);
 			return -1;
-		}		
-		
+		}
+
 		for ($i = 0; $i < count($params["wfl_roles"]); $i++) {
 			if (!is_numeric($params["wfl_roles"][$i])) {
 				$aro_id = Auth::getRoleIDByTitle(trim($params["wfl_roles"][$i]));
@@ -240,7 +240,7 @@ class Workflow
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     wfl_title
                  FROM
@@ -254,11 +254,11 @@ class Workflow
 			$log->err($ex);
 			return '';
 		}
-		
+
 		return $res;
 	}
 
-		
+
 	/**
 	 * Extracts preservation metadata for a datastream.
 	 * This is hardcoded as an ingest trigger for all workflows.
@@ -267,7 +267,7 @@ class Workflow
 	 * @param string filename - the name of the file being ingested as a datastream
 	 * @return name of preservation metadata temporary file (it is not automatically ingested as a datastream).
 	 */
-	function checkForPresMD($filename) 
+	function checkForPresMD($filename)
 	{
 		$getString = APP_BASE_URL."webservices/wfb.presmd.php?file=".urlencode($filename);
 		$val = Misc::ProcessURL($getString);
@@ -297,13 +297,13 @@ class Workflow
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     *
                  FROM
                     " . APP_TABLE_PREFIX . "workflow
                         ".$where.
-                                " order by    wfl_title 
+                                " order by    wfl_title
                     ";
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
@@ -312,7 +312,7 @@ class Workflow
 			$log->err($ex);
 			return '';
 		}
-		
+
 		if (empty($res)) {
 			return array();
 		} else {
@@ -335,11 +335,11 @@ class Workflow
 		}
 	}
 
-	function getAuthRoles($wfl_id) 
+	function getAuthRoles($wfl_id)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     wfr_aro_id
                  FROM
@@ -356,11 +356,11 @@ class Workflow
 		return $res;
 	}
 
-	function getAuthRoleTitles($wfl_id) 
+	function getAuthRoleTitles($wfl_id)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     aro_role
                  FROM
@@ -389,7 +389,7 @@ class Workflow
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     *
                  FROM
@@ -403,7 +403,7 @@ class Workflow
 			$log->err($ex);
 			return '';
 		}
-	
+
 		$auth_roles = Workflow::getAuthRoles($res['wfl_id']);
 		$res['wfl_roles'] = $auth_roles;
 		$res['wfl_role_titles'] = Workflow::getAuthRoleTitles($res['wfl_id']);
@@ -429,7 +429,7 @@ class Workflow
                     " . APP_TABLE_PREFIX . "workflow
                 WHERE
                     wfl_title = " . $db->quote($wfl_title);
-                    
+
 		try {
 			$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
@@ -470,7 +470,7 @@ class Workflow
 		// find first matching trigger
 
 		$record = new RecordObject($pid);
-		$record->getImageFezACML($dsID);
+//		$record->getImageFezACML($dsID);
 		//Exiftool will have a better indication of mimetype
 		if (APP_EXIFTOOL_SWITCH == "ON") {
 			$exif = Exiftool::getDetails($pid, $dsID);
@@ -654,7 +654,7 @@ class Workflow
 	function importWorkflow($xworkflow, $behaviour_ids_map, &$feedback)
 	{
 		$db = DB_API::get();
-		
+
 		$title = trim($xworkflow->getAttribute('wfl_title'));
 		$version = trim($xworkflow->getAttribute('wfl_version'));
 

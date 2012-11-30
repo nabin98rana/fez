@@ -186,7 +186,7 @@ class DSResource
             if($revision == 'HEAD')
             {
                 //TODO Rework this query. No longer need MAX as the versions are in the shadow table.
-                $sql = "SELECT fat_did as id, fat_metaid as metaid, fat_hash as hash, fat_size as size, fat_filename as filename, fat_mimetype as mimetype,
+                $sql = "SELECT fat_did as id, fat_metaid as metaid, fat_hash as hash, fat_size as size, fat_filename as filename, fat_mimetype as mimetype, fat_label as label,
                 fat_controlgroup as controlgroup, fat_pid as pid, fat_state as state, fat_version as version FROM " . APP_TABLE_PREFIX . "file_attachments "
                 . "WHERE fat_filename = :dsfilename "
                 . "AND fat_pid = :pid AND fat_state = 'A' AND fat_version = (SELECT MAX(fat_VERSION) FROM "
@@ -198,7 +198,7 @@ class DSResource
             }
             else
             {
-                $sql = "SELECT fat_did as id, fat_metaid as metaid, fat_hash as hash, fat_size as size,
+                $sql = "SELECT fat_did as id, fat_metaid as metaid, fat_hash as hash, fat_size as size, fat_label as label,
                        fat_filename as filename, fat_mimetype as mimetype, fat_controlgroup as controlgroup, fat_pid as pid, fat_state as state, fat_version as version FROM "
                     . APP_TABLE_PREFIX . "file_attachments__shadow WHERE "
                     . "fat_state = 'A' AND fat_filename = :dsfilename "
@@ -225,7 +225,7 @@ class DSResource
     {
         try
         {
-            $sql = "SELECT fat_did as id, fat_hash as hash, fat_filename as filename, fat_pid as pid, fat_version as version FROM "
+            $sql = "SELECT fat_did as id, fat_hash as hash, fat_filename as filename, fat_pid as pid, fat_version as version, fat_label as label FROM "
                 . APP_TABLE_PREFIX . "file_attachments WHERE "
                 . "fat_filename = :dsfilename AND fat_pid = :pid ORDER BY fat_version DESC";
             $stmt = $this->db->query($sql, array(':dsfilename' => $fileName, ':pid' => $pid));
@@ -272,7 +272,7 @@ class DSResource
 
         try
         {
-        $sql = "SELECT{$distinct} fat_did as id, fat_hash as hash, fat_filename as filename, fat_pid as pid, fat_mimetype as mimetype, fat_size as size FROM "  . APP_TABLE_PREFIX
+        $sql = "SELECT{$distinct} fat_did as id, fat_filename as ID, fat_hash as hash, fat_filename as filename, fat_label as label, fat_pid as pid, fat_mimetype as MIMEType, fat_mimetype as mimetype, fat_size as size, 'M' as controlGroup FROM "  . APP_TABLE_PREFIX
             . "file_attachments WHERE "
             . "fat_pid = :pid GROUP BY fat_filename";
         $stmt = $this->db->query($sql, array(':pid' => $pid));
