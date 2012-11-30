@@ -359,7 +359,7 @@ class DSResource
     protected function storeDSMeta($data)
     {
         //TODO - Can this method be absorbed into another method
-        //now that we no longer have a seperate meta table?
+        //now that we no longer have a separate meta table?
         try
         {
             $sql = "SELECT fat_metaid as metaid from " . APP_TABLE_PREFIX
