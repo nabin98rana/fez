@@ -545,8 +545,8 @@ if (!empty($pid) && $record->checkExists()) {
 
     }
 
-		if($datastreams && (APP_FEDORA_BYPASS != 'ON'))
-		{
+		if($datastreams)  {
+//		if($datastreams && (APP_FEDORA_BYPASS != 'ON')) {
             $links = array();
     		foreach ($datastreams as $ds_key => $ds) {
 
@@ -660,7 +660,6 @@ if (!empty($pid) && $record->checkExists()) {
                 }
             }
 	    }
-
 
 		$tpl->assign("datastreams", $datastreams);
 		$tpl->assign("ds_get_path", APP_FEDORA_GET_URL."/".$pid."/");
