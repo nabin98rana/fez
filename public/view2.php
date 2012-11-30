@@ -547,15 +547,15 @@ if (!empty($pid) && $record->checkExists()) {
 
 		if($datastreams)  {
 //		if($datastreams && (APP_FEDORA_BYPASS != 'ON')) {
-            $links = array();
+
     		foreach ($datastreams as $ds_key => $ds) {
 
     		    if ($datastreams[$ds_key]['controlGroup'] == 'R') {
     				$linkCount++;
     			}
 
-    			if ( ($datastreams[$ds_key]['controlGroup'] == 'R') && ($datastreams[$ds_key]['ID'] != 'DOI')  ) {
-
+    			if ( ($datastreams[$ds_key]['controlGroup'] == 'R') && ($datastreams[$ds_key]['ID'] != 'DOI') && (APP_FEDORA_BYPASS != 'ON') ) {
+                    $links = array();
                     $links[$linkCount-1]['rek_link'] = trim($datastreams[$ds_key]['location']);
                     $links[$linkCount-1]['rek_link_description'] = $datastreams[$ds_key]['label'];
                     $links[$linkCount-1]['rek_link_description'] = $datastreams[$ds_key]['label'];
@@ -698,7 +698,7 @@ if (!empty($pid) && $record->checkExists()) {
 		}
 		$tpl->assign("origami", APP_ORIGAMI_SWITCH);
 		$tpl->assign("linkCount", $linkCount);
-        $tpl->assign("links", $links);
+    $tpl->assign("links", $links);
 		$tpl->assign("hasVersions", $hasVersions);
 		$tpl->assign("fileCount", $fileCount);
 		$tpl->assign("derivationTree", $derivationTree);
