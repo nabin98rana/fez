@@ -76,22 +76,25 @@ abstract class RecordItem
         
         $xpath = new DOMXPath($xmlDoc);
         
-        if($this->nameSpaces)
+        if($this->_namespaces)
         {
-            foreach($nameSpaces as $name => $uri)
+            foreach($this->_namespaces as $name => $uri)
             {
                 $xpath->registerNamespace($name, $uri);
             }
+            
+            $rootNameSpace = $xmlDoc->lookupNamespaceUri($xmlDoc->namespaceURI);
+            $xpath->registerNamespace('default', $rootNameSpace);
         }
         
         return $xpath;
     }
     
     /**
-     * Wrapper for calling other liken methods
-     * and deciding if something is the same or not.
+     * Comparison of downloaded record 
      */
     public abstract function liken();
+    
     /**
      * Saves record items to Record Search Key
      *
@@ -216,6 +219,7 @@ abstract class RecordItem
             }
             // Links currently blank since only getting first DOI or link
             $links = array();
+            //var_dump("Doing insert from array");
             $rec = new Record();
             $pid = $rec->insertFromArray($mods, $this->collections[0], "MODS 1.0", $history, 0, $links, array());
             if (is_numeric($this->_wokCitationCount)) {
@@ -261,7 +265,7 @@ abstract class RecordItem
             "Conference Dates" => $this->_conferenceDate,
             "Conference Name" => $this->_conferenceTitle,
             "Journal Name" => $this->_journalTitle,
-            "WoK Doc Type" => $this->wokDocTypeCode,
+            "WoK Doc Type" => $this->_wokDocTypeCode,
 
         );
 
@@ -290,6 +294,7 @@ abstract class RecordItem
 
         $history = 'Filled empty metadata fields ('.implode(", ", $search_keys).') using '. $this->_importAPI;
         $record = new RecordGeneral($pid);
+        var_dump("Adding search key value list");
         $record->addSearchKeyValueList(
             $search_keys, $values, true, $history
         );

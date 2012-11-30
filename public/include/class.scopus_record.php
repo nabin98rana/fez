@@ -37,12 +37,15 @@ include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.author.php");
 include_once(APP_INC_PATH . "class.thomson_doctype_mappings.php");
 include_once(APP_INC_PATH . "class.record_item.php");
+include_once(APP_INC_PATH . "class.matching_conferences.php");
 
 class ScopusRecItem extends RecordItem
 {
     protected $_pageRange;
     
     protected $_log;
+    
+    protected $_affiliations = array();
     
     public function __construct($recordData=null, $xmlNs=null)
     {
@@ -67,36 +70,54 @@ class ScopusRecItem extends RecordItem
             }
         }
         
+        $this->_loaded = false;
+        
         $xpath = $this->getXPath($recordData);
         
-        $this->_doi = $this->extract('//entry/prism:doi', $xpath);
+        $this->_doi = $this->extract('//prism:doi', $xpath);
         
         $this->_title = $this->extract('//dc:title', $xpath);
         
-        $this->_issn = $this->extract('//entry/prism:issn', $xpath);
-        
-        $this->_volume = $this->extract('//entry/prism:volume', $xpath);
-        
-        $this->_docType = $this->extract('//entry/prism:aggregationType', $xpath);
-        
-        $this->_docSubType = $this->extract('//entry/subtypeDescription', $xpath);
-        
-        $this->_scopusId = $this->extract('//entry/dc:identifier', $xpath);
-        $matches = array();
-        preg_match("/^SCOPUS_ID\:(\d+)$/", $this->_scopusId, $matches);
-        $scopusIdExtracted = (array_key_exists(1, $matches)) ? $matches[1] : null;
-        $this->_scopusId = $scopusIdExtracted;
-        
-        $this->_pageRange = $this->extract('//entry/prism:pageRange', $xpath);
-        $matches = array();
-        preg_match("/^(\d+)\-(\d+)$/", str_replace(array(' ', '\r\n', '\n', '\t'), '', $this->_pageRange));
-        
-        if(array_key_exists(1, $matches) && array_key_exists(2, $matches))
+        $affiliations = $xpath->query('//default:affiliation/default:affilname');
+        foreach($affiliations as $affiliation)
         {
-            $this->_startPage = min(array($matches[1], $matches[2]));
-            $this->_endPage = max(array($matches[1], $matches[2]));
+            $this->_affiliations[] = $affiliation->nodeValue;
         }
-        
+            
+        if($this->likenAffiliation())
+        {
+            
+            $this->_issn = $this->extract('//prism:issn', $xpath);
+            
+            $this->_volume = $this->extract('//prism:volume', $xpath);
+            
+            $this->_docType = $this->extract('//prism:aggregationType', $xpath);
+            
+            $this->_docSubType = $this->extract('//subtypeDescription', $xpath);
+            
+            $this->_scopusId = $this->extract('//dc:identifier', $xpath);
+            
+            $matches = array();
+            preg_match("/^SCOPUS_ID\:(\d+)$/", $this->_scopusId, $matches);
+            $scopusIdExtracted = (array_key_exists(1, $matches)) ? $matches[1] : null;
+            $this->_scopusId = $scopusIdExtracted;
+            
+            $this->_pageRange = $this->extract('//prism:pageRange', $xpath);
+            $matches = array();
+            preg_match("/^(\d+)\-(\d+)$/", str_replace(array(' ', '\r\n', '\n', '\t'), '', $this->_pageRange));
+            
+            if(array_key_exists(1, $matches) && array_key_exists(2, $matches))
+            {
+                $this->_startPage = min(array($matches[1], $matches[2]));
+                $this->_endPage = max(array($matches[1], $matches[2]));
+            }
+            
+            $this->_loaded = true;
+        }
+        else 
+        {
+            $this->_log->err("Problem with affiliation for: {$this->_title}; Affiliations: " . var_export($this->_affiliations, true));
+        }
     }
     
     public function extract($query, $xpath)
@@ -119,17 +140,18 @@ class ScopusRecItem extends RecordItem
         //try to locate by scopus id
         if($this->_scopusId)
         {
-            $localPidsByScopusId = Record::getPIDByScopusID($this->_scopusId);
+            $localPidsByScopusId = Record::getPIDsByScopusID($this->_scopusId);
             
             //there should only be one result or else it's an error
-            if(count($localPidsByScopusId) == 1)
+            $pidCount = count($localPidsByScopusId);
+            if($pidCount == 1)
             {
-                $pidFromScopusId = $localPidsByScopusId['rek_scopus_id'];
+                $pidFromScopusId = $localPidsByScopusId[0]['rek_scopus_id'];
             }
-            else 
+            elseif($pidCount > 1)
             {
                 //log an error
-                $this->_log->err("Multiple matches found for Scopus ID ({$this->_scopusId}):".__CLASS__."::".__METHOD__);
+                $this->_log->err("Multiple matches found for Scopus ID ({$this->_scopusId}):".__METHOD__);
                 return false;
             }
         }
@@ -137,17 +159,18 @@ class ScopusRecItem extends RecordItem
         //try to locate by doi
         if($this->_doi)
         {
-            $localPidsByDoi = Record::getPIDByDoi($this->_doi);
+            $localPidsByDoi = Record::getPIDsByDoi($this->_doi);
             
             //there should only be one result or else it's an error
-            if(count($localPidsByDoi) == 1)
+            $pidCount = count($localPidsByDoi);
+            if($pidCount == 1)
             {
-                $pidFromDoi = $localPidsByDoi['rek_doi'];
+                $pidFromDoi = $localPidsByDoi[0]['rek_doi_pid'];
             }
-            else 
+            elseif($pidCount > 1)
             {
                 //log an error
-                $this->_log->err("Multiple matches found for DOI({$this->_doi}):".__CLASS__."::".__METHOD__);
+                $this->_log->err("Multiple matches found for DOI({$this->_doi}):".__METHOD__);
                 return false;
             }
         }
@@ -162,6 +185,7 @@ class ScopusRecItem extends RecordItem
         elseif(($pidFromDoi && $pidFromScopusId) && ($pidFromDoi != $pidFromScopusId))
         {
             //log error
+            $this->_log->err("Multiple returned pids are unequal:".__METHOD__);
             return false;
         }
         //if a pid is returned only by doi
@@ -182,16 +206,21 @@ class ScopusRecItem extends RecordItem
             $title = $rec->getTitleFromIndex($pid);
             
             $percentageMatch = 0;
-            similar_text($first, $second, $percentageMatch);
+            
+            $downloadedTitle = RCL::normaliseTitle($this->_title);
+            $localTitle = RCL::normaliseTitle($title);
+            similar_text($downloadedTitle, $localTitle, $percentageMatch);
             //if the fuzzy title match is better than 80%
             if($percentageMatch >= 80)
             {
                 //update the record with any data we don't have
+                $this->update($pid);
             }
-            else 
-            {
-                //the record does not exists; insert it as a new record
-            }
+        }
+        else 
+        {
+            //the record does not exists; insert it as a new record
+            $this->save();
         }
     }
     
@@ -209,16 +238,13 @@ class ScopusRecItem extends RecordItem
      * @param string $recordData
      * @return boolean
      */
-    public function likenAffiliation($recordData) //not sure if we need this
+    public function likenAffiliation()
     {
-        $xpath = $this->getXPath($recordData);
         $affiliated = false;
-        $affiliations = $xpath->query('//entry/affiliation');
-        
-        foreach($affiliations as $affiliation)
+        foreach($this->_affiliations as $affiliation)
         {
             if(preg_match('/University of Queensland|University of Qld/', 
-                                                       $affiliation->nodeValue))
+                                                       $affiliation))
             {
                 $affiliated = true;
             }
