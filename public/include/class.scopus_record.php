@@ -41,11 +41,24 @@ include_once(APP_INC_PATH . "class.matching_conferences.php");
 
 class ScopusRecItem extends RecordItem
 {
-    protected $_pageRange;
-    
+    /**
+     * The Fez log
+     * @var FezLog
+     */
     protected $_log;
     
+    /**
+     * Affiliations for this record
+     * @var array
+     */
     protected $_affiliations = array();
+    
+    /**
+     * Perform de-duping using these ids
+     * which also have cooresponding methods
+     * @var array
+     */
+    protected $_comparisonIdTypes = array('_scopusId', '_doi');
     
     public function __construct($recordData=null, $xmlNs=null)
     {
@@ -97,20 +110,24 @@ class ScopusRecItem extends RecordItem
             
             $this->_scopusId = $this->extract('//dc:identifier', $xpath);
             
+            $this->_xdisTitle = $this->extract('//prism:aggregationType', $xpath);
+            
             $matches = array();
             preg_match("/^SCOPUS_ID\:(\d+)$/", $this->_scopusId, $matches);
             $scopusIdExtracted = (array_key_exists(1, $matches)) ? $matches[1] : null;
             $this->_scopusId = $scopusIdExtracted;
             
-            $this->_pageRange = $this->extract('//prism:pageRange', $xpath);
+            $pageRange = $this->extract('//prism:pageRange', $xpath);
             $matches = array();
-            preg_match("/^(\d+)\-(\d+)$/", str_replace(array(' ', '\r\n', '\n', '\t'), '', $this->_pageRange));
+            preg_match("/^(\d+)\-(\d+)$/", str_replace(array(' ', '\r\n', '\n', '\t'), '', $pageRange));
             
             if(array_key_exists(1, $matches) && array_key_exists(2, $matches))
             {
                 $this->_startPage = min(array($matches[1], $matches[2]));
                 $this->_endPage = max(array($matches[1], $matches[2]));
             }
+            
+            $this->_totalPages = $this->_endPage - $this->_startPage;
             
             $this->_loaded = true;
         }
@@ -124,104 +141,6 @@ class ScopusRecItem extends RecordItem
     {
         $nodeList = $xpath->query($query);
         return $nodeList->item(0)->nodeValue;
-    }
-    
-    /**
-     * @see RecordItem::liken()
-     */
-    public function liken()
-    {
-        $localPidsByScopusId = array();
-        $localPidsByDoi = array();
-        $pid = null;
-        $pidFromDoi = null;
-        $pidFromScopusId = null;
-        
-        //try to locate by scopus id
-        if($this->_scopusId)
-        {
-            $localPidsByScopusId = Record::getPIDsByScopusID($this->_scopusId);
-            
-            //there should only be one result or else it's an error
-            $pidCount = count($localPidsByScopusId);
-            if($pidCount == 1)
-            {
-                $pidFromScopusId = $localPidsByScopusId[0]['rek_scopus_id'];
-            }
-            elseif($pidCount > 1)
-            {
-                //log an error
-                $this->_log->err("Multiple matches found for Scopus ID ({$this->_scopusId}):".__METHOD__);
-                return false;
-            }
-        }
-        
-        //try to locate by doi
-        if($this->_doi)
-        {
-            $localPidsByDoi = Record::getPIDsByDoi($this->_doi);
-            
-            //there should only be one result or else it's an error
-            $pidCount = count($localPidsByDoi);
-            if($pidCount == 1)
-            {
-                $pidFromDoi = $localPidsByDoi[0]['rek_doi_pid'];
-            }
-            elseif($pidCount > 1)
-            {
-                //log an error
-                $this->_log->err("Multiple matches found for DOI({$this->_doi}):".__METHOD__);
-                return false;
-            }
-        }
-        
-        //if there are two returned pids (ie not null) and they are equal
-        if(($pidFromDoi && $pidFromScopusId) && ($pidFromDoi == $pidFromScopusId))
-        {
-            //pid is one of those (doesn't matter which)
-            $pid = $pidFromScopusId;
-        }
-        //if there are two returned pids (ie not null) and they are NOT equal
-        elseif(($pidFromDoi && $pidFromScopusId) && ($pidFromDoi != $pidFromScopusId))
-        {
-            //log error
-            $this->_log->err("Multiple returned pids are unequal:".__METHOD__);
-            return false;
-        }
-        //if a pid is returned only by doi
-        elseif($pidFromDoi && is_null($pidFromScopusId))
-        {
-            $pid = $pidFromDoi;
-        }
-        //if a pid is returned only by scopus id
-        elseif($pidFromScopusId && is_null($pidFromDoi))
-        {
-            $pid = $pidFromScopusId;
-        }
-        
-        if($pid)
-        {
-            //we have a pid so lets try a fuzzy title match
-            $rec = new Record();
-            $title = $rec->getTitleFromIndex($pid);
-            
-            $percentageMatch = 0;
-            
-            $downloadedTitle = RCL::normaliseTitle($this->_title);
-            $localTitle = RCL::normaliseTitle($title);
-            similar_text($downloadedTitle, $localTitle, $percentageMatch);
-            //if the fuzzy title match is better than 80%
-            if($percentageMatch >= 80)
-            {
-                //update the record with any data we don't have
-                $this->update($pid);
-            }
-        }
-        else 
-        {
-            //the record does not exists; insert it as a new record
-            $this->save();
-        }
     }
     
     /**

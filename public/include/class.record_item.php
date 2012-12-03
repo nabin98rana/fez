@@ -59,6 +59,13 @@ abstract class RecordItem
      * @var array
      */
     protected $_namespaces = array();
+    
+    /**
+     * We will try to do a comparison on all these
+     * ids when doing de-duping if they are set
+     * @var array
+     */
+    protected $_comparisonIdTypes = array();
 
     
     public abstract function load($recordData, $nameSpaces=null);
@@ -91,9 +98,149 @@ abstract class RecordItem
     }
     
     /**
-     * Comparison of downloaded record 
+     * Comparison of and de-duping downloaded record 
      */
-    public abstract function liken();
+    public function liken() 
+    {
+        //set an idcollection array for pids returned by id type
+        $idCollection = array();
+        $mirrorMirror = new ReflectionClass($this);
+        
+        //foreach of the selected id types 
+        //(wok,pubmed,scopus,etc) that is not null
+        foreach($this->_comparisonIdTypes as $id)
+        {
+            //Check that a method exists for retrieving 
+            //a local record by that id type.
+            $retrieverName = 'getPIDsBy'.$id;
+            $retriever = $mirrorMirror->getMethod($retrieverName);
+            
+            if($retriever)
+            {
+                //Run the method and capture the pid(s)
+                $pids = $this->$retrieverName();
+                $pidCount = count($pids);
+                
+                //if there is only one pid returned
+                if($pidCount == 1)
+                {
+                    //set that as the pid returned for that id in the array
+                    $idCollection[$id] = $pids[0];
+                }
+                elseif($pidCount > 1) 
+                {
+                    //log an error if there is more than one pid (but not if there are none)
+                    $this->_log->err("Multiple matches found for $id:".__METHOD__);
+                    echo "\nMultiple matches found for $id:".__METHOD__ ."\n";
+                    return false;
+                }
+            }
+        }       
+        
+        //if all the pids in the idcollection array are the same
+        if(count(array_unique($idCollection)) == 1)
+        {
+            //that's the pid for us - set it as authorative
+            $collectionKey = array_keys($idCollection);
+            $collectionKey = $collectionKey[0];
+            $likenedPid = $idCollection[$collectionKey];
+        }
+        
+        //if we have an authoritative pid
+        if($likenedPid)
+        {
+            //do a fuzzy title match
+            $rec = new Record();
+            $title = $rec->getTitleFromIndex($likenedPid);
+            
+            $percentageMatch = 0;
+            
+            $downloadedTitle = RCL::normaliseTitle($this->_title);
+            $localTitle = RCL::normaliseTitle($title);
+            similar_text($downloadedTitle, $localTitle, $percentageMatch);
+            //if the fuzzy title match is better than 80%
+            if($percentageMatch >= 80)
+            {
+                //update the record with any data we don't have
+                echo "\nUPDATING\n";
+                $this->update($likenedPid);
+            }
+        }
+        else
+        {
+            //save a new record
+            echo  "\nSAVING\n";
+            $this->save();
+        }
+    }
+    
+    /**
+     * Fetch an array of pids by Doi
+     * @param mixed $id
+     * @return array
+     */
+    protected function getPIDsBy_doi()
+    {
+        $pids = array();
+        
+        if($this->_doi)
+        {
+            $pidSet = Record::getPIDsByDoi($this->_doi);
+        }
+        
+        for($i=0;$i<count($pidSet);$i++)
+        {
+            $pids[] = $pidSet[$i]['rek_doi_pid'];
+        }
+        
+        return $pids;
+    }
+    
+    /**
+    * Fetch an array of pids by ScopusId
+    * @param mixed $id
+    * @return array
+    */
+    protected function getPIDsBy_scopusId()
+    {
+        $pids = array();
+        
+        if($this->_scopusId)
+        {
+            $pidSet = Record::getPIDsByScopusID($this->_scopusId);
+        }
+        
+        for($i=0;$i<count($pidSet);$i++)
+        {
+            $pids[] = $pidSet[$i]['rek_scopus_id'];
+        }
+        
+        return $pids;
+    }
+    
+    /**
+    * Fetch an array of pids by PubmedId
+    * @param mixed $id
+    * @return array
+    */
+    protected function getPIDsBy_pubmedId()
+    {
+        //woteva
+        
+        //return array of pids
+    }
+    
+    /**
+    * Fetch an array of pids by WokId
+    * @param mixed $id
+    * @return array
+    */
+    protected function getPIDsBy_wokId()
+    {
+        //woteva
+        
+        //return array of pids
+    }
     
     /**
      * Saves record items to Record Search Key
@@ -203,7 +350,7 @@ abstract class RecordItem
             $mods['relatedItem']['part']['extent_page']['start'] = $this->_startPage;
             $mods['relatedItem']['part']['extent_page']['end'] = $this->_endPage;
             $mods['relatedItem']['part']['extent_page']['total'] = $this->_totalPages;
-            if (_xdisTitle == 'Conference Paper') {
+            if ($this->_xdisTitle == 'Conference Paper') {
                 $mods['originInfo']['dateIssued'] = $this->_issueDate;
                 $mods['relatedItem']['titleInfo']['title'] = $this->_title;
                 $mods['relatedItem']['name'][0]['namePart_type'] = 'conference';
@@ -212,14 +359,14 @@ abstract class RecordItem
                     $mods['relatedItem']['originInfo']['place']['placeTerm'] = $this->_confenceLocationCity . ' ' . $this->_confenceLocationState;
                 }
                 $mods['relatedItem']['originInfo']['dateOther'] = $this->_conferenceDate;
-            } else if (_xdisTitle == 'Journal Article') {
+            } else if ($this->_xdisTitle == 'Journal Article') {
                 $mods['relatedItem']['originInfo']['dateIssued'] = $this->_issueDate;
                 $mods['relatedItem']['name'][0]['namePart_type'] = 'journal';
                 $mods['relatedItem']['name'][0]['namePart'] = $this->_journalTitle;
             }
             // Links currently blank since only getting first DOI or link
             $links = array();
-            //var_dump("Doing insert from array");
+            
             $rec = new Record();
             $pid = $rec->insertFromArray($mods, $this->collections[0], "MODS 1.0", $history, 0, $links, array());
             if (is_numeric($this->_wokCitationCount)) {
@@ -229,6 +376,7 @@ abstract class RecordItem
                 Record::updateScopusCitationCount($pid, $this->_scopusCitationCount, $this->_scopusId);
             }
         }
+        var_dump($pid);
         return $pid;
     }
 
@@ -294,7 +442,6 @@ abstract class RecordItem
 
         $history = 'Filled empty metadata fields ('.implode(", ", $search_keys).') using '. $this->_importAPI;
         $record = new RecordGeneral($pid);
-        var_dump("Adding search key value list");
         $record->addSearchKeyValueList(
             $search_keys, $values, true, $history
         );
