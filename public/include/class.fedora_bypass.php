@@ -758,9 +758,10 @@ class Fedora_API {
 	 */
 	function callGetDatastreamDissemination($pid, $dsID, $asofDateTime="")
 	{
-		$log = FezLog::get();
 		// Redirect all calls to the REST Version for now - CK added 17/7/2009
-		return Fedora_API::callGetDatastreamDisseminationLite($pid, $dsID, $asofDateTime);
+    $return = array();
+    $return['stream']= Fedora_API::callGetDatastreamContents($pid, $dsID, true);
+		return $return;
 	}
 
 

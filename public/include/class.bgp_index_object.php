@@ -107,7 +107,7 @@ class BackgroundProcess_Index_Object extends BackgroundProcess
 					}
 
 				}
-				
+
 				$this->markPidAsFinished($pid);
 
 				$cnt++;
@@ -134,7 +134,7 @@ class BackgroundProcess_Index_Object extends BackgroundProcess
 				for ($ii = 0; $ii < count($parent_pids); $ii++) {
 					//        			$record = new RecordGeneral($pid);
 					$pid = $parent_pids[$ii];
-					$record = new RecordGeneral($pid);
+					$record = new RecordObject($pid);
 					if ($record->isCollection()) {
 						$this->setStatus("Getting children of collection ".$pid."");
 						$source_pids = array_unique(array_merge($source_pids, $record->getChildrenPids()));
