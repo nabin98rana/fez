@@ -54,7 +54,7 @@ class Fedora_Direct_Access {
 	 *
 	 * This method sets up the database connection.
 	 */
-	function Fedora_Direct_Access() 
+	function Fedora_Direct_Access()
 	{
 		$this->pid = "";
 		$this->xml = "";
@@ -70,11 +70,11 @@ class Fedora_Direct_Access {
 	 * This method returns a list of all PIDs in Fedora (provided they are not deleted), along
 	 * with each object's title.
 	 */
-	function fetchAllFedoraPIDs($terms = "", $object_state = 'A') 
+	function fetchAllFedoraPIDs($terms = "", $object_state = 'A', $notInCAS = false)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get('fedora_db');
-		
+
 		$terms = str_replace("*", "", $terms);  // Get the search terms ready for SQLage.
 		$state_sql = "";
 		if ($object_state != "") {
@@ -86,7 +86,11 @@ class Fedora_Direct_Access {
 			}
 
 		}
-		
+
+    if ($notInCAS == true) {
+      $state_sql .= " AND pid not in (SELECT fat_pid from ".APP_TABLE_PREFIX."_file_attachment GROUP BY fat_pid) ";
+    }
+
 		$no_result = false;
 		try {
 			if (APP_FEDORA_VERSION == "3") {
@@ -94,7 +98,7 @@ class Fedora_Direct_Access {
 			} else {
 
 //20101125 bh changed from "doregistry" to "doRegister" in below line, wherever it occurred
-				$stmt = "SELECT doRegistry.dopid AS pid, label AS title, doState as dostate FROM doRegistry, dobj WHERE doRegistry.doPID = dobj.doPID AND (doRegistry.dopid LIKE ".$db->quote("%" . $terms . "%")." OR label LIKE ".$db->quote("%" . $terms . "%").") ".$state_sql;				
+				$stmt = "SELECT doRegistry.dopid AS pid, label AS title, doState as dostate FROM doRegistry, dobj WHERE doRegistry.doPID = dobj.doPID AND (doRegistry.dopid LIKE ".$db->quote("%" . $terms . "%")." OR label LIKE ".$db->quote("%" . $terms . "%").") ".$state_sql;
 			}
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
@@ -108,12 +112,12 @@ class Fedora_Direct_Access {
 				$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 			}
 			catch(Exception $ex) {
-				
+
 				$log->err($ex);
 				return array();
 			}
 		}
-		
+
 		return $res;
 	}
 
@@ -121,11 +125,11 @@ class Fedora_Direct_Access {
 	 * getObjectXML
 	 *
 	 */
-	function getObjectXML($pid, $refresh = false) 
+	function getObjectXML($pid, $refresh = false)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get('fedora_db');
-		
+
 		static $returns;
 		if (!is_array($returns)) {
 			$returns = array();
@@ -137,7 +141,7 @@ class Fedora_Direct_Access {
 			$this->xml = $returns[$pid];
 			return $returns[$pid];
 		}
-		
+
 		try {
 			$stmt = "SELECT path FROM objectPaths WHERE token = ".$db->quote($pid);
 			$res = $db->fetchOne($stmt);
@@ -154,11 +158,11 @@ class Fedora_Direct_Access {
 		return $xml;
 	}
 
-	function objectExists($pid) 
+	function objectExists($pid)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get('fedora_db');
-		
+
 		try {
 			$stmt = "SELECT path FROM objectPaths WHERE token = ?";
 			$res = $db->fetchOne($stmt, $pid);
@@ -167,7 +171,7 @@ class Fedora_Direct_Access {
 			$log->err($ex);
 			return '';
 		}
-		
+
 		if ($res == "") {
 			$xml = false;
 		} else {
@@ -176,11 +180,11 @@ class Fedora_Direct_Access {
 		return $xml;
 	}
 
-	function isDeleted($pid) 
+	function isDeleted($pid)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get('fedora_db');
-		
+
 		try {
 			if (APP_FEDORA_VERSION == "3") {
 				$stmt = "SELECT state FROM doFields WHERE pid = ?";
@@ -194,9 +198,9 @@ class Fedora_Direct_Access {
 			$log->err($ex);
 			return '';
 		}
-		
+
 		$delFlag = (APP_FEDORA_VERSION == "3") ? "d" : "D";
-		
+
 		if ($res == $delFlag) {
 			$xml = true;
 		} else {
@@ -206,11 +210,11 @@ class Fedora_Direct_Access {
 	}
 
 
-	function getDatastreamManagedContent($pid, $dsID, $dsVersionID) 
+	function getDatastreamManagedContent($pid, $dsID, $dsVersionID)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get('fedora_db');
-		
+
 		try {
 			if (APP_FEDORA_VERSION == "3") {
 				$stmt = "SELECT path FROM datastreamPaths WHERE token = ".$db->quote($pid."+".$dsID."+".$dsID.".".$dsVersionID);
@@ -240,11 +244,11 @@ class Fedora_Direct_Access {
 	}
 
 
-	function getDatastreamManagedContentPath($pid, $dsID, $dsVersionID) 
+	function getDatastreamManagedContentPath($pid, $dsID, $dsVersionID)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get('fedora_db');
-		
+
 		try {
 			if (APP_FEDORA_VERSION == "3") {
 				$stmt = "SELECT path FROM datastreamPaths WHERE token = ".$db->quote($pid."+".$dsID."+".$dsID.".".$dsVersionID);
@@ -258,7 +262,7 @@ class Fedora_Direct_Access {
 			$log->err($ex);
 			return '';
 		}
-		
+
 		if ($res == '') {
 			return '';
 		}
@@ -266,7 +270,7 @@ class Fedora_Direct_Access {
 	}
 
 	// like many of these functions requires the fedora path to be available to the apache/php webserver
-	function getDatastreamManagedContentStream($pid, $dsID, $dsVersionID, $seekPos) 
+	function getDatastreamManagedContentStream($pid, $dsID, $dsVersionID, $seekPos)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get('fedora_db');
@@ -284,7 +288,7 @@ class Fedora_Direct_Access {
 			$log->err($ex);
 			return '';
 		}
-		
+
 		if ($res == '') {
 			return '';
 		}
@@ -292,11 +296,11 @@ class Fedora_Direct_Access {
 		$size = filesize($res);
 		# output file
 		echo stream_get_contents($fh, $size, $seekPos);
-			
+
 	}
 
 
-	function getMaxDatastreamVersion($pid, $dsID) 
+	function getMaxDatastreamVersion($pid, $dsID)
 	{
 		if ($this->pid != $pid || $this->xml == "") {
 			$this->getObjectXML($pid);
@@ -325,7 +329,7 @@ class Fedora_Direct_Access {
 		return $maxVersion;
 	}
 
-	function getDatastreamDissemination($pid, $dsID, $pmaxDV="") 
+	function getDatastreamDissemination($pid, $dsID, $pmaxDV="")
 	{
 
 		if ($this->pid != $pid || $this->xml == "") {
@@ -387,7 +391,7 @@ class Fedora_Direct_Access {
 		}
 	}
 
-	function listDatastreams($pid) 
+	function listDatastreams($pid)
 	{
 		$dsList = array();
 		$datastreams = $this->getDatastreams($pid);
@@ -398,7 +402,7 @@ class Fedora_Direct_Access {
 	}
 
 
-	function getDatastreams($pid, $maxDV="") 
+	function getDatastreams($pid, $maxDV="")
 	{
 		if ($this->pid != $pid || $this->xml == "") {
 			$this->getObjectXML($pid);

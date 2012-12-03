@@ -31,6 +31,10 @@ class RecordGeneral
   protected $_bgp;
   protected $_log = null;
 
+  function __construct()
+  {
+  }
+
 
   /**
    * Links this instance to a corresponding background process
@@ -383,19 +387,23 @@ class RecordGeneral
 
   function getRecordType()
   {
-    $this->getDisplay();
-    $this->getDetails();
-    $this->display->getXSD_HTML_Match();
-
-    //$this->getXmlDisplayId();
-    if (!empty($this->xdis_id)) {
-      //$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElement("!ret_id", $this->xdis_id);
-      //echo $xsdmf_id;
-      $xsdmf_id = $this->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!ret_id');
-      $ret_id = $this->details[$xsdmf_id];
-      return $ret_id;
+    if (APP_FEDORA_BYPASS == "ON") {
+      return Record::getSearchKeyIndexValue($this->pid,'Object Type');
     } else {
-      return null;
+      $this->getDisplay();
+      $this->getDetails();
+      $this->display->getXSD_HTML_Match();
+
+      //$this->getXmlDisplayId();
+      if (!empty($this->xdis_id)) {
+        //$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElement("!ret_id", $this->xdis_id);
+        //echo $xsdmf_id;
+        $xsdmf_id = $this->display->xsd_html_match->getXSDMF_IDByXDIS_ID('!ret_id');
+        $ret_id = $this->details[$xsdmf_id];
+        return $ret_id;
+      } else {
+        return null;
+      }
     }
   }
 
@@ -1909,7 +1917,8 @@ class RecordGeneral
         $this->getXmlDisplayIdUseIndex();
     }*/
     $this->getDisplay();
-    return $this->display->getTitle();
+    return XSD_Display::getTitle($this->xdis_id);
+//    return $this->display->getTitle();
   }
 
   /**
@@ -2732,6 +2741,9 @@ class RecordGeneral
     return RecordLock::getOwner($this->pid);
   }
 
+  /**
+   * @return bool
+   */
   function isLocked()
   {
     return RecordLock::getOwner($this->pid) > 0 ? true : false;

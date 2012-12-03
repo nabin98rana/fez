@@ -124,7 +124,7 @@ class MigrateFromFedoraToDatabase
      */
     public function preMigration()
     {
-        echo chr(10) . "<br /> Before running this migration script,
+        echo chr(10) . "\n<br /> Before running this migration script,
             please make sure you have gone through the following checklist.
             There is no way to revert the system once this script executed,
             so make sure you have backup system to rollback to in the case of migration failure.
@@ -156,7 +156,7 @@ class MigrateFromFedoraToDatabase
     public function postMigration()
     {
         echo chr(10) .
-           "<br /> Congratulations! You have completed all the migration steps.
+           "\n<br /> Congratulations! You have completed all the migration steps.
             <br /> Your Fez system is now ready to function without Fedora.
             <br /> Below are the configurations required to turn off Fedora:
             <ul>
@@ -277,7 +277,7 @@ class MigrateFromFedoraToDatabase
         try {
             $this->_db->exec($stmt);
         } catch (Exception $ex) {
-            echo "<br />Failed to map XSD field. Here is why: ". $stmt . " <br />" . $ex .".\n";
+            echo "\n<br />Failed to map XSD field. Here is why: ". $stmt . " \n<br />" . $ex .".\n";
             return false;
         }
         return true;
@@ -308,9 +308,9 @@ class MigrateFromFedoraToDatabase
 
             try {
                 $this->_db->exec($stmt);
-                echo chr(10) . "<br /> Successfully mapped subject " . print_r($unmappedFields, 1);
+                echo chr(10) . "\n<br /> Successfully mapped subject " . print_r($unmappedFields, 1);
             } catch (Exception $ex) {
-                echo "<br />Failed to map XSD field. Here is why: ". $stmt . " <br />" . $ex .".\n";
+                echo "\n<br />Failed to map XSD field. Here is why: ". $stmt . " <br />" . $ex .".\n";
                 return false;
             }
         }
@@ -363,7 +363,7 @@ class MigrateFromFedoraToDatabase
         }
         catch (Exception $ex) {
             $this->_db->rollBack();
-            echo "<br /> Failed to add search key 'copyright'. Error: ". $ex;
+            echo "\n<br /> Failed to add search key 'copyright'. Error: ". $ex;
         }
         return false;
     }
@@ -393,7 +393,7 @@ class MigrateFromFedoraToDatabase
             $unmappedFields = $this->_db->fetchAll($stmt);
             return $unmappedFields;
         } catch (Exception $ex) {
-            echo "<br />Failed to grab unmapped fields because of: ". $stmt . " <br />" . $ex .".\n";
+            echo "\n<br />Failed to grab unmapped fields because of: ". $stmt . " <br />" . $ex .".\n";
         }
         return false;
     }
@@ -410,8 +410,9 @@ class MigrateFromFedoraToDatabase
      */
     public function migrateManagedContent()
     {
-        echo chr(10) . "<br /> Start migrating Fedora ManagedContent to Fez CAS system....";
-        echo chr(10) . "<br /> This may take a while depending on the size of datastreams on dir /opt/fedora/fedora_3_5/data/datastreams";
+        echo chr(10) . "\n<br /> Start migrating Fedora ManagedContent to Fez CAS system....";
+        echo chr(10) . "\n<br /> This may take a while depending on the size of datastreams on dir /opt/fedora/fedora_3_5/data/datastreams";
+        ob_flush();
         include ("./migrate_fedora_managedcontent_to_fezCAS.php");
     }
 
@@ -429,7 +430,7 @@ class MigrateFromFedoraToDatabase
         try{
             $totalPids = $this->_db->fetchCol($stmt);
         }catch (Exception $e){
-            echo chr(10) . "<br /> Failed to retrieve total pids. Query: " . $stmt;
+            echo chr(10) . "\n<br /> Failed to retrieve total pids. Query: " . $stmt;
             return false;
         }
 
@@ -443,8 +444,8 @@ class MigrateFromFedoraToDatabase
             $start += $limit;
         }
 
-        echo chr(10) . "<br /> Ok, we have done the reindex for ". ($loop * $limit) . "PIDs";
-
+        echo chr(10) . "\n<br /> Ok, we have done the reindex for ". ($loop * $limit) . "PIDs";
+        ob_flush();
         return true;
     }
 
@@ -482,9 +483,10 @@ class MigrateFromFedoraToDatabase
         if ( sizeof($pids) > 0 ){
             Workflow::start($wft_id, $pid, $xdis_id, $href, $dsID, $pids);
 
-            echo chr(10) . "<br /> BGP of Reindexing the PIDS has been triggered.
+            echo chr(10) . "\n<br /> BGP of Reindexing the PIDS has been triggered.
                  See the progress at http://" . APP_HOSTNAME . "/my_processes.php";
         }
+        ob_flush();
         return true;
     }
 
@@ -524,16 +526,24 @@ class MigrateFromFedoraToDatabase
             try {
                 $this->_db->exec($stmt);
             } catch (Exception $ex) {
-                echo "<br />Table ". $tableName ." creation failed. Here is why: ". $stmt . " <br />" . $ex .".\n";
+                echo "\n<br />Table ". $tableName ." creation failed. Here is why: ". $stmt . " <br />" . $ex .".\n";
                 return false;
             }
         }
 
-        // Insert the maximum PID
+        // truncating table
+        echo "truncating to pid_index table ... ";
+        $stmt = "TRUNCATE ". $tableName ." ";
+        $this->_db->exec($stmt);
+        echo "ok!\n";
+
+
+      // Insert the maximum PID
         echo "Fetching next PID from Fedora, and writing to pid_index table ... ";
         $stmt = "INSERT INTO ". $tableName ." (pid_number) VALUES ('" . $nextPIDNumber . "');";
         $this->_db->exec($stmt);
         echo "ok!\n";
+        ob_flush();
     }
 
 
@@ -545,9 +555,9 @@ class MigrateFromFedoraToDatabase
         $file = APP_PATH . "/upgrade/sql_scripts/upgrade2012021700.sql";
         try{
             $this->_upgradeHelper->parse_mysql_dump($file);
-            echo chr(10) . "<br />Successfuly created permissions table";
+            echo chr(10) . "<br />Successfully created permissions table";
         } catch(Exception $e) {
-            echo "<br> Failed updating datastream tables. file = ". $file . " Ex: " . $ex;
+            echo "\n<br> Failed updating datastream tables. file = ". $file . " Ex: " . $ex;
             return false;
         }
         return true;
@@ -565,9 +575,9 @@ class MigrateFromFedoraToDatabase
         $file = APP_PATH . "/upgrade/sql_scripts/upgrade2012031200.sql";
         try{
             $this->_upgradeHelper->parse_mysql_dump($file);
-            echo chr(10) . "<br />Successfuly created Digital Object table";
+            echo chr(10) . "\n<br />Successfully created Digital Object table";
         } catch(Exception $e) {
-            echo "<br> Failed creating Digital Object tables. file = ". $file . " Ex: " . $ex;
+            echo "\n<br> Failed creating Digital Object tables. file = ". $file . " Ex: " . $ex;
             return false;
         }
 
@@ -577,9 +587,9 @@ class MigrateFromFedoraToDatabase
         $file = APP_PATH . "/upgrade/sql_scripts/upgrade2012022100.sql";
         try{
             $this->_upgradeHelper->parse_mysql_dump($file);
-            echo chr(10) . "<br />Successfuly created File attachment  table";
+            echo chr(10) . "\n<br />Successfully created File attachment  table";
         } catch(Exception $e) {
-            echo "<br> Failed creating File attachment tables. file = ". $file . " Ex: " . $ex;
+            echo "\n<br> Failed creating File attachment tables. file = ". $file . " Ex: " . $ex;
             return false;
         }
 
@@ -589,23 +599,23 @@ class MigrateFromFedoraToDatabase
         $file = APP_PATH . "/upgrade/sql_scripts/upgrade2012022101.sql";
         try{
             $this->_upgradeHelper->parse_mysql_dump($file);
-            echo chr(10) . "<br />Successfuly updating File attachment table";
+            echo chr(10) . "<br />Successfully updating rek_inherited_security";
         } catch(Exception $e) {
-            echo "<br> Failed updating file attachment tables. file = ". $file . " Ex: " . $ex;
+            echo "\n<br> Failed updating rek_inherited_security. file = ". $file . " Ex: " . $ex;
             return false;
         }
 
         // Run this script: upgrade2012081000.sql
-        // Alter file_attachments table, add a file to indicate whether security is inherited column for the datastreams.
+        // Add auth quick rules table.
         $file = APP_PATH . "/upgrade/sql_scripts/upgrade2012081000.sql";
         try{
             $this->_upgradeHelper->parse_mysql_dump($file);
-            echo chr(10) . "<br />Successfuly updating File attachment table";
+            echo chr(10) . "\n<br />Successfully added auth quick rules table";
         } catch(Exception $e) {
-            echo "<br> Failed updating file attachment tables. file = ". $file . " Ex: " . $ex;
+            echo "\n<br /> Failed updating auth quick rules tables. file = ". $file . " Ex: " . $ex;
             return false;
         }
-
+        ob_flush();
         return true;
     }
 
@@ -620,7 +630,7 @@ class MigrateFromFedoraToDatabase
     public function createSearchKeyShadowTables()
     {
         // 1.1 Create core search key shadow table
-        echo "<br />1.1 Creating core search key shadow table ... ";
+        echo "\n<br />1.1 Creating core search key shadow table ... ";
 
         $originalTable = APP_TABLE_PREFIX . "record_search_key";
 
@@ -641,7 +651,7 @@ class MigrateFromFedoraToDatabase
 
         // 1.2 Create non-core search key shadow tables
         echo "<br />1.2 Creating non-core search key shadow tables ... \n";
-
+        ob_flush();
         $searchKeys = Search_Key::getList();
         foreach ($searchKeys as $sk) {
 
@@ -650,8 +660,8 @@ class MigrateFromFedoraToDatabase
                 continue;
             }
 
-            echo "<br /> Shadowing " . $sk['sek_title_db'] . " table ... ";
-
+            echo "\n<br /> Shadowing " . $sk['sek_title_db'] . " table ... ";
+            ob_flush();
             $originalTable = APP_TABLE_PREFIX . "record_search_key_" . $sk['sek_title_db'];
             $shadowTable = APP_TABLE_PREFIX . "record_search_key_" . $sk['sek_title_db'] . $this->_shadowTableSuffix;
 
@@ -670,10 +680,11 @@ class MigrateFromFedoraToDatabase
               $this->_addJointPrimaryKeyNonCore($shadowTable, $sk['sek_title_db']);
             }
 
-            echo "<br /> End of Shadowing " . $sk['sek_title_db'] . " table.. with a SuCCeSS!";
+            echo "\n<br /> End of Shadowing " . $sk['sek_title_db'] . " table.. with a SuCCeSS!";
         }
 
-        echo "<br /> End of 1.2. Now we have shadow tables for non-core search keys.";
+        echo "\n<br /> End of 1.2. Now we have shadow tables for non-core search keys.";
+        ob_flush();
     }
 
 
@@ -747,7 +758,7 @@ class MigrateFromFedoraToDatabase
 //        }else {
 //            echo "<br />Table ". $shadowTable ." already exists somewhere in the universe, let's move on...\n";
 //        }
-
+        ob_flush();
         return true;
     }
 

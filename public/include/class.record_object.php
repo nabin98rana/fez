@@ -24,9 +24,9 @@ class RecordObject extends RecordGeneral
 	{
 		RecordGeneral::RecordGeneral($pid, $createdDT);
 	}
-	
+
 	/**
-	 * Enter deleted pids and their children into 
+	 * Enter deleted pids and their children into
 	 * the tombstone table.
 	 * @param <string> $pid
 	 */
@@ -35,14 +35,14 @@ class RecordObject extends RecordGeneral
 	    $db = DB_API::get();
 	    //$relatives = $this->getParents();
 	    $dte = gmdate('Y-m-d H:i:s');
-	    
-	    $sql = "INSERT INTO " . APP_TABLE_PREFIX . "tombstone " 
+
+	    $sql = "INSERT INTO " . APP_TABLE_PREFIX . "tombstone "
 	        . "(tom_pid_main, tom_pid_rel, tom_delete_ts) VALUES "
 	        . "(:mainpid, :relpid, '$dte')";
-	        
+
 	    $bindings = array(':mainpid' => $pid,
 	                        ':relpid' => $rel_pid);
-	    
+
 	    /*if(count($relatives) > 0)
 	    {
     	    for($i=0;$i<count($relatives);$i++)
@@ -51,15 +51,15 @@ class RecordObject extends RecordGeneral
     	        $bindings[":childpid$i"] = $relatives[$i];
     	        $bindings[":mainpid$i"] = $pid;
     	    }
-    	    
+
     	    $sql = substr_replace($sql, '', strlen($sbj)-1);
 	    }
-	    else 
+	    else
 	    {
 	        $sql .= "(:mainpid, null, '$dte')";
 	        $bindings[':mainpid'] = $pid;
 	    }*/
-	    
+
 	    $db->query($sql, $bindings);
 	}
 
@@ -67,7 +67,7 @@ class RecordObject extends RecordGeneral
 	 * getXmlDisplayId
 	 * Retrieve the display id for this record
 	 */
-	function getObjectAdminMD() 
+	function getObjectAdminMD()
 	{
 		$xdis_array = Fedora_API::callGetDatastreamContents($this->pid, 'FezMD');
 		if (isset($xdis_array['created_date'][0])) {
@@ -115,7 +115,7 @@ class RecordObject extends RecordGeneral
 	 * @param  integer $xdis_id The XSD Display ID of the object
 	 * @return  void
 	 */
-	function updateAdminDatastream($xdis_id) 
+	function updateAdminDatastream($xdis_id)
 	{
 		$xdis_array = Fedora_API::callGetDatastreamContents($this->pid, 'FezMD');
 		$this->xdis_id = $xdis_id;
@@ -140,20 +140,20 @@ class RecordObject extends RecordGeneral
 			$this->setIndexMatchingFields();
 		}
 	}
-    
+
 	function prepareSearchKeyData($params)
 	{
 	    $alphaParams = array();
-	    
+
 	    foreach($params['xsd_display_fields'] as $dfk => $dfv)
 	    {
 	        $alphaKey = Search_Key::getDetailsByXSDMF_ID($dfk);
 	        $alphaParams[$alphaKey['sek_title']] = $dfv;
 	    }
-	    
+
 	    return $alphaParams;
 	}
-	
+
 	/**
 	 * fedoraInsertUpdate
 	 * Process a submitted record insert or update form
@@ -161,28 +161,25 @@ class RecordObject extends RecordGeneral
 	 * @access  public
 	 * @return  void
 	 */
-	function fedoraInsertUpdate($exclude_list=array(), $specify_list=array(), $params = array())
-	{
-		
-    
+	function fedoraInsertUpdate($exclude_list=array(), $specify_list=array(), $params = array()) {
+
+
 	    $log = FezLog::get();
-		
+
 		if (!empty($params)) {
 			// dirty double hack as this function and all the ones it calls assumes this is
 			// to do with a form submission
 			$_POST = $params;
 		}
-		
-		if(APP_FEDORA_BYPASS == 'ON')
-		{
+
+		if(APP_FEDORA_BYPASS == 'ON') {
 		    $digObj = new DigitalObject();
 		    //$now = date('Y-m-d H:i:s');
-		    
-		    if(!Zend_Registry::isRegistered('version'))
-		    {
+
+		    if(!Zend_Registry::isRegistered('version')) {
 		        Zend_Registry::set('version', date('Y-m-d H:i:s'));
 		    }
-		    
+
 		    $now = Zend_Registry::get('version');
 
             $xdisDisplayFields = $_POST['xsd_display_fields'];
@@ -215,32 +212,32 @@ class RecordObject extends RecordGeneral
             $xdis_list = XSD_Relationship::getListByXDIS($_POST['xdis_id']);
             array_push($xdis_list, array("0" => $_POST['xdis_id']));
             $xdis_str = Misc::sql_array_to_string($xdis_list);
-            
+
             $xdis_details = XSD_Display::getDetails($_POST['xdis_id']);
-    		
+
     		$xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Display Type'), $xdis_str);
     		$xsd_display_fields[0]['display_type'] = array('xsdmf_id' => $xsdmf_id[0],'xsdmf_value' => $_POST['xdis_id']);
-    		
+
     		$xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Depositor'), $xdis_str);
     		$xsd_display_fields[0]['depositor'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $_POST['user_id']);
-    		
+
     		$createUpdateDate = Date_API::getFedoraFormattedDateUTC();
     		$xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Created Date'), $xdis_str);
     		$xsd_display_fields[0]['created_date'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $createUpdateDate);
-    		
+
     		$xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Updated Date'), $xdis_str);
     		$xsd_display_fields[0]['updated_date'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $createUpdateDate);
-    		
+
     		$xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Status'), $xdis_str);
     		$xsd_display_fields[0]['status'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $_POST['sta_id']);
-    		
+
     		$xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Object Type'), $xdis_str);
     		$xsd_display_fields[0]['object_type'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $xdis_details['xdis_object_type']);
-    		
+
     		$digObjData = array(
     		    /*'xdis_id' => $_POST['xdis_id']*/
     		);
-    		
+
     		$this->xdis_id = $_POST['xdis_id'];
 
             if (empty($this->pid)) {
@@ -249,76 +246,77 @@ class RecordObject extends RecordGeneral
             }
 
     		$this->created_date = $createUpdateDate;
-    	    $this->updated_date = $createUpdateDate;
+    	  $this->updated_date = $createUpdateDate;
     		$this->depositor = Auth::getUserID();
     		$this->assign_usr_id = array(Auth::getUserID());
-    		        
+
     		$this->getXmlDisplayId();
-    		
+
     		if (isset($_POST['uploader_files_uploaded']))
             {
             	$wfstatus = &WorkflowStatusStatic::getSession();
-            	
-            	/*This condition required to stop additional ephemera 
+
+            	/*This condition required to stop additional ephemera
             	 in the tmp upload dir being attached to the pid*/
             	if(!isset($tmpFilesArray))
             	{
-                    $tmpFilesArray = Uploader::generateFilesArray($wfstatus->id, 
+                    $tmpFilesArray = Uploader::generateFilesArray($wfstatus->id,
                                                 $_POST['uploader_files_uploaded']);
             	}
-                
+
             	if (count($tmpFilesArray)) {
-            	    
+
             		$_FILES = $tmpFilesArray;
-            		
+
                 	$resourceData = $_FILES['xsd_display_fields']['new_file_location'];
                     $resourceDataKeys = array_keys($resourceData);
-                    
+
                     $numFiles = count($resourceData[$resourceDataKeys[0]]);
-                    
+
                     $filesData = $_FILES['xsd_display_fields']['size'];
                     $filesDataKeys = array_keys($filesData);
-                    
+
                     $mimeData = $_FILES['xsd_display_fields']['type'];
                     $mimeDataKeys = array_keys($mimeData);
-                    
+
                     for($i=0;$i<$numFiles;$i++)
                     {
                     	$resourceDataLocation = $resourceData[$resourceDataKeys[0]][$i];
                     	$filesDataSize = $filesData[$filesDataKeys[0]][$i];
                     	$mimeDataType = $mimeData[$mimeDataKeys[0]][$i];
-                    	
-                    	$meta = array('mimetype' => $mimeDataType, 
-                    		'controlgroup' => 'M', 
-                    		'state' => 'A', 
+
+                    	$meta = array('mimetype' => $mimeDataType,
+                    		'controlgroup' => 'M',
+                    		'state' => 'A',
                     	    'size' => $filesDataSize,
                     		'updateTS' => $now,
                     		'pid' => $this->pid);
                     	$dsr = new DSResource(APP_DSTREE_PATH, $resourceDataLocation, $meta);
                     	$dsr->save();
-                        Workflow::processIngestTrigger($this->pid, Foxml::makeNCName($dsr->returnFilename()), $mimeDataType);
+                      Record::generatePresmd($this->pid, $dsr->returnFilename());
+                      Workflow::processIngestTrigger($this->pid, Foxml::makeNCName($dsr->returnFilename()), $mimeDataType);
             		}
             	}
             }
-            
+
             Record::removeIndexRecord($this->pid, false);
     		Record::updateSearchKeys($this->pid, $xsd_display_fields, false, $now); //into the non-shadow tables
     		Record::updateSearchKeys($this->pid, $xsd_display_fields, true, $now); //into the shadow tables
-    		
+
     		//Mark any files required for deletion.
     		if(isset($_POST['removeFiles']))
     		{
     		    $dresource = new DSResource();
-    		    
+
     		    foreach($_POST['removeFiles'] as $removeFile)
     		    {
     		        $dresource->load($removeFile, $this->pid);
     		        $dresource->dereference();
     		    }
     		}
-    		
+
 		    //If any files are being uploaded or changed, take a snapshot.
-    		if (isset($_POST['removeFiles']) || isset($_POST['editedFilenames']) 
+    		if (isset($_POST['removeFiles']) || isset($_POST['editedFilenames'])
     		    || isset($_POST['uploader_files_uploaded']))
             {
                 $digObj->load($this->pid);
@@ -328,9 +326,7 @@ class RecordObject extends RecordGeneral
             if ($newPid || isset($_POST['removeFiles']) || isset($_POST['uploader_files_uploaded'])) {
                 AuthNoFedora::recalculatePermissions($this->pid);
             }
-		}
-		else 
-		{
+		}	else {
     		// If pid is null then we need to ingest the object as well
     		// otherwise we are updating an existing object
     		$ingestObject = false;
@@ -342,7 +338,6 @@ class RecordObject extends RecordGeneral
     			$this->updated_date = $this->created_date;
     			$this->depositor = Auth::getUserID();
     			$this->assign_usr_id = array(Auth::getUserID());
-    			$existingDatastreams = array();
     		} else {
     			$existingDatastreams = Fedora_API::callGetDatastreams($this->pid);
     			if (APP_VERSION_UPLOADS_AND_LINKS != "ON" && !in_array("FezACML", $specify_list)) {
@@ -356,7 +351,7 @@ class RecordObject extends RecordGeneral
     			$this->getXmlDisplayId();
     		}
     		$pid = $this->pid;
-    
+
     		if (empty($this->xdis_id)) {
     			$this->xdis_id = $_POST["xdis_id"];
     		}
@@ -372,9 +367,9 @@ class RecordObject extends RecordGeneral
     		$xmlObj .= ">\n";
     		// @@@ CK - 6/5/2005 - Added xdis so xml building could search using the xml display ids
     		$indexArray = array();
-    
+
     		$xmlObj = Foxml::array_to_xml_instance($array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "", $indexArray, 0, $this->created_date, $this->updated_date, $this->depositor, $this->assign_usr_id, $this->assign_grp_id);
-    
+
     		$xmlObj .= "</".$xsd_element_prefix.$xsd_top_element_name.">";
     		$datastreamTitles = $display->getDatastreamTitles($exclude_list, $specify_list);
     		Record::insertXML($pid, compact('datastreamTitles', 'exclude_list', 'specify_list', 'xmlObj', 'indexArray', 'existingDatastreams', 'xdis_id'), $ingestObject);
@@ -382,43 +377,43 @@ class RecordObject extends RecordGeneral
 		}
 		return $this->pid;
 	}
-	
+
 	function forceInsertUpdate($edits)
 	{
 	    $wfstatus = &WorkflowStatusStatic::getSession();
         $this->getDisplay();
-        
+
         $matchFieldsList = $this->display->getMatchFieldsList(array("FezACML"), array());
-        
+
         $xsdmf_to_use = array();
         $xsdmf_state = array();
-        
+
         foreach ($matchFieldsList as $xsdmf) {
-            
+
         	if(($xsdmf['xsdmf_html_input'] != '' && $xsdmf['xsdmf_enabled'] == 1)) {
-            	
+
             	if($xsdmf['xsdmf_html_input'] != 'static' ) {
                     $xsdmf_to_use[] = $xsdmf;
-            		
-            	} elseif($xsdmf['xsdmf_html_input'] == 'static' 
+
+            	} elseif($xsdmf['xsdmf_html_input'] == 'static'
                     	   && $xsdmf['xsdmf_show_in_view'] == 1
                     	   && $xsdmf['xsdmf_static_text'] != '') {
-                    	   	
+
                     $xsdmf_to_use[] = $xsdmf;
             	}
-            	
+
             } elseif($xsdmf['xsdmf_title'] == 'state') {
                 $xsdmf_state[] = $xsdmf;
             }
-            
+
         }
-        
+
         $sta_id = $this->getPublishedStatus();
         $details = $this->getDetails();
         $xdis_id = $this->getXmlDisplayId();
         $current_user_id = Auth::getUserID();
         $internal_notes = InternalNotes::readNote($this->pid);
-        
+
         $fauxPost = array(
             'id' => $wfstatus->id,
             'workflow_button_1136' => 'Save Changes',
@@ -431,9 +426,9 @@ class RecordObject extends RecordGeneral
             'xsd_display_fields' => $details,
             'internal_notes' => $internal_notes
         );
-        
+
         $fauxPost = array_replace_recursive($fauxPost, $edits);
-        
+
         $this->fedoraInsertUpdate(array(), array(), $fauxPost);
         InternalNotes::recordNote($this->pid, $fauxPost['internal_notes']);
 	}
@@ -479,19 +474,29 @@ class RecordObject extends RecordGeneral
 			)
 			{
 				// first extract the image and save temporary copy
-				$urldata = APP_FEDORA_GET_URL."/".$pid."/".$dsIDName;
-				$handle = fopen(APP_TEMP_DIR.$dsIDName, "w");
-				Misc::processURL($urldata, false, $handle);
-				fclose($handle);
-				$new_dsID = Foxml::makeNCName($dsIDName);
-				if( $new_dsID != $dsIDName ){
-					// delete and re-ingest - need to do this because sometimes the object made it
-					// into the repository even though it's dsID is illegal.
-					Fedora_API::callPurgeDatastream($pid, $dsIDName);
-				}
-				$versionable = APP_VERSION_UPLOADS_AND_LINKS == "ON" ? 'true' : 'false';
-				Fedora_API::getUploadLocationByLocalRef($pid, $new_dsID, APP_TEMP_DIR.$dsIDName, $dsIDName,
-				$dsTitle['MIMEType'], "M", null, $versionable);
+        if (APP_FEDORA_BYPASS == 'ON') {
+          $dsr = new DSResource();
+          $dsr->load($dsTitle['filename'], $pid);
+//          $path = $dsr->getMeta();
+          $path = $dsr->returnPath();
+          $tmpFile = APP_TEMP_DIR.$dsIDName;
+          copy($path."/".$dsTitle['hash'], $tmpFile);
+        } else {
+          $urldata = APP_FEDORA_GET_URL."/".$pid."/".$dsIDName;
+          $handle = fopen(APP_TEMP_DIR.$dsIDName, "w");
+          Misc::processURL($urldata, false, $handle);
+          fclose($handle);
+          $new_dsID = Foxml::makeNCName($dsIDName);
+          if( $new_dsID != $dsIDName ){
+            // delete and re-ingest - need to do this because sometimes the object made it
+            // into the repository even though it's dsID is illegal.
+            Fedora_API::callPurgeDatastream($pid, $dsIDName);
+          }
+          $versionable = APP_VERSION_UPLOADS_AND_LINKS == "ON" ? 'true' : 'false';
+          Fedora_API::getUploadLocationByLocalRef($pid, $new_dsID, APP_TEMP_DIR.$dsIDName, $dsIDName,
+            $dsTitle['MIMEType'], "M", null, $versionable);
+
+        }
 				// preservation metadata
 				$presmd_check = Workflow::checkForPresMD($new_dsID);
 
@@ -522,6 +527,8 @@ class RecordObject extends RecordGeneral
 				}
 			}
 		}
-		Record::setIndexMatchingFields($pid);
+    if (APP_FEDORA_BYPASS != 'ON') {
+		  Record::setIndexMatchingFields($pid);
+    }
 	} // end of function
 } // end of class

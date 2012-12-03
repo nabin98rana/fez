@@ -574,7 +574,7 @@ class AuthNoFedoraDatastreams {
         $arg_id = AuthRules::getOrCreateRuleGroupArIds($newGroup);
         AuthNoFedoraDatastreams::addRoleSecurityPermissions($did, $role, $arg_id, '0');
 
-        //Added non inherited permissions now need to recalculate global permisisons
+        //Added non inherited permissions now need to recalculate global permissions
         AuthNoFedoraDatastreams::recalculatePermissions($did);
     }
 
@@ -596,7 +596,7 @@ class AuthNoFedoraDatastreams {
         if ($arg_id) {
             AuthNoFedoraDatastreams::addRoleSecurityPermissions($did, $role, $arg_id, '0');
         }
-        //Added non inherited permissions now need to recalculate global permisisons
+        //Added non inherited permissions now need to recalculate global permissions
         AuthNoFedoraDatastreams::recalculatePermissions($did);
     }
 

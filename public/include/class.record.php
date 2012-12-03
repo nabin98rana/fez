@@ -5275,7 +5275,7 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
    */
   function generatePresmd($pid, $dsIDName)
   {
-    if ( APP_FEDORA_BYPASS != "ON"){
+//    if ( APP_FEDORA_BYPASS != "ON"){
     //Jhove
     $ncName = Foxml::makeNCName($dsIDName);
     $presmd_check = Workflow::checkForPresMD($ncName);
@@ -5294,7 +5294,7 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
         unlink(APP_TEMP_DIR.basename($presmd_check));
       }
     }
-    }
+//    }
 
     //ExifTool
     Exiftool::saveExif($pid, $dsIDName);

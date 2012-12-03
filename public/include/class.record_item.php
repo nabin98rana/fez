@@ -520,4 +520,107 @@ abstract class RecordItem
 
         return $sekData;
     }
+
+    public function returnPidWithSameDoi()
+    {
+        if (empty($this->_doi)) {
+            return '';
+        }
+        $log = FezLog::get();
+        $db = DB_API::get();
+        $stmt = "SELECT rek_pid FROM " . APP_TABLE_PREFIX . "record_search_key_doi
+                WHERE rek_doi = ".$db->quote($this->_doi);
+        try {
+            $res = $db->fetchOne($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return '';
+        }
+        return $res;
+    }
+
+    public function findPidWithBestTitleMatch()
+    {
+        if (empty($this->_title)) {
+            return '';
+        }
+
+        $dupes = DuplicatesReport::similarTitlesQuery('dummy', trim($this->_title));
+        return $dupes[0]['pid'];
+
+        /*
+        $log = FezLog::get();
+        $db = DB_API::get();
+        $stmt = "SELECT rek_pid, rek_title FROM " . APP_TABLE_PREFIX . "record_search_key";
+        try {
+            $res = $db->fetchAll($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return '';
+        }
+        $bestPid = '';
+        $bestPidMatchPercent=$minPercent;
+        foreach ($res as $titles) {
+            similar_text($titles['rek_title'], $this->_title, $percent);
+            if ($percent >= $bestPidMatchPercent) {
+                $bestPid = $titles['rek_pid'];
+                $bestPidMatchPercent = $percent;
+            }
+        }
+        return $bestPid;
+        */
+    }
+
+    public function matchOnPageInfo($pid)
+    {
+        $matches = 0;
+
+        $startPage = Record::getSearchKeyIndexValue($pid, "Start Page", false);
+        $endPage = Record::getSearchKeyIndexValue($pid, "End Page", false);
+        $totalPages = Record::getSearchKeyIndexValue($pid, "Total Pages", false);
+        $issueVolume = Record::getSearchKeyIndexValue($pid, "Volume Number", false);
+        $issueNumber = Record::getSearchKeyIndexValue($pid, "Issue Number", false);
+
+        //We'll go through each variable and if both populated check if they match, if any fail we consider the match failed
+
+        if (!empty($this->_startPage)) {
+            if ($this->_startPage == $startPage) {
+                $matches++;
+            } else if (!empty($startPage)) {
+                return false;
+            }
+        }
+        if (!empty($this->_endPage)) {
+            if ($this->_endPage == $endPage) {
+                $matches++;
+            } else if (!empty($endPage)) {
+                return false;
+            }
+        }
+        if (!empty($this->_endPage)) {
+            if ($this->_endPage == $totalPages) {
+                $matches++;
+            } else if (!empty($totalPages)) {
+                return false;
+            }
+        }
+        if (!empty($this->_issueNumber)) {
+            if ($this->_issueNumber == $issueNumber) {
+                $matches++;
+            } else if (!empty($issueNumber)) {
+                return false;
+            }
+        }
+        if (!empty($this->_issueVolume)) {
+            if ($this->_issueVolume == $issueVolume) {
+                $matches++;
+            } else if (!empty($issueVolume)) {
+                return false;
+            }
+        }
+
+        return $matches;
+    }
 }

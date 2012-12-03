@@ -1494,8 +1494,7 @@ class Auth
 			echo $html;
 			exit;
 		} else {
-			header("Refresh: 0; URL=".$new_url);
-			exit;
+      exit('<meta http-equiv="refresh" content="0; url=' . urldecode($new_url) . '"/>');
 		}
 	}
 

@@ -163,7 +163,6 @@ function loadPreview(pid,datastreamID, alt, origami)
 {* These two section headers are used by the filecache class to replace navigation bars *}
 <!--sectionnextprevstart-->
 {if $prev || $next}
-
 	<tr>
 		<th>
 			Browse Collection:
@@ -217,34 +216,7 @@ function loadPreview(pid,datastreamID, alt, origami)
 						<td>Size</td>
 						<td style="text-align: right">Downloads</td>
 					</tr>
-                {if $fedora_bypass}
-                    {section name="d" loop=$streams}
-                        {if $datastreams[d].isViewer == 1 || $isAdministrator }
 
-                        <!-- <td style="white-space: nowrap; width: 150px;">
-                            <a target="_blank" href="{$rel_url}eserv/{$pid}/{$ds_show}?bookreader=true">
-                                <img style="float:left;clear:none;" src="/images/icons/bookreader.png" alt="Read with bookreader" /></a>
-                                <a href="{$rel_url}eserv/{$pid}/{$streams[d].filename}" ><span style="display:block; margin-top: 7px;">&nbsp;{$streams[d].filename}</span></a>
-                        </td> -->
-
-                    <td colspan="3">
-                        <a href="{$rel_url}eserv/{$pid}/{$streams[d].filename}" ><span style="display:block; margin-top: 7px;">&nbsp;{$streams[d].filename}</span></a>
-                    </td>
-                        <td>
-                            {$streams[d].label}
-                        </td>
-                        <td colspan="2">
-                            {$streams[d].mimetype}
-                        </td>
-                        <td>
-                            {$streams[d].size}
-                        </td>
-                        <td style="text-align: right">
-                            <!--fez:ds_{$streams[d].base64ID}-->{$streams[d].downloads}<!--/fez:ds_{$streams[d].base64ID}-->
-                        </td>
-                    {/if}
-                    {/section}
-                {else}
                         {assign var="ds_show_onclick" value=""}
                         {assign var="show_preview_pane" value="0"}
 
@@ -380,7 +352,7 @@ function loadPreview(pid,datastreamID, alt, origami)
                             {/if}
                         {/section}
                     </table>
-                {/if}
+
             {/if}
             {if $sta_id != 2}
             <tr><td class="error" style="background: {$heading_color}; text-align: center">
@@ -585,7 +557,6 @@ function loadPreview(pid,datastreamID, alt, origami)
 		  <tr>
 			<td colspan="5">
 		      <table id="view_stats">
-{if $citationsThomson != ''  || $citationsScopus != ''  || ($isUser && $citationsGoogle != '' )}
 				<tr>
 					<th style="vertical-align:text-top;">Citation counts:</th>
 					<td>
@@ -594,21 +565,23 @@ function loadPreview(pid,datastreamID, alt, origami)
                             {if $citationsThomson != 0}
                                 | <a href="{$app_link_prefix}http://gateway.isiknowledge.com/gateway/Gateway.cgi?GWVersion=2&SrcApp=resolve1&DestLinkType=CitingArticles&DestApp=WOS_CPL&KeyUT={$ThomsonID}&SrcAuth={$WOK_USERNAME}" rel="nofollow">Citations</a>
                             {/if}
+                        <br />
                         {/if}
-					{if $citationsThomson != '' && ($citationsScopus != '' || ($isUser && $citationsGoogle != ''))}<br />{/if}
 					{if $citationsScopus != ''}<img src="{$rel_url}images/scopus_logo_small.gif" style="vertical-align: text-top;" alt="Scopus Citation Count" title="Scopus Citation Count"/> Cited <a href="{$rel_url}scopus_citation_count_history_{$pid}">{$citationsScopus}</a> times in Scopus
                         <a href="{$app_link_prefix}http://www.scopus.com/record/display.url?eid={$ScopusID}&origin=inward" rel="nofollow">Article</a>
                         {if $citationsScopus != 0}
                             | <a href="{$app_link_prefix}http://www.scopus.com/results/citedbyresults.url?sort=plf-f&cite={$ScopusID}&src=s&sot=cite&sdt=a" rel="nofollow">Citations</a>
                         {/if}
+                        <br />
                     {/if}
-					{if $isUser && ($citationsScopus != '')}<br />{/if}
 					{if $isUser && ($useGoogleCitationCounts == "ON")}
 						{if $citationsGoogle != ''}<img src="{$rel_url}images/favicon_googlescholar.png" style="vertial-align: text-top;" alt="Google Scholar Citation Count" title="Google Scholar Citation Count" /> Cited <a href="{$citationsGoogleLink}">{$citationsGoogle}</a> times in <a href="http://scholar.google.com/">Google Scholar</a>{/if}
-					{/if}
+					{else}
+                        <img src="{$rel_url}images/favicon_googlescholar.png" style="vertial-align: text-top;" alt="Google Scholar" title="Google Scholar " />
+                        <a href='http://scholar.google.com/scholar?q=intitle:"{$title}"'> Search Google Scholar</a>
+                    {/if}
 					</td>
 				</tr>
-{/if}
 {if $WEBSERVER_LOG_STATISTICS == 'ON'}
 				<tr>
 				  <th>Access Statistics:</th>
