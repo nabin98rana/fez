@@ -295,7 +295,34 @@ class Fez_Record_Searchkey
         }
         $recordSearchKey = new Fez_Record_Searchkey();
         $result = $recordSearchKey->insertRecord($sekData);
-        return $recordSearchKey->_pid;
+
+        $new_pid = $recordSearchKey->_pid;
+        if (!empty($clone_attached_datastreams)) {
+          $datastreams = Fedora_API::callGetDatastreams($pid);
+
+          foreach ($datastreams as $ds_value) {
+            if (isset($ds_value['controlGroup']) && $ds_value['controlGroup'] == 'M'
+              && $clone_attached_datastreams) {
+//              $value = Fedora_API::callGetDatastreamContents($pid, $ds_value['ID'], true);
+//              Fedora_API::getUploadLocation(
+//                $new_pid, $ds_value['ID'], $value, $ds_value['label'],
+//                $ds_value['MIMEType'], $ds_value['controlGroup'], null, $ds_value['versionable']
+//              );
+              Fedora_API::getUploadLocationByLocalRef($new_pid, $ds_value['ID'], $ds_value['full_path'], $ds_value['label'],
+                $ds_value['MIMEType'], $ds_value['controlGroup'], null, $ds_value['versionable']);
+
+
+            } elseif (isset($ds_value['controlGroup']) && $ds_value['controlGroup'] == 'R'
+              && $clone_attached_datastreams) {
+              Fedora_API::callAddDatastream(
+                $new_pid, $ds_value['ID'], $ds_value['location'], $ds_value['label'],
+                $ds_value['state'], $ds_value['MIMEType'], $ds_value['controlGroup'], $ds_value['versionable']
+              );
+            }
+          }
+        }
+
+        return $new_pid;
     }
     /**
      * Inserts 1-to-1 record search keys with value specified by the $data parameter &

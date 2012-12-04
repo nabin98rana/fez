@@ -44,13 +44,13 @@ if (!$isUser) {
     $tpl->assign("exists", 2);
 } else {
     $pid = $_GET["pid"];
-    $record = new RecordGeneral($pid);
+    $record = new RecordObject($pid);
     if (!$record->checkExists()) {
 	$tpl->assign("exists", 0);
     } else {
 	$tpl->assign("exists", 1);
 	$tpl->assign("pid", $pid);
-	$tpl->assign("changes", History::getListing($_GET["pid"]));	
+	$tpl->assign("changes", History::getListing($_GET["pid"]));
     }
 
 }

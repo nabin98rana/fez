@@ -34,7 +34,7 @@
 
 include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
- 
+
 $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign("type", 'clone_record_form');
@@ -57,7 +57,7 @@ if (@$_REQUEST["cat"] == "submit") {
 $wfstatus->checkStateChange();
 
 $xdis_list = XSD_Display::getAssocListDocTypes();
-$record = new RecordGeneral($pid);
+$record = new RecordObject($pid);
 $xdis_id = $record->getXmlDisplayId();
 
 $tpl->assign(compact('xdis_id','xdis_list'));
@@ -67,7 +67,7 @@ $parents = $record->getParents();
 $collection_pid = '';
 $collection_title = '';
 foreach ($parents as $parent) {
-    $col = new RecordGeneral($parent);
+    $col = new RecordObject($parent);
     if ($col->canCreate()) {
         $collection_pid = $parent;
         break;
@@ -77,5 +77,5 @@ foreach ($parents as $parent) {
 $collection_list = Collection::getAssocList();
 $tpl->assign('collection_list', $collection_list);
 $tpl->assign(compact('collection_pid','collection_title'));
-$tpl->displayTemplate(); 
+$tpl->displayTemplate();
 ?>

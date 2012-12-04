@@ -31,17 +31,17 @@
 // |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>,                    |
 // |          Rhys Palmer <r.rpalmer@library.uq.edu.au>                   |
 // +----------------------------------------------------------------------+
- 
- 
+
+
 $collection_pid = $this->pid;
 $pids = $this->pids;
 if (empty($pids) || !is_array($pids)) {
     if (!empty($collection_pid)) {
-        $col_record = new RecordGeneral($collection_pid);
+        $col_record = new RecordObject($collection_pid);
         if ($col_record->isCollection()) {
             $this->assign('source_collection_pid', $collection_pid);
         }
     }
 }
- 
+
 ?>

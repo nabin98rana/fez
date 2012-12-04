@@ -30,7 +30,7 @@
 // | Authors: Andrew Martlew <a.martlew@library.uq.edu.au>                |
 // +----------------------------------------------------------------------+
 
-// Loops through all records in eSpace, and inserts the ScopusID by 
+// Loops through all records in eSpace, and inserts the ScopusID by
 // searching the Scopus CitedBy Retrieve on DOI
 
 include_once dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'config.inc.php';
@@ -40,7 +40,7 @@ include_once(APP_INC_PATH . "class.record.php");
 //$max = 100; 	// Max number of primary key IDs to send with each service request call
 $max = 0; 	// Max number of primary key IDs to send with each service request call
 
-$sleep = 0; 	// Number of seconds to wait for between successive service calls 
+$sleep = 0; 	// Number of seconds to wait for between successive service calls
 $current = 0;
 //$filter = array();
 //$filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
@@ -57,7 +57,7 @@ if (is_array($listing)) {
  		$record = $listing[$j];
  		$pid = $record['uq_pid'];
  		$eid = $record['sco_eid'];	// We store the EID as the Scopus ID
-		$rec = new RecordGeneral($pid);
+		$rec = new RecordObject($pid);
 		$search_keys = array("Scopus ID");
        	$values = array($eid);
        	$rec->addSearchKeyValueList($search_keys, $values, true, ' was added based on Scopus EID Tagging data');

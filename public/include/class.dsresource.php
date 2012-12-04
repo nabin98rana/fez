@@ -282,7 +282,9 @@ class DSResource
         {
             $this->log->err($e->getMessage());
         }
-
+        foreach ($rows as $rk => $row) {
+          $rows[$rk]['full_path'] = $this->getResourcePath($row['hash']);
+        }
         return $rows;
     }
 

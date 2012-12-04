@@ -98,9 +98,9 @@ class Bulk_Move_Record_Collection {
 			$record = new RecordObject($pid);
 
 			if ($record->canEdit()) {
-					
+
 				$res = $record->updateRELSEXT("rel:isMemberOf", $parent_pid);
-					
+
 				if($res == -3) {
 					$this->bgp->setStatus("Skipped '".$pid."' because PID does not exist");
 				} elseif($res == -2) {
@@ -130,7 +130,7 @@ class Bulk_Move_Record_Collection {
 
 	function splitCollection($collection_pid, $chunk_size)
 	{
-		$col_record = new RecordGeneral($collection_pid);
+		$col_record = new RecordObject($collection_pid);
 		$pids = $col_record->getChildrenPids();
 		$col_title = $col_record->getTitle();
 		$remaining_pids = $pids;

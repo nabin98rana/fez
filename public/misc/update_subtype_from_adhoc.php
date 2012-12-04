@@ -58,7 +58,7 @@ $inc = 100;
 
 	ob_flush();
 for($i=0; $i<($total+$inc); $i=$i+$inc) {
-	
+
 	$query2 = "SELECT * FROM __era_subtype_manual_cleanup INNER JOIN " . APP_TABLE_PREFIX . "record_search_key on rek_pid
  = st_pid ORDER BY st_pid ASC  LIMIT ".$inc." OFFSET ".$i;
 
@@ -71,12 +71,12 @@ for($i=0; $i<($total+$inc); $i=$i+$inc) {
 	        $log->err('Message: '.$ex->getMessage().', File: '.__FILE__.', Line: '.__LINE__);
 	        return;
 	}
-	
+
 	if (is_array($listing)) {
 	 	for($j=0; $j<count($listing); $j++) {
 	 		$pid = $listing[$j]['st_pid'];
 	 		$subtype = $listing[$j]['st_subtype'];
-			$record = new RecordGeneral($pid);
+			$record = new RecordObject($pid);
 			$search_keys = array("Subtype");
 			$values = array($subtype);
 			echo "about to modify $pid with subtype ".$subtype."\n";

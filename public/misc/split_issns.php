@@ -50,12 +50,12 @@ exit;
 /*
 foreach ($misplacedISSNs as $isbnKey => $isbnVal) {
 
-	$record = new RecordGeneral($isbnKey);
-	
+	$record = new RecordObject($isbnKey);
+
 	echo "\nProcessing record " . $isbnKey . " ... \n";
 	echo "Suspected ISSN: " . $isbnVal['isbn_raw'] . "\n";
 	echo "Current ISSN: " . $actualISSNs[$isbnKey]['issn_raw'] . "\n";
-	
+
 	if (ISSNfix::doesCandidateExistInProperISSNfield($isbnVal['isbn_clean'], $actualISSNs[$isbnKey]['issn_clean'])) {
 		// A suspected ISSN was found in the ISBN field, but it appears to already be in the ISSN field too. We need to zero the ISBN field.
 		$history = "Auto-stripped ISSN from ISBN field";
@@ -75,7 +75,7 @@ foreach ($misplacedISSNs as $isbnKey => $isbnVal) {
 			echo "done.\n";
 		}
 	}
-	
+
 	echo "\n";
 }
 
@@ -87,27 +87,27 @@ exit;
 
 
 class ISSNsplit {
-	
+
 	function getISSNlist()
 	{
 		$db = DB_API::get();
 		$log = FezLog::get();
-		
+
 		$sql = 	"
 					SELECT
 						rek_pid AS pid, rek_issn AS issn
 					FROM
 						fez_record_search_key
-					LEFT JOIN 
+					LEFT JOIN
 						fez_record_search_key_issn
-					ON 
+					ON
 						rek_pid = rek_issn_pid
 					LEFT JOIN
 						fez_xsd_display
 					ON
 						rek_display_type = xdis_id
 				";
-		
+
 		try {
 		        $result = $db->fetchAll($sql);
 		} catch (Exception $ex) {
@@ -115,55 +115,55 @@ class ISSNsplit {
 		        $log->err('Message: '.$ex->getMessage().', File: '.__FILE__.', Line: '.__LINE__);
 		        return;
 		}
-		
+
 		return $result;
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	function normaliseISBN($isbn)
 	{
 		$isbn = preg_replace("/[^0-9X]/", "", $isbn);
 		return $isbn;
 	}
-	
-	
-	
+
+
+
 	function extractISSNsFromISBNlist($data)
 	{
 		$issns = array();
-		
+
 		foreach ($data as $item) {
 			$isbnClean = ISSNfix::normaliseISBN($item['isbn']);
 			if (strlen($isbnClean) == 8) {
@@ -171,16 +171,16 @@ class ISSNsplit {
 				$issns[$item['pid']]['isbn_clean'] = $isbnClean;
 			}
 		}
-		
+
 		return $issns;
 	}
-	
-	
-	
+
+
+
 	function getActualISSNs($data)
 	{
 		$issns = array();
-		
+
 		foreach ($data as $key => $val) {
 			if ($data[$key]['issn'] != '') {
 				$issnClean = ISSNfix::normaliseISBN($data[$key]['issn']);
@@ -188,38 +188,38 @@ class ISSNsplit {
 				$issns[$data[$key]['pid']]['issn_clean'] = $issnClean;
 			}
 		}
-		
+
 		return $issns;
 	}
-	
-	
-	
+
+
+
 	function getISBNandISSNlist()
 	{
 		$db = DB_API::get();
 		$log = FezLog::get();
-		
+
 		$sql = 	"
 					SELECT
 						rek_pid AS pid, rek_isbn AS isbn, rek_issn AS issn
 					FROM
 						fez_record_search_key
-						
-					LEFT JOIN 
+
+					LEFT JOIN
 						fez_record_search_key_isbn
-					ON 
+					ON
 						rek_pid = rek_isbn_pid
-						
-					LEFT JOIN 
+
+					LEFT JOIN
 						fez_record_search_key_issn
-					ON 
+					ON
 						rek_pid = rek_issn_pid
-						
+
 					LEFT JOIN
 						fez_xsd_display
 					ON
 						rek_display_type = xdis_id
-						
+
 					/*
 					WHERE
 						rek_object_type = 3
@@ -230,7 +230,7 @@ class ISSNsplit {
 					;
 					*/
 				";
-		
+
 		try {
 		        $result = $db->fetchAll($sql);
 		} catch (Exception $ex) {
@@ -238,22 +238,22 @@ class ISSNsplit {
 		        $log->err('Message: '.$ex->getMessage().', File: '.__FILE__.', Line: '.__LINE__);
 		        return;
 		}
-		
+
 		return $result;
 	}
-	
-	
-	
+
+
+
 	function doesCandidateExistInProperISSNfield($issn, $suspect)
 	{
 		if ($suspect == '') {
 			return false;
 		}
-		
+
 		if (substr_count($suspect, $issn, 0) > 0) {
 			return true;
 		}
-		
+
 		return false;
 	}
 

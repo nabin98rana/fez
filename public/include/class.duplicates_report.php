@@ -55,12 +55,12 @@ class DuplicatesReport {
 
 
 
-	function __construct($pid=null) 
+	function __construct($pid=null)
 	{
 		$this->pid = $pid;
 	}
 
-	function setBGP(&$bgp) 
+	function setBGP(&$bgp)
 	{
 		$this->bgp = $bgp;
 	}
@@ -79,7 +79,7 @@ class DuplicatesReport {
 	}
 
 
-	function generate($pids) 
+	function generate($pids)
 	{
 		$total_pids = count($pids);
 		$progress = 0;
@@ -109,7 +109,7 @@ class DuplicatesReport {
 				. $dupes_count . " dupes found so far. (Avg ".$time_per_object."s per Object, Expected Finish ".$expected_finish.")");
 				$this->bgp->markPidAsFinished($pid); // marking as finished here as there are too many paths out of this loop
 			}
-			$record = new RecordGeneral($pid);
+			$record = new RecordObject($pid);
 			if ($record->checkExists()) {
 				// recurse into collections and communities by appending the children to
 				// the end of the list.
@@ -144,7 +144,7 @@ class DuplicatesReport {
 							continue;
 						}
 
-						$dup_rec = new RecordGeneral($dup_pid);
+						$dup_rec = new RecordObject($dup_pid);
 						if (!$dup_rec->checkExists()) {
 							continue;
 						}
@@ -357,12 +357,12 @@ class DuplicatesReport {
 		// recalculate links to the base record for each group
 		foreach ($final_groups as $key => $group)
 		{
-			$base_record = new RecordGeneral($group['pid']);
+			$base_record = new RecordObject($group['pid']);
 			foreach ($group['list'] as $dup_pid => $dup_item) {
 				if ($dup_item['isi_loc'] == $group['isi_loc']) {
 					$final_groups[$key]['list'][$dup_pid]['probability'] = 1;
 				} else {
-					$dup_record = new RecordGeneral($dup_item['pid']);
+					$dup_record = new RecordObject($dup_item['pid']);
 					$final_groups[$key]['list'][$dup_pid]['probability']
 					= $this->compareRecords($base_record, $dup_record);
 				}
@@ -393,12 +393,12 @@ class DuplicatesReport {
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$pidnum = substr($pid, strpos($pid, ':') + 1);
 		$dbtp = APP_SQL_DBNAME . "." . APP_TABLE_PREFIX;
 
 		// Do a isi_loc match on records that don't have the same pid as the candidate record
-		$record = new RecordGeneral($pid);
+		$record = new RecordObject($pid);
 		$isi_loc = $this->getISI_LOC($record);
 
 		$stmt = "SELECT DISTINCT r2.rek_isi_loc_pid AS pid, "
@@ -424,7 +424,7 @@ class DuplicatesReport {
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$pidnum = substr($pid, strpos($pid, ':') + 1);
 		$dbtp = APP_SQL_DBNAME . "." . APP_TABLE_PREFIX;
 		// Do a fuzzy title match on records that don't have the same pid as the candidate record
@@ -584,7 +584,7 @@ class DuplicatesReport {
 		//if ($merge_res > 0) {
 		//    $merge_res = $this->mergeRecords($base_record, $dup_record, self::MERGE_TYPE_HIDDEN);
 		//}
-		
+
 		if (!PEAR::isError($merge_res)) {
 			$wfl_id = $this->getWorkflowId();
 			// set some history on the object so we know why it was merged.
@@ -674,7 +674,7 @@ class DuplicatesReport {
 			$ref->fixParams($params, $base_record);
 
 			$base_record->fedoraInsertUpdate(array("FezACML"), array(""),$params);
-			 
+
 			if ( APP_SOLR_INDEXER == "ON" ) {
 				FulltextQueue::singleton()->add($base_record->pid);
 				FulltextQueue::singleton()->commit();
@@ -1219,22 +1219,22 @@ class DuplicatesReport {
 
     function compareRecords(&$record1, &$record2)
     {
-	
+
 		$page_score = 1; //initialise with 1 for no change to the final score
 		$start_page1 = Record::getSearchKeyIndexValue($record1->pid, "Start Page", false);
 		$start_page2 = Record::getSearchKeyIndexValue($record2->pid, "Start Page", false);
 
 		$end_page1 = Record::getSearchKeyIndexValue($record1->pid, "End Page", false);
 		$end_page2 = Record::getSearchKeyIndexValue($record2->pid, "End Page", false);
-		
-		
+
+
 		//If the stand and end pages match exactly put this in the dedupe report
 		if ($start_page1 == $start_page2 && $end_page1 == $end_page2 && is_numeric($start_page1) && is_numeric($end_page1)) {
                         // MT: 2009-11-30 Commented out what looks like debug to me.
                         // echo "\n Matched on Page numbers\n";
 			return 1;
 		}
-	
+
 		//If either the start or end pages match exactly, double the final score, otherwise dont change final score
 		if (($start_page1 == $start_page2 || $end_page1 == $end_page2) && is_numeric($start_page1) && is_numeric($end_page1)) {
                         // MT: 2009-11-30 Commented out what looks like debug to me.
@@ -1245,7 +1245,7 @@ class DuplicatesReport {
 		// If both are not book chapters then compare on isbn - if match then put in the dedupe report. Even if one is a wrong doc type is should be in the report because the doc type will need changing
         if (!is_numeric(strpos($record1->getDocumentType(), 'Book Chapter'))
         		&& !is_numeric(strpos($record2->getDocumentType(), 'Book Chapter'))) {
-	
+
 			$isbn1 = Record::getSearchKeyIndexValue($record1->pid, "ISBN", false);
 			$isbn2 = Record::getSearchKeyIndexValue($record2->pid, "ISBN", false);
 
@@ -1285,7 +1285,7 @@ class DuplicatesReport {
 		if ($title_score == 1 && ( (count($title_tokens2) + count($title_tokens1)) > 4 )   ) {
 			return 1;
 		}
-//echo "\n (t)".$title_score." - (a)".$author_score." - (j)".$journal_title_score."\n"; 
+//echo "\n (t)".$title_score." - (a)".$author_score." - (j)".$journal_title_score."\n";
         return ($title_score * $author_score * $journal_title_score) * $page_score;
     }
 
@@ -1300,7 +1300,7 @@ class DuplicatesReport {
     function tokenise($array_of_strings)
     {
         $array_of_strings = Misc::array_flatten($array_of_strings, '', true);
-    
+
     	if (!is_array($array_of_strings)) {
         	$tokens = explode(' ',(preg_replace("/[^a-zA-Z0-9 ]/", "", $array_of_strings)));
         } else {
@@ -1317,7 +1317,7 @@ class DuplicatesReport {
 		return (strlen($a) > 3);
 	}
 
-  
+
   function authorTokenise($array_of_strings)
   {
       $array_of_strings = Misc::array_flatten($array_of_strings, '', true);
@@ -1567,7 +1567,7 @@ function authorShortWordsFilter($a)
 	function markDuplicate($base_pid, $dup_pid, $merge_hidden = true)
 	{
 		$log = FezLog::get();
-		
+
 		$res = $this->setDuplicateXML($base_pid, $dup_pid, true);
 		if ($res == 1) {
 			$this->saveReport($this->xml_dom->saveXML());
@@ -1576,8 +1576,8 @@ function authorShortWordsFilter($a)
 				$base_rec = new RecordObject($base_pid);
 				$this->mergeRecordsHiddenFields($base_rec, $rec);
 			}
-			
-			
+
+
 			// put object in limbo
 			$rec->markAsDeleted();
 			// set some history on the object
@@ -1585,7 +1585,7 @@ function authorShortWordsFilter($a)
 			$rec->tombstone($base_pid, $dup_pid);
 			History::addHistory($dup_pid, $wfl_id, "", "", false, '', "Marked Duplicate of ".$base_pid);
 			History::addHistory($base_pid, $wfl_id, "", "", true, '', "Resolved duplicate ".$dup_pid);
-		
+
 			if ( APP_SOLR_INDEXER == "ON" ) {
 				FulltextQueue::singleton()->remove($dup_pid);
 				FulltextQueue::singleton()->commit();
@@ -1600,7 +1600,7 @@ function authorShortWordsFilter($a)
 	function markNotDuplicate($base_pid, $dup_pid)
 	{
 		$log = FezLog::get();
-		
+
 		$res = $this->setDuplicateXML($base_pid, $dup_pid, false);
 		if ($res == 1) {
 			$this->saveReport($this->xml_dom->saveXML());
@@ -1625,7 +1625,7 @@ function authorShortWordsFilter($a)
 	 *
 	 * @return void
 	 **/
-	public function filesExistInDuplicatePid($dup_pid) 
+	public function filesExistInDuplicatePid($dup_pid)
 	{
 		$log = FezLog::get();
 		$files = self::getFilesForPid($dup_pid);
@@ -1638,7 +1638,7 @@ function authorShortWordsFilter($a)
 	 * @param string $pid
 	 * @return array
 	 **/
-	public function getFilesForPid($pid) 
+	public function getFilesForPid($pid)
 	{
 		$log = FezLog::get();
 
@@ -1652,12 +1652,12 @@ function authorShortWordsFilter($a)
 		}
 
 		return $files;
-		
+
 	}
 
 	/**
 	 * Copies a file datastream from one pid into another (with optional new name)
-	 * 
+	 *
 	 * @param string $originalPid
 	 * @param string $originalFilename
 	 * @param string $newPid
@@ -1667,17 +1667,17 @@ function authorShortWordsFilter($a)
 	public function copyFileDatastream($originalPid, $originalFilename, $newPid, $newFilename = null)
 	{
 		$log = FezLog::get();
-		
+
 		if ($newFilename == null)
 			$newFilename = $originalFilename;
-		
+
 		// get the original details
 		$datastream = Fedora_API::callGetDatastream($originalPid, $originalFilename);
 		$value = Fedora_API::callGetDatastreamContents($originalPid, $originalFilename, true);
 
 		// and upload into fedora
 		Fedora_API::getUploadLocation($newPid, $newFilename, $value, $datastream['label'],$datastream['MIMEType'], $datastream['controlGroup'], null, $datastream['versionable']);
-		
+
 	}
 
 	/**
@@ -1720,7 +1720,7 @@ function authorShortWordsFilter($a)
 	function setMergeResult($base_pid, $dup_pid, $mres, $save_now = true)
 	{
 		$log = FezLog::get();
-		
+
 		$res = $this->setMergeResultXML($base_pid, $dup_pid, $mres);
 		if ($res == 1) {
 			if ($save_now) {
@@ -1761,7 +1761,7 @@ function authorShortWordsFilter($a)
 	function swapBase($base_pid,$dup_pid)
 	{
 		$log = FezLog::get();
-		
+
 		$res = $this->swapBaseXML($base_pid,$dup_pid);
 		if ($res == 1) {
 			$res = $this->recalcDupScoresXML($dup_pid);
@@ -1828,9 +1828,9 @@ function authorShortWordsFilter($a)
 			// the Pids should exist otherwise it's an error
 			return -1;
 		}
-		$base_record = new RecordGeneral($base_pid);
+		$base_record = new RecordObject($base_pid);
 		foreach ($items as $dup_item) {
-			$dup_record = new RecordGeneral($dup_item->getAttribute('pid'));
+			$dup_record = new RecordObject($dup_item->getAttribute('pid'));
 			$dup_item->setAttribute('probability',$this->compareRecords($base_record, $dup_record));
 		}
 		return 1;

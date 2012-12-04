@@ -34,7 +34,7 @@
 
 include_once(APP_INC_PATH.'class.bgp_generate_duplicates_report.php');
 
-// get the latest version of the XSD Display for the duplicates report object 
+// get the latest version of the XSD Display for the duplicates report object
 $xdises = XSD_Display::getList(Doc_Type_XSD::getFoxmlXsdId(), "AND xdis_title='Duplicates Report'");
 $xdises = Misc::keyArray($xdises, 'xdis_version');
 ksort($xdises); // sort by verion
@@ -44,7 +44,7 @@ $this->xdis_id = $xdis_id;
 
 // create the report object
 $collection_pid = $this->pid; // set by the select collection step
-$col_record = new RecordGeneral($collection_pid);
+$col_record = new RecordObject($collection_pid);
 $access_ok = $col_record->canCreate();
 if (!$access_ok) {
     echo "You are not permitted to create a duplicates report in this collection {$collection_pid}";
@@ -56,11 +56,11 @@ $params['sta_id'] = 1; // unpublished record
 $params['collection_pid'] = $collection_pid;
 
 // Just want to find the basic xsdmf_ids for the title, date and user and set them to something useful
-$params['xsd_display_fields'] = array(); 
+$params['xsd_display_fields'] = array();
 $xsd_display_fields = XSD_HTML_Match::getListByDisplay($xdis_id, array("FezACML"), array(""));  // XSD_DisplayObject
 foreach ($xsd_display_fields as $dis_key => $dis_field) {
     if ($dis_field['xsdmf_element'] == '!dc:title') {
-        $params['xsd_display_fields'][$dis_field['xsdmf_id']] = 'Duplicates Report '.date('r').' '.Auth::getUserFullName(); 
+        $params['xsd_display_fields'][$dis_field['xsdmf_id']] = 'Duplicates Report '.date('r').' '.Auth::getUserFullName();
     } elseif ($dis_field['xsdmf_element'] == '!dc:creator') {
         $params['xsd_display_fields'][$dis_field['xsdmf_id']] = Auth::getUserFullName();
     } elseif ($dis_field['xsdmf_element'] == '!dc:creator!authorID') {
@@ -75,9 +75,9 @@ $this->pid = $pid;
 
 // The actual report is generated as a background process.
 $bgp = new BackgroundProcess_GenerateDuplicatesReport;
-$bgp->register(serialize(array('report_pid' => $pid, 
-								'pids' => $this->pids, 
-								'source_collection_pid' => $this->getvar('source_collection_pid'))), 
+$bgp->register(serialize(array('report_pid' => $pid,
+								'pids' => $this->pids,
+								'source_collection_pid' => $this->getvar('source_collection_pid'))),
 				Auth::getUserID(), $this->id);
 
 $this->assign('notify', "The duplicates report has been generated.");

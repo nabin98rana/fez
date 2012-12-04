@@ -21979,7 +21979,7 @@ die('Total records to processes: ' . $totalRecords);*/
 $search_keys = array("Genre Type"); // The search key we are updating
 
 foreach ($pids as $pid) {
-	$record = new RecordGeneral($pid);
+	$record = new RecordObject($pid);
 	$history = "was set based on automagic sub-type setting rule";
 	$record->addSearchKeyValueList(array("Genre Type"), array("Fully Published Paper"), true, $history);
 	echo "\n";

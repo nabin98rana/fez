@@ -445,7 +445,7 @@ class MyResearch
         // then change the eSpace followup flag to 'followup' and change the email to indicate this
         $herdc_trial_collection = trim(APP_HERDC_TRIAL_COLLECTION, "'");
         if (in_array($herdc_trial_collection, $isMemberOf)) {
-            $record = new RecordGeneral($pid);
+            $record = new RecordObject($pid);
             $search_keys = array("Follow up Flags");
             $values = array(Controlled_Vocab::getID("Follow-up"));
             $record->addSearchKeyValueList($search_keys, $values, true);

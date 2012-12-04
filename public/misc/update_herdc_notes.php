@@ -39,26 +39,26 @@ include_once(APP_INC_PATH . "class.record.php");
 echo "Migrating internal notes to HERDC notes field ...\n";
 
 // Get what we need
-$query = "	
+$query = "
 			SELECT
 				rek_pid AS pid,
 				rek_herdc_notes AS existing_herdc_notes,
 				ain_detail AS admin_notes
 			FROM
 				fez_record_search_key
-			
+
 			LEFT JOIN fez_record_search_key_ismemberof
 				ON rek_pid = rek_ismemberof_pid
-			
+
 			LEFT JOIN fez_internal_notes
 				ON rek_pid = ain_pid
-			
+
 			WHERE
 				rek_ismemberof = 'UQ:218311'
 				AND ain_detail IS NOT NULL
 
 				/*AND (rek_herdc_notes IS NULL OR rek_herdc_notes = '')*/
-			
+
 			ORDER
 				BY rek_pid ASC
 			;
@@ -84,7 +84,7 @@ foreach ($result as $record) {
 	$internal = $record['admin_notes'];
 
 	echo $pid . " :: \n";
-	
+
 	$new = "";
 	// Determine if we are writing clean, or appending
 	if ($existing == '' || is_null($existing) || trim($existing) == '') {
@@ -94,13 +94,13 @@ foreach ($result as $record) {
 	}
 
 	$new = nl2br($new); // Onvert to HTML to preserve formatting for the rich text field.
-	
-	$record = new RecordGeneral($pid);
+
+	$record = new RecordObject($pid);
 	$history = "updated using data in internal notes field";
 	$record->addSearchKeyValueList(array("HERDC Notes"), array($new), true, $history);
 
 	delete_internal_note($pid);
-	
+
 	echo "\n";
 }
 

@@ -39,7 +39,7 @@ $is_succession =  $this->getvar('is_succession');
 $clone_attached_datastreams = $this->getvar('clone_attached_datastreams');
 $collection_pid = $this->getvar('collection_pid');
 
-$record = new RecordGeneral($pid);
+$record = new RecordObject($pid);
 $new_pid = $record->copyToNewPID($new_xdis_id,$is_succession,$clone_attached_datastreams,$collection_pid);
 if (!empty($new_pid)) {
     $this->setCreatedPid($new_pid);
@@ -48,5 +48,5 @@ if (!empty($new_pid)) {
     $this->assign('outcome_details', "Cloned from $pid to $new_pid");
 }
 
-    
+
 ?>

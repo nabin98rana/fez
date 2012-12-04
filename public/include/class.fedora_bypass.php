@@ -141,17 +141,18 @@ class Fedora_API {
 	 */
 	function getUploadLocation ($pid, $dsIDName, $file, $dsLabel, $mimetype='text/xml', $controlGroup='M', $dsID=NULL,$versionable='false')
 	{
-		$log = FezLog::get();
-		if (!is_numeric(strpos($dsIDName, "/"))) {
-			$loc_dir = APP_TEMP_DIR;
-		}
-
-		if (!empty($file) && (trim($file) != "")) {
-			$file_full = $loc_dir.str_replace(":", "_", $pid)."_".$dsIDName.".xml";
-			$fp = fopen($file_full, "w"); //@@@ CK - 28/7/2005 - Trying to make the file name in /tmp the uploaded file name
-			fwrite($fp, $file);
-			fclose($fp);
-		}
+//		$log = FezLog::get();
+//		if (!is_numeric(strpos($dsIDName, "/"))) {
+//			$loc_dir = APP_TEMP_DIR;
+//		}
+//
+//		if (!empty($file) && (trim($file) != "")) {
+//			$file_full = $loc_dir.str_replace(":", "_", $pid)."_".$dsIDName.".xml";
+//			$fp = fopen($file_full, "w"); //@@@ CK - 28/7/2005 - Trying to make the file name in /tmp the uploaded file name
+//			fwrite($fp, $file);
+//			fclose($fp);
+//		}
+    $file_full = $file;
 
 		$versionable = $versionable === true ? 'true' : $versionable === false ? 'false' : $versionable;
 		$dsExists = Fedora_API::datastreamExists($pid, $dsIDName, true);
