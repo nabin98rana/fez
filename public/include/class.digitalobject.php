@@ -207,29 +207,29 @@ class DigitalObject
      * all this PID's resources and store in the
      * shadow table
      */
-    public function snapshotResources($timestamp)
-    {
-        $resources = $this->dsResource->listStreams($this->pidData['pid']);
-
-        if($resources)
-        {
-            try
-            {
-                $sql = "INSERT IGNORE INTO " . APP_TABLE_PREFIX . "file_attachments__shadow "
-                        . "(fat_hash, fat_filename, fat_version, fat_state, fat_size, fat_pid, fat_mimetype, fat_controlgroup) "
-                        . "SELECT fat_hash, fat_filename, :now AS version, fat_state, fat_size,fat_pid, fat_mimetype, "
-                        . "fat_controlgroup FROM " . APP_TABLE_PREFIX
-                        . "file_attachments WHERE fat_pid = :pid";
-
-                $this->db->query($sql, array(':now' => $timestamp,
-                						':pid' => $this->pidData['pid']));
-            }
-            catch(Exception $e)
-            {
-                $this->log->err($e->getMessage());
-            }
-        }
-    }
+//    public function snapshotResources($timestamp)
+//    {
+//        $resources = $this->dsResource->listStreams($this->pidData['pid']);
+//
+//        if($resources)
+//        {
+//            try
+//            {
+//                $sql = "INSERT IGNORE INTO " . APP_TABLE_PREFIX . "file_attachments__shadow "
+//                        . "(fat_hash, fat_filename, fat_version, fat_state, fat_size, fat_pid, fat_mimetype, fat_controlgroup) "
+//                        . "SELECT fat_hash, fat_filename, :now AS version, fat_state, fat_size,fat_pid, fat_mimetype, "
+//                        . "fat_controlgroup FROM " . APP_TABLE_PREFIX
+//                        . "file_attachments WHERE fat_pid = :pid";
+//
+//                $this->db->query($sql, array(':now' => $timestamp,
+//                						':pid' => $this->pidData['pid']));
+//            }
+//            catch(Exception $e)
+//            {
+//                $this->log->err($e->getMessage());
+//            }
+//        }
+//    }
 
     /**
      * Get all the datastreams for a PID

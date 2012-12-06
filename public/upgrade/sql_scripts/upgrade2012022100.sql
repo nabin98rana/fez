@@ -15,10 +15,10 @@ CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%file_attachments (
   fat_watermark char(1) DEFAULT NULL,
   fat_security_inherited char(1) DEFAULT NULL,
   PRIMARY KEY (fat_did),
-  KEY 'unique_pid_hash_filename' ('fat_hash','fat_pid', 'fat_filename', 'fat_version')
+  KEY 'unique_pid_hash_filename' ('fat_pid', 'fat_filename')
 );
 
-CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%file_attachments_shadow (
+CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%file_attachments__shadow (
   fat_did int(11) NOT NULL AUTO_INCREMENT,
   fat_hash varchar(50) NOT NULL,
   fat_filename varchar(200) NOT NULL,
