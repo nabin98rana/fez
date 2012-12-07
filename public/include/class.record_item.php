@@ -19,6 +19,7 @@ abstract class RecordItem
     protected $_ut = null;
     protected $_pubmedId = null;
     protected $_scopusId = null;
+    protected $_embaseId = null;
     protected $_wokId = null;
     protected $_wokCitationCount = null;
     protected $_scopusCitationCount = null;
@@ -26,8 +27,6 @@ abstract class RecordItem
     protected $_title = null;
     protected $_journalTitle = null;
     protected $_journalTitleAbbreviation = null;
-    protected $_date_issued = null;
-    protected $_articleNos = array();
     protected $_totalPages = null;
     protected $_startPage = null;
     protected $_endPage = null;
@@ -37,10 +36,10 @@ abstract class RecordItem
     protected $_wokDocTypeCode = null;
     protected $_docSubType = null;
     //protected $_docTypeCode = null;
-    protected $_langageCode = null;
+    protected $_languageCode = null;
     protected $_issn = null;
     protected $_isbn = null;
-    protected $_conferenceDate = null;
+    protected $_conferenceDates = null;
     protected $_conferenceTitle = null;
     protected $_confenceLocationCity = null;
     protected $_confenceLocationState = null;
@@ -259,7 +258,7 @@ abstract class RecordItem
         // Instantiate Record Sek class
         $recordSearchKey = new Fez_Record_Searchkey();
 
-        if (empty($history)){
+        if (empty($history)) {
             // History message
             $history = 'Imported from '.$this->_importAPI;
         }
@@ -622,5 +621,13 @@ abstract class RecordItem
         }
 
         return $matches;
+    }
+    public function comparePidTitle($pid) {
+        $pidTitle =  Record::getSearchKeyIndexValue($pid, "Title", false);
+        $stripedPidTitle = RCL::normaliseTitle($pidTitle);
+        $stripB = RCL::normaliseTitle($rec->itemTitle);
+
+        similar_text($stripedPidTitle, $this->_title, $percent);
+        return $percent;
     }
 }
