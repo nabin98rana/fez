@@ -1532,7 +1532,7 @@ class Record
   function applyProvisionalCode($pid)
   {
     // Load up the record, extract the bits we need to determine the provisional HERDC code.
-    $record = new RecordGeneral($pid);
+    $record = new RecordObject($pid);
     $docType = $record->getDocumentType();
     $subType = Record::getSearchKeyIndexValue($pid, "Subtype");
     $genreType = Record::getSearchKeyIndexValue($pid, "Genre Type");
@@ -3611,17 +3611,17 @@ class Record
     }
     return true;
   }
-  
+
   function getPIDsByDoi($doi)
   {
       $log = FezLog::get();
       $db = DB_API::get();
       $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
       $pids = null;
-      
+
       $sql = "SELECT rek_doi_pid FROM " . $dbtp
           . "record_search_key_doi WHERE rek_doi = ?";
-      
+
       try
       {
           $stmt = $db->query($sql, array($doi));
@@ -3632,17 +3632,17 @@ class Record
           $log->err($e->getMessage());
           return false;
       }
-      
+
       return $pids;
   }
-  
+
   function getPIDsByScopusID($scopusId)
   {
       $log = FezLog::get();
       $db = DB_API::get();
       $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
       $pids = null;
-      
+
       $matches = array();
       //Pull out the digits from the ScopusID
       preg_match("/(\d{10,11})/", $scopusId, $matches);
@@ -3650,13 +3650,13 @@ class Record
       $sidFormatted = (array_key_exists(1, $matches)) ? $matches[1] : null;
       //Otherwise it's not a valid ScopusID and is set to null
       $sidFormatted = ($sidFormatted) ? "2-s2.0-".$sidFormatted : null;
-      
+
       if($sidFormatted)
       {
-          $sql = "SELECT rek_scopus_id_pid FROM " . $dbtp 
+          $sql = "SELECT rek_scopus_id_pid FROM " . $dbtp
               . "record_search_key_scopus_id WHERE rek_scopus_id = ?";
-          
-          try 
+
+          try
           {
               $stmt = $db->query($sql, array($sidFormatted));
               $pids = $stmt->fetchAll();
@@ -3667,10 +3667,10 @@ class Record
               return false;
           }
       }
-      
+
       return $pids;
   }
-  
+
   function getSearchKeyIndexValue($pid, $searchKeyTitle, $getLookup=true, $sek_details="")
   {
     $log = FezLog::get();

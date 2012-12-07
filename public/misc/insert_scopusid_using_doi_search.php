@@ -30,7 +30,7 @@
 // | Authors: Andrew Martlew <a.martlew@library.uq.edu.au>                |
 // +----------------------------------------------------------------------+
 
-// Loops through all records in eSpace, and inserts the ScopusID by 
+// Loops through all records in eSpace, and inserts the ScopusID by
 // searching the Scopus CitedBy Retrieve on DOI
 
 include_once dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'config.inc.php';
@@ -38,7 +38,7 @@ include_once(APP_INC_PATH . 'class.scopus.php');
 include_once(APP_INC_PATH . "class.record.php");
 
 $max = 100; 	// Max number of primary key IDs to send with each service request call
-$sleep = 0; 	// Number of seconds to wait for between successive service calls 
+$sleep = 0; 	// Number of seconds to wait for between successive service calls
 
 $filter = array();
 $filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
@@ -47,18 +47,18 @@ $filter["searchKey".Search_Key::getID("Object Type")] = 3; // records only
 $listing = Record::getListing(array(), array(9,10), 0, $max, 'Created Date', false, false, $filter);
 
 for($i=0; $i<((int)$listing['info']['total_pages']+1); $i++) {
-	
+
 	// Skip first loop - we have called getListing once already
 	if($i>0) {
 		$listing = Record::getListing(array(), array(9,10), $listing['info']['next_page'], $max, 'Created Date', false, false, $filter);
 	}
 	$input_keys = array();
-	
+
 	if (is_array($listing['list'])) {
 	 	for($j=0; $j<count($listing['list']); $j++) {
 	 		$record = $listing['list'][$j];
 	 		$key = $record['rek_pid'];
-	 		$eid = $record['rek_scopus_id'];	// We store the EID as the Scopus ID 		
+	 		$eid = $record['rek_scopus_id'];	// We store the EID as the Scopus ID
 	 		if(empty($eid)) {
 		 		// Get DOI if one exists
 		 		if(is_array($record['rek_link'])) {
@@ -67,24 +67,24 @@ for($i=0; $i<((int)$listing['info']['total_pages']+1); $i++) {
 		 					$doi = str_replace('http://dx.doi.org/', '', $link);
 		 					$input_keys[$key] = array('doi' => $doi);
 		 				}
-		 			}	
+		 			}
 		 		}
 	 		}
 	 	}
 	}
-	
-	if(count($input_keys) > 0) {		
+
+	if(count($input_keys) > 0) {
 		$result = Scopus::getCitedByCount($input_keys);
 		foreach($result as $pid => $link_data) {
 			print "$pid: {$link_data['eid']}<br />";
-			
+
 			// Update record with new Scopus ID
-			/*$record = new RecordGeneral($pid);
+			/*$record = new RecordObject($pid);
 			$search_keys = array("Scopus ID");
         	$values = array($link_data['eid']);*/
         	//$record->addSearchKeyValueList($search_keys, $values, true, ' was added based on Scopus Service data');
 		}
-		
-		sleep($sleep); // Wait before using the service again		
+
+		sleep($sleep); // Wait before using the service again
 	}
 }

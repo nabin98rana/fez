@@ -30,15 +30,15 @@
 
 /**
  * Workflow to display confirmation message on HERDC Evidence follow-up.
- * 
+ *
  * @example: Used by WorkflowStatus->run() method.
- * When the Workflow Trigger is set to 'Auto', 
- *   this file is included by WorkflowStatus->run() method, 
+ * When the Workflow Trigger is set to 'Auto',
+ *   this file is included by WorkflowStatus->run() method,
  *   so $this param refers to WorkflowStatus class.
  * Otherwise, WorkflowStatus redirect the URL to this file with following GET params:
- *   $_GET['id']     = Workflow Session ID 
+ *   $_GET['id']     = Workflow Session ID
  *   $_GET['wfs_id'] = Workflow Status ID
- * 
+ *
  * @version 1.0, April 2012
  * @author Elvi Shu <e.shu at library.uq.edu.au>
  * @license http://www.gnu.org/licenses/gpl.html GPL License
@@ -54,7 +54,7 @@ include_once(APP_INC_PATH . "class.auth.php");
 Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']."?".$_SERVER['QUERY_STRING']);
 
 // Get the WorkflowStatus object from session
-$wfstatus = &WorkflowStatusStatic::getSession(); 
+$wfstatus = &WorkflowStatusStatic::getSession();
 if (empty($wfstatus)) {
     echo "This workflow has finished and cannot be resumed";
     exit;
@@ -67,7 +67,7 @@ $tpl->assign("type", "herdc_evidence_followup_confirmation");
 $pid = $wfstatus->pid;
 $wf_id = $wfstatus->id;
 
-$record = new RecordGeneral($pid);
+$record = new RecordObject($pid);
 $tpl->assign("title", $record->getTitle());
 $tpl->assign('pid', $pid);
 $wfstatus->setTemplateVars($tpl);

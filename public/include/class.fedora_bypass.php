@@ -141,17 +141,18 @@ class Fedora_API {
 	 */
 	function getUploadLocation ($pid, $dsIDName, $file, $dsLabel, $mimetype='text/xml', $controlGroup='M', $dsID=NULL,$versionable='false')
 	{
-		$log = FezLog::get();
-		if (!is_numeric(strpos($dsIDName, "/"))) {
-			$loc_dir = APP_TEMP_DIR;
-		}
-
-		if (!empty($file) && (trim($file) != "")) {
-			$file_full = $loc_dir.str_replace(":", "_", $pid)."_".$dsIDName.".xml";
-			$fp = fopen($file_full, "w"); //@@@ CK - 28/7/2005 - Trying to make the file name in /tmp the uploaded file name
-			fwrite($fp, $file);
-			fclose($fp);
-		}
+//		$log = FezLog::get();
+//		if (!is_numeric(strpos($dsIDName, "/"))) {
+//			$loc_dir = APP_TEMP_DIR;
+//		}
+//
+//		if (!empty($file) && (trim($file) != "")) {
+//			$file_full = $loc_dir.str_replace(":", "_", $pid)."_".$dsIDName.".xml";
+//			$fp = fopen($file_full, "w"); //@@@ CK - 28/7/2005 - Trying to make the file name in /tmp the uploaded file name
+//			fwrite($fp, $file);
+//			fclose($fp);
+//		}
+    $file_full = $file;
 
 		$versionable = $versionable === true ? 'true' : $versionable === false ? 'false' : $versionable;
 		$dsExists = Fedora_API::datastreamExists($pid, $dsIDName, true);
@@ -206,6 +207,8 @@ class Fedora_API {
     $resourceDataLocation = $dsLocation;
     $filesDataSize = filesize($dsLocation);
     $meta = array('mimetype' => $mimetype,
+      'filename' => $dsIDName,
+      'label' => $dsLabel,
       'controlgroup' => 'M',
       'state' => 'A',
       'size' => $filesDataSize,
@@ -236,6 +239,30 @@ class Fedora_API {
 			return $dsIDName;
 		}      */
 	}
+
+  /**
+   * This function modifies non-in-line datastreams, either a chunk o'text, a url, or a file.
+   *
+   * @access  public
+   * @param string $pid The persistant identifier of the object
+   * @param string $dsID The name of the datastream
+   * @param string $dsLabel The datastream label
+   * @param string $dsLocation The location of the datastream
+   * @param boolean $versionable Whether to version control this datastream or not
+   * @return void
+   */
+  function callModifyDatastreamByReference($pid, $dsID, $dsLabel, $dsLocation=NULL, $mimetype,$versionable='inherit')
+  {
+
+    $dsr = new DSResource();
+    $dsr->load($dsID, $pid);
+    $meta = $dsr->getMeta();
+    $meta['filename'] = $dsID;
+    $meta['label'] = $dsLabel;
+    $dsr->setMeta($meta);
+    $dsr->save();
+  }
+
 
 
 	/**
@@ -284,6 +311,8 @@ class Fedora_API {
     $resourceDataLocation = $dsLocation;
     $filesDataSize = filesize($dsLocation);
     $meta = array('mimetype' => $mimetype,
+      'filename' => $dsIDName,
+      'label' => $dsLabel,
       'controlgroup' => 'M',
       'state' => 'A',
       'size' => $filesDataSize,
@@ -409,6 +438,8 @@ class Fedora_API {
       $resourceDataLocation = $dsLocation;
       $filesDataSize = filesize($dsLocation);
       $meta = array('mimetype' => $mimetype,
+        'filename' => $dsID,
+        'label' => $dsLabel,
         'controlgroup' => 'M',
         'state' => 'A',
         'size' => $filesDataSize,

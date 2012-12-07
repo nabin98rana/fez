@@ -388,7 +388,7 @@ class RecordGeneral
   function getRecordType()
   {
     if (APP_FEDORA_BYPASS == "ON") {
-      return Record::getSearchKeyIndexValue($this->pid,'Object Type');
+      return Record::getSearchKeyIndexValue($this->pid,'Object Type', false);
     } else {
       $this->getDisplay();
       $this->getDetails();

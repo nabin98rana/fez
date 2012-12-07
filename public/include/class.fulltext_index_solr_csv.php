@@ -539,7 +539,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 		}
 
 		foreach ($res as $pidData) {
-			$record = new RecordGeneral($pidData['rek_pid']);
+			$record = new RecordObject($pidData['rek_pid']);
 			$dslist = $record->getDatastreams();
 
 			if( count($dslist) == 0 ) {

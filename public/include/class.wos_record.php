@@ -56,11 +56,11 @@ class WosRecItem
 
   /**
    * Abstract
-   * 
+   *
    * @var string
    */
   private $abstract;
-  
+
   /**
    * The ISI UT identifier
    *
@@ -81,14 +81,14 @@ class WosRecItem
    * @var string
    */
   private $sourceTitle = null;
-  
+
   /**
    *  The 20-char abbreviated name of the journal
    *
    * @var string
    */
   private $sourceAbbrev = null;
-  
+
   /**
    * Title of the bibliographic item
    *
@@ -109,49 +109,49 @@ class WosRecItem
    * @var array
    */
   private $articleNos = array();
-  
+
   /**
    * The begin, end and number of pages as a precomposed string
    *
    * @var string
    */
   private $bibPages = null;
-  
+
   /**
    * Begin page
    *
    * @var int
    */
   private $bibPageBegin = null;
-  
+
   /**
    * End page
    *
    * @var int
    */
   private $bibPageEnd = null;
-  
+
   /**
    * Page count
    *
    * @var int
    */
   private $bibPageCount = null;
-  
+
   /**
    *  Precomposed volume, issue, special, pages and year data
    *
    * @var string
    */
   private $bibId = null;
-  
+
   /**
    * Issue year
    *
    * @var int
    */
   private $bibIssueYear = null;
-  
+
   /**
    * Issue month
    *
@@ -172,77 +172,77 @@ class WosRecItem
    * @var int
    */
   private $bibIssueVol = null;
-  
+
   /**
    * The document type
    *
    * @var string
    */
   private $docType = null;
-  
+
   /**
    *  The document type code
    *
    * @var string
    */
   private $docTypeCode = null;
-  
+
   /**
    * Primary language
    *
    * @var string
    */
   private $primaryLang = null;
-  
+
   /**
    * Primary language code
    *
    * @var string
    */
   private $primaryLangCode = null;
-  
+
   /**
    * UI value
    *
    * @var string
    */
   private $issn = null;
-  
+
   /**
    * ISBN value
    *
    * @var string
    */
   private $isbn = null;
-  
+
   /**
    * First conference date
    *
    * @var string
    */
   private $confDate = null;
-  
+
   /**
    * First conference title
    *
    * @var string
    */
   private $confTitle = null;
-  
+
   /**
    * First conference city location
    *
    * @var string
    */
   private $confLocCity = null;
-  
+
   /**
    * First conference state location
    *
    * @var string
    */
   private $confLocState = null;
-  
+
   /**
    * Authors (both primary as secondary) Array index is important.
    *
@@ -255,61 +255,61 @@ class WosRecItem
    * @var array
    */
   private $author_ids = array();
-  
+
   /**
    * Keywords
    *
    * @var array
    */
   private $keywords = array();
-  
+
   /**
-   * If a WoS record has been loaded 
+   * If a WoS record has been loaded
    *
    * @var bool
    */
   private $_loaded = FALSE;
-  
+
   /**
    * Publisher
    *
    * @var string
    */
   private $publisher = null;
-    
+
   /**
-   * Constructs a new object 
+   * Constructs a new object
    */
   public function __construct($record = false)
-  {  
+  {
     $this->_loaded = FALSE;
     if ($record) {
       $this->load($record);
     }
   }
-  
+
   /**
    * Overloaded get method
    *
    * @param string $name
-   * 
+   *
    * @return mixed
    */
   public function __get($name)
-  {    
+  {
     $method = 'get'.ucfirst($name);
-    if (method_exists(__CLASS__, $method)) {   
-      return $this->$method();      
+    if (method_exists(__CLASS__, $method)) {
+      return $this->$method();
     } else {
-      return $this->$name; 
-    }    
+      return $this->$name;
+    }
   }
-  
+
   /**
    * Overloaded set method
    *
    * @param string $name
-   * @param mixed $value 
+   * @param mixed $value
    */
   public function __set($name, $value)
   {
@@ -373,15 +373,15 @@ class WosRecItem
     }
 
 
-    
+
     $bibPages = $node->getElementsByTagName("page")->item(0);
-    if ($bibPages) {    
+    if ($bibPages) {
       $this->bibPages = $bibPages->nodeValue;
       $this->bibPageBegin = $bibPages->getAttribute('begin');
       $this->bibPageEnd = $bibPages->getAttribute('end');
       $this->bibPageCount = $bibPages->getAttribute('page_count');
     }
-    
+
     $this->setBibIssueYVM($node);
     $this->setDateIssued($node);
 
@@ -445,7 +445,7 @@ class WosRecItem
           $this->confLocState = Misc::smart_ucwords($this->confLocState);
       }
   }
-    
+
     $this->_loaded = TRUE;
   }
 
@@ -480,22 +480,22 @@ class WosRecItem
 
   /**
    * Bib issue number is buried in the bib_id precomposed string
-   * 
+   *
    * @return mixed
    */
   public function getBibIssueNum()
   {
-    preg_match('/\(([^\)]+)\):/', $this->bibId, $matches);     
+    preg_match('/\(([^\)]+)\):/', $this->bibId, $matches);
     if (count($matches) == 2) {
       return $matches[1];
     } else {
       return null;
     }
   }
-  
+
   /**
    * Sets the issue year and volume and the month if exists
-   * 
+   *
    * @param DomNode $node
    * @return null
    */
@@ -544,24 +544,24 @@ class WosRecItem
 
     /**
      * Returns an array of Search key's title & value pair, built from WOS record items.
-     * 
+     *
      * @param array $dTMap
      * @param Fez_Record_Searchkey $recordSearchKey
-     * @return array  
+     * @return array
      */
     protected function _getSekData($dTMap, $recordSearchKey)
     {
         $xdis_title = $dTMap[$this->docTypeCode][0];
         $xdis_subtype = $dTMap[$this->docTypeCode][1];
         $xdis_id = $dTMap[$this->docTypeCode][2];
-        
-        // Build Search key data 
+
+        // Build Search key data
         $sekData = array();
 
         $sekData['Display Type']    = $xdis_id;
         $sekData['Genre']           = $xdis_title;
         $sekData['Genre Type']      = $xdis_subtype;
-        
+
         $sekData['Title']           = $this->itemTitle;
         $sekData['Author']          = $this->authors;
         $sekData['ISI LOC']         = $this->ut;
@@ -580,7 +580,7 @@ class WosRecItem
 
         //Commented out due to copyright reasons
         //$sekData['Description']     = $this->abstract;
-        
+
         $sekData['Issue Number']    = $this->bibIssueNum;
         $sekData['Volume Number']   = $this->bibIssueVol;
         $sekData['Start Page']      = $this->bibPageBegin;
@@ -588,7 +588,7 @@ class WosRecItem
         $sekData['Total Pages']     = $this->bibPageCount;
 
         $sekData['Date']            = Misc::MySQLDate(array("Year" => date("Y", strtotime($this->date_issued)), "Month" => date("m", strtotime($this->date_issued))));
-        
+
         $sekData['Language']        = Language::resolveWoSLanguage($this->primaryLang);
         $sekData['Status']          = Status::getID("Published");
         $sekData['Object Type']     = Object_Type::getID("Record");
@@ -611,11 +611,11 @@ class WosRecItem
 
         return $sekData;
     }
-  
-    
+
+
     /**
-     * Saves WOS record items to Record Search Key 
-     * 
+     * Saves WOS record items to Record Search Key
+     *
      * @return string $pid
      */
     protected function _saveFedoraBypass($history = null)
@@ -626,7 +626,7 @@ class WosRecItem
             $log->err('WoS record must be loaded before saving');
             return FALSE;
         }
-        
+
         // List of doc types we support saving
         $dTMap = Thomson_Doctype_Mappings::getList('ESTI');
         foreach ($dTMap as $map) {
@@ -640,7 +640,7 @@ class WosRecItem
 
         // Instantiate Record Sek class
         $recordSearchKey = new Fez_Record_Searchkey();
-        
+
         if (empty($history)){
             // History message
             $history = 'Imported from WoK Web Services Premium';
@@ -650,17 +650,17 @@ class WosRecItem
                         $aut_details['aut_researcher_id'] . " - " . $aut_details['aut_id'] . " - " . $aut_details['aut_org_username'] . ")";
             }
         }
-        
+
         // Citation Data
         $citationData = array('thomson' => $this->timesCited);
-        
-        // Search key Data 
+
+        // Search key Data
         $sekData = $this->_getSekData($dTMap, $recordSearchKey);
         $sekData = $recordSearchKey->buildSearchKeyDataByDisplayType($sekData, $xdis_id);
-        
+
         // Save Record
         $result = $recordSearchKey->insertRecord($sekData, $history, $citationData);
-        
+
         if (!$result){
             return false;
         }
@@ -674,19 +674,19 @@ class WosRecItem
         return $recordSearchKey->getPid();
     }
 
-    
+
     /**
      * Stores to a new record in Fez
      */
     public function save($history = null)
     {
         $pid = null;
-        
+
         if (APP_FEDORA_BYPASS == 'ON') {
 
             // save WOS data to Record Search Keys
             $pid = $this->_saveFedoraBypass($history);
-            
+
         } else {
 
 
@@ -705,8 +705,8 @@ class WosRecItem
                 $log->err('Unsupported doc type: ' . $this->docType.' '.$this->docTypeCode);
                 return FALSE;
             }
-            
-            
+
+
             $xdis_title = $dTMap[$this->docTypeCode][0];
             $xdis_subtype = $dTMap[$this->docTypeCode][1];
             $xdis_id = $dTMap[$this->docTypeCode][2];
@@ -780,8 +780,8 @@ class WosRecItem
         }
         return $pid;
     }
-  
-    
+
+
   /**
    * Update an existing record with additional bib data from WoK
    */
@@ -836,7 +836,7 @@ class WosRecItem
 
     $search_keys = array();
     $values = array();
-      
+
     foreach ($searchKeyTargets as $skey => $svalue) {
         if (!empty($svalue)) {
             $existingValue =  Record::getSearchKeyIndexValue($pid, $skey, false);
@@ -848,7 +848,7 @@ class WosRecItem
     }
 
     $history = 'Filled empty metadata fields ('.implode(", ",$search_keys).') using WoK Web Services Premium';
-    $record = new RecordGeneral($pid);
+    $record = new RecordObject($pid);
     $record->addSearchKeyValueList(
         $search_keys, $values, true, $history
     );

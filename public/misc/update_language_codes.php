@@ -50,9 +50,9 @@ Manually run this query against your Fez database:
 	WHERE lng_alpha3_bibliographic IS NULL
 	GROUP BY rek_language
 	ORDER BY COUNT(rek_language) DESC;
-	
+
 This will give a list of distinct languages that are not already in the appropriate format,
-as well as the number of times each occurs. Each 'language' (and its ISO-639-2 mapping) 
+as well as the number of times each occurs. Each 'language' (and its ISO-639-2 mapping)
 should be given a representation in the array below.
 
 *****************************************************************************************
@@ -258,7 +258,7 @@ $langMapping = array(
 	"german" => array('ger')
 	);
 
-$query = "	
+$query = "
 			SELECT DISTINCT(rek_language_pid) AS rek_pid
 			FROM ". APP_TABLE_PREFIX ."record_search_key_language
 			LEFT JOIN ". APP_TABLE_PREFIX ."language ON rek_language = lng_alpha3_bibliographic
@@ -289,11 +289,11 @@ $search_keys = array("Language"); // The search key we are updating
 
 foreach ($pids as $pid) {
 	echo $pid . "\n";
-	$record = new RecordGeneral($pid);
+	$record = new RecordObject($pid);
 	$languages = getLanguagesForPID($pid);
 	$mapping = $langMapping[$languages];
 	$history = "was updated based on automagic language mapping";
-	
+
 	if (count($mapping) == 0) {
 		echo "ERROR - no mappings found for " . $languages . "\n";
 	} else {
@@ -329,7 +329,7 @@ function getLanguagesForPID($pid)
 				WHERE rek_language_pid = '" . $pid . "'
 				ORDER BY rek_language_order ASC
 			";
-	
+
 	try {
 	        $result = $db->fetchRow($query);
 	} catch (Exception $ex) {
@@ -337,7 +337,7 @@ function getLanguagesForPID($pid)
 	        $log->err('Message: '.$ex->getMessage().', File: '.__FILE__.', Line: '.__LINE__);
 	        return;
 	}
-	
+
 	return $result['rek_language'];
 
 }

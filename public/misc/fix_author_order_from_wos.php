@@ -89,7 +89,7 @@ $dr = new DuplicatesReport();
 $wok_ws = new WokService(FALSE);
 	ob_flush();
 for($i=0; $i<($total); $i=$i+$inc) {
-	
+
 	$query2 = "SELECT
   rek_isi_loc,
   rek_author_pid
@@ -108,7 +108,7 @@ $query2 .= " GROUP BY rek_isi_loc
 LIMIT ".$inc." OFFSET ".$i;
 
 	echo $query2 ."\n";
-  
+
 	ob_flush();
 	try {
 	        $listing = $db->fetchAll($query2);
@@ -133,7 +133,7 @@ LIMIT ".$inc." OFFSET ".$i;
 //      $compareTitle[$tr_isi_loc] = array('pid' => $pid, 'title' => $title);
 
 
-//			$record = new RecordGeneral($pid);
+//			$record = new RecordObject($pid);
 //			$search_keys = array("Subtype");
 //			$values = array($subtype);
 //			echo "about to modify $pid with subtype ".$subtype."\n";

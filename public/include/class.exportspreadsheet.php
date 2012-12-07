@@ -95,7 +95,7 @@ class ExportSpreadsheet
 		$acceptable_roles = array("Viewer", "Community_Administrator", "Editor", "Creator", "Annotator");
 		$spreadsheet = &$this->spreadsheet;
 
-		$record = new RecordGeneral($pid);
+		$record = new RecordObject($pid);
 		if ($record->checkExists() && $record->canView(false)) {
 			$datastreams = $record->getDatastreams();
 			$spreadsheet->addRow();

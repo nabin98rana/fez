@@ -453,7 +453,7 @@ class LinksAmrQueue extends Queue
       } else {
         // Update record with new UT
         if ($ut != '000084278100002') { // this UT is a known bug in Links AMR where it's "Untitled" so links amr often returns it as a match when it's really not
-          $record = new RecordGeneral($pid);
+          $record = new RecordObject($pid);
           $search_keys = array("ISI Loc");
           $values = array($ut);
           if (isset($this->_bgp)) {

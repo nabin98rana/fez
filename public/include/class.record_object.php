@@ -319,12 +319,14 @@ class RecordObject extends RecordGeneral
     		if (isset($_POST['removeFiles']) || isset($_POST['editedFilenames'])
     		    || isset($_POST['uploader_files_uploaded']))
             {
-                $digObj->load($this->pid);
-                $digObj->snapshotResources($now);
+              //Now do this every time dsresource->storedsreference is called
+//                $digObj->load($this->pid);
+//                $digObj->snapshotResources($now);
 
             }
             if ($newPid || isset($_POST['removeFiles']) || isset($_POST['uploader_files_uploaded'])) {
-                AuthNoFedora::recalculatePermissions($this->pid);
+              //Now do this every time dsresource->storedsreference is called
+//                AuthNoFedora::recalculatePermissions($this->pid);
             }
 		}	else {
     		// If pid is null then we need to ingest the object as well

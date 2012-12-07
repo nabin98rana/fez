@@ -59,7 +59,7 @@ abstract class FulltextIndex {
 	const FIELD_TYPE_DATE = 1;
 	const FIELD_TYPE_VARCHAR = 2;
 	const FIELD_TYPE_TEXT = 3;
-		
+
 	const FULLTEXT_TABLE_NAME = "fulltext_cache";
 
 	const FIELD_MOD_MULTI = '_multivalue';
@@ -89,7 +89,7 @@ abstract class FulltextIndex {
 	 *
 	 * @param BackgroundProcess_Fulltext_Index $bgp
 	 */
-	public function setBGP(&$bgp) 
+	public function setBGP(&$bgp)
 	{
 		$this->bgp = &$bgp;
 	}
@@ -98,11 +98,11 @@ abstract class FulltextIndex {
 	 * Releases lock held by this thread.
 	 *
 	 */
-	private function releaseLock() 
+	private function releaseLock()
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "DELETE FROM ".APP_TABLE_PREFIX."fulltext_locks WHERE ftl_name='";
 		$stmt .= FulltextQueue::LOCK_NAME_FULLTEXT_INDEX."'";
 		try {
@@ -111,7 +111,7 @@ abstract class FulltextIndex {
 		catch(Exception $ex) {
 			$log->err($ex);
 			$log->err(array("FulltextIndex::releaseLock failed",$res));
-		}		
+		}
 	}
 
 
@@ -121,11 +121,11 @@ abstract class FulltextIndex {
 	 * not exist anymore.
 	 *
 	 */
-	private function updateLock() 
+	private function updateLock()
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$my_process = FulltextQueue::getProcessInfo();
 		$my_pid = $my_process['pid'];
 
@@ -137,17 +137,17 @@ abstract class FulltextIndex {
 
 		$stmt = "SELECT ftl_value, ftl_pid FROM ".APP_TABLE_PREFIX."fulltext_locks ".
 					"WHERE ftl_name=".$db->quote(self::LOCK_NAME_FULLTEXT_INDEX);
-		
+
 		try {
 			$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
-		
+
 			$process_id = $res['ftl_pid'];
 			$lockValue = $res['ftl_value'];
 			$acquireLock = true;
 			$log->debug("FulltextIndex REALLY::triggerUpdate got lockValue=".$lockValue.", pid=".$process_id." with ".$stmt." and ".print_r($res, true));
-		
+
 			if ($lockValue != -1 && !empty($process_id) && is_numeric($process_id)) {
-			 
+
 				// check if process is still running or if this is an invalid lock
 				$psinfo = FulltextQueue::getProcessInfo($process_id);
 				$log->debug("checking for lock on  lock ".$process_id);
@@ -160,7 +160,7 @@ abstract class FulltextIndex {
 					$log->debug("overriding existing lock ".$psinfo);
 				}
 			}
-					
+
 			// worst case: a background process is started, but the queue already
 			// empty at this point (very fast indexer)
 			if ($acquireLock) {
@@ -168,7 +168,7 @@ abstract class FulltextIndex {
 
 				$stmt =  "UPDATE ".APP_TABLE_PREFIX."fulltext_locks SET ftl_pid=".$db->quote($my_pid);
 				$stmt .= " WHERE ftl_name='".FulltextQueue::LOCK_NAME_FULLTEXT_INDEX."'";
-		
+
 				$db->query($stmt);
 				$db->commit();
 			} else {
@@ -177,7 +177,7 @@ abstract class FulltextIndex {
 		}
 		catch(Exception $ex) {
 			$db->rollBack();
-			
+
 			$log->err($ex);
 			return false;
 		}
@@ -191,10 +191,10 @@ abstract class FulltextIndex {
 	 * and is the only one.
 	 *
 	 */
-	public function startBGP() 
+	public function startBGP()
 	{
 		$log = FezLog::get();
-		 
+
 		// mark lock with pid
 		if (FulltextQueue::USE_LOCKING) {
 			if (!$this->updateLock()) {
@@ -208,11 +208,11 @@ abstract class FulltextIndex {
 
 		$log->debug(array("startBGP: call processQueue mem_used=".memory_get_usage()));
 		$this->processQueue();
-		 
+
 		if (FulltextQueue::USE_LOCKING) {
 			$this->releaseLock();
 		}
-		 
+
 	}
 
 
@@ -224,14 +224,14 @@ abstract class FulltextIndex {
 	 * @param unknown_type $pid
 	 * @param unknown_type $op
 	 */
-	protected function postProcessIndex($pid, $op) 
+	protected function postProcessIndex($pid, $op)
 	{
 
 		if (($this->countDocs % self::COMMIT_COUNT) == 0) {
 
 			Logger::debug($this->countDocs . " / " . self::COMMIT_COUNT);
 			$this->optimizeIndex();
-				
+
 		}
 
 	}
@@ -241,7 +241,7 @@ abstract class FulltextIndex {
 	 * Default behaviour: do nothing.
 	 *
 	 */
-	protected function optimizeIndex() 
+	protected function optimizeIndex()
 	{
 		return;
 	}
@@ -252,7 +252,7 @@ abstract class FulltextIndex {
 	 * of the queue and calls the index or remove methods.
 	 *
 	 */
-	public function processQueue() 
+	public function processQueue()
 	{
 
 		$queue = FulltextQueue::singleton();
@@ -269,7 +269,7 @@ abstract class FulltextIndex {
 
 			if (is_array($result)) {
 				extract($result, EXTR_REFS);
-				 
+
 				if ($ftq_op == FulltextQueue::ACTION_DELETE) {
 					//Logger::debug("FulltextIndex::processQueue - calling removeByPid for $ftq_pid");
 					$this->removeByPid($ftq_pid);
@@ -277,21 +277,21 @@ abstract class FulltextIndex {
 					//Logger::debug("FulltextIndex::processQueue - calling indexRecord for $ftq_pid");
 					$this->indexRecord($ftq_pid);
 				}
-				 
+
 				$this->countDocs++;
-				 
+
 				$utc_date = Date_API::getSimpleDateUTC();
 				$time_elapsed = Date_API::dateDiff("s", $this->bgpDetails['bgp_started'], $utc_date);
 				$date_now = new Date(strtotime($bgp_details['bgp_started']));
 
 				if ($this->countDocs > 0) {
 					$time_per_object = round(($time_elapsed / $this->countDocs), 2);
-					 
+
 					$date_now->addSeconds($time_per_object * ($this->totalDocs - $this->countDocs));
 					$tz = Date_API::getPreferredTimezone($this->bgpDetails["bgp_usr_id"]);
 					$expected_finish = Date_API::getFormattedDate($date_now->getTime(), $tz);
 				}
-				
+
 				$this->bgp->markPidAsFinished($ftq_pid);
 				$this->bgp->setStatus("Finished Solr fulltext indexing for ($ftq_pid) (".$this->countDocs."/".$this->totalDocs." Added) (Avg ".$time_per_object."s per Object, Expected Finish ".$expected_finish.")");
 
@@ -305,7 +305,7 @@ abstract class FulltextIndex {
 			unset($ftq_key);
 
 		} while (!$empty);
-		 
+
 		$this->forceCommit();
 
 		return $countDocs;
@@ -319,14 +319,14 @@ abstract class FulltextIndex {
 	 * @param unknown_type $pid
 	 * @return unknown
 	 */
-	private function getListerRuleGroups($pid) 
+	private function getListerRuleGroups($pid)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
 
 		$stmt =  "SELECT * FROM ".APP_TABLE_PREFIX."auth_index2_lister ";
 		$stmt .= "WHERE authi_pid=".$db->quote($pid);
-		
+
 		try {
 			$res = $db->fetchAssoc($stmt);
 		}
@@ -334,7 +334,7 @@ abstract class FulltextIndex {
 			$log->err($ex);
 			return '';
 		}
-		
+
 		if (count($res[$pid]) > 1) {
 			$ruleGroups = implode(" ", $res[$pid]);
 		} else {
@@ -349,7 +349,7 @@ abstract class FulltextIndex {
 	 * date/time formats. Default: date processing to Java format.
 	 *
 	 */
-	protected function mapFieldValue($title, $datatype, $value) 
+	protected function mapFieldValue($title, $datatype, $value)
 	{
 		if (empty($value)) {
 			return;
@@ -380,7 +380,7 @@ abstract class FulltextIndex {
 			$this->bgp->setProgress(++$this->pid_count);
 		}
 
-		$record = new RecordGeneral($pid);
+		$record = new RecordObject($pid);
 		$dslist = $record->getDatastreams();
 
 		foreach ($dslist as $dsitem) {
@@ -401,7 +401,7 @@ abstract class FulltextIndex {
 		 */
 		$citationKey = array(
             'sek_title'         =>  'citation',
-            'sek_title_db'      =>  'rek_citation', 
+            'sek_title_db'      =>  'rek_citation',
             'sek_data_type'     =>  'text',
             'sek_relationship'  =>  0,
 		);
@@ -419,7 +419,7 @@ abstract class FulltextIndex {
 			// e.g. "Display Type" (integer, core 1:1) -> lookup returns string
 			// but for full-text searching subjects this would be nice to have
 			$fieldValue = Record::getSearchKeyIndexValue($pid, $title, false, $sekDetails);
-			 
+
 			// We want solr to cache all citations
 			if($fieldValue == "" && $title == 'citation') {
 				$fieldValue = Citation::updateCitationCache($pid);
@@ -430,7 +430,7 @@ abstract class FulltextIndex {
 
 			// search-engine specific mapping of field content (date!)
 			$fieldValue = $this->mapFieldValue($title, $fieldType, $fieldValue);
-			 
+
 			if( $fieldValue != "" ) {
 				// mark multi-valued search keys
 				$isMultiValued = false;
@@ -438,7 +438,7 @@ abstract class FulltextIndex {
 					$isMultiValued = true;
 					$fieldTypes[$title.FulltextIndex::FIELD_MOD_MULTI] = true;
 				}
-				 
+
 				// search-engine specific mapping of field name
 				$title = $this->getFieldName($title, $fieldType, $isMultiValued);
 				$docfields[$title] = $fieldValue;
@@ -473,7 +473,7 @@ abstract class FulltextIndex {
 		$auth_title = $this->getFieldName(FulltextIndex::FIELD_NAME_AUTH, FulltextIndex::FIELD_TYPE_TEXT, false);
 		$docfields[$auth_title] = $this->getListerRuleGroups($pid);
 		$fieldTypes[$auth_title] = FulltextIndex::FIELD_TYPE_TEXT;
-		 
+
 		//
 		// now we have everything in $docfields >> do update
 		//
@@ -586,7 +586,7 @@ abstract class FulltextIndex {
 	private function indexPlaintext(&$rec, $dsID, &$plaintext)
 	{
 		$log = FezLog::get();
-		
+
 		$pid = $rec->getPid();
 		$log->debug(array("FulltextIndex::indexPlaintext preparing fulltext for ".$pid));
 
@@ -632,7 +632,7 @@ abstract class FulltextIndex {
 		// insert or replace current entry
 		$this->updateFulltextCache($pid, $dsID, $plaintext, $isTextUsable);
 	}
-	 
+
 
 	/**
 	 * Completely removes this PID from the fulltext index (Solr + MySQL cache).
@@ -644,7 +644,7 @@ abstract class FulltextIndex {
 	protected function removeByPid($pid)
 	{
 		$log = FezLog::get();
-		
+
 		$log->debug(array("removeByPid($pid)"));
 		$this->deleteFulltextCache($pid);
 
@@ -658,7 +658,7 @@ abstract class FulltextIndex {
 	 *
 	 * @param unknown_type $options
 	 */
-	protected function prepareQuery($params, $options, $rulegroups, $approved_roles, $sort_by, $start, $page_rows) 
+	protected function prepareQuery($params, $options, $rulegroups, $approved_roles, $sort_by, $start, $page_rows)
 	{
 		return $options["q"];
 	}
@@ -672,7 +672,7 @@ abstract class FulltextIndex {
 	protected abstract function executeQuery($query, $options, $approved_roles, $sort_by, $start, $page_rows);
 
 
-	public function prepareRuleGroups() 
+	public function prepareRuleGroups()
 	{
 		// gets user rule groups for this user
 		$userID = Auth::getUserID();
@@ -701,10 +701,10 @@ abstract class FulltextIndex {
 	 * @param unknown_type $page_rows
 	 * @return unknown
 	 */
-	public function search($params, $options, $approved_roles, $sort_by, $start, $page_rows) 
+	public function search($params, $options, $approved_roles, $sort_by, $start, $page_rows)
 	{
 		$log = FezLog::get();
-		
+
 		$userRuleGroups = $this->prepareRuleGroups($approved_roles);
 		$ruleGroupStmt = implode(" OR ", $userRuleGroups);
 		$log->debug(array("FulltextIndex::search userid='".$userID."', rule groups='$ruleGroupStmt'"));
@@ -747,7 +747,7 @@ abstract class FulltextIndex {
 	 *
 	 * @param string $pid
 	 */
-	public static function indexPid($pid) 
+	public static function indexPid($pid)
 	{
 		FulltextQueue::singleton()->add($pid);
 	}
@@ -773,7 +773,7 @@ abstract class FulltextIndex {
 		FulltextQueue::singleton()->add($pid);
 
 	}
-	 
+
 	/**
 	 * Internally maps the name of a Fez search key to the search engine's
 	 * internal syntax. This function is usually overwritten in subclasses
@@ -785,9 +785,9 @@ abstract class FulltextIndex {
 	 * @return string name of field in search engine
 	 */
 	public function getFieldName($fezName, $datatype=FulltextIndex::FIELD_TYPE_TEXT,
-	$multiple=false) 
+	$multiple=false)
 	{
-			
+
 		return strtolower(preg_replace('/\s/', '_', $fezName));
 	}
 
@@ -796,8 +796,8 @@ abstract class FulltextIndex {
 	 *
 	 * @param unknown_type $fezName
 	 */
-	public function mapType($sek_data_type) 
-	{		 
+	public function mapType($sek_data_type)
+	{
 		switch ($sek_data_type) {
 			case "varchar":
 				$datatype = FulltextIndex::FIELD_TYPE_TEXT; break; // _s?
@@ -810,7 +810,7 @@ abstract class FulltextIndex {
 			default:
 				$datatype = FulltextIndex::FIELD_TYPE_TEXT; break;
 		}
-		 
+
 		return $datatype;
 	}
 
@@ -823,7 +823,7 @@ abstract class FulltextIndex {
 	 * @param string $dsID
 	 * @return plaintext of datastream, null on error
 	 */
-	protected function getCachedContent($pid, $dsID) 
+	protected function getCachedContent($pid, $dsID)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -832,7 +832,7 @@ abstract class FulltextIndex {
         		"WHERE ftc_pid=".$db->quote($pid)." ".
         		"AND ftc_dsid=".$db->quote($dsID)." " .
         		"AND ftc_is_text_usable = 1";
-		
+
 		try {
 			$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
@@ -851,11 +851,11 @@ abstract class FulltextIndex {
 		return $res;
 	}
 
-	protected function checkCachedContent($pid, $dsID) 
+	protected function checkCachedContent($pid, $dsID)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT count(ftc_pid) as cnt ".
         		"FROM ".APP_TABLE_PREFIX.FulltextIndex::FULLTEXT_TABLE_NAME." ".
         		"WHERE ftc_pid=".$db->quote($pid)." ".
@@ -867,7 +867,7 @@ abstract class FulltextIndex {
 		catch(Exception $ex) {
 			$log->err($ex);
 			$res = null;
-		}	  
+		}
 		return $res;
 
 	}
@@ -880,11 +880,11 @@ abstract class FulltextIndex {
 	 * @param string $pid
 	 * @param string $dsID
 	 */
-	protected function deleteFulltextCache($pid, $dsID='') 
+	protected function deleteFulltextCache($pid, $dsID='')
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "DELETE FROM ".APP_TABLE_PREFIX.FulltextIndex::FULLTEXT_TABLE_NAME." ".
 				"WHERE ".
 	        	"ftc_pid=".$db->quote($pid);
@@ -908,34 +908,34 @@ abstract class FulltextIndex {
 	 * @param unknown_type $pid
 	 * @param unknown_type $dsID
 	 */
-	protected function updateFulltextCache($pid, $dsID, &$fulltext, $is_text_usable = 1) 
+	protected function updateFulltextCache($pid, $dsID, &$fulltext, $is_text_usable = 1)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		//Logger::debug("FulltextIndex::indexPlaintext inserting fulltext for ($pid,$dsID) into database");
-		
+
 		// prepare ids
 
 		// prepare text for SQL
 		$fulltext = utf8_encode($fulltext);
-		
+
 		// start a new transaction
 		$db->beginTransaction();
 		$this->deleteFulltextCache($pid, $dsID);
 		// REPLACE: MySQL specific syntax
 		// can be replaced with IF EXISTS INSERT or DELETE/INSERT for other databases
-		// or use transactional integrity - if using multiple indexing processes		
+		// or use transactional integrity - if using multiple indexing processes
 		$stmt = "INSERT INTO ".APP_TABLE_PREFIX.FulltextIndex::FULLTEXT_TABLE_NAME." ";
-        	
-        $values = array($pid,$dsID,$is_text_usable);        
+
+        $values = array($pid,$dsID,$is_text_usable);
         if(! empty($fulltext)) {
         	$stmt .= "(ftc_pid, ftc_dsid, ftc_is_text_usable, ftc_content) VALUES (?,?,?,?)";
         	$values[] = $fulltext;
         }
         else
 			$stmt .= "(ftc_pid, ftc_dsid, ftc_is_text_usable) VALUES (?,?,?)";
-        
+
 		try {
 			$db->query($stmt, $values);
 			$db->commit();

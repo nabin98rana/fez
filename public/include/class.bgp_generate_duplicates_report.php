@@ -50,7 +50,7 @@ class BackgroundProcess_GenerateDuplicatesReport extends BackgroundProcess
 		extract(unserialize($this->inputs));
 
 		if (empty($pids) && !empty($source_collection_pid)) {
-			$col_record = new RecordGeneral($source_collection_pid);
+			$col_record = new RecordObject($source_collection_pid);
 			$pids = $col_record->getChildrenPids();
 		}
 

@@ -3065,7 +3065,7 @@ class AuthNoFedora {
         }
 
         //datastream children
-        $record = new RecordGeneral($pid);
+        $record = new RecordObject($pid);
         $datastreams = $record->getDatastreams();
         if (is_array($datastreams)) {
           foreach($datastreams as $datastream) {

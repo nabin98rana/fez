@@ -1,8 +1,8 @@
 <?php
 
 /**
- * Base class inherited by all classses 
- * representing data imported from external 
+ * Base class inherited by all classses
+ * representing data imported from external
  * sources to be processed.
  * @author Chris Maj <c.maj@library.uq.edu.au>
  * @since November 2012
@@ -53,13 +53,13 @@ abstract class RecordItem
     protected $_xdisId = null;
     protected $_xdisTitle = null;
     protected $_xdisSubtype = null;
-    
+
     /**
      * Namespaces to use with the XPath object
      * @var array
      */
     protected $_namespaces = array();
-    
+
     /**
      * We will try to do a comparison on all these
      * ids when doing de-duping if they are set
@@ -67,9 +67,9 @@ abstract class RecordItem
      */
     protected $_comparisonIdTypes = array();
 
-    
+
     public abstract function load($recordData, $nameSpaces=null);
-    
+
     /**
      * Common xpath object used by all child classes
      * @param string $rawXML
@@ -80,41 +80,41 @@ abstract class RecordItem
         $xmlDoc = new DOMDocument();
         $xmlDoc->preserveWhiteSpace = false;
         $xmlDoc->loadXML($rawXML);
-        
+
         $xpath = new DOMXPath($xmlDoc);
-        
+
         if($this->_namespaces)
         {
             foreach($this->_namespaces as $name => $uri)
             {
                 $xpath->registerNamespace($name, $uri);
             }
-            
+
             $rootNameSpace = $xmlDoc->lookupNamespaceUri($xmlDoc->namespaceURI);
             $xpath->registerNamespace('default', $rootNameSpace);
         }
-        
+
         return $xpath;
     }
-    
+
     /**
-     * Comparison of and de-duping downloaded record 
+     * Comparison of and de-duping downloaded record
      */
-    public function liken() 
+    public function liken()
     {
         //set an idcollection array for pids returned by id type
         $idCollection = array();
         $mirrorMirror = new ReflectionClass($this);
-        
-        //foreach of the selected id types 
+
+        //foreach of the selected id types
         //(wok,pubmed,scopus,etc) that is not null
         foreach($this->_comparisonIdTypes as $id)
         {
-            //Check that a method exists for retrieving 
+            //Check that a method exists for retrieving
             //a local record by that id type.
             $retrieverName = 'getPIDsBy'.$id;
             $retriever = $mirrorMirror->getMethod($retrieverName);
-            
+
             if($retriever)
             {
                 //Run the method and capture the pid(s)
@@ -125,14 +125,14 @@ abstract class RecordItem
                 var_dump($retrieverName);
                 
                 $pidCount = count($pids);
-                
+
                 //if there is only one pid returned
                 if($pidCount == 1)
                 {
                     //set that as the pid returned for that id in the array
                     $idCollection[$id] = $pids[0];
                 }
-                elseif($pidCount > 1) 
+                elseif($pidCount > 1)
                 {
                     //log an error if there is more than one pid (but not if there are none)
                     $this->_log->err("Multiple matches found for $id:".__METHOD__);
@@ -140,8 +140,8 @@ abstract class RecordItem
                     return false;
                 }
             }
-        }       
-        
+        }
+
         //if all the pids in the idcollection array are the same
         $ctUniq = count(array_unique($idCollection));
         echo "Uniq count:\n";
@@ -153,7 +153,7 @@ abstract class RecordItem
             $collectionKey = $collectionKey[0];
             $likenedPid = $idCollection[$collectionKey];
         }
-        
+
         //if we have an authoritative pid
         var_dump($likenedPid);
         if($likenedPid)
@@ -161,9 +161,9 @@ abstract class RecordItem
             //do a fuzzy title match
             $rec = new Record();
             $title = $rec->getTitleFromIndex($likenedPid);
-            
+
             $percentageMatch = 0;
-            
+
             $downloadedTitle = RCL::normaliseTitle($this->_title);
             $localTitle = RCL::normaliseTitle($title);
             similar_text($downloadedTitle, $localTitle, $percentageMatch);
@@ -185,7 +185,7 @@ abstract class RecordItem
             file_put_contents('/var/www/fez/tests/dat/scopusSaveUpdate.txt', "SAVE $newPid\n",FILE_APPEND); */
         }
     }
-    
+
     /**
      * Fetch an array of pids by Doi
      * @param mixed $id
@@ -194,20 +194,20 @@ abstract class RecordItem
     protected function getPIDsBy_doi()
     {
         $pids = array();
-        
+
         if($this->_doi)
         {
             $pidSet = Record::getPIDsByDoi($this->_doi);
         }
-        
+
         for($i=0;$i<count($pidSet);$i++)
         {
             $pids[] = $pidSet[$i]['rek_doi_pid'];
         }
-        
+
         return $pids;
     }
-    
+
     /**
     * Fetch an array of pids by ScopusId
     * @param mixed $id
@@ -216,20 +216,20 @@ abstract class RecordItem
     protected function getPIDsBy_scopusId()
     {
         $pids = array();
-        
+
         if($this->_scopusId)
         {
             $pidSet = Record::getPIDsByScopusID($this->_scopusId);
         }
-        
+
         for($i=0;$i<count($pidSet);$i++)
         {
             $pids[] = $pidSet[$i]['rek_scopus_id'];
         }
-        
+
         return $pids;
     }
-    
+
     /**
     * Fetch an array of pids by PubmedId
     * @param mixed $id
@@ -238,10 +238,10 @@ abstract class RecordItem
     protected function getPIDsBy_pubmedId()
     {
         //woteva
-        
+
         //return array of pids
     }
-    
+
     /**
     * Fetch an array of pids by WokId
     * @param mixed $id
@@ -250,10 +250,10 @@ abstract class RecordItem
     protected function getPIDsBy_wokId()
     {
         //woteva
-        
+
         //return array of pids
     }
-    
+
     /**
      * Saves record items to Record Search Key
      *
@@ -378,7 +378,7 @@ abstract class RecordItem
             }
             // Links currently blank since only getting first DOI or link
             $links = array();
-            
+
             $rec = new Record();
             $pid = $rec->insertFromArray($mods, $this->collections[0], "MODS 1.0", $history, 0, $links, array());
             if (is_numeric($this->_wokCitationCount)) {
@@ -453,7 +453,7 @@ abstract class RecordItem
         }
 
         $history = 'Filled empty metadata fields ('.implode(", ", $search_keys).') using '. $this->_importAPI;
-        $record = new RecordGeneral($pid);
+        $record = new RecordObject($pid);
         $record->addSearchKeyValueList(
             $search_keys, $values, true, $history
         );

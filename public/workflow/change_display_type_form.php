@@ -34,7 +34,7 @@
 
 include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
- 
+
 $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign("type", 'change_display_type_form');
@@ -53,7 +53,7 @@ if (@$_REQUEST["cat"] == "submit") {
 $wfstatus->checkStateChange();
 
 $xdis_list = XSD_Display::getAssocListDocTypes();
-$record = new RecordGeneral($pid);
+$record = new RecordObject($pid);
 $xdis_id = $record->getXmlDisplayId();
 $tpl->assign(compact('xdis_id','xdis_list'));
 $tpl->assign("title", $record->getTitle());
@@ -62,6 +62,6 @@ $tpl->assign("title", $record->getTitle());
 
 //$tpl->registerNajax(NAJAX_Client::register('Suggestor', APP_RELATIVE_URL.'ajax.php'));
 
- 
-$tpl->displayTemplate(); 
+
+$tpl->displayTemplate();
 ?>

@@ -84,7 +84,7 @@ foreach ($res as $row) {
     echo $row['rek_pid']."-";
     $i++;
     $pid = $row['rek_pid'];
-    $record = new RecordGeneral($pid);
+    $record = new RecordObject($pid);
     $search_keys = array('Scopus Doc Type');
     $values = array($row['sdt_code']);
     $record->addSearchKeyValueList($search_keys, $values, true,"Added from ERA data");
