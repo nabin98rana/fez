@@ -36,12 +36,12 @@
  * Class to handle access to the Web of Knowledge Web Services.
  *
  * @version 0.1
- * @author Andrew Martlew <a.martlew@library.uq.edu.au>
+ * @author Chris Maj <c.maj@library.uq.edu.au>
  *
  */
 
 //Move this  constant into the DB
-define('SCOPUS_WS_BASE_URL', 'https://api.elsevier.com/');
+//define('SCOPUS_WS_BASE_URL', 'https://api.elsevier.com/');
 
 class ScopusService
 {
@@ -96,6 +96,15 @@ class ScopusService
     }
     
     /**
+    * Getter overload
+    * @param string $propName
+    */
+    public function __get($propName)
+    {
+        return $this->$propName;
+    }
+    
+    /**
      * Clear out the token table and save a new token
      * @param string $token
      */
@@ -142,6 +151,8 @@ class ScopusService
         
         if(!$token)
         {
+            $curlRes = $this->doCurl($params);
+//             var_dump($curlRes);
             $xpath = $this->getXPath($this->doCurl($params));
             $tokens = $xpath->query("//authenticate-response/authtoken");
             $token = $tokens->item(0)->nodeValue;
@@ -186,6 +197,7 @@ class ScopusService
         
         $recordData = $this->doCurl($params, 'content');
         //return file_put_contents('/var/www/fez/tests/dat/entrezFullOutOO.txt', $recordData);
+//         file_put_contents('/var/www/fez/tests/dat/scopusFullOut120601.txt', $recordData, FILE_APPEND);
         return $recordData;
     }
     
@@ -203,11 +215,6 @@ class ScopusService
         );
         
         $records = $this->search($query);
-        
-        /*if($records)
-        {
-            
-        }*/
         
         $this->recSetStart = $this->getNextRecStart($records);
         
@@ -256,6 +263,11 @@ class ScopusService
         /*$xpath = $this->getXPath($recordSet);
         $records = $xpath->query('//default:entry');*/
         
+        $nameSpaces = array(
+                'prism' => "http://prismstandard.org/namespaces/basic/2.0/",
+                'dc' => "http://purl.org/dc/elements/1.1/"
+        );
+        
         $doc = new DOMDocument();
         $doc->loadXML($recordSet);
         $records = $doc->getElementsByTagName('entry');
@@ -269,12 +281,13 @@ class ScopusService
             $recordHandler = new ScopusRecItem();
             $xmlDoc = new DOMDocument();
             $xmlDoc->appendChild($xmlDoc->importNode($record, true));
-            $recordHandler->load($xmlDoc->saveXML());
+            $recordHandler->load($xmlDoc->saveXML(), $nameSpaces);
+            $recordHandler->liken();
             //var_dump($xmlDoc->saveXML());
         }
     }
     
-    public function checkAffiliation($recordObject)
+    /* public function checkAffiliation($recordObject) //Moved this into the scopus_record class
     {
         $xpath = $this->getXPath($recordObject);
         $affiliated = false;
@@ -290,7 +303,7 @@ class ScopusService
         }
     
         return $affiliated;
-    }
+    } */
     
     /**
      * Execute a cURL request on the ScopusAPI
@@ -324,7 +337,7 @@ class ScopusService
         if(!$curlResponse)
         {
             $this->log->err(curl_errno($curlHandle));
-            //var_dump(curl_errno($curlHandle));
+            var_dump(curl_errno($curlHandle));
         }
         
         curl_close($curlHandle);

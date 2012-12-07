@@ -88,6 +88,8 @@ class ScopusRecItem extends RecordItem
         $xpath = $this->getXPath($recordData);
         
         $this->_doi = $this->extract('//prism:doi', $xpath);
+        echo "Doi:\n";
+        var_dump($this->_doi);
         
         $this->_title = $this->extract('//dc:title', $xpath);
         
@@ -96,7 +98,7 @@ class ScopusRecItem extends RecordItem
         {
             $this->_affiliations[] = $affiliation->nodeValue;
         }
-            
+        
         if($this->likenAffiliation())
         {
             
@@ -112,14 +114,19 @@ class ScopusRecItem extends RecordItem
             
             $this->_xdisTitle = $this->extract('//prism:aggregationType', $xpath);
             
+            $this->_authors[] = $this->extract('//dc:creator', $xpath);
+            
             $matches = array();
             preg_match("/^SCOPUS_ID\:(\d+)$/", $this->_scopusId, $matches);
             $scopusIdExtracted = (array_key_exists(1, $matches)) ? $matches[1] : null;
             $this->_scopusId = $scopusIdExtracted;
+            echo "ScopusId:\n";
+            var_dump($this->_scopusId);
             
             $pageRange = $this->extract('//prism:pageRange', $xpath);
+            $pageRange = preg_replace('/[a-zA-Z]/', '', $pageRange);
             $matches = array();
-            preg_match("/^(\d+)\-(\d+)$/", str_replace(array(' ', '\r\n', '\n', '\t'), '', $pageRange));
+            preg_match("/^(\d+)\-(\d+)$/", str_replace(array(' ', '\r\n', '\n', '\t'), '', $pageRange), $matches);
             
             if(array_key_exists(1, $matches) && array_key_exists(2, $matches))
             {
@@ -162,7 +169,13 @@ class ScopusRecItem extends RecordItem
         $affiliated = false;
         foreach($this->_affiliations as $affiliation)
         {
-            if(preg_match('/University of Queensland|University of Qld/', 
+            /*echo "\n\n";
+            $affil = preg_match('/(University of Queensland)|(University of Qld)/', 
+                                                       $affiliation);
+            var_dump($affil);
+            var_dump($affiliation);
+            echo "\n\n";*/
+            if(preg_match('/(University of Queensland)|(University of Qld)/', 
                                                        $affiliation))
             {
                 $affiliated = true;

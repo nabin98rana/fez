@@ -119,6 +119,11 @@ abstract class RecordItem
             {
                 //Run the method and capture the pid(s)
                 $pids = $this->$retrieverName();
+                
+                echo "Pids and retriever name:\n";
+                var_dump($pids);
+                var_dump($retrieverName);
+                
                 $pidCount = count($pids);
                 
                 //if there is only one pid returned
@@ -131,14 +136,17 @@ abstract class RecordItem
                 {
                     //log an error if there is more than one pid (but not if there are none)
                     $this->_log->err("Multiple matches found for $id:".__METHOD__);
-                    echo "\nMultiple matches found for $id:".__METHOD__ ."\n";
+//                     echo "\nMultiple matches found for $id:".__METHOD__ ."\n";
                     return false;
                 }
             }
         }       
         
         //if all the pids in the idcollection array are the same
-        if(count(array_unique($idCollection)) == 1)
+        $ctUniq = count(array_unique($idCollection));
+        echo "Uniq count:\n";
+        var_dump($ctUniq);
+        if($ctUniq == 1)
         {
             //that's the pid for us - set it as authorative
             $collectionKey = array_keys($idCollection);
@@ -147,6 +155,7 @@ abstract class RecordItem
         }
         
         //if we have an authoritative pid
+        var_dump($likenedPid);
         if($likenedPid)
         {
             //do a fuzzy title match
@@ -158,19 +167,22 @@ abstract class RecordItem
             $downloadedTitle = RCL::normaliseTitle($this->_title);
             $localTitle = RCL::normaliseTitle($title);
             similar_text($downloadedTitle, $localTitle, $percentageMatch);
+            echo "Will attempt to UPDATE\n";
             //if the fuzzy title match is better than 80%
             if($percentageMatch >= 80)
             {
                 //update the record with any data we don't have
                 echo "\nUPDATING\n";
-                $this->update($likenedPid);
+//                 $this->update($likenedPid);
+//                 file_put_contents('/var/www/fez/tests/dat/scopusSaveUpdate.txt', "UPDATE $likenedPid\n",FILE_APPEND);
             }
         }
         else
         {
             //save a new record
             echo  "\nSAVING\n";
-            $this->save();
+            /* $newPid = $this->save();
+            file_put_contents('/var/www/fez/tests/dat/scopusSaveUpdate.txt', "SAVE $newPid\n",FILE_APPEND); */
         }
     }
     
@@ -376,7 +388,7 @@ abstract class RecordItem
                 Record::updateScopusCitationCount($pid, $this->_scopusCitationCount, $this->_scopusId);
             }
         }
-        var_dump($pid);
+//         var_dump($pid);
         return $pid;
     }
 
