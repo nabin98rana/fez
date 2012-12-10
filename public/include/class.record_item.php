@@ -341,7 +341,7 @@ abstract class RecordItem
             $mods['identifier_isbn'] = $this->_isbn;
             $mods['identifier_issn'] = $this->_issn;
             $mods['identifier_doi'] = $this->_doi;
-            $mods['language'] = $this->_language;
+            $mods['language'] = $this->_languageCode;
             $mods['genre'] = $this->_xdisTitle;
             $mods['genre_type'] = $this->_xdisSubtype;
             $mods['relatedItem']['part']['detail_issue']['number'] = $this->_issueNumber;
@@ -357,7 +357,7 @@ abstract class RecordItem
                 if (!empty($this->_confenceLocationCity) || !empty($this->_confenceLocationState)) {
                     $mods['relatedItem']['originInfo']['place']['placeTerm'] = $this->_confenceLocationCity . ' ' . $this->_confenceLocationState;
                 }
-                $mods['relatedItem']['originInfo']['dateOther'] = $this->_conferenceDate;
+                $mods['relatedItem']['originInfo']['dateOther'] = $this->_conferenceDates;
             } else if ($this->_xdisTitle == 'Journal Article') {
                 $mods['relatedItem']['originInfo']['dateIssued'] = $this->_issueDate;
                 $mods['relatedItem']['name'][0]['namePart_type'] = 'journal';
@@ -408,8 +408,8 @@ abstract class RecordItem
             "End Page" => $this->_endPage,
             "Total Pages" => $this->_totalPages,
             "Issue Number" => $this->_issueNumber,
-            "Language" => $this->_langageCode,
-            "Conference Dates" => $this->_conferenceDate,
+            "Language" => $this->_languageCode,
+            "Conference Dates" => $this->_conferenceDates,
             "Conference Name" => $this->_conferenceTitle,
             "Journal Name" => $this->_journalTitle,
             "WoK Doc Type" => $this->_wokDocTypeCode,
@@ -497,7 +497,7 @@ abstract class RecordItem
 
         $sekData['Date']            = Misc::MySQLDate(array("Year" => date("Y", strtotime($this->_issueDate)), "Month" => date("m", strtotime($this->_issueDate))));
 
-        $sekData['Language']        = $this->_langageCode;
+        $sekData['Language']        = $this->_languageCode;
         $sekData['Status']          = Status::getID("Published");
         $sekData['Object Type']     = Object_Type::getID("Record");
         $sekData['Depositor']       = Auth::getUserID();
@@ -509,7 +509,7 @@ abstract class RecordItem
         if ($xdis_title == 'Conference Paper') {
             $sekData['Proceedings Title'] = $this->_title;
             $sekData['Conference Name']   = $this->_conferenceTitle;
-            $sekData['Conference Dates']  = $this->_conferenceDate;
+            $sekData['Conference Dates']  = $this->_conferenceDates;
             if (!empty($this->_confenceLocationCity) || !empty($this->_confenceLocationState)) {
                 $sekData['Conference Location']  = $this->_confenceLocationCity . ' ' . $this->_confenceLocationState;
             }
