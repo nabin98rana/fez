@@ -1,4 +1,4 @@
-CREATE TABLE fez_record_search_key_supervisor (
+CREATE TABLE %TABLE_PREFIX%record_search_key_supervisor (
   rek_supervisor_id int(11) NOT NULL AUTO_INCREMENT,
   rek_supervisor_pid varchar(64) DEFAULT NULL,
   rek_supervisor_xsdmf_id int(11) DEFAULT NULL,
@@ -12,7 +12,7 @@ CREATE TABLE fez_record_search_key_supervisor (
   KEY rek_supervisor_order (rek_supervisor_order)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE fez_record_search_key_supervisor__shadow (
+CREATE TABLE %TABLE_PREFIX%record_search_key_supervisor__shadow (
   rek_supervisor_id int(11) NOT NULL AUTO_INCREMENT,
   rek_supervisor_pid varchar(64) DEFAULT NULL,
   rek_supervisor_xsdmf_id int(11) DEFAULT NULL,
@@ -26,7 +26,7 @@ CREATE TABLE fez_record_search_key_supervisor__shadow (
   KEY rek_supervisor_order (rek_supervisor_order)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE fez_record_search_key_supervisor_id (
+CREATE TABLE %TABLE_PREFIX%record_search_key_supervisor_id (
   rek_supervisor_id_id int(11) NOT NULL AUTO_INCREMENT,
   rek_supervisor_id_pid varchar(64) DEFAULT NULL,
   rek_supervisor_id_xsdmf_id int(11) DEFAULT NULL,
@@ -40,7 +40,7 @@ CREATE TABLE fez_record_search_key_supervisor_id (
   KEY rek_supervisor_id_order (rek_supervisor_id_order)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE fez_record_search_key_supervisor_id__shadow (
+CREATE TABLE %TABLE_PREFIX%record_search_key_supervisor_id__shadow (
   rek_supervisor_id_id int(11) NOT NULL AUTO_INCREMENT,
   rek_supervisor_id_pid varchar(64) DEFAULT NULL,
   rek_supervisor_id_xsdmf_id int(11) DEFAULT NULL,
