@@ -887,7 +887,15 @@ class Lister
 
         $options = Search_Key::stripSearchKeys($options);
         $filter["searchKey" . Search_Key::getID("Status")] = 2; // enforce published records only
-        $filter["searchKey" . Search_Key::getID("Subject")] = $parent_id; //
+        $cvParents = Controlled_Vocab::getParentListFullDisplay($parent_id);
+        if (trim($cvParents[0]['cvo_title']) == 'Fields of Research') {
+          $filter["searchKey" . Search_Key::getID("Fields of Research")] = $parent_id;
+        } elseif (trim($cvParents[0]['cvo_title']) == 'Socio-Economic Objective (2008)') {
+          $filter["searchKey" . Search_Key::getID("SEO Code")] = $parent_id;
+        } else {
+          $filter["searchKey" . Search_Key::getID("Subject")] = $parent_id;
+        }
+
         $list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter);
 
         $list_info = $list["info"];

@@ -51,7 +51,7 @@ include_once(APP_INC_PATH . "class.auth.php");
 
 class Controlled_Vocab
 {
-	
+
 	const CACHE_KEY = 'Controlled_Vocab_';
 
 	/**
@@ -89,7 +89,7 @@ class Controlled_Vocab
 			$log->err($ex);
 			return false;
 		}
-		
+
 		return true;
 	}
 
@@ -104,7 +104,7 @@ class Controlled_Vocab
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "controlled_vocab_relationship
                  WHERE
@@ -117,7 +117,7 @@ class Controlled_Vocab
 			$log->err($ex);
 			return false;
 		}
-		
+
 		return true;
 	}
 
@@ -131,7 +131,7 @@ class Controlled_Vocab
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "controlled_vocab
                  (
@@ -164,7 +164,7 @@ class Controlled_Vocab
 			$log->err($ex);
 			return -1;
 		}
-		
+
 		// get last db entered id
 		$new_id = $db->lastInsertId(APP_TABLE_PREFIX . "controlled_vocab", "cvo_id");
 		if (is_numeric($_POST["parent_id"])) {
@@ -248,7 +248,7 @@ class Controlled_Vocab
 			$record_id = "";
 			if ($xpath_id != "") {
 				$id_fields = $xpath->query($xpath_id, $recordNode);
-					
+
 				foreach ($id_fields as $id_field) {
 					if  ($record_id == "") {
 						$record_id = $id_field->nodeValue;
@@ -279,16 +279,16 @@ class Controlled_Vocab
 
 			if ($xpath_extparent_id != "") {
 				$extparent_id_fields = $xpath->query($xpath_extparent_id, $recordNode);
-					
+
 				foreach ($extparent_id_fields as $extparent_id_field) {
 					print $extparent_id_field->nodeValue;
 
 					if  ($extparent_id_field->nodeValue > '') {
 						$extparent_id = $extparent_id_field->nodeValue;
-							
+
 						// set first external reference as parent (overrides internal parent_id)
 						$intparent_id = Controlled_Vocab::getInternalIDByExternalID($extparent_id);
-							
+
 						if ($intparent_id != '') {
 							$record_parent_id =	$intparent_id;
 							//print "<br><b>$intparent_id</b>";
@@ -323,10 +323,10 @@ class Controlled_Vocab
                     " . APP_TABLE_PREFIX . "controlled_vocab_relationship
                  (
                     cvr_parent_cvo_id,
-                    cvr_child_cvo_id					
+                    cvr_child_cvo_id
                  ) VALUES (
                     " .$db->quote($parent_id, 'INTEGER'). ",
-                    " .$db->quote($child_id, 'INTEGER'). "					
+                    " .$db->quote($child_id, 'INTEGER'). "
                  )";
 		try {
 			$db->query($stmt);
@@ -352,12 +352,12 @@ class Controlled_Vocab
 
 		$stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "controlled_vocab
-                 SET 
+                 SET
                     cvo_title = " . $db->quote($_POST["cvo_title"]) . ",
                     cvo_external_id = " . $db->quote(trim($_POST["cvo_external_id"])). ",
                     cvo_desc = " . $db->quote($_POST["cvo_desc"]) . ",
                     cvo_hide = " . $db->quote($_POST["cvo_hide"]) . "
-                 WHERE cvo_id = ".$db->quote($cvo_id, 'INTEGER');		
+                 WHERE cvo_id = ".$db->quote($cvo_id, 'INTEGER');
 		try {
 			$db->exec($stmt);
 			FezCache::remove(Controlled_Vocab::CACHE_KEY);
@@ -694,7 +694,7 @@ class Controlled_Vocab
 
 		if (is_numeric($parent_id)) {
 			$stmt .=   "," . APP_TABLE_PREFIX . "controlled_vocab_relationship
-					     WHERE cvr_parent_cvo_id = ".$db->quote($parent_id, 'INTEGER')." AND cvr_child_cvo_id = cvo_id ";			
+					     WHERE cvr_parent_cvo_id = ".$db->quote($parent_id, 'INTEGER')." AND cvr_child_cvo_id = cvo_id ";
 		} else {
 			$stmt .= " WHERE cvo_id not in (SELECT cvr_child_cvo_id from  " . APP_TABLE_PREFIX . "controlled_vocab_relationship)";
 		}
@@ -738,14 +738,14 @@ class Controlled_Vocab
 		if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
 			$stmt .= "cvo_title || ' ' || cvo_desc as cvo_title ";
 		} else {
-			$stmt .= "CONCAT(cvo_title, ' ', cvo_desc) as cvo_title ";			
+			$stmt .= "CONCAT(cvo_title, ' ', cvo_desc) as cvo_title ";
 		}
     $stmt .= "FROM
                     " . APP_TABLE_PREFIX . "controlled_vocab ";
 
 		if (is_numeric($parent_id)) {
 			$stmt .=   "," . APP_TABLE_PREFIX . "controlled_vocab_relationship
-					     WHERE cvr_parent_cvo_id = ".$db->quote($parent_id, 'INTEGER')." AND cvr_child_cvo_id = cvo_id ";			
+					     WHERE cvr_parent_cvo_id = ".$db->quote($parent_id, 'INTEGER')." AND cvr_child_cvo_id = cvo_id ";
 		} else {
 			$stmt .= " WHERE cvo_id not in (SELECT cvr_child_cvo_id from  " . APP_TABLE_PREFIX . "controlled_vocab_relationship)";
 		}
@@ -794,7 +794,7 @@ class Controlled_Vocab
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		if (empty($child_id)) {
 	 		return array();
 	 	}
@@ -803,14 +803,14 @@ class Controlled_Vocab
 		if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
 			$stmt .= "cvo_title || ' ' || cvo_desc as cvo_title ";
 		} else {
-			$stmt .= "CONCAT(cvo_title, ' ', cvo_desc) as cvo_title ";			
+			$stmt .= "CONCAT(cvo_title, ' ', cvo_desc) as cvo_title ";
 		}
     $stmt .= "FROM
 	                    " . APP_TABLE_PREFIX . "controlled_vocab ";
 		$stmt .=   "," . APP_TABLE_PREFIX . "controlled_vocab_relationship
-						     WHERE cvr_parent_cvo_id = cvo_id AND cvr_child_cvo_id = ".$db->quote($child_id, 'INTEGER');			
+						     WHERE cvr_parent_cvo_id = cvo_id AND cvr_child_cvo_id = ".$db->quote($child_id, 'INTEGER');
 		$stmt .= " ORDER BY cvo_title ASC";
-		
+
 		try {
 			$res = $db->fetchPairs($stmt);
 		}
@@ -818,7 +818,7 @@ class Controlled_Vocab
 			$log->err($ex);
 			return '';
 		}
-			
+
 		if (empty($res)) {
 			return array();
 		} else {
@@ -862,13 +862,13 @@ class Controlled_Vocab
 		if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
 			$stmt .= $db->quote($indent)." || ' ' || cvo_title as cvo_title ";
 		} else {
-			$stmt .= "CONCAT(".$db->quote($indent).", ' ', cvo_title) as cvo_title ";			
+			$stmt .= "CONCAT(".$db->quote($indent).", ' ', cvo_title) as cvo_title ";
 		}
     $stmt .= " FROM " . APP_TABLE_PREFIX . "controlled_vocab ";
 		$stmt .=   "," . APP_TABLE_PREFIX . "controlled_vocab_relationship
-					     WHERE cvr_parent_cvo_id = cvo_id AND cvr_child_cvo_id = ".$db->quote($child_id, 'INTEGER');			
+					     WHERE cvr_parent_cvo_id = cvo_id AND cvr_child_cvo_id = ".$db->quote($child_id, 'INTEGER');
 		$stmt .= " ORDER BY cvo_title ASC";
-		
+
 		try {
 			$res = $db->fetchAll($stmt);
 		}
@@ -886,7 +886,7 @@ class Controlled_Vocab
 				if ($child_id != false) {
 					$newArray[$key] = $data;
 				}
-				$tempArray = Controlled_Vocab::getParentListFullDisplay($key, $indent);
+				$tempArray = Controlled_Vocab::getParentListFullDisplay($data['cvo_id'], $indent);
 				if (count($tempArray) > 0) {
 					if ($child_id == false) {
 						$newArray['data'][$key] = array_merge($tempArray, $newArray[$key]);
@@ -908,17 +908,17 @@ class Controlled_Vocab
 	 * @param string $parent_id
 	 * @return  array The list of controlled vocabularies
 	 */
-	function getAllTreeIDs($parent_id=false) 
+	function getAllTreeIDs($parent_id=false)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT cvo_id
                  FROM
                     " . APP_TABLE_PREFIX . "controlled_vocab ";
 		if (is_numeric($parent_id)) {
 			$stmt .=   "," . APP_TABLE_PREFIX . "controlled_vocab_relationship
-						 WHERE cvr_parent_cvo_id = ".$db->quote($parent_id, 'INTEGER')." AND cvr_child_cvo_id = cvo_id ";			
+						 WHERE cvr_parent_cvo_id = ".$db->quote($parent_id, 'INTEGER')." AND cvr_child_cvo_id = cvo_id ";
 		} else {
 			$stmt .= " WHERE cvo_id not in (SELECT cvr_child_cvo_id from  " . APP_TABLE_PREFIX . "controlled_vocab_relationship)";
 		}
@@ -929,7 +929,7 @@ class Controlled_Vocab
 			$log->err($ex);
 			return array();
 		}
-		
+
 		$newArray = array();
 		foreach ($res as $row) {
 			$tempArray = array();
@@ -955,18 +955,18 @@ class Controlled_Vocab
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     *
                  FROM
-                    " . APP_TABLE_PREFIX . "controlled_vocab 
-                 		LEFT JOIN " . APP_TABLE_PREFIX . "controlled_vocab_relationship ON 
-						cvr_child_cvo_id = cvo_id";		
-		
+                    " . APP_TABLE_PREFIX . "controlled_vocab
+                 		LEFT JOIN " . APP_TABLE_PREFIX . "controlled_vocab_relationship ON
+						cvr_child_cvo_id = cvo_id";
+
 		if ($cvo_id != "") {
 			$stmt .= " WHERE cvo_id=" . $db->quote($cvo_id, 'INTEGER');
 		}
-		
+
 		try {
 			$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
@@ -986,29 +986,29 @@ class Controlled_Vocab
 
 	// TODO: Refactor
 	// AM: Really need to look at the way we store controlled vocabs. Converting from the current adjacency list model
-	// to a nested set model is one possible solution. What we want to achieve is easy reads at the cost of more 
+	// to a nested set model is one possible solution. What we want to achieve is easy reads at the cost of more
 	// expensive writes.
-	public static function getVisibleCvs($parent_id = '') 
+	public static function getVisibleCvs($parent_id = '')
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$cv = array();
 		$parent_cvo_ids = array();
 		$username = Auth::getUsername();
 		$isAdministrator = User::isUserAdministrator($username);
-		
+
 		if (is_numeric($parent_id)) {
 			// Get all of the controlled_vocabularies with this parent
 			$stmt = "SELECT cvo_id
 	                 FROM
-	                    " . APP_TABLE_PREFIX . "controlled_vocab,			
+	                    " . APP_TABLE_PREFIX . "controlled_vocab,
 						" . APP_TABLE_PREFIX . "controlled_vocab_relationship WHERE ";
 			if ($isAdministrator != true) {
 				$stmt .= " cvo_hide != 1 AND ";
 			}
 			$stmt .= "
-							cvr_parent_cvo_id = ".$db->quote($parent_id, 'INTEGER')." AND cvr_child_cvo_id = cvo_id ";			
+							cvr_parent_cvo_id = ".$db->quote($parent_id, 'INTEGER')." AND cvr_child_cvo_id = cvo_id ";
 			try {
 				$res = $db->fetchAll($stmt);
 			}
@@ -1016,39 +1016,39 @@ class Controlled_Vocab
 				$log->err($ex);
 				return array();
 			}
-			
+
 			foreach ($res as $row) {
 				$cv[$row['cvo_id']] = $row['cvo_id'];
 			}
-			
+
 			// Get all of the controlled_vocabularies with children
 			$stmt = "SELECT cvo_id
 	                 FROM
-	                    " . APP_TABLE_PREFIX . "controlled_vocab, 
+	                    " . APP_TABLE_PREFIX . "controlled_vocab,
 														" . APP_TABLE_PREFIX . "controlled_vocab_relationship WHERE ";
 			if ($isAdministrator != true) {
 				$stmt .= " cvo_hide != 1 AND ";
 			}
 			$stmt .= "
-							  cvr_parent_cvo_id = ".$db->quote($parent_id, 'INTEGER')." AND cvr_child_cvo_id = cvo_id  AND cvo_id in (SELECT cvr_parent_cvo_id from " . APP_TABLE_PREFIX . "controlled_vocab_relationship)";			
-			
+							  cvr_parent_cvo_id = ".$db->quote($parent_id, 'INTEGER')." AND cvr_child_cvo_id = cvo_id  AND cvo_id in (SELECT cvr_parent_cvo_id from " . APP_TABLE_PREFIX . "controlled_vocab_relationship)";
+
 			try {
 				$res = $db->fetchAll($stmt);
 			}
 			catch(Exception $ex) {
 				$log->err($ex);
 			}
-			
+
 			foreach ($res as $row) {
 				$parent_cvo_ids[] = $row['cvo_id'];
 			}
-			
+
 		}
 		else {
 			$stmt = "SELECT cvo_id
 	                 FROM
 	                    " . APP_TABLE_PREFIX . "controlled_vocab WHERE ";
-	
+
 			if ($isAdministrator != true) {
 				$stmt .= " cvo_hide != 1 AND ";
 			}
@@ -1064,8 +1064,8 @@ class Controlled_Vocab
 				$cv[$row['cvo_id']] = $row['cvo_id'];
 				$parent_cvo_ids[] = $row['cvo_id'];
 			}
-		}		
-		
+		}
+
 		// Get the visible children for each parent controlled_vocab
 		foreach ($parent_cvo_ids as $cvo_id) {
 			$cv[$cvo_id] = Controlled_Vocab::getVisibleCvs($cvo_id);
@@ -1089,12 +1089,12 @@ class Controlled_Vocab
 		$username = Auth::getUsername();
 		$isAdministrator = User::isUserAdministrator($username);
 
-		$cache_key = 'buildCVtree';		
+		$cache_key = 'buildCVtree';
 		if ($isAdministrator) {
 			$cache_key .= "_admin";
 		}
 		$cache_key .= "_" . $parentID; // Make each cached CV tree unique!
-		
+
 		$cvTree = array();
 		$cache = FezCache::load(Controlled_Vocab::CACHE_KEY);
 
@@ -1104,7 +1104,7 @@ class Controlled_Vocab
 		else if(! $cache) {
 			$cache = array();
 		}
-	
+
 		$visible_cv_ids = Controlled_Vocab::getVisibleCvs();
 
 		$where = '';
@@ -1118,7 +1118,7 @@ class Controlled_Vocab
                 $where = "WHERE cvo_id IN (".$children.") ";
             }
         }
-		
+
 		if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
 			$stmt = "SELECT cvo_id, cvo_title, cvo_hide, cvo_title || ' ' || cvo_desc as cvo_title_extended, cvr_parent_cvo_id as cvo_parent_id ";
 		} else {
@@ -1140,12 +1140,12 @@ class Controlled_Vocab
 			$log->err($ex);
 			return '';
 		}
-		
+
 		foreach ($res as $row) {
 			if (is_numeric($parentID)) {
 				if (is_null($row['cvo_parent_id'])) {
 					array_push($cvTree, "var tmpNode".$row['cvo_id']." = new YAHOO.widget.TextNode('" . addslashes($row['cvo_title']) . "', tree.getRoot(), false);");
-				} else {				
+				} else {
 					array_push($cvTree, "var tmpNode".$row['cvo_id']." = new YAHOO.widget.TextNode('<a href=\"javascript:addItemToParent(" . $row['cvo_id'] . ", \'" . addslashes(addslashes($row['cvo_title_extended'])) . "\');\">" . addslashes($row['cvo_title_extended']) . "</a>', tmpNode" . $row['cvo_parent_id'] . ", false);");
 				}
 			} else {
@@ -1153,7 +1153,7 @@ class Controlled_Vocab
 					if(($row['cvo_hide'] != '1' || $isAdministrator == true) && (in_array($row['cvo_id'], $visible_cv_ids))) {
 						array_push($cvTree, "var tmpNode".$row['cvo_id']." = new YAHOO.widget.TextNode('" . addslashes($row['cvo_title']) . "', tree.getRoot(), false);");
 					}
-				} else {				
+				} else {
 					if(($row['cvo_hide'] != '1' || $isAdministrator == true)  &&  (in_array($row['cvo_id'], $visible_cv_ids))) {
 						array_push($cvTree, "var tmpNode".$row['cvo_id']." = new YAHOO.widget.TextNode('<a href=\"javascript:addItemToParent(" . $row['cvo_id'] . ", \'" . addslashes(addslashes($row['cvo_title_extended'])) . "\');\">" . addslashes($row['cvo_title_extended']) . "</a>', tmpNode" . $row['cvo_parent_id'] . ", false);");
 					}
@@ -1163,7 +1163,7 @@ class Controlled_Vocab
 
 		$cache[$cache_key] = $cvTree;
 		FezCache::save($cache, Controlled_Vocab::CACHE_KEY);
-		
+
 		return $cvTree;
 	}
 
@@ -1243,7 +1243,7 @@ class Controlled_Vocab
 	 * @param   array The JavaScript tree creation statements
 	 * @return  string The JavaScript tree creation statements
 	 */
-	function renderCVtree($cvTreeArray) 
+	function renderCVtree($cvTreeArray)
 	{
 		$output = "";
 		foreach ($cvTreeArray as $cvThing) {

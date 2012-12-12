@@ -1575,7 +1575,7 @@ class XSD_HTML_Match
 				$stmt .= $db->quote($_POST["xsdmf_sek_id"]) . ",";
 			}
 			if ($_POST["xsdmf_org_level"] != "") {
-				$stmt .= "'" . $db->quote($_POST["xsdmf_org_level"]) . "',";
+				$stmt .=  $db->quote($_POST["xsdmf_org_level"]) . ",";
 			}
 			if (is_numeric($_POST["xsdmf_org_fill_xdis_id"])) {
 				$stmt .= $db->quote($_POST["xsdmf_org_fill_xdis_id"], 'INTEGER') . ",";
