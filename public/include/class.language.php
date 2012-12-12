@@ -249,7 +249,7 @@ class Language
                     " . APP_TABLE_PREFIX . "language
                  WHERE
                     lng_alpha3_bibliographic = " . $db->quote($lng_code, 'STRING');
-        
+
 		try {
 			$res = $db->fetchRow($stmt);
 		}
@@ -445,5 +445,33 @@ class Language
 
 		return $lookup[trim($lang)];
 	}
+
+    public function resolveAlpha3FromAlpha2($lng_code)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        if(empty($lng_code)) {
+            return "";
+        }
+
+        $stmt = "SELECT
+           lng_alpha3_bibliographic
+           FROM
+            " . APP_TABLE_PREFIX . "language
+           WHERE
+                    lng_alpha2 = " . $db->quote($lng_code, 'STRING');
+
+        try {
+            $res = $db->fetchOne($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return '';
+        }
+
+        return $res;
+
+    }
 
 }

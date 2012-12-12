@@ -14,7 +14,7 @@ abstract class RecordItem
      * Fields pertaining to the record
      */
     protected $_importAPI;
-    protected $_collections;
+    protected $_collections=array();
     protected $_abstract;
     protected $_ut = null;
     protected $_pubmedId = null;
@@ -367,9 +367,9 @@ abstract class RecordItem
             $links = array();
 
             $rec = new Record();
-            $pid = $rec->insertFromArray($mods, $this->collections[0], "MODS 1.0", $history, 0, $links, array());
+            $pid = $rec->insertFromArray($mods, $this->_collections[0], "MODS 1.0", $history, 0, $links, array());
             if (is_numeric($this->_wokCitationCount)) {
-                Record::updateThomsonCitationCount($pid, $this->_wokCitationCount, $this->ut);
+                Record::updateThomsonCitationCount($pid, $this->_wokCitationCount, $this->_ut);
             }
             if (is_numeric($this->_scopusCitationCount)) {
                 Record::updateScopusCitationCount($pid, $this->_scopusCitationCount, $this->_scopusId);
@@ -446,7 +446,7 @@ abstract class RecordItem
         );
 
         if (is_numeric($this->_wokCitationCount)) {
-            Record::updateThomsonCitationCount($pid, $this->_wokCitationCount, $this->ut);
+            Record::updateThomsonCitationCount($pid, $this->_wokCitationCount, $this->_ut);
         }
         if (is_numeric($this->_scopusCitationCount)) {
             Record::updateScopusCitationCount($pid, $this->_scopusCitationCount, $this->_scopusId);
@@ -487,7 +487,7 @@ abstract class RecordItem
         }
 
         //Commented out due to copyright reasons
-        //$sekData['Description']     = $this->abstract;
+        //$sekData['Description']     = $this->_abstract;
 
         $sekData['Issue Number']    = $this->_issueNumber;
         $sekData['Volume Number']   = $this->_issueVolume;
@@ -501,7 +501,7 @@ abstract class RecordItem
         $sekData['Status']          = Status::getID("Published");
         $sekData['Object Type']     = Object_Type::getID("Record");
         $sekData['Depositor']       = Auth::getUserID();
-        $sekData['isMemberOf']      = $this->collections[0];
+        $sekData['isMemberOf']      = $this->_collections[0];
         $sekData['Created Date']    = $recordSearchKey->getVersion();
         $sekData['Updated Date']    = $recordSearchKey->getVersion();
 
@@ -527,7 +527,7 @@ abstract class RecordItem
         }
         $log = FezLog::get();
         $db = DB_API::get();
-        $stmt = "SELECT rek_pid FROM " . APP_TABLE_PREFIX . "record_search_key_doi
+        $stmt = "SELECT rek_doi_pid FROM " . APP_TABLE_PREFIX . "record_search_key_doi
                 WHERE rek_doi = ".$db->quote($this->_doi);
         try {
             $res = $db->fetchOne($stmt);
@@ -572,6 +572,8 @@ abstract class RecordItem
         */
     }
 
+    //Returns score 1-4 on matches
+    //Returns -1 on any that have values and don't match
     public function matchOnPageInfo($pid)
     {
         $matches = 0;
@@ -588,35 +590,35 @@ abstract class RecordItem
             if ($this->_startPage == $startPage) {
                 $matches++;
             } else if (!empty($startPage)) {
-                return false;
+                return -1;
             }
         }
         if (!empty($this->_endPage)) {
             if ($this->_endPage == $endPage) {
                 $matches++;
             } else if (!empty($endPage)) {
-                return false;
+                return -1;
             }
         }
         if (!empty($this->_endPage)) {
             if ($this->_endPage == $totalPages) {
                 $matches++;
             } else if (!empty($totalPages)) {
-                return false;
+                return -1;
             }
         }
         if (!empty($this->_issueNumber)) {
             if ($this->_issueNumber == $issueNumber) {
                 $matches++;
             } else if (!empty($issueNumber)) {
-                return false;
+                return -1;
             }
         }
         if (!empty($this->_issueVolume)) {
             if ($this->_issueVolume == $issueVolume) {
                 $matches++;
             } else if (!empty($issueVolume)) {
-                return false;
+                return -1;
             }
         }
 
