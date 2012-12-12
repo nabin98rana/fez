@@ -17,7 +17,7 @@
                 $xsdmf.xsdmf_title|stristr:"native script")}translated_field{/if}"
     >
     <td width="200" bgcolor="{$cell_color}" class="default" valign="top">
-        <b><label for="xsd_display_fields_{$xsdmf.xsdmf_id}_{$loop_num}">{$xsdmf.xsdmf_title}{if $xsdmf.xsdmf_multiple == 1} {math equation="x + 1" x=$loop_num}{/if}</label></b>
+        <b><label for="xsd_display_fields_{$xsdmf.xsdmf_id}_{$loop_num}">{$xsdmf.xsdmf_title}{if $xsdmf.xsdmf_multiple == 1} {math equation="x + 1" x=$loop_num}{/if}</label></b>{if $xsdmf.xsdmf_description != "" && $xsdmf.xsdmf_multiple != 1}<br /><i>{$xsdmf.xsdmf_description}</i>{/if}
         {if $xsdmf.xsdmf_multiple == 1}<img id="xsd_display_fields_{$xsdmf.xsdmf_id}_{$loop_num}_arrow" src="{$rel_url}images/downarrow.png" onclick="javascript:swapTextBox('xsd_display_fields_{$xsdmf.xsdmf_id}','{$xsdmf.xsdmf_attached_xsdmf_id}','{$loop_num}', 1);" style="cursor: pointer;{if $details[$temp_fld_id][$loop_num] == ''}display: none;{/if}" />{if $loop_num != 0 }<img src="{$rel_url}images/uparrow.png" onclick="javascript:swapTextBox('xsd_display_fields_{$xsdmf.xsdmf_id}','{$xsdmf.xsdmf_attached_xsdmf_id}','{$loop_num}', -1);" style="cursor: pointer" />{/if}{/if}
     </td>
     <td class="{if $loop_num % 2 == 0}text-input-even{else}text-input-odd{/if}">
