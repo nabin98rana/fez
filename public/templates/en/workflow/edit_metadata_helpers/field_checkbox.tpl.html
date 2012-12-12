@@ -8,7 +8,7 @@
 		  </td>
 		  <td bgcolor="{$value_color}">
 		<input class="default" type="checkbox" id="xsd_display_fields_{$xsdmf.xsdmf_id}_{$loop_num}"
-			name="xsd_display_fields[{$xsdmf.xsdmf_id}][]" {if $details[$temp_fld_id][z] =='on'}checked{/if} onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsdmf.xsdmf_id}', 'choicexsd_display_fields_{$xsdmf.xsdmf_id}');" onChange="javascript:unhideRow('xsd_display_fields_{$xsdmf.xsdmf_id}', 'choicexsd_display_fields_{$xsdmf.xsdmf_id}');">
+			name="xsd_display_fields[{$xsdmf.xsdmf_id}][]" {if $details[$temp_fld_id][z] =='on' || $details[$temp_fld_id][z] == 1}checked{/if} onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsdmf.xsdmf_id}', 'choicexsd_display_fields_{$xsdmf.xsdmf_id}');" onChange="javascript:unhideRow('xsd_display_fields_{$xsdmf.xsdmf_id}', 'choicexsd_display_fields_{$xsdmf.xsdmf_id}');">
 			{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"][]"}
 			{if $xsdmf.xsdmf_long_description != ""}
 				<span class="default">{$xsdmf.xsdmf_long_description|smarty:nodefaults}</span>
@@ -20,11 +20,11 @@
 {else}
 		<tr id="tr_xsd_display_fields_{$xsdmf.xsdmf_id}_0" valign="top" {if $xsdmf.xsdmf_invisible == 1}style="display:none;"{/if}>
 		  <td width="200" bgcolor="{$cell_color}" class="default">
-			<b><label for="xsd_display_fields_{$xsdmf.xsdmf_id}_0">{$xsdmf.xsdmf_title}{if $xsdmf.xsdmf_required == 1} * {/if}</label></b>
+			<b><label for="xsd_display_fields_{$xsdmf.xsdmf_id}_0">{$xsdmf.xsdmf_title} {if $xsdmf.xsdmf_required == 1} * {/if}</label></b>
 		  </td>
 		  <td bgcolor="{$value_color}">
 		<input class="default" type="checkbox" id="xsd_display_fields_{$xsdmf.xsdmf_id}_0"
-		  name="xsd_display_fields[{$xsdmf.xsdmf_id}]" {if $details[$temp_fld_id] == 'on'}checked{/if}>
+		  name="xsd_display_fields[{$xsdmf.xsdmf_id}]" {if $details[$temp_fld_id] == 'on' || $details[$temp_fld_id] == 1}checked{/if}>
 		      {include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"}
 			{if $xsdmf.xsdmf_long_description != ""}
 				<span class="default">{$xsdmf.xsdmf_long_description|smarty:nodefaults}</span>

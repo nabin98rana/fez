@@ -5,7 +5,7 @@
 	  <td bgcolor="{$value_color}">
 	   {if $xsd_display_fields[i].xsdmf_cvo_min_level == 3}
 		   {assign var="field_name" value="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"][]"}
-			<select id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}" class="default" 
+			<select id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}" class="default"
 				name="{$field_name}" id="{$field_name}">
 				 <option value="">Please choose an option</option>
 				  {html_options options=$xsd_display_fields[i].field_options selected=$details[$temp_fld_id]}
@@ -21,14 +21,14 @@
 	    {/if}
 	   {else}
 		   {assign var="field_name" value="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"][]"}
-			<select id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" multiple size="10" class="default" 
+			<select id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" multiple size="10" class="default"
 				name="{$field_name}">
 				{if $details[$temp_fld_id]}
 				  {html_options options=$details[$temp_fld_id]}
 				 {/if}
 			</select>
 			{include file="error_icon.tpl.html" field=$field_name}
-			<input class="default" type=button value="Add New" onclick = "javascript:small_window('{$rel_url}cv_selector.php?cvo_id=&form=wfl_form1&element=xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0&xsdmf_cvo_min_level={$xsd_display_fields[i].xsdmf_cvo_min_level}');">
+			<input class="default" type=button value="Add New" onclick = "javascript:small_window('{$rel_url}cv_selector.php?cvo_id={$xsd_display_fields[i].xsdmf_cvo_id}&form=wfl_form1&element=xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0&xsdmf_cvo_min_level={$xsd_display_fields[i].xsdmf_cvo_min_level}');">
 			<input class="default" type=button value="Remove Selected" onclick =" javascript:deleteSelectedItemsFromList(xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0);">
 		{if $xsd_display_fields[i].xsdmf_required == 1}
 	    	<script type="text/javascript">

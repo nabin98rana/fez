@@ -112,16 +112,15 @@ $list = $result;
 				AND rek_display_type= " . $data_collection_xdis_id . ")
 			ORDER BY rek_author_id, rek_fields_of_research"; */
 
-$cvo_id = Controlled_Vocab::getID("Fields of Research");
 
-$stmt2 = "SELECT rek_author_id AS aut_id, rek_subject as rek_fields_of_research
-            FROM " . APP_TABLE_PREFIX . "record_search_key_subject
-            INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id ON rek_subject_pid = rek_author_id_pid AND rek_author_id > 0
-            INNER JOIN " . APP_TABLE_PREFIX . "controlled_vocab ON cvo_id = rek_subject
-            INNER JOIN " . APP_TABLE_PREFIX . "controlled_vocab_relationship ON cvo_id = cvr_child_cvo_id AND cvr_parent_cvo_id = ".$cvo_id."
-            INNER JOIN " . APP_TABLE_PREFIX . "record_search_key ON rek_pid = rek_subject_pid AND rek_display_type = " . $data_collection_xdis_id . "
-            GROUP BY aut_id, rek_subject
-            ORDER BY rek_author_id, rek_subject";
+
+$stmt2 = "SELECT rek_author_id AS aut_id, rek_fields_of_research
+            FROM " . APP_TABLE_PREFIX . "record_search_key_fields_of_research
+            INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id ON rek_fields_of_research_pid = rek_author_id_pid AND rek_author_id > 0
+            INNER JOIN " . APP_TABLE_PREFIX . "record_search_key ON rek_pid = rek_fields_of_research_pid AND rek_display_type = " . $data_collection_xdis_id . "
+            GROUP BY aut_id, rek_fields_of_research
+            ORDER BY rek_author_id, rek_fields_of_research";
+
 
 try {
 		$result2 = $db->fetchAll($stmt2, array(), Zend_Db::FETCH_ASSOC);

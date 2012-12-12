@@ -567,6 +567,9 @@
                         $details[$dis_field["xsdmf_id"]] = array($details[$dis_field["xsdmf_id"]]);
                     }
 
+                } elseif (($dis_field["xsdmf_multiple"] != 1) && is_array($details[$dis_field["xsdmf_id"]])) {
+                  $details[$dis_field["xsdmf_id"]] = '';
+
                 }
             }
 
