@@ -127,47 +127,6 @@ class EmbaseRecItem extends RecordItem
         $this->_loaded = TRUE;
     }
 
-    //The default returned values, data is sparce
-    public function loadDefault($embaseArticle, $nameSpaces=null)
-    {
-        $this->_importAPI = 'Embase';
-        $this->_collections = 'UQ:88095'; //APP_EMBASE_COLLECTIONS;
-        $xpath = new DOMXPath($embaseArticle->parentNode->ownerDocument);
-        
-        $this->_title = $xpath->query('bib:cardfields/bib:Title', $embaseArticle)->item(0)->nodeValue;
-        $this->_journalTitle = $xpath->query('bib:cardfields/bib:JournalTitle', $embaseArticle)->item(0)->nodeValue;
-        $this->_journalTitleAbbreviation = $xpath->query('bib:cardfields/bib:JournalTitleAbbrev', $embaseArticle)->item(0)->nodeValue;
-        $this->_issueNumber = $xpath->query('bib:cardfields/bib:Issue', $embaseArticle)->item(0)->nodeValue;
-        $this->_issueVolume = $xpath->query('bib:cardfields/bib:Volume', $embaseArticle)->item(0)->nodeValue;
-        $this->_issn = $xpath->query('bib:cardfields/bib:ISSN', $embaseArticle)->item(0)->nodeValue;
-        $this->_isbn = $xpath->query('bib:cardfields/bib:ISBN', $embaseArticle)->item(0)->nodeValue;
-        $this->_embaseId= $xpath->query('bib:cardfields/bib:UID', $embaseArticle)->item(0)->nodeValue;
-        $this->_doi = $xpath->query('bib:cardfields/bib:Fulltext/bib:DOI', $embaseArticle)->item(0)->nodeValue;
-        $this->_startPage = $xpath->query('bib:cardfields/bib:Pagination/bib:startpage', $embaseArticle)->item(0)->nodeValue;
-        $this->_endPage = $xpath->query('bib:cardfields/bib:Pagination/bib:endpage', $embaseArticle)->item(0)->nodeValue;
-
-        $issueDay =  $xpath->query('bib:cardfields/bib:PubDate/bib:day', $embaseArticle)->item(0)->nodeValue;
-        $issueMonth = $xpath->query('bib:cardfields/bib:PubDate/bib:month', $embaseArticle)->item(0)->nodeValue;
-        $issueYear = $xpath->query('bib:cardfields/bib:PubDate/bib:year', $embaseArticle)->item(0)->nodeValue;
-        $this->_issueDate = strtotime($issueDay.'-'.$issueMonth.'-'.$issueYear);
-
-
-        $authors= $xpath->query('bib:cardfields/bib:Authors/bib:author', $embaseArticle);
-        foreach ($authors as $author) {
-            //$firstName = $author->getAttribute('LastName');
-            $lastName = $author->getElementsByTagName('bib:lastname')->item(0)->nodeValue;
-            $initials = $author->getElementsByTagName('bib:initials')->item(0)->nodeValue;
-            $this->_authors[] = $lastName.', '.$initials;
-        }
-
-        //Assume all returned are Journal Articles
-        $this->_xdisTitle = 'Journal Article';
-        $this->_xdisSubtype = 'Article';
-
-        $this->_loaded = TRUE;
-    }
-
-
     public function returnDoi()
     {
         return $this->_doi;

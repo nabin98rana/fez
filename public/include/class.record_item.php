@@ -19,7 +19,7 @@ abstract class RecordItem
     protected $_ut = null;
     protected $_pubmedId = null;
     protected $_scopusId = null;
-    protected $_embaseId = null;
+    public $_embaseId = null;
     protected $_wokId = null;
     protected $_wokCitationCount = null;
     protected $_scopusCitationCount = null;
@@ -597,28 +597,28 @@ abstract class RecordItem
             if ($this->_endPage == $endPage) {
                 $matches++;
             } else if (!empty($endPage)) {
-                return -1;
+                return -2;
             }
         }
-        if (!empty($this->_endPage)) {
-            if ($this->_endPage == $totalPages) {
+        if (!empty($this->_totalPages)) {
+            if ($this->_totalPages == $totalPages) {
                 $matches++;
             } else if (!empty($totalPages)) {
-                return -1;
+                return -3;
             }
         }
         if (!empty($this->_issueNumber)) {
             if ($this->_issueNumber == $issueNumber) {
                 $matches++;
             } else if (!empty($issueNumber)) {
-                return -1;
+                return -4;
             }
         }
         if (!empty($this->_issueVolume)) {
             if ($this->_issueVolume == $issueVolume) {
                 $matches++;
             } else if (!empty($issueVolume)) {
-                return -1;
+                return -5;
             }
         }
 
@@ -627,9 +627,9 @@ abstract class RecordItem
     public function comparePidTitle($pid) {
         $pidTitle =  Record::getSearchKeyIndexValue($pid, "Title", false);
         $stripedPidTitle = RCL::normaliseTitle($pidTitle);
-        $stripB = RCL::normaliseTitle($rec->itemTitle);
+        $stripedEmbaseTitle = RCL::normaliseTitle($this->_title);
 
-        similar_text($stripedPidTitle, $this->_title, $percent);
+        similar_text($stripedPidTitle, $stripedEmbaseTitle, $percent);
         return $percent;
     }
 }
