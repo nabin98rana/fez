@@ -27,108 +27,56 @@
 // | 59 Temple Place - Suite 330                                          |
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
-// | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
-// |          Matthew Smith <m.smith@library.uq.edu.au>                   |
+// | Authors: Aaron Brown <a.brown@library.uq.edu.au>                |
 // +----------------------------------------------------------------------+
 //
 //
 
 /**
- * Class to handle the TR web services premium client session to perpetuate it as long as possible to avoid throttling.
+ * Class to handle access to the Web of Knowledge Web Services.
  *
- * @version 1.0
- * @author Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>
- * @author Matthew Smith <m.smith@library.uq.edu.au>
+ * @version 0.1
+ * @author Aaron Brown <a.brown@library.uq.edu.au>
+ *
  */
 
-/*
- * CM 08/11/2012 - Might not need this since Entrez does not require you to store a session on the 
- * client side. The require for this class is currently commented out from PubmedService so it
- * will probably not even be missed.
- */
-
-include_once(APP_INC_PATH . "class.error_handler.php");
-include_once(APP_INC_PATH . "class.misc.php");
-
-class PubmedSession
+class EmbaseService
 {
-
-	/**
-	 * Method used to remove a session.
-	 *
-	 * @access  public
-	 * @return  boolean
-	 */
-	function remove()
-	{
-		$log = FezLog::get();
-		$db = DB_API::get();
-
-		$stmt = "DELETE FROM
-                    " . APP_TABLE_PREFIX . "embase_session";
-		try {
-			$db->query($stmt);
-		}
-		catch(Exception $ex) {
-			$log->err($ex);
-			return false;
-		}
-		return true;
-	}
+  private $_url = EMBASE_BASE_URL;
 
 
-	/**
-	 * Method used to add a new session.
-	 *
-	 * @access  public
-	 * @return  integer 1 if the insert worked, -1 otherwise
-	 */
-	function insert($session)
-	{
-		$log = FezLog::get();
-		$db = DB_API::get();
+  /**
+   * Clean user query from invalid characters that may cause error on SOAP call.
+   *
+   * @param string $userQuery
+   * @return string Cleaned user query string.
+   */
+  protected function _cleanUserQuery($userQuery = null)
+  {
+      if (empty($userQuery) && is_null($userQuery)) {
+          return "";
+      }
 
-    WokSession::remove();
+      // Clean user query string from Ms Word special characters
+      $userQuery = Fez_Misc::convertMsWordSpecialCharacters($userQuery);
+      return $userQuery;
+  }
 
-		$stmt = "INSERT INTO
-                    " . APP_TABLE_PREFIX . "embase_session
-                 (
-                    wks_id
-                 ) VALUES (
-                    " . $db->quote($session) . "
-                 )";
-		try {
-			$db->exec($stmt);
-		}
-		catch(Exception $ex) {
-			$log->err($ex);
-			return -1;
-		}
-		return 1;
-	}
 
-	/**
-	 * Method used to get the session value.
-	 *
-	 * @access  public
-	 * @return  string The session value
-	 */
-	function get()
-	{
-		$log = FezLog::get();
-		$db = DB_API::get();
-
-		$stmt = "SELECT
-                    wks_id
-                 FROM
-                    " . APP_TABLE_PREFIX . "wok_session";
-		try {
-			$res = $db->fetchOne($stmt);
-		}
-		catch(Exception $ex) {
-			$log->err($ex);
-			return '';
-		}
-		return $res;
-	}
+  /**
+   * Performs a search of records from Embase
+   *
+   */
+  public function search($query, $id = true, $maxResults = 500, $startDate = false, $endDate = false)
+  {
+      $format = $id ? 'id' : 'records';
+      $query .= ($startDate && $endDate ) ? ':ad%20['.$startDate.']/sd%20NOT%20['.$endDate.']/sd' : '' ;
+      $url = $this->_url."/xmlgateway?action=search&maxResults=".$maxResults."&format=".$format."&search_query=".$query;
+      $ch = curl_init();
+      curl_setopt($ch, CURLOPT_URL, $url);
+      curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+      $xml = curl_exec($ch);
+      curl_close($ch);
+      return $xml;
+  }
 }
