@@ -58,7 +58,7 @@ var tree;
     function treeInit() {
 		// Instantiate the tree
         tree = new YAHOO.widget.TreeView("treeDiv1");
-		{/literal}{$cv_tree}{literal}
+		{/literal}{$cv_tree|smarty:nodefaults}{literal}
 
 		/*
 		// Trees with TextNodes will fire an event for when the label is clicked:
