@@ -2380,7 +2380,7 @@ class Record
     if (count($res) > 0) {
       if ($getSimple == false || empty($getSimple)) {
         if ($citationCache == false) {
-          Record::getSearchKeysByPIDS($res);
+          Record::getSearchKeysByPIDS($res, true);
 					if (APP_MY_RESEARCH_MODULE == 'ON') {
 					  $res = Record::getResearchDetailsbyPIDS($res, $getAuthorMatching);
 					}
@@ -2575,8 +2575,9 @@ class Record
 
         $t = array();
         $p = array();
+
         for ($i = 0; $i < count($res); $i++) {
-          if (array_key_exists("rek_".$sek_sql_title."_pid", $res[$i])) {
+          if (is_array($res[$i]) && array_key_exists("rek_".$sek_sql_title."_pid", $res[$i])) {
               if (array_key_exists("rek_".$sek_sql_title."_pid", $res[$i]) && !array_key_exists($res[$i]["rek_".$sek_sql_title."_pid"], $t) && ($sekData['sek_cardinality'] == 1)) {
                 $t[$res[$i]["rek_".$sek_sql_title."_pid"]] = array();
               }
@@ -2595,12 +2596,19 @@ class Record
                 }
 
                 if ($sekData['sek_cardinality'] == 1) {
-                    if (array_key_exists('rek_pid', $res[$i]) && array_key_exists("rek_".$sek_sql_title."_lookup", $res[$i])) {
-                      $p[$res[$i]["rek_pid"]]["rek_".$sek_sql_title."_lookup"][] =  $res[$i]["rek_".$sek_sql_title."_lookup"];
+                    if (array_key_exists('rek_'.$sek_sql_title.'_pid', $res[$i]) && array_key_exists('rek_'.$sek_sql_title.'_lookup', $res[$i])) {
+                      if (!array_key_exists("rek_".$sek_sql_title."_lookup", $p[$res[$i]["rek_".$sek_sql_title."_pid"]]) || !is_array($p[$res[$i]["rek_".$sek_sql_title."_pid"]]["rek_".$sek_sql_title."_lookup"])) {
+                        $p[$res[$i]["rek_".$sek_sql_title."_pid"]]["rek_".$sek_sql_title."_lookup"] = array();
+                      }
+                      array_push($p[$res[$i]["rek_".$sek_sql_title."_pid"]]["rek_".$sek_sql_title."_lookup"], $res[$i]["rek_".$sek_sql_title."_lookup"]);
                     }
                 } else {
-                    if (array_key_exists('rek_pid', $res[$i]) && array_key_exists("rek_".$sek_sql_title."_lookup", $res[$i])) {
-                        $p[$res[$i]["rek_pid"]]["rek_".$sek_sql_title."_lookup"] =  $res[$i]["rek_".$sek_sql_title."_lookup"];
+                    if (array_key_exists('rek_'.$sek_sql_title.'_pid', $res[$i]) && array_key_exists('rek_'.$sek_sql_title.'_lookup', $res[$i])) {
+                      if (!array_key_exists("rek_".$sek_sql_title."_lookup", $p[$res[$i]["rek_pid"]]) || !is_array($p[$res[$i]["rek_pid"]]["rek_".$sek_sql_title."_lookup"])) {
+                        $p[$res[$i]["rek_".$sek_sql_title."_pid"]]["rek_".$sek_sql_title."_lookup"] = array();
+                      }
+                      array_push($p[$res[$i]["rek_".$sek_sql_title."_pid"]]["rek_".$sek_sql_title."_lookup"], $res[$i]["rek_".$sek_sql_title."_lookup"]);
+//                      $p[$res[$i]["rek_".$sek_sql_title."_pid"]]["rek_".$sek_sql_title."_lookup"] =  $res[$i]["rek_".$sek_sql_title."_lookup"];
                     }
                 }
               }

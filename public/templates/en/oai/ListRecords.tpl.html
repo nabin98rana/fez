@@ -46,7 +46,7 @@
     {if $metadataPrefix == "oai_dc" || $metadataPrefix == "pa"}
         <dc:title>{$list[i].rek_title|escape:"html"}</dc:title>
 	{/if}
-	
+
 		{if $metadataPrefix == "pa"}
 		{if $list[i].rek_handle}
 			{if !is_array($list[i].rek_handle)}
@@ -55,7 +55,7 @@
 				{assign var="loop_handles" value=$list[i].rek_handle}
 				{section name="s" loop=$loop_handles}
 				    <pa:location>http://hdl.handle.net/{$list[i].rek_handle[s]|escape:"html"}</pa:location>
-				{/section}		
+				{/section}
 			{/if}
 		{/if}
 	        {assign var="loop_thumbnail" value=$list[i].thumbnail}
@@ -68,20 +68,25 @@
 
 
 {* start of RIF-CS-specific output *}
-	{if $metadataPrefix == "rif"}   
+	{if $metadataPrefix == "rif"}
 		{strip}
 		<registryObject group="{$org_name}">
-			<key>http://hdl.handle.net/{$list[i].rek_handle|escape:"html"}</key>
-			<originatingSource>{$app_hostname|regex_replace:"/(\w+).(.+)/":"www.\\2/\\1"}/</originatingSource>
+			<key>{$app_hostname}/view/{$list[i].rek_pid}</key>
+			<originatingSource>{$app_hostname}</originatingSource>
 			<collection type="{$list[i].rek_ands_collection_type|strip_tags|escape:"html"}" dateAccessioned="{$list[i].rek_created_date|escape:"html"}" dateModified="{$list[i].rek_updated_date|escape:"html"}">
+      {if $list[i].rek_handle}
 			<identifier type="handle">hdl.handle.net/{$list[i].rek_handle|escape:"html"}</identifier>
+      {/if}
+      {if $list[i].rek_doi}
+      <identifier type="doi">dx.doi.org/{$list[i].rek_doi}</identifier>
+      {/if}
 			<name type="primary">
 				<namePart>{$list[i].rek_title|trim|escape:"html"}</namePart>
 			</name>
 			{if $list[i].rek_contact_details_physical || $list[i].rek_contact_details_email}
 			    <location>
 				<address>
-				      {if $list[i].rek_contact_details_physical}	
+				      {if $list[i].rek_contact_details_physical}
 					  {if !is_array($list[i].rek_contact_details_physical)}
 						<physical type="postalAddress">
 							<addressPart type="text">{$list[i].rek_contact_details_physical|escape:"html"}</addressPart>
@@ -92,7 +97,7 @@
 						     <physical type="postalAddress">
 							  <addressPart type="text">{$list[i].rek_contact_details_physical[s]|escape:"html"}</addressPart>
 						      </physical>
-						{/section}		
+						{/section}
 					  {/if}
 				      {/if}
 
@@ -107,15 +112,20 @@
 						     <electronic type="email">
 							  <value>{$list[i].rek_contact_details_email[s]|escape:"html"}</value>
 						      </electronic>
-						{/section}		
+						{/section}
 					  {/if}
-					  
+            {if $list[i].rek_handle}
 					  <electronic type="url">
 						<value>http://hdl.handle.net/{$list[i].rek_handle|escape:"html"}</value>
 					  </electronic>
+            {/if}
 
-				      {/if}
-				</address>
+            {if $list[i].rek_doi}
+            <electronic type="url">
+              <value>http://dx.doi.org/{$list[i].rek_doi}</value>
+            </electronic>
+            {/if}
+        </address>
 			    </location>
 			{/if}
 
@@ -132,17 +142,17 @@
 						<temporal>
 						      <text>{$list[i].rek_coverage_period[s]|escape:"html"}</text>
 						</temporal>
-					      {/section}		
+					      {/section}
 				      {/if}
 				{/if}
 				{if ($list[i].rek_start_date || $list[i].rek_end_date) && !$list[i].rek_coverage_period}
 					  <temporal>
 					  {if $list[i].rek_start_date}
 					      <date type="dateFrom" dateFormat="W3CDTF">{$list[i].rek_start_date|escape:"html"}</date>
-					  {/if}	
+					  {/if}
 					  {if $list[i].rek_end_date}
 					      <date type="dateTo" dateFormat="W3CDTF">{$list[i].rek_end_date|escape:"html"}</date>
-					  {/if}						  
+					  {/if}
 					  </temporal>
 				{/if}
 				{if $list[i].rek_geographic_area}
@@ -152,7 +162,7 @@
 					  {assign var="loop_geographic_area" value=$list[i].rek_geographic_area}
 					  {section name="s" loop=$loop_geographic_area}
 						<spatial type="text">{$list[i].rek_geographic_area[s]|escape:"html"}</spatial>
-					      {/section}		
+					      {/section}
 				      {/if}
 				{/if}
 				{if $list[i].rek_geographic_coordinates}
@@ -162,7 +172,7 @@
 					  {assign var="loop_geographic_coordinates" value=$list[i].rek_geographic_area}
 					  {section name="s" loop=$loop_geographic_coordinates}
 						<spatial type="text">{$list[i].rek_geographic_coordinates[s]|escape:"html"}</spatial>
-					  {/section}		
+					  {/section}
 				      {/if}
 				{/if}
 			    </coverage>
@@ -176,37 +186,37 @@
 				      </relatedInfo>
 				  {/section}
 			{/if}
-						
+
 			{if $list[i].rek_author}
 				{assign var="loop_authors" value=$list[i].rek_author}
 				{section name="a" loop=$loop_authors}
-				    {if !$list[i].rek_author_id[a] == 0}	
+				    {if !$list[i].rek_author_id[a] == 0}
 					  <relatedObject>
-					      <key>{$app_hostname|regex_replace:"/(\w+).(.+)/":"\\2/\\1"}/author/{$list[i].rek_author_id[a]|escape:"html"}</key>
+					      <key>{$app_hostname}/list/author_id/{$list[i].rek_author_id[a]|escape:"html"}</key>
 					      <relation type="
-						  {if $list[i].rek_author_role[a]|escape:"html" == "associate investigator" || 
+						  {if $list[i].rek_author_role[a]|escape:"html" == "associate investigator" ||
 								$list[i].rek_author_role[a]|escape:"html" == "author" ||
-								$list[i].rek_author_role[a]|escape:"html" == "chief investigator" || 
+								$list[i].rek_author_role[a]|escape:"html" == "chief investigator" ||
 								$list[i].rek_author_role[a]|escape:"html" == "investigator" ||
 								$list[i].rek_author_role[a]|escape:"html" == "partner investigator" ||
 								$list[i].rek_author_role[a]|escape:"html" == "team leader"}
-						      hasCollector 
-						  {elseif $list[i].rek_author_role[a]|escape:"html" == "case manager" || 
-								$list[i].rek_author_role[a]|escape:"html" == "DU partnership manager" ||
+						      hasCollector
+						  {elseif $list[i].rek_author_role[a]|escape:"html" == "case manager" ||
+								$list[i].rek_author_role[a]|escape:"html" == "partnership manager" ||
 								$list[i].rek_author_role[a]|escape:"html" == "project manager"}
-						      isManagedBy 
-						  {elseif $list[i].rek_author_role[a]|escape:"html" == "advisor" || 
+						      isManagedBy
+						  {elseif $list[i].rek_author_role[a]|escape:"html" == "advisor" ||
 								$list[i].rek_author_role[a]|escape:"html" == "interviewer" ||
-								$list[i].rek_author_role[a]|escape:"html" == "laboratory manager" || 
+								$list[i].rek_author_role[a]|escape:"html" == "laboratory manager" ||
 								$list[i].rek_author_role[a]|escape:"html" == "research assistant" ||
 								$list[i].rek_author_role[a]|escape:"html" == "software developer"}
-						      isEnrichedBy 
-						  {elseif $list[i].rek_author_role[a]|escape:"html" == "academic advisor" || 
+						      isEnrichedBy
+						  {elseif $list[i].rek_author_role[a]|escape:"html" == "academic advisor" ||
 								$list[i].rek_author_role[a]|escape:"html" == "chair person" ||
 								$list[i].rek_author_role[a]|escape:"html" == "supervisor"}
-						      hasAssociationWith 
+						      hasAssociationWith
 						   {else}
-							  hasAssociationWith 
+							  hasAssociationWith
 						   {/if}
 							">
 					      <description>{$list[i].rek_author_role[a]|escape:"html"}</description></relation>
@@ -214,8 +224,8 @@
 				    {/if}
 				{/section}
 			{/if}
-			
-			{if $list[i].rek_org_id}             
+
+			{if $list[i].rek_org_id}
 			      {assign var="loop_org_id" value=$list[i].rek_org_id}
 				  {section name="s" loop=$loop_org_id}
 						{if $list[i].rek_org_id[s]|escape:"html"|substr:0:27 eq "http://nla.gov.au/nla.party"}
@@ -225,8 +235,8 @@
 							</relatedInfo>
 						{/if}
 				  {/section}
-			{/if}			
-			
+			{/if}
+
 			{if $list[i].rek_grantid}      {* if ARC or NHMRC, set up key for activity record. *}
 				  {if $list[i].rek_grantid|escape:"html"|substr:0:4 eq "ARC "}
 						<relatedObject>
@@ -238,9 +248,9 @@
 							<key>http://purl.org/au-research/grants/nhmrc/{$list[i].rek_grantid|replace:"NHMRC ":""}</key>
 							<relation type="isOutputOf"></relation>
 						</relatedObject>
-				  {/if}				  
+				  {/if}
 			{/if}
-					
+
 			{if $list[i].rek_isderivationof}
 			      {if !is_array($list[i].rek_isderivationof)}
 				  <relatedInfo type="publication">
@@ -256,7 +266,7 @@
 					  </relatedInfo>
 				  {/section}
 			      {/if}
-			{/if}			
+			{/if}
 			{if $list[i].rek_keywords}
 			      {if !is_array($list[i].rek_keywords)}
 				  <subject type="local">{$list[i].rek_keywords|escape:"html"}</subject>
@@ -273,7 +283,7 @@
 			      {else}
 				  {assign var="loop_fields_of_research" value=$list[i].rek_fields_of_research}
 				  {section name="s" loop=$loop_fields_of_research}
-				      <subject type="anzsrc-for">{$list[i].rek_fields_of_research[s]|escape:"html"|strtok:" "}</subject>
+				      <subject type="anzsrc-for">{$list[i].rek_fields_of_research_lookup[s]|escape:"html"|strtok:" "}</subject>
 				  {/section}
 			      {/if}
 			{/if}
@@ -302,7 +312,7 @@
 			{/if}
 			{if $list[i].rek_extent}
 			      <description type="brief">{$list[i].rek_extent|strip_tags|escape:"html"}</description>
-			{/if}			
+			{/if}
 			{if $list[i].rek_rights}
 			     <description type="rights">&#xA9;{$list[i].rek_rights|trim|escape:"html"}</description>
 			{/if}
@@ -322,10 +332,10 @@
 
 			{if $list[i].rek_citation}
 			      <citationInfo>
-					<fullCitation style="harvard">{$list[i].rek_citation|strip_tags|trim|replace:" ,":","|escape:"html"} http://hdl.handle.net/{$list[i].rek_handle|escape:"html"}
+					<fullCitation style="harvard">{$list[i].rek_citation_stripped} {if $list[i].rek_doi}http://dx.doi.org/{$list[i].rek_doi}{elseif $list[i].rek_handle} http://hdl.handle.net/{$list[i].rek_handle|escape:"html"}{/if}{/if}
 					</fullCitation>
 			      </citationInfo>
-			 {/if}  
+			 {/if}
 		      </collection>
 		</registryObject>{/strip}
 	{/if}
@@ -335,8 +345,8 @@
 
 
 
-	{if $metadataPrefix == "oai_dc" || $metadataPrefix == "pa"}  
-	
+	{if $metadataPrefix == "oai_dc" || $metadataPrefix == "pa"}
+
 	{* linktype attributes added for Trove *}
 	{if $list[i].rek_handle && $list[i].rek_file_attachment_name}
 		{if !is_array($list[i].rek_handle)}
@@ -345,10 +355,10 @@
 			{assign var="loop_handles" value=$list[i].rek_handle}
 			{section name="s" loop=$loop_handles}
 			    <dc:identifier linktype="fulltext">http://hdl.handle.net/{$list[i].rek_handle[s]|escape:"html"}</dc:identifier>
-			{/section}		
+			{/section}
 		{/if}
 	{/if}
-	
+
 	{if $list[i].rek_handle && !$list[i].rek_file_attachment_name}
 		{if !is_array($list[i].rek_handle)}
 			<dc:identifier linktype="notonline">http://hdl.handle.net/{$list[i].rek_handle|escape:"html"}</dc:identifier>
@@ -356,10 +366,10 @@
 			{assign var="loop_handles" value=$list[i].rek_handle}
 			{section name="s" loop=$loop_handles}
 			    <dc:identifier linktype="notonline">http://hdl.handle.net/{$list[i].rek_handle[s]|escape:"html"}</dc:identifier>
-			{/section}		
+			{/section}
 		{/if}
 	{/if}
-	
+
 	{* For Trove, to replace pa:thumbnail required by now-defunct Picture Australia, and resolve duplication issue their end *}
 	{if $list[i].thumbnail}
 		{if !is_array($list[i].thumbnail)}
@@ -368,11 +378,11 @@
 			{assign var="loop_thumbnail" value=$list[i].thumbnail}
 			{section name="s" loop=$loop_thumbnail}
 				<dc:identifier linktype="thumbnail">{$app_base_url}eserv/{$list[i].rek_pid|escape:"html"}/{$loop_thumbnail[s]|escape:"html"}</dc:identifier>
-			{/section}		
+			{/section}
 		{/if}
-	{/if}	
-	
-	
+	{/if}
+
+
 	{if $list[i].rek_long_description || $list[i].rek_description}
 		<dc:description>
 		{if $list[i].rek_long_description}
@@ -433,7 +443,7 @@
 			{if $list[i].rek_org_name}
 			      {if !is_array($list[i].rek_org_name)}
 				    <dc:publisher>{$list[i].rek_org_name[0]|escape:"html"}{if ($list[i].rek_org_name|escape:"html" && $list[i].rek_faculty|escape:"html")}, {/if}{$list[i].rek_faculty|escape:"html"}{if (($list[i].rek_org_name|escape:"html" || $list[i].rek_org_unit_name|escape:"html") && $list[i].rek_org_unit_name|escape:"html")}, {/if}{$list[i].rek_org_unit_name|escape:"html"}</dc:publisher>
-			  
+
 			{else}
 				    {assign var="loop_org_name" value=$list[i].rek_org_name}
 				    {section name="s" loop=$loop_org_name}
@@ -474,26 +484,26 @@
 			      {/section}
 			{/if}
 		{/if}
-		
-		
+
+
 		{* NHMRC tagging pilot bhoughto 10/10/2012 *}
 		{if $list[i].rek_grantid}      {* display only if NHMRC *}
 			{if !is_array($list[i].rek_grantid)}
 				{* {if $list[i].rek_grantid|escape:"html"|stristr:"nhmrc"}   disable 6/11/2012 until NHMRC start their testing  *}
 					<dc:relation>{$list[i].rek_grantid|escape:"html"}</dc:relation>
 				{* {/if}  *}
-			{else}	
+			{else}
 				{assign var="loop_relation" value=$list[i].rek_grantid}
 				{section name="s" loop=$loop_relation}
 				{*    {if $list[i].rek_grantid[s]|escape:"html"|stristr:"nhmrc"} disable 6/11/2012 until NHMRC start their testing  *}
 					<dc:relation>{$list[i].rek_grantid[s]|escape:"html"}</dc:relation>
 				{* {/if}	*}
 				{/section}
-			{/if}	
+			{/if}
 		{/if}
 
 
-			
+
 		{if $list[i].rek_file_attachment_name}
 			{if !is_array($list[i].rek_file_attachment_name)}
 	        	<dc:relation>{$app_base_url}eserv/{$list[i].rek_pid|escape:"html"}/{$list[i].rek_file_attachment_name|escape:"html"}</dc:relation>
@@ -514,9 +524,9 @@
 				{/section}
 			{/if}
 		{/if}
-		
-		
-{/if}  
+
+
+{/if}
 	{if $metadataPrefix == "oai_dc"}
       </oai_dc:dc>
 	{elseif $metadataPrefix == "pa"}

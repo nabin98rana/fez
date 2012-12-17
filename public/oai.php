@@ -135,9 +135,9 @@ $tpls = array(
     'GetRecord' => array('file' => 'oai/GetRecord.tpl.html', 'title' => 'GetRecord'),
     'Identify' => array('file' => 'oai/Identify.tpl.html', 'title' => 'Identify')
 );
-if ($metadataPrefix == "rif") {
-    $tpls['ListRecords'] = array('file' => 'oai/ListRecords_ands.tpl.html', 'title' => 'ListRecords');
-}
+//if ($metadataPrefix == "rif") {
+//    $tpls['ListRecords'] = array('file' => 'oai/ListRecords_ands.tpl.html', 'title' => 'ListRecords');
+//}
 
 if (array_key_exists($verb, $tpls)) {
 	$tpl_file = $tpls[$verb]['file'];

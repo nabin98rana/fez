@@ -98,6 +98,12 @@ catch(Exception $ex) {
   print_r($ex);
 	return array();
 }
+// Prevent bad researcher ID data from being displayed
+foreach ($result as $rk => $rdata) {
+  if (is_numeric(strpos($rdata['aut_researcher_id'], 'ERR'))) {
+    $result[$rk]['aut_researcher_id'] = '';
+  }
+}
 
 $list = $result;
 
@@ -130,6 +136,8 @@ catch(Exception $ex) {
 	return array();
 }
 
+$sekDetails = Search_Key::getDetailsByTitle("Fields of Research");
+
 $list2 = $result2;
 
 //merge $list2 into $list
@@ -140,12 +148,29 @@ $new = 0; //initialise for each new author
 		if ($list[$i]['aut_id'] == $list2[$j]['aut_id']) {
 			if ($new == $list2[$j]['aut_id']) {
 				$k++;
+
 				$list[$i]['rek_fields_of_research'][$k] = trim($list2[$j]['rek_fields_of_research']);
+        if ($sekDetails['sek_lookup_function'] != '' && $list[$i]['rek_fields_of_research'][$k] != '') {
+          $lookupFunction = $sekDetails['sek_lookup_function'];
+          $temp = '';
+          eval("\$temp = ".$lookupFunction."(".$list[$i]['rek_fields_of_research'][$k].");");
+          if ($temp != '') {
+            $list[$i]['rek_fields_of_research'][$k] = $temp;
+          }
+        }
 				$new = 0;
 			}
 			else {
 				$list[$i]['rek_fields_of_research'][0] = trim($list2[$j]['rek_fields_of_research']);
-				$k = 0;
+        if ($sekDetails['sek_lookup_function'] != '' && $list[$i]['rek_fields_of_research'][0] != '') {
+          $lookupFunction = $sekDetails['sek_lookup_function'];
+          $temp = '';
+          eval("\$temp = ".$lookupFunction."(".$list[$i]['rek_fields_of_research'][0].");");
+          if ($temp != '') {
+            $list[$i]['rek_fields_of_research'][0] = $temp;
+          }
+        }
+        $k = 0;
 				$new = $list[$i]['aut_id'];
 			}
 		}

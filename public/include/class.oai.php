@@ -142,7 +142,7 @@ class OAI
 
 	}
 
-	function makeReturnList($res, $statsFlag = 0) 
+	function makeReturnList($res, $statsFlag = 0)
 	{
 		$securityfields = Auth::getAllRoles();
 		$return = array();
