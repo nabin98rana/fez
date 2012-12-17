@@ -40,7 +40,7 @@ abstract class RecordItem
     protected $_langageCode = null;
     protected $_issn = null;
     protected $_isbn = null;
-    protected $_conferenceDate = null;
+    protected $_conferenceDates = null;
     protected $_conferenceTitle = null;
     protected $_confenceLocationCity = null;
     protected $_confenceLocationState = null;
@@ -120,10 +120,6 @@ abstract class RecordItem
                 //Run the method and capture the pid(s)
                 $pids = $this->$retrieverName();
                 
-                echo "Pids and retriever name:\n";
-                var_dump($pids);
-                var_dump($retrieverName);
-                
                 $pidCount = count($pids);
 
                 //if there is only one pid returned
@@ -144,8 +140,7 @@ abstract class RecordItem
 
         //if all the pids in the idcollection array are the same
         $ctUniq = count(array_unique($idCollection));
-        echo "Uniq count:\n";
-        var_dump($ctUniq);
+        
         if($ctUniq == 1)
         {
             //that's the pid for us - set it as authorative
@@ -155,7 +150,6 @@ abstract class RecordItem
         }
 
         //if we have an authoritative pid
-        var_dump($likenedPid);
         if($likenedPid)
         {
             //do a fuzzy title match
@@ -173,7 +167,7 @@ abstract class RecordItem
             {
                 //update the record with any data we don't have
                 echo "\nUPDATING\n";
-//                 $this->update($likenedPid);
+                $this->update($likenedPid);
 //                 file_put_contents('/var/www/fez/tests/dat/scopusSaveUpdate.txt', "UPDATE $likenedPid\n",FILE_APPEND);
             }
         }
@@ -181,8 +175,8 @@ abstract class RecordItem
         {
             //save a new record
             echo  "\nSAVING\n";
-            /* $newPid = $this->save();
-            file_put_contents('/var/www/fez/tests/dat/scopusSaveUpdate.txt', "SAVE $newPid\n",FILE_APPEND); */
+            $newPid = $this->save();
+//             file_put_contents('/var/www/fez/tests/dat/scopusSaveUpdate.txt', "SAVE $newPid\n",FILE_APPEND);
         }
     }
 
@@ -354,6 +348,7 @@ abstract class RecordItem
             $mods['identifier_isbn'] = $this->_isbn;
             $mods['identifier_issn'] = $this->_issn;
             $mods['identifier_doi'] = $this->_doi;
+            $mods['identifier_scopus'] = $this->_scopusId;
             $mods['language'] = $this->_language;
             $mods['genre'] = $this->_xdisTitle;
             $mods['genre_type'] = $this->_xdisSubtype;
@@ -370,7 +365,7 @@ abstract class RecordItem
                 if (!empty($this->_confenceLocationCity) || !empty($this->_confenceLocationState)) {
                     $mods['relatedItem']['originInfo']['place']['placeTerm'] = $this->_confenceLocationCity . ' ' . $this->_confenceLocationState;
                 }
-                $mods['relatedItem']['originInfo']['dateOther'] = $this->_conferenceDate;
+                $mods['relatedItem']['originInfo']['dateOther'] = $this->_conferenceDates;
             } else if ($this->_xdisTitle == 'Journal Article') {
                 $mods['relatedItem']['originInfo']['dateIssued'] = $this->_issueDate;
                 $mods['relatedItem']['name'][0]['namePart_type'] = 'journal';
@@ -388,7 +383,7 @@ abstract class RecordItem
                 Record::updateScopusCitationCount($pid, $this->_scopusCitationCount, $this->_scopusId);
             }
         }
-//         var_dump($pid);
+        var_dump($pid);
         return $pid;
     }
 
@@ -422,7 +417,7 @@ abstract class RecordItem
             "Total Pages" => $this->_totalPages,
             "Issue Number" => $this->_issueNumber,
             "Language" => $this->_langageCode,
-            "Conference Dates" => $this->_conferenceDate,
+            "Conference Dates" => $this->_conferenceDates,
             "Conference Name" => $this->_conferenceTitle,
             "Journal Name" => $this->_journalTitle,
             "WoK Doc Type" => $this->_wokDocTypeCode,
@@ -433,7 +428,7 @@ abstract class RecordItem
             $searchKeyTargets['Conference Location'] = $this->_confenceLocationCity . ' ' . $this->_confenceLocationState;
         }
         /// exception for conf papers that the subtype goes into genre type
-        if (_xdisTitle == "Conference Paper") {
+        if ($this->_xdisTitle == "Conference Paper") {
             $searchKeyTargets["Genre Type"] = $this->_xdisSubtype;
         } else {
             $searchKeyTargets["Subtype"] = $this->_xdisSubtype;
@@ -522,7 +517,7 @@ abstract class RecordItem
         if ($xdis_title == 'Conference Paper') {
             $sekData['Proceedings Title'] = $this->_title;
             $sekData['Conference Name']   = $this->_conferenceTitle;
-            $sekData['Conference Dates']  = $this->_conferenceDate;
+            $sekData['Conference Dates']  = $this->_conferenceDates;
             if (!empty($this->_confenceLocationCity) || !empty($this->_confenceLocationState)) {
                 $sekData['Conference Location']  = $this->_confenceLocationCity . ' ' . $this->_confenceLocationState;
             }

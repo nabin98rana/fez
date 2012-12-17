@@ -154,6 +154,7 @@
 			          	{/section}
 			          	
 			          	{if $mods.identifier_isi_loc != ''}<mods:identifier type="isi_loc">{$mods.identifier_isi_loc|escape:'html'}</mods:identifier>{/if}
+			          	{if $mods.identifier_scopus != ''}<mods:identifier type="scopus">{$mods.identifier_scopus|escape:'html'}</mods:identifier>{/if}
 						{if $mods.identifier_rm_prn != ''}<mods:identifier type="rm_prn">{$mods.identifier_rm_prn|escape:'html'}</mods:identifier>{/if}
 						{if $mods.identifier_isbn != ''}<mods:identifier type="isbn">{$mods.identifier_isbn|escape:'html'}</mods:identifier>{/if}
 						{if $mods.identifier_issn != ''}<mods:identifier type="issn">{$mods.identifier_issn|escape:'html'}</mods:identifier>{/if}

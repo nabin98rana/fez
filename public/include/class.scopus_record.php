@@ -88,10 +88,10 @@ class ScopusRecItem extends RecordItem
         $xpath = $this->getXPath($recordData);
         
         $this->_doi = $this->extract('//prism:doi', $xpath);
-        echo "Doi:\n";
-        var_dump($this->_doi);
         
         $this->_title = $this->extract('//dc:title', $xpath);
+        
+        //$this->_xdisTitle = 'Journal Article';
         
         $affiliations = $xpath->query('//default:affiliation/default:affilname');
         foreach($affiliations as $affiliation)
@@ -108,20 +108,26 @@ class ScopusRecItem extends RecordItem
             
             $this->_docType = $this->extract('//prism:aggregationType', $xpath);
             
-            $this->_docSubType = $this->extract('//subtypeDescription', $xpath);
+            $this->_journalTitle = $this->extract('//prism:publicationName', $xpath);
             
-            $this->_scopusId = $this->extract('//dc:identifier', $xpath);
+            $this->_docSubType = $this->extract('//default:subtype', $xpath);
             
-            $this->_xdisTitle = $this->extract('//prism:aggregationType', $xpath);
+//             $xdisTitle = $this->extract('//prism:aggregationType', $xpath);
+            
+//             if($xdisTitle == 'Journal')
+//             {
+//                 $xdisTitle = 'Journal Article';
+//             }
+            
+            $this->_xdisTitle = 'Journal Article';
             
             $this->_authors[] = $this->extract('//dc:creator', $xpath);
             
+            $scopusId = $this->extract('//dc:identifier', $xpath);
             $matches = array();
-            preg_match("/^SCOPUS_ID\:(\d+)$/", $this->_scopusId, $matches);
+            preg_match("/^SCOPUS_ID\:(\d+)$/", $scopusId, $matches);
             $scopusIdExtracted = (array_key_exists(1, $matches)) ? $matches[1] : null;
-            $this->_scopusId = $scopusIdExtracted;
-            echo "ScopusId:\n";
-            var_dump($this->_scopusId);
+            $this->_scopusId = "2-s2.0-" . $scopusIdExtracted;
             
             $pageRange = $this->extract('//prism:pageRange', $xpath);
             $pageRange = preg_replace('/[a-zA-Z]/', '', $pageRange);
@@ -169,12 +175,7 @@ class ScopusRecItem extends RecordItem
         $affiliated = false;
         foreach($this->_affiliations as $affiliation)
         {
-            /*echo "\n\n";
-            $affil = preg_match('/(University of Queensland)|(University of Qld)/', 
-                                                       $affiliation);
-            var_dump($affil);
-            var_dump($affiliation);
-            echo "\n\n";*/
+
             if(preg_match('/(University of Queensland)|(University of Qld)/', 
                                                        $affiliation))
             {

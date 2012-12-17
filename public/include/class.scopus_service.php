@@ -156,7 +156,6 @@ class ScopusService
             $xpath = $this->getXPath($this->doCurl($params));
             $tokens = $xpath->query("//authenticate-response/authtoken");
             $token = $tokens->item(0)->nodeValue;
-            //$token = "sat_EEA77ED44740DD3FD3CF31100080796DCF1A1E79935650ED739EBDC1824F820BFDB7098C6E81075F9163B11F5B00E99EFAFFAD382AFE5090AB92524D7B996B7D23990E24911E348FA42FAAD7DC073CF36AC5CFA18BEA99FA2EFBE959A04A62AF6B9A4963D00BE5D564CD0AA389B70ABF4C0C7B21F192688371046196F0149FD2A8CFF8F47F5925A5125DC29BE0F62EB306336E6F2A298C5E6033DEC3472B4106096D71D1D1F7EB7F487E4A5464D7F7BF3227B4506127D28D";
             $this->saveToken($token);
             //var_dump($token . " LINE: " . __LINE__);
         }
@@ -185,12 +184,18 @@ class ScopusService
             'qs' => $query
         );
         
+        /***$params = array(
+            'action' => 'search',
+            'db' => 'index:SCOPUS',
+            'qs' => $query
+        );*/
+        
         /*$params = array(
             'action' => 'affiliation',
             'db' => 'AFFILIATION_ID:60031004',
             'qs' => array(
-                'start' => 201,
-                'count' => 401,
+                'start' => 1,
+                'count' => 30,
                 'view' => 'DOCUMENTS'
             )
         );*/
@@ -211,7 +216,8 @@ class ScopusService
         $query = array('query' => 'affil(University+of+Queensland)',
                             'count' => self::REC_SET_SIZE,
                             'start' => $this->recSetStart,
-                            'view' => 'STANDARD'
+                            //'view' => 'STANDARD'
+                            'view' => 'COMPLETE'
         );
         
         $records = $this->search($query);
@@ -324,6 +330,8 @@ class ScopusService
         $uri .= (array_key_exists('db', $params) ? "/".$params['db'] : '');
         $uri .= '?' . http_build_query($params['qs']);
         
+        //var_dump(SCOPUS_WS_BASE_URL . $uri);
+        //$uri = "content/article/SCOPUS_ID:84858076610?view=META_ABS";
         $curlHandle = curl_init(SCOPUS_WS_BASE_URL . $uri);
         curl_setopt($curlHandle, CURLOPT_SSL_VERIFYPEER, FALSE);
         curl_setopt($curlHandle, CURLOPT_SSL_VERIFYHOST, FALSE);
@@ -341,6 +349,7 @@ class ScopusService
         }
         
         curl_close($curlHandle);
+        
         return $curlResponse;
     }
     
