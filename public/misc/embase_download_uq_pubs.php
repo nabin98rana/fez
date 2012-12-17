@@ -27,29 +27,36 @@
 // | 59 Temple Place - Suite 330                                          |
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
-// | Authors: Chris Maj <c.maj@library.uq.edu.au>                |
+// | Authors: Aaron Brown <a.brown@library.uq.edu.au>                |
 // +----------------------------------------------------------------------+
 
-include_once(APP_INC_PATH.'class.background_process.php');
-include_once(APP_INC_PATH.'class.pubmed_queue.php');
-include_once(APP_INC_PATH.'class.auth.php');
+include_once dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'config.inc.php';
+include_once(APP_INC_PATH . 'class.embase_service.php');
+include_once(APP_INC_PATH . 'class.embase_queue.php');
+include_once(APP_INC_PATH . "class.record.php");
 
-class BackgroundProcess_Pubmed extends BackgroundProcess
-{
-  function __construct()
-  {
-    parent::__construct();
-    $this->include = 'class.bgp_pubmed.php';
-    $this->name = 'Pubmed Service';
-  }
+$isUser = Auth::getUsername();
+if ((php_sapi_name()==="cli") || (User::isUserSuperAdministrator($isUser))) {
+    $institution = 'university+of+queensland';
+    $depth = 7; //*4
+    $url = "http://www.embase.com/xmlgateway?action=search&maxResults=5000&format=ids&search_query='".$institution."'%20".$depth."/wd";
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    $xml = curl_exec($ch);
+    curl_close($ch);
 
-  function run()
-  {
-    $this->setState(BGP_RUNNING);
-    extract(unserialize($this->inputs));
-    $queue = PubmedQueue::get();
-    $queue->setBGP($this);
-    $queue->bgProcess();
-    $this->setState(BGP_FINISHED);
-  }
+    $xmlDoc = new DomDocument();
+    $xmlDoc->loadXML($xml);
+    $ids = $xmlDoc->getElementsByTagName('id');
+    foreach ($ids as $id) {
+        $pui = $id->nodeValue;
+        //Won't store the L before the id thats returned from the query
+        $ut = str_ireplace("L", "", $pui);
+        $embase = EmbaseQueue::get();
+        $embase->add($ut);
+    }
+    $embase->commit();
+} else {
+   echo "Please login as superadmin";
 }

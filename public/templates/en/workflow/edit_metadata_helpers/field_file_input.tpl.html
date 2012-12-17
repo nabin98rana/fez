@@ -5,9 +5,9 @@
         <tr>
             <td width="200" bgcolor="{$cell_color}" class="default" valign="top"><strong>File upload{if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</strong></td>
             <td bgcolor="{$value_color}" class="default">
-                
+
                 {include file="error_icon.tpl.html" field="uploader_files_uploaded"}
-                
+
                 <div id="uploader_file_table_container" style="display:none;">
                     <b>The following files are queued for upload. Upload will commence when this form is submitted.</b>
                     <table id="uploader_file_table">
@@ -33,18 +33,18 @@
 
                 <script type="text/javascript">
 			dojo.addOnLoad( function() {ldelim}
-                                {* File upload validation. 
+                                {* File upload validation.
                                    Turn off validation for Administrator, otherwise follow the setting from XSD field. *}
                                 {if $isAdmin == 1}
                                     var required_fileupload = 0;
                                 {else}
                                     var required_fileupload = {$xsd_display_fields[i].xsdmf_required};
                                 {/if}
-                        
-				swfuploaderLoad({$xsdmf.xsdmf_multiple_limit}, 
-                                                '{$rel_url}', 
-                                                {ldelim} workflowId : {$id}, 
-                                                         xsdmf_id : '{$xsdmf.xsdmf_id}', 
+
+				swfuploaderLoad({$xsdmf.xsdmf_multiple_limit},
+                                                '{$rel_url}',
+                                                {ldelim} workflowId : {$id},
+                                                         xsdmf_id : '{$xsdmf.xsdmf_id}',
                                                          required : required_fileupload
                                                 {rdelim});
                                 {rdelim});
@@ -64,10 +64,10 @@
                 </td>
                 <td bgcolor="{$value_color}">
                     <input type="hidden" name="MAX_FILE_SIZE" value="{$phpini_upload_max_filesize}" />
-                    <input class="default" type="file" id="xsd_display_fields_{$xsdmf.xsdmf_id}_{$loop_num}" 
-                           name="xsd_display_fields[{$xsdmf.xsdmf_id}][]" 
-                           onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsdmf.xsdmf_id}', 'edit_metadata_form_table');" 
-                           onChange="javascript:unhideRow('xsd_display_fields_{$xsdmf.xsdmf_id}', 'edit_metadata_form_table');" 
+                    <input class="default" type="file" id="xsd_display_fields_{$xsdmf.xsdmf_id}_{$loop_num}"
+                           name="xsd_display_fields[{$xsdmf.xsdmf_id}][]"
+                           onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsdmf.xsdmf_id}', 'edit_metadata_form_table');"
+                           onChange="javascript:unhideRow('xsd_display_fields_{$xsdmf.xsdmf_id}', 'edit_metadata_form_table');"
                            maxlength="255" size="50">
                     {include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"][]"}
                     {if $xsdmf.xsdmf_attached_xsdmf_id != ""}
@@ -75,24 +75,24 @@
                             {assign var="temp_attached_xsdmf_id" value=$xsd_display_fields[a].xsdmf_id}
                             {if $temp_attached_xsdmf_id == $xsdmf.xsdmf_attached_xsdmf_id}
                                 {if $xsd_display_fields[a].xsdmf_html_input == 'text'}
-                                    <br /> 
+                                    <br />
                                     <span class="default"><b>{$xsd_display_fields[a].xsdmf_title}:</b></span>
                                     {assign var="attached_field_id" value="xsd_display_fields_"|cat:$temp_attached_xsdmf_id|cat:"_"|cat:$loop_num}
                                     <input class="default" type="text" id="{$attached_field_id}" name="xsd_display_fields[{$xsd_display_fields[a].xsdmf_id}][]" value="{$details[$temp_fld_id][z]}"  maxlength="255" size="50">
                                 {elseif $xsd_display_fields[a].xsdmf_html_input == 'checkbox'}
-                                    <input class="default" type="checkbox" id="xsd_display_fields_{$xsd_display_fields[a].xsdmf_id}_{$loop_num}" 
-                                           name="xsd_display_fields[{$xsd_display_fields[a].xsdmf_id}][]" {if $details[$temp_fld_id][z] =='on'}checked{/if} 
-                                           onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[a].xsdmf_id}', 'edit_metadata_form_table');" 
+                                    <input class="default" type="checkbox" id="xsd_display_fields_{$xsd_display_fields[a].xsdmf_id}_{$loop_num}"
+                                           name="xsd_display_fields[{$xsd_display_fields[a].xsdmf_id}][]" {if $details[$temp_fld_id][z] =='on'}checked{/if}
+                                           onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[a].xsdmf_id}', 'edit_metadata_form_table');"
                                            onChange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[a].xsdmf_id}', 'edit_metadata_form_table');">
                                     {include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[a].xsdmf_id|cat:"][]"}
                                     {if $xsd_display_fields[a].xsdmf_long_description != ""}
-                                        <span class="default">{$xsd_display_fields[a].xsdmf_long_description}</span>
+                                        <span class="default">{$xsd_display_fields[a].xsdmf_long_description|smarty:nodefaults}</span>
                                     {/if}
                                 {/if}
                             {/if}
                         {/section}
                     {/if}
-                    
+
                     {* Comment this out, as file upload required flag is handled on swfuploader.js
                     {if $xsd_display_fields[i].xsdmf_required == 1}
                         <script language="JavaScript">
@@ -113,7 +113,7 @@
                 <b>{$xsdmf.xsdmf_title}{if $xsdmf.xsdmf_required == 1} * {/if}</b>
             </td>
             <td bgcolor="{$value_color}">
-                <input class="default" type="file" id="xsd_display_fields_{$xsdmf.xsdmf_id}_0" 
+                <input class="default" type="file" id="xsd_display_fields_{$xsdmf.xsdmf_id}_0"
                        name="xsd_display_fields[{$xsdmf.xsdmf_id}]"  maxlength="255" size="50">
                 {include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"}
                 {if $xsdmf.xsdmf_attached_xsdmf_id != ""}
@@ -127,7 +127,7 @@
                         {/if}
                     {/section}
                 {/if}
-                
+
                 {* Comment this out, as file upload required flag is handled on swfuploader.js
                 {if $xsd_display_fields[i].xsdmf_required == 1}
                     <script language="JavaScript">
@@ -138,7 +138,7 @@
                     </script>
                 {/if}
                 *}
-                
+
             </td>
             {include file='workflow/compare_records_helpers/get_right_column.tpl.html input_field_name="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"}
         </tr>

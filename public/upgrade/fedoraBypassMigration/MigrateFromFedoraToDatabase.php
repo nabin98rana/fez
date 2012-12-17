@@ -345,7 +345,7 @@ class MigrateFromFedoraToDatabase
                  `sek_meta_header`, `sek_cardinality`, `sek_suggest_function`, `sek_faceting`, `sek_derived_function`,
                  `sek_lookup_id_function`, `sek_bulkchange`)
                 VALUES
-                ('core_92', 'UQ', 92, 'Copyright', '', '', 0, 0, 0, 999, 'checkbox', 'none', '', NULL, '', 'int', 0,
+                ('core_111', 'core', 111, 'Copyright', '', '', 0, 0, 0, 999, 'checkbox', 'none', '', NULL, '', 'int', 0,
                 '', 0, '', 0, '', '', 0);";
 
         $stmtAddRecordSearchKeyColumn = "ALTER TABLE ". APP_TABLE_PREFIX ."record_search_key

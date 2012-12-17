@@ -7,11 +7,11 @@
 			<b><label for="xsd_display_fields_{$xsdmf.xsdmf_id}_{$loop_num}">{$xsdmf.xsdmf_title} {$loop_num}</label></b>{if $xsdmf.xsdmf_required == 1} * {/if}<br />{if $loop_num == 1}<i>(More {$xsdmf.xsdmf_title} input boxes will appear as you type)</i>{/if}
 		  </td>
 		  <td bgcolor="{$value_color}">
-		<input class="default" type="checkbox" id="xsd_display_fields_{$xsdmf.xsdmf_id}_{$loop_num}" 
-			name="xsd_display_fields[{$xsdmf.xsdmf_id}][]" {if $details[$temp_fld_id][z] =='on'}checked{/if} onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsdmf.xsdmf_id}', 'choicexsd_display_fields_{$xsdmf.xsdmf_id}');" onChange="javascript:unhideRow('xsd_display_fields_{$xsdmf.xsdmf_id}', 'choicexsd_display_fields_{$xsdmf.xsdmf_id}');">
+		<input class="default" type="checkbox" id="xsd_display_fields_{$xsdmf.xsdmf_id}_{$loop_num}"
+			name="xsd_display_fields[{$xsdmf.xsdmf_id}][]" {if $details[$temp_fld_id][z] =='on' || $details[$temp_fld_id][z] == 1}checked{/if} onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsdmf.xsdmf_id}', 'choicexsd_display_fields_{$xsdmf.xsdmf_id}');" onChange="javascript:unhideRow('xsd_display_fields_{$xsdmf.xsdmf_id}', 'choicexsd_display_fields_{$xsdmf.xsdmf_id}');">
 			{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"][]"}
 			{if $xsdmf.xsdmf_long_description != ""}
-				<span class="default">{$xsdmf.xsdmf_long_description}</span>
+				<span class="default">{$xsdmf.xsdmf_long_description|smarty:nodefaults}</span>
 			{/if}
 		 </td>
         {include file='workflow/compare_records_helpers/get_right_column.tpl.html input_field_name="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"][]"}
@@ -20,14 +20,14 @@
 {else}
 		<tr id="tr_xsd_display_fields_{$xsdmf.xsdmf_id}_0" valign="top" {if $xsdmf.xsdmf_invisible == 1}style="display:none;"{/if}>
 		  <td width="200" bgcolor="{$cell_color}" class="default">
-			<b><label for="xsd_display_fields_{$xsdmf.xsdmf_id}_0">{$xsdmf.xsdmf_title}{if $xsdmf.xsdmf_required == 1} * {/if}</label></b>
+			<b><label for="xsd_display_fields_{$xsdmf.xsdmf_id}_0">{$xsdmf.xsdmf_title} {if $xsdmf.xsdmf_required == 1} * {/if}</label></b>
 		  </td>
 		  <td bgcolor="{$value_color}">
-		<input class="default" type="checkbox" id="xsd_display_fields_{$xsdmf.xsdmf_id}_0" 
-		  name="xsd_display_fields[{$xsdmf.xsdmf_id}]" {if $details[$temp_fld_id] == 'on'}checked{/if}>
+		<input class="default" type="checkbox" id="xsd_display_fields_{$xsdmf.xsdmf_id}_0"
+		  name="xsd_display_fields[{$xsdmf.xsdmf_id}]" {if $details[$temp_fld_id] == 'on' || $details[$temp_fld_id] == 1}checked{/if}>
 		      {include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"}
 			{if $xsdmf.xsdmf_long_description != ""}
-				<span class="default">{$xsdmf.xsdmf_long_description}</span>
+				<span class="default">{$xsdmf.xsdmf_long_description|smarty:nodefaults}</span>
 			{/if}
 		 </td>
   {include file='workflow/compare_records_helpers/get_right_column.tpl.html  input_field_name="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"}

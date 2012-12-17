@@ -141,11 +141,11 @@
 					elementTitle.style.display = 'none';
 				  }
                   return true;
-              }			  			  
+              }
 			  function toggleCustomVocab(show_field)
               {
                   return true;
-              }			  			  
+              }
 
 
               function toggleDynamicText(show_field)
@@ -211,7 +211,7 @@
 
 				  var elementTitle = getPageElement('xsd_display_ref_tr');
 
-				  
+
 				  if ((elementCheck) && (show_field == false)) {
 					  if (show_field == true) {
 						elementTitle.style.display = '';
@@ -303,8 +303,8 @@
 					elementTitle.style.display = 'none';
 				  }
                   return true;
-              }			  
-			  
+              }
+
               function toggleXSDMF_ID_Refs(show_field)
               {
                   var f = getForm('xsd_tree_match_form');
@@ -341,7 +341,7 @@
 				  toggleDynamicSelectedOption(show_field);
                   return true;
               }
-			  
+
               function toggleAuthorSelector(show_field)
               {
                   var f = getForm('xsd_tree_match_form');
@@ -353,7 +353,7 @@
 				  }
 //				  toggleDynamicSelectedOption(show_field);
                   return true;
-              }			  
+              }
 			  function toggleAuthorSuggestor(show_field)
               {
                   var f = getForm('xsd_tree_match_form');
@@ -418,7 +418,7 @@
 //				  toggleDynamicSelectedOption(show_field);
                   return true;
               }
-			  
+
               function toggleDynamicSelectedOption(show_field)
               {
                   var f = getForm('xsd_tree_match_form');
@@ -428,7 +428,7 @@
 				  } else {
 					elementTitle.style.display = 'none';
 				  }
-				  var elementTitle = getPageElement('tr_parent_option_xdis_id');				  
+				  var elementTitle = getPageElement('tr_parent_option_xdis_id');
 				  if (show_field == true) {
 					elementTitle.style.display = '';
 				  } else {
@@ -449,7 +449,7 @@
                       f.anon_form_required.checked = false;
                   }
               }
-			  
+
 			    var dt_load_array = new Array();
 				var dt_load_state = 0;
 				var dt2_load_state = 0;
@@ -462,7 +462,7 @@
 					document.body.style.cursor = 'wait';
 					document.getElementById('loading1').style.display = 'block';
 				}
-				
+
 				function hideLoading1()
 				{
 					document.body.style.cursor = '';
@@ -482,39 +482,39 @@
 				{
 					document.body.style.cursor = 'wait';
 					document.getElementById('loading4').style.display = 'block';
-				}				
+				}
 				function showLoading5()
 				{
 					document.body.style.cursor = 'wait';
 					document.getElementById('loading5').style.display = 'block';
-				}				
+				}
 				function showLoading6()
 				{
 					document.body.style.cursor = 'wait';
 					document.getElementById('loading6').style.display = 'block';
-				}				
+				}
 
 				function hideLoading2()
 				{
 					document.body.style.cursor = '';
 					document.getElementById('loading2').style.display = 'none';
-				}				
+				}
 
 				function hideLoading3()
 				{
 					document.body.style.cursor = '';
 					document.getElementById('loading3').style.display = 'none';
-				}				
+				}
 				function hideLoading4()
 				{
 					document.body.style.cursor = '';
 					document.getElementById('loading4').style.display = 'none';
-				}				
+				}
 				function hideLoading5()
 				{
 					document.body.style.cursor = '';
 					document.getElementById('loading5').style.display = 'none';
-				}				
+				}
 				function hideLoading6()
 				{
 					document.body.style.cursor = '';
@@ -527,10 +527,10 @@
 				{
 					if (dt_load_array[child_field_name] > 0) {
 					   return false;
-					} 
+					}
 					var field = getFormElement(f, field_name);
 					var selections = getSelectedItems(field);
-				
+
 					if (selections.length > 0) {
 						dt_load_array[child_field_name]++;
 						//document.getElementById('tr_'+child_field_name).style.display = '';
@@ -552,15 +552,15 @@
 								dt_load_array[child_field_name]--;
 								});
 					}
-				}			  
-			  
+				}
+
 
 
 				function selectXSDDisplayList(f, field_name)
 				{
 					if (dt2_load_state > 0) {
 					   return false;
-					} 
+					}
 					var field = getFormElement(f, field_name);
 					var selections = getSelectedItems(field);
 					if (selections.length > 0) {
@@ -582,13 +582,13 @@
 								dt2_load_state--;
 								});
 					}
-				}			  
+				}
 
 				function selectXSDDisplayListSuggestor(f, field_name)
 				{
 					if (dt4_load_state > 0) {
 					   return false;
-					} 
+					}
 					var field = getFormElement(f, field_name);
 					var selections = getSelectedItems(field);
 					if (selections.length > 0) {
@@ -610,13 +610,13 @@
 								dt4_load_state--;
 								});
 					}
-				}			  
+				}
 
 				function selectXSDDisplayOrgList(f, field_name)
 				{
 					if (dt3_load_state > 0) {
 					   return false;
-					} 
+					}
 					var field = getFormElement(f, field_name);
 					var selections = getSelectedItems(field);
 					if (selections.length > 0) {
@@ -638,8 +638,8 @@
 								dt3_load_state--;
 								});
 					}
-				}			
-				
+				}
+
 				  function checkDelete(f)
                   {
                       if (!hasOneChecked(f, 'items[]')) {
@@ -652,8 +652,8 @@
                           return true;
                       }
                   }
-				
-				
+
+
               //-->
               </script>
               {/literal}
@@ -721,13 +721,13 @@
 			</table>
 		  </td>
 	    </tr>
-	  </table>	
+	  </table>
 {/if}
 {if !$show_subelement_parents || $is_sublooping_base_element}
       <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
         <tr>
           <td>
-            <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">			  
+            <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
               <form name="xsd_tree_match_form" onSubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}">
 		      <input type="hidden" name="form_name" value="xsdmf">
 			  <input type="hidden" name="xsdmf_id" value="{$xsdmf_id}">
@@ -765,7 +765,7 @@
                     {elseif $result == 1}
                       Thank you, the xsd element to html element match was updated successfully.
                     {/if}
-                  {/if}	
+                  {/if}
                 </td>
               </tr>
               {/if}
@@ -894,7 +894,7 @@
                   <b>Field Description:</b>
                 </td>
                 <td bgcolor="{$light_color}">
-                  <textarea name="long_description" rows="10" cols="60" class="default">{$info.xsdmf_long_description}</textarea>
+                  <textarea name="long_description" rows="10" cols="60" class="default">{$info.xsdmf_long_description|smarty:nodefaults}</textarea>
                   <span class="small_default">(it will show up by the side of the field control)</span>
                 </td>
               </tr>
@@ -922,7 +922,7 @@
                 </td>
                 <td bgcolor="{$light_color}">
                   <input type="checkbox" name="enabled" class="default" {if (($info.xsdmf_enabled != 0) || ($info.xsdmf_enabled==''))}checked{/if}><br />
-                  <span class="small_default">This should be checked to make this field appear on the forms for editing metadata.  If the field is static text, 
+                  <span class="small_default">This should be checked to make this field appear on the forms for editing metadata.  If the field is static text,
                   it will only be shown if the 'Show in View Details' box is also checked (used to make a section heading in the form) .  If this box is unchecked, the resulting XML will have a blank value for this element.</span>
                 </td>
               </tr>
@@ -936,7 +936,7 @@
 						{html_options options=$search_key_list selected=$info.xsdmf_sek_id}
 					</select>
                 </td>
-              </tr>			  
+              </tr>
               <tr>
                 <td width="120" bgcolor="{$cell_color}" class="default">
                   <b>Required?:</b>
@@ -1048,7 +1048,7 @@
                 <td bgcolor="#{$smarty.const.APP_ADV_COLOR_LIGHT}">
 				  <input type="text" name="attached_xsdmf_id" size="40" class="default" value="{$info.xsdmf_attached_xsdmf_id}">
                   <span class="small_default">(If an existing XSDMF ID is entered here then that matching field will be shown to the right of this matching field in any forms. Mainly useful for Author ID selectors)</span> </td>
-              </tr>			
+              </tr>
               <tr>
                 <td width="120" bgcolor="#{$smarty.const.APP_ADV_COLOR_DARK}" class="default">
                   <b>Value Prefix:</b>
@@ -1068,8 +1068,8 @@
                 </td>
               </tr>
 
-              {if $info.xsdmf_html_input == 'combo' 
-                    || $info.xsdmf_html_input == 'multiple' 
+              {if $info.xsdmf_html_input == 'combo'
+                    || $info.xsdmf_html_input == 'multiple'
                         || $info.xsdmf_html_input == 'tree'
                             || $info.xsdmf_html_input == 'dual_multiple'}
                  {assign var="selectingfield" value=true}
@@ -1139,13 +1139,13 @@
 					  	<option value=2 {if ($info.xsdmf_cvo_min_level == 2)}selected{/if}>Last Child Branch</option>
 						<option value=3 {if ($info.xsdmf_cvo_min_level == 3)}selected{/if}>First Child Branch Only</option>
 					</select><br />
-					<span class="default">Save CVO value or ID?:</span>					
+					<span class="default">Save CVO value or ID?:</span>
 					<select class="default" name="xsdmf_cvo_save_type">
 						<option value="0" {if ($info.xsdmf_cvo_save_type == 0) or ($info.xsdmf_cvo_save_type == '')}selected{/if}>ID</option>
 						<option value="1" {if ($info.xsdmf_cvo_save_type == 1)}selected{/if}>Value</option>
-					</select>					
+					</select>
 			  	</td>
-		     </tr>			  
+		     </tr>
               <tr id="smarty_variable_tr"  {if $info.xsdmf_html_input != 'static' && !$selectingfield}style="display:none"{/if}>
                  <td width="120" bgcolor="{$cell_color}" class="default"><b>Dynamic Variable:</b><i>(If a dynamic variable is set it will be used instead of the entered values, or if this is a combo or multiple html input then the dynamic variable will be used as the field options)</i></td>
  				<td bgcolor="{$light_color}">
@@ -1158,7 +1158,7 @@
 					<input class="default" type="text" name="dynamic_selected_option" size="26" value="{$info.xsdmf_dynamic_selected_option}">
 			  	</td>
 		     </tr>
-        
+
 					<tr id="tr_parent_option_xdis_id" {$selectingfield_only}>
 					  <td bgcolor="{$cell_color}" class="default" valign="top">
 						<b>Parent XSDMF Element list:</b><i>(If this option is checked then the list of options will come from the first parent object of this type and this xsd matching field)<br /><br />(If this is an <b>Author Selector</b> then it will use this element to limit the author check to an organisation level eg School. For an Author Selector the element should point to an organisation ID that has relationships with authors, again like School.)</i>
@@ -1176,10 +1176,10 @@
       {literal}
       <script language="JavaScript">
       <!--
-	  selectXSDDisplayList(getForm('xsd_tree_match_form'), 'xsdmf_parent_option_xdis_id'); 
+	  selectXSDDisplayList(getForm('xsd_tree_match_form'), 'xsdmf_parent_option_xdis_id');
 	  //-->
       </script>
-      {/literal}					
+      {/literal}
 					<tr id="tr_asuggest_xdis_id" {$selectingfield_only}>
 					  <td bgcolor="{$cell_color}" class="default" valign="top">
 						<b>Suggest Target Element:</b><i>(The selected target element will be filled with the lookup text, eg Full name)</i>
@@ -1197,7 +1197,7 @@
       {literal}
       <script language="JavaScript">
       <!--
-	  selectXSDDisplayListSuggestor(getForm('xsd_tree_match_form'), 'xsdmf_asuggest_xdis_id'); 
+	  selectXSDDisplayListSuggestor(getForm('xsd_tree_match_form'), 'xsdmf_asuggest_xdis_id');
 	  //-->
       </script>
       {/literal}
@@ -1207,7 +1207,7 @@
 					<b>Organisational Structure Level:</b><br /><i>(The level where the list of values will be selected from)</i>
 				  </td>
 				  <td bgcolor="{$light_color}">
-					<select class="default" name="xsdmf_org_level"> 
+					<select class="default" name="xsdmf_org_level">
 					 {html_options options=$org_levels selected=$info.xsdmf_org_level}
 					</select><br />
 					<span class="default">Use Org Level to fill a combo box?:</span> <input type="checkbox" name="xsdmf_use_org_to_fill" class="default" {if ($info.xsdmf_use_org_to_fill == 1)}checked{/if}><br />
@@ -1222,7 +1222,7 @@
         {literal}
       <script language="JavaScript">
       <!--
-	  selectXSDDisplayOrgList(getForm('xsd_tree_match_form'), 'xsdmf_org_fill_xdis_id'); 	
+	  selectXSDDisplayOrgList(getForm('xsd_tree_match_form'), 'xsdmf_org_fill_xdis_id');
 	  //-->
       </script>
       {/literal}
@@ -1246,11 +1246,11 @@
 					<INPUT TYPE=RADIO NAME="fez_variable" VALUE="file_downloads" {if $info.xsdmf_fez_variable == "file_downloads"}checked{/if}/>File Downloads Statistics<BR>
 					<INPUT TYPE=RADIO NAME="fez_variable" VALUE="created_date" {if $info.xsdmf_fez_variable == "created_date"}checked{/if}/>Fez Created Date<BR>
 					<INPUT TYPE=RADIO NAME="fez_variable" VALUE="updated_date" {if $info.xsdmf_fez_variable == "updated_date"}checked{/if}/>Fez Updated Date<BR>
-					<INPUT TYPE=RADIO NAME="fez_variable" VALUE="usr_id" {if $info.xsdmf_fez_variable == "usr_id"}checked{/if}/>Fez User ID<BR>					
-					<INPUT TYPE=RADIO NAME="fez_variable" VALUE="assigned_usr_id" {if $info.xsdmf_fez_variable == "assigned_usr_id"}checked{/if}/>Fez Assigned User ID<BR>					
-					<INPUT TYPE=RADIO NAME="fez_variable" VALUE="assigned_grp_id" {if $info.xsdmf_fez_variable == "assigned_grp_id"}checked{/if}/>Fez Assigned Group ID<BR>															
+					<INPUT TYPE=RADIO NAME="fez_variable" VALUE="usr_id" {if $info.xsdmf_fez_variable == "usr_id"}checked{/if}/>Fez User ID<BR>
+					<INPUT TYPE=RADIO NAME="fez_variable" VALUE="assigned_usr_id" {if $info.xsdmf_fez_variable == "assigned_usr_id"}checked{/if}/>Fez Assigned User ID<BR>
+					<INPUT TYPE=RADIO NAME="fez_variable" VALUE="assigned_grp_id" {if $info.xsdmf_fez_variable == "assigned_grp_id"}checked{/if}/>Fez Assigned Group ID<BR>
 				</td>
- 			  </tr> 
+ 			  </tr>
 
               <tr id="tr_xsdmf_id_ref" {if $info.xsdmf_html_input != 'xsdmf_id_ref'}style="display:none"{/if}>
                 <td width="120" bgcolor="{$cell_color}" class="default">
@@ -1269,10 +1269,10 @@
 									<select class="default" name="xsdmf_id_ref">
 									</select>
 					<br />
-					<span class="default">Save reference value or ID?:</span>					
+					<span class="default">Save reference value or ID?:</span>
 					<select class="default" name="xsdmf_id_ref_save_type">
 						<option value="0" {if ($info.xsdmf_id_ref_save_type == 0) or ($info.xsdmf_id_ref_save_type == '')}selected{/if}>ID</option>
-						<option value="1" {if ($info.xsdmf_id_ref_save_type == 1)}selected{/if}>Value</option>  
+						<option value="1" {if ($info.xsdmf_id_ref_save_type == 1)}selected{/if}>Value</option>
 					</select>
 					<span class="default">(only used for controlled vocabularies)</span>
                 </td>
@@ -1283,7 +1283,7 @@
 				</td>
                 <td bgcolor="{$light_color}">
                   <table bgcolor="{$dark_color}" cellspacing="0" cellpadding="0" border="0">
-                    <tr>			
+                    <tr>
 						<td bgcolor="{$light_color}">
 						  <textarea name="static_text" rows="20" cols="60" class="default" value="{$info.xsdmf_static_text}">{$info.xsdmf_static_text}</textarea>
 						  <br /><span class="small_default">(it will be added when XML for an instance of this XSD is created OR if this is a user input field this value will be prefilled in metadata entry forms)</span>
@@ -1311,6 +1311,7 @@
 				  	<option value="none" {if ($info.xsdmf_validation_type == 'none') or ($info.xsdmf_validation_type == '')}selected{/if}>None</option>
 				  	<option value="date" {if ($info.xsdmf_validation_type == 'date')}selected{/if}>Date</option>
 				  	<option value="email" {if ($info.xsdmf_validation_type == 'email')}selected{/if}>Email Address</option>
+                      <option value="integer" {if ($info.xsdmf_validation_type == 'integer')}selected{/if}>Integer</option>
                     <option value="numeric" {if ($info.xsdmf_validation_type == 'numeric')}selected{/if}>Numeric</option>
                     <option value="unique" {if ($info.xsdmf_validation_type == 'unique')}selected{/if}>Unique</option>
 				  	<option value="url" {if ($info.xsdmf_validation_type == 'url')}selected{/if}>URL</option>
@@ -1391,8 +1392,8 @@
 				  </select>
                   <br /><span class="small_default">(Year only will save as 1/1/YEAR eg 1/1/2006 for sorting purposes, but display as 2006)</span>
                 </td>
-              </tr>			  
-			  
+              </tr>
+
               <tr>
                 <td colspan="2" bgcolor="{$cell_color}" align="center">
                   {if $form_cat == 'edit'}
@@ -1414,7 +1415,7 @@
 
 		<tr id="xsd_display_ref_tr" {if $info.xsdmf_html_input != 'xsd_ref'}style="display:none"{/if}>
 			<td>
-		    {if $form_cat == 'edit'}		
+		    {if $form_cat == 'edit'}
 			  <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
 				<tr>
 				  <td>
@@ -1611,7 +1612,7 @@
 								  <b>XSD Subelement Loop Title:</b>
 								</td>
 								<td bgcolor="{$light_color}">
-								 <input type="text" name="xsdsel_title" size="50" class="default" value="{$xsd_loop_subelement_details.xsdsel_title}">		
+								 <input type="text" name="xsdsel_title" size="50" class="default" value="{$xsd_loop_subelement_details.xsdsel_title}">
 								  {include file="error_icon.tpl.html" field="title"}
 								</td>
 							  </tr>
@@ -1792,10 +1793,10 @@ dt_load_array['att_child_xsdmf_id'] = 0;
 dt_load_array['xsdsel_attribute_loop_xsdmf_id'] = 0;
 dt_load_array['xsdmf_id_ref'] = 0;
 {/literal}{if $form_cat == 'edit'}{literal}
-	  selectXSDDisplay(getForm('xsd_loop_subelement_form'), 'xsdsel_attribute_loop_xdis_id', 'xsdsel_attribute_loop_xsdmf_id', {/literal}{if $xsd_loop_subelement_details.xsdsel_attribute_loop_xsdmf_id}{$xsd_loop_subelement_details.xsdsel_attribute_loop_xsdmf_id}{else}0{/if}{literal}); 
-	  selectXSDDisplay(getForm('xsd_loop_subelement_form'), 'xsdsel_indicator_xdis_id', 'xsdsel_indicator_xsdmf_id', {/literal}{if $xsd_loop_subelement_details.xsdsel_indicator_xsdmf_id}{$xsd_loop_subelement_details.xsdsel_indicator_xsdmf_id}{else}0{/if}{literal}); 
+	  selectXSDDisplay(getForm('xsd_loop_subelement_form'), 'xsdsel_attribute_loop_xdis_id', 'xsdsel_attribute_loop_xsdmf_id', {/literal}{if $xsd_loop_subelement_details.xsdsel_attribute_loop_xsdmf_id}{$xsd_loop_subelement_details.xsdsel_attribute_loop_xsdmf_id}{else}0{/if}{literal});
+	  selectXSDDisplay(getForm('xsd_loop_subelement_form'), 'xsdsel_indicator_xdis_id', 'xsdsel_indicator_xsdmf_id', {/literal}{if $xsd_loop_subelement_details.xsdsel_indicator_xsdmf_id}{$xsd_loop_subelement_details.xsdsel_indicator_xsdmf_id}{else}0{/if}{literal});
 {/literal}{/if}{literal}
-	  selectXSDDisplay(getForm('xsd_tree_match_form'), 'xsdmf_xdis_id_ref', 'xsdmf_id_ref', {/literal}{if $info.xsdmf_id_ref}{$info.xsdmf_id_ref}{else}0{/if}{literal}); 
+	  selectXSDDisplay(getForm('xsd_tree_match_form'), 'xsdmf_xdis_id_ref', 'xsdmf_id_ref', {/literal}{if $info.xsdmf_id_ref}{$info.xsdmf_id_ref}{else}0{/if}{literal});
 	  document.onload = setXSDMatchField();
       function setXSDMatchField()
       {

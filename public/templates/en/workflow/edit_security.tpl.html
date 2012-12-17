@@ -225,7 +225,7 @@ function selectDateField(field_name, day, month, year)
                                onChange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');">
 							{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"][]"}
 							{if $xsd_display_fields[i].xsdmf_long_description != ""}
-								<span class="default">{$xsd_display_fields[i].xsdmf_long_description}</span>
+								<span class="default">{$xsd_display_fields[i].xsdmf_long_description|smarty:nodefaults}</span>
 							{/if}
 
 						 </td>
@@ -242,7 +242,7 @@ function selectDateField(field_name, day, month, year)
                                {if $details[$temp_fld_id] == 'on' || ($FezACML_exists == 0 && $xsd_display_fields[i].xsdmf_cso_value == 'checked')}checked{/if}>
 						{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}
 							{if $xsd_display_fields[i].xsdmf_long_description != ""}
-								<span class="default">{$xsd_display_fields[i].xsdmf_long_description}</span>
+								<span class="default">{$xsd_display_fields[i].xsdmf_long_description|smarty:nodefaults}</span>
 							{/if}
 
 						 </td>

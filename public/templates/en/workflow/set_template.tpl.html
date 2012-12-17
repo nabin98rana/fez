@@ -293,7 +293,7 @@ function selectDateField(field_name, day, month, year)
 						<input class="default" type="checkbox" id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]" onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onChange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" {if $xsd_display_fields[i].xsdmf_cso_value == 'checked'}checked{/if}>
 							{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"][]"}
 							{if $xsd_display_fields[i].xsdmf_long_description != ""}
-								<span class="default">{$xsd_display_fields[i].xsdmf_long_description}</span>
+								<span class="default">{$xsd_display_fields[i].xsdmf_long_description|smarty:nodefaults}</span>
 							{/if}
 
 						 </td>
@@ -308,7 +308,7 @@ function selectDateField(field_name, day, month, year)
 						<input class="default" type="checkbox" id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]" {if $xsd_display_fields[i].xsdmf_cso_value == 'checked'}checked{/if}>
 						{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}
 							{if $xsd_display_fields[i].xsdmf_long_description != ""}
-								<span class="default">{$xsd_display_fields[i].xsdmf_long_description}</span>
+								<span class="default">{$xsd_display_fields[i].xsdmf_long_description|smarty:nodefaults}</span>
 							{/if}
 
 						 </td>
@@ -423,7 +423,7 @@ function selectDateField(field_name, day, month, year)
 				           {include file="error_icon.tpl.html"
                                                field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}
                                            {if $xsd_display_fields[i].xsdmf_long_description != ""}
-  	                                    <div class="default">{$xsd_display_fields[i].xsdmf_long_description}</div>
+  	                                    <div class="default">{$xsd_display_fields[i].xsdmf_long_description|smarty:nodefaults}</div>
                                            {/if}
                                           </td>
                                         </tr>

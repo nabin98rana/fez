@@ -1277,6 +1277,14 @@ class Record
 
           if ($sek_value['xsdmf_value'] == 'NULL') {
             $xsdmf_value = $sek_value['xsdmf_value'];
+          } elseif ($sek_value['xsdmf_value'] == 'on') {
+            $xsdDetails = XSD_HTML_Match::getDetailsByXSDMF_ID($sek_value['xsdmf_id']);
+            $searchKeyDetails = Search_Key::getDetails($xsdDetails['xsdmf_sek_id']);
+            if ($searchKeyDetails['sek_data_type'] == 'int') {
+              $xsdmf_value = 1;
+            } else {
+              $xsdmf_value = 0;
+            }
           } else {
             $sek_value['xsdmf_value'] = (is_array($sek_value['xsdmf_value']) && array_key_exists('Year', $sek_value['xsdmf_value']))
                 ? $sek_value['xsdmf_value']['Year'] : $sek_value['xsdmf_value'];
@@ -1408,6 +1416,13 @@ class Record
               unset($stmtVars);
 
             } else {
+              if ($sek_value['xsdmf_value'] == 'on') {
+                if ($searchKeyDetails['sek_data_type'] == 'int') {
+                  $sek_value['xsdmf_value'] = 1;
+                } else {
+                  $sek_value['xsdmf_value'] = 0;
+                }
+              }
               $stmt .= "(" . $db->quote($pid) . "," . $db->quote($sek_value['xsdmf_id'], 'INTEGER') . "," . $db->quote($sek_value['xsdmf_value']);
               if ($shadow) {
                 $stmt .= ", " . $db->quote($now);

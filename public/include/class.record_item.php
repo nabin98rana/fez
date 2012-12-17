@@ -14,11 +14,12 @@ abstract class RecordItem
      * Fields pertaining to the record
      */
     protected $_importAPI;
-    protected $_collections;
+    protected $_collections=array();
     protected $_abstract;
     protected $_ut = null;
     protected $_pubmedId = null;
     protected $_scopusId = null;
+    public $_embaseId = null;
     protected $_wokId = null;
     protected $_wokCitationCount = null;
     protected $_scopusCitationCount = null;
@@ -26,8 +27,6 @@ abstract class RecordItem
     protected $_title = null;
     protected $_journalTitle = null;
     protected $_journalTitleAbbreviation = null;
-    protected $_date_issued = null;
-    protected $_articleNos = array();
     protected $_totalPages = null;
     protected $_startPage = null;
     protected $_endPage = null;
@@ -37,7 +36,7 @@ abstract class RecordItem
     protected $_wokDocTypeCode = null;
     protected $_docSubType = null;
     //protected $_docTypeCode = null;
-    protected $_langageCode = null;
+    protected $_languageCode = null;
     protected $_issn = null;
     protected $_isbn = null;
     protected $_conferenceDates = null;
@@ -265,7 +264,7 @@ abstract class RecordItem
         // Instantiate Record Sek class
         $recordSearchKey = new Fez_Record_Searchkey();
 
-        if (empty($history)){
+        if (empty($history)) {
             // History message
             $history = 'Imported from '.$this->_importAPI;
         }
@@ -349,7 +348,7 @@ abstract class RecordItem
             $mods['identifier_issn'] = $this->_issn;
             $mods['identifier_doi'] = $this->_doi;
             $mods['identifier_scopus'] = $this->_scopusId;
-            $mods['language'] = $this->_language;
+            $mods['language'] = $this->_languageCode;
             $mods['genre'] = $this->_xdisTitle;
             $mods['genre_type'] = $this->_xdisSubtype;
             $mods['relatedItem']['part']['detail_issue']['number'] = $this->_issueNumber;
@@ -375,9 +374,9 @@ abstract class RecordItem
             $links = array();
 
             $rec = new Record();
-            $pid = $rec->insertFromArray($mods, $this->collections[0], "MODS 1.0", $history, 0, $links, array());
+            $pid = $rec->insertFromArray($mods, $this->_collections[0], "MODS 1.0", $history, 0, $links, array());
             if (is_numeric($this->_wokCitationCount)) {
-                Record::updateThomsonCitationCount($pid, $this->_wokCitationCount, $this->ut);
+                Record::updateThomsonCitationCount($pid, $this->_wokCitationCount, $this->_ut);
             }
             if (is_numeric($this->_scopusCitationCount)) {
                 Record::updateScopusCitationCount($pid, $this->_scopusCitationCount, $this->_scopusId);
@@ -416,7 +415,7 @@ abstract class RecordItem
             "End Page" => $this->_endPage,
             "Total Pages" => $this->_totalPages,
             "Issue Number" => $this->_issueNumber,
-            "Language" => $this->_langageCode,
+            "Language" => $this->_languageCode,
             "Conference Dates" => $this->_conferenceDates,
             "Conference Name" => $this->_conferenceTitle,
             "Journal Name" => $this->_journalTitle,
@@ -454,7 +453,7 @@ abstract class RecordItem
         );
 
         if (is_numeric($this->_wokCitationCount)) {
-            Record::updateThomsonCitationCount($pid, $this->_wokCitationCount, $this->ut);
+            Record::updateThomsonCitationCount($pid, $this->_wokCitationCount, $this->_ut);
         }
         if (is_numeric($this->_scopusCitationCount)) {
             Record::updateScopusCitationCount($pid, $this->_scopusCitationCount, $this->_scopusId);
@@ -495,7 +494,7 @@ abstract class RecordItem
         }
 
         //Commented out due to copyright reasons
-        //$sekData['Description']     = $this->abstract;
+        //$sekData['Description']     = $this->_abstract;
 
         $sekData['Issue Number']    = $this->_issueNumber;
         $sekData['Volume Number']   = $this->_issueVolume;
@@ -505,11 +504,11 @@ abstract class RecordItem
 
         $sekData['Date']            = Misc::MySQLDate(array("Year" => date("Y", strtotime($this->_issueDate)), "Month" => date("m", strtotime($this->_issueDate))));
 
-        $sekData['Language']        = $this->_langageCode;
+        $sekData['Language']        = $this->_languageCode;
         $sekData['Status']          = Status::getID("Published");
         $sekData['Object Type']     = Object_Type::getID("Record");
         $sekData['Depositor']       = Auth::getUserID();
-        $sekData['isMemberOf']      = $this->collections[0];
+        $sekData['isMemberOf']      = $this->_collections[0];
         $sekData['Created Date']    = $recordSearchKey->getVersion();
         $sekData['Updated Date']    = $recordSearchKey->getVersion();
 
@@ -535,7 +534,7 @@ abstract class RecordItem
         }
         $log = FezLog::get();
         $db = DB_API::get();
-        $stmt = "SELECT rek_pid FROM " . APP_TABLE_PREFIX . "record_search_key_doi
+        $stmt = "SELECT rek_doi_pid FROM " . APP_TABLE_PREFIX . "record_search_key_doi
                 WHERE rek_doi = ".$db->quote($this->_doi);
         try {
             $res = $db->fetchOne($stmt);
@@ -580,6 +579,8 @@ abstract class RecordItem
         */
     }
 
+    //Returns score 1-4 on matches
+    //Returns -1 on any that have values and don't match
     public function matchOnPageInfo($pid)
     {
         $matches = 0;
@@ -596,38 +597,46 @@ abstract class RecordItem
             if ($this->_startPage == $startPage) {
                 $matches++;
             } else if (!empty($startPage)) {
-                return false;
+                return -1;
             }
         }
         if (!empty($this->_endPage)) {
             if ($this->_endPage == $endPage) {
                 $matches++;
             } else if (!empty($endPage)) {
-                return false;
+                return -2;
             }
         }
-        if (!empty($this->_endPage)) {
-            if ($this->_endPage == $totalPages) {
+        if (!empty($this->_totalPages)) {
+            if ($this->_totalPages == $totalPages) {
                 $matches++;
             } else if (!empty($totalPages)) {
-                return false;
+                return -3;
             }
         }
         if (!empty($this->_issueNumber)) {
             if ($this->_issueNumber == $issueNumber) {
                 $matches++;
             } else if (!empty($issueNumber)) {
-                return false;
+                return -4;
             }
         }
         if (!empty($this->_issueVolume)) {
             if ($this->_issueVolume == $issueVolume) {
                 $matches++;
             } else if (!empty($issueVolume)) {
-                return false;
+                return -5;
             }
         }
 
         return $matches;
+    }
+    public function comparePidTitle($pid) {
+        $pidTitle =  Record::getSearchKeyIndexValue($pid, "Title", false);
+        $stripedPidTitle = RCL::normaliseTitle($pidTitle);
+        $stripedEmbaseTitle = RCL::normaliseTitle($this->_title);
+
+        similar_text($stripedPidTitle, $stripedEmbaseTitle, $percent);
+        return $percent;
     }
 }

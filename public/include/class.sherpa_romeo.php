@@ -210,7 +210,7 @@ class SherpaRomeo
             return false;
         }
         if ($res['colour'] == 'Not found in Sherpa Romeo') {
-          return false;
+          return array();
         }
 
         return $res;

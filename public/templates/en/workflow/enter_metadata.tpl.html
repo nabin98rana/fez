@@ -157,7 +157,8 @@
 		}
 		{/literal}
 		{section name="i" loop=$xsd_display_fields}
-		{if $xsd_display_fields[i].xsdmf_html_input == 'date' && $xsd_display_fields[i].xsdmf_enabled == 1}
+    		{if $xsd_display_fields[i].xsdmf_html_input == 'date' && $xsd_display_fields[i].xsdmf_enabled == 1}
+
 		{literal}
 		function calendarCallback_xsd_display_fields{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}(day, month, year) { selectDateField('xsd_display_fields[{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}]', day, month, year); }
 		function calendarCallback_xsd_display_fields_end{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}(day, month, year) { selectDateField('xsd_display_fields_end[{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}]', day, month, year); }
@@ -376,7 +377,7 @@
 					<input class="default" type="checkbox" id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]" onkeyup="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onchange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" {if $xsd_display_fields[i].xsdmf_cso_value == 'checked'}checked="checked"{/if} />
 						{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"][]"}
 						{if $xsd_display_fields[i].xsdmf_long_description != ""}
-							<span class="default">{$xsd_display_fields[i].xsdmf_long_description}</span>
+							<span class="default">{$xsd_display_fields[i].xsdmf_long_description|smarty:nodefaults}</span>
 						{/if}
 					 </td>
 					</tr>
@@ -390,7 +391,7 @@
 					<input class="default" type="checkbox" id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]" {if $xsd_display_fields[i].xsdmf_cso_value == 'checked'}checked="checked"{/if} />
 					{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}
 						{if $xsd_display_fields[i].xsdmf_long_description != ""}
-							<span class="default">{$xsd_display_fields[i].xsdmf_long_description}</span>
+							<span class="default">{$xsd_display_fields[i].xsdmf_long_description|smarty:nodefaults}</span>
 						{/if}
 					 </td>
 					</tr>
@@ -418,7 +419,7 @@
 							{fckeditor BasePath=$fckpath InstanceName=$InstanceName Width="500px" Height="200px" ToolbarSet="FezBasic" Value=$fckvalue}
 							{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"][]"}
 							{if $xsd_display_fields[i].xsdmf_long_description != ""}
-								<span class="default">{$xsd_display_fields[i].xsdmf_long_description}</span>
+								<span class="default">{$xsd_display_fields[i].xsdmf_long_description|smarty:nodefaults}</span>
 							{/if}
 						 </td>
 						</tr>
@@ -438,7 +439,7 @@
 						{fckeditor BasePath=$fckpath InstanceName=$InstanceName Width="500px" Height="200px" ToolbarSet="FezBasic" Value=$fckvalue}
 						{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}
 							{if $xsd_display_fields[i].xsdmf_long_description != ""}
-								<span class="default">{$xsd_display_fields[i].xsdmf_long_description}</span>
+								<span class="default">{$xsd_display_fields[i].xsdmf_long_description|smarty:nodefaults}</span>
 							{/if}
 						 </td>
 						</tr>
@@ -545,7 +546,7 @@
 						<b>{$xsd_display_fields[i].xsdmf_title}(s) {if $xsd_display_fields[i].xsdmf_required == 1 && $loop_num == 0} * {/if}</b>
 						{if $loop_num == 0}
                                                     {if $xsd_display_fields[i].xsdmf_description != ""}
-                                                        <br/><i>{$xsd_display_fields[i].xsdmf_description|escape:"html"}</i>
+                                                        <br/><i>{$xsd_display_fields[i].xsdmf_description|smarty:nodefaults}</i>
                                                     {/if}
                                                     <br />
                                                     <i>(More {$xsd_display_fields[i].xsdmf_title} input boxes will appear as you type)</i>
@@ -729,7 +730,7 @@
 				    <b><label for="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0">{$xsd_display_fields[i].xsdmf_title}
 	                                  {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</label></b>
 	                                  {if $xsd_display_fields[i].xsdmf_description != ""}
-	                                    <br/><i>{$xsd_display_fields[i].xsdmf_description|escape:"html"}</i>
+	                                    <br/><i>{$xsd_display_fields[i].xsdmf_description}</i>
 	                                  {/if}
 			          </th>
 			          <td>
@@ -742,7 +743,7 @@
 	                                    {include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}
 
 	                                    {if $xsd_display_fields[i].xsdmf_long_description != ""}
-                                                <div class="default">{$xsd_display_fields[i].xsdmf_long_description}</div>
+                                                <div class="default">{$xsd_display_fields[i].xsdmf_long_description|smarty:nodefaults}</div>
 	                                    {/if}
                                         {if $xsd_display_fields[i].sek_comment_function != ""}
                                             <span id="{$xsd_display_fields[i].xsdmf_id}_comment"></span>
@@ -833,7 +834,7 @@
 			            <textarea id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]" onkeyup="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onchange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" rows="10" cols="60" {if $xsd_display_fields[i].xsdmf_validation_maxlength != null && $xsd_display_fields[i].xsdmf_validation_maxlength > 0}maxlength="{$xsd_display_fields[i].xsdmf_validation_maxlength}" validation="required"{/if}>{if $loop_num == 0}{if $xsd_display_fields[i].xsdmf_dynamic_text != ""}{assign var='temp_dynamic_var' value=$xsd_display_fields[i].xsdmf_dynamic_text}{eval var=$temp_dynamic_var}{else}{$xsd_display_fields[i].xsdmf_static_text}{/if}{/if}</textarea>
 						{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"][]"}
 	                          {if $xsd_display_fields[i].xsdmf_long_description != ""}
-	                                    <div class="default">{$xsd_display_fields[i].xsdmf_long_description}</div>
+	                                    <div class="default">{$xsd_display_fields[i].xsdmf_long_description|smarty:nodefaults}</div>
 	                          {/if}
 					 </td>
 					</tr>
@@ -928,12 +929,12 @@
 				                      	  	}
 				                    	});
 		                    		}
-		                    		
+
 		                    		if(search_in_progress_scopus == 0) {
 		                    			search_in_progress_scopus = 1;
 		                    			var search_scopus = server.search_scopus(val);
-		                    			
-		                    			
+
+
 		                    			search_scopus.addCallback( function(msg) {
                                             search_in_progress_repo = 0;
                                             var container_id_scopus = 'search_container_scopus';
@@ -960,7 +961,7 @@
 			            			<textarea id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]" rows="10" cols="60" {if $xsd_display_fields[i].xsdmf_validation_maxlength != null && $xsd_display_fields[i].xsdmf_validation_maxlength > 0}maxlength="{$xsd_display_fields[i].xsdmf_validation_maxlength}" validation="required"{/if}>{if $xsd_display_fields[i].xsdmf_dynamic_text != ""}{assign var='temp_dynamic_var' value=$xsd_display_fields[i].xsdmf_dynamic_text}{eval var=$temp_dynamic_var}{else}{$xsd_display_fields[i].xsdmf_static_text}{/if}</textarea>
 						{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}
 	                          		{if $xsd_display_fields[i].xsdmf_long_description != ""}
-	                                    <div class="default">{$xsd_display_fields[i].xsdmf_long_description}</div>
+	                                    <div class="default">{$xsd_display_fields[i].xsdmf_long_description|smarty:nodefaults}</div>
 	                          		{/if}
 			                    </td>
 			                    <td style="vertical-align: top">
@@ -1095,7 +1096,7 @@
 						  {html_options options=$xsd_display_fields[i].field_options  selected=$xsd_display_fields[i].selected_option}
 						</select>
 						{if $xsd_display_fields[i].xsdmf_long_description != ""}
-							<span class="default">{$xsd_display_fields[i].xsdmf_long_description}</span>
+							<span class="default">{$xsd_display_fields[i].xsdmf_long_description|smarty:nodefaults}</span>
 						{/if}
 						{include file="error_icon.tpl.html" field=$field_name}
 					 </td>
@@ -1115,7 +1116,7 @@
 							  {html_options options=$xsd_display_fields[i].field_options selected=$xsd_display_fields[i].selected_option}
 						</select>
 						{if $xsd_display_fields[i].xsdmf_long_description != ""}
-							<span class="default">{$xsd_display_fields[i].xsdmf_long_description}</span>
+							<span class="default">{$xsd_display_fields[i].xsdmf_long_description|smarty:nodefaults}</span>
 						{/if}
 						{include file="error_icon.tpl.html" field=$field_name}
 					 </td>
@@ -1156,7 +1157,11 @@
 				<tr id="tr_list_{$list[i].xsdmf_id}_0" valign="top" {if ($isEditor != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && $xsd_display_fields[i].xsdmf_required != 1) || $xsd_display_fields[i].xsdmf_invisible == 1 || ($xsd_display_fields[i].cvo_hide == 1 && $xsd_display_fields[i].xsdmf_cvo_min_level == 3 && !$isAdmin)}style="display:none"{/if}>
 				  <th>
 					<b>{$xsd_display_fields[i].xsdmf_title} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b><br />
-				  </th>
+            {if $xsd_display_fields[i].xsdmf_long_description != ""}
+              <span class="default">{$xsd_display_fields[i].xsdmf_long_description|smarty:nodefaults}</span>
+            {/if}
+
+          </th>
 				  {assign var="field_name" value="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"][]"}
 				  <td>
 					{if $xsd_display_fields[i].xsdmf_cvo_min_level == 3}
@@ -1189,7 +1194,7 @@
 
 				<tr id="tr_list_{$list[i].xsdmf_id}_0" valign="top" {if ($isEditor != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && $xsd_display_fields[i].xsdmf_required != 1) || $xsd_display_fields[i].xsdmf_invisible == 1}style="display:none"{/if}>
 				  <th>
-					<b><label for="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0">{$xsd_display_fields[i].xsdmf_title}</label> {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b><br />
+					<b><label for="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0">{$xsd_display_fields[i].xsdmf_title} </label> {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b><br />
 				  </th>
 				  {assign var="field_name" value="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"][]"}
 				  <td>
