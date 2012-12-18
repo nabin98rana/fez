@@ -84,4 +84,113 @@ class EmbaseQueue extends Queue
         $bgp->register(serialize(array()), APP_SYSTEM_USER_ID);
     }
 
+    /**
+     * Links this instance to a corresponding background process started above
+     *
+     * @param BackgroundProcess_LinksAmr $bgp
+     */
+    public function setBGP(&$bgp)
+    {
+        $this->_bgp = &$bgp;
+    }
+
+    /**
+     * Processes the queue in the background. Retrieves an item using the pop()
+     * function of the queue and calls the index or remove methods.
+     */
+    public function bgProcess()
+    {
+        $log = FezLog::get();
+
+          // Mark lock with pid
+        if ($this->_use_locking) {
+            if (!$this->updateLock()) {
+                return false;
+            }
+        }
+
+        $this->_bgp->setStatus("Embase queue processing started");
+        $started = time();
+        $countDocs = 0;
+        $uts = array();
+        do {
+            $empty = FALSE;
+            $result = $this->pop();
+
+            if (is_array($result)) {
+                extract($result, EXTR_REFS);
+
+                $qOp = $this->_dbqp.'op';
+                $qUt = $this->_dbqp.'id';
+
+                if ($$qOp == self::ACTION_ADD) {
+                    $uts[] = $$qUt;
+                    $countDocs++;
+                }
+                $this->_bgp->setStatus("Emabse queue popped ".$qUt." for operation ".$qOp.". Count is now ".$countDocs);
+
+                if ($countDocs % $this->_batch_size == 0) {
+                    // Batch process UTs
+                    $this->_bgp->setStatus("Embase queue sending now because count_docs ".$countDocs." mod ".$this->_batch_size." = 0, with: \n".print_r($uts,true));
+                    $this->sendToEmbase($uts);
+                    $uts = array(); // reset
+                    // Sleep before next batch to avoid triggering the service throttling.
+                    sleep($this->_time_between_calls);
+                }
+            } else {
+                $empty = TRUE;
+            }
+            unset($result);
+            unset($$qOp);
+            unset($$qUt);
+        } while (!$empty);
+
+        if (count($uts) > 0) {
+            // Process remainder of UTs
+            $this->_bgp->setStatus("Embase queue sending remainder with: \n".print_r($uts,true));
+            $this->sendToEmbase($uts);
+            $uts = array(); // reset
+            sleep($this->_time_between_calls); // same as above
+        }
+
+        if ($this->_bgp) {
+            $plural = $countDocs > 1 ? 's' : '';
+            $this->_bgp->setStatus(
+                "Processed $countDocs record$plural in ". Date_API::getFormattedDateDiff(time(), $started)
+            );
+        }
+        if ($this->_use_locking) {
+            $this->releaseLock();
+        }
+        return $countDocs;
+    }
+
+    /**
+     * Send the list of UTs to the WoK service
+     *
+     * @param array $uts the array of UTs to send
+     */
+    function sendToEmbase($uts)
+    {
+        $log = FezLog::get();
+        // Find out which already exist in the repository. For these we'll be adding
+        // additional bib data
+        foreach ($uts as $ut) {
+            $search = new EmbaseService;
+            $xml = $search->search($ut, false, 1);
+            $records = new DomDocument();
+            $records->loadXML($xml);
+            $recordsNodes = $records->getElementsByTagName('item');
+            foreach ($recordsNodes as $recordsNode) {
+                $pmR = new EmbaseRecItem();
+                $pmR->load($recordsNode);
+                $pid = $pmR->save();
+                if ($pid) {
+                    if ($this->_bgp) {
+                        $this->_bgp->setStatus('Created new PID: '.$pid." for UT: ".$rec->ut);
+                    }
+                }
+            }
+        }
+    }
 }

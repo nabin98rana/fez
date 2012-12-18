@@ -23,7 +23,6 @@ abstract class RecordItem
     protected $_wokId = null;
     protected $_wokCitationCount = null;
     protected $_scopusCitationCount = null;
-    protected $_sourceAbbrev = null;
     protected $_title = null;
     protected $_journalTitle = null;
     protected $_journalTitleAbbreviation = null;
@@ -34,7 +33,8 @@ abstract class RecordItem
     protected $_issueNumber = null;
     protected $_issueVolume = null;
     protected $_wokDocTypeCode = null;
-    protected $_docSubType = null;
+    protected $_scopusDocType = null;
+    protected $_scopusDocTypeCode = null;
     //protected $_docTypeCode = null;
     protected $_languageCode = null;
     protected $_issn = null;
@@ -321,6 +321,9 @@ abstract class RecordItem
                 return FALSE;
             }
 
+            if (empty($history)){
+                $history = 'Imported from '.$this->_importAPI;
+            }
             $mods = array();
             $mods['titleInfo']['title'] = $this->_title;
             if (count($this->_authors) > 0) {
