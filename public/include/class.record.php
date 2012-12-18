@@ -2528,6 +2528,7 @@ class Record
 
   function getSearchKeysByPIDS(&$result, $forceGetExtra = false)
   {
+
     $pids = array();
     for ($i = 0; $i < count($result); $i++) {
       $pids[] = $result[$i]["rek_pid"];
@@ -2597,18 +2598,18 @@ class Record
 
                 if ($sekData['sek_cardinality'] == 1) {
                     if (array_key_exists('rek_'.$sek_sql_title.'_pid', $res[$i]) && array_key_exists('rek_'.$sek_sql_title.'_lookup', $res[$i])) {
-                      if (!array_key_exists("rek_".$sek_sql_title."_lookup", $p[$res[$i]["rek_".$sek_sql_title."_pid"]]) || !is_array($p[$res[$i]["rek_".$sek_sql_title."_pid"]]["rek_".$sek_sql_title."_lookup"])) {
+                      if (!is_array($p[$res[$i]["rek_".$sek_sql_title."_pid"]]["rek_".$sek_sql_title."_lookup"]) || !array_key_exists("rek_".$sek_sql_title."_lookup", $p[$res[$i]["rek_".$sek_sql_title."_pid"]])) {
                         $p[$res[$i]["rek_".$sek_sql_title."_pid"]]["rek_".$sek_sql_title."_lookup"] = array();
                       }
                       array_push($p[$res[$i]["rek_".$sek_sql_title."_pid"]]["rek_".$sek_sql_title."_lookup"], $res[$i]["rek_".$sek_sql_title."_lookup"]);
                     }
                 } else {
                     if (array_key_exists('rek_'.$sek_sql_title.'_pid', $res[$i]) && array_key_exists('rek_'.$sek_sql_title.'_lookup', $res[$i])) {
-                      if (!array_key_exists("rek_".$sek_sql_title."_lookup", $p[$res[$i]["rek_pid"]]) || !is_array($p[$res[$i]["rek_pid"]]["rek_".$sek_sql_title."_lookup"])) {
+                      if (!is_array($p[$res[$i]["rek_pid"]]["rek_".$sek_sql_title."_lookup"]) || !array_key_exists("rek_".$sek_sql_title."_lookup", $p[$res[$i]["rek_pid"]])) {
                         $p[$res[$i]["rek_".$sek_sql_title."_pid"]]["rek_".$sek_sql_title."_lookup"] = array();
                       }
-                      array_push($p[$res[$i]["rek_".$sek_sql_title."_pid"]]["rek_".$sek_sql_title."_lookup"], $res[$i]["rek_".$sek_sql_title."_lookup"]);
-//                      $p[$res[$i]["rek_".$sek_sql_title."_pid"]]["rek_".$sek_sql_title."_lookup"] =  $res[$i]["rek_".$sek_sql_title."_lookup"];
+//                      array_push($p[$res[$i]["rek_".$sek_sql_title."_pid"]]["rek_".$sek_sql_title."_lookup"], $res[$i]["rek_".$sek_sql_title."_lookup"]);
+                      $p[$res[$i]["rek_".$sek_sql_title."_pid"]]["rek_".$sek_sql_title."_lookup"] =  $res[$i]["rek_".$sek_sql_title."_lookup"];
                     }
                 }
               }
