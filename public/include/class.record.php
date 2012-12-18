@@ -2605,11 +2605,7 @@ class Record
                     }
                 } else {
                     if (array_key_exists('rek_'.$sek_sql_title.'_pid', $res[$i]) && array_key_exists('rek_'.$sek_sql_title.'_lookup', $res[$i])) {
-                      if (!is_array($p[$res[$i]["rek_pid"]]["rek_".$sek_sql_title."_lookup"]) || !array_key_exists("rek_".$sek_sql_title."_lookup", $p[$res[$i]["rek_pid"]])) {
-                        $p[$res[$i]["rek_".$sek_sql_title."_pid"]]["rek_".$sek_sql_title."_lookup"] = array();
-                      }
-                      array_push($p[$res[$i]["rek_".$sek_sql_title."_pid"]]["rek_".$sek_sql_title."_lookup"], $res[$i]["rek_".$sek_sql_title."_lookup"]);
-//                      $p[$res[$i]["rek_".$sek_sql_title."_pid"]]["rek_".$sek_sql_title."_lookup"] =  $res[$i]["rek_".$sek_sql_title."_lookup"];
+                      $p[$res[$i]["rek_".$sek_sql_title."_pid"]]["rek_".$sek_sql_title."_lookup"] =  $res[$i]["rek_".$sek_sql_title."_lookup"];
                     }
                 }
               }
