@@ -14,7 +14,7 @@ class Fez_Filter_RichTextHtmlpurify implements Zend_Filter_Interface
 		require_once APP_PATH . 'include/htmlpurifier/library/HTMLPurifier.auto.php';
 
 		$config = HTMLPurifier_Config::createDefault();
-    $config->set('HTML.Allowed', 'p,b,strong,u,i,sub,sup,em');
+    $config->set('HTML.Allowed', 'p,b,br,strong,u,i,sub,sup,em');
 		$purify = new HTMLPurifier($config);
 
 		if(is_array($value))
