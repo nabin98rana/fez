@@ -347,6 +347,7 @@ abstract class RecordItem
             $mods['identifier_isbn'] = $this->_isbn;
             $mods['identifier_issn'] = $this->_issn;
             $mods['identifier_doi'] = $this->_doi;
+            $mods['identifier_scopus_doc_type'] = $this->_docSubType;
             $mods['identifier_scopus'] = $this->_scopusId;
             $mods['language'] = $this->_languageCode;
             $mods['genre'] = $this->_xdisTitle;
