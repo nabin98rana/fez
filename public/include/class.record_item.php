@@ -168,6 +168,7 @@ abstract class RecordItem
                 echo "\nUPDATING\n";
                 $this->update($likenedPid);
 //                 file_put_contents('/var/www/fez/tests/dat/scopusSaveUpdate.txt', "UPDATE $likenedPid\n",FILE_APPEND);
+                var_dump($likenedPid);
             }
         }
         else
@@ -176,6 +177,7 @@ abstract class RecordItem
             echo  "\nSAVING\n";
             $newPid = $this->save();
 //             file_put_contents('/var/www/fez/tests/dat/scopusSaveUpdate.txt', "SAVE $newPid\n",FILE_APPEND);
+            var_dump($newPid);
         }
     }
 
