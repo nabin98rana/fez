@@ -117,7 +117,10 @@ class OAI
 
 		$return = Record::getListing($options, array(9,10), $current_row, $max, $order_by, false, false, $filter);
 		$return['list'] = Record::getParentTitlesByPIDS($return['list']);
-    Record::getSearchKeysByPIDS($return['list'], true);
+    $usr_id = Auth::getUserID();
+    if (!is_numeric($usr_id)) {
+      Record::getSearchKeysByPIDS($return['list'], true);
+    }
 		if (is_array($return['list'])) {
 			foreach ($return['list'] as $rkey => $res) {
 				$fans = array();
