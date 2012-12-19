@@ -16,7 +16,7 @@ abstract class RecordItem
     protected $_importAPI;
     protected $_collections=array();
     protected $_abstract;
-    protected $_ut = null;
+    protected $_isiLoc = null;
     protected $_pubmedId = null;
     protected $_scopusId = null;
     public $_embaseId = null;
@@ -82,9 +82,8 @@ abstract class RecordItem
 
         $xpath = new DOMXPath($xmlDoc);
 
-        if($this->_namespaces)
-        {
-            foreach($this->_namespaces as $name => $uri)
+        if ($this->_namespaces) {
+            foreach ($this->_namespaces as $name => $uri)
             {
                 $xpath->registerNamespace($name, $uri);
             }
@@ -348,12 +347,14 @@ abstract class RecordItem
                     $mods['subject'][$i]['topic'] = $this->_keywords[$i];
                 }
             }
-            $mods['identifier_isi_loc'] = $this->_ut;
+            $mods['identifier_isi_loc'] = $this->_isiLoc;
             $mods['identifier_isbn'] = $this->_isbn;
             $mods['identifier_issn'] = $this->_issn;
             $mods['identifier_doi'] = $this->_doi;
             $mods['identifier_scopus_doc_type'] = $this->_docSubType;
             $mods['identifier_scopus'] = $this->_scopusId;
+            $mods['identifier_pubmed'] = $this->_pubmedId;
+            $mods['identifier_embase'] = $this->_embaseId;
             $mods['language'] = $this->_languageCode;
             $mods['genre'] = $this->_xdisTitle;
             $mods['genre_type'] = $this->_xdisSubtype;
@@ -382,7 +383,7 @@ abstract class RecordItem
             $rec = new Record();
             $pid = $rec->insertFromArray($mods, $this->_collections[0], "MODS 1.0", $history, 0, $links, array());
             if (is_numeric($this->_wokCitationCount)) {
-                Record::updateThomsonCitationCount($pid, $this->_wokCitationCount, $this->_ut);
+                Record::updateThomsonCitationCount($pid, $this->_wokCitationCount, $this->_isiLoc);
             }
             if (is_numeric($this->_scopusCitationCount)) {
                 Record::updateScopusCitationCount($pid, $this->_scopusCitationCount, $this->_scopusId);
@@ -426,7 +427,12 @@ abstract class RecordItem
             "Conference Name" => $this->_conferenceTitle,
             "Journal Name" => $this->_journalTitle,
             "WoK Doc Type" => $this->_wokDocTypeCode,
-
+            "Scopus Doc Type" => $this->_scopusDocType,
+            "Pubmed Id" => $this->_pubmedId,
+            "Embase Id" => $this->_embaseId,
+            "Scopus Id" => $this->_scopusId,
+            "ISI LOC" => $this->_isiLoc,
+            "Publisher" => $this->_publisher,
         );
 
         if (!empty($this->_confenceLocationCity) || !empty($this->_confenceLocationState)) {
@@ -459,7 +465,7 @@ abstract class RecordItem
         );
 
         if (is_numeric($this->_wokCitationCount)) {
-            Record::updateThomsonCitationCount($pid, $this->_wokCitationCount, $this->_ut);
+            Record::updateThomsonCitationCount($pid, $this->_wokCitationCount, $this->_isiLoc);
         }
         if (is_numeric($this->_scopusCitationCount)) {
             Record::updateScopusCitationCount($pid, $this->_scopusCitationCount, $this->_scopusId);
@@ -482,15 +488,18 @@ abstract class RecordItem
         $sekData['Display Type']    = $this->_xdisId;
         $sekData['Genre']           = $this->_xdisTitle;
         $sekData['Genre Type']      = $this->_xdisSubtype;
-
         $sekData['Title']           = $this->_title;
         $sekData['Author']          = $this->_authors;
-        $sekData['ISI LOC']         = $this->_ut;
+        $sekData['ISI LOC']         = $this->_isiLoc;
+        $sekData['Scopus ID']         = $this->_scopusId;
+        $sekData['Embase ID']         = $this->_embaseId;
+        $sekData['Pubmed ID']         = $this->_pubmedId;
         $sekData['Keywords']        = $this->_keywords;
         $sekData['ISBN']            = $this->_isbn;
         $sekData['ISSN']            = $this->_issn;
         $sekData['DOI']            = $this->_doi;
         $sekData['Publisher']       = $this->_publisher;
+        $sekData['Scopus Doc Type'] = $this->_scopusDocType;
 
         /// exception for conf papers that the subtype goes into genre type
         if ($this->_xdisTitle == "Conference Paper") {

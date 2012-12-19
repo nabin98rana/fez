@@ -2380,7 +2380,11 @@ class Record
     if (count($res) > 0) {
       if ($getSimple == false || empty($getSimple)) {
         if ($citationCache == false) {
-          Record::getSearchKeysByPIDS($res, true);
+          if (is_numeric($usr_id)) {
+            Record::getSearchKeysByPIDS($res, true);
+          } else {
+            Record::getSearchKeysByPIDS($res);
+          }
 					if (APP_MY_RESEARCH_MODULE == 'ON') {
 					  $res = Record::getResearchDetailsbyPIDS($res, $getAuthorMatching);
 					}

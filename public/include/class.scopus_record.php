@@ -190,7 +190,6 @@ class ScopusRecItem extends RecordItem
                 $affiliated = true;
             }
         }
-        
         return $affiliated;
     }
     private function enterXdisInformation($docType) {
