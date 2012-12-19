@@ -216,8 +216,8 @@ class ScopusService
         $query = array('query' => 'affil(University+of+Queensland)',
                             'count' => self::REC_SET_SIZE,
                             'start' => $this->recSetStart,
-                            //'view' => 'STANDARD'
-                            'view' => 'COMPLETE'
+                            'view' => 'STANDARD'
+                            //'view' => 'COMPLETE'
         );
         
         $records = $this->search($query);
@@ -225,6 +225,17 @@ class ScopusService
         $this->recSetStart = $this->getNextRecStart($records);
         
         return $records;
+    }
+    
+    public function getRecordByScopusId($scopusId)
+    {
+        $params = array(
+                'action' => 'abstract',
+                'db' => 'SCOPUS_ID:' . $scopusId,
+                'qs' => array()
+        );
+    
+        return $this->doCurl($params, 'content');
     }
     
     /**
@@ -255,7 +266,7 @@ class ScopusService
                 }
             }
         }
-        
+        echo "\nNEXT REC START:"; var_dump($nextRecStart);
         return $nextRecStart;
     }
     
@@ -332,6 +343,11 @@ class ScopusService
         
         //var_dump(SCOPUS_WS_BASE_URL . $uri);
         //$uri = "content/article/SCOPUS_ID:84858076610?view=META_ABS";
+        //$uri = "content/affiliation/AFFILIATION_ID:60031004?start=1&count=200&view=DOCUMENTS";
+        //$uri = "content/abstract/SCOPUS_ID:34250025139";
+        //http://api.elsevier.com/content/search/index:AFFILIATION?query=.
+        //$uri = "content/search/index:AFFILIATION?query=University+of+Queensland";
+        //$uri = "content/abstract/SCOPUS_ID:84870252763";
         $curlHandle = curl_init(SCOPUS_WS_BASE_URL . $uri);
         curl_setopt($curlHandle, CURLOPT_SSL_VERIFYPEER, FALSE);
         curl_setopt($curlHandle, CURLOPT_SSL_VERIFYHOST, FALSE);
@@ -349,7 +365,7 @@ class ScopusService
         }
         
         curl_close($curlHandle);
-        
+        //var_dump($curlResponse);
         return $curlResponse;
     }
     

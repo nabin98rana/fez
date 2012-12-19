@@ -167,6 +167,7 @@ abstract class RecordImport
                 echo "\nUPDATING\n";
                 $this->update($likenedPid);
 //                 file_put_contents('/var/www/fez/tests/dat/scopusSaveUpdate.txt', "UPDATE $likenedPid\n",FILE_APPEND);
+                var_dump($likenedPid);
             }
         }
         else
@@ -175,6 +176,7 @@ abstract class RecordImport
             echo  "\nSAVING\n";
             $newPid = $this->save();
 //             file_put_contents('/var/www/fez/tests/dat/scopusSaveUpdate.txt', "SAVE $newPid\n",FILE_APPEND);
+            var_dump($newPid);
         }
     }
 
@@ -349,6 +351,7 @@ abstract class RecordImport
             $mods['identifier_isbn'] = $this->_isbn;
             $mods['identifier_issn'] = $this->_issn;
             $mods['identifier_doi'] = $this->_doi;
+            $mods['identifier_scopus_doc_type'] = $this->_docSubType;
             $mods['identifier_scopus'] = $this->_scopusId;
             $mods['identifier_pubmed'] = $this->_pubmedId;
             $mods['identifier_embase'] = $this->_embaseId;
