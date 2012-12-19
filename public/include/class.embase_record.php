@@ -36,7 +36,7 @@ include_once(APP_INC_PATH . "class.language.php");
 include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.author.php");
 include_once(APP_INC_PATH . "class.matching_conferences.php");
-include_once(APP_INC_PATH . "class.record_item.php");
+include_once(APP_INC_PATH . "class.record_import.php");
 
 /**
  * Class for working with the Embase REC item object
@@ -47,7 +47,7 @@ include_once(APP_INC_PATH . "class.record_item.php");
  */
 
 
-class EmbaseRecItem extends RecordItem
+class EmbaseRecItem extends RecordImport
 {
     public function load($embaseArticle, $nameSpaces=null)
     {

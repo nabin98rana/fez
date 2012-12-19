@@ -2,7 +2,7 @@
 
 /**
  * Servant class to execute liken functionality
- * for RecordItem classes
+ * for RecordImport classes
  * @author Chris Maj <c.maj@library.uq.edu.au>
  * @since November 2012
  *
@@ -11,7 +11,7 @@ class FieldLiken
 {
     /**
      * The ingested record
-     * @var RecordItem
+     * @var RecordImport
      */
     protected $record;
     
@@ -21,7 +21,7 @@ class FieldLiken
      */
     protected $likenMethods = array();
     
-    public function __construct(RecordItem $record)
+    public function __construct(RecordImport $record)
     {
         $this->record = $record;
     }

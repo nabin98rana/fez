@@ -36,10 +36,10 @@ include_once(APP_INC_PATH . "class.language.php");
 include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.author.php");
 include_once(APP_INC_PATH . "class.thomson_doctype_mappings.php");
-include_once(APP_INC_PATH . "class.record_item.php");
+include_once(APP_INC_PATH . "class.record_import.php");
 include_once(APP_INC_PATH . "class.matching_conferences.php");
 
-class ScopusRecItem extends RecordItem
+class ScopusRecItem extends RecordImport
 {
     /**
      * The Fez log

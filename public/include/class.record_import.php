@@ -8,7 +8,7 @@
  * @since November 2012
  *
  */
-abstract class RecordItem
+abstract class RecordImport
 {
     /**
      * Fields pertaining to the record
