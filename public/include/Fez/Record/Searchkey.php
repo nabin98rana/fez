@@ -297,7 +297,19 @@ class Fez_Record_Searchkey
         $result = $recordSearchKey->insertRecord($sekData);
 
         $new_pid = $recordSearchKey->_pid;
-        if (!empty($clone_attached_datastreams)) {
+
+
+
+      // Copy over the security
+      $perms = AuthNoFedora::getNonInheritedSecurityPermissions($pid);
+
+
+      foreach ($perms as $perm) {
+        AuthNoFedora::addRoleSecurityPermissions($new_pid, $perm['authii_role'], $perm['argr_arg_id'], '0');
+      }
+      AuthNoFedora::recalculatePermissions($new_pid);
+
+      if (!empty($clone_attached_datastreams)) {
           $datastreams = Fedora_API::callGetDatastreams($pid);
 
           foreach ($datastreams as $ds_value) {
@@ -308,9 +320,13 @@ class Fez_Record_Searchkey
 //                $new_pid, $ds_value['ID'], $value, $ds_value['label'],
 //                $ds_value['MIMEType'], $ds_value['controlGroup'], null, $ds_value['versionable']
 //              );
-              Fedora_API::getUploadLocationByLocalRef($new_pid, $ds_value['ID'], $ds_value['full_path'], $ds_value['label'],
+              $new_did = Fedora_API::getUploadLocationByLocalRef($new_pid, $ds_value['ID'], $ds_value['full_path'], $ds_value['label'],
                 $ds_value['MIMEType'], $ds_value['controlGroup'], null, $ds_value['versionable']);
-
+              $perms = AuthNoFedoraDatastreams::getNonInheritedSecurityPermissions($ds_value['id']);
+              foreach ($perms as $perm) {
+                AuthNoFedoraDatastreams::addRoleSecurityPermissions($new_did, $perm['authii_role'], $perm['argr_arg_id'], '0');
+              }
+              AuthNoFedoraDatastreams::recalculatePermissions($new_did);
 
             } elseif (isset($ds_value['controlGroup']) && $ds_value['controlGroup'] == 'R'
               && $clone_attached_datastreams) {
@@ -321,6 +337,9 @@ class Fez_Record_Searchkey
             }
           }
         }
+
+
+
 
         return $new_pid;
     }

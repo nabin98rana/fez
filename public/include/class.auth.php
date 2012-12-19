@@ -2975,12 +2975,12 @@ class AuthNoFedora {
       	$db = DB_API::get();
 
         if (empty($role)) {
-            $stmt = "SELECT authii_role, argr_ar_id FROM ". APP_TABLE_PREFIX . "auth_index2_not_inherited
+            $stmt = "SELECT authii_role, argr_ar_id, argr_arg_id FROM ". APP_TABLE_PREFIX . "auth_index2_not_inherited
                 LEFT JOIN ". APP_TABLE_PREFIX . "auth_rule_group_rules
                 ON argr_arg_id = authii_arg_id
                 WHERE authii_pid = ".$db->quote($pid);
         } else {
-            $stmt = "SELECT authii_role, argr_ar_id FROM ". APP_TABLE_PREFIX . "auth_index2_not_inherited
+            $stmt = "SELECT authii_role, argr_ar_id, argr_arg_id FROM ". APP_TABLE_PREFIX . "auth_index2_not_inherited
                 LEFT JOIN ". APP_TABLE_PREFIX . "auth_rule_group_rules
                 ON argr_arg_id = authii_arg_id
                 WHERE authii_pid = ".$db->quote($pid)."

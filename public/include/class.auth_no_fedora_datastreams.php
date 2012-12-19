@@ -376,12 +376,12 @@ class AuthNoFedoraDatastreams {
       	$db = DB_API::get();
 
         if (empty($role)) {
-            $stmt = "SELECT authdii_role, argr_ar_id FROM ". APP_TABLE_PREFIX . "auth_datastream_index2_not_inherited
+            $stmt = "SELECT authdii_role, argr_ar_id, argr_arg_id FROM ". APP_TABLE_PREFIX . "auth_datastream_index2_not_inherited
                 LEFT JOIN ". APP_TABLE_PREFIX . "auth_rule_group_rules
                 ON argr_arg_id = authdii_arg_id
                 WHERE authdii_did = ".$db->quote($did);
         } else {
-            $stmt = "SELECT authdii_role, argr_ar_id FROM ". APP_TABLE_PREFIX . "auth_datastream_index2_not_inherited
+            $stmt = "SELECT authdii_role, argr_ar_id, argr_arg_id FROM ". APP_TABLE_PREFIX . "auth_datastream_index2_not_inherited
                 LEFT JOIN ". APP_TABLE_PREFIX . "auth_rule_group_rules
                 ON argr_arg_id = authdii_arg_id
                 WHERE authdii_did = ".$db->quote($did)."

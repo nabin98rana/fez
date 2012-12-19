@@ -23,7 +23,7 @@ Feature: Check datastream policy works correctly
 
 
   @destructive @now @insulated
-  Scenario: Copy a known record with attachment without permisisons other than inherit to a community. Turn on a data stream policy on the community. Add another Pid. Then check both pids have the new policy.
+  Scenario: Copy a known record with attachment without permissions other than inherit to a community. Turn on a data stream policy on the community. Add another Pid. Then check both pids have the new policy.
     Given I login as administrator
   #clone record 1 to the collection
     And I go to the test journal article view page

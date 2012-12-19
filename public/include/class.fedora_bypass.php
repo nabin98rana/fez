@@ -216,6 +216,8 @@ class Fedora_API {
       'pid' => $pid);
     $dsr = new DSResource(APP_DSTREE_PATH, $resourceDataLocation, $meta);
     $dsr->save();
+    $meta = $dsr->getMeta();
+    return $meta['id'];
 
 
 		/*if (!is_numeric(strpos($local_file_location,"/"))) {
