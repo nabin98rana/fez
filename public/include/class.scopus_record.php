@@ -184,13 +184,12 @@ class ScopusRecItem extends RecordItem
         foreach($this->_affiliations as $affiliation)
         {
 
-            if(preg_match('/(University)|(University of Qld)/',
+            if(preg_match('/(University of Queensland)|(University of Qld)/',
                                                        $affiliation))
             {
                 $affiliated = true;
             }
         }
-        
         return $affiliated;
     }
     private function enterXdisInformation($docType) {
