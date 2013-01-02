@@ -170,7 +170,10 @@ class AuthNoFedoraDatastreams {
             $log->err($ex);
             return array();
         }
-
+        // if it returns a null that counts a yes for inheritance in fez security logic
+        if (!is_numeric($res)) {
+          $res = '1';
+        }
         return $res;
     }
 
@@ -495,7 +498,8 @@ class AuthNoFedoraDatastreams {
     function recalculatePermissions($did)
     {
         $datastreamPolicyPermissions = AuthNoFedoraDatastreams::getInheritedDatastreamPolicyPermissions($did);
-        if (!empty($datastreamPolicyPermissions) && AuthNoFedoraDatastreams::isInherited($did)) {
+        $dsInherited = AuthNoFedoraDatastreams::isInherited($did);
+        if (!empty($datastreamPolicyPermissions) && $dsInherited == true) {
             //If there are any datastream policies they get set and inheritance is turned off
             AuthNoFedoraDatastreams::deleteInherited($did);
             AuthNoFedoraDatastreams::deletePermissions($did);

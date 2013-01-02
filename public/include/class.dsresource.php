@@ -304,7 +304,10 @@ class DSResource
       } else {
         $filename = $this->hash['hashFile'];
       }
-
+      // Set inherited to true by default unless the constructor/meta has already been set for it
+      if (!array_key_exists('security_inherited', $this->meta)) {
+        $this->meta['security_inherited'] = 1;
+      }
 
       //does a record with this file name and pid already exist? If so, delete it as it's in the shadow table already anyway.
       $sql = "SELECT fat_hash FROM " . APP_TABLE_PREFIX . "file_attachments "
