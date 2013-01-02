@@ -53,15 +53,15 @@ class Ad_Hoc_SQL {
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$res = array();
-		
+
 		$stmt = "SELECT * FROM " . APP_TABLE_PREFIX . "ad_hoc_sql";
 		try {
 			$res = $db->fetchAll($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err($ex);	
+			$log->err($ex);
 			return false;
 		}
 		return $res;
@@ -79,7 +79,7 @@ class Ad_Hoc_SQL {
 
 		$res = array();
 		$db = DB_API::get();
-		
+
 		$details = Ad_Hoc_SQL::getDetails($ahs_id);
 		if(! $details) {
 			$log->notice('No details found');
@@ -91,7 +91,7 @@ class Ad_Hoc_SQL {
 			$res = $db->fetchCol($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err($ex);	
+			$log->err($ex);
 		}
 		return $res;
 	}
@@ -108,7 +108,7 @@ class Ad_Hoc_SQL {
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		if (!is_numeric($ahs_id)) {
 			$log->notice('ahs_id is not numeric');
 			return false;
@@ -121,7 +121,7 @@ class Ad_Hoc_SQL {
 			$res = $db->fetchOne($stmtCount);
 		}
 		catch(Exception $ex) {
-			$log->err($ex);	
+			$log->err($ex);
 			return false;
 		}
 
@@ -146,7 +146,7 @@ class Ad_Hoc_SQL {
 			$res = $db->fetchAll($stmtShow);
 		}
 		catch(Exception $ex) {
-			$log->err($ex);	
+			$log->err($ex);
 			return false;
 		}
 		if (empty($res)) {
@@ -175,7 +175,6 @@ class Ad_Hoc_SQL {
                 "last_page"     => $last_page
 		)
 		);
-		return $res;
 	}
 
 	/**
@@ -203,7 +202,7 @@ class Ad_Hoc_SQL {
 			$res = $db->fetchRow($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err($ex);	
+			$log->err($ex);
 			return '';
 		}
 		return $res;
@@ -228,7 +227,7 @@ class Ad_Hoc_SQL {
 			$log->notice('Restricted statement detected in ahs_query_show: '.$_POST['ahs_query_show']);
 			return false;
 		}
-		
+
 		$data = array(
 				'ahs_name' => $_POST['ahs_name'],
 				'ahs_query' => $_POST['ahs_query'],
@@ -240,7 +239,7 @@ class Ad_Hoc_SQL {
 			$db->insert(APP_TABLE_PREFIX . 'ad_hoc_sql', $data);
 		}
 		catch(Exception $ex) {
-			$log->err($ex);	
+			$log->err($ex);
 			return -1;
 		}
 		return 1;
@@ -250,7 +249,7 @@ class Ad_Hoc_SQL {
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 
 		$res = array();
 
@@ -266,12 +265,12 @@ class Ad_Hoc_SQL {
 			$res = $db->fetchPairs($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err($ex);	
-			
+			$log->err($ex);
+
 			return '';
 		}
 
-		
+
 		return $res;
 	}
 
@@ -279,29 +278,29 @@ class Ad_Hoc_SQL {
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 
 		$res = array();
 
 		if ((is_numeric(stripos($_POST["ahs_query"], "DROP "))) || (is_numeric(stripos($_POST["ahs_query"], "DELETE "))) || (is_numeric(stripos($_POST["ahs_query"], "TRUNCATE "))) || (is_numeric(stripos($_POST["ahs_query"], "INSERT "))) || (is_numeric(stripos($_POST["ahs_query"], "UPDATE ")))) {
 			$log->notice('Restricted statement detected in ahs_query: '.$_POST['ahs_query']);
-			
+
 			return false;
 		}
 		if ((is_numeric(stripos($_POST["ahs_query_count"], "DROP "))) || (is_numeric(stripos($_POST["ahs_query_count"], "DELETE "))) || (is_numeric(stripos($_POST["ahs_query_count"], "TRUNCATE "))) || (is_numeric(stripos($_POST["ahs_query_count"], "INSERT "))) || (is_numeric(stripos($_POST["ahs_query_count"], "UPDATE ")))) {
 			$log->notice('Restricted statement detected in ahs_query: '.$_POST['ahs_query_count']);
-			
+
 			return false;
 		}
 		if ((is_numeric(stripos($_POST["ahs_query_show"], "DROP "))) || (is_numeric(stripos($_POST["ahs_query_show"], "DELETE "))) || (is_numeric(stripos($_POST["ahs_query_show"], "TRUNCATE "))) || (is_numeric(stripos($_POST["ahs_query_show"], "INSERT "))) || (is_numeric(stripos($_POST["ahs_query_show"], "UPDATE ")))) {
 			$log->notice('Restricted statement detected in ahs_query: '.$_POST['ahs_query_show']);
-			
+
 			return false;
 		}
 		if(! is_numeric($ahs_id)) {
-			
+
 			return false;
-		}	
+		}
 
 		$data = array(
 				'ahs_name' => $_POST['ahs_name'],
@@ -314,11 +313,11 @@ class Ad_Hoc_SQL {
 			$db->update(APP_TABLE_PREFIX . 'ad_hoc_sql', $data, 'ahs_id='.$db->quote($ahs_id, 'INTEGER'));
 		}
 		catch(Exception $ex) {
-			$log->err($ex);	
-			
+			$log->err($ex);
+
 			return -1;
 		}
-		
+
 		return 1;
 	}
 
@@ -328,7 +327,7 @@ class Ad_Hoc_SQL {
 
 		$res = array();
 		$db = DB_API::get();
-				
+
 		$stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "ad_hoc_sql
                  WHERE
@@ -338,11 +337,11 @@ class Ad_Hoc_SQL {
 			$db->query($stmt, $_POST['items']);
 		}
 		catch(Exception $ex) {
-			$log->err($ex);	
-			
+			$log->err($ex);
+
 			return false;
 		}
-		
+
 		return true;
 	}
 }

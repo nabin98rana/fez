@@ -68,7 +68,7 @@ function selectCommunity(f, field_name)
 {
     if (coll_load_state > 0) {
        return false;
-    } 
+    }
     var field = getFormElement(f, field_name);
     var selections = getSelectedItems(field);
 
@@ -88,7 +88,7 @@ function selectCommunity(f, field_name)
                 addOptions(f, 'collection_pid', collections_list);
                 hideLoading();
                 coll_load_state--;
-                selectCollection(f, 'collection_pid'); 
+                selectCollection(f, 'collection_pid');
                 });
     }
 }
@@ -110,7 +110,7 @@ function selectCollection(f, field_name)
 {
     if (dt_load_state > 0) {
        return false;
-    } 
+    }
     var field = getFormElement(f, field_name);
     var selections = getSelectedItems(field);
 
@@ -191,7 +191,7 @@ function validateFormSelections() {
   <input type="hidden" name="pagerRow" value="" />
 </div>
 
-      
+
             <table style="width: 100%" cellspacing="0" cellpadding="1">
               <tr>
                 <td colspan="2">
@@ -225,10 +225,10 @@ function validateFormSelections() {
           				  {html_options options=$bulk_workflows selected=$bulk_workflows_selected}
           				</select>
         			  </td>
-        			</tr>		
+        			</tr>
 				  </table>
 				</td>
- 			  </tr>	
+ 			  </tr>
 
 			  <tr>
 			  	<td>
@@ -280,9 +280,9 @@ function validateFormSelections() {
                   </table>
                 </td>
               </tr>
-              
+
               <tr style="background: {$cell_color}">
-                  <td colspan="{math equation="x + 12" x=$ColumnAdd}">
+                  <td colspan="{math equation="x + 12" x=$list_info.current_page}">
                     <table style="width: 100%" cellspacing="0" cellpadding="0">
                       <tr>
                         <td style="width: 30%; white-space: nowrap"></td>
