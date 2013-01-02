@@ -498,8 +498,7 @@ class AuthNoFedoraDatastreams {
     function recalculatePermissions($did)
     {
         $datastreamPolicyPermissions = AuthNoFedoraDatastreams::getInheritedDatastreamPolicyPermissions($did);
-        $dsInherited = AuthNoFedoraDatastreams::isInherited($did);
-        if (!empty($datastreamPolicyPermissions) && $dsInherited == true) {
+        if (!empty($datastreamPolicyPermissions)) {
             //If there are any datastream policies they get set and inheritance is turned off
             AuthNoFedoraDatastreams::deleteInherited($did);
             AuthNoFedoraDatastreams::deletePermissions($did);
