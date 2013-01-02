@@ -141,10 +141,10 @@ class AuthNoFedoraDatastreams {
     function getPermissionsStructure($did) {
         $isInherited = AuthNoFedoraDatastreams::isInherited($did);
         $nonInheritPermisions = AuthNoFedoraDatastreams::getNonInheritedSecurityPermissions($did);
-        $hasIndividualPermisisons = !empty($nonInheritPermisions);
-        if ($isInherited && !$hasIndividualPermisisons) {
+        $hasIndividualPermissions = !empty($nonInheritPermisions);
+        if ($isInherited && !$hasIndividualPermissions) {
             $datastreamStructure = 'inherit';
-        } elseif ($isInherited && $hasIndividualPermisisons) {
+        } elseif ($isInherited && $hasIndividualPermissions) {
             $datastreamStructure = 'include';
         } else {
             $datastreamStructure = 'exclude';

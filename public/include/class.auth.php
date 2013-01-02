@@ -3014,9 +3014,9 @@ class AuthNoFedora {
     //This assumes parent or non inherited data might be changed
     public function recalculatePermissions($pid)
     {
-        $pidParentPermisisons = AuthNoFedora::getParentsACML($pid);
-        $pidNonInheritedPermisisons = AuthNoFedora::getNonInheritedSecurityPermissions($pid);
-        $pidCalculatedPermissions = array_merge($pidParentPermisisons,$pidNonInheritedPermisisons);
+        $pidParentPermissions = AuthNoFedora::getParentsACML($pid);
+        $pidNonInheritedPermissions = AuthNoFedora::getNonInheritedSecurityPermissions($pid);
+        $pidCalculatedPermissions = array_merge($pidParentPermissions,$pidNonInheritedPermissions);
 
         foreach($pidCalculatedPermissions as $pidCalculatedPermission) {
             if ($pidCalculatedPermission[authi_role]) {
@@ -3136,10 +3136,10 @@ class AuthNoFedora {
         $log = FezLog::get();
       	$db = DB_API::get();
 
-        $pidNonInheritedPermisisons = AuthNoFedora::getNonInheritedSecurityPermissions($pid, $role);
+        $pidNonInheritedPermissions = AuthNoFedora::getNonInheritedSecurityPermissions($pid, $role);
         $oldGroups[$pidPermission[authi_role]][] = $pidPermission[argr_ar_id];
         $new = array(array('authi_role' => $role, 'argr_ar_id' => $ar_id ));
-        $pidNewPermissions = array_merge($new,$pidNonInheritedPermisisons);
+        $pidNewPermissions = array_merge($new,$pidNonInheritedPermissions);
         foreach($pidNewPermissions as $pidNewPermission) {
             $newGroup[] = $pidNewPermission[argr_ar_id];
         }
@@ -3148,7 +3148,7 @@ class AuthNoFedora {
         $arg_id = AuthRules::getOrCreateRuleGroupArIds($newGroup);
         AuthNoFedora::addRoleSecurityPermissions($pid, $role, $arg_id, '0');
 
-        //Added non inherited permissions now need to recalculate global permisisons
+        //Added non inherited permissions now need to recalculate global permissions
         AuthNoFedora::recalculatePermissions($pid);
     }
 
@@ -3157,10 +3157,10 @@ class AuthNoFedora {
         $log = FezLog::get();
       	$db = DB_API::get();
 
-        $pidNonInheritedPermisisons = AuthNoFedora::getNonInheritedSecurityPermissions($pid, $role);
+        $pidNonInheritedPermissions = AuthNoFedora::getNonInheritedSecurityPermissions($pid, $role);
 
         $newGroup = array();
-        foreach($pidNonInheritedPermisisons as $pidNonInheritedPermisison) {
+        foreach($pidNonInheritedPermissions as $pidNonInheritedPermisison) {
             if ($pidNonInheritedPermisison[argr_ar_id] != $ar_id) {
                 $newGroup[] = $pidNonInheritedPermisison[argr_ar_id];
             }
@@ -3171,7 +3171,7 @@ class AuthNoFedora {
         if ($arg_id) {
             AuthNoFedora::addRoleSecurityPermissions($pid, $role, $arg_id, '0');
         }
-        //Added non inherited permissions now need to recalculate global permisisons
+        //Added non inherited permissions now need to recalculate global permissions
         AuthNoFedora::recalculatePermissions($pid);
     }
 

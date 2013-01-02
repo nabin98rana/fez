@@ -31,7 +31,7 @@
 
 /**
  * The purpose of this script is to
- * set up non inherited and version permisisons for all pids
+ * set up non inherited and version permissions for all pids
  * Assumes pid computed permissions are correct in fez_auth_index2 table.
  *
  * Quickauth templates must be the same number in both `fez_auth_quick_template` and `fez_auth_quick_rules`

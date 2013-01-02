@@ -31,7 +31,7 @@
 
 /**
  * The purpose of this script is to
- * set up permisisons for all pids and datastreams. Not inherited permissions
+ * set up permissions for all pids and datastreams. Not inherited permissions
  * need to be stored.
  * 
  * This is a one-off migration script as part of Fedora-less project.
@@ -44,7 +44,7 @@ include_once(APP_INC_PATH . "class.auth_no_fedora_datastreams.php");
 error_reporting(1);
 
 
-// Get all PIDs without parents. Recalculate permisisons. This will filter down to child pids and child datastreams
+// Get all PIDs without parents. Recalculate permissions. This will filter down to child pids and child datastreams
 $stmt = "SELECT rek_pid FROM " . APP_TABLE_PREFIX . "record_search_key
 LEFT JOIN fez_record_search_key_ismemberof
 ON rek_ismemberof_pid = rek_pid
