@@ -111,6 +111,7 @@
                    Total Rows - {$list_info.total_rows}
                 </td>
               </tr>
+              {if $list_info}
               <tr style="background: {$cell_color}">
                     <td colspan="11">
                       <table style="width: 100%" cellspacing="0" cellpadding="0">
@@ -140,6 +141,7 @@
                         </table>
                     </td>
                    </tr>
+              {/if}
                 <tr><td style="background: {$light_color}" colspan="2">&nbsp;</td></tr>
               <tr>
                 <td colspan="2">
@@ -175,6 +177,7 @@
                       </td>
                     </tr>
                     {/section}
+{if $list_info}
                       <tr style="background: {$cell_color}">
                         <td colspan="11">
                           <table style="width: 100%" cellspacing="0" cellpadding="0">
@@ -204,5 +207,6 @@
                             </table>
                         </td>
                        </tr>
+{/if}
             </form>
 </div>

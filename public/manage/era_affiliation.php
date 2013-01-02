@@ -86,6 +86,7 @@ if ($isAdministrator) {
         }
     }
 
+  $affiliationsList = array();
 
  	$tpl->assign("sort_order", Pager::getParam('sort_order',$params));
     if (!empty($sort)) {

@@ -505,15 +505,15 @@ class AuthNoFedoraDatastreams {
             }
 
         } else {
-            $didParentPermisisons = AuthNoFedoraDatastreams::getParentsACML($did);
-            $didNonInheritedPermisisons = AuthNoFedoraDatastreams::getNonInheritedSecurityPermissions($did);
-            $didCaculatedPermissions = array_merge($didParentPermisisons,$didNonInheritedPermisisons);
-
-            foreach($didCaculatedPermissions as $didCaculatedPermission) {
-                if ($didCaculatedPermission[authi_role]) {
-                    $newGroups[$didCaculatedPermission[authi_role]][] = $didCaculatedPermission[argr_ar_id];
+            $didParentPermissions = AuthNoFedoraDatastreams::getParentsACML($did);
+            $didNonInheritedPermissions = AuthNoFedoraDatastreams::getNonInheritedSecurityPermissions($did);
+            $didCalculatedPermissions = array_merge($didParentPermisisons,$didNonInheritedPermissions);
+            $newGroups = array();
+            foreach($didCalculatedPermissions as $didCalculatedPermission) {
+                if ($didCalculatedPermission[authi_role]) {
+                    $newGroups[$didCalculatedPermission[authi_role]][] = $didCalculatedPermission[argr_ar_id];
                 } else{
-                    $newGroups[$didCaculatedPermission[authdii_role]][] = $didCaculatedPermission[argr_ar_id];
+                    $newGroups[$didCaculatedPermission[authdii_role]][] = $didCalculatedPermission[argr_ar_id];
                 }
             }
 
