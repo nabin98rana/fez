@@ -54,7 +54,7 @@ class FezACML
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     qat_id,
                     qat_title
@@ -117,7 +117,7 @@ class FezACML
                  SET qrp_pid = ".$db->quote($pid).", qrp_qac_id = ".$db->quote($rule, 'INTEGER');
         ;
         try {
-            $res = $db->fetchPairs($stmt);
+            $res = $db->exec($stmt);
         }
         catch(Exception $ex) {
             $log->err($ex);
@@ -132,13 +132,13 @@ class FezACML
 		return array();
 	}
 
-	function getPopularList() 
+	function getPopularList()
 	{
 		return array();
 	}
 
     //@package fedora & fedora_bypass
-	function getUsersByRolePidAssoc($pid, $role) 
+	function getUsersByRolePidAssoc($pid, $role)
 	{
         if ( APP_FEDORA_BYPASS == "ON"){
             $roleId = AuthNoFedora::getRoleToRoleId($role);
@@ -172,7 +172,7 @@ class FezACML
 	}
 
     //@package fedora & fedora_bypass
-	function updateUsersByRolePid($pid, $fezacml_user_list, $role, $remove_only_list = array()) 
+	function updateUsersByRolePid($pid, $fezacml_user_list, $role, $remove_only_list = array())
 	{
         if ( APP_FEDORA_BYPASS == "ON"){
             $roleId = AuthNoFedora::getRoleToRoleId($role);
@@ -263,7 +263,7 @@ class FezACML
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		if (!is_numeric($qat_id)) {
 			return false;
 		}
@@ -273,7 +273,7 @@ class FezACML
                  FROM
                     " . APP_TABLE_PREFIX . "auth_quick_template
 				 WHERE qat_id = ".$db->quote($qat_id, 'INTEGER');
-		
+
 		try {
 			$res = $db->fetchOne($stmt);
 		}
@@ -285,7 +285,7 @@ class FezACML
 		return $res;
 	}
 
-	function getFezACMLDSName($dsID) 
+	function getFezACMLDSName($dsID)
 	{
 		$FezACML_dsID = "FezACML_".str_replace(" ", "_", $dsID).".xml";
 		return $FezACML_dsID;
