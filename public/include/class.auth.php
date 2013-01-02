@@ -3016,13 +3016,13 @@ class AuthNoFedora {
     {
         $pidParentPermisisons = AuthNoFedora::getParentsACML($pid);
         $pidNonInheritedPermisisons = AuthNoFedora::getNonInheritedSecurityPermissions($pid);
-        $pidCaculatedPermissions = array_merge($pidParentPermisisons,$pidNonInheritedPermisisons);
+        $pidCalculatedPermissions = array_merge($pidParentPermisisons,$pidNonInheritedPermisisons);
 
-        foreach($pidCaculatedPermissions as $pidCaculatedPermission) {
-            if ($pidCaculatedPermission[authi_role]) {
-                $newGroups[$pidCaculatedPermission[authi_role]][] = $pidCaculatedPermission[argr_ar_id];
+        foreach($pidCalculatedPermissions as $pidCalculatedPermission) {
+            if ($pidCalculatedPermission[authi_role]) {
+                $newGroups[$pidCalculatedPermission[authi_role]][] = $pidCalculatedPermission[argr_ar_id];
             } else{
-                $newGroups[$pidCaculatedPermission[authii_role]][] = $pidCaculatedPermission[argr_ar_id];
+                $newGroups[$pidCalculatedPermission[authii_role]][] = $pidCalculatedPermission[argr_ar_id];
             }
         }
 

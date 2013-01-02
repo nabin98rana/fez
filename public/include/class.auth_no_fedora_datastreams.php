@@ -49,8 +49,8 @@ class AuthNoFedoraDatastreams {
         	$res = $db->exec($stmt);
         }
         catch(Exception $ex) {
-        	$log->err($ex);
-        	return array();
+            $log->err($ex);
+            return array();
         }
     }
 
@@ -562,10 +562,10 @@ class AuthNoFedoraDatastreams {
         $log = FezLog::get();
       	$db = DB_API::get();
 
-        $didNonInheritedPermisisons = AuthNoFedoraDatastreams::getNonInheritedSecurityPermissions($did, $role);
+        $didNonInheritedPermissions = AuthNoFedoraDatastreams::getNonInheritedSecurityPermissions($did, $role);
         $oldGroups[$didPermission[authdi_role]][] = $didPermission[argr_ar_id];
         $new = array(array('authdi_role' => $role, 'argr_ar_id' => $ar_id ));
-        $didNewPermissions = array_merge($new,$didNonInheritedPermisisons);
+        $didNewPermissions = array_merge($new,$didNonInheritedPermissions);
         foreach($didNewPermissions as $didNewPermission) {
             $newGroup[] = $didNewPermission[argr_ar_id];
         }
@@ -582,10 +582,10 @@ class AuthNoFedoraDatastreams {
         $log = FezLog::get();
       	$db = DB_API::get();
 
-        $didNonInheritedPermisisons = AuthNoFedoraDatastreams::getNonInheritedSecurityPermissions($did, $role);
+        $didNonInheritedPermissions = AuthNoFedoraDatastreams::getNonInheritedSecurityPermissions($did, $role);
 
         $newGroup = array();
-        foreach($didNonInheritedPermisisons as $didNonInheritedPermisison) {
+        foreach($didNonInheritedPermissions as $didNonInheritedPermisison) {
             if ($didNonInheritedPermisison[argr_ar_id] != $ar_id) {
                 $newGroup[] = $didNonInheritedPermisison[argr_ar_id];
             }
