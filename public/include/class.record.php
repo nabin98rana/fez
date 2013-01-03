@@ -3635,17 +3635,25 @@ class Record
     }
     return true;
   }
-
+  
+  /**
+   * Retrieve PIDs by DOI excluding any in the temporary duplicates collection
+   * @param string $doi
+   * @return boolean|array
+   */
   function getPIDsByDoi($doi)
   {
       $log = FezLog::get();
       $db = DB_API::get();
       $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
       $pids = null;
-
-      $sql = "SELECT rek_doi_pid FROM " . $dbtp
-          . "record_search_key_doi WHERE rek_doi = ?";
-
+      
+      $sql = "SELECT DISTINCT rek_doi_pid FROM fez_record_search_key_doi "
+            . "INNER JOIN fez_record_search_key_ismemberof "
+            . "ON rek_doi_pid = rek_ismemberof_pid "
+            . "WHERE rek_doi = ? "
+            . "AND rek_ismemberof != 'UQ:244548'";
+      
       try
       {
           $stmt = $db->query($sql, array($doi));
@@ -3659,7 +3667,12 @@ class Record
 
       return $pids;
   }
-
+  
+  /**
+   * Retrieve PIDs by Scopus ID excluding any in the temporary duplicates collection
+   * @param string $scopusId
+   * @return boolean|array
+   */
   function getPIDsByScopusID($scopusId)
   {
       $log = FezLog::get();
@@ -3674,12 +3687,15 @@ class Record
       $sidFormatted = (array_key_exists(1, $matches)) ? $matches[1] : null;
       //Otherwise it's not a valid ScopusID and is set to null
       $sidFormatted = ($sidFormatted) ? "2-s2.0-".$sidFormatted : null;
-
+      var_dump($sidFormatted);
       if($sidFormatted)
       {
-          $sql = "SELECT rek_scopus_id_pid FROM " . $dbtp
-              . "record_search_key_scopus_id WHERE rek_scopus_id = ?";
-
+          $sql = "SELECT DISTINCT rek_scopus_id_pid FROM fez_record_search_key_scopus_id "
+            ."INNER JOIN fez_record_search_key_ismemberof "
+            ."ON rek_scopus_id_pid = rek_ismemberof_pid " 
+            ."WHERE rek_scopus_id = ? " 
+            ."AND rek_ismemberof != 'UQ:244548'";
+          
           try
           {
               $stmt = $db->query($sql, array($sidFormatted));
