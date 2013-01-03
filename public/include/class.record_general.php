@@ -429,8 +429,10 @@ class RecordGeneral
 
             // Update the search keys for this PID with new value
             Record::updateSearchKeys($this->pid, $searchKeyData);
+            $recordSearchkeyShadow = new Fez_Record_SearchkeyShadow($this->pid);
+            $recordSearchkeyShadow->copyRecordSearchKeyToShadow();
 
-            Record::updateSearchKeysShadow($this->pid);
+//            Record::updateSearchKeysShadow($this->pid);
           }
         } else {
 

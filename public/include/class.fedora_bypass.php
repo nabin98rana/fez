@@ -199,7 +199,7 @@ class Fedora_API {
 
 
     if(!Zend_Registry::isRegistered('version')) {
-      Zend_Registry::set('version', date('Y-m-d H:i:s'));
+      Zend_Registry::set('version', Date_API::getCurrentDateGMT());
     }
 
     $now = Zend_Registry::get('version');
@@ -305,7 +305,7 @@ class Fedora_API {
 
 
     if(!Zend_Registry::isRegistered('version')) {
-      Zend_Registry::set('version', date('Y-m-d H:i:s'));
+      Zend_Registry::set('version', Date_API::getCurrentDateGMT());
     }
 
     $now = Zend_Registry::get('version');
@@ -432,7 +432,7 @@ class Fedora_API {
         }
 
       if(!Zend_Registry::isRegistered('version')) {
-        Zend_Registry::set('version', date('Y-m-d H:i:s'));
+        Zend_Registry::set('version', Date_API::getCurrentDateGMT());
       }
 
       $now = Zend_Registry::get('version');

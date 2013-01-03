@@ -55,24 +55,24 @@ $tpl->setTemplate("popup.tpl.html");
 
 $log = FezLog::get();
 
-$isAdministrator = Auth::isAdministrator(); 
+$isAdministrator = Auth::isAdministrator();
 $usr_id = Auth::getUserID();
 
 //Perform some input validation.
 
-if(array_key_exists('cat', $_REQUEST) && 
+if(array_key_exists('cat', $_REQUEST) &&
     !$cat = Fez_Validate::run('Fez_Validate_Simpleparam', $_REQUEST["cat"]))
 {
     exit;
 }
 
-if(array_key_exists('dsID', $_GET) && 
+if(array_key_exists('dsID', $_GET) &&
     !$dsID = Fez_Validate::run('Fez_Validate_Filename', $_GET["dsID"]))
 {
     exit;
 }
 
-if(array_key_exists('pid', $_GET) && 
+if(array_key_exists('pid', $_GET) &&
     !$pid = Fez_Validate::run('Fez_Validate_Pid', $_GET['pid']))
 {
     exit;
@@ -80,22 +80,22 @@ if(array_key_exists('pid', $_GET) &&
 
 if(APP_FEDORA_BYPASS == 'ON')
 {
-    $now = date('Y-m-d H:i:s');
+    $now = Date_API::getCurrentDateGMT();
     $dsr = new DSResource();
     $dsr->load($dsID, $pid);
     $do = new DigitalObject();
     $dbgRec = new RecordObject($_GET['pid']);
 }
 
-switch ($cat) 
-{	
+switch ($cat)
+{
     case 'file_manager':
         {
             $wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
             $wfstatus->assign('folder',     $_POST['currentFolderPath']);
             $wfstatus->assign('files',      $_POST['check']);
             $wfstatus->setSession();
-            
+
             $tpl->assign("file_manager_result", 1);
             break;
         }
@@ -144,10 +144,10 @@ switch ($cat)
             {
                 $dbgRec->forceInsertUpdate(array('removeFiles' => array($dsID)));
             }
-            else 
+            else
             {
                 /*$dsID = $_GET["dsID"];
-                $pid = $_GET["pid"];*/	
+                $pid = $_GET["pid"];*/
     			$record = new RecordObject($pid);
     			if ($record->canEdit()) {
     	            $res = Fedora_API::deleteDatastream($pid, $dsID);
@@ -232,7 +232,7 @@ switch ($cat)
 				$rec_obj->markAsDeleted();
 				History::addHistory($pid, null, '', '', true, 'Deleted');
 	            $tpl->assign("delete_object_result", 1);
-	            
+
 				if ( APP_SOLR_INDEXER == "ON" ) {
 					FulltextQueue::singleton()->remove($pid);
 					FulltextQueue::singleton()->commit();
@@ -257,10 +257,10 @@ switch ($cat)
             }
             foreach ($items as $pid) {
                 $rec_obj = new RecordObject($pid);
-				if ($rec_obj->canDelete()) {	    
+				if ($rec_obj->canDelete()) {
 					$rec_obj->markAsDeleted();
 					History::addHistory($pid, null, '', '', true, 'Bulk Deleted', $historyComment);
-					
+
 					if ( APP_SOLR_INDEXER == "ON" ) {
 	                    FulltextQueue::singleton()->remove($pid);
 	                }
@@ -318,7 +318,7 @@ switch ($cat)
             }
             foreach ($items as $pid) {
                 $rec_obj = new RecordObject($pid);
-				if ($rec_obj->canDelete()) {	    
+				if ($rec_obj->canDelete()) {
 	                Record::removeIndexRecord($pid);
 	                $res = Fedora_API::callPurgeObject($pid);
 				}

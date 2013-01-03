@@ -1004,7 +1004,10 @@ class Record
       if ($sval['sek_relationship'] == 1) {
         $sekTable = Search_Key::makeSQLTableName($sval['sek_title']);
         if ($shadow == true) {
-            $recordSearchkeyShadow->copySearchKeyToShadow($sekTable);
+            $hasDelta = $recordSearchkeyShadow->hasDelta($sval['sek_title']);
+            if ($hasDelta) {
+              $recordSearchkeyShadow->copySearchKeyToShadow($sekTable);
+            }
         }
         $stmt = "DELETE FROM
                         " . APP_TABLE_PREFIX . "record_search_key_".$sekTable."
@@ -1111,11 +1114,12 @@ class Record
             // Use earlier registered 'Version' variable to achieve uniform timestamp across all search keys updates.
             if (APP_FEDORA_BYPASS == "ON") {
                 if (!Zend_Registry::isRegistered('version')) {
-                    Zend_Registry::set('version', date('Y-m-d H:i:s'));
+                  Zend_Registry::set('version', Date_API::getCurrentDateGMT());
+
                 }
                 $timestamp = Zend_Registry::get('version');
             } else {
-                $timestamp = date('Y-m-d H:i:s');
+                $timestamp = Date_API::getCurrentDateGMT();
             }
         }
         return $timestamp;
@@ -1164,7 +1168,7 @@ class Record
         // Timestamp
         $fields[] = "rek_stamp";
         if (!Zend_Registry::isRegistered('version')) {
-            Zend_Registry::set('version', date('Y-m-d H:i:s'));
+            Zend_Registry::set('version', Date_API::getCurrentDateGMT());
         }
         $values[] = $db->quote(Record::setSearchKeyTimestamp());
 
@@ -1359,6 +1363,14 @@ class Record
 
           $xsdDetails = XSD_HTML_Match::getDetailsByXSDMF_ID($sek_value['xsdmf_id']);
           $searchKeyDetails = Search_Key::getDetails($xsdDetails['xsdmf_sek_id']);
+
+          if ($shadow) {
+            $recordSearchKeyShadow = new Fez_Record_SearchkeyShadow($pid);
+            $hasDelta = $recordSearchKeyShadow->hasDelta($searchKeyDetails['sek_title']);
+            if (!$hasDelta) {
+              continue;
+            }
+          }
 
           // do final check for cardinality before trying to insert/update an array of values in one to many tables
           if (is_array($sek_value['xsdmf_value'])) {
@@ -3647,13 +3659,13 @@ class Record
       $db = DB_API::get();
       $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
       $pids = null;
-      
+
       $sql = "SELECT DISTINCT rek_doi_pid FROM fez_record_search_key_doi "
             . "INNER JOIN fez_record_search_key_ismemberof "
             . "ON rek_doi_pid = rek_ismemberof_pid "
             . "WHERE rek_doi = ? "
             . "AND rek_ismemberof != 'UQ:244548'";
-      
+
       try
       {
           $stmt = $db->query($sql, array($doi));
@@ -3667,7 +3679,7 @@ class Record
 
       return $pids;
   }
-  
+
   /**
    * Retrieve PIDs by Scopus ID excluding any in the temporary duplicates collection
    * @param string $scopusId
@@ -3687,15 +3699,15 @@ class Record
       $sidFormatted = (array_key_exists(1, $matches)) ? $matches[1] : null;
       //Otherwise it's not a valid ScopusID and is set to null
       $sidFormatted = ($sidFormatted) ? "2-s2.0-".$sidFormatted : null;
-      
+
       if($sidFormatted)
       {
           $sql = "SELECT DISTINCT rek_scopus_id_pid FROM fez_record_search_key_scopus_id "
             ."INNER JOIN fez_record_search_key_ismemberof "
-            ."ON rek_scopus_id_pid = rek_ismemberof_pid " 
-            ."WHERE rek_scopus_id = ? " 
+            ."ON rek_scopus_id_pid = rek_ismemberof_pid "
+            ."WHERE rek_scopus_id = ? "
             ."AND rek_ismemberof != 'UQ:244548'";
-          
+
           try
           {
               $stmt = $db->query($sql, array($sidFormatted));

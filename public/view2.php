@@ -250,7 +250,9 @@ if (!empty($pid) && $record->checkExists()) {
 
     $tpl->assign("sta_id", $record->getPublishedStatus());
     $tpl->assign("xsd_display_fields", $xsd_display_fields);
+
     $details = $record->getDetails();
+
 
     $parents = Record::getParentsDetails($pid);
 

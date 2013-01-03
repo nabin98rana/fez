@@ -69,7 +69,7 @@ if (empty($wfstatus)) {
 //Generate a version
 if(APP_FEDORA_BYPASS == 'ON')
 {
-    Zend_Registry::set('version', date('Y-m-d H:i:s'));
+    Zend_Registry::set('version', Date_API::getCurrentDateGMT());
 }
 
 $filterProc = new Fez_Filter_Process_Request();

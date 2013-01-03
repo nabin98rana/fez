@@ -420,9 +420,14 @@ class Fez_Record_Searchkey
                 continue;
             }
 
-            if (!$this->_shadow->copySearchKeyToShadow($sekTitle)){
-                continue;
+            $hasDelta = $this->_shadow->hasDelta($sekTitle);
+            if ($hasDelta) {
+              $this->_shadow->copySearchKeyToShadow($sekTitle);
             }
+
+//            if (!$this->_shadow->copySearchKeyToShadow($sekTitle)){
+//                continue;
+//            }
 
             // Everything should be running fine upto this point, flag oneSuccess to True.
             $result['oneSuccess'] = true;
@@ -651,6 +656,10 @@ class Fez_Record_Searchkey
             if (!$this->_verifyOneToManyData($value, $sekTitle)){
                 continue;
             }
+            // Check that the data to be inserted is not exactly the same as the new data. If it is exactly the same don't save it and just rely on deltas.
+            $recordSearchKeyShadow = new Fez_Record_SearchkeyShadow($this->_pid);
+            $hasDelta = $recordSearchKeyShadow->hasDelta($sekTitle);
+
 
             // Query to backup old record to shadow table
             $stmtBackupToShadow = "INSERT INTO " . $tableShadow .
@@ -668,7 +677,9 @@ class Fez_Record_Searchkey
             // Begin DB transaction explicitly. We want to be able to rollback if any of these queries failed.
             $this->_db->beginTransaction();
             try {
-                $this->_db->exec($stmtBackupToShadow);
+                if ($hasDelta) {
+                  $this->_db->exec($stmtBackupToShadow);
+                }
                 $this->_db->exec($stmtDeleteOld);
                 $this->_db->exec($stmtInsertNew);
                 $this->_db->commit();

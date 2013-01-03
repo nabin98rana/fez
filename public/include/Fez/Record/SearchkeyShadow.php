@@ -177,7 +177,6 @@ class Fez_Record_SearchkeyShadow
             }
 
             if (!$value) {
-                $date = Date_API::getCurrentDateGMT();
                 $value = Record::getSearchKeyIndexValueShadow($pid, $title, false, $sekDetails, $date);
             }
             if ( !empty($value) ) {
@@ -247,6 +246,20 @@ class Fez_Record_SearchkeyShadow
         $datesArray = array_merge($datesArray, $res);
 
         return array_unique($datesArray);
+    }
+
+    public function hasDelta($sek_title) {
+      $date = 'now';
+      $sekDetails = Search_Key::getBasicDetailsByTitle($sek_title);
+      $incomingData = Record::getSearchKeyIndexValue($this->_pid, $sek_title, false, $sekDetails);
+      $existingShadowData = Record::getSearchKeyIndexValueShadow($this->_pid, $sek_title, false, $sekDetails);
+      $incomingData = Misc::array_to_sql_string(Misc::array_flatten($incomingData));
+      $existingShadowData = Misc::array_to_sql_string( Misc::array_flatten($existingShadowData));
+      if ($incomingData == $existingShadowData) {
+        return false;
+      } else {
+        return true;
+      }
     }
 
     /**

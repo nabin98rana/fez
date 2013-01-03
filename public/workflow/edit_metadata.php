@@ -71,7 +71,7 @@ if (empty($wfstatus)) {
 //Generate a version
 if(APP_FEDORA_BYPASS == 'ON')
 {
-    Zend_Registry::set('version', date('Y-m-d H:i:s'));
+    Zend_Registry::set('version', Date_API::getCurrentDateGMT());
 }
 
 // if we have uploaded files using the flash uploader, then generate $_FILES array entries for them
@@ -162,8 +162,8 @@ if (isset($_POST['editedFilenames']) && is_array($_POST['editedFilenames'])) {
 
 $wfstatus->setTemplateVars($tpl);
 $wfstatus->checkStateChange();
-$collection_pid=$pid;
-$community_pid=$pid;
+$collection_pid = $pid;
+$community_pid = $pid;
 $tpl->assign("collection_pid", $pid);
 $tpl->assign("community_pid", $pid);
 $debug = @$_REQUEST['debug'];

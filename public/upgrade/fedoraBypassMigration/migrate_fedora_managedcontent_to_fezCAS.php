@@ -72,7 +72,8 @@ foreach ($fedoraPids as $pid) {
 
             // Set datastream version based on current time.
             // This variable is used by DSResource class to apply version on the datastream.
-            Zend_Registry::set('version', date('Y-m-d H:i:s'));
+//            Zend_Registry::set('version', date('Y-m-d H:i:s'));
+            Zend_Registry::set('version', Date_API::getCurrentDateGMT());
 
             // Start looping the pid datastream and save to Fez CAS system.
             $migrationErrors = array();
