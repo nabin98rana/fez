@@ -3137,7 +3137,6 @@ class AuthNoFedora {
       	$db = DB_API::get();
 
         $pidNonInheritedPermissions = AuthNoFedora::getNonInheritedSecurityPermissions($pid, $role);
-        $oldGroups[$pidPermission[authi_role]][] = $pidPermission[argr_ar_id];
         $new = array(array('authi_role' => $role, 'argr_ar_id' => $ar_id ));
         $pidNewPermissions = array_merge($new,$pidNonInheritedPermissions);
         foreach($pidNewPermissions as $pidNewPermission) {
