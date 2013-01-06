@@ -425,7 +425,7 @@ function loadPreview(pid,datastreamID, alt, origami)
 		  </tr>
 
 		  <tr>
-			<td colspan="5" style="background: {$cell_color}">{$derivationTree}</td>
+			<td colspan="5" style="background: {$cell_color}">{$derivationTree|smarty:nodefaults}</td>
 		  </tr>
 	{/if}
 
