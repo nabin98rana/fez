@@ -213,11 +213,12 @@ class ScopusService
      */
     public function getNextRecordSet()
     {
-        $query = array('query' => 'affil(University+of+Queensland)',
+        $query = array('query' => 'affil(University+of+Queensland)+PUBYEAR+BEF+2010',
                             'count' => self::REC_SET_SIZE,
                             'start' => $this->recSetStart,
-                            //'view' => 'STANDARD'
-                            'view' => 'COMPLETE'
+                            'view' => 'STANDARD',
+                            //'date' => '2010-2011'
+                            //'view' => 'COMPLETE'
         );
         
         $records = $this->search($query);
@@ -225,6 +226,17 @@ class ScopusService
         $this->recSetStart = $this->getNextRecStart($records);
         
         return $records;
+    }
+    
+    public function getRecordByScopusId($scopusId)
+    {
+        $params = array(
+                'action' => 'abstract',
+                'db' => 'SCOPUS_ID:' . $scopusId,
+                'qs' => array()
+        );
+    
+        return $this->doCurl($params, 'content');
     }
     
     /**
@@ -255,7 +267,7 @@ class ScopusService
                 }
             }
         }
-        
+//         echo "\nNEXT REC START:"; var_dump($nextRecStart);
         return $nextRecStart;
     }
     
@@ -330,8 +342,14 @@ class ScopusService
         $uri .= (array_key_exists('db', $params) ? "/".$params['db'] : '');
         $uri .= '?' . http_build_query($params['qs']);
         
-        //var_dump(SCOPUS_WS_BASE_URL . $uri);
+//         var_dump(SCOPUS_WS_BASE_URL . $uri);
         //$uri = "content/article/SCOPUS_ID:84858076610?view=META_ABS";
+        //$uri = "content/affiliation/AFFILIATION_ID:60031004?start=1&count=200&view=DOCUMENTS";
+        //$uri = "content/abstract/SCOPUS_ID:34250025139";
+        //http://api.elsevier.com/content/search/index:AFFILIATION?query=.
+        //$uri = "content/search/index:AFFILIATION?query=University+of+Queensland";
+        //$uri = "content/abstract/SCOPUS_ID:84870252763";
+//         $uri = "content/search/index:SCOPUS?query=affil(University%2Bof%2BQueensland)&count=30&start=0%26date=2007-2012&view=STANDARD";
         $curlHandle = curl_init(SCOPUS_WS_BASE_URL . $uri);
         curl_setopt($curlHandle, CURLOPT_SSL_VERIFYPEER, FALSE);
         curl_setopt($curlHandle, CURLOPT_SSL_VERIFYHOST, FALSE);
@@ -345,11 +363,11 @@ class ScopusService
         if(!$curlResponse)
         {
             $this->log->err(curl_errno($curlHandle));
-            var_dump(curl_errno($curlHandle));
+//             var_dump(curl_errno($curlHandle));
         }
         
         curl_close($curlHandle);
-        
+        //var_dump($curlResponse);
         return $curlResponse;
     }
     

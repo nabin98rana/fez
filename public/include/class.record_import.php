@@ -19,7 +19,7 @@ abstract class RecordImport
     protected $_isiLoc = null;
     protected $_pubmedId = null;
     protected $_scopusId = null;
-    public $_embaseId = null;
+    protected $_embaseId = null;
     protected $_wokId = null;
     protected $_wokCitationCount = null;
     protected $_scopusCitationCount = null;
@@ -52,6 +52,8 @@ abstract class RecordImport
     protected $_xdisId = null;
     protected $_xdisTitle = null;
     protected $_xdisSubtype = null;
+    
+    protected $_statsFile = "/var/www/fez/tests/dat/importStats01.txt";
 
     /**
      * Namespaces to use with the XPath object
@@ -128,6 +130,7 @@ abstract class RecordImport
                 }
                 elseif($pidCount > 1)
                 {
+                    file_put_contents($this->_statsFile, "ST01 - ".$this->_scopusId." matches more than one pid(" . implode(',', $pids) . ") based on $retrieverName\n\n", FILE_APPEND);
                     //log an error if there is more than one pid (but not if there are none)
                     $this->_log->err("Multiple matches found for $id:".__METHOD__);
 //                     echo "\nMultiple matches found for $id:".__METHOD__ ."\n";
@@ -159,22 +162,30 @@ abstract class RecordImport
             $downloadedTitle = RCL::normaliseTitle($this->_title);
             $localTitle = RCL::normaliseTitle($title);
             similar_text($downloadedTitle, $localTitle, $percentageMatch);
-            echo "Will attempt to UPDATE\n";
+//             echo "Will attempt to UPDATE\n";
             //if the fuzzy title match is better than 80%
             if($percentageMatch >= 80)
             {
+                file_put_contents($this->_statsFile, "ST02 - ".$this->_scopusId." has a title likeness of $percentageMatch% - UPDATING $likenedPid\n\n", FILE_APPEND);
                 //update the record with any data we don't have
-                echo "\nUPDATING\n";
-                $this->update($likenedPid);
+//                 echo "\nUPDATING\n";
+//                 $this->update($likenedPid);
 //                 file_put_contents('/var/www/fez/tests/dat/scopusSaveUpdate.txt', "UPDATE $likenedPid\n",FILE_APPEND);
+//                 var_dump($likenedPid);
+            }
+            else 
+            {
+                file_put_contents($this->_statsFile, "ST03 - ".$this->_scopusId." has a title likeness of only $percentageMatch% - NO UPDATING WILL OCCUR for $likenedPid\n\n", FILE_APPEND);
             }
         }
         else
         {
+            file_put_contents($this->_statsFile, "ST04 - ".$this->_scopusId." appears NOT to already exist. SAVING new record with title: {$this->_title}\n\n", FILE_APPEND);
             //save a new record
-            echo  "\nSAVING\n";
-            $newPid = $this->save();
+//             echo  "\nSAVING\n";
+//             $newPid = $this->save();
 //             file_put_contents('/var/www/fez/tests/dat/scopusSaveUpdate.txt', "SAVE $newPid\n",FILE_APPEND);
+//             var_dump($newPid);
         }
     }
 
@@ -208,17 +219,19 @@ abstract class RecordImport
     protected function getPIDsBy_scopusId()
     {
         $pids = array();
-
+//         var_dump($this->_scopusId);
         if($this->_scopusId)
         {
             $pidSet = Record::getPIDsByScopusID($this->_scopusId);
+            
         }
 
         for($i=0;$i<count($pidSet);$i++)
         {
             $pids[] = $pidSet[$i]['rek_scopus_id'];
         }
-
+//         var_dump($pids);
+//         die();
         return $pids;
     }
 
@@ -349,6 +362,7 @@ abstract class RecordImport
             $mods['identifier_isbn'] = $this->_isbn;
             $mods['identifier_issn'] = $this->_issn;
             $mods['identifier_doi'] = $this->_doi;
+            $mods['identifier_scopus_doc_type'] = $this->_docSubType;
             $mods['identifier_scopus'] = $this->_scopusId;
             $mods['identifier_pubmed'] = $this->_pubmedId;
             $mods['identifier_embase'] = $this->_embaseId;
@@ -386,7 +400,7 @@ abstract class RecordImport
                 Record::updateScopusCitationCount($pid, $this->_scopusCitationCount, $this->_scopusId);
             }
         }
-        var_dump($pid);
+//         var_dump($pid);
         return $pid;
     }
 
