@@ -3687,7 +3687,7 @@ class Record
       $sidFormatted = (array_key_exists(1, $matches)) ? $matches[1] : null;
       //Otherwise it's not a valid ScopusID and is set to null
       $sidFormatted = ($sidFormatted) ? "2-s2.0-".$sidFormatted : null;
-      var_dump($sidFormatted);
+      
       if($sidFormatted)
       {
           $sql = "SELECT DISTINCT rek_scopus_id_pid FROM fez_record_search_key_scopus_id "
