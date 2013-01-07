@@ -634,4 +634,24 @@ class AuthNoFedoraDatastreams {
 
          return $res;
     }
+
+    function getInheritedDatastreamPolicyArePermissionsInherited($pid)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $stmt = "SELECT qai_inherit FROM ". APP_TABLE_PREFIX . "auth_quick_rules_id
+                INNER JOIN fez_auth_quick_rules_pid
+                ON qrp_qac_id = qai_id
+                WHERE qrp_pid = ".$db->quote($pid);
+        try {
+            $res = $db->fetchOne($stmt);
+        }
+        catch(Exception $ex) {
+                $log->err($ex);
+                return false;
+        }
+
+            return $res;
+    }
 }

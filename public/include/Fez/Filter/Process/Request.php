@@ -133,7 +133,7 @@ class Fez_Filter_Process_Request implements Fez_Filter_Process_ProcessInterface
     
     /**
      * Retrieve an array of filter class names
-     * pertaining to the data suplied to the 
+     * pertaining to the data supplied to the
      * object and save the array into the object.
      */
     protected function getFilters()
