@@ -255,7 +255,9 @@ class AuthNoFedoraDatastreams {
             }
 
             return $res;
-        }
+    }
+
+
     function setCopyright($did) {
         $log = FezLog::get();
       	$db = DB_API::get();
@@ -509,9 +511,10 @@ class AuthNoFedoraDatastreams {
             } elseif ( !$datastreamPolicyPermissionsInherited && $currentDatastreamPolicyPermissionsInherited ){
                AuthNoFedoraDatastreams::deleteInherited($did);
             }
-
-            AuthNoFedoraDatastreams::deletePermissions($did);
-            foreach($datastreamPolicyPermissions as $permissions){
+            // Clean out both datastream level and pid level permissions for this datastream
+            AuthNoFedoraDatastreams::deletePermissions($did, '1');
+            AuthNoFedoraDatastreams::deletePermissions($did, '0');
+            foreach($datastreamPolicyPermissions as $permissions) {
                 AuthNoFedoraDatastreams::addSecurityPermissions($did, $permissions['qac_role'], $permissions['argr_ar_id'], false);
             }
 

@@ -3059,9 +3059,9 @@ class AuthNoFedora {
         $record = new RecordObject($pid);
         $childPids = $record->getChildrenPids();
         foreach($childPids as $child) {
-            if (AuthNoFedora::isInherited($child)) {
+//            if (AuthNoFedora::isInherited($child)) {
                 AuthNoFedora::recalculatePermissions($child);
-            }
+//            }
         }
 
         //datastream children
@@ -3070,9 +3070,9 @@ class AuthNoFedora {
         if (is_array($datastreams)) {
           foreach($datastreams as $datastream) {
               $did = AuthNoFedoraDatastreams::getDid($pid, $datastream[ID]);
-              if (AuthNoFedoraDatastreams::isInherited($did)) {
+//              if (AuthNoFedoraDatastreams::isInherited($did)) {
                   AuthNoFedoraDatastreams::recalculatePermissions($did);
-              }
+//              }
           }
         }
         if( APP_FILECACHE == "ON" ) {
