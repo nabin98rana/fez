@@ -3075,7 +3075,11 @@ class AuthNoFedora {
               }
           }
         }
+        if( APP_FILECACHE == "ON" ) {
+          $cache = new fileCache($pid, 'pid='.$pid);
+          $cache->poisonCache();
 
+        }
         //assume solr need updating for new lister permissions
         if (APP_SOLR_INDEXER == "ON") {
             FulltextQueue::singleton()->add($pid);
@@ -3148,7 +3152,7 @@ class AuthNoFedora {
         AuthNoFedora::addRoleSecurityPermissions($pid, $role, $arg_id, '0');
 
         //Added non inherited permissions now need to recalculate global permissions
-        AuthNoFedora::recalculatePermissions($pid);
+//        AuthNoFedora::recalculatePermissions($pid);
     }
 
     public function deleteSecurityPermissions($pid, $role, $ar_id)
@@ -3171,7 +3175,7 @@ class AuthNoFedora {
             AuthNoFedora::addRoleSecurityPermissions($pid, $role, $arg_id, '0');
         }
         //Added non inherited permissions now need to recalculate global permissions
-        AuthNoFedora::recalculatePermissions($pid);
+//        AuthNoFedora::recalculatePermissions($pid);
     }
 
     public function getAuthorisationGroups($pid, $dsID = '')

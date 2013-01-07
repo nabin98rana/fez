@@ -378,6 +378,7 @@ switch ($cat)
                     AuthNoFedoraDatastreams::setInherited($did);
                 } else {
                     AuthNoFedoraDatastreams::deleteInherited($did);
+                    AuthNoFedoraDatastreams::recalculatePermissions($did);
                 }
                 if($_REQUEST['copyright']) {
                     AuthNoFedoraDatastreams::setCopyright($did);
@@ -395,10 +396,12 @@ switch ($cat)
                         $toDeleteinfo = explode(",", $toDelete);
                         AuthNoFedoraDatastreams::deleteSecurityPermissions($did, $toDeleteinfo[0] , $toDeleteinfo[1]);
                     }
+                    AuthNoFedoraDatastreams::recalculatePermissions($did);
                 }
                 if(!empty($group)){
                     $arId = AuthRules::getOrCreateRule("!rule!role!".$groupsType, $group);
                     AuthNoFedoraDatastreams::addSecurityPermissions($did, $role, $arId);
+                    AuthNoFedoraDatastreams::recalculatePermissions($did);
                 }
 			} else {
                 if($_REQUEST['inherit']) {
@@ -411,15 +414,21 @@ switch ($cat)
                         $toDeleteinfo = explode(",", $toDelete);
                         AuthNoFedora::deleteSecurityPermissions($pid, $toDeleteinfo[0] , $toDeleteinfo[1]);
                     }
+                    AuthNoFedoraDatastreams::recalculatePermissions($did);
                 }
                 if(!empty($group)){
                     $arId = AuthRules::getOrCreateRule("!rule!role!".$groupsType, $group);
                     AuthNoFedora::addSecurityPermissions($pid, $role, $arId);
+                    AuthNoFedoraDatastreams::recalculatePermissions($did);
                 }
 			}
             $tpl->assign("update_form_result", $res);
             $wfstatus->checkStateChange(true);
             break;
+        }
+        if( APP_FILECACHE == "ON" ) {
+          $cache = new fileCache($pid, 'pid='.$pid);
+          $cache->poisonCache();
         }
 }
 
