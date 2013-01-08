@@ -325,7 +325,7 @@ class RecordObject extends RecordGeneral
 //                $digObj->snapshotResources($now);
         }
         if ($newPid) {
-          AuthNoFedora::recalculatePermissions($this->pid);
+          AuthNoFedora::setInherited($this->pid); //This also calls recalculate permissions after setting inherit to true
         }
 //        if (isset($_POST['removeFiles']) || isset($_POST['uploader_files_uploaded'])) {
             //Now do this every time dsresource->storedsreference is called
