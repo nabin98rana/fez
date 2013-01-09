@@ -326,10 +326,8 @@ class Date_API
 		if ($timestamp == null) {
 			$timestamp = Date_API::getCurrentUnixTimestampGMT();
 		}
-		$date = new Date($timestamp);
-		$date->setTZbyID(Date_API::getPreferredTimezone());
-		$date->toUTC();
-		return $date->format('%Y-%m-%d %H:%M:%S');    
+
+        return gmdate('Y-m-d H:i:s', $timestamp);
 	}
 
 	/**
