@@ -2763,7 +2763,7 @@ class AuthNoFedora {
         foreach ($res2 as $row2) {
             $unique = true;
             foreach ($res as $row) {
-                if (($row[authii_role] == $row2[authi_role]) && ($row[ar_id] == $row2[ar_id])){
+                if (($row['authii_role'] == $row2['authi_role']) && ($row['ar_id'] == $row2['ar_id'])){
                     $unique = false;
                 }
             }
@@ -3019,10 +3019,10 @@ class AuthNoFedora {
         $pidCalculatedPermissions = array_merge($pidParentPermissions,$pidNonInheritedPermissions);
 
         foreach($pidCalculatedPermissions as $pidCalculatedPermission) {
-            if ($pidCalculatedPermission[authi_role]) {
-                $newGroups[$pidCalculatedPermission[authi_role]][] = $pidCalculatedPermission[argr_ar_id];
+            if ($pidCalculatedPermission['authi_role']) {
+                $newGroups[$pidCalculatedPermission['authi_role']][] = $pidCalculatedPermission['argr_ar_id'];
             } else{
-                $newGroups[$pidCalculatedPermission[authii_role]][] = $pidCalculatedPermission[argr_ar_id];
+                $newGroups[$pidCalculatedPermission['authii_role']][] = $pidCalculatedPermission['argr_ar_id'];
             }
         }
 
@@ -3067,7 +3067,7 @@ class AuthNoFedora {
         $datastreams = $record->getDatastreams();
         if (is_array($datastreams)) {
           foreach($datastreams as $datastream) {
-              $did = AuthNoFedoraDatastreams::getDid($pid, $datastream[ID]);
+              $did = AuthNoFedoraDatastreams::getDid($pid, $datastream['ID']);
               AuthNoFedoraDatastreams::recalculatePermissions($did);
 
           }
@@ -3141,7 +3141,7 @@ class AuthNoFedora {
         $new = array(array('authi_role' => $role, 'argr_ar_id' => $ar_id ));
         $pidNewPermissions = array_merge($new,$pidNonInheritedPermissions);
         foreach($pidNewPermissions as $pidNewPermission) {
-            $newGroup[] = $pidNewPermission[argr_ar_id];
+            $newGroup[] = $pidNewPermission['argr_ar_id'];
         }
 
         AuthNoFedora::deletePermissions($pid, '0', $role);
@@ -3161,8 +3161,8 @@ class AuthNoFedora {
 
         $newGroup = array();
         foreach($pidNonInheritedPermissions as $pidNonInheritedPermisison) {
-            if ($pidNonInheritedPermisison[argr_ar_id] != $ar_id) {
-                $newGroup[] = $pidNonInheritedPermisison[argr_ar_id];
+            if ($pidNonInheritedPermisison['argr_ar_id'] != $ar_id) {
+                $newGroup[] = $pidNonInheritedPermisison['argr_ar_id'];
             }
         }
 
@@ -3210,92 +3210,92 @@ class AuthNoFedora {
             $permissions = AuthNoFedora::getAllSecurityPermissionsDescriptions($pid);
         }
         foreach($permissions as $permission) {
-            if (in_array($permission[aro_role], $userPIDAuthGroups)) {
-                $userPIDAuthGroups = array_diff($userPIDAuthGroups, array($permission[aro_role]));
+            if (in_array($permission['aro_role'], $userPIDAuthGroups)) {
+                $userPIDAuthGroups = array_diff($userPIDAuthGroups, array($permission['aro_role']));
             }
-                switch ($permission[ar_rule]) {
+                switch ($permission['ar_rule']) {
                     case 'public_list':
-                            array_push($userPIDAuthGroups, $permission[aro_role]);
+                            array_push($userPIDAuthGroups, $permission['aro_role']);
                         break;
                     case '!rule!role!AD_Group':
-                        if (@in_array($permission[ar_value], $session[APP_LDAP_GROUPS_SESSION])) {
-                            array_push($userPIDAuthGroups, $permission[aro_role]);
+                        if (@in_array($permission['ar_value'], $session[APP_LDAP_GROUPS_SESSION])) {
+                            array_push($userPIDAuthGroups, $permission['aro_role']);
                         }
                         break;
                     case '!rule!role!in_AD':
-                        if (($permission[ar_value] == 'on') && Auth::isValidSession($session)
+                        if (($permission['ar_value'] == 'on') && Auth::isValidSession($session)
                         && Auth::isInAD()) {
-                            array_push($userPIDAuthGroups, $permission[aro_role]);
+                            array_push($userPIDAuthGroups, $permission['aro_role']);
                         }
                         break;
                     case '!rule!role!in_Fez':
-                        if (($permission[ar_value] == 'on') && Auth::isValidSession($session)
+                        if (($permission['ar_value'] == 'on') && Auth::isValidSession($session)
                         && Auth::isInDB()) {
-                            array_push($userPIDAuthGroups, $permission[aro_role]);
+                            array_push($userPIDAuthGroups, $permission['aro_role']);
                         }
                         break;
                     case '!rule!role!AD_User':
                         if (Auth::isValidSession($session)
-                        && $permission[ar_value] == Auth::getUsername()) {
-                            array_push($userPIDAuthGroups, $permission[aro_role]);
+                        && $permission['ar_value'] == Auth::getUsername()) {
+                            array_push($userPIDAuthGroups, $permission['aro_role']);
                         }
                         break;
                     case '!rule!role!AD_DistinguishedName':
-                        if (is_numeric(strpos(@$session['distinguishedname'], $permission[ar_value]))) {
-                            array_push($userPIDAuthGroups, $permission[aro_role]);
+                        if (is_numeric(strpos(@$session['distinguishedname'], $permission['ar_value']))) {
+                            array_push($userPIDAuthGroups, $permission['aro_role']);
                         }
                         break;
                     case '!rule!role!eduPersonTargetedID':
-                        if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'], $permission[ar_value]))) {
-                            array_push($userPIDAuthGroups, $permission[aro_role]);
+                        if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'], $permission['ar_value']))) {
+                            array_push($userPIDAuthGroups, $permission['aro_role']);
                         }
                         break;
                     case '!rule!role!eduPersonAffiliation':
-                        if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-UnscopedAffiliation'], $permission[ar_value]))) {
-                            array_push($userPIDAuthGroups, $permission[aro_role]);
+                        if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-UnscopedAffiliation'], $permission['ar_value']))) {
+                            array_push($userPIDAuthGroups, $permission['aro_role']);
                         }
                         break;
                     case '!rule!role!eduPersonScopedAffiliation':
-                        if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-ScopedAffiliation'], $permission[ar_value]))) {
-                            array_push($userPIDAuthGroups, $permission[aro_role]);
+                        if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-ScopedAffiliation'], $permission['ar_value']))) {
+                            array_push($userPIDAuthGroups, $permission['aro_role']);
                         }
                         break;
                     case '!rule!role!eduPersonPrimaryAffiliation':
-                        if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryAffiliation'], $permission[ar_value]))) {
-                            array_push($userPIDAuthGroups, $permission[aro_role]);
+                        if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryAffiliation'], $permission['ar_value']))) {
+                            array_push($userPIDAuthGroups, $permission['aro_role']);
                         }
                         break;
                     case '!rule!role!eduPersonPrincipalName':
-                        if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'], $permission[ar_value]))) {
-                            array_push($userPIDAuthGroups, $permission[aro_role]);
+                        if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'], $permission['ar_value']))) {
+                            array_push($userPIDAuthGroups, $permission['aro_role']);
                         }
                         break;
                     case '!rule!role!eduPersonOrgUnitDN':
-                        if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgUnitDN'], $permission[ar_value]))) {
-                            array_push($userPIDAuthGroups, $permission[aro_role]);
+                        if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgUnitDN'], $permission['ar_value']))) {
+                            array_push($userPIDAuthGroups, $permission['aro_role']);
                         }
                         break;
                     case 'eduPersonOrgDN':
-                        if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgDN'], $permission[ar_value]))) {
-                            array_push($userPIDAuthGroups, $permission[aro_role]);
+                        if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgDN'], $permission['ar_value']))) {
+                            array_push($userPIDAuthGroups, $permission['aro_role']);
                         }
                         break;
                     case '!rule!role!eduPersonPrimaryOrgUnitDN':
-                        if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryOrgUnitDN'], $permission[ar_value]))) {
-                            array_push($userPIDAuthGroups, $permission[aro_role]);
+                        if (is_numeric(strpos(@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryOrgUnitDN'], $permission['ar_value']))) {
+                            array_push($userPIDAuthGroups, $permission['aro_role']);
                         }
                         break;
 
                     case '!rule!role!Fez_Group':
-                        if (@in_array($permission[ar_value], $session[APP_INTERNAL_GROUPS_SESSION])) {
-                            array_push($userPIDAuthGroups, $permission[aro_role]);
+                        if (@in_array($permission['ar_value'], $session[APP_INTERNAL_GROUPS_SESSION])) {
+                            array_push($userPIDAuthGroups, $permission['aro_role']);
                         }
                         break;
 
                     case '!rule!role!Fez_User':
                         $temp = Auth::getUserID();
-                        if (Auth::isValidSession($session) && $permission[ar_value] == Auth::getUserID()) {
-                            array_push($userPIDAuthGroups, $permission[aro_role]);
+                        if (Auth::isValidSession($session) && $permission['ar_value'] == Auth::getUserID()) {
+                            array_push($userPIDAuthGroups, $permission['aro_role']);
                         }
                         break;
                     default:

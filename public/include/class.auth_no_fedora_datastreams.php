@@ -104,7 +104,7 @@ class AuthNoFedoraDatastreams {
         foreach ($res2 as $row2) {
             $unique = true;
             foreach ($res as $row) {
-                if (($row[authdii_role] == $row2[authdi_role]) && ($row[ar_id] == $row2[ar_id])){
+                if (($row['authdii_role'] == $row2['authdi_role']) && ($row['ar_id'] == $row2['ar_id'])){
                     $unique = false;
                 }
             }
@@ -523,11 +523,13 @@ class AuthNoFedoraDatastreams {
         $didNonInheritedPermissions = AuthNoFedoraDatastreams::getNonInheritedSecurityPermissions($did);
         $didCalculatedPermissions = array_merge($didParentPermissions,$didNonInheritedPermissions);
         $newGroups = array();
+
+        //Go through and collate new groups to be created. These are stored under authi_role(Parents combined permissions) or authdii_role (Datastreams non inherited permissions)
         foreach($didCalculatedPermissions as $didCalculatedPermission) {
-            if ($didCalculatedPermission[authi_role]) {
-                $newGroups[$didCalculatedPermission[authi_role]][] = $didCalculatedPermission[argr_ar_id];
+            if ($didCalculatedPermission['authi_role']) {
+                $newGroups[$didCalculatedPermission['authi_role']][] = $didCalculatedPermission['argr_ar_id'];
             } else{
-                $newGroups[$didCalculatedPermission[authdii_role]][] = $didCalculatedPermission[argr_ar_id];
+                $newGroups[$didCalculatedPermission['authdii_role']][] = $didCalculatedPermission['argr_ar_id'];
             }
         }
 
@@ -580,7 +582,7 @@ class AuthNoFedoraDatastreams {
         $new = array(array('authdi_role' => $role, 'argr_ar_id' => $ar_id ));
         $didNewPermissions = array_merge($new,$didNonInheritedPermissions);
         foreach($didNewPermissions as $didNewPermission) {
-            $newGroup[] = $didNewPermission[argr_ar_id];
+            $newGroup[] = $didNewPermission['argr_ar_id'];
         }
 
         AuthNoFedoraDatastreams::deletePermissions($did, '0', $role);
@@ -601,8 +603,8 @@ class AuthNoFedoraDatastreams {
 
         $newGroup = array();
         foreach($didNonInheritedPermissions as $didNonInheritedPermisison) {
-            if ($didNonInheritedPermisison[argr_ar_id] != $ar_id) {
-                $newGroup[] = $didNonInheritedPermisison[argr_ar_id];
+            if ($didNonInheritedPermisison['argr_ar_id'] != $ar_id) {
+                $newGroup[] = $didNonInheritedPermisison['argr_ar_id'];
             }
         }
 

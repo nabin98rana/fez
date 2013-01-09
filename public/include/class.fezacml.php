@@ -191,8 +191,8 @@ class FezACML
 
             foreach ($fezacml_user_list as $user) {
                 $arId = AuthRules::getOrCreateRule('!rule!role!Fez_User', $user);
-                $permisison[authii_role] = $roleId;
-                $permisison[argr_ar_id] = $arId;
+                $permisison['authii_role'] = $roleId;
+                $permisison['argr_ar_id'] = $arId;
                 if (!in_array($permisison, $permissions)) {
                     AuthNoFedora::addSecurityPermissions($pid, $roleId, $arId);
                 }
