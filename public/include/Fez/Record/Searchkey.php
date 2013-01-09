@@ -324,7 +324,7 @@ class Fez_Record_Searchkey
                 $ds_value['MIMEType'], $ds_value['controlGroup'], null, $ds_value['versionable']);
               $perms = AuthNoFedoraDatastreams::getNonInheritedSecurityPermissions($ds_value['id']);
               foreach ($perms as $perm) {
-                AuthNoFedoraDatastreams::addRoleSecurityPermissions($new_did, $perm['authii_role'], $perm['argr_arg_id'], '0');
+                AuthNoFedoraDatastreams::addRoleSecurityPermissions($new_did, $perm['authdii_role'], $perm['argr_arg_id'], '0');
               }
               AuthNoFedoraDatastreams::recalculatePermissions($new_did);
 
