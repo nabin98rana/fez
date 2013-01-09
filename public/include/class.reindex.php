@@ -687,7 +687,20 @@ class Reindex
               }
             }
           }
-        // FEDORA VERSION OF REINDEX
+          //
+          // KJ: update fulltext index
+          //
+          if (APP_SOLR_INDEXER == "ON") {
+            FulltextQueue::singleton()->add($pid);
+            FulltextQueue::singleton()->commit();
+          }
+
+          if (APP_FILECACHE == "ON" ) {
+            $cache = new fileCache($pid, 'pid='.$pid);
+            $cache->poisonCache();
+          }
+
+          // FEDORA VERSION OF REINDEX
         } else {
           $rebuild_this = $rebuild;
 

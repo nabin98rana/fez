@@ -99,10 +99,12 @@ if (is_numeric($ahs_id)) {
 		$ahs_id = $ahs_temp[0];
 	}
 }
-
+$list = array();
+$list[list_info] = array();
+$list[list_info][current_page] = 0;
 $list = Ad_Hoc_SQL::getResultSet($ahs_id, $pagerRow, $rows);
 
-$tpl->assign("ahs_id", $ahs_id);    
+$tpl->assign("ahs_id", $ahs_id);
 $tpl->assign("list", $list['list']);
 $tpl->assign("list_info", $list['info']);
 }
