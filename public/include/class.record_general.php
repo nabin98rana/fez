@@ -1734,18 +1734,25 @@ class RecordGeneral
   }
 
   /**
-   * assignGroupFezMD
+   * updateAssignedGroup
    * Used to assign this record to a group
    *
    * @access  public
-   * @param  $key
-   * @param  $value
+   * @param  integer $groupId
    * @return  void
    */
-  function updateFezMD_Group($key, $value)
+  function updateAssignedGroup($groupId)
   {
+    if (APP_FEDORA_BYPASS == 'ON') {
+      if (empty($groupId)) {
+          $recordSearchKey = new Fez_Record_Searchkey($this->pid);
+          $recordSearchKey->deleteSearchKey("Assigned Group ID");
+      } else {
+          $record = new RecordObject($this->pid);
+          $record->addSearchKeyValueList(array("Assigned Group ID"), $groupId, true);
+      }
+    }
 
-    $newXML = "";
     $xmlString = Fedora_API::callGetDatastreamContents($this->pid, 'FezMD', true);
     $doc = DOMDocument::loadXML($xmlString);
     $xpath = new DOMXPath($doc);
@@ -1760,7 +1767,7 @@ class RecordGeneral
       $parentNode = $doc->lastChild;
     }
     $newNode = $doc->createElement('grp_id');
-    $newNode->nodeValue = $value;
+    $newNode->nodeValue = $groupId;
     $parentNode->insertBefore($newNode);
     //		Error_Handler::logError($doc->SaveXML(),__FILE__,__LINE__);
     $newXML = $doc->SaveXML();
