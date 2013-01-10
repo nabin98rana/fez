@@ -171,8 +171,9 @@ class RecordObject extends RecordGeneral
 			// to do with a form submission
 			$_POST = $params;
 		}
+    $existingDatastreams = array();
 
-		if(APP_FEDORA_BYPASS == 'ON') {
+    if (APP_FEDORA_BYPASS == 'ON') {
 		    $digObj = new DigitalObject();
 		    //$now = date('Y-m-d H:i:s');
 
@@ -293,8 +294,24 @@ class RecordObject extends RecordGeneral
                     		'pid' => $this->pid);
                     	$dsr = new DSResource(APP_DSTREE_PATH, $resourceDataLocation, $meta);
                     	$dsr->save();
-                      Record::generatePresmd($this->pid, $dsr->returnFilename());
-                      Workflow::processIngestTrigger($this->pid, Foxml::makeNCName($dsr->returnFilename()), $mimeDataType);
+                      $hash = $dsr->getHash();
+                      $path = $dsr->returnPath();
+                      $filename = $dsr->returnFilename();
+                      $new_dsID = Foxml::makeNCName($filename);
+                      $tmpFile = APP_TEMP_DIR.$new_dsID;
+                      copy($path.$hash['rawHash'], $tmpFile);
+
+                      Record::generatePresmd($this->pid, $new_dsID);
+                      Workflow::processIngestTrigger($this->pid, $new_dsID, $mimeDataType);
+                      if (is_file($tmpFile)) {
+                        unlink($tmpFile);
+                      }
+                      if (is_file($resourceDataLocation)) {
+                        unlink($resourceDataLocation);
+                      }
+
+//                      Record::generatePresmd($this->pid, $dsr->returnFilename());
+//                      Workflow::processIngestTrigger($this->pid, Foxml::makeNCName($dsr->returnFilename()), $mimeDataType);
             		}
             	}
             }
@@ -335,7 +352,7 @@ class RecordObject extends RecordGeneral
     		// If pid is null then we need to ingest the object as well
     		// otherwise we are updating an existing object
     		$ingestObject = false;
-    		$existingDatastreams = array();
+
     		if (empty($this->pid)) {
     			$this->pid = Fedora_API::getNextPID();
     			$ingestObject = true;
