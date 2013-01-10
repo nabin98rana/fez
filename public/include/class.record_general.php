@@ -1691,38 +1691,45 @@ class RecordGeneral
   }
 
   /**
-   * updateFezMD_User
+   * updateAssignedUser
    * Used to assign this record to a user
-   *
    * @access  public
-   * @param  $key
-   * @param  $value
+   * @param   string $userId
    * @return  void
    */
-  function updateFezMD_User($key, $value)
+  function updateAssignedUser($userId)
   {
-    $newXML = "";
-    $xmlString = Fedora_API::callGetDatastreamContents($this->pid, 'FezMD', true);
-    $doc = DOMDocument::loadXML($xmlString);
-    $xpath = new DOMXPath($doc);
-    $fieldNodeList = $xpath->query("//usr_id");
-    if ($fieldNodeList->length > 0) {
-      foreach ($fieldNodeList as $fieldNode) { // first delete all the existing user associations
-        $parentNode = $fieldNode->parentNode;
-        $parentNode->removeChild($fieldNode);
-      }
+    if (APP_FEDORA_BYPASS == 'ON') {
+        if (empty($userId)) {
+            $recordSearchKey = new Fez_Record_Searchkey($this->pid);
+            $recordSearchKey->deleteSearchKey("Assigned User ID");
+        } else {
+            $record = new RecordObject($this->pid);
+            $record->addSearchKeyValueList(array("Assigned User ID"), $userId, true);
+        }
     } else {
-      $parentNode = $doc->lastChild;
-    }
-    $newNode = $doc->createElement('usr_id');
-    $newNode->nodeValue = $value;
-    $parentNode->insertBefore($newNode);
-    $newXML = $doc->SaveXML();
-    if ($newXML != "") {
-      Fedora_API::callModifyDatastreamByValue(
-          $this->pid, "FezMD", "A", "Fez Admin Metadata", $newXML, "text/xml", "inherit"
-      );
-      Record::setIndexMatchingFields($this->pid);
+        $xmlString = Fedora_API::callGetDatastreamContents($this->pid, 'FezMD', true);
+        $doc = DOMDocument::loadXML($xmlString);
+        $xpath = new DOMXPath($doc);
+        $fieldNodeList = $xpath->query("//usr_id");
+        if ($fieldNodeList->length > 0) {
+          foreach ($fieldNodeList as $fieldNode) { // first delete all the existing user associations
+            $parentNode = $fieldNode->parentNode;
+            $parentNode->removeChild($fieldNode);
+          }
+        } else {
+          $parentNode = $doc->lastChild;
+        }
+        $newNode = $doc->createElement('usr_id');
+        $newNode->nodeValue = $userId;
+        $parentNode->insertBefore($newNode);
+        $newXML = $doc->SaveXML();
+        if ($newXML != "") {
+          Fedora_API::callModifyDatastreamByValue(
+              $this->pid, "FezMD", "A", "Fez Admin Metadata", $newXML, "text/xml", "inherit"
+          );
+          Record::setIndexMatchingFields($this->pid);
+        }
     }
   }
 

@@ -39,7 +39,7 @@ $usrDetails = User::getDetailsByID($this->rec_obj->depositor);
 
 $inReview = Status::getID("In Creation");
 $this->rec_obj->setStatusId($inReview);
-$this->rec_obj->updateFezMD_User("usr_id", $this->rec_obj->depositor);
+$this->rec_obj->updateAssignedUser($this->rec_obj->depositor);
 
 $mail = new Mail_API;
 $mail->setTextBody(stripslashes($_REQUEST['email_body']));
@@ -52,4 +52,3 @@ $historyExtra = $this->getHistoryDetail();
 History::addHistory($this->rec_obj->getPid(), null, '', '', true, 'Record Rejected', $historyExtra);
 
 $this->rec_obj->releaseLock();
-?>

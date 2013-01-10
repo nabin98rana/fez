@@ -106,7 +106,7 @@ class Fez_Filter_Process_Request implements Fez_Filter_Process_ProcessInterface
             	if($filterObj = $this->fetchFilter($filter))
                 {
                     //Need to set the pattern if it's the regex filter
-                    if($filter == 'Fez_Filter_Regex' && method_exists($filterObj, 'setPattern'))
+                    if ($filter == 'Fez_Filter_Regex' && method_exists($filterObj, 'setPattern'))
                     {
                       $filterObj->setPattern($this->regexPatterns[$elementToFilter]);
                     }

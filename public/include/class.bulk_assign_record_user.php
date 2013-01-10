@@ -68,7 +68,7 @@ class Bulk_Assign_Record_User {
                                 );
 
 		$record = new RecordObject($pid);
-		$record->updateFezMD_User("usr_id", $assign_usr_id);
+		$record->updateAssignedUser($assign_usr_id);
 
 		History::addHistory($pid, null, "", "", true, "Assigned Record to User ".User::getFullName($assign_usr_id)." (".$assign_usr_id.")");
 		$this->bgp->setStatus("Finished Bulk Assign Record to User for ".$record->getTitle());
