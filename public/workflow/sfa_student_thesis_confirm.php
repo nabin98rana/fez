@@ -75,6 +75,7 @@ $usrDetails = User::getDetailsByID($confirmation->record->depositor);
 
 // Display Submission confirmation
 $tpl = new Template_API();
+$tpl->smarty->default_modifiers = array();
 $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign("type", 'sfa_student_thesis_confirm');
 $tpl->assign('application_name', APP_NAME);
