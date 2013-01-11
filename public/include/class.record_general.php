@@ -1702,7 +1702,7 @@ class RecordGeneral
     if (APP_FEDORA_BYPASS == 'ON') {
         if (empty($userId)) {
             $recordSearchKey = new Fez_Record_Searchkey($this->pid);
-            $recordSearchKey->deleteSearchKey("Assigned User ID");
+            $recordSearchKey->deleteSearchKey("Assigned User ID", true);
         } else {
             $record = new RecordObject($this->pid);
             $record->addSearchKeyValueList(array("Assigned User ID"), $userId, true);
@@ -1746,7 +1746,7 @@ class RecordGeneral
     if (APP_FEDORA_BYPASS == 'ON') {
       if (empty($groupId)) {
           $recordSearchKey = new Fez_Record_Searchkey($this->pid);
-          $recordSearchKey->deleteSearchKey("Assigned Group ID");
+          $recordSearchKey->deleteSearchKey("Assigned Group ID", true);
       } else {
           $record = new RecordObject($this->pid);
           $record->addSearchKeyValueList(array("Assigned Group ID"), $groupId, true);

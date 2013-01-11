@@ -337,7 +337,7 @@ class Fez_Record_Searchkey
     }
 
     //Delete searchkey from pid
-    public function deleteSearchKey($sekTitle)
+    public function deleteSearchKey($sekTitle, $reindex = false)
     {
         $sekDetails = Search_Key::getDetailsByTitle($sekTitle);
         $sekTitleDb = $sekDetails['sek_title_db'];
@@ -360,6 +360,8 @@ class Fez_Record_Searchkey
             $this->_db->exec($stmtBackupToShadow);
             $this->_db->exec($stmtDeleteOld);
             $this->_db->commit();
+            FulltextQueue::singleton()->add($this->_pid);
+            FulltextQueue::singleton()->commit();
             return true;
         }
         catch (Exception $ex) {

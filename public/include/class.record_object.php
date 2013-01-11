@@ -1,7 +1,7 @@
 <?php
 include_once(APP_INC_PATH.'class.record_general.php');
 include_once(APP_INC_PATH.'class.record_general.php');
-include_once(APP_INC_PATH . 'class.digitalobject.php');
+include_once(APP_INC_PATH.'class.digitalobject.php');
 /**
  * RecordObject
  * Manages the interface to the database and fedora for records.
@@ -33,7 +33,6 @@ class RecordObject extends RecordGeneral
 	function tombstone($pid, $rel_pid)
 	{
 	    $db = DB_API::get();
-	    //$relatives = $this->getParents();
 	    $dte = gmdate('Y-m-d H:i:s');
 
 	    $sql = "INSERT INTO " . APP_TABLE_PREFIX . "tombstone "
@@ -43,24 +42,7 @@ class RecordObject extends RecordGeneral
 	    $bindings = array(':mainpid' => $pid,
 	                        ':relpid' => $rel_pid);
 
-	    /*if(count($relatives) > 0)
-	    {
-    	    for($i=0;$i<count($relatives);$i++)
-    	    {
-    	        $sql .= "(:mainpid$i, :childpid$i, '$dte'),";
-    	        $bindings[":childpid$i"] = $relatives[$i];
-    	        $bindings[":mainpid$i"] = $pid;
-    	    }
-
-    	    $sql = substr_replace($sql, '', strlen($sbj)-1);
-	    }
-	    else
-	    {
-	        $sql .= "(:mainpid, null, '$dte')";
-	        $bindings[':mainpid'] = $pid;
-	    }*/
-
-	    $db->query($sql, $bindings);
+        $db->query($sql, $bindings);
 	}
 
 	/**
@@ -69,7 +51,18 @@ class RecordObject extends RecordGeneral
 	 */
 	function getObjectAdminMD()
 	{
-		$xdis_array = Fedora_API::callGetDatastreamContents($this->pid, 'FezMD');
+        if (APP_FEDORA_BYPASS == 'ON') {
+            $xdis_array['created_date'][0] = Record::getSearchKeyIndexValue($this->pid, "Created Date", false);
+            $xdis_array['updated_date'][0] = Record::getSearchKeyIndexValue($this->pid, "Updated Date", false);
+            $xdis_array['depositor'][0] = Record::getSearchKeyIndexValue($this->pid, "Depositor", false);
+            $xdis_array['grp_id'][0] = Record::getSearchKeyIndexValue($this->pid, "Assigned Group ID", false);
+            $xdis_array['usr_id'][0] = Record::getSearchKeyIndexValue($this->pid, "Assigned User ID", false);
+            $xdis_array['sta_id'][0] = Record::getSearchKeyIndexValue($this->pid, "Status", false);
+
+        } else {
+            $xdis_array = Fedora_API::callGetDatastreamContents($this->pid, 'FezMD');
+        }
+
 		if (isset($xdis_array['created_date'][0])) {
 			$this->created_date = $xdis_array['created_date'][0];
 		} else {
@@ -85,12 +78,12 @@ class RecordObject extends RecordGeneral
 		} else {
 			$this->depositor = NULL;
 		}
-		if (isset($xdis_array['grp_id'][0])) {
+		if (isset($xdis_array['grp_id'][0]) && !empty($xdis_array['grp_id'][0]) ) {
 			$this->assign_grp_id = $xdis_array['grp_id'][0];
 		} else {
 			$this->assign_grp_id = NULL;
 		}
-		if (isset($xdis_array['usr_id'][0])) {
+		if (isset($xdis_array['usr_id'][0]) && !empty($xdis_array['grp_id'][0])) {
 			if (!is_array($this->assign_usr_id)) {
 				$this->assign_usr_id = array();
 			}
@@ -235,9 +228,7 @@ class RecordObject extends RecordGeneral
     		$xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Object Type'), $xdis_str);
     		$xsd_display_fields[0]['object_type'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $xdis_details['xdis_object_type']);
 
-    		$digObjData = array(
-    		    /*'xdis_id' => $_POST['xdis_id']*/
-    		);
+    		$digObjData = array();
 
     		$this->xdis_id = $_POST['xdis_id'];
 
@@ -247,7 +238,7 @@ class RecordObject extends RecordGeneral
             }
 
     		$this->created_date = $createUpdateDate;
-    	  $this->updated_date = $createUpdateDate;
+    	    $this->updated_date = $createUpdateDate;
     		$this->depositor = Auth::getUserID();
     		$this->assign_usr_id = array(Auth::getUserID());
 
@@ -309,16 +300,13 @@ class RecordObject extends RecordGeneral
                       if (is_file($resourceDataLocation)) {
                         unlink($resourceDataLocation);
                       }
-
-//                      Record::generatePresmd($this->pid, $dsr->returnFilename());
-//                      Workflow::processIngestTrigger($this->pid, Foxml::makeNCName($dsr->returnFilename()), $mimeDataType);
             		}
             	}
             }
 
             Record::removeIndexRecord($this->pid, false);
     		Record::updateSearchKeys($this->pid, $xsd_display_fields, false, $now); //into the non-shadow tables
-        Record::updateSearchKeys($this->pid, $xsd_display_fields, true, $now); //into the shadow tables
+            Record::updateSearchKeys($this->pid, $xsd_display_fields, true, $now); //into the shadow tables
 
 
 
@@ -334,21 +322,11 @@ class RecordObject extends RecordGeneral
     		    }
     		}
 
-		    //If any files are being uploaded or changed, take a snapshot.
-    		if (isset($_POST['removeFiles']) || isset($_POST['editedFilenames'])
-    		    || isset($_POST['uploader_files_uploaded'])) {
-              //Now do this every time dsresource->storedsreference is called
-//                $digObj->load($this->pid);
-//                $digObj->snapshotResources($now);
-        }
-        if ($newPid) {
-          AuthNoFedora::setInherited($this->pid); //This also calls recalculate permissions after setting inherit to true
-        }
-//        if (isset($_POST['removeFiles']) || isset($_POST['uploader_files_uploaded'])) {
-            //Now do this every time dsresource->storedsreference is called
-//                AuthNoFedora::recalculatePermissions($this->pid);
-//        }
-		}	else {
+            if ($newPid) {
+              AuthNoFedora::setInherited($this->pid); //This also calls recalculate permissions after setting inherit to true
+            }
+
+		} else {
     		// If pid is null then we need to ingest the object as well
     		// otherwise we are updating an existing object
     		$ingestObject = false;
@@ -499,7 +477,6 @@ class RecordObject extends RecordGeneral
         if (APP_FEDORA_BYPASS == 'ON') {
           $dsr = new DSResource();
           $dsr->load($dsTitle['filename'], $pid);
-//          $path = $dsr->getMeta();
           $path = $dsr->returnPath();
           $tmpFile = APP_TEMP_DIR.$dsIDName;
           copy($path."/".$dsTitle['hash'], $tmpFile);
@@ -549,8 +526,8 @@ class RecordObject extends RecordGeneral
 				}
 			}
 		}
-    if (APP_FEDORA_BYPASS != 'ON') {
-		  Record::setIndexMatchingFields($pid);
-    }
+        if (APP_FEDORA_BYPASS != 'ON') {
+              Record::setIndexMatchingFields($pid);
+        }
 	} // end of function
 } // end of class
