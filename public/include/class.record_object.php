@@ -154,9 +154,8 @@ class RecordObject extends RecordGeneral
 	 * @access  public
 	 * @return  void
 	 */
-	function fedoraInsertUpdate($exclude_list=array(), $specify_list=array(), $params = array()) {
-
-
+	function fedoraInsertUpdate($exclude_list=array(), $specify_list=array(), $params = array())
+    {
 	    $log = FezLog::get();
 
 		if (!empty($params)) {
@@ -164,12 +163,10 @@ class RecordObject extends RecordGeneral
 			// to do with a form submission
 			$_POST = $params;
 		}
-    $existingDatastreams = array();
+        $existingDatastreams = array();
 
-    if (APP_FEDORA_BYPASS == 'ON') {
+        if (APP_FEDORA_BYPASS == 'ON') {
 		    $digObj = new DigitalObject();
-		    //$now = date('Y-m-d H:i:s');
-
 		    if(!Zend_Registry::isRegistered('version')) {
             Zend_Registry::set('version', Date_API::getCurrentDateGMT());
 		    }
@@ -215,12 +212,16 @@ class RecordObject extends RecordGeneral
     		$xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Depositor'), $xdis_str);
     		$xsd_display_fields[0]['depositor'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $_POST['user_id']);
 
-    		$createUpdateDate = Date_API::getFedoraFormattedDateUTC();
+            $updatedDate = Date_API::getFedoraFormattedDateUTC();
+            $createdDate = Record::getSearchKeyIndexValue($this->pid, "Created Date", false);
+            if (empty($this->pid)) {
+                $createdDate = $updatedDate;
+            }
     		$xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Created Date'), $xdis_str);
-    		$xsd_display_fields[0]['created_date'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $createUpdateDate);
+    		$xsd_display_fields[0]['created_date'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $createdDate);
 
     		$xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Updated Date'), $xdis_str);
-    		$xsd_display_fields[0]['updated_date'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $createUpdateDate);
+    		$xsd_display_fields[0]['updated_date'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $updatedDate);
 
     		$xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Status'), $xdis_str);
     		$xsd_display_fields[0]['status'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $_POST['sta_id']);
@@ -237,8 +238,8 @@ class RecordObject extends RecordGeneral
                 $newPid = true;
             }
 
-    		$this->created_date = $createUpdateDate;
-    	    $this->updated_date = $createUpdateDate;
+    		$this->created_date = $createdDate;
+    	    $this->updated_date = $updatedDate;
     		$this->depositor = Auth::getUserID();
     		$this->assign_usr_id = array(Auth::getUserID());
 
