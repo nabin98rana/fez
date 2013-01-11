@@ -65,12 +65,12 @@ class DigitalObject
             $updateFields = $this->setUpdateFields($objdata);
 
             try {
-                $sql = "UPDATE " . APP_TABLE_PREFIX . "digital_object SET "
-                    . $updateFields['set'] . " WHERE pidns = :pidns AND pidint = :pidint";
+                $sql = "UPDATE " . APP_TABLE_PREFIX . "pid_gen SET "
+                    . $updateFields['set'] . " WHERE pdg_namespace = :pdg_namespace AND pdg_highest_id = :pdg_highest_id";
 
                 //Bind pidint and pidns to the WHERE in the update.
-                $updateFields['binding'][':pidns'] = $pidns;
-                $updateFields['binding'][':pidint'] = $pidint;
+                $updateFields['binding'][':pdg_namespace'] = $pidns;
+                $updateFields['binding'][':pdg_highest_id'] = $pidint;
 
                 $this->_db->query($sql, $updateFields['binding']);
             } catch(Exception $e) {
@@ -78,32 +78,36 @@ class DigitalObject
             }
         } else {
             //If no namespace, use the one in the config.
-            $pidns = ($objdata['pidns']) ? $objdata['pidns'] : APP_PID_NAMESPACE;
-
+            $pidns = ($objdata['pdg_namespace']) ? $objdata['pdg_namespace'] : APP_PID_NAMESPACE;
+            $this->_db->beginTransaction();
             try {
-                $sql = "SELECT MAX(pidint)+1 AS pidint FROM " . APP_TABLE_PREFIX
-                    . "digital_object WHERE pidns = :pidns";
-                $stmt = $this->_db->query($sql, array(':pidns' => $pidns));
+                $sql = "SELECT MAX(pdg_highest_id)+1 AS pdg_highest_id FROM " . APP_TABLE_PREFIX
+                    . "pid_gen WHERE pdg_namespace = :pdg_namespace";
+                $stmt = $this->_db->query($sql, array(':pdg_namespace' => $pidns));
                 $pidint = $stmt->fetch();
             } catch(Exception $e) {
                 $this->_log->err($e->getMessage());
             }
 
             //Check to see if this the first pid for this namespace.
-            $pidint = ($pidint['pidint'] == NULL) ? 1 : $pidint['pidint'];
+            $pidint = ($pidint['pdg_highest_id'] == NULL) ? 1 : $pidint['pdg_highest_id'];
             $pidint = ($pidint < self::PID_NO_CLASH) ? self::PID_NO_CLASH : $pidint;
 
             $this->_pid = $pidns . ":" . $pidint;
 
-            $objdata['pidint'] = $pidint;
-            $objdata['pidns'] = $pidns;
+            $objdata['pdg_highest_id'] = $pidint;
+            $objdata['pdg_namespace'] = $pidns;
 
             $insert = $this->setInsertFields($objdata);
 
             try {
-                $sql = "INSERT INTO " . APP_TABLE_PREFIX . "digital_object " . $insert['insert'];
-                $this->_db->query($sql, $insert['binding']);
+              $delSql = "DELETE FROM " . APP_TABLE_PREFIX . "pid_gen WHERE pdg_namespace = :pdg_namespace";
+              $this->_db->query($delSql, array(':pdg_namespace' => $pidns));
+              $sql = "INSERT INTO " . APP_TABLE_PREFIX . "pid_gen " . $insert['insert'];
+              $this->_db->query($sql, $insert['binding']);
+              $this->_db->commit();
             } catch(Exception $e) {
+                $this->_db->rollBack();
                 $this->_log->err($e->getMessage());
             }
         }

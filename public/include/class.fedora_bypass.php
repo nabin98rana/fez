@@ -91,29 +91,8 @@ class Fedora_API {
 	 */
 	function getNextPID()
 	{
-		$log = FezLog::get();
-		$db = DB_API::get();
-
-    $db->beginTransaction();
-    $stmt = "UPDATE " . APP_TABLE_PREFIX . "pid_index SET pid_number = pid_number + 1";
-    try {
-      $db->exec($stmt);
-      $db->commit();
-    } catch(Exception $ex) {
-      $db->rollBack();
-      $log->err("Problem setting new PID :: " . $ex);
-      return false;
-    }
-
-
-    $stmt = "SELECT pid_number FROM " . APP_TABLE_PREFIX . "pid_index";
-    try {
-      $res = $db->fetchCol($stmt);
-    } catch(Exception $ex) {
-      $log->err("Problem generating new PID :: " . $ex);
-      return false;
-    }
-    $pid = APP_PID_NAMESPACE . ":" . $res[0];
+    $digObj = new DigitalObject();
+    $pid = $digObj->save(array());
 		return $pid;
 	}
 

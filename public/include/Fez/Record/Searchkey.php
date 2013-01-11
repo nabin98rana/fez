@@ -99,7 +99,9 @@ class Fez_Record_Searchkey
         if (!empty($pid)) {
             $this->_pid = $pid;
         } else if (empty($this->_pid)) {
-            $this->_pid = Fedora_API::getNextPID();
+//            $this->_pid = Fedora_API::getNextPID();
+            $digObj = new DigitalObject();
+            $this->_pid = $digObj->save(array());
         }
     }
 
