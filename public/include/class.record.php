@@ -3355,7 +3355,7 @@ class Record
     $prev_count = $res;
 
     // If there is a previous count in the history
-    if (! empty($prev_count)) {
+    if (!empty($prev_count) || $prev_count === 0) {
       $stmt = "UPDATE
                   " . $dbtp . "record_search_key
                SET
@@ -3630,7 +3630,7 @@ class Record
     }
     $prev_count = $res;
     // If there is a previous count in the history
-    if (! empty($prev_count)) {
+    if (!empty($prev_count) || $prev_count === 0) {
       $stmt = "UPDATE
                   " . $dbtp . "record_search_key
                SET
