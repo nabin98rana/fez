@@ -250,9 +250,7 @@ if (!empty($pid) && $record->checkExists()) {
 
     $tpl->assign("sta_id", $record->getPublishedStatus());
     $tpl->assign("xsd_display_fields", $xsd_display_fields);
-
     $details = $record->getDetails();
-
 
     $parents = Record::getParentsDetails($pid);
 
@@ -390,14 +388,13 @@ if (!empty($pid) && $record->checkExists()) {
 
       if ($dis_field['xsdmf_enabled'] == 1) {
         if ($dis_field['xsdmf_element'] == "!created_date") {
-          $dateIsUTC = (APP_FEDORA_BYPASS == 'ON') ? FALSE : TRUE;
           if (!empty($details[$dis_field['xsdmf_id']])) {
             if (is_array($details[$dis_field['xsdmf_id']])) {
               foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
-                $created_date = Date_API::getFormattedDate($cdata, FALSE, $dateIsUTC);
+                $created_date = Date_API::getFormattedDate($cdata, FALSE, TRUE);
               }
             } else {
-              $created_date = Date_API::getFormattedDate($details[$dis_field['xsdmf_id']], FALSE, $dateIsUTC);
+              $created_date = Date_API::getFormattedDate($details[$dis_field['xsdmf_id']], FALSE, TRUE);
             }
           }
         }

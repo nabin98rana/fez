@@ -104,7 +104,7 @@ class AuthNoFedoraDatastreams {
         foreach ($res2 as $row2) {
             $unique = true;
             foreach ($res as $row) {
-                if (($row[authdii_role] == $row2[authdi_role]) && ($row[ar_id] == $row2[ar_id])){
+                if (($row['authdii_role'] == $row2['authdi_role']) && ($row['ar_id'] == $row2['ar_id'])){
                     $unique = false;
                 }
             }
@@ -254,9 +254,10 @@ class AuthNoFedoraDatastreams {
                 return array();
             }
 
-            AuthNoFedoraDatastreams::recalculatePermissions($did);
             return $res;
-        }
+    }
+
+
     function setCopyright($did) {
         $log = FezLog::get();
       	$db = DB_API::get();
@@ -422,40 +423,16 @@ class AuthNoFedoraDatastreams {
         return $res;
     }
 
-    function getInheritedDatastreamPolicyArePermissionsInherited($pid)
-    {
-        $log = FezLog::get();
-        $db = DB_API::get();
-
-        $stmt = "SELECT qai_inherit FROM ". APP_TABLE_PREFIX . "auth_quick_rules_id
-                INNER JOIN fez_auth_quick_rules_pid
-                ON qrp_qac_id = qai_id
-                WHERE qrp_pid = ".$db->quote($pid);
-        try {
-            $res = $db->fetchOne($stmt);
-        }
-        catch(Exception $ex) {
-            $log->err($ex);
-            return false;
-        }
-
-        return $res;
-    }
-    function getInheritedDatastreamPolicyPermissions($did)
-    {
-        if ( !AuthNoFedoraDatastreams::isInherited($did) ) {
-            return false;
-        }
+    function getInheritedDatastreamPolicyPermissions($did) {
 
         $pid = AuthNoFedoraDatastreams::getPid($did);
         $permissions = AuthNoFedoraDatastreams::getInheritedDatastreamPolicyPermissionsFromPid($pid);
 
-        if (AuthNoFedora::isInherited($pid)){
-            $parentPids = Record::getParents($pid);
-            foreach($parentPids as $parentPid) {
-                $tempParentPermissions = AuthNoFedoraDatastreams::getInheritedDatastreamPolicyPermissionsFromPid($parentPid);
-                $permissions = array_merge($permissions, $tempParentPermissions);
-            }
+
+        $parentPids = Record::getParents($pid);
+        foreach($parentPids as $parentPid) {
+            $tempParentPermissions = AuthNoFedoraDatastreams::getInheritedDatastreamPolicyPermissionsFromPid($parentPid);
+            $permissions = array_merge($permissions, $tempParentPermissions);
         }
         return $permissions;
     }
@@ -534,9 +511,10 @@ class AuthNoFedoraDatastreams {
             } elseif ( !$datastreamPolicyPermissionsInherited && $currentDatastreamPolicyPermissionsInherited ){
                AuthNoFedoraDatastreams::deleteInherited($did);
             }
-
-            AuthNoFedoraDatastreams::deletePermissions($did);
-            foreach($datastreamPolicyPermissions as $permissions){
+            // Clean out both datastream level and pid level permissions for this datastream
+            AuthNoFedoraDatastreams::deletePermissions($did, '1');
+            AuthNoFedoraDatastreams::deletePermissions($did, '0');
+            foreach($datastreamPolicyPermissions as $permissions) {
                 AuthNoFedoraDatastreams::addSecurityPermissions($did, $permissions['qac_role'], $permissions['argr_ar_id'], false);
             }
 
@@ -545,11 +523,13 @@ class AuthNoFedoraDatastreams {
         $didNonInheritedPermissions = AuthNoFedoraDatastreams::getNonInheritedSecurityPermissions($did);
         $didCalculatedPermissions = array_merge($didParentPermissions,$didNonInheritedPermissions);
         $newGroups = array();
+
+        //Go through and collate new groups to be created. These are stored under authi_role(Parents combined permissions) or authdii_role (Datastreams non inherited permissions)
         foreach($didCalculatedPermissions as $didCalculatedPermission) {
-            if ($didCalculatedPermission[authi_role]) {
-                $newGroups[$didCalculatedPermission[authi_role]][] = $didCalculatedPermission[argr_ar_id];
+            if ($didCalculatedPermission['authi_role']) {
+                $newGroups[$didCalculatedPermission['authi_role']][] = $didCalculatedPermission['argr_ar_id'];
             } else{
-                $newGroups[$didCalculatedPermission[authdii_role]][] = $didCalculatedPermission[argr_ar_id];
+                $newGroups[$didCalculatedPermission['authdii_role']][] = $didCalculatedPermission['argr_ar_id'];
             }
         }
 
@@ -602,7 +582,7 @@ class AuthNoFedoraDatastreams {
         $new = array(array('authdi_role' => $role, 'argr_ar_id' => $ar_id ));
         $didNewPermissions = array_merge($new,$didNonInheritedPermissions);
         foreach($didNewPermissions as $didNewPermission) {
-            $newGroup[] = $didNewPermission[argr_ar_id];
+            $newGroup[] = $didNewPermission['argr_ar_id'];
         }
 
         AuthNoFedoraDatastreams::deletePermissions($did, '0', $role);
@@ -623,8 +603,8 @@ class AuthNoFedoraDatastreams {
 
         $newGroup = array();
         foreach($didNonInheritedPermissions as $didNonInheritedPermisison) {
-            if ($didNonInheritedPermisison[argr_ar_id] != $ar_id) {
-                $newGroup[] = $didNonInheritedPermisison[argr_ar_id];
+            if ($didNonInheritedPermisison['argr_ar_id'] != $ar_id) {
+                $newGroup[] = $didNonInheritedPermisison['argr_ar_id'];
             }
         }
 
@@ -658,5 +638,25 @@ class AuthNoFedoraDatastreams {
         }
 
          return $res;
+    }
+
+    function getInheritedDatastreamPolicyArePermissionsInherited($pid)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $stmt = "SELECT qai_inherit FROM ". APP_TABLE_PREFIX . "auth_quick_rules_id
+                INNER JOIN fez_auth_quick_rules_pid
+                ON qrp_qac_id = qai_id
+                WHERE qrp_pid = ".$db->quote($pid);
+        try {
+            $res = $db->fetchOne($stmt);
+        }
+        catch(Exception $ex) {
+                $log->err($ex);
+                return false;
+        }
+
+            return $res;
     }
 }

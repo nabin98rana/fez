@@ -5396,14 +5396,16 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
     $ncName = Foxml::makeNCName($dsIDName);
     $presmd_check = Workflow::checkForPresMD($ncName);
     if ($presmd_check != false) {
-      if (is_numeric(strpos($presmd_check, chr(92)))) {
-        $presmd_check = substr($presmd_check, strrpos($presmd_check, chr(92))+1);
+      $presmd_id = $presmd_check;
+      if (is_numeric(strpos($presmd_check, "/"))) {
+        $presmd_id = substr($presmd_check, strrpos($presmd_check, "/")+1); // take out any nasty slashes from the ds name itself
       }
+
       if (Fedora_API::datastreamExists($pid, $presmd_check)) {
         Fedora_API::callPurgeDatastream($pid, $presmd_check);
       }
       Fedora_API::getUploadLocationByLocalRef(
-          $pid, $presmd_check, $presmd_check, $presmd_check,
+          $pid, $presmd_id, $presmd_check, $presmd_check,
           "text/xml", "M"
       );
       if (is_file(APP_TEMP_DIR.basename($presmd_check))) {

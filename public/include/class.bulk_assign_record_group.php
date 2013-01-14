@@ -69,7 +69,7 @@ class Bulk_Assign_Record_Group {
                                 );
 
 		$record = new RecordObject($pid);
-		$record->updateFezMD_Group("grp_id", $assign_grp_id);
+		$record->updateAssignedGroup($assign_grp_id);
 
 		History::addHistory($pid, null, "", "", true, "Assigned Record to Group ".Group::getName($assign_grp_id)." (".$assign_grp_id.")");
 		$this->bgp->setStatus("Finished Bulk Assign Record to Group ".Group::getName($assign_grp_id)."(".$assign_grp_id.") for ".$record->getTitle());

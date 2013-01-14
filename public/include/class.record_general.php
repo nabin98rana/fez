@@ -410,7 +410,7 @@ class RecordGeneral
 
   /**
    * setStatusID
-   * Used to assocaiate a display for this record
+   * Used to associate a display for this record
    *
    * @access  public
    * @param  integer $sta_id The new Status ID of the object
@@ -418,49 +418,43 @@ class RecordGeneral
    */
   function setStatusId($sta_id)
   {
-        if (APP_FEDORA_BYPASS == 'ON') {
-          $currentStatus = Record::getSearchKeyIndexValue($this->pid, "Status", false);
-          if ($currentStatus != Status::getID("Published")) {
-            $searchKeyData = array();
-            $details = Record::getDetailsLite($this->pid);
-            // $searchKeyData[0] for 1-to-1 search keys
-            $searchKeyData[0]['status'] = array('xsdmf_id' => $details[0]['rek_status_xsdmf_id'], 'xsdmf_value' => $sta_id);
-            $searchKeyData[0]['updated_date'] = array('xsdmf_id' => $details[0]['rek_updated_date_xsdmf_id'], 'xsdmf_value' => Date_API::getFedoraFormattedDateUTC());
+    if (APP_FEDORA_BYPASS == 'ON') {
+        $searchKeyData = array();
+        $details = Record::getDetailsLite($this->pid);
+        // $searchKeyData[0] for 1-to-1 search keys
+        $searchKeyData[0]['status'] = array('xsdmf_id' => $details[0]['rek_status_xsdmf_id'], 'xsdmf_value' => $sta_id);
+        $searchKeyData[0]['updated_date'] = array('xsdmf_id' => $details[0]['rek_updated_date_xsdmf_id'], 'xsdmf_value' => Date_API::getFedoraFormattedDateUTC());
 
-            // Update the search keys for this PID with new value
-            Record::updateSearchKeys($this->pid, $searchKeyData);
-            $recordSearchkeyShadow = new Fez_Record_SearchkeyShadow($this->pid);
-            $recordSearchkeyShadow->copyRecordSearchKeyToShadow();
+        // Update the search keys for this PID with new value
+        Record::updateSearchKeys($this->pid, $searchKeyData);
+        $recordSearchkeyShadow = new Fez_Record_SearchkeyShadow($this->pid);
+        $recordSearchkeyShadow->copyRecordSearchKeyToShadow();
+    } else {
 
-//            Record::updateSearchKeysShadow($this->pid);
-          }
-        } else {
+        // Update the XML for FezMD datastream,
+        // which contains the record status ID and other status flags
+        // - for list of fields see $this->setFezMD_Datastream() function comment
+        $this->setFezMD_Datastream('sta_id', $sta_id);
 
-            // Update the XML for FezMD datastream,
-            // which contains the record status ID and other status flags
-            // - for list of fields see $this->setFezMD_Datastream() function comment
-    $this->setFezMD_Datastream('sta_id', $sta_id);
+        // Get a list of related XSD DisplayObjects for this record - based on record's XSD DisplayObject
+        $this->getDisplay();
+        /* Sample results:
+         * XSD_DisplayObject Object
+            (
+                [xdis_id] => 174
+                [xsd_html_match] => XSD_HTML_MatchObject Object
+                    (
+                        [xdis_str] => 207,172,84,16,111,174
+                    )
 
-            // Get a list of related XSD DisplayObjects for this record - based on record's XSD DisplayObject
-    $this->getDisplay();
-            /* Sample results:
-             * XSD_DisplayObject Object
-                (
-                    [xdis_id] => 174
-                    [xsd_html_match] => XSD_HTML_MatchObject Object
-                        (
-                            [xdis_str] => 207,172,84,16,111,174
-                        )
+                [exclude_list] =>
+                [specify_list] =>
+            )
+         */
 
-                    [exclude_list] =>
-                    [specify_list] =>
-                )
-             */
-
-            // Update Index of XSDMF fields from the record XSD Display
-    $this->setIndexMatchingFields();
-        }
-    return 1;
+        // Update Index of XSDMF fields from the record XSD Display
+        $this->setIndexMatchingFields();
+    }
   }
 
   /**
@@ -1697,54 +1691,68 @@ class RecordGeneral
   }
 
   /**
-   * updateFezMD_User
+   * updateAssignedUser
    * Used to assign this record to a user
-   *
    * @access  public
-   * @param  $key
-   * @param  $value
+   * @param   string $userId
    * @return  void
    */
-  function updateFezMD_User($key, $value)
+  function updateAssignedUser($userId)
   {
-    $newXML = "";
-    $xmlString = Fedora_API::callGetDatastreamContents($this->pid, 'FezMD', true);
-    $doc = DOMDocument::loadXML($xmlString);
-    $xpath = new DOMXPath($doc);
-    $fieldNodeList = $xpath->query("//usr_id");
-    if ($fieldNodeList->length > 0) {
-      foreach ($fieldNodeList as $fieldNode) { // first delete all the existing user associations
-        $parentNode = $fieldNode->parentNode;
-        $parentNode->removeChild($fieldNode);
-      }
+    if (APP_FEDORA_BYPASS == 'ON') {
+        if (empty($userId)) {
+            $recordSearchKey = new Fez_Record_Searchkey($this->pid);
+            $recordSearchKey->deleteSearchKey("Assigned User ID", true);
+        } else {
+            $record = new RecordObject($this->pid);
+            $record->addSearchKeyValueList(array("Assigned User ID"), $userId, true);
+        }
     } else {
-      $parentNode = $doc->lastChild;
-    }
-    $newNode = $doc->createElement('usr_id');
-    $newNode->nodeValue = $value;
-    $parentNode->insertBefore($newNode);
-    $newXML = $doc->SaveXML();
-    if ($newXML != "") {
-      Fedora_API::callModifyDatastreamByValue(
-          $this->pid, "FezMD", "A", "Fez Admin Metadata", $newXML, "text/xml", "inherit"
-      );
-      Record::setIndexMatchingFields($this->pid);
+        $xmlString = Fedora_API::callGetDatastreamContents($this->pid, 'FezMD', true);
+        $doc = DOMDocument::loadXML($xmlString);
+        $xpath = new DOMXPath($doc);
+        $fieldNodeList = $xpath->query("//usr_id");
+        if ($fieldNodeList->length > 0) {
+          foreach ($fieldNodeList as $fieldNode) { // first delete all the existing user associations
+            $parentNode = $fieldNode->parentNode;
+            $parentNode->removeChild($fieldNode);
+          }
+        } else {
+          $parentNode = $doc->lastChild;
+        }
+        $newNode = $doc->createElement('usr_id');
+        $newNode->nodeValue = $userId;
+        $parentNode->insertBefore($newNode);
+        $newXML = $doc->SaveXML();
+        if ($newXML != "") {
+          Fedora_API::callModifyDatastreamByValue(
+              $this->pid, "FezMD", "A", "Fez Admin Metadata", $newXML, "text/xml", "inherit"
+          );
+          Record::setIndexMatchingFields($this->pid);
+        }
     }
   }
 
   /**
-   * assignGroupFezMD
+   * updateAssignedGroup
    * Used to assign this record to a group
    *
    * @access  public
-   * @param  $key
-   * @param  $value
+   * @param  integer $groupId
    * @return  void
    */
-  function updateFezMD_Group($key, $value)
+  function updateAssignedGroup($groupId)
   {
+    if (APP_FEDORA_BYPASS == 'ON') {
+      if (empty($groupId)) {
+          $recordSearchKey = new Fez_Record_Searchkey($this->pid);
+          $recordSearchKey->deleteSearchKey("Assigned Group ID", true);
+      } else {
+          $record = new RecordObject($this->pid);
+          $record->addSearchKeyValueList(array("Assigned Group ID"), $groupId, true);
+      }
+    }
 
-    $newXML = "";
     $xmlString = Fedora_API::callGetDatastreamContents($this->pid, 'FezMD', true);
     $doc = DOMDocument::loadXML($xmlString);
     $xpath = new DOMXPath($doc);
@@ -1759,7 +1767,7 @@ class RecordGeneral
       $parentNode = $doc->lastChild;
     }
     $newNode = $doc->createElement('grp_id');
-    $newNode->nodeValue = $value;
+    $newNode->nodeValue = $groupId;
     $parentNode->insertBefore($newNode);
     //		Error_Handler::logError($doc->SaveXML(),__FILE__,__LINE__);
     $newXML = $doc->SaveXML();

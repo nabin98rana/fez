@@ -111,7 +111,7 @@
                 </td>
             </tr>
             {if ($record_type != 'Community')}
-                <tr><td>Inherit permissions</td><td><input type="checkbox" name="inherit" value="1" {if ($inherits_security)} checked="checked" {/if} /></td></tr>
+                <tr><td><label for="inherit">Inherit Security from Parent Hierarchy?</label></td><td><input type="checkbox" name="inherit" id="inherit" value="1" {if ($inherits_security)} checked="checked" {/if} /></td></tr>
             {/if}
             {if ($did)}
                 <tr><td>Watermarked</td><td><input type="checkbox" name="watermark" value="{$watermark}" {if ($watermark)} checked="checked" {/if} /></td></tr>

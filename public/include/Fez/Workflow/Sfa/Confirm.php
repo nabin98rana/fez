@@ -97,14 +97,18 @@ class Fez_Workflow_Sfa_Confirm{
     {
 
         // Get submitted values
-        $this->submitted_values = $this->record->getDetails();
+//        $this->submitted_values = $this->record->getDetails();
 
         // Get display fields.  XSD_DisplayObject
         $xsd_display_fields = $this->record->display->getMatchFieldsList(array("FezACML"), array());
 
-        $this->output_records = $this->filterDisplayData($xsd_display_fields);
+//        $this->output_records = $this->filterDisplayData($xsd_display_fields);
+      $record_view = new RecordView($this->record); // record viewer object
 
-        // @debug
+      $this->submitted_values = $record_view->getDetails();
+      $this->output_records = $this->filterDisplayData($xsd_display_fields);
+
+      // @debug
 //        $this->displayDebugData($this->output_records);
 
         return $this->output_records;
@@ -222,9 +226,10 @@ class Fez_Workflow_Sfa_Confirm{
         }
 
         // Strip tags from value other than permitted ones
-        if (is_string($display_value)){
-            $display_value = strip_tags($display_value, $allow_tags);
-        }
+      // don't need to strip anymore because record_view class does that for you and smarter than this
+//        if (is_string($display_value)){
+//            $display_value = strip_tags($display_value, $allow_tags);
+//        }
 
         return $display_value;
     }
@@ -258,8 +263,8 @@ class Fez_Workflow_Sfa_Confirm{
      */
     protected function _getDualMultipleValue($value = '')
     {
-        if ( is_array($value) || is_object($value) ){
-            foreach ($value as $oneValue){
+        if (is_array($value) || is_object($value)) {
+            foreach ($value as $oneValue) {
                 $display_value[] = Record::getTitleFromIndex($oneValue);
             }
             return $display_value;
@@ -328,7 +333,7 @@ class Fez_Workflow_Sfa_Confirm{
         return $view_record_url;
     }
 
-        
+
     /**
      * Return the record title used for front end output
      * @return string

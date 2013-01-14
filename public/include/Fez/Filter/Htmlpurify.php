@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 /**
  * Filter HTML input using HTML Purifier

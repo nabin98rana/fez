@@ -87,25 +87,12 @@ class Fedora_API {
 	 * Gets the next available persistent identifier.
 	 *
 	 * @access  public
-	 * @return  string $pid The next avaiable PID in from the PID handler
+	 * @return  string $pid The next available PID in from the PID handler
 	 */
 	function getNextPID()
 	{
-		$log = FezLog::get();
-		$db = DB_API::get();
-
-
-    $stmt = "UPDATE " . APP_TABLE_PREFIX . "pid_index SET pid_number = pid_number + 1;";
-    $db->exec($stmt);
-
-    $stmt = "SELECT pid_number FROM " . APP_TABLE_PREFIX . "pid_index;";
-    try {
-      $res = $db->fetchCol($stmt);
-    } catch(Exception $ex) {
-      $log->err("Problem generating new PID :: " . $ex);
-      return false;
-    }
-    $pid = APP_PID_NAMESPACE . ":" . $res[0];
+    $digObj = new DigitalObject();
+    $pid = $digObj->save(array());
 		return $pid;
 	}
 

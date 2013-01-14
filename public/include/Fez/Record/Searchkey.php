@@ -96,10 +96,12 @@ class Fez_Record_Searchkey
      */
     protected function _setPid($pid = null)
     {
-        if (!empty($pid)){
+        if (!empty($pid)) {
             $this->_pid = $pid;
-        } else if (empty($this->_pid)){
-            $this->_pid = Fedora_API::getNextPID();
+        } else if (empty($this->_pid)) {
+//            $this->_pid = Fedora_API::getNextPID();
+            $digObj = new DigitalObject();
+            $this->_pid = $digObj->save(array());
         }
     }
 
@@ -147,11 +149,11 @@ class Fez_Record_Searchkey
         $oneToMany = $this->_insertOneToManyRecord($sekData[1]);
 
         // Returns false when both updates failed.
-        if (!$oneToOne && !$oneToMany['oneSuccess']){
+        if (!$oneToOne && !$oneToMany['oneSuccess']) {
             return false;
         }
 
-        if ($historyMsg){
+        if ($historyMsg) {
             $this->_updateHistory($historyMsg);
         }
         $this->_insertRecordCitation($citationData);
@@ -186,11 +188,11 @@ class Fez_Record_Searchkey
         $oneToMany = $this->_updateOneToManyRecord($sekData[1]);
 
         // Returns false when both updates failed.
-        if (!$oneToOne && !$oneToMany['oneSuccess']){
+        if (!$oneToOne && !$oneToMany['oneSuccess']) {
             return false;
         }
 
-        if ($historyMsg){
+        if ($historyMsg) {
             $this->_updateHistory($historyMsg);
         }
         $this->_updateRecordCitation();
@@ -216,7 +218,7 @@ class Fez_Record_Searchkey
             $xsdmfId = XSD_HTML_Match::getXSDMFIDBySearchKeyTitleXDIS_ID($title, $displayType);
 
             // This search key has no relation to request Display Type, continue to the next search key.
-            if (empty($xsdmfId)){
+            if (empty($xsdmfId)) {
                 continue;
             }
 
@@ -242,7 +244,7 @@ class Fez_Record_Searchkey
         $searchKeyData = array(0 => array(), 1 => array());
 
         foreach ($sekData as $xsdmfId => $value) {
-            if (empty($xsdmfId)){
+            if (empty($xsdmfId)) {
                 continue;
             }
             $xsdDetails = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmfId);
@@ -250,7 +252,7 @@ class Fez_Record_Searchkey
             $relationship = $sekDetails['sek_relationship'];
             $sekTitleDb = $sekDetails['sek_title_db'];
 
-            if(!empty($sekTitleDb)) {
+            if (!empty($sekTitleDb)) {
                 $searchKeyData[$relationship][$sekTitleDb]['xsdmf_id']    = $xsdmfId;
                 $searchKeyData[$relationship][$sekTitleDb]['xsdmf_value'] = $value;
             }
@@ -315,16 +317,12 @@ class Fez_Record_Searchkey
           foreach ($datastreams as $ds_value) {
             if (isset($ds_value['controlGroup']) && $ds_value['controlGroup'] == 'M'
               && $clone_attached_datastreams) {
-//              $value = Fedora_API::callGetDatastreamContents($pid, $ds_value['ID'], true);
-//              Fedora_API::getUploadLocation(
-//                $new_pid, $ds_value['ID'], $value, $ds_value['label'],
-//                $ds_value['MIMEType'], $ds_value['controlGroup'], null, $ds_value['versionable']
-//              );
+
               $new_did = Fedora_API::getUploadLocationByLocalRef($new_pid, $ds_value['ID'], $ds_value['full_path'], $ds_value['label'],
                 $ds_value['MIMEType'], $ds_value['controlGroup'], null, $ds_value['versionable']);
               $perms = AuthNoFedoraDatastreams::getNonInheritedSecurityPermissions($ds_value['id']);
               foreach ($perms as $perm) {
-                AuthNoFedoraDatastreams::addRoleSecurityPermissions($new_did, $perm['authii_role'], $perm['argr_arg_id'], '0');
+                AuthNoFedoraDatastreams::addRoleSecurityPermissions($new_did, $perm['authdii_role'], $perm['argr_arg_id'], '0');
               }
               AuthNoFedoraDatastreams::recalculatePermissions($new_did);
 
@@ -337,12 +335,44 @@ class Fez_Record_Searchkey
             }
           }
         }
-
-
-
-
         return $new_pid;
     }
+
+    //Delete searchkey from pid
+    public function deleteSearchKey($sekTitle, $reindex = false)
+    {
+        $sekDetails = Search_Key::getDetailsByTitle($sekTitle);
+        $sekTitleDb = $sekDetails['sek_title_db'];
+        $table = APP_TABLE_PREFIX . "record_search_key_".$sekTitleDb;
+        $tableShadow = $table . "__shadow";
+
+        // Query to backup old record: copy the data from sk main table to shadow table
+        $stmtBackupToShadow = "INSERT INTO " . $tableShadow .
+            "  SELECT *, " . $this->_db->quote($this->_version, 'DATE') .
+            "  FROM " . $table .
+            "  WHERE rek_".$sekTitleDb."_pid = " . $this->_db->quote($this->_pid, 'STRING');
+
+        // Query to remove old record on main table.
+        $stmtDeleteOld = "DELETE FROM " . $table .
+            " WHERE rek_".$sekTitleDb."_pid = " . $this->_db->quote($this->_pid, 'STRING');
+
+        // Begin DB transaction explicitly. We want to be able to rollback if any of these queries failed.
+        $this->_db->beginTransaction();
+        try {
+            $this->_db->exec($stmtBackupToShadow);
+            $this->_db->exec($stmtDeleteOld);
+            $this->_db->commit();
+            FulltextQueue::singleton()->add($this->_pid);
+            FulltextQueue::singleton()->commit();
+            return true;
+        }
+        catch (Exception $ex) {
+            $this->_db->rollBack();
+            $this->_log->err($ex);
+        }
+        return false;
+    }
+
     /**
      * Inserts 1-to-1 record search keys with value specified by the $data parameter &
      * automatically create current version data to Shadow table.
