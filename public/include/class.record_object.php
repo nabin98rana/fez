@@ -168,7 +168,7 @@ class RecordObject extends RecordGeneral
         if (APP_FEDORA_BYPASS == 'ON') {
 		    $digObj = new DigitalObject();
 		    if(!Zend_Registry::isRegistered('version')) {
-            Zend_Registry::set('version', Date_API::getCurrentDateGMT());
+                Zend_Registry::set('version', Date_API::getCurrentDateGMT());
 		    }
 
 		    $now = Zend_Registry::get('version');
@@ -199,7 +199,6 @@ class RecordObject extends RecordGeneral
 
             $xsd_display_fields = RecordGeneral::setDisplayFields($xdisDisplayFields);
 
-
             $xdis_list = XSD_Relationship::getListByXDIS($_POST['xdis_id']);
             array_push($xdis_list, array("0" => $_POST['xdis_id']));
             $xdis_str = Misc::sql_array_to_string($xdis_list);
@@ -209,13 +208,20 @@ class RecordObject extends RecordGeneral
     		$xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Display Type'), $xdis_str);
     		$xsd_display_fields[0]['display_type'] = array('xsdmf_id' => $xsdmf_id[0],'xsdmf_value' => $_POST['xdis_id']);
 
-    		$xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Depositor'), $xdis_str);
-    		$xsd_display_fields[0]['depositor'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $_POST['user_id']);
+            $xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Depositor'), $xdis_str);
+            if (empty($this->pid)) {
+                $depositor = Auth::getUserID();
+            } else {
+                $depositor = Record::getSearchKeyIndexValue($this->pid, "Depositor", false);
+            }
+            $xsd_display_fields[0]['depositor'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $depositor);
 
             $updatedDate = Date_API::getFedoraFormattedDateUTC();
-            $createdDate = Record::getSearchKeyIndexValue($this->pid, "Created Date", false);
+
             if (empty($this->pid)) {
                 $createdDate = $updatedDate;
+            } else {
+                $createdDate = Record::getSearchKeyIndexValue($this->pid, "Created Date", false);
             }
     		$xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Created Date'), $xdis_str);
     		$xsd_display_fields[0]['created_date'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $createdDate);
@@ -240,7 +246,7 @@ class RecordObject extends RecordGeneral
 
     		$this->created_date = $createdDate;
     	    $this->updated_date = $updatedDate;
-    		$this->depositor = Auth::getUserID();
+    		$this->depositor = $depositor;
     		$this->assign_usr_id = array(Auth::getUserID());
 
     		$this->getXmlDisplayId();
