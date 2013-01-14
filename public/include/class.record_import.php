@@ -96,97 +96,231 @@ abstract class RecordImport
 
         return $xpath;
     }
-
+    
     /**
-     * Comparison of and de-duping downloaded record
+     * Perform de-duping on incoming records
      */
     public function liken()
     {
         //set an idcollection array for pids returned by id type
         $idCollection = array();
         $mirrorMirror = new ReflectionClass($this);
-
-        //foreach of the selected id types
-        //(wok,pubmed,scopus,etc) that is not null
+        $associations = array();
+        
+        //See what returns a PID
         foreach($this->_comparisonIdTypes as $id)
         {
             //Check that a method exists for retrieving
             //a local record by that id type.
             $retrieverName = 'getPIDsBy'.$id;
             $retriever = $mirrorMirror->getMethod($retrieverName);
-
+            
             if($retriever)
             {
                 //Run the method and capture the pid(s)
                 $pids = $this->$retrieverName();
                 
                 $pidCount = count($pids);
-
+                
                 //if there is only one pid returned
                 if($pidCount == 1)
                 {
-                    //set that as the pid returned for that id in the array
-                    $idCollection[$id] = $pids[0];
+                    $associations[$id]['status'] = 'MATCHED';
+                    $associations[$id]['matchedPid'] = $pids[0];
+                }
+                elseif(!$this->$id)
+                {
+                    $associations[$id]['status'] = 'EMPTY';
                 }
                 elseif($pidCount > 1)
                 {
-                    file_put_contents($this->_statsFile, "ST01 - ".$this->_scopusId." matches more than one pid(" . implode(',', $pids) . ") based on $retrieverName\n\n", FILE_APPEND);
-                    //log an error if there is more than one pid (but not if there are none)
-                    $this->_log->err("Multiple matches found for $id:".__METHOD__);
-//                     echo "\nMultiple matches found for $id:".__METHOD__ ."\n";
+                    $this->_log->err("Multiple matches found for $id:". implode(", ", $pids));
+                    //TODO save to temp duplicates colection for manual de-duping
                     return false;
+                }
+                else 
+                {
+                    $associations[$id]['status'] = 'UNMATCHED';
                 }
             }
         }
-
-        //if all the pids in the idcollection array are the same
-        $ctUniq = count(array_unique($idCollection));
         
+        $authorativePid = false;
+        $pidCollection = array();
+        $areMatched = array();
+        foreach($associations as $id => $association)
+        {
+            if(array_key_exists('matchedPid', $association))
+            {
+                $pidCollection[] = $association['matchedPid'];
+            }
+            
+            if($association['status'] == 'MATCHED')
+            {
+                $areMatched[] = $id;
+            }
+        }
+        
+        //See that different ids return the same PID
+        $ctUniq = count(array_unique($pidCollection));
+        
+        //If we have a single PID, weed out any remaining fields that did not match and log them.
+        //A pid that matched on Scopus ID is considered most reliable, DOI is next most reliable and so on
+        //so the order of $this->_comparisonIdTypes matters.
         if($ctUniq == 1)
         {
-            //that's the pid for us - set it as authorative
-            $collectionKey = array_keys($idCollection);
-            $collectionKey = $collectionKey[0];
-            $likenedPid = $idCollection[$collectionKey];
-        }
-
-        //if we have an authoritative pid
-        if($likenedPid)
-        {
-            //do a fuzzy title match
-            $rec = new Record();
-            $title = $rec->getTitleFromIndex($likenedPid);
-
-            $percentageMatch = 0;
-
-            $downloadedTitle = RCL::normaliseTitle($this->_title);
-            $localTitle = RCL::normaliseTitle($title);
-            similar_text($downloadedTitle, $localTitle, $percentageMatch);
-//             echo "Will attempt to UPDATE\n";
-            //if the fuzzy title match is better than 80%
-            if($percentageMatch >= 80)
+            for($i=0;$i<count($this->_comparisonIdTypes);$i++)
             {
-                file_put_contents($this->_statsFile, "ST02 - ".$this->_scopusId." has a title likeness of $percentageMatch% - UPDATING $likenedPid\n\n", FILE_APPEND);
-                //update the record with any data we don't have
-//                 echo "\nUPDATING\n";
-//                 $this->update($likenedPid);
-//                 file_put_contents('/var/www/fez/tests/dat/scopusSaveUpdate.txt', "UPDATE $likenedPid\n",FILE_APPEND);
-//                 var_dump($likenedPid);
+                $cit = $this->_comparisonIdTypes[$i];
+                if(in_array($cit, $areMatched))
+                {
+                    $idMismatches = $this->getMismatchedFields(array_keys($associations), $associations[$cit]['matchedPid'], array($cit));
+                
+                    if(!$idMismatches)
+                    {
+                        $authorativePid = $associations[$cit]['matchedPid'];
+                    }
+                    else
+                    {
+                        $this->_log->err("Mismatch error. Scopus Id " . $this->$cit . " matches but the following do not: " . implode(", ", $idMismatches));
+                        //Save into temp duplicates collection
+                        return false;
+                    }
+                    break; //Stop processing any further id types
+                }
             }
-            else 
+            
+            //Fuzzy title matching. Title must be at least 10 chars long and 
+            //have a match of better than 80%
+            $titleIsFuzzyMatched = false;
+            
+            if($authorativePid && strlen($this->_title) > 10)
             {
-                file_put_contents($this->_statsFile, "ST03 - ".$this->_scopusId." has a title likeness of only $percentageMatch% - NO UPDATING WILL OCCUR for $likenedPid\n\n", FILE_APPEND);
+                $rec = new Record();
+                $title = $rec->getTitleFromIndex($authorativePid);
+                
+                $percentageMatch = 0;
+                
+                $downloadedTitle = RCL::normaliseTitle($this->_title);
+                $localTitle = RCL::normaliseTitle($title);
+                similar_text($downloadedTitle, $localTitle, $percentageMatch);
+                
+                if($percentageMatch > 80)
+                {
+                    $titleIsFuzzyMatched = true;
+                }
+            }
+            
+            if((($associations['_title']['status'] == 'UNMATCHED') && $titleIsFuzzyMatched))
+            {
+                $associations['_title']['status'] = 'MATCHED';
+            }
+            
+            //If we have either an exact title match (unlikely) or an acceptable 
+            //fuzzy title match, proceed to volume and page matching
+            if($associations['_title']['status'] == 'MATCHED')
+            {
+                if($this->_startPage == Record::getSearchKeyIndexValue($authorativePid, 'Start Page' , false))
+                {
+                    $associations['_startPage']['status'] = 'MATCHED';
+                }
+                else 
+                {
+                    $this->_log->err("Start page mismatch for '" . $this->_title 
+                            . "'. Local start page is: " . Record::getSearchKeyIndexValue($authorativePid, 'Start Page', false) 
+                            . " . Downloaded start page is: " . $this->_startPage);
+                    return false;
+                }
+                
+                
+                if($this->_endPage == Record::getSearchKeyIndexValue($authorativePid, 'End Page', false))
+                {
+                    $associations['_endPage']['status'] = 'MATCHED';
+                }
+                else 
+                {
+                    $this->_log->err("End page mismatch for '" . $this->_title 
+                            . "'. Local end page is: " . Record::getSearchKeyIndexValue($authorativePid, 'End Page' , false) 
+                            . " . Downloaded end page is: " . $this->_endPage);
+                    return false;
+                }
+                
+                if($this->_volume == Record::getSearchKeyIndexValue($authorativePid, 'Volume Number' , false))
+                {
+                    $associations['_volume']['status'] = 'MATCHED';
+                }
+                else
+                {
+                    $this->_log->err("Volume mismatch for '" . $this->_title
+                    . "'. Local end page is: " . Record::getSearchKeyIndexValue($authorativePid, 'Volume Number', false)
+                    . " . Downloaded end page is: " . $this->_volume);
+                    return false;
+                }
+            }
+            elseif($associations['_title']['status'] != 'UNMATCHED')
+            {
+                $associations['_title']['status'] = 'UNCERTAIN';
+                $this->_log->err("Downloaded title: '" . $downloadedTitle 
+                        . "' FAILED TO MATCH the local title: '" . $localTitle 
+                        . "' with a match of only " . $percentageMatch . "%");
+            }
+                      
+ 
+        }
+        elseif(empty($pidCollection))
+        {
+            //$this->save();
+            return "SAVE";
+        }
+        else 
+        {
+            $this->_log->err("Different ids in the same downloaded record are matching up with different pids"); //add data to this message
+            return false;
+        }
+        
+        if($authorativePid)
+        {
+            //$this->update($authorativePid);
+            return "UPDATE";
+//        IF we have an authoritative pid 
+//                Perform an update 
+        }
+    }
+    
+    /**
+     * Compare values of local fields with the values of fields 
+     * in a downloaded record and return mismatches.
+     * @param array $idTypes
+     * @param array $exceptions
+     */
+    protected function getMismatchedFields($otherIds, $pid, $exceptions=array())
+    {
+        //We definately don't wanna do title matching here
+        if(!in_array('_title', $exceptions))
+        {
+            $exceptions[] = '_title';
+        }
+        
+        //Diff otherIdValues keys with exceptions to determine which ones to check
+        $idsToProcess = array_diff($otherIds, $exceptions);
+        $mismatches = array();
+        
+        //Iterate through id types and check against local record for the given pid
+        foreach($idsToProcess as $idToProcess)
+        {
+            $skIndex = strtolower(preg_replace("/[A-Z]/","_$0", ltrim($idToProcess, "_")));
+            
+            $localIdValue = Record::getSearchKeyIndexValue($pid, $skIndex , false);
+            $dlValue = $this->$idToProcess;
+            
+            if(($localIdValue && $dlValue) && ($localIdValue != $dlValue))
+            {
+                $mismatches[$idToProcess] = array('localValue' => $localIdValue, 'dlValue' => $dlValue);
             }
         }
-        else
-        {
-            file_put_contents($this->_statsFile, "ST04 - ".$this->_scopusId." appears NOT to already exist. SAVING new record with title: {$this->_title}\n\n", FILE_APPEND);
-            //save a new record
-//             echo  "\nSAVING\n";
-//             $newPid = $this->save();
-//             file_put_contents('/var/www/fez/tests/dat/scopusSaveUpdate.txt', "SAVE $newPid\n",FILE_APPEND);
-//             var_dump($newPid);
-        }
+        
+        //return mismatches if any otherwise return false.
+        return (count($mismatches) > 0) ? $mismatches : false;
     }
 
     /**
@@ -228,7 +362,7 @@ abstract class RecordImport
 
         for($i=0;$i<count($pidSet);$i++)
         {
-            $pids[] = $pidSet[$i]['rek_scopus_id'];
+            $pids[] = $pidSet[$i]['rek_scopus_id_pid'];
         }
 //         var_dump($pids);
 //         die();
@@ -242,9 +376,39 @@ abstract class RecordImport
     */
     protected function getPIDsBy_pubmedId()
     {
-        //woteva
+        $pids = array();
+        
+        if($this->_pubmedId)
+        {
+            $pidSet = Record::getPIDsByPubmedId($this->_pubmedId);
+        }
 
-        //return array of pids
+        for($i=0;$i<count($pidSet);$i++)
+        {
+        $pids[] = $pidSet[$i]['rek_pubmed_id_pid'];
+                }
+        return $pids;
+    }
+    
+    /**
+    * Fetch an array of pids by title
+    * @param mixed $id
+    * @return array
+    */
+    protected function getPIDsBy_title()
+    {
+        $pids = array();
+        
+        if($this->_title)
+        {
+            $pidSet = Record::getPIDsByTitle($this->_title);
+        }
+        
+        for($i=0;$i<count($pidSet);$i++)
+        {
+        $pids[] = $pidSet[$i]['rek_pid'];
+                }
+        return $pids;
     }
 
     /**
@@ -314,7 +478,7 @@ abstract class RecordImport
     /**
      * Stores to a new record in Fez
      */
-    public function save($history = null)
+    public function save($history = null, $collection=null)
     {
         $pid = null;
 

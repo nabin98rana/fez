@@ -58,7 +58,7 @@ class ScopusRecItem extends RecordImport
      * which also have cooresponding methods
      * @var array
      */
-    protected $_comparisonIdTypes = array('_scopusId', '_doi');
+    protected $_comparisonIdTypes = array('_scopusId', '_doi', '_pubmedId', '_title');
     
     public function __construct($recordData=null, $xmlNs=null)
     {
