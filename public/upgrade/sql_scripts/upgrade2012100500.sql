@@ -5,6 +5,6 @@ CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%sherpa_romeo (
   srm_xml mediumtext,
   srm_colour varchar(255) DEFAULT NULL,
   srm_date_updated datetime DEFAULT NULL,
-  PRIMARY KEY (srm_id)
+  PRIMARY KEY (srm_id),
   UNIQUE KEY `Unique` (`srm_issn`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8

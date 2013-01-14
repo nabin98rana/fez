@@ -245,7 +245,7 @@ abstract class RecordImport
                     return false;
                 }
                 
-                if($this->_volume == Record::getSearchKeyIndexValue($authorativePid, 'Volume Number' , false))
+                if($this->_issueVolume == Record::getSearchKeyIndexValue($authorativePid, 'Volume Number' , false))
                 {
                     $associations['_volume']['status'] = 'MATCHED';
                 }
@@ -253,7 +253,7 @@ abstract class RecordImport
                 {
                     $this->_log->err("Volume mismatch for '" . $this->_title
                     . "'. Local end page is: " . Record::getSearchKeyIndexValue($authorativePid, 'Volume Number', false)
-                    . " . Downloaded end page is: " . $this->_volume);
+                    . " . Downloaded end page is: " . $this->_issueVolume);
                     return false;
                 }
             }
