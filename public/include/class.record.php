@@ -3647,7 +3647,7 @@ class Record
     }
     return true;
   }
-
+  
   /**
    * Retrieve PIDs by DOI excluding any in the temporary duplicates collection
    * @param string $doi
@@ -3659,13 +3659,13 @@ class Record
       $db = DB_API::get();
       $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
       $pids = null;
-
+      
       $sql = "SELECT DISTINCT rek_doi_pid FROM fez_record_search_key_doi "
-            . "INNER JOIN fez_record_search_key_ismemberof "
+            . "LEFT JOIN fez_record_search_key_ismemberof "
             . "ON rek_doi_pid = rek_ismemberof_pid "
             . "WHERE rek_doi = ? "
-            . "AND rek_ismemberof != 'UQ:244548'";
-
+            . "AND (rek_ismemberof NOT IN('UQ:244548') OR rek_ismemberof IS NULL)";
+      
       try
       {
           $stmt = $db->query($sql, array($doi));
@@ -3679,7 +3679,71 @@ class Record
 
       return $pids;
   }
-
+  
+  /**
+  * Retrieve PIDs by DOI excluding any in the temporary duplicates collection
+  * @param string $doi
+  * @return boolean|array
+  */
+  function getPIDsByPubmedId($pubmedId)
+  {
+      $log = FezLog::get();
+      $db = DB_API::get();
+      $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
+      $pids = null;
+  
+      $sql = "SELECT DISTINCT rek_pubmed_id_pid FROM fez_record_search_key_pubmed_id "
+      . "LEFT JOIN fez_record_search_key_ismemberof "
+      . "ON rek_pubmed_id_pid = rek_ismemberof_pid "
+      . "WHERE rek_pubmed_id = ? "
+      . "AND (rek_ismemberof NOT IN('UQ:244548') OR rek_ismemberof IS NULL)";
+  
+      try
+      {
+          $stmt = $db->query($sql, array($pubmedId));
+          $pids = $stmt->fetchAll();
+      }
+      catch(Exception $e)
+      {
+          $log->err($e->getMessage());
+          return false;
+      }
+  
+      return $pids;
+  }
+  
+  /**
+  * Retrieve PIDs by exact stripped title match
+  * @param string $title
+  * @return boolean|array
+  */
+  function getPIDsByTitle($title)
+  {
+      $log = FezLog::get();
+      $db = DB_API::get();
+      $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
+      $pids = null;
+      
+      $sql = "SELECT DISTINCT rek_pid FROM ".$dbtp."record_search_key "
+      	    . "LEFT JOIN fez_record_search_key_ismemberof "
+            . "ON rek_pid = rek_ismemberof_pid "
+            . "WHERE rek_title = ? "
+            . "AND (rek_ismemberof NOT IN('UQ:244548') OR rek_ismemberof IS NULL)";
+      
+      try
+      {
+          $stmt = $db->query($sql, array($title));
+          $pids = $stmt->fetchAll();
+      }
+      catch(Exception $e)
+      {
+          $log->err($e->getMessage());
+          return false;
+      }
+      
+      return $pids;
+  }
+  
   /**
    * Retrieve PIDs by Scopus ID excluding any in the temporary duplicates collection
    * @param string $scopusId
@@ -3699,15 +3763,15 @@ class Record
       $sidFormatted = (array_key_exists(1, $matches)) ? $matches[1] : null;
       //Otherwise it's not a valid ScopusID and is set to null
       $sidFormatted = ($sidFormatted) ? "2-s2.0-".$sidFormatted : null;
-
+      
       if($sidFormatted)
       {
-          $sql = "SELECT DISTINCT rek_scopus_id_pid FROM fez_record_search_key_scopus_id "
-            ."INNER JOIN fez_record_search_key_ismemberof "
-            ."ON rek_scopus_id_pid = rek_ismemberof_pid "
-            ."WHERE rek_scopus_id = ? "
-            ."AND rek_ismemberof != 'UQ:244548'";
-
+          $sql = "SELECT DISTINCT rek_scopus_id_pid FROM ".$dbtp."record_search_key_scopus_id "
+            ."LEFT JOIN fez_record_search_key_ismemberof "
+            ."ON rek_scopus_id_pid = rek_ismemberof_pid " 
+            ."WHERE rek_scopus_id = ? " 
+            ."AND (rek_ismemberof NOT IN('UQ:244548') OR rek_ismemberof IS NULL)";
+          
           try
           {
               $stmt = $db->query($sql, array($sidFormatted));

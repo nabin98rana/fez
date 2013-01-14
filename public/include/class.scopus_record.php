@@ -58,7 +58,7 @@ class ScopusRecItem extends RecordImport
      * which also have cooresponding methods
      * @var array
      */
-    protected $_comparisonIdTypes = array('_scopusId', '_doi');
+    protected $_comparisonIdTypes = array('_scopusId', '_doi', '_pubmedId', '_title');
     
     public function __construct($recordData=null, $xmlNs=null)
     {
@@ -86,8 +86,8 @@ class ScopusRecItem extends RecordImport
         $this->_loaded = false;
         
         $xpath = $this->getXPath($recordData);
-        $xpath->registerNamespace('prism', 'http://prismstandard.org/namespaces/basic/2.0/');
-        $xpath->registerNamespace('dc', 'http://purl.org/dc/elements/1.1/');
+//         $xpath->registerNamespace('prism', 'http://prismstandard.org/namespaces/basic/2.0/');
+//         $xpath->registerNamespace('dc', 'http://purl.org/dc/elements/1.1/');
         $this->_doi = $this->extract('//prism:doi', $xpath);
         $this->_title = $this->extract('//dc:title', $xpath);
         
@@ -161,7 +161,9 @@ class ScopusRecItem extends RecordImport
     public function extract($query, $xpath)
     {
         $nodeList = $xpath->query($query);
-        return $nodeList->item(0)->nodeValue;
+        $val = $nodeList->item(0)->nodeValue;
+//         var_dump("query: ".$query."\nval: ".$val."\n\n");
+        return $val;
     }
     
     /**
@@ -181,9 +183,9 @@ class ScopusRecItem extends RecordImport
     public function likenAffiliation()
     {
         $affiliated = false;
+        
         foreach($this->_affiliations as $affiliation)
         {
-
             if(preg_match('/(University of Queensland)|(University of Qld)/',
                                                        $affiliation))
             {
