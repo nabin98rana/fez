@@ -135,7 +135,7 @@ abstract class RecordImport
                 elseif($pidCount > 1)
                 {
                     $this->_log->err("Multiple matches found for $id:". implode(", ", $pids));
-                    //TODO save to temp duplicates colection for manual de-duping
+                    $this->save(null, APP_TEMPORARY_DUPLICATES_COLLECTION);
                     return false;
                 }
                 else 
@@ -183,7 +183,7 @@ abstract class RecordImport
                     else
                     {
                         $this->_log->err("Mismatch error. Scopus Id " . $this->$cit . " matches but the following do not: " . implode(", ", $idMismatches));
-                        //Save into temp duplicates collection
+                        $this->save(null, APP_TEMPORARY_DUPLICATES_COLLECTION);
                         return false;
                     }
                     break; //Stop processing any further id types
@@ -229,6 +229,7 @@ abstract class RecordImport
                     $this->_log->err("Start page mismatch for '" . $this->_title 
                             . "'. Local start page is: " . Record::getSearchKeyIndexValue($authorativePid, 'Start Page', false) 
                             . " . Downloaded start page is: " . $this->_startPage);
+                    $this->save(null, APP_TEMPORARY_DUPLICATES_COLLECTION);
                     return false;
                 }
                 
@@ -242,6 +243,7 @@ abstract class RecordImport
                     $this->_log->err("End page mismatch for '" . $this->_title 
                             . "'. Local end page is: " . Record::getSearchKeyIndexValue($authorativePid, 'End Page' , false) 
                             . " . Downloaded end page is: " . $this->_endPage);
+                    $this->save(null, APP_TEMPORARY_DUPLICATES_COLLECTION);
                     return false;
                 }
                 
@@ -254,6 +256,7 @@ abstract class RecordImport
                     $this->_log->err("Volume mismatch for '" . $this->_title
                     . "'. Local end page is: " . Record::getSearchKeyIndexValue($authorativePid, 'Volume Number', false)
                     . " . Downloaded end page is: " . $this->_issueVolume);
+                    $this->save(null, APP_TEMPORARY_DUPLICATES_COLLECTION);
                     return false;
                 }
             }
@@ -263,27 +266,27 @@ abstract class RecordImport
                 $this->_log->err("Downloaded title: '" . $downloadedTitle 
                         . "' FAILED TO MATCH the local title: '" . $localTitle 
                         . "' with a match of only " . $percentageMatch . "%");
+                $this->save(null, APP_TEMPORARY_DUPLICATES_COLLECTION);
             }
                       
  
         }
         elseif(empty($pidCollection))
         {
-            //$this->save();
+            $this->save();
             return "SAVE";
         }
         else 
         {
             $this->_log->err("Different ids in the same downloaded record are matching up with different pids"); //add data to this message
+            $this->save(null, APP_TEMPORARY_DUPLICATES_COLLECTION);
             return false;
         }
         
         if($authorativePid)
         {
-            //$this->update($authorativePid);
+            $this->update($authorativePid);
             return "UPDATE";
-//        IF we have an authoritative pid 
-//                Perform an update 
         }
     }
     
@@ -556,7 +559,8 @@ abstract class RecordImport
             $links = array();
 
             $rec = new Record();
-            $pid = $rec->insertFromArray($mods, $this->_collections[0], "MODS 1.0", $history, 0, $links, array());
+            $collection = ($collection) ? $collection : $this->_collections[0];
+            $pid = $rec->insertFromArray($mods, $collection, "MODS 1.0", $history, 0, $links, array());
             if (is_numeric($this->_wokCitationCount)) {
                 Record::updateThomsonCitationCount($pid, $this->_wokCitationCount, $this->_isiLoc);
             }
@@ -564,7 +568,6 @@ abstract class RecordImport
                 Record::updateScopusCitationCount($pid, $this->_scopusCitationCount, $this->_scopusId);
             }
         }
-//         var_dump($pid);
         return $pid;
     }
 
@@ -606,6 +609,7 @@ abstract class RecordImport
             "Pubmed Id" => $this->_pubmedId,
             "Embase Id" => $this->_embaseId,
             "Scopus Id" => $this->_scopusId,
+            "Pubmed Id" => $this->_pubmedId,
             "ISI LOC" => $this->_isiLoc,
             "Publisher" => $this->_publisher,
         );
