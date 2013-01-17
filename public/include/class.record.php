@@ -1277,26 +1277,28 @@ class Record
     $valuesIns[] = $db->quote($pid);
     if (is_array($sekData[0])) {
         foreach ($sekData[0] as $sek_column => $sek_value) {
-          $stmt[] = "rek_{$sek_column}, rek_{$sek_column}_xsdmf_id";
+            $stmt[] = "rek_{$sek_column}, rek_{$sek_column}_xsdmf_id";
 
-          if ($sek_value['xsdmf_value'] == 'NULL') {
-            $xsdmf_value = $sek_value['xsdmf_value'];
-          } elseif ($sek_value['xsdmf_value'] == 'on') {
-            $xsdDetails = XSD_HTML_Match::getDetailsByXSDMF_ID($sek_value['xsdmf_id']);
-            $searchKeyDetails = Search_Key::getDetails($xsdDetails['xsdmf_sek_id']);
-            if ($searchKeyDetails['sek_data_type'] == 'int') {
-              $xsdmf_value = 1;
+            if ($sek_value['xsdmf_value'] === 'NULL' || $sek_value['xsdmf_value'] === '') {
+                $xsdmf_value = 'NULL';
+                $sek_value['xsdmf_id'] = 'NULL';
+
+            } elseif ($sek_value['xsdmf_value'] == 'on') {
+                $xsdDetails = XSD_HTML_Match::getDetailsByXSDMF_ID($sek_value['xsdmf_id']);
+                $searchKeyDetails = Search_Key::getDetails($xsdDetails['xsdmf_sek_id']);
+                if ($searchKeyDetails['sek_data_type'] == 'int') {
+                  $xsdmf_value = 1;
+                } else {
+                  $xsdmf_value = 0;
+                }
             } else {
-              $xsdmf_value = 0;
+                $sek_value['xsdmf_value'] = (is_array($sek_value['xsdmf_value']) && array_key_exists('Year', $sek_value['xsdmf_value']))
+                    ? $sek_value['xsdmf_value']['Year'] : $sek_value['xsdmf_value'];
+                $xsdmf_value = $db->quote(trim($sek_value['xsdmf_value']));
             }
-          } else {
-            $sek_value['xsdmf_value'] = (is_array($sek_value['xsdmf_value']) && array_key_exists('Year', $sek_value['xsdmf_value']))
-                ? $sek_value['xsdmf_value']['Year'] : $sek_value['xsdmf_value'];
-            $xsdmf_value = $db->quote(trim($sek_value['xsdmf_value']));
-          }
 
-          $valuesIns[] = "$xsdmf_value, {$sek_value['xsdmf_id']}";
-          $valuesUpd[] = "rek_{$sek_column} = $xsdmf_value, rek_{$sek_column}_xsdmf_id = {$sek_value['xsdmf_id']}";
+            $valuesIns[] = "$xsdmf_value, {$sek_value['xsdmf_id']}";
+            $valuesUpd[] = "rek_{$sek_column} = $xsdmf_value, rek_{$sek_column}_xsdmf_id = {$sek_value['xsdmf_id']}";
         }
 
         $table = APP_TABLE_PREFIX . "record_search_key";
@@ -3355,7 +3357,7 @@ class Record
     $prev_count = $res;
 
     // If there is a previous count in the history
-    if (!empty($prev_count) || $prev_count === 0) {
+    if (!empty($prev_count) || $prev_count === "0") {
       $stmt = "UPDATE
                   " . $dbtp . "record_search_key
                SET
@@ -3630,7 +3632,7 @@ class Record
     }
     $prev_count = $res;
     // If there is a previous count in the history
-    if (!empty($prev_count) || $prev_count === 0) {
+    if (!empty($prev_count) || $prev_count === "0") {
       $stmt = "UPDATE
                   " . $dbtp . "record_search_key
                SET
