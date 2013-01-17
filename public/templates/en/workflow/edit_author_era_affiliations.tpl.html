@@ -75,13 +75,13 @@ function validateForm(f)
             <a href="/workflow/update.php?pid={$authors[0].pid}&cat=select_workflow&xdis_id={$xdis_id}&wft_id=289&href={$smarty.server.REQUEST_URI}#tr_xsd_display_fields_{$hLink}_0">
             <img src="/images/edit.gif" /></a>
             &nbsp;
-            <b>HERDC Notes:</b> {$herdc_notes}</td><td bgcolor="{$cell_color}">&nbsp;</td></tr>
+            <b>HERDC Notes:</b> {$herdc_notes|smarty:nodefaults}</td><td bgcolor="{$cell_color}">&nbsp;</td></tr>
             {if $links}
             <tr><td><br /><b>Links:</b></td></tr>
             {section name=i loop=$links}
                 <tr bgcolor="{$light_color}"><td colspan="4" >
 
-                {$links[i].label} <a href="{$links[i].location}" onclick="javascript:window.open('{$links[i].location|escape:'html'}'); return false;">
+                {$links[i].label} <a href="{$links[i].location}" onclick="javascript:window.open('{$links[i].location}'); return false;">
                 {$links[i].location}</a>
                     <br />
             {/section}

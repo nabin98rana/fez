@@ -16,11 +16,11 @@
 							{assign var="fckpath" value=$rel_url|cat:"js/fckeditor/"}
 							{assign var="InstanceName" value="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"][]"}
 							{if isset($details[$temp_fld_id][$loop_num]|smarty:nodefaults)}
-								{assign var="FckValue" value=$details[$temp_fld_id][$loop_num]}
+								{assign var="FckValue" value=$details[$temp_fld_id][$loop_num]|smarty:nodefaults}
 							{else}
 								{assign var="FckValue" value=""}
 							{/if}
-							{fckeditor BasePath=$fckpath InstanceName=$InstanceName Width="500px" Height="200px" ToolbarSet="FezBasic" Value=$FckValue}
+							{fckeditor BasePath=$fckpath InstanceName=$InstanceName Width="500px" Height="200px" ToolbarSet="FezBasic" Value=$FckValue|smarty:nodefaults}
 							{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"][]"}
 							{if $xsdmf.xsdmf_long_description != ""}
 							  <span class="default">{$xsdmf.xsdmf_long_description|smarty:nodefaults}</span>
@@ -41,11 +41,11 @@
 							{assign var="fckpath" value=$rel_url|cat:"js/fckeditor/"}
 							{assign var="InstanceName" value="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"}
 							{if isset($details[$temp_fld_id]|smarty:nodefaults)}
-								{assign var="FckValue" value=$details[$temp_fld_id]}
+								{assign var="FckValue" value=$details[$temp_fld_id]|smarty:nodefaults}
 							{else}
 								{assign var="FckValue" value=""}
 							{/if}
-							{fckeditor BasePath=$fckpath InstanceName=$InstanceName Width="500px" Height="200px" ToolbarSet="FezBasic" Value=$FckValue}
+							{fckeditor BasePath=$fckpath InstanceName=$InstanceName Width="500px" Height="200px" ToolbarSet="FezBasic" Value=$FckValue|smarty:nodefaults}
 							{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"}
 							{if $xsdmf.xsdmf_long_description != ""}
 								<span class="default">{$xsdmf.xsdmf_long_description|smarty:nodefaults}</span>

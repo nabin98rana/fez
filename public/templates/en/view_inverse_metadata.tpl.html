@@ -19,19 +19,19 @@
         {* Date fields display *}
         {if $spyglassFields[i].xsdmf_data_type == 'date'}
             <tr>
-                <th>{$spyglassFields[i].xsdmf_title|escape:'htmlall'}
+                <th>{$spyglassFields[i].xsdmf_title}
                     {if $debug == 1}
-                        {$spyglassFields[i].xsdmf_order|escape:'htmlall'}
+                        {$spyglassFields[i].xsdmf_order}
                     {/if}
                 </th>
                 <td>
                     {if $spyglassFields[i].xsdmf_html_input == 'date'}
-                        {$spyglassFields[i].value|escape:'htmlall'}
+                        {$spyglassFields[i].value}
                     {else}
                         {if $details[$attached_temp_fld_id] == 0}
-                            {$spyglassFields[i].value|date_format:"%A, %B %e, %Y"|escape:'htmlall'}
+                            {$spyglassFields[i].value|date_format:"%A, %B %e, %Y"}
                         {else}
-                            {$spyglassFields[i].value|escape:'htmlall'}
+                            {$spyglassFields[i].value}
                         {/if}
                     {/if}
                 </td>
@@ -40,16 +40,16 @@
         {* Other type of fields display *}
         {else}
             <tr>
-                <th>{$spyglassFields[i].xsdmf_title|escape:'htmlall'}
+                <th>{$spyglassFields[i].xsdmf_title}
                     {if $debug == 1}
-                           {$spyglassFields[i].xsdmf_order|escape:'htmlall'}
+                           {$spyglassFields[i].xsdmf_order}
                     {/if}
                 </th>
                 <td>
                     {if $spyglassFields[i].xsdmf_title == 'Handle'}
-                        <a href="{$spyglassFields[i].xsdmf_value_prefix|escape:'url'}{$spyglassFields[i].value|escape:'url'}">{$spyglassFields[i].xsdmf_value_prefix|escape:'htmlall'}{$spyglassFields[i].value|escape:'htmlall'}</a>
+                        <a href="{$spyglassFields[i].xsdmf_value_prefix|smarty:nodefaults|escape:url}{$spyglassFields[i].value|smarty:nodefaults|escape:url}">{$spyglassFields[i].xsdmf_value_prefix}{$spyglassFields[i].value}</a>
                     {else}
-                        {$spyglassFields[i].xsdmf_value_prefix}{$spyglassFields[i].value} {if $spyglassFields[i].value} <a href="#" onclick='copyToClipboard("{$spyglassFields[i].value|escape:htmlall}")'>&nbsp;<img src="/images/copy.png" title="Click to copy"/></a>{/if}
+                        {$spyglassFields[i].xsdmf_value_prefix}{$spyglassFields[i].value|smarty:nodefaults} {if $spyglassFields[i].value} <a href="#" onclick='copyToClipboard("{$spyglassFields[i].value|smarty:nodefaults}")'>&nbsp;<img src="/images/copy.png" title="Click to copy"/></a>{/if}
                     {/if}
                 </td>
             </tr>

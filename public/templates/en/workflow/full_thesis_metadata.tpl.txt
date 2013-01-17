@@ -10,7 +10,7 @@ The following are the thesis details that have been submitted:
 Submitted Details:
 ---------------
 {foreach from=$display_data key=key item=data}
-    {$data.xsdmf_title|escape:'htmlall'} :
+    {$data.xsdmf_title} :
     {foreach from=$data.value item=value}
         {$value}
 

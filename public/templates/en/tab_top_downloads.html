@@ -7,7 +7,7 @@
 	{/if}
 
 	<li>
-		<a href="{$rel_url}view/{$list[i].pid}">{$list[i].citation|smarty:nodefaults}</a>{if $list[i].downloads <> ''} &nbsp;&nbsp;&nbsp; (<a title="View detailed statistics for this object" href="{$rel_url}stat_details.php?action=show_detail&amp;pid={$list[i].pid}">{$list[i].downloads|escape:"html"} download{if $list[i].downloads > 1}s{/if}</a>){/if}
+		<a href="{$rel_url}view/{$list[i].pid}">{$list[i].citation|smarty:nodefaults}</a>{if $list[i].downloads <> ''} &nbsp;&nbsp;&nbsp; (<a title="View detailed statistics for this object" href="{$rel_url}stat_details.php?action=show_detail&amp;pid={$list[i].pid}">{$list[i].downloads} download{if $list[i].downloads > 1}s{/if}</a>){/if}
 	</li>
 
 	{if $smarty.section.i.last}

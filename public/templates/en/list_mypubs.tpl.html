@@ -13,14 +13,14 @@
 
 <div>
   <input type="hidden" name="cat" value="assign" />
-  <input type="hidden" name="href" value="{$smarty.server.REQUEST_URI|escape:'html'}" />
+  <input type="hidden" name="href" value="{$smarty.server.REQUEST_URI}" />
   <input type="hidden" name="xdis_id" value="" />
 </div>
 
 {if $isUser}
 	{if $list_type == 'community_list' && $isAdministrator}
 	<div class="create-box">
-		<a target="_top" title="Create New Community" href="{$rel_url}workflow/new.php?pid=-1&amp;xdis_id={$xdis_id}&amp;href={$smarty.server.REQUEST_URI|escape:'url'}"><img src="{$rel_url}images/folder_new.gif" align="top" alt="" /> <b>Create New Community</b></a>
+		<a target="_top" title="Create New Community" href="{$rel_url}workflow/new.php?pid=-1&amp;xdis_id={$xdis_id}&amp;href={$smarty.server.REQUEST_URI|smarty:nodefaults|escape:url}"><img src="{$rel_url}images/folder_new.gif" align="top" alt="" /> <b>Create New Community</b></a>
 	</div> <br /><br />&nbsp;
 	{elseif $list_type == 'collection_list' && ($isAdministrator || $isCreator)}
 	<div class="create-box">
@@ -53,7 +53,7 @@
 	{if $spell_suggest != ""}
 	<table width="100%" cellpadding="10" cellspacing="0" class="listrecord">
 	  	<tr>
-	  		<td class="default" colspan="2">&nbsp;<span style="color: red">Did you mean?: </span><a href="?{$spell_suggest_url}">{$spell_suggest|escape:"html"}</a><br /><br /></td>
+	  		<td class="default" colspan="2">&nbsp;<span style="color: red">Did you mean?: </span><a href="?{$spell_suggest_url}">{$spell_suggest}</a><br /><br /></td>
 	  	</tr>
 	</table>
 	{/if}
@@ -149,7 +149,7 @@
         {assign var="icon_height" value=""}
         {if (($list[i].isLister==1 || $isAdministrator) && $list_type != 'browse_subjects_list')}
 	   		{if $list[i].rek_object_type == 1}
-                {assign var="href_view" value="community/"|cat:$list[i].rek_pid|escape:"html"}
+                {assign var="href_view" value="community/"|cat:$list[i].rek_pid}
                 {assign var="icon" value=$rel_url|cat:"images/community.jpg" }
                 {if ($list[i].isEditor==1 || $isAdministrator)}
                         {assign var="showEdit" value=true}
@@ -157,7 +157,7 @@
                         {assign var="showEdit" value=false}
                 {/if}
            {elseif $list[i].rek_object_type == 2}
-                {assign var="href_view" value="collection/"|cat:$list[i].rek_pid|escape:"html"}
+                {assign var="href_view" value="collection/"|cat:$list[i].rek_pid}
                 {assign var="icon" value=$rel_url|cat:"images/collection.jpg" }
                 {if $isUser && ($list[i].isEditor==1 || $isAdministrator)}
                         {assign var="showEdit" value=true}
@@ -166,7 +166,7 @@
                 {/if}
            {else}
                 {if ($list[i].isViewer==1 || $isAdministrator)}
-                  {assign var="href_view" value="view/"|cat:$list[i].rek_pid|escape:"html"}
+                  {assign var="href_view" value="view/"|cat:$list[i].rek_pid}
                 {else}
                   {assign var="href_view" value=""}
                 {/if}
@@ -203,7 +203,7 @@
             {if $list[i].rek_citation != ""}
             {$list[i].rek_citation|smarty:nodefaults}
             {else}
-            {if $href_view}<a href='{$rel_url}{$href_view}' title='{$list[i].rek_title}'>{/if}{$list[i].rek_title|escape:"html"}{if $href_view}</a>{/if}
+            {if $href_view}<a href='{$rel_url}{$href_view}' title='{$list[i].rek_title}'>{/if}{$list[i].rek_title}{if $href_view}</a>{/if}
             {/if}
 
             {if $list[i].rek_object_type != 3}
@@ -236,11 +236,11 @@
                 {else}
                   {assign var='wf_url' value=$rel_url|cat:'workflow/update.php'}
    			    {/if}
-			     <a href="{$wf_url}?pid={$list[i].rek_pid|escape:"html"}&amp;cat=select_workflow&amp;xdis_id={$list[i].rek_display_type}&amp;wft_id={$list[i].wft_id[w]}&amp;href={$smarty.server.REQUEST_URI|escape:'url'}"{if $list[i].wft_icon[w] == 'images/delete.gif'} onclick="return confirmDelete();"{/if}><img alt="{$list[i].wfl_title[w]}" title="{$list[i].wfl_title[w]}" src="{$rel_url}{$wf_icon}" /></a>
+			     <a href="{$wf_url}?pid={$list[i].rek_pid}&amp;cat=select_workflow&amp;xdis_id={$list[i].rek_display_type}&amp;wft_id={$list[i].wft_id[w]}&amp;href={$smarty.server.REQUEST_URI|smarty:nodefaults|escape:url}"{if $list[i].wft_icon[w] == 'images/delete.gif'} onclick="return confirmDelete();"{/if}><img alt="{$list[i].wfl_title[w]}" title="{$list[i].wfl_title[w]}" src="{$rel_url}{$wf_icon}" /></a>
 				{/if}
 			  {/section}
 
-                <a href="{$rel_url}workflow/list_workflows2.php?pid={$list[i].rek_pid|escape}"><img src="{$rel_url}images/options_16.png" alt="More options" title="More options" width="16" height="16" /></a>
+                <a href="{$rel_url}workflow/list_workflows2.php?pid={$list[i].rek_pid}"><img src="{$rel_url}images/options_16.png" alt="More options" title="More options" width="16" height="16" /></a>
 			</td>
            {/if}
 
@@ -249,8 +249,8 @@
 				{/if}
 
 				{if $list[i].rek_object_type == 3}
-					<td align="center" valign="middle" style="border-top:1px dashed #be87e9; width: 10px; white-space: nowrap;">{if $list[i].rek_views}{$list[i].rek_views|escape:"html"}{else}&nbsp;{/if}</td>
-					<td align="center" valign="middle" style="border-top:1px dashed #be87e9; width: 10px; white-space: nowrap;">{if $list[i].rek_file_downloads}<a class="author_link" title="View detailed statistics for this object" href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].rek_pid}">{$list[i].rek_file_downloads|escape:"html"}</a>{else}&nbsp;{/if}</td>
+					<td align="center" valign="middle" style="border-top:1px dashed #be87e9; width: 10px; white-space: nowrap;">{if $list[i].rek_views}{$list[i].rek_views}{else}&nbsp;{/if}</td>
+					<td align="center" valign="middle" style="border-top:1px dashed #be87e9; width: 10px; white-space: nowrap;">{if $list[i].rek_file_downloads}<a class="author_link" title="View detailed statistics for this object" href="{$rel_url}stat_details.php?action=show_detail&pid={$list[i].rek_pid}">{$list[i].rek_file_downloads}</a>{else}&nbsp;{/if}</td>
 				{else}
 					<tdstyle="border-top:1px dashed #be87e9;">&nbsp;</td>
 				{/if}
@@ -266,7 +266,7 @@
 
 				<td style="vertical-align: middle; text-align: center; border-top:1px dashed #be87e9;">
 					{if $list[i].rek_herdc_code_lookup != ''}
-						<a href="#" title="{if $list[i].rek_herdc_status_lookup == 'Provisional Code'}PROVISIONAL {elseif $list[i].rek_herdc_status_lookup == 'Confirmed Code'}CONFIRMED {/if}{$list[i].rek_herdc_code_lookup|escape:"html"}">{$list[i].rek_herdc_code_lookup|escape:"html"}{if $list[i].rek_herdc_status_lookup == 'Provisional Code'}P{elseif $list[i].rek_herdc_status_lookup == 'Confirmed Code'}&#10003;{/if}</a>
+						<a href="#" title="{if $list[i].rek_herdc_status_lookup == 'Provisional Code'}PROVISIONAL {elseif $list[i].rek_herdc_status_lookup == 'Confirmed Code'}CONFIRMED {/if}{$list[i].rek_herdc_code_lookup}">{$list[i].rek_herdc_code_lookup}{if $list[i].rek_herdc_status_lookup == 'Provisional Code'}P{elseif $list[i].rek_herdc_status_lookup == 'Confirmed Code'}&#10003;{/if}</a>
 					{else}
 						-
 					{/if}
@@ -274,7 +274,7 @@
 
 				<td style="vertical-align: middle; text-align: center; border-top:1px dashed #be87e9;">
 					{if $list[i].rek_thomson_citation_count != ""}
-						<a href="{$rel_url}rid_citation_count_history_{$list[i].rek_pid|escape:"html"}" title="Cited {$list[i].rek_thomson_citation_count} times in Thomson Reuters Researcher ID">{$list[i].rek_thomson_citation_count}</a>
+						<a href="{$rel_url}rid_citation_count_history_{$list[i].rek_pid}" title="Cited {$list[i].rek_thomson_citation_count} times in Thomson Reuters Researcher ID">{$list[i].rek_thomson_citation_count}</a>
 					{elseif $list[i].rek_thomson_citation_count == 0}
 						{$list[i].rek_thomson_citation_count}
 					{/if}
@@ -282,7 +282,7 @@
 
 				<td style="vertical-align: middle; text-align: center; border-top:1px dashed #be87e9;">
 					{if $list[i].rek_scopus_citation_count != ""}
-						<a href="{$rel_url}scopus_citation_count_history_{$list[i].rek_pid|escape:"html"}" class="form_note"> <span class="form_note">Cited {$list[i].rek_scopus_citation_count} times in Scopus</span>{$list[i].rek_scopus_citation_count}</a>
+						<a href="{$rel_url}scopus_citation_count_history_{$list[i].rek_pid}" class="form_note"> <span class="form_note">Cited {$list[i].rek_scopus_citation_count} times in Scopus</span>{$list[i].rek_scopus_citation_count}</a>
 					{elseif $list[i].rek_scopus_citation_count == 0}
 						{$list[i].rek_scopus_citation_count}
 					{/if}

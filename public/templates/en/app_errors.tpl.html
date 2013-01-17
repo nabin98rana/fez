@@ -39,7 +39,7 @@ function fnDeSelect()
     <div class="app_error" id="app_error_{$smarty.section.ii.index}">
 		<div class="app_error_txt">
 		{section name="jj" loop=$app_errors[ii].txt}
-			{$app_errors[ii].txt[jj]|wordwrap:80:' ':true|escape}<br/>
+			{$app_errors[ii].txt[jj]|wordwrap:80:' ':true}<br/>
 		{/section}
 		</div>
 		<div class="app_error_source">

@@ -221,7 +221,7 @@ function toggleHideSecondaryLogin()
 		<input type="hidden" name="shire" value="https://{$APP_HOSTNAME}/Shibboleth.sso/SAML/POST" />
 		<input type="hidden" name="target" value="cookie" />
 		<input type="hidden" name="providerId" value="{$SHIB_HOME_SP}" />
-		<input type="hidden" name="getArguments" value="{$getArguments|escape:"html"}" />
+		<input type="hidden" name="getArguments" value="{$getArguments}" />
 		<input type="hidden" name="time" value="1142380709" />
 		<input type="hidden" name="action" value="selection" />
 		<input type="hidden" name="cache" value="false" />
@@ -286,7 +286,7 @@ function toggleHideSecondaryLogin()
 <form id="login_form" onsubmit="javascript:return checkFormSubmission(this, 'validateForm');" method="post" action="index.php">
 	<div>
 		<input type="hidden" name="cat" value="login" />
-		<input type="hidden" name="url" value="{$smarty.get.url|escape:"html"}" />
+		<input type="hidden" name="url" value="{$smarty.get.url}" />
 	</div>
 
 <table width="500" cellspacing="0" cellpadding="0" style="background: #FFFFFF">
@@ -369,7 +369,7 @@ function toggleHideSecondaryLogin()
         <tr>
           <td align="right" style="background: {$cell_color}; white-space: nowrap; padding-right: 10px;" valign="middle"><b>{if $SHIB_SWITCH != "ON"}{if $ldap_switch == "ON"}{$org_short_name} or {/if}{$application_title}{/if} <span style="text-decoration: underline;">U</span>sername:</b></td>
           <td style="width: 60%; background: {$cell_color}; white-space: nowrap;" valign="bottom">
-            <input accesskey="U" class="default" type="text" id="username" name="username" value="{$username|default:$smarty.get.username|escape:'html'}" size="30" />
+            <input accesskey="U" class="default" type="text" id="username" name="username" value="{$username|default:$smarty.get.username}" size="30" />
             {include file="error_icon.tpl.html" field="username"}
           </td>
         </tr>

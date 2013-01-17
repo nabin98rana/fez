@@ -256,7 +256,7 @@ function selectDateField(field_name, day, month, year)
 						  <td bgcolor="{$heading_color}" class="default_white" colspan="2" nowrap>
 							{if $image_file_string != ""}<img align="absmiddle" src="{$rel_url}images/{$xsd_display_fields[i].xsdmf_image_location}"> {/if}<b>{$xsd_display_fields[i].xsdmf_static_text}</b>
 							{if $xsd_display_fields[i].xsdmf_description != ""}
-								&nbsp;<i>{$xsd_display_fields[i].xsdmf_description|escape:"html"}</i>
+								&nbsp;<i>{$xsd_display_fields[i].xsdmf_description}</i>
 							{/if}
 						  </td>
 						</tr>
@@ -268,7 +268,7 @@ function selectDateField(field_name, day, month, year)
 						  <td bgcolor="{$cell_color}" class="default" colspan="2" nowrap>
 							{if $image_file_string != ""}<img align="absmiddle" src="{$rel_url}images/{$xsd_display_fields[i].xsdmf_image_location}"> {/if}<b>{$xsd_display_fields[i].xsdmf_title}</b>
 							{if $xsd_display_fields[i].xsdmf_description != ""}
-								&nbsp;<i>{$xsd_display_fields[i].xsdmf_description|escape:"html"}</i>
+								&nbsp;<i>{$xsd_display_fields[i].xsdmf_description}</i>
 							{/if}
 						  </td>
 						</tr>
@@ -291,7 +291,7 @@ function selectDateField(field_name, day, month, year)
 						<input title="{$xsd_display_fields[i].xsdsel_title} {$xsd_display_fields[i].xsdmf_title} {$loop_num}" class="default" type="text" id="{$field_id}" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]" value="{$details[$temp_fld_id][z]}" onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onChange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" maxlength="255" size="50">
 						{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"][]"}
 							{if $xsd_display_fields[i].xsdmf_description != ""}
-								&nbsp;<span class="default"><i>{$xsd_display_fields[i].xsdmf_description|escape:"html"}</i></span>
+								&nbsp;<span class="default"><i>{$xsd_display_fields[i].xsdmf_description}</i></span>
 							{/if}
 						 </td>
 						</tr>
