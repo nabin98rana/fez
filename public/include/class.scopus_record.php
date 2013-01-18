@@ -106,7 +106,14 @@ class ScopusRecItem extends RecordImport
             $this->_issueVolume = $this->extract('//prism:volume', $xpath);
             $date = $this->extract('//prism:coverDate', $xpath);
             $this->_issueDate = date('Y-m-d', strtotime($date));
-            $this->_scopusDocType = $this->extract('//prism:aggregationType', $xpath);
+            $scopusDocTypeExtracted = $this->extract('//prism:aggregationType', $xpath);
+            $scopusDocTypeMatched = Record::getScopusDocTypeCodeByDescription($scopusDocTypeExtracted);
+            
+            if($scopusDocTypeMatched)
+            {
+                $this->_scopusDocType = $scopusDocTypeMatched;
+            }
+            
             $this->_scopusDocTypeCode = $xpath->query('//head/citation-info/citation-type/@code')->item(0)->nodeValue;
             $this->enterXdisInformation($this->_scopusDocTypeCode);
             $this->_journalTitle = $this->extract('//source/sourcetitle', $xpath);

@@ -3664,7 +3664,7 @@ class Record
             . "LEFT JOIN fez_record_search_key_ismemberof "
             . "ON rek_doi_pid = rek_ismemberof_pid "
             . "WHERE rek_doi = ? "
-            . "AND (rek_ismemberof NOT IN('UQ:244548') OR rek_ismemberof IS NULL)";
+            . "AND (rek_ismemberof NOT IN('".APP_TEMPORARY_DUPLICATES_COLLECTION."') OR rek_ismemberof IS NULL)";
       
       try
       {
@@ -3696,7 +3696,7 @@ class Record
       . "LEFT JOIN fez_record_search_key_ismemberof "
       . "ON rek_pubmed_id_pid = rek_ismemberof_pid "
       . "WHERE rek_pubmed_id = ? "
-      . "AND (rek_ismemberof NOT IN('UQ:244548') OR rek_ismemberof IS NULL)";
+      . "AND (rek_ismemberof NOT IN('".APP_TEMPORARY_DUPLICATES_COLLECTION."') OR rek_ismemberof IS NULL)";
   
       try
       {
@@ -3728,7 +3728,7 @@ class Record
       	    . "LEFT JOIN fez_record_search_key_ismemberof "
             . "ON rek_pid = rek_ismemberof_pid "
             . "WHERE rek_title = ? "
-            . "AND (rek_ismemberof NOT IN('UQ:244548') OR rek_ismemberof IS NULL)";
+            . "AND (rek_ismemberof NOT IN('".APP_TEMPORARY_DUPLICATES_COLLECTION."') OR rek_ismemberof IS NULL)";
       
       try
       {
@@ -3770,7 +3770,7 @@ class Record
             ."LEFT JOIN fez_record_search_key_ismemberof "
             ."ON rek_scopus_id_pid = rek_ismemberof_pid " 
             ."WHERE rek_scopus_id = ? " 
-            ."AND (rek_ismemberof NOT IN('UQ:244548') OR rek_ismemberof IS NULL)";
+            ."AND (rek_ismemberof NOT IN('".APP_TEMPORARY_DUPLICATES_COLLECTION."') OR rek_ismemberof IS NULL)";
           
           try
           {
@@ -3785,6 +3785,29 @@ class Record
       }
 
       return $pids;
+  }
+  
+  function getScopusDocTypeCodeByDescription($sdt)
+  {
+      $log = FezLog::get();
+      $db = DB_API::get();
+      $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
+      
+      $sql = "SELECT sdt_code FROM " . $dbtp . "scopus_doctypes where sdt_description = ? LIMIT 1;";
+      
+      try
+      {
+          $stmt = $db->query($sql, array($sdt));
+//           $res = $stmt->fetchAll();
+          $res = $stmt->fetchColumn(0);
+      }
+      catch(Exception $e)
+      {
+          $log->err($e->getMessage());
+          return false;
+      }
+      
+      return $res;
   }
 
   function getSearchKeyIndexValue($pid, $searchKeyTitle, $getLookup=true, $sek_details="")

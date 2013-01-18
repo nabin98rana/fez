@@ -253,6 +253,7 @@ abstract class RecordImport
                 }
                 else
                 {
+                    
                     $this->_log->err("Volume mismatch for '" . $this->_title
                     . "'. Local end page is: " . Record::getSearchKeyIndexValue($authorativePid, 'Volume Number', false)
                     . " . Downloaded end page is: " . $this->_issueVolume);
@@ -356,7 +357,6 @@ abstract class RecordImport
     protected function getPIDsBy_scopusId()
     {
         $pids = array();
-//         var_dump($this->_scopusId);
         if($this->_scopusId)
         {
             $pidSet = Record::getPIDsByScopusID($this->_scopusId);
@@ -367,8 +367,6 @@ abstract class RecordImport
         {
             $pids[] = $pidSet[$i]['rek_scopus_id_pid'];
         }
-//         var_dump($pids);
-//         die();
         return $pids;
     }
 
@@ -425,7 +423,7 @@ abstract class RecordImport
 
         //return array of pids
     }
-
+    
     /**
      * Saves record items to Record Search Key
      *
@@ -561,6 +559,7 @@ abstract class RecordImport
             $rec = new Record();
             $collection = ($collection) ? $collection : $this->_collections[0];
             $pid = $rec->insertFromArray($mods, $collection, "MODS 1.0", $history, 0, $links, array());
+            
             if (is_numeric($this->_wokCitationCount)) {
                 Record::updateThomsonCitationCount($pid, $this->_wokCitationCount, $this->_isiLoc);
             }
@@ -606,10 +605,10 @@ abstract class RecordImport
             "Journal Name" => $this->_journalTitle,
             "WoK Doc Type" => $this->_wokDocTypeCode,
             "Scopus Doc Type" => $this->_scopusDocType,
+//             "Scopus Doc Type" => null,
             "Pubmed Id" => $this->_pubmedId,
             "Embase Id" => $this->_embaseId,
             "Scopus Id" => $this->_scopusId,
-            "Pubmed Id" => $this->_pubmedId,
             "ISI LOC" => $this->_isiLoc,
             "Publisher" => $this->_publisher,
         );
