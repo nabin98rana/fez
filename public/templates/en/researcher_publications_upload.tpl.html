@@ -17,29 +17,29 @@
 			<records>
 			{section name="i" loop=$list}
 				<record>
-			        <ref-type>{$list[i].rek_ref_type|escape:"html"}</ref-type>
+			        <ref-type>{$list[i].rek_ref_type}</ref-type>
 					<contributors>						
 						<authors>
 							{section name="j" loop=$list[i].rek_author}
-							<author>{$list[i].rek_author[j]|escape:"html"}</author>	
+							<author>{$list[i].rek_author[j]}</author>	
 							{/section}
 						</authors>
 					</contributors>			
 					<titles>
-						<title>{$list[i].rek_title|escape:"html"|escape:"quotesxml"}</title>
+						<title>{$list[i].rek_title|escape:"quotesxml"}</title>
 						{if $list[i].rek_secondary_title != ''}
-						<secondary-title>{$list[i].rek_secondary_title|escape:"html"|escape:"quotesxml"}</secondary-title>
+						<secondary-title>{$list[i].rek_secondary_title|escape:"quotesxml"}</secondary-title>
 						{/if}
 					</titles>					
 					{if $list[i].rek_end_page != ''}
-					<pages start="{$list[i].rek_start_page|escape:"html"}" end="{$list[i].rek_end_page|escape:"html"}"/>
+					<pages start="{$list[i].rek_start_page}" end="{$list[i].rek_end_page}"/>
 					{/if}
 					{if $list[i].rek_volume_number != ''}
-						<volume>{$list[i].rek_volume_number|escape:"html"}</volume>
+						<volume>{$list[i].rek_volume_number}</volume>
 					{/if}
 					
 					{if ($list[i].rek_ref_type == '17' || $list[i].rek_ref_type == '13') && $list[i].rek_issue_number != ''}
-						<number>{$list[i].rek_issue_number|escape:"html"}</number>
+						<number>{$list[i].rek_issue_number}</number>
 					{/if}
 					{if $list[i].rek_date != ''}
 						<dates>
@@ -51,16 +51,16 @@
 						</dates>
 					{/if}					
 					{if $list[i].rek_ref_type == '25' && $list[i].rek_publisher != ''}
-						<publisher>{$list[i].rek_publisher|escape:"html"|escape:"quotesxml"}</publisher>
+						<publisher>{$list[i].rek_publisher|escape:"quotesxml"}</publisher>
 					{/if}						
 					{if $list[i].rek_ref_type == '25' && $list[i].rek_ref_type == '25' && $list[i].rek_isbn != ''}
-						<isbn>{$list[i].rek_isbn|escape:"html"}</isbn>
+						<isbn>{$list[i].rek_isbn}</isbn>
 					{/if}	
 					{if $list[i].rek_isi_loc != ''}
-						<accession-num>WOS:{$list[i].rek_isi_loc|escape:"html"}</accession-num>
+						<accession-num>WOS:{$list[i].rek_isi_loc}</accession-num>
 					{/if}					
 					{if $list[i].rek_electronic_resource_num != ''}
-						<electronic-resource-num>{$list[i].rek_electronic_resource_num|escape:"html"}</electronic-resource-num>
+						<electronic-resource-num>{$list[i].rek_electronic_resource_num}</electronic-resource-num>
 					{/if}
 					
 					{if $list[i].rek_related_urls != ''}					

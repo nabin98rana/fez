@@ -13,9 +13,9 @@
             {assign var="custom_field_id" value="xsd_display_fields_"|cat:$xsd_display_fields[i].xsdmf_id|cat:"_"|cat:$loop_num}
             <select class="default" style="float:left;width:300px;" id="{$custom_field_id}"
 			{if $xsd_display_fields[i].xsdmf_multiple == 1}
-				name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]{$squares}" value="{$details[$temp_fld_id][$loop_num]|escape:"html"}" >
+				name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]{$squares}" value="{$details[$temp_fld_id][$loop_num]}" >
 			{else}
-				name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]{$squares}" value="{$details[$temp_fld_id]|escape:"html"}" >
+				name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]{$squares}" value="{$details[$temp_fld_id]}" >
 			{/if}
                <option value="">(none)</option>
 				{assign var="custom_details" value=$xsd_display_fields[i].xsdmf_id}

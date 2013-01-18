@@ -39,7 +39,6 @@ include_once(APP_INC_PATH . "class.xsd_display.php");
 include_once(APP_INC_PATH . "class.record.php");
 
 $tpl = new Template_API();
-$tpl->smarty->default_modifiers = array();
 $verb = trim(Misc::GETorPOST('verb'));
 $metadataPrefix = trim(Misc::GETorPOST('metadataPrefix'));
 $originalIdentifier = trim(Misc::GETorPOST('identifier'));

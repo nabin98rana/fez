@@ -25,9 +25,9 @@
         <tr>
             <td style="border-top: 1px dashed #be87e9;" align="left">
             {if $list[i].record_author_id != 0}
-            <a class="author_id_link" href='{$rel_url}list/author_id/{$list[i].record_author_id|escape:"url"}/'>{$list[i].record_author|escape:"html"}</a> ({$list[i].record_count|escape:"html"})
+            <a class="author_id_link" href='{$rel_url}list/author_id/{$list[i].record_author_id|smarty:nodefaults|escape:url}/'>{$list[i].record_author}</a> ({$list[i].record_count})
             {else}
-            <a href='{$rel_url}list/author/{$list[i].record_author|escape:'url'}/'>{$list[i].record_author|escape:"html"}</a> ({$list[i].record_count|escape:"html"})
+            <a href='{$rel_url}list/author/{$list[i].record_author|smarty:nodefaults|escape:url}/'>{$list[i].record_author}</a> ({$list[i].record_count})
             {/if}
             </td>
         </tr>
@@ -54,7 +54,7 @@
 
         <tr>
             <td style="border-top: 1px dashed #be87e9;" align="left">
-                <a href='{$rel_url}list/depositor/{$list[i].record_depositor|escape:"url"}/'>{$list[i].record_desc|escape:"html"}</a> ({$list[i].record_count|escape:"html"})
+                <a href='{$rel_url}list/depositor/{$list[i].record_depositor|smarty:nodefaults|escape:url}/'>{$list[i].record_desc}</a> ({$list[i].record_count})
             </td>
         </tr>
 
@@ -78,9 +78,9 @@
 		  <tr>
 				  <td style="border-top: 1px dashed #be87e9;" align="left">
 				{if $list[i].record_year == 0}
-						(not set) ({$list[i].record_count|escape:"html"})
+						(not set) ({$list[i].record_count})
 				{else}
-						<a href='{$rel_url}list/year/{$list[i].record_year}/'>{$list[i].record_year|escape:"html"}</a> ({$list[i].record_count|escape:"html"})
+						<a href='{$rel_url}list/year/{$list[i].record_year}/'>{$list[i].record_year}</a> ({$list[i].record_count})
 				{/if}
 			</td>
 			</tr>
@@ -103,7 +103,7 @@
 	                  {if $subject_breadcrumb[b].cvo_image_filename != ""}
 					    <img src="{$rel_url}images/{$subject_breadcrumb[b].cvo_image_filename}" alt="" />
 					  {/if}
-                      {if $max_subject_breadcrumb != $smarty.section.b.index}<a href='{$rel_url}list/subject/{$subject_breadcrumb[b].cvo_id}/'>{else}<b>{/if}{$subject_breadcrumb[b].cvo_title|escape:"html"}{if $max_subject_breadcrumb != $smarty.section.b.index}</a>{else}</b>{/if}
+                      {if $max_subject_breadcrumb != $smarty.section.b.index}<a href='{$rel_url}list/subject/{$subject_breadcrumb[b].cvo_id}/'>{else}<b>{/if}{$subject_breadcrumb[b].cvo_title}{if $max_subject_breadcrumb != $smarty.section.b.index}</a>{else}</b>{/if}
 						  {assign var="cvo_id" value=$subject_breadcrumb[b].cvo_id}
 					  {if $max_subject_breadcrumb != $smarty.section.b.index}->{else}:{/if}					
 				  {/section}
@@ -117,7 +117,7 @@
 		  <table width="100%" cellpadding="2" cellspacing="1">
           <tr>
               <td>{if $subject_list[i].cvo_image_filename != ""}<img src="{$rel_url}images/{$subject_list[i].cvo_image_filename}" alt="" />{/if}
-                    <a href='{$rel_url}list/subject/{$subject_list[i].cvo_id}/'>{$subject_list[i].cvo_title|escape:"html"}</a>
+                    <a href='{$rel_url}list/subject/{$subject_list[i].cvo_id}/'>{$subject_list[i].cvo_title}</a>
 					{assign var="cvo_id" value=$subject_list[i].cvo_id}
 					{if $subject_count[$cvo_id]}({$subject_count[$cvo_id]}){elseif ($parent_id)}(0){/if}
 				</td>

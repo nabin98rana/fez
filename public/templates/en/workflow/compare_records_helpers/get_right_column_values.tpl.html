@@ -25,6 +25,6 @@
 {else}
 	{assign var='dc_idx' value=$loop_num|default:0}
 	{if $right_details[$temp_fld_id]}<span class="right_value" style="background-color: {if is_array($distances_colours[$xsdmf.xsdmf_id])}{$distances_colours[$xsdmf.xsdmf_id][$dc_idx]}{else}{$distances_colours[$xsdmf.xsdmf_id]}{/if};">{$right_details[$temp_fld_id]}</span><a href="javascript:void(null);"
-		onclick="javascript:copy_field_{$xsdmf.xsdmf_html_input}('{$input_field_name}', '{$right_details[$temp_fld_id]|escape:'quotes'}');"
+		onclick="javascript:copy_field_{$xsdmf.xsdmf_html_input}('{$input_field_name}', '{$right_details[$temp_fld_id]|smarty:nodefaults|escape:'javascript'}');"
 		>[copy]</a>{/if}
 {/if}

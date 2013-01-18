@@ -120,7 +120,7 @@ function clearFilters(f) {
             </th>
             <td class="search_multi_input text-center">contains</td>
             <td class="search_multi_input text-left">
-                <input id="search_keys[0]" type="text" name="search_keys[0]" size="40" maxlength="255" value="{$options.searchKey0|escape:'html'}" />
+                <input id="search_keys[0]" type="text" name="search_keys[0]" size="40" maxlength="255" value="{$options.searchKey0}" />
             </td>
         </tr>
 
@@ -177,10 +177,10 @@ function clearFilters(f) {
                     {if $search_keys[i].sek_html_input == 'text'}
 
                         {if $search_keys[i].sek_data_type == 'int'}
-                            <input id="search_keys[{$search_keys[i].sek_id}]_name" type="text" name="search_keys[{$search_keys[i].sek_id}]_name" maxlength="255" size="40" value="{$last_key|escape:'html'}" />
-                            <input id="search_keys[{$search_keys[i].sek_id}]" type="hidden" name="search_keys[{$search_keys[i].sek_id}]" value="{$last_key|escape:'html'}" />
+                            <input id="search_keys[{$search_keys[i].sek_id}]_name" type="text" name="search_keys[{$search_keys[i].sek_id}]_name" maxlength="255" size="40" value="{$last_key}" />
+                            <input id="search_keys[{$search_keys[i].sek_id}]" type="hidden" name="search_keys[{$search_keys[i].sek_id}]" value="{$last_key}" />
                         {else}
-                            <input id="search_keys[{$search_keys[i].sek_id}]" type="text" name="search_keys[{$search_keys[i].sek_id}]" maxlength="255" size="40" value="{$last_key|escape:'html'}" />
+                            <input id="search_keys[{$search_keys[i].sek_id}]" type="text" name="search_keys[{$search_keys[i].sek_id}]" maxlength="255" size="40" value="{$last_key}" />
                         {/if}
 
                         {if $search_keys[i].sek_suggest_function != ""}
@@ -266,12 +266,12 @@ function clearFilters(f) {
                     {* Combo input *}
                     {elseif $search_keys[i].sek_html_input == 'combo'}
                       <select id="search_keys[{$search_keys[i].sek_id}]" {if $search_keys[i].sek_html_input == 'multiple'}multiple size="8"{/if} name="search_keys[{$search_keys[i].sek_id}]{if $search_keys[i].sek_html_input == 'multiple'}[]{/if}">
-                        {html_options options=$search_keys[i].field_options selected=$last_key|escape:'html'}
+                        {html_options options=$search_keys[i].field_options selected=$last_key}
                       </select>
 
                     {* Textarea input *}
                     {elseif $search_keys[i].sek_html_input == 'textarea'}
-                      <textarea id="search_keys[{$search_keys[i].sek_id}]" name="search_keys[{$search_keys[i].sek_id}]" rows="10" cols="60" value="{$last_key|escape:'html'}"></textarea>
+                      <textarea id="search_keys[{$search_keys[i].sek_id}]" name="search_keys[{$search_keys[i].sek_id}]" rows="10" cols="60" value="{$last_key}"></textarea>
 
                     {* Vocab input *}
                     {elseif $search_keys[i].sek_html_input == 'allcontvocab' or $search_keys[i].sek_html_input == 'contvocab'}

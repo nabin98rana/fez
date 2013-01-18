@@ -157,9 +157,9 @@ function disableFields()
 				  <tr class="listrecord">
 					<td align="right" style="border-top:1px dashed #be87e9; width: 10px;">{$smarty.section.i.index+1}</td>
 					<td align="left" style="border-top:1px dashed #be87e9;">
-					  <a class="author_id_link" href="{$rel_url}list/author_id/{$list[i].sau_author_id|escape:'url'}/?sort_by=searchKeycore_16&amp;sort_order=1" title="Browse by Author ID for {$list[i].sau_author_name} ({$list[i].sau_author_id}) by File Downloads Desc">{$list[i].sau_author_name|escape:"html"}</a>
+					  <a class="author_id_link" href="{$rel_url}list/author_id/{$list[i].sau_author_id|smarty:nodefaults|escape:url}/?sort_by=searchKeycore_16&amp;sort_order=1" title="Browse by Author ID for {$list[i].sau_author_name} ({$list[i].sau_author_id}) by File Downloads Desc">{$list[i].sau_author_name}</a>
 					</td>
-					<td align="right" style="border-top:1px dashed #be87e9; white-space: nowrap;">(<strong>{$list[i].sau_downloads|escape:"html"}</strong> File Download{if $list[i].sau_downloads > 1}s{/if})</td>
+					<td align="right" style="border-top:1px dashed #be87e9; white-space: nowrap;">(<strong>{$list[i].sau_downloads}</strong> File Download{if $list[i].sau_downloads > 1}s{/if})</td>
 				  </tr>
 
 			{sectionelse}
@@ -199,7 +199,7 @@ function disableFields()
 					  <td align="left" style="border-top:1px dashed #be87e9;">
 							{$list[i].citation}
 					  </td>
-					  <td align="right" style="border-top:1px dashed #be87e9; white-space: nowrap;">&nbsp;{if $list[i].downloads}<a class="author_link" title="View detailed statistics for this object" href="{$rel_url}stat_details.php?action=show_detail&amp;pid={$list[i].pid}">{$list[i].downloads|escape:"html"}</a>{/if} </td>
+					  <td align="right" style="border-top:1px dashed #be87e9; white-space: nowrap;">&nbsp;{if $list[i].downloads}<a class="author_link" title="View detailed statistics for this object" href="{$rel_url}stat_details.php?action=show_detail&amp;pid={$list[i].pid}">{$list[i].downloads}</a>{/if} </td>
 				  </tr>
 			{/if}
 			{sectionelse}
@@ -240,7 +240,7 @@ function disableFields()
 				<td align="left" style="border-top:1px dashed #be87e9;">
 				  {$list[i].spa_citation}
 				</td>
-				<td align="right" style="border-top:1px dashed #be87e9; white-space: nowrap;">{if $list[i].spa_downloads}<a class="author_link" title="View detailed statistics for this object" href="{$rel_url}stat_details.php?action=show_detail&amp;pid={$list[i].spa_pid}">{$list[i].spa_downloads|escape:"html"}</a>{else}&nbsp;{/if}</td>
+				<td align="right" style="border-top:1px dashed #be87e9; white-space: nowrap;">{if $list[i].spa_downloads}<a class="author_link" title="View detailed statistics for this object" href="{$rel_url}stat_details.php?action=show_detail&amp;pid={$list[i].spa_pid}">{$list[i].spa_downloads}</a>{else}&nbsp;{/if}</td>
 
 			</tr>
 
@@ -272,7 +272,7 @@ function disableFields()
 				  <table style="width: 100%" cellpadding="5" cellspacing="5" class="listrecord">
 				  <tr>
 					  <td style="border-top:1px dashed #be87e9;">
-							<a href='{$rel_url}list/author/{$list[i].record_author|escape:'url'}/'>{$list[i].record_author|escape:"html"}</a> ({$list[i].record_count|escape:"html"})
+							<a href='{$rel_url}list/author/{$list[i].record_author|smarty:nodefaults|escape:url}/'>{$list[i].record_author}</a> ({$list[i].record_count})
 						</td>
 					</tr>
 					  </table>
@@ -307,7 +307,7 @@ function disableFields()
 				  <table style="width: 100%" cellpadding="5" cellspacing="5" class="listrecord">
 				  <tr>
 					  <td style="border-top:1px dashed #be87e9;">
-							<a href='{$rel_url}list/year/{$list[i].record_year}/'>{$list[i].record_year|escape:"html"}</a> ({$list[i].record_count|escape:"html"})
+							<a href='{$rel_url}list/year/{$list[i].record_year}/'>{$list[i].record_year}</a> ({$list[i].record_count})
 
 						</td>
 					</tr>
@@ -339,7 +339,7 @@ function disableFields()
 		                  {if $subject_breadcrumb[b].cvo_image_filename != ""}
 						    <img alt="" src="{$rel_url}images/{$subject_breadcrumb[b].cvo_image_filename}" style="vertical-align: middle" />
 						  {/if}
-                          {if $max_subject_breadcrumb != $smarty.section.b.index}<a href='{$rel_url}list/subject/{$subject_breadcrumb[b].cvo_id}/'>{else}<b>{/if}{$subject_breadcrumb[b].cvo_title|escape:"html"}{if $max_subject_breadcrumb != $smarty.section.b.index}</a>{else}</b>{/if}
+                          {if $max_subject_breadcrumb != $smarty.section.b.index}<a href='{$rel_url}list/subject/{$subject_breadcrumb[b].cvo_id}/'>{else}<b>{/if}{$subject_breadcrumb[b].cvo_title}{if $max_subject_breadcrumb != $smarty.section.b.index}</a>{else}</b>{/if}
  						  {assign var="cvo_id" value=$subject_breadcrumb[b].cvo_id}
 						  {if $subject_count[$cvo_id]}({$subject_count[$cvo_id]}){else}{/if}{if $max_subject_breadcrumb != $smarty.section.b.index}->{else}:{/if}
 					  {/section}
@@ -354,7 +354,7 @@ function disableFields()
 			  <table style="background: #FFFFFF; width: 100%" cellpadding="2" cellspacing="1" class="listrecord">
               <tr>
                   <td>{if $subject_list[i].cvo_image_filename != ""}<img alt="" src="{$rel_url}images/{$subject_list[i].cvo_image_filename}" style="vertical-align: middle" />{/if}
-                        <a href='{$rel_url}list/subject/{$subject_list[i].cvo_id}/'>{$subject_list[i].cvo_title|escape:"html"}</a>
+                        <a href='{$rel_url}list/subject/{$subject_list[i].cvo_id}/'>{$subject_list[i].cvo_title}</a>
 						{assign var="cvo_id" value=$subject_list[i].cvo_id}
 						{if $subject_count[$cvo_id]}({$subject_count[$cvo_id]}){else}(0){/if}
 					</td>
@@ -401,7 +401,7 @@ function disableFields()
         {section name="i" loop=$list}
         {if (($list[i].isLister==1 || $isAdministrator) && $list_type != 'browse_subjects_list')}
 	   		{if $list[i].ret_id == '1'}
-                {assign var="href_view" value="community/"|cat:$list[i].rek_pid|escape:"html"}
+                {assign var="href_view" value="community/"|cat:$list[i].rek_pid}
                 {assign var="icon" value="images/community.jpg" }
                 {if ($list[i].isEditor==1 || $isAdministrator)}
                         {assign var="showEdit" value=true}
@@ -409,7 +409,7 @@ function disableFields()
                         {assign var="showEdit" value=false}
                 {/if}
            {elseif $list[i].ret_id == '2'}
-                {assign var="href_view" value="collection/"|cat:$list[i].rek_pid|escape:"html"}
+                {assign var="href_view" value="collection/"|cat:$list[i].rek_pid}
                 {assign var="icon" value="images/collection.jpg" }
                 {if $isUser && ($list[i].isEditor==1 || $isAdministrator)}
                         {assign var="showEdit" value=true}
@@ -418,7 +418,7 @@ function disableFields()
                 {/if}
            {else}
                 {if ($list[i].isViewer==1 || $isAdministrator)}
-                  {assign var="href_view" value="view/"|cat:$list[i].rek_pid|escape:"html"}
+                  {assign var="href_view" value="view/"|cat:$list[i].rek_pid}
                 {else}
                   {assign var="href_view" value=""}
                 {/if}
@@ -443,13 +443,13 @@ function disableFields()
                         {if $href_view}<a href='{$href_view}' >{/if}<img src="{$icon}" alt="" style="vertical-align: middle;" />{if $href_view}</a>{/if}
 
                     {if $href_view}<a href='{$href_view}'>{/if}
-					{$list[i].title|escape:"html"}{if $href_view}</a>{/if}
+					{$list[i].title}{if $href_view}</a>{/if}
 					  {if $showEdit || $isAdministrator}
 						{if $showEdit}
-							&nbsp;&nbsp;<a href='update.php?pid={$list[i].rek_pid|escape:"html"}'><img title="Edit" alt="Edit" style="vertical-align: middle;" src="{$rel_url}images/edit.gif" /></a>
+							&nbsp;&nbsp;<a href='update.php?pid={$list[i].rek_pid}'><img title="Edit" alt="Edit" style="vertical-align: middle;" src="{$rel_url}images/edit.gif" /></a>
 						{/if}
 						{if $isAdministrator}
-							 <a href='javascript:void(null);' onClick="javascript:purgeObject('{$list[i].rek_pid|escape:"html"}');"><img title="Delete" alt="Delete" style="vertical-align: middle;" src="{$rel_url}images/delete.gif" /></a>
+							 <a href='javascript:void(null);' onClick="javascript:purgeObject('{$list[i].rek_pid}');"><img title="Delete" alt="Delete" style="vertical-align: middle;" src="{$rel_url}images/delete.gif" /></a>
 						{/if}
 
 					  {/if}
@@ -458,10 +458,10 @@ function disableFields()
 				</tr>
 				<tr>
                     <td>
-                       {if $list[i].creator}{$list[i].creator|escape:"html"}<br />{/if}
-                       {if $list[i].description}{$list[i].description|escape:"html"}...<br />{/if}
+                       {if $list[i].creator}{$list[i].creator}<br />{/if}
+                       {if $list[i].description}{$list[i].description}...<br />{/if}
                        {if $list[i].date}{$list[i].date|date_format:"%A, %B %e, %Y"}<br />{/if}
-                       {if $list[i].type}{$list[i].type|escape:"html"}<br />{/if}
+                       {if $list[i].type}{$list[i].type}<br />{/if}
 					   {if $list[i].ret_id == '3'}<b>Datastreams:</b> {section name="d" loop=$list[i].datastreams}{if $href_view}<a href="{$eserv_url|cat:$list[i].rek_pid|cat:"/"|cat:$list[i].datastreams[d]}">{/if}{$list[i].datastreams[d]}{if $href_view}</a>{/if} {/section}{/if}
                     </td>
                   </tr>

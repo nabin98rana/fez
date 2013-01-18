@@ -59,7 +59,7 @@ if (element{/literal}{$search_keys[i].sek_id}{literal} != null) {
 
   <div class="{if $options.searchKey0 != ''}default-search-used{else}default{/if} quick_search_item">
     {if $smarty.const.APP_SOLR_SWITCH == 'ON'}All Fields{else}Title, Abstract, Keywords{/if}: <br />
-	<input id="search_keys[0]" type="text" name="search_keys[0]" maxlength="255" size="35" value="{$options.searchKey0|escape:'html'}" />
+	<input id="search_keys[0]" type="text" name="search_keys[0]" maxlength="255" size="35" value="{$options.searchKey0}" />
   </div>
 {section name="i" loop=$search_keys}
   {assign var="search_key_name" value='searchKey'|cat:$search_keys[i].sek_id}
@@ -79,7 +79,7 @@ if (element{/literal}{$search_keys[i].sek_id}{literal} != null) {
             	<input id="search_keys[{$search_keys[i].sek_id}]_name" type="text" name="search_keys[{$search_keys[i].sek_id}]_name" maxlength="255" size="30" value="{$last_key}" />
             	<input id="search_keys[{$search_keys[i].sek_id}]" type="hidden" name="search_keys[{$search_keys[i].sek_id}]" value="{$last_key}" />
             {else}
-            	<input id="search_keys[{$search_keys[i].sek_id}]" type="text" name="search_keys[{$search_keys[i].sek_id}]" maxlength="255" size="30" value="{$last_key|escape:'html'}" />
+            	<input id="search_keys[{$search_keys[i].sek_id}]" type="text" name="search_keys[{$search_keys[i].sek_id}]" maxlength="255" size="30" value="{$last_key}" />
             {/if}
 
   				{if $search_keys[i].sek_suggest_function != ""}
@@ -167,13 +167,13 @@ if (element{/literal}{$search_keys[i].sek_id}{literal} != null) {
 
 
   {elseif $search_keys[i].sek_html_input == 'textarea'}
-  <textarea id="search_keys[{$search_keys[i].sek_id}]" name="search_keys[{$search_keys[i].sek_id}]" rows="10" cols="60" value="{$last_key|escape:'html'}"></textarea>
+  <textarea id="search_keys[{$search_keys[i].sek_id}]" name="search_keys[{$search_keys[i].sek_id}]" rows="10" cols="60" value="{$last_key}"></textarea>
   {elseif $search_keys[i].sek_html_input == 'date'}
 
                   {assign var="temp_sek_id" value=$search_keys[i].sek_id}
 
                   {assign var="custom" value=$options.$temp_sek_id}
-                  <input type="hidden" value="{$last_key.filter_enabled|default:0|escape:'html'}"
+                  <input type="hidden" value="{$last_key.filter_enabled|default:0}"
                     name="search_keys[{$search_keys[i].sek_id}][filter_enabled]" />
                   <input {if $last_key.filter_enabled == 1}checked{/if} type="checkbox" id="filter[search_keys[{$search_keys[i].sek_id}]]" name="filter[search_keys[{$search_keys[i].sek_id}]]" value="yes" onClick="javascript:toggleDateFields(this.form, 'search_keys[{$search_keys[i].sek_id}]');">
                   <span class="default">{$search_keys[i].sek_title}:</span><br />

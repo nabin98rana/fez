@@ -15,13 +15,13 @@
   <profileList>
         <default-institution-name>{$org_name}</default-institution-name>
         <researcher-profile>
-            <firstName>{$list.aut_fname|escape:"html"}</firstName>
-            <lastName>{$list.aut_lname|escape:"html"}</lastName>
+            <firstName>{$list.aut_fname}</firstName>
+            <lastName>{$list.aut_lname}</lastName>
             
             {if $rid_alt_email}
-              <email>{$rid_alt_email|escape:"html"}</email>
+              <email>{$rid_alt_email}</email>
             {else}
-              <email>{$list.aut_org_username|escape:"html"}@uq.edu.au</email>
+              <email>{$list.aut_org_username}@uq.edu.au</email>
             {/if}
             {section name="y" loop=$list.positions}
               {if $smarty.section.y.index == 0}
@@ -34,7 +34,7 @@
                     <postalcode>4072</postalcode>
                 </address>
                 <departmentName>Other</departmentName>
-                <employeeID>{$list.aut_org_username|escape:"html"}</employeeID>
+                <employeeID>{$list.aut_org_username}</employeeID>
                 <role>Other</role>
                 {if $list.positions[y].dt_from > 2008 || $list.positions[y].dt_from == ''}
                   <start-date>2008</start-date>

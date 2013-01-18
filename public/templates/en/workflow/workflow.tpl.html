@@ -102,7 +102,7 @@
 						<tr>
 							<th colspan="2">
                                 {if $wfl_title}
-								    <h1>{$wfl_title|escape} - {$wfs_title|escape}</h1>
+								    <h1>{$wfl_title} - {$wfs_title}</h1>
                                 {/if}
 								{if $wfs_description}
 									<div class="wfl_description">
@@ -133,7 +133,7 @@
 														value="{$workflow_buttons[i].wfs_title|default:'Done'}"
 														{if $disable_workflow}disabled="disabled"{/if} />&nbsp;
 													{/section}
-													<input class="button" type="button" id="workflow_abandon_1" name="workflow_abandon" onclick="javascript:document.location.href='{$rel_url}workflow/abandon.php?id={$id}&amp;href={$href|escape:'url'}';" value="Abandon Workflow" />
+													<input class="button" type="button" id="workflow_abandon_1" name="workflow_abandon" onclick="javascript:document.location.href='{$rel_url}workflow/abandon.php?id={$id}&amp;href={$href|smarty:nodefaults|escape:url}';" value="Abandon Workflow" />
 												</td>
 											</tr>
 										</table>
@@ -164,7 +164,7 @@
 										<input class="button" type="submit" name="workflow_button_{$workflow_buttons[i].wfs_id}" id="workflow_button_{$workflow_buttons[i].wfs_id}_2" value="{$workflow_buttons[i].wfs_title|default:'Done'}"
 										{if $disable_workflow}disabled="disabled"{/if} />&nbsp;
 									{/section}
-									<input class="button" type="button" id="workflow_abandon_2" name="workflow_abandon" onclick="javascript:document.location.href='{$rel_url}workflow/abandon.php?id={$id}&amp;href={$href|escape:'url'}';" value="Abandon Workflow" />
+									<input class="button" type="button" id="workflow_abandon_2" name="workflow_abandon" onclick="javascript:document.location.href='{$rel_url}workflow/abandon.php?id={$id}&amp;href={$href|smarty:nodefaults|escape:url}';" value="Abandon Workflow" />
 								</div>
 							</th>
 						</tr>
@@ -173,7 +173,7 @@
 					<tr>
                         <th colspan="0" style="background: {$heading_color}; color: white;">
                             <span style="text-align:left;display:inline-block; width:100px;"><b>* Required fields</b></span>
-                            {if ($pid)}<span style="text-align:right;margin-bottom:0px;display:inline-block; width:810px;"> {$pid} {if ($title)} - {$title|escape:html|truncate:87:"..."}{/if}</span>{/if}
+                            {if ($pid)}<span style="text-align:right;margin-bottom:0px;display:inline-block; width:810px;"> {$pid} {if ($title)} - {$title|truncate:87:"..."}{/if}</span>{/if}
                         </th>
 					</tr>
 

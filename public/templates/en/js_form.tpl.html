@@ -11,7 +11,7 @@
 
 <div>
   <input type="hidden" name="cat" value="assign" />
-  <input type="hidden" name="href" value="{$smarty.server.REQUEST_URI|escape:'html'}" />
+  <input type="hidden" name="href" value="{$smarty.server.REQUEST_URI}" />
   <input type="hidden" name="xdis_id" value="" />
 </div>
 
@@ -27,7 +27,7 @@
 {if $isUser}
 
 	{if $list_type == 'community_list' && $isAdministrator}
-	<a target="_top" title="Create New Community" href="{$rel_url}workflow/new.php?pid=-1&amp;xdis_id={$xdis_id}&amp;href={$smarty.server.REQUEST_URI|escape:'url'}"><img src="{$rel_url}images/folder_new.gif" align="top" border="0" alt="" /> <b>Create New Community</b></a>
+	<a target="_top" title="Create New Community" href="{$rel_url}workflow/new.php?pid=-1&amp;xdis_id={$xdis_id}&amp;href={$smarty.server.REQUEST_URI|smarty:nodefaults|escape:url}"><img src="{$rel_url}images/folder_new.gif" align="top" border="0" alt="" /> <b>Create New Community</b></a>
 	{elseif $list_type == 'collection_list' && ($isAdministrator || $isCreator)}
 		{if $childXDisplayOptions != 0}
 		<img src="{$rel_url}images/folder_new.gif" align="top" border="0" alt="" />
@@ -61,7 +61,7 @@
 	<table width="100%" cellpadding="10" cellspacing="0" class="listrecord">
 
 	  	<tr>
-	  		<td class="default" colspan="2">&nbsp;<span style="color: red">Did you mean?: </span><a href="?{$spell_suggest_url}">{$spell_suggest|escape:"html"}</a><br /><br /></td>
+	  		<td class="default" colspan="2">&nbsp;<span style="color: red">Did you mean?: </span><a href="?{$spell_suggest_url}">{$spell_suggest}</a><br /><br /></td>
 	  	</tr>
 	</table>
 	{/if}

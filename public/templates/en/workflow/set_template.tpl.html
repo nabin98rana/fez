@@ -322,7 +322,7 @@ function selectDateField(field_name, day, month, year)
 						  <td width="200" bgcolor="{$heading_color}" class="default_white" colspan="2" nowrap>
 							{if $image_file_string != ""}<img align="absmiddle" src="{$rel_url}images/{$xsd_display_fields[i].xsdmf_image_location}">{/if}<b>{$xsd_display_fields[i].xsdmf_static_text}</b>
 							{if $xsd_display_fields[i].xsdmf_description != ""}
-								&nbsp;<i>{$xsd_display_fields[i].xsdmf_description|escape:"html"}</i>
+								&nbsp;<i>{$xsd_display_fields[i].xsdmf_description}</i>
 							{/if}
 						  </td>
 						</tr>
@@ -334,7 +334,7 @@ function selectDateField(field_name, day, month, year)
 						  <td bgcolor="{$heading_color}" class="default_white" colspan="2" nowrap>
 							{if $image_file_string != ""}<img align="absmiddle" src="{$rel_url}images/{$xsd_display_fields[i].xsdmf_image_location}">{/if}<b>{$xsd_display_fields[i].xsdmf_title}</b>
 							{if $xsd_display_fields[i].xsdmf_description != ""}
-								&nbsp;<i>{$xsd_display_fields[i].xsdmf_description|escape:"html"}</i>
+								&nbsp;<i>{$xsd_display_fields[i].xsdmf_description}</i>
 							{/if}
 						  </td>
 						</tr>
@@ -411,7 +411,7 @@ function selectDateField(field_name, day, month, year)
 					    <b>{$xsd_display_fields[i].xsdmf_title}
                                           {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b>
                                           {if $xsd_display_fields[i].xsdmf_description != ""}
-  	                                    <br/><i>{$xsd_display_fields[i].xsdmf_description|escape:"html"}</i>
+  	                                    <br/><i>{$xsd_display_fields[i].xsdmf_description}</i>
   	                                  {/if}
 				          </td>
 				          <td bgcolor="{$light_color}">

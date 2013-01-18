@@ -6,33 +6,33 @@
 			{if $xsd_display_fields[i].xsdmf_show_in_view == 1 && $details[$temp_fld_id]}
 				{if $xsd_display_fields[i].xsdmf_data_type == 'date'}
 					<tr>
-						<th>{$xsd_display_fields[i].xsdmf_title|escape:'htmlall'}
+						<th>{$xsd_display_fields[i].xsdmf_title}
 							{if $debug == 1}
-								{$xsd_display_fields[i].xsdmf_order|escape:'htmlall'}
+								{$xsd_display_fields[i].xsdmf_order}
 							{/if}
 						</th>
 						<td>
 							{if $xsd_display_fields[i].xsdmf_html_input == 'date'}
-								{$details[$temp_fld_id]|escape:'htmlall'}
+								{$details[$temp_fld_id]}
 							{else}
 								{if $details[$attached_temp_fld_id] == 0}
-									{$details[$temp_fld_id]|date_format:"%A, %B %e, %Y"|escape:'htmlall'}
+									{$details[$temp_fld_id]|date_format:"%A, %B %e, %Y"}
 								{else}
-									{$details[$temp_fld_id]|escape:'htmlall'}
+									{$details[$temp_fld_id]}
 								{/if}
 							{/if}
 						</td>
 					</tr>
 				{else}
 					<tr>
-						<th>{$xsd_display_fields[i].xsdmf_title|escape:'htmlall'}
+						<th>{$xsd_display_fields[i].xsdmf_title}
 							{if $debug == 1}
-								{$xsd_display_fields[i].xsdmf_order|escape:'htmlall'}
+								{$xsd_display_fields[i].xsdmf_order}
 							{/if}
 						</th>
 						<td>
 							{if $xsd_display_fields[i].xsdmf_title == 'Handle'}
-								<a href="{$xsd_display_fields[i].xsdmf_value_prefix|escape:'url'}{$details[$temp_fld_id]|escape:'url'}">{$xsd_display_fields[i].xsdmf_value_prefix|escape:'htmlall'}{$details[$temp_fld_id]|escape:'htmlall'}</a>
+								<a href="{$xsd_display_fields[i].xsdmf_value_prefix|smarty:nodefaults|escape:url}{$details[$temp_fld_id]|smarty:nodefaults|escape:url}">{$xsd_display_fields[i].xsdmf_value_prefix}{$details[$temp_fld_id]}</a>
               {elseif ($xsd_display_fields[i].sek_title == "Author" || $xsd_display_fields[i].sek_title == "Contributor" || $xsd_display_fields[i].sek_title == "Keywords"
               || $xsd_display_fields[i].sek_title == "DOI" || $xsd_display_fields[i].sek_title == "Subject" || $xsd_display_fields[i].sek_title == "Language"
               || $xsd_display_fields[i].sek_title == "Journal Name" || $xsd_display_fields[i].sek_title == "Proceedings Title"
@@ -42,7 +42,7 @@
               || $xsd_display_fields[i].sek_title == "xsdmf_id_ref")}
                 {$xsd_display_fields[i].xsdmf_value_prefix}{$details[$temp_fld_id]|smarty:nodefaults}
               {elseif ($xsd_display_fields[i].xsdmf_html_input == "rich_text")}
-                {$xsd_display_fields[i].xsdmf_value_prefix}{$details[$temp_fld_id]|smarty:nodefaults|escape:javascript}
+                {$xsd_display_fields[i].xsdmf_value_prefix}{$details[$temp_fld_id]|smarty:nodefaults}
 							{else}
 								{$xsd_display_fields[i].xsdmf_value_prefix}{$details[$temp_fld_id]}
 							{/if}

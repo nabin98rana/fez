@@ -60,15 +60,15 @@
 		</service>
 	</registryObject>
   {section name="i" loop=$list}
-	<registryObject dateCreated="{$list[i].rek_created_date|escape:'html'}" dateModified="{$list[i].rek_updated_date|escape:'html'}" group="{$smarty.const.APP_ORG_NAME}">
-		<key>{$smarty.const.APP_HOSTNAME}.{$list[i].rek_pid|escape:"html"}</key>
+	<registryObject dateCreated="{$list[i].rek_created_date}" dateModified="{$list[i].rek_updated_date}" group="{$smarty.const.APP_ORG_NAME}">
+		<key>{$smarty.const.APP_HOSTNAME}.{$list[i].rek_pid}</key>
 		<collection type="repository">
-			<identifier type="local">{$smarty.const.APP_HOSTNAME}/collection/{$list[i].rek_pid|escape:"html"}</identifier>
-			<name type="primary">{$list[i].rek_title|escape:"html"}</name>
+			<identifier type="local">{$smarty.const.APP_HOSTNAME}/collection/{$list[i].rek_pid}</identifier>
+			<name type="primary">{$list[i].rek_title}</name>
 			<location>
 				<address>
 					<electronic type="url">
-						<value>http://{$smarty.const.APP_HOSTNAME}/collection/{$list[i].rek_pid|escape:"html"}</value>
+						<value>http://{$smarty.const.APP_HOSTNAME}/collection/{$list[i].rek_pid}</value>
 					</electronic>
 				</address>
 			</location>
@@ -76,18 +76,18 @@
 				<key>{$smarty.const.APP_HOSTNAME}.RSS2.0</key>
 				<relation type="Supports">
 					<description>Supports</description>
-					<url>http://{$smarty.const.APP_HOSTNAME}/collection/{$list[i].rek_pid|escape:"html"}?sort_by=searchKeycore_17&amp;tpl=2&amp;sort_order=1</url>
+					<url>http://{$smarty.const.APP_HOSTNAME}/collection/{$list[i].rek_pid}?sort_by=searchKeycore_17&amp;tpl=2&amp;sort_order=1</url>
 					</relation>
 			</relatedObject>
 			<relatedObject>
 				<key>{$smarty.const.APP_HOSTNAME}.oaipmh2.0</key>
 				<relation type="Supports">
 					<description>Supports</description>
-					<url>http://{$smarty.const.APP_HOSTNAME}/oai.php?verb=ListRecords&amp;metadataPrefix=oai_dc&amp;set=oai:{$smarty.const.APP_HOSTNAME}:{$list[i].rek_pid|escape:"html"}</url>
+					<url>http://{$smarty.const.APP_HOSTNAME}/oai.php?verb=ListRecords&amp;metadataPrefix=oai_dc&amp;set=oai:{$smarty.const.APP_HOSTNAME}:{$list[i].rek_pid}</url>
 				</relation>
 			</relatedObject>
 			{if $list[i].rek_description != ""}
-			<description type="full">{$list[i].rek_description|escape:"html"}</description>
+			<description type="full">{$list[i].rek_description}</description>
 			{/if}
 		</collection>
 	</registryObject>

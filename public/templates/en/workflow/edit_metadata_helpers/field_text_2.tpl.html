@@ -3,7 +3,7 @@
     <th>
         <b>{$xsdmf.xsdmf_title}(s) {if $xsdmf.xsdmf_required == 1} * {/if}</b>
         {if $xsdmf.xsdmf_description != ""}
-            <br/><i>{$xsdmf.xsdmf_description|escape:"html"}</i>
+            <br/><i>{$xsdmf.xsdmf_description}</i>
         {/if}
         <br />
         <i>(More {$xsdmf.xsdmf_title} input boxes will appear as you type)</i>
@@ -27,7 +27,7 @@
 		{/if}
 		<input class="default" type="text" id="xsd_display_fields_{$xsdmf.xsdmf_id}_{$loop_num}" size="50" {if $xsd_display_fields[i].xsdmf_validation_maxlength != null && $xsd_display_fields[i].xsdmf_validation_maxlength > 0}maxlength="{$xsd_display_fields[i].xsdmf_validation_maxlength}"{/if}
 		{if $xsdmf.xsdmf_multiple == 1}
-			name="xsd_display_fields[{$xsdmf.xsdmf_id}]{$squares}" value="{$details[$temp_fld_id][$loop_num]|escape:"html"}"/>
+			name="xsd_display_fields[{$xsdmf.xsdmf_id}]{$squares}" value="{$details[$temp_fld_id][$loop_num]}"/>
 	        {if $smarty.section.textfield.last}
 	        <script>
 	        var field = document.getElementById('xsd_display_fields_{$xsdmf.xsdmf_id}_{$loop_num}');
@@ -37,7 +37,7 @@
 	        </script>
 	        {/if}
 		{else}
-			name="xsd_display_fields[{$xsdmf.xsdmf_id}]" value="{$details[$temp_fld_id]|escape:"html"}" />
+			name="xsd_display_fields[{$xsdmf.xsdmf_id}]" value="{$details[$temp_fld_id]}" />
 		{/if}
 
 		{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"|cat:$squares}

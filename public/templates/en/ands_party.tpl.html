@@ -2,32 +2,32 @@
 <registryObjects xmlns="http://ands.org.au/standards/rif-cs/registryObjects" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://ands.org.au/standards/rif-cs/registryObjects http://services.ands.org.au/documentation/rifcs/schema/registryObjects.xsd">
   {section name="i" loop=$list}
 	<registryObject xmlns="http://ands.org.au/standards/rif-cs/registryObjects" group="{$org_name}">
-		<key>{$app_hostname}/list/author_id/{$list[i].aut_id|escape:"html"}</key>
+		<key>{$app_hostname}/list/author_id/{$list[i].aut_id}</key>
 		<originatingSource>{$app_hostname}</originatingSource>
 		<party type="person">
-	{*bh	<party type="person" dateModified="{$list[i].aut_update_date|escape:"html"|date_format:"%Y-%m-%dT%H:%M:%SZ"}">		*}
+	{*bh	<party type="person" dateModified="{$list[i].aut_update_date|date_format:"%Y-%m-%dT%H:%M:%SZ"}">		*}
 			{strip}
 			<name type="primary">
 				{if $list[i].aut_title}
-					<namePart type="title">{$list[i].aut_title|escape:"html"}</namePart>
+					<namePart type="title">{$list[i].aut_title}</namePart>
 				{/if}
 				{if $list[i].aut_lname}
-					<namePart type="family">{$list[i].aut_lname|escape:"html"}</namePart>
+					<namePart type="family">{$list[i].aut_lname}</namePart>
 				{/if}
 				{if $list[i].aut_fname}
-				<namePart type="given">{$list[i].aut_fname|escape:"html"}</namePart>
+				<namePart type="given">{$list[i].aut_fname}</namePart>
 				{/if}
 			</name>
 			<location>
 				<address>
 					{if $list[i].aut_email}
 						<electronic type="email">
-							<value>{$list[i].aut_email|escape:"html"}</value>
+							<value>{$list[i].aut_email}</value>
 						</electronic>
 					{/if}
 					{if $list[i].aut_homepage_link}
 						<electronic type="uri">
-							<value>{$list[i].aut_homepage_link|escape:"html"}</value>
+							<value>{$list[i].aut_homepage_link}</value>
 						</electronic>
 					{/if}
 					<physical type="postalAddress">
@@ -37,36 +37,36 @@
 			</location>
 
 			<relatedInfo type="website">
-				<identifier type="uri">{$app_base_url}list/author_id/{$list[i].aut_id|escape:"html"}</identifier>
-				<title>Browse by AuthorID - {$list[i].aut_lname|escape:"html"}, {$list[i].aut_fname|escape:"html"}</title>
-				<notes>List of {$list[i].aut_fname|escape:"html"} {$list[i].aut_lname|escape:"html"}'s work in {$app_name}</notes>
+				<identifier type="uri">{$app_base_url}list/author_id/{$list[i].aut_id}</identifier>
+				<title>Browse by AuthorID - {$list[i].aut_lname}, {$list[i].aut_fname}</title>
+				<notes>List of {$list[i].aut_fname} {$list[i].aut_lname}'s work in {$app_name}</notes>
 			</relatedInfo>
 
-			<identifier type="local">{$app_hostname}/list/author_id/{$list[i].aut_id|escape:"html"}</identifier>
+			<identifier type="local">{$app_hostname}/list/author_id/{$list[i].aut_id}</identifier>
 
 			{if $list[i].aut_scopus_id}
-				<identifier type="uri">http://www.scopus.com/authid/detail.url?authorId={$list[i].aut_scopus_id|escape:"html"}</identifier>
+				<identifier type="uri">http://www.scopus.com/authid/detail.url?authorId={$list[i].aut_scopus_id}</identifier>
 			{/if}
 
 			{if $list[i].aut_people_australia_id}
-				<identifier type="AU-ANL:PEAU">http://nla.gov.au/nla.party-{$list[i].aut_people_australia_id|escape:"html"}</identifier>
+				<identifier type="AU-ANL:PEAU">http://nla.gov.au/nla.party-{$list[i].aut_people_australia_id}</identifier>
 			{/if}
 
 			{if $list[i].aut_researcher_id}
-				<identifier type="uri">http://www.researcherid.com/rid/{$list[i].aut_researcher_id|escape:"html"}</identifier>
+				<identifier type="uri">http://www.researcherid.com/rid/{$list[i].aut_researcher_id}</identifier>
 			{/if}
 
 			{if $list[i].aut_description}
-				<description type="brief">{$list[i].aut_description|escape:"html"|strip_tags}</description>
+				<description type="brief">{$list[i].aut_description|strip_tags}</description>
 			{/if}
 
 			{if $list[i].rek_fields_of_research}
 			      {if !is_array($list[i].rek_fields_of_research)}
-				  <subject type="anzsrc-for">{$list[i].rek_fields_of_research|escape:"html"|strtok:" "}</subject>
+				  <subject type="anzsrc-for">{$list[i].rek_fields_of_research|strtok:" "}</subject>
 			      {else}
 				  {assign var="loop_fields_of_research" value=$list[i].rek_fields_of_research}
 				  {section name="s" loop=$loop_fields_of_research}
-				      <subject type="anzsrc-for">{$list[i].rek_fields_of_research[s]|escape:"html"|strtok:" "}</subject>
+				      <subject type="anzsrc-for">{$list[i].rek_fields_of_research[s]|strtok:" "}</subject>
 				  {/section}
 			      {/if}
 			{/if}

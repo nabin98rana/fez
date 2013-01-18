@@ -3,26 +3,26 @@
 
 <div style="padding: 10px; margin-right:auto; margin-left:auto; width:800px;">
 	<h1 class="public"><img src="images/scopus_logo_small.gif" alt="Scopus Citation Count History" />		
-	Scopus Citation Count History for <a href="{$rel_url}view/{$pid|escape:"html"}">{$title|escape:"html"}</a></h1> 
+	Scopus Citation Count History for <a href="{$rel_url}view/{$pid}">{$title}</a></h1> 
 	
 	<p><br /></p>
 	
 	{if $ming_loaded}	
 	<p id="citation_history_graph">
-		<img src="{$rel_url}scopus_citation_count_history_{$pid|escape:"html"}_graph.png" 
+		<img src="{$rel_url}scopus_citation_count_history_{$pid}_graph.png" 
 		     alt="Scopus Citation Count History Graph" /></p>
 	<script type="text/javascript">
 	<!--
-		var s1 = new SWFObject("{$rel_url}scopus_citation_count_history_{$pid|escape:"html"}_graph.swf","single","780","300","7");		
+		var s1 = new SWFObject("{$rel_url}scopus_citation_count_history_{$pid}_graph.swf","single","780","300","7");		
 		s1.write("citation_history_graph");
 	//-->
 	</script>
 	{else}
-	<object data="{$rel_url}scopus_citation_count_history_{$pid|escape:"html"}_graph.svg" 
+	<object data="{$rel_url}scopus_citation_count_history_{$pid}_graph.svg" 
 			type="image/svg+xml" 
 			id="svg" 
 			width="780" 
-			height=300"><img src="{$rel_url}scopus_citation_count_history_{$pid|escape:"html"}_graph.png" 
+			height=300"><img src="{$rel_url}scopus_citation_count_history_{$pid}_graph.png" 
 							 alt="Scopus Citation Count History Graph" /></object>
 	{/if}
 

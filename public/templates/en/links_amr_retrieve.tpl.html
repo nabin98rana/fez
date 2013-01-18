@@ -5,7 +5,7 @@
 			<map>
 			</map>
 			<map>
-				<list name="{$collection|escape:"html"}">
+				<list name="{$collection}">
 				 <val>timesCited</val>
 				 <val>ut</val>
 				 <val>citingArticlesURL</val>
@@ -16,28 +16,28 @@
 				{section name="i" loop=$list}
 				<map name="{$list[i].pid}">
 				{if $list[i].ut != ''}
-        <val name="ut">{$list[i].ut|escape:"html"}</val>          
+        <val name="ut">{$list[i].ut}</val>          
         {/if} {if $list[i].doi != ''}
-        <val name="doi">{$list[i].doi|escape:"html"}</val>
+        <val name="doi">{$list[i].doi}</val>
         {/if} {if $list[i].atitle != ''}
 				<val name="atitle"><![CDATA[{$list[i].atitle}]]></val>
 				{/if} {if $list[i].stitle != ''}
 				<val name="stitle"><![CDATA[{$list[i].stitle}]]></val>
 				{/if} {if $list[i].vol != ''}
-				<val name="vol">{$list[i].vol|escape:"html"}</val>
+				<val name="vol">{$list[i].vol}</val>
 				{/if} {if $list[i].issue != ''}
-				<val name="issue">{$list[i].issue|escape:"html"}</val>
+				<val name="issue">{$list[i].issue}</val>
 				{/if} {if $list[i].year != ''}
-				<val name="year">{$list[i].year|escape:"html"}</val>
+				<val name="year">{$list[i].year}</val>
 				{/if} {if $list[i].spage != ''}
-				<val name="spage">{$list[i].spage|escape:"html"}</val>
+				<val name="spage">{$list[i].spage}</val>
 				{/if} {if $list[i].an != ''}
-				<val name="an">{$list[i].an|escape:"html"}</val>
+				<val name="an">{$list[i].an}</val>
 				{/if} {if $list[i].issn != ''}
-         <val name="issn">{$list[i].issn|escape:"html"}</val>  
+         <val name="issn">{$list[i].issn}</val>  
          {/if} {if $list[i].first_author != ''}
 				<list name="authors">
- 					 <val>{$list[i].first_author|escape:"html"}</val>
+ 					 <val>{$list[i].first_author}</val>
 				</list>
 				{/if}			
 				</map>
