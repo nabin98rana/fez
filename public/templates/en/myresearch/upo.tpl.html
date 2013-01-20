@@ -46,7 +46,7 @@ function clearSearchInput()
 		<div>
 			<select id="org_unit_id" onchange="javascript:changeOrgUnit();">
 				{foreach from=$org_units key=k item=v}
-					<option value="{$k}"{if $k == $current_aou} selected="selected"{/if}>{$v|escape:'html'}</option>
+					<option value="{$k}"{if $k == $current_aou} selected="selected"{/if}>{$v}</option>
 				{/foreach}
 			</select>
 		</div>
@@ -68,7 +68,7 @@ function clearSearchInput()
 		<p>
 		
 		<input type="hidden" name="action" value="author-search" />
-		<img src="{$rel_url}images/search_16.png" width="16" height="16" alt="Search" /> <input type="text" name="username" id="author_find" value="{if $search_term != ''}{$search_term|escape:htmlall}{else}Search by name or {$org_short_name} username{/if}" size="30" onclick="javascript:clearSearchInput();" />
+		<img src="{$rel_url}images/search_16.png" width="16" height="16" alt="Search" /> <input type="text" name="username" id="author_find" value="{if $search_term != ''}{$search_term}{else}Search by name or {$org_short_name} username{/if}" size="30" onclick="javascript:clearSearchInput();" />
 		<input type="submit" value="Find" />
 		
 		</p>
@@ -88,7 +88,7 @@ function clearSearchInput()
 						{$v.last_name}, {$v.first_name}
 					</td>
 					<td style="padding-left: 20px;">
-						{$v.pos_title|escape:htmlall}
+						{$v.pos_title}
 					</td>
 				</tr>
 			{foreachelse}

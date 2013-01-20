@@ -135,10 +135,10 @@ function loadPreview(pid,datastreamID, alt, origami)
 			                {else}
 			                  {assign var='wf_url' value=$rel_url|cat:'workflow/update.php'}
 						    {/if}
-							<a href='{$wf_url}?pid={$pid|escape:"html"}&amp;cat=select_workflow&amp;xdis_id={$xdis_id}&amp;wft_id={$workflows[w].wft_id}&amp;href={$smarty.server.REQUEST_URI}'><img title="{$workflows[w].wfl_title}" src="{$rel_url}{$wf_icon}" alt="{$workflows[w].wfl_title}" /></a>
+							<a href='{$wf_url}?pid={$pid}&amp;cat=select_workflow&amp;xdis_id={$xdis_id}&amp;wft_id={$workflows[w].wft_id}&amp;href={$smarty.server.REQUEST_URI}'><img title="{$workflows[w].wfl_title}" src="{$rel_url}{$wf_icon}" alt="{$workflows[w].wfl_title}" /></a>
 						{/if}
 					  {/section}
-					  <a href="{$rel_url}workflow/list_workflows2.php?pid={$pid|escape}&amp;href={$smarty.server.REQUEST_URI|escape:'url'}"><img src="{$rel_url}images/options_16.png" alt="More options" title="More options" width="16" height="16" /></a>
+					  <a href="{$rel_url}workflow/list_workflows2.php?pid={$pid}&amp;href={$smarty.server.REQUEST_URI|smarty:nodefaults|escape:url}"><img src="{$rel_url}images/options_16.png" alt="More options" title="More options" width="16" height="16" /></a>
 				  </td>
 		        </tr>
 		{/if}
@@ -334,9 +334,9 @@ function loadPreview(pid,datastreamID, alt, origami)
                                     </td>
                                     <td style="width: 22px;">
                                         {if $image_file_string != ""}
-                                            <img alt="" src="{$rel_url}images/{$image_file_name}"{if $ds_show_extra != ""}onclick="javascript:loadPreview('{$pid}','{$ds_show_extra}', '{$datastreams[d].ID|escape:'html'}', '{$origami_preview}');"{/if} />
+                                            <img alt="" src="{$rel_url}images/{$image_file_name}"{if $ds_show_extra != ""}onclick="javascript:loadPreview('{$pid}','{$ds_show_extra}', '{$datastreams[d].ID}', '{$origami_preview}');"{/if} />
                                         {else}
-                                            <img alt="Click to show the corresponding preview/stream" title="Click to show the corresponding preview/stream" src="{$rel_url}images/default.png"{if $ds_show_extra != ""}onclick="javascript:loadPreview('{$pid}','{$ds_show_extra}', '{$datastreams[d].ID|escape:'html'}', '{$origami_preview}');"{/if} />
+                                            <img alt="Click to show the corresponding preview/stream" title="Click to show the corresponding preview/stream" src="{$rel_url}images/default.png"{if $ds_show_extra != ""}onclick="javascript:loadPreview('{$pid}','{$ds_show_extra}', '{$datastreams[d].ID}', '{$origami_preview}');"{/if} />
                                         {/if}
                                     </td>
                                     <td>
@@ -382,7 +382,7 @@ function loadPreview(pid,datastreamID, alt, origami)
 		{if $doi}
 			<tr>
 				<td style="background: {$light_color}" colspan="2">
-					<a href="{$doi.rek_link}" onclick="javascript:window.open('{$doi.rek_link|escape:'html'}'); return false;">{$doi.rek_link}</a>
+					<a href="{$doi.rek_link}" onclick="javascript:window.open('{$doi.rek_link}'); return false;">{$doi.rek_link}</a>
 				</td>
 				<td style="background: {$light_color}" colspan="3">{$doi.desciption}</td>
 			</tr>
@@ -394,10 +394,10 @@ function loadPreview(pid,datastreamID, alt, origami)
 						<img src="{$rel_url}images/text_html.png" alt="" />
 					</td>
 					<td style="background: {$light_color};">
-						<a href="{$links[d].rek_link|escape:'html'}" onclick="javascript:window.open('{$links[d].rek_link|escape:'html'}'); return false;">{$links[d].rek_link|escape:'html'|truncate:80:"..."}</a>
+						<a href="{$links[d].rek_link}" onclick="javascript:window.open('{$links[d].rek_link}'); return false;">{$links[d].rek_link|truncate:80:"..."}</a>
 						{if $links[d].prefix_location != ""}
 							<br />
-							<img src="{$rel_url}images/org_link_16.gif" alt="" /> <a href="{$links[d].prefix_location|escape:'html'}" onclick="window.open('{$links[d].prefix_location|escape:'html'}'); return false;">Go to link with your {$APP_SHORT_ORG_NAME} access privileges</a>
+							<img src="{$rel_url}images/org_link_16.gif" alt="" /> <a href="{$links[d].prefix_location}" onclick="window.open('{$links[d].prefix_location}'); return false;">Go to link with your {$APP_SHORT_ORG_NAME} access privileges</a>
 						{/if}
 					</td>
 					<td colspan="3" style="background: {$light_color}">{$links[d].rek_link_description} &nbsp;</td>
@@ -456,7 +456,7 @@ function loadPreview(pid,datastreamID, alt, origami)
 
 	<tr>
 		<td colspan="5">
-			<form id="viewversionform" action="{$rel_url}view/{$pid|escape:"html"}" method="post">
+			<form id="viewversionform" action="{$rel_url}view/{$pid}" method="post">
 				<table style="width: 100%;">
 					<tr>
 						<td class="default_white" colspan="5" style="background: {$heading_color}"><b>Versions</b></td>
@@ -623,7 +623,7 @@ function loadPreview(pid,datastreamID, alt, origami)
           {if $preview_ds_1}
 		  <div id="datastream_preview_frame">
           <a id="datastream_preview_href" title="Click on the image to see a larger version" onclick="javascript:window.open('{$rel_url}eserv/{$pid}/{$preview_ds_1.ID}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}'); return false;" href="{$rel_url}eserv/{$pid}/{$preview_ds_1.ID}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}"><img src="" id="datastream_preview" alt="Datastream Preview"/></a>
-          <script type="text/javascript">loadPreview('{$pid}','{if $preview_ds_1.stream != "0"}{$preview_ds_1.stream}{else}{$preview_ds_1.ID}{/if}','{$preview_ds_1.ID|escape:'html'}', '{$preview_ds_origami}');</script>
+          <script type="text/javascript">loadPreview('{$pid}','{if $preview_ds_1.stream != "0"}{$preview_ds_1.stream}{else}{$preview_ds_1.ID}{/if}','{$preview_ds_1.ID}', '{$preview_ds_origami}');</script>
 		  </div>
           {/if}
         </td>

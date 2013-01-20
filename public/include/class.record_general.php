@@ -850,9 +850,11 @@ class RecordGeneral
 					} else {
 			      $newNode = $this->doc->createElement($element);
 					}
-
-		      $newNode->setAttribute($attributeName, $attributeValue);
-		      $parentNode->appendChild($newNode);
+                if($attributeName)
+                {
+		              $newNode->setAttribute($attributeName, $attributeValue);
+		              $parentNode->appendChild($newNode);
+                }
 		    }
 				// echo "\n created this: ".$this->doc->saveXML();
 			}

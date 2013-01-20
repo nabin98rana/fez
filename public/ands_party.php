@@ -40,7 +40,6 @@ include_once(APP_INC_PATH . "class.db_api.php");
 
 //initialise and set template file
 $tpl = new Template_API();
-$tpl->smarty->default_modifiers = array();
 $tpl_file = "ands_party.tpl.html";
 $tpl->setTemplate($tpl_file);
 

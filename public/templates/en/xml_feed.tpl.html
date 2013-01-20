@@ -1,40 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xmlfeed>
-<title>{if $list_heading != ""}{$list_heading|escape:'html'} - {/if}{$application_title|escape:'html'}</title>
+<title>{if $list_heading != ""}{$list_heading} - {/if}{$application_title}</title>
 <link>{$app_base_url}</link>
 <description>{$org_name}</description>
 <language>{$lang}</language>
 <generator>Fez {$application_version}</generator>
 {section name="i" loop=$list}
 {if $list[i].rek_object_type == '1'}
-{assign var="href_view" value="community/"|cat:$list[i].rek_pid|escape:"html"}
+{assign var="href_view" value="community/"|cat:$list[i].rek_pid}
 {elseif $list[i].rek_object_type == '2'}
-{assign var="href_view" value="collection/"|cat:$list[i].rek_pid|escape:"html"}
+{assign var="href_view" value="collection/"|cat:$list[i].rek_pid}
 {else}
-{assign var="href_view" value="view/"|cat:$list[i].rek_pid|escape:"html"}
+{assign var="href_view" value="view/"|cat:$list[i].rek_pid}
 {/if}
 <item>
-	<title>{$list[i].rek_title|escape:"html"}</title>
+	<title>{$list[i].rek_title}</title>
 
-	<pid>{$list[i].rek_pid|escape:"html"}</pid>
+	<pid>{$list[i].rek_pid}</pid>
         <citation><![CDATA[{$list[i].rek_citation|smarty:nodefaults}]]></citation>
 	<identifier>{$app_base_url}{$href_view}</identifier>
-	<description>{$list[i].rek_description|escape:"html"}</description>
-	<genre>{$list[i].rek_genre|escape:"html"}</genre>
-	<created_date>{$list[i].rek_created_date|escape:"html"}</created_date>
+	<description>{$list[i].rek_description}</description>
+	<genre>{$list[i].rek_genre}</genre>
+	<created_date>{$list[i].rek_created_date}</created_date>
 
-	<updated_date>{$list[i].rek_updated_date|escape:"html"}</updated_date>
-	<publication_date>{$list[i].rek_date|escape:"html"}</publication_date>
-	<formatted_title>{$list[i].rek_formatted_title|escape:"html"}</formatted_title>
-	<formatted_abstract>{$list[i].rek_formatted_abstract|escape:"html"}</formatted_abstract>
+	<updated_date>{$list[i].rek_updated_date}</updated_date>
+	<publication_date>{$list[i].rek_date}</publication_date>
+	<formatted_title>{$list[i].rek_formatted_title}</formatted_title>
+	<formatted_abstract>{$list[i].rek_formatted_abstract}</formatted_abstract>
 
 	{if $list[i].rek_report_number}
 		<report_numbers>
 		{if !is_array($list[i].rek_report_number)}
-			<report_number>{$list[i].rek_report_number|escape:"html"}</report_number>
+			<report_number>{$list[i].rek_report_number}</report_number>
 		{else}
 			{section name="report_number_loop" loop=$list[i].rek_report_number}
-				<report_number>{$list[i].rek_report_number[report_number_loop]|escape:"html"}</report_number>
+				<report_number>{$list[i].rek_report_number[report_number_loop]}</report_number>
 			{sectionelse}
 				<report_number />
 			{/section}
@@ -45,10 +45,10 @@
 	{if $list[i].rek_org_name}
 		<org_names>
 		{if !is_array($list[i].rek_org_name)}
-			<org_name>{$list[i].rek_org_name|escape:"html"}</org_name>
+			<org_name>{$list[i].rek_org_name}</org_name>
 		{else}
 			{section name="org_name_loop" loop=$list[i].rek_org_name}
-				<org_name>{$list[i].rek_org_name[org_name_loop]|escape:"html"}</org_name>
+				<org_name>{$list[i].rek_org_name[org_name_loop]}</org_name>
 			{sectionelse}
 				<org_name />
 			{/section}
@@ -59,10 +59,10 @@
 	{if $list[i].rek_org_unit_name}
 		<org_unit_names>
 		{if !is_array($list[i].rek_org_unit_name)}
-			<org_unit_name>{$list[i].rek_org_unit_name|escape:"html"}</org_unit_name>
+			<org_unit_name>{$list[i].rek_org_unit_name}</org_unit_name>
 		{else}
 			{section name="org_unit_name_loop" loop=$list[i].rek_org_unit_name}
-				<org_unit_name>{$list[i].rek_org_unit_name[org_unit_name_loop]|escape:"html"}</org_unit_name>
+				<org_unit_name>{$list[i].rek_org_unit_name[org_unit_name_loop]}</org_unit_name>
 			{sectionelse}
 				<org_unit_name />
 			{/section}
@@ -73,10 +73,10 @@
 	{if $list[i].rek_sensitivity_explanation}
 		<sensitivity_explanations>
 		{if !is_array($list[i].rek_sensitivity_explanation)}
-			<sensitivity_explanation>{$list[i].rek_sensitivity_explanation|escape:"html"}</sensitivity_explanation>
+			<sensitivity_explanation>{$list[i].rek_sensitivity_explanation}</sensitivity_explanation>
 		{else}
 			{section name="sensitivity_explanation_loop" loop=$list[i].rek_sensitivity_explanation}
-				<sensitivity_explanation>{$list[i].rek_sensitivity_explanation[sensitivity_explanation_loop]|escape:"html"}</sensitivity_explanation>
+				<sensitivity_explanation>{$list[i].rek_sensitivity_explanation[sensitivity_explanation_loop]}</sensitivity_explanation>
 			{sectionelse}
 				<sensitivity_explanation />
 			{/section}
@@ -87,10 +87,10 @@
 	{if $list[i].rek_na_explanation}
 		<na_explanations>
 		{if !is_array($list[i].rek_na_explanation)}
-			<na_explanation>{$list[i].rek_na_explanation[na_explanation_loop]|escape:"html"}</na_explanation>
+			<na_explanation>{$list[i].rek_na_explanation[na_explanation_loop]}</na_explanation>
 		{else}
 			{section name="na_explanation_loop" loop=$list[i].rek_na_explanation}
-				<na_explanation>{$list[i].rek_na_explanation[na_explanation_loop]|escape:"html"}</na_explanation>
+				<na_explanation>{$list[i].rek_na_explanation[na_explanation_loop]}</na_explanation>
 			{sectionelse}
 				<na_explanation />
 			{/section}
@@ -101,10 +101,10 @@
 	{if $list[i].rek_output_availability}
 		<output_availabilitys>
 		{if !is_array($list[i].rek_output_availability)}
-			<output_availability>{$list[i].rek_output_availability|escape:"html"}</output_availability>
+			<output_availability>{$list[i].rek_output_availability}</output_availability>
 		{else}
 			{section name="output_availability_loop" loop=$list[i].rek_output_availability}
-				<output_availability>{$list[i].rek_output_availability[output_availability_loop]|escape:"html"}</output_availability>
+				<output_availability>{$list[i].rek_output_availability[output_availability_loop]}</output_availability>
 			{sectionelse}
 				<output_availability />
 			{/section}
@@ -115,10 +115,10 @@
 	{if $list[i].rek_prn}
 		<prns>
 		{if !is_array($list[i].rek_prn)}
-			<prn>{$list[i].rek_prn|escape:"html"}</prn>
+			<prn>{$list[i].rek_prn}</prn>
 		{else}
 			{section name="prn_loop" loop=$list[i].rek_prn}
-				<prn>{$list[i].rek_prn[prn_loop]|escape:"html"}</prn>
+				<prn>{$list[i].rek_prn[prn_loop]}</prn>
 			{sectionelse}
 				<prn />
 			{/section}
@@ -129,10 +129,10 @@
 	{if $list[i].rek_isi_loc}
 		<isi_locs>
 		{if !is_array($list[i].rek_isi_loc)}
-			<isi_loc>{$list[i].rek_isi_loc|escape:"html"}</isi_loc>
+			<isi_loc>{$list[i].rek_isi_loc}</isi_loc>
 		{else}
 			{section name="isi_loc_loop" loop=$list[i].rek_isi_loc}
-				<isi_loc>{$list[i].rek_isi_loc[isi_loc_loop]|escape:"html"}</isi_loc>
+				<isi_loc>{$list[i].rek_isi_loc[isi_loc_loop]}</isi_loc>
 			{sectionelse}
 				<isi_loc />
 			{/section}
@@ -143,10 +143,10 @@
 	{if $list[i].rek_isbn}
 		<isbns>
 		{if !is_array($list[i].rek_isbn)}
-			<isbn>{$list[i].rek_isbn|escape:"html"}</isbn>
+			<isbn>{$list[i].rek_isbn}</isbn>
 		{else}
 			{section name="isbn_loop" loop=$list[i].rek_isbn}
-				<isbn>{$list[i].rek_isbn[isbn_loop]|escape:"html"}</isbn>
+				<isbn>{$list[i].rek_isbn[isbn_loop]}</isbn>
 			{sectionelse}
 				<isbn />
 			{/section}
@@ -157,10 +157,10 @@
 	{if $list[i].rek_issn}
 		<issns>
 		{if !is_array($list[i].rek_issn)}
-			<issn>{$list[i].rek_issn|escape:"html"}</issn>
+			<issn>{$list[i].rek_issn}</issn>
 		{else}
 			{section name="issn_loop" loop=$list[i].rek_issn}
-				<issn>{$list[i].rek_issn[issn_loop]|escape:"html"}</issn>
+				<issn>{$list[i].rek_issn[issn_loop]}</issn>
 			{sectionelse}
 				<issn />
 			{/section}
@@ -171,10 +171,10 @@
 	{if $list[i].rek_translated_conference_name}
 		<translated_conference_names>
 		{if !is_array($list[i].rek_translated_conference_name)}
-			<translated_conference_name>{$list[i].rek_translated_conference_name|escape:"html"}</translated_conference_name>
+			<translated_conference_name>{$list[i].rek_translated_conference_name}</translated_conference_name>
 		{else}
 			{section name="translated_conference_name_loop" loop=$list[i].rek_translated_conference_name}
-				<translated_conference_name>{$list[i].rek_translated_conference_name[translated_conference_name_loop]|escape:"html"}</translated_conference_name>
+				<translated_conference_name>{$list[i].rek_translated_conference_name[translated_conference_name_loop]}</translated_conference_name>
 			{sectionelse}
 				<translated_conference_name />
 			{/section}
@@ -185,10 +185,10 @@
 	{if $list[i].rek_phonetic_conference_name}
 		<phonetic_conference_names>
 		{if !is_array($list[i].rek_phonetic_conference_name)}
-			<phonetic_conference_name>{$list[i].rek_phonetic_conference_name|escape:"html"}</phonetic_conference_name>
+			<phonetic_conference_name>{$list[i].rek_phonetic_conference_name}</phonetic_conference_name>
 		{else}
 			{section name="phonetic_conference_name_loop" loop=$list[i].rek_phonetic_conference_name}
-				<phonetic_conference_name>{$list[i].rek_phonetic_conference_name[phonetic_conference_name_loop]|escape:"html"}</phonetic_conference_name>
+				<phonetic_conference_name>{$list[i].rek_phonetic_conference_name[phonetic_conference_name_loop]}</phonetic_conference_name>
 			{sectionelse}
 				<phonetic_conference_name />
 			{/section}
@@ -199,10 +199,10 @@
 	{if $list[i].rek_translated_newspaper}
 		<translated_newspapers>
 		{if !is_array($list[i].rek_translated_newspaper)}
-			<translated_newspaper>{$list[i].rek_translated_newspaper|escape:"html"}</translated_newspaper>
+			<translated_newspaper>{$list[i].rek_translated_newspaper}</translated_newspaper>
 		{else}
 			{section name="translated_newspaper_loop" loop=$list[i].rek_translated_newspaper}
-				<translated_newspaper>{$list[i].rek_translated_newspaper[translated_newspaper_loop]|escape:"html"}</translated_newspaper>
+				<translated_newspaper>{$list[i].rek_translated_newspaper[translated_newspaper_loop]}</translated_newspaper>
 			{sectionelse}
 				<translated_newspaper />
 			{/section}
@@ -213,10 +213,10 @@
 	{if $list[i].rek_phonetic_newspaper}
 		<phonetic_newspapers>
 		{if !is_array($list[i].rek_phonetic_newspaper)}
-			<phonetic_newspaper>{$list[i].rek_phonetic_newspaper|escape:"html"}</phonetic_newspaper>
+			<phonetic_newspaper>{$list[i].rek_phonetic_newspaper}</phonetic_newspaper>
 		{else}
 			{section name="phonetic_newspaper_loop" loop=$list[i].rek_phonetic_newspaper}
-				<phonetic_newspaper>{$list[i].rek_phonetic_newspaper[phonetic_newspaper_loop]|escape:"html"}</phonetic_newspaper>
+				<phonetic_newspaper>{$list[i].rek_phonetic_newspaper[phonetic_newspaper_loop]}</phonetic_newspaper>
 			{sectionelse}
 				<phonetic_newspaper />
 			{/section}
@@ -227,10 +227,10 @@
 	{if $list[i].rek_book_title}
 		<book_titles>
 		{if !is_array($list[i].rek_book_title)}
-			<book_title>{$list[i].rek_book_title|escape:"html"}</book_title>
+			<book_title>{$list[i].rek_book_title}</book_title>
 		{else}
 			{section name="book_title_loop" loop=$list[i].rek_book_title}
-				<book_title>{$list[i].rek_book_title[book_title_loop]|escape:"html"}</book_title>
+				<book_title>{$list[i].rek_book_title[book_title_loop]}</book_title>
 			{sectionelse}
 				<book_title />
 			{/section}
@@ -241,10 +241,10 @@
 	{if $list[i].rek_chapter_title}
 		<chapter_titles>
 		{if !is_array($list[i].rek_chapter_title)}
-			<chapter_title>{$list[i].rek_chapter_title|escape:"html"}</chapter_title>
+			<chapter_title>{$list[i].rek_chapter_title}</chapter_title>
 		{else}
 			{section name="chapter_title_loop" loop=$list[i].rek_chapter_title}
-				<chapter_title>{$list[i].rek_chapter_title[chapter_title_loop]|escape:"html"}</chapter_title>
+				<chapter_title>{$list[i].rek_chapter_title[chapter_title_loop]}</chapter_title>
 			{sectionelse}
 				<chapter_title />
 			{/section}
@@ -255,10 +255,10 @@
 	{if $list[i].rek_translated_book_title}
 		<translated_book_titles>
 		{if !is_array($list[i].rek_translated_book_title)}
-			<translated_book_title>{$list[i].rek_translated_book_title|escape:"html"}</translated_book_title>
+			<translated_book_title>{$list[i].rek_translated_book_title}</translated_book_title>
 		{else}
 			{section name="translated_book_title_loop" loop=$list[i].rek_translated_book_title}
-				<translated_book_title>{$list[i].rek_translated_book_title[translated_book_title_loop]|escape:"html"}</translated_book_title>
+				<translated_book_title>{$list[i].rek_translated_book_title[translated_book_title_loop]}</translated_book_title>
 			{sectionelse}
 				<translated_book_title />
 			{/section}
@@ -269,10 +269,10 @@
 	{if $list[i].rek_phonetic_book_title}
 		<phonetic_book_titles>
 		{if !is_array($list[i].rek_phonetic_book_title)}
-			<phonetic_book_title>{$list[i].rek_phonetic_book_title|escape:"html"}</phonetic_book_title>
+			<phonetic_book_title>{$list[i].rek_phonetic_book_title}</phonetic_book_title>
 		{else}
 			{section name="phonetic_book_title_loop" loop=$list[i].rek_phonetic_book_title}
-				<phonetic_book_title>{$list[i].rek_phonetic_book_title[phonetic_book_title_loop]|escape:"html"}</phonetic_book_title>
+				<phonetic_book_title>{$list[i].rek_phonetic_book_title[phonetic_book_title_loop]}</phonetic_book_title>
 			{sectionelse}
 				<phonetic_book_title />
 			{/section}
@@ -283,10 +283,10 @@
 	{if $list[i].rek_journal_name}
 		<journal_names>
 		{if !is_array($list[i].rek_journal_name)}
-			<journal_name>{$list[i].rek_journal_name|escape:"html"}</journal_name>
+			<journal_name>{$list[i].rek_journal_name}</journal_name>
 		{else}
 			{section name="journal_name_loop" loop=$list[i].rek_journal_name}
-				<journal_name>{$list[i].rek_journal_name[journal_name_loop]|escape:"html"}</journal_name>
+				<journal_name>{$list[i].rek_journal_name[journal_name_loop]}</journal_name>
 			{sectionelse}
 				<journal_name />
 			{/section}
@@ -297,10 +297,10 @@
 	{if $list[i].rek_conference_name}
 		<conference_names>
 		{if !is_array($list[i].rek_conference_name)}
-			<conference_name>{$list[i].rek_conference_name|escape:"html"}</conference_name>
+			<conference_name>{$list[i].rek_conference_name}</conference_name>
 		{else}
 			{section name="conference_name_loop" loop=$list[i].rek_conference_name}
-				<conference_name>{$list[i].rek_conference_name[conference_name_loop]|escape:"html"}</conference_name>
+				<conference_name>{$list[i].rek_conference_name[conference_name_loop]}</conference_name>
 			{sectionelse}
 				<conference_name />
 			{/section}
@@ -311,10 +311,10 @@
 	{if $list[i].rek_translated_journal_name}
 		<translated_journal_names>
 		{if !is_array($list[i].rek_translated_journal_name)}
-			<translated_journal_name>{$list[i].rek_translated_journal_name|escape:"html"}</translated_journal_name>
+			<translated_journal_name>{$list[i].rek_translated_journal_name}</translated_journal_name>
 		{else}
 			{section name="translated_journal_name_loop" loop=$list[i].rek_translated_journal_name}
-				<translated_journal_name>{$list[i].rek_translated_journal_name[translated_journal_name_loop]|escape:"html"}</translated_journal_name>
+				<translated_journal_name>{$list[i].rek_translated_journal_name[translated_journal_name_loop]}</translated_journal_name>
 			{sectionelse}
 				<translated_journal_name />
 			{/section}
@@ -325,10 +325,10 @@
 	{if $list[i].rek_phonetic_journal_name}
 		<phonetic_journal_names>
 		{if !is_array($list[i].rek_phonetic_journal_name)}
-			<phonetic_journal_name>{$list[i].rek_phonetic_journal_name|escape:"html"}</phonetic_journal_name>
+			<phonetic_journal_name>{$list[i].rek_phonetic_journal_name}</phonetic_journal_name>
 		{else}
 			{section name="phonetic_journal_name_loop" loop=$list[i].rek_phonetic_journal_name}
-				<phonetic_journal_name>{$list[i].rek_phonetic_journal_name[phonetic_journal_name_loop]|escape:"html"}</phonetic_journal_name>
+				<phonetic_journal_name>{$list[i].rek_phonetic_journal_name[phonetic_journal_name_loop]}</phonetic_journal_name>
 			{sectionelse}
 				<phonetic_journal_name />
 			{/section}
@@ -339,10 +339,10 @@
 	{if $list[i].rek_translated_title}
 		<translated_titles>
 		{if !is_array($list[i].rek_translated_title)}
-			<translated_title>{$list[i].rek_translated_title|escape:"html"}</translated_title>
+			<translated_title>{$list[i].rek_translated_title}</translated_title>
 		{else}
 			{section name="translated_title_loop" loop=$list[i].rek_translated_title}
-				<translated_title>{$list[i].rek_translated_title[translated_title_loop]|escape:"html"}</translated_title>
+				<translated_title>{$list[i].rek_translated_title[translated_title_loop]}</translated_title>
 			{sectionelse}
 				<translated_title />
 			{/section}
@@ -353,10 +353,10 @@
 	{if $list[i].rek_language_of_title}
 		<language_of_titles>
 		{if !is_array($list[i].rek_language_of_title)}
-			<language_of_title>{$list[i].rek_language_of_title|escape:"html"}</language_of_title>
+			<language_of_title>{$list[i].rek_language_of_title}</language_of_title>
 		{else}
 			{section name="language_of_title_loop" loop=$list[i].rek_language_of_title}
-				<language_of_title>{$list[i].rek_language_of_title[language_of_title_loop]|escape:"html"}</language_of_title>
+				<language_of_title>{$list[i].rek_language_of_title[language_of_title_loop]}</language_of_title>
 			{sectionelse}
 				<language_of_title />
 			{/section}
@@ -367,10 +367,10 @@
 	{if $list[i].rek_phonetic_title}
 		<phonetic_titles>
 		{if !is_array($list[i].rek_phonetic_title)}
-			<phonetic_title>{$list[i].rek_phonetic_title|escape:"html"}</phonetic_title>
+			<phonetic_title>{$list[i].rek_phonetic_title}</phonetic_title>
 		{else}
 			{section name="phonetic_title_loop" loop=$list[i].rek_phonetic_title}
-				<phonetic_title>{$list[i].rek_phonetic_title[phonetic_title_loop]|escape:"html"}</phonetic_title>
+				<phonetic_title>{$list[i].rek_phonetic_title[phonetic_title_loop]}</phonetic_title>
 			{sectionelse}
 				<phonetic_title />
 			{/section}
@@ -381,10 +381,10 @@
 	{if $list[i].rek_language}
 		<languages>
 		{if !is_array($list[i].rek_language)}
-			<language>{$list[i].rek_language|escape:"html"}</language>
+			<language>{$list[i].rek_language}</language>
 		{else}
 			{section name="language_loop" loop=$list[i].rek_language}
-				<language>{$list[i].rek_language[language_loop]|escape:"html"}</language>
+				<language>{$list[i].rek_language[language_loop]}</language>
 			{sectionelse}
 				<language />
 			{/section}
@@ -395,10 +395,10 @@
 	{if $list[i].rek_date_available}
 		<date_availables>
 		{if !is_array($list[i].rek_date_available)}
-			<date_available>{$list[i].rek_date_available|escape:"html"}</date_available>
+			<date_available>{$list[i].rek_date_available}</date_available>
 		{else}
 			{section name="date_available_loop" loop=$list[i].rek_date_available}
-				<date_available>{$list[i].rek_date_available[date_available_loop]|escape:"html"}</date_available>
+				<date_available>{$list[i].rek_date_available[date_available_loop]}</date_available>
 			{sectionelse}
 				<date_available />
 			{/section}
@@ -409,10 +409,10 @@
 	{if $list[i].rek_country_of_issue}
 		<country_of_issues>
 		{if !is_array($list[i].rek_country_of_issue)}
-			<country_of_issue>{$list[i].rek_country_of_issue|escape:"html"}</country_of_issue>
+			<country_of_issue>{$list[i].rek_country_of_issue}</country_of_issue>
 		{else}
 			{section name="country_of_issue_loop" loop=$list[i].rek_country_of_issue}
-				<country_of_issue>{$list[i].rek_country_of_issue[country_of_issue_loop]|escape:"html"}</country_of_issue>
+				<country_of_issue>{$list[i].rek_country_of_issue[country_of_issue_loop]}</country_of_issue>
 			{sectionelse}
 				<country_of_issue />
 			{/section}
@@ -423,10 +423,10 @@
 	{if $list[i].rek_patent_number}
 		<patent_numbers>
 		{if !is_array($list[i].rek_patent_number)}
-			<patent_number>{$list[i].rek_patent_number|escape:"html"}</patent_number>
+			<patent_number>{$list[i].rek_patent_number}</patent_number>
 		{else}
 			{section name="patent_number_loop" loop=$list[i].rek_patent_number}
-				<patent_number>{$list[i].rek_patent_number[patent_number_loop]|escape:"html"}</patent_number>
+				<patent_number>{$list[i].rek_patent_number[patent_number_loop]}</patent_number>
 			{sectionelse}
 				<patent_number />
 			{/section}
@@ -437,10 +437,10 @@
 	{if $list[i].rek_conference_location}
 		<conference_locations>
 		{if !is_array($list[i].rek_conference_location)}
-			<conference_location>{$list[i].rek_conference_location|escape:"html"}</conference_location>
+			<conference_location>{$list[i].rek_conference_location}</conference_location>
 		{else}
 			{section name="conference_location_loop" loop=$list[i].rek_conference_location}
-				<conference_location>{$list[i].rek_conference_location[conference_location_loop]|escape:"html"}</conference_location>
+				<conference_location>{$list[i].rek_conference_location[conference_location_loop]}</conference_location>
 			{sectionelse}
 				<conference_location />
 			{/section}
@@ -451,10 +451,10 @@
 	{if $list[i].rek_conference_dates}
 		<conference_datess>
 		{if !is_array($list[i].rek_conference_dates)}
-			<conference_dates>{$list[i].rek_conference_dates|escape:"html"}</conference_dates>
+			<conference_dates>{$list[i].rek_conference_dates}</conference_dates>
 		{else}
 			{section name="conference_dates_loop" loop=$list[i].rek_conference_dates}
-				<conference_dates>{$list[i].rek_conference_dates[conference_dates_loop]|escape:"html"}</conference_dates>
+				<conference_dates>{$list[i].rek_conference_dates[conference_dates_loop]}</conference_dates>
 			{sectionelse}
 				<conference_dates />
 			{/section}
@@ -465,10 +465,10 @@
 	{if $list[i].rek_volume_number}
 		<volume_numbers>
 		{if !is_array($list[i].rek_volume_number)}
-			<volume_number>{$list[i].rek_volume_number|escape:"html"}</volume_number>
+			<volume_number>{$list[i].rek_volume_number}</volume_number>
 		{else}
 			{section name="volume_number_loop" loop=$list[i].rek_volume_number}
-				<volume_number>{$list[i].rek_volume_number[volume_number_loop]|escape:"html"}</volume_number>
+				<volume_number>{$list[i].rek_volume_number[volume_number_loop]}</volume_number>
 			{sectionelse}
 				<volume_number />
 			{/section}
@@ -479,10 +479,10 @@
 	{if $list[i].rek_issue_number}
 		<issue_numbers>
 		{if !is_array($list[i].rek_issue_number)}
-			<issue_number>{$list[i].rek_issue_number|escape:"html"}</issue_number>
+			<issue_number>{$list[i].rek_issue_number}</issue_number>
 		{else}
 			{section name="issue_number_loop" loop=$list[i].rek_issue_number}
-				<issue_number>{$list[i].rek_issue_number[issue_number_loop]|escape:"html"}</issue_number>
+				<issue_number>{$list[i].rek_issue_number[issue_number_loop]}</issue_number>
 			{sectionelse}
 				<issue_number />
 			{/section}
@@ -493,10 +493,10 @@
 	{if $list[i].rek_chapter_number}
 		<chapter_numbers>
 		{if !is_array($list[i].rek_chapter_number)}
-			<chapter_number>{$list[i].rek_chapter_number|escape:"html"}</chapter_number>
+			<chapter_number>{$list[i].rek_chapter_number}</chapter_number>
 		{else}
 			{section name="chapter_number_loop" loop=$list[i].rek_chapter_number}
-				<chapter_number>{$list[i].rek_chapter_number[chapter_number_loop]|escape:"html"}</chapter_number>
+				<chapter_number>{$list[i].rek_chapter_number[chapter_number_loop]}</chapter_number>
 			{sectionelse}
 				<chapter_number />
 			{/section}
@@ -507,10 +507,10 @@
 	{if $list[i].rek_end_page}
 		<end_pages>
 		{if !is_array($list[i].rek_end_page)}
-			<end_page>{$list[i].rek_end_page|escape:"html"}</end_page>
+			<end_page>{$list[i].rek_end_page}</end_page>
 		{else}
 			{section name="end_page_loop" loop=$list[i].rek_end_page}
-				<end_page>{$list[i].rek_end_page[end_page_loop]|escape:"html"}</end_page>
+				<end_page>{$list[i].rek_end_page[end_page_loop]}</end_page>
 			{sectionelse}
 				<end_page />
 			{/section}
@@ -521,10 +521,10 @@
 	{if $list[i].rek_start_page}
 		<start_pages>
 		{if !is_array($list[i].rek_start_page)}
-			<start_page>{$list[i].rek_start_page|escape:"html"}</start_page>
+			<start_page>{$list[i].rek_start_page}</start_page>
 		{else}
 			{section name="start_page_loop" loop=$list[i].rek_start_page}
-				<start_page>{$list[i].rek_start_page[start_page_loop]|escape:"html"}</start_page>
+				<start_page>{$list[i].rek_start_page[start_page_loop]}</start_page>
 			{sectionelse}
 				<start_page />
 			{/section}
@@ -535,10 +535,10 @@
 	{if $list[i].rek_place_of_publication}
 		<place_of_publications>
 		{if !is_array($list[i].rek_place_of_publication)}
-			<place_of_publication>{$list[i].rek_place_of_publication|escape:"html"}</place_of_publication>
+			<place_of_publication>{$list[i].rek_place_of_publication}</place_of_publication>
 		{else}
 			{section name="place_of_publication_loop" loop=$list[i].rek_place_of_publication}
-				<place_of_publication>{$list[i].rek_place_of_publication[place_of_publication_loop]|escape:"html"}</place_of_publication>
+				<place_of_publication>{$list[i].rek_place_of_publication[place_of_publication_loop]}</place_of_publication>
 			{sectionelse}
 				<place_of_publication />
 			{/section}
@@ -549,10 +549,10 @@
 	{if $list[i].rek_edition}
 		<editions>
 		{if !is_array($list[i].rek_edition)}
-			<edition>{$list[i].rek_edition|escape:"html"}</edition>
+			<edition>{$list[i].rek_edition}</edition>
 		{else}
 			{section name="edition_loop" loop=$list[i].rek_edition}
-				<edition>{$list[i].rek_edition[edition_loop]|escape:"html"}</edition>
+				<edition>{$list[i].rek_edition[edition_loop]}</edition>
 			{sectionelse}
 				<edition />
 			{/section}
@@ -563,10 +563,10 @@
 	{if $list[i].rek_author}
 		<authors>
 		{if !is_array($list[i].rek_author)}
-			<author>{$list[i].rek_author|escape:"html"}</author>
+			<author>{$list[i].rek_author}</author>
 		{else}
 			{section name="author_loop" loop=$list[i].rek_author}
-				<author>{$list[i].rek_author[author_loop]|escape:"html"}</author>
+				<author>{$list[i].rek_author[author_loop]}</author>
 			{sectionelse}
 				<author />
 			{/section}
@@ -577,10 +577,10 @@
 	{if $list[i].rek_author_id}
 		<author_ids>
 		{if !is_array($list[i].rek_author_id)}
-			<author_id>{$list[i].rek_author_id|escape:"html"}</author_id>
+			<author_id>{$list[i].rek_author_id}</author_id>
 		{else}
 			{section name="author_loop" loop=$list[i].rek_author_id}
-				<author_id>{$list[i].rek_author_id[author_loop]|escape:"html"}</author_id>
+				<author_id>{$list[i].rek_author_id[author_loop]}</author_id>
 			{sectionelse}
 				<author_id />
 			{/section}
@@ -591,10 +591,10 @@
 	{if $list[i].rek_author_id_lookup}
 		<author_id_lookups>
 		{if !is_array($list[i].rek_author_id_lookup)}
-			<author_id_lookup>{$list[i].rek_author_id_lookup|escape:"html"}</author_id_lookup>
+			<author_id_lookup>{$list[i].rek_author_id_lookup}</author_id_lookup>
 		{else}
 			{section name="author_loop" loop=$list[i].rek_author_id_lookup}
-				<author_id_lookup>{$list[i].rek_author_id_lookup[author_loop]|escape:"html"}</author_id_lookup>
+				<author_id_lookup>{$list[i].rek_author_id_lookup[author_loop]}</author_id_lookup>
 			{sectionelse}
 				<author_id_lookup />
 			{/section}
@@ -605,10 +605,10 @@
 	{if $list[i].rek_author_id_external}
 		<author_id_externals>
 		{if !is_array($list[i].rek_author_id_external)}
-			<author_id_external>{$list[i].rek_author_id_external|escape:"html"}</author_id_external>
+			<author_id_external>{$list[i].rek_author_id_external}</author_id_external>
 		{else}
 			{section name="author_loop" loop=$list[i].rek_author_id_external}
-				<author_id_external>{$list[i].rek_author_id_external[author_loop]|escape:"html"}</author_id_external>
+				<author_id_external>{$list[i].rek_author_id_external[author_loop]}</author_id_external>
 			{sectionelse}
 				<author_id_external />
 			{/section}
@@ -619,10 +619,10 @@
 	{if $list[i].rek_contributor}
 		<contributors>
 		{if !is_array($list[i].rek_contributor)}
-			<contributor>{$list[i].rek_contributor|escape:"html"}</contributor>
+			<contributor>{$list[i].rek_contributor}</contributor>
 		{else}
 			{section name="contributor_loop" loop=$list[i].rek_contributor}
-				<contributor>{$list[i].rek_contributor[contributor_loop]|escape:"html"}</contributor>
+				<contributor>{$list[i].rek_contributor[contributor_loop]}</contributor>
 			{sectionelse}
 				<contributor />
 			{/section}
@@ -633,10 +633,10 @@
 	{if $list[i].rek_contributor_id}
 		<contributor_ids>
 		{if !is_array($list[i].rek_contributor_id)}
-			<contributor_id>{$list[i].rek_contributor_id|escape:"html"}</contributor_id>
+			<contributor_id>{$list[i].rek_contributor_id}</contributor_id>
 		{else}
 			{section name="contributor_loop" loop=$list[i].rek_contributor_id}
-				<contributor_id>{$list[i].rek_contributor_id[contributor_loop]|escape:"html"}</contributor_id>
+				<contributor_id>{$list[i].rek_contributor_id[contributor_loop]}</contributor_id>
 			{sectionelse}
 				<contributor_id />
 			{/section}
@@ -647,10 +647,10 @@
 	{if $list[i].rek_contributor_id_lookup}
 		<contributor_id_lookups>
 		{if !is_array($list[i].rek_contributor_id_lookup)}
-			<contributor_id_lookup>{$list[i].rek_contributor_id_lookup|escape:"html"}</contributor_id_lookup>
+			<contributor_id_lookup>{$list[i].rek_contributor_id_lookup}</contributor_id_lookup>
 		{else}
 			{section name="contributor_loop" loop=$list[i].rek_contributor_id_lookup}
-				<contributor_id_lookup>{$list[i].rek_contributor_id_lookup[contributor_loop]|escape:"html"}</contributor_id_lookup>
+				<contributor_id_lookup>{$list[i].rek_contributor_id_lookup[contributor_loop]}</contributor_id_lookup>
 			{sectionelse}
 				<contributor_id_lookup />
 			{/section}
@@ -661,10 +661,10 @@
 	{if $list[i].rek_contributor_id_external}
 		<contributor_id_externals>
 		{if !is_array($list[i].rek_contributor_id_external)}
-			<contributor_id_external>{$list[i].rek_contributor_id_external|escape:"html"}</contributor_id_external>
+			<contributor_id_external>{$list[i].rek_contributor_id_external}</contributor_id_external>
 		{else}
 			{section name="contributor_loop" loop=$list[i].rek_contributor_id_external}
-				<contributor_id_external>{$list[i].rek_contributor_id_external[contributor_loop]|escape:"html"}</contributor_id_external>
+				<contributor_id_external>{$list[i].rek_contributor_id_external[contributor_loop]}</contributor_id_external>
 			{sectionelse}
 				<contributor_id_external />
 			{/section}
@@ -675,10 +675,10 @@
 	{if $list[i].rek_ismemberof}
 		<isMemberOfs>
 		{if !is_array($list[i].rek_ismemberof)}
-			<isMemberOf>{$list[i].rek_ismemberof|escape:"html"}</isMemberOf>
+			<isMemberOf>{$list[i].rek_ismemberof}</isMemberOf>
 		{else}
 			{section name="isMemberOf_loop" loop=$list[i].rek_ismemberof}
-				<isMemberOf>{$list[i].rek_ismemberof[isMemberOf_loop]|escape:"html"}</isMemberOf>
+				<isMemberOf>{$list[i].rek_ismemberof[isMemberOf_loop]}</isMemberOf>
 			{sectionelse}
 				<isMemberOf />
 			{/section}
@@ -689,10 +689,10 @@
 	{if $list[i].rek_keywords}
 		<keywords>
 		{if !is_array($list[i].rek_keywords)}
-			<keyword>{$list[i].rek_keywords|escape:"html"}</keyword>
+			<keyword>{$list[i].rek_keywords}</keyword>
 		{else}
 			{section name="keywords_loop" loop=$list[i].rek_keywords}
-				<keyword>{$list[i].rek_keywords[keywords_loop]|escape:"html"}</keyword>
+				<keyword>{$list[i].rek_keywords[keywords_loop]}</keyword>
 			{sectionelse}
 				<keyword />
 			{/section}
@@ -703,10 +703,10 @@
 	{if $list[i].rek_alternative_title}
 		<alternative_titles>
 		{if !is_array($list[i].rek_alternative_title)}
-			<alternative_title>{$list[i].rek_alternative_title|escape:"html"}</alternative_title>
+			<alternative_title>{$list[i].rek_alternative_title}</alternative_title>
 		{else}
 			{section name="alternative_title_loop" loop=$list[i].rek_alternative_title}
-				<alternative_title>{$list[i].rek_alternative_title[alternative_title_loop]|escape:"html"}</alternative_title>
+				<alternative_title>{$list[i].rek_alternative_title[alternative_title_loop]}</alternative_title>
 			{sectionelse}
 				<alternative_title />
 			{/section}
@@ -717,10 +717,10 @@
 	{if $list[i].rek_newspaper}
 		<newspapers>
 		{if !is_array($list[i].rek_newspaper)}
-			<newspaper>{$list[i].rek_newspaper|escape:"html"}</newspaper>
+			<newspaper>{$list[i].rek_newspaper}</newspaper>
 		{else}
 			{section name="newspaper_loop" loop=$list[i].rek_newspaper}
-				<newspaper>{$list[i].rek_newspaper[newspaper_loop]|escape:"html"}</newspaper>
+				<newspaper>{$list[i].rek_newspaper[newspaper_loop]}</newspaper>
 			{sectionelse}
 				<newspaper />
 			{/section}
@@ -731,10 +731,10 @@
 	{if $list[i].rek_publisher}
 		<publishers>
 		{if !is_array($list[i].rek_publisher)}
-			<publisher>{$list[i].rek_publisher|escape:"html"}</publisher>
+			<publisher>{$list[i].rek_publisher}</publisher>
 		{else}
 			{section name="publisher_loop" loop=$list[i].rek_publisher}
-				<publisher>{$list[i].rek_publisher[publisher_loop]|escape:"html"}</publisher>
+				<publisher>{$list[i].rek_publisher[publisher_loop]}</publisher>
 			{sectionelse}
 				<publisher />
 			{/section}
@@ -745,10 +745,10 @@
 	{if $list[i].rek_convener}
 		<conveners>
 		{if !is_array($list[i].rek_convener)}
-			<convener>{$list[i].rek_convener|escape:"html"}</convener>
+			<convener>{$list[i].rek_convener}</convener>
 		{else}
 			{section name="convener_loop" loop=$list[i].rek_convener}
-				<convener>{$list[i].rek_convener[convener_loop]|escape:"html"}</convener>
+				<convener>{$list[i].rek_convener[convener_loop]}</convener>
 			{sectionelse}
 				<convener />
 			{/section}
@@ -759,10 +759,10 @@
 	{if $list[i].rek_identifier}
 		<identifier_numbers>
 		{if !is_array($list[i].rek_identifier)}
-			<identifier_number>{$list[i].rek_identifier|escape:"html"}</identifier_number>
+			<identifier_number>{$list[i].rek_identifier}</identifier_number>
 		{else}
 			{section name="identifier_number_loop" loop=$list[i].rek_identifier}
-				<identifier_number>{$list[i].rek_identifier[identifier_number_loop]|escape:"html"}</identifier_number>
+				<identifier_number>{$list[i].rek_identifier[identifier_number_loop]}</identifier_number>
 			{sectionelse}
 				<identifier_number />
 			{/section}
@@ -773,10 +773,10 @@
 	{if $list[i].rek_scopus_id}
 		<scopus_ids>
 		{if !is_array($list[i].rek_scopus_id)}
-			<scopus_id>{$list[i].rek_scopus_id|escape:"html"}</scopus_id>
+			<scopus_id>{$list[i].rek_scopus_id}</scopus_id>
 		{else}
 			{section name="scopus_id_loop" loop=$list[i].rek_scopus_id}
-				<scopus_id>{$list[i].rek_scopus_id[scopus_id_loop]|escape:"html"}</scopus_id>
+				<scopus_id>{$list[i].rek_scopus_id[scopus_id_loop]}</scopus_id>
 			{sectionelse}
 				<scopus_id />
 			{/section}
@@ -787,10 +787,10 @@
 	{if $list[i].rek_series}
 		<seriess>
 		{if !is_array($list[i].rek_series)}
-			<series>{$list[i].rek_series|escape:"html"}</series>
+			<series>{$list[i].rek_series}</series>
 		{else}
 			{section name="series_loop" loop=$list[i].rek_series}
-				<series>{$list[i].rek_series[series_loop]|escape:"html"}</series>
+				<series>{$list[i].rek_series[series_loop]}</series>
 			{sectionelse}
 				<series />
 			{/section}
@@ -801,10 +801,10 @@
 	{if $list[i].rek_parent_publication}
 		<parent_publications>
 		{if !is_array($list[i].rek_parent_publication)}
-			<parent_publication>{$list[i].rek_parent_publication|escape:"html"}</parent_publication>
+			<parent_publication>{$list[i].rek_parent_publication}</parent_publication>
 		{else}
 			{section name="parent_publication_loop" loop=$list[i].rek_parent_publication}
-				<parent_publication>{$list[i].rek_parent_publication[parent_publication_loop]|escape:"html"}</parent_publication>
+				<parent_publication>{$list[i].rek_parent_publication[parent_publication_loop]}</parent_publication>
 			{sectionelse}
 				<parent_publication />
 			{/section}
@@ -815,10 +815,10 @@
 	{if $list[i].rek_subject}
 		<subjects>
 		{if !is_array($list[i].rek_subject)}
-			<subject>{$list[i].rek_subject|escape:"html"}</subject>
+			<subject>{$list[i].rek_subject}</subject>
 		{else}
 			{section name="subject_loop" loop=$list[i].rek_subject}
-				<subject>{$list[i].rek_subject[subject_loop]|escape:"html"}</subject>
+				<subject>{$list[i].rek_subject[subject_loop]}</subject>
 			{sectionelse}
 				<subject />
 			{/section}
@@ -829,10 +829,10 @@
 	{if $list[i].rek_refereed}
 		<refereeds>
 		{if !is_array($list[i].rek_refereed)}
-			<refereed>{$list[i].rek_refereed|escape:"html"}</refereed>
+			<refereed>{$list[i].rek_refereed}</refereed>
 		{else}
 			{section name="refereed_loop" loop=$list[i].rek_refereed}
-				<refereed>{$list[i].rek_refereed[refereed_loop]|escape:"html"}</refereed>
+				<refereed>{$list[i].rek_refereed[refereed_loop]}</refereed>
 			{sectionelse}
 				<refereed />
 			{/section}
@@ -843,10 +843,10 @@
 	{if $list[i].rek_research_program}
 		<research_programs>
 		{if !is_array($list[i].rek_research_program)}
-			<research_program>{$list[i].rek_research_program|escape:"html"}</research_program>
+			<research_program>{$list[i].rek_research_program}</research_program>
 		{else}
 			{section name="research_program_loop" loop=$list[i].rek_research_program}
-				<research_program>{$list[i].rek_research_program[research_program_loop]|escape:"html"}</research_program>
+				<research_program>{$list[i].rek_research_program[research_program_loop]}</research_program>
 			{sectionelse}
 				<research_program />
 			{/section}
@@ -857,10 +857,10 @@
 	{if $list[i].rek_rights}
 		<rightss>
 		{if !is_array($list[i].rek_rights)}
-			<rights>{$list[i].rek_rights|escape:"html"}</rights>
+			<rights>{$list[i].rek_rights}</rights>
 		{else}
 			{section name="rights_loop" loop=$list[i].rek_rights}
-				<rights>{$list[i].rek_rights[rights_loop]|escape:"html"}</rights>
+				<rights>{$list[i].rek_rights[rights_loop]}</rights>
 			{sectionelse}
 				<rights />
 			{/section}
@@ -871,10 +871,10 @@
 	{if $list[i].rek_notes}
 		<notess>
 		{if !is_array($list[i].rek_notes)}
-			<notes>{$list[i].rek_notes|escape:"html"}</notes>
+			<notes>{$list[i].rek_notes}</notes>
 		{else}
 			{section name="notes_loop" loop=$list[i].rek_notes}
-				<notes>{$list[i].rek_notes[notes_loop]|escape:"html"}</notes>
+				<notes>{$list[i].rek_notes[notes_loop]}</notes>
 			{sectionelse}
 				<notes />
 			{/section}
@@ -886,14 +886,14 @@
 		{assign var="loop_format" value=$list[i].rek_file_attachment_name}
 		<datastream_links>
 		{section name="f" loop=$loop_format}
-			<datastream_link>{$app_base_url}basiceserv.php?pid={$list[i].rek_pid|escape:"html"}&amp;dsID={$list[i].rek_file_attachment_name[f]|escape:"html"}</datastream_link>
+			<datastream_link>{$app_base_url}basiceserv.php?pid={$list[i].rek_pid}&amp;dsID={$list[i].rek_file_attachment_name[f]}</datastream_link>
 		{sectionelse}
 			<datastream_link />
 		{/section}
 		</datastream_links>
 		<datastreams>
 		{section name="f" loop=$loop_format}
-			<datastream>{$list[i].rek_file_attachment_name[f]|escape:"html"}</datastream>
+			<datastream>{$list[i].rek_file_attachment_name[f]}</datastream>
 		{sectionelse}
 			<datastream />
 		{/section}

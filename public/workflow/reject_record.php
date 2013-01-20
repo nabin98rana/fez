@@ -67,5 +67,3 @@ $email_txt = $tplEmail->getTemplateContents();
 
 $tpl->assign('email_body', $email_txt);
 $tpl->displayTemplate();
-
-?>

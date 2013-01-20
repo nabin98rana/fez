@@ -20,7 +20,7 @@
 {* <td><input type="checkbox" name="items[]" value="{$list[iii].wfses_id}"/></td> *}
 <td>{$list[iii].wfses_date}</td>
 <td><a href="{$rel_url}workflow/resume.php?id={$list[iii].wfses_id}">{$list[iii].wfses_listing}</a></td>
-<td><a href="{$rel_url}workflow/abandon.php?id={$list[iii].wfses_id}&amp;href={$smarty.server.PHP_SELF|escape:'url'}">Abandon</a></td>
+<td><a href="{$rel_url}workflow/abandon.php?id={$list[iii].wfses_id}&amp;href={$smarty.server.PHP_SELF|smarty:nodefaults|escape:url}">Abandon</a></td>
 </tr>
 {sectionelse}
 <tr>

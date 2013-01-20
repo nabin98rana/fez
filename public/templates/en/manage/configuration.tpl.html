@@ -387,14 +387,14 @@ function restoreDefaultColours(el)
 		    <th>Log level</th>
 			<td>
 				<select name="app_log_level">
-				    <option value="0"{if $config_settings.app_log_level|escape == "0"} selected="selected"{/if}>Emergency - system is unusable</option>
-					<option value="1"{if $config_settings.app_log_level|escape == "1"} selected="selected"{/if}>Alert: action must be taken immediately</option>
-					<option value="2"{if $config_settings.app_log_level|escape == "2"} selected="selected"{/if}>Critical: critical conditions</option>
-					<option value="3"{if $config_settings.app_log_level|escape == "3"} selected="selected"{/if}>Error: error conditions</option>
-					<option value="4"{if $config_settings.app_log_level|escape == "4"} selected="selected"{/if}>Warning: warning conditions</option>
-					<option value="5"{if $config_settings.app_log_level|escape == "5"} selected="selected"{/if}>Notice: normal but significant condition</option>
-					<option value="6"{if $config_settings.app_log_level|escape == "6"} selected="selected"{/if}>Informational: informational messages</option>
-					<option value="7"{if $config_settings.app_log_level|escape == "7"} selected="selected"{/if}>Debug: debug messages</option>
+				    <option value="0"{if $config_settings.app_log_level == "0"} selected="selected"{/if}>Emergency - system is unusable</option>
+					<option value="1"{if $config_settings.app_log_level == "1"} selected="selected"{/if}>Alert: action must be taken immediately</option>
+					<option value="2"{if $config_settings.app_log_level == "2"} selected="selected"{/if}>Critical: critical conditions</option>
+					<option value="3"{if $config_settings.app_log_level == "3"} selected="selected"{/if}>Error: error conditions</option>
+					<option value="4"{if $config_settings.app_log_level == "4"} selected="selected"{/if}>Warning: warning conditions</option>
+					<option value="5"{if $config_settings.app_log_level == "5"} selected="selected"{/if}>Notice: normal but significant condition</option>
+					<option value="6"{if $config_settings.app_log_level == "6"} selected="selected"{/if}>Informational: informational messages</option>
+					<option value="7"{if $config_settings.app_log_level == "7"} selected="selected"{/if}>Debug: debug messages</option>
 
 				</select>
 			  <br />The log levels are show in descending order of importance. Setting a log level further down the list will include log messages

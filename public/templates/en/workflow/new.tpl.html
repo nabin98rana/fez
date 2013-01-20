@@ -25,10 +25,10 @@
 								</td>
 								<td class="default" style="width: 100%;">
 							{/if}
-							<a href="{$smarty.server.SCRIPT_NAME}?pid={$pid}&amp;cat=select_workflow&amp;xdis_id={$xdis_id}&amp;wft_id={$workflows[i].wft_id}&amp;href={$href}">{$wfl_list[$wfl_id].wfl_title|escape}</a> 
+							<a href="{$smarty.server.SCRIPT_NAME}?pid={$pid}&amp;cat=select_workflow&amp;xdis_id={$xdis_id}&amp;wft_id={$workflows[i].wft_id}&amp;href={$href}">{$wfl_list[$wfl_id].wfl_title}</a> 
 							{if $wfl_list[$wfl_id].wfl_description}
 								<br /><br />
-								{$wfl_list[$wfl_id].wfl_description|escape}
+								{$wfl_list[$wfl_id].wfl_description}
 							{/if}
 						</td>
 					</tr>

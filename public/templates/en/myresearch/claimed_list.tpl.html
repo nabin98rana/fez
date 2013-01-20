@@ -155,36 +155,36 @@ function correctionRequired(pid)
 				{if $list[i].rek_display_type_lookup == "Book" || $list[i].rek_display_type_lookup == "Book Chapter" || $list[i].rek_display_type_lookup == "Journal Article" || $list[i].rek_display_type_lookup == "Conference Paper"}
 				<a class="form_note" href="#">
 					<span class="form_note">
-						<strong>PID:</strong> {$list[i].rek_pid|escape:"html"}<br />
-						<strong>Display Type:</strong> {$list[i].rek_display_type_lookup|escape:"html"}<br />
+						<strong>PID:</strong> {$list[i].rek_pid}<br />
+						<strong>Display Type:</strong> {$list[i].rek_display_type_lookup}<br />
 						{if $list[i].rek_subtype != ''}
-							<strong>Sub Type:</strong> {$list[i].rek_subtype|escape:"html"}<br />
+							<strong>Sub Type:</strong> {$list[i].rek_subtype}<br />
 						{elseif $list[i].rek_genre_type != ''}
-							<strong>Sub Type:</strong> {$list[i].rek_genre_type|escape:"html"}<br />
+							<strong>Sub Type:</strong> {$list[i].rek_genre_type}<br />
 						{/if}
-						<strong>HERDC Status:</strong> {$list[i].rek_herdc_status_lookup|escape:"html"}<br />
-						<strong>HERDC Code:</strong> {$list[i].rek_herdc_code_lookup|escape:"html"}<br />
-						<strong>Institutional Status:</strong> {$list[i].rek_institutional_status_lookup|escape:"html"}<br /><br />
-						<strong>eSpace Follow up Flag:</strong> {$list[i].rek_follow_up_flags_lookup|escape:"html"}<br />
-						<strong>IMU Follow up Flag:</strong> {$list[i].rek_follow_up_flags_imu_lookup|escape:"html"}<br /><br />
+						<strong>HERDC Status:</strong> {$list[i].rek_herdc_status_lookup}<br />
+						<strong>HERDC Code:</strong> {$list[i].rek_herdc_code_lookup}<br />
+						<strong>Institutional Status:</strong> {$list[i].rek_institutional_status_lookup}<br /><br />
+						<strong>eSpace Follow up Flag:</strong> {$list[i].rek_follow_up_flags_lookup}<br />
+						<strong>IMU Follow up Flag:</strong> {$list[i].rek_follow_up_flags_imu_lookup}<br /><br />
 						{if $list[i].rek_display_type_lookup == "Book" || $list[i].rek_display_type_lookup == "Book Chapter"}
-							<strong>Edition:</strong> {$list[i].rek_edition|escape:"html"}<br />
-							<strong>ISBN:</strong> {$list[i].rek_isbn|escape:"html"}<br />
+							<strong>Edition:</strong> {$list[i].rek_edition}<br />
+							<strong>ISBN:</strong> {$list[i].rek_isbn}<br />
 						{elseif $list[i].rek_display_type_lookup == "Journal Article"}
 							<strong>ERA 2012 Journal Listed :</strong> {if $list[i].rj_2012_title} Yes{else}No {/if}<br />
-							{if $list[i].rj_2010_rank} <strong>ERA 2010 Rank:</strong> {$list[i].rj_2010_rank|escape:"html"} ({$list[i].rj_2010_title|escape:"html"})<br />{/if}
+							{if $list[i].rj_2010_rank} <strong>ERA 2010 Rank:</strong> {$list[i].rj_2010_rank} ({$list[i].rj_2010_title})<br />{/if}
 							{if $list[i].rek_refereed == '0'} <strong>Refereed:</strong> No<br /> {/if}
 							{if $list[i].rek_refereed == '1'} <strong>Refereed:</strong> Yes<br /> {/if}
-							<strong>ISSN:</strong> {$list[i].rek_issn|escape:"html"}<br />
+							<strong>ISSN:</strong> {$list[i].rek_issn}<br />
 						{elseif $list[i].rek_display_type_lookup == "Conference Paper"}
-							{if $list[i].rc_2010_rank}<strong>ERA 2010 Rank:</strong> {$list[i].rc_2010_rank|escape:"html"} ({$list[i].rc_2010_title|escape:"html"})<br />{/if}
+							{if $list[i].rc_2010_rank}<strong>ERA 2010 Rank:</strong> {$list[i].rc_2010_rank} ({$list[i].rc_2010_title})<br />{/if}
 							{if $list[i].rek_refereed == '0'} <strong>Refereed:</strong> No<br /> {/if}
 							{if $list[i].rek_refereed == '1'} <strong>Refereed:</strong> Yes<br /> {/if}
 						{/if}
-						<strong>Thomson ISI Loc:</strong> {$list[i].rek_isi_loc|escape:"html"}<br />
-						<strong>Scopus ID:</strong> {$list[i].rek_scopus_id|escape:"html"}<br />
+						<strong>Thomson ISI Loc:</strong> {$list[i].rek_isi_loc}<br />
+						<strong>Scopus ID:</strong> {$list[i].rek_scopus_id}<br />
                         <strong>Total Pages:</strong> {$list[i].rek_total_pages}<br /><br /><br />
-						<strong>HERDC Notes:</strong> {$list[i].rek_herdc_notes}<br /><br />
+						<strong>HERDC Notes:</strong> {$list[i].rek_herdc_notes|smarty:nodefaults}<br /><br />
                         <strong>Internal Notes:</strong> {$list[i].rek_internal_notes}<br /><br />
 					</span>
 					<img src="{$rel_url}images/views_16.png" alt="" />
@@ -194,7 +194,7 @@ function correctionRequired(pid)
 				{if $list[i].rek_citation != ""}
 					{$list[i].rek_citation|smarty:nodefaults}
 				{else}
-					<a href="{$rel_url}view/{$list[i].rek_pid}" target="_blank">{$list[i].rek_title|escape:"html"}</a>
+					<a href="{$rel_url}view/{$list[i].rek_pid}" target="_blank">{$list[i].rek_title}</a>
 				{/if}
 				{if $list[i].rek_status != '2'} &nbsp; (not yet published by an Administrator) {/if}
 			</td>
@@ -211,7 +211,7 @@ function correctionRequired(pid)
 
 			<td style="vertical-align: middle; text-align: center;">
 				{if $list[i].rek_herdc_code_lookup}
-					<a href="#" title="{if $list[i].rek_herdc_status_lookup == 'Provisional Code'}PROVISIONAL {elseif $list[i].rek_herdc_status_lookup == 'Confirmed Code'}CONFIRMED {/if}{$list[i].rek_herdc_code_lookup|escape:"html"}">{$list[i].rek_herdc_code_lookup|escape:"html"}{if $list[i].rek_herdc_status_lookup == 'Provisional Code'}P{elseif $list[i].rek_herdc_status_lookup == 'Confirmed Code'}&#10003;{/if}</a>
+					<a href="#" title="{if $list[i].rek_herdc_status_lookup == 'Provisional Code'}PROVISIONAL {elseif $list[i].rek_herdc_status_lookup == 'Confirmed Code'}CONFIRMED {/if}{$list[i].rek_herdc_code_lookup}">{$list[i].rek_herdc_code_lookup}{if $list[i].rek_herdc_status_lookup == 'Provisional Code'}P{elseif $list[i].rek_herdc_status_lookup == 'Confirmed Code'}&#10003;{/if}</a>
 				{else}
 					-
 				{/if}
@@ -219,7 +219,7 @@ function correctionRequired(pid)
 
 			<td style="vertical-align: middle; text-align: center;">
 				{if $list[i].rek_thomson_citation_count != ""}
-					<a href="{$rel_url}rid_citation_count_history_{$list[i].rek_pid|escape:"html"}" title="Cited {$list[i].rek_thomson_citation_count} times in Thomson Reuters Researcher ID">{$list[i].rek_thomson_citation_count}</a>
+					<a href="{$rel_url}rid_citation_count_history_{$list[i].rek_pid}" title="Cited {$list[i].rek_thomson_citation_count} times in Thomson Reuters Researcher ID">{$list[i].rek_thomson_citation_count}</a>
 				{elseif $list[i].rek_thomson_citation_count == 0}
 					{$list[i].rek_thomson_citation_count}
 				{/if}
@@ -227,7 +227,7 @@ function correctionRequired(pid)
 
 			<td style="vertical-align: middle; text-align: center;">
 				{if $list[i].rek_scopus_citation_count != ""}
-					<a href="{$rel_url}scopus_citation_count_history_{$list[i].rek_pid|escape:"html"}" class="form_note"> <span class="form_note">Cited {$list[i].rek_scopus_citation_count} times in Scopus</span>{$list[i].rek_scopus_citation_count}</a>
+					<a href="{$rel_url}scopus_citation_count_history_{$list[i].rek_pid}" class="form_note"> <span class="form_note">Cited {$list[i].rek_scopus_citation_count} times in Scopus</span>{$list[i].rek_scopus_citation_count}</a>
 				{elseif $list[i].rek_scopus_citation_count == 0}
 					{$list[i].rek_scopus_citation_count}
 				{/if}

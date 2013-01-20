@@ -230,7 +230,7 @@
 </tr>
 <tr>
 	<td class="default_white" style="background: {$heading_color}; padding: 3px;" colspan="2">
-		<img style="vertical-align: middle" src="{$rel_url}images/edit_32.gif" alt="" /><b>{$wfs_title|escape}</b>
+		<img style="vertical-align: middle" src="{$rel_url}images/edit_32.gif" alt="" /><b>{$wfs_title}</b>
 		{if $isEditor == 1}
 			<input type="button" maxlength="55"  name="simple_toggle" value="Show All Fields" onclick="javascript:toggleCreateMode(); this.disabled = true;" class="button" />
 		{/if}
@@ -406,7 +406,7 @@
 							<b><label for="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}">{$xsd_display_fields[i].xsdmf_title}</label> {math equation="x + 1" x=$loop_num}</b>{if $xsd_display_fields[i].xsdmf_required == 1} * {/if}
 							{if $loop_num == 0}
 							{if $xsd_display_fields[i].xsdmf_description != ""}
-	                          <br /><i>{$xsd_display_fields[i].xsdmf_description|escape:"html"}</i>
+	                          <br /><i>{$xsd_display_fields[i].xsdmf_description}</i>
 	                        {/if}
 							<br />
 							<i>(More {$xsd_display_fields[i].xsdmf_title} input boxes will appear as you type)</i>
@@ -429,7 +429,7 @@
 						  <th>
 							<b><label for="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0">{$xsd_display_fields[i].xsdmf_title}</label>{if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b>
 							{if $xsd_display_fields[i].xsdmf_description != ""}
-	                          <br/><i>{$xsd_display_fields[i].xsdmf_description|escape:"html"}</i>
+	                          <br/><i>{$xsd_display_fields[i].xsdmf_description}</i>
 	                        {/if}
 						  </th>
 						  <td>
@@ -482,7 +482,7 @@
 					  <th colspan="2">
 						{if $image_file_string != ""}<img style="vertical-align: middle" src="{$rel_url}images/{$xsd_display_fields[i].xsdmf_image_location}" alt="" />{/if}<b>{$xsd_display_fields[i].xsdmf_static_text}</b>
 						{if $xsd_display_fields[i].xsdmf_description != ""}
-							&nbsp;<i>{$xsd_display_fields[i].xsdmf_description|escape:"html"}</i>
+							&nbsp;<i>{$xsd_display_fields[i].xsdmf_description}</i>
 						{/if}
 					  </th>
 					</tr>
@@ -495,7 +495,7 @@
 					  <td style="background: {$heading_color}; white-space: nowrap" class="default_white" colspan="2">
 						{if $image_file_string != ""}<img style="vertical-align: middle" src="{$rel_url}images/{$xsd_display_fields[i].xsdmf_image_location}" alt="" />{/if}<b>{$xsd_display_fields[i].xsdmf_title}</b>
 						{if $xsd_display_fields[i].xsdmf_description != ""}
-							&nbsp;<i>{$xsd_display_fields[i].xsdmf_description|escape:"html"}</i>
+							&nbsp;<i>{$xsd_display_fields[i].xsdmf_description}</i>
 						{/if}
 					  </td>
 					</tr>
@@ -566,9 +566,10 @@
 			        {* if $smarty.section.z.last *}
 			        <script type="text/javascript">
 			        var field = document.getElementById('xsd_display_fields_{$xsdmf.xsdmf_id}_{$loop_num}');
-			        field.onchange = {literal}function () {{/literal}createTextBox({$xsdmf.xsdmf_id},{$loop_num},'{$xsdmf.xsdmf_title}',{math equation="y-1" y=$xsdmf.xsdmf_multiple_limit},'{$xsdmf.xsdmf_attached_xsdmf_id}','{$attached_xsdmf.xsdmf_title}', {if $xsd_display_fields[i].sek_suggest_function != ""}1{else}''{/if}, {$isCreator}){literal}}{/literal};
-			        field.onfocus = {literal}function () {{/literal}createTextBox({$xsdmf.xsdmf_id},{$loop_num},'{$xsdmf.xsdmf_title}',{math equation="y-1" y=$xsdmf.xsdmf_multiple_limit},'{$xsdmf.xsdmf_attached_xsdmf_id}','{$attached_xsdmf.xsdmf_title}', {if $xsd_display_fields[i].sek_suggest_function != ""}1{else}''{/if}, {$isCreator}){literal}}{/literal};
-			        field.onkeyup = {literal}function () {{/literal}createTextBox({$xsdmf.xsdmf_id},{$loop_num},'{$xsdmf.xsdmf_title}',{math equation="y-1" y=$xsdmf.xsdmf_multiple_limit},'{$xsdmf.xsdmf_attached_xsdmf_id}','{$attached_xsdmf.xsdmf_title}', {if $xsd_display_fields[i].sek_suggest_function != ""}1{else}''{/if}, {$isCreator}){literal}}{/literal};
+                    {if (is_numeric($xsdmf.xsdmf_multiple_limit))} assign var ="multiple_limit" value ={$xsdmf.xsdmf_multiple_limit} {else} assign var = "multiple_limit" value = "1" {/if}
+			        field.onchange = {literal}function () {{/literal}createTextBox({$xsdmf.xsdmf_id},{$loop_num},'{$xsdmf.xsdmf_title}',{math equation="0+y-1" y=$xsdmf.xsdmf_multiple_limit},'{$xsdmf.xsdmf_attached_xsdmf_id}','{$attached_xsdmf.xsdmf_title}', {if $xsd_display_fields[i].sek_suggest_function != ""}1{else}''{/if}, {$isCreator}){literal}}{/literal};
+			        field.onfocus  = {literal}function () {{/literal}createTextBox({$xsdmf.xsdmf_id},{$loop_num},'{$xsdmf.xsdmf_title}',{math equation="0+y-1" y=$xsdmf.xsdmf_multiple_limit},'{$xsdmf.xsdmf_attached_xsdmf_id}','{$attached_xsdmf.xsdmf_title}', {if $xsd_display_fields[i].sek_suggest_function != ""}1{else}''{/if}, {$isCreator}){literal}}{/literal};
+			        field.onkeyup  = {literal}function () {{/literal}createTextBox({$xsdmf.xsdmf_id},{$loop_num},'{$xsdmf.xsdmf_title}',{math equation="0+y-1" y=$xsdmf.xsdmf_multiple_limit},'{$xsdmf.xsdmf_attached_xsdmf_id}','{$attached_xsdmf.xsdmf_title}', {if $xsd_display_fields[i].sek_suggest_function != ""}1{else}''{/if}, {$isCreator}){literal}}{/literal};
 			        </script>
 			        {* /if *}
 					{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"][]"}

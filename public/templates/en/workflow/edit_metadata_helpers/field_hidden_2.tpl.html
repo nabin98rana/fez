@@ -8,10 +8,10 @@
 					id="{$field_id}" 
 					{if $xsdmf.xsdmf_multiple == 1}
 						name="xsd_display_fields[{$xsdmf.xsdmf_id}]{$squares}" 
-						value="{$details[$temp_fld_id][$loop_num]|escape:"html"}" 
+						value="{$details[$temp_fld_id][$loop_num]}" 
 					{else}
 						name="xsd_display_fields[{$xsdmf.xsdmf_id}]" 
-						value="{$details[$temp_fld_id]|escape:"html"}" 
+						value="{$details[$temp_fld_id]}" 
 					{/if}
 					>
 				{if $xsdmf.xsdmf_attached_xsdmf_id != ""}

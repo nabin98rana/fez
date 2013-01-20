@@ -1277,26 +1277,28 @@ class Record
     $valuesIns[] = $db->quote($pid);
     if (is_array($sekData[0])) {
         foreach ($sekData[0] as $sek_column => $sek_value) {
-          $stmt[] = "rek_{$sek_column}, rek_{$sek_column}_xsdmf_id";
+            $stmt[] = "rek_{$sek_column}, rek_{$sek_column}_xsdmf_id";
 
-          if ($sek_value['xsdmf_value'] == 'NULL') {
-            $xsdmf_value = $sek_value['xsdmf_value'];
-          } elseif ($sek_value['xsdmf_value'] == 'on') {
-            $xsdDetails = XSD_HTML_Match::getDetailsByXSDMF_ID($sek_value['xsdmf_id']);
-            $searchKeyDetails = Search_Key::getDetails($xsdDetails['xsdmf_sek_id']);
-            if ($searchKeyDetails['sek_data_type'] == 'int') {
-              $xsdmf_value = 1;
+            if ($sek_value['xsdmf_value'] === 'NULL' || $sek_value['xsdmf_value'] === '') {
+                $xsdmf_value = 'NULL';
+                $sek_value['xsdmf_id'] = 'NULL';
+
+            } elseif ($sek_value['xsdmf_value'] == 'on') {
+                $xsdDetails = XSD_HTML_Match::getDetailsByXSDMF_ID($sek_value['xsdmf_id']);
+                $searchKeyDetails = Search_Key::getDetails($xsdDetails['xsdmf_sek_id']);
+                if ($searchKeyDetails['sek_data_type'] == 'int') {
+                  $xsdmf_value = 1;
+                } else {
+                  $xsdmf_value = 0;
+                }
             } else {
-              $xsdmf_value = 0;
+                $sek_value['xsdmf_value'] = (is_array($sek_value['xsdmf_value']) && array_key_exists('Year', $sek_value['xsdmf_value']))
+                    ? $sek_value['xsdmf_value']['Year'] : $sek_value['xsdmf_value'];
+                $xsdmf_value = $db->quote(trim($sek_value['xsdmf_value']));
             }
-          } else {
-            $sek_value['xsdmf_value'] = (is_array($sek_value['xsdmf_value']) && array_key_exists('Year', $sek_value['xsdmf_value']))
-                ? $sek_value['xsdmf_value']['Year'] : $sek_value['xsdmf_value'];
-            $xsdmf_value = $db->quote(trim($sek_value['xsdmf_value']));
-          }
 
-          $valuesIns[] = "$xsdmf_value, {$sek_value['xsdmf_id']}";
-          $valuesUpd[] = "rek_{$sek_column} = $xsdmf_value, rek_{$sek_column}_xsdmf_id = {$sek_value['xsdmf_id']}";
+            $valuesIns[] = "$xsdmf_value, {$sek_value['xsdmf_id']}";
+            $valuesUpd[] = "rek_{$sek_column} = $xsdmf_value, rek_{$sek_column}_xsdmf_id = {$sek_value['xsdmf_id']}";
         }
 
         $table = APP_TABLE_PREFIX . "record_search_key";
@@ -3355,7 +3357,7 @@ class Record
     $prev_count = $res;
 
     // If there is a previous count in the history
-    if (! empty($prev_count)) {
+    if (!empty($prev_count) || $prev_count === "0") {
       $stmt = "UPDATE
                   " . $dbtp . "record_search_key
                SET
@@ -3630,7 +3632,7 @@ class Record
     }
     $prev_count = $res;
     // If there is a previous count in the history
-    if (! empty($prev_count)) {
+    if (!empty($prev_count) || $prev_count === "0") {
       $stmt = "UPDATE
                   " . $dbtp . "record_search_key
                SET
@@ -3647,7 +3649,7 @@ class Record
     }
     return true;
   }
-
+  
   /**
    * Retrieve PIDs by DOI excluding any in the temporary duplicates collection
    * @param string $doi
@@ -3659,13 +3661,13 @@ class Record
       $db = DB_API::get();
       $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
       $pids = null;
-
+      
       $sql = "SELECT DISTINCT rek_doi_pid FROM fez_record_search_key_doi "
-            . "INNER JOIN fez_record_search_key_ismemberof "
+            . "LEFT JOIN fez_record_search_key_ismemberof "
             . "ON rek_doi_pid = rek_ismemberof_pid "
             . "WHERE rek_doi = ? "
-            . "AND rek_ismemberof != 'UQ:244548'";
-
+            . "AND (rek_ismemberof NOT IN('".APP_TEMPORARY_DUPLICATES_COLLECTION."') OR rek_ismemberof IS NULL)";
+      
       try
       {
           $stmt = $db->query($sql, array($doi));
@@ -3679,7 +3681,71 @@ class Record
 
       return $pids;
   }
-
+  
+  /**
+  * Retrieve PIDs by DOI excluding any in the temporary duplicates collection
+  * @param string $doi
+  * @return boolean|array
+  */
+  function getPIDsByPubmedId($pubmedId)
+  {
+      $log = FezLog::get();
+      $db = DB_API::get();
+      $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
+      $pids = null;
+  
+      $sql = "SELECT DISTINCT rek_pubmed_id_pid FROM fez_record_search_key_pubmed_id "
+      . "LEFT JOIN fez_record_search_key_ismemberof "
+      . "ON rek_pubmed_id_pid = rek_ismemberof_pid "
+      . "WHERE rek_pubmed_id = ? "
+      . "AND (rek_ismemberof NOT IN('".APP_TEMPORARY_DUPLICATES_COLLECTION."') OR rek_ismemberof IS NULL)";
+  
+      try
+      {
+          $stmt = $db->query($sql, array($pubmedId));
+          $pids = $stmt->fetchAll();
+      }
+      catch(Exception $e)
+      {
+          $log->err($e->getMessage());
+          return false;
+      }
+  
+      return $pids;
+  }
+  
+  /**
+  * Retrieve PIDs by exact stripped title match
+  * @param string $title
+  * @return boolean|array
+  */
+  function getPIDsByTitle($title)
+  {
+      $log = FezLog::get();
+      $db = DB_API::get();
+      $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
+      $pids = null;
+      
+      $sql = "SELECT DISTINCT rek_pid FROM ".$dbtp."record_search_key "
+      	    . "LEFT JOIN fez_record_search_key_ismemberof "
+            . "ON rek_pid = rek_ismemberof_pid "
+            . "WHERE rek_title = ? "
+            . "AND (rek_ismemberof NOT IN('".APP_TEMPORARY_DUPLICATES_COLLECTION."') OR rek_ismemberof IS NULL)";
+      
+      try
+      {
+          $stmt = $db->query($sql, array($title));
+          $pids = $stmt->fetchAll();
+      }
+      catch(Exception $e)
+      {
+          $log->err($e->getMessage());
+          return false;
+      }
+      
+      return $pids;
+  }
+  
   /**
    * Retrieve PIDs by Scopus ID excluding any in the temporary duplicates collection
    * @param string $scopusId
@@ -3699,15 +3765,15 @@ class Record
       $sidFormatted = (array_key_exists(1, $matches)) ? $matches[1] : null;
       //Otherwise it's not a valid ScopusID and is set to null
       $sidFormatted = ($sidFormatted) ? "2-s2.0-".$sidFormatted : null;
-
+      
       if($sidFormatted)
       {
-          $sql = "SELECT DISTINCT rek_scopus_id_pid FROM fez_record_search_key_scopus_id "
-            ."INNER JOIN fez_record_search_key_ismemberof "
-            ."ON rek_scopus_id_pid = rek_ismemberof_pid "
-            ."WHERE rek_scopus_id = ? "
-            ."AND rek_ismemberof != 'UQ:244548'";
-
+          $sql = "SELECT DISTINCT rek_scopus_id_pid FROM ".$dbtp."record_search_key_scopus_id "
+            ."LEFT JOIN fez_record_search_key_ismemberof "
+            ."ON rek_scopus_id_pid = rek_ismemberof_pid " 
+            ."WHERE rek_scopus_id = ? " 
+            ."AND (rek_ismemberof NOT IN('".APP_TEMPORARY_DUPLICATES_COLLECTION."') OR rek_ismemberof IS NULL)";
+          
           try
           {
               $stmt = $db->query($sql, array($sidFormatted));
@@ -3721,6 +3787,29 @@ class Record
       }
 
       return $pids;
+  }
+  
+  function getScopusDocTypeCodeByDescription($sdt)
+  {
+      $log = FezLog::get();
+      $db = DB_API::get();
+      $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
+      
+      $sql = "SELECT sdt_code FROM " . $dbtp . "scopus_doctypes where sdt_description = ? LIMIT 1;";
+      
+      try
+      {
+          $stmt = $db->query($sql, array($sdt));
+//           $res = $stmt->fetchAll();
+          $res = $stmt->fetchColumn(0);
+      }
+      catch(Exception $e)
+      {
+          $log->err($e->getMessage());
+          return false;
+      }
+      
+      return $res;
   }
 
   function getSearchKeyIndexValue($pid, $searchKeyTitle, $getLookup=true, $sek_details="")

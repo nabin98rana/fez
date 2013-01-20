@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:media="http://search.yahoo.com/mrss/">
 <channel>
-  <title>{if $list_heading != ""}{$list_heading|escape:'html'} - {/if}{$application_title|escape:'html'}</title>
+  <title>{if $list_heading != ""}{$list_heading} - {/if}{$application_title}</title>
   <link>{$app_base_url}</link>
   <description>{$org_name}</description>
   <language>{$lang}</language>
@@ -9,33 +9,33 @@
   <docs>http://blogs.law.harvard.edu/tech/rss</docs>
   {section name="i" loop=$list}
  		{if $list[i].reko_bject_type == 1}
-          {assign var="href_view" value="community/"|cat:$list[i].rek_pid|escape:"html"}  
+          {assign var="href_view" value="community/"|cat:$list[i].rek_pid}  
         {elseif $list[i].rek_object_type == 2}
-	      {assign var="href_view" value="collection/"|cat:$list[i].rek_pid|escape:"html"}
+	      {assign var="href_view" value="collection/"|cat:$list[i].rek_pid}
 	    {else}
-		  {assign var="href_view" value="view/"|cat:$list[i].rek_pid|escape:"html"}	      
+		  {assign var="href_view" value="view/"|cat:$list[i].rek_pid}	      
 		{/if}
   <item>
-	  <title>{$list[i].rek_title|escape:"html"}</title>
+	  <title>{$list[i].rek_title}</title>
 	  <link>{$app_base_url}{$href_view}</link>
 	  {if $list[i].rek_description != "null"}	
-	  	 <description>{$list[i].rek_description|escape:"html"}</description>
+	  	 <description>{$list[i].rek_description}</description>
 	  {/if}
 	  {if $list[i].rek_created_date}
-	  	<pubDate>{$list[i].rek_created_date|escape:"html"}</pubDate>
+	  	<pubDate>{$list[i].rek_created_date}</pubDate>
 	  {/if}
 		{if $list[i].rek_author}
 			<author>
 			{section name="author_loop" loop=$list[i].rek_author}
 				{assign var="next_author" value=$smarty.section.author_loop.index+1}
-						{$list[i].rek_author[author_loop]|escape:"html"}
+						{$list[i].rek_author[author_loop]}
 				{if $list[i].rek_author[$next_author] != ""} og {/if}
 			{/section}
 			</author>
 		{/if}
 		{section name="file_loop" loop=$list[i].rek_file_attachment_name}
 			{if $list[i].rek_file_attachment_name[file_loop]|contains:".pdf"}
-			<media:content url="{$app_base_url}eserv/{$list[i].rek_pid|escape:"html"}/{$list[i].rek_file_attachment_name[file_loop]|escape:"html"}" type="application/pdf" />
+			<media:content url="{$app_base_url}eserv/{$list[i].rek_pid}/{$list[i].rek_file_attachment_name[file_loop]}" type="application/pdf" />
 			{/if}
 		{/section}
 		

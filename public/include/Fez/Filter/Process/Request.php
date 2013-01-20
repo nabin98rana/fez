@@ -190,7 +190,8 @@ class Fez_Filter_Process_Request implements Fez_Filter_Process_ProcessInterface
 		        {
 		        	if(in_array($uf, $elementsToFilter))
 		        	{
-		        		$filters[$uf][] = 'Fez_Filter_Htmlpurify';
+                        //If there is no filter we do not know what to filter on so we will leave it blank for now
+		        		//$filters[$uf][] = 'Fez_Filter_Htmlpurify';
 		        	}
 		        }
 	        }

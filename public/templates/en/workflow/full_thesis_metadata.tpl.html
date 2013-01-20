@@ -20,7 +20,7 @@
 
     {foreach from=$display_data key=key item=data}
         <tr valign="top">
-            <th align="right">{$data.xsdmf_title|escape:'htmlall'}: </th>
+            <th align="right">{$data.xsdmf_title}: </th>
             <td align="left">
                 {foreach from=$data.value item=value}
                     {$value|smarty:nodefaults}
