@@ -67,7 +67,7 @@ $stmt = "SELECT aut_id,
 			FROM " . APP_TABLE_PREFIX . "author as t1
 			LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id as t2 on t2.rek_author_id = t1.aut_id
 			LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key as t3 on t3.rek_pid = t2.rek_author_id_pid
-			WHERE t3.rek_display_type= " . $data_collection_xdis_id . "
+			WHERE t3.rek_status = 2 AND t3.rek_display_type= " . $data_collection_xdis_id . "
 
 			UNION
 
@@ -86,7 +86,7 @@ $stmt = "SELECT aut_id,
 		FROM " . APP_TABLE_PREFIX . "author as t1
 		LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_contributor_id as t6 on t6.rek_contributor_id = t1.aut_id
 		LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key as t7 on t7.rek_pid = t6.rek_contributor_id_pid
-		WHERE t7.rek_display_type=" . $data_collection_xdis_id . "
+		WHERE t7.rek_status = 2 AND t7.rek_display_type=" . $data_collection_xdis_id . "
 
 		ORDER BY aut_id";
 
