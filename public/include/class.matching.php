@@ -225,12 +225,19 @@ class matching
 		$log = FezLog::get();
 		$db = DB_API::get();
 
+
 		$type = $_POST['type'];
 		$pid = $_POST['pid'];
 		$matching_id = $_POST['matching_id'];
 		$status = $_POST['status'];
 		$suffix = "";
-		if ($type == 'J') {
+
+    if (is_array($matching_id) && count($matching_id) > 2) { //catch users bypassing javascript or however triple entries for a pid are getting in
+      return false;
+    }
+
+
+    if ($type == 'J') {
 			$table = "journals";
 			$prefix = "mtj";
             $suffix = "_jnl_id";
