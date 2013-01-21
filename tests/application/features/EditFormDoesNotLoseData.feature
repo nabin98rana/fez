@@ -5,7 +5,7 @@ Feature: Check on a simple edit then immediate save, all data stays the same in 
   @destructive @now1
   Scenario: Edit then save, check nothing changed that should not.
     Given I login as administrator
-    And I am on "/view/UQ:10722"
+    And I go to a random pid
     And I save record details
     And I follow "Update Selected Record - Generic"
     And I press "Save Changes"

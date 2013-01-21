@@ -911,13 +911,46 @@ public function afterScenario($event)
         preg_match('/UQ:(\d+)/', $this->getSession()->getCurrentUrl(), $pid);
         $data = new Fez_Record_Searchkey($pid[0]);
         $keys = $data->getSekData();
+        $errors = '';
         foreach ($keys as $title => $value) {
             if ( $keys[$title]['value'] != $this->_tempRecordStore[$title]['value']) {
                 if ($title != 'Updated Date') {
-                    throw new Exception("Miss match on title ". $title. " post update when there shouldn't be");
+                    $errors .= $title.' ';
                 }
             }
+            if ($errors) {
+                throw new Exception("Miss match on sek title ". $title. "post update when there shouldn't be on pid: ".$pid);
+            }
         }
+    }
+
+
+    /**
+     * @Given /^I go to a random pid$/
+     */
+    public function iGoToARandomPid()
+    {
+        $url = '/view/';
+        $url .= $this->_returnRandomPid();
+        $this->getSession()->visit($this->locatePath($url));
+        return;
+    }
+
+    //Returns a randomish pid. It concentrates on recent pids and grabs them in reverse chronological order
+    //It's going further back as the day progresses relative the the test,  to make sure any newly created pids don't overrun the random ones
+    private function _returnRandomPid()
+    {
+        $db = DB_API::get();
+        $midnight = strtotime(date("d M Y"));
+        $limit = 200 + round((time() - $midnight) / 10);
+        $stmt = "SELECT rek_pid FROM (SELECT * FROM " . APP_TABLE_PREFIX . "record_search_key ORDER BY rek_created_date DESC LIMIT ".$limit.") AS T ORDER BY T.rek_created_date, rek_pid LIMIT 1";
+        try {
+            $res = $db->fetchOne($stmt);
+        }
+        catch(Exception $ex) {
+            throw new Exception("Error with database ".$stmt);
+        }
+        return $res;
     }
 
 } // FeatureContext
