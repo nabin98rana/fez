@@ -260,6 +260,16 @@ class Fez_Record_Searchkey
         return $searchKeyData;
     }
 
+    public function getSekData()
+    {
+        $searchKeys = Search_Key::getList();
+        foreach ($searchKeys as $searchKey) {
+            $title = $searchKey['sek_title'];
+            $details[$title]['value'] = Record::getSearchKeyIndexValue($this->_pid, $title, false);
+        }
+        return $details;
+    }
+
     public function cloneRecord($pid, $new_xdis_id = null, $is_succession = false, $clone_attached_datastreams=false, $collection_pid=null)
     {
         //$new_pid = Fedora_API::getNextPID();

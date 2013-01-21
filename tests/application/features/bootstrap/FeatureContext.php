@@ -127,6 +127,8 @@ class FeatureContext extends MinkContext
    */
   protected $_curSubcontext = null;
 
+  //Used to temporarily hold record data between steps
+  private $_tempRecordStore;
 
   /**
      * Initializes context.
@@ -306,7 +308,6 @@ class FeatureContext extends MinkContext
     }
     return;
   }
-
 
   /**
      * Wait a specified number of seconds
@@ -889,6 +890,35 @@ public function afterScenario($event)
         }
     }
 
+    /**
+     * This function saves the records current state temporarily for testing later
+     * @Given /^I save record details$/
+     */
+    public function iSaveRecordDetails()
+    {
+        preg_match('/UQ:(\d+)/', $this->getSession()->getCurrentUrl(), $pid);
+        $data = new Fez_Record_Searchkey($pid[0]);
+        $this->_tempRecordStore = $data->getSekData();
+        return;
+    }
+
+    /**
+     * This assumes iSaveRecordDetails has saved the records previous state and now we check it's unchanged
+     * @Given /^I check record unchanged$/
+     */
+    public function iCheckRecordUnchanged()
+    {
+        preg_match('/UQ:(\d+)/', $this->getSession()->getCurrentUrl(), $pid);
+        $data = new Fez_Record_Searchkey($pid[0]);
+        $keys = $data->getSekData();
+        foreach ($keys as $title => $value) {
+            if ( $keys[$title]['value'] != $this->_tempRecordStore[$title]['value']) {
+                if ($title != 'Updated Date') {
+                    throw new Exception("Miss match on title ". $title. " post update when there shouldn't be");
+                }
+            }
+        }
+    }
 
 } // FeatureContext
 
