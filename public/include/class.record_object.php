@@ -213,6 +213,9 @@ class RecordObject extends RecordGeneral
                 $depositor = Auth::getUserID();
             } else {
                 $depositor = Record::getSearchKeyIndexValue($this->pid, "Depositor", false);
+                $genre = Record::getSearchKeyIndexValue($this->pid, "Genre", false);
+                $xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Genre'), $xdis_str);
+                $xsd_display_fields[0]['genre'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $genre);
             }
             $xsd_display_fields[0]['depositor'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $depositor);
 
