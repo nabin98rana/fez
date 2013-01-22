@@ -914,12 +914,12 @@ public function afterScenario($event)
         $errors = '';
         foreach ($keys as $title => $value) {
             if ( $keys[$title]['value'] != $this->_tempRecordStore[$title]['value']) {
-                if ($title != 'Updated Date') {
+                if ($title != 'Updated Date' && $title != 'Collection Year') {
                     $errors .= $title.' ';
                 }
             }
             if ($errors) {
-                throw new Exception("Miss match on sek title ". $title. "post update when there shouldn't be on pid: ".$pid);
+                throw new Exception("Miss match on sek titles -  ". $title. " - post update when there shouldn't be on pid: ".$pid[0]);
             }
         }
     }
