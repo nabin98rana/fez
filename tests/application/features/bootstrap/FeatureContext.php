@@ -913,7 +913,7 @@ public function afterScenario($event)
         $keys = $data->getSekData();
         $errors = '';
         foreach ($keys as $title => $value) {
-            if ( $keys[$title]['value'] != $this->_tempRecordStore[$title]['value']) {
+            if ( $keys[$title]['value'] !== $this->_tempRecordStore[$title]['value']) {
                 if ($title != 'Updated Date' && $title != 'Collection Year') {
                     $errors .= $title.' ';
                 }
