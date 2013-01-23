@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<request xmlns="http://www.isinet.com/xrpc41">
+<request xmlns="http://www.isinet.com/xrpc42">
 	<fn name="LinksAMR.retrieve">
 		<list>
 			<map>
@@ -16,7 +16,7 @@
 				{section name="i" loop=$list}
 				<map name="{$list[i].pid}">
 				{if $list[i].ut != ''}
-        <val name="ut">{$list[i].ut}</val>          
+        <val name="ut">{$list[i].ut}</val>
         {/if} {if $list[i].doi != ''}
         <val name="doi">{$list[i].doi}</val>
         {/if} {if $list[i].atitle != ''}
@@ -34,12 +34,12 @@
 				{/if} {if $list[i].an != ''}
 				<val name="an">{$list[i].an}</val>
 				{/if} {if $list[i].issn != ''}
-         <val name="issn">{$list[i].issn}</val>  
+         <val name="issn">{$list[i].issn}</val>
          {/if} {if $list[i].first_author != ''}
 				<list name="authors">
  					 <val>{$list[i].first_author}</val>
 				</list>
-				{/if}			
+				{/if}
 				</map>
 				{/section}
 			</map>

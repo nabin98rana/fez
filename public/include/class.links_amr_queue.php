@@ -393,7 +393,7 @@ class LinksAmrQueue extends Queue
     }
 
     $xpath = new DOMXPath($response);
-    $xpath->registerNamespace('lamr', 'http://www.isinet.com/xrpc41');
+    $xpath->registerNamespace('lamr', 'http://www.isinet.com/xrpc42');
     $query = "/lamr:response/lamr:fn[@name='LinksAMR.retrieve'][@rc='OK']/lamr:map/lamr:map";
     $node_list = $xpath->query($query);
 

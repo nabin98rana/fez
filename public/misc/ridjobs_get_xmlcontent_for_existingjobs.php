@@ -30,7 +30,7 @@
 // +----------------------------------------------------------------------+
 
 /**
- * This script is used for retrieving Profile & Publications XML content 
+ * This script is used for retrieving Profile & Publications XML content
  * on existing RID Jobs with status 'Done'.
  */
 include_once dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'config.inc.php';
@@ -41,14 +41,14 @@ include_once(APP_INC_PATH . "class.misc.php");
 $jobs = ResearcherID::getJobs(0, 5, array('by' => 'rij_timefinished', 'order' => 'desc'), array('key'=>'rij_status', 'val'=>'DONE'));
 
 foreach ($jobs['list'] as $job) {
-    
+
     // Load XML from rij_lastresponse
     $response = DOMDocument::loadXML($job['rij_lastresponse']);
 
     $responseXML = processDownloadResponse($response);
-    
+
     echo '<br/>'.$job['rij_id'].' =  '.$responseXML['profileLink'];
-    
+
     if ($responseXML !== false) {
         ResearcherID::updateJobResponseXML($job['rij_ticketno'], $responseXML);
     }
@@ -63,7 +63,7 @@ function processDownloadResponse($response_document)
     $db = DB_API::get();
 
     $xpath = new DOMXPath($response_document);
-    $xpath->registerNamespace('rid', 'http://www.isinet.com/xrpc41');
+    $xpath->registerNamespace('rid', 'http://www.isinet.com/xrpc42');
     $download_response;
     $return = true;
 
@@ -79,7 +79,7 @@ function processDownloadResponse($response_document)
     }
     if ($download_response) {
       $xml_dl_response = new SimpleXMLElement($download_response);
-       
+
       foreach ($xml_dl_response->outputfile as $output_file) {
 
         $type = $output_file->attributes()->type;
@@ -89,27 +89,27 @@ function processDownloadResponse($response_document)
         switch($type) {
           case 'profile':
             $profileXML = processDownloadedProfiles($url);
-            $profileLink = $url;  
+            $profileLink = $url;
             break;
           case 'publication':
             $publicationsXML = processDownloadedPublications($url);
             $publicationsLink = $url;
             break;
         }
-        
+
         if ($publicationsXML !== false && $profileXML !== false){
             $result = true;
         }
-        
+
         $return = (! $return) ? false: $result; // ignore result if we have already had a previous fail
         // which will ensure this job is processed again
       }
     }
-    
+
     if ($return === true){
         $return = array('profileXML' => $profileXML, 'profileLink' => $profileLink, 'publicationsXML' => $publicationsXML, 'publicationsLink' => $publicationsLink);
     }
-    
+
     return $return;
 }
 
@@ -159,4 +159,4 @@ function processDownloadedPublications($url)
 
     return $publications;
 }
-  
+

@@ -199,7 +199,7 @@ class ResearcherID
       if ($response_document) {
         // Get job ticket number from response
         $xpath = new DOMXPath($response_document);
-        $xpath->registerNamespace('rid', 'http://www.isinet.com/xrpc41');
+        $xpath->registerNamespace('rid', 'http://www.isinet.com/xrpc42');
         $query = "/rid:response/rid:fn[@name='AuthorResearch.downloadRIDData']/rid:val";
         $elements = $xpath->query($query);
         if (!is_null($elements)) {
@@ -661,7 +661,7 @@ class ResearcherID
     $job_status = null;
     if ($response_document) {
       $xpath = new DOMXPath($response_document);
-      $xpath->registerNamespace('rid', 'http://www.isinet.com/xrpc41');
+      $xpath->registerNamespace('rid', 'http://www.isinet.com/xrpc42');
       $query = "/rid:response/rid:fn[@name='AuthorResearch.getDownloadStatus']/rid:map/rid:val[@name='Status']";
       $elements = $xpath->query($query);
       if (!is_null($elements)) {
@@ -709,7 +709,7 @@ class ResearcherID
     $db = DB_API::get();
 
     $xpath = new DOMXPath($response_document);
-    $xpath->registerNamespace('rid', 'http://www.isinet.com/xrpc41');
+    $xpath->registerNamespace('rid', 'http://www.isinet.com/xrpc42');
     $download_response = '';
     $return = true;
 
@@ -1374,7 +1374,7 @@ class ResearcherID
 
             // Get the XML Node with Response attribute
             $xpath = new DOMXPath($response);
-            $xpath->registerNamespace('rid', 'http://www.isinet.com/xrpc41');
+            $xpath->registerNamespace('rid', 'http://www.isinet.com/xrpc42');
             $query = "/rid:response/rid:fn[@name='AuthorResearch.getDownloadStatus']/rid:map/rid:val[@name='Response']";
             $elements = $xpath->query($query);
 
