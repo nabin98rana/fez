@@ -920,7 +920,7 @@ public function afterScenario($event)
             }
         }
         if ($errors) {
-            throw new Exception("Miss match on sek titles -  ". $title. " - post update when there shouldn't be on pid: ".$pid[0]);
+            throw new Exception("Miss match on sek titles -  ". $errors. " - post update when there shouldn't be on pid: ".$pid[0]);
         }
     }
 
