@@ -217,7 +217,7 @@ class ResearcherID
     }
 
     if (is_null($ticket_number) || empty($ticket_number)) {
-      $log->err(array('Failed to get a ticket number.', __FILE__, __LINE__));
+      $log->err(array('Failed to get a ticket number: \n'.$x.'\n'.$y, __FILE__, __LINE__));
       return false;
     } else {
       return ResearcherID::addJob($ticket_number, $xml_api_data_request->saveXML(), $response_document->saveXML());
