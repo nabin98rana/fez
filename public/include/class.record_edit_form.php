@@ -567,7 +567,7 @@ class RecordEditForm
 
                 } elseif ( ($dis_field["xsdmf_multiple"] != 1) && is_array($details[$dis_field["xsdmf_id"]]) && count($details[$dis_field["xsdmf_id"]]) == 1 ) {
                     $details[$dis_field["xsdmf_id"]] = $details[$dis_field["xsdmf_id"]][0];
-                } elseif ( ($dis_field["xsdmf_multiple"] != 1) && is_array($details[$dis_field["xsdmf_id"]]) && count($details[$dis_field["xsdmf_id"]]) > 1 ) {
+                } elseif ( ($dis_field["xsdmf_multiple"] != 1) && is_array($details[$dis_field["xsdmf_id"]]) && count($details[$dis_field["xsdmf_id"]]) != 1 ) {
                     $details[$dis_field["xsdmf_id"]] = '';
                 }
             }
