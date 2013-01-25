@@ -305,13 +305,6 @@ class RecordObject extends RecordGeneral
                       copy($path.$hash['rawHash'], $tmpFile);
 
                       Record::generatePresmd($this->pid, $new_dsID);
-                      Workflow::processIngestTrigger($this->pid, $new_dsID, $mimeDataType);
-                      if (is_file($tmpFile)) {
-                        unlink($tmpFile);
-                      }
-                      if (is_file($resourceDataLocation)) {
-                        unlink($resourceDataLocation);
-                      }
             		}
                 if (count($fileNames) > 0) {
                   $xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('File Attachment Name'), $xdis_str);
@@ -321,9 +314,24 @@ class RecordObject extends RecordGeneral
             }
 
             Record::removeIndexRecord($this->pid, false);
-    		Record::updateSearchKeys($this->pid, $xsd_display_fields, false, $now); //into the non-shadow tables
+    		    Record::updateSearchKeys($this->pid, $xsd_display_fields, false, $now); //into the non-shadow tables
             Record::updateSearchKeys($this->pid, $xsd_display_fields, true, $now); //into the shadow tables
 
+            // now process the ingest triggers now that file_attachment_name etc has been saved into the search keys
+            if (count($tmpFilesArray)) {
+              for($i=0;$i<$numFiles;$i++) {
+                Workflow::processIngestTrigger($this->pid, $fileNames[$i], $mimeDataType);
+                $tmpFile = APP_TEMP_DIR.$fileNames[$i];
+                $resourceDataLocation = $resourceData[$resourceDataKeys[0]][$i];
+                if (is_file($tmpFile)) {
+                  unlink($tmpFile);
+                }
+                if (is_file($resourceDataLocation)) {
+                  unlink($resourceDataLocation);
+                }
+
+              }
+            }
 
 
     		//Mark any files required for deletion.
