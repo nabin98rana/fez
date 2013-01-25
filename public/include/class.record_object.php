@@ -280,6 +280,7 @@ class RecordObject extends RecordGeneral
 
                     $mimeData = $_FILES['xsd_display_fields']['type'];
                     $mimeDataKeys = array_keys($mimeData);
+                    $fileNames = array();
 
                     for($i=0;$i<$numFiles;$i++)
                     {
@@ -299,6 +300,7 @@ class RecordObject extends RecordGeneral
                       $path = $dsr->returnPath();
                       $filename = $dsr->returnFilename();
                       $new_dsID = Foxml::makeNCName($filename);
+                      array_push($fileNames, $new_dsID);
                       $tmpFile = APP_TEMP_DIR.$new_dsID;
                       copy($path.$hash['rawHash'], $tmpFile);
 
@@ -311,6 +313,10 @@ class RecordObject extends RecordGeneral
                         unlink($resourceDataLocation);
                       }
             		}
+                if (count($fileNames) > 0) {
+                  $xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('File Attachment Name'), $xdis_str);
+                  $xsd_display_fields[1]['file_attachment_name'] =array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $fileNames);
+                }
             	}
             }
 
