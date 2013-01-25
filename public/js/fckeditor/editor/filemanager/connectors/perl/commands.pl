@@ -1,6 +1,6 @@
 #####
 #  FCKeditor - The text editor for Internet - http://www.fckeditor.net
-#  Copyright (C) 2003-2007 Frederico Caldeira Knabben
+#  Copyright (C) 2003-2010 Frederico Caldeira Knabben
 #
 #  == BEGIN LICENSE ==
 #
@@ -91,6 +91,7 @@ sub CreateFolder
 
 	if($FORM{'NewFolderName'} ne "") {
 		$sNewFolderName = $FORM{'NewFolderName'};
+		$sNewFolderName =~ s/\.|\\|\/|\||\:|\;|\?|\*|\"|<|>|[[:cntrl:]]/_/g;
 		# Map the virtual path to the local server path of the current folder.
 		$sServerDir = &ServerMapFolder($resourceType, $currentFolder);
 		if(-w $sServerDir) {
@@ -111,7 +112,7 @@ sub CreateFolder
 	}
 	# Create the "Error" node.
 	$cnv_errmsg = &ConvertToXmlAttribute($sErrorMsg);
-	print '<Error number="' . $sErrorNumber . '" originalDescription="' . $cnv_errmsg . '" />';
+	print '<Error number="' . $sErrorNumber . '" />';
 }
 
 sub FileUpload
@@ -119,6 +120,7 @@ sub FileUpload
 eval("use File::Copy;");
 
 	local($resourceType, $currentFolder) = @_;
+	$allowedExtensions = $allowedExtensions{$resourceType};
 
 	$sErrorNumber = '0' ;
 	$sFileName = '' ;
@@ -128,6 +130,19 @@ eval("use File::Copy;");
 
 		# Get the uploaded file name.
 		$sFileName = $new_fname;
+		$sFileName =~ s/\\|\/|\||\:|\;|\?|\*|\"|<|>|[[:cntrl:]]/_/g;
+		$sFileName =~ s/\.(?![^.]*$)/_/g;
+
+		$ext = '';
+		if($sFileName =~ /([^\\\/]*)\.(.*)$/) {
+			$ext  = $2;
+		}
+
+		$allowedRegex = qr/^($allowedExtensions)$/i;
+		if (!($ext =~ $allowedRegex)) {
+			SendUploadResults('202', '', '', '');
+		}
+
 		$sOriginalFileName = $sFileName;
 
 		$iCounter = 0;
@@ -140,7 +155,16 @@ eval("use File::Copy;");
 				$sErrorNumber = '201';
 			} else {
 				copy("$img_dir/$new_fname","$sFilePath");
-				chmod(0777,$sFilePath);
+				if (defined $CHMOD_ON_UPLOAD) {
+					if ($CHMOD_ON_UPLOAD) {
+						umask(000);
+						chmod($CHMOD_ON_UPLOAD,$sFilePath);
+					}
+				}
+				else {
+					umask(000);
+					chmod(0777,$sFilePath);
+				}
 				unlink("$img_dir/$new_fname");
 				last;
 			}
@@ -150,7 +174,7 @@ eval("use File::Copy;");
 	}
 	$sFileName	=~ s/"/\\"/g;
 
-	SendUploadResults($sErrorNumber, $resourceType.$currentFolder.$sFileName, $sFileName, '');
+	SendUploadResults($sErrorNumber, $GLOBALS{'UserFilesPath'}.$resourceType.$currentFolder.$sFileName, $sFileName, '');
 }
 
 sub SendUploadResults
@@ -158,8 +182,16 @@ sub SendUploadResults
 
 	local($sErrorNumber, $sFileUrl, $sFileName, $customMsg) = @_;
 
-	print "Content-type: text/html\n\n";
-	print '<script type="text/javascript">';
+	# Minified version of the document.domain automatic fix script (#1919).
+	# The original script can be found at _dev/domain_fix_template.js
+	# Note: in Perl replace \ with \\ and $ with \$
+	print <<EOF;
+Content-type: text/html
+
+<script type="text/javascript">
+(function(){var d=document.domain;while (true){try{var A=window.parent.document.domain;break;}catch(e) {};d=d.replace(/.*?(?:\\.|\$)/,'');if (d.length==0) break;try{document.domain=d;}catch (e){break;}}})();
+
+EOF
 	print 'window.parent.OnUploadCompleted(' . $sErrorNumber . ',"' . JS_cnv($sFileUrl) . '","' . JS_cnv($sFileName) . '","' . JS_cnv($customMsg) . '") ;';
 	print '</script>';
 	exit ;

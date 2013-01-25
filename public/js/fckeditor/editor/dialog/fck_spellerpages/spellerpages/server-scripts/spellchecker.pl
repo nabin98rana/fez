@@ -18,7 +18,7 @@ my $input_separator = "A";
 # set the 'wordtext' JavaScript variable to the submitted text.
 sub printTextVar {
 	for( my $i = 0; $i <= $#textinputs; $i++ ) {
-	        print "textinputs[$i] = decodeURIComponent('" . escapeQuote( $textinputs[$i] ) . "')\n";
+	        print "textinputs[$i] = decodeURIComponent(\"" . specialchar_cnv( $textinputs[$i] ) . "\");\n";
 	}
 }
 
@@ -106,6 +106,18 @@ sub escapeQuote {
 	return $str;
 }
 
+sub specialchar_cnv
+{
+	local($ch) = @_;
+
+	$ch =~ s/&/&amp;/g;		# &
+	$ch =~ s/\"/&quot;/g;	#"
+	$ch =~ s/\'/&#39;/g;	# '
+	$ch =~ s/</&lt;/g;		# <
+	$ch =~ s/>/&gt;/g;		# >
+	return($ch);
+}
+
 sub handleError {
 	my $err = shift;
 	print "error = '" . escapeQuote( $err ) . "';\n";
@@ -179,5 +191,3 @@ wordWindowObj.writeBody();
 </body>
 </html>
 EOF
-
-

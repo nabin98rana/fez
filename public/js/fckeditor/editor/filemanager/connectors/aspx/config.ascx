@@ -1,7 +1,7 @@
 <%@ Control Language="C#" EnableViewState="false" AutoEventWireup="false" Inherits="FredCK.FCKeditorV2.FileBrowser.Config" %>
 <%--
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2007 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2010 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -22,7 +22,7 @@
  * Configuration file for the File Browser Connector for ASP.NET.
 --%>
 <script runat="server">
-	
+
 	/**
 	 * This function must check the user session to be sure that he/she is
 	 * authorized to upload and access files in the File Browser.
@@ -66,6 +66,9 @@
 		// following extensions only.
 		HtmlExtensions = new string[] { "html", "htm", "xml", "xsd", "txt", "js" };
 
+		// WARNING: It is recommended to remove swf extension from the list of allowed extensions.
+		// SWF files can be used to perform XSS attack.
+
 		TypeConfig[ "File" ].AllowedExtensions			= new string[] { "7z", "aiff", "asf", "avi", "bmp", "csv", "doc", "fla", "flv", "gif", "gz", "gzip", "jpeg", "jpg", "mid", "mov", "mp3", "mp4", "mpc", "mpeg", "mpg", "ods", "odt", "pdf", "png", "ppt", "pxd", "qt", "ram", "rar", "rm", "rmi", "rmvb", "rtf", "sdc", "sitd", "swf", "sxc", "sxw", "tar", "tgz", "tif", "tiff", "txt", "vsd", "wav", "wma", "wmv", "xls", "xml", "zip" };
 		TypeConfig[ "File" ].DeniedExtensions			= new string[] { };
 		TypeConfig[ "File" ].FilesPath					= "%UserFilesPath%file/";
@@ -94,5 +97,5 @@
 		TypeConfig[ "Media" ].QuickUploadPath			= "%UserFilesPath%";
 		TypeConfig[ "Media" ].QuickUploadAbsolutePath	= ( UserFilesAbsolutePath == "" ? "" : "%UserFilesAbsolutePath%" );
 	}
-	
+
 </script>

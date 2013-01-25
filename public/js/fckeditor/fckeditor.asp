@@ -1,6 +1,6 @@
 ﻿<!--
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2007 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2010 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -131,7 +131,7 @@ Class FCKeditor
 
 		End If
 
-		CreateHtml = "<div>" & html & "</div>"
+		CreateHtml = html
 
 	End Function
 
@@ -168,17 +168,17 @@ Class FCKeditor
 	Private Function EncodeConfig( valueToEncode )
 		' The locale of the asp server makes the conversion of a boolean to string different to "true" or "false"
 		' so we must do it manually
-    If vartype(valueToEncode) = vbBoolean then 
+    If vartype(valueToEncode) = vbBoolean then
 			If valueToEncode=True Then
 				EncodeConfig="True"
 			Else
 				EncodeConfig="False"
-			End If 
+			End If
 		Else
 			EncodeConfig = Replace( valueToEncode, "&", "%26" )
 			EncodeConfig = Replace( EncodeConfig , "=", "%3D" )
 			EncodeConfig = Replace( EncodeConfig , """", "%22" )
-		End if                           
+		End if
 
 	End Function
 
@@ -200,8 +200,16 @@ Function FCKeditor_IsCompatibleBrowser()
 		iVersion = CInt( FCKeditor_ToNumericFormat( Mid(sAgent, InStr(sAgent, "MSIE") + 5, 3) ) )
 		FCKeditor_IsCompatibleBrowser = ( iVersion >= 5.5 )
 	ElseIf InStr(sAgent, "Gecko/") > 0 Then
-		iVersion = CLng( Mid( sAgent, InStr( sAgent, "Gecko/" ) + 6, 8 ) )
-		FCKeditor_IsCompatibleBrowser = ( iVersion >= 20030210 )
+		Set re = new RegExp
+		re.IgnoreCase = true
+		re.global = false
+		re.Pattern = "Gecko/\d+\.\d+"
+		If re.Test(sAgent) Then
+			FCKeditor_IsCompatibleBrowser = True
+		Else
+			iVersion = CLng( Mid( sAgent, InStr( sAgent, "Gecko/" ) + 6, 8 ) )
+			FCKeditor_IsCompatibleBrowser = ( iVersion >= 20030210 )
+		End If
 	ElseIf InStr(sAgent, "Opera/") > 0 Then
 		iVersion = CSng( FCKeditor_ToNumericFormat( Mid( sAgent, InStr( sAgent, "Opera/" ) + 6, 4 ) ) )
 		FCKeditor_IsCompatibleBrowser = ( iVersion >= 9.5 )

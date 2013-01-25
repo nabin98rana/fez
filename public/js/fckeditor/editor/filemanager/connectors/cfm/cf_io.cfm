@@ -1,7 +1,7 @@
 <cfsetting enablecfoutputonly="Yes">
 <!---
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2007 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2010 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -174,7 +174,7 @@
 	<cfreturn true>
 </cffunction>
 
-<cffunction name="GetCurrentFolder" returntype="String" output="false">
+<cffunction name="GetCurrentFolder" returntype="String" output="true">
 	<cfset var sCurrentFolder = "/">
 
 	<cfif isDefined( "URL.CurrentFolder" )>
@@ -193,8 +193,12 @@
 	<!--- Ensure the folder path has no double-slashes, or mkdir may fail on certain platforms --->
 	<cfset sCurrentFolder = rereplace( sCurrentFolder, "//+", "/", "all" )>
 
-	<cfif find( "..", sCurrentFolder)>
-		<cfset SendError( 102, "" )>
+	<cfif find( "..", sCurrentFolder) or find( "\", sCurrentFolder) or REFind('(/\.)|(//)|[[:cntrl:]]|([\\:\;\.\*\?\"<>])', sCurrentFolder)>
+		<cfif URL.Command eq "FileUpload" or URL.Command eq "QuickUpload">
+			<cfset SendUploadResults( 102, "", "", "") >
+		<cfelse>
+			<cfset SendError( 102, "" )>
+		</cfif>
 	</cfif>
 
 	<cfreturn sCurrentFolder>
@@ -204,8 +208,8 @@
 	<cfargument name="sNewFolderName" required="true">
 
 	<!--- Do a cleanup of the folder name to avoid possible problems --->
-	<!--- Remove . \ / | : ? * " < > --->
-	<cfset sNewFolderName = rereplace( sNewFolderName, '\.+|\\+|\/+|\|+|\:+|\?+|\*+|"+|<+|>+', "_", "all" )>
+	<!--- Remove . \ / | : ? * " < > and control characters --->
+	<cfset sNewFolderName = rereplace( sNewFolderName, '\.+|\\+|\/+|\|+|\:+|\;+|[\.]+|\?+|\*+|"+|<+|>+|[[:cntrl:]]+', "_", "all" )>
 
 	<cfreturn sNewFolderName>
 </cffunction>
@@ -265,10 +269,17 @@
 	<cfargument name="fileName" required="false" type="String" default="">
 	<cfargument name="customMsg" required="false" type="String" default="">
 
+	<cfif errorNumber and errorNumber neq 201>
+		<cfset fileUrl = "">
+		<cfset fileName = "">
+	</cfif>
+	<!--- Minified version of the document.domain automatic fix script (#1919).
+	The original script can be found at _dev/domain_fix_template.js --->
 	<cfoutput>
-		<script type="text/javascript">
-			window.parent.OnUploadCompleted( #errorNumber#, "#JSStringFormat(fileUrl)#", "#JSStringFormat(fileName)#", "#JSStringFormat(customMsg)#" );
-		</script>
+<script type="text/javascript">
+(function(){var d=document.domain;while (true){try{var A=window.parent.document.domain;break;}catch(e) {};d=d.replace(/.*?(?:\.|$)/,'');if (d.length==0) break;try{document.domain=d;}catch (e){break;}}})();
+window.parent.OnUploadCompleted( #errorNumber#, "#JSStringFormat(fileUrl)#", "#JSStringFormat(fileName)#", "#JSStringFormat(customMsg)#" );
+</script>
 	</cfoutput>
 	<cfabort>
 </cffunction>
@@ -281,8 +292,8 @@
 	</cfif>
 
 	<!--- Do a cleanup of the file name to avoid possible problems --->
-	<!--- Remove \ / | : ? * " < > --->
-	<cfset sNewFileName = rereplace( sNewFileName, '\\[.]+|\\+|\/+|\|+|\:+|\?+|\*+|"+|<+|>+', "_", "all" )>
+	<!--- Remove \ / | : ? * " < > and control characters --->
+	<cfset sNewFileName = rereplace( sNewFileName, '\\[.]+|\\+|\/+|\|+|\:+|\;+|\?+|\*+|"+|<+|>+|[[:cntrl:]]+', "_", "all" )>
 
 	<cfreturn sNewFileName>
 </cffunction>

@@ -1,6 +1,6 @@
 #####
 #  FCKeditor - The text editor for Internet - http://www.fckeditor.net
-#  Copyright (C) 2003-2007 Frederico Caldeira Knabben
+#  Copyright (C) 2003-2010 Frederico Caldeira Knabben
 #
 #  == BEGIN LICENSE ==
 #
@@ -63,7 +63,7 @@ sub CreateHtml
 {
 
 	$HtmlValue = &specialchar_cnv($Value);
-	$Html = '<div>' ;
+	$Html = '' ;
 	if(&IsCompatible()) {
 		$Link = $BasePath . "editor/fckeditor.html?InstanceName=$InstanceName";
 		if($ToolbarSet ne '') {
@@ -93,7 +93,6 @@ sub CreateHtml
 		}
 		$Html .= "<textarea name=\"$InstanceName\" rows=\"4\" cols=\"40\" style=\"width: $WidthCSS; height: $HeightCSS\">$HtmlValue</textarea>";
 	}
-	$Html .= '</div>';
 	return($Html);
 }
 
@@ -104,6 +103,8 @@ sub IsCompatible
 	if(($sAgent =~ /MSIE/i) && !($sAgent =~ /mac/i) && !($sAgent =~ /Opera/i)) {
 		$iVersion = substr($sAgent,index($sAgent,'MSIE') + 5,3);
 		return($iVersion >= 5.5) ;
+	} elsif($sAgent =~ /Gecko\/\d+\.\d+/i) {
+		return true;
 	} elsif($sAgent =~ /Gecko\//i) {
 		$iVersion = substr($sAgent,index($sAgent,'Gecko/') + 6,8);
 		return($iVersion >= 20030210) ;

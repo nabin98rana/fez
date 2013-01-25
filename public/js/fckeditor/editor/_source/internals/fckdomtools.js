@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2007 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2010 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -488,18 +488,46 @@ var FCKDomTools =
 
 		for ( var i = 0 ; i < attributes.length ; i++ )
 		{
-			if ( FCKBrowserInfo.IsIE && attributes[i].nodeName == 'class' )
+			if ( FCKBrowserInfo.IsIE )
 			{
-				// IE has a strange bug. If calling removeAttribute('className'),
-				// the attributes collection will still contain the "class"
-				// attribute, which will be marked as "specified", even if the
-				// outerHTML of the element is not displaying the class attribute.
-				// Note : I was not able to reproduce it outside the editor,
-				// but I've faced it while working on the TC of #1391.
-				if ( element.className.length > 0 )
-					return true ;
+				var attributeNodeName = attributes[i].nodeName ;
+
+				if ( attributeNodeName.StartsWith( '_fck' ) )
+				{
+					/**
+					 * There are places in the FCKeditor code where HTML element objects
+					 * get values stored as properties (e.g. _fckxhtmljob).  In Internet
+					 * Explorer, these are interpreted as attempts to set attributes on
+					 * the element.
+					 *
+					 * http://msdn.microsoft.com/en-us/library/ms533026(VS.85).aspx#Accessing_Element_Pr
+					 *
+					 * Counting these as HTML attributes cripples
+					 * FCK.Style.RemoveFromRange() once FCK.GetData() has been called.
+					 *
+					 * The above conditional prevents these internal properties being
+					 * counted as attributes.
+					 *
+					 * refs #2156 and #2834
+					 */
+
+					continue ;
+				}
+
+				if ( attributeNodeName == 'class' )
+				{
+					// IE has a strange bug. If calling removeAttribute('className'),
+					// the attributes collection will still contain the "class"
+					// attribute, which will be marked as "specified", even if the
+					// outerHTML of the element is not displaying the class attribute.
+					// Note : I was not able to reproduce it outside the editor,
+					// but I've faced it while working on the TC of #1391.
+					if ( element.className.length > 0 )
+						return true ;
+					continue ;
+				}
 			}
-			else if ( attributes[i].specified )
+			if ( attributes[i].specified )
 				return true ;
 		}
 
@@ -515,6 +543,15 @@ var FCKDomTools =
 			attributeName = 'className' ;
 
 		return element.removeAttribute( attributeName, 0 ) ;
+	},
+
+	/**
+	 * Removes an array of attributes from an element
+	 */
+	RemoveAttributes : function (element, aAttributes )
+	{
+		for ( var i = 0 ; i < aAttributes.length ; i++ )
+			this.RemoveAttribute( element, aAttributes[i] );
 	},
 
 	GetAttributeValue : function( element, att )
@@ -569,7 +606,7 @@ var FCKDomTools =
 	 *		<b>This <i>is some<span /> sample</i> test text</b>
 	 * If element = <span />, we have these results:
 	 *		<b>This <i>is some</i><span /><i> sample</i> test text</b>			(If parent = <i>)
-	 *		<b>This <i>is some</i></b><span /><b<i> sample</i> test text</b>	(If parent = <b>)
+	 *		<b>This <i>is some</i></b><span /><b><i> sample</i> test text</b>	(If parent = <b>)
 	 */
 	BreakParent : function( element, parent, reusableRange )
 	{
@@ -609,7 +646,7 @@ var FCKDomTools =
 	GetNodeAddress : function( node, normalized )
 	{
 		var retval = [] ;
-		while ( node && node != node.ownerDocument.documentElement )
+		while ( node && node != FCKTools.GetElementDocument( node ).documentElement )
 		{
 			var parentNode = node.parentNode ;
 			var currentIndex = -1 ;
@@ -687,7 +724,7 @@ var FCKDomTools =
 
 	SetElementMarker : function ( markerObj, element, attrName, value)
 	{
-		var id = String( parseInt( Math.random() * 0xfffffff, 10 ) ) ;
+		var id = String( parseInt( Math.random() * 0xffffffff, 10 ) ) ;
 		element._FCKMarkerId = id ;
 		element[attrName] = value ;
 		if ( ! markerObj[id] )
@@ -767,7 +804,7 @@ var FCKDomTools =
 			baseIndex = 0 ;
 		if ( ! listArray || listArray.length < baseIndex + 1 )
 			return null ;
-		var doc = listArray[baseIndex].parent.ownerDocument ;
+		var doc = FCKTools.GetElementDocument( listArray[baseIndex].parent ) ;
 		var retval = doc.createDocumentFragment() ;
 		var rootNode = null ;
 		var currentIndex = baseIndex ;
@@ -924,36 +961,55 @@ var FCKDomTools =
 			style[ styleName ] = styleDict[ styleName ] ;
 	},
 
-	GetCurrentElementStyle : function( w, element, attrName )
+	SetOpacity : function( element, opacity )
 	{
 		if ( FCKBrowserInfo.IsIE )
-			return element.currentStyle[attrName] ;
+		{
+			opacity = Math.round( opacity * 100 ) ;
+			element.style.filter = ( opacity > 100 ? '' : 'progid:DXImageTransform.Microsoft.Alpha(opacity=' + opacity + ')' ) ;
+		}
 		else
-			return w.getComputedStyle( element, '' )[attrName] ;
+			element.style.opacity = opacity ;
 	},
 
-	GetPositionedAncestor : function( w, element )
+	GetCurrentElementStyle : function( element, propertyName )
+	{
+		if ( FCKBrowserInfo.IsIE )
+			return element.currentStyle[ propertyName ] ;
+		else
+			return element.ownerDocument.defaultView.getComputedStyle( element, '' ).getPropertyValue( propertyName ) ;
+	},
+
+	GetPositionedAncestor : function( element )
 	{
 		var currentElement = element ;
-		while ( currentElement != currentElement.ownerDocument.documentElement )
+
+		while ( currentElement != FCKTools.GetElementDocument( currentElement ).documentElement )
 		{
-			if ( this.GetCurrentElementStyle( w, currentElement, 'position' ) != 'static' )
+			if ( this.GetCurrentElementStyle( currentElement, 'position' ) != 'static' )
 				return currentElement ;
-			currentElement = currentElement.parentNode ;
+
+			if ( currentElement == FCKTools.GetElementDocument( currentElement ).documentElement
+					&& currentWindow != w )
+				currentElement = currentWindow.frameElement ;
+			else
+				currentElement = currentElement.parentNode ;
 		}
+
 		return null ;
 	},
 
 	/**
-	 * Current implementation for ScrollIntoView (due to #1462). We don't have
-	 * a complete implementation here, just the things that fit our needs.
+	 * Current implementation for ScrollIntoView (due to #1462 and #2279). We
+	 * don't have a complete implementation here, just the things that fit our
+	 * needs.
 	 */
 	ScrollIntoView : function( element, alignTop )
 	{
 		// Get the element window.
 		var window = FCKTools.GetElementWindow( element ) ;
 		var windowHeight = FCKTools.GetViewPaneSize( window ).Height ;
-		
+
 		// Starts the offset that will be scrolled with the negative value of
 		// the visible window height.
 		var offset = windowHeight * -1 ;
@@ -961,24 +1017,69 @@ var FCKDomTools =
 		// Appends the height it we are about to align the bottoms.
 		if ( alignTop === false )
 		{
-			offset += element.offsetHeight ;
-			
+			offset += element.offsetHeight || 0 ;
+
 			// Consider the margin in the scroll, which is ok for our current
 			// needs, but needs investigation if we will be using this function
 			// in other places.
-			offset += parseInt( this.GetCurrentElementStyle( window, element, 'marginBottom' ) || 0, 10 ) ;
+			offset += parseInt( this.GetCurrentElementStyle( element, 'marginBottom' ) || 0, 10 ) || 0 ;
 		}
 
 		// Appends the offsets for the entire element hierarchy.
-		offset += element.offsetTop ;
-		while ( ( element = element.offsetParent ) )
-			offset += element.offsetTop || 0 ;
-		
+		var elementPosition = FCKTools.GetDocumentPosition( window, element ) ;
+		offset += elementPosition.y ;
+
 		// Scroll the window to the desired position, if not already visible.
 		var currentScroll = FCKTools.GetScrollPosition( window ).Y ;
-		if ( offset > 0 && offset > currentScroll )
+		if ( offset > 0 && ( offset > currentScroll || offset < currentScroll - windowHeight ) )
 			window.scrollTo( 0, offset ) ;
+	},
+
+	/**
+	 * Check if the element can be edited inside the browser.
+	 */
+	CheckIsEditable : function( element )
+	{
+		// Get the element name.
+		var nodeName = element.nodeName.toLowerCase() ;
+
+		// Get the element DTD (defaults to span for unknown elements).
+		var childDTD = FCK.DTD[ nodeName ] || FCK.DTD.span ;
+
+		// In the DTD # == text node.
+		return ( childDTD['#'] && !FCKListsLib.NonEditableElements[ nodeName ] ) ;
+	},
+
+	GetSelectedDivContainers : function()
+	{
+		var currentBlocks = [] ;
+		var range = new FCKDomRange( FCK.EditorWindow ) ;
+		range.MoveToSelection() ;
+
+		var startNode = range.GetTouchedStartNode() ;
+		var endNode = range.GetTouchedEndNode() ;
+		var currentNode = startNode ;
+
+		if ( startNode == endNode )
+		{
+			while ( endNode.nodeType == 1 && endNode.lastChild )
+				endNode = endNode.lastChild ;
+			endNode = FCKDomTools.GetNextSourceNode( endNode ) ;
+		}
+
+		while ( currentNode && currentNode != endNode )
+		{
+			if ( currentNode.nodeType != 3 || !/^[ \t\n]*$/.test( currentNode.nodeValue ) )
+			{
+				var path = new FCKElementPath( currentNode ) ;
+				var blockLimit = path.BlockLimit ;
+				if ( blockLimit && blockLimit.nodeName.IEquals( 'div' ) && currentBlocks.IndexOf( blockLimit ) == -1 )
+					currentBlocks.push( blockLimit ) ;
+			}
+
+			currentNode = FCKDomTools.GetNextSourceNode( currentNode ) ;
+		}
+
+		return currentBlocks ;
 	}
 } ;
-
-
