@@ -722,7 +722,6 @@ abstract class RecordImport
             "Journal Name" => $this->_journalTitle,
             "WoK Doc Type" => $this->_wokDocTypeCode,
             "Scopus Doc Type" => $this->_scopusDocType,
-//             "Scopus Doc Type" => null,
             "Pubmed Id" => $this->_pubmedId,
             "Embase Id" => $this->_embaseId,
             "Scopus Id" => $this->_scopusId,

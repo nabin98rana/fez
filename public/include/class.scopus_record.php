@@ -53,6 +53,12 @@ class ScopusRecItem extends RecordImport
      */
     protected $_affiliations = array();
     
+    protected $_namesSpaces = array(
+            'prism' => "http://prismstandard.org/namespaces/basic/2.0/",
+            'dc' => "http://purl.org/dc/elements/1.1/",
+            'opensearch' => "http://a9.com/-/spec/opensearch/1.1/"
+           );
+    
     /**
      * Perform de-duping using these ids
      * which also have cooresponding methods
@@ -60,7 +66,7 @@ class ScopusRecItem extends RecordImport
      */
     protected $_comparisonIdTypes = array('_scopusId', '_doi', '_pubmedId', '_title');
     
-    public function __construct($recordData=null, $xmlNs=null)
+    public function __construct($recordData=null)
     {
         $this->_log = FezLog::get();
         if($recordData)
