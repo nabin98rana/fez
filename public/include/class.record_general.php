@@ -729,14 +729,19 @@ class RecordGeneral
                 if (is_array($datastreams[$datastreamName]) || $datastreams[$datastreamName] == "") {
                     echo "\n**** PID " . $this->pid . " without a " . $datastreamName .
                     " datastream was found, this will need content model changing first **** \n";
+                    $this->_log->err("\n**** PID " . $this->pid . " without a " . $datastreamName .
+                    " datastream was found, this will need content model changing first **** \n");
                 }
-                $doc = DOMDocument::loadXML($datastreams[$datastreamName]);
-                $tempdoc = $this->addSearchKeyValue($doc, $sk, $values[$s], $removeCurrent);
-                if ($tempdoc !== false) {
-                    if (!empty($values[$s])) {
-                        $search_keys_added[$sk] = $values[$s];
+                else 
+                {
+                    $doc = DOMDocument::loadXML($datastreams[$datastreamName]);
+                    $tempdoc = $this->addSearchKeyValue($doc, $sk, $values[$s], $removeCurrent);
+                    if ($tempdoc !== false) {
+                        if (!empty($values[$s])) {
+                            $search_keys_added[$sk] = $values[$s];
+                        }
+                        $datastreams[$datastreamName] = $tempdoc->saveXML();
                     }
-                    $datastreams[$datastreamName] = $tempdoc->saveXML();
                 }
             }
 

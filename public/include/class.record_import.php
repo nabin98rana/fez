@@ -53,7 +53,9 @@ abstract class RecordImport
     protected $_xdisTitle = null;
     protected $_xdisSubtype = null;
     
-    protected $_statsFile = "/var/www/fez/tests/dat/importStats01.txt";
+//     protected $_statsFile = "/var/www/scopusimptest/importStats01.txt";
+    protected $_statsFile = null;
+    protected $_inTest = false;
 
     /**
      * Namespaces to use with the XPath object
@@ -70,6 +72,26 @@ abstract class RecordImport
 
 
     public abstract function load($recordData, $nameSpaces=null);
+    
+    /**
+     * Set the test state of the object
+     * @param boolean $state
+     */
+    public function setInTest($state)
+    {
+        $this->_inTest = $state;
+        return $this->_inTest;
+    }
+    
+    /**
+     * Set a path to the stats file for testing purposes
+     * @param string $statsFile
+     */
+    public function setStatsFile($statsFile)
+    {
+        $this->_statsFile = $statsFile;
+        return $this->_statsFile;
+    }
 
     /**
      * Common xpath object used by all child classes
@@ -135,7 +157,18 @@ abstract class RecordImport
                 elseif($pidCount > 1)
                 {
                     $this->_log->err("Multiple matches found for $id:". implode(", ", $pids));
-                    $this->save(null, APP_TEMPORARY_DUPLICATES_COLLECTION);
+                    
+                    if(!$this->_inTest)
+                    {
+                        $this->save(null, APP_TEMPORARY_DUPLICATES_COLLECTION);
+                    }
+                    else 
+                    {
+                        file_put_contents($this->_statsFile, "ST01 - " 
+                        . $this->_scopusId." matches more than one pid(" 
+                        . implode(',', $pids) . ") based on $retrieverName\n\n", 
+                        FILE_APPEND);
+                    }
                     return false;
                 }
                 else 
@@ -152,7 +185,10 @@ abstract class RecordImport
         {
             if(array_key_exists('matchedPid', $association))
             {
-                $pidCollection[] = $association['matchedPid'];
+                if(!is_null($association['matchedPid']))
+                {
+                    $pidCollection[] = $association['matchedPid'];
+                }
             }
             
             if($association['status'] == 'MATCHED')
@@ -182,8 +218,20 @@ abstract class RecordImport
                     }
                     else
                     {
-                        $this->_log->err("Mismatch error. Scopus Id " . $this->$cit . " matches but the following do not: " . implode(", ", $idMismatches));
-                        $this->save(null, APP_TEMPORARY_DUPLICATES_COLLECTION);
+                        $this->_log->err("Mismatch error. Scopus Id " . $this->$cit 
+                        . " matches but the following do not: " 
+                        . implode(", ", $idMismatches));
+                        
+                        if(!$this->_inTest)
+                        {
+                            $this->save(null, APP_TEMPORARY_DUPLICATES_COLLECTION);
+                        }
+                        else 
+                        {
+                            file_put_contents($this->_statsFile, "ST02 - Mismatch error. Scopus Id " 
+                            . $this->$cit . " matches but the following do not: " 
+                            . implode(", ", $idMismatches)."\n\n", FILE_APPEND);
+                        }
                         return false;
                     }
                     break; //Stop processing any further id types
@@ -229,7 +277,18 @@ abstract class RecordImport
                     $this->_log->err("Start page mismatch for '" . $this->_title 
                             . "'. Local start page is: " . Record::getSearchKeyIndexValue($authorativePid, 'Start Page', false) 
                             . " . Downloaded start page is: " . $this->_startPage);
-                    $this->save(null, APP_TEMPORARY_DUPLICATES_COLLECTION);
+                    
+                    if(!$this->_inTest)
+                    {
+                        $this->save(null, APP_TEMPORARY_DUPLICATES_COLLECTION);
+                    }
+                    else 
+                    {
+                        file_put_contents($this->_statsFile, "ST03 - Start page mismatch for '" . $this->_title 
+                            . "'. Local start page is: " . Record::getSearchKeyIndexValue($authorativePid, 'Start Page', false) 
+                            . " . Downloaded start page is: " . $this->_startPage . "\n\n", FILE_APPEND);
+                    }
+                    
                     return false;
                 }
                 
@@ -243,7 +302,18 @@ abstract class RecordImport
                     $this->_log->err("End page mismatch for '" . $this->_title 
                             . "'. Local end page is: " . Record::getSearchKeyIndexValue($authorativePid, 'End Page' , false) 
                             . " . Downloaded end page is: " . $this->_endPage);
-                    $this->save(null, APP_TEMPORARY_DUPLICATES_COLLECTION);
+                    
+                    if(!$this->_inTest)
+                    {
+                        $this->save(null, APP_TEMPORARY_DUPLICATES_COLLECTION);
+                    }
+                    else 
+                    {
+                        file_put_contents($this->_statsFile, "ST04 - End page mismatch for '" . $this->_title 
+                            . "'. Local end page is: " . Record::getSearchKeyIndexValue($authorativePid, 'End Page' , false) 
+                            . " . Downloaded end page is: " . $this->_endPage, FILE_APPEND);
+                    }
+                    
                     return false;
                 }
                 
@@ -257,7 +327,18 @@ abstract class RecordImport
                     $this->_log->err("Volume mismatch for '" . $this->_title
                     . "'. Local end page is: " . Record::getSearchKeyIndexValue($authorativePid, 'Volume Number', false)
                     . " . Downloaded end page is: " . $this->_issueVolume);
-                    $this->save(null, APP_TEMPORARY_DUPLICATES_COLLECTION);
+                    
+                    if(!$this->_inTest)
+                    {
+                        $this->save(null, APP_TEMPORARY_DUPLICATES_COLLECTION);
+                    }
+                    else 
+                    {
+                        file_put_contents($this->_statsFile, "ST05 - Volume mismatch for '" . $this->_title
+                            . "'. Local end page is: " . Record::getSearchKeyIndexValue($authorativePid, 'Volume Number', false)
+                            . " . Downloaded end page is: " . $this->_issueVolume."\n\n", FILE_APPEND);
+                    }
+                    
                     return false;
                 }
             }
@@ -267,26 +348,62 @@ abstract class RecordImport
                 $this->_log->err("Downloaded title: '" . $downloadedTitle 
                         . "' FAILED TO MATCH the local title: '" . $localTitle 
                         . "' with a match of only " . $percentageMatch . "%");
-                $this->save(null, APP_TEMPORARY_DUPLICATES_COLLECTION);
+                
+                if(!$this->_inTest)
+                {
+                    $this->save(null, APP_TEMPORARY_DUPLICATES_COLLECTION);
+                }
+                else 
+                {
+                    file_put_contents($this->_statsFile, "ST06 - Downloaded title: '" . $downloadedTitle 
+                        . "' FAILED TO MATCH the local title: '" . $localTitle 
+                        . "' with a match of only " . $percentageMatch . "%\n\n", FILE_APPEND);
+                }
             }
                       
  
         }
         elseif(empty($pidCollection))
         {
-            $this->save();
+            if(!$this->_inTest)
+            {
+                $this->save();
+            }
+            else 
+            {
+                file_put_contents($this->_statsFile, "ST07 - No matches, saving a new PID for '" . $this->_title . "'\n\n", FILE_APPEND);
+            }
+            
             return "SAVE";
         }
         else 
         {
             $this->_log->err("Different ids in the same downloaded record are matching up with different pids"); //add data to this message
-            $this->save(null, APP_TEMPORARY_DUPLICATES_COLLECTION);
+            
+            if(!$this->_inTest)
+            {
+                $this->save(null, APP_TEMPORARY_DUPLICATES_COLLECTION);
+            }
+            else 
+            {
+                file_put_contents($this->_statsFile, "ST08 - Different ids in the same downloaded record are matching up with different pids for '" 
+                    . $this->_title . "'.".var_export($associations,true)."\n\n", FILE_APPEND);
+            }
+            
             return false;
         }
         
         if($authorativePid)
         {
-            $this->update($authorativePid);
+            if(!$this->_inTest)
+            {
+                $this->update($authorativePid);
+            }
+            else 
+            {
+                file_put_contents($this->_statsFile, "ST09 - Updating: ".$authorativePid."\n\n", FILE_APPEND);
+            }
+            
             return "UPDATE";
         }
     }
@@ -605,7 +722,6 @@ abstract class RecordImport
             "Journal Name" => $this->_journalTitle,
             "WoK Doc Type" => $this->_wokDocTypeCode,
             "Scopus Doc Type" => $this->_scopusDocType,
-//             "Scopus Doc Type" => null,
             "Pubmed Id" => $this->_pubmedId,
             "Embase Id" => $this->_embaseId,
             "Scopus Id" => $this->_scopusId,

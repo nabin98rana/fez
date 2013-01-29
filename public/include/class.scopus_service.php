@@ -40,30 +40,27 @@
  *
  */
 
-//Move this  constant into the DB
-//define('SCOPUS_WS_BASE_URL', 'https://api.elsevier.com/');
-
 class ScopusService
 {
-    protected $log;
+    protected $_log;
     
-    protected $authToken;
+    protected $_authToken;
     
-    protected $apiKey;
+    protected $_apiKey;
     
-    protected $db;
+    protected $_db;
     
-    protected $totalCount;//maybe don't need this
+    protected $_recSetStart = 0;
     
-    protected $recSetStart = 0;
+    protected $_recSetSize = 30;
     
-    const REC_SET_SIZE = 30;
+    protected $_lastSet = false;
     
     public function __construct($apiKey)
     {
-        $this->apiKey = $apiKey;
-        $this->log = FezLog::get();
-        $this->db = DB_API::get();
+        $this->_apiKey = $apiKey;
+        $this->_log = FezLog::get();
+        $this->_db = DB_API::get();
         $this->auth();
     }
     
@@ -73,7 +70,7 @@ class ScopusService
      */
     public function getAuthToken()
     {
-        return $this->authToken;
+        return $this->_authToken;
     }
     
     /**
@@ -84,7 +81,7 @@ class ScopusService
     {
         $sql = "SELECT scs_tok, unix_timestamp(ts) as ts FROM " 
             . APP_TABLE_PREFIX . "scopus_session LIMIT 1";
-        $stmt = $this->db->query($sql);
+        $stmt = $this->_db->query($sql);
         $tokenData = $stmt->fetch();
         
         //If the token is less than two hours old return it
@@ -115,22 +112,20 @@ class ScopusService
         
         try 
         {
-            $tr = $this->db->query($sqlTruncate);
+            $tr = $this->_db->query($sqlTruncate);
         }
         catch(Exception $e)
         {
-            $this->log->err($e->getMessage());
-            //var_dump($e->getMessage() . __LINE__);
+            $this->_log->err($e->getMessage());
         }
         
         try
         {
-            $in = $this->db->query($sqlInsert, array($token));
+            $in = $this->_db->query($sqlInsert, array($token));
         }
         catch(Exception $e)
         {
-            $this->log->err($e->getMessage());
-            //var_dump($e->getMessage() . __LINE__);
+            $this->_log->err($e->getMessage());
         }
         
         return ($tr && $in) ? true : false;
@@ -152,15 +147,13 @@ class ScopusService
         if(!$token)
         {
             $curlRes = $this->doCurl($params);
-//             var_dump($curlRes);
             $xpath = $this->getXPath($this->doCurl($params));
             $tokens = $xpath->query("//authenticate-response/authtoken");
             $token = $tokens->item(0)->nodeValue;
             $this->saveToken($token);
-            //var_dump($token . " LINE: " . __LINE__);
         }
         
-        $this->authToken = $token;
+        $this->_authToken = $token;
     }
     
     /**
@@ -170,10 +163,10 @@ class ScopusService
      */
     public function search(array $query)
     {
-        if(!$this->authToken)
+        if(!$this->_authToken)
         {
             //Run the auth method instead of throwing an exception??
-            $this->log->err("No authtoken is set for ScopusAPI access:"
+            $this->_log->err("No authtoken is set for ScopusAPI access:"
                 . __FILE__ . ":" . __LINE__);
             return false;
         }
@@ -184,25 +177,7 @@ class ScopusService
             'qs' => $query
         );
         
-        /***$params = array(
-            'action' => 'search',
-            'db' => 'index:SCOPUS',
-            'qs' => $query
-        );*/
-        
-        /*$params = array(
-            'action' => 'affiliation',
-            'db' => 'AFFILIATION_ID:60031004',
-            'qs' => array(
-                'start' => 1,
-                'count' => 30,
-                'view' => 'DOCUMENTS'
-            )
-        );*/
-        
         $recordData = $this->doCurl($params, 'content');
-        //return file_put_contents('/var/www/fez/tests/dat/entrezFullOutOO.txt', $recordData);
-//         file_put_contents('/var/www/fez/tests/dat/scopusFullOut120601.txt', $recordData, FILE_APPEND);
         return $recordData;
     }
     
@@ -211,20 +186,20 @@ class ScopusService
      * there is one to grab
      * @return mixed
      */
-    public function getNextRecordSet()
+    public function getNextRecordSet($query=null)
     {
-        $query = array('query' => 'affil(University+of+Queensland)+PUBYEAR+BEF+2010',
-                            'count' => self::REC_SET_SIZE,
-                            'start' => $this->recSetStart,
-                            'view' => 'STANDARD',
-                            //'date' => '2010-2011'
-                            //'view' => 'COMPLETE'
-        );
+        if(!$query)
+        {
+            $query = array('query' => 'affil(University+of+Queensland)+rr=30',
+                                'count' => $this->_recSetSize,
+                                'start' => $this->_recSetStart,
+                                'view' => 'STANDARD',
+            );
+        }
         
         $records = $this->search($query);
-        
-        $this->recSetStart = $this->getNextRecStart($records);
-        
+        $this->_recSetStart = $this->getNextRecStart($records);
+
         return $records;
     }
     
@@ -248,6 +223,11 @@ class ScopusService
      */
     public function getNextRecStart($recordSet)
     {
+        if($this->_lastSet)
+        {
+            return false;
+        }
+        
         $xpath = $this->getXPath($recordSet);
         $links = $xpath->query('//default:feed/default:link');
         $nextRecStart = false;
@@ -267,61 +247,57 @@ class ScopusService
                 }
             }
         }
-//         echo "\nNEXT REC START:"; var_dump($nextRecStart);
+        
+        if(!$nextRecStart)
+        {
+            $this->_lastSet = true;
+            $nextRecStart = $this->_recSetStart + $this->_recSetSize;
+        }
+        
         return $nextRecStart;
     }
     
-    public function compare($recordSet=null)
+    /**
+    * Download records from Scopus, perform
+    * de-duping and enter into database.
+    */
+    public function downloadRecords()
     {
-        $recordSet = ($recordSet) ? $recordSet : $this->getNextRecordSet();
-        //Pull out all the <entry> tags and 
-        //create a Scopus record object for
-        //each one.
-        
-        /*$xpath = $this->getXPath($recordSet);
-        $records = $xpath->query('//default:entry');*/
+        $xml = $this->getNextRecordSet();
         
         $nameSpaces = array(
-                'prism' => "http://prismstandard.org/namespaces/basic/2.0/",
-                'dc' => "http://purl.org/dc/elements/1.1/"
+                    'prism' => "http://prismstandard.org/namespaces/basic/2.0/",
+                    'dc' => "http://purl.org/dc/elements/1.1/",
+                    'opensearch' => "http://a9.com/-/spec/opensearch/1.1/"
         );
         
-        $doc = new DOMDocument();
-        $doc->loadXML($recordSet);
-        $records = $doc->getElementsByTagName('entry');
-        
-        //$recordHandler = new ScopusRecItem();//this or a new object for each record?
-        //Need to flush the object properly if it's to be reused
-        
-        //get_class($records->item(0));
-        foreach($records as $record)
+        while($this->_recSetStart)
         {
-            $recordHandler = new ScopusRecItem();
-            $xmlDoc = new DOMDocument();
-            $xmlDoc->appendChild($xmlDoc->importNode($record, true));
-            $recordHandler->load($xmlDoc->saveXML(), $nameSpaces);
-            $recordHandler->liken();
-            //var_dump($xmlDoc->saveXML());
+        
+            $doc = new DOMDocument();
+            $doc->loadXML($xml);
+            $records = $doc->getElementsByTagName('identifier');
+        
+            foreach($records as $record)
+            {
+                $csr = new ScopusRecItem();
+        
+                $scopusId = $record->nodeValue;
+                $matches = array();
+                preg_match("/^SCOPUS_ID\:(\d+)$/", $scopusId, $matches);
+                $scopusIdExtracted = (array_key_exists(1, $matches)) ? $matches[1] : null;
+        
+                $iscop = new ScopusService($this->_apiKey);
+                $rec = $iscop->getRecordByScopusId($scopusIdExtracted);
+                
+                $csr->load($rec, $nameSpaces);
+                $csr->liken();
+            }
+        
+            $xml = $this->getNextRecordSet();
+        
         }
     }
-    
-    /* public function checkAffiliation($recordObject) //Moved this into the scopus_record class
-    {
-        $xpath = $this->getXPath($recordObject);
-        $affiliated = false;
-        $affiliations = $xpath->query('//entry/affiliation');
-    
-        foreach($affiliations as $affiliation)
-        {
-            if(preg_match('/University of Queensland|University of Qld/',
-            $affiliation->nodeValue))
-            {
-                $affiliated = true;
-            }
-        }
-    
-        return $affiliated;
-    } */
     
     /**
      * Execute a cURL request on the ScopusAPI
@@ -332,7 +308,7 @@ class ScopusService
     {
         if(!array_key_exists('qs', $params) || !is_array($params['qs']))
         {
-            $this->log->err("Scopus query is not a parameter item or not an array:"
+            $this->_log->err("Scopus query is not a parameter item or not an array:"
                 . __FILE__ . ":" . __LINE__);
             return false;
         }
@@ -342,19 +318,11 @@ class ScopusService
         $uri .= (array_key_exists('db', $params) ? "/".$params['db'] : '');
         $uri .= '?' . http_build_query($params['qs']);
         
-//         var_dump(SCOPUS_WS_BASE_URL . $uri);
-        //$uri = "content/article/SCOPUS_ID:84858076610?view=META_ABS";
-        //$uri = "content/affiliation/AFFILIATION_ID:60031004?start=1&count=200&view=DOCUMENTS";
-        //$uri = "content/abstract/SCOPUS_ID:34250025139";
-        //http://api.elsevier.com/content/search/index:AFFILIATION?query=.
-        //$uri = "content/search/index:AFFILIATION?query=University+of+Queensland";
-        //$uri = "content/abstract/SCOPUS_ID:84870252763";
-//         $uri = "content/search/index:SCOPUS?query=affil(University%2Bof%2BQueensland)&count=30&start=0%26date=2007-2012&view=STANDARD";
         $curlHandle = curl_init(SCOPUS_WS_BASE_URL . $uri);
         curl_setopt($curlHandle, CURLOPT_SSL_VERIFYPEER, FALSE);
         curl_setopt($curlHandle, CURLOPT_SSL_VERIFYHOST, FALSE);
         curl_setopt($curlHandle, CURLOPT_HTTPHEADER, array(
-                'X-ELS-APIKey: ' . $this->apiKey,
+                'X-ELS-APIKey: ' . $this->_apiKey,
                 'Accept: text/xml, application/atom+xml'
         ));
         curl_setopt($curlHandle, CURLOPT_RETURNTRANSFER, true);
@@ -362,12 +330,11 @@ class ScopusService
         
         if(!$curlResponse)
         {
-            $this->log->err(curl_errno($curlHandle));
-//             var_dump(curl_errno($curlHandle));
+            $this->_log->err(curl_errno($curlHandle));
         }
         
         curl_close($curlHandle);
-        //var_dump($curlResponse);
+        
         return $curlResponse;
     }
     
@@ -381,7 +348,7 @@ class ScopusService
         $xmlDoc = new DOMDocument();
         $xmlDoc->preserveWhiteSpace = false;
         $xmlDoc->loadXML($rawXML);
-        $rootNameSpace = $xmlDoc->lookupNamespaceUri($doc->namespaceURI);
+        $rootNameSpace = $xmlDoc->lookupNamespaceUri($xmlDoc->namespaceURI);
         
         $xpath = new DOMXPath($xmlDoc);
         $xpath->registerNamespace('default', $rootNameSpace);
