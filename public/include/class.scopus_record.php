@@ -53,22 +53,20 @@ class ScopusRecItem extends RecordImport
      */
     protected $_affiliations = array();
     
+    /**
+     * Default namespaces for this record
+     * @var array
+     */
     protected $_namesSpaces = array(
             'prism' => "http://prismstandard.org/namespaces/basic/2.0/",
             'dc' => "http://purl.org/dc/elements/1.1/",
             'opensearch' => "http://a9.com/-/spec/opensearch/1.1/"
            );
     
-    /**
-     * Perform de-duping using these ids
-     * which also have cooresponding methods
-     * @var array
-     */
-    protected $_comparisonIdTypes = array('_scopusId', '_doi', '_pubmedId', '_title');
-    
     public function __construct($recordData=null)
     {
         $this->_log = FezLog::get();
+        $this->_comparisonIdTypes = array('_scopusId', '_doi', '_pubmedId', '_title');
         if($recordData)
         {
             $this->load($recordData);
@@ -92,12 +90,8 @@ class ScopusRecItem extends RecordImport
         $this->_loaded = false;
         
         $xpath = $this->getXPath($recordData);
-//         $xpath->registerNamespace('prism', 'http://prismstandard.org/namespaces/basic/2.0/');
-//         $xpath->registerNamespace('dc', 'http://purl.org/dc/elements/1.1/');
         $this->_doi = $this->extract('//prism:doi', $xpath);
         $this->_title = $this->extract('//dc:title', $xpath);
-        
-        //$this->_xdisTitle = 'Journal Article';
         
         $affiliations = $xpath->query('affiliation/affilname');
         foreach ($affiliations as $affiliation) {
@@ -146,7 +140,6 @@ class ScopusRecItem extends RecordImport
             if ($xpath->query('//source/additional-srcinfo/conferenceinfo')->length > 0) {
                 $this->_conferenceTitle = $xpath->query('//source/additional-srcinfo/conferenceinfo/confevent/confname')->item(0)->nodeValue;
                 $this->_confenceLocationCity = $xpath->query('//source/additional-srcinfo/conferenceinfo/confevent/conflocation/city-group')->item(0)->nodeValue;
-                //$this->_confenceLocationState = $xpath->query('x:bibrecord/x:head/x:source/x:additional/x:additional-srcinfo/x:conferenceinfo/confevent/confname', $embaseArticle)->item(0)->nodeValue;
 
                 $startDay =  $xpath->query('//source/additional-srcinfo/conferenceinfo/confevent/confdate/startdate/@day', $embaseArticle)->item(0)->nodeValue;
                 $startMonth = $xpath->query('//source/additional-srcinfo/conferenceinfo/confevent/confdate/startdate/@month', $embaseArticle)->item(0)->nodeValue;
@@ -175,7 +168,6 @@ class ScopusRecItem extends RecordImport
     {
         $nodeList = $xpath->query($query);
         $val = $nodeList->item(0)->nodeValue;
-//         var_dump("query: ".$query."\nval: ".$val."\n\n");
         return $val;
     }
     

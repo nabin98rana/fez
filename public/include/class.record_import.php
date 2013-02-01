@@ -65,16 +65,23 @@ abstract class RecordImport
 
     /**
      * We will try to do a comparison on all these
-     * ids when doing de-duping if they are set
+     * ids when doing de-duping if they are set.
+     * This is set with a default value of '_doi'
+     * as a fallback only. DO NOT add/remove
+     * comparison id types here! Set them in
+     * your child class.
      * @var array
      */
-    protected $_comparisonIdTypes = array();
+    protected $_comparisonIdTypes = array('_doi');
 
 
     public abstract function load($recordData, $nameSpaces=null);
     
     /**
-     * Set the test state of the object
+     * Set the test state of the object.
+     * True causes the output of the de-duping logic
+     * to be sent to $this->_statsFile and for
+     * updating and saving functionality to be disabled.
      * @param boolean $state
      */
     public function setInTest($state)
@@ -84,7 +91,8 @@ abstract class RecordImport
     }
     
     /**
-     * Set a path to the stats file for testing purposes
+     * Set a path to the stats file for testing purposes.
+     * Use in conjunction with setInTest() method.
      * @param string $statsFile
      */
     public function setStatsFile($statsFile)
@@ -220,7 +228,7 @@ abstract class RecordImport
                     {
                         $this->_log->err("Mismatch error. Scopus Id " . $this->$cit 
                         . " matches but the following do not: " 
-                        . implode(", ", $idMismatches));
+                        . var_export($idMismatches, true));
                         
                         if(!$this->_inTest)
                         {
@@ -230,7 +238,7 @@ abstract class RecordImport
                         {
                             file_put_contents($this->_statsFile, "ST02 - Mismatch error. Scopus Id " 
                             . $this->$cit . " matches but the following do not: " 
-                            . implode(", ", $idMismatches)."\n\n", FILE_APPEND);
+                            . var_export($idMismatches, true)."\n\n", FILE_APPEND);
                         }
                         return false;
                     }

@@ -273,11 +273,10 @@ class ScopusService
         
         while($this->_recSetStart)
         {
-        
             $doc = new DOMDocument();
             $doc->loadXML($xml);
             $records = $doc->getElementsByTagName('identifier');
-        
+            
             foreach($records as $record)
             {
                 $csr = new ScopusRecItem();
