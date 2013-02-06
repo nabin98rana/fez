@@ -132,6 +132,14 @@ abstract class RecordImport
      */
     public function liken()
     {
+        //If the Scopus ID matches soemthing that is already in the Scopus 
+        //import collection, we need not go any further.
+        $inImportColl = Record::getPIDsByScopusID($this->_scopusId, true);
+        if(!empty($inImportColl))
+        {
+            return;
+        }
+        
         //set an idcollection array for pids returned by id type
         $idCollection = array();
         $mirrorMirror = new ReflectionClass($this);
@@ -168,7 +176,7 @@ abstract class RecordImport
                     
                     if(!$this->_inTest)
                     {
-                        $this->save(null, APP_TEMPORARY_DUPLICATES_COLLECTION);
+                        $this->save(null, APP_SCOPUS_IMPORT_COLLECTION);
                     }
                     else 
                     {
@@ -232,7 +240,7 @@ abstract class RecordImport
                         
                         if(!$this->_inTest)
                         {
-                            $this->save(null, APP_TEMPORARY_DUPLICATES_COLLECTION);
+                            $this->save(null, APP_SCOPUS_IMPORT_COLLECTION);
                         }
                         else 
                         {
@@ -276,78 +284,92 @@ abstract class RecordImport
             //fuzzy title match, proceed to volume and page matching
             if($associations['_title']['status'] == 'MATCHED')
             {
-                if($this->_startPage == Record::getSearchKeyIndexValue($authorativePid, 'Start Page' , false))
+                $localStartPage = Record::getSearchKeyIndexValue($authorativePid, 'Start Page' , false);
+                if(!empty($this->_startPage) && !empty($localStartPage))
                 {
-                    $associations['_startPage']['status'] = 'MATCHED';
-                }
-                else 
-                {
-                    $this->_log->err("Start page mismatch for '" . $this->_title 
-                            . "'. Local start page is: " . Record::getSearchKeyIndexValue($authorativePid, 'Start Page', false) 
-                            . " . Downloaded start page is: " . $this->_startPage);
-                    
-                    if(!$this->_inTest)
+                    if($this->_startPage == $localStartPage)
                     {
-                        $this->save(null, APP_TEMPORARY_DUPLICATES_COLLECTION);
+                        $associations['_startPage']['status'] = 'MATCHED';
                     }
                     else 
                     {
-                        file_put_contents($this->_statsFile, "ST03 - Start page mismatch for '" . $this->_title 
-                            . "'. Local start page is: " . Record::getSearchKeyIndexValue($authorativePid, 'Start Page', false) 
-                            . " . Downloaded start page is: " . $this->_startPage . "\n\n", FILE_APPEND);
+                        $this->_log->err("Start page mismatch for '" . $this->_title 
+                                . "'. Local start page is: " . $localStartPage 
+                                . " . Downloaded start page is: " . $this->_startPage);
+                        
+                        if(!$this->_inTest)
+                        {
+                            $this->save(null, APP_SCOPUS_IMPORT_COLLECTION);
+                        }
+                        else 
+                        {
+                            file_put_contents($this->_statsFile, "ST03 - Start page mismatch for '" . $this->_title 
+                                . " - Scopus ID: " . $this->_scopusId
+                                . "'. Local start page is: " . $localStartPage 
+                                . " . Downloaded start page is: " . $this->_startPage . "\n\n", FILE_APPEND);
+                        }
+                        
+                        return false;
                     }
-                    
-                    return false;
                 }
                 
-                
-                if($this->_endPage == Record::getSearchKeyIndexValue($authorativePid, 'End Page', false))
+                $localEndPage = Record::getSearchKeyIndexValue($authorativePid, 'End Page', false);
+                if(!empty($this->_endPage) && !empty($localEndPage))
                 {
-                    $associations['_endPage']['status'] = 'MATCHED';
-                }
-                else 
-                {
-                    $this->_log->err("End page mismatch for '" . $this->_title 
-                            . "'. Local end page is: " . Record::getSearchKeyIndexValue($authorativePid, 'End Page' , false) 
-                            . " . Downloaded end page is: " . $this->_endPage);
-                    
-                    if(!$this->_inTest)
+                    if($this->_endPage == $localEndPage)
                     {
-                        $this->save(null, APP_TEMPORARY_DUPLICATES_COLLECTION);
+                        $associations['_endPage']['status'] = 'MATCHED';
                     }
                     else 
                     {
-                        file_put_contents($this->_statsFile, "ST04 - End page mismatch for '" . $this->_title 
-                            . "'. Local end page is: " . Record::getSearchKeyIndexValue($authorativePid, 'End Page' , false) 
-                            . " . Downloaded end page is: " . $this->_endPage, FILE_APPEND);
+                        $this->_log->err("End page mismatch for '" . $this->_title 
+                                . "'. Local end page is: " . $localEndPage 
+                                . " . Downloaded end page is: " . $this->_endPage);
+                        
+                        if(!$this->_inTest)
+                        {
+                            $this->save(null, APP_SCOPUS_IMPORT_COLLECTION);
+                        }
+                        else 
+                        {
+                            file_put_contents($this->_statsFile, "ST04 - End page mismatch for '" . $this->_title 
+                                . " - Scopus ID " . $this->_scopusId
+                                . "'. Local end page is: " . $localEndPage 
+                                . " . Downloaded end page is: " . $this->_endPage, FILE_APPEND);
+                        }
+                        
+                        return false;
                     }
-                    
-                    return false;
                 }
                 
-                if($this->_issueVolume == Record::getSearchKeyIndexValue($authorativePid, 'Volume Number' , false))
+                $localVolume = Record::getSearchKeyIndexValue($authorativePid, 'Volume Number' , false);
+                if(!empty($this->_issueVolume) && !empty($localVolume))
                 {
-                    $associations['_volume']['status'] = 'MATCHED';
-                }
-                else
-                {
-                    
-                    $this->_log->err("Volume mismatch for '" . $this->_title
-                    . "'. Local end page is: " . Record::getSearchKeyIndexValue($authorativePid, 'Volume Number', false)
-                    . " . Downloaded end page is: " . $this->_issueVolume);
-                    
-                    if(!$this->_inTest)
+                    if($this->_issueVolume == $localVolume)
                     {
-                        $this->save(null, APP_TEMPORARY_DUPLICATES_COLLECTION);
+                        $associations['_volume']['status'] = 'MATCHED';
                     }
-                    else 
+                    else
                     {
-                        file_put_contents($this->_statsFile, "ST05 - Volume mismatch for '" . $this->_title
-                            . "'. Local end page is: " . Record::getSearchKeyIndexValue($authorativePid, 'Volume Number', false)
-                            . " . Downloaded end page is: " . $this->_issueVolume."\n\n", FILE_APPEND);
+                        
+                        $this->_log->err("Volume mismatch for '" . $this->_title
+                        . "'. Local end page is: " . $localVolume
+                        . " . Downloaded end page is: " . $this->_issueVolume);
+                        
+                        if(!$this->_inTest)
+                        {
+                            $this->save(null, APP_SCOPUS_IMPORT_COLLECTION);
+                        }
+                        else 
+                        {
+                            file_put_contents($this->_statsFile, "ST05 - Volume mismatch for '" . $this->_title
+                                . " - Scopus ID " . $this->_scopusId
+                                . "'. Local end page is: " . $localVolume
+                                . " . Downloaded end page is: " . $this->_issueVolume."\n\n", FILE_APPEND);
+                        }
+                        
+                        return false;
                     }
-                    
-                    return false;
                 }
             }
             elseif($associations['_title']['status'] != 'UNMATCHED')
@@ -359,17 +381,16 @@ abstract class RecordImport
                 
                 if(!$this->_inTest)
                 {
-                    $this->save(null, APP_TEMPORARY_DUPLICATES_COLLECTION);
+                    $this->save(null, APP_SCOPUS_IMPORT_COLLECTION);
                 }
                 else 
                 {
-                    file_put_contents($this->_statsFile, "ST06 - Downloaded title: '" . $downloadedTitle 
+                    file_put_contents($this->_statsFile, "ST06 - Scopus ID: " . $this->_scopusId 
+                        . " Downloaded title: '" . $downloadedTitle 
                         . "' FAILED TO MATCH the local title: '" . $localTitle 
                         . "' with a match of only " . $percentageMatch . "%\n\n", FILE_APPEND);
                 }
             }
-                      
- 
         }
         elseif(empty($pidCollection))
         {
@@ -379,23 +400,27 @@ abstract class RecordImport
             }
             else 
             {
-                file_put_contents($this->_statsFile, "ST07 - No matches, saving a new PID for '" . $this->_title . "'\n\n", FILE_APPEND);
+                file_put_contents($this->_statsFile, "ST07 - No matches, saving a new PID for Scopus ID: " 
+                    . $this->_scopusId . "'" . $this->_title . "'\n\n", FILE_APPEND);
             }
             
             return "SAVE";
         }
         else 
         {
-            $this->_log->err("Different ids in the same downloaded record are matching up with different pids"); //add data to this message
+            $this->_log->err("Different ids in the same downloaded record are matching up with different pids for Scopus ID: " 
+                    . $this->_scopusId . " '" . $this->_title . "'."
+                    .var_export($associations,true));
             
             if(!$this->_inTest)
             {
-                $this->save(null, APP_TEMPORARY_DUPLICATES_COLLECTION);
+                $this->save(null, APP_SCOPUS_IMPORT_COLLECTION);
             }
             else 
             {
-                file_put_contents($this->_statsFile, "ST08 - Different ids in the same downloaded record are matching up with different pids for '" 
-                    . $this->_title . "'.".var_export($associations,true)."\n\n", FILE_APPEND);
+                file_put_contents($this->_statsFile, "ST08 - Different ids in the same downloaded record are matching up with different pids for Scopus ID: " 
+                    . $this->_scopusId . " '" . $this->_title . "'."
+                    .var_export($associations,true)."\n\n", FILE_APPEND);
             }
             
             return false;
@@ -409,7 +434,8 @@ abstract class RecordImport
             }
             else 
             {
-                file_put_contents($this->_statsFile, "ST09 - Updating: ".$authorativePid."\n\n", FILE_APPEND);
+                file_put_contents($this->_statsFile, "ST09 - Updating: ".$authorativePid.". Scopus ID: " 
+                    . $this->_scopusId . "\n\n", FILE_APPEND);
             }
             
             return "UPDATE";

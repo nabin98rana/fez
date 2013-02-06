@@ -304,8 +304,9 @@ class Default_Data
         $defaultData['ldap_staff_group']                   = "uqStaff";
         $defaultData['ldap_student_group']                 = "uqStudents";
         $defaultData['app_fedora_path_direct']             = "/fedora/data/";
-        $defaultData['app_fedora_sendfile_direct']         = "OFF";
+        $defaultData['app_fedora_sendfile_direct']         = "OFF"; 
         $defaultData['app_herdc_trial_collection']         = "";
+        $defaultData['app_scopus_import_collection']       = "";
 		//$defaultData['app_portfolios_collection']           = "";
 		$defaultData['app_link_resolver_base_url']          = "";
 		$defaultData['app_link_resolver_button_url']        = "";

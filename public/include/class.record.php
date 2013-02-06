@@ -3751,7 +3751,7 @@ class Record
    * @param string $scopusId
    * @return boolean|array
    */
-  function getPIDsByScopusID($scopusId)
+  function getPIDsByScopusID($scopusId, $testTempCollPresence=false)
   {
       $log = FezLog::get();
       $db = DB_API::get();
@@ -3768,11 +3768,23 @@ class Record
       
       if($sidFormatted)
       {
-          $sql = "SELECT DISTINCT rek_scopus_id_pid FROM ".$dbtp."record_search_key_scopus_id "
-            ."LEFT JOIN fez_record_search_key_ismemberof "
-            ."ON rek_scopus_id_pid = rek_ismemberof_pid " 
-            ."WHERE rek_scopus_id = ? " 
-            ."AND (rek_ismemberof NOT IN('".APP_TEMPORARY_DUPLICATES_COLLECTION."') OR rek_ismemberof IS NULL)";
+          if($testTempCollPresence)
+          {
+              $sql = "SELECT DISTINCT rek_scopus_id_pid FROM "
+                .$dbtp."record_search_key_scopus_id "
+                ."LEFT JOIN fez_record_search_key_ismemberof "
+                ."ON rek_scopus_id_pid = rek_ismemberof_pid " 
+                ."WHERE rek_scopus_id = ? " 
+                ."AND rek_ismemberof = '".APP_SCOPUS_IMPORT_COLLECTION."'";
+          }
+          else 
+          {
+              $sql = "SELECT DISTINCT rek_scopus_id_pid FROM ".$dbtp."record_search_key_scopus_id "
+                ."LEFT JOIN fez_record_search_key_ismemberof "
+                ."ON rek_scopus_id_pid = rek_ismemberof_pid " 
+                ."WHERE rek_scopus_id = ? " 
+                ."AND (rek_ismemberof NOT IN('".APP_SCOPUS_IMPORT_COLLECTION."') OR rek_ismemberof IS NULL)";
+          }
           
           try
           {

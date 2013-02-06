@@ -1,9 +1,14 @@
 <?php
 
-require_once 'config.inc.php';
+/*require_once 'config.inc.php';
 require_once 'include/class.scopus_service.php';
 require_once 'include/class.scopus_record.php';
-require_once 'include/class.record.php';
+require_once 'include/class.record.php';*/
+
+require_once '../../../../public/config.inc.php';
+require_once '../../../../public/include/class.scopus_service.php';
+require_once '../../../../public/include/class.scopus_record.php';
+require_once '../../../../public/include/class.record.php';
 
 /**
  * Test de-duping logic for Scopus data
@@ -244,7 +249,7 @@ class ScopusTest extends PHPUnit_Framework_TestCase
      * Volume is empty in the DL record
      * Pubmed Id is empty in the DL record
      * 
-     * This should error out because of the start/end page and volume mismatch.
+     * This should update.
      */
      public function testSaveUpdateScopusIdTitleMatches()
      {
@@ -256,6 +261,6 @@ class ScopusTest extends PHPUnit_Framework_TestCase
          $this->removeTestData($testPid);
          $this->removeAllTestPIDs(array($testPid));
         
-         $this->assertEquals(false, $likened);
+         $this->assertEquals('UPDATE', $likened);
      }
 }
