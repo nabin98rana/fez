@@ -4,7 +4,7 @@ This is an automated message from the {$application_name} service.
 
 Thank you for submitting your record to {$application_name}.
 
-Your item will be referred to a {$application_name} staff member for editing, prior to being moved into an open collection. Please note that we are prioritising publications between 2006 and 2012 in preparation for the 2013 HERDC submission (2012 publications) and to meet the requirements of Q-index (publications 2006 to present).
+Your item will be referred to a {$application_name} staff member for editing, prior to being moved into an open collection. Please note that we are prioritising publications between 2007 and 2013 in preparation for the 2013 HERDC submission (2012 publications) and to meet the requirements of Q-Index (publications 2007 to present).
 
 Your item can be viewed at: {$view_record_url}
 
