@@ -125,7 +125,7 @@ class RecordView {
 					}
 				}
         if ($dis_field['xsdmf_html_input'] == "rich_text") {
-          $details[$dis_field['xsdmf_id']] = strip_tags($details[$dis_field['xsdmf_id']], '<p><br><b><i><u><strong><sub><sup>');
+          $details[$dis_field['xsdmf_id']] = strip_tags($details[$dis_field['xsdmf_id']], '<p><br><b><i><u><strong><sub><sup><em>');
         }
 				if ($dis_field['xsdmf_html_input'] == "author_selector") {
 					if (!empty($details[$dis_field['xsdmf_id']])) {
