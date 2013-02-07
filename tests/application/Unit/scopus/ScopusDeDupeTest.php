@@ -1,14 +1,10 @@
 <?php
 
-/*require_once 'config.inc.php';
+require_once 'config.inc.php';
 require_once 'include/class.scopus_service.php';
 require_once 'include/class.scopus_record.php';
-require_once 'include/class.record.php';*/
+require_once 'include/class.record.php';
 
-require_once '../../../../public/config.inc.php';
-require_once '../../../../public/include/class.scopus_service.php';
-require_once '../../../../public/include/class.scopus_record.php';
-require_once '../../../../public/include/class.record.php';
 
 /**
  * Test de-duping logic for Scopus data
