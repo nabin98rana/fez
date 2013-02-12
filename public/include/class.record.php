@@ -2395,13 +2395,14 @@ class Record
       if ($getSimple == false || empty($getSimple)) {
         if ($citationCache == false) {
           if (is_numeric($usr_id)) {
-            Record::getSearchKeysByPIDS($res, true);
+            //This can be significently made faster by Record::getExtendedPidInfo($res, array('Display Type', 'HERDC Status', 'HERDC code', 'Institutional Status', 'Follow up Flags', 'Follow up Flags IMU'));
+              Record::getExtendedPidInfo($res);
           } else {
-            Record::getSearchKeysByPIDS($res);
+              Record::getExtendedPidInfo($res);
           }
-					if (APP_MY_RESEARCH_MODULE == 'ON') {
-					  $res = Record::getResearchDetailsbyPIDS($res, $getAuthorMatching);
-					}
+          if (APP_MY_RESEARCH_MODULE == 'ON') {
+            $res = Record::getResearchDetailsbyPIDS($res, $getAuthorMatching);
+          }
           InternalNotes::readNotes($res);
         }
         Record::identifyThumbnails($res, $citationCache);
@@ -2544,6 +2545,50 @@ class Record
     }
   }
 
+  function getLookup($param, $lookupFunction, &$cacheEval) {
+        // Wrap param in single quote, if the value is a string
+        if (!empty($param) && gettype($param)=='string'){
+          $param = "'". $param ."'";
+        }
+
+        $func = $lookupFunction.'('. $param .');';
+        if (array_key_exists($func, $cacheEval)) {
+            return $cacheEval[$func];
+        } else {
+            eval('$lookupValue = '. $func);
+            $cacheEval[$func] = $lookupValue;
+            return $lookupValue;
+        }
+    }
+
+  //Adds needed lookups for search listings for spyglasses
+  //$limitedLookupTo restrict lookup to only certain searchKeys
+  function getExtendedPidInfo(&$result, $limitLookupsTo = false) {
+      $cacheEval = array();
+      //$lookups = Search_Key::getSearchKeysWithLookups();
+      $lookups = Search_Key::getList(false);
+      foreach($lookups as $lookup) {
+          if (empty($lookup['sek_lookup_function']) || (is_array($limitLookupsTo) && !in_array($lookup['sek_title'], $limitLookupsTo))) {
+              continue;
+          }
+          $lookupVariable = 'rek_'.Search_Key::makeSQLTableName($lookup['sek_title']);
+          for ($i = 0; $i < count($result); $i++) {
+              if (array_key_exists($lookupVariable, $result[$i]) && !empty($result[$i][$lookupVariable])) {
+                  if ($lookup['sek_cardinality'] == 0) {
+                      $result[$i][$lookupVariable.'_lookup'] = Record::getLookup($result[$i][$lookupVariable], $lookup['sek_lookup_function'], $cacheEval);
+                  } else {
+                      $result[$i][$lookupVariable.'_lookup'] = array();
+                      foreach ($result[$i][$lookupVariable] as $value) {
+                            array_push($result[$i][$lookupVariable.'_lookup'], Record::getLookup($value, $lookup['sek_lookup_function'], $cacheEval));
+                      }
+                  }
+              } else {
+                  $result[$i][$lookupVariable.'_lookup'] = "";
+              }
+          }
+      }
+  }
+
   function getSearchKeysByPIDS(&$result, $forceGetExtra = false)
   {
 
@@ -2649,6 +2694,7 @@ class Record
           }
 //        }
       }
+
     }
   }
 
