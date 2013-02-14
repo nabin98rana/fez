@@ -53,7 +53,6 @@ abstract class RecordImport
     protected $_xdisTitle = null;
     protected $_xdisSubtype = null;
     
-//     protected $_statsFile = "/var/www/scopusimptest/importStats01.txt";
     protected $_statsFile = null;
     protected $_inTest = false;
 
@@ -88,6 +87,26 @@ abstract class RecordImport
     {
         $this->_inTest = $state;
         return $this->_inTest;
+    }
+    
+    /**
+     * Return the values of all fields 
+     * in the object.
+     * @return array
+     */
+    public function getFields()
+    {
+        $mirrorMirror = new ReflectionClass($this);
+        $fields = $mirrorMirror->getProperties();
+        $allFields = array();
+        
+        foreach($fields as $fkey => $field)
+        {
+            $fn = $field->name;
+            $allFields[$fn] = $this->$fn;
+        }
+        
+        return $allFields;
     }
     
     /**

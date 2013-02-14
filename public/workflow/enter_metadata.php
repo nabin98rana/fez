@@ -97,6 +97,7 @@ $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign('type', 'enter_metadata');
 $tpl->assign('enter_metadata', '1');
+$tpl->assign("jqueryUI", true);
 
 $tpl->assign('jquery', true);
 
