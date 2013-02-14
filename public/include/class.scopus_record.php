@@ -159,7 +159,8 @@ class ScopusRecItem extends RecordImport
 
             $this->_loaded = true;
         }
-        else {
+        else 
+        {
             $this->_log->err("Problem with affiliation for: {$this->_title}; Affiliations: " . var_export($this->_affiliations, true));
         }
     }
@@ -185,7 +186,7 @@ class ScopusRecItem extends RecordImport
      * @param string $recordData
      * @return boolean
      */
-    public function likenAffiliation()
+    protected function likenAffiliation()
     {
         $affiliated = false;
         

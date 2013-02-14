@@ -89,6 +89,18 @@
 {if $jqueryUI == true}
 <link rel="stylesheet" type="text/css" media="screen" href="{$rel_url}css/jquery/fez/jquery-ui-1.8.16.custom.css" />
 <script type="text/javascript" src="{$rel_url}js/jquery/jquery-ui-1.8.13.custom.min.js"></script>
+{literal}
+<style type="text/css">
+    
+    #record-suggestions div ol li{
+        list-style: decimal outside none;
+        padding: 3px;
+        margin-left: 5px;
+        font-size: 11px;
+    }
+    
+</style>
+{/literal}
 {/if}
 
 {if $cv_css != ""}
