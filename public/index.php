@@ -196,11 +196,11 @@ if ($aliasResult == false) {
     $recCount = str_replace(" ", html_entity_decode(",&nbsp;", ENT_COMPAT, "UTF-8"), $recCount);
     $tpl->assign("record_count", $recCount);
 
-    $news = News::getList(5, User::isUserAdministrator($username) || User::isUserUPO($username));       // Maximum of 5 news posts for front page.
-    $news_count = count($news);
-    $tpl->assign("news", $news);
-
-    $tpl->assign("news_count", $news_count);
+    $recentRecordsPIDs = Record::getRecentRecords();
+    $list = Record::getDetailsLite($recentRecordsPIDs);
+    $tpl->assign("list", $list);
+    $tpl->assign("eserv_url", APP_RELATIVE_URL."eserv/");
+    $tpl->assign("isHomePage", "true");
 
     $tpl->assign("autosuggest", 1);
     /* $tpl->headerscript .= "window.oTextbox_front_search
