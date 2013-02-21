@@ -77,8 +77,10 @@ function displayCloudTag()
 
 function displayNews()
 {
+
     $tpl = new Template_API();
     $tpl->setTemplate("tab_news.tpl.html");
+    $username = Auth::getUsername();
     $news = News::getList(5, User::isUserAdministrator($username) || User::isUserUPO($username));       // Maximum of 5 news posts for front page.
     $news_count = count($news);
     $tpl->assign("news", $news);

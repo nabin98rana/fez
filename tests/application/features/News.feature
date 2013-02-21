@@ -16,6 +16,7 @@ Feature: Check news displays correctly and Admin news displays only to the corre
     And I fill in "message" with "User News message"
     And I press "Create News Entry"
     Given I am on "/"
+    And I follow "Front page news"
     Then I should see "Admin Only News Title"
     And I should see "User News Title"
     And I follow "Admin Only News Title"
