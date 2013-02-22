@@ -83,6 +83,12 @@
 			<name type="primary">
 				<namePart>{$list[i].rek_title|trim}</namePart>
 			</name>
+      <dates type="dc.issued">
+        <date type="dateFrom" dateFormat="W3CDTF">{$list[i].rek_published_date}</date>
+      </dates>
+      <dates type="dc.available">
+        <date type="dateFrom" dateFormat="W3CDTF">{$list[i].rek_date_available}</date>
+      </dates>
 			{if $list[i].rek_contact_details_physical || $list[i].rek_contact_details_email}
 			    <location>
 				<address>
