@@ -83,9 +83,9 @@
 			<name type="primary">
 				<namePart>{$list[i].rek_title|trim}</namePart>
 			</name>
-      {if $list[i].rek_published_date}
+      {if $list[i].rek_date}
       <dates type="dc.issued">
-        <date type="dateFrom" dateFormat="W3CDTF">{$list[i].rek_published_date}</date>
+        <date type="dateFrom" dateFormat="W3CDTF">{$list[i].rek_date}</date>
       </dates>
       {/if}
       {if $list[i].rek_date_available}
