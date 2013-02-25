@@ -75,7 +75,7 @@ if ($isSuperAdministrator) {
 	$xsd = new DomDocument();
     $xsd->loadXML($xsd_str);
 	$array_ptr = array();
-	Misc::dom_xsd_to_referenced_array($xsd, $top_element_name, &$array_ptr, "", "", $xsd);
+	Misc::dom_xsd_to_referenced_array($xsd, $top_element_name, $array_ptr, "", "", $xsd);
 	$element_match_list = XSD_HTML_Match::getElementMatchList($xdis_id);
 	$orphan_list = XSD_HTML_Match::getElementOrphanList($xdis_id, $array_ptr);
 	$orphan_count = count($orphan_list);
@@ -87,5 +87,3 @@ if ($isSuperAdministrator) {
 }
 
 $tpl->displayTemplate();
-
-?>
