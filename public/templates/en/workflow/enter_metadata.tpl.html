@@ -910,6 +910,7 @@
                             function do_pub_search(e) {
                                 
                             	$("#record-suggestions").css('display','block');
+                            	$("#record-suggestions h3 > span.ui-icon").css('display','none');
                                 var val = dojo.byId('{/literal}xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0{literal}').value;
 
                                 if(val.length > 2 && (val != prev_search_val)) {
