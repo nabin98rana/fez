@@ -259,7 +259,6 @@
 
    <!-- catchall field, containing all other searchable text fields (implemented
         via copyField further on in this schema  -->
-   <field name="all" type="text" indexed="true" stored="false" multiValued="true"/>
    <field name="text" type="text" indexed="true" stored="false" multiValued="true"/>
 
    <!-- Here, default is used to create a "timestamp" field indicating
@@ -268,7 +267,7 @@
    <field name="timestamp" type="date" indexed="true" stored="true" default="NOW" multiValued="false"/>
 
    <!-- This field is for text from pdf's etc -->
-   <field name="content"  type="text" indexed="true" stored="true" multiValued="true"/>
+   <field name="content"  type="text" indexed="true" stored="true" multiValued="true" termVectors="true" termPositions="true" termOffsets="true"/>
 
    <!-- Dynamic field definitions.  If a field name is not found, dynamicFields
         will be used if the name matches any of the patterns.
@@ -282,13 +281,13 @@
    <dynamicField name="*_i"  type="sint"    indexed="true"  stored="true"/>
    <dynamicField name="*_mi"  type="integer"    indexed="true"  stored="true" multiValued="true" />
 
-   <dynamicField name="*_s"  type="alphaOnlySort"  indexed="true"  stored="true"/>
-   <dynamicField name="*_ms"  type="alphaOnlySort"  indexed="true"  stored="true" multiValued="true"/>
+   <dynamicField name="*_s"  type="alphaOnlySort"  indexed="true"  stored="false"/>
+   <dynamicField name="*_ms"  type="alphaOnlySort"  indexed="true"  stored="false" multiValued="true"/>
    <dynamicField name="*_mft" type="string" indexed="true" stored="false" multiValued="true"/>
    <dynamicField name="*_l"  type="slong"   indexed="true"  stored="true"/>
 
    <dynamicField name="*_t"  type="text"    indexed="true"  stored="true"/>
-   <dynamicField name="*_t_s"  type="alphaOnlySort"    indexed="true"  stored="true"/>
+   <dynamicField name="*_t_s"  type="alphaOnlySort"    indexed="true"  stored="false"/>
    <dynamicField name="*_t_ws"  type="text_ws"    indexed="true"  stored="false"/>
    <dynamicField name="*_t_ft" type="string" indexed="true" stored="false"/>
    <!-- <dynamicField name="author_mt"  type="text"    indexed="true"  stored="true" multiValued="true"/> -->
@@ -320,7 +319,7 @@
  <uniqueKey>id</uniqueKey>
 
  <!-- field for the QueryParser to use when an explicit fieldname is absent -->
- <defaultSearchField>all</defaultSearchField>
+ <defaultSearchField>text</defaultSearchField>
 
  <!-- SolrQueryParser configuration: defaultOperator="AND|OR" -->
  <solrQueryParser defaultOperator="AND" lowercaseExpandedTerms="true" />
@@ -341,11 +340,10 @@
    <!-- Copy for ALL search -->
    <copyField source="*_t" dest="*_t_ft"/>
    <copyField source="*_mt" dest="*_mft"/>
-   <copyField source="content" dest="all"/>
-   <copyField source="*_t" dest="all"/>
-   <copyField source="*_mt" dest="all"/>
-
+   <copyField source="content" dest="text"/>
    <copyField source="*_t" dest="text"/>
+   <copyField source="*_mt" dest="text"/>
+
 
  <!-- Similarity is the scoring routine for each document vs. a query.
       A custom similarity may be specified here, but the default is fine

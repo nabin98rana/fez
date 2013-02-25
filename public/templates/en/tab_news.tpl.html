@@ -1,0 +1,6 @@
+<ul style="list-style-type: square">
+    {section name="i" loop=$news}
+    <li>{$news[i].admin_only|smarty:nodefaults}<a href="{$rel_url}news.php#x{$news[i].nws_id}">{$news[i].nws_title}</a></li>
+    {/section}
+    <li  style="list-style-type: none"><!--img src="{$rel_url}images/feed-icon16x16.png" alt="RSS" width="14" height="14" /--><a href="news.php?show=rss">RSS</a> | <a href="news.php">More...</a></li>
+</ul>

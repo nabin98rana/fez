@@ -1,0 +1,4 @@
+INSERT IGNORE INTO %TABLE_PREFIX%search_key (sek_id, sek_namespace, sek_incr_id, sek_title, sek_alt_title, sek_desc, sek_adv_visible, sek_simple_used, sek_myfez_visible, sek_order, sek_html_input, sek_fez_variable, sek_smarty_variable, sek_cvo_id, sek_lookup_function, sek_data_type, sek_relationship, sek_meta_header, sek_cardinality, sek_suggest_function, sek_faceting, sek_derived_function, sek_lookup_id_function, sek_bulkchange)
+VALUES
+	('core_86', 'core', 86, 'GS Citation Count', '', '', 0, 0, 0, 999, 'text', 'none', '', 450000, '', 'int', 0, '', 0, '', 0, NULL, NULL, 0),
+	('core_87', 'core', 87, 'GS Cited By Link', '', '', 0, 0, 0, 999, 'text', 'none', '', 450000, '', 'text', 0, '', 0, '', 0, NULL, NULL, 0);

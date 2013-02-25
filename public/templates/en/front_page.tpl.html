@@ -58,19 +58,14 @@
 		<div id="snapshot-box" class="floated-boxes">
 			<h2>Daily Snapshot</h2>
 			<ul id="snapshottabs" class="shadetabs clearfix">
-			<li><a href="#" rel="#default" class="selected">News</a></li>
-			<li><a href="{$rel_url}tabcontent_snapshot.php?browse=recentitems" rel="snapshotcontainer">Recently Added</a></li>
+			<li><a href="#" rel="#default" class="selected">Recently Added</a></li>
 			<li><a href="{$rel_url}tabcontent_snapshot.php?browse=topdownloads" rel="snapshotcontainer">Recently Popular</a></li>
 			<li><a href="{$rel_url}tabcontent_snapshot.php?browse=tagcloud" rel="snapshotcontainer">Tags</a></li>
+            <li><a href="{$rel_url}tabcontent_snapshot.php?browse=news" rel="snapshotcontainer" title="Front page news">News</a></li>
 			</ul>
 			<div class="box-content clearfix">
 			<div id="snapshotcontainer">
-				<ul style="list-style-type: square">
-				{section name="i" loop=$news}
-				<li>{$news[i].admin_only|smarty:nodefaults}<a href="{$rel_url}news.php#x{$news[i].nws_id}">{$news[i].nws_title}</a></li>
-				{/section}
-				<li  style="list-style-type: none"><!--img src="{$rel_url}images/feed-icon16x16.png" alt="RSS" width="14" height="14" /--><a href="news.php?show=rss">RSS</a> | <a href="news.php">More...</a></li>
-				</ul>
+                {include file="tab_recent_items.tpl.html"}
 			</div>
 		</div>
 

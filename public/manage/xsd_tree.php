@@ -69,9 +69,8 @@ if ($isSuperAdministrator) {
     $xsd->loadXML($xsd_str);
 	$array_ptr = array();
 	$temp = array();
-	Misc::dom_xsd_to_referenced_array($xsd, $top_element_name, &$array_ptr, "", "", $xsd);
+	Misc::dom_xsd_to_referenced_array($xsd, $top_element_name, $array_ptr, "", "", $xsd);
 	$element_match_list = XSD_HTML_Match::getElementMatchListDetails($xdis_id);
-//	print_r($element_match_list);
 	$orphan_count = XSD_HTML_Match::getElementOrphanCount($xdis_id, $array_ptr);
 	$tpl->assign("orphan_count", $orphan_count);   	
 	$temp = (Misc::array_to_dtree($array_ptr, $xdis_id, $element_match_list));
@@ -84,4 +83,3 @@ if ($isSuperAdministrator) {
 
 $tpl->displayTemplate();
 
-?>

@@ -163,10 +163,11 @@ if (APP_LOGGING_ENABLED == "true") {
 
 $sess = new Fez_Session_Manager();
 Zend_Session::setOptions(
-    array(
-      'gc_probability' => 1,
-      'gc_divisor' => 5000
-    )
+  array(
+    'gc_probability' => 1,
+    'gc_maxlifetime' => APP_SESSION_TIMEOUT,
+    'gc_divisor' => 5000
+  )
 );
 Zend_Session::setSaveHandler($sess);
 register_shutdown_function('session_write_close');
