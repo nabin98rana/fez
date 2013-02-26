@@ -231,7 +231,7 @@ class Record
   }
 
 
-  function generateDerivationTree($pid, $derivations, &$dTree, $shownPids=array())
+  function generateDerivationTree($pid, $derivations, &$dTree, &$shownPids=array())
   {
     if (!array($derivations)) {
       return;
