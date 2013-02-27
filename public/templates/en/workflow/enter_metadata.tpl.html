@@ -571,7 +571,7 @@
                       <td>
                     <input class="default" type="text" id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]{if ($xsdmf.xsdmf_multiple_limit > 1)}[]{/if}" onkeyup="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onfocus="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onchange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" size="50" value="{if $loop_num == 0}{if $xsd_display_fields[i].xsdmf_dynamic_text != ""}{assign var='temp_dynamic_var' value=$xsd_display_fields[i].xsdmf_dynamic_text}{eval var=$temp_dynamic_var}{else}{$xsd_display_fields[i].xsdmf_static_text}{/if}{/if}" {if $xsd_display_fields[i].xsdmf_validation_maxlength != null && $xsd_display_fields[i].xsdmf_validation_maxlength > 0}maxlength="{$xsd_display_fields[i].xsdmf_validation_maxlength}"{/if} />
                     {* if $smarty.section.z.last *}
-                    {if (is_numeric($xsdmf.xsdmf_multiple_limit))} {assign var ="multiple_limit" value =$xsdmf.xsdmf_multiple_limit} {else} {assign var = "multiple_limit" value = "1"} {/if}
+                    {if (is_numeric($xsdmf.xsdmf_multiple_limit))} assign var ="multiple_limit" value ={$xsdmf.xsdmf_multiple_limit} {else} assign var = "multiple_limit" value = "1" {/if}
                     <script type="text/javascript">
                     var field = document.getElementById('xsd_display_fields_{$xsdmf.xsdmf_id}_{$loop_num}');
                     field.onchange = {literal}function () {{/literal}createTextBox({$xsdmf.xsdmf_id},{$loop_num},'{$xsdmf.xsdmf_title}',{math equation="0+y-1" y=$xsdmf.xsdmf_multiple_limit},'{$xsdmf.xsdmf_attached_xsdmf_id}','{$attached_xsdmf.xsdmf_title}', {if $xsd_display_fields[i].sek_suggest_function != ""}1{else}''{/if}, {$isCreator}){literal}}{/literal};
@@ -922,18 +922,24 @@
                                         var container_id_wos = '{/literal}{$xsd_display_fields[i].xsdmf_id}_0_container{literal}_wos';
                                         dojo.byId(container_id_wos).innerHTML = '<h3 style="text-decoration:underline; color: #333333">Searching ISI Web of Science<sup>&#174;</sup> for matching records</h3><img src="{/literal}{$rel_url}{literal}images/rel_interstitial_loading.gif" alt="" />';
                                          var search_wos = server.search_wos(val, '{/literal}{$xdis_title}{literal}');
+                                         $("#ctWosRec").html("In progress...");
 
                                         search_wos.addCallback( function(msg) {
                                             search_in_progress_wos = 0;
                                             var container_id_wos = '{/literal}{$xsd_display_fields[i].xsdmf_id}_0_container{literal}_wos';
 
                                             if(msg.length > 0) {
-                                                dojo.byId(container_id_wos).innerHTML = msg;
+                                            	
+                                            	dojo.byId(container_id_wos).innerHTML = msg;
+                                                $("#ctWosRec").html($("#ctWos").html());
                                             }
                                             else {
                                                 dojo.byId(container_id_wos).innerHTML = '';
+                                                $("#ctWosRec").html("0");
                                             }
                                         });
+                                        
+                                        
                                     }
 
                                     if(search_in_progress_repo == 0) {
@@ -941,6 +947,7 @@
                                         var container_id_repo = '{/literal}{$xsd_display_fields[i].xsdmf_id}_0_container{literal}_repo';
                                         dojo.byId(container_id_repo).innerHTML = '<h3 style="text-decoration:underline; color: #333333">Searching repository for matching records</h3><img src="{/literal}{$rel_url}{literal}images/rel_interstitial_loading.gif" alt="" />';
                                         
+                                        $("#ctRepoRec").html("In progress...");
                                         var search_repo = server.search_repo(val);
 
                                         search_repo.addCallback( function(msg) {
@@ -948,10 +955,13 @@
                                             var container_id_repo = '{/literal}{$xsd_display_fields[i].xsdmf_id}_0_container{literal}_repo';
 
                                             if(msg.length > 0) {
-                                                dojo.byId(container_id_repo).innerHTML = msg;
+                                            	
+                                            	dojo.byId(container_id_repo).innerHTML = msg;
+                                                $("#ctRepoRec").html($("#ctRepo").html());
                                             }
                                             else {
                                                 dojo.byId(container_id_repo).innerHTML = '';
+                                                $("#ctRepoRec").html("0");
                                             }
                                         });
                                     }
@@ -961,6 +971,8 @@
                                         var container_id_scopus = '{/literal}{$xsd_display_fields[i].xsdmf_id}_0_container{literal}_scopus';
                                         dojo.byId(container_id_scopus).innerHTML = '<h3 style="text-decoration:underline; color: #333333">Searching Scopus<sup>&#174;</sup> for matching records</h3><img src="{/literal}{$rel_url}{literal}images/rel_interstitial_loading.gif" alt="" />';
                                         var search_scopus = server.search_scopus(val);
+                                        
+                                        $("#ctScopusRec").html("In progress...");
 
                                         search_scopus.addCallback( function(msg) {
                                             search_in_progress_scopus = 0;
@@ -973,11 +985,14 @@
                                             
                                             if(msg.length > 0) 
                                             {
-                                                dojo.byId(container_id_scopus).innerHTML = msg;
+                                            	
+                                            	dojo.byId(container_id_scopus).innerHTML = msg;
+                                                $("#ctScopusRec").html($("#ctScopus").html());
                                             }
                                             else 
                                             {
                                                 dojo.byId(container_id_scopus).innerHTML = '';
+                                                $("#ctScopusRec").html("0");
                                             }
                                             
                                         });
@@ -1001,13 +1016,13 @@
                                 </td>
                                 <td style="vertical-align: top">
                                     <div id="record-suggestions" style="height:400px;">
-                                    <h3 style="text-decoration:underline; color: #333333">Matching records found in repository<sup>&#174;</sup></h3>
+                                    <h3 style="text-decoration:underline; color: #333333">Matching records found in repository<sup>&#174;</sup>&nbsp;<span id="ctRepoRec">0</span></h3>
                                     <div id="{$xsd_display_fields[i].xsdmf_id}_0_container_repo" style="z-index:9999; font-size: 0.6em;"></div>
                                     
-                                    <h3 style="text-decoration:underline; color: #333333">Matching records found in ISI Web of Science<sup>&#174;</sup></h3>
+                                    <h3 style="text-decoration:underline; color: #333333">Matching records found in ISI Web of Science<sup>&#174;</sup>&nbsp;<span id="ctWosRec">0</span></h3>
                                     <div id="{$xsd_display_fields[i].xsdmf_id}_0_container_wos" style="z-index:9999; font-size: 0.6em;"></div>
                                     
-                                    <h3>Matching records found in Scopus</h3>
+                                    <h3>Matching records found in Scopus&nbsp;<span id="ctScopusRec">0</span></h3>
                                     <div id="{$xsd_display_fields[i].xsdmf_id}_0_container_scopus" style="z-index:9999; font-size: 0.6em;"></div>
                                     </div>
                                 </td>

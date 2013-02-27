@@ -1,5 +1,6 @@
 {section name="i" loop=$scopusMatches}
     {if $smarty.section.i.first}
+        <span style="color:#fff;" id="ctScopus">{$num_scopus}</span>
         <ol>
     {/if}
     
@@ -42,6 +43,7 @@
 
 {section name="i" loop=$matches}
     {if $smarty.section.i.first}
+        <span style="color:#fff;" id="ctWos">{$num_wos}</span>
         <ol>
     {/if}
     
@@ -82,6 +84,7 @@
 
 {section name="i" loop=$dupe_records}
     {if $smarty.section.i.first}
+        <span style="color:#fff;" id="ctRepo">{$found}</span>
         <ol>
     {/if}
         <li>

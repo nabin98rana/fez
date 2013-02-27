@@ -152,14 +152,17 @@ class MatchingRecords
                 }
             }
     	}
+    	
+    	$matchCount = count($matches);
 
-    	if(count($matches) > 0) {
+    	if($matchCount > 0) {
 			$tpl = new Template_API();
 			$tpl->setTemplate("workflow/edit_metadata_helpers/matching_records_results.tpl.html");
 			$tpl->assign('matches', $matches);
 			$tpl->assign('rel_url', APP_RELATIVE_URL);
 			$tpl->assign('found', $result['recordsFound']);
 			$tpl->assign('max_results', $num_recs);
+			$tpl->assign('num_wos', $matchCount);
 			$tpl->assign('dupe_records', $dupe_records);
 			
 			return $tpl->getTemplateContents();
@@ -248,13 +251,15 @@ class MatchingRecords
 		    $nodeItem++;
 		}
 		
-		if(count($matches) > 0)
+		$matchCount = count($matches);
+		
+		if($matchCount > 0)
 		{
 		    $tpl = new Template_API();
 		    $tpl->setTemplate("workflow/edit_metadata_helpers/matching_records_results.tpl.html");
 		    $tpl->assign('scopusMatches', $matches);
 		    $tpl->assign('rel_url', APP_RELATIVE_URL);
-		    $tpl->assign('scopus_max_results', $num_recs);
+		    $tpl->assign('num_scopus', $matchCount);
 		    
 		    $tplCont = $tpl->getTemplateContents();
 		    
