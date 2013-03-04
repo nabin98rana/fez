@@ -91,7 +91,16 @@ if (!empty($pid) && !empty($dsID)) {
     		$isDeleted = ($dsr->resourceExists()) ? false : true;
         }
     } else {
-        $isDeleted = Record::isDeleted($pid);
+        //Need to check if the datastream is deleted
+        $isDeleted = TRUE;
+        $dsCheck = Fedora_API::callGetDatastreams($pid);
+        foreach ($dsCheck as $pidDatastream)
+        {
+            if ($pidDatastream[ID] == $dsID) {
+                $isDeleted = FALSE;
+            }
+        }
+        $isDeleted = Record::isDeleted($pid) || $isDeleted;
     }
 
 	if($isDeleted) {
