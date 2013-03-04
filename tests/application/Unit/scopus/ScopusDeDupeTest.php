@@ -5,6 +5,11 @@ require_once 'include/class.scopus_service.php';
 require_once 'include/class.scopus_record.php';
 require_once 'include/class.record.php';
 
+/*require_once '../../../../public/config.inc.php';
+require_once '../../../../public/include/class.scopus_service.php';
+require_once '../../../../public/include/class.scopus_record.php';
+require_once '../../../../public/include/class.record.php';*/
+
 
 /**
  * Test de-duping logic for Scopus data
@@ -258,5 +263,54 @@ class ScopusTest extends PHPUnit_Framework_TestCase
          $this->removeAllTestPIDs(array($testPid));
         
          $this->assertEquals('UPDATE', $likened);
+     }
+     
+     /**
+      * Check that a Scopus import collection has been set
+      */
+     public function testScopusImportCollectionSet()
+     {
+         $this->assertRegExp("/^UQ\:\d+/", APP_SCOPUS_IMPORT_COLLECTION);
+     }
+     
+     /**
+      * Check to see that new PIDs are being saved to a collection
+      */
+     public function testSaveNewInScopusImportCollection()
+     {
+         //Set the Scopus import collection to a random collection for the purpose of this test if one is not set explicitly
+         if(!defined('APP_SCOPUS_IMPORT_COLLECTION'))
+         {
+             $db = DB_API::get();
+             $query = "SELECT rek_ismemberof FROM _fez_toxic4.fez_record_search_key_ismemberof where rek_ismemberof like 'UQ:%' LIMIT 5,1";
+             $res = $db->fetchAll($query);
+             define('APP_SCOPUS_IMPORT_COLLECTION', $res[0]['rek_ismemberof']);
+         }
+         
+         $xml = file_get_contents(APP_PATH.'../tests/application/Unit/scopus/sampleAbstractUpdateTest.xml');
+          
+         $doc = new DOMDocument();
+         $doc->loadXML($xml);
+         $records = $doc->getElementsByTagName('abstracts-retrieval-response');
+         $rec = $records->item(0);
+     
+         $csr = new ScopusRecItem();
+     
+         $nameSpaces = array(
+                   'prism' => "http://prismstandard.org/namespaces/basic/2.0/",
+                   'dc' => "http://purl.org/dc/elements/1.1/",
+                   'opensearch' => "http://a9.com/-/spec/opensearch/1.1/"
+         );
+     
+         $xmlDoc = new DOMDocument();
+         $xmlDoc->appendChild($xmlDoc->importNode($rec, true));
+     
+         $csr->load($xmlDoc->saveXML(), $nameSpaces);
+         $testDataPid = $csr->save(null, APP_SCOPUS_IMPORT_COLLECTION);
+     
+         $inTestCollection = Record::getPIDsByScopusID($csr->__get('_scopusId'), true);
+         
+         $this->assertEquals(false, empty($inTestCollection));
+         $this->removeAllTestPIDs($testDataPid, $csr->__get('_scopusId'));
      }
 }
