@@ -4790,7 +4790,7 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
       $suffix = "_t";
       if ($sort == 1) {
         $suffix .= "_s";
-      } else if ($facet == 1) {
+      } else if (($facet == 1) || ($sek_det['sek_html_input'] == "combo")) { //Combo boxes should be exact
         $suffix .= "_ft";
       }
     } else if (($sek_data_type == 'varchar' || $sek_data_type == 'text') && $sek_cardinality == 1) {
