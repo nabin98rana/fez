@@ -107,6 +107,7 @@ class ScopusRecItem extends RecordImport
             $date = $this->extract('//prism:coverDate', $xpath);
             $this->_issueDate = date('Y-m-d', strtotime($date));
             $scopusDocTypeExtracted = $this->extract('//prism:aggregationType', $xpath);
+            $this->_scopusAggregationType = $scopusDocTypeExtracted;
             $scopusDocTypeMatched = Record::getScopusDocTypeCodeByDescription($scopusDocTypeExtracted);
             
             if($scopusDocTypeMatched)
