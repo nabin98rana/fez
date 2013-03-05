@@ -17,6 +17,7 @@ Feature: Check news displays correctly and Admin news displays only to the corre
     And I press "Create News Entry"
     Given I am on "/"
     And I follow "Front page news"
+    And I wait for "2" seconds
     Then I should see "Admin Only News Title"
     And I should see "User News Title"
     And I follow "Admin Only News Title"
