@@ -4593,7 +4593,7 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
           $sqlColumnName = $sekdet['sek_title_db'];
 
           // Build the SQL for this particular search key
-          if (is_array($searchValue)) {
+          if (is_array($searchValue)) {  // Array was submitted for this search key
 
 
             if (isset($searchValue['override_op']) ) {
@@ -4722,9 +4722,11 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
 
               $searchKey_join[SK_SEARCH_TXT] .= $sekdet['sek_title'].":\"".htmlspecialchars(trim($searchValue))."\", ";
 
+            } else if ($sekdet['sek_html_input'] == 'combo') { //combo boxes are exact searches
+                $searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":\"".Record::escapeSolr($searchValue)."\"";
+                $searchKey_join[SK_SEARCH_TXT] .= $sekdet['sek_title'].":\"".htmlspecialchars(trim($searchValue))."\", ";
             } else {
-              $searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":".
-                  Record::escapeSolr($searchValue)."";
+              $searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":".Record::escapeSolr($searchValue)."";
               $searchKey_join[SK_SEARCH_TXT] .= $sekdet['sek_title'].":\"".htmlspecialchars(trim($searchValue))."\", ";
             }
           }
