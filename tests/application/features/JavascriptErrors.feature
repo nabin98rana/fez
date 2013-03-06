@@ -48,8 +48,7 @@ Feature: Test pages for javascript errors
     #Admin independent
     Given I am on "/my_processes.php"
     Given I am on "/my_collections.php"
-    #@bug
-    #Given I am on "/my_created_items.php"
+    Given I am on "/my_created_items.php"
     Given I am on "/my_fez_traditional.php"
     Given I am on "/my_work_in_progress.php"
     Given I am on "/submitted_for_approval.php"
@@ -64,7 +63,6 @@ Feature: Test pages for javascript errors
     Given I am on "/manage/sessions.php"
     Given I am on "/manage/languages.php"
     Given I am on "/manage/orgstructure.php"
-    #@bug @broken very slow
     Given I am on "/manage/matching.php"
     Given I am on "/manage/integrity.php"
     Given I am on "/manage/links.php"

@@ -291,14 +291,17 @@ date_fields[date_fields.length] = new Option('search_keys[{$temp_sek_id}][end]',
 {/section}
 
 var elements_to_hide = new Array({$custom_elements_to_hide|smarty:nodefaults});
-{literal}
-for (var i = 0; i < elements_to_hide.length; i++) {
-    toggleVisibility(elements_to_hide[i]);
-    toggleDateFields(f, elements_to_hide[i]);
-    var filter_type = getFormElement(f, elements_to_hide[i] + '[filter_type]');
-    checkDateFilterType(f, filter_type);
-}
 
+{* This code is a bit of a mess I'm just making a conditional for the error for pages it's broken on for now since this relates to a page that will be depricated soon *}
+{literal}
+    if (typeof f != 'undefined') {
+        for (var i = 0; i < elements_to_hide.length; i++) {
+            toggleVisibility(elements_to_hide[i]);
+            toggleDateFields(f, elements_to_hide[i]);
+            var filter_type = getFormElement(f, elements_to_hide[i] + '[filter_type]');
+            checkDateFilterType(f, filter_type);
+        }
+    }
 for (var i = 0; i < date_fields.length; i++) {
     if (!isWhitespace(date_fields[i].value)) {
         selectDateOptions(date_fields[i].text, date_fields[i].value);
