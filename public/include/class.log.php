@@ -40,39 +40,41 @@
  * @author Andrew Martlew <a.martlew@library.uq.edu.au>
  */
 class FezLog
-{     
+{
     private $_logs = null;
 	private $_stopwatch = null;
 	private $_use_firebug = false;
 	public $log_trace = false;
 	private $_channel = null;
 	private $_response= null;
+  public $solr_query_time = array();
+  public $solr_query_string = array();
 
-	public function __construct($logs, $use_firebug = false, $log_trace = false) 
+	public function __construct($logs, $use_firebug = false, $log_trace = false)
 	{
 		$this->_logs = $logs;
 		$this->_firebug = false;
 		$this->log_trace = $log_trace;
-				
-		if($use_firebug) {			
-			$this->_use_firebug = true;		
+
+		if($use_firebug) {
+			$this->_use_firebug = true;
 			$request  = new Zend_Controller_Request_Http();
 			$this->_response = new Zend_Controller_Response_Http();
 			$this->_channel  = Zend_Wildfire_Channel_HttpHeaders::getInstance();
 			$this->_channel->setRequest($request);
 			$this->_channel->setResponse($this->_response);
-			ob_start();	
+			ob_start();
 		}
 		$this->_stopwatch = new StopWatch();
 		$this->debug('Start');
 		Zend_Registry::set('fezlog', $this);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return FezLog
 	 */
-	public static function get() 
+	public static function get()
 	{
 		$log = Zend_Registry::get('fezlog');
 		if($log->log_trace) {
@@ -83,68 +85,68 @@ class FezLog
 		}
 		return $log;
 	}
-	
-	public function emerg($message) 
-	{ 
-		foreach($this->_logs as $log) 
+
+	public function emerg($message)
+	{
+		foreach($this->_logs as $log)
 			$log['log']->emerg($this->format_message($log['type'], $message));
 	}
-	
-	public function alert($message) 
-	{ 
-		foreach($this->_logs as $log) 
+
+	public function alert($message)
+	{
+		foreach($this->_logs as $log)
 			$log['log']->alert($this->format_message($log['type'], $message));
 	}
-	
-	public function crit($message) 
-	{ 
-		foreach($this->_logs as $log) 
+
+	public function crit($message)
+	{
+		foreach($this->_logs as $log)
 			$log['log']->crit($this->format_message($log['type'], $message));
 	}
-	
-	public function err($message) 
+
+	public function err($message)
 	{
-		foreach($this->_logs as $log) 
+		foreach($this->_logs as $log)
 			$log['log']->err($this->format_message($log['type'], $message));
 	}
-	
-	public function warn($message) 
+
+	public function warn($message)
 	{
-		foreach($this->_logs as $log) 
+		foreach($this->_logs as $log)
 			$log['log']->warn($this->format_message($log['type'], $message));
 	}
 
-	public function notice($message) 
+	public function notice($message)
 	{
-		foreach($this->_logs as $log) 
+		foreach($this->_logs as $log)
 			$log['log']->notice($this->format_message($log['type'], $message));
 	}
-	
-	public function info($message) 
-	{ 
-		foreach($this->_logs as $log) 
+
+	public function info($message)
+	{
+		foreach($this->_logs as $log)
 			$log['log']->info($this->format_message($log['type'], $message));
 	}
-	
-	public function debug($message) 
-	{ 
-		foreach($this->_logs as $log) 
+
+	public function debug($message)
+	{
+		foreach($this->_logs as $log)
 			$log['log']->debug($this->format_message($log['type'], $message));
 	}
-    
-	public function debug_method($name) 
+
+	public function debug_method($name)
 	{
         $function = array('class'=>'', 'type'=>'', 'function'=>'', 'file'=>'', 'line'=>'');
 		$function = array_merge($function, $this->_getBacktraceElemFromFuncName($name));
-		
+
   		if(! is_array($function['args']))
 				$function['args'] = array();
-				
+
 		$args = array();
 		foreach($function['args'] as $arg) {
 			if (is_object($arg))
   				$args[] = var_export($arg, true);
-  			else 
+  			else
   				$args[] = $arg;
 		}
 
@@ -155,11 +157,11 @@ class FezLog
 
 		$this->debug($message);
 	}
-		
-    public function close() 
+
+    public function close()
     {
     	$this->debug('End');
-    	
+
     	if($this->_use_firebug) {
     		$this->_channel->flush();
 			$this->_response->sendHeaders();
@@ -170,11 +172,35 @@ class FezLog
     {
     	return $this->_stopwatch->elapsed();
     }
-        
-    private function format_message($type, $message) 
+
+//  public function addSolrQueryTime($time) {
+//    if (empty($this->solr_query_time)) {
+//      $this->solr_query_time = array();
+//    }
+//    array_push($this->solr_query_time, $time);
+//  }
+//
+//  public function addSolrQueryTime($time) {
+//    if (empty($this->solr_query_time)) {
+//      $this->solr_query_time = array();
+//    }
+//    array_push($this->solr_query_time, $time);
+//  }
+//
+//  public function getSolrQueryTimes()
+//  {
+//    if(! empty($this->solr_query_time)) {
+//      return $this->solr_query_time;
+//    } else {
+//      return false;
+//    }
+//  }
+
+
+  private function format_message($type, $message)
     {
     	$user_message = array();
-    	
+
     	if(! empty($_SESSION['username'])) {
     		$user_message = array(
     							'usr_username' => $_SESSION['username'],
@@ -186,7 +212,7 @@ class FezLog
     	else {
     		$user_message = array('Public user');
     	}
-    	
+
     	switch($type) {
     		case 'file':
     			if(is_object($message) && is_subclass_of($message, 'Exception')) {
@@ -196,15 +222,15 @@ class FezLog
                 } else {
                     return print_r($user_message, true) . print_r($message, true);
                 }
-    		case 'firebug':    			
+    		case 'firebug':
     			return $this->_stopwatch->elapsed().' '.print_r($message, true);
     		default:
     			return $this->_stopwatch->elapsed().' '.print_r($message, true);
     			//return array('Time'=>$this->_stopwatch->elapsed(), 'Message'=>$message);
-    	}		
+    	}
     }
-    
-	private function _getBacktraceElemFromFuncName( $target, $subclass_ok = true ) 
+
+	private function _getBacktraceElemFromFuncName( $target, $subclass_ok = true )
 	{
 	    if( strpos( $target, "::" ) ) {
 	        list( $class, $target ) = explode( "::", $target, 2 );
@@ -221,7 +247,7 @@ class FezLog
 	    $class and $class = new ReflectionClass( $class );
 
 	    foreach( debug_backtrace() as $obj ) {
-	
+
 	        if( $obj['function'] == $target ) {
 	            if( $type and $obj['type'] == $type ) {
 	                $_cl = new ReflectionClass( $obj['class'] );
@@ -233,36 +259,36 @@ class FezLog
 	            else if( !$type ) {
 	                return $obj;
 	            }
-	        }	
-	    }	
-	    return NULL;	
+	        }
+	    }
+	    return NULL;
 	}
 }
 
 /**
- * StopWatch Class 
+ * StopWatch Class
  *
  * @version 1.0
  * @author Andrew Martlew <a.martlew@library.uq.edu.au>
  */
-class StopWatch 
+class StopWatch
 {
     public $total;
     public $time;
-   
-    public function __construct() 
+
+    public function __construct()
     {
         $this->total = $this->time = microtime(true);
     }
-      
-    public function elapsed() 
+
+    public function elapsed()
     {
     	$elapsed = microtime(true) - $this->total;
         return sprintf('%0.5f', (string)round($elapsed,5));
     }
-   
-    public function reset() 
+
+    public function reset()
     {
         $this->total=$this->time=microtime(true);
     }
-} 
+}
