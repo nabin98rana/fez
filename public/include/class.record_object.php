@@ -302,8 +302,8 @@ class RecordObject extends RecordGeneral
                       $new_dsID = Foxml::makeNCName($filename);
                       array_push($fileNames, $new_dsID);
                       $tmpFile = APP_TEMP_DIR.$new_dsID;
-                      copy($path.$hash['rawHash'], $tmpFile);
-
+//                      copy($path.$hash['rawHash'], $tmpFile);
+                      rename($resourceDataLocation, $tmpFile);
                       Record::generatePresmd($this->pid, $new_dsID);
             		}
                 if (count($fileNames) > 0) {
@@ -313,7 +313,7 @@ class RecordObject extends RecordGeneral
             	}
             }
 
-            Record::removeIndexRecord($this->pid, false);
+//            Record::removeIndexRecord($this->pid, false);
     		    Record::updateSearchKeys($this->pid, $xsd_display_fields, false, $now); //into the non-shadow tables
             Record::updateSearchKeys($this->pid, $xsd_display_fields, true, $now); //into the shadow tables
 

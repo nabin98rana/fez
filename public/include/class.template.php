@@ -410,6 +410,8 @@ class Template_API
      }
 		$this->assign('headerscript', $this->headerscript);
 		$this->assign('benchmark_total', $log->getLogElapsedTime());
+    $this->assign('solr_query_time', $log->solr_query_time);
+    $this->assign('solr_query_string', $log->solr_query_string);
 
 		$profiler = $db->getProfiler();
 		if($profiler) {

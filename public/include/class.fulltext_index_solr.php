@@ -323,16 +323,18 @@ class FulltextIndex_Solr extends FulltextIndex {
 			// Solr search params
 			$params = array();
             $facets = array();
+//      $use_highlighting = false;
 			if( $use_highlighting ) {
 				// hit highlighting
 				$params['hl'] = 'true';
 				$params['hl.fl'] = 'content'; //'content_mt,alternative_title_mt,author_mt,keywords_mt';
 				$params['hl.requireFieldMatch'] = 'false';
-				$params['hl.snippets'] = 3;
+				$params['hl.snippets'] = 1;
 				$params['hl.fragmenter'] = 'gap';
-				$params['hl.fragsize'] = 150;
+				$params['hl.fragsize'] = 100;
 				$params['hl.mergeContiguous'] = "true";
         $params['hl.useFastVectorHighlighter'] = "true";
+//        $params['hl.useFastVectorHighlighter'] = "false";
 			}
 
 			if( $use_faceting ) {
@@ -383,7 +385,6 @@ class FulltextIndex_Solr extends FulltextIndex {
 				$i = 0;
 				$sekdet = Search_Key::getList(false);
 				$cache_db_names = array();
-
 				foreach ($response->response->docs as $doc) {
 
 					foreach ( $doc as $solrID => $field ) {

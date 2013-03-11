@@ -370,10 +370,13 @@ class Apache_Solr_Service
             $httpResponse = $httpTransport->performGetRequest($url, $timeout);
             $solrResponse = new Apache_Solr_Response($httpResponse, $this->_createDocuments, $this->_collapseSingleValueArrays);
 
-            if ($solrResponse->getHttpStatus() != 200) {
+
+      if ($solrResponse->getHttpStatus() != 200) {
        			throw new Apache_Solr_HttpTransportException($solrResponse);
             }
 		}
+    array_push($log->solr_query_time, $solrResponse->responseHeader->QTime);
+    array_push($log->solr_query_string, $url);
 
 		return $solrResponse;
 	}
@@ -416,10 +419,14 @@ class Apache_Solr_Service
             $httpResponse = $httpTransport->performPostRequest($url, $rawPost, $contentType, $timeout);
             $solrResponse = new Apache_Solr_Response($httpResponse, $this->_createDocuments, $this->_collapseSingleValueArrays);
 
-            if ($solrResponse->getHttpStatus() != 200) {
+
+          if ($solrResponse->getHttpStatus() != 200) {
+                   $log->err($solrResponse);
                    throw new Apache_Solr_HttpTransportException($solrResponse);
             }
         }
+    array_push($log->solr_query_time, $solrResponse->responseHeader->QTime);
+    array_push($log->solr_query_string, $url);
 
 		return $solrResponse;
     }
@@ -1223,6 +1230,7 @@ class Apache_Solr_Service
 		$params['rows'] = $limit;
 
 		$queryString = $this->_generateQueryString($params);
+
     // Catch any querystrings longer than the default Tomcat length ~8000 and use POST instead. Nice to default to use GET most of the time for debug ease.
     if (strlen($queryString) > 7000) {
       $method = self::METHOD_POST;
