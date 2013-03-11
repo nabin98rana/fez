@@ -147,6 +147,32 @@ abstract class RecordImport
         return $xpath;
     }
     
+    protected function fuzzyTitleMatch($authorativePid)
+    {
+        //Fuzzy title matching. Title must be at least 10 chars long and
+        //have a match of better than 80%
+        $titleIsFuzzyMatched = false;
+        
+        if($authorativePid && strlen($this->_title) > 10)
+        {
+            $rec = new Record();
+            $title = $rec->getTitleFromIndex($authorativePid);
+        
+            $percentageMatch = 0;
+        
+            $downloadedTitle = RCL::normaliseTitle($this->_title);
+            $localTitle = RCL::normaliseTitle($title);
+            similar_text($downloadedTitle, $localTitle, $percentageMatch);
+        
+            if($percentageMatch > 80)
+            {
+                $titleIsFuzzyMatched = true;
+            }
+        }
+        
+        return $titleIsFuzzyMatched;
+    }
+    
     protected function inTestSave($scopusId, $operation, $docType=null, $agType=null)
     {
         //echo "Saving $scopusId $operation \n";
@@ -306,24 +332,8 @@ abstract class RecordImport
             
             //Fuzzy title matching. Title must be at least 10 chars long and 
             //have a match of better than 80%
-            $titleIsFuzzyMatched = false;
             
-            if($authorativePid && strlen($this->_title) > 10)
-            {
-                $rec = new Record();
-                $title = $rec->getTitleFromIndex($authorativePid);
-                
-                $percentageMatch = 0;
-                
-                $downloadedTitle = RCL::normaliseTitle($this->_title);
-                $localTitle = RCL::normaliseTitle($title);
-                similar_text($downloadedTitle, $localTitle, $percentageMatch);
-                
-                if($percentageMatch > 80)
-                {
-                    $titleIsFuzzyMatched = true;
-                }
-            }
+            $titleIsFuzzyMatched = $this->fuzzyTitleMatch($authorativePid);
             
             if((($associations['_title']['status'] == 'UNMATCHED') && $titleIsFuzzyMatched))
             {
@@ -448,6 +458,7 @@ abstract class RecordImport
         }
         elseif(empty($pidCollection))
         {
+            
             if(!$this->_inTest)
             {
                 $this->save(null, APP_SCOPUS_IMPORT_COLLECTION);
@@ -460,6 +471,7 @@ abstract class RecordImport
             }
             
             return "SAVE";
+            
         }
         else 
         {

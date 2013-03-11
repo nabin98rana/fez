@@ -3696,6 +3696,88 @@ class Record
     return true;
   }
   
+  function getPidsByFuzzyTitle($title, $doi, $startPage, $volume, $endPage, $issue)
+  {
+      
+      $log = FezLog::get();
+      $db = DB_API::get();
+      $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
+      $res = array();
+      
+      $queryMap = array(
+      	'doi' => "AND PREG_REPLACE('/[^0-9]/', '', doi.rek_doi) = PREG_REPLACE('/[^0-9]/', '','" . $doi . "') ", 
+      	'spage' => "AND PREG_REPLACE('/[^0-9]/', '', startp.rek_start_page) = PREG_REPLACE('/[^0-9]/', '', '" . $startPage . "') ", 
+      	'volume' => "AND PREG_REPLACE('/[^0-9]/', '', volume.rek_volume_number) = PREG_REPLACE('/[^0-9]/', '', '" . $volume . "') ", 
+      	'issue' => "AND PREG_REPLACE('/[^0-9]/', '', issue.rek_issue_number) = PREG_REPLACE('/[^0-9]/', '', '" . $issue . "') ", 
+      	'epage' => "AND PREG_REPLACE('/[^0-9]/', '', endp.rek_end_page) = PREG_REPLACE('/[^0-9]/', '', '" . $endPage . "') "
+      );
+      
+      $searchSets = array();
+      $searchSets[] = array('doi', 'spage', 'volume', 'issue', 'epage');
+      $searchSets[] = array('doi', 'spage', 'volume', 'issue');
+      $searchSets[] = array('spage', 'volume', 'issue', 'epage');
+      $searchSets[] = array('doi', 'spage', 'volume');
+      $searchSets[] = array('doi', 'spage', 'issue');
+      $searchSets[] = array('spage', 'volume', 'issue');
+      $searchSets[] = array('doi', 'spage');
+      $searchSets[] = array('doi');
+        
+      
+      $sqlPre = "SELECT rek_pid, rek_title, rek_doi, rek_scopus_id, rek_start_page, "
+      . "rek_end_page, rek_volume_number, rek_issue_number "
+      . "FROM ".$dbtp."record_search_key sk "
+      . "LEFT JOIN ".$dbtp."record_search_key_doi doi ON sk.rek_pid = doi.rek_doi_pid "
+      . "LEFT JOIN ".$dbtp."record_search_key_scopus_id scopus ON sk.rek_pid = scopus.rek_scopus_id_pid "
+      . "LEFT JOIN ".$dbtp."record_search_key_start_page startp ON sk.rek_pid = startp.rek_start_page_pid "
+      . "LEFT JOIN ".$dbtp."record_search_key_end_page endp ON sk.rek_pid = endp.rek_end_page_pid "
+      . "LEFT JOIN ".$dbtp."record_search_key_volume_number volume ON sk.rek_pid = volume.rek_volume_number_pid "
+      . "LEFT JOIN ".$dbtp."record_search_key_issue_number issue on sk.rek_pid = issue.rek_issue_number_pid "
+      . "WHERE PREG_REPLACE('/[^a-z]/', '', LOWER(rek_title)) = PREG_REPLACE('/[^a-z]/', '', LOWER('" . $title . "')) ";
+      
+      $ct = 0;
+      
+      while(empty($res) && $ct < count($searchSets))
+      {
+          $searchSet = $searchSets[$ct];
+          $sql = $sqlPre;
+          
+          foreach($searchSet as $andSearch)
+          {
+              $sql .= $queryMap[$andSearch];
+          }
+          
+          try 
+          {
+              $stmt = $db->query($sql);
+              $res = $stmt->fetchAll();
+          }
+          catch(Exception $e)
+          {
+              $log->err($e->getMessage());
+              return false;
+          }
+          
+          $ct++;
+      }
+      
+      //Try just the title
+      if(empty($res))
+      {
+          try
+          {
+              $stmt = $db->query($sqlPre);
+              $res = $stmt->fetchAll();
+          }
+          catch(Exception $e)
+          {
+              $log->err($e->getMessage());
+              return false;
+          }
+      }
+      
+      return $res;
+  }
+  
   /**
    * Retrieve PIDs by DOI excluding any in the temporary duplicates collection
    * @param string $doi
@@ -3708,8 +3790,8 @@ class Record
       $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
       $pids = null;
       
-      $sql = "SELECT DISTINCT rek_doi_pid FROM fez_record_search_key_doi "
-            . "LEFT JOIN fez_record_search_key_ismemberof "
+      $sql = "SELECT DISTINCT rek_doi_pid FROM ".$dbtp."record_search_key_doi "
+            . "LEFT JOIN ".$dbtp."record_search_key_ismemberof "
             . "ON rek_doi_pid = rek_ismemberof_pid "
             . "WHERE rek_doi = ? "
             . "AND (rek_ismemberof NOT IN('".APP_TEMPORARY_DUPLICATES_COLLECTION."') OR rek_ismemberof IS NULL)";
@@ -3740,8 +3822,8 @@ class Record
       $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
       $pids = null;
   
-      $sql = "SELECT DISTINCT rek_pubmed_id_pid FROM fez_record_search_key_pubmed_id "
-      . "LEFT JOIN fez_record_search_key_ismemberof "
+      $sql = "SELECT DISTINCT rek_pubmed_id_pid FROM ".$dbtp."record_search_key_pubmed_id "
+      . "LEFT JOIN ".$dbtp."record_search_key_ismemberof "
       . "ON rek_pubmed_id_pid = rek_ismemberof_pid "
       . "WHERE rek_pubmed_id = ? "
       . "AND (rek_ismemberof NOT IN('".APP_TEMPORARY_DUPLICATES_COLLECTION."') OR rek_ismemberof IS NULL)";
@@ -3773,7 +3855,7 @@ class Record
       $pids = null;
       
       $sql = "SELECT DISTINCT rek_pid FROM ".$dbtp."record_search_key "
-      	    . "LEFT JOIN fez_record_search_key_ismemberof "
+      	    . "LEFT JOIN ".$dbtp."record_search_key_ismemberof "
             . "ON rek_pid = rek_ismemberof_pid "
             . "WHERE rek_title = ? "
             . "AND (rek_ismemberof NOT IN('".APP_TEMPORARY_DUPLICATES_COLLECTION."') OR rek_ismemberof IS NULL)";
@@ -3818,7 +3900,7 @@ class Record
           {
               $sql = "SELECT DISTINCT rek_scopus_id_pid FROM "
                 .$dbtp."record_search_key_scopus_id "
-                ."LEFT JOIN fez_record_search_key_ismemberof "
+                ."LEFT JOIN ".$dbtp."record_search_key_ismemberof "
                 ."ON rek_scopus_id_pid = rek_ismemberof_pid " 
                 ."WHERE rek_scopus_id = ? " 
                 ."AND rek_ismemberof = '".APP_SCOPUS_IMPORT_COLLECTION."'";
@@ -3826,7 +3908,7 @@ class Record
           else 
           {
               $sql = "SELECT DISTINCT rek_scopus_id_pid FROM ".$dbtp."record_search_key_scopus_id "
-                ."LEFT JOIN fez_record_search_key_ismemberof "
+                ."LEFT JOIN ".$dbtp."record_search_key_ismemberof "
                 ."ON rek_scopus_id_pid = rek_ismemberof_pid " 
                 ."WHERE rek_scopus_id = ? " 
                 ."AND (rek_ismemberof NOT IN('".APP_SCOPUS_IMPORT_COLLECTION."') OR rek_ismemberof IS NULL)";

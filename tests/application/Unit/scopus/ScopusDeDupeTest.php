@@ -25,6 +25,8 @@ class ScopusTest extends PHPUnit_Framework_TestCase
      */
     protected $_savedPids = array();
     
+    protected $_scopusIDCurrent = null;
+    
     /**
      * Add pids to remove to the _savedPids array by scopus id.
      * Used as a clean sweep mechanism in case any test data
@@ -112,6 +114,7 @@ class ScopusTest extends PHPUnit_Framework_TestCase
 
         //Prepare to clean up test data.
         $this->_savedPids[] = $savedPid;
+        $this->_scopusIDCurrent = $csr->__get('_scopusId');
         $this->getPIDsByScopusId($csr->__get('_scopusId'));
          
         return $savedPid;
@@ -311,6 +314,88 @@ class ScopusTest extends PHPUnit_Framework_TestCase
          $inTestCollection = Record::getPIDsByScopusID($csr->__get('_scopusId'), true);
          
          $this->assertEquals(false, empty($inTestCollection));
+         $this->removeTestData($testDataPid);
          $this->removeAllTestPIDs($testDataPid, $csr->__get('_scopusId'));
+     }
+     
+     /**
+      * Perform a fuzzy title and IVP search using all IVP and DOI
+      */
+     public function testFuzzyMatchTitleAllIVP()
+     {
+         $testPID = $this->loadTestData(APP_PATH.'../tests/application/Unit/scopus/fuzzyMatchingLocalTitleDoiSpEpVolIss.xml');
+         
+         //Faux downloaded record data
+         $title = 'Localization of a brain sulfotransferase, SULT4A1-18, in the human, pig, gerbil, zombie and rat brain: An immunohistochemical study';
+         $doi = '10.1080/09936846.2011.646069';
+         $startPage = 1013;
+         $volume = '45a';
+         $endPage = 1029;
+         $issue = 15;
+         
+         $searchRes = Record::getPidsByFuzzyTitle($title, $doi, $startPage, $volume, $endPage, $issue);
+         $this->removeTestData($testPID);
+         $this->removeAllTestPIDs(array($testPID), $this->_scopusIDCurrent);
+         
+         $this->assertEquals($title, $searchRes[0]["rek_title"]);
+         $this->assertEquals($doi, $searchRes[0]["rek_doi"]);
+         $this->assertEquals($startPage, $searchRes[0]["rek_start_page"]);
+         $this->assertEquals($volume, $searchRes[0]["rek_volume_number"]);
+         $this->assertEquals($endPage, $searchRes[0]["rek_end_page"]);
+         $this->assertEquals($issue, $searchRes[0]["rek_issue_number"]);         
+     }
+     
+     /**
+      * Perform fussy title search with doi start page and volume
+      */
+     public function testFuzzyMatchTitleDOIStartpVol()
+     {
+         $testPID = $this->loadTestData(APP_PATH.'../tests/application/Unit/scopus/fuzzyMatchingLocalTitleDoiSpVol.xml');
+          
+         //Faux downloaded record data
+         $title = 'Localization of a brain sulfotransferase, SULT4A1-18, in the human, pig, gerbil, zombie and rat brain: An immunohistochemical study';
+         $doi = '10.1080/09936846.2011.646069';
+         $startPage = 1013;
+         $volume = '45a';
+         $endPage = 1029;
+         $issue = 15;
+          
+         $searchRes = Record::getPidsByFuzzyTitle($title, $doi, $startPage, $volume, $endPage, $issue);
+         $this->removeTestData($testPID);
+         $this->removeAllTestPIDs(array($testPID), $this->_scopusIDCurrent);
+          
+         $this->assertEquals($title, $searchRes[0]["rek_title"]);
+         $this->assertEquals($doi, $searchRes[0]["rek_doi"]);
+         $this->assertEquals($startPage, $searchRes[0]["rek_start_page"]);
+         $this->assertEquals($volume, $searchRes[0]["rek_volume_number"]);
+         $this->assertFalse($endPage == $searchRes[0]["rek_end_page"]);
+         $this->assertFalse($issue == $searchRes[0]["rek_issue_number"]);
+     }
+     
+     /**
+     * Perform fussy title search with doi
+     */
+     public function testFuzzyMatchTitleDOI()
+     {
+         $testPID = $this->loadTestData(APP_PATH.'../tests/application/Unit/scopus/fuzzyMatchingLocalTitleDoi.xml');
+     
+         //Faux downloaded record data
+         $title = 'Localization of a brain sulfotransferase, SULT4A1-18, in the human, pig, gerbil, zombie and rat brain: An immunohistochemical study';
+         $doi = '10.1080/09936846.2011.646069';
+         $startPage = 1013;
+         $volume = '45a';
+         $endPage = 1029;
+         $issue = 15;
+     
+         $searchRes = Record::getPidsByFuzzyTitle($title, $doi, $startPage, $volume, $endPage, $issue);
+         $this->removeTestData($testPID);
+         $this->removeAllTestPIDs(array($testPID), $this->_scopusIDCurrent);
+     
+         $this->assertEquals($title, $searchRes[0]["rek_title"]);
+         $this->assertEquals($doi, $searchRes[0]["rek_doi"]);
+         $this->assertFalse($startPage == $searchRes[0]["rek_start_page"]);
+         $this->assertFalse($volume == $searchRes[0]["rek_volume_number"]);
+         $this->assertFalse($endPage == $searchRes[0]["rek_end_page"]);
+         $this->assertFalse($issue == $searchRes[0]["rek_issue_number"]);
      }
 }
