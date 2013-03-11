@@ -219,8 +219,8 @@ class Search_Key
         }
 
         $stmt .= "
-                    " . $db->quote($_POST["sek_data_type"]) . ",					
-                    " . $db->quote($_POST["field_type"]) . ",					
+                    " . $db->quote($_POST["sek_data_type"]) . ",
+                    " . $db->quote($_POST["field_type"]) . ",
                     " . $db->quote($_POST["sek_fez_variable"]) . ",
 					" . $db->quote($_POST["sek_lookup_function"]) . ",
 					" . $db->quote($_POST["sek_lookup_id_function"]) . ",
@@ -350,7 +350,7 @@ class Search_Key
 
         $stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "search_key
-                 SET 
+                 SET
                     sek_title = " . $db->quote($_POST["sek_title"]) . ",
                     sek_desc = " . $db->quote($_POST["sek_desc"]) . ",
 					sek_alt_title = " . $db->quote($_POST["sek_alt_title"]) . ",
@@ -491,7 +491,7 @@ class Search_Key
         }
         return $res;
     }
-    
+
     function getRelationshipByDBName($db_name)
     {
         $log = FezLog::get();
@@ -807,7 +807,7 @@ class Search_Key
 					sek_fez_variable
                  FROM
                     " . APP_TABLE_PREFIX . "search_key
-				 WHERE sek_adv_visible = TRUE                  
+				 WHERE sek_adv_visible = TRUE
                  ORDER BY
                     sek_order ASC";
         try {
@@ -1110,7 +1110,7 @@ class Search_Key
                  FROM
                     " . APP_TABLE_PREFIX . "search_key
                     left join " . APP_TABLE_PREFIX . "xsd_display_matchfields
-                    on xsdmf_sek_id=sek_id                    
+                    on xsdmf_sek_id=sek_id
                  WHERE
                     sek_id= " . $db->quote($sek_id);
         try {
@@ -1144,7 +1144,7 @@ class Search_Key
                  FROM
                     " . APP_TABLE_PREFIX . "search_key as s1
                     inner join " . APP_TABLE_PREFIX . "xsd_display_matchfields as x1
-                    on xsdmf_sek_id=sek_id                    
+                    on xsdmf_sek_id=sek_id
                  WHERE
                     xsdmf_id=" . $db->quote($xsdmf_id, 'INTEGER');
 
@@ -1179,7 +1179,7 @@ class Search_Key
                  FROM
                     " . APP_TABLE_PREFIX . "search_key as s1
                     inner join " . APP_TABLE_PREFIX . "xsd_display_matchfields as x1
-                    on xsdmf_sek_id=sek_id                    
+                    on xsdmf_sek_id=sek_id
                  WHERE
                     xsdmf_id=" . $db->quote($xsdmf_id, 'INTEGER');
         try {
@@ -1239,7 +1239,7 @@ class Search_Key
         $stmt = "SELECT
                     sek_suggest_function
                  FROM
-                    " . APP_TABLE_PREFIX . "search_key                     
+                    " . APP_TABLE_PREFIX . "search_key
                  WHERE
                     sek_id=" . $db->quote($sek_id);
         try {
@@ -1357,7 +1357,7 @@ class Search_Key
                  FROM
                     " . APP_TABLE_PREFIX . "search_key as s1
                     inner join " . APP_TABLE_PREFIX . "xsd_display_matchfields as x1
-                    on xsdmf_sek_id=sek_id                    
+                    on xsdmf_sek_id=sek_id
                  WHERE
                     xsdmf_id=" . $db->quote($xsdmf_id, 'INTEGER');
 
@@ -1376,7 +1376,7 @@ class Search_Key
         return $res;
     }
 
-    function getSolrTitles()
+    function getSolrTitles($assoc = true)
     {
         $log = FezLog::get();
         $db = DB_API::get();
@@ -1398,6 +1398,9 @@ class Search_Key
             $res[$i]['sek_title_db'] = Search_Key::makeSQLTableName($res[$i]['sek_title']);
             $res[$i]['sek_title_solr'] = FulltextIndex_Solr::getFieldName($res[$i]['sek_title_db'], FulltextIndex::mapType($res[$i]['sek_data_type']), $res[$i]['sek_cardinality']);
             $return[$res[$i]['sek_title_db']] = $res[$i]['sek_title_solr'];
+        }
+        if (!$assoc) {
+          $return = $res;
         }
         return $return;
     }
@@ -1582,7 +1585,7 @@ class Search_Key
     {
         $log = FezLog::get();
         $db = DB_API::get();
-        
+
         // Create primary tables
         $stmt = Search_Key::createSQL($sek_id);
         if (!$stmt) {
@@ -1610,7 +1613,7 @@ class Search_Key
                 return -2;
             }
         }
-        
+
         return 1;
     }
 
@@ -1707,7 +1710,7 @@ class Search_Key
 
         return false;
     }
-    
+
     function getMultipleTypeOptionsByTitle($type) {
         $log = FezLog::get();
         $db = DB_API::get();
@@ -1724,7 +1727,7 @@ class Search_Key
             $log->err($ex);
             return '';
         }
-        
+
         return $res;
     }
 }

@@ -1125,127 +1125,6 @@ class Record
         return $timestamp;
     }
 
-  /**
-     * Update the search key values on Shadow tables,
-     * by doing snapshot of the search key(s) on main table(s) and adding timestamp for version control.
-     * Snapshot covers the search key with / without individual search key shadow table.
-     *
-     * @param string $pid Targetted PID
-     * @param array $sekData Array of search key names & values pair
-     * @return boolean The result of the update. True if successful, false otherwise.
-     *
-     * @todo:
-     *  - Add Boolean param on whether to snapshot all search keys for a PID.
-     *  - Add Array param on the search key(s) to be snapshot, if snapshot is on specific search key(s).
-     *  - Compare the proposed value with the value on the database.
-     *    - If value is the same, only update the timestamp
-     *    - If value is different, insert new row on shadow table(s).
-     */
-    public function updateSearchKeysShadow($pid, $all = true, $searchkeys = array())
-    {
-        $log = FezLog::get();
-        $db = DB_API::get();
-
-        /* Snapshot Search Key with One to One Cardinality */
-        $fields = array();
-        $values = array();
-
-        $stmtSelect = "SELECT * FROM " . APP_TABLE_PREFIX . "record_search_key ".
-                      " WHERE rek_pid = " . $db->quote($pid, STRING);
-        try {
-            $oneToOneSearchKey = $db->fetchRow($stmtSelect);
-        }
-        catch (Exception $ex) {
-            $log->err($ex);
-            $oneToOneSearchKey = array();
-        }
-
-        foreach ($oneToOneSearchKey as $key => $value) {
-            $fields[] = $key;
-            $values[] = $db->quote($value);
-        }
-
-        // Timestamp
-        $fields[] = "rek_stamp";
-        if (!Zend_Registry::isRegistered('version')) {
-            Zend_Registry::set('version', Date_API::getCurrentDateGMT());
-        }
-        $values[] = $db->quote(Record::setSearchKeyTimestamp());
-
-        $stmtInsert = "INSERT INTO " . APP_TABLE_PREFIX . "record_search_key__shadow (" . implode(",", $fields) . ") " .
-                " VALUES (" . implode(",", $values) . ")";
-        try {
-            $db->query($stmtInsert);
-        }
-        catch (Exception $ex) {
-            $log->err($ex);
-        }
-        /* End of: One to One Cardinality */
-
-
-
-        /* Snapshot Search Key with One to Many Cardinality */
-        $searchKeys = Search_Key::getList(false);
-
-        $searchKeysTables = array();
-        foreach ($searchKeys as $sek) {
-            if ($sek['sek_relationship'] == 1 && (!empty($sek['sek_title_db']) || !is_null($sek['sek_title_db']))) {
-                $searchKeysTables[] = $sek['sek_title_db'];
-            }
-        }
-
-        // Build the query for individual search key tables
-        $stmtsSelect = array();
-        foreach ($searchKeysTables as $skTable) {
-            $oneToManySearchkey = array();
-            $fields = array();
-            $values = array();
-            $stmtInsert = "";
-
-            $tableName = APP_TABLE_PREFIX . "record_search_key_" . $skTable;
-
-            $stmtSelect = "SELECT * FROM " . $tableName . " WHERE rek_" . $skTable . "_pid = " . $db->quote($pid);
-            $stmtsSelect[] = $stmtSelect;
-
-            try {
-                $oneToManySearchkey = $db->fetchRow($stmtSelect);
-            }
-            catch (Exception $ex) {
-                $log->err($ex);
-                $oneToManySearchkey = array();
-            }
-
-            // Ignore if no row returned.
-            if (!is_array($oneToManySearchkey) || sizeof($oneToManySearchkey) <= 0) {
-                continue;
-            }
-
-            foreach ($oneToManySearchkey as $key => $value) {
-                if ($key != 'rek_'.$skTable.'_id') {
-                    $fields[] = $key;
-                    $values[] = $db->quote($value);
-                }
-            }
-
-            // Timestamp
-            $fields[] = "rek_" . $skTable . "_stamp";
-            $values[] = $db->quote(Record::setSearchKeyTimestamp());
-
-            // Insert snapshot to shadow table
-            $stmtInsert = "INSERT INTO " . $tableName . "__shadow (" . implode(",", $fields) . ") " .
-                    " VALUES (" . implode(",", $values) . ")";
-
-            try {
-                $db->query($stmtInsert);
-            }
-            catch (Exception $ex) {
-                $log->err($ex);
-            }
-        }
-
-        /* End of: One to Many Cardinality */
-    }
-
 
   /**
    * Updates a PID's search keys values.
@@ -1275,15 +1154,22 @@ class Record
      */
     $stmt[] = 'rek_pid';
     $valuesIns[] = $db->quote($pid);
+    $existingData = array(0 => array('rek_pid' => $pid));
+    Record::getSearchKeysByPIDS($existingData, true, $shadow);
+    $foundDifference = false;
+//    $diff = Misc::array_diff_assoc_recursive($sekData, $existingData[0]);
     if (is_array($sekData[0])) {
         foreach ($sekData[0] as $sek_column => $sek_value) {
-            $stmt[] = "rek_{$sek_column}, rek_{$sek_column}_xsdmf_id";
+            //Check that the column value has changed before using it
+            if ((!is_array($existingData) || !isset($existingData[0]['rek_'.$sek_column]) || $existingData[0]['rek_'.$sek_column] != $sek_value['xsdmf_value']) &&
+              !($sek_value['xsdmf_value'] == '' && $existingData[0]['rek_'.$sek_column] == null) ) {
+              $stmt[] = "rek_{$sek_column}, rek_{$sek_column}_xsdmf_id";
 
-            if ($sek_value['xsdmf_value'] === 'NULL' || $sek_value['xsdmf_value'] === '') {
+              if ($sek_value['xsdmf_value'] === 'NULL' || $sek_value['xsdmf_value'] === '') {
                 $xsdmf_value = 'NULL';
                 $sek_value['xsdmf_id'] = 'NULL';
 
-            } elseif ($sek_value['xsdmf_value'] == 'on') {
+              } elseif ($sek_value['xsdmf_value'] == 'on') {
                 $xsdDetails = XSD_HTML_Match::getDetailsByXSDMF_ID($sek_value['xsdmf_id']);
                 $searchKeyDetails = Search_Key::getDetails($xsdDetails['xsdmf_sek_id']);
                 if ($searchKeyDetails['sek_data_type'] == 'int') {
@@ -1291,14 +1177,17 @@ class Record
                 } else {
                   $xsdmf_value = 0;
                 }
-            } else {
+              } else {
                 $sek_value['xsdmf_value'] = (is_array($sek_value['xsdmf_value']) && array_key_exists('Year', $sek_value['xsdmf_value']))
-                    ? $sek_value['xsdmf_value']['Year'] : $sek_value['xsdmf_value'];
+                  ? $sek_value['xsdmf_value']['Year'] : $sek_value['xsdmf_value'];
                 $xsdmf_value = $db->quote(trim($sek_value['xsdmf_value']));
+              }
+
+              $valuesIns[] = "$xsdmf_value, {$sek_value['xsdmf_id']}";
+              $valuesUpd[] = "rek_{$sek_column} = $xsdmf_value, rek_{$sek_column}_xsdmf_id = {$sek_value['xsdmf_id']}";
+
             }
 
-            $valuesIns[] = "$xsdmf_value, {$sek_value['xsdmf_id']}";
-            $valuesUpd[] = "rek_{$sek_column} = $xsdmf_value, rek_{$sek_column}_xsdmf_id = {$sek_value['xsdmf_id']}";
         }
 
         $table = APP_TABLE_PREFIX . "record_search_key";
@@ -1320,11 +1209,19 @@ class Record
         if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
           $stmt = $stmtIns ." ON DUPLICATE KEY UPDATE " . implode(",", $valuesUpd);
         } else {
-          if (!$shadow) {
-            $stmt = "DELETE FROM " . $table . "WHERE rek_pid = " . $db->quote($pid);
-            $db->exec($stmt);
+          if (is_array($existingData)) {
+            $stmt = "UPDATE ".$table." SET ".implode(",", $valuesUpd)." WHERE rek_pid = '".$pid."'";
+          } else {
+            $stmt = $stmtIns;
           }
-                $stmt = $stmtIns;
+
+
+          // No longer want to delete everything, just update it
+//          if (!$shadow) {
+//            $stmt = "DELETE FROM " . $table . " WHERE rek_pid = " . $db->quote($pid);
+//            $db->exec($stmt);
+//          }
+//                $stmt = $stmtIns;
         }
 
         try {
@@ -1342,114 +1239,127 @@ class Record
      */
     if (is_array($sekData[1])) {
       foreach ($sekData[1] as $sek_table => $sek_value) {
+        // First check the data is different before changing
+        $diff = array();
+        if (is_array($existingData) && is_array($existingData[0]['rek_'.$sek_table]) && is_array($sek_value['xsdmf_value'])) {
+          $diff = array_merge(array_diff_assoc($sek_value['xsdmf_value'], $existingData[0]['rek_'.$sek_table]), array_diff_assoc($existingData[0]['rek_'.$sek_table], $sek_value['xsdmf_value']));
+        } elseif (is_array($existingData) && $existingData[0]['rek_'.$sek_table] != $sek_value['xsdmf_value']) {
+          $diff = array(0=>'true'); // set it to something so it catches in the next if statement
+        }
 
-        $stmt = "";
-        $sekValTest = (is_array($sek_value['xsdmf_value']))
-            ? strtoupper(implode('', $sek_value['xsdmf_value']))
-            : $sek_value['xsdmf_value'];
-        if (
-            !empty($sek_value['xsdmf_value']) && !is_null($sek_value['xsdmf_value'])
-            && ($sekValTest != "NULL")
-        ) {
+        if (!is_array($existingData) || !isset($existingData[0]['rek_'.$sek_table]) || count($existingData[0]['rek_'.$sek_table]) != count($sek_value['xsdmf_value']) || count($diff) > 0) {
 
-          // Added this notEmpty check to look for empty arrays.  Stops fez from writing empty keyword
-          // values to fez_record_search_key_keywords table.  -  heaphey
-          $notEmpty = 1;  // start assuming that value is not empty
-          if (is_array($sek_value['xsdmf_value'])) {
-            $stringvalue = implode("", $sek_value['xsdmf_value']);
-            if (strlen($stringvalue) == 0) {
-              $notEmpty = 0;  // this value is an array and it is empty
-              //Error_Handler::logError($sek_value['xsdmf_value']);
-            }
-          }
+          $stmt = "";
+          $sekValTest = (is_array($sek_value['xsdmf_value']))
+              ? strtoupper(implode('', $sek_value['xsdmf_value']))
+              : $sek_value['xsdmf_value'];
+          if (
+              !empty($sek_value['xsdmf_value']) && !is_null($sek_value['xsdmf_value'])
+              && ($sekValTest != "NULL")
+          ) {
 
-          $xsdDetails = XSD_HTML_Match::getDetailsByXSDMF_ID($sek_value['xsdmf_id']);
-          $searchKeyDetails = Search_Key::getDetails($xsdDetails['xsdmf_sek_id']);
-
-          if ($shadow) {
-            $recordSearchKeyShadow = new Fez_Record_SearchkeyShadow($pid);
-            $hasDelta = $recordSearchKeyShadow->hasDelta($searchKeyDetails['sek_title']);
-            if (!$hasDelta) {
-              continue;
-            }
-          }
-
-          // do final check for cardinality before trying to insert/update an array of values in one to many tables
-          if (is_array($sek_value['xsdmf_value'])) {
-            if ($searchKeyDetails['sek_cardinality'] == 0) {
-              $log->err(
-                  "The cardinality of this value is 1-1 but it is in the 1-M data and contains multiple ".
-                  "values. We cannot insert/update pid {$pid} for the {$sek_table} table with data: " .
-                  var_export($sek_value, true)
-              );
-              $ret = false;
-              continue;
-            }
-          }
-
-          if ($notEmpty) { // only write values to tables if the value is not empty
-
-            $cardinalityCol = "";
+            // Added this notEmpty check to look for empty arrays.  Stops fez from writing empty keyword
+            // values to fez_record_search_key_keywords table.  -  heaphey
+            $notEmpty = 1;  // start assuming that value is not empty
             if (is_array($sek_value['xsdmf_value'])) {
-              $cardinalityCol = ",rek_".$sek_table."_order";
+              $stringvalue = implode("", $sek_value['xsdmf_value']);
+              if (strlen($stringvalue) == 0) {
+                $notEmpty = 0;  // this value is an array and it is empty
+                //Error_Handler::logError($sek_value['xsdmf_value']);
+              }
             }
 
-            $table = APP_TABLE_PREFIX . "record_search_key_" . $sek_table;
+            $xsdDetails = XSD_HTML_Match::getDetailsByXSDMF_ID($sek_value['xsdmf_id']);
+            $searchKeyDetails = Search_Key::getDetails($xsdDetails['xsdmf_sek_id']);
 
-            if ($shadow) {
-              $table .= "__shadow";
-            }
+            //Commented out because this delta shadow check is now done more efficiently above i think, in with teh new only update if different code for all things, now just shadow
+//            if ($shadow) {
+//              $recordSearchKeyShadow = new Fez_Record_SearchkeyShadow($pid);
+//              $hasDelta = $recordSearchKeyShadow->hasDelta($searchKeyDetails['sek_title']);
+//              if (!$hasDelta) {
+//                continue;
+//              }
+//            }
 
-            // Run REPLACE INTO when cardinality is 0 and we are using MySQL as db connection type
-            // Otherwise use INSERT INTO
-            if ($searchKeyDetails['sek_cardinality'] == 0 && is_numeric(strpos(APP_SQL_DBTYPE, "mysql")) ) {
-              $stmt = "REPLACE INTO ". $table;
-            } else {
-              $stmt = "INSERT INTO " . $table;
-            }
-            $stmt .= " (rek_" . $sek_table . "_pid, rek_" . $sek_table . "_xsdmf_id, rek_" . $sek_table . $cardinalityCol;
-
-            if ($shadow) {
-              $stmt .= ", rek_" . $sek_table . "_stamp";
-            }
-            $stmt .= ") VALUES ";
-
+            // do final check for cardinality before trying to insert/update an array of values in one to many tables
             if (is_array($sek_value['xsdmf_value'])) {
-
-              $cardinalityVal = 1;
-              foreach ($sek_value['xsdmf_value'] as $value ) {
-                $val = "(" . $db->quote($pid) . "," . $db->quote($sek_value['xsdmf_id'], 'INTEGER') . "," . $db->quote($value) . ", $cardinalityVal";
-                if ($shadow) {
-                  $val .= ", " . $db->quote($now);
-                }
-                $val .= ")";
-                $stmtVars[] = $val;
-                $cardinalityVal++;
+              if ($searchKeyDetails['sek_cardinality'] == 0) {
+                $log->err(
+                    "The cardinality of this value is 1-1 but it is in the 1-M data and contains multiple ".
+                    "values. We cannot insert/update pid {$pid} for the {$sek_table} table with data: " .
+                    var_export($sek_value, true)
+                );
+                $ret = false;
+                continue;
               }
-              $stmt .= implode(",", $stmtVars);
-              unset($stmtVars);
+            }
 
-            } else {
-              if ($sek_value['xsdmf_value'] == 'on') {
-                if ($searchKeyDetails['sek_data_type'] == 'int') {
-                  $sek_value['xsdmf_value'] = 1;
-                } else {
-                  $sek_value['xsdmf_value'] = 0;
-                }
+            if ($notEmpty) { // only write values to tables if the value is not empty
+
+              $cardinalityCol = "";
+              if (is_array($sek_value['xsdmf_value'])) {
+                $cardinalityCol = ",rek_".$sek_table."_order";
               }
-              $stmt .= "(" . $db->quote($pid) . "," . $db->quote($sek_value['xsdmf_id'], 'INTEGER') . "," . $db->quote($sek_value['xsdmf_value']);
+
+              $table = APP_TABLE_PREFIX . "record_search_key_" . $sek_table;
+
               if ($shadow) {
-                $stmt .= ", " . $db->quote($now);
+                $table .= "__shadow";
               }
-              $stmt .= ")";
-            }
 
-            try {
-              $db->exec($stmt);
-            }
-            catch(Exception $ex) {
-              $log->err($ex);
-              $ret = false;
+              // Run REPLACE INTO when cardinality is 0 and we are using MySQL as db connection type
+              // Otherwise use INSERT INTO
+//              if ($searchKeyDetails['sek_cardinality'] == 0 && is_numeric(strpos(APP_SQL_DBTYPE, "mysql")) ) {
+              if (!$shadow) {
+                $stmt = "DELETE FROM " . $table . " WHERE rek_".$sek_table."_pid = " . $db->quote($pid);
+                $db->exec($stmt);
+              }
+              $stmt = "INSERT INTO " . $table;
+//              }
+              $stmt .= " (rek_" . $sek_table . "_pid, rek_" . $sek_table . "_xsdmf_id, rek_" . $sek_table . $cardinalityCol;
+
+              if ($shadow) {
+                $stmt .= ", rek_" . $sek_table . "_stamp";
+              }
+              $stmt .= ") VALUES ";
+
+              if (is_array($sek_value['xsdmf_value'])) {
+
+                $cardinalityVal = 1;
+                foreach ($sek_value['xsdmf_value'] as $value ) {
+                  $val = "(" . $db->quote($pid) . "," . $db->quote($sek_value['xsdmf_id'], 'INTEGER') . "," . $db->quote($value) . ", $cardinalityVal";
+                  if ($shadow) {
+                    $val .= ", " . $db->quote($now);
+                  }
+                  $val .= ")";
+                  $stmtVars[] = $val;
+                  $cardinalityVal++;
+                }
+                $stmt .= implode(",", $stmtVars);
+                unset($stmtVars);
+
+              } else {
+                if ($sek_value['xsdmf_value'] == 'on') {
+                  if ($searchKeyDetails['sek_data_type'] == 'int') {
+                    $sek_value['xsdmf_value'] = 1;
+                  } else {
+                    $sek_value['xsdmf_value'] = 0;
+                  }
+                }
+                $stmt .= "(" . $db->quote($pid) . "," . $db->quote($sek_value['xsdmf_id'], 'INTEGER') . "," . $db->quote($sek_value['xsdmf_value']);
+                if ($shadow) {
+                  $stmt .= ", " . $db->quote($now);
+                }
+                $stmt .= ")";
+              }
+
+              try {
+                $db->exec($stmt);
+              }
+              catch(Exception $ex) {
+                $log->err($ex);
+                $ret = false;
+              }
             }
           }
         }
@@ -2589,7 +2499,7 @@ class Record
       }
   }
 
-  function getSearchKeysByPIDS(&$result, $forceGetExtra = false)
+  function getSearchKeysByPIDS(&$result, $forceGetExtra = false, $shadow = false)
   {
 
     $pids = array();
@@ -2605,34 +2515,51 @@ class Record
 
     foreach ($sek_details as $sekKey => $sekData) {
       $sek_sql_title = Search_Key::makeSQLTableName($sekData['sek_title']);
+
       if ($sekData['sek_relationship'] == 0) { //already have the data, just need to do any required lookups for 1-1
-        if ($sekData['sek_lookup_function'] != "") {
+//        if ($sekData['sek_lookup_function'] != "") {
           for ($i = 0; $i < count($result); $i++) {
-            if (array_key_exists('rek_'.$sek_sql_title, $result[$i]) && !empty($result[$i]['rek_'.$sek_sql_title])) {
-
-              $param = $result[$i]['rek_'.$sek_sql_title];
-              // Wrap param in single quote, if the value is a string
-              if (!empty($param) && gettype($param)=='string'){
-                $param = "'". $param ."'";
-              }
-
-              $func = $sekData['sek_lookup_function'].'('. $param .');';
-              if (array_key_exists($func, $cache_eval)) {
-                $result[$i]["rek_".$sek_sql_title."_lookup"] = $cache_eval[$func];
+            // Solr already returns all this data, just need the lookups, unless called from somewhere other than solr
+            if ($forceGetExtra == true) {
+              $res = array();
+              if ($shadow) {
+                $res[$i]['rek_'.$sek_sql_title] = Record::getSearchKeyIndexValueShadow($result[$i]['rek_pid'], $sekData['sek_title'], false);
               } else {
-                eval('$result[$i]["rek_'.$sek_sql_title.'_lookup"] = '.$func);
-                $cache_eval[$func] = $result[$i]["rek_".$sek_sql_title."_lookup"];
+                $res[$i]['rek_'.$sek_sql_title] = Record::getSearchKeyIndexValue($result[$i]['rek_pid'], $sekData['sek_title'], false);
               }
+
             } else {
-              $result[$i]['rek_'.$sek_sql_title.'_lookup'] = "";
+              $res = $result;
             }
-          }
-        }
+
+            // If the base array doesnt have the 1-1 search keys already, and force is on, then add them
+            if ($forceGetExtra == true && $res && !array_key_exists('rek_'.$sek_sql_title, $result[$i]) && array_key_exists('rek_'.$sek_sql_title, $res[$i])) {
+              $result[$i]['rek_'.$sek_sql_title] = $res[$i]['rek_'.$sek_sql_title];
+            }
+            if ($sekData['sek_lookup_function'] != "") {
+                if (array_key_exists('rek_'.$sek_sql_title, $result[$i]) && !empty($result[$i]['rek_'.$sek_sql_title])) {
+                  $param = $result[$i]['rek_'.$sek_sql_title];
+                  // Wrap param in single quote, if the value is a string
+                  if (!empty($param) && gettype($param)=='string'){
+                    $param = "'". $param ."'";
+                  }
+
+                  $func = $sekData['sek_lookup_function'].'('. $param .');';
+                  if (array_key_exists($func, $cache_eval)) {
+                    $result[$i]["rek_".$sek_sql_title."_lookup"] = $cache_eval[$func];
+                  } else {
+                    eval('$result[$i]["rek_'.$sek_sql_title.'_lookup"] = '.$func);
+                    $cache_eval[$func] = $result[$i]["rek_".$sek_sql_title."_lookup"];
+                  }
+                } else {
+                  $result[$i]['rek_'.$sek_sql_title.'_lookup'] = "";
+                }
+              }
+            }
 
       } else {
-        // Solr already returns all this data, just need the lookups, unless called from somewhere other than solr
         if ($forceGetExtra == true) {
-          $res = Record::getSearchKeyByPIDS($sek_sql_title, $pids);
+          $res = Record::getSearchKeyByPIDS($sek_sql_title, $pids, $shadow);
         } else {
           $res = $result;
         }
@@ -2698,7 +2625,7 @@ class Record
     }
   }
 
-  function getSearchKeyByPIDS($sek_sql_title, $pids = array())
+  function getSearchKeyByPIDS($sek_sql_title, $pids = array(), $shadow = false, $previousToDate = '')
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -2707,7 +2634,23 @@ class Record
       return array();
     }
     $dbtp =  APP_TABLE_PREFIX;
-    $stmt = "SELECT
+    $shadowSQL = '';
+    if ($shadow) {
+      $shadowSQL = '__shadow';
+      $stmt = "SELECT
+                    rek_" . $sek_sql_title ."_pid,
+                    rek_" . $sek_sql_title ."
+                 FROM
+                    " . $dbtp . "record_search_key_" . $sek_sql_title . $shadowSQL ." s1
+                 WHERE
+                    s1.rek_".$sek_sql_title."_pid IN (".Misc::arrayToSQLBindStr($pids).")
+                    AND s1.rek_".$sek_sql_title."_stamp = (SELECT MAX(s2.rek_".$sek_sql_title."_stamp)
+                      FROM " . $dbtp . "record_search_key_" . $sek_sql_title . $shadowSQL ." s2
+                      WHERE s1.rek_".$sek_sql_title."_pid = s2.rek_".$sek_sql_title."_pid)
+                 ORDER BY
+          rek_" . $sek_sql_title ."_id ASC ";
+    } else {
+      $stmt = "SELECT
                     rek_" . $sek_sql_title ."_pid,
                     rek_" . $sek_sql_title ."
                  FROM
@@ -2716,6 +2659,10 @@ class Record
                     rek_".$sek_sql_title."_pid IN (".Misc::arrayToSQLBindStr($pids).")
                  ORDER BY
           rek_" . $sek_sql_title ."_id ASC ";
+
+    }
+
+
     try {
       $res = $db->fetchAll($stmt, $pids, Zend_Db::FETCH_ASSOC);
     }
@@ -3695,7 +3642,7 @@ class Record
     }
     return true;
   }
-  
+
   /**
    * Retrieve PIDs by DOI excluding any in the temporary duplicates collection
    * @param string $doi
@@ -3707,13 +3654,13 @@ class Record
       $db = DB_API::get();
       $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
       $pids = null;
-      
+
       $sql = "SELECT DISTINCT rek_doi_pid FROM fez_record_search_key_doi "
             . "LEFT JOIN fez_record_search_key_ismemberof "
             . "ON rek_doi_pid = rek_ismemberof_pid "
             . "WHERE rek_doi = ? "
             . "AND (rek_ismemberof NOT IN('".APP_TEMPORARY_DUPLICATES_COLLECTION."') OR rek_ismemberof IS NULL)";
-      
+
       try
       {
           $stmt = $db->query($sql, array($doi));
@@ -3727,7 +3674,7 @@ class Record
 
       return $pids;
   }
-  
+
   /**
   * Retrieve PIDs by DOI excluding any in the temporary duplicates collection
   * @param string $doi
@@ -3739,13 +3686,13 @@ class Record
       $db = DB_API::get();
       $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
       $pids = null;
-  
+
       $sql = "SELECT DISTINCT rek_pubmed_id_pid FROM fez_record_search_key_pubmed_id "
       . "LEFT JOIN fez_record_search_key_ismemberof "
       . "ON rek_pubmed_id_pid = rek_ismemberof_pid "
       . "WHERE rek_pubmed_id = ? "
       . "AND (rek_ismemberof NOT IN('".APP_TEMPORARY_DUPLICATES_COLLECTION."') OR rek_ismemberof IS NULL)";
-  
+
       try
       {
           $stmt = $db->query($sql, array($pubmedId));
@@ -3756,10 +3703,10 @@ class Record
           $log->err($e->getMessage());
           return false;
       }
-  
+
       return $pids;
   }
-  
+
   /**
   * Retrieve PIDs by exact stripped title match
   * @param string $title
@@ -3771,13 +3718,13 @@ class Record
       $db = DB_API::get();
       $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
       $pids = null;
-      
+
       $sql = "SELECT DISTINCT rek_pid FROM ".$dbtp."record_search_key "
       	    . "LEFT JOIN fez_record_search_key_ismemberof "
             . "ON rek_pid = rek_ismemberof_pid "
             . "WHERE rek_title = ? "
             . "AND (rek_ismemberof NOT IN('".APP_TEMPORARY_DUPLICATES_COLLECTION."') OR rek_ismemberof IS NULL)";
-      
+
       try
       {
           $stmt = $db->query($sql, array($title));
@@ -3788,10 +3735,10 @@ class Record
           $log->err($e->getMessage());
           return false;
       }
-      
+
       return $pids;
   }
-  
+
   /**
    * Retrieve PIDs by Scopus ID excluding any in the temporary duplicates collection
    * @param string $scopusId
@@ -3811,7 +3758,7 @@ class Record
       $sidFormatted = (array_key_exists(1, $matches)) ? $matches[1] : null;
       //Otherwise it's not a valid ScopusID and is set to null
       $sidFormatted = ($sidFormatted) ? "2-s2.0-".$sidFormatted : null;
-      
+
       if($sidFormatted)
       {
           if($testTempCollPresence)
@@ -3819,19 +3766,19 @@ class Record
               $sql = "SELECT DISTINCT rek_scopus_id_pid FROM "
                 .$dbtp."record_search_key_scopus_id "
                 ."LEFT JOIN fez_record_search_key_ismemberof "
-                ."ON rek_scopus_id_pid = rek_ismemberof_pid " 
-                ."WHERE rek_scopus_id = ? " 
+                ."ON rek_scopus_id_pid = rek_ismemberof_pid "
+                ."WHERE rek_scopus_id = ? "
                 ."AND rek_ismemberof = '".APP_SCOPUS_IMPORT_COLLECTION."'";
           }
-          else 
+          else
           {
               $sql = "SELECT DISTINCT rek_scopus_id_pid FROM ".$dbtp."record_search_key_scopus_id "
                 ."LEFT JOIN fez_record_search_key_ismemberof "
-                ."ON rek_scopus_id_pid = rek_ismemberof_pid " 
-                ."WHERE rek_scopus_id = ? " 
+                ."ON rek_scopus_id_pid = rek_ismemberof_pid "
+                ."WHERE rek_scopus_id = ? "
                 ."AND (rek_ismemberof NOT IN('".APP_SCOPUS_IMPORT_COLLECTION."') OR rek_ismemberof IS NULL)";
           }
-          
+
           try
           {
               $stmt = $db->query($sql, array($sidFormatted));
@@ -3846,15 +3793,15 @@ class Record
 
       return $pids;
   }
-  
+
   function getScopusDocTypeCodeByDescription($sdt)
   {
       $log = FezLog::get();
       $db = DB_API::get();
       $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
-      
+
       $sql = "SELECT sdt_code FROM " . $dbtp . "scopus_doctypes where sdt_description = ? LIMIT 1;";
-      
+
       try
       {
           $stmt = $db->query($sql, array($sdt));
@@ -3866,7 +3813,7 @@ class Record
           $log->err($e->getMessage());
           return false;
       }
-      
+
       return $res;
   }
 
