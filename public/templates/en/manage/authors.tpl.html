@@ -5,7 +5,7 @@
         <!--
 				var page_url = '{/literal}{$smarty.server.PHP_SELF}{literal}';
 				var current_page = {/literal}{if $list_info.current_page != ""}{$list_info.current_page}{else}0{/if}{literal};
-				var last_page = {/literal}{if $list_info.last_page != ""}{$list_info.last_page}{else}0{/if}{literal};			  
+				var last_page = {/literal}{if $list_info.last_page != ""}{$list_info.last_page}{else}0{/if}{literal};
               function validateForm(f)
               {
                   if (isWhitespace(f.fname.value)) {
@@ -58,8 +58,8 @@
               //-->
               </script>
               {/literal}
-              
-              
+
+
                     {literal}
                   <script type="text/javascript">
                   <!--
@@ -69,7 +69,7 @@
                   var rid_download = 'download_from_researcherid';
                   var rid_upload = 'upload_to_researcherid';
                   var rid_register_alt_email = 'register_researcherid_alt_email';
-        
+
                   dojo.addOnLoad(function(){
                     var id = dojo.byId(rid_register);
                     if(id) {
@@ -84,29 +84,29 @@
                       dojo.connect(uid, 'onclick', 'upload_to_rid');
                     }
                   });
-                      
+
                   function register_in_rid(e) {
                     dojo.stopEvent(e);
-                    
+
                     var confirm_register = confirm("You are about to register this author in ResearcherID.\n\n"+
                                       "For authors with an existing ResearcherID profile, please ensure that:\n\n"+
                                       "  -  The ResearcherID profile has their primary affiliation as this institution.\n"+
                                       "  -  The employeeID in ResearcherID is '{/literal}{$info.aut_org_username}{literal}'.\n\n"+
                                       "For authors who do not have an existing ResearcherID profile, a new profile will be created.");
-                    
+
                     if(! confirm_register) {
                       return false;
                     }
 
                     var aut_id = '{/literal}{$smarty.get.id}{literal}';
                     var rid_alt_email = dojo.byId(rid_register_alt_email).value;
-                                                            
+
                     dojo.byId(rid_container_id).innerHTML = 'Registering, please wait..';
                     var rid_t = rid_server.register(aut_id, rid_alt_email);
-                     
+
 				            rid_t.addCallback( function(msg) {
 					            if(msg == 'true') {
-					            	dojo.byId(rid_container_id).innerHTML = 'Profile is under Registration Process in Researcher ID.';                  
+					            	dojo.byId(rid_container_id).innerHTML = 'Profile is under Registration Process in Researcher ID.';
 					            }
 					            else {
 					            	dojo.byId(rid_container_id).innerHTML = 'Oops! Something unexpected happened. Please try again later..(' + msg + ')';
@@ -116,20 +116,20 @@
 
                   function download_from_rid(e) {
                     dojo.stopEvent(e);
-                    
+
                     var confirm_download = confirm("You are about to download publications for this author from ResearcherID.\n\n"+
                                       "Any new publications found, which have a ISI UT number, will be added to the repository.");
-                    
+
                     if(! confirm_download) {
                       return false;
                     }
                     var aut_rid_id = '{/literal}{$info.aut_researcher_id}{literal}';
                     dojo.byId(rid_container_id).innerHTML = aut_rid_id + ' - Starting download, please wait..';
                     var rid_d = rid_server.download(aut_rid_id);
-                     
+
                     rid_d.addCallback( function(msg) {
                       if(msg == 'true') {
-                    	  dojo.byId(rid_container_id).innerHTML = aut_rid_id + ' - Publications are being downloaded from Researcher ID. Any new publications will be added to <a href="{/literal}{$rel_url}collection/{$smarty.const.RID_DL_COLLECTION}"{literal}>this collection</a>.';                  
+                    	  dojo.byId(rid_container_id).innerHTML = aut_rid_id + ' - Publications are being downloaded from Researcher ID. Any new publications will be added to <a href="{/literal}{$rel_url}collection/{$smarty.const.RID_DL_COLLECTION}"{literal}>this collection</a>.';
                       }
                       else {
                         dojo.byId(rid_container_id).innerHTML = 'Oops! Something unexpected happened. Please try again later..(' + msg + ')';
@@ -139,10 +139,10 @@
 
                   function upload_to_rid(e) {
                       dojo.stopEvent(e);
-                      
+
                       var confirm_upload = confirm("You are about to upload publications for this author to ResearcherID.\n\n"+
                                         "Only publications which have a ISI UT number will be uploaded.");
-                      
+
                       if(! confirm_upload) {
                         return false;
                       }
@@ -150,10 +150,10 @@
                       var aut_id = '{/literal}{$smarty.get.id}{literal}';
                       dojo.byId(rid_container_id).innerHTML = aut_rid_id + ' - Starting upload, please wait..';
                       var rid_u = rid_server.upload(aut_id);
-                       
-                      rid_u.addCallback( function(msg) {                        
+
+                      rid_u.addCallback( function(msg) {
                         if(msg == 'true') {
-                        	dojo.byId(rid_container_id).innerHTML = aut_rid_id + ' - Publications are being uploaded to Researcher ID.';                  
+                        	dojo.byId(rid_container_id).innerHTML = aut_rid_id + ' - Publications are being uploaded to Researcher ID.';
                         }
                         else {
                           dojo.byId(rid_container_id).innerHTML = 'Oops! Something unexpected happened. Please try again later..(' + msg + ')';
@@ -162,8 +162,8 @@
                     }
                       //-->
                       </script>
-                  {/literal}              
-              
+                  {/literal}
+
             {literal}
             <script type="text/javascript">
             <!--
@@ -188,7 +188,7 @@
             //-->
             </script>
             {/literal}
-              
+
             <form id="author_form" onsubmit="javascript:return validateForm(this);" method="post" action="{$smarty.server.PHP_SELF}">
             <div>
               {if $smarty.get.cat == 'edit'}
@@ -198,7 +198,7 @@
                 <input type="hidden" name="cat" value="new" />
               {/if}
             </div>
-              
+
             <table style="width: 100%" cellspacing="0" cellpadding="0">
               <tr>
                 <td colspan="2">
@@ -271,7 +271,7 @@
                   <input type="text" name="lname" size="40" class="default" value="{$info.aut_lname}" />
                   {include file="error_icon.tpl.html" field="lname"}
                 </td>
-              </tr>			  
+              </tr>
               <tr>
                 <td style="width: 120px" class="default cell-colour">
                   <b>Display Name:</b>
@@ -280,7 +280,7 @@
                   <input type="text" name="dname" size="40" class="default" value="{$info.aut_display_name}" />
                   {include file="error_icon.tpl.html" field="dname"}
                 </td>
-              </tr>			  
+              </tr>
               <tr>
                 <td style="width: 120px" class="default cell-colour">
                   <b>Organisation Staff ID: </b>
@@ -289,7 +289,7 @@
                   <input type="text" name="org_staff_id" size="40" class="default" value="{$info.aut_org_staff_id}" />
                   {include file="error_icon.tpl.html" field="org_staff_id"}
                 </td>
-              </tr>	
+              </tr>
               <tr>
                 <td style="width: 120px" class="default cell-colour">
                   <b>Author Reference Number: </b>
@@ -298,7 +298,7 @@
                   <input type="text" name="aut_ref_num" size="40" class="default" value="{$info.aut_ref_num}" />
                   {include file="error_icon.tpl.html" field="aut_ref_num"}
                 </td>
-              </tr>	
+              </tr>
               <tr>
                 <td style="width: 120px" class="default cell-colour">
                   <b>Organisation Staff Username: </b>
@@ -307,7 +307,7 @@
                   <input type="text" name="org_username" size="40" class="default" value="{$info.aut_org_username}" />
                   {include file="error_icon.tpl.html" field="org_username"}
                 </td>
-              </tr>	
+              </tr>
               <tr>
                 <td style="width: 120px" class="default cell-colour">
                   <b>Position: </b>
@@ -316,7 +316,7 @@
                   <input type="text" name="position" size="40" class="default" value="{$info.aut_position}" />
                   {include file="error_icon.tpl.html" field="position"}
                 </td>
-              </tr>	
+              </tr>
               <tr>
                 <td style="width: 120px" class="default cell-colour">
                   <b>Email: </b>
@@ -325,7 +325,7 @@
                   <input type="text" name="email" size="40" class="default" value="{$info.aut_email}" />
                   {include file="error_icon.tpl.html" field="email"}
                 </td>
-              </tr>				  
+              </tr>
               <tr>
                 <td style="width: 120px" class="default cell-colour">
                   <b>CV Link: </b>
@@ -334,7 +334,7 @@
                   <input type="text" name="cv_link" size="40" class="default" value="{$info.aut_cv_link}" />
                   {include file="error_icon.tpl.html" field="cv_link"}
                 </td>
-              </tr>						  		
+              </tr>
               <tr>
                 <td style="width: 120px" class="default cell-colour">
                   <b>Homepage Link: </b>
@@ -343,9 +343,9 @@
                   <input type="text" name="homepage_link" size="40" class="default" value="{$info.aut_homepage_link}" />
                   {include file="error_icon.tpl.html" field="homepage_link"}
                 </td>
-              </tr>	
-              
-              {if $smarty.get.cat == 'edit' && $smarty.const.RID_ENABLED == "true"}				
+              </tr>
+
+              {if $smarty.get.cat == 'edit' && $smarty.const.RID_ENABLED == "true"}
               <tr>
                 <td style="width: 120px" class="default cell-colour">
                   <b>Researcher ID (Thomson): </b>
@@ -353,20 +353,20 @@
                 <td style="background: {$light_color}; width: 80%">
 	                <div id="register_rid_container" style="font-size: 0.8em;">
                   	{if $info.aut_researcher_id == ''}
-                  	
+
 	                  	 {if $info.aut_org_staff_id == '' && $info.aut_org_username == ''}
 	                  	  <input type="text" name="researcher_id" size="11" class="default" value="" />
-                        &nbsp;Registration Process in Researcher ID requires an Organisation Staff Username or 
+                        &nbsp;Registration Process in Researcher ID requires an Organisation Staff Username or
                         an Organisation Staff ID.
-	                  	 {else}	                  		
-		                  		<table style="width: 740px" cellspacing="0" cellpadding="0">                  		
+	                  	 {else}
+		                  		<table style="width: 740px" cellspacing="0" cellpadding="0">
 		                  		<tr>
 		                        <td style="width: 100px">
 		                  		    <input type="text" name="researcher_id" size="12" class="default" value="{$info.aut_researcher_id}" />
 		                        </td>
 		                        <td style="width: 40px; text-align: center">
 		                          - OR -
-		                        </td>            
+		                        </td>
 						                <td style="width: 600px">
 						                  <input class="button" type="submit" value="Register in ResearcherID" id="register_researcherid_profile" />
 						                  &nbsp;
@@ -375,7 +375,7 @@
 						              </tr>
 		                    </table>
 	                    {/if}
-                  		
+
                   	{elseif $info.aut_researcher_id == '-1'}
 	                  	  <input type="text" name="researcher_id" size="12" class="default" value="" />
 	                  		&nbsp;Profile is under Registration Process.
@@ -385,14 +385,14 @@
 	                  <input type="text" name="researcher_id" size="12" class="default" value="{$info.aut_researcher_id}" />
 	                	<input class="button" type="submit" value="Download Publications" id="download_from_researcherid" />
 	                	<input class="button" type="submit" value="Upload Publications" id="upload_to_researcherid" />
-                    
+
 	                	{if $info.aut_rid_password}&nbsp;(Temp pass: {$info.aut_rid_password}){/if}
     	          	{/if}
     	          	</div>
                 </td>
               </tr>
               {/if}
-              					
+
               <tr>
                 <td style="width: 120px" class="default cell-colour">
                   <b>Scopus ID: </b>
@@ -410,7 +410,7 @@
                   <input type="text" name="orcid_id" size="40" class="default" value="{$info.aut_orcid_id}" />
                   {include file="error_icon.tpl.html" field="orcid_id"}
                 </td>
-              </tr>	
+              </tr>
               <tr>
                 <td style="width: 120px" class="default cell-colour">
                   <b>Google Scholar ID: </b>
@@ -419,7 +419,7 @@
                   <input type="text" name="google_scholar_id" size="40" class="default" value="{$info.aut_google_scholar_id}" />
                   {include file="error_icon.tpl.html" field="google_scholar_id"}
                 </td>
-              </tr>				  
+              </tr>
               <tr>
                 <td style="width: 120px" class="default cell-colour">
                   <b>People Australia ID: </b>
@@ -428,7 +428,7 @@
                   <input type="text" name="people_australia_id" size="40" class="default" value="{$info.aut_people_australia_id}" />
                   {include file="error_icon.tpl.html" field="people_australia_id"}
                 </td>
-              </tr>			  
+              </tr>
               <tr>
                 <td style="width: 120px" class="default cell-colour">
                   <b>My Pubs URL extension: </b><br />lowercase, a-z and underscores only
@@ -438,29 +438,29 @@
                   {include file="error_icon.tpl.html" field="mypub_url"}
                 </td>
               </tr>
-              
+
               <!-- RID Registration Response -->
               <tr>
                 <td style="width: 120px" class="default cell-colour">
                   <b>Latest RID registration response: </b> <br />
-                  {if $rid_registration.rre_created_date_formatted} 
+                  {if $rid_registration.rre_created_date_formatted}
                       Created on {$rid_registration.rre_created_date_formatted}
                   {/if}
                   {if $rid_registration.rre_response}
-                      {if $rid_registration.success_response === true} 
-                          <span class="rid-author-success">Request is successful</span> 
+                      {if $rid_registration.success_response == true}
+                          <span class="rid-author-success">Request is successful</span>
                       {else}
-                          <span class="rid-author-notsuccess">Request is unsuccessful</span> 
+                          <span class="rid-author-notsuccess">Request is unsuccessful</span>
                       {/if}
                   {/if}
-                  
+
                 </td>
                 <td style="background: {$light_color}; width: 80%">
                   <textarea name="rid_registration_display" cols="70" rows="10" class="default" readonly="readonly">{$rid_registration.rre_response}</textarea>
                 </td>
               </tr>
-              
-              
+
+
               <tr>
                 <td style="width: 120px" class="default cell-colour">
                   <b>Description: </b>
@@ -469,7 +469,7 @@
 				  <textarea name="description" cols="70" rows="10" class="default">{$info.aut_description}</textarea>
                   {include file="error_icon.tpl.html" field="description"}
                 </td>
-              </tr>	
+              </tr>
               <tr>
                 <td colspan="2" style="background: {$cell_color}; text-align: center">
                   {if $smarty.get.cat == 'edit'}
@@ -482,9 +482,9 @@
               </tr>
             </table>
           </form>
-              
 
-          <form id="author_search_form" method="get" action="{$smarty.server.PHP_SELF}">              
+
+          <form id="author_search_form" method="get" action="{$smarty.server.PHP_SELF}">
           <div>
             <input type="hidden" name="cat" value="search" />
             <input type="hidden" name="id" value="{$smarty.get.id}" />
@@ -512,14 +512,14 @@
                 </td>
               </tr>
             </table>
-			  </form>              
+			  </form>
 
         <form onsubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}">
           <div>
             <input type="hidden" name="cat" value="delete" />
           </div>
 
-            <table style="width: 100%" cellspacing="0" cellpadding="0">  
+            <table style="width: 100%" cellspacing="0" cellpadding="0">
               <tr>
                 <td colspan="2" class="default">
                   <h2>Existing Authors:</h2>
@@ -564,7 +564,7 @@
                       <td style="background: {$row_color}" class="default">&nbsp;{$list[i].aut_org_staff_id}</td>
                       <td style="background: {$row_color}" class="default">&nbsp;{$list[i].aut_org_username}</td>
                       <td style="background: {$row_color}" class="default">&nbsp;{$list[i].aut_mypub_url}</td>
-                      <td style="background: {$row_color}" class="default">&nbsp;{$list[i].aut_ref_num}</td>                                           
+                      <td style="background: {$row_color}" class="default">&nbsp;{$list[i].aut_ref_num}</td>
                       <td style="background: {$row_color}" class="default">&nbsp;{$list[i].aut_cv_link}</td>
                       <td style="background: {$row_color}" class="default">&nbsp;{$list[i].aut_homepage_link}</td>
                       <td style="background: {$row_color}" class="default">&nbsp;{$list[i].aut_created_date}</td>
