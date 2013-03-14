@@ -1,13 +1,12 @@
 <?php
 
-//require_once APP_PATH . 'init.php';
+require_once 'config.inc.php';
 require_once APP_INC_PATH . 'class.researcherid.php';
 
 class Unit_ResearcherIdTests extends PHPUnit_Framework_TestCase
 {
-  protected $_ticketNo;
-  protected $_isiLoc;
   protected $_rid;
+  protected $_ticketNo;
   
   public function __construct()
   {
@@ -15,17 +14,7 @@ class Unit_ResearcherIdTests extends PHPUnit_Framework_TestCase
   
   public function setUp()
   {
-    $this->_ticketNo = '3AhPfJGaDFjmh97g6PA-689';
-    $this->_isiLoc   = '000073882000025';
     $this->_rid      = 'A-3541-2009';
-    
-    // Remove any existing matching jobs
-    ResearcherID::removeJob($this->_ticketNo);
-    // Remove an existing record matching this ISI loc
-    $pid = Record::getPIDByIsiLoc($this->_isiLoc);
-    if ($pid) {
-      Record::removeIndexRecord($pid);
-    }
   }
 
   public function tearDown()
@@ -42,11 +31,14 @@ class Unit_ResearcherIdTests extends PHPUnit_Framework_TestCase
   
   public function testGetDownloadStatus()
   {
-//      echo RID_DL_SERVICE_URL."\n";
-//      echo RID_UL_SERVICE_URL."\n";
-    $return = ResearcherID::checkJobStatus($this->_ticketNo);
-////    $pid = Record::getPIDByIsiLoc($this->_isiLoc);
-////    $return = (! $pid) ? false : $return;
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $stmt = "SELECT rij_ticketno FROM " . APP_TABLE_PREFIX . "rid_jobs WHERE rij_status = 'NEW' AND rij_downloadrequest LIKE ".$db->quote('%'.$this->_rid.'%');
+
+    $res = $db->fetchOne($stmt);
+    $this->assertEquals(TRUE, !empty($res));
+    $return = ResearcherID::checkJobStatus($res);
     $this->assertEquals(TRUE, $return);
   }
 }
