@@ -40,6 +40,8 @@ $authors = Author::getAllCurrentStaffWithResearcherId();
 // as a single RID service call
 $rids_chunked = array_chunk($authors, 100);
 
+$date = getdate(time()-3600*24*28); //28 days previous
+
 for($i=0; $i<count($rids_chunked); $i++) {
-  ResearcherID::downloadRequest($rids_chunked[$i], 'researcherIDs', 'researcherID');
+  ResearcherID::downloadRequest($rids_chunked[$i], 'researcherIDs', 'researcherID', array($date['year'],$date['mon'],$date['mday']));
 }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Version 0.1 -->
-<!-- Copyright 2008 Thomson Reuters Global Resources. All Rights Reserved. -->
+<!-- Version 1.2 -->
+<!-- Copyright 2011 Thomson Reuters Global Resources. All Rights Reserved. -->
 <!-- Proprietary and confidential information of TRGR.  -->
 <!-- Disclosure, use, or reproduction without the written authorization of TRGR is prohibited. -->
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:stl="http://www.codesynthesis.com/xmlns/xsstl" elementFormDefault="qualified" attributeFormDefault="unqualified">
@@ -8,7 +8,9 @@
       in addition to publications data. -->
         <!-- Institutions having RIDDownloadBasic entitlement will only be allowed
       to download publications and not profiles information. -->
-        <!-- In case of publications download, data will be returned from both lists: R(MyPub) and I(institution) -->
+        <!-- In case of publications download, data will be returned from both lists: R(MyPub) and I(institution) or 
+        R(MyPub) or I(institution) 
+        supported publication Source : i)MyPublications ii)Institution iii)All -->
         <!-- Types: supported
       i)publication
       ii)profile
@@ -47,6 +49,16 @@
                         <xs:element name="employeeID" type="employeeIDType" maxOccurs="unbounded"/>
                 </xs:sequence>
         </xs:complexType>
+        <!-- Used to specify whether data should be returned only -->
+        <!-- from the MyPub list, or the Institution list or both. -->
+        <!-- Allowed values i)MyPublications ii)Institution iii) All -->
+        <xs:simpleType name="publicationSourceType">
+                <xs:restriction base="xs:string">
+                        <xs:enumeration value="MyPublications"/>
+                        <xs:enumeration value="Institution"/>
+                        <xs:enumeration value="All"/>
+                </xs:restriction>
+        </xs:simpleType>
         <!-- researchers type accepts either researcherID or EmployeeID but not both-->
         <xs:complexType name="researchersType">
                 <xs:choice>
@@ -54,12 +66,41 @@
                         <xs:element name="employeeIDs" type="employeeIDsType"/>
                 </xs:choice>
         </xs:complexType>
+
+		<xs:simpleType name="yearType">
+			<xs:restriction base="xs:integer">
+				<xs:totalDigits value="4"/>
+			</xs:restriction>
+	   </xs:simpleType>
+	   <xs:simpleType name="monthType">
+			<xs:restriction base="xs:integer">
+				<xs:minInclusive value="1"/>
+				<xs:maxInclusive value="12"/>
+			</xs:restriction>
+	   </xs:simpleType>
+
+	   <xs:simpleType name="dayType">
+			<xs:restriction base="xs:integer">
+				<xs:minInclusive value="1"/>
+				<xs:maxInclusive value="31"/>
+			</xs:restriction>
+	   </xs:simpleType>
+	   
         <!-- download request type -->
+        <xs:complexType name="downloadPubsSinceType">
+                <xs:sequence>
+                        <xs:element name="day" type="dayType" minOccurs="1"/>
+                        <xs:element name="month" type="monthType" minOccurs="1"/>
+                        <xs:element name="year" type="yearType" minOccurs="1"/>
+                </xs:sequence>
+        </xs:complexType>
         <!-- Root tag for the download request xml input file -->
         <xs:element name="download-request">
                 <xs:complexType>
                         <xs:sequence>
                                 <xs:element name="download-type" type="downloadType" minOccurs="0"/>
+                                <xs:element name="publication-source" type="publicationSourceType" minOccurs="0"/>
+								<xs:element name="download-publications-added-since" type="downloadPubsSinceType" minOccurs="0"/>
                                 <xs:element name="researchers" type="researchersType" minOccurs="0"/>
                         </xs:sequence>
                 </xs:complexType>

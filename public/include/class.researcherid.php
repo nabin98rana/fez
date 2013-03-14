@@ -128,10 +128,11 @@ class ResearcherID
    *                                   request data for.
    * @param   string $researchers_type The type of IDs being used. May be one of
    *                                   either 'researcherIDs' or 'employeeIDs'.
+   * @param   array $dateAddedFrom     year, month, day to download new publications from
    * @return  string                   The job ticket number if the request is
    *                                   successful, otherwise false.
    */
-  public static function downloadRequest($ids, $researchers_id_type, $researcher_id_type)
+  public static function downloadRequest($ids, $researchers_id_type, $researcher_id_type, $dateAddedFrom = array())
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -166,6 +167,7 @@ class ResearcherID
     $tpl->assign("list", $ids);
     $tpl->assign("researchers_id_type", $researchers_id_type);
     $tpl->assign("researcher_id_type", $researcher_id_type);
+    $tpl->assign("dateAddedFrom", $dateAddedFrom);
     $request_data = $tpl->getTemplateContents();
 
     $xml_request_data = new DOMDocument();
@@ -801,6 +803,9 @@ class ResearcherID
 
     $xml_publications = new SimpleXMLElement($publications);
 
+    $ticketNo = (string)$xml_publications->{'download-summary'}->{'request-token-no'};
+    $date = ResearcherID::getUpdateTime($ticketNo);
+
     foreach ($xml_publications->publicationList->{'researcher-publications'} as $rp) {
       $researcherid = (string)$rp->researcherID;
       $author_id = null;
@@ -819,6 +824,9 @@ class ResearcherID
           // Only add the publication if it is not a suggested publication - so only add confirmed pubs
           if (!isset($record->{'suggested-status'})) {
             ResearcherID::addPublication($record, $author_id, $researcherid);
+            if (!empty($date)) {
+                ResearcherID::authorUpdateTime($author_id, $date);
+            }
           }
         }
       } else {
@@ -2008,6 +2016,85 @@ class ResearcherID
     }
   }
 
+    /**
+     * Method used to find a tickets date restrictions if any
+     *
+     * @access  public
+     * @param   string $ticketNo Ticket number it ran under
+     * @return  string Any date restrictions on the request
+     */
+    private static function getUpdateTime($ticketNo)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+        $ticketNo .= '%'; //Fore the like function
 
+        $stmt = "SELECT
+                  rij_downloadrequest
+               FROM
+                  " . APP_TABLE_PREFIX . "rid_jobs
+               WHERE
+                  rij_ticketno LIKE ?";
+
+        try {
+            $res = $db->fetchOne($stmt, array($ticketNo));
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+
+        //Load in the XML and extract the date restriction if there is one and return it
+        $xml_request_data = new DOMDocument();
+        $xml_request_data->loadXML($res);
+        $xpath = new DOMXPath($xml_request_data);
+        $xpath->registerNamespace('rid', 'http://www.isinet.com/xrpc42');
+        $d = $xpath->query("/rid:request/rid:fn[@name='AuthorResearch.downloadRIDData']/rid:list/rid:val")->item(0)->nodeValue;
+        $cData = new DOMDocument();
+        $cData->loadXML($d);
+        $xpath = new DOMXPath($cData);
+        $day = $xpath->query("/download-request/download-publications-added-since/day")->item(0)->nodeValue;
+        $month = $xpath->query("/download-request/download-publications-added-since/month")->item(0)->nodeValue;
+        $year = $xpath->query("/download-request/download-publications-added-since/year")->item(0)->nodeValue;
+        return (!empty($day) && !empty($month) && !empty($year)) ? $year.'-'.$month.'-'.$day : false;
+    }
+
+    /**
+     * Method used to update an authors last publication added date if it's newer
+     *
+     * @access  public
+     * @param   string $ticketNo Ticket number it ran under
+     */
+    private static function authorUpdateTime($authorId, $date)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $stmt = "SELECT
+                  aut_rid_last_updated
+               FROM
+                  " . APP_TABLE_PREFIX . "author
+               WHERE
+                  aut_id = ".$db->quote($authorId);
+
+        try {
+            $res = $db->fetchOne($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+
+        if (empty($res) || $date > $res) {
+            $stmt = "UPDATE " . APP_TABLE_PREFIX . "author SET aut_rid_last_updated=".$db->quote($date)." WHERE aut_id=".$db->quote($authorId);
+            try {
+                $db->exec($stmt);
+            }
+            catch(Exception $ex) {
+                $log->err($ex);
+            }
+        }
+
+    }
 
 }

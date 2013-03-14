@@ -1,5 +1,13 @@
 <download-request>
     <download-type>{$download_type}</download-type>
+    {if $dateAddedFrom}
+      <publication-source>MyPublications</publication-source>
+        <download-publications-added-since>
+            <day>{$dateAddedFrom[2]}</day>
+            <month>{$dateAddedFrom[1]}</month>
+            <year>{$dateAddedFrom[0]}</year>
+        </download-publications-added-since>
+    {/if}
     <researchers>
         <{$researchers_id_type}>
         {section name="i" loop=$list}
