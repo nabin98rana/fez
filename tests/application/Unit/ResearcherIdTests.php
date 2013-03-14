@@ -1,5 +1,9 @@
 <?php
 
+define("RID_DL_SERVICE_REQUEST_XSD", "../../../public/include/xsd/download-request.xsd");
+define("RID_DL_SERVICE_RESPONSE_XSD", "../../../public/include/xsd/download-response.xsd");
+define("RID_UL_SERVICE_PROFILES_XSD", "../../../public/include/xsd/Researcher-Bulk-Profiles-schema.xsd");
+define("RID_UL_SERVICE_PUBLICATIONS_XSD", "../../../public/include/xsd/Researcher-Bulk-Publications-schema.xsd");
 require_once 'config.inc.php';
 require_once APP_INC_PATH . 'class.researcherid.php';
 
