@@ -1,7 +1,7 @@
 {if $message}
 	<tr>
 		<td colspan="2" bgcolor="{$cell_color}" class="error">
-			{$message}
+			{$message|smarty:nodefaults}
 		</td>
 	<tr>
 {/if}
