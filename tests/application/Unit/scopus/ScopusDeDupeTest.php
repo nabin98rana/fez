@@ -25,7 +25,18 @@ class ScopusTest extends PHPUnit_Framework_TestCase
      */
     protected $_savedPids = array();
     
+    /**
+     * Current Scopus ID being processed.
+     * @var string
+     */
     protected $_scopusIDCurrent = null;
+    
+    /**
+     * Set the Scopus record item (ScopusRecItem) to being in test
+     * so that it only logs its actions without actually performimg them
+     * @var boolean
+     */
+    protected $_recItemIntest = false;
     
     /**
      * Add pids to remove to the _savedPids array by scopus id.
@@ -99,6 +110,7 @@ class ScopusTest extends PHPUnit_Framework_TestCase
         $rec = $records->item(0);
     
         $csr = new ScopusRecItem();
+        $csr->setInTest($this->_recItemIntest);
          
         $nameSpaces = array(
                    'prism' => "http://prismstandard.org/namespaces/basic/2.0/",
@@ -146,6 +158,7 @@ class ScopusTest extends PHPUnit_Framework_TestCase
         $rec = $records->item(0);
          
         $csr = new ScopusRecItem();
+        $csr->setInTest($this->_recItemIntest);
          
         $nameSpaces = array(
                      'prism' => "http://prismstandard.org/namespaces/basic/2.0/",
@@ -176,12 +189,15 @@ class ScopusTest extends PHPUnit_Framework_TestCase
      */
     public function testSaveUpdateScopusIdTitleStartEndVolumeDOIMatches()
     {
+        $this->_recItemIntest = true;
         $testPid = $this->loadTestData(APP_PATH.'../tests/application/Unit/scopus/sampleAbstractScopusIdMatch.xml');
     
         $xml = file_get_contents(APP_PATH.'../tests/application/Unit/scopus/sampleAbstracts02.xml');
         $likened = $this->saveUpdateAbstract($xml);
          
-        $this->removeAllTestPIDs(array($testPid));
+        $this->removeTestData($testPid);
+        $this->removeAllTestPIDs(array($testPid), $this->_scopusIDCurrent);
+        $this->_recItemIntest = false;
 
         $this->assertEquals('UPDATE', $likened);
     }
@@ -205,7 +221,8 @@ class ScopusTest extends PHPUnit_Framework_TestCase
         $xml = file_get_contents(APP_PATH.'../tests/application/Unit/scopus/sampleAbstractAllButTitleMatchDL.xml');
         $likened = $this->saveUpdateAbstract($xml);
          
-        $this->removeAllTestPIDs(array($testPid));
+        $this->removeTestData($testPid);
+        $this->removeAllTestPIDs(array($testPid), $this->_scopusIDCurrent);
         
         $this->assertEquals('UPDATE', $likened);
     }
@@ -263,8 +280,58 @@ class ScopusTest extends PHPUnit_Framework_TestCase
          $likened = $this->saveUpdateAbstract($xml);
          
          $this->removeTestData($testPid);
-         $this->removeAllTestPIDs(array($testPid));
+         $this->removeAllTestPIDs(array($testPid), $this->_scopusIDCurrent);
         
+         $this->assertEquals('UPDATE', $likened);
+     }
+     
+     /**
+     * Title is very similar but not identical (differences in punctuation marks)
+     * Start matches
+     * End matches
+     * Volume empty in local record
+     * DOI empty in local record
+     * Issue empty in local record
+     *
+     * This should match the ST26 status.
+     */
+     public function testSaveUpdateFuzzyTitleMatch()
+     {
+         $this->_recItemIntest = true;
+         $testPid = $this->loadTestData(APP_PATH.'../tests/application/Unit/scopus/sampleAbstractFuzzyDOIIVPMatchLocal.xml');
+         
+         $xml = file_get_contents(APP_PATH.'../tests/application/Unit/scopus/sampleAbstractFuzzyDOIIVPMatchDL.xml');
+         $likened = $this->saveUpdateAbstract($xml);
+         
+         $this->removeTestData($testPid);
+         $this->removeAllTestPIDs(array($testPid), $this->_scopusIDCurrent);
+         $this->_recItemIntest = false;
+         
+         $this->assertRegExp('/^ST26/', $likened[0]);
+     }
+     
+     /**
+     * Title is very similar but not identical (letters in the title differ)
+     * Start matches
+     * End matches
+     * Volume matches
+     * DOI matches
+     * Issue matches
+     *
+     * This should UPDATE and will not enter into the higher STxx codes (ie above 09).
+     */
+     public function testSaveUpdateFuzzyTitleMismatch()
+     {
+         $this->_recItemIntest = true;
+         $testPid = $this->loadTestData(APP_PATH.'../tests/application/Unit/scopus/sampleAbstractFuzzyDOIIVPTitleMismatchLocal.xml');
+          
+         $xml = file_get_contents(APP_PATH.'../tests/application/Unit/scopus/sampleAbstractFuzzyDOIIVPTitleMismatchDL.xml');
+         $likened = $this->saveUpdateAbstract($xml);
+          
+         $this->removeTestData($testPid);
+         $this->removeAllTestPIDs(array($testPid), $this->_scopusIDCurrent);
+         $this->_recItemIntest = false;
+         
          $this->assertEquals('UPDATE', $likened);
      }
      
@@ -326,76 +393,207 @@ class ScopusTest extends PHPUnit_Framework_TestCase
          $testPID = $this->loadTestData(APP_PATH.'../tests/application/Unit/scopus/fuzzyMatchingLocalTitleDoiSpEpVolIss.xml');
          
          //Faux downloaded record data
-         $title = 'Localization of a brain sulfotransferase, SULT4A1-18, in the human, pig, gerbil, zombie and rat brain: An immunohistochemical study';
-         $doi = '10.1080/09936846.2011.646069';
-         $startPage = 1013;
-         $volume = '45a';
-         $endPage = 1029;
-         $issue = 15;
+         $fields = array();
+         $fields['_doi'] = '10.1080/09936846.2011.646069';
+         $fields['_startPage'] = 1013;
+         $fields['_issueVolume'] = '45a';
+         $fields['_issueNumber'] = 15;
+         $fields['_endPage'] = 1029;
+         $fields['_title'] = 'Localization of a brain sulfotransferase, SULT4A1-18, in the human, pig, gerbil, zombie and rat brain: An immunohistochemical study';
          
-         $searchRes = Record::getPidsByFuzzyTitle($title, $doi, $startPage, $volume, $endPage, $issue);
+         $searchRes = Record::getPidsByFuzzyTitle($fields);
          $this->removeTestData($testPID);
          $this->removeAllTestPIDs(array($testPID), $this->_scopusIDCurrent);
          
-         $this->assertEquals($title, $searchRes[0]["rek_title"]);
-         $this->assertEquals($doi, $searchRes[0]["rek_doi"]);
-         $this->assertEquals($startPage, $searchRes[0]["rek_start_page"]);
-         $this->assertEquals($volume, $searchRes[0]["rek_volume_number"]);
-         $this->assertEquals($endPage, $searchRes[0]["rek_end_page"]);
-         $this->assertEquals($issue, $searchRes[0]["rek_issue_number"]);         
+         $this->assertEquals($fields['_title'], $searchRes['data'][0]["rek_title"]);
+         $this->assertEquals($fields['_doi'], $searchRes['data'][0]["rek_doi"]);
+         $this->assertEquals($fields['_startPage'], $searchRes['data'][0]["rek_start_page"]);
+         $this->assertEquals($fields['_issueVolume'], $searchRes['data'][0]["rek_volume_number"]);
+         $this->assertEquals($fields['_endPage'], $searchRes['data'][0]["rek_end_page"]);
+         $this->assertEquals($fields['_issueNumber'], $searchRes['data'][0]["rek_issue_number"]);         
      }
      
      /**
-      * Perform fussy title search with doi start page and volume
+      * Perform fuzzy title search with doi start page and volume
       */
      public function testFuzzyMatchTitleDOIStartpVol()
      {
          $testPID = $this->loadTestData(APP_PATH.'../tests/application/Unit/scopus/fuzzyMatchingLocalTitleDoiSpVol.xml');
           
          //Faux downloaded record data
-         $title = 'Localization of a brain sulfotransferase, SULT4A1-18, in the human, pig, gerbil, zombie and rat brain: An immunohistochemical study';
-         $doi = '10.1080/09936846.2011.646069';
-         $startPage = 1013;
-         $volume = '45a';
-         $endPage = 1029;
-         $issue = 15;
+         $fields = array();
+         $fields['_doi'] = '10.1080/09936846.2011.646069';
+         $fields['_startPage'] = 1013;
+         $fields['_issueVolume'] = '45a';
+         $fields['_issueNumber'] = 15;
+         $fields['_endPage'] = 1029;
+         $fields['_title'] = 'Localization of a brain sulfotransferase, SULT4A1-18, in the human, pig, gerbil, zombie and rat brain: An immunohistochemical study';
           
-         $searchRes = Record::getPidsByFuzzyTitle($title, $doi, $startPage, $volume, $endPage, $issue);
+         $searchRes = Record::getPidsByFuzzyTitle($fields);
          $this->removeTestData($testPID);
          $this->removeAllTestPIDs(array($testPID), $this->_scopusIDCurrent);
           
-         $this->assertEquals($title, $searchRes[0]["rek_title"]);
-         $this->assertEquals($doi, $searchRes[0]["rek_doi"]);
-         $this->assertEquals($startPage, $searchRes[0]["rek_start_page"]);
-         $this->assertEquals($volume, $searchRes[0]["rek_volume_number"]);
-         $this->assertFalse($endPage == $searchRes[0]["rek_end_page"]);
-         $this->assertFalse($issue == $searchRes[0]["rek_issue_number"]);
+         $this->assertEquals($fields['_title'], $searchRes['data'][0]["rek_title"]);
+         $this->assertEquals($fields['_doi'], $searchRes['data'][0]["rek_doi"]);
+         $this->assertEquals($fields['_startPage'], $searchRes['data'][0]["rek_start_page"]);
+         $this->assertEquals($fields['_issueVolume'], $searchRes['data'][0]["rek_volume_number"]);
+         $this->assertFalse($fields['_endPage'] == $searchRes['data'][0]["rek_end_page"]);
+         $this->assertFalse($fields['_issueNumber'] == $searchRes['data'][0]["rek_issue_number"]);
      }
      
      /**
-     * Perform fussy title search with doi
+     * Perform fuzzy title search with doi
      */
      public function testFuzzyMatchTitleDOI()
      {
          $testPID = $this->loadTestData(APP_PATH.'../tests/application/Unit/scopus/fuzzyMatchingLocalTitleDoi.xml');
      
          //Faux downloaded record data
-         $title = 'Localization of a brain sulfotransferase, SULT4A1-18, in the human, pig, gerbil, zombie and rat brain: An immunohistochemical study';
-         $doi = '10.1080/09936846.2011.646069';
-         $startPage = 1013;
-         $volume = '45a';
-         $endPage = 1029;
-         $issue = 15;
+         $fields = array();
+         $fields['_doi'] = '10.1080/09936846.2011.646069';
+         $fields['_startPage'] = 1013;
+         $fields['_issueVolume'] = '45a';
+         $fields['_issueNumber'] = 15;
+         $fields['_endPage'] = 1029;
+         $fields['_title'] = 'Localization of a brain sulfotransferase, SULT4A1-18, in the human, pig, gerbil, zombie and rat brain: An immunohistochemical study';
      
-         $searchRes = Record::getPidsByFuzzyTitle($title, $doi, $startPage, $volume, $endPage, $issue);
+         $searchRes = Record::getPidsByFuzzyTitle($fields);
          $this->removeTestData($testPID);
          $this->removeAllTestPIDs(array($testPID), $this->_scopusIDCurrent);
      
-         $this->assertEquals($title, $searchRes[0]["rek_title"]);
-         $this->assertEquals($doi, $searchRes[0]["rek_doi"]);
-         $this->assertFalse($startPage == $searchRes[0]["rek_start_page"]);
-         $this->assertFalse($volume == $searchRes[0]["rek_volume_number"]);
-         $this->assertFalse($endPage == $searchRes[0]["rek_end_page"]);
-         $this->assertFalse($issue == $searchRes[0]["rek_issue_number"]);
+         $this->assertEquals($fields['_title'], $searchRes['data'][0]["rek_title"]);
+         $this->assertEquals($fields['_doi'], $searchRes['data'][0]["rek_doi"]);
+         $this->assertFalse($fields['_startPage'] == $searchRes['data'][0]["rek_start_page"]);
+         $this->assertFalse($fields['_issueVolume'] == $searchRes['data'][0]["rek_volume_number"]);
+         $this->assertFalse($fields['_endPage'] == $searchRes['data'][0]["rek_end_page"]);
+         $this->assertFalse($fields['_issueNumber'] == $searchRes['data'][0]["rek_issue_number"]);
+     }
+     
+     /**
+     * Fuzzy matching matches nothing
+     */
+     public function testFuzzyMatchNoMatch()
+     {
+         $testPID = $this->loadTestData(APP_PATH.'../tests/application/Unit/scopus/fuzzyMatchingLocalTitleDoi.xml');
+          
+         //Faux downloaded record data
+         $fields = array();
+         $fields['_doi'] = '10.1080/09932246.2040.646779';
+         $fields['_startPage'] = 5000;
+         $fields['_issueVolume'] = '99a';
+         $fields['_issueNumber'] = 234555;
+         $fields['_endPage'] = 999999;
+         $fields['_title'] = 'I am nothing';
+          
+         $searchRes = Record::getPidsByFuzzyTitle($fields);
+         $this->removeTestData($testPID);
+         $this->removeAllTestPIDs(array($testPID), $this->_scopusIDCurrent);
+          
+         $this->assertEquals(0, $searchRes['state']);
+         $this->assertEquals(array(), $searchRes['data']);
+     }
+     
+     /**
+      * Test log message to search result mapping.
+      * This test does no actual fuzzy title/Scopus ID/IVP matching
+      */
+     public function testFuzzyMatchResultReporting1()
+     {
+         $xml = file_get_contents(APP_PATH.'../tests/application/Unit/scopus/fuzzyMatchResultReporting01.xml');
+         
+         $results = array ('state' => 9,
+            'data' => array (
+                0 => array (
+                    'rek_pid' => 'UQ:10048',
+                    'rek_title' => 'Modelling Optical Micro-Machines',
+                    'rek_doi' => '10.1016/j.biocon.2004.07.004',
+                    'rek_scopus_id' => '2-s2.0-896587658765876',
+                    'rek_start_page' => '163',
+                    'rek_end_page' => '166',
+                    'rek_volume_number' => NULL,
+                    'rek_issue_number' => NULL,
+                ),
+                1 => array (
+                    'rek_pid' => 'UQ:4158',
+                    'rek_title' => 'Modelling Optical Micro-Machines',
+                    'rek_doi' => NULL,
+                    'rek_scopus_id' => NULL,
+                    'rek_start_page' => '163',
+                    'rek_end_page' => '166',
+                    'rek_volume_number' => NULL,
+                    'rek_issue_number' => NULL,
+                ),
+                2 => array (
+                    'rek_pid' => 'UQ:4460',
+                    'rek_title' => 'Modelling Optical Micro-Machines',
+                    'rek_doi' => NULL,
+                    'rek_scopus_id' => NULL,
+                    'rek_start_page' => '163',
+                    'rek_end_page' => '166',
+                    'rek_volume_number' => NULL,
+                    'rek_issue_number' => NULL,
+                ),
+            ),
+         );
+         
+         $nameSpaces = array(
+             'prism' => "http://prismstandard.org/namespaces/basic/2.0/",
+             'dc' => "http://purl.org/dc/elements/1.1/",
+             'opensearch' => "http://a9.com/-/spec/opensearch/1.1/"
+         );
+         
+         $csr = new ScopusRecItem();
+         $csr->load($xml, $nameSpaces);
+         $res = $csr->getFuzzySearchStatus($results);
+         
+         $this->assertEquals("ST27 - Matched on fuzzy title. Scopus ID in the downloaded record was 2-s2.0-84859635595. Scopus ID in the local record was 2-s2.0-896587658765876. Pid matched: UQ:10048", $res[0]);
+         $this->assertEquals("ST26 - Matched on fuzzy title. Scopus ID in the downloaded record was 2-s2.0-84859635595. Scopus ID in the local record was null. Pid matched: UQ:4158", $res[1]);
+     }
+     
+     /**
+     * Test log message to search result mapping.
+     * This test does no actual fuzzy title/Scopus ID/IVP matching
+     */
+     public function testFuzzyMatchResultReporting2()
+     {
+         $xml = file_get_contents(APP_PATH.'../tests/application/Unit/scopus/fuzzyMatchResultReporting01.xml');
+          
+         $results = array ('state' => 1,
+                 'data' => array (
+                 0 => array (
+                         'rek_pid' => 'UQ:10048',
+                         'rek_title' => 'Modelling Optical Micro-Machines',
+                         'rek_doi' => '10.1016/j.biocon.2004.07.004',
+                         'rek_scopus_id' => '2-s2.0-896587658765876',
+                         'rek_start_page' => '163',
+                         'rek_end_page' => '166',
+                         'rek_volume_number' => NULL,
+                         'rek_issue_number' => NULL,
+                 ),
+                 1 => array (
+                         'rek_pid' => 'UQ:10023',
+                         'rek_title' => 'Modelling Optical Micro-Machines',
+                         'rek_doi' => '10.1016/j.biocon.2004.07.004',
+                         'rek_scopus_id' => NULL,
+                         'rek_start_page' => '163',
+                         'rek_end_page' => '166',
+                         'rek_volume_number' => NULL,
+                         'rek_issue_number' => NULL,
+         ),
+             ),
+         );
+          
+         $nameSpaces = array(
+                  'prism' => "http://prismstandard.org/namespaces/basic/2.0/",
+                  'dc' => "http://purl.org/dc/elements/1.1/",
+                  'opensearch' => "http://a9.com/-/spec/opensearch/1.1/"
+         );
+          
+         $csr = new ScopusRecItem();
+         $csr->load($xml, $nameSpaces);
+         $res = $csr->getFuzzySearchStatus($results);
+         
+         $this->assertEquals("ST11 - Matched on fuzzy title, DOI, start page, end page, issue, volume. Scopus ID in the downloaded record was 2-s2.0-84859635595. Scopus ID in the local record was 2-s2.0-896587658765876. Pid matched: UQ:10048", $res[0]);
+         $this->assertEquals("ST10 - Matched on fuzzy title, DOI, start page, end page, issue, volume. Scopus ID in the downloaded record was 2-s2.0-84859635595. Scopus ID in the local record was null. Pid matched: UQ:10023", $res[1]);
      }
 }

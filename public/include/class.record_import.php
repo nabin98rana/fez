@@ -55,6 +55,7 @@ abstract class RecordImport
     protected $_xdisSubtype = null;
     
     protected $_statsFile = null;
+    ///var/www/scopusimptest/scopusDownloaded.s3db
     protected $_inTest = false;
 
     /**
@@ -76,6 +77,8 @@ abstract class RecordImport
 
 
     public abstract function load($recordData, $nameSpaces=null);
+    
+    public abstract function getFuzzySearchStatus(array $searchData);
     
     /**
      * Set the test state of the object.
@@ -175,8 +178,11 @@ abstract class RecordImport
     
     protected function inTestSave($scopusId, $operation, $docType=null, $agType=null)
     {
-        //echo "Saving $scopusId $operation \n";
-        $db = new PDO('sqlite:/var/www/scopusimptest/scopusDownloaded.s3db');
+        if(!is_file($this->_statsFile))
+        {
+            return false;
+        }
+        $db = new PDO('sqlite:'.$this->_statsFile);
         $query = "INSERT OR IGNORE INTO records (scopus_id, operation, doc_type, ag_type) "
         ."VALUES ('" . $scopusId . "', '" . $operation . "', '" . $docType . "', '" . $agType . "')";
         $db->query($query);
@@ -191,18 +197,21 @@ abstract class RecordImport
         //import collection, we need not go any further.
         if($this->_inTest)
         {
-            $db = new PDO('sqlite:/var/www/scopusimptest/scopusDownloaded.s3db');
-            
-            $query = "SELECT * FROM records WHERE scopus_id = '" . $this->_scopusId . "' LIMIT 1";
-            $res = $db->query($query);
-            $rows = $res->fetchAll(PDO::FETCH_ASSOC);
-            
-            if(!empty($rows))
+            if(is_file($this->_statsFile))
             {
-                $query = "UPDATE records SET count = count+1 WHERE scopus_id = '" . $this->_scopusId . "'";
-                $db->query($query);
+                $db = new PDO('sqlite:'.$this->_statsFile);
                 
-                return;
+                $query = "SELECT * FROM records WHERE scopus_id = '" . $this->_scopusId . "' LIMIT 1";
+                $res = $db->query($query);
+                $rows = $res->fetchAll(PDO::FETCH_ASSOC);
+                
+                if(!empty($rows))
+                {
+                    $query = "UPDATE records SET count = count+1 WHERE scopus_id = '" . $this->_scopusId . "'";
+                    $db->query($query);
+                    
+                    return;
+                }
             }
         }
         else
@@ -458,6 +467,26 @@ abstract class RecordImport
         }
         elseif(empty($pidCollection))
         {
+            //Begin last ditch attempts to match on fuzzy title, DOI and IVP only
+            $fuzzyMatchResult = Record::getPidsByFuzzyTitle($this->getFields());
+            
+            if($fuzzyMatchResult['state'])
+            {
+                $fuzzyMatchState = $this->getFuzzySearchStatus($fuzzyMatchResult);
+                
+                if(!$this->_inTest)
+                {
+                    $this->save(null, APP_SCOPUS_IMPORT_COLLECTION);
+                }
+                else 
+                {
+                    //ST10-2x status
+                    $stCode = preg_replace("/(^ST\d{2})*./", "$1", $fuzzyMatchState[0]);
+                    $this->inTestSave($this->_scopusId, $stCode, $this->_scopusDocTypeCode, $this->_scopusAggregationType);
+                    return $fuzzyMatchState;
+                }
+                return 'POSSIBLE MATCH';
+            }
             
             if(!$this->_inTest)
             {
@@ -507,7 +536,6 @@ abstract class RecordImport
                     . $this->_scopusId . "\n\n", FILE_APPEND);*/
                 $this->inTestSave($this->_scopusId, 'ST09', $this->_scopusDocTypeCode, $this->_scopusAggregationType);
             }
-            
             return "UPDATE";
         }
     }
