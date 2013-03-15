@@ -1,0 +1,1105 @@
+<abstracts>
+<abstracts-retrieval-response xmlns:ait="http://www.elsevier.com/xml/ani/ait"
+xmlns:ce="http://www.elsevier.com/xml/ani/common"
+xmlns:cto="http://www.elsevier.com/xml/cto/dtd"
+xmlns:dc="http://purl.org/dc/elements/1.1/"
+xmlns:prism="http://prismstandard.org/namespaces/basic/2.0/"
+xmlns:xocs="http://www.elsevier.com/xml/xocs/dtd"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <coredata>
+    <prism:url>
+    http://api.elsevier.com/content/abstract/scopus_id:84859635595</prism:url>
+    <dc:identifier>SCOPUS_ID:84859635595</dc:identifier>
+    <pubmed-id>22934873</pubmed-id>
+    <prism:doi>10.1080/09936846.2011.646069</prism:doi>
+    <dc:title>Modelling Optical Micro-Machines</dc:title>
+    <prism:aggregationType>Journal</prism:aggregationType>
+    <srctype>j</srctype>
+    <citedby-count>0</citedby-count>
+    <prism:publicationName>Publisher X</prism:publicationName>
+    <prism:issn>00036846</prism:issn>
+    <prism:volume>707z</prism:volume>
+    <prism:issueIdentifier>777</prism:issueIdentifier>
+    <prism:startingPage>1121</prism:startingPage>
+    <prism:endingPage>9999</prism:endingPage>
+    <prism:pageRange>2023-2029</prism:pageRange>
+    <prism:coverDate>2013-05-01</prism:coverDate>
+    <dc:creator>
+      <author auid="16304102200" seq="1">
+        <ce:initials>B.L.</ce:initials>
+        <ce:indexed-name>Lee B.L.</ce:indexed-name>
+        <ce:surname>Lee</ce:surname>
+        <ce:given-name>Boon L.</ce:given-name>
+        <preferred-name>
+          <ce:initials>B.L.</ce:initials>
+          <ce:indexed-name>Lee B.</ce:indexed-name>
+          <ce:surname>Lee</ce:surname>
+          <ce:given-name>Boon L.</ce:given-name>
+        </preferred-name>
+        <ce:e-address type="email">bl.lee@qut.edu.au</ce:e-address>
+        <author-url>
+        http://api.elsevier.com/content/author/author_id:16304102200</author-url>
+        <affiliation href="http://api.elsevier.com/content/affiliation/affiliation_id:60011019"
+        id="60011019" />
+      </author>
+    </dc:creator>
+    <dc:description>
+      <abstract original="y" xml:lang="eng">
+        <ce:para>The current study was motivated by statements made
+        by the Economic Strategies Committee that Singapore's
+        recent productivity levels in services were well below
+        countries such as the US, Japan and Hong Kong. Massive
+        employment of foreign workers was cited as the reason for
+        poor productivity levels. To shed more light on Singapore's
+        falling productivity, a nonparametric Malmquist
+        productivity index was employed which provides measures of
+        productivity change, technical change and efficiency
+        change. The findings reveal that growth in Total Factor
+        Productivity (TFP) was attributed to technical change with
+        no improvement in efficiency change. Such results suggest
+        that gains from TFP were input-driven rather than from a
+        'best-practice' approach such as improvements in operations
+        or better resource allocation. &#194;&#169; 2012 Taylor and
+        Francis Group, LLC.</ce:para>
+      </abstract>
+    </dc:description>
+    <intid>2024340655</intid>
+    <link href="http://api.elsevier.com/content/abstract/scopus_id:84859635595"
+    rel="self" />
+    <link href="http://www.scopus.com/inward/record.url?partnerID=HzOxMe3b&amp;scp=84859635595"
+    rel="scopus" />
+    <link href="http://api.elsevier.com/content/search/index:scopus?query=refeid(2-s2.0-84859635595)"
+    rel="cited-by" />
+  </coredata>
+  <affiliation href="http://api.elsevier.com/content/affiliation/affiliation_id:60011019"
+  id="60011019">
+    <affilname>University of Queensland</affilname>
+  </affiliation>
+  <authors>
+    <author auid="16304102200" seq="1">
+      <ce:initials>B.L.</ce:initials>
+      <ce:indexed-name>Lee B.L.</ce:indexed-name>
+      <ce:surname>Lee</ce:surname>
+      <ce:given-name>Boon L.</ce:given-name>
+      <preferred-name>
+        <ce:initials>B.L.</ce:initials>
+        <ce:indexed-name>Lee B.</ce:indexed-name>
+        <ce:surname>Lee</ce:surname>
+        <ce:given-name>Boon L.</ce:given-name>
+      </preferred-name>
+      <ce:e-address type="email">bl.lee@qut.edu.au</ce:e-address>
+      <author-url>
+      http://api.elsevier.com/content/author/author_id:16304102200</author-url>
+      <affiliation href="http://api.elsevier.com/content/affiliation/affiliation_id:60011019"
+      id="60011019" />
+    </author>
+  </authors>
+  <subject-areas>
+    <subject-area abbrev="ECON" code="2002">Economics, Econometrics
+    and Finance</subject-area>
+  </subject-areas>
+  <item>
+    <ait:process-info>
+      <ait:date-delivered day="11" month="05"
+      timestamp="2012-05-11T19:38:47.000047+01:00" year="2012" />
+      <ait:date-sort day="01" month="05" year="2013" />
+      <ait:status stage="S300" state="update" type="core" />
+    </ait:process-info>
+    <bibrecord>
+      <item-info>
+        <copyright type="Elsevier">Copyright 2012 Elsevier B.V.,
+        All rights reserved.</copyright>
+        <itemidlist>
+          <ce:doi>10.1080/00036846.2011.646069</ce:doi>
+          <itemid idtype="PUI">364610275</itemid>
+          <itemid idtype="GEO">3811911</itemid>
+          <itemid idtype="SCP">84859635595</itemid>
+          <itemid idtype="SGR">84859635595</itemid>
+        </itemidlist>
+        <history>
+          <date-created day="17" month="04" year="2012" />
+        </history>
+        <dbcollection>GEO</dbcollection>
+        <dbcollection>Scopusbase</dbcollection>
+      </item-info>
+      <head>
+        <citation-info>
+          <citation-type code="ar" />
+          <citation-language xml:lang="eng" />
+          <abstract-language xml:lang="eng" />
+          <author-keywords>
+            <author-keyword>Malmquist productivity
+            index</author-keyword>
+            <author-keyword>service sector</author-keyword>
+            <author-keyword>technical efficiency</author-keyword>
+            <author-keyword>total factor
+            productivity</author-keyword>
+          </author-keywords>
+        </citation-info>
+        <citation-title>
+          <titletext original="y" xml:lang="eng">Productivity,
+          technical and efficiency change in Singapore's services
+          sector, 2005 to 2008</titletext>
+        </citation-title>
+        <author-group>
+          <author auid="16304102200" seq="1">
+            <ce:initials>B.L.</ce:initials>
+            <ce:indexed-name>Lee B.L.</ce:indexed-name>
+            <ce:surname>Lee</ce:surname>
+            <ce:given-name>Boon L.</ce:given-name>
+            <preferred-name>
+              <ce:initials>B.L.</ce:initials>
+              <ce:indexed-name>Lee B.</ce:indexed-name>
+              <ce:surname>Lee</ce:surname>
+              <ce:given-name>Boon L.</ce:given-name>
+            </preferred-name>
+            <ce:e-address type="email">
+            bl.lee@qut.edu.au</ce:e-address>
+          </author>
+          <affiliation afid="60011019" country="aus">
+            <organization>School of Economics and
+            Finance</organization>
+            <organization>Queensland University of
+            Technology</organization>
+            <city-group>Brisbane, QLD</city-group>
+          </affiliation>
+        </author-group>
+        <correspondence>
+          <person>
+            <ce:initials>B. L.</ce:initials>
+            <ce:indexed-name>Lee B. L.</ce:indexed-name>
+            <ce:surname>Lee</ce:surname>
+          </person>
+          <affiliation country="aus">
+            <organization>School of Economics and
+            Finance</organization>
+            <organization>Queensland University of
+            Technology</organization>
+            <city-group>Brisbane, QLD</city-group>
+          </affiliation>
+          <ce:e-address type="email">
+          bl.lee@qut.edu.au</ce:e-address>
+        </correspondence>
+        <abstracts>
+          <abstract original="y" xml:lang="eng">
+            <ce:para>The current study was motivated by statements
+            made by the Economic Strategies Committee that
+            Singapore's recent productivity levels in services were
+            well below countries such as the US, Japan and Hong
+            Kong. Massive employment of foreign workers was cited
+            as the reason for poor productivity levels. To shed
+            more light on Singapore's falling productivity, a
+            nonparametric Malmquist productivity index was employed
+            which provides measures of productivity change,
+            technical change and efficiency change. The findings
+            reveal that growth in Total Factor Productivity (TFP)
+            was attributed to technical change with no improvement
+            in efficiency change. Such results suggest that gains
+            from TFP were input-driven rather than from a
+            'best-practice' approach such as improvements in
+            operations or better resource allocation. &#194;&#169;
+            2012 Taylor and Francis Group, LLC.</ce:para>
+          </abstract>
+        </abstracts>
+        <source country="gbr" srcid="18768" type="j">
+          <sourcetitle>Applied Economics</sourcetitle>
+          <sourcetitle-abbrev>Appl. Econ.</sourcetitle-abbrev>
+          <issn type="print">00036846</issn>
+          <issn type="electronic">14664283</issn>
+          <volisspag>
+            <voliss issue="15" volume="45" />
+            <pagerange first="2023" last="2029" />
+          </volisspag>
+          <publicationyear first="2013" />
+          <publicationdate>
+            <year>2013</year>
+            <month>05</month>
+            <date-text xfab-added="true">May 2013</date-text>
+          </publicationdate>
+        </source>
+        <enhancement>
+          <classificationgroup>
+            <classifications type="ASJC">
+              <classification>2002</classification>
+            </classifications>
+            <classifications type="GEOCLASS">
+              <classification>
+                <classification-code>70.14.4</classification-code>
+                <classification-description>
+                Services</classification-description>
+              </classification>
+              <classification>
+                <classification-code>74.8</classification-code>
+                <classification-description>INDUSTRY, INDUSTRIAL
+                POLICY</classification-description>
+              </classification>
+            </classifications>
+          </classificationgroup>
+        </enhancement>
+      </head>
+      <tail>
+        <bibliography refcount="27">
+          <reference id="1">
+            <ref-info>
+              <ref-title>
+                <ref-titletext>The use of bootstrapped Malmquist
+                indices to reassess productivity change findings:
+                An application to a sample of Polish
+                farms</ref-titletext>
+              </ref-title>
+              <refd-itemidlist>
+                <itemid idtype="SGR">48549097895</itemid>
+              </refd-itemidlist>
+              <ref-authors>
+                <author seq="1">
+                  <ce:initials>K.</ce:initials>
+                  <ce:indexed-name>Balcombe K.</ce:indexed-name>
+                  <ce:surname>Balcombe</ce:surname>
+                </author>
+                <author seq="2">
+                  <ce:initials>S.</ce:initials>
+                  <ce:indexed-name>Davidova S.</ce:indexed-name>
+                  <ce:surname>Davidova</ce:surname>
+                </author>
+                <author seq="3">
+                  <ce:initials>L.</ce:initials>
+                  <ce:indexed-name>Latruffe L.</ce:indexed-name>
+                  <ce:surname>Latruffe</ce:surname>
+                </author>
+              </ref-authors>
+              <ref-sourcetitle>Applied Economics</ref-sourcetitle>
+              <ref-publicationyear first="2008" />
+              <ref-volisspag>
+                <voliss volume="40" />
+                <pagerange first="2055" last="2061" />
+              </ref-volisspag>
+            </ref-info>
+            <ref-fulltext>Balcombe, K, Davidova, S and Latruffe, L.
+            2008. The use of bootstrapped Malmquist indices to
+            reassess productivity change findings: an application
+            to a sample of Polish farms. Applied Economics, 40:
+            2055-61.</ref-fulltext>
+          </reference>
+          <reference id="2">
+            <ref-info>
+              <ref-title>
+                <ref-titletext>Efficiency and credit rating in
+                Taiwan banking: Data envelopment analysis
+                estimation</ref-titletext>
+              </ref-title>
+              <refd-itemidlist>
+                <itemid idtype="SGR">77954941437</itemid>
+              </refd-itemidlist>
+              <ref-authors>
+                <author seq="1">
+                  <ce:initials>Y.-H.</ce:initials>
+                  <ce:indexed-name>Chiu Y.-H.</ce:indexed-name>
+                  <ce:surname>Chiu</ce:surname>
+                </author>
+                <author seq="2">
+                  <ce:initials>C.-M.</ce:initials>
+                  <ce:indexed-name>Ma C.-M.</ce:indexed-name>
+                  <ce:surname>Ma</ce:surname>
+                </author>
+                <author seq="3">
+                  <ce:initials>M.-Y.</ce:initials>
+                  <ce:indexed-name>Sun M.-Y.</ce:indexed-name>
+                  <ce:surname>Sun</ce:surname>
+                </author>
+              </ref-authors>
+              <ref-sourcetitle>Applied Economics</ref-sourcetitle>
+              <ref-publicationyear first="2010" />
+              <ref-volisspag>
+                <voliss volume="42" />
+                <pagerange first="2587" last="2600" />
+              </ref-volisspag>
+            </ref-info>
+            <ref-fulltext>Chiu, Y-H, Ma, C-M and Sun, M-Y. 2010.
+            Efficiency and credit rating in Taiwan banking: data
+            envelopment analysis estimation. Applied Economics, 42:
+            2587-600.</ref-fulltext>
+          </reference>
+          <reference id="3">
+            <ref-info>
+              <refd-itemidlist>
+                <itemid idtype="SGR">0003475484</itemid>
+              </refd-itemidlist>
+              <ref-authors>
+                <author seq="1">
+                  <ce:initials>T.</ce:initials>
+                  <ce:indexed-name>Coelli T.</ce:indexed-name>
+                  <ce:surname>Coelli</ce:surname>
+                </author>
+                <author seq="2">
+                  <ce:initials>D.S.P.</ce:initials>
+                  <ce:indexed-name>Rao D.S.P.</ce:indexed-name>
+                  <ce:surname>Rao</ce:surname>
+                </author>
+                <author seq="3">
+                  <ce:initials>G.E.</ce:initials>
+                  <ce:indexed-name>Battese G.E.</ce:indexed-name>
+                  <ce:surname>Battese</ce:surname>
+                </author>
+              </ref-authors>
+              <ref-sourcetitle>An Introduction to Efficiency and
+              Productivity Analysis</ref-sourcetitle>
+              <ref-publicationyear first="1998" />
+              <ref-text>Boston, MA: Kluwer Academic
+              Publishers</ref-text>
+            </ref-info>
+            <ref-fulltext>Coelli, T, Rao, DSP and Battese, GE.
+            1998. An Introduction to Efficiency and Productivity
+            Analysis, Boston, MA: Kluwer Academic
+            Publishers.</ref-fulltext>
+          </reference>
+          <reference id="4">
+            <ref-info>
+              <refd-itemidlist>
+                <itemid idtype="SGR">84859650291</itemid>
+              </refd-itemidlist>
+              <ref-text>Economic Strategies Committee (ESC) (2010)
+              Report of the Economic Strategies Committee,
+              Singapore</ref-text>
+            </ref-info>
+            <ref-fulltext>Economic Strategies Committee (ESC)
+            (2010) Report of the Economic Strategies Committee,
+            Singapore</ref-fulltext>
+          </reference>
+          <reference id="5">
+            <ref-info>
+              <ref-title>
+                <ref-titletext>Productivity developments in Swedish
+                pharmacies 1980-1989: A non-parametric
+                approach</ref-titletext>
+              </ref-title>
+              <refd-itemidlist>
+                <itemid idtype="SGR">84855390377</itemid>
+              </refd-itemidlist>
+              <ref-authors>
+                <author seq="1">
+                  <ce:initials>R.</ce:initials>
+                  <ce:indexed-name>Fare R.</ce:indexed-name>
+                  <ce:surname>F&#195;&#164;re</ce:surname>
+                </author>
+                <author seq="2">
+                  <ce:initials>S.</ce:initials>
+                  <ce:indexed-name>Grosskopf S.</ce:indexed-name>
+                  <ce:surname>Grosskopf</ce:surname>
+                </author>
+                <author seq="3">
+                  <ce:initials>B.</ce:initials>
+                  <ce:indexed-name>Lindgren B.</ce:indexed-name>
+                  <ce:surname>Lindgren</ce:surname>
+                </author>
+                <author seq="4">
+                  <ce:initials>P.</ce:initials>
+                  <ce:indexed-name>Roos P.</ce:indexed-name>
+                  <ce:surname>Roos</ce:surname>
+                </author>
+              </ref-authors>
+              <ref-sourcetitle>Journal of Productivity
+              Analysis</ref-sourcetitle>
+              <ref-publicationyear first="1992" />
+              <ref-volisspag>
+                <voliss volume="3" />
+                <pagerange first="85" last="101" />
+              </ref-volisspag>
+            </ref-info>
+            <ref-fulltext>F&#195;&#164;re, R, Grosskopf, S,
+            Lindgren, B and Roos, P. 1992. Productivity
+            developments in Swedish pharmacies 1980-1989: a
+            non-parametric approach. Journal of Productivity
+            Analysis, 3: 85-101.</ref-fulltext>
+          </reference>
+          <reference id="6">
+            <ref-info>
+              <refd-itemidlist>
+                <itemid idtype="SGR">0004192993</itemid>
+              </refd-itemidlist>
+              <ref-authors>
+                <author seq="1">
+                  <ce:initials>R.</ce:initials>
+                  <ce:indexed-name>Fare R.</ce:indexed-name>
+                  <ce:surname>F&#195;&#164;re</ce:surname>
+                </author>
+                <author seq="2">
+                  <ce:initials>S.</ce:initials>
+                  <ce:indexed-name>Grosskopf S.</ce:indexed-name>
+                  <ce:surname>Grosskopf</ce:surname>
+                </author>
+                <author seq="3">
+                  <ce:initials>C.A.K.</ce:initials>
+                  <ce:indexed-name>Lovell C.A.K.</ce:indexed-name>
+                  <ce:surname>Lovell</ce:surname>
+                </author>
+              </ref-authors>
+              <ref-sourcetitle>Production
+              Frontiers</ref-sourcetitle>
+              <ref-publicationyear first="1994" />
+              <ref-text>Cambridge: Cambridge University
+              Press</ref-text>
+            </ref-info>
+            <ref-fulltext>F&#195;&#164;re, R, Grosskopf, S and
+            Lovell, CAK. 1994. Production Frontiers, Cambridge:
+            Cambridge University Press.</ref-fulltext>
+          </reference>
+          <reference id="7">
+            <ref-info>
+              <ref-title>
+                <ref-titletext>Measuring efficiency and
+                productivity growth in Japanese banking: A
+                nonparametric frontier approach</ref-titletext>
+              </ref-title>
+              <refd-itemidlist>
+                <itemid idtype="SGR">0001840378</itemid>
+              </refd-itemidlist>
+              <ref-authors>
+                <author seq="1">
+                  <ce:initials>H.</ce:initials>
+                  <ce:indexed-name>Fukuyama H.</ce:indexed-name>
+                  <ce:surname>Fukuyama</ce:surname>
+                </author>
+              </ref-authors>
+              <ref-sourcetitle>Applied Financial
+              Economics</ref-sourcetitle>
+              <ref-publicationyear first="1995" />
+              <ref-volisspag>
+                <voliss volume="5" />
+                <pagerange first="95" last="107" />
+              </ref-volisspag>
+            </ref-info>
+            <ref-fulltext>Fukuyama, H. 1995. Measuring efficiency
+            and productivity growth in Japanese banking: a
+            nonparametric frontier approach. Applied Financial
+            Economics, 5: 95-107.</ref-fulltext>
+          </reference>
+          <reference id="8">
+            <ref-info>
+              <ref-title>
+                <ref-titletext>Effects of deregulation on the
+                productivity of Korean banks</ref-titletext>
+              </ref-title>
+              <refd-itemidlist>
+                <itemid idtype="SGR">0006742118</itemid>
+              </refd-itemidlist>
+              <ref-authors>
+                <author seq="1">
+                  <ce:initials>R.A.</ce:initials>
+                  <ce:indexed-name>Gilbert R.A.</ce:indexed-name>
+                  <ce:surname>Gilbert</ce:surname>
+                </author>
+                <author seq="2">
+                  <ce:initials>P.W.</ce:initials>
+                  <ce:indexed-name>Wilson P.W.</ce:indexed-name>
+                  <ce:surname>Wilson</ce:surname>
+                </author>
+              </ref-authors>
+              <ref-sourcetitle>Journal of Economics and
+              Business</ref-sourcetitle>
+              <ref-publicationyear first="1998" />
+              <ref-volisspag>
+                <voliss volume="50" />
+                <pagerange first="133" last="155" />
+              </ref-volisspag>
+            </ref-info>
+            <ref-fulltext>Gilbert, RA and Wilson, PW. 1998. Effects
+            of deregulation on the productivity of Korean banks.
+            Journal of Economics and Business, 50:
+            133-55.</ref-fulltext>
+          </reference>
+          <reference id="9">
+            <ref-info>
+              <ref-title>
+                <ref-titletext>Productivity and efficiency change
+                and shareholder value: Evidence from the Spanish
+                banking sector</ref-titletext>
+              </ref-title>
+              <refd-itemidlist>
+                <itemid idtype="SGR">48249126495</itemid>
+              </refd-itemidlist>
+              <ref-authors>
+                <author seq="1">
+                  <ce:initials>I.</ce:initials>
+                  <ce:indexed-name>Guzman I.</ce:indexed-name>
+                  <ce:surname>Guzm&#195;&#161;n</ce:surname>
+                </author>
+                <author seq="2">
+                  <ce:initials>C.</ce:initials>
+                  <ce:indexed-name>Reverte C.</ce:indexed-name>
+                  <ce:surname>Reverte</ce:surname>
+                </author>
+              </ref-authors>
+              <ref-sourcetitle>Applied Economics</ref-sourcetitle>
+              <ref-publicationyear first="2008" />
+              <ref-volisspag>
+                <voliss volume="40" />
+                <pagerange first="2037" last="2044" />
+              </ref-volisspag>
+            </ref-info>
+            <ref-fulltext>Guzm&#195;&#161;n, I and Reverte, C.
+            2008. Productivity and efficiency change and
+            shareholder value: evidence from the Spanish banking
+            sector. Applied Economics, 40: 2037-44.</ref-fulltext>
+          </reference>
+          <reference id="10">
+            <ref-info>
+              <ref-title>
+                <ref-titletext>Efficiency and ownership in Swedish
+                electricity retail distribution</ref-titletext>
+              </ref-title>
+              <refd-itemidlist>
+                <itemid idtype="SGR">0002732732</itemid>
+              </refd-itemidlist>
+              <ref-authors>
+                <author seq="1">
+                  <ce:initials>L.</ce:initials>
+                  <ce:indexed-name>Hjalmarsson L.</ce:indexed-name>
+                  <ce:surname>Hjalmarsson</ce:surname>
+                </author>
+                <author seq="2">
+                  <ce:initials>A.</ce:initials>
+                  <ce:indexed-name>Veiderpass A.</ce:indexed-name>
+                  <ce:surname>Veiderpass</ce:surname>
+                </author>
+              </ref-authors>
+              <ref-sourcetitle>Journal of Productivity
+              Analysis</ref-sourcetitle>
+              <ref-publicationyear first="1992" />
+              <ref-volisspag>
+                <voliss volume="3" />
+                <pagerange first="7" last="23" />
+              </ref-volisspag>
+            </ref-info>
+            <ref-fulltext>Hjalmarsson, L and Veiderpass, A. 1992.
+            Efficiency and ownership in Swedish electricity retail
+            distribution. Journal of Productivity Analysis, 3:
+            7-23.</ref-fulltext>
+          </reference>
+          <reference id="11">
+            <ref-info>
+              <ref-title>
+                <ref-titletext>The efficiency of German
+                universities - some evidence from nonparametric and
+                parametric methods</ref-titletext>
+              </ref-title>
+              <refd-itemidlist>
+                <itemid idtype="SGR">77954252876</itemid>
+              </refd-itemidlist>
+              <ref-authors>
+                <author seq="1">
+                  <ce:initials>G.</ce:initials>
+                  <ce:indexed-name>Kempkes G.</ce:indexed-name>
+                  <ce:surname>Kempkes</ce:surname>
+                </author>
+                <author seq="2">
+                  <ce:initials>C.</ce:initials>
+                  <ce:indexed-name>Pohl C.</ce:indexed-name>
+                  <ce:surname>Pohl</ce:surname>
+                </author>
+              </ref-authors>
+              <ref-sourcetitle>Applied Economics</ref-sourcetitle>
+              <ref-publicationyear first="2010" />
+              <ref-volisspag>
+                <voliss volume="42" />
+                <pagerange first="2063" last="2079" />
+              </ref-volisspag>
+            </ref-info>
+            <ref-fulltext>Kempkes, G and Pohl, C. 2010. The
+            efficiency of German universities-some evidence from
+            nonparametric and parametric methods. Applied
+            Economics, 42: 2063-79.</ref-fulltext>
+          </reference>
+          <reference id="12">
+            <ref-info>
+              <ref-title>
+                <ref-titletext>The sources of economic growth of
+                the East Asian newly industrialized
+                countries</ref-titletext>
+              </ref-title>
+              <refd-itemidlist>
+                <itemid idtype="SGR">43949156174</itemid>
+              </refd-itemidlist>
+              <ref-authors>
+                <author seq="1">
+                  <ce:initials>J.I.</ce:initials>
+                  <ce:indexed-name>Kim J.I.</ce:indexed-name>
+                  <ce:surname>Kim</ce:surname>
+                </author>
+                <author seq="2">
+                  <ce:initials>L.J.</ce:initials>
+                  <ce:indexed-name>Lau L.J.</ce:indexed-name>
+                  <ce:surname>Lau</ce:surname>
+                </author>
+              </ref-authors>
+              <ref-sourcetitle>Journal of the Japanese and
+              International Economies</ref-sourcetitle>
+              <ref-publicationyear first="1994" />
+              <ref-volisspag>
+                <voliss volume="8" />
+                <pagerange first="235" last="271" />
+              </ref-volisspag>
+            </ref-info>
+            <ref-fulltext>Kim, JI and Lau, LJ. 1994. The sources of
+            economic growth of the East Asian newly industrialized
+            countries. Journal of the Japanese and International
+            Economies, 8: 235-71.</ref-fulltext>
+          </reference>
+          <reference id="13">
+            <ref-info>
+              <ref-title>
+                <ref-titletext>Estimating total factor productivity
+                growth in Singapore at sectoral level using data
+                envelopment analysis</ref-titletext>
+              </ref-title>
+              <refd-itemidlist>
+                <itemid idtype="SGR">33749682612</itemid>
+              </refd-itemidlist>
+              <ref-authors>
+                <author seq="1">
+                  <ce:initials>N.Y.C.</ce:initials>
+                  <ce:indexed-name>Kong N.Y.C.</ce:indexed-name>
+                  <ce:surname>Kong</ce:surname>
+                </author>
+                <author seq="2">
+                  <ce:initials>J.</ce:initials>
+                  <ce:indexed-name>Tongzon J.</ce:indexed-name>
+                  <ce:surname>Tongzon</ce:surname>
+                </author>
+              </ref-authors>
+              <ref-sourcetitle>Applied Economics</ref-sourcetitle>
+              <ref-publicationyear first="2006" />
+              <ref-volisspag>
+                <voliss volume="38" />
+                <pagerange first="2299" last="2314" />
+              </ref-volisspag>
+            </ref-info>
+            <ref-fulltext>Kong, NYC and Tongzon, J. 2006.
+            Estimating total factor productivity growth in
+            Singapore at sectoral level using data envelopment
+            analysis. Applied Economics, 38:
+            2299-314.</ref-fulltext>
+          </reference>
+          <reference id="14">
+            <ref-info>
+              <ref-title>
+                <ref-titletext>The myth of Asia's
+                miracle</ref-titletext>
+              </ref-title>
+              <refd-itemidlist>
+                <itemid idtype="SGR">34248236692</itemid>
+              </refd-itemidlist>
+              <ref-authors>
+                <author seq="1">
+                  <ce:initials>P.</ce:initials>
+                  <ce:indexed-name>Krugman P.</ce:indexed-name>
+                  <ce:surname>Krugman</ce:surname>
+                </author>
+              </ref-authors>
+              <ref-sourcetitle>Foreign Affairs</ref-sourcetitle>
+              <ref-publicationyear first="1994" />
+              <ref-volisspag>
+                <voliss volume="73" />
+                <pagerange first="62" last="78" />
+              </ref-volisspag>
+            </ref-info>
+            <ref-fulltext>Krugman, P. 1994. The myth of Asia's
+            miracle. Foreign Affairs, 73: 62-78.</ref-fulltext>
+          </reference>
+          <reference id="15">
+            <ref-info>
+              <ref-title>
+                <ref-titletext>Malmquist indices of pre and
+                post-deregulation productivity, efficiency and
+                technological change in the Singaporean banking
+                sector</ref-titletext>
+              </ref-title>
+              <refd-itemidlist>
+                <itemid idtype="SGR">78651519063</itemid>
+              </refd-itemidlist>
+              <ref-authors>
+                <author seq="1">
+                  <ce:initials>B.L.</ce:initials>
+                  <ce:indexed-name>Lee B.L.</ce:indexed-name>
+                  <ce:surname>Lee</ce:surname>
+                </author>
+                <author seq="2">
+                  <ce:initials>A.</ce:initials>
+                  <ce:indexed-name>Worthington A.</ce:indexed-name>
+                  <ce:surname>Worthington</ce:surname>
+                </author>
+                <author seq="3">
+                  <ce:initials>W.-H.</ce:initials>
+                  <ce:indexed-name>Leong W.-H.</ce:indexed-name>
+                  <ce:surname>Leong</ce:surname>
+                </author>
+              </ref-authors>
+              <ref-sourcetitle>Singapore Economic
+              Review</ref-sourcetitle>
+              <ref-publicationyear first="2010" />
+              <ref-volisspag>
+                <voliss volume="55" />
+                <pagerange first="599" last="618" />
+              </ref-volisspag>
+            </ref-info>
+            <ref-fulltext>Lee, BL, Worthington, A and Leong, W-H.
+            2010. Malmquist indices of pre and post-deregulation
+            productivity, efficiency and technological change in
+            the Singaporean banking sector. Singapore Economic
+            Review, 55: 599-618.</ref-fulltext>
+          </reference>
+          <reference id="16">
+            <ref-info>
+              <ref-title>
+                <ref-titletext>Sources of output growth in
+                Singapore's services sector</ref-titletext>
+              </ref-title>
+              <refd-itemidlist>
+                <itemid idtype="SGR">0033817955</itemid>
+              </refd-itemidlist>
+              <ref-authors>
+                <author seq="1">
+                  <ce:initials>R.</ce:initials>
+                  <ce:indexed-name>Mahadevan R.</ce:indexed-name>
+                  <ce:surname>Mahadevan</ce:surname>
+                </author>
+              </ref-authors>
+              <ref-sourcetitle>Empirical
+              Economics</ref-sourcetitle>
+              <ref-publicationyear first="2000" />
+              <ref-volisspag>
+                <voliss volume="25" />
+                <pagerange first="495" last="506" />
+              </ref-volisspag>
+            </ref-info>
+            <ref-fulltext>Mahadevan, R. 2000. Sources of output
+            growth in Singapore's services sector. Empirical
+            Economics, 25: 495-506.</ref-fulltext>
+          </reference>
+          <reference id="17">
+            <ref-info>
+              <ref-title>
+                <ref-titletext>Measuring technical efficiency and
+                productivity growth: A comparison of SFA and DEA on
+                Norwegian grain production data</ref-titletext>
+              </ref-title>
+              <refd-itemidlist>
+                <itemid idtype="SGR">36049001748</itemid>
+              </refd-itemidlist>
+              <ref-authors>
+                <author seq="1">
+                  <ce:initials>J.</ce:initials>
+                  <ce:indexed-name>Odeck J.</ce:indexed-name>
+                  <ce:surname>Odeck</ce:surname>
+                </author>
+              </ref-authors>
+              <ref-sourcetitle>Applied Economics</ref-sourcetitle>
+              <ref-publicationyear first="2007" />
+              <ref-volisspag>
+                <voliss volume="39" />
+                <pagerange first="2617" last="2630" />
+              </ref-volisspag>
+            </ref-info>
+            <ref-fulltext>Odeck, J. 2007. Measuring technical
+            efficiency and productivity growth: a comparison of SFA
+            and DEA on Norwegian grain production data. Applied
+            Economics, 39: 2617-30.</ref-fulltext>
+          </reference>
+          <reference id="18">
+            <ref-info>
+              <ref-title>
+                <ref-titletext>Malmquist indices of productivity
+                change in the UK gas industry before and after
+                privatization</ref-titletext>
+              </ref-title>
+              <refd-itemidlist>
+                <itemid idtype="SGR">0029752395</itemid>
+              </refd-itemidlist>
+              <ref-authors>
+                <author seq="1">
+                  <ce:initials>C.W.</ce:initials>
+                  <ce:indexed-name>Price C.W.</ce:indexed-name>
+                  <ce:surname>Price</ce:surname>
+                </author>
+                <author seq="2">
+                  <ce:initials>T.</ce:initials>
+                  <ce:indexed-name>Weyman-Jones
+                  T.</ce:indexed-name>
+                  <ce:surname>Weyman-Jones</ce:surname>
+                </author>
+              </ref-authors>
+              <ref-sourcetitle>Applied Economics</ref-sourcetitle>
+              <ref-publicationyear first="1996" />
+              <ref-volisspag>
+                <voliss volume="28" />
+                <pagerange first="29" last="39" />
+              </ref-volisspag>
+            </ref-info>
+            <ref-fulltext>Price, CW and Weyman-Jones, T. 1996.
+            Malmquist indices of productivity change in the UK gas
+            industry before and after privatization. Applied
+            Economics, 28: 29-39.</ref-fulltext>
+          </reference>
+          <reference id="19">
+            <ref-info>
+              <ref-title>
+                <ref-titletext>Sources of growth in the Singapore
+                economy and its manufacturing and service
+                sectors</ref-titletext>
+              </ref-title>
+              <refd-itemidlist>
+                <itemid idtype="SGR">0002177077</itemid>
+              </refd-itemidlist>
+              <ref-authors>
+                <author seq="1">
+                  <ce:initials>V.V.B.</ce:initials>
+                  <ce:indexed-name>Rao V.V.B.</ce:indexed-name>
+                  <ce:surname>Rao</ce:surname>
+                </author>
+                <author seq="2">
+                  <ce:initials>C.</ce:initials>
+                  <ce:indexed-name>Lee C.</ce:indexed-name>
+                  <ce:surname>Lee</ce:surname>
+                </author>
+              </ref-authors>
+              <ref-sourcetitle>Singapore Economic
+              Review</ref-sourcetitle>
+              <ref-publicationyear first="1995" />
+              <ref-volisspag>
+                <voliss volume="40" />
+                <pagerange first="83" last="115" />
+              </ref-volisspag>
+            </ref-info>
+            <ref-fulltext>Rao, VVB and Lee, C. 1995. Sources of
+            growth in the Singapore economy and its manufacturing
+            and service sectors. Singapore Economic Review, 40:
+            83-115.</ref-fulltext>
+          </reference>
+          <reference id="20">
+            <ref-info>
+              <ref-title>
+                <ref-titletext>Efficiency measures and productivity
+                indexes in the context of university library
+                benchmarking</ref-titletext>
+              </ref-title>
+              <refd-itemidlist>
+                <itemid idtype="SGR">77950944235</itemid>
+              </refd-itemidlist>
+              <ref-authors>
+                <author seq="1">
+                  <ce:initials>G.</ce:initials>
+                  <ce:indexed-name>Reichmann G.</ce:indexed-name>
+                  <ce:surname>Reichmann</ce:surname>
+                </author>
+                <author seq="2">
+                  <ce:initials>M.</ce:initials>
+                  <ce:indexed-name>Sommersguter-Reichmann
+                  M.</ce:indexed-name>
+                  <ce:surname>Sommersguter-Reichmann</ce:surname>
+                </author>
+              </ref-authors>
+              <ref-sourcetitle>Applied Economics</ref-sourcetitle>
+              <ref-publicationyear first="2010" />
+              <ref-volisspag>
+                <voliss volume="42" />
+                <pagerange first="311" last="323" />
+              </ref-volisspag>
+            </ref-info>
+            <ref-fulltext>Reichmann, G and Sommersguter-Reichmann,
+            M. 2010. Efficiency measures and productivity indexes
+            in the context of university library benchmarking.
+            Applied Economics, 42: 311-23.</ref-fulltext>
+          </reference>
+          <reference id="21">
+            <ref-info>
+              <ref-title>
+                <ref-titletext>Productivity growth in the Greek
+                banking industry: A non-parametric
+                approach</ref-titletext>
+              </ref-title>
+              <refd-itemidlist>
+                <itemid idtype="SGR">34249818998</itemid>
+              </refd-itemidlist>
+              <ref-authors>
+                <author seq="1">
+                  <ce:initials>A.N.</ce:initials>
+                  <ce:indexed-name>Rezitis A.N.</ce:indexed-name>
+                  <ce:surname>Rezitis</ce:surname>
+                </author>
+              </ref-authors>
+              <ref-sourcetitle>Journal of Applied
+              Economics</ref-sourcetitle>
+              <ref-publicationyear first="2006" />
+              <ref-volisspag>
+                <voliss volume="9" />
+                <pagerange first="119" last="138" />
+              </ref-volisspag>
+            </ref-info>
+            <ref-fulltext>Rezitis, AN. 2006. Productivity growth in
+            the Greek banking industry: a non-parametric approach.
+            Journal of Applied Economics, 9: 119-38.</ref-fulltext>
+          </reference>
+          <reference id="22">
+            <ref-info>
+              <ref-title>
+                <ref-titletext>Estimating and bootstrapping
+                Malmquist indices</ref-titletext>
+              </ref-title>
+              <refd-itemidlist>
+                <itemid idtype="SGR">0032649740</itemid>
+              </refd-itemidlist>
+              <ref-authors>
+                <author seq="1">
+                  <ce:initials>L.</ce:initials>
+                  <ce:indexed-name>Simar L.</ce:indexed-name>
+                  <ce:surname>Simar</ce:surname>
+                </author>
+                <author seq="2">
+                  <ce:initials>P.W.</ce:initials>
+                  <ce:indexed-name>Wilson P.W.</ce:indexed-name>
+                  <ce:surname>Wilson</ce:surname>
+                </author>
+              </ref-authors>
+              <ref-sourcetitle>European Journal of Operational
+              Research</ref-sourcetitle>
+              <ref-publicationyear first="1999" />
+              <ref-volisspag>
+                <voliss volume="115" />
+                <pagerange first="459" last="471" />
+              </ref-volisspag>
+            </ref-info>
+            <ref-fulltext>Simar, L and Wilson, PW. 1999. Estimating
+            and bootstrapping Malmquist indices. European Journal
+            of Operational Research, 115: 459-71.</ref-fulltext>
+          </reference>
+          <reference id="23">
+            <ref-info>
+              <refd-itemidlist>
+                <itemid idtype="SGR">84859629921</itemid>
+              </refd-itemidlist>
+              <ref-text>Singapore Department of Statistics (2007)
+              Yearbook of Statistics 2007, Singapore</ref-text>
+            </ref-info>
+            <ref-fulltext>Singapore Department of Statistics (2007)
+            Yearbook of Statistics 2007, Singapore</ref-fulltext>
+          </reference>
+          <reference id="24">
+            <ref-info>
+              <refd-itemidlist>
+                <itemid idtype="SGR">84859629922</itemid>
+              </refd-itemidlist>
+              <ref-text>Singapore Department of Statistics (2010)
+              Yearbook of Statistics 2010, Singapore</ref-text>
+            </ref-info>
+            <ref-fulltext>Singapore Department of Statistics (2010)
+            Yearbook of Statistics 2010, Singapore</ref-fulltext>
+          </reference>
+          <reference id="25">
+            <ref-info>
+              <ref-title>
+                <ref-titletext>Total factor productivity growth in
+                Singapore's service industries</ref-titletext>
+              </ref-title>
+              <refd-itemidlist>
+                <itemid idtype="SGR">0007918410</itemid>
+              </refd-itemidlist>
+              <ref-authors>
+                <author seq="1">
+                  <ce:initials>L.Y.</ce:initials>
+                  <ce:indexed-name>Tan L.Y.</ce:indexed-name>
+                  <ce:surname>Tan</ce:surname>
+                </author>
+                <author seq="2">
+                  <ce:initials>S.</ce:initials>
+                  <ce:indexed-name>Virabhak S.</ce:indexed-name>
+                  <ce:surname>Virabhak</ce:surname>
+                </author>
+              </ref-authors>
+              <ref-sourcetitle>Journal of Economic
+              Studies</ref-sourcetitle>
+              <ref-publicationyear first="1998" />
+              <ref-volisspag>
+                <voliss volume="25" />
+                <pagerange first="392" last="409" />
+              </ref-volisspag>
+            </ref-info>
+            <ref-fulltext>Tan, LY and Virabhak, S. 1998. Total
+            factor productivity growth in Singapore's service
+            industries. Journal of Economic Studies, 25:
+            392-409.</ref-fulltext>
+          </reference>
+          <reference id="26">
+            <ref-info>
+              <ref-title>
+                <ref-titletext>Differential total factor
+                productivity in the four dragons: The Singapore
+                case</ref-titletext>
+              </ref-title>
+              <refd-itemidlist>
+                <itemid idtype="SGR">0030478633</itemid>
+              </refd-itemidlist>
+              <ref-authors>
+                <author seq="1">
+                  <ce:initials>M.H.</ce:initials>
+                  <ce:indexed-name>Toh M.H.</ce:indexed-name>
+                  <ce:surname>Toh</ce:surname>
+                </author>
+                <author seq="2">
+                  <ce:initials>L.</ce:initials>
+                  <ce:indexed-name>Low L.</ce:indexed-name>
+                  <ce:surname>Low</ce:surname>
+                </author>
+              </ref-authors>
+              <ref-sourcetitle>Journal of International Trade and
+              Economics</ref-sourcetitle>
+              <ref-publicationyear first="1996" />
+              <ref-volisspag>
+                <voliss volume="5" />
+                <pagerange first="161" last="181" />
+              </ref-volisspag>
+            </ref-info>
+            <ref-fulltext>Toh, MH and Low, L. 1996. Differential
+            total factor productivity in the four dragons: the
+            Singapore case. Journal of International Trade and
+            Economics, 5: 161-81.</ref-fulltext>
+          </reference>
+          <reference id="27">
+            <ref-info>
+              <ref-title>
+                <ref-titletext>Efficiency, technology and
+                productivity change in Australian universities,
+                1998-2003</ref-titletext>
+              </ref-title>
+              <refd-itemidlist>
+                <itemid idtype="SGR">43249108581</itemid>
+              </refd-itemidlist>
+              <ref-authors>
+                <author seq="1">
+                  <ce:initials>A.</ce:initials>
+                  <ce:indexed-name>Worthington A.</ce:indexed-name>
+                  <ce:surname>Worthington</ce:surname>
+                </author>
+                <author seq="2">
+                  <ce:initials>B.L.</ce:initials>
+                  <ce:indexed-name>Lee B.L.</ce:indexed-name>
+                  <ce:surname>Lee</ce:surname>
+                </author>
+              </ref-authors>
+              <ref-sourcetitle>Economics of Education
+              Review</ref-sourcetitle>
+              <ref-publicationyear first="2008" />
+              <ref-volisspag>
+                <voliss volume="27" />
+                <pagerange first="285" last="298" />
+              </ref-volisspag>
+            </ref-info>
+            <ref-fulltext>Worthington, A and Lee, BL. 2008.
+            Efficiency, technology and productivity change in
+            Australian universities, 1998-2003. Economics of
+            Education Review, 27: 285-98.</ref-fulltext>
+          </reference>
+        </bibliography>
+      </tail>
+    </bibrecord>
+  </item>
+</abstracts-retrieval-response>
+</abstracts>
