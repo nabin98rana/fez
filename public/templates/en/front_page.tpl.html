@@ -29,9 +29,9 @@
 					<form method="get" action="{$rel_url}list/">
 						<div>
 							<input type="hidden" name="cat" value="quick_filter" />
-							<label for="search" accesskey="3"><strong>Quick Search {$smarty.const.APP_NAME}</strong> <a href="#" class="icon-help"><img src="{$rel_url}images/icons/help.png" style="vertical-align:bottom;" alt="Help on Searching" title="Help on searching"
-                            onclick="javascript:alert('Search all fields\n\nSelect search on the navigation bar above for advanced options \n\nFor advanced users most Solr search terms are available in this search.\n\nSome examples are-\n\n  date_year:[2001 TO 2003]\n\n  updated_date:[NOW/DAY-3DAY TO *]\n\n  !ismemberof:xx:237156 AND !ismemberof:xx:247259 AND herdc_code:(&#34;C1&#34;) AND date_year:(2011) AND institutional_status:(&#34;xx&#34;) AND updated_date:[NOW/DAY-10DAY TO *]\n\nSee Solr for more options')" /></a></label>
-							<input type="hidden" name="sort_by" value="searchKey0" />
+							<label for="search" accesskey="3"><strong>Quick Search {$smarty.const.APP_NAME}</strong>
+                            <a href="/solr_help.php" target="blank"><img src="{$rel_url}images/icons/help.png" style="vertical-align:bottom;" alt="Help on Searching" title="Help on searching"  ></a></label>
+                            <input type="hidden" name="sort_by" value="searchKey0" />
 							<input type="text" id="front_search" name="search_keys[0]" size="40" />
 							<div id="loading1" style="display:none;">Loading...</div>
 							<input type="submit" value="Search" id="submit-button" />

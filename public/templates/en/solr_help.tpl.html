@@ -1,0 +1,66 @@
+{include file="header.tpl.html" extra_title="Preferences"}
+{include file="navigation.tpl.html"}
+
+        <h1>Simple Search</h1>
+Searching all fields is the default when using the front page or upper right search field.<BR />
+<BR />
+<h1>Advanced Search</h1>
+Select SEARCH in the navigation bar above for advanced search options.  <a href="/adv_search.php">(Link)</a><BR />
+<BR />
+<h1>Advance Search Box Search</h1>
+From the search box you may also type advanced options using Solr style search terms.<BR />
+<BR />
+To search on a field place it in brackets<BR />
+<code>publisher:(Economic Society of Australia)</code><BR />
+<BR />
+To search exact text on a field you must place it in brackets and escaped quotes <BR />
+<code>book_title:(\"Don't leave us with the bill\")</code><BR />
+<BR />
+Ranges are placed in []<BR />
+<code>updated_date:[NOW/DAY-2DAY TO *]</code><BR />
+<BR />
+(Although search is not case sensitive on record text the <code>TO</code> in a range must be in capitals. <code>*</code> Indicates any upper bound)<BR />
+<BR />
+<code>AND OR NOT</code> can all be used (‘<code>-</code>‘ and ‘<code>!</code>’ are equivalent to <code>NOT</code>)  <BR />
+<BR />
+<code>follow_up_flags:("completed") AND NOT date_year:(2011) AND institutional_status:("uq")</code><BR />
+<BR />
+An even more advanced examples is <BR />
+<code>!ismemberof:UQ:237156 AND !ismemberof:UQ:247259 AND herdc_code:("C1") AND date_year:(2011) AND institutional_status:("UQ") AND updated_date:[NOW/DAY-10DAY TO *]</code><BR />
+<BR />
+Quick tip -<BR />
+To find all records that have a field with anything in it we use <code>["" TO *]</code><BR />
+<code>phonetic_conference_name:["" TO *]</code><BR />
+<BR />
+<BR />
+<h2>Common search fields</h2><BR />
+<code>title	pid	author	description	display_type	date
+object_type	created_date	updated_date	ismemberof
+subject		publisher	contributor	refereed	series
+journal_name	conference_name	book_title	scopus_docype
+wok_docype	follow_up_flags	depositor_affiliation
+architectural_features	subtype	follow_up_flags_imu	genre_type
+herdc_code	institutional_status	institutional_status</code><BR />
+<BR />
+{*SELECT LOWER(REPLACE(sek_title,' ','_')) FROM fez_search_key*}
+<h2>All search fields</h2><BR />
+<code>object_type, coverage_period, geographic_area, geographic_coordinates, author_role, contributor_role, org_id, org_role, supervisor,
+    supervisor_id, fields_of_research, display_type, seo_code, keywords, notes, date, xsd_display_option, file_downloads, created_date, updated_date, research_program, title, depositor, isderivationof,
+    assigned_user_id, assigned_group_id, isdatacomponentof, isannotationof, author_id, alternative_title, pid, publisher, author, contributor,
+    contributor_id, refereed, series, journal_name, newspaper, conference_name, book_title, identifier, edition, subject, place_of_publication,
+    start_page, end_page, chapter_number, issue_number, volume_number, conference_dates, conference_location, patent_number, country_of_issue,
+    description, date_available, language, phonetic_title, language_of_title, translated_title, phonetic_journal_name, translated_journal_name,
+    phonetic_book_title, translated_book_title, phonetic_newspaper, file_attachment_name, translated_newspaper, phonetic_conference_name,
+    translated_conference_name, issn, isbn, isi_loc, prn, output_availability, na_explanation, sensitivity_explanation, file_attachment_content,
+    org_unit_name, org_name, report_number, sequence, genre, genre_type, formatted_title, formatted_abstract, parent_publication, convener,
+    ismemberof, link, link_description, rights, views, scopus_id, thomson_citation_count, gs_citation_count, gs_cited_by_link, scopus_citation_count,
+    status, first_author_in_document_derived, first_author_in_fez_derived, ands_collection_type, start_date, end_date, access_conditions, extent,
+    contact_details_email, contact_details_physical, loc_subject_heading, depositor_affiliation, surrounding_features, condition, style, period,
+    category, subcategory, structural_systems, adt_id, subtype, language_of_parent_title, proceedings_title, file_description, herdc_code, herdc_status,
+    institutional_status, herdc_notes, follow_up_flags, follow_up_flags_imu, scopus_doc_type, wok_doc_type, conference_id, total_chapters, publisher_id, translated_proceedings_title,
+    native_script_title, roman_script_title, native_script_book_title, roman_script_book_title, native_script_journal_name, roman_script_journal_name, native_script_conference_name,
+    roman_script_conference_name, total_pages, native_script_proceedings_title_, roman_script_proceedings_title, language_of_book_title, language_of_journal_name,
+    language_of_proceedings_title, doi, author_count, embase_id, pubmed_id, collection_year, location, building_materials, architectural_features, interior_features<BR />
+    </code>
+{include file="app_info.tpl.html"}
+{include file="footer.tpl.html"}

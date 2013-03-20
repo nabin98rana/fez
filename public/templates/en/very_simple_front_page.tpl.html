@@ -14,7 +14,7 @@
 			  <input type="text" id="front_search" name="search_keys[0]" size="40" onkeyup="javascript: selectSearchSuggestor(this.form, 'front_search')" />
 			  <div id="loading1" style="display:none;">Loading...</div>
 			  <input type="submit" value="Search" />
-			  <a href="#" onclick="javascript:alert('Search all fields\n\nSelect search on the navigation bar above for advanced options \n\nFor advanced users most Solr search terms are available in this search.\n\nSome examples are-\n\n  date_year:[2001 TO 2003]\n\n  updated_date:[NOW/DAY-3DAY TO *]\n\n  !ismemberof:xx:237156 AND !ismemberof:xx:247259 AND herdc_code:(&#34;C1&#34;) AND date_year:(2011) AND institutional_status:(&#34;xx&#34;) AND updated_date:[NOW/DAY-10DAY TO *]\n\nSee Solr for more options')">Help</a>
+                <a href="/solr_help.php" target="blank" title="Advanced search help page">Help</a>
               <br />Use <a href="{$rel_url}adv_search.php"><b>Advanced Search</b></a> to search by multiple criteria<br />&nbsp;
 			</div>
 		</form>	  
