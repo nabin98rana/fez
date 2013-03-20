@@ -13,6 +13,11 @@
           rek_{$manyList[i].sek_title_db}_pid = '${literal}{{/literal}{$smarty.const.APP_TABLE_PREFIX}record_search_key{literal}.rek_pid}{/literal}'"
         />
 {/section}
+  <entity name="{$smarty.const.APP_TABLE_PREFIX}fulltext_cache" pk="ftc_pid"
+          query="select ftc_content AS content
+          from {$smarty.const.APP_TABLE_PREFIX}fulltext_cache where
+          ftc_pid = '${literal}{{/literal}{$smarty.const.APP_TABLE_PREFIX}record_search_key{literal}.rek_pid}{/literal}'"
+    />
 </entity>
 </textarea>
 </div>
