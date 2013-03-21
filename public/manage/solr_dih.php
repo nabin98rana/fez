@@ -62,7 +62,19 @@ if (!$isSuperAdministrator) {
 
 
 $list = Search_Key::getSolrTitles(false);
+$coreList = array();
+$manyList = array();
+foreach ($list as $li) {
+  if ($li['sek_relationship'] == 0) {
+    array_push($coreList, $li);
+  } else {
+    array_push($manyList, $li);
+  }
+}
 //print_r($list);
+$tpl->assign("list", $list);
+$tpl->assign("coreList", $coreList);
+$tpl->assign("manyList", $manyList);
 $tpl->assign("list", $list);
 $tpl->assign("list_count", count($list));
 

@@ -1260,7 +1260,7 @@ table.search_fields img.ui-datepicker-trigger{
 
 .result-range {
 	position: absolute;
-	width: 300px;
+	width: 100px;
 	padding-left: 15px;
 	float: left;
 	text-align: left;

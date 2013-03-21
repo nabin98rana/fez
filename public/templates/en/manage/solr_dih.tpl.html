@@ -1,26 +1,23 @@
 <div class="admin-box">
 <textarea class="default" rows="40" cols="130">
-<entity name="{$smarty.const.APP_TABLE_PREFIX}record_search_key" pk="rek_pid" query="select
-        {section name="i" loop=$list}{if $list[i].sek_title_db == "rek_pid"}rek_pid AS id, {/if}{if $list[i].sek_relationship == 0}rek_{$list[i].sek_title_db} AS {$list[i].sek_title_solr},
-        {/if}{/section}
-        from {$smarty.const.APP_TABLE_PREFIX}record_search_key">
-  {section name="i" loop=$list}{if $list[i].sek_relationship == 1}rek_{$list[i].sek_title_db} AS {$list[i].sek_title_solr},
-  {/if}{/section}
-  <entity name="feature" pk="ITEM_ID"
-          query="select DESCRIPTION as features from FEATURE where ITEM_ID='${literal}{item.ID}{/literal}'"
-          deltaQuery="select ITEM_ID from FEATURE where last_modified > '${literal}{dih.last_index_time}{/literal}'"
-          parentDeltaQuery="select ID from item where ID=${literal}{feature.ITEM_ID}{/literal}"/>
-
-
-  <entity name="item_category" pk="ITEM_ID, CATEGORY_ID"
-          query="select CATEGORY_ID from item_category where ITEM_ID='${literal}{item.ID}{/literal}'"
-          deltaQuery="select ITEM_ID, CATEGORY_ID from item_category where last_modified > '${literal}{dih.last_index_time}{/literal}'"
-          parentDeltaQuery="select ID from item where ID=${literal}{item_category.ITEM_ID}{/literal}">
-    <entity name="category" pk="ID"
-            query="select DESCRIPTION as cat from category where ID = '${literal}{item_category.CATEGORY_ID}{/literal}'"
-            deltaQuery="select ID from category where last_modified &gt; '${literal}{dih.last_index_time}{/literal}'"
-            parentDeltaQuery="select ITEM_ID, CATEGORY_ID from item_category where CATEGORY_ID=${literal}{category.ID}{/literal}"/>
-    </entity>
+<entity name="{$smarty.const.APP_TABLE_PREFIX}record_search_key" pk="rek_pid" query="select rek_pid AS id,
+        {section name="i" loop=$coreList}rek_{$coreList[i].sek_title_db} AS {$coreList[i].sek_title_solr}{if !($smarty.section.i.last)},{/if}
+        {/section}
+        from {$smarty.const.APP_TABLE_PREFIX}record_search_key"
+        deltaQuery="select rek_pid from {$smarty.const.APP_TABLE_PREFIX}record_search_key where
+                      rek_updated_date > '${literal}{dih.last_index_time}{/literal}'">
+{section name="i" loop=$manyList}
+  <entity name="{$smarty.const.APP_TABLE_PREFIX}record_search_key_{$manyList[i].sek_title_db}" pk="rek_{$manyList[i].sek_title_db}_pid"
+        query="select rek_{$manyList[i].sek_title_db} AS {$manyList[i].sek_title_solr}
+          from {$smarty.const.APP_TABLE_PREFIX}record_search_key_{$manyList[i].sek_title_db} where
+          rek_{$manyList[i].sek_title_db}_pid = '${literal}{{/literal}{$smarty.const.APP_TABLE_PREFIX}record_search_key{literal}.rek_pid}{/literal}'"
+        />
+{/section}
+  <entity name="{$smarty.const.APP_TABLE_PREFIX}fulltext_cache" pk="ftc_pid"
+          query="select ftc_content AS content
+          from {$smarty.const.APP_TABLE_PREFIX}fulltext_cache where
+          ftc_pid = '${literal}{{/literal}{$smarty.const.APP_TABLE_PREFIX}record_search_key{literal}.rek_pid}{/literal}'"
+    />
 </entity>
 </textarea>
 </div>

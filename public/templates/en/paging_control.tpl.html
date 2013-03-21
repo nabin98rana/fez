@@ -9,11 +9,11 @@
 	<a href="{$PAGE_URL}?{if $url_wo_rows != ""}{$url_wo_rows}&amp;{/if}rows={$list_info.page_rows}&amp;pager_row=0" title="First page" style="text-decoration: none; margin-left: 0.25em;">&#171; first</a> 
 	<a href="{$PAGE_URL}?{if $url_wo_rows != ""}{$url_wo_rows}&amp;{/if}rows={$list_info.page_rows}&amp;pager_row={$list_info.prev_page}" title="Previous page" style="text-decoration: none; margin-left: 0.25em;">&#139; previous</a>&nbsp;
 	{/if}
-	{section name=pages start=$list_info.start_range loop=100 step=1 max=$end_range}
+	{section name=pages start=$list_info.start_range loop=1000 step=1 max=$end_range}
 	  {if $smarty.section.pages.index == $list_info.current_page}
 		<span class="page">{math equation="x + 1" x=$smarty.section.pages.index}</span>
 	  {else}
-		<a href="{$PAGE_URL}?{if $url_wo_rows != ""}{$url_wo_rows}&amp;{/if}rows={$list_info.page_rows}&amp;pager_row={$smarty.section.pages.index}" style="text-decoration: none;" title="Page {math equation="x + 1" x=$smarty.section.pages.index}">{math equation="x + 1" x=$smarty.section.pages.index}</a> 
+		<a href="{$PAGE_URL}?{if $url_wo_rows != ""}{$url_wo_rows}&amp;{/if}rows={$list_info.page_rows}&amp;pager_row={$smarty.section.pages.index}" style="text-decoration: none;" title="Page {math equation="x + 1" x=$smarty.section.pages.index}">{math equation="x + 1" x=$smarty.section.pages.index}</a>
       {/if}
 	{/section}
 	{if $list_info.printable_page != $list_info.total_pages}
