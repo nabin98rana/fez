@@ -1,7 +1,7 @@
 <div class="admin-box">
 <textarea class="default" rows="40" cols="130">
-<entity name="{$smarty.const.APP_TABLE_PREFIX}record_search_key" pk="rek_pid" query="select
-        {section name="i" loop=$coreList}{if $coreList[i].sek_title_db == "rek_pid"}rek_pid AS id, {/if}rek_{$coreList[i].sek_title_db} AS {$coreList[i].sek_title_solr}{if !($smarty.section.i.last)},{/if}
+<entity name="{$smarty.const.APP_TABLE_PREFIX}record_search_key" pk="rek_pid" query="select rek_pid AS id,
+        {section name="i" loop=$coreList}rek_{$coreList[i].sek_title_db} AS {$coreList[i].sek_title_solr}{if !($smarty.section.i.last)},{/if}
         {/section}
         from {$smarty.const.APP_TABLE_PREFIX}record_search_key"
         deltaQuery="select rek_pid from {$smarty.const.APP_TABLE_PREFIX}record_search_key where
